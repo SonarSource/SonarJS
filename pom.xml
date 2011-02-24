@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<parent>
+		<groupId>org.codehaus.sonar-plugins</groupId>
+		<artifactId>parent</artifactId>
+		<version>8</version>
+		<relativePath>../parent</relativePath>
+	</parent>
+
+	<groupId>org.codehaus.sonar-plugins</groupId>
+	<artifactId>sonar-javascript-plugin</artifactId>
+	<version>0.3-SNAPSHOT</version>
+	<packaging>sonar-plugin</packaging>
+
+	<name>Sonar JavaScript Plugin</name>
+	<description>Enables analysis of JavaScript projects into Sonar.</description>
+	<url>http://http://docs.codehaus.org/display/SONAR/JavaScript+Plugin</url>
+
+	<inceptionYear>2011</inceptionYear>
+
+	<licenses>
+		<license>
+			<name>GNU LGPL 3</name>
+			<url>http://www.gnu.org/licenses/lgpl.txt</url>
+			<distribution>repo</distribution>
+		</license>
+	</licenses>
+
+	<developers>
+		<developer>
+			<id>eriks.nukis</id>
+			<name>Eriks Nukis</name>
+		</developer>
+	</developers>
+
+	<scm>
+		<connection>scm:svn:https://svn.codehaus.org/sonar-plugins/trunk/javascript</connection>
+		<developerConnection>scm:svn:https://svn.codehaus.org/sonar-plugins/trunk/javascript</developerConnection>
+		<url>scm:svn:https://svn.codehaus.org/sonar-plugins/trunk/javascript</url>
+	</scm>
+	<issueManagement>
+		<system>JIRA</system>
+		<url>http://jira.codehaus.org/browse/SONARPLUGINS/component/14683</url>
+	</issueManagement>
+	<ciManagement>
+		<system>Bamboo</system>
+		<url>http://bamboo.ci.codehaus.org/browse/SONAR-JAVASCRIPT</url>
+	</ciManagement>
+
+	<properties>
+		<sonar.exclusions>org/sonar/plugins/javascript/cpd/antlr/**/*.java</sonar.exclusions>
+	</properties>
+
+	<dependencies>
+		<dependency>
+			<groupId>org.codehaus.sonar</groupId>
+			<artifactId>sonar-plugin-api</artifactId>
+			<version>2.3</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.antlr</groupId>
+			<artifactId>antlr-runtime</artifactId>
+			<version>3.3</version>
+		</dependency>
+		<dependency>
+			<groupId>com.googlecode.jslint4java</groupId>
+			<artifactId>jslint4java</artifactId>
+			<version>1.4.6</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.codehaus.sonar</groupId>
+			<artifactId>sonar-testing-harness</artifactId>
+			<version>2.3</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>4.8.1</version>
+			<scope>test</scope>
+		</dependency>
+	</dependencies>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.codehaus.sonar</groupId>
+				<artifactId>sonar-packaging-maven-plugin</artifactId>
+				<version>1.0</version>
+				<extensions>true</extensions>
+				<configuration>
+					<pluginClass>org.sonar.plugins.javascript.JavaScriptPlugin</pluginClass>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>2.0.2</version>
+				<configuration>
+					<source>1.5</source>
+					<target>1.5</target>
+					<encoding>UTF-8</encoding>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>com.mycila.maven-license-plugin</groupId>
+				<artifactId>maven-license-plugin</artifactId>
+				<configuration>
+					<header>/src/license-header.txt</header>
+					<strictChecking>true</strictChecking>
+					<quiet>false</quiet>
+					<failIfMissing>true</failIfMissing>
+					<aggregate>false</aggregate>
+					<includes>
+						<include>src/**</include>
+						<include>**/test/**</include>
+					</includes>
+					<useDefaultExcludes>true</useDefaultExcludes>
+					<useDefaultMapping>true</useDefaultMapping>
+					<properties>
+						<year>${project.inceptionYear}</year>
+						<email>eriks.nukis@gmail.com</email>
+						<plugin-name>${project.name}</plugin-name>
+						<name>Eriks Nukis</name>
+					</properties>
+					<encoding>UTF-8</encoding>
+				</configuration>
+				<executions>
+					<execution>
+						<goals>
+							<goal>check</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
+</project>

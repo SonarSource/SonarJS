@@ -1,0 +1,63 @@
+/**
+ * Sonar JavaScript Plugin
+ * Extension for Sonar, open source software quality management tool.
+ * Copyright (C) 2011 Eriks Nukis
+ * mailto: eriks.nukis@gmail.com
+ *
+ * Sonar JavaScript Plugin is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 3 of the License, or (at your option) any later version.
+ *
+ * Sonar JavaScript Plugin is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with Sonar JavaScript Plugin; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
+ */
+
+package org.sonar.plugins.javascript.jslint;
+
+import org.sonar.api.profiles.ProfileDefinition;
+import org.sonar.api.profiles.RulesProfile;
+import org.sonar.api.rules.Rule;
+import org.sonar.api.utils.ValidationMessages;
+
+public class JavaScriptDefaultProfile extends ProfileDefinition {
+
+  // disabled rules as per "The Good Parts" setting in http://jslint.com
+  private String[] disabledRules = new String[] { "ADSAFE", "STRICT" };
+  private JavaScriptRuleRepository repository;
+
+  public JavaScriptDefaultProfile(JavaScriptRuleRepository repository) {
+    this.repository = repository;
+
+  }
+
+  @Override
+  public RulesProfile createProfile(ValidationMessages validation) {
+    RulesProfile rulesProfile = RulesProfile.create("Default JavaScript Profile", "js");
+
+    for (Rule rule : repository.createRules()) {
+      if ( !isDisabled(rule)) {
+        rulesProfile.activateRule(rule, null);
+      }
+    }
+
+    return rulesProfile;
+
+  }
+
+  private boolean isDisabled(Rule rule) {
+    for (String ruleKey : disabledRules) {
+      if (ruleKey.equals(rule.getKey())) {
+        return true;
+      }
+    }
+    return false;
+
+  }
+}
