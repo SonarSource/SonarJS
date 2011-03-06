@@ -42,7 +42,7 @@ public class JsLintRuleManager implements ServerExtension, BatchExtension {
   public JsLintRuleManager() {
 
     rules = new JsLintXmlRuleParser().parse(JsLintRuleManager.class
-        .getResourceAsStream("/com/googlecode/sonar/plugins/javascript/jslint/rules.xml"));
+        .getResourceAsStream("/org/sonar/plugins/javascript/jslint/rules.xml"));
 
     // Rule where all unrecognized messages will be mapped
     add(OTHER_RULES_KEY, "Other Rules");
