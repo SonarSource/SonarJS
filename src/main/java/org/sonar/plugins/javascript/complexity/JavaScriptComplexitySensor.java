@@ -106,7 +106,7 @@ public final class JavaScriptComplexitySensor implements Sensor {
       sensorContext.saveMeasure(resource, functionDistribution.build().setPersistenceMode(PersistenceMode.MEMORY));
 
       // Maximum complexity exceed rule (CYCLOMATIC_COMPLEXITY)
-      ActiveRule rule = rulesProfile.getActiveRule(JavaScriptRuleRepository.REPOSITORY_KEY, JsLintRuleManager.CYCLOMATIC_COMPLEXITY);
+      ActiveRule rule = rulesProfile.getActiveRule(JavaScriptRuleRepository.REPOSITORY_KEY, JsLintRuleManager.CYCLOMATIC_COMPLEXITY_KEY);
       if (rule != null) {
         int maxAllowedComplexity = Integer.parseInt(rule.getActiveRuleParams().get(0).getValue());
         for (JavaScriptFunction function : functions) {

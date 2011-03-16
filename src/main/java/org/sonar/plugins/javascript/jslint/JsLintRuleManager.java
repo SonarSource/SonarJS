@@ -25,9 +25,6 @@ import java.util.List;
 
 import org.sonar.api.BatchExtension;
 import org.sonar.api.ServerExtension;
-import org.sonar.api.rules.Iso9126RulesCategories;
-import org.sonar.api.rules.RulePriority;
-import org.sonar.api.rules.RulesCategory;
 
 import com.googlecode.jslint4java.Option;
 
@@ -37,28 +34,16 @@ public class JsLintRuleManager implements ServerExtension, BatchExtension {
 
   public static final String OTHER_RULES_KEY = "OTHER_RULES";
   public static final String UNUSED_NAMES_KEY = "UNUSED_NAMES";
-  public static final String CYCLOMATIC_COMPLEXITY = "CYCLOMATIC_COMPLEXITY";
+  public static final String CYCLOMATIC_COMPLEXITY_KEY = "CYCLOMATIC_COMPLEXITY";
 
   public JsLintRuleManager() {
 
-    rules = new JsLintXmlRuleParser().parse(JsLintRuleManager.class
-        .getResourceAsStream("/org/sonar/plugins/javascript/jslint/rules.xml"));
-
-    // Rule where all unrecognized messages will be mapped
-    add(OTHER_RULES_KEY, "Other Rules");
+    rules = new JsLintXmlRuleParser().parse(JsLintRuleManager.class.getResourceAsStream("/org/sonar/plugins/javascript/jslint/rules.xml"));
 
   }
 
   public List<JsLintRule> getJsLintRules() {
     return rules;
-  }
-
-  private void add(String key, String name, boolean inverse, RulesCategory category, RulePriority priority, String... messages) {
-    rules.add(new JsLintRule(key, name, inverse, category, priority, messages));
-  }
-
-  private void add(String key, String name, String... messages) {
-    add(key, name, false, Iso9126RulesCategories.MAINTAINABILITY, RulePriority.MINOR, messages);
   }
 
   public String getRuleIdByMessage(String message) {

@@ -59,7 +59,7 @@ public class JavaScriptComplexitySensorTest {
     RulesProfile rulesProfile = RulesProfile.create();
 
     Rule r = new Rule();
-    r.setKey(JsLintRuleManager.CYCLOMATIC_COMPLEXITY);
+    r.setKey(JsLintRuleManager.CYCLOMATIC_COMPLEXITY_KEY);
     r.setRepositoryKey("JavaScript");
 
     ActiveRule rule = new ActiveRule();
