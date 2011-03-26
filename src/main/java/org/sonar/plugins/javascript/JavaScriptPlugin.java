@@ -104,17 +104,17 @@ public class JavaScriptPlugin implements Plugin {
 
   public static final String PROPERTY_PREFIX = "sonar.javascript.lslint";
 
-  public static final String ASSUME_A_BROWSER_KEY = PROPERTY_PREFIX + ".BROWSER";
-  public static final String ASSUME_CONSOLE_ALERT_KEY = PROPERTY_PREFIX + ".DEVEL";
-  public static final String ASSUME_A_YAHOO_WIDGET_KEY = PROPERTY_PREFIX + ".WIDGET";
+  public static final String ASSUME_A_BROWSER_KEY = PROPERTY_PREFIX + ".browser";
+  public static final String ASSUME_CONSOLE_ALERT_KEY = PROPERTY_PREFIX + ".devel";
+  public static final String ASSUME_A_YAHOO_WIDGET_KEY = PROPERTY_PREFIX + ".widget";
 
-  public static final String ASSUME_WINDOWS_KEY = PROPERTY_PREFIX + ".WINDOWS";
-  public static final String ASSUME_RHINO_KEY = PROPERTY_PREFIX + ".RHINO";
-  public static final String SAFE_SUBSET_KEY = PROPERTY_PREFIX + ".SAFE";
+  public static final String ASSUME_WINDOWS_KEY = PROPERTY_PREFIX + ".windows";
+  public static final String ASSUME_RHINO_KEY = PROPERTY_PREFIX + ".rhino";
+  public static final String SAFE_SUBSET_KEY = PROPERTY_PREFIX + ".safe";
 
-  public static final String MAXIMUM_NUMBER_OF_ERRORS_KEY = PROPERTY_PREFIX + ".MAXERR";
+  public static final String MAXIMUM_NUMBER_OF_ERRORS_KEY = PROPERTY_PREFIX + ".maxerr";
 
-  public static final String PREDEFINED_KEY = PROPERTY_PREFIX + ".PREDEF";
+  public static final String PREDEFINED_KEY = PROPERTY_PREFIX + ".predef";
 
   public static final String[] GLOBAL_PARAMETERS = new String[] { ASSUME_A_BROWSER_KEY, ASSUME_CONSOLE_ALERT_KEY,
     ASSUME_A_YAHOO_WIDGET_KEY, ASSUME_WINDOWS_KEY, ASSUME_RHINO_KEY, SAFE_SUBSET_KEY, MAXIMUM_NUMBER_OF_ERRORS_KEY, PREDEFINED_KEY };

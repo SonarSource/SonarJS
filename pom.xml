@@ -20,7 +20,11 @@
   <url>http://docs.codehaus.org/display/SONAR/JavaScript+Plugin</url>
 
   <inceptionYear>2011</inceptionYear>
-
+  
+  <organization>
+    <name>Eriks Nukis</name>
+  </organization>
+  
   <licenses>
     <license>
       <name>GNU LGPL 3</name>
@@ -33,6 +37,7 @@
     <developer>
       <id>eriks.nukis</id>
       <name>Eriks Nukis</name>
+      <url>https://profiles.google.com/eriks.nukis</url>
     </developer>
   </developers>
 
@@ -53,6 +58,7 @@
   <properties>
     <sonar.exclusions>org/sonar/plugins/javascript/cpd/antlr/**/*.java</sonar.exclusions>
     <sonar.version>2.3</sonar.version>
+    <sonar.pluginName>Javascript</sonar.pluginName>
     <license.owner>Eriks Nukis</license.owner>
   </properties>
 

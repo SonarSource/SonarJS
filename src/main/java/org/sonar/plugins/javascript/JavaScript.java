@@ -28,7 +28,6 @@ public class JavaScript extends AbstractLanguage {
 
   private Configuration configuration;
   public static final String KEY = "js";
-  public static final String DEFAULT_PACKAGE_NAME = "[default]";
   public static JavaScript INSTANCE;
 
   public JavaScript(Configuration configuration) {

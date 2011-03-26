@@ -66,7 +66,7 @@ public class JsLintRuleManager implements ServerExtension, BatchExtension {
 
   public Option getOptionByName(String name) {
     for (Option o : Option.values()) {
-      if (o.name().equals(name)) {
+      if (o.name().equalsIgnoreCase(name)) {
         return o;
       }
     }

@@ -156,7 +156,6 @@ public class JavaScriptFile extends Resource<JavaScriptPackage> {
         pacname = StringUtils.replace(pacname, "/", ".");
         classname = StringUtils.substringAfterLast(relativePath, "/");
       }
-      classname = StringUtils.substringBeforeLast(classname, ".");
       return new JavaScriptFile(pacname, classname, unitTest);
     }
     return null;
