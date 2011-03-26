@@ -11,7 +11,7 @@
 
   <groupId>org.codehaus.sonar-plugins</groupId>
   <artifactId>sonar-javascript-plugin</artifactId>
-  <version>0.3</version>
+  <version>0.4-SNAPSHOT</version>
   <packaging>sonar-plugin</packaging>
 
   <name>Sonar JavaScript Plugin</name>
@@ -41,9 +41,9 @@
   </developers>
 
   <scm>
-    <connection>scm:svn:https://svn.codehaus.org/sonar-plugins/tags/sonar-javascript-plugin-0.3</connection>
-    <developerConnection>scm:svn:https://svn.codehaus.org/sonar-plugins/tags/sonar-javascript-plugin-0.3</developerConnection>
-    <url>scm:svn:https://svn.codehaus.org/sonar-plugins/tags/sonar-javascript-plugin-0.3</url>
+    <connection>scm:svn:https://svn.codehaus.org/sonar-plugins/trunk/javascript</connection>
+    <developerConnection>scm:svn:https://svn.codehaus.org/sonar-plugins/trunk/javascript</developerConnection>
+    <url>http://svn.sonar-plugins.codehaus.org</url>
   </scm>
   <issueManagement>
     <system>JIRA</system>
