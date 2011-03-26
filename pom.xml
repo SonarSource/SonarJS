@@ -58,7 +58,7 @@
   <properties>
     <sonar.exclusions>org/sonar/plugins/javascript/cpd/antlr/**/*.java</sonar.exclusions>
     <sonar.version>2.3</sonar.version>
-    <sonar.pluginName>Javascript</sonar.pluginName>
+    <sonar.pluginName>JavaScript</sonar.pluginName>
     <license.owner>Eriks Nukis</license.owner>
   </properties>
 
