@@ -197,20 +197,14 @@ public class JavaScriptJSLintSensor implements Sensor {
         LOG.debug("Rule: " + activeRule.getRuleKey() + ", ruleParam: " + activeRuleParam.getKey() + ", ruleParamValue: " + value);
 
         /*
-         * predefined variables are already set from project global settings, this will concatenate value with value set on rule be defined
-         * on rule level and
+         * Adds variable names that are predefined on project/global level
          */
         if (Option.PREDEF.equals(option)) {
-          String predefinedVariablesOnProjectLevel = configuration.getString(JavaScriptPlugin.PREDEFINED_KEY, "");
-          if ( !"".equals(predefinedVariablesOnProjectLevel.trim())) {
-            value = value + "," + predefinedVariablesOnProjectLevel;
-          }
+          value = value + "," + getPredefinedVariablesListFromGlobal();
         }
 
         if (option != null && value != null) {
-
           LOG.debug("Adding JSLint option from rule parameter: {} with value: {}", option.name(), value);
-
           this.jsLint.addOption(option, value);
         }
 
@@ -223,20 +217,34 @@ public class JavaScriptJSLintSensor implements Sensor {
     for (String fullparameterName : JavaScriptPlugin.GLOBAL_PARAMETERS) {
 
       String parameterName = fullparameterName.substring(fullparameterName.lastIndexOf(".") + 1);
+      Option option = jsLintRuleManager.getOptionByName(parameterName);
 
-      String value = configuration.getString(fullparameterName);
+      String value;
+      if (Option.PREDEF.equals(option)) {
+        value = getPredefinedVariablesListFromGlobal();
+      } else {
+        value = configuration.getString(fullparameterName);
+      }
 
       LOG.debug("Project/global setting name retrieved from global parameter: {} with value {}", parameterName, value);
 
-      Option option = jsLintRuleManager.getOptionByName(parameterName);
-
       if (option != null && value != null) {
         LOG.debug("Adding JSLint option from project/global settings: {} with value: {}", option, value);
-
         this.jsLint.addOption(option, value);
       }
     }
+  }
 
+  private String getPredefinedVariablesListFromGlobal() {
+    String[] predefinedVariables = configuration.getStringArray(JavaScriptPlugin.PREDEFINED_KEY);
+    String value = "";
+    for (String variable : predefinedVariables) {
+      if ( !value.isEmpty()) {
+        value = value + ",";
+      }
+      value = value + variable;
+    }
+    return value;
   }
 
   @Override
