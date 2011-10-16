@@ -35,6 +35,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.batch.SensorContext;
 import org.sonar.api.measures.CoreMetrics;
+import org.sonar.api.resources.InputFile;
+import org.sonar.api.resources.Project;
 import org.sonar.api.resources.ProjectFileSystem;
 import org.sonar.api.resources.Resource;
 
@@ -52,12 +54,23 @@ public class JavaScriptSquidSensorTest {
   @Test
   public void testComplexityMeasures() throws URISyntaxException, IOException {
 
-    File file = new File(getClass().getResource("/org/sonar/plugins/javascript/complexity/SquidMetrics.js").toURI());
+    final File file = new File(getClass().getResource("/org/sonar/plugins/javascript/complexity/SquidMetrics.js").toURI());
+    InputFile inputFile = mock(InputFile.class);
+    when(inputFile.getFile()).thenReturn(file);
 
-    ProjectFileSystem fileSystem = mock(ProjectFileSystem.class);
+    final ProjectFileSystem fileSystem = mock(ProjectFileSystem.class);
     when(fileSystem.getSourceCharset()).thenReturn(Charset.defaultCharset());
 
-    sensor.analyzeFile(file, fileSystem, context);
+    sensor.analyzeFile(inputFile, new Project("dummy") {
+
+      public File getFile() {
+        return file;
+      }
+      
+      public ProjectFileSystem getFileSystem() {
+        return fileSystem;
+      }
+    }, context);
 
     verify(context).saveMeasure((Resource) anyObject(), eq(CoreMetrics.FILES), eq(1.0));
     verify(context).saveMeasure((Resource) anyObject(), eq(CoreMetrics.LINES), eq(55.0));

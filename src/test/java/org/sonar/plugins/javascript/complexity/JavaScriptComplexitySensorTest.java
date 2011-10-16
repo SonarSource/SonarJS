@@ -39,6 +39,8 @@ import org.junit.Test;
 import org.sonar.api.batch.SensorContext;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.profiles.RulesProfile;
+import org.sonar.api.resources.InputFile;
+import org.sonar.api.resources.Project;
 import org.sonar.api.resources.ProjectFileSystem;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.rules.ActiveRule;
@@ -86,12 +88,24 @@ public class JavaScriptComplexitySensorTest {
   @Test
   public void testComplexityMeasures() throws URISyntaxException, IOException {
 
-    File file = new File(getClass().getResource("/org/sonar/plugins/javascript/complexity/ComplexityDistribution.js").toURI());
+    final File file = new File(getClass().getResource("/org/sonar/plugins/javascript/complexity/ComplexityDistribution.js").toURI());
 
-    ProjectFileSystem fileSystem = mock(ProjectFileSystem.class);
+    InputFile inputFile = mock(InputFile.class);
+    when(inputFile.getFile()).thenReturn(file);
+
+    final ProjectFileSystem fileSystem = mock(ProjectFileSystem.class);
     when(fileSystem.getSourceCharset()).thenReturn(Charset.defaultCharset());
 
-    sensor.analyzeFile(file, fileSystem, context);
+    sensor.analyzeFile(inputFile, new Project("dummy") {
+
+      public File getFile() {
+        return file;
+      }
+      
+      public ProjectFileSystem getFileSystem() {
+        return fileSystem;
+      }
+    }, context);
 
     verify(context).saveMeasure((Resource) anyObject(), eq(CoreMetrics.COMPLEXITY), eq(35.0));
     verify(context).saveMeasure((Resource) anyObject(),

@@ -20,7 +20,6 @@
 
 package org.sonar.plugins.javascript.complexity;
 
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.List;
@@ -33,12 +32,11 @@ import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.PersistenceMode;
 import org.sonar.api.measures.RangeDistributionBuilder;
 import org.sonar.api.profiles.RulesProfile;
+import org.sonar.api.resources.InputFile;
 import org.sonar.api.resources.Project;
-import org.sonar.api.resources.ProjectFileSystem;
 import org.sonar.api.rules.ActiveRule;
 import org.sonar.api.rules.Violation;
 import org.sonar.plugins.javascript.JavaScript;
-import org.sonar.plugins.javascript.JavaScriptFile;
 import org.sonar.plugins.javascript.jslint.JavaScriptRuleRepository;
 import org.sonar.plugins.javascript.jslint.JsLintRuleManager;
 
@@ -61,23 +59,22 @@ public final class JavaScriptComplexitySensor implements Sensor {
   }
 
   public void analyse(Project project, SensorContext sensorContext) {
-    for (File file : project.getFileSystem().getSourceFiles(javascript)) {
+    for (InputFile inputFile : project.getFileSystem().mainFiles(JavaScript.KEY)) {
       try {
-        analyzeFile(file, project.getFileSystem(), sensorContext);
-
+        analyzeFile(inputFile, project, sensorContext);
       } catch (Exception e) {
-        LOG.error("Can not analyze the file " + file.getAbsolutePath(), e);
+        LOG.error("Can not analyze the file " + inputFile.getFileBaseDir() + inputFile.getRelativePath(), e);
       }
     }
   }
 
-  protected void analyzeFile(File file, ProjectFileSystem projectFileSystem, SensorContext sensorContext) throws IOException {
+  protected void analyzeFile(InputFile inputFile, Project project, SensorContext sensorContext) throws IOException {
 
     try {
-      JavaScriptFile resource = JavaScriptFile.fromIOFile(file, projectFileSystem.getSourceDirs());
+      org.sonar.api.resources.File resource = org.sonar.api.resources.File.fromIOFile(inputFile.getFile(), project);
 
       JavaScriptComplexityAnalyzer analyzer = new JavaScriptComplexityAnalyzer();
-      List<JavaScriptFunction> functions = analyzer.analyzeComplexity(new FileInputStream(file));
+      List<JavaScriptFunction> functions = analyzer.analyzeComplexity(new FileInputStream(inputFile.getFile()));
 
       // COMPLEXITY
       int fileComplexity = 0;
@@ -123,7 +120,7 @@ public final class JavaScriptComplexitySensor implements Sensor {
       }
 
     } catch (JavaScriptPluginException e) {
-      LOG.error("Could not analyze file: " + file.getAbsoluteFile(), e);
+      LOG.error("Could not analyze file: " + inputFile.getRelativePath(), e);
     }
   }
 

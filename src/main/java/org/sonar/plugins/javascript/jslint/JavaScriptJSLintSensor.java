@@ -20,7 +20,6 @@
 
 package org.sonar.plugins.javascript.jslint;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
@@ -35,9 +34,8 @@ import org.sonar.api.batch.Sensor;
 import org.sonar.api.batch.SensorContext;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.profiles.RulesProfile;
+import org.sonar.api.resources.InputFile;
 import org.sonar.api.resources.Project;
-import org.sonar.api.resources.ProjectFileSystem;
-import org.sonar.api.resources.Resource;
 import org.sonar.api.rules.ActiveRule;
 import org.sonar.api.rules.ActiveRuleParam;
 import org.sonar.api.rules.Rule;
@@ -45,7 +43,6 @@ import org.sonar.api.rules.RuleFinder;
 import org.sonar.api.rules.RuleQuery;
 import org.sonar.api.rules.Violation;
 import org.sonar.plugins.javascript.JavaScript;
-import org.sonar.plugins.javascript.JavaScriptFile;
 import org.sonar.plugins.javascript.JavaScriptPlugin;
 
 import com.googlecode.jslint4java.Issue;
@@ -92,24 +89,24 @@ public class JavaScriptJSLintSensor implements Sensor {
   }
 
   public void analyse(Project project, SensorContext sensorContext) {
-    for (File javaScriptFile : project.getFileSystem().getSourceFiles(javascript)) {
+    for (InputFile inputFile : project.getFileSystem().mainFiles(JavaScript.KEY)) {
       try {
-        analyzeFile(javaScriptFile, project.getFileSystem(), sensorContext);
-      } catch (IOException e) {
-        LOG.error("Can not analyze the file {}", javaScriptFile.getAbsolutePath());
+        analyzeFile(inputFile, project, sensorContext);
+      } catch (Exception e) {
+        LOG.error("Can not analyze the file " + inputFile.getFileBaseDir() + inputFile.getRelativePath(), e);
       }
     }
   }
 
-  protected void analyzeFile(File file, ProjectFileSystem projectFileSystem, SensorContext sensorContext) throws IOException {
+  protected void analyzeFile(InputFile inputFile, Project project, SensorContext sensorContext) throws IOException {
 
-    Resource resource = JavaScriptFile.fromIOFile(file, projectFileSystem.getSourceDirs());
+    org.sonar.api.resources.File resource = org.sonar.api.resources.File.fromIOFile(inputFile.getFile(), project);
 
     Reader reader = null;
     try {
-      reader = new StringReader(FileUtils.readFileToString(file, projectFileSystem.getSourceCharset().name()));
+      reader = new StringReader(FileUtils.readFileToString(inputFile.getFile(), project.getFileSystem().getSourceCharset().name()));
 
-      JSLintResult result = jsLint.lint(file.getPath(), reader);
+      JSLintResult result = jsLint.lint(inputFile.getFile().getPath(), reader);
 
       // capture function count in file
       List<JSFunction> functions = result.getFunctions();

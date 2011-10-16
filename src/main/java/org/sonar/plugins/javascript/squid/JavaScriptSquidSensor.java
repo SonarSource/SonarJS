@@ -20,7 +20,6 @@
 
 package org.sonar.plugins.javascript.squid;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
@@ -32,11 +31,9 @@ import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.Sensor;
 import org.sonar.api.batch.SensorContext;
 import org.sonar.api.measures.CoreMetrics;
+import org.sonar.api.resources.InputFile;
 import org.sonar.api.resources.Project;
-import org.sonar.api.resources.ProjectFileSystem;
-import org.sonar.api.resources.Resource;
 import org.sonar.plugins.javascript.JavaScript;
-import org.sonar.plugins.javascript.JavaScriptFile;
 import org.sonar.squid.measures.Metric;
 import org.sonar.squid.text.Source;
 
@@ -54,20 +51,22 @@ public final class JavaScriptSquidSensor implements Sensor {
   }
 
   public void analyse(Project project, SensorContext sensorContext) {
-    for (File file : project.getFileSystem().getSourceFiles(javascript)) {
+    for (InputFile inputFile : project.getFileSystem().mainFiles(JavaScript.KEY)) {
       try {
-        analyzeFile(file, project.getFileSystem(), sensorContext);
+        analyzeFile(inputFile, project, sensorContext);
       } catch (Exception e) {
-        LOG.error("Can not analyze the file " + file.getAbsolutePath(), e);
+        LOG.error("Can not analyze the file " + inputFile.getFileBaseDir() + inputFile.getRelativePath(), e);
       }
     }
   }
 
-  protected void analyzeFile(File file, ProjectFileSystem projectFileSystem, SensorContext sensorContext) throws IOException {
+  protected void analyzeFile(InputFile inputFile, Project project, SensorContext sensorContext) throws IOException {
     Reader reader = null;
     try {
-      reader = new StringReader(FileUtils.readFileToString(file, projectFileSystem.getSourceCharset().name()));
-      Resource resource = JavaScriptFile.fromIOFile(file, projectFileSystem.getSourceDirs());
+      reader = new StringReader(FileUtils.readFileToString(inputFile.getFile(), project.getFileSystem().getSourceCharset().name()));
+
+      org.sonar.api.resources.File resource = org.sonar.api.resources.File.fromIOFile(inputFile.getFile(), project);
+
       Source source = new Source(reader, new JavaScriptRecognizer(), new String[] {});
 
       sensorContext.saveMeasure(resource, CoreMetrics.FILES, 1.0);

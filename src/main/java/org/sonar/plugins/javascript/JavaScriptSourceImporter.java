@@ -20,21 +20,12 @@
 
 package org.sonar.plugins.javascript;
 
-import java.io.File;
-import java.util.List;
-
 import org.sonar.api.batch.AbstractSourceImporter;
-import org.sonar.api.resources.Resource;
 
 public class JavaScriptSourceImporter extends AbstractSourceImporter {
 
   public JavaScriptSourceImporter(JavaScript javascript) {
     super(javascript);
-  }
-
-  @Override
-  protected Resource createResource(File file, List<File> sourceDirs, boolean unitTest) {
-    return file != null ? JavaScriptFile.fromIOFile(file, sourceDirs, unitTest) : null;
   }
 
   @Override

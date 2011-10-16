@@ -20,17 +20,13 @@
 
 package org.sonar.plugins.javascript.cpd;
 
-import java.util.List;
-
 import net.sourceforge.pmd.cpd.Tokenizer;
 
-import org.sonar.api.batch.CpdMapping;
+import org.sonar.api.batch.AbstractCpdMapping;
 import org.sonar.api.resources.Language;
-import org.sonar.api.resources.Resource;
 import org.sonar.plugins.javascript.JavaScript;
-import org.sonar.plugins.javascript.JavaScriptFile;
 
-public class JavaScriptCpdMapping implements CpdMapping {
+public class JavaScriptCpdMapping extends AbstractCpdMapping {
 
   private JavaScript javascript;
 
@@ -44,9 +40,5 @@ public class JavaScriptCpdMapping implements CpdMapping {
 
   public Language getLanguage() {
     return javascript;
-  }
-
-  public Resource createResource(java.io.File file, List<java.io.File> sourceDirs) {
-    return JavaScriptFile.fromIOFile(file, sourceDirs);
   }
 }
