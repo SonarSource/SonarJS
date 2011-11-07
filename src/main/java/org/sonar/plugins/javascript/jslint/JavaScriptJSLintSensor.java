@@ -28,6 +28,7 @@ import java.util.List;
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.Sensor;
@@ -234,14 +235,7 @@ public class JavaScriptJSLintSensor implements Sensor {
 
   private String getPredefinedVariablesListFromGlobal() {
     String[] predefinedVariables = configuration.getStringArray(JavaScriptPlugin.PREDEFINED_KEY);
-    String value = "";
-    for (String variable : predefinedVariables) {
-      if ( !value.isEmpty()) {
-        value = value + ",";
-      }
-      value = value + variable;
-    }
-    return value;
+    return StringUtils.join(predefinedVariables, ',');
   }
 
   @Override
