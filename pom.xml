@@ -67,6 +67,13 @@
       <artifactId>sonar-plugin-api</artifactId>
       <version>${sonar.version}</version>
     </dependency>
+    <dependency>
+      <groupId>org.codehaus.sonar.plugins</groupId>
+      <artifactId>sonar-surefire-plugin</artifactId>
+      <type>sonar-plugin</type>
+      <version>${sonar.version}</version>
+      <scope>provided</scope>
+    </dependency>
 
     <dependency>
       <groupId>org.antlr</groupId>

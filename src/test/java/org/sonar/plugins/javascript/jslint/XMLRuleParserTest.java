@@ -26,8 +26,6 @@ import static org.junit.Assert.assertThat;
 import java.io.StringReader;
 import java.util.List;
 
-import junit.framework.Assert;
-
 import org.hamcrest.core.Is;
 import org.junit.Test;
 import org.sonar.api.rules.RulePriority;
@@ -38,16 +36,15 @@ public class XMLRuleParserTest {
   @Test
   public void parseXml() {
     List<JsLintRule> rules = new JsLintXmlRuleParser().parse(getClass().getResourceAsStream(
-        "/org/sonar/plugins/javascript/jslint/rules.xml"));
+      "/org/sonar/plugins/javascript/jslint/rules.xml"));
     assertThat(rules.size(), is(3));
 
     JsLintRule rule = rules.get(0);
     assertThat(rule.getName(), is("Do Not Tolerate eval"));
     assertThat(
-        rule.getDescription(),
-        is("The eval function (and its relatives, Function, setTimeout, and setInterval) provide access to the JavaScript compiler. This is sometimes necessary, but in most cases it indicates the presence of extremely bad coding. The eval function is the most misused feature of JavaScript."));
+      rule.getDescription(),
+      is("The eval function (and its relatives, Function, setTimeout, and setInterval) provide access to the JavaScript compiler. This is sometimes necessary, but in most cases it indicates the presence of extremely bad coding. The eval function is the most misused feature of JavaScript."));
     assertThat(rule.getPriority(), Is.is(RulePriority.MINOR));
-    Assert.assertNull(rule.getRulesCategory());
 
     assertThat(rule.getMessages().size(), is(3));
     assertThat(rule.isInverse(), is(true));
@@ -72,7 +69,7 @@ public class XMLRuleParserTest {
   @Test
   public void utf8Encoding() {
     List<JsLintRule> rules = new JsLintXmlRuleParser().parse(getClass().getResourceAsStream(
-        "/org/sonar/api/rules/XMLRuleParserTest/utf8.xml"));
+      "/org/sonar/api/rules/XMLRuleParserTest/utf8.xml"));
     assertThat(rules.size(), is(1));
     JsLintRule rule = rules.get(0);
     assertThat(rule.getKey(), is("com.puppycrawl.tools.checkstyle.checks.naming.LocalVariableNameCheck"));

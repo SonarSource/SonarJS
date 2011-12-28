@@ -36,7 +36,7 @@ import org.sonar.api.resources.InputFile;
 import org.sonar.api.resources.Project;
 import org.sonar.api.rules.ActiveRule;
 import org.sonar.api.rules.Violation;
-import org.sonar.plugins.javascript.JavaScript;
+import org.sonar.plugins.javascript.core.JavaScript;
 import org.sonar.plugins.javascript.jslint.JavaScriptRuleRepository;
 import org.sonar.plugins.javascript.jslint.JsLintRuleManager;
 

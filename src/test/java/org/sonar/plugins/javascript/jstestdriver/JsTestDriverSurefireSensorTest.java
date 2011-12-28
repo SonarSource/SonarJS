@@ -18,26 +18,31 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
 
-package org.sonar.plugins.javascript;
+package org.sonar.plugins.javascript.jstestdriver;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
-import org.apache.commons.configuration.Configuration;
+import org.junit.Before;
 import org.junit.Test;
+import org.sonar.api.batch.SensorContext;
 import org.sonar.plugins.javascript.core.JavaScript;
 
-public class JavaScriptTest {
+public class JsTestDriverSurefireSensorTest {
+
+  private JsTestDriverSurefireSensor sensor;
+  SensorContext context;
+
+  @Before
+  public void init() {
+    sensor = new JsTestDriverSurefireSensor(new JavaScript(null));
+    context = mock(SensorContext.class);
+  }
 
   @Test
-  public void testGetFileSuffixes() {
-    Configuration configuration = mock(Configuration.class);
-    JavaScript javaScript = new JavaScript(configuration);
-    //javaScript.setConfiguration(configuration);
+  public void testGetUnitTestFileName() {
+    assertEquals("com/company/PersonTest.js", sensor.getUnitTestFileName("Chrome_16091263_Windows.com.company.PersonTest"));
+    assertEquals("PersonTest.js", sensor.getUnitTestFileName("Chrome_16091263_Windows.PersonTest"));
 
-    when(configuration.getStringArray(JavaScriptPlugin.FILE_SUFFIXES_KEY)).thenReturn(null);
-
-    assertArrayEquals(javaScript.getFileSuffixes(), new String[] { "js" });
   }
 }

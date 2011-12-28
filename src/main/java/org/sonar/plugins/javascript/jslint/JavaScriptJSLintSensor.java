@@ -43,7 +43,7 @@ import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleFinder;
 import org.sonar.api.rules.RuleQuery;
 import org.sonar.api.rules.Violation;
-import org.sonar.plugins.javascript.JavaScript;
+import org.sonar.plugins.javascript.core.JavaScript;
 import org.sonar.plugins.javascript.JavaScriptPlugin;
 
 import com.googlecode.jslint4java.Issue;

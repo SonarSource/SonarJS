@@ -31,7 +31,7 @@ import org.sonar.colorizer.JavadocTokenizer;
 import org.sonar.colorizer.KeywordsTokenizer;
 import org.sonar.colorizer.StringTokenizer;
 import org.sonar.colorizer.Tokenizer;
-import org.sonar.plugins.javascript.JavaScript;
+import org.sonar.plugins.javascript.core.JavaScript;
 
 public class JavaScriptColorizerFormat extends CodeColorizerFormat {
 
@@ -42,7 +42,7 @@ public class JavaScriptColorizerFormat extends CodeColorizerFormat {
   @Override
   public List<Tokenizer> getTokenizers() {
     return Collections.unmodifiableList(Arrays.asList(new StringTokenizer("<span class=\"s\">", "</span>"), new CDocTokenizer(
-        "<span class=\"cd\">", "</span>"), new JavadocTokenizer("<span class=\"cppd\">", "</span>"), new CppDocTokenizer(
-        "<span class=\"cppd\">", "</span>"), new KeywordsTokenizer("<span class=\"k\">", "</span>", JavaScriptKeywords.get())));
+      "<span class=\"cd\">", "</span>"), new JavadocTokenizer("<span class=\"cppd\">", "</span>"), new CppDocTokenizer(
+      "<span class=\"cppd\">", "</span>"), new KeywordsTokenizer("<span class=\"k\">", "</span>", JavaScriptKeywords.get())));
   }
 }

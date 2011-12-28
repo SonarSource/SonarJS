@@ -24,7 +24,7 @@ import net.sourceforge.pmd.cpd.Tokenizer;
 
 import org.sonar.api.batch.AbstractCpdMapping;
 import org.sonar.api.resources.Language;
-import org.sonar.plugins.javascript.JavaScript;
+import org.sonar.plugins.javascript.core.JavaScript;
 
 public class JavaScriptCpdMapping extends AbstractCpdMapping {
 

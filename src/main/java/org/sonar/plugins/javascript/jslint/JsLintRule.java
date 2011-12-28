@@ -26,13 +26,11 @@ import java.util.List;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.rules.RuleParam;
 import org.sonar.api.rules.RulePriority;
-import org.sonar.api.rules.RulesCategory;
 
 public class JsLintRule {
 
   private String key;
   private String name;
-  private RulesCategory category;
   private RulePriority priority;
   private String description;
   private List<RuleParam> params = new ArrayList<RuleParam>();
@@ -56,24 +54,15 @@ public class JsLintRule {
 
   }
 
-  public JsLintRule(String key, String name, boolean inverse, RulesCategory category, RulePriority priority, String... messages) {
+  public JsLintRule(String key, String name, boolean inverse, RulePriority priority, String... messages) {
 
     this.inverse = inverse;
     this.key = key;
     this.name = name;
-    this.category = category;
     this.priority = priority;
     for (String message : messages) {
       this.messages.add(message);
     }
-  }
-
-  public RulesCategory getRulesCategory() {
-    return category;
-  }
-
-  public void setRulesCategory(RulesCategory category) {
-    this.category = category;
   }
 
   public RulePriority getPriority() {

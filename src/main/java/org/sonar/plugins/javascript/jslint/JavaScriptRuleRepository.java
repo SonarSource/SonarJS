@@ -24,11 +24,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.sonar.api.BatchExtension;
-import org.sonar.api.rules.Iso9126RulesCategories;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleParam;
 import org.sonar.api.rules.RuleRepository;
-import org.sonar.plugins.javascript.JavaScript;
+import org.sonar.plugins.javascript.core.JavaScript;
 
 public class JavaScriptRuleRepository extends RuleRepository implements BatchExtension {
 
@@ -53,7 +52,7 @@ public class JavaScriptRuleRepository extends RuleRepository implements BatchExt
       Rule rule = Rule.create(REPOSITORY_KEY, jsLintRule.getKey(), jsLintRule.getName());
 
       rule.setDescription(jsLintRule.getDescription());
-      rule.setPriority(jsLintRule.getPriority());
+      rule.setSeverity(jsLintRule.getPriority());
 
       for (RuleParam ruleParam : jsLintRule.getParams()) {
         RuleParam param = rule.createParameter();
@@ -62,9 +61,6 @@ public class JavaScriptRuleRepository extends RuleRepository implements BatchExt
         param.setDescription(ruleParam.getDescription());
         param.setType(ruleParam.getType());
       }
-
-      // this is removed in Sonar 2.5
-      rule.setRulesCategory(Iso9126RulesCategories.MAINTAINABILITY);
 
       rulesList.add(rule);
     }

@@ -33,7 +33,7 @@ import org.sonar.api.batch.SensorContext;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.resources.InputFile;
 import org.sonar.api.resources.Project;
-import org.sonar.plugins.javascript.JavaScript;
+import org.sonar.plugins.javascript.core.JavaScript;
 import org.sonar.squid.measures.Metric;
 import org.sonar.squid.text.Source;
 

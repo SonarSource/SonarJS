@@ -18,23 +18,29 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
 
-package org.sonar.plugins.javascript;
+package org.sonar.plugins.javascript.core;
 
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.resources.AbstractLanguage;
+import org.sonar.plugins.javascript.JavaScriptPlugin;
 
 public class JavaScript extends AbstractLanguage {
 
   private Configuration configuration;
   public static final String KEY = "js";
-  public static JavaScript INSTANCE;
 
   public JavaScript(Configuration configuration) {
     super(KEY, "JavaScript");
     this.configuration = configuration;
+  }
 
-    INSTANCE = this;
+  public void setConfiguration(Configuration configuration) {
+    this.configuration = configuration;
+  }
+
+  public Configuration getConfiguration() {
+    return this.configuration;
   }
 
   public String[] getFileSuffixes() {

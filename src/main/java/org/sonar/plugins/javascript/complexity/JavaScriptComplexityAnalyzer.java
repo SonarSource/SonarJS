@@ -43,9 +43,7 @@ public class JavaScriptComplexityAnalyzer {
 
   private final static String ANONYMOUS_FUNCTION_NAME = "anonymousFunction";
   private final static int[] BRANCHING_NODES = { ES3Parser.IF, ES3Parser.FOR, ES3Parser.WHILE, ES3Parser.SWITCH, ES3Parser.CASE,
-      ES3Parser.CATCH, ES3Parser.QUE, ES3Parser.DO, ES3Parser.LAND, ES3Parser.LOR };
-  
-  
+    ES3Parser.CATCH, ES3Parser.QUE, ES3Parser.DO, ES3Parser.LAND, ES3Parser.LOR };
 
   private boolean isBranchingNode(int nodeCode) {
     for (int code : BRANCHING_NODES) {
@@ -103,7 +101,7 @@ public class JavaScriptComplexityAnalyzer {
         return nameNode.getText();
       }
     }
-    
+
     // functionCall(function(o){})
     // var a[0] = function(){}
     // var b["abc"] = function(){}
