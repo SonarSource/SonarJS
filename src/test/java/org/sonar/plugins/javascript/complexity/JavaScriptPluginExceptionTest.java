@@ -18,27 +18,25 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
 
-package org.sonar.plugins.javascript;
+package org.sonar.plugins.javascript.complexity;
 
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertSame;
 
-import org.apache.commons.configuration.Configuration;
 import org.junit.Test;
-import org.sonar.plugins.javascript.core.JavaScript;
+import org.sonar.api.utils.SonarException;
 
-public class JavaScriptTest {
+public class JavaScriptPluginExceptionTest {
 
   @Test
-  public void testGetFileSuffixes() {
-    Configuration configuration = mock(Configuration.class);
-    JavaScript javaScript = new JavaScript(configuration);
-    javaScript.setConfiguration(configuration);
+  public void testException() {
+    Exception e = new JavaScriptPluginException();
+    e = new JavaScriptPluginException("Exception message");
+    e = new JavaScriptPluginException(new Exception());
+    Exception cause = new SonarException("cause");
+    e = new JavaScriptPluginException("Message Text", cause);
 
-    when(configuration.getStringArray(JavaScriptPlugin.FILE_SUFFIXES_KEY)).thenReturn(null);
-
-    assertArrayEquals(javaScript.getFileSuffixes(), new String[] { "js" });
-    assertSame(configuration, javaScript.getConfiguration());
+    assertEquals("Message Text", e.getMessage());
+    assertSame(cause, e.getCause());
   }
 }

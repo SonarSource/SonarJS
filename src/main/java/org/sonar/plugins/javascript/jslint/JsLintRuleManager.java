@@ -35,11 +35,14 @@ public class JsLintRuleManager implements ServerExtension, BatchExtension {
   public static final String OTHER_RULES_KEY = "OTHER_RULES";
   public static final String UNUSED_NAMES_KEY = "UNUSED_NAMES";
   public static final String CYCLOMATIC_COMPLEXITY_KEY = "CYCLOMATIC_COMPLEXITY";
+  private static final String RULES_FILE_LOCATION = "/org/sonar/plugins/javascript/jslint/rules.xml";
 
   public JsLintRuleManager() {
+    this(RULES_FILE_LOCATION);
+  }
 
-    rules = new JsLintXmlRuleParser().parse(JsLintRuleManager.class.getResourceAsStream("/org/sonar/plugins/javascript/jslint/rules.xml"));
-
+  public JsLintRuleManager(String rulesPath) {
+    rules = new JsLintXmlRuleParser().parse(JsLintRuleManager.class.getResourceAsStream(rulesPath));
   }
 
   public List<JsLintRule> getJsLintRules() {

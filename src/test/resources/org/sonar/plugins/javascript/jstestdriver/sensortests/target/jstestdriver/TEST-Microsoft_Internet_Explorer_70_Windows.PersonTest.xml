@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="Microsoft_Internet_Explorer_70_Windows.PersonTest" errors="0" failures="0" tests="2" time="0.7">
+<testcase classname="Microsoft_Internet_Explorer_70_Windows.PersonTest" name="testWhoAreYou" time="0.2"/>
+<testcase classname="Microsoft_Internet_Explorer_70_Windows.PersonTest" name="testWhoAreYouWithNoMiddleName" time="0.5"/>
+</testsuite>

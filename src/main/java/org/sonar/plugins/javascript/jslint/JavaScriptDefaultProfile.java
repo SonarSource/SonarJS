@@ -22,7 +22,9 @@ package org.sonar.plugins.javascript.jslint;
 
 import org.sonar.api.profiles.ProfileDefinition;
 import org.sonar.api.profiles.RulesProfile;
+import org.sonar.api.rules.ActiveRule;
 import org.sonar.api.rules.Rule;
+import org.sonar.api.rules.RuleParam;
 import org.sonar.api.utils.ValidationMessages;
 
 public class JavaScriptDefaultProfile extends ProfileDefinition {
@@ -42,7 +44,10 @@ public class JavaScriptDefaultProfile extends ProfileDefinition {
 
     for (Rule rule : repository.createRules()) {
       if ( !isDisabled(rule)) {
-        rulesProfile.activateRule(rule, null);
+        ActiveRule activeRule = rulesProfile.activateRule(rule, null);
+        for (RuleParam param : rule.getParams()) {
+          activeRule.setParameter(param.getKey(), param.getDefaultValue());
+        }
       }
     }
 

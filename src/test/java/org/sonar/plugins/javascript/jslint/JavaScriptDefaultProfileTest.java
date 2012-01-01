@@ -18,27 +18,22 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
 
-package org.sonar.plugins.javascript;
+package org.sonar.plugins.javascript.jslint;
 
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.junit.Assert.assertEquals;
 
-import org.apache.commons.configuration.Configuration;
 import org.junit.Test;
+import org.sonar.api.profiles.RulesProfile;
 import org.sonar.plugins.javascript.core.JavaScript;
 
-public class JavaScriptTest {
+public class JavaScriptDefaultProfileTest {
 
   @Test
-  public void testGetFileSuffixes() {
-    Configuration configuration = mock(Configuration.class);
-    JavaScript javaScript = new JavaScript(configuration);
-    javaScript.setConfiguration(configuration);
-
-    when(configuration.getStringArray(JavaScriptPlugin.FILE_SUFFIXES_KEY)).thenReturn(null);
-
-    assertArrayEquals(javaScript.getFileSuffixes(), new String[] { "js" });
-    assertSame(configuration, javaScript.getConfiguration());
+  public void testActiveRulesCount() {
+    JsLintRuleManager rulesManager = new JsLintRuleManager();
+    JavaScriptRuleRepository repository = new JavaScriptRuleRepository(new JavaScript(null), rulesManager);
+    JavaScriptDefaultProfile profile = new JavaScriptDefaultProfile(repository);
+    RulesProfile rulesProfile = profile.createProfile(null);
+    assertEquals(3, rulesProfile.getActiveRules().size());
   }
 }

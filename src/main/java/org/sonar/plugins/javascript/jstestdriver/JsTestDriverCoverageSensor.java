@@ -58,16 +58,21 @@ public final class JsTestDriverCoverageSensor implements Sensor {
     JsTestDriverLCOVParser parser = new JsTestDriverLCOVParser();
     List<JsTestDriverFileCoverage> coveredFiles = parser.parseFile(jsTestDriverCoverageReportFile);
 
+    analyseCoveredFiles(project, sensorContext, coveredFiles);
+  }
+
+  protected void analyseCoveredFiles(Project project, SensorContext sensorContext, List<JsTestDriverFileCoverage> coveredFiles) {
+
     for (InputFile inputFile : project.getFileSystem().mainFiles(JavaScript.KEY)) {
       try {
         JsTestDriverFileCoverage fileCoverage = getFileCoverage(inputFile, coveredFiles);
         org.sonar.api.resources.File resource = org.sonar.api.resources.File.fromIOFile(inputFile.getFile(), project);
-        PropertiesBuilder<String, Integer> lineHitsData = new PropertiesBuilder<String, Integer>(CoreMetrics.COVERAGE_LINE_HITS_DATA);
+        PropertiesBuilder<Integer, Integer> lineHitsData = new PropertiesBuilder<Integer, Integer>(CoreMetrics.COVERAGE_LINE_HITS_DATA);
 
         if (fileCoverage != null) {
           Map<Integer, Integer> hits = fileCoverage.getLineCoverageData();
           for (Map.Entry<Integer, Integer> entry : hits.entrySet()) {
-            lineHitsData.add(entry.toString(), entry.getValue());
+            lineHitsData.add(entry.getKey(), entry.getValue());
           }
 
           sensorContext.saveMeasure(resource, lineHitsData.build());
@@ -77,7 +82,7 @@ public final class JsTestDriverCoverageSensor implements Sensor {
 
           // color all lines as not executed
           for (int x = 1; x < sensorContext.getMeasure(resource, CoreMetrics.LINES).getIntValue(); x++) {
-            lineHitsData.add(String.valueOf(x), 0);
+            lineHitsData.add(x, 0);
           }
 
           // use non comment lines of code for coverage calculation
@@ -99,7 +104,6 @@ public final class JsTestDriverCoverageSensor implements Sensor {
         return file;
       }
     }
-
     return null;
   }
 
