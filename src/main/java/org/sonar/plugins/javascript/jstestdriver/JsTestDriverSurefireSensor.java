@@ -79,7 +79,7 @@ public final class JsTestDriverSurefireSensor implements Sensor {
         try {
           source = FileUtils.readFileToString(unitTestFile, project.getFileSystem().getSourceCharset().name());
         } catch (IOException e) {
-          source = "Could not find source for JsTestDriver unit test: " + classKey + " in any test directories";
+          source = "Could not find source for JsTestDriver unit test: " + classKey + " in any of test directories";
           Log.debug(source, e);
         }
 
@@ -99,7 +99,7 @@ public final class JsTestDriverSurefireSensor implements Sensor {
   }
 
   protected File getUnitTestFile(List<File> testDirectories, String name) {
-    File unitTestFile = null;
+    File unitTestFile = new File("");
     for (File dir : testDirectories) {
       unitTestFile = new File(dir, name);
 
