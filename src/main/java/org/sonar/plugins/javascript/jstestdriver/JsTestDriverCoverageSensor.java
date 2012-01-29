@@ -51,9 +51,9 @@ public final class JsTestDriverCoverageSensor implements Sensor {
   }
 
   public void analyse(Project project, SensorContext sensorContext) {
-    String jsTestDriverFolder = javascript.getConfiguration().getString(JavaScriptPlugin.JSTESTDRIVER_FOLDER_KEY, "jstestdriver");
-    File jsTestDriverCoverageReportFile = new File(project.getFileSystem().getBuildDir(), jsTestDriverFolder
-        + "/jsTestDriver.conf-coverage.dat");
+    String jsTestDriverFolder = javascript.getConfiguration().getString(JavaScriptPlugin.JSTESTDRIVER_FOLDER_KEY, JavaScriptPlugin.JSTESTDRIVER_DEFAULT_FOLDER);
+    File jsTestDriverCoverageReportFile = new File(project.getFileSystem().getBasedir(), jsTestDriverFolder
+        + "/" + JavaScriptPlugin.JSTESTDRIVER_COVERAGE_REPORT_FILENAME);
 
     JsTestDriverLCOVParser parser = new JsTestDriverLCOVParser();
     List<JsTestDriverFileCoverage> coveredFiles = parser.parseFile(jsTestDriverCoverageReportFile);
@@ -80,7 +80,7 @@ public final class JsTestDriverCoverageSensor implements Sensor {
           sensorContext.saveMeasure(resource, CoreMetrics.UNCOVERED_LINES, (double) fileCoverage.getUncoveredLines());
         } else {
 
-          // color all lines as not executed
+          // colour all lines as not executed
           for (int x = 1; x < sensorContext.getMeasure(resource, CoreMetrics.LINES).getIntValue(); x++) {
             lineHitsData.add(x, 0);
           }

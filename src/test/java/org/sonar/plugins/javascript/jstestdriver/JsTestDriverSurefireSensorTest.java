@@ -55,7 +55,7 @@ public class JsTestDriverSurefireSensorTest {
   @Before
   public void init() {
     configuration = mock(Configuration.class);
-    when(configuration.getString(JavaScriptPlugin.JSTESTDRIVER_FOLDER_KEY, "jstestdriver")).thenReturn("jstestdriver");
+    when(configuration.getString(JavaScriptPlugin.JSTESTDRIVER_FOLDER_KEY, JavaScriptPlugin.JSTESTDRIVER_DEFAULT_FOLDER)).thenReturn(JavaScriptPlugin.JSTESTDRIVER_DEFAULT_FOLDER);
 
     sensor = new JsTestDriverSurefireSensor(new JavaScript(configuration));
     context = mock(SensorContext.class);
@@ -66,8 +66,8 @@ public class JsTestDriverSurefireSensorTest {
     final ProjectFileSystem fileSystem = mock(ProjectFileSystem.class);
     when(fileSystem.getSourceCharset()).thenReturn(Charset.defaultCharset());
 
-    final File folder = new File(getClass().getResource("/org/sonar/plugins/javascript/jstestdriver/sensortests/target").toURI());
-    when(fileSystem.getBuildDir()).thenReturn(folder);
+    final File folder = new File(getClass().getResource("/org/sonar/plugins/javascript/jstestdriver/sensortests").toURI());
+    when(fileSystem.getBasedir()).thenReturn(folder);
 
     File testDir = new File(getClass().getResource("/org/sonar/plugins/javascript/jstestdriver/sensortests/test").toURI());
     List<File> testDirectories = new ArrayList<File>();

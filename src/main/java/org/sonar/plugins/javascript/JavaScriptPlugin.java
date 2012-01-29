@@ -64,8 +64,8 @@ import org.sonar.plugins.javascript.squid.JavaScriptSquidSensor;
       description = "Maximum number of errors", global = true, project = true),
 
   // JsTestDriver (http://code.google.com/p/js-test-driver/)
-  @Property(key = JavaScriptPlugin.JSTESTDRIVER_FOLDER_KEY, defaultValue = "50", name = "JsTestDriver Output Folder",
-      description = "Folder where JsTestDriver unit test and coverage reports are located", global = true, project = true)
+  @Property(key = JavaScriptPlugin.JSTESTDRIVER_FOLDER_KEY, defaultValue = JavaScriptPlugin.JSTESTDRIVER_DEFAULT_FOLDER, name = "JsTestDriver Output Folder",
+      description = "Folder where JsTestDriver unit test and code coverage reports are located", global = true, project = true)
 
 })
 public class JavaScriptPlugin extends SonarPlugin {
@@ -102,21 +102,24 @@ public class JavaScriptPlugin extends SonarPlugin {
   public static final String FILE_SUFFIXES_KEY = "sonar.javascript.file.suffixes";
   public static final String FILE_SUFFIXES_DEFVALUE = "js";
 
-  public static final String PROPERTY_PREFIX = "sonar.javascript.lslint";
+  public static final String PROPERTY_PREFIX = "sonar.javascript";
+  public static final String PROPERTY_PREFIX_JSLINT = PROPERTY_PREFIX + ".lslint";
 
-  public static final String ASSUME_A_BROWSER_KEY = PROPERTY_PREFIX + ".browser";
-  public static final String ASSUME_CONSOLE_ALERT_KEY = PROPERTY_PREFIX + ".devel";
-  public static final String ASSUME_A_YAHOO_WIDGET_KEY = PROPERTY_PREFIX + ".widget";
+  public static final String ASSUME_A_BROWSER_KEY = PROPERTY_PREFIX_JSLINT + ".browser";
+  public static final String ASSUME_CONSOLE_ALERT_KEY = PROPERTY_PREFIX_JSLINT + ".devel";
+  public static final String ASSUME_A_YAHOO_WIDGET_KEY = PROPERTY_PREFIX_JSLINT + ".widget";
 
-  public static final String ASSUME_WINDOWS_KEY = PROPERTY_PREFIX + ".windows";
-  public static final String ASSUME_RHINO_KEY = PROPERTY_PREFIX + ".rhino";
-  public static final String SAFE_SUBSET_KEY = PROPERTY_PREFIX + ".safe";
+  public static final String ASSUME_WINDOWS_KEY = PROPERTY_PREFIX_JSLINT + ".windows";
+  public static final String ASSUME_RHINO_KEY = PROPERTY_PREFIX_JSLINT + ".rhino";
+  public static final String SAFE_SUBSET_KEY = PROPERTY_PREFIX_JSLINT + ".safe";
 
-  public static final String MAXIMUM_NUMBER_OF_ERRORS_KEY = PROPERTY_PREFIX + ".maxerr";
+  public static final String MAXIMUM_NUMBER_OF_ERRORS_KEY = PROPERTY_PREFIX_JSLINT + ".maxerr";
 
-  public static final String PREDEFINED_KEY = PROPERTY_PREFIX + ".predef";
+  public static final String PREDEFINED_KEY = PROPERTY_PREFIX_JSLINT + ".predef";
 
-  public static final String JSTESTDRIVER_FOLDER_KEY = PROPERTY_PREFIX + ".jstestdriverfolder";
+  public static final String JSTESTDRIVER_FOLDER_KEY = PROPERTY_PREFIX + ".jstestdriver.reportsfolder";
+  public static final String JSTESTDRIVER_DEFAULT_FOLDER = "target/jstestdriver";
+  public static final String JSTESTDRIVER_COVERAGE_REPORT_FILENAME = "jsTestDriver.conf-coverage.dat";
 
   public static final String[] GLOBAL_PARAMETERS = new String[] { ASSUME_A_BROWSER_KEY, ASSUME_CONSOLE_ALERT_KEY,
     ASSUME_A_YAHOO_WIDGET_KEY, ASSUME_WINDOWS_KEY, ASSUME_RHINO_KEY, SAFE_SUBSET_KEY, MAXIMUM_NUMBER_OF_ERRORS_KEY, PREDEFINED_KEY };

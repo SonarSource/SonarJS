@@ -52,8 +52,8 @@ public final class JsTestDriverSurefireSensor implements Sensor {
   }
 
   public void analyse(Project project, SensorContext context) {
-    String jsTestDriverFolder = javascript.getConfiguration().getString(JavaScriptPlugin.JSTESTDRIVER_FOLDER_KEY, "jstestdriver");
-    collect(project, context, new File(project.getFileSystem().getBuildDir(), jsTestDriverFolder));
+    String jsTestDriverFolder = javascript.getConfiguration().getString(JavaScriptPlugin.JSTESTDRIVER_FOLDER_KEY, JavaScriptPlugin.JSTESTDRIVER_DEFAULT_FOLDER);
+    collect(project, context, new File(project.getFileSystem().getBasedir(), jsTestDriverFolder));
   }
 
   protected void collect(final Project project, final SensorContext context, File reportsDir) {
@@ -64,8 +64,8 @@ public final class JsTestDriverSurefireSensor implements Sensor {
       @Override
       protected Resource<?> getUnitTestResource(String classKey) {
 
-        org.sonar.api.resources.File unitTestFileResource = new org.sonar.api.resources.File(classKey.replaceFirst("\\.", "/"));
-        unitTestFileResource.setLanguage(javascript);
+    	org.sonar.api.resources.File unitTestFileResource = new org.sonar.api.resources.File(classKey.replaceAll("\\.", "/"));
+    	unitTestFileResource.setLanguage(javascript);
         unitTestFileResource.setQualifier(Qualifiers.UNIT_TEST_FILE);
 
         LOG.debug("Adding unittest resource: {}", unitTestFileResource.toString());
