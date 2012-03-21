@@ -20,10 +20,6 @@
 
 package org.sonar.plugins.javascript.complexity;
 
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.util.List;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.Sensor;
@@ -39,6 +35,10 @@ import org.sonar.api.rules.Violation;
 import org.sonar.plugins.javascript.core.JavaScript;
 import org.sonar.plugins.javascript.jslint.JavaScriptRuleRepository;
 import org.sonar.plugins.javascript.jslint.JsLintRuleManager;
+
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.util.List;
 
 public final class JavaScriptComplexitySensor implements Sensor {
 
@@ -75,6 +75,9 @@ public final class JavaScriptComplexitySensor implements Sensor {
 
       JavaScriptComplexityAnalyzer analyzer = new JavaScriptComplexityAnalyzer();
       List<JavaScriptFunction> functions = analyzer.analyzeComplexity(new FileInputStream(inputFile.getFile()));
+      
+      // FUNCTIONS
+      sensorContext.saveMeasure(resource, CoreMetrics.FUNCTIONS, (double) functions.size());
 
       // COMPLEXITY
       int fileComplexity = 0;

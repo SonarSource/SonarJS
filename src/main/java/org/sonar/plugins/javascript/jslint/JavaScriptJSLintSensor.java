@@ -109,10 +109,6 @@ public class JavaScriptJSLintSensor implements Sensor {
 
       JSLintResult result = jsLint.lint(inputFile.getFile().getPath(), reader);
 
-      // capture function count in file
-      List<JSFunction> functions = result.getFunctions();
-      sensorContext.saveMeasure(resource, CoreMetrics.FUNCTIONS, (double) functions.size());
-
       // process issues found by JSLint
       List<Issue> issues = result.getIssues();
       for (Issue issue : issues) {

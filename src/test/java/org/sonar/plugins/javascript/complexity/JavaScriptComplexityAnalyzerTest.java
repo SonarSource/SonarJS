@@ -20,14 +20,13 @@
 
 package org.sonar.plugins.javascript.complexity;
 
-import static org.junit.Assert.assertEquals;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.List;
-
 import org.antlr.runtime.tree.CommonTree;
 import org.junit.Test;
+
+import java.io.IOException;
+import java.util.List;
+
+import static org.junit.Assert.assertEquals;
 
 public class JavaScriptComplexityAnalyzerTest {
 
