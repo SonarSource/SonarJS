@@ -56,6 +56,7 @@ public class JsTestDriverSurefireSensorTest {
   public void init() {
     configuration = mock(Configuration.class);
     when(configuration.getString(JavaScriptPlugin.JSTESTDRIVER_FOLDER_KEY, JavaScriptPlugin.JSTESTDRIVER_DEFAULT_FOLDER)).thenReturn(JavaScriptPlugin.JSTESTDRIVER_DEFAULT_FOLDER);
+    when(configuration.getString(JavaScriptPlugin.TEST_FRAMEWORK_KEY, JavaScriptPlugin.TEST_FRAMEWORK_DEFAULT)).thenReturn("jstestdriver");
 
     sensor = new JsTestDriverSurefireSensor(new JavaScript(configuration));
     context = mock(SensorContext.class);

@@ -35,11 +35,13 @@ import org.sonar.api.resources.InputFile;
 import org.sonar.api.resources.Project;
 import org.sonar.plugins.javascript.JavaScriptPlugin;
 import org.sonar.plugins.javascript.core.JavaScript;
+import org.sonar.plugins.javascript.coverage.JavaScriptFileCoverage;
+import org.sonar.plugins.javascript.coverage.LCOVParser;
 
-public final class JsTestDriverCoverageSensor implements Sensor {
+public class JsTestDriverCoverageSensor implements Sensor {
 
-  private JavaScript javascript;
-
+  protected JavaScript javascript;
+  
   public JsTestDriverCoverageSensor(JavaScript javascript) {
     this.javascript = javascript;
   }
@@ -47,25 +49,23 @@ public final class JsTestDriverCoverageSensor implements Sensor {
   private final static Logger LOG = LoggerFactory.getLogger(JsTestDriverCoverageSensor.class);
 
   public boolean shouldExecuteOnProject(Project project) {
-    return javascript.equals(project.getLanguage());
-  }
+	return (javascript.equals(project.getLanguage()) && "jstestdriver".equals(javascript.getConfiguration().getString(JavaScriptPlugin.TEST_FRAMEWORK_KEY, JavaScriptPlugin.TEST_FRAMEWORK_DEFAULT)));  }
 
   public void analyse(Project project, SensorContext sensorContext) {
-    String jsTestDriverFolder = javascript.getConfiguration().getString(JavaScriptPlugin.JSTESTDRIVER_FOLDER_KEY, JavaScriptPlugin.JSTESTDRIVER_DEFAULT_FOLDER);
-    File jsTestDriverCoverageReportFile = new File(project.getFileSystem().getBasedir(), jsTestDriverFolder
-        + "/" + JavaScriptPlugin.JSTESTDRIVER_COVERAGE_REPORT_FILENAME);
+    File jsTestDriverCoverageReportFile = new File(project.getFileSystem().getBasedir(), getTestReportsFolder()
+        + "/" + getTestCoverageFileName());
 
-    JsTestDriverLCOVParser parser = new JsTestDriverLCOVParser();
-    List<JsTestDriverFileCoverage> coveredFiles = parser.parseFile(jsTestDriverCoverageReportFile);
+    LCOVParser parser = new LCOVParser();
+    List<JavaScriptFileCoverage> coveredFiles = parser.parseFile(jsTestDriverCoverageReportFile);
 
     analyseCoveredFiles(project, sensorContext, coveredFiles);
   }
 
-  protected void analyseCoveredFiles(Project project, SensorContext sensorContext, List<JsTestDriverFileCoverage> coveredFiles) {
+  protected void analyseCoveredFiles(Project project, SensorContext sensorContext, List<JavaScriptFileCoverage> coveredFiles) {
 
     for (InputFile inputFile : project.getFileSystem().mainFiles(JavaScript.KEY)) {
       try {
-        JsTestDriverFileCoverage fileCoverage = getFileCoverage(inputFile, coveredFiles);
+        JavaScriptFileCoverage fileCoverage = getFileCoverage(inputFile, coveredFiles);
         org.sonar.api.resources.File resource = org.sonar.api.resources.File.fromIOFile(inputFile.getFile(), project);
         PropertiesBuilder<Integer, Integer> lineHitsData = new PropertiesBuilder<Integer, Integer>(CoreMetrics.COVERAGE_LINE_HITS_DATA);
 
@@ -98,15 +98,23 @@ public final class JsTestDriverCoverageSensor implements Sensor {
     }
   }
 
-  protected JsTestDriverFileCoverage getFileCoverage(InputFile input, List<JsTestDriverFileCoverage> coverages) {
-    for (JsTestDriverFileCoverage file : coverages) {
-      if (file.getFullFileName().equals(input.getFile().getAbsolutePath())) {
+  protected JavaScriptFileCoverage getFileCoverage(InputFile input, List<JavaScriptFileCoverage> coverages) {
+    for (JavaScriptFileCoverage file : coverages) {
+      if (file.getFilePath().equals(input.getFile().getAbsolutePath()) || file.getFilePath().equals(input.getRelativePath())) {
         return file;
       }
     }
     return null;
   }
 
+  protected String getTestReportsFolder() {
+	  return javascript.getConfiguration().getString(JavaScriptPlugin.JSTESTDRIVER_FOLDER_KEY, JavaScriptPlugin.JSTESTDRIVER_DEFAULT_FOLDER);
+  }
+  
+  protected String getTestCoverageFileName() {
+	  return javascript.getConfiguration().getString(JavaScriptPlugin.JSTESTDRIVER_COVERAGE_FILE_KEY, JavaScriptPlugin.JSTESTDRIVER_COVERAGE_REPORT_FILENAME);
+  }
+  
   @Override
   public String toString() {
     return getClass().getSimpleName();

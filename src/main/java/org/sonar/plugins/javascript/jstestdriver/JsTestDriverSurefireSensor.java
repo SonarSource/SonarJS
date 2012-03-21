@@ -37,9 +37,9 @@ import org.sonar.plugins.javascript.JavaScriptPlugin;
 import org.sonar.plugins.javascript.core.JavaScript;
 import org.sonar.plugins.surefire.api.AbstractSurefireParser;
 
-public final class JsTestDriverSurefireSensor implements Sensor {
+public class JsTestDriverSurefireSensor implements Sensor {
 
-  private JavaScript javascript;
+  protected JavaScript javascript;
 
   public JsTestDriverSurefireSensor(JavaScript javascript) {
     this.javascript = javascript;
@@ -48,7 +48,7 @@ public final class JsTestDriverSurefireSensor implements Sensor {
   private final static Logger LOG = LoggerFactory.getLogger(JsTestDriverSurefireSensor.class);
 
   public boolean shouldExecuteOnProject(Project project) {
-    return javascript.equals(project.getLanguage());
+	return (javascript.equals(project.getLanguage()) && "jstestdriver".equals(javascript.getConfiguration().getString(JavaScriptPlugin.TEST_FRAMEWORK_KEY, JavaScriptPlugin.TEST_FRAMEWORK_DEFAULT)));  
   }
 
   public void analyse(Project project, SensorContext context) {
@@ -79,7 +79,7 @@ public final class JsTestDriverSurefireSensor implements Sensor {
         try {
           source = FileUtils.readFileToString(unitTestFile, project.getFileSystem().getSourceCharset().name());
         } catch (IOException e) {
-          source = "Could not find source for JsTestDriver unit test: " + classKey + " in any of test directories";
+          source = "Could not find source for unit test: " + classKey + " in any of test directories";
           Log.debug(source, e);
         }
 

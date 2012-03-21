@@ -18,15 +18,15 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
 
-package org.sonar.plugins.javascript.jstestdriver;
+package org.sonar.plugins.javascript.coverage;
 
 import java.util.HashMap;
 import java.util.Map;
 
-public final class JsTestDriverFileCoverage {
+public final class JavaScriptFileCoverage {
 
   private Map<Integer, Integer> lineCoverageData = new HashMap<Integer, Integer>();
-  private String fullFileName;
+  private String filePath;
 
   public Map<Integer, Integer> getLineCoverageData() {
     return lineCoverageData;
@@ -36,12 +36,12 @@ public final class JsTestDriverFileCoverage {
     this.lineCoverageData = lineCoverage;
   }
 
-  public String getFullFileName() {
-    return fullFileName;
+  public String getFilePath() {
+    return filePath;
   }
 
-  public void setFullFileName(String fullFileName) {
-    this.fullFileName = fullFileName;
+  public void setFilePath(String filePath) {
+    this.filePath = filePath;
   }
 
   // Executable Line Count

@@ -29,10 +29,12 @@ import java.util.List;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.sonar.plugins.javascript.coverage.JavaScriptFileCoverage;
+import org.sonar.plugins.javascript.coverage.LCOVParser;
 
 public class JsTestDriverLCOVParserTest {
 
-  JsTestDriverLCOVParser parser = new JsTestDriverLCOVParser();
+  LCOVParser parser = new LCOVParser();
 
   @Before
   public void init() {
@@ -43,12 +45,12 @@ public class JsTestDriverLCOVParserTest {
   public void testParser() throws URISyntaxException {
     URL uri = getClass().getResource("/org/sonar/plugins/javascript/jstestdriver/jsTestDriver.conf-coverage.dat");
     File coverageReport = new File(uri.toURI());
-    List<JsTestDriverFileCoverage> list = parser.parseFile(coverageReport);
+    List<JavaScriptFileCoverage> list = parser.parseFile(coverageReport);
     assertEquals(3, list.size());
 
     // verify second file
-    JsTestDriverFileCoverage fileCoverage = list.get(1);
-    assertEquals("D:\\Eriks\\workspace\\sample\\src\\test\\js\\com\\company\\PersonTest.js", fileCoverage.getFullFileName());
+    JavaScriptFileCoverage fileCoverage = list.get(1);
+    assertEquals("D:\\Eriks\\workspace\\sample\\src\\test\\js\\com\\company\\PersonTest.js", fileCoverage.getFilePath());
     assertEquals(5, fileCoverage.getLinesToCover());
     assertEquals(5, fileCoverage.getCoveredLines());
 

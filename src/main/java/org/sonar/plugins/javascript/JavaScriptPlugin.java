@@ -36,6 +36,8 @@ import org.sonar.plugins.javascript.jslint.JavaScriptDefaultProfile;
 import org.sonar.plugins.javascript.jslint.JavaScriptJSLintSensor;
 import org.sonar.plugins.javascript.jslint.JavaScriptRuleRepository;
 import org.sonar.plugins.javascript.jslint.JsLintRuleManager;
+import org.sonar.plugins.javascript.jstest.JsTestCoverageSensor;
+import org.sonar.plugins.javascript.jstest.JsTestSurefireSensor;
 import org.sonar.plugins.javascript.jstestdriver.JsTestDriverCoverageSensor;
 import org.sonar.plugins.javascript.jstestdriver.JsTestDriverSurefireSensor;
 import org.sonar.plugins.javascript.squid.JavaScriptSquidSensor;
@@ -62,12 +64,24 @@ import org.sonar.plugins.javascript.squid.JavaScriptSquidSensor;
       description = "Predefined variables ( , separated) ", global = true, project = true),
   @Property(key = JavaScriptPlugin.MAXIMUM_NUMBER_OF_ERRORS_KEY, defaultValue = "50", name = "Maximum number of errors",
       description = "Maximum number of errors", global = true, project = true),
+      
+  @Property(key = JavaScriptPlugin.TEST_FRAMEWORK_KEY, defaultValue = JavaScriptPlugin.TEST_FRAMEWORK_DEFAULT, name = "JavaScript test framework to use",
+      description = "Testing framework to use (jstest or jstestdriver)", global = true, project = true),
+
 
   // JsTestDriver (http://code.google.com/p/js-test-driver/)
-  @Property(key = JavaScriptPlugin.JSTESTDRIVER_FOLDER_KEY, defaultValue = JavaScriptPlugin.JSTESTDRIVER_DEFAULT_FOLDER, name = "JsTestDriver Output Folder",
-      description = "Folder where JsTestDriver unit test and code coverage reports are located", global = true, project = true)
-
+  @Property(key = JavaScriptPlugin.JSTESTDRIVER_FOLDER_KEY, defaultValue = JavaScriptPlugin.JSTESTDRIVER_DEFAULT_FOLDER, name = "JsTestDriver output folder",
+      description = "Folder where JsTestDriver unit test and code coverage reports are located", global = true, project = true),
+  @Property(key = JavaScriptPlugin.JSTESTDRIVER_COVERAGE_FILE_KEY, defaultValue = JavaScriptPlugin.JSTESTDRIVER_COVERAGE_REPORT_FILENAME, name = "JsTestDriver coverage filename",
+      description = "Filename where JsTestDriver generates coverage data", global = true, project = true),
+      
+  // JsTest (https://github.com/awired/jstest-maven-plugin)
+  @Property(key = JavaScriptPlugin.JSTEST_FOLDER_KEY, defaultValue = JavaScriptPlugin.JSTEST_DEFAULT_FOLDER, name = "JsTest output folder",
+      description = "Folder where JsTest unit test and code coverage reports are located", global = true, project = true),
+  @Property(key = JavaScriptPlugin.JSTEST_COVERAGE_FILE_KEY, defaultValue = JavaScriptPlugin.JSTEST_COVERAGE_REPORT_FILENAME, name = "JsTest coverage filename",
+      description = "Filename where JsTest generates coverage data", global = true, project = true)
 })
+
 public class JavaScriptPlugin extends SonarPlugin {
 
   public List<Class<? extends Extension>> getExtensions() {
@@ -93,6 +107,9 @@ public class JavaScriptPlugin extends SonarPlugin {
 
     list.add(JsTestDriverSurefireSensor.class);
     list.add(JsTestDriverCoverageSensor.class);
+    
+    list.add(JsTestCoverageSensor.class);
+    list.add(JsTestSurefireSensor.class);
 
     return list;
   }
@@ -117,9 +134,18 @@ public class JavaScriptPlugin extends SonarPlugin {
 
   public static final String PREDEFINED_KEY = PROPERTY_PREFIX_JSLINT + ".predef";
 
+  public static final String TEST_FRAMEWORK_KEY = PROPERTY_PREFIX + ".testframework";
+  public static final String TEST_FRAMEWORK_DEFAULT = "jstest";
+  
   public static final String JSTESTDRIVER_FOLDER_KEY = PROPERTY_PREFIX + ".jstestdriver.reportsfolder";
   public static final String JSTESTDRIVER_DEFAULT_FOLDER = "target/jstestdriver";
+  public static final String JSTESTDRIVER_COVERAGE_FILE_KEY = PROPERTY_PREFIX + ".jstestdriver.coveragefile";
   public static final String JSTESTDRIVER_COVERAGE_REPORT_FILENAME = "jsTestDriver.conf-coverage.dat";
+  
+  public static final String JSTEST_FOLDER_KEY = PROPERTY_PREFIX + ".jstest.reportsfolder";
+  public static final String JSTEST_DEFAULT_FOLDER = "target/jstest/report";
+  public static final String JSTEST_COVERAGE_FILE_KEY = PROPERTY_PREFIX + ".jstestdriver.coveragefile";
+  public static final String JSTEST_COVERAGE_REPORT_FILENAME = "coverage.dat";
 
   public static final String[] GLOBAL_PARAMETERS = new String[] { ASSUME_A_BROWSER_KEY, ASSUME_CONSOLE_ALERT_KEY,
     ASSUME_A_YAHOO_WIDGET_KEY, ASSUME_WINDOWS_KEY, ASSUME_RHINO_KEY, SAFE_SUBSET_KEY, MAXIMUM_NUMBER_OF_ERRORS_KEY, PREDEFINED_KEY };

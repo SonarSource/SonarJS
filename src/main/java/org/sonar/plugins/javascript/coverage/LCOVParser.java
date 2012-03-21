@@ -18,7 +18,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
 
-package org.sonar.plugins.javascript.jstestdriver;
+package org.sonar.plugins.javascript.coverage;
 
 import java.io.File;
 import java.io.IOException;
@@ -36,11 +36,11 @@ import org.slf4j.LoggerFactory;
  * @author Eriks.Nukis
  * 
  */
-public final class JsTestDriverLCOVParser {
+public final class LCOVParser {
 
-  private final static Logger LOG = LoggerFactory.getLogger(JsTestDriverLCOVParser.class);
+  private final static Logger LOG = LoggerFactory.getLogger(LCOVParser.class);
 
-  public List<JsTestDriverFileCoverage> parseFile(File file) {
+  public List<JavaScriptFileCoverage> parseFile(File file) {
     List<String> lines = new LinkedList<String>();
     try {
       lines = FileUtils.readLines(file);
@@ -48,16 +48,16 @@ public final class JsTestDriverLCOVParser {
       LOG.debug("Cound not read content from file: " + file.getName());
     }
 
-    List<JsTestDriverFileCoverage> coveredFiles = new LinkedList<JsTestDriverFileCoverage>();
+    List<JavaScriptFileCoverage> coveredFiles = new LinkedList<JavaScriptFileCoverage>();
 
-    JsTestDriverFileCoverage fileCoverage = new JsTestDriverFileCoverage();
+    JavaScriptFileCoverage fileCoverage = new JavaScriptFileCoverage();
 
     for (String line : lines) {
       if (line.indexOf("SF:") > -1) {
-        fileCoverage = new JsTestDriverFileCoverage();
-        String fullFileName = line.substring(line.indexOf("SF:") + 3);
+        fileCoverage = new JavaScriptFileCoverage();
+        String filePath = line.substring(line.indexOf("SF:") + 3);
 
-        fileCoverage.setFullFileName(fullFileName);
+        fileCoverage.setFilePath(filePath);
 
       } else if (line.indexOf("DA:") > -1) {
         String execution = line.substring(line.indexOf("DA:") + 3);
