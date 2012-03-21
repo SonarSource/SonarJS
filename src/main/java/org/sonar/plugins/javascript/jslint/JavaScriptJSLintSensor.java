@@ -20,11 +20,12 @@
 
 package org.sonar.plugins.javascript.jslint;
 
-import java.io.IOException;
-import java.io.Reader;
-import java.io.StringReader;
-import java.util.List;
-
+import com.googlecode.jslint4java.Issue;
+import com.googlecode.jslint4java.JSIdentifier;
+import com.googlecode.jslint4java.JSLint;
+import com.googlecode.jslint4java.JSLintBuilder;
+import com.googlecode.jslint4java.JSLintResult;
+import com.googlecode.jslint4java.Option;
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
@@ -33,7 +34,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.Sensor;
 import org.sonar.api.batch.SensorContext;
-import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.resources.InputFile;
 import org.sonar.api.resources.Project;
@@ -43,16 +43,13 @@ import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleFinder;
 import org.sonar.api.rules.RuleQuery;
 import org.sonar.api.rules.Violation;
-import org.sonar.plugins.javascript.core.JavaScript;
 import org.sonar.plugins.javascript.JavaScriptPlugin;
+import org.sonar.plugins.javascript.core.JavaScript;
 
-import com.googlecode.jslint4java.Issue;
-import com.googlecode.jslint4java.JSFunction;
-import com.googlecode.jslint4java.JSIdentifier;
-import com.googlecode.jslint4java.JSLint;
-import com.googlecode.jslint4java.JSLintBuilder;
-import com.googlecode.jslint4java.JSLintResult;
-import com.googlecode.jslint4java.Option;
+import java.io.IOException;
+import java.io.Reader;
+import java.io.StringReader;
+import java.util.List;
 
 public class JavaScriptJSLintSensor implements Sensor {
 
