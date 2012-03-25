@@ -48,7 +48,8 @@ public class JsTestDriverSurefireSensor implements Sensor {
   private final static Logger LOG = LoggerFactory.getLogger(JsTestDriverSurefireSensor.class);
 
   public boolean shouldExecuteOnProject(Project project) {
-	return (javascript.equals(project.getLanguage()) && "jstestdriver".equals(javascript.getConfiguration().getString(JavaScriptPlugin.TEST_FRAMEWORK_KEY, JavaScriptPlugin.TEST_FRAMEWORK_DEFAULT)));  
+    return (javascript.equals(project.getLanguage()) && "jstestdriver".equals(javascript.getConfiguration().getString(JavaScriptPlugin.TEST_FRAMEWORK_KEY,
+        JavaScriptPlugin.TEST_FRAMEWORK_DEFAULT)));
   }
 
   public void analyse(Project project, SensorContext context) {
@@ -64,8 +65,8 @@ public class JsTestDriverSurefireSensor implements Sensor {
       @Override
       protected Resource<?> getUnitTestResource(String classKey) {
 
-    	org.sonar.api.resources.File unitTestFileResource = new org.sonar.api.resources.File(classKey.replaceAll("\\.", "/"));
-    	unitTestFileResource.setLanguage(javascript);
+        org.sonar.api.resources.File unitTestFileResource = getUnitTestFileResource(classKey);
+        unitTestFileResource.setLanguage(javascript);
         unitTestFileResource.setQualifier(Qualifiers.UNIT_TEST_FILE);
 
         LOG.debug("Adding unittest resource: {}", unitTestFileResource.toString());
@@ -89,6 +90,11 @@ public class JsTestDriverSurefireSensor implements Sensor {
       }
     }.collect(project, context, reportsDir);
 
+  }
+
+  protected org.sonar.api.resources.File getUnitTestFileResource(String classKey) {
+    // For JsTestDriver assume notation com.company.MyJsTest that maps to com/company/MyJsTest.js
+    return new org.sonar.api.resources.File(classKey.replaceAll("\\.", "/") + ".js");
   }
 
   protected String getUnitTestFileName(String className) {

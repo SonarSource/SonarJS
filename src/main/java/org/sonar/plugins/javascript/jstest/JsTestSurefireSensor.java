@@ -35,12 +35,22 @@ public class JsTestSurefireSensor extends JsTestDriverSurefireSensor {
   }
 
   public boolean shouldExecuteOnProject(Project project) {
-	return (javascript.equals(project.getLanguage()) && "jstest".equals(javascript.getConfiguration().getString(JavaScriptPlugin.TEST_FRAMEWORK_KEY, JavaScriptPlugin.TEST_FRAMEWORK_DEFAULT)));  
+    return (javascript.equals(project.getLanguage()) && "jstest".equals(javascript.getConfiguration().getString(JavaScriptPlugin.TEST_FRAMEWORK_KEY,
+        JavaScriptPlugin.TEST_FRAMEWORK_DEFAULT)));
   }
-  
+
   public void analyse(Project project, SensorContext context) {
     String jsTestDriverFolder = javascript.getConfiguration().getString(JavaScriptPlugin.JSTEST_FOLDER_KEY, JavaScriptPlugin.JSTEST_DEFAULT_FOLDER);
-	collect(project, context, new File(project.getFileSystem().getBasedir(), jsTestDriverFolder));
+    collect(project, context, new File(project.getFileSystem().getBasedir(), jsTestDriverFolder));
+  }
+
+  protected org.sonar.api.resources.File getUnitTestFileResource(String classKey) {
+    // For JsTest assume notation com/company/MyJsTest.js that maps directly to file name
+    return new org.sonar.api.resources.File(classKey);
+  }
+
+  protected String getUnitTestFileName(String className) {
+    return className;
   }
 
   @Override

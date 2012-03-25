@@ -37,51 +37,51 @@ import org.sonar.plugins.javascript.jslint.JavaScriptJSLintSensor;
 import org.sonar.plugins.javascript.jslint.JavaScriptRuleRepository;
 import org.sonar.plugins.javascript.jslint.JsLintRuleManager;
 import org.sonar.plugins.javascript.jstest.JsTestCoverageSensor;
+import org.sonar.plugins.javascript.jstest.JsTestMavenInitializer;
+import org.sonar.plugins.javascript.jstest.JsTestMavenPluginHandler;
 import org.sonar.plugins.javascript.jstest.JsTestSurefireSensor;
 import org.sonar.plugins.javascript.jstestdriver.JsTestDriverCoverageSensor;
 import org.sonar.plugins.javascript.jstestdriver.JsTestDriverSurefireSensor;
 import org.sonar.plugins.javascript.squid.JavaScriptSquidSensor;
 
 @Properties({
+  // Global JavaScript settings
   @Property(key = JavaScriptPlugin.FILE_SUFFIXES_KEY, defaultValue = JavaScriptPlugin.FILE_SUFFIXES_DEFVALUE, name = "File suffixes",
-      description = "Comma-separated list of suffixes for files to analyze. To not filter, leave the list empty.", global = true,
-      project = true),
+    description = "Comma-separated list of suffixes for files to analyze. To not filter, leave the list empty.", global = true,
+    project = true),
+  @Property(key = JavaScriptPlugin.TEST_FRAMEWORK_KEY, defaultValue = JavaScriptPlugin.TEST_FRAMEWORK_DEFAULT, name = "JavaScript test framework to use",
+    description = "Testing framework to use (jstest or jstestdriver)", global = true, project = true),
 
   // JSLint global settings (http://jslint.com/)
   @Property(key = JavaScriptPlugin.ASSUME_A_BROWSER_KEY, defaultValue = JavaScriptPlugin.FALSE, name = "Assume a browser",
-      description = "Assume a browser", global = true, project = true),
+    description = "Assume a browser", global = true, project = true, category = "JSLint"),
   @Property(key = JavaScriptPlugin.ASSUME_CONSOLE_ALERT_KEY, defaultValue = JavaScriptPlugin.FALSE, name = "Assume console, alert, ...",
-      description = "Assume console, alert, ...", global = true, project = true),
+    description = "Assume console, alert, ...", global = true, project = true, category = "JSLint"),
   @Property(key = JavaScriptPlugin.ASSUME_A_YAHOO_WIDGET_KEY, defaultValue = JavaScriptPlugin.FALSE, name = "Assume a Yahoo Widget",
-      description = "Assume a Yahoo Widget", global = true, project = true),
+    description = "Assume a Yahoo Widget", global = true, project = true, category = "JSLint"),
   @Property(key = JavaScriptPlugin.ASSUME_WINDOWS_KEY, defaultValue = JavaScriptPlugin.FALSE, name = "Assume Windows",
-      description = "Assume Windows", global = true, project = true),
+    description = "Assume Windows", global = true, project = true, category = "JSLint"),
   @Property(key = JavaScriptPlugin.ASSUME_RHINO_KEY, defaultValue = JavaScriptPlugin.FALSE, name = "Assume Rhino",
-      description = "Assume Rhino", global = true, project = true),
+    description = "Assume Rhino", global = true, project = true, category = "JSLint"),
   @Property(key = JavaScriptPlugin.SAFE_SUBSET_KEY, defaultValue = JavaScriptPlugin.FALSE, name = "Safe Subset",
-      description = "Safe Subset", global = true, project = true),
+    description = "Safe Subset", global = true, project = true, category = "JSLint"),
   @Property(key = JavaScriptPlugin.PREDEFINED_KEY, defaultValue = "", name = "Predefined variables",
-      description = "Predefined variables ( , separated) ", global = true, project = true),
+    description = "Predefined variables ( , separated) ", global = true, project = true, category = "JSLint"),
   @Property(key = JavaScriptPlugin.MAXIMUM_NUMBER_OF_ERRORS_KEY, defaultValue = "50", name = "Maximum number of errors",
-      description = "Maximum number of errors", global = true, project = true),
-      
-  @Property(key = JavaScriptPlugin.TEST_FRAMEWORK_KEY, defaultValue = JavaScriptPlugin.TEST_FRAMEWORK_DEFAULT, name = "JavaScript test framework to use",
-      description = "Testing framework to use (jstest or jstestdriver)", global = true, project = true),
-
+    description = "Maximum number of errors", global = true, project = true, category = "JSLint"),
 
   // JsTestDriver (http://code.google.com/p/js-test-driver/)
-  @Property(key = JavaScriptPlugin.JSTESTDRIVER_FOLDER_KEY, defaultValue = JavaScriptPlugin.JSTESTDRIVER_DEFAULT_FOLDER, name = "JsTestDriver output folder",
-      description = "Folder where JsTestDriver unit test and code coverage reports are located", global = true, project = true),
-  @Property(key = JavaScriptPlugin.JSTESTDRIVER_COVERAGE_FILE_KEY, defaultValue = JavaScriptPlugin.JSTESTDRIVER_COVERAGE_REPORT_FILENAME, name = "JsTestDriver coverage filename",
-      description = "Filename where JsTestDriver generates coverage data", global = true, project = true),
-      
-  // JsTest (https://github.com/awired/jstest-maven-plugin)
-  @Property(key = JavaScriptPlugin.JSTEST_FOLDER_KEY, defaultValue = JavaScriptPlugin.JSTEST_DEFAULT_FOLDER, name = "JsTest output folder",
-      description = "Folder where JsTest unit test and code coverage reports are located", global = true, project = true),
-  @Property(key = JavaScriptPlugin.JSTEST_COVERAGE_FILE_KEY, defaultValue = JavaScriptPlugin.JSTEST_COVERAGE_REPORT_FILENAME, name = "JsTest coverage filename",
-      description = "Filename where JsTest generates coverage data", global = true, project = true)
-})
+  @Property(key = JavaScriptPlugin.JSTESTDRIVER_FOLDER_KEY, defaultValue = JavaScriptPlugin.JSTESTDRIVER_DEFAULT_FOLDER, name = "JSTestDriver output folder",
+    description = "Folder where JsTestDriver unit test and code coverage reports are located", global = true, project = true, category = "JSTestDriver"),
+  @Property(key = JavaScriptPlugin.JSTESTDRIVER_COVERAGE_FILE_KEY, defaultValue = JavaScriptPlugin.JSTESTDRIVER_COVERAGE_REPORT_FILENAME, name = "JSTestDriver coverage filename",
+    description = "Filename where JsTestDriver generates coverage data", global = true, project = true, category = "JSTestDriver"),
 
+  // JsTest (https://github.com/awired/jstest-maven-plugin)
+  @Property(key = JavaScriptPlugin.JSTEST_FOLDER_KEY, defaultValue = JavaScriptPlugin.JSTEST_DEFAULT_FOLDER, name = "JSTest output folder",
+    description = "Folder where JsTest unit test and code coverage reports are located", global = true, project = true, category = "JSTest"),
+  @Property(key = JavaScriptPlugin.JSTEST_COVERAGE_FILE_KEY, defaultValue = JavaScriptPlugin.JSTEST_COVERAGE_REPORT_FILENAME, name = "JSTest coverage filename",
+    description = "Filename where JsTest generates coverage data", global = true, project = true, category = "JSTest")
+})
 public class JavaScriptPlugin extends SonarPlugin {
 
   public List<Class<? extends Extension>> getExtensions() {
@@ -107,19 +107,27 @@ public class JavaScriptPlugin extends SonarPlugin {
 
     list.add(JsTestDriverSurefireSensor.class);
     list.add(JsTestDriverCoverageSensor.class);
-    
+
+    list.add(JsTestMavenInitializer.class);
+    list.add(JsTestMavenPluginHandler.class);
     list.add(JsTestCoverageSensor.class);
     list.add(JsTestSurefireSensor.class);
 
     return list;
   }
 
+  // Global JavaScript constants
   public final static String FALSE = "false";
 
   public static final String FILE_SUFFIXES_KEY = "sonar.javascript.file.suffixes";
   public static final String FILE_SUFFIXES_DEFVALUE = "js";
 
   public static final String PROPERTY_PREFIX = "sonar.javascript";
+
+  public static final String TEST_FRAMEWORK_KEY = PROPERTY_PREFIX + ".testframework";
+  public static final String TEST_FRAMEWORK_DEFAULT = "jstest";
+
+  // JSLint
   public static final String PROPERTY_PREFIX_JSLINT = PROPERTY_PREFIX + ".lslint";
 
   public static final String ASSUME_A_BROWSER_KEY = PROPERTY_PREFIX_JSLINT + ".browser";
@@ -134,19 +142,19 @@ public class JavaScriptPlugin extends SonarPlugin {
 
   public static final String PREDEFINED_KEY = PROPERTY_PREFIX_JSLINT + ".predef";
 
-  public static final String TEST_FRAMEWORK_KEY = PROPERTY_PREFIX + ".testframework";
-  public static final String TEST_FRAMEWORK_DEFAULT = "jstest";
-  
+  public static final String[] GLOBAL_PARAMETERS = new String[] {ASSUME_A_BROWSER_KEY, ASSUME_CONSOLE_ALERT_KEY,
+    ASSUME_A_YAHOO_WIDGET_KEY, ASSUME_WINDOWS_KEY, ASSUME_RHINO_KEY, SAFE_SUBSET_KEY, MAXIMUM_NUMBER_OF_ERRORS_KEY, PREDEFINED_KEY};
+
+  // JSTestDriver
   public static final String JSTESTDRIVER_FOLDER_KEY = PROPERTY_PREFIX + ".jstestdriver.reportsfolder";
   public static final String JSTESTDRIVER_DEFAULT_FOLDER = "target/jstestdriver";
   public static final String JSTESTDRIVER_COVERAGE_FILE_KEY = PROPERTY_PREFIX + ".jstestdriver.coveragefile";
   public static final String JSTESTDRIVER_COVERAGE_REPORT_FILENAME = "jsTestDriver.conf-coverage.dat";
-  
+
+  // JSTest
   public static final String JSTEST_FOLDER_KEY = PROPERTY_PREFIX + ".jstest.reportsfolder";
   public static final String JSTEST_DEFAULT_FOLDER = "target/jstest/report";
-  public static final String JSTEST_COVERAGE_FILE_KEY = PROPERTY_PREFIX + ".jstestdriver.coveragefile";
+  public static final String JSTEST_COVERAGE_FILE_KEY = PROPERTY_PREFIX + ".jstest.coveragefile";
   public static final String JSTEST_COVERAGE_REPORT_FILENAME = "coverage.dat";
 
-  public static final String[] GLOBAL_PARAMETERS = new String[] { ASSUME_A_BROWSER_KEY, ASSUME_CONSOLE_ALERT_KEY,
-    ASSUME_A_YAHOO_WIDGET_KEY, ASSUME_WINDOWS_KEY, ASSUME_RHINO_KEY, SAFE_SUBSET_KEY, MAXIMUM_NUMBER_OF_ERRORS_KEY, PREDEFINED_KEY };
 }

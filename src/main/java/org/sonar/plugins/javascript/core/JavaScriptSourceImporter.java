@@ -20,19 +20,31 @@
 
 package org.sonar.plugins.javascript.core;
 
+import org.sonar.api.resources.Language;
+
+import org.sonar.api.batch.SensorContext;
+import org.sonar.api.resources.ProjectFileSystem;
+
 import org.sonar.api.batch.AbstractSourceImporter;
 import org.sonar.api.batch.Phase;
 
 @Phase(name = Phase.Name.PRE)
 public class JavaScriptSourceImporter extends AbstractSourceImporter {
 
+  Language language;
+
   public JavaScriptSourceImporter(JavaScript javascript) {
     super(javascript);
+    this.language = javascript;
   }
 
   @Override
   public String toString() {
     return getClass().getSimpleName();
+  }
+
+  protected void analyse(ProjectFileSystem fileSystem, SensorContext context) {
+    parseDirs(context, fileSystem.getSourceFiles(language), fileSystem.getSourceDirs(), false, fileSystem.getSourceCharset());
   }
 
 }
