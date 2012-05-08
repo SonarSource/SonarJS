@@ -17,8 +17,6 @@
 
   <properties>
     <sonar.exclusions>org/sonar/plugins/javascript/cpd/antlr/**/*.java</sonar.exclusions>
-    <sonar.version>2.11</sonar.version>
-    <license.owner>Eriks Nukis</license.owner>
 
     <!-- Configuration for sonar-packaging-maven-plugin -->
     <sonar.pluginClass>org.sonar.plugins.javascript.JavaScriptPlugin</sonar.pluginClass>
@@ -29,7 +27,6 @@
     <dependency>
       <groupId>org.codehaus.sonar</groupId>
       <artifactId>sonar-plugin-api</artifactId>
-      <version>${sonar.version}</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
@@ -60,7 +57,6 @@
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
-      <version>4.8.1</version>
       <scope>test</scope>
     </dependency>
   </dependencies>
