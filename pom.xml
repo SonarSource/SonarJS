@@ -33,6 +33,11 @@
       <name>Eriks Nukis</name>
       <url>https://profiles.google.com/eriks.nukis</url>
     </developer>
+    <developer>
+      <id>godin</id>
+      <name>Evgeny Mandrikov</name>
+      <organization>SonarSource</organization>
+    </developer>
   </developers>
 
   <modules>
