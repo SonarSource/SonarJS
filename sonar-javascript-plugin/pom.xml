@@ -3,53 +3,17 @@
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
-    <groupId>org.codehaus.sonar-plugins</groupId>
-    <artifactId>parent</artifactId>
-    <version>12</version>
-    <relativePath>../parent</relativePath>
+    <groupId>org.codehaus.sonar-plugins.javascript</groupId>
+    <artifactId>javascript</artifactId>
+    <version>0.5-SNAPSHOT</version>
   </parent>
 
-  <groupId>org.codehaus.sonar-plugins</groupId>
   <artifactId>sonar-javascript-plugin</artifactId>
-  <version>0.5-SNAPSHOT</version>
   <packaging>sonar-plugin</packaging>
 
-  <name>Sonar JavaScript Plugin</name>
+  <name>JavaScript :: Sonar Plugin</name>
   <description>Enables analysis of JavaScript projects into Sonar.</description>
   <url>http://docs.codehaus.org/display/SONAR/JavaScript+Plugin</url>
-  <inceptionYear>2011</inceptionYear>
-  <organization>
-    <name>Eriks Nukis</name>
-  </organization>
-  <licenses>
-    <license>
-      <name>GNU LGPL 3</name>
-      <url>http://www.gnu.org/licenses/lgpl.txt</url>
-      <distribution>repo</distribution>
-    </license>
-  </licenses>
-
-  <developers>
-    <developer>
-      <id>eriks.nukis</id>
-      <name>Eriks Nukis</name>
-      <url>https://profiles.google.com/eriks.nukis</url>
-    </developer>
-  </developers>
-
-  <scm>
-    <connection>scm:svn:https://svn.codehaus.org/sonar-plugins/trunk/javascript</connection>
-    <developerConnection>scm:svn:https://svn.codehaus.org/sonar-plugins/trunk/javascript</developerConnection>
-    <url>http://svn.sonar-plugins.codehaus.org</url>
-  </scm>
-  <issueManagement>
-    <system>JIRA</system>
-    <url>http://jira.codehaus.org/browse/SONARPLUGINS/component/14683</url>
-  </issueManagement>
-  <ciManagement>
-    <system>Bamboo</system>
-    <url>http://bamboo.ci.codehaus.org/browse/SONAR-JAVASCRIPT</url>
-  </ciManagement>
 
   <properties>
     <sonar.exclusions>org/sonar/plugins/javascript/cpd/antlr/**/*.java</sonar.exclusions>

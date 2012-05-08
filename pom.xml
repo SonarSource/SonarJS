@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>org.codehaus.sonar-plugins</groupId>
+    <artifactId>parent</artifactId>
+    <version>12</version>
+    <relativePath>../parent</relativePath>
+  </parent>
+
+  <groupId>org.codehaus.sonar-plugins.javascript</groupId>
+  <artifactId>javascript</artifactId>
+  <version>0.5-SNAPSHOT</version>
+  <packaging>pom</packaging>
+
+  <name>JavaScript</name>
+  <inceptionYear>2011</inceptionYear>
+  <organization>
+    <name>Eriks Nukis</name>
+  </organization>
+  <licenses>
+    <license>
+      <name>GNU LGPL 3</name>
+      <url>http://www.gnu.org/licenses/lgpl.txt</url>
+      <distribution>repo</distribution>
+    </license>
+  </licenses>
+
+  <developers>
+    <developer>
+      <id>eriks.nukis</id>
+      <name>Eriks Nukis</name>
+      <url>https://profiles.google.com/eriks.nukis</url>
+    </developer>
+  </developers>
+
+  <modules>
+    <module>sonar-javascript-plugin</module>
+  </modules>
+
+  <scm>
+    <connection>scm:svn:https://svn.codehaus.org/sonar-plugins/trunk/javascript</connection>
+    <developerConnection>scm:svn:https://svn.codehaus.org/sonar-plugins/trunk/javascript</developerConnection>
+    <url>http://svn.sonar-plugins.codehaus.org</url>
+  </scm>
+  <issueManagement>
+    <system>JIRA</system>
+    <url>http://jira.codehaus.org/browse/SONARPLUGINS/component/14683</url>
+  </issueManagement>
+  <ciManagement>
+    <system>Bamboo</system>
+    <url>http://bamboo.ci.codehaus.org/browse/SONAR-JAVASCRIPT</url>
+  </ciManagement>
+
+  <properties>
+    <license.owner>Eriks Nukis</license.owner>
+    <license.title>Sonar JavaScript Plugin</license.title>
+  </properties>
+
+</project>
