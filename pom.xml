@@ -19,11 +19,11 @@
   <url>http://docs.codehaus.org/display/SONAR/JavaScript+Plugin</url>
 
   <inceptionYear>2011</inceptionYear>
-  
+
   <organization>
     <name>Eriks Nukis</name>
   </organization>
-  
+
   <licenses>
     <license>
       <name>GNU LGPL 3</name>
@@ -123,4 +123,5 @@
       </plugin>
     </plugins>
   </build>
+
 </project>

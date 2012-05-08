@@ -41,7 +41,7 @@ import org.sonar.plugins.javascript.coverage.LCOVParser;
 public class JsTestDriverCoverageSensor implements Sensor {
 
   protected JavaScript javascript;
-  
+
   public JsTestDriverCoverageSensor(JavaScript javascript) {
     this.javascript = javascript;
   }
@@ -49,7 +49,8 @@ public class JsTestDriverCoverageSensor implements Sensor {
   private final static Logger LOG = LoggerFactory.getLogger(JsTestDriverCoverageSensor.class);
 
   public boolean shouldExecuteOnProject(Project project) {
-	return (javascript.equals(project.getLanguage()) && "jstestdriver".equals(javascript.getConfiguration().getString(JavaScriptPlugin.TEST_FRAMEWORK_KEY, JavaScriptPlugin.TEST_FRAMEWORK_DEFAULT)));  }
+    return (javascript.equals(project.getLanguage()) && "jstestdriver".equals(javascript.getConfiguration().getString(JavaScriptPlugin.TEST_FRAMEWORK_KEY, JavaScriptPlugin.TEST_FRAMEWORK_DEFAULT)));
+  }
 
   public void analyse(Project project, SensorContext sensorContext) {
     File jsTestDriverCoverageReportFile = new File(project.getFileSystem().getBasedir(), getTestReportsFolder()
@@ -108,13 +109,13 @@ public class JsTestDriverCoverageSensor implements Sensor {
   }
 
   protected String getTestReportsFolder() {
-	  return javascript.getConfiguration().getString(JavaScriptPlugin.JSTESTDRIVER_FOLDER_KEY, JavaScriptPlugin.JSTESTDRIVER_DEFAULT_FOLDER);
+    return javascript.getConfiguration().getString(JavaScriptPlugin.JSTESTDRIVER_FOLDER_KEY, JavaScriptPlugin.JSTESTDRIVER_DEFAULT_FOLDER);
   }
-  
+
   protected String getTestCoverageFileName() {
-	  return javascript.getConfiguration().getString(JavaScriptPlugin.JSTESTDRIVER_COVERAGE_FILE_KEY, JavaScriptPlugin.JSTESTDRIVER_COVERAGE_REPORT_FILENAME);
+    return javascript.getConfiguration().getString(JavaScriptPlugin.JSTESTDRIVER_COVERAGE_FILE_KEY, JavaScriptPlugin.JSTESTDRIVER_COVERAGE_REPORT_FILENAME);
   }
-  
+
   @Override
   public String toString() {
     return getClass().getSimpleName();

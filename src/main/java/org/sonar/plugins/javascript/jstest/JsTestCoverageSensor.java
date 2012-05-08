@@ -28,7 +28,7 @@ import org.sonar.plugins.javascript.jstestdriver.JsTestDriverCoverageSensor;
 public final class JsTestCoverageSensor extends JsTestDriverCoverageSensor {
 
   public JsTestCoverageSensor(JavaScript javascript) {
-	super(javascript);
+    super(javascript);
   }
 
   public boolean shouldExecuteOnProject(Project project) {
@@ -36,13 +36,13 @@ public final class JsTestCoverageSensor extends JsTestDriverCoverageSensor {
   }
 
   protected String getTestReportsFolder() {
-	  return javascript.getConfiguration().getString(JavaScriptPlugin.JSTEST_FOLDER_KEY, JavaScriptPlugin.JSTEST_DEFAULT_FOLDER);
+    return javascript.getConfiguration().getString(JavaScriptPlugin.JSTEST_FOLDER_KEY, JavaScriptPlugin.JSTEST_DEFAULT_FOLDER);
   }
-  
+
   protected String getTestCoverageFileName() {
-	  return javascript.getConfiguration().getString(JavaScriptPlugin.JSTEST_COVERAGE_FILE_KEY, JavaScriptPlugin.JSTEST_COVERAGE_REPORT_FILENAME);
+    return javascript.getConfiguration().getString(JavaScriptPlugin.JSTEST_COVERAGE_FILE_KEY, JavaScriptPlugin.JSTEST_COVERAGE_REPORT_FILENAME);
   }
-  
+
   @Override
   public String toString() {
     return getClass().getSimpleName();
