@@ -39,6 +39,19 @@ public class IterationStatementTest {
   }
 
   @Test
+  public void ok() {
+    g.doWhileStatement.mock();
+    g.whileStatement.mock();
+    g.forInStatement.mock();
+    g.forStatement.mock();
+
+    assertThat(p, parse("doWhileStatement"));
+    assertThat(p, parse("whileStatement"));
+    assertThat(p, parse("forInStatement"));
+    assertThat(p, parse("forStatement"));
+  }
+
+  @Test
   public void realLife() {
     assertThat(p, parse("do { } while (a < b);"));
     assertThat(p, parse("while (a < b) ;"));

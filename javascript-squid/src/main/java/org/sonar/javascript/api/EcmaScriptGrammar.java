@@ -96,6 +96,10 @@ public class EcmaScriptGrammar extends Grammar {
   public Rule expressionStatement;
   public Rule ifStatement;
   public Rule iterationStatement;
+  public Rule doWhileStatement;
+  public Rule whileStatement;
+  public Rule forInStatement;
+  public Rule forStatement;
   public Rule continueStatement;
   public Rule breakStatement;
   public Rule returnStatement;

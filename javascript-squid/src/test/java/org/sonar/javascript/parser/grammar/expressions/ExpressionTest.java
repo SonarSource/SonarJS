@@ -50,6 +50,8 @@ public class ExpressionTest {
   public void realLife() {
     assertThat(p, parse("a + ' ' + b"));
     assertThat(p, parse("i++"));
+    // FIXME
+    // assertThat(p, parse("1 / a == 1 / b"));
   }
 
 }

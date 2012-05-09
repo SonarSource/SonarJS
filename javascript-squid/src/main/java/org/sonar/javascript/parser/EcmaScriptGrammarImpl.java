@@ -300,12 +300,18 @@ public class EcmaScriptGrammarImpl extends EcmaScriptGrammar {
         and(IF, LPARENTHESIS, expression, RPARENTHESIS, statement, ELSE, statement),
         and(IF, LPARENTHESIS, expression, RPARENTHESIS, statement)));
     iterationStatement.is(or(
-        and(DO, statement, WHILE, LPARENTHESIS, expression, RPARENTHESIS, SEMI),
-        and(WHILE, LPARENTHESIS, expression, RPARENTHESIS, statement),
-        and(FOR, LPARENTHESIS, opt(expressionNoIn), SEMI, opt(expression), SEMI, opt(expression), RPARENTHESIS, statement),
-        and(FOR, LPARENTHESIS, VAR, variableDeclarationListNoIn, SEMI, opt(expression), SEMI, opt(expression), RPARENTHESIS, statement),
+        doWhileStatement,
+        whileStatement,
+        forInStatement,
+        forStatement));
+    doWhileStatement.is(DO, statement, WHILE, LPARENTHESIS, expression, RPARENTHESIS, SEMI);
+    whileStatement.is(WHILE, LPARENTHESIS, expression, RPARENTHESIS, statement);
+    forInStatement.is(or(
         and(FOR, LPARENTHESIS, leftHandSideExpression, IN, expression, RPARENTHESIS, statement),
         and(FOR, LPARENTHESIS, VAR, variableDeclarationListNoIn, IN, expression, RPARENTHESIS, statement)));
+    forStatement.is(or(
+        and(FOR, LPARENTHESIS, opt(expressionNoIn), SEMI, opt(expression), SEMI, opt(expression), RPARENTHESIS, statement),
+        and(FOR, LPARENTHESIS, VAR, variableDeclarationListNoIn, SEMI, opt(expression), SEMI, opt(expression), RPARENTHESIS, statement)));
     continueStatement.is(or(
         and(CONTINUE, SEMI),
         and(CONTINUE, /* TODO no line terminator here */IDENTIFIER, SEMI)));
