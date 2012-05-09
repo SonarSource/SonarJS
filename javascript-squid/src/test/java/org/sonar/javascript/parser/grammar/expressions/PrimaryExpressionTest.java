@@ -28,27 +28,34 @@ import org.sonar.javascript.parser.EcmaScriptParser;
 import static com.sonar.sslr.test.parser.ParserMatchers.parse;
 import static org.junit.Assert.assertThat;
 
-public class ExpressionTest {
+public class PrimaryExpressionTest {
 
   Parser<EcmaScriptGrammar> p = EcmaScriptParser.create();
   EcmaScriptGrammar g = p.getGrammar();
 
   @Before
   public void init() {
-    p.setRootRule(g.expression);
+    p.setRootRule(g.primaryExpression);
   }
 
   @Test
   public void ok() {
-    g.assignmentExpression.mock();
+    g.literal.mock();
+    g.arrayLiteral.mock();
+    g.objectLiteral.mock();
+    g.expression.mock();
 
-    assertThat(p, parse("assignmentExpression"));
-    assertThat(p, parse("assignmentExpression , assignmentExpression"));
+    assertThat(p, parse("this"));
+    assertThat(p, parse("identifier"));
+    assertThat(p, parse("literal"));
+    assertThat(p, parse("arrayLiteral"));
+    assertThat(p, parse("objectLiteral"));
+    assertThat(p, parse("( expression )"));
   }
 
   @Test
   public void realLife() {
-    assertThat(p, parse("a + ' ' + b"));
+    assertThat(p, parse("''"));
   }
 
 }

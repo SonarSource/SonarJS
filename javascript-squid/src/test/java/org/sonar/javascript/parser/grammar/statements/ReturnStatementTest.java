@@ -17,26 +17,32 @@
  * License along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.javascript.api;
+package org.sonar.javascript.parser.grammar.statements;
 
-import com.sonar.sslr.api.AstNode;
-import com.sonar.sslr.api.TokenType;
+import com.sonar.sslr.impl.Parser;
+import org.junit.Before;
+import org.junit.Test;
+import org.sonar.javascript.api.EcmaScriptGrammar;
+import org.sonar.javascript.parser.EcmaScriptParser;
 
-public enum EcmaScriptTokenType implements TokenType {
-  INTEGER_LITERAL,
-  FLOATING_LITERAL,
-  REGULAR_EXPRESSION_LITERAL;
+import static com.sonar.sslr.test.parser.ParserMatchers.parse;
+import static org.junit.Assert.assertThat;
 
-  public String getName() {
-    return name();
+public class ReturnStatementTest {
+
+  Parser<EcmaScriptGrammar> p = EcmaScriptParser.create();
+  EcmaScriptGrammar g = p.getGrammar();
+
+  @Before
+  public void init() {
+    p.setRootRule(g.returnStatement);
   }
 
-  public String getValue() {
-    return name();
-  }
-
-  public boolean hasToBeSkippedFromAst(AstNode node) {
-    return false;
+  @Test
+  public void realLife() {
+    assertThat(p, parse("return;"));
+    assertThat(p, parse("return a + b;"));
+    assertThat(p, parse("return this.first + (this.middle ? ' ' + this.middle : '') + ' ' + this.last;"));
   }
 
 }

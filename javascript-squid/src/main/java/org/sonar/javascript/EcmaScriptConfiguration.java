@@ -21,9 +21,18 @@ package org.sonar.javascript;
 
 import org.sonar.squid.api.SquidConfiguration;
 
+import java.nio.charset.Charset;
+
 public class EcmaScriptConfiguration extends SquidConfiguration {
 
   private boolean ignoreHeaderComments;
+
+  public EcmaScriptConfiguration() {
+  }
+
+  public EcmaScriptConfiguration(Charset charset) {
+    super(charset);
+  }
 
   public void setIgnoreHeaderComments(boolean ignoreHeaderComments) {
     this.ignoreHeaderComments = ignoreHeaderComments;

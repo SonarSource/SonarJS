@@ -30,7 +30,6 @@ import org.sonar.javascript.api.EcmaScriptPunctuator;
 import static com.sonar.sslr.api.GenericTokenType.LITERAL;
 import static com.sonar.sslr.impl.channel.RegexpChannelBuilder.commentRegexp;
 import static com.sonar.sslr.impl.channel.RegexpChannelBuilder.regexp;
-import static org.sonar.javascript.api.EcmaScriptTokenType.CHARACTER_LITERAL;
 import static org.sonar.javascript.api.EcmaScriptTokenType.FLOATING_LITERAL;
 import static org.sonar.javascript.api.EcmaScriptTokenType.INTEGER_LITERAL;
 import static org.sonar.javascript.api.EcmaScriptTokenType.REGULAR_EXPRESSION_LITERAL;
@@ -64,7 +63,7 @@ public class EcmaScriptLexer {
         .withChannel(regexp(LITERAL, "\"([^\"\\\\]*+(\\\\[\\s\\S])?+)*+\""))
 
         // Character Literals
-        .withChannel(regexp(CHARACTER_LITERAL, "'([^'\\n\\\\]*+(\\\\.)?+)*+'"))
+        .withChannel(regexp(LITERAL, "'([^'\\n\\\\]*+(\\\\.)?+)*+'"))
 
         // Regular Expression Literals
         .withChannel(regexp(REGULAR_EXPRESSION_LITERAL, "/([^/\\n\\\\]*+(\\\\.)?+)*+/\\p{javaJavaIdentifierPart}*+"))

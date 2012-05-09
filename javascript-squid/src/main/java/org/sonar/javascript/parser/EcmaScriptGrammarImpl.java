@@ -237,21 +237,17 @@ public class EcmaScriptGrammarImpl extends EcmaScriptGrammar {
     logicalOrExpression.is(logicalAndExpression, opt(OROR, logicalOrExpression));
     logicalOrExpressionNoIn.is(logicalAndExpressionNoIn, opt(OROR, logicalOrExpressionNoIn));
 
-    conditionalExpression.is(or(
-        logicalOrExpression,
-        and(logicalOrExpression, QUERY, assignmentExpression, COLON, assignmentExpression)));
-    conditionalExpressionNoIn.is(or(
-        logicalOrExpressionNoIn,
-        and(logicalOrExpressionNoIn, QUERY, assignmentExpression, COLON, assignmentExpressionNoIn)));
+    conditionalExpression.is(logicalOrExpression, opt(QUERY, assignmentExpression, COLON, assignmentExpression));
+    conditionalExpressionNoIn.is(logicalOrExpressionNoIn, opt(QUERY, assignmentExpression, COLON, assignmentExpressionNoIn));
 
     assignmentExpression.is(or(
-        conditionalExpression,
         and(leftHandSideExpression, EQU, assignmentExpression),
-        and(leftHandSideExpression, assignmentOperator, assignmentExpression)));
+        and(leftHandSideExpression, assignmentOperator, assignmentExpression),
+        conditionalExpression));
     assignmentExpressionNoIn.is(or(
-        conditionalExpressionNoIn,
         and(leftHandSideExpression, EQU, assignmentExpressionNoIn),
-        and(leftHandSideExpression, assignmentOperator, assignmentExpressionNoIn)));
+        and(leftHandSideExpression, assignmentOperator, assignmentExpressionNoIn),
+        conditionalExpressionNoIn));
 
     assignmentOperator.is(or(
         STAR_EQU,
@@ -320,6 +316,8 @@ public class EcmaScriptGrammarImpl extends EcmaScriptGrammar {
         and(BREAK, /* TODO no line terminator here */IDENTIFIER, SEMI)));
     returnStatement.is(or(
         and(RETURN, SEMI),
+        // TODO check specs
+        and(RETURN, expression, SEMI),
         and(RETURN, /* TODO no line terminator here */IDENTIFIER, SEMI)));
     withStatement.is(WITH, LPARENTHESIS, expression, RPARENTHESIS, statement);
     switchStatement.is(SWITCH, LPARENTHESIS, expression, RPARENTHESIS, caseBlock);
