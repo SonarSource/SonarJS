@@ -19,45 +19,44 @@
  */
 package org.sonar.plugins.javascript.cpd;
 
-import java.io.FileNotFoundException;
-import java.io.IOException;
-
+import com.sonar.sslr.api.GenericTokenType;
+import com.sonar.sslr.api.Token;
+import com.sonar.sslr.impl.Lexer;
 import net.sourceforge.pmd.cpd.SourceCode;
 import net.sourceforge.pmd.cpd.TokenEntry;
 import net.sourceforge.pmd.cpd.Tokenizer;
 import net.sourceforge.pmd.cpd.Tokens;
+import org.sonar.javascript.EcmaScriptConfiguration;
+import org.sonar.javascript.lexer.EcmaScriptLexer;
 
-import org.antlr.runtime.ANTLRFileStream;
-import org.antlr.runtime.Token;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.sonar.plugins.javascript.cpd.antlr.ES3Lexer;
+import java.io.File;
+import java.nio.charset.Charset;
+import java.util.List;
 
 public class JavaScriptTokenizer implements Tokenizer {
 
-  private static final Logger LOG = LoggerFactory.getLogger(JavaScriptTokenizer.class);
+  private final Charset charset;
+
+  public JavaScriptTokenizer(Charset charset) {
+    this.charset = charset;
+  }
 
   public final void tokenize(SourceCode source, Tokens cpdTokens) {
+    Lexer lexer = EcmaScriptLexer.create(new EcmaScriptConfiguration(charset));
     String fileName = source.getFileName();
-    Token token;
-    ES3Lexer lexer;
-
-    try {
-      lexer = new ES3Lexer(new ANTLRFileStream(fileName));
-
-      token = lexer.nextToken();
-      while (token.getType() != Token.EOF) {
-        cpdTokens.add(new TokenEntry(token.getText(), fileName, token.getLine()));
-        token = lexer.nextToken();
-      }
+    List<Token> tokens = lexer.lex(new File(fileName));
+    for (Token token : tokens) {
+      TokenEntry cpdToken = new TokenEntry(getTokenImage(token), fileName, token.getLine());
+      cpdTokens.add(cpdToken);
     }
-
-    catch (FileNotFoundException fnfe) {
-      LOG.error("File not found", fnfe);
-    } catch (IOException e) {
-      LOG.error("Cannot read file", e);
-    }
-
     cpdTokens.add(TokenEntry.getEOF());
   }
+
+  private String getTokenImage(Token token) {
+    if (token.getType() == GenericTokenType.LITERAL) {
+      return GenericTokenType.LITERAL.getValue();
+    }
+    return token.getValue();
+  }
+
 }

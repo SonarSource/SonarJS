@@ -1,1 +1,0 @@
-function getB (){var b = true;return b;}

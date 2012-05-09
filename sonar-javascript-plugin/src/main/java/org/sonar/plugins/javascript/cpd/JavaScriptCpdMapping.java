@@ -20,24 +20,29 @@
 package org.sonar.plugins.javascript.cpd;
 
 import net.sourceforge.pmd.cpd.Tokenizer;
-
 import org.sonar.api.batch.AbstractCpdMapping;
 import org.sonar.api.resources.Language;
+import org.sonar.api.resources.Project;
 import org.sonar.plugins.javascript.core.JavaScript;
+
+import java.nio.charset.Charset;
 
 public class JavaScriptCpdMapping extends AbstractCpdMapping {
 
-  private JavaScript javascript;
+  private final JavaScript language;
+  private final Charset charset;
 
-  public JavaScriptCpdMapping(JavaScript javascript) {
-    this.javascript = javascript;
+  public JavaScriptCpdMapping(JavaScript language, Project project) {
+    this.language = language;
+    this.charset = project.getFileSystem().getSourceCharset();
   }
 
   public Tokenizer getTokenizer() {
-    return new JavaScriptTokenizer();
+    return new JavaScriptTokenizer(charset);
   }
 
   public Language getLanguage() {
-    return javascript;
+    return language;
   }
+
 }
