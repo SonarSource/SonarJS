@@ -41,6 +41,8 @@
   </developers>
 
   <modules>
+    <module>javascript-squid</module>
+    <module>javascript-checks</module>
     <module>sonar-javascript-plugin</module>
   </modules>
 
@@ -91,5 +93,20 @@
       </dependency>
     </dependencies>
   </dependencyManagement>
+
+  <repositories>
+    <repository>
+      <!-- For snapshot of SSLR -->
+      <id>cloudbees</id>
+      <name>cloudbees</name>
+      <url>http://repository-sonarplugins.forge.cloudbees.com/snapshot/</url>
+      <releases>
+        <enabled>false</enabled>
+      </releases>
+      <snapshots>
+        <enabled>true</enabled>
+      </snapshots>
+    </repository>
+  </repositories>
 
 </project>
