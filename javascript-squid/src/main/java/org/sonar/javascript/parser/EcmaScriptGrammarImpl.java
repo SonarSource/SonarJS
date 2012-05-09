@@ -31,6 +31,7 @@ import static com.sonar.sslr.impl.matcher.GrammarFunctions.Standard.opt;
 import static com.sonar.sslr.impl.matcher.GrammarFunctions.Standard.or;
 import static org.sonar.javascript.api.EcmaScriptKeyword.BREAK;
 import static org.sonar.javascript.api.EcmaScriptKeyword.CASE;
+import static org.sonar.javascript.api.EcmaScriptKeyword.CATCH;
 import static org.sonar.javascript.api.EcmaScriptKeyword.CONTINUE;
 import static org.sonar.javascript.api.EcmaScriptKeyword.DEBUGGER;
 import static org.sonar.javascript.api.EcmaScriptKeyword.DEFAULT;
@@ -326,11 +327,8 @@ public class EcmaScriptGrammarImpl extends EcmaScriptGrammar {
     defaultClause.is(DEFAULT, COLON, opt(statementList));
     labeledStatement.is(IDENTIFIER, COLON, statement);
     throwStatement.is(THROW, /* TODO no line terminator here */expression, SEMI);
-    tryStatement.is(or(
-        and(TRY, block, catch_),
-        and(TRY, block, finally_),
-        and(TRY, block, catch_, finally_)));
-    catch_.is(CASE, LPARENTHESIS, IDENTIFIER, RPARENTHESIS, block);
+    tryStatement.is(TRY, block, or(and(catch_, opt(finally_)), finally_));
+    catch_.is(CATCH, LPARENTHESIS, IDENTIFIER, RPARENTHESIS, block);
     finally_.is(FINALLY, block);
     debuggerStatement.is(DEBUGGER, SEMI);
   }
