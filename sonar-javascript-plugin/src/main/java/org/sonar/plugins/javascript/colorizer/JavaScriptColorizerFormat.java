@@ -19,18 +19,13 @@
  */
 package org.sonar.plugins.javascript.colorizer;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-
+import com.google.common.collect.ImmutableList;
 import org.sonar.api.web.CodeColorizerFormat;
-import org.sonar.colorizer.CDocTokenizer;
-import org.sonar.colorizer.CppDocTokenizer;
-import org.sonar.colorizer.JavadocTokenizer;
-import org.sonar.colorizer.KeywordsTokenizer;
-import org.sonar.colorizer.StringTokenizer;
-import org.sonar.colorizer.Tokenizer;
+import org.sonar.colorizer.*;
+import org.sonar.javascript.api.EcmaScriptKeyword;
 import org.sonar.plugins.javascript.core.JavaScript;
+
+import java.util.List;
 
 public class JavaScriptColorizerFormat extends CodeColorizerFormat {
 
@@ -40,8 +35,12 @@ public class JavaScriptColorizerFormat extends CodeColorizerFormat {
 
   @Override
   public List<Tokenizer> getTokenizers() {
-    return Collections.unmodifiableList(Arrays.asList(new StringTokenizer("<span class=\"s\">", "</span>"), new CDocTokenizer(
-      "<span class=\"cd\">", "</span>"), new JavadocTokenizer("<span class=\"cppd\">", "</span>"), new CppDocTokenizer(
-      "<span class=\"cppd\">", "</span>"), new KeywordsTokenizer("<span class=\"k\">", "</span>", JavaScriptKeywords.get())));
+    return ImmutableList.of(
+        new StringTokenizer("<span class=\"s\">", "</span>"),
+        new CDocTokenizer("<span class=\"cd\">", "</span>"),
+        new JavadocTokenizer("<span class=\"cppd\">", "</span>"),
+        new CppDocTokenizer("<span class=\"cppd\">", "</span>"),
+        new KeywordsTokenizer("<span class=\"k\">", "</span>", EcmaScriptKeyword.keywordValues()));
   }
+
 }
