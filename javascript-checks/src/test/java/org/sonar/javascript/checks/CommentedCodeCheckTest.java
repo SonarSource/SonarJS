@@ -19,20 +19,24 @@
  */
 package org.sonar.javascript.checks;
 
-import com.google.common.collect.ImmutableList;
+import com.sonar.sslr.squid.checks.CheckMessagesVerifier;
+import org.junit.Test;
+import org.sonar.javascript.JavaScriptAstScanner;
+import org.sonar.squid.api.SourceFile;
 
-import java.util.List;
+import java.io.File;
 
-public final class CheckList {
+import static org.hamcrest.Matchers.containsString;
 
-  private CheckList() {
-  }
+public class CommentedCodeCheckTest {
 
-  public static List<Class> getChecks() {
-    return ImmutableList.<Class> of(
-        ParsingErrorCheck.class,
-        XPathCheck.class,
-        CommentedCodeCheck.class);
+  @Test
+  public void test() {
+    SourceFile file = JavaScriptAstScanner.scanSingleFile(new File("src/test/resources/checks/commentedCode.js"), new CommentedCodeCheck());
+    CheckMessagesVerifier.verify(file.getCheckMessages())
+        .next().atLine(4).withMessageThat(containsString("Sections of code should not be \"commented out\"."))
+        .next().atLine(11)
+        .noMore();
   }
 
 }
