@@ -62,6 +62,8 @@
     <license.owner>Eriks Nukis</license.owner>
     <license.title>Sonar JavaScript Plugin</license.title>
 
+    <maven.test.redirectTestOutputToFile>true</maven.test.redirectTestOutputToFile>
+
     <sonar.version>2.11</sonar.version>
   </properties>
 
