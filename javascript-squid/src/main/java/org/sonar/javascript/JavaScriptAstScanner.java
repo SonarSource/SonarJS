@@ -19,20 +19,19 @@
  */
 package org.sonar.javascript;
 
+import com.sonar.sslr.api.AstNode;
+import com.sonar.sslr.api.AstNodeType;
 import com.sonar.sslr.api.CommentAnalyser;
 import com.sonar.sslr.impl.Parser;
-import com.sonar.sslr.squid.AstScanner;
-import com.sonar.sslr.squid.SquidAstVisitor;
-import com.sonar.sslr.squid.SquidAstVisitorContextImpl;
-import com.sonar.sslr.squid.metrics.CommentsVisitor;
-import com.sonar.sslr.squid.metrics.CounterVisitor;
-import com.sonar.sslr.squid.metrics.LinesOfCodeVisitor;
-import com.sonar.sslr.squid.metrics.LinesVisitor;
+import com.sonar.sslr.squid.*;
+import com.sonar.sslr.squid.metrics.*;
 import org.sonar.javascript.api.EcmaScriptGrammar;
 import org.sonar.javascript.api.EcmaScriptMetric;
+import org.sonar.javascript.api.EcmaScriptPunctuator;
 import org.sonar.javascript.parser.EcmaScriptParser;
 import org.sonar.squid.api.SourceCode;
 import org.sonar.squid.api.SourceFile;
+import org.sonar.squid.api.SourceFunction;
 import org.sonar.squid.api.SourceProject;
 import org.sonar.squid.indexer.QueryByType;
 
@@ -92,6 +91,21 @@ public final class JavaScriptAstScanner {
     /* Files */
     builder.setFilesMetric(EcmaScriptMetric.FILES);
 
+    /* Functions */
+    builder.withSquidAstVisitor(new SourceCodeBuilderVisitor<EcmaScriptGrammar>(new SourceCodeBuilderCallback() {
+      public SourceCode createSourceCode(SourceCode parentSourceCode, AstNode astNode) {
+        String functionName = astNode.getChild(1).getTokenValue();
+        SourceFunction function = new SourceFunction(functionName + ":" + astNode.getToken().getLine());
+        function.setStartAtLine(astNode.getTokenLine());
+        return function;
+      }
+    }, parser.getGrammar().functionDeclaration));
+
+    builder.withSquidAstVisitor(CounterVisitor.<EcmaScriptGrammar> builder()
+        .setMetricDef(EcmaScriptMetric.FUNCTIONS)
+        .subscribeTo(parser.getGrammar().functionDeclaration)
+        .build());
+
     /* Metrics */
     builder.withSquidAstVisitor(new LinesVisitor<EcmaScriptGrammar>(EcmaScriptMetric.LINES));
     builder.withSquidAstVisitor(new LinesOfCodeVisitor<EcmaScriptGrammar>(EcmaScriptMetric.LINES_OF_CODE));
@@ -103,6 +117,30 @@ public final class JavaScriptAstScanner {
     builder.withSquidAstVisitor(CounterVisitor.<EcmaScriptGrammar> builder()
         .setMetricDef(EcmaScriptMetric.STATEMENTS)
         .subscribeTo(parser.getGrammar().statement)
+        .build());
+
+    AstNodeType[] complexityAstNodeType = new AstNodeType[] {
+      // Entry points
+      parser.getGrammar().functionDeclaration,
+
+      // Branching nodes
+      parser.getGrammar().ifStatement,
+      parser.getGrammar().iterationStatement,
+      parser.getGrammar().switchStatement,
+      parser.getGrammar().caseClause,
+      parser.getGrammar().defaultClause,
+      parser.getGrammar().catch_,
+      parser.getGrammar().returnStatement,
+      parser.getGrammar().throwStatement,
+
+      // Expressions
+      EcmaScriptPunctuator.QUERY,
+      EcmaScriptPunctuator.ANDAND,
+      EcmaScriptPunctuator.OROR
+    };
+    builder.withSquidAstVisitor(ComplexityVisitor.<EcmaScriptGrammar> builder()
+        .setMetricDef(EcmaScriptMetric.COMPLEXITY)
+        .subscribeTo(complexityAstNodeType)
         .build());
 
     /* External visitors (typically Check ones) */

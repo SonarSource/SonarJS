@@ -24,6 +24,8 @@ import org.sonar.api.batch.Sensor;
 import org.sonar.api.batch.SensorContext;
 import org.sonar.api.checks.AnnotationCheckFactory;
 import org.sonar.api.measures.CoreMetrics;
+import org.sonar.api.measures.PersistenceMode;
+import org.sonar.api.measures.RangeDistributionBuilder;
 import org.sonar.api.resources.File;
 import org.sonar.api.resources.InputFileUtils;
 import org.sonar.api.resources.Project;
@@ -36,6 +38,8 @@ import org.sonar.plugins.javascript.core.JavaScript;
 import org.sonar.squid.api.CheckMessage;
 import org.sonar.squid.api.SourceCode;
 import org.sonar.squid.api.SourceFile;
+import org.sonar.squid.api.SourceFunction;
+import org.sonar.squid.indexer.QueryByParent;
 import org.sonar.squid.indexer.QueryByType;
 
 import java.util.Collection;
@@ -43,10 +47,14 @@ import java.util.Locale;
 
 public class JavaScriptSquidSensor implements Sensor {
 
+  private final Number[] FUNCTIONS_DISTRIB_BOTTOM_LIMITS = {1, 2, 4, 6, 8, 10, 12, 20, 30};
+  private final Number[] FILES_DISTRIB_BOTTOM_LIMITS = {0, 5, 10, 20, 30, 60, 90};
+
   private final AnnotationCheckFactory annotationCheckFactory;
 
   private Project project;
   private SensorContext context;
+  private AstScanner<EcmaScriptGrammar> scanner;
 
   public JavaScriptSquidSensor() {
     this.annotationCheckFactory = null;
@@ -63,7 +71,7 @@ public class JavaScriptSquidSensor implements Sensor {
     // Collection<SquidCheck> squidChecks = annotationCheckFactory.getChecks();
     // AstScanner<EcmaScriptGrammar> scanner = JavaScriptAstScanner.create(new EcmaScriptConfiguration(), squidChecks.toArray(new
     // SquidCheck[squidChecks.size()]));
-    AstScanner<EcmaScriptGrammar> scanner = JavaScriptAstScanner.create(createConfiguration(project));
+    this.scanner = JavaScriptAstScanner.create(createConfiguration(project));
     scanner.scanFiles(InputFileUtils.toFiles(project.getFileSystem().mainFiles(JavaScript.KEY)));
 
     Collection<SourceCode> squidSourceFiles = scanner.getIndex().search(new QueryByType(SourceFile.class));
@@ -80,6 +88,8 @@ public class JavaScriptSquidSensor implements Sensor {
 
       File sonarFile = File.fromIOFile(new java.io.File(squidFile.getKey()), project);
 
+      saveFilesComplexityDistribution(sonarFile, squidFile);
+      saveFunctionsComplexityDistribution(sonarFile, squidFile);
       saveMeasures(sonarFile, squidFile);
       saveViolations(sonarFile, squidFile);
     }
@@ -89,9 +99,26 @@ public class JavaScriptSquidSensor implements Sensor {
     context.saveMeasure(sonarFile, CoreMetrics.FILES, squidFile.getDouble(EcmaScriptMetric.FILES));
     context.saveMeasure(sonarFile, CoreMetrics.LINES, squidFile.getDouble(EcmaScriptMetric.LINES));
     context.saveMeasure(sonarFile, CoreMetrics.NCLOC, squidFile.getDouble(EcmaScriptMetric.LINES_OF_CODE));
+    context.saveMeasure(sonarFile, CoreMetrics.FUNCTIONS, squidFile.getDouble(EcmaScriptMetric.FUNCTIONS));
     context.saveMeasure(sonarFile, CoreMetrics.STATEMENTS, squidFile.getDouble(EcmaScriptMetric.STATEMENTS));
+    context.saveMeasure(sonarFile, CoreMetrics.COMPLEXITY, squidFile.getDouble(EcmaScriptMetric.COMPLEXITY));
     context.saveMeasure(sonarFile, CoreMetrics.COMMENT_BLANK_LINES, squidFile.getDouble(EcmaScriptMetric.COMMENT_BLANK_LINES));
     context.saveMeasure(sonarFile, CoreMetrics.COMMENT_LINES, squidFile.getDouble(EcmaScriptMetric.COMMENT_LINES));
+  }
+
+  private void saveFunctionsComplexityDistribution(File sonarFile, SourceFile squidFile) {
+    Collection<SourceCode> squidFunctionsInFile = scanner.getIndex().search(new QueryByParent(squidFile), new QueryByType(SourceFunction.class));
+    RangeDistributionBuilder complexityDistribution = new RangeDistributionBuilder(CoreMetrics.FUNCTION_COMPLEXITY_DISTRIBUTION, FUNCTIONS_DISTRIB_BOTTOM_LIMITS);
+    for (SourceCode squidFunction : squidFunctionsInFile) {
+      complexityDistribution.add(squidFunction.getDouble(EcmaScriptMetric.COMPLEXITY));
+    }
+    context.saveMeasure(sonarFile, complexityDistribution.build().setPersistenceMode(PersistenceMode.MEMORY));
+  }
+
+  private void saveFilesComplexityDistribution(File sonarFile, SourceFile squidFile) {
+    RangeDistributionBuilder complexityDistribution = new RangeDistributionBuilder(CoreMetrics.FILE_COMPLEXITY_DISTRIBUTION, FILES_DISTRIB_BOTTOM_LIMITS);
+    complexityDistribution.add(squidFile.getDouble(EcmaScriptMetric.COMPLEXITY));
+    context.saveMeasure(sonarFile, complexityDistribution.build().setPersistenceMode(PersistenceMode.MEMORY));
   }
 
   private void saveViolations(File sonarFile, SourceFile squidFile) {

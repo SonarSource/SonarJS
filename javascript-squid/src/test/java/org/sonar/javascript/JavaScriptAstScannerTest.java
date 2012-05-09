@@ -71,4 +71,16 @@ public class JavaScriptAstScannerTest {
     assertThat(file.getInt(EcmaScriptMetric.STATEMENTS), is(1));
   }
 
+  @Test
+  public void functions() {
+    SourceFile file = JavaScriptAstScanner.scanSingleFile(new File("src/test/resources/metrics/functions.js"));
+    assertThat(file.getInt(EcmaScriptMetric.FUNCTIONS), is(2));
+  }
+
+  @Test
+  public void complexity() {
+    SourceFile file = JavaScriptAstScanner.scanSingleFile(new File("src/test/resources/metrics/complexity.js"));
+    assertThat(file.getInt(EcmaScriptMetric.COMPLEXITY), is(5));
+  }
+
 }

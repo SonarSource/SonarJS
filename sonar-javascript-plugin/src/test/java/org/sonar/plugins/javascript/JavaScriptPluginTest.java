@@ -19,11 +19,11 @@
  */
 package org.sonar.plugins.javascript;
 
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
-
 import org.junit.Before;
 import org.junit.Test;
+
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertThat;
 
 public class JavaScriptPluginTest {
 
@@ -36,6 +36,7 @@ public class JavaScriptPluginTest {
 
   @Test
   public void testGetExtensions() throws Exception {
-    assertThat(plugin.getExtensions().size(), is(16));
+    assertThat(plugin.getExtensions().size(), is(15));
   }
+
 }

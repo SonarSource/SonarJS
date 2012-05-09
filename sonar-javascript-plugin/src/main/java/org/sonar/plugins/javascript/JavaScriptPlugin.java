@@ -27,7 +27,6 @@ import org.sonar.api.Properties;
 import org.sonar.api.Property;
 import org.sonar.api.SonarPlugin;
 import org.sonar.plugins.javascript.colorizer.JavaScriptColorizerFormat;
-import org.sonar.plugins.javascript.complexity.JavaScriptComplexitySensor;
 import org.sonar.plugins.javascript.core.JavaScript;
 import org.sonar.plugins.javascript.core.JavaScriptSourceImporter;
 import org.sonar.plugins.javascript.cpd.JavaScriptCpdMapping;
@@ -100,8 +99,6 @@ public class JavaScriptPlugin extends SonarPlugin {
     list.add(JsLintRuleManager.class);
 
     list.add(JavaScriptDefaultProfile.class);
-
-    list.add(JavaScriptComplexitySensor.class);
 
     list.add(JsTestDriverSurefireSensor.class);
     list.add(JsTestDriverCoverageSensor.class);
