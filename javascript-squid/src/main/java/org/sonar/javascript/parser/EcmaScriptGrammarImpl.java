@@ -197,10 +197,7 @@ public class EcmaScriptGrammarImpl extends EcmaScriptGrammar {
     leftHandSideExpression.is(or(
         callExpression,
         newExpression));
-    postfixExpression.is(or(
-        leftHandSideExpression,
-        and(leftHandSideExpression, /* no line terminator here */INC),
-        and(leftHandSideExpression, /* no line terminator here */DEC)));
+    postfixExpression.is(leftHandSideExpression, opt(/* no line terminator here */or(INC, DEC)));
     unaryExpression.is(or(
         postfixExpression,
         and(DELETE, unaryExpression),
