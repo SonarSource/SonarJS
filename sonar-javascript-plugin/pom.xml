@@ -16,8 +16,6 @@
   <url>http://docs.codehaus.org/display/SONAR/JavaScript+Plugin</url>
 
   <properties>
-    <sonar.exclusions>org/sonar/plugins/javascript/cpd/antlr/**/*.java</sonar.exclusions>
-
     <!-- Configuration for sonar-packaging-maven-plugin -->
     <sonar.pluginClass>org.sonar.plugins.javascript.JavaScriptPlugin</sonar.pluginClass>
     <sonar.pluginName>JavaScript</sonar.pluginName>
@@ -49,11 +47,6 @@
       <scope>provided</scope>
     </dependency>
 
-    <dependency>
-      <groupId>org.antlr</groupId>
-      <artifactId>antlr-runtime</artifactId>
-      <version>3.3</version>
-    </dependency>
     <dependency>
       <groupId>com.googlecode.jslint4java</groupId>
       <artifactId>jslint4java</artifactId>
@@ -87,9 +80,8 @@
             <configuration>
               <rules>
                 <requireFilesSize>
-                  <!-- TODO reduce size by removal of dependency on antlr -->
-                  <maxsize>2500000</maxsize>
-                  <minsize>1500000</minsize>
+                  <maxsize>1500000</maxsize>
+                  <minsize>1000000</minsize>
                   <files>
                     <file>${project.build.directory}/${project.build.finalName}.jar</file>
                   </files>
