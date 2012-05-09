@@ -35,10 +35,10 @@ public class XPathCheck extends AbstractXPathCheck<EcmaScriptGrammar> {
   private static final String DEFAULT_XPATH_QUERY = "";
   private static final String DEFAULT_MESSAGE = "The XPath expression matches this piece of code";
 
-  @RuleProperty(key = "xpathQuery", description = "The XPath query.", defaultValue = "" + DEFAULT_XPATH_QUERY)
+  @RuleProperty(key = "xpathQuery", defaultValue = "" + DEFAULT_XPATH_QUERY)
   public String xpathQuery = DEFAULT_XPATH_QUERY;
 
-  @RuleProperty(key = "message", description = "The violation message.", defaultValue = "" + DEFAULT_XPATH_QUERY)
+  @RuleProperty(key = "message", defaultValue = "" + DEFAULT_XPATH_QUERY)
   public String message = DEFAULT_MESSAGE;
 
   @Override
