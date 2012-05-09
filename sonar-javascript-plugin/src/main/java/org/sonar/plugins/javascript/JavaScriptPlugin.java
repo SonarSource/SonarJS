@@ -41,7 +41,6 @@ import org.sonar.plugins.javascript.jstest.JsTestMavenPluginHandler;
 import org.sonar.plugins.javascript.jstest.JsTestSurefireSensor;
 import org.sonar.plugins.javascript.jstestdriver.JsTestDriverCoverageSensor;
 import org.sonar.plugins.javascript.jstestdriver.JsTestDriverSurefireSensor;
-import org.sonar.plugins.javascript.squid.JavaScriptSquidSensor;
 
 @Properties({
   // Global JavaScript settings

@@ -25,6 +25,18 @@
 
   <dependencies>
     <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>javascript-squid</artifactId>
+      <version>${project.version}</version>
+      <exclusions>
+        <exclusion>
+          <groupId>ch.qos.logback</groupId>
+          <artifactId>logback-classic</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+
+    <dependency>
       <groupId>org.codehaus.sonar</groupId>
       <artifactId>sonar-plugin-api</artifactId>
       <scope>provided</scope>
@@ -75,7 +87,8 @@
             <configuration>
               <rules>
                 <requireFilesSize>
-                  <maxsize>2000000</maxsize>
+                  <!-- TODO reduce size by removal of dependency on antlr -->
+                  <maxsize>2500000</maxsize>
                   <minsize>1500000</minsize>
                   <files>
                     <file>${project.build.directory}/${project.build.finalName}.jar</file>

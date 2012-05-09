@@ -1,0 +1,109 @@
+/*
+ * Sonar JavaScript Plugin
+ * Copyright (C) 2011 Eriks Nukis and SonarSource
+ * dev@sonar.codehaus.org
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 3 of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
+ */
+package org.sonar.plugins.javascript;
+
+import com.sonar.sslr.squid.AstScanner;
+import org.sonar.api.batch.Sensor;
+import org.sonar.api.batch.SensorContext;
+import org.sonar.api.checks.AnnotationCheckFactory;
+import org.sonar.api.measures.CoreMetrics;
+import org.sonar.api.resources.File;
+import org.sonar.api.resources.InputFileUtils;
+import org.sonar.api.resources.Project;
+import org.sonar.api.rules.Violation;
+import org.sonar.javascript.EcmaScriptConfiguration;
+import org.sonar.javascript.JavaScriptAstScanner;
+import org.sonar.javascript.api.EcmaScriptGrammar;
+import org.sonar.javascript.api.EcmaScriptMetric;
+import org.sonar.plugins.javascript.core.JavaScript;
+import org.sonar.squid.api.CheckMessage;
+import org.sonar.squid.api.SourceCode;
+import org.sonar.squid.api.SourceFile;
+import org.sonar.squid.indexer.QueryByType;
+
+import java.util.Collection;
+import java.util.Locale;
+
+public class JavaScriptSquidSensor implements Sensor {
+
+  private final AnnotationCheckFactory annotationCheckFactory;
+
+  private Project project;
+  private SensorContext context;
+
+  public JavaScriptSquidSensor() {
+    this.annotationCheckFactory = null;
+  }
+
+  public boolean shouldExecuteOnProject(Project project) {
+    return JavaScript.KEY.equals(project.getLanguageKey());
+  }
+
+  public void analyse(Project project, SensorContext context) {
+    this.project = project;
+    this.context = context;
+
+    // Collection<SquidCheck> squidChecks = annotationCheckFactory.getChecks();
+    // AstScanner<EcmaScriptGrammar> scanner = JavaScriptAstScanner.create(new EcmaScriptConfiguration(), squidChecks.toArray(new
+    // SquidCheck[squidChecks.size()]));
+    AstScanner<EcmaScriptGrammar> scanner = JavaScriptAstScanner.create(createConfiguration(project));
+    scanner.scanFiles(InputFileUtils.toFiles(project.getFileSystem().mainFiles(JavaScript.KEY)));
+
+    Collection<SourceCode> squidSourceFiles = scanner.getIndex().search(new QueryByType(SourceFile.class));
+    save(squidSourceFiles);
+  }
+
+  private EcmaScriptConfiguration createConfiguration(Project project) {
+    return new EcmaScriptConfiguration(project.getFileSystem().getSourceCharset());
+  }
+
+  private void save(Collection<SourceCode> squidSourceFiles) {
+    for (SourceCode squidSourceFile : squidSourceFiles) {
+      SourceFile squidFile = (SourceFile) squidSourceFile;
+
+      File sonarFile = File.fromIOFile(new java.io.File(squidFile.getKey()), project);
+
+      saveMeasures(sonarFile, squidFile);
+      saveViolations(sonarFile, squidFile);
+    }
+  }
+
+  private void saveMeasures(File sonarFile, SourceFile squidFile) {
+    context.saveMeasure(sonarFile, CoreMetrics.FILES, squidFile.getDouble(EcmaScriptMetric.FILES));
+    context.saveMeasure(sonarFile, CoreMetrics.LINES, squidFile.getDouble(EcmaScriptMetric.LINES));
+    context.saveMeasure(sonarFile, CoreMetrics.NCLOC, squidFile.getDouble(EcmaScriptMetric.LINES_OF_CODE));
+    context.saveMeasure(sonarFile, CoreMetrics.STATEMENTS, squidFile.getDouble(EcmaScriptMetric.STATEMENTS));
+    context.saveMeasure(sonarFile, CoreMetrics.COMMENT_BLANK_LINES, squidFile.getDouble(EcmaScriptMetric.COMMENT_BLANK_LINES));
+    context.saveMeasure(sonarFile, CoreMetrics.COMMENT_LINES, squidFile.getDouble(EcmaScriptMetric.COMMENT_LINES));
+  }
+
+  private void saveViolations(File sonarFile, SourceFile squidFile) {
+    Collection<CheckMessage> messages = squidFile.getCheckMessages();
+    if (messages != null) {
+      for (CheckMessage message : messages) {
+        Violation violation = Violation.create(annotationCheckFactory.getActiveRule(message.getChecker()), sonarFile)
+            .setLineId(message.getLine())
+            .setMessage(message.getText(Locale.ENGLISH));
+        context.saveViolation(violation);
+      }
+    }
+  }
+
+}
