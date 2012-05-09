@@ -1,6 +1,6 @@
 /*
  * Sonar JavaScript Plugin
- * Copyright (C) 2011 Eriks Nukis
+ * Copyright (C) 2011 Eriks Nukis and SonarSource
  * dev@sonar.codehaus.org
  *
  * This program is free software; you can redistribute it and/or
@@ -17,7 +17,6 @@
  * License along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-
 package org.sonar.plugins.javascript.jstest;
 
 import org.sonar.api.batch.Initializer;
