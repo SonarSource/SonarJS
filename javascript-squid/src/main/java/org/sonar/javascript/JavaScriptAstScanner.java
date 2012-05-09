@@ -99,11 +99,11 @@ public final class JavaScriptAstScanner {
         function.setStartAtLine(astNode.getTokenLine());
         return function;
       }
-    }, parser.getGrammar().functionDeclaration));
+    }, parser.getGrammar().functionDeclaration, parser.getGrammar().functionExpression));
 
     builder.withSquidAstVisitor(CounterVisitor.<EcmaScriptGrammar> builder()
         .setMetricDef(EcmaScriptMetric.FUNCTIONS)
-        .subscribeTo(parser.getGrammar().functionDeclaration)
+        .subscribeTo(parser.getGrammar().functionDeclaration, parser.getGrammar().functionExpression)
         .build());
 
     /* Metrics */
@@ -122,6 +122,7 @@ public final class JavaScriptAstScanner {
     AstNodeType[] complexityAstNodeType = new AstNodeType[] {
       // Entry points
       parser.getGrammar().functionDeclaration,
+      parser.getGrammar().functionExpression,
 
       // Branching nodes
       parser.getGrammar().ifStatement,

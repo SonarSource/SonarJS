@@ -74,7 +74,7 @@ public class JavaScriptAstScannerTest {
   @Test
   public void functions() {
     SourceFile file = JavaScriptAstScanner.scanSingleFile(new File("src/test/resources/metrics/functions.js"));
-    assertThat(file.getInt(EcmaScriptMetric.FUNCTIONS), is(2));
+    assertThat(file.getInt(EcmaScriptMetric.FUNCTIONS), is(3));
   }
 
   @Test
