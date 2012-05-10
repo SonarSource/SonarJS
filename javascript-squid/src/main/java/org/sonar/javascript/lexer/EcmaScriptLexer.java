@@ -34,7 +34,7 @@ import static org.sonar.javascript.api.EcmaScriptTokenType.FLOATING_LITERAL;
 import static org.sonar.javascript.api.EcmaScriptTokenType.INTEGER_LITERAL;
 import static org.sonar.javascript.api.EcmaScriptTokenType.REGULAR_EXPRESSION_LITERAL;
 
-public class EcmaScriptLexer {
+public final class EcmaScriptLexer {
 
   private EcmaScriptLexer() {
   }

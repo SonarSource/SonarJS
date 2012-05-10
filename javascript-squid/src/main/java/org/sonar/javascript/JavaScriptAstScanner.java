@@ -60,8 +60,7 @@ public final class JavaScriptAstScanner {
   }
 
   public static AstScanner<EcmaScriptGrammar> create(EcmaScriptConfiguration conf, SquidAstVisitor<EcmaScriptGrammar>... visitors) {
-
-    final SquidAstVisitorContextImpl<EcmaScriptGrammar> context = new SquidAstVisitorContextImpl<EcmaScriptGrammar>(new SourceProject("C Project"));
+    final SquidAstVisitorContextImpl<EcmaScriptGrammar> context = new SquidAstVisitorContextImpl<EcmaScriptGrammar>(new SourceProject("JavaScript Project"));
     final Parser<EcmaScriptGrammar> parser = EcmaScriptParser.create(conf);
 
     AstScanner.Builder<EcmaScriptGrammar> builder = AstScanner.<EcmaScriptGrammar> builder(context).setBaseParser(parser);

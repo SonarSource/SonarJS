@@ -24,6 +24,9 @@ import com.sonar.sslr.api.Rule;
 
 public class EcmaScriptGrammar extends Grammar {
 
+  public Rule eos;
+  public Rule eosNoLb;
+
   public Rule identifierName;
 
   // A.1 Lexical

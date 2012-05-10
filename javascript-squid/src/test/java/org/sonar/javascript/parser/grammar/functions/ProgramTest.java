@@ -46,6 +46,7 @@ public class ProgramTest {
     assertThat(p, parse("if (true) {}"));
     assertThat(p, parse("document.write(\"Hello world\");"));
     assertThat(p, parse("var r = /^\\s+/;"));
+    assertThat(p, parse("function func() { doSomething() }"));
 
     // http://www.w3schools.com/js/tryit.asp?filename=tryjs_ifthenelse
     assertThat(p, parse(code(

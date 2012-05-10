@@ -24,6 +24,8 @@ import org.sonar.javascript.api.EcmaScriptGrammar;
 import static com.sonar.sslr.api.GenericTokenType.EOF;
 import static com.sonar.sslr.api.GenericTokenType.IDENTIFIER;
 import static com.sonar.sslr.api.GenericTokenType.LITERAL;
+import static com.sonar.sslr.impl.matcher.GrammarFunctions.Predicate.next;
+import static com.sonar.sslr.impl.matcher.GrammarFunctions.Predicate.not;
 import static com.sonar.sslr.impl.matcher.GrammarFunctions.Standard.and;
 import static com.sonar.sslr.impl.matcher.GrammarFunctions.Standard.o2n;
 import static com.sonar.sslr.impl.matcher.GrammarFunctions.Standard.one2n;
@@ -118,6 +120,15 @@ import static org.sonar.javascript.api.EcmaScriptTokenType.REGULAR_EXPRESSION_LI
 public class EcmaScriptGrammarImpl extends EcmaScriptGrammar {
 
   public EcmaScriptGrammarImpl() {
+    eos.is(or(
+        opt(SEMI),
+        next(RCURLYBRACE),
+        next(EOF)));
+    eosNoLb.is(or(
+        opt(SEMI),
+        next(RCURLYBRACE),
+        next(EOF)));
+
     identifierName.is(IDENTIFIER);
 
     literal.is(or(
@@ -285,8 +296,10 @@ public class EcmaScriptGrammarImpl extends EcmaScriptGrammar {
         tryStatement,
         debuggerStatement));
     block.is(LCURLYBRACE, opt(statementList), RCURLYBRACE);
-    statementList.is(one2n(statement));
-    variableStatement.is(VAR, variableDeclarationList, SEMI);
+    // TODO hack to be able to parse prototype.js version 1.7
+    // statementList.is(one2n(statement));
+    statementList.is(one2n(or(statement, functionDeclaration)));
+    variableStatement.is(VAR, variableDeclarationList, eos);
     variableDeclarationList.is(variableDeclaration, o2n(COMMA, variableDeclaration));
     variableDeclarationListNoIn.is(variableDeclarationNoIn, o2n(COMMA, variableDeclarationNoIn));
     variableDeclaration.is(IDENTIFIER, opt(initialiser));
@@ -295,16 +308,16 @@ public class EcmaScriptGrammarImpl extends EcmaScriptGrammar {
     initialiserNoIn.is(EQU, assignmentExpressionNoIn);
     emptyStatement.is(SEMI);
     // TODO verify
-    expressionStatement.is(expression, SEMI);
+    expressionStatement.is(not(FUNCTION), expression, eos);
     ifStatement.is(or(
-        and(IF, LPARENTHESIS, expression, RPARENTHESIS, statement, ELSE, statement),
+        and(IF, LPARENTHESIS, expression, RPARENTHESIS, statement, opt(ELSE, statement)),
         and(IF, LPARENTHESIS, expression, RPARENTHESIS, statement)));
     iterationStatement.is(or(
         doWhileStatement,
         whileStatement,
         forInStatement,
         forStatement));
-    doWhileStatement.is(DO, statement, WHILE, LPARENTHESIS, expression, RPARENTHESIS, SEMI);
+    doWhileStatement.is(DO, statement, WHILE, LPARENTHESIS, expression, RPARENTHESIS, eos);
     whileStatement.is(WHILE, LPARENTHESIS, expression, RPARENTHESIS, statement);
     forInStatement.is(or(
         and(FOR, LPARENTHESIS, leftHandSideExpression, IN, expression, RPARENTHESIS, statement),
@@ -313,16 +326,16 @@ public class EcmaScriptGrammarImpl extends EcmaScriptGrammar {
         and(FOR, LPARENTHESIS, opt(expressionNoIn), SEMI, opt(expression), SEMI, opt(expression), RPARENTHESIS, statement),
         and(FOR, LPARENTHESIS, VAR, variableDeclarationListNoIn, SEMI, opt(expression), SEMI, opt(expression), RPARENTHESIS, statement)));
     continueStatement.is(or(
-        and(CONTINUE, SEMI),
-        and(CONTINUE, /* TODO no line terminator here */IDENTIFIER, SEMI)));
+        and(CONTINUE, eosNoLb),
+        and(CONTINUE, /* TODO no line terminator here */IDENTIFIER, eos)));
     breakStatement.is(or(
-        and(BREAK, SEMI),
-        and(BREAK, /* TODO no line terminator here */IDENTIFIER, SEMI)));
+        and(BREAK, eosNoLb),
+        and(BREAK, /* TODO no line terminator here */IDENTIFIER, eos)));
     returnStatement.is(or(
-        and(RETURN, SEMI),
         // TODO check specs
-        and(RETURN, expression, SEMI),
-        and(RETURN, /* TODO no line terminator here */IDENTIFIER, SEMI)));
+        and(RETURN, expression, eos),
+        and(RETURN, /* TODO no line terminator here */IDENTIFIER, eos),
+        and(RETURN, eosNoLb)));
     withStatement.is(WITH, LPARENTHESIS, expression, RPARENTHESIS, statement);
     switchStatement.is(SWITCH, LPARENTHESIS, expression, RPARENTHESIS, caseBlock);
     caseBlock.is(or(
@@ -332,11 +345,11 @@ public class EcmaScriptGrammarImpl extends EcmaScriptGrammar {
     caseClause.is(CASE, expression, COLON, opt(statementList));
     defaultClause.is(DEFAULT, COLON, opt(statementList));
     labeledStatement.is(IDENTIFIER, COLON, statement);
-    throwStatement.is(THROW, /* TODO no line terminator here */expression, SEMI);
+    throwStatement.is(THROW, /* TODO no line terminator here */expression, eos);
     tryStatement.is(TRY, block, or(and(catch_, opt(finally_)), finally_));
     catch_.is(CATCH, LPARENTHESIS, IDENTIFIER, RPARENTHESIS, block);
     finally_.is(FINALLY, block);
-    debuggerStatement.is(DEBUGGER, SEMI);
+    debuggerStatement.is(DEBUGGER, eos);
   }
 
   /**

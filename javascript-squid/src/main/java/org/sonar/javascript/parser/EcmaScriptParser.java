@@ -25,7 +25,10 @@ import org.sonar.javascript.EcmaScriptConfiguration;
 import org.sonar.javascript.api.EcmaScriptGrammar;
 import org.sonar.javascript.lexer.EcmaScriptLexer;
 
-public class EcmaScriptParser {
+public final class EcmaScriptParser {
+
+  private EcmaScriptParser() {
+  }
 
   public static Parser<EcmaScriptGrammar> create(ParsingEventListener... parsingEventListeners) {
     return create(new EcmaScriptConfiguration(), parsingEventListeners);
