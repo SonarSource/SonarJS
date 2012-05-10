@@ -188,11 +188,10 @@ public class EcmaScriptGrammarImpl extends EcmaScriptGrammar {
         or(
             primaryExpression,
             functionExpression,
-            memberExpression_),
+            and(NEW, memberExpression, arguments)),
         o2n(or(
             and(LBRACKET, expression, RBRACKET),
             and(DOT, identifierName))));
-    memberExpression_.is(NEW, memberExpression, arguments);
     newExpression.is(or(
         memberExpression,
         and(NEW, newExpression)));
@@ -283,6 +282,7 @@ public class EcmaScriptGrammarImpl extends EcmaScriptGrammar {
         block,
         variableStatement,
         emptyStatement,
+        labelledStatement,
         expressionStatement,
         ifStatement,
         iterationStatement,
@@ -290,7 +290,6 @@ public class EcmaScriptGrammarImpl extends EcmaScriptGrammar {
         breakStatement,
         returnStatement,
         withStatement,
-        labeledStatement,
         switchStatement,
         throwStatement,
         tryStatement,
@@ -307,8 +306,7 @@ public class EcmaScriptGrammarImpl extends EcmaScriptGrammar {
     initialiser.is(EQU, assignmentExpression);
     initialiserNoIn.is(EQU, assignmentExpressionNoIn);
     emptyStatement.is(SEMI);
-    // TODO verify
-    expressionStatement.is(not(FUNCTION), expression, eos);
+    expressionStatement.is(not(or(LCURLYBRACE, FUNCTION)), expression, eos);
     ifStatement.is(or(
         and(IF, LPARENTHESIS, expression, RPARENTHESIS, statement, opt(ELSE, statement)),
         and(IF, LPARENTHESIS, expression, RPARENTHESIS, statement)));
@@ -332,9 +330,7 @@ public class EcmaScriptGrammarImpl extends EcmaScriptGrammar {
         and(BREAK, eosNoLb),
         and(BREAK, /* TODO no line terminator here */IDENTIFIER, eos)));
     returnStatement.is(or(
-        // TODO check specs
-        and(RETURN, expression, eos),
-        and(RETURN, /* TODO no line terminator here */IDENTIFIER, eos),
+        and(RETURN, /* TODO no line terminator here */expression, eos),
         and(RETURN, eosNoLb)));
     withStatement.is(WITH, LPARENTHESIS, expression, RPARENTHESIS, statement);
     switchStatement.is(SWITCH, LPARENTHESIS, expression, RPARENTHESIS, caseBlock);
@@ -344,7 +340,7 @@ public class EcmaScriptGrammarImpl extends EcmaScriptGrammar {
     caseClauses.is(one2n(caseClause));
     caseClause.is(CASE, expression, COLON, opt(statementList));
     defaultClause.is(DEFAULT, COLON, opt(statementList));
-    labeledStatement.is(IDENTIFIER, COLON, statement);
+    labelledStatement.is(IDENTIFIER, COLON, statement);
     throwStatement.is(THROW, /* TODO no line terminator here */expression, eos);
     tryStatement.is(TRY, block, or(and(catch_, opt(finally_)), finally_));
     catch_.is(CATCH, LPARENTHESIS, IDENTIFIER, RPARENTHESIS, block);

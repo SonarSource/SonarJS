@@ -20,7 +20,6 @@
 package org.sonar.javascript.parser.grammar.statements;
 
 import com.sonar.sslr.impl.Parser;
-import com.sonar.sslr.impl.events.ExtendedStackTrace;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.javascript.api.EcmaScriptGrammar;
@@ -29,24 +28,25 @@ import org.sonar.javascript.parser.EcmaScriptParser;
 import static com.sonar.sslr.test.parser.ParserMatchers.parse;
 import static org.junit.Assert.assertThat;
 
-public class StatementTest {
+public class LabelledStatementTest {
 
-  ExtendedStackTrace es = new ExtendedStackTrace();
-  Parser<EcmaScriptGrammar> p = EcmaScriptParser.create(es);
+  Parser<EcmaScriptGrammar> p = EcmaScriptParser.create();
   EcmaScriptGrammar g = p.getGrammar();
 
   @Before
   public void init() {
-    p.setRootRule(g.statement);
+    p.setRootRule(g.labelledStatement);
+  }
+
+  @Test
+  public void ok() {
+    g.statement.mock();
+    assertThat(p, parse("identifier : statement"));
   }
 
   @Test
   public void realLife() {
-    assertThat(p, parse(";"));
-    assertThat(p, parse("document.write(\"Hello world\");"));
-
-    // labelledStatement
-    assertThat(p, parse("test : doSomething();"));
+    assertThat(p, parse("label: doSomething();"));
   }
 
 }

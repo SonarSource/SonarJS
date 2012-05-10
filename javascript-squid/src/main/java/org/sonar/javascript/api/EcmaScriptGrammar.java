@@ -50,7 +50,6 @@ public class EcmaScriptGrammar extends Grammar {
   public Rule propertyName;
   public Rule propertySetParameterList;
   public Rule memberExpression;
-  public Rule memberExpression_;
   public Rule newExpression;
   public Rule callExpression;
   public Rule arguments;
@@ -112,7 +111,7 @@ public class EcmaScriptGrammar extends Grammar {
   public Rule caseClauses;
   public Rule caseClause;
   public Rule defaultClause;
-  public Rule labeledStatement;
+  public Rule labelledStatement;
   public Rule throwStatement;
   public Rule tryStatement;
   public Rule catch_;
