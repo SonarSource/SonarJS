@@ -45,7 +45,7 @@ public class JsTestDriverCoverageSensor implements Sensor {
     this.javascript = javascript;
   }
 
-  private final static Logger LOG = LoggerFactory.getLogger(JsTestDriverCoverageSensor.class);
+  private static final Logger LOG = LoggerFactory.getLogger(JsTestDriverCoverageSensor.class);
 
   public boolean shouldExecuteOnProject(Project project) {
     return (javascript.equals(project.getLanguage()) && "jstestdriver".equals(javascript.getConfiguration().getString(JavaScriptPlugin.TEST_FRAMEWORK_KEY, JavaScriptPlugin.TEST_FRAMEWORK_DEFAULT)));

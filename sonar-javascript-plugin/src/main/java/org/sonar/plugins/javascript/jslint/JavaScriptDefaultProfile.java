@@ -30,9 +30,9 @@ public class JavaScriptDefaultProfile extends ProfileDefinition {
 
   // disabled rules as per "The Good Parts" setting in http://jslint.com
   private String[] disabledRules = new String[] { "ADSAFE", "STRICT" };
-  private JavaScriptRuleRepository repository;
+  private JsLintRuleRepository repository;
 
-  public JavaScriptDefaultProfile(JavaScriptRuleRepository repository) {
+  public JavaScriptDefaultProfile(JsLintRuleRepository repository) {
     this.repository = repository;
 
   }

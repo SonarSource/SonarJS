@@ -52,7 +52,7 @@ public class JavaScriptJsLintSensorTest {
     RuleFinder finder = mock(RuleFinder.class);
     configuration = mock(Configuration.class);
     JsLintRuleManager rulesManager = new JsLintRuleManager("/org/sonar/plugins/javascript/jslint/default/rules.xml");
-    JavaScriptRuleRepository repository = new JavaScriptRuleRepository(new JavaScript(null), rulesManager);
+    JsLintRuleRepository repository = new JsLintRuleRepository(new JavaScript(null), rulesManager);
     JavaScriptDefaultProfile profile = new JavaScriptDefaultProfile(repository);
     
     RulesProfile qualityProfile = profile.createProfile(null);

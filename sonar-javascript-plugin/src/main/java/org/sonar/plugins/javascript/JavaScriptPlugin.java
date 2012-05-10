@@ -32,7 +32,7 @@ import org.sonar.plugins.javascript.core.JavaScriptSourceImporter;
 import org.sonar.plugins.javascript.cpd.JavaScriptCpdMapping;
 import org.sonar.plugins.javascript.jslint.JavaScriptDefaultProfile;
 import org.sonar.plugins.javascript.jslint.JavaScriptJSLintSensor;
-import org.sonar.plugins.javascript.jslint.JavaScriptRuleRepository;
+import org.sonar.plugins.javascript.jslint.JsLintRuleRepository;
 import org.sonar.plugins.javascript.jslint.JsLintRuleManager;
 import org.sonar.plugins.javascript.jstest.JsTestCoverageSensor;
 import org.sonar.plugins.javascript.jstest.JsTestMavenInitializer;
@@ -90,9 +90,10 @@ public class JavaScriptPlugin extends SonarPlugin {
 
     list.add(JavaScriptCpdMapping.class);
 
-    list.add(JavaScriptRuleRepository.class);
+    list.add(JsLintRuleRepository.class);
 
     list.add(JavaScriptSquidSensor.class);
+    list.add(JavaScriptRuleRepository.class);
 
     list.add(JavaScriptJSLintSensor.class);
 
@@ -112,7 +113,7 @@ public class JavaScriptPlugin extends SonarPlugin {
   }
 
   // Global JavaScript constants
-  public final static String FALSE = "false";
+  public static final String FALSE = "false";
 
   public static final String FILE_SUFFIXES_KEY = "sonar.javascript.file.suffixes";
   public static final String FILE_SUFFIXES_DEFVALUE = "js";

@@ -34,7 +34,9 @@ import java.util.regex.Pattern;
 
 @Rule(
   key = "CommentedCode",
-  priority = Priority.BLOCKER)
+  priority = Priority.BLOCKER,
+  name = "Sections of code should not be \"commented out\"",
+  description = "-")
 public class CommentedCodeCheck extends SquidCheck<EcmaScriptGrammar> implements AstAndTokenVisitor {
 
   private static final double THRESHOLD = 0.9;

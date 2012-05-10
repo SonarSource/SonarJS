@@ -20,12 +20,14 @@
 package org.sonar.plugins.javascript;
 
 import com.sonar.sslr.squid.AstScanner;
+import com.sonar.sslr.squid.checks.SquidCheck;
 import org.sonar.api.batch.Sensor;
 import org.sonar.api.batch.SensorContext;
 import org.sonar.api.checks.AnnotationCheckFactory;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.PersistenceMode;
 import org.sonar.api.measures.RangeDistributionBuilder;
+import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.resources.File;
 import org.sonar.api.resources.InputFileUtils;
 import org.sonar.api.resources.Project;
@@ -34,6 +36,7 @@ import org.sonar.javascript.EcmaScriptConfiguration;
 import org.sonar.javascript.JavaScriptAstScanner;
 import org.sonar.javascript.api.EcmaScriptGrammar;
 import org.sonar.javascript.api.EcmaScriptMetric;
+import org.sonar.javascript.checks.CheckList;
 import org.sonar.plugins.javascript.core.JavaScript;
 import org.sonar.squid.api.CheckMessage;
 import org.sonar.squid.api.SourceCode;
@@ -56,8 +59,8 @@ public class JavaScriptSquidSensor implements Sensor {
   private SensorContext context;
   private AstScanner<EcmaScriptGrammar> scanner;
 
-  public JavaScriptSquidSensor() {
-    this.annotationCheckFactory = null;
+  public JavaScriptSquidSensor(RulesProfile profile) {
+    this.annotationCheckFactory = AnnotationCheckFactory.create(profile, JavaScriptRuleRepository.REPOSITORY_KEY, CheckList.getChecks());
   }
 
   public boolean shouldExecuteOnProject(Project project) {
@@ -68,10 +71,8 @@ public class JavaScriptSquidSensor implements Sensor {
     this.project = project;
     this.context = context;
 
-    // Collection<SquidCheck> squidChecks = annotationCheckFactory.getChecks();
-    // AstScanner<EcmaScriptGrammar> scanner = JavaScriptAstScanner.create(new EcmaScriptConfiguration(), squidChecks.toArray(new
-    // SquidCheck[squidChecks.size()]));
-    this.scanner = JavaScriptAstScanner.create(createConfiguration(project));
+    Collection<SquidCheck> squidChecks = annotationCheckFactory.getChecks();
+    this.scanner = JavaScriptAstScanner.create(createConfiguration(project), squidChecks.toArray(new SquidCheck[squidChecks.size()]));
     scanner.scanFiles(InputFileUtils.toFiles(project.getFileSystem().mainFiles(JavaScript.KEY)));
 
     Collection<SourceCode> squidSourceFiles = scanner.getIndex().search(new QueryByType(SourceFile.class));

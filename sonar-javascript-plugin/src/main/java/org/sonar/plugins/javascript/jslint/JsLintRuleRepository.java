@@ -28,11 +28,11 @@ import org.sonar.api.rules.RuleParam;
 import org.sonar.api.rules.RuleRepository;
 import org.sonar.plugins.javascript.core.JavaScript;
 
-public class JavaScriptRuleRepository extends RuleRepository implements BatchExtension {
+public class JsLintRuleRepository extends RuleRepository implements BatchExtension {
 
   private JsLintRuleManager jsLintRuleManager;
 
-  public JavaScriptRuleRepository(JavaScript javascript, JsLintRuleManager jsLintRuleManager) {
+  public JsLintRuleRepository(JavaScript javascript, JsLintRuleManager jsLintRuleManager) {
     super(REPOSITORY_KEY, javascript.getKey());
     setName(REPOSITORY_NAME);
 

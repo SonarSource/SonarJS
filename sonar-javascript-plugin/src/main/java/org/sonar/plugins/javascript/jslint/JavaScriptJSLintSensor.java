@@ -111,7 +111,7 @@ public class JavaScriptJSLintSensor implements Sensor {
 
         LOG.debug("JSLint warning message {}", issue.getRaw());
 
-        Rule rule = ruleFinder.findByKey(JavaScriptRuleRepository.REPOSITORY_KEY, jsLintRuleManager.getRuleIdByMessage(issue.getRaw()));
+        Rule rule = ruleFinder.findByKey(JsLintRuleRepository.REPOSITORY_KEY, jsLintRuleManager.getRuleIdByMessage(issue.getRaw()));
 
         Violation violation = Violation.create(rule, resource);
 
@@ -125,7 +125,7 @@ public class JavaScriptJSLintSensor implements Sensor {
       List<JSIdentifier> unused = result.getUnused();
       for (JSIdentifier unusedName : unused) {
         Violation violation = Violation.create(
-            ruleFinder.findByKey(JavaScriptRuleRepository.REPOSITORY_KEY, JsLintRuleManager.UNUSED_NAMES_KEY), resource);
+            ruleFinder.findByKey(JsLintRuleRepository.REPOSITORY_KEY, JsLintRuleManager.UNUSED_NAMES_KEY), resource);
 
         violation.setLineId(unusedName.getLine());
         violation.setMessage("'" + unusedName.getName() + "' is unused");
@@ -145,7 +145,7 @@ public class JavaScriptJSLintSensor implements Sensor {
 
   private void initializeJsLint() {
     RuleQuery query = RuleQuery.create();
-    query.withRepositoryKey(JavaScriptRuleRepository.REPOSITORY_KEY);
+    query.withRepositoryKey(JsLintRuleRepository.REPOSITORY_KEY);
 
     List<ActiveRule> activeRules = this.rulesProfile.getActiveRules();
     LOG.debug("Adding JSLint options. Activated rules: {}", activeRules.size());

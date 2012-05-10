@@ -31,7 +31,9 @@ import java.io.StringWriter;
 
 @Rule(
   key = "ParsingError",
-  priority = Priority.MAJOR)
+  priority = Priority.MAJOR,
+  name = "JavaScript parser failure",
+  description = "-")
 public class ParsingErrorCheck extends SquidCheck<EcmaScriptGrammar> implements AuditListener {
 
   public void processException(Exception e) {

@@ -37,7 +37,7 @@ import org.slf4j.LoggerFactory;
  */
 public final class LCOVParser {
 
-  private final static Logger LOG = LoggerFactory.getLogger(LCOVParser.class);
+  private static final Logger LOG = LoggerFactory.getLogger(LCOVParser.class);
 
   public List<JavaScriptFileCoverage> parseFile(File file) {
     List<String> lines = new LinkedList<String>();

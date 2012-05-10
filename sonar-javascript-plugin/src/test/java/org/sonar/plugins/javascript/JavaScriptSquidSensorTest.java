@@ -21,10 +21,12 @@ package org.sonar.plugins.javascript;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.resources.Project;
 
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.mock;
 
 public class JavaScriptSquidSensorTest {
 
@@ -32,7 +34,7 @@ public class JavaScriptSquidSensorTest {
 
   @Before
   public void setUp() {
-    sensor = new JavaScriptSquidSensor();
+    sensor = new JavaScriptSquidSensor(mock(RulesProfile.class));
   }
 
   @Test

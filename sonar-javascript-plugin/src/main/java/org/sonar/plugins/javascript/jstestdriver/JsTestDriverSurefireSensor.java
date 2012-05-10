@@ -44,7 +44,7 @@ public class JsTestDriverSurefireSensor implements Sensor {
     this.javascript = javascript;
   }
 
-  private final static Logger LOG = LoggerFactory.getLogger(JsTestDriverSurefireSensor.class);
+  private static final Logger LOG = LoggerFactory.getLogger(JsTestDriverSurefireSensor.class);
 
   public boolean shouldExecuteOnProject(Project project) {
     return (javascript.equals(project.getLanguage()) && "jstestdriver".equals(javascript.getConfiguration().getString(JavaScriptPlugin.TEST_FRAMEWORK_KEY,

@@ -30,7 +30,7 @@ public class JavaScriptDefaultProfileTest {
   @Test
   public void testActiveRulesCount() {
     JsLintRuleManager rulesManager = new JsLintRuleManager();
-    JavaScriptRuleRepository repository = new JavaScriptRuleRepository(new JavaScript(null), rulesManager);
+    JsLintRuleRepository repository = new JsLintRuleRepository(new JavaScript(null), rulesManager);
     JavaScriptDefaultProfile profile = new JavaScriptDefaultProfile(repository);
     RulesProfile rulesProfile = profile.createProfile(null);
     assertEquals(3, rulesProfile.getActiveRules().size());
