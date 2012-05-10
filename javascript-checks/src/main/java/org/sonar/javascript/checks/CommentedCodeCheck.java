@@ -36,7 +36,10 @@ import java.util.regex.Pattern;
   key = "CommentedCode",
   priority = Priority.BLOCKER,
   name = "Sections of code should not be \"commented out\"",
-  description = "-")
+  description = "<p>" +
+      "Programmers should not comment out code as it bloats programs and reduces readability. " +
+      "Unused code should be deleted and can be retrieved from source control history if required." +
+      "</p>")
 public class CommentedCodeCheck extends SquidCheck<EcmaScriptGrammar> implements AstAndTokenVisitor {
 
   private static final double THRESHOLD = 0.9;

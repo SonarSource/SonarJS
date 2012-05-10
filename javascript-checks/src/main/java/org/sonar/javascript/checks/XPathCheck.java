@@ -31,7 +31,9 @@ import org.sonar.javascript.api.EcmaScriptGrammar;
   priority = Priority.MAJOR,
   cardinality = Cardinality.MULTIPLE,
   name = "XPath rule",
-  description = "-")
+  description = "<p>" +
+      "This rule enables on to define custom JavaScript rules based on an XPath expression." +
+      "</p>")
 public class XPathCheck extends AbstractXPathCheck<EcmaScriptGrammar> {
 
   private static final String DEFAULT_XPATH_QUERY = "";
@@ -40,13 +42,13 @@ public class XPathCheck extends AbstractXPathCheck<EcmaScriptGrammar> {
   @RuleProperty(
     key = "xpathQuery",
     defaultValue = "" + DEFAULT_XPATH_QUERY,
-    description = "")
+    description = "The XPath query")
   public String xpathQuery = DEFAULT_XPATH_QUERY;
 
   @RuleProperty(
     key = "message",
     defaultValue = "" + DEFAULT_XPATH_QUERY,
-    description = "")
+    description = "The violation message")
   public String message = DEFAULT_MESSAGE;
 
   @Override

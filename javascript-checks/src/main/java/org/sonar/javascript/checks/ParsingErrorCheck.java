@@ -33,7 +33,10 @@ import java.io.StringWriter;
   key = "ParsingError",
   priority = Priority.MAJOR,
   name = "JavaScript parser failure",
-  description = "-")
+  description = "<p>" +
+      "When the JavaScript parser fails, it is possible to record the failure as a violation on the file. " +
+      "This way, not only it is possible to track the number of files that do not parse but also to easily find out why they do not parse." +
+      "</p>")
 public class ParsingErrorCheck extends SquidCheck<EcmaScriptGrammar> implements AuditListener {
 
   public void processException(Exception e) {

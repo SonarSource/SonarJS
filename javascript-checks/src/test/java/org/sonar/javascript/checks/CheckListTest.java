@@ -25,8 +25,6 @@ import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleParam;
 
 import java.util.List;
-import java.util.Locale;
-import java.util.ResourceBundle;
 
 import static org.fest.assertions.Assertions.assertThat;
 
@@ -47,19 +45,16 @@ public class CheckListTest {
     }
 
     List<Rule> rules = new AnnotationRuleParser().parse("repositoryKey", checks);
-    ResourceBundle res = ResourceBundle.getBundle("org.sonar.l10n.javascript", Locale.ENGLISH);
     for (Rule rule : rules) {
-      assertThat(res.getString("rule.javascript." + rule.getKey() + ".name"))
-          .overridingErrorMessage("No name for " + rule.getKey())
+      assertThat(rule.getDescription())
+          .overridingErrorMessage("No description for " + rule.getKey())
           .isNotEmpty();
+
       for (RuleParam param : rule.getParams()) {
-        assertThat(res.getString("rule.javascript." + rule.getKey() + ".param." + param.getKey()))
+        assertThat(param.getDescription())
             .overridingErrorMessage("No description for param " + param.getKey() + " of " + rule.getKey())
             .isNotEmpty();
       }
-      assertThat(getClass().getResource("/org/sonar/l10n/javascript/rules/javascript/" + rule.getKey() + ".html"))
-          .overridingErrorMessage("No description for " + rule.getKey())
-          .isNotNull();
     }
   }
 
