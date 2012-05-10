@@ -40,7 +40,7 @@ public class FunctionComplexityCheck extends SquidCheck<EcmaScriptGrammar> {
 
   @Override
   public void init() {
-    subscribeTo(getContext().getGrammar().functionDeclaration);
+    subscribeTo(getContext().getGrammar().functionDeclaration, getContext().getGrammar().functionExpression);
   }
 
   @Override
