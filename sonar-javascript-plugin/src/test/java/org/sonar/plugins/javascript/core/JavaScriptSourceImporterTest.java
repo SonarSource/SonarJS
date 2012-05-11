@@ -19,12 +19,12 @@
  */
 package org.sonar.plugins.javascript.core;
 
-import static org.junit.Assert.assertEquals;
-import static org.mockito.Matchers.anyObject;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import org.apache.commons.configuration.Configuration;
+import org.junit.Before;
+import org.junit.Test;
+import org.sonar.api.CoreProperties;
+import org.sonar.api.batch.SensorContext;
+import org.sonar.api.resources.*;
 
 import java.io.File;
 import java.net.URISyntaxException;
@@ -32,19 +32,16 @@ import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.configuration.Configuration;
-import org.junit.Before;
-import org.junit.Test;
-import org.sonar.api.CoreProperties;
-import org.sonar.api.batch.SensorContext;
-import org.sonar.api.resources.Language;
-import org.sonar.api.resources.Project;
-import org.sonar.api.resources.ProjectFileSystem;
-import org.sonar.api.resources.Resource;
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Matchers.anyObject;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class JavaScriptSourceImporterTest {
 
-  Configuration configuration;
+  private Configuration configuration;
 
   @Before
   public void init() {
@@ -55,7 +52,6 @@ public class JavaScriptSourceImporterTest {
 
   @Test
   public void testSourceImporter() throws URISyntaxException {
-
     SensorContext context = mock(SensorContext.class);
     JavaScriptSourceImporter importer = new JavaScriptSourceImporter(new JavaScript(configuration));
     assertEquals("JavaScriptSourceImporter", importer.toString());
@@ -73,7 +69,9 @@ public class JavaScriptSourceImporterTest {
     files.add(fileToImport);
 
     when(fileSystem.getSourceDirs()).thenReturn(sourceDirectories);
-    when(fileSystem.getSourceFiles(new JavaScript(configuration))).thenReturn(files);
+
+    List<InputFile> inputFiles = InputFileUtils.create(sourceDir, files);
+    when(fileSystem.mainFiles(JavaScript.KEY)).thenReturn(inputFiles);
 
     Project project = new Project("dummy") {
 

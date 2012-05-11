@@ -19,13 +19,16 @@
  */
 package org.sonar.javascript.lexer;
 
+import com.sonar.sslr.api.GenericTokenType;
 import com.sonar.sslr.impl.Lexer;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.sonar.javascript.api.EcmaScriptKeyword;
 import org.sonar.javascript.api.EcmaScriptTokenType;
 
 import static com.sonar.sslr.test.lexer.LexerMatchers.hasComment;
 import static com.sonar.sslr.test.lexer.LexerMatchers.hasToken;
+import static com.sonar.sslr.test.lexer.LexerMatchers.hasTokens;
 import static org.junit.Assert.assertThat;
 
 public class EcmaScriptLexerTest {
@@ -39,9 +42,10 @@ public class EcmaScriptLexerTest {
 
   @Test
   public void lexRegularExpressionLiteral() throws Exception {
-    assertThat(lexer.lex("/a/"), hasToken("/a/", EcmaScriptTokenType.REGULAR_EXPRESSION_LITERAL));
-    assertThat(lexer.lex("/\\a/"), hasToken("/\\a/", EcmaScriptTokenType.REGULAR_EXPRESSION_LITERAL));
-    assertThat(lexer.lex("/a/g"), hasToken("/a/g", EcmaScriptTokenType.REGULAR_EXPRESSION_LITERAL));
+    assertThat("simple", lexer.lex("/a/"), hasToken("/a/", EcmaScriptTokenType.REGULAR_EXPRESSION_LITERAL));
+    assertThat("flags", lexer.lex("/a/g"), hasToken("/a/g", EcmaScriptTokenType.REGULAR_EXPRESSION_LITERAL));
+    assertThat("escaped slash", lexer.lex("/\\/a/"), hasToken("/\\/a/", EcmaScriptTokenType.REGULAR_EXPRESSION_LITERAL));
+    assertThat("ambiguation", lexer.lex("1 / a == 1 / b"), hasTokens("1", "/", "a", "==", "1", "/", "b", "EOF"));
   }
 
   @Test
@@ -54,6 +58,64 @@ public class EcmaScriptLexerTest {
   public void lexInlineComment() {
     assertThat(lexer.lex("// My Comment \n new line"), hasComment("// My Comment "));
     assertThat(lexer.lex("//"), hasComment("//"));
+  }
+
+  @Test
+  public void decimalLiteral() {
+    assertThat(lexer.lex("0"), hasToken("0", EcmaScriptTokenType.INTEGER_LITERAL));
+    assertThat(lexer.lex("123"), hasToken("123", EcmaScriptTokenType.INTEGER_LITERAL));
+
+    assertThat(lexer.lex("123.456"), hasToken("123.456", EcmaScriptTokenType.FLOATING_LITERAL));
+
+    assertThat(lexer.lex("123.456e+10"), hasToken("123.456e+10", EcmaScriptTokenType.FLOATING_LITERAL));
+    assertThat(lexer.lex("123.456e-10"), hasToken("123.456e-10", EcmaScriptTokenType.FLOATING_LITERAL));
+
+    assertThat(lexer.lex("123.456E+10"), hasToken("123.456E+10", EcmaScriptTokenType.FLOATING_LITERAL));
+    assertThat(lexer.lex("123.456E-10"), hasToken("123.456E-10", EcmaScriptTokenType.FLOATING_LITERAL));
+
+    assertThat(lexer.lex(".123"), hasToken(".123", EcmaScriptTokenType.FLOATING_LITERAL));
+
+    assertThat(lexer.lex(".123e+4"), hasToken(".123e+4", EcmaScriptTokenType.FLOATING_LITERAL));
+    assertThat(lexer.lex(".123e-4"), hasToken(".123e-4", EcmaScriptTokenType.FLOATING_LITERAL));
+
+    assertThat(lexer.lex(".123E+4"), hasToken(".123E+4", EcmaScriptTokenType.FLOATING_LITERAL));
+    assertThat(lexer.lex(".123E-4"), hasToken(".123E-4", EcmaScriptTokenType.FLOATING_LITERAL));
+  }
+
+  @Test
+  public void hexIntegerLiteral() {
+    assertThat(lexer.lex("0xFF"), hasToken("0xFF", EcmaScriptTokenType.INTEGER_LITERAL));
+    assertThat(lexer.lex("0XFF"), hasToken("0XFF", EcmaScriptTokenType.INTEGER_LITERAL));
+  }
+
+  @Test
+  public void stringLiteral() {
+    assertThat("empty string", lexer.lex("''"), hasToken("''", GenericTokenType.LITERAL));
+    assertThat("empty string", lexer.lex("\"\""), hasToken("\"\"", GenericTokenType.LITERAL));
+
+    assertThat(lexer.lex("'hello world'"), hasToken("'hello world'", GenericTokenType.LITERAL));
+    assertThat(lexer.lex("\"hello world\""), hasToken("\"hello world\"", GenericTokenType.LITERAL));
+
+    assertThat("escaped single quote", lexer.lex("'\\''"), hasToken("'\\''", GenericTokenType.LITERAL));
+    assertThat("escaped double quote", lexer.lex("\"\\\"\""), hasToken("\"\\\"\"", GenericTokenType.LITERAL));
+  }
+
+  @Test
+  public void nullLiteral() {
+    assertThat(lexer.lex("null"), hasToken("null", EcmaScriptKeyword.NULL));
+  }
+
+  @Test
+  public void booleanLiteral() {
+    assertThat(lexer.lex("false"), hasToken("false", EcmaScriptKeyword.FALSE));
+    assertThat(lexer.lex("true"), hasToken("true", EcmaScriptKeyword.TRUE));
+  }
+
+  @Test
+  public void identifier() {
+    assertThat(lexer.lex("$"), hasToken("$", GenericTokenType.IDENTIFIER));
+    assertThat(lexer.lex("_"), hasToken("_", GenericTokenType.IDENTIFIER));
+    assertThat(lexer.lex("identifier"), hasToken("identifier", GenericTokenType.IDENTIFIER));
   }
 
 }

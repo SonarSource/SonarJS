@@ -29,6 +29,7 @@ public class EcmaScriptKeywordTest {
   @Test
   public void test() {
     assertThat(EcmaScriptKeyword.values().length, is(44));
+    assertThat(EcmaScriptKeyword.keywordValues().length, is(EcmaScriptKeyword.values().length));
   }
 
 }

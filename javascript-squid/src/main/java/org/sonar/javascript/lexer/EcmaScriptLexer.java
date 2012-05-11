@@ -49,7 +49,7 @@ public final class EcmaScriptLexer {
   private static final String INT_SUFFIX = "[lL]";
 
   public static Lexer create(EcmaScriptConfiguration conf) {
-    Lexer.Builder builder = Lexer.builder()
+    return Lexer.builder()
         .withCharset(conf.getCharset())
 
         .withFailIfNoChannelToConsumeOneCharacter(true)
@@ -91,8 +91,8 @@ public final class EcmaScriptLexer {
         .withChannel(new IdentifierAndKeywordChannel("\\p{javaJavaIdentifierStart}++\\p{javaJavaIdentifierPart}*+", true, EcmaScriptKeyword.values()))
         .withChannel(new PunctuatorChannel(EcmaScriptPunctuator.values()))
 
-        .withChannel(new BlackHoleChannel("[\\s]"));
+        .withChannel(new BlackHoleChannel("[\\s]"))
 
-    return builder.build();
+        .build();
   }
 }

@@ -1,4 +1,4 @@
-function example() // +1
+function ko() // +1
 {
   switch (foo) // +1
   {
@@ -7,4 +7,7 @@ function example() // +1
     default: // +1
     ;
   }
+}
+
+function ok() {
 }

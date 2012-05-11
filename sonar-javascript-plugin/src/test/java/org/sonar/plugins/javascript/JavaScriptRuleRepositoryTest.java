@@ -17,28 +17,25 @@
  * License along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.plugins.javascript.core;
+package org.sonar.plugins.javascript;
 
-import org.sonar.api.batch.AbstractSourceImporter;
-import org.sonar.api.batch.Phase;
-import org.sonar.api.batch.SensorContext;
-import org.sonar.api.resources.InputFileUtils;
-import org.sonar.api.resources.ProjectFileSystem;
+import org.junit.Test;
+import org.sonar.api.rules.AnnotationRuleParser;
+import org.sonar.api.rules.Rule;
+import org.sonar.javascript.checks.CheckList;
 
-@Phase(name = Phase.Name.PRE)
-public class JavaScriptSourceImporter extends AbstractSourceImporter {
+import java.util.List;
 
-  public JavaScriptSourceImporter(JavaScript javascript) {
-    super(javascript);
-  }
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertThat;
 
-  protected void analyse(ProjectFileSystem fileSystem, SensorContext context) {
-    parseDirs(context, InputFileUtils.toFiles(fileSystem.mainFiles(JavaScript.KEY)), fileSystem.getSourceDirs(), false, fileSystem.getSourceCharset());
-  }
+public class JavaScriptRuleRepositoryTest {
 
-  @Override
-  public String toString() {
-    return getClass().getSimpleName();
+  @Test
+  public void test() {
+    JavaScriptRuleRepository ruleRepository = new JavaScriptRuleRepository(new AnnotationRuleParser());
+    List<Rule> rules = ruleRepository.createRules();
+    assertThat(rules.size(), is(CheckList.getChecks().size()));
   }
 
 }

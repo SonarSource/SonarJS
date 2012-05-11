@@ -19,25 +19,41 @@
  */
 package org.sonar.plugins.javascript;
 
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
 import org.apache.commons.configuration.Configuration;
+import org.junit.Before;
 import org.junit.Test;
 import org.sonar.plugins.javascript.core.JavaScript;
 
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertSame;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 public class JavaScriptTest {
 
+  private Configuration configuration;
+  private JavaScript javaScript;
+
+  @Before
+  public void setUp() {
+    configuration = mock(Configuration.class);
+    javaScript = new JavaScript(configuration);
+  }
+
   @Test
-  public void testGetFileSuffixes() {
-    Configuration configuration = mock(Configuration.class);
-    JavaScript javaScript = new JavaScript(configuration);
-    javaScript.setConfiguration(configuration);
-
-    when(configuration.getStringArray(JavaScriptPlugin.FILE_SUFFIXES_KEY)).thenReturn(null);
-
-    assertArrayEquals(javaScript.getFileSuffixes(), new String[] { "js" });
+  public void defaultSuffixes() {
+    when(configuration.getStringArray(JavaScriptPlugin.FILE_SUFFIXES_KEY))
+        .thenReturn(null)
+        .thenReturn(new String[] {});
+    assertArrayEquals(javaScript.getFileSuffixes(), new String[] {"js"});
+    assertArrayEquals(javaScript.getFileSuffixes(), new String[] {"js"});
     assertSame(configuration, javaScript.getConfiguration());
   }
+
+  @Test
+  public void customSuffixes() {
+    when(configuration.getStringArray(JavaScriptPlugin.FILE_SUFFIXES_KEY)).thenReturn(new String[] {"javascript"});
+    assertArrayEquals(javaScript.getFileSuffixes(), new String[] {"javascript"});
+  }
+
 }

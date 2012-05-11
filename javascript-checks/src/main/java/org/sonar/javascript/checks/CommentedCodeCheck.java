@@ -27,6 +27,7 @@ import com.sonar.sslr.squid.checks.SquidCheck;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.javascript.api.EcmaScriptGrammar;
+import org.sonar.javascript.api.EcmaScriptKeyword;
 import org.sonar.squid.recognizer.*;
 
 import java.util.Set;
@@ -50,13 +51,9 @@ public class CommentedCodeCheck extends SquidCheck<EcmaScriptGrammar> implements
   private static class JavaScriptRecognizer implements LanguageFootprint {
 
     public Set<Detector> getDetectors() {
-      // TODO copy-paste from org.sonar.plugins.javascript.squid.JavaScriptFootprint
       return ImmutableSet.of(
           new EndWithDetector(0.95, '}', ';', '{'),
-          // https://developer.mozilla.org/en/JavaScript/Reference/Reserved_Words
-          new KeywordsDetector(0.3, "break", "case", "catch", "continue", "default", "delete", "do", "else", "finally", "for",
-              "function", "if", "in", "instanceof", "new", "return", "switch", "this", "throw", "try", "typeof", "var", "void", "while", "with"),
-          // https://developer.mozilla.org/en/JavaScript/Reference
+          new KeywordsDetector(0.3, EcmaScriptKeyword.keywordValues()),
           new ContainsDetector(0.95, "++", "--"),
           new ContainsDetector(0.95, "*=", "/=", "%=", "+=", "-=", "<<=", ">>=", ">>>=", "&=", "^=", "|="),
           new ContainsDetector(0.95, "==", "!=", "===", "!=="));
