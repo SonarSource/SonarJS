@@ -32,7 +32,6 @@ import static com.sonar.sslr.impl.channel.RegexpChannelBuilder.commentRegexp;
 import static com.sonar.sslr.impl.channel.RegexpChannelBuilder.regexp;
 import static org.sonar.javascript.api.EcmaScriptTokenType.FLOATING_LITERAL;
 import static org.sonar.javascript.api.EcmaScriptTokenType.INTEGER_LITERAL;
-import static org.sonar.javascript.api.EcmaScriptTokenType.REGULAR_EXPRESSION_LITERAL;
 
 public final class EcmaScriptLexer {
 
@@ -66,7 +65,7 @@ public final class EcmaScriptLexer {
         .withChannel(regexp(LITERAL, "'([^'\\n\\\\]*+(\\\\.)?+)*+'"))
 
         // Regular Expression Literals
-        .withChannel(regexp(REGULAR_EXPRESSION_LITERAL, "/([^/\\n\\\\]*+(\\\\.)?+)*+/\\p{javaJavaIdentifierPart}*+"))
+        .withChannel(new EcmaScriptRegexpChannel())
 
         // Floating-Point Literals
         // Decimal
