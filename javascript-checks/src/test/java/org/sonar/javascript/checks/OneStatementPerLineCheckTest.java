@@ -19,29 +19,23 @@
  */
 package org.sonar.javascript.checks;
 
-import com.sonar.sslr.api.AstNode;
-import com.sonar.sslr.squid.checks.AbstractOneStatementPerLineCheck;
-import org.sonar.check.BelongsToProfile;
-import org.sonar.check.Priority;
-import org.sonar.check.Rule;
-import org.sonar.javascript.api.EcmaScriptGrammar;
+import com.sonar.sslr.squid.checks.CheckMessagesVerifier;
+import org.junit.Test;
+import org.sonar.javascript.JavaScriptAstScanner;
+import org.sonar.squid.api.SourceFile;
 
-@Rule(
-  key = "OneStatementPerLineCheck",
-  priority = Priority.MAJOR,
-  name = "Do not use more that one statement per line",
-  description = "For better readability, do not put more than one statement on a single line.")
-@BelongsToProfile(title = CheckList.SONAR_WAY_PROFILE, priority = Priority.MAJOR)
-public class OneStatementPerLine extends AbstractOneStatementPerLineCheck<EcmaScriptGrammar> {
+import java.io.File;
 
-  @Override
-  public com.sonar.sslr.api.Rule getStatementRule() {
-    return getContext().getGrammar().statement;
-  }
+public class OneStatementPerLineCheckTest {
 
-  @Override
-  public boolean isExcluded(AstNode statementNode) {
-    return false;
+  @Test
+  public void test() {
+    OneStatementPerLineCheck check = new OneStatementPerLineCheck();
+
+    SourceFile file = JavaScriptAstScanner.scanSingleFile(new File("src/test/resources/checks/oneStatementPerLine.js"), check);
+    CheckMessagesVerifier.verify(file.getCheckMessages())
+        .next().atLine(2).withMessage("At most one statement is allowed per line, but 2 statements were found on this line.")
+        .noMore();
   }
 
 }

@@ -41,7 +41,7 @@ public final class CheckList {
         EqEqEqCheck.class,
         CommentRegularExpressionCheck.class,
         EvalCheck.class,
-        OneStatementPerLine.class,
+        OneStatementPerLineCheck.class,
         LineLengthCheck.class);
   }
 

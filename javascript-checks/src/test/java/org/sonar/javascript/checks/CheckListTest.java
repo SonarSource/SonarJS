@@ -19,16 +19,33 @@
  */
 package org.sonar.javascript.checks;
 
+import org.apache.commons.io.FileUtils;
 import org.junit.Test;
 import org.sonar.api.rules.AnnotationRuleParser;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleParam;
 
+import java.io.File;
 import java.util.List;
 
 import static org.fest.assertions.Assertions.assertThat;
 
 public class CheckListTest {
+
+  /**
+   * Enforces that each check declared in list.
+   */
+  @Test
+  public void count() {
+    int count = 0;
+    List<File> files = (List<File>) FileUtils.listFiles(new File("src/main/java/org/sonar/javascript/checks/"), new String[] {"java"}, false);
+    for (File file : files) {
+      if (file.getName().endsWith("Check.java")) {
+        count++;
+      }
+    }
+    assertThat(CheckList.getChecks().size()).isEqualTo(count);
+  }
 
   /**
    * Enforces that each check has test, name and description.
