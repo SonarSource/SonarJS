@@ -19,24 +19,28 @@
  */
 package org.sonar.javascript.checks;
 
-import com.google.common.collect.ImmutableList;
+import com.sonar.sslr.api.AstNode;
+import com.sonar.sslr.squid.checks.SquidCheck;
+import org.sonar.check.Priority;
+import org.sonar.check.Rule;
+import org.sonar.javascript.api.EcmaScriptGrammar;
+import org.sonar.javascript.api.EcmaScriptPunctuator;
 
-import java.util.List;
+@Rule(
+  key = "EquEqu",
+  priority = Priority.MAJOR,
+  name = "== and != must not be used",
+  description = "Avoid use of == and != in favor of === and !==.")
+public class EqEqEqCheck extends SquidCheck<EcmaScriptGrammar> {
 
-public final class CheckList {
-
-  private CheckList() {
+  @Override
+  public void init() {
+    subscribeTo(EcmaScriptPunctuator.EQUAL, EcmaScriptPunctuator.NOTEQUAL);
   }
 
-  public static List<Class> getChecks() {
-    return ImmutableList.<Class> of(
-        ParsingErrorCheck.class,
-        XPathCheck.class,
-        CommentedCodeCheck.class,
-        FunctionComplexityCheck.class,
-        DebuggerStatementCheck.class,
-        EqEqEqCheck.class,
-        LineLengthCheck.class);
+  @Override
+  public void visitNode(AstNode node) {
+    getContext().createLineViolation(this, "Avoid use of == and != in favor of === and !==.", node);
   }
 
 }
