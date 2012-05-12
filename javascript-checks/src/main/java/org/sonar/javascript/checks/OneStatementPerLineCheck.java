@@ -40,8 +40,10 @@ public class OneStatementPerLineCheck extends AbstractOneStatementPerLineCheck<E
   }
 
   @Override
-  public boolean isExcluded(AstNode statementNode) {
-    return statementNode.getChild(0).is(getContext().getGrammar().block);
+  public boolean isExcluded(AstNode astNode) {
+    AstNode statementNode = astNode.getChild(0);
+    return statementNode.is(getContext().getGrammar().block)
+        || statementNode.is(getContext().getGrammar().emptyStatement);
   }
 
 }

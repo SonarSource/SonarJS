@@ -4,4 +4,6 @@ function sayHello() {
   if (a) {} // OK
 
   if (a) {} if (b) {} // NOK
+
+  while (condition); // OK
 }
