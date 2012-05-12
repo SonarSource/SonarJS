@@ -19,32 +19,27 @@
  */
 package org.sonar.javascript.checks;
 
-import com.google.common.collect.ImmutableList;
+import com.sonar.sslr.squid.checks.CheckMessagesVerifier;
+import org.junit.Test;
+import org.sonar.javascript.JavaScriptAstScanner;
+import org.sonar.squid.api.SourceFile;
 
-import java.util.List;
+import java.io.File;
 
-public final class CheckList {
+public class AlwaysUseCurlyBracesCheckTest {
 
-  public static final String SONAR_WAY_PROFILE = "Sonar way";
+  @Test
+  public void test() {
+    AlwaysUseCurlyBracesCheck check = new AlwaysUseCurlyBracesCheck();
 
-  private CheckList() {
+    SourceFile file = JavaScriptAstScanner.scanSingleFile(new File("src/test/resources/checks/alwaysUseCurlyBraces.js"), check);
+    CheckMessagesVerifier.verify(file.getCheckMessages())
+        .next().atLine(3).withMessage("Missing curly brace")
+        .next().atLine(5).withMessage("Missing curly brace")
+        .next().atLine(7).withMessage("Missing curly brace")
+        .next().atLine(9).withMessage("Missing curly brace")
+        .noMore();
   }
 
-  public static List<Class> getChecks() {
-    return ImmutableList.<Class> of(
-        ParsingErrorCheck.class,
-        XPathCheck.class,
-        CommentedCodeCheck.class,
-        FunctionComplexityCheck.class,
-        DebuggerStatementCheck.class,
-        WithStatementCheck.class,
-        EqEqEqCheck.class,
-        CommentRegularExpressionCheck.class,
-        EvalCheck.class,
-        OneStatementPerLineCheck.class,
-        SemicolonCheck.class,
-        AlwaysUseCurlyBracesCheck.class,
-        LineLengthCheck.class);
-  }
 
 }
