@@ -47,6 +47,7 @@ public final class CheckList {
         MultilineStringLiteralsCheck.class,
         ArrayAndObjectConstructorsCheck.class,
         BitwiseOperatorsCheck.class,
+        PrimitiveWrappersCheck.class,
         LineLengthCheck.class);
   }
 
