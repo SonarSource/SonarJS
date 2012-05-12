@@ -50,6 +50,7 @@ public final class CheckList {
         BitwiseOperatorsCheck.class,
         PrimitiveWrappersCheck.class,
         ForInCheck.class,
+        FunctionDeclarationsWithinBlocksCheck.class,
         LineLengthCheck.class);
   }
 
