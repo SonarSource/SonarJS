@@ -46,6 +46,7 @@ public final class CheckList {
         AlwaysUseCurlyBracesCheck.class,
         MultilineStringLiteralsCheck.class,
         ArrayAndObjectConstructorsCheck.class,
+        BitwiseOperatorsCheck.class,
         LineLengthCheck.class);
   }
 
