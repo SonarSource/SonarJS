@@ -19,23 +19,27 @@
  */
 package org.sonar.javascript.checks;
 
-import com.google.common.collect.ImmutableList;
+import com.sonar.sslr.api.AstNode;
+import com.sonar.sslr.squid.checks.SquidCheck;
+import org.sonar.check.Priority;
+import org.sonar.check.Rule;
+import org.sonar.javascript.api.EcmaScriptGrammar;
 
-import java.util.List;
+@Rule(
+  key = "DebuggerStatement",
+  priority = Priority.MAJOR,
+  name = "Debugger statement must not be used",
+  description = "Debugger statement must not be used.")
+public class DebuggerStatementCheck extends SquidCheck<EcmaScriptGrammar> {
 
-public final class CheckList {
-
-  private CheckList() {
+  @Override
+  public void init() {
+    subscribeTo(getContext().getGrammar().debuggerStatement);
   }
 
-  public static List<Class> getChecks() {
-    return ImmutableList.<Class> of(
-        ParsingErrorCheck.class,
-        XPathCheck.class,
-        CommentedCodeCheck.class,
-        FunctionComplexityCheck.class,
-        DebuggerStatementCheck.class,
-        LineLengthCheck.class);
+  @Override
+  public void visitNode(AstNode node) {
+    getContext().createLineViolation(this, "Avoid using debugger statement.", node);
   }
 
 }

@@ -19,23 +19,23 @@
  */
 package org.sonar.javascript.checks;
 
-import com.google.common.collect.ImmutableList;
+import com.sonar.sslr.squid.checks.CheckMessagesVerifier;
+import org.junit.Test;
+import org.sonar.javascript.JavaScriptAstScanner;
+import org.sonar.squid.api.SourceFile;
 
-import java.util.List;
+import java.io.File;
 
-public final class CheckList {
+public class DebuggerStatementCheckTest {
 
-  private CheckList() {
-  }
+  @Test
+  public void test() {
+    DebuggerStatementCheck check = new DebuggerStatementCheck();
 
-  public static List<Class> getChecks() {
-    return ImmutableList.<Class> of(
-        ParsingErrorCheck.class,
-        XPathCheck.class,
-        CommentedCodeCheck.class,
-        FunctionComplexityCheck.class,
-        DebuggerStatementCheck.class,
-        LineLengthCheck.class);
+    SourceFile file = JavaScriptAstScanner.scanSingleFile(new File("src/test/resources/checks/debuggerStatement.js"), check);
+    CheckMessagesVerifier.verify(file.getCheckMessages())
+        .next().atLine(2).withMessage("Avoid using debugger statement.")
+        .noMore();
   }
 
 }
