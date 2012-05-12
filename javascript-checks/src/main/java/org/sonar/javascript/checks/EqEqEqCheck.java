@@ -27,7 +27,7 @@ import org.sonar.javascript.api.EcmaScriptGrammar;
 import org.sonar.javascript.api.EcmaScriptPunctuator;
 
 @Rule(
-  key = "EquEqu",
+  key = "EqEqEq",
   priority = Priority.MAJOR,
   name = "== and != must not be used",
   description = "Avoid use of == and != in favor of === and !==.")
