@@ -48,6 +48,7 @@ public final class CheckList {
         ArrayAndObjectConstructorsCheck.class,
         BitwiseOperatorsCheck.class,
         PrimitiveWrappersCheck.class,
+        ForInCheck.class,
         LineLengthCheck.class);
   }
 
