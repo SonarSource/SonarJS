@@ -19,22 +19,30 @@
  */
 package org.sonar.javascript.checks;
 
-import com.google.common.collect.ImmutableList;
+import com.sonar.sslr.squid.checks.AbstractLineLengthCheck;
+import org.sonar.check.Priority;
+import org.sonar.check.Rule;
+import org.sonar.check.RuleProperty;
+import org.sonar.javascript.api.EcmaScriptGrammar;
 
-import java.util.List;
+@Rule(
+  key = "LineLength",
+  name = "Maximum authorized line length exceeded",
+  priority = Priority.MINOR,
+  description = "<p>Maximum authorized line length exceeded.</p>")
+public class LineLengthCheck extends AbstractLineLengthCheck<EcmaScriptGrammar> {
 
-public final class CheckList {
+  private static final int DEFAULT_MAXIMUM_LINE_LENHGTH = 80;
 
-  private CheckList() {
-  }
+  @RuleProperty(
+    key = "maximumLineLength",
+    description = "The maximum authorized line length.",
+    defaultValue = "" + DEFAULT_MAXIMUM_LINE_LENHGTH)
+  public int maximumLineLength = DEFAULT_MAXIMUM_LINE_LENHGTH;
 
-  public static List<Class> getChecks() {
-    return ImmutableList.<Class> of(
-        ParsingErrorCheck.class,
-        XPathCheck.class,
-        CommentedCodeCheck.class,
-        FunctionComplexityCheck.class,
-        LineLengthCheck.class);
+  @Override
+  public int getMaximumLineLength() {
+    return maximumLineLength;
   }
 
 }

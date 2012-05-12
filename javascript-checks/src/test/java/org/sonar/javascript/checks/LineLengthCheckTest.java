@@ -19,22 +19,24 @@
  */
 package org.sonar.javascript.checks;
 
-import com.google.common.collect.ImmutableList;
+import com.sonar.sslr.squid.checks.CheckMessagesVerifier;
+import org.junit.Test;
+import org.sonar.javascript.JavaScriptAstScanner;
+import org.sonar.squid.api.SourceFile;
 
-import java.util.List;
+import java.io.File;
 
-public final class CheckList {
+public class LineLengthCheckTest {
 
-  private CheckList() {
-  }
+  @Test
+  public void test() {
+    LineLengthCheck check = new LineLengthCheck();
+    check.maximumLineLength = 21;
 
-  public static List<Class> getChecks() {
-    return ImmutableList.<Class> of(
-        ParsingErrorCheck.class,
-        XPathCheck.class,
-        CommentedCodeCheck.class,
-        FunctionComplexityCheck.class,
-        LineLengthCheck.class);
+    SourceFile file = JavaScriptAstScanner.scanSingleFile(new File("src/test/resources/checks/lineLength.js"), check);
+    CheckMessagesVerifier.verify(file.getCheckMessages())
+        .next().atLine(2).withMessage("The line length is greater than 21 authorized.")
+        .noMore();
   }
 
 }
