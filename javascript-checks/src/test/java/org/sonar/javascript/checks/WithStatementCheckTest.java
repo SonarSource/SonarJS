@@ -19,30 +19,23 @@
  */
 package org.sonar.javascript.checks;
 
-import com.google.common.collect.ImmutableList;
+import com.sonar.sslr.squid.checks.CheckMessagesVerifier;
+import org.junit.Test;
+import org.sonar.javascript.JavaScriptAstScanner;
+import org.sonar.squid.api.SourceFile;
 
-import java.util.List;
+import java.io.File;
 
-public final class CheckList {
+public class WithStatementCheckTest {
 
-  public static final String SONAR_WAY_PROFILE = "Sonar way";
+  @Test
+  public void test() {
+    WithStatementCheck check = new WithStatementCheck();
 
-  private CheckList() {
-  }
-
-  public static List<Class> getChecks() {
-    return ImmutableList.<Class> of(
-        ParsingErrorCheck.class,
-        XPathCheck.class,
-        CommentedCodeCheck.class,
-        FunctionComplexityCheck.class,
-        DebuggerStatementCheck.class,
-        WithStatementCheck.class,
-        EqEqEqCheck.class,
-        CommentRegularExpressionCheck.class,
-        EvalCheck.class,
-        OneStatementPerLine.class,
-        LineLengthCheck.class);
+    SourceFile file = JavaScriptAstScanner.scanSingleFile(new File("src/test/resources/checks/withStatement.js"), check);
+    CheckMessagesVerifier.verify(file.getCheckMessages())
+        .next().atLine(2).withMessage("Avoid using with statement.")
+        .noMore();
   }
 
 }

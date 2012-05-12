@@ -19,30 +19,29 @@
  */
 package org.sonar.javascript.checks;
 
-import com.google.common.collect.ImmutableList;
+import com.sonar.sslr.api.AstNode;
+import com.sonar.sslr.squid.checks.SquidCheck;
+import org.sonar.check.BelongsToProfile;
+import org.sonar.check.Priority;
+import org.sonar.check.Rule;
+import org.sonar.javascript.api.EcmaScriptGrammar;
 
-import java.util.List;
+@Rule(
+  key = "WithStatement",
+  priority = Priority.MAJOR,
+  name = "With statement must not be used",
+  description = "With statement must not be used.")
+@BelongsToProfile(title = CheckList.SONAR_WAY_PROFILE, priority = Priority.MAJOR)
+public class WithStatementCheck extends SquidCheck<EcmaScriptGrammar> {
 
-public final class CheckList {
-
-  public static final String SONAR_WAY_PROFILE = "Sonar way";
-
-  private CheckList() {
+  @Override
+  public void init() {
+    subscribeTo(getContext().getGrammar().withStatement);
   }
 
-  public static List<Class> getChecks() {
-    return ImmutableList.<Class> of(
-        ParsingErrorCheck.class,
-        XPathCheck.class,
-        CommentedCodeCheck.class,
-        FunctionComplexityCheck.class,
-        DebuggerStatementCheck.class,
-        WithStatementCheck.class,
-        EqEqEqCheck.class,
-        CommentRegularExpressionCheck.class,
-        EvalCheck.class,
-        OneStatementPerLine.class,
-        LineLengthCheck.class);
+  @Override
+  public void visitNode(AstNode node) {
+    getContext().createLineViolation(this, "Avoid using with statement.", node);
   }
 
 }
