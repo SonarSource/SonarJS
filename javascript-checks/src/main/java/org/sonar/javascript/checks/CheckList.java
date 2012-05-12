@@ -39,6 +39,7 @@ public final class CheckList {
         DebuggerStatementCheck.class,
         EqEqEqCheck.class,
         CommentRegularExpressionCheck.class,
+        EvalCheck.class,
         LineLengthCheck.class);
   }
 
