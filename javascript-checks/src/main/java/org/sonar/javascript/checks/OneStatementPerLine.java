@@ -19,29 +19,29 @@
  */
 package org.sonar.javascript.checks;
 
-import com.google.common.collect.ImmutableList;
+import com.sonar.sslr.api.AstNode;
+import com.sonar.sslr.squid.checks.AbstractOneStatementPerLineCheck;
+import org.sonar.check.BelongsToProfile;
+import org.sonar.check.Priority;
+import org.sonar.check.Rule;
+import org.sonar.javascript.api.EcmaScriptGrammar;
 
-import java.util.List;
+@Rule(
+  key = "OneStatementPerLineCheck",
+  priority = Priority.MAJOR,
+  name = "Do not use more that one statement per line",
+  description = "For better readability, do not put more than one statement on a single line.")
+@BelongsToProfile(title = CheckList.SONAR_WAY_PROFILE, priority = Priority.MAJOR)
+public class OneStatementPerLine extends AbstractOneStatementPerLineCheck<EcmaScriptGrammar> {
 
-public final class CheckList {
-
-  public static final String SONAR_WAY_PROFILE = "Sonar way";
-
-  private CheckList() {
+  @Override
+  public com.sonar.sslr.api.Rule getStatementRule() {
+    return getContext().getGrammar().statement;
   }
 
-  public static List<Class> getChecks() {
-    return ImmutableList.<Class> of(
-        ParsingErrorCheck.class,
-        XPathCheck.class,
-        CommentedCodeCheck.class,
-        FunctionComplexityCheck.class,
-        DebuggerStatementCheck.class,
-        EqEqEqCheck.class,
-        CommentRegularExpressionCheck.class,
-        EvalCheck.class,
-        OneStatementPerLine.class,
-        LineLengthCheck.class);
+  @Override
+  public boolean isExcluded(AstNode statementNode) {
+    return false;
   }
 
 }
