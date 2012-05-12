@@ -19,33 +19,31 @@
  */
 package org.sonar.javascript.checks;
 
-import com.google.common.collect.ImmutableList;
+import com.sonar.sslr.api.AstNode;
+import com.sonar.sslr.squid.checks.SquidCheck;
+import org.sonar.check.BelongsToProfile;
+import org.sonar.check.Priority;
+import org.sonar.check.Rule;
+import org.sonar.javascript.api.EcmaScriptGrammar;
 
-import java.util.List;
+@Rule(
+  key = "MultilineStringLiterals",
+  name = "Avoid multiline string literals",
+  priority = Priority.MAJOR,
+  description = "Avoid multiline string literals.")
+@BelongsToProfile(title = CheckList.SONAR_WAY_PROFILE, priority = Priority.MAJOR)
+public class MultilineStringLiteralsCheck extends SquidCheck<EcmaScriptGrammar> {
 
-public final class CheckList {
-
-  public static final String SONAR_WAY_PROFILE = "Sonar way";
-
-  private CheckList() {
+  @Override
+  public void init() {
+    subscribeTo(getContext().getGrammar().stringLiteral);
   }
 
-  public static List<Class> getChecks() {
-    return ImmutableList.<Class> of(
-        ParsingErrorCheck.class,
-        XPathCheck.class,
-        CommentedCodeCheck.class,
-        FunctionComplexityCheck.class,
-        DebuggerStatementCheck.class,
-        WithStatementCheck.class,
-        EqEqEqCheck.class,
-        CommentRegularExpressionCheck.class,
-        EvalCheck.class,
-        OneStatementPerLineCheck.class,
-        SemicolonCheck.class,
-        AlwaysUseCurlyBracesCheck.class,
-        MultilineStringLiteralsCheck.class,
-        LineLengthCheck.class);
+  @Override
+  public void visitNode(AstNode astNode) {
+    if (astNode.getTokenValue().contains("\n")) {
+      getContext().createLineViolation(this, "Avoid multiline string literals.", astNode);
+    }
   }
 
 }
