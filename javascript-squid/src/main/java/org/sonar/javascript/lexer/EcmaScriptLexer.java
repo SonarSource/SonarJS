@@ -60,9 +60,7 @@ public final class EcmaScriptLexer {
 
         // String Literals
         .withChannel(regexp(LITERAL, "\"([^\"\\\\]*+(\\\\[\\s\\S])?+)*+\""))
-
-        // Character Literals
-        .withChannel(regexp(LITERAL, "'([^'\\n\\\\]*+(\\\\.)?+)*+'"))
+        .withChannel(regexp(LITERAL, "'([^'\\\\]*+(\\\\[\\s\\S])?+)*+'"))
 
         // Regular Expression Literals
         .withChannel(new EcmaScriptRegexpChannel())

@@ -90,14 +90,17 @@ public class EcmaScriptLexerTest {
 
   @Test
   public void stringLiteral() {
-    assertThat("empty string", lexer.lex("''"), hasToken("''", GenericTokenType.LITERAL));
-    assertThat("empty string", lexer.lex("\"\""), hasToken("\"\"", GenericTokenType.LITERAL));
+    assertThat("empty", lexer.lex("''"), hasToken("''", GenericTokenType.LITERAL));
+    assertThat("empty", lexer.lex("\"\""), hasToken("\"\"", GenericTokenType.LITERAL));
 
     assertThat(lexer.lex("'hello world'"), hasToken("'hello world'", GenericTokenType.LITERAL));
     assertThat(lexer.lex("\"hello world\""), hasToken("\"hello world\"", GenericTokenType.LITERAL));
 
     assertThat("escaped single quote", lexer.lex("'\\''"), hasToken("'\\''", GenericTokenType.LITERAL));
     assertThat("escaped double quote", lexer.lex("\"\\\"\""), hasToken("\"\\\"\"", GenericTokenType.LITERAL));
+
+    assertThat("multiline", lexer.lex("'\\\n'"), hasToken("'\\\n'", GenericTokenType.LITERAL));
+    assertThat("multiline", lexer.lex("\"\\\n\""), hasToken("\"\\\n\"", GenericTokenType.LITERAL));
   }
 
   @Test
