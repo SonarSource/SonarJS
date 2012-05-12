@@ -21,6 +21,7 @@ package org.sonar.javascript.checks;
 
 import com.sonar.sslr.api.AstNode;
 import com.sonar.sslr.squid.checks.SquidCheck;
+import org.sonar.check.BelongsToProfile;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.javascript.api.EcmaScriptGrammar;
@@ -31,6 +32,7 @@ import org.sonar.javascript.api.EcmaScriptPunctuator;
   priority = Priority.MAJOR,
   name = "== and != must not be used",
   description = "Avoid use of == and != in favor of === and !==.")
+@BelongsToProfile(title = CheckList.SONAR_WAY_PROFILE, priority = Priority.MAJOR)
 public class EqEqEqCheck extends SquidCheck<EcmaScriptGrammar> {
 
   @Override

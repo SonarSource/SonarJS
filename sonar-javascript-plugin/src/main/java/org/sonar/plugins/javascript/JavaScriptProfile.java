@@ -19,24 +19,24 @@
  */
 package org.sonar.plugins.javascript;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.sonar.api.profiles.AnnotationProfileParser;
+import org.sonar.api.profiles.ProfileDefinition;
+import org.sonar.api.profiles.RulesProfile;
+import org.sonar.api.utils.ValidationMessages;
+import org.sonar.javascript.checks.CheckList;
+import org.sonar.plugins.javascript.core.JavaScript;
 
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+public class JavaScriptProfile extends ProfileDefinition {
 
-public class JavaScriptPluginTest {
+  private final AnnotationProfileParser annotationProfileParser;
 
-  private JavaScriptPlugin plugin;
-
-  @Before
-  public void setUp() throws Exception {
-    plugin = new JavaScriptPlugin();
+  public JavaScriptProfile(AnnotationProfileParser annotationProfileParser) {
+    this.annotationProfileParser = annotationProfileParser;
   }
 
-  @Test
-  public void testGetExtensions() throws Exception {
-    assertThat(plugin.getExtensions().size(), is(17));
+  @Override
+  public RulesProfile createProfile(ValidationMessages validation) {
+    return annotationProfileParser.parse(JavaScriptRuleRepository.REPOSITORY_KEY, CheckList.SONAR_WAY_PROFILE, JavaScript.KEY, CheckList.getChecks(), validation);
   }
 
 }

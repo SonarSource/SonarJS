@@ -94,6 +94,7 @@ public class JavaScriptPlugin extends SonarPlugin {
 
     list.add(JavaScriptSquidSensor.class);
     list.add(JavaScriptRuleRepository.class);
+    list.add(JavaScriptProfile.class);
 
     list.add(JavaScriptJSLintSensor.class);
 

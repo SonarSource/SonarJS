@@ -21,6 +21,7 @@ package org.sonar.javascript.checks;
 
 import com.sonar.sslr.api.AstNode;
 import com.sonar.sslr.squid.checks.SquidCheck;
+import org.sonar.check.BelongsToProfile;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.javascript.api.EcmaScriptGrammar;
@@ -30,6 +31,7 @@ import org.sonar.javascript.api.EcmaScriptGrammar;
   priority = Priority.MAJOR,
   name = "Debugger statement must not be used",
   description = "Debugger statement must not be used.")
+@BelongsToProfile(title = CheckList.SONAR_WAY_PROFILE, priority = Priority.MAJOR)
 public class DebuggerStatementCheck extends SquidCheck<EcmaScriptGrammar> {
 
   @Override

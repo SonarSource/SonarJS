@@ -24,6 +24,7 @@ import com.sonar.sslr.api.AstAndTokenVisitor;
 import com.sonar.sslr.api.Token;
 import com.sonar.sslr.api.Trivia;
 import com.sonar.sslr.squid.checks.SquidCheck;
+import org.sonar.check.BelongsToProfile;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.javascript.api.EcmaScriptGrammar;
@@ -41,6 +42,7 @@ import java.util.regex.Pattern;
       "Programmers should not comment out code as it bloats programs and reduces readability. " +
       "Unused code should be deleted and can be retrieved from source control history if required." +
       "</p>")
+@BelongsToProfile(title = CheckList.SONAR_WAY_PROFILE, priority = Priority.MAJOR)
 public class CommentedCodeCheck extends SquidCheck<EcmaScriptGrammar> implements AstAndTokenVisitor {
 
   private static final double THRESHOLD = 0.9;

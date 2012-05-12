@@ -21,6 +21,7 @@ package org.sonar.javascript.checks;
 
 import com.sonar.sslr.api.AstNode;
 import com.sonar.sslr.squid.checks.SquidCheck;
+import org.sonar.check.BelongsToProfile;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
@@ -36,6 +37,7 @@ import org.sonar.squid.api.SourceFunction;
       "The cyclomatic complexity of a function should not exceed a defined threshold. " +
       "Complex code can perform poorly and will in any case be difficult to understand and therefore to maintain." +
       "</p>")
+@BelongsToProfile(title = CheckList.SONAR_WAY_PROFILE, priority = Priority.MAJOR)
 public class FunctionComplexityCheck extends SquidCheck<EcmaScriptGrammar> {
 
   private static final int DEFAULT_MAXIMUM_FUNCTION_COMPLEXITY_THRESHOLD = 10;
