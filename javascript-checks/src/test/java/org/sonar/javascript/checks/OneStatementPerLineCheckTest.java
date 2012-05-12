@@ -35,6 +35,7 @@ public class OneStatementPerLineCheckTest {
     SourceFile file = JavaScriptAstScanner.scanSingleFile(new File("src/test/resources/checks/oneStatementPerLine.js"), check);
     CheckMessagesVerifier.verify(file.getCheckMessages())
         .next().atLine(2).withMessage("At most one statement is allowed per line, but 2 statements were found on this line.")
+        .next().atLine(6)
         .noMore();
   }
 

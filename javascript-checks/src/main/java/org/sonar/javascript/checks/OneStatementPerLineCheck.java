@@ -41,7 +41,7 @@ public class OneStatementPerLineCheck extends AbstractOneStatementPerLineCheck<E
 
   @Override
   public boolean isExcluded(AstNode statementNode) {
-    return false;
+    return statementNode.getChild(0).is(getContext().getGrammar().block);
   }
 
 }
