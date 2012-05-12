@@ -295,9 +295,7 @@ public class EcmaScriptGrammarImpl extends EcmaScriptGrammar {
         tryStatement,
         debuggerStatement));
     block.is(LCURLYBRACE, opt(statementList), RCURLYBRACE);
-    // TODO hack to be able to parse prototype.js version 1.7
-    // statementList.is(one2n(statement));
-    statementList.is(one2n(or(statement, functionDeclaration)));
+    statementList.is(one2n(or(statement, permissive(functionDeclaration))));
     variableStatement.is(VAR, variableDeclarationList, eos);
     variableDeclarationList.is(variableDeclaration, o2n(COMMA, variableDeclaration));
     variableDeclarationListNoIn.is(variableDeclarationNoIn, o2n(COMMA, variableDeclarationNoIn));
@@ -361,6 +359,14 @@ public class EcmaScriptGrammarImpl extends EcmaScriptGrammar {
     sourceElement.is(or(
         statement,
         functionDeclaration));
+  }
+
+  /**
+   * Declares some constructs, which ES5 grammar does not support, but script engines support.
+   * For example prototype.js version 1.7 has a function declaration in a block, which is invalid under both ES3 and ES5.
+   */
+  private static Object permissive(Object object) {
+    return object;
   }
 
 }

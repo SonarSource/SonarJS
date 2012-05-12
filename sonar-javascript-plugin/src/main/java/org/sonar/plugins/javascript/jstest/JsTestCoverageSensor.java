@@ -31,7 +31,8 @@ public final class JsTestCoverageSensor extends JsTestDriverCoverageSensor {
   }
 
   public boolean shouldExecuteOnProject(Project project) {
-    return (javascript.equals(project.getLanguage()) && "jstest".equals(javascript.getConfiguration().getString(JavaScriptPlugin.TEST_FRAMEWORK_KEY, JavaScriptPlugin.TEST_FRAMEWORK_DEFAULT)));
+    return javascript.equals(project.getLanguage())
+        && "jstest".equals(javascript.getConfiguration().getString(JavaScriptPlugin.TEST_FRAMEWORK_KEY, JavaScriptPlugin.TEST_FRAMEWORK_DEFAULT));
   }
 
   protected String getTestReportsFolder() {
@@ -46,4 +47,5 @@ public final class JsTestCoverageSensor extends JsTestDriverCoverageSensor {
   public String toString() {
     return getClass().getSimpleName();
   }
+
 }

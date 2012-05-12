@@ -19,10 +19,6 @@
  */
 package org.sonar.plugins.javascript.jstestdriver;
 
-import java.io.File;
-import java.util.List;
-import java.util.Map;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.Sensor;
@@ -37,6 +33,10 @@ import org.sonar.plugins.javascript.core.JavaScript;
 import org.sonar.plugins.javascript.coverage.JavaScriptFileCoverage;
 import org.sonar.plugins.javascript.coverage.LCOVParser;
 
+import java.io.File;
+import java.util.List;
+import java.util.Map;
+
 public class JsTestDriverCoverageSensor implements Sensor {
 
   protected JavaScript javascript;
@@ -48,7 +48,8 @@ public class JsTestDriverCoverageSensor implements Sensor {
   private static final Logger LOG = LoggerFactory.getLogger(JsTestDriverCoverageSensor.class);
 
   public boolean shouldExecuteOnProject(Project project) {
-    return (javascript.equals(project.getLanguage()) && "jstestdriver".equals(javascript.getConfiguration().getString(JavaScriptPlugin.TEST_FRAMEWORK_KEY, JavaScriptPlugin.TEST_FRAMEWORK_DEFAULT)));
+    return javascript.equals(project.getLanguage())
+        && "jstestdriver".equals(javascript.getConfiguration().getString(JavaScriptPlugin.TEST_FRAMEWORK_KEY, JavaScriptPlugin.TEST_FRAMEWORK_DEFAULT));
   }
 
   public void analyse(Project project, SensorContext sensorContext) {

@@ -134,4 +134,9 @@ public class JavaScriptSquidSensor implements Sensor {
     }
   }
 
+  @Override
+  public String toString() {
+    return getClass().getSimpleName();
+  }
+
 }
