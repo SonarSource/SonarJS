@@ -14,4 +14,6 @@ function sayHello() {
 
   while (condition) { // OK
   }
+
+  return 1; // OK
 }

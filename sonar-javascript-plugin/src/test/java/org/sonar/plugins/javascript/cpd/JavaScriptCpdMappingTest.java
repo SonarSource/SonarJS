@@ -19,30 +19,25 @@
  */
 package org.sonar.plugins.javascript.cpd;
 
-import net.sourceforge.pmd.cpd.Tokenizer;
-import org.sonar.api.batch.AbstractCpdMapping;
-import org.sonar.api.resources.Language;
+import org.junit.Test;
 import org.sonar.api.resources.ProjectFileSystem;
 import org.sonar.plugins.javascript.core.JavaScript;
 
-import java.nio.charset.Charset;
+import static org.hamcrest.Matchers.allOf;
+import static org.hamcrest.Matchers.instanceOf;
+import static org.hamcrest.Matchers.sameInstance;
+import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.mock;
 
-public class JavaScriptCpdMapping extends AbstractCpdMapping {
+public class JavaScriptCpdMappingTest {
 
-  private final JavaScript language;
-  private final Charset charset;
-
-  public JavaScriptCpdMapping(JavaScript language, ProjectFileSystem fs) {
-    this.language = language;
-    this.charset = fs.getSourceCharset();
-  }
-
-  public Tokenizer getTokenizer() {
-    return new JavaScriptTokenizer(charset);
-  }
-
-  public Language getLanguage() {
-    return language;
+  @Test
+  public void test() {
+    JavaScript language = mock(JavaScript.class);
+    ProjectFileSystem fs = mock(ProjectFileSystem.class);
+    JavaScriptCpdMapping mapping = new JavaScriptCpdMapping(language, fs);
+    assertThat(mapping.getLanguage(), allOf(instanceOf(JavaScript.class), sameInstance(language)));
+    assertThat(mapping.getTokenizer(), instanceOf(JavaScriptTokenizer.class));
   }
 
 }

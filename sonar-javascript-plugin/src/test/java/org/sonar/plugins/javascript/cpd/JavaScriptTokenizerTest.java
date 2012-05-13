@@ -19,30 +19,31 @@
  */
 package org.sonar.plugins.javascript.cpd;
 
-import net.sourceforge.pmd.cpd.Tokenizer;
-import org.sonar.api.batch.AbstractCpdMapping;
-import org.sonar.api.resources.Language;
-import org.sonar.api.resources.ProjectFileSystem;
-import org.sonar.plugins.javascript.core.JavaScript;
+import net.sourceforge.pmd.cpd.SourceCode;
+import net.sourceforge.pmd.cpd.TokenEntry;
+import net.sourceforge.pmd.cpd.Tokens;
+import org.junit.Test;
 
+import java.io.File;
 import java.nio.charset.Charset;
 
-public class JavaScriptCpdMapping extends AbstractCpdMapping {
+import static org.hamcrest.Matchers.greaterThan;
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
-  private final JavaScript language;
-  private final Charset charset;
+public class JavaScriptTokenizerTest {
 
-  public JavaScriptCpdMapping(JavaScript language, ProjectFileSystem fs) {
-    this.language = language;
-    this.charset = fs.getSourceCharset();
-  }
-
-  public Tokenizer getTokenizer() {
-    return new JavaScriptTokenizer(charset);
-  }
-
-  public Language getLanguage() {
-    return language;
+  @Test
+  public void test() {
+    JavaScriptTokenizer tokenizer = new JavaScriptTokenizer(Charset.forName("UTF-8"));
+    SourceCode source = mock(SourceCode.class);
+    when(source.getFileName()).thenReturn(new File("src/test/resources/cpd/Person.js").getAbsolutePath());
+    Tokens tokens = new Tokens();
+    tokenizer.tokenize(source, tokens);
+    assertThat(tokens.getTokens().size(), greaterThan(1));
+    assertThat(tokens.getTokens().get(tokens.size() - 1), is(TokenEntry.getEOF()));
   }
 
 }

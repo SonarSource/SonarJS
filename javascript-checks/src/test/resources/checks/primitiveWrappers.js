@@ -11,4 +11,6 @@ function sayHello() {
 
   new Number(1); // NOK
   new String('2'); // NOK
+
+  new MyObject(); // OK
 }
