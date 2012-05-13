@@ -51,6 +51,7 @@ public final class CheckList {
         PrimitiveWrappersCheck.class,
         ForInCheck.class,
         FunctionDeclarationsWithinBlocksCheck.class,
+        TrailingCommaCheck.class,
         LineLengthCheck.class);
   }
 
