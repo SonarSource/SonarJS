@@ -31,8 +31,8 @@ public class JsLintRuleManager implements ServerExtension, BatchExtension {
 
   private List<JsLintRule> rules = new ArrayList<JsLintRule>();
 
+  public static final String STOPPING_RULES_KEY = "STOPPING";
   public static final String OTHER_RULES_KEY = "OTHER_RULES";
-  public static final String UNUSED_NAMES_KEY = "UNUSED_NAMES";
   public static final String CYCLOMATIC_COMPLEXITY_KEY = "CYCLOMATIC_COMPLEXITY";
   private static final String RULES_FILE_LOCATION = "/org/sonar/plugins/javascript/jslint/rules.xml";
 
@@ -48,13 +48,24 @@ public class JsLintRuleManager implements ServerExtension, BatchExtension {
     return rules;
   }
 
-  public String getRuleIdByMessage(String message) {
-    for (JsLintRule rule : rules) {
-      if (rule.hasMessage(message)) {
-        return rule.getKey();
+  public String getRuleIdByMessage(String reasonMessage, String rawMessage) {
+    if (rawMessage == null) {
+      return STOPPING_RULES_KEY;
+    } else {
+
+      for (JsLintRule rule : rules) {
+        if (rule.hasMessage(reasonMessage)) {
+          return rule.getKey();
+        }
       }
+      for (JsLintRule rule : rules) {
+        if (rule.hasMessage(rawMessage)) {
+          return rule.getKey();
+        }
+      }
+
+      return OTHER_RULES_KEY;
     }
-    return OTHER_RULES_KEY;
   }
 
   public boolean isRuleInverse(String ruleKey) {

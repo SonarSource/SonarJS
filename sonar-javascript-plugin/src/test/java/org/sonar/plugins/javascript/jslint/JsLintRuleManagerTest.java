@@ -39,10 +39,10 @@ public class JsLintRuleManagerTest {
 
   @Test
   public void testGetRuleIdByMessage() {
-    assertEquals("Incorrect rule id returned", "EVIL", manager.getRuleIdByMessage("eval is evil."));
-    assertEquals("Incorrect rule id returned", "WHITE", manager.getRuleIdByMessage("Missing space after '{a}'."));
+    assertEquals("Incorrect rule id returned", "EVIL", manager.getRuleIdByMessage("eval is evil.", "invalid_raw_message"));
+    assertEquals("Incorrect rule id returned", "WHITE", manager.getRuleIdByMessage("invalid_reason_message", "Missing space after '{a}'."));
 
-    assertEquals("Incorrect rule id returned", JsLintRuleManager.OTHER_RULES_KEY, manager.getRuleIdByMessage("not registered message"));
+    assertEquals("Incorrect rule id returned", JsLintRuleManager.OTHER_RULES_KEY, manager.getRuleIdByMessage("invalid_reason_message", "not registered message"));
 
   }
 

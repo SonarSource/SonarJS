@@ -109,26 +109,15 @@ public class JavaScriptJSLintSensor implements Sensor {
       List<Issue> issues = result.getIssues();
       for (Issue issue : issues) {
 
-        LOG.debug("JSLint warning message {}", issue.getRaw());
+        LOG.debug("JSLint issue.raw: {}", issue.getRaw());
+        LOG.debug("JSLint issue.reason: {}", issue.getReason());
 
-        Rule rule = ruleFinder.findByKey(JsLintRuleRepository.REPOSITORY_KEY, jsLintRuleManager.getRuleIdByMessage(issue.getRaw()));
+        Rule rule = ruleFinder.findByKey(JsLintRuleRepository.REPOSITORY_KEY, jsLintRuleManager.getRuleIdByMessage(issue.getReason(), issue.getRaw()));
 
         Violation violation = Violation.create(rule, resource);
 
         violation.setLineId(issue.getLine());
         violation.setMessage(issue.getReason());
-
-        sensorContext.saveViolation(violation);
-      }
-
-      // add special violation for unused names
-      List<JSIdentifier> unused = result.getUnused();
-      for (JSIdentifier unusedName : unused) {
-        Violation violation = Violation.create(
-            ruleFinder.findByKey(JsLintRuleRepository.REPOSITORY_KEY, JsLintRuleManager.UNUSED_NAMES_KEY), resource);
-
-        violation.setLineId(unusedName.getLine());
-        violation.setMessage("'" + unusedName.getName() + "' is unused");
 
         sensorContext.saveViolation(violation);
       }
@@ -153,7 +142,7 @@ public class JavaScriptJSLintSensor implements Sensor {
     // set JSLint options for activated rules
     for (Option option : Option.values()) {
       // not inverse rule and activated
-      if ( !jsLintRuleManager.isRuleInverse(option.name()) && isActivated(option.name(), activeRules)) {
+      if (!jsLintRuleManager.isRuleInverse(option.name()) && isActivated(option.name(), activeRules)) {
 
         LOG.debug("Adding JSLint option from rule: {}", option.name());
         this.jsLint.addOption(option);

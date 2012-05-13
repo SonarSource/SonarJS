@@ -60,6 +60,8 @@ import org.sonar.plugins.javascript.jstestdriver.JsTestDriverSurefireSensor;
     description = "Assume Windows", global = true, project = true, category = "JSLint"),
   @Property(key = JavaScriptPlugin.ASSUME_RHINO_KEY, defaultValue = JavaScriptPlugin.FALSE, name = "Assume Rhino",
     description = "Assume Rhino", global = true, project = true, category = "JSLint"),
+  @Property(key = JavaScriptPlugin.ASSUME_NODEJS_KEY, defaultValue = JavaScriptPlugin.FALSE, name = "Assume Node.js",
+    description = "Assume Node.js", global = true, project = true, category = "JSLint"),
   @Property(key = JavaScriptPlugin.SAFE_SUBSET_KEY, defaultValue = JavaScriptPlugin.FALSE, name = "Safe Subset",
     description = "Safe Subset", global = true, project = true, category = "JSLint"),
   @Property(key = JavaScriptPlugin.PREDEFINED_KEY, defaultValue = "", name = "Predefined variables",
@@ -133,6 +135,7 @@ public class JavaScriptPlugin extends SonarPlugin {
 
   public static final String ASSUME_WINDOWS_KEY = PROPERTY_PREFIX_JSLINT + ".windows";
   public static final String ASSUME_RHINO_KEY = PROPERTY_PREFIX_JSLINT + ".rhino";
+  public static final String ASSUME_NODEJS_KEY = PROPERTY_PREFIX_JSLINT + ".node";
   public static final String SAFE_SUBSET_KEY = PROPERTY_PREFIX_JSLINT + ".safe";
 
   public static final String MAXIMUM_NUMBER_OF_ERRORS_KEY = PROPERTY_PREFIX_JSLINT + ".maxerr";
@@ -140,7 +143,7 @@ public class JavaScriptPlugin extends SonarPlugin {
   public static final String PREDEFINED_KEY = PROPERTY_PREFIX_JSLINT + ".predef";
 
   public static final String[] GLOBAL_PARAMETERS = new String[] {ASSUME_A_BROWSER_KEY, ASSUME_CONSOLE_ALERT_KEY,
-    ASSUME_A_YAHOO_WIDGET_KEY, ASSUME_WINDOWS_KEY, ASSUME_RHINO_KEY, SAFE_SUBSET_KEY, MAXIMUM_NUMBER_OF_ERRORS_KEY, PREDEFINED_KEY};
+    ASSUME_A_YAHOO_WIDGET_KEY, ASSUME_WINDOWS_KEY, ASSUME_RHINO_KEY, ASSUME_NODEJS_KEY, SAFE_SUBSET_KEY, MAXIMUM_NUMBER_OF_ERRORS_KEY, PREDEFINED_KEY};
 
   // JSTestDriver
   public static final String JSTESTDRIVER_FOLDER_KEY = PROPERTY_PREFIX + ".jstestdriver.reportsfolder";

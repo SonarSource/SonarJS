@@ -35,7 +35,11 @@ public class ViolationMatcher extends BaseMatcher<Violation> {
 
   public boolean matches(Object o) {
     Violation v = (Violation) o;
-    return ruleKey.equals(v.getRule().getKey()) && line.equals(v.getLineId());
+    if (v.getRule() == null) {
+      return false;
+    } else {
+      return ruleKey.equals(v.getRule().getKey()) && line.equals(v.getLineId());
+    }
   }
 
   public void describeTo(Description description) {

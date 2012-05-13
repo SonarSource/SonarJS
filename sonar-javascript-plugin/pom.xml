@@ -61,7 +61,7 @@
     <dependency>
       <groupId>com.googlecode.jslint4java</groupId>
       <artifactId>jslint4java</artifactId>
-      <version>1.4.6</version>
+      <version>2.0.2</version>
     </dependency>
 
     <dependency>
@@ -91,7 +91,7 @@
             <configuration>
               <rules>
                 <requireFilesSize>
-                  <maxsize>1500000</maxsize>
+                  <maxsize>1700000</maxsize>
                   <minsize>1000000</minsize>
                   <files>
                     <file>${project.build.directory}/${project.build.finalName}.jar</file>
