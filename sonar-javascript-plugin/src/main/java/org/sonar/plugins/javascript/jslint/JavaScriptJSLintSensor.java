@@ -20,7 +20,6 @@
 package org.sonar.plugins.javascript.jslint;
 
 import com.googlecode.jslint4java.Issue;
-import com.googlecode.jslint4java.JSIdentifier;
 import com.googlecode.jslint4java.JSLint;
 import com.googlecode.jslint4java.JSLintBuilder;
 import com.googlecode.jslint4java.JSLintResult;
