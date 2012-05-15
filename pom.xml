@@ -47,7 +47,7 @@
   </modules>
 
   <scm>
-    <connection>scm:git:git@github.com:SonarCommunity/trunk/javascript.git</connection>
+    <connection>scm:git:git@github.com:SonarCommunity/javascript.git</connection>
     <developerConnection>scm:git:git@github.com:SonarCommunity/javascript.git</developerConnection>
     <url>https://github.com/SonarCommunity/javascript</url>
   </scm>
