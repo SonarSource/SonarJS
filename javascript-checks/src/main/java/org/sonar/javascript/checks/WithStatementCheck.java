@@ -28,9 +28,7 @@ import org.sonar.javascript.api.EcmaScriptGrammar;
 
 @Rule(
   key = "WithStatement",
-  priority = Priority.MAJOR,
-  name = "With statement must not be used",
-  description = "With statement must not be used.")
+  priority = Priority.MAJOR)
 @BelongsToProfile(title = CheckList.SONAR_WAY_PROFILE, priority = Priority.MAJOR)
 public class WithStatementCheck extends SquidCheck<EcmaScriptGrammar> {
 

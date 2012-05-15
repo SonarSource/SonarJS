@@ -28,9 +28,7 @@ import org.sonar.javascript.api.EcmaScriptGrammar;
 
 @Rule(
   key = "Eval",
-  priority = Priority.MAJOR,
-  name = "Avoid use of eval",
-  description = "Avoid use of eval.")
+  priority = Priority.MAJOR)
 @BelongsToProfile(title = CheckList.SONAR_WAY_PROFILE, priority = Priority.MAJOR)
 public class EvalCheck extends SquidCheck<EcmaScriptGrammar> {
 

@@ -28,9 +28,7 @@ import org.sonar.javascript.api.EcmaScriptGrammar;
 
 @Rule(
   key = "DebuggerStatement",
-  priority = Priority.MAJOR,
-  name = "Debugger statement must not be used",
-  description = "Debugger statement must not be used.")
+  priority = Priority.MAJOR)
 @BelongsToProfile(title = CheckList.SONAR_WAY_PROFILE, priority = Priority.MAJOR)
 public class DebuggerStatementCheck extends SquidCheck<EcmaScriptGrammar> {
 

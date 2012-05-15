@@ -25,6 +25,10 @@ import java.util.List;
 
 public final class CheckList {
 
+  // FIXME Key was chosen in order to not clash with existing repository for JSLint,
+  // however most probably it should be changed before release.
+  public static final String REPOSITORY_KEY = "js";
+
   public static final String SONAR_WAY_PROFILE = "Sonar way";
 
   private CheckList() {

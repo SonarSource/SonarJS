@@ -27,16 +27,13 @@ import org.sonar.javascript.api.EcmaScriptGrammar;
 
 @Rule(
   key = "LineLength",
-  name = "Maximum authorized line length exceeded",
-  priority = Priority.MINOR,
-  description = "<p>Maximum authorized line length exceeded.</p>")
+  priority = Priority.MINOR)
 public class LineLengthCheck extends AbstractLineLengthCheck<EcmaScriptGrammar> {
 
   private static final int DEFAULT_MAXIMUM_LINE_LENHGTH = 80;
 
   @RuleProperty(
     key = "maximumLineLength",
-    description = "The maximum authorized line length.",
     defaultValue = "" + DEFAULT_MAXIMUM_LINE_LENHGTH)
   public int maximumLineLength = DEFAULT_MAXIMUM_LINE_LENHGTH;
 

@@ -31,12 +31,7 @@ import org.sonar.squid.api.SourceFunction;
 
 @Rule(
   key = "FunctionComplexity",
-  priority = Priority.MAJOR,
-  name = "Avoid too complex function",
-  description = "<p>" +
-      "The cyclomatic complexity of a function should not exceed a defined threshold. " +
-      "Complex code can perform poorly and will in any case be difficult to understand and therefore to maintain." +
-      "</p>")
+  priority = Priority.MAJOR)
 @BelongsToProfile(title = CheckList.SONAR_WAY_PROFILE, priority = Priority.MAJOR)
 public class FunctionComplexityCheck extends SquidCheck<EcmaScriptGrammar> {
 
@@ -44,8 +39,7 @@ public class FunctionComplexityCheck extends SquidCheck<EcmaScriptGrammar> {
 
   @RuleProperty(
     key = "maximumFunctionComplexityThreshold",
-    defaultValue = "" + DEFAULT_MAXIMUM_FUNCTION_COMPLEXITY_THRESHOLD,
-    description = "The maximum authorized complexity in function")
+    defaultValue = "" + DEFAULT_MAXIMUM_FUNCTION_COMPLEXITY_THRESHOLD)
   private int maximumFunctionComplexityThreshold = DEFAULT_MAXIMUM_FUNCTION_COMPLEXITY_THRESHOLD;
 
   @Override

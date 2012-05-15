@@ -30,9 +30,7 @@ import java.util.List;
 
 @Rule(
   key = "CurlyBraces",
-  priority = Priority.MAJOR,
-  name = "Always use curly braces for if/else/for/while/do statements",
-  description = "Always use curly braces for if/else/for/while/do statements")
+  priority = Priority.MAJOR)
 @BelongsToProfile(title = CheckList.SONAR_WAY_PROFILE, priority = Priority.MAJOR)
 public class AlwaysUseCurlyBracesCheck extends SquidCheck<EcmaScriptGrammar> {
 

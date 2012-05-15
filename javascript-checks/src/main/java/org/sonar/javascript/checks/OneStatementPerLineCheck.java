@@ -28,9 +28,7 @@ import org.sonar.javascript.api.EcmaScriptGrammar;
 
 @Rule(
   key = "OneStatementPerLine",
-  priority = Priority.MAJOR,
-  name = "Do not use more that one statement per line",
-  description = "For better readability, do not put more than one statement on a single line.")
+  priority = Priority.MAJOR)
 @BelongsToProfile(title = CheckList.SONAR_WAY_PROFILE, priority = Priority.MAJOR)
 public class OneStatementPerLineCheck extends AbstractOneStatementPerLineCheck<EcmaScriptGrammar> {
 

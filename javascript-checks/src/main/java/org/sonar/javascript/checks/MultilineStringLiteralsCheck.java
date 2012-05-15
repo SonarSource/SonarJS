@@ -28,9 +28,7 @@ import org.sonar.javascript.api.EcmaScriptGrammar;
 
 @Rule(
   key = "MultilineStringLiterals",
-  name = "Avoid multiline string literals",
-  priority = Priority.MAJOR,
-  description = "Avoid multiline string literals.")
+  priority = Priority.BLOCKER)
 @BelongsToProfile(title = CheckList.SONAR_WAY_PROFILE, priority = Priority.MAJOR)
 public class MultilineStringLiteralsCheck extends SquidCheck<EcmaScriptGrammar> {
 

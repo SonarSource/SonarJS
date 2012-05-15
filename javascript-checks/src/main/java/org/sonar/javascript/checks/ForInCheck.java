@@ -30,10 +30,8 @@ import java.util.Collections;
 import java.util.List;
 
 @Rule(
-  key = "ForInCheck",
-  priority = Priority.MAJOR,
-  name = "For-in statement must filter items",
-  description = "For-in statement must filter items.")
+  key = "ForIn",
+  priority = Priority.MAJOR)
 @BelongsToProfile(title = CheckList.SONAR_WAY_PROFILE, priority = Priority.MAJOR)
 public class ForInCheck extends SquidCheck<EcmaScriptGrammar> {
 

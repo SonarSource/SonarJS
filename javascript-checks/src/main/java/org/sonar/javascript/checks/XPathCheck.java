@@ -29,11 +29,7 @@ import org.sonar.javascript.api.EcmaScriptGrammar;
 @Rule(
   key = "XPath",
   priority = Priority.MAJOR,
-  cardinality = Cardinality.MULTIPLE,
-  name = "XPath rule",
-  description = "<p>" +
-      "This rule enables on to define custom JavaScript rules based on an XPath expression." +
-      "</p>")
+  cardinality = Cardinality.MULTIPLE)
 public class XPathCheck extends AbstractXPathCheck<EcmaScriptGrammar> {
 
   private static final String DEFAULT_XPATH_QUERY = "";
@@ -41,14 +37,12 @@ public class XPathCheck extends AbstractXPathCheck<EcmaScriptGrammar> {
 
   @RuleProperty(
     key = "xpathQuery",
-    defaultValue = "" + DEFAULT_XPATH_QUERY,
-    description = "The XPath query")
+    defaultValue = "" + DEFAULT_XPATH_QUERY)
   public String xpathQuery = DEFAULT_XPATH_QUERY;
 
   @RuleProperty(
     key = "message",
-    defaultValue = "" + DEFAULT_XPATH_QUERY,
-    description = "The violation message")
+    defaultValue = "" + DEFAULT_XPATH_QUERY)
   public String message = DEFAULT_MESSAGE;
 
   @Override

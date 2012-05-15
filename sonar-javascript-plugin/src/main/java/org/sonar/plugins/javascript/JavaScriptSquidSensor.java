@@ -60,7 +60,7 @@ public class JavaScriptSquidSensor implements Sensor {
   private AstScanner<EcmaScriptGrammar> scanner;
 
   public JavaScriptSquidSensor(RulesProfile profile) {
-    this.annotationCheckFactory = AnnotationCheckFactory.create(profile, JavaScriptRuleRepository.REPOSITORY_KEY, CheckList.getChecks());
+    this.annotationCheckFactory = AnnotationCheckFactory.create(profile, CheckList.REPOSITORY_KEY, CheckList.getChecks());
   }
 
   public boolean shouldExecuteOnProject(Project project) {

@@ -29,22 +29,19 @@ import java.util.List;
 
 public class JavaScriptRuleRepository extends RuleRepository {
 
-  // FIXME Key was chosen in order to not clash with existing repository for JSLint,
-  // however most probably it should be changed before release.
-  public static final String REPOSITORY_KEY = "js";
   private static final String REPOSITORY_NAME = "JS";
 
   private final AnnotationRuleParser annotationRuleParser;
 
   public JavaScriptRuleRepository(AnnotationRuleParser annotationRuleParser) {
-    super(REPOSITORY_KEY, JavaScript.KEY);
+    super(CheckList.REPOSITORY_KEY, JavaScript.KEY);
     setName(REPOSITORY_NAME);
     this.annotationRuleParser = annotationRuleParser;
   }
 
   @Override
   public List<Rule> createRules() {
-    return annotationRuleParser.parse(REPOSITORY_KEY, CheckList.getChecks());
+    return annotationRuleParser.parse(CheckList.REPOSITORY_KEY, CheckList.getChecks());
   }
 
 }

@@ -32,10 +32,8 @@ import org.sonar.javascript.api.EcmaScriptPunctuator;
  */
 @Rule(
   key = "TrailingComma",
-  priority = Priority.MAJOR,
-  name = "Trailing comma",
-  description = "Avoid trailing comma in array and object literals.")
-@BelongsToProfile(title = CheckList.SONAR_WAY_PROFILE, priority = Priority.MAJOR)
+  priority = Priority.MAJOR)
+@BelongsToProfile(title = CheckList.SONAR_WAY_PROFILE, priority = Priority.BLOCKER)
 public class TrailingCommaCheck extends SquidCheck<EcmaScriptGrammar> {
 
   @Override

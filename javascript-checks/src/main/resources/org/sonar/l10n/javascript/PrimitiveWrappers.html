@@ -1,0 +1,14 @@
+<p>
+There's no reason to use wrapper objects for primitive types, plus they're dangerous :
+</p>
+
+<pre>
+var x = new Boolean(false);
+if (x) {
+  alert('hi');  // Shows 'hi'.
+}
+</pre>
+
+<p>
+Just use simple literals instead.
+</p>

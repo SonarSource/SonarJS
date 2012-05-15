@@ -27,14 +27,9 @@ import org.sonar.check.RuleProperty;
 import org.sonar.javascript.api.EcmaScriptGrammar;
 
 @Rule(
-  key = "CommentRegularExpressionCheck",
+  key = "CommentRegularExpression",
   priority = Priority.MAJOR,
-  cardinality = Cardinality.MULTIPLE,
-  name = "Regular expression on comment",
-  description = "<p>" +
-      "This rule template can be used to create rules which will be triggered when a comment matches a given regular expression." +
-      "For example, one can create a rule with the regular expression \".*TODO.*\" to match all comment containing \"TODO\"." +
-      "</p>")
+  cardinality = Cardinality.MULTIPLE)
 public class CommentRegularExpressionCheck extends AbstractCommentRegularExpressionCheck<EcmaScriptGrammar> {
 
   private static final String DEFAULT_REGULAR_EXPRESSION = "";
@@ -42,13 +37,11 @@ public class CommentRegularExpressionCheck extends AbstractCommentRegularExpress
 
   @RuleProperty(
     key = "regularExpression",
-    description = "The regular expression.",
     defaultValue = "" + DEFAULT_REGULAR_EXPRESSION)
   public String regularExpression = DEFAULT_REGULAR_EXPRESSION;
 
   @RuleProperty(
     key = "message",
-    description = "The violation message.",
     defaultValue = "" + DEFAULT_REGULAR_EXPRESSION)
   public String message = DEFAULT_MESSAGE;
 

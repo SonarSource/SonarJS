@@ -1,0 +1,18 @@
+<p>
+The object of the with can have properties that collide with local variables, it can drastically change the meaning of your program :
+</p>
+
+<pre>
+with (foo) {
+  var x = 3;
+  return x;
+}
+</pre>
+
+<p>
+The local variable x could be clobbered by a property of foo and perhaps it even has a setter, in which case assigning 3 could cause lots of other code to execute.
+</p>
+
+<p>
+Never use the with statement.
+</p>

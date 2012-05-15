@@ -1,0 +1,15 @@
+<p>
+The eval() function in JavaScript is a way to run arbitrary code at run-time.
+In almost all cases, eval should never be used.
+If it exists in your page, there is almost always a more correct way to accomplish what you are doing.
+The rule is, "Eval is evil." Don't use it unless you are an experienced developer and know that your case is an exception.
+</p>
+
+<p>
+The following code snippet illustrates this rule :
+</p>
+
+<pre>
+var myCode = 'alert("Howdy?");';
+eval(myCode);     // NOK
+</pre>

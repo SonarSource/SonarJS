@@ -29,9 +29,7 @@ import org.sonar.javascript.api.EcmaScriptPunctuator;
 
 @Rule(
   key = "BitwiseOperators",
-  priority = Priority.BLOCKER,
-  name = "Do not use bitwise operators",
-  description = "Do not use bitwise operators.")
+  priority = Priority.BLOCKER)
 @BelongsToProfile(title = CheckList.SONAR_WAY_PROFILE, priority = Priority.MAJOR)
 public class BitwiseOperatorsCheck extends SquidCheck<EcmaScriptGrammar> {
 

@@ -1,0 +1,30 @@
+<p>
+In JavaScript semicolons is an optional statement separator.
+But this can lead to some ambiguities and here is an example of ambiguous code that breaks in the absence of a semicolon :
+</p>
+
+<pre>
+// define a function
+var fn = function () {
+  //...
+} // semicolon missing at this line
+
+// then execute some code inside a closure
+(function () {
+  //...
+})();
+</pre>
+
+This will be interpreted as:
+<pre>
+var fn = function () {
+  //...
+}(function () {
+  //...
+})();
+</pre>
+
+<p>
+We end up passing the second function as an argument to the first function and then trying to call the result of the first function call as a function.
+The second function will fail with a "... is not a function" error at runtime.
+</p>

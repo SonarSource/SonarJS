@@ -28,10 +28,8 @@ import org.sonar.javascript.api.EcmaScriptGrammar;
 import org.sonar.javascript.api.EcmaScriptPunctuator;
 
 @Rule(
-  key = "Semiciolon",
-  priority = Priority.MAJOR,
-  name = "Each statement must end with a semicolon",
-  description = "Each statement must end with a semicolon.")
+  key = "Semicolon",
+  priority = Priority.MAJOR)
 @BelongsToProfile(title = CheckList.SONAR_WAY_PROFILE, priority = Priority.MAJOR)
 public class SemicolonCheck extends SquidCheck<EcmaScriptGrammar> {
 

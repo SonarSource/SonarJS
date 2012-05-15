@@ -29,9 +29,7 @@ import org.sonar.javascript.api.EcmaScriptPunctuator;
 
 @Rule(
   key = "EqEqEq",
-  priority = Priority.MAJOR,
-  name = "== and != must not be used",
-  description = "Avoid use of == and != in favor of === and !==.")
+  priority = Priority.MAJOR)
 @BelongsToProfile(title = CheckList.SONAR_WAY_PROFILE, priority = Priority.MAJOR)
 public class EqEqEqCheck extends SquidCheck<EcmaScriptGrammar> {
 

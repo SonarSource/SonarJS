@@ -28,9 +28,7 @@ import org.sonar.javascript.api.EcmaScriptGrammar;
 
 @Rule(
   key = "FunctionDeclarationsWithinBlocks",
-  priority = Priority.MAJOR,
-  name = "Do not use function declarations within blocks",
-  description = "Do not use function declarations within blocks.")
+  priority = Priority.BLOCKER)
 @BelongsToProfile(title = CheckList.SONAR_WAY_PROFILE, priority = Priority.MAJOR)
 public class FunctionDeclarationsWithinBlocksCheck extends SquidCheck<EcmaScriptGrammar> {
 

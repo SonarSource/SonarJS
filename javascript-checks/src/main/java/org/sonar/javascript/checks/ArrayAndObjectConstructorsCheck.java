@@ -29,9 +29,7 @@ import org.sonar.javascript.api.EcmaScriptKeyword;
 
 @Rule(
   key = "ArrayAndObjectConstructors",
-  priority = Priority.BLOCKER,
-  name = "Do not use Array and Object constructors",
-  description = "Do not use Array and Object constructors.")
+  priority = Priority.BLOCKER)
 @BelongsToProfile(title = CheckList.SONAR_WAY_PROFILE, priority = Priority.MAJOR)
 public class ArrayAndObjectConstructorsCheck extends SquidCheck<EcmaScriptGrammar> {
 

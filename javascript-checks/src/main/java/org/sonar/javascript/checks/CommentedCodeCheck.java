@@ -36,12 +36,7 @@ import java.util.regex.Pattern;
 
 @Rule(
   key = "CommentedCode",
-  priority = Priority.BLOCKER,
-  name = "Sections of code should not be \"commented out\"",
-  description = "<p>" +
-      "Programmers should not comment out code as it bloats programs and reduces readability. " +
-      "Unused code should be deleted and can be retrieved from source control history if required." +
-      "</p>")
+  priority = Priority.BLOCKER)
 @BelongsToProfile(title = CheckList.SONAR_WAY_PROFILE, priority = Priority.MAJOR)
 public class CommentedCodeCheck extends SquidCheck<EcmaScriptGrammar> implements AstAndTokenVisitor {
 

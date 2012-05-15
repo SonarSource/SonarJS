@@ -32,9 +32,7 @@ import java.util.Set;
 
 @Rule(
   key = "PrimitiveWrappers",
-  priority = Priority.MAJOR,
-  name = "Do not use wrapper objects for primitive types",
-  description = "Do not use wrapper objects for primitive types.")
+  priority = Priority.MAJOR)
 @BelongsToProfile(title = CheckList.SONAR_WAY_PROFILE, priority = Priority.MAJOR)
 public class PrimitiveWrappersCheck extends SquidCheck<EcmaScriptGrammar> {
 

@@ -27,6 +27,8 @@ import org.sonar.api.rules.RuleParam;
 
 import java.io.File;
 import java.util.List;
+import java.util.Locale;
+import java.util.ResourceBundle;
 
 import static org.fest.assertions.Assertions.assertThat;
 
@@ -61,16 +63,25 @@ public class CheckListTest {
           .isNotNull();
     }
 
+    ResourceBundle resourceBundle = ResourceBundle.getBundle("org.sonar.l10n.javascript", Locale.ENGLISH);
+
     List<Rule> rules = new AnnotationRuleParser().parse("repositoryKey", checks);
     for (Rule rule : rules) {
-      assertThat(rule.getDescription())
+      resourceBundle.getString("rule." + CheckList.REPOSITORY_KEY + "." + rule.getKey() + ".name");
+      assertThat(getClass().getResource("/org/sonar/l10n/javascript/" + rule.getKey() + ".html"))
           .overridingErrorMessage("No description for " + rule.getKey())
-          .isNotEmpty();
+          .isNotNull();
+
+      assertThat(rule.getDescription())
+          .overridingErrorMessage("Description of " + rule.getKey() + " should be in separate file")
+          .isEmpty();
 
       for (RuleParam param : rule.getParams()) {
+        resourceBundle.getString("rule." + CheckList.REPOSITORY_KEY + "." + rule.getKey() + ".param." + param.getKey());
+
         assertThat(param.getDescription())
-            .overridingErrorMessage("No description for param " + param.getKey() + " of " + rule.getKey())
-            .isNotEmpty();
+            .overridingErrorMessage("Description for param " + param.getKey() + " of " + rule.getKey() + " should be in separate file")
+            .isEmpty();
       }
     }
   }

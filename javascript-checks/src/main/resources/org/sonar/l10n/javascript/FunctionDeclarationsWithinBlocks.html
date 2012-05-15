@@ -1,0 +1,22 @@
+<p>
+Do not do this :
+</p>
+
+<pre>
+if (x) {
+  function foo() {}
+}
+</pre>
+
+<p>
+While most script engines support Function Declarations within blocks it is not part of ECMAScript.
+Worse implementations are inconsistent with each other.
+ECMAScript only allows for Function Declarations in the root statement list of a script or function.
+Instead use a variable initialized with a Function Expression to define a function within a block :
+</p>
+
+<pre>
+if (x) {
+  var foo = function() {}
+}
+</pre>

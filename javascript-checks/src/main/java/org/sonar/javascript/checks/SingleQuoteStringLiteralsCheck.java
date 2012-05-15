@@ -21,17 +21,13 @@ package org.sonar.javascript.checks;
 
 import com.sonar.sslr.api.AstNode;
 import com.sonar.sslr.squid.checks.SquidCheck;
-import org.sonar.check.BelongsToProfile;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.javascript.api.EcmaScriptGrammar;
 
 @Rule(
   key = "SingleQuote",
-  priority = Priority.MAJOR,
-  name = "Use single quote for string literals",
-  description = "Use single quote for string literals.")
-@BelongsToProfile(title = CheckList.SONAR_WAY_PROFILE, priority = Priority.MAJOR)
+  priority = Priority.MAJOR)
 public class SingleQuoteStringLiteralsCheck extends SquidCheck<EcmaScriptGrammar> {
 
   @Override

@@ -1,0 +1,16 @@
+<p>
+The debugger statement can be placed anywhere in procedures to suspend execution.
+Using the debugger statement is similar to setting a breakpoint in the code.
+By definition such statement must absolutely be removed from the source code to prevent any unexpected behavior in production.
+</p>
+
+<p>Here is an example of JavaScript code :</p>
+
+<pre>
+for (i = 1; i<5; i++) {
+  // Print i to the Output window.
+  Debug.write("loop index is " + i);
+  // Wait for user to resume.
+  debugger;
+}
+</pre>
