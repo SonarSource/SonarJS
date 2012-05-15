@@ -1,0 +1,2 @@
+Sonar JavaScript Plugin
+=======================
