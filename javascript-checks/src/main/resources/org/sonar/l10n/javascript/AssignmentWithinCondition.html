@@ -1,0 +1,19 @@
+<p>
+Most often this is a typo :
+</p>
+
+<pre>
+if (value = someFunction()) { // NOK
+  // ...
+}
+</pre>
+
+<p>
+If you really want to do the assignment in place, then better to do an explicit comparison as well :
+</p>
+
+<pre>
+if ((value = someFunction()) === true) { // OK
+  // ...
+}
+</pre>

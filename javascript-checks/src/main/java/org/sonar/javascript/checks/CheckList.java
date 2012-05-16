@@ -56,6 +56,7 @@ public final class CheckList {
         ForInCheck.class,
         FunctionDeclarationsWithinBlocksCheck.class,
         TrailingCommaCheck.class,
+        AssignmentWithinConditionCheck.class,
         LineLengthCheck.class);
   }
 

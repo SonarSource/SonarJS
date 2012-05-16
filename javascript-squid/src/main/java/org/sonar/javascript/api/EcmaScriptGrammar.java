@@ -29,6 +29,8 @@ public class EcmaScriptGrammar extends Grammar {
 
   public Rule identifierName;
 
+  public Rule condition;
+
   // A.1 Lexical
 
   public Rule literal;

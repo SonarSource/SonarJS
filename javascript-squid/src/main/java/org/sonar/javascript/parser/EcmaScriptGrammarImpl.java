@@ -251,11 +251,11 @@ public class EcmaScriptGrammarImpl extends EcmaScriptGrammar {
     assignmentExpression.is(or(
         and(leftHandSideExpression, EQU, assignmentExpression),
         and(leftHandSideExpression, assignmentOperator, assignmentExpression),
-        conditionalExpression));
+        conditionalExpression)).skipIfOneChild();
     assignmentExpressionNoIn.is(or(
         and(leftHandSideExpression, EQU, assignmentExpressionNoIn),
         and(leftHandSideExpression, assignmentOperator, assignmentExpressionNoIn),
-        conditionalExpressionNoIn));
+        conditionalExpressionNoIn)).skipIfOneChild();
 
     assignmentOperator.is(or(
         STAR_EQU,
@@ -305,22 +305,23 @@ public class EcmaScriptGrammarImpl extends EcmaScriptGrammar {
     initialiserNoIn.is(EQU, assignmentExpressionNoIn);
     emptyStatement.is(SEMI);
     expressionStatement.is(not(or(LCURLYBRACE, FUNCTION)), expression, eos);
+    condition.is(expression);
     ifStatement.is(or(
-        and(IF, LPARENTHESIS, expression, RPARENTHESIS, statement, opt(ELSE, statement)),
-        and(IF, LPARENTHESIS, expression, RPARENTHESIS, statement)));
+        and(IF, LPARENTHESIS, condition, RPARENTHESIS, statement, opt(ELSE, statement)),
+        and(IF, LPARENTHESIS, condition, RPARENTHESIS, statement)));
     iterationStatement.is(or(
         doWhileStatement,
         whileStatement,
         forInStatement,
         forStatement));
-    doWhileStatement.is(DO, statement, WHILE, LPARENTHESIS, expression, RPARENTHESIS, eos);
-    whileStatement.is(WHILE, LPARENTHESIS, expression, RPARENTHESIS, statement);
+    doWhileStatement.is(DO, statement, WHILE, LPARENTHESIS, condition, RPARENTHESIS, eos);
+    whileStatement.is(WHILE, LPARENTHESIS, condition, RPARENTHESIS, statement);
     forInStatement.is(or(
         and(FOR, LPARENTHESIS, leftHandSideExpression, IN, expression, RPARENTHESIS, statement),
         and(FOR, LPARENTHESIS, VAR, variableDeclarationListNoIn, IN, expression, RPARENTHESIS, statement)));
     forStatement.is(or(
-        and(FOR, LPARENTHESIS, opt(expressionNoIn), SEMI, opt(expression), SEMI, opt(expression), RPARENTHESIS, statement),
-        and(FOR, LPARENTHESIS, VAR, variableDeclarationListNoIn, SEMI, opt(expression), SEMI, opt(expression), RPARENTHESIS, statement)));
+        and(FOR, LPARENTHESIS, opt(expressionNoIn), SEMI, opt(condition), SEMI, opt(expression), RPARENTHESIS, statement),
+        and(FOR, LPARENTHESIS, VAR, variableDeclarationListNoIn, SEMI, opt(condition), SEMI, opt(expression), RPARENTHESIS, statement)));
     continueStatement.is(or(
         and(CONTINUE, eosNoLb),
         and(CONTINUE, /* TODO no line terminator here */IDENTIFIER, eos)));
