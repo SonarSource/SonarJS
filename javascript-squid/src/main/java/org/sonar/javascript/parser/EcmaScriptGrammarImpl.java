@@ -323,11 +323,11 @@ public class EcmaScriptGrammarImpl extends EcmaScriptGrammar {
         and(FOR, LPARENTHESIS, opt(expressionNoIn), SEMI, opt(condition), SEMI, opt(expression), RPARENTHESIS, statement),
         and(FOR, LPARENTHESIS, VAR, variableDeclarationListNoIn, SEMI, opt(condition), SEMI, opt(expression), RPARENTHESIS, statement)));
     continueStatement.is(or(
-        and(CONTINUE, eosNoLb),
-        and(CONTINUE, /* TODO no line terminator here */IDENTIFIER, eos)));
+        and(CONTINUE, /* TODO no line terminator here */IDENTIFIER, eos),
+        and(CONTINUE, eosNoLb)));
     breakStatement.is(or(
-        and(BREAK, eosNoLb),
-        and(BREAK, /* TODO no line terminator here */IDENTIFIER, eos)));
+        and(BREAK, /* TODO no line terminator here */IDENTIFIER, eos),
+        and(BREAK, eosNoLb)));
     returnStatement.is(or(
         and(RETURN, /* TODO no line terminator here */expression, eos),
         and(RETURN, eosNoLb)));

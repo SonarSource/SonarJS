@@ -12,7 +12,8 @@ function sayHello() {
   for (i = 0; i < 10; i++) { // OK
   }
 
-  while (condition) { // OK
+  label: while (condition) { // OK
+    break label; // OK
   }
 
   return 1; // OK

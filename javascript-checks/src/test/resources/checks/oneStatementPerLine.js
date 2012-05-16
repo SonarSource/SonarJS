@@ -6,4 +6,8 @@ function sayHello() {
   if (a) {} if (b) {} // NOK
 
   while (condition); // OK
+
+  label: while (condition) { // OK
+    break label; // OK
+  }
 }

@@ -17,33 +17,31 @@
  * License along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.javascript.checks;
+package org.sonar.javascript.parser.grammar.statements;
 
-import com.sonar.sslr.api.AstNode;
-import com.sonar.sslr.squid.checks.AbstractOneStatementPerLineCheck;
-import org.sonar.check.BelongsToProfile;
-import org.sonar.check.Priority;
-import org.sonar.check.Rule;
+import com.sonar.sslr.impl.Parser;
+import org.junit.Before;
+import org.junit.Test;
 import org.sonar.javascript.api.EcmaScriptGrammar;
+import org.sonar.javascript.parser.EcmaScriptParser;
 
-@Rule(
-  key = "OneStatementPerLine",
-  priority = Priority.MAJOR)
-@BelongsToProfile(title = CheckList.SONAR_WAY_PROFILE, priority = Priority.MAJOR)
-public class OneStatementPerLineCheck extends AbstractOneStatementPerLineCheck<EcmaScriptGrammar> {
+import static com.sonar.sslr.test.parser.ParserMatchers.parse;
+import static org.junit.Assert.assertThat;
 
-  @Override
-  public com.sonar.sslr.api.Rule getStatementRule() {
-    return getContext().getGrammar().statement;
+public class ContinueStatementTest {
+
+  Parser<EcmaScriptGrammar> p = EcmaScriptParser.create();
+  EcmaScriptGrammar g = p.getGrammar();
+
+  @Before
+  public void init() {
+    p.setRootRule(g.continueStatement);
   }
 
-  @Override
-  public boolean isExcluded(AstNode astNode) {
-    EcmaScriptGrammar g = getContext().getGrammar();
-    AstNode statementNode = astNode.getChild(0);
-    return statementNode.is(g.block)
-        || statementNode.is(g.emptyStatement)
-        || statementNode.is(g.labelledStatement);
+  @Test
+  public void realLife() {
+    assertThat(p, parse("continue;"));
+    assertThat(p, parse("continue label;"));
   }
 
 }
