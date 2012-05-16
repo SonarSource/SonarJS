@@ -19,14 +19,24 @@
  */
 package org.sonar.plugins.javascript;
 
+import com.google.common.collect.ImmutableList;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mockito;
+import org.sonar.api.batch.SensorContext;
+import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.profiles.RulesProfile;
-import org.sonar.api.resources.Project;
+import org.sonar.api.resources.*;
+import org.sonar.plugins.javascript.core.JavaScript;
+
+import java.io.File;
+import java.nio.charset.Charset;
 
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class JavaScriptSquidSensorTest {
 
@@ -44,6 +54,30 @@ public class JavaScriptSquidSensorTest {
     assertThat(sensor.shouldExecuteOnProject(project), is(false));
     project.setLanguageKey("js");
     assertThat(sensor.shouldExecuteOnProject(project), is(true));
+  }
+
+  @Test
+  public void should_analyse() {
+    ProjectFileSystem fs = mock(ProjectFileSystem.class);
+    when(fs.getSourceCharset()).thenReturn(Charset.forName("UTF-8"));
+    InputFile inputFile = InputFileUtils.create(
+        new File("src/test/resources/cpd"),
+        new File("src/test/resources/cpd/Person.js"));
+    when(fs.mainFiles(JavaScript.KEY)).thenReturn(ImmutableList.of(inputFile));
+    Project project = new Project("key");
+    project.setFileSystem(fs);
+    SensorContext context = mock(SensorContext.class);
+
+    sensor.analyse(project, context);
+
+    verify(context).saveMeasure(Mockito.any(Resource.class), Mockito.eq(CoreMetrics.FILES), Mockito.eq(1.0));
+    verify(context).saveMeasure(Mockito.any(Resource.class), Mockito.eq(CoreMetrics.LINES), Mockito.eq(22.0));
+    verify(context).saveMeasure(Mockito.any(Resource.class), Mockito.eq(CoreMetrics.NCLOC), Mockito.eq(10.0));
+    verify(context).saveMeasure(Mockito.any(Resource.class), Mockito.eq(CoreMetrics.FUNCTIONS), Mockito.eq(2.0));
+    verify(context).saveMeasure(Mockito.any(Resource.class), Mockito.eq(CoreMetrics.STATEMENTS), Mockito.eq(6.0));
+    verify(context).saveMeasure(Mockito.any(Resource.class), Mockito.eq(CoreMetrics.COMPLEXITY), Mockito.eq(4.0));
+    verify(context).saveMeasure(Mockito.any(Resource.class), Mockito.eq(CoreMetrics.COMMENT_BLANK_LINES), Mockito.eq(4.0));
+    verify(context).saveMeasure(Mockito.any(Resource.class), Mockito.eq(CoreMetrics.COMMENT_LINES), Mockito.eq(2.0));
   }
 
 }
