@@ -19,9 +19,6 @@
  */
 package org.sonar.plugins.javascript;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.sonar.api.Extension;
 import org.sonar.api.Properties;
 import org.sonar.api.Property;
@@ -30,16 +27,15 @@ import org.sonar.plugins.javascript.colorizer.JavaScriptColorizerFormat;
 import org.sonar.plugins.javascript.core.JavaScript;
 import org.sonar.plugins.javascript.core.JavaScriptSourceImporter;
 import org.sonar.plugins.javascript.cpd.JavaScriptCpdMapping;
-import org.sonar.plugins.javascript.jslint.JavaScriptDefaultProfile;
-import org.sonar.plugins.javascript.jslint.JavaScriptJSLintSensor;
-import org.sonar.plugins.javascript.jslint.JsLintRuleRepository;
-import org.sonar.plugins.javascript.jslint.JsLintRuleManager;
 import org.sonar.plugins.javascript.jstest.JsTestCoverageSensor;
 import org.sonar.plugins.javascript.jstest.JsTestMavenInitializer;
 import org.sonar.plugins.javascript.jstest.JsTestMavenPluginHandler;
 import org.sonar.plugins.javascript.jstest.JsTestSurefireSensor;
 import org.sonar.plugins.javascript.jstestdriver.JsTestDriverCoverageSensor;
 import org.sonar.plugins.javascript.jstestdriver.JsTestDriverSurefireSensor;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Properties({
   // Global JavaScript settings
@@ -48,26 +44,6 @@ import org.sonar.plugins.javascript.jstestdriver.JsTestDriverSurefireSensor;
     project = true),
   @Property(key = JavaScriptPlugin.TEST_FRAMEWORK_KEY, defaultValue = JavaScriptPlugin.TEST_FRAMEWORK_DEFAULT, name = "JavaScript test framework to use",
     description = "Testing framework to use (jstest or jstestdriver)", global = true, project = true),
-
-  // JSLint global settings (http://jslint.com/)
-  @Property(key = JavaScriptPlugin.ASSUME_A_BROWSER_KEY, defaultValue = JavaScriptPlugin.FALSE, name = "Assume a browser",
-    description = "Assume a browser", global = true, project = true, category = "JSLint"),
-  @Property(key = JavaScriptPlugin.ASSUME_CONSOLE_ALERT_KEY, defaultValue = JavaScriptPlugin.FALSE, name = "Assume console, alert, ...",
-    description = "Assume console, alert, ...", global = true, project = true, category = "JSLint"),
-  @Property(key = JavaScriptPlugin.ASSUME_A_YAHOO_WIDGET_KEY, defaultValue = JavaScriptPlugin.FALSE, name = "Assume a Yahoo Widget",
-    description = "Assume a Yahoo Widget", global = true, project = true, category = "JSLint"),
-  @Property(key = JavaScriptPlugin.ASSUME_WINDOWS_KEY, defaultValue = JavaScriptPlugin.FALSE, name = "Assume Windows",
-    description = "Assume Windows", global = true, project = true, category = "JSLint"),
-  @Property(key = JavaScriptPlugin.ASSUME_RHINO_KEY, defaultValue = JavaScriptPlugin.FALSE, name = "Assume Rhino",
-    description = "Assume Rhino", global = true, project = true, category = "JSLint"),
-  @Property(key = JavaScriptPlugin.ASSUME_NODEJS_KEY, defaultValue = JavaScriptPlugin.FALSE, name = "Assume Node.js",
-    description = "Assume Node.js", global = true, project = true, category = "JSLint"),
-  @Property(key = JavaScriptPlugin.SAFE_SUBSET_KEY, defaultValue = JavaScriptPlugin.FALSE, name = "Safe Subset",
-    description = "Safe Subset", global = true, project = true, category = "JSLint"),
-  @Property(key = JavaScriptPlugin.PREDEFINED_KEY, defaultValue = "", name = "Predefined variables",
-    description = "Predefined variables ( , separated) ", global = true, project = true, category = "JSLint"),
-  @Property(key = JavaScriptPlugin.MAXIMUM_NUMBER_OF_ERRORS_KEY, defaultValue = "50", name = "Maximum number of errors",
-    description = "Maximum number of errors", global = true, project = true, category = "JSLint"),
 
   // JsTestDriver (http://code.google.com/p/js-test-driver/)
   @Property(key = JavaScriptPlugin.JSTESTDRIVER_FOLDER_KEY, defaultValue = JavaScriptPlugin.JSTESTDRIVER_DEFAULT_FOLDER, name = "JSTestDriver output folder",
@@ -92,17 +68,9 @@ public class JavaScriptPlugin extends SonarPlugin {
 
     list.add(JavaScriptCpdMapping.class);
 
-    list.add(JsLintRuleRepository.class);
-
     list.add(JavaScriptSquidSensor.class);
     list.add(JavaScriptRuleRepository.class);
     list.add(JavaScriptProfile.class);
-
-    list.add(JavaScriptJSLintSensor.class);
-
-    list.add(JsLintRuleManager.class);
-
-    list.add(JavaScriptDefaultProfile.class);
 
     list.add(JsTestDriverSurefireSensor.class);
     list.add(JsTestDriverCoverageSensor.class);
@@ -125,25 +93,6 @@ public class JavaScriptPlugin extends SonarPlugin {
 
   public static final String TEST_FRAMEWORK_KEY = PROPERTY_PREFIX + ".testframework";
   public static final String TEST_FRAMEWORK_DEFAULT = "jstest";
-
-  // JSLint
-  public static final String PROPERTY_PREFIX_JSLINT = PROPERTY_PREFIX + ".lslint";
-
-  public static final String ASSUME_A_BROWSER_KEY = PROPERTY_PREFIX_JSLINT + ".browser";
-  public static final String ASSUME_CONSOLE_ALERT_KEY = PROPERTY_PREFIX_JSLINT + ".devel";
-  public static final String ASSUME_A_YAHOO_WIDGET_KEY = PROPERTY_PREFIX_JSLINT + ".widget";
-
-  public static final String ASSUME_WINDOWS_KEY = PROPERTY_PREFIX_JSLINT + ".windows";
-  public static final String ASSUME_RHINO_KEY = PROPERTY_PREFIX_JSLINT + ".rhino";
-  public static final String ASSUME_NODEJS_KEY = PROPERTY_PREFIX_JSLINT + ".node";
-  public static final String SAFE_SUBSET_KEY = PROPERTY_PREFIX_JSLINT + ".safe";
-
-  public static final String MAXIMUM_NUMBER_OF_ERRORS_KEY = PROPERTY_PREFIX_JSLINT + ".maxerr";
-
-  public static final String PREDEFINED_KEY = PROPERTY_PREFIX_JSLINT + ".predef";
-
-  public static final String[] GLOBAL_PARAMETERS = new String[] {ASSUME_A_BROWSER_KEY, ASSUME_CONSOLE_ALERT_KEY,
-    ASSUME_A_YAHOO_WIDGET_KEY, ASSUME_WINDOWS_KEY, ASSUME_RHINO_KEY, ASSUME_NODEJS_KEY, SAFE_SUBSET_KEY, MAXIMUM_NUMBER_OF_ERRORS_KEY, PREDEFINED_KEY};
 
   // JSTestDriver
   public static final String JSTESTDRIVER_FOLDER_KEY = PROPERTY_PREFIX + ".jstestdriver.reportsfolder";

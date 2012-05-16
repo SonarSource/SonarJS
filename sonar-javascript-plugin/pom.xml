@@ -47,12 +47,6 @@
     </dependency>
 
     <dependency>
-      <groupId>com.googlecode.jslint4java</groupId>
-      <artifactId>jslint4java</artifactId>
-      <version>2.0.2</version>
-    </dependency>
-
-    <dependency>
       <groupId>org.codehaus.sonar</groupId>
       <artifactId>sonar-testing-harness</artifactId>
       <scope>test</scope>
@@ -79,8 +73,8 @@
             <configuration>
               <rules>
                 <requireFilesSize>
-                  <maxsize>1700000</maxsize>
-                  <minsize>1000000</minsize>
+                  <maxsize>500000</maxsize>
+                  <minsize>400000</minsize>
                   <files>
                     <file>${project.build.directory}/${project.build.finalName}.jar</file>
                   </files>

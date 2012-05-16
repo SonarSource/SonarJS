@@ -29,7 +29,7 @@ import java.util.List;
 
 public class JavaScriptRuleRepository extends RuleRepository {
 
-  private static final String REPOSITORY_NAME = "JS";
+  private static final String REPOSITORY_NAME = "Sonar";
 
   private final AnnotationRuleParser annotationRuleParser;
 
