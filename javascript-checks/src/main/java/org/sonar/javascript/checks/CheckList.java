@@ -57,7 +57,8 @@ public final class CheckList {
         AssignmentWithinConditionCheck.class,
         LabelPlacementCheck.class,
         LineLengthCheck.class,
-        UnreachableCodeCheck.class);
+        UnreachableCodeCheck.class,
+        InlineConditionalCheck.class);
   }
 
 }
