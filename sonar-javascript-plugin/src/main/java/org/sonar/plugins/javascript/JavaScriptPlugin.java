@@ -92,7 +92,7 @@ public class JavaScriptPlugin extends SonarPlugin {
   public static final String PROPERTY_PREFIX = "sonar.javascript";
 
   public static final String TEST_FRAMEWORK_KEY = PROPERTY_PREFIX + ".testframework";
-  public static final String TEST_FRAMEWORK_DEFAULT = "jstest";
+  public static final String TEST_FRAMEWORK_DEFAULT = "jstestdriver";
 
   // JSTestDriver
   public static final String JSTESTDRIVER_FOLDER_KEY = PROPERTY_PREFIX + ".jstestdriver.reportsfolder";
