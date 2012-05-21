@@ -47,8 +47,8 @@
   </modules>
 
   <scm>
-    <connection>scm:git:git@github.com:SonarCommunity/javascript.git</connection>
-    <developerConnection>scm:git:git@github.com:SonarCommunity/javascript.git</developerConnection>
+    <connection>scm:git:git@github.com:SonarCommunity/sonar-javascript.git</connection>
+    <developerConnection>scm:git:git@github.com:SonarCommunity/sonar-javascript.git</developerConnection>
     <url>https://github.com/SonarCommunity/javascript</url>
   </scm>
   <issueManagement>
