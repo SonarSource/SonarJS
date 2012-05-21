@@ -49,7 +49,7 @@
   <scm>
     <connection>scm:git:git@github.com:SonarCommunity/sonar-javascript.git</connection>
     <developerConnection>scm:git:git@github.com:SonarCommunity/sonar-javascript.git</developerConnection>
-    <url>https://github.com/SonarCommunity/javascript</url>
+    <url>https://github.com/SonarCommunity/sonar-javascript</url>
   </scm>
   <issueManagement>
     <system>JIRA</system>
