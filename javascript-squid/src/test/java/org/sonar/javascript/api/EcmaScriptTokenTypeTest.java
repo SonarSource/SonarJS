@@ -28,7 +28,7 @@ public class EcmaScriptTokenTypeTest {
 
   @Test
   public void test() {
-    assertThat(EcmaScriptTokenType.values().length, is(3));
+    assertThat(EcmaScriptTokenType.values().length, is(2));
   }
 
 }

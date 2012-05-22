@@ -19,6 +19,7 @@
  */
 package org.sonar.plugins.javascript;
 
+import com.google.common.collect.ImmutableList;
 import org.sonar.api.Extension;
 import org.sonar.api.Properties;
 import org.sonar.api.Property;
@@ -34,7 +35,6 @@ import org.sonar.plugins.javascript.jstest.JsTestSurefireSensor;
 import org.sonar.plugins.javascript.jstestdriver.JsTestDriverCoverageSensor;
 import org.sonar.plugins.javascript.jstestdriver.JsTestDriverSurefireSensor;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Properties({
@@ -60,27 +60,23 @@ import java.util.List;
 public class JavaScriptPlugin extends SonarPlugin {
 
   public List<Class<? extends Extension>> getExtensions() {
-    List<Class<? extends Extension>> list = new ArrayList<Class<? extends Extension>>();
+    return ImmutableList.of(
+        JavaScript.class,
+        JavaScriptSourceImporter.class,
+        JavaScriptColorizerFormat.class,
+        JavaScriptCpdMapping.class,
 
-    list.add(JavaScriptColorizerFormat.class);
-    list.add(JavaScript.class);
-    list.add(JavaScriptSourceImporter.class);
+        JavaScriptSquidSensor.class,
+        JavaScriptRuleRepository.class,
+        JavaScriptProfile.class,
 
-    list.add(JavaScriptCpdMapping.class);
+        JsTestDriverSurefireSensor.class,
+        JsTestDriverCoverageSensor.class,
 
-    list.add(JavaScriptSquidSensor.class);
-    list.add(JavaScriptRuleRepository.class);
-    list.add(JavaScriptProfile.class);
-
-    list.add(JsTestDriverSurefireSensor.class);
-    list.add(JsTestDriverCoverageSensor.class);
-
-    list.add(JsTestMavenInitializer.class);
-    list.add(JsTestMavenPluginHandler.class);
-    list.add(JsTestCoverageSensor.class);
-    list.add(JsTestSurefireSensor.class);
-
-    return list;
+        JsTestMavenInitializer.class,
+        JsTestMavenPluginHandler.class,
+        JsTestCoverageSensor.class,
+        JsTestSurefireSensor.class);
   }
 
   // Global JavaScript constants

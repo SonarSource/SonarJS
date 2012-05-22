@@ -62,30 +62,30 @@ public class EcmaScriptLexerTest {
 
   @Test
   public void decimalLiteral() {
-    assertThat(lexer.lex("0"), hasToken("0", EcmaScriptTokenType.INTEGER_LITERAL));
-    assertThat(lexer.lex("123"), hasToken("123", EcmaScriptTokenType.INTEGER_LITERAL));
+    assertThat(lexer.lex("0"), hasToken("0", EcmaScriptTokenType.NUMERIC_LITERAL));
+    assertThat(lexer.lex("123"), hasToken("123", EcmaScriptTokenType.NUMERIC_LITERAL));
 
-    assertThat(lexer.lex("123.456"), hasToken("123.456", EcmaScriptTokenType.FLOATING_LITERAL));
+    assertThat(lexer.lex("123.456"), hasToken("123.456", EcmaScriptTokenType.NUMERIC_LITERAL));
 
-    assertThat(lexer.lex("123.456e+10"), hasToken("123.456e+10", EcmaScriptTokenType.FLOATING_LITERAL));
-    assertThat(lexer.lex("123.456e-10"), hasToken("123.456e-10", EcmaScriptTokenType.FLOATING_LITERAL));
+    assertThat(lexer.lex("123.456e+10"), hasToken("123.456e+10", EcmaScriptTokenType.NUMERIC_LITERAL));
+    assertThat(lexer.lex("123.456e-10"), hasToken("123.456e-10", EcmaScriptTokenType.NUMERIC_LITERAL));
 
-    assertThat(lexer.lex("123.456E+10"), hasToken("123.456E+10", EcmaScriptTokenType.FLOATING_LITERAL));
-    assertThat(lexer.lex("123.456E-10"), hasToken("123.456E-10", EcmaScriptTokenType.FLOATING_LITERAL));
+    assertThat(lexer.lex("123.456E+10"), hasToken("123.456E+10", EcmaScriptTokenType.NUMERIC_LITERAL));
+    assertThat(lexer.lex("123.456E-10"), hasToken("123.456E-10", EcmaScriptTokenType.NUMERIC_LITERAL));
 
-    assertThat(lexer.lex(".123"), hasToken(".123", EcmaScriptTokenType.FLOATING_LITERAL));
+    assertThat(lexer.lex(".123"), hasToken(".123", EcmaScriptTokenType.NUMERIC_LITERAL));
 
-    assertThat(lexer.lex(".123e+4"), hasToken(".123e+4", EcmaScriptTokenType.FLOATING_LITERAL));
-    assertThat(lexer.lex(".123e-4"), hasToken(".123e-4", EcmaScriptTokenType.FLOATING_LITERAL));
+    assertThat(lexer.lex(".123e+4"), hasToken(".123e+4", EcmaScriptTokenType.NUMERIC_LITERAL));
+    assertThat(lexer.lex(".123e-4"), hasToken(".123e-4", EcmaScriptTokenType.NUMERIC_LITERAL));
 
-    assertThat(lexer.lex(".123E+4"), hasToken(".123E+4", EcmaScriptTokenType.FLOATING_LITERAL));
-    assertThat(lexer.lex(".123E-4"), hasToken(".123E-4", EcmaScriptTokenType.FLOATING_LITERAL));
+    assertThat(lexer.lex(".123E+4"), hasToken(".123E+4", EcmaScriptTokenType.NUMERIC_LITERAL));
+    assertThat(lexer.lex(".123E-4"), hasToken(".123E-4", EcmaScriptTokenType.NUMERIC_LITERAL));
   }
 
   @Test
   public void hexIntegerLiteral() {
-    assertThat(lexer.lex("0xFF"), hasToken("0xFF", EcmaScriptTokenType.INTEGER_LITERAL));
-    assertThat(lexer.lex("0XFF"), hasToken("0XFF", EcmaScriptTokenType.INTEGER_LITERAL));
+    assertThat(lexer.lex("0xFF"), hasToken("0xFF", EcmaScriptTokenType.NUMERIC_LITERAL));
+    assertThat(lexer.lex("0XFF"), hasToken("0XFF", EcmaScriptTokenType.NUMERIC_LITERAL));
   }
 
   @Test

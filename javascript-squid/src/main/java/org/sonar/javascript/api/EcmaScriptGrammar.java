@@ -36,7 +36,6 @@ public class EcmaScriptGrammar extends Grammar {
   public Rule literal;
   public Rule nullLiteral;
   public Rule booleanLiteral;
-  public Rule numericLiteral;
   public Rule stringLiteral;
   public Rule regularExpressionLiteral;
 

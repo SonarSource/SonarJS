@@ -23,8 +23,7 @@ import com.sonar.sslr.api.AstNode;
 import com.sonar.sslr.api.TokenType;
 
 public enum EcmaScriptTokenType implements TokenType {
-  INTEGER_LITERAL,
-  FLOATING_LITERAL,
+  NUMERIC_LITERAL,
   REGULAR_EXPRESSION_LITERAL;
 
   public String getName() {

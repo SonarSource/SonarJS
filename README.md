@@ -1,2 +1,2 @@
-Sonar JavaScript Plugin
-=======================
+Sonar JavaScript
+================

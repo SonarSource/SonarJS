@@ -30,8 +30,7 @@ import org.sonar.javascript.api.EcmaScriptPunctuator;
 import static com.sonar.sslr.api.GenericTokenType.LITERAL;
 import static com.sonar.sslr.impl.channel.RegexpChannelBuilder.commentRegexp;
 import static com.sonar.sslr.impl.channel.RegexpChannelBuilder.regexp;
-import static org.sonar.javascript.api.EcmaScriptTokenType.FLOATING_LITERAL;
-import static org.sonar.javascript.api.EcmaScriptTokenType.INTEGER_LITERAL;
+import static org.sonar.javascript.api.EcmaScriptTokenType.NUMERIC_LITERAL;
 
 public final class EcmaScriptLexer {
 
@@ -67,24 +66,24 @@ public final class EcmaScriptLexer {
 
         // Floating-Point Literals
         // Decimal
-        .withChannel(regexp(FLOATING_LITERAL, "[0-9]++\\.([0-9]++)?+" + EXP + "?+" + FLOAT_SUFFIX + "?+"))
+        .withChannel(regexp(NUMERIC_LITERAL, "[0-9]++\\.([0-9]++)?+" + EXP + "?+" + FLOAT_SUFFIX + "?+"))
         // Decimal
-        .withChannel(regexp(FLOATING_LITERAL, "\\.[0-9]++" + EXP + "?+" + FLOAT_SUFFIX + "?+"))
+        .withChannel(regexp(NUMERIC_LITERAL, "\\.[0-9]++" + EXP + "?+" + FLOAT_SUFFIX + "?+"))
         // Decimal
-        .withChannel(regexp(FLOATING_LITERAL, "[0-9]++" + FLOAT_SUFFIX))
-        .withChannel(regexp(FLOATING_LITERAL, "[0-9]++" + EXP + FLOAT_SUFFIX + "?+"))
+        .withChannel(regexp(NUMERIC_LITERAL, "[0-9]++" + FLOAT_SUFFIX))
+        .withChannel(regexp(NUMERIC_LITERAL, "[0-9]++" + EXP + FLOAT_SUFFIX + "?+"))
         // Hexadecimal
-        .withChannel(regexp(FLOATING_LITERAL, "0[xX][0-9a-fA-F]++\\.[0-9a-fA-F_]*+" + BINARY_EXP + "?+" + FLOAT_SUFFIX + "?+"))
+        .withChannel(regexp(NUMERIC_LITERAL, "0[xX][0-9a-fA-F]++\\.[0-9a-fA-F_]*+" + BINARY_EXP + "?+" + FLOAT_SUFFIX + "?+"))
         // Hexadecimal
-        .withChannel(regexp(FLOATING_LITERAL, "0[xX][0-9a-fA-F]++" + BINARY_EXP + FLOAT_SUFFIX + "?+"))
+        .withChannel(regexp(NUMERIC_LITERAL, "0[xX][0-9a-fA-F]++" + BINARY_EXP + FLOAT_SUFFIX + "?+"))
 
         // Integer Literals
         // Hexadecimal
-        .withChannel(regexp(INTEGER_LITERAL, "0[xX][0-9a-fA-F]++" + INT_SUFFIX + "?+"))
+        .withChannel(regexp(NUMERIC_LITERAL, "0[xX][0-9a-fA-F]++" + INT_SUFFIX + "?+"))
         // Binary (Java 7)
-        .withChannel(regexp(INTEGER_LITERAL, "0[bB][01]++" + INT_SUFFIX + "?+"))
+        .withChannel(regexp(NUMERIC_LITERAL, "0[bB][01]++" + INT_SUFFIX + "?+"))
         // Decimal and Octal
-        .withChannel(regexp(INTEGER_LITERAL, "[0-9]++" + INT_SUFFIX + "?+"))
+        .withChannel(regexp(NUMERIC_LITERAL, "[0-9]++" + INT_SUFFIX + "?+"))
 
         .withChannel(new IdentifierAndKeywordChannel("\\p{javaJavaIdentifierStart}++\\p{javaJavaIdentifierPart}*+", true, EcmaScriptKeyword.values()))
         .withChannel(new PunctuatorChannel(EcmaScriptPunctuator.values()))

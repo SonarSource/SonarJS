@@ -108,8 +108,7 @@ import static org.sonar.javascript.api.EcmaScriptPunctuator.STAR_EQU;
 import static org.sonar.javascript.api.EcmaScriptPunctuator.TILDA;
 import static org.sonar.javascript.api.EcmaScriptPunctuator.XOR;
 import static org.sonar.javascript.api.EcmaScriptPunctuator.XOR_EQU;
-import static org.sonar.javascript.api.EcmaScriptTokenType.FLOATING_LITERAL;
-import static org.sonar.javascript.api.EcmaScriptTokenType.INTEGER_LITERAL;
+import static org.sonar.javascript.api.EcmaScriptTokenType.NUMERIC_LITERAL;
 import static org.sonar.javascript.api.EcmaScriptTokenType.REGULAR_EXPRESSION_LITERAL;
 
 /**
@@ -134,17 +133,13 @@ public class EcmaScriptGrammarImpl extends EcmaScriptGrammar {
     literal.is(or(
         nullLiteral,
         booleanLiteral,
-        numericLiteral,
+        NUMERIC_LITERAL,
         stringLiteral,
         regularExpressionLiteral));
     nullLiteral.is(NULL);
     booleanLiteral.is(or(
         TRUE,
         FALSE));
-    // TODO verify
-    numericLiteral.is(or(
-        FLOATING_LITERAL,
-        INTEGER_LITERAL));
     stringLiteral.is(LITERAL);
     regularExpressionLiteral.is(REGULAR_EXPRESSION_LITERAL);
 
@@ -182,7 +177,7 @@ public class EcmaScriptGrammarImpl extends EcmaScriptGrammar {
     propertyName.is(or(
         identifierName,
         stringLiteral,
-        numericLiteral));
+        NUMERIC_LITERAL));
     propertySetParameterList.is(IDENTIFIER);
     memberExpression.is(
         or(
