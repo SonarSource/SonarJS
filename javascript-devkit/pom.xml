@@ -53,10 +53,9 @@
             </goals>
             <configuration>
               <includes>
-                <include>com.sonarsource.cpp:cpp-api</include>
-                <include>com.sonarsource.cpp:cpp-squid</include>
-                <include>com.sonarsource.sslr:sslr-core</include>
-                <include>com.sonarsource.sslr:sslr-devkit</include>
+                <include>${project.groupId}:javascript-squid</include>
+                <include>org.codehaus.sonar.sslr:sslr-core</include>
+                <include>org.codehaus.sonar.sslr:sslr-devkit</include>
                 <include>org.codehaus.sonar:sonar-colorizer</include>
                 <include>org.codehaus.sonar:sonar-squid</include>
                 <include>org.codehaus.sonar:sonar-channel</include>
@@ -91,7 +90,7 @@
               <rules>
                 <requireFilesSize>
                   <maxsize>2000000</maxsize>
-                  <minsize>1000000</minsize>
+                  <minsize>1500000</minsize>
                   <files>
                     <file>${project.build.directory}/${project.build.finalName}.jar</file>
                   </files>

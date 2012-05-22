@@ -40,7 +40,7 @@ public final class JavaScriptDevKit {
     SsdkGui cppSsdkGui = new SsdkGui(parser, getCppTokenizers());
     cppSsdkGui.setVisible(true);
     cppSsdkGui.setSize(1000, 800);
-    cppSsdkGui.setTitle("Cpp : SonarSource Development Kit");
+    cppSsdkGui.setTitle("JavaScript : Development Kit");
   }
 
   public static List<Tokenizer> getCppTokenizers() {
