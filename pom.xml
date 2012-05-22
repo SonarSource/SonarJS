@@ -44,6 +44,7 @@
     <module>javascript-squid</module>
     <module>javascript-checks</module>
     <module>sonar-javascript-plugin</module>
+    <module>javascript-devkit</module>
   </modules>
 
   <scm>
@@ -81,6 +82,33 @@
         <artifactId>sonar-testing-harness</artifactId>
         <version>${sonar.version}</version>
       </dependency>
+
+      <dependency>
+        <groupId>org.codehaus.sonar.sslr</groupId>
+        <artifactId>sslr-core</artifactId>
+        <version>1.13-SNAPSHOT</version>
+      </dependency>
+      <dependency>
+        <groupId>org.codehaus.sonar.sslr</groupId>
+        <artifactId>sslr-xpath</artifactId>
+        <version>1.13-SNAPSHOT</version>
+      </dependency>
+      <dependency>
+        <groupId>org.codehaus.sonar.sslr</groupId>
+        <artifactId>sslr-devkit</artifactId>
+        <version>1.13-SNAPSHOT</version>
+      </dependency>
+      <dependency>
+        <groupId>org.codehaus.sonar.sslr</groupId>
+        <artifactId>sslr-testing-harness</artifactId>
+        <version>1.13-SNAPSHOT</version>
+      </dependency>
+      <dependency>
+        <groupId>org.codehaus.sonar.sslr-squid-bridge</groupId>
+        <artifactId>sslr-squid-bridge</artifactId>
+        <version>2.2-SNAPSHOT</version>
+      </dependency>
+
       <dependency>
         <groupId>junit</groupId>
         <artifactId>junit</artifactId>

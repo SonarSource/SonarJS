@@ -1,0 +1,107 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>org.codehaus.sonar-plugins.javascript</groupId>
+    <artifactId>javascript</artifactId>
+    <version>0.5-SNAPSHOT</version>
+  </parent>
+
+  <artifactId>javascript-devkit</artifactId>
+
+  <name>JavaScript :: Devkit</name>
+
+  <dependencies>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>javascript-squid</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.codehaus.sonar.sslr</groupId>
+      <artifactId>sslr-devkit</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>ch.qos.logback</groupId>
+      <artifactId>logback-classic</artifactId>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-jar-plugin</artifactId>
+        <configuration>
+          <archive>
+            <manifest>
+              <mainClass>org.sonar.javascript.devkit.JavaScriptDevKit</mainClass>
+            </manifest>
+          </archive>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.sonatype.plugins</groupId>
+        <artifactId>jarjar-maven-plugin</artifactId>
+        <!-- TODO should be in parent -->
+        <version>1.5</version>
+        <executions>
+          <execution>
+            <phase>package</phase>
+            <goals>
+              <goal>jarjar</goal>
+            </goals>
+            <configuration>
+              <includes>
+                <include>com.sonarsource.cpp:cpp-api</include>
+                <include>com.sonarsource.cpp:cpp-squid</include>
+                <include>com.sonarsource.sslr:sslr-core</include>
+                <include>com.sonarsource.sslr:sslr-devkit</include>
+                <include>org.codehaus.sonar:sonar-colorizer</include>
+                <include>org.codehaus.sonar:sonar-squid</include>
+                <include>org.codehaus.sonar:sonar-channel</include>
+                <include>org.slf4j:slf4j-api</include>
+                <include>org.slf4j:jcl-over-slf4j</include>
+                <include>ch.qos.logback:logback-classic</include>
+                <include>ch.qos.logback:logback-core</include>
+                <include>commons-io:commons-io</include>
+                <include>commons-lang:commons-lang</include>
+                <include>com.google.collections:google-collections</include>
+              </includes>
+              <rules>
+                <keep>
+                  <pattern>*.**</pattern>
+                </keep>
+              </rules>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-enforcer-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>enforce-size</id>
+            <goals>
+              <goal>enforce</goal>
+            </goals>
+            <phase>verify</phase>
+            <configuration>
+              <rules>
+                <requireFilesSize>
+                  <maxsize>2000000</maxsize>
+                  <minsize>1000000</minsize>
+                  <files>
+                    <file>${project.build.directory}/${project.build.finalName}.jar</file>
+                  </files>
+                </requireFilesSize>
+              </rules>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+
+</project>
