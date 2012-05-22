@@ -1,0 +1,19 @@
+<p>
+Deeply nested if statements are hard to read. An example deeply nested if is this:
+</p>
+
+<pre>
+function sayHello() {
+  if (true) {
+    if (true) {
+      if (true) {
+        if (true) { // NOK
+          return;
+        } else {
+          return;
+        }
+      }
+    }
+  }
+}
+</pre>
