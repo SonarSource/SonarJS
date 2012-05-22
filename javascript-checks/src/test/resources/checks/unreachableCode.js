@@ -67,6 +67,6 @@ function sayHello() {
   else
     return;
 
-  var n; // NOK - both if branches returns, so this is also unreachable
+  var n; // TODO: NOK - both if branches returns, so this is also unreachable
 
 }

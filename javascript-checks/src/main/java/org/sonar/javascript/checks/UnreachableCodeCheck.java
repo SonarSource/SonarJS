@@ -19,9 +19,7 @@
  */
 package org.sonar.javascript.checks;
 
-import com.google.common.collect.ImmutableSet;
-
-import java.util.Set;
+import org.sonar.javascript.api.EcmaScriptKeyword;
 
 import com.sonar.sslr.api.AstNode;
 import com.sonar.sslr.squid.checks.SquidCheck;
@@ -36,17 +34,27 @@ import org.sonar.javascript.api.EcmaScriptGrammar;
 @BelongsToProfile(title = CheckList.SONAR_WAY_PROFILE, priority = Priority.MAJOR)
 public class UnreachableCodeCheck extends SquidCheck<EcmaScriptGrammar> {
 
-  private static final Set<String> EXITERS = ImmutableSet.of("return", "break", "continue", "throw");
-
   @Override
   public void init() {
-    subscribeTo(getContext().getGrammar().sourceElement, getContext().getGrammar().statement);
+    subscribeTo(
+        getContext().getGrammar().breakStatement,
+        getContext().getGrammar().returnStatement,
+        getContext().getGrammar().continueStatement,
+        getContext().getGrammar().throwStatement);
   }
 
   @Override
   public void visitNode(AstNode node) {
-    if (node.previousSibling() != null && EXITERS.contains(node.previousSibling().getTokenValue())) {
-      getContext().createLineViolation(this, "Unreachable code", node);
+    while (node.getParent() == null || getContext().getGrammar().statement.equals(node.getParent().getType())
+      || getContext().getGrammar().sourceElement.equals(node.getParent().getType())) {
+
+      node = node.getParent();
+    }
+
+    if (node.nextSibling() != null) {
+      if (!node.nextSibling().getType().equals(EcmaScriptKeyword.ELSE)) {
+        getContext().createLineViolation(this, "Unreachable code", node.nextSibling());
+      }
     }
   }
 
