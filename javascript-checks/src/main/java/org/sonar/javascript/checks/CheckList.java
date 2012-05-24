@@ -56,7 +56,11 @@ public final class CheckList {
         TrailingCommaCheck.class,
         AssignmentWithinConditionCheck.class,
         LabelPlacementCheck.class,
-        LineLengthCheck.class);
+        LineLengthCheck.class,
+        UnreachableCodeCheck.class,
+        InlineConditionalCheck.class,
+        ParenthesesCheck.class,
+        NestedIfDepthCheck.class);
   }
 
 }

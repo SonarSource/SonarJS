@@ -1,0 +1,17 @@
+<p>Avoid use of parentheses where not required by syntax or semantics</p>
+
+<pre>
+function sayHello() {
+  var a = typeof (37); // NOK
+  var b = typeof 38;
+
+  var c = {};
+  c.a = a;
+  c.b = b;
+  delete (a); // NOK
+  delete b;
+
+  void 0;
+  void (1); // NOK
+}
+</pre>
