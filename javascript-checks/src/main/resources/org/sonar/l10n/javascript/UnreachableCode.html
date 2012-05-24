@@ -1,0 +1,17 @@
+<p>
+return, break, continue, or throw statements should be followed by a } or case or default.</p>
+<pre>
+function sayHello() {
+  if (true) {
+    return;
+    var b; // NOK - this will never be executed
+  } else {
+    var c;
+  }
+
+  while (true) {
+    break;
+    var d; // NOK - this will never be executed
+  }
+}
+</pre>
