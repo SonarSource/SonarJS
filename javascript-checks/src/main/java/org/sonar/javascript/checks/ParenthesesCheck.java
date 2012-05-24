@@ -20,20 +20,18 @@
 package org.sonar.javascript.checks;
 
 import com.google.common.collect.ImmutableSet;
-
-import java.util.Set;
-
 import com.sonar.sslr.api.AstNode;
 import com.sonar.sslr.squid.checks.SquidCheck;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.javascript.api.EcmaScriptGrammar;
 
+import java.util.Set;
+
 /**
  * http://google-styleguide.googlecode.com/svn/trunk/javascriptguide.xml?showone=Parentheses#Parentheses
- * 
- * @author Eriks Nukis
  *
+ * @author Eriks Nukis
  */
 @Rule(
   key = "Parentheses",
@@ -44,13 +42,19 @@ public class ParenthesesCheck extends SquidCheck<EcmaScriptGrammar> {
 
   @Override
   public void init() {
-    subscribeTo(getContext().getGrammar().unaryExpression, getContext().getGrammar().expression, getContext().getGrammar().newExpression);
+    subscribeTo(
+        getContext().getGrammar().unaryExpression,
+        getContext().getGrammar().expression,
+        getContext().getGrammar().newExpression);
   }
 
   @Override
   public void visitNode(AstNode node) {
-    if ("(".equals(node.getTokenValue()) && node.previousSibling() != null && NO_PARENTHESES_AFTER.contains(node.previousSibling().getTokenValue())) {
+    if (("(".equals(node.getTokenValue()))
+        && node.previousSibling() != null
+        && NO_PARENTHESES_AFTER.contains(node.previousSibling().getTokenValue())) {
       getContext().createLineViolation(this, "Avoid use of parentheses where not required by syntax or semantics", node);
     }
   }
+
 }

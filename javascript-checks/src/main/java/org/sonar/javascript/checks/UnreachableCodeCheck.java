@@ -19,14 +19,13 @@
  */
 package org.sonar.javascript.checks;
 
-import org.sonar.javascript.api.EcmaScriptKeyword;
-
 import com.sonar.sslr.api.AstNode;
 import com.sonar.sslr.squid.checks.SquidCheck;
 import org.sonar.check.BelongsToProfile;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.javascript.api.EcmaScriptGrammar;
+import org.sonar.javascript.api.EcmaScriptKeyword;
 
 @Rule(
   key = "UnreachableCode",
@@ -45,15 +44,15 @@ public class UnreachableCodeCheck extends SquidCheck<EcmaScriptGrammar> {
 
   @Override
   public void visitNode(AstNode node) {
-    while (node.getParent() == null || getContext().getGrammar().statement.equals(node.getParent().getType())
-      || getContext().getGrammar().sourceElement.equals(node.getParent().getType())) {
-
+    while (node.getParent().is(getContext().getGrammar().statement)
+        || node.getParent().is(getContext().getGrammar().sourceElement)) {
       node = node.getParent();
     }
 
     if (node.nextSibling() != null) {
-      if (!node.nextSibling().getType().equals(EcmaScriptKeyword.ELSE)) {
-        getContext().createLineViolation(this, "Unreachable code", node.nextSibling());
+      AstNode v = node.nextSibling();
+      if (!v.is(EcmaScriptKeyword.ELSE)) {
+        getContext().createLineViolation(this, "Unreachable code", v);
       }
     }
   }

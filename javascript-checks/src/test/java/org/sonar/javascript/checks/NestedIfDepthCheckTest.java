@@ -27,13 +27,11 @@ import org.sonar.squid.api.SourceFile;
 import java.io.File;
 
 public class NestedIfDepthCheckTest {
-  NestedIfDepthCheck check = new NestedIfDepthCheck();
+
+  private NestedIfDepthCheck check = new NestedIfDepthCheck();
 
   @Test
   public void testDefault() {
-
-    check.maximumNestingLevel = 3;
-
     SourceFile file = JavaScriptAstScanner.scanSingleFile(new File("src/test/resources/checks/nestedIfDepth.js"), check);
     CheckMessagesVerifier.verify(file.getCheckMessages())
         .next().atLine(5)
@@ -42,7 +40,6 @@ public class NestedIfDepthCheckTest {
 
   @Test
   public void testCustomDepth() {
-
     check.maximumNestingLevel = 1;
 
     SourceFile file = JavaScriptAstScanner.scanSingleFile(new File("src/test/resources/checks/nestedIfDepth.js"), check);

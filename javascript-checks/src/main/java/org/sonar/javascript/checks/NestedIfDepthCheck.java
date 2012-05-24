@@ -19,13 +19,11 @@
  */
 package org.sonar.javascript.checks;
 
-import org.sonar.check.RuleProperty;
-
 import com.sonar.sslr.squid.checks.AbstractNestedIfCheck;
-
 import org.sonar.check.BelongsToProfile;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
+import org.sonar.check.RuleProperty;
 import org.sonar.javascript.api.EcmaScriptGrammar;
 
 @Rule(
@@ -49,4 +47,5 @@ public class NestedIfDepthCheck extends AbstractNestedIfCheck<EcmaScriptGrammar>
   public com.sonar.sslr.api.Rule getIfRule() {
     return getContext().getGrammar().ifStatement;
   }
+
 }

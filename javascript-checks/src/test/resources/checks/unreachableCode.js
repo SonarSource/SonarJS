@@ -22,14 +22,14 @@ function sayHello() {
     }
 
     if (true) {
-      continue;
+      continue; // OK
     }
 
     if (true)
-      break;
+      break; // OK
 
     if (true)
-      continue;
+      continue; // OK
   }
 
   switch (a) {
@@ -38,9 +38,9 @@ function sayHello() {
     var e; // NOK
   }
   case 2:
-    break;
+    break; // OK
   case 3:
-    break;
+    break; // OK
   default:
     var g;
   }
@@ -63,9 +63,9 @@ function sayHello() {
   }
 
   if (true)
-    return;
+    return; // OK
   else
-    return;
+    return; // OK
 
   var n; // TODO: NOK - both if branches returns, so this is also unreachable
 
