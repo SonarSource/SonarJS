@@ -35,7 +35,7 @@ public class LineLengthCheckTest {
 
     SourceFile file = JavaScriptAstScanner.scanSingleFile(new File("src/test/resources/checks/lineLength.js"), check);
     CheckMessagesVerifier.verify(file.getCheckMessages())
-        .next().atLine(2).withMessage("The line length is greater than 21 authorized.")
+        .next().atLine(2).withMessage("The line contains 22 characters which is greater than 21 authorized.")
         .noMore();
   }
 

@@ -19,7 +19,10 @@
  */
 package org.sonar.javascript.checks;
 
-import com.sonar.sslr.squid.checks.AbstractLineLengthCheck;
+import com.sonar.sslr.api.AstAndTokenVisitor;
+import com.sonar.sslr.api.AstNode;
+import com.sonar.sslr.api.Token;
+import com.sonar.sslr.squid.checks.SquidCheck;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
@@ -28,7 +31,7 @@ import org.sonar.javascript.api.EcmaScriptGrammar;
 @Rule(
   key = "LineLength",
   priority = Priority.MINOR)
-public class LineLengthCheck extends AbstractLineLengthCheck<EcmaScriptGrammar> {
+public class LineLengthCheck extends SquidCheck<EcmaScriptGrammar> implements AstAndTokenVisitor {
 
   private static final int DEFAULT_MAXIMUM_LINE_LENHGTH = 80;
 
@@ -37,9 +40,28 @@ public class LineLengthCheck extends AbstractLineLengthCheck<EcmaScriptGrammar> 
     defaultValue = "" + DEFAULT_MAXIMUM_LINE_LENHGTH)
   public int maximumLineLength = DEFAULT_MAXIMUM_LINE_LENHGTH;
 
-  @Override
   public int getMaximumLineLength() {
     return maximumLineLength;
+  }
+
+  private int lastIncorrectLine;
+
+  @Override
+  public void visitFile(AstNode astNode) {
+    lastIncorrectLine = -1;
+  }
+
+  public void visitToken(Token token) {
+    int length = token.getColumn() + token.getValue().length();
+    if (!token.isGeneratedCode() && lastIncorrectLine != token.getLine() && length > getMaximumLineLength()) {
+      lastIncorrectLine = token.getLine();
+      // Note that method from AbstractLineLengthCheck generates other message - see SONARPLUGINS-1809
+      getContext().createLineViolation(this,
+          "The line contains {0,number,integer} characters which is greater than {1,number,integer} authorized.",
+          token.getLine(),
+          length,
+          getMaximumLineLength());
+    }
   }
 
 }

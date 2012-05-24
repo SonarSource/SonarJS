@@ -1,0 +1,24 @@
+<p>
+Any JavaScript statement can be identified by a label, but those labels should be used only on 'while', 'do-while' and 'for' statements.
+</p>
+
+<p>
+The following code snippet illustrates this rule :
+</p>
+
+<pre>
+label: // NOK
+if (i % 2 == 0) {
+  if (i == 12) {
+    print("12");
+    break label;
+  }
+  print("Odd number, but not 12");
+}
+
+loop: // OK
+for (i = 0; i < 10; i++) {
+  print("Loop");
+  break loop;
+}
+</pre>

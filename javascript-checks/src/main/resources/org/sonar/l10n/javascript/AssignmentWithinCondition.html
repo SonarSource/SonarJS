@@ -1,10 +1,16 @@
 <p>
-Most often this is a typo :
+Doing an assignment in the condition part of a 'if', 'while' or 'for' statement is highly not recommended for the two following reasons :
 </p>
 
+<ul>
+<li>The assignment is perhaps a bug as the '=' operator might have been used in place of the '==' operator</li>
+<li>If this is not a bug, this is highly error prone as another developer might read '==' instead of '=' while trying to maintain the source code</li>
+</ul>
+
 <pre>
-if (value = someFunction()) { // NOK
-  // ...
+if (dayNumber = getClickedDayNumber(dayInfo))   // BUG
+{
+    alert("day number found : " + dayNumber);
 }
 </pre>
 
