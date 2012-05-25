@@ -31,11 +31,11 @@ public class LineLengthCheckTest {
   @Test
   public void test() {
     LineLengthCheck check = new LineLengthCheck();
-    check.maximumLineLength = 21;
+    check.maximumLineLength = 30;
 
     SourceFile file = JavaScriptAstScanner.scanSingleFile(new File("src/test/resources/checks/lineLength.js"), check);
     CheckMessagesVerifier.verify(file.getCheckMessages())
-        .next().atLine(2).withMessage("The line contains 22 characters which is greater than 21 authorized.")
+        .next().atLine(2).withMessage("The line contains 44 characters which is greater than 30 authorized.")
         .noMore();
   }
 

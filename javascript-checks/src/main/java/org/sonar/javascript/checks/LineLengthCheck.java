@@ -44,23 +44,32 @@ public class LineLengthCheck extends SquidCheck<EcmaScriptGrammar> implements As
     return maximumLineLength;
   }
 
-  private int lastIncorrectLine;
+  private Token previousToken;
 
   @Override
   public void visitFile(AstNode astNode) {
-    lastIncorrectLine = -1;
+    previousToken = null;
+  }
+
+  @Override
+  public void leaveFile(AstNode astNode) {
+    previousToken = null;
   }
 
   public void visitToken(Token token) {
-    int length = token.getColumn() + token.getValue().length();
-    if (!token.isGeneratedCode() && lastIncorrectLine != token.getLine() && length > getMaximumLineLength()) {
-      lastIncorrectLine = token.getLine();
-      // Note that method from AbstractLineLengthCheck generates other message - see SONARPLUGINS-1809
-      getContext().createLineViolation(this,
-          "The line contains {0,number,integer} characters which is greater than {1,number,integer} authorized.",
-          token.getLine(),
-          length,
-          getMaximumLineLength());
+    if (!token.isGeneratedCode()) {
+      if (previousToken != null && previousToken.getLine() != token.getLine()) {
+        int length = previousToken.getColumn() + previousToken.getValue().length();
+        if (length > getMaximumLineLength()) {
+          // Note that method from AbstractLineLengthCheck generates other message - see SONARPLUGINS-1809
+          getContext().createLineViolation(this,
+              "The line contains {0,number,integer} characters which is greater than {1,number,integer} authorized.",
+              previousToken.getLine(),
+              length,
+              getMaximumLineLength());
+        }
+      }
+      previousToken = token;
     }
   }
 
