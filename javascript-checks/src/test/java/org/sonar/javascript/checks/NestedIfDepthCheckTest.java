@@ -44,7 +44,7 @@ public class NestedIfDepthCheckTest {
 
     SourceFile file = JavaScriptAstScanner.scanSingleFile(new File("src/test/resources/checks/nestedIfDepth.js"), check);
     CheckMessagesVerifier.verify(file.getCheckMessages())
-        .next().atLine(3)
+        .next().atLine(3).withMessage("This if has a nesting level of 2, which is higher than the maximum allowed 1.")
         .next().atLine(4)
         .next().atLine(5)
         .next().atLine(15)

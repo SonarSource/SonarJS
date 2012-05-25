@@ -34,10 +34,10 @@ public class AlwaysUseCurlyBracesCheckTest {
 
     SourceFile file = JavaScriptAstScanner.scanSingleFile(new File("src/test/resources/checks/alwaysUseCurlyBraces.js"), check);
     CheckMessagesVerifier.verify(file.getCheckMessages())
-        .next().atLine(3).withMessage("Missing curly brace")
-        .next().atLine(5).withMessage("Missing curly brace")
-        .next().atLine(7).withMessage("Missing curly brace")
-        .next().atLine(9).withMessage("Missing curly brace")
+        .next().atLine(3).withMessage("Missing curly brace.")
+        .next().atLine(5)
+        .next().atLine(7)
+        .next().atLine(9)
         .noMore();
   }
 

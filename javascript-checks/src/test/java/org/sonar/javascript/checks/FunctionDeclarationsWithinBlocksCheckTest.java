@@ -34,7 +34,7 @@ public class FunctionDeclarationsWithinBlocksCheckTest {
 
     SourceFile file = JavaScriptAstScanner.scanSingleFile(new File("src/test/resources/checks/functionDeclarationsWithinBlocks.js"), check);
     CheckMessagesVerifier.verify(file.getCheckMessages())
-        .next().atLine(3).withMessage("Do not use function declarations within blocks")
+        .next().atLine(3).withMessage("Do not use function declarations within blocks.")
         .noMore();
 
   }

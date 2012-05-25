@@ -34,7 +34,7 @@ public class AssignmentWithinConditionCheckTest {
 
     SourceFile file = JavaScriptAstScanner.scanSingleFile(new File("src/test/resources/checks/assignmentWithinCondition.js"), check);
     CheckMessagesVerifier.verify(file.getCheckMessages())
-        .next().atLine(1).withMessage(".")
+        .next().atLine(1).withMessage("Avoid doing assignments in the condition part of if/while/for statements.")
         .next().atLine(4)
         .next().atLine(13)
         .next().atLine(20)

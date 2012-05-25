@@ -53,7 +53,7 @@ public class ParenthesesCheck extends SquidCheck<EcmaScriptGrammar> {
     if (("(".equals(node.getTokenValue()))
         && node.previousSibling() != null
         && NO_PARENTHESES_AFTER.contains(node.previousSibling().getTokenValue())) {
-      getContext().createLineViolation(this, "Avoid use of parentheses where not required by syntax or semantics", node);
+      getContext().createLineViolation(this, "Avoid use of parentheses where not required by syntax or semantics.", node);
     }
   }
 

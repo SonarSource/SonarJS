@@ -34,7 +34,7 @@ public class ParenthesesCheckTest {
 
     SourceFile file = JavaScriptAstScanner.scanSingleFile(new File("src/test/resources/checks/parentheses.js"), check);
     CheckMessagesVerifier.verify(file.getCheckMessages())
-        .next().atLine(2)
+        .next().atLine(2).withMessage("Avoid use of parentheses where not required by syntax or semantics.")
         .next().atLine(8)
         .next().atLine(12)
         .next().atLine(15)

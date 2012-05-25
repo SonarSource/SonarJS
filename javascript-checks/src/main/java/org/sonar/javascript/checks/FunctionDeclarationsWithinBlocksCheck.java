@@ -40,7 +40,7 @@ public class FunctionDeclarationsWithinBlocksCheck extends SquidCheck<EcmaScript
   @Override
   public void visitNode(AstNode astNode) {
     for (AstNode functionDeclarationNode : astNode.findDirectChildren(getContext().getGrammar().functionDeclaration))  {
-      getContext().createLineViolation(this, "Do not use function declarations within blocks", functionDeclarationNode);
+      getContext().createLineViolation(this, "Do not use function declarations within blocks.", functionDeclarationNode);
     }
   }
 

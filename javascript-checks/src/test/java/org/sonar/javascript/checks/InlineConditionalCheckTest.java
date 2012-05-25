@@ -34,7 +34,7 @@ public class InlineConditionalCheckTest {
 
     SourceFile file = JavaScriptAstScanner.scanSingleFile(new File("src/test/resources/checks/inlineConditional.js"), check);
     CheckMessagesVerifier.verify(file.getCheckMessages())
-        .next().atLine(2).withMessage("Avoid use of inline conditionals")
+        .next().atLine(2).withMessage("Avoid use of inline conditionals.")
         .noMore();
   }
 

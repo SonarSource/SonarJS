@@ -49,7 +49,7 @@ public class AlwaysUseCurlyBracesCheck extends SquidCheck<EcmaScriptGrammar> {
     List<AstNode> statements = astNode.findDirectChildren(getContext().getGrammar().statement);
     for (AstNode statement : statements) {
       if (!statement.getChild(0).is(getContext().getGrammar().block)) {
-        getContext().createLineViolation(this, "Missing curly brace", astNode);
+        getContext().createLineViolation(this, "Missing curly brace.", astNode);
         break;
       }
     }

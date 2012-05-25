@@ -19,13 +19,12 @@
  */
 package org.sonar.javascript.checks;
 
-import org.sonar.javascript.api.EcmaScriptPunctuator;
-
 import com.sonar.sslr.api.AstNode;
 import com.sonar.sslr.squid.checks.SquidCheck;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.javascript.api.EcmaScriptGrammar;
+import org.sonar.javascript.api.EcmaScriptPunctuator;
 
 @Rule(
   key = "InlineConditional",
@@ -39,6 +38,6 @@ public class InlineConditionalCheck extends SquidCheck<EcmaScriptGrammar> {
 
   @Override
   public void visitNode(AstNode node) {
-    getContext().createLineViolation(this, "Avoid use of inline conditionals", node);
+    getContext().createLineViolation(this, "Avoid use of inline conditionals.", node);
   }
 }

@@ -34,7 +34,7 @@ public class UnreachableCodeCheckTest {
 
     SourceFile file = JavaScriptAstScanner.scanSingleFile(new File("src/test/resources/checks/unreachableCode.js"), check);
     CheckMessagesVerifier.verify(file.getCheckMessages())
-        .next().atLine(3)
+        .next().atLine(3).withMessage("This statement can't be reached and so start a dead code block.")
         .next().atLine(7)
         .next().atLine(14)
         .next().atLine(17)
