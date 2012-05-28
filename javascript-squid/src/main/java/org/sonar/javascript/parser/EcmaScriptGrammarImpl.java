@@ -215,33 +215,33 @@ public class EcmaScriptGrammarImpl extends EcmaScriptGrammar {
         and(MINUS, unaryExpression),
         and(TILDA, unaryExpression),
         and(BANG, unaryExpression)));
-    multiplicativeExpression.is(unaryExpression, opt(or(STAR, DIV, MOD), multiplicativeExpression));
-    additiveExpression.is(multiplicativeExpression, opt(or(PLUS, MINUS), additiveExpression));
-    shiftExpression.is(additiveExpression, opt(or(SL, SR, SR2), shiftExpression));
+    multiplicativeExpression.is(unaryExpression, opt(or(STAR, DIV, MOD), multiplicativeExpression)).skipIfOneChild();
+    additiveExpression.is(multiplicativeExpression, opt(or(PLUS, MINUS), additiveExpression)).skipIfOneChild();
+    shiftExpression.is(additiveExpression, opt(or(SL, SR, SR2), shiftExpression)).skipIfOneChild();
 
-    relationalExpression.is(shiftExpression, opt(or(LT, GT, LE, GE, INSTANCEOF, IN), relationalExpression));
-    relationalExpressionNoIn.is(shiftExpression, opt(or(LT, GT, LE, GE, INSTANCEOF), relationalExpression));
+    relationalExpression.is(shiftExpression, opt(or(LT, GT, LE, GE, INSTANCEOF, IN), relationalExpression)).skipIfOneChild();
+    relationalExpressionNoIn.is(shiftExpression, opt(or(LT, GT, LE, GE, INSTANCEOF), relationalExpression)).skipIfOneChild();
 
-    equalityExpression.is(relationalExpression, opt(or(EQUAL, NOTEQUAL, EQUAL2, NOTEQUAL2), equalityExpression));
-    equalityExpressionNoIn.is(relationalExpressionNoIn, opt(or(EQUAL, NOTEQUAL, EQUAL2, NOTEQUAL2), equalityExpressionNoIn));
+    equalityExpression.is(relationalExpression, opt(or(EQUAL, NOTEQUAL, EQUAL2, NOTEQUAL2), equalityExpression)).skipIfOneChild();
+    equalityExpressionNoIn.is(relationalExpressionNoIn, opt(or(EQUAL, NOTEQUAL, EQUAL2, NOTEQUAL2), equalityExpressionNoIn)).skipIfOneChild();
 
-    bitwiseAndExpression.is(equalityExpression, opt(AND, bitwiseAndExpression));
-    bitwiseAndExpressionNoIn.is(equalityExpressionNoIn, opt(AND, bitwiseAndExpressionNoIn));
+    bitwiseAndExpression.is(equalityExpression, opt(AND, bitwiseAndExpression)).skipIfOneChild();
+    bitwiseAndExpressionNoIn.is(equalityExpressionNoIn, opt(AND, bitwiseAndExpressionNoIn)).skipIfOneChild();
 
-    bitwiseXorExpression.is(bitwiseAndExpression, opt(XOR, bitwiseXorExpression));
-    bitwiseXorExpressionNoIn.is(bitwiseAndExpressionNoIn, opt(XOR, bitwiseXorExpressionNoIn));
+    bitwiseXorExpression.is(bitwiseAndExpression, opt(XOR, bitwiseXorExpression)).skipIfOneChild();
+    bitwiseXorExpressionNoIn.is(bitwiseAndExpressionNoIn, opt(XOR, bitwiseXorExpressionNoIn)).skipIfOneChild();
 
-    bitwiseOrExpression.is(bitwiseXorExpression, opt(OR, bitwiseOrExpression));
-    bitwiseOrExpressionNoIn.is(bitwiseXorExpressionNoIn, opt(OR, bitwiseOrExpressionNoIn));
+    bitwiseOrExpression.is(bitwiseXorExpression, opt(OR, bitwiseOrExpression)).skipIfOneChild();
+    bitwiseOrExpressionNoIn.is(bitwiseXorExpressionNoIn, opt(OR, bitwiseOrExpressionNoIn)).skipIfOneChild();
 
-    logicalAndExpression.is(bitwiseOrExpression, opt(ANDAND, logicalAndExpression));
-    logicalAndExpressionNoIn.is(bitwiseOrExpressionNoIn, opt(ANDAND, logicalAndExpressionNoIn));
+    logicalAndExpression.is(bitwiseOrExpression, opt(ANDAND, logicalAndExpression)).skipIfOneChild();
+    logicalAndExpressionNoIn.is(bitwiseOrExpressionNoIn, opt(ANDAND, logicalAndExpressionNoIn)).skipIfOneChild();
 
-    logicalOrExpression.is(logicalAndExpression, opt(OROR, logicalOrExpression));
-    logicalOrExpressionNoIn.is(logicalAndExpressionNoIn, opt(OROR, logicalOrExpressionNoIn));
+    logicalOrExpression.is(logicalAndExpression, opt(OROR, logicalOrExpression)).skipIfOneChild();
+    logicalOrExpressionNoIn.is(logicalAndExpressionNoIn, opt(OROR, logicalOrExpressionNoIn)).skipIfOneChild();
 
-    conditionalExpression.is(logicalOrExpression, opt(QUERY, assignmentExpression, COLON, assignmentExpression));
-    conditionalExpressionNoIn.is(logicalOrExpressionNoIn, opt(QUERY, assignmentExpression, COLON, assignmentExpressionNoIn));
+    conditionalExpression.is(logicalOrExpression, opt(QUERY, assignmentExpression, COLON, assignmentExpression)).skipIfOneChild();
+    conditionalExpressionNoIn.is(logicalOrExpressionNoIn, opt(QUERY, assignmentExpression, COLON, assignmentExpressionNoIn)).skipIfOneChild();
 
     assignmentExpression.is(or(
         and(leftHandSideExpression, EQU, assignmentExpression),
