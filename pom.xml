@@ -11,7 +11,7 @@
 
   <groupId>org.codehaus.sonar-plugins.javascript</groupId>
   <artifactId>javascript</artifactId>
-  <version>0.5-SNAPSHOT</version>
+  <version>1.0-SNAPSHOT</version>
   <packaging>pom</packaging>
 
   <name>JavaScript</name>
