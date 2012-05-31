@@ -58,7 +58,7 @@ public final class CheckList {
         LabelPlacementCheck.class,
         LineLengthCheck.class,
         UnreachableCodeCheck.class,
-        InlineConditionalCheck.class,
+        ConditionalOperatorCheck.class,
         ParenthesesCheck.class,
         NestedIfDepthCheck.class);
   }

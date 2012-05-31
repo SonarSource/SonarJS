@@ -26,15 +26,15 @@ import org.sonar.squid.api.SourceFile;
 
 import java.io.File;
 
-public class InlineConditionalCheckTest {
+public class ConditionalOperatorCheckTest {
 
   @Test
   public void test() {
-    InlineConditionalCheck check = new InlineConditionalCheck();
+    ConditionalOperatorCheck check = new ConditionalOperatorCheck();
 
     SourceFile file = JavaScriptAstScanner.scanSingleFile(new File("src/test/resources/checks/inlineConditional.js"), check);
     CheckMessagesVerifier.verify(file.getCheckMessages())
-        .next().atLine(2).withMessage("Avoid use of inline conditionals.")
+        .next().atLine(2).withMessage("Replace this conditional operator by a standard if/else control flow statement.")
         .noMore();
   }
 

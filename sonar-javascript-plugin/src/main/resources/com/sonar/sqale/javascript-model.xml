@@ -87,7 +87,7 @@
       </chc>
       <chc>
         <rule-repo>javascript</rule-repo>
-        <rule-key>InlineConditional</rule-key>
+        <rule-key>ConditionalOperator</rule-key>
         <prop>
           <key>remediationFunction</key>
           <txt>linear</txt>

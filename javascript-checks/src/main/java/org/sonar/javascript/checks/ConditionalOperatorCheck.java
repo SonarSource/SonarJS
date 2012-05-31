@@ -27,9 +27,9 @@ import org.sonar.javascript.api.EcmaScriptGrammar;
 import org.sonar.javascript.api.EcmaScriptPunctuator;
 
 @Rule(
-  key = "InlineConditional",
+  key = "ConditionalOperator",
   priority = Priority.MINOR)
-public class InlineConditionalCheck extends SquidCheck<EcmaScriptGrammar> {
+public class ConditionalOperatorCheck extends SquidCheck<EcmaScriptGrammar> {
 
   @Override
   public void init() {
@@ -38,6 +38,7 @@ public class InlineConditionalCheck extends SquidCheck<EcmaScriptGrammar> {
 
   @Override
   public void visitNode(AstNode node) {
-    getContext().createLineViolation(this, "Avoid use of inline conditionals.", node);
+    getContext().createLineViolation(this, "Replace this conditional operator by a standard if/else control flow statement.", node);
   }
+
 }
