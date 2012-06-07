@@ -86,27 +86,27 @@
       <dependency>
         <groupId>org.codehaus.sonar.sslr</groupId>
         <artifactId>sslr-core</artifactId>
-        <version>1.13-SNAPSHOT</version>
+        <version>1.13</version>
       </dependency>
       <dependency>
         <groupId>org.codehaus.sonar.sslr</groupId>
         <artifactId>sslr-xpath</artifactId>
-        <version>1.13-SNAPSHOT</version>
+        <version>1.13</version>
       </dependency>
       <dependency>
         <groupId>org.codehaus.sonar.sslr</groupId>
         <artifactId>sslr-devkit</artifactId>
-        <version>1.13-SNAPSHOT</version>
+        <version>1.13</version>
       </dependency>
       <dependency>
         <groupId>org.codehaus.sonar.sslr</groupId>
         <artifactId>sslr-testing-harness</artifactId>
-        <version>1.13-SNAPSHOT</version>
+        <version>1.13</version>
       </dependency>
       <dependency>
         <groupId>org.codehaus.sonar.sslr-squid-bridge</groupId>
         <artifactId>sslr-squid-bridge</artifactId>
-        <version>2.2-SNAPSHOT</version>
+        <version>2.2</version>
       </dependency>
 
       <dependency>
@@ -136,20 +136,5 @@
       </dependency>
     </dependencies>
   </dependencyManagement>
-
-  <repositories>
-    <repository>
-      <!-- For snapshot of SSLR -->
-      <id>cloudbees</id>
-      <name>cloudbees</name>
-      <url>http://repository-sonarplugins.forge.cloudbees.com/snapshot/</url>
-      <releases>
-        <enabled>false</enabled>
-      </releases>
-      <snapshots>
-        <enabled>true</enabled>
-      </snapshots>
-    </repository>
-  </repositories>
 
 </project>
