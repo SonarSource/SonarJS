@@ -10,14 +10,14 @@ The following code snippet illustrates this rule :
 function sayHello() {
   if (true) {
     return;
-    var b; // NOK - this will never be executed
+    var b; // Non-Compliant - this will never be executed
   } else {
     var c;
   }
 
   while (true) {
     break;
-    var d; // NOK - this will never be executed
+    var d; // Non-Compliant - this will never be executed
   }
 }
 </pre>

@@ -7,7 +7,7 @@ The following code snippet illustrates this rule :
 </p>
 
 <pre>
-label: // NOK
+label: // Non-Compliant
 if (i % 2 == 0) {
   if (i == 12) {
     print("12");
@@ -16,7 +16,7 @@ if (i % 2 == 0) {
   print("Odd number, but not 12");
 }
 
-loop: // OK
+loop: // Compliant
 for (i = 0; i < 10; i++) {
   print("Loop");
   break loop;

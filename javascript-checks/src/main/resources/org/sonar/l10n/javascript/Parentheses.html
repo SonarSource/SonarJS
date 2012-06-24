@@ -8,16 +8,16 @@ The following code snippet illustrates this rule :
 
 <pre>
 function sayHello() {
-  var a = typeof (37); // NOK
+  var a = typeof (37); // Non-Compliant
   var b = typeof 38;
 
   var c = {};
   c.a = a;
   c.b = b;
-  delete (a); // NOK
+  delete (a); // Non-Compliant
   delete b;
 
   void 0;
-  void (1); // NOK
+  void (1); // Non-Compliant
 }
 </pre>
