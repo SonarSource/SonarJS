@@ -46,6 +46,23 @@ public class EcmaScriptLexerTest {
     assertThat("flags", lexer.lex("/a/g"), hasToken("/a/g", EcmaScriptTokenType.REGULAR_EXPRESSION_LITERAL));
     assertThat("escaped slash", lexer.lex("/\\/a/"), hasToken("/\\/a/", EcmaScriptTokenType.REGULAR_EXPRESSION_LITERAL));
     assertThat("ambiguation", lexer.lex("1 / a == 1 / b"), hasTokens("1", "/", "a", "==", "1", "/", "b", "EOF"));
+
+    assertRegexp("/[^/]/");
+    assertRegexp("/[^\\\\h;m,.\\-:/\\d]+/gi");
+
+    // UnicodeEscapeSequence
+    assertRegexp("/\\uFFFF/");
+    assertRegexp("/[\\uFFFF]/");
+    // Grammar does not allow this, but otherwise we can't lex amplify-1.1.0.js
+    assertRegexp("/[\\u37f]/");
+
+    // HexEscapeSequence
+    assertRegexp("/\\xFF/");
+    assertRegexp("/[\\xFF]/");
+  }
+
+  private static void assertRegexp(String regexp) {
+    assertThat(lexer.lex(regexp), hasToken(regexp, EcmaScriptTokenType.REGULAR_EXPRESSION_LITERAL));
   }
 
   @Test

@@ -38,10 +38,33 @@ import static org.sonar.javascript.api.EcmaScriptTokenType.REGULAR_EXPRESSION_LI
  */
 public class EcmaScriptRegexpChannel extends Channel<Lexer> {
 
+  private static final String ESCAPE_SEQUENCE = "\\\\(?:[^\\r\\n\\u2028\\u2029ux]|u[0-9A-Fa-f]{1,4}|x[0-9A-Fa-f]{2})";
+
+  private static final String REGEXP = "^"
+      + "\\/(?![*/])"  // A slash starts a regexp but only if not a comment start.
+      + "(?:"  // which can contain any number of
+        // chars escept charsets, escape-sequences, line-terminators, delimiters
+        + "[^\\\\\\[/\\r\\n\\u2028\\u2029]"
+        // or a charset
+        + "|\\["  // that starts with a '['
+          + "(?:"  // and contains at least one of
+            // chars except charset ends, escape sequences, line terminators
+            + "[^\\]\\\\\\r\\n\\u2028\\u2029]"
+            // or an escape sequence.  Line continuations are not allowed in regexs.
+            + "|" + ESCAPE_SEQUENCE
+          + ")++"
+        + "\\]"  // finished by a ']'
+        // or an escape sequence.
+      + "|" + ESCAPE_SEQUENCE
+      + ")*+"
+      // finished by a '/'
+      + "\\/"
+      + "\\p{javaJavaIdentifierPart}*+";
+
   private final Channel<Lexer> delegate;
 
   public EcmaScriptRegexpChannel() {
-    this.delegate = regexp(REGULAR_EXPRESSION_LITERAL, "/([^/\\n\\\\]*+(\\\\.)?+)*+/\\p{javaJavaIdentifierPart}*+");
+    this.delegate = regexp(REGULAR_EXPRESSION_LITERAL, REGEXP);
   }
 
   @Override
