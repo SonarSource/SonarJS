@@ -86,22 +86,22 @@
       <dependency>
         <groupId>org.codehaus.sonar.sslr</groupId>
         <artifactId>sslr-core</artifactId>
-        <version>1.13</version>
+        <version>1.14</version>
       </dependency>
       <dependency>
         <groupId>org.codehaus.sonar.sslr</groupId>
         <artifactId>sslr-xpath</artifactId>
-        <version>1.13</version>
+        <version>1.14</version>
       </dependency>
       <dependency>
         <groupId>org.codehaus.sonar.sslr</groupId>
         <artifactId>sslr-devkit</artifactId>
-        <version>1.13</version>
+        <version>1.14</version>
       </dependency>
       <dependency>
         <groupId>org.codehaus.sonar.sslr</groupId>
         <artifactId>sslr-testing-harness</artifactId>
-        <version>1.13</version>
+        <version>1.14</version>
       </dependency>
       <dependency>
         <groupId>org.codehaus.sonar.sslr-squid-bridge</groupId>
