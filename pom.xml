@@ -17,7 +17,7 @@
   <name>JavaScript</name>
   <inceptionYear>2011</inceptionYear>
   <organization>
-    <name>Eriks Nukis</name>
+    <name>Eriks Nukis and SonarSource</name>
   </organization>
   <licenses>
     <license>
@@ -62,7 +62,6 @@
   </ciManagement>
 
   <properties>
-    <license.owner>Eriks Nukis and SonarSource</license.owner>
     <license.title>Sonar JavaScript Plugin</license.title>
 
     <maven.test.redirectTestOutputToFile>true</maven.test.redirectTestOutputToFile>
