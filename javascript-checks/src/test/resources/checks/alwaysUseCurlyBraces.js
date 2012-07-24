@@ -11,6 +11,13 @@ function sayHello() {
   if (condition) { // OK
   }
 
+  if (condition) { // OK
+  } else doSomething(); // NOK
+
+  if (condition) { // OK
+  } else if (condition) { // OK
+  }
+
   for (i = 0; i < 10; i++) { // OK
   }
 

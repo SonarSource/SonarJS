@@ -38,6 +38,7 @@ public class AlwaysUseCurlyBracesCheckTest {
         .next().atLine(5)
         .next().atLine(7)
         .next().atLine(9)
+        .next().atLine(14)
         .noMore();
   }
 
