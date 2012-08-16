@@ -115,7 +115,21 @@ public final class JavaScriptAstScanner {
         .build());
     builder.withSquidAstVisitor(CounterVisitor.<EcmaScriptGrammar> builder()
         .setMetricDef(EcmaScriptMetric.STATEMENTS)
-        .subscribeTo(parser.getGrammar().statement)
+        .subscribeTo(
+            parser.getGrammar().variableStatement,
+            parser.getGrammar().emptyStatement,
+            parser.getGrammar().labelledStatement,
+            parser.getGrammar().expressionStatement,
+            parser.getGrammar().ifStatement,
+            parser.getGrammar().iterationStatement,
+            parser.getGrammar().continueStatement,
+            parser.getGrammar().breakStatement,
+            parser.getGrammar().returnStatement,
+            parser.getGrammar().withStatement,
+            parser.getGrammar().switchStatement,
+            parser.getGrammar().throwStatement,
+            parser.getGrammar().tryStatement,
+            parser.getGrammar().debuggerStatement)
         .build());
 
     AstNodeType[] complexityAstNodeType = new AstNodeType[] {
