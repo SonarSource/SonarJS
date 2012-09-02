@@ -53,7 +53,7 @@ public class AlwaysUseCurlyBracesCheck extends SquidCheck<EcmaScriptGrammar> {
         continue;
       }
       if (!statement.getChild(0).is(getContext().getGrammar().block)) {
-        getContext().createLineViolation(this, "Missing curly brace.", astNode);
+        getContext().createLineViolation(this, "Missing curly brace.", statement);
         break;
       }
     }
