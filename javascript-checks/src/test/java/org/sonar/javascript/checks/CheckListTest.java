@@ -68,13 +68,13 @@ public class CheckListTest {
     List<Rule> rules = new AnnotationRuleParser().parse("repositoryKey", checks);
     for (Rule rule : rules) {
       resourceBundle.getString("rule." + CheckList.REPOSITORY_KEY + "." + rule.getKey() + ".name");
-      assertThat(getClass().getResource("/org/sonar/l10n/javascript/" + rule.getKey() + ".html"))
+      assertThat(getClass().getResource("/org/sonar/l10n/javascript/rules/javascript/" + rule.getKey() + ".html"))
           .overridingErrorMessage("No description for " + rule.getKey())
           .isNotNull();
 
       assertThat(rule.getDescription())
           .overridingErrorMessage("Description of " + rule.getKey() + " should be in separate file")
-          .isEmpty();
+          .isNull();
 
       for (RuleParam param : rule.getParams()) {
         resourceBundle.getString("rule." + CheckList.REPOSITORY_KEY + "." + rule.getKey() + ".param." + param.getKey());

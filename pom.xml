@@ -65,7 +65,7 @@
 
     <maven.test.redirectTestOutputToFile>true</maven.test.redirectTestOutputToFile>
 
-    <sonar.version>2.11</sonar.version>
+    <sonar.version>3.0</sonar.version>
   </properties>
 
   <dependencyManagement>
