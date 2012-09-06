@@ -19,24 +19,19 @@
  */
 package org.sonar.plugins.javascript;
 
-import org.junit.Before;
 import org.junit.Test;
 
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.fest.assertions.Assertions.assertThat;
 
-public class JavaScriptPluginTest {
-
-  private JavaScriptPlugin plugin;
-
-  @Before
-  public void setUp() throws Exception {
-    plugin = new JavaScriptPlugin();
-  }
+public class JavaScriptCommonRulesEngineProviderTest {
 
   @Test
-  public void testGetExtensions() throws Exception {
-    assertThat(plugin.getExtensions().size(), is(14));
+  public void shouldProvideExpectedExtensions() {
+    JavaScriptCommonRulesEngineProvider provider = new JavaScriptCommonRulesEngineProvider();
+    assertThat(provider.provide().size()).isGreaterThan(1);
+
+    provider = new JavaScriptCommonRulesEngineProvider(null);
+    assertThat(provider.provide().size()).isGreaterThan(1);
   }
 
 }

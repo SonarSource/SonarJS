@@ -19,24 +19,32 @@
  */
 package org.sonar.plugins.javascript;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.sonar.api.resources.Project;
+import org.sonar.commonrules.api.CommonRulesEngine;
+import org.sonar.commonrules.api.CommonRulesEngineProvider;
+import org.sonar.plugins.javascript.core.JavaScript;
 
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+public class JavaScriptCommonRulesEngineProvider extends CommonRulesEngineProvider {
 
-public class JavaScriptPluginTest {
-
-  private JavaScriptPlugin plugin;
-
-  @Before
-  public void setUp() throws Exception {
-    plugin = new JavaScriptPlugin();
+  public JavaScriptCommonRulesEngineProvider() {
+    super();
   }
 
-  @Test
-  public void testGetExtensions() throws Exception {
-    assertThat(plugin.getExtensions().size(), is(14));
+  public JavaScriptCommonRulesEngineProvider(Project project) {
+    super(project);
+  }
+
+  @Override
+  protected void doActivation(CommonRulesEngine engine) {
+    engine.activateRule("DuplicatedBlocks");
+    engine.activateRule("InsufficientCommentDensity");
+    engine.activateRule("InsufficientLineCoverage");
+    engine.activateRule("InsufficientBranchCoverage");
+  }
+
+  @Override
+  protected String getLanguageKey() {
+    return JavaScript.KEY;
   }
 
 }

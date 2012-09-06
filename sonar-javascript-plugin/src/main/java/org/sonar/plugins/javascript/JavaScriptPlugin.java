@@ -70,6 +70,8 @@ public class JavaScriptPlugin extends SonarPlugin {
         JavaScriptRuleRepository.class,
         JavaScriptProfile.class,
 
+        JavaScriptCommonRulesEngineProvider.class,
+
         JsTestDriverSurefireSensor.class,
         JsTestDriverCoverageSensor.class,
 
