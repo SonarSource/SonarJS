@@ -43,7 +43,7 @@
     <module>javascript-squid</module>
     <module>javascript-checks</module>
     <module>sonar-javascript-plugin</module>
-    <module>javascript-devkit</module>
+    <module>sslr-javascript-toolkit</module>
   </modules>
 
   <scm>

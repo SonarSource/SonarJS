@@ -17,7 +17,7 @@
  * License along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.javascript.devkit;
+package org.sonar.javascript.toolkit;
 
 import com.google.common.collect.ImmutableList;
 import com.sonar.sslr.devkit.SsdkGui;
@@ -29,21 +29,21 @@ import org.sonar.javascript.parser.EcmaScriptParser;
 
 import java.util.List;
 
-public final class JavaScriptDevKit {
+public final class JavaScriptToolkit {
 
-  private JavaScriptDevKit() {
+  private JavaScriptToolkit() {
   }
 
   public static void main(String[] args) {
     System.setProperty("com.apple.mrj.application.apple.menu.about.name", "SSDK");
     Parser<EcmaScriptGrammar> parser = EcmaScriptParser.create();
-    SsdkGui cppSsdkGui = new SsdkGui(parser, getCppTokenizers());
-    cppSsdkGui.setVisible(true);
-    cppSsdkGui.setSize(1000, 800);
-    cppSsdkGui.setTitle("JavaScript : Development Kit");
+    SsdkGui toolkit = new SsdkGui(parser, getTokenizers());
+    toolkit.setVisible(true);
+    toolkit.setSize(1000, 800);
+    toolkit.setTitle("SSLR JavaScript Toolkit");
   }
 
-  public static List<Tokenizer> getCppTokenizers() {
+  public static List<Tokenizer> getTokenizers() {
     return ImmutableList.of(
         new StringTokenizer("<span class=\"s\">", "</span>"),
         new CDocTokenizer("<span class=\"cd\">", "</span>"),

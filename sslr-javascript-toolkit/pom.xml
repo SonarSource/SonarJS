@@ -7,9 +7,9 @@
     <version>1.1-SNAPSHOT</version>
   </parent>
 
-  <artifactId>javascript-devkit</artifactId>
+  <artifactId>sslr-javascript-toolkit</artifactId>
 
-  <name>JavaScript :: Devkit</name>
+  <name>JavaScript :: SSLR Toolkit</name>
 
   <dependencies>
     <dependency>
@@ -35,7 +35,7 @@
         <configuration>
           <archive>
             <manifest>
-              <mainClass>org.sonar.javascript.devkit.JavaScriptDevKit</mainClass>
+              <mainClass>org.sonar.javascript.toolkit.JavaScriptToolkit</mainClass>
             </manifest>
           </archive>
         </configuration>
