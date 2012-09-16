@@ -141,7 +141,7 @@ public class EcmaScriptLexerTest {
 
   @Test
   public void bom() {
-    assertThat(lexer.lex(Character.toString(UnknownCharacterChannel.BOM_CHAR)), hasToken(GenericTokenType.EOF));
+    assertThat(lexer.lex(Character.toString(UnknownCharacterChannel.BOM_CHAR)), hasTokens("EOF"));
   }
 
 }
