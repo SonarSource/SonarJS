@@ -1,19 +1,18 @@
 function sayHello() {
-  if (true) {
-    if (true) {
-      if (true) {
-        if (true) {
-          return;
-        } else {
-          return;
+  if (true) { // level 1
+    if (true) { // level 2
+      if (true) { // level 3
+        if (true) { // level 4
         }
       }
     }
   }
 
-  if (true) {
-    if (true) {
-      return;
+  if (true) { // level 1
+    if (true) { // level 2
+    }
+  } else if (true) { // level 1
+    if (true) { // level 2
     }
   }
 }

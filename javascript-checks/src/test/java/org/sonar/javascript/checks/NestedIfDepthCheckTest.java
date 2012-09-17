@@ -34,7 +34,7 @@ public class NestedIfDepthCheckTest {
   public void testDefault() {
     SourceFile file = JavaScriptAstScanner.scanSingleFile(new File("src/test/resources/checks/nestedIfDepth.js"), check);
     CheckMessagesVerifier.verify(file.getCheckMessages())
-        .next().atLine(5)
+        .next().atLine(5).withMessage("This if has a nesting level of 4, which is higher than the maximum allowed 3.")
         .noMore();
   }
 
@@ -45,6 +45,7 @@ public class NestedIfDepthCheckTest {
     SourceFile file = JavaScriptAstScanner.scanSingleFile(new File("src/test/resources/checks/nestedIfDepth.js"), check);
     CheckMessagesVerifier.verify(file.getCheckMessages())
         .next().atLine(3).withMessage("This if has a nesting level of 2, which is higher than the maximum allowed 1.")
+        .next().atLine(12)
         .next().atLine(15)
         .noMore();
   }

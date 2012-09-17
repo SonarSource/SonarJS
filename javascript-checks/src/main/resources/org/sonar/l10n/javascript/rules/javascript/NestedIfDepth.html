@@ -16,6 +16,10 @@ function sayHello() {
         } else {
           return;
         }
+      } else if (true) { // Compliant
+        if (true) { // Non-Compliant
+          return;
+        }
       }
     }
   }

@@ -26,9 +26,10 @@ import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
 import org.sonar.javascript.api.EcmaScriptGrammar;
+import org.sonar.javascript.api.EcmaScriptKeyword;
 
 /**
- * Note that implementation differs from AbstractNestedIfCheck - see SONARPLUGINS-1855
+ * Note that implementation differs from AbstractNestedIfCheck - see SONARPLUGINS-1855 and SONARPLUGINS-2178
  */
 @Rule(
   key = "NestedIfDepth",
@@ -49,28 +50,37 @@ public class NestedIfDepthCheck extends SquidCheck<EcmaScriptGrammar> {
     return maximumNestingLevel;
   }
 
-  public com.sonar.sslr.api.Rule getIfRule() {
-    return getContext().getGrammar().ifStatement;
+  @Override
+  public void init() {
+    subscribeTo(getContext().getGrammar().ifStatement);
   }
 
   @Override
-  public void init() {
-    subscribeTo(getIfRule());
+  public void visitFile(AstNode astNode) {
+    nestingLevel = 0;
   }
 
   @Override
   public void visitNode(AstNode astNode) {
-    nestingLevel++;
-    if (nestingLevel == getMaximumNestingLevel() + 1) {
-      getContext().createLineViolation(this, "This if has a nesting level of {0}, which is higher than the maximum allowed {1}.", astNode,
-          nestingLevel,
-          getMaximumNestingLevel());
+    if (!isElseIf(astNode)) {
+      nestingLevel++;
+      if (nestingLevel == getMaximumNestingLevel() + 1) {
+        getContext().createLineViolation(this, "This if has a nesting level of {0}, which is higher than the maximum allowed {1}.", astNode,
+            nestingLevel,
+            getMaximumNestingLevel());
+      }
     }
   }
 
   @Override
   public void leaveNode(AstNode astNode) {
-    nestingLevel--;
+    if (!isElseIf(astNode)) {
+      nestingLevel--;
+    }
+  }
+
+  private boolean isElseIf(AstNode astNode) {
+    return astNode.getParent().previousSibling() != null && astNode.getParent().previousSibling().is(EcmaScriptKeyword.ELSE);
   }
 
 }
