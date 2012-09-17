@@ -60,6 +60,7 @@ public final class CheckList {
         UnreachableCodeCheck.class,
         ConditionalOperatorCheck.class,
         ParenthesesCheck.class,
+        SwitchWithoutDefaultCheck.class,
         NestedIfDepthCheck.class);
   }
 
