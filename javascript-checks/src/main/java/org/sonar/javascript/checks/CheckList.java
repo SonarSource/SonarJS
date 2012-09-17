@@ -61,6 +61,7 @@ public final class CheckList {
         ConditionalOperatorCheck.class,
         ParenthesesCheck.class,
         SwitchWithoutDefaultCheck.class,
+        NonEmptyCaseWithoutBreakCheck.class,
         NestedIfDepthCheck.class);
   }
 
