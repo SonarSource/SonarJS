@@ -118,7 +118,6 @@ public final class JavaScriptAstScanner {
         .subscribeTo(
             parser.getGrammar().variableStatement,
             parser.getGrammar().emptyStatement,
-            parser.getGrammar().labelledStatement,
             parser.getGrammar().expressionStatement,
             parser.getGrammar().ifStatement,
             parser.getGrammar().iterationStatement,
