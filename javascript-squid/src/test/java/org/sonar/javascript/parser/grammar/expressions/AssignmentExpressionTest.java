@@ -45,8 +45,8 @@ public class AssignmentExpressionTest {
     g.conditionalExpression.mock();
 
     assertThat(p, parse("conditionalExpression"));
-    assertThat(p, parse("leftHandSideExpression = conditionalExpression"));
     assertThat(p, parse("leftHandSideExpression assignmentOperator conditionalExpression"));
+    assertThat(p, parse("leftHandSideExpression assignmentOperator leftHandSideExpression assignmentOperator conditionalExpression"));
   }
 
   @Test

@@ -43,10 +43,7 @@ public class EcmaScriptGrammar extends Grammar {
 
   public Rule primaryExpression;
   public Rule arrayLiteral;
-  public Rule elementList;
-  public Rule elision;
   public Rule objectLiteral;
-  public Rule propertyNameAndValueList;
   public Rule propertyAssignment;
   public Rule propertyName;
   public Rule propertySetParameterList;
@@ -54,7 +51,6 @@ public class EcmaScriptGrammar extends Grammar {
   public Rule newExpression;
   public Rule callExpression;
   public Rule arguments;
-  public Rule argumentList;
   public Rule leftHandSideExpression;
   public Rule postfixExpression;
   public Rule unaryExpression;

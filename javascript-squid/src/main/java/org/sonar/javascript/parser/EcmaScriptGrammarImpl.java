@@ -162,17 +162,8 @@ public class EcmaScriptGrammarImpl extends EcmaScriptGrammar {
         arrayLiteral,
         objectLiteral,
         and(LPARENTHESIS, expression, RPARENTHESIS)));
-    arrayLiteral.is(or(
-        and(LBRACKET, opt(elision), RBRACKET),
-        and(LBRACKET, elementList, RBRACKET),
-        and(LBRACKET, elementList, COMMA, opt(elision), RBRACKET)));
-    elementList.is(and(opt(elision), assignmentExpression), o2n(COMMA, opt(elision), assignmentExpression));
-    elision.is(one2n(COMMA));
-    objectLiteral.is(or(
-        and(LCURLYBRACE, RCURLYBRACE),
-        and(LCURLYBRACE, propertyNameAndValueList, RCURLYBRACE),
-        and(LCURLYBRACE, propertyNameAndValueList, COMMA, RCURLYBRACE)));
-    propertyNameAndValueList.is(propertyAssignment, o2n(COMMA, propertyAssignment));
+    arrayLiteral.is(LBRACKET, o2n(or(COMMA, assignmentExpression)), RBRACKET);
+    objectLiteral.is(LCURLYBRACE, opt(propertyAssignment, o2n(COMMA, propertyAssignment), opt(COMMA)), RCURLYBRACE);
     propertyAssignment.is(or(
         and(propertyName, COLON, assignmentExpression),
         and("get", propertyName, LPARENTHESIS, RPARENTHESIS, LCURLYBRACE, functionBody, RCURLYBRACE),
@@ -199,10 +190,7 @@ public class EcmaScriptGrammarImpl extends EcmaScriptGrammar {
             arguments,
             and(LBRACKET, expression, RBRACKET),
             and(DOT, identifierName))));
-    arguments.is(or(
-        and(LPARENTHESIS, argumentList, RPARENTHESIS),
-        and(LPARENTHESIS, RPARENTHESIS)));
-    argumentList.is(assignmentExpression, o2n(COMMA, assignmentExpression));
+    arguments.is(LPARENTHESIS, opt(assignmentExpression, o2n(COMMA, assignmentExpression)), RPARENTHESIS);
     leftHandSideExpression.is(or(
         callExpression,
         newExpression));
@@ -218,44 +206,43 @@ public class EcmaScriptGrammarImpl extends EcmaScriptGrammar {
         and(MINUS, unaryExpression),
         and(TILDA, unaryExpression),
         and(BANG, unaryExpression)));
-    multiplicativeExpression.is(unaryExpression, opt(or(STAR, DIV, MOD), multiplicativeExpression)).skipIfOneChild();
-    additiveExpression.is(multiplicativeExpression, opt(or(PLUS, MINUS), additiveExpression)).skipIfOneChild();
-    shiftExpression.is(additiveExpression, opt(or(SL, SR, SR2), shiftExpression)).skipIfOneChild();
+    multiplicativeExpression.is(unaryExpression, o2n(or(STAR, DIV, MOD), unaryExpression)).skipIfOneChild();
+    additiveExpression.is(multiplicativeExpression, o2n(or(PLUS, MINUS), multiplicativeExpression)).skipIfOneChild();
+    shiftExpression.is(additiveExpression, o2n(or(SL, SR, SR2), additiveExpression)).skipIfOneChild();
 
-    relationalExpression.is(shiftExpression, opt(or(LT, GT, LE, GE, INSTANCEOF, IN), relationalExpression)).skipIfOneChild();
-    relationalExpressionNoIn.is(shiftExpression, opt(or(LT, GT, LE, GE, INSTANCEOF), relationalExpression)).skipIfOneChild();
+    relationalExpression.is(shiftExpression, o2n(or(LT, GT, LE, GE, INSTANCEOF, IN), shiftExpression)).skipIfOneChild();
+    relationalExpressionNoIn.is(shiftExpression, o2n(or(LT, GT, LE, GE, INSTANCEOF), shiftExpression)).skipIfOneChild();
 
-    equalityExpression.is(relationalExpression, opt(or(EQUAL, NOTEQUAL, EQUAL2, NOTEQUAL2), equalityExpression)).skipIfOneChild();
-    equalityExpressionNoIn.is(relationalExpressionNoIn, opt(or(EQUAL, NOTEQUAL, EQUAL2, NOTEQUAL2), equalityExpressionNoIn)).skipIfOneChild();
+    equalityExpression.is(relationalExpression, o2n(or(EQUAL, NOTEQUAL, EQUAL2, NOTEQUAL2), relationalExpression)).skipIfOneChild();
+    equalityExpressionNoIn.is(relationalExpressionNoIn, o2n(or(EQUAL, NOTEQUAL, EQUAL2, NOTEQUAL2), relationalExpressionNoIn)).skipIfOneChild();
 
-    bitwiseAndExpression.is(equalityExpression, opt(AND, bitwiseAndExpression)).skipIfOneChild();
-    bitwiseAndExpressionNoIn.is(equalityExpressionNoIn, opt(AND, bitwiseAndExpressionNoIn)).skipIfOneChild();
+    bitwiseAndExpression.is(equalityExpression, o2n(AND, equalityExpression)).skipIfOneChild();
+    bitwiseAndExpressionNoIn.is(equalityExpressionNoIn, o2n(AND, equalityExpressionNoIn)).skipIfOneChild();
 
-    bitwiseXorExpression.is(bitwiseAndExpression, opt(XOR, bitwiseXorExpression)).skipIfOneChild();
-    bitwiseXorExpressionNoIn.is(bitwiseAndExpressionNoIn, opt(XOR, bitwiseXorExpressionNoIn)).skipIfOneChild();
+    bitwiseXorExpression.is(bitwiseAndExpression, o2n(XOR, bitwiseAndExpression)).skipIfOneChild();
+    bitwiseXorExpressionNoIn.is(bitwiseAndExpressionNoIn, o2n(XOR, bitwiseAndExpressionNoIn)).skipIfOneChild();
 
-    bitwiseOrExpression.is(bitwiseXorExpression, opt(OR, bitwiseOrExpression)).skipIfOneChild();
-    bitwiseOrExpressionNoIn.is(bitwiseXorExpressionNoIn, opt(OR, bitwiseOrExpressionNoIn)).skipIfOneChild();
+    bitwiseOrExpression.is(bitwiseXorExpression, o2n(OR, bitwiseXorExpression)).skipIfOneChild();
+    bitwiseOrExpressionNoIn.is(bitwiseXorExpressionNoIn, o2n(OR, bitwiseXorExpressionNoIn)).skipIfOneChild();
 
-    logicalAndExpression.is(bitwiseOrExpression, opt(ANDAND, logicalAndExpression)).skipIfOneChild();
-    logicalAndExpressionNoIn.is(bitwiseOrExpressionNoIn, opt(ANDAND, logicalAndExpressionNoIn)).skipIfOneChild();
+    logicalAndExpression.is(bitwiseOrExpression, o2n(ANDAND, bitwiseOrExpression)).skipIfOneChild();
+    logicalAndExpressionNoIn.is(bitwiseOrExpressionNoIn, o2n(ANDAND, bitwiseOrExpressionNoIn)).skipIfOneChild();
 
-    logicalOrExpression.is(logicalAndExpression, opt(OROR, logicalOrExpression)).skipIfOneChild();
-    logicalOrExpressionNoIn.is(logicalAndExpressionNoIn, opt(OROR, logicalOrExpressionNoIn)).skipIfOneChild();
+    logicalOrExpression.is(logicalAndExpression, o2n(OROR, logicalAndExpression)).skipIfOneChild();
+    logicalOrExpressionNoIn.is(logicalAndExpressionNoIn, o2n(OROR, logicalAndExpressionNoIn)).skipIfOneChild();
 
     conditionalExpression.is(logicalOrExpression, opt(QUERY, assignmentExpression, COLON, assignmentExpression)).skipIfOneChild();
     conditionalExpressionNoIn.is(logicalOrExpressionNoIn, opt(QUERY, assignmentExpression, COLON, assignmentExpressionNoIn)).skipIfOneChild();
 
     assignmentExpression.is(or(
-        and(leftHandSideExpression, EQU, assignmentExpression),
         and(leftHandSideExpression, assignmentOperator, assignmentExpression),
         conditionalExpression)).skipIfOneChild();
     assignmentExpressionNoIn.is(or(
-        and(leftHandSideExpression, EQU, assignmentExpressionNoIn),
         and(leftHandSideExpression, assignmentOperator, assignmentExpressionNoIn),
         conditionalExpressionNoIn)).skipIfOneChild();
 
     assignmentOperator.is(or(
+        EQU,
         STAR_EQU,
         DIV_EQU,
         MOD_EQU,
@@ -304,9 +291,7 @@ public class EcmaScriptGrammarImpl extends EcmaScriptGrammar {
     emptyStatement.is(SEMI);
     expressionStatement.is(not(or(LCURLYBRACE, FUNCTION)), expression, eos);
     condition.is(expression);
-    ifStatement.is(or(
-        and(IF, LPARENTHESIS, condition, RPARENTHESIS, statement, opt(ELSE, statement)),
-        and(IF, LPARENTHESIS, condition, RPARENTHESIS, statement)));
+    ifStatement.is(IF, LPARENTHESIS, condition, RPARENTHESIS, statement, opt(ELSE, statement));
     iterationStatement.is(or(
         doWhileStatement,
         whileStatement,
@@ -331,9 +316,7 @@ public class EcmaScriptGrammarImpl extends EcmaScriptGrammar {
         and(RETURN, eosNoLb)));
     withStatement.is(WITH, LPARENTHESIS, expression, RPARENTHESIS, statement);
     switchStatement.is(SWITCH, LPARENTHESIS, expression, RPARENTHESIS, caseBlock);
-    caseBlock.is(or(
-        and(LCURLYBRACE, opt(caseClauses), RCURLYBRACE),
-        and(LCURLYBRACE, opt(caseClauses), defaultClause, opt(caseClauses), RCURLYBRACE)));
+    caseBlock.is(LCURLYBRACE, opt(caseClauses), opt(defaultClause, opt(caseClauses)), RCURLYBRACE);
     caseClauses.is(one2n(caseClause));
     caseClause.is(CASE, expression, COLON, opt(statementList));
     defaultClause.is(DEFAULT, COLON, opt(statementList));

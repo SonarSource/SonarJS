@@ -17,7 +17,7 @@
  * License along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.javascript.parser.grammar.expressions;
+package org.sonar.javascript.parser.grammar.statements;
 
 import com.sonar.sslr.impl.Parser;
 import org.junit.Before;
@@ -28,22 +28,25 @@ import org.sonar.javascript.parser.EcmaScriptParser;
 import static com.sonar.sslr.test.parser.ParserMatchers.parse;
 import static org.junit.Assert.assertThat;
 
-public class ArgumentListTest {
+public class SwitchStatementTest {
 
   Parser<EcmaScriptGrammar> p = EcmaScriptParser.create();
   EcmaScriptGrammar g = p.getGrammar();
 
   @Before
   public void init() {
-    p.setRootRule(g.argumentList);
+    p.setRootRule(g.switchStatement);
   }
 
   @Test
   public void ok() {
-    g.assignmentExpression.mock();
+    g.expression.mock();
+    g.statementList.mock();
 
-    assertThat(p, parse("assignmentExpression"));
-    assertThat(p, parse("assignmentExpression , assignmentExpression"));
+    assertThat(p, parse("switch (expression) { }"));
+    assertThat(p, parse("switch (expression) { case expression: statementList }"));
+    assertThat(p, parse("switch (expression) { case expression: statementList default: statementList }"));
+    assertThat(p, parse("switch (expression) { case expression: statementList default: statementList case expression: statementList }"));
   }
 
 }

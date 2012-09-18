@@ -28,26 +28,28 @@ import org.sonar.javascript.parser.EcmaScriptParser;
 import static com.sonar.sslr.test.parser.ParserMatchers.parse;
 import static org.junit.Assert.assertThat;
 
-public class ElementListTest {
+public class ArrayLiteralTest {
 
   Parser<EcmaScriptGrammar> p = EcmaScriptParser.create();
   EcmaScriptGrammar g = p.getGrammar();
 
   @Before
   public void init() {
-    p.setRootRule(g.elementList);
+    p.setRootRule(g.arrayLiteral);
   }
 
   @Test
   public void ok() {
     g.assignmentExpression.mock();
-    g.elision.mock();
 
-    assertThat(p, parse("elision assignmentExpression"));
-    assertThat(p, parse("assignmentExpression"));
-    assertThat(p, parse("elision assignmentExpression , elision assignmentExpression"));
-    assertThat(p, parse("elision assignmentExpression , assignmentExpression"));
-    assertThat(p, parse("assignmentExpression , assignmentExpression"));
+    assertThat(p, parse("[ ]"));
+    assertThat(p, parse("[ assignmentExpression ]"));
+    assertThat(p, parse("[ assignmentExpression , ]"));
+    assertThat(p, parse("[ assignmentExpression , assignmentExpression ]"));
+    assertThat(p, parse("[ assignmentExpression , assignmentExpression , ]"));
+
+    assertThat(p, parse("[ , ]"));
+    assertThat(p, parse("[ assignmentExpression , , ]"));
   }
 
 }

@@ -25,23 +25,30 @@ import org.junit.Test;
 import org.sonar.javascript.api.EcmaScriptGrammar;
 import org.sonar.javascript.parser.EcmaScriptParser;
 
+import static com.sonar.sslr.test.parser.ParserMatchers.notParse;
 import static com.sonar.sslr.test.parser.ParserMatchers.parse;
 import static org.junit.Assert.assertThat;
 
-public class ElisionTest {
+public class ArgumentsTest {
 
   Parser<EcmaScriptGrammar> p = EcmaScriptParser.create();
   EcmaScriptGrammar g = p.getGrammar();
 
   @Before
   public void init() {
-    p.setRootRule(g.elision);
+    p.setRootRule(g.arguments);
   }
 
   @Test
   public void ok() {
-    assertThat(p, parse(","));
-    assertThat(p, parse(", ,"));
+    g.assignmentExpression.mock();
+
+    assertThat(p, parse("( )"));
+    assertThat(p, parse("( assignmentExpression )"));
+    assertThat(p, parse("( assignmentExpression , assignmentExpression )"));
+
+    assertThat(p, notParse("( , )"));
+    assertThat(p, notParse("( assignmentExpression , )"));
   }
 
 }

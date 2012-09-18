@@ -25,24 +25,33 @@ import org.junit.Test;
 import org.sonar.javascript.api.EcmaScriptGrammar;
 import org.sonar.javascript.parser.EcmaScriptParser;
 
+import static com.sonar.sslr.test.parser.ParserMatchers.notParse;
 import static com.sonar.sslr.test.parser.ParserMatchers.parse;
 import static org.junit.Assert.assertThat;
 
-public class PropertyNameAndValueListTest {
+public class ObjectLiteralTest {
 
   Parser<EcmaScriptGrammar> p = EcmaScriptParser.create();
   EcmaScriptGrammar g = p.getGrammar();
 
   @Before
   public void init() {
-    p.setRootRule(g.propertyNameAndValueList);
+    p.setRootRule(g.objectLiteral);
   }
 
   @Test
   public void ok() {
-    g.propertyAssignment.mock();
-    assertThat(p, parse("propertyAssignment"));
-    assertThat(p, parse("propertyAssignment , propertyAssignment"));
+    g.propertyName.mock();
+    g.assignmentExpression.mock();
+
+    assertThat(p, parse("{ }"));
+    assertThat(p, parse("{ propertyName : assignmentExpression }"));
+    assertThat(p, parse("{ propertyName : assignmentExpression , }"));
+    assertThat(p, parse("{ propertyName : assignmentExpression , propertyName : assignmentExpression }"));
+    assertThat(p, parse("{ propertyName : assignmentExpression , propertyName : assignmentExpression , }"));
+
+    assertThat(p, notParse("{ , }"));
+    assertThat(p, notParse("{ propertyName : assignmentExpression , , }"));
   }
 
 }
