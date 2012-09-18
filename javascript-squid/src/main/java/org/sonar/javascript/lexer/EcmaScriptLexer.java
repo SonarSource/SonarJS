@@ -54,6 +54,10 @@ public final class EcmaScriptLexer {
 
         .withFailIfNoChannelToConsumeOneCharacter(true)
 
+        // Channels, which consumes more frequently should come first.
+        // Whitespace character occurs more frequently than any other, and thus come first:
+        .withChannel(new BlackHoleChannel("\\s++"))
+
         // Comments
         .withChannel(commentRegexp("//[^\\n\\r]*+"))
         .withChannel(commentRegexp("/\\*[\\s\\S]*?\\*/"))
@@ -88,8 +92,6 @@ public final class EcmaScriptLexer {
 
         .withChannel(new IdentifierAndKeywordChannel("\\p{javaJavaIdentifierStart}++\\p{javaJavaIdentifierPart}*+", true, EcmaScriptKeyword.values()))
         .withChannel(new PunctuatorChannel(EcmaScriptPunctuator.values()))
-
-        .withChannel(new BlackHoleChannel("[\\s]"))
 
         .withChannel(new UnknownCharacterChannel(true))
 
