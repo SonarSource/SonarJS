@@ -19,12 +19,14 @@
  */
 package org.sonar.plugins.javascript;
 
+import com.google.common.collect.Lists;
 import com.sonar.sslr.squid.AstScanner;
-import com.sonar.sslr.squid.checks.SquidCheck;
+import com.sonar.sslr.squid.SquidAstVisitor;
 import org.sonar.api.batch.Sensor;
 import org.sonar.api.batch.SensorContext;
 import org.sonar.api.checks.AnnotationCheckFactory;
 import org.sonar.api.measures.CoreMetrics;
+import org.sonar.api.measures.FileLinesContextFactory;
 import org.sonar.api.measures.PersistenceMode;
 import org.sonar.api.measures.RangeDistributionBuilder;
 import org.sonar.api.profiles.RulesProfile;
@@ -37,6 +39,7 @@ import org.sonar.javascript.JavaScriptAstScanner;
 import org.sonar.javascript.api.EcmaScriptGrammar;
 import org.sonar.javascript.api.EcmaScriptMetric;
 import org.sonar.javascript.checks.CheckList;
+import org.sonar.javascript.metrics.FileLinesVisitor;
 import org.sonar.plugins.javascript.core.JavaScript;
 import org.sonar.squid.api.CheckMessage;
 import org.sonar.squid.api.SourceCode;
@@ -46,6 +49,7 @@ import org.sonar.squid.indexer.QueryByParent;
 import org.sonar.squid.indexer.QueryByType;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Locale;
 
 public class JavaScriptSquidSensor implements Sensor {
@@ -54,13 +58,15 @@ public class JavaScriptSquidSensor implements Sensor {
   private final Number[] FILES_DISTRIB_BOTTOM_LIMITS = {0, 5, 10, 20, 30, 60, 90};
 
   private final AnnotationCheckFactory annotationCheckFactory;
+  private final FileLinesContextFactory fileLinesContextFactory;
 
   private Project project;
   private SensorContext context;
   private AstScanner<EcmaScriptGrammar> scanner;
 
-  public JavaScriptSquidSensor(RulesProfile profile) {
+  public JavaScriptSquidSensor(RulesProfile profile, FileLinesContextFactory fileLinesContextFactory) {
     this.annotationCheckFactory = AnnotationCheckFactory.create(profile, CheckList.REPOSITORY_KEY, CheckList.getChecks());
+    this.fileLinesContextFactory = fileLinesContextFactory;
   }
 
   public boolean shouldExecuteOnProject(Project project) {
@@ -71,8 +77,10 @@ public class JavaScriptSquidSensor implements Sensor {
     this.project = project;
     this.context = context;
 
-    Collection<SquidCheck> squidChecks = annotationCheckFactory.getChecks();
-    this.scanner = JavaScriptAstScanner.create(createConfiguration(project), squidChecks.toArray(new SquidCheck[squidChecks.size()]));
+    Collection<SquidAstVisitor<EcmaScriptGrammar>> squidChecks = annotationCheckFactory.getChecks();
+    List<SquidAstVisitor<EcmaScriptGrammar>> visitors = Lists.newArrayList(squidChecks);
+    visitors.add(new FileLinesVisitor(project, fileLinesContextFactory));
+    this.scanner = JavaScriptAstScanner.create(createConfiguration(project), visitors.toArray(new SquidAstVisitor[visitors.size()]));
     scanner.scanFiles(InputFileUtils.toFiles(project.getFileSystem().mainFiles(JavaScript.KEY)));
 
     Collection<SourceCode> squidSourceFiles = scanner.getIndex().search(new QueryByType(SourceFile.class));
