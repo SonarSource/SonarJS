@@ -62,6 +62,7 @@ public final class CheckList {
         ParenthesesCheck.class,
         SwitchWithoutDefaultCheck.class,
         NonEmptyCaseWithoutBreakCheck.class,
+        ContinueStatementCheck.class,
         NestedIfDepthCheck.class);
   }
 
