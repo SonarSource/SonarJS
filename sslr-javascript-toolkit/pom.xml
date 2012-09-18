@@ -55,7 +55,7 @@
               <includes>
                 <include>${project.groupId}:javascript-squid</include>
                 <include>org.codehaus.sonar.sslr:sslr-core</include>
-                <include>org.codehaus.sonar.sslr:sslr-devkit</include>
+                <include>org.codehaus.sonar.sslr:sslr-toolkit</include>
                 <include>org.codehaus.sonar:sonar-colorizer</include>
                 <include>org.codehaus.sonar:sonar-squid</include>
                 <include>org.codehaus.sonar:sonar-channel</include>
