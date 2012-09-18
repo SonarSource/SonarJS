@@ -66,6 +66,7 @@
     <maven.test.redirectTestOutputToFile>true</maven.test.redirectTestOutputToFile>
 
     <sonar.version>3.0</sonar.version>
+    <sslr.version>1.15</sslr.version>
   </properties>
 
   <dependencyManagement>
@@ -84,22 +85,22 @@
       <dependency>
         <groupId>org.codehaus.sonar.sslr</groupId>
         <artifactId>sslr-core</artifactId>
-        <version>1.14</version>
+        <version>${sslr.version}</version>
       </dependency>
       <dependency>
         <groupId>org.codehaus.sonar.sslr</groupId>
         <artifactId>sslr-xpath</artifactId>
-        <version>1.14</version>
+        <version>${sslr.version}</version>
       </dependency>
       <dependency>
         <groupId>org.codehaus.sonar.sslr</groupId>
-        <artifactId>sslr-devkit</artifactId>
-        <version>1.14</version>
+        <artifactId>sslr-toolkit</artifactId>
+        <version>${sslr.version}</version>
       </dependency>
       <dependency>
         <groupId>org.codehaus.sonar.sslr</groupId>
         <artifactId>sslr-testing-harness</artifactId>
-        <version>1.14</version>
+        <version>${sslr.version}</version>
       </dependency>
       <dependency>
         <groupId>org.codehaus.sonar.sslr-squid-bridge</groupId>

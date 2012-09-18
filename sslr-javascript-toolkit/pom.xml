@@ -19,7 +19,7 @@
     </dependency>
     <dependency>
       <groupId>org.codehaus.sonar.sslr</groupId>
-      <artifactId>sslr-devkit</artifactId>
+      <artifactId>sslr-toolkit</artifactId>
     </dependency>
     <dependency>
       <groupId>ch.qos.logback</groupId>

@@ -20,12 +20,10 @@
 package org.sonar.javascript.toolkit;
 
 import com.google.common.collect.ImmutableList;
-import com.sonar.sslr.devkit.SsdkGui;
-import com.sonar.sslr.impl.Parser;
 import org.sonar.colorizer.*;
-import org.sonar.javascript.api.EcmaScriptGrammar;
 import org.sonar.javascript.api.EcmaScriptKeyword;
 import org.sonar.javascript.parser.EcmaScriptParser;
+import org.sonar.sslr.toolkit.Toolkit;
 
 import java.util.List;
 
@@ -36,11 +34,7 @@ public final class JavaScriptToolkit {
 
   public static void main(String[] args) {
     System.setProperty("com.apple.mrj.application.apple.menu.about.name", "SSDK");
-    Parser<EcmaScriptGrammar> parser = EcmaScriptParser.create();
-    SsdkGui toolkit = new SsdkGui(parser, getTokenizers());
-    toolkit.setVisible(true);
-    toolkit.setSize(1000, 800);
-    toolkit.setTitle("SSLR JavaScript Toolkit");
+    new Toolkit(EcmaScriptParser.create(), getTokenizers(), "SSLR JavaScript Toolkit").run();
   }
 
   public static List<Tokenizer> getTokenizers() {
