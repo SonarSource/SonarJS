@@ -79,6 +79,11 @@ public class EcmaScriptLexerTest {
   }
 
   @Test
+  public void legacy_inline_comments() {
+    assertThat(lexer.lex("<!-- My Comment \n new line"), hasComment("<!-- My Comment "));
+  }
+
+  @Test
   public void decimalLiteral() {
     assertThat(lexer.lex("0"), hasToken("0", EcmaScriptTokenType.NUMERIC_LITERAL));
     assertThat(lexer.lex("123"), hasToken("123", EcmaScriptTokenType.NUMERIC_LITERAL));

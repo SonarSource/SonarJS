@@ -60,6 +60,7 @@ public final class EcmaScriptLexer {
 
         // Comments
         .withChannel(commentRegexp("//[^\\n\\r]*+"))
+        .withChannel(commentRegexp("<!--[^\\n\\r]*+"))
         .withChannel(commentRegexp("/\\*[\\s\\S]*?\\*/"))
 
         // String Literals

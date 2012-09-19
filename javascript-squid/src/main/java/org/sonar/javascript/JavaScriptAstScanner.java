@@ -21,7 +21,6 @@ package org.sonar.javascript;
 
 import com.sonar.sslr.api.AstNode;
 import com.sonar.sslr.api.AstNodeType;
-import com.sonar.sslr.api.CommentAnalyser;
 import com.sonar.sslr.impl.Parser;
 import com.sonar.sslr.squid.*;
 import com.sonar.sslr.squid.metrics.*;
@@ -69,23 +68,7 @@ public final class JavaScriptAstScanner {
     builder.withMetrics(EcmaScriptMetric.values());
 
     /* Comments */
-    builder.setCommentAnalyser(
-        new CommentAnalyser() {
-          @Override
-          public boolean isBlank(String line) {
-            for (int i = 0; i < line.length(); i++) {
-              if (Character.isLetterOrDigit(line.charAt(i))) {
-                return false;
-              }
-            }
-            return true;
-          }
-
-          @Override
-          public String getContents(String comment) {
-            return comment.startsWith("//") ? comment.substring(2) : comment.substring(2, comment.length() - 2);
-          }
-        });
+    builder.setCommentAnalyser(new EcmaScriptCommentAnalyser());
 
     /* Files */
     builder.setFilesMetric(EcmaScriptMetric.FILES);
