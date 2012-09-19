@@ -63,6 +63,7 @@ public final class CheckList {
         SwitchWithoutDefaultCheck.class,
         NonEmptyCaseWithoutBreakCheck.class,
         ContinueStatementCheck.class,
+        HtmlCommentsCheck.class,
         NestedIfDepthCheck.class);
   }
 
