@@ -19,11 +19,13 @@
  */
 package org.sonar.javascript.lexer;
 
+import com.google.common.base.Charsets;
 import com.sonar.sslr.api.GenericTokenType;
 import com.sonar.sslr.impl.Lexer;
 import com.sonar.sslr.impl.channel.UnknownCharacterChannel;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.sonar.javascript.EcmaScriptConfiguration;
 import org.sonar.javascript.api.EcmaScriptKeyword;
 import org.sonar.javascript.api.EcmaScriptTokenType;
 
@@ -38,7 +40,7 @@ public class EcmaScriptLexerTest {
 
   @BeforeClass
   public static void init() {
-    lexer = EcmaScriptLexer.create();
+    lexer = EcmaScriptLexer.create(new EcmaScriptConfiguration(Charsets.UTF_8));
   }
 
   @Test

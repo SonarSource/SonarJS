@@ -27,9 +27,6 @@ public class EcmaScriptConfiguration extends SquidConfiguration {
 
   private boolean ignoreHeaderComments;
 
-  public EcmaScriptConfiguration() {
-  }
-
   public EcmaScriptConfiguration(Charset charset) {
     super(charset);
   }

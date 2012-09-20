@@ -30,10 +30,6 @@ public final class EcmaScriptParser {
   private EcmaScriptParser() {
   }
 
-  public static Parser<EcmaScriptGrammar> create(ParsingEventListener... parsingEventListeners) {
-    return create(new EcmaScriptConfiguration(), parsingEventListeners);
-  }
-
   public static Parser<EcmaScriptGrammar> create(EcmaScriptConfiguration conf, ParsingEventListener... parsingEventListeners) {
     return Parser.builder((EcmaScriptGrammar) new EcmaScriptGrammarImpl())
         .withLexer(EcmaScriptLexer.create(conf))

@@ -19,6 +19,7 @@
  */
 package org.sonar.javascript;
 
+import com.google.common.base.Charsets;
 import com.sonar.sslr.api.AstNode;
 import com.sonar.sslr.api.AstNodeType;
 import com.sonar.sslr.impl.Parser;
@@ -49,7 +50,7 @@ public final class JavaScriptAstScanner {
     if (!file.isFile()) {
       throw new IllegalArgumentException("File '" + file + "' not found.");
     }
-    AstScanner<EcmaScriptGrammar> scanner = create(new EcmaScriptConfiguration(), visitors);
+    AstScanner<EcmaScriptGrammar> scanner = create(new EcmaScriptConfiguration(Charsets.UTF_8), visitors);
     scanner.scanFile(file);
     Collection<SourceCode> sources = scanner.getIndex().search(new QueryByType(SourceFile.class));
     if (sources.size() != 1) {

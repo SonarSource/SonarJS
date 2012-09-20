@@ -38,10 +38,6 @@ public final class EcmaScriptLexer {
   private EcmaScriptLexer() {
   }
 
-  public static Lexer create() {
-    return create(new EcmaScriptConfiguration());
-  }
-
   private static final String EXP = "([Ee][+-]?+[0-9_]++)";
   private static final String BINARY_EXP = "([Pp][+-]?+[0-9_]++)";
 
