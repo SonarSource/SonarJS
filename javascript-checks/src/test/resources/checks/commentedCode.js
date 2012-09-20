@@ -1,3 +1,6 @@
+/**
+ * @return {String}
+ */
 function sayHello() {
   /*
   this line is fine, but the following is not
