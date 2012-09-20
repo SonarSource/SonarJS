@@ -34,8 +34,7 @@ import org.sonar.plugins.javascript.core.JavaScript;
 import java.io.File;
 import java.nio.charset.Charset;
 
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -56,9 +55,9 @@ public class JavaScriptSquidSensorTest {
   public void should_execute_on_javascript_project() {
     Project project = new Project("key");
     project.setLanguageKey("java");
-    assertThat(sensor.shouldExecuteOnProject(project), is(false));
+    assertThat(sensor.shouldExecuteOnProject(project)).isFalse();
     project.setLanguageKey("js");
-    assertThat(sensor.shouldExecuteOnProject(project), is(true));
+    assertThat(sensor.shouldExecuteOnProject(project)).isTrue();
   }
 
   @Test

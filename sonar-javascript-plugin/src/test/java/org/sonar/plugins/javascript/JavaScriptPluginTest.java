@@ -22,8 +22,7 @@ package org.sonar.plugins.javascript;
 import org.junit.Before;
 import org.junit.Test;
 
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.fest.assertions.Assertions.assertThat;
 
 public class JavaScriptPluginTest {
 
@@ -36,7 +35,7 @@ public class JavaScriptPluginTest {
 
   @Test
   public void testGetExtensions() throws Exception {
-    assertThat(plugin.getExtensions().size(), is(14));
+    assertThat(plugin.getExtensions().size()).isEqualTo(14);
   }
 
 }

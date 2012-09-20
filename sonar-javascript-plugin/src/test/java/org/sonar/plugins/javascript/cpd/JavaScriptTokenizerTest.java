@@ -27,9 +27,7 @@ import org.junit.Test;
 import java.io.File;
 import java.nio.charset.Charset;
 
-import static org.hamcrest.Matchers.greaterThan;
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -42,8 +40,8 @@ public class JavaScriptTokenizerTest {
     when(source.getFileName()).thenReturn(new File("src/test/resources/cpd/Person.js").getAbsolutePath());
     Tokens tokens = new Tokens();
     tokenizer.tokenize(source, tokens);
-    assertThat(tokens.getTokens().size(), greaterThan(1));
-    assertThat(tokens.getTokens().get(tokens.size() - 1), is(TokenEntry.getEOF()));
+    assertThat(tokens.getTokens().size()).isGreaterThan(1);
+    assertThat(tokens.getTokens().get(tokens.size() - 1)).isEqualTo(TokenEntry.getEOF());
   }
 
 }

@@ -23,10 +23,7 @@ import org.junit.Test;
 import org.sonar.api.resources.ProjectFileSystem;
 import org.sonar.plugins.javascript.core.JavaScript;
 
-import static org.hamcrest.Matchers.allOf;
-import static org.hamcrest.Matchers.instanceOf;
-import static org.hamcrest.Matchers.sameInstance;
-import static org.junit.Assert.assertThat;
+import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
 public class JavaScriptCpdMappingTest {
@@ -36,8 +33,8 @@ public class JavaScriptCpdMappingTest {
     JavaScript language = mock(JavaScript.class);
     ProjectFileSystem fs = mock(ProjectFileSystem.class);
     JavaScriptCpdMapping mapping = new JavaScriptCpdMapping(language, fs);
-    assertThat(mapping.getLanguage(), allOf(instanceOf(JavaScript.class), sameInstance(language)));
-    assertThat(mapping.getTokenizer(), instanceOf(JavaScriptTokenizer.class));
+    assertThat(mapping.getLanguage()).isSameAs(language);
+    assertThat(mapping.getTokenizer()).isInstanceOf(JavaScriptTokenizer.class);
   }
 
 }

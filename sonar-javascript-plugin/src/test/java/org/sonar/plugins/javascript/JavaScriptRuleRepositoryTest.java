@@ -26,18 +26,17 @@ import org.sonar.javascript.checks.CheckList;
 
 import java.util.List;
 
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.fest.assertions.Assertions.assertThat;
 
 public class JavaScriptRuleRepositoryTest {
 
   @Test
   public void test() {
     JavaScriptRuleRepository ruleRepository = new JavaScriptRuleRepository(new AnnotationRuleParser());
-    assertThat(ruleRepository.getKey(), is("javascript"));
-    assertThat(ruleRepository.getName(), is("Sonar"));
+    assertThat(ruleRepository.getKey()).isEqualTo("javascript");
+    assertThat(ruleRepository.getName()).isEqualTo("Sonar");
     List<Rule> rules = ruleRepository.createRules();
-    assertThat(rules.size(), is(CheckList.getChecks().size()));
+    assertThat(rules.size()).isEqualTo(CheckList.getChecks().size());
   }
 
 }
