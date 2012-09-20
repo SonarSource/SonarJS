@@ -19,21 +19,37 @@
  */
 package org.sonar.javascript;
 
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.fest.assertions.Assertions.assertThat;
 
 public class EcmaScriptCommentAnalyserTest {
+
+  @Rule
+  public ExpectedException thrown = ExpectedException.none();
 
   private EcmaScriptCommentAnalyser analyser = new EcmaScriptCommentAnalyser();
 
   @Test
-  public void test() {
-    assertThat(analyser.getContents("// comment"), is(" comment"));
-    assertThat(analyser.getContents("/* comment */"), is(" comment "));
-    assertThat(analyser.getContents("<!-- comment"), is(" comment"));
-    assertThat(analyser.getContents("<!-- comment -->"), is(" comment "));
+  public void content() {
+    assertThat(analyser.getContents("// comment")).isEqualTo(" comment");
+    assertThat(analyser.getContents("/* comment */")).isEqualTo(" comment ");
+    assertThat(analyser.getContents("<!-- comment")).isEqualTo(" comment");
+    assertThat(analyser.getContents("<!-- comment -->")).isEqualTo(" comment ");
+  }
+
+  @Test
+  public void blank() {
+    assertThat(analyser.isBlank(" ")).isTrue();
+    assertThat(analyser.isBlank("comment")).isFalse();
+  }
+
+  @Test
+  public void unknown_type_of_comment() {
+    thrown.expect(IllegalArgumentException.class);
+    analyser.getContents("");
   }
 
 }

@@ -21,15 +21,19 @@ package org.sonar.javascript.api;
 
 import org.junit.Test;
 
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.fest.assertions.Assertions.assertThat;
 
 public class EcmaScriptKeywordTest {
 
   @Test
   public void test() {
-    assertThat(EcmaScriptKeyword.values().length, is(44));
-    assertThat(EcmaScriptKeyword.keywordValues().length, is(EcmaScriptKeyword.values().length));
+    assertThat(EcmaScriptKeyword.values().length).isEqualTo(44);
+    assertThat(EcmaScriptKeyword.keywordValues().length).isEqualTo(EcmaScriptKeyword.values().length);
+
+    for (EcmaScriptKeyword keyword : EcmaScriptKeyword.values()) {
+      assertThat(keyword.getName()).isEqualTo(keyword.name());
+      assertThat(keyword.hasToBeSkippedFromAst(null)).isFalse();
+    }
   }
 
 }

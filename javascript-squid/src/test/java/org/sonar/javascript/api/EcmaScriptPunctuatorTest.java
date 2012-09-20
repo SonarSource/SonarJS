@@ -21,14 +21,18 @@ package org.sonar.javascript.api;
 
 import org.junit.Test;
 
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.fest.assertions.Assertions.assertThat;
 
 public class EcmaScriptPunctuatorTest {
 
   @Test
   public void test() {
-    assertThat(EcmaScriptPunctuator.values().length, is(48));
+    assertThat(EcmaScriptPunctuator.values().length).isEqualTo(48);
+
+    for (EcmaScriptPunctuator punctuator : EcmaScriptPunctuator.values()) {
+      assertThat(punctuator.getName()).isEqualTo(punctuator.name());
+      assertThat(punctuator.hasToBeSkippedFromAst(null)).isFalse();
+    }
   }
 
 }

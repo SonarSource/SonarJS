@@ -17,23 +17,17 @@
  * License along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.javascript.api;
+package org.sonar.javascript.toolkit;
 
 import org.junit.Test;
 
 import static org.fest.assertions.Assertions.assertThat;
 
-public class EcmaScriptTokenTypeTest {
+public class JavaScriptToolkitTest {
 
   @Test
   public void test() {
-    assertThat(EcmaScriptTokenType.values().length).isEqualTo(2);
-
-    for (EcmaScriptTokenType type : EcmaScriptTokenType.values()) {
-      assertThat(type.getName()).isEqualTo(type.name());
-      assertThat(type.getValue()).isEqualTo(type.name());
-      assertThat(type.hasToBeSkippedFromAst(null)).isFalse();
-    }
+    assertThat(JavaScriptToolkit.getTokenizers().size()).isEqualTo(5);
   }
 
 }

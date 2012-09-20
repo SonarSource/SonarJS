@@ -23,16 +23,18 @@ import org.junit.Test;
 
 import static org.fest.assertions.Assertions.assertThat;
 
-public class EcmaScriptTokenTypeTest {
+public class EcmaScriptMetricTest {
 
   @Test
   public void test() {
-    assertThat(EcmaScriptTokenType.values().length).isEqualTo(2);
+    assertThat(EcmaScriptMetric.values()).hasSize(8);
 
-    for (EcmaScriptTokenType type : EcmaScriptTokenType.values()) {
-      assertThat(type.getName()).isEqualTo(type.name());
-      assertThat(type.getValue()).isEqualTo(type.name());
-      assertThat(type.hasToBeSkippedFromAst(null)).isFalse();
+    for (EcmaScriptMetric metric : EcmaScriptMetric.values()) {
+      assertThat(metric.getName()).isEqualTo(metric.name());
+      assertThat(metric.isCalculatedMetric()).isFalse();
+      assertThat(metric.isThereAggregationFormula()).isTrue();
+      assertThat(metric.getCalculatedMetricFormula()).isNull();
+      assertThat(metric.aggregateIfThereIsAlreadyAValue()).isTrue();
     }
   }
 

@@ -21,18 +21,17 @@ package org.sonar.javascript.lexer;
 
 import org.junit.Test;
 
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.fest.assertions.Assertions.assertThat;
 
 public class EcmaScriptRegexpChannelTest {
 
   @Test
   public void test() throws Exception {
-    assertThat(EcmaScriptRegexpChannel.guessNextIsRegexp("break"), is(true));
-    assertThat(EcmaScriptRegexpChannel.guessNextIsRegexp("&"), is(true));
+    assertThat(EcmaScriptRegexpChannel.guessNextIsRegexp("break")).isTrue();
+    assertThat(EcmaScriptRegexpChannel.guessNextIsRegexp("&")).isTrue();
 
-    assertThat(EcmaScriptRegexpChannel.guessNextIsRegexp("1"), is(false));
-    assertThat(EcmaScriptRegexpChannel.guessNextIsRegexp("identifier"), is(false));
+    assertThat(EcmaScriptRegexpChannel.guessNextIsRegexp("1")).isFalse();
+    assertThat(EcmaScriptRegexpChannel.guessNextIsRegexp("identifier")).isFalse();
   }
 
 }

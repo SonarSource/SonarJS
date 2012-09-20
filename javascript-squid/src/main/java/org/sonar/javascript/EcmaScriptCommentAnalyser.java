@@ -45,7 +45,7 @@ public class EcmaScriptCommentAnalyser extends CommentAnalyser {
       }
       return comment.substring(4);
     } else {
-      throw new IllegalStateException();
+      throw new IllegalArgumentException();
     }
   }
 

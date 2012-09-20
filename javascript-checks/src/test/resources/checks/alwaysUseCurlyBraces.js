@@ -18,6 +18,10 @@ function sayHello() {
   } else if (condition) { // OK
   }
 
+  if (condition) // NOK
+    if (condition) {
+    }
+
   for (i = 0; i < 10; i++) { // OK
   }
 

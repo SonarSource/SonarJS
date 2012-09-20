@@ -1,5 +1,5 @@
 function sayHello() {
-  var a = typeof (37);
+  var a = typeof (37); // NOK
   var b = typeof 38;
 
   var c = {};
@@ -9,10 +9,10 @@ function sayHello() {
   delete b;
 
   void 0;
-  void (1);
+  void (1); // NOK
 
   if (false) {
-    return (1);
+    return (1); // NOK
   } else {
     return 2;
   }
@@ -20,15 +20,17 @@ function sayHello() {
   try {
     throw new Error('myException');
   } catch (err) {
-    throw (new Error('myExceptionTwo'));
+    throw (new Error('myExceptionTwo')); // NOK
   }
 
-  var e = new (Error('error'));
+  var e = new (Error('error')); // NOK
   var error = new Error('errorTwo');
 
   var name, object;
-  for (name in (object)) {
+  for (name in (object)) { // NOK
   }
   for (name in object) {
   }
+
+  foo = (1 + 2);
 }
