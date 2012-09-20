@@ -19,6 +19,7 @@
  */
 package org.sonar.javascript.parser;
 
+import com.sonar.sslr.impl.matcher.GrammarFunctions;
 import org.sonar.javascript.api.EcmaScriptGrammar;
 
 import static com.sonar.sslr.api.GenericTokenType.EOF;
@@ -146,6 +147,8 @@ public class EcmaScriptGrammarImpl extends EcmaScriptGrammar {
     expressions();
     statements();
     functionsAndPrograms();
+
+    GrammarFunctions.enableMemoizationOfMatchesForAllRules(this);
   }
 
   /**
