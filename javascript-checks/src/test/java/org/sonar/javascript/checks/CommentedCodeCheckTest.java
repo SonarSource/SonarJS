@@ -26,15 +26,13 @@ import org.sonar.squid.api.SourceFile;
 
 import java.io.File;
 
-import static org.hamcrest.Matchers.containsString;
-
 public class CommentedCodeCheckTest {
 
   @Test
   public void test() {
     SourceFile file = JavaScriptAstScanner.scanSingleFile(new File("src/test/resources/checks/commentedCode.js"), new CommentedCodeCheck());
     CheckMessagesVerifier.verify(file.getCheckMessages())
-        .next().atLine(7).withMessageThat(containsString("Sections of code should not be \"commented out\"."))
+        .next().atLine(7).withMessage("Sections of code should not be \"commented out\".")
         .next().atLine(14)
         .noMore();
   }
