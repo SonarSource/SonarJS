@@ -1,11 +1,8 @@
 <p>
-If a developer fails to add a break statement to the end of a switch-clause, then control flow "falls" into any following switch-clause.
-Whilst this is sometimes intentional, it is often an error.
+When the last statement of a switch-clause is not a break statement, the control flow "falls" into the next switch-clause.
+Whilst this is sometimes intentional, it is often a mistake which could lead to some unexpected behaviors.
 
-To ensure that such errors can be detected, the last statement in every switch-clause shall be a break statement,
-or if the switch-clause is a compound statement, then the last statement in the compound statement shall be a break statement.
-
-A special case exists if the switch-clause is empty, as this allows groups of clauses requiring identical statements to be created.
+This rule doesn't apply to empty switch-clauses. Indeed those empty switch-clauses allow to specify the same behavior to a group of cases.
 </p>
 
 <p>
