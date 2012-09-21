@@ -40,6 +40,7 @@ public class JavaScriptColorizerFormat extends CodeColorizerFormat {
         new CDocTokenizer("<span class=\"cd\">", "</span>"),
         new JavadocTokenizer("<span class=\"cppd\">", "</span>"),
         new CppDocTokenizer("<span class=\"cppd\">", "</span>"),
+        new HtmlCommentTokenizer("<span class=\"cd\">", "</span>"),
         new KeywordsTokenizer("<span class=\"k\">", "</span>", EcmaScriptKeyword.keywordValues()));
   }
 
