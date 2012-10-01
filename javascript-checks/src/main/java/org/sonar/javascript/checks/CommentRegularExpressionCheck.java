@@ -42,7 +42,7 @@ public class CommentRegularExpressionCheck extends AbstractCommentRegularExpress
 
   @RuleProperty(
     key = "message",
-    defaultValue = "" + DEFAULT_REGULAR_EXPRESSION)
+    defaultValue = "" + DEFAULT_MESSAGE)
   public String message = DEFAULT_MESSAGE;
 
   @Override
