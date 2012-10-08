@@ -15,6 +15,10 @@
   <description>Enables analysis of JavaScript projects into Sonar.</description>
   <url>http://docs.codehaus.org/display/SONAR/JavaScript+Plugin</url>
 
+  <scm>
+    <url>https://github.com/SonarCommunity/sonar-javascript</url>
+  </scm>
+
   <properties>
     <!-- Configuration for sonar-packaging-maven-plugin -->
     <sonar.pluginClass>org.sonar.plugins.javascript.JavaScriptPlugin</sonar.pluginClass>
