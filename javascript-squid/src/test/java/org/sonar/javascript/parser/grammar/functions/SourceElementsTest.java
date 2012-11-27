@@ -27,8 +27,7 @@ import org.sonar.javascript.EcmaScriptConfiguration;
 import org.sonar.javascript.api.EcmaScriptGrammar;
 import org.sonar.javascript.parser.EcmaScriptParser;
 
-import static com.sonar.sslr.test.parser.ParserMatchers.parse;
-import static org.junit.Assert.assertThat;
+import static org.sonar.sslr.tests.Assertions.assertThat;
 
 public class SourceElementsTest {
 
@@ -44,8 +43,9 @@ public class SourceElementsTest {
   public void ok() {
     g.sourceElement.mock();
 
-    assertThat(p, parse("sourceElement"));
-    assertThat(p, parse("sourceElement sourceElement"));
+    assertThat(p)
+        .matches("sourceElement")
+        .matches("sourceElement sourceElement");
   }
 
 }

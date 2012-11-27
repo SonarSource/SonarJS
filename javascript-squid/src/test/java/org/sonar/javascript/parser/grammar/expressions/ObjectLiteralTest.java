@@ -27,9 +27,7 @@ import org.sonar.javascript.EcmaScriptConfiguration;
 import org.sonar.javascript.api.EcmaScriptGrammar;
 import org.sonar.javascript.parser.EcmaScriptParser;
 
-import static com.sonar.sslr.test.parser.ParserMatchers.notParse;
-import static com.sonar.sslr.test.parser.ParserMatchers.parse;
-import static org.junit.Assert.assertThat;
+import static org.sonar.sslr.tests.Assertions.assertThat;
 
 public class ObjectLiteralTest {
 
@@ -46,14 +44,16 @@ public class ObjectLiteralTest {
     g.propertyName.mock();
     g.assignmentExpression.mock();
 
-    assertThat(p, parse("{ }"));
-    assertThat(p, parse("{ propertyName : assignmentExpression }"));
-    assertThat(p, parse("{ propertyName : assignmentExpression , }"));
-    assertThat(p, parse("{ propertyName : assignmentExpression , propertyName : assignmentExpression }"));
-    assertThat(p, parse("{ propertyName : assignmentExpression , propertyName : assignmentExpression , }"));
+    assertThat(p)
+        .matches("{ }")
+        .matches("{ propertyName : assignmentExpression }")
+        .matches("{ propertyName : assignmentExpression , }")
+        .matches("{ propertyName : assignmentExpression , propertyName : assignmentExpression }")
+        .matches("{ propertyName : assignmentExpression , propertyName : assignmentExpression , }");
 
-    assertThat(p, notParse("{ , }"));
-    assertThat(p, notParse("{ propertyName : assignmentExpression , , }"));
+    assertThat(p)
+        .notMatches("{ , }")
+        .notMatches("{ propertyName : assignmentExpression , , }");
   }
 
 }

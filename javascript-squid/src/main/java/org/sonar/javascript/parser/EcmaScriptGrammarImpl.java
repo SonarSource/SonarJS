@@ -28,10 +28,10 @@ import static com.sonar.sslr.api.GenericTokenType.LITERAL;
 import static com.sonar.sslr.impl.matcher.GrammarFunctions.Predicate.next;
 import static com.sonar.sslr.impl.matcher.GrammarFunctions.Predicate.not;
 import static com.sonar.sslr.impl.matcher.GrammarFunctions.Standard.and;
+import static com.sonar.sslr.impl.matcher.GrammarFunctions.Standard.firstOf;
 import static com.sonar.sslr.impl.matcher.GrammarFunctions.Standard.o2n;
 import static com.sonar.sslr.impl.matcher.GrammarFunctions.Standard.one2n;
 import static com.sonar.sslr.impl.matcher.GrammarFunctions.Standard.opt;
-import static com.sonar.sslr.impl.matcher.GrammarFunctions.Standard.or;
 import static org.sonar.javascript.api.EcmaScriptKeyword.BREAK;
 import static org.sonar.javascript.api.EcmaScriptKeyword.CASE;
 import static org.sonar.javascript.api.EcmaScriptKeyword.CATCH;
@@ -120,25 +120,25 @@ import static org.sonar.javascript.api.EcmaScriptTokenType.REGULAR_EXPRESSION_LI
 public class EcmaScriptGrammarImpl extends EcmaScriptGrammar {
 
   public EcmaScriptGrammarImpl() {
-    eos.is(or(
+    eos.is(firstOf(
         opt(SEMI),
         next(RCURLYBRACE),
         next(EOF)));
-    eosNoLb.is(or(
+    eosNoLb.is(firstOf(
         opt(SEMI),
         next(RCURLYBRACE),
         next(EOF)));
 
     identifierName.is(IDENTIFIER);
 
-    literal.is(or(
+    literal.is(firstOf(
         nullLiteral,
         booleanLiteral,
         NUMERIC_LITERAL,
         stringLiteral,
         regularExpressionLiteral));
     nullLiteral.is(NULL);
-    booleanLiteral.is(or(
+    booleanLiteral.is(firstOf(
         TRUE,
         FALSE));
     stringLiteral.is(LITERAL);
@@ -155,47 +155,47 @@ public class EcmaScriptGrammarImpl extends EcmaScriptGrammar {
    * A.3 Expressions
    */
   private void expressions() {
-    primaryExpression.is(or(
+    primaryExpression.is(firstOf(
         THIS,
         IDENTIFIER,
         literal,
         arrayLiteral,
         objectLiteral,
         and(LPARENTHESIS, expression, RPARENTHESIS)));
-    arrayLiteral.is(LBRACKET, o2n(or(COMMA, assignmentExpression)), RBRACKET);
+    arrayLiteral.is(LBRACKET, o2n(firstOf(COMMA, assignmentExpression)), RBRACKET);
     objectLiteral.is(LCURLYBRACE, opt(propertyAssignment, o2n(COMMA, propertyAssignment), opt(COMMA)), RCURLYBRACE);
-    propertyAssignment.is(or(
+    propertyAssignment.is(firstOf(
         and(propertyName, COLON, assignmentExpression),
         and("get", propertyName, LPARENTHESIS, RPARENTHESIS, LCURLYBRACE, functionBody, RCURLYBRACE),
         and("set", propertyName, LPARENTHESIS, propertySetParameterList, RPARENTHESIS, LCURLYBRACE, functionBody, RCURLYBRACE)));
-    propertyName.is(or(
+    propertyName.is(firstOf(
         identifierName,
         stringLiteral,
         NUMERIC_LITERAL));
     propertySetParameterList.is(IDENTIFIER);
     memberExpression.is(
-        or(
+        firstOf(
             primaryExpression,
             functionExpression,
             and(NEW, memberExpression, arguments)),
-        o2n(or(
+        o2n(firstOf(
             and(LBRACKET, expression, RBRACKET),
             and(DOT, identifierName))));
-    newExpression.is(or(
+    newExpression.is(firstOf(
         memberExpression,
         and(NEW, newExpression)));
     callExpression.is(
         and(memberExpression, arguments),
-        o2n(or(
+        o2n(firstOf(
             arguments,
             and(LBRACKET, expression, RBRACKET),
             and(DOT, identifierName))));
     arguments.is(LPARENTHESIS, opt(assignmentExpression, o2n(COMMA, assignmentExpression)), RPARENTHESIS);
-    leftHandSideExpression.is(or(
+    leftHandSideExpression.is(firstOf(
         callExpression,
         newExpression));
-    postfixExpression.is(leftHandSideExpression, opt(/* no line terminator here */or(INC, DEC)));
-    unaryExpression.is(or(
+    postfixExpression.is(leftHandSideExpression, opt(/* no line terminator here */firstOf(INC, DEC)));
+    unaryExpression.is(firstOf(
         postfixExpression,
         and(DELETE, unaryExpression),
         and(VOID, unaryExpression),
@@ -206,15 +206,15 @@ public class EcmaScriptGrammarImpl extends EcmaScriptGrammar {
         and(MINUS, unaryExpression),
         and(TILDA, unaryExpression),
         and(BANG, unaryExpression)));
-    multiplicativeExpression.is(unaryExpression, o2n(or(STAR, DIV, MOD), unaryExpression)).skipIfOneChild();
-    additiveExpression.is(multiplicativeExpression, o2n(or(PLUS, MINUS), multiplicativeExpression)).skipIfOneChild();
-    shiftExpression.is(additiveExpression, o2n(or(SL, SR, SR2), additiveExpression)).skipIfOneChild();
+    multiplicativeExpression.is(unaryExpression, o2n(firstOf(STAR, DIV, MOD), unaryExpression)).skipIfOneChild();
+    additiveExpression.is(multiplicativeExpression, o2n(firstOf(PLUS, MINUS), multiplicativeExpression)).skipIfOneChild();
+    shiftExpression.is(additiveExpression, o2n(firstOf(SL, SR, SR2), additiveExpression)).skipIfOneChild();
 
-    relationalExpression.is(shiftExpression, o2n(or(LT, GT, LE, GE, INSTANCEOF, IN), shiftExpression)).skipIfOneChild();
-    relationalExpressionNoIn.is(shiftExpression, o2n(or(LT, GT, LE, GE, INSTANCEOF), shiftExpression)).skipIfOneChild();
+    relationalExpression.is(shiftExpression, o2n(firstOf(LT, GT, LE, GE, INSTANCEOF, IN), shiftExpression)).skipIfOneChild();
+    relationalExpressionNoIn.is(shiftExpression, o2n(firstOf(LT, GT, LE, GE, INSTANCEOF), shiftExpression)).skipIfOneChild();
 
-    equalityExpression.is(relationalExpression, o2n(or(EQUAL, NOTEQUAL, EQUAL2, NOTEQUAL2), relationalExpression)).skipIfOneChild();
-    equalityExpressionNoIn.is(relationalExpressionNoIn, o2n(or(EQUAL, NOTEQUAL, EQUAL2, NOTEQUAL2), relationalExpressionNoIn)).skipIfOneChild();
+    equalityExpression.is(relationalExpression, o2n(firstOf(EQUAL, NOTEQUAL, EQUAL2, NOTEQUAL2), relationalExpression)).skipIfOneChild();
+    equalityExpressionNoIn.is(relationalExpressionNoIn, o2n(firstOf(EQUAL, NOTEQUAL, EQUAL2, NOTEQUAL2), relationalExpressionNoIn)).skipIfOneChild();
 
     bitwiseAndExpression.is(equalityExpression, o2n(AND, equalityExpression)).skipIfOneChild();
     bitwiseAndExpressionNoIn.is(equalityExpressionNoIn, o2n(AND, equalityExpressionNoIn)).skipIfOneChild();
@@ -234,14 +234,14 @@ public class EcmaScriptGrammarImpl extends EcmaScriptGrammar {
     conditionalExpression.is(logicalOrExpression, opt(QUERY, assignmentExpression, COLON, assignmentExpression)).skipIfOneChild();
     conditionalExpressionNoIn.is(logicalOrExpressionNoIn, opt(QUERY, assignmentExpression, COLON, assignmentExpressionNoIn)).skipIfOneChild();
 
-    assignmentExpression.is(or(
+    assignmentExpression.is(firstOf(
         and(leftHandSideExpression, assignmentOperator, assignmentExpression),
         conditionalExpression)).skipIfOneChild();
-    assignmentExpressionNoIn.is(or(
+    assignmentExpressionNoIn.is(firstOf(
         and(leftHandSideExpression, assignmentOperator, assignmentExpressionNoIn),
         conditionalExpressionNoIn)).skipIfOneChild();
 
-    assignmentOperator.is(or(
+    assignmentOperator.is(firstOf(
         EQU,
         STAR_EQU,
         DIV_EQU,
@@ -263,7 +263,7 @@ public class EcmaScriptGrammarImpl extends EcmaScriptGrammar {
    * A.4 Statement
    */
   private void statements() {
-    statement.is(or(
+    statement.is(firstOf(
         block,
         variableStatement,
         emptyStatement,
@@ -280,7 +280,7 @@ public class EcmaScriptGrammarImpl extends EcmaScriptGrammar {
         tryStatement,
         debuggerStatement));
     block.is(LCURLYBRACE, opt(statementList), RCURLYBRACE);
-    statementList.is(one2n(or(statement, permissive(functionDeclaration))));
+    statementList.is(one2n(firstOf(statement, permissive(functionDeclaration))));
     variableStatement.is(VAR, variableDeclarationList, eos);
     variableDeclarationList.is(variableDeclaration, o2n(COMMA, variableDeclaration));
     variableDeclarationListNoIn.is(variableDeclarationNoIn, o2n(COMMA, variableDeclarationNoIn));
@@ -289,29 +289,29 @@ public class EcmaScriptGrammarImpl extends EcmaScriptGrammar {
     initialiser.is(EQU, assignmentExpression);
     initialiserNoIn.is(EQU, assignmentExpressionNoIn);
     emptyStatement.is(SEMI);
-    expressionStatement.is(not(or(LCURLYBRACE, FUNCTION)), expression, eos);
+    expressionStatement.is(not(firstOf(LCURLYBRACE, FUNCTION)), expression, eos);
     condition.is(expression);
     ifStatement.is(IF, LPARENTHESIS, condition, RPARENTHESIS, statement, opt(ELSE, statement));
-    iterationStatement.is(or(
+    iterationStatement.is(firstOf(
         doWhileStatement,
         whileStatement,
         forInStatement,
         forStatement));
     doWhileStatement.is(DO, statement, WHILE, LPARENTHESIS, condition, RPARENTHESIS, eos);
     whileStatement.is(WHILE, LPARENTHESIS, condition, RPARENTHESIS, statement);
-    forInStatement.is(or(
+    forInStatement.is(firstOf(
         and(FOR, LPARENTHESIS, leftHandSideExpression, IN, expression, RPARENTHESIS, statement),
         and(FOR, LPARENTHESIS, VAR, variableDeclarationListNoIn, IN, expression, RPARENTHESIS, statement)));
-    forStatement.is(or(
+    forStatement.is(firstOf(
         and(FOR, LPARENTHESIS, opt(expressionNoIn), SEMI, opt(condition), SEMI, opt(expression), RPARENTHESIS, statement),
         and(FOR, LPARENTHESIS, VAR, variableDeclarationListNoIn, SEMI, opt(condition), SEMI, opt(expression), RPARENTHESIS, statement)));
-    continueStatement.is(or(
+    continueStatement.is(firstOf(
         and(CONTINUE, /* TODO no line terminator here */IDENTIFIER, eos),
         and(CONTINUE, eosNoLb)));
-    breakStatement.is(or(
+    breakStatement.is(firstOf(
         and(BREAK, /* TODO no line terminator here */IDENTIFIER, eos),
         and(BREAK, eosNoLb)));
-    returnStatement.is(or(
+    returnStatement.is(firstOf(
         and(RETURN, /* TODO no line terminator here */expression, eos),
         and(RETURN, eosNoLb)));
     withStatement.is(WITH, LPARENTHESIS, expression, RPARENTHESIS, statement);
@@ -322,7 +322,7 @@ public class EcmaScriptGrammarImpl extends EcmaScriptGrammar {
     defaultClause.is(DEFAULT, COLON, opt(statementList));
     labelledStatement.is(IDENTIFIER, COLON, statement);
     throwStatement.is(THROW, /* TODO no line terminator here */expression, eos);
-    tryStatement.is(TRY, block, or(and(catch_, opt(finally_)), finally_));
+    tryStatement.is(TRY, block, firstOf(and(catch_, opt(finally_)), finally_));
     catch_.is(CATCH, LPARENTHESIS, IDENTIFIER, RPARENTHESIS, block);
     finally_.is(FINALLY, block);
     debuggerStatement.is(DEBUGGER, eos);
@@ -338,7 +338,7 @@ public class EcmaScriptGrammarImpl extends EcmaScriptGrammar {
     functionBody.is(opt(sourceElements));
     program.is(opt(sourceElements), EOF);
     sourceElements.is(one2n(sourceElement));
-    sourceElement.is(or(
+    sourceElement.is(firstOf(
         statement,
         functionDeclaration));
   }

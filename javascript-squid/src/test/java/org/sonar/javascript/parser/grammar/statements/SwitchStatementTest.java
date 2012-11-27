@@ -27,8 +27,7 @@ import org.sonar.javascript.EcmaScriptConfiguration;
 import org.sonar.javascript.api.EcmaScriptGrammar;
 import org.sonar.javascript.parser.EcmaScriptParser;
 
-import static com.sonar.sslr.test.parser.ParserMatchers.parse;
-import static org.junit.Assert.assertThat;
+import static org.sonar.sslr.tests.Assertions.assertThat;
 
 public class SwitchStatementTest {
 
@@ -45,10 +44,11 @@ public class SwitchStatementTest {
     g.expression.mock();
     g.statementList.mock();
 
-    assertThat(p, parse("switch (expression) { }"));
-    assertThat(p, parse("switch (expression) { case expression: statementList }"));
-    assertThat(p, parse("switch (expression) { case expression: statementList default: statementList }"));
-    assertThat(p, parse("switch (expression) { case expression: statementList default: statementList case expression: statementList }"));
+    assertThat(p)
+        .matches("switch (expression) { }")
+        .matches("switch (expression) { case expression: statementList }")
+        .matches("switch (expression) { case expression: statementList default: statementList }")
+        .matches("switch (expression) { case expression: statementList default: statementList case expression: statementList }");
   }
 
 }

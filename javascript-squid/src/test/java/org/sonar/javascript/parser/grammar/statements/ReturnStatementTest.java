@@ -27,8 +27,7 @@ import org.sonar.javascript.EcmaScriptConfiguration;
 import org.sonar.javascript.api.EcmaScriptGrammar;
 import org.sonar.javascript.parser.EcmaScriptParser;
 
-import static com.sonar.sslr.test.parser.ParserMatchers.parse;
-import static org.junit.Assert.assertThat;
+import static org.sonar.sslr.tests.Assertions.assertThat;
 
 public class ReturnStatementTest {
 
@@ -42,9 +41,10 @@ public class ReturnStatementTest {
 
   @Test
   public void realLife() {
-    assertThat(p, parse("return;"));
-    assertThat(p, parse("return a + b;"));
-    assertThat(p, parse("return this.first + (this.middle ? ' ' + this.middle : '') + ' ' + this.last;"));
+    assertThat(p)
+        .matches("return;")
+        .matches("return a + b;")
+        .matches("return this.first + (this.middle ? ' ' + this.middle : '') + ' ' + this.last;");
   }
 
 }

@@ -27,8 +27,7 @@ import org.sonar.javascript.EcmaScriptConfiguration;
 import org.sonar.javascript.api.EcmaScriptGrammar;
 import org.sonar.javascript.parser.EcmaScriptParser;
 
-import static com.sonar.sslr.test.parser.ParserMatchers.parse;
-import static org.junit.Assert.assertThat;
+import static org.sonar.sslr.tests.Assertions.assertThat;
 
 public class PrimaryExpressionTest {
 
@@ -47,17 +46,18 @@ public class PrimaryExpressionTest {
     g.objectLiteral.mock();
     g.expression.mock();
 
-    assertThat(p, parse("this"));
-    assertThat(p, parse("identifier"));
-    assertThat(p, parse("literal"));
-    assertThat(p, parse("arrayLiteral"));
-    assertThat(p, parse("objectLiteral"));
-    assertThat(p, parse("( expression )"));
+    assertThat(p).matches("this")
+        .matches("identifier")
+        .matches("literal")
+        .matches("arrayLiteral")
+        .matches("objectLiteral")
+        .matches("( expression )");
   }
 
   @Test
   public void realLife() {
-    assertThat(p, parse("''"));
+    assertThat(p)
+        .matches("''");
   }
 
 }

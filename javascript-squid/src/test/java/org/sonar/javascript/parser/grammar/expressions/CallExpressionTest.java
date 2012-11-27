@@ -27,8 +27,7 @@ import org.sonar.javascript.EcmaScriptConfiguration;
 import org.sonar.javascript.api.EcmaScriptGrammar;
 import org.sonar.javascript.parser.EcmaScriptParser;
 
-import static com.sonar.sslr.test.parser.ParserMatchers.parse;
-import static org.junit.Assert.assertThat;
+import static org.sonar.sslr.tests.Assertions.assertThat;
 
 public class CallExpressionTest {
 
@@ -47,11 +46,13 @@ public class CallExpressionTest {
     g.expression.mock();
     g.identifierName.mock();
 
-    assertThat(p, parse("memberExpression arguments"));
-    assertThat(p, parse("memberExpression arguments arguments"));
+    assertThat(p)
+        .matches("memberExpression arguments")
+        .matches("memberExpression arguments arguments");
 
-    assertThat(p, parse("memberExpression arguments [ expression ]"));
-    assertThat(p, parse("memberExpression arguments . identifierName"));
+    assertThat(p)
+        .matches("memberExpression arguments [ expression ]")
+        .matches("memberExpression arguments . identifierName");
   }
 
 }

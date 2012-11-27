@@ -27,8 +27,7 @@ import org.sonar.javascript.EcmaScriptConfiguration;
 import org.sonar.javascript.api.EcmaScriptGrammar;
 import org.sonar.javascript.parser.EcmaScriptParser;
 
-import static com.sonar.sslr.test.parser.ParserMatchers.parse;
-import static org.junit.Assert.assertThat;
+import static org.sonar.sslr.tests.Assertions.assertThat;
 
 public class IterationStatementTest {
 
@@ -47,17 +46,18 @@ public class IterationStatementTest {
     g.forInStatement.mock();
     g.forStatement.mock();
 
-    assertThat(p, parse("doWhileStatement"));
-    assertThat(p, parse("whileStatement"));
-    assertThat(p, parse("forInStatement"));
-    assertThat(p, parse("forStatement"));
+    assertThat(p).matches("doWhileStatement")
+        .matches("whileStatement")
+        .matches("forInStatement")
+        .matches("forStatement");
   }
 
   @Test
   public void realLife() {
-    assertThat(p, parse("do { } while (a < b);"));
-    assertThat(p, parse("while (a < b) ;"));
-    assertThat(p, parse("for (n = 0; n < h; n++) ;"));
+    assertThat(p)
+        .matches("do { } while (a < b);")
+        .matches("while (a < b) ;")
+        .matches("for (n = 0; n < h; n++) ;");
   }
 
 }

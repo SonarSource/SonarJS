@@ -27,8 +27,7 @@ import org.sonar.javascript.EcmaScriptConfiguration;
 import org.sonar.javascript.api.EcmaScriptGrammar;
 import org.sonar.javascript.parser.EcmaScriptParser;
 
-import static com.sonar.sslr.test.parser.ParserMatchers.parse;
-import static org.junit.Assert.assertThat;
+import static org.sonar.sslr.tests.Assertions.assertThat;
 
 public class AssignmentExpressionTest {
 
@@ -46,14 +45,16 @@ public class AssignmentExpressionTest {
     g.assignmentOperator.mock();
     g.conditionalExpression.mock();
 
-    assertThat(p, parse("conditionalExpression"));
-    assertThat(p, parse("leftHandSideExpression assignmentOperator conditionalExpression"));
-    assertThat(p, parse("leftHandSideExpression assignmentOperator leftHandSideExpression assignmentOperator conditionalExpression"));
+    assertThat(p)
+        .matches("conditionalExpression")
+        .matches("leftHandSideExpression assignmentOperator conditionalExpression")
+        .matches("leftHandSideExpression assignmentOperator leftHandSideExpression assignmentOperator conditionalExpression");
   }
 
   @Test
   public void realLife() {
-    assertThat(p, parse("this.first = first"));
+    assertThat(p)
+        .matches("this.first = first");
   }
 
 }

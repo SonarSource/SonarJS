@@ -27,8 +27,7 @@ import org.sonar.javascript.EcmaScriptConfiguration;
 import org.sonar.javascript.api.EcmaScriptGrammar;
 import org.sonar.javascript.parser.EcmaScriptParser;
 
-import static com.sonar.sslr.test.parser.ParserMatchers.parse;
-import static org.junit.Assert.assertThat;
+import static org.sonar.sslr.tests.Assertions.assertThat;
 
 public class MemberExpressionTest {
 
@@ -48,14 +47,14 @@ public class MemberExpressionTest {
     g.identifierName.mock();
     g.arguments.mock();
 
-    assertThat(p, parse("primaryExpression"));
-    assertThat(p, parse("functionExpression"));
+    assertThat(p)
+        .matches("primaryExpression")
+        .matches("functionExpression")
 
-    assertThat(p, parse("primaryExpression [ expression ]"));
-    assertThat(p, parse("primaryExpression . identifierName"));
-    assertThat(p, parse("primaryExpression [ expression ] . identifierName"));
-    assertThat(p, parse("new primaryExpression arguments"));
+        .matches("primaryExpression [ expression ]")
+        .matches("primaryExpression . identifierName")
+        .matches("primaryExpression [ expression ] . identifierName")
+        .matches("new primaryExpression arguments");
   }
-
 
 }

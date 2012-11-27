@@ -27,8 +27,7 @@ import org.sonar.javascript.EcmaScriptConfiguration;
 import org.sonar.javascript.api.EcmaScriptGrammar;
 import org.sonar.javascript.parser.EcmaScriptParser;
 
-import static com.sonar.sslr.test.parser.ParserMatchers.parse;
-import static org.junit.Assert.assertThat;
+import static org.sonar.sslr.tests.Assertions.assertThat;
 
 public class ArrayLiteralTest {
 
@@ -44,14 +43,16 @@ public class ArrayLiteralTest {
   public void ok() {
     g.assignmentExpression.mock();
 
-    assertThat(p, parse("[ ]"));
-    assertThat(p, parse("[ assignmentExpression ]"));
-    assertThat(p, parse("[ assignmentExpression , ]"));
-    assertThat(p, parse("[ assignmentExpression , assignmentExpression ]"));
-    assertThat(p, parse("[ assignmentExpression , assignmentExpression , ]"));
+    assertThat(p)
+        .matches("[ ]")
+        .matches("[ assignmentExpression ]")
+        .matches("[ assignmentExpression , ]")
+        .matches("[ assignmentExpression , assignmentExpression ]")
+        .matches("[ assignmentExpression , assignmentExpression , ]");
 
-    assertThat(p, parse("[ , ]"));
-    assertThat(p, parse("[ assignmentExpression , , ]"));
+    assertThat(p)
+        .matches("[ , ]")
+        .matches("[ assignmentExpression , , ]");
   }
 
 }

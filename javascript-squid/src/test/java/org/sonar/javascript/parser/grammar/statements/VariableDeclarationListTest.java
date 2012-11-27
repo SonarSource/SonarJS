@@ -27,8 +27,7 @@ import org.sonar.javascript.EcmaScriptConfiguration;
 import org.sonar.javascript.api.EcmaScriptGrammar;
 import org.sonar.javascript.parser.EcmaScriptParser;
 
-import static com.sonar.sslr.test.parser.ParserMatchers.parse;
-import static org.junit.Assert.assertThat;
+import static org.sonar.sslr.tests.Assertions.assertThat;
 
 public class VariableDeclarationListTest {
 
@@ -44,8 +43,9 @@ public class VariableDeclarationListTest {
   public void ok() {
     g.variableDeclaration.mock();
 
-    assertThat(p, parse("variableDeclaration"));
-    assertThat(p, parse("variableDeclaration , variableDeclaration"));
+    assertThat(p)
+        .matches("variableDeclaration")
+        .matches("variableDeclaration , variableDeclaration");
   }
 
 }
