@@ -19,6 +19,8 @@
  */
 package org.sonar.plugins.javascript.coverage;
 
+import org.sonar.api.measures.CoverageMeasuresBuilder;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -26,6 +28,7 @@ public final class JavaScriptFileCoverage {
 
   private Map<Integer, Integer> lineCoverageData = new HashMap<Integer, Integer>();
   private String filePath;
+  private CoverageMeasuresBuilder builder = CoverageMeasuresBuilder.create();
 
   public Map<Integer, Integer> getLineCoverageData() {
     return lineCoverageData;
@@ -64,6 +67,7 @@ public final class JavaScriptFileCoverage {
   }
 
   public int getUncoveredLines() {
+
     return getLinesToCover() - getCoveredLines();
   }
 

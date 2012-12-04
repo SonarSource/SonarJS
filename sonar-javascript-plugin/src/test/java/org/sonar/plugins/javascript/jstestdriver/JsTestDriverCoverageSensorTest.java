@@ -40,7 +40,9 @@ import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.batch.SensorContext;
 import org.sonar.api.measures.CoreMetrics;
+import org.sonar.api.measures.CoverageMeasuresBuilder;
 import org.sonar.api.measures.Measure;
+import org.sonar.api.measures.Metric;
 import org.sonar.api.resources.InputFile;
 import org.sonar.api.resources.InputFileUtils;
 import org.sonar.api.resources.Language;
@@ -62,7 +64,7 @@ public class JsTestDriverCoverageSensorTest {
     configuration = mock(Configuration.class);
     when(configuration.getString(JavaScriptPlugin.JSTESTDRIVER_FOLDER_KEY, "jstestdriver")).thenReturn("jstestdriver");
     when(configuration.getString(JavaScriptPlugin.TEST_FRAMEWORK_KEY, JavaScriptPlugin.TEST_FRAMEWORK_DEFAULT)).thenReturn("jstestdriver");
-    
+
     sensor = new JsTestDriverCoverageSensor(new JavaScript(configuration));
     context = mock(SensorContext.class);
   }
@@ -77,11 +79,11 @@ public class JsTestDriverCoverageSensorTest {
     Project project = getProject(inputFile);
     assertTrue(sensor.shouldExecuteOnProject(project));
 
-    List<JavaScriptFileCoverage> coveredFiles = getCoveredFile(inputFile.getFile().getAbsolutePath());
-    sensor.analyseCoveredFiles(project, context, coveredFiles);
+    Map<String, CoverageMeasuresBuilder> coveredFiles = getCoveredFile(inputFile.getFile().getAbsolutePath());
+    sensor.analyzeCoveredFiles(project, context, coveredFiles);
 
-    verify(context).saveMeasure((Resource) anyObject(), eq(CoreMetrics.LINES_TO_COVER), eq(6.0));
-    verify(context).saveMeasure((Resource) anyObject(), eq(CoreMetrics.UNCOVERED_LINES), eq(3.0));
+      verify(context).saveMeasure((Resource) anyObject(), eq(new Measure(CoreMetrics.LINES_TO_COVER,6.0)));
+      verify(context).saveMeasure((Resource) anyObject(), eq(new Measure(CoreMetrics.UNCOVERED_LINES,3.0)));
 
   }
 
@@ -100,11 +102,11 @@ public class JsTestDriverCoverageSensorTest {
     when(context.getMeasure(org.sonar.api.resources.File.fromIOFile(inputFile.getFile(), project), CoreMetrics.NCLOC)).thenReturn(
         new Measure(CoreMetrics.LINES, (double) 22));
 
-    List<JavaScriptFileCoverage> coveredFiles = getCoveredFile(inputFile.getFile().getAbsolutePath() + "not_existing_file");
-    sensor.analyseCoveredFiles(project, context, coveredFiles);
+    Map<String, CoverageMeasuresBuilder> coveredFiles = getCoveredFile(inputFile.getFile().getAbsolutePath() + "not_existing_file");
+    sensor.analyzeCoveredFiles(project, context, coveredFiles);
 
-    verify(context).saveMeasure((Resource) anyObject(), eq(CoreMetrics.LINES_TO_COVER), eq(22.0));
-    verify(context).saveMeasure((Resource) anyObject(), eq(CoreMetrics.UNCOVERED_LINES), eq(22.0));
+    verify(context).saveMeasure((Resource) anyObject(), eq(new Measure(CoreMetrics.LINES_TO_COVER,22.0)));
+    verify(context).saveMeasure((Resource) anyObject(), eq(new Measure(CoreMetrics.UNCOVERED_LINES,22.0)));
 
   }
 
@@ -134,22 +136,19 @@ public class JsTestDriverCoverageSensorTest {
 
   }
 
-  private List<JavaScriptFileCoverage> getCoveredFile(String fullPath) {
-    List<JavaScriptFileCoverage> list = new LinkedList<JavaScriptFileCoverage>();
+  private Map<String, CoverageMeasuresBuilder> getCoveredFile(String fullPath) {
+    Map<String, CoverageMeasuresBuilder> list = new HashMap<String, CoverageMeasuresBuilder>();
+    CoverageMeasuresBuilder builder = CoverageMeasuresBuilder.create();
 
-    JavaScriptFileCoverage file = new JavaScriptFileCoverage();
-    Map<Integer, Integer> lineCoverage = new HashMap<Integer, Integer>();
-    lineCoverage.put(1, 0);
-    lineCoverage.put(2, 0);
-    lineCoverage.put(3, 0);
-    lineCoverage.put(4, 1);
-    lineCoverage.put(5, 2);
-    lineCoverage.put(6, 1);
+    builder.setHits(1,0);
+    builder.setHits(2,0);
+    builder.setHits(3,0);
+    builder.setHits(4,1);
+    builder.setHits(5,2);
+    builder.setHits(6,1);
 
-    file.setLineCoverage(lineCoverage);
-    file.setFilePath(fullPath);
+    list.put(fullPath,builder);
 
-    list.add(file);
     return list;
   }
 }

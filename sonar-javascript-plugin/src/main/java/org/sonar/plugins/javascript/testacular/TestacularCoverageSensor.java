@@ -17,7 +17,7 @@
  * License along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.plugins.javascript.jstestdriver;
+package org.sonar.plugins.javascript.testacular;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,7 +27,6 @@ import org.sonar.api.batch.SensorContext;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.CoverageMeasuresBuilder;
 import org.sonar.api.measures.Measure;
-import org.sonar.api.measures.PropertiesBuilder;
 import org.sonar.api.resources.InputFile;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
@@ -38,19 +37,21 @@ import org.sonar.plugins.javascript.coverage.LCOVParser;
 import java.io.File;
 import java.util.Map;
 
-public class JsTestDriverCoverageSensor implements Sensor, CoverageExtension {
-
+/**
+ * @author: deag
+ */
+public class TestacularCoverageSensor implements Sensor, CoverageExtension {
     protected JavaScript javascript;
 
-    public JsTestDriverCoverageSensor(JavaScript javascript) {
+    public TestacularCoverageSensor(JavaScript javascript) {
         this.javascript = javascript;
     }
 
-    private static final Logger LOG = LoggerFactory.getLogger(JsTestDriverCoverageSensor.class);
+    private static final Logger LOG = LoggerFactory.getLogger(TestacularCoverageSensor.class);
 
     public boolean shouldExecuteOnProject(Project project) {
         return javascript.equals(project.getLanguage())
-                && "jstestdriver".equals(javascript.getConfiguration().getString(JavaScriptPlugin.TEST_FRAMEWORK_KEY, JavaScriptPlugin.TEST_FRAMEWORK_DEFAULT));
+                && "testacular".equals(javascript.getConfiguration().getString(JavaScriptPlugin.TEST_FRAMEWORK_KEY, JavaScriptPlugin.TEST_FRAMEWORK_DEFAULT));
     }
 
     public void analyse(Project project, SensorContext sensorContext) {
@@ -58,12 +59,8 @@ public class JsTestDriverCoverageSensor implements Sensor, CoverageExtension {
                 + "/" + getTestCoverageFileName());
 
         LCOVParser parser = new LCOVParser();
-        Map<String, CoverageMeasuresBuilder> coveredFiles = parser.parseFile(jsTestDriverCoverageReportFile);
+        Map<String, CoverageMeasuresBuilder> coveredFiles = parser.parseFile(jsTestDriverCoverageReportFile, new File(getBasePath()));
 
-        analyzeCoveredFiles(project, sensorContext, coveredFiles);
-    }
-
-    protected void analyzeCoveredFiles(Project project, SensorContext sensorContext, Map<String, CoverageMeasuresBuilder> coveredFiles) {
         for (InputFile inputFile : project.getFileSystem().mainFiles(JavaScript.KEY)) {
             Resource resource = org.sonar.api.resources.File.fromIOFile(inputFile.getFile(), project);
             CoverageMeasuresBuilder measures = coveredFiles.get(inputFile.getFile().getAbsolutePath());
@@ -84,15 +81,20 @@ public class JsTestDriverCoverageSensor implements Sensor, CoverageExtension {
     }
 
     protected String getTestReportsFolder() {
-        return javascript.getConfiguration().getString(JavaScriptPlugin.JSTESTDRIVER_FOLDER_KEY, JavaScriptPlugin.JSTESTDRIVER_DEFAULT_FOLDER);
+        return javascript.getConfiguration().getString(JavaScriptPlugin.TESTACULAR_FOLDER_KEY, JavaScriptPlugin.TESTACULAR_DEFAULT_FOLDER);
+    }
+
+    protected String getBasePath() {
+        return javascript.getConfiguration().getString(JavaScriptPlugin.TESTACULAR_BASEPATH_KEY, JavaScriptPlugin.TESTACULAR_DEFAULT_BASEPATH);
     }
 
     protected String getTestCoverageFileName() {
-        return javascript.getConfiguration().getString(JavaScriptPlugin.JSTESTDRIVER_COVERAGE_FILE_KEY, JavaScriptPlugin.JSTESTDRIVER_COVERAGE_REPORT_FILENAME);
+        return javascript.getConfiguration().getString(JavaScriptPlugin.TESTACULAR_COVERAGE_FILE_KEY, JavaScriptPlugin.TESTACULAR_COVERAGE_REPORT_FILENAME);
     }
 
     @Override
     public String toString() {
         return getClass().getSimpleName();
     }
+
 }

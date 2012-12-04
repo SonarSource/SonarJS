@@ -34,6 +34,8 @@ import org.sonar.plugins.javascript.jstest.JsTestMavenPluginHandler;
 import org.sonar.plugins.javascript.jstest.JsTestSurefireSensor;
 import org.sonar.plugins.javascript.jstestdriver.JsTestDriverCoverageSensor;
 import org.sonar.plugins.javascript.jstestdriver.JsTestDriverSurefireSensor;
+import org.sonar.plugins.javascript.testacular.TestacularCoverageSensor;
+import org.sonar.plugins.javascript.testacular.TestacularJunitSensor;
 
 import java.util.List;
 
@@ -55,7 +57,15 @@ import java.util.List;
   @Property(key = JavaScriptPlugin.JSTEST_FOLDER_KEY, defaultValue = JavaScriptPlugin.JSTEST_DEFAULT_FOLDER, name = "JSTest output folder",
     description = "Folder where JsTest unit test and code coverage reports are located", global = true, project = true, category = "JSTest"),
   @Property(key = JavaScriptPlugin.JSTEST_COVERAGE_FILE_KEY, defaultValue = JavaScriptPlugin.JSTEST_COVERAGE_REPORT_FILENAME, name = "JSTest coverage filename",
-    description = "Filename where JsTest generates coverage data", global = true, project = true, category = "JSTest")
+    description = "Filename where JsTest generates coverage data", global = true, project = true, category = "JSTest"),
+
+  // Testacular (https://github.com/vojtajina/testacular/)
+  @Property(key = JavaScriptPlugin.TESTACULAR_FOLDER_KEY, defaultValue = JavaScriptPlugin.TESTACULAR_DEFAULT_FOLDER, name = "Testacular output folder",
+    description = "Folder where Testacular unit test and code coverage reports are located", global = true, project = true, category = "Testacular"),
+  @Property(key = JavaScriptPlugin.TESTACULAR_COVERAGE_FILE_KEY, defaultValue = JavaScriptPlugin.TESTACULAR_COVERAGE_REPORT_FILENAME, name = "Testacular lcov filename",
+    description = "Filename where Testacular generates lcov coverage data", global = true, project = true, category = "Testacular")
+
+
 })
 public class JavaScriptPlugin extends SonarPlugin {
 
@@ -74,6 +84,9 @@ public class JavaScriptPlugin extends SonarPlugin {
 
         JsTestDriverSurefireSensor.class,
         JsTestDriverCoverageSensor.class,
+
+        TestacularCoverageSensor.class,
+        TestacularJunitSensor.class,
 
         JsTestMavenInitializer.class,
         JsTestMavenPluginHandler.class,
@@ -103,5 +116,14 @@ public class JavaScriptPlugin extends SonarPlugin {
   public static final String JSTEST_DEFAULT_FOLDER = "target/jstest/report";
   public static final String JSTEST_COVERAGE_FILE_KEY = PROPERTY_PREFIX + ".jstest.coveragefile";
   public static final String JSTEST_COVERAGE_REPORT_FILENAME = "coverage.dat";
+
+  // Testacular
+  public static final String TESTACULAR_FOLDER_KEY = PROPERTY_PREFIX + ".testacular.reportsfolder";
+  public static final String TESTACULAR_DEFAULT_FOLDER = "target/testacular/report";
+  public static final String TESTACULAR_COVERAGE_FILE_KEY = PROPERTY_PREFIX + ".testacular.coveragefile";
+  public static final String TESTACULAR_COVERAGE_REPORT_FILENAME = "lcov.info";
+  public static final String TESTACULAR_BASEPATH_KEY = PROPERTY_PREFIX + ".testacular.basepath";
+  public static final String TESTACULAR_DEFAULT_BASEPATH = "";
+
 
 }

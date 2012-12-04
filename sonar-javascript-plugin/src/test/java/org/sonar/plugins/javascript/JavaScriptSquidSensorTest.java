@@ -20,6 +20,7 @@
 package org.sonar.plugins.javascript;
 
 import com.google.common.collect.ImmutableList;
+import org.apache.commons.configuration.Configuration;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -53,10 +54,20 @@ public class JavaScriptSquidSensorTest {
 
   @Test
   public void should_execute_on_javascript_project() {
-    Project project = new Project("key");
-    project.setLanguageKey("java");
+    Project project = new Project("key"){
+      @Override
+      public String getLanguageKey() {
+          return "java";
+      }
+    };
+
     assertThat(sensor.shouldExecuteOnProject(project)).isFalse();
-    project.setLanguageKey("js");
+    project = new Project("key"){
+      @Override
+      public String getLanguageKey() {
+          return "js";
+      }
+    };
     assertThat(sensor.shouldExecuteOnProject(project)).isTrue();
   }
 
