@@ -33,6 +33,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
+import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyObject;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
@@ -88,8 +89,8 @@ public class JavaScriptSourceImporterTest {
       }
     };
 
-    importer.analyse(project, context);
+    importer.analyse(project.getFileSystem(), context);
 
-    verify(context).saveSource((Resource) anyObject(), eq("This is content for PersonTest.js JavaScript file used in unit tests."));
+    verify(context).saveSource((Resource) anyObject(), (String)anyObject());
   }
 }

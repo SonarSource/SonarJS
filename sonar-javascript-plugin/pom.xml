@@ -71,6 +71,13 @@
       <artifactId>fest-assert</artifactId>
       <scope>test</scope>
     </dependency>
+    <dependency>
+      <!-- To fix JsTestDriverSurefireSensorTest -->
+      <groupId>commons-lang</groupId>
+      <artifactId>commons-lang</artifactId>
+      <version>2.6</version>
+      <scope>provided</scope>
+    </dependency>
   </dependencies>
 
   <build>
@@ -88,7 +95,7 @@
             <configuration>
               <rules>
                 <requireFilesSize>
-                  <maxsize>520000</maxsize>
+                  <maxsize>1500000</maxsize>
                   <minsize>400000</minsize>
                   <files>
                     <file>${project.build.directory}/${project.build.finalName}.jar</file>
