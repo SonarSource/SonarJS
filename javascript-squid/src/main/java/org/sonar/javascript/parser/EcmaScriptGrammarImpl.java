@@ -19,98 +19,24 @@
  */
 package org.sonar.javascript.parser;
 
-import com.sonar.sslr.impl.matcher.GrammarFunctions;
+import com.sonar.sslr.api.GenericTokenType;
 import org.sonar.javascript.api.EcmaScriptGrammar;
+import org.sonar.javascript.api.EcmaScriptKeyword;
+import org.sonar.javascript.api.EcmaScriptPunctuator;
+import org.sonar.javascript.api.EcmaScriptTokenType;
+import org.sonar.javascript.lexer.EcmaScriptLexer;
+import org.sonar.javascript.lexer.EcmaScriptRegexpChannel;
 
-import static com.sonar.sslr.api.GenericTokenType.EOF;
-import static com.sonar.sslr.api.GenericTokenType.IDENTIFIER;
-import static com.sonar.sslr.api.GenericTokenType.LITERAL;
-import static com.sonar.sslr.impl.matcher.GrammarFunctions.Predicate.next;
-import static com.sonar.sslr.impl.matcher.GrammarFunctions.Predicate.not;
-import static com.sonar.sslr.impl.matcher.GrammarFunctions.Standard.and;
-import static com.sonar.sslr.impl.matcher.GrammarFunctions.Standard.firstOf;
-import static com.sonar.sslr.impl.matcher.GrammarFunctions.Standard.o2n;
-import static com.sonar.sslr.impl.matcher.GrammarFunctions.Standard.one2n;
-import static com.sonar.sslr.impl.matcher.GrammarFunctions.Standard.opt;
-import static org.sonar.javascript.api.EcmaScriptKeyword.BREAK;
-import static org.sonar.javascript.api.EcmaScriptKeyword.CASE;
-import static org.sonar.javascript.api.EcmaScriptKeyword.CATCH;
-import static org.sonar.javascript.api.EcmaScriptKeyword.CONTINUE;
-import static org.sonar.javascript.api.EcmaScriptKeyword.DEBUGGER;
-import static org.sonar.javascript.api.EcmaScriptKeyword.DEFAULT;
-import static org.sonar.javascript.api.EcmaScriptKeyword.DELETE;
-import static org.sonar.javascript.api.EcmaScriptKeyword.DO;
-import static org.sonar.javascript.api.EcmaScriptKeyword.ELSE;
-import static org.sonar.javascript.api.EcmaScriptKeyword.FALSE;
-import static org.sonar.javascript.api.EcmaScriptKeyword.FINALLY;
-import static org.sonar.javascript.api.EcmaScriptKeyword.FOR;
-import static org.sonar.javascript.api.EcmaScriptKeyword.FUNCTION;
-import static org.sonar.javascript.api.EcmaScriptKeyword.IF;
-import static org.sonar.javascript.api.EcmaScriptKeyword.IN;
-import static org.sonar.javascript.api.EcmaScriptKeyword.INSTANCEOF;
-import static org.sonar.javascript.api.EcmaScriptKeyword.NEW;
-import static org.sonar.javascript.api.EcmaScriptKeyword.NULL;
-import static org.sonar.javascript.api.EcmaScriptKeyword.RETURN;
-import static org.sonar.javascript.api.EcmaScriptKeyword.SWITCH;
-import static org.sonar.javascript.api.EcmaScriptKeyword.THIS;
-import static org.sonar.javascript.api.EcmaScriptKeyword.THROW;
-import static org.sonar.javascript.api.EcmaScriptKeyword.TRUE;
-import static org.sonar.javascript.api.EcmaScriptKeyword.TRY;
-import static org.sonar.javascript.api.EcmaScriptKeyword.TYPEOF;
-import static org.sonar.javascript.api.EcmaScriptKeyword.VAR;
-import static org.sonar.javascript.api.EcmaScriptKeyword.VOID;
-import static org.sonar.javascript.api.EcmaScriptKeyword.WHILE;
-import static org.sonar.javascript.api.EcmaScriptKeyword.WITH;
-import static org.sonar.javascript.api.EcmaScriptPunctuator.AND;
-import static org.sonar.javascript.api.EcmaScriptPunctuator.ANDAND;
-import static org.sonar.javascript.api.EcmaScriptPunctuator.AND_EQU;
-import static org.sonar.javascript.api.EcmaScriptPunctuator.BANG;
-import static org.sonar.javascript.api.EcmaScriptPunctuator.COLON;
-import static org.sonar.javascript.api.EcmaScriptPunctuator.COMMA;
-import static org.sonar.javascript.api.EcmaScriptPunctuator.DEC;
-import static org.sonar.javascript.api.EcmaScriptPunctuator.DIV;
-import static org.sonar.javascript.api.EcmaScriptPunctuator.DIV_EQU;
-import static org.sonar.javascript.api.EcmaScriptPunctuator.DOT;
-import static org.sonar.javascript.api.EcmaScriptPunctuator.EQU;
-import static org.sonar.javascript.api.EcmaScriptPunctuator.EQUAL;
-import static org.sonar.javascript.api.EcmaScriptPunctuator.EQUAL2;
-import static org.sonar.javascript.api.EcmaScriptPunctuator.GE;
-import static org.sonar.javascript.api.EcmaScriptPunctuator.GT;
-import static org.sonar.javascript.api.EcmaScriptPunctuator.INC;
-import static org.sonar.javascript.api.EcmaScriptPunctuator.LBRACKET;
-import static org.sonar.javascript.api.EcmaScriptPunctuator.LCURLYBRACE;
-import static org.sonar.javascript.api.EcmaScriptPunctuator.LE;
-import static org.sonar.javascript.api.EcmaScriptPunctuator.LPARENTHESIS;
-import static org.sonar.javascript.api.EcmaScriptPunctuator.LT;
-import static org.sonar.javascript.api.EcmaScriptPunctuator.MINUS;
-import static org.sonar.javascript.api.EcmaScriptPunctuator.MINUS_EQU;
-import static org.sonar.javascript.api.EcmaScriptPunctuator.MOD;
-import static org.sonar.javascript.api.EcmaScriptPunctuator.MOD_EQU;
-import static org.sonar.javascript.api.EcmaScriptPunctuator.NOTEQUAL;
-import static org.sonar.javascript.api.EcmaScriptPunctuator.NOTEQUAL2;
-import static org.sonar.javascript.api.EcmaScriptPunctuator.OR;
-import static org.sonar.javascript.api.EcmaScriptPunctuator.OROR;
-import static org.sonar.javascript.api.EcmaScriptPunctuator.OR_EQU;
-import static org.sonar.javascript.api.EcmaScriptPunctuator.PLUS;
-import static org.sonar.javascript.api.EcmaScriptPunctuator.PLUS_EQU;
-import static org.sonar.javascript.api.EcmaScriptPunctuator.QUERY;
-import static org.sonar.javascript.api.EcmaScriptPunctuator.RBRACKET;
-import static org.sonar.javascript.api.EcmaScriptPunctuator.RCURLYBRACE;
-import static org.sonar.javascript.api.EcmaScriptPunctuator.RPARENTHESIS;
-import static org.sonar.javascript.api.EcmaScriptPunctuator.SEMI;
-import static org.sonar.javascript.api.EcmaScriptPunctuator.SL;
-import static org.sonar.javascript.api.EcmaScriptPunctuator.SL_EQU;
-import static org.sonar.javascript.api.EcmaScriptPunctuator.SR;
-import static org.sonar.javascript.api.EcmaScriptPunctuator.SR2;
-import static org.sonar.javascript.api.EcmaScriptPunctuator.SR_EQU;
-import static org.sonar.javascript.api.EcmaScriptPunctuator.SR_EQU2;
-import static org.sonar.javascript.api.EcmaScriptPunctuator.STAR;
-import static org.sonar.javascript.api.EcmaScriptPunctuator.STAR_EQU;
-import static org.sonar.javascript.api.EcmaScriptPunctuator.TILDA;
-import static org.sonar.javascript.api.EcmaScriptPunctuator.XOR;
-import static org.sonar.javascript.api.EcmaScriptPunctuator.XOR_EQU;
-import static org.sonar.javascript.api.EcmaScriptTokenType.NUMERIC_LITERAL;
-import static org.sonar.javascript.api.EcmaScriptTokenType.REGULAR_EXPRESSION_LITERAL;
+import static org.sonar.sslr.parser.GrammarOperators.endOfInput;
+import static org.sonar.sslr.parser.GrammarOperators.firstOf;
+import static org.sonar.sslr.parser.GrammarOperators.next;
+import static org.sonar.sslr.parser.GrammarOperators.nextNot;
+import static org.sonar.sslr.parser.GrammarOperators.oneOrMore;
+import static org.sonar.sslr.parser.GrammarOperators.optional;
+import static org.sonar.sslr.parser.GrammarOperators.regexp;
+import static org.sonar.sslr.parser.GrammarOperators.sequence;
+import static org.sonar.sslr.parser.GrammarOperators.token;
+import static org.sonar.sslr.parser.GrammarOperators.zeroOrMore;
 
 /**
  * Grammar for ECMAScript.
@@ -121,34 +47,248 @@ public class EcmaScriptGrammarImpl extends EcmaScriptGrammar {
 
   public EcmaScriptGrammarImpl() {
     eos.is(firstOf(
-        opt(SEMI),
-        next(RCURLYBRACE),
-        next(EOF)));
+        optional(semi),
+        next(rcurlybrace),
+        next(eof)));
     eosNoLb.is(firstOf(
-        opt(SEMI),
-        next(RCURLYBRACE),
-        next(EOF)));
+        optional(semi),
+        next(rcurlybrace),
+        next(eof)));
 
-    identifierName.is(IDENTIFIER);
+    identifierName.is(identifier);
 
     literal.is(firstOf(
         nullLiteral,
         booleanLiteral,
-        NUMERIC_LITERAL,
+        numericLiteral,
         stringLiteral,
         regularExpressionLiteral));
-    nullLiteral.is(NULL);
+    nullLiteral.is(nullKeyword);
     booleanLiteral.is(firstOf(
-        TRUE,
-        FALSE));
-    stringLiteral.is(LITERAL);
-    regularExpressionLiteral.is(REGULAR_EXPRESSION_LITERAL);
+        trueKeyword,
+        falseKeyword));
 
+    lexical();
     expressions();
     statements();
     functionsAndPrograms();
+  }
 
-    GrammarFunctions.enableMemoizationOfMatchesForAllRules(this);
+  /**
+   * A.1 Lexical
+   */
+  private void lexical() {
+    eof.is(token(GenericTokenType.EOF, endOfInput())).skip();
+    identifier.is(
+        nextNot(keyword),
+        token(GenericTokenType.IDENTIFIER,
+            regexp(EcmaScriptLexer.IDENTIFIER)), spacing).skip();
+    numericLiteral.is(
+        token(EcmaScriptTokenType.NUMERIC_LITERAL,
+            regexp(EcmaScriptLexer.NUMERIC_LITERAL)), spacing).skip();
+    stringLiteral.is(
+        token(GenericTokenType.LITERAL,
+            regexp(EcmaScriptLexer.LITERAL)), spacing);
+    regularExpressionLiteral.is(
+        token(EcmaScriptTokenType.REGULAR_EXPRESSION_LITERAL,
+            regexp(EcmaScriptRegexpChannel.REGEXP)), spacing);
+
+    keyword.is(firstOf(
+        "null",
+        "true",
+        "false",
+        "break",
+        "case",
+        "catch",
+        "continue",
+        "debugger",
+        "default",
+        "delete",
+        "do",
+        "else",
+        "finally",
+        "for",
+        "function",
+        "if",
+        "in",
+        "instanceof",
+        "new",
+        "return",
+        "switch",
+        "this",
+        "throw",
+        "try",
+        "typeof",
+        "var",
+        "void",
+        "while",
+        "with",
+        "class",
+        "const",
+        "enum",
+        "export",
+        "extends",
+        "super",
+        "implements",
+        "interface",
+        "yield",
+        "let",
+        "package",
+        "private",
+        "protected",
+        "public",
+        "static"
+        ), nextNot(letterOrDigit));
+    letterOrDigit.is(regexp("\\p{javaJavaIdentifierPart}"));
+
+    spacing.is(
+        regexp("\\s*+"),
+        zeroOrMore(
+            token(GenericTokenType.COMMENT, regexp(EcmaScriptLexer.COMMENT)),
+            regexp("\\s*+"))).skip();
+
+    punctuators();
+    keywords();
+  }
+
+  private void punctuators() {
+    lcurlybrace.is(punctuator("{")).skip();
+    rcurlybrace.is(punctuator("}")).skip();
+    lparenthesis.is(punctuator("(")).skip();
+    rparenthesis.is(punctuator(")")).skip();
+    lbracket.is(punctuator("[")).skip();
+    rbracket.is(punctuator("]")).skip();
+    dot.is(punctuator(".")).skip();
+    semi.is(punctuator(";")).skip();
+    comma.is(punctuator(",")).skip();
+    lt.is(punctuator("<", nextNot("="))).skip();
+    gt.is(punctuator(">", nextNot("="))).skip();
+    le.is(punctuator("<=")).skip();
+    ge.is(punctuator(">=")).skip();
+    equal.is(punctuator("==", nextNot("="))).skip();
+    notequal.is(punctuator("!=", nextNot("="))).skip();
+    equal2.is(punctuator("===")).skip();
+    notequal2.is(punctuator("!==")).skip();
+    plus.is(punctuator("+", nextNot(firstOf("+", "=")))).skip();
+    minus.is(punctuator("-", nextNot(firstOf("-", "=")))).skip();
+    start.is(punctuator("*", nextNot("="))).skip();
+    mod.is(punctuator("%", nextNot("="))).skip();
+    div.is(punctuator("/", nextNot("="))).skip();
+    inc.is(punctuator("++")).skip();
+    dec.is(punctuator("--")).skip();
+    sl.is(punctuator("<<", nextNot(firstOf("<", "=")))).skip();
+    sr.is(punctuator(">>", nextNot(firstOf(">", "=")))).skip();
+    sr2.is(punctuator(">>>")).skip();
+    and.is(punctuator("&", nextNot("&", "="))).skip();
+    or.is(punctuator("|", nextNot("="))).skip();
+    xor.is(punctuator("^", nextNot("="))).skip();
+    bang.is(punctuator("!", nextNot("="))).skip();
+    tilda.is(punctuator("~")).skip();
+    andand.is(punctuator("&&")).skip();
+    oror.is(punctuator("||")).skip();
+    query.is(punctuator("?")).skip();
+    colon.is(punctuator(":")).skip();
+    equ.is(punctuator("=", nextNot("="))).skip();
+    plusEqu.is(punctuator("+=")).skip();
+    minusEqu.is(punctuator("-=")).skip();
+    divEqu.is(punctuator("/=")).skip();
+    starEqu.is(punctuator("*=")).skip();
+    modEqu.is(punctuator("%=")).skip();
+    slEqu.is(punctuator("<<=")).skip();
+    srEqu.is(punctuator(">>=")).skip();
+    srEqu2.is(punctuator(">>>=")).skip();
+    andEqu.is(punctuator("&=")).skip();
+    orEqu.is(punctuator("|=")).skip();
+    xorEqu.is(punctuator("^=")).skip();
+  }
+
+  private void keywords() {
+    // Reserved words
+
+    nullKeyword.is(keyword("null")).skip();
+    trueKeyword.is(keyword("true")).skip();
+    falseKeyword.is(keyword("false")).skip();
+
+    // Keywords
+
+    breakKeyword.is(keyword("break")).skip();
+    caseKeyword.is(keyword("case")).skip();
+    catchKeyword.is(keyword("catch")).skip();
+    continueKeyword.is(keyword("continue")).skip();
+    debuggerKeyword.is(keyword("debugger")).skip();
+    defaultKeyword.is(keyword("default")).skip();
+    deleteKeyword.is(keyword("delete")).skip();
+    doKeyword.is(keyword("do")).skip();
+    elseKeyword.is(keyword("else")).skip();
+    finallyKeyword.is(keyword("finally")).skip();
+    forKeyword.is(keyword("for")).skip();
+    functionKeyword.is(keyword("function")).skip();
+    ifKeyword.is(keyword("if")).skip();
+    inKeyword.is(keyword("in")).skip();
+    instanceofKeyword.is(keyword("instanceof")).skip();
+    newKeyword.is(keyword("new")).skip();
+    returnKeyword.is(keyword("return")).skip();
+    switchKeyword.is(keyword("switch")).skip();
+    thisKeyword.is(keyword("this")).skip();
+    throwKeyword.is(keyword("throw")).skip();
+    tryKeyword.is(keyword("try")).skip();
+    typeofKeyword.is(keyword("typeof")).skip();
+    varKeyword.is(keyword("var")).skip();
+    voidKeyword.is(keyword("void")).skip();
+    whileKeyword.is(keyword("while")).skip();
+    withKeyword.is(keyword("with")).skip();
+
+    // Future reserved words
+
+    classKeyword.is(keyword("class")).skip();
+    constKeyword.is(keyword("const")).skip();
+    enumKeyword.is(keyword("enum")).skip();
+    exportKeyword.is(keyword("export")).skip();
+    extendsKeyword.is(keyword("extends")).skip();
+    superKeyword.is(keyword("super")).skip();
+
+    // Also considered to be "future reserved words" when parsing strict mode
+
+    implementsKeyword.is(keyword("implements")).skip();
+    interfaceKeyword.is(keyword("interface")).skip();
+    yieldKeyword.is(keyword("yield")).skip();
+    letKeyword.is(keyword("let")).skip();
+    packageKeyword.is(keyword("package")).skip();
+    privateKeyword.is(keyword("private")).skip();
+    protectedKeyword.is(keyword("protected")).skip();
+    publicKeyword.is(keyword("public")).skip();
+    staticKeyword.is(keyword("static")).skip();
+  }
+
+  private Object keyword(String value) {
+    for (EcmaScriptKeyword tokenType : EcmaScriptKeyword.values()) {
+      if (value.equals(tokenType.getValue())) {
+        return sequence(token(tokenType, value), nextNot(letterOrDigit), spacing);
+      }
+    }
+    throw new IllegalStateException(value);
+  }
+
+  private Object punctuator(String value) {
+    for (EcmaScriptPunctuator tokenType : EcmaScriptPunctuator.values()) {
+      if (value.equals(tokenType.getValue())) {
+        return sequence(token(tokenType, value), spacing);
+      }
+    }
+    throw new IllegalStateException(value);
+  }
+
+  private Object word(String value) {
+    return sequence(token(GenericTokenType.IDENTIFIER, value), spacing);
+  }
+
+  private Object punctuator(String value, Object element) {
+    for (EcmaScriptPunctuator tokenType : EcmaScriptPunctuator.values()) {
+      if (value.equals(tokenType.getValue())) {
+        return sequence(token(tokenType, value), element, spacing);
+      }
+    }
+    throw new IllegalStateException(value);
   }
 
   /**
@@ -156,107 +296,107 @@ public class EcmaScriptGrammarImpl extends EcmaScriptGrammar {
    */
   private void expressions() {
     primaryExpression.is(firstOf(
-        THIS,
-        IDENTIFIER,
+        thisKeyword,
+        identifier,
         literal,
         arrayLiteral,
         objectLiteral,
-        and(LPARENTHESIS, expression, RPARENTHESIS)));
-    arrayLiteral.is(LBRACKET, o2n(firstOf(COMMA, assignmentExpression)), RBRACKET);
-    objectLiteral.is(LCURLYBRACE, opt(propertyAssignment, o2n(COMMA, propertyAssignment), opt(COMMA)), RCURLYBRACE);
+        sequence(lparenthesis, expression, rparenthesis)));
+    arrayLiteral.is(lbracket, zeroOrMore(firstOf(comma, assignmentExpression)), rbracket);
+    objectLiteral.is(lcurlybrace, optional(propertyAssignment, zeroOrMore(comma, propertyAssignment), optional(comma)), rcurlybrace);
     propertyAssignment.is(firstOf(
-        and(propertyName, COLON, assignmentExpression),
-        and("get", propertyName, LPARENTHESIS, RPARENTHESIS, LCURLYBRACE, functionBody, RCURLYBRACE),
-        and("set", propertyName, LPARENTHESIS, propertySetParameterList, RPARENTHESIS, LCURLYBRACE, functionBody, RCURLYBRACE)));
+        sequence(propertyName, colon, assignmentExpression),
+        sequence(word("get"), propertyName, lparenthesis, rparenthesis, lcurlybrace, functionBody, rcurlybrace),
+        sequence(word("set"), propertyName, lparenthesis, propertySetParameterList, rparenthesis, lcurlybrace, functionBody, rcurlybrace)));
     propertyName.is(firstOf(
         identifierName,
         stringLiteral,
-        NUMERIC_LITERAL));
-    propertySetParameterList.is(IDENTIFIER);
+        numericLiteral));
+    propertySetParameterList.is(identifier);
     memberExpression.is(
         firstOf(
             primaryExpression,
             functionExpression,
-            and(NEW, memberExpression, arguments)),
-        o2n(firstOf(
-            and(LBRACKET, expression, RBRACKET),
-            and(DOT, identifierName))));
+            sequence(newKeyword, memberExpression, arguments)),
+        zeroOrMore(firstOf(
+            sequence(lbracket, expression, rbracket),
+            sequence(dot, identifierName))));
     newExpression.is(firstOf(
         memberExpression,
-        and(NEW, newExpression)));
+        sequence(newKeyword, newExpression)));
     callExpression.is(
-        and(memberExpression, arguments),
-        o2n(firstOf(
+        sequence(memberExpression, arguments),
+        zeroOrMore(firstOf(
             arguments,
-            and(LBRACKET, expression, RBRACKET),
-            and(DOT, identifierName))));
-    arguments.is(LPARENTHESIS, opt(assignmentExpression, o2n(COMMA, assignmentExpression)), RPARENTHESIS);
+            sequence(lbracket, expression, rbracket),
+            sequence(dot, identifierName))));
+    arguments.is(lparenthesis, optional(assignmentExpression, zeroOrMore(comma, assignmentExpression)), rparenthesis);
     leftHandSideExpression.is(firstOf(
         callExpression,
         newExpression));
-    postfixExpression.is(leftHandSideExpression, opt(/* no line terminator here */firstOf(INC, DEC)));
+    postfixExpression.is(leftHandSideExpression, optional(/* no line terminator here */firstOf(inc, dec)));
     unaryExpression.is(firstOf(
         postfixExpression,
-        and(DELETE, unaryExpression),
-        and(VOID, unaryExpression),
-        and(TYPEOF, unaryExpression),
-        and(INC, unaryExpression),
-        and(DEC, unaryExpression),
-        and(PLUS, unaryExpression),
-        and(MINUS, unaryExpression),
-        and(TILDA, unaryExpression),
-        and(BANG, unaryExpression)));
-    multiplicativeExpression.is(unaryExpression, o2n(firstOf(STAR, DIV, MOD), unaryExpression)).skipIfOneChild();
-    additiveExpression.is(multiplicativeExpression, o2n(firstOf(PLUS, MINUS), multiplicativeExpression)).skipIfOneChild();
-    shiftExpression.is(additiveExpression, o2n(firstOf(SL, SR, SR2), additiveExpression)).skipIfOneChild();
+        sequence(deleteKeyword, unaryExpression),
+        sequence(voidKeyword, unaryExpression),
+        sequence(typeofKeyword, unaryExpression),
+        sequence(inc, unaryExpression),
+        sequence(dec, unaryExpression),
+        sequence(plus, unaryExpression),
+        sequence(minus, unaryExpression),
+        sequence(tilda, unaryExpression),
+        sequence(bang, unaryExpression)));
+    multiplicativeExpression.is(unaryExpression, zeroOrMore(firstOf(start, div, mod), unaryExpression)).skipIfOneChild();
+    additiveExpression.is(multiplicativeExpression, zeroOrMore(firstOf(plus, minus), multiplicativeExpression)).skipIfOneChild();
+    shiftExpression.is(additiveExpression, zeroOrMore(firstOf(sl, sr, sr2), additiveExpression)).skipIfOneChild();
 
-    relationalExpression.is(shiftExpression, o2n(firstOf(LT, GT, LE, GE, INSTANCEOF, IN), shiftExpression)).skipIfOneChild();
-    relationalExpressionNoIn.is(shiftExpression, o2n(firstOf(LT, GT, LE, GE, INSTANCEOF), shiftExpression)).skipIfOneChild();
+    relationalExpression.is(shiftExpression, zeroOrMore(firstOf(lt, gt, le, ge, instanceofKeyword, inKeyword), shiftExpression)).skipIfOneChild();
+    relationalExpressionNoIn.is(shiftExpression, zeroOrMore(firstOf(lt, gt, le, ge, instanceofKeyword), shiftExpression)).skipIfOneChild();
 
-    equalityExpression.is(relationalExpression, o2n(firstOf(EQUAL, NOTEQUAL, EQUAL2, NOTEQUAL2), relationalExpression)).skipIfOneChild();
-    equalityExpressionNoIn.is(relationalExpressionNoIn, o2n(firstOf(EQUAL, NOTEQUAL, EQUAL2, NOTEQUAL2), relationalExpressionNoIn)).skipIfOneChild();
+    equalityExpression.is(relationalExpression, zeroOrMore(firstOf(equal, notequal, equal2, notequal2), relationalExpression)).skipIfOneChild();
+    equalityExpressionNoIn.is(relationalExpressionNoIn, zeroOrMore(firstOf(equal, notequal, equal2, notequal2), relationalExpressionNoIn)).skipIfOneChild();
 
-    bitwiseAndExpression.is(equalityExpression, o2n(AND, equalityExpression)).skipIfOneChild();
-    bitwiseAndExpressionNoIn.is(equalityExpressionNoIn, o2n(AND, equalityExpressionNoIn)).skipIfOneChild();
+    bitwiseAndExpression.is(equalityExpression, zeroOrMore(and, equalityExpression)).skipIfOneChild();
+    bitwiseAndExpressionNoIn.is(equalityExpressionNoIn, zeroOrMore(and, equalityExpressionNoIn)).skipIfOneChild();
 
-    bitwiseXorExpression.is(bitwiseAndExpression, o2n(XOR, bitwiseAndExpression)).skipIfOneChild();
-    bitwiseXorExpressionNoIn.is(bitwiseAndExpressionNoIn, o2n(XOR, bitwiseAndExpressionNoIn)).skipIfOneChild();
+    bitwiseXorExpression.is(bitwiseAndExpression, zeroOrMore(xor, bitwiseAndExpression)).skipIfOneChild();
+    bitwiseXorExpressionNoIn.is(bitwiseAndExpressionNoIn, zeroOrMore(xor, bitwiseAndExpressionNoIn)).skipIfOneChild();
 
-    bitwiseOrExpression.is(bitwiseXorExpression, o2n(OR, bitwiseXorExpression)).skipIfOneChild();
-    bitwiseOrExpressionNoIn.is(bitwiseXorExpressionNoIn, o2n(OR, bitwiseXorExpressionNoIn)).skipIfOneChild();
+    bitwiseOrExpression.is(bitwiseXorExpression, zeroOrMore(or, bitwiseXorExpression)).skipIfOneChild();
+    bitwiseOrExpressionNoIn.is(bitwiseXorExpressionNoIn, zeroOrMore(or, bitwiseXorExpressionNoIn)).skipIfOneChild();
 
-    logicalAndExpression.is(bitwiseOrExpression, o2n(ANDAND, bitwiseOrExpression)).skipIfOneChild();
-    logicalAndExpressionNoIn.is(bitwiseOrExpressionNoIn, o2n(ANDAND, bitwiseOrExpressionNoIn)).skipIfOneChild();
+    logicalAndExpression.is(bitwiseOrExpression, zeroOrMore(andand, bitwiseOrExpression)).skipIfOneChild();
+    logicalAndExpressionNoIn.is(bitwiseOrExpressionNoIn, zeroOrMore(andand, bitwiseOrExpressionNoIn)).skipIfOneChild();
 
-    logicalOrExpression.is(logicalAndExpression, o2n(OROR, logicalAndExpression)).skipIfOneChild();
-    logicalOrExpressionNoIn.is(logicalAndExpressionNoIn, o2n(OROR, logicalAndExpressionNoIn)).skipIfOneChild();
+    logicalOrExpression.is(logicalAndExpression, zeroOrMore(oror, logicalAndExpression)).skipIfOneChild();
+    logicalOrExpressionNoIn.is(logicalAndExpressionNoIn, zeroOrMore(oror, logicalAndExpressionNoIn)).skipIfOneChild();
 
-    conditionalExpression.is(logicalOrExpression, opt(QUERY, assignmentExpression, COLON, assignmentExpression)).skipIfOneChild();
-    conditionalExpressionNoIn.is(logicalOrExpressionNoIn, opt(QUERY, assignmentExpression, COLON, assignmentExpressionNoIn)).skipIfOneChild();
+    conditionalExpression.is(logicalOrExpression, optional(query, assignmentExpression, colon, assignmentExpression)).skipIfOneChild();
+    conditionalExpressionNoIn.is(logicalOrExpressionNoIn, optional(query, assignmentExpression, colon, assignmentExpressionNoIn)).skipIfOneChild();
 
     assignmentExpression.is(firstOf(
-        and(leftHandSideExpression, assignmentOperator, assignmentExpression),
+        sequence(leftHandSideExpression, assignmentOperator, assignmentExpression),
         conditionalExpression)).skipIfOneChild();
     assignmentExpressionNoIn.is(firstOf(
-        and(leftHandSideExpression, assignmentOperator, assignmentExpressionNoIn),
+        sequence(leftHandSideExpression, assignmentOperator, assignmentExpressionNoIn),
         conditionalExpressionNoIn)).skipIfOneChild();
 
     assignmentOperator.is(firstOf(
-        EQU,
-        STAR_EQU,
-        DIV_EQU,
-        MOD_EQU,
-        PLUS_EQU,
-        MINUS_EQU,
-        SL_EQU,
-        SR_EQU,
-        SR_EQU2,
-        AND_EQU,
-        XOR_EQU,
-        OR_EQU));
+        equ,
+        starEqu,
+        divEqu,
+        modEqu,
+        plusEqu,
+        minusEqu,
+        slEqu,
+        srEqu,
+        srEqu2,
+        andEqu,
+        xorEqu,
+        orEqu));
 
-    expression.is(assignmentExpression, o2n(COMMA, assignmentExpression));
-    expressionNoIn.is(assignmentExpressionNoIn, o2n(COMMA, assignmentExpressionNoIn));
+    expression.is(assignmentExpression, zeroOrMore(comma, assignmentExpression));
+    expressionNoIn.is(assignmentExpressionNoIn, zeroOrMore(comma, assignmentExpressionNoIn));
   }
 
   /**
@@ -279,66 +419,66 @@ public class EcmaScriptGrammarImpl extends EcmaScriptGrammar {
         throwStatement,
         tryStatement,
         debuggerStatement));
-    block.is(LCURLYBRACE, opt(statementList), RCURLYBRACE);
-    statementList.is(one2n(firstOf(statement, permissive(functionDeclaration))));
-    variableStatement.is(VAR, variableDeclarationList, eos);
-    variableDeclarationList.is(variableDeclaration, o2n(COMMA, variableDeclaration));
-    variableDeclarationListNoIn.is(variableDeclarationNoIn, o2n(COMMA, variableDeclarationNoIn));
-    variableDeclaration.is(IDENTIFIER, opt(initialiser));
-    variableDeclarationNoIn.is(IDENTIFIER, opt(initialiserNoIn));
-    initialiser.is(EQU, assignmentExpression);
-    initialiserNoIn.is(EQU, assignmentExpressionNoIn);
-    emptyStatement.is(SEMI);
-    expressionStatement.is(not(firstOf(LCURLYBRACE, FUNCTION)), expression, eos);
+    block.is(lcurlybrace, optional(statementList), rcurlybrace);
+    statementList.is(oneOrMore(firstOf(statement, permissive(functionDeclaration))));
+    variableStatement.is(varKeyword, variableDeclarationList, eos);
+    variableDeclarationList.is(variableDeclaration, zeroOrMore(comma, variableDeclaration));
+    variableDeclarationListNoIn.is(variableDeclarationNoIn, zeroOrMore(comma, variableDeclarationNoIn));
+    variableDeclaration.is(identifier, optional(initialiser));
+    variableDeclarationNoIn.is(identifier, optional(initialiserNoIn));
+    initialiser.is(equ, assignmentExpression);
+    initialiserNoIn.is(equ, assignmentExpressionNoIn);
+    emptyStatement.is(semi);
+    expressionStatement.is(nextNot(firstOf(lcurlybrace, functionKeyword)), expression, eos);
     condition.is(expression);
-    ifStatement.is(IF, LPARENTHESIS, condition, RPARENTHESIS, statement, opt(elseClause));
-    elseClause.is(ELSE, statement);
+    ifStatement.is(ifKeyword, lparenthesis, condition, rparenthesis, statement, optional(elseClause));
+    elseClause.is(elseKeyword, statement);
     iterationStatement.is(firstOf(
         doWhileStatement,
         whileStatement,
         forInStatement,
         forStatement));
-    doWhileStatement.is(DO, statement, WHILE, LPARENTHESIS, condition, RPARENTHESIS, eos);
-    whileStatement.is(WHILE, LPARENTHESIS, condition, RPARENTHESIS, statement);
+    doWhileStatement.is(doKeyword, statement, whileKeyword, lparenthesis, condition, rparenthesis, eos);
+    whileStatement.is(whileKeyword, lparenthesis, condition, rparenthesis, statement);
     forInStatement.is(firstOf(
-        and(FOR, LPARENTHESIS, leftHandSideExpression, IN, expression, RPARENTHESIS, statement),
-        and(FOR, LPARENTHESIS, VAR, variableDeclarationListNoIn, IN, expression, RPARENTHESIS, statement)));
+        sequence(forKeyword, lparenthesis, leftHandSideExpression, inKeyword, expression, rparenthesis, statement),
+        sequence(forKeyword, lparenthesis, varKeyword, variableDeclarationListNoIn, inKeyword, expression, rparenthesis, statement)));
     forStatement.is(firstOf(
-        and(FOR, LPARENTHESIS, opt(expressionNoIn), SEMI, opt(condition), SEMI, opt(expression), RPARENTHESIS, statement),
-        and(FOR, LPARENTHESIS, VAR, variableDeclarationListNoIn, SEMI, opt(condition), SEMI, opt(expression), RPARENTHESIS, statement)));
+        sequence(forKeyword, lparenthesis, optional(expressionNoIn), semi, optional(condition), semi, optional(expression), rparenthesis, statement),
+        sequence(forKeyword, lparenthesis, varKeyword, variableDeclarationListNoIn, semi, optional(condition), semi, optional(expression), rparenthesis, statement)));
     continueStatement.is(firstOf(
-        and(CONTINUE, /* TODO no line terminator here */IDENTIFIER, eos),
-        and(CONTINUE, eosNoLb)));
+        sequence(continueKeyword, /* TODO no line terminator here */identifier, eos),
+        sequence(continueKeyword, eosNoLb)));
     breakStatement.is(firstOf(
-        and(BREAK, /* TODO no line terminator here */IDENTIFIER, eos),
-        and(BREAK, eosNoLb)));
+        sequence(breakKeyword, /* TODO no line terminator here */identifier, eos),
+        sequence(breakKeyword, eosNoLb)));
     returnStatement.is(firstOf(
-        and(RETURN, /* TODO no line terminator here */expression, eos),
-        and(RETURN, eosNoLb)));
-    withStatement.is(WITH, LPARENTHESIS, expression, RPARENTHESIS, statement);
-    switchStatement.is(SWITCH, LPARENTHESIS, expression, RPARENTHESIS, caseBlock);
-    caseBlock.is(LCURLYBRACE, opt(caseClauses), opt(defaultClause, opt(caseClauses)), RCURLYBRACE);
-    caseClauses.is(one2n(caseClause));
-    caseClause.is(CASE, expression, COLON, opt(statementList));
-    defaultClause.is(DEFAULT, COLON, opt(statementList));
-    labelledStatement.is(IDENTIFIER, COLON, statement);
-    throwStatement.is(THROW, /* TODO no line terminator here */expression, eos);
-    tryStatement.is(TRY, block, firstOf(and(catch_, opt(finally_)), finally_));
-    catch_.is(CATCH, LPARENTHESIS, IDENTIFIER, RPARENTHESIS, block);
-    finally_.is(FINALLY, block);
-    debuggerStatement.is(DEBUGGER, eos);
+        sequence(returnKeyword, /* TODO no line terminator here */expression, eos),
+        sequence(returnKeyword, eosNoLb)));
+    withStatement.is(withKeyword, lparenthesis, expression, rparenthesis, statement);
+    switchStatement.is(switchKeyword, lparenthesis, expression, rparenthesis, caseBlock);
+    caseBlock.is(lcurlybrace, optional(caseClauses), optional(defaultClause, optional(caseClauses)), rcurlybrace);
+    caseClauses.is(oneOrMore(caseClause));
+    caseClause.is(caseKeyword, expression, colon, optional(statementList));
+    defaultClause.is(defaultKeyword, colon, optional(statementList));
+    labelledStatement.is(identifier, colon, statement);
+    throwStatement.is(throwKeyword, /* TODO no line terminator here */expression, eos);
+    tryStatement.is(tryKeyword, block, firstOf(sequence(catch_, optional(finally_)), finally_));
+    catch_.is(catchKeyword, lparenthesis, identifier, rparenthesis, block);
+    finally_.is(finallyKeyword, block);
+    debuggerStatement.is(debuggerKeyword, eos);
   }
 
   /**
    * A.5 Functions and Programs
    */
   private void functionsAndPrograms() {
-    functionDeclaration.is(FUNCTION, IDENTIFIER, LPARENTHESIS, opt(formalParameterList), RPARENTHESIS, LCURLYBRACE, functionBody, RCURLYBRACE);
-    functionExpression.is(FUNCTION, opt(IDENTIFIER), LPARENTHESIS, opt(formalParameterList), RPARENTHESIS, LCURLYBRACE, functionBody, RCURLYBRACE);
-    formalParameterList.is(IDENTIFIER, o2n(COMMA, IDENTIFIER));
-    functionBody.is(opt(sourceElements));
-    program.is(opt(sourceElements), EOF);
-    sourceElements.is(one2n(sourceElement));
+    functionDeclaration.is(functionKeyword, identifier, lparenthesis, optional(formalParameterList), rparenthesis, lcurlybrace, functionBody, rcurlybrace);
+    functionExpression.is(functionKeyword, optional(identifier), lparenthesis, optional(formalParameterList), rparenthesis, lcurlybrace, functionBody, rcurlybrace);
+    formalParameterList.is(identifier, zeroOrMore(comma, identifier));
+    functionBody.is(optional(sourceElements));
+    program.is(spacing, optional(sourceElements), eof);
+    sourceElements.is(oneOrMore(sourceElement));
     sourceElement.is(firstOf(
         statement,
         functionDeclaration));

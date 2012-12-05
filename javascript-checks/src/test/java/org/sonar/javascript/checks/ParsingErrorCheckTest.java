@@ -34,7 +34,7 @@ public class ParsingErrorCheckTest {
   public void test() {
     SourceFile file = JavaScriptAstScanner.scanSingleFile(new File("src/test/resources/checks/parsingError.js"), new ParsingErrorCheck());
     CheckMessagesVerifier.verify(file.getCheckMessages())
-        .next().atLine(3).withMessageThat(containsString("LPARENTHESIS expected but \"}\" [RCURLYBRACE] found"))
+        .next().atLine(3).withMessageThat(containsString("Parse error"))
         .noMore();
   }
 

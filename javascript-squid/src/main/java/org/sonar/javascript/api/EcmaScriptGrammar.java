@@ -19,11 +19,12 @@
  */
 package org.sonar.javascript.api;
 
-import com.sonar.sslr.api.Grammar;
 import com.sonar.sslr.api.Rule;
+import org.sonar.sslr.parser.LexerlessGrammar;
 
-public class EcmaScriptGrammar extends Grammar {
+public class EcmaScriptGrammar extends LexerlessGrammar {
 
+  protected Rule eof;
   public Rule eos;
   public Rule eosNoLb;
 
@@ -38,6 +39,120 @@ public class EcmaScriptGrammar extends Grammar {
   public Rule booleanLiteral;
   public Rule stringLiteral;
   public Rule regularExpressionLiteral;
+
+  protected Rule numericLiteral;
+  protected Rule identifier;
+
+  protected Rule keyword;
+  protected Rule letterOrDigit;
+  protected Rule spacing;
+
+  // Reserved words
+
+  protected Rule nullKeyword;
+  protected Rule trueKeyword;
+  protected Rule falseKeyword;
+
+  // Keywords
+
+  protected Rule breakKeyword;
+  protected Rule caseKeyword;
+  protected Rule catchKeyword;
+  protected Rule continueKeyword;
+  protected Rule debuggerKeyword;
+  protected Rule defaultKeyword;
+  protected Rule deleteKeyword;
+  protected Rule doKeyword;
+  protected Rule elseKeyword;
+  protected Rule finallyKeyword;
+  protected Rule forKeyword;
+  protected Rule functionKeyword;
+  protected Rule ifKeyword;
+  protected Rule inKeyword;
+  protected Rule instanceofKeyword;
+  protected Rule newKeyword;
+  protected Rule returnKeyword;
+  protected Rule switchKeyword;
+  protected Rule thisKeyword;
+  protected Rule throwKeyword;
+  protected Rule tryKeyword;
+  protected Rule typeofKeyword;
+  protected Rule varKeyword;
+  protected Rule voidKeyword;
+  protected Rule whileKeyword;
+  protected Rule withKeyword;
+
+  // Future reserved words
+
+  protected Rule classKeyword;
+  protected Rule constKeyword;
+  protected Rule enumKeyword;
+  protected Rule exportKeyword;
+  protected Rule extendsKeyword;
+  protected Rule superKeyword;
+
+  // Also considered to be "future reserved words" when parsing strict mode
+
+  protected Rule implementsKeyword;
+  protected Rule interfaceKeyword;
+  protected Rule yieldKeyword;
+  protected Rule letKeyword;
+  protected Rule packageKeyword;
+  protected Rule privateKeyword;
+  protected Rule protectedKeyword;
+  protected Rule publicKeyword;
+  protected Rule staticKeyword;
+
+  // Punctuators
+
+  protected Rule lcurlybrace;
+  protected Rule rcurlybrace;
+  protected Rule lparenthesis;
+  protected Rule rparenthesis;
+  protected Rule lbracket;
+  protected Rule rbracket;
+  protected Rule dot;
+  protected Rule semi;
+  protected Rule comma;
+  protected Rule lt;
+  protected Rule gt;
+  protected Rule le;
+  protected Rule ge;
+  protected Rule equal;
+  protected Rule notequal;
+  protected Rule equal2;
+  protected Rule notequal2;
+  protected Rule plus;
+  protected Rule minus;
+  protected Rule start;
+  protected Rule mod;
+  protected Rule div;
+  protected Rule inc;
+  protected Rule dec;
+  protected Rule sl;
+  protected Rule sr;
+  protected Rule sr2;
+  protected Rule and;
+  protected Rule or;
+  protected Rule xor;
+  protected Rule bang;
+  protected Rule tilda;
+  protected Rule andand;
+  protected Rule oror;
+  protected Rule query;
+  protected Rule colon;
+  protected Rule equ;
+  protected Rule plusEqu;
+  protected Rule minusEqu;
+  protected Rule divEqu;
+  protected Rule starEqu;
+  protected Rule modEqu;
+  protected Rule slEqu;
+  protected Rule srEqu;
+  protected Rule srEqu2;
+  protected Rule andEqu;
+  protected Rule orEqu;
+  protected Rule xorEqu;
 
   // A.3 Expressions
 

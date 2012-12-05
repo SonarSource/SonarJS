@@ -17,7 +17,7 @@
  * License along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.javascript.parser.grammar.statements;
+package org.sonar.javascript.parser.grammar.expressions;
 
 import org.junit.Test;
 import org.sonar.javascript.api.EcmaScriptGrammar;
@@ -25,17 +25,21 @@ import org.sonar.javascript.parser.EcmaScriptGrammarImpl;
 
 import static org.sonar.sslr.tests.Assertions.assertThat;
 
-public class VariableDeclarationListNoInTest {
+public class PropertyAssignmentTest {
 
   EcmaScriptGrammar g = new EcmaScriptGrammarImpl();
 
   @Test
   public void ok() {
-    g.variableDeclarationNoIn.mock();
+    g.propertyName.mock();
+    g.functionBody.mock();
+    g.propertySetParameterList.mock();
+    g.assignmentExpression.mock();
 
-    assertThat(g.variableDeclarationListNoIn)
-        .matches("variableDeclarationNoIn")
-        .matches("variableDeclarationNoIn , variableDeclarationNoIn");
+    assertThat(g.propertyAssignment)
+        .matches("propertyName : assignmentExpression")
+        .matches("get propertyName () { functionBody }")
+        .matches("set propertyName ( propertySetParameterList ) { functionBody }");
   }
 
 }

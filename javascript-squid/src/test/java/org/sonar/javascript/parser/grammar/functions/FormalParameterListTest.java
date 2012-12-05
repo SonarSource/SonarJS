@@ -19,29 +19,19 @@
  */
 package org.sonar.javascript.parser.grammar.functions;
 
-import com.google.common.base.Charsets;
-import com.sonar.sslr.impl.Parser;
-import org.junit.Before;
 import org.junit.Test;
-import org.sonar.javascript.EcmaScriptConfiguration;
 import org.sonar.javascript.api.EcmaScriptGrammar;
-import org.sonar.javascript.parser.EcmaScriptParser;
+import org.sonar.javascript.parser.EcmaScriptGrammarImpl;
 
 import static org.sonar.sslr.tests.Assertions.assertThat;
 
 public class FormalParameterListTest {
 
-  Parser<EcmaScriptGrammar> p = EcmaScriptParser.create(new EcmaScriptConfiguration(Charsets.UTF_8));
-  EcmaScriptGrammar g = p.getGrammar();
-
-  @Before
-  public void init() {
-    p.setRootRule(g.formalParameterList);
-  }
+  EcmaScriptGrammar g = new EcmaScriptGrammarImpl();
 
   @Test
   public void ok() {
-    assertThat(p)
+    assertThat(g.formalParameterList)
         .matches("IDENTIFIER")
         .matches("IDENTIFIER , IDENTIFIER");
   }

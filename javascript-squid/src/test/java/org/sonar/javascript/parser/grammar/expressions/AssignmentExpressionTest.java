@@ -19,25 +19,15 @@
  */
 package org.sonar.javascript.parser.grammar.expressions;
 
-import com.google.common.base.Charsets;
-import com.sonar.sslr.impl.Parser;
-import org.junit.Before;
 import org.junit.Test;
-import org.sonar.javascript.EcmaScriptConfiguration;
 import org.sonar.javascript.api.EcmaScriptGrammar;
-import org.sonar.javascript.parser.EcmaScriptParser;
+import org.sonar.javascript.parser.EcmaScriptGrammarImpl;
 
 import static org.sonar.sslr.tests.Assertions.assertThat;
 
 public class AssignmentExpressionTest {
 
-  Parser<EcmaScriptGrammar> p = EcmaScriptParser.create(new EcmaScriptConfiguration(Charsets.UTF_8));
-  EcmaScriptGrammar g = p.getGrammar();
-
-  @Before
-  public void init() {
-    p.setRootRule(g.assignmentExpression);
-  }
+  EcmaScriptGrammar g = new EcmaScriptGrammarImpl();
 
   @Test
   public void ok() {
@@ -45,7 +35,7 @@ public class AssignmentExpressionTest {
     g.assignmentOperator.mock();
     g.conditionalExpression.mock();
 
-    assertThat(p)
+    assertThat(g.assignmentExpression)
         .matches("conditionalExpression")
         .matches("leftHandSideExpression assignmentOperator conditionalExpression")
         .matches("leftHandSideExpression assignmentOperator leftHandSideExpression assignmentOperator conditionalExpression");
@@ -53,7 +43,7 @@ public class AssignmentExpressionTest {
 
   @Test
   public void realLife() {
-    assertThat(p)
+    assertThat(g.assignmentExpression)
         .matches("this.first = first");
   }
 

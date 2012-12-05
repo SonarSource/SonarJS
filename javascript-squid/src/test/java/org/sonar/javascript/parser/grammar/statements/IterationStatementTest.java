@@ -19,25 +19,15 @@
  */
 package org.sonar.javascript.parser.grammar.statements;
 
-import com.google.common.base.Charsets;
-import com.sonar.sslr.impl.Parser;
-import org.junit.Before;
 import org.junit.Test;
-import org.sonar.javascript.EcmaScriptConfiguration;
 import org.sonar.javascript.api.EcmaScriptGrammar;
-import org.sonar.javascript.parser.EcmaScriptParser;
+import org.sonar.javascript.parser.EcmaScriptGrammarImpl;
 
 import static org.sonar.sslr.tests.Assertions.assertThat;
 
 public class IterationStatementTest {
 
-  Parser<EcmaScriptGrammar> p = EcmaScriptParser.create(new EcmaScriptConfiguration(Charsets.UTF_8));
-  EcmaScriptGrammar g = p.getGrammar();
-
-  @Before
-  public void init() {
-    p.setRootRule(g.iterationStatement);
-  }
+  EcmaScriptGrammar g = new EcmaScriptGrammarImpl();
 
   @Test
   public void ok() {
@@ -46,7 +36,8 @@ public class IterationStatementTest {
     g.forInStatement.mock();
     g.forStatement.mock();
 
-    assertThat(p).matches("doWhileStatement")
+    assertThat(g.iterationStatement)
+        .matches("doWhileStatement")
         .matches("whileStatement")
         .matches("forInStatement")
         .matches("forStatement");
@@ -54,7 +45,7 @@ public class IterationStatementTest {
 
   @Test
   public void realLife() {
-    assertThat(p)
+    assertThat(g.iterationStatement)
         .matches("do { } while (a < b);")
         .matches("while (a < b) ;")
         .matches("for (n = 0; n < h; n++) ;");

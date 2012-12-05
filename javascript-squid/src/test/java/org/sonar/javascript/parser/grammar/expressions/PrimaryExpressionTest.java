@@ -19,25 +19,15 @@
  */
 package org.sonar.javascript.parser.grammar.expressions;
 
-import com.google.common.base.Charsets;
-import com.sonar.sslr.impl.Parser;
-import org.junit.Before;
 import org.junit.Test;
-import org.sonar.javascript.EcmaScriptConfiguration;
 import org.sonar.javascript.api.EcmaScriptGrammar;
-import org.sonar.javascript.parser.EcmaScriptParser;
+import org.sonar.javascript.parser.EcmaScriptGrammarImpl;
 
 import static org.sonar.sslr.tests.Assertions.assertThat;
 
 public class PrimaryExpressionTest {
 
-  Parser<EcmaScriptGrammar> p = EcmaScriptParser.create(new EcmaScriptConfiguration(Charsets.UTF_8));
-  EcmaScriptGrammar g = p.getGrammar();
-
-  @Before
-  public void init() {
-    p.setRootRule(g.primaryExpression);
-  }
+  EcmaScriptGrammar g = new EcmaScriptGrammarImpl();
 
   @Test
   public void ok() {
@@ -46,7 +36,8 @@ public class PrimaryExpressionTest {
     g.objectLiteral.mock();
     g.expression.mock();
 
-    assertThat(p).matches("this")
+    assertThat(g.primaryExpression)
+        .matches("this")
         .matches("identifier")
         .matches("literal")
         .matches("arrayLiteral")
@@ -56,7 +47,7 @@ public class PrimaryExpressionTest {
 
   @Test
   public void realLife() {
-    assertThat(p)
+    assertThat(g.primaryExpression)
         .matches("''");
   }
 

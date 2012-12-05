@@ -19,36 +19,26 @@
  */
 package org.sonar.javascript.parser.grammar.statements;
 
-import com.google.common.base.Charsets;
-import com.sonar.sslr.impl.Parser;
-import org.junit.Before;
 import org.junit.Test;
-import org.sonar.javascript.EcmaScriptConfiguration;
 import org.sonar.javascript.api.EcmaScriptGrammar;
-import org.sonar.javascript.parser.EcmaScriptParser;
+import org.sonar.javascript.parser.EcmaScriptGrammarImpl;
 
 import static org.sonar.sslr.tests.Assertions.assertThat;
 
 public class LabelledStatementTest {
 
-  Parser<EcmaScriptGrammar> p = EcmaScriptParser.create(new EcmaScriptConfiguration(Charsets.UTF_8));
-  EcmaScriptGrammar g = p.getGrammar();
-
-  @Before
-  public void init() {
-    p.setRootRule(g.labelledStatement);
-  }
+  EcmaScriptGrammar g = new EcmaScriptGrammarImpl();
 
   @Test
   public void ok() {
     g.statement.mock();
-    assertThat(p)
+    assertThat(g.labelledStatement)
         .matches("identifier : statement");
   }
 
   @Test
   public void realLife() {
-    assertThat(p)
+    assertThat(g.labelledStatement)
         .matches("label: doSomething();");
   }
 

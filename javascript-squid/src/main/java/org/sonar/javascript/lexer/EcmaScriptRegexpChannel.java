@@ -40,7 +40,7 @@ public class EcmaScriptRegexpChannel extends Channel<Lexer> {
 
   private static final String ESCAPE_SEQUENCE = "\\\\(?:[^\\r\\n\\u2028\\u2029ux]|u[0-9A-Fa-f]{1,4}|x[0-9A-Fa-f]{2})";
 
-  private static final String REGEXP = "^"
+  public static final String REGEXP = "^"
       + "\\/(?![*/])"  // A slash starts a regexp but only if not a comment start.
       + "(?:"  // which can contain any number of
         // chars escept charsets, escape-sequences, line-terminators, delimiters
