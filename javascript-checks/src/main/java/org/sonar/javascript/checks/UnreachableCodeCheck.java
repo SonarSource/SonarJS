@@ -25,7 +25,6 @@ import org.sonar.check.BelongsToProfile;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.javascript.api.EcmaScriptGrammar;
-import org.sonar.javascript.api.EcmaScriptKeyword;
 
 @Rule(
   key = "UnreachableCode",
@@ -51,7 +50,7 @@ public class UnreachableCodeCheck extends SquidCheck<EcmaScriptGrammar> {
 
     if (node.nextSibling() != null) {
       AstNode v = node.nextSibling();
-      if (!v.is(EcmaScriptKeyword.ELSE)) {
+      if (!v.is(getContext().getGrammar().elseClause)) {
         getContext().createLineViolation(this, "This statement can't be reached and so start a dead code block.", v);
       }
     }

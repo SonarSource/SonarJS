@@ -25,40 +25,34 @@ import org.sonar.check.BelongsToProfile;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.javascript.api.EcmaScriptGrammar;
-import org.sonar.javascript.api.EcmaScriptKeyword;
-
-import java.util.List;
 
 @Rule(
-  key = "CurlyBraces",
+  key = "ElseIfWithoutElse",
   priority = Priority.MAJOR)
 @BelongsToProfile(title = CheckList.SONAR_WAY_PROFILE, priority = Priority.MAJOR)
-public class AlwaysUseCurlyBracesCheck extends SquidCheck<EcmaScriptGrammar> {
+public class ElseIfWithoutElseCheck extends SquidCheck<EcmaScriptGrammar> {
 
   @Override
   public void init() {
-    subscribeTo(
-        getContext().getGrammar().ifStatement,
-        getContext().getGrammar().forInStatement,
-        getContext().getGrammar().forStatement,
-        getContext().getGrammar().whileStatement,
-        getContext().getGrammar().doWhileStatement,
-        getContext().getGrammar().elseClause);
+    subscribeTo(getContext().getGrammar().ifStatement);
   }
 
   @Override
-  public void visitNode(AstNode astNode) {
-    List<AstNode> statements = astNode.findDirectChildren(getContext().getGrammar().statement);
-    for (AstNode statement : statements) {
-      if (statement.getChild(0).is(getContext().getGrammar().ifStatement)
-          && statement.previousSibling().is(EcmaScriptKeyword.ELSE)) {
-        continue;
-      }
-      if (!statement.getChild(0).is(getContext().getGrammar().block)) {
-        getContext().createLineViolation(this, "Missing curly brace.", statement);
-        break;
+  public void visitNode(AstNode node) {
+    if (isElseIf(node)) {
+      AstNode elseClause = node.findFirstDirectChild(getContext().getGrammar().elseClause);
+      if (elseClause == null) {
+        getContext().createLineViolation(this, "End this if...else if construct by an else clause.", node);
       }
     }
+  }
+
+  private boolean isElseIf(AstNode node) {
+    return isElse(node.getParent().getParent());
+  }
+
+  private boolean isElse(AstNode node) {
+    return node != null && node.is(getContext().getGrammar().elseClause);
   }
 
 }

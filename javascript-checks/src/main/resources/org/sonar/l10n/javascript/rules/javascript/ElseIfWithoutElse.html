@@ -1,0 +1,36 @@
+<p>
+This rule applies whenever an if statement is followed by one or more else if statements; the final else if shall be followed by an else statement.
+In the case of a simple if statement then the else statement need not be included.
+The requirement for a final else statement is defensive programming.
+The else statement should either take appropriate action or contain a suitable comment as to why no action is taken.
+This is consistent with the requirement to have a final default clause in a switch statement.
+</p>
+
+<p>
+The following code snippet illustrates this rule:
+</p>
+
+<pre>
+int x = 0;
+
+// This "if" statement is fine, since it has no "else if" clause, no "else" is required
+if (x == 0) {
+  x = 42;
+}
+
+// This "if" statement is also fine
+if (x == 0) {
+  x = 42;
+} else {
+  x = -42;
+}
+
+// This "if" statement is bad, because it has an "else if" but no "else" clause
+if (x == 0) {
+  x = 42;
+} else if (x == 1) {
+  x = -42;
+} else if (x == 2) { // Non-Compliant
+  x = 0;
+}
+</pre>

@@ -65,6 +65,7 @@ public final class CheckList {
         ContinueStatementCheck.class,
         HtmlCommentsCheck.class,
         EmptyBlockCheck.class,
+        ElseIfWithoutElseCheck.class,
         NestedIfDepthCheck.class);
   }
 

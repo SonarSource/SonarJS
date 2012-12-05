@@ -291,7 +291,8 @@ public class EcmaScriptGrammarImpl extends EcmaScriptGrammar {
     emptyStatement.is(SEMI);
     expressionStatement.is(not(firstOf(LCURLYBRACE, FUNCTION)), expression, eos);
     condition.is(expression);
-    ifStatement.is(IF, LPARENTHESIS, condition, RPARENTHESIS, statement, opt(ELSE, statement));
+    ifStatement.is(IF, LPARENTHESIS, condition, RPARENTHESIS, statement, opt(elseClause));
+    elseClause.is(ELSE, statement);
     iterationStatement.is(firstOf(
         doWhileStatement,
         whileStatement,
