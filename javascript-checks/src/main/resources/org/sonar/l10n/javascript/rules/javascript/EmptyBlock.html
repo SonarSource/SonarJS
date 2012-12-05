@@ -1,0 +1,21 @@
+<p>
+In most cases, en empty block represents a missing implementation:
+</p>
+
+<pre>
+if (something) { // Non-Compliant
+  // What ?
+}
+
+if (something) { // Compliant
+  doSomething();
+}
+
+for (var i = 0; i < length; i++) { // Non-Compliant
+  // Empty on purpose or missing piece of code ?
+}
+
+for (var i = 0; i < length; i++) { // Compliant
+  doSomething();
+}
+</pre>
