@@ -66,18 +66,18 @@ public final class EcmaScriptLexer {
       + "|[0-9]++" + INT_SUFFIX + "?+"
       + ")";
 
-  public static String LITERAL = "(?:"
+  public static final String LITERAL = "(?:"
       + "\"([^\"\\\\]*+(\\\\[\\s\\S])?+)*+\""
       + "|'([^'\\\\]*+(\\\\[\\s\\S])?+)*+'"
       + ")";
 
-  public static String COMMENT = "(?:"
+  public static final String COMMENT = "(?:"
       + "//[^\\n\\r]*+"
       + "|<!--[^\\n\\r]*+"
       + "|/\\*[\\s\\S]*?\\*/"
       + ")";
 
-  public static String IDENTIFIER = "\\p{javaJavaIdentifierStart}++\\p{javaJavaIdentifierPart}*+";
+  public static final String IDENTIFIER = "\\p{javaJavaIdentifierStart}++\\p{javaJavaIdentifierPart}*+";
 
   public static Lexer create(EcmaScriptConfiguration conf) {
     return Lexer.builder()
