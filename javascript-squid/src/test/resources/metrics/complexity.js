@@ -13,11 +13,11 @@ function example() // +1 functionDeclaration
   {
   }
 
-  switch (foo) // +1 switchStatement
+  switch (foo) // +0 switchStatement
   {
     case 1: // +1 caseClause
     case 2: // +1 caseClause
-    default: // +1 defaultClause
+    default: // +0 defaultClause
     ;
   }
 
@@ -33,5 +33,5 @@ function example() // +1 functionDeclaration
 
   func = function(){}; // +1 functionExpression
 
-  return 1; // +1 returnStatement
+  return 1; // +0 last returnStatement
 }

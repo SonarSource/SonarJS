@@ -21,13 +21,15 @@ package org.sonar.javascript;
 
 import com.google.common.base.Charsets;
 import com.sonar.sslr.api.AstNode;
-import com.sonar.sslr.api.AstNodeType;
 import com.sonar.sslr.impl.Parser;
 import com.sonar.sslr.squid.*;
-import com.sonar.sslr.squid.metrics.*;
+import com.sonar.sslr.squid.metrics.CommentsVisitor;
+import com.sonar.sslr.squid.metrics.CounterVisitor;
+import com.sonar.sslr.squid.metrics.LinesOfCodeVisitor;
+import com.sonar.sslr.squid.metrics.LinesVisitor;
 import org.sonar.javascript.api.EcmaScriptGrammar;
 import org.sonar.javascript.api.EcmaScriptMetric;
-import org.sonar.javascript.api.EcmaScriptPunctuator;
+import org.sonar.javascript.metrics.ComplexityVisitor;
 import org.sonar.javascript.parser.EcmaScriptParser;
 import org.sonar.squid.api.SourceCode;
 import org.sonar.squid.api.SourceFile;
@@ -115,30 +117,7 @@ public final class JavaScriptAstScanner {
             parser.getGrammar().debuggerStatement)
         .build());
 
-    AstNodeType[] complexityAstNodeType = new AstNodeType[] {
-      // Entry points
-      parser.getGrammar().functionDeclaration,
-      parser.getGrammar().functionExpression,
-
-      // Branching nodes
-      parser.getGrammar().ifStatement,
-      parser.getGrammar().iterationStatement,
-      parser.getGrammar().switchStatement,
-      parser.getGrammar().caseClause,
-      parser.getGrammar().defaultClause,
-      parser.getGrammar().catch_,
-      parser.getGrammar().returnStatement,
-      parser.getGrammar().throwStatement,
-
-      // Expressions
-      EcmaScriptPunctuator.QUERY,
-      EcmaScriptPunctuator.ANDAND,
-      EcmaScriptPunctuator.OROR
-    };
-    builder.withSquidAstVisitor(ComplexityVisitor.<EcmaScriptGrammar> builder()
-        .setMetricDef(EcmaScriptMetric.COMPLEXITY)
-        .subscribeTo(complexityAstNodeType)
-        .build());
+    builder.withSquidAstVisitor(new ComplexityVisitor());
 
     /* External visitors (typically Check ones) */
     for (SquidAstVisitor<EcmaScriptGrammar> visitor : visitors) {
