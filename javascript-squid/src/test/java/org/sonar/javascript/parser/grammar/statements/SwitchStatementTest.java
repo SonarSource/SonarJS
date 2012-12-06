@@ -38,7 +38,8 @@ public class SwitchStatementTest {
         .matches("switch ( expression ) { }")
         .matches("switch ( expression ) { case expression : statementList }")
         .matches("switch ( expression ) { case expression : statementList default : statementList }")
-        .matches("switch ( expression ) { case expression : statementList default : statementList case expression : statementList }");
+        .matches("switch ( expression ) { case expression : statementList default : statementList case expression : statementList }")
+        .notMatches("switch ( expression ) { default : statement List default : statementList }");
   }
 
 }

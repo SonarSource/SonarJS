@@ -35,7 +35,7 @@ public class NonEmptyCaseWithoutBreakCheckTest {
     SourceFile file = JavaScriptAstScanner.scanSingleFile(new File("src/test/resources/checks/nonEmptyCaseWithoutBreak.js"), check);
     CheckMessagesVerifier.verify(file.getCheckMessages())
         .next().atLine(9).withMessage("Last statement in this switch-clause should be an unconditional break.")
-        .next().atLine(11)
+        .next().atLine(16)
         .noMore();
   }
 
