@@ -55,7 +55,9 @@ public class EcmaScriptGrammarImpl extends EcmaScriptGrammar {
         next(rcurlybrace),
         next(eof)));
 
-    identifierName.is(identifier);
+    identifierName.is(
+        token(GenericTokenType.IDENTIFIER,
+            regexp(EcmaScriptLexer.IDENTIFIER)), spacing);
 
     literal.is(firstOf(
         nullLiteral,
