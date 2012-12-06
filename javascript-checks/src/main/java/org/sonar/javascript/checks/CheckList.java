@@ -67,6 +67,7 @@ public final class CheckList {
         EmptyBlockCheck.class,
         ElseIfWithoutElseCheck.class,
         ExcessiveParameterListCheck.class,
+        CollapsibleIfStatementsCheck.class,
         NestedIfDepthCheck.class);
   }
 

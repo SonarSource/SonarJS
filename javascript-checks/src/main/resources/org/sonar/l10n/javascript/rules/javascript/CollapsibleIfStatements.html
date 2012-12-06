@@ -1,0 +1,19 @@
+<p>
+Several 'if' statements can be consolidated by separating their conditions with a boolean short-circuit operator.
+</p>
+
+<p>
+The following code snippet illustrates this rule :
+</p>
+
+<pre>
+if (condition1) { // Non-Compliant
+  if (condition2) {
+    doSomething();
+  }
+}
+// Should be replaced by:
+if (condition1 && condition2){ // Compliant
+  doSomething();
+}
+</pre>
