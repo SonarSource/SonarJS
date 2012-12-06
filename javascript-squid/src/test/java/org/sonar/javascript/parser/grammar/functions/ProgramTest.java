@@ -40,6 +40,10 @@ public class ProgramTest {
         .matches("var r = /^\\s+/;")
         .matches("function func() { doSomething() }");
 
+    assertThat(g.program).matches(code(
+        "#!/usr/bin/env node",
+        "function func() { }"));
+
     // http://www.w3schools.com/js/tryit.asp?filename=tryjs_ifthenelse
     assertThat(g.program).matches(code(
         "var d = new Date();",

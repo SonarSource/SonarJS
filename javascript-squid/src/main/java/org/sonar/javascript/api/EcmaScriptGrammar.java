@@ -241,6 +241,8 @@ public class EcmaScriptGrammar extends LexerlessGrammar {
   public Rule sourceElements;
   public Rule sourceElement;
 
+  protected Rule shebang;
+
   @Override
   public Rule getRootRule() {
     return program;

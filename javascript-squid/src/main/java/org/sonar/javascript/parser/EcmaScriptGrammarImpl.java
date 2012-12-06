@@ -477,11 +477,13 @@ public class EcmaScriptGrammarImpl extends EcmaScriptGrammar {
     functionExpression.is(functionKeyword, optional(identifier), lparenthesis, optional(formalParameterList), rparenthesis, lcurlybrace, functionBody, rcurlybrace);
     formalParameterList.is(identifier, zeroOrMore(comma, identifier));
     functionBody.is(optional(sourceElements));
-    program.is(spacing, optional(sourceElements), eof);
+    program.is(optional(shebang), spacing, optional(sourceElements), eof);
     sourceElements.is(oneOrMore(sourceElement));
     sourceElement.is(firstOf(
         statement,
         functionDeclaration));
+
+    shebang.is("#!", regexp("[^\\n\\r]*+")).skip();
   }
 
   /**
