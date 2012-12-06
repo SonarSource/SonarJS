@@ -130,17 +130,7 @@ public class EcmaScriptGrammarImpl extends EcmaScriptGrammar {
         "enum",
         "export",
         "extends",
-        "super",
-        "implements",
-        "interface",
-        "yield",
-        "let",
-        "package",
-        "private",
-        "protected",
-        "public",
-        "static"
-        ), nextNot(letterOrDigit));
+        "super"), nextNot(letterOrDigit));
     letterOrDigit.is(regexp("\\p{javaJavaIdentifierPart}"));
 
     spacing.is(
@@ -248,18 +238,6 @@ public class EcmaScriptGrammarImpl extends EcmaScriptGrammar {
     exportKeyword.is(keyword("export")).skip();
     extendsKeyword.is(keyword("extends")).skip();
     superKeyword.is(keyword("super")).skip();
-
-    // Also considered to be "future reserved words" when parsing strict mode
-
-    implementsKeyword.is(keyword("implements")).skip();
-    interfaceKeyword.is(keyword("interface")).skip();
-    yieldKeyword.is(keyword("yield")).skip();
-    letKeyword.is(keyword("let")).skip();
-    packageKeyword.is(keyword("package")).skip();
-    privateKeyword.is(keyword("private")).skip();
-    protectedKeyword.is(keyword("protected")).skip();
-    publicKeyword.is(keyword("public")).skip();
-    staticKeyword.is(keyword("static")).skip();
   }
 
   private Object keyword(String value) {

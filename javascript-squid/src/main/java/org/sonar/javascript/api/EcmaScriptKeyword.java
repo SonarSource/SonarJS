@@ -66,19 +66,7 @@ public enum EcmaScriptKeyword implements TokenType {
   ENUM("enum"),
   EXPORT("export"),
   EXTENDS("extends"),
-  SUPER("super"),
-
-  // Also considered to be "future reserved words" when parsing strict mode
-
-  IMPLEMENTS("implements"),
-  INTERFACE("interface"),
-  YIELD("yield"),
-  LET("let"),
-  PACKAGE("package"),
-  PRIVATE("private"),
-  PROTECTED("protected"),
-  PUBLIC("public"),
-  STATIC("static");
+  SUPER("super");
 
   private final String value;
 

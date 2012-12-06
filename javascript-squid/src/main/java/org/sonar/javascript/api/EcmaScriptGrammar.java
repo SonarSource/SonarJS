@@ -19,6 +19,7 @@
  */
 package org.sonar.javascript.api;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.sonar.sslr.api.Rule;
 import org.sonar.sslr.parser.LexerlessGrammar;
 
@@ -41,7 +42,8 @@ public class EcmaScriptGrammar extends LexerlessGrammar {
   public Rule regularExpressionLiteral;
 
   protected Rule numericLiteral;
-  protected Rule identifier;
+  @VisibleForTesting
+  public Rule identifier;
 
   protected Rule keyword;
   protected Rule letterOrDigit;
@@ -90,18 +92,6 @@ public class EcmaScriptGrammar extends LexerlessGrammar {
   protected Rule exportKeyword;
   protected Rule extendsKeyword;
   protected Rule superKeyword;
-
-  // Also considered to be "future reserved words" when parsing strict mode
-
-  protected Rule implementsKeyword;
-  protected Rule interfaceKeyword;
-  protected Rule yieldKeyword;
-  protected Rule letKeyword;
-  protected Rule packageKeyword;
-  protected Rule privateKeyword;
-  protected Rule protectedKeyword;
-  protected Rule publicKeyword;
-  protected Rule staticKeyword;
 
   // Punctuators
 

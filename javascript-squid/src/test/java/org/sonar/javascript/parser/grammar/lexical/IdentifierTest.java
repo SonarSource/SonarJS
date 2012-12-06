@@ -17,23 +17,30 @@
  * License along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.javascript.api;
+package org.sonar.javascript.parser.grammar.lexical;
 
 import org.junit.Test;
+import org.sonar.javascript.api.EcmaScriptGrammar;
+import org.sonar.javascript.parser.EcmaScriptGrammarImpl;
 
-import static org.fest.assertions.Assertions.assertThat;
+import static org.sonar.sslr.tests.Assertions.assertThat;
 
-public class EcmaScriptKeywordTest {
+public class IdentifierTest {
+
+  EcmaScriptGrammar g = new EcmaScriptGrammarImpl();
 
   @Test
-  public void test() {
-    assertThat(EcmaScriptKeyword.values().length).isEqualTo(35);
-    assertThat(EcmaScriptKeyword.keywordValues().length).isEqualTo(EcmaScriptKeyword.values().length);
-
-    for (EcmaScriptKeyword keyword : EcmaScriptKeyword.values()) {
-      assertThat(keyword.getName()).isEqualTo(keyword.name());
-      assertThat(keyword.hasToBeSkippedFromAst(null)).isFalse();
-    }
+  public void ok() {
+    assertThat(g.identifier).as("future reserved words")
+        .matches("implements")
+        .matches("interface")
+        .matches("let")
+        .matches("package")
+        .matches("private")
+        .matches("protected")
+        .matches("public")
+        .matches("static")
+        .matches("yield");
   }
 
 }
