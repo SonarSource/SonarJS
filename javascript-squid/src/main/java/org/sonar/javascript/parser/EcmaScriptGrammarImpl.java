@@ -142,10 +142,10 @@ public class EcmaScriptGrammarImpl extends EcmaScriptGrammar {
     letterOrDigit.is(regexp("\\p{javaJavaIdentifierPart}"));
 
     spacing.is(
-        regexp("\\s*+"),
+        regexp(EcmaScriptLexer.WHITESPACE + "*+"),
         zeroOrMore(
             token(GenericTokenType.COMMENT, regexp(EcmaScriptLexer.COMMENT)),
-            regexp("\\s*+"))).skip();
+            regexp(EcmaScriptLexer.WHITESPACE + "*+"))).skip();
 
     punctuators();
     keywords();

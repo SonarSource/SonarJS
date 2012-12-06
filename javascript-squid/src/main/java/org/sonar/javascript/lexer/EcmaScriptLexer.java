@@ -79,6 +79,11 @@ public final class EcmaScriptLexer {
 
   public static final String IDENTIFIER = "\\p{javaJavaIdentifierStart}++\\p{javaJavaIdentifierPart}*+";
 
+  /**
+   * Tab, Vertical Tab, Form Feed, Space, No-break space, Byte Order Mark
+   */
+  public static final String WHITESPACE = "[\\t\\u000B\\f\\u0020\\u00A0\\uFEFF\\n\\r]";
+
   public static Lexer create(EcmaScriptConfiguration conf) {
     return Lexer.builder()
         .withCharset(conf.getCharset())
@@ -87,7 +92,7 @@ public final class EcmaScriptLexer {
 
         // Channels, which consumes more frequently should come first.
         // Whitespace character occurs more frequently than any other, and thus come first:
-        .withChannel(new BlackHoleChannel("\\s++"))
+        .withChannel(new BlackHoleChannel(WHITESPACE + "++"))
 
         // Comments
         .withChannel(commentRegexp(COMMENT))

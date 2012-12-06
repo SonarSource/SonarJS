@@ -44,6 +44,8 @@ public class ProgramTest {
         "#!/usr/bin/env node",
         "function func() { }"));
 
+    assertThat(g.program).matches("\uFEFF");
+
     // http://www.w3schools.com/js/tryit.asp?filename=tryjs_ifthenelse
     assertThat(g.program).matches(code(
         "var d = new Date();",
