@@ -1,0 +1,14 @@
+<p>
+Some people like to call constructor functions without assigning its result to any variable.
+There is no advantage in this approach over simply calling constructor function since the object that the operator new creates isn't used anywhere.
+So such kind of syntax is misleading and should be avoided.
+</p>
+
+<p>
+The following code snippet illustrates this rule :
+</p>
+
+<pre>
+var something = new MyConstructor();  // Compliant
+new MyConstructor(); // Non-Compliant
+</pre>
