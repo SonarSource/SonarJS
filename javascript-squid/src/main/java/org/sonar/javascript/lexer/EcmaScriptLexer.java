@@ -77,12 +77,23 @@ public final class EcmaScriptLexer {
       + "|/\\*[\\s\\S]*?\\*/"
       + ")";
 
-  public static final String IDENTIFIER = "\\p{javaJavaIdentifierStart}++\\p{javaJavaIdentifierPart}*+";
+  private static final String HEX_DIGIT = "[0-9a-fA-F]";
+  private static final String UNICODE_ESCAPE_SEQUENCE = "u" + HEX_DIGIT + HEX_DIGIT + HEX_DIGIT + HEX_DIGIT;
+
+  private static final String UNICODE_LETTER = "\\p{Lu}\\p{Ll}\\p{Lt}\\p{Lm}\\p{Lo}\\p{Nl}";
+  private static final String UNICODE_COMBINING_MARK = "\\p{Mn}\\p{Mc}";
+  private static final String UNICODE_DIGIT = "\\p{Nd}";
+  private static final String UNICODE_CONNECTOR_PUNCTUATION = "\\p{Pc}";
+
+  private static final String IDENTIFIER_START = "(?:[$_" + UNICODE_LETTER + "]|\\\\" + UNICODE_ESCAPE_SEQUENCE + ")";
+  private static final String IDENTIFIER_PART = "(?:" + IDENTIFIER_START + "|[" + UNICODE_COMBINING_MARK + UNICODE_DIGIT + UNICODE_CONNECTOR_PUNCTUATION + "])";
+
+  public static final String IDENTIFIER = IDENTIFIER_START + IDENTIFIER_PART + "*+";
 
   /**
-   * Tab, Vertical Tab, Form Feed, Space, No-break space, Byte Order Mark
+   * Tab, Vertical Tab, Form Feed, Space, No-break space, Byte Order Mark, Any other Unicode "space separator"
    */
-  public static final String WHITESPACE = "[\\t\\u000B\\f\\u0020\\u00A0\\uFEFF\\n\\r]";
+  public static final String WHITESPACE = "[\\n\\r\\t\\u000B\\f\\u0020\\u00A0\\uFEFF\\p{Zs}]";
 
   public static Lexer create(EcmaScriptConfiguration conf) {
     return Lexer.builder()

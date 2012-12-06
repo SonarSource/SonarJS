@@ -144,6 +144,7 @@ public class EcmaScriptLexerTest {
     assertThat(lexer.lex("$"), hasToken("$", GenericTokenType.IDENTIFIER));
     assertThat(lexer.lex("_"), hasToken("_", GenericTokenType.IDENTIFIER));
     assertThat(lexer.lex("identifier"), hasToken("identifier", GenericTokenType.IDENTIFIER));
+    assertThat(lexer.lex("i42"), hasToken("i42", GenericTokenType.IDENTIFIER));
   }
 
   @Test
