@@ -93,7 +93,7 @@ public class EcmaScriptGrammarImpl extends EcmaScriptGrammar {
             regexp(EcmaScriptLexer.LITERAL)), spacing);
     regularExpressionLiteral.is(
         token(EcmaScriptTokenType.REGULAR_EXPRESSION_LITERAL,
-            regexp(EcmaScriptRegexpChannel.REGEXP)), spacing);
+            regexp(EcmaScriptRegexpChannel.REGEXP)), spacing).skip();
 
     keyword.is(firstOf(
         "null",

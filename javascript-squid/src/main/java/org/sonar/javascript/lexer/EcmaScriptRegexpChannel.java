@@ -47,12 +47,12 @@ public class EcmaScriptRegexpChannel extends Channel<Lexer> {
         + "[^\\\\\\[/\\r\\n\\u2028\\u2029]"
         // or a charset
         + "|\\["  // that starts with a '['
-          + "(?:"  // and contains at least one of
+          + "(?:"  // and may contain one of
             // chars except charset ends, escape sequences, line terminators
             + "[^\\]\\\\\\r\\n\\u2028\\u2029]"
             // or an escape sequence.  Line continuations are not allowed in regexs.
             + "|" + ESCAPE_SEQUENCE
-          + ")++"
+          + ")*+"
         + "\\]"  // finished by a ']'
         // or an escape sequence.
       + "|" + ESCAPE_SEQUENCE

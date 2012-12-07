@@ -39,9 +39,12 @@ public class EcmaScriptGrammar extends LexerlessGrammar {
   public Rule nullLiteral;
   public Rule booleanLiteral;
   public Rule stringLiteral;
+
+  @VisibleForTesting
   public Rule regularExpressionLiteral;
 
   protected Rule numericLiteral;
+
   @VisibleForTesting
   public Rule identifier;
 
