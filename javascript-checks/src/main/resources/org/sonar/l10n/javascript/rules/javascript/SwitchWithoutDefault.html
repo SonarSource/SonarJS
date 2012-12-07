@@ -8,7 +8,7 @@ The following code snippet illustrates this rule:
 </p>
 
 <pre>
-switch (param) { // Non-compliant - default clause is missing
+switch (param) { // Non-Compliant - default clause is missing
   case 0:
     doSomething();
     break;
@@ -18,7 +18,7 @@ switch (param) { // Non-compliant - default clause is missing
 }
 
 switch (param) {
-  default: // Non-compliant - default clause should be the last one
+  default: // Non-Compliant - default clause should be the last one
     doSomething();
     break;
   case 0:
