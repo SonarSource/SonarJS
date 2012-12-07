@@ -35,13 +35,12 @@ public class ConstructorFunctionsForSideEffectsCheck extends SquidCheck<EcmaScri
 
   @Override
   public void init() {
-    subscribeTo(EcmaScriptKeyword.NEW);
+    subscribeTo(getContext().getGrammar().statement);
   }
 
   @Override
   public void visitNode(AstNode astNode) {
-    AstNode unaryExpression = astNode.findFirstParent(getContext().getGrammar().unaryExpression);
-    if (!unaryExpression.getParent().is(getContext().getGrammar().assignmentExpression, getContext().getGrammar().initialiser)) {
+    if (astNode.getToken().getType() == EcmaScriptKeyword.NEW) {
       getContext().createLineViolation(this, "Replace by a standard call to the function.", astNode);
     }
   }
