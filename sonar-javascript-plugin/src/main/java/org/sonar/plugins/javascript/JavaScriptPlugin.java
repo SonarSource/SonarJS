@@ -39,23 +39,56 @@ import java.util.List;
 
 @Properties({
   // Global JavaScript settings
-  @Property(key = JavaScriptPlugin.FILE_SUFFIXES_KEY, defaultValue = JavaScriptPlugin.FILE_SUFFIXES_DEFVALUE, name = "File suffixes",
-    description = "Comma-separated list of suffixes for files to analyze. To not filter, leave the list empty.", global = true,
+  @Property(
+    key = JavaScriptPlugin.FILE_SUFFIXES_KEY,
+    defaultValue = JavaScriptPlugin.FILE_SUFFIXES_DEFVALUE,
+    name = "File suffixes",
+    description = "Comma-separated list of suffixes for files to analyze.",
+    global = true,
     project = true),
-  @Property(key = JavaScriptPlugin.TEST_FRAMEWORK_KEY, defaultValue = JavaScriptPlugin.TEST_FRAMEWORK_DEFAULT, name = "JavaScript test framework to use",
-    description = "Testing framework to use (jstest or jstestdriver)", global = true, project = true),
+  @Property(
+    key = JavaScriptPlugin.TEST_FRAMEWORK_KEY,
+    defaultValue = JavaScriptPlugin.TEST_FRAMEWORK_DEFAULT,
+    name = "JavaScript testing framework to use",
+    description = "Testing framework to use (jstest or jstestdriver).",
+    global = true,
+    project = true),
 
   // JsTestDriver (http://code.google.com/p/js-test-driver/)
-  @Property(key = JavaScriptPlugin.JSTESTDRIVER_FOLDER_KEY, defaultValue = JavaScriptPlugin.JSTESTDRIVER_DEFAULT_FOLDER, name = "JSTestDriver output folder",
-    description = "Folder where JsTestDriver unit test and code coverage reports are located", global = true, project = true, category = "JSTestDriver"),
-  @Property(key = JavaScriptPlugin.JSTESTDRIVER_COVERAGE_FILE_KEY, defaultValue = JavaScriptPlugin.JSTESTDRIVER_COVERAGE_REPORT_FILENAME, name = "JSTestDriver coverage filename",
-    description = "Filename where JsTestDriver generates coverage data", global = true, project = true, category = "JSTestDriver"),
+  @Property(
+    key = JavaScriptPlugin.JSTESTDRIVER_FOLDER_KEY,
+    defaultValue = JavaScriptPlugin.JSTESTDRIVER_DEFAULT_FOLDER,
+    name = "JSTestDriver output folder",
+    description = "Folder where JsTestDriver unit test and code coverage reports are located.",
+    global = true,
+    project = true,
+    category = "JSTestDriver"),
+  @Property(
+    key = JavaScriptPlugin.JSTESTDRIVER_COVERAGE_FILE_KEY,
+    defaultValue = JavaScriptPlugin.JSTESTDRIVER_COVERAGE_REPORT_FILENAME,
+    name = "JSTestDriver coverage filename",
+    description = "Filename where JsTestDriver generates coverage data.",
+    global = true,
+    project = true,
+    category = "JSTestDriver"),
 
   // JsTest (https://github.com/awired/jstest-maven-plugin)
-  @Property(key = JavaScriptPlugin.JSTEST_FOLDER_KEY, defaultValue = JavaScriptPlugin.JSTEST_DEFAULT_FOLDER, name = "JSTest output folder",
-    description = "Folder where JsTest unit test and code coverage reports are located", global = true, project = true, category = "JSTest"),
-  @Property(key = JavaScriptPlugin.JSTEST_COVERAGE_FILE_KEY, defaultValue = JavaScriptPlugin.JSTEST_COVERAGE_REPORT_FILENAME, name = "JSTest coverage filename",
-    description = "Filename where JsTest generates coverage data", global = true, project = true, category = "JSTest")
+  @Property(
+    key = JavaScriptPlugin.JSTEST_FOLDER_KEY,
+    defaultValue = JavaScriptPlugin.JSTEST_DEFAULT_FOLDER,
+    name = "JSTest output folder",
+    description = "Folder where JsTest unit test and code coverage reports are located.",
+    global = true,
+    project = true,
+    category = "JSTest"),
+  @Property(
+    key = JavaScriptPlugin.JSTEST_COVERAGE_FILE_KEY,
+    defaultValue = JavaScriptPlugin.JSTEST_COVERAGE_REPORT_FILENAME,
+    name = "JSTest coverage filename",
+    description = "Filename where JsTest generates coverage data.",
+    global = true,
+    project = true,
+    category = "JSTest")
 })
 public class JavaScriptPlugin extends SonarPlugin {
 
