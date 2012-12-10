@@ -70,6 +70,7 @@ public final class CheckList {
         CollapsibleIfStatementsCheck.class,
         ConstructorFunctionsForSideEffectsCheck.class,
         FutureReservedWordsCheck.class,
+        DuplicateFunctionArgumentCheck.class,
         NestedIfDepthCheck.class);
   }
 

@@ -48,7 +48,7 @@ public class JavaScriptProfileTest {
     assertThat(profile.getLanguage()).isEqualTo(JavaScript.KEY);
     assertThat(profile.getName()).isEqualTo(RulesProfile.SONAR_WAY_NAME);
     assertThat(profile.getActiveRulesByRepository(CheckList.REPOSITORY_KEY))
-        .hasSize(29);
+        .hasSize(30);
     assertThat(validation.hasErrors()).isFalse();
   }
 
