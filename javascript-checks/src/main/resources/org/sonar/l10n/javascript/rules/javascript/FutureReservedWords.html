@@ -1,0 +1,25 @@
+<p>
+The following words may be used as keywords in future evolutions of the language, so using them as identifiers should be avoided to allow an easier adoption of those potential future evolutions:
+<ul>
+  <li>implements</li>
+  <li>let</li>
+  <li>private</li>
+  <li>public</li>
+  <li>yield</li>
+  <li>interface</li>
+  <li>package</li>
+  <li>protected</li>
+  <li>static</li>
+</ul>
+Usage of those words as identifiers would produce an error in JavaScript strict mode code.
+</p>
+
+<p>
+The following code snippet illustrates this rule :
+</p>
+
+<pre>
+var package = document.getElementsByName("foo"); // Non-Compliant
+var elements = document.getElementsByName("foo"); // Compliant
+var data = { package: true }; // Compliant, as it is not used as an identifier here
+</pre>

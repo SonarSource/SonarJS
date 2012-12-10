@@ -84,7 +84,7 @@ public class EcmaScriptGrammarImpl extends EcmaScriptGrammar {
     identifier.is(
         nextNot(keyword),
         token(GenericTokenType.IDENTIFIER,
-            regexp(EcmaScriptLexer.IDENTIFIER)), spacing).skip();
+            regexp(EcmaScriptLexer.IDENTIFIER)), spacing);
     numericLiteral.is(
         token(EcmaScriptTokenType.NUMERIC_LITERAL,
             regexp(EcmaScriptLexer.NUMERIC_LITERAL)), spacing).skip();
