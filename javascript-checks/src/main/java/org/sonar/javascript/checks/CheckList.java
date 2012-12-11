@@ -74,6 +74,7 @@ public final class CheckList {
         DuplicatePropertyNameCheck.class,
         OctalNumberCheck.class,
         StrictModeCheck.class,
+        ConditionalCommentCheck.class,
         NestedIfDepthCheck.class);
   }
 
