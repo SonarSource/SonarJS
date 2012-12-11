@@ -19,13 +19,13 @@
  */
 package org.sonar.plugins.javascript.jstest;
 
-import java.io.File;
-
 import org.sonar.api.batch.SensorContext;
 import org.sonar.api.resources.Project;
 import org.sonar.plugins.javascript.JavaScriptPlugin;
 import org.sonar.plugins.javascript.core.JavaScript;
 import org.sonar.plugins.javascript.jstestdriver.JsTestDriverSurefireSensor;
+
+import java.io.File;
 
 public class JsTestSurefireSensor extends JsTestDriverSurefireSensor {
 
@@ -34,12 +34,12 @@ public class JsTestSurefireSensor extends JsTestDriverSurefireSensor {
   }
 
   public boolean shouldExecuteOnProject(Project project) {
-    return (javascript.equals(project.getLanguage()) && "jstest".equals(javascript.getConfiguration().getString(JavaScriptPlugin.TEST_FRAMEWORK_KEY,
-        JavaScriptPlugin.TEST_FRAMEWORK_DEFAULT)));
+    return javascript.equals(project.getLanguage())
+      && "jstest".equals(javascript.getConfiguration().getString(JavaScriptPlugin.TEST_FRAMEWORK_KEY));
   }
 
   public void analyse(Project project, SensorContext context) {
-    String jsTestDriverFolder = javascript.getConfiguration().getString(JavaScriptPlugin.JSTEST_FOLDER_KEY, JavaScriptPlugin.JSTEST_DEFAULT_FOLDER);
+    String jsTestDriverFolder = javascript.getConfiguration().getString(JavaScriptPlugin.JSTEST_FOLDER_KEY);
     collect(project, context, new File(project.getFileSystem().getBasedir(), jsTestDriverFolder));
   }
 

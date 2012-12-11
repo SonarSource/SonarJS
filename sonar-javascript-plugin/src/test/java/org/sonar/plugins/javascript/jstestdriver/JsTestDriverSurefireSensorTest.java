@@ -19,20 +19,6 @@
  */
 package org.sonar.plugins.javascript.jstestdriver;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.anyObject;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
-import java.io.File;
-import java.net.URISyntaxException;
-import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.List;
-
 import org.apache.commons.configuration.Configuration;
 import org.junit.Before;
 import org.junit.Test;
@@ -45,6 +31,20 @@ import org.sonar.api.resources.Resource;
 import org.sonar.plugins.javascript.JavaScriptPlugin;
 import org.sonar.plugins.javascript.core.JavaScript;
 
+import java.io.File;
+import java.net.URISyntaxException;
+import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Matchers.anyObject;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 public class JsTestDriverSurefireSensorTest {
 
   private JsTestDriverSurefireSensor sensor;
@@ -54,8 +54,8 @@ public class JsTestDriverSurefireSensorTest {
   @Before
   public void init() {
     configuration = mock(Configuration.class);
-    when(configuration.getString(JavaScriptPlugin.JSTESTDRIVER_FOLDER_KEY, JavaScriptPlugin.JSTESTDRIVER_DEFAULT_FOLDER)).thenReturn(JavaScriptPlugin.JSTESTDRIVER_DEFAULT_FOLDER);
-    when(configuration.getString(JavaScriptPlugin.TEST_FRAMEWORK_KEY, JavaScriptPlugin.TEST_FRAMEWORK_DEFAULT)).thenReturn("jstestdriver");
+    when(configuration.getString(JavaScriptPlugin.JSTESTDRIVER_FOLDER_KEY)).thenReturn(JavaScriptPlugin.JSTESTDRIVER_DEFAULT_FOLDER);
+    when(configuration.getString(JavaScriptPlugin.TEST_FRAMEWORK_KEY)).thenReturn("jstestdriver");
 
     sensor = new JsTestDriverSurefireSensor(new JavaScript(configuration));
     context = mock(SensorContext.class);

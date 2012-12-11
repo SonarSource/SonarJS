@@ -19,37 +19,28 @@
  */
 package org.sonar.plugins.javascript.jstestdriver;
 
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.anyObject;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
-import java.io.File;
-import java.net.URISyntaxException;
-import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-
 import org.apache.commons.configuration.Configuration;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.batch.SensorContext;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Measure;
-import org.sonar.api.resources.InputFile;
-import org.sonar.api.resources.InputFileUtils;
-import org.sonar.api.resources.Language;
-import org.sonar.api.resources.Project;
-import org.sonar.api.resources.ProjectFileSystem;
-import org.sonar.api.resources.Resource;
+import org.sonar.api.resources.*;
 import org.sonar.plugins.javascript.JavaScriptPlugin;
 import org.sonar.plugins.javascript.core.JavaScript;
 import org.sonar.plugins.javascript.coverage.JavaScriptFileCoverage;
+
+import java.io.File;
+import java.net.URISyntaxException;
+import java.nio.charset.Charset;
+import java.util.*;
+
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Matchers.anyObject;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class JsTestDriverCoverageSensorTest {
 
@@ -60,9 +51,9 @@ public class JsTestDriverCoverageSensorTest {
   @Before
   public void init() {
     configuration = mock(Configuration.class);
-    when(configuration.getString(JavaScriptPlugin.JSTESTDRIVER_FOLDER_KEY, "jstestdriver")).thenReturn("jstestdriver");
-    when(configuration.getString(JavaScriptPlugin.TEST_FRAMEWORK_KEY, JavaScriptPlugin.TEST_FRAMEWORK_DEFAULT)).thenReturn("jstestdriver");
-    
+    when(configuration.getString(JavaScriptPlugin.JSTESTDRIVER_FOLDER_KEY)).thenReturn("jstestdriver");
+    when(configuration.getString(JavaScriptPlugin.TEST_FRAMEWORK_KEY)).thenReturn("jstestdriver");
+
     sensor = new JsTestDriverCoverageSensor(new JavaScript(configuration));
     context = mock(SensorContext.class);
   }

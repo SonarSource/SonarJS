@@ -19,10 +19,6 @@
  */
 package org.sonar.plugins.javascript.jstestdriver;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.List;
-
 import org.apache.commons.io.FileUtils;
 import org.jfree.util.Log;
 import org.slf4j.Logger;
@@ -36,6 +32,10 @@ import org.sonar.plugins.javascript.JavaScriptPlugin;
 import org.sonar.plugins.javascript.core.JavaScript;
 import org.sonar.plugins.surefire.api.AbstractSurefireParser;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.List;
+
 public class JsTestDriverSurefireSensor implements Sensor {
 
   protected JavaScript javascript;
@@ -47,12 +47,12 @@ public class JsTestDriverSurefireSensor implements Sensor {
   private static final Logger LOG = LoggerFactory.getLogger(JsTestDriverSurefireSensor.class);
 
   public boolean shouldExecuteOnProject(Project project) {
-    return (javascript.equals(project.getLanguage()) && "jstestdriver".equals(javascript.getConfiguration().getString(JavaScriptPlugin.TEST_FRAMEWORK_KEY,
-        JavaScriptPlugin.TEST_FRAMEWORK_DEFAULT)));
+    return javascript.equals(project.getLanguage())
+      && "jstestdriver".equals(javascript.getConfiguration().getString(JavaScriptPlugin.TEST_FRAMEWORK_KEY));
   }
 
   public void analyse(Project project, SensorContext context) {
-    String jsTestDriverFolder = javascript.getConfiguration().getString(JavaScriptPlugin.JSTESTDRIVER_FOLDER_KEY, JavaScriptPlugin.JSTESTDRIVER_DEFAULT_FOLDER);
+    String jsTestDriverFolder = javascript.getConfiguration().getString(JavaScriptPlugin.JSTESTDRIVER_FOLDER_KEY);
     collect(project, context, new File(project.getFileSystem().getBasedir(), jsTestDriverFolder));
   }
 
