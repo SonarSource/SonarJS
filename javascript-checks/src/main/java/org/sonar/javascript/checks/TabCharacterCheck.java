@@ -56,6 +56,7 @@ public class TabCharacterCheck extends SquidCheck<EcmaScriptGrammar> implements 
     for (int i = 0; i < lines.size(); i++) {
       if (lines.get(i).contains("\t")) {
         getContext().createLineViolation(this, "Replace all tab characters in this file by sequences of white-spaces.", i + 1);
+        break;
       }
     }
   }
