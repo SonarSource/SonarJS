@@ -40,8 +40,13 @@ public class OctalNumberCheck extends SquidCheck<EcmaScriptGrammar> {
   @Override
   public void visitNode(AstNode astNode) {
     String value = astNode.getTokenValue();
-    if (value.startsWith("0") && !value.contains(".")) {
-      int newValue = Integer.parseInt(value, 8);
+    if (value.startsWith("0")) {
+      int newValue;
+      try {
+        newValue = Integer.parseInt(value, 8);
+      } catch (NumberFormatException e) {
+        return;
+      }
       getContext().createLineViolation(this, "Replace the value of the octal number (" + value + ") by its decimal equivalent (" + newValue + ").", astNode);
     }
   }
