@@ -47,7 +47,7 @@ public class DuplicateFunctionArgumentCheck extends SquidCheck<EcmaScriptGrammar
       AstNode identifier = astNode.getChild(i);
       String value = identifier.getTokenValue();
       if (values.contains(value)) {
-        getContext().createLineViolation(this, "Rename duplicate function argument '" + value + "'.", identifier);
+        getContext().createLineViolation(this, "Rename or remove duplicate function argument '" + value + "'.", identifier);
       } else {
         values.add(value);
       }
