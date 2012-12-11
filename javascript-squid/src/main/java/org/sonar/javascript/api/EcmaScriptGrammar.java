@@ -43,8 +43,7 @@ public class EcmaScriptGrammar extends LexerlessGrammar {
   @VisibleForTesting
   public Rule regularExpressionLiteral;
 
-  protected Rule numericLiteral;
-
+  public Rule numericLiteral;
   public Rule identifier;
 
   protected Rule keyword;

@@ -1,0 +1,17 @@
+<p>
+Octal numbers should be avoided because the syntax to declare them (prefix by zero) makes it ambiguous for novice JavaScript developers to understand the real value of the number.
+For instance, the octal "0644" number actually equals to 420, not 644.
+</p>
+
+<p>
+What's more, even if all browsers support it, this syntax is not part of ECMAScript and will generate an error in JavaScript strict mode code.
+</p>
+
+<p>
+The following code snippet illustrates this rule :
+</p>
+
+<pre>
+var i = 0644; // Non-Compliant
+var j = 420; // Compliant
+</pre>

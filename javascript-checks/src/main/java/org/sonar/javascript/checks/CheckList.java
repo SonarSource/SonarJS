@@ -72,6 +72,7 @@ public final class CheckList {
         FutureReservedWordsCheck.class,
         DuplicateFunctionArgumentCheck.class,
         DuplicatePropertyNameCheck.class,
+        OctalNumberCheck.class,
         NestedIfDepthCheck.class);
   }
 
