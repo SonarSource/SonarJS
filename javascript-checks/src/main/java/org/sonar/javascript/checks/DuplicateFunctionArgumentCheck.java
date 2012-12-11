@@ -46,10 +46,11 @@ public class DuplicateFunctionArgumentCheck extends SquidCheck<EcmaScriptGrammar
     for (int i = 0; i < astNode.getNumberOfChildren(); i += 2) {
       AstNode identifier = astNode.getChild(i);
       String value = identifier.getTokenValue();
-      if (values.contains(value)) {
+      String unescaped = EscapeUtils.unescape(value);
+      if (values.contains(unescaped)) {
         getContext().createLineViolation(this, "Rename or remove duplicate function argument '" + value + "'.", identifier);
       } else {
-        values.add(value);
+        values.add(unescaped);
       }
     }
   }

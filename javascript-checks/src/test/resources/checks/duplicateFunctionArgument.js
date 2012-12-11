@@ -1,6 +1,7 @@
 function fun1(
 a, // OK
 a, // NOK
+\u0061, // NOK
 b, // OK
 c, // OK
 c, // NOK

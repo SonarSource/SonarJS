@@ -35,7 +35,8 @@ public class DuplicateFunctionArgumentCheckTest {
     SourceFile file = JavaScriptAstScanner.scanSingleFile(new File("src/test/resources/checks/duplicateFunctionArgument.js"), check);
     CheckMessagesVerifier.verify(file.getCheckMessages())
         .next().atLine(3).withMessage("Rename or remove duplicate function argument 'a'.")
-        .next().atLine(6).withMessage("Rename or remove duplicate function argument 'c'.")
+        .next().atLine(4).withMessage("Rename or remove duplicate function argument '\\u0061'.")
+        .next().atLine(7).withMessage("Rename or remove duplicate function argument 'c'.")
         .noMore();
   }
 
