@@ -40,7 +40,7 @@ public class OctalNumberCheck extends SquidCheck<EcmaScriptGrammar> {
   @Override
   public void visitNode(AstNode astNode) {
     String value = astNode.getTokenValue();
-    if (value.startsWith("0")) {
+    if (value.length() > 1 && value.startsWith("0")) {
       int newValue;
       try {
         newValue = Integer.parseInt(value, 8);
