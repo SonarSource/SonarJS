@@ -75,6 +75,7 @@ public final class CheckList {
         OctalNumberCheck.class,
         StrictModeCheck.class,
         ConditionalCommentCheck.class,
+        TabCharacterCheck.class,
         NestedIfDepthCheck.class);
   }
 

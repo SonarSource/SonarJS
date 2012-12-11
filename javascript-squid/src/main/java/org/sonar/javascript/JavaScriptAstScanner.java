@@ -121,6 +121,9 @@ public final class JavaScriptAstScanner {
 
     /* External visitors (typically Check ones) */
     for (SquidAstVisitor<EcmaScriptGrammar> visitor : visitors) {
+      if (visitor instanceof CharsetAwareVisitor) {
+        ((CharsetAwareVisitor) visitor).setCharset(conf.getCharset());
+      }
       builder.withSquidAstVisitor(visitor);
     }
 
