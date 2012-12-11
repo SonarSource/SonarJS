@@ -71,6 +71,7 @@ public final class CheckList {
         ConstructorFunctionsForSideEffectsCheck.class,
         FutureReservedWordsCheck.class,
         DuplicateFunctionArgumentCheck.class,
+        DuplicatePropertyNameCheck.class,
         NestedIfDepthCheck.class);
   }
 

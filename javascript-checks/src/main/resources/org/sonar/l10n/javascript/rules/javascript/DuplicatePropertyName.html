@@ -1,0 +1,27 @@
+<p>
+Even if JavaScript allows to have duplicate property names in object literals, this is a vector for bugs as only the last instance of a duplicated property determines the actual value that will be used for it.
+Therefore, changing values of other occurences of a duplicated property will have no effect and may cause misunderstandings and bugs.
+</p>
+
+<p>
+What's more, using duplicate property names will generate an error in JavaScript strict mode code.
+</p>
+
+<p>
+The following code snippet illustrates this rule :
+</p>
+
+<pre>
+var data = {
+  "key": "value",
+  " key": "value",
+  "1": "value",
+  "key": "value", // Non-Compliant - duplicate of "key"
+  'key': "value", // Non-Compliant - duplicate of "key"
+  key: "value", // Non-Compliant - duplicate of "key"
+  \u006bey: "value", // Non-Compliant - duplicate of "key"
+  "\u006bey": "value", // Non-Compliant - duplicate of "key"
+  "\x6bey": "value", // Non-Compliant - duplicate of "key"
+  1: "value" // Non-Compliant - duplicate of "1"
+}
+</pre>
