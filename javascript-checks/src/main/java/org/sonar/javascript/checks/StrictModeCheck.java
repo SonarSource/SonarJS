@@ -42,7 +42,7 @@ public class StrictModeCheck extends SquidCheck<EcmaScriptGrammar> {
     String value = astNode.getTokenValue();
     value = value.substring(1, value.length() - 1);
     if ("use strict".equals(value)) {
-      getContext().createLineViolation(this, "Use of JavaScript strict mode may result in unexpected behavior in some browsers.", astNode);
+      getContext().createLineViolation(this, "Use of JavaScript strict mode may result in unexpected behaviour in some browsers.", astNode);
     }
   }
 

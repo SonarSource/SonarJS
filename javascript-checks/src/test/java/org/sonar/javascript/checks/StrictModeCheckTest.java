@@ -34,7 +34,7 @@ public class StrictModeCheckTest {
 
     SourceFile file = JavaScriptAstScanner.scanSingleFile(new File("src/test/resources/checks/strictMode.js"), check);
     CheckMessagesVerifier.verify(file.getCheckMessages())
-        .next().atLine(1).withMessage("Use of JavaScript strict mode may result in unexpected behavior in some browsers.")
+        .next().atLine(1).withMessage("Use of JavaScript strict mode may result in unexpected behaviour in some browsers.")
         .next().atLine(2)
         .noMore();
   }
