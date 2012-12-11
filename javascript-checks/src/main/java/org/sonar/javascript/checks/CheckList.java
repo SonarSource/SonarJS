@@ -73,6 +73,7 @@ public final class CheckList {
         DuplicateFunctionArgumentCheck.class,
         DuplicatePropertyNameCheck.class,
         OctalNumberCheck.class,
+        StrictModeCheck.class,
         NestedIfDepthCheck.class);
   }
 
