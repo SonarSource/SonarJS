@@ -24,6 +24,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.SensorContext;
+import org.sonar.api.config.Settings;
 import org.sonar.api.resources.*;
 
 import java.io.File;
@@ -42,9 +43,11 @@ import static org.mockito.Mockito.when;
 public class JavaScriptSourceImporterTest {
 
   private Configuration configuration;
+  private JavaScript language;
 
   @Before
   public void init() {
+    language = new JavaScript(new Settings());
     configuration = mock(Configuration.class);
     when(configuration.getBoolean(CoreProperties.CORE_IMPORT_SOURCES_PROPERTY, CoreProperties.CORE_IMPORT_SOURCES_DEFAULT_VALUE))
         .thenReturn(true);
@@ -53,7 +56,7 @@ public class JavaScriptSourceImporterTest {
   @Test
   public void testSourceImporter() throws URISyntaxException {
     SensorContext context = mock(SensorContext.class);
-    JavaScriptSourceImporter importer = new JavaScriptSourceImporter(new JavaScript(configuration));
+    JavaScriptSourceImporter importer = new JavaScriptSourceImporter(language);
     assertEquals("JavaScriptSourceImporter", importer.toString());
 
     final ProjectFileSystem fileSystem = mock(ProjectFileSystem.class);
@@ -80,7 +83,7 @@ public class JavaScriptSourceImporterTest {
       }
 
       public Language getLanguage() {
-        return new JavaScript(configuration);
+        return language;
       }
 
       public Configuration getConfiguration() {

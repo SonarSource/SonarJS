@@ -32,15 +32,15 @@ public final class JsTestCoverageSensor extends JsTestDriverCoverageSensor {
 
   public boolean shouldExecuteOnProject(Project project) {
     return javascript.equals(project.getLanguage())
-      && "jstest".equals(javascript.getConfiguration().getString(JavaScriptPlugin.TEST_FRAMEWORK_KEY));
+      && "jstest".equals(javascript.getSettings().getString(JavaScriptPlugin.TEST_FRAMEWORK_KEY));
   }
 
   protected String getTestReportsFolder() {
-    return javascript.getConfiguration().getString(JavaScriptPlugin.JSTEST_FOLDER_KEY);
+    return javascript.getSettings().getString(JavaScriptPlugin.JSTEST_FOLDER_KEY);
   }
 
   protected String getTestCoverageFileName() {
-    return javascript.getConfiguration().getString(JavaScriptPlugin.JSTEST_COVERAGE_FILE_KEY);
+    return javascript.getSettings().getString(JavaScriptPlugin.JSTEST_COVERAGE_FILE_KEY);
   }
 
   @Override

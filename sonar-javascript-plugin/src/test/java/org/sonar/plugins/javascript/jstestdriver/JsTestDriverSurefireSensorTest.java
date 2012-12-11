@@ -19,10 +19,10 @@
  */
 package org.sonar.plugins.javascript.jstestdriver;
 
-import org.apache.commons.configuration.Configuration;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.batch.SensorContext;
+import org.sonar.api.config.Settings;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.resources.Language;
 import org.sonar.api.resources.Project;
@@ -48,16 +48,16 @@ import static org.mockito.Mockito.when;
 public class JsTestDriverSurefireSensorTest {
 
   private JsTestDriverSurefireSensor sensor;
-  SensorContext context;
-  private Configuration configuration;
+  private SensorContext context;
+  private Settings settings;
 
   @Before
   public void init() {
-    configuration = mock(Configuration.class);
-    when(configuration.getString(JavaScriptPlugin.JSTESTDRIVER_FOLDER_KEY)).thenReturn(JavaScriptPlugin.JSTESTDRIVER_DEFAULT_FOLDER);
-    when(configuration.getString(JavaScriptPlugin.TEST_FRAMEWORK_KEY)).thenReturn("jstestdriver");
+    settings = new Settings();
+    settings.setProperty(JavaScriptPlugin.JSTESTDRIVER_FOLDER_KEY, JavaScriptPlugin.JSTESTDRIVER_DEFAULT_FOLDER);
+    settings.setProperty(JavaScriptPlugin.TEST_FRAMEWORK_KEY, "jstestdriver");
 
-    sensor = new JsTestDriverSurefireSensor(new JavaScript(configuration));
+    sensor = new JsTestDriverSurefireSensor(new JavaScript(settings));
     context = mock(SensorContext.class);
   }
 
@@ -81,7 +81,7 @@ public class JsTestDriverSurefireSensorTest {
       }
 
       public Language getLanguage() {
-        return new JavaScript(configuration);
+        return new JavaScript(settings);
       }
     };
 

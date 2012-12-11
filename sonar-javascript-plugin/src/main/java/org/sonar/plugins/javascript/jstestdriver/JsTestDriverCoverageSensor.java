@@ -49,7 +49,7 @@ public class JsTestDriverCoverageSensor implements Sensor {
 
   public boolean shouldExecuteOnProject(Project project) {
     return javascript.equals(project.getLanguage())
-      && "jstestdriver".equals(javascript.getConfiguration().getString(JavaScriptPlugin.TEST_FRAMEWORK_KEY));
+      && "jstestdriver".equals(javascript.getSettings().getString(JavaScriptPlugin.TEST_FRAMEWORK_KEY));
   }
 
   public void analyse(Project project, SensorContext sensorContext) {
@@ -109,11 +109,11 @@ public class JsTestDriverCoverageSensor implements Sensor {
   }
 
   protected String getTestReportsFolder() {
-    return javascript.getConfiguration().getString(JavaScriptPlugin.JSTESTDRIVER_FOLDER_KEY);
+    return javascript.getSettings().getString(JavaScriptPlugin.JSTESTDRIVER_FOLDER_KEY);
   }
 
   protected String getTestCoverageFileName() {
-    return javascript.getConfiguration().getString(JavaScriptPlugin.JSTESTDRIVER_COVERAGE_FILE_KEY);
+    return javascript.getSettings().getString(JavaScriptPlugin.JSTESTDRIVER_COVERAGE_FILE_KEY);
   }
 
   @Override

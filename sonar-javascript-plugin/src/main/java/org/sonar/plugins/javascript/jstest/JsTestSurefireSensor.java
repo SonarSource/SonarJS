@@ -35,11 +35,11 @@ public class JsTestSurefireSensor extends JsTestDriverSurefireSensor {
 
   public boolean shouldExecuteOnProject(Project project) {
     return javascript.equals(project.getLanguage())
-      && "jstest".equals(javascript.getConfiguration().getString(JavaScriptPlugin.TEST_FRAMEWORK_KEY));
+      && "jstest".equals(javascript.getSettings().getString(JavaScriptPlugin.TEST_FRAMEWORK_KEY));
   }
 
   public void analyse(Project project, SensorContext context) {
-    String jsTestDriverFolder = javascript.getConfiguration().getString(JavaScriptPlugin.JSTEST_FOLDER_KEY);
+    String jsTestDriverFolder = javascript.getSettings().getString(JavaScriptPlugin.JSTEST_FOLDER_KEY);
     collect(project, context, new File(project.getFileSystem().getBasedir(), jsTestDriverFolder));
   }
 

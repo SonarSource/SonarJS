@@ -19,8 +19,8 @@
  */
 package org.sonar.plugins.javascript.core;
 
-import org.apache.commons.configuration.Configuration;
 import org.apache.commons.lang.StringUtils;
+import org.sonar.api.config.Settings;
 import org.sonar.api.resources.AbstractLanguage;
 import org.sonar.plugins.javascript.JavaScriptPlugin;
 
@@ -28,19 +28,19 @@ public class JavaScript extends AbstractLanguage {
 
   public static final String KEY = "js";
 
-  private Configuration configuration;
+  private Settings settings;
 
-  public JavaScript(Configuration configuration) {
+  public JavaScript(Settings configuration) {
     super(KEY, "JavaScript");
-    this.configuration = configuration;
+    this.settings = configuration;
   }
 
-  public Configuration getConfiguration() {
-    return this.configuration;
+  public Settings getSettings() {
+    return this.settings;
   }
 
   public String[] getFileSuffixes() {
-    String[] suffixes = configuration.getStringArray(JavaScriptPlugin.FILE_SUFFIXES_KEY);
+    String[] suffixes = settings.getStringArray(JavaScriptPlugin.FILE_SUFFIXES_KEY);
     if (suffixes == null || suffixes.length == 0) {
       suffixes = StringUtils.split(JavaScriptPlugin.FILE_SUFFIXES_DEFVALUE, ",");
     }
