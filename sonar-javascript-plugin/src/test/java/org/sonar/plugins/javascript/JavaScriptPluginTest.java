@@ -21,6 +21,8 @@ package org.sonar.plugins.javascript;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.sonar.api.config.PropertyDefinitions;
+import org.sonar.api.config.Settings;
 
 import static org.fest.assertions.Assertions.assertThat;
 
@@ -36,6 +38,13 @@ public class JavaScriptPluginTest {
   @Test
   public void testGetExtensions() throws Exception {
     assertThat(plugin.getExtensions().size()).isEqualTo(14);
+  }
+
+  @Test
+  public void testProperties() {
+    Settings settings = new Settings(new PropertyDefinitions(plugin));
+    // SONARPLUGINS-2524
+    assertThat(settings.getString(JavaScriptPlugin.TEST_FRAMEWORK_KEY)).isNull();
   }
 
 }
