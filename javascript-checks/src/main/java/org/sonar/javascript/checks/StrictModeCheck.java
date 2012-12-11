@@ -34,14 +34,13 @@ public class StrictModeCheck extends SquidCheck<EcmaScriptGrammar> {
 
   @Override
   public void init() {
-    subscribeTo(getContext().getGrammar().stringLiteral);
+    subscribeTo(getContext().getGrammar().statement);
   }
 
   @Override
   public void visitNode(AstNode astNode) {
     String value = astNode.getTokenValue();
-    value = value.substring(1, value.length() - 1);
-    if ("use strict".equals(value)) {
+    if ("\"use strict\"".equals(value) || "'use strict'".equals(value)) {
       getContext().createLineViolation(this, "Use of JavaScript strict mode may result in unexpected behaviour in some browsers.", astNode);
     }
   }
