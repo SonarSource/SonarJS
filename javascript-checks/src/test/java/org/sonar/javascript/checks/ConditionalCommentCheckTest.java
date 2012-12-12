@@ -35,6 +35,7 @@ public class ConditionalCommentCheckTest {
     SourceFile file = JavaScriptAstScanner.scanSingleFile(new File("src/test/resources/checks/conditionalComment.js"), check);
     CheckMessagesVerifier.verify(file.getCheckMessages())
         .next().atLine(1).withMessage("Refactor your code to avoid using Internet Explorer's conditional comments.")
+        .next().atLine(7)
         .noMore();
   }
 

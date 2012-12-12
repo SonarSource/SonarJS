@@ -36,8 +36,11 @@ public class ConditionalCommentCheck extends SquidCheck<EcmaScriptGrammar> imple
 
   public void visitToken(Token token) {
     for (Trivia trivia : token.getTrivia()) {
-      if (trivia.isComment() && trivia.getToken().getValue().startsWith("/*@cc_on")) {
-        getContext().createLineViolation(this, "Refactor your code to avoid using Internet Explorer's conditional comments.", trivia.getToken());
+      if (trivia.isComment()) {
+        String comment = trivia.getToken().getValue();
+        if (comment.startsWith("/*@cc_on") || comment.startsWith("//@cc_on")) {
+          getContext().createLineViolation(this, "Refactor your code to avoid using Internet Explorer's conditional comments.", trivia.getToken());
+        }
       }
     }
   }
