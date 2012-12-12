@@ -21,7 +21,6 @@ package org.sonar.javascript.checks;
 
 import com.sonar.sslr.api.AstNode;
 import com.sonar.sslr.squid.checks.SquidCheck;
-import org.sonar.check.BelongsToProfile;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.javascript.api.EcmaScriptGrammar;
@@ -29,7 +28,6 @@ import org.sonar.javascript.api.EcmaScriptGrammar;
 @Rule(
   key = "ElseIfWithoutElse",
   priority = Priority.MAJOR)
-@BelongsToProfile(title = CheckList.SONAR_WAY_PROFILE, priority = Priority.MAJOR)
 public class ElseIfWithoutElseCheck extends SquidCheck<EcmaScriptGrammar> {
 
   @Override
