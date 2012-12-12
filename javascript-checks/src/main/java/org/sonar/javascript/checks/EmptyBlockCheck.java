@@ -34,17 +34,14 @@ public class EmptyBlockCheck extends SquidCheck<EcmaScriptGrammar> {
 
   @Override
   public void init() {
-    subscribeTo(getContext().getGrammar().block, getContext().getGrammar().functionDeclaration, getContext().getGrammar().functionExpression);
+    subscribeTo(getContext().getGrammar().block);
   }
 
   @Override
   public void visitNode(AstNode node) {
-    if (node.is(getContext().getGrammar().block)) {
-      if (!node.hasDirectChildren(getContext().getGrammar().statementList)) {
-        getContext().createLineViolation(this, "Provide the missing piece of code.", node);
-      }
-    } else if (!node.findFirstDirectChild(getContext().getGrammar().functionBody).hasDirectChildren(getContext().getGrammar().sourceElements)) {
+    if (!node.hasDirectChildren(getContext().getGrammar().statementList)) {
       getContext().createLineViolation(this, "Provide the missing piece of code.", node);
     }
   }
+
 }
