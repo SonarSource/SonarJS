@@ -36,6 +36,7 @@ public class EmptyBlockCheckTest {
     CheckMessagesVerifier.verify(file.getCheckMessages())
         .next().atLine(1).withMessage("Provide the missing piece of code.")
         .next().atLine(8).withMessage("Provide the missing piece of code.")
+        .next().atLine(15).withMessage("Provide the missing piece of code.")
         .noMore();
   }
 
