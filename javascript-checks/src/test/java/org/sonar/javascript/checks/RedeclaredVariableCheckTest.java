@@ -34,10 +34,10 @@ public class RedeclaredVariableCheckTest {
 
     SourceFile file = JavaScriptAstScanner.scanSingleFile(new File("src/test/resources/checks/redeclaredVariable.js"), check);
     CheckMessagesVerifier.verify(file.getCheckMessages())
-        .next().atLine(3).withMessage("")
-        .next().atLine(7)
-        .next().atLine(12)
-        .next().atLine(19)
+        .next().atLine(3).withMessage("Rename variable 'a' as this name is already used.")
+        .next().atLine(7).withMessage("Rename variable 'a' as this name is already used.")
+        .next().atLine(12).withMessage("Rename variable 'i' as this name is already used.")
+        .next().atLine(19).withMessage("Rename variable 'b' as this name is already used.")
         .noMore();
   }
 

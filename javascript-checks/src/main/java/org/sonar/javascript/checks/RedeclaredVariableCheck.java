@@ -66,7 +66,7 @@ public class RedeclaredVariableCheck extends SquidCheck<EcmaScriptGrammar> {
       Set<String> currentScope = stack.peek();
       String variableName = astNode.getTokenValue();
       if (currentScope.contains(variableName)) {
-        getContext().createLineViolation(this, "", astNode);
+        getContext().createLineViolation(this, "Rename variable '" + variableName + "' as this name is already used.", astNode);
       } else {
         currentScope.add(variableName);
       }
