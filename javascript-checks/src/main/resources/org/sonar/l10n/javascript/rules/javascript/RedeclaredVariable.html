@@ -1,0 +1,16 @@
+<p>
+This rule checks that the var keyword is not used to declare a variable with a name that is already in use. It applies to already defined variables as well as to function parameters.
+</p>
+
+<p>
+This use of duplicate name is often unwanted and can lead to bugs and more generally to confusing code :
+</p>
+
+<pre>
+var a = 'foo';
+var a = 'bar'; // Non-Compliant
+
+function f(e) {
+  var e = "event"; // Non-Compliant
+}
+</pre>
