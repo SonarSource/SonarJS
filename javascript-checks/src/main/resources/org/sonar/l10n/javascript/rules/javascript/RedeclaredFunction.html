@@ -1,0 +1,31 @@
+<p>
+This rule checks that functions declared in same scope don't have identical names.
+Indeed, it is possible to declare 2 functions with the same name,
+but only the last definition will be kept by the JavaScript engine before starting execution of the whole code.
+</p>
+
+<p>
+The following code illustrates this:
+</p>
+
+<pre>
+fun(); // prints "bar"
+
+// first declaration of the function
+function fun() {
+  print("foo");
+}
+
+fun(); // prints "bar"
+
+// redeclaration of the "fun" function: this definition overrides the previous one
+function fun() {
+  print("bar");
+}
+
+fun(); // prints "bar"
+</pre>
+
+<p>
+This use of duplicate function name is often unwanted and can lead to bugs and more generally to confusing code.
+</p>
