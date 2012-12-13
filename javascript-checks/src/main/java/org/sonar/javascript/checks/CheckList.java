@@ -80,6 +80,7 @@ public final class CheckList {
         RedeclaredFunctionCheck.class,
         TrailingWhitespaceCheck.class,
         TrailingCommentCheck.class,
+        MissingNewlineAtEndOfFileCheck.class,
         NestedIfDepthCheck.class);
   }
 
