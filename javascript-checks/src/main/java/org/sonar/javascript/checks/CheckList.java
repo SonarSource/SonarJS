@@ -78,6 +78,7 @@ public final class CheckList {
         TabCharacterCheck.class,
         RedeclaredVariableCheck.class,
         RedeclaredFunctionCheck.class,
+        TrailingWhitespaceCheck.class,
         NestedIfDepthCheck.class);
   }
 
