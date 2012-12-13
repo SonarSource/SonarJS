@@ -79,6 +79,7 @@ public final class CheckList {
         RedeclaredVariableCheck.class,
         RedeclaredFunctionCheck.class,
         TrailingWhitespaceCheck.class,
+        TrailingCommentCheck.class,
         NestedIfDepthCheck.class);
   }
 
