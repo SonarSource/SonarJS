@@ -14,5 +14,9 @@ The local variable x could be clobbered by a property of foo and perhaps it even
 </p>
 
 <p>
-Never use the with statement.
+Therefore, 'with' statement should never be used. Instead, the previous code should be refactored to make direct calls to the object (<code>foo.x</code> in the previous example).
+</p>
+
+<p>
+What's more, using the 'with' statement would produce an error in JavaScript strict mode code.
 </p>
