@@ -84,6 +84,7 @@ public final class CheckList {
         TrailingCommentCheck.class,
         MissingNewlineAtEndOfFileCheck.class,
         BoundOrAssignedEvalOrArgumentsCheck.class,
+        SameNameForFunctionAndVariableCheck.class,
         NestedIfDepthCheck.class);
   }
 

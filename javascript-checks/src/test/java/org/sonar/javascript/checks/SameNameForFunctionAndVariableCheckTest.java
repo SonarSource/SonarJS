@@ -26,15 +26,16 @@ import org.sonar.squid.api.SourceFile;
 
 import java.io.File;
 
-public class FunctionDeclarationsWithinBlocksCheckTest {
+public class SameNameForFunctionAndVariableCheckTest {
 
   @Test
   public void test() {
-    FunctionDeclarationsWithinBlocksCheck check = new FunctionDeclarationsWithinBlocksCheck();
+    SameNameForFunctionAndVariableCheck check = new SameNameForFunctionAndVariableCheck();
 
-    SourceFile file = JavaScriptAstScanner.scanSingleFile(new File("src/test/resources/checks/functionDeclarationsWithinBlocks.js"), check);
+    SourceFile file = JavaScriptAstScanner.scanSingleFile(new File("src/test/resources/checks/sameNameForFunctionAndVariable.js"), check);
     CheckMessagesVerifier.verify(file.getCheckMessages())
-        .next().atLine(3).withMessage("Do not use function declarations within blocks.")
+        .next().atLine(2).withMessage("Refactor the code to avoid using 'fun1' for both a variable and a function.")
+        .next().atLine(7).withMessage("Refactor the code to avoid using 'fun2' for both a variable and a function.")
         .noMore();
   }
 
