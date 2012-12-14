@@ -19,40 +19,47 @@
  */
 package org.sonar.plugins.javascript.jstest;
 
-import org.sonar.api.batch.Initializer;
-import org.sonar.api.batch.maven.DependsUponMavenPlugin;
-import org.sonar.api.batch.maven.MavenPluginHandler;
+import org.junit.Before;
+import org.junit.Test;
+import org.sonar.api.config.Settings;
 import org.sonar.api.resources.Project;
 import org.sonar.plugins.javascript.JavaScriptPlugin;
 import org.sonar.plugins.javascript.core.JavaScript;
 
-public class JsTestMavenInitializer extends Initializer implements DependsUponMavenPlugin {
+import static org.fest.assertions.Assertions.assertThat;
 
-  private JsTestMavenPluginHandler handler;
-  private JavaScript javascript;
+public class JsTestSurefireSensorTest {
 
-  public JsTestMavenInitializer(JsTestMavenPluginHandler handler, JavaScript javascript) {
-    this.handler = handler;
-    this.javascript = javascript;
+  private JavaScript language;
+  private Settings settings;
+  private JsTestSurefireSensor sensor;
+
+  @Before
+  public void setUp() {
+    settings = new Settings();
+    language = new JavaScript(settings);
+    sensor = new JsTestSurefireSensor(language);
   }
 
-  @Override
-  public boolean shouldExecuteOnProject(Project project) {
-    return project.getAnalysisType().isDynamic(true)
-      && javascript.equals(project.getLanguage())
-      && "jstest".equals(javascript.getSettings().getString(JavaScriptPlugin.TEST_FRAMEWORK_KEY));
+  @Test
+  public void test_shouldExecuteOnProject() {
+    Project project = mockProject();
+    assertThat(sensor.shouldExecuteOnProject(project)).isFalse();
+
+    project.setLanguage(language);
+    assertThat(sensor.shouldExecuteOnProject(project)).isFalse();
+
+    settings.setProperty(JavaScriptPlugin.TEST_FRAMEWORK_KEY, "jstest");
+    assertThat(sensor.shouldExecuteOnProject(project)).isTrue();
   }
 
-  public MavenPluginHandler getMavenPluginHandler(Project project) {
-    if (!"pom".equals(project.getPackaging())) {
-      return handler;
-    }
-    return null;
+  @Test
+  public void test_toString() {
+    assertThat(sensor.toString()).isEqualTo("JsTestSurefireSensor");
   }
 
-  @Override
-  public void execute(Project project) {
-    // empty
+  private Project mockProject() {
+    return new Project("mock");
   }
 
 }

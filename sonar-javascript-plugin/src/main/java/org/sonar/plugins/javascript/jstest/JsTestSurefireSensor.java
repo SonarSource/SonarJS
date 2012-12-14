@@ -56,4 +56,5 @@ public class JsTestSurefireSensor extends JsTestDriverSurefireSensor {
   public String toString() {
     return getClass().getSimpleName();
   }
+
 }

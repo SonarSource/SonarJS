@@ -29,13 +29,11 @@ import java.util.List;
 
 public class JavaScriptRuleRepository extends RuleRepository {
 
-  private static final String REPOSITORY_NAME = "Sonar";
-
   private final AnnotationRuleParser annotationRuleParser;
 
   public JavaScriptRuleRepository(AnnotationRuleParser annotationRuleParser) {
     super(CheckList.REPOSITORY_KEY, JavaScript.KEY);
-    setName(REPOSITORY_NAME);
+    setName(CheckList.REPOSITORY_NAME);
     this.annotationRuleParser = annotationRuleParser;
   }
 

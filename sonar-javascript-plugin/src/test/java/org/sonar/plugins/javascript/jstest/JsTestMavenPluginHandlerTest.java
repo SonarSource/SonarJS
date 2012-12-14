@@ -19,43 +19,28 @@
  */
 package org.sonar.plugins.javascript.jstest;
 
-import org.sonar.api.batch.maven.MavenPlugin;
-import org.sonar.api.batch.maven.MavenPluginHandler;
-import org.sonar.api.resources.Project;
+import org.junit.Before;
+import org.junit.Test;
 
-public class JsTestMavenPluginHandler implements MavenPluginHandler {
+import static org.fest.assertions.Assertions.assertThat;
 
-  public static final String GROUP_ID = "net.awired.jstest";
-  public static final String ARTIFACT_ID = "jstest-maven-plugin";
-  public static final String VERSION = "0.1";
+public class JsTestMavenPluginHandlerTest {
 
-  public String getGroupId() {
-    return GROUP_ID;
+  private JsTestMavenPluginHandler mavenPluginHandler;
+
+  @Before
+  public void setUp() {
+    mavenPluginHandler = new JsTestMavenPluginHandler();
   }
 
-  public String getArtifactId() {
-    return ARTIFACT_ID;
-  }
-
-  public String getVersion() {
-    return VERSION;
-  }
-
-  public boolean isFixedVersion() {
-    return false;
-  }
-
-  public String[] getGoals() {
-    return new String[] {"test"};
-  }
-
-  public void configure(Project project, MavenPlugin plugin) {
-    plugin.setParameter("coverage", "true");
-  }
-
-  @Override
-  public String toString() {
-    return getClass().getSimpleName();
+  @Test
+  public void test() {
+    assertThat(mavenPluginHandler.getGroupId()).isEqualTo("net.awired.jstest");
+    assertThat(mavenPluginHandler.getArtifactId()).isEqualTo("jstest-maven-plugin");
+    assertThat(mavenPluginHandler.getVersion()).isEqualTo("0.1");
+    assertThat(mavenPluginHandler.isFixedVersion()).isFalse();
+    assertThat(mavenPluginHandler.getGoals()).isEqualTo(new String[] {"test"});
+    assertThat(mavenPluginHandler.toString()).isEqualTo("JsTestMavenPluginHandler");
   }
 
 }
