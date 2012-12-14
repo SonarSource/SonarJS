@@ -56,7 +56,9 @@ public class MissingNewlineAtEndOfFileCheck extends SquidCheck<EcmaScriptGrammar
     }
     randomAccessFile.seek(randomAccessFile.length() - 1);
     byte[] chars = new byte[1];
-    randomAccessFile.read(chars);
+    if (randomAccessFile.read(chars) < 1) {
+      return false;
+    }
     String ch = new String(chars);
     return "\n".equals(ch) || "\r".equals(ch);
   }

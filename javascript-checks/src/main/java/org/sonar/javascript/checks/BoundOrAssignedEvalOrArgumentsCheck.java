@@ -45,36 +45,53 @@ public class BoundOrAssignedEvalOrArgumentsCheck extends SquidCheck<EcmaScriptGr
     if (astNode.is(g.functionDeclaration, g.functionExpression)) {
       checkFunction(astNode);
     } else if (astNode.is(g.catch_, g.variableDeclaration, g.variableDeclarationNoIn)) {
-      AstNode identifier = astNode.findFirstDirectChild(g.identifier);
-      if (isEvalOrArguments(identifier.getTokenValue())) {
-        getContext().createLineViolation(this, "Do not use '" + identifier.getTokenValue() + "' to declare a variable - use another name.", identifier);
-      }
+      checkVariableDeclaration(astNode);
     } else if (astNode.is(g.propertySetParameterList)) {
-      AstNode identifier = astNode.findFirstDirectChild(g.identifier);
-      if (isEvalOrArguments(identifier.getTokenValue())) {
-        getContext().createLineViolation(this, "Do not use '" + identifier.getTokenValue() + "' to declare a parameter - use another name.", identifier);
-      }
+      checkPropertySetParameterList(astNode);
     } else if (astNode.is(g.memberExpression)) {
-      if (isEvalOrArguments(astNode.getTokenValue()) && !astNode.hasDirectChildren(EcmaScriptPunctuator.LBRACKET) && !astNode.getParent().is(g.callExpression)) {
-        getContext().createLineViolation(this, "Remove the modification of '" + astNode.getTokenValue() + "'.", astNode);
-      }
+      checkModification(astNode);
     }
   }
 
   private void checkFunction(AstNode astNode) {
     AstNode identifier = astNode.findFirstDirectChild(getContext().getGrammar().identifier);
     if (identifier != null && isEvalOrArguments(identifier.getTokenValue())) {
-      getContext().createLineViolation(this, "Do not use '" + identifier.getTokenValue() + "' to declare a function - use another name.", identifier);
+      getContext().createLineViolation(this, createMessageFor("function", identifier.getTokenValue()), identifier);
     }
     AstNode formalParameterList = astNode.findFirstDirectChild(getContext().getGrammar().formalParameterList);
     if (formalParameterList != null) {
       for (int i = 0; i < formalParameterList.getNumberOfChildren(); i += 2) {
         identifier = formalParameterList.getChild(i);
         if (isEvalOrArguments(identifier.getTokenValue())) {
-          getContext().createLineViolation(this, "Do not use '" + identifier.getTokenValue() + "' to declare a parameter - use another name.", identifier);
+          getContext().createLineViolation(this, createMessageFor("parameter", identifier.getTokenValue()), identifier);
         }
       }
     }
+  }
+
+  private void checkVariableDeclaration(AstNode astNode) {
+    AstNode identifier = astNode.findFirstDirectChild(getContext().getGrammar().identifier);
+    if (isEvalOrArguments(identifier.getTokenValue())) {
+      getContext().createLineViolation(this, createMessageFor("variable", identifier.getTokenValue()), identifier);
+    }
+  }
+
+  private void checkPropertySetParameterList(AstNode astNode) {
+    AstNode identifier = astNode.findFirstDirectChild(getContext().getGrammar().identifier);
+    if (isEvalOrArguments(identifier.getTokenValue())) {
+      getContext().createLineViolation(this, createMessageFor("parameter", identifier.getTokenValue()), identifier);
+    }
+  }
+
+  private void checkModification(AstNode astNode) {
+    if (isEvalOrArguments(astNode.getTokenValue()) && !astNode.hasDirectChildren(EcmaScriptPunctuator.LBRACKET)
+      && !astNode.getParent().is(getContext().getGrammar().callExpression)) {
+      getContext().createLineViolation(this, "Remove the modification of '" + astNode.getTokenValue() + "'.", astNode);
+    }
+  }
+
+  private static String createMessageFor(String name, String value) {
+    return "Do not use '" + value + "' to declare a " + name + " - use another name.";
   }
 
   private boolean isEvalOrArguments(String name) {
