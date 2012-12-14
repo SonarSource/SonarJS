@@ -19,6 +19,7 @@
  */
 package org.sonar.javascript.checks;
 
+import com.google.common.collect.Lists;
 import org.apache.commons.io.FileUtils;
 import org.junit.Test;
 import org.sonar.api.rules.AnnotationRuleParser;
@@ -65,8 +66,10 @@ public class CheckListTest {
 
     ResourceBundle resourceBundle = ResourceBundle.getBundle("org.sonar.l10n.javascript", Locale.ENGLISH);
 
+    List<String> keys = Lists.newArrayList();
     List<Rule> rules = new AnnotationRuleParser().parse("repositoryKey", checks);
     for (Rule rule : rules) {
+      keys.add(rule.getKey());
       resourceBundle.getString("rule." + CheckList.REPOSITORY_KEY + "." + rule.getKey() + ".name");
       assertThat(getClass().getResource("/org/sonar/l10n/javascript/rules/javascript/" + rule.getKey() + ".html"))
           .overridingErrorMessage("No description for " + rule.getKey())
@@ -84,6 +87,8 @@ public class CheckListTest {
             .isEmpty();
       }
     }
+
+    assertThat(keys).doesNotHaveDuplicates();
   }
 
 }

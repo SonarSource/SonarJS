@@ -31,7 +31,7 @@ import java.util.Set;
 import java.util.Stack;
 
 @Rule(
-  key = "RedeclaredVariable",
+  key = "RedeclaredFunction",
   priority = Priority.MAJOR)
 @BelongsToProfile(title = CheckList.SONAR_WAY_PROFILE, priority = Priority.MAJOR)
 public class RedeclaredFunctionCheck extends SquidCheck<EcmaScriptGrammar> {
