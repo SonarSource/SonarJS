@@ -78,7 +78,7 @@ public class BoundOrAssignedEvalOrArgumentsCheck extends SquidCheck<EcmaScriptGr
   }
 
   private boolean isEvalOrArguments(String name) {
-    return name.equals("eval") || name.equals("arguments");
+    return "eval".equals(name) || "arguments".equals(name);
   }
 
 }

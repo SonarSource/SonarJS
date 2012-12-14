@@ -26,73 +26,77 @@ public final class EscapeUtils {
 
   public static String unescape(String value) {
     StringBuilder result = new StringBuilder();
-    boolean hadSlash = false;
-    boolean inUnicodeEscapeSequence = false;
-    boolean inHexEscapeSequence = false;
     StringBuilder escapeSequence = new StringBuilder(4);
-    for (int i = 0; i < value.length(); i++) {
+    int i = 0;
+    while (i < value.length()) {
       char ch = value.charAt(i);
-      if (inUnicodeEscapeSequence) {
-        escapeSequence.append(ch);
-        if (escapeSequence.length() == 4) {
-          result.append((char) Integer.parseInt(escapeSequence.toString(), 16));
-          escapeSequence.setLength(0);
-          inUnicodeEscapeSequence = false;
+      if (ch == '\\') {
+        i++;
+        ch = value.charAt(i);
+        if (ch == 'u') {
+          i = consumeEscapeSequence(i, 4, value, escapeSequence, result);
+        } else if (ch == 'x') {
+          i = consumeEscapeSequence(i, 2, value, escapeSequence, result);
+        } else {
+          result.append(unescape(ch));
+          i++;
         }
-      } else if (inHexEscapeSequence) {
-        escapeSequence.append(ch);
-        if (escapeSequence.length() == 2) {
-          result.append((char) Integer.parseInt(escapeSequence.toString(), 16));
-          escapeSequence.setLength(0);
-          inHexEscapeSequence = false;
-        }
-      } else if (hadSlash) {
-        hadSlash = false;
-        switch (ch) {
-          case 'b':
-            result.append('\b');
-            break;
-          case 't':
-            result.append('\t');
-            break;
-          case 'n':
-            result.append('\n');
-            break;
-          case 'v':
-            result.append('\u000B');
-            break;
-          case 'f':
-            result.append('\f');
-            break;
-          case 'r':
-            result.append('\r');
-            break;
-          case '\"':
-            result.append('"');
-            break;
-          case '\'':
-            result.append('\'');
-            break;
-          case '\\':
-            result.append('\\');
-            break;
-          case 'u':
-            inUnicodeEscapeSequence = true;
-            break;
-          case 'x':
-            inHexEscapeSequence = true;
-            break;
-          default:
-            result.append(ch);
-            break;
-        }
-      } else if (ch == '\\') {
-        hadSlash = true;
       } else {
         result.append(ch);
+        i++;
       }
     }
     return result.toString();
+  }
+
+  private static int consumeEscapeSequence(int i, int len, String value, StringBuilder escapeSequence, StringBuilder result) {
+    while (escapeSequence.length() != len && i < value.length()) {
+      i++;
+      escapeSequence.append(value.charAt(i));
+    }
+    if (escapeSequence.length() == len) {
+      result.append((char) Integer.parseInt(escapeSequence.toString(), 16));
+      escapeSequence.setLength(0);
+    }
+    i++;
+    return i;
+  }
+
+  private static char unescape(char ch) {
+    final char result;
+    switch (ch) {
+      case 'b':
+        result = '\b';
+        break;
+      case 't':
+        result = '\t';
+        break;
+      case 'n':
+        result = '\n';
+        break;
+      case 'v':
+        result = '\u000B';
+        break;
+      case 'f':
+        result = '\f';
+        break;
+      case 'r':
+        result = '\r';
+        break;
+      case '\"':
+        result = '"';
+        break;
+      case '\'':
+        result = '\'';
+        break;
+      case '\\':
+        result = '\\';
+        break;
+      default:
+        result = ch;
+        break;
+    }
+    return result;
   }
 
 }

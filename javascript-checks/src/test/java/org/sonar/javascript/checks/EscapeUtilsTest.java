@@ -19,30 +19,28 @@
  */
 package org.sonar.javascript.checks;
 
-import com.sonar.sslr.squid.checks.CheckMessagesVerifier;
 import org.junit.Test;
-import org.sonar.javascript.JavaScriptAstScanner;
-import org.sonar.squid.api.SourceFile;
 
-import java.io.File;
+import static org.fest.assertions.Assertions.assertThat;
 
-public class TabCharacterCheckTest {
-
-  TabCharacterCheck check = new TabCharacterCheck();
+public class EscapeUtilsTest {
 
   @Test
   public void test() {
-    SourceFile file = JavaScriptAstScanner.scanSingleFile(new File("src/test/resources/checks/tabCharacter.js"), check);
-    CheckMessagesVerifier.verify(file.getCheckMessages())
-        .next().atLine(1).withMessage("Replace all tab characters in this file by sequences of white-spaces.")
-        .noMore();
-  }
+    assertThat(EscapeUtils.unescape("foo")).isEqualTo("foo");
+    assertThat(EscapeUtils.unescape("\\u000B")).isEqualTo("\u000B");
+    assertThat(EscapeUtils.unescape("\\x0B")).isEqualTo("\u000B");
 
-  @Test
-  public void test2() {
-    SourceFile file = JavaScriptAstScanner.scanSingleFile(new File("src/test/resources/checks/newlineAtEndOfFile.js"), check);
-    CheckMessagesVerifier.verify(file.getCheckMessages())
-        .noMore();
+    assertThat(EscapeUtils.unescape("\\b")).isEqualTo("\b");
+    assertThat(EscapeUtils.unescape("\\t")).isEqualTo("\t");
+    assertThat(EscapeUtils.unescape("\\n")).isEqualTo("\n");
+    assertThat(EscapeUtils.unescape("\\v")).isEqualTo("\u000B");
+    assertThat(EscapeUtils.unescape("\\f")).isEqualTo("\f");
+    assertThat(EscapeUtils.unescape("\\r")).isEqualTo("\r");
+    assertThat(EscapeUtils.unescape("\\\"")).isEqualTo("\"");
+    assertThat(EscapeUtils.unescape("\\\'")).isEqualTo("\'");
+    assertThat(EscapeUtils.unescape("\\\\")).isEqualTo("\\");
+    assertThat(EscapeUtils.unescape("\\|")).isEqualTo("|");
   }
 
 }
