@@ -9,3 +9,5 @@ var Person = function(first, last, middle) {
     this.middle = middle;
     this.last = last;
 };
+
+var anonFun1 = function() { }; var anonFun2 = function() { doSomething(); };

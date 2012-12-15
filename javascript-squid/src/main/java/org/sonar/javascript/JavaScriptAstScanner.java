@@ -79,8 +79,9 @@ public final class JavaScriptAstScanner {
     /* Functions */
     builder.withSquidAstVisitor(new SourceCodeBuilderVisitor<EcmaScriptGrammar>(new SourceCodeBuilderCallback() {
       public SourceCode createSourceCode(SourceCode parentSourceCode, AstNode astNode) {
-        String functionName = astNode.getChild(1).getTokenValue();
-        SourceFunction function = new SourceFunction(functionName + ":" + astNode.getToken().getLine());
+        AstNode identifier = astNode.findFirstDirectChild(parser.getGrammar().identifier);
+        String functionName = identifier == null ? "anonymous" : identifier.getTokenValue();
+        SourceFunction function = new SourceFunction(functionName + ":" + astNode.getToken().getLine() + ":" + astNode.getToken().getColumn());
         function.setStartAtLine(astNode.getTokenLine());
         return function;
       }
