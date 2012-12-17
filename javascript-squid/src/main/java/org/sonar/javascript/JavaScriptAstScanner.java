@@ -77,20 +77,21 @@ public final class JavaScriptAstScanner {
     builder.setFilesMetric(EcmaScriptMetric.FILES);
 
     /* Functions */
-    builder.withSquidAstVisitor(new SourceCodeBuilderVisitor<EcmaScriptGrammar>(new SourceCodeBuilderCallback() {
-      public SourceCode createSourceCode(SourceCode parentSourceCode, AstNode astNode) {
-        AstNode identifier = astNode.findFirstDirectChild(parser.getGrammar().identifier);
-        String functionName = identifier == null ? "anonymous" : identifier.getTokenValue();
-        SourceFunction function = new SourceFunction(functionName + ":" + astNode.getToken().getLine() + ":" + astNode.getToken().getColumn());
-        function.setStartAtLine(astNode.getTokenLine());
-        return function;
-      }
-    }, parser.getGrammar().functionDeclaration, parser.getGrammar().functionExpression));
-
     builder.withSquidAstVisitor(CounterVisitor.<EcmaScriptGrammar> builder()
         .setMetricDef(EcmaScriptMetric.FUNCTIONS)
         .subscribeTo(parser.getGrammar().functionDeclaration, parser.getGrammar().functionExpression)
         .build());
+
+    builder.withSquidAstVisitor(new SourceCodeBuilderVisitor<EcmaScriptGrammar>(new SourceCodeBuilderCallback() {
+      public SourceCode createSourceCode(SourceCode parentSourceCode, AstNode astNode) {
+        AstNode identifier = astNode.findFirstDirectChild(parser.getGrammar().identifier);
+        final String functionName = identifier == null ? "anonymous" : identifier.getTokenValue();
+        final String fileKey = parentSourceCode.isType(SourceFile.class) ? parentSourceCode.getKey() : parentSourceCode.getParent(SourceFile.class).getKey();
+        SourceFunction function = new SourceFunction(fileKey + ":" + functionName + ":" + astNode.getToken().getLine() + ":" + astNode.getToken().getColumn());
+        function.setStartAtLine(astNode.getTokenLine());
+        return function;
+      }
+    }, parser.getGrammar().functionDeclaration, parser.getGrammar().functionExpression));
 
     /* Metrics */
     builder.withSquidAstVisitor(new LinesVisitor<EcmaScriptGrammar>(EcmaScriptMetric.LINES));
