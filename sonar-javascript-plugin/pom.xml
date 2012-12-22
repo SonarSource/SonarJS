@@ -16,7 +16,10 @@
   <url>http://docs.codehaus.org/display/SONAR/JavaScript+Plugin</url>
 
   <scm>
+    <connection>scm:git:git@github.com:SonarCommunity/sonar-javascript.git</connection>
+    <developerConnection>scm:git:git@github.com:SonarCommunity/sonar-javascript.git</developerConnection>
     <url>https://github.com/SonarCommunity/sonar-javascript</url>
+    <tag>HEAD</tag>
   </scm>
 
   <properties>
