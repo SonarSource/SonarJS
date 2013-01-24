@@ -27,6 +27,7 @@ import org.sonar.javascript.api.EcmaScriptTokenType;
 import org.sonar.javascript.lexer.EcmaScriptLexer;
 import org.sonar.javascript.lexer.EcmaScriptRegexpChannel;
 
+import static org.sonar.sslr.parser.GrammarOperators.commentTrivia;
 import static org.sonar.sslr.parser.GrammarOperators.endOfInput;
 import static org.sonar.sslr.parser.GrammarOperators.firstOf;
 import static org.sonar.sslr.parser.GrammarOperators.next;
@@ -35,6 +36,7 @@ import static org.sonar.sslr.parser.GrammarOperators.oneOrMore;
 import static org.sonar.sslr.parser.GrammarOperators.optional;
 import static org.sonar.sslr.parser.GrammarOperators.regexp;
 import static org.sonar.sslr.parser.GrammarOperators.sequence;
+import static org.sonar.sslr.parser.GrammarOperators.skippedTrivia;
 import static org.sonar.sslr.parser.GrammarOperators.token;
 import static org.sonar.sslr.parser.GrammarOperators.zeroOrMore;
 
@@ -134,10 +136,10 @@ public class EcmaScriptGrammarImpl extends EcmaScriptGrammar {
     letterOrDigit.is(regexp("\\p{javaJavaIdentifierPart}"));
 
     spacing.is(
-        regexp(EcmaScriptLexer.WHITESPACE + "*+"),
+        skippedTrivia(regexp(EcmaScriptLexer.WHITESPACE + "*+")),
         zeroOrMore(
-            token(GenericTokenType.COMMENT, regexp(EcmaScriptLexer.COMMENT)),
-            regexp(EcmaScriptLexer.WHITESPACE + "*+"))).skip();
+            commentTrivia(regexp(EcmaScriptLexer.COMMENT)),
+            skippedTrivia(regexp(EcmaScriptLexer.WHITESPACE + "*+")))).skip();
 
     punctuators();
     keywords();

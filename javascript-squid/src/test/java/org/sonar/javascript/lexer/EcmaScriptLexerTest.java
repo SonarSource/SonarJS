@@ -22,7 +22,7 @@ package org.sonar.javascript.lexer;
 import com.google.common.base.Charsets;
 import com.sonar.sslr.api.GenericTokenType;
 import com.sonar.sslr.impl.Lexer;
-import com.sonar.sslr.impl.channel.UnknownCharacterChannel;
+import com.sonar.sslr.impl.channel.BomCharacterChannel;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.sonar.javascript.EcmaScriptConfiguration;
@@ -149,7 +149,7 @@ public class EcmaScriptLexerTest {
 
   @Test
   public void bom() {
-    assertThat(lexer.lex(Character.toString(UnknownCharacterChannel.BOM_CHAR)), hasTokens("EOF"));
+    assertThat(lexer.lex(Character.toString((char) BomCharacterChannel.BOM_CHAR)), hasTokens("EOF"));
   }
 
 }
