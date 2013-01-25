@@ -43,8 +43,8 @@ public class AssignmentWithinConditionCheck extends SquidCheck<EcmaScriptGrammar
 
   @Override
   public void visitNode(AstNode astNode) {
-    AstNode conditionNode = astNode.findFirstDirectChild(getContext().getGrammar().condition);
-    if ((conditionNode != null) && (conditionNode.getChild(0).findFirstDirectChild(getContext().getGrammar().assignmentExpression) != null)) {
+    AstNode conditionNode = astNode.getFirstChild(getContext().getGrammar().condition);
+    if ((conditionNode != null) && (conditionNode.getChild(0).getFirstChild(getContext().getGrammar().assignmentExpression) != null)) {
       getContext().createLineViolation(this, "Remove this assignment from the expression.", conditionNode);
     }
   }

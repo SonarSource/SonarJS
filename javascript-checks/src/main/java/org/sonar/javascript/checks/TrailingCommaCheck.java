@@ -43,7 +43,7 @@ public class TrailingCommaCheck extends SquidCheck<EcmaScriptGrammar> {
 
   @Override
   public void visitNode(AstNode astNode) {
-    if (astNode.getLastChild().previousSibling().getLastToken().getType() == EcmaScriptPunctuator.COMMA) {
+    if (astNode.getLastChild().getPreviousSibling().getLastToken().getType() == EcmaScriptPunctuator.COMMA) {
       getContext().createLineViolation(this, "Avoid trailing comma in array and object literals.", astNode);
     }
   }

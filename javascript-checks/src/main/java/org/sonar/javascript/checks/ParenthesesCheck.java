@@ -51,8 +51,8 @@ public class ParenthesesCheck extends SquidCheck<EcmaScriptGrammar> {
   @Override
   public void visitNode(AstNode node) {
     if (("(".equals(node.getTokenValue()))
-        && node.previousSibling() != null
-        && NO_PARENTHESES_AFTER.contains(node.previousSibling().getTokenValue())) {
+        && node.getPreviousSibling() != null
+        && NO_PARENTHESES_AFTER.contains(node.getPreviousSibling().getTokenValue())) {
       getContext().createLineViolation(this, "Those parentheses are useless.", node);
     }
   }

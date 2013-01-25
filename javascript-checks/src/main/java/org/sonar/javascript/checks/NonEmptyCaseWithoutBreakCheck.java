@@ -39,9 +39,9 @@ public class NonEmptyCaseWithoutBreakCheck extends SquidCheck<EcmaScriptGrammar>
 
   @Override
   public void visitNode(AstNode astNode) {
-    if (astNode.nextAstNode().is(getContext().getGrammar().caseClause, getContext().getGrammar().defaultClause, getContext().getGrammar().caseClauses)) {
+    if (astNode.getNextAstNode().is(getContext().getGrammar().caseClause, getContext().getGrammar().defaultClause, getContext().getGrammar().caseClauses)) {
       EcmaScriptGrammar grammar = getContext().getGrammar();
-      AstNode statementList = astNode.findFirstDirectChild(getContext().getGrammar().statementList);
+      AstNode statementList = astNode.getFirstChild(getContext().getGrammar().statementList);
       if (statementList != null && statementList.getLastChild().getFirstChild().isNot(grammar.breakStatement, grammar.returnStatement, grammar.throwStatement)) {
         getContext().createLineViolation(this, "Last statement in this switch-clause should be an unconditional break.", astNode);
       }

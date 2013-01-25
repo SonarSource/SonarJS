@@ -40,7 +40,7 @@ public class CollapsibleIfStatementsCheck extends SquidCheck<EcmaScriptGrammar> 
   @Override
   public void visitNode(AstNode node) {
     if (isIfStatementWithoutElse(node)) {
-      AstNode innerStatement = node.findFirstDirectChild(getContext().getGrammar().statement).getFirstChild();
+      AstNode innerStatement = node.getFirstChild(getContext().getGrammar().statement).getFirstChild();
       if (isBlockAndContainsOnlyOneIfStatement(innerStatement) || isIfStatementWithoutElse(innerStatement)) {
         getContext().createLineViolation(this, "Those two 'if' statements can be consolidated.", node);
       }
@@ -51,7 +51,7 @@ public class CollapsibleIfStatementsCheck extends SquidCheck<EcmaScriptGrammar> 
     if (!statement.is(getContext().getGrammar().block)) {
       return false;
     }
-    AstNode statementList = statement.findFirstDirectChild(getContext().getGrammar().statementList);
+    AstNode statementList = statement.getFirstChild(getContext().getGrammar().statementList);
     if (statementList == null || statementList.getNumberOfChildren() != 1 || statementList.getFirstChild().isNot(getContext().getGrammar().statement)) {
       return false;
     }

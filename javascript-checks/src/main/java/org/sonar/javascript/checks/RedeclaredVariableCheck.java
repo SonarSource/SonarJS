@@ -55,7 +55,7 @@ public class RedeclaredVariableCheck extends SquidCheck<EcmaScriptGrammar> {
     if (astNode.is(getContext().getGrammar().functionDeclaration, getContext().getGrammar().functionExpression)) {
       Set<String> currentScope = new HashSet<String>();
       stack.add(currentScope);
-      AstNode formalParameterList = astNode.findFirstDirectChild(getContext().getGrammar().formalParameterList);
+      AstNode formalParameterList = astNode.getFirstChild(getContext().getGrammar().formalParameterList);
       if (formalParameterList != null) {
         for (int i = 0; i < formalParameterList.getNumberOfChildren(); i += 2) {
           String parameterName = formalParameterList.getChild(i).getTokenValue();

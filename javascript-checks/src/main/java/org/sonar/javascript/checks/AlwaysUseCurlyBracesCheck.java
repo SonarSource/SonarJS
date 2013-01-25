@@ -48,10 +48,10 @@ public class AlwaysUseCurlyBracesCheck extends SquidCheck<EcmaScriptGrammar> {
 
   @Override
   public void visitNode(AstNode astNode) {
-    List<AstNode> statements = astNode.findDirectChildren(getContext().getGrammar().statement);
+    List<AstNode> statements = astNode.getChildren(getContext().getGrammar().statement);
     for (AstNode statement : statements) {
       if (statement.getChild(0).is(getContext().getGrammar().ifStatement)
-          && statement.previousSibling().is(EcmaScriptKeyword.ELSE)) {
+          && statement.getPreviousSibling().is(EcmaScriptKeyword.ELSE)) {
         continue;
       }
       if (!statement.getChild(0).is(getContext().getGrammar().block)) {

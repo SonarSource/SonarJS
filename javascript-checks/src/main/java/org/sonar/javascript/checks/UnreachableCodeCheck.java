@@ -48,8 +48,8 @@ public class UnreachableCodeCheck extends SquidCheck<EcmaScriptGrammar> {
       node = node.getParent();
     }
 
-    if (node.nextSibling() != null) {
-      AstNode v = node.nextSibling();
+    if (node.getNextSibling() != null) {
+      AstNode v = node.getNextSibling();
       if (!v.is(getContext().getGrammar().elseClause)) {
         getContext().createLineViolation(this, "This statement can't be reached and so start a dead code block.", v);
       }

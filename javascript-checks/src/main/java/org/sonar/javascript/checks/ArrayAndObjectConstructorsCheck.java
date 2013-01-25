@@ -40,10 +40,10 @@ public class ArrayAndObjectConstructorsCheck extends SquidCheck<EcmaScriptGramma
 
   @Override
   public void visitNode(AstNode astNode) {
-    if ("Array".equals(astNode.nextSibling().getTokenValue())) {
+    if ("Array".equals(astNode.getNextSibling().getTokenValue())) {
       getContext().createLineViolation(this, "Do not use Array constructors.", astNode);
     }
-    if ("Object".equals(astNode.nextSibling().getTokenValue())) {
+    if ("Object".equals(astNode.getNextSibling().getTokenValue())) {
       getContext().createLineViolation(this, "Do not use Object constructors.", astNode);
     }
   }

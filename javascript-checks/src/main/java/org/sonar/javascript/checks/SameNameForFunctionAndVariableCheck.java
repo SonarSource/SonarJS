@@ -56,7 +56,7 @@ public class SameNameForFunctionAndVariableCheck extends SquidCheck<EcmaScriptGr
   @Override
   public void visitNode(AstNode astNode) {
     if (astNode.is(getContext().getGrammar().functionDeclaration)) {
-      String functionName = astNode.findFirstDirectChild(getContext().getGrammar().identifier).getTokenValue();
+      String functionName = astNode.getFirstChild(getContext().getGrammar().identifier).getTokenValue();
       check(astNode, variablesStack.peek(), functionName);
       functionsStack.peek().add(functionName);
     } else if (astNode.is(getContext().getGrammar().variableDeclaration, getContext().getGrammar().variableDeclarationNoIn)) {

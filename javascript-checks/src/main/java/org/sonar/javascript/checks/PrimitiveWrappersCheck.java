@@ -45,7 +45,7 @@ public class PrimitiveWrappersCheck extends SquidCheck<EcmaScriptGrammar> {
 
   @Override
   public void visitNode(AstNode astNode) {
-    if (WRAPPERS.contains(astNode.nextSibling().getTokenValue())) {
+    if (WRAPPERS.contains(astNode.getNextSibling().getTokenValue())) {
       getContext().createLineViolation(this, "Do not use wrapper objects for primitive types.", astNode);
     }
   }

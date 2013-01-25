@@ -40,7 +40,7 @@ public class SemicolonCheck extends SquidCheck<EcmaScriptGrammar> {
 
   @Override
   public void visitNode(AstNode astNode) {
-    if (astNode.findFirstChild(EcmaScriptPunctuator.SEMI) == null) {
+    if (astNode.getFirstChild(EcmaScriptPunctuator.SEMI) == null) {
       getContext().createLineViolation(this, "Missing semicolon.", astNode.getParent());
     }
   }

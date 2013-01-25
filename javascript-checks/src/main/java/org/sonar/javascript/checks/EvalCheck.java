@@ -39,7 +39,7 @@ public class EvalCheck extends SquidCheck<EcmaScriptGrammar> {
 
   @Override
   public void visitNode(AstNode node) {
-    AstNode memberExpressionNode = node.findFirstDirectChild(getContext().getGrammar().memberExpression);
+    AstNode memberExpressionNode = node.getFirstChild(getContext().getGrammar().memberExpression);
     if ("eval".equals(memberExpressionNode.getTokenValue())) {
       getContext().createLineViolation(this, "Avoid use of eval.", node);
     }

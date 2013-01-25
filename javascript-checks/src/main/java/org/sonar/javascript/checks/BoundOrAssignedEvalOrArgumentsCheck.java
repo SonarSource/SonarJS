@@ -54,11 +54,11 @@ public class BoundOrAssignedEvalOrArgumentsCheck extends SquidCheck<EcmaScriptGr
   }
 
   private void checkFunction(AstNode astNode) {
-    AstNode identifier = astNode.findFirstDirectChild(getContext().getGrammar().identifier);
+    AstNode identifier = astNode.getFirstChild(getContext().getGrammar().identifier);
     if (identifier != null && isEvalOrArguments(identifier.getTokenValue())) {
       getContext().createLineViolation(this, createMessageFor("function", identifier.getTokenValue()), identifier);
     }
-    AstNode formalParameterList = astNode.findFirstDirectChild(getContext().getGrammar().formalParameterList);
+    AstNode formalParameterList = astNode.getFirstChild(getContext().getGrammar().formalParameterList);
     if (formalParameterList != null) {
       for (int i = 0; i < formalParameterList.getNumberOfChildren(); i += 2) {
         identifier = formalParameterList.getChild(i);
@@ -70,14 +70,14 @@ public class BoundOrAssignedEvalOrArgumentsCheck extends SquidCheck<EcmaScriptGr
   }
 
   private void checkVariableDeclaration(AstNode astNode) {
-    AstNode identifier = astNode.findFirstDirectChild(getContext().getGrammar().identifier);
+    AstNode identifier = astNode.getFirstChild(getContext().getGrammar().identifier);
     if (isEvalOrArguments(identifier.getTokenValue())) {
       getContext().createLineViolation(this, createMessageFor("variable", identifier.getTokenValue()), identifier);
     }
   }
 
   private void checkPropertySetParameterList(AstNode astNode) {
-    AstNode identifier = astNode.findFirstDirectChild(getContext().getGrammar().identifier);
+    AstNode identifier = astNode.getFirstChild(getContext().getGrammar().identifier);
     if (isEvalOrArguments(identifier.getTokenValue())) {
       getContext().createLineViolation(this, createMessageFor("parameter", identifier.getTokenValue()), identifier);
     }

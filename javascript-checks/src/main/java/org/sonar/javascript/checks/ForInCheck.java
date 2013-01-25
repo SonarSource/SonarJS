@@ -43,15 +43,15 @@ public class ForInCheck extends SquidCheck<EcmaScriptGrammar> {
   @Override
   public void visitNode(AstNode astNode) {
     EcmaScriptGrammar g = getContext().getGrammar();
-    AstNode statementNode = astNode.findFirstDirectChild(g.statement);
+    AstNode statementNode = astNode.getFirstChild(g.statement);
 
     final List<AstNode> statements;
     if (statementNode.getChild(0).is(g.block)) {
-      AstNode statementListNode = statementNode.getChild(0).findFirstDirectChild(g.statementList);
+      AstNode statementListNode = statementNode.getChild(0).getFirstChild(g.statementList);
       if (statementListNode == null) {
         statements = Collections.emptyList();
       } else {
-        statements = statementListNode.findDirectChildren(g.statement);
+        statements = statementListNode.getChildren(g.statement);
       }
     } else {
       statements = Collections.singletonList(statementNode);

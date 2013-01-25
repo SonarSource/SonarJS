@@ -40,7 +40,7 @@ public class LabelPlacementCheck extends SquidCheck<EcmaScriptGrammar> {
   @Override
   public void visitNode(AstNode astNode) {
     EcmaScriptGrammar g = getContext().getGrammar();
-    AstNode statementNode = astNode.findFirstDirectChild(g.statement).getChild(0);
+    AstNode statementNode = astNode.getFirstChild(g.statement).getChild(0);
     if (!statementNode.is(g.iterationStatement)) {
       getContext().createLineViolation(this, "Remove this label.", astNode);
     }

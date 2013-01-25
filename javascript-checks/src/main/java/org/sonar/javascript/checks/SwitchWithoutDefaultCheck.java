@@ -40,10 +40,10 @@ public class SwitchWithoutDefaultCheck extends SquidCheck<EcmaScriptGrammar> {
 
   @Override
   public void visitNode(AstNode astNode) {
-    AstNode defaultClauseNode = astNode.findFirstDirectChild(getContext().getGrammar().defaultClause);
+    AstNode defaultClauseNode = astNode.getFirstChild(getContext().getGrammar().defaultClause);
     if (defaultClauseNode == null) {
       getContext().createLineViolation(this, "Avoid switch statement without a \"default\" clause.", astNode);
-    } else if (defaultClauseNode.nextSibling().isNot(EcmaScriptPunctuator.RCURLYBRACE)) {
+    } else if (defaultClauseNode.getNextSibling().isNot(EcmaScriptPunctuator.RCURLYBRACE)) {
       getContext().createLineViolation(this, "\"default\" clause should be the last one.", astNode);
     }
   }

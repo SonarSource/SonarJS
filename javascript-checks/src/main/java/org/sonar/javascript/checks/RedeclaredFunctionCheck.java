@@ -53,7 +53,7 @@ public class RedeclaredFunctionCheck extends SquidCheck<EcmaScriptGrammar> {
   public void visitNode(AstNode astNode) {
     if (astNode.is(getContext().getGrammar().functionDeclaration)) {
       Set<String> currentScope = stack.peek();
-      String functionName = astNode.findFirstDirectChild(getContext().getGrammar().identifier).getTokenValue();
+      String functionName = astNode.getFirstChild(getContext().getGrammar().identifier).getTokenValue();
       if (currentScope.contains(functionName)) {
         getContext().createLineViolation(this, "Rename function '" + functionName + "' as this name is already used.", astNode);
       } else {

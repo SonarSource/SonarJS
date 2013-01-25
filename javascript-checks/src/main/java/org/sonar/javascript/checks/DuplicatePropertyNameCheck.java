@@ -44,9 +44,9 @@ public class DuplicatePropertyNameCheck extends SquidCheck<EcmaScriptGrammar> {
   @Override
   public void visitNode(AstNode astNode) {
     Set<String> values = Sets.newHashSet();
-    List<AstNode> propertyAssignments = astNode.findDirectChildren(getContext().getGrammar().propertyAssignment);
+    List<AstNode> propertyAssignments = astNode.getChildren(getContext().getGrammar().propertyAssignment);
     for (AstNode propertyAssignment : propertyAssignments) {
-      AstNode propertyName = propertyAssignment.findFirstDirectChild(getContext().getGrammar().propertyName);
+      AstNode propertyName = propertyAssignment.getFirstChild(getContext().getGrammar().propertyName);
       String value = propertyName.getTokenValue();
       if (value.startsWith("\"") || value.startsWith("'")) {
         value = value.substring(1, value.length() - 1);
