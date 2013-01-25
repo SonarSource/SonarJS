@@ -13,13 +13,13 @@
 
   <dependencies>
     <dependency>
+      <groupId>org.codehaus.sonar.sslr</groupId>
+      <artifactId>sslr-toolkit</artifactId>
+    </dependency>
+    <dependency>
       <groupId>${project.groupId}</groupId>
       <artifactId>javascript-squid</artifactId>
       <version>${project.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.codehaus.sonar.sslr</groupId>
-      <artifactId>sslr-toolkit</artifactId>
     </dependency>
     <dependency>
       <groupId>ch.qos.logback</groupId>
