@@ -67,7 +67,7 @@
     <maven.test.redirectTestOutputToFile>true</maven.test.redirectTestOutputToFile>
 
     <sonar.version>3.0</sonar.version>
-    <sslr.version>1.17</sslr.version>
+    <sslr.version>1.18</sslr.version>
   </properties>
 
   <dependencyManagement>
