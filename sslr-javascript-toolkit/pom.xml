@@ -54,8 +54,6 @@
       <plugin>
         <groupId>org.sonatype.plugins</groupId>
         <artifactId>jarjar-maven-plugin</artifactId>
-        <!-- TODO should be in parent -->
-        <version>1.5</version>
         <executions>
           <execution>
             <phase>package</phase>
@@ -103,7 +101,7 @@
               <rules>
                 <requireFilesSize>
                   <maxsize>3100000</maxsize>
-                  <minsize>3000000</minsize>
+                  <minsize>2900000</minsize>
                   <files>
                     <file>${project.build.directory}/${project.build.finalName}.jar</file>
                   </files>
