@@ -52,20 +52,20 @@ public final class LCOVParser {
     JavaScriptFileCoverage fileCoverage = new JavaScriptFileCoverage();
 
     for (String line : lines) {
-      if (line.indexOf("SF:") > -1) {
+      if (line.startsWith("SF:")) {
         fileCoverage = new JavaScriptFileCoverage();
         String filePath = line.substring(line.indexOf("SF:") + 3);
 
         fileCoverage.setFilePath(filePath);
 
-      } else if (line.indexOf("DA:") > -1) {
+      } else if (line.startsWith("DA:")) {
         String execution = line.substring(line.indexOf("DA:") + 3);
         String executionCount = execution.substring(execution.indexOf(',') + 1);
         String lineNumber = execution.substring(0, execution.indexOf(','));
 
         fileCoverage.addLine(Integer.valueOf(lineNumber).intValue(), Integer.valueOf(executionCount).intValue());
 
-      } else if (line.indexOf("end_of_record") > -1) {
+      } else if ("end_of_record".equals(line.trim())) {
         coveredFiles.add(fileCoverage);
       }
     }
