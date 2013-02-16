@@ -24,17 +24,18 @@ import com.sonar.sslr.squid.checks.SquidCheck;
 import org.sonar.check.BelongsToProfile;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
-import org.sonar.javascript.api.EcmaScriptGrammar;
+import org.sonar.javascript.parser.EcmaScriptGrammar;
+import org.sonar.sslr.parser.LexerlessGrammar;
 
 @Rule(
   key = "WithStatement",
   priority = Priority.MAJOR)
 @BelongsToProfile(title = CheckList.SONAR_WAY_PROFILE, priority = Priority.MAJOR)
-public class WithStatementCheck extends SquidCheck<EcmaScriptGrammar> {
+public class WithStatementCheck extends SquidCheck<LexerlessGrammar> {
 
   @Override
   public void init() {
-    subscribeTo(getContext().getGrammar().withStatement);
+    subscribeTo(EcmaScriptGrammar.WITH_STATEMENT);
   }
 
   @Override

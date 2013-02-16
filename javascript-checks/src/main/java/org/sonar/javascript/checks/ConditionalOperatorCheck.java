@@ -23,13 +23,13 @@ import com.sonar.sslr.api.AstNode;
 import com.sonar.sslr.squid.checks.SquidCheck;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
-import org.sonar.javascript.api.EcmaScriptGrammar;
 import org.sonar.javascript.api.EcmaScriptPunctuator;
+import org.sonar.sslr.parser.LexerlessGrammar;
 
 @Rule(
   key = "ConditionalOperator",
   priority = Priority.MINOR)
-public class ConditionalOperatorCheck extends SquidCheck<EcmaScriptGrammar> {
+public class ConditionalOperatorCheck extends SquidCheck<LexerlessGrammar> {
 
   @Override
   public void init() {

@@ -25,7 +25,8 @@ import com.sonar.sslr.squid.checks.SquidCheck;
 import org.sonar.check.BelongsToProfile;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
-import org.sonar.javascript.api.EcmaScriptGrammar;
+import org.sonar.javascript.api.EcmaScriptTokenType;
+import org.sonar.sslr.parser.LexerlessGrammar;
 
 import java.util.Set;
 
@@ -33,13 +34,13 @@ import java.util.Set;
   key = "FutureReservedWords",
   priority = Priority.CRITICAL)
 @BelongsToProfile(title = CheckList.SONAR_WAY_PROFILE, priority = Priority.CRITICAL)
-public class FutureReservedWordsCheck extends SquidCheck<EcmaScriptGrammar> {
+public class FutureReservedWordsCheck extends SquidCheck<LexerlessGrammar> {
 
   private static final Set<String> FUTURE_RESERVED_WORDS = ImmutableSet.of("implements", "interface", "let", "package", "private", "protected", "public", "static", "yield");
 
   @Override
   public void init() {
-    subscribeTo(getContext().getGrammar().identifier);
+    subscribeTo(EcmaScriptTokenType.IDENTIFIER);
   }
 
   @Override

@@ -25,13 +25,14 @@ import org.sonar.check.BelongsToProfile;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
-import org.sonar.javascript.api.EcmaScriptGrammar;
+import org.sonar.javascript.parser.EcmaScriptGrammar;
+import org.sonar.sslr.parser.LexerlessGrammar;
 
 @Rule(
   key = "ExcessiveParameterList",
   priority = Priority.MAJOR)
 @BelongsToProfile(title = CheckList.SONAR_WAY_PROFILE, priority = Priority.MAJOR)
-public class ExcessiveParameterListCheck extends SquidCheck<EcmaScriptGrammar> {
+public class ExcessiveParameterListCheck extends SquidCheck<LexerlessGrammar> {
 
   private static final int DEFAULT_MAXIMUM_FUNCTION_PARAMETERS = 7;
 
@@ -42,7 +43,7 @@ public class ExcessiveParameterListCheck extends SquidCheck<EcmaScriptGrammar> {
 
   @Override
   public void init() {
-    subscribeTo(getContext().getGrammar().formalParameterList);
+    subscribeTo(EcmaScriptGrammar.FORMAL_PARAMETER_LIST);
   }
 
   @Override

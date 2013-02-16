@@ -24,22 +24,23 @@ import com.sonar.sslr.squid.checks.SquidCheck;
 import org.sonar.check.BelongsToProfile;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
-import org.sonar.javascript.api.EcmaScriptGrammar;
+import org.sonar.javascript.parser.EcmaScriptGrammar;
+import org.sonar.sslr.parser.LexerlessGrammar;
 
 @Rule(
   key = "Eval",
   priority = Priority.MAJOR)
 @BelongsToProfile(title = CheckList.SONAR_WAY_PROFILE, priority = Priority.MAJOR)
-public class EvalCheck extends SquidCheck<EcmaScriptGrammar> {
+public class EvalCheck extends SquidCheck<LexerlessGrammar> {
 
   @Override
   public void init() {
-    subscribeTo(getContext().getGrammar().callExpression);
+    subscribeTo(EcmaScriptGrammar.CALL_EXPRESSION);
   }
 
   @Override
   public void visitNode(AstNode node) {
-    AstNode memberExpressionNode = node.getFirstChild(getContext().getGrammar().memberExpression);
+    AstNode memberExpressionNode = node.getFirstChild(EcmaScriptGrammar.MEMBER_EXPRESSION);
     if ("eval".equals(memberExpressionNode.getTokenValue())) {
       getContext().createLineViolation(this, "Avoid use of eval.", node);
     }

@@ -20,18 +20,19 @@
 package org.sonar.javascript.parser.grammar.lexical;
 
 import org.junit.Test;
-import org.sonar.javascript.api.EcmaScriptGrammar;
-import org.sonar.javascript.parser.EcmaScriptGrammarImpl;
+import org.sonar.javascript.api.EcmaScriptTokenType;
+import org.sonar.javascript.parser.EcmaScriptGrammar;
+import org.sonar.sslr.parser.LexerlessGrammar;
 
 import static org.sonar.sslr.tests.Assertions.assertThat;
 
 public class IdentifierTest {
 
-  EcmaScriptGrammar g = new EcmaScriptGrammarImpl();
+  LexerlessGrammar g = EcmaScriptGrammar.createGrammar();
 
   @Test
   public void ok() {
-    assertThat(g.identifier).as("future reserved words")
+    assertThat(g.rule(EcmaScriptTokenType.IDENTIFIER)).as("future reserved words")
         .matches("implements")
         .matches("interface")
         .matches("let")

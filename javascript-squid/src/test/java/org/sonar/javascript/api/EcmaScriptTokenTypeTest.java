@@ -27,7 +27,7 @@ public class EcmaScriptTokenTypeTest {
 
   @Test
   public void test() {
-    assertThat(EcmaScriptTokenType.values().length).isEqualTo(2);
+    assertThat(EcmaScriptTokenType.values().length).isEqualTo(3);
 
     for (EcmaScriptTokenType type : EcmaScriptTokenType.values()) {
       assertThat(type.getName()).isEqualTo(type.name());

@@ -20,27 +20,27 @@
 package org.sonar.javascript.parser.grammar.expressions;
 
 import org.junit.Test;
-import org.sonar.javascript.api.EcmaScriptGrammar;
-import org.sonar.javascript.parser.EcmaScriptGrammarImpl;
+import org.sonar.javascript.parser.EcmaScriptGrammar;
+import org.sonar.sslr.parser.LexerlessGrammar;
 
 import static org.sonar.sslr.tests.Assertions.assertThat;
 
 public class CallExpressionTest {
 
-  EcmaScriptGrammar g = new EcmaScriptGrammarImpl();
+  LexerlessGrammar g = EcmaScriptGrammar.createGrammar();
 
   @Test
   public void ok() {
-    g.memberExpression.mock();
-    g.arguments.mock();
-    g.expression.mock();
-    g.identifierName.mock();
+    g.rule(EcmaScriptGrammar.MEMBER_EXPRESSION).mock();
+    g.rule(EcmaScriptGrammar.ARGUMENTS).mock();
+    g.rule(EcmaScriptGrammar.EXPRESSION).mock();
+    g.rule(EcmaScriptGrammar.IDENTIFIER_NAME).mock();
 
-    assertThat(g.callExpression)
+    assertThat(g.rule(EcmaScriptGrammar.CALL_EXPRESSION))
         .matches("memberExpression arguments")
         .matches("memberExpression arguments arguments");
 
-    assertThat(g.callExpression)
+    assertThat(g.rule(EcmaScriptGrammar.CALL_EXPRESSION))
         .matches("memberExpression arguments [ expression ]")
         .matches("memberExpression arguments . identifierName");
   }

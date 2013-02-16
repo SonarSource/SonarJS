@@ -23,22 +23,23 @@ import com.sonar.sslr.api.AstNode;
 import com.sonar.sslr.squid.checks.SquidCheck;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
-import org.sonar.javascript.api.EcmaScriptGrammar;
+import org.sonar.javascript.parser.EcmaScriptGrammar;
+import org.sonar.sslr.parser.LexerlessGrammar;
 
 @Rule(
   key = "ElseIfWithoutElse",
   priority = Priority.MAJOR)
-public class ElseIfWithoutElseCheck extends SquidCheck<EcmaScriptGrammar> {
+public class ElseIfWithoutElseCheck extends SquidCheck<LexerlessGrammar> {
 
   @Override
   public void init() {
-    subscribeTo(getContext().getGrammar().ifStatement);
+    subscribeTo(EcmaScriptGrammar.IF_STATEMENT);
   }
 
   @Override
   public void visitNode(AstNode node) {
     if (isElseIf(node)) {
-      AstNode elseClause = node.getFirstChild(getContext().getGrammar().elseClause);
+      AstNode elseClause = node.getFirstChild(EcmaScriptGrammar.ELSE_CLAUSE);
       if (elseClause == null) {
         getContext().createLineViolation(this, "End this if...else if construct by an else clause.", node);
       }
@@ -50,7 +51,7 @@ public class ElseIfWithoutElseCheck extends SquidCheck<EcmaScriptGrammar> {
   }
 
   private boolean isElse(AstNode node) {
-    return node != null && node.is(getContext().getGrammar().elseClause);
+    return node != null && node.is(EcmaScriptGrammar.ELSE_CLAUSE);
   }
 
 }

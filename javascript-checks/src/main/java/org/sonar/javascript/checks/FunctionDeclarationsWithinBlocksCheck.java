@@ -24,22 +24,23 @@ import com.sonar.sslr.squid.checks.SquidCheck;
 import org.sonar.check.BelongsToProfile;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
-import org.sonar.javascript.api.EcmaScriptGrammar;
+import org.sonar.javascript.parser.EcmaScriptGrammar;
+import org.sonar.sslr.parser.LexerlessGrammar;
 
 @Rule(
   key = "FunctionDeclarationsWithinBlocks",
   priority = Priority.BLOCKER)
 @BelongsToProfile(title = CheckList.SONAR_WAY_PROFILE, priority = Priority.MAJOR)
-public class FunctionDeclarationsWithinBlocksCheck extends SquidCheck<EcmaScriptGrammar> {
+public class FunctionDeclarationsWithinBlocksCheck extends SquidCheck<LexerlessGrammar> {
 
   @Override
   public void init() {
-    subscribeTo(getContext().getGrammar().statementList);
+    subscribeTo(EcmaScriptGrammar.STATEMENT_LIST);
   }
 
   @Override
   public void visitNode(AstNode astNode) {
-    for (AstNode functionDeclarationNode : astNode.getChildren(getContext().getGrammar().functionDeclaration)) {
+    for (AstNode functionDeclarationNode : astNode.getChildren(EcmaScriptGrammar.FUNCTION_DECLARATION)) {
       getContext().createLineViolation(this, "Do not use function declarations within blocks.", functionDeclarationNode);
     }
   }

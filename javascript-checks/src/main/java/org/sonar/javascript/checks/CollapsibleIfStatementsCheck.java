@@ -24,23 +24,24 @@ import com.sonar.sslr.squid.checks.SquidCheck;
 import org.sonar.check.BelongsToProfile;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
-import org.sonar.javascript.api.EcmaScriptGrammar;
+import org.sonar.javascript.parser.EcmaScriptGrammar;
+import org.sonar.sslr.parser.LexerlessGrammar;
 
 @Rule(
   key = "CollapsibleIfStatements",
   priority = Priority.MAJOR)
 @BelongsToProfile(title = CheckList.SONAR_WAY_PROFILE, priority = Priority.MAJOR)
-public class CollapsibleIfStatementsCheck extends SquidCheck<EcmaScriptGrammar> {
+public class CollapsibleIfStatementsCheck extends SquidCheck<LexerlessGrammar> {
 
   @Override
   public void init() {
-    subscribeTo(getContext().getGrammar().ifStatement);
+    subscribeTo(EcmaScriptGrammar.IF_STATEMENT);
   }
 
   @Override
   public void visitNode(AstNode node) {
     if (isIfStatementWithoutElse(node)) {
-      AstNode innerStatement = node.getFirstChild(getContext().getGrammar().statement).getFirstChild();
+      AstNode innerStatement = node.getFirstChild(EcmaScriptGrammar.STATEMENT).getFirstChild();
       if (isBlockAndContainsOnlyOneIfStatement(innerStatement) || isIfStatementWithoutElse(innerStatement)) {
         getContext().createLineViolation(this, "Those two 'if' statements can be consolidated.", node);
       }
@@ -48,18 +49,18 @@ public class CollapsibleIfStatementsCheck extends SquidCheck<EcmaScriptGrammar> 
   }
 
   private boolean isBlockAndContainsOnlyOneIfStatement(AstNode statement) {
-    if (!statement.is(getContext().getGrammar().block)) {
+    if (!statement.is(EcmaScriptGrammar.BLOCK)) {
       return false;
     }
-    AstNode statementList = statement.getFirstChild(getContext().getGrammar().statementList);
-    if (statementList == null || statementList.getNumberOfChildren() != 1 || statementList.getFirstChild().isNot(getContext().getGrammar().statement)) {
+    AstNode statementList = statement.getFirstChild(EcmaScriptGrammar.STATEMENT_LIST);
+    if (statementList == null || statementList.getNumberOfChildren() != 1 || statementList.getFirstChild().isNot(EcmaScriptGrammar.STATEMENT)) {
       return false;
     }
     return isIfStatementWithoutElse(statementList.getFirstChild().getFirstChild());
   }
 
   private boolean isIfStatementWithoutElse(AstNode statement) {
-    if (statement.isNot(getContext().getGrammar().ifStatement) || statement.hasDirectChildren(getContext().getGrammar().elseClause)) {
+    if (statement.isNot(EcmaScriptGrammar.IF_STATEMENT) || statement.hasDirectChildren(EcmaScriptGrammar.ELSE_CLAUSE)) {
       return false;
     }
     return true;

@@ -25,7 +25,8 @@ import com.sonar.sslr.squid.checks.SquidCheck;
 import org.sonar.check.BelongsToProfile;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
-import org.sonar.javascript.api.EcmaScriptGrammar;
+import org.sonar.javascript.parser.EcmaScriptGrammar;
+import org.sonar.sslr.parser.LexerlessGrammar;
 
 import java.util.List;
 import java.util.Set;
@@ -34,19 +35,19 @@ import java.util.Set;
   key = "DuplicatePropertyName",
   priority = Priority.CRITICAL)
 @BelongsToProfile(title = CheckList.SONAR_WAY_PROFILE, priority = Priority.CRITICAL)
-public class DuplicatePropertyNameCheck extends SquidCheck<EcmaScriptGrammar> {
+public class DuplicatePropertyNameCheck extends SquidCheck<LexerlessGrammar> {
 
   @Override
   public void init() {
-    subscribeTo(getContext().getGrammar().objectLiteral);
+    subscribeTo(EcmaScriptGrammar.OBJECT_LITERAL);
   }
 
   @Override
   public void visitNode(AstNode astNode) {
     Set<String> values = Sets.newHashSet();
-    List<AstNode> propertyAssignments = astNode.getChildren(getContext().getGrammar().propertyAssignment);
+    List<AstNode> propertyAssignments = astNode.getChildren(EcmaScriptGrammar.PROPERTY_ASSIGNMENT);
     for (AstNode propertyAssignment : propertyAssignments) {
-      AstNode propertyName = propertyAssignment.getFirstChild(getContext().getGrammar().propertyName);
+      AstNode propertyName = propertyAssignment.getFirstChild(EcmaScriptGrammar.PROPERTY_NAME);
       String value = propertyName.getTokenValue();
       if (value.startsWith("\"") || value.startsWith("'")) {
         value = value.substring(1, value.length() - 1);

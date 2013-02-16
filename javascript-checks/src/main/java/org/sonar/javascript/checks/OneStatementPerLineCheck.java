@@ -24,26 +24,31 @@ import com.sonar.sslr.squid.checks.AbstractOneStatementPerLineCheck;
 import org.sonar.check.BelongsToProfile;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
-import org.sonar.javascript.api.EcmaScriptGrammar;
+import org.sonar.javascript.parser.EcmaScriptGrammar;
+import org.sonar.sslr.parser.LexerlessGrammar;
 
 @Rule(
   key = "OneStatementPerLine",
   priority = Priority.MAJOR)
 @BelongsToProfile(title = CheckList.SONAR_WAY_PROFILE, priority = Priority.MAJOR)
-public class OneStatementPerLineCheck extends AbstractOneStatementPerLineCheck<EcmaScriptGrammar> {
+public class OneStatementPerLineCheck extends AbstractOneStatementPerLineCheck<LexerlessGrammar> {
 
   @Override
   public com.sonar.sslr.api.Rule getStatementRule() {
-    return getContext().getGrammar().statement;
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public void init() {
+    subscribeTo(EcmaScriptGrammar.STATEMENT);
   }
 
   @Override
   public boolean isExcluded(AstNode astNode) {
-    EcmaScriptGrammar g = getContext().getGrammar();
     AstNode statementNode = astNode.getChild(0);
-    return statementNode.is(g.block)
-        || statementNode.is(g.emptyStatement)
-        || statementNode.is(g.labelledStatement);
+    return statementNode.is(EcmaScriptGrammar.BLOCK)
+        || statementNode.is(EcmaScriptGrammar.EMPTY_STATEMENT)
+        || statementNode.is(EcmaScriptGrammar.LABELLED_STATEMENT);
   }
 
 }

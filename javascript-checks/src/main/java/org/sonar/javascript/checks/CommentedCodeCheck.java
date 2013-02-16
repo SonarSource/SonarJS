@@ -27,9 +27,14 @@ import com.sonar.sslr.squid.checks.SquidCheck;
 import org.sonar.check.BelongsToProfile;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
-import org.sonar.javascript.api.EcmaScriptGrammar;
 import org.sonar.javascript.api.EcmaScriptKeyword;
-import org.sonar.squid.recognizer.*;
+import org.sonar.squid.recognizer.CodeRecognizer;
+import org.sonar.squid.recognizer.ContainsDetector;
+import org.sonar.squid.recognizer.Detector;
+import org.sonar.squid.recognizer.EndWithDetector;
+import org.sonar.squid.recognizer.KeywordsDetector;
+import org.sonar.squid.recognizer.LanguageFootprint;
+import org.sonar.sslr.parser.LexerlessGrammar;
 
 import java.util.Set;
 import java.util.regex.Pattern;
@@ -38,7 +43,7 @@ import java.util.regex.Pattern;
   key = "CommentedCode",
   priority = Priority.BLOCKER)
 @BelongsToProfile(title = CheckList.SONAR_WAY_PROFILE, priority = Priority.MAJOR)
-public class CommentedCodeCheck extends SquidCheck<EcmaScriptGrammar> implements AstAndTokenVisitor {
+public class CommentedCodeCheck extends SquidCheck<LexerlessGrammar> implements AstAndTokenVisitor {
 
   private static final double THRESHOLD = 0.9;
 

@@ -24,7 +24,8 @@ import com.sonar.sslr.squid.checks.SquidCheck;
 import org.sonar.check.BelongsToProfile;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
-import org.sonar.javascript.api.EcmaScriptGrammar;
+import org.sonar.javascript.parser.EcmaScriptGrammar;
+import org.sonar.sslr.parser.LexerlessGrammar;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -34,14 +35,17 @@ import java.util.Stack;
   key = "RedeclaredVariable",
   priority = Priority.MAJOR)
 @BelongsToProfile(title = CheckList.SONAR_WAY_PROFILE, priority = Priority.MAJOR)
-public class RedeclaredVariableCheck extends SquidCheck<EcmaScriptGrammar> {
+public class RedeclaredVariableCheck extends SquidCheck<LexerlessGrammar> {
 
   private Stack<Set<String>> stack;
 
   @Override
   public void init() {
-    EcmaScriptGrammar g = getContext().getGrammar();
-    subscribeTo(g.variableDeclaration, g.variableDeclarationNoIn, g.functionDeclaration, g.functionExpression);
+    subscribeTo(
+        EcmaScriptGrammar.VARIABLE_DECLARATION,
+        EcmaScriptGrammar.VARIABLE_DECLARATION_NO_IN,
+        EcmaScriptGrammar.FUNCTION_DECLARATION,
+        EcmaScriptGrammar.FUNCTION_EXPRESSION);
   }
 
   @Override
@@ -52,10 +56,10 @@ public class RedeclaredVariableCheck extends SquidCheck<EcmaScriptGrammar> {
 
   @Override
   public void visitNode(AstNode astNode) {
-    if (astNode.is(getContext().getGrammar().functionDeclaration, getContext().getGrammar().functionExpression)) {
+    if (astNode.is(EcmaScriptGrammar.FUNCTION_DECLARATION, EcmaScriptGrammar.FUNCTION_EXPRESSION)) {
       Set<String> currentScope = new HashSet<String>();
       stack.add(currentScope);
-      AstNode formalParameterList = astNode.getFirstChild(getContext().getGrammar().formalParameterList);
+      AstNode formalParameterList = astNode.getFirstChild(EcmaScriptGrammar.FORMAL_PARAMETER_LIST);
       if (formalParameterList != null) {
         for (int i = 0; i < formalParameterList.getNumberOfChildren(); i += 2) {
           String parameterName = formalParameterList.getChild(i).getTokenValue();
@@ -75,7 +79,7 @@ public class RedeclaredVariableCheck extends SquidCheck<EcmaScriptGrammar> {
 
   @Override
   public void leaveNode(AstNode astNode) {
-    if (astNode.is(getContext().getGrammar().functionDeclaration, getContext().getGrammar().functionExpression)) {
+    if (astNode.is(EcmaScriptGrammar.FUNCTION_DECLARATION, EcmaScriptGrammar.FUNCTION_EXPRESSION)) {
       stack.pop();
     }
   }

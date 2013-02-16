@@ -24,8 +24,9 @@ import com.sonar.sslr.squid.checks.SquidCheck;
 import org.sonar.check.BelongsToProfile;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
-import org.sonar.javascript.api.EcmaScriptGrammar;
 import org.sonar.javascript.api.EcmaScriptPunctuator;
+import org.sonar.javascript.parser.EcmaScriptGrammar;
+import org.sonar.sslr.parser.LexerlessGrammar;
 
 /**
  * http://stackoverflow.com/questions/7246618/trailing-commas-in-javascript
@@ -34,16 +35,16 @@ import org.sonar.javascript.api.EcmaScriptPunctuator;
   key = "TrailingComma",
   priority = Priority.MAJOR)
 @BelongsToProfile(title = CheckList.SONAR_WAY_PROFILE, priority = Priority.BLOCKER)
-public class TrailingCommaCheck extends SquidCheck<EcmaScriptGrammar> {
+public class TrailingCommaCheck extends SquidCheck<LexerlessGrammar> {
 
   @Override
   public void init() {
-    subscribeTo(getContext().getGrammar().arrayLiteral, getContext().getGrammar().objectLiteral);
+    subscribeTo(EcmaScriptGrammar.ARRAY_LITERAL, EcmaScriptGrammar.OBJECT_LITERAL);
   }
 
   @Override
   public void visitNode(AstNode astNode) {
-    if (astNode.getLastChild().getPreviousSibling().getLastToken().getType() == EcmaScriptPunctuator.COMMA) {
+    if (astNode.getLastChild().getPreviousSibling().getType() == EcmaScriptPunctuator.COMMA) {
       getContext().createLineViolation(this, "Avoid trailing comma in array and object literals.", astNode);
     }
   }

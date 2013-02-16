@@ -20,23 +20,23 @@
 package org.sonar.javascript.parser.grammar.expressions;
 
 import org.junit.Test;
-import org.sonar.javascript.api.EcmaScriptGrammar;
-import org.sonar.javascript.parser.EcmaScriptGrammarImpl;
+import org.sonar.javascript.parser.EcmaScriptGrammar;
+import org.sonar.sslr.parser.LexerlessGrammar;
 
 import static org.sonar.sslr.tests.Assertions.assertThat;
 
 public class PrimaryExpressionTest {
 
-  EcmaScriptGrammar g = new EcmaScriptGrammarImpl();
+  LexerlessGrammar g = EcmaScriptGrammar.createGrammar();
 
   @Test
   public void ok() {
-    g.literal.mock();
-    g.arrayLiteral.mock();
-    g.objectLiteral.mock();
-    g.expression.mock();
+    g.rule(EcmaScriptGrammar.LITERAL).mock();
+    g.rule(EcmaScriptGrammar.ARRAY_LITERAL).mock();
+    g.rule(EcmaScriptGrammar.OBJECT_LITERAL).mock();
+    g.rule(EcmaScriptGrammar.EXPRESSION).mock();
 
-    assertThat(g.primaryExpression)
+    assertThat(g.rule(EcmaScriptGrammar.PRIMARY_EXPRESSION))
         .matches("this")
         .matches("identifier")
         .matches("literal")
@@ -47,7 +47,7 @@ public class PrimaryExpressionTest {
 
   @Test
   public void realLife() {
-    assertThat(g.primaryExpression)
+    assertThat(g.rule(EcmaScriptGrammar.PRIMARY_EXPRESSION))
         .matches("''");
   }
 

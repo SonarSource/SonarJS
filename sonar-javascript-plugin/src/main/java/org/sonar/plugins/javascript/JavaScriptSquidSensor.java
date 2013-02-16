@@ -36,7 +36,6 @@ import org.sonar.api.resources.Project;
 import org.sonar.api.rules.Violation;
 import org.sonar.javascript.EcmaScriptConfiguration;
 import org.sonar.javascript.JavaScriptAstScanner;
-import org.sonar.javascript.api.EcmaScriptGrammar;
 import org.sonar.javascript.api.EcmaScriptMetric;
 import org.sonar.javascript.checks.CheckList;
 import org.sonar.javascript.metrics.FileLinesVisitor;
@@ -47,6 +46,7 @@ import org.sonar.squid.api.SourceFile;
 import org.sonar.squid.api.SourceFunction;
 import org.sonar.squid.indexer.QueryByParent;
 import org.sonar.squid.indexer.QueryByType;
+import org.sonar.sslr.parser.LexerlessGrammar;
 
 import java.util.Collection;
 import java.util.List;
@@ -62,7 +62,7 @@ public class JavaScriptSquidSensor implements Sensor {
 
   private Project project;
   private SensorContext context;
-  private AstScanner<EcmaScriptGrammar> scanner;
+  private AstScanner<LexerlessGrammar> scanner;
 
   public JavaScriptSquidSensor(RulesProfile profile, FileLinesContextFactory fileLinesContextFactory) {
     this.annotationCheckFactory = AnnotationCheckFactory.create(profile, CheckList.REPOSITORY_KEY, CheckList.getChecks());
@@ -77,8 +77,8 @@ public class JavaScriptSquidSensor implements Sensor {
     this.project = project;
     this.context = context;
 
-    Collection<SquidAstVisitor<EcmaScriptGrammar>> squidChecks = annotationCheckFactory.getChecks();
-    List<SquidAstVisitor<EcmaScriptGrammar>> visitors = Lists.newArrayList(squidChecks);
+    Collection<SquidAstVisitor<LexerlessGrammar>> squidChecks = annotationCheckFactory.getChecks();
+    List<SquidAstVisitor<LexerlessGrammar>> visitors = Lists.newArrayList(squidChecks);
     visitors.add(new FileLinesVisitor(project, fileLinesContextFactory));
     this.scanner = JavaScriptAstScanner.create(createConfiguration(project), visitors.toArray(new SquidAstVisitor[visitors.size()]));
     scanner.scanFiles(InputFileUtils.toFiles(project.getFileSystem().mainFiles(JavaScript.KEY)));

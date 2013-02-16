@@ -25,8 +25,9 @@ import org.sonar.check.BelongsToProfile;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
-import org.sonar.javascript.api.EcmaScriptGrammar;
 import org.sonar.javascript.api.EcmaScriptKeyword;
+import org.sonar.javascript.parser.EcmaScriptGrammar;
+import org.sonar.sslr.parser.LexerlessGrammar;
 
 /**
  * Note that implementation differs from AbstractNestedIfCheck - see SONARPLUGINS-1855 and SONARPLUGINS-2178
@@ -35,7 +36,7 @@ import org.sonar.javascript.api.EcmaScriptKeyword;
   key = "NestedIfDepth",
   priority = Priority.MINOR)
 @BelongsToProfile(title = CheckList.SONAR_WAY_PROFILE, priority = Priority.MINOR)
-public class NestedIfDepthCheck extends SquidCheck<EcmaScriptGrammar> {
+public class NestedIfDepthCheck extends SquidCheck<LexerlessGrammar> {
 
   private int nestingLevel;
 
@@ -52,7 +53,7 @@ public class NestedIfDepthCheck extends SquidCheck<EcmaScriptGrammar> {
 
   @Override
   public void init() {
-    subscribeTo(getContext().getGrammar().ifStatement);
+    subscribeTo(EcmaScriptGrammar.IF_STATEMENT);
   }
 
   @Override

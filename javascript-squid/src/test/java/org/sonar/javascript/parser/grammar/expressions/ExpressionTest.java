@@ -20,27 +20,27 @@
 package org.sonar.javascript.parser.grammar.expressions;
 
 import org.junit.Test;
-import org.sonar.javascript.api.EcmaScriptGrammar;
-import org.sonar.javascript.parser.EcmaScriptGrammarImpl;
+import org.sonar.javascript.parser.EcmaScriptGrammar;
+import org.sonar.sslr.parser.LexerlessGrammar;
 
 import static org.sonar.sslr.tests.Assertions.assertThat;
 
 public class ExpressionTest {
 
-  EcmaScriptGrammar g = new EcmaScriptGrammarImpl();
+  LexerlessGrammar g = EcmaScriptGrammar.createGrammar();
 
   @Test
   public void ok() {
-    g.assignmentExpression.mock();
+    g.rule(EcmaScriptGrammar.ASSIGNMENT_EXPRESSION).mock();
 
-    assertThat(g.expression)
+    assertThat(g.rule(EcmaScriptGrammar.EXPRESSION))
         .matches("assignmentExpression")
         .matches("assignmentExpression , assignmentExpression");
   }
 
   @Test
   public void realLife() {
-    assertThat(g.expression)
+    assertThat(g.rule(EcmaScriptGrammar.EXPRESSION))
         .matches("a + ' ' + b")
         .matches("i++");
     // FIXME

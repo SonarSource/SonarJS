@@ -20,25 +20,25 @@
 package org.sonar.javascript.parser.grammar.statements;
 
 import org.junit.Test;
-import org.sonar.javascript.api.EcmaScriptGrammar;
-import org.sonar.javascript.parser.EcmaScriptGrammarImpl;
+import org.sonar.javascript.parser.EcmaScriptGrammar;
+import org.sonar.sslr.parser.LexerlessGrammar;
 
 import static org.sonar.sslr.tests.Assertions.assertThat;
 
 public class LabelledStatementTest {
 
-  EcmaScriptGrammar g = new EcmaScriptGrammarImpl();
+  LexerlessGrammar g = EcmaScriptGrammar.createGrammar();
 
   @Test
   public void ok() {
-    g.statement.mock();
-    assertThat(g.labelledStatement)
+    g.rule(EcmaScriptGrammar.STATEMENT).mock();
+    assertThat(g.rule(EcmaScriptGrammar.LABELLED_STATEMENT))
         .matches("identifier : statement");
   }
 
   @Test
   public void realLife() {
-    assertThat(g.labelledStatement)
+    assertThat(g.rule(EcmaScriptGrammar.LABELLED_STATEMENT))
         .matches("label: doSomething();");
   }
 

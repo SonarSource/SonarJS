@@ -25,8 +25,8 @@ import com.sonar.sslr.squid.checks.SquidCheck;
 import org.sonar.check.BelongsToProfile;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
-import org.sonar.javascript.api.EcmaScriptGrammar;
 import org.sonar.javascript.api.EcmaScriptKeyword;
+import org.sonar.sslr.parser.LexerlessGrammar;
 
 import java.util.Set;
 
@@ -34,7 +34,7 @@ import java.util.Set;
   key = "PrimitiveWrappers",
   priority = Priority.MAJOR)
 @BelongsToProfile(title = CheckList.SONAR_WAY_PROFILE, priority = Priority.MAJOR)
-public class PrimitiveWrappersCheck extends SquidCheck<EcmaScriptGrammar> {
+public class PrimitiveWrappersCheck extends SquidCheck<LexerlessGrammar> {
 
   private static final Set<String> WRAPPERS = ImmutableSet.of("Boolean", "Number", "String");
 

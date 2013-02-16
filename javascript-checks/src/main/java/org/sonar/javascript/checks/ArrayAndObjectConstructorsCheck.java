@@ -24,14 +24,14 @@ import com.sonar.sslr.squid.checks.SquidCheck;
 import org.sonar.check.BelongsToProfile;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
-import org.sonar.javascript.api.EcmaScriptGrammar;
 import org.sonar.javascript.api.EcmaScriptKeyword;
+import org.sonar.sslr.parser.LexerlessGrammar;
 
 @Rule(
   key = "ArrayAndObjectConstructors",
   priority = Priority.BLOCKER)
 @BelongsToProfile(title = CheckList.SONAR_WAY_PROFILE, priority = Priority.MAJOR)
-public class ArrayAndObjectConstructorsCheck extends SquidCheck<EcmaScriptGrammar> {
+public class ArrayAndObjectConstructorsCheck extends SquidCheck<LexerlessGrammar> {
 
   @Override
   public void init() {

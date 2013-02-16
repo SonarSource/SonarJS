@@ -20,15 +20,19 @@
 package org.sonar.javascript.metrics;
 
 import com.google.common.collect.Sets;
-import com.sonar.sslr.api.*;
+import com.sonar.sslr.api.AstAndTokenVisitor;
+import com.sonar.sslr.api.AstNode;
+import com.sonar.sslr.api.GenericTokenType;
+import com.sonar.sslr.api.Token;
+import com.sonar.sslr.api.Trivia;
 import com.sonar.sslr.squid.SquidAstVisitor;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.FileLinesContext;
 import org.sonar.api.measures.FileLinesContextFactory;
 import org.sonar.api.resources.File;
 import org.sonar.api.resources.Project;
-import org.sonar.javascript.api.EcmaScriptGrammar;
 import org.sonar.javascript.api.EcmaScriptMetric;
+import org.sonar.sslr.parser.LexerlessGrammar;
 
 import java.util.List;
 import java.util.Set;
@@ -36,7 +40,7 @@ import java.util.Set;
 /**
  * Visitor that computes {@link CoreMetrics#NCLOC_DATA_KEY} and {@link CoreMetrics#COMMENT_LINES_DATA_KEY} metrics used by the DevCockpit.
  */
-public class FileLinesVisitor extends SquidAstVisitor<EcmaScriptGrammar> implements AstAndTokenVisitor {
+public class FileLinesVisitor extends SquidAstVisitor<LexerlessGrammar> implements AstAndTokenVisitor {
 
   private final Project project;
   private final FileLinesContextFactory fileLinesContextFactory;

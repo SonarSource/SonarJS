@@ -20,20 +20,20 @@
 package org.sonar.javascript.parser.grammar.statements;
 
 import org.junit.Test;
-import org.sonar.javascript.api.EcmaScriptGrammar;
-import org.sonar.javascript.parser.EcmaScriptGrammarImpl;
+import org.sonar.javascript.parser.EcmaScriptGrammar;
+import org.sonar.sslr.parser.LexerlessGrammar;
 
 import static org.sonar.sslr.tests.Assertions.assertThat;
 
 public class VariableDeclarationListNoInTest {
 
-  EcmaScriptGrammar g = new EcmaScriptGrammarImpl();
+  LexerlessGrammar g = EcmaScriptGrammar.createGrammar();
 
   @Test
   public void ok() {
-    g.variableDeclarationNoIn.mock();
+    g.rule(EcmaScriptGrammar.VARIABLE_DECLARATION_NO_IN).mock();
 
-    assertThat(g.variableDeclarationListNoIn)
+    assertThat(g.rule(EcmaScriptGrammar.VARIABLE_DECLARATION_LIST_NO_IN))
         .matches("variableDeclarationNoIn")
         .matches("variableDeclarationNoIn , variableDeclarationNoIn");
   }

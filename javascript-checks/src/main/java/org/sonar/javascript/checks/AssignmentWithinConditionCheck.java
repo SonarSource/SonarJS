@@ -24,27 +24,28 @@ import com.sonar.sslr.squid.checks.SquidCheck;
 import org.sonar.check.BelongsToProfile;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
-import org.sonar.javascript.api.EcmaScriptGrammar;
+import org.sonar.javascript.parser.EcmaScriptGrammar;
+import org.sonar.sslr.parser.LexerlessGrammar;
 
 @Rule(
   key = "AssignmentWithinCondition",
   priority = Priority.MAJOR)
 @BelongsToProfile(title = CheckList.SONAR_WAY_PROFILE, priority = Priority.MAJOR)
-public class AssignmentWithinConditionCheck extends SquidCheck<EcmaScriptGrammar> {
+public class AssignmentWithinConditionCheck extends SquidCheck<LexerlessGrammar> {
 
   @Override
   public void init() {
     subscribeTo(
-        getContext().getGrammar().ifStatement,
-        getContext().getGrammar().doWhileStatement,
-        getContext().getGrammar().whileStatement,
-        getContext().getGrammar().forStatement);
+        EcmaScriptGrammar.IF_STATEMENT,
+        EcmaScriptGrammar.DO_WHILE_STATEMENT,
+        EcmaScriptGrammar.WHILE_STATEMENT,
+        EcmaScriptGrammar.FOR_STATEMENT);
   }
 
   @Override
   public void visitNode(AstNode astNode) {
-    AstNode conditionNode = astNode.getFirstChild(getContext().getGrammar().condition);
-    if ((conditionNode != null) && (conditionNode.getChild(0).getFirstChild(getContext().getGrammar().assignmentExpression) != null)) {
+    AstNode conditionNode = astNode.getFirstChild(EcmaScriptGrammar.CONDITION);
+    if ((conditionNode != null) && (conditionNode.getChild(0).getFirstChild(EcmaScriptGrammar.ASSIGNMENT_EXPRESSION) != null)) {
       getContext().createLineViolation(this, "Remove this assignment from the expression.", conditionNode);
     }
   }

@@ -24,23 +24,24 @@ import com.sonar.sslr.squid.checks.SquidCheck;
 import org.sonar.check.BelongsToProfile;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
-import org.sonar.javascript.api.EcmaScriptGrammar;
 import org.sonar.javascript.api.EcmaScriptPunctuator;
+import org.sonar.javascript.parser.EcmaScriptGrammar;
+import org.sonar.sslr.parser.LexerlessGrammar;
 
 @Rule(
   key = "SwitchWithoutDefault",
   priority = Priority.MAJOR)
 @BelongsToProfile(title = CheckList.SONAR_WAY_PROFILE, priority = Priority.MAJOR)
-public class SwitchWithoutDefaultCheck extends SquidCheck<EcmaScriptGrammar> {
+public class SwitchWithoutDefaultCheck extends SquidCheck<LexerlessGrammar> {
 
   @Override
   public void init() {
-    subscribeTo(getContext().getGrammar().caseBlock);
+    subscribeTo(EcmaScriptGrammar.CASE_BLOCK);
   }
 
   @Override
   public void visitNode(AstNode astNode) {
-    AstNode defaultClauseNode = astNode.getFirstChild(getContext().getGrammar().defaultClause);
+    AstNode defaultClauseNode = astNode.getFirstChild(EcmaScriptGrammar.DEFAULT_CLAUSE);
     if (defaultClauseNode == null) {
       getContext().createLineViolation(this, "Avoid switch statement without a \"default\" clause.", astNode);
     } else if (defaultClauseNode.getNextSibling().isNot(EcmaScriptPunctuator.RCURLYBRACE)) {

@@ -24,23 +24,24 @@ import com.sonar.sslr.squid.checks.SquidCheck;
 import org.sonar.check.BelongsToProfile;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
-import org.sonar.javascript.api.EcmaScriptGrammar;
 import org.sonar.javascript.api.EcmaScriptKeyword;
+import org.sonar.javascript.parser.EcmaScriptGrammar;
+import org.sonar.sslr.parser.LexerlessGrammar;
 
 @Rule(
   key = "ConstructorFunctionsForSideEffects",
   priority = Priority.MAJOR)
 @BelongsToProfile(title = CheckList.SONAR_WAY_PROFILE, priority = Priority.MAJOR)
-public class ConstructorFunctionsForSideEffectsCheck extends SquidCheck<EcmaScriptGrammar> {
+public class ConstructorFunctionsForSideEffectsCheck extends SquidCheck<LexerlessGrammar> {
 
   @Override
   public void init() {
-    subscribeTo(getContext().getGrammar().statement);
+    subscribeTo(EcmaScriptGrammar.STATEMENT);
   }
 
   @Override
   public void visitNode(AstNode astNode) {
-    if (astNode.getToken().getType() == EcmaScriptKeyword.NEW) {
+    if (EcmaScriptKeyword.NEW.getValue().equals(astNode.getToken().getValue())) {
       getContext().createLineViolation(this, "Replace by a standard call to the function.", astNode);
     }
   }

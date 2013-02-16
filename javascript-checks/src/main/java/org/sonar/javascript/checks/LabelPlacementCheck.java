@@ -24,24 +24,24 @@ import com.sonar.sslr.squid.checks.SquidCheck;
 import org.sonar.check.BelongsToProfile;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
-import org.sonar.javascript.api.EcmaScriptGrammar;
+import org.sonar.javascript.parser.EcmaScriptGrammar;
+import org.sonar.sslr.parser.LexerlessGrammar;
 
 @Rule(
   key = "LabelPlacement",
   priority = Priority.MAJOR)
 @BelongsToProfile(title = CheckList.SONAR_WAY_PROFILE, priority = Priority.MAJOR)
-public class LabelPlacementCheck extends SquidCheck<EcmaScriptGrammar> {
+public class LabelPlacementCheck extends SquidCheck<LexerlessGrammar> {
 
   @Override
   public void init() {
-    subscribeTo(getContext().getGrammar().labelledStatement);
+    subscribeTo(EcmaScriptGrammar.LABELLED_STATEMENT);
   }
 
   @Override
   public void visitNode(AstNode astNode) {
-    EcmaScriptGrammar g = getContext().getGrammar();
-    AstNode statementNode = astNode.getFirstChild(g.statement).getChild(0);
-    if (!statementNode.is(g.iterationStatement)) {
+    AstNode statementNode = astNode.getFirstChild(EcmaScriptGrammar.STATEMENT).getChild(0);
+    if (!statementNode.is(EcmaScriptGrammar.ITERATION_STATEMENT)) {
       getContext().createLineViolation(this, "Remove this label.", astNode);
     }
   }

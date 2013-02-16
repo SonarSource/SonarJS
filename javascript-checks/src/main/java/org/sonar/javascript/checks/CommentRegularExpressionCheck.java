@@ -24,13 +24,13 @@ import org.sonar.check.Cardinality;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
-import org.sonar.javascript.api.EcmaScriptGrammar;
+import org.sonar.sslr.parser.LexerlessGrammar;
 
 @Rule(
   key = "CommentRegularExpression",
   priority = Priority.MAJOR,
   cardinality = Cardinality.MULTIPLE)
-public class CommentRegularExpressionCheck extends AbstractCommentRegularExpressionCheck<EcmaScriptGrammar> {
+public class CommentRegularExpressionCheck extends AbstractCommentRegularExpressionCheck<LexerlessGrammar> {
 
   private static final String DEFAULT_REGULAR_EXPRESSION = "";
   private static final String DEFAULT_MESSAGE = "The regular expression matches this comment";

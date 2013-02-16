@@ -24,14 +24,14 @@ import com.sonar.sslr.squid.checks.SquidCheck;
 import org.sonar.check.BelongsToProfile;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
-import org.sonar.javascript.api.EcmaScriptGrammar;
 import org.sonar.javascript.api.EcmaScriptPunctuator;
+import org.sonar.sslr.parser.LexerlessGrammar;
 
 @Rule(
   key = "BitwiseOperators",
   priority = Priority.BLOCKER)
 @BelongsToProfile(title = CheckList.SONAR_WAY_PROFILE, priority = Priority.MAJOR)
-public class BitwiseOperatorsCheck extends SquidCheck<EcmaScriptGrammar> {
+public class BitwiseOperatorsCheck extends SquidCheck<LexerlessGrammar> {
 
   @Override
   public void init() {

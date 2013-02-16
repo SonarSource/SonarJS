@@ -24,25 +24,25 @@ import com.sonar.sslr.squid.checks.SquidCheck;
 import org.sonar.check.BelongsToProfile;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
-import org.sonar.javascript.api.EcmaScriptGrammar;
+import org.sonar.javascript.parser.EcmaScriptGrammar;
+import org.sonar.sslr.parser.LexerlessGrammar;
 
 @Rule(
   key = "NonEmptyCaseWithoutBreak",
   priority = Priority.MAJOR)
 @BelongsToProfile(title = CheckList.SONAR_WAY_PROFILE, priority = Priority.MAJOR)
-public class NonEmptyCaseWithoutBreakCheck extends SquidCheck<EcmaScriptGrammar> {
+public class NonEmptyCaseWithoutBreakCheck extends SquidCheck<LexerlessGrammar> {
 
   @Override
   public void init() {
-    subscribeTo(getContext().getGrammar().caseClause, getContext().getGrammar().defaultClause);
+    subscribeTo(EcmaScriptGrammar.CASE_CLAUSE, EcmaScriptGrammar.DEFAULT_CLAUSE);
   }
 
   @Override
   public void visitNode(AstNode astNode) {
-    if (astNode.getNextAstNode().is(getContext().getGrammar().caseClause, getContext().getGrammar().defaultClause, getContext().getGrammar().caseClauses)) {
-      EcmaScriptGrammar grammar = getContext().getGrammar();
-      AstNode statementList = astNode.getFirstChild(getContext().getGrammar().statementList);
-      if (statementList != null && statementList.getLastChild().getFirstChild().isNot(grammar.breakStatement, grammar.returnStatement, grammar.throwStatement)) {
+    if (astNode.getNextAstNode().is(EcmaScriptGrammar.CASE_CLAUSE, EcmaScriptGrammar.DEFAULT_CLAUSE, EcmaScriptGrammar.CASE_CLAUSES)) {
+      AstNode statementList = astNode.getFirstChild(EcmaScriptGrammar.STATEMENT_LIST);
+      if (statementList != null && statementList.getLastChild().getFirstChild().isNot(EcmaScriptGrammar.BREAK_STATEMENT, EcmaScriptGrammar.RETURN_STATEMENT, EcmaScriptGrammar.THROW_STATEMENT)) {
         getContext().createLineViolation(this, "Last statement in this switch-clause should be an unconditional break.", astNode);
       }
     }

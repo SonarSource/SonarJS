@@ -24,7 +24,8 @@ import com.sonar.sslr.squid.checks.SquidCheck;
 import org.sonar.check.BelongsToProfile;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
-import org.sonar.javascript.api.EcmaScriptGrammar;
+import org.sonar.javascript.parser.EcmaScriptGrammar;
+import org.sonar.sslr.parser.LexerlessGrammar;
 
 import java.util.Collections;
 import java.util.List;
@@ -33,32 +34,31 @@ import java.util.List;
   key = "ForIn",
   priority = Priority.MAJOR)
 @BelongsToProfile(title = CheckList.SONAR_WAY_PROFILE, priority = Priority.MAJOR)
-public class ForInCheck extends SquidCheck<EcmaScriptGrammar> {
+public class ForInCheck extends SquidCheck<LexerlessGrammar> {
 
   @Override
   public void init() {
-    subscribeTo(getContext().getGrammar().forInStatement);
+    subscribeTo(EcmaScriptGrammar.FOR_IN_STATEMENT);
   }
 
   @Override
   public void visitNode(AstNode astNode) {
-    EcmaScriptGrammar g = getContext().getGrammar();
-    AstNode statementNode = astNode.getFirstChild(g.statement);
+    AstNode statementNode = astNode.getFirstChild(EcmaScriptGrammar.STATEMENT);
 
     final List<AstNode> statements;
-    if (statementNode.getChild(0).is(g.block)) {
-      AstNode statementListNode = statementNode.getChild(0).getFirstChild(g.statementList);
+    if (statementNode.getChild(0).is(EcmaScriptGrammar.BLOCK)) {
+      AstNode statementListNode = statementNode.getChild(0).getFirstChild(EcmaScriptGrammar.STATEMENT_LIST);
       if (statementListNode == null) {
         statements = Collections.emptyList();
       } else {
-        statements = statementListNode.getChildren(g.statement);
+        statements = statementListNode.getChildren(EcmaScriptGrammar.STATEMENT);
       }
     } else {
       statements = Collections.singletonList(statementNode);
     }
 
     for (AstNode statement : statements) {
-      if (statement.getChild(0).isNot(getContext().getGrammar().ifStatement)) {
+      if (statement.getChild(0).isNot(EcmaScriptGrammar.IF_STATEMENT)) {
         getContext().createLineViolation(this, "For-in statement must filter items.", statement);
         break;
       }

@@ -24,7 +24,9 @@ import com.sonar.sslr.squid.checks.SquidCheck;
 import org.sonar.check.BelongsToProfile;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
-import org.sonar.javascript.api.EcmaScriptGrammar;
+import org.sonar.javascript.api.EcmaScriptTokenType;
+import org.sonar.javascript.parser.EcmaScriptGrammar;
+import org.sonar.sslr.parser.LexerlessGrammar;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -34,13 +36,13 @@ import java.util.Stack;
   key = "RedeclaredFunction",
   priority = Priority.MAJOR)
 @BelongsToProfile(title = CheckList.SONAR_WAY_PROFILE, priority = Priority.MAJOR)
-public class RedeclaredFunctionCheck extends SquidCheck<EcmaScriptGrammar> {
+public class RedeclaredFunctionCheck extends SquidCheck<LexerlessGrammar> {
 
   private Stack<Set<String>> stack;
 
   @Override
   public void init() {
-    subscribeTo(getContext().getGrammar().functionDeclaration, getContext().getGrammar().functionExpression);
+    subscribeTo(EcmaScriptGrammar.FUNCTION_DECLARATION, EcmaScriptGrammar.FUNCTION_EXPRESSION);
   }
 
   @Override
@@ -51,9 +53,9 @@ public class RedeclaredFunctionCheck extends SquidCheck<EcmaScriptGrammar> {
 
   @Override
   public void visitNode(AstNode astNode) {
-    if (astNode.is(getContext().getGrammar().functionDeclaration)) {
+    if (astNode.is(EcmaScriptGrammar.FUNCTION_DECLARATION)) {
       Set<String> currentScope = stack.peek();
-      String functionName = astNode.getFirstChild(getContext().getGrammar().identifier).getTokenValue();
+      String functionName = astNode.getFirstChild(EcmaScriptTokenType.IDENTIFIER).getTokenValue();
       if (currentScope.contains(functionName)) {
         getContext().createLineViolation(this, "Rename function '" + functionName + "' as this name is already used.", astNode);
       } else {
@@ -65,7 +67,7 @@ public class RedeclaredFunctionCheck extends SquidCheck<EcmaScriptGrammar> {
 
   @Override
   public void leaveNode(AstNode astNode) {
-    if (astNode.is(getContext().getGrammar().functionDeclaration, getContext().getGrammar().functionExpression)) {
+    if (astNode.is(EcmaScriptGrammar.FUNCTION_DECLARATION, EcmaScriptGrammar.FUNCTION_EXPRESSION)) {
       stack.pop();
     }
   }

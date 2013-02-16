@@ -20,23 +20,23 @@
 package org.sonar.javascript.parser.grammar.statements;
 
 import org.junit.Test;
-import org.sonar.javascript.api.EcmaScriptGrammar;
-import org.sonar.javascript.parser.EcmaScriptGrammarImpl;
+import org.sonar.javascript.parser.EcmaScriptGrammar;
+import org.sonar.sslr.parser.LexerlessGrammar;
 
 import static org.sonar.sslr.tests.Assertions.assertThat;
 
 public class IterationStatementTest {
 
-  EcmaScriptGrammar g = new EcmaScriptGrammarImpl();
+  LexerlessGrammar g = EcmaScriptGrammar.createGrammar();
 
   @Test
   public void ok() {
-    g.doWhileStatement.mock();
-    g.whileStatement.mock();
-    g.forInStatement.mock();
-    g.forStatement.mock();
+    g.rule(EcmaScriptGrammar.DO_WHILE_STATEMENT).mock();
+    g.rule(EcmaScriptGrammar.WHILE_STATEMENT).mock();
+    g.rule(EcmaScriptGrammar.FOR_IN_STATEMENT).mock();
+    g.rule(EcmaScriptGrammar.FOR_STATEMENT).mock();
 
-    assertThat(g.iterationStatement)
+    assertThat(g.rule(EcmaScriptGrammar.ITERATION_STATEMENT))
         .matches("doWhileStatement")
         .matches("whileStatement")
         .matches("forInStatement")
@@ -45,7 +45,7 @@ public class IterationStatementTest {
 
   @Test
   public void realLife() {
-    assertThat(g.iterationStatement)
+    assertThat(g.rule(EcmaScriptGrammar.ITERATION_STATEMENT))
         .matches("do { } while (a < b);")
         .matches("while (a < b) ;")
         .matches("for (n = 0; n < h; n++) ;");

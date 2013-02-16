@@ -20,27 +20,27 @@
 package org.sonar.javascript.parser.grammar.statements;
 
 import org.junit.Test;
-import org.sonar.javascript.api.EcmaScriptGrammar;
-import org.sonar.javascript.parser.EcmaScriptGrammarImpl;
+import org.sonar.javascript.parser.EcmaScriptGrammar;
+import org.sonar.sslr.parser.LexerlessGrammar;
 
 import static org.sonar.sslr.tests.Assertions.assertThat;
 
 public class ExpressionStatementTest {
 
-  EcmaScriptGrammar g = new EcmaScriptGrammarImpl();
+  LexerlessGrammar g = EcmaScriptGrammar.createGrammar();
 
   @Test
   public void ok() {
-    g.expression.mock();
-    g.eos.mock();
+    g.rule(EcmaScriptGrammar.EXPRESSION).mock();
+    g.rule(EcmaScriptGrammar.EOS).mock();
 
-    assertThat(g.expressionStatement)
+    assertThat(g.rule(EcmaScriptGrammar.EXPRESSION_STATEMENT))
         .matches("expression eos");
   }
 
   @Test
   public void ko() {
-    assertThat(g.expressionStatement)
+    assertThat(g.rule(EcmaScriptGrammar.EXPRESSION_STATEMENT))
         .notMatches("function foo() {}")
         .notMatches("{}");
   }

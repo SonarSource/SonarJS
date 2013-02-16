@@ -20,24 +20,24 @@
 package org.sonar.javascript.parser.grammar.expressions;
 
 import org.junit.Test;
-import org.sonar.javascript.api.EcmaScriptGrammar;
-import org.sonar.javascript.parser.EcmaScriptGrammarImpl;
+import org.sonar.javascript.parser.EcmaScriptGrammar;
+import org.sonar.sslr.parser.LexerlessGrammar;
 
 import static org.sonar.sslr.tests.Assertions.assertThat;
 
 public class MemberExpressionTest {
 
-  EcmaScriptGrammar g = new EcmaScriptGrammarImpl();
+  LexerlessGrammar g = EcmaScriptGrammar.createGrammar();
 
   @Test
   public void ok() {
-    g.primaryExpression.mock();
-    g.functionExpression.mock();
-    g.expression.mock();
-    g.identifierName.mock();
-    g.arguments.mock();
+    g.rule(EcmaScriptGrammar.PRIMARY_EXPRESSION).mock();
+    g.rule(EcmaScriptGrammar.FUNCTION_EXPRESSION).mock();
+    g.rule(EcmaScriptGrammar.EXPRESSION).mock();
+    g.rule(EcmaScriptGrammar.IDENTIFIER_NAME).mock();
+    g.rule(EcmaScriptGrammar.ARGUMENTS).mock();
 
-    assertThat(g.memberExpression)
+    assertThat(g.rule(EcmaScriptGrammar.MEMBER_EXPRESSION))
         .matches("primaryExpression")
         .matches("functionExpression")
 

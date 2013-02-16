@@ -21,8 +21,9 @@ package org.sonar.javascript.api;
 
 import com.sonar.sslr.api.AstNode;
 import com.sonar.sslr.api.TokenType;
+import org.sonar.sslr.grammar.GrammarRuleKey;
 
-public enum EcmaScriptPunctuator implements TokenType {
+public enum EcmaScriptPunctuator implements TokenType, GrammarRuleKey {
   LCURLYBRACE("{"),
   RCURLYBRACE("}"),
   LPARENTHESIS("("),

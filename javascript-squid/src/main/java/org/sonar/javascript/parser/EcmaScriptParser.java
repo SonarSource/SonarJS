@@ -22,7 +22,7 @@ package org.sonar.javascript.parser;
 import com.sonar.sslr.impl.Parser;
 import com.sonar.sslr.impl.events.ParsingEventListener;
 import org.sonar.javascript.EcmaScriptConfiguration;
-import org.sonar.javascript.api.EcmaScriptGrammar;
+import org.sonar.sslr.parser.LexerlessGrammar;
 import org.sonar.sslr.parser.ParserAdapter;
 
 public final class EcmaScriptParser {
@@ -30,8 +30,8 @@ public final class EcmaScriptParser {
   private EcmaScriptParser() {
   }
 
-  public static Parser<EcmaScriptGrammar> create(EcmaScriptConfiguration conf, ParsingEventListener... parsingEventListeners) {
-    return new ParserAdapter<EcmaScriptGrammar>(conf.getCharset(), new EcmaScriptGrammarImpl());
+  public static Parser<LexerlessGrammar> create(EcmaScriptConfiguration conf, ParsingEventListener... parsingEventListeners) {
+    return new ParserAdapter<LexerlessGrammar>(conf.getCharset(), EcmaScriptGrammar.createGrammar());
   }
 
 }

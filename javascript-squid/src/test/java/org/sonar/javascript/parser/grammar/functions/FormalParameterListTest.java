@@ -20,18 +20,18 @@
 package org.sonar.javascript.parser.grammar.functions;
 
 import org.junit.Test;
-import org.sonar.javascript.api.EcmaScriptGrammar;
-import org.sonar.javascript.parser.EcmaScriptGrammarImpl;
+import org.sonar.javascript.parser.EcmaScriptGrammar;
+import org.sonar.sslr.parser.LexerlessGrammar;
 
 import static org.sonar.sslr.tests.Assertions.assertThat;
 
 public class FormalParameterListTest {
 
-  EcmaScriptGrammar g = new EcmaScriptGrammarImpl();
+  LexerlessGrammar g = EcmaScriptGrammar.createGrammar();
 
   @Test
   public void ok() {
-    assertThat(g.formalParameterList)
+    assertThat(g.rule(EcmaScriptGrammar.FORMAL_PARAMETER_LIST))
         .matches("IDENTIFIER")
         .matches("IDENTIFIER , IDENTIFIER");
   }

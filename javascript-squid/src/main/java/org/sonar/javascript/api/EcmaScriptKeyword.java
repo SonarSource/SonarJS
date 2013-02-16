@@ -21,8 +21,9 @@ package org.sonar.javascript.api;
 
 import com.sonar.sslr.api.AstNode;
 import com.sonar.sslr.api.TokenType;
+import org.sonar.sslr.grammar.GrammarRuleKey;
 
-public enum EcmaScriptKeyword implements TokenType {
+public enum EcmaScriptKeyword implements TokenType, GrammarRuleKey {
 
   // Reserved words
 

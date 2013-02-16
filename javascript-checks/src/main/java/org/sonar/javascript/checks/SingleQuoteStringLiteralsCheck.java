@@ -23,16 +23,17 @@ import com.sonar.sslr.api.AstNode;
 import com.sonar.sslr.squid.checks.SquidCheck;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
-import org.sonar.javascript.api.EcmaScriptGrammar;
+import org.sonar.javascript.parser.EcmaScriptGrammar;
+import org.sonar.sslr.parser.LexerlessGrammar;
 
 @Rule(
   key = "SingleQuote",
   priority = Priority.MAJOR)
-public class SingleQuoteStringLiteralsCheck extends SquidCheck<EcmaScriptGrammar> {
+public class SingleQuoteStringLiteralsCheck extends SquidCheck<LexerlessGrammar> {
 
   @Override
   public void init() {
-    subscribeTo(getContext().getGrammar().stringLiteral);
+    subscribeTo(EcmaScriptGrammar.STRING_LITERAL);
   }
 
   @Override

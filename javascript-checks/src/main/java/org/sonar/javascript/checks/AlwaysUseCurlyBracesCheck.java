@@ -24,8 +24,9 @@ import com.sonar.sslr.squid.checks.SquidCheck;
 import org.sonar.check.BelongsToProfile;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
-import org.sonar.javascript.api.EcmaScriptGrammar;
 import org.sonar.javascript.api.EcmaScriptKeyword;
+import org.sonar.javascript.parser.EcmaScriptGrammar;
+import org.sonar.sslr.parser.LexerlessGrammar;
 
 import java.util.List;
 
@@ -33,28 +34,28 @@ import java.util.List;
   key = "CurlyBraces",
   priority = Priority.MAJOR)
 @BelongsToProfile(title = CheckList.SONAR_WAY_PROFILE, priority = Priority.MAJOR)
-public class AlwaysUseCurlyBracesCheck extends SquidCheck<EcmaScriptGrammar> {
+public class AlwaysUseCurlyBracesCheck extends SquidCheck<LexerlessGrammar> {
 
   @Override
   public void init() {
     subscribeTo(
-        getContext().getGrammar().ifStatement,
-        getContext().getGrammar().forInStatement,
-        getContext().getGrammar().forStatement,
-        getContext().getGrammar().whileStatement,
-        getContext().getGrammar().doWhileStatement,
-        getContext().getGrammar().elseClause);
+        EcmaScriptGrammar.IF_STATEMENT,
+        EcmaScriptGrammar.FOR_IN_STATEMENT,
+        EcmaScriptGrammar.FOR_STATEMENT,
+        EcmaScriptGrammar.WHILE_STATEMENT,
+        EcmaScriptGrammar.DO_WHILE_STATEMENT,
+        EcmaScriptGrammar.ELSE_CLAUSE);
   }
 
   @Override
   public void visitNode(AstNode astNode) {
-    List<AstNode> statements = astNode.getChildren(getContext().getGrammar().statement);
+    List<AstNode> statements = astNode.getChildren(EcmaScriptGrammar.STATEMENT);
     for (AstNode statement : statements) {
-      if (statement.getChild(0).is(getContext().getGrammar().ifStatement)
+      if (statement.getChild(0).is(EcmaScriptGrammar.IF_STATEMENT)
           && statement.getPreviousSibling().is(EcmaScriptKeyword.ELSE)) {
         continue;
       }
-      if (!statement.getChild(0).is(getContext().getGrammar().block)) {
+      if (!statement.getChild(0).is(EcmaScriptGrammar.BLOCK)) {
         getContext().createLineViolation(this, "Missing curly brace.", astNode);
         break;
       }

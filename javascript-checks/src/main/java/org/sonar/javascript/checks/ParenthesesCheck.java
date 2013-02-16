@@ -24,7 +24,8 @@ import com.sonar.sslr.api.AstNode;
 import com.sonar.sslr.squid.checks.SquidCheck;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
-import org.sonar.javascript.api.EcmaScriptGrammar;
+import org.sonar.javascript.parser.EcmaScriptGrammar;
+import org.sonar.sslr.parser.LexerlessGrammar;
 
 import java.util.Set;
 
@@ -36,16 +37,16 @@ import java.util.Set;
 @Rule(
   key = "Parentheses",
   priority = Priority.MINOR)
-public class ParenthesesCheck extends SquidCheck<EcmaScriptGrammar> {
+public class ParenthesesCheck extends SquidCheck<LexerlessGrammar> {
 
   private static final Set<String> NO_PARENTHESES_AFTER = ImmutableSet.of("delete", "typeof", "void", "return", "throw", "new", "in");
 
   @Override
   public void init() {
     subscribeTo(
-        getContext().getGrammar().unaryExpression,
-        getContext().getGrammar().expression,
-        getContext().getGrammar().newExpression);
+        EcmaScriptGrammar.UNARY_EXPRESSION,
+        EcmaScriptGrammar.EXPRESSION,
+        EcmaScriptGrammar.NEW_EXPRESSION);
   }
 
   @Override

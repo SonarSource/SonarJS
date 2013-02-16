@@ -24,17 +24,18 @@ import com.sonar.sslr.squid.checks.SquidCheck;
 import org.sonar.check.BelongsToProfile;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
-import org.sonar.javascript.api.EcmaScriptGrammar;
+import org.sonar.javascript.api.EcmaScriptTokenType;
+import org.sonar.sslr.parser.LexerlessGrammar;
 
 @Rule(
   key = "OctalNumber",
   priority = Priority.CRITICAL)
 @BelongsToProfile(title = CheckList.SONAR_WAY_PROFILE, priority = Priority.CRITICAL)
-public class OctalNumberCheck extends SquidCheck<EcmaScriptGrammar> {
+public class OctalNumberCheck extends SquidCheck<LexerlessGrammar> {
 
   @Override
   public void init() {
-    subscribeTo(getContext().getGrammar().numericLiteral);
+    subscribeTo(EcmaScriptTokenType.NUMERIC_LITERAL);
   }
 
   @Override

@@ -27,8 +27,8 @@ import org.sonar.check.BelongsToProfile;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.javascript.CharsetAwareVisitor;
-import org.sonar.javascript.api.EcmaScriptGrammar;
 import org.sonar.javascript.lexer.EcmaScriptLexer;
+import org.sonar.sslr.parser.LexerlessGrammar;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
@@ -39,7 +39,7 @@ import java.util.regex.Pattern;
   key = "TrailingWhitespace",
   priority = Priority.MAJOR)
 @BelongsToProfile(title = CheckList.SONAR_WAY_PROFILE, priority = Priority.MAJOR)
-public class TrailingWhitespaceCheck extends SquidCheck<EcmaScriptGrammar> implements CharsetAwareVisitor {
+public class TrailingWhitespaceCheck extends SquidCheck<LexerlessGrammar> implements CharsetAwareVisitor {
 
   private Charset charset;
 

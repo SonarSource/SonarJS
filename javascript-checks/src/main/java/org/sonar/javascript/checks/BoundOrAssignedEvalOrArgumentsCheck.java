@@ -24,41 +24,48 @@ import com.sonar.sslr.squid.checks.SquidCheck;
 import org.sonar.check.BelongsToProfile;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
-import org.sonar.javascript.api.EcmaScriptGrammar;
 import org.sonar.javascript.api.EcmaScriptPunctuator;
+import org.sonar.javascript.api.EcmaScriptTokenType;
+import org.sonar.javascript.parser.EcmaScriptGrammar;
+import org.sonar.sslr.parser.LexerlessGrammar;
 
 @Rule(
   key = "BoundOrAssignedEvalOrArguments",
   priority = Priority.CRITICAL)
 @BelongsToProfile(title = CheckList.SONAR_WAY_PROFILE, priority = Priority.CRITICAL)
-public class BoundOrAssignedEvalOrArgumentsCheck extends SquidCheck<EcmaScriptGrammar> {
+public class BoundOrAssignedEvalOrArgumentsCheck extends SquidCheck<LexerlessGrammar> {
 
   @Override
   public void init() {
-    EcmaScriptGrammar g = getContext().getGrammar();
-    subscribeTo(g.functionDeclaration, g.functionExpression, g.catch_, g.variableDeclaration, g.variableDeclarationNoIn, g.propertySetParameterList, g.memberExpression);
+    subscribeTo(
+        EcmaScriptGrammar.FUNCTION_DECLARATION,
+        EcmaScriptGrammar.FUNCTION_EXPRESSION,
+        EcmaScriptGrammar.CATCH_,
+        EcmaScriptGrammar.VARIABLE_DECLARATION,
+        EcmaScriptGrammar.VARIABLE_DECLARATION_NO_IN,
+        EcmaScriptGrammar.PROPERTY_SET_PARAMETER_LIST,
+        EcmaScriptGrammar.MEMBER_EXPRESSION);
   }
 
   @Override
   public void visitNode(AstNode astNode) {
-    EcmaScriptGrammar g = getContext().getGrammar();
-    if (astNode.is(g.functionDeclaration, g.functionExpression)) {
+    if (astNode.is(EcmaScriptGrammar.FUNCTION_DECLARATION, EcmaScriptGrammar.FUNCTION_EXPRESSION)) {
       checkFunction(astNode);
-    } else if (astNode.is(g.catch_, g.variableDeclaration, g.variableDeclarationNoIn)) {
+    } else if (astNode.is(EcmaScriptGrammar.CATCH_, EcmaScriptGrammar.VARIABLE_DECLARATION, EcmaScriptGrammar.VARIABLE_DECLARATION_NO_IN)) {
       checkVariableDeclaration(astNode);
-    } else if (astNode.is(g.propertySetParameterList)) {
+    } else if (astNode.is(EcmaScriptGrammar.PROPERTY_SET_PARAMETER_LIST)) {
       checkPropertySetParameterList(astNode);
-    } else if (astNode.is(g.memberExpression)) {
+    } else if (astNode.is(EcmaScriptGrammar.MEMBER_EXPRESSION)) {
       checkModification(astNode);
     }
   }
 
   private void checkFunction(AstNode astNode) {
-    AstNode identifier = astNode.getFirstChild(getContext().getGrammar().identifier);
+    AstNode identifier = astNode.getFirstChild(EcmaScriptTokenType.IDENTIFIER);
     if (identifier != null && isEvalOrArguments(identifier.getTokenValue())) {
       getContext().createLineViolation(this, createMessageFor("function", identifier.getTokenValue()), identifier);
     }
-    AstNode formalParameterList = astNode.getFirstChild(getContext().getGrammar().formalParameterList);
+    AstNode formalParameterList = astNode.getFirstChild(EcmaScriptGrammar.FORMAL_PARAMETER_LIST);
     if (formalParameterList != null) {
       for (int i = 0; i < formalParameterList.getNumberOfChildren(); i += 2) {
         identifier = formalParameterList.getChild(i);
@@ -70,14 +77,14 @@ public class BoundOrAssignedEvalOrArgumentsCheck extends SquidCheck<EcmaScriptGr
   }
 
   private void checkVariableDeclaration(AstNode astNode) {
-    AstNode identifier = astNode.getFirstChild(getContext().getGrammar().identifier);
+    AstNode identifier = astNode.getFirstChild(EcmaScriptTokenType.IDENTIFIER);
     if (isEvalOrArguments(identifier.getTokenValue())) {
       getContext().createLineViolation(this, createMessageFor("variable", identifier.getTokenValue()), identifier);
     }
   }
 
   private void checkPropertySetParameterList(AstNode astNode) {
-    AstNode identifier = astNode.getFirstChild(getContext().getGrammar().identifier);
+    AstNode identifier = astNode.getFirstChild(EcmaScriptTokenType.IDENTIFIER);
     if (isEvalOrArguments(identifier.getTokenValue())) {
       getContext().createLineViolation(this, createMessageFor("parameter", identifier.getTokenValue()), identifier);
     }
@@ -85,7 +92,7 @@ public class BoundOrAssignedEvalOrArgumentsCheck extends SquidCheck<EcmaScriptGr
 
   private void checkModification(AstNode astNode) {
     if (isEvalOrArguments(astNode.getTokenValue()) && !astNode.hasDirectChildren(EcmaScriptPunctuator.LBRACKET)
-      && !astNode.getParent().is(getContext().getGrammar().callExpression)) {
+      && !astNode.getParent().is(EcmaScriptGrammar.CALL_EXPRESSION)) {
       getContext().createLineViolation(this, "Remove the modification of '" + astNode.getTokenValue() + "'.", astNode);
     }
   }

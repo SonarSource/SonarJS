@@ -24,7 +24,9 @@ import com.sonar.sslr.squid.checks.SquidCheck;
 import org.sonar.check.BelongsToProfile;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
-import org.sonar.javascript.api.EcmaScriptGrammar;
+import org.sonar.javascript.api.EcmaScriptTokenType;
+import org.sonar.javascript.parser.EcmaScriptGrammar;
+import org.sonar.sslr.parser.LexerlessGrammar;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -34,15 +36,18 @@ import java.util.Stack;
   key = "SameNameForFunctionAndVariable",
   priority = Priority.MAJOR)
 @BelongsToProfile(title = CheckList.SONAR_WAY_PROFILE, priority = Priority.MAJOR)
-public class SameNameForFunctionAndVariableCheck extends SquidCheck<EcmaScriptGrammar> {
+public class SameNameForFunctionAndVariableCheck extends SquidCheck<LexerlessGrammar> {
 
   private Stack<Set<String>> variablesStack;
   private Stack<Set<String>> functionsStack;
 
   @Override
   public void init() {
-    EcmaScriptGrammar g = getContext().getGrammar();
-    subscribeTo(g.variableDeclaration, g.variableDeclarationNoIn, g.functionDeclaration, g.functionExpression);
+    subscribeTo(
+        EcmaScriptGrammar.VARIABLE_DECLARATION,
+        EcmaScriptGrammar.VARIABLE_DECLARATION_NO_IN,
+        EcmaScriptGrammar.FUNCTION_DECLARATION,
+        EcmaScriptGrammar.FUNCTION_EXPRESSION);
   }
 
   @Override
@@ -55,17 +60,17 @@ public class SameNameForFunctionAndVariableCheck extends SquidCheck<EcmaScriptGr
 
   @Override
   public void visitNode(AstNode astNode) {
-    if (astNode.is(getContext().getGrammar().functionDeclaration)) {
-      String functionName = astNode.getFirstChild(getContext().getGrammar().identifier).getTokenValue();
+    if (astNode.is(EcmaScriptGrammar.FUNCTION_DECLARATION)) {
+      String functionName = astNode.getFirstChild(EcmaScriptTokenType.IDENTIFIER).getTokenValue();
       check(astNode, variablesStack.peek(), functionName);
       functionsStack.peek().add(functionName);
-    } else if (astNode.is(getContext().getGrammar().variableDeclaration, getContext().getGrammar().variableDeclarationNoIn)) {
+    } else if (astNode.is(EcmaScriptGrammar.VARIABLE_DECLARATION, EcmaScriptGrammar.VARIABLE_DECLARATION_NO_IN)) {
       String variableName = astNode.getTokenValue();
       check(astNode, functionsStack.peek(), variableName);
       variablesStack.peek().add(variableName);
     }
 
-    if (astNode.is(getContext().getGrammar().functionDeclaration, getContext().getGrammar().functionExpression)) {
+    if (astNode.is(EcmaScriptGrammar.FUNCTION_DECLARATION, EcmaScriptGrammar.FUNCTION_EXPRESSION)) {
       variablesStack.add(new HashSet<String>());
       functionsStack.add(new HashSet<String>());
     }
@@ -79,7 +84,7 @@ public class SameNameForFunctionAndVariableCheck extends SquidCheck<EcmaScriptGr
 
   @Override
   public void leaveNode(AstNode astNode) {
-    if (astNode.is(getContext().getGrammar().functionDeclaration, getContext().getGrammar().functionExpression)) {
+    if (astNode.is(EcmaScriptGrammar.FUNCTION_DECLARATION, EcmaScriptGrammar.FUNCTION_EXPRESSION)) {
       variablesStack.pop();
       functionsStack.pop();
     }

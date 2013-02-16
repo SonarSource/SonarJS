@@ -21,25 +21,25 @@ package org.sonar.javascript.metrics;
 
 import com.sonar.sslr.api.AstNode;
 import com.sonar.sslr.squid.SquidAstVisitor;
-import org.sonar.javascript.api.EcmaScriptGrammar;
 import org.sonar.javascript.api.EcmaScriptMetric;
 import org.sonar.javascript.api.EcmaScriptPunctuator;
+import org.sonar.javascript.parser.EcmaScriptGrammar;
+import org.sonar.sslr.parser.LexerlessGrammar;
 
-public class ComplexityVisitor extends SquidAstVisitor<EcmaScriptGrammar> {
+public class ComplexityVisitor extends SquidAstVisitor<LexerlessGrammar> {
 
   @Override
   public void init() {
-    EcmaScriptGrammar grammar = getContext().getGrammar();
     subscribeTo(
-        grammar.functionDeclaration,
-        grammar.functionExpression,
+        EcmaScriptGrammar.FUNCTION_DECLARATION,
+        EcmaScriptGrammar.FUNCTION_EXPRESSION,
         // Branching nodes
-        grammar.ifStatement,
-        grammar.iterationStatement,
-        grammar.caseClause,
-        grammar.catch_,
-        grammar.returnStatement,
-        grammar.throwStatement,
+        EcmaScriptGrammar.IF_STATEMENT,
+        EcmaScriptGrammar.ITERATION_STATEMENT,
+        EcmaScriptGrammar.CASE_CLAUSE,
+        EcmaScriptGrammar.CATCH_,
+        EcmaScriptGrammar.RETURN_STATEMENT,
+        EcmaScriptGrammar.THROW_STATEMENT,
         // Expressions
         EcmaScriptPunctuator.QUERY,
         EcmaScriptPunctuator.ANDAND,
@@ -48,7 +48,7 @@ public class ComplexityVisitor extends SquidAstVisitor<EcmaScriptGrammar> {
 
   @Override
   public void visitNode(AstNode astNode) {
-    if (astNode.is(getContext().getGrammar().returnStatement) && isLastReturnStatement(astNode)) {
+    if (astNode.is(EcmaScriptGrammar.RETURN_STATEMENT) && isLastReturnStatement(astNode)) {
       return;
     }
     getContext().peekSourceCode().add(EcmaScriptMetric.COMPLEXITY, 1);
@@ -56,7 +56,7 @@ public class ComplexityVisitor extends SquidAstVisitor<EcmaScriptGrammar> {
 
   private boolean isLastReturnStatement(AstNode astNode) {
     AstNode parent = astNode.getParent().getParent();
-    return parent.is(getContext().getGrammar().sourceElement);
+    return parent.is(EcmaScriptGrammar.SOURCE_ELEMENT);
   }
 
 }

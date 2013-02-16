@@ -24,33 +24,34 @@ import com.sonar.sslr.squid.checks.SquidCheck;
 import org.sonar.check.BelongsToProfile;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
-import org.sonar.javascript.api.EcmaScriptGrammar;
+import org.sonar.javascript.parser.EcmaScriptGrammar;
+import org.sonar.sslr.parser.LexerlessGrammar;
 
 @Rule(
   key = "UnreachableCode",
   priority = Priority.MAJOR)
 @BelongsToProfile(title = CheckList.SONAR_WAY_PROFILE, priority = Priority.MAJOR)
-public class UnreachableCodeCheck extends SquidCheck<EcmaScriptGrammar> {
+public class UnreachableCodeCheck extends SquidCheck<LexerlessGrammar> {
 
   @Override
   public void init() {
     subscribeTo(
-        getContext().getGrammar().breakStatement,
-        getContext().getGrammar().returnStatement,
-        getContext().getGrammar().continueStatement,
-        getContext().getGrammar().throwStatement);
+        EcmaScriptGrammar.BREAK_STATEMENT,
+        EcmaScriptGrammar.RETURN_STATEMENT,
+        EcmaScriptGrammar.CONTINUE_STATEMENT,
+        EcmaScriptGrammar.THROW_STATEMENT);
   }
 
   @Override
   public void visitNode(AstNode node) {
-    while (node.getParent().is(getContext().getGrammar().statement)
-        || node.getParent().is(getContext().getGrammar().sourceElement)) {
+    while (node.getParent().is(EcmaScriptGrammar.STATEMENT)
+        || node.getParent().is(EcmaScriptGrammar.SOURCE_ELEMENT)) {
       node = node.getParent();
     }
 
     if (node.getNextSibling() != null) {
       AstNode v = node.getNextSibling();
-      if (!v.is(getContext().getGrammar().elseClause)) {
+      if (!v.is(EcmaScriptGrammar.ELSE_CLAUSE)) {
         getContext().createLineViolation(this, "This statement can't be reached and so start a dead code block.", v);
       }
     }
