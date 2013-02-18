@@ -19,20 +19,21 @@
  */
 package org.sonar.plugins.javascript.coverage;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.Collection;
+import org.sonar.api.measures.CoverageMeasuresBuilder;
+import org.sonar.api.measures.Measure;
 
 public final class JavaScriptFileCoverage {
 
-  private Map<Integer, Integer> lineCoverageData = new HashMap<Integer, Integer>();
+  private CoverageMeasuresBuilder coverageData = CoverageMeasuresBuilder.create();
   private String filePath;
 
-  public Map<Integer, Integer> getLineCoverageData() {
-    return lineCoverageData;
+  public CoverageMeasuresBuilder getCoverageData() {
+    return coverageData;
   }
 
-  public void setLineCoverage(Map<Integer, Integer> lineCoverage) {
-    this.lineCoverageData = lineCoverage;
+  public Collection<Measure> getCoverageMeasures() {
+    return coverageData.createMeasures();
   }
 
   public String getFilePath() {
@@ -40,31 +41,19 @@ public final class JavaScriptFileCoverage {
   }
 
   public void setFilePath(String filePath) {
+    //Handle unix like paths in reports
+    if (filePath.startsWith("./")) {
+      filePath = filePath.substring(2);
+    }
     this.filePath = filePath;
   }
 
-  // Executable Line Count
-  public int getLinesToCover() {
-    return lineCoverageData.size();
-  }
-
-  // Covered Executable Line Count
-  public int getCoveredLines() {
-    int lines = 0;
-    for (Map.Entry<Integer, Integer> entry : lineCoverageData.entrySet()) {
-      if (entry.getValue() > 0) {
-        lines++;
-      }
-    }
-    return lines;
-  }
-
   public void addLine(int lineNumber, int executionCount) {
-    lineCoverageData.put(lineNumber, executionCount);
+    coverageData.setHits(lineNumber, executionCount);
   }
 
-  public int getUncoveredLines() {
-    return getLinesToCover() - getCoveredLines();
+  public void addConditions(int lineNumber, int branches, int branchesTaken) {
+    coverageData.setConditions(lineNumber, branches, branchesTaken);
   }
 
 }
