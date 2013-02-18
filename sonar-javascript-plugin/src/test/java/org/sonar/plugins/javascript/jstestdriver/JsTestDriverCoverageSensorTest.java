@@ -40,6 +40,7 @@ import static org.mockito.Matchers.anyObject;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.when;
 
 public class JsTestDriverCoverageSensorTest {
@@ -71,9 +72,8 @@ public class JsTestDriverCoverageSensorTest {
     List<JavaScriptFileCoverage> coveredFiles = getCoveredFile(inputFile.getFile().getAbsolutePath());
     sensor.analyseCoveredFiles(project, context, coveredFiles);
 
-    verify(context).saveMeasure((Resource) anyObject(), eq(CoreMetrics.LINES_TO_COVER), eq(6.0));
-    verify(context).saveMeasure((Resource) anyObject(), eq(CoreMetrics.UNCOVERED_LINES), eq(3.0));
-
+    verify(context, times(3)).saveMeasure((Resource) anyObject(), (Measure) anyObject());
+    
   }
 
   @Test
@@ -93,7 +93,7 @@ public class JsTestDriverCoverageSensorTest {
 
     List<JavaScriptFileCoverage> coveredFiles = getCoveredFile(inputFile.getFile().getAbsolutePath() + "not_existing_file");
     sensor.analyseCoveredFiles(project, context, coveredFiles);
-
+   
     verify(context).saveMeasure((Resource) anyObject(), eq(CoreMetrics.LINES_TO_COVER), eq(22.0));
     verify(context).saveMeasure((Resource) anyObject(), eq(CoreMetrics.UNCOVERED_LINES), eq(22.0));
 
@@ -129,15 +129,13 @@ public class JsTestDriverCoverageSensorTest {
     List<JavaScriptFileCoverage> list = new LinkedList<JavaScriptFileCoverage>();
 
     JavaScriptFileCoverage file = new JavaScriptFileCoverage();
-    Map<Integer, Integer> lineCoverage = new HashMap<Integer, Integer>();
-    lineCoverage.put(1, 0);
-    lineCoverage.put(2, 0);
-    lineCoverage.put(3, 0);
-    lineCoverage.put(4, 1);
-    lineCoverage.put(5, 2);
-    lineCoverage.put(6, 1);
-
-    file.setLineCoverage(lineCoverage);
+    file.getCoverageData().setHits(1, 0);
+    file.getCoverageData().setHits(2, 0);
+    file.getCoverageData().setHits(3, 0);
+    file.getCoverageData().setHits(4, 1);
+    file.getCoverageData().setHits(5, 2);
+    file.getCoverageData().setHits(6, 1);
+    
     file.setFilePath(fullPath);
 
     list.add(file);

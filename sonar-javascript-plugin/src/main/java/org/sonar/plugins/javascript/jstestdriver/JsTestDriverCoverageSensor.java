@@ -71,14 +71,9 @@ public class JsTestDriverCoverageSensor implements Sensor {
         PropertiesBuilder<Integer, Integer> lineHitsData = new PropertiesBuilder<Integer, Integer>(CoreMetrics.COVERAGE_LINE_HITS_DATA);
 
         if (fileCoverage != null) {
-          Map<Integer, Integer> hits = fileCoverage.getLineCoverageData();
-          for (Map.Entry<Integer, Integer> entry : hits.entrySet()) {
-            lineHitsData.add(entry.getKey(), entry.getValue());
+          for (Measure measure : fileCoverage.getCoverageMeasures()) {
+            sensorContext.saveMeasure(resource, measure);
           }
-
-          sensorContext.saveMeasure(resource, lineHitsData.build());
-          sensorContext.saveMeasure(resource, CoreMetrics.LINES_TO_COVER, (double) fileCoverage.getLinesToCover());
-          sensorContext.saveMeasure(resource, CoreMetrics.UNCOVERED_LINES, (double) fileCoverage.getUncoveredLines());
         } else {
 
           // colour all lines as not executed
