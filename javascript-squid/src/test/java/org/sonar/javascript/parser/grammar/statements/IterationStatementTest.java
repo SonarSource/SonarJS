@@ -30,24 +30,11 @@ public class IterationStatementTest {
   LexerlessGrammar g = EcmaScriptGrammar.createGrammar();
 
   @Test
-  public void ok() {
-    g.rule(EcmaScriptGrammar.DO_WHILE_STATEMENT).mock();
-    g.rule(EcmaScriptGrammar.WHILE_STATEMENT).mock();
-    g.rule(EcmaScriptGrammar.FOR_IN_STATEMENT).mock();
-    g.rule(EcmaScriptGrammar.FOR_STATEMENT).mock();
-
-    assertThat(g.rule(EcmaScriptGrammar.ITERATION_STATEMENT))
-        .matches("doWhileStatement")
-        .matches("whileStatement")
-        .matches("forInStatement")
-        .matches("forStatement");
-  }
-
-  @Test
   public void realLife() {
     assertThat(g.rule(EcmaScriptGrammar.ITERATION_STATEMENT))
         .matches("do { } while (a < b);")
         .matches("while (a < b) ;")
+        .matches("for (x in a) ;")
         .matches("for (n = 0; n < h; n++) ;");
   }
 

@@ -31,14 +31,10 @@ public class AssignmentExpressionTest {
 
   @Test
   public void ok() {
-    g.rule(EcmaScriptGrammar.LEFT_HAND_SIDE_EXPRESSION).mock();
-    g.rule(EcmaScriptGrammar.ASSIGNMENT_OPERATOR).mock();
-    g.rule(EcmaScriptGrammar.CONDITIONAL_EXPRESSION).mock();
-
     assertThat(g.rule(EcmaScriptGrammar.ASSIGNMENT_EXPRESSION))
         .matches("conditionalExpression")
-        .matches("leftHandSideExpression assignmentOperator conditionalExpression")
-        .matches("leftHandSideExpression assignmentOperator leftHandSideExpression assignmentOperator conditionalExpression");
+        .matches("leftHandSideExpression = conditionalExpression")
+        .matches("leftHandSideExpression = leftHandSideExpression = conditionalExpression");
   }
 
   @Test

@@ -31,15 +31,12 @@ public class SwitchStatementTest {
 
   @Test
   public void ok() {
-    g.rule(EcmaScriptGrammar.EXPRESSION).mock();
-    g.rule(EcmaScriptGrammar.STATEMENT_LIST).mock();
-
     assertThat(g.rule(EcmaScriptGrammar.SWITCH_STATEMENT))
         .matches("switch ( expression ) { }")
-        .matches("switch ( expression ) { case expression : statementList }")
-        .matches("switch ( expression ) { case expression : statementList default : statementList }")
-        .matches("switch ( expression ) { case expression : statementList default : statementList case expression : statementList }")
-        .notMatches("switch ( expression ) { default : statement List default : statementList }");
+        .matches("switch ( expression ) { case expression: break; }")
+        .matches("switch ( expression ) { case expression: break; default: break; }")
+        .matches("switch ( expression ) { case expression: break; case expression: break; case expression: break; }")
+        .notMatches("switch ( expression ) { default : break; default : break; }");
   }
 
 }

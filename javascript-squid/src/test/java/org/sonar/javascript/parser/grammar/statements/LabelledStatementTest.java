@@ -30,13 +30,6 @@ public class LabelledStatementTest {
   LexerlessGrammar g = EcmaScriptGrammar.createGrammar();
 
   @Test
-  public void ok() {
-    g.rule(EcmaScriptGrammar.STATEMENT).mock();
-    assertThat(g.rule(EcmaScriptGrammar.LABELLED_STATEMENT))
-        .matches("identifier : statement");
-  }
-
-  @Test
   public void realLife() {
     assertThat(g.rule(EcmaScriptGrammar.LABELLED_STATEMENT))
         .matches("label: doSomething();");

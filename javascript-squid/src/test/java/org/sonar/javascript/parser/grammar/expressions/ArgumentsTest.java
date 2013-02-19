@@ -31,8 +31,6 @@ public class ArgumentsTest {
 
   @Test
   public void ok() {
-    g.rule(EcmaScriptGrammar.ASSIGNMENT_EXPRESSION).mock();
-
     assertThat(g.rule(EcmaScriptGrammar.ARGUMENTS))
         .matches("( )")
         .matches("( assignmentExpression )")

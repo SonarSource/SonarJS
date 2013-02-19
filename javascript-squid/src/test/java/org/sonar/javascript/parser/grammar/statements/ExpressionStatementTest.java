@@ -31,11 +31,9 @@ public class ExpressionStatementTest {
 
   @Test
   public void ok() {
-    g.rule(EcmaScriptGrammar.EXPRESSION).mock();
-    g.rule(EcmaScriptGrammar.EOS).mock();
-
     assertThat(g.rule(EcmaScriptGrammar.EXPRESSION_STATEMENT))
-        .matches("expression eos");
+        .matches("a = b;")
+        .matches("a = b");
   }
 
   @Test

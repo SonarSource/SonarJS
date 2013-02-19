@@ -31,11 +31,9 @@ public class SourceElementsTest {
 
   @Test
   public void ok() {
-    g.rule(EcmaScriptGrammar.SOURCE_ELEMENT).mock();
-
     assertThat(g.rule(EcmaScriptGrammar.SOURCE_ELEMENTS))
-        .matches("sourceElement")
-        .matches("sourceElement sourceElement");
+        .matches("var a;")
+        .matches("var a; var b;");
   }
 
 }

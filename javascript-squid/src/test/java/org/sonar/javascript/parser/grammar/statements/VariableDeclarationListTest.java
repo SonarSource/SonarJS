@@ -31,8 +31,6 @@ public class VariableDeclarationListTest {
 
   @Test
   public void ok() {
-    g.rule(EcmaScriptGrammar.VARIABLE_DECLARATION).mock();
-
     assertThat(g.rule(EcmaScriptGrammar.VARIABLE_DECLARATION_LIST))
         .matches("variableDeclaration")
         .matches("variableDeclaration , variableDeclaration");

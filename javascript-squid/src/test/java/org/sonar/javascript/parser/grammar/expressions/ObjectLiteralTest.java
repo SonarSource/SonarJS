@@ -31,9 +31,6 @@ public class ObjectLiteralTest {
 
   @Test
   public void ok() {
-    g.rule(EcmaScriptGrammar.PROPERTY_NAME).mock();
-    g.rule(EcmaScriptGrammar.ASSIGNMENT_EXPRESSION).mock();
-
     assertThat(g.rule(EcmaScriptGrammar.OBJECT_LITERAL))
         .matches("{ }")
         .matches("{ propertyName : assignmentExpression }")

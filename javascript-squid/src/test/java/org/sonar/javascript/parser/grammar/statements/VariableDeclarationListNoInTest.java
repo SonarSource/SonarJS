@@ -31,8 +31,6 @@ public class VariableDeclarationListNoInTest {
 
   @Test
   public void ok() {
-    g.rule(EcmaScriptGrammar.VARIABLE_DECLARATION_NO_IN).mock();
-
     assertThat(g.rule(EcmaScriptGrammar.VARIABLE_DECLARATION_LIST_NO_IN))
         .matches("variableDeclarationNoIn")
         .matches("variableDeclarationNoIn , variableDeclarationNoIn");

@@ -31,11 +31,9 @@ public class StatementListTest {
 
   @Test
   public void ok() {
-    g.rule(EcmaScriptGrammar.STATEMENT).mock();
-
     assertThat(g.rule(EcmaScriptGrammar.STATEMENT_LIST))
-        .matches("statement")
-        .matches("statement statement");
+        .matches("break;")
+        .matches("break; break;");
   }
 
 }

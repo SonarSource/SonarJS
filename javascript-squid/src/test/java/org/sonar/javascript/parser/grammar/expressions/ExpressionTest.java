@@ -31,20 +31,17 @@ public class ExpressionTest {
 
   @Test
   public void ok() {
-    g.rule(EcmaScriptGrammar.ASSIGNMENT_EXPRESSION).mock();
-
     assertThat(g.rule(EcmaScriptGrammar.EXPRESSION))
-        .matches("assignmentExpression")
-        .matches("assignmentExpression , assignmentExpression");
+        .matches("a = 1")
+        .matches("a = 1, b = 1");
   }
 
   @Test
   public void realLife() {
     assertThat(g.rule(EcmaScriptGrammar.EXPRESSION))
         .matches("a + ' ' + b")
-        .matches("i++");
-    // FIXME
-    // assertThat(p).matches("1 / a == 1 / b");
+        .matches("i++")
+        .matches("1 / a == 1 / b");
   }
 
 }

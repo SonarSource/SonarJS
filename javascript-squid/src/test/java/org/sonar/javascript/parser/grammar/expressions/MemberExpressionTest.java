@@ -31,20 +31,14 @@ public class MemberExpressionTest {
 
   @Test
   public void ok() {
-    g.rule(EcmaScriptGrammar.PRIMARY_EXPRESSION).mock();
-    g.rule(EcmaScriptGrammar.FUNCTION_EXPRESSION).mock();
-    g.rule(EcmaScriptGrammar.EXPRESSION).mock();
-    g.rule(EcmaScriptGrammar.IDENTIFIER_NAME).mock();
-    g.rule(EcmaScriptGrammar.ARGUMENTS).mock();
-
     assertThat(g.rule(EcmaScriptGrammar.MEMBER_EXPRESSION))
         .matches("primaryExpression")
-        .matches("functionExpression")
+        .as("functionExpression").matches("function () {}")
 
         .matches("primaryExpression [ expression ]")
         .matches("primaryExpression . identifierName")
         .matches("primaryExpression [ expression ] . identifierName")
-        .matches("new primaryExpression arguments");
+        .matches("new primaryExpression ( arguments )");
   }
 
 }

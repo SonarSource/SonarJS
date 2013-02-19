@@ -31,11 +31,6 @@ public class PropertyAssignmentTest {
 
   @Test
   public void ok() {
-    g.rule(EcmaScriptGrammar.PROPERTY_NAME).mock();
-    g.rule(EcmaScriptGrammar.FUNCTION_BODY).mock();
-    g.rule(EcmaScriptGrammar.PROPERTY_SET_PARAMETER_LIST).mock();
-    g.rule(EcmaScriptGrammar.ASSIGNMENT_EXPRESSION).mock();
-
     assertThat(g.rule(EcmaScriptGrammar.PROPERTY_ASSIGNMENT))
         .matches("propertyName : assignmentExpression")
         .matches("get propertyName () { functionBody }")

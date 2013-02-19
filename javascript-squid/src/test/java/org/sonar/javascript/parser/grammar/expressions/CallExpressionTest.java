@@ -31,18 +31,13 @@ public class CallExpressionTest {
 
   @Test
   public void ok() {
-    g.rule(EcmaScriptGrammar.MEMBER_EXPRESSION).mock();
-    g.rule(EcmaScriptGrammar.ARGUMENTS).mock();
-    g.rule(EcmaScriptGrammar.EXPRESSION).mock();
-    g.rule(EcmaScriptGrammar.IDENTIFIER_NAME).mock();
+    assertThat(g.rule(EcmaScriptGrammar.CALL_EXPRESSION))
+        .matches("memberExpression ( arguments )")
+        .matches("memberExpression ( arguments ) ( arguments )");
 
     assertThat(g.rule(EcmaScriptGrammar.CALL_EXPRESSION))
-        .matches("memberExpression arguments")
-        .matches("memberExpression arguments arguments");
-
-    assertThat(g.rule(EcmaScriptGrammar.CALL_EXPRESSION))
-        .matches("memberExpression arguments [ expression ]")
-        .matches("memberExpression arguments . identifierName");
+        .matches("memberExpression ( arguments ) [ expression ]")
+        .matches("memberExpression ( arguments ) . identifierName");
   }
 
 }

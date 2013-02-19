@@ -30,25 +30,15 @@ public class PrimaryExpressionTest {
   LexerlessGrammar g = EcmaScriptGrammar.createGrammar();
 
   @Test
-  public void ok() {
-    g.rule(EcmaScriptGrammar.LITERAL).mock();
-    g.rule(EcmaScriptGrammar.ARRAY_LITERAL).mock();
-    g.rule(EcmaScriptGrammar.OBJECT_LITERAL).mock();
-    g.rule(EcmaScriptGrammar.EXPRESSION).mock();
-
+  public void realLife() {
     assertThat(g.rule(EcmaScriptGrammar.PRIMARY_EXPRESSION))
         .matches("this")
         .matches("identifier")
-        .matches("literal")
-        .matches("arrayLiteral")
-        .matches("objectLiteral")
+        .matches("''")
+        .matches("true")
+        .matches("[]")
+        .matches("{}")
         .matches("( expression )");
-  }
-
-  @Test
-  public void realLife() {
-    assertThat(g.rule(EcmaScriptGrammar.PRIMARY_EXPRESSION))
-        .matches("''");
   }
 
 }

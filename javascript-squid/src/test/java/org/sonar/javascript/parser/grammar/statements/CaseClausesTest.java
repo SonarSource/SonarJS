@@ -31,11 +31,9 @@ public class CaseClausesTest {
 
   @Test
   public void ok() {
-    g.rule(EcmaScriptGrammar.CASE_CLAUSE).mock();
-
     assertThat(g.rule(EcmaScriptGrammar.CASE_CLAUSES))
-        .matches("caseClause")
-        .matches("caseClause caseClause");
+        .matches("case 1:")
+        .matches("case 1: case 2:");
   }
 
 }
