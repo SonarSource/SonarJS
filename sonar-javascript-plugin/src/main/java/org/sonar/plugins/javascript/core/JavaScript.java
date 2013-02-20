@@ -26,12 +26,29 @@ import org.sonar.plugins.javascript.JavaScriptPlugin;
 
 public class JavaScript extends AbstractLanguage {
 
+  public static final JavaScript INSTANCE = new JavaScript();
+  
+  /**
+   * JavaScript key
+   */
   public static final String KEY = "js";
+  
+  /**
+   * JavaScript name
+   */
+  public static final String NAME = "JavaScript";
 
   private Settings settings;
 
+  /**
+   * Default constructor
+   */
+  public JavaScript() {
+    super(KEY, NAME);
+  }
+  
   public JavaScript(Settings configuration) {
-    super(KEY, "JavaScript");
+    super(KEY, NAME);
     this.settings = configuration;
   }
 
