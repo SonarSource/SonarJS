@@ -17,43 +17,40 @@
  * License along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.plugins.javascript.jstestdriver;
 
-import org.apache.commons.io.FileUtils;
-import org.jfree.util.Log;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.sonar.api.batch.Sensor;
-import org.sonar.api.batch.SensorContext;
-import org.sonar.api.resources.Project;
-import org.sonar.api.resources.Qualifiers;
-import org.sonar.api.resources.Resource;
-import org.sonar.plugins.javascript.JavaScriptPlugin;
-import org.sonar.plugins.javascript.core.JavaScript;
-import org.sonar.plugins.surefire.api.AbstractSurefireParser;
+package org.sonar.plugins.javascript;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
-public class JsTestDriverSurefireSensor implements Sensor {
+import org.apache.commons.io.FileUtils;
+import org.jfree.util.Log;
+import org.sonar.api.batch.SensorContext;
+import org.sonar.api.config.Settings;
+import org.sonar.api.measures.CoreMetrics;
+import org.sonar.api.resources.Project;
+import org.sonar.api.resources.Qualifiers;
+import org.sonar.api.resources.Resource;
+import org.sonar.plugins.javascript.core.JavaScript;
+import org.sonar.plugins.surefire.api.AbstractSurefireParser;
 
-  protected JavaScript javascript;
+public class JavaScriptSurefireSensor extends JavaScriptReportsSensor {
 
-  public JsTestDriverSurefireSensor(JavaScript javascript) {
+  private JavaScript javascript = null;
+  
+  /**
+   * {@inheritDoc}
+   */
+  public JavaScriptSurefireSensor(Settings conf, JavaScript javascript) {
+    super(conf);
     this.javascript = javascript;
   }
 
-  private static final Logger LOG = LoggerFactory.getLogger(JsTestDriverSurefireSensor.class);
-
-  public boolean shouldExecuteOnProject(Project project) {
-    return javascript.equals(project.getLanguage())
-      && "jstestdriver".equals(javascript.getSettings().getString(JavaScriptPlugin.TEST_FRAMEWORK_KEY));
-  }
-
   public void analyse(Project project, SensorContext context) {
-    String jsTestDriverFolder = javascript.getSettings().getString(JavaScriptPlugin.JSTESTDRIVER_FOLDER_KEY);
-    collect(project, context, new File(project.getFileSystem().getBasedir(), jsTestDriverFolder));
+	  
+    String unitTestsFolder = conf.getString(JavaScriptPlugin.UNIT_TESTS_REPORT_PATH_KEY);
+    collect(project, context, new File(project.getFileSystem().getBasedir(), unitTestsFolder));
   }
 
   protected void collect(final Project project, final SensorContext context, File reportsDir) {
@@ -116,7 +113,17 @@ public class JsTestDriverSurefireSensor implements Sensor {
   }
 
   @Override
-  public String toString() {
-    return getClass().getSimpleName();
+  protected void processReport(final Project project, final SensorContext context, File report)
+    throws
+    java.io.IOException,
+    javax.xml.transform.TransformerException,
+    javax.xml.stream.XMLStreamException
+  {
+    //parseReport(project, context, report);
+  }
+
+  @Override
+  protected void handleNoReportsCase(SensorContext context) {
+    context.saveMeasure(CoreMetrics.TESTS, 0.0);
   }
 }

@@ -17,35 +17,19 @@
  * License along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.plugins.javascript;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.sonar.api.config.PropertyDefinitions;
-import org.sonar.api.config.Settings;
+package org.sonar.plugins.javascript.coverage;
 
-import static org.fest.assertions.Assertions.assertThat;
+import java.io.File;
+import java.util.List;
 
-public class JavaScriptPluginTest {
+import javax.xml.stream.XMLStreamException;
 
-  private JavaScriptPlugin plugin;
-
-  @Before
-  public void setUp() throws Exception {
-    plugin = new JavaScriptPlugin();
-  }
-
-  @Test
-  public void testGetExtensions() throws Exception {
-    assertThat(plugin.getExtensions().size()).isEqualTo(12);
-  }
-
-  @Test
-  public void testProperties() {
-    Settings settings = new Settings(new PropertyDefinitions(plugin));
-    // SONARPLUGINS-2524
-    //Why is that?
-    //assertThat(settings.getString(JavaScriptPlugin.TEST_FRAMEWORK_KEY)).isNull();
-  }
-
+public interface CoverageParser {
+  /**
+   * Parses the given report and stores the results in the according builder wrapper
+   * @param file The report to parse
+   * @return A List of JavaScripFileCoverage. 
+   */
+  List<JavaScriptFileCoverage> parseFile(File file) throws XMLStreamException;
 }

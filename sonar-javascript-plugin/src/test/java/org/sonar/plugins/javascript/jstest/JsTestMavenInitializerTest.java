@@ -59,10 +59,8 @@ public class JsTestMavenInitializerTest {
     assertThat(mavenInitializer.shouldExecuteOnProject(project)).isFalse();
 
     project.setAnalysisType(Project.AnalysisType.DYNAMIC);
-    assertThat(mavenInitializer.shouldExecuteOnProject(project)).isFalse();
-
-    settings.setProperty(JavaScriptPlugin.TEST_FRAMEWORK_KEY, "jstest");
     assertThat(mavenInitializer.shouldExecuteOnProject(project)).isTrue();
+
   }
 
   @Test

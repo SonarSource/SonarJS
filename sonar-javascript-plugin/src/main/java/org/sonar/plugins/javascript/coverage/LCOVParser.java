@@ -36,7 +36,7 @@ import org.slf4j.LoggerFactory;
  * @author Gleb.Godonoga
  * 
  */
-public final class LCOVParser {
+public final class LCOVParser implements CoverageParser{
 
   private static final Logger LOG = LoggerFactory.getLogger(LCOVParser.class);
   private Integer branchesOnCurrentLine = 0;

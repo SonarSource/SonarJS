@@ -39,8 +39,7 @@ public class JsTestMavenInitializer extends Initializer implements DependsUponMa
   @Override
   public boolean shouldExecuteOnProject(Project project) {
     return project.getAnalysisType().isDynamic(true)
-      && javascript.equals(project.getLanguage())
-      && "jstest".equals(javascript.getSettings().getString(JavaScriptPlugin.TEST_FRAMEWORK_KEY));
+      && javascript.equals(project.getLanguage());
   }
 
   public MavenPluginHandler getMavenPluginHandler(Project project) {
