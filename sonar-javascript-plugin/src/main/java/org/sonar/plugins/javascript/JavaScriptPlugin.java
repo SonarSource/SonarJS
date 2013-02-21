@@ -31,6 +31,7 @@ import org.sonar.plugins.javascript.cpd.JavaScriptCpdMapping;
 import org.sonar.plugins.javascript.coverage.JavaScriptCoverageSensor;
 import org.sonar.plugins.javascript.jstest.JsTestMavenInitializer;
 import org.sonar.plugins.javascript.jstest.JsTestMavenPluginHandler;
+import org.sonar.plugins.javascript.surefire.JavaScriptSurefireSensor;
 
 import java.util.List;
 
@@ -94,12 +95,11 @@ public class JavaScriptPlugin extends SonarPlugin {
 
         JavaScriptCommonRulesEngineProvider.class,
 
-        //JsTestDriverSurefireSensor.class,
-        JavaScriptCoverageSensor.class,
-
         JsTestMavenInitializer.class,
         JsTestMavenPluginHandler.class,
-        JavaScriptSurefireSensor.class);
+        JavaScriptSurefireSensor.class,
+        
+        JavaScriptCoverageSensor.class);
   }
 
   // Global JavaScript constants

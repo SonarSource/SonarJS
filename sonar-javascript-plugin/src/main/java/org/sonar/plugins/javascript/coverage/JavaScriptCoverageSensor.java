@@ -33,8 +33,8 @@ import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.measures.PropertiesBuilder;
 import org.sonar.api.resources.Project;
-import org.sonar.plugins.javascript.JavaScriptReportsSensor;
 import org.sonar.plugins.javascript.JavaScriptPlugin;
+import org.sonar.plugins.javascript.core.JavaScriptReportsSensor;
 
 
 public class JavaScriptCoverageSensor extends JavaScriptReportsSensor {

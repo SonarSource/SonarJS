@@ -18,7 +18,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
 
-package org.sonar.plugins.javascript;
+package org.sonar.plugins.javascript.core;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -31,7 +31,6 @@ import org.sonar.api.batch.SensorContext;
 import org.sonar.api.config.Settings;
 import org.sonar.api.resources.Project;
 import org.sonar.api.utils.SonarException;
-import org.sonar.plugins.javascript.core.JavaScript;
 
 public abstract class JavaScriptReportsSensor implements Sensor {
 	

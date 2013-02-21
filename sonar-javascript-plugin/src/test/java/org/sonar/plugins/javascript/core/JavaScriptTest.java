@@ -17,11 +17,12 @@
  * License along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.plugins.javascript;
+package org.sonar.plugins.javascript.core;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.config.Settings;
+import org.sonar.plugins.javascript.JavaScriptPlugin;
 import org.sonar.plugins.javascript.core.JavaScript;
 
 import static org.junit.Assert.assertArrayEquals;
