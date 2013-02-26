@@ -23,7 +23,6 @@ import org.sonar.api.batch.Initializer;
 import org.sonar.api.batch.maven.DependsUponMavenPlugin;
 import org.sonar.api.batch.maven.MavenPluginHandler;
 import org.sonar.api.resources.Project;
-import org.sonar.plugins.javascript.JavaScriptPlugin;
 import org.sonar.plugins.javascript.core.JavaScript;
 
 public class JsTestMavenInitializer extends Initializer implements DependsUponMavenPlugin {

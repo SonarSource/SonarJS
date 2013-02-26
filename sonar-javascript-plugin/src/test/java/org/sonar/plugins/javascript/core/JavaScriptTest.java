@@ -43,7 +43,6 @@ public class JavaScriptTest {
   public void defaultSuffixes() {
     settings.setProperty(JavaScriptPlugin.FILE_SUFFIXES_KEY, "");
     assertArrayEquals(javaScript.getFileSuffixes(), new String[] {"js"});
-    assertArrayEquals(javaScript.getFileSuffixes(), new String[] {"js"});
     assertSame(settings, javaScript.getSettings());
   }
 

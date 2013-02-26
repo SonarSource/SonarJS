@@ -50,7 +50,7 @@ public class JavaScriptSourceImporterTest {
     
     importer.analyse(project, context);
 
-    verify(context).saveSource((Resource) anyObject(), eq("This is content for PersonTest.js JavaScript file used in unit tests."));
+    verify(context).saveSource((Resource<?>) anyObject(), eq("This is content for PersonTest.js JavaScript file used in unit tests."));
   }
   
   private Project mockProject() {    

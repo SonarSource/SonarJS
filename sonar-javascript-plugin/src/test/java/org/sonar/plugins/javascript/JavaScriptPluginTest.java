@@ -21,31 +21,44 @@ package org.sonar.plugins.javascript;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.api.config.Settings;
+import org.sonar.plugins.javascript.core.JavaScript;
+
+import static org.hamcrest.core.Is.is;
+import static org.junit.Assert.assertThat;
 
 import static org.fest.assertions.Assertions.assertThat;
 
 public class JavaScriptPluginTest {
 
-  private JavaScriptPlugin plugin;
-
+  private Settings config;
+  
   @Before
   public void setUp() throws Exception {
-    plugin = new JavaScriptPlugin();
+    config = new Settings();
   }
 
   @Test
   public void testGetExtensions() throws Exception {
+    JavaScriptPlugin plugin = new JavaScriptPlugin();
     assertThat(plugin.getExtensions().size()).isEqualTo(12);
+  }
+  
+  @Test
+  public void shouldReturnConfiguredFileSuffixes() {
+    config.setProperty(JavaScriptPlugin.FILE_SUFFIXES_KEY, "js,jss");
+    JavaScript js = new JavaScript(config);
+
+    String[] expected = {"js", "jss"};
+
+    assertThat(js.getFileSuffixes(), is(expected));
   }
 
   @Test
-  public void testProperties() {
-    Settings settings = new Settings(new PropertyDefinitions(plugin));
-    // SONARPLUGINS-2524
-    //Why is that?
-    //assertThat(settings.getString(JavaScriptPlugin.TEST_FRAMEWORK_KEY)).isNull();
-  }
+  public void shouldReturnDefaultFileSuffixes() {
+    JavaScript js = new JavaScript(config);
 
+    String[] expectedSources = {"js"};
+    assertThat(js.getFileSuffixes(), is(expectedSources));
+  }
 }

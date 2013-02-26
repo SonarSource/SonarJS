@@ -22,9 +22,7 @@ package org.sonar.plugins.javascript.coverage;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import javax.xml.stream.XMLStreamException;
 import org.sonar.api.batch.SensorContext;
 import org.sonar.api.config.Settings;
@@ -33,6 +31,7 @@ import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.measures.PropertiesBuilder;
 import org.sonar.api.resources.Project;
+import org.sonar.api.utils.SonarException;
 import org.sonar.plugins.javascript.JavaScriptPlugin;
 import org.sonar.plugins.javascript.core.JavaScriptReportsSensor;
 
@@ -45,17 +44,22 @@ public class JavaScriptCoverageSensor extends JavaScriptReportsSensor {
   private static final String COBERTURA_COVERAGE_KEY = "cobertura";
   private static final String LCOV_COVERAGE_KEY = "lcov";
   
+  private static final String COVERAGE_PLUGIN_MISSING_EXCEPTION_MESSAGE = "coveragePlugin option is mandatory and accepts one of the available values: lcov, cobertura";
   
   private final Settings settings;
-  private static Map<String, CoverageParser> parsers = new HashMap<String, CoverageParser>();
+  private CoverageParser parser;
   
-  public JavaScriptCoverageSensor(Settings settings) {
+  public JavaScriptCoverageSensor(Settings settings) throws SonarException{
     this.settings = settings;
-    if (settings.getString(JavaScriptPlugin.COVERAGE_PLUGIN_KEY).equals(COBERTURA_COVERAGE_KEY)) {
-      parsers.put(COBERTURA_COVERAGE_KEY, new CoberturaParser());
+    if (settings.getString(JavaScriptPlugin.COVERAGE_PLUGIN_KEY) == null) {
+      throw new SonarException(COVERAGE_PLUGIN_MISSING_EXCEPTION_MESSAGE);
+    } else if (settings.getString(JavaScriptPlugin.COVERAGE_PLUGIN_KEY).equals(COBERTURA_COVERAGE_KEY)) {
+      parser = new CoberturaParser();
     } else if (settings.getString(JavaScriptPlugin.COVERAGE_PLUGIN_KEY).equals(LCOV_COVERAGE_KEY)) {
-      parsers.put(LCOV_COVERAGE_KEY, new LCOVParser());
-    } 
+      parser = new LCOVParser();
+    } else {
+    	throw new SonarException(COVERAGE_PLUGIN_MISSING_EXCEPTION_MESSAGE);
+    }
   }
   
   /**
@@ -84,17 +88,17 @@ public class JavaScriptCoverageSensor extends JavaScriptReportsSensor {
   
   @Override
   protected void handleNoReportsCase(SensorContext sensorContext) {
-	
-	PropertiesBuilder<Integer, Integer> lineHitsData = new PropertiesBuilder<Integer, Integer>(CoreMetrics.COVERAGE_LINE_HITS_DATA);
-	for (int x = 1; x < sensorContext.getMeasure(CoreMetrics.LINES).getIntValue(); x++) {
-	  lineHitsData.add(x, 0);
-	}
-
-	// use non comment lines of code for coverage calculation
-	Measure ncloc = sensorContext.getMeasure(CoreMetrics.NCLOC);
-	sensorContext.saveMeasure(lineHitsData.build());
-	sensorContext.saveMeasure(CoreMetrics.LINES_TO_COVER, ncloc.getValue());
-	sensorContext.saveMeasure(CoreMetrics.UNCOVERED_LINES, ncloc.getValue());
+    
+    PropertiesBuilder<Integer, Integer> lineHitsData = new PropertiesBuilder<Integer, Integer>(CoreMetrics.COVERAGE_LINE_HITS_DATA);
+    for (int x = 1; x < sensorContext.getMeasure(CoreMetrics.LINES).getIntValue(); x++) {
+      lineHitsData.add(x, 0);
+    }
+    
+    // use non comment lines of code for coverage calculation
+    Measure ncloc = sensorContext.getMeasure(CoreMetrics.NCLOC);
+    sensorContext.saveMeasure(lineHitsData.build());
+    sensorContext.saveMeasure(CoreMetrics.LINES_TO_COVER, ncloc.getValue());
+    sensorContext.saveMeasure(CoreMetrics.UNCOVERED_LINES, ncloc.getValue());
   }
 
   private List<JavaScriptFileCoverage> parseReports(List<File> reports) {
@@ -104,19 +108,17 @@ public class JavaScriptCoverageSensor extends JavaScriptReportsSensor {
     for (File report : reports) {
       boolean parsed = false;
       
-      for (CoverageParser parser: parsers.values()){
-        try{
-          measuresForReport = parser.parseFile(report);
-          
-          if (!measuresForReport.isEmpty()) {
-            parsed = true;
-            measuresTotal.addAll(measuresForReport);
-            LOG.info("Added report '{}' (parsed by: {}) to the coverage data", report, parser);
-            break;            
-          }
-        } catch (XMLStreamException e) {
-          LOG.trace("Report {} cannot be parsed by {}", report, parser);
+      try{
+        measuresForReport = parser.parseFile(report);
+        
+        if (!measuresForReport.isEmpty()) {
+          parsed = true;
+          measuresTotal.addAll(measuresForReport);
+          LOG.info("Added report '{}' (parsed by: {}) to the coverage data", report, parser);
+          break;            
         }
+      } catch (XMLStreamException e) {
+        LOG.trace("Report {} cannot be parsed by {}", report, parser);
       }
       
       if(!parsed){
@@ -156,7 +158,7 @@ public class JavaScriptCoverageSensor extends JavaScriptReportsSensor {
     }
   }
     
-  Measure convertToItMeasure(Measure measure){
+  private Measure convertToItMeasure(Measure measure){
     Measure itMeasure = null;
     Metric metric = measure.getMetric();
     Double value = measure.getValue();

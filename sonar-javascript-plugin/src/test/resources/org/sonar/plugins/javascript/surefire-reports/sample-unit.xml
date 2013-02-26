@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<testsuites>
+  <testsuite name="Chrome 25.0 (Windows)" package="undefined" timestamp="2013-02-25T12:35:14" id="0" hostname="MDCH-DET-DEV01" tests="10" errors="0" failures="0" time="0.045">
+    <properties>
+      <property name="browser.fullName" value="Mozilla/5.0 (Windows NT 6.0; WOW64) AppleWebKit/537.22 (KHTML, like Gecko) Chrome/25.0.1364.97 Safari/537.22"/>
+    </properties>
+    <testcase name="should have responded with full name" time="0.013" classname="PersonTest"/>
+    <testcase name="hould have used only first and last name" time="0" classname="PersonTest"/>
+    <testcase name="should have full name" time="0" classname="com.company.CarTest"/>
+    <testcase name="should stop engine with check" time="0.001" classname="com.company.CarTest"/>
+    <testcase name="should calculate price" time="0" classname="com.company.CarTest"/>
+    <testcase name="should wrap a select into an anchor with &apos;btn&apos; class" time="0.014" classname="Select dropdown plugin"/>
+    <testcase name="should wrap a select into an anchor and contain a span with select-label class" time="0.005" classname="Select dropdown plugin"/>
+    <testcase name="should wrap a select into an anchor and contain a span with drop-down-icon class" time="0.004" classname="Select dropdown plugin"/>
+    <testcase name="should have a default height specified in plugin parameter" time="0.005" classname="Help overlay"/>
+    <testcase name="should have a default negative top margin equal to its height" time="0.003" classname="Help overlay"/>
+    <system-out/>
+    <system-err/>
+  </testsuite>
+</testsuites>
