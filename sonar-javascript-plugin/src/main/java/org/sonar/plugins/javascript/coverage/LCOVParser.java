@@ -21,10 +21,13 @@ package org.sonar.plugins.javascript.coverage;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang.BooleanUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,9 +42,33 @@ import org.slf4j.LoggerFactory;
 public final class LCOVParser implements CoverageParser{
 
   private static final Logger LOG = LoggerFactory.getLogger(LCOVParser.class);
-  private Integer branchesOnCurrentLine = 0;
-  private Integer currentTakenBranches = 0;
-  private Integer currentBranchLine = -1;
+  
+  private static final String SOURCE_FILE_TOKEN = "SF:";
+  private static final String LINE_EXECUTION_TOKEN = "DA:";
+  private static final String BRANCH_LINE_EXECUTION_TOKEN = "BRDA:";
+  private static final String END_RECORD_TOKEN = "end_of_record";
+  
+  private class BranchData {
+    private int branches = 0;
+    private int visitedBranches = 0;
+
+    public int getVisitedBranches() {
+      return visitedBranches;
+    }
+    
+    public int getBranches() {
+      return branches;
+    }
+    
+    public void addBranch(boolean visited) {
+      this.branches++;
+      if (visited) {
+        this.visitedBranches++;
+      }
+    }
+  }
+  
+  private Map<String, BranchData> branches = new HashMap<String, BranchData>();
 
   public List<JavaScriptFileCoverage> parseFile(File file) {
     List<String> lines = new LinkedList<String>();
@@ -54,62 +81,47 @@ public final class LCOVParser implements CoverageParser{
     List<JavaScriptFileCoverage> coveredFiles = new LinkedList<JavaScriptFileCoverage>();
 
     JavaScriptFileCoverage fileCoverage = new JavaScriptFileCoverage();
-
+    branches.clear();
+    
     for (String line : lines) {
-      if (line.startsWith("SF:")) {
-        assertBranchCoverageFinalization(fileCoverage);
+      if (line.startsWith(SOURCE_FILE_TOKEN)) {
         fileCoverage = new JavaScriptFileCoverage();
-        String filePath = line.substring(line.indexOf("SF:") + 3);
+        String filePath = line.substring(line.indexOf(SOURCE_FILE_TOKEN) + SOURCE_FILE_TOKEN.length());
 
         fileCoverage.setFilePath(filePath);
 
-      } else if (line.startsWith("DA:")) {
+      } else if (line.startsWith(LINE_EXECUTION_TOKEN)) {
         //  DA:<line number>,<execution count>[,<checksum>]
-        assertBranchCoverageFinalization(fileCoverage);
-        String execution = line.substring(line.indexOf("DA:") + 3);
+        String execution = line.substring(line.indexOf(LINE_EXECUTION_TOKEN) + LINE_EXECUTION_TOKEN.length());
         String executionCount = execution.substring(execution.indexOf(',') + 1);
         String lineNumber = execution.substring(0, execution.indexOf(','));
 
         fileCoverage.addLine(Integer.valueOf(lineNumber).intValue(), Integer.valueOf(executionCount).intValue());
 
-      } else if (line.startsWith("BRDA:")) {
+      } else if (line.startsWith(BRANCH_LINE_EXECUTION_TOKEN)) {
         // BRDA:<line number>,<block number>,<branch number>,<taken>
-        String execution = line.substring(line.indexOf("BRDA:") + 5).trim();
-        String[] values = execution.split(",");
-        String lineNumber = values[0];
-        String branchTaken = values[3];
-        processBranchCoverage(Integer.valueOf(lineNumber).intValue(), Integer.valueOf(branchTaken).intValue(), fileCoverage);
-      } else if (line.indexOf("end_of_record") > -1) {
-        assertBranchCoverageFinalization(fileCoverage);
+        String execution = line.substring(line.indexOf(BRANCH_LINE_EXECUTION_TOKEN) + 
+            BRANCH_LINE_EXECUTION_TOKEN.length()).trim();
+        String[] tokens = execution.split(",");
+        String lineNumber = tokens[0];
+        boolean branchTaken = BooleanUtils.toBoolean(tokens[3], "1", "0");
+        if (!branches.containsKey(lineNumber)) {
+          branches.put(lineNumber, new BranchData());
+        }
+        branches.get(lineNumber).addBranch(branchTaken);
+      } else if (line.indexOf(END_RECORD_TOKEN) > -1) {
+        addBranchData(fileCoverage);
         coveredFiles.add(fileCoverage);
-      } else {
-        assertBranchCoverageFinalization(fileCoverage);
+        branches.clear();
       }
     }
     return coveredFiles;
   }
 
-  private void processBranchCoverage(int lineNumber, int branchTaken, JavaScriptFileCoverage fileCoverage) {
-    if (currentBranchLine == lineNumber) {
-      branchesOnCurrentLine++;
-      currentTakenBranches += branchTaken;
-    } else {
-      if (currentBranchLine != -1) {
-        //We finished tracking one branch, and stepped to the next one
-        //Add data to coverage, reset counters and start tracking again.
-        fileCoverage.addConditions(currentBranchLine, branchesOnCurrentLine, currentTakenBranches);
-      }
-      currentBranchLine = lineNumber;
-      branchesOnCurrentLine = 1;
-      currentTakenBranches = 0;
-      currentTakenBranches += branchTaken;      
-    }
-  }
-  private void assertBranchCoverageFinalization(JavaScriptFileCoverage fileCoverage) {
-    if (currentBranchLine != -1 && branchesOnCurrentLine != 0) {
-      fileCoverage.addConditions(currentBranchLine, branchesOnCurrentLine, currentTakenBranches);
-      currentBranchLine = -1;
-      branchesOnCurrentLine = 0;
+  private void addBranchData(JavaScriptFileCoverage fileCoverage) {
+    for (String key : branches.keySet()) {
+      LOG.debug("\nBranches: {}, visited: {}", branches.get(key).getBranches(), branches.get(key).getVisitedBranches());
+      fileCoverage.addConditions(Integer.valueOf(key).intValue(), branches.get(key).getBranches(), branches.get(key).getVisitedBranches());
     }
   }
 }
