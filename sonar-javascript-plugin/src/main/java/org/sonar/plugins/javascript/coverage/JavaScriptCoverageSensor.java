@@ -69,9 +69,14 @@ public class JavaScriptCoverageSensor extends JavaScriptReportsSensor {
   public void analyse(Project project, SensorContext context) {
     List<File> reports = getReports(settings, project.getFileSystem().getBasedir().getPath(),
     			JavaScriptPlugin.COVERAGE_REPORT_PATH_KEY, JavaScriptPlugin.COVERAGE_DEFAULT_REPORT_PATH);
-    LOG.debug("Parsing coverage reports");
-    List<JavaScriptFileCoverage> coverageMeasures = parseReports(reports);
-    saveMeasures(project, context, coverageMeasures, UNIT_TEST_COVERAGE);
+    if (reports.size() == 0) {
+      handleNoReportsCase(context);
+    } else {
+      LOG.debug("Parsing coverage reports");
+      List<JavaScriptFileCoverage> coverageMeasures = parseReports(reports);
+      saveMeasures(project, context, coverageMeasures, UNIT_TEST_COVERAGE);      
+    }
+
 	
     LOG.debug("Parsing integration test coverage reports");
     List<File> itReports = getReports(settings, project.getFileSystem().getBasedir().getPath(),

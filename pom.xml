@@ -37,11 +37,6 @@
       <name>Evgeny Mandrikov</name>
       <organization>SonarSource</organization>
     </developer>
-    <developer>
-      <id>gleb.godonoga</id>
-      <name>Gleb Godonoga</name>
-      <organization>SonarCommunity</organization>
-    </developer>
   </developers>
 
   <modules>

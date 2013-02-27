@@ -43,9 +43,10 @@ public final class JavaScriptFileCoverage {
   public void setFilePath(String filePath) {
     //Handle unix like paths in reports
     if (filePath.startsWith("./")) {
-      filePath = filePath.substring(2);
+      this.filePath = filePath.substring(2);
+    } else {
+      this.filePath = filePath; 
     }
-    this.filePath = filePath;
   }
 
   public void addLine(int lineNumber, int executionCount) {

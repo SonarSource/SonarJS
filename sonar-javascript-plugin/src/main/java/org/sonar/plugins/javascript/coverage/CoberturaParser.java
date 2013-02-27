@@ -34,67 +34,55 @@ import java.util.LinkedList;
 import java.util.List;
 
 public final class CoberturaParser implements CoverageParser {
-	private static final Logger LOG = LoggerFactory.getLogger(CoberturaParser.class);
-
-	public List<JavaScriptFileCoverage> parseFile(File file) throws XMLStreamException{	
-		LOG.info("Parsing report '{}'", file);
-		
-		final List<JavaScriptFileCoverage> coveredFiles = new LinkedList<JavaScriptFileCoverage>();
-		StaxParser parser = new StaxParser(new StaxParser.XmlStreamHandler() {
-	      public void stream(SMHierarchicCursor rootCursor) throws XMLStreamException {
-	        rootCursor.advance();
-	        collectPackageMeasures(rootCursor.descendantElementCursor("package"), coveredFiles);
-	      }
-	    });
-	    parser.parse(file);
-	    return coveredFiles;
-	}
+  private static final Logger LOG = LoggerFactory.getLogger(CoberturaParser.class);
+  
+  public List<JavaScriptFileCoverage> parseFile(File file) throws XMLStreamException{	
+  	LOG.info("Parsing report '{}'", file);
+  	
+  	final List<JavaScriptFileCoverage> coveredFiles = new LinkedList<JavaScriptFileCoverage>();
+  	StaxParser parser = new StaxParser(new StaxParser.XmlStreamHandler() {
+        public void stream(SMHierarchicCursor rootCursor) throws XMLStreamException {
+          rootCursor.advance();
+          collectPackageMeasures(rootCursor.descendantElementCursor("package"), coveredFiles);
+        }
+      });
+      parser.parse(file);
+      return coveredFiles;
+  }
 	
-	  public void parseReport(File file, final List<JavaScriptFileCoverage> coverageData) throws XMLStreamException {
-	    LOG.info("Parsing report '{}'", file);
+  private void collectPackageMeasures(SMInputCursor pack, List<JavaScriptFileCoverage> coverageData) throws XMLStreamException {
+    while (pack.getNext() != null) {
+      collectFileMeasures(pack.descendantElementCursor("class"), coverageData);
+    }
+  }
 
-	    StaxParser parser = new StaxParser(new StaxParser.XmlStreamHandler() {
-	      public void stream(SMHierarchicCursor rootCursor) throws XMLStreamException {
-	        rootCursor.advance();
-	        collectPackageMeasures(rootCursor.descendantElementCursor("package"), coverageData);
-	      }
-	    });
-	    parser.parse(file);
-	  }
+  private void collectFileMeasures(SMInputCursor clazz, List<JavaScriptFileCoverage> coverageData) throws XMLStreamException {
+    while (clazz.getNext() != null) {
+      String fileName = clazz.getAttrValue("filename");
+      JavaScriptFileCoverage fileCoverage = new JavaScriptFileCoverage();
+      fileCoverage.setFilePath(fileName);
+      coverageData.add(fileCoverage);
+      collectFileData(clazz, fileCoverage);
+    }
+  }
 
-	  private void collectPackageMeasures(SMInputCursor pack, List<JavaScriptFileCoverage> coverageData) throws XMLStreamException {
-	    while (pack.getNext() != null) {
-	      collectFileMeasures(pack.descendantElementCursor("class"), coverageData);
-	    }
-	  }
+  private void collectFileData(SMInputCursor clazz, JavaScriptFileCoverage fileCoverage) throws XMLStreamException {
+    SMInputCursor line = clazz.childElementCursor("lines").advance().childElementCursor("line");
+    while (line.getNext() != null) {
+      int lineId = Integer.parseInt(line.getAttrValue("number"));
+      fileCoverage.addLine(lineId, Integer.parseInt(line.getAttrValue("hits")));
 
-	  private void collectFileMeasures(SMInputCursor clazz, List<JavaScriptFileCoverage> coverageData) throws XMLStreamException {
-	    while (clazz.getNext() != null) {
-	      String fileName = clazz.getAttrValue("filename");
-	      JavaScriptFileCoverage fileCoverage = new JavaScriptFileCoverage();
-	      fileCoverage.setFilePath(fileName);
-	      coverageData.add(fileCoverage);
-	      collectFileData(clazz, fileCoverage);
-	    }
-	  }
+      String isBranch = line.getAttrValue("branch");
+      String text = line.getAttrValue("condition-coverage");
+      if (StringUtils.equals(isBranch, "true") && StringUtils.isNotBlank(text)) {
+        String[] conditions = StringUtils.split(StringUtils.substringBetween(text, "(", ")"), "/");
+        fileCoverage.addConditions(lineId,  Integer.parseInt(conditions[1]), Integer.parseInt(conditions[0]));
+      }
+    }
+  }
 
-	  private void collectFileData(SMInputCursor clazz, JavaScriptFileCoverage fileCoverage) throws XMLStreamException {
-	    SMInputCursor line = clazz.childElementCursor("lines").advance().childElementCursor("line");
-	    while (line.getNext() != null) {
-	      int lineId = Integer.parseInt(line.getAttrValue("number"));
-	      fileCoverage.addLine(lineId, Integer.parseInt(line.getAttrValue("hits")));
-
-	      String isBranch = line.getAttrValue("branch");
-	      String text = line.getAttrValue("condition-coverage");
-	      if (StringUtils.equals(isBranch, "true") && StringUtils.isNotBlank(text)) {
-	        String[] conditions = StringUtils.split(StringUtils.substringBetween(text, "(", ")"), "/");
-	        fileCoverage.addConditions(lineId,  Integer.parseInt(conditions[1]), Integer.parseInt(conditions[0]));
-	      }
-	    }
-	  }
-
-	  @Override
-	  public String toString() {
-	    return getClass().getSimpleName();
-	  }
+  @Override
+  public String toString() {
+    return getClass().getSimpleName();
+  }
 }

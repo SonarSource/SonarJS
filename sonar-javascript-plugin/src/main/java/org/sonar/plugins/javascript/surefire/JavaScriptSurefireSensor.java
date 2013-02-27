@@ -62,10 +62,7 @@ public class JavaScriptSurefireSensor extends JavaScriptReportsSensor {
   }
   @Override
   protected void processReport(final Project project, final SensorContext context, java.io.File report)
-      throws
-      java.io.IOException,
-      javax.xml.transform.TransformerException,
-      javax.xml.stream.XMLStreamException
+      throws javax.xml.stream.XMLStreamException
   {
     parseReport(project, context, report);
   }

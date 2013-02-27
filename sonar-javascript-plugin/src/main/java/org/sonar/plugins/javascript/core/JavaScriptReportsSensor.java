@@ -23,6 +23,7 @@ package org.sonar.plugins.javascript.core;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+
 import org.apache.tools.ant.DirectoryScanner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,7 +35,7 @@ import org.sonar.api.utils.SonarException;
 
 public abstract class JavaScriptReportsSensor implements Sensor {
 	
-  protected Settings conf = null;
+  private Settings conf = null;
   protected static final Logger LOG = LoggerFactory.getLogger(JavaScriptReportsSensor.class);
 
   public JavaScriptReportsSensor() {}
@@ -60,13 +61,13 @@ public abstract class JavaScriptReportsSensor implements Sensor {
     try {
       List<File> reports = getReports(conf, project.getFileSystem().getBasedir().getPath(),
                                       reportPathKey(), defaultReportPath());
+      if (reports.isEmpty()) {
+        handleNoReportsCase(context);
+        return;
+      }
       for (File report : reports) {
         LOG.info("Processing report '{}'", report);
         processReport(project, context, report);
-      }
-      
-      if (reports.isEmpty()) {
-        handleNoReportsCase(context);
       }
     } catch (Exception e) {
       String msg = new StringBuilder()
@@ -111,7 +112,9 @@ public abstract class JavaScriptReportsSensor implements Sensor {
   }
 
   protected void processReport(Project project, SensorContext context, File report)
-    throws Exception
+    throws java.io.IOException,
+      javax.xml.transform.TransformerException,
+      javax.xml.stream.XMLStreamException
   {}
 
   protected void handleNoReportsCase(SensorContext context) {}

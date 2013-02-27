@@ -23,6 +23,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.batch.SensorContext;
 import org.sonar.api.config.Settings;
+import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Measure;
 import org.sonar.api.resources.File;
 import org.sonar.api.resources.Project;
@@ -34,7 +35,6 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyObject;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -73,9 +73,12 @@ public class JavaScriptCoverageSensorTest {
     Settings settings = new Settings();
     settings.appendProperty(JavaScriptPlugin.COVERAGE_PLUGIN_KEY, "cobertura");
     settings.appendProperty(JavaScriptPlugin.COVERAGE_REPORT_PATH_KEY, "coverage-reports/cobertura-*.xml");
+    settings.appendProperty(JavaScriptPlugin.COVERAGE_IT_REPORT_PATH_KEY, "coverage-reports/it-cobertura-*.xml");
+    settings.appendProperty(JavaScriptPlugin.COVERAGE_OVERALL_REPORT_PATH_KEY, "coverage-reports/overall-cobertura-*.xml");
     JavaScriptCoverageSensor sensor = new JavaScriptCoverageSensor(settings);
     sensor.analyse(project, context);
-    verify(context, times(MEASURE_SAVE_COUNT)).saveMeasure((File) anyObject(), any(Measure.class));
+    //We have 3 identical reports, thus MEASURE_SAVE_COUNT * 3
+    verify(context, times(MEASURE_SAVE_COUNT*3)).saveMeasure((File) anyObject(), any(Measure.class));
   }
   
   @Test
@@ -98,11 +101,16 @@ public class JavaScriptCoverageSensorTest {
   @Test
   public void shouldReportNoCoverageSaved() {
     when(context.getResource((File) anyObject())).thenReturn(null);
+    when(context.getMeasure(CoreMetrics.LINES)).thenReturn(new Measure(CoreMetrics.LINES, 20.0));
+    when(context.getMeasure(CoreMetrics.NCLOC)).thenReturn(new Measure(CoreMetrics.NCLOC, 10.0));
     Settings settings = new Settings();
     settings.appendProperty(JavaScriptPlugin.COVERAGE_PLUGIN_KEY, "cobertura");
+    settings.appendProperty(JavaScriptPlugin.COVERAGE_REPORT_PATH_KEY, "unexistingdir");
     JavaScriptCoverageSensor sensor = new JavaScriptCoverageSensor(settings);
     sensor.analyse(project, context);
-    verify(context, never()).saveMeasure((File) anyObject(), any(Measure.class));
+    verify(context).saveMeasure(any(Measure.class));
+    verify(context).saveMeasure(CoreMetrics.LINES_TO_COVER, 10.0);
+    verify(context).saveMeasure(CoreMetrics.UNCOVERED_LINES, 10.0);
   }
   
   private SensorContext getContextMock() {
