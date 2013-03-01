@@ -114,12 +114,7 @@
         <artifactId>sslr-squid-bridge</artifactId>
         <version>2.2</version>
       </dependency>
-      <dependency>
-        <groupId>ant</groupId>
-        <artifactId>ant</artifactId>
-        <version>1.6</version>
-      </dependency>
-      <dependency>
+       <dependency>
         <groupId>junit</groupId>
         <artifactId>junit</artifactId>
         <version>4.10</version>

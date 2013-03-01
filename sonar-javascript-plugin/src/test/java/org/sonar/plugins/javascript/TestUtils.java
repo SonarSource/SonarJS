@@ -26,7 +26,6 @@ import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.commons.configuration.Configuration;
-import org.apache.tools.ant.DirectoryScanner;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import org.sonar.api.CoreProperties;
@@ -35,9 +34,10 @@ import org.sonar.api.resources.InputFile;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.ProjectFileSystem;
 import org.sonar.plugins.javascript.core.JavaScript;
+import org.sonar.plugins.javascript.utils.ReportScanner;
 
 public class TestUtils {
-
+  
   public static File loadResource(String resourceName) {
     URL resource = TestUtils.class.getResource(resourceName);
     File resourceAsFile = null;
@@ -95,6 +95,7 @@ public class TestUtils {
     when(project.getLanguage()).thenReturn(lang);
     when(project.getLanguageKey()).thenReturn(lang.getKey());
     // only for testing, Configuration is deprecated
+
     Configuration configuration = mock(Configuration.class);
 	    when(configuration.getBoolean(CoreProperties.CORE_IMPORT_SOURCES_PROPERTY,
 	        CoreProperties.CORE_IMPORT_SOURCES_DEFAULT_VALUE)).thenReturn(true);
@@ -117,25 +118,17 @@ public class TestUtils {
 	    return new JavaScript(new Settings());
 	  }
 	  
-	  private static List<File> scanForSourceFiles(List<File> sourceDirs) {
+	  private static List<File> scanForSourceFiles(List<File> sourceDirs){
 	    List<File> result = new ArrayList<File>();
 	    String[] suffixes = mockJavaScriptLanguage().getFileSuffixes();
 	    String[] includes = new String[ suffixes.length ];
 	    for(int i = 0; i < includes.length; ++i) {
 	      includes[i] = "**/*." + suffixes[i];
 	    }
-	    
-	    DirectoryScanner scanner = new DirectoryScanner();
+	
 	    for(File baseDir : sourceDirs) {
-	      scanner.setBasedir(baseDir);
-	      scanner.setIncludes(includes);  
-	      scanner.scan();
-	      for (String relPath : scanner.getIncludedFiles()) {
-	        File f = new File(baseDir, relPath);
-	        result.add(f);
-	      }  
+        result.addAll(ReportScanner.scanForReports(baseDir, includes));
 	    }
-	    
 	    return result;
 	  }
 

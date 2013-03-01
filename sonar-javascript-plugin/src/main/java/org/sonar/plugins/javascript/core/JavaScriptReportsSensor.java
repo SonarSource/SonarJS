@@ -21,10 +21,8 @@
 package org.sonar.plugins.javascript.core;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.tools.ant.DirectoryScanner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.Sensor;
@@ -32,6 +30,7 @@ import org.sonar.api.batch.SensorContext;
 import org.sonar.api.config.Settings;
 import org.sonar.api.resources.Project;
 import org.sonar.api.utils.SonarException;
+import org.sonar.plugins.javascript.utils.ReportScanner;
 
 public abstract class JavaScriptReportsSensor implements Sensor {
 	
@@ -95,21 +94,9 @@ public abstract class JavaScriptReportsSensor implements Sensor {
     
     LOG.debug("Using pattern '{}' to find reports", reportPath);
 
-    DirectoryScanner scanner = new DirectoryScanner();
-    String[] includes = new String[1];
-    includes[0] = reportPath;
-    scanner.setIncludes(includes);
-    scanner.setBasedir(new File(baseDirPath));
-    scanner.scan();
-    String[] relPaths = scanner.getIncludedFiles();
-
-    List<File> reports = new ArrayList<File>();
-    for (String relPath : relPaths) {
-      reports.add(new File(baseDirPath, relPath));
-    }
-    
-    return reports;
+    return ReportScanner.scanForReports(new File(baseDirPath), new String[] {reportPath});
   }
+  
 
   protected void processReport(Project project, SensorContext context, File report)
     throws java.io.IOException,

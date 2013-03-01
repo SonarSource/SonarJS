@@ -1,6 +1,6 @@
 Sonar JavaScript
 ================
-Ready to download build with latest changes can be found on [build branch](https://github.com/SidhNor/sonar-javascript/tree/build)
+
 ##Quick Configuration Guide
 
 | Property                                    | Scope                      | Default                                          | Example                    | Description |

@@ -49,7 +49,7 @@ public class JavaScriptCoverageSensor extends JavaScriptReportsSensor {
   private final Settings settings;
   private CoverageParser parser;
   
-  public JavaScriptCoverageSensor(Settings settings) throws SonarException{
+  public JavaScriptCoverageSensor(Settings settings) {
     this.settings = settings;
     if (settings.getString(JavaScriptPlugin.COVERAGE_PLUGIN_KEY) == null) {
       throw new SonarException(COVERAGE_PLUGIN_MISSING_EXCEPTION_MESSAGE);

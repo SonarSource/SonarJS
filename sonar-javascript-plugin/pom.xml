@@ -70,11 +70,6 @@
       <version>2.0.9</version>
       <scope>provided</scope>
     </dependency>
-        <dependency>
-      <groupId>ant</groupId>
-      <artifactId>ant</artifactId>
-      <scope>compile</scope>
-    </dependency>
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
@@ -102,7 +97,7 @@
             <configuration>
               <rules>
                 <requireFilesSize>
-                  <maxsize>1600000</maxsize>
+                  <maxsize>660000</maxsize>
                   <minsize>600000</minsize>
                   <files>
                     <file>${project.build.directory}/${project.build.finalName}.jar</file>
