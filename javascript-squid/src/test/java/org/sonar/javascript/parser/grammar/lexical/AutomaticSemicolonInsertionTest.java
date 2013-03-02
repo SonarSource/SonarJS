@@ -17,7 +17,7 @@
  * License along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.javascript.parser.grammar.statements;
+package org.sonar.javascript.parser.grammar.lexical;
 
 import org.junit.Test;
 import org.sonar.javascript.parser.EcmaScriptGrammar;
@@ -25,29 +25,35 @@ import org.sonar.sslr.parser.LexerlessGrammar;
 
 import static org.sonar.sslr.tests.Assertions.assertThat;
 
-public class ContinueStatementTest {
+public class AutomaticSemicolonInsertionTest {
 
   LexerlessGrammar g = EcmaScriptGrammar.createGrammar();
 
+  /**
+   * http://www.ecma-international.org/ecma-262/5.1/#sec-7.9.2
+   */
   @Test
-  public void ok() {
-    assertThat(g.rule(EcmaScriptGrammar.CONTINUE_STATEMENT))
-        .as("EOS is line terminator")
-        .matchesPrefix("continue \n", "another-statement ;")
-        .matchesPrefix("continue label \n", "another-statement ;")
-        .matchesPrefix("continue \n", ";")
+  public void test() {
+    assertThat(g.rule(EcmaScriptGrammar.PROGRAM))
+        .as("not valid").notMatches("{ 1 2 } 3")
+        .as("transformed to valid").matches("{ 1 \n 2 } 3");
 
-        .as("EOS is semicolon")
-        .matchesPrefix("continue ;", "another-statement")
-        .matchesPrefix("continue label \n ;", "another-statement")
+    assertThat(g.rule(EcmaScriptGrammar.FOR_STATEMENT))
+        .as("not valid and not transformed").notMatches("for (a; b \n ) ;")
+        .as("valid").matches("for (a; b ; \n ) ;");
 
-        .as("EOS is before right curly bracket")
-        .matchesPrefix("continue ", "}")
-        .matchesPrefix("continue label ", "}")
+    assertThat(g.rule(EcmaScriptGrammar.RETURN_STATEMENT))
+        .matchesPrefix("return \n", "a + b");
 
-        .as("EOS is end of input")
-        .matches("continue ")
-        .matches("continue label ");
+    assertThat(g.rule(EcmaScriptGrammar.EXPRESSION_STATEMENT))
+        .matchesPrefix("a = b \n", "++c");
+
+    assertThat(g.rule(EcmaScriptGrammar.IF_STATEMENT))
+        .as("not valid and not transformed").notMatches("if (a > b) \n else c = d")
+        .as("valid").matches("if (a > b) ; \n else c = d");
+
+    assertThat(g.rule(EcmaScriptGrammar.EXPRESSION_STATEMENT))
+        .as("not transformed").matches("a = b + c \n (d + e).print()");
   }
 
 }

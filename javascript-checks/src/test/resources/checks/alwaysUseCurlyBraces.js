@@ -6,7 +6,7 @@ function sayHello() {
 
   while (condition) doSomething(); // NOK
 
-  do something() while (condition); // NOK
+  do something(); while (condition); // NOK
 
   if (condition) { // OK
   }

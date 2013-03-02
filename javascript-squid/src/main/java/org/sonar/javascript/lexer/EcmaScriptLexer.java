@@ -71,11 +71,11 @@ public final class EcmaScriptLexer {
       + "|'([^'\\\\]*+(\\\\[\\s\\S])?+)*+'"
       + ")";
 
-  public static final String COMMENT = "(?:"
-      + "//[^\\n\\r]*+"
-      + "|<!--[^\\n\\r]*+"
-      + "|/\\*[\\s\\S]*?\\*/"
-      + ")";
+  public static final String SINGLE_LINE_COMMENT = "//[^\\n\\r]*+|<!--[^\\n\\r]*+";
+  public static final String MULTI_LINE_COMMENT = "/\\*[\\s\\S]*?\\*/";
+  public static final String MULTI_LINE_COMMENT_NO_LB = "/\\*[^\\n\\r]*?\\*/";
+
+  public static final String COMMENT = "(?:" + SINGLE_LINE_COMMENT + "|" + MULTI_LINE_COMMENT + ")";
 
   private static final String HEX_DIGIT = "[0-9a-fA-F]";
   private static final String UNICODE_ESCAPE_SEQUENCE = "u" + HEX_DIGIT + HEX_DIGIT + HEX_DIGIT + HEX_DIGIT;
@@ -91,9 +91,14 @@ public final class EcmaScriptLexer {
   public static final String IDENTIFIER = IDENTIFIER_START + IDENTIFIER_PART + "*+";
 
   /**
+   * LF, CR, LS, PS
+   */
+  public static final String LINE_TERMINATOR = "\\n\\r\\u2028\\u2029";
+
+  /**
    * Tab, Vertical Tab, Form Feed, Space, No-break space, Byte Order Mark, Any other Unicode "space separator"
    */
-  public static final String WHITESPACE = "[\\n\\r\\t\\u000B\\f\\u0020\\u00A0\\uFEFF\\p{Zs}]";
+  public static final String WHITESPACE = "\\t\\u000B\\f\\u0020\\u00A0\\uFEFF\\p{Zs}";
 
   public static Lexer create(EcmaScriptConfiguration conf) {
     return Lexer.builder()
@@ -103,7 +108,7 @@ public final class EcmaScriptLexer {
 
         // Channels, which consumes more frequently should come first.
         // Whitespace character occurs more frequently than any other, and thus come first:
-        .withChannel(new BlackHoleChannel(WHITESPACE + "++"))
+        .withChannel(new BlackHoleChannel("[" + LINE_TERMINATOR + WHITESPACE + "]++"))
 
         // Comments
         .withChannel(commentRegexp(COMMENT))

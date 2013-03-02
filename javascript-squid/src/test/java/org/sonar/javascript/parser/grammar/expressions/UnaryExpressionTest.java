@@ -17,33 +17,22 @@
  * License along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.javascript.checks;
+package org.sonar.javascript.parser.grammar.expressions;
 
-import com.sonar.sslr.api.AstNode;
-import com.sonar.sslr.squid.checks.SquidCheck;
-import org.sonar.check.BelongsToProfile;
-import org.sonar.check.Priority;
-import org.sonar.check.Rule;
-import org.sonar.javascript.api.EcmaScriptPunctuator;
+import org.junit.Test;
 import org.sonar.javascript.parser.EcmaScriptGrammar;
 import org.sonar.sslr.parser.LexerlessGrammar;
 
-@Rule(
-  key = "Semicolon",
-  priority = Priority.MAJOR)
-@BelongsToProfile(title = CheckList.SONAR_WAY_PROFILE, priority = Priority.MAJOR)
-public class SemicolonCheck extends SquidCheck<LexerlessGrammar> {
+import static org.sonar.sslr.tests.Assertions.assertThat;
 
-  @Override
-  public void init() {
-    subscribeTo(EcmaScriptGrammar.EOS, EcmaScriptGrammar.EOS_NO_LB);
-  }
+public class UnaryExpressionTest {
 
-  @Override
-  public void visitNode(AstNode astNode) {
-    if (astNode.getFirstChild(EcmaScriptPunctuator.SEMI) == null) {
-      getContext().createLineViolation(this, "Missing semicolon.", astNode.getParent());
-    }
+  LexerlessGrammar g = EcmaScriptGrammar.createGrammar();
+
+  @Test
+  public void ok() {
+    assertThat(g.rule(EcmaScriptGrammar.UNARY_EXPRESSION))
+        .matches("++a++");
   }
 
 }

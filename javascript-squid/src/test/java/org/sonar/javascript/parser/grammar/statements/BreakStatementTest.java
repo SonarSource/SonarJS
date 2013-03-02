@@ -30,10 +30,24 @@ public class BreakStatementTest {
   LexerlessGrammar g = EcmaScriptGrammar.createGrammar();
 
   @Test
-  public void realLife() {
+  public void ok() {
     assertThat(g.rule(EcmaScriptGrammar.BREAK_STATEMENT))
-        .matches("break;")
-        .matches("break label;");
+        .as("EOS is line terminator")
+        .matchesPrefix("break \n", "another-statement ;")
+        .matchesPrefix("break label \n", "another-statement ;")
+        .matchesPrefix("break \n", ";")
+
+        .as("EOS is semicolon")
+        .matchesPrefix("break ;", "another-statement")
+        .matchesPrefix("break label \n ;", "another-statement")
+
+        .as("EOS is before right curly bracket")
+        .matchesPrefix("break ", "}")
+        .matchesPrefix("break label ", "}")
+
+        .as("EOS is end of input")
+        .matches("break ")
+        .matches("break label ");
   }
 
 }

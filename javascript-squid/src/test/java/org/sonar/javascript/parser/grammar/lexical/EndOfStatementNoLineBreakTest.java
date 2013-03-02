@@ -17,7 +17,7 @@
  * License along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.javascript.parser.grammar.statements;
+package org.sonar.javascript.parser.grammar.lexical;
 
 import org.junit.Test;
 import org.sonar.javascript.parser.EcmaScriptGrammar;
@@ -25,29 +25,39 @@ import org.sonar.sslr.parser.LexerlessGrammar;
 
 import static org.sonar.sslr.tests.Assertions.assertThat;
 
-public class ContinueStatementTest {
+public class EndOfStatementNoLineBreakTest {
 
   LexerlessGrammar g = EcmaScriptGrammar.createGrammar();
 
   @Test
   public void ok() {
-    assertThat(g.rule(EcmaScriptGrammar.CONTINUE_STATEMENT))
-        .as("EOS is line terminator")
-        .matchesPrefix("continue \n", "another-statement ;")
-        .matchesPrefix("continue label \n", "another-statement ;")
-        .matchesPrefix("continue \n", ";")
+    assertThat(g.rule(EcmaScriptGrammar.EOS_NO_LB))
+        .as("semicolon")
+        .matchesPrefix(";", "another-statement")
+        .matchesPrefix("/* comment */ ;", "another-statement")
+        .notMatches("\n ;")
+        .notMatches("/* comment \n */ ;")
 
-        .as("EOS is semicolon")
-        .matchesPrefix("continue ;", "another-statement")
-        .matchesPrefix("continue label \n ;", "another-statement")
+        .as("LineTerminatorSequence")
+        .matchesPrefix("\n", "another-statement")
+        .matchesPrefix("\r\n", "another-statement")
+        .matchesPrefix("\r", "another-statement")
+        .matchesPrefix("// comment \n", "another-statement")
+        .matchesPrefix("/* comment */ \n", "another-statement")
+        .notMatches("\n\n")
+        .notMatches("/* comment \n */ \n")
 
-        .as("EOS is before right curly bracket")
-        .matchesPrefix("continue ", "}")
-        .matchesPrefix("continue label ", "}")
+        .as("right curly bracket")
+        .matchesPrefix("", "}")
+        .matchesPrefix(" ", "}")
+        .matchesPrefix("/* comment */ ", "}")
+        .notMatches("/* comment \n */ }")
 
-        .as("EOS is end of input")
-        .matches("continue ")
-        .matches("continue label ");
+        .as("end of input")
+        .matches("")
+        .matches(" ")
+        .matches("/* comment */")
+        .notMatches("/* comment \n */");
   }
 
 }

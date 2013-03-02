@@ -116,9 +116,16 @@ import static org.sonar.javascript.api.EcmaScriptTokenType.REGULAR_EXPRESSION_LI
  */
 public enum EcmaScriptGrammar implements GrammarRuleKey {
 
+  /**
+   * End of file.
+   */
   EOF,
+
+  /**
+   * End of statement.
+   */
   EOS,
-  EOSNOLB,
+  EOS_NO_LB,
 
   IDENTIFIER_NAME,
 
@@ -133,7 +140,18 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
 
   KEYWORD,
   LETTER_OR_DIGIT,
+
+  /**
+   * Spacing.
+   */
   SPACING,
+
+  /**
+   * Spacing without line break.
+   */
+  SPACING_NO_LB,
+  NEXT_NOT_LB,
+  LINE_TERMINATOR_SEQUENCE,
 
   // A.3 Expressions
 
@@ -231,17 +249,9 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
   public static LexerlessGrammarBuilder createGrammarBuilder() {
     LexerlessGrammarBuilder b = LexerlessGrammarBuilder.create();
 
-    b.rule(EOS).is(b.firstOf(
-        b.optional(SEMI),
-        b.next(RCURLYBRACE),
-        b.next(EOF)));
-    b.rule(EOSNOLB).is(b.firstOf(
-        b.optional(SEMI),
-        b.next(RCURLYBRACE),
-        b.next(EOF)));
-
     b.rule(IDENTIFIER_NAME).is(
-        b.regexp(EcmaScriptLexer.IDENTIFIER), SPACING);
+        SPACING,
+        b.regexp(EcmaScriptLexer.IDENTIFIER));
 
     b.rule(LITERAL).is(b.firstOf(
         NULL_LITERAL,
@@ -268,17 +278,47 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
    * A.1 Lexical
    */
   private static void lexical(LexerlessGrammarBuilder b) {
+    b.rule(SPACING).is(
+        b.skippedTrivia(b.regexp("[" + EcmaScriptLexer.LINE_TERMINATOR + EcmaScriptLexer.WHITESPACE + "]*+")),
+        b.zeroOrMore(
+            b.commentTrivia(b.regexp(EcmaScriptLexer.COMMENT)),
+            b.skippedTrivia(b.regexp("[" + EcmaScriptLexer.LINE_TERMINATOR + EcmaScriptLexer.WHITESPACE + "]*+")))).skip();
+
+    b.rule(SPACING_NO_LB).is(
+        b.zeroOrMore(
+            b.firstOf(
+                b.skippedTrivia(b.regexp("[" + EcmaScriptLexer.WHITESPACE + "]++")),
+                b.commentTrivia(b.regexp("(?:" + EcmaScriptLexer.SINGLE_LINE_COMMENT + "|" + EcmaScriptLexer.MULTI_LINE_COMMENT_NO_LB + ")"))))).skip();
+    b.rule(NEXT_NOT_LB).is(b.nextNot(b.regexp("(?:" + EcmaScriptLexer.MULTI_LINE_COMMENT + "|[" + EcmaScriptLexer.LINE_TERMINATOR + "])"))).skip();
+
+    b.rule(LINE_TERMINATOR_SEQUENCE).is(b.skippedTrivia(b.regexp("(?:\\n|\\r\\n|\\r|\\u2028|\\u2029)"))).skip();
+
+    b.rule(EOS).is(b.firstOf(
+        b.sequence(SPACING, SEMI),
+        b.sequence(SPACING_NO_LB, LINE_TERMINATOR_SEQUENCE),
+        b.sequence(SPACING_NO_LB, b.next("}")),
+        b.sequence(SPACING, b.endOfInput())));
+
+    b.rule(EOS_NO_LB).is(b.firstOf(
+        b.sequence(SPACING_NO_LB, NEXT_NOT_LB, SEMI),
+        b.sequence(SPACING_NO_LB, LINE_TERMINATOR_SEQUENCE),
+        b.sequence(SPACING_NO_LB, b.next("}")),
+        b.sequence(SPACING_NO_LB, b.endOfInput())));
+
     b.rule(EOF).is(b.token(GenericTokenType.EOF, b.endOfInput())).skip();
     b.rule(IDENTIFIER).is(
+        SPACING,
         b.nextNot(KEYWORD),
-        b.regexp(EcmaScriptLexer.IDENTIFIER), SPACING);
+        b.regexp(EcmaScriptLexer.IDENTIFIER));
     b.rule(NUMERIC_LITERAL).is(
-        b.regexp(EcmaScriptLexer.NUMERIC_LITERAL), SPACING);
+        SPACING,
+        b.regexp(EcmaScriptLexer.NUMERIC_LITERAL));
     b.rule(STRING_LITERAL).is(
-        b.token(GenericTokenType.LITERAL,
-            b.regexp(EcmaScriptLexer.LITERAL)), SPACING);
+        SPACING,
+        b.token(GenericTokenType.LITERAL, b.regexp(EcmaScriptLexer.LITERAL)));
     b.rule(REGULAR_EXPRESSION_LITERAL).is(
-        b.regexp(EcmaScriptRegexpChannel.REGEXP), SPACING);
+        SPACING,
+        b.regexp(EcmaScriptRegexpChannel.REGEXP));
 
     b.rule(KEYWORD).is(b.firstOf(
         "null",
@@ -317,12 +357,6 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
         "extends",
         "super"), b.nextNot(LETTER_OR_DIGIT));
     b.rule(LETTER_OR_DIGIT).is(b.regexp("\\p{javaJavaIdentifierPart}"));
-
-    b.rule(SPACING).is(
-        b.skippedTrivia(b.regexp(EcmaScriptLexer.WHITESPACE + "*+")),
-        b.zeroOrMore(
-            b.commentTrivia(b.regexp(EcmaScriptLexer.COMMENT)),
-            b.skippedTrivia(b.regexp(EcmaScriptLexer.WHITESPACE + "*+")))).skip();
 
     punctuators(b);
     keywords(b);
@@ -381,14 +415,14 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
 
   private static void keywords(LexerlessGrammarBuilder b) {
     for (EcmaScriptKeyword tokenType : EcmaScriptKeyword.values()) {
-      b.rule(tokenType).is(tokenType.getValue(), b.nextNot(LETTER_OR_DIGIT), SPACING);
+      b.rule(tokenType).is(SPACING, tokenType.getValue(), b.nextNot(LETTER_OR_DIGIT));
     }
   }
 
   private static void punctuator(LexerlessGrammarBuilder b, GrammarRuleKey ruleKey, String value) {
     for (EcmaScriptPunctuator tokenType : EcmaScriptPunctuator.values()) {
       if (value.equals(tokenType.getValue())) {
-        b.rule(tokenType).is(value, SPACING);
+        b.rule(tokenType).is(SPACING, value);
         return;
       }
     }
@@ -396,13 +430,13 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
   }
 
   private static Object word(LexerlessGrammarBuilder b, String value) {
-    return b.sequence(b.token(GenericTokenType.IDENTIFIER, value), SPACING);
+    return b.sequence(SPACING, b.token(GenericTokenType.IDENTIFIER, value));
   }
 
   private static void punctuator(LexerlessGrammarBuilder b, GrammarRuleKey ruleKey, String value, Object element) {
     for (EcmaScriptPunctuator tokenType : EcmaScriptPunctuator.values()) {
       if (value.equals(tokenType.getValue())) {
-        b.rule(tokenType).is(value, element, SPACING);
+        b.rule(tokenType).is(SPACING, value, element);
         return;
       }
     }
@@ -452,7 +486,7 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
     b.rule(LEFT_HAND_SIDE_EXPRESSION).is(b.firstOf(
         CALL_EXPRESSION,
         NEW_EXPRESSION));
-    b.rule(POSTFIX_EXPRESSION).is(LEFT_HAND_SIDE_EXPRESSION, b.optional(/* no line terminator here */b.firstOf(INC, DEC)));
+    b.rule(POSTFIX_EXPRESSION).is(LEFT_HAND_SIDE_EXPRESSION, b.optional(/* no line terminator here */SPACING_NO_LB, NEXT_NOT_LB, b.firstOf(INC, DEC)));
     b.rule(UNARY_EXPRESSION).is(b.firstOf(
         POSTFIX_EXPRESSION,
         b.sequence(DELETE, UNARY_EXPRESSION),
@@ -565,14 +599,14 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
         b.sequence(FOR, LPARENTHESIS, b.optional(EXPRESSION_NO_IN), SEMI, b.optional(CONDITION), SEMI, b.optional(EXPRESSION), RPARENTHESIS, STATEMENT),
         b.sequence(FOR, LPARENTHESIS, VAR, VARIABLE_DECLARATION_LIST_NO_IN, SEMI, b.optional(CONDITION), SEMI, b.optional(EXPRESSION), RPARENTHESIS, STATEMENT)));
     b.rule(CONTINUE_STATEMENT).is(b.firstOf(
-        b.sequence(CONTINUE, /* TODO no line terminator here */IDENTIFIER, EOS),
-        b.sequence(CONTINUE, EOSNOLB)));
+        b.sequence(CONTINUE, /* no line terminator here */SPACING_NO_LB, NEXT_NOT_LB, IDENTIFIER, EOS),
+        b.sequence(CONTINUE, EOS_NO_LB)));
     b.rule(BREAK_STATEMENT).is(b.firstOf(
-        b.sequence(BREAK, /* TODO no line terminator here */IDENTIFIER, EOS),
-        b.sequence(BREAK, EOSNOLB)));
+        b.sequence(BREAK, /* no line terminator here */SPACING_NO_LB, NEXT_NOT_LB, IDENTIFIER, EOS),
+        b.sequence(BREAK, EOS_NO_LB)));
     b.rule(RETURN_STATEMENT).is(b.firstOf(
-        b.sequence(RETURN, /* TODO no line terminator here */EXPRESSION, EOS),
-        b.sequence(RETURN, EOSNOLB)));
+        b.sequence(RETURN, /* no line terminator here */SPACING_NO_LB, NEXT_NOT_LB, EXPRESSION, EOS),
+        b.sequence(RETURN, EOS_NO_LB)));
     b.rule(WITH_STATEMENT).is(WITH, LPARENTHESIS, EXPRESSION, RPARENTHESIS, STATEMENT);
     b.rule(SWITCH_STATEMENT).is(SWITCH, LPARENTHESIS, EXPRESSION, RPARENTHESIS, CASE_BLOCK);
     b.rule(CASE_BLOCK).is(LCURLYBRACE, b.optional(CASE_CLAUSES), b.optional(DEFAULT_CLAUSE, b.optional(CASE_CLAUSES)), RCURLYBRACE);
@@ -580,7 +614,7 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
     b.rule(CASE_CLAUSE).is(CASE, EXPRESSION, COLON, b.optional(STATEMENT_LIST));
     b.rule(DEFAULT_CLAUSE).is(DEFAULT, COLON, b.optional(STATEMENT_LIST));
     b.rule(LABELLED_STATEMENT).is(IDENTIFIER, COLON, STATEMENT);
-    b.rule(THROW_STATEMENT).is(THROW, /* TODO no line terminator here */EXPRESSION, EOS);
+    b.rule(THROW_STATEMENT).is(THROW, /* no line terminator here */SPACING_NO_LB, NEXT_NOT_LB, EXPRESSION, EOS);
     b.rule(TRY_STATEMENT).is(TRY, BLOCK, b.firstOf(b.sequence(CATCH_, b.optional(FINALLY_)), FINALLY_));
     b.rule(CATCH_).is(CATCH, LPARENTHESIS, IDENTIFIER, RPARENTHESIS, BLOCK);
     b.rule(FINALLY_).is(FINALLY, BLOCK);
@@ -595,7 +629,7 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
     b.rule(FUNCTION_EXPRESSION).is(FUNCTION, b.optional(IDENTIFIER), LPARENTHESIS, b.optional(FORMAL_PARAMETER_LIST), RPARENTHESIS, LCURLYBRACE, FUNCTION_BODY, RCURLYBRACE);
     b.rule(FORMAL_PARAMETER_LIST).is(IDENTIFIER, b.zeroOrMore(COMMA, IDENTIFIER));
     b.rule(FUNCTION_BODY).is(b.optional(SOURCE_ELEMENTS));
-    b.rule(PROGRAM).is(b.optional(SHEBANG), SPACING, b.optional(SOURCE_ELEMENTS), EOF);
+    b.rule(PROGRAM).is(b.optional(SHEBANG), b.optional(SOURCE_ELEMENTS), SPACING, EOF);
     b.rule(SOURCE_ELEMENTS).is(b.oneOrMore(SOURCE_ELEMENT));
     b.rule(SOURCE_ELEMENT).is(b.firstOf(
         STATEMENT,
