@@ -320,44 +320,6 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
         SPACING,
         b.regexp(EcmaScriptRegexpChannel.REGEXP));
 
-    b.rule(KEYWORD).is(b.firstOf(
-        "null",
-        "true",
-        "false",
-        "break",
-        "case",
-        "catch",
-        "continue",
-        "debugger",
-        "default",
-        "delete",
-        "do",
-        "else",
-        "finally",
-        "for",
-        "function",
-        "if",
-        "in",
-        "instanceof",
-        "new",
-        "return",
-        "switch",
-        "this",
-        "throw",
-        "try",
-        "typeof",
-        "var",
-        "void",
-        "while",
-        "with",
-        "class",
-        "const",
-        "enum",
-        "export",
-        "extends",
-        "super"), b.nextNot(LETTER_OR_DIGIT));
-    b.rule(LETTER_OR_DIGIT).is(b.regexp("\\p{javaJavaIdentifierPart}"));
-
     punctuators(b);
     keywords(b);
   }
@@ -414,9 +376,19 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
   }
 
   private static void keywords(LexerlessGrammarBuilder b) {
-    for (EcmaScriptKeyword tokenType : EcmaScriptKeyword.values()) {
+    b.rule(LETTER_OR_DIGIT).is(b.regexp("\\p{javaJavaIdentifierPart}"));
+    Object[] rest = new Object[EcmaScriptKeyword.values().length - 2];
+    for (int i = 0; i < EcmaScriptKeyword.values().length; i++) {
+      EcmaScriptKeyword tokenType = EcmaScriptKeyword.values()[i];
       b.rule(tokenType).is(SPACING, tokenType.getValue(), b.nextNot(LETTER_OR_DIGIT));
+      if (i > 1) {
+        rest[i - 2] = tokenType.getValue();
+      }
     }
+    b.rule(KEYWORD).is(b.firstOf(
+        EcmaScriptKeyword.keywordValues()[0],
+        EcmaScriptKeyword.keywordValues()[1],
+        rest), b.nextNot(LETTER_OR_DIGIT));
   }
 
   private static void punctuator(LexerlessGrammarBuilder b, GrammarRuleKey ruleKey, String value) {
