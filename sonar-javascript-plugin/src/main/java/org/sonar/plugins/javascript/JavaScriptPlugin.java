@@ -118,7 +118,7 @@ public class JavaScriptPlugin extends SonarPlugin {
   public static final String FALSE = "false";
 
   public static final String FILE_SUFFIXES_KEY = "sonar.javascript.file.suffixes";
-  public static final String FILE_SUFFIXES_DEFVALUE = "js";
+  public static final String FILE_SUFFIXES_DEFVALUE = ".js";
 
   public static final String PROPERTY_PREFIX = "sonar.javascript";
 

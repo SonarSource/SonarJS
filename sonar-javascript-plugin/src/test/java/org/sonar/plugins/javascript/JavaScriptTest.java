@@ -24,8 +24,7 @@ import org.junit.Test;
 import org.sonar.api.config.Settings;
 import org.sonar.plugins.javascript.core.JavaScript;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertSame;
+import static org.fest.assertions.Assertions.assertThat;
 
 public class JavaScriptTest {
 
@@ -41,15 +40,14 @@ public class JavaScriptTest {
   @Test
   public void defaultSuffixes() {
     settings.setProperty(JavaScriptPlugin.FILE_SUFFIXES_KEY, "");
-    assertArrayEquals(javaScript.getFileSuffixes(), new String[] {"js"});
-    assertArrayEquals(javaScript.getFileSuffixes(), new String[] {"js"});
-    assertSame(settings, javaScript.getSettings());
+    assertThat(javaScript.getFileSuffixes()).containsOnly(".js");
+    assertThat(javaScript.getSettings()).isSameAs(settings);
   }
 
   @Test
   public void customSuffixes() {
     settings.setProperty(JavaScriptPlugin.FILE_SUFFIXES_KEY, "javascript");
-    assertArrayEquals(javaScript.getFileSuffixes(), new String[] {"javascript"});
+    assertThat(javaScript.getFileSuffixes()).containsOnly("javascript");
   }
 
 }
