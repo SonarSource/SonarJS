@@ -23,7 +23,6 @@ import org.sonar.api.batch.Initializer;
 import org.sonar.api.batch.maven.DependsUponMavenPlugin;
 import org.sonar.api.batch.maven.MavenPluginHandler;
 import org.sonar.api.resources.Project;
-import org.sonar.plugins.javascript.JavaScriptPlugin;
 import org.sonar.plugins.javascript.core.JavaScript;
 
 public class JsTestMavenInitializer extends Initializer implements DependsUponMavenPlugin {
@@ -39,8 +38,7 @@ public class JsTestMavenInitializer extends Initializer implements DependsUponMa
   @Override
   public boolean shouldExecuteOnProject(Project project) {
     return project.getAnalysisType().isDynamic(true)
-      && javascript.equals(project.getLanguage())
-      && "jstest".equals(javascript.getSettings().getString(JavaScriptPlugin.TEST_FRAMEWORK_KEY));
+      && javascript.equals(project.getLanguage());
   }
 
   public MavenPluginHandler getMavenPluginHandler(Project project) {

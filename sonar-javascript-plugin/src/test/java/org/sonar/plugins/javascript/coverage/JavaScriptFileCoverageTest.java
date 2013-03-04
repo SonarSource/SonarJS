@@ -17,34 +17,19 @@
  * License along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.plugins.javascript.colorizer;
+package org.sonar.plugins.javascript.coverage;
 
 import org.junit.Test;
-import org.sonar.colorizer.CppDocTokenizer;
-import org.sonar.colorizer.JavadocTokenizer;
-import org.sonar.colorizer.Tokenizer;
+import static org.junit.Assert.assertEquals;
 
-import java.util.List;
-
-import static junit.framework.Assert.fail;
-import static org.fest.assertions.Assertions.assertThat;
-
-public class JavaScriptColorizerFormatTest {
+public class JavaScriptFileCoverageTest {
 
   @Test
-  public void testGetTokenizers() {
-    List<Tokenizer> list = (new JavaScriptColorizerFormat()).getTokenizers();
-    assertThat(indexOf(list, JavadocTokenizer.class)).isLessThan(indexOf(list, CppDocTokenizer.class));
-  }
-
-  private Integer indexOf(List<Tokenizer> tokenizers, Class<?> tokenizerClass) {
-    for (int i = 0; i < tokenizers.size(); i++) {
-      if (tokenizers.get(i).getClass().equals(tokenizerClass)) {
-        return i;
-      }
-    }
-
-    fail("Tokenizer not found: " + tokenizerClass);
-    return null;
+  public void shouldNormalizeUnixLikePath() {
+    JavaScriptFileCoverage fileCoverage = new JavaScriptFileCoverage();
+    String path = "./sources/tests/file.js";
+    String normalizedPath = "sources/tests/file.js";
+    fileCoverage.setFilePath(path);
+    assertEquals(fileCoverage.getFilePath(), normalizedPath);
   }
 }

@@ -53,11 +53,11 @@ public class JavaScriptSquidSensorTest {
 
   @Test
   public void should_execute_on_javascript_project() {
-    Project project = new Project("key");
-    project.setLanguageKey("java");
-    assertThat(sensor.shouldExecuteOnProject(project)).isFalse();
-    project.setLanguageKey("js");
-    assertThat(sensor.shouldExecuteOnProject(project)).isTrue();
+    Project javascriptProject = mockProjectWithLanguageKey(JavaScript.KEY);
+    Project otherProject = mockProjectWithLanguageKey("java");
+
+    assertThat(sensor.shouldExecuteOnProject(otherProject)).isFalse();
+    assertThat(sensor.shouldExecuteOnProject(javascriptProject)).isTrue();
   }
 
   @Test
@@ -81,6 +81,12 @@ public class JavaScriptSquidSensorTest {
     verify(context).saveMeasure(Mockito.any(Resource.class), Mockito.eq(CoreMetrics.STATEMENTS), Mockito.eq(6.0));
     verify(context).saveMeasure(Mockito.any(Resource.class), Mockito.eq(CoreMetrics.COMPLEXITY), Mockito.eq(3.0));
     verify(context).saveMeasure(Mockito.any(Resource.class), Mockito.eq(CoreMetrics.COMMENT_LINES), Mockito.eq(2.0));
+  }
+  
+  private static Project mockProjectWithLanguageKey(String languageKey){
+    Project project = TestUtils.mockProject();
+    when(project.getLanguageKey()).thenReturn(languageKey);
+    return project;
   }
 
 }

@@ -1,5 +1,5 @@
 TN:
-SF:./sources/Person.js
+SF:sources/Person.js
 FN:2,(anonymous_1)
 FN:10,(anonymous_2)
 FNDA:2,(anonymous_1)
@@ -14,7 +14,7 @@ BRDA:11,1,0,1
 BRDA:11,1,1,1
 end_of_record
 TN:
-SF:./sources/com/company/Car.js
+SF:sources/com/company/Car.js
 FN:1,(anonymous_1)
 FN:11,(anonymous_2)
 FN:15,(anonymous_3)
@@ -61,7 +61,7 @@ BRDA:36,3,0,0
 BRDA:36,3,1,1
 end_of_record
 TN:
-SF:./sources/com/company/Truck.js
+SF:sources/com/company/Truck.js
 FN:1,(anonymous_1)
 FN:11,(anonymous_2)
 FN:15,(anonymous_3)
@@ -87,7 +87,7 @@ BRDA:18,2,0,0
 BRDA:18,2,1,0
 end_of_record
 TN:
-SF:./sources/com/company/Vehicle.js
+SF:sources/com/company/Vehicle.js
 FN:9,(anonymous_1)
 FN:24,(anonymous_2)
 FN:28,(anonymous_3)

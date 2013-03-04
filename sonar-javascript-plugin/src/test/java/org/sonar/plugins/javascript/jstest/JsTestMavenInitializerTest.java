@@ -23,7 +23,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.config.Settings;
 import org.sonar.api.resources.Project;
-import org.sonar.plugins.javascript.JavaScriptPlugin;
 import org.sonar.plugins.javascript.core.JavaScript;
 
 import static org.fest.assertions.Assertions.assertThat;
@@ -59,10 +58,8 @@ public class JsTestMavenInitializerTest {
     assertThat(mavenInitializer.shouldExecuteOnProject(project)).isFalse();
 
     project.setAnalysisType(Project.AnalysisType.DYNAMIC);
-    assertThat(mavenInitializer.shouldExecuteOnProject(project)).isFalse();
-
-    settings.setProperty(JavaScriptPlugin.TEST_FRAMEWORK_KEY, "jstest");
     assertThat(mavenInitializer.shouldExecuteOnProject(project)).isTrue();
+
   }
 
   @Test

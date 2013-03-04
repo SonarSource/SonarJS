@@ -17,49 +17,39 @@
  * License along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.plugins.javascript.jstest;
+package org.sonar.plugins.javascript.core;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.config.Settings;
-import org.sonar.api.resources.Project;
 import org.sonar.plugins.javascript.JavaScriptPlugin;
 import org.sonar.plugins.javascript.core.JavaScript;
 
-import static org.fest.assertions.Assertions.assertThat;
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertSame;
 
-public class JsTestSurefireSensorTest {
+public class JavaScriptTest {
 
-  private JavaScript language;
   private Settings settings;
-  private JsTestSurefireSensor sensor;
+  private JavaScript javaScript;
 
   @Before
   public void setUp() {
     settings = new Settings();
-    language = new JavaScript(settings);
-    sensor = new JsTestSurefireSensor(language);
+    javaScript = new JavaScript(settings);
   }
 
   @Test
-  public void test_shouldExecuteOnProject() {
-    Project project = mockProject();
-    assertThat(sensor.shouldExecuteOnProject(project)).isFalse();
-
-    project.setLanguage(language);
-    assertThat(sensor.shouldExecuteOnProject(project)).isFalse();
-
-    settings.setProperty(JavaScriptPlugin.TEST_FRAMEWORK_KEY, "jstest");
-    assertThat(sensor.shouldExecuteOnProject(project)).isTrue();
+  public void defaultSuffixes() {
+    settings.setProperty(JavaScriptPlugin.FILE_SUFFIXES_KEY, "");
+    assertArrayEquals(javaScript.getFileSuffixes(), new String[] {"js"});
+    assertSame(settings, javaScript.getSettings());
   }
 
   @Test
-  public void test_toString() {
-    assertThat(sensor.toString()).isEqualTo("JsTestSurefireSensor");
-  }
-
-  private Project mockProject() {
-    return new Project("mock");
+  public void customSuffixes() {
+    settings.setProperty(JavaScriptPlugin.FILE_SUFFIXES_KEY, "javascript");
+    assertArrayEquals(javaScript.getFileSuffixes(), new String[] {"javascript"});
   }
 
 }
