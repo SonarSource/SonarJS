@@ -42,7 +42,8 @@ public class NonEmptyCaseWithoutBreakCheck extends SquidCheck<LexerlessGrammar> 
   public void visitNode(AstNode astNode) {
     if (astNode.getNextAstNode().is(EcmaScriptGrammar.CASE_CLAUSE, EcmaScriptGrammar.DEFAULT_CLAUSE, EcmaScriptGrammar.CASE_CLAUSES)) {
       AstNode statementList = astNode.getFirstChild(EcmaScriptGrammar.STATEMENT_LIST);
-      if (statementList != null && statementList.getLastChild().getFirstChild().isNot(EcmaScriptGrammar.BREAK_STATEMENT, EcmaScriptGrammar.RETURN_STATEMENT, EcmaScriptGrammar.THROW_STATEMENT)) {
+      if (statementList != null
+        && statementList.getLastChild().getFirstChild().isNot(EcmaScriptGrammar.BREAK_STATEMENT, EcmaScriptGrammar.RETURN_STATEMENT, EcmaScriptGrammar.THROW_STATEMENT)) {
         getContext().createLineViolation(this, "Last statement in this switch-clause should be an unconditional break.", astNode);
       }
     }

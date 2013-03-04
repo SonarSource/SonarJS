@@ -19,15 +19,7 @@
  */
 package org.sonar.javascript.toolkit;
 
-import com.google.common.collect.ImmutableList;
-import org.sonar.colorizer.*;
-import org.sonar.javascript.EcmaScriptConfiguration;
-import org.sonar.javascript.api.EcmaScriptKeyword;
-import org.sonar.javascript.parser.EcmaScriptParser;
 import org.sonar.sslr.toolkit.Toolkit;
-
-import java.nio.charset.Charset;
-import java.util.List;
 
 public final class JavaScriptToolkit {
 
@@ -35,17 +27,8 @@ public final class JavaScriptToolkit {
   }
 
   public static void main(String[] args) {
-    System.setProperty("com.apple.mrj.application.apple.menu.about.name", "SSDK");
-    new Toolkit(EcmaScriptParser.create(new EcmaScriptConfiguration(Charset.defaultCharset())), getTokenizers(), "SSLR JavaScript Toolkit").run();
-  }
-
-  public static List<Tokenizer> getTokenizers() {
-    return ImmutableList.of(
-        new StringTokenizer("<span class=\"s\">", "</span>"),
-        new CDocTokenizer("<span class=\"cd\">", "</span>"),
-        new JavadocTokenizer("<span class=\"cppd\">", "</span>"),
-        new CppDocTokenizer("<span class=\"cppd\">", "</span>"),
-        new KeywordsTokenizer("<span class=\"k\">", "</span>", EcmaScriptKeyword.keywordValues()));
+    Toolkit toolkit = new Toolkit("SSLR :: JavaScript :: Toolkit", new JavaScriptConfigurationModel());
+    toolkit.run();
   }
 
 }

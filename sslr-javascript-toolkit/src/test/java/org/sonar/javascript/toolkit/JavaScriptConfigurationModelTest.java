@@ -23,11 +23,11 @@ import org.junit.Test;
 
 import static org.fest.assertions.Assertions.assertThat;
 
-public class JavaScriptToolkitTest {
+public class JavaScriptConfigurationModelTest {
 
   @Test
   public void test() {
-    assertThat(JavaScriptToolkit.getTokenizers().size()).isEqualTo(5);
+    assertThat(new JavaScriptConfigurationModel().getTokenizers().size()).isEqualTo(5);
   }
 
 }
