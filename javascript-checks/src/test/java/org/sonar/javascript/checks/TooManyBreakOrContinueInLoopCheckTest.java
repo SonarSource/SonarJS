@@ -36,6 +36,7 @@ public class TooManyBreakOrContinueInLoopCheckTest {
     CheckMessagesVerifier.verify(file.getCheckMessages())
         .next().atLine(1).withMessage("Refactor this loop to prevent having more than one 'break' or 'continue' statement.")
         .next().atLine(31)
+        .next().atLine(51)
         .noMore();
   }
 

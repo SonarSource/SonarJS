@@ -63,7 +63,7 @@ public class TooManyBreakOrContinueInLoopCheck extends SquidCheck<LexerlessGramm
       stack = new Stack<Integer>();
     } else if (astNode.is(EcmaScriptGrammar.ITERATION_STATEMENT) || astNode.is(EcmaScriptGrammar.SWITCH_STATEMENT)) {
       stack.push(0);
-    } else if (astNode.is(EcmaScriptGrammar.BREAK_STATEMENT) || astNode.is(EcmaScriptGrammar.CONTINUE_STATEMENT)) {
+    } else if ((astNode.is(EcmaScriptGrammar.BREAK_STATEMENT) || astNode.is(EcmaScriptGrammar.CONTINUE_STATEMENT)) && !stack.isEmpty()) {
       stack.push(stack.pop() + 1);
     }
   }

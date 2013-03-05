@@ -43,3 +43,16 @@ for (i = 0; i < 10; i++) { // OK
     break;
   }
 }
+
+label: if (true) {
+  break;
+}
+
+for (i = 0; i < 10; i++) { // TODO false-positive
+  label1: if (i % 3 == 0) {
+    break label1;
+  }
+  label2: if (i % 3 == 0) {
+    break label2;
+  }
+}
