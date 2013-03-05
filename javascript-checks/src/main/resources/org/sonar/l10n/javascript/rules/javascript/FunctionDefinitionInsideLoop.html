@@ -1,0 +1,15 @@
+<p></p>
+
+<p>
+The following code snippet illustrates this rule :
+</p>
+
+<pre>
+var funs = [];
+for (var i = 0; i < 13; i++) {
+  funs[i] = function() { // Non-Complian
+    return i;
+  };
+}
+print(funs[0]()); // 13 instead of 0
+</pre>

@@ -86,6 +86,7 @@ public final class CheckList {
         BoundOrAssignedEvalOrArgumentsCheck.class,
         SameNameForFunctionAndVariableCheck.class,
         NamedFunctionExpressionCheck.class,
+        FunctionDefinitionInsideLoopCheck.class,
         NestedIfDepthCheck.class);
   }
 
