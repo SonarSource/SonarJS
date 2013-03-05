@@ -30,51 +30,67 @@ import org.sonar.sslr.parser.LexerlessGrammar;
 import java.util.Stack;
 
 @Rule(
-  key = "FunctionDefinitionInsideLoop",
+  key = "TooManyBreakOrContinueInLoop",
   priority = Priority.MAJOR)
 @BelongsToProfile(title = CheckList.SONAR_WAY_PROFILE, priority = Priority.MAJOR)
-public class FunctionDefinitionInsideLoopCheck extends SquidCheck<LexerlessGrammar> {
+public class TooManyBreakOrContinueInLoopCheck extends SquidCheck<LexerlessGrammar> {
 
+  private Stack<Stack<Integer>> scope;
   private Stack<Integer> stack;
 
   @Override
   public void init() {
     subscribeTo(
-        EcmaScriptGrammar.ITERATION_STATEMENT,
         EcmaScriptGrammar.FUNCTION_EXPRESSION,
-        EcmaScriptGrammar.FUNCTION_DECLARATION);
+        EcmaScriptGrammar.FUNCTION_DECLARATION,
+        EcmaScriptGrammar.ITERATION_STATEMENT,
+        EcmaScriptGrammar.BREAK_STATEMENT,
+        EcmaScriptGrammar.CONTINUE_STATEMENT,
+        EcmaScriptGrammar.SWITCH_STATEMENT);
   }
 
   @Override
   public void visitFile(AstNode astNode) {
     stack = new Stack<Integer>();
-    stack.push(0);
+    scope = new Stack<Stack<Integer>>();
   }
 
   @Override
   public void visitNode(AstNode astNode) {
-    if (astNode.is(EcmaScriptGrammar.ITERATION_STATEMENT)) {
+    if (astNode.is(EcmaScriptGrammar.FUNCTION_EXPRESSION, EcmaScriptGrammar.FUNCTION_DECLARATION)) {
+      // enter new scope
+      scope.push(stack);
+      stack = new Stack<Integer>();
+    } else if (astNode.is(EcmaScriptGrammar.ITERATION_STATEMENT) || astNode.is(EcmaScriptGrammar.SWITCH_STATEMENT)) {
+      stack.push(0);
+    } else if (astNode.is(EcmaScriptGrammar.BREAK_STATEMENT) || astNode.is(EcmaScriptGrammar.CONTINUE_STATEMENT)) {
       stack.push(stack.pop() + 1);
-    } else {
-      if (stack.peek() > 0) {
-        getContext().createLineViolation(this, "Avoid definition of function inside loop.", astNode);
-      }
-      stack.add(0);
     }
   }
 
   @Override
   public void leaveNode(AstNode astNode) {
     if (astNode.is(EcmaScriptGrammar.ITERATION_STATEMENT)) {
-      stack.push(stack.pop() - 1);
-    } else {
+      int count = stack.pop();
+      if (stack.isEmpty()) {
+        if (count > 1) {
+          getContext().createLineViolation(this, "Refactor this loop to prevent having more than one 'break' or 'continue' statement.", astNode);
+        }
+      } else {
+        stack.push(stack.pop() + count);
+      }
+    } else if (astNode.is(EcmaScriptGrammar.SWITCH_STATEMENT)) {
       stack.pop();
+    } else if (astNode.is(EcmaScriptGrammar.FUNCTION_EXPRESSION, EcmaScriptGrammar.FUNCTION_DECLARATION)) {
+      // leave scope
+      stack = scope.pop();
     }
   }
 
   @Override
   public void leaveFile(AstNode astNode) {
     stack = null;
+    scope = null;
   }
 
 }

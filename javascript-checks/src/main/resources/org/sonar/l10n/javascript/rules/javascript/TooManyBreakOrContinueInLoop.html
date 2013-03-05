@@ -1,0 +1,27 @@
+<p>
+Restricting the number of <code>break</code> and <code>continue</code> statements in loops is 
+done in the interest of good structured programming. One <code>break</code> or <code>continue</code>
+statement is acceptable in a loop since this allows optimal coding. However, in most cases, they
+can be replaced by standard logical structures that are far more readable and understandable.
+</p>
+
+<p>
+The following code snippet illustrates this rule:
+</p>
+
+<pre>
+for (i = 0; i < 10; i++) { // Compliant
+  if (i % n == 0) {
+    break;
+  }
+}
+
+for (i = 0; i < 10; i++) { // Non-Compliant
+  if (i%n == 0) {
+    break;
+  }
+  if (n%i == 0) {
+    continue;
+  }
+}
+</pre>

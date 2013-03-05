@@ -87,6 +87,7 @@ public final class CheckList {
         SameNameForFunctionAndVariableCheck.class,
         NamedFunctionExpressionCheck.class,
         FunctionDefinitionInsideLoopCheck.class,
+        TooManyBreakOrContinueInLoopCheck.class,
         NestedIfDepthCheck.class);
   }
 
