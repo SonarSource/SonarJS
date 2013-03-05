@@ -85,6 +85,7 @@ public final class CheckList {
         MissingNewlineAtEndOfFileCheck.class,
         BoundOrAssignedEvalOrArgumentsCheck.class,
         SameNameForFunctionAndVariableCheck.class,
+        NamedFunctionExpressionCheck.class,
         NestedIfDepthCheck.class);
   }
 
