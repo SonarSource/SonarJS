@@ -34,9 +34,11 @@ public class ForInCheckTest {
 
     SourceFile file = JavaScriptAstScanner.scanSingleFile(new File("src/test/resources/checks/forIn.js"), check);
     CheckMessagesVerifier.verify(file.getCheckMessages())
-        .next().atLine(3).withMessage("For-in statement must filter items.")
+        .next().atLine(2).withMessage("For-in statement must filter items.")
         .next().atLine(12)
-        .next().atLine(23)
+        .next().atLine(18)
+        .next().atLine(39)
+        .next().atLine(46)
         .noMore();
   }
 

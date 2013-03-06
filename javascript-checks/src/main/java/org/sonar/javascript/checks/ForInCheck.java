@@ -59,8 +59,26 @@ public class ForInCheck extends SquidCheck<LexerlessGrammar> {
 
     for (AstNode statement : statements) {
       if (statement.getChild(0).isNot(EcmaScriptGrammar.IF_STATEMENT)) {
-        getContext().createLineViolation(this, "For-in statement must filter items.", statement);
+        getContext().createLineViolation(this, "For-in statement must filter items.", astNode);
         break;
+      } else {
+        AstNode unwrappedStatement = statement.getChild(0).getFirstChild(EcmaScriptGrammar.STATEMENT).getChild(0);
+        if (unwrappedStatement.is(EcmaScriptGrammar.CONTINUE_STATEMENT)) {
+          break;
+        } else if (unwrappedStatement.is(EcmaScriptGrammar.BLOCK)) {
+          AstNode statementList = unwrappedStatement.getFirstChild(EcmaScriptGrammar.STATEMENT_LIST);
+          if (statementList != null) {
+            if (statementList.getNumberOfChildren() == 1 && statementList.getFirstChild().getChild(0).is(EcmaScriptGrammar.CONTINUE_STATEMENT)) {
+              break;
+            } else {
+              getContext().createLineViolation(this, "For-in statement must filter items.", astNode);
+              break;
+            }
+          }
+        } else {
+          getContext().createLineViolation(this, "For-in statement must filter items.", astNode);
+          break;
+        }
       }
     }
   }
