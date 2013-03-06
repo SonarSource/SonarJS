@@ -26,16 +26,15 @@ import org.sonar.squid.api.SourceFile;
 
 import java.io.File;
 
-public class UnusedVariableCheckTest {
+public class UnusedFunctionArgumentCheckTest {
 
   @Test
   public void test() {
-    UnusedVariableCheck check = new UnusedVariableCheck();
+    UnusedFunctionArgumentCheck check = new UnusedFunctionArgumentCheck();
 
-    SourceFile file = JavaScriptAstScanner.scanSingleFile(new File("src/test/resources/checks/unusedVariable.js"), check);
+    SourceFile file = JavaScriptAstScanner.scanSingleFile(new File("src/test/resources/checks/unusedFunctionArgument.js"), check);
     CheckMessagesVerifier.verify(file.getCheckMessages())
-        .next().atLine(4).withMessage("Remove the declaration of the unused 'a' variable.")
-        .next().atLine(17)
+        .next().atLine(1).withMessage("Remove the declaration of the unused 'a' argument.")
         .noMore();
   }
 
