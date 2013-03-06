@@ -35,8 +35,9 @@ public class TooManyBreakOrContinueInLoopCheckTest {
     SourceFile file = JavaScriptAstScanner.scanSingleFile(new File("src/test/resources/checks/tooManyBreakOrContinueInLoop.js"), check);
     CheckMessagesVerifier.verify(file.getCheckMessages())
         .next().atLine(1).withMessage("Refactor this loop to prevent having more than one 'break' or 'continue' statement.")
-        .next().atLine(31)
-        .next().atLine(51)
+        .next().atLine(16)
+        .next().atLine(36)
+        .next().atLine(48)
         .noMore();
   }
 

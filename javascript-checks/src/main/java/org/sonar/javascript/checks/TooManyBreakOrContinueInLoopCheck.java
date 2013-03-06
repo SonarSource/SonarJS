@@ -19,11 +19,13 @@
  */
 package org.sonar.javascript.checks;
 
+import com.google.common.base.Objects;
 import com.sonar.sslr.api.AstNode;
 import com.sonar.sslr.squid.checks.SquidCheck;
 import org.sonar.check.BelongsToProfile;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
+import org.sonar.javascript.api.EcmaScriptTokenType;
 import org.sonar.javascript.parser.EcmaScriptGrammar;
 import org.sonar.sslr.parser.LexerlessGrammar;
 
@@ -35,8 +37,22 @@ import java.util.Stack;
 @BelongsToProfile(title = CheckList.SONAR_WAY_PROFILE, priority = Priority.MAJOR)
 public class TooManyBreakOrContinueInLoopCheck extends SquidCheck<LexerlessGrammar> {
 
-  private Stack<Stack<Integer>> scope;
-  private Stack<Integer> stack;
+  private static class JumpTarget {
+    private final String label;
+    private int jumps;
+
+    /** Creates unlabeled target. */
+    public JumpTarget() {
+      this.label = null;
+    }
+
+    /** Creates labeled target. */
+    public JumpTarget(String label) {
+      this.label = label;
+    }
+  }
+
+  private Stack<JumpTarget> jumpTargets;
 
   @Override
   public void init() {
@@ -46,51 +62,50 @@ public class TooManyBreakOrContinueInLoopCheck extends SquidCheck<LexerlessGramm
         EcmaScriptGrammar.ITERATION_STATEMENT,
         EcmaScriptGrammar.BREAK_STATEMENT,
         EcmaScriptGrammar.CONTINUE_STATEMENT,
-        EcmaScriptGrammar.SWITCH_STATEMENT);
+        EcmaScriptGrammar.SWITCH_STATEMENT,
+        EcmaScriptGrammar.LABELLED_STATEMENT);
   }
 
   @Override
   public void visitFile(AstNode astNode) {
-    stack = new Stack<Integer>();
-    scope = new Stack<Stack<Integer>>();
+    jumpTargets = new Stack<JumpTarget>();
   }
 
   @Override
   public void visitNode(AstNode astNode) {
-    if (astNode.is(EcmaScriptGrammar.FUNCTION_EXPRESSION, EcmaScriptGrammar.FUNCTION_DECLARATION)) {
-      // enter new scope
-      scope.push(stack);
-      stack = new Stack<Integer>();
-    } else if (astNode.is(EcmaScriptGrammar.ITERATION_STATEMENT) || astNode.is(EcmaScriptGrammar.SWITCH_STATEMENT)) {
-      stack.push(0);
-    } else if ((astNode.is(EcmaScriptGrammar.BREAK_STATEMENT) || astNode.is(EcmaScriptGrammar.CONTINUE_STATEMENT)) && !stack.isEmpty()) {
-      stack.push(stack.pop() + 1);
+    if (astNode.is(EcmaScriptGrammar.LABELLED_STATEMENT)) {
+      String label = astNode.getFirstChild(EcmaScriptTokenType.IDENTIFIER).getTokenValue();
+      jumpTargets.push(new JumpTarget(label));
+    } else if (astNode.is(EcmaScriptGrammar.BREAK_STATEMENT, EcmaScriptGrammar.CONTINUE_STATEMENT)) {
+      AstNode labelNode = astNode.getFirstChild(EcmaScriptTokenType.IDENTIFIER);
+      String label = labelNode == null ? null : labelNode.getTokenValue();
+      for (int i = jumpTargets.size() - 1; i >= 0; i--) {
+        JumpTarget jumpTarget = jumpTargets.get(i);
+        jumpTarget.jumps++;
+        if (Objects.equal(label, jumpTarget.label)) {
+          break;
+        }
+      }
+    } else {
+      jumpTargets.push(new JumpTarget());
     }
   }
 
   @Override
   public void leaveNode(AstNode astNode) {
-    if (astNode.is(EcmaScriptGrammar.ITERATION_STATEMENT)) {
-      int count = stack.pop();
-      if (stack.isEmpty()) {
-        if (count > 1) {
+    if (astNode.isNot(EcmaScriptGrammar.BREAK_STATEMENT, EcmaScriptGrammar.CONTINUE_STATEMENT)) {
+      JumpTarget jumpTarget = jumpTargets.pop();
+      if (astNode.is(EcmaScriptGrammar.ITERATION_STATEMENT)) {
+        if (jumpTarget.jumps > 1) {
           getContext().createLineViolation(this, "Refactor this loop to prevent having more than one 'break' or 'continue' statement.", astNode);
         }
-      } else {
-        stack.push(stack.pop() + count);
       }
-    } else if (astNode.is(EcmaScriptGrammar.SWITCH_STATEMENT)) {
-      stack.pop();
-    } else if (astNode.is(EcmaScriptGrammar.FUNCTION_EXPRESSION, EcmaScriptGrammar.FUNCTION_DECLARATION)) {
-      // leave scope
-      stack = scope.pop();
     }
   }
 
   @Override
   public void leaveFile(AstNode astNode) {
-    stack = null;
-    scope = null;
+    jumpTargets = null;
   }
 
 }
