@@ -34,7 +34,7 @@ public class NamedFunctionExpressionCheckTest {
 
     SourceFile file = JavaScriptAstScanner.scanSingleFile(new File("src/test/resources/checks/namedFunctionExpression.js"), check);
     CheckMessagesVerifier.verify(file.getCheckMessages())
-        .next().atLine(1).withMessage("Avoid named function expression.")
+        .next().atLine(1).withMessage("Make this function anonymous by removing its name: 'function() {...}'.")
         .next().atLine(2)
         .next().atLine(3)
         .noMore();

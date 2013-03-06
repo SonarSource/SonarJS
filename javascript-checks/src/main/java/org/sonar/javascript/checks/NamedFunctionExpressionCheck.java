@@ -42,7 +42,7 @@ public class NamedFunctionExpressionCheck extends SquidCheck<LexerlessGrammar> {
   @Override
   public void visitNode(AstNode astNode) {
     if (astNode.getFirstChild(EcmaScriptTokenType.IDENTIFIER) != null) {
-      getContext().createLineViolation(this, "Avoid named function expression.", astNode);
+      getContext().createLineViolation(this, "Make this function anonymous by removing its name: 'function() {...}'.", astNode);
     }
   }
 
