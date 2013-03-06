@@ -1,0 +1,15 @@
+<p>
+When a variable is declared but never used this definitely decreases the readability of the source code and such dead declarations can even be misleading.
+</p>
+
+<p>
+The following code snippet illustrates this rule :
+</p>
+<pre>
+function fun(a, b) {
+  var c = 2;   //Non-Compliant as c is never used
+  return a + d;
+}
+
+fun(1, 2);
+</pre>
