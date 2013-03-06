@@ -34,7 +34,7 @@ public class FunctionDefinitionInsideLoopCheckTest {
 
     SourceFile file = JavaScriptAstScanner.scanSingleFile(new File("src/test/resources/checks/functionCreationInsideLoop.js"), check);
     CheckMessagesVerifier.verify(file.getCheckMessages())
-        .next().atLine(4).withMessage("Avoid definition of function inside loop.")
+        .next().atLine(4).withMessage("Define this function outside of a loop.")
         .next().atLine(12)
         .noMore();
   }

@@ -57,7 +57,7 @@ public class FunctionDefinitionInsideLoopCheck extends SquidCheck<LexerlessGramm
       stack.push(stack.pop() + 1);
     } else {
       if (stack.peek() > 0) {
-        getContext().createLineViolation(this, "Avoid definition of function inside loop.", astNode);
+        getContext().createLineViolation(this, "Define this function outside of a loop.", astNode);
       }
       stack.add(0);
     }
