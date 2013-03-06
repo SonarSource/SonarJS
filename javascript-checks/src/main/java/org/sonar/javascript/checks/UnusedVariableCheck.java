@@ -89,7 +89,7 @@ public class UnusedVariableCheck extends SquidCheck<LexerlessGrammar> {
         EcmaScriptGrammar.FUNCTION_EXPRESSION,
         EcmaScriptGrammar.FUNCTION_DECLARATION,
         EcmaScriptGrammar.VARIABLE_DECLARATION,
-        EcmaScriptGrammar.VARIABLE_DECLARATION_LIST_NO_IN,
+        EcmaScriptGrammar.VARIABLE_DECLARATION_NO_IN,
         EcmaScriptGrammar.PRIMARY_EXPRESSION,
         EcmaScriptGrammar.FORMAL_PARAMETER_LIST);
   }
@@ -110,7 +110,7 @@ public class UnusedVariableCheck extends SquidCheck<LexerlessGrammar> {
         currentScope.declare(identifierNode, 1);
       }
     } else if (currentScope != null) {
-      if (astNode.is(EcmaScriptGrammar.VARIABLE_DECLARATION, EcmaScriptGrammar.VARIABLE_DECLARATION_LIST_NO_IN)) {
+      if (astNode.is(EcmaScriptGrammar.VARIABLE_DECLARATION, EcmaScriptGrammar.VARIABLE_DECLARATION_NO_IN)) {
         currentScope.declare(astNode.getFirstChild(EcmaScriptTokenType.IDENTIFIER), 0);
       } else if (astNode.is(EcmaScriptGrammar.PRIMARY_EXPRESSION)) {
         AstNode identifierNode = astNode.getFirstChild(EcmaScriptTokenType.IDENTIFIER);
