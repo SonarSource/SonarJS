@@ -26,7 +26,8 @@ import org.sonar.sslr.grammar.GrammarRuleKey;
 public enum EcmaScriptTokenType implements TokenType, GrammarRuleKey {
   IDENTIFIER,
   NUMERIC_LITERAL,
-  REGULAR_EXPRESSION_LITERAL;
+  REGULAR_EXPRESSION_LITERAL,
+  EMPTY;
 
   public String getName() {
     return name();

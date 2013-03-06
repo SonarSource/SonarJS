@@ -22,6 +22,7 @@ package org.sonar.javascript.parser;
 import com.sonar.sslr.api.GenericTokenType;
 import org.sonar.javascript.api.EcmaScriptKeyword;
 import org.sonar.javascript.api.EcmaScriptPunctuator;
+import org.sonar.javascript.api.EcmaScriptTokenType;
 import org.sonar.javascript.lexer.EcmaScriptLexer;
 import org.sonar.javascript.lexer.EcmaScriptRegexpChannel;
 import org.sonar.sslr.grammar.GrammarRuleKey;
@@ -295,15 +296,15 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
 
     b.rule(EOS).is(b.firstOf(
         b.sequence(SPACING, SEMI),
-        b.sequence(SPACING_NO_LB, LINE_TERMINATOR_SEQUENCE),
-        b.sequence(SPACING_NO_LB, b.next("}")),
-        b.sequence(SPACING, b.endOfInput())));
+        b.sequence(SPACING_NO_LB, b.token(EcmaScriptTokenType.EMPTY, LINE_TERMINATOR_SEQUENCE)),
+        b.sequence(SPACING_NO_LB, b.token(EcmaScriptTokenType.EMPTY, b.next("}"))),
+        b.sequence(SPACING, b.token(EcmaScriptTokenType.EMPTY, b.endOfInput()))));
 
     b.rule(EOS_NO_LB).is(b.firstOf(
         b.sequence(SPACING_NO_LB, NEXT_NOT_LB, SEMI),
-        b.sequence(SPACING_NO_LB, LINE_TERMINATOR_SEQUENCE),
-        b.sequence(SPACING_NO_LB, b.next("}")),
-        b.sequence(SPACING_NO_LB, b.endOfInput())));
+        b.sequence(SPACING_NO_LB, b.token(EcmaScriptTokenType.EMPTY, LINE_TERMINATOR_SEQUENCE)),
+        b.sequence(SPACING_NO_LB, b.token(EcmaScriptTokenType.EMPTY, b.next("}"))),
+        b.sequence(SPACING_NO_LB, b.token(EcmaScriptTokenType.EMPTY, b.endOfInput()))));
 
     b.rule(EOF).is(b.token(GenericTokenType.EOF, b.endOfInput())).skip();
     b.rule(IDENTIFIER).is(
