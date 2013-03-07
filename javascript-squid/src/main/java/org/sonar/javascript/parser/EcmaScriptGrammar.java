@@ -294,17 +294,20 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
 
     b.rule(LINE_TERMINATOR_SEQUENCE).is(b.skippedTrivia(b.regexp("(?:\\n|\\r\\n|\\r|\\u2028|\\u2029)"))).skip();
 
+    // Empty token is mandatory for the next two rules, because Toolkit is unable to work with AstNode without tokens
+    Object emptyToken = b.token(EcmaScriptTokenType.EMPTY, "");
+
     b.rule(EOS).is(b.firstOf(
         b.sequence(SPACING, SEMI),
-        b.sequence(b.token(EcmaScriptTokenType.EMPTY, SPACING_NO_LB), LINE_TERMINATOR_SEQUENCE),
-        b.sequence(b.token(EcmaScriptTokenType.EMPTY, SPACING_NO_LB), b.next("}")),
-        b.sequence(SPACING, b.token(EcmaScriptTokenType.EMPTY, b.endOfInput()))));
+        b.sequence(SPACING_NO_LB, emptyToken, LINE_TERMINATOR_SEQUENCE),
+        b.sequence(SPACING_NO_LB, emptyToken, b.next("}")),
+        b.sequence(SPACING, emptyToken, b.endOfInput())));
 
     b.rule(EOS_NO_LB).is(b.firstOf(
         b.sequence(SPACING_NO_LB, NEXT_NOT_LB, SEMI),
-        b.sequence(b.token(EcmaScriptTokenType.EMPTY, SPACING_NO_LB), LINE_TERMINATOR_SEQUENCE),
-        b.sequence(b.token(EcmaScriptTokenType.EMPTY, SPACING_NO_LB), b.next("}")),
-        b.sequence(b.token(EcmaScriptTokenType.EMPTY, SPACING_NO_LB), b.endOfInput())));
+        b.sequence(SPACING_NO_LB, emptyToken, LINE_TERMINATOR_SEQUENCE),
+        b.sequence(SPACING_NO_LB, emptyToken, b.next("}")),
+        b.sequence(SPACING_NO_LB, emptyToken, b.endOfInput())));
 
     b.rule(EOF).is(b.token(GenericTokenType.EOF, b.endOfInput())).skip();
     b.rule(IDENTIFIER).is(
