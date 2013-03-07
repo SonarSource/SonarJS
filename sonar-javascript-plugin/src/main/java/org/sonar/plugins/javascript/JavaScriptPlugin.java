@@ -61,16 +61,14 @@ import java.util.List;
     name = "JSTestDriver output folder",
     description = "Folder where JsTestDriver unit test and code coverage reports are located.",
     global = true,
-    project = true,
-    category = "JSTestDriver"),
+    project = true),
   @Property(
     key = JavaScriptPlugin.JSTESTDRIVER_COVERAGE_FILE_KEY,
     defaultValue = JavaScriptPlugin.JSTESTDRIVER_COVERAGE_REPORT_FILENAME,
     name = "JSTestDriver coverage filename",
     description = "Filename where JsTestDriver generates coverage data.",
     global = true,
-    project = true,
-    category = "JSTestDriver"),
+    project = true),
 
   // JsTest (https://github.com/awired/jstest-maven-plugin)
   @Property(
@@ -79,16 +77,14 @@ import java.util.List;
     name = "JSTest output folder",
     description = "Folder where JsTest unit test and code coverage reports are located.",
     global = true,
-    project = true,
-    category = "JSTest"),
+    project = true),
   @Property(
     key = JavaScriptPlugin.JSTEST_COVERAGE_FILE_KEY,
     defaultValue = JavaScriptPlugin.JSTEST_COVERAGE_REPORT_FILENAME,
     name = "JSTest coverage filename",
     description = "Filename where JsTest generates coverage data.",
     global = true,
-    project = true,
-    category = "JSTest")
+    project = true)
 })
 public class JavaScriptPlugin extends SonarPlugin {
 
