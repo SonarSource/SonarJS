@@ -29,8 +29,6 @@ import org.sonar.plugins.javascript.core.JavaScript;
 import org.sonar.plugins.javascript.core.JavaScriptSourceImporter;
 import org.sonar.plugins.javascript.cpd.JavaScriptCpdMapping;
 import org.sonar.plugins.javascript.jstest.JsTestCoverageSensor;
-import org.sonar.plugins.javascript.jstest.JsTestMavenInitializer;
-import org.sonar.plugins.javascript.jstest.JsTestMavenPluginHandler;
 import org.sonar.plugins.javascript.jstest.JsTestSurefireSensor;
 import org.sonar.plugins.javascript.jstestdriver.JsTestDriverCoverageSensor;
 import org.sonar.plugins.javascript.jstestdriver.JsTestDriverSurefireSensor;
@@ -104,8 +102,6 @@ public class JavaScriptPlugin extends SonarPlugin {
         JsTestDriverSurefireSensor.class,
         JsTestDriverCoverageSensor.class,
 
-        JsTestMavenInitializer.class,
-        JsTestMavenPluginHandler.class,
         JsTestCoverageSensor.class,
         JsTestSurefireSensor.class);
   }
