@@ -90,6 +90,7 @@ public final class CheckList {
         TooManyBreakOrContinueInLoopCheck.class,
         UnusedVariableCheck.class,
         UnusedFunctionArgumentCheck.class,
+        VariableDeclarationAfterUsageCheck.class,
         NestedIfDepthCheck.class);
   }
 
