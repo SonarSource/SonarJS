@@ -1,11 +1,13 @@
 <p>
+An unused function argument is a kind of dead code. Such unused argument should be removed to increase the maintainability of a JavaScript program.
 </p>
 
 <p>
 The following code snippet illustrates this rule :
 </p>
 <pre>
-function fun(a) { // Non-Compliant
-  return 42;
+function fun(a, b) { // Non-Compliant as 'a' argument is not used
+  var result = b / 3;
+  return b;
 }
 </pre>
