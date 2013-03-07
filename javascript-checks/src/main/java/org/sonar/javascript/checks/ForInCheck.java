@@ -27,9 +27,6 @@ import org.sonar.check.Rule;
 import org.sonar.javascript.parser.EcmaScriptGrammar;
 import org.sonar.sslr.parser.LexerlessGrammar;
 
-import java.util.Collections;
-import java.util.List;
-
 @Rule(
   key = "ForIn",
   priority = Priority.MAJOR)
@@ -45,41 +42,19 @@ public class ForInCheck extends SquidCheck<LexerlessGrammar> {
   public void visitNode(AstNode astNode) {
     AstNode statementNode = astNode.getFirstChild(EcmaScriptGrammar.STATEMENT);
 
-    final List<AstNode> statements;
     if (statementNode.getChild(0).is(EcmaScriptGrammar.BLOCK)) {
       AstNode statementListNode = statementNode.getChild(0).getFirstChild(EcmaScriptGrammar.STATEMENT_LIST);
       if (statementListNode == null) {
-        statements = Collections.emptyList();
+        statementNode = null;
       } else {
-        statements = statementListNode.getChildren(EcmaScriptGrammar.STATEMENT);
+        statementNode = statementListNode.getChildren(EcmaScriptGrammar.STATEMENT).get(0).getChild(0);
       }
     } else {
-      statements = Collections.singletonList(statementNode);
+      statementNode = statementNode.getChild(0);
     }
 
-    for (AstNode statement : statements) {
-      if (statement.getChild(0).isNot(EcmaScriptGrammar.IF_STATEMENT)) {
-        getContext().createLineViolation(this, "For-in statement must filter items.", astNode);
-        break;
-      } else {
-        AstNode unwrappedStatement = statement.getChild(0).getFirstChild(EcmaScriptGrammar.STATEMENT).getChild(0);
-        if (unwrappedStatement.is(EcmaScriptGrammar.CONTINUE_STATEMENT)) {
-          break;
-        } else if (unwrappedStatement.is(EcmaScriptGrammar.BLOCK)) {
-          AstNode statementList = unwrappedStatement.getFirstChild(EcmaScriptGrammar.STATEMENT_LIST);
-          if (statementList != null) {
-            if (statementList.getNumberOfChildren() == 1 && statementList.getFirstChild().getChild(0).is(EcmaScriptGrammar.CONTINUE_STATEMENT)) {
-              break;
-            } else {
-              getContext().createLineViolation(this, "For-in statement must filter items.", astNode);
-              break;
-            }
-          }
-        } else {
-          getContext().createLineViolation(this, "For-in statement must filter items.", astNode);
-          break;
-        }
-      }
+    if (statementNode != null && statementNode.isNot(EcmaScriptGrammar.IF_STATEMENT)) {
+      getContext().createLineViolation(this, "For-in statement must filter items.", astNode);
     }
   }
 
