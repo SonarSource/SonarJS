@@ -25,9 +25,12 @@ import static org.fest.assertions.Assertions.assertThat;
 
 public class JavaScriptConfigurationModelTest {
 
+  private JavaScriptConfigurationModel model = new JavaScriptConfigurationModel();
+
   @Test
   public void test() {
-    assertThat(new JavaScriptConfigurationModel().getTokenizers().size()).isEqualTo(5);
+    assertThat(model.getTokenizers().size()).isEqualTo(5);
+    assertThat(model.getProperties()).hasSize(1);
   }
 
 }

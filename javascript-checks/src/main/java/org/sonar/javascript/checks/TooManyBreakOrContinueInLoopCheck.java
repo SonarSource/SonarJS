@@ -95,10 +95,8 @@ public class TooManyBreakOrContinueInLoopCheck extends SquidCheck<LexerlessGramm
   public void leaveNode(AstNode astNode) {
     if (astNode.isNot(EcmaScriptGrammar.BREAK_STATEMENT, EcmaScriptGrammar.CONTINUE_STATEMENT)) {
       JumpTarget jumpTarget = jumpTargets.pop();
-      if (astNode.is(EcmaScriptGrammar.ITERATION_STATEMENT)) {
-        if (jumpTarget.jumps > 1) {
-          getContext().createLineViolation(this, "Refactor this loop to prevent having more than one 'break' or 'continue' statement.", astNode);
-        }
+      if (astNode.is(EcmaScriptGrammar.ITERATION_STATEMENT) && (jumpTarget.jumps > 1)) {
+        getContext().createLineViolation(this, "Refactor this loop to prevent having more than one 'break' or 'continue' statement.", astNode);
       }
     }
   }
