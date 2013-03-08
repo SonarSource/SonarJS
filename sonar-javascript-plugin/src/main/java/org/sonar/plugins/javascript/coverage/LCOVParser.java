@@ -19,14 +19,17 @@
  */
 package org.sonar.plugins.javascript.coverage;
 
+import com.google.common.collect.Maps;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.sonar.api.measures.CoverageMeasuresBuilder;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * http://ltp.sourceforge.net/coverage/lcov/geninfo.1.php
@@ -37,9 +40,10 @@ public final class LCOVParser {
 
   private static final String SF = "SF:";
   private static final String DA = "DA:";
+  private static final String BRDA = "BRDA:";
   private static final String END_RECORD = "end_of_record";
 
-  public List<JavaScriptFileCoverage> parseFile(File file) {
+  public Map<String, CoverageMeasuresBuilder> parseFile(File file) {
     List<String> lines = new LinkedList<String>();
     try {
       lines = FileUtils.readLines(file);
@@ -49,17 +53,16 @@ public final class LCOVParser {
     return parse(lines);
   }
 
-  public List<JavaScriptFileCoverage> parse(List<String> lines) {
-    List<JavaScriptFileCoverage> coveredFiles = new LinkedList<JavaScriptFileCoverage>();
-
-    JavaScriptFileCoverage fileCoverage = new JavaScriptFileCoverage();
+  public Map<String, CoverageMeasuresBuilder> parse(List<String> lines) {
+    Map<String, CoverageMeasuresBuilder> coveredFiles = Maps.newHashMap();
+    Map<String, BranchData> branches = Maps.newHashMap();
+    String filePath = null;
+    CoverageMeasuresBuilder fileCoverage = CoverageMeasuresBuilder.create();
 
     for (String line : lines) {
       if (line.startsWith(SF)) {
-        fileCoverage = new JavaScriptFileCoverage();
-        String filePath = line.substring(SF.length());
-
-        fileCoverage.setFilePath(filePath);
+        fileCoverage = CoverageMeasuresBuilder.create();
+        filePath = line.substring(SF.length());
 
       } else if (line.startsWith(DA)) {
         // DA:<line number>,<execution count>[,<checksum>]
@@ -67,13 +70,38 @@ public final class LCOVParser {
         String executionCount = execution.substring(execution.indexOf(',') + 1);
         String lineNumber = execution.substring(0, execution.indexOf(','));
 
-        fileCoverage.addLine(Integer.valueOf(lineNumber).intValue(), Integer.valueOf(executionCount).intValue());
+        fileCoverage.setHits(Integer.valueOf(lineNumber).intValue(), Integer.valueOf(executionCount).intValue());
+
+      } else if (line.startsWith(BRDA)) {
+        // BRDA:<line number>,<block number>,<branch number>,<taken>
+        String[] tokens = line.substring(BRDA.length()).trim().split(",");
+        String lineNumber = tokens[0];
+        boolean taken = "1".equals(tokens[3]);
+
+        BranchData branchData = branches.get(lineNumber);
+        if (branchData == null) {
+          branchData = new BranchData();
+          branches.put(lineNumber, branchData);
+        }
+        branchData.branches++;
+        if (taken) {
+          branchData.visitedBranches++;
+        }
 
       } else if (END_RECORD.equals(line.trim())) {
-        coveredFiles.add(fileCoverage);
+        for (Map.Entry<String, BranchData> entry : branches.entrySet()) {
+          fileCoverage.setConditions(Integer.valueOf(entry.getKey()), entry.getValue().branches, entry.getValue().visitedBranches);
+        }
+        branches.clear();
+        coveredFiles.put(filePath, fileCoverage);
       }
     }
     return coveredFiles;
+  }
+
+  private static class BranchData {
+    int branches;
+    int visitedBranches;
   }
 
 }

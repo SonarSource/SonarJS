@@ -19,26 +19,35 @@
  */
 package org.sonar.plugins.javascript.jstestdriver;
 
+import com.google.common.collect.ImmutableMap;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.batch.SensorContext;
 import org.sonar.api.config.Settings;
 import org.sonar.api.measures.CoreMetrics;
+import org.sonar.api.measures.CoverageMeasuresBuilder;
 import org.sonar.api.measures.Measure;
-import org.sonar.api.resources.*;
+import org.sonar.api.resources.InputFile;
+import org.sonar.api.resources.InputFileUtils;
+import org.sonar.api.resources.Language;
+import org.sonar.api.resources.Project;
+import org.sonar.api.resources.ProjectFileSystem;
+import org.sonar.api.resources.Resource;
 import org.sonar.plugins.javascript.JavaScriptPlugin;
 import org.sonar.plugins.javascript.core.JavaScript;
-import org.sonar.plugins.javascript.coverage.JavaScriptFileCoverage;
 
 import java.io.File;
 import java.net.URISyntaxException;
 import java.nio.charset.Charset;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Map;
 
+import static org.fest.assertions.Assertions.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.anyObject;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -68,12 +77,10 @@ public class JsTestDriverCoverageSensorTest {
     Project project = getProject(inputFile);
     assertTrue(sensor.shouldExecuteOnProject(project));
 
-    List<JavaScriptFileCoverage> coveredFiles = getCoveredFile(inputFile.getFile().getAbsolutePath());
+    Map<String, CoverageMeasuresBuilder> coveredFiles = getCoveredFile(inputFile.getFile().getAbsolutePath());
     sensor.analyseCoveredFiles(project, context, coveredFiles);
 
-    verify(context).saveMeasure((Resource) anyObject(), eq(CoreMetrics.LINES_TO_COVER), eq(6.0));
-    verify(context).saveMeasure((Resource) anyObject(), eq(CoreMetrics.UNCOVERED_LINES), eq(3.0));
-
+    verify(context, times(3)).saveMeasure((Resource) anyObject(), (Measure) anyObject());
   }
 
   @Test
@@ -91,12 +98,16 @@ public class JsTestDriverCoverageSensorTest {
     when(context.getMeasure(org.sonar.api.resources.File.fromIOFile(inputFile.getFile(), project), CoreMetrics.NCLOC)).thenReturn(
         new Measure(CoreMetrics.LINES, (double) 22));
 
-    List<JavaScriptFileCoverage> coveredFiles = getCoveredFile(inputFile.getFile().getAbsolutePath() + "not_existing_file");
+    Map<String, CoverageMeasuresBuilder> coveredFiles = getCoveredFile(inputFile.getFile().getAbsolutePath() + "not_existing_file");
     sensor.analyseCoveredFiles(project, context, coveredFiles);
 
     verify(context).saveMeasure((Resource) anyObject(), eq(CoreMetrics.LINES_TO_COVER), eq(22.0));
     verify(context).saveMeasure((Resource) anyObject(), eq(CoreMetrics.UNCOVERED_LINES), eq(22.0));
+  }
 
+  @Test
+  public void test_toString() {
+    assertThat(sensor.toString()).isEqualTo("JsTestDriverCoverageSensor");
   }
 
   private Project getProject(InputFile inputFile) throws URISyntaxException {
@@ -122,25 +133,16 @@ public class JsTestDriverCoverageSensorTest {
     };
 
     return project;
-
   }
 
-  private List<JavaScriptFileCoverage> getCoveredFile(String fullPath) {
-    List<JavaScriptFileCoverage> list = new LinkedList<JavaScriptFileCoverage>();
-
-    JavaScriptFileCoverage file = new JavaScriptFileCoverage();
-    Map<Integer, Integer> lineCoverage = new HashMap<Integer, Integer>();
-    lineCoverage.put(1, 0);
-    lineCoverage.put(2, 0);
-    lineCoverage.put(3, 0);
-    lineCoverage.put(4, 1);
-    lineCoverage.put(5, 2);
-    lineCoverage.put(6, 1);
-
-    file.setLineCoverage(lineCoverage);
-    file.setFilePath(fullPath);
-
-    list.add(file);
-    return list;
+  private Map<String, CoverageMeasuresBuilder> getCoveredFile(String filePath) {
+    CoverageMeasuresBuilder fileCoverage = CoverageMeasuresBuilder.create();
+    fileCoverage.setHits(1, 0);
+    fileCoverage.setHits(2, 0);
+    fileCoverage.setHits(3, 0);
+    fileCoverage.setHits(4, 1);
+    fileCoverage.setHits(5, 2);
+    fileCoverage.setHits(6, 1);
+    return ImmutableMap.of(filePath, fileCoverage);
   }
 }

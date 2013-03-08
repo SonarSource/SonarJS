@@ -24,17 +24,16 @@ import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.Sensor;
 import org.sonar.api.batch.SensorContext;
 import org.sonar.api.measures.CoreMetrics;
+import org.sonar.api.measures.CoverageMeasuresBuilder;
 import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.PropertiesBuilder;
 import org.sonar.api.resources.InputFile;
 import org.sonar.api.resources.Project;
 import org.sonar.plugins.javascript.JavaScriptPlugin;
 import org.sonar.plugins.javascript.core.JavaScript;
-import org.sonar.plugins.javascript.coverage.JavaScriptFileCoverage;
 import org.sonar.plugins.javascript.coverage.LCOVParser;
 
 import java.io.File;
-import java.util.List;
 import java.util.Map;
 
 public class JsTestDriverCoverageSensor implements Sensor {
@@ -53,32 +52,24 @@ public class JsTestDriverCoverageSensor implements Sensor {
   }
 
   public void analyse(Project project, SensorContext sensorContext) {
-    File jsTestDriverCoverageReportFile = new File(project.getFileSystem().getBasedir(), getTestReportsFolder()
-        + "/" + getTestCoverageFileName());
-
+    File jsTestDriverCoverageReportFile = new File(project.getFileSystem().getBasedir(), getTestReportsFolder() + "/" + getTestCoverageFileName());
     LCOVParser parser = new LCOVParser();
-    List<JavaScriptFileCoverage> coveredFiles = parser.parseFile(jsTestDriverCoverageReportFile);
-
+    Map<String, CoverageMeasuresBuilder> coveredFiles = parser.parseFile(jsTestDriverCoverageReportFile);
     analyseCoveredFiles(project, sensorContext, coveredFiles);
   }
 
-  protected void analyseCoveredFiles(Project project, SensorContext sensorContext, List<JavaScriptFileCoverage> coveredFiles) {
+  protected void analyseCoveredFiles(Project project, SensorContext sensorContext, Map<String, CoverageMeasuresBuilder> coveredFiles) {
 
     for (InputFile inputFile : project.getFileSystem().mainFiles(JavaScript.KEY)) {
       try {
-        JavaScriptFileCoverage fileCoverage = getFileCoverage(inputFile, coveredFiles);
+        CoverageMeasuresBuilder fileCoverage = getFileCoverage(inputFile, coveredFiles);
         org.sonar.api.resources.File resource = org.sonar.api.resources.File.fromIOFile(inputFile.getFile(), project);
         PropertiesBuilder<Integer, Integer> lineHitsData = new PropertiesBuilder<Integer, Integer>(CoreMetrics.COVERAGE_LINE_HITS_DATA);
 
         if (fileCoverage != null) {
-          Map<Integer, Integer> hits = fileCoverage.getLineCoverageData();
-          for (Map.Entry<Integer, Integer> entry : hits.entrySet()) {
-            lineHitsData.add(entry.getKey(), entry.getValue());
+          for (Measure measure : fileCoverage.createMeasures()) {
+            sensorContext.saveMeasure(resource, measure);
           }
-
-          sensorContext.saveMeasure(resource, lineHitsData.build());
-          sensorContext.saveMeasure(resource, CoreMetrics.LINES_TO_COVER, (double) fileCoverage.getLinesToCover());
-          sensorContext.saveMeasure(resource, CoreMetrics.UNCOVERED_LINES, (double) fileCoverage.getUncoveredLines());
         } else {
 
           // colour all lines as not executed
@@ -99,13 +90,12 @@ public class JsTestDriverCoverageSensor implements Sensor {
     }
   }
 
-  protected JavaScriptFileCoverage getFileCoverage(InputFile input, List<JavaScriptFileCoverage> coverages) {
-    for (JavaScriptFileCoverage file : coverages) {
-      if (file.getFilePath().equals(input.getFile().getAbsolutePath()) || file.getFilePath().equals(input.getRelativePath())) {
-        return file;
-      }
+  protected CoverageMeasuresBuilder getFileCoverage(InputFile input, Map<String, CoverageMeasuresBuilder> coveredFiles) {
+    CoverageMeasuresBuilder result = coveredFiles.get(input.getRelativePath());
+    if (result == null) {
+      result = coveredFiles.get(input.getFile().getAbsolutePath());
     }
-    return null;
+    return result;
   }
 
   protected String getTestReportsFolder() {

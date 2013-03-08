@@ -20,9 +20,10 @@
 package org.sonar.plugins.javascript.coverage;
 
 import org.junit.Test;
+import org.sonar.api.measures.CoverageMeasuresBuilder;
 
 import java.util.Arrays;
-import java.util.List;
+import java.util.Map;
 
 import static org.fest.assertions.Assertions.assertThat;
 
@@ -31,20 +32,31 @@ public class LCOVParserTest {
   @Test
   public void test() {
     LCOVParser parser = new LCOVParser();
-    List<JavaScriptFileCoverage> result = parser.parse(Arrays.asList(
-        "TN:",
-        "SF:file.js",
+    Map<String, CoverageMeasuresBuilder> result = parser.parse(Arrays.asList(
+        "SF:file1.js",
+        "DA:1,1",
+        "end_of_record",
+        "SF:file2.js",
         "FN:2,(anonymous_1)",
         "FNDA:2,(anonymous_1)",
-        "DA:2,1",
+        "DA:1,1",
+        "DA:2,0",
         "BRDA:11,1,0,1",
+        "BRDA:11,1,0,0",
         "end_of_record"));
-    assertThat(result).hasSize(1);
-    JavaScriptFileCoverage fileCoverage = result.get(0);
-    assertThat(fileCoverage.getFilePath()).isEqualTo("file.js");
+    assertThat(result).hasSize(2);
+
+    CoverageMeasuresBuilder fileCoverage = result.get("file1.js");
     assertThat(fileCoverage.getLinesToCover()).isEqualTo(1);
     assertThat(fileCoverage.getCoveredLines()).isEqualTo(1);
-    assertThat(fileCoverage.getUncoveredLines()).isEqualTo(0);
+    assertThat(fileCoverage.getConditions()).isEqualTo(0);
+    assertThat(fileCoverage.getCoveredConditions()).isEqualTo(0);
+
+    fileCoverage = result.get("file2.js");
+    assertThat(fileCoverage.getLinesToCover()).isEqualTo(2);
+    assertThat(fileCoverage.getCoveredLines()).isEqualTo(1);
+    assertThat(fileCoverage.getConditions()).isEqualTo(2);
+    assertThat(fileCoverage.getCoveredConditions()).isEqualTo(1);
   }
 
 }

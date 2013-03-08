@@ -19,39 +19,32 @@
  */
 package org.sonar.plugins.javascript.jstestdriver;
 
-import static org.junit.Assert.assertEquals;
+import org.junit.Test;
+import org.sonar.api.measures.CoverageMeasuresBuilder;
+import org.sonar.plugins.javascript.coverage.LCOVParser;
 
 import java.io.File;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.util.List;
+import java.util.Map;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.sonar.plugins.javascript.coverage.JavaScriptFileCoverage;
-import org.sonar.plugins.javascript.coverage.LCOVParser;
+import static org.fest.assertions.Assertions.assertThat;
 
 public class JsTestDriverLCOVParserTest {
 
-  LCOVParser parser = new LCOVParser();
-
-  @Before
-  public void init() {
-
-  }
+  private LCOVParser parser = new LCOVParser();
 
   @Test
   public void testParser() throws URISyntaxException {
     URL uri = getClass().getResource("/org/sonar/plugins/javascript/jstestdriver/jsTestDriver.conf-coverage.dat");
     File coverageReport = new File(uri.toURI());
-    List<JavaScriptFileCoverage> list = parser.parseFile(coverageReport);
-    assertEquals(3, list.size());
+    Map<String, CoverageMeasuresBuilder> coveredFiles = parser.parseFile(coverageReport);
+    assertThat(coveredFiles).hasSize(3);
 
     // verify second file
-    JavaScriptFileCoverage fileCoverage = list.get(1);
-    assertEquals("D:\\Eriks\\workspace\\sample\\src\\test\\js\\com\\company\\PersonTest.js", fileCoverage.getFilePath());
-    assertEquals(5, fileCoverage.getLinesToCover());
-    assertEquals(5, fileCoverage.getCoveredLines());
-
+    CoverageMeasuresBuilder fileCoverage = coveredFiles.get("D:\\Eriks\\workspace\\sample\\src\\test\\js\\com\\company\\PersonTest.js");
+    assertThat(fileCoverage.getLinesToCover()).isEqualTo(5);
+    assertThat(fileCoverage.getCoveredLines()).isEqualTo(5);
   }
+
 }
