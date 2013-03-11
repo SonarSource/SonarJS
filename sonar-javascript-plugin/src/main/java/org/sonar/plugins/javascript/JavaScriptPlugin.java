@@ -113,7 +113,7 @@ public class JavaScriptPlugin extends SonarPlugin {
   public static final String JSTESTDRIVER_DEFAULT_FOLDER = "target/jstestdriver";
 
   // JSTest
-  public static final String JSTEST_FOLDER_KEY = PROPERTY_PREFIX + ".jstest.reportsfolder";
+  public static final String JSTEST_FOLDER_KEY = PROPERTY_PREFIX + ".jstest.reportsPaths";
   public static final String JSTEST_DEFAULT_FOLDER = "target/jstest/report";
 
 }
