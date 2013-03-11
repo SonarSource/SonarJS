@@ -26,7 +26,6 @@ import org.sonar.api.utils.SonarException;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -41,7 +40,7 @@ public final class LCOVParser {
   private static final String END_RECORD = "end_of_record";
 
   public Map<String, CoverageMeasuresBuilder> parseFile(File file) {
-    List<String> lines = new LinkedList<String>();
+    final List<String> lines;
     try {
       lines = FileUtils.readLines(file);
     } catch (IOException e) {
