@@ -65,15 +65,15 @@ public class LCOVSensorTest {
   }
 
   @Test
-  public void should_not_execute() {
+  public void test_should_execute() {
     Project project = mockProject(new Java());
     assertThat(sensor.shouldExecuteOnProject(project)).isFalse();
-  }
 
-  @Test
-  public void should_execute() {
-    Project project = mockProject(new JavaScript(settings));
+    project = mockProject(new JavaScript(settings));
     assertThat(sensor.shouldExecuteOnProject(project)).isTrue();
+
+    settings.setProperty(JavaScriptPlugin.LCOV_REPORT_PATH, "");
+    assertThat(sensor.shouldExecuteOnProject(project)).isFalse();
   }
 
   @Test
