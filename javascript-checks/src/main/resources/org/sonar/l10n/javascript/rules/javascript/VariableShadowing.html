@@ -1,1 +1,17 @@
-<p/>
+<p>
+Overriding a variable declared in an outer scope might highly impact the readability and so maintainability of a piece of code.
+</p>
+
+<p>
+The following code snippet illustrates this rule :
+</p>
+<pre>
+show: function(point, element) {
+  if (!this.drops.length) return;
+  var drop, affected = [];
+  this.drops.each( function(drop) { // Non-Compliant as the 'drop' parameter is not the one defined one line before even if it looks like
+    if(Droppables.isAffected(point, element, drop))
+      affected.push(drop);
+  });
+  ...
+</pre>
