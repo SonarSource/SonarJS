@@ -24,6 +24,8 @@ import org.junit.Test;
 import org.sonar.api.batch.SensorContext;
 import org.sonar.api.config.Settings;
 import org.sonar.api.measures.CoreMetrics;
+import org.sonar.api.resources.Java;
+import org.sonar.api.resources.Language;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.ProjectFileSystem;
 import org.sonar.api.resources.Resource;
@@ -31,68 +33,56 @@ import org.sonar.plugins.javascript.JavaScriptPlugin;
 import org.sonar.plugins.javascript.core.JavaScript;
 
 import java.io.File;
-import java.net.URISyntaxException;
 import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Arrays;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.anyObject;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-public class JsTestDriverSurefireSensorTest {
+public class JsTestDriverSensorTest {
 
-  private JsTestDriverSurefireSensor sensor;
+  private JsTestDriverSensor sensor;
   private SensorContext context;
   private JavaScript language;
   private Settings settings;
+  private ProjectFileSystem fileSystem = mock(ProjectFileSystem.class);
 
   @Before
   public void init() {
     settings = new Settings();
     language = new JavaScript(settings);
-    sensor = new JsTestDriverSurefireSensor(language);
+    sensor = new JsTestDriverSensor(language);
     context = mock(SensorContext.class);
   }
 
   @Test
   public void test_shouldExecuteOnProject() {
-    Project project = mockProject();
+    Project project = mockProject(new Java());
     assertThat(sensor.shouldExecuteOnProject(project)).isFalse();
 
-    project.setLanguage(language);
+    project = mockProject(language);
     assertThat(sensor.shouldExecuteOnProject(project)).isFalse();
 
-    settings.setProperty(JavaScriptPlugin.TEST_FRAMEWORK_KEY, "jstestdriver");
+    settings.setProperty(JavaScriptPlugin.JSTESTDRIVER_REPORTS_PATH, "jstestdriver");
     assertThat(sensor.shouldExecuteOnProject(project)).isTrue();
   }
 
   @Test
-  public void testAnalyseUnitTests() throws URISyntaxException {
-    settings.setProperty(JavaScriptPlugin.JSTESTDRIVER_FOLDER_KEY, JavaScriptPlugin.JSTESTDRIVER_DEFAULT_FOLDER);
-    settings.setProperty(JavaScriptPlugin.TEST_FRAMEWORK_KEY, "jstestdriver");
+  public void testAnalyseUnitTests() {
+    settings.setProperty(JavaScriptPlugin.JSTESTDRIVER_REPORTS_PATH, "target/jstestdriver");
 
-    final ProjectFileSystem fileSystem = mock(ProjectFileSystem.class);
     when(fileSystem.getSourceCharset()).thenReturn(Charset.defaultCharset());
 
-    final File folder = new File(getClass().getResource("/org/sonar/plugins/javascript/jstestdriver/sensortests").toURI());
-    when(fileSystem.getBasedir()).thenReturn(folder);
+    File baseDir = new File("src/test/resources/org/sonar/plugins/javascript/jstestdriver/sensortests");
+    when(fileSystem.getBasedir()).thenReturn(baseDir);
+    when(fileSystem.getTestDirs()).thenReturn(Arrays.asList(new File(baseDir, "test")));
 
-    File testDir = new File(getClass().getResource("/org/sonar/plugins/javascript/jstestdriver/sensortests/test").toURI());
-    List<File> testDirectories = new ArrayList<File>();
-    testDirectories.add(testDir);
-    when(fileSystem.getTestDirs()).thenReturn(testDirectories);
-
-    Project project = mockProject();
-    project.setLanguage(language);
-    project.setFileSystem(fileSystem);
-
-    assertTrue(sensor.shouldExecuteOnProject(project));
+    Project project = mockProject(language);
 
     sensor.analyse(project, context);
 
@@ -110,11 +100,25 @@ public class JsTestDriverSurefireSensorTest {
   public void testGetUnitTestFileName() {
     assertEquals("com/company/PersonTest.js", sensor.getUnitTestFileName("Chrome_16091263_Windows.com.company.PersonTest"));
     assertEquals("PersonTest.js", sensor.getUnitTestFileName("Chrome_16091263_Windows.PersonTest"));
-    assertEquals("JsTestDriverSurefireSensor", sensor.toString());
   }
 
-  private Project mockProject() {
-    return new Project("mock");
+  @Test
+  public void test_toString() {
+    assertThat(sensor.toString()).isEqualTo("JsTestDriverSensor");
+  }
+
+  private Project mockProject(final Language language) {
+    return new Project("mock") {
+      @Override
+      public ProjectFileSystem getFileSystem() {
+        return fileSystem;
+      }
+
+      @Override
+      public Language getLanguage() {
+        return language;
+      }
+    };
   }
 
 

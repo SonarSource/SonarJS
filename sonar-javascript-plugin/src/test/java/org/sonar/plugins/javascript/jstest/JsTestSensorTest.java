@@ -28,17 +28,17 @@ import org.sonar.plugins.javascript.core.JavaScript;
 
 import static org.fest.assertions.Assertions.assertThat;
 
-public class JsTestSurefireSensorTest {
+public class JsTestSensorTest {
 
   private JavaScript language;
   private Settings settings;
-  private JsTestSurefireSensor sensor;
+  private JsTestSensor sensor;
 
   @Before
   public void setUp() {
     settings = new Settings();
     language = new JavaScript(settings);
-    sensor = new JsTestSurefireSensor(language);
+    sensor = new JsTestSensor(language);
   }
 
   @Test
@@ -49,13 +49,13 @@ public class JsTestSurefireSensorTest {
     project.setLanguage(language);
     assertThat(sensor.shouldExecuteOnProject(project)).isFalse();
 
-    settings.setProperty(JavaScriptPlugin.TEST_FRAMEWORK_KEY, "jstest");
+    settings.setProperty(JavaScriptPlugin.JSTEST_REPORTS_PATH, "jstest");
     assertThat(sensor.shouldExecuteOnProject(project)).isTrue();
   }
 
   @Test
   public void test_toString() {
-    assertThat(sensor.toString()).isEqualTo("JsTestSurefireSensor");
+    assertThat(sensor.toString()).isEqualTo("JsTestSensor");
   }
 
   private Project mockProject() {

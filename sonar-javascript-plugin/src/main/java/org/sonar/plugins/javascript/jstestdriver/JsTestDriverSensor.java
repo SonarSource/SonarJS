@@ -20,6 +20,7 @@
 package org.sonar.plugins.javascript.jstestdriver;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang.StringUtils;
 import org.jfree.util.Log;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,23 +37,23 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
-public class JsTestDriverSurefireSensor implements Sensor {
+public class JsTestDriverSensor implements Sensor {
 
   protected JavaScript javascript;
 
-  public JsTestDriverSurefireSensor(JavaScript javascript) {
+  public JsTestDriverSensor(JavaScript javascript) {
     this.javascript = javascript;
   }
 
-  private static final Logger LOG = LoggerFactory.getLogger(JsTestDriverSurefireSensor.class);
+  private static final Logger LOG = LoggerFactory.getLogger(JsTestDriverSensor.class);
 
   public boolean shouldExecuteOnProject(Project project) {
     return javascript.equals(project.getLanguage())
-      && "jstestdriver".equals(javascript.getSettings().getString(JavaScriptPlugin.TEST_FRAMEWORK_KEY));
+      && StringUtils.isNotBlank(javascript.getSettings().getString(JavaScriptPlugin.JSTESTDRIVER_REPORTS_PATH));
   }
 
   public void analyse(Project project, SensorContext context) {
-    String jsTestDriverFolder = javascript.getSettings().getString(JavaScriptPlugin.JSTESTDRIVER_FOLDER_KEY);
+    String jsTestDriverFolder = javascript.getSettings().getString(JavaScriptPlugin.JSTESTDRIVER_REPORTS_PATH);
     collect(project, context, new File(project.getFileSystem().getBasedir(), jsTestDriverFolder));
   }
 
