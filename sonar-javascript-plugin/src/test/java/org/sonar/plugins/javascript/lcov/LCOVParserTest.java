@@ -17,11 +17,15 @@
  * License along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.plugins.javascript.coverage;
+package org.sonar.plugins.javascript.lcov;
 
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.sonar.api.measures.CoverageMeasuresBuilder;
+import org.sonar.api.utils.SonarException;
 
+import java.io.File;
 import java.util.Arrays;
 import java.util.Map;
 
@@ -29,9 +33,13 @@ import static org.fest.assertions.Assertions.assertThat;
 
 public class LCOVParserTest {
 
+  @Rule
+  public ExpectedException thrown = ExpectedException.none();
+
+  private LCOVParser parser = new LCOVParser();
+
   @Test
   public void test() {
-    LCOVParser parser = new LCOVParser();
     Map<String, CoverageMeasuresBuilder> result = parser.parse(Arrays.asList(
         "SF:file1.js",
         "DA:1,1",
@@ -57,6 +65,13 @@ public class LCOVParserTest {
     assertThat(fileCoverage.getCoveredLines()).isEqualTo(1);
     assertThat(fileCoverage.getConditions()).isEqualTo(2);
     assertThat(fileCoverage.getCoveredConditions()).isEqualTo(1);
+  }
+
+  @Test
+  public void unreadable_file() {
+    thrown.expect(SonarException.class);
+    thrown.expectMessage("Could not read content from file: not-found");
+    parser.parseFile(new File("not-found"));
   }
 
 }

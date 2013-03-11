@@ -17,7 +17,7 @@
  * License along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.plugins.javascript.jstestdriver;
+package org.sonar.plugins.javascript.lcov;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,35 +31,35 @@ import org.sonar.api.resources.InputFile;
 import org.sonar.api.resources.Project;
 import org.sonar.plugins.javascript.JavaScriptPlugin;
 import org.sonar.plugins.javascript.core.JavaScript;
-import org.sonar.plugins.javascript.coverage.LCOVParser;
 
 import java.io.File;
 import java.util.Map;
 
-public class JsTestDriverCoverageSensor implements Sensor {
+public class LCOVSensor implements Sensor {
 
-  protected JavaScript javascript;
+  private static final Logger LOG = LoggerFactory.getLogger(LCOVSensor.class);
 
-  public JsTestDriverCoverageSensor(JavaScript javascript) {
+  private JavaScript javascript;
+
+  public LCOVSensor(JavaScript javascript) {
     this.javascript = javascript;
   }
 
-  private static final Logger LOG = LoggerFactory.getLogger(JsTestDriverCoverageSensor.class);
-
   public boolean shouldExecuteOnProject(Project project) {
-    return javascript.equals(project.getLanguage())
-      && "jstestdriver".equals(javascript.getSettings().getString(JavaScriptPlugin.TEST_FRAMEWORK_KEY));
+    return JavaScript.KEY.equals(project.getLanguageKey());
   }
 
-  public void analyse(Project project, SensorContext sensorContext) {
-    File jsTestDriverCoverageReportFile = new File(project.getFileSystem().getBasedir(), getTestReportsFolder() + "/" + getTestCoverageFileName());
-    LCOVParser parser = new LCOVParser();
-    Map<String, CoverageMeasuresBuilder> coveredFiles = parser.parseFile(jsTestDriverCoverageReportFile);
-    analyseCoveredFiles(project, sensorContext, coveredFiles);
+  public void analyse(Project project, SensorContext context) {
+    File lcovFile = project.getFileSystem().resolvePath(javascript.getSettings().getString(JavaScriptPlugin.LCOV_REPORT_PATH));
+    if (lcovFile.isFile()) {
+      LCOVParser parser = new LCOVParser();
+      LOG.info("Analysing {}", lcovFile);
+      Map<String, CoverageMeasuresBuilder> coveredFiles = parser.parseFile(lcovFile);
+      analyseCoveredFiles(project, context, coveredFiles);
+    }
   }
 
-  protected void analyseCoveredFiles(Project project, SensorContext sensorContext, Map<String, CoverageMeasuresBuilder> coveredFiles) {
-
+  protected void analyseCoveredFiles(Project project, SensorContext context, Map<String, CoverageMeasuresBuilder> coveredFiles) {
     for (InputFile inputFile : project.getFileSystem().mainFiles(JavaScript.KEY)) {
       try {
         CoverageMeasuresBuilder fileCoverage = getFileCoverage(inputFile, coveredFiles);
@@ -68,20 +68,20 @@ public class JsTestDriverCoverageSensor implements Sensor {
 
         if (fileCoverage != null) {
           for (Measure measure : fileCoverage.createMeasures()) {
-            sensorContext.saveMeasure(resource, measure);
+            context.saveMeasure(resource, measure);
           }
         } else {
 
           // colour all lines as not executed
-          for (int x = 1; x < sensorContext.getMeasure(resource, CoreMetrics.LINES).getIntValue(); x++) {
+          for (int x = 1; x < context.getMeasure(resource, CoreMetrics.LINES).getIntValue(); x++) {
             lineHitsData.add(x, 0);
           }
 
           // use non comment lines of code for coverage calculation
-          Measure ncloc = sensorContext.getMeasure(resource, CoreMetrics.NCLOC);
-          sensorContext.saveMeasure(resource, lineHitsData.build());
-          sensorContext.saveMeasure(resource, CoreMetrics.LINES_TO_COVER, ncloc.getValue());
-          sensorContext.saveMeasure(resource, CoreMetrics.UNCOVERED_LINES, ncloc.getValue());
+          Measure ncloc = context.getMeasure(resource, CoreMetrics.NCLOC);
+          context.saveMeasure(resource, lineHitsData.build());
+          context.saveMeasure(resource, CoreMetrics.LINES_TO_COVER, ncloc.getValue());
+          context.saveMeasure(resource, CoreMetrics.UNCOVERED_LINES, ncloc.getValue());
         }
 
       } catch (Exception e) {
@@ -96,14 +96,6 @@ public class JsTestDriverCoverageSensor implements Sensor {
       result = coveredFiles.get(input.getFile().getAbsolutePath());
     }
     return result;
-  }
-
-  protected String getTestReportsFolder() {
-    return javascript.getSettings().getString(JavaScriptPlugin.JSTESTDRIVER_FOLDER_KEY);
-  }
-
-  protected String getTestCoverageFileName() {
-    return javascript.getSettings().getString(JavaScriptPlugin.JSTESTDRIVER_COVERAGE_FILE_KEY);
   }
 
   @Override

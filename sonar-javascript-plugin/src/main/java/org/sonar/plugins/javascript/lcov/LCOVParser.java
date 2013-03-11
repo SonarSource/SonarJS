@@ -17,13 +17,12 @@
  * License along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.plugins.javascript.coverage;
+package org.sonar.plugins.javascript.lcov;
 
 import com.google.common.collect.Maps;
 import org.apache.commons.io.FileUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sonar.api.measures.CoverageMeasuresBuilder;
+import org.sonar.api.utils.SonarException;
 
 import java.io.File;
 import java.io.IOException;
@@ -36,8 +35,6 @@ import java.util.Map;
  */
 public final class LCOVParser {
 
-  private static final Logger LOG = LoggerFactory.getLogger(LCOVParser.class);
-
   private static final String SF = "SF:";
   private static final String DA = "DA:";
   private static final String BRDA = "BRDA:";
@@ -48,7 +45,7 @@ public final class LCOVParser {
     try {
       lines = FileUtils.readLines(file);
     } catch (IOException e) {
-      LOG.debug("Cound not read content from file: {}", file.getAbsolutePath(), e);
+      throw new SonarException("Could not read content from file: " + file, e);
     }
     return parse(lines);
   }
