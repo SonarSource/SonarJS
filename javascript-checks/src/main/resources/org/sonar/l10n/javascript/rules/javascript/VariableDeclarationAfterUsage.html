@@ -1,1 +1,41 @@
-<p/>
+<p>
+One of the sources of most confusion for JavaScript beginners is scoping.
+The reason scoping is so confusing in JavaScript is because it looks like a C-family language but doesn't behave the same way.
+Indeed C, and the rest of the C family, has block-level scope.
+When control enters a block, such as a if statement, new variables can be declared within that scope, without affecting the outer scope.
+This is not the case in JavaScript.
+</p>
+
+<p>
+The following code snippet illustrates this rule :
+</p>
+
+<pre>
+var x = 1;
+
+function fun(){
+  print(x); // Non-Compliant as x is declared later in the same scope
+  if(something) {
+    var x = 42; // declaration
+  }
+}
+
+fun();
+</pre>
+
+<p>
+Whereas the following code snippet is correct:
+</p>
+
+<pre>
+var x = 1;
+
+function fun() {
+  print(x); // 1
+  if (something) {
+    x = 42;
+  }
+}
+
+fun();
+</pre>
