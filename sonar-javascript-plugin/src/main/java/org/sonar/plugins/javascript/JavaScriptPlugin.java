@@ -109,7 +109,7 @@ public class JavaScriptPlugin extends SonarPlugin {
   public static final String LCOV_REPORT_PATH_DEFAULT_VALUE = "";
 
   // JSTestDriver
-  public static final String JSTESTDRIVER_FOLDER_KEY = PROPERTY_PREFIX + ".jstestdriver.reportsfolder";
+  public static final String JSTESTDRIVER_FOLDER_KEY = PROPERTY_PREFIX + ".jstestdriver.reportsPath";
   public static final String JSTESTDRIVER_DEFAULT_FOLDER = "target/jstestdriver";
 
   // JSTest
