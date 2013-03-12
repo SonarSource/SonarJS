@@ -99,7 +99,7 @@ public class JavaScriptPlugin extends SonarPlugin {
   public static final String JSTESTDRIVER_REPORTS_PATH = PROPERTY_PREFIX + ".jstestdriver.reportsPath";
   public static final String JSTESTDRIVER_REPORTS_PATH_DEFAULT_VALUE = "";
 
-  public static final String JSTEST_REPORTS_PATH = PROPERTY_PREFIX + ".jstest.reportsPaths";
+  public static final String JSTEST_REPORTS_PATH = PROPERTY_PREFIX + ".jstest.reportsPath";
   public static final String JSTEST_REPORTS_PATH_DEFAULT_VALUE = "";
 
 }
