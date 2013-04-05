@@ -11,3 +11,9 @@ var f = new Function("arguments", "return 17;");
 
 eval("");
 arguments[0];
+
+function foo() {
+    var a = arguments.length == 0;
+    var b = arguments.length === 0;
+    return true;
+}
