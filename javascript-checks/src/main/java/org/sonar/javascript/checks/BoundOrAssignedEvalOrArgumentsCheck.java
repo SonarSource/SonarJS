@@ -92,7 +92,8 @@ public class BoundOrAssignedEvalOrArgumentsCheck extends SquidCheck<LexerlessGra
 
   private void checkModification(AstNode astNode) {
     if (isEvalOrArguments(astNode.getTokenValue()) && !astNode.hasDirectChildren(EcmaScriptPunctuator.LBRACKET)
-      && !astNode.getParent().is(EcmaScriptGrammar.CALL_EXPRESSION)) {
+      && !astNode.getParent().is(EcmaScriptGrammar.CALL_EXPRESSION)
+      && !astNode.hasAncestor(EcmaScriptGrammar.EQUALITY_EXPRESSION)) {
       getContext().createLineViolation(this, "Remove the modification of '" + astNode.getTokenValue() + "'.", astNode);
     }
   }
