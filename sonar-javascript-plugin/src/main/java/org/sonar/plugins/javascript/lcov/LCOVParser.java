@@ -20,6 +20,7 @@
 package org.sonar.plugins.javascript.lcov;
 
 import com.google.common.collect.Maps;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.FileUtils;
 import org.sonar.api.measures.CoverageMeasuresBuilder;
 import org.sonar.api.utils.SonarException;
@@ -58,7 +59,7 @@ public final class LCOVParser {
     for (String line : lines) {
       if (line.startsWith(SF)) {
         fileCoverage = CoverageMeasuresBuilder.create();
-        filePath = line.substring(SF.length());
+        filePath = FilenameUtils.normalize(line.substring(SF.length()));
 
       } else if (line.startsWith(DA)) {
         // DA:<line number>,<execution count>[,<checksum>]
