@@ -1,6 +1,6 @@
 /*
  * Sonar JavaScript Plugin
- * Copyright (C) 2011 Eriks Nukis and SonarSource
+ * Copyright (C) 2011 SonarSource and Eriks Nukis
  * dev@sonar.codehaus.org
  *
  * This program is free software; you can redistribute it and/or
