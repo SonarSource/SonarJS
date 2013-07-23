@@ -20,6 +20,7 @@
 package org.sonar.javascript;
 
 import com.google.common.base.Charsets;
+import com.google.common.collect.ImmutableList;
 import com.sonar.sslr.api.AstNode;
 import com.sonar.sslr.impl.Parser;
 import com.sonar.sslr.squid.AstScanner;
@@ -34,6 +35,8 @@ import com.sonar.sslr.squid.metrics.LinesVisitor;
 import org.sonar.javascript.api.EcmaScriptMetric;
 import org.sonar.javascript.api.EcmaScriptTokenType;
 import org.sonar.javascript.metrics.ComplexityVisitor;
+import org.sonar.javascript.model.TreeVisitor;
+import org.sonar.javascript.model.TreeVisitorsBridge;
 import org.sonar.javascript.parser.EcmaScriptGrammar;
 import org.sonar.javascript.parser.EcmaScriptParser;
 import org.sonar.squid.api.SourceCode;
@@ -127,12 +130,18 @@ public final class JavaScriptAstScanner {
     builder.withSquidAstVisitor(new ComplexityVisitor());
 
     /* External visitors (typically Check ones) */
+    ImmutableList.Builder<TreeVisitor> treeVisitors = ImmutableList.builder();
     for (SquidAstVisitor<LexerlessGrammar> visitor : visitors) {
       if (visitor instanceof CharsetAwareVisitor) {
         ((CharsetAwareVisitor) visitor).setCharset(conf.getCharset());
       }
+      if (visitor instanceof TreeVisitor) {
+        treeVisitors.add((TreeVisitor) visitor);
+      }
       builder.withSquidAstVisitor(visitor);
     }
+    TreeVisitorsBridge treeVisitorsBridge = new TreeVisitorsBridge(treeVisitors.build());
+    builder.withSquidAstVisitor(treeVisitorsBridge);
 
     return builder.build();
   }

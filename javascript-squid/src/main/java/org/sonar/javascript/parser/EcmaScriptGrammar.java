@@ -519,7 +519,7 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
         SR_EQU2,
         AND_EQU,
         XOR_EQU,
-        OR_EQU));
+        OR_EQU)).skip();
 
     b.rule(EXPRESSION).is(ASSIGNMENT_EXPRESSION, b.zeroOrMore(COMMA, ASSIGNMENT_EXPRESSION));
     b.rule(EXPRESSION_NO_IN).is(ASSIGNMENT_EXPRESSION_NO_IN, b.zeroOrMore(COMMA, ASSIGNMENT_EXPRESSION_NO_IN));

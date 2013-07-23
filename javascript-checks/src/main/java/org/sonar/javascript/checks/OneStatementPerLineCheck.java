@@ -19,36 +19,54 @@
  */
 package org.sonar.javascript.checks;
 
+import com.google.common.collect.Maps;
 import com.sonar.sslr.api.AstNode;
-import com.sonar.sslr.squid.checks.AbstractOneStatementPerLineCheck;
+import com.sonar.sslr.squid.checks.SquidCheck;
 import org.sonar.check.BelongsToProfile;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
-import org.sonar.javascript.parser.EcmaScriptGrammar;
+import org.sonar.javascript.model.BlockTree;
+import org.sonar.javascript.model.EmptyStatementTree;
+import org.sonar.javascript.model.LabelledStatementTree;
+import org.sonar.javascript.model.StatementTree;
+import org.sonar.javascript.model.TreeVisitor;
 import org.sonar.sslr.parser.LexerlessGrammar;
+
+import java.util.Map;
 
 @Rule(
   key = "OneStatementPerLine",
   priority = Priority.MAJOR)
 @BelongsToProfile(title = CheckList.SONAR_WAY_PROFILE, priority = Priority.MAJOR)
-public class OneStatementPerLineCheck extends AbstractOneStatementPerLineCheck<LexerlessGrammar> {
+public class OneStatementPerLineCheck extends SquidCheck<LexerlessGrammar> implements TreeVisitor {
+
+  private final Map<Integer, Integer> statementsPerLine = Maps.newHashMap();
 
   @Override
-  public com.sonar.sslr.api.Rule getStatementRule() {
-    throw new UnsupportedOperationException();
+  public void visitFile(AstNode astNode) {
+    statementsPerLine.clear();
+  }
+
+  public void visit(StatementTree statementTree) {
+    if (statementTree.is(BlockTree.class) || statementTree.is(EmptyStatementTree.class) || statementTree.is(LabelledStatementTree.class)) {
+      // skip
+    } else {
+      int line = statementTree.getLine();
+      if (!statementsPerLine.containsKey(line)) {
+        statementsPerLine.put(line, 0);
+      }
+      statementsPerLine.put(line, statementsPerLine.get(line) + 1);
+    }
   }
 
   @Override
-  public void init() {
-    subscribeTo(EcmaScriptGrammar.STATEMENT);
-  }
-
-  @Override
-  public boolean isExcluded(AstNode astNode) {
-    AstNode statementNode = astNode.getChild(0);
-    return statementNode.is(EcmaScriptGrammar.BLOCK)
-        || statementNode.is(EcmaScriptGrammar.EMPTY_STATEMENT)
-        || statementNode.is(EcmaScriptGrammar.LABELLED_STATEMENT);
+  public void leaveFile(AstNode astNode) {
+    for (Map.Entry<Integer, Integer> statementsAtLine : statementsPerLine.entrySet()) {
+      if (statementsAtLine.getValue() > 1) {
+        getContext().createLineViolation(this, "At most one statement is allowed per line, but {0} statements were found on this line.", statementsAtLine.getKey(),
+          statementsAtLine.getValue());
+      }
+    }
   }
 
 }
