@@ -40,7 +40,7 @@ public class BoundOrAssignedEvalOrArgumentsCheck extends SquidCheck<LexerlessGra
     subscribeTo(
         EcmaScriptGrammar.FUNCTION_DECLARATION,
         EcmaScriptGrammar.FUNCTION_EXPRESSION,
-        EcmaScriptGrammar.CATCH_,
+        EcmaScriptGrammar.CATCH,
         EcmaScriptGrammar.VARIABLE_DECLARATION,
         EcmaScriptGrammar.VARIABLE_DECLARATION_NO_IN,
         EcmaScriptGrammar.PROPERTY_SET_PARAMETER_LIST,
@@ -51,7 +51,7 @@ public class BoundOrAssignedEvalOrArgumentsCheck extends SquidCheck<LexerlessGra
   public void visitNode(AstNode astNode) {
     if (astNode.is(EcmaScriptGrammar.FUNCTION_DECLARATION, EcmaScriptGrammar.FUNCTION_EXPRESSION)) {
       checkFunction(astNode);
-    } else if (astNode.is(EcmaScriptGrammar.CATCH_, EcmaScriptGrammar.VARIABLE_DECLARATION, EcmaScriptGrammar.VARIABLE_DECLARATION_NO_IN)) {
+    } else if (astNode.is(EcmaScriptGrammar.CATCH, EcmaScriptGrammar.VARIABLE_DECLARATION, EcmaScriptGrammar.VARIABLE_DECLARATION_NO_IN)) {
       checkVariableDeclaration(astNode);
     } else if (astNode.is(EcmaScriptGrammar.PROPERTY_SET_PARAMETER_LIST)) {
       checkPropertySetParameterList(astNode);

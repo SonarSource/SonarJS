@@ -31,7 +31,6 @@ import org.sonar.sslr.parser.LexerlessGrammar;
 
 import static org.sonar.javascript.api.EcmaScriptKeyword.BREAK;
 import static org.sonar.javascript.api.EcmaScriptKeyword.CASE;
-import static org.sonar.javascript.api.EcmaScriptKeyword.CATCH;
 import static org.sonar.javascript.api.EcmaScriptKeyword.CONTINUE;
 import static org.sonar.javascript.api.EcmaScriptKeyword.DEBUGGER;
 import static org.sonar.javascript.api.EcmaScriptKeyword.DEFAULT;
@@ -39,7 +38,6 @@ import static org.sonar.javascript.api.EcmaScriptKeyword.DELETE;
 import static org.sonar.javascript.api.EcmaScriptKeyword.DO;
 import static org.sonar.javascript.api.EcmaScriptKeyword.ELSE;
 import static org.sonar.javascript.api.EcmaScriptKeyword.FALSE;
-import static org.sonar.javascript.api.EcmaScriptKeyword.FINALLY;
 import static org.sonar.javascript.api.EcmaScriptKeyword.FOR;
 import static org.sonar.javascript.api.EcmaScriptKeyword.FUNCTION;
 import static org.sonar.javascript.api.EcmaScriptKeyword.IF;
@@ -227,8 +225,8 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
   LABELLED_STATEMENT,
   THROW_STATEMENT,
   TRY_STATEMENT,
-  CATCH_,
-  FINALLY_,
+  CATCH,
+  FINALLY,
   DEBUGGER_STATEMENT,
 
   // A.5 Functions and Programs
@@ -597,9 +595,9 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
     b.rule(DEFAULT_CLAUSE).is(DEFAULT, COLON, b.optional(STATEMENT_LIST));
     b.rule(LABELLED_STATEMENT).is(IDENTIFIER, COLON, STATEMENT);
     b.rule(THROW_STATEMENT).is(THROW, /* no line terminator here */SPACING_NO_LB, NEXT_NOT_LB, EXPRESSION, EOS);
-    b.rule(TRY_STATEMENT).is(TRY, BLOCK, b.firstOf(b.sequence(CATCH_, b.optional(FINALLY_)), FINALLY_));
-    b.rule(CATCH_).is(CATCH, LPARENTHESIS, IDENTIFIER, RPARENTHESIS, BLOCK);
-    b.rule(FINALLY_).is(FINALLY, BLOCK);
+    b.rule(TRY_STATEMENT).is(TRY, BLOCK, b.firstOf(b.sequence(CATCH, b.optional(FINALLY)), FINALLY));
+    b.rule(CATCH).is(EcmaScriptKeyword.CATCH, LPARENTHESIS, IDENTIFIER, RPARENTHESIS, BLOCK);
+    b.rule(FINALLY).is(EcmaScriptKeyword.FINALLY, BLOCK);
     b.rule(DEBUGGER_STATEMENT).is(DEBUGGER, EOS);
   }
 
