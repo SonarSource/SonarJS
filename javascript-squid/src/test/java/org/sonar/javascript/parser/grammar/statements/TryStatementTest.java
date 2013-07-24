@@ -32,7 +32,8 @@ public class TryStatementTest {
   @Test
   public void realLife() {
     assertThat(g.rule(EcmaScriptGrammar.TRY_STATEMENT))
-        .matches("try { doSomethingWrong(); } catch (error) { makeItAllGood(); }");
+        .matches("try { doSomethingWrong(); } catch (error) { makeItAllGood(); }")
+        .notMatches("try { }");
   }
 
 }

@@ -568,21 +568,27 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
         FOR_STATEMENT));
     b.rule(DO_WHILE_STATEMENT).is(DO, STATEMENT, WHILE, LPARENTHESIS, CONDITION, RPARENTHESIS, EOS);
     b.rule(WHILE_STATEMENT).is(WHILE, LPARENTHESIS, CONDITION, RPARENTHESIS, STATEMENT);
-    b.rule(FOR_IN_STATEMENT).is(b.firstOf(
-        b.sequence(FOR, LPARENTHESIS, LEFT_HAND_SIDE_EXPRESSION, IN, EXPRESSION, RPARENTHESIS, STATEMENT),
-        b.sequence(FOR, LPARENTHESIS, VAR, VARIABLE_DECLARATION_LIST_NO_IN, IN, EXPRESSION, RPARENTHESIS, STATEMENT)));
-    b.rule(FOR_STATEMENT).is(b.firstOf(
-        b.sequence(FOR, LPARENTHESIS, b.optional(EXPRESSION_NO_IN), SEMI, b.optional(CONDITION), SEMI, b.optional(EXPRESSION), RPARENTHESIS, STATEMENT),
-        b.sequence(FOR, LPARENTHESIS, VAR, VARIABLE_DECLARATION_LIST_NO_IN, SEMI, b.optional(CONDITION), SEMI, b.optional(EXPRESSION), RPARENTHESIS, STATEMENT)));
-    b.rule(CONTINUE_STATEMENT).is(b.firstOf(
-        b.sequence(CONTINUE, /* no line terminator here */SPACING_NO_LB, NEXT_NOT_LB, IDENTIFIER, EOS),
-        b.sequence(CONTINUE, EOS_NO_LB)));
-    b.rule(BREAK_STATEMENT).is(b.firstOf(
-        b.sequence(BREAK, /* no line terminator here */SPACING_NO_LB, NEXT_NOT_LB, IDENTIFIER, EOS),
-        b.sequence(BREAK, EOS_NO_LB)));
-    b.rule(RETURN_STATEMENT).is(b.firstOf(
-        b.sequence(RETURN, /* no line terminator here */SPACING_NO_LB, NEXT_NOT_LB, EXPRESSION, EOS),
-        b.sequence(RETURN, EOS_NO_LB)));
+    b.rule(FOR_IN_STATEMENT).is(
+      FOR, LPARENTHESIS,
+      b.firstOf(
+        b.sequence(VAR, VARIABLE_DECLARATION_LIST_NO_IN),
+        LEFT_HAND_SIDE_EXPRESSION),
+      IN, EXPRESSION, RPARENTHESIS, STATEMENT);
+    b.rule(FOR_STATEMENT).is(
+      FOR, LPARENTHESIS,
+      b.firstOf(
+        b.sequence(VAR, VARIABLE_DECLARATION_LIST_NO_IN),
+        b.optional(EXPRESSION_NO_IN)),
+      SEMI, b.optional(CONDITION), SEMI, b.optional(EXPRESSION), RPARENTHESIS, STATEMENT);
+    b.rule(CONTINUE_STATEMENT).is(CONTINUE, b.firstOf(
+        b.sequence(/* no line terminator here */SPACING_NO_LB, NEXT_NOT_LB, IDENTIFIER, EOS),
+        EOS_NO_LB));
+    b.rule(BREAK_STATEMENT).is(BREAK, b.firstOf(
+        b.sequence(/* no line terminator here */SPACING_NO_LB, NEXT_NOT_LB, IDENTIFIER, EOS),
+        EOS_NO_LB));
+    b.rule(RETURN_STATEMENT).is(RETURN, b.firstOf(
+        b.sequence(/* no line terminator here */SPACING_NO_LB, NEXT_NOT_LB, EXPRESSION, EOS),
+        EOS_NO_LB));
     b.rule(WITH_STATEMENT).is(WITH, LPARENTHESIS, EXPRESSION, RPARENTHESIS, STATEMENT);
     b.rule(SWITCH_STATEMENT).is(SWITCH, LPARENTHESIS, EXPRESSION, RPARENTHESIS, CASE_BLOCK);
     b.rule(CASE_BLOCK).is(LCURLYBRACE, b.optional(CASE_CLAUSES), b.optional(DEFAULT_CLAUSE, b.optional(CASE_CLAUSES)), RCURLYBRACE);
