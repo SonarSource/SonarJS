@@ -19,8 +19,8 @@
  */
 package org.sonar.javascript.checks;
 
-import com.sonar.sslr.api.AuditListener;
 import com.sonar.sslr.api.RecognitionException;
+import com.sonar.sslr.squid.AstScannerExceptionHandler;
 import com.sonar.sslr.squid.checks.SquidCheck;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
@@ -32,7 +32,7 @@ import java.io.StringWriter;
 @Rule(
   key = "ParsingError",
   priority = Priority.MAJOR)
-public class ParsingErrorCheck extends SquidCheck<LexerlessGrammar> implements AuditListener {
+public class ParsingErrorCheck extends SquidCheck<LexerlessGrammar> implements AstScannerExceptionHandler {
 
   public void processException(Exception e) {
     StringWriter exception = new StringWriter();

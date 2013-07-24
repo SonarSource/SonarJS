@@ -27,7 +27,6 @@ public enum EcmaScriptMetric implements MetricDef {
   LINES,
   LINES_OF_CODE,
   COMMENT_LINES,
-  COMMENT_BLANK_LINES,
   STATEMENTS,
   COMPLEXITY,
   FUNCTIONS;

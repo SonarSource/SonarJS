@@ -27,7 +27,7 @@ public class EcmaScriptMetricTest {
 
   @Test
   public void test() {
-    assertThat(EcmaScriptMetric.values()).hasSize(8);
+    assertThat(EcmaScriptMetric.values()).hasSize(7);
 
     for (EcmaScriptMetric metric : EcmaScriptMetric.values()) {
       assertThat(metric.getName()).isEqualTo(metric.name());

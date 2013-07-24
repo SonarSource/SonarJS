@@ -46,7 +46,6 @@ public class JavaScriptAstScannerTest {
   @Test
   public void comments() {
     SourceFile file = JavaScriptAstScanner.scanSingleFile(new File("src/test/resources/metrics/comments.js"));
-    assertThat(file.getInt(EcmaScriptMetric.COMMENT_BLANK_LINES)).isEqualTo(4);
     assertThat(file.getInt(EcmaScriptMetric.COMMENT_LINES)).isEqualTo(3);
     assertThat(file.getNoSonarTagLines()).contains(10);
     assertThat(file.getNoSonarTagLines().size()).isEqualTo(1);
