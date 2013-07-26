@@ -54,8 +54,8 @@ import java.util.Locale;
 
 public class JavaScriptSquidSensor implements Sensor {
 
-  private final Number[] FUNCTIONS_DISTRIB_BOTTOM_LIMITS = {1, 2, 4, 6, 8, 10, 12, 20, 30};
-  private final Number[] FILES_DISTRIB_BOTTOM_LIMITS = {0, 5, 10, 20, 30, 60, 90};
+  private static final Number[] FUNCTIONS_DISTRIB_BOTTOM_LIMITS = {1, 2, 4, 6, 8, 10, 12, 20, 30};
+  private static final Number[] FILES_DISTRIB_BOTTOM_LIMITS = {0, 5, 10, 20, 30, 60, 90};
 
   private final AnnotationCheckFactory annotationCheckFactory;
   private final FileLinesContextFactory fileLinesContextFactory;
