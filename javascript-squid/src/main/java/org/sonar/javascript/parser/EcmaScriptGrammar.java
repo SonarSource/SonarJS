@@ -320,7 +320,7 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
         b.token(GenericTokenType.LITERAL, b.regexp(EcmaScriptLexer.LITERAL)));
     b.rule(REGULAR_EXPRESSION_LITERAL).is(
         SPACING,
-        b.regexp(EcmaScriptRegexpChannel.REGEXP));
+        b.regexp(EcmaScriptRegexpChannel.REGULAR_EXPRESSION));
 
     punctuators(b);
     keywords(b);

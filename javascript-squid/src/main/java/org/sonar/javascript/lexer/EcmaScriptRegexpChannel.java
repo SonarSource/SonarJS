@@ -38,27 +38,24 @@ import static org.sonar.javascript.api.EcmaScriptTokenType.REGULAR_EXPRESSION_LI
  */
 public class EcmaScriptRegexpChannel extends Channel<Lexer> {
 
-  private static final String ESCAPE_SEQUENCE = "\\\\(?:[^\\r\\n\\u2028\\u2029ux]|u[0-9A-Fa-f]{1,4}|x[0-9A-Fa-f]{2})";
+  private static final String NON_TERMINATOR = "[^\\r\\n\\u2028\\u2029]";
 
-  private static final String CHARSET = "\\["
+  private static final String BACKSLASH_SEQUENCE = "\\\\" + NON_TERMINATOR;
+
+  private static final String CLASS = "\\["
     + "(?:"
-    // chars except charset ends, escape sequences, line terminators
-    + "[^\\]\\\\\\r\\n\\u2028\\u2029]"
-    // or an escape sequence
-    + "|" + ESCAPE_SEQUENCE
+    + "[^\\]\\\\&&" + NON_TERMINATOR + "]"
+    + "|" + BACKSLASH_SEQUENCE
     + ")*+"
     + "\\]";
 
-  public static final String REGEXP = "^"
+  public static final String REGULAR_EXPRESSION = ""
     // A slash starts a regexp but only if not a comment start
     + "\\/(?![*/])"
     + "(?:"
-    // which can contain any number of chars escept charsets, escape-sequences, line-terminators, delimiters
-    + "[^\\\\\\[/\\r\\n\\u2028\\u2029]"
-    // or a charset
-    + "|" + CHARSET
-    // or an escape sequence
-    + "|" + ESCAPE_SEQUENCE
+    + "[^\\\\\\[/&&" + NON_TERMINATOR + "]"
+    + "|" + CLASS
+    + "|" + BACKSLASH_SEQUENCE
     + ")*+"
     // finished by a '/'
     + "\\/"
@@ -67,7 +64,7 @@ public class EcmaScriptRegexpChannel extends Channel<Lexer> {
   private final Channel<Lexer> delegate;
 
   public EcmaScriptRegexpChannel() {
-    this.delegate = regexp(REGULAR_EXPRESSION_LITERAL, REGEXP);
+    this.delegate = regexp(REGULAR_EXPRESSION_LITERAL, REGULAR_EXPRESSION);
   }
 
   @Override

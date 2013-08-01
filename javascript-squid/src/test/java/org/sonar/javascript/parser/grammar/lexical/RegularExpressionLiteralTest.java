@@ -36,16 +36,8 @@ public class RegularExpressionLiteralTest {
         .matches("/[]/")
         .matches("/[^/]/")
         .matches("/[^\\\\h;m,.\\-:/\\d]+/gi")
-
-        // UnicodeEscapeSequence
-        .matches("/\\uFFFF/")
-        .matches("/[\\uFFFF]/")
-        // Grammar does not allow this, but otherwise we can't lex amplify-1.1.0.js
-        .matches("/[\\u37f]/")
-
-        // HexEscapeSequence
-        .matches("/\\xFF/")
-        .matches("/[\\xFF]/");
+        .matches("/\\B/")
+        .matches("/[\\B]/");
   }
 
 }
