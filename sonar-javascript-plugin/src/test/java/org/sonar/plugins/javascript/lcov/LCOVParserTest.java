@@ -45,8 +45,8 @@ public class LCOVParserTest {
   @Test
   public void test() {
     File file1 = new File("file1.js");
-    File file2 = new File("file2.js");
     when(projectFileSystem.resolvePath("file1.js")).thenReturn(file1);
+    File file2 = new File("file2.js");
     when(projectFileSystem.resolvePath("./file2.js")).thenReturn(file2);
 
     Map<String, CoverageMeasuresBuilder> result = parser.parse(Arrays.asList(
@@ -58,8 +58,10 @@ public class LCOVParserTest {
         "FNDA:2,(anonymous_1)",
         "DA:1,1",
         "DA:2,0",
-        "BRDA:11,1,0,1",
-        "BRDA:11,1,0,0",
+        "BRDA:11,0,0,2",
+        "BRDA:11,0,1,1",
+        "BRDA:11,0,2,0",
+        "BRDA:11,0,3,-",
         "end_of_record"));
     assertThat(result).hasSize(2);
 
@@ -72,8 +74,8 @@ public class LCOVParserTest {
     fileCoverage = result.get(file2.getAbsolutePath());
     assertThat(fileCoverage.getLinesToCover()).isEqualTo(2);
     assertThat(fileCoverage.getCoveredLines()).isEqualTo(1);
-    assertThat(fileCoverage.getConditions()).isEqualTo(2);
-    assertThat(fileCoverage.getCoveredConditions()).isEqualTo(1);
+    assertThat(fileCoverage.getConditions()).isEqualTo(4);
+    assertThat(fileCoverage.getCoveredConditions()).isEqualTo(2);
   }
 
   @Test

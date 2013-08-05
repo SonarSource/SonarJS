@@ -83,7 +83,7 @@ public final class LCOVParser {
         // BRDA:<line number>,<block number>,<branch number>,<taken>
         String[] tokens = line.substring(BRDA.length()).trim().split(",");
         String lineNumber = tokens[0];
-        boolean taken = "1".equals(tokens[3]);
+        boolean visited = !("-".equals(tokens[3]) || "0".equals(tokens[3]));
 
         BranchData branchData = branches.get(lineNumber);
         if (branchData == null) {
@@ -91,7 +91,7 @@ public final class LCOVParser {
           branches.put(lineNumber, branchData);
         }
         branchData.branches++;
-        if (taken) {
+        if (visited) {
           branchData.visitedBranches++;
         }
 
