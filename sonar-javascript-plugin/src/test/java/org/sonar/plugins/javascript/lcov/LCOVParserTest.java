@@ -83,4 +83,24 @@ public class LCOVParserTest {
     parser.parseFile(new File("not-found"));
   }
 
+  @Test
+  public void dotInPath() {
+    Map<String, CoverageMeasuresBuilder> result = parser.parse(Arrays.asList(
+        "SF:./file1.js",
+        "DA:1,1",
+        "end_of_record"));
+    CoverageMeasuresBuilder fileCoverage = result.get("file1.js");
+    assertThat(fileCoverage).isNotNull();
+  }
+
+  @Test
+  public void dotDotInPath() {
+    Map<String, CoverageMeasuresBuilder> result = parser.parse(Arrays.asList(
+        "SF:./path/../file1.js",
+        "DA:1,1",
+        "end_of_record"));
+    CoverageMeasuresBuilder fileCoverage = result.get("file1.js");
+    assertThat(fileCoverage).isNotNull();
+  }
+
 }

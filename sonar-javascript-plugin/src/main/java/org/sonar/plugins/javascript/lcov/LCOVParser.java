@@ -20,6 +20,7 @@
 package org.sonar.plugins.javascript.lcov;
 
 import com.google.common.collect.Maps;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.FileUtils;
 import org.sonar.api.measures.CoverageMeasuresBuilder;
 import org.sonar.api.resources.ProjectFileSystem;
@@ -66,7 +67,7 @@ public final class LCOVParser {
       if (line.startsWith(SF)) {
         // SF:<absolute path to the source file>
         fileCoverage = CoverageMeasuresBuilder.create();
-        filePath = line.substring(SF.length());
+        filePath = FilenameUtils.normalize(line.substring(SF.length()));
 
         // some tools (like Istanbul, Karma) provide relative paths, so let's consider them relative to project directory
         filePath = projectFileSystem.resolvePath(filePath).getAbsolutePath();
