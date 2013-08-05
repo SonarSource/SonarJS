@@ -19,6 +19,7 @@
  */
 package org.sonar.plugins.javascript.lcov;
 
+import com.google.common.base.Objects;
 import com.google.common.collect.Maps;
 import org.apache.commons.io.FileUtils;
 import org.sonar.api.measures.CoverageMeasuresBuilder;
@@ -38,7 +39,6 @@ public final class LCOVParser {
   private static final String SF = "SF:";
   private static final String DA = "DA:";
   private static final String BRDA = "BRDA:";
-  private static final String END_RECORD = "end_of_record";
 
   private final ProjectFileSystem projectFileSystem;
 
@@ -57,19 +57,22 @@ public final class LCOVParser {
   }
 
   public Map<String, CoverageMeasuresBuilder> parse(List<String> lines) {
-    Map<String, CoverageMeasuresBuilder> coveredFiles = Maps.newHashMap();
-    Map<String, BranchData> branches = Maps.newHashMap();
-    String filePath = null;
-    CoverageMeasuresBuilder fileCoverage = CoverageMeasuresBuilder.create();
+    final Map<String, FileData> files = Maps.newHashMap();
+    FileData fileData = new FileData();
 
     for (String line : lines) {
       if (line.startsWith(SF)) {
         // SF:<absolute path to the source file>
-        fileCoverage = CoverageMeasuresBuilder.create();
-        filePath = line.substring(SF.length());
+        String filePath = line.substring(SF.length());
 
         // some tools (like Istanbul, Karma) provide relative paths, so let's consider them relative to project directory
         filePath = projectFileSystem.resolvePath(filePath).getAbsolutePath();
+
+        fileData = files.get(filePath);
+        if (fileData == null) {
+          fileData = new FileData();
+          files.put(filePath, fileData);
+        }
 
       } else if (line.startsWith(DA)) {
         // DA:<line number>,<execution count>[,<checksum>]
@@ -77,39 +80,69 @@ public final class LCOVParser {
         String executionCount = execution.substring(execution.indexOf(',') + 1);
         String lineNumber = execution.substring(0, execution.indexOf(','));
 
-        fileCoverage.setHits(Integer.valueOf(lineNumber).intValue(), Integer.valueOf(executionCount).intValue());
+        fileData.addLine(Integer.valueOf(lineNumber), Integer.valueOf(executionCount));
 
       } else if (line.startsWith(BRDA)) {
         // BRDA:<line number>,<block number>,<branch number>,<taken>
         String[] tokens = line.substring(BRDA.length()).trim().split(",");
         String lineNumber = tokens[0];
-        boolean visited = !("-".equals(tokens[3]) || "0".equals(tokens[3]));
+        String branchNumber = tokens[2];
+        String taken = tokens[3];
 
-        BranchData branchData = branches.get(lineNumber);
-        if (branchData == null) {
-          branchData = new BranchData();
-          branches.put(lineNumber, branchData);
-        }
-        branchData.branches++;
-        if (visited) {
-          branchData.visitedBranches++;
-        }
-
-      } else if (END_RECORD.equals(line.trim())) {
-        // end_of_record
-        for (Map.Entry<String, BranchData> entry : branches.entrySet()) {
-          fileCoverage.setConditions(Integer.valueOf(entry.getKey()), entry.getValue().branches, entry.getValue().visitedBranches);
-        }
-        branches.clear();
-        coveredFiles.put(filePath, fileCoverage);
+        fileData.addBranch(Integer.valueOf(lineNumber), branchNumber, "-".equals(taken) ? 0 : Integer.valueOf(taken));
       }
+    }
+
+    Map<String, CoverageMeasuresBuilder> coveredFiles = Maps.newHashMap();
+    for (Map.Entry<String, FileData> e : files.entrySet()) {
+      coveredFiles.put(e.getKey(), e.getValue().convert());
     }
     return coveredFiles;
   }
 
-  private static class BranchData {
-    int branches;
-    int visitedBranches;
+  private static class FileData {
+    /**
+     * line number -> branch number -> taken
+     */
+    private Map<Integer, Map<String, Integer>> branches = Maps.newHashMap();
+
+    /**
+     * line number -> execution count
+     */
+    private Map<Integer, Integer> hits = Maps.newHashMap();
+
+    public void addBranch(Integer lineNumber, String branchNumber, Integer taken) {
+      Map<String, Integer> branchesForLine = branches.get(lineNumber);
+      if (branchesForLine == null) {
+        branchesForLine = Maps.newHashMap();
+        branches.put(lineNumber, branchesForLine);
+      }
+      Integer currentValue = branchesForLine.get(branchNumber);
+      branchesForLine.put(branchNumber, Objects.firstNonNull(currentValue, 0) + taken);
+    }
+
+    public void addLine(Integer lineNumber, Integer executionCount) {
+      Integer currentValue = hits.get(lineNumber);
+      hits.put(lineNumber, Objects.firstNonNull(currentValue, 0) + executionCount);
+    }
+
+    public CoverageMeasuresBuilder convert() {
+      CoverageMeasuresBuilder result = CoverageMeasuresBuilder.create();
+      for (Map.Entry<Integer, Integer> e : hits.entrySet()) {
+        result.setHits(e.getKey(), e.getValue());
+      }
+      for (Map.Entry<Integer, Map<String, Integer>> e : branches.entrySet()) {
+        int conditions = e.getValue().size();
+        int covered = 0;
+        for (Integer taken : e.getValue().values()) {
+          if (taken > 0) {
+            covered++;
+          }
+        }
+        result.setConditions(e.getKey(), conditions, covered);
+      }
+      return result;
+    }
   }
 
 }

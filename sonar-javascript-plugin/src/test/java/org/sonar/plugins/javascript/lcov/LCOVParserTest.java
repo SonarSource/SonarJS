@@ -79,6 +79,30 @@ public class LCOVParserTest {
   }
 
   @Test
+  public void merge() {
+    File file = new File("file.js");
+    when(projectFileSystem.resolvePath("file.js")).thenReturn(file);
+
+    Map<String, CoverageMeasuresBuilder> result = parser.parse(Arrays.asList(
+      "SF:file.js",
+      "BRDA:1,0,0,-",
+      "BRDA:1,0,1,1",
+      "DA:2,1",
+      "end_of_record",
+      "SF:file.js",
+      "BRDA:1,0,0,1",
+      "BRDA:1,0,1,-",
+      "DA:3,1",
+      "end_of_record"));
+
+    CoverageMeasuresBuilder fileCoverage = result.get(file.getAbsolutePath());
+    assertThat(fileCoverage.getLinesToCover()).isEqualTo(2);
+    assertThat(fileCoverage.getCoveredLines()).isEqualTo(2);
+    assertThat(fileCoverage.getConditions()).isEqualTo(2);
+    assertThat(fileCoverage.getCoveredConditions()).isEqualTo(2);
+  }
+
+  @Test
   public void unreadable_file() {
     thrown.expect(SonarException.class);
     thrown.expectMessage("Could not read content from file: not-found");
