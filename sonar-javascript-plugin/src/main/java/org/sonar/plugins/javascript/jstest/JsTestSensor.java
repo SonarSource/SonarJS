@@ -26,8 +26,6 @@ import org.sonar.plugins.javascript.JavaScriptPlugin;
 import org.sonar.plugins.javascript.core.JavaScript;
 import org.sonar.plugins.javascript.jstestdriver.JsTestDriverSensor;
 
-import java.io.File;
-
 public class JsTestSensor extends JsTestDriverSensor {
 
   public JsTestSensor(JavaScript javascript) {
@@ -41,7 +39,7 @@ public class JsTestSensor extends JsTestDriverSensor {
 
   public void analyse(Project project, SensorContext context) {
     String jsTestDriverFolder = javascript.getSettings().getString(JavaScriptPlugin.JSTEST_REPORTS_PATH);
-    collect(project, context, new File(project.getFileSystem().getBasedir(), jsTestDriverFolder));
+    collect(project, context, project.getFileSystem().resolvePath(jsTestDriverFolder));
   }
 
   protected org.sonar.api.resources.File getUnitTestFileResource(String classKey) {

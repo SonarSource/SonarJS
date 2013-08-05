@@ -54,7 +54,7 @@ public class JsTestDriverSensor implements Sensor {
 
   public void analyse(Project project, SensorContext context) {
     String jsTestDriverFolder = javascript.getSettings().getString(JavaScriptPlugin.JSTESTDRIVER_REPORTS_PATH);
-    collect(project, context, new File(project.getFileSystem().getBasedir(), jsTestDriverFolder));
+    collect(project, context, project.getFileSystem().resolvePath(jsTestDriverFolder));
   }
 
   protected void collect(final Project project, final SensorContext context, File reportsDir) {
@@ -75,8 +75,7 @@ public class JsTestDriverSensor implements Sensor {
 
         File unitTestFile = getUnitTestFile(testDirectories, getUnitTestFileName(classKey));
 
-        String source = "";
-
+        String source;
         try {
           source = FileUtils.readFileToString(unitTestFile, project.getFileSystem().getSourceCharset().name());
         } catch (IOException e) {

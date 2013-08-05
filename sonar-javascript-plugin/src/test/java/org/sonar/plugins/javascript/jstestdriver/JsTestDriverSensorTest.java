@@ -81,6 +81,7 @@ public class JsTestDriverSensorTest {
     File baseDir = new File("src/test/resources/org/sonar/plugins/javascript/jstestdriver/sensortests");
     when(fileSystem.getBasedir()).thenReturn(baseDir);
     when(fileSystem.getTestDirs()).thenReturn(Arrays.asList(new File(baseDir, "test")));
+    when(fileSystem.resolvePath("target/jstestdriver")).thenReturn(new File(baseDir, "target/jstestdriver"));
 
     Project project = mockProject(language);
 
