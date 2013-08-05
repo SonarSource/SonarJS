@@ -54,7 +54,7 @@ public class LCOVSensor implements Sensor {
   public void analyse(Project project, SensorContext context) {
     File lcovFile = project.getFileSystem().resolvePath(javascript.getSettings().getString(JavaScriptPlugin.LCOV_REPORT_PATH));
     if (lcovFile.isFile()) {
-      LCOVParser parser = new LCOVParser();
+      LCOVParser parser = new LCOVParser(project.getFileSystem());
       LOG.info("Analysing {}", lcovFile);
       Map<String, CoverageMeasuresBuilder> coveredFiles = parser.parseFile(lcovFile);
       analyseCoveredFiles(project, context, coveredFiles);
@@ -64,7 +64,7 @@ public class LCOVSensor implements Sensor {
   protected void analyseCoveredFiles(Project project, SensorContext context, Map<String, CoverageMeasuresBuilder> coveredFiles) {
     for (InputFile inputFile : project.getFileSystem().mainFiles(JavaScript.KEY)) {
       try {
-        CoverageMeasuresBuilder fileCoverage = getFileCoverage(inputFile, coveredFiles);
+        CoverageMeasuresBuilder fileCoverage = coveredFiles.get(inputFile.getFile().getAbsolutePath());
         org.sonar.api.resources.File resource = org.sonar.api.resources.File.fromIOFile(inputFile.getFile(), project);
         PropertiesBuilder<Integer, Integer> lineHitsData = new PropertiesBuilder<Integer, Integer>(CoreMetrics.COVERAGE_LINE_HITS_DATA);
 
@@ -87,17 +87,9 @@ public class LCOVSensor implements Sensor {
         }
 
       } catch (Exception e) {
-        LOG.error("Problem while calculating coverage for " + inputFile.getFileBaseDir() + inputFile.getRelativePath(), e);
+        LOG.error("Problem while calculating coverage for " + inputFile.getFile().getAbsolutePath(), e);
       }
     }
-  }
-
-  protected CoverageMeasuresBuilder getFileCoverage(InputFile input, Map<String, CoverageMeasuresBuilder> coveredFiles) {
-    CoverageMeasuresBuilder result = coveredFiles.get(input.getRelativePath());
-    if (result == null) {
-      result = coveredFiles.get(input.getFile().getAbsolutePath());
-    }
-    return result;
   }
 
   @Override

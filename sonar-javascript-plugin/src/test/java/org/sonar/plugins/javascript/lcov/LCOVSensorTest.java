@@ -93,7 +93,11 @@ public class LCOVSensorTest {
     Project project = mockProject(new JavaScript(settings));
 
     when(fileSystem.resolvePath("jsTestDriver.conf-coverage.dat"))
-        .thenReturn(new File("src/test/resources/org/sonar/plugins/javascript/jstestdriver/jsTestDriver.conf-coverage.dat"));
+      .thenReturn(new File("src/test/resources/org/sonar/plugins/javascript/jstestdriver/jsTestDriver.conf-coverage.dat"));
+    when(fileSystem.resolvePath("Person.js"))
+      .thenReturn(new File("src/test/resources/org/sonar/plugins/javascript/jstestdriver/sensortests/main/Person.js"));
+    when(fileSystem.resolvePath("PersonTest.js"))
+      .thenReturn(new File("src/test/resources/org/sonar/plugins/javascript/jstestdriver/sensortests/test/PersonTest.js"));
 
     sensor.analyse(project, context);
     verify(context, times(3)).saveMeasure((Resource) anyObject(), (Measure) anyObject());
@@ -106,7 +110,11 @@ public class LCOVSensorTest {
     Project project = mockProject(new JavaScript(settings));
 
     when(fileSystem.resolvePath("jsTestDriver.conf-coverage.dat"))
-        .thenReturn(new File("src/test/resources/org/sonar/plugins/javascript/jstestdriver/jsTestDriver.conf-coverage.dat"));
+      .thenReturn(new File("src/test/resources/org/sonar/plugins/javascript/jstestdriver/jsTestDriver.conf-coverage.dat"));
+    when(fileSystem.resolvePath("Person.js"))
+      .thenReturn(new File("src/test/resources/org/sonar/plugins/javascript/jstestdriver/sensortests/main/Person.js"));
+    when(fileSystem.resolvePath("PersonTest.js"))
+      .thenReturn(new File("src/test/resources/org/sonar/plugins/javascript/jstestdriver/sensortests/test/PersonTest.js"));
 
     when(context.getMeasure(org.sonar.api.resources.File.fromIOFile(inputFile.getFile(), project), CoreMetrics.LINES)).thenReturn(
         new Measure(CoreMetrics.LINES, (double) 20));

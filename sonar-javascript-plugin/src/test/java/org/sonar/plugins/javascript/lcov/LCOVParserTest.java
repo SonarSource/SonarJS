@@ -23,6 +23,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.measures.CoverageMeasuresBuilder;
+import org.sonar.api.resources.ProjectFileSystem;
 import org.sonar.api.utils.SonarException;
 
 import java.io.File;
@@ -30,21 +31,29 @@ import java.util.Arrays;
 import java.util.Map;
 
 import static org.fest.assertions.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class LCOVParserTest {
 
   @Rule
   public ExpectedException thrown = ExpectedException.none();
 
-  private LCOVParser parser = new LCOVParser();
+  private ProjectFileSystem projectFileSystem = mock(ProjectFileSystem.class);
+  private LCOVParser parser = new LCOVParser(projectFileSystem);
 
   @Test
   public void test() {
+    File file1 = new File("file1.js");
+    File file2 = new File("file2.js");
+    when(projectFileSystem.resolvePath("file1.js")).thenReturn(file1);
+    when(projectFileSystem.resolvePath("./file2.js")).thenReturn(file2);
+
     Map<String, CoverageMeasuresBuilder> result = parser.parse(Arrays.asList(
         "SF:file1.js",
         "DA:1,1",
         "end_of_record",
-        "SF:file2.js",
+        "SF:./file2.js",
         "FN:2,(anonymous_1)",
         "FNDA:2,(anonymous_1)",
         "DA:1,1",
@@ -54,13 +63,13 @@ public class LCOVParserTest {
         "end_of_record"));
     assertThat(result).hasSize(2);
 
-    CoverageMeasuresBuilder fileCoverage = result.get("file1.js");
+    CoverageMeasuresBuilder fileCoverage = result.get(file1.getAbsolutePath());
     assertThat(fileCoverage.getLinesToCover()).isEqualTo(1);
     assertThat(fileCoverage.getCoveredLines()).isEqualTo(1);
     assertThat(fileCoverage.getConditions()).isEqualTo(0);
     assertThat(fileCoverage.getCoveredConditions()).isEqualTo(0);
 
-    fileCoverage = result.get("file2.js");
+    fileCoverage = result.get(file2.getAbsolutePath());
     assertThat(fileCoverage.getLinesToCover()).isEqualTo(2);
     assertThat(fileCoverage.getCoveredLines()).isEqualTo(1);
     assertThat(fileCoverage.getConditions()).isEqualTo(2);

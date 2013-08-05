@@ -22,6 +22,7 @@ package org.sonar.plugins.javascript.lcov;
 import com.google.common.collect.Maps;
 import org.apache.commons.io.FileUtils;
 import org.sonar.api.measures.CoverageMeasuresBuilder;
+import org.sonar.api.resources.ProjectFileSystem;
 import org.sonar.api.utils.SonarException;
 
 import java.io.File;
@@ -38,6 +39,12 @@ public final class LCOVParser {
   private static final String DA = "DA:";
   private static final String BRDA = "BRDA:";
   private static final String END_RECORD = "end_of_record";
+
+  private final ProjectFileSystem projectFileSystem;
+
+  public LCOVParser(ProjectFileSystem projectFileSystem) {
+    this.projectFileSystem = projectFileSystem;
+  }
 
   public Map<String, CoverageMeasuresBuilder> parseFile(File file) {
     final List<String> lines;
@@ -57,8 +64,12 @@ public final class LCOVParser {
 
     for (String line : lines) {
       if (line.startsWith(SF)) {
+        // SF:<absolute path to the source file>
         fileCoverage = CoverageMeasuresBuilder.create();
         filePath = line.substring(SF.length());
+
+        // some tools (like Istanbul, Karma) provide relative paths, so let's consider them relative to project directory
+        filePath = projectFileSystem.resolvePath(filePath).getAbsolutePath();
 
       } else if (line.startsWith(DA)) {
         // DA:<line number>,<execution count>[,<checksum>]
@@ -85,6 +96,7 @@ public final class LCOVParser {
         }
 
       } else if (END_RECORD.equals(line.trim())) {
+        // end_of_record
         for (Map.Entry<String, BranchData> entry : branches.entrySet()) {
           fileCoverage.setConditions(Integer.valueOf(entry.getKey()), entry.getValue().branches, entry.getValue().visitedBranches);
         }
