@@ -44,7 +44,9 @@ public class BoundOrAssignedEvalOrArgumentsCheck extends SquidCheck<LexerlessGra
         EcmaScriptGrammar.VARIABLE_DECLARATION,
         EcmaScriptGrammar.VARIABLE_DECLARATION_NO_IN,
         EcmaScriptGrammar.PROPERTY_SET_PARAMETER_LIST,
-        EcmaScriptGrammar.MEMBER_EXPRESSION);
+        EcmaScriptGrammar.ASSIGNMENT_EXPRESSION,
+        EcmaScriptGrammar.POSTFIX_EXPRESSION,
+        EcmaScriptGrammar.UNARY_EXPRESSION);
   }
 
   @Override
@@ -55,8 +57,10 @@ public class BoundOrAssignedEvalOrArgumentsCheck extends SquidCheck<LexerlessGra
       checkVariableDeclaration(astNode);
     } else if (astNode.is(EcmaScriptGrammar.PROPERTY_SET_PARAMETER_LIST)) {
       checkPropertySetParameterList(astNode);
-    } else if (astNode.is(EcmaScriptGrammar.MEMBER_EXPRESSION)) {
-      checkModification(astNode);
+    } else if (astNode.is(EcmaScriptGrammar.ASSIGNMENT_EXPRESSION)) {
+      checkModification(astNode.getFirstDescendant(EcmaScriptGrammar.MEMBER_EXPRESSION));
+    } else if (astNode.is(EcmaScriptGrammar.UNARY_EXPRESSION, EcmaScriptGrammar.POSTFIX_EXPRESSION) && astNode.hasDirectChildren(EcmaScriptPunctuator.INC, EcmaScriptPunctuator.DEC)) {
+      checkModification(astNode.getFirstDescendant(EcmaScriptGrammar.MEMBER_EXPRESSION));
     }
   }
 

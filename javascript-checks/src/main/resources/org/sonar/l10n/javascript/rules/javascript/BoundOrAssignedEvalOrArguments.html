@@ -24,4 +24,10 @@ function x(eval) { } // Non-Compliant
 function arguments() { } // Non-Compliant
 var y = function eval() { }; // Non-Compliant
 var f = new Function("arguments", "return 17;"); // Non-Compliant
+
+function fun() {
+  if (arguments.length == 0) { // Compliant
+    // do something
+  }
+}
 </pre>
