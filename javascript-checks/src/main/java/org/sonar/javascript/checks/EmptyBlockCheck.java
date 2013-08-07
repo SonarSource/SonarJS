@@ -19,29 +19,23 @@
  */
 package org.sonar.javascript.checks;
 
-import com.sonar.sslr.api.AstNode;
 import com.sonar.sslr.squid.checks.SquidCheck;
 import org.sonar.check.BelongsToProfile;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
-import org.sonar.javascript.parser.EcmaScriptGrammar;
+import org.sonar.javascript.model.BlockTree;
+import org.sonar.javascript.model.TreeVisitor;
 import org.sonar.sslr.parser.LexerlessGrammar;
 
 @Rule(
   key = "EmptyBlock",
   priority = Priority.MAJOR)
 @BelongsToProfile(title = CheckList.SONAR_WAY_PROFILE, priority = Priority.MAJOR)
-public class EmptyBlockCheck extends SquidCheck<LexerlessGrammar> {
+public class EmptyBlockCheck extends SquidCheck<LexerlessGrammar> implements TreeVisitor {
 
-  @Override
-  public void init() {
-    subscribeTo(EcmaScriptGrammar.BLOCK);
-  }
-
-  @Override
-  public void visitNode(AstNode node) {
-    if (!node.hasDirectChildren(EcmaScriptGrammar.STATEMENT_LIST)) {
-      getContext().createLineViolation(this, "Provide the missing piece of code.", node);
+  public void visit(BlockTree blockTree) {
+    if (blockTree.statements().isEmpty()) {
+      getContext().createLineViolation(this, "Provide the missing piece of code.", blockTree.getLine());
     }
   }
 

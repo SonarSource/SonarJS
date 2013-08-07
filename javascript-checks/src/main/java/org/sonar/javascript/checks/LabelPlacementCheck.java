@@ -19,31 +19,34 @@
  */
 package org.sonar.javascript.checks;
 
-import com.sonar.sslr.api.AstNode;
 import com.sonar.sslr.squid.checks.SquidCheck;
 import org.sonar.check.BelongsToProfile;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
-import org.sonar.javascript.parser.EcmaScriptGrammar;
+import org.sonar.javascript.model.DoWhileStatementTree;
+import org.sonar.javascript.model.ForInStatementTree;
+import org.sonar.javascript.model.ForStatementTree;
+import org.sonar.javascript.model.LabelledStatementTree;
+import org.sonar.javascript.model.StatementTree;
+import org.sonar.javascript.model.TreeVisitor;
+import org.sonar.javascript.model.WhileStatementTree;
 import org.sonar.sslr.parser.LexerlessGrammar;
 
 @Rule(
   key = "LabelPlacement",
   priority = Priority.MAJOR)
 @BelongsToProfile(title = CheckList.SONAR_WAY_PROFILE, priority = Priority.MAJOR)
-public class LabelPlacementCheck extends SquidCheck<LexerlessGrammar> {
+public class LabelPlacementCheck extends SquidCheck<LexerlessGrammar> implements TreeVisitor {
 
-  @Override
-  public void init() {
-    subscribeTo(EcmaScriptGrammar.LABELLED_STATEMENT);
+  public void visit(LabelledStatementTree labelledStatementTree) {
+    if (!isIterationStatement(labelledStatementTree.statement())) {
+      getContext().createLineViolation(this, "Remove this label.", labelledStatementTree.getLine());
+    }
   }
 
-  @Override
-  public void visitNode(AstNode astNode) {
-    AstNode statementNode = astNode.getFirstChild(EcmaScriptGrammar.STATEMENT).getChild(0);
-    if (!statementNode.is(EcmaScriptGrammar.ITERATION_STATEMENT)) {
-      getContext().createLineViolation(this, "Remove this label.", astNode);
-    }
+  private static boolean isIterationStatement(StatementTree statement) {
+    // Godin: maybe introduce common interface?
+    return statement.is(DoWhileStatementTree.class) || statement.is(WhileStatementTree.class) || statement.is(ForInStatementTree.class) || statement.is(ForStatementTree.class);
   }
 
 }

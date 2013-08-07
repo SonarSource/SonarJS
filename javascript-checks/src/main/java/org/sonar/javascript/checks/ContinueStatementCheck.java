@@ -19,26 +19,20 @@
  */
 package org.sonar.javascript.checks;
 
-import com.sonar.sslr.api.AstNode;
 import com.sonar.sslr.squid.checks.SquidCheck;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
-import org.sonar.javascript.parser.EcmaScriptGrammar;
+import org.sonar.javascript.model.ContinueStatementTree;
+import org.sonar.javascript.model.TreeVisitor;
 import org.sonar.sslr.parser.LexerlessGrammar;
 
 @Rule(
   key = "ContinueStatement",
   priority = Priority.MAJOR)
-public class ContinueStatementCheck extends SquidCheck<LexerlessGrammar> {
+public class ContinueStatementCheck extends SquidCheck<LexerlessGrammar> implements TreeVisitor {
 
-  @Override
-  public void init() {
-    subscribeTo(EcmaScriptGrammar.CONTINUE_STATEMENT);
-  }
-
-  @Override
-  public void visitNode(AstNode node) {
-    getContext().createLineViolation(this, "Avoid using continue statement.", node);
+  public void visit(ContinueStatementTree continueStatementTree) {
+    getContext().createLineViolation(this, "Avoid using continue statement.", continueStatementTree.getLine());
   }
 
 }

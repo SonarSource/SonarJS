@@ -19,28 +19,22 @@
  */
 package org.sonar.javascript.checks;
 
-import com.sonar.sslr.api.AstNode;
 import com.sonar.sslr.squid.checks.SquidCheck;
 import org.sonar.check.BelongsToProfile;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
-import org.sonar.javascript.parser.EcmaScriptGrammar;
+import org.sonar.javascript.model.TreeVisitor;
+import org.sonar.javascript.model.WithStatementTree;
 import org.sonar.sslr.parser.LexerlessGrammar;
 
 @Rule(
   key = "WithStatement",
   priority = Priority.MAJOR)
 @BelongsToProfile(title = CheckList.SONAR_WAY_PROFILE, priority = Priority.MAJOR)
-public class WithStatementCheck extends SquidCheck<LexerlessGrammar> {
+public class WithStatementCheck extends SquidCheck<LexerlessGrammar> implements TreeVisitor {
 
-  @Override
-  public void init() {
-    subscribeTo(EcmaScriptGrammar.WITH_STATEMENT);
-  }
-
-  @Override
-  public void visitNode(AstNode node) {
-    getContext().createLineViolation(this, "Avoid using with statement.", node);
+  public void visit(WithStatementTree withStatementTree) {
+    getContext().createLineViolation(this, "Avoid using with statement.", withStatementTree.getLine());
   }
 
 }
