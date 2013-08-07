@@ -102,7 +102,12 @@ public final class ASTMaker {
       public LiteralTree make(AstNode astNode, Trees t) {
         return new TreeImpl.LiteralTreeImpl(astNode);
       }
-    }, EcmaScriptGrammar.NULL_LITERAL, EcmaScriptGrammar.BOOLEAN_LITERAL, EcmaScriptTokenType.NUMERIC_LITERAL, EcmaScriptGrammar.STRING_LITERAL, EcmaScriptTokenType.REGULAR_EXPRESSION_LITERAL);
+    },
+      EcmaScriptGrammar.NULL_LITERAL,
+      EcmaScriptGrammar.BOOLEAN_LITERAL,
+      EcmaScriptTokenType.NUMERIC_LITERAL,
+      EcmaScriptGrammar.STRING_LITERAL,
+      EcmaScriptTokenType.REGULAR_EXPRESSION_LITERAL);
 
     // Expressions
 

@@ -22,7 +22,8 @@ package org.sonar.javascript.model;
 import com.sonar.sslr.api.AstNodeType;
 
 /**
- * <a href="http://www.ecma-international.org/ecma-262/5.1/#sec-11.4">Unary Operator</a> and <a href="http://www.ecma-international.org/ecma-262/5.1/#sec-11.3">Postfix Expression</a>.
+ * <a href="http://www.ecma-international.org/ecma-262/5.1/#sec-11.4">Unary Operator</a>
+ * and <a href="http://www.ecma-international.org/ecma-262/5.1/#sec-11.3">Postfix Expression</a>.
  *
  * <pre>
  *   {@link #operator()} {@link #operand()}

@@ -59,14 +59,7 @@ public class VisitorsDispatcher {
   private void invoke(Map<Class, Map<Class, Method>> cache, boolean leave, Class<?> nodeClass, Object node) {
     Map<Class, Method> methods = cache.get(nodeClass);
     if (methods == null) {
-      ImmutableMap.Builder<Class, Method> methodsBuilder = ImmutableMap.builder();
-      for (Class visitorClass : visitorClasses) {
-        Method method = lookup(visitorClass, leave ? "leave" : "visit", nodeClass);
-        if (method != null) {
-          methodsBuilder.put(visitorClass, method);
-        }
-      }
-      methods = methodsBuilder.build();
+      methods = lookup(leave, nodeClass);
       cache.put(nodeClass, methods);
     }
     for (Object visitor : leave ? Lists.reverse(visitors) : visitors) {
@@ -81,6 +74,17 @@ public class VisitorsDispatcher {
         }
       }
     }
+  }
+
+  private Map<Class, Method> lookup(boolean leave, Class<?> nodeClass) {
+    ImmutableMap.Builder<Class, Method> methodsBuilder = ImmutableMap.builder();
+    for (Class visitorClass : visitorClasses) {
+      Method method = lookup(visitorClass, leave ? "leave" : "visit", nodeClass);
+      if (method != null) {
+        methodsBuilder.put(visitorClass, method);
+      }
+    }
+    return methodsBuilder.build();
   }
 
   @Nullable

@@ -30,16 +30,26 @@ import org.sonar.javascript.parser.EcmaScriptParser;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
 
 public class TreeVisitorsBridgeTest {
+
+  private Parser p = EcmaScriptParser.create(new EcmaScriptConfiguration(Charsets.UTF_8));
 
   @Test
   public void test() {
     MyTreeVisitor visitor = mock(MyTreeVisitor.class);
-    Parser p = EcmaScriptParser.create(new EcmaScriptConfiguration(Charsets.UTF_8));
     new AstWalker(new TreeVisitorsBridge(ImmutableList.of(visitor))).walkAndVisit(p.parse("if (true) {}"));
     verify(visitor).visit(any(IfStatementTree.class));
   }
+
+  @Test
+  public void parse_error() {
+    MyTreeVisitor visitor = mock(MyTreeVisitor.class);
+    new TreeVisitorsBridge(ImmutableList.of(visitor)).visitFile(null);
+    verifyZeroInteractions(visitor);
+  }
+
 
   private static abstract class MyTreeVisitor implements TreeVisitor {
     public abstract void visit(IfStatementTree ifStatement);

@@ -161,7 +161,8 @@ public abstract class TreeImpl {
     private final List<IdentifierTree> propertySetParameters;
     private final List<? extends SourceElementTree> body;
 
-    protected PropertyAssignmentTreeImpl(AstNode astNode, Tree propertyName, @Nullable ExpressionTree expression, @Nullable List<IdentifierTree> propertySetParameters, @Nullable List<? extends SourceElementTree> body) {
+    protected PropertyAssignmentTreeImpl(AstNode astNode, Tree propertyName, @Nullable ExpressionTree expression, @Nullable List<IdentifierTree> propertySetParameters,
+                                         @Nullable List<? extends SourceElementTree> body) {
       super(astNode);
       this.propertyName = Preconditions.checkNotNull(propertyName);
       this.expression = expression;
@@ -745,7 +746,8 @@ public abstract class TreeImpl {
     private final ExpressionTree incrementExpression;
     private final StatementTree statement;
 
-    public ForStatementTreeImpl(AstNode astNode, List<VariableDeclarationTree> initVariables, @Nullable ExpressionTree condition, @Nullable ExpressionTree incrementExpression, StatementTree statement) {
+    public ForStatementTreeImpl(AstNode astNode, List<VariableDeclarationTree> initVariables, @Nullable ExpressionTree condition, @Nullable ExpressionTree incrementExpression,
+                                StatementTree statement) {
       super(astNode);
       this.initExpression = null;
       this.initVariables = Preconditions.checkNotNull(initVariables);
@@ -754,7 +756,8 @@ public abstract class TreeImpl {
       this.statement = Preconditions.checkNotNull(statement);
     }
 
-    public ForStatementTreeImpl(AstNode astNode, @Nullable ExpressionTree initExpression, @Nullable ExpressionTree condition, @Nullable ExpressionTree incrementExpression, StatementTree statement) {
+    public ForStatementTreeImpl(AstNode astNode, @Nullable ExpressionTree initExpression, @Nullable ExpressionTree condition, @Nullable ExpressionTree incrementExpression,
+                                StatementTree statement) {
       super(astNode);
       this.initVariables = null;
       this.initExpression = initExpression;
