@@ -27,11 +27,11 @@ import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.javascript.lexer.JavaScriptKeyword;
 import org.sonar.javascript.tree.JavaScriptCommentAnalyser;
-import org.sonar.plugins.javascript.api.visitors.SubscriptionBaseTreeVisitor;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxTrivia;
+import org.sonar.plugins.javascript.api.visitors.SubscriptionBaseTreeVisitor;
 import org.sonar.squidbridge.annotations.ActivatedByDefault;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
@@ -104,7 +104,7 @@ public class CommentedCodeCheck extends SubscriptionBaseTreeVisitor {
   public void visitNode(Tree tree) {
     SyntaxToken token = (SyntaxToken) tree;
     for (SyntaxTrivia trivia : token.trivias()) {
-      if (!isJsDoc(trivia)) {
+      if (!isJsDoc(trivia) && !isJsDoc(trivia) && !isJsLint(trivia)  && !isJsHint(trivia) && !isGlobals(trivia)) {
         String[] lines = regexpToDivideStringByLine.split(COMMENT_ANALYSER.getContents(trivia.text()));
         for (int lineOffset = 0; lineOffset < lines.length; lineOffset++) {
           if (codeRecognizer.isLineOfCode(lines[lineOffset])) {
@@ -118,6 +118,18 @@ public class CommentedCodeCheck extends SubscriptionBaseTreeVisitor {
 
   private static boolean isJsDoc(SyntaxTrivia trivia) {
     return trivia.text().startsWith("/**");
+  }
+
+  private boolean isJsLint(SyntaxTrivia trivia) {
+    return trivia.text().startsWith("/*jslint");
+  }
+
+  private boolean isJsHint(SyntaxTrivia trivia) {
+    return trivia.text().startsWith("/*jshint");
+  }
+
+  private boolean isGlobals(SyntaxTrivia trivia) {
+    return trivia.text().startsWith("/*global");
   }
 
 }
