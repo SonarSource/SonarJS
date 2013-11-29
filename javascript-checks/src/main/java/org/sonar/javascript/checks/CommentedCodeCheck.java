@@ -65,7 +65,7 @@ public class CommentedCodeCheck extends SquidCheck<LexerlessGrammar> implements 
 
   public void visitToken(Token token) {
     for (Trivia trivia : token.getTrivia()) {
-      if (trivia.isComment() && !isJsDoc(trivia)) {
+      if (trivia.isComment() && !isJsDoc(trivia) && !isJsLint(trivia)  && !isJsHint(trivia) && !isGlobals(trivia)) {
         String lines[] = regexpToDivideStringByLine.split(getContext().getCommentAnalyser().getContents(trivia.getToken().getOriginalValue()));
         for (int lineOffset = 0; lineOffset < lines.length; lineOffset++) {
           if (codeRecognizer.isLineOfCode(lines[lineOffset])) {
@@ -79,6 +79,18 @@ public class CommentedCodeCheck extends SquidCheck<LexerlessGrammar> implements 
 
   private boolean isJsDoc(Trivia trivia) {
     return trivia.getToken().getValue().startsWith("/**");
+  }
+
+  private boolean isJsLint(Trivia trivia) {
+    return trivia.getToken().getValue().startsWith("/*jslint");
+  }
+
+  private boolean isJsHint(Trivia trivia) {
+    return trivia.getToken().getValue().startsWith("/*jshint");
+  }
+
+  private boolean isGlobals(Trivia trivia) {
+    return trivia.getToken().getValue().startsWith("/*global");
   }
 
 }

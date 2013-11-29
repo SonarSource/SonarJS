@@ -32,8 +32,8 @@ public class CommentedCodeCheckTest {
   public void test() {
     SourceFile file = JavaScriptAstScanner.scanSingleFile(new File("src/test/resources/checks/commentedCode.js"), new CommentedCodeCheck());
     CheckMessagesVerifier.verify(file.getCheckMessages())
-        .next().atLine(7).withMessage("Sections of code should not be \"commented out\".")
-        .next().atLine(14)
+        .next().atLine(10).withMessage("Sections of code should not be \"commented out\".")
+        .next().atLine(17)
         .noMore();
   }
 
