@@ -92,6 +92,7 @@ public final class CheckList {
         UnusedFunctionArgumentCheck.class,
         VariableDeclarationAfterUsageCheck.class,
         VariableShadowingCheck.class,
+        FunctionNameCheck.class,
         NestedIfDepthCheck.class);
   }
 
