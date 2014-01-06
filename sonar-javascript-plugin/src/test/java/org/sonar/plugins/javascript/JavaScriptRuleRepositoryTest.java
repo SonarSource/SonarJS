@@ -34,7 +34,7 @@ public class JavaScriptRuleRepositoryTest {
   public void test() {
     JavaScriptRuleRepository ruleRepository = new JavaScriptRuleRepository(new AnnotationRuleParser());
     assertThat(ruleRepository.getKey()).isEqualTo("javascript");
-    assertThat(ruleRepository.getName()).isEqualTo("Sonar");
+    assertThat(ruleRepository.getName()).isEqualTo("SonarQube");
     List<Rule> rules = ruleRepository.createRules();
     assertThat(rules.size()).isEqualTo(CheckList.getChecks().size());
   }

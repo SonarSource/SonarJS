@@ -27,7 +27,7 @@ public final class CheckList {
 
   public static final String REPOSITORY_KEY = "javascript";
 
-  public static final String REPOSITORY_NAME = "Sonar";
+  public static final String REPOSITORY_NAME = "SonarQube";
 
   public static final String SONAR_WAY_PROFILE = "Sonar way";
 
