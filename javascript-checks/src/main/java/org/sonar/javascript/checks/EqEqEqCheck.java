@@ -24,6 +24,7 @@ import com.sonar.sslr.squid.checks.SquidCheck;
 import org.sonar.check.BelongsToProfile;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
+import org.sonar.javascript.api.EcmaScriptKeyword;
 import org.sonar.javascript.api.EcmaScriptPunctuator;
 import org.sonar.sslr.parser.LexerlessGrammar;
 
@@ -40,7 +41,13 @@ public class EqEqEqCheck extends SquidCheck<LexerlessGrammar> {
 
   @Override
   public void visitNode(AstNode node) {
-    getContext().createLineViolation(this, "Avoid use of == and != in favor of === and !==.", node);
+    if (!comparesWithNull(node)) {
+      getContext().createLineViolation(this, "Avoid use of == and != in favor of === and !==.", node);
+    }
+  }
+
+  public boolean comparesWithNull(AstNode node) {
+     return EcmaScriptKeyword.NULL.getValue().equals(node.getNextSibling().getTokenValue());
   }
 
 }
