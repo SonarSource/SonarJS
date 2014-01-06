@@ -1,7 +1,7 @@
-Sonar JavaScript
+SonarQube JavaScript
 ================
 
-This is the Sonar JavaScript Plugin
+This is the SonarQube JavaScript Plugin
 
 Project homepage:
 http://docs.codehaus.org/display/SONAR/JavaScript+Plugin

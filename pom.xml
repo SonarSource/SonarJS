@@ -63,7 +63,7 @@
   </ciManagement>
 
   <properties>
-    <license.title>Sonar JavaScript Plugin</license.title>
+    <license.title>SonarQube JavaScript Plugin</license.title>
 
     <maven.test.redirectTestOutputToFile>true</maven.test.redirectTestOutputToFile>
 
