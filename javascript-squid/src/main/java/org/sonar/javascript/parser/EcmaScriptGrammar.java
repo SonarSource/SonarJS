@@ -451,17 +451,6 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
       SPACING,
       b.regexp(EcmaScriptLexer.IDENTIFIER));
 
-    b.rule(LITERAL).is(b.firstOf(
-      NULL_LITERAL,
-      BOOLEAN_LITERAL,
-      NUMERIC_LITERAL,
-      STRING_LITERAL,
-      REGULAR_EXPRESSION_LITERAL));
-    b.rule(NULL_LITERAL).is(NULL);
-    b.rule(BOOLEAN_LITERAL).is(b.firstOf(
-      TRUE,
-      FALSE));
-
     lexical(b);
     expressions(b);
     statements(b);

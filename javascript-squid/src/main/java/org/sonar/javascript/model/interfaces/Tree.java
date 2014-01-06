@@ -21,6 +21,7 @@ package org.sonar.javascript.model.interfaces;
 
 import com.sonar.sslr.api.AstNodeType;
 import org.sonar.javascript.model.interfaces.expression.IdentifierTree;
+import org.sonar.javascript.model.interfaces.expression.LiteralTree;
 import org.sonar.javascript.model.interfaces.lexical.SyntaxToken;
 import org.sonar.javascript.model.interfaces.lexical.SyntaxTrivia;
 import org.sonar.javascript.model.interfaces.statement.BlockTree;
@@ -186,6 +187,36 @@ public interface Tree {
      * {@link IdentifierTree}
      */
     IDENTIFIER(IdentifierTree.class),
+
+    /**
+     * {@link LiteralTree}
+     * {@code null}
+     */
+    NULL_LITERAL(LiteralTree.class),
+
+    /**
+     * {@link LiteralTree}
+     * {@code boolean}
+     */
+    BOOLEAN_LITERAL(LiteralTree.class),
+
+    /**
+     * {@link LiteralTree}
+     * {@code numeric}
+     */
+    NUMERIC_LITERAL(LiteralTree.class),
+
+    /**
+     * {@link LiteralTree}
+     * {@code string}
+     */
+    STRING_LITERAL(LiteralTree.class),
+
+    /**
+     * {@link LiteralTree}
+     * {@code regexp}
+     */
+    REGULAR_EXPRESSION_LITERAL(LiteralTree.class),
 
     TOKEN(SyntaxToken.class),
 

@@ -23,6 +23,7 @@ import org.sonar.javascript.api.EcmaScriptKeyword;
 import org.sonar.javascript.api.EcmaScriptPunctuator;
 import org.sonar.javascript.api.EcmaScriptTokenType;
 import org.sonar.javascript.ast.parser.TreeFactory;
+import org.sonar.javascript.model.implementations.expression.LiteralTreeImpl;
 import org.sonar.javascript.model.implementations.statement.BlockTreeImpl;
 import org.sonar.javascript.model.implementations.statement.BreakStatementTreeImpl;
 import org.sonar.javascript.model.implementations.statement.CaseClauseTreeImpl;
@@ -370,6 +371,24 @@ public class ActionGrammar {
 
   /**
    * A.4 [END] Statement
+   */
+
+  /**
+   * A.3 Expressions
+   */
+
+  public LiteralTreeImpl LITERAL() {
+    return b.<LiteralTreeImpl>nonterminal(EcmaScriptGrammar.LITERAL)
+      .is(b.firstOf(
+        f.nullLiteral(b.invokeRule(EcmaScriptKeyword.NULL)),
+        f.booleanLiteral(b.firstOf(b.invokeRule(EcmaScriptKeyword.TRUE), b.invokeRule(EcmaScriptKeyword.FALSE))),
+        f.numericLiteral(b.invokeRule(EcmaScriptTokenType.NUMERIC_LITERAL)),
+        f.stringLiteral(b.invokeRule(EcmaScriptGrammar.STRING_LITERAL)),
+        f.regexpLiteral(b.invokeRule(EcmaScriptTokenType.REGULAR_EXPRESSION_LITERAL))));
+  }
+
+  /**
+   * A.3 [END] Expressions
    */
 
   private <T> T ES6(T object) {

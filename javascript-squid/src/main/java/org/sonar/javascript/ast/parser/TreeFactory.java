@@ -23,7 +23,9 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.sonar.sslr.api.AstNode;
 import com.sonar.sslr.api.AstNodeType;
+import org.sonar.javascript.api.EcmaScriptKeyword;
 import org.sonar.javascript.model.implementations.expression.IdentifierTreeImpl;
+import org.sonar.javascript.model.implementations.expression.LiteralTreeImpl;
 import org.sonar.javascript.model.implementations.lexical.InternalSyntaxToken;
 import org.sonar.javascript.model.implementations.statement.BlockTreeImpl;
 import org.sonar.javascript.model.implementations.statement.BreakStatementTreeImpl;
@@ -49,6 +51,8 @@ import org.sonar.javascript.model.implementations.statement.VariableDeclarationT
 import org.sonar.javascript.model.implementations.statement.VariableStatementTreeImpl;
 import org.sonar.javascript.model.implementations.statement.WhileStatementTreeImpl;
 import org.sonar.javascript.model.implementations.statement.WithStatementTreeImpl;
+import org.sonar.javascript.model.interfaces.Tree.Kind;
+import org.sonar.javascript.model.interfaces.expression.LiteralTree;
 import org.sonar.javascript.model.interfaces.statement.CaseClauseTree;
 import org.sonar.javascript.model.interfaces.statement.ElseClauseTree;
 import org.sonar.javascript.model.interfaces.statement.StatementTree;
@@ -299,6 +303,26 @@ public class TreeFactory {
       InternalSyntaxToken.create(closeParenthesis),
       statement,
       children);
+  }
+
+  public LiteralTreeImpl nullLiteral(AstNode nullToken) {
+    return new LiteralTreeImpl(Kind.NULL_LITERAL, InternalSyntaxToken.create(nullToken));
+  }
+
+  public LiteralTreeImpl booleanLiteral(AstNode trueFalseToken) {
+    return new LiteralTreeImpl(Kind.BOOLEAN_LITERAL, InternalSyntaxToken.create(trueFalseToken));
+  }
+
+  public LiteralTreeImpl numericLiteral(AstNode numericToken) {
+    return new LiteralTreeImpl(Kind.NUMERIC_LITERAL, InternalSyntaxToken.create(numericToken));
+  }
+
+  public LiteralTreeImpl stringLiteral(AstNode stringToken) {
+    return new LiteralTreeImpl(Kind.STRING_LITERAL, InternalSyntaxToken.create(stringToken));
+  }
+
+  public LiteralTreeImpl regexpLiteral(AstNode regexpToken) {
+    return new LiteralTreeImpl(Kind.REGULAR_EXPRESSION_LITERAL, InternalSyntaxToken.create(regexpToken));
   }
 
 
