@@ -1,0 +1,27 @@
+<p>
+  Nested <code>if</code>, <code>for</code>, <code>while</code>, <code>switch</code> and <code>try</code> statements is a key ingredient for making what's known as "Spaghetti code".
+  Such code is hard to read, refactor and therefore maintain.
+</p>
+
+<h2>Noncompliant Code Example</h2>
+<p>
+  The following code snippet illustrates this rule with the default threshold of 3.
+</p>
+
+<pre>
+  if (condition1) {                  // Compliant - depth = 1
+    /* ... */
+    if (condition2) {                // Compliant - depth = 2
+      /* ... */
+      for(int i = 0; i < 10; i++) {  // Compliant - depth = 3, not exceeding the limit
+        /* ... */
+        if (condition4) {            // Non-Compliant - depth = 4
+          if (condition5) {          // Depth = 5, exceeding the limit, but issues are only reported on depth = 4
+            /* ... */
+          }
+          return;
+        }
+      }
+    }
+  }
+</pre>

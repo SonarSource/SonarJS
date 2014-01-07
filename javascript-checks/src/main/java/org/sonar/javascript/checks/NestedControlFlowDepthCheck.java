@@ -29,16 +29,13 @@ import org.sonar.javascript.api.EcmaScriptKeyword;
 import org.sonar.javascript.parser.EcmaScriptGrammar;
 import org.sonar.sslr.parser.LexerlessGrammar;
 
-/**
- * Note that implementation differs from AbstractNestedIfCheck - see SONARPLUGINS-1855 and SONARPLUGINS-2178
- */
 @Rule(
-  key = "NestedIfDepth",
+  key = "S134",
   priority = Priority.MINOR)
 @BelongsToProfile(title = CheckList.SONAR_WAY_PROFILE, priority = Priority.MINOR)
-public class NestedIfDepthCheck extends SquidCheck<LexerlessGrammar> {
+public class NestedControlFlowDepthCheck extends SquidCheck<LexerlessGrammar> {
 
-  private int nestingLevel;
+  private int nestedLevel;
 
   private static final int DEFAULT_MAXIMUM_NESTING_LEVEL = 3;
 
@@ -53,22 +50,29 @@ public class NestedIfDepthCheck extends SquidCheck<LexerlessGrammar> {
 
   @Override
   public void init() {
-    subscribeTo(EcmaScriptGrammar.IF_STATEMENT);
+    subscribeTo(
+      EcmaScriptGrammar.IF_STATEMENT,
+      EcmaScriptGrammar.FOR_STATEMENT,
+      EcmaScriptGrammar.FOR_IN_STATEMENT,
+      EcmaScriptGrammar.WHILE_STATEMENT,
+      EcmaScriptGrammar.DO_WHILE_STATEMENT,
+      EcmaScriptGrammar.SWITCH_STATEMENT,
+      EcmaScriptGrammar.TRY_STATEMENT);
   }
 
   @Override
   public void visitFile(AstNode astNode) {
-    nestingLevel = 0;
+    nestedLevel = 0;
   }
 
   @Override
   public void visitNode(AstNode astNode) {
     if (!isElseIf(astNode)) {
-      nestingLevel++;
-      if (nestingLevel == getMaximumNestingLevel() + 1) {
-        getContext().createLineViolation(this, "This if has a nesting level of {0}, which is higher than the maximum allowed {1}.", astNode,
-            nestingLevel,
-            getMaximumNestingLevel());
+      nestedLevel++;
+      if (nestedLevel == getMaximumNestingLevel() + 1) {
+        getContext().createLineViolation(this, "Refactor this code to not nest more than {0} if/for/while/switch/try statements.",
+          astNode,
+          getMaximumNestingLevel());
       }
     }
   }
@@ -76,13 +80,13 @@ public class NestedIfDepthCheck extends SquidCheck<LexerlessGrammar> {
   @Override
   public void leaveNode(AstNode astNode) {
     if (!isElseIf(astNode)) {
-      nestingLevel--;
+      nestedLevel--;
     }
   }
 
   private boolean isElseIf(AstNode astNode) {
     return astNode.getParent().getPreviousSibling() != null
-        && astNode.getParent().getPreviousSibling().is(EcmaScriptKeyword.ELSE);
+      && astNode.getParent().getPreviousSibling().is(EcmaScriptKeyword.ELSE);
   }
 
 }

@@ -96,7 +96,7 @@ public final class CheckList {
         AlertUseCheck.class,
         FixmeTagPresenceCheck.class,
         TodoTagPresenceCheck.class,
-        NestedIfDepthCheck.class);
+        NestedControlFlowDepthCheck.class);
   }
 
 }
