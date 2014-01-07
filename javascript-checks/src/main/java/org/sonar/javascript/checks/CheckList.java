@@ -94,6 +94,7 @@ public final class CheckList {
         VariableShadowingCheck.class,
         FunctionNameCheck.class,
         AlertUseCheck.class,
+        FixmeTagPresenceCheck.class,
         NestedIfDepthCheck.class);
   }
 
