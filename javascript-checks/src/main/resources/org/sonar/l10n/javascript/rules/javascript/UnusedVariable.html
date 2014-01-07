@@ -1,15 +1,18 @@
 <p>
-When a variable is declared but never used this definitely decreases the readability of the source code and such dead declarations can even be misleading.
+  If a local variable is declared but not used, it is dead code and should be removed. Doing so will improve maintainability because developers will not wonder what the variable is used for.
 </p>
 
-<p>
-The following code snippet illustrates this rule :
-</p>
+<h2>Noncompliant Code Example</h2>
 <pre>
-function fun(a, b) {
-  var c = 2;   // Non-Compliant as c is never used
-  return a + d;
+function numberOfMinutes(hours) {
+  var seconds = 0;   // seconds is never used
+  return hours * 60;
 }
+</pre>
 
-fun(1, 2);
+<h2>Compliant Solution</h2>
+<pre>
+function numberOfMinutes(hours) {
+  return hours * 60;
+}
 </pre>
