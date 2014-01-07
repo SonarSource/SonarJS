@@ -95,6 +95,7 @@ public final class CheckList {
         FunctionNameCheck.class,
         AlertUseCheck.class,
         FixmeTagPresenceCheck.class,
+        TodoTagPresenceCheck.class,
         NestedIfDepthCheck.class);
   }
 
