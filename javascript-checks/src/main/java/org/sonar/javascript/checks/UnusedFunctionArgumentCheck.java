@@ -20,6 +20,7 @@
 package org.sonar.javascript.checks;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.sonar.sslr.api.AstNode;
 import com.sonar.sslr.squid.checks.SquidCheck;
@@ -30,6 +31,7 @@ import org.sonar.javascript.api.EcmaScriptTokenType;
 import org.sonar.javascript.parser.EcmaScriptGrammar;
 import org.sonar.sslr.parser.LexerlessGrammar;
 
+import java.util.LinkedList;
 import java.util.Map;
 
 @Rule(
@@ -54,7 +56,7 @@ public class UnusedFunctionArgumentCheck extends SquidCheck<LexerlessGrammar> {
 
     public Scope(Scope outerScope) {
       this.outerScope = outerScope;
-      this.arguments = Maps.newHashMap();
+      this.arguments = Maps.newLinkedHashMap();
     }
 
     private void declare(AstNode astNode) {
@@ -115,11 +117,7 @@ public class UnusedFunctionArgumentCheck extends SquidCheck<LexerlessGrammar> {
   public void leaveNode(AstNode astNode) {
     if (astNode.is(EcmaScriptGrammar.FUNCTION_EXPRESSION, EcmaScriptGrammar.FUNCTION_DECLARATION)) {
       // leave scope
-      for (Map.Entry<String, Argument> entry : currentScope.arguments.entrySet()) {
-        if (entry.getValue().usages == 0) {
-          getContext().createLineViolation(this, "Remove the declaration of the unused '" + entry.getKey() + "' argument.", entry.getValue().declaration);
-        }
-      }
+      reportDanglingUnusedArgs();
       currentScope = currentScope.outerScope;
     }
   }
@@ -129,4 +127,19 @@ public class UnusedFunctionArgumentCheck extends SquidCheck<LexerlessGrammar> {
     currentScope = null;
   }
 
+  public void reportDanglingUnusedArgs() {
+    boolean hasMetUsedArg = false;
+    LinkedList<Map.Entry<String, Argument>> entries = Lists.newLinkedList(currentScope.arguments.entrySet());
+
+    for (Map.Entry<String, Argument> entry : Lists.reverse(entries)) {
+      int usages = entry.getValue().usages;
+
+      if (usages == 0 && hasMetUsedArg) {
+        getContext().createLineViolation(this, "Remove the declaration of the unused '" + entry.getKey() + "' argument.", entry.getValue().declaration);
+      } else if (usages > 0 && !hasMetUsedArg) {
+        hasMetUsedArg = true;
+      }
+    }
+  }
 }
+
