@@ -60,12 +60,12 @@ public class FunctionNameCheck extends SquidCheck<LexerlessGrammar> {
 
   @Override
   public void visitNode(AstNode astNode) {
-      String identifier = astNode.getFirstChild(EcmaScriptTokenType.IDENTIFIER).getTokenValue();
+    String identifier = astNode.getFirstChild(EcmaScriptTokenType.IDENTIFIER).getTokenValue();
 
-      if (!pattern.matcher(identifier).matches()) {
-        getContext().createLineViolation(this, "Rename this ''{0}'' function to match the regular expression {1}", astNode,
-          identifier,
-          DEFAULT);
+    if (!pattern.matcher(identifier).matches()) {
+      getContext().createLineViolation(this, "Rename this ''{0}'' function to match the regular expression {1}", astNode,
+        identifier,
+        DEFAULT);
     }
   }
 }

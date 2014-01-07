@@ -47,7 +47,7 @@ public class EqEqEqCheck extends SquidCheck<LexerlessGrammar> {
   }
 
   public boolean comparesWithNull(AstNode node) {
-     return EcmaScriptKeyword.NULL.getValue().equals(node.getNextSibling().getTokenValue());
+    return EcmaScriptKeyword.NULL.getValue().equals(node.getNextSibling().getTokenValue());
   }
 
 }
