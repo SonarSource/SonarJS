@@ -93,6 +93,7 @@ public final class CheckList {
         VariableDeclarationAfterUsageCheck.class,
         VariableShadowingCheck.class,
         FunctionNameCheck.class,
+        AlertUseCheck.class,
         NestedIfDepthCheck.class);
   }
 
