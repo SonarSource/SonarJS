@@ -1,0 +1,25 @@
+<p>
+  <code>switch</code> statements are useful when there are many different cases depending on the value of the same expression.
+  For just one or two cases however, the code will be more readable with <code>if</code> statements.
+</p>
+
+<h2>Noncompliant Code Example</h2>
+<pre>
+switch (variable) {
+  case 0:
+    doSomething();
+    break;
+  default:
+    doSomethingElse();
+    break;
+}
+</pre>
+
+<h2>Compliant Solution</h2>
+<pre>
+if (variable == 0) {
+  doSomething();
+} else {
+  doSomethingElse();
+}
+</pre>
