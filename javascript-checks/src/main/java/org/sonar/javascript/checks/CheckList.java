@@ -98,6 +98,7 @@ public final class CheckList {
         TodoTagPresenceCheck.class,
         TooManyLinesInFileCheck.class,
         SwitchWithNotEnoughCaseCheck.class,
+        IfConditionalAlwaysTrueOrFalseCheck.class,
         NestedControlFlowDepthCheck.class);
   }
 

@@ -1,0 +1,23 @@
+<p>
+  If statements with conditions that are always false have the effect of making blocks of code non-functional. This can be useful during debugging, but should not be checked in. If statements with conditions that are always true are completely redundant, and make the code less readable.
+</p>
+<p>
+  In either case, non-conditional if statements should be removed.
+</p>
+
+<h2>Noncompliant Code Example</h2>
+<pre>
+if (true) {
+  doSomething();
+}
+...
+if (false) {
+  doSomethingElse();
+}
+</pre>
+
+<h2>Compliant Solution</h2>
+<pre>
+doSomething();
+...
+</pre>
