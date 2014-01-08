@@ -4,3 +4,11 @@ This is bad because it causes ' \t\r\n' == 0 to be true.
 This can mask type errors.
 It is best to not use == and != and to always use the more reliable === and !== operators instead.
 </p>
+
+<h2>Exceptions</h2>
+<p>
+Even if testing the equality of a variable against null doesn't do exactly what most JavaScript developers believe, usage of == or != is tolerated in such context. In the following case, if foo hasn't been initialized, its default value is not null but undefined. Nevertheless undefined == null, so JavaScript developers get the expected behavior.
+</p>
+<pre>
+if(foo == null) {...}
+</pre>

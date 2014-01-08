@@ -42,7 +42,12 @@ public class EqEqEqCheck extends SquidCheck<LexerlessGrammar> {
   @Override
   public void visitNode(AstNode node) {
     if (!comparesWithNull(node)) {
-      getContext().createLineViolation(this, "Avoid use of == and != in favor of === and !==.", node);
+
+      if (node.is(EcmaScriptPunctuator.EQUAL)) {
+        getContext().createLineViolation(this, "Replace == with ===", node);
+      } else if (node.is(EcmaScriptPunctuator.NOTEQUAL)) {
+        getContext().createLineViolation(this, "Replace != with !==", node);
+      }
     }
   }
 
