@@ -99,6 +99,7 @@ public final class CheckList {
         TooManyLinesInFileCheck.class,
         SwitchWithNotEnoughCaseCheck.class,
         IfConditionalAlwaysTrueOrFalseCheck.class,
+        ReturnOfBooleanExpressionCheck.class,
         NestedControlFlowDepthCheck.class);
   }
 

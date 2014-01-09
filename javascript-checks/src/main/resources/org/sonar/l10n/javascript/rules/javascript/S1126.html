@@ -1,0 +1,22 @@
+<p>
+  Return of boolean literal statements wrapped into if-then-else ones should be simplified.
+</p>
+<p>
+  Sometimes the developer will not have the time or will simply forget to get back to that tag.
+  This rule is meant to track those tags, and ensure that they do not go unnoticed.
+</p>
+
+<h2>Noncompliant Code Example</h2>
+<pre>
+if (someBooleanMethod()) {
+  return true;
+} else {
+  return false;
+}
+</pre>
+
+
+<h2>Compliant Solution</h2>
+<pre>
+return someBooleanMethod();
+</pre>
