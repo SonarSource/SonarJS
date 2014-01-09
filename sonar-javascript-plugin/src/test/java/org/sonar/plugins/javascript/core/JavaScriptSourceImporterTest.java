@@ -91,6 +91,7 @@ public class JavaScriptSourceImporterTest {
       }
     };
 
+    importer.shouldExecuteOnProject(project);
     importer.analyse(project, context);
 
     verify(context).saveSource((Resource) anyObject(), eq("This is content for PersonTest.js JavaScript file used in unit tests."));
