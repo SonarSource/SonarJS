@@ -1,0 +1,14 @@
+<p>
+  When only the condition expression is defined in a "for" loop, but the init and increment expressions are missing, a "while" loop should be used instead to increase readability.
+</p>
+
+<h2>Noncompliant Code Example</h2>
+<pre>
+for(;condition;) {...}
+</pre>
+
+
+<h2>Compliant Solution</h2>
+<pre>
+return someBooleanMethod();while(condition) {...}
+</pre>

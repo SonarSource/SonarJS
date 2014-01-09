@@ -100,6 +100,7 @@ public final class CheckList {
         SwitchWithNotEnoughCaseCheck.class,
         IfConditionalAlwaysTrueOrFalseCheck.class,
         ReturnOfBooleanExpressionCheck.class,
+        ForHidingWhileCheck.class,
         NestedControlFlowDepthCheck.class);
   }
 
