@@ -34,7 +34,7 @@ public class AmbiguousFunctionCallsCheckTest {
   public void test() {
     SourceFile file = JavaScriptAstScanner.scanSingleFile(new File("src/test/resources/checks/ambiguousFunctionCalls.js"), check);
     CheckMessagesVerifier.verify(file.getCheckMessages())
-      .next().atLine(1).withMessage("Inline this chain of function calls or add the missing semi-colons")
+      .next().atLine(1).withMessage("Inline this chain of function calls or add the missing semicolons")
       .next().atLine(4)
       .next().atLine(7)
       .next().atLine(11)

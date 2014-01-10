@@ -51,7 +51,7 @@ public class AmbiguousFunctionCallsCheck extends SquidCheck<LexerlessGrammar> {
 
     for (AstNode argumentsNode : argumentsList) {
       if (argumentsNode.getTokenLine() != callLine) {
-        getContext().createLineViolation(this, "Inline this chain of function calls or add the missing semi-colons",
+        getContext().createLineViolation(this, "Inline this chain of function calls or add the missing semicolons",
           astNode.getFirstChild(EcmaScriptGrammar.ARGUMENTS));
         break;
       }
