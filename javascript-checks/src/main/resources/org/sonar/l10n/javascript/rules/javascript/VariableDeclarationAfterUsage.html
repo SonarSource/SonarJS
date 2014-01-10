@@ -13,13 +13,13 @@ The following code snippet illustrates this rule :
 var x = 1;
 
 function fun(){
-  print(x); // Non-Compliant as x is declared later in the same scope
+  print(x); // Noncompliant as x is declared later in the same scope
   if(something) {
     var x = 42; // Declaration
   }
 }
 
-fun(); // Unexpectedly Print 42 and not 1
+fun(); // Unexpectedly Print "undefined" and not "1"
 </pre>
 
 <p>
@@ -29,11 +29,11 @@ Whereas the following code snippet is correct :
 var x = 1;
 
 function fun() {
-  print(x); // 1
+  print(x);
   if (something) {
     x = 42;
   }
 }
 
-fun(); // Print 1
+fun(); // Print "1"
 </pre>
