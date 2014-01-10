@@ -9,6 +9,10 @@ each(function fun(a, b, c) { // NOK
 each(function fun(a) {       // NOK
 });
 
+each(function fun(a, b, c) { // NOK
+  b =1;
+});
+
 each(function fun(a, b) {    // OK
   b = 1;
 });
