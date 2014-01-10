@@ -1,13 +1,47 @@
 <p>
-An unused function argument is a kind of dead code. Such unused argument should be removed to increase the maintainability of a JavaScript program.
+  Unused parameters are misleading. Whatever the value passed to such parameters is, the behavior will be the same.
 </p>
 
+<h2>Noncompliant Code Example</h2>
+<pre>
+function doSomething(a, b) { // "a" is unused
+  return compute(b);
+}
+</pre>
+
+
+<h2>Compliant Solution</h2>
+<pre>
+function doSomething(a, b) { // "a" is unused
+  return compute(b);
+}
+</pre>
+
+
+
+<h2>Exceptions</h2>
 <p>
-The following code snippet illustrates this rule :
+  When writing some function callbacks some arguments might be not re-used whereas they must be part of the function signature.</br>
+  For instance JQuery has the 'each' helper to iterate over arrays or objects but using the counter 'i' should remain optional:
 </p>
 <pre>
-function fun(a, b) { // Non-Compliant as 'a' argument is not used
-  var result = b / 3;
-  return b;
-}
+$(["first", "last"]).each(function (i, value) {
+  computeSomethingWithValue(value);
+});
+</pre>
+<p>
+  So the rule is the following one for function-expression: only unused arguments located after some used arguments and not followed by any other used arguments should be reported as unused. Indeed, in such case it's possible to remove them from the function signature so if there are useless they must be dropped.
+</p>
+<p>
+  Examples :
+</p>
+<pre>
+var myFirsCallBackFunction = function (p1, p2, p3, p4) {  //unused p2 is not reported but p4 is
+                                              return p1 + p3; }
+
+var mySecondCallBackFunction = function (p1, p2, p3, p4) {  //unused p1, p2 and p3 are not reported
+                                              return p4; }
+
+var myThirdCallBackFunction = function (p1, p2, p3, p4) {  //unused p1 is not reported but p3 and p4 are
+                                              return p2; }
 </pre>
