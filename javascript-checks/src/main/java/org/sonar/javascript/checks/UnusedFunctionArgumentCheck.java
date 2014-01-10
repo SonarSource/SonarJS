@@ -117,7 +117,7 @@ public class UnusedFunctionArgumentCheck extends SquidCheck<LexerlessGrammar> {
   public void leaveNode(AstNode astNode) {
     if (astNode.is(EcmaScriptGrammar.FUNCTION_EXPRESSION, EcmaScriptGrammar.FUNCTION_DECLARATION)) {
       // leave scope
-      reportDanglingUnusedArgs();
+      reportUnusedArguments(astNode);
       currentScope = currentScope.outerScope;
     }
   }
@@ -127,6 +127,22 @@ public class UnusedFunctionArgumentCheck extends SquidCheck<LexerlessGrammar> {
     currentScope = null;
   }
 
+  public void reportUnusedArguments(AstNode functionNode) {
+    if (functionNode.is(EcmaScriptGrammar.FUNCTION_DECLARATION)) {
+      reportAllUnusedArgs();
+    } else {
+      reportDanglingUnusedArgs();
+    }
+  }
+
+  public void reportAllUnusedArgs() {
+    for (Map.Entry<String, Argument> entry : currentScope.arguments.entrySet()) {
+      if (entry.getValue().usages == 0) {
+        getContext().createLineViolation(this, "Remove the declaration of the unused '" + entry.getKey() + "' argument.", entry.getValue().declaration);
+      }
+    }
+  }
+
   public void reportDanglingUnusedArgs() {
     boolean hasMetUsedArg = false;
     LinkedList<Map.Entry<String, Argument>> entries = Lists.newLinkedList(currentScope.arguments.entrySet());
@@ -134,7 +150,7 @@ public class UnusedFunctionArgumentCheck extends SquidCheck<LexerlessGrammar> {
     for (Map.Entry<String, Argument> entry : Lists.reverse(entries)) {
       int usages = entry.getValue().usages;
 
-      if (usages == 0 && hasMetUsedArg) {
+      if (usages == 0 && !hasMetUsedArg) {
         getContext().createLineViolation(this, "Remove the declaration of the unused '" + entry.getKey() + "' argument.", entry.getValue().declaration);
       } else if (usages > 0 && !hasMetUsedArg) {
         hasMetUsedArg = true;
