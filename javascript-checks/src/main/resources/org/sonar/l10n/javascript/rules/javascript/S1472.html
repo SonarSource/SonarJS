@@ -1,0 +1,27 @@
+<p>
+  Because semi-colons at the ends of statements are optional, splitting a chain of function calls over multiple lines makes the code confusing and hard to maintain.
+</p>
+
+<h2>Noncompliant Code Example</h2>
+<pre>
+doSomething(foo)
+(x++)
+doSomethingElse(bar)
+</pre>
+
+<h2>Compliant Solution</h2>
+<p>
+  What was the initial purpose of the developer ?
+</p>
+<pre>
+doSomething(foo)(x++);
+doSomethingElse(bar);
+</pre>
+<p>
+  or
+</p>
+<pre>
+doSomething(foo);
+x++;
+doSomethingElse(bar);
+</pre>

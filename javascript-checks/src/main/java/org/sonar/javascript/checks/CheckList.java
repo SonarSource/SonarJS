@@ -101,6 +101,7 @@ public final class CheckList {
         IfConditionalAlwaysTrueOrFalseCheck.class,
         ReturnOfBooleanExpressionCheck.class,
         ForHidingWhileCheck.class,
+        AmbiguousFunctionCallsCheck.class,
         NestedControlFlowDepthCheck.class);
   }
 
