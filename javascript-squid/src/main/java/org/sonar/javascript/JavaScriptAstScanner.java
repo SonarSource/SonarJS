@@ -74,7 +74,6 @@ public final class JavaScriptAstScanner {
     final SquidAstVisitorContextImpl<LexerlessGrammar> context = new SquidAstVisitorContextImpl<LexerlessGrammar>(new SourceProject("JavaScript Project"));
     final Parser<LexerlessGrammar> parser = EcmaScriptParser.create(conf);
 
-    //AstScanner.Builder<LexerlessGrammar> builder = AstScanner.<LexerlessGrammar> builder(context).setBaseParser(parser);
     AstScanner.Builder<LexerlessGrammar> builder = new ProgressAstScanner.Builder(context).setBaseParser(parser);
 
     /* Metrics */
