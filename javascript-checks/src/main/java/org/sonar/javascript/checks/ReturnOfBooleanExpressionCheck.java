@@ -82,13 +82,18 @@ public class ReturnOfBooleanExpressionCheck extends SquidCheck<LexerlessGrammar>
 
   public static boolean isSimpleReturnBooleanLiteral(AstNode statement) {
     AstNode returnStmt = statement.getFirstChild(EcmaScriptGrammar.RETURN_STATEMENT);
-    if (returnStmt == null || returnStmt.getFirstChild(EcmaScriptGrammar.EXPRESSION) == null) {
+    if (returnStmt == null) {
       return false;
     }
 
-    AstNode unaryExpr = returnStmt.getFirstChild(EcmaScriptGrammar.EXPRESSION).getFirstChild(EcmaScriptGrammar.UNARY_EXPRESSION);
-    return unaryExpr != null
-      && (EcmaScriptKeyword.TRUE.getValue().equals(unaryExpr.getTokenValue())
-      || EcmaScriptKeyword.FALSE.getValue().equals(unaryExpr.getTokenValue()));
+    AstNode expression = returnStmt.getFirstChild(EcmaScriptGrammar.EXPRESSION);
+
+    return hasASingleToken(expression)
+      && (EcmaScriptKeyword.TRUE.getValue().equals(expression.getTokenValue())
+      || EcmaScriptKeyword.FALSE.getValue().equals(expression.getTokenValue()));
+  }
+
+  private static boolean hasASingleToken(AstNode expression) {
+    return expression != null && expression.getFirstChild().getToken().equals(expression.getLastToken());
   }
 }
