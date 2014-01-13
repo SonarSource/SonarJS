@@ -30,7 +30,7 @@ import org.sonar.javascript.parser.EcmaScriptGrammar;
 import org.sonar.sslr.parser.LexerlessGrammar;
 
 @Rule(
-  key = "S134",
+  key = "NestedIfDepth",
   priority = Priority.MINOR)
 @BelongsToProfile(title = CheckList.SONAR_WAY_PROFILE, priority = Priority.MINOR)
 public class NestedControlFlowDepthCheck extends SquidCheck<LexerlessGrammar> {
