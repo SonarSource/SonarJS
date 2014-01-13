@@ -49,7 +49,7 @@ public class SwitchWithNotEnoughCaseCheck extends SquidCheck<LexerlessGrammar> {
     int numberOfCase = 0;
 
     for (AstNode caseClauses : caseBlock.getChildren(EcmaScriptGrammar.CASE_CLAUSES)) {
-      numberOfCase += caseClauses.getNumberOfChildren();
+      numberOfCase += caseClauses.getChildren(EcmaScriptGrammar.CASE_CLAUSE).size();
     }
 
     if (caseBlock.getFirstChild(EcmaScriptGrammar.DEFAULT_CLAUSE) != null) {
