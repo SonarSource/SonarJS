@@ -103,6 +103,7 @@ public final class CheckList {
         ForHidingWhileCheck.class,
         AmbiguousFunctionCallsCheck.class,
         FileHeaderCheck.class,
+        TooManyLinesInFunctionCheck.class,
         NestedControlFlowDepthCheck.class);
   }
 
