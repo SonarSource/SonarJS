@@ -34,8 +34,8 @@ public class EqEqEqCheckTest {
 
     SourceFile file = JavaScriptAstScanner.scanSingleFile(new File("src/test/resources/checks/eqEqEq.js"), check);
     CheckMessagesVerifier.verify(file.getCheckMessages())
-        .next().atLine(2).withMessage("Replace == with ===")
-        .next().atLine(4).withMessage("Replace != with !==")
+        .next().atLine(2).withMessage("Replace \"==\" with \"===\".")
+        .next().atLine(4).withMessage("Replace \"!=\" with \"!==\".")
         .noMore();
   }
 

@@ -44,9 +44,9 @@ public class EqEqEqCheck extends SquidCheck<LexerlessGrammar> {
     if (!comparesWithNull(node)) {
 
       if (node.is(EcmaScriptPunctuator.EQUAL)) {
-        getContext().createLineViolation(this, "Replace == with ===", node);
+        getContext().createLineViolation(this, "Replace \"==\" with \"===\".", node);
       } else if (node.is(EcmaScriptPunctuator.NOTEQUAL)) {
-        getContext().createLineViolation(this, "Replace != with !==", node);
+        getContext().createLineViolation(this, "Replace \"!=\" with \"!==\".", node);
       }
     }
   }
