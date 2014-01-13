@@ -31,6 +31,7 @@ import org.sonar.javascript.api.EcmaScriptTokenType;
 import org.sonar.javascript.parser.EcmaScriptGrammar;
 import org.sonar.sslr.parser.LexerlessGrammar;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.Map;
 
@@ -145,7 +146,7 @@ public class UnusedFunctionArgumentCheck extends SquidCheck<LexerlessGrammar> {
 
   public void reportDanglingUnusedArgs() {
     boolean hasMetUsedArg = false;
-    LinkedList<Map.Entry<String, Argument>> entries = Lists.newLinkedList(currentScope.arguments.entrySet());
+    ArrayList<Map.Entry<String, Argument>> entries = Lists.newArrayList(currentScope.arguments.entrySet());
 
     for (Map.Entry<String, Argument> entry : Lists.reverse(entries)) {
       int usages = entry.getValue().usages;
