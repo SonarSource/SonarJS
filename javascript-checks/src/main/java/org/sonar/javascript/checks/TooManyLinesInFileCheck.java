@@ -19,9 +19,8 @@
  */
 package org.sonar.javascript.checks;
 
-import com.sonar.sslr.api.AstAndTokenVisitor;
+import com.sonar.sslr.api.AstNode;
 import com.sonar.sslr.api.GenericTokenType;
-import com.sonar.sslr.api.Token;
 import com.sonar.sslr.squid.checks.SquidCheck;
 import org.sonar.check.BelongsToProfile;
 import org.sonar.check.Priority;
@@ -33,7 +32,7 @@ import org.sonar.sslr.parser.LexerlessGrammar;
   key = "S104",
   priority = Priority.MAJOR)
 @BelongsToProfile(title = CheckList.SONAR_WAY_PROFILE, priority = Priority.MAJOR)
-public class TooManyLinesInFileCheck extends SquidCheck<LexerlessGrammar> implements AstAndTokenVisitor {
+public class TooManyLinesInFileCheck extends SquidCheck<LexerlessGrammar> {
 
   private static final int DEFAULT = 1000;
 
@@ -43,13 +42,16 @@ public class TooManyLinesInFileCheck extends SquidCheck<LexerlessGrammar> implem
   public int maximum = DEFAULT;
 
   @Override
-  public void visitToken(Token token) {
-    if (token.getType() == GenericTokenType.EOF) {
-      int lines = token.getLine();
+  public void init() {
+    subscribeTo(GenericTokenType.EOF);
+  }
 
-      if (lines > maximum) {
-        getContext().createFileViolation(this, "This file has {0} lines, which is greater than {1} authorized. Split it into smaller files.", lines, maximum);
-      }
+  @Override
+  public void visitNode(AstNode astNode) {
+    int lines = astNode.getTokenLine();
+
+    if (lines > maximum) {
+      getContext().createFileViolation(this, "This file has {0} lines, which is greater than {1} authorized. Split it into smaller files.", lines, maximum);
     }
   }
 }
