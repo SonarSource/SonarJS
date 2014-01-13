@@ -48,12 +48,14 @@ public class IfConditionalAlwaysTrueOrFalseCheck extends SquidCheck<LexerlessGra
   }
 
   public static boolean isOnlyBooleanLiteral(AstNode exprNode) {
-    AstNode expr = exprNode.getFirstChild(EcmaScriptGrammar.EXPRESSION);
-    if (expr.getFirstChild(EcmaScriptGrammar.UNARY_EXPRESSION) == null) {
+    AstNode exprChild = exprNode.getFirstChild(EcmaScriptGrammar.EXPRESSION).getFirstChild();
+
+    if (!exprChild.getToken().equals(exprChild.getLastToken())) {
       return false;
     }
 
-    return EcmaScriptKeyword.TRUE.getValue().equals(expr.getTokenValue())
-    || EcmaScriptKeyword.FALSE.getValue().equals(expr.getTokenValue());
+    String tokenValue = exprChild.getTokenValue();
+    return EcmaScriptKeyword.TRUE.getValue().equals(tokenValue)
+      || EcmaScriptKeyword.FALSE.getValue().equals(tokenValue);
   }
 }
