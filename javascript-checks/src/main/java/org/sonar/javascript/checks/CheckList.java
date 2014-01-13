@@ -102,6 +102,7 @@ public final class CheckList {
         ReturnOfBooleanExpressionCheck.class,
         ForHidingWhileCheck.class,
         AmbiguousFunctionCallsCheck.class,
+        FileHeaderCheck.class,
         NestedControlFlowDepthCheck.class);
   }
 

@@ -55,3 +55,4 @@ public class TooManyLinesInFileCheck extends SquidCheck<LexerlessGrammar> {
     }
   }
 }
+
