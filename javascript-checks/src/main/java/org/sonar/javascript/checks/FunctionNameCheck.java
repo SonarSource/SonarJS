@@ -47,14 +47,8 @@ public class FunctionNameCheck extends SquidCheck<LexerlessGrammar> {
   public String format = DEFAULT;
 
   @Override
-  public void visitFile(@Nullable AstNode astNode) {
-    if (pattern == null) {
-      pattern = Pattern.compile(format);
-    }
-  }
-
-  @Override
   public void init() {
+    pattern = Pattern.compile(format);
     subscribeTo(EcmaScriptGrammar.FUNCTION_DECLARATION);
   }
 
