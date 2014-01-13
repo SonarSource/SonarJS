@@ -41,18 +41,18 @@ public class ReturnOfBooleanExpressionCheck extends SquidCheck<LexerlessGrammar>
 
   @Override
   public void visitNode(AstNode astNode) {
-    if (isNotIfElse(astNode) &&hasElse(astNode)
+    if (isNotIfElse(astNode) && hasElse(astNode)
       && returnsBoolean(getTrueStatement(astNode))
       && returnsBoolean(getFalseStatement(astNode))) {
       getContext().createLineViolation(this, "Replace this if-then-else statement by a single return statement.", astNode);
     }
   }
 
-  public static AstNode getTrueStatement(AstNode ifStmt){
+  public static AstNode getTrueStatement(AstNode ifStmt) {
     return ifStmt.getFirstChild(EcmaScriptGrammar.ELSE_CLAUSE).getFirstChild(EcmaScriptGrammar.STATEMENT);
   }
 
-  public static AstNode getFalseStatement(AstNode ifStmt){
+  public static AstNode getFalseStatement(AstNode ifStmt) {
     return ifStmt.getFirstChild(EcmaScriptGrammar.STATEMENT);
   }
 
