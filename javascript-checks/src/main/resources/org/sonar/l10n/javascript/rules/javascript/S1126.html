@@ -1,5 +1,5 @@
 <p>
-  Return of boolean literal statements wrapped into if-then-else ones should be simplified.
+  Return of boolean literal statements wrapped into <code>if-then-else</code> ones should be simplified.
 </p>
 <p>
   Sometimes the developer will not have the time or will simply forget to get back to that tag.
@@ -8,7 +8,7 @@
 
 <h2>Noncompliant Code Example</h2>
 <pre>
-if (someBooleanMethod()) {
+if (condition) {
   return true;
 } else {
   return false;
@@ -18,5 +18,9 @@ if (someBooleanMethod()) {
 
 <h2>Compliant Solution</h2>
 <pre>
-return someBooleanMethod();
+return condition;
+</pre>
+<p>Note that if type of condition is not boolean, then double negation should be used for proper conversion:</p>
+<pre>
+return !!condition;
 </pre>
