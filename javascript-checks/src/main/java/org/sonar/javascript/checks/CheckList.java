@@ -106,6 +106,7 @@ public final class CheckList {
         TooManyLinesInFunctionCheck.class,
         CommaOperatorUseCheck.class,
         NonCaseLabelInSwitchCheck.class,
+        BooleanEqualityComparisonCheck.class,
         NestedControlFlowDepthCheck.class);
   }
 

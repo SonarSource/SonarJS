@@ -1,0 +1,19 @@
+<p>
+  Boolean expressions should be as compact as possible to improve readability. Useless operators should be removed.
+</p>
+
+<h2>Noncompliant Code Example</h2>
+<pre>
+if (booleanVariable == true) { /* ... */ }
+if (booleanVariable != true) { /* ... */ }
+if (booleanVariable || false) { /* ... */ }
+doSomething(!false);
+</pre>
+
+<h2>Compliant Solution</h2>
+<pre>
+if (booleanVariable) { /* ... */ }
+if (!booleanVariable) { /* ... */ }
+if (booleanVariable) { /* ... */ }
+doSomething(true);
+</pre>
