@@ -24,6 +24,7 @@ import com.sonar.sslr.squid.checks.SquidCheck;
 import org.sonar.check.BelongsToProfile;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
+import org.sonar.javascript.api.EcmaScriptPunctuator;
 import org.sonar.javascript.parser.EcmaScriptGrammar;
 import org.sonar.sslr.parser.LexerlessGrammar;
 
@@ -33,28 +34,24 @@ import java.util.List;
   key = "S1472",
   priority = Priority.CRITICAL)
 @BelongsToProfile(title = CheckList.SONAR_WAY_PROFILE, priority = Priority.CRITICAL)
-public class AmbiguousFunctionCallsCheck extends SquidCheck<LexerlessGrammar> {
+public class FunctionCallArgumentsOnNewLineCheck extends SquidCheck<LexerlessGrammar> {
 
   @Override
   public void init() {
     subscribeTo(EcmaScriptGrammar.CALL_EXPRESSION);
   }
 
+  public static int i = 1;
+
   @Override
   public void visitNode(AstNode astNode) {
-    List<AstNode> argumentsList = astNode.getChildren(EcmaScriptGrammar.ARGUMENTS);
-    if (argumentsList.size() == 1) {
-      return;
-    }
+    for (AstNode args : astNode.getChildren(EcmaScriptGrammar.ARGUMENTS)) {
+      int memberCallingLine = args.getPreviousSibling().getLastToken().getLine();
 
-    int callLine = astNode.getFirstChild(EcmaScriptGrammar.ARGUMENTS).getTokenLine();
-
-    for (AstNode argumentsNode : argumentsList) {
-      if (argumentsNode.getTokenLine() != callLine) {
-        getContext().createLineViolation(this, "Inline this chain of function calls or add the missing semicolons",
-          astNode.getFirstChild(EcmaScriptGrammar.ARGUMENTS));
-        break;
+      if (args.getTokenLine() != memberCallingLine) {
+        getContext().createLineViolation(this, "Make those call arguments start on line {0}", args, memberCallingLine);
       }
     }
   }
+
 }

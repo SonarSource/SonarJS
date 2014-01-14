@@ -26,18 +26,17 @@ import org.sonar.squid.api.SourceFile;
 
 import java.io.File;
 
-public class AmbiguousFunctionCallsCheckTest {
+public class FunctionCallArgumentsOnNewLineCheckTest {
 
-  private AmbiguousFunctionCallsCheck check = new AmbiguousFunctionCallsCheck();
+  private FunctionCallArgumentsOnNewLineCheck check = new FunctionCallArgumentsOnNewLineCheck();
 
   @Test
   public void test() {
-    SourceFile file = JavaScriptAstScanner.scanSingleFile(new File("src/test/resources/checks/ambiguousFunctionCalls.js"), check);
+    SourceFile file = JavaScriptAstScanner.scanSingleFile(new File("src/test/resources/checks/functionCallArgumentsOnNewLine.js"), check);
     CheckMessagesVerifier.verify(file.getCheckMessages())
-      .next().atLine(1).withMessage("Inline this chain of function calls or add the missing semicolons")
-      .next().atLine(4)
-      .next().atLine(7)
-      .next().atLine(11)
+      .next().atLine(4).withMessage("Make those call arguments start on line 2")
+      .next().atLine(9).withMessage("Make those call arguments start on line 8")
       .noMore();
   }
+
 }

@@ -101,7 +101,7 @@ public final class CheckList {
         IfConditionalAlwaysTrueOrFalseCheck.class,
         ReturnOfBooleanExpressionCheck.class,
         ForHidingWhileCheck.class,
-        AmbiguousFunctionCallsCheck.class,
+        FunctionCallArgumentsOnNewLineCheck.class,
         FileHeaderCheck.class,
         TooManyLinesInFunctionCheck.class,
         CommaOperatorUseCheck.class,
