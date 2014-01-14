@@ -104,6 +104,7 @@ public final class CheckList {
         AmbiguousFunctionCallsCheck.class,
         FileHeaderCheck.class,
         TooManyLinesInFunctionCheck.class,
+        CommaOperatorUseCheck.class,
         NestedControlFlowDepthCheck.class);
   }
 
