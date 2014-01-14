@@ -105,6 +105,7 @@ public final class CheckList {
         FileHeaderCheck.class,
         TooManyLinesInFunctionCheck.class,
         CommaOperatorUseCheck.class,
+        NonCaseLabelInSwitchCheck.class,
         NestedControlFlowDepthCheck.class);
   }
 

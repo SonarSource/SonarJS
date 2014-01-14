@@ -1,0 +1,56 @@
+<p>
+  Even if it is legal, mixing case and non-case labels in the body of a switch statement is very confusing and can even be the result of a typing error.
+</p>
+
+<h2>Noncompliant Code Examples</h2>
+<p>Case 1, the code is syntactically correct but the behaviour is not the expected one</p>
+<pre>
+switch (day) {
+  case MONDAY:
+  case TUESDAY:
+  WEDNESDAY:   //instead of "case WEDNESDAY"
+    doSomething();
+    break;
+  ...
+}
+</pre>
+<p>Case 2, the code is correct and behaves as expected but is hardly readable</p>
+<pre>
+switch (day) {
+  case MONDAY:
+    break;
+  case TUESDAY:
+    foo:for(i = 0 ; i < X ; i++) {
+         /* ... */
+        break foo;  //This break statement doesn't relate to the nesting case TUESDAY
+         /* ... */
+    }
+    break;
+    /* ... */
+}
+</pre>
+
+<h2>Compliant Solution</h2>
+<p>Case 1</p>
+<pre>
+switch (day) {
+  case MONDAY:
+  case TUESDAY:
+  case WEDNESDAY:
+    doSomething();
+    break;
+  ...
+}
+</pre>
+<p>Case 1</p>
+<pre>
+switch (day) {
+  case MONDAY:
+    break;
+  case TUESDAY:
+    compute(args); //Put the content of the labelled "for" statement in a dedicated method
+    break;
+
+    /* ... */
+}
+</pre>
