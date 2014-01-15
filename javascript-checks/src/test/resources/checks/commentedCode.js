@@ -14,4 +14,8 @@ function sayHello() {
   // if (something) {
 
   // good
+
+  // ====
+  // ----
+  // ++++
 }

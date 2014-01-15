@@ -56,9 +56,8 @@ public class CommentedCodeCheck extends SquidCheck<LexerlessGrammar> implements 
       return ImmutableSet.of(
           new EndWithDetector(0.95, '}', ';', '{'),
           new KeywordsDetector(0.3, EcmaScriptKeyword.keywordValues()),
-          new ContainsDetector(0.95, "++", "--"),
           new ContainsDetector(0.95, "*=", "/=", "%=", "+=", "-=", "<<=", ">>=", ">>>=", "&=", "^=", "|="),
-          new ContainsDetector(0.95, "==", "!=", "===", "!=="));
+          new ContainsDetector(0.95, "!=", "!=="));
     }
 
   }
