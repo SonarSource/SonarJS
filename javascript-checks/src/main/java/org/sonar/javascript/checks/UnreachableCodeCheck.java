@@ -49,12 +49,16 @@ public class UnreachableCodeCheck extends SquidCheck<LexerlessGrammar> {
       node = node.getParent();
     }
 
-    if (node.getNextSibling() != null) {
-      AstNode v = node.getNextSibling();
-      if (!v.is(EcmaScriptGrammar.ELSE_CLAUSE)) {
-        getContext().createLineViolation(this, "This statement can't be reached and so start a dead code block.", v);
-      }
+    AstNode nextStatement = node.getNextSibling();
+    if (isUnReachableCode(nextStatement)) {
+      getContext().createLineViolation(this, "This statement can't be reached and so start a dead code block.", nextStatement);
     }
+  }
+
+  public static boolean isUnReachableCode(AstNode node) {
+    return node != null
+      && !node.is(EcmaScriptGrammar.ELSE_CLAUSE)
+      && !node.getFirstChild().is(EcmaScriptGrammar.FUNCTION_DECLARATION);
   }
 
 }
