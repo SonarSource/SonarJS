@@ -51,7 +51,8 @@ public class TooManyLinesInFileCheck extends SquidCheck<LexerlessGrammar> {
     int lines = astNode.getTokenLine();
 
     if (lines > maximum) {
-      getContext().createFileViolation(this, "This file has {0} lines, which is greater than {1} authorized. Split it into smaller files.", lines, maximum);
+      getContext().createFileViolation(this, "File \"{0}\" has {1} lines, which is greater than {2} authorized. Split it into smaller files.",
+        getContext().getFile().getName(), lines, maximum);
     }
   }
 }

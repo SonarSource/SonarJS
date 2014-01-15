@@ -42,7 +42,7 @@ public class TooManyLinesInFileCheckTest {
     check.maximum = 1;
     SourceFile file = JavaScriptAstScanner.scanSingleFile(new File("src/test/resources/checks/tooManyLinesInFile.js"), check);
     CheckMessagesVerifier.verify(file.getCheckMessages())
-      .next().withMessage("This file has 7 lines, which is greater than 1 authorized. Split it into smaller files.")
+      .next().withMessage("File \"tooManyLinesInFile.js\" has 7 lines, which is greater than 1 authorized. Split it into smaller files.")
       .noMore();
   }
 
