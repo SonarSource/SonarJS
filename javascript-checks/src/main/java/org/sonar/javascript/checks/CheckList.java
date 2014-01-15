@@ -107,6 +107,7 @@ public final class CheckList {
         CommaOperatorUseCheck.class,
         NonCaseLabelInSwitchCheck.class,
         BooleanEqualityComparisonCheck.class,
+        ExpressionComplexityCheck.class,
         NestedControlFlowDepthCheck.class);
   }
 
