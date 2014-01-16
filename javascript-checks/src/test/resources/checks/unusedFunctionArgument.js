@@ -6,7 +6,7 @@ each(function fun(a, b, c) { // NOK
   a = 1;
 });
 
-each(function fun(a) {       // NOK
+each(function fun(p1) {      // NOK
 });
 
 each(function fun(a, b, c) { // NOK

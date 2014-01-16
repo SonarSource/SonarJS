@@ -24,6 +24,8 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.sonar.sslr.api.AstNode;
 import com.sonar.sslr.squid.checks.SquidCheck;
+import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang.StringUtils;
 import org.sonar.check.BelongsToProfile;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
@@ -40,30 +42,22 @@ import java.util.Map;
 @BelongsToProfile(title = CheckList.SONAR_WAY_PROFILE, priority = Priority.MAJOR)
 public class UnusedFunctionArgumentCheck extends SquidCheck<LexerlessGrammar> {
 
-  private static class Argument {
-    final AstNode declaration;
-    int usages;
-
-    public Argument(AstNode declaration, int usages) {
-      this.declaration = declaration;
-      this.usages = usages;
-    }
-  }
-
   private static class Scope {
     private final Scope outerScope;
-    private final Map<String, Argument> arguments;
+    private final AstNode functionDec;
+    private final Map<String, Integer> arguments;
     private boolean useArgumentsArray = false;
 
-    public Scope(Scope outerScope) {
+    public Scope(Scope outerScope, AstNode functionDec) {
       this.outerScope = outerScope;
+      this.functionDec = functionDec;
       this.arguments = Maps.newLinkedHashMap();
     }
 
     private void declare(AstNode astNode) {
       Preconditions.checkState(astNode.is(EcmaScriptTokenType.IDENTIFIER));
       String identifier = astNode.getTokenValue();
-      arguments.put(identifier, new Argument(astNode, 0));
+      arguments.put(identifier, 0);
     }
 
     private void use(AstNode astNode) {
@@ -71,9 +65,10 @@ public class UnusedFunctionArgumentCheck extends SquidCheck<LexerlessGrammar> {
       String identifier = astNode.getTokenValue();
       Scope scope = this;
       while (scope != null) {
-        Argument arg = scope.arguments.get(identifier);
-        if (arg != null) {
-          arg.usages++;
+        Integer usage = scope.arguments.get(identifier);
+        if (usage != null) {
+          usage++;
+          scope.arguments.put(identifier, usage);
           return;
         }
         scope = scope.outerScope;
@@ -86,10 +81,10 @@ public class UnusedFunctionArgumentCheck extends SquidCheck<LexerlessGrammar> {
   @Override
   public void init() {
     subscribeTo(
-        EcmaScriptGrammar.FUNCTION_EXPRESSION,
-        EcmaScriptGrammar.FUNCTION_DECLARATION,
-        EcmaScriptGrammar.FORMAL_PARAMETER_LIST,
-        EcmaScriptGrammar.PRIMARY_EXPRESSION);
+      EcmaScriptGrammar.FUNCTION_EXPRESSION,
+      EcmaScriptGrammar.FUNCTION_DECLARATION,
+      EcmaScriptGrammar.FORMAL_PARAMETER_LIST,
+      EcmaScriptGrammar.PRIMARY_EXPRESSION);
   }
 
   @Override
@@ -101,7 +96,7 @@ public class UnusedFunctionArgumentCheck extends SquidCheck<LexerlessGrammar> {
   public void visitNode(AstNode astNode) {
     if (astNode.is(EcmaScriptGrammar.FUNCTION_EXPRESSION, EcmaScriptGrammar.FUNCTION_DECLARATION)) {
       // enter new scope
-      currentScope = new Scope(currentScope);
+      currentScope = new Scope(currentScope, astNode);
     } else if (astNode.is(EcmaScriptGrammar.FORMAL_PARAMETER_LIST)) {
       for (AstNode identifierNode : astNode.getChildren(EcmaScriptTokenType.IDENTIFIER)) {
         currentScope.declare(identifierNode);
@@ -142,25 +137,45 @@ public class UnusedFunctionArgumentCheck extends SquidCheck<LexerlessGrammar> {
   }
 
   public void reportAllUnusedArgs() {
-    for (Map.Entry<String, Argument> entry : currentScope.arguments.entrySet()) {
-      if (entry.getValue().usages == 0) {
-        getContext().createLineViolation(this, "Remove the declaration of the unused '" + entry.getKey() + "' argument.", entry.getValue().declaration);
+    StringBuilder builder = new StringBuilder();
+
+    for (Map.Entry<String, Integer> entry : currentScope.arguments.entrySet()) {
+      if (entry.getValue() == 0) {
+        builder.append(entry.getKey() + " ");
       }
     }
+    createIssue(builder, false);
   }
 
   public void reportDanglingUnusedArgs() {
     boolean hasMetUsedArg = false;
-    ArrayList<Map.Entry<String, Argument>> entries = Lists.newArrayList(currentScope.arguments.entrySet());
+    StringBuilder builder = new StringBuilder();
+    ArrayList<Map.Entry<String, Integer>> entries = Lists.newArrayList(currentScope.arguments.entrySet());
 
-    for (Map.Entry<String, Argument> entry : Lists.reverse(entries)) {
-      int usages = entry.getValue().usages;
+    for (Map.Entry<String, Integer> entry : Lists.reverse(entries)) {
+      int usages = entry.getValue();
 
       if (usages == 0 && !hasMetUsedArg) {
-        getContext().createLineViolation(this, "Remove the declaration of the unused '" + entry.getKey() + "' argument.", entry.getValue().declaration);
+        builder.append(entry.getKey() + " ");
       } else if (usages > 0 && !hasMetUsedArg) {
         hasMetUsedArg = true;
       }
+    }
+    createIssue(builder, true);
+  }
+
+  public void createIssue(StringBuilder builder, boolean reverse) {
+    String argsList = null;
+    if (builder.length() > 0) {
+
+      if (reverse) {
+        String [] args = builder.deleteCharAt(builder.length() - 1).toString().split(" ");
+        ArrayUtils.reverse(args);
+        argsList = StringUtils.join(args, ", ");
+      } else {
+        argsList = StringUtils.join(builder.toString().split(" "), ", ");
+      }
+      getContext().createLineViolation(this, "Remove the unused function parameter(s) \"" +  argsList + "\".", currentScope.functionDec);
     }
   }
 }

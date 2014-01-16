@@ -34,11 +34,10 @@ public class UnusedFunctionArgumentCheckTest {
 
     SourceFile file = JavaScriptAstScanner.scanSingleFile(new File("src/test/resources/checks/unusedFunctionArgument.js"), check);
     CheckMessagesVerifier.verify(file.getCheckMessages())
-      .next().atLine(1).withMessage("Remove the declaration of the unused 'b' argument.")
-      .next().atLine(5).withMessage("Remove the declaration of the unused 'b' argument.")
-      .next().atLine(5).withMessage("Remove the declaration of the unused 'c' argument.")
-      .next().atLine(9).withMessage("Remove the declaration of the unused 'a' argument.")
-      .next().atLine(12).withMessage("Remove the declaration of the unused 'c' argument.")
+      .next().atLine(1).withMessage("Remove the unused function parameter(s) \"b\".")
+      .next().atLine(5).withMessage("Remove the unused function parameter(s) \"b, c\".")
+      .next().atLine(9).withMessage("Remove the unused function parameter(s) \"p1\".")
+      .next().atLine(12).withMessage("Remove the unused function parameter(s) \"c\".")
       .next().atLine(29)
       .next().atLine(33)
       .noMore();
