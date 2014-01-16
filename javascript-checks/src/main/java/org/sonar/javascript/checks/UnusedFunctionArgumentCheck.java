@@ -32,7 +32,6 @@ import org.sonar.javascript.parser.EcmaScriptGrammar;
 import org.sonar.sslr.parser.LexerlessGrammar;
 
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.Map;
 
 @Rule(
@@ -54,6 +53,7 @@ public class UnusedFunctionArgumentCheck extends SquidCheck<LexerlessGrammar> {
   private static class Scope {
     private final Scope outerScope;
     private final Map<String, Argument> arguments;
+    private boolean useArgumentsArray = false;
 
     public Scope(Scope outerScope) {
       this.outerScope = outerScope;
@@ -109,6 +109,9 @@ public class UnusedFunctionArgumentCheck extends SquidCheck<LexerlessGrammar> {
     } else if (currentScope != null && astNode.is(EcmaScriptGrammar.PRIMARY_EXPRESSION)) {
       AstNode identifierNode = astNode.getFirstChild(EcmaScriptTokenType.IDENTIFIER);
       if (identifierNode != null) {
+        if ("arguments".equals(identifierNode.getTokenValue())) {
+          currentScope.useArgumentsArray = true;
+        }
         currentScope.use(identifierNode);
       }
     }
@@ -118,7 +121,9 @@ public class UnusedFunctionArgumentCheck extends SquidCheck<LexerlessGrammar> {
   public void leaveNode(AstNode astNode) {
     if (astNode.is(EcmaScriptGrammar.FUNCTION_EXPRESSION, EcmaScriptGrammar.FUNCTION_DECLARATION)) {
       // leave scope
-      reportUnusedArguments(astNode);
+      if (!currentScope.useArgumentsArray) {
+        reportUnusedArguments(astNode);
+      }
       currentScope = currentScope.outerScope;
     }
   }

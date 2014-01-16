@@ -21,6 +21,11 @@ each(function fun(a) {       // OK
   a = 1;
 });
 
+each(function fun(a) {       // OK
+  return o.call(arguments);
+});
+
+
 function fun(a, b) {         // NOK
     a = 1;
 }
@@ -28,6 +33,11 @@ function fun(a, b) {         // NOK
 function fun(a, b, c) {      // NOK
   a = 1;
   c = 1;
+}
+
+function fun(a, b) {         // OK
+  a = 1;
+  o.call(arguments);
 }
 
 function fun(a) {            // OK
