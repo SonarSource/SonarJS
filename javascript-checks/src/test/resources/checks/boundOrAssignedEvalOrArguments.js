@@ -19,3 +19,4 @@ function fun() {
   var b = arguments.length === 0; // OK
   var c = (arguments = 0) == 0; // NOK
 }
+

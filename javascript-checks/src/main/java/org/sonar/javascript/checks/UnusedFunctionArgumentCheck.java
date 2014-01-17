@@ -33,7 +33,6 @@ import org.sonar.javascript.api.EcmaScriptTokenType;
 import org.sonar.javascript.parser.EcmaScriptGrammar;
 import org.sonar.sslr.parser.LexerlessGrammar;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -138,17 +137,20 @@ public class UnusedFunctionArgumentCheck extends SquidCheck<LexerlessGrammar> {
   }
 
   public void reportAllUnusedArgs() {
+    int nbUnusedArgs = 0;
     StringBuilder builder = new StringBuilder();
 
     for (Map.Entry<String, Integer> entry : currentScope.arguments.entrySet()) {
       if (entry.getValue() == 0) {
         builder.append(entry.getKey() + " ");
+        nbUnusedArgs++;
       }
     }
-    createIssue(builder, false);
+    createIssue(builder, false, nbUnusedArgs);
   }
 
   public void reportDanglingUnusedArgs() {
+    int nbUnusedArgs = 0;
     boolean hasMetUsedArg = false;
     StringBuilder builder = new StringBuilder();
     List<Map.Entry<String, Integer>> entries = Lists.newArrayList(currentScope.arguments.entrySet());
@@ -158,25 +160,29 @@ public class UnusedFunctionArgumentCheck extends SquidCheck<LexerlessGrammar> {
 
       if (usages == 0 && !hasMetUsedArg) {
         builder.append(entry.getKey() + " ");
+        nbUnusedArgs++;
       } else if (usages > 0 && !hasMetUsedArg) {
         hasMetUsedArg = true;
       }
     }
-    createIssue(builder, true);
+    createIssue(builder, true, nbUnusedArgs);
   }
 
-  public void createIssue(StringBuilder builder, boolean reverse) {
-    String argsList = null;
-    if (builder.length() > 0) {
+  public void createIssue(StringBuilder builder, boolean reverse, int nbArgs) {
+    String argsList;
+    if (nbArgs > 1) {
 
       if (reverse) {
-        String [] args = builder.deleteCharAt(builder.length() - 1).toString().split(" ");
+        String[] args = builder.deleteCharAt(builder.length() - 1).toString().split(" ");
         ArrayUtils.reverse(args);
         argsList = StringUtils.join(args, ", ");
       } else {
         argsList = StringUtils.join(builder.toString().split(" "), ", ");
       }
-      getContext().createLineViolation(this, "Remove the unused function parameter(s) \"" +  argsList + "\".", currentScope.functionDec);
+
+      getContext().createLineViolation(this, "Remove the unused function parameters \"" + argsList + "\".", currentScope.functionDec);
+    } else if (nbArgs == 1) {
+      getContext().createLineViolation(this, "Remove the unused function parameter \"" + builder.toString().trim() + "\".", currentScope.functionDec);
     }
   }
 }
