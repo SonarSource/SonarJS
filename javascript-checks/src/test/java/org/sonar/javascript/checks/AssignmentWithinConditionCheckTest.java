@@ -34,11 +34,12 @@ public class AssignmentWithinConditionCheckTest {
 
     SourceFile file = JavaScriptAstScanner.scanSingleFile(new File("src/test/resources/checks/assignmentWithinCondition.js"), check);
     CheckMessagesVerifier.verify(file.getCheckMessages())
-        .next().atLine(1).withMessage("Remove this assignment from the expression.")
+        .next().atLine(1).withMessage("Extract the assignment out of this expression.")
         .next().atLine(4)
         .next().atLine(13)
         .next().atLine(20)
         .next().atLine(25)
+        .next().atLine(37)
         .noMore();
   }
 

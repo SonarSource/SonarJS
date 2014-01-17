@@ -1,24 +1,29 @@
 <p>
-Doing an assignment in the condition part of a 'if', 'while' or 'for' statement is highly not recommended for the two following reasons :
+  Assignments within sub-expressions are hard to spot and therefore make the code less readable.</br>
+  It is also a common mistake to write <code>=</code> when <code>==</code> was meant.</br>
+  Ideally, expressions should not have side-effects.
 </p>
 
-<ul>
-<li>The assignment is perhaps a bug as the '=' operator might have been used in place of the '==' operator</li>
-<li>If this is not a bug, this is highly error prone as another developer might read '==' instead of '=' while trying to maintain the source code</li>
-</ul>
-
+<h2>Noncompliant Code Example</h2>
 <pre>
-if (dayNumber = getClickedDayNumber(dayInfo)) { // Non-Compliant
-  alert("day number found : " + dayNumber);
-}
+doSomething(i = 42);
 </pre>
 
-<p>
-If you really want to do the assignment in place, then better to do an explicit comparison as well :
-</p>
+<h2>Compliant Solution</h2>
+<pre>
+i = 42;
+doSomething(i);
+</pre>
+
+<p>or</p>
 
 <pre>
-if ((value = someFunction()) === true) { // Compliant
-  // ...
-}
+i = 42;
+doSomething(i);
+</pre>
+
+<h2>Exceptions</h2>
+<p>Assignments enclosed in relational expressions are allowed.</p>
+<pre>
+while ((line = nextLine()) != null) { }
 </pre>

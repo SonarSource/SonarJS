@@ -19,7 +19,9 @@
  */
 package org.sonar.javascript.checks;
 
+import com.google.common.collect.Lists;
 import com.sonar.sslr.api.AstNode;
+import com.sonar.sslr.api.AstNodeType;
 import com.sonar.sslr.squid.checks.SquidCheck;
 import org.sonar.check.BelongsToProfile;
 import org.sonar.check.Priority;
@@ -27,26 +29,88 @@ import org.sonar.check.Rule;
 import org.sonar.javascript.parser.EcmaScriptGrammar;
 import org.sonar.sslr.parser.LexerlessGrammar;
 
+import javax.annotation.Nullable;
+import java.util.List;
+
 @Rule(
   key = "AssignmentWithinCondition",
   priority = Priority.MAJOR)
 @BelongsToProfile(title = CheckList.SONAR_WAY_PROFILE, priority = Priority.MAJOR)
 public class AssignmentWithinConditionCheck extends SquidCheck<LexerlessGrammar> {
 
+  private List<AstNodeType> stack;
+
+  private static final AstNodeType[] SCOPES = {
+    EcmaScriptGrammar.CONDITION,
+    EcmaScriptGrammar.FUNCTION_BODY,
+    EcmaScriptGrammar.RELATIONAL_EXPRESSION,
+    EcmaScriptGrammar.RELATIONAL_EXPRESSION_NO_IN,
+    EcmaScriptGrammar.EQUALITY_EXPRESSION,
+    EcmaScriptGrammar.EQUALITY_EXPRESSION_NO_IN
+  };
+
   @Override
   public void init() {
     subscribeTo(
-        EcmaScriptGrammar.IF_STATEMENT,
-        EcmaScriptGrammar.DO_WHILE_STATEMENT,
-        EcmaScriptGrammar.WHILE_STATEMENT,
-        EcmaScriptGrammar.FOR_STATEMENT);
+      EcmaScriptGrammar.ASSIGNMENT_EXPRESSION,
+      EcmaScriptGrammar.EXPRESSION,
+      EcmaScriptGrammar.EXPRESSION_NO_IN);
+    subscribeTo(SCOPES);
+  }
+
+  @Override
+  public void visitFile(@Nullable AstNode astNode) {
+    stack = Lists.newArrayList();
   }
 
   @Override
   public void visitNode(AstNode astNode) {
-    AstNode conditionNode = astNode.getFirstChild(EcmaScriptGrammar.CONDITION);
-    if ((conditionNode != null) && (conditionNode.getChild(0).getFirstChild(EcmaScriptGrammar.ASSIGNMENT_EXPRESSION) != null)) {
-      getContext().createLineViolation(this, "Remove this assignment from the expression.", conditionNode);
+    if (isTargetedExpression(astNode) || astNode.is(SCOPES)) {
+      stack.add(astNode.getType());
+    } else if (astNode.is(EcmaScriptGrammar.ASSIGNMENT_EXPRESSION) && inExpression() && !exclusion()) {
+      getContext().createLineViolation(this, "Extract the assignment out of this expression.", astNode);
+    }
+  }
+
+  @Override
+  public void leaveNode(AstNode astNode) {
+    if (isTargetedExpression(astNode) || astNode.is(SCOPES)) {
+      pop();
+    }
+  }
+
+  private boolean inExpression() {
+    AstNodeType t = peek(0);
+    return t == EcmaScriptGrammar.EXPRESSION || t == EcmaScriptGrammar.EXPRESSION_NO_IN || t == EcmaScriptGrammar.CONDITION;
+  }
+
+  /**
+   * <pre>
+   *   while ((line = nextLine()) != null)
+   * </pre>
+   */
+  private boolean exclusion() {
+    AstNodeType t = peek(1);
+    return (peek(2) == EcmaScriptGrammar.CONDITION) &&
+      (t == EcmaScriptGrammar.EQUALITY_EXPRESSION || t == EcmaScriptGrammar.EQUALITY_EXPRESSION_NO_IN
+      || t == EcmaScriptGrammar.RELATIONAL_EXPRESSION || t == EcmaScriptGrammar.RELATIONAL_EXPRESSION_NO_IN);
+  }
+
+  private boolean isTargetedExpression(AstNode astNode) {
+    return astNode.is(EcmaScriptGrammar.EXPRESSION, EcmaScriptGrammar.EXPRESSION_NO_IN)
+      && astNode.getParent().isNot(EcmaScriptGrammar.EXPRESSION_STATEMENT, EcmaScriptGrammar.CONDITION, EcmaScriptGrammar.FOR_STATEMENT);
+  }
+
+  private void pop() {
+    stack.remove(stack.size() - 1);
+  }
+
+  @Nullable
+  private AstNodeType peek(int i) {
+    if (i < stack.size()) {
+      return stack.get(stack.size() - 1 - i);
+    } else {
+      return null;
     }
   }
 
