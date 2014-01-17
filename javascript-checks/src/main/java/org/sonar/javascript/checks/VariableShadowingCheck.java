@@ -170,6 +170,7 @@ public class VariableShadowingCheck extends SquidCheck<LexerlessGrammar> {
 
     @Override
     public void leaveFile(AstNode astNode) {
+      // nop
     }
   }
 
