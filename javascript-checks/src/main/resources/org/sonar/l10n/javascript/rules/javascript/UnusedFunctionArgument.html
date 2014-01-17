@@ -45,3 +45,11 @@ var mySecondCallBackFunction = function (p1, p2, p3, p4) {  //unused p1, p2 and 
 var myThirdCallBackFunction = function (p1, p2, p3, p4) {  //unused p1 is not reported but p3 and p4 are
                                               return p2; }
 </pre>
+<p>
+Moreover when using the 'arguments' in a function body, no parameter is reported as unused.
+</p>
+<pre>
+function doSomething(a, b, c) {
+  compute(arguments);
+}
+</pre>
