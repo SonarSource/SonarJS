@@ -65,7 +65,7 @@ public class CommentedCodeCheck extends SquidCheck<LexerlessGrammar> implements 
   public void visitToken(Token token) {
     for (Trivia trivia : token.getTrivia()) {
       if (trivia.isComment() && !isJsDoc(trivia)) {
-        String lines[] = regexpToDivideStringByLine.split(getContext().getCommentAnalyser().getContents(trivia.getToken().getOriginalValue()));
+        String[] lines = regexpToDivideStringByLine.split(getContext().getCommentAnalyser().getContents(trivia.getToken().getOriginalValue()));
         for (int lineOffset = 0; lineOffset < lines.length; lineOffset++) {
           if (codeRecognizer.isLineOfCode(lines[lineOffset])) {
             getContext().createLineViolation(this, "Sections of code should not be \"commented out\".", trivia.getToken().getLine() + lineOffset);

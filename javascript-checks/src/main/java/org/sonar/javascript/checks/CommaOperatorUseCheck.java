@@ -19,6 +19,7 @@
  */
 package org.sonar.javascript.checks;
 
+import com.google.common.collect.Iterables;
 import com.sonar.sslr.api.AstNode;
 import com.sonar.sslr.squid.checks.SquidCheck;
 import org.sonar.check.BelongsToProfile;
@@ -27,6 +28,8 @@ import org.sonar.check.Rule;
 import org.sonar.javascript.api.EcmaScriptPunctuator;
 import org.sonar.javascript.parser.EcmaScriptGrammar;
 import org.sonar.sslr.parser.LexerlessGrammar;
+
+import java.util.List;
 
 @Rule(
   key = "S878",
@@ -45,12 +48,12 @@ public class CommaOperatorUseCheck extends SquidCheck<LexerlessGrammar> {
       return;
     }
 
-    AstNode firstCommaNode = astNode.getFirstChild(EcmaScriptPunctuator.COMMA);
+    List<AstNode> commas = astNode.getChildren(EcmaScriptPunctuator.COMMA);
 
-    if (astNode.getChildren(EcmaScriptPunctuator.COMMA).size() == 1) {
-      getContext().createLineViolation(this, "Remove use of this comma operator.", firstCommaNode);
+    if (commas.size() == 1) {
+      getContext().createLineViolation(this, "Remove use of this comma operator.", commas.get(0));
     } else {
-      getContext().createLineViolation(this, "Remove use of all comma operators in this expression.", firstCommaNode);
+      getContext().createLineViolation(this, "Remove use of all comma operators in this expression.", commas.get(0));
     }
   }
 
@@ -59,7 +62,7 @@ public class CommaOperatorUseCheck extends SquidCheck<LexerlessGrammar> {
   }
 
   public static boolean containsCommaOperator(AstNode expr) {
-    return expr.getFirstChild(EcmaScriptPunctuator.COMMA) != null;
+    return expr.hasDirectChildren(EcmaScriptPunctuator.COMMA);
   }
 
 }

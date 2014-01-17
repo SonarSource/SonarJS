@@ -29,7 +29,6 @@ import org.sonar.javascript.api.EcmaScriptTokenType;
 import org.sonar.javascript.parser.EcmaScriptGrammar;
 import org.sonar.sslr.parser.LexerlessGrammar;
 
-import javax.annotation.Nullable;
 import java.util.regex.Pattern;
 
 @Rule(

@@ -22,7 +22,6 @@ package org.sonar.javascript.parser;
 import com.sonar.sslr.api.GenericTokenType;
 import org.sonar.javascript.api.EcmaScriptKeyword;
 import org.sonar.javascript.api.EcmaScriptPunctuator;
-import org.sonar.javascript.api.EcmaScriptTokenType;
 import org.sonar.javascript.lexer.EcmaScriptLexer;
 import org.sonar.javascript.lexer.EcmaScriptRegexpChannel;
 import org.sonar.sslr.grammar.GrammarRuleKey;
