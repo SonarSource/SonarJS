@@ -91,9 +91,12 @@ public class AssignmentWithinConditionCheck extends SquidCheck<LexerlessGrammar>
    */
   private boolean exclusion() {
     AstNodeType t = peek(1);
-    return (peek(2) == EcmaScriptGrammar.CONDITION) &&
-      (t == EcmaScriptGrammar.EQUALITY_EXPRESSION || t == EcmaScriptGrammar.EQUALITY_EXPRESSION_NO_IN
-      || t == EcmaScriptGrammar.RELATIONAL_EXPRESSION || t == EcmaScriptGrammar.RELATIONAL_EXPRESSION_NO_IN);
+    return (peek(2) == EcmaScriptGrammar.CONDITION) && isExcludedExpression(t);
+  }
+
+  private boolean isExcludedExpression(AstNodeType node) {
+    return node == EcmaScriptGrammar.EQUALITY_EXPRESSION || node == EcmaScriptGrammar.EQUALITY_EXPRESSION_NO_IN
+      || node == EcmaScriptGrammar.RELATIONAL_EXPRESSION || node == EcmaScriptGrammar.RELATIONAL_EXPRESSION_NO_IN;
   }
 
   private boolean isTargetedExpression(AstNode astNode) {
