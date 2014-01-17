@@ -34,6 +34,7 @@ import org.sonar.javascript.parser.EcmaScriptGrammar;
 import org.sonar.sslr.parser.LexerlessGrammar;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 @Rule(
@@ -150,7 +151,7 @@ public class UnusedFunctionArgumentCheck extends SquidCheck<LexerlessGrammar> {
   public void reportDanglingUnusedArgs() {
     boolean hasMetUsedArg = false;
     StringBuilder builder = new StringBuilder();
-    ArrayList<Map.Entry<String, Integer>> entries = Lists.newArrayList(currentScope.arguments.entrySet());
+    List<Map.Entry<String, Integer>> entries = Lists.newArrayList(currentScope.arguments.entrySet());
 
     for (Map.Entry<String, Integer> entry : Lists.reverse(entries)) {
       int usages = entry.getValue();

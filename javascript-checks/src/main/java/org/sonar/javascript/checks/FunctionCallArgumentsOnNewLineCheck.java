@@ -41,8 +41,6 @@ public class FunctionCallArgumentsOnNewLineCheck extends SquidCheck<LexerlessGra
     subscribeTo(EcmaScriptGrammar.CALL_EXPRESSION);
   }
 
-  public static int i = 1;
-
   @Override
   public void visitNode(AstNode astNode) {
     for (AstNode args : astNode.getChildren(EcmaScriptGrammar.ARGUMENTS)) {

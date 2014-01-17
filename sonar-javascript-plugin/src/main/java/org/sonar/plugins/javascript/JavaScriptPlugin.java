@@ -67,24 +67,6 @@ import java.util.List;
 })
 public class JavaScriptPlugin extends SonarPlugin {
 
-  public List<Class<? extends Extension>> getExtensions() {
-    return ImmutableList.of(
-        JavaScript.class,
-        JavaScriptSourceImporter.class,
-        JavaScriptColorizerFormat.class,
-        JavaScriptCpdMapping.class,
-
-        JavaScriptSquidSensor.class,
-        JavaScriptRuleRepository.class,
-        JavaScriptProfile.class,
-
-        JavaScriptCommonRulesEngineProvider.class,
-
-        LCOVSensor.class,
-        JsTestDriverSensor.class,
-        JsTestSensor.class);
-  }
-
   // Global JavaScript constants
   public static final String FALSE = "false";
 
@@ -102,4 +84,22 @@ public class JavaScriptPlugin extends SonarPlugin {
   public static final String JSTEST_REPORTS_PATH = PROPERTY_PREFIX + ".jstest.reportsPath";
   public static final String JSTEST_REPORTS_PATH_DEFAULT_VALUE = "";
 
+  
+  public List<Class<? extends Extension>> getExtensions() {
+    return ImmutableList.of(
+        JavaScript.class,
+        JavaScriptSourceImporter.class,
+        JavaScriptColorizerFormat.class,
+        JavaScriptCpdMapping.class,
+
+        JavaScriptSquidSensor.class,
+        JavaScriptRuleRepository.class,
+        JavaScriptProfile.class,
+
+        JavaScriptCommonRulesEngineProvider.class,
+
+        LCOVSensor.class,
+        JsTestDriverSensor.class,
+        JsTestSensor.class);
+  }
 }

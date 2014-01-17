@@ -35,9 +35,6 @@ import static com.sonar.sslr.impl.channel.RegexpChannelBuilder.regexp;
 
 public final class EcmaScriptLexer {
 
-  private EcmaScriptLexer() {
-  }
-
   private static final String EXP = "([Ee][+-]?+[0-9_]++)";
   private static final String BINARY_EXP = "([Pp][+-]?+[0-9_]++)";
 
@@ -99,6 +96,9 @@ public final class EcmaScriptLexer {
    * Tab, Vertical Tab, Form Feed, Space, No-break space, Byte Order Mark, Any other Unicode "space separator"
    */
   public static final String WHITESPACE = "\\t\\u000B\\f\\u0020\\u00A0\\uFEFF\\p{Zs}";
+
+  private EcmaScriptLexer() {
+  }
 
   public static Lexer create(EcmaScriptConfiguration conf) {
     return Lexer.builder()

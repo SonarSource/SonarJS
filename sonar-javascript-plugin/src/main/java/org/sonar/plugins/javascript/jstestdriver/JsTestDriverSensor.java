@@ -40,12 +40,11 @@ import java.util.List;
 public class JsTestDriverSensor implements Sensor {
 
   protected JavaScript javascript;
+  private static final Logger LOG = LoggerFactory.getLogger(JsTestDriverSensor.class);
 
   public JsTestDriverSensor(JavaScript javascript) {
     this.javascript = javascript;
   }
-
-  private static final Logger LOG = LoggerFactory.getLogger(JsTestDriverSensor.class);
 
   public boolean shouldExecuteOnProject(Project project) {
     return javascript.equals(project.getLanguage())
