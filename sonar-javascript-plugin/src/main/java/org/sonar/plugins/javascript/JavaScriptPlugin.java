@@ -28,8 +28,6 @@ import org.sonar.plugins.javascript.colorizer.JavaScriptColorizerFormat;
 import org.sonar.plugins.javascript.core.JavaScript;
 import org.sonar.plugins.javascript.core.JavaScriptSourceImporter;
 import org.sonar.plugins.javascript.cpd.JavaScriptCpdMapping;
-import org.sonar.plugins.javascript.jstest.JsTestSensor;
-import org.sonar.plugins.javascript.jstestdriver.JsTestDriverSensor;
 import org.sonar.plugins.javascript.lcov.LCOVSensor;
 
 import java.util.List;
@@ -84,7 +82,7 @@ public class JavaScriptPlugin extends SonarPlugin {
   public static final String JSTEST_REPORTS_PATH = PROPERTY_PREFIX + ".jstest.reportsPath";
   public static final String JSTEST_REPORTS_PATH_DEFAULT_VALUE = "";
 
-  
+
   public List<Class<? extends Extension>> getExtensions() {
     return ImmutableList.of(
         JavaScript.class,
@@ -98,8 +96,6 @@ public class JavaScriptPlugin extends SonarPlugin {
 
         JavaScriptCommonRulesEngineProvider.class,
 
-        LCOVSensor.class,
-        JsTestDriverSensor.class,
-        JsTestSensor.class);
+        LCOVSensor.class);
   }
 }
