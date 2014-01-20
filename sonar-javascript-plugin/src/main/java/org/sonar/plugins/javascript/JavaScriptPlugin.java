@@ -47,20 +47,6 @@ import java.util.List;
     name = "LCOV file",
     description = "Path (absolute or relative) to the file with LCOV data.",
     global = true,
-    project = true),
-  @Property(
-    key = JavaScriptPlugin.JSTESTDRIVER_REPORTS_PATH,
-    defaultValue = JavaScriptPlugin.JSTESTDRIVER_REPORTS_PATH_DEFAULT_VALUE,
-    name = "JSTestDriver output folder",
-    description = "Folder where JsTestDriver unit test reports are located.",
-    global = true,
-    project = true),
-  @Property(
-    key = JavaScriptPlugin.JSTEST_REPORTS_PATH,
-    defaultValue = JavaScriptPlugin.JSTEST_REPORTS_PATH_DEFAULT_VALUE,
-    name = "JSTest output folder",
-    description = "Folder where JsTest unit test reports are located.",
-    global = true,
     project = true)
 })
 public class JavaScriptPlugin extends SonarPlugin {
