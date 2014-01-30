@@ -31,7 +31,8 @@ public class JavaScriptCommonRulesEngine extends CommonRulesEngine {
 
   @Override
   protected void doEnableRules(CommonRulesRepository repository) {
-    // null parameters -> use the default values hardcoded in sonar-common-rules
+    // null parameters -> use the default values of parameters as
+    // hardcoded in sonar-common-rules
     repository
       .enableDuplicatedBlocksRule()
       .enableInsufficientCommentDensityRule(null)
