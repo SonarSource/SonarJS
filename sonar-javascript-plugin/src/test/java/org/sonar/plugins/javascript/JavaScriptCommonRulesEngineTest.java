@@ -20,18 +20,27 @@
 package org.sonar.plugins.javascript;
 
 import org.junit.Test;
+import org.sonar.commonrules.api.CommonRulesRepository;
 
 import static org.fest.assertions.Assertions.assertThat;
 
-public class JavaScriptCommonRulesEngineProviderTest {
+public class JavaScriptCommonRulesEngineTest {
 
   @Test
-  public void shouldProvideExpectedExtensions() {
-    JavaScriptCommonRulesEngineProvider provider = new JavaScriptCommonRulesEngineProvider();
-    assertThat(provider.provide().size()).isGreaterThan(1);
+  public void provide_extensions() {
+    JavaScriptCommonRulesEngine engine = new JavaScriptCommonRulesEngine();
+    assertThat(engine.provide().size()).isGreaterThan(1);
+  }
 
-    provider = new JavaScriptCommonRulesEngineProvider(null);
-    assertThat(provider.provide().size()).isGreaterThan(1);
+  @Test
+  public void define_rules() {
+    JavaScriptCommonRulesEngine engine = new JavaScriptCommonRulesEngine();
+    CommonRulesRepository repo = engine.newRepository();
+    assertThat(repo.rules()).hasSize(4);
+    assertThat(repo.rule(CommonRulesRepository.RULE_INSUFFICIENT_COMMENT_DENSITY)).isNotNull();
+    assertThat(repo.rule(CommonRulesRepository.RULE_DUPLICATED_BLOCKS)).isNotNull();
+    assertThat(repo.rule(CommonRulesRepository.RULE_INSUFFICIENT_LINE_COVERAGE)).isNotNull();
+    assertThat(repo.rule(CommonRulesRepository.RULE_INSUFFICIENT_BRANCH_COVERAGE)).isNotNull();
   }
 
 }

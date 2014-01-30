@@ -62,7 +62,7 @@ public class JavaScriptPlugin extends SonarPlugin {
   public static final String LCOV_REPORT_PATH = PROPERTY_PREFIX + ".lcov.reportPath";
   public static final String LCOV_REPORT_PATH_DEFAULT_VALUE = "";
 
-  public List<Class<? extends Extension>> getExtensions() {
+  public List getExtensions() {
     return ImmutableList.of(
         JavaScript.class,
         JavaScriptSourceImporter.class,
@@ -73,7 +73,7 @@ public class JavaScriptPlugin extends SonarPlugin {
         JavaScriptRuleRepository.class,
         JavaScriptProfile.class,
 
-        JavaScriptCommonRulesEngineProvider.class,
+        JavaScriptCommonRulesEngine.class,
 
         LCOVSensor.class);
   }

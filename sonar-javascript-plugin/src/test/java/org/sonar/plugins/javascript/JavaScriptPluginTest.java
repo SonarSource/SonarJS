@@ -19,23 +19,15 @@
  */
 package org.sonar.plugins.javascript;
 
-import org.junit.Before;
 import org.junit.Test;
 
 import static org.fest.assertions.Assertions.assertThat;
 
 public class JavaScriptPluginTest {
 
-  private JavaScriptPlugin plugin;
-
-  @Before
-  public void setUp() throws Exception {
-    plugin = new JavaScriptPlugin();
-  }
-
   @Test
-  public void testGetExtensions() throws Exception {
-    assertThat(plugin.getExtensions().size()).isEqualTo(9);
+  public void get_extensions() throws Exception {
+    assertThat(new JavaScriptPlugin().getExtensions()).hasSize(9);
   }
 
 }

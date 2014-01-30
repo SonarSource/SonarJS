@@ -19,32 +19,24 @@
  */
 package org.sonar.plugins.javascript;
 
-import org.sonar.api.resources.Project;
 import org.sonar.commonrules.api.CommonRulesEngine;
-import org.sonar.commonrules.api.CommonRulesEngineProvider;
+import org.sonar.commonrules.api.CommonRulesRepository;
 import org.sonar.plugins.javascript.core.JavaScript;
 
-public class JavaScriptCommonRulesEngineProvider extends CommonRulesEngineProvider {
+public class JavaScriptCommonRulesEngine extends CommonRulesEngine {
 
-  public JavaScriptCommonRulesEngineProvider() {
-    super();
-  }
-
-  public JavaScriptCommonRulesEngineProvider(Project project) {
-    super(project);
+  public JavaScriptCommonRulesEngine() {
+    super(JavaScript.KEY);
   }
 
   @Override
-  protected void doActivation(CommonRulesEngine engine) {
-    engine.activateRule("DuplicatedBlocks");
-    engine.activateRule("InsufficientCommentDensity");
-    engine.activateRule("InsufficientLineCoverage");
-    engine.activateRule("InsufficientBranchCoverage");
-  }
-
-  @Override
-  protected String getLanguageKey() {
-    return JavaScript.KEY;
+  protected void doEnableRules(CommonRulesRepository repository) {
+    // null parameters -> use the default values hardcoded in sonar-common-rules
+    repository
+      .enableDuplicatedBlocksRule()
+      .enableInsufficientCommentDensityRule(null)
+      .enableInsufficientLineCoverageRule(null)
+      .enableInsufficientBranchCoverageRule(null);
   }
 
 }
