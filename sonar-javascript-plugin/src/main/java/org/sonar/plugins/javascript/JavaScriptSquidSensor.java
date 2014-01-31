@@ -69,10 +69,12 @@ public class JavaScriptSquidSensor implements Sensor {
     this.fileLinesContextFactory = fileLinesContextFactory;
   }
 
+  @Override
   public boolean shouldExecuteOnProject(Project project) {
-    return JavaScript.KEY.equals(project.getLanguageKey());
+    return !project.getFileSystem().mainFiles(JavaScript.KEY).isEmpty();
   }
 
+  @Override
   public void analyse(Project project, SensorContext context) {
     this.project = project;
     this.context = context;
@@ -80,7 +82,7 @@ public class JavaScriptSquidSensor implements Sensor {
     Collection<SquidAstVisitor<LexerlessGrammar>> squidChecks = annotationCheckFactory.getChecks();
     List<SquidAstVisitor<LexerlessGrammar>> visitors = Lists.newArrayList(squidChecks);
     visitors.add(new FileLinesVisitor(project, fileLinesContextFactory));
-    this.scanner = JavaScriptAstScanner.create(createConfiguration(project), visitors.toArray(new SquidAstVisitor[visitors.size()]));
+    scanner = JavaScriptAstScanner.create(createConfiguration(project), visitors.toArray(new SquidAstVisitor[visitors.size()]));
     scanner.scanFiles(InputFileUtils.toFiles(project.getFileSystem().mainFiles(JavaScript.KEY)));
 
     Collection<SourceCode> squidSourceFiles = scanner.getIndex().search(new QueryByType(SourceFile.class));
