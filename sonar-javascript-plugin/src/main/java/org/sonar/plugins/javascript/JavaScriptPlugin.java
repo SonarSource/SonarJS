@@ -74,6 +74,7 @@ public class JavaScriptPlugin extends SonarPlugin {
         JavaScriptProfile.class,
 
         JavaScriptCommonRulesEngine.class,
+        JavaScriptCommonRulesDecorator.class,
 
         LCOVSensor.class);
   }

@@ -19,26 +19,14 @@
  */
 package org.sonar.plugins.javascript;
 
-import org.sonar.api.profiles.RulesProfile;
-import org.sonar.api.resources.ProjectFileSystem;
 import org.sonar.commonrules.api.CommonRulesEngine;
 import org.sonar.commonrules.api.CommonRulesRepository;
 import org.sonar.plugins.javascript.core.JavaScript;
 
 public class JavaScriptCommonRulesEngine extends CommonRulesEngine {
 
-  /**
-   * Server side
-   */
   public JavaScriptCommonRulesEngine() {
     super(JavaScript.KEY);
-  }
-
-  /**
-   * Batch side
-   */
-  public JavaScriptCommonRulesEngine(RulesProfile profile, ProjectFileSystem fs) {
-    super(JavaScript.KEY, profile, fs);
   }
 
   @Override

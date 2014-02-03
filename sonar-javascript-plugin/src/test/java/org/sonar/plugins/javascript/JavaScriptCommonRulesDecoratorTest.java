@@ -20,14 +20,18 @@
 package org.sonar.plugins.javascript;
 
 import org.junit.Test;
+import org.sonar.api.profiles.RulesProfile;
+import org.sonar.api.resources.ProjectFileSystem;
+import org.sonar.plugins.javascript.core.JavaScript;
 
 import static org.fest.assertions.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 
-public class JavaScriptPluginTest {
-
+public class JavaScriptCommonRulesDecoratorTest {
   @Test
-  public void get_extensions() throws Exception {
-    assertThat(new JavaScriptPlugin().getExtensions()).hasSize(10);
-  }
+  public void test_declaration() throws Exception {
+    JavaScriptCommonRulesDecorator decorator = new JavaScriptCommonRulesDecorator(mock(ProjectFileSystem.class), mock(RulesProfile.class));
+    assertThat(decorator.language()).isEqualTo(JavaScript.KEY);
 
+  }
 }

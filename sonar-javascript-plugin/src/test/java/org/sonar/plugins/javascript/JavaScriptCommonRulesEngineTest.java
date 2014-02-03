@@ -20,25 +20,16 @@
 package org.sonar.plugins.javascript;
 
 import org.junit.Test;
-import org.sonar.api.profiles.RulesProfile;
-import org.sonar.api.resources.ProjectFileSystem;
 import org.sonar.commonrules.api.CommonRulesRepository;
 
 import static org.fest.assertions.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
 
 public class JavaScriptCommonRulesEngineTest {
 
   @Test
-  public void provide_batch_extensions() {
-    JavaScriptCommonRulesEngine engine = new JavaScriptCommonRulesEngine(mock(RulesProfile.class), mock(ProjectFileSystem.class));
-    assertThat(engine.provide().size()).isGreaterThan(0);
-  }
-
-  @Test
-  public void provide_server_extensions() {
+  public void provide_extensions() {
     JavaScriptCommonRulesEngine engine = new JavaScriptCommonRulesEngine();
-    assertThat(engine.provide().size()).isGreaterThan(0);
+    assertThat(engine.provide()).isNotEmpty();
   }
 
   @Test

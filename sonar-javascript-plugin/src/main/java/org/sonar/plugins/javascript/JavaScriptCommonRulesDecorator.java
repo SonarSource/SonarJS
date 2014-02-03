@@ -19,15 +19,13 @@
  */
 package org.sonar.plugins.javascript;
 
-import org.junit.Test;
+import org.sonar.api.profiles.RulesProfile;
+import org.sonar.api.resources.ProjectFileSystem;
+import org.sonar.commonrules.api.CommonRulesDecorator;
+import org.sonar.plugins.javascript.core.JavaScript;
 
-import static org.fest.assertions.Assertions.assertThat;
-
-public class JavaScriptPluginTest {
-
-  @Test
-  public void get_extensions() throws Exception {
-    assertThat(new JavaScriptPlugin().getExtensions()).hasSize(10);
+public class JavaScriptCommonRulesDecorator extends CommonRulesDecorator {
+  public JavaScriptCommonRulesDecorator(ProjectFileSystem fs, RulesProfile qProfile) {
+    super(JavaScript.KEY, fs, qProfile);
   }
-
 }
