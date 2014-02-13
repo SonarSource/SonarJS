@@ -20,11 +20,13 @@
 package org.sonar.plugins.javascript.core;
 
 import org.apache.commons.lang.StringUtils;
+import org.sonar.api.batch.InstantiationStrategy;
 import org.sonar.api.config.Settings;
 import org.sonar.api.resources.AbstractLanguage;
 import org.sonar.api.resources.Project;
 import org.sonar.plugins.javascript.JavaScriptPlugin;
 
+@InstantiationStrategy(InstantiationStrategy.PER_BATCH)
 public class JavaScript extends AbstractLanguage {
 
   public static final String KEY = "js";
