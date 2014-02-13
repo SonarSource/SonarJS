@@ -22,6 +22,7 @@ package org.sonar.plugins.javascript.core;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.config.Settings;
 import org.sonar.api.resources.AbstractLanguage;
+import org.sonar.api.resources.Project;
 import org.sonar.plugins.javascript.JavaScriptPlugin;
 
 public class JavaScript extends AbstractLanguage {
@@ -45,6 +46,10 @@ public class JavaScript extends AbstractLanguage {
       suffixes = StringUtils.split(JavaScriptPlugin.FILE_SUFFIXES_DEFVALUE, ",");
     }
     return suffixes;
+  }
+
+  public static boolean isEnabled(Project project) {
+    return !project.getFileSystem().mainFiles(KEY).isEmpty();
   }
 
 }

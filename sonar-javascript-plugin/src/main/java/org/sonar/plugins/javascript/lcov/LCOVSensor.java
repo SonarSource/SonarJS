@@ -40,14 +40,14 @@ public class LCOVSensor implements Sensor {
 
   private static final Logger LOG = LoggerFactory.getLogger(LCOVSensor.class);
 
-  private JavaScript javascript;
+  private final JavaScript javascript;
 
   public LCOVSensor(JavaScript javascript) {
     this.javascript = javascript;
   }
 
   public boolean shouldExecuteOnProject(Project project) {
-    return JavaScript.KEY.equals(project.getLanguageKey())
+    return JavaScript.isEnabled(project)
       && StringUtils.isNotBlank(javascript.getSettings().getString(JavaScriptPlugin.LCOV_REPORT_PATH));
   }
 

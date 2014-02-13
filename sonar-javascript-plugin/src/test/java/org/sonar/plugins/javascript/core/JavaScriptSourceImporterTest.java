@@ -77,15 +77,17 @@ public class JavaScriptSourceImporterTest {
     when(fileSystem.mainFiles(JavaScript.KEY)).thenReturn(inputFiles);
 
     Project project = new Project("dummy") {
-
+      @Override
       public ProjectFileSystem getFileSystem() {
         return fileSystem;
       }
 
+      @Override
       public Language getLanguage() {
         return language;
       }
 
+      @Override
       public Configuration getConfiguration() {
         return configuration;
       }
@@ -96,4 +98,5 @@ public class JavaScriptSourceImporterTest {
 
     verify(context).saveSource((Resource) anyObject(), eq("This is content for PersonTest.js JavaScript file used in unit tests."));
   }
+
 }

@@ -71,7 +71,7 @@ public class JavaScriptSquidSensor implements Sensor {
 
   @Override
   public boolean shouldExecuteOnProject(Project project) {
-    return !project.getFileSystem().mainFiles(JavaScript.KEY).isEmpty();
+    return JavaScript.isEnabled(project);
   }
 
   @Override
