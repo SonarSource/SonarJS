@@ -5,7 +5,7 @@
   <parent>
     <groupId>org.codehaus.sonar-plugins.javascript</groupId>
     <artifactId>javascript</artifactId>
-    <version>1.6</version>
+    <version>1.7-SNAPSHOT</version>
   </parent>
 
   <artifactId>sonar-javascript-plugin</artifactId>
@@ -19,7 +19,7 @@
     <connection>scm:git:git@github.com:SonarCommunity/sonar-javascript.git</connection>
     <developerConnection>scm:git:git@github.com:SonarCommunity/sonar-javascript.git</developerConnection>
     <url>https://github.com/SonarCommunity/sonar-javascript</url>
-    <tag>1.6</tag>
+    <tag>HEAD</tag>
   </scm>
 
   <properties>
