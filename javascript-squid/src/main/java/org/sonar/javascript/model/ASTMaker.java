@@ -240,7 +240,7 @@ public final class ASTMaker {
           if (astNode.getChild(i).is(EcmaScriptGrammar.ARGUMENTS)) {
             result = new TreeImpl.FunctionCallTreeImpl(astNode,
               result,
-              t.getList(astNode.getChild(i))
+              (List<? extends ExpressionTree>) t.getList(astNode.getChild(i))
             );
             i += 1;
           } else if (astNode.getChild(i).is(EcmaScriptPunctuator.LBRACKET)) {
@@ -337,7 +337,7 @@ public final class ASTMaker {
     dispatcher.register(new Maker() {
       public Tree make(AstNode astNode, Trees t) {
         return new TreeImpl.BlockTreeImpl(astNode,
-          t.getList(astNode.getFirstChild(EcmaScriptGrammar.STATEMENT_LIST))
+          (List<? extends StatementTree>) t.getList(astNode.getFirstChild(EcmaScriptGrammar.STATEMENT_LIST))
         );
       }
     }, EcmaScriptGrammar.BLOCK);
@@ -345,7 +345,7 @@ public final class ASTMaker {
     dispatcher.register(new Maker() {
       public Tree make(AstNode astNode, Trees t) {
         return new TreeImpl.VariableStatementTreeImpl(astNode,
-          t.getList(astNode.getFirstChild(EcmaScriptGrammar.VARIABLE_DECLARATION_LIST))
+          (List<VariableDeclarationTree>) t.getList(astNode.getFirstChild(EcmaScriptGrammar.VARIABLE_DECLARATION_LIST))
         );
       }
     }, EcmaScriptGrammar.VARIABLE_STATEMENT);
@@ -528,7 +528,7 @@ public final class ASTMaker {
       public Tree make(AstNode astNode, Trees t) {
         return new TreeImpl.CaseClauseTreeImpl(astNode,
           null,
-          t.getList(astNode.getFirstChild(EcmaScriptGrammar.STATEMENT_LIST))
+          (List<? extends StatementTree>) t.getList(astNode.getFirstChild(EcmaScriptGrammar.STATEMENT_LIST))
         );
       }
     }, EcmaScriptGrammar.DEFAULT_CLAUSE);
@@ -557,7 +557,7 @@ public final class ASTMaker {
     dispatcher.register(new Maker() {
       public Tree make(AstNode astNode, Trees t) {
         return new TreeImpl.ProgramTreeImpl(astNode,
-          t.getList(astNode.getFirstChild(EcmaScriptGrammar.SOURCE_ELEMENTS))
+          (List<? extends SourceElementTree>) t.getList(astNode.getFirstChild(EcmaScriptGrammar.SOURCE_ELEMENTS))
         );
       }
     }, EcmaScriptGrammar.PROGRAM);
