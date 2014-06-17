@@ -19,7 +19,6 @@
  */
 package org.sonar.plugins.javascript.lcov;
 
-import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.Sensor;
@@ -47,17 +46,12 @@ public class LCOVSensor implements Sensor {
   }
 
   public boolean shouldExecuteOnProject(Project project) {
-    return JavaScript.isEnabled(project) && projectIsJavaScriptModule(project);
+    return JavaScript.isEnabled(project) && projectHasLCOVReportPath(project);
   }
   
-  public boolean projectIsJavaScriptModule(Project project) {
-    boolean result = false;
+  public boolean projectHasLCOVReportPath(Project project) {
     Object property = project.getProperty(JavaScriptPlugin.LCOV_REPORT_PATH);
-    if (property != null) {
-      result = StringUtils.isNotBlank(property.toString());
-    }
-    
-    return result;
+    return property != null;    
   }
 
   public void analyse(Project project, SensorContext context) {
