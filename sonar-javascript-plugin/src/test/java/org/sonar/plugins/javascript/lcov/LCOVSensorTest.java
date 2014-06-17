@@ -76,7 +76,7 @@ public class LCOVSensorTest {
     assertThat(sensor.shouldExecuteOnProject(project)).isTrue();
 
     // no path to report -> do not execute
-    project.setBranch("");
+    settings.setProperty(JavaScriptPlugin.LCOV_REPORT_PATH, "");
     assertThat(sensor.shouldExecuteOnProject(project)).isFalse();
   }
 
@@ -136,8 +136,6 @@ public class LCOVSensorTest {
 
   private Project mockProject() {
     return new Project("dummy") {
-      private Object property = "jsTestDriver.conf-coverage.dat";
-
       @Override
       public ProjectFileSystem getFileSystem() {
         return fileSystem;
@@ -155,14 +153,7 @@ public class LCOVSensorTest {
       
       @Override
       public Object getProperty(String key) {
-        return property;
-      }
-
-      @Override
-      public Project setBranch(String property) {
-        this.property = property;
-
-        return this;
+        return settings.getString(key);
       }
     };
   }
