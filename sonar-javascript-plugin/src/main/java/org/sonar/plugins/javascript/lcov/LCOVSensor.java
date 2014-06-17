@@ -47,17 +47,27 @@ public class LCOVSensor implements Sensor {
   }
 
   public boolean shouldExecuteOnProject(Project project) {
-    return JavaScript.isEnabled(project)
-      && StringUtils.isNotBlank(javascript.getSettings().getString(JavaScriptPlugin.LCOV_REPORT_PATH));
+    return JavaScript.isEnabled(project) && projectHasLCOVReportPath(project);
+  }
+  
+  public boolean projectHasLCOVReportPath(Project project) {
+    Object property = project.getProperty(JavaScriptPlugin.LCOV_REPORT_PATH);
+    return property != null && StringUtils.isNotBlank(property.toString());    
   }
 
   public void analyse(Project project, SensorContext context) {
-    File lcovFile = project.getFileSystem().resolvePath(javascript.getSettings().getString(JavaScriptPlugin.LCOV_REPORT_PATH));
-    if (lcovFile.isFile()) {
-      LCOVParser parser = new LCOVParser(project.getFileSystem());
-      LOG.info("Analysing {}", lcovFile);
-      Map<String, CoverageMeasuresBuilder> coveredFiles = parser.parseFile(lcovFile);
-      analyseCoveredFiles(project, context, coveredFiles);
+    Object property = project.getProperty(JavaScriptPlugin.LCOV_REPORT_PATH);
+    
+    if (property != null) {
+      String path = property.toString();
+      
+      File lcovFile = project.getFileSystem().resolvePath(path);
+      if (lcovFile.isFile()) {
+        LCOVParser parser = new LCOVParser(project.getFileSystem());
+        LOG.info("Analysing {}", lcovFile);
+        Map<String, CoverageMeasuresBuilder> coveredFiles = parser.parseFile(lcovFile);
+        analyseCoveredFiles(project, context, coveredFiles);
+      }
     }
   }
 

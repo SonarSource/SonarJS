@@ -150,6 +150,11 @@ public class LCOVSensorTest {
       public String getLanguageKey() {
         throw new UnsupportedOperationException("should not be used for multi-language support in SQ 4.2");
       }
+      
+      @Override
+      public Object getProperty(String key) {
+        return settings.getString(key);
+      }
     };
   }
 
