@@ -81,7 +81,7 @@ public class AssignmentWithinConditionCheck extends SquidCheck<LexerlessGrammar>
 
   private boolean inExpression() {
     AstNodeType t = peek(0);
-    return t == EcmaScriptGrammar.EXPRESSION || t == EcmaScriptGrammar.EXPRESSION_NO_IN || t == EcmaScriptGrammar.CONDITION;
+    return EcmaScriptGrammar.EXPRESSION.equals(t) || EcmaScriptGrammar.EXPRESSION_NO_IN.equals(t) || EcmaScriptGrammar.CONDITION.equals(t);
   }
 
   /**
@@ -95,8 +95,8 @@ public class AssignmentWithinConditionCheck extends SquidCheck<LexerlessGrammar>
   }
 
   private boolean isExcludedExpression(AstNodeType node) {
-    return node == EcmaScriptGrammar.EQUALITY_EXPRESSION || node == EcmaScriptGrammar.EQUALITY_EXPRESSION_NO_IN
-      || node == EcmaScriptGrammar.RELATIONAL_EXPRESSION || node == EcmaScriptGrammar.RELATIONAL_EXPRESSION_NO_IN;
+    return EcmaScriptGrammar.EQUALITY_EXPRESSION.equals(node) || EcmaScriptGrammar.EQUALITY_EXPRESSION_NO_IN.equals(node)
+      || EcmaScriptGrammar.RELATIONAL_EXPRESSION.equals(node) || EcmaScriptGrammar.RELATIONAL_EXPRESSION_NO_IN.equals(node);
   }
 
   private boolean isTargetedExpression(AstNode astNode) {
