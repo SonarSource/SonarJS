@@ -32,10 +32,11 @@ import org.sonar.api.measures.PersistenceMode;
 import org.sonar.api.measures.RangeDistributionBuilder;
 import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.resources.File;
-import org.sonar.api.resources.InputFileUtils;
 import org.sonar.api.resources.Project;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.ActiveRule;
+import org.sonar.api.scan.filesystem.FileQuery;
+import org.sonar.api.scan.filesystem.ModuleFileSystem;
 import org.sonar.javascript.EcmaScriptConfiguration;
 import org.sonar.javascript.JavaScriptAstScanner;
 import org.sonar.javascript.api.EcmaScriptMetric;
@@ -64,20 +65,23 @@ public class JavaScriptSquidSensor implements Sensor {
   private final AnnotationCheckFactory annotationCheckFactory;
   private final FileLinesContextFactory fileLinesContextFactory;
   private final ResourcePerspectives resourcePerspectives;
+  private final ModuleFileSystem moduleFileSystem;
 
   private Project project;
   private SensorContext context;
   private AstScanner<LexerlessGrammar> scanner;
 
-  public JavaScriptSquidSensor(RulesProfile profile, FileLinesContextFactory fileLinesContextFactory, ResourcePerspectives resourcePerspectives) {
+  public JavaScriptSquidSensor(RulesProfile profile, FileLinesContextFactory fileLinesContextFactory,
+                               ResourcePerspectives resourcePerspectives, ModuleFileSystem moduleFileSystem) {
     this.annotationCheckFactory = AnnotationCheckFactory.create(profile, CheckList.REPOSITORY_KEY, CheckList.getChecks());
     this.fileLinesContextFactory = fileLinesContextFactory;
     this.resourcePerspectives = resourcePerspectives;
+    this.moduleFileSystem = moduleFileSystem;
   }
 
   @Override
   public boolean shouldExecuteOnProject(Project project) {
-    return JavaScript.isEnabled(project);
+    return !moduleFileSystem.files(FileQuery.onSource().onLanguage(JavaScript.KEY)).isEmpty();
   }
 
   @Override
@@ -89,14 +93,14 @@ public class JavaScriptSquidSensor implements Sensor {
     List<SquidAstVisitor<LexerlessGrammar>> visitors = Lists.newArrayList(squidChecks);
     visitors.add(new FileLinesVisitor(project, fileLinesContextFactory));
     scanner = JavaScriptAstScanner.create(createConfiguration(project), visitors.toArray(new SquidAstVisitor[visitors.size()]));
-    scanner.scanFiles(InputFileUtils.toFiles(project.getFileSystem().mainFiles(JavaScript.KEY)));
+    scanner.scanFiles(moduleFileSystem.files(FileQuery.onSource().onLanguage(JavaScript.KEY)));
 
     Collection<SourceCode> squidSourceFiles = scanner.getIndex().search(new QueryByType(SourceFile.class));
     save(squidSourceFiles);
   }
 
   private EcmaScriptConfiguration createConfiguration(Project project) {
-    return new EcmaScriptConfiguration(project.getFileSystem().getSourceCharset());
+    return new EcmaScriptConfiguration(moduleFileSystem.sourceCharset());
   }
 
   private void save(Collection<SourceCode> squidSourceFiles) {
@@ -129,7 +133,7 @@ public class JavaScriptSquidSensor implements Sensor {
       complexityDistribution.add(squidFunction.getDouble(EcmaScriptMetric.COMPLEXITY));
     }
     context.saveMeasure(sonarFile, complexityDistribution.build().setPersistenceMode(PersistenceMode.MEMORY));
-  }
+ }
 
   private void saveFilesComplexityDistribution(File sonarFile, SourceFile squidFile) {
     RangeDistributionBuilder complexityDistribution = new RangeDistributionBuilder(CoreMetrics.FILE_COMPLEXITY_DISTRIBUTION, FILES_DISTRIB_BOTTOM_LIMITS);

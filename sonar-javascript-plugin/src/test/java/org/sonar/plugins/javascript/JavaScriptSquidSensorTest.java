@@ -28,8 +28,11 @@ import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.FileLinesContext;
 import org.sonar.api.measures.FileLinesContextFactory;
 import org.sonar.api.profiles.RulesProfile;
-import org.sonar.api.resources.*;
-import org.sonar.plugins.javascript.core.JavaScript;
+import org.sonar.api.resources.Project;
+import org.sonar.api.resources.ProjectFileSystem;
+import org.sonar.api.resources.Resource;
+import org.sonar.api.scan.filesystem.FileQuery;
+import org.sonar.api.scan.filesystem.ModuleFileSystem;
 
 import java.io.File;
 import java.nio.charset.Charset;
@@ -45,42 +48,48 @@ import static org.mockito.Mockito.when;
 
 public class JavaScriptSquidSensorTest {
 
-  private JavaScriptSquidSensor sensor;
+  private FileLinesContextFactory fileLinesContextFactory;
+  private Project project;
 
   @Before
   public void setUp() {
-    FileLinesContextFactory fileLinesContextFactory = mock(FileLinesContextFactory.class);
+    fileLinesContextFactory = mock(FileLinesContextFactory.class);
     FileLinesContext fileLinesContext = mock(FileLinesContext.class);
     when(fileLinesContextFactory.createFor(any(Resource.class))).thenReturn(fileLinesContext);
-    sensor = new JavaScriptSquidSensor(mock(RulesProfile.class), fileLinesContextFactory, mock(ResourcePerspectives.class));
+
+    project = new Project("key");
+    ProjectFileSystem pfs = mock(ProjectFileSystem.class);
+    when(pfs.getSourceDirs()).thenReturn(Arrays.asList(new File("src/test/resources/cpd/")));
+
+    project.setFileSystem(pfs);
   }
 
   @Test
   public void should_execute_if_js_files() {
-    ProjectFileSystem fs = mock(ProjectFileSystem.class);
-    Project project = new Project("key");
-    project.setFileSystem(fs);
+    ModuleFileSystem fs = mock(ModuleFileSystem.class);
+    project = new Project("key");
+
+    JavaScriptSquidSensor sensor = new JavaScriptSquidSensor(mock(RulesProfile.class), fileLinesContextFactory, mock(ResourcePerspectives.class), fs);
 
     // no JS files -> do not execute
-    when(fs.mainFiles(JavaScript.KEY)).thenReturn(Collections.<InputFile>emptyList());
+    when(fs.files(any(FileQuery.class))).thenReturn(Collections.<File>emptyList());
     assertThat(sensor.shouldExecuteOnProject(project)).isFalse();
 
     // at least one JS file -> do execute
-    when(fs.mainFiles(JavaScript.KEY)).thenReturn(Arrays.asList(mock(InputFile.class)));
+    when(fs.files(any(FileQuery.class))).thenReturn(Arrays.asList(mock(File.class)));
     assertThat(sensor.shouldExecuteOnProject(project)).isTrue();
   }
 
   @Test
   public void should_analyse() {
-    ProjectFileSystem fs = mock(ProjectFileSystem.class);
-    when(fs.getSourceCharset()).thenReturn(Charset.forName("UTF-8"));
-    InputFile inputFile = InputFileUtils.create(
-        new File("src/test/resources/cpd"),
-        new File("src/test/resources/cpd/Person.js"));
-    when(fs.mainFiles(JavaScript.KEY)).thenReturn(ImmutableList.of(inputFile));
-    Project project = new Project("key");
-    project.setFileSystem(fs);
+    ModuleFileSystem fs = mock(ModuleFileSystem.class);
+    when(fs.sourceCharset()).thenReturn(Charset.forName("UTF-8"));
+    ImmutableList<File> files = ImmutableList.of(new File("src/test/resources/cpd/Person.js"));
+    when(fs.files(any(FileQuery.class))).thenReturn(files);
+
+
     SensorContext context = mock(SensorContext.class);
+    JavaScriptSquidSensor sensor = new JavaScriptSquidSensor(mock(RulesProfile.class), fileLinesContextFactory, mock(ResourcePerspectives.class), fs);
 
     sensor.analyse(project, context);
 

@@ -23,7 +23,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.measures.CoverageMeasuresBuilder;
-import org.sonar.api.resources.ProjectFileSystem;
 import org.sonar.api.utils.SonarException;
 
 import java.io.File;
@@ -31,23 +30,19 @@ import java.util.Arrays;
 import java.util.Map;
 
 import static org.fest.assertions.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 public class LCOVParserTest {
 
   @Rule
   public ExpectedException thrown = ExpectedException.none();
 
-  private ProjectFileSystem projectFileSystem = mock(ProjectFileSystem.class);
-  private LCOVParser parser = new LCOVParser(projectFileSystem);
+  private static final String BASE_DIR = "module/base/dir/";
+  private LCOVParser parser = new LCOVParser(new File(BASE_DIR));
 
   @Test
   public void test() {
-    File file1 = new File("file1.js");
-    when(projectFileSystem.resolvePath("file1.js")).thenReturn(file1);
-    File file2 = new File("file2.js");
-    when(projectFileSystem.resolvePath("./file2.js")).thenReturn(file2);
+    File file1 = new File(BASE_DIR, "file1.js");
+    File file2 = new File(BASE_DIR, "file2.js");
 
     Map<String, CoverageMeasuresBuilder> result = parser.parse(Arrays.asList(
         "SF:file1.js",
@@ -80,8 +75,7 @@ public class LCOVParserTest {
 
   @Test
   public void merge() {
-    File file = new File("file.js");
-    when(projectFileSystem.resolvePath("file.js")).thenReturn(file);
+    File file = new File(BASE_DIR, "file.js");
 
     Map<String, CoverageMeasuresBuilder> result = parser.parse(Arrays.asList(
       "SF:file.js",

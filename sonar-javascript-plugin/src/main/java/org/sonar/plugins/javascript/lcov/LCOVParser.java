@@ -23,7 +23,6 @@ import com.google.common.base.Objects;
 import com.google.common.collect.Maps;
 import org.apache.commons.io.FileUtils;
 import org.sonar.api.measures.CoverageMeasuresBuilder;
-import org.sonar.api.resources.ProjectFileSystem;
 import org.sonar.api.utils.SonarException;
 
 import java.io.File;
@@ -40,10 +39,10 @@ public final class LCOVParser {
   private static final String DA = "DA:";
   private static final String BRDA = "BRDA:";
 
-  private final ProjectFileSystem projectFileSystem;
+  private final File moduleBaseDir;
 
-  public LCOVParser(ProjectFileSystem projectFileSystem) {
-    this.projectFileSystem = projectFileSystem;
+  public LCOVParser(File moduleBaseDir) {
+    this.moduleBaseDir = moduleBaseDir;
   }
 
   public Map<String, CoverageMeasuresBuilder> parseFile(File file) {
@@ -66,7 +65,11 @@ public final class LCOVParser {
         String filePath = line.substring(SF.length());
 
         // some tools (like Istanbul, Karma) provide relative paths, so let's consider them relative to project directory
-        filePath = projectFileSystem.resolvePath(filePath).getAbsolutePath();
+        try {
+          filePath = LCOVSensor.getIOFile(moduleBaseDir, filePath).getCanonicalPath();
+        } catch (IOException e) {
+          filePath = "";
+        }
 
         fileData = files.get(filePath);
         if (fileData == null) {

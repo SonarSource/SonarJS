@@ -28,8 +28,10 @@ import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.CoverageMeasuresBuilder;
 import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.PropertiesBuilder;
-import org.sonar.api.resources.InputFile;
 import org.sonar.api.resources.Project;
+import org.sonar.api.resources.ProjectFileSystem;
+import org.sonar.api.scan.filesystem.FileQuery;
+import org.sonar.api.scan.filesystem.ModuleFileSystem;
 import org.sonar.plugins.javascript.JavaScriptPlugin;
 import org.sonar.plugins.javascript.core.JavaScript;
 
@@ -41,20 +43,23 @@ public class LCOVSensor implements Sensor {
   private static final Logger LOG = LoggerFactory.getLogger(LCOVSensor.class);
 
   private final JavaScript javascript;
+  private final ModuleFileSystem moduleFileSystem;
 
-  public LCOVSensor(JavaScript javascript) {
+  public LCOVSensor(JavaScript javascript, ModuleFileSystem moduleFileSystem) {
     this.javascript = javascript;
+    this.moduleFileSystem = moduleFileSystem;
   }
 
   public boolean shouldExecuteOnProject(Project project) {
-    return JavaScript.isEnabled(project)
+    return !moduleFileSystem.files(FileQuery.onSource().onLanguage(JavaScript.KEY)).isEmpty()
       && StringUtils.isNotBlank(javascript.getSettings().getString(JavaScriptPlugin.LCOV_REPORT_PATH));
   }
 
   public void analyse(Project project, SensorContext context) {
-    File lcovFile = project.getFileSystem().resolvePath(javascript.getSettings().getString(JavaScriptPlugin.LCOV_REPORT_PATH));
+    File lcovFile = getIOFile(moduleFileSystem.baseDir(), javascript.getSettings().getString(JavaScriptPlugin.LCOV_REPORT_PATH));
+
     if (lcovFile.isFile()) {
-      LCOVParser parser = new LCOVParser(project.getFileSystem());
+      LCOVParser parser = new LCOVParser(moduleFileSystem.baseDir());
       LOG.info("Analysing {}", lcovFile);
       Map<String, CoverageMeasuresBuilder> coveredFiles = parser.parseFile(lcovFile);
       analyseCoveredFiles(project, context, coveredFiles);
@@ -62,10 +67,10 @@ public class LCOVSensor implements Sensor {
   }
 
   protected void analyseCoveredFiles(Project project, SensorContext context, Map<String, CoverageMeasuresBuilder> coveredFiles) {
-    for (InputFile inputFile : project.getFileSystem().mainFiles(JavaScript.KEY)) {
+    for (File file : moduleFileSystem.files(FileQuery.onSource().onLanguage(JavaScript.KEY))) {
       try {
-        CoverageMeasuresBuilder fileCoverage = coveredFiles.get(inputFile.getFile().getAbsolutePath());
-        org.sonar.api.resources.File resource = org.sonar.api.resources.File.fromIOFile(inputFile.getFile(), project);
+        CoverageMeasuresBuilder fileCoverage = coveredFiles.get(file.getAbsolutePath());
+        org.sonar.api.resources.File resource = org.sonar.api.resources.File.fromIOFile(file, project);
         PropertiesBuilder<Integer, Integer> lineHitsData = new PropertiesBuilder<Integer, Integer>(CoreMetrics.COVERAGE_LINE_HITS_DATA);
 
         if (fileCoverage != null) {
@@ -87,7 +92,7 @@ public class LCOVSensor implements Sensor {
         }
 
       } catch (Exception e) {
-        LOG.error("Problem while calculating coverage for " + inputFile.getFile().getAbsolutePath(), e);
+        LOG.error("Problem while calculating coverage for " + file.getAbsolutePath(), e);
       }
     }
   }
@@ -95,6 +100,20 @@ public class LCOVSensor implements Sensor {
   @Override
   public String toString() {
     return getClass().getSimpleName();
+  }
+
+  /**
+   * Returns a java.io.File for the given path.
+   * If path is not absolute, returns a File with module base directory as parent path.
+   */
+  public static File getIOFile(File baseDir, String path) {
+    File file = new File(path);
+    if (!file.isAbsolute()) {
+      file = new File(baseDir, path);
+    }
+
+
+    return file;
   }
 
 }

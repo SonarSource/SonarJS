@@ -48,8 +48,4 @@ public class JavaScript extends AbstractLanguage {
     return suffixes;
   }
 
-  public static boolean isEnabled(Project project) {
-    return !project.getFileSystem().mainFiles(KEY).isEmpty();
-  }
-
 }

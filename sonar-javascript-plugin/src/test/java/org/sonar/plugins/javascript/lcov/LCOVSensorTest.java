@@ -19,49 +19,50 @@
  */
 package org.sonar.plugins.javascript.lcov;
 
+import com.google.common.collect.ImmutableList;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.batch.SensorContext;
 import org.sonar.api.config.Settings;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Measure;
-import org.sonar.api.resources.InputFile;
-import org.sonar.api.resources.InputFileUtils;
-import org.sonar.api.resources.Language;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.ProjectFileSystem;
 import org.sonar.api.resources.Resource;
+import org.sonar.api.scan.filesystem.FileQuery;
+import org.sonar.api.scan.filesystem.ModuleFileSystem;
 import org.sonar.plugins.javascript.JavaScriptPlugin;
 import org.sonar.plugins.javascript.core.JavaScript;
 
 import java.io.File;
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.Collections;
 
 import static org.fest.assertions.Assertions.assertThat;
+import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyObject;
 import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.atLeast;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 public class LCOVSensorTest {
 
-  private final File baseDir = new File("src/test/resources/org/sonar/plugins/javascript/jstestdriver/sensortests/main");
+  private static final File baseDir = new File("src/test/resources/org/sonar/plugins/javascript/jstestdriver/");
 
   private LCOVSensor sensor;
   private SensorContext context;
   private Settings settings;
-  private ProjectFileSystem fileSystem = mock(ProjectFileSystem.class);
+  private ModuleFileSystem fileSystem = mock(ModuleFileSystem.class);
   private Project project;
 
   @Before
   public void init() {
     settings = new Settings();
     settings.setProperty(JavaScriptPlugin.LCOV_REPORT_PATH, "jsTestDriver.conf-coverage.dat");
-    sensor = new LCOVSensor(new JavaScript(settings));
+    sensor = new LCOVSensor(new JavaScript(settings), fileSystem);
     context = mock(SensorContext.class);
     project = mockProject();
   }
@@ -69,10 +70,11 @@ public class LCOVSensorTest {
   @Test
   public void test_should_execute() {
     // no JS files -> do not execute
+    when(fileSystem.files(any(FileQuery.class))).thenReturn(new ArrayList<File>());
     assertThat(sensor.shouldExecuteOnProject(project)).isFalse();
 
     // at least one JS file -> do execute
-    when(fileSystem.mainFiles("js")).thenReturn(Collections.singletonList(mock(InputFile.class)));
+    when(fileSystem.files(any(FileQuery.class))).thenReturn(Collections.singletonList(mock(File.class)));
     assertThat(sensor.shouldExecuteOnProject(project)).isTrue();
 
     // no path to report -> do not execute
@@ -82,9 +84,8 @@ public class LCOVSensorTest {
 
   @Test
   public void report_not_found() throws Exception {
-    Project project = mockProject();
-    when(fileSystem.resolvePath("jsTestDriver.conf-coverage.dat"))
-        .thenReturn(new File("not-found"));
+    Project project = new Project("key");
+    when(fileSystem.baseDir()).thenReturn((new File("bad/base/module/dir")));
 
     sensor.analyse(project, context);
 
@@ -93,35 +94,29 @@ public class LCOVSensorTest {
 
   @Test
   public void testFileInJsTestDriverCoverageReport() {
-    when(fileSystem.mainFiles(JavaScript.KEY)).thenReturn(Arrays.asList(InputFileUtils.create(baseDir, "Person.js")));
-
-    when(fileSystem.resolvePath("jsTestDriver.conf-coverage.dat"))
-      .thenReturn(new File("src/test/resources/org/sonar/plugins/javascript/jstestdriver/jsTestDriver.conf-coverage.dat"));
-    when(fileSystem.resolvePath("Person.js"))
-      .thenReturn(new File("src/test/resources/org/sonar/plugins/javascript/jstestdriver/sensortests/main/Person.js"));
-    when(fileSystem.resolvePath("PersonTest.js"))
-      .thenReturn(new File("src/test/resources/org/sonar/plugins/javascript/jstestdriver/sensortests/test/PersonTest.js"));
+    when(fileSystem.baseDir()).thenReturn((baseDir));
+    when(fileSystem.files(any(FileQuery.class))).thenReturn(ImmutableList.of(
+      new File(baseDir, "sensortests/main/Person.js"),
+      new File(baseDir, "sensortests/main/Person.js"),
+      new File(baseDir, "sensortests/test/PersonTest.js")));
 
     sensor.analyse(project, context);
-    verify(context, times(3)).saveMeasure((Resource) anyObject(), (Measure) anyObject());
+    verify(context, atLeast(3)).saveMeasure((Resource) anyObject(), (Measure) anyObject());
   }
 
   @Test
   public void testFileNotInJsTestDriverCoverageReport() {
-    InputFile inputFile = InputFileUtils.create(baseDir, "another.js");
-    when(fileSystem.mainFiles(JavaScript.KEY)).thenReturn(Arrays.asList(inputFile));
+    File fileToCheck = new File(baseDir, "another.js");
+    when(fileSystem.baseDir()).thenReturn((baseDir));
+    when(fileSystem.files(any(FileQuery.class))).thenReturn(ImmutableList.of(
+      fileToCheck,
+      new File(baseDir, "sensortests/main/Person.js"),
+      new File(baseDir, "sensortests/test/PersonTest.js")));
 
-    when(fileSystem.resolvePath("jsTestDriver.conf-coverage.dat"))
-      .thenReturn(new File("src/test/resources/org/sonar/plugins/javascript/jstestdriver/jsTestDriver.conf-coverage.dat"));
-    when(fileSystem.resolvePath("Person.js"))
-      .thenReturn(new File("src/test/resources/org/sonar/plugins/javascript/jstestdriver/sensortests/main/Person.js"));
-    when(fileSystem.resolvePath("PersonTest.js"))
-      .thenReturn(new File("src/test/resources/org/sonar/plugins/javascript/jstestdriver/sensortests/test/PersonTest.js"));
-
-    when(context.getMeasure(org.sonar.api.resources.File.fromIOFile(inputFile.getFile(), project), CoreMetrics.LINES)).thenReturn(
-        new Measure(CoreMetrics.LINES, (double) 20));
-    when(context.getMeasure(org.sonar.api.resources.File.fromIOFile(inputFile.getFile(), project), CoreMetrics.NCLOC)).thenReturn(
-        new Measure(CoreMetrics.LINES, (double) 22));
+    when(context.getMeasure(org.sonar.api.resources.File.fromIOFile(fileToCheck, project), CoreMetrics.LINES)).thenReturn(
+      new Measure(CoreMetrics.LINES, (double) 20));
+    when(context.getMeasure(org.sonar.api.resources.File.fromIOFile(fileToCheck, project), CoreMetrics.NCLOC)).thenReturn(
+      new Measure(CoreMetrics.LINES, (double) 22));
 
     sensor.analyse(project, context);
 
@@ -134,23 +129,13 @@ public class LCOVSensorTest {
     assertThat(sensor.toString()).isEqualTo("LCOVSensor");
   }
 
-  private Project mockProject() {
-    return new Project("dummy") {
-      @Override
-      public ProjectFileSystem getFileSystem() {
-        return fileSystem;
-      }
+  public static Project mockProject() {
+    ProjectFileSystem pfs = mock(ProjectFileSystem.class);
+    when(pfs.getSourceDirs()).thenReturn(ImmutableList.of(new File(baseDir, "main")));
 
-      @Override
-      public Language getLanguage() {
-        throw new UnsupportedOperationException("should not be used for multi-language support in SQ 4.2");
-      }
+    Project project = new Project("key");
+    project.setFileSystem(pfs);
 
-      @Override
-      public String getLanguageKey() {
-        throw new UnsupportedOperationException("should not be used for multi-language support in SQ 4.2");
-      }
-    };
+    return project;
   }
-
 }
