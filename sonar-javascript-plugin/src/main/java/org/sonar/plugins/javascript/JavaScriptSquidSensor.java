@@ -20,11 +20,12 @@
 package org.sonar.plugins.javascript;
 
 import com.google.common.collect.Lists;
-import org.sonar.squidbridge.AstScanner;
-import org.sonar.squidbridge.SquidAstVisitor;
 import org.sonar.api.batch.Sensor;
 import org.sonar.api.batch.SensorContext;
 import org.sonar.api.checks.AnnotationCheckFactory;
+import org.sonar.api.component.ResourcePerspectives;
+import org.sonar.api.issue.Issuable;
+import org.sonar.api.issue.Issue;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.FileLinesContextFactory;
 import org.sonar.api.measures.PersistenceMode;
@@ -33,13 +34,16 @@ import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.resources.File;
 import org.sonar.api.resources.InputFileUtils;
 import org.sonar.api.resources.Project;
-import org.sonar.api.rules.Violation;
+import org.sonar.api.rule.RuleKey;
+import org.sonar.api.rules.ActiveRule;
 import org.sonar.javascript.EcmaScriptConfiguration;
 import org.sonar.javascript.JavaScriptAstScanner;
 import org.sonar.javascript.api.EcmaScriptMetric;
 import org.sonar.javascript.checks.CheckList;
 import org.sonar.javascript.metrics.FileLinesVisitor;
 import org.sonar.plugins.javascript.core.JavaScript;
+import org.sonar.squidbridge.AstScanner;
+import org.sonar.squidbridge.SquidAstVisitor;
 import org.sonar.squidbridge.api.CheckMessage;
 import org.sonar.squidbridge.api.SourceCode;
 import org.sonar.squidbridge.api.SourceFile;
@@ -59,14 +63,16 @@ public class JavaScriptSquidSensor implements Sensor {
 
   private final AnnotationCheckFactory annotationCheckFactory;
   private final FileLinesContextFactory fileLinesContextFactory;
+  private final ResourcePerspectives resourcePerspectives;
 
   private Project project;
   private SensorContext context;
   private AstScanner<LexerlessGrammar> scanner;
 
-  public JavaScriptSquidSensor(RulesProfile profile, FileLinesContextFactory fileLinesContextFactory) {
+  public JavaScriptSquidSensor(RulesProfile profile, FileLinesContextFactory fileLinesContextFactory, ResourcePerspectives resourcePerspectives) {
     this.annotationCheckFactory = AnnotationCheckFactory.create(profile, CheckList.REPOSITORY_KEY, CheckList.getChecks());
     this.fileLinesContextFactory = fileLinesContextFactory;
+    this.resourcePerspectives = resourcePerspectives;
   }
 
   @Override
@@ -102,7 +108,7 @@ public class JavaScriptSquidSensor implements Sensor {
       saveFilesComplexityDistribution(sonarFile, squidFile);
       saveFunctionsComplexityDistribution(sonarFile, squidFile);
       saveMeasures(sonarFile, squidFile);
-      saveViolations(sonarFile, squidFile);
+      saveIssues(sonarFile, squidFile);
     }
   }
 
@@ -131,14 +137,22 @@ public class JavaScriptSquidSensor implements Sensor {
     context.saveMeasure(sonarFile, complexityDistribution.build().setPersistenceMode(PersistenceMode.MEMORY));
   }
 
-  private void saveViolations(File sonarFile, SourceFile squidFile) {
+  private void saveIssues(File sonarFile, SourceFile squidFile) {
     Collection<CheckMessage> messages = squidFile.getCheckMessages();
     if (messages != null) {
+
       for (CheckMessage message : messages) {
-        Violation violation = Violation.create(annotationCheckFactory.getActiveRule(message.getCheck()), sonarFile)
-            .setLineId(message.getLine())
-            .setMessage(message.getText(Locale.ENGLISH));
-        context.saveViolation(violation);
+        ActiveRule rule = annotationCheckFactory.getActiveRule(message.getCheck());
+        Issuable issuable = resourcePerspectives.as(Issuable.class, sonarFile);
+
+        if (issuable != null) {
+          Issue issue = issuable.newIssueBuilder()
+            .ruleKey(RuleKey.of(rule.getRepositoryKey(), rule.getRuleKey()))
+            .line(message.getLine())
+            .message(message.getText(Locale.ENGLISH))
+            .build();
+          issuable.addIssue(issue);
+        }
       }
     }
   }

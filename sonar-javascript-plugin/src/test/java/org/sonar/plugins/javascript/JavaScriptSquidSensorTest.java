@@ -23,6 +23,7 @@ import com.google.common.collect.ImmutableList;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.batch.SensorContext;
+import org.sonar.api.component.ResourcePerspectives;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.FileLinesContext;
 import org.sonar.api.measures.FileLinesContextFactory;
@@ -51,7 +52,7 @@ public class JavaScriptSquidSensorTest {
     FileLinesContextFactory fileLinesContextFactory = mock(FileLinesContextFactory.class);
     FileLinesContext fileLinesContext = mock(FileLinesContext.class);
     when(fileLinesContextFactory.createFor(any(Resource.class))).thenReturn(fileLinesContext);
-    sensor = new JavaScriptSquidSensor(mock(RulesProfile.class), fileLinesContextFactory);
+    sensor = new JavaScriptSquidSensor(mock(RulesProfile.class), fileLinesContextFactory, mock(ResourcePerspectives.class));
   }
 
   @Test
