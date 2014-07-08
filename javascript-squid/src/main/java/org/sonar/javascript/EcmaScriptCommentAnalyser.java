@@ -19,7 +19,7 @@
  */
 package org.sonar.javascript;
 
-import com.sonar.sslr.api.CommentAnalyser;
+import org.sonar.squidbridge.CommentAnalyser;
 
 public class EcmaScriptCommentAnalyser extends CommentAnalyser {
 

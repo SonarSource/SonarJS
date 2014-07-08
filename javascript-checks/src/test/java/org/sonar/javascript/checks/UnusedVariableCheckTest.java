@@ -19,10 +19,10 @@
  */
 package org.sonar.javascript.checks;
 
-import com.sonar.sslr.squid.checks.CheckMessagesVerifier;
+import org.sonar.squidbridge.checks.CheckMessagesVerifier;
 import org.junit.Test;
 import org.sonar.javascript.JavaScriptAstScanner;
-import org.sonar.squid.api.SourceFile;
+import org.sonar.squidbridge.api.SourceFile;
 
 import java.io.File;
 

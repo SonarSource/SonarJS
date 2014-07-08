@@ -19,7 +19,7 @@
  */
 package org.sonar.javascript.checks;
 
-import com.sonar.sslr.squid.checks.SquidCheck;
+import org.sonar.squidbridge.checks.SquidCheck;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.javascript.model.ContinueStatementTree;
