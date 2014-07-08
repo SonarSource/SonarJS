@@ -68,7 +68,7 @@
     <maven.test.redirectTestOutputToFile>true</maven.test.redirectTestOutputToFile>
 
     <sonar.version>3.7</sonar.version>
-    <sslr.version>1.19.2</sslr.version>
+    <sslr.version>1.20</sslr.version>
   </properties>
 
   <dependencyManagement>
@@ -134,6 +134,11 @@
         <groupId>org.easytesting</groupId>
         <artifactId>fest-assert</artifactId>
         <version>1.4</version>
+      </dependency>
+      <dependency>
+        <groupId>org.slf4j</groupId>
+        <artifactId>slf4j-api</artifactId>
+        <version>1.6.2</version>
       </dependency>
       <dependency>
         <groupId>ch.qos.logback</groupId>
