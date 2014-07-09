@@ -111,6 +111,10 @@ import static org.sonar.javascript.api.EcmaScriptTokenType.REGULAR_EXPRESSION_LI
  * Grammar for ECMAScript.
  * Based on <a href="http://www.ecma-international.org/publications/standards/Ecma-262.htm">ECMA-262</a>
  * edition 5.1 (June 2011).
+ *
+ * Update for support of edition 6 (May 2014)
+ * Based on draft <a href="http://people.mozilla.org/~jorendorff/es6-draft.html"></a>
+ *
  */
 public enum EcmaScriptGrammar implements GrammarRuleKey {
 
@@ -265,7 +269,8 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
     lexical(b);
     expressions(b);
     statements(b);
-    functionsAndPrograms(b);
+    declarations(b);
+    programs(b);
 
     b.setRootRule(PROGRAM);
 
@@ -598,13 +603,19 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
   }
 
   /**
-   * A.5 Functions and Programs
+   * A.5 Declarations
    */
-  private static void functionsAndPrograms(LexerlessGrammarBuilder b) {
+  private static void declarations(LexerlessGrammarBuilder b) {
     b.rule(FUNCTION_DECLARATION).is(FUNCTION, IDENTIFIER, LPARENTHESIS, b.optional(FORMAL_PARAMETER_LIST), RPARENTHESIS, LCURLYBRACE, FUNCTION_BODY, RCURLYBRACE);
     b.rule(FUNCTION_EXPRESSION).is(FUNCTION, b.optional(IDENTIFIER), LPARENTHESIS, b.optional(FORMAL_PARAMETER_LIST), RPARENTHESIS, LCURLYBRACE, FUNCTION_BODY, RCURLYBRACE);
     b.rule(FORMAL_PARAMETER_LIST).is(IDENTIFIER, b.zeroOrMore(COMMA, IDENTIFIER));
     b.rule(FUNCTION_BODY).is(b.optional(SOURCE_ELEMENTS));
+  }
+
+  /**
+   * A.6 Programs
+   */
+  private static void programs(LexerlessGrammarBuilder b) {
     b.rule(PROGRAM).is(b.optional(SHEBANG), b.optional(SOURCE_ELEMENTS), SPACING, EOF);
     b.rule(SOURCE_ELEMENTS).is(b.oneOrMore(SOURCE_ELEMENT));
     b.rule(SOURCE_ELEMENT).is(b.firstOf(
