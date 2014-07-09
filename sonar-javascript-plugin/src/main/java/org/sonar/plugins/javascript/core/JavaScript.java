@@ -22,7 +22,6 @@ package org.sonar.plugins.javascript.core;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.config.Settings;
 import org.sonar.api.resources.AbstractLanguage;
-import org.sonar.api.resources.Project;
 import org.sonar.plugins.javascript.JavaScriptPlugin;
 
 public class JavaScript extends AbstractLanguage {
