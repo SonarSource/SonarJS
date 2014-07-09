@@ -124,7 +124,7 @@ public final class EcmaScriptLexer {
         .withChannel(new IdentifierAndKeywordChannel(IDENTIFIER, true, EcmaScriptKeyword.values()))
         .withChannel(new PunctuatorChannel(EcmaScriptPunctuator.values()))
 
-        .withChannel(new UnknownCharacterChannel(true))
+        .withChannel(new UnknownCharacterChannel())
 
         .build();
   }
