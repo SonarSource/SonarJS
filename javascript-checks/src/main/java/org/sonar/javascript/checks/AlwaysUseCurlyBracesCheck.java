@@ -51,11 +51,11 @@ public class AlwaysUseCurlyBracesCheck extends SquidCheck<LexerlessGrammar> {
   public void visitNode(AstNode astNode) {
     List<AstNode> statements = astNode.getChildren(EcmaScriptGrammar.STATEMENT);
     for (AstNode statement : statements) {
-      if (statement.getChild(0).is(EcmaScriptGrammar.IF_STATEMENT)
+      if (statement.getFirstChild().is(EcmaScriptGrammar.IF_STATEMENT)
           && statement.getPreviousSibling().is(EcmaScriptKeyword.ELSE)) {
         continue;
       }
-      if (!statement.getChild(0).is(EcmaScriptGrammar.BLOCK)) {
+      if (!statement.getFirstChild().is(EcmaScriptGrammar.BLOCK)) {
         getContext().createLineViolation(this, "Missing curly brace.", astNode);
         break;
       }

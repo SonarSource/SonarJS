@@ -21,13 +21,15 @@ package org.sonar.javascript.checks;
 
 import com.google.common.collect.Sets;
 import com.sonar.sslr.api.AstNode;
-import org.sonar.squidbridge.checks.SquidCheck;
 import org.sonar.check.BelongsToProfile;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
+import org.sonar.javascript.api.EcmaScriptTokenType;
 import org.sonar.javascript.parser.EcmaScriptGrammar;
+import org.sonar.squidbridge.checks.SquidCheck;
 import org.sonar.sslr.parser.LexerlessGrammar;
 
+import java.util.List;
 import java.util.Set;
 
 @Rule(
@@ -44,8 +46,7 @@ public class DuplicateFunctionArgumentCheck extends SquidCheck<LexerlessGrammar>
   @Override
   public void visitNode(AstNode astNode) {
     Set<String> values = Sets.newHashSet();
-    for (int i = 0; i < astNode.getNumberOfChildren(); i += 2) {
-      AstNode identifier = astNode.getChild(i);
+    for (AstNode identifier : astNode.getChildren(EcmaScriptTokenType.IDENTIFIER)) {
       String value = identifier.getTokenValue();
       String unescaped = EscapeUtils.unescape(value);
       if (values.contains(unescaped)) {

@@ -42,15 +42,15 @@ public class ForInCheck extends SquidCheck<LexerlessGrammar> {
   public void visitNode(AstNode astNode) {
     AstNode statementNode = astNode.getFirstChild(EcmaScriptGrammar.STATEMENT);
 
-    if (statementNode.getChild(0).is(EcmaScriptGrammar.BLOCK)) {
-      AstNode statementListNode = statementNode.getChild(0).getFirstChild(EcmaScriptGrammar.STATEMENT_LIST);
+    if (statementNode.getFirstChild().is(EcmaScriptGrammar.BLOCK)) {
+      AstNode statementListNode = statementNode.getFirstChild().getFirstChild(EcmaScriptGrammar.STATEMENT_LIST);
       if (statementListNode == null) {
         statementNode = null;
       } else {
-        statementNode = statementListNode.getChildren(EcmaScriptGrammar.STATEMENT).get(0).getChild(0);
+        statementNode = statementListNode.getChildren(EcmaScriptGrammar.STATEMENT).get(0).getFirstChild();
       }
     } else {
-      statementNode = statementNode.getChild(0);
+      statementNode = statementNode.getFirstChild();
     }
 
     if (statementNode != null && statementNode.isNot(EcmaScriptGrammar.IF_STATEMENT)) {

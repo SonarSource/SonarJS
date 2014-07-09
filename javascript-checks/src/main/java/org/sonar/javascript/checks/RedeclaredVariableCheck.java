@@ -20,6 +20,7 @@
 package org.sonar.javascript.checks;
 
 import com.sonar.sslr.api.AstNode;
+import org.sonar.javascript.api.EcmaScriptTokenType;
 import org.sonar.squidbridge.checks.SquidCheck;
 import org.sonar.check.BelongsToProfile;
 import org.sonar.check.Priority;
@@ -28,6 +29,7 @@ import org.sonar.javascript.parser.EcmaScriptGrammar;
 import org.sonar.sslr.parser.LexerlessGrammar;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.Stack;
 
@@ -61,9 +63,10 @@ public class RedeclaredVariableCheck extends SquidCheck<LexerlessGrammar> {
       stack.add(currentScope);
       AstNode formalParameterList = astNode.getFirstChild(EcmaScriptGrammar.FORMAL_PARAMETER_LIST);
       if (formalParameterList != null) {
-        for (int i = 0; i < formalParameterList.getNumberOfChildren(); i += 2) {
-          String parameterName = formalParameterList.getChild(i).getTokenValue();
-          currentScope.add(parameterName);
+
+        List<AstNode> parameters = formalParameterList.getChildren(EcmaScriptTokenType.IDENTIFIER);
+        for (AstNode identifier : parameters) {
+          currentScope.add(identifier.getTokenValue());
         }
       }
     } else {

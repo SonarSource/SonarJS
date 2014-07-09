@@ -20,14 +20,16 @@
 package org.sonar.javascript.checks;
 
 import com.sonar.sslr.api.AstNode;
-import org.sonar.squidbridge.checks.SquidCheck;
 import org.sonar.check.BelongsToProfile;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.javascript.api.EcmaScriptPunctuator;
 import org.sonar.javascript.api.EcmaScriptTokenType;
 import org.sonar.javascript.parser.EcmaScriptGrammar;
+import org.sonar.squidbridge.checks.SquidCheck;
 import org.sonar.sslr.parser.LexerlessGrammar;
+
+import java.util.List;
 
 @Rule(
   key = "BoundOrAssignedEvalOrArguments",
@@ -72,10 +74,11 @@ public class BoundOrAssignedEvalOrArgumentsCheck extends SquidCheck<LexerlessGra
     }
     AstNode formalParameterList = astNode.getFirstChild(EcmaScriptGrammar.FORMAL_PARAMETER_LIST);
     if (formalParameterList != null) {
-      for (int i = 0; i < formalParameterList.getNumberOfChildren(); i += 2) {
-        identifier = formalParameterList.getChild(i);
-        if (isEvalOrArguments(identifier.getTokenValue())) {
-          getContext().createLineViolation(this, createMessageFor("parameter", identifier.getTokenValue()), identifier);
+
+      List<AstNode> parameters = formalParameterList.getChildren(EcmaScriptTokenType.IDENTIFIER);
+      for (AstNode paramIdentifier : parameters) {
+        if (isEvalOrArguments(paramIdentifier.getTokenValue())) {
+          getContext().createLineViolation(this, createMessageFor("parameter", paramIdentifier.getTokenValue()), paramIdentifier);
         }
       }
     }
