@@ -37,7 +37,7 @@ import java.util.Map;
  */
 public final class LCOVParser {
 
-  private final static Logger LOG = LoggerFactory.getLogger(LCOVParser.class);
+  private static final Logger LOG = LoggerFactory.getLogger(LCOVParser.class);
 
   private static final String SF = "SF:";
   private static final String DA = "DA:";
