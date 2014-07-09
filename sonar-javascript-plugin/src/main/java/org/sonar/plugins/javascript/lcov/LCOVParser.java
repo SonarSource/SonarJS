@@ -22,6 +22,8 @@ package org.sonar.plugins.javascript.lcov;
 import com.google.common.base.Objects;
 import com.google.common.collect.Maps;
 import org.apache.commons.io.FileUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.measures.CoverageMeasuresBuilder;
 import org.sonar.api.utils.SonarException;
 
@@ -34,6 +36,8 @@ import java.util.Map;
  * http://ltp.sourceforge.net/coverage/lcov/geninfo.1.php
  */
 public final class LCOVParser {
+
+  private final static Logger LOG = LoggerFactory.getLogger(LCOVParser.class);
 
   private static final String SF = "SF:";
   private static final String DA = "DA:";
@@ -69,6 +73,7 @@ public final class LCOVParser {
           filePath = LCOVSensor.getIOFile(moduleBaseDir, filePath).getCanonicalPath();
         } catch (IOException e) {
           filePath = "";
+          LOG.error("Unable to retreive coverage onfo for file {}, because: {}", filePath, e);
         }
 
         fileData = files.get(filePath);
