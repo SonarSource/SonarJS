@@ -34,7 +34,7 @@ public class AutomaticSemicolonInsertionTest {
    */
   @Test
   public void test() {
-    assertThat(g.rule(EcmaScriptGrammar.PROGRAM))
+    assertThat(g.rule(EcmaScriptGrammar.SCRIPT))
         .as("not valid").notMatches("{ 1 2 } 3")
         .as("transformed to valid").matches("{ 1 \n 2 } 3");
 

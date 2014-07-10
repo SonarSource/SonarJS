@@ -20,11 +20,11 @@
 package org.sonar.javascript.checks;
 
 import com.sonar.sslr.api.AstNode;
-import org.sonar.squidbridge.checks.SquidCheck;
 import org.sonar.check.BelongsToProfile;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.javascript.parser.EcmaScriptGrammar;
+import org.sonar.squidbridge.checks.SquidCheck;
 import org.sonar.sslr.parser.LexerlessGrammar;
 
 @Rule(
@@ -44,8 +44,7 @@ public class UnreachableCodeCheck extends SquidCheck<LexerlessGrammar> {
 
   @Override
   public void visitNode(AstNode node) {
-    while (node.getParent().is(EcmaScriptGrammar.STATEMENT)
-        || node.getParent().is(EcmaScriptGrammar.SOURCE_ELEMENT)) {
+    while (node.getParent().is(EcmaScriptGrammar.STATEMENT)) {
       node = node.getParent();
     }
 
@@ -58,7 +57,7 @@ public class UnreachableCodeCheck extends SquidCheck<LexerlessGrammar> {
   public static boolean isUnReachableCode(AstNode node) {
     return node != null
       && !node.is(EcmaScriptGrammar.ELSE_CLAUSE)
-      && !node.getFirstChild().is(EcmaScriptGrammar.FUNCTION_DECLARATION);
+      && !node.is(EcmaScriptGrammar.DECLARATION);
   }
 
 }

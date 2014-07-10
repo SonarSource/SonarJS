@@ -30,6 +30,7 @@ import org.sonar.sslr.parser.LexerlessGrammar;
 
 import static org.sonar.javascript.api.EcmaScriptKeyword.BREAK;
 import static org.sonar.javascript.api.EcmaScriptKeyword.CASE;
+import static org.sonar.javascript.api.EcmaScriptKeyword.CONST;
 import static org.sonar.javascript.api.EcmaScriptKeyword.CONTINUE;
 import static org.sonar.javascript.api.EcmaScriptKeyword.DEBUGGER;
 import static org.sonar.javascript.api.EcmaScriptKeyword.DEFAULT;
@@ -232,15 +233,23 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
   FINALLY,
   DEBUGGER_STATEMENT,
 
-  // A.5 Functions and Programs
+  // A.5 Declarations
 
+  DECLARATION,
   FUNCTION_DECLARATION,
   FUNCTION_EXPRESSION,
   FORMAL_PARAMETER_LIST,
   FUNCTION_BODY,
-  PROGRAM,
-  SOURCE_ELEMENTS,
-  SOURCE_ELEMENT,
+  LEXICAL_DECLARATION,
+  LET,
+  BINDING_LIST,
+  LEXICAL_BINDING,
+  BINDING_IDENTIFIER,
+
+  // A.6 Programs
+
+  SCRIPT,
+  SCRIPT_BODY,
 
   SHEBANG;
 
@@ -272,7 +281,7 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
     declarations(b);
     programs(b);
 
-    b.setRootRule(PROGRAM);
+    b.setRootRule(SCRIPT);
 
     return b;
   }
@@ -547,7 +556,7 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
         TRY_STATEMENT,
         DEBUGGER_STATEMENT));
     b.rule(BLOCK).is(LCURLYBRACE, b.optional(STATEMENT_LIST), RCURLYBRACE);
-    b.rule(STATEMENT_LIST).is(b.oneOrMore(b.firstOf(STATEMENT, permissive(FUNCTION_DECLARATION))));
+    b.rule(STATEMENT_LIST).is(b.oneOrMore(b.firstOf(STATEMENT, DECLARATION)));
     b.rule(VARIABLE_STATEMENT).is(VAR, VARIABLE_DECLARATION_LIST, EOS);
     b.rule(VARIABLE_DECLARATION_LIST).is(VARIABLE_DECLARATION, b.zeroOrMore(COMMA, VARIABLE_DECLARATION));
     b.rule(VARIABLE_DECLARATION_LIST_NO_IN).is(VARIABLE_DECLARATION_NO_IN, b.zeroOrMore(COMMA, VARIABLE_DECLARATION_NO_IN));
@@ -570,14 +579,16 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
     b.rule(FOR_IN_STATEMENT).is(
       FOR, LPARENTHESIS,
       b.firstOf(
-        b.sequence(VAR, VARIABLE_DECLARATION_LIST_NO_IN),
-        LEFT_HAND_SIDE_EXPRESSION),
+        b.sequence(VAR, VARIABLE_DECLARATION_LIST_NO_IN /* TODO: VariableDeclarationList -> ForBinding */),
+        b.sequence(b.nextNot(LET, LBRACKET), LEFT_HAND_SIDE_EXPRESSION)
+        /* TODO: ForDeclaration */),
       IN, EXPRESSION, RPARENTHESIS, STATEMENT);
     b.rule(FOR_STATEMENT).is(
       FOR, LPARENTHESIS,
       b.firstOf(
         b.sequence(VAR, VARIABLE_DECLARATION_LIST_NO_IN),
-        b.optional(EXPRESSION_NO_IN)),
+        b.optional(b.nextNot(LET, LBRACKET), EXPRESSION_NO_IN),
+        b.sequence(LEXICAL_DECLARATION, b.optional(EXPRESSION_NO_IN))),
       SEMI, b.optional(CONDITION), SEMI, b.optional(EXPRESSION), RPARENTHESIS, STATEMENT);
     b.rule(CONTINUE_STATEMENT).is(CONTINUE, b.firstOf(
         b.sequence(/* no line terminator here */SPACING_NO_LB, NEXT_NOT_LB, IDENTIFIER, EOS),
@@ -606,21 +617,28 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
    * A.5 Declarations
    */
   private static void declarations(LexerlessGrammarBuilder b) {
+    b.rule(DECLARATION).is(b.firstOf(
+      FUNCTION_DECLARATION,
+      LEXICAL_DECLARATION));
     b.rule(FUNCTION_DECLARATION).is(FUNCTION, IDENTIFIER, LPARENTHESIS, b.optional(FORMAL_PARAMETER_LIST), RPARENTHESIS, LCURLYBRACE, FUNCTION_BODY, RCURLYBRACE);
     b.rule(FUNCTION_EXPRESSION).is(FUNCTION, b.optional(IDENTIFIER), LPARENTHESIS, b.optional(FORMAL_PARAMETER_LIST), RPARENTHESIS, LCURLYBRACE, FUNCTION_BODY, RCURLYBRACE);
     b.rule(FORMAL_PARAMETER_LIST).is(IDENTIFIER, b.zeroOrMore(COMMA, IDENTIFIER));
-    b.rule(FUNCTION_BODY).is(b.optional(SOURCE_ELEMENTS));
+    b.rule(FUNCTION_BODY).is(b.optional(STATEMENT_LIST));
+
+    b.rule(LEXICAL_DECLARATION).is(b.firstOf(LET, CONST), BINDING_LIST);
+    b.rule(LET).is(word(b, "let"));
+    b.rule(BINDING_LIST).is(LEXICAL_BINDING, b.zeroOrMore(COMMA, LEXICAL_BINDING));
+    // TODO: try factorise with variable declaration
+    b.rule(LEXICAL_BINDING).is(BINDING_IDENTIFIER ,b.optional(INITIALISER) /* TODO: or BindingPattern Initialiser*/);
+    b.rule(BINDING_IDENTIFIER).is(b.firstOf(DEFAULT,/* TODO: YIELD */ IDENTIFIER)); // TODO: put in expression
   }
 
   /**
    * A.6 Programs
    */
   private static void programs(LexerlessGrammarBuilder b) {
-    b.rule(PROGRAM).is(b.optional(SHEBANG), b.optional(SOURCE_ELEMENTS), SPACING, EOF);
-    b.rule(SOURCE_ELEMENTS).is(b.oneOrMore(SOURCE_ELEMENT));
-    b.rule(SOURCE_ELEMENT).is(b.firstOf(
-        STATEMENT,
-        FUNCTION_DECLARATION));
+    b.rule(SCRIPT).is(b.optional(SHEBANG), b.optional(SCRIPT_BODY), SPACING, EOF);
+    b.rule(SCRIPT_BODY).is(STATEMENT_LIST);
 
     b.rule(SHEBANG).is("#!", b.regexp("[^\\n\\r]*+")).skip();
   }

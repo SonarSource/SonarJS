@@ -31,7 +31,11 @@ function example() // +1 functionDeclaration
 
   a ? b + 1 && c - 1 : d * 1 || e / 1; // +3
 
-  func = function(){}; // +1 functionExpression
+  func = function(){ // +1 functionExpression
+      if (true) // +1 ifStatement
+          return 1; // +1 return statement (not last)
+  };
 
   return 1; // +0 last returnStatement
+
 }

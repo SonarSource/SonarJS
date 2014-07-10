@@ -17,7 +17,7 @@
  * License along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.javascript.parser.grammar.functions;
+package org.sonar.javascript.parser.grammar.declarations;
 
 import org.junit.Test;
 import org.sonar.javascript.parser.EcmaScriptGrammar;
@@ -25,15 +25,15 @@ import org.sonar.sslr.parser.LexerlessGrammar;
 
 import static org.sonar.sslr.tests.Assertions.assertThat;
 
-public class SourceElementsTest {
+public class LexicalDeclarationTest {
 
   LexerlessGrammar g = EcmaScriptGrammar.createGrammar();
 
   @Test
   public void ok() {
-    assertThat(g.rule(EcmaScriptGrammar.STATEMENT_LIST))
-        .matches("var a;")
-        .matches("var a; var b;");
+    assertThat(g.rule(EcmaScriptGrammar.LEXICAL_DECLARATION))
+        .matches("let a")
+        .matches("const a");
   }
 
 }

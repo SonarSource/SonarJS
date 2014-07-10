@@ -32,7 +32,7 @@ public class ProgramTest {
 
   @Test
   public void realLife() {
-    assertThat(g.rule(EcmaScriptGrammar.PROGRAM))
+    assertThat(g.rule(EcmaScriptGrammar.SCRIPT))
         .matches("{}")
         .matches("var a;")
         .matches("if (true) {}")
@@ -40,14 +40,14 @@ public class ProgramTest {
         .matches("var r = /^\\s+/;")
         .matches("function func() { doSomething() }");
 
-    assertThat(g.rule(EcmaScriptGrammar.PROGRAM)).matches(code(
+    assertThat(g.rule(EcmaScriptGrammar.SCRIPT)).matches(code(
         "#!/usr/bin/env node",
         "function func() { }"));
 
-    assertThat(g.rule(EcmaScriptGrammar.PROGRAM)).matches("\uFEFF");
+    assertThat(g.rule(EcmaScriptGrammar.SCRIPT)).matches("\uFEFF");
 
     // http://www.w3schools.com/js/tryit.asp?filename=tryjs_ifthenelse
-    assertThat(g.rule(EcmaScriptGrammar.PROGRAM)).matches(code(
+    assertThat(g.rule(EcmaScriptGrammar.SCRIPT)).matches(code(
         "var d = new Date();",
         "var time = d.getHours();",
         "if (time < 10) {",

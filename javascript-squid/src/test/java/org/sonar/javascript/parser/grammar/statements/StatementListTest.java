@@ -33,7 +33,8 @@ public class StatementListTest {
   public void ok() {
     assertThat(g.rule(EcmaScriptGrammar.STATEMENT_LIST))
         .matches("break;")
-        .matches("break; break;");
+        .matches("break; break;")
+        .matches("function f() {}");
   }
 
 }

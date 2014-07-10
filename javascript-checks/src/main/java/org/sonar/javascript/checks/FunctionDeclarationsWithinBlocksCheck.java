@@ -20,11 +20,11 @@
 package org.sonar.javascript.checks;
 
 import com.sonar.sslr.api.AstNode;
-import org.sonar.squidbridge.checks.SquidCheck;
 import org.sonar.check.BelongsToProfile;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.javascript.parser.EcmaScriptGrammar;
+import org.sonar.squidbridge.checks.SquidCheck;
 import org.sonar.sslr.parser.LexerlessGrammar;
 
 @Rule(
@@ -35,13 +35,19 @@ public class FunctionDeclarationsWithinBlocksCheck extends SquidCheck<LexerlessG
 
   @Override
   public void init() {
-    subscribeTo(EcmaScriptGrammar.STATEMENT_LIST);
+    subscribeTo(EcmaScriptGrammar.BLOCK);
   }
 
   @Override
   public void visitNode(AstNode astNode) {
-    for (AstNode functionDeclarationNode : astNode.getChildren(EcmaScriptGrammar.FUNCTION_DECLARATION)) {
-      getContext().createLineViolation(this, "Do not use function declarations within blocks.", functionDeclarationNode);
+    AstNode stmtList = astNode.getFirstChild(EcmaScriptGrammar.STATEMENT_LIST);
+    if (stmtList != null) {
+
+      for (AstNode declarationNode : stmtList.getChildren(EcmaScriptGrammar.DECLARATION)) {
+        if (declarationNode.getFirstChild().is(EcmaScriptGrammar.FUNCTION_DECLARATION)) {
+          getContext().createLineViolation(this, "Do not use function declarations within blocks.", declarationNode);
+        }
+      }
     }
   }
 

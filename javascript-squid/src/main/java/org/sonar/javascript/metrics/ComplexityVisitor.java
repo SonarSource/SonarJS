@@ -20,10 +20,10 @@
 package org.sonar.javascript.metrics;
 
 import com.sonar.sslr.api.AstNode;
-import org.sonar.squidbridge.SquidAstVisitor;
 import org.sonar.javascript.api.EcmaScriptMetric;
 import org.sonar.javascript.api.EcmaScriptPunctuator;
 import org.sonar.javascript.parser.EcmaScriptGrammar;
+import org.sonar.squidbridge.SquidAstVisitor;
 import org.sonar.sslr.parser.LexerlessGrammar;
 
 public class ComplexityVisitor extends SquidAstVisitor<LexerlessGrammar> {
@@ -48,15 +48,24 @@ public class ComplexityVisitor extends SquidAstVisitor<LexerlessGrammar> {
 
   @Override
   public void visitNode(AstNode astNode) {
+
     if (astNode.is(EcmaScriptGrammar.RETURN_STATEMENT) && isLastReturnStatement(astNode)) {
       return;
     }
     getContext().peekSourceCode().add(EcmaScriptMetric.COMPLEXITY, 1);
   }
 
-  private boolean isLastReturnStatement(AstNode astNode) {
-    AstNode parent = astNode.getParent().getParent();
-    return parent.is(EcmaScriptGrammar.SOURCE_ELEMENT);
+  private static boolean isLastReturnStatement(AstNode returnNode) {
+    AstNode nextNode = returnNode.getNextAstNode();
+    return nextNode.is(EcmaScriptPunctuator.RCURLYBRACE) && isNotNested(returnNode);
   }
 
+  private static boolean isNotNested(AstNode returnNode) {
+    AstNode parent = returnNode
+      // Statement
+      .getParent()
+      // Statement list
+      .getParent();
+    return parent.getParent().is(EcmaScriptGrammar.FUNCTION_BODY);
+  }
 }

@@ -557,10 +557,10 @@ public final class ASTMaker {
     dispatcher.register(new Maker() {
       public Tree make(AstNode astNode, Trees t) {
         return new TreeImpl.ProgramTreeImpl(astNode,
-          (List<? extends SourceElementTree>) t.getList(astNode.getFirstChild(EcmaScriptGrammar.SOURCE_ELEMENTS))
+          (List<? extends SourceElementTree>) t.getList(astNode.getFirstChild(EcmaScriptGrammar.SCRIPT_BODY))
         );
       }
-    }, EcmaScriptGrammar.PROGRAM);
+    }, EcmaScriptGrammar.SCRIPT);
 
     dispatcher.register(new Maker() {
       public Tree make(AstNode astNode, Trees t) {
