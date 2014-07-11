@@ -106,9 +106,8 @@ public class UnusedVariableCheck extends SquidCheck<LexerlessGrammar> {
       currentScope = new Scope(currentScope);
     } else if (astNode.is(EcmaScriptGrammar.FORMAL_PARAMETER_LIST)) {
       // declare all parameters as variables, which are already used, so that they won't trigger violations
-      for (AstNode identifierNode : astNode.getChildren(EcmaScriptTokenType.IDENTIFIER)) {
-        currentScope.declare(identifierNode, 1);
-      }
+      declareFormalParamList(astNode);
+
     } else if (currentScope != null) {
       if (astNode.is(EcmaScriptGrammar.VARIABLE_DECLARATION, EcmaScriptGrammar.VARIABLE_DECLARATION_NO_IN)) {
         currentScope.declare(astNode.getFirstChild(EcmaScriptTokenType.IDENTIFIER), 0);
@@ -137,6 +136,20 @@ public class UnusedVariableCheck extends SquidCheck<LexerlessGrammar> {
   @Override
   public void leaveFile(AstNode astNode) {
     currentScope = null;
+  }
+
+  private void declareFormalParamList(AstNode astNode) {
+    for (AstNode formalP : astNode.getChildren(EcmaScriptGrammar.FORMAL_PARAMETER)) {
+      AstNode identifier = formalP.getFirstChild(EcmaScriptGrammar.BINDING_IDENTIFIER).getFirstChild(EcmaScriptTokenType.IDENTIFIER);
+      if (identifier != null) {
+        currentScope.declare(identifier,1);
+      }
+    }
+
+    AstNode restParam = astNode.getFirstChild(EcmaScriptGrammar.REST_PARAMETER);
+    if (restParam != null) {
+      currentScope.declare(restParam.getFirstChild(EcmaScriptGrammar.BINDING_IDENTIFIER).getFirstChild(EcmaScriptTokenType.IDENTIFIER), 1);
+    }
   }
 
 }

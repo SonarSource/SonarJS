@@ -98,9 +98,7 @@ public class UnusedFunctionArgumentCheck extends SquidCheck<LexerlessGrammar> {
       // enter new scope
       currentScope = new Scope(currentScope, astNode);
     } else if (astNode.is(EcmaScriptGrammar.FORMAL_PARAMETER_LIST)) {
-      for (AstNode identifierNode : astNode.getChildren(EcmaScriptTokenType.IDENTIFIER)) {
-        currentScope.declare(identifierNode);
-      }
+      declareFormalParamList(astNode);
     } else if (currentScope != null && astNode.is(EcmaScriptGrammar.PRIMARY_EXPRESSION)) {
       AstNode identifierNode = astNode.getFirstChild(EcmaScriptTokenType.IDENTIFIER);
       if (identifierNode != null) {
@@ -183,6 +181,20 @@ public class UnusedFunctionArgumentCheck extends SquidCheck<LexerlessGrammar> {
       getContext().createLineViolation(this, "Remove the unused function parameters \"" + argsList + "\".", currentScope.functionDec);
     } else if (nbArgs == 1) {
       getContext().createLineViolation(this, "Remove the unused function parameter \"" + builder.toString().trim() + "\".", currentScope.functionDec);
+    }
+  }
+
+  private void declareFormalParamList(AstNode astNode) {
+    for (AstNode formalP : astNode.getChildren(EcmaScriptGrammar.FORMAL_PARAMETER)) {
+      AstNode identifier = formalP.getFirstChild(EcmaScriptGrammar.BINDING_IDENTIFIER).getFirstChild(EcmaScriptTokenType.IDENTIFIER);
+      if (identifier != null) {
+        currentScope.declare(identifier);
+      }
+    }
+
+    AstNode restParam = astNode.getFirstChild(EcmaScriptGrammar.REST_PARAMETER);
+    if (restParam != null) {
+      currentScope.declare(restParam.getFirstChild(EcmaScriptGrammar.BINDING_IDENTIFIER).getFirstChild(EcmaScriptTokenType.IDENTIFIER));
     }
   }
 }

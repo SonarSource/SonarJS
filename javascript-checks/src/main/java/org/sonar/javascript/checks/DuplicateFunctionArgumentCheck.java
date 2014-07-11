@@ -46,15 +46,30 @@ public class DuplicateFunctionArgumentCheck extends SquidCheck<LexerlessGrammar>
   @Override
   public void visitNode(AstNode astNode) {
     Set<String> values = Sets.newHashSet();
-    for (AstNode identifier : astNode.getChildren(EcmaScriptTokenType.IDENTIFIER)) {
-      String value = identifier.getTokenValue();
-      String unescaped = EscapeUtils.unescape(value);
-      if (values.contains(unescaped)) {
-        getContext().createLineViolation(this, "Rename or remove duplicate function argument '" + value + "'.", identifier);
-      } else {
-        values.add(unescaped);
+
+
+    for (AstNode formalP : astNode.getChildren(EcmaScriptGrammar.FORMAL_PARAMETER)) {
+      AstNode identifier = formalP.getFirstChild(EcmaScriptGrammar.BINDING_IDENTIFIER).getFirstChild(EcmaScriptTokenType.IDENTIFIER);
+      if (identifier != null) {
+        String value = identifier.getTokenValue();
+        checkIdentifier(identifier, value, values);
       }
+    }
+
+    AstNode restParam = astNode.getFirstChild(EcmaScriptGrammar.REST_PARAMETER);
+    if (restParam != null) {
+      String value = restParam.getFirstChild(EcmaScriptGrammar.BINDING_IDENTIFIER).getFirstChild(EcmaScriptTokenType.IDENTIFIER).getTokenValue();
+      checkIdentifier(restParam, value, values);
     }
   }
 
-}
+  private void checkIdentifier (AstNode identifier, String value, Set<String> values) {
+    String unescaped = EscapeUtils.unescape(value);
+
+    if (values.contains(unescaped)) {
+      getContext().createLineViolation(this, "Rename or remove duplicate function argument '" + value + "'.", identifier);
+    } else {
+      values.add(unescaped);
+    }
+  }
+ }

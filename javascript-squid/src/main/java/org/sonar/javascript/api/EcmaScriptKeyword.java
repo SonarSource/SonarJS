@@ -59,6 +59,7 @@ public enum EcmaScriptKeyword implements TokenType, GrammarRuleKey {
   VOID("void"),
   WHILE("while"),
   WITH("with"),
+  YIELD("yield"),
 
   // Future reserved words
 

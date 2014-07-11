@@ -36,7 +36,7 @@ import java.util.Set;
 @BelongsToProfile(title = CheckList.SONAR_WAY_PROFILE, priority = Priority.CRITICAL)
 public class FutureReservedWordsCheck extends SquidCheck<LexerlessGrammar> {
 
-  private static final Set<String> FUTURE_RESERVED_WORDS = ImmutableSet.of("implements", "interface", "let", "package", "private", "protected", "public", "static", "yield");
+  private static final Set<String> FUTURE_RESERVED_WORDS = ImmutableSet.of("implements", "interface", "let", "package", "private", "protected", "public", "static");
 
   @Override
   public void init() {

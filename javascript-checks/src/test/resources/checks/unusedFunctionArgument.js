@@ -45,3 +45,7 @@ function fun(a) {            // OK
     a = 1;
   }
 }
+
+function fun(a, ...b) {     // NOK
+  return a;
+}

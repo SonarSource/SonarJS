@@ -17,27 +17,23 @@
  * License along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.javascript.checks;
+package org.sonar.javascript.parser.grammar.functions;
 
-import org.sonar.squidbridge.checks.CheckMessagesVerifier;
 import org.junit.Test;
-import org.sonar.javascript.JavaScriptAstScanner;
-import org.sonar.squidbridge.api.SourceFile;
+import org.sonar.javascript.parser.EcmaScriptGrammar;
+import org.sonar.sslr.parser.LexerlessGrammar;
 
-import java.io.File;
+import static org.sonar.sslr.tests.Assertions.assertThat;
 
-public class VariableShadowingCheckTest {
+public class FormalParameterTest {
+
+  LexerlessGrammar g = EcmaScriptGrammar.createGrammar();
 
   @Test
-  public void test() {
-    VariableShadowingCheck check = new VariableShadowingCheck();
-
-    SourceFile file = JavaScriptAstScanner.scanSingleFile(new File("src/test/resources/checks/variableShadowing.js"), check);
-    CheckMessagesVerifier.verify(file.getCheckMessages())
-        .next().atLine(2).withMessage("'x' hides variable declared in outer scope.")
-        .next().atLine(6)
-        .next().atLine(9)
-        .noMore();
+  public void ok() {
+    assertThat(g.rule(EcmaScriptGrammar.FORMAL_PARAMETER))
+        .matches("a = 4")
+        .matches("a");
   }
 
 }

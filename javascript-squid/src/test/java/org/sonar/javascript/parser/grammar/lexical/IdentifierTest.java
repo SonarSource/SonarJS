@@ -40,8 +40,7 @@ public class IdentifierTest {
         .matches("private")
         .matches("protected")
         .matches("public")
-        .matches("static")
-        .matches("yield");
+        .matches("static");
   }
 
 }

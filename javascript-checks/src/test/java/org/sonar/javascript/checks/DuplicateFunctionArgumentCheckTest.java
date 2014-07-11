@@ -38,6 +38,7 @@ public class DuplicateFunctionArgumentCheckTest {
         .next().atLine(3).withMessage("Rename or remove duplicate function argument 'a'.")
         .next().atLine(4).withMessage("Rename or remove duplicate function argument '\\u0061'.")
         .next().atLine(7).withMessage("Rename or remove duplicate function argument 'c'.")
+        .next().atLine(18).withMessage("Rename or remove duplicate function argument 'a'.")
         .noMore();
   }
 

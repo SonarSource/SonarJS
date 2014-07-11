@@ -5,3 +5,6 @@ var x;
 
 function fun(x) {
 }
+
+function fun(...x) {
+}

@@ -42,7 +42,6 @@ public class FutureReservedWordsCheckTest {
         .next().atLine(6).withMessage("Rename 'protected' identifier to prevent potential conflicts with future evolutions of the JavaScript language.")
         .next().atLine(7).withMessage("Rename 'public' identifier to prevent potential conflicts with future evolutions of the JavaScript language.")
         .next().atLine(8).withMessage("Rename 'static' identifier to prevent potential conflicts with future evolutions of the JavaScript language.")
-        .next().atLine(9).withMessage("Rename 'yield' identifier to prevent potential conflicts with future evolutions of the JavaScript language.")
         .noMore();
   }
 

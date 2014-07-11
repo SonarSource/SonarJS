@@ -92,9 +92,8 @@ public class VariableDeclarationAfterUsageCheck extends SquidCheck<LexerlessGram
       // enter new scope
       currentScope = new Scope(currentScope);
     } else if (astNode.is(EcmaScriptGrammar.FORMAL_PARAMETER_LIST)) {
-      for (AstNode identifierNode : astNode.getChildren(EcmaScriptTokenType.IDENTIFIER)) {
-        currentScope.declare(identifierNode);
-      }
+      declareFormalParamList(astNode);
+
     } else if (astNode.is(EcmaScriptGrammar.VARIABLE_DECLARATION, EcmaScriptGrammar.VARIABLE_DECLARATION_NO_IN)) {
       currentScope.declare(astNode.getFirstChild(EcmaScriptTokenType.IDENTIFIER));
     } else if (astNode.is(EcmaScriptGrammar.PRIMARY_EXPRESSION)) {
@@ -103,6 +102,21 @@ public class VariableDeclarationAfterUsageCheck extends SquidCheck<LexerlessGram
         currentScope.use(identifierNode);
       }
     }
+  }
+
+  private void declareFormalParamList(AstNode astNode) {
+    for (AstNode formalP : astNode.getChildren(EcmaScriptGrammar.FORMAL_PARAMETER)) {
+      AstNode identifier = formalP.getFirstChild(EcmaScriptGrammar.BINDING_IDENTIFIER).getFirstChild(EcmaScriptTokenType.IDENTIFIER);
+      if (identifier != null) {
+        currentScope.declare(identifier);
+      }
+    }
+
+    AstNode restParam = astNode.getFirstChild(EcmaScriptGrammar.REST_PARAMETER);
+    if (restParam != null) {
+      currentScope.declare(restParam.getFirstChild(EcmaScriptGrammar.BINDING_IDENTIFIER).getFirstChild(EcmaScriptTokenType.IDENTIFIER));
+    }
+
   }
 
   @Override

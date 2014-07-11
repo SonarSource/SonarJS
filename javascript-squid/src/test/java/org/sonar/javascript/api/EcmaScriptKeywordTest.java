@@ -27,7 +27,7 @@ public class EcmaScriptKeywordTest {
 
   @Test
   public void test() {
-    assertThat(EcmaScriptKeyword.values().length).isEqualTo(35);
+    assertThat(EcmaScriptKeyword.values().length).isEqualTo(36);
     assertThat(EcmaScriptKeyword.keywordValues().length).isEqualTo(EcmaScriptKeyword.values().length);
 
     for (EcmaScriptKeyword keyword : EcmaScriptKeyword.values()) {

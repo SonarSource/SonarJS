@@ -46,6 +46,8 @@ public class BoundOrAssignedEvalOrArgumentsCheckTest {
         // FIXME not able to detect:
         // .next().atLine(10)
         .next().atLine(20).withMessage("Remove the modification of 'arguments'.")
+        .next().atLine(23).withMessage("Do not use 'eval' to declare a parameter - use another name.")
+        .next().atLine(26).withMessage("Do not use 'arguments' to declare a parameter - use another name.")
         .noMore();
   }
 

@@ -73,15 +73,31 @@ public class BoundOrAssignedEvalOrArgumentsCheck extends SquidCheck<LexerlessGra
       getContext().createLineViolation(this, createMessageFor("function", identifier.getTokenValue()), identifier);
     }
     AstNode formalParameterList = astNode.getFirstChild(EcmaScriptGrammar.FORMAL_PARAMETER_LIST);
-    if (formalParameterList != null) {
 
-      List<AstNode> parameters = formalParameterList.getChildren(EcmaScriptTokenType.IDENTIFIER);
-      for (AstNode paramIdentifier : parameters) {
-        if (isEvalOrArguments(paramIdentifier.getTokenValue())) {
-          getContext().createLineViolation(this, createMessageFor("parameter", paramIdentifier.getTokenValue()), paramIdentifier);
+    if (formalParameterList != null) {
+      checkFormalParamList(formalParameterList);
+    }
+  }
+
+  private void checkFormalParamList(AstNode astNode) {
+    for (AstNode formalP : astNode.getChildren(EcmaScriptGrammar.FORMAL_PARAMETER)) {
+      AstNode identifier = formalP.getFirstChild(EcmaScriptGrammar.BINDING_IDENTIFIER).getFirstChild(EcmaScriptTokenType.IDENTIFIER);
+      if (identifier != null) {
+        if (isEvalOrArguments(identifier.getTokenValue())) {
+          getContext().createLineViolation(this, createMessageFor("parameter", identifier.getTokenValue()), identifier);
         }
       }
     }
+
+    AstNode restParam = astNode.getFirstChild(EcmaScriptGrammar.REST_PARAMETER);
+    if (restParam != null) {
+      AstNode identifier = restParam.getFirstChild(EcmaScriptGrammar.BINDING_IDENTIFIER).getFirstChild(EcmaScriptTokenType.IDENTIFIER);
+      if (isEvalOrArguments(identifier.getTokenValue())) {
+        getContext().createLineViolation(this, createMessageFor("parameter", identifier.getTokenValue()), identifier);
+      }
+
+    }
+
   }
 
   private void checkVariableDeclaration(AstNode astNode) {

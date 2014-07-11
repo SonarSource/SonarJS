@@ -33,7 +33,10 @@ public class FormalParameterListTest {
   public void ok() {
     assertThat(g.rule(EcmaScriptGrammar.FORMAL_PARAMETER_LIST))
         .matches("IDENTIFIER")
-        .matches("IDENTIFIER , IDENTIFIER");
+        .matches("IDENTIFIER, IDENTIFIER")
+        .matches("...a")
+        .matches("IDENTIFIER, ...a")
+        .matches("identifier, identifier, ... a");
   }
 
 }

@@ -18,3 +18,7 @@ function fun() {
   var a = 2,
       b = 2; // NOK
 }
+
+function fun(...a) {
+  var a = 2;  // NOK
+}

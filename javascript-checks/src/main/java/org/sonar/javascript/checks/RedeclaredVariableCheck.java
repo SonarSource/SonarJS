@@ -63,11 +63,7 @@ public class RedeclaredVariableCheck extends SquidCheck<LexerlessGrammar> {
       stack.add(currentScope);
       AstNode formalParameterList = astNode.getFirstChild(EcmaScriptGrammar.FORMAL_PARAMETER_LIST);
       if (formalParameterList != null) {
-
-        List<AstNode> parameters = formalParameterList.getChildren(EcmaScriptTokenType.IDENTIFIER);
-        for (AstNode identifier : parameters) {
-          currentScope.add(identifier.getTokenValue());
-        }
+        checkFormalParamList(formalParameterList, currentScope);
       }
     } else {
       Set<String> currentScope = stack.peek();
@@ -91,5 +87,20 @@ public class RedeclaredVariableCheck extends SquidCheck<LexerlessGrammar> {
   public void leaveFile(AstNode astNode) {
     stack = null;
   }
+
+  private void checkFormalParamList(AstNode astNode, Set<String> currentScope) {
+    for (AstNode formalP : astNode.getChildren(EcmaScriptGrammar.FORMAL_PARAMETER)) {
+      AstNode identifier = formalP.getFirstChild(EcmaScriptGrammar.BINDING_IDENTIFIER).getFirstChild(EcmaScriptTokenType.IDENTIFIER);
+      if (identifier != null) {
+        currentScope.add(identifier.getTokenValue());
+      }
+    }
+
+    AstNode restParam = astNode.getFirstChild(EcmaScriptGrammar.REST_PARAMETER);
+    if (restParam != null) {
+      currentScope.add(restParam.getFirstChild(EcmaScriptGrammar.BINDING_IDENTIFIER).getFirstChild(EcmaScriptTokenType.IDENTIFIER).getTokenValue());
+    }
+  }
+
 
 }

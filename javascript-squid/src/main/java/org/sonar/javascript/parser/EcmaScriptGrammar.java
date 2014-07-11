@@ -56,6 +56,7 @@ import static org.sonar.javascript.api.EcmaScriptKeyword.VAR;
 import static org.sonar.javascript.api.EcmaScriptKeyword.VOID;
 import static org.sonar.javascript.api.EcmaScriptKeyword.WHILE;
 import static org.sonar.javascript.api.EcmaScriptKeyword.WITH;
+import static org.sonar.javascript.api.EcmaScriptKeyword.YIELD;
 import static org.sonar.javascript.api.EcmaScriptPunctuator.AND;
 import static org.sonar.javascript.api.EcmaScriptPunctuator.ANDAND;
 import static org.sonar.javascript.api.EcmaScriptPunctuator.AND_EQU;
@@ -66,6 +67,7 @@ import static org.sonar.javascript.api.EcmaScriptPunctuator.DEC;
 import static org.sonar.javascript.api.EcmaScriptPunctuator.DIV;
 import static org.sonar.javascript.api.EcmaScriptPunctuator.DIV_EQU;
 import static org.sonar.javascript.api.EcmaScriptPunctuator.DOT;
+import static org.sonar.javascript.api.EcmaScriptPunctuator.ELLIPSIS;
 import static org.sonar.javascript.api.EcmaScriptPunctuator.EQU;
 import static org.sonar.javascript.api.EcmaScriptPunctuator.EQUAL;
 import static org.sonar.javascript.api.EcmaScriptPunctuator.EQUAL2;
@@ -239,6 +241,8 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
   FUNCTION_DECLARATION,
   FUNCTION_EXPRESSION,
   FORMAL_PARAMETER_LIST,
+  FORMAL_PARAMETER,
+  REST_PARAMETER,
   FUNCTION_BODY,
   LEXICAL_DECLARATION,
   LET,
@@ -344,6 +348,7 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
     punctuator(b, LBRACKET, "[");
     punctuator(b, RBRACKET, "]");
     punctuator(b, DOT, ".");
+    punctuator(b, ELLIPSIS, "...");
     punctuator(b, SEMI, ";");
     punctuator(b, COMMA, ",");
     punctuator(b, LT, "<", b.nextNot("="));
@@ -622,7 +627,12 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
       LEXICAL_DECLARATION));
     b.rule(FUNCTION_DECLARATION).is(FUNCTION, IDENTIFIER, LPARENTHESIS, b.optional(FORMAL_PARAMETER_LIST), RPARENTHESIS, LCURLYBRACE, FUNCTION_BODY, RCURLYBRACE);
     b.rule(FUNCTION_EXPRESSION).is(FUNCTION, b.optional(IDENTIFIER), LPARENTHESIS, b.optional(FORMAL_PARAMETER_LIST), RPARENTHESIS, LCURLYBRACE, FUNCTION_BODY, RCURLYBRACE);
-    b.rule(FORMAL_PARAMETER_LIST).is(IDENTIFIER, b.zeroOrMore(COMMA, IDENTIFIER));
+    b.rule(FORMAL_PARAMETER_LIST).is(b.firstOf(
+        b.sequence(FORMAL_PARAMETER, b.zeroOrMore(COMMA, FORMAL_PARAMETER),b.optional(COMMA, REST_PARAMETER)),
+        REST_PARAMETER));
+    b.rule(REST_PARAMETER).is(ELLIPSIS, BINDING_IDENTIFIER);
+    b.rule(FORMAL_PARAMETER).is(BINDING_IDENTIFIER,b.optional(INITIALISER));  // TODO: BindingPattern
+
     b.rule(FUNCTION_BODY).is(b.optional(STATEMENT_LIST));
 
     b.rule(LEXICAL_DECLARATION).is(b.firstOf(LET, CONST), BINDING_LIST);
@@ -630,7 +640,7 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
     b.rule(BINDING_LIST).is(LEXICAL_BINDING, b.zeroOrMore(COMMA, LEXICAL_BINDING));
     // TODO: try factorise with variable declaration
     b.rule(LEXICAL_BINDING).is(BINDING_IDENTIFIER ,b.optional(INITIALISER) /* TODO: or BindingPattern Initialiser*/);
-    b.rule(BINDING_IDENTIFIER).is(b.firstOf(DEFAULT,/* TODO: YIELD */ IDENTIFIER)); // TODO: put in expression
+    b.rule(BINDING_IDENTIFIER).is(b.firstOf(DEFAULT, YIELD, IDENTIFIER)); // TODO: put in expression
   }
 
   /**

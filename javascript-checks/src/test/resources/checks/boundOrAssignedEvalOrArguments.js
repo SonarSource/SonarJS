@@ -20,3 +20,9 @@ function fun() {
   var c = (arguments = 0) == 0; // NOK
 }
 
+function fun(...eval) { // NOK
+}
+
+function fun(arguments, ...a) { // NOK
+}
+

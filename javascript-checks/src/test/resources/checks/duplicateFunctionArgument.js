@@ -14,3 +14,7 @@ a // OK
 
 function fun3(
 ) {}
+
+function fun4(a, ...a) { // NOK
+
+}

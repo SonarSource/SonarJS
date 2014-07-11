@@ -27,7 +27,7 @@ public class EcmaScriptPunctuatorTest {
 
   @Test
   public void test() {
-    assertThat(EcmaScriptPunctuator.values().length).isEqualTo(48);
+    assertThat(EcmaScriptPunctuator.values().length).isEqualTo(49);
 
     for (EcmaScriptPunctuator punctuator : EcmaScriptPunctuator.values()) {
       assertThat(punctuator.getName()).isEqualTo(punctuator.name());
