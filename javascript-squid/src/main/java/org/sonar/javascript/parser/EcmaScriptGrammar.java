@@ -218,7 +218,11 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
   DO_WHILE_STATEMENT,
   WHILE_STATEMENT,
   FOR_IN_STATEMENT,
+  FOR_OF_STATEMENT,
   FOR_STATEMENT,
+  OF,
+  FOR_DECLARATION,
+  FOR_BINDING,
   CONTINUE_STATEMENT,
   BREAK_STATEMENT,
   RETURN_STATEMENT,
@@ -246,6 +250,7 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
   FUNCTION_BODY,
   LEXICAL_DECLARATION,
   LET,
+  LET_OR_CONST,
   BINDING_LIST,
   LEXICAL_BINDING,
   BINDING_IDENTIFIER,
@@ -578,6 +583,7 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
         DO_WHILE_STATEMENT,
         WHILE_STATEMENT,
         FOR_IN_STATEMENT,
+        ecmascript6(FOR_OF_STATEMENT),
         FOR_STATEMENT));
     b.rule(DO_WHILE_STATEMENT).is(DO, STATEMENT, WHILE, LPARENTHESIS, CONDITION, RPARENTHESIS, EOS);
     b.rule(WHILE_STATEMENT).is(WHILE, LPARENTHESIS, CONDITION, RPARENTHESIS, STATEMENT);
@@ -588,6 +594,16 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
         b.sequence(b.nextNot(LET, LBRACKET), LEFT_HAND_SIDE_EXPRESSION)
         /* TODO: ForDeclaration */),
       IN, EXPRESSION, RPARENTHESIS, STATEMENT);
+    b.rule(FOR_OF_STATEMENT).is(
+      FOR, LPARENTHESIS,
+      b.firstOf(
+        b.sequence(VAR, FOR_BINDING),
+        b.sequence(b.nextNot(LET), LEFT_HAND_SIDE_EXPRESSION),
+        FOR_DECLARATION),
+      OF, ASSIGNMENT_EXPRESSION, RPARENTHESIS, STATEMENT);
+    b.rule(FOR_DECLARATION).is(LET_OR_CONST, FOR_BINDING);
+    b.rule(FOR_BINDING).is(BINDING_IDENTIFIER /*TODO: add option BindingPattern */);
+    b.rule(OF).is(word(b, "of"));
     b.rule(FOR_STATEMENT).is(
       FOR, LPARENTHESIS,
       b.firstOf(
@@ -635,7 +651,8 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
 
     b.rule(FUNCTION_BODY).is(b.optional(STATEMENT_LIST));
 
-    b.rule(LEXICAL_DECLARATION).is(b.firstOf(LET, CONST), BINDING_LIST);
+    b.rule(LEXICAL_DECLARATION).is(LET_OR_CONST, BINDING_LIST);
+    b.rule(LET_OR_CONST).is(b.firstOf(LET, CONST));
     b.rule(LET).is(word(b, "let"));
     b.rule(BINDING_LIST).is(LEXICAL_BINDING, b.zeroOrMore(COMMA, LEXICAL_BINDING));
     // TODO: try factorise with variable declaration
