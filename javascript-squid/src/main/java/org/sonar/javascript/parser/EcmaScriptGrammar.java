@@ -561,7 +561,7 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
         TRY_STATEMENT,
         DEBUGGER_STATEMENT));
     b.rule(BLOCK).is(LCURLYBRACE, b.optional(STATEMENT_LIST), RCURLYBRACE);
-    b.rule(STATEMENT_LIST).is(b.oneOrMore(b.firstOf(STATEMENT, DECLARATION)));
+    b.rule(STATEMENT_LIST).is(b.oneOrMore(b.firstOf(STATEMENT, ecmascript6(DECLARATION))));
     b.rule(VARIABLE_STATEMENT).is(VAR, VARIABLE_DECLARATION_LIST, EOS);
     b.rule(VARIABLE_DECLARATION_LIST).is(VARIABLE_DECLARATION, b.zeroOrMore(COMMA, VARIABLE_DECLARATION));
     b.rule(VARIABLE_DECLARATION_LIST_NO_IN).is(VARIABLE_DECLARATION_NO_IN, b.zeroOrMore(COMMA, VARIABLE_DECLARATION_NO_IN));
@@ -624,14 +624,14 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
   private static void declarations(LexerlessGrammarBuilder b) {
     b.rule(DECLARATION).is(b.firstOf(
       FUNCTION_DECLARATION,
-      LEXICAL_DECLARATION));
+      ecmascript6(LEXICAL_DECLARATION)));
     b.rule(FUNCTION_DECLARATION).is(FUNCTION, IDENTIFIER, LPARENTHESIS, b.optional(FORMAL_PARAMETER_LIST), RPARENTHESIS, LCURLYBRACE, FUNCTION_BODY, RCURLYBRACE);
     b.rule(FUNCTION_EXPRESSION).is(FUNCTION, b.optional(IDENTIFIER), LPARENTHESIS, b.optional(FORMAL_PARAMETER_LIST), RPARENTHESIS, LCURLYBRACE, FUNCTION_BODY, RCURLYBRACE);
     b.rule(FORMAL_PARAMETER_LIST).is(b.firstOf(
-        b.sequence(FORMAL_PARAMETER, b.zeroOrMore(COMMA, FORMAL_PARAMETER),b.optional(COMMA, REST_PARAMETER)),
-        REST_PARAMETER));
+        b.sequence(FORMAL_PARAMETER, b.zeroOrMore(COMMA, FORMAL_PARAMETER), ecmascript6(b.optional(COMMA, REST_PARAMETER))),
+        ecmascript6(REST_PARAMETER)));
     b.rule(REST_PARAMETER).is(ELLIPSIS, BINDING_IDENTIFIER);
-    b.rule(FORMAL_PARAMETER).is(BINDING_IDENTIFIER,b.optional(INITIALISER));  // TODO: BindingPattern
+    b.rule(FORMAL_PARAMETER).is(BINDING_IDENTIFIER, ecmascript6(b.optional(INITIALISER)));  // TODO: BindingPattern
 
     b.rule(FUNCTION_BODY).is(b.optional(STATEMENT_LIST));
 
@@ -640,7 +640,7 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
     b.rule(BINDING_LIST).is(LEXICAL_BINDING, b.zeroOrMore(COMMA, LEXICAL_BINDING));
     // TODO: try factorise with variable declaration
     b.rule(LEXICAL_BINDING).is(BINDING_IDENTIFIER ,b.optional(INITIALISER) /* TODO: or BindingPattern Initialiser*/);
-    b.rule(BINDING_IDENTIFIER).is(b.firstOf(DEFAULT, YIELD, IDENTIFIER)); // TODO: put in expression
+    b.rule(BINDING_IDENTIFIER).is(b.firstOf(ecmascript6(DEFAULT), ecmascript6(YIELD), IDENTIFIER)); // TODO: put in expression
   }
 
   /**
@@ -654,10 +654,10 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
   }
 
   /**
-   * Declares some constructs, which ES5 grammar does not support, but script engines support.
-   * For example prototype.js version 1.7 has a function declaration in a block, which is invalid under both ES3 and ES5.
+   * Declares constructs supported since ECMAScript 6.
+   * Based on draft <a href="http://people.mozilla.org/~jorendorff/es6-draft.html"></a>
    */
-  private static Object permissive(Object object) {
+  private static Object ecmascript6(Object object) {
     return object;
   }
 
