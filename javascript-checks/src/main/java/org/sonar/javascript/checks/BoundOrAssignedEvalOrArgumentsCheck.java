@@ -29,8 +29,6 @@ import org.sonar.javascript.parser.EcmaScriptGrammar;
 import org.sonar.squidbridge.checks.SquidCheck;
 import org.sonar.sslr.parser.LexerlessGrammar;
 
-import java.util.List;
-
 @Rule(
   key = "BoundOrAssignedEvalOrArguments",
   priority = Priority.CRITICAL)
@@ -82,12 +80,10 @@ public class BoundOrAssignedEvalOrArgumentsCheck extends SquidCheck<LexerlessGra
   private void checkFormalParamList(AstNode astNode) {
     for (AstNode formalP : astNode.getChildren(EcmaScriptGrammar.FORMAL_PARAMETER)) {
       AstNode identifier = formalP.getFirstChild(EcmaScriptGrammar.BINDING_IDENTIFIER).getFirstChild(EcmaScriptTokenType.IDENTIFIER);
-      if (identifier != null) {
-        if (isEvalOrArguments(identifier.getTokenValue())) {
+      if (identifier != null && isEvalOrArguments(identifier.getTokenValue())) {
           getContext().createLineViolation(this, createMessageFor("parameter", identifier.getTokenValue()), identifier);
         }
       }
-    }
 
     AstNode restParam = astNode.getFirstChild(EcmaScriptGrammar.REST_PARAMETER);
     if (restParam != null) {

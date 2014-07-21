@@ -29,7 +29,6 @@ import org.sonar.javascript.parser.EcmaScriptGrammar;
 import org.sonar.squidbridge.checks.SquidCheck;
 import org.sonar.sslr.parser.LexerlessGrammar;
 
-import java.util.List;
 import java.util.Set;
 
 @Rule(
