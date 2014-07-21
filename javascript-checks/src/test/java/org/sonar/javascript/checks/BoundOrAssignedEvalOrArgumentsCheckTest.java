@@ -38,16 +38,17 @@ public class BoundOrAssignedEvalOrArgumentsCheckTest {
         .next().atLine(2).withMessage("Remove the modification of 'arguments'.")
         .next().atLine(3).withMessage("Remove the modification of 'eval'.")
         .next().atLine(4).withMessage("Do not use 'arguments' to declare a parameter - use another name.")
-        .next().atLine(5).withMessage("Do not use 'eval' to declare a variable - use another name.")
-        .next().atLine(6).withMessage("Do not use 'arguments' to declare a variable - use another name.")
-        .next().atLine(7).withMessage("Do not use 'eval' to declare a parameter - use another name.")
-        .next().atLine(8).withMessage("Do not use 'arguments' to declare a function - use another name.")
-        .next().atLine(9).withMessage("Do not use 'eval' to declare a function - use another name.")
+        .next().atLine(6).withMessage("Do not use 'eval' to declare a variable - use another name.")
+        .next().atLine(7).withMessage("Do not use 'arguments' to declare a variable - use another name.")
+        .next().atLine(8).withMessage("Do not use 'eval' to declare a parameter - use another name.")
+        .next().atLine(9).withMessage("Do not use 'arguments' to declare a function - use another name.")
+        .next().atLine(10).withMessage("Do not use 'eval' to declare a function - use another name.")
         // FIXME not able to detect:
         // .next().atLine(10)
-        .next().atLine(20).withMessage("Remove the modification of 'arguments'.")
-        .next().atLine(23).withMessage("Do not use 'eval' to declare a parameter - use another name.")
-        .next().atLine(26).withMessage("Do not use 'arguments' to declare a parameter - use another name.")
+        .next().atLine(21).withMessage("Remove the modification of 'arguments'.")
+        .next().atLine(24).withMessage("Do not use 'eval' to declare a parameter - use another name.")
+        .next().atLine(27).withMessage("Do not use 'arguments' to declare a parameter - use another name.")
+        .next().atLine(30).withMessage("Do not use 'eval' to declare a parameter - use another name.")
         .noMore();
   }
 

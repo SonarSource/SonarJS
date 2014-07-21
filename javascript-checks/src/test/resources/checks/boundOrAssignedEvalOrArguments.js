@@ -1,7 +1,8 @@
 eval = 42;
 arguments++;
 ++eval;
-var obj = { set p(arguments) { } };
+var obj = { set p(arguments) { } }; // NOK
+var obj = { set p(arg) { } };       // OK
 var eval;
 try { } catch (arguments) { }
 function x(eval) { }
@@ -24,5 +25,14 @@ function fun(...eval) { // NOK
 }
 
 function fun(arguments, ...a) { // NOK
+}
+
+var f = function(eval) {  // NOK
+}
+
+function fun(a) {  // OK
+}
+
+function fun(yield) {  // OK
 }
 
