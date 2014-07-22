@@ -218,10 +218,14 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
   DO_WHILE_STATEMENT,
   WHILE_STATEMENT,
   FOR_IN_STATEMENT,
+  /** ECMAScript 6 **/
   FOR_OF_STATEMENT,
   FOR_STATEMENT,
+  /** ECMAScrip 6 **/
   OF,
+  /** ECMAScript 6 **/
   FOR_DECLARATION,
+  /** ECMAScript 6 **/
   FOR_BINDING,
   CONTINUE_STATEMENT,
   BREAK_STATEMENT,
@@ -590,9 +594,9 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
     b.rule(FOR_IN_STATEMENT).is(
       FOR, LPARENTHESIS,
       b.firstOf(
-        b.sequence(VAR, VARIABLE_DECLARATION_LIST_NO_IN /* TODO: VariableDeclarationList -> ForBinding */),
-        b.sequence(b.nextNot(LET, LBRACKET), LEFT_HAND_SIDE_EXPRESSION)
-        /* TODO: ForDeclaration */),
+        b.sequence(VAR, b.firstOf(VARIABLE_DECLARATION_LIST_NO_IN, ecmascript6(FOR_BINDING)) /* TODO: test ForBinding */),
+        b.sequence(ecmascript6(b.nextNot(LET, LBRACKET)), LEFT_HAND_SIDE_EXPRESSION),
+        ecmascript6(FOR_DECLARATION)),
       IN, EXPRESSION, RPARENTHESIS, STATEMENT);
     b.rule(FOR_OF_STATEMENT).is(
       FOR, LPARENTHESIS,
@@ -608,8 +612,8 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
       FOR, LPARENTHESIS,
       b.firstOf(
         b.sequence(VAR, VARIABLE_DECLARATION_LIST_NO_IN),
-        b.optional(b.nextNot(LET, LBRACKET), EXPRESSION_NO_IN),
-        b.sequence(LEXICAL_DECLARATION, b.optional(EXPRESSION_NO_IN))),
+        ecmascript6(b.sequence(LEXICAL_DECLARATION, b.optional(EXPRESSION_NO_IN))),
+        b.optional(ecmascript6(b.nextNot(LET, LBRACKET)), EXPRESSION_NO_IN)),
       SEMI, b.optional(CONDITION), SEMI, b.optional(EXPRESSION), RPARENTHESIS, STATEMENT);
     b.rule(CONTINUE_STATEMENT).is(CONTINUE, b.firstOf(
         b.sequence(/* no line terminator here */SPACING_NO_LB, NEXT_NOT_LB, IDENTIFIER, EOS),
