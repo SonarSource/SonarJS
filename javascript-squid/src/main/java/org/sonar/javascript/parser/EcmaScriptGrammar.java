@@ -250,13 +250,20 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
   FUNCTION_EXPRESSION,
   FORMAL_PARAMETER_LIST,
   FORMAL_PARAMETER,
+  /** ECMAScript 6 **/
   REST_PARAMETER,
   FUNCTION_BODY,
+  /** ECMAScript 6 **/
   LEXICAL_DECLARATION,
+  /** ECMAScript 6 **/
   LET,
+  /** ECMAScript 6 **/
   LET_OR_CONST,
+  /** ECMAScript 6 **/
   BINDING_LIST,
+  /** ECMAScript 6 **/
   LEXICAL_BINDING,
+  /** ECMAScript 6 **/
   BINDING_IDENTIFIER,
 
   // A.6 Programs
