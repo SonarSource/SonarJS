@@ -256,13 +256,19 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
   /** ECMAScript 6 **/
   LEXICAL_DECLARATION,
   /** ECMAScript 6 **/
+  LEXICAL_DECLARATION_NO_IN,
+  /** ECMAScript 6 **/
   LET,
   /** ECMAScript 6 **/
   LET_OR_CONST,
   /** ECMAScript 6 **/
   BINDING_LIST,
   /** ECMAScript 6 **/
+  BINDING_LIST_NO_IN,
+  /** ECMAScript 6 **/
   LEXICAL_BINDING,
+  /** ECMAScript 6 **/
+  LEXICAL_BINDING_NO_IN,
   /** ECMAScript 6 **/
   BINDING_IDENTIFIER,
 
@@ -619,7 +625,7 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
       FOR, LPARENTHESIS,
       b.firstOf(
         b.sequence(VAR, VARIABLE_DECLARATION_LIST_NO_IN),
-        ecmascript6(b.sequence(LEXICAL_DECLARATION, b.optional(EXPRESSION_NO_IN))),
+        ecmascript6(b.sequence(LEXICAL_DECLARATION_NO_IN, b.optional(EXPRESSION_NO_IN))),
         b.optional(ecmascript6(b.nextNot(LET, LBRACKET)), EXPRESSION_NO_IN)),
       SEMI, b.optional(CONDITION), SEMI, b.optional(EXPRESSION), RPARENTHESIS, STATEMENT);
     b.rule(CONTINUE_STATEMENT).is(CONTINUE, b.firstOf(
@@ -663,11 +669,14 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
     b.rule(FUNCTION_BODY).is(b.optional(STATEMENT_LIST));
 
     b.rule(LEXICAL_DECLARATION).is(LET_OR_CONST, BINDING_LIST);
+    b.rule(LEXICAL_DECLARATION_NO_IN).is(LET_OR_CONST, BINDING_LIST_NO_IN);
     b.rule(LET_OR_CONST).is(b.firstOf(LET, CONST));
     b.rule(LET).is(word(b, "let"));
     b.rule(BINDING_LIST).is(LEXICAL_BINDING, b.zeroOrMore(COMMA, LEXICAL_BINDING));
+    b.rule(BINDING_LIST_NO_IN).is(LEXICAL_BINDING_NO_IN, b.zeroOrMore(COMMA, LEXICAL_BINDING_NO_IN));
     // TODO: try factorise with variable declaration
     b.rule(LEXICAL_BINDING).is(BINDING_IDENTIFIER ,b.optional(INITIALISER) /* TODO: or BindingPattern Initialiser*/);
+    b.rule(LEXICAL_BINDING_NO_IN).is(BINDING_IDENTIFIER ,b.optional(INITIALISER_NO_IN) /* TODO: or BindingPattern Initialiser*/);
     b.rule(BINDING_IDENTIFIER).is(b.firstOf(ecmascript6(DEFAULT), ecmascript6(YIELD), IDENTIFIER)); // TODO: put in expression
   }
 
