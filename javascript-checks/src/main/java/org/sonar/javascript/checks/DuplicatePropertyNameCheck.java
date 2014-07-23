@@ -21,11 +21,11 @@ package org.sonar.javascript.checks;
 
 import com.google.common.collect.Sets;
 import com.sonar.sslr.api.AstNode;
-import org.sonar.squidbridge.checks.SquidCheck;
 import org.sonar.check.BelongsToProfile;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.javascript.parser.EcmaScriptGrammar;
+import org.sonar.squidbridge.checks.SquidCheck;
 import org.sonar.sslr.parser.LexerlessGrammar;
 
 import java.util.List;
@@ -47,7 +47,7 @@ public class DuplicatePropertyNameCheck extends SquidCheck<LexerlessGrammar> {
     Set<String> values = Sets.newHashSet();
     List<AstNode> propertyAssignments = astNode.getChildren(EcmaScriptGrammar.PROPERTY_ASSIGNMENT);
     for (AstNode propertyAssignment : propertyAssignments) {
-      AstNode propertyName = propertyAssignment.getFirstChild(EcmaScriptGrammar.PROPERTY_NAME);
+      AstNode propertyName = getPropertyName(propertyAssignment);
       String value = propertyName.getTokenValue();
       if (value.startsWith("\"") || value.startsWith("'")) {
         value = value.substring(1, value.length() - 1);
@@ -59,6 +59,17 @@ public class DuplicatePropertyNameCheck extends SquidCheck<LexerlessGrammar> {
         values.add(unescaped);
       }
     }
+  }
+
+  private static AstNode getPropertyName(AstNode propertyAssignment) {
+    AstNode objectProperty = propertyAssignment.getFirstChild();
+
+    if (objectProperty.is(EcmaScriptGrammar.PAIR_PROPERTY)) {
+      return objectProperty.getFirstChild(EcmaScriptGrammar.PROPERTY_NAME);
+    } else {
+      return objectProperty.getFirstChild().getFirstChild(EcmaScriptGrammar.PROPERTY_NAME);
+    }
+
   }
 
 }

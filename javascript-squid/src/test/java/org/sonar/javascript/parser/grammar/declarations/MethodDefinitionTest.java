@@ -17,7 +17,7 @@
  * License along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.javascript.parser.grammar.expressions;
+package org.sonar.javascript.parser.grammar.declarations;
 
 import org.junit.Test;
 import org.sonar.javascript.parser.EcmaScriptGrammar;
@@ -25,16 +25,17 @@ import org.sonar.sslr.parser.LexerlessGrammar;
 
 import static org.sonar.sslr.tests.Assertions.assertThat;
 
-public class PropertyAssignmentTest {
+public class MethodDefinitionTest {
 
   LexerlessGrammar g = EcmaScriptGrammar.createGrammar();
 
   @Test
   public void ok() {
-    assertThat(g.rule(EcmaScriptGrammar.CLASS_ELEMENT))
-        .matches("static f() {}")
-        .matches("f () {}")
-        .matches(";");
+    assertThat(g.rule(EcmaScriptGrammar.METHOD_DEFINITION))
+      .matches("f() {}")
+      .matches("set f(p) {}")
+      .matches("get f() {}")
+      .matches("* f() {}");
   }
 
 }

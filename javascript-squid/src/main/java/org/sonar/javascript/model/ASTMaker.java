@@ -25,6 +25,7 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Maps;
 import com.sonar.sslr.api.AstNode;
 import com.sonar.sslr.api.AstNodeType;
+import com.sonar.sslr.impl.ast.AstXmlPrinter;
 import org.sonar.javascript.api.EcmaScriptKeyword;
 import org.sonar.javascript.api.EcmaScriptPunctuator;
 import org.sonar.javascript.api.EcmaScriptTokenType;
@@ -78,6 +79,7 @@ public final class ASTMaker {
 
   private interface Trees {
     Object get(AstNode astNode);
+
     List getList(AstNode astNode);
   }
 
@@ -151,29 +153,24 @@ public final class ASTMaker {
 
     dispatcher.register(new Maker() {
       public PropertyAssignmentTree make(AstNode astNode, Trees t) {
-        AstNode propertySetParameterList = astNode.getFirstChild(EcmaScriptGrammar.PROPERTY_SET_PARAMETER_LIST);
-        AstNode functionBody = astNode.getFirstChild(EcmaScriptGrammar.FUNCTION_BODY);
-        if (propertySetParameterList != null) {
-          // setter
+        AstNode objectProperty = astNode.getFirstChild();
+
+        // method
+        if (objectProperty.is(EcmaScriptGrammar.METHOD_DEFINITION)) {
+          AstNode method = objectProperty.getFirstChild();
+          AstNode parametersList = method.getFirstChild(EcmaScriptGrammar.FORMAL_PARAMETER_LIST, EcmaScriptGrammar.PROPERTY_SET_PARAMETER_LIST);
+
           return new TreeImpl.PropertyAssignmentTreeImpl(astNode,
-            (Tree) t.get(astNode.getFirstChild(EcmaScriptGrammar.PROPERTY_NAME)),
+            (Tree) t.get(method.getFirstChild(EcmaScriptGrammar.PROPERTY_NAME)),
             null,
-            (List<IdentifierTree>) t.getList(astNode.getFirstChild(EcmaScriptGrammar.PROPERTY_SET_PARAMETER_LIST)),
-            (List<? extends SourceElementTree>) t.getList(functionBody)
-          );
-        } else if (functionBody != null) {
-          // getter
-          return new TreeImpl.PropertyAssignmentTreeImpl(astNode,
-            (Tree) t.get(astNode.getFirstChild(EcmaScriptGrammar.PROPERTY_NAME)),
-            null,
-            null,
-            (List<? extends SourceElementTree>) t.getList(functionBody)
+            parametersList == null ? null : (List<IdentifierTree>) t.getList(parametersList),
+            (List<? extends SourceElementTree>) t.getList(method.getFirstChild(EcmaScriptGrammar.FUNCTION_BODY))
           );
         } else {
           // property
           return new TreeImpl.PropertyAssignmentTreeImpl(astNode,
-            (Tree) t.get(astNode.getFirstChild(EcmaScriptGrammar.PROPERTY_NAME)),
-            (ExpressionTree) t.get(astNode.getChild(2)),
+            (Tree) t.get(objectProperty.getFirstChild(EcmaScriptGrammar.PROPERTY_NAME)),
+            (ExpressionTree) t.get(objectProperty.getLastChild()),
             null,
             null
           );

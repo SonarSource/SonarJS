@@ -36,11 +36,13 @@ public enum EcmaScriptKeyword implements TokenType, GrammarRuleKey {
   BREAK("break"),
   CASE("case"),
   CATCH("catch"),
+  CLASS("class"),
   CONTINUE("continue"),
   DEBUGGER("debugger"),
   DEFAULT("default"),
   DELETE("delete"),
   DO("do"),
+  EXTENDS("extends"),
   ELSE("else"),
   FINALLY("finally"),
   FOR("for"),
@@ -63,11 +65,9 @@ public enum EcmaScriptKeyword implements TokenType, GrammarRuleKey {
 
   // Future reserved words
 
-  CLASS("class"),
   CONST("const"),
   ENUM("enum"),
   EXPORT("export"),
-  EXTENDS("extends"),
   SUPER("super");
 
   private final String value;

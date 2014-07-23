@@ -30,6 +30,7 @@ import org.sonar.sslr.parser.LexerlessGrammar;
 
 import static org.sonar.javascript.api.EcmaScriptKeyword.BREAK;
 import static org.sonar.javascript.api.EcmaScriptKeyword.CASE;
+import static org.sonar.javascript.api.EcmaScriptKeyword.CLASS;
 import static org.sonar.javascript.api.EcmaScriptKeyword.CONST;
 import static org.sonar.javascript.api.EcmaScriptKeyword.CONTINUE;
 import static org.sonar.javascript.api.EcmaScriptKeyword.DEBUGGER;
@@ -37,6 +38,7 @@ import static org.sonar.javascript.api.EcmaScriptKeyword.DEFAULT;
 import static org.sonar.javascript.api.EcmaScriptKeyword.DELETE;
 import static org.sonar.javascript.api.EcmaScriptKeyword.DO;
 import static org.sonar.javascript.api.EcmaScriptKeyword.ELSE;
+import static org.sonar.javascript.api.EcmaScriptKeyword.EXTENDS;
 import static org.sonar.javascript.api.EcmaScriptKeyword.FALSE;
 import static org.sonar.javascript.api.EcmaScriptKeyword.FOR;
 import static org.sonar.javascript.api.EcmaScriptKeyword.FUNCTION;
@@ -164,8 +166,8 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
   ARRAY_LITERAL,
   OBJECT_LITERAL,
   PROPERTY_ASSIGNMENT,
+  PAIR_PROPERTY,
   PROPERTY_NAME,
-  PROPERTY_SET_PARAMETER_LIST,
   MEMBER_EXPRESSION,
   NEW_EXPRESSION,
   CALL_EXPRESSION,
@@ -271,6 +273,36 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
   LEXICAL_BINDING_NO_IN,
   /** ECMAScript 6 **/
   BINDING_IDENTIFIER,
+  /** ECMAScript 6 **/
+  COMPUTED_PROPERTY_NAME,
+  /** ECMAScript 6 **/
+  LITERAL_PROPERTY_NAME,
+  /** ECMAScript 6 **/
+  GENERATOR_METHOD,
+  /** ECMAScript 6 **/
+  CLASS_DECLARATION,
+  /** ECMAScript 6 **/
+  CLASS_TAIL,
+  /** ECMAScript 6 **/
+  CLASS_HERITAGE,
+  /** ECMAScript 6 **/
+  CLASS_BODY,
+  /** ECMAScript 6 **/
+  CLASS_ELEMENT,
+  /** ECMAScript 6 **/
+  STATIC_METHOD_DEFINITION,
+  /** ECMAScript 6 **/
+  STATIC,
+  /** ECMAScript 6 **/
+  METHOD_DEFINITION,
+  /** ECMAScript 6 **/
+  METHOD,
+  GETTER_METHOD,
+  GET,
+  SETTER_METHOD,
+  PROPERTY_SET_PARAMETER_LIST,
+  SET,
+
 
   // A.6 Programs
 
@@ -468,14 +500,9 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
     b.rule(ARRAY_LITERAL).is(LBRACKET, b.zeroOrMore(b.firstOf(COMMA, ASSIGNMENT_EXPRESSION)), RBRACKET);
     b.rule(OBJECT_LITERAL).is(LCURLYBRACE, b.optional(PROPERTY_ASSIGNMENT, b.zeroOrMore(COMMA, PROPERTY_ASSIGNMENT), b.optional(COMMA)), RCURLYBRACE);
     b.rule(PROPERTY_ASSIGNMENT).is(b.firstOf(
-        b.sequence(PROPERTY_NAME, COLON, ASSIGNMENT_EXPRESSION),
-        b.sequence(word(b, "get"), PROPERTY_NAME, LPARENTHESIS, RPARENTHESIS, LCURLYBRACE, FUNCTION_BODY, RCURLYBRACE),
-        b.sequence(word(b, "set"), PROPERTY_NAME, LPARENTHESIS, PROPERTY_SET_PARAMETER_LIST, RPARENTHESIS, LCURLYBRACE, FUNCTION_BODY, RCURLYBRACE)));
-    b.rule(PROPERTY_NAME).is(b.firstOf(
-        IDENTIFIER_NAME,
-        STRING_LITERAL,
-        NUMERIC_LITERAL));
-    b.rule(PROPERTY_SET_PARAMETER_LIST).is(IDENTIFIER);
+        PAIR_PROPERTY,
+        METHOD_DEFINITION));
+    b.rule(PAIR_PROPERTY).is(PROPERTY_NAME, COLON, ASSIGNMENT_EXPRESSION);
     b.rule(MEMBER_EXPRESSION).is(
         b.firstOf(
             PRIMARY_EXPRESSION,
@@ -657,6 +684,7 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
   private static void declarations(LexerlessGrammarBuilder b) {
     b.rule(DECLARATION).is(b.firstOf(
       FUNCTION_DECLARATION,
+      ecmascript6(CLASS_DECLARATION),
       ecmascript6(LEXICAL_DECLARATION)));
     b.rule(FUNCTION_DECLARATION).is(FUNCTION, IDENTIFIER, LPARENTHESIS, b.optional(FORMAL_PARAMETER_LIST), RPARENTHESIS, LCURLYBRACE, FUNCTION_BODY, RCURLYBRACE);
     b.rule(FUNCTION_EXPRESSION).is(FUNCTION, b.optional(IDENTIFIER), LPARENTHESIS, b.optional(FORMAL_PARAMETER_LIST), RPARENTHESIS, LCURLYBRACE, FUNCTION_BODY, RCURLYBRACE);
@@ -678,6 +706,29 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
     b.rule(LEXICAL_BINDING).is(BINDING_IDENTIFIER ,b.optional(INITIALISER) /* TODO: or BindingPattern Initialiser*/);
     b.rule(LEXICAL_BINDING_NO_IN).is(BINDING_IDENTIFIER ,b.optional(INITIALISER_NO_IN) /* TODO: or BindingPattern Initialiser*/);
     b.rule(BINDING_IDENTIFIER).is(b.firstOf(ecmascript6(DEFAULT), ecmascript6(YIELD), IDENTIFIER)); // TODO: put in expression
+
+    b.rule(CLASS_DECLARATION).is(CLASS, b.optional(BINDING_IDENTIFIER), CLASS_TAIL);
+
+    b.rule(CLASS_TAIL).is(b.optional(CLASS_HERITAGE), LCURLYBRACE, b.optional(CLASS_BODY), RCURLYBRACE);
+    b.rule(CLASS_HERITAGE).is(EXTENDS, LEFT_HAND_SIDE_EXPRESSION);
+
+    b.rule(CLASS_BODY).is(b.oneOrMore(CLASS_ELEMENT));
+    b.rule(CLASS_ELEMENT).is(b.firstOf(STATIC_METHOD_DEFINITION, METHOD_DEFINITION, SEMI));
+
+    b.rule(STATIC_METHOD_DEFINITION).is(STATIC, METHOD_DEFINITION);
+    b.rule(STATIC).is(word(b, "static"));
+    b.rule(METHOD_DEFINITION).is(b.firstOf(METHOD, GENERATOR_METHOD, GETTER_METHOD, SETTER_METHOD));
+    b.rule(METHOD).is(PROPERTY_NAME, LPARENTHESIS, b.optional(FORMAL_PARAMETER_LIST), RPARENTHESIS, LCURLYBRACE, FUNCTION_BODY, RCURLYBRACE);
+    b.rule(SETTER_METHOD).is(b.sequence(SET, PROPERTY_NAME, LPARENTHESIS, PROPERTY_SET_PARAMETER_LIST, RPARENTHESIS, LCURLYBRACE, FUNCTION_BODY, RCURLYBRACE));
+    b.rule(PROPERTY_SET_PARAMETER_LIST).is(FORMAL_PARAMETER);
+    b.rule(SET).is(word(b, "set"));
+    b.rule(GETTER_METHOD).is(b.sequence(GET, PROPERTY_NAME, LPARENTHESIS, RPARENTHESIS, LCURLYBRACE, FUNCTION_BODY, RCURLYBRACE));
+    b.rule(GET).is(word(b, "get"));
+    b.rule(GENERATOR_METHOD).is(STAR, PROPERTY_NAME, LPARENTHESIS, b.optional(FORMAL_PARAMETER_LIST), RPARENTHESIS, LCURLYBRACE, FUNCTION_BODY, RCURLYBRACE);
+
+    b.rule(PROPERTY_NAME).is(b.firstOf(LITERAL_PROPERTY_NAME, ecmascript6(COMPUTED_PROPERTY_NAME)));
+    b.rule(LITERAL_PROPERTY_NAME).is(b.firstOf(IDENTIFIER_NAME, STRING_LITERAL, NUMERIC_LITERAL));
+    b.rule(COMPUTED_PROPERTY_NAME).is(LBRACKET, ASSIGNMENT_EXPRESSION, RBRACKET);
   }
 
   /**

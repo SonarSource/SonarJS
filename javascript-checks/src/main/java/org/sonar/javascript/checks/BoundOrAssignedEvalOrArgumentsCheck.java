@@ -104,7 +104,7 @@ public class BoundOrAssignedEvalOrArgumentsCheck extends SquidCheck<LexerlessGra
   }
 
   private void checkPropertySetParameterList(AstNode astNode) {
-    AstNode identifier = astNode.getFirstChild(EcmaScriptTokenType.IDENTIFIER);
+    AstNode identifier = astNode.getFirstChild().getFirstChild(EcmaScriptGrammar.BINDING_IDENTIFIER);
     if (isEvalOrArguments(identifier.getTokenValue())) {
       getContext().createLineViolation(this, createMessageFor("parameter", identifier.getTokenValue()), identifier);
     }
