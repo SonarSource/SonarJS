@@ -48,6 +48,7 @@ import static org.sonar.javascript.api.EcmaScriptKeyword.INSTANCEOF;
 import static org.sonar.javascript.api.EcmaScriptKeyword.NEW;
 import static org.sonar.javascript.api.EcmaScriptKeyword.NULL;
 import static org.sonar.javascript.api.EcmaScriptKeyword.RETURN;
+import static org.sonar.javascript.api.EcmaScriptKeyword.SUPER;
 import static org.sonar.javascript.api.EcmaScriptKeyword.SWITCH;
 import static org.sonar.javascript.api.EcmaScriptKeyword.THIS;
 import static org.sonar.javascript.api.EcmaScriptKeyword.THROW;
@@ -505,17 +506,19 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
     b.rule(PAIR_PROPERTY).is(PROPERTY_NAME, COLON, ASSIGNMENT_EXPRESSION);
     b.rule(MEMBER_EXPRESSION).is(
         b.firstOf(
+            ecmascript6(SUPER),
             PRIMARY_EXPRESSION,
             FUNCTION_EXPRESSION,
-            b.sequence(NEW, MEMBER_EXPRESSION, ARGUMENTS)),
+            b.sequence(NEW, b.firstOf(ecmascript6(SUPER), MEMBER_EXPRESSION), ARGUMENTS)),
         b.zeroOrMore(b.firstOf(
             b.sequence(LBRACKET, EXPRESSION, RBRACKET),
             b.sequence(DOT, IDENTIFIER_NAME))));
     b.rule(NEW_EXPRESSION).is(b.firstOf(
         MEMBER_EXPRESSION,
+        ecmascript6(b.sequence(NEW, SUPER)),
         b.sequence(NEW, NEW_EXPRESSION)));
     b.rule(CALL_EXPRESSION).is(
-        b.sequence(MEMBER_EXPRESSION, ARGUMENTS),
+        b.sequence(b.firstOf(ecmascript6(SUPER), MEMBER_EXPRESSION), ARGUMENTS),
         b.zeroOrMore(b.firstOf(
             ARGUMENTS,
             b.sequence(LBRACKET, EXPRESSION, RBRACKET),

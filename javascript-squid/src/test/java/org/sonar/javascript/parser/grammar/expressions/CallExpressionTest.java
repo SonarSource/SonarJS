@@ -33,6 +33,7 @@ public class CallExpressionTest {
   public void ok() {
     assertThat(g.rule(EcmaScriptGrammar.CALL_EXPRESSION))
         .matches("memberExpression ( arguments )")
+        .matches("super ( arguments )")
         .matches("memberExpression ( arguments ) ( arguments )");
 
     assertThat(g.rule(EcmaScriptGrammar.CALL_EXPRESSION))

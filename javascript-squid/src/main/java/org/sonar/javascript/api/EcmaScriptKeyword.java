@@ -52,6 +52,7 @@ public enum EcmaScriptKeyword implements TokenType, GrammarRuleKey {
   INSTANCEOF("instanceof"),
   NEW("new"),
   RETURN("return"),
+  SUPER("super"),
   SWITCH("switch"),
   THIS("this"),
   THROW("throw"),
@@ -67,8 +68,7 @@ public enum EcmaScriptKeyword implements TokenType, GrammarRuleKey {
 
   CONST("const"),
   ENUM("enum"),
-  EXPORT("export"),
-  SUPER("super");
+  EXPORT("export");
 
   private final String value;
 

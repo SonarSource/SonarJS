@@ -36,8 +36,11 @@ public class MemberExpressionTest {
         .as("functionExpression").matches("function () {}")
 
         .matches("primaryExpression [ expression ]")
+        .matches("super [ expression ]")
         .matches("primaryExpression . identifierName")
+        .matches("super . identifierName")
         .matches("primaryExpression [ expression ] . identifierName")
+        .matches("new super ( arguments )")
         .matches("new primaryExpression ( arguments )");
   }
 
