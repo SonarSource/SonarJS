@@ -17,22 +17,23 @@
  * License along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.javascript.api;
+package org.sonar.javascript.parser.grammar.expressions;
 
 import org.junit.Test;
+import org.sonar.javascript.parser.EcmaScriptGrammar;
+import org.sonar.sslr.parser.LexerlessGrammar;
 
-import static org.fest.assertions.Assertions.assertThat;
+import static org.sonar.sslr.tests.Assertions.assertThat;
 
-public class EcmaScriptPunctuatorTest {
+public class ArrowParametersTest {
+
+  LexerlessGrammar g = EcmaScriptGrammar.createGrammar();
 
   @Test
-  public void test() {
-    assertThat(EcmaScriptPunctuator.values().length).isEqualTo(50);
-
-    for (EcmaScriptPunctuator punctuator : EcmaScriptPunctuator.values()) {
-      assertThat(punctuator.getName()).isEqualTo(punctuator.name());
-      assertThat(punctuator.hasToBeSkippedFromAst(null)).isFalse();
-    }
+  public void ok() {
+    assertThat(g.rule(EcmaScriptGrammar.ARROW_PARAMETERS))
+        .matches("identifier")
+        .matches("( identifier )");
   }
 
 }

@@ -31,6 +31,7 @@ public enum EcmaScriptPunctuator implements TokenType, GrammarRuleKey {
   LBRACKET("["),
   RBRACKET("]"),
   DOT("."),
+  DOUBLEARROW("=>"),
   ELLIPSIS("..."),
   SEMI(";"),
   COMMA(","),

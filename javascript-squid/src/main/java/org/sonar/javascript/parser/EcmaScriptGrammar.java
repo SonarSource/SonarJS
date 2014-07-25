@@ -72,6 +72,7 @@ import static org.sonar.javascript.api.EcmaScriptPunctuator.DEC;
 import static org.sonar.javascript.api.EcmaScriptPunctuator.DIV;
 import static org.sonar.javascript.api.EcmaScriptPunctuator.DIV_EQU;
 import static org.sonar.javascript.api.EcmaScriptPunctuator.DOT;
+import static org.sonar.javascript.api.EcmaScriptPunctuator.DOUBLEARROW;
 import static org.sonar.javascript.api.EcmaScriptPunctuator.ELLIPSIS;
 import static org.sonar.javascript.api.EcmaScriptPunctuator.EQU;
 import static org.sonar.javascript.api.EcmaScriptPunctuator.EQUAL;
@@ -202,6 +203,18 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
   ASSIGNMENT_OPERATOR,
   EXPRESSION,
   EXPRESSION_NO_IN,
+  /** ECMAScript 6 **/
+  ARROW_FUNCTION,
+  /** ECMAScript 6 **/
+  ARROW_FUNCTION_NO_IN,
+  /** ECMAScript 6 **/
+  ARROW_PARAMETERS,
+  /** ECMAScript 6 **/
+  CONCISE_BODY,
+  /** ECMAScript 6 **/
+  CONCISE_BODY_NO_IN,
+  /** ECMAScript 6 **/
+  COVER_PARENTHESIZED_EXPRESSION_AND_ARROW_PARAMETER_LIST,
 
   // A.4 Statements
 
@@ -449,6 +462,7 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
     punctuator(b, RPARENTHESIS, ")");
     punctuator(b, LBRACKET, "[");
     punctuator(b, RBRACKET, "]");
+    punctuator(b, DOUBLEARROW, "=>");
     punctuator(b, DOT, ".");
     punctuator(b, ELLIPSIS, "...");
     punctuator(b, SEMI, ";");
@@ -616,10 +630,11 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
 
     b.rule(ASSIGNMENT_EXPRESSION).is(b.firstOf(
         b.sequence(LEFT_HAND_SIDE_EXPRESSION, ASSIGNMENT_OPERATOR, ASSIGNMENT_EXPRESSION),
-        CONDITIONAL_EXPRESSION)).skipIfOneChild();
+        CONDITIONAL_EXPRESSION,
+        ARROW_FUNCTION)).skipIfOneChild();
     b.rule(ASSIGNMENT_EXPRESSION_NO_IN).is(b.firstOf(
         b.sequence(LEFT_HAND_SIDE_EXPRESSION, ASSIGNMENT_OPERATOR, ASSIGNMENT_EXPRESSION_NO_IN),
-        CONDITIONAL_EXPRESSION_NO_IN)).skipIfOneChild();
+        CONDITIONAL_EXPRESSION_NO_IN, ARROW_FUNCTION_NO_IN)).skipIfOneChild();
 
     b.rule(ASSIGNMENT_OPERATOR).is(b.firstOf(
         EQU,
@@ -634,6 +649,18 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
         AND_EQU,
         XOR_EQU,
         OR_EQU)).skip();
+
+    b.rule(ARROW_FUNCTION).is(ARROW_PARAMETERS, /* no line terminator here */SPACING_NO_LB, NEXT_NOT_LB, DOUBLEARROW, CONCISE_BODY);
+    b.rule(ARROW_FUNCTION_NO_IN).is(ARROW_PARAMETERS, /* no line terminator here */SPACING_NO_LB, NEXT_NOT_LB, DOUBLEARROW, CONCISE_BODY_NO_IN);
+    b.rule(ARROW_PARAMETERS).is(b.firstOf(BINDING_IDENTIFIER, COVER_PARENTHESIZED_EXPRESSION_AND_ARROW_PARAMETER_LIST));
+    b.rule(COVER_PARENTHESIZED_EXPRESSION_AND_ARROW_PARAMETER_LIST).is(
+      LPARENTHESIS,
+      b.optional(b.firstOf(
+        REST_PARAMETER,
+        b.sequence(EXPRESSION, b.optional(COMMA, REST_PARAMETER)))),
+      RPARENTHESIS);
+    b.rule(CONCISE_BODY).is(b.nextNot(LCURLYBRACE), ASSIGNMENT_EXPRESSION);
+    b.rule(CONCISE_BODY_NO_IN).is(b.nextNot(LCURLYBRACE), ASSIGNMENT_EXPRESSION_NO_IN);
 
     b.rule(EXPRESSION).is(ASSIGNMENT_EXPRESSION, b.zeroOrMore(COMMA, ASSIGNMENT_EXPRESSION));
     b.rule(EXPRESSION_NO_IN).is(ASSIGNMENT_EXPRESSION_NO_IN, b.zeroOrMore(COMMA, ASSIGNMENT_EXPRESSION_NO_IN));
