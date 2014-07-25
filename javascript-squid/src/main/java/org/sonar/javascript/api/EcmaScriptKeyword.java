@@ -48,6 +48,7 @@ public enum EcmaScriptKeyword implements TokenType, GrammarRuleKey {
   FOR("for"),
   FUNCTION("function"),
   IF("if"),
+  IMPORT("import"),
   IN("in"),
   INSTANCEOF("instanceof"),
   NEW("new"),

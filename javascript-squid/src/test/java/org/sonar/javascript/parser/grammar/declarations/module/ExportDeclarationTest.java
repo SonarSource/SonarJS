@@ -17,23 +17,26 @@
  * License along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.javascript.api;
+package org.sonar.javascript.parser.grammar.declarations.module;
 
 import org.junit.Test;
+import org.sonar.javascript.parser.EcmaScriptGrammar;
+import org.sonar.sslr.parser.LexerlessGrammar;
 
-import static org.fest.assertions.Assertions.assertThat;
+import static org.sonar.sslr.tests.Assertions.assertThat;
 
-public class EcmaScriptKeywordTest {
+public class ExportDeclarationTest {
+
+  LexerlessGrammar g = EcmaScriptGrammar.createGrammar();
 
   @Test
-  public void test() {
-    assertThat(EcmaScriptKeyword.values().length).isEqualTo(37);
-    assertThat(EcmaScriptKeyword.keywordValues().length).isEqualTo(EcmaScriptKeyword.values().length);
-
-    for (EcmaScriptKeyword keyword : EcmaScriptKeyword.values()) {
-      assertThat(keyword.getName()).isEqualTo(keyword.name());
-      assertThat(keyword.hasToBeSkippedFromAst(null)).isFalse();
-    }
+  public void ok() {
+    assertThat(g.rule(EcmaScriptGrammar.EXPORT_DECLARATION))
+      .matches("export * from \"f\" ;")
+      .matches("export { } ;")
+      .matches("export var a;")
+      .matches("export class C {}")
+      .matches("export default function f() {};");
   }
 
 }

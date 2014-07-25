@@ -38,11 +38,13 @@ import static org.sonar.javascript.api.EcmaScriptKeyword.DEFAULT;
 import static org.sonar.javascript.api.EcmaScriptKeyword.DELETE;
 import static org.sonar.javascript.api.EcmaScriptKeyword.DO;
 import static org.sonar.javascript.api.EcmaScriptKeyword.ELSE;
+import static org.sonar.javascript.api.EcmaScriptKeyword.EXPORT;
 import static org.sonar.javascript.api.EcmaScriptKeyword.EXTENDS;
 import static org.sonar.javascript.api.EcmaScriptKeyword.FALSE;
 import static org.sonar.javascript.api.EcmaScriptKeyword.FOR;
 import static org.sonar.javascript.api.EcmaScriptKeyword.FUNCTION;
 import static org.sonar.javascript.api.EcmaScriptKeyword.IF;
+import static org.sonar.javascript.api.EcmaScriptKeyword.IMPORT;
 import static org.sonar.javascript.api.EcmaScriptKeyword.IN;
 import static org.sonar.javascript.api.EcmaScriptKeyword.INSTANCEOF;
 import static org.sonar.javascript.api.EcmaScriptKeyword.NEW;
@@ -275,6 +277,8 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
   /** ECMAScript 6 **/
   BINDING_IDENTIFIER,
   /** ECMAScript 6 **/
+  IDENTIFIER_REFERENCE,
+  /** ECMAScript 6 **/
   COMPUTED_PROPERTY_NAME,
   /** ECMAScript 6 **/
   LITERAL_PROPERTY_NAME,
@@ -303,7 +307,50 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
   SETTER_METHOD,
   PROPERTY_SET_PARAMETER_LIST,
   SET,
-
+  /** ECMAScript 6 **/
+  MODULE_WORD,
+  /** ECMAScript 6 **/
+  MODULE,
+  /** ECMAScript 6 **/
+  MODULE_BODY,
+  /** ECMAScript 6 **/
+  MODULE_ITEM,
+  /** ECMAScript 6 **/
+  IMPORT_DECLARATION,
+  /** ECMAScript 6 **/
+  EXPORT_DECLARATION,
+  /** ECMAScript 6 **/
+  IMPORT_CLAUSE,
+  /** ECMAScript 6 **/
+  FROM_CLAUSE,
+  /** ECMAScript 6 **/
+  MODULE_IMPORT,
+  /** ECMAScript 6 **/
+  NAMED_IMPORTS,
+  /** ECMAScript 6 **/
+  IMPORTS_LIST,
+  /** ECMAScript 6 **/
+  IMPORT_SPECIFIER,
+  /** ECMAScript 6 **/
+  IMPORT_FROM,
+  /** ECMAScript 6 **/
+  SIMPLE_IMPORT,
+  /** ECMAScript 6 **/
+  FROM,
+  /** ECMAScript 6 **/
+  AS,
+  /** ECMAScript 6 **/
+  EXPORT_LIST_CLAUSE,
+  /** ECMAScript 6 **/
+  EXPORT_ALL_CLAUSE,
+  /** ECMAScript 6 **/
+  EXPORT_DEFAULT_CLAUSE,
+  /** ECMAScript 6 **/
+  EXPORT_CLAUSE,
+  /** ECMAScript 6 **/
+  EXPORT_LIST,
+  /** ECMAScript 6 **/
+  EXPORT_SPECIFIER,
 
   // A.6 Programs
 
@@ -685,6 +732,49 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
    * A.5 Declarations
    */
   private static void declarations(LexerlessGrammarBuilder b) {
+    b.rule(MODULE).is(MODULE_BODY);
+    b.rule(MODULE_BODY).is(b.oneOrMore(MODULE_ITEM));
+    b.rule(MODULE_ITEM).is(b.firstOf(IMPORT_DECLARATION, EXPORT_DECLARATION, STATEMENT));
+    b.rule(EXPORT_DECLARATION).is(
+      EXPORT,
+      b.firstOf(
+        EXPORT_ALL_CLAUSE,
+        EXPORT_LIST_CLAUSE,
+        VARIABLE_STATEMENT,
+        DECLARATION,
+        EXPORT_DEFAULT_CLAUSE));
+
+    b.rule(EXPORT_ALL_CLAUSE).is(STAR, FROM_CLAUSE, SEMI);
+    b.rule(EXPORT_DEFAULT_CLAUSE).is(DEFAULT, ASSIGNMENT_EXPRESSION, SEMI);
+    b.rule(EXPORT_LIST_CLAUSE).is(EXPORT_CLAUSE, b.optional(FROM_CLAUSE), SEMI);
+    b.rule(EXPORT_CLAUSE).is(LCURLYBRACE, b.optional(EXPORT_LIST, b.optional(COMMA)), RCURLYBRACE);
+    b.rule(EXPORT_LIST).is(EXPORT_SPECIFIER, b.zeroOrMore(COMMA, EXPORT_SPECIFIER));
+    b.rule(EXPORT_SPECIFIER).is(
+      b.firstOf(
+        IDENTIFIER_REFERENCE,
+        IDENTIFIER_NAME),
+      b.optional(AS, IDENTIFIER_NAME));
+
+    b.rule(IMPORT_DECLARATION).is(b.firstOf(
+      MODULE_IMPORT,
+      SIMPLE_IMPORT,
+      IMPORT_FROM));
+
+    b.rule(MODULE_IMPORT).is(MODULE_WORD, /* no line terminator here */SPACING_NO_LB, NEXT_NOT_LB, BINDING_IDENTIFIER, FROM_CLAUSE, SEMI);
+    b.rule(MODULE_WORD).is(word(b, "module"));
+    b.rule(SIMPLE_IMPORT).is(IMPORT, STRING_LITERAL, SEMI);
+    b.rule(IMPORT_FROM).is(IMPORT, IMPORT_CLAUSE, FROM_CLAUSE, SEMI);
+
+    b.rule(FROM_CLAUSE).is(FROM, STRING_LITERAL);
+    b.rule(FROM).is(word(b, "from"));
+    b.rule(IMPORT_CLAUSE).is(b.firstOf(
+      NAMED_IMPORTS,
+      b.sequence(BINDING_IDENTIFIER, b.optional(COMMA, NAMED_IMPORTS))));
+    b.rule(NAMED_IMPORTS).is(LCURLYBRACE, b.optional(IMPORTS_LIST, b.optional(COMMA)), RCURLYBRACE);
+    b.rule(IMPORTS_LIST).is(IMPORT_SPECIFIER, b.zeroOrMore(COMMA, IMPORT_SPECIFIER));
+    b.rule(IMPORT_SPECIFIER).is(b.optional(IDENTIFIER_NAME, AS), BINDING_IDENTIFIER);
+    b.rule(AS).is(word(b, "as"));
+
     b.rule(DECLARATION).is(b.firstOf(
       FUNCTION_DECLARATION,
       ecmascript6(CLASS_DECLARATION),
@@ -709,6 +799,7 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
     b.rule(LEXICAL_BINDING).is(BINDING_IDENTIFIER ,b.optional(INITIALISER) /* TODO: or BindingPattern Initialiser*/);
     b.rule(LEXICAL_BINDING_NO_IN).is(BINDING_IDENTIFIER ,b.optional(INITIALISER_NO_IN) /* TODO: or BindingPattern Initialiser*/);
     b.rule(BINDING_IDENTIFIER).is(b.firstOf(ecmascript6(DEFAULT), ecmascript6(YIELD), IDENTIFIER)); // TODO: put in expression
+    b.rule(IDENTIFIER_REFERENCE).is(b.firstOf(YIELD, IDENTIFIER));
 
     b.rule(CLASS_DECLARATION).is(CLASS, b.optional(BINDING_IDENTIFIER), CLASS_TAIL);
 
@@ -738,7 +829,7 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
    * A.6 Programs
    */
   private static void programs(LexerlessGrammarBuilder b) {
-    b.rule(SCRIPT).is(b.optional(SHEBANG), b.optional(SCRIPT_BODY), SPACING, EOF);
+    b.rule(SCRIPT).is(b.optional(SHEBANG), b.optional(b.firstOf(SCRIPT_BODY, MODULE)), SPACING, EOF);
     b.rule(SCRIPT_BODY).is(STATEMENT_LIST);
 
     b.rule(SHEBANG).is("#!", b.regexp("[^\\n\\r]*+")).skip();
