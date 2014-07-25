@@ -97,7 +97,7 @@ public class UnusedFunctionArgumentCheck extends SquidCheck<LexerlessGrammar> {
     if (astNode.is(EcmaScriptGrammar.FUNCTION_EXPRESSION, EcmaScriptGrammar.FUNCTION_DECLARATION)) {
       // enter new scope
       currentScope = new Scope(currentScope, astNode);
-    } else if (astNode.is(EcmaScriptGrammar.FORMAL_PARAMETER_LIST)) {
+    } else if (currentScope != null && astNode.is(EcmaScriptGrammar.FORMAL_PARAMETER_LIST)) {
       declareFormalParamList(astNode);
     } else if (currentScope != null && astNode.is(EcmaScriptGrammar.PRIMARY_EXPRESSION)) {
       AstNode identifierNode = astNode.getFirstChild(EcmaScriptTokenType.IDENTIFIER);

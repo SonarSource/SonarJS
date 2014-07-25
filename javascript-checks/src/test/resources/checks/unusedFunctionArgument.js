@@ -49,3 +49,9 @@ function fun(a) {            // OK
 function fun(a, ...b) {     // NOK
   return a;
 }
+
+class C {
+    set  value(value) {
+        this.value = value; // OK
+    }
+}
