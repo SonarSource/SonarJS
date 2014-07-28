@@ -25,23 +25,16 @@ import org.sonar.sslr.parser.LexerlessGrammar;
 
 import static org.sonar.sslr.tests.Assertions.assertThat;
 
-public class PrimaryExpressionTest {
+public class ComprehensionTest {
 
   LexerlessGrammar g = EcmaScriptGrammar.createGrammar();
 
   @Test
-  public void realLife() {
-    assertThat(g.rule(EcmaScriptGrammar.PRIMARY_EXPRESSION))
-        .matches("this")
-        .matches("identifier")
-        .matches("''")
-        .matches("true")
-        .matches("[]")
-        .matches("{}")
-        .matches("class {}")
-        .matches("function * () {}")
-        .matches("(for ( forBinding of assignmentExpression ) assignmentExpression)")
-        .matches("( expression )");
+  public void ok() {
+    assertThat(g.rule(EcmaScriptGrammar.COMPREHENSION))
+        .matches("for ( forBinding of assignmentExpression ) assignmentExpression")
+        .matches("for ( forBinding of assignmentExpression ) if ( condition ) assignmentExpression")
+        .notMatches("if ( condition ) for ( forBinding of assignmentExpression ) assignmentExpression");
   }
 
 }
