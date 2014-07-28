@@ -38,6 +38,7 @@ public class PrimaryExpressionTest {
         .matches("true")
         .matches("[]")
         .matches("{}")
+        .matches("class {}")
         .matches("function * () {}")
         .matches("( expression )");
   }

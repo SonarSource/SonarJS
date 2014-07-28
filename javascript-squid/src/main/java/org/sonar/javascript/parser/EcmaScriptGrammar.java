@@ -221,6 +221,8 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
   COVER_PARENTHESIZED_EXPRESSION_AND_ARROW_PARAMETER_LIST,
   /** ECMAScript 6 **/
   GENERATOR_EXPRESSION,
+  /** ECMAScript 6 **/
+  CLASS_EXPRESSION,
 
   // A.4 Statements
 
@@ -566,8 +568,11 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
         LITERAL,
         ARRAY_LITERAL,
         OBJECT_LITERAL,
+        CLASS_EXPRESSION,
         GENERATOR_EXPRESSION,
         b.sequence(LPARENTHESIS, EXPRESSION, RPARENTHESIS)));
+
+    b.rule(CLASS_EXPRESSION).is(CLASS, b.optional(BINDING_IDENTIFIER), CLASS_TAIL);
     b.rule(GENERATOR_EXPRESSION).is(FUNCTION, STAR, b.optional(BINDING_IDENTIFIER),
       LPARENTHESIS, b.optional(FORMAL_PARAMETER_LIST), RPARENTHESIS, LCURLYBRACE, FUNCTION_BODY, RCURLYBRACE);
     b.rule(ARRAY_LITERAL).is(LBRACKET, b.zeroOrMore(b.firstOf(COMMA, ASSIGNMENT_EXPRESSION)), RBRACKET);
@@ -706,7 +711,7 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
         TRY_STATEMENT,
         DEBUGGER_STATEMENT));
     b.rule(BLOCK).is(LCURLYBRACE, b.optional(STATEMENT_LIST), RCURLYBRACE);
-    b.rule(STATEMENT_LIST).is(b.oneOrMore(b.firstOf(STATEMENT, ecmascript6(DECLARATION))));
+    b.rule(STATEMENT_LIST).is(b.oneOrMore(b.firstOf(ecmascript6(DECLARATION), STATEMENT)));
     b.rule(VARIABLE_STATEMENT).is(VAR, VARIABLE_DECLARATION_LIST, EOS);
     b.rule(VARIABLE_DECLARATION_LIST).is(VARIABLE_DECLARATION, b.zeroOrMore(COMMA, VARIABLE_DECLARATION));
     b.rule(VARIABLE_DECLARATION_LIST_NO_IN).is(VARIABLE_DECLARATION_NO_IN, b.zeroOrMore(COMMA, VARIABLE_DECLARATION_NO_IN));
@@ -852,7 +857,7 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
     b.rule(BINDING_IDENTIFIER).is(b.firstOf(ecmascript6(DEFAULT), ecmascript6(YIELD), IDENTIFIER)); // TODO: put in expression
     b.rule(IDENTIFIER_REFERENCE).is(b.firstOf(YIELD, IDENTIFIER));
 
-    b.rule(CLASS_DECLARATION).is(CLASS, b.optional(BINDING_IDENTIFIER), CLASS_TAIL);
+    b.rule(CLASS_DECLARATION).is(CLASS, BINDING_IDENTIFIER, CLASS_TAIL);
 
     b.rule(CLASS_TAIL).is(b.optional(CLASS_HERITAGE), LCURLYBRACE, b.optional(CLASS_BODY), RCURLYBRACE);
     b.rule(CLASS_HERITAGE).is(EXTENDS, LEFT_HAND_SIDE_EXPRESSION);
