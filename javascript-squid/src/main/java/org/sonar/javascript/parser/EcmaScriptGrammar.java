@@ -237,7 +237,10 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
   COMPREHENSION_FOR,
   /** ECMAScript 6 **/
   COMPREHENSION_IF,
-
+  /** ECMAScript 6 **/
+  ARRAY_COMPREHENSION,
+  /** ECMAScript 6 **/
+  ARRAY_INITIALIZER,
   // A.4 Statements
 
   STATEMENT,
@@ -603,7 +606,11 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
     b.rule(CLASS_EXPRESSION).is(CLASS, b.optional(BINDING_IDENTIFIER), CLASS_TAIL);
     b.rule(GENERATOR_EXPRESSION).is(FUNCTION, STAR, b.optional(BINDING_IDENTIFIER),
       LPARENTHESIS, b.optional(FORMAL_PARAMETER_LIST), RPARENTHESIS, LCURLYBRACE, FUNCTION_BODY, RCURLYBRACE);
+
+    b.rule(ARRAY_INITIALIZER).is(b.firstOf(ARRAY_LITERAL, ARRAY_COMPREHENSION));
     b.rule(ARRAY_LITERAL).is(LBRACKET, b.zeroOrMore(b.firstOf(COMMA, ASSIGNMENT_EXPRESSION)), RBRACKET);
+    b.rule(ARRAY_COMPREHENSION).is(LBRACKET, COMPREHENSION, RBRACKET);
+
     b.rule(OBJECT_LITERAL).is(LCURLYBRACE, b.optional(PROPERTY_ASSIGNMENT, b.zeroOrMore(COMMA, PROPERTY_ASSIGNMENT), b.optional(COMMA)), RCURLYBRACE);
     b.rule(PROPERTY_ASSIGNMENT).is(b.firstOf(
         PAIR_PROPERTY,
