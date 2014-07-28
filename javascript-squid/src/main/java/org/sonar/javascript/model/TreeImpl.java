@@ -98,9 +98,9 @@ public abstract class TreeImpl {
   public static class ParenthesizedTreeImpl extends TreeImpl implements ParenthesizedTree {
     private final ExpressionTree expression;
 
-    public ParenthesizedTreeImpl(AstNode astNode, ExpressionTree expression) {
+    public ParenthesizedTreeImpl(AstNode astNode, @Nullable ExpressionTree expression) {
       super(astNode);
-      this.expression = Preconditions.checkNotNull(expression);
+      this.expression = expression;
     }
 
     public ExpressionTree expression() {

@@ -19,6 +19,8 @@
  */
 package org.sonar.javascript.model;
 
+import javax.annotation.Nullable;
+
 /**
  * <a href="http://www.ecma-international.org/ecma-262/5.1/#sec-11.1.6">Grouping Operator</a>.
  *
@@ -30,6 +32,7 @@ package org.sonar.javascript.model;
  */
 public interface ParenthesizedTree extends ExpressionTree {
 
+  @Nullable
   ExpressionTree expression();
 
 }

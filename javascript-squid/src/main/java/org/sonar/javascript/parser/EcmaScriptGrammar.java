@@ -568,14 +568,20 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
   private static void expressions(LexerlessGrammarBuilder b) {
     b.rule(PRIMARY_EXPRESSION).is(b.firstOf(
         THIS,
-        IDENTIFIER,
+        IDENTIFIER_REFERENCE,
         LITERAL,
         ARRAY_LITERAL,
         OBJECT_LITERAL,
         CLASS_EXPRESSION,
         GENERATOR_EXPRESSION,
-        b.sequence(LPARENTHESIS, EXPRESSION, RPARENTHESIS)));
+        COVER_PARENTHESIZED_EXPRESSION_AND_ARROW_PARAMETER_LIST));
 
+    b.rule(COVER_PARENTHESIZED_EXPRESSION_AND_ARROW_PARAMETER_LIST).is(
+      LPARENTHESIS,
+      b.optional(b.firstOf(
+        REST_PARAMETER,
+        b.sequence(EXPRESSION, b.optional(COMMA, REST_PARAMETER)))),
+      RPARENTHESIS);
     b.rule(CLASS_EXPRESSION).is(CLASS, b.optional(BINDING_IDENTIFIER), CLASS_TAIL);
     b.rule(GENERATOR_EXPRESSION).is(FUNCTION, STAR, b.optional(BINDING_IDENTIFIER),
       LPARENTHESIS, b.optional(FORMAL_PARAMETER_LIST), RPARENTHESIS, LCURLYBRACE, FUNCTION_BODY, RCURLYBRACE);
@@ -682,12 +688,6 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
     b.rule(ARROW_FUNCTION_NO_IN).is(ARROW_PARAMETERS, /* no line terminator here */SPACING_NO_LB, NEXT_NOT_LB, DOUBLEARROW, CONCISE_BODY_NO_IN);
     b.rule(ARROW_PARAMETERS).is(b.firstOf(BINDING_IDENTIFIER, COVER_PARENTHESIZED_EXPRESSION_AND_ARROW_PARAMETER_LIST));
 
-    b.rule(COVER_PARENTHESIZED_EXPRESSION_AND_ARROW_PARAMETER_LIST).is(
-      LPARENTHESIS,
-      b.optional(b.firstOf(
-        REST_PARAMETER,
-        b.sequence(EXPRESSION, b.optional(COMMA, REST_PARAMETER)))),
-      RPARENTHESIS);
     b.rule(CONCISE_BODY).is(b.firstOf(
       b.sequence(LCURLYBRACE, FUNCTION_BODY, RCURLYBRACE),
       b.sequence(b.nextNot(LCURLYBRACE), ASSIGNMENT_EXPRESSION)));

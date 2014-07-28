@@ -100,12 +100,12 @@ public class UnusedFunctionArgumentCheck extends SquidCheck<LexerlessGrammar> {
     } else if (currentScope != null && astNode.is(EcmaScriptGrammar.FORMAL_PARAMETER_LIST)) {
       declareFormalParamList(astNode);
     } else if (currentScope != null && astNode.is(EcmaScriptGrammar.PRIMARY_EXPRESSION)) {
-      AstNode identifierNode = astNode.getFirstChild(EcmaScriptTokenType.IDENTIFIER);
-      if (identifierNode != null) {
-        if ("arguments".equals(identifierNode.getTokenValue())) {
+      AstNode identifierReference = astNode.getFirstChild(EcmaScriptGrammar.IDENTIFIER_REFERENCE);
+      if (identifierReference != null && identifierReference.getFirstChild().is(EcmaScriptTokenType.IDENTIFIER)) {
+        if ("arguments".equals(identifierReference.getTokenValue())) {
           currentScope.useArgumentsArray = true;
         }
-        currentScope.use(identifierNode);
+        currentScope.use(identifierReference.getFirstChild());
       }
     }
   }

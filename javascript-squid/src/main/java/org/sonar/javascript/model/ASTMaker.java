@@ -115,9 +115,11 @@ public final class ASTMaker {
 
     dispatcher.register(new Maker() {
       public ExpressionTree make(AstNode astNode, Trees t) {
-        if (astNode.getNumberOfChildren() > 1) {
+        AstNode primararyChild = astNode.getFirstChild();
+        if (primararyChild.is(EcmaScriptGrammar.COVER_PARENTHESIZED_EXPRESSION_AND_ARROW_PARAMETER_LIST)) {
+          AstNode expression = primararyChild.getFirstChild(EcmaScriptGrammar.EXPRESSION);
           return new TreeImpl.ParenthesizedTreeImpl(astNode,
-            (ExpressionTree) t.get(astNode.getFirstChild(EcmaScriptGrammar.EXPRESSION))
+            expression == null ? null : (ExpressionTree) t.get(expression)
           );
         } else {
           return (ExpressionTree) t.get(astNode.getFirstChild());

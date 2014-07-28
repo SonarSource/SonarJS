@@ -112,9 +112,9 @@ public class UnusedVariableCheck extends SquidCheck<LexerlessGrammar> {
       if (astNode.is(EcmaScriptGrammar.VARIABLE_DECLARATION, EcmaScriptGrammar.VARIABLE_DECLARATION_NO_IN)) {
         currentScope.declare(astNode.getFirstChild(EcmaScriptTokenType.IDENTIFIER), 0);
       } else if (astNode.is(EcmaScriptGrammar.PRIMARY_EXPRESSION)) {
-        AstNode identifierNode = astNode.getFirstChild(EcmaScriptTokenType.IDENTIFIER);
-        if (identifierNode != null) {
-          currentScope.use(identifierNode);
+        AstNode identifierReference = astNode.getFirstChild(EcmaScriptGrammar.IDENTIFIER_REFERENCE);
+        if (identifierReference != null && identifierReference.getFirstChild().is(EcmaScriptTokenType.IDENTIFIER)) {
+          currentScope.use(identifierReference.getFirstChild());
         }
       }
     }

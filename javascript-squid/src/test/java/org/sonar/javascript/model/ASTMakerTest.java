@@ -93,6 +93,7 @@ public class ASTMakerTest {
     assertThat(ASTMaker.create().makeFrom(astNode)).isInstanceOf(LiteralTree.class);
 
     astNode = p.parse("(true);").getFirstDescendant(EcmaScriptGrammar.PRIMARY_EXPRESSION);
+
     ParenthesizedTree tree = (ParenthesizedTree) ASTMaker.create().makeFrom(astNode);
     assertThat(((TreeImpl) tree).astNode).isSameAs(astNode);
     assertThat(tree.expression()).isNotNull();
