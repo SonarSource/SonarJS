@@ -25,21 +25,17 @@ import org.sonar.sslr.parser.LexerlessGrammar;
 
 import static org.sonar.sslr.tests.Assertions.assertThat;
 
-public class PrimaryExpressionTest {
+public class GeneratorExpressionTest {
 
   LexerlessGrammar g = EcmaScriptGrammar.createGrammar();
 
   @Test
-  public void realLife() {
-    assertThat(g.rule(EcmaScriptGrammar.PRIMARY_EXPRESSION))
-        .matches("this")
-        .matches("identifier")
-        .matches("''")
-        .matches("true")
-        .matches("[]")
-        .matches("{}")
-        .matches("function * () {}")
-        .matches("( expression )");
+  public void ok() {
+    assertThat(g.rule(EcmaScriptGrammar.GENERATOR_EXPRESSION))
+      .matches("function * () {}")
+      .matches("function * f() {}")
+      .matches("function * (p1, p2) {}")
+      .matches("function * f (p1, p2) {}");
   }
 
 }

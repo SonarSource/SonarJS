@@ -219,6 +219,8 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
   CONCISE_BODY_NO_IN,
   /** ECMAScript 6 **/
   COVER_PARENTHESIZED_EXPRESSION_AND_ARROW_PARAMETER_LIST,
+  /** ECMAScript 6 **/
+  GENERATOR_EXPRESSION,
 
   // A.4 Statements
 
@@ -564,7 +566,10 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
         LITERAL,
         ARRAY_LITERAL,
         OBJECT_LITERAL,
+        GENERATOR_EXPRESSION,
         b.sequence(LPARENTHESIS, EXPRESSION, RPARENTHESIS)));
+    b.rule(GENERATOR_EXPRESSION).is(FUNCTION, STAR, b.optional(BINDING_IDENTIFIER),
+      LPARENTHESIS, b.optional(FORMAL_PARAMETER_LIST), RPARENTHESIS, LCURLYBRACE, FUNCTION_BODY, RCURLYBRACE);
     b.rule(ARRAY_LITERAL).is(LBRACKET, b.zeroOrMore(b.firstOf(COMMA, ASSIGNMENT_EXPRESSION)), RBRACKET);
     b.rule(OBJECT_LITERAL).is(LCURLYBRACE, b.optional(PROPERTY_ASSIGNMENT, b.zeroOrMore(COMMA, PROPERTY_ASSIGNMENT), b.optional(COMMA)), RCURLYBRACE);
     b.rule(PROPERTY_ASSIGNMENT).is(b.firstOf(
