@@ -25,23 +25,16 @@ import org.sonar.sslr.parser.LexerlessGrammar;
 
 import static org.sonar.sslr.tests.Assertions.assertThat;
 
-public class AssignmentExpressionTest {
+public class YieldExpressionTest {
 
   LexerlessGrammar g = EcmaScriptGrammar.createGrammar();
 
   @Test
   public void ok() {
-    assertThat(g.rule(EcmaScriptGrammar.ASSIGNMENT_EXPRESSION))
-        .matches("conditionalExpression")
-        .matches("yield")
-        .matches("leftHandSideExpression = conditionalExpression")
-        .matches("leftHandSideExpression = leftHandSideExpression = conditionalExpression");
-  }
-
-  @Test
-  public void realLife() {
-    assertThat(g.rule(EcmaScriptGrammar.ASSIGNMENT_EXPRESSION))
-        .matches("this.first = first");
+    assertThat(g.rule(EcmaScriptGrammar.YIELD_EXPRESSION))
+      .matches("yield")
+      .matches("yield assignmentExpression")
+      .matches("yield * assignmentExpression");
   }
 
 }

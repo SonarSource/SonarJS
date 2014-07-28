@@ -223,6 +223,10 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
   GENERATOR_EXPRESSION,
   /** ECMAScript 6 **/
   CLASS_EXPRESSION,
+  /** ECMAScript 6 **/
+  YIELD_EXPRESSION,
+  /** ECMAScript 6 **/
+  YIELD_EXPRESSION_NO_IN,
 
   // A.4 Statements
 
@@ -644,13 +648,14 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
     b.rule(CONDITIONAL_EXPRESSION).is(LOGICAL_OR_EXPRESSION, b.optional(QUERY, ASSIGNMENT_EXPRESSION, COLON, ASSIGNMENT_EXPRESSION)).skipIfOneChild();
     b.rule(CONDITIONAL_EXPRESSION_NO_IN).is(LOGICAL_OR_EXPRESSION_NO_IN, b.optional(QUERY, ASSIGNMENT_EXPRESSION, COLON, ASSIGNMENT_EXPRESSION_NO_IN)).skipIfOneChild();
 
-    b.rule(ES6_ASSIGNMENT_EXPRESSION).is(ARROW_FUNCTION);
-    b.rule(ES6_ASSIGNMENT_EXPRESSION_NO_IN).is(ARROW_FUNCTION_NO_IN);
+    b.rule(ES6_ASSIGNMENT_EXPRESSION).is(b.firstOf(YIELD_EXPRESSION, ARROW_FUNCTION));
+    b.rule(ES6_ASSIGNMENT_EXPRESSION_NO_IN).is(b.firstOf(YIELD_EXPRESSION_NO_IN, ARROW_FUNCTION_NO_IN));
 
     b.rule(ASSIGNMENT_EXPRESSION).is(b.firstOf(
         b.sequence(LEFT_HAND_SIDE_EXPRESSION, ASSIGNMENT_OPERATOR, ASSIGNMENT_EXPRESSION),
         CONDITIONAL_EXPRESSION,
-        ES6_ASSIGNMENT_EXPRESSION)).skipIfOneChild();
+        // Assignment_expression_no_yield might be needed, because of identifier_reference that can be "yield" (see ES6 spec).
+        ecmascript6(ES6_ASSIGNMENT_EXPRESSION))).skipIfOneChild();
     b.rule(ASSIGNMENT_EXPRESSION_NO_IN).is(b.firstOf(
         b.sequence(LEFT_HAND_SIDE_EXPRESSION, ASSIGNMENT_OPERATOR, ASSIGNMENT_EXPRESSION_NO_IN),
         CONDITIONAL_EXPRESSION_NO_IN,
@@ -670,9 +675,13 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
         XOR_EQU,
         OR_EQU)).skip();
 
+    b.rule(YIELD_EXPRESSION).is(YIELD, b.optional(/* no line terminator here */SPACING_NO_LB, NEXT_NOT_LB, b.optional(STAR), ASSIGNMENT_EXPRESSION));
+    b.rule(YIELD_EXPRESSION_NO_IN).is(YIELD, b.optional(/* no line terminator here */SPACING_NO_LB, NEXT_NOT_LB, b.optional(STAR), ASSIGNMENT_EXPRESSION_NO_IN));
+
     b.rule(ARROW_FUNCTION).is(ARROW_PARAMETERS, /* no line terminator here */SPACING_NO_LB, NEXT_NOT_LB, DOUBLEARROW, CONCISE_BODY);
     b.rule(ARROW_FUNCTION_NO_IN).is(ARROW_PARAMETERS, /* no line terminator here */SPACING_NO_LB, NEXT_NOT_LB, DOUBLEARROW, CONCISE_BODY_NO_IN);
     b.rule(ARROW_PARAMETERS).is(b.firstOf(BINDING_IDENTIFIER, COVER_PARENTHESIZED_EXPRESSION_AND_ARROW_PARAMETER_LIST));
+
     b.rule(COVER_PARENTHESIZED_EXPRESSION_AND_ARROW_PARAMETER_LIST).is(
       LPARENTHESIS,
       b.optional(b.firstOf(
