@@ -25,16 +25,15 @@ import org.sonar.sslr.parser.LexerlessGrammar;
 
 import static org.sonar.sslr.tests.Assertions.assertThat;
 
-public class DeclarationTest {
+public class GeneratorDeclarationTest {
 
   LexerlessGrammar g = EcmaScriptGrammar.createGrammar();
 
   @Test
   public void ok() {
-    assertThat(g.rule(EcmaScriptGrammar.DECLARATION))
-      .matches("function f() {}")
+    assertThat(g.rule(EcmaScriptGrammar.GENERATOR_DECLARATION))
       .matches("function * f() {}")
-      .matches("let a = 1");
+      .matches("function * f (p1, p2) {}");
   }
 
 }

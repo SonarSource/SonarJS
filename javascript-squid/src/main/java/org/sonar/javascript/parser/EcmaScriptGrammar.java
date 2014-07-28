@@ -368,6 +368,8 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
   EXPORT_LIST,
   /** ECMAScript 6 **/
   EXPORT_SPECIFIER,
+  /** ECMAScript 6 **/
+  GENERATOR_DECLARATION,
 
   // A.6 Programs
 
@@ -816,8 +818,10 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
 
     b.rule(DECLARATION).is(b.firstOf(
       FUNCTION_DECLARATION,
+      ecmascript6(GENERATOR_DECLARATION),
       ecmascript6(CLASS_DECLARATION),
       ecmascript6(LEXICAL_DECLARATION)));
+
     b.rule(FUNCTION_DECLARATION).is(FUNCTION, IDENTIFIER, LPARENTHESIS, b.optional(FORMAL_PARAMETER_LIST), RPARENTHESIS, LCURLYBRACE, FUNCTION_BODY, RCURLYBRACE);
     b.rule(FUNCTION_EXPRESSION).is(FUNCTION, b.optional(IDENTIFIER), LPARENTHESIS, b.optional(FORMAL_PARAMETER_LIST), RPARENTHESIS, LCURLYBRACE, FUNCTION_BODY, RCURLYBRACE);
     b.rule(FORMAL_PARAMETER_LIST).is(b.firstOf(
@@ -827,6 +831,9 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
     b.rule(FORMAL_PARAMETER).is(BINDING_IDENTIFIER, ecmascript6(b.optional(INITIALISER)));  // TODO: BindingPattern
 
     b.rule(FUNCTION_BODY).is(b.optional(STATEMENT_LIST));
+
+    b.rule(GENERATOR_DECLARATION).is(FUNCTION, STAR, BINDING_IDENTIFIER,
+      LPARENTHESIS, b.optional(FORMAL_PARAMETER_LIST), RPARENTHESIS, LCURLYBRACE, FUNCTION_BODY, RCURLYBRACE);
 
     b.rule(LEXICAL_DECLARATION).is(LET_OR_CONST, BINDING_LIST);
     b.rule(LEXICAL_DECLARATION_NO_IN).is(LET_OR_CONST, BINDING_LIST_NO_IN);
