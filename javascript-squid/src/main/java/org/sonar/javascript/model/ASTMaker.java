@@ -146,7 +146,7 @@ public final class ASTMaker {
     dispatcher.register(new Maker() {
       public ObjectLiteralTree make(AstNode astNode, Trees t) {
         ImmutableList.Builder<PropertyAssignmentTree> list = ImmutableList.builder();
-        for (AstNode propertyAssignment : astNode.getChildren(EcmaScriptGrammar.PROPERTY_ASSIGNMENT)) {
+        for (AstNode propertyAssignment : astNode.getChildren(EcmaScriptGrammar.PROPERTY_DEFINITION)) {
           list.add((PropertyAssignmentTree) t.get(propertyAssignment));
         }
         return new TreeImpl.ObjectLiteralTreeImpl(astNode,
@@ -180,7 +180,7 @@ public final class ASTMaker {
           );
         }
       }
-    }, EcmaScriptGrammar.PROPERTY_ASSIGNMENT);
+    }, EcmaScriptGrammar.PROPERTY_DEFINITION);
 
     dispatcher.register(new Maker() {
       public ExpressionTree make(AstNode astNode, Trees t) {

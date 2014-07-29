@@ -45,7 +45,7 @@ public class DuplicatePropertyNameCheck extends SquidCheck<LexerlessGrammar> {
   @Override
   public void visitNode(AstNode astNode) {
     Set<String> values = Sets.newHashSet();
-    List<AstNode> propertyAssignments = astNode.getChildren(EcmaScriptGrammar.PROPERTY_ASSIGNMENT);
+    List<AstNode> propertyAssignments = astNode.getChildren(EcmaScriptGrammar.PROPERTY_DEFINITION);
     for (AstNode propertyAssignment : propertyAssignments) {
       AstNode propertyName = getPropertyName(propertyAssignment);
       String value = propertyName.getTokenValue();

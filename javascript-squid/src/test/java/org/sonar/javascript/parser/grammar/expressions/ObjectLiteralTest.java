@@ -33,7 +33,9 @@ public class ObjectLiteralTest {
   public void ok() {
     assertThat(g.rule(EcmaScriptGrammar.OBJECT_LITERAL))
         .matches("{ }")
-        .matches("{ propertyName : assignmentExpression }")
+        .matches("{ propertyName , }")
+        .matches("{ propertyName = 1 , }")
+        .matches("{ propertyName : assignmentExpression , }")
         .matches("{ propertyName : assignmentExpression , }")
         .matches("{ propertyName : assignmentExpression , propertyName : assignmentExpression }")
         .matches("{ propertyName : assignmentExpression , propertyName : assignmentExpression , }");

@@ -123,21 +123,21 @@ public class ASTMakerTest {
   @Test
   public void propertyAssignment() {
     // property
-    AstNode astNode = p.parse("a = { p : 42 };").getFirstDescendant(EcmaScriptGrammar.PROPERTY_ASSIGNMENT);
+    AstNode astNode = p.parse("a = { p : 42 };").getFirstDescendant(EcmaScriptGrammar.PROPERTY_DEFINITION);
     PropertyAssignmentTree tree = (PropertyAssignmentTree) ASTMaker.create().makeFrom(astNode);
     assertThat(tree.propertyName()).isNotNull();
     assertThat(tree.expression()).isNotNull();
     assertThat(tree.propertySetParameters()).isNull();
     assertThat(tree.body()).isNull();
     // getter
-    astNode = p.parse("a = { get p() {} };").getFirstDescendant(EcmaScriptGrammar.PROPERTY_ASSIGNMENT);
+    astNode = p.parse("a = { get p() {} };").getFirstDescendant(EcmaScriptGrammar.PROPERTY_DEFINITION);
     tree = (PropertyAssignmentTree) ASTMaker.create().makeFrom(astNode);
     assertThat(tree.propertyName()).isNotNull();
     assertThat(tree.expression()).isNull();
     assertThat(tree.propertySetParameters()).isNull();
     assertThat(tree.body()).isNotNull();
     // setter
-    astNode = p.parse("a = { set p(v) {} };").getFirstDescendant(EcmaScriptGrammar.PROPERTY_ASSIGNMENT);
+    astNode = p.parse("a = { set p(v) {} };").getFirstDescendant(EcmaScriptGrammar.PROPERTY_DEFINITION);
     tree = (PropertyAssignmentTree) ASTMaker.create().makeFrom(astNode);
     assertThat(tree.propertyName()).isNotNull();
     assertThat(tree.expression()).isNull();
