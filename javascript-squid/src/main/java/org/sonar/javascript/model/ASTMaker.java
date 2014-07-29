@@ -25,7 +25,6 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Maps;
 import com.sonar.sslr.api.AstNode;
 import com.sonar.sslr.api.AstNodeType;
-import com.sonar.sslr.impl.ast.AstXmlPrinter;
 import org.sonar.javascript.api.EcmaScriptKeyword;
 import org.sonar.javascript.api.EcmaScriptPunctuator;
 import org.sonar.javascript.api.EcmaScriptTokenType;
@@ -130,9 +129,12 @@ public final class ASTMaker {
     dispatcher.register(new Maker() {
       public ArrayLiteralTree make(AstNode astNode, Trees t) {
         ImmutableList.Builder list = ImmutableList.builder();
-        for (int i = 1; i < astNode.getNumberOfChildren() - 1; i++) {
-          if (!astNode.getChild(i).is(EcmaScriptPunctuator.COMMA)) {
-            list.add(t.get(astNode.getChild(i)));
+        AstNode elementList = astNode.getFirstChild(EcmaScriptGrammar.ELEMENT_LIST);
+        if (elementList != null) {
+          for (AstNode arrayElement : elementList.getChildren(EcmaScriptGrammar.ARRAY_INITIALIZER_ELEMENT)) {
+            if (arrayElement.isNot(EcmaScriptGrammar.SPREAD_ELEMENT)) {
+              list.add(t.get(arrayElement.getFirstChild()));
+            }
           }
         }
         return new TreeImpl.ArrayLiteralTreeImpl(astNode,

@@ -241,6 +241,15 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
   ARRAY_COMPREHENSION,
   /** ECMAScript 6 **/
   ARRAY_INITIALIZER,
+  /** ECMAScript 6 **/
+  ARRAY_INITIALIZER_ELEMENT,
+  /** ECMAScript 6 **/
+  SPREAD_ELEMENT,
+  /** ECMAScript 6 **/
+  ELISION,
+  /** ECMAScript 6 **/
+  ELEMENT_LIST,
+
   // A.4 Statements
 
   STATEMENT,
@@ -583,7 +592,7 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
         THIS,
         IDENTIFIER_REFERENCE,
         LITERAL,
-        ARRAY_LITERAL,
+        ARRAY_INITIALIZER,
         OBJECT_LITERAL,
         CLASS_EXPRESSION,
         GENERATOR_EXPRESSION,
@@ -608,7 +617,18 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
       LPARENTHESIS, b.optional(FORMAL_PARAMETER_LIST), RPARENTHESIS, LCURLYBRACE, FUNCTION_BODY, RCURLYBRACE);
 
     b.rule(ARRAY_INITIALIZER).is(b.firstOf(ARRAY_LITERAL, ARRAY_COMPREHENSION));
-    b.rule(ARRAY_LITERAL).is(LBRACKET, b.zeroOrMore(b.firstOf(COMMA, ASSIGNMENT_EXPRESSION)), RBRACKET);
+    b.rule(ARRAY_LITERAL).is(
+      LBRACKET,
+      b.optional(b.firstOf(
+        ELISION,
+        b.sequence(ELEMENT_LIST, b.optional(COMMA, b.optional(ELISION))))),
+      RBRACKET);
+
+    b.rule(ELEMENT_LIST).is(b.optional(ELISION), ARRAY_INITIALIZER_ELEMENT,  b.zeroOrMore(COMMA, b.optional(ELISION), ARRAY_INITIALIZER_ELEMENT));
+    b.rule(ARRAY_INITIALIZER_ELEMENT).is(b.firstOf(SPREAD_ELEMENT, ASSIGNMENT_EXPRESSION));
+    b.rule(ELISION).is(b.oneOrMore(COMMA));
+    b.rule(SPREAD_ELEMENT).is(ELLIPSIS, ASSIGNMENT_EXPRESSION);
+
     b.rule(ARRAY_COMPREHENSION).is(LBRACKET, COMPREHENSION, RBRACKET);
 
     b.rule(OBJECT_LITERAL).is(LCURLYBRACE, b.optional(PROPERTY_ASSIGNMENT, b.zeroOrMore(COMMA, PROPERTY_ASSIGNMENT), b.optional(COMMA)), RCURLYBRACE);

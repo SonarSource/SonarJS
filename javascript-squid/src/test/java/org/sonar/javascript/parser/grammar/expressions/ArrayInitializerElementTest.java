@@ -25,22 +25,15 @@ import org.sonar.sslr.parser.LexerlessGrammar;
 
 import static org.sonar.sslr.tests.Assertions.assertThat;
 
-public class ArrayLiteralTest {
+public class ArrayInitializerElementTest {
 
   LexerlessGrammar g = EcmaScriptGrammar.createGrammar();
 
   @Test
   public void ok() {
-    assertThat(g.rule(EcmaScriptGrammar.ARRAY_LITERAL))
-        .matches("[ ]")
-        .matches("[ assignmentExpression ]")
-        .matches("[ assignmentExpression , ]")
-        .matches("[ assignmentExpression , assignmentExpression ]")
-        .matches("[ assignmentExpression , assignmentExpression , ]");
-
-    assertThat(g.rule(EcmaScriptGrammar.ARRAY_LITERAL))
-        .matches("[ , , , ]")
-        .matches("[ assignmentExpression , , , ]");
+    assertThat(g.rule(EcmaScriptGrammar.ARRAY_INITIALIZER_ELEMENT))
+        .matches("assignmentExpression")
+        .matches("... assignmentExpression");
   }
 
 }
