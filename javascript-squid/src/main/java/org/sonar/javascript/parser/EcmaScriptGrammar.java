@@ -252,6 +252,17 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
   ELISION,
   /** ECMAScript 6 **/
   ELEMENT_LIST,
+  BINDING_REST_ELEMENT,
+  SINGLE_NAME_BINDING,
+  BINDING_ELEMENT,
+  BINDING_PROPERTY,
+  BINDING_ELISION_ELEMENT,
+  BINDING_ELEMENT_LIST,
+  BINDING_PROPERTY_LIST,
+  ARRAY_BINDING_PATTERN,
+  OBJECT_BINDING_PATTERN,
+  BINDING_PATTERN,
+
 
   // A.4 Statements
 
@@ -295,6 +306,7 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
   THROW_STATEMENT,
   TRY_STATEMENT,
   CATCH,
+  CATCH_PARAMETER,
   FINALLY,
   DEBUGGER_STATEMENT,
 
@@ -324,6 +336,14 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
   LEXICAL_BINDING,
   /** ECMAScript 6 **/
   LEXICAL_BINDING_NO_IN,
+  /** ECMAScript 6 **/
+  BINDING_IDENTIFIER_INITIALISER,
+  /** ECMAScript 6 **/
+  BINDING_IDENTIFIER_INITIALISER_NO_IN,
+  /** ECMAScript 6 **/
+  BINDING_PATTERN_INITIALISER,
+  /** ECMAScript 6 **/
+  BINDING_PATTERN_INITIALISER_NO_IN,
   /** ECMAScript 6 **/
   BINDING_IDENTIFIER,
   /** ECMAScript 6 **/
@@ -607,7 +627,30 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
     b.rule(COMPREHENSION_TAIL).is(b.zeroOrMore(b.firstOf(COMPREHENSION_FOR, COMPREHENSION_IF)), ASSIGNMENT_EXPRESSION);
     b.rule(COMPREHENSION_FOR).is(FOR, LPARENTHESIS, FOR_BINDING, OF, ASSIGNMENT_EXPRESSION, RPARENTHESIS);
     b.rule(COMPREHENSION_IF).is(IF, LPARENTHESIS, ASSIGNMENT_EXPRESSION, RPARENTHESIS);
-    b.rule(FOR_BINDING).is(BINDING_IDENTIFIER /*TODO: add option BindingPattern */);
+    b.rule(FOR_BINDING).is(b.firstOf(BINDING_IDENTIFIER, BINDING_PATTERN));
+
+    b.rule(BINDING_PATTERN).is(b.firstOf(OBJECT_BINDING_PATTERN, ARRAY_BINDING_PATTERN));
+
+    b.rule(OBJECT_BINDING_PATTERN).is(LCURLYBRACE, b.optional(BINDING_PROPERTY_LIST, b.optional(COMMA)), RCURLYBRACE);
+    b.rule(BINDING_PROPERTY_LIST).is(BINDING_PROPERTY, b.zeroOrMore(COMMA, BINDING_PROPERTY));
+    b.rule(BINDING_PROPERTY).is(b.firstOf(
+      b.sequence(PROPERTY_NAME, COLON, BINDING_ELEMENT),
+      SINGLE_NAME_BINDING));
+
+    b.rule(ARRAY_BINDING_PATTERN).is(
+      LBRACKET,
+      b.optional(b.firstOf(
+        b.sequence(BINDING_ELEMENT_LIST, b.optional(COMMA, b.optional(ELISION), b.optional(BINDING_REST_ELEMENT))),
+        b.sequence(b.optional(ELISION), b.optional(BINDING_REST_ELEMENT)))),
+      RBRACKET);
+    b.rule(BINDING_ELEMENT_LIST).is(BINDING_ELISION_ELEMENT, b.zeroOrMore(COMMA, BINDING_ELISION_ELEMENT));
+    b.rule(BINDING_ELISION_ELEMENT).is(b.optional(ELISION), BINDING_ELEMENT);
+
+    b.rule(BINDING_ELEMENT).is(b.firstOf(
+      SINGLE_NAME_BINDING,
+      b.sequence(BINDING_PATTERN, b.optional(INITIALISER))));
+    b.rule(SINGLE_NAME_BINDING).is(BINDING_IDENTIFIER, b.optional(INITIALISER));
+    b.rule(BINDING_REST_ELEMENT).is(ELLIPSIS, BINDING_IDENTIFIER);
 
     b.rule(COVER_PARENTHESIZED_EXPRESSION_AND_ARROW_PARAMETER_LIST).is(
       LPARENTHESIS,
@@ -775,8 +818,8 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
     b.rule(VARIABLE_STATEMENT).is(VAR, VARIABLE_DECLARATION_LIST, EOS);
     b.rule(VARIABLE_DECLARATION_LIST).is(VARIABLE_DECLARATION, b.zeroOrMore(COMMA, VARIABLE_DECLARATION));
     b.rule(VARIABLE_DECLARATION_LIST_NO_IN).is(VARIABLE_DECLARATION_NO_IN, b.zeroOrMore(COMMA, VARIABLE_DECLARATION_NO_IN));
-    b.rule(VARIABLE_DECLARATION).is(IDENTIFIER, b.optional(INITIALISER));
-    b.rule(VARIABLE_DECLARATION_NO_IN).is(IDENTIFIER, b.optional(INITIALISER_NO_IN));
+    b.rule(VARIABLE_DECLARATION).is(b.firstOf(BINDING_IDENTIFIER_INITIALISER, BINDING_PATTERN_INITIALISER));
+    b.rule(VARIABLE_DECLARATION_NO_IN).is(b.firstOf(BINDING_IDENTIFIER_INITIALISER_NO_IN, BINDING_PATTERN_INITIALISER_NO_IN));
     b.rule(INITIALISER).is(EQU, ASSIGNMENT_EXPRESSION);
     b.rule(INITIALISER_NO_IN).is(EQU, ASSIGNMENT_EXPRESSION_NO_IN);
     b.rule(EMPTY_STATEMENT).is(SEMI);
@@ -795,7 +838,7 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
     b.rule(FOR_IN_STATEMENT).is(
       FOR, LPARENTHESIS,
       b.firstOf(
-        b.sequence(VAR, b.firstOf(VARIABLE_DECLARATION_LIST_NO_IN, ecmascript6(FOR_BINDING)) /* TODO: test ForBinding */),
+        b.sequence(VAR, b.firstOf(VARIABLE_DECLARATION_LIST_NO_IN, ecmascript6(FOR_BINDING))),
         b.sequence(ecmascript6(b.nextNot(LET, LBRACKET)), LEFT_HAND_SIDE_EXPRESSION),
         ecmascript6(FOR_DECLARATION)),
       IN, EXPRESSION, RPARENTHESIS, STATEMENT);
@@ -833,7 +876,8 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
     b.rule(LABELLED_STATEMENT).is(IDENTIFIER, COLON, STATEMENT);
     b.rule(THROW_STATEMENT).is(THROW, /* no line terminator here */SPACING_NO_LB, NEXT_NOT_LB, EXPRESSION, EOS);
     b.rule(TRY_STATEMENT).is(TRY, BLOCK, b.firstOf(b.sequence(CATCH, b.optional(FINALLY)), FINALLY));
-    b.rule(CATCH).is(EcmaScriptKeyword.CATCH, LPARENTHESIS, IDENTIFIER, RPARENTHESIS, BLOCK);
+    b.rule(CATCH).is(EcmaScriptKeyword.CATCH, LPARENTHESIS, CATCH_PARAMETER, RPARENTHESIS, BLOCK);
+    b.rule(CATCH_PARAMETER).is(b.firstOf(BINDING_IDENTIFIER, BINDING_PATTERN));
     b.rule(FINALLY).is(EcmaScriptKeyword.FINALLY, BLOCK);
     b.rule(DEBUGGER_STATEMENT).is(DEBUGGER, EOS);
   }
@@ -896,8 +940,8 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
     b.rule(FORMAL_PARAMETER_LIST).is(b.firstOf(
         b.sequence(FORMAL_PARAMETER, b.zeroOrMore(COMMA, FORMAL_PARAMETER), ecmascript6(b.optional(COMMA, REST_PARAMETER))),
         ecmascript6(REST_PARAMETER)));
-    b.rule(REST_PARAMETER).is(ELLIPSIS, BINDING_IDENTIFIER);
-    b.rule(FORMAL_PARAMETER).is(BINDING_IDENTIFIER, ecmascript6(b.optional(INITIALISER)));  // TODO: BindingPattern
+    b.rule(REST_PARAMETER).is(BINDING_REST_ELEMENT);
+    b.rule(FORMAL_PARAMETER).is(BINDING_ELEMENT);
 
     b.rule(FUNCTION_BODY).is(b.optional(STATEMENT_LIST));
 
@@ -911,8 +955,12 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
     b.rule(BINDING_LIST).is(LEXICAL_BINDING, b.zeroOrMore(COMMA, LEXICAL_BINDING));
     b.rule(BINDING_LIST_NO_IN).is(LEXICAL_BINDING_NO_IN, b.zeroOrMore(COMMA, LEXICAL_BINDING_NO_IN));
     // TODO: try factorise with variable declaration
-    b.rule(LEXICAL_BINDING).is(BINDING_IDENTIFIER ,b.optional(INITIALISER) /* TODO: or BindingPattern Initialiser*/);
-    b.rule(LEXICAL_BINDING_NO_IN).is(BINDING_IDENTIFIER ,b.optional(INITIALISER_NO_IN) /* TODO: or BindingPattern Initialiser*/);
+    b.rule(LEXICAL_BINDING).is(b.firstOf(BINDING_IDENTIFIER_INITIALISER, BINDING_PATTERN_INITIALISER));
+    b.rule(LEXICAL_BINDING_NO_IN).is(b.firstOf(BINDING_IDENTIFIER_INITIALISER_NO_IN, BINDING_PATTERN_INITIALISER_NO_IN));
+    b.rule(BINDING_IDENTIFIER_INITIALISER).is(BINDING_IDENTIFIER, b.optional(INITIALISER));
+    b.rule(BINDING_IDENTIFIER_INITIALISER_NO_IN).is(BINDING_IDENTIFIER, b.optional(INITIALISER_NO_IN));
+    b.rule(BINDING_PATTERN_INITIALISER).is(BINDING_PATTERN, INITIALISER);
+    b.rule(BINDING_PATTERN_INITIALISER_NO_IN).is(BINDING_PATTERN, INITIALISER_NO_IN);
     b.rule(BINDING_IDENTIFIER).is(b.firstOf(ecmascript6(DEFAULT), ecmascript6(YIELD), IDENTIFIER)); // TODO: put in expression
     b.rule(IDENTIFIER_REFERENCE).is(b.firstOf(YIELD, IDENTIFIER));
 

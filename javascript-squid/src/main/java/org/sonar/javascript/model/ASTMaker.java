@@ -354,7 +354,7 @@ public final class ASTMaker {
     dispatcher.register(new Maker() {
       public Tree make(AstNode astNode, Trees t) {
         return new TreeImpl.VariableDeclarationTreeImpl(astNode,
-          (IdentifierTree) t.get(astNode.getFirstChild(EcmaScriptTokenType.IDENTIFIER)),
+          (IdentifierTree) t.get(astNode.getFirstDescendant(EcmaScriptTokenType.IDENTIFIER)),
           (ExpressionTree) t.get(astNode.getFirstChild(EcmaScriptGrammar.INITIALISER))
         );
       }
@@ -363,7 +363,7 @@ public final class ASTMaker {
     dispatcher.register(new Maker() {
       public Tree make(AstNode astNode, Trees t) {
         return new TreeImpl.VariableDeclarationTreeImpl(astNode,
-          (IdentifierTree) t.get(astNode.getFirstChild(EcmaScriptTokenType.IDENTIFIER)),
+          (IdentifierTree) t.get(astNode.getFirstDescendant(EcmaScriptTokenType.IDENTIFIER)),
           (ExpressionTree) t.get(astNode.getFirstChild(EcmaScriptGrammar.INITIALISER_NO_IN))
         );
       }
@@ -547,7 +547,7 @@ public final class ASTMaker {
     dispatcher.register(new Maker() {
       public Tree make(AstNode astNode, Trees t) {
         return new TreeImpl.CatchBlockTreeImpl(astNode,
-          (IdentifierTree) t.get(astNode.getFirstChild(EcmaScriptTokenType.IDENTIFIER)),
+          (IdentifierTree) t.get(astNode.getFirstDescendant(EcmaScriptTokenType.IDENTIFIER)),
           (BlockTree) t.get(astNode.getFirstChild(EcmaScriptGrammar.BLOCK))
         );
       }

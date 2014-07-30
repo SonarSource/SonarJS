@@ -25,6 +25,7 @@ import org.sonar.check.BelongsToProfile;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.javascript.api.EcmaScriptTokenType;
+import org.sonar.javascript.checks.utils.CheckUtils;
 import org.sonar.javascript.parser.EcmaScriptGrammar;
 import org.sonar.squidbridge.checks.SquidCheck;
 import org.sonar.sslr.parser.LexerlessGrammar;
@@ -46,19 +47,8 @@ public class DuplicateFunctionArgumentCheck extends SquidCheck<LexerlessGrammar>
   public void visitNode(AstNode astNode) {
     Set<String> values = Sets.newHashSet();
 
-
-    for (AstNode formalP : astNode.getChildren(EcmaScriptGrammar.FORMAL_PARAMETER)) {
-      AstNode identifier = formalP.getFirstChild(EcmaScriptGrammar.BINDING_IDENTIFIER).getFirstChild(EcmaScriptTokenType.IDENTIFIER);
-      if (identifier != null) {
-        String value = identifier.getTokenValue();
-        checkIdentifier(identifier, value, values);
-      }
-    }
-
-    AstNode restParam = astNode.getFirstChild(EcmaScriptGrammar.REST_PARAMETER);
-    if (restParam != null) {
-      String value = restParam.getFirstChild(EcmaScriptGrammar.BINDING_IDENTIFIER).getFirstChild(EcmaScriptTokenType.IDENTIFIER).getTokenValue();
-      checkIdentifier(restParam, value, values);
+    for (AstNode identifier : CheckUtils.getParametersIdentifier(astNode)) {
+      checkIdentifier(identifier, identifier.getTokenValue(), values);
     }
   }
 

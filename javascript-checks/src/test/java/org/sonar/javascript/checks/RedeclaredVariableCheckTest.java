@@ -39,6 +39,9 @@ public class RedeclaredVariableCheckTest {
         .next().atLine(12).withMessage("Rename variable 'i' as this name is already used.")
         .next().atLine(19).withMessage("Rename variable 'b' as this name is already used.")
         .next().atLine(23).withMessage("Rename variable 'a' as this name is already used.")
+        .next().atLine(27).withMessage("Rename variable 'a' as this name is already used.")
+        .next().atLine(28).withMessage("Rename variable 'c' as this name is already used.")
+        .next().atLine(33).withMessage("Rename variable 'b' as this name is already used.")
         .noMore();
   }
 

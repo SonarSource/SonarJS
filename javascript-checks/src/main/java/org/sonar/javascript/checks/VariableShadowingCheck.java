@@ -28,11 +28,11 @@ import com.sonar.sslr.impl.ast.AstWalker;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.javascript.api.EcmaScriptTokenType;
+import org.sonar.javascript.checks.utils.CheckUtils;
 import org.sonar.javascript.parser.EcmaScriptGrammar;
 import org.sonar.squidbridge.checks.SquidCheck;
 import org.sonar.sslr.parser.LexerlessGrammar;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -92,11 +92,9 @@ public class VariableShadowingCheck extends SquidCheck<LexerlessGrammar> {
       // enter new scope
       currentScope = scopes.get(astNode);
     } else if (astNode.is(EcmaScriptGrammar.FORMAL_PARAMETER_LIST)) {
-      for (AstNode identifier : getIdentifiers(astNode)) {
-        check(identifier);
-      }
+      checkIdentifiers(CheckUtils.getParametersIdentifier(astNode));
     } else if (astNode.is(EcmaScriptGrammar.VARIABLE_DECLARATION, EcmaScriptGrammar.VARIABLE_DECLARATION_NO_IN)) {
-      check(astNode.getFirstChild(EcmaScriptTokenType.IDENTIFIER));
+      checkIdentifiers(CheckUtils.getVariableIdentifiers(astNode));
     }
   }
 
@@ -127,22 +125,10 @@ public class VariableShadowingCheck extends SquidCheck<LexerlessGrammar> {
     scopes = null;
   }
 
-  private static List<AstNode> getIdentifiers(AstNode astNode) {
-    List<AstNode> identifiers = new ArrayList<AstNode>();
-
-    for (AstNode formalP : astNode.getChildren(EcmaScriptGrammar.FORMAL_PARAMETER)) {
-      AstNode identifier = formalP.getFirstChild(EcmaScriptGrammar.BINDING_IDENTIFIER).getFirstChild(EcmaScriptTokenType.IDENTIFIER);
-      if (identifier != null) {
-        identifiers.add(identifier);
-      }
+  private void checkIdentifiers(List<AstNode> identifiers) {
+    for (AstNode identifier : identifiers) {
+      check(identifier);
     }
-
-    AstNode restParam = astNode.getFirstChild(EcmaScriptGrammar.REST_PARAMETER);
-    if (restParam != null) {
-      identifiers.add(restParam.getFirstChild(EcmaScriptGrammar.BINDING_IDENTIFIER).getFirstChild(EcmaScriptTokenType.IDENTIFIER));
-    }
-
-    return identifiers;
   }
 
   private class InnerVisitor implements AstVisitor {
@@ -151,7 +137,7 @@ public class VariableShadowingCheck extends SquidCheck<LexerlessGrammar> {
 
     public List<AstNodeType> getAstNodeTypesToVisit() {
       return Arrays.asList((AstNodeType)
-        EcmaScriptGrammar.FUNCTION_EXPRESSION,
+          EcmaScriptGrammar.FUNCTION_EXPRESSION,
         EcmaScriptGrammar.FUNCTION_DECLARATION,
         EcmaScriptGrammar.VARIABLE_DECLARATION,
         EcmaScriptGrammar.VARIABLE_DECLARATION_NO_IN,
@@ -171,11 +157,15 @@ public class VariableShadowingCheck extends SquidCheck<LexerlessGrammar> {
         currentScope = new Scope(currentScope);
         scopes.put(astNode, currentScope);
       } else if (astNode.is(EcmaScriptGrammar.FORMAL_PARAMETER_LIST)) {
-        for (AstNode identifierNode : getIdentifiers(astNode)) {
-          currentScope.declare(identifierNode);
-        }
+        declareInCurrentScope(CheckUtils.getParametersIdentifier(astNode));
       } else if (astNode.is(EcmaScriptGrammar.VARIABLE_DECLARATION, EcmaScriptGrammar.VARIABLE_DECLARATION_NO_IN)) {
-        currentScope.declare(astNode.getFirstChild(EcmaScriptTokenType.IDENTIFIER));
+        declareInCurrentScope(CheckUtils.getVariableIdentifiers(astNode));
+      }
+    }
+
+    private void declareInCurrentScope(List<AstNode> identifiers) {
+      for (AstNode identifier : identifiers) {
+        currentScope.declare(identifier);
       }
     }
 

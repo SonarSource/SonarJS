@@ -16,5 +16,7 @@ function fun3(
 ) {}
 
 function fun4(a, ...a) { // NOK
+}
 
+function fun5({a, b:{a}}) {  // NOK
 }

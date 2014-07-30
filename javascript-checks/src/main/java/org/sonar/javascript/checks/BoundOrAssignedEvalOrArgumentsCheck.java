@@ -25,9 +25,12 @@ import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.javascript.api.EcmaScriptPunctuator;
 import org.sonar.javascript.api.EcmaScriptTokenType;
+import org.sonar.javascript.checks.utils.CheckUtils;
 import org.sonar.javascript.parser.EcmaScriptGrammar;
 import org.sonar.squidbridge.checks.SquidCheck;
 import org.sonar.sslr.parser.LexerlessGrammar;
+
+import java.util.List;
 
 @Rule(
   key = "BoundOrAssignedEvalOrArguments",
@@ -65,48 +68,48 @@ public class BoundOrAssignedEvalOrArgumentsCheck extends SquidCheck<LexerlessGra
     }
   }
 
-  private void checkFunction(AstNode astNode) {
-    AstNode identifier = astNode.getFirstChild(EcmaScriptTokenType.IDENTIFIER);
+  private void checkFunction(AstNode functionNode) {
+    AstNode identifier = functionNode.getFirstChild(EcmaScriptTokenType.IDENTIFIER);
     if (identifier != null && isEvalOrArguments(identifier.getTokenValue())) {
       getContext().createLineViolation(this, createMessageFor("function", identifier.getTokenValue()), identifier);
     }
-    AstNode formalParameterList = astNode.getFirstChild(EcmaScriptGrammar.FORMAL_PARAMETER_LIST);
+    AstNode formalParameterList = functionNode.getFirstChild(EcmaScriptGrammar.FORMAL_PARAMETER_LIST);
 
     if (formalParameterList != null) {
       checkFormalParamList(formalParameterList);
     }
   }
 
-  private void checkFormalParamList(AstNode astNode) {
-    for (AstNode formalP : astNode.getChildren(EcmaScriptGrammar.FORMAL_PARAMETER)) {
-      AstNode identifier = formalP.getFirstChild(EcmaScriptGrammar.BINDING_IDENTIFIER).getFirstChild(EcmaScriptTokenType.IDENTIFIER);
-      if (identifier != null && isEvalOrArguments(identifier.getTokenValue())) {
-          getContext().createLineViolation(this, createMessageFor("parameter", identifier.getTokenValue()), identifier);
-        }
-      }
+  private void checkFormalParamList(AstNode formalParameterList) {
+    for (AstNode identifier : CheckUtils.getParametersIdentifier(formalParameterList)) {
+      String identifierName = identifier.getTokenValue();
 
-    AstNode restParam = astNode.getFirstChild(EcmaScriptGrammar.REST_PARAMETER);
-    if (restParam != null) {
-      AstNode identifier = restParam.getFirstChild(EcmaScriptGrammar.BINDING_IDENTIFIER).getFirstChild(EcmaScriptTokenType.IDENTIFIER);
-      if (isEvalOrArguments(identifier.getTokenValue())) {
-        getContext().createLineViolation(this, createMessageFor("parameter", identifier.getTokenValue()), identifier);
+      if (isEvalOrArguments(identifierName)) {
+        getContext().createLineViolation(this, createMessageFor("parameter", identifierName), identifier);
       }
-
     }
-
   }
 
   private void checkVariableDeclaration(AstNode astNode) {
-    AstNode identifier = astNode.getFirstChild(EcmaScriptTokenType.IDENTIFIER);
-    if (isEvalOrArguments(identifier.getTokenValue())) {
-      getContext().createLineViolation(this, createMessageFor("variable", identifier.getTokenValue()), identifier);
+    List<AstNode> identifiers = astNode.is(EcmaScriptGrammar.CATCH) ?
+      CheckUtils.getCatchIdentifiers(astNode) : CheckUtils.getVariableIdentifiers(astNode);
+
+    for (AstNode identifier : identifiers) {
+     String identifierName = identifier.getTokenValue();
+
+      if (isEvalOrArguments(identifierName)) {
+        getContext().createLineViolation(this, createMessageFor("variable", identifierName), identifier);
+      }
     }
   }
 
-  private void checkPropertySetParameterList(AstNode astNode) {
-    AstNode identifier = astNode.getFirstChild().getFirstChild(EcmaScriptGrammar.BINDING_IDENTIFIER);
-    if (isEvalOrArguments(identifier.getTokenValue())) {
-      getContext().createLineViolation(this, createMessageFor("parameter", identifier.getTokenValue()), identifier);
+  private void checkPropertySetParameterList(AstNode propertySetParameterList) {
+    for (AstNode identifier : CheckUtils.getParametersIdentifier(propertySetParameterList)) {
+      String identifierName = identifier.getTokenValue();
+
+      if (isEvalOrArguments(identifierName)) {
+        getContext().createLineViolation(this, createMessageFor("parameter", identifierName), identifier);
+      }
     }
   }
 

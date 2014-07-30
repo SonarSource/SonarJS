@@ -22,3 +22,13 @@ function fun() {
 function fun(...a) {
   var a = 2;  // NOK
 }
+
+function fun({a, b: {c}}) {
+  var a;     // NOK
+  var c;     // NOK
+}
+
+function fun({a:b}) {
+  var a;     // OK
+  var b;     // NOK
+}

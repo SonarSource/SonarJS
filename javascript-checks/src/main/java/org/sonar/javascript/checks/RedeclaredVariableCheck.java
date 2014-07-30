@@ -24,6 +24,7 @@ import org.sonar.check.BelongsToProfile;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.javascript.api.EcmaScriptTokenType;
+import org.sonar.javascript.checks.utils.CheckUtils;
 import org.sonar.javascript.parser.EcmaScriptGrammar;
 import org.sonar.squidbridge.checks.SquidCheck;
 import org.sonar.sslr.parser.LexerlessGrammar;
@@ -88,16 +89,8 @@ public class RedeclaredVariableCheck extends SquidCheck<LexerlessGrammar> {
   }
 
   private void checkFormalParamList(AstNode astNode, Set<String> currentScope) {
-    for (AstNode formalP : astNode.getChildren(EcmaScriptGrammar.FORMAL_PARAMETER)) {
-      AstNode identifier = formalP.getFirstChild(EcmaScriptGrammar.BINDING_IDENTIFIER).getFirstChild(EcmaScriptTokenType.IDENTIFIER);
-      if (identifier != null) {
-        currentScope.add(identifier.getTokenValue());
-      }
-    }
-
-    AstNode restParam = astNode.getFirstChild(EcmaScriptGrammar.REST_PARAMETER);
-    if (restParam != null) {
-      currentScope.add(restParam.getFirstChild(EcmaScriptGrammar.BINDING_IDENTIFIER).getFirstChild(EcmaScriptTokenType.IDENTIFIER).getTokenValue());
+    for (AstNode identifier : CheckUtils.getParametersIdentifier(astNode)) {
+      currentScope.add(identifier.getTokenValue());
     }
   }
 

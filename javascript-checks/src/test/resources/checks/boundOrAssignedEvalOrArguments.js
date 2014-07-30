@@ -36,3 +36,11 @@ function fun(a) {  // OK
 function fun(yield) {  // OK
 }
 
+/**
+ * Destructuring patern in declaration
+ */
+function fun ({eval}) {     // NOK
+ var {arguments, } = eval;  // NOK
+}
+
+

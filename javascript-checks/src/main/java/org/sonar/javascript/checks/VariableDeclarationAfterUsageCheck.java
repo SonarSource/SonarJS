@@ -22,14 +22,16 @@ package org.sonar.javascript.checks;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
 import com.sonar.sslr.api.AstNode;
-import org.sonar.squidbridge.checks.SquidCheck;
 import org.sonar.check.BelongsToProfile;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.javascript.api.EcmaScriptTokenType;
+import org.sonar.javascript.checks.utils.CheckUtils;
 import org.sonar.javascript.parser.EcmaScriptGrammar;
+import org.sonar.squidbridge.checks.SquidCheck;
 import org.sonar.sslr.parser.LexerlessGrammar;
 
+import java.util.List;
 import java.util.Map;
 
 @Rule(
@@ -92,10 +94,11 @@ public class VariableDeclarationAfterUsageCheck extends SquidCheck<LexerlessGram
       // enter new scope
       currentScope = new Scope(currentScope);
     } else if (astNode.is(EcmaScriptGrammar.FORMAL_PARAMETER_LIST)) {
-      declareFormalParamList(astNode);
+      declareInCurrentScope(CheckUtils.getParametersIdentifier(astNode));
 
     } else if (astNode.is(EcmaScriptGrammar.VARIABLE_DECLARATION, EcmaScriptGrammar.VARIABLE_DECLARATION_NO_IN)) {
-      currentScope.declare(astNode.getFirstChild(EcmaScriptTokenType.IDENTIFIER));
+      declareInCurrentScope(CheckUtils.getVariableIdentifiers(astNode));
+
     } else if (astNode.is(EcmaScriptGrammar.PRIMARY_EXPRESSION)) {
       AstNode identifierReference = astNode.getFirstChild(EcmaScriptGrammar.IDENTIFIER_REFERENCE);
       if (identifierReference != null && identifierReference.getFirstChild().is(EcmaScriptTokenType.IDENTIFIER)) {
@@ -104,19 +107,10 @@ public class VariableDeclarationAfterUsageCheck extends SquidCheck<LexerlessGram
     }
   }
 
-  private void declareFormalParamList(AstNode astNode) {
-    for (AstNode formalP : astNode.getChildren(EcmaScriptGrammar.FORMAL_PARAMETER)) {
-      AstNode identifier = formalP.getFirstChild(EcmaScriptGrammar.BINDING_IDENTIFIER).getFirstChild(EcmaScriptTokenType.IDENTIFIER);
-      if (identifier != null) {
-        currentScope.declare(identifier);
-      }
+  private void declareInCurrentScope(List<AstNode> identifiers) {
+    for (AstNode identifier : identifiers) {
+      currentScope.declare(identifier);
     }
-
-    AstNode restParam = astNode.getFirstChild(EcmaScriptGrammar.REST_PARAMETER);
-    if (restParam != null) {
-      currentScope.declare(restParam.getFirstChild(EcmaScriptGrammar.BINDING_IDENTIFIER).getFirstChild(EcmaScriptTokenType.IDENTIFIER));
-    }
-
   }
 
   @Override

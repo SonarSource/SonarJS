@@ -25,13 +25,13 @@ import org.sonar.sslr.parser.LexerlessGrammar;
 
 import static org.sonar.sslr.tests.Assertions.assertThat;
 
-public class LexicalBindingTest {
+public class VariableDeclarationTestTest {
 
   LexerlessGrammar g = EcmaScriptGrammar.createGrammar();
 
   @Test
   public void ok() {
-    assertThat(g.rule(EcmaScriptGrammar.LEXICAL_BINDING))
+    assertThat(g.rule(EcmaScriptGrammar.VARIABLE_DECLARATION))
       .matches("identifier")
       .matches("identifier = 1")
       .matches("{ } = 1");

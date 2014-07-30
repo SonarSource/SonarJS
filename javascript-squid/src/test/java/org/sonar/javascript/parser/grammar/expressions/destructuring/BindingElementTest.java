@@ -17,7 +17,7 @@
  * License along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.javascript.parser.grammar.declarations;
+package org.sonar.javascript.parser.grammar.expressions.destructuring;
 
 import org.junit.Test;
 import org.sonar.javascript.parser.EcmaScriptGrammar;
@@ -25,16 +25,17 @@ import org.sonar.sslr.parser.LexerlessGrammar;
 
 import static org.sonar.sslr.tests.Assertions.assertThat;
 
-public class LexicalBindingTest {
+public class BindingElementTest {
 
   LexerlessGrammar g = EcmaScriptGrammar.createGrammar();
 
   @Test
   public void ok() {
-    assertThat(g.rule(EcmaScriptGrammar.LEXICAL_BINDING))
-      .matches("identifier")
-      .matches("identifier = 1")
-      .matches("{ } = 1");
+    assertThat(g.rule(EcmaScriptGrammar.BINDING_ELEMENT))
+        .matches("identifier")
+        .matches("identifier = 1")
+        .matches("[ ]")
+        .matches("[ ] = 1");
   }
 
 }

@@ -472,9 +472,9 @@ public abstract class TreeImpl {
     private final IdentifierTree identifier;
     private final ExpressionTree initialiser;
 
-    public VariableDeclarationTreeImpl(AstNode astNode, IdentifierTree identifier, @Nullable ExpressionTree initialiser) {
+    public VariableDeclarationTreeImpl(AstNode astNode, @Nullable IdentifierTree identifier, @Nullable ExpressionTree initialiser) {
       super(astNode);
-      this.identifier = Preconditions.checkNotNull(identifier);
+      this.identifier = identifier;
       this.initialiser = initialiser;
     }
 
