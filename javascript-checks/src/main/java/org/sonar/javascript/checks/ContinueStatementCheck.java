@@ -19,6 +19,8 @@
  */
 package org.sonar.javascript.checks;
 
+import com.sonar.sslr.api.AstNode;
+import org.sonar.javascript.parser.EcmaScriptGrammar;
 import org.sonar.squidbridge.checks.SquidCheck;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
@@ -29,10 +31,15 @@ import org.sonar.sslr.parser.LexerlessGrammar;
 @Rule(
   key = "ContinueStatement",
   priority = Priority.MAJOR)
-public class ContinueStatementCheck extends SquidCheck<LexerlessGrammar> implements TreeVisitor {
+public class ContinueStatementCheck extends SquidCheck<LexerlessGrammar> {
+  @Override
+  public void init() {
+    subscribeTo(EcmaScriptGrammar.CONTINUE_STATEMENT);
+  }
 
-  public void visit(ContinueStatementTree continueStatementTree) {
-    getContext().createLineViolation(this, "Avoid using continue statement.", continueStatementTree.getLine());
+  @Override
+  public void visitNode(AstNode astNode) {
+    getContext().createLineViolation(this, "Avoid using continue statement.", astNode);
   }
 
 }
