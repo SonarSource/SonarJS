@@ -622,7 +622,7 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
         ecmascript6(CLASS_EXPRESSION),
         ecmascript6(GENERATOR_EXPRESSION),
         ecmascript6(GENERATOR_COMPREHENSION),
-        ecmascript6(COVER_PARENTHESIZED_EXPRESSION_AND_ARROW_PARAMETER_LIST)));
+        ecmascript6(b.sequence(COVER_PARENTHESIZED_EXPRESSION_AND_ARROW_PARAMETER_LIST, b.nextNot(EcmaScriptPunctuator.DOUBLEARROW)))));
 
     b.rule(GENERATOR_COMPREHENSION).is(LPARENTHESIS, COMPREHENSION, RPARENTHESIS);
     b.rule(COMPREHENSION).is(COMPREHENSION_FOR, COMPREHENSION_TAIL);
@@ -891,7 +891,7 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
   private static void declarations(LexerlessGrammarBuilder b) {
     b.rule(MODULE).is(MODULE_BODY);
     b.rule(MODULE_BODY).is(b.oneOrMore(MODULE_ITEM));
-    b.rule(MODULE_ITEM).is(b.firstOf(IMPORT_DECLARATION, EXPORT_DECLARATION, STATEMENT));
+    b.rule(MODULE_ITEM).is(b.firstOf(IMPORT_DECLARATION, EXPORT_DECLARATION, DECLARATION, STATEMENT));
     b.rule(EXPORT_DECLARATION).is(
       EXPORT,
       b.firstOf(
