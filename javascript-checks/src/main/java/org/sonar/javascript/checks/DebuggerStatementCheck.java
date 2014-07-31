@@ -19,6 +19,8 @@
  */
 package org.sonar.javascript.checks;
 
+import com.sonar.sslr.api.AstNode;
+import org.sonar.javascript.parser.EcmaScriptGrammar;
 import org.sonar.squidbridge.checks.SquidCheck;
 import org.sonar.check.BelongsToProfile;
 import org.sonar.check.Priority;
@@ -31,10 +33,16 @@ import org.sonar.sslr.parser.LexerlessGrammar;
   key = "DebuggerStatement",
   priority = Priority.MAJOR)
 @BelongsToProfile(title = CheckList.SONAR_WAY_PROFILE, priority = Priority.MAJOR)
-public class DebuggerStatementCheck extends SquidCheck<LexerlessGrammar> implements TreeVisitor {
+public class DebuggerStatementCheck extends SquidCheck<LexerlessGrammar> {
 
-  public void visit(DebuggerStatementTree debuggerStatementTree) {
-    getContext().createLineViolation(this, "Avoid using debugger statement.", debuggerStatementTree.getLine());
+  @Override
+  public void init() {
+    subscribeTo(EcmaScriptGrammar.DEBUGGER_STATEMENT);
+  }
+
+  @Override
+  public void visitNode(AstNode astNode) {
+    getContext().createLineViolation(this, "Avoid using debugger statement.", astNode);
   }
 
 }

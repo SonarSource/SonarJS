@@ -21,6 +21,7 @@ package org.sonar.javascript.checks;
 
 import com.google.common.collect.Maps;
 import com.sonar.sslr.api.AstNode;
+import org.sonar.javascript.parser.EcmaScriptGrammar;
 import org.sonar.squidbridge.checks.SquidCheck;
 import org.sonar.check.BelongsToProfile;
 import org.sonar.check.Priority;
@@ -38,25 +39,32 @@ import java.util.Map;
   key = "OneStatementPerLine",
   priority = Priority.MAJOR)
 @BelongsToProfile(title = CheckList.SONAR_WAY_PROFILE, priority = Priority.MAJOR)
-public class OneStatementPerLineCheck extends SquidCheck<LexerlessGrammar> implements TreeVisitor {
+public class OneStatementPerLineCheck extends SquidCheck<LexerlessGrammar> {
 
   private final Map<Integer, Integer> statementsPerLine = Maps.newHashMap();
 
   @Override
-  public void visitFile(AstNode astNode) {
-    statementsPerLine.clear();
+  public void init() {
+    subscribeTo(EcmaScriptGrammar.STATEMENT);
   }
 
-  public void visit(StatementTree statementTree) {
-    if (statementTree.is(BlockTree.class) || statementTree.is(EmptyStatementTree.class) || statementTree.is(LabelledStatementTree.class)) {
+  @Override
+  public void visitNode(AstNode astNode) {
+    AstNode statement = astNode.getFirstChild();
+    if (statement.is(EcmaScriptGrammar.BLOCK) || statement.is(EcmaScriptGrammar.EMPTY_STATEMENT) || statement.is(EcmaScriptGrammar.LABELLED_STATEMENT)) {
       // skip
     } else {
-      int line = statementTree.getLine();
+      int line = statement.getTokenLine();
       if (!statementsPerLine.containsKey(line)) {
         statementsPerLine.put(line, 0);
       }
       statementsPerLine.put(line, statementsPerLine.get(line) + 1);
     }
+  }
+
+  @Override
+  public void visitFile(AstNode astNode) {
+    statementsPerLine.clear();
   }
 
   @Override
