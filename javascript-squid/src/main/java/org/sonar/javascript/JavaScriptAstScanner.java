@@ -140,8 +140,8 @@ public final class JavaScriptAstScanner {
       }
       builder.withSquidAstVisitor(visitor);
     }
-    TreeVisitorsBridge treeVisitorsBridge = new TreeVisitorsBridge(treeVisitors.build());
-    builder.withSquidAstVisitor(treeVisitorsBridge);
+//    TreeVisitorsBridge treeVisitorsBridge = new TreeVisitorsBridge(treeVisitors.build());
+//    builder.withSquidAstVisitor(treeVisitorsBridge);
 
     return builder.build();
   }

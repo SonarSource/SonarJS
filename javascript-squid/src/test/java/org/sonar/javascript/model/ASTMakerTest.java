@@ -22,6 +22,7 @@ package org.sonar.javascript.model;
 import com.google.common.base.Charsets;
 import com.sonar.sslr.api.AstNode;
 import com.sonar.sslr.impl.Parser;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.sonar.javascript.EcmaScriptConfiguration;
 import org.sonar.javascript.api.EcmaScriptKeyword;
@@ -32,6 +33,7 @@ import org.sonar.javascript.parser.EcmaScriptParser;
 
 import static org.fest.assertions.Assertions.assertThat;
 
+@Ignore
 public class ASTMakerTest {
 
   private final Parser p = EcmaScriptParser.create(new EcmaScriptConfiguration(Charsets.UTF_8));
