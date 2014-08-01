@@ -21,8 +21,8 @@ package org.sonar.javascript.checks;
 
 import com.sonar.sslr.api.Token;
 import com.sonar.sslr.api.Trivia;
-import org.sonar.squidbridge.checks.SquidCheck;
 import org.apache.commons.lang.StringUtils;
+import org.sonar.squidbridge.checks.SquidCheck;
 
 public class CommentContainsPatternChecker {
   private final SquidCheck<?> check;

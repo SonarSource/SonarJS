@@ -21,17 +21,17 @@ package org.sonar.javascript.checks;
 
 import com.sonar.sslr.api.AstAndTokenVisitor;
 import com.sonar.sslr.api.Token;
-import org.sonar.squidbridge.checks.SquidCheck;
 import org.sonar.check.BelongsToProfile;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
+import org.sonar.squidbridge.checks.SquidCheck;
 import org.sonar.sslr.parser.LexerlessGrammar;
 
 @Rule(
   key = "S1134",
   priority = Priority.MAJOR)
 @BelongsToProfile(title = CheckList.SONAR_WAY_PROFILE, priority = Priority.MAJOR)
-public class FixmeTagPresenceCheck extends SquidCheck<LexerlessGrammar> implements AstAndTokenVisitor{
+public class FixmeTagPresenceCheck extends SquidCheck<LexerlessGrammar> implements AstAndTokenVisitor {
 
   private static final String PATTERN = "FIXME";
   private static final String MESSAGE = "Take the required action to fix the issue indicated by this comment.";

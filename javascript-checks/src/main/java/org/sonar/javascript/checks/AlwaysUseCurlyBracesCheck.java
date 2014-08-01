@@ -20,12 +20,12 @@
 package org.sonar.javascript.checks;
 
 import com.sonar.sslr.api.AstNode;
-import org.sonar.squidbridge.checks.SquidCheck;
 import org.sonar.check.BelongsToProfile;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.javascript.api.EcmaScriptKeyword;
 import org.sonar.javascript.parser.EcmaScriptGrammar;
+import org.sonar.squidbridge.checks.SquidCheck;
 import org.sonar.sslr.parser.LexerlessGrammar;
 
 import java.util.List;
@@ -52,7 +52,7 @@ public class AlwaysUseCurlyBracesCheck extends SquidCheck<LexerlessGrammar> {
     List<AstNode> statements = astNode.getChildren(EcmaScriptGrammar.STATEMENT);
     for (AstNode statement : statements) {
       if (statement.getFirstChild().is(EcmaScriptGrammar.IF_STATEMENT)
-          && statement.getPreviousSibling().is(EcmaScriptKeyword.ELSE)) {
+        && statement.getPreviousSibling().is(EcmaScriptKeyword.ELSE)) {
         continue;
       }
       if (!statement.getFirstChild().is(EcmaScriptGrammar.BLOCK)) {

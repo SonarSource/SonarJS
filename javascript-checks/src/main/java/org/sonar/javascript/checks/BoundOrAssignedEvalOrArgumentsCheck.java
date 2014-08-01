@@ -95,7 +95,7 @@ public class BoundOrAssignedEvalOrArgumentsCheck extends SquidCheck<LexerlessGra
       CheckUtils.getCatchIdentifiers(astNode) : CheckUtils.getVariableIdentifiers(astNode);
 
     for (AstNode identifier : identifiers) {
-     String identifierName = identifier.getTokenValue();
+      String identifierName = identifier.getTokenValue();
 
       if (isEvalOrArguments(identifierName)) {
         getContext().createLineViolation(this, createMessageFor("variable", identifierName), identifier);
