@@ -148,6 +148,36 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
   NULL_LITERAL,
   BOOLEAN_LITERAL,
   STRING_LITERAL,
+  /** ECMAScript 6 **/
+  TEMPLATE_LITERAL,
+  /** ECMAScript 6 **/
+  SUBSTITUTION_TEMPLATE,
+  /** ECMAScript 6 **/
+  NO_SUBSTITUTION_TEMPLATE,
+  /** ECMAScript 6 **/
+  TEMPLATE_SUBSTITUTION_TAIL,
+  /** ECMAScript 6 **/
+  TEMPLATE_HEAD,
+  /** ECMAScript 6 **/
+  TEMPLATE_SPANS,
+  /** ECMAScript 6 **/
+  TEMPLATE_TAIL,
+  /** ECMAScript 6 **/
+  TEMPLATE_MIDDLE_LIST,
+  /** ECMAScript 6 **/
+  TEMPLATE_MIDDLE,
+  /** ECMAScript 6 **/
+  TEMPLATE_CHARACTER,
+  /** ECMAScript 6 **/
+  TEMPLATE_CHARACTERS,
+  /** ECMAScript 6 **/
+  LINE_CONTINUATION,
+  /** ECMAScript 6 **/
+  BACKTICK,
+  /** ECMAScript 6 **/
+  DOLLAR_SIGN,
+  /** ECMAScript 6 **/
+  BACKSLASH,
 
   KEYWORD,
   LETTER_OR_DIGIT,
@@ -512,6 +542,18 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
         SPACING,
         b.regexp(EcmaScriptRegexpChannel.REGULAR_EXPRESSION));
 
+    b.rule(TEMPLATE_CHARACTERS).is(b.oneOrMore(TEMPLATE_CHARACTER));
+    b.rule(TEMPLATE_CHARACTER).is(b.firstOf(
+      b.sequence(DOLLAR_SIGN, b.nextNot(LCURLYBRACE)),
+      b.sequence(BACKSLASH, EcmaScriptLexer.WHITESPACE),
+      LINE_CONTINUATION,
+      LINE_TERMINATOR_SEQUENCE,
+      b.regexp("[^`\\$" + EcmaScriptLexer.LINE_TERMINATOR + "]")));
+    b.rule(LINE_CONTINUATION).is(BACKSLASH, LINE_TERMINATOR_SEQUENCE);
+    b.rule(BACKSLASH).is(word(b, "\\"));
+    b.rule(BACKTICK).is(word(b, "`"));
+    b.rule(DOLLAR_SIGN).is(word(b, "$"));
+
     punctuators(b);
     keywords(b);
   }
@@ -622,7 +664,20 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
         ecmascript6(CLASS_EXPRESSION),
         ecmascript6(GENERATOR_EXPRESSION),
         ecmascript6(GENERATOR_COMPREHENSION),
+        ecmascript6(TEMPLATE_LITERAL),
         ecmascript6(b.sequence(COVER_PARENTHESIZED_EXPRESSION_AND_ARROW_PARAMETER_LIST, b.nextNot(EcmaScriptPunctuator.DOUBLEARROW)))));
+
+    b.rule(TEMPLATE_LITERAL).is(b.firstOf(
+      NO_SUBSTITUTION_TEMPLATE,
+      SUBSTITUTION_TEMPLATE));
+
+    b.rule(NO_SUBSTITUTION_TEMPLATE).is(BACKTICK, b.optional(TEMPLATE_CHARACTERS), BACKTICK);
+
+    b.rule(SUBSTITUTION_TEMPLATE).is(TEMPLATE_HEAD, EXPRESSION, b.optional(TEMPLATE_MIDDLE_LIST), TEMPLATE_TAIL);
+    b.rule(TEMPLATE_HEAD).is(BACKTICK, b.optional(TEMPLATE_CHARACTERS), DOLLAR_SIGN, LCURLYBRACE);
+    b.rule(TEMPLATE_MIDDLE_LIST).is(b.oneOrMore(TEMPLATE_MIDDLE, EXPRESSION));
+    b.rule(TEMPLATE_MIDDLE).is(RCURLYBRACE, b.optional(TEMPLATE_CHARACTERS), DOLLAR_SIGN, LCURLYBRACE);
+    b.rule(TEMPLATE_TAIL).is(RCURLYBRACE, b.optional(TEMPLATE_CHARACTERS), BACKTICK);
 
     b.rule(GENERATOR_COMPREHENSION).is(LPARENTHESIS, COMPREHENSION, RPARENTHESIS);
     b.rule(COMPREHENSION).is(COMPREHENSION_FOR, COMPREHENSION_TAIL);

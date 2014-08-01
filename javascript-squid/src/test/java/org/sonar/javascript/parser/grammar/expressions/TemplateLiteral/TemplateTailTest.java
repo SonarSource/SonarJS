@@ -17,7 +17,7 @@
  * License along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.javascript.parser.grammar.expressions;
+package org.sonar.javascript.parser.grammar.expressions.TemplateLiteral;
 
 import org.junit.Test;
 import org.sonar.javascript.parser.EcmaScriptGrammar;
@@ -25,24 +25,15 @@ import org.sonar.sslr.parser.LexerlessGrammar;
 
 import static org.sonar.sslr.tests.Assertions.assertThat;
 
-public class PrimaryExpressionTest {
+public class TemplateTailTest {
 
   LexerlessGrammar g = EcmaScriptGrammar.createGrammar();
 
   @Test
-  public void realLife() {
-    assertThat(g.rule(EcmaScriptGrammar.PRIMARY_EXPRESSION))
-        .matches("this")
-        .matches("identifier")
-        .matches("''")
-        .matches("true")
-        .matches("[]")
-        .matches("{}")
-        .matches("class {}")
-        .matches("function * () {}")
-        .matches("(for ( forBinding of assignmentExpression ) assignmentExpression)")
-        .matches("``")
-        .matches("( expression )");
+  public void ok() {
+    assertThat(g.rule(EcmaScriptGrammar.TEMPLATE_TAIL))
+        .matches("} `")
+        .matches("} characters `");
   }
 
 }
