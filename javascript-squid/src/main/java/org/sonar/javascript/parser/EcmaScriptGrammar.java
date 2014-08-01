@@ -759,7 +759,7 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
     b.rule(CALL_EXPRESSION).is(
         b.firstOf(
             SIMPLE_CALL_EXPRESSION,
-            TEMPLATE_LITERAL),
+            ecmascript6(TEMPLATE_LITERAL)),
         b.zeroOrMore(b.firstOf(
             ARGUMENTS,
             b.sequence(LBRACKET, EXPRESSION, RBRACKET),
