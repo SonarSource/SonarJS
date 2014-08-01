@@ -206,6 +206,8 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
   PAIR_PROPERTY,
   PROPERTY_NAME,
   MEMBER_EXPRESSION,
+  SUPER_MEMBER_EXPRESSION,
+  NEW_MEMBER_EXPRESSION,
   NEW_EXPRESSION,
   CALL_EXPRESSION,
   SIMPLE_CALL_EXPRESSION,
@@ -664,6 +666,7 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
         LITERAL,
         ARRAY_INITIALIZER,
         OBJECT_LITERAL,
+        FUNCTION_EXPRESSION,
         ecmascript6(CLASS_EXPRESSION),
         ecmascript6(GENERATOR_EXPRESSION),
         ecmascript6(GENERATOR_COMPREHENSION),
@@ -746,18 +749,22 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
     b.rule(PAIR_PROPERTY).is(PROPERTY_NAME, COLON, ASSIGNMENT_EXPRESSION);
 
     b.rule(MEMBER_EXPRESSION).is(
+      b.firstOf(
+        ecmascript6(SUPER_MEMBER_EXPRESSION),
+        NEW_MEMBER_EXPRESSION,
+        PRIMARY_EXPRESSION),
+      b.zeroOrMore(
         b.firstOf(
-            ecmascript6(SUPER),
-            PRIMARY_EXPRESSION,
-            FUNCTION_EXPRESSION,
-            b.sequence(NEW, b.firstOf(ecmascript6(SUPER), MEMBER_EXPRESSION), ARGUMENTS)),
-        b.zeroOrMore(b.firstOf(
-            BRACKET_EXPRESSION,
-            OBJECT_PROPERTY_ACCESS)));
+          BRACKET_EXPRESSION,
+          OBJECT_PROPERTY_ACCESS,
+          ecmascript6(TEMPLATE_LITERAL))));
+    b.rule(SUPER_MEMBER_EXPRESSION).is(b.sequence(SUPER, b.firstOf(BRACKET_EXPRESSION, OBJECT_PROPERTY_ACCESS)));
+    b.rule(NEW_MEMBER_EXPRESSION).is(b.sequence(NEW, b.firstOf(ecmascript6(SUPER), MEMBER_EXPRESSION), ARGUMENTS));
     b.rule(NEW_EXPRESSION).is(b.firstOf(
         MEMBER_EXPRESSION,
         ecmascript6(b.sequence(NEW, SUPER)),
         b.sequence(NEW, NEW_EXPRESSION)));
+
     b.rule(CALL_EXPRESSION).is(
         b.firstOf(
             SIMPLE_CALL_EXPRESSION,
