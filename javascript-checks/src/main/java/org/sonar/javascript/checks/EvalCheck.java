@@ -40,9 +40,14 @@ public class EvalCheck extends SquidCheck<LexerlessGrammar> {
 
   @Override
   public void visitNode(AstNode node) {
-    AstNode memberExpressionNode = node.getFirstChild(EcmaScriptGrammar.MEMBER_EXPRESSION);
-    if ("eval".equals(memberExpressionNode.getTokenValue())) {
-      getContext().createLineViolation(this, "Avoid use of eval.", node);
+    AstNode simpleCallExprNode = node.getFirstChild(EcmaScriptGrammar.SIMPLE_CALL_EXPRESSION);
+
+    if (simpleCallExprNode != null) {
+      AstNode memberExpressionNode = simpleCallExprNode.getFirstChild(EcmaScriptGrammar.MEMBER_EXPRESSION);
+
+      if (memberExpressionNode != null && "eval".equals(memberExpressionNode.getTokenValue())) {
+        getContext().createLineViolation(this, "Avoid use of eval.", node);
+      }
     }
   }
 

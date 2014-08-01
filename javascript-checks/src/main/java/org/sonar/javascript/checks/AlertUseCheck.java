@@ -40,13 +40,16 @@ public class AlertUseCheck extends SquidCheck<LexerlessGrammar> {
 
   @Override
   public void visitNode(AstNode astNode) {
-    if (isAlertCall(astNode.getFirstChild(EcmaScriptGrammar.MEMBER_EXPRESSION))) {
+    AstNode simpleCallExpr = astNode.getFirstChild(EcmaScriptGrammar.SIMPLE_CALL_EXPRESSION);
+
+    if (simpleCallExpr != null && isAlertCall(simpleCallExpr.getFirstChild(EcmaScriptGrammar.MEMBER_EXPRESSION))) {
       getContext().createLineViolation(this, "Remove this usage of alert(...).", astNode);
     }
   }
 
   public static boolean isAlertCall(AstNode memberExpr) {
-    return memberExpr.getNumberOfChildren() == 1
+    return memberExpr != null
+      && memberExpr.getNumberOfChildren() == 1
       && memberExpr.getFirstChild().is(EcmaScriptGrammar.PRIMARY_EXPRESSION)
       && "alert".equals(memberExpr.getFirstChild().getTokenValue());
   }

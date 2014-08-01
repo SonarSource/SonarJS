@@ -17,26 +17,22 @@
  * License along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.javascript.checks;
+package org.sonar.javascript.parser.grammar.expressions;
 
-import org.sonar.squidbridge.checks.CheckMessagesVerifier;
 import org.junit.Test;
-import org.sonar.javascript.JavaScriptAstScanner;
-import org.sonar.squidbridge.api.SourceFile;
+import org.sonar.javascript.parser.EcmaScriptGrammar;
+import org.sonar.sslr.parser.LexerlessGrammar;
 
-import java.io.File;
+import static org.sonar.sslr.tests.Assertions.assertThat;
 
-public class EvalCheckTest {
+public class SimpleCallExpressionTest {
+
+  LexerlessGrammar g = EcmaScriptGrammar.createGrammar();
 
   @Test
-  public void test() {
-    EvalCheck check = new EvalCheck();
-
-    SourceFile file = JavaScriptAstScanner.scanSingleFile(new File("src/test/resources/checks/eval.js"), check);
-    CheckMessagesVerifier.verify(file.getCheckMessages())
-        .next().atLine(2).withMessage("Avoid use of eval.")
-        .next().atLine(5)
-        .noMore();
+  public void ok() {
+    assertThat(g.rule(EcmaScriptGrammar.SIMPLE_CALL_EXPRESSION))
+      .matches("memberExpression ( arguments )")
+      .matches("super ( arguments )");
   }
-
 }

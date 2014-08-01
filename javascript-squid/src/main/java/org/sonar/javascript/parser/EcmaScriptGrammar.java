@@ -208,6 +208,7 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
   MEMBER_EXPRESSION,
   NEW_EXPRESSION,
   CALL_EXPRESSION,
+  SIMPLE_CALL_EXPRESSION,
   ARGUMENTS,
   /** ECMAScript 6 **/
   ARGUMENTS_LIST,
@@ -756,11 +757,14 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
         ecmascript6(b.sequence(NEW, SUPER)),
         b.sequence(NEW, NEW_EXPRESSION)));
     b.rule(CALL_EXPRESSION).is(
-        b.sequence(b.firstOf(ecmascript6(SUPER), MEMBER_EXPRESSION), ARGUMENTS),
+        b.firstOf(
+            SIMPLE_CALL_EXPRESSION,
+            TEMPLATE_LITERAL),
         b.zeroOrMore(b.firstOf(
             ARGUMENTS,
             b.sequence(LBRACKET, EXPRESSION, RBRACKET),
             b.sequence(DOT, IDENTIFIER_NAME))));
+    b.rule(SIMPLE_CALL_EXPRESSION).is(b.firstOf(ecmascript6(SUPER), MEMBER_EXPRESSION), ARGUMENTS);
     b.rule(ARGUMENTS).is(LPARENTHESIS, b.optional(ARGUMENTS_LIST), RPARENTHESIS);
     b.rule(ARGUMENTS_LIST).is(b.optional(ELLIPSIS), ASSIGNMENT_EXPRESSION, b.zeroOrMore(COMMA, b.optional(ELLIPSIS), ASSIGNMENT_EXPRESSION));
     b.rule(LEFT_HAND_SIDE_EXPRESSION).is(b.firstOf(

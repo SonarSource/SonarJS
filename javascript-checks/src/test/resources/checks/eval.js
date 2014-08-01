@@ -1,4 +1,6 @@
 function sayHello() {
-  eval("2+2");
-  anotherFunction("2+2");
+  eval("2+2");            // NOK
+  anotherFunction("2+2"); // OK
+  `eval` ();              // OK
+  `${eval()}`;            // NOK
 }

@@ -19,6 +19,7 @@
  */
 package org.sonar.javascript.checks;
 
+import com.google.common.collect.Lists;
 import com.sonar.sslr.api.AstNode;
 import org.sonar.squidbridge.checks.SquidCheck;
 import org.sonar.check.BelongsToProfile;
@@ -26,6 +27,8 @@ import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.javascript.parser.EcmaScriptGrammar;
 import org.sonar.sslr.parser.LexerlessGrammar;
+
+import java.util.List;
 
 @Rule(
   key = "S1472",
@@ -40,13 +43,25 @@ public class FunctionCallArgumentsOnNewLineCheck extends SquidCheck<LexerlessGra
 
   @Override
   public void visitNode(AstNode astNode) {
-    for (AstNode args : astNode.getChildren(EcmaScriptGrammar.ARGUMENTS)) {
+    for (AstNode args : getCallArguments(astNode)) {
       int memberCallingLine = args.getPreviousSibling().getLastToken().getLine();
 
       if (args.getTokenLine() != memberCallingLine) {
         getContext().createLineViolation(this, "Make those call arguments start on line {0}", args, memberCallingLine);
       }
     }
+  }
+
+  private List<AstNode> getCallArguments(AstNode callExpr) {
+    List<AstNode> callArguments = Lists.newArrayList();
+    AstNode simpleCallExpr = callExpr.getFirstChild(EcmaScriptGrammar.SIMPLE_CALL_EXPRESSION);
+
+    if (simpleCallExpr != null) {
+      callArguments.add(simpleCallExpr.getFirstChild(EcmaScriptGrammar.ARGUMENTS));
+    }
+    callArguments.addAll(callExpr.getChildren(EcmaScriptGrammar.ARGUMENTS));
+
+    return callArguments;
   }
 
 }

@@ -35,6 +35,7 @@ public class AlertUseCheckTest {
     SourceFile file = JavaScriptAstScanner.scanSingleFile(new File("src/test/resources/checks/AlertUse.js"), check);
     CheckMessagesVerifier.verify(file.getCheckMessages())
     .next().atLine(1)
+    .next().atLine(8)
     .noMore();
 
   }

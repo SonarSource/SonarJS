@@ -20,3 +20,5 @@ var fn = function () {
    })(                    // OK
         param
     );
+
+`characters` ()           // OK
