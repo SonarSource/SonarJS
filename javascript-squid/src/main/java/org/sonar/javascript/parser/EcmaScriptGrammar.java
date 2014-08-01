@@ -285,6 +285,8 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
   ELISION,
   /** ECMAScript 6 **/
   ELEMENT_LIST,
+  BRACKET_EXPRESSION,
+  OBJECT_PROPERTY_ACCESS,
   BINDING_REST_ELEMENT,
   SINGLE_NAME_BINDING,
   BINDING_ELEMENT,
@@ -750,8 +752,8 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
             FUNCTION_EXPRESSION,
             b.sequence(NEW, b.firstOf(ecmascript6(SUPER), MEMBER_EXPRESSION), ARGUMENTS)),
         b.zeroOrMore(b.firstOf(
-            b.sequence(LBRACKET, EXPRESSION, RBRACKET),
-            b.sequence(DOT, IDENTIFIER_NAME))));
+            BRACKET_EXPRESSION,
+            OBJECT_PROPERTY_ACCESS)));
     b.rule(NEW_EXPRESSION).is(b.firstOf(
         MEMBER_EXPRESSION,
         ecmascript6(b.sequence(NEW, SUPER)),
@@ -762,8 +764,10 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
             ecmascript6(TEMPLATE_LITERAL)),
         b.zeroOrMore(b.firstOf(
             ARGUMENTS,
-            b.sequence(LBRACKET, EXPRESSION, RBRACKET),
-            b.sequence(DOT, IDENTIFIER_NAME))));
+            BRACKET_EXPRESSION,
+            OBJECT_PROPERTY_ACCESS)));
+    b.rule(BRACKET_EXPRESSION).is(LBRACKET, EXPRESSION, RBRACKET);
+    b.rule(OBJECT_PROPERTY_ACCESS).is(DOT, IDENTIFIER_NAME);
     b.rule(SIMPLE_CALL_EXPRESSION).is(b.firstOf(ecmascript6(SUPER), MEMBER_EXPRESSION), ARGUMENTS);
     b.rule(ARGUMENTS).is(LPARENTHESIS, b.optional(ARGUMENTS_LIST), RPARENTHESIS);
     b.rule(ARGUMENTS_LIST).is(b.optional(ELLIPSIS), ASSIGNMENT_EXPRESSION, b.zeroOrMore(COMMA, b.optional(ELLIPSIS), ASSIGNMENT_EXPRESSION));
