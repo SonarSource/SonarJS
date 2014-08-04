@@ -972,9 +972,9 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
         DECLARATION,
         EXPORT_DEFAULT_CLAUSE));
 
-    b.rule(EXPORT_ALL_CLAUSE).is(STAR, FROM_CLAUSE, SEMI);
-    b.rule(EXPORT_DEFAULT_CLAUSE).is(DEFAULT, ASSIGNMENT_EXPRESSION, SEMI);
-    b.rule(EXPORT_LIST_CLAUSE).is(EXPORT_CLAUSE, b.optional(FROM_CLAUSE), SEMI);
+    b.rule(EXPORT_ALL_CLAUSE).is(STAR, FROM_CLAUSE, EOS);
+    b.rule(EXPORT_DEFAULT_CLAUSE).is(DEFAULT, ASSIGNMENT_EXPRESSION, EOS);
+    b.rule(EXPORT_LIST_CLAUSE).is(EXPORT_CLAUSE, b.optional(FROM_CLAUSE), EOS);
     b.rule(EXPORT_CLAUSE).is(LCURLYBRACE, b.optional(EXPORT_LIST, b.optional(COMMA)), RCURLYBRACE);
     b.rule(EXPORT_LIST).is(EXPORT_SPECIFIER, b.zeroOrMore(COMMA, EXPORT_SPECIFIER));
     b.rule(EXPORT_SPECIFIER).is(
@@ -988,10 +988,10 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
       SIMPLE_IMPORT,
       IMPORT_FROM));
 
-    b.rule(MODULE_IMPORT).is(MODULE_WORD, /* no line terminator here */SPACING_NO_LB, NEXT_NOT_LB, BINDING_IDENTIFIER, FROM_CLAUSE, SEMI);
+    b.rule(MODULE_IMPORT).is(MODULE_WORD, /* no line terminator here */SPACING_NO_LB, NEXT_NOT_LB, BINDING_IDENTIFIER, FROM_CLAUSE, EOS);
     b.rule(MODULE_WORD).is(word(b, "module"));
-    b.rule(SIMPLE_IMPORT).is(IMPORT, STRING_LITERAL, SEMI);
-    b.rule(IMPORT_FROM).is(IMPORT, IMPORT_CLAUSE, FROM_CLAUSE, SEMI);
+    b.rule(SIMPLE_IMPORT).is(IMPORT, STRING_LITERAL, EOS);
+    b.rule(IMPORT_FROM).is(IMPORT, IMPORT_CLAUSE, FROM_CLAUSE, EOS);
 
     b.rule(FROM_CLAUSE).is(FROM, STRING_LITERAL);
     b.rule(FROM).is(word(b, "from"));
