@@ -32,13 +32,18 @@ public class CallExpressionTest {
   @Test
   public void ok() {
     assertThat(g.rule(EcmaScriptGrammar.CALL_EXPRESSION))
-        .matches("memberExpression ( arguments )")
-        .matches("'template literal' ( arguments )")
-        .matches("memberExpression ( arguments ) ( arguments )");
+      .matches("memberExpression ( arguments )")
+      .matches("'template literal' ( arguments )")
+      .matches("memberExpression ( arguments ) ( arguments )");
 
     assertThat(g.rule(EcmaScriptGrammar.CALL_EXPRESSION))
-        .matches("memberExpression ( arguments ) [ expression ]")
-        .matches("memberExpression ( arguments ) . identifierName");
+      .matches("memberExpression ( arguments ) [ expression ]")
+      .matches("memberExpression ( arguments ) . identifierName");
   }
 
+  @Test
+  public void real_life() {
+    assertThat(g.rule(EcmaScriptGrammar.CALL_EXPRESSION))
+      .matches("super.release()");
+  }
 }
