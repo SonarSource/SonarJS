@@ -41,4 +41,9 @@ public class CallExpressionTest {
       .matches("memberExpression ( arguments ) . identifierName");
   }
 
+  @Test
+  public void real_life() {
+    assertThat(g.rule(EcmaScriptGrammar.CALL_EXPRESSION))
+      .matches("super.release()");
+  }
 }
