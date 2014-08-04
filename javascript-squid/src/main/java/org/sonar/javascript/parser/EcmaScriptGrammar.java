@@ -206,6 +206,7 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
   PAIR_PROPERTY,
   PROPERTY_NAME,
   MEMBER_EXPRESSION,
+  /** ECMAScript 6 **/
   SUPER_MEMBER_EXPRESSION,
   NEW_MEMBER_EXPRESSION,
   NEW_EXPRESSION,
@@ -744,7 +745,7 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
     b.rule(PROPERTY_DEFINITION).is(b.firstOf(
         PAIR_PROPERTY,
         METHOD_DEFINITION,
-        ecmascript6(COVER_INITIALIZED_NAME) ));
+        ecmascript6(COVER_INITIALIZED_NAME)));
     b.rule(COVER_INITIALIZED_NAME).is(IDENTIFIER_REFERENCE, b.optional(INITIALISER));
     b.rule(PAIR_PROPERTY).is(PROPERTY_NAME, COLON, ASSIGNMENT_EXPRESSION);
 
