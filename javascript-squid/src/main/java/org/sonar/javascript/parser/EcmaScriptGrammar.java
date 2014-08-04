@@ -1065,8 +1065,7 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
    * A.6 Programs
    */
   private static void programs(LexerlessGrammarBuilder b) {
-    b.rule(SCRIPT).is(b.optional(SHEBANG), b.optional(b.firstOf(MODULE, SCRIPT_BODY)), SPACING, EOF);
-    b.rule(SCRIPT_BODY).is(STATEMENT_LIST);
+    b.rule(SCRIPT).is(b.optional(SHEBANG), b.optional(MODULE_BODY), SPACING, EOF);
 
     b.rule(SHEBANG).is("#!", b.regexp("[^\\n\\r]*+")).skip();
   }
