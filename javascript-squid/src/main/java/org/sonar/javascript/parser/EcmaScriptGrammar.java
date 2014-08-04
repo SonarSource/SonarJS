@@ -775,7 +775,7 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
             OBJECT_PROPERTY_ACCESS)));
     b.rule(BRACKET_EXPRESSION).is(LBRACKET, EXPRESSION, RBRACKET);
     b.rule(OBJECT_PROPERTY_ACCESS).is(DOT, IDENTIFIER_NAME);
-    b.rule(SIMPLE_CALL_EXPRESSION).is(b.firstOf(MEMBER_EXPRESSION, ecmascript6(SUPER)), ARGUMENTS);
+    b.rule(SIMPLE_CALL_EXPRESSION).is(b.firstOf(ecmascript6(SUPER), MEMBER_EXPRESSION), ARGUMENTS);
     b.rule(ARGUMENTS).is(LPARENTHESIS, b.optional(ARGUMENTS_LIST), RPARENTHESIS);
     b.rule(ARGUMENTS_LIST).is(b.optional(ELLIPSIS), ASSIGNMENT_EXPRESSION, b.zeroOrMore(COMMA, b.optional(ELLIPSIS), ASSIGNMENT_EXPRESSION));
     b.rule(LEFT_HAND_SIDE_EXPRESSION).is(b.firstOf(
@@ -826,13 +826,13 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
 
     b.rule(ASSIGNMENT_EXPRESSION).is(b.firstOf(
         b.sequence(LEFT_HAND_SIDE_EXPRESSION, ASSIGNMENT_OPERATOR, ASSIGNMENT_EXPRESSION),
-       // Assignment_expression_no_yield might be needed, because of identifier_reference that can be "yield" (see ES6 spec).
-        ecmascript6(ES6_ASSIGNMENT_EXPRESSION),
-        CONDITIONAL_EXPRESSION)).skipIfOneChild();
+        CONDITIONAL_EXPRESSION,
+        // Assignment_expression_no_yield might be needed, because of identifier_reference that can be "yield" (see ES6 spec).
+        ecmascript6(ES6_ASSIGNMENT_EXPRESSION))).skipIfOneChild();
     b.rule(ASSIGNMENT_EXPRESSION_NO_IN).is(b.firstOf(
         b.sequence(LEFT_HAND_SIDE_EXPRESSION, ASSIGNMENT_OPERATOR, ASSIGNMENT_EXPRESSION_NO_IN),
-        ecmascript6(ES6_ASSIGNMENT_EXPRESSION_NO_IN),
-        CONDITIONAL_EXPRESSION_NO_IN)).skipIfOneChild();
+        CONDITIONAL_EXPRESSION_NO_IN,
+        ecmascript6(ES6_ASSIGNMENT_EXPRESSION_NO_IN))).skipIfOneChild();
 
     b.rule(ASSIGNMENT_OPERATOR).is(b.firstOf(
         EQU,
@@ -1065,7 +1065,8 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
    * A.6 Programs
    */
   private static void programs(LexerlessGrammarBuilder b) {
-    b.rule(SCRIPT).is(b.optional(SHEBANG), b.optional(MODULE_BODY), SPACING, EOF);
+    b.rule(SCRIPT).is(b.optional(SHEBANG), b.optional(b.firstOf(SCRIPT_BODY, MODULE)), SPACING, EOF);
+    b.rule(SCRIPT_BODY).is(STATEMENT_LIST);
 
     b.rule(SHEBANG).is("#!", b.regexp("[^\\n\\r]*+")).skip();
   }
