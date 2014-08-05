@@ -667,11 +667,11 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
       ARRAY_INITIALIZER,
       OBJECT_LITERAL,
       FUNCTION_EXPRESSION,
+      COVER_PARENTHESIZED_EXPRESSION_AND_ARROW_PARAMETER_LIST, // Also covers PARENTHESIZED_EXPRESSION
       ecmascript6(CLASS_EXPRESSION),
       ecmascript6(GENERATOR_EXPRESSION),
       ecmascript6(GENERATOR_COMPREHENSION),
-      ecmascript6(TEMPLATE_LITERAL),
-      ecmascript6(b.sequence(COVER_PARENTHESIZED_EXPRESSION_AND_ARROW_PARAMETER_LIST, b.nextNot(EcmaScriptPunctuator.DOUBLEARROW)))));
+      ecmascript6(TEMPLATE_LITERAL)));
 
     b.rule(TEMPLATE_LITERAL).is(b.firstOf(
       NO_SUBSTITUTION_TEMPLATE,
@@ -826,10 +826,10 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
 
     b.rule(ASSIGNMENT_EXPRESSION).is(b.firstOf(
       b.sequence(LEFT_HAND_SIDE_EXPRESSION, ASSIGNMENT_OPERATOR, ASSIGNMENT_EXPRESSION),
-      // For performance reasons, hacked a bit to call CONDITIONAL_EXPRESSION first
+      // For performance reasons, call CONDITIONAL_EXPRESSION
       b.sequence(
         CONDITIONAL_EXPRESSION,
-        // For performance reasons, call CONDITIONAL_EXPRESSION first
+        // Negative lookahead to prevent conflicts with ES6_ASSIGNMENT_EXPRESSION
         b.nextNot(
           b.regexp("(?:[" + EcmaScriptLexer.WHITESPACE + "]|" + EcmaScriptLexer.SINGLE_LINE_COMMENT + "|" + EcmaScriptLexer.MULTI_LINE_COMMENT_NO_LB + ")*+"),
           "=>")),
