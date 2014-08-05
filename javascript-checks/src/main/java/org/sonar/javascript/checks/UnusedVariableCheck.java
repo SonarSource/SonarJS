@@ -88,12 +88,12 @@ public class UnusedVariableCheck extends SquidCheck<LexerlessGrammar> {
   @Override
   public void init() {
     subscribeTo(
-        EcmaScriptGrammar.FUNCTION_EXPRESSION,
-        EcmaScriptGrammar.FUNCTION_DECLARATION,
-        EcmaScriptGrammar.VARIABLE_DECLARATION,
-        EcmaScriptGrammar.VARIABLE_DECLARATION_NO_IN,
-        EcmaScriptGrammar.PRIMARY_EXPRESSION,
-        EcmaScriptGrammar.FORMAL_PARAMETER_LIST);
+      EcmaScriptGrammar.FUNCTION_EXPRESSION,
+      EcmaScriptGrammar.FUNCTION_DECLARATION,
+      EcmaScriptGrammar.VARIABLE_DECLARATION,
+      EcmaScriptGrammar.VARIABLE_DECLARATION_NO_IN,
+      EcmaScriptGrammar.PRIMARY_EXPRESSION,
+      EcmaScriptGrammar.FORMAL_PARAMETER_LIST);
   }
 
   @Override
@@ -114,9 +114,9 @@ public class UnusedVariableCheck extends SquidCheck<LexerlessGrammar> {
       if (astNode.is(EcmaScriptGrammar.VARIABLE_DECLARATION, EcmaScriptGrammar.VARIABLE_DECLARATION_NO_IN)) {
         declareInCurrentScope(CheckUtils.getVariableIdentifiers(astNode), 0);
       } else if (astNode.is(EcmaScriptGrammar.PRIMARY_EXPRESSION)) {
-        AstNode identifierReference = astNode.getFirstChild(EcmaScriptGrammar.IDENTIFIER_REFERENCE);
-        if (identifierReference != null && identifierReference.getFirstChild().is(EcmaScriptTokenType.IDENTIFIER)) {
-          currentScope.use(identifierReference.getFirstChild());
+        AstNode identifier = astNode.getFirstChild(EcmaScriptTokenType.IDENTIFIER);
+        if (identifier != null) {
+          currentScope.use(identifier);
         }
       }
     }
@@ -139,7 +139,6 @@ public class UnusedVariableCheck extends SquidCheck<LexerlessGrammar> {
   public void leaveFile(AstNode astNode) {
     currentScope = null;
   }
-
 
   private void declareInCurrentScope(List<AstNode> identifiers, int usage) {
     for (AstNode identifier : identifiers) {

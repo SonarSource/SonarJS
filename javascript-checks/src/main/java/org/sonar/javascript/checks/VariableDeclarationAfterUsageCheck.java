@@ -75,12 +75,12 @@ public class VariableDeclarationAfterUsageCheck extends SquidCheck<LexerlessGram
   @Override
   public void init() {
     subscribeTo(
-        EcmaScriptGrammar.FUNCTION_EXPRESSION,
-        EcmaScriptGrammar.FUNCTION_DECLARATION,
-        EcmaScriptGrammar.VARIABLE_DECLARATION,
-        EcmaScriptGrammar.VARIABLE_DECLARATION_NO_IN,
-        EcmaScriptGrammar.PRIMARY_EXPRESSION,
-        EcmaScriptGrammar.FORMAL_PARAMETER_LIST);
+      EcmaScriptGrammar.FUNCTION_EXPRESSION,
+      EcmaScriptGrammar.FUNCTION_DECLARATION,
+      EcmaScriptGrammar.VARIABLE_DECLARATION,
+      EcmaScriptGrammar.VARIABLE_DECLARATION_NO_IN,
+      EcmaScriptGrammar.PRIMARY_EXPRESSION,
+      EcmaScriptGrammar.FORMAL_PARAMETER_LIST);
   }
 
   @Override
@@ -100,9 +100,9 @@ public class VariableDeclarationAfterUsageCheck extends SquidCheck<LexerlessGram
       declareInCurrentScope(CheckUtils.getVariableIdentifiers(astNode));
 
     } else if (astNode.is(EcmaScriptGrammar.PRIMARY_EXPRESSION)) {
-      AstNode identifierReference = astNode.getFirstChild(EcmaScriptGrammar.IDENTIFIER_REFERENCE);
-      if (identifierReference != null && identifierReference.getFirstChild().is(EcmaScriptTokenType.IDENTIFIER)) {
-        currentScope.use(identifierReference.getFirstChild());
+      AstNode identifier = astNode.getFirstChild(EcmaScriptTokenType.IDENTIFIER);
+      if (identifier != null) {
+        currentScope.use(identifier);
       }
     }
   }

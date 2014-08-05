@@ -32,16 +32,17 @@ public class ExpressionTest {
   @Test
   public void ok() {
     assertThat(g.rule(EcmaScriptGrammar.EXPRESSION))
-        .matches("a = 1")
-        .matches("a = 1, b = 1");
+      .matches("a = 1")
+      .matches("a = 1, b = 1");
   }
 
   @Test
   public void realLife() {
     assertThat(g.rule(EcmaScriptGrammar.EXPRESSION))
-        .matches("a + ' ' + b")
-        .matches("i++")
-        .matches("1 / a == 1 / b");
+      .matches("a + ' ' + b")
+      .matches("i++")
+      .matches("1 / a == 1 / b")
+      .matches("yield 0");
   }
 
 }

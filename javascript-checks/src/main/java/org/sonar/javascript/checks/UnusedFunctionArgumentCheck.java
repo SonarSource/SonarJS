@@ -101,12 +101,12 @@ public class UnusedFunctionArgumentCheck extends SquidCheck<LexerlessGrammar> {
     } else if (currentScope != null && astNode.is(EcmaScriptGrammar.FORMAL_PARAMETER_LIST)) {
       declareInCurrentScope(CheckUtils.getParametersIdentifier(astNode));
     } else if (currentScope != null && astNode.is(EcmaScriptGrammar.PRIMARY_EXPRESSION)) {
-      AstNode identifierReference = astNode.getFirstChild(EcmaScriptGrammar.IDENTIFIER_REFERENCE);
-      if (identifierReference != null && identifierReference.getFirstChild().is(EcmaScriptTokenType.IDENTIFIER)) {
-        if ("arguments".equals(identifierReference.getTokenValue())) {
+      AstNode identifier = astNode.getFirstChild(EcmaScriptTokenType.IDENTIFIER);
+      if (identifier != null) {
+        if ("arguments".equals(identifier.getTokenValue())) {
           currentScope.useArgumentsArray = true;
         }
-        currentScope.use(identifierReference.getFirstChild());
+        currentScope.use(identifier);
       }
     }
   }
@@ -192,4 +192,3 @@ public class UnusedFunctionArgumentCheck extends SquidCheck<LexerlessGrammar> {
   }
 
 }
-
