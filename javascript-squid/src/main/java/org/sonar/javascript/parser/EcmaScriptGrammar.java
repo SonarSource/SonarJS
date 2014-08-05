@@ -826,9 +826,16 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
 
     b.rule(ASSIGNMENT_EXPRESSION).is(b.firstOf(
       b.sequence(LEFT_HAND_SIDE_EXPRESSION, ASSIGNMENT_OPERATOR, ASSIGNMENT_EXPRESSION),
+      // For performance reasons, hacked a bit to call CONDITIONAL_EXPRESSION first
+      b.sequence(
+        CONDITIONAL_EXPRESSION,
+        // For performance reasons, call CONDITIONAL_EXPRESSION first
+        b.nextNot(
+          b.regexp("(?:[" + EcmaScriptLexer.WHITESPACE + "]|" + EcmaScriptLexer.SINGLE_LINE_COMMENT + "|" + EcmaScriptLexer.MULTI_LINE_COMMENT_NO_LB + ")*+"),
+          "=>")),
       // Assignment_expression_no_yield might be needed, because of identifier_reference that can be "yield" (see ES6 spec).
-      ecmascript6(ES6_ASSIGNMENT_EXPRESSION),
-      CONDITIONAL_EXPRESSION)).skipIfOneChild();
+      ecmascript6(ES6_ASSIGNMENT_EXPRESSION)
+      )).skipIfOneChild();
     b.rule(ASSIGNMENT_EXPRESSION_NO_IN).is(b.firstOf(
       b.sequence(LEFT_HAND_SIDE_EXPRESSION, ASSIGNMENT_OPERATOR, ASSIGNMENT_EXPRESSION_NO_IN),
       ecmascript6(ES6_ASSIGNMENT_EXPRESSION_NO_IN),
