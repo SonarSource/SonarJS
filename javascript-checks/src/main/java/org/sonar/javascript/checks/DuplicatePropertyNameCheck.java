@@ -66,6 +66,10 @@ public class DuplicatePropertyNameCheck extends SquidCheck<LexerlessGrammar> {
 
     if (objectProperty.is(EcmaScriptGrammar.PAIR_PROPERTY)) {
       return objectProperty.getFirstChild(EcmaScriptGrammar.PROPERTY_NAME);
+
+    } else if (objectProperty.is(EcmaScriptGrammar.COVER_INITIALIZED_NAME)) {
+      return objectProperty.getFirstChild(EcmaScriptGrammar.IDENTIFIER_REFERENCE);
+
     } else {
       return objectProperty.getFirstChild().getFirstChild(EcmaScriptGrammar.PROPERTY_NAME);
     }

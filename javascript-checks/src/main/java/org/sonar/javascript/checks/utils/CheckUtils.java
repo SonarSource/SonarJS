@@ -124,7 +124,7 @@ public class CheckUtils {
     if (elementList != null) {
 
       for (AstNode elisionElement : elementList.getChildren(EcmaScriptGrammar.BINDING_ELISION_ELEMENT)) {
-        identifiers.addAll(getBindingElementIdentifiers(elisionElement.getFirstChild(EcmaScriptGrammar.BINDING_ELISION_ELEMENT)));
+        identifiers.addAll(getBindingElementIdentifiers(elisionElement.getFirstChild(EcmaScriptGrammar.BINDING_ELEMENT)));
       }
     }
     AstNode restElement = arrayBindingPatter.getFirstChild(EcmaScriptGrammar.BINDING_REST_ELEMENT);
