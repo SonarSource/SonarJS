@@ -37,7 +37,7 @@ import static org.mockito.Mockito.when;
 public class ProgressReportTest {
 
   @Rule
-  public final Timeout timeout = new Timeout(2000);
+  public final Timeout timeout = new Timeout(5000);
 
   @Test
   public void test() throws Exception {
