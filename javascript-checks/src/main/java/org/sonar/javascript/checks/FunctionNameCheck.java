@@ -37,7 +37,7 @@ import java.util.regex.Pattern;
 @BelongsToProfile(title = CheckList.SONAR_WAY_PROFILE, priority = Priority.MAJOR)
 public class FunctionNameCheck extends SquidCheck<LexerlessGrammar> {
 
-  private static final String DEFAULT = "^[a-z][a-zA-Z0-9]*$";
+  public static final String DEFAULT = "^[a-z][a-zA-Z0-9]*$";
   private Pattern pattern = null;
 
   @RuleProperty(
@@ -58,7 +58,7 @@ public class FunctionNameCheck extends SquidCheck<LexerlessGrammar> {
     if (!pattern.matcher(identifier).matches()) {
       getContext().createLineViolation(this, "Rename this ''{0}'' function to match the regular expression {1}", astNode,
         identifier,
-        DEFAULT);
+        format);
     }
   }
 }

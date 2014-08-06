@@ -34,16 +34,17 @@ public class FunctionNameCheckTest {
   public void testDefault() {
     SourceFile file = JavaScriptAstScanner.scanSingleFile(new File("src/test/resources/checks/FunctionName.js"), check);
     CheckMessagesVerifier.verify(file.getCheckMessages())
-      .next().atLine(4).withMessage("Rename this 'DoSomething' function to match the regular expression ^[a-z][a-zA-Z0-9]*$")
+      .next().atLine(4).withMessage("Rename this 'DoSomething' function to match the regular expression " + check.DEFAULT)
       .noMore();
   }
 
   @Test
   public void testCustom() {
-    check.format = "^[a-zA-Z][a-zA-Z0-9]*$";
+    check.format = "^[A-Z][a-zA-Z0-9]*$";
 
     SourceFile file = JavaScriptAstScanner.scanSingleFile(new File("src/test/resources/checks/FunctionName.js"), check);
     CheckMessagesVerifier.verify(file.getCheckMessages())
+      .next().atLine(1).withMessage("Rename this 'doSomething' function to match the regular expression " + check.format)
       .noMore();
   }
 }
