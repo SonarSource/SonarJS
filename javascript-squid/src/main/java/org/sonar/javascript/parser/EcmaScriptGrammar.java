@@ -662,12 +662,14 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
   private static void expressions(LexerlessGrammarBuilder b) {
     b.rule(PRIMARY_EXPRESSION).is(b.firstOf(
       THIS,
-      IDENTIFIER, // Not IDENTIFIER_REFERENCE, to avoid conflicts with YIELD_EXPRESSION from ASSIGNMENT_EXPRESSION
+      // Not IDENTIFIER_REFERENCE, to avoid conflicts with YIELD_EXPRESSION from ASSIGNMENT_EXPRESSION
+      IDENTIFIER,
       LITERAL,
       ARRAY_INITIALIZER,
       OBJECT_LITERAL,
       FUNCTION_EXPRESSION,
-      COVER_PARENTHESIZED_EXPRESSION_AND_ARROW_PARAMETER_LIST, // Also covers PARENTHESIZED_EXPRESSION
+      // Also covers PARENTHESIZED_EXPRESSION
+      COVER_PARENTHESIZED_EXPRESSION_AND_ARROW_PARAMETER_LIST,
       ecmascript6(CLASS_EXPRESSION),
       ecmascript6(GENERATOR_EXPRESSION),
       ecmascript6(GENERATOR_COMPREHENSION),
