@@ -37,14 +37,14 @@ import java.util.List;
   @Property(
     key = JavaScriptPlugin.FILE_SUFFIXES_KEY,
     defaultValue = JavaScriptPlugin.FILE_SUFFIXES_DEFVALUE,
-    name = "File suffixes",
+    name = "File Suffixes",
     description = "Comma-separated list of suffixes for files to analyze.",
     global = true,
-    project = true),
+    project = false),
   @Property(
     key = JavaScriptPlugin.LCOV_REPORT_PATH,
     defaultValue = JavaScriptPlugin.LCOV_REPORT_PATH_DEFAULT_VALUE,
-    name = "LCOV file",
+    name = "LCOV File",
     description = "Path (absolute or relative) to the file with LCOV data.",
     global = true,
     project = true)

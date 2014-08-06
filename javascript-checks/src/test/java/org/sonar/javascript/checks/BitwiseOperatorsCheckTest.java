@@ -34,7 +34,7 @@ public class BitwiseOperatorsCheckTest {
 
     SourceFile file = JavaScriptAstScanner.scanSingleFile(new File("src/test/resources/checks/bitwiseOperators.js"), check);
     CheckMessagesVerifier.verify(file.getCheckMessages())
-        .next().atLine(2).withMessage("Do not use bitwise operators.")
+        .next().atLine(2).withMessage("Do not use the bitwise operator: ~.")
         .next().atLine(3)
         .next().atLine(4)
         .next().atLine(5)

@@ -53,7 +53,7 @@ public class BitwiseOperatorsCheck extends SquidCheck<LexerlessGrammar> {
 
   @Override
   public void visitNode(AstNode astNode) {
-    getContext().createLineViolation(this, "Do not use bitwise operators.", astNode);
+    getContext().createLineViolation(this, "Do not use the bitwise operator: {0}.", astNode, astNode.getTokenValue());
   }
 
 }
