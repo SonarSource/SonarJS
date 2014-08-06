@@ -20,10 +20,9 @@
 package org.sonar.plugins.javascript;
 
 import com.google.common.collect.ImmutableList;
-import org.sonar.api.Extension;
-import org.sonar.api.Properties;
-import org.sonar.api.Property;
 import org.sonar.api.SonarPlugin;
+import org.sonar.api.config.PropertyDefinition;
+import org.sonar.api.resources.Qualifiers;
 import org.sonar.plugins.javascript.colorizer.JavaScriptColorizerFormat;
 import org.sonar.plugins.javascript.core.JavaScript;
 import org.sonar.plugins.javascript.core.JavaScriptSourceImporter;
@@ -32,23 +31,6 @@ import org.sonar.plugins.javascript.lcov.LCOVSensor;
 
 import java.util.List;
 
-@Properties({
-  // Global JavaScript settings
-  @Property(
-    key = JavaScriptPlugin.FILE_SUFFIXES_KEY,
-    defaultValue = JavaScriptPlugin.FILE_SUFFIXES_DEFVALUE,
-    name = "File Suffixes",
-    description = "Comma-separated list of suffixes for files to analyze.",
-    global = true,
-    project = false),
-  @Property(
-    key = JavaScriptPlugin.LCOV_REPORT_PATH,
-    defaultValue = JavaScriptPlugin.LCOV_REPORT_PATH_DEFAULT_VALUE,
-    name = "LCOV File",
-    description = "Path (absolute or relative) to the file with LCOV data.",
-    global = true,
-    project = true)
-})
 public class JavaScriptPlugin extends SonarPlugin {
 
   // Global JavaScript constants
@@ -76,6 +58,19 @@ public class JavaScriptPlugin extends SonarPlugin {
         JavaScriptCommonRulesEngine.class,
         JavaScriptCommonRulesDecorator.class,
 
-        LCOVSensor.class);
+        LCOVSensor.class,
+
+        PropertyDefinition.builder(FILE_SUFFIXES_KEY)
+          .defaultValue(FILE_SUFFIXES_DEFVALUE)
+          .name("File Suffixes")
+          .description("Comma-separated list of suffixes for files to analyze.")
+          .build(),
+
+        PropertyDefinition.builder(LCOV_REPORT_PATH)
+        .defaultValue(LCOV_REPORT_PATH_DEFAULT_VALUE)
+        .name("LCOV File")
+        .description("Path (absolute or relative) to the file with LCOV data.")
+        .onQualifiers(Qualifiers.MODULE, Qualifiers.PROJECT)
+        .build());
   }
 }
