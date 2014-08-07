@@ -70,7 +70,7 @@ public final class LCOVParser {
 
         // some tools (like Istanbul, Karma) provide relative paths, so let's consider them relative to project directory
         try {
-          filePath = LCOVSensor.getIOFile(moduleBaseDir, filePath).getCanonicalPath();
+          filePath = CoverageSensor.getIOFile(moduleBaseDir, filePath).getCanonicalPath();
         } catch (IOException e) {
           filePath = "";
           LOG.error("Unable to retreive coverage onfo for file {}, because: {}", filePath, e);

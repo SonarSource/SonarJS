@@ -26,6 +26,7 @@ import org.sonar.api.batch.SensorContext;
 import org.sonar.api.config.Settings;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Measure;
+import org.sonar.api.measures.Metric;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.ProjectFileSystem;
 import org.sonar.api.resources.Resource;
@@ -42,17 +43,13 @@ import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyObject;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.atLeast;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
-public class LCOVSensorTest {
+public class CoverageSensorTest {
 
   private static final File baseDir = new File("src/test/resources/org/sonar/plugins/javascript/jstestdriver/");
 
-  private LCOVSensor sensor;
+  private CoverageSensor sensor;
   private SensorContext context;
   private Settings settings;
   private ModuleFileSystem fileSystem = mock(ModuleFileSystem.class);
@@ -62,7 +59,7 @@ public class LCOVSensorTest {
   public void init() {
     settings = new Settings();
     settings.setProperty(JavaScriptPlugin.LCOV_REPORT_PATH, "jsTestDriver.conf-coverage.dat");
-    sensor = new LCOVSensor(new JavaScript(settings), fileSystem);
+    sensor = new CoverageSensor(new JavaScript(settings), fileSystem);
     context = mock(SensorContext.class);
     project = mockProject();
   }
@@ -77,9 +74,9 @@ public class LCOVSensorTest {
     when(fileSystem.files(any(FileQuery.class))).thenReturn(Collections.singletonList(mock(File.class)));
     assertThat(sensor.shouldExecuteOnProject(project)).isTrue();
 
-    // no path to report -> do not execute
+    // no path to report -> do execute
     settings.setProperty(JavaScriptPlugin.LCOV_REPORT_PATH, "");
-    assertThat(sensor.shouldExecuteOnProject(project)).isFalse();
+    assertThat(sensor.shouldExecuteOnProject(project)).isTrue();
   }
 
   @Test
@@ -125,8 +122,24 @@ public class LCOVSensorTest {
   }
 
   @Test
+  public void testSaveZeroValueForAllFiles() throws Exception {
+    when(fileSystem.baseDir()).thenReturn((baseDir));
+    when(fileSystem.files(any(FileQuery.class))).thenReturn(ImmutableList.of(
+      new File(baseDir, "sensortests/main/Person.js")));
+
+    settings.setProperty(JavaScriptPlugin.FORCE_ZERO_COVERAGE_KEY, "true");
+    settings.setProperty(JavaScriptPlugin.LCOV_REPORT_PATH, "");
+    when(context.getMeasure(any(Resource.class), any(Metric.class))).thenReturn(new Measure().setValue(1d));
+    sensor.analyse(project, context);
+
+    verify(context, times(1)).saveMeasure((Resource) anyObject(), eq(CoreMetrics.LINES_TO_COVER), eq(1d));
+    verify(context, times(1)).saveMeasure((Resource) anyObject(), eq(CoreMetrics.UNCOVERED_LINES), eq(1d));
+  }
+
+
+  @Test
   public void test_toString() {
-    assertThat(sensor.toString()).isEqualTo("LCOVSensor");
+    assertThat(sensor.toString()).isEqualTo("CoverageSensor");
   }
 
   public static Project mockProject() {

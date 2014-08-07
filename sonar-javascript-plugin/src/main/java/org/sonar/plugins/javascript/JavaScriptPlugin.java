@@ -20,6 +20,7 @@
 package org.sonar.plugins.javascript;
 
 import com.google.common.collect.ImmutableList;
+import org.sonar.api.PropertyType;
 import org.sonar.api.SonarPlugin;
 import org.sonar.api.config.PropertyDefinition;
 import org.sonar.api.resources.Qualifiers;
@@ -27,7 +28,7 @@ import org.sonar.plugins.javascript.colorizer.JavaScriptColorizerFormat;
 import org.sonar.plugins.javascript.core.JavaScript;
 import org.sonar.plugins.javascript.core.JavaScriptSourceImporter;
 import org.sonar.plugins.javascript.cpd.JavaScriptCpdMapping;
-import org.sonar.plugins.javascript.lcov.LCOVSensor;
+import org.sonar.plugins.javascript.lcov.CoverageSensor;
 
 import java.util.List;
 
@@ -44,6 +45,9 @@ public class JavaScriptPlugin extends SonarPlugin {
   public static final String LCOV_REPORT_PATH = PROPERTY_PREFIX + ".lcov.reportPath";
   public static final String LCOV_REPORT_PATH_DEFAULT_VALUE = "";
 
+  public static final String FORCE_ZERO_COVERAGE_KEY = "sonar.javascript.forceZeroCoverage";
+  public static final String FORCE_ZERO_COVERAGE_DEFAULT_VALUE = "false";
+
   public List getExtensions() {
     return ImmutableList.of(
         JavaScript.class,
@@ -58,7 +62,7 @@ public class JavaScriptPlugin extends SonarPlugin {
         JavaScriptCommonRulesEngine.class,
         JavaScriptCommonRulesDecorator.class,
 
-        LCOVSensor.class,
+        CoverageSensor.class,
 
         PropertyDefinition.builder(FILE_SUFFIXES_KEY)
           .defaultValue(FILE_SUFFIXES_DEFVALUE)
@@ -71,6 +75,16 @@ public class JavaScriptPlugin extends SonarPlugin {
         .name("LCOV File")
         .description("Path (absolute or relative) to the file with LCOV data.")
         .onQualifiers(Qualifiers.MODULE, Qualifiers.PROJECT)
-        .build());
+        .build(),
+
+        PropertyDefinition.builder(FORCE_ZERO_COVERAGE_KEY)
+          .defaultValue(FORCE_ZERO_COVERAGE_DEFAULT_VALUE)
+          .name("Force 0 coverage value")
+          .description("Force coverage to be set to 0 when no report is provided.")
+          .onQualifiers(Qualifiers.MODULE, Qualifiers.PROJECT)
+          .type(PropertyType.BOOLEAN)
+          .build()
+    );
   }
+
 }
