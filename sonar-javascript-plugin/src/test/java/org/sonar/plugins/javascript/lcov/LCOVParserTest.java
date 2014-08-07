@@ -53,10 +53,10 @@ public class LCOVParserTest {
         "FNDA:2,(anonymous_1)",
         "DA:1,1",
         "DA:2,0",
-        "BRDA:11,0,0,2",
-        "BRDA:11,0,1,1",
-        "BRDA:11,0,2,0",
-        "BRDA:11,0,3,-",
+        "BRDA:11,1,0,2",
+        "BRDA:11,1,1,1",
+        "BRDA:11,2,0,0",
+        "BRDA:11,2,1,-",
         "end_of_record"));
     assertThat(result).hasSize(2);
 

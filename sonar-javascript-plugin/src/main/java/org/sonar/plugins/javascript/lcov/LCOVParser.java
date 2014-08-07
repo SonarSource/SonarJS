@@ -94,7 +94,7 @@ public final class LCOVParser {
         // BRDA:<line number>,<block number>,<branch number>,<taken>
         String[] tokens = line.substring(BRDA.length()).trim().split(",");
         String lineNumber = tokens[0];
-        String branchNumber = tokens[2];
+        String branchNumber = tokens[1] + tokens[2];
         String taken = tokens[3];
 
         fileData.addBranch(Integer.valueOf(lineNumber), branchNumber, "-".equals(taken) ? 0 : Integer.valueOf(taken));
