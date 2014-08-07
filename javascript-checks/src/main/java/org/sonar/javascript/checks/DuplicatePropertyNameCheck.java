@@ -46,17 +46,23 @@ public class DuplicatePropertyNameCheck extends SquidCheck<LexerlessGrammar> {
   public void visitNode(AstNode astNode) {
     Set<String> values = Sets.newHashSet();
     List<AstNode> propertyAssignments = astNode.getChildren(EcmaScriptGrammar.PROPERTY_DEFINITION);
+
     for (AstNode propertyAssignment : propertyAssignments) {
-      AstNode propertyName = getPropertyName(propertyAssignment);
-      String value = propertyName.getTokenValue();
-      if (value.startsWith("\"") || value.startsWith("'")) {
-        value = value.substring(1, value.length() - 1);
-      }
-      String unescaped = EscapeUtils.unescape(value);
-      if (values.contains(unescaped)) {
-        getContext().createLineViolation(this, "Rename or remove duplicate property name '" + value + "'.", propertyName);
-      } else {
-        values.add(unescaped);
+
+      if (propertyAssignment.getFirstChild().isNot(EcmaScriptGrammar.METHOD_DEFINITION)) {
+        AstNode propertyName = getPropertyName(propertyAssignment);
+        String value = propertyName.getTokenValue();
+
+        if (value.startsWith("\"") || value.startsWith("'")) {
+          value = value.substring(1, value.length() - 1);
+        }
+        String unescaped = EscapeUtils.unescape(value);
+
+        if (values.contains(unescaped)) {
+          getContext().createLineViolation(this, "Rename or remove duplicate property name '" + value + "'.", propertyName);
+        } else {
+          values.add(unescaped);
+        }
       }
     }
   }
@@ -67,13 +73,9 @@ public class DuplicatePropertyNameCheck extends SquidCheck<LexerlessGrammar> {
     if (objectProperty.is(EcmaScriptGrammar.PAIR_PROPERTY)) {
       return objectProperty.getFirstChild(EcmaScriptGrammar.PROPERTY_NAME);
 
-    } else if (objectProperty.is(EcmaScriptGrammar.COVER_INITIALIZED_NAME)) {
+    } else /* COVER_INITIALIZED_NAME */ {
       return objectProperty.getFirstChild(EcmaScriptGrammar.IDENTIFIER_REFERENCE);
-
-    } else {
-      return objectProperty.getFirstChild().getFirstChild(EcmaScriptGrammar.PROPERTY_NAME);
     }
-
   }
 
 }

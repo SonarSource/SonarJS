@@ -41,6 +41,7 @@ public class DuplicatePropertyNameCheckTest {
         .next().atLine(9).withMessage("Rename or remove duplicate property name '\\u006bey'.")
         .next().atLine(10).withMessage("Rename or remove duplicate property name '\\x6bey'.")
         .next().atLine(11).withMessage("Rename or remove duplicate property name '1'.")
+        .next().atLine(12)
         .noMore();
   }
 
