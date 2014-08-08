@@ -31,8 +31,13 @@ public class ComplexityVisitor extends SquidAstVisitor<LexerlessGrammar> {
   @Override
   public void init() {
     subscribeTo(
+        // Functions
         EcmaScriptGrammar.FUNCTION_DECLARATION,
         EcmaScriptGrammar.FUNCTION_EXPRESSION,
+        EcmaScriptGrammar.METHOD,
+        EcmaScriptGrammar.GENERATOR_METHOD,
+        EcmaScriptGrammar.GENERATOR_EXPRESSION,
+        EcmaScriptGrammar.GENERATOR_DECLARATION,
         // Branching nodes
         EcmaScriptGrammar.IF_STATEMENT,
         EcmaScriptGrammar.ITERATION_STATEMENT,

@@ -39,3 +39,17 @@ function example() // +1 functionDeclaration
   return 1; // +0 last returnStatement
 
 }
+
+class C {
+
+    method () {  // +1 method
+        var generator = function * () {  // +1 generatorExpression
+        };
+    }
+
+    * generator () {  // +1 generation method
+    }
+}
+
+function * generator () {  // +1 genrator declaration
+}
