@@ -41,7 +41,6 @@ import org.sonar.javascript.api.EcmaScriptMetric;
 import org.sonar.javascript.api.EcmaScriptTokenType;
 import org.sonar.javascript.metrics.ComplexityVisitor;
 import org.sonar.javascript.model.TreeVisitor;
-import org.sonar.javascript.model.TreeVisitorsBridge;
 import org.sonar.javascript.parser.EcmaScriptGrammar;
 import org.sonar.javascript.parser.EcmaScriptParser;
 import org.sonar.sslr.grammar.GrammarRuleKey;
