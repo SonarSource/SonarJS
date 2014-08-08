@@ -77,6 +77,12 @@ public class JavaScriptAstScannerTest {
   }
 
   @Test
+  public void accessors() {
+    SourceFile file = JavaScriptAstScanner.scanSingleFile(new File("src/test/resources/metrics/accessors.js"));
+    assertThat(file.getInt(EcmaScriptMetric.ACCESSORS)).isEqualTo(4);
+  }
+
+  @Test
   public void complexity() {
     SourceFile file = JavaScriptAstScanner.scanSingleFile(new File("src/test/resources/metrics/complexity.js"));
     assertThat(file.getInt(EcmaScriptMetric.COMPLEXITY)).isEqualTo(15);

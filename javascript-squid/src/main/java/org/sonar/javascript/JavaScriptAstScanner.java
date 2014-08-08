@@ -136,6 +136,13 @@ public final class JavaScriptAstScanner {
             EcmaScriptGrammar.DEBUGGER_STATEMENT)
         .build());
 
+    builder.withSquidAstVisitor(CounterVisitor.<LexerlessGrammar>builder()
+      .setMetricDef(EcmaScriptMetric.ACCESSORS)
+      .subscribeTo(
+        EcmaScriptGrammar.GETTER_METHOD,
+        EcmaScriptGrammar.SETTER_METHOD)
+      .build());
+
     builder.withSquidAstVisitor(new ComplexityVisitor());
 
     /* External visitors (typically Check ones) */

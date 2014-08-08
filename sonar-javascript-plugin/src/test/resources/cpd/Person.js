@@ -16,6 +16,13 @@ Person.prototype = {
 
     whoAreYou : function() {
         return this.first + (this.middle ? ' ' + this.middle: '') + ' ' + this.last;
-    }
+    },
 
+    set first(first) {
+        this.first = first;
+    },
+
+    get first() {
+        return this.first;
+    }
 };
