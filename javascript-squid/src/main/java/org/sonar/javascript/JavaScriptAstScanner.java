@@ -44,12 +44,21 @@ import org.sonar.javascript.model.TreeVisitor;
 import org.sonar.javascript.model.TreeVisitorsBridge;
 import org.sonar.javascript.parser.EcmaScriptGrammar;
 import org.sonar.javascript.parser.EcmaScriptParser;
+import org.sonar.sslr.grammar.GrammarRuleKey;
 import org.sonar.sslr.parser.LexerlessGrammar;
 
 import java.io.File;
 import java.util.Collection;
 
 public final class JavaScriptAstScanner {
+
+  private static final GrammarRuleKey[] FUNCTION_NODES = {
+      EcmaScriptGrammar.FUNCTION_DECLARATION,
+      EcmaScriptGrammar.FUNCTION_EXPRESSION,
+      EcmaScriptGrammar.METHOD,
+      EcmaScriptGrammar.GENERATOR_METHOD,
+      EcmaScriptGrammar.GENERATOR_EXPRESSION,
+      EcmaScriptGrammar.GENERATOR_DECLARATION};
 
   private JavaScriptAstScanner() {
   }
@@ -88,19 +97,19 @@ public final class JavaScriptAstScanner {
     /* Functions */
     builder.withSquidAstVisitor(CounterVisitor.<LexerlessGrammar> builder()
         .setMetricDef(EcmaScriptMetric.FUNCTIONS)
-        .subscribeTo(EcmaScriptGrammar.FUNCTION_DECLARATION, EcmaScriptGrammar.FUNCTION_EXPRESSION)
+        .subscribeTo(FUNCTION_NODES)
         .build());
 
     builder.withSquidAstVisitor(new SourceCodeBuilderVisitor<LexerlessGrammar>(new SourceCodeBuilderCallback() {
       public SourceCode createSourceCode(SourceCode parentSourceCode, AstNode astNode) {
-        AstNode identifier = astNode.getFirstChild(EcmaScriptTokenType.IDENTIFIER);
+        AstNode identifier = astNode.getFirstChild(EcmaScriptTokenType.IDENTIFIER, EcmaScriptGrammar.PROPERTY_NAME, EcmaScriptGrammar.BINDING_IDENTIFIER);
         final String functionName = identifier == null ? "anonymous" : identifier.getTokenValue();
         final String fileKey = parentSourceCode.isType(SourceFile.class) ? parentSourceCode.getKey() : parentSourceCode.getParent(SourceFile.class).getKey();
         SourceFunction function = new SourceFunction(fileKey + ":" + functionName + ":" + astNode.getToken().getLine() + ":" + astNode.getToken().getColumn());
         function.setStartAtLine(astNode.getTokenLine());
         return function;
       }
-    }, EcmaScriptGrammar.FUNCTION_DECLARATION, EcmaScriptGrammar.FUNCTION_EXPRESSION));
+    }, FUNCTION_NODES));
 
     /* Metrics */
     builder.withSquidAstVisitor(new LinesVisitor<LexerlessGrammar>(EcmaScriptMetric.LINES));
