@@ -74,31 +74,32 @@ public class CoverageSensor implements Sensor {
     String providedPath = javascript.getSettings().getString(JavaScriptPlugin.LCOV_REPORT_PATH);
     File lcovFile = getIOFile(moduleFileSystem.baseDir(), providedPath);
 
-    if (lcovFile.isFile()) {
-      LOG.info("Analysing {}", lcovFile);
-
-      LCOVParser parser = new LCOVParser(moduleFileSystem.baseDir());
-      Map<String, CoverageMeasuresBuilder> coveredFiles = parser.parseFile(lcovFile);
-
-      for (File file : moduleFileSystem.files(FileQuery.onSource().onLanguage(JavaScript.KEY))) {
-        try {
-          CoverageMeasuresBuilder fileCoverage = coveredFiles.get(file.getAbsolutePath());
-          org.sonar.api.resources.File resource = org.sonar.api.resources.File.fromIOFile(file, project);
-
-          if (fileCoverage != null) {
-            for (Measure measure : fileCoverage.createMeasures()) {
-              context.saveMeasure(resource, measure);
-            }
-          } else {
-            // colour all lines as not executed
-            saveZeroValueForResource(resource, context);
-          }
-        } catch (Exception e) {
-          LOG.error("Problem while calculating coverage for " + file.getAbsolutePath(), e);
-        }
-      }
-    } else {
+    if (!lcovFile.isFile()) {
       LOG.warn("No coverage information will be saved because LCOV file cannot be analysed. Provided LCOV file path: {}", providedPath);
+      return;
+    }
+
+    LOG.info("Analysing {}", lcovFile);
+
+    LCOVParser parser = new LCOVParser(moduleFileSystem.baseDir());
+    Map<String, CoverageMeasuresBuilder> coveredFiles = parser.parseFile(lcovFile);
+
+    for (File file : moduleFileSystem.files(FileQuery.onSource().onLanguage(JavaScript.KEY))) {
+      try {
+        CoverageMeasuresBuilder fileCoverage = coveredFiles.get(file.getAbsolutePath());
+        org.sonar.api.resources.File resource = org.sonar.api.resources.File.fromIOFile(file, project);
+
+        if (fileCoverage != null) {
+          for (Measure measure : fileCoverage.createMeasures()) {
+            context.saveMeasure(resource, measure);
+          }
+        } else {
+          // colour all lines as not executed
+          saveZeroValueForResource(resource, context);
+        }
+      } catch (Exception e) {
+        LOG.error("Problem while calculating coverage for " + file.getAbsolutePath(), e);
+      }
     }
   }
 
