@@ -103,4 +103,14 @@ public class JavaScriptSquidSensorTest {
     verify(context).saveMeasure(any(Resource.class), eq(CoreMetrics.COMMENT_LINES), eq(2.0));
   }
 
+  @Test
+  public void test_to_string() {
+    JavaScriptSquidSensor sensor = new JavaScriptSquidSensor(
+      mock(RulesProfile.class),
+      fileLinesContextFactory,
+      mock(ResourcePerspectives.class),
+      mock(ModuleFileSystem.class));
+
+    assertThat(sensor.toString()).isNotNull();
+  }
 }

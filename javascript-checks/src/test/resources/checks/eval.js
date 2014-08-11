@@ -4,3 +4,9 @@ function sayHello() {
   `eval` ();              // OK
   `${eval()}`;            // NOK
 }
+
+class C {
+    constructor () {
+        super();
+    }
+}

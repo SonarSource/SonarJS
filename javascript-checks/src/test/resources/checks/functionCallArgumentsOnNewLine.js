@@ -21,4 +21,5 @@ var fn = function () {
         param
     );
 
-`characters` ()           // OK
+`characters` ()
+()                         // NOK

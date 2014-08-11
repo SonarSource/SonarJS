@@ -4,6 +4,11 @@ function sayHello() {
   }
 
   if (x) {
-    var foo = function() {} // OK
+    let foo;
+    foo = function() {} // OK
+  }
+
+  if (x) {
+    // empty block
   }
 }

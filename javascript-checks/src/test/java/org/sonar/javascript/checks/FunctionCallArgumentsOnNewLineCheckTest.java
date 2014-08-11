@@ -36,6 +36,7 @@ public class FunctionCallArgumentsOnNewLineCheckTest {
     CheckMessagesVerifier.verify(file.getCheckMessages())
       .next().atLine(4).withMessage("Make those call arguments start on line 2")
       .next().atLine(9).withMessage("Make those call arguments start on line 8")
+      .next().atLine(25).withMessage("Make those call arguments start on line 24")
       .noMore();
   }
 

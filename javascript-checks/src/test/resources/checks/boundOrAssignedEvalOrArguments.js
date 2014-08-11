@@ -11,7 +11,8 @@ var y = function eval() { };
 var f = new Function("arguments", "return 17;");
 
 eval("");
-arguments[0];
+arguments[0] = a;  // OK
+a = arguments;     // OK
 
 fun(arguments); // OK
 
