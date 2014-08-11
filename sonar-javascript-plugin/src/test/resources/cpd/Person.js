@@ -26,3 +26,6 @@ Person.prototype = {
         return this.first;
     }
 };
+
+class Utils {
+}

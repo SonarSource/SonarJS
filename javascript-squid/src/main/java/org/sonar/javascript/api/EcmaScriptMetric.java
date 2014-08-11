@@ -30,7 +30,8 @@ public enum EcmaScriptMetric implements MetricDef {
   STATEMENTS,
   COMPLEXITY,
   FUNCTIONS,
-  ACCESSORS;
+  ACCESSORS,
+  CLASSES;
 
   public String getName() {
     return name();

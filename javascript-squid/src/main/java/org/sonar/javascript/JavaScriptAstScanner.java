@@ -29,6 +29,7 @@ import org.sonar.squidbridge.SourceCodeBuilderVisitor;
 import org.sonar.squidbridge.SquidAstVisitor;
 import org.sonar.squidbridge.SquidAstVisitorContextImpl;
 import org.sonar.squidbridge.api.SourceCode;
+import org.sonar.squidbridge.api.SourceClass;
 import org.sonar.squidbridge.api.SourceFile;
 import org.sonar.squidbridge.api.SourceFunction;
 import org.sonar.squidbridge.api.SourceProject;
@@ -92,6 +93,23 @@ public final class JavaScriptAstScanner {
 
     /* Files */
     builder.setFilesMetric(EcmaScriptMetric.FILES);
+
+    /* Classes */
+    builder.withSquidAstVisitor(new SourceCodeBuilderVisitor<LexerlessGrammar>(new SourceCodeBuilderCallback() {
+      private int seq = 0;
+
+      @Override
+      public SourceCode createSourceCode(SourceCode parentSourceCode, AstNode astNode) {
+        seq++;
+        SourceClass cls = new SourceClass("class:" + seq);
+        cls.setStartAtLine(astNode.getTokenLine());
+        return cls;
+      }
+    }, EcmaScriptGrammar.CLASS_DECLARATION));
+
+    builder.withSquidAstVisitor(CounterVisitor.<LexerlessGrammar>builder().setMetricDef(EcmaScriptMetric.CLASSES)
+      .subscribeTo(EcmaScriptGrammar.CLASS_DECLARATION)
+      .build());
 
     /* Functions */
     builder.withSquidAstVisitor(CounterVisitor.<LexerlessGrammar> builder()
