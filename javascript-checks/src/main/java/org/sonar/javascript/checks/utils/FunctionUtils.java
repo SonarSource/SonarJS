@@ -33,6 +33,6 @@ public class FunctionUtils {
     EcmaScriptGrammar.GENERATOR_DECLARATION,
     EcmaScriptGrammar.GENERATOR_EXPRESSION,
     EcmaScriptGrammar.FUNCTION_DECLARATION,
-    EcmaScriptGrammar.GENERATOR_EXPRESSION};
+    EcmaScriptGrammar.FUNCTION_EXPRESSION};
 
 }
