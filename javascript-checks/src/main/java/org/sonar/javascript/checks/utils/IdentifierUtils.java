@@ -28,9 +28,9 @@ import org.sonar.javascript.parser.EcmaScriptGrammar;
 import javax.annotation.Nullable;
 import java.util.List;
 
-public class CheckUtils {
+public class IdentifierUtils {
 
-  private CheckUtils() {
+  private IdentifierUtils() {
   }
 
   public static List<AstNode> getCatchIdentifiers(AstNode catchNode) {

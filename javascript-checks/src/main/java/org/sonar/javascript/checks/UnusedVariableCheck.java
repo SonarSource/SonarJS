@@ -26,7 +26,7 @@ import org.sonar.check.BelongsToProfile;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.javascript.api.EcmaScriptTokenType;
-import org.sonar.javascript.checks.utils.CheckUtils;
+import org.sonar.javascript.checks.utils.IdentifierUtils;
 import org.sonar.javascript.parser.EcmaScriptGrammar;
 import org.sonar.squidbridge.checks.SquidCheck;
 import org.sonar.sslr.parser.LexerlessGrammar;
@@ -108,11 +108,11 @@ public class UnusedVariableCheck extends SquidCheck<LexerlessGrammar> {
       currentScope = new Scope(currentScope);
     } else if (currentScope != null && astNode.is(EcmaScriptGrammar.FORMAL_PARAMETER_LIST)) {
       // declare all parameters as variables, which are already used, so that they won't trigger violations
-      declareInCurrentScope(CheckUtils.getParametersIdentifier(astNode), 1);
+      declareInCurrentScope(IdentifierUtils.getParametersIdentifier(astNode), 1);
 
     } else if (currentScope != null) {
       if (astNode.is(EcmaScriptGrammar.VARIABLE_DECLARATION, EcmaScriptGrammar.VARIABLE_DECLARATION_NO_IN)) {
-        declareInCurrentScope(CheckUtils.getVariableIdentifiers(astNode), 0);
+        declareInCurrentScope(IdentifierUtils.getVariableIdentifiers(astNode), 0);
       } else if (astNode.is(EcmaScriptGrammar.PRIMARY_EXPRESSION)) {
         AstNode identifier = astNode.getFirstChild(EcmaScriptTokenType.IDENTIFIER);
         if (identifier != null) {

@@ -25,7 +25,7 @@ import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.javascript.api.EcmaScriptPunctuator;
 import org.sonar.javascript.api.EcmaScriptTokenType;
-import org.sonar.javascript.checks.utils.CheckUtils;
+import org.sonar.javascript.checks.utils.IdentifierUtils;
 import org.sonar.javascript.parser.EcmaScriptGrammar;
 import org.sonar.squidbridge.checks.SquidCheck;
 import org.sonar.sslr.parser.LexerlessGrammar;
@@ -81,7 +81,7 @@ public class BoundOrAssignedEvalOrArgumentsCheck extends SquidCheck<LexerlessGra
   }
 
   private void checkFormalParamList(AstNode formalParameterList) {
-    for (AstNode identifier : CheckUtils.getParametersIdentifier(formalParameterList)) {
+    for (AstNode identifier : IdentifierUtils.getParametersIdentifier(formalParameterList)) {
       String identifierName = identifier.getTokenValue();
 
       if (isEvalOrArguments(identifierName)) {
@@ -92,7 +92,7 @@ public class BoundOrAssignedEvalOrArgumentsCheck extends SquidCheck<LexerlessGra
 
   private void checkVariableDeclaration(AstNode astNode) {
     List<AstNode> identifiers = astNode.is(EcmaScriptGrammar.CATCH) ?
-      CheckUtils.getCatchIdentifiers(astNode) : CheckUtils.getVariableIdentifiers(astNode);
+      IdentifierUtils.getCatchIdentifiers(astNode) : IdentifierUtils.getVariableIdentifiers(astNode);
 
     for (AstNode identifier : identifiers) {
       String identifierName = identifier.getTokenValue();
@@ -104,7 +104,7 @@ public class BoundOrAssignedEvalOrArgumentsCheck extends SquidCheck<LexerlessGra
   }
 
   private void checkPropertySetParameterList(AstNode propertySetParameterList) {
-    for (AstNode identifier : CheckUtils.getParametersIdentifier(propertySetParameterList)) {
+    for (AstNode identifier : IdentifierUtils.getParametersIdentifier(propertySetParameterList)) {
       String identifierName = identifier.getTokenValue();
 
       if (isEvalOrArguments(identifierName)) {

@@ -29,7 +29,7 @@ import org.sonar.check.BelongsToProfile;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.javascript.api.EcmaScriptTokenType;
-import org.sonar.javascript.checks.utils.CheckUtils;
+import org.sonar.javascript.checks.utils.IdentifierUtils;
 import org.sonar.javascript.parser.EcmaScriptGrammar;
 import org.sonar.squidbridge.checks.SquidCheck;
 import org.sonar.sslr.parser.LexerlessGrammar;
@@ -99,7 +99,7 @@ public class UnusedFunctionArgumentCheck extends SquidCheck<LexerlessGrammar> {
       // enter new scope
       currentScope = new Scope(currentScope, astNode);
     } else if (currentScope != null && astNode.is(EcmaScriptGrammar.FORMAL_PARAMETER_LIST)) {
-      declareInCurrentScope(CheckUtils.getParametersIdentifier(astNode));
+      declareInCurrentScope(IdentifierUtils.getParametersIdentifier(astNode));
     } else if (currentScope != null && astNode.is(EcmaScriptGrammar.PRIMARY_EXPRESSION)) {
       AstNode identifier = astNode.getFirstChild(EcmaScriptTokenType.IDENTIFIER);
       if (identifier != null) {

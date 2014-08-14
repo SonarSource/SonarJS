@@ -26,7 +26,7 @@ import org.sonar.check.BelongsToProfile;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.javascript.api.EcmaScriptTokenType;
-import org.sonar.javascript.checks.utils.CheckUtils;
+import org.sonar.javascript.checks.utils.IdentifierUtils;
 import org.sonar.javascript.parser.EcmaScriptGrammar;
 import org.sonar.squidbridge.checks.SquidCheck;
 import org.sonar.sslr.parser.LexerlessGrammar;
@@ -94,10 +94,10 @@ public class VariableDeclarationAfterUsageCheck extends SquidCheck<LexerlessGram
       // enter new scope
       currentScope = new Scope(currentScope);
     } else if (astNode.is(EcmaScriptGrammar.FORMAL_PARAMETER_LIST)) {
-      declareInCurrentScope(CheckUtils.getParametersIdentifier(astNode));
+      declareInCurrentScope(IdentifierUtils.getParametersIdentifier(astNode));
 
     } else if (astNode.is(EcmaScriptGrammar.VARIABLE_DECLARATION, EcmaScriptGrammar.VARIABLE_DECLARATION_NO_IN)) {
-      declareInCurrentScope(CheckUtils.getVariableIdentifiers(astNode));
+      declareInCurrentScope(IdentifierUtils.getVariableIdentifiers(astNode));
 
     } else if (astNode.is(EcmaScriptGrammar.PRIMARY_EXPRESSION)) {
       AstNode identifier = astNode.getFirstChild(EcmaScriptTokenType.IDENTIFIER);
