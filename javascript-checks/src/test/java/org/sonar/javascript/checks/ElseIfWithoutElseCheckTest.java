@@ -34,7 +34,7 @@ public class ElseIfWithoutElseCheckTest {
 
     SourceFile file = JavaScriptAstScanner.scanSingleFile(new File("src/test/resources/checks/elseIfWithoutElse.js"), check);
     CheckMessagesVerifier.verify(file.getCheckMessages())
-        .next().atLine(15).withMessage("End this if...else if construct by an else clause.")
+        .next().atLine(15).withMessage("Add the missing \"else\" clause.")
         .noMore();
   }
 

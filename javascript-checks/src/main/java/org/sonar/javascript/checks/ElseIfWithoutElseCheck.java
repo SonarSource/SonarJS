@@ -41,7 +41,7 @@ public class ElseIfWithoutElseCheck extends SquidCheck<LexerlessGrammar> {
     if (isElseIf(node)) {
       AstNode elseClause = node.getFirstChild(EcmaScriptGrammar.ELSE_CLAUSE);
       if (elseClause == null) {
-        getContext().createLineViolation(this, "End this if...else if construct by an else clause.", node);
+        getContext().createLineViolation(this, "Add the missing \"else\" clause.", node);
       }
     }
   }
