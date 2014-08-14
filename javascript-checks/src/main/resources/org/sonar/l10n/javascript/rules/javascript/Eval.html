@@ -1,15 +1,8 @@
 <p>
-The eval() function in JavaScript is a way to run arbitrary code at run-time.
-In almost all cases, eval should never be used.
-If it exists in your page, there is almost always a more correct way to accomplish what you are doing.
-The rule is, "Eval is evil." Don't use it unless you are an experienced developer and know that your case is an exception.
+  The <code>eval</code> function is a way to run arbitrary code at run-time. Generally it is considered to be very dangerous because it allows execution of arbitrary code. Its use thus is discouraged. If you have carefully verified that there is no other option than to use this construct, pay special attention not to pass any user-provided data into it without properly validating it beforehand.
 </p>
 
-<p>
-The following code snippet illustrates this rule :
-</p>
-
+<h2>Noncompliant Code Example</h2>
 <pre>
-var myCode = 'alert("Howdy?");';
-eval(myCode);     // Non-Compliant
+eval(code_to_be_dynamically_executed)
 </pre>
