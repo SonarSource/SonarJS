@@ -17,6 +17,11 @@ function f() {         // NOK
   }
 }
 
+function * f() {       // NOK
+  // comment
+  return 1;
+}
+
 var f = function () {  // OK
   return 1;
 }
