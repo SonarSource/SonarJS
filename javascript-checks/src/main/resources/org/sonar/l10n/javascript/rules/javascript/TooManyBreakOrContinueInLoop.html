@@ -1,26 +1,22 @@
 <p>
-The 'break' and 'continue' branching statements increase the essential complexity of the source code by removing the ability to linearly read the flow of statements.
-Using one 'break' or 'continue' statement in a loop should be highly motivated but is acceptable since this allows optimal coding in some specific cases.
-However using more than one of those statements in a loop leads to unmaintainable source code.
+  Restricting the number of <code>break</code> and <code>continue</code> statements in a loop is done in the interest of good structured programming.
 </p>
 
 <p>
-The following code snippet illustrates this rule:
+  One <code>break</code> and <code>continue</code> statement is acceptable in a loop, since it facilitates optimal coding. If there is more than one, the code should be refactored to increase readability.
 </p>
 
+<h2>Noncompiant Code Example</h2>
 <pre>
-for (i = 0; i < 10; i++) { // Compliant
-  if (i % n == 0) {
-    break;
-  }
-}
-
-for (i = 0; i < 10; i++) { // Non-Compliant
-  if (i%n == 0) {
-    break;
-  }
-  if (n%i == 0) {
+for (var i = 1; i <= 10; i++) {  // Noncompliant - 2 continue - one might be tempted to add some logic in between
+  if (i % 2 == 0) {
     continue;
   }
+
+  if (i % 3 == 0) {
+    continue;
+  }
+
+  alert("i = " + i);
 }
 </pre>
