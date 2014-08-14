@@ -17,27 +17,22 @@
  * License along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.javascript.checks;
+package org.sonar.javascript.checks.utils;
 
-import org.sonar.squidbridge.checks.CheckMessagesVerifier;
-import org.junit.Test;
-import org.sonar.javascript.JavaScriptAstScanner;
-import org.sonar.squidbridge.api.SourceFile;
+import org.sonar.javascript.parser.EcmaScriptGrammar;
+import org.sonar.sslr.grammar.GrammarRuleKey;
 
-import java.io.File;
+public class FunctionUtils {
 
-public class FunctionComplexityCheckTest {
-
-  @Test
-  public void test() {
-    FunctionComplexityCheck check = new FunctionComplexityCheck();
-    check.setMaximumFunctionComplexityThreshold(2);
-
-    SourceFile file = JavaScriptAstScanner.scanSingleFile(new File("src/test/resources/checks/functionComplexity.js"), check);
-    CheckMessagesVerifier.verify(file.getCheckMessages())
-        .next().atLine(1).withMessage("Function has a complexity of 5 which is greater than 2 authorized.")
-        .next().atLine(14)
-        .noMore();
+  private FunctionUtils() {
   }
+
+  public static final GrammarRuleKey[] FUNCTIONS = {
+    EcmaScriptGrammar.METHOD,
+    EcmaScriptGrammar.GENERATOR_METHOD,
+    EcmaScriptGrammar.GENERATOR_DECLARATION,
+    EcmaScriptGrammar.GENERATOR_EXPRESSION,
+    EcmaScriptGrammar.FUNCTION_DECLARATION,
+    EcmaScriptGrammar.GENERATOR_EXPRESSION};
 
 }
