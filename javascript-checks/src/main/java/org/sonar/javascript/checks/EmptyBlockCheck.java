@@ -23,6 +23,7 @@ import com.sonar.sslr.api.AstNode;
 import org.sonar.check.BelongsToProfile;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
+import org.sonar.javascript.api.EcmaScriptPunctuator;
 import org.sonar.javascript.parser.EcmaScriptGrammar;
 import org.sonar.squidbridge.checks.SquidCheck;
 import org.sonar.sslr.parser.LexerlessGrammar;
@@ -40,9 +41,12 @@ public class EmptyBlockCheck extends SquidCheck<LexerlessGrammar> {
 
   @Override
   public void visitNode(AstNode astNode) {
-    if (!astNode.hasDirectChildren(EcmaScriptGrammar.STATEMENT_LIST)) {
-      getContext().createLineViolation(this, "Provide the missing piece of code.", astNode);
+    if (!astNode.hasDirectChildren(EcmaScriptGrammar.STATEMENT_LIST) && !hasComment(astNode)) {
+      getContext().createLineViolation(this, "Either remove or fill this block of code.", astNode);
     }
   }
 
+  private static boolean hasComment(AstNode blockNode) {
+    return blockNode.getFirstChild(EcmaScriptPunctuator.RCURLYBRACE).getToken().hasTrivia();
+  }
 }

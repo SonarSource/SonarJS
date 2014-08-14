@@ -1,13 +1,27 @@
-if (something) { // Non-Compliant
+// NOK
+if (something) {
 }
 
-if (something) { // Compliant
+// OK
+if (something) {
+  // empty
+}
+
+// OK
+if (something) {
   doSomething();
 }
 
-for (var i = 0; i < length; i++) { // Non-Compliant
+// NOK
+for (var i = 0; i < length; i++) {
 }
 
-for (var i = 0; i < length; i++) { // Compliant
+// OK
+for (var i = 0; i < length; i++) {
+  // empty
+}
+
+// OK
+for (var i = 0; i < length; i++) {
   doSomething();
 }
