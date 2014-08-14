@@ -46,37 +46,44 @@ public class BooleanEqualityComparisonCheck extends SquidCheck<LexerlessGrammar>
 
   @Override
   public void visitNode(AstNode astNode) {
-    if (astNode.is(EcmaScriptGrammar.UNARY_EXPRESSION)) {
-      checkUnaryExpression(astNode);
+    AstNode boolLiteral = getBooleanLiteralFromExpresion(astNode);
+
+    if (boolLiteral != null) {
+      getContext().createLineViolation(this, "Remove the literal \"" + boolLiteral.getTokenOriginalValue() + "\" boolean value.", astNode);
+    }
+  }
+
+  private static AstNode getBooleanLiteralFromExpresion(AstNode expression) {
+    if (expression.is(EcmaScriptGrammar.UNARY_EXPRESSION)) {
+      return getBooleanLiteralFromUnaryExpression(expression);
+    // e.g x == y == false
+    } else if (expression.getNumberOfChildren() != 3){
+      return null;
+    }
+
+    AstNode leftExpr = expression.getFirstChild();
+    AstNode rightExpr = expression.getLastChild();
+
+    if (isBooleanLiteral(leftExpr)) {
+      return leftExpr;
+    } else if (isBooleanLiteral(rightExpr)) {
+      return rightExpr;
     } else {
-      checkBinaryExpr(astNode);
+      return null;
     }
   }
 
-  public void checkBinaryExpr(AstNode expr) {
-    if (expr.getNumberOfChildren() == 3 && hasBooleanLiteral(expr)) {
-      String operator = expr.getFirstChild(
-        EcmaScriptPunctuator.EQUAL,
-        EcmaScriptPunctuator.NOTEQUAL,
-        EcmaScriptPunctuator.EQUAL2,
-        EcmaScriptPunctuator.NOTEQUAL2,
-        EcmaScriptPunctuator.ANDAND,
-        EcmaScriptPunctuator.OROR)
-        .getTokenValue();
+  private static AstNode getBooleanLiteralFromUnaryExpression(AstNode unaryExpression) {
+    AstNode boolLiteral = null;
 
-      reportIssue(expr, operator);
+    if (unaryExpression.getFirstChild().is(EcmaScriptPunctuator.BANG)) {
+      AstNode expr = unaryExpression.getLastChild();
+
+      if (isBooleanLiteral(expr)) {
+        boolLiteral = expr;
+      }
     }
-  }
-
-  public static boolean hasBooleanLiteral(AstNode expr) {
-    return isBooleanLiteral(expr.getFirstChild())
-      || isBooleanLiteral(expr.getLastChild());
-  }
-
-  public void checkUnaryExpression(AstNode unaryExpr) {
-    if (unaryExpr.getFirstChild(EcmaScriptPunctuator.BANG) != null && isBooleanLiteral(unaryExpr.getLastChild())) {
-      reportIssue(unaryExpr, EcmaScriptPunctuator.BANG.getValue());
-    }
+    return boolLiteral;
   }
 
   public static boolean isBooleanLiteral(AstNode node) {
@@ -84,8 +91,4 @@ public class BooleanEqualityComparisonCheck extends SquidCheck<LexerlessGrammar>
       || EcmaScriptKeyword.TRUE.getValue().equals(node.getTokenValue());
   }
 
-  public void reportIssue(AstNode node, String operator) {
-    getContext().createLineViolation(this, "Remove the useless \"{0}\" operator.", node, operator);
-
-  }
 }
