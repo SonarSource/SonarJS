@@ -35,6 +35,7 @@ public class ExcessiveParameterListCheckTest {
     SourceFile file = JavaScriptAstScanner.scanSingleFile(new File("src/test/resources/checks/excessiveParameterList.js"), check);
     CheckMessagesVerifier.verify(file.getCheckMessages())
         .next().atLine(4).withMessage("Function has 8 parameters which is greater than 7 authorized.")
+        .next().atLine(7)
         .noMore();
   }
 
