@@ -38,9 +38,11 @@ public class UnusedFunctionArgumentCheckTest {
       .next().atLine(5).withMessage("Remove the unused function parameters \"b, c\".")
       .next().atLine(9).withMessage("Remove the unused function parameter \"p1\".")
       .next().atLine(12).withMessage("Remove the unused function parameter \"c\".")
-      .next().atLine(29)
+      .next().atLine(16)
       .next().atLine(33)
-      .next().atLine(49).withMessage("Remove the unused function parameter \"b\".")
+      .next().atLine(37)
+      .next().atLine(53).withMessage("Remove the unused function parameter \"b\".")
+      .next().atLine(57)
       .noMore();
   }
 
