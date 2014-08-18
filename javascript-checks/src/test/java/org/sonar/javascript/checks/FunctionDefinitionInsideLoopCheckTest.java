@@ -36,6 +36,7 @@ public class FunctionDefinitionInsideLoopCheckTest {
     CheckMessagesVerifier.verify(file.getCheckMessages())
         .next().atLine(4).withMessage("Define this function outside of a loop.")
         .next().atLine(12)
+        .next().atLine(23)
         .noMore();
   }
 
