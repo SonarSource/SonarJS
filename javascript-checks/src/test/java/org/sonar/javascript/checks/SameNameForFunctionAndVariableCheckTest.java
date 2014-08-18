@@ -36,6 +36,8 @@ public class SameNameForFunctionAndVariableCheckTest {
     CheckMessagesVerifier.verify(file.getCheckMessages())
         .next().atLine(2).withMessage("Refactor the code to avoid using 'fun1' for both a variable and a function.")
         .next().atLine(7).withMessage("Refactor the code to avoid using 'fun2' for both a variable and a function.")
+        .next().atLine(14).withMessage("Refactor the code to avoid using 'foo1' for both a variable and a function.")
+        .next().atLine(19).withMessage("Refactor the code to avoid using 'foo2' for both a variable and a function.")
         .noMore();
   }
 
