@@ -29,6 +29,7 @@ import org.sonar.javascript.api.EcmaScriptTokenType;
 import org.sonar.javascript.checks.utils.IdentifierUtils;
 import org.sonar.javascript.parser.EcmaScriptGrammar;
 import org.sonar.squidbridge.checks.SquidCheck;
+import org.sonar.sslr.grammar.GrammarRuleKey;
 import org.sonar.sslr.parser.LexerlessGrammar;
 
 import java.util.List;
@@ -70,17 +71,22 @@ public class VariableDeclarationAfterUsageCheck extends SquidCheck<LexerlessGram
     }
   }
 
+  private static final GrammarRuleKey[] FUNCTION_NODES = {
+    EcmaScriptGrammar.FUNCTION_EXPRESSION,
+    EcmaScriptGrammar.FUNCTION_DECLARATION,
+    EcmaScriptGrammar.GENERATOR_DECLARATION,
+    EcmaScriptGrammar.GENERATOR_EXPRESSION};
+
   private Scope currentScope;
 
   @Override
   public void init() {
     subscribeTo(
-      EcmaScriptGrammar.FUNCTION_EXPRESSION,
-      EcmaScriptGrammar.FUNCTION_DECLARATION,
       EcmaScriptGrammar.VARIABLE_DECLARATION,
       EcmaScriptGrammar.VARIABLE_DECLARATION_NO_IN,
       EcmaScriptGrammar.PRIMARY_EXPRESSION,
       EcmaScriptGrammar.FORMAL_PARAMETER_LIST);
+    subscribeTo(FUNCTION_NODES);
   }
 
   @Override
@@ -90,7 +96,7 @@ public class VariableDeclarationAfterUsageCheck extends SquidCheck<LexerlessGram
 
   @Override
   public void visitNode(AstNode astNode) {
-    if (astNode.is(EcmaScriptGrammar.FUNCTION_EXPRESSION, EcmaScriptGrammar.FUNCTION_DECLARATION)) {
+    if (astNode.is(FUNCTION_NODES)) {
       // enter new scope
       currentScope = new Scope(currentScope);
     } else if (astNode.is(EcmaScriptGrammar.FORMAL_PARAMETER_LIST)) {
@@ -115,7 +121,7 @@ public class VariableDeclarationAfterUsageCheck extends SquidCheck<LexerlessGram
 
   @Override
   public void leaveNode(AstNode astNode) {
-    if (astNode.is(EcmaScriptGrammar.FUNCTION_EXPRESSION, EcmaScriptGrammar.FUNCTION_DECLARATION)) {
+    if (astNode.is(FUNCTION_NODES)) {
       // leave scope
       checkCurrentScope();
       for (Map.Entry<String, AstNode> entry : currentScope.firstUsage.entrySet()) {
