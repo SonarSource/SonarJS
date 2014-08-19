@@ -28,6 +28,7 @@ import org.sonar.javascript.api.EcmaScriptTokenType;
 import org.sonar.javascript.checks.utils.IdentifierUtils;
 import org.sonar.javascript.parser.EcmaScriptGrammar;
 import org.sonar.squidbridge.checks.SquidCheck;
+import org.sonar.sslr.grammar.GrammarRuleKey;
 import org.sonar.sslr.parser.LexerlessGrammar;
 
 import java.util.List;
@@ -38,11 +39,15 @@ import java.util.List;
 @BelongsToProfile(title = CheckList.SONAR_WAY_PROFILE, priority = Priority.CRITICAL)
 public class BoundOrAssignedEvalOrArgumentsCheck extends SquidCheck<LexerlessGrammar> {
 
+  private static final GrammarRuleKey[] FUNCTION_NODES = {
+    EcmaScriptGrammar.FUNCTION_EXPRESSION,
+    EcmaScriptGrammar.FUNCTION_DECLARATION,
+    EcmaScriptGrammar.GENERATOR_DECLARATION,
+    EcmaScriptGrammar.GENERATOR_EXPRESSION};
+
   @Override
   public void init() {
     subscribeTo(
-        EcmaScriptGrammar.FUNCTION_DECLARATION,
-        EcmaScriptGrammar.FUNCTION_EXPRESSION,
         EcmaScriptGrammar.CATCH,
         EcmaScriptGrammar.VARIABLE_DECLARATION,
         EcmaScriptGrammar.VARIABLE_DECLARATION_NO_IN,
@@ -50,11 +55,12 @@ public class BoundOrAssignedEvalOrArgumentsCheck extends SquidCheck<LexerlessGra
         EcmaScriptGrammar.ASSIGNMENT_EXPRESSION,
         EcmaScriptGrammar.POSTFIX_EXPRESSION,
         EcmaScriptGrammar.UNARY_EXPRESSION);
+    subscribeTo(FUNCTION_NODES);
   }
 
   @Override
   public void visitNode(AstNode astNode) {
-    if (astNode.is(EcmaScriptGrammar.FUNCTION_DECLARATION, EcmaScriptGrammar.FUNCTION_EXPRESSION)) {
+    if (astNode.is(FUNCTION_NODES)) {
       checkFunction(astNode);
     } else if (astNode.is(EcmaScriptGrammar.CATCH, EcmaScriptGrammar.VARIABLE_DECLARATION, EcmaScriptGrammar.VARIABLE_DECLARATION_NO_IN)) {
       checkVariableDeclaration(astNode);
