@@ -26,3 +26,9 @@ function fun() {
     let c                   // NOK
     return c;
 }
+
+function* fun() {
+    var a = 0;              // NOK
+    var b = 1;              // OK
+    return b;
+}

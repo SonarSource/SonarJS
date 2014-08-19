@@ -90,16 +90,21 @@ public class UnusedVariableCheck extends SquidCheck<LexerlessGrammar> {
     EcmaScriptGrammar.LEXICAL_BINDING,
     EcmaScriptGrammar.LEXICAL_BINDING_NO_IN};
 
+  private static final GrammarRuleKey[] FUNCTION_NODES = {
+    EcmaScriptGrammar.FUNCTION_EXPRESSION,
+    EcmaScriptGrammar.FUNCTION_DECLARATION,
+    EcmaScriptGrammar.GENERATOR_DECLARATION,
+    EcmaScriptGrammar.GENERATOR_EXPRESSION};
+
   private Scope currentScope;
 
   @Override
   public void init() {
     subscribeTo(
-      EcmaScriptGrammar.FUNCTION_EXPRESSION,
-      EcmaScriptGrammar.FUNCTION_DECLARATION,
       EcmaScriptGrammar.PRIMARY_EXPRESSION,
       EcmaScriptGrammar.FORMAL_PARAMETER_LIST);
     subscribeTo(CONST_AND_VAR_NODES);
+    subscribeTo(FUNCTION_NODES);
   }
 
   @Override
@@ -109,7 +114,7 @@ public class UnusedVariableCheck extends SquidCheck<LexerlessGrammar> {
 
   @Override
   public void visitNode(AstNode astNode) {
-    if (astNode.is(EcmaScriptGrammar.FUNCTION_EXPRESSION, EcmaScriptGrammar.FUNCTION_DECLARATION)) {
+    if (astNode.is(FUNCTION_NODES)) {
       // enter new scope
       currentScope = new Scope(currentScope);
     } else if (currentScope != null && astNode.is(EcmaScriptGrammar.FORMAL_PARAMETER_LIST)) {
@@ -130,7 +135,7 @@ public class UnusedVariableCheck extends SquidCheck<LexerlessGrammar> {
 
   @Override
   public void leaveNode(AstNode astNode) {
-    if (astNode.is(EcmaScriptGrammar.FUNCTION_EXPRESSION, EcmaScriptGrammar.FUNCTION_DECLARATION)) {
+    if (astNode.is(FUNCTION_NODES)) {
       // leave scope
       for (Map.Entry<String, Variable> entry : currentScope.variables.entrySet()) {
         if (entry.getValue().usages == 0) {
