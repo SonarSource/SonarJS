@@ -66,6 +66,12 @@ public class VariableShadowingCheck extends SquidCheck<LexerlessGrammar> {
     }
   }
 
+  private static final GrammarRuleKey[] FUNCTION_NODES = {
+    EcmaScriptGrammar.FUNCTION_EXPRESSION,
+    EcmaScriptGrammar.FUNCTION_DECLARATION,
+    EcmaScriptGrammar.GENERATOR_DECLARATION,
+    EcmaScriptGrammar.GENERATOR_EXPRESSION};
+
   protected static final GrammarRuleKey[] CONST_AND_VAR_NODES = {
     EcmaScriptGrammar.VARIABLE_DECLARATION,
     EcmaScriptGrammar.VARIABLE_DECLARATION_NO_IN,
@@ -76,10 +82,8 @@ public class VariableShadowingCheck extends SquidCheck<LexerlessGrammar> {
 
   @Override
   public void init() {
-    subscribeTo(
-      EcmaScriptGrammar.FUNCTION_EXPRESSION,
-      EcmaScriptGrammar.FUNCTION_DECLARATION,
-      EcmaScriptGrammar.FORMAL_PARAMETER_LIST);
+    subscribeTo(EcmaScriptGrammar.FORMAL_PARAMETER_LIST);
+    subscribeTo(FUNCTION_NODES);
     subscribeTo(CONST_AND_VAR_NODES);
   }
 
@@ -94,7 +98,7 @@ public class VariableShadowingCheck extends SquidCheck<LexerlessGrammar> {
 
   @Override
   public void visitNode(AstNode astNode) {
-    if (astNode.is(EcmaScriptGrammar.FUNCTION_EXPRESSION, EcmaScriptGrammar.FUNCTION_DECLARATION)) {
+    if (astNode.is(FUNCTION_NODES)) {
       // enter new scope
       currentScope = scopes.get(astNode);
     } else if (astNode.is(EcmaScriptGrammar.FORMAL_PARAMETER_LIST)) {
@@ -119,7 +123,7 @@ public class VariableShadowingCheck extends SquidCheck<LexerlessGrammar> {
 
   @Override
   public void leaveNode(AstNode astNode) {
-    if (astNode.is(EcmaScriptGrammar.FUNCTION_EXPRESSION, EcmaScriptGrammar.FUNCTION_DECLARATION)) {
+    if (astNode.is(FUNCTION_NODES)) {
       // leave scope
       currentScope = currentScope.outerScope;
     }
@@ -143,8 +147,11 @@ public class VariableShadowingCheck extends SquidCheck<LexerlessGrammar> {
 
     public List<AstNodeType> getAstNodeTypesToVisit() {
       return Arrays.asList((AstNodeType)
-          EcmaScriptGrammar.FUNCTION_EXPRESSION,
+        EcmaScriptGrammar.FUNCTION_EXPRESSION,
         EcmaScriptGrammar.FUNCTION_DECLARATION,
+        EcmaScriptGrammar.GENERATOR_DECLARATION,
+        EcmaScriptGrammar.GENERATOR_EXPRESSION,
+
         EcmaScriptGrammar.VARIABLE_DECLARATION,
         EcmaScriptGrammar.VARIABLE_DECLARATION_NO_IN,
         EcmaScriptGrammar.FORMAL_PARAMETER_LIST,
@@ -160,7 +167,7 @@ public class VariableShadowingCheck extends SquidCheck<LexerlessGrammar> {
 
     @Override
     public void visitNode(AstNode astNode) {
-      if (astNode.is(EcmaScriptGrammar.FUNCTION_EXPRESSION, EcmaScriptGrammar.FUNCTION_DECLARATION)) {
+      if (astNode.is(FUNCTION_NODES)) {
         // enter new scope
         currentScope = new Scope(currentScope);
         scopes.put(astNode, currentScope);
@@ -179,7 +186,7 @@ public class VariableShadowingCheck extends SquidCheck<LexerlessGrammar> {
 
     @Override
     public void leaveNode(AstNode astNode) {
-      if (astNode.is(EcmaScriptGrammar.FUNCTION_EXPRESSION, EcmaScriptGrammar.FUNCTION_DECLARATION)) {
+      if (astNode.is(FUNCTION_NODES)) {
         // leave scope
         currentScope = currentScope.outerScope;
       }

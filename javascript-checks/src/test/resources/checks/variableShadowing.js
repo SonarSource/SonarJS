@@ -18,3 +18,6 @@ function fun() {
     let x;             // NOK
     const y;           // NOK
 }
+
+function* fun(x) {     // NOK
+}
