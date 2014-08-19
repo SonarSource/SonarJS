@@ -41,17 +41,22 @@ public class SameNameForFunctionAndVariableCheck extends SquidCheck<LexerlessGra
 
   private Stack<Set<String>> variablesStack;
   private Stack<Set<String>> functionsStack;
+
   private static final GrammarRuleKey[] FUNCTION_NODES = {
     EcmaScriptGrammar.FUNCTION_DECLARATION,
     EcmaScriptGrammar.FUNCTION_EXPRESSION,
     EcmaScriptGrammar.GENERATOR_DECLARATION,
     EcmaScriptGrammar.FUNCTION_EXPRESSION};
 
+  protected static final GrammarRuleKey[] CONST_AND_VAR_NODES = {
+    EcmaScriptGrammar.VARIABLE_DECLARATION,
+    EcmaScriptGrammar.VARIABLE_DECLARATION_NO_IN,
+    EcmaScriptGrammar.LEXICAL_BINDING,
+    EcmaScriptGrammar.LEXICAL_BINDING_NO_IN};
+
   @Override
   public void init() {
-    subscribeTo(
-        EcmaScriptGrammar.VARIABLE_DECLARATION,
-        EcmaScriptGrammar.VARIABLE_DECLARATION_NO_IN);
+    subscribeTo(CONST_AND_VAR_NODES);
     subscribeTo(FUNCTION_NODES);
   }
 
@@ -69,7 +74,7 @@ public class SameNameForFunctionAndVariableCheck extends SquidCheck<LexerlessGra
       String functionName = astNode.getFirstChild(EcmaScriptTokenType.IDENTIFIER, EcmaScriptGrammar.BINDING_IDENTIFIER).getTokenValue();
       check(astNode, variablesStack.peek(), functionName);
       functionsStack.peek().add(functionName);
-    } else if (astNode.is(EcmaScriptGrammar.VARIABLE_DECLARATION, EcmaScriptGrammar.VARIABLE_DECLARATION_NO_IN)) {
+    } else if (astNode.is(CONST_AND_VAR_NODES)) {
       String variableName = astNode.getTokenValue();
       check(astNode, functionsStack.peek(), variableName);
       variablesStack.peek().add(variableName);
