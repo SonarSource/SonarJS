@@ -52,6 +52,8 @@ public class BoundOrAssignedEvalOrArgumentsCheckTest {
         .next().atLine(43).withMessage("Do not use 'eval' to declare a parameter - use another name.")
         .next().atLine(44).withMessage("Do not use 'arguments' to declare a variable - use another name.")
         .next().atLine(50)
+        .next().atLine(56)
+        .next().atLine(57)
         .noMore();
   }
 

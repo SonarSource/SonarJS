@@ -49,3 +49,9 @@ function fun ({eval}) {     // NOK
  */
 function* fun(eval) { // NOK
 }
+
+/**
+ * Generator function
+ */
+let arguments = eval;
+const arguments = eval;

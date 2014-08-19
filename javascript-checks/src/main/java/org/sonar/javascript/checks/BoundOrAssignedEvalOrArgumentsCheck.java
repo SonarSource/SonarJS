@@ -45,24 +45,29 @@ public class BoundOrAssignedEvalOrArgumentsCheck extends SquidCheck<LexerlessGra
     EcmaScriptGrammar.GENERATOR_DECLARATION,
     EcmaScriptGrammar.GENERATOR_EXPRESSION};
 
+  protected static final GrammarRuleKey[] CONST_AND_VAR_NODES = {
+    EcmaScriptGrammar.VARIABLE_DECLARATION,
+    EcmaScriptGrammar.VARIABLE_DECLARATION_NO_IN,
+    EcmaScriptGrammar.LEXICAL_BINDING,
+    EcmaScriptGrammar.LEXICAL_BINDING_NO_IN};
+
   @Override
   public void init() {
     subscribeTo(
         EcmaScriptGrammar.CATCH,
-        EcmaScriptGrammar.VARIABLE_DECLARATION,
-        EcmaScriptGrammar.VARIABLE_DECLARATION_NO_IN,
         EcmaScriptGrammar.PROPERTY_SET_PARAMETER_LIST,
         EcmaScriptGrammar.ASSIGNMENT_EXPRESSION,
         EcmaScriptGrammar.POSTFIX_EXPRESSION,
         EcmaScriptGrammar.UNARY_EXPRESSION);
     subscribeTo(FUNCTION_NODES);
+    subscribeTo(CONST_AND_VAR_NODES);
   }
 
   @Override
   public void visitNode(AstNode astNode) {
     if (astNode.is(FUNCTION_NODES)) {
       checkFunction(astNode);
-    } else if (astNode.is(EcmaScriptGrammar.CATCH, EcmaScriptGrammar.VARIABLE_DECLARATION, EcmaScriptGrammar.VARIABLE_DECLARATION_NO_IN)) {
+    } else if (astNode.is(EcmaScriptGrammar.CATCH) || astNode.is(CONST_AND_VAR_NODES)) {
       checkVariableDeclaration(astNode);
     } else if (astNode.is(EcmaScriptGrammar.PROPERTY_SET_PARAMETER_LIST)) {
       checkPropertySetParameterList(astNode);
