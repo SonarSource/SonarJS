@@ -20,11 +20,14 @@
 package org.sonar.javascript.checks;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.sonar.sslr.api.AstNode;
 import com.sonar.sslr.api.AstNodeType;
 import com.sonar.sslr.api.AstVisitor;
 import com.sonar.sslr.impl.ast.AstWalker;
+import org.apache.commons.lang.ArrayUtils;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.javascript.api.EcmaScriptTokenType;
@@ -35,6 +38,7 @@ import org.sonar.sslr.grammar.GrammarRuleKey;
 import org.sonar.sslr.parser.LexerlessGrammar;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -66,13 +70,13 @@ public class VariableShadowingCheck extends SquidCheck<LexerlessGrammar> {
     }
   }
 
-  private static final GrammarRuleKey[] FUNCTION_NODES = {
+  private static final AstNodeType[] FUNCTION_NODES = {
     EcmaScriptGrammar.FUNCTION_EXPRESSION,
     EcmaScriptGrammar.FUNCTION_DECLARATION,
     EcmaScriptGrammar.GENERATOR_DECLARATION,
     EcmaScriptGrammar.GENERATOR_EXPRESSION};
 
-  protected static final GrammarRuleKey[] CONST_AND_VAR_NODES = {
+  protected static final AstNodeType[] CONST_AND_VAR_NODES = {
     EcmaScriptGrammar.VARIABLE_DECLARATION,
     EcmaScriptGrammar.VARIABLE_DECLARATION_NO_IN,
     EcmaScriptGrammar.LEXICAL_BINDING,
@@ -146,17 +150,10 @@ public class VariableShadowingCheck extends SquidCheck<LexerlessGrammar> {
     private Scope currentScope;
 
     public List<AstNodeType> getAstNodeTypesToVisit() {
-      return Arrays.asList((AstNodeType)
-        EcmaScriptGrammar.FUNCTION_EXPRESSION,
-        EcmaScriptGrammar.FUNCTION_DECLARATION,
-        EcmaScriptGrammar.GENERATOR_DECLARATION,
-        EcmaScriptGrammar.GENERATOR_EXPRESSION,
-
-        EcmaScriptGrammar.VARIABLE_DECLARATION,
-        EcmaScriptGrammar.VARIABLE_DECLARATION_NO_IN,
-        EcmaScriptGrammar.FORMAL_PARAMETER_LIST,
-        EcmaScriptGrammar.LEXICAL_BINDING,
-        EcmaScriptGrammar.LEXICAL_BINDING_NO_IN);
+      return ImmutableList.<AstNodeType>builder()
+        .add(EcmaScriptGrammar.FORMAL_PARAMETER_LIST)
+        .addAll(Arrays.asList(CONST_AND_VAR_NODES))
+        .addAll(Arrays.asList(FUNCTION_NODES)).build();
     }
 
     @Override
