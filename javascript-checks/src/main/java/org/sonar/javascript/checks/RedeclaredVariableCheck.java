@@ -26,6 +26,7 @@ import org.sonar.check.Rule;
 import org.sonar.javascript.checks.utils.IdentifierUtils;
 import org.sonar.javascript.parser.EcmaScriptGrammar;
 import org.sonar.squidbridge.checks.SquidCheck;
+import org.sonar.sslr.grammar.GrammarRuleKey;
 import org.sonar.sslr.parser.LexerlessGrammar;
 
 import java.util.HashSet;
@@ -38,15 +39,21 @@ import java.util.Stack;
 @BelongsToProfile(title = CheckList.SONAR_WAY_PROFILE, priority = Priority.MAJOR)
 public class RedeclaredVariableCheck extends SquidCheck<LexerlessGrammar> {
 
+  private static final GrammarRuleKey[] FUNCTION_NODES = {
+    EcmaScriptGrammar.FUNCTION_EXPRESSION,
+    EcmaScriptGrammar.FUNCTION_DECLARATION,
+    EcmaScriptGrammar.GENERATOR_DECLARATION,
+    EcmaScriptGrammar.GENERATOR_EXPRESSION};
+
   private Stack<Set<String>> stack;
+
 
   @Override
   public void init() {
     subscribeTo(
         EcmaScriptGrammar.VARIABLE_DECLARATION,
-        EcmaScriptGrammar.VARIABLE_DECLARATION_NO_IN,
-        EcmaScriptGrammar.FUNCTION_DECLARATION,
-        EcmaScriptGrammar.FUNCTION_EXPRESSION);
+        EcmaScriptGrammar.VARIABLE_DECLARATION_NO_IN);
+    subscribeTo(FUNCTION_NODES);
   }
 
   @Override
@@ -57,7 +64,7 @@ public class RedeclaredVariableCheck extends SquidCheck<LexerlessGrammar> {
 
   @Override
   public void visitNode(AstNode astNode) {
-    if (astNode.is(EcmaScriptGrammar.FUNCTION_DECLARATION, EcmaScriptGrammar.FUNCTION_EXPRESSION)) {
+    if (astNode.is(FUNCTION_NODES)) {
       Set<String> currentScope = new HashSet<String>();
       stack.add(currentScope);
       AstNode formalParameterList = astNode.getFirstChild(EcmaScriptGrammar.FORMAL_PARAMETER_LIST);
@@ -77,7 +84,7 @@ public class RedeclaredVariableCheck extends SquidCheck<LexerlessGrammar> {
 
   @Override
   public void leaveNode(AstNode astNode) {
-    if (astNode.is(EcmaScriptGrammar.FUNCTION_DECLARATION, EcmaScriptGrammar.FUNCTION_EXPRESSION)) {
+    if (astNode.is(FUNCTION_NODES)) {
       stack.pop();
     }
   }
@@ -92,6 +99,5 @@ public class RedeclaredVariableCheck extends SquidCheck<LexerlessGrammar> {
       currentScope.add(identifier.getTokenValue());
     }
   }
-
 
 }
