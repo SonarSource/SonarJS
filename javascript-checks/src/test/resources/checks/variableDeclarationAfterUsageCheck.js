@@ -14,3 +14,9 @@ function* fun() {
     print(z);       // NOK
 }
 var z = 1;
+
+print(a);           // NOK
+let a = 1;
+
+print(b);           // NOK
+const b = 1;

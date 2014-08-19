@@ -37,6 +37,8 @@ public class VariableDeclarationAfterUsageCheckTest {
         .next().atLine(5).withMessage("Variable 'x' referenced before declaration.")
         .next().atLine(9)
         .next().atLine(14)
+        .next().atLine(18)
+        .next().atLine(21)
         .noMore();
   }
 

@@ -77,15 +77,20 @@ public class VariableDeclarationAfterUsageCheck extends SquidCheck<LexerlessGram
     EcmaScriptGrammar.GENERATOR_DECLARATION,
     EcmaScriptGrammar.GENERATOR_EXPRESSION};
 
+  private static final GrammarRuleKey[] CONST_AND_VAR_NODES = {
+    EcmaScriptGrammar.VARIABLE_DECLARATION,
+    EcmaScriptGrammar.VARIABLE_DECLARATION_NO_IN,
+    EcmaScriptGrammar.LEXICAL_BINDING,
+    EcmaScriptGrammar.LEXICAL_BINDING_NO_IN};
+
   private Scope currentScope;
 
   @Override
   public void init() {
     subscribeTo(
-      EcmaScriptGrammar.VARIABLE_DECLARATION,
-      EcmaScriptGrammar.VARIABLE_DECLARATION_NO_IN,
       EcmaScriptGrammar.PRIMARY_EXPRESSION,
       EcmaScriptGrammar.FORMAL_PARAMETER_LIST);
+    subscribeTo(CONST_AND_VAR_NODES);
     subscribeTo(FUNCTION_NODES);
   }
 
@@ -101,8 +106,7 @@ public class VariableDeclarationAfterUsageCheck extends SquidCheck<LexerlessGram
       currentScope = new Scope(currentScope);
     } else if (astNode.is(EcmaScriptGrammar.FORMAL_PARAMETER_LIST)) {
       declareInCurrentScope(IdentifierUtils.getParametersIdentifier(astNode));
-
-    } else if (astNode.is(EcmaScriptGrammar.VARIABLE_DECLARATION, EcmaScriptGrammar.VARIABLE_DECLARATION_NO_IN)) {
+    } else if (astNode.is(CONST_AND_VAR_NODES)) {
       declareInCurrentScope(IdentifierUtils.getVariableIdentifiers(astNode));
 
     } else if (astNode.is(EcmaScriptGrammar.PRIMARY_EXPRESSION)) {

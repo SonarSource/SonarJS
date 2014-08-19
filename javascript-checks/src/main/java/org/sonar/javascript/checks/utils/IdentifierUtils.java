@@ -51,7 +51,11 @@ public class IdentifierUtils {
   }
 
   public static List<AstNode> getVariableIdentifiers(AstNode variableDeclaration) {
-    Preconditions.checkArgument(variableDeclaration.is(EcmaScriptGrammar.VARIABLE_DECLARATION, EcmaScriptGrammar.VARIABLE_DECLARATION_NO_IN));
+    Preconditions.checkArgument(variableDeclaration.is(
+      EcmaScriptGrammar.VARIABLE_DECLARATION,
+      EcmaScriptGrammar.VARIABLE_DECLARATION_NO_IN,
+      EcmaScriptGrammar.LEXICAL_BINDING,
+      EcmaScriptGrammar.LEXICAL_DECLARATION_NO_IN));
 
     List<AstNode> identifiers = Lists.newArrayList();
     AstNode child = variableDeclaration.getFirstChild();
