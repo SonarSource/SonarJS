@@ -38,6 +38,8 @@ public class VariableShadowingCheckTest {
         .next().atLine(8)
         .next().atLine(11)
         .next().atLine(14)
+        .next().atLine(18)
+        .next().atLine(19)
         .noMore();
   }
 
