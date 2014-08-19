@@ -29,6 +29,7 @@ import org.sonar.javascript.api.EcmaScriptTokenType;
 import org.sonar.javascript.checks.utils.IdentifierUtils;
 import org.sonar.javascript.parser.EcmaScriptGrammar;
 import org.sonar.squidbridge.checks.SquidCheck;
+import org.sonar.sslr.grammar.GrammarRuleKey;
 import org.sonar.sslr.parser.LexerlessGrammar;
 
 import java.util.List;
@@ -83,6 +84,12 @@ public class UnusedVariableCheck extends SquidCheck<LexerlessGrammar> {
     }
   }
 
+  protected static final GrammarRuleKey[] CONST_AND_VAR_NODES = {
+    EcmaScriptGrammar.VARIABLE_DECLARATION,
+    EcmaScriptGrammar.VARIABLE_DECLARATION_NO_IN,
+    EcmaScriptGrammar.LEXICAL_BINDING,
+    EcmaScriptGrammar.LEXICAL_BINDING_NO_IN};
+
   private Scope currentScope;
 
   @Override
@@ -90,10 +97,9 @@ public class UnusedVariableCheck extends SquidCheck<LexerlessGrammar> {
     subscribeTo(
       EcmaScriptGrammar.FUNCTION_EXPRESSION,
       EcmaScriptGrammar.FUNCTION_DECLARATION,
-      EcmaScriptGrammar.VARIABLE_DECLARATION,
-      EcmaScriptGrammar.VARIABLE_DECLARATION_NO_IN,
       EcmaScriptGrammar.PRIMARY_EXPRESSION,
       EcmaScriptGrammar.FORMAL_PARAMETER_LIST);
+    subscribeTo(CONST_AND_VAR_NODES);
   }
 
   @Override
@@ -111,7 +117,7 @@ public class UnusedVariableCheck extends SquidCheck<LexerlessGrammar> {
       declareInCurrentScope(IdentifierUtils.getParametersIdentifier(astNode), 1);
 
     } else if (currentScope != null) {
-      if (astNode.is(EcmaScriptGrammar.VARIABLE_DECLARATION, EcmaScriptGrammar.VARIABLE_DECLARATION_NO_IN)) {
+      if (astNode.is(CONST_AND_VAR_NODES)) {
         declareInCurrentScope(IdentifierUtils.getVariableIdentifiers(astNode), 0);
       } else if (astNode.is(EcmaScriptGrammar.PRIMARY_EXPRESSION)) {
         AstNode identifier = astNode.getFirstChild(EcmaScriptTokenType.IDENTIFIER);

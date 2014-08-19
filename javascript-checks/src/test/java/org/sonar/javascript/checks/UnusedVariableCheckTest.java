@@ -36,6 +36,8 @@ public class UnusedVariableCheckTest {
     CheckMessagesVerifier.verify(file.getCheckMessages())
         .next().atLine(4).withMessage("Remove the declaration of the unused 'a' variable.")
         .next().atLine(17)
+        .next().atLine(24)
+        .next().atLine(25)
         .noMore();
   }
 
