@@ -27,6 +27,7 @@ import org.sonar.check.Rule;
 import org.sonar.javascript.api.EcmaScriptTokenType;
 import org.sonar.javascript.parser.EcmaScriptGrammar;
 import org.sonar.squidbridge.checks.SquidCheck;
+import org.sonar.sslr.grammar.GrammarRuleKey;
 import org.sonar.sslr.parser.LexerlessGrammar;
 
 import java.util.Stack;
@@ -54,16 +55,21 @@ public class TooManyBreakOrContinueInLoopCheck extends SquidCheck<LexerlessGramm
 
   private Stack<JumpTarget> jumpTargets;
 
+  private static final GrammarRuleKey[] FUNCTION_NODES = {
+    EcmaScriptGrammar.FUNCTION_EXPRESSION,
+    EcmaScriptGrammar.FUNCTION_DECLARATION,
+    EcmaScriptGrammar.GENERATOR_DECLARATION,
+    EcmaScriptGrammar.GENERATOR_EXPRESSION};
+
   @Override
   public void init() {
     subscribeTo(
-        EcmaScriptGrammar.FUNCTION_EXPRESSION,
-        EcmaScriptGrammar.FUNCTION_DECLARATION,
         EcmaScriptGrammar.ITERATION_STATEMENT,
         EcmaScriptGrammar.BREAK_STATEMENT,
         EcmaScriptGrammar.CONTINUE_STATEMENT,
         EcmaScriptGrammar.SWITCH_STATEMENT,
         EcmaScriptGrammar.LABELLED_STATEMENT);
+    subscribeTo(FUNCTION_NODES);
   }
 
   @Override

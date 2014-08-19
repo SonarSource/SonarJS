@@ -38,6 +38,7 @@ public class TooManyBreakOrContinueInLoopCheckTest {
         .next().atLine(16)
         .next().atLine(36)
         .next().atLine(48)
+        .next().atLine(65)
         .noMore();
   }
 

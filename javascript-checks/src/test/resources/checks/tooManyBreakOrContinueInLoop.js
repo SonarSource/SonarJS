@@ -59,6 +59,23 @@ for (i = 0; i < 10; i++) { // OK
   }
 }
 
+// break and continue statements can not cross function boundaries
+for (i = 0; i < 10; i++) { // OK
+    (function*() {
+        for (i = 0; i < 10; i++) { // NOK
+            if (i % 3 == 0) {
+                break;
+            }
+            if (i % 3 == 0) {
+                break;
+            }
+        }
+    })();
+    if (i % 3 == 0) {
+        break;
+    }
+}
+
 label: if (true) {
   break;
 }
