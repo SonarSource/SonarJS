@@ -21,3 +21,18 @@ function fun() {
 
 function* fun(x) {     // NOK
 }
+
+class C {
+
+    f(x) {             // NOK
+      var y;           // NOK
+    }
+
+    *g (x){            // NOK
+       var y           // NOK
+    }
+}
+
+var a = () => {
+    var x;             // NOK
+};

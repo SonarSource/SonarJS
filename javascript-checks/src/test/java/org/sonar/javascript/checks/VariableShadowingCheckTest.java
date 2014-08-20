@@ -41,6 +41,11 @@ public class VariableShadowingCheckTest {
         .next().atLine(18)
         .next().atLine(19)
         .next().atLine(22)
+        .next().atLine(27)
+        .next().atLine(28)
+        .next().atLine(31)
+        .next().atLine(32)
+        .next().atLine(37)
         .noMore();
   }
 
