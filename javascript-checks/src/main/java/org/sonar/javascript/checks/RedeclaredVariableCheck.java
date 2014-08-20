@@ -105,8 +105,8 @@ public class RedeclaredVariableCheck extends SquidCheck<LexerlessGrammar> {
 
   private void addArrowParametersToScope(AstNode arrowParameters, Set<String> currentScope) {
     if (arrowParameters != null) {
-      for (String identifierValue : IdentifierUtils.getArrowParametersIdentifier(arrowParameters)) {
-        currentScope.add(identifierValue);
+      for (AstNode parameter : IdentifierUtils.getArrowParametersIdentifier(arrowParameters)) {
+        currentScope.add(parameter.getTokenValue());
       }
     }
   }
