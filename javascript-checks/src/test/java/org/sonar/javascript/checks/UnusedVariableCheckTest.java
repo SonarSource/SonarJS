@@ -39,6 +39,8 @@ public class UnusedVariableCheckTest {
         .next().atLine(24)
         .next().atLine(25)
         .next().atLine(31)
+        .next().atLine(38)
+        .next().atLine(43)
         .noMore();
   }
 

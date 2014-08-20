@@ -32,3 +32,13 @@ function* fun() {
     var b = 1;              // OK
     return b;
 }
+
+class C {
+    f() {
+        var a;              // NOK
+    }
+}
+
+var f = (p) => {
+    var x;                  // NOK
+}

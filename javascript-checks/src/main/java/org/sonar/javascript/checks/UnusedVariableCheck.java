@@ -19,7 +19,6 @@
  */
 package org.sonar.javascript.checks;
 
-import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
 import com.sonar.sslr.api.AstNode;
 import org.sonar.check.BelongsToProfile;
@@ -61,7 +60,6 @@ public class UnusedVariableCheck extends SquidCheck<LexerlessGrammar> {
     }
 
     private void declare(AstNode astNode, int usages) {
-      Preconditions.checkState(astNode.is(EcmaScriptTokenType.IDENTIFIER));
       String identifier = astNode.getTokenValue();
       if (!variables.containsKey(identifier)) {
         variables.put(identifier, new Variable(astNode, usages));
@@ -69,7 +67,6 @@ public class UnusedVariableCheck extends SquidCheck<LexerlessGrammar> {
     }
 
     private void use(AstNode astNode) {
-      Preconditions.checkState(astNode.is(EcmaScriptTokenType.IDENTIFIER));
       String identifier = astNode.getTokenValue();
       Scope scope = this;
       while (scope != null) {
@@ -93,8 +90,12 @@ public class UnusedVariableCheck extends SquidCheck<LexerlessGrammar> {
   private static final GrammarRuleKey[] FUNCTION_NODES = {
     EcmaScriptGrammar.FUNCTION_EXPRESSION,
     EcmaScriptGrammar.FUNCTION_DECLARATION,
+    EcmaScriptGrammar.METHOD,
+    EcmaScriptGrammar.GENERATOR_METHOD,
     EcmaScriptGrammar.GENERATOR_DECLARATION,
-    EcmaScriptGrammar.GENERATOR_EXPRESSION};
+    EcmaScriptGrammar.GENERATOR_EXPRESSION,
+    EcmaScriptGrammar.ARROW_FUNCTION,
+    EcmaScriptGrammar.ARROW_FUNCTION_NO_IN};
 
   private Scope currentScope;
 
@@ -102,7 +103,8 @@ public class UnusedVariableCheck extends SquidCheck<LexerlessGrammar> {
   public void init() {
     subscribeTo(
       EcmaScriptGrammar.PRIMARY_EXPRESSION,
-      EcmaScriptGrammar.FORMAL_PARAMETER_LIST);
+      EcmaScriptGrammar.FORMAL_PARAMETER_LIST,
+      EcmaScriptGrammar.ARROW_PARAMETERS);
     subscribeTo(CONST_AND_VAR_NODES);
     subscribeTo(FUNCTION_NODES);
   }
@@ -117,13 +119,19 @@ public class UnusedVariableCheck extends SquidCheck<LexerlessGrammar> {
     if (astNode.is(FUNCTION_NODES)) {
       // enter new scope
       currentScope = new Scope(currentScope);
-    } else if (currentScope != null && astNode.is(EcmaScriptGrammar.FORMAL_PARAMETER_LIST)) {
-      // declare all parameters as variables, which are already used, so that they won't trigger violations
-      declareInCurrentScope(IdentifierUtils.getParametersIdentifier(astNode), 1);
 
     } else if (currentScope != null) {
-      if (astNode.is(CONST_AND_VAR_NODES)) {
+
+      // declare all parameters as variables, which are already used, so that they won't trigger violations
+      if (astNode.is(EcmaScriptGrammar.ARROW_PARAMETERS)) {
+        declareArrowParametersToScope(astNode, 1);
+
+      } else if (astNode.is(EcmaScriptGrammar.FORMAL_PARAMETER_LIST)) {
+        declareInCurrentScope(IdentifierUtils.getParametersIdentifier(astNode), 1);
+
+      } else if (astNode.is(CONST_AND_VAR_NODES)) {
         declareInCurrentScope(IdentifierUtils.getVariableIdentifiers(astNode), 0);
+
       } else if (astNode.is(EcmaScriptGrammar.PRIMARY_EXPRESSION)) {
         AstNode identifier = astNode.getFirstChild(EcmaScriptTokenType.IDENTIFIER);
         if (identifier != null) {
@@ -151,10 +159,15 @@ public class UnusedVariableCheck extends SquidCheck<LexerlessGrammar> {
     currentScope = null;
   }
 
+  private void declareArrowParametersToScope(AstNode arrowParameters, int usage) {
+    if (arrowParameters != null) {
+      declareInCurrentScope(IdentifierUtils.getArrowParametersIdentifier(arrowParameters), usage);
+    }
+  }
+
   private void declareInCurrentScope(List<AstNode> identifiers, int usage) {
     for (AstNode identifier : identifiers) {
       currentScope.declare(identifier, usage);
     }
   }
-
 }
