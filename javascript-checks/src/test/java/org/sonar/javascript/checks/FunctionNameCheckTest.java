@@ -35,6 +35,9 @@ public class FunctionNameCheckTest {
     SourceFile file = JavaScriptAstScanner.scanSingleFile(new File("src/test/resources/checks/FunctionName.js"), check);
     CheckMessagesVerifier.verify(file.getCheckMessages())
       .next().atLine(4).withMessage("Rename this 'DoSomething' function to match the regular expression " + check.DEFAULT)
+      .next().atLine(10)
+      .next().atLine(17)
+      .next().atLine(23)
       .noMore();
   }
 
@@ -45,6 +48,9 @@ public class FunctionNameCheckTest {
     SourceFile file = JavaScriptAstScanner.scanSingleFile(new File("src/test/resources/checks/FunctionName.js"), check);
     CheckMessagesVerifier.verify(file.getCheckMessages())
       .next().atLine(1).withMessage("Rename this 'doSomething' function to match the regular expression " + check.format)
+      .next().atLine(7)
+      .next().atLine(14)
+      .next().atLine(20)
       .noMore();
   }
 }

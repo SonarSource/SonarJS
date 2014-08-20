@@ -29,9 +29,10 @@ import org.sonar.check.BelongsToProfile;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.javascript.api.EcmaScriptTokenType;
-import org.sonar.javascript.checks.utils.CheckUtils;
+import org.sonar.javascript.checks.utils.IdentifierUtils;
 import org.sonar.javascript.parser.EcmaScriptGrammar;
 import org.sonar.squidbridge.checks.SquidCheck;
+import org.sonar.sslr.grammar.GrammarRuleKey;
 import org.sonar.sslr.parser.LexerlessGrammar;
 
 import java.util.List;
@@ -77,15 +78,20 @@ public class UnusedFunctionArgumentCheck extends SquidCheck<LexerlessGrammar> {
     }
   }
 
+  private static final GrammarRuleKey[] FUNCTION_NODES = {
+    EcmaScriptGrammar.FUNCTION_EXPRESSION,
+    EcmaScriptGrammar.FUNCTION_DECLARATION,
+    EcmaScriptGrammar.GENERATOR_EXPRESSION,
+    EcmaScriptGrammar.GENERATOR_DECLARATION};
+
   private Scope currentScope;
 
   @Override
   public void init() {
     subscribeTo(
-      EcmaScriptGrammar.FUNCTION_EXPRESSION,
-      EcmaScriptGrammar.FUNCTION_DECLARATION,
       EcmaScriptGrammar.FORMAL_PARAMETER_LIST,
       EcmaScriptGrammar.PRIMARY_EXPRESSION);
+    subscribeTo(FUNCTION_NODES);
   }
 
   @Override
@@ -95,11 +101,11 @@ public class UnusedFunctionArgumentCheck extends SquidCheck<LexerlessGrammar> {
 
   @Override
   public void visitNode(AstNode astNode) {
-    if (astNode.is(EcmaScriptGrammar.FUNCTION_EXPRESSION, EcmaScriptGrammar.FUNCTION_DECLARATION)) {
+    if (astNode.is(FUNCTION_NODES)) {
       // enter new scope
       currentScope = new Scope(currentScope, astNode);
     } else if (currentScope != null && astNode.is(EcmaScriptGrammar.FORMAL_PARAMETER_LIST)) {
-      declareInCurrentScope(CheckUtils.getParametersIdentifier(astNode));
+      declareInCurrentScope(IdentifierUtils.getParametersIdentifier(astNode));
     } else if (currentScope != null && astNode.is(EcmaScriptGrammar.PRIMARY_EXPRESSION)) {
       AstNode identifier = astNode.getFirstChild(EcmaScriptTokenType.IDENTIFIER);
       if (identifier != null) {
@@ -113,7 +119,7 @@ public class UnusedFunctionArgumentCheck extends SquidCheck<LexerlessGrammar> {
 
   @Override
   public void leaveNode(AstNode astNode) {
-    if (astNode.is(EcmaScriptGrammar.FUNCTION_EXPRESSION, EcmaScriptGrammar.FUNCTION_DECLARATION)) {
+    if (astNode.is(FUNCTION_NODES)) {
       // leave scope
       if (!currentScope.useArgumentsArray) {
         reportUnusedArguments(astNode);
@@ -128,7 +134,7 @@ public class UnusedFunctionArgumentCheck extends SquidCheck<LexerlessGrammar> {
   }
 
   public void reportUnusedArguments(AstNode functionNode) {
-    if (functionNode.is(EcmaScriptGrammar.FUNCTION_DECLARATION)) {
+    if (functionNode.is(EcmaScriptGrammar.FUNCTION_DECLARATION, EcmaScriptGrammar.GENERATOR_DECLARATION)) {
       reportAllUnusedArgs();
     } else {
       reportDanglingUnusedArgs();

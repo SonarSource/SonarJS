@@ -15,8 +15,11 @@ a // OK
 function fun3(
 ) {}
 
-function fun4(a, ...a) { // NOK
+function fun4(a, ...a) {     // NOK
 }
 
 function fun5({a, b:{a}}) {  // NOK
+}
+
+function* func6(a, a) {      // NOK
 }

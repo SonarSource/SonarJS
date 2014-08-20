@@ -1,36 +1,26 @@
 <p>
-This rule applies whenever an if statement is followed by one or more else if statements; the final else if shall be followed by an else statement.
-In the case of a simple if statement then the else statement need not be included.
-The requirement for a final else statement is defensive programming.
-The else statement should either take appropriate action or contain a suitable comment as to why no action is taken.
-This is consistent with the requirement to have a final default clause in a switch statement.
+  This rule applies whenever an <code>if</code> statement is followed by one or more <code>else if</code> statements, the final <code>else if </code> shall be followed by an <code>else if</code> statement.
 </p>
-
 <p>
-The following code snippet illustrates this rule:
+  The requirement for a final <code>else</code> statement is defensive programming. The <code>else</code> statement should either take appropriate action or contain a suitable comment as to why no action is taken. This is consistent with the requirement to have a final <code>default</code> clause in a <code>switch</code> statement.
 </p>
 
+<h2>Noncompliant Code Example</h2>
 <pre>
-int x = 0;
-
-// This "if" statement is fine, since it has no "else if" clause, no "else" is required
 if (x == 0) {
-  x = 42;
-}
-
-// This "if" statement is also fine
-if (x == 0) {
-  x = 42;
-} else {
-  x = -42;
-}
-
-// This "if" statement is bad, because it has an "else if" but no "else" clause
-if (x == 0) {
-  x = 42;
+  doSomething();
 } else if (x == 1) {
-  x = -42;
-} else if (x == 2) { // Non-Compliant
-  x = 0;
+  doSomethingElse();
+}
+</pre>
+
+<h2>Compliant Solution</h2>
+<pre>
+if (x == 0) {
+  doSomething();
+} else if (x == 1) {
+  doSomethingElse();
+} else {
+  throw new IllegalStateException();
 }
 </pre>

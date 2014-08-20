@@ -17,3 +17,14 @@ for (var i = 0; i < 10; i++) {
 }
 
 print(funs[0]());
+
+
+for (var i = 0; i < 10; i++) {
+    funs[i] = (function * (i) {
+        return function() {
+            return i;
+        };
+    }(i));
+}
+
+print(funs[0]());

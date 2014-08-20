@@ -46,7 +46,7 @@ public class EvalCheck extends SquidCheck<LexerlessGrammar> {
       AstNode memberExpressionNode = simpleCallExprNode.getFirstChild(EcmaScriptGrammar.MEMBER_EXPRESSION);
 
       if (memberExpressionNode != null && "eval".equals(memberExpressionNode.getTokenValue())) {
-        getContext().createLineViolation(this, "Avoid use of eval.", node);
+        getContext().createLineViolation(this, "Remove this use of the \"eval\" function.", node);
       }
     }
   }

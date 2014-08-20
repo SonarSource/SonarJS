@@ -20,6 +20,7 @@
 package org.sonar.javascript.checks;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Maps;
 import com.sonar.sslr.api.AstNode;
 import com.sonar.sslr.api.AstNodeType;
@@ -28,7 +29,7 @@ import com.sonar.sslr.impl.ast.AstWalker;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.javascript.api.EcmaScriptTokenType;
-import org.sonar.javascript.checks.utils.CheckUtils;
+import org.sonar.javascript.checks.utils.IdentifierUtils;
 import org.sonar.javascript.parser.EcmaScriptGrammar;
 import org.sonar.squidbridge.checks.SquidCheck;
 import org.sonar.sslr.parser.LexerlessGrammar;
@@ -65,16 +66,29 @@ public class VariableShadowingCheck extends SquidCheck<LexerlessGrammar> {
     }
   }
 
+  private static final AstNodeType[] FUNCTION_NODES = {
+    EcmaScriptGrammar.FUNCTION_EXPRESSION,
+    EcmaScriptGrammar.FUNCTION_DECLARATION,
+    EcmaScriptGrammar.METHOD,
+    EcmaScriptGrammar.GENERATOR_METHOD,
+    EcmaScriptGrammar.GENERATOR_DECLARATION,
+    EcmaScriptGrammar.GENERATOR_EXPRESSION,
+    EcmaScriptGrammar.ARROW_FUNCTION,
+    EcmaScriptGrammar.ARROW_FUNCTION_NO_IN};
+
+  protected static final AstNodeType[] CONST_AND_VAR_NODES = {
+    EcmaScriptGrammar.VARIABLE_DECLARATION,
+    EcmaScriptGrammar.VARIABLE_DECLARATION_NO_IN,
+    EcmaScriptGrammar.LEXICAL_BINDING,
+    EcmaScriptGrammar.LEXICAL_BINDING_NO_IN};
+
   private Scope currentScope;
 
   @Override
   public void init() {
-    subscribeTo(
-      EcmaScriptGrammar.FUNCTION_EXPRESSION,
-      EcmaScriptGrammar.FUNCTION_DECLARATION,
-      EcmaScriptGrammar.FORMAL_PARAMETER_LIST,
-      EcmaScriptGrammar.VARIABLE_DECLARATION,
-      EcmaScriptGrammar.VARIABLE_DECLARATION_NO_IN);
+    subscribeTo(EcmaScriptGrammar.FORMAL_PARAMETER_LIST);
+    subscribeTo(FUNCTION_NODES);
+    subscribeTo(CONST_AND_VAR_NODES);
   }
 
   @Override
@@ -88,13 +102,13 @@ public class VariableShadowingCheck extends SquidCheck<LexerlessGrammar> {
 
   @Override
   public void visitNode(AstNode astNode) {
-    if (astNode.is(EcmaScriptGrammar.FUNCTION_EXPRESSION, EcmaScriptGrammar.FUNCTION_DECLARATION)) {
+    if (astNode.is(FUNCTION_NODES)) {
       // enter new scope
       currentScope = scopes.get(astNode);
     } else if (astNode.is(EcmaScriptGrammar.FORMAL_PARAMETER_LIST)) {
-      checkIdentifiers(CheckUtils.getParametersIdentifier(astNode));
-    } else if (astNode.is(EcmaScriptGrammar.VARIABLE_DECLARATION, EcmaScriptGrammar.VARIABLE_DECLARATION_NO_IN)) {
-      checkIdentifiers(CheckUtils.getVariableIdentifiers(astNode));
+      checkIdentifiers(IdentifierUtils.getParametersIdentifier(astNode));
+    } else if (astNode.is(CONST_AND_VAR_NODES)) {
+      checkIdentifiers(IdentifierUtils.getVariableIdentifiers(astNode));
     }
   }
 
@@ -113,7 +127,7 @@ public class VariableShadowingCheck extends SquidCheck<LexerlessGrammar> {
 
   @Override
   public void leaveNode(AstNode astNode) {
-    if (astNode.is(EcmaScriptGrammar.FUNCTION_EXPRESSION, EcmaScriptGrammar.FUNCTION_DECLARATION)) {
+    if (astNode.is(FUNCTION_NODES)) {
       // leave scope
       currentScope = currentScope.outerScope;
     }
@@ -136,12 +150,10 @@ public class VariableShadowingCheck extends SquidCheck<LexerlessGrammar> {
     private Scope currentScope;
 
     public List<AstNodeType> getAstNodeTypesToVisit() {
-      return Arrays.asList((AstNodeType)
-          EcmaScriptGrammar.FUNCTION_EXPRESSION,
-        EcmaScriptGrammar.FUNCTION_DECLARATION,
-        EcmaScriptGrammar.VARIABLE_DECLARATION,
-        EcmaScriptGrammar.VARIABLE_DECLARATION_NO_IN,
-        EcmaScriptGrammar.FORMAL_PARAMETER_LIST);
+      return ImmutableList.<AstNodeType>builder()
+        .add(EcmaScriptGrammar.FORMAL_PARAMETER_LIST)
+        .addAll(Arrays.asList(CONST_AND_VAR_NODES))
+        .addAll(Arrays.asList(FUNCTION_NODES)).build();
     }
 
     @Override
@@ -152,14 +164,14 @@ public class VariableShadowingCheck extends SquidCheck<LexerlessGrammar> {
 
     @Override
     public void visitNode(AstNode astNode) {
-      if (astNode.is(EcmaScriptGrammar.FUNCTION_EXPRESSION, EcmaScriptGrammar.FUNCTION_DECLARATION)) {
+      if (astNode.is(FUNCTION_NODES)) {
         // enter new scope
         currentScope = new Scope(currentScope);
         scopes.put(astNode, currentScope);
       } else if (astNode.is(EcmaScriptGrammar.FORMAL_PARAMETER_LIST)) {
-        declareInCurrentScope(CheckUtils.getParametersIdentifier(astNode));
-      } else if (astNode.is(EcmaScriptGrammar.VARIABLE_DECLARATION, EcmaScriptGrammar.VARIABLE_DECLARATION_NO_IN)) {
-        declareInCurrentScope(CheckUtils.getVariableIdentifiers(astNode));
+        declareInCurrentScope(IdentifierUtils.getParametersIdentifier(astNode));
+      } else if (astNode.is(CONST_AND_VAR_NODES)) {
+        declareInCurrentScope(IdentifierUtils.getVariableIdentifiers(astNode));
       }
     }
 
@@ -171,7 +183,7 @@ public class VariableShadowingCheck extends SquidCheck<LexerlessGrammar> {
 
     @Override
     public void leaveNode(AstNode astNode) {
-      if (astNode.is(EcmaScriptGrammar.FUNCTION_EXPRESSION, EcmaScriptGrammar.FUNCTION_DECLARATION)) {
+      if (astNode.is(FUNCTION_NODES)) {
         // leave scope
         currentScope = currentScope.outerScope;
       }

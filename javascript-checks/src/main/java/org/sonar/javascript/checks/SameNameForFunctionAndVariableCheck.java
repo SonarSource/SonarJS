@@ -26,6 +26,7 @@ import org.sonar.check.Rule;
 import org.sonar.javascript.api.EcmaScriptTokenType;
 import org.sonar.javascript.parser.EcmaScriptGrammar;
 import org.sonar.squidbridge.checks.SquidCheck;
+import org.sonar.sslr.grammar.GrammarRuleKey;
 import org.sonar.sslr.parser.LexerlessGrammar;
 
 import java.util.HashSet;
@@ -41,13 +42,22 @@ public class SameNameForFunctionAndVariableCheck extends SquidCheck<LexerlessGra
   private Stack<Set<String>> variablesStack;
   private Stack<Set<String>> functionsStack;
 
+  private static final GrammarRuleKey[] FUNCTION_NODES = {
+    EcmaScriptGrammar.FUNCTION_DECLARATION,
+    EcmaScriptGrammar.FUNCTION_EXPRESSION,
+    EcmaScriptGrammar.GENERATOR_DECLARATION,
+    EcmaScriptGrammar.FUNCTION_EXPRESSION};
+
+  protected static final GrammarRuleKey[] CONST_AND_VAR_NODES = {
+    EcmaScriptGrammar.VARIABLE_DECLARATION,
+    EcmaScriptGrammar.VARIABLE_DECLARATION_NO_IN,
+    EcmaScriptGrammar.LEXICAL_BINDING,
+    EcmaScriptGrammar.LEXICAL_BINDING_NO_IN};
+
   @Override
   public void init() {
-    subscribeTo(
-        EcmaScriptGrammar.VARIABLE_DECLARATION,
-        EcmaScriptGrammar.VARIABLE_DECLARATION_NO_IN,
-        EcmaScriptGrammar.FUNCTION_DECLARATION,
-        EcmaScriptGrammar.FUNCTION_EXPRESSION);
+    subscribeTo(CONST_AND_VAR_NODES);
+    subscribeTo(FUNCTION_NODES);
   }
 
   @Override
@@ -60,17 +70,17 @@ public class SameNameForFunctionAndVariableCheck extends SquidCheck<LexerlessGra
 
   @Override
   public void visitNode(AstNode astNode) {
-    if (astNode.is(EcmaScriptGrammar.FUNCTION_DECLARATION)) {
-      String functionName = astNode.getFirstChild(EcmaScriptTokenType.IDENTIFIER).getTokenValue();
+    if (astNode.is(EcmaScriptGrammar.FUNCTION_DECLARATION, EcmaScriptGrammar.GENERATOR_DECLARATION)) {
+      String functionName = astNode.getFirstChild(EcmaScriptTokenType.IDENTIFIER, EcmaScriptGrammar.BINDING_IDENTIFIER).getTokenValue();
       check(astNode, variablesStack.peek(), functionName);
       functionsStack.peek().add(functionName);
-    } else if (astNode.is(EcmaScriptGrammar.VARIABLE_DECLARATION, EcmaScriptGrammar.VARIABLE_DECLARATION_NO_IN)) {
+    } else if (astNode.is(CONST_AND_VAR_NODES)) {
       String variableName = astNode.getTokenValue();
       check(astNode, functionsStack.peek(), variableName);
       variablesStack.peek().add(variableName);
     }
 
-    if (astNode.is(EcmaScriptGrammar.FUNCTION_DECLARATION, EcmaScriptGrammar.FUNCTION_EXPRESSION)) {
+    if (astNode.is(FUNCTION_NODES)) {
       variablesStack.add(new HashSet<String>());
       functionsStack.add(new HashSet<String>());
     }
@@ -84,7 +94,7 @@ public class SameNameForFunctionAndVariableCheck extends SquidCheck<LexerlessGra
 
   @Override
   public void leaveNode(AstNode astNode) {
-    if (astNode.is(EcmaScriptGrammar.FUNCTION_DECLARATION, EcmaScriptGrammar.FUNCTION_EXPRESSION)) {
+    if (astNode.is(FUNCTION_NODES)) {
       variablesStack.pop();
       functionsStack.pop();
     }

@@ -42,7 +42,9 @@ public class FunctionDefinitionInsideLoopCheck extends SquidCheck<LexerlessGramm
     subscribeTo(
         EcmaScriptGrammar.ITERATION_STATEMENT,
         EcmaScriptGrammar.FUNCTION_EXPRESSION,
-        EcmaScriptGrammar.FUNCTION_DECLARATION);
+        EcmaScriptGrammar.FUNCTION_DECLARATION,
+        EcmaScriptGrammar.GENERATOR_EXPRESSION,
+        EcmaScriptGrammar.GENERATOR_DECLARATION);
   }
 
   @Override

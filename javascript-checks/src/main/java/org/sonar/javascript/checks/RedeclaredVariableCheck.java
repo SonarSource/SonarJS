@@ -23,9 +23,10 @@ import com.sonar.sslr.api.AstNode;
 import org.sonar.check.BelongsToProfile;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
-import org.sonar.javascript.checks.utils.CheckUtils;
+import org.sonar.javascript.checks.utils.IdentifierUtils;
 import org.sonar.javascript.parser.EcmaScriptGrammar;
 import org.sonar.squidbridge.checks.SquidCheck;
+import org.sonar.sslr.grammar.GrammarRuleKey;
 import org.sonar.sslr.parser.LexerlessGrammar;
 
 import java.util.HashSet;
@@ -38,15 +39,25 @@ import java.util.Stack;
 @BelongsToProfile(title = CheckList.SONAR_WAY_PROFILE, priority = Priority.MAJOR)
 public class RedeclaredVariableCheck extends SquidCheck<LexerlessGrammar> {
 
+  private static final GrammarRuleKey[] FUNCTION_NODES = {
+    EcmaScriptGrammar.FUNCTION_EXPRESSION,
+    EcmaScriptGrammar.FUNCTION_DECLARATION,
+    EcmaScriptGrammar.METHOD,
+    EcmaScriptGrammar.GENERATOR_METHOD,
+    EcmaScriptGrammar.GENERATOR_DECLARATION,
+    EcmaScriptGrammar.GENERATOR_EXPRESSION,
+    EcmaScriptGrammar.ARROW_FUNCTION,
+    EcmaScriptGrammar.ARROW_FUNCTION_NO_IN};
+
   private Stack<Set<String>> stack;
+
 
   @Override
   public void init() {
     subscribeTo(
         EcmaScriptGrammar.VARIABLE_DECLARATION,
-        EcmaScriptGrammar.VARIABLE_DECLARATION_NO_IN,
-        EcmaScriptGrammar.FUNCTION_DECLARATION,
-        EcmaScriptGrammar.FUNCTION_EXPRESSION);
+        EcmaScriptGrammar.VARIABLE_DECLARATION_NO_IN);
+    subscribeTo(FUNCTION_NODES);
   }
 
   @Override
@@ -57,13 +68,10 @@ public class RedeclaredVariableCheck extends SquidCheck<LexerlessGrammar> {
 
   @Override
   public void visitNode(AstNode astNode) {
-    if (astNode.is(EcmaScriptGrammar.FUNCTION_DECLARATION, EcmaScriptGrammar.FUNCTION_EXPRESSION)) {
+    if (astNode.is(FUNCTION_NODES)) {
       Set<String> currentScope = new HashSet<String>();
       stack.add(currentScope);
-      AstNode formalParameterList = astNode.getFirstChild(EcmaScriptGrammar.FORMAL_PARAMETER_LIST);
-      if (formalParameterList != null) {
-        checkFormalParamList(formalParameterList, currentScope);
-      }
+      addParametersToScope(astNode, currentScope);
     } else {
       Set<String> currentScope = stack.peek();
       String variableName = astNode.getTokenValue();
@@ -77,7 +85,7 @@ public class RedeclaredVariableCheck extends SquidCheck<LexerlessGrammar> {
 
   @Override
   public void leaveNode(AstNode astNode) {
-    if (astNode.is(EcmaScriptGrammar.FUNCTION_DECLARATION, EcmaScriptGrammar.FUNCTION_EXPRESSION)) {
+    if (astNode.is(FUNCTION_NODES)) {
       stack.pop();
     }
   }
@@ -87,11 +95,28 @@ public class RedeclaredVariableCheck extends SquidCheck<LexerlessGrammar> {
     stack = null;
   }
 
-  private void checkFormalParamList(AstNode astNode, Set<String> currentScope) {
-    for (AstNode identifier : CheckUtils.getParametersIdentifier(astNode)) {
-      currentScope.add(identifier.getTokenValue());
+  private void addParametersToScope(AstNode functionNode, Set<String> currentScope) {
+    if (functionNode.is(EcmaScriptGrammar.ARROW_FUNCTION)) {
+      addArrowParametersToScope(functionNode.getFirstChild(EcmaScriptGrammar.ARROW_PARAMETERS), currentScope);
+    } else {
+      addFormalParametersToScope(functionNode.getFirstChild(EcmaScriptGrammar.FORMAL_PARAMETER_LIST), currentScope);
     }
   }
 
+  private void addArrowParametersToScope(AstNode arrowParameters, Set<String> currentScope) {
+    if (arrowParameters != null) {
+      for (String identifierValue : IdentifierUtils.getArrowParametersIdentifier(arrowParameters)) {
+        currentScope.add(identifierValue);
+      }
+    }
+  }
+
+  private void addFormalParametersToScope(AstNode formalParameterList, Set<String> currentScope) {
+    if (formalParameterList != null) {
+      for (AstNode identifier : IdentifierUtils.getParametersIdentifier(formalParameterList)) {
+        currentScope.add(identifier.getTokenValue());
+      }
+    }
+  }
 
 }

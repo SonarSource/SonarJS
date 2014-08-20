@@ -34,7 +34,7 @@ public class EvalCheckTest {
 
     SourceFile file = JavaScriptAstScanner.scanSingleFile(new File("src/test/resources/checks/eval.js"), check);
     CheckMessagesVerifier.verify(file.getCheckMessages())
-        .next().atLine(2).withMessage("Avoid use of eval.")
+        .next().atLine(2).withMessage("Remove this use of the \"eval\" function.")
         .next().atLine(5)
         .noMore();
   }

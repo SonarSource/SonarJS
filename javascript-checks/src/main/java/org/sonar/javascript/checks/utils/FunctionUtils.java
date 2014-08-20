@@ -17,29 +17,22 @@
  * License along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.javascript.checks;
+package org.sonar.javascript.checks.utils;
 
-import org.sonar.squidbridge.checks.CheckMessagesVerifier;
-import org.junit.Test;
-import org.sonar.javascript.JavaScriptAstScanner;
-import org.sonar.squidbridge.api.SourceFile;
+import org.sonar.javascript.parser.EcmaScriptGrammar;
+import org.sonar.sslr.grammar.GrammarRuleKey;
 
-import java.io.File;
+public class FunctionUtils {
 
-public class UnusedVariableCheckTest {
-
-  @Test
-  public void test() {
-    UnusedVariableCheck check = new UnusedVariableCheck();
-
-    SourceFile file = JavaScriptAstScanner.scanSingleFile(new File("src/test/resources/checks/unusedVariable.js"), check);
-    CheckMessagesVerifier.verify(file.getCheckMessages())
-        .next().atLine(4).withMessage("Remove the declaration of the unused 'a' variable.")
-        .next().atLine(17)
-        .next().atLine(24)
-        .next().atLine(25)
-        .next().atLine(31)
-        .noMore();
+  private FunctionUtils() {
   }
+
+  public static final GrammarRuleKey[] FUNCTIONS = {
+    EcmaScriptGrammar.METHOD,
+    EcmaScriptGrammar.GENERATOR_METHOD,
+    EcmaScriptGrammar.GENERATOR_DECLARATION,
+    EcmaScriptGrammar.GENERATOR_EXPRESSION,
+    EcmaScriptGrammar.FUNCTION_DECLARATION,
+    EcmaScriptGrammar.FUNCTION_EXPRESSION};
 
 }

@@ -34,8 +34,8 @@ public class EmptyBlockCheckTest {
 
     SourceFile file = JavaScriptAstScanner.scanSingleFile(new File("src/test/resources/checks/emptyBlock.js"), check);
     CheckMessagesVerifier.verify(file.getCheckMessages())
-        .next().atLine(1).withMessage("Provide the missing piece of code.")
-        .next().atLine(8).withMessage("Provide the missing piece of code.")
+        .next().atLine(2).withMessage("Either remove or fill this block of code.")
+        .next().atLine(16).withMessage("Either remove or fill this block of code.")
         .noMore();
   }
 

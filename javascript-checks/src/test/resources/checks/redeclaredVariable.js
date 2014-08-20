@@ -32,3 +32,16 @@ function fun({a:b}) {
   var a;     // OK
   var b;     // NOK
 }
+
+function* fun() {
+    var a = 1;
+    var a = 2; // NOK
+}
+
+var a = (a) => {
+    var a;     // NOK
+}
+
+function* fun(a) {
+    var a = 1; // NOK
+}

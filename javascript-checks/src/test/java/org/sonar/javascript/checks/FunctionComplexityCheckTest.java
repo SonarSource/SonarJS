@@ -36,6 +36,7 @@ public class FunctionComplexityCheckTest {
     SourceFile file = JavaScriptAstScanner.scanSingleFile(new File("src/test/resources/checks/functionComplexity.js"), check);
     CheckMessagesVerifier.verify(file.getCheckMessages())
         .next().atLine(1).withMessage("Function has a complexity of 5 which is greater than 2 authorized.")
+        .next().atLine(14)
         .noMore();
   }
 

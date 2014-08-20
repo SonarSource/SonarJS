@@ -25,6 +25,7 @@ import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
 import org.sonar.javascript.api.EcmaScriptMetric;
+import org.sonar.javascript.checks.utils.FunctionUtils;
 import org.sonar.javascript.parser.EcmaScriptGrammar;
 import org.sonar.squidbridge.api.SourceFunction;
 import org.sonar.squidbridge.checks.SquidCheck;
@@ -45,7 +46,7 @@ public class FunctionComplexityCheck extends SquidCheck<LexerlessGrammar> {
 
   @Override
   public void init() {
-    subscribeTo(EcmaScriptGrammar.FUNCTION_DECLARATION, EcmaScriptGrammar.FUNCTION_EXPRESSION);
+    subscribeTo(FunctionUtils.FUNCTIONS);
   }
 
   @Override

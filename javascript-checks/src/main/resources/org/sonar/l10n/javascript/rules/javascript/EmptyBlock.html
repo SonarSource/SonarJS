@@ -1,21 +1,13 @@
 <p>
-In most cases, en empty block represents a missing implementation:
+  Most of the time a block of code is empty when a piece of code is really missing. So such empty block must be either filled or removed.
 </p>
 
+<h2>Noncompliant Code Example</h2>
 <pre>
-if (something) { // Non-Compliant
-  // What ?
-}
-
-if (something) { // Compliant
-  doSomething();
-}
-
-for (var i = 0; i < length; i++) { // Non-Compliant
-  // Empty on purpose or missing piece of code ?
-}
-
-for (var i = 0; i < length; i++) { // Compliant
-  doSomething();
-}
+for (var i = 0; i < length; i++) {}  // Empty on purpose or missing piece of code ?
 </pre>
+
+<h2>Exceptions</h2>
+<p>
+  When a block contains a comment, this block is not considered to be empty.
+</p>

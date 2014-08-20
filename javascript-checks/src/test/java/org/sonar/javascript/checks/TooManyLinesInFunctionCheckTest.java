@@ -46,6 +46,7 @@ public class TooManyLinesInFunctionCheckTest {
       .next().atLine(2).withMessage("This function has 4 lines, which is greater than the " + check.max + " lines authorized. Split it into smaller functions.")
       .next().atLine(8)
       .next().atLine(13)
+      .next().atLine(20)
       .noMore();
   }
 }

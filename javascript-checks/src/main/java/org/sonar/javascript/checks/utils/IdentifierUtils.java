@@ -22,15 +22,16 @@ package org.sonar.javascript.checks.utils;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.sonar.sslr.api.AstNode;
+import org.sonar.javascript.api.EcmaScriptPunctuator;
 import org.sonar.javascript.api.EcmaScriptTokenType;
 import org.sonar.javascript.parser.EcmaScriptGrammar;
 
 import javax.annotation.Nullable;
 import java.util.List;
 
-public class CheckUtils {
+public class IdentifierUtils {
 
-  private CheckUtils() {
+  private IdentifierUtils() {
   }
 
   public static List<AstNode> getCatchIdentifiers(AstNode catchNode) {
@@ -51,7 +52,11 @@ public class CheckUtils {
   }
 
   public static List<AstNode> getVariableIdentifiers(AstNode variableDeclaration) {
-    Preconditions.checkArgument(variableDeclaration.is(EcmaScriptGrammar.VARIABLE_DECLARATION, EcmaScriptGrammar.VARIABLE_DECLARATION_NO_IN));
+    Preconditions.checkArgument(variableDeclaration.is(
+      EcmaScriptGrammar.VARIABLE_DECLARATION,
+      EcmaScriptGrammar.VARIABLE_DECLARATION_NO_IN,
+      EcmaScriptGrammar.LEXICAL_BINDING,
+      EcmaScriptGrammar.LEXICAL_DECLARATION_NO_IN));
 
     List<AstNode> identifiers = Lists.newArrayList();
     AstNode child = variableDeclaration.getFirstChild();
@@ -65,6 +70,35 @@ public class CheckUtils {
       identifiers.addAll(getBindingPatternIdentifiers(child.getFirstChild(EcmaScriptGrammar.BINDING_PATTERN)));
     }
 
+    return identifiers;
+  }
+
+  /**
+   * Return list of string corresponding to the parameters' token value.
+   */
+  public static List<String> getArrowParametersIdentifier(AstNode arrowParameters) {
+    Preconditions.checkArgument(arrowParameters.is(EcmaScriptGrammar.ARROW_PARAMETERS));
+    List<String> identifiers = Lists.newArrayList();
+    AstNode child = arrowParameters.getFirstChild();
+
+    if (child.is(EcmaScriptGrammar.BINDING_IDENTIFIER) && child.getFirstChild().is(EcmaScriptTokenType.IDENTIFIER)) {
+      identifiers.add(child.getFirstChild().getTokenValue());
+    } else {
+      // Retrieve parameters from expression
+      AstNode expression = child.getFirstChild(EcmaScriptGrammar.EXPRESSION);
+      if (expression != null) {
+        for (AstNode expressionChild : expression.getChildren()) {
+          if (expressionChild.isNot(EcmaScriptPunctuator.COMMA)) {
+            identifiers.add(expressionChild.getTokenValue());
+          }
+        }
+      }
+      // Rest parameter
+      AstNode restParameter = child.getFirstChild(EcmaScriptGrammar.REST_PARAMETER);
+      if (restParameter != null) {
+        identifiers.add(getRestIdentifier(restParameter.getFirstChild()).getTokenValue());
+      }
+    }
     return identifiers;
   }
 

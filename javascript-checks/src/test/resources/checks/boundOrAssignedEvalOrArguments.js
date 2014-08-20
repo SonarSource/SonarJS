@@ -44,4 +44,14 @@ function fun ({eval}) {     // NOK
  var {arguments, } = eval;  // NOK
 }
 
+/**
+ * Generator function
+ */
+function* fun(eval) { // NOK
+}
 
+/**
+ * Generator function
+ */
+let arguments = eval;
+const arguments = eval;

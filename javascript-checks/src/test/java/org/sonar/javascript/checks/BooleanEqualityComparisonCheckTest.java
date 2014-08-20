@@ -34,22 +34,22 @@ public class BooleanEqualityComparisonCheckTest {
   public void test() {
     SourceFile file = JavaScriptAstScanner.scanSingleFile(new File("src/test/resources/checks/booleanEqualityComparison.js"), check);
     CheckMessagesVerifier.verify(file.getCheckMessages())
-      .next().atLine(1).withMessage("Remove the useless \"!\" operator.")
+      .next().atLine(1).withMessage("Remove the literal \"true\" boolean value.")
       .next().atLine(2)
-      .next().atLine(3).withMessage("Remove the useless \"==\" operator.")
+      .next().atLine(3).withMessage("Remove the literal \"false\" boolean value.")
       .next().atLine(4)
-      .next().atLine(5).withMessage("Remove the useless \"===\" operator.")
+      .next().atLine(5).withMessage("Remove the literal \"false\" boolean value.")
       .next().atLine(6)
-      .next().atLine(7).withMessage("Remove the useless \"!=\" operator.")
+      .next().atLine(7).withMessage("Remove the literal \"false\" boolean value.")
       .next().atLine(8)
-      .next().atLine(9).withMessage("Remove the useless \"!==\" operator.")
+      .next().atLine(9).withMessage("Remove the literal \"false\" boolean value.")
       .next().atLine(10)
       .next().atLine(11)
       .next().atLine(12)
       .next().atLine(13)
       .next().atLine(14)
-      .next().atLine(15).withMessage("Remove the useless \"&&\" operator.")
-      .next().atLine(16).withMessage("Remove the useless \"||\" operator.")
+      .next().atLine(15).withMessage("Remove the literal \"false\" boolean value.")
+      .next().atLine(16).withMessage("Remove the literal \"true\" boolean value.")
       .noMore();
   }
 }
