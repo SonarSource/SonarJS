@@ -1,21 +1,20 @@
 <p>
-Function arguments should all have different names to prevent any ambiguity.
-Indeed, if arguments have the same name, the last duplicated argument hides all the previous arguments with the same name (those previous arguments remain available through <code>arguments[i]</code>, so they're not completely inaccessible).
-This hiding makes no sense, clearly reduces understandability and maintainability, and obvioulsy can be error prone.
+  Function arguments should all have different names to prevent any ambiguity. Indeed, if arguments have the same name, the last duplicated argument hides all the previous arguments with the same name (those previous arguments remain available through arguments[i], so they're not completely inaccessible).
 </p>
 
 <p>
-Furthermore, in JavaScript strict mode, declaring arguments with the same name produces an error.
+  This hiding makes no sense, clearly reduces understandability and maintainability, and obviously can be error prone. Furthermore, in JavaScript strict mode, declaring arguments with the same name produces an error.
+  The following code snippet illustrates this rule :
 </p>
 
-<p>
-The following code snippet illustrates this rule :
-</p>
-
+<h2>Noncompliant Code Example</h2>
 <pre>
-function compute(a, a, c) { // Non-Compliant
+function compute(a, a, c) { // Noncompliant
 }
+</pre>
 
+<h2>Compliant Solution</h2>
+<pre>
 function computeBis(a, b, c) { // Compliant
 }
 </pre>
