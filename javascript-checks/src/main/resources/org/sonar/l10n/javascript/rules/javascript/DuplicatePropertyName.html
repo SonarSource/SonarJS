@@ -1,27 +1,38 @@
 <p>
-Even if JavaScript allows to have duplicate property names in object literals, this is a vector for bugs as only the last instance of a duplicated property determines the actual value that will be used for it.
-Therefore, changing values of other occurences of a duplicated property will have no effect and may cause misunderstandings and bugs.
+  JavaScript allows duplicate property names in object literals, but only the last instance of a duplicated property determines the actual value that will be used for it. Therefore, changing values of other occurrences of a duplicated property will have no effect and may cause misunderstandings and bugs.
 </p>
 
 <p>
-What's more, using duplicate property names will generate an error in JavaScript strict mode code.
+  What's more, using duplicate property names will generate an error in JavaScript strict mode code.
+  The following code snippet illustrates this rule :
 </p>
 
-<p>
-The following code snippet illustrates this rule :
-</p>
-
+<h2>Noncompliant Code Example</h2>
 <pre>
 var data = {
   "key": "value",
-  " key": "value",
   "1": "value",
-  "key": "value", // Non-Compliant - duplicate of "key"
-  'key': "value", // Non-Compliant - duplicate of "key"
-  key: "value", // Non-Compliant - duplicate of "key"
-  \u006bey: "value", // Non-Compliant - duplicate of "key"
-  "\u006bey": "value", // Non-Compliant - duplicate of "key"
-  "\x6bey": "value", // Non-Compliant - duplicate of "key"
-  1: "value" // Non-Compliant - duplicate of "1"
+  "key": "value", // Noncompliant - duplicate of "key"
+  'key': "value", // Noncompliant - duplicate of "key"
+  key: "value", // Noncompliant - duplicate of "key"
+  \u006bey: "value", // Noncompliant - duplicate of "key"
+  "\u006bey": "value", // Noncompliant - duplicate of "key"
+  "\x6bey": "value", // Noncompliant - duplicate of "key"
+  1: "value" // Noncompliant - duplicate of "1"
+}
+</pre>
+
+<h2>Compliant Solution</h2>
+<pre>
+var data = {
+  "key": "value",
+  "1": "value",
+  "key2": "value",
+  'key3': "value",
+  key4: "value",
+  \u006bey5: "value",
+  "\u006bey6": "value",
+  "\x6bey7": "value",
+  1b: "value"
 }
 </pre>
