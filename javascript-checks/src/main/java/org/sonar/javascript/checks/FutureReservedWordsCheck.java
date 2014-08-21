@@ -24,7 +24,10 @@ import com.sonar.sslr.api.AstNode;
 import org.sonar.check.BelongsToProfile;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
+import org.sonar.check.RuleProperty;
+import org.sonar.javascript.api.EcmaScriptKeyword;
 import org.sonar.javascript.api.EcmaScriptTokenType;
+import org.sonar.javascript.parser.EcmaScriptGrammar;
 import org.sonar.squidbridge.checks.SquidCheck;
 import org.sonar.sslr.parser.LexerlessGrammar;
 
@@ -36,19 +39,36 @@ import java.util.Set;
 @BelongsToProfile(title = CheckList.SONAR_WAY_PROFILE, priority = Priority.CRITICAL)
 public class FutureReservedWordsCheck extends SquidCheck<LexerlessGrammar> {
 
-  private static final Set<String> FUTURE_RESERVED_WORDS = ImmutableSet.of("implements", "interface", "let", "package", "private", "protected", "public", "static");
+  private static final Set<String> FUTURE_RESERVED_WORDS_ES6 = ImmutableSet.of("implements", "interface", "package", "private", "protected", "public", "static");
+  private static final Set<String> FUTURE_RESERVED_WORDS_ES5 = ImmutableSet.<String>builder().addAll(FUTURE_RESERVED_WORDS_ES6).add("let", "yield").build();
+  private static final boolean DEFAULT = false;
+
+  @RuleProperty(
+    key = "ecmascript6",
+    type = "BOOLEAN",
+    defaultValue = "" + DEFAULT)
+  public boolean ecmascript6 = DEFAULT;
 
   @Override
   public void init() {
-    subscribeTo(EcmaScriptTokenType.IDENTIFIER);
+    subscribeTo(EcmaScriptTokenType.IDENTIFIER, EcmaScriptKeyword.YIELD);
   }
 
   @Override
   public void visitNode(AstNode astNode) {
     String value = astNode.getTokenValue();
-    if (FUTURE_RESERVED_WORDS.contains(value)) {
-      getContext().createLineViolation(this, "Rename '" + value + "' identifier to prevent potential conflicts with future evolutions of the JavaScript language.", astNode);
+
+    if (isNotYieldExpression(astNode) && isFutureRservedWord(astNode, value)) {
+      getContext().createLineViolation(this, "Rename \"" + value + "\" identifier to prevent potential conflicts with future evolutions of the JavaScript language.", astNode);
     }
+  }
+
+  private boolean isFutureRservedWord(AstNode astNode, String value) {
+    return ecmascript6 ? FUTURE_RESERVED_WORDS_ES6.contains(value) : FUTURE_RESERVED_WORDS_ES5.contains(value);
+  }
+
+  private boolean isNotYieldExpression(AstNode astNode) {
+    return astNode.getParent().isNot(EcmaScriptGrammar.YIELD_EXPRESSION, EcmaScriptGrammar.YIELD_EXPRESSION_NO_IN);
   }
 
 }
