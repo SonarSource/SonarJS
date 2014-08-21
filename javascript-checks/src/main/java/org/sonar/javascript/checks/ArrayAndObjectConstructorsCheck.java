@@ -41,10 +41,10 @@ public class ArrayAndObjectConstructorsCheck extends SquidCheck<LexerlessGrammar
   @Override
   public void visitNode(AstNode astNode) {
     if ("Array".equals(astNode.getNextSibling().getTokenValue())) {
-      getContext().createLineViolation(this, "Do not use Array constructors.", astNode);
+      getContext().createLineViolation(this, "Use a literal instead of the Array constructor.", astNode);
     }
     if ("Object".equals(astNode.getNextSibling().getTokenValue())) {
-      getContext().createLineViolation(this, "Do not use Object constructors.", astNode);
+      getContext().createLineViolation(this, "Use a literal instead of the Object constructor.", astNode);
     }
   }
 

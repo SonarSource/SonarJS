@@ -34,9 +34,9 @@ public class ArrayAndObjectConstructorsCheckTest {
 
     SourceFile file = JavaScriptAstScanner.scanSingleFile(new File("src/test/resources/checks/arrayAndObjectConstructors.js"), check);
     CheckMessagesVerifier.verify(file.getCheckMessages())
-        .next().atLine(2).withMessage("Do not use Array constructors.")
-        .next().atLine(3).withMessage("Do not use Array constructors.")
-        .next().atLine(5).withMessage("Do not use Object constructors.")
+        .next().atLine(2).withMessage("Use a literal instead of the Array constructor.")
+        .next().atLine(3).withMessage("Use a literal instead of the Array constructor.")
+        .next().atLine(5).withMessage("Use a literal instead of the Object constructor.")
         .noMore();
   }
 
