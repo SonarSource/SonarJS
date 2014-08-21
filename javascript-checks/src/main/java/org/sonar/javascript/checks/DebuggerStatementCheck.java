@@ -40,7 +40,7 @@ public class DebuggerStatementCheck extends SquidCheck<LexerlessGrammar> {
 
   @Override
   public void visitNode(AstNode astNode) {
-    getContext().createLineViolation(this, "Avoid using debugger statement.", astNode);
+    getContext().createLineViolation(this, "Remove this debugger statement.", astNode);
   }
 
 }

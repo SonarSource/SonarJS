@@ -34,7 +34,7 @@ public class DebuggerStatementCheckTest {
 
     SourceFile file = JavaScriptAstScanner.scanSingleFile(new File("src/test/resources/checks/debuggerStatement.js"), check);
     CheckMessagesVerifier.verify(file.getCheckMessages())
-        .next().atLine(2).withMessage("Avoid using debugger statement.")
+        .next().atLine(2).withMessage("Remove this debugger statement.")
         .noMore();
   }
 
