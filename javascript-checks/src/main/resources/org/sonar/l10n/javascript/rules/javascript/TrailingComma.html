@@ -1,12 +1,20 @@
-<p>Most browsers do support trailing comma, but that's not the case for Internet Explorer for which a meaningless error is thrown for most IE versions.</p>
-
 <p>
-The following code snippet illustrates this rule :
+  Most browsers parse and discard a meaningless, trailing comma. Unfortunately, that's not the case for Internet Explorer, which in most versions throws a meaningless error. Therefore trailing commas should be eliminated.
 </p>
+
+<h2>Noncompliant Code Example</h2>
 
 <pre>
 var settings = {
     'foo'  : oof,
-    'bar' : rab,    // Non-Compliant - trailing comma
+    'bar' : rab,    // Noncompliant - trailing comma
+};
+</pre>
+
+<h2>Compliant Solution</h2>
+<pre>
+var settings = {
+    'foo'  : oof,
+    'bar' : rab
 };
 </pre>
