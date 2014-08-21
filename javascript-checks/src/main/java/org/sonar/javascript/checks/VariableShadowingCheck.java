@@ -109,7 +109,7 @@ public class VariableShadowingCheck extends SquidCheck<LexerlessGrammar> {
     Scope scope = currentScope.outerScope;
     while (scope != null) {
       if (scope.declaration.containsKey(identifier)) {
-        getContext().createLineViolation(this, "'" + identifier + "' hides variable declared in outer scope.", astNode);
+        getContext().createLineViolation(this, "\"" + identifier + "\" hides variable declared in outer scope.", astNode);
         break;
       }
       scope = scope.outerScope;

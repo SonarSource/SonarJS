@@ -34,7 +34,7 @@ public class VariableShadowingCheckTest {
 
     SourceFile file = JavaScriptAstScanner.scanSingleFile(new File("src/test/resources/checks/variableShadowing.js"), check);
     CheckMessagesVerifier.verify(file.getCheckMessages())
-        .next().atLine(2).withMessage("'x' hides variable declared in outer scope.")
+        .next().atLine(2).withMessage("\"x\" hides variable declared in outer scope.")
         .next().atLine(8)
         .next().atLine(11)
         .next().atLine(14)
