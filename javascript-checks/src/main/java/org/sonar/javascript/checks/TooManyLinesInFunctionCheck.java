@@ -44,7 +44,12 @@ public class TooManyLinesInFunctionCheck extends SquidCheck<LexerlessGrammar> {
 
   @Override
   public void init() {
-    subscribeTo(FunctionUtils.FUNCTIONS);
+    subscribeTo(EcmaScriptGrammar.METHOD,
+    EcmaScriptGrammar.GENERATOR_METHOD,
+    EcmaScriptGrammar.GENERATOR_DECLARATION,
+    EcmaScriptGrammar.GENERATOR_EXPRESSION,
+    EcmaScriptGrammar.FUNCTION_DECLARATION,
+    EcmaScriptGrammar.FUNCTION_EXPRESSION);
   }
 
   @Override

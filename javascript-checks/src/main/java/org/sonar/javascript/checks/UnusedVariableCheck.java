@@ -25,6 +25,7 @@ import org.sonar.check.BelongsToProfile;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.javascript.api.EcmaScriptTokenType;
+import org.sonar.javascript.checks.utils.FunctionUtils;
 import org.sonar.javascript.checks.utils.IdentifierUtils;
 import org.sonar.javascript.parser.EcmaScriptGrammar;
 import org.sonar.squidbridge.checks.SquidCheck;
@@ -87,16 +88,6 @@ public class UnusedVariableCheck extends SquidCheck<LexerlessGrammar> {
     EcmaScriptGrammar.LEXICAL_BINDING,
     EcmaScriptGrammar.LEXICAL_BINDING_NO_IN};
 
-  private static final GrammarRuleKey[] FUNCTION_NODES = {
-    EcmaScriptGrammar.FUNCTION_EXPRESSION,
-    EcmaScriptGrammar.FUNCTION_DECLARATION,
-    EcmaScriptGrammar.METHOD,
-    EcmaScriptGrammar.GENERATOR_METHOD,
-    EcmaScriptGrammar.GENERATOR_DECLARATION,
-    EcmaScriptGrammar.GENERATOR_EXPRESSION,
-    EcmaScriptGrammar.ARROW_FUNCTION,
-    EcmaScriptGrammar.ARROW_FUNCTION_NO_IN};
-
   private Scope currentScope;
 
   @Override
@@ -106,7 +97,7 @@ public class UnusedVariableCheck extends SquidCheck<LexerlessGrammar> {
       EcmaScriptGrammar.FORMAL_PARAMETER_LIST,
       EcmaScriptGrammar.ARROW_PARAMETERS);
     subscribeTo(CONST_AND_VAR_NODES);
-    subscribeTo(FUNCTION_NODES);
+    subscribeTo(FunctionUtils.FUNCTION_NODES);
   }
 
   @Override
@@ -116,7 +107,7 @@ public class UnusedVariableCheck extends SquidCheck<LexerlessGrammar> {
 
   @Override
   public void visitNode(AstNode astNode) {
-    if (astNode.is(FUNCTION_NODES)) {
+    if (astNode.is(FunctionUtils.FUNCTION_NODES)) {
       // enter new scope
       currentScope = new Scope(currentScope);
 
@@ -143,7 +134,7 @@ public class UnusedVariableCheck extends SquidCheck<LexerlessGrammar> {
 
   @Override
   public void leaveNode(AstNode astNode) {
-    if (astNode.is(FUNCTION_NODES)) {
+    if (astNode.is(FunctionUtils.FUNCTION_NODES)) {
       // leave scope
       for (Map.Entry<String, Variable> entry : currentScope.variables.entrySet()) {
         if (entry.getValue().usages == 0) {

@@ -26,6 +26,7 @@ import org.sonar.check.BelongsToProfile;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.javascript.api.EcmaScriptTokenType;
+import org.sonar.javascript.checks.utils.FunctionUtils;
 import org.sonar.javascript.checks.utils.IdentifierUtils;
 import org.sonar.javascript.parser.EcmaScriptGrammar;
 import org.sonar.squidbridge.checks.SquidCheck;
@@ -69,16 +70,6 @@ public class VariableDeclarationAfterUsageCheck extends SquidCheck<LexerlessGram
     }
   }
 
-  private static final GrammarRuleKey[] FUNCTION_NODES = {
-    EcmaScriptGrammar.FUNCTION_EXPRESSION,
-    EcmaScriptGrammar.FUNCTION_DECLARATION,
-    EcmaScriptGrammar.METHOD,
-    EcmaScriptGrammar.GENERATOR_METHOD,
-    EcmaScriptGrammar.GENERATOR_DECLARATION,
-    EcmaScriptGrammar.GENERATOR_EXPRESSION,
-    EcmaScriptGrammar.ARROW_FUNCTION,
-    EcmaScriptGrammar.ARROW_FUNCTION_NO_IN};
-
   private static final GrammarRuleKey[] CONST_AND_VAR_NODES = {
     EcmaScriptGrammar.VARIABLE_DECLARATION,
     EcmaScriptGrammar.VARIABLE_DECLARATION_NO_IN,
@@ -94,7 +85,7 @@ public class VariableDeclarationAfterUsageCheck extends SquidCheck<LexerlessGram
       EcmaScriptGrammar.FORMAL_PARAMETER_LIST,
       EcmaScriptGrammar.ARROW_PARAMETERS);
     subscribeTo(CONST_AND_VAR_NODES);
-    subscribeTo(FUNCTION_NODES);
+    subscribeTo(FunctionUtils.FUNCTION_NODES);
   }
 
   @Override
@@ -104,7 +95,7 @@ public class VariableDeclarationAfterUsageCheck extends SquidCheck<LexerlessGram
 
   @Override
   public void visitNode(AstNode astNode) {
-    if (astNode.is(FUNCTION_NODES)) {
+    if (astNode.is(FunctionUtils.FUNCTION_NODES)) {
       // enter new scope
       currentScope = new Scope(currentScope);
     } else if (astNode.is(EcmaScriptGrammar.FORMAL_PARAMETER_LIST)) {
@@ -130,7 +121,7 @@ public class VariableDeclarationAfterUsageCheck extends SquidCheck<LexerlessGram
 
   @Override
   public void leaveNode(AstNode astNode) {
-    if (astNode.is(FUNCTION_NODES)) {
+    if (astNode.is(FunctionUtils.FUNCTION_NODES)) {
       // leave scope
       checkCurrentScope();
       for (Map.Entry<String, AstNode> entry : currentScope.firstUsage.entrySet()) {

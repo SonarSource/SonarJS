@@ -24,6 +24,7 @@ import org.sonar.check.BelongsToProfile;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.javascript.api.EcmaScriptTokenType;
+import org.sonar.javascript.checks.utils.FunctionUtils;
 import org.sonar.javascript.parser.EcmaScriptGrammar;
 import org.sonar.squidbridge.checks.SquidCheck;
 import org.sonar.sslr.grammar.GrammarRuleKey;
@@ -39,21 +40,11 @@ import java.util.Stack;
 @BelongsToProfile(title = CheckList.SONAR_WAY_PROFILE, priority = Priority.MAJOR)
 public class RedeclaredFunctionCheck extends SquidCheck<LexerlessGrammar> {
 
-  private static final GrammarRuleKey[] SCOPES = {
-    EcmaScriptGrammar.FUNCTION_EXPRESSION,
-    EcmaScriptGrammar.FUNCTION_DECLARATION,
-    EcmaScriptGrammar.METHOD,
-    EcmaScriptGrammar.GENERATOR_METHOD,
-    EcmaScriptGrammar.GENERATOR_DECLARATION,
-    EcmaScriptGrammar.GENERATOR_EXPRESSION,
-    EcmaScriptGrammar.ARROW_FUNCTION,
-    EcmaScriptGrammar.ARROW_FUNCTION_NO_IN};
-
   private Stack<Set<String>> stack;
 
   @Override
   public void init() {
-    subscribeTo(SCOPES);
+    subscribeTo(FunctionUtils.FUNCTION_NODES);
   }
 
   @Override
@@ -79,7 +70,7 @@ public class RedeclaredFunctionCheck extends SquidCheck<LexerlessGrammar> {
 
   @Override
   public void leaveNode(AstNode astNode) {
-    if (astNode.is(SCOPES)) {
+    if (astNode.is(FunctionUtils.FUNCTION_NODES)) {
       stack.pop();
     }
   }
