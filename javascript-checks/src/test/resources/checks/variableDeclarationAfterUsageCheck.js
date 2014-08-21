@@ -21,7 +21,7 @@ let a = 1;
 print(b);           // NOK
 const b = 1;
 
-var f =  () => {
+var f = () => {
     print(c);       // NOK
 }
 

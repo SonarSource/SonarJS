@@ -124,7 +124,7 @@ public class UnusedVariableCheck extends SquidCheck<LexerlessGrammar> {
 
       // declare all parameters as variables, which are already used, so that they won't trigger violations
       if (astNode.is(EcmaScriptGrammar.ARROW_PARAMETERS)) {
-        declareArrowParametersToScope(astNode, 1);
+        declareInCurrentScope(IdentifierUtils.getArrowParametersIdentifier(astNode), 1);
 
       } else if (astNode.is(EcmaScriptGrammar.FORMAL_PARAMETER_LIST)) {
         declareInCurrentScope(IdentifierUtils.getParametersIdentifier(astNode), 1);
@@ -157,12 +157,6 @@ public class UnusedVariableCheck extends SquidCheck<LexerlessGrammar> {
   @Override
   public void leaveFile(AstNode astNode) {
     currentScope = null;
-  }
-
-  private void declareArrowParametersToScope(AstNode arrowParameters, int usage) {
-    if (arrowParameters != null) {
-      declareInCurrentScope(IdentifierUtils.getArrowParametersIdentifier(arrowParameters), usage);
-    }
   }
 
   private void declareInCurrentScope(List<AstNode> identifiers, int usage) {
