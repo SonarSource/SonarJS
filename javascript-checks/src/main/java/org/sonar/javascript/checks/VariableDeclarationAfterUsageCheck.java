@@ -55,7 +55,6 @@ public class VariableDeclarationAfterUsageCheck extends SquidCheck<LexerlessGram
     }
 
     private void declare(AstNode astNode) {
-      Preconditions.checkState(astNode.is(EcmaScriptTokenType.IDENTIFIER));
       String identifier = astNode.getTokenValue();
       if (!firstDeclaration.containsKey(identifier)) {
         firstDeclaration.put(identifier, astNode);
@@ -63,7 +62,6 @@ public class VariableDeclarationAfterUsageCheck extends SquidCheck<LexerlessGram
     }
 
     private void use(AstNode astNode) {
-      Preconditions.checkState(astNode.is(EcmaScriptTokenType.IDENTIFIER));
       String identifier = astNode.getTokenValue();
       if (!firstUsage.containsKey(identifier)) {
         firstUsage.put(identifier, astNode);
@@ -74,8 +72,12 @@ public class VariableDeclarationAfterUsageCheck extends SquidCheck<LexerlessGram
   private static final GrammarRuleKey[] FUNCTION_NODES = {
     EcmaScriptGrammar.FUNCTION_EXPRESSION,
     EcmaScriptGrammar.FUNCTION_DECLARATION,
+    EcmaScriptGrammar.METHOD,
+    EcmaScriptGrammar.GENERATOR_METHOD,
     EcmaScriptGrammar.GENERATOR_DECLARATION,
-    EcmaScriptGrammar.GENERATOR_EXPRESSION};
+    EcmaScriptGrammar.GENERATOR_EXPRESSION,
+    EcmaScriptGrammar.ARROW_FUNCTION,
+    EcmaScriptGrammar.ARROW_FUNCTION_NO_IN};
 
   private static final GrammarRuleKey[] CONST_AND_VAR_NODES = {
     EcmaScriptGrammar.VARIABLE_DECLARATION,
@@ -89,7 +91,8 @@ public class VariableDeclarationAfterUsageCheck extends SquidCheck<LexerlessGram
   public void init() {
     subscribeTo(
       EcmaScriptGrammar.PRIMARY_EXPRESSION,
-      EcmaScriptGrammar.FORMAL_PARAMETER_LIST);
+      EcmaScriptGrammar.FORMAL_PARAMETER_LIST,
+      EcmaScriptGrammar.ARROW_PARAMETERS);
     subscribeTo(CONST_AND_VAR_NODES);
     subscribeTo(FUNCTION_NODES);
   }
@@ -106,6 +109,8 @@ public class VariableDeclarationAfterUsageCheck extends SquidCheck<LexerlessGram
       currentScope = new Scope(currentScope);
     } else if (astNode.is(EcmaScriptGrammar.FORMAL_PARAMETER_LIST)) {
       declareInCurrentScope(IdentifierUtils.getParametersIdentifier(astNode));
+    } else if (astNode.is(EcmaScriptGrammar.ARROW_PARAMETERS)) {
+      declareInCurrentScope(IdentifierUtils.getArrowParametersIdentifier(astNode));
     } else if (astNode.is(CONST_AND_VAR_NODES)) {
       declareInCurrentScope(IdentifierUtils.getVariableIdentifiers(astNode));
 

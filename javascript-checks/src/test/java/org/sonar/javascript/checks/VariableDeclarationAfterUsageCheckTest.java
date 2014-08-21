@@ -39,6 +39,7 @@ public class VariableDeclarationAfterUsageCheckTest {
         .next().atLine(14)
         .next().atLine(18)
         .next().atLine(21)
+        .next().atLine(25)
         .noMore();
   }
 
