@@ -1,24 +1,24 @@
 <p>
-Any JavaScript statement can be identified by a label, but those labels should be used only on 'while', 'do-while' and 'for' statements.
+  Any statement or block of statement can be identified by a label, but those labels should be used only on 'while', 'do-while' and 'for' statements.
+  Using labels in any other context leads to unstructured code.
 </p>
 
-<p>
-The following code snippet illustrates this rule :
-</p>
 
+<h2>Noncompliant Code Example</h2>
 <pre>
-label: // Non-Compliant
-if (i % 2 == 0) {
+myLabel:if (i % 2 == 0) {  // Non-Compliant
   if (i == 12) {
     print("12");
-    break label;
+    break myLabel;
   }
   print("Odd number, but not 12");
 }
+</pre>
 
-loop: // Compliant
-for (i = 0; i < 10; i++) {
+<h2>Compliant Solution</h2>
+<pre>
+myLabel:for (i = 0; i < 10; i++) {   // Compliant
   print("Loop");
-  break loop;
+  break myLabel;
 }
 </pre>

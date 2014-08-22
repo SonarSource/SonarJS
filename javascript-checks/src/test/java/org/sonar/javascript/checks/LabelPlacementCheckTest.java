@@ -34,7 +34,7 @@ public class LabelPlacementCheckTest {
 
     SourceFile file = JavaScriptAstScanner.scanSingleFile(new File("src/test/resources/checks/labelPlacement.js"), check);
     CheckMessagesVerifier.verify(file.getCheckMessages())
-        .next().atLine(3).withMessage("Remove this label.")
+        .next().atLine(3).withMessage("Remove this \"label\" label.")
         .noMore();
   }
 

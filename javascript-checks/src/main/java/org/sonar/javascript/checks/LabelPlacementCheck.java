@@ -23,6 +23,7 @@ import com.sonar.sslr.api.AstNode;
 import org.sonar.check.BelongsToProfile;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
+import org.sonar.javascript.api.EcmaScriptTokenType;
 import org.sonar.javascript.parser.EcmaScriptGrammar;
 import org.sonar.squidbridge.checks.SquidCheck;
 import org.sonar.sslr.parser.LexerlessGrammar;
@@ -41,7 +42,8 @@ public class LabelPlacementCheck extends SquidCheck<LexerlessGrammar> {
   @Override
   public void visitNode(AstNode astNode) {
     if (!astNode.getFirstChild(EcmaScriptGrammar.STATEMENT).getFirstChild().is(EcmaScriptGrammar.ITERATION_STATEMENT)) {
-      getContext().createLineViolation(this, "Remove this label.", astNode);
+      getContext().createLineViolation(this, "Remove this \"{0}\" label.", astNode,
+        astNode.getFirstChild(EcmaScriptTokenType.IDENTIFIER).getTokenValue());
     }
   }
 
