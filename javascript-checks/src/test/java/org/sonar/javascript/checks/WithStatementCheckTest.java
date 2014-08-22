@@ -34,7 +34,7 @@ public class WithStatementCheckTest {
 
     SourceFile file = JavaScriptAstScanner.scanSingleFile(new File("src/test/resources/checks/withStatement.js"), check);
     CheckMessagesVerifier.verify(file.getCheckMessages())
-        .next().atLine(2).withMessage("Avoid using with statement.")
+        .next().atLine(2).withMessage("Remove this use of \"with\".")
         .noMore();
   }
 

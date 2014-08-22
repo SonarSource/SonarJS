@@ -1,22 +1,37 @@
 <p>
-The object of the with can have properties that collide with local variables, it can drastically change the meaning of your program :
+  The use of the <code>with</code> keyword produces an error in JavaScript strict mode code. However, that's not the worst that can be said against <code>with</code>.
+</p>
+<p>
+  Using <code>with</code> allows a short-hand access to an object's properties - assuming they're already set. But use <code>with</code> to access some property not already set in the object,
+  and suddenly you're catapulted out of the object scope and into the global scope, creating or overwriting variables there. Since the effects of <code>with</code> are entirely
+  dependent on the object passed to it, <code>with</code> can be dangerously unpredictable, and should never be used.
 </p>
 
+<h2>Noncompliant Code Example</h2>
 <pre>
-with (foo) {
-  var x = 3;
-  return x;
+var x = 'a';
+
+var foo = {
+  y: 1
 }
+
+with (foo) {  // Noncompliant
+  y = 4;  // updates foo.x
+  x = 3;  // does NOT add a foo.x property; updates x var in outer scope
+}
+print(foo.x + " " + x); // shows: undefined 3
 </pre>
 
-<p>
-The local variable x could be clobbered by a property of foo and perhaps it even has a setter, in which case assigning 3 could cause lots of other code to execute.
-</p>
+<h2>Noncompliant Code Example</h2>
+<pre>
+var x = 'a';
 
-<p>
-Therefore, 'with' statement should never be used. Instead, the previous code should be refactored to make direct calls to the object (<code>foo.x</code> in the previous example).
-</p>
+var foo = {
+  y: 1
+}
 
-<p>
-What's more, using the 'with' statement would produce an error in JavaScript strict mode code.
-</p>
+foo.y = 4;
+foo.x = 3;
+
+print(foo.x + " " + x); // shows: 3 a
+</pre>

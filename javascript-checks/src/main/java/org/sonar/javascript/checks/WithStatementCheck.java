@@ -40,7 +40,7 @@ public class WithStatementCheck extends SquidCheck<LexerlessGrammar> {
 
   @Override
   public void visitNode(AstNode astNode) {
-    getContext().createLineViolation(this, "Avoid using with statement.", astNode);
+    getContext().createLineViolation(this, "Remove this use of \"with\".", astNode);
   }
 
 }
