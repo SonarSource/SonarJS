@@ -1,9 +1,12 @@
-<p>Defining functions inside of loops can lead to bugs such as this one:</p>
+<p>
+  Defining a function inside of a loops can yield unexpected results because under the covers, only a single instance of the function is defined. Rather than creating new function instances, the loop iterations simply update the function's variables. Instead, the function should be returned.
+</p>
 
+<h2>Noncompliant Code Example</h2>
 <pre>
 var funs = [];
 for (var i = 0; i < 13; i++) {
-  funs[i] = function() { // Noncompliant
+  funs[i] = function() { // Non-Compliant
     return i;
   };
 }
