@@ -34,8 +34,8 @@ public class RedeclaredFunctionCheckTest {
 
     SourceFile file = JavaScriptAstScanner.scanSingleFile(new File("src/test/resources/checks/redeclaredFunction.js"), check);
     CheckMessagesVerifier.verify(file.getCheckMessages())
-        .next().atLine(11).withMessage("Rename function 'fun' as this name is already used.")
-        .next().atLine(24).withMessage("Rename function 'inner' as this name is already used.")
+        .next().atLine(11).withMessage("Rename function \"fun\" as this name is already used.")
+        .next().atLine(24).withMessage("Rename function \"inner\" as this name is already used.")
         .noMore();
   }
 

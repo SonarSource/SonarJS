@@ -60,7 +60,7 @@ public class RedeclaredFunctionCheck extends SquidCheck<LexerlessGrammar> {
       Set<String> currentScope = stack.peek();
       String functionName = astNode.getFirstChild(EcmaScriptTokenType.IDENTIFIER).getTokenValue();
       if (currentScope.contains(functionName)) {
-        getContext().createLineViolation(this, "Rename function '" + functionName + "' as this name is already used.", astNode);
+        getContext().createLineViolation(this, "Rename function \"" + functionName + "\" as this name is already used.", astNode);
       } else {
         currentScope.add(functionName);
       }
