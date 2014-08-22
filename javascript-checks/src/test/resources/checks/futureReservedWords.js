@@ -1,6 +1,5 @@
 var implements; // NOK
 var interface; // NOK
-var let; // NOK
 var package; // NOK
 var private; // NOK
 var protected; // NOK

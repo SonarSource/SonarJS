@@ -36,7 +36,7 @@ import java.util.Set;
 @BelongsToProfile(title = CheckList.SONAR_WAY_PROFILE, priority = Priority.CRITICAL)
 public class FutureReservedWordsCheck extends SquidCheck<LexerlessGrammar> {
 
-  private static final Set<String> FUTURE_RESERVED_WORDS = ImmutableSet.of("implements", "interface", "let", "package", "private", "protected", "public", "static");
+  private static final Set<String> FUTURE_RESERVED_WORDS = ImmutableSet.of("implements", "interface", "package", "private", "protected", "public", "static");
 
   @Override
   public void init() {
@@ -47,7 +47,7 @@ public class FutureReservedWordsCheck extends SquidCheck<LexerlessGrammar> {
   public void visitNode(AstNode astNode) {
     String value = astNode.getTokenValue();
     if (FUTURE_RESERVED_WORDS.contains(value)) {
-      getContext().createLineViolation(this, "Rename '" + value + "' identifier to prevent potential conflicts with future evolutions of the JavaScript language.", astNode);
+      getContext().createLineViolation(this, "Rename \"" + value + "\" identifier to prevent potential conflicts with future evolutions of the JavaScript language.", astNode);
     }
   }
 
