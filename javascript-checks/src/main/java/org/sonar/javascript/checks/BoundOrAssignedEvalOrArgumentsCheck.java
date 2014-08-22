@@ -127,12 +127,12 @@ public class BoundOrAssignedEvalOrArgumentsCheck extends SquidCheck<LexerlessGra
   private void checkModification(AstNode astNode) {
     if (isEvalOrArguments(astNode.getTokenValue()) && !astNode.hasDirectChildren(EcmaScriptGrammar.BRACKET_EXPRESSION)
       && !astNode.getParent().is(EcmaScriptGrammar.SIMPLE_CALL_EXPRESSION)) {
-      getContext().createLineViolation(this, "Remove the modification of '" + astNode.getTokenValue() + "'.", astNode);
+      getContext().createLineViolation(this, "Remove the modification of \"" + astNode.getTokenValue() + "\".", astNode);
     }
   }
 
   private static String createMessageFor(String name, String value) {
-    return "Do not use '" + value + "' to declare a " + name + " - use another name.";
+    return "Do not use \"" + value + "\" to declare a " + name + " - use another name.";
   }
 
   private boolean isEvalOrArguments(String name) {

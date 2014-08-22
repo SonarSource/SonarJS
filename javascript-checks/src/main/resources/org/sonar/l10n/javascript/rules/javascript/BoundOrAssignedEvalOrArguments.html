@@ -1,32 +1,46 @@
 <p>
-In JavaScript, <code>eval</code> is used to add or remove bindings and to change binding values.
-<code>arguments</code> is used to access function arguments through indexed properties.
-As a consequence, those 2 names <code>eval</code> and <code>arguments</code> should not be bound or assigned
-as it would overwrite the original definition of those 2 elements.
+  In JavaScript, <cod>eval</cod> is used to add or remove bindings and to change binding values. <code>arguments</code> is used to access function arguments through indexed properties. As a consequence, those two names, <code>eval</code> and <code>arguments</code>, should not be bound or assigned because doing so would overwrite the original definition of those two elements.
 </p>
 
 <p>
-What's more, using those 2 names to assign or bind will generate an error in JavaScript strict mode code.
+  What's more, using either of those two names to assign or bind will generate an error in JavaScript strict mode code.
 </p>
 
-<p>
-The following code snippet illustrates cases that will generate issues (changing the names turns the different non-compliant cases into compliant cases):
-</p>
-
+<h2>Noncompliant Code Example</h2>
 <pre>
-eval = 17; // Non-Compliant
-arguments++; // Non-Compliant
-++eval; // Non-Compliant
-var obj = { set p(arguments) { } }; // Non-Compliant
-var eval; // Non-Compliant
-try { } catch (arguments) { } // Non-Compliant
-function x(eval) { } // Non-Compliant
-function arguments() { } // Non-Compliant
-var y = function eval() { }; // Non-Compliant
-var f = new Function("arguments", "return 17;"); // Non-Compliant
+eval = 17; // Noncompliant
+arguments++; // Noncompliant
+++eval; // Noncompliant
+var obj = { set p(arguments) { } }; // Noncompliant
+var eval; // Noncompliant
+try { } catch (arguments) { } // Noncompliant
+function x(eval) { } // Noncompliant
+function arguments() { } // Noncompliant
+var y = function eval() { }; // Noncompliant
+var f = new Function("arguments", "return 17;"); // Noncompliant
 
 function fun() {
   if (arguments.length == 0) { // Compliant
+    // do something
+  }
+}
+</pre>
+
+<h2>Compliant Solution</h2>
+<pre>
+result = 17;
+args++;
+++result;
+var obj = { set p(arg) { } };
+var result;
+try { } catch (args) { }
+function x(arg) { }
+function args() { }
+var y = function fun() { };
+var f = new Function("args", "return 17;");
+
+function fun() {
+  if (arguments.length == 0) {
     // do something
   }
 }
