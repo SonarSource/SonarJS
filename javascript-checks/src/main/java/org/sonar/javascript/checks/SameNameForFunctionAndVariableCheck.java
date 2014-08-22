@@ -88,7 +88,7 @@ public class SameNameForFunctionAndVariableCheck extends SquidCheck<LexerlessGra
 
   private void check(AstNode astNode, Set<String> names, String name) {
     if (names.contains(name)) {
-      getContext().createLineViolation(this, "Refactor the code to avoid using '" + name + "' for both a variable and a function.", astNode);
+      getContext().createLineViolation(this, "Refactor the code to avoid using \"" + name + "\" for both a variable and a function.", astNode);
     }
   }
 

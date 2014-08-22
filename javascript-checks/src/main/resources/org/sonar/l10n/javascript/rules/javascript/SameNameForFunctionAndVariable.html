@@ -1,14 +1,15 @@
 <p>
-Declaring both a variable and a function with an identical name in same scope should be avoided. Indeed, it makes it ambiguous to whether the named variable refers to the function or to something else, and can even be error prone.
+  Giving both a variable and a function with the same name in a single scope should be avoided. This usage is confusing and should be avoided because it will be unclear whether the named variable refers to the function or to something else.
 </p>
 
-<p>For instance:</p>
+<h2>Noncompliant Code Example</h2>
 <pre>
 var fun;
 function fun() {
 }
 </pre>
-<p>should be refactored into:</p>
+
+<h2>Compliant Solution</h2>
 <pre>
 var fun = function fun() {
 }
