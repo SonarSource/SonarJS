@@ -34,17 +34,17 @@ public class RedeclaredVariableCheckTest {
 
     SourceFile file = JavaScriptAstScanner.scanSingleFile(new File("src/test/resources/checks/redeclaredVariable.js"), check);
     CheckMessagesVerifier.verify(file.getCheckMessages())
-        .next().atLine(3).withMessage("Rename variable 'a' as this name is already used.")
-        .next().atLine(7).withMessage("Rename variable 'a' as this name is already used.")
-        .next().atLine(12).withMessage("Rename variable 'i' as this name is already used.")
-        .next().atLine(19).withMessage("Rename variable 'b' as this name is already used.")
-        .next().atLine(23).withMessage("Rename variable 'a' as this name is already used.")
-        .next().atLine(27).withMessage("Rename variable 'a' as this name is already used.")
-        .next().atLine(28).withMessage("Rename variable 'c' as this name is already used.")
-        .next().atLine(33).withMessage("Rename variable 'b' as this name is already used.")
-        .next().atLine(38).withMessage("Rename variable 'a' as this name is already used.")
-        .next().atLine(42).withMessage("Rename variable 'a' as this name is already used.")
-        .next().atLine(46).withMessage("Rename variable 'a' as this name is already used.")
+        .next().atLine(3).withMessage("Rename variable \"a\" as this name is already used.")
+        .next().atLine(7).withMessage("Rename variable \"a\" as this name is already used.")
+        .next().atLine(12).withMessage("Rename variable \"i\" as this name is already used.")
+        .next().atLine(19).withMessage("Rename variable \"b\" as this name is already used.")
+        .next().atLine(23).withMessage("Rename variable \"a\" as this name is already used.")
+        .next().atLine(27).withMessage("Rename variable \"a\" as this name is already used.")
+        .next().atLine(28).withMessage("Rename variable \"c\" as this name is already used.")
+        .next().atLine(33).withMessage("Rename variable \"b\" as this name is already used.")
+        .next().atLine(38).withMessage("Rename variable \"a\" as this name is already used.")
+        .next().atLine(42).withMessage("Rename variable \"a\" as this name is already used.")
+        .next().atLine(46).withMessage("Rename variable \"a\" as this name is already used.")
         .noMore();
   }
 
