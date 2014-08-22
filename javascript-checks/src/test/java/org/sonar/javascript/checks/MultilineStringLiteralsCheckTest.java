@@ -34,7 +34,7 @@ public class MultilineStringLiteralsCheckTest {
 
     SourceFile file = JavaScriptAstScanner.scanSingleFile(new File("src/test/resources/checks/multilineStringLiteral.js"), check);
     CheckMessagesVerifier.verify(file.getCheckMessages())
-        .next().atLine(2).withMessage("Avoid multiline string literals.")
+        .next().atLine(2).withMessage("Use string concatenation rather than line continuation.")
         .noMore();
   }
 

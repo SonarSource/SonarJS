@@ -41,7 +41,7 @@ public class MultilineStringLiteralsCheck extends SquidCheck<LexerlessGrammar> {
   @Override
   public void visitNode(AstNode astNode) {
     if (astNode.getTokenValue().contains("\n")) {
-      getContext().createLineViolation(this, "Avoid multiline string literals.", astNode);
+      getContext().createLineViolation(this, "Use string concatenation rather than line continuation.", astNode);
     }
   }
 
