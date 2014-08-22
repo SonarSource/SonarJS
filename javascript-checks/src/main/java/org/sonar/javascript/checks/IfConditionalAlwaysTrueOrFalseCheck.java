@@ -42,7 +42,7 @@ public class IfConditionalAlwaysTrueOrFalseCheck extends SquidCheck<LexerlessGra
   @Override
   public void visitNode(AstNode astNode) {
     if (isOnlyBooleanLiteral(astNode.getFirstChild(EcmaScriptGrammar.CONDITION))) {
-      getContext().createLineViolation(this, "Remove this if statement.", astNode);
+      getContext().createLineViolation(this, "Remove this \"if\" statement.", astNode);
     }
 
   }
