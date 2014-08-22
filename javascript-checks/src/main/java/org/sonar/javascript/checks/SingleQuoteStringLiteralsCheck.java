@@ -39,7 +39,7 @@ public class SingleQuoteStringLiteralsCheck extends SquidCheck<LexerlessGrammar>
   @Override
   public void visitNode(AstNode astNode) {
     if (astNode.getTokenValue().charAt(0) != '\'') {
-      getContext().createLineViolation(this, "Use single quote for string literals.", astNode);
+      getContext().createLineViolation(this, "Replace double quotes by simple quote", astNode);
     }
   }
 

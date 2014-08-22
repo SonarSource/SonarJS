@@ -1,10 +1,14 @@
 <p>
-For consistency single-quotes (') are preferred to double-quotes (").
-This is helpful when creating strings that include HTML.
-The following code snippet illustrates this rule :
+  For consistency single-quotes (') are preferred to double-quotes (").
+  This is helpful when creating strings that include HTML.
 </p>
 
+<h2>Noncompliant Code Example</h2>
 <pre>
-var firstParameter = "something";       // Non-Compliant
-var secondParameter = 'somethingElse';  // Compliant
+var firstParameter = "something";
+</pre>
+
+<h2>Compliant Solution</h2>
+<pre>
+var firstParameter = 'something';
 </pre>

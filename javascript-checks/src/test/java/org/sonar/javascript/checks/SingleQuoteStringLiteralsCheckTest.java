@@ -34,7 +34,7 @@ public class SingleQuoteStringLiteralsCheckTest {
 
     SourceFile file = JavaScriptAstScanner.scanSingleFile(new File("src/test/resources/checks/singleQuoteStringLiterals.js"), check);
     CheckMessagesVerifier.verify(file.getCheckMessages())
-        .next().atLine(2).withMessage("Use single quote for string literals.")
+        .next().atLine(2).withMessage("Replace double quotes by simple quote")
         .noMore();
   }
 
