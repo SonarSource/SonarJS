@@ -43,7 +43,7 @@ public class CollapsibleIfStatementsCheck extends SquidCheck<LexerlessGrammar> {
     if (isIfStatementWithoutElse(node)) {
       AstNode innerStatement = node.getFirstChild(EcmaScriptGrammar.STATEMENT).getFirstChild();
       if (isBlockAndContainsOnlyOneIfStatement(innerStatement) || isIfStatementWithoutElse(innerStatement)) {
-        getContext().createLineViolation(this, "Those two 'if' statements can be consolidated.", node);
+        getContext().createLineViolation(this, "Merge this if statement with the nested one.", node);
       }
     }
   }

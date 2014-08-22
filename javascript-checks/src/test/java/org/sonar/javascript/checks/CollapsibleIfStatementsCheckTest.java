@@ -34,16 +34,16 @@ public class CollapsibleIfStatementsCheckTest {
 
     SourceFile file = JavaScriptAstScanner.scanSingleFile(new File("src/test/resources/checks/collapsibleIfStatements.js"), check);
     CheckMessagesVerifier.verify(file.getCheckMessages())
-        .next().atLine(15).withMessage("Those two 'if' statements can be consolidated.")
+        .next().atLine(15).withMessage("Merge this if statement with the nested one.")
 
-        .next().atLine(27).withMessage("Those two 'if' statements can be consolidated.")
+        .next().atLine(27).withMessage("Merge this if statement with the nested one.")
 
-        .next().atLine(32).withMessage("Those two 'if' statements can be consolidated.")
-        .next().atLine(33).withMessage("Those two 'if' statements can be consolidated.")
+        .next().atLine(32).withMessage("Merge this if statement with the nested one.")
+        .next().atLine(33).withMessage("Merge this if statement with the nested one.")
 
-        .next().atLine(39).withMessage("Those two 'if' statements can be consolidated.")
+        .next().atLine(39).withMessage("Merge this if statement with the nested one.")
 
-        .next().atLine(47).withMessage("Those two 'if' statements can be consolidated.")
+        .next().atLine(47).withMessage("Merge this if statement with the nested one.")
 
         .noMore();
   }

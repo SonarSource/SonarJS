@@ -1,19 +1,23 @@
 <p>
-Several 'if' statements can be consolidated by separating their conditions with a boolean short-circuit operator.
+  Merging collapsible <code>if</code> statements increases the code's readability.
 </p>
 
-<p>
-The following code snippet illustrates this rule :
-</p>
-
+<h2>Noncompliant Code Example</h2>
 <pre>
-if (condition1) { // Non-Compliant
-  if (condition2) {
-    doSomething();
+if (file != null) {
+  if (file.isFile() || file.isDirectory()) {
+    ...
   }
 }
-// Should be replaced by:
-if (condition1 && condition2){ // Compliant
-  doSomething();
+</pre>
+
+<h2>Compliant Solution</h2>
+<pre>
+if (file != null && isFileOrDirectory(file)) {
+  /* ... */
+}
+
+private static boolean isFileOrDirectory(File file) {
+  return file.isFile() || file.isDirectory();
 }
 </pre>
