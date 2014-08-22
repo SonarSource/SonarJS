@@ -34,7 +34,7 @@ public class SemicolonCheckTest {
 
     SourceFile file = JavaScriptAstScanner.scanSingleFile(new File("src/test/resources/checks/semicolon.js"), check);
     CheckMessagesVerifier.verify(file.getCheckMessages())
-        .next().atLine(2).withMessage("Missing semicolon.")
+        .next().atLine(2).withMessage("Add a semicolon at the end of this statement.")
         .next().atLine(7)
         .noMore();
   }

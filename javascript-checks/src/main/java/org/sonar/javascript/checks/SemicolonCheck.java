@@ -42,7 +42,7 @@ public class SemicolonCheck extends SquidCheck<LexerlessGrammar> {
   @Override
   public void visitNode(AstNode astNode) {
     if (astNode.getFirstChild(EcmaScriptPunctuator.SEMI) == null) {
-      getContext().createLineViolation(this, "Missing semicolon.", astNode.getParent());
+      getContext().createLineViolation(this, "Add a semicolon at the end of this statement.", astNode.getParent());
     }
   }
 
