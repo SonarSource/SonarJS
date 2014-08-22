@@ -11,24 +11,15 @@ The following words may be used as keywords in future evolutions of the language
   <li>protected</li>
   <li>static</li>
 </ul>
-
-<p>Usage of these words as identifiers would produce an error in JavaScript strict mode code.</p>
-
-<p>If ECMAScript6 parameter is set to true the following words will not raise any issue:</p>
+Usage of those words as identifiers would produce an error in JavaScript strict mode code.
 </p>
-<ul>
-    <li>let</li>
-    <li>yield</li>
-</ul>
 
-<h2>Noncompliant Code Example</h2>
+<p>
+The following code snippet illustrates this rule :
+</p>
+
 <pre>
 var package = document.getElementsByName("foo"); // Non-Compliant
-</pre>
-
-
-<h2>Compliant Solution</h2>
-<pre>
 var elements = document.getElementsByName("foo"); // Compliant
-var someData = { package: true };                 // Compliant, as it is not used as an identifier here
+var data = { package: true }; // Compliant, as it is not used as an identifier here
 </pre>

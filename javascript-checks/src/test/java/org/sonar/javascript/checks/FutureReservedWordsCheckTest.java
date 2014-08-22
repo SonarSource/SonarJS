@@ -29,37 +29,20 @@ import java.io.File;
 public class FutureReservedWordsCheckTest {
 
   @Test
-  public void ecamscript5() {
+  public void test() {
     FutureReservedWordsCheck check = new FutureReservedWordsCheck();
 
     SourceFile file = JavaScriptAstScanner.scanSingleFile(new File("src/test/resources/checks/futureReservedWords.js"), check);
     CheckMessagesVerifier.verify(file.getCheckMessages())
-        .next().atLine(4).withMessage("Rename \"implements\" identifier to prevent potential conflicts with future evolutions of the JavaScript language.")
-        .next().atLine(5).withMessage("Rename \"interface\" identifier to prevent potential conflicts with future evolutions of the JavaScript language.")
-        .next().atLine(6).withMessage("Rename \"package\" identifier to prevent potential conflicts with future evolutions of the JavaScript language.")
-        .next().atLine(7).withMessage("Rename \"private\" identifier to prevent potential conflicts with future evolutions of the JavaScript language.")
-        .next().atLine(8).withMessage("Rename \"protected\" identifier to prevent potential conflicts with future evolutions of the JavaScript language.")
-        .next().atLine(9).withMessage("Rename \"public\" identifier to prevent potential conflicts with future evolutions of the JavaScript language.")
-        .next().atLine(10).withMessage("Rename \"static\" identifier to prevent potential conflicts with future evolutions of the JavaScript language.")
-        .next().atLine(15).withMessage("Rename \"let\" identifier to prevent potential conflicts with future evolutions of the JavaScript language.")
-        .next().atLine(16).withMessage("Rename \"yield\" identifier to prevent potential conflicts with future evolutions of the JavaScript language.")
+        .next().atLine(1).withMessage("Rename 'implements' identifier to prevent potential conflicts with future evolutions of the JavaScript language.")
+        .next().atLine(2).withMessage("Rename 'interface' identifier to prevent potential conflicts with future evolutions of the JavaScript language.")
+        .next().atLine(3).withMessage("Rename 'let' identifier to prevent potential conflicts with future evolutions of the JavaScript language.")
+        .next().atLine(4).withMessage("Rename 'package' identifier to prevent potential conflicts with future evolutions of the JavaScript language.")
+        .next().atLine(5).withMessage("Rename 'private' identifier to prevent potential conflicts with future evolutions of the JavaScript language.")
+        .next().atLine(6).withMessage("Rename 'protected' identifier to prevent potential conflicts with future evolutions of the JavaScript language.")
+        .next().atLine(7).withMessage("Rename 'public' identifier to prevent potential conflicts with future evolutions of the JavaScript language.")
+        .next().atLine(8).withMessage("Rename 'static' identifier to prevent potential conflicts with future evolutions of the JavaScript language.")
         .noMore();
   }
 
-  @Test
-  public void ecamscript6() {
-    FutureReservedWordsCheck check = new FutureReservedWordsCheck();
-    check.ecmascript6 = true;
-
-    SourceFile file = JavaScriptAstScanner.scanSingleFile(new File("src/test/resources/checks/futureReservedWords.js"), check);
-    CheckMessagesVerifier.verify(file.getCheckMessages())
-      .next().atLine(4).withMessage("Rename \"implements\" identifier to prevent potential conflicts with future evolutions of the JavaScript language.")
-      .next().atLine(5).withMessage("Rename \"interface\" identifier to prevent potential conflicts with future evolutions of the JavaScript language.")
-      .next().atLine(6).withMessage("Rename \"package\" identifier to prevent potential conflicts with future evolutions of the JavaScript language.")
-      .next().atLine(7).withMessage("Rename \"private\" identifier to prevent potential conflicts with future evolutions of the JavaScript language.")
-      .next().atLine(8).withMessage("Rename \"protected\" identifier to prevent potential conflicts with future evolutions of the JavaScript language.")
-      .next().atLine(9).withMessage("Rename \"public\" identifier to prevent potential conflicts with future evolutions of the JavaScript language.")
-      .next().atLine(10).withMessage("Rename \"static\" identifier to prevent potential conflicts with future evolutions of the JavaScript language.")
-      .noMore();
-  }
 }
