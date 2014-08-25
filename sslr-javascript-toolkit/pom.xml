@@ -67,6 +67,7 @@
                 <include>org.codehaus.sonar.sslr:sslr-xpath</include>
                 <include>jaxen:jaxen</include>
                 <include>org.codehaus.sonar.sslr:sslr-toolkit</include>
+                <include>org.codehaus.sonar.sslr-squid-bridge:sslr-squid-bridge</include>
                 <include>org.codehaus.sonar:sonar-colorizer</include>
                 <include>org.codehaus.sonar:sonar-squid</include>
                 <include>org.codehaus.sonar:sonar-channel</include>
