@@ -27,7 +27,6 @@ import org.sonar.javascript.checks.utils.FunctionUtils;
 import org.sonar.javascript.checks.utils.IdentifierUtils;
 import org.sonar.javascript.parser.EcmaScriptGrammar;
 import org.sonar.squidbridge.checks.SquidCheck;
-import org.sonar.sslr.grammar.GrammarRuleKey;
 import org.sonar.sslr.parser.LexerlessGrammar;
 
 import java.util.HashSet;
@@ -46,8 +45,8 @@ public class RedeclaredVariableCheck extends SquidCheck<LexerlessGrammar> {
   @Override
   public void init() {
     subscribeTo(
-        EcmaScriptGrammar.VARIABLE_DECLARATION,
-        EcmaScriptGrammar.VARIABLE_DECLARATION_NO_IN);
+      EcmaScriptGrammar.VARIABLE_DECLARATION,
+      EcmaScriptGrammar.VARIABLE_DECLARATION_NO_IN);
     subscribeTo(FunctionUtils.FUNCTION_NODES);
   }
 

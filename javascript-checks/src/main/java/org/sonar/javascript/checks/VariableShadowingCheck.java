@@ -67,7 +67,7 @@ public class VariableShadowingCheck extends SquidCheck<LexerlessGrammar> {
     }
   }
 
-  protected static final AstNodeType[] CONST_AND_VAR_NODES = {
+  private static final AstNodeType[] CONST_AND_VAR_NODES = {
     EcmaScriptGrammar.VARIABLE_DECLARATION,
     EcmaScriptGrammar.VARIABLE_DECLARATION_NO_IN,
     EcmaScriptGrammar.LEXICAL_BINDING,

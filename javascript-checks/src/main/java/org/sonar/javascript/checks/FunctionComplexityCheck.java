@@ -25,7 +25,6 @@ import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
 import org.sonar.javascript.api.EcmaScriptMetric;
-import org.sonar.javascript.checks.utils.FunctionUtils;
 import org.sonar.javascript.parser.EcmaScriptGrammar;
 import org.sonar.squidbridge.api.SourceFunction;
 import org.sonar.squidbridge.checks.SquidCheck;
@@ -60,8 +59,8 @@ public class FunctionComplexityCheck extends SquidCheck<LexerlessGrammar> {
     SourceFunction function = (SourceFunction) getContext().peekSourceCode();
     if (function.getInt(EcmaScriptMetric.COMPLEXITY) > maximumFunctionComplexityThreshold) {
       getContext().createLineViolation(this,
-          "Function has a complexity of {0,number,integer} which is greater than {1,number,integer} authorized.", node,
-          function.getInt(EcmaScriptMetric.COMPLEXITY), maximumFunctionComplexityThreshold);
+        "Function has a complexity of {0,number,integer} which is greater than {1,number,integer} authorized.", node,
+        function.getInt(EcmaScriptMetric.COMPLEXITY), maximumFunctionComplexityThreshold);
     }
   }
 

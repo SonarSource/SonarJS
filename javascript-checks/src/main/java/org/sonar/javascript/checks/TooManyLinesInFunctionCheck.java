@@ -25,7 +25,6 @@ import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
 import org.sonar.javascript.api.EcmaScriptPunctuator;
-import org.sonar.javascript.checks.utils.FunctionUtils;
 import org.sonar.javascript.parser.EcmaScriptGrammar;
 import org.sonar.squidbridge.checks.SquidCheck;
 import org.sonar.sslr.parser.LexerlessGrammar;
@@ -45,11 +44,11 @@ public class TooManyLinesInFunctionCheck extends SquidCheck<LexerlessGrammar> {
   @Override
   public void init() {
     subscribeTo(EcmaScriptGrammar.METHOD,
-    EcmaScriptGrammar.GENERATOR_METHOD,
-    EcmaScriptGrammar.GENERATOR_DECLARATION,
-    EcmaScriptGrammar.GENERATOR_EXPRESSION,
-    EcmaScriptGrammar.FUNCTION_DECLARATION,
-    EcmaScriptGrammar.FUNCTION_EXPRESSION);
+      EcmaScriptGrammar.GENERATOR_METHOD,
+      EcmaScriptGrammar.GENERATOR_DECLARATION,
+      EcmaScriptGrammar.GENERATOR_EXPRESSION,
+      EcmaScriptGrammar.FUNCTION_DECLARATION,
+      EcmaScriptGrammar.FUNCTION_EXPRESSION);
   }
 
   @Override
