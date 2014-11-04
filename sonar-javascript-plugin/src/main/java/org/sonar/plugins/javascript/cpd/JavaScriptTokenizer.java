@@ -41,6 +41,7 @@ public class JavaScriptTokenizer implements Tokenizer {
     this.charset = charset;
   }
 
+  @Override
   public final void tokenize(SourceCode source, Tokens cpdTokens) {
     Lexer lexer = EcmaScriptLexer.create(new EcmaScriptConfiguration(charset));
     String fileName = source.getFileName();
