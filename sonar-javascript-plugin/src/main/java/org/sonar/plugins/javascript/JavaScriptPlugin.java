@@ -28,6 +28,8 @@ import org.sonar.plugins.javascript.colorizer.JavaScriptColorizerFormat;
 import org.sonar.plugins.javascript.core.JavaScript;
 import org.sonar.plugins.javascript.core.JavaScriptSourceImporter;
 import org.sonar.plugins.javascript.cpd.JavaScriptCpdMapping;
+import org.sonar.plugins.javascript.unittest.jstest.JsTestSensor;
+import org.sonar.plugins.javascript.unittest.jstestdriver.JsTestDriverSensor;
 import org.sonar.plugins.javascript.lcov.CoverageSensor;
 
 import java.util.List;
@@ -48,6 +50,12 @@ public class JavaScriptPlugin extends SonarPlugin {
   public static final String FORCE_ZERO_COVERAGE_KEY = "sonar.javascript.forceZeroCoverage";
   public static final String FORCE_ZERO_COVERAGE_DEFAULT_VALUE = "false";
 
+  public static final String JSTESTDRIVER_REPORTS_PATH = PROPERTY_PREFIX + ".jstestdriver.reportsPath";
+  public static final String JSTESTDRIVER_REPORTS_PATH_DEFAULT_VALUE = "";
+
+  public static final String JSTEST_REPORTS_PATH = PROPERTY_PREFIX + ".jstest.reportsPath";
+  public static final String JSTEST_REPORTS_PATH_DEFAULT_VALUE = "";
+
   public List getExtensions() {
     return ImmutableList.of(
         JavaScript.class,
@@ -62,6 +70,8 @@ public class JavaScriptPlugin extends SonarPlugin {
         JavaScriptCommonRulesEngine.class,
         JavaScriptCommonRulesDecorator.class,
 
+        JsTestSensor.class,
+        JsTestDriverSensor.class,
         CoverageSensor.class,
 
         PropertyDefinition.builder(FILE_SUFFIXES_KEY)
@@ -83,6 +93,20 @@ public class JavaScriptPlugin extends SonarPlugin {
           .description("Force coverage to be set to 0 when no report is provided.")
           .onQualifiers(Qualifiers.MODULE, Qualifiers.PROJECT)
           .type(PropertyType.BOOLEAN)
+          .build(),
+
+        PropertyDefinition.builder(JavaScriptPlugin.JSTESTDRIVER_REPORTS_PATH)
+          .defaultValue(JavaScriptPlugin.JSTESTDRIVER_REPORTS_PATH_DEFAULT_VALUE)
+          .name("JSTestDriver output folder")
+          .description("Folder where JsTestDriver unit test reports are located.")
+          .onQualifiers(Qualifiers.MODULE, Qualifiers.PROJECT)
+          .build(),
+
+        PropertyDefinition.builder(JavaScriptPlugin.JSTEST_REPORTS_PATH)
+         .defaultValue(JavaScriptPlugin.JSTEST_REPORTS_PATH_DEFAULT_VALUE)
+          .name("JSTest output folder")
+          .description("Folder where JsTest unit test reports are located.")
+          .onQualifiers(Qualifiers.MODULE, Qualifiers.PROJECT)
           .build()
     );
   }

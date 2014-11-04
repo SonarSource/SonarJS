@@ -47,7 +47,7 @@ import static org.mockito.Mockito.*;
 
 public class CoverageSensorTest {
 
-  private static final File baseDir = new File("src/test/resources/org/sonar/plugins/javascript/jstestdriver/");
+  private static final File baseDir = new File("src/test/resources/org/sonar/plugins/javascript/unittest/jstestdriver/");
 
   private CoverageSensor sensor;
   private SensorContext context;
