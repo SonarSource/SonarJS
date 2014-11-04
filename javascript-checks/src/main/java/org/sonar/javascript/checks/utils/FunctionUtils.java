@@ -22,6 +22,8 @@ package org.sonar.javascript.checks.utils;
 import org.sonar.javascript.parser.EcmaScriptGrammar;
 import org.sonar.sslr.grammar.GrammarRuleKey;
 
+import java.util.Arrays;
+
 public class FunctionUtils {
 
   private FunctionUtils() {
@@ -37,5 +39,8 @@ public class FunctionUtils {
     EcmaScriptGrammar.ARROW_FUNCTION,
     EcmaScriptGrammar.ARROW_FUNCTION_NO_IN};
 
+  public static GrammarRuleKey[] getFunctionNodes() {
+    return Arrays.copyOf(FUNCTION_NODES, FUNCTION_NODES.length);
+  }
 }
 

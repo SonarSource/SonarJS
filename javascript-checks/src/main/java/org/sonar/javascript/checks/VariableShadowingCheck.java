@@ -78,7 +78,7 @@ public class VariableShadowingCheck extends SquidCheck<LexerlessGrammar> {
   @Override
   public void init() {
     subscribeTo(EcmaScriptGrammar.FORMAL_PARAMETER_LIST);
-    subscribeTo(FunctionUtils.FUNCTION_NODES);
+    subscribeTo(FunctionUtils.getFunctionNodes());
     subscribeTo(CONST_AND_VAR_NODES);
   }
 
@@ -93,7 +93,7 @@ public class VariableShadowingCheck extends SquidCheck<LexerlessGrammar> {
 
   @Override
   public void visitNode(AstNode astNode) {
-    if (astNode.is(FunctionUtils.FUNCTION_NODES)) {
+    if (astNode.is(FunctionUtils.getFunctionNodes())) {
       // enter new scope
       currentScope = scopes.get(astNode);
     } else if (astNode.is(EcmaScriptGrammar.FORMAL_PARAMETER_LIST)) {
@@ -118,7 +118,7 @@ public class VariableShadowingCheck extends SquidCheck<LexerlessGrammar> {
 
   @Override
   public void leaveNode(AstNode astNode) {
-    if (astNode.is(FunctionUtils.FUNCTION_NODES)) {
+    if (astNode.is(FunctionUtils.getFunctionNodes())) {
       // leave scope
       currentScope = currentScope.outerScope;
     }
@@ -144,7 +144,7 @@ public class VariableShadowingCheck extends SquidCheck<LexerlessGrammar> {
       return ImmutableList.<AstNodeType>builder()
         .add(EcmaScriptGrammar.FORMAL_PARAMETER_LIST)
         .addAll(Arrays.asList(CONST_AND_VAR_NODES))
-        .addAll(Arrays.asList(FunctionUtils.FUNCTION_NODES)).build();
+        .addAll(Arrays.asList(FunctionUtils.getFunctionNodes())).build();
     }
 
     @Override
@@ -155,7 +155,7 @@ public class VariableShadowingCheck extends SquidCheck<LexerlessGrammar> {
 
     @Override
     public void visitNode(AstNode astNode) {
-      if (astNode.is(FunctionUtils.FUNCTION_NODES)) {
+      if (astNode.is(FunctionUtils.getFunctionNodes())) {
         // enter new scope
         currentScope = new Scope(currentScope);
         scopes.put(astNode, currentScope);
@@ -174,7 +174,7 @@ public class VariableShadowingCheck extends SquidCheck<LexerlessGrammar> {
 
     @Override
     public void leaveNode(AstNode astNode) {
-      if (astNode.is(FunctionUtils.FUNCTION_NODES)) {
+      if (astNode.is(FunctionUtils.getFunctionNodes())) {
         // leave scope
         currentScope = currentScope.outerScope;
       }

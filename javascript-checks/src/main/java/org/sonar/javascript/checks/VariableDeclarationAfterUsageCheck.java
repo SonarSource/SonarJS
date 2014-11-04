@@ -84,7 +84,7 @@ public class VariableDeclarationAfterUsageCheck extends SquidCheck<LexerlessGram
       EcmaScriptGrammar.FORMAL_PARAMETER_LIST,
       EcmaScriptGrammar.ARROW_PARAMETERS);
     subscribeTo(CONST_AND_VAR_NODES);
-    subscribeTo(FunctionUtils.FUNCTION_NODES);
+    subscribeTo(FunctionUtils.getFunctionNodes());
   }
 
   @Override
@@ -94,7 +94,7 @@ public class VariableDeclarationAfterUsageCheck extends SquidCheck<LexerlessGram
 
   @Override
   public void visitNode(AstNode astNode) {
-    if (astNode.is(FunctionUtils.FUNCTION_NODES)) {
+    if (astNode.is(FunctionUtils.getFunctionNodes())) {
       // enter new scope
       currentScope = new Scope(currentScope);
     } else if (astNode.is(EcmaScriptGrammar.FORMAL_PARAMETER_LIST)) {
@@ -120,7 +120,7 @@ public class VariableDeclarationAfterUsageCheck extends SquidCheck<LexerlessGram
 
   @Override
   public void leaveNode(AstNode astNode) {
-    if (astNode.is(FunctionUtils.FUNCTION_NODES)) {
+    if (astNode.is(FunctionUtils.getFunctionNodes())) {
       // leave scope
       checkCurrentScope();
       for (Map.Entry<String, AstNode> entry : currentScope.firstUsage.entrySet()) {

@@ -97,7 +97,7 @@ public class UnusedVariableCheck extends SquidCheck<LexerlessGrammar> {
       EcmaScriptGrammar.FORMAL_PARAMETER_LIST,
       EcmaScriptGrammar.ARROW_PARAMETERS);
     subscribeTo(CONST_AND_VAR_NODES);
-    subscribeTo(FunctionUtils.FUNCTION_NODES);
+    subscribeTo(FunctionUtils.getFunctionNodes());
   }
 
   @Override
@@ -107,7 +107,7 @@ public class UnusedVariableCheck extends SquidCheck<LexerlessGrammar> {
 
   @Override
   public void visitNode(AstNode astNode) {
-    if (astNode.is(FunctionUtils.FUNCTION_NODES)) {
+    if (astNode.is(FunctionUtils.getFunctionNodes())) {
       // enter new scope
       currentScope = new Scope(currentScope);
 
@@ -134,7 +134,7 @@ public class UnusedVariableCheck extends SquidCheck<LexerlessGrammar> {
 
   @Override
   public void leaveNode(AstNode astNode) {
-    if (astNode.is(FunctionUtils.FUNCTION_NODES)) {
+    if (astNode.is(FunctionUtils.getFunctionNodes())) {
       // leave scope
       for (Map.Entry<String, Variable> entry : currentScope.variables.entrySet()) {
         if (entry.getValue().usages == 0) {

@@ -47,7 +47,7 @@ public class RedeclaredVariableCheck extends SquidCheck<LexerlessGrammar> {
     subscribeTo(
       EcmaScriptGrammar.VARIABLE_DECLARATION,
       EcmaScriptGrammar.VARIABLE_DECLARATION_NO_IN);
-    subscribeTo(FunctionUtils.FUNCTION_NODES);
+    subscribeTo(FunctionUtils.getFunctionNodes());
   }
 
   @Override
@@ -58,7 +58,7 @@ public class RedeclaredVariableCheck extends SquidCheck<LexerlessGrammar> {
 
   @Override
   public void visitNode(AstNode astNode) {
-    if (astNode.is(FunctionUtils.FUNCTION_NODES)) {
+    if (astNode.is(FunctionUtils.getFunctionNodes())) {
       Set<String> currentScope = new HashSet<String>();
       stack.add(currentScope);
       addParametersToScope(astNode, currentScope);
@@ -75,7 +75,7 @@ public class RedeclaredVariableCheck extends SquidCheck<LexerlessGrammar> {
 
   @Override
   public void leaveNode(AstNode astNode) {
-    if (astNode.is(FunctionUtils.FUNCTION_NODES)) {
+    if (astNode.is(FunctionUtils.getFunctionNodes())) {
       stack.pop();
     }
   }
