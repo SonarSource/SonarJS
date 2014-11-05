@@ -31,6 +31,7 @@ import org.sonar.api.resources.ProjectFileSystem;
 import org.sonar.api.resources.Resource;
 import org.sonar.plugins.javascript.JavaScriptPlugin;
 import org.sonar.plugins.javascript.core.JavaScript;
+import org.sonar.test.TestUtils;
 
 import java.io.File;
 import java.nio.charset.Charset;
@@ -78,7 +79,7 @@ public class JsTestDriverSensorTest {
 
     when(fileSystem.getSourceCharset()).thenReturn(Charset.defaultCharset());
 
-    File baseDir = new File("src/test/resources/org/sonar/plugins/javascript/unittest/jstestdriver/sensortests");
+    File baseDir = TestUtils.getResource("org/sonar/plugins/javascript/unittest/jstestdriver/sensortests");
     when(fileSystem.getBasedir()).thenReturn(baseDir);
     when(fileSystem.getTestDirs()).thenReturn(Arrays.asList(new File(baseDir, "test")));
     when(fileSystem.resolvePath("target/jstestdriver")).thenReturn(new File(baseDir, "target/jstestdriver"));
