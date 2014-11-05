@@ -75,14 +75,14 @@ public class JsTestDriverSensorTest {
 
   @Test
   public void testAnalyseUnitTests() {
-    settings.setProperty(JavaScriptPlugin.JSTESTDRIVER_REPORTS_PATH, "target/jstestdriver");
+    settings.setProperty(JavaScriptPlugin.JSTESTDRIVER_REPORTS_PATH, "reports/jstestdriver");
 
     when(fileSystem.getSourceCharset()).thenReturn(Charset.defaultCharset());
 
     File baseDir = TestUtils.getResource("org/sonar/plugins/javascript/unittest/jstestdriver/sensortests");
     when(fileSystem.getBasedir()).thenReturn(baseDir);
     when(fileSystem.getTestDirs()).thenReturn(Arrays.asList(new File(baseDir, "test")));
-    when(fileSystem.resolvePath("target/jstestdriver")).thenReturn(new File(baseDir, "target/jstestdriver"));
+    when(fileSystem.resolvePath("reports/jstestdriver")).thenReturn(new File(baseDir, "reports/jstestdriver"));
 
     Project project = mockProject(language);
 
