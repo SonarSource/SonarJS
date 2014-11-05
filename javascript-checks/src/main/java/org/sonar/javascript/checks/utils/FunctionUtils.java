@@ -29,7 +29,7 @@ public class FunctionUtils {
   private FunctionUtils() {
   }
 
-  public static final GrammarRuleKey[] FUNCTION_NODES = {
+  private static final GrammarRuleKey[] FUNCTION_NODES = {
     EcmaScriptGrammar.FUNCTION_EXPRESSION,
     EcmaScriptGrammar.FUNCTION_DECLARATION,
     EcmaScriptGrammar.METHOD,
