@@ -26,6 +26,7 @@ import org.sonar.api.checks.AnnotationCheckFactory;
 import org.sonar.api.component.ResourcePerspectives;
 import org.sonar.api.issue.Issuable;
 import org.sonar.api.issue.Issue;
+import org.sonar.api.checks.NoSonarFilter;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.FileLinesContextFactory;
 import org.sonar.api.measures.PersistenceMode;
@@ -66,17 +67,19 @@ public class JavaScriptSquidSensor implements Sensor {
   private final FileLinesContextFactory fileLinesContextFactory;
   private final ResourcePerspectives resourcePerspectives;
   private final ModuleFileSystem moduleFileSystem;
+  private final NoSonarFilter noSonarFilter;
 
   private Project project;
   private SensorContext context;
   private AstScanner<LexerlessGrammar> scanner;
 
   public JavaScriptSquidSensor(RulesProfile profile, FileLinesContextFactory fileLinesContextFactory,
-                               ResourcePerspectives resourcePerspectives, ModuleFileSystem moduleFileSystem) {
+                               ResourcePerspectives resourcePerspectives, ModuleFileSystem moduleFileSystem, NoSonarFilter noSonarFilter) {
     this.annotationCheckFactory = AnnotationCheckFactory.create(profile, CheckList.REPOSITORY_KEY, CheckList.getChecks());
     this.fileLinesContextFactory = fileLinesContextFactory;
     this.resourcePerspectives = resourcePerspectives;
     this.moduleFileSystem = moduleFileSystem;
+    this.noSonarFilter = noSonarFilter;
   }
 
   @Override
@@ -109,6 +112,7 @@ public class JavaScriptSquidSensor implements Sensor {
 
       File sonarFile = File.fromIOFile(new java.io.File(squidFile.getKey()), project);
 
+      noSonarFilter.addResource(sonarFile, squidFile.getNoSonarTagLines());
       saveFilesComplexityDistribution(sonarFile, squidFile);
       saveFunctionsComplexityDistribution(sonarFile, squidFile);
       saveMeasures(sonarFile, squidFile);

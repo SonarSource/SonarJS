@@ -23,6 +23,7 @@ import com.google.common.collect.ImmutableList;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.batch.SensorContext;
+import org.sonar.api.checks.NoSonarFilter;
 import org.sonar.api.component.ResourcePerspectives;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.FileLinesContext;
@@ -69,7 +70,7 @@ public class JavaScriptSquidSensorTest {
     ModuleFileSystem fs = mock(ModuleFileSystem.class);
     project = new Project("key");
 
-    JavaScriptSquidSensor sensor = new JavaScriptSquidSensor(mock(RulesProfile.class), fileLinesContextFactory, mock(ResourcePerspectives.class), fs);
+    JavaScriptSquidSensor sensor = new JavaScriptSquidSensor(mock(RulesProfile.class), fileLinesContextFactory, mock(ResourcePerspectives.class), fs, new NoSonarFilter());
 
     // no JS files -> do not execute
     when(fs.files(any(FileQuery.class))).thenReturn(Collections.<File>emptyList());
@@ -89,7 +90,7 @@ public class JavaScriptSquidSensorTest {
 
 
     SensorContext context = mock(SensorContext.class);
-    JavaScriptSquidSensor sensor = new JavaScriptSquidSensor(mock(RulesProfile.class), fileLinesContextFactory, mock(ResourcePerspectives.class), fs);
+    JavaScriptSquidSensor sensor = new JavaScriptSquidSensor(mock(RulesProfile.class), fileLinesContextFactory, mock(ResourcePerspectives.class), fs, new NoSonarFilter());
 
     sensor.analyse(project, context);
 
@@ -109,7 +110,7 @@ public class JavaScriptSquidSensorTest {
       mock(RulesProfile.class),
       fileLinesContextFactory,
       mock(ResourcePerspectives.class),
-      mock(ModuleFileSystem.class));
+      mock(ModuleFileSystem.class), new NoSonarFilter());
 
     assertThat(sensor.toString()).isNotNull();
   }
