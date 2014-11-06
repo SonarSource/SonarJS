@@ -731,8 +731,8 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
     b.rule(ARRAY_LITERAL).is(
       LBRACKET,
       b.optional(b.firstOf(
-        ELISION,
-        b.sequence(ELEMENT_LIST, b.optional(COMMA, b.optional(ELISION))))),
+        b.sequence(ELEMENT_LIST, b.optional(COMMA, b.optional(ELISION))),
+        ELISION)),
       RBRACKET);
 
     b.rule(ELEMENT_LIST).is(b.optional(ELISION), ARRAY_INITIALIZER_ELEMENT, b.zeroOrMore(COMMA, b.optional(ELISION), ARRAY_INITIALIZER_ELEMENT));

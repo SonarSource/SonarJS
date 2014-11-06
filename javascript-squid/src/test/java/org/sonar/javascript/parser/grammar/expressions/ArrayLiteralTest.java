@@ -40,6 +40,7 @@ public class ArrayLiteralTest {
 
     assertThat(g.rule(EcmaScriptGrammar.ARRAY_LITERAL))
         .matches("[ , , , ]")
+        .matches("[ , assignment ]")
         .matches("[ assignmentExpression , , , ]");
   }
 
