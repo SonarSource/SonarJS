@@ -101,6 +101,7 @@ public class JavaScriptSquidSensorTest {
     verify(context).saveMeasure(any(Resource.class), eq(CoreMetrics.ACCESSORS), eq(2.0));
     verify(context).saveMeasure(any(Resource.class), eq(CoreMetrics.STATEMENTS), eq(8.0));
     verify(context).saveMeasure(any(Resource.class), eq(CoreMetrics.COMPLEXITY), eq(3.0));
+    verify(context).saveMeasure(any(Resource.class), eq(CoreMetrics.COMPLEXITY_IN_CLASSES), eq(0.0));
     verify(context).saveMeasure(any(Resource.class), eq(CoreMetrics.COMMENT_LINES), eq(2.0));
   }
 

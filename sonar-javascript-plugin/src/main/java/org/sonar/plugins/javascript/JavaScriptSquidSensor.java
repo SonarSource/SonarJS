@@ -47,6 +47,7 @@ import org.sonar.plugins.javascript.core.JavaScript;
 import org.sonar.squidbridge.AstScanner;
 import org.sonar.squidbridge.SquidAstVisitor;
 import org.sonar.squidbridge.api.CheckMessage;
+import org.sonar.squidbridge.api.SourceClass;
 import org.sonar.squidbridge.api.SourceCode;
 import org.sonar.squidbridge.api.SourceFile;
 import org.sonar.squidbridge.api.SourceFunction;
@@ -113,6 +114,7 @@ public class JavaScriptSquidSensor implements Sensor {
       File sonarFile = File.fromIOFile(new java.io.File(squidFile.getKey()), project);
 
       noSonarFilter.addResource(sonarFile, squidFile.getNoSonarTagLines());
+      saveClassComplexity(sonarFile, squidFile);
       saveFilesComplexityDistribution(sonarFile, squidFile);
       saveFunctionsComplexityDistribution(sonarFile, squidFile);
       saveMeasures(sonarFile, squidFile);
@@ -129,6 +131,16 @@ public class JavaScriptSquidSensor implements Sensor {
     context.saveMeasure(sonarFile, CoreMetrics.STATEMENTS, squidFile.getDouble(EcmaScriptMetric.STATEMENTS));
     context.saveMeasure(sonarFile, CoreMetrics.COMPLEXITY, squidFile.getDouble(EcmaScriptMetric.COMPLEXITY));
     context.saveMeasure(sonarFile, CoreMetrics.COMMENT_LINES, squidFile.getDouble(EcmaScriptMetric.COMMENT_LINES));
+  }
+
+  private void saveClassComplexity(org.sonar.api.resources.File sonarFile, SourceFile squidFile) {
+    Collection<SourceCode> classes = scanner.getIndex().search(new QueryByParent(squidFile), new QueryByType(SourceClass.class));
+    double complexityInClasses = 0;
+    for (SourceCode squidClass : classes) {
+      double classComplexity = squidClass.getDouble(EcmaScriptMetric.COMPLEXITY);
+      complexityInClasses += classComplexity;
+    }
+    context.saveMeasure(sonarFile, CoreMetrics.COMPLEXITY_IN_CLASSES, complexityInClasses);
   }
 
   private void saveFunctionsComplexityDistribution(File sonarFile, SourceFile squidFile) {
