@@ -43,7 +43,7 @@ public class CommaOperatorUseCheck extends SquidCheck<LexerlessGrammar> {
 
   @Override
   public void visitNode(AstNode astNode) {
-    if (!containsCommaOperator(astNode) || isInitOrIncrementOfForLoop(astNode)) {
+    if (!containsCommaOperator(astNode) || isInitOrIncrementOfForLoop(astNode) || isArrowFunctionParameter(astNode)) {
       return;
     }
 
@@ -54,6 +54,10 @@ public class CommaOperatorUseCheck extends SquidCheck<LexerlessGrammar> {
     } else {
       getContext().createLineViolation(this, "Remove use of all comma operators in this expression.", commas.get(0));
     }
+  }
+
+  private static boolean isArrowFunctionParameter(AstNode expr) {
+    return expr.getParent().getParent().is(EcmaScriptGrammar.ARROW_PARAMETERS);
   }
 
   public static boolean isInitOrIncrementOfForLoop(AstNode expr) {

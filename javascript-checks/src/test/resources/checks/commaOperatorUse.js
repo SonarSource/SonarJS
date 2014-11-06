@@ -46,4 +46,4 @@ var myArray = [1, 2, 3];                  // OK
 var myObject = {a:1, b:2, c:3};           // OK
 var a = 1, b = 1;                         // OK
 
-
+doSomething((p1, p2) => p1 + p2);         // OK
