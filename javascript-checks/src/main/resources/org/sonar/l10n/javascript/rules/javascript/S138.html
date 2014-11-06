@@ -8,3 +8,24 @@
 <p>
   Those smaller functions will not only be easier to understand, but also probably easier to test.
 </p>
+
+<h2>Exceptions</h2>
+<p>
+  This function ignores Immediately Invoked Function Expressions (IIFE), functions which are created and invoked without ever being assigned a name.
+</p>
+<pre>
+ (function () { // Ignored by this rule
+
+  function open() {  // Classic function declaration; not ignored
+    // ...
+  }
+
+  function read() {
+    // ...
+  }
+
+  function readlines() {
+    // ...
+  }
+})();
+</pre>

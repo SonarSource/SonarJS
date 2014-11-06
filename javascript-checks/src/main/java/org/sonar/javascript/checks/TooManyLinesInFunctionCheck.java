@@ -54,10 +54,18 @@ public class TooManyLinesInFunctionCheck extends SquidCheck<LexerlessGrammar> {
   @Override
   public void visitNode(AstNode astNode) {
     int nbLines = getNumberOfLine(astNode);
-    if (nbLines > max) {
+    if (nbLines > max && !isImmediatelyInvokedFunctionExpression(astNode)) {
       getContext().createLineViolation(this, "This function has {0} lines, which is greater than the {1} lines authorized. Split it into smaller functions.",
         astNode, nbLines, max);
     }
+  }
+
+  private boolean isImmediatelyInvokedFunctionExpression(AstNode functionDec) {
+    AstNode rcurly = functionDec.getFirstChild(EcmaScriptPunctuator.RCURLYBRACE);
+    AstNode nextAstNode = rcurly.getNextAstNode();
+
+    return functionDec.is(EcmaScriptGrammar.GENERATOR_EXPRESSION, EcmaScriptGrammar.FUNCTION_EXPRESSION)
+      && (nextAstNode.is(EcmaScriptGrammar.ARGUMENTS) || nextAstNode.is(EcmaScriptPunctuator.RPARENTHESIS) && nextAstNode.getNextAstNode().is(EcmaScriptGrammar.ARGUMENTS));
   }
 
   public static int getNumberOfLine(AstNode functionNode) {
