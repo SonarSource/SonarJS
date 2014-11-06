@@ -24,6 +24,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.Sensor;
 import org.sonar.api.batch.SensorContext;
+import org.sonar.api.config.Settings;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.CoverageMeasuresBuilder;
 import org.sonar.api.measures.Measure;
@@ -41,12 +42,12 @@ public class CoverageSensor implements Sensor {
 
   private static final Logger LOG = LoggerFactory.getLogger(CoverageSensor.class);
 
-  private final JavaScript javascript;
   private final ModuleFileSystem moduleFileSystem;
+  private final Settings settings;
 
-  public CoverageSensor(JavaScript javascript, ModuleFileSystem moduleFileSystem) {
-    this.javascript = javascript;
+  public CoverageSensor(ModuleFileSystem moduleFileSystem, Settings settings) {
     this.moduleFileSystem = moduleFileSystem;
+    this.settings = settings;
   }
 
   public boolean shouldExecuteOnProject(Project project) {
@@ -71,7 +72,7 @@ public class CoverageSensor implements Sensor {
   }
 
   protected void saveMeasureFromLCOVFile(Project project, SensorContext context) {
-    String providedPath = javascript.getSettings().getString(JavaScriptPlugin.LCOV_REPORT_PATH);
+    String providedPath = settings.getString(JavaScriptPlugin.LCOV_REPORT_PATH);
     File lcovFile = getIOFile(moduleFileSystem.baseDir(), providedPath);
 
     if (!lcovFile.isFile()) {
@@ -123,11 +124,11 @@ public class CoverageSensor implements Sensor {
   }
 
   private boolean isForceZeroCoverageActivated() {
-    return javascript.getSettings().getBoolean(JavaScriptPlugin.FORCE_ZERO_COVERAGE_KEY);
+    return settings.getBoolean(JavaScriptPlugin.FORCE_ZERO_COVERAGE_KEY);
   }
 
   private boolean isLCOVReportProvided() {
-    return StringUtils.isNotBlank(javascript.getSettings().getString(JavaScriptPlugin.LCOV_REPORT_PATH));
+    return StringUtils.isNotBlank(settings.getString(JavaScriptPlugin.LCOV_REPORT_PATH));
   }
 
   /**

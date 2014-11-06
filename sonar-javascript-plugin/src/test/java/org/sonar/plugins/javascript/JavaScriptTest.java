@@ -41,7 +41,6 @@ public class JavaScriptTest {
   public void defaultSuffixes() {
     settings.setProperty(JavaScriptPlugin.FILE_SUFFIXES_KEY, "");
     assertThat(javaScript.getFileSuffixes()).containsOnly(".js");
-    assertThat(javaScript.getSettings()).isSameAs(settings);
   }
 
   @Test

@@ -35,10 +35,6 @@ public class JavaScript extends AbstractLanguage {
     this.settings = configuration;
   }
 
-  public Settings getSettings() {
-    return this.settings;
-  }
-
   public String[] getFileSuffixes() {
     String[] suffixes = settings.getStringArray(JavaScriptPlugin.FILE_SUFFIXES_KEY);
     if (suffixes == null || suffixes.length == 0) {

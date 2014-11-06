@@ -38,15 +38,13 @@ import static org.mockito.Mockito.when;
 
 public class JsTestSensorTest {
 
-  private JavaScript language;
   private Settings settings;
   private JsTestSensor sensor;
 
   @Before
   public void setUp() {
     settings = new Settings();
-    language = new JavaScript(settings);
-    sensor = new JsTestSensor(language, mockFileSystem());
+    sensor = new JsTestSensor(mockFileSystem(), settings);
   }
 
   @Test
@@ -88,7 +86,7 @@ public class JsTestSensorTest {
     ModuleFileSystem fs = mock(ModuleFileSystem.class);
     when(fs.files(any(FileQuery.class))).thenReturn(ImmutableList.of(new File("mock")));
 
-    return new JsTestSensor(language, fs);
+    return new JsTestSensor(fs, settings);
   }
 
 }

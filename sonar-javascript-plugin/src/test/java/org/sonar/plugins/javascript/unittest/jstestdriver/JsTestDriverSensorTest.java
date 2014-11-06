@@ -50,15 +50,13 @@ public class JsTestDriverSensorTest {
 
   private JsTestDriverSensor sensor;
   private SensorContext context;
-  private JavaScript language;
   private Settings settings;
   private ModuleFileSystem fileSystem = mock(ModuleFileSystem.class);
 
   @Before
   public void init() {
     settings = new Settings();
-    language = new JavaScript(settings);
-    sensor = new JsTestDriverSensor(language, fileSystem);
+    sensor = new JsTestDriverSensor(fileSystem, settings);
     context = mock(SensorContext.class);
   }
 
@@ -122,7 +120,7 @@ public class JsTestDriverSensorTest {
     ModuleFileSystem fs = mock(ModuleFileSystem.class);
     when(fs.files(any(FileQuery.class))).thenReturn(ImmutableList.of(new File("mock")));
 
-    return new JsTestDriverSensor(language, fs);
+    return new JsTestDriverSensor(fs, settings);
   }
 
 }

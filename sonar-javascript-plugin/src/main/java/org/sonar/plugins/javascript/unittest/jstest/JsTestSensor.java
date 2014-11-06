@@ -20,6 +20,7 @@
 package org.sonar.plugins.javascript.unittest.jstest;
 
 import org.sonar.api.batch.SensorContext;
+import org.sonar.api.config.Settings;
 import org.sonar.api.resources.Project;
 import org.sonar.api.scan.filesystem.ModuleFileSystem;
 import org.sonar.plugins.javascript.JavaScriptPlugin;
@@ -28,8 +29,8 @@ import org.sonar.plugins.javascript.unittest.jstestdriver.JsTestDriverSensor;
 
 public class JsTestSensor extends JsTestDriverSensor {
 
-  public JsTestSensor(JavaScript javascript, ModuleFileSystem fileSystem) {
-    super(javascript, fileSystem);
+  public JsTestSensor(ModuleFileSystem fileSystem, Settings settings) {
+    super(fileSystem, settings);
   }
 
   @Override
@@ -45,7 +46,7 @@ public class JsTestSensor extends JsTestDriverSensor {
 
   @Override
   protected String getReportsDirectoryPath() {
-    return javascript.getSettings().getString(JavaScriptPlugin.JSTEST_REPORTS_PATH);
+    return settings.getString(JavaScriptPlugin.JSTEST_REPORTS_PATH);
   }
 
   @Override

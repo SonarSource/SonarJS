@@ -59,7 +59,7 @@ public class CoverageSensorTest {
   public void init() {
     settings = new Settings();
     settings.setProperty(JavaScriptPlugin.LCOV_REPORT_PATH, "jsTestDriver.conf-coverage.dat");
-    sensor = new CoverageSensor(new JavaScript(settings), fileSystem);
+    sensor = new CoverageSensor(fileSystem, settings);
     context = mock(SensorContext.class);
     project = mockProject();
   }

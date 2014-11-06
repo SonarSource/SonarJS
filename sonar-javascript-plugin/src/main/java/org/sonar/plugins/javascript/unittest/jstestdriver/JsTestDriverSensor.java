@@ -24,6 +24,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.Sensor;
 import org.sonar.api.batch.SensorContext;
+import org.sonar.api.config.Settings;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.scan.filesystem.FileQuery;
@@ -37,12 +38,12 @@ import java.util.List;
 
 public class JsTestDriverSensor implements Sensor {
 
-  protected JavaScript javascript;
   protected ModuleFileSystem fileSystem;
+  protected Settings settings;
 
-  public JsTestDriverSensor(JavaScript javascript, ModuleFileSystem fileSystem) {
-    this.javascript = javascript;
+  public JsTestDriverSensor(ModuleFileSystem fileSystem, Settings settings) {
     this.fileSystem = fileSystem;
+    this.settings = settings;
   }
 
   private static final Logger LOG = LoggerFactory.getLogger(JsTestDriverSensor.class);
@@ -50,7 +51,7 @@ public class JsTestDriverSensor implements Sensor {
   public boolean shouldExecuteOnProject(Project project) {
     return StringUtils.isNotBlank(getReportsDirectoryPath()) &&
       // Required for compatibility with SonarQube 3.7
-      (javascript.KEY.equals(project.getLanguageKey())
+      (JavaScript.KEY.equals(project.getLanguageKey())
         || StringUtils.isBlank(project.getLanguageKey()) && !fileSystem.files(FileQuery.onSource().onLanguage(JavaScript.KEY)).isEmpty());
   }
 
@@ -106,7 +107,7 @@ public class JsTestDriverSensor implements Sensor {
   }
 
   protected String getReportsDirectoryPath() {
-    return javascript.getSettings().getString(JavaScriptPlugin.JSTESTDRIVER_REPORTS_PATH);
+    return settings.getString(JavaScriptPlugin.JSTESTDRIVER_REPORTS_PATH);
   }
 
   @Override
