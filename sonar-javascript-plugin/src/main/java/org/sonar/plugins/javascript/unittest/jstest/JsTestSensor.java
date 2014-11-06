@@ -19,36 +19,33 @@
  */
 package org.sonar.plugins.javascript.unittest.jstest;
 
-import org.apache.commons.lang.StringUtils;
 import org.sonar.api.batch.SensorContext;
 import org.sonar.api.resources.Project;
+import org.sonar.api.scan.filesystem.ModuleFileSystem;
 import org.sonar.plugins.javascript.JavaScriptPlugin;
 import org.sonar.plugins.javascript.core.JavaScript;
 import org.sonar.plugins.javascript.unittest.jstestdriver.JsTestDriverSensor;
 
 public class JsTestSensor extends JsTestDriverSensor {
 
-  public JsTestSensor(JavaScript javascript) {
-    super(javascript);
+  public JsTestSensor(JavaScript javascript, ModuleFileSystem fileSystem) {
+    super(javascript, fileSystem);
   }
 
-  public boolean shouldExecuteOnProject(Project project) {
-    return javascript.equals(project.getLanguage())
-      && StringUtils.isNotBlank(javascript.getSettings().getString(JavaScriptPlugin.JSTEST_REPORTS_PATH));
-  }
-
+  @Override
   public void analyse(Project project, SensorContext context) {
-    String jsTestDriverFolder = javascript.getSettings().getString(JavaScriptPlugin.JSTEST_REPORTS_PATH);
-    collect(project, context, project.getFileSystem().resolvePath(jsTestDriverFolder));
-  }
-
-  protected org.sonar.api.resources.File getUnitTestFileResource(String classKey) {
-    // For JsTest assume notation com/company/MyJsTest.js that maps directly to file name
-    return new org.sonar.api.resources.File(classKey);
+    String jsTestDriverFolder = getReportsDirectoryPath();
+    collect(context, getIOFile(jsTestDriverFolder));
   }
 
   protected String getUnitTestFileName(String className) {
+    // For JsTest assume notation com/company/MyJsTest.js that maps directly to file name
     return className;
+  }
+
+  @Override
+  protected String getReportsDirectoryPath() {
+    return javascript.getSettings().getString(JavaScriptPlugin.JSTEST_REPORTS_PATH);
   }
 
   @Override

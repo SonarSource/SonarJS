@@ -19,14 +19,22 @@
  */
 package org.sonar.plugins.javascript.unittest.jstest;
 
+import com.google.common.collect.ImmutableList;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.config.Settings;
 import org.sonar.api.resources.Project;
+import org.sonar.api.scan.filesystem.FileQuery;
+import org.sonar.api.scan.filesystem.ModuleFileSystem;
 import org.sonar.plugins.javascript.JavaScriptPlugin;
 import org.sonar.plugins.javascript.core.JavaScript;
 
+import java.io.File;
+
 import static org.fest.assertions.Assertions.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class JsTestSensorTest {
 
@@ -38,19 +46,21 @@ public class JsTestSensorTest {
   public void setUp() {
     settings = new Settings();
     language = new JavaScript(settings);
-    sensor = new JsTestSensor(language);
+    sensor = new JsTestSensor(language, mockFileSystem());
   }
 
   @Test
   public void test_shouldExecuteOnProject() {
-    Project project = mockProject();
-    assertThat(sensor.shouldExecuteOnProject(project)).isFalse();
+    // Not a JavaScript project
+    assertThat(sensor.shouldExecuteOnProject(mockProject("java"))).isFalse();
 
-    project.setLanguage(language);
-    assertThat(sensor.shouldExecuteOnProject(project)).isFalse();
+    // No report path provided
+    assertThat(sensor.shouldExecuteOnProject(mockProject("js"))).isFalse();
+    assertThat(mock_sensor_for_SQ_over_4_0().shouldExecuteOnProject(mockProject(""))).isFalse();
 
     settings.setProperty(JavaScriptPlugin.JSTEST_REPORTS_PATH, "jstest");
-    assertThat(sensor.shouldExecuteOnProject(project)).isTrue();
+    assertThat(sensor.shouldExecuteOnProject(mockProject("js"))).isTrue();
+    assertThat(mock_sensor_for_SQ_over_4_0().shouldExecuteOnProject(mockProject(""))).isTrue();
   }
 
   @Test
@@ -58,8 +68,28 @@ public class JsTestSensorTest {
     assertThat(sensor.toString()).isEqualTo("JsTestSensor");
   }
 
-  private Project mockProject() {
-    return new Project("mock");
+  private Project mockProject(final String language) {
+    return new Project("mock") {
+      @Override
+      public String getLanguageKey() {
+        return language;
+      }
+    };
+  }
+
+  private ModuleFileSystem mockFileSystem() {
+    ModuleFileSystem fs = mock(ModuleFileSystem.class);
+    when(fs.files(any(FileQuery.class))).thenReturn(ImmutableList.of(new File("mock")));
+
+    return fs;
+  }
+
+  private JsTestSensor mock_sensor_for_SQ_over_4_0() {
+    ModuleFileSystem fs = mock(ModuleFileSystem.class);
+    when(fs.files(any(FileQuery.class))).thenReturn(ImmutableList.of(new File("mock")));
+
+    return new JsTestSensor(language, fs);
   }
 
 }
+

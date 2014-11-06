@@ -32,10 +32,6 @@ public class JavaScriptSourceImporter extends AbstractSourceImporter {
     super(javascript);
   }
 
-  protected void analyse(ProjectFileSystem fileSystem, SensorContext context) {
-    parseDirs(context, InputFileUtils.toFiles(fileSystem.mainFiles(JavaScript.KEY)), fileSystem.getSourceDirs(), false, fileSystem.getSourceCharset());
-  }
-
   @Override
   public String toString() {
     return getClass().getSimpleName();

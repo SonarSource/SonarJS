@@ -26,7 +26,6 @@ import org.sonar.api.batch.SensorContext;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.Metric;
-import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.utils.ParsingUtils;
 import org.sonar.api.utils.SonarException;
@@ -41,16 +40,13 @@ public abstract class AbstractSurefireParser {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(AbstractSurefireParser.class);
 
-  public void collect(Project project, SensorContext context, File reportsDir) {
+  public void collect(SensorContext context, File reportsDir) {
     File[] xmlFiles = getReports(reportsDir);
 
-    if (xmlFiles.length == 0) {
-      // See http://jira.codehaus.org/browse/SONAR-2371
-      if (project.getModules().isEmpty()) {
-        context.saveMeasure(CoreMetrics.TESTS, 0.0);
-      }
-    } else {
+    if (xmlFiles.length > 0) {
       parseFiles(context, xmlFiles);
+    } else {
+      LOGGER.warn("No Unit Test information will be saved, because no Unit Test report has been found in the given directory: {}" + reportsDir.getAbsolutePath());
     }
   }
 

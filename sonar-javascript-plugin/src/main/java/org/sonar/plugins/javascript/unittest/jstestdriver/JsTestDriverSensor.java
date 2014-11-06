@@ -19,84 +19,61 @@
  */
 package org.sonar.plugins.javascript.unittest.jstestdriver;
 
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
-import org.jfree.util.Log;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.Sensor;
 import org.sonar.api.batch.SensorContext;
 import org.sonar.api.resources.Project;
-import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Resource;
+import org.sonar.api.scan.filesystem.FileQuery;
+import org.sonar.api.scan.filesystem.ModuleFileSystem;
 import org.sonar.plugins.javascript.JavaScriptPlugin;
 import org.sonar.plugins.javascript.core.JavaScript;
 import org.sonar.plugins.javascript.unittest.surefireparser.AbstractSurefireParser;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.List;
 
 public class JsTestDriverSensor implements Sensor {
 
   protected JavaScript javascript;
+  protected ModuleFileSystem fileSystem;
 
-  public JsTestDriverSensor(JavaScript javascript) {
+  public JsTestDriverSensor(JavaScript javascript, ModuleFileSystem fileSystem) {
     this.javascript = javascript;
+    this.fileSystem = fileSystem;
   }
 
   private static final Logger LOG = LoggerFactory.getLogger(JsTestDriverSensor.class);
 
   public boolean shouldExecuteOnProject(Project project) {
-    return javascript.equals(project.getLanguage())
-      && StringUtils.isNotBlank(javascript.getSettings().getString(JavaScriptPlugin.JSTESTDRIVER_REPORTS_PATH));
+    return StringUtils.isNotBlank(getReportsDirectoryPath()) &&
+      // Required for compatibility with SonarQube 3.7
+      (javascript.KEY.equals(project.getLanguageKey())
+        || StringUtils.isBlank(project.getLanguageKey()) && !fileSystem.files(FileQuery.onSource().onLanguage(JavaScript.KEY)).isEmpty());
   }
 
   public void analyse(Project project, SensorContext context) {
-    String jsTestDriverFolder = javascript.getSettings().getString(JavaScriptPlugin.JSTESTDRIVER_REPORTS_PATH);
-    collect(project, context, project.getFileSystem().resolvePath(jsTestDriverFolder));
+    collect(context, getIOFile(getReportsDirectoryPath()));
   }
 
-  protected void collect(final Project project, final SensorContext context, File reportsDir) {
-    LOG.debug("Parsing JsTestDriver run results in Surefile format from folder {}", reportsDir);
+  protected void collect(final SensorContext context, File reportsDir) {
+    LOG.info("Parsing Unit Test run results in Surefire format from folder {}", reportsDir);
 
     new AbstractSurefireParser() {
 
       @Override
       protected Resource<?> getUnitTestResource(String classKey) {
-
-        org.sonar.api.resources.File unitTestFileResource = getUnitTestFileResource(classKey);
-        unitTestFileResource.setLanguage(javascript);
-        unitTestFileResource.setQualifier(Qualifiers.UNIT_TEST_FILE);
-
-        LOG.debug("Adding unittest resource: {}", unitTestFileResource.toString());
-
-        List<File> testDirectories = project.getFileSystem().getTestDirs();
-
-        File unitTestFile = getUnitTestFile(testDirectories, getUnitTestFileName(classKey));
-
-        String source;
-        try {
-          source = FileUtils.readFileToString(unitTestFile, project.getFileSystem().getSourceCharset().name());
-        } catch (IOException e) {
-          source = "Could not find source for unit test: " + classKey + " in any of test directories";
-          Log.debug(source, e);
-        }
-
-        context.saveSource(unitTestFileResource, source);
-
-        return unitTestFileResource;
+        File unitTestFile = getUnitTestFile(fileSystem.testDirs(), getUnitTestFileName(classKey));
+        return context.getResource(new org.sonar.api.resources.File(unitTestFile.getParent(), unitTestFile.getName()));
       }
-    }.collect(project, context, reportsDir);
+    }.collect(context, reportsDir);
 
-  }
-
-  protected org.sonar.api.resources.File getUnitTestFileResource(String classKey) {
-    // For JsTestDriver assume notation com.company.MyJsTest that maps to com/company/MyJsTest.js
-    return new org.sonar.api.resources.File(classKey.replaceAll("\\.", "/") + ".js");
   }
 
   protected String getUnitTestFileName(String className) {
+    // For JsTestDriver assume notation com.company.MyJsTest that maps to com/company/MyJsTest.js
     String fileName = className.substring((className.indexOf('.') + 1));
     fileName = fileName.replace('.', '/');
     fileName = fileName + ".js";
@@ -113,6 +90,23 @@ public class JsTestDriverSensor implements Sensor {
       }
     }
     return unitTestFile;
+  }
+
+  /**
+   * Returns a java.io.File for the given path.
+   * If path is not absolute, returns a File with project base directory as parent path.
+   */
+  protected File getIOFile(String path) {
+    File file = new File(path);
+    if (!file.isAbsolute()) {
+      file = new File(fileSystem.baseDir(), path);
+    }
+
+    return file;
+  }
+
+  protected String getReportsDirectoryPath() {
+    return javascript.getSettings().getString(JavaScriptPlugin.JSTESTDRIVER_REPORTS_PATH);
   }
 
   @Override
