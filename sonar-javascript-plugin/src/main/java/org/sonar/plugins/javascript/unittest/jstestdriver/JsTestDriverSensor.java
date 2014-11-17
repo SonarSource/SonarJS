@@ -56,10 +56,10 @@ public class JsTestDriverSensor implements Sensor {
   }
 
   public void analyse(Project project, SensorContext context) {
-    collect(context, getIOFile(getReportsDirectoryPath()));
+    collect(project, context, getIOFile(getReportsDirectoryPath()));
   }
 
-  protected void collect(final SensorContext context, File reportsDir) {
+  protected void collect(final Project project, final SensorContext context, File reportsDir) {
     LOG.info("Parsing Unit Test run results in Surefire format from folder {}", reportsDir);
 
     new AbstractSurefireParser() {
@@ -67,7 +67,13 @@ public class JsTestDriverSensor implements Sensor {
       @Override
       protected Resource<?> getUnitTestResource(String classKey) {
         File unitTestFile = getUnitTestFile(fileSystem.testDirs(), getUnitTestFileName(classKey));
-        return context.getResource(new org.sonar.api.resources.File(unitTestFile.getParent(), unitTestFile.getName()));
+        org.sonar.api.resources.File sonarFile = org.sonar.api.resources.File.fromIOFile(unitTestFile, project);
+
+        if (sonarFile == null) {
+          // support SQ < 4.2
+          sonarFile = org.sonar.api.resources.File.fromIOFile(unitTestFile, fileSystem.testDirs());
+        }
+        return context.getResource(sonarFile);
       }
     }.collect(context, reportsDir);
 

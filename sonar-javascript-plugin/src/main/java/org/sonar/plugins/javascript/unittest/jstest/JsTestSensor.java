@@ -36,7 +36,7 @@ public class JsTestSensor extends JsTestDriverSensor {
   @Override
   public void analyse(Project project, SensorContext context) {
     String jsTestDriverFolder = getReportsDirectoryPath();
-    collect(context, getIOFile(jsTestDriverFolder));
+    collect(project, context, getIOFile(jsTestDriverFolder));
   }
 
   protected String getUnitTestFileName(String className) {

@@ -26,11 +26,11 @@ import org.sonar.api.batch.SensorContext;
 import org.sonar.api.config.Settings;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.resources.Project;
+import org.sonar.api.resources.ProjectFileSystem;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.scan.filesystem.FileQuery;
 import org.sonar.api.scan.filesystem.ModuleFileSystem;
 import org.sonar.plugins.javascript.JavaScriptPlugin;
-import org.sonar.plugins.javascript.core.JavaScript;
 import org.sonar.test.TestUtils;
 
 import java.io.File;
@@ -47,6 +47,9 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class JsTestDriverSensorTest {
+
+  private static final File PROJECT_BASE_DIR = TestUtils.getResource("org/sonar/plugins/javascript/unittest/jstestdriver/sensortests");
+  private static final File TEST_DIR = new File(PROJECT_BASE_DIR, "test");
 
   private JsTestDriverSensor sensor;
   private SensorContext context;
@@ -80,9 +83,8 @@ public class JsTestDriverSensorTest {
 
     when(fileSystem.sourceCharset()).thenReturn(Charset.defaultCharset());
 
-    File baseDir = TestUtils.getResource("org/sonar/plugins/javascript/unittest/jstestdriver/sensortests");
-    when(fileSystem.baseDir()).thenReturn(baseDir);
-    when(fileSystem.testDirs()).thenReturn(Arrays.asList(new File(baseDir, "test")));
+    when(fileSystem.baseDir()).thenReturn(PROJECT_BASE_DIR);
+    when(fileSystem.testDirs()).thenReturn(Arrays.asList(TEST_DIR));
 
     Project project = mockProject("js");
 
@@ -112,6 +114,14 @@ public class JsTestDriverSensorTest {
       @Override
       public String getLanguageKey() {
         return language;
+      }
+
+      @Override
+      public ProjectFileSystem getFileSystem() {
+        ProjectFileSystem pfs = mock(ProjectFileSystem.class);
+        when(pfs.getSourceDirs()).thenReturn(ImmutableList.of(TEST_DIR));
+
+        return pfs;
       }
     };
   }
