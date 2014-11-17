@@ -555,9 +555,9 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
       LINE_TERMINATOR_SEQUENCE,
       b.regexp("[^`\\$" + EcmaScriptLexer.LINE_TERMINATOR + "]")));
     b.rule(LINE_CONTINUATION).is(BACKSLASH, LINE_TERMINATOR_SEQUENCE);
-    b.rule(BACKSLASH).is(word(b, "\\"));
-    b.rule(BACKTICK).is(word(b, "`"));
-    b.rule(DOLLAR_SIGN).is(word(b, "$"));
+    b.rule(BACKSLASH).is(character(b, "\\"));
+    b.rule(BACKTICK).is(character(b, "`"));
+    b.rule(DOLLAR_SIGN).is(character(b, "$"));
 
     punctuators(b);
     keywords(b);
@@ -643,7 +643,11 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
   }
 
   private static Object word(LexerlessGrammarBuilder b, String value) {
-    return b.sequence(SPACING, b.token(GenericTokenType.IDENTIFIER, value));
+    return b.sequence(SPACING, b.token(GenericTokenType.IDENTIFIER, value), b.nextNot(LETTER_OR_DIGIT));
+  }
+
+  private static Object character(LexerlessGrammarBuilder b, String value) {
+    return b.sequence(SPACING, value);
   }
 
   private static void punctuator(LexerlessGrammarBuilder b, GrammarRuleKey ruleKey, String value, Object element) {
@@ -896,7 +900,7 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
       TRY_STATEMENT,
       DEBUGGER_STATEMENT));
     b.rule(BLOCK).is(LCURLYBRACE, b.optional(STATEMENT_LIST), RCURLYBRACE);
-    b.rule(STATEMENT_LIST).is(b.oneOrMore(b.firstOf(STATEMENT, ecmascript6(DECLARATION))));
+    b.rule(STATEMENT_LIST).is(b.oneOrMore(b.firstOf(ecmascript6(DECLARATION), STATEMENT)));
     b.rule(VARIABLE_STATEMENT).is(VAR, VARIABLE_DECLARATION_LIST, EOS);
     b.rule(VARIABLE_DECLARATION_LIST).is(VARIABLE_DECLARATION, b.zeroOrMore(COMMA, VARIABLE_DECLARATION));
     b.rule(VARIABLE_DECLARATION_LIST_NO_IN).is(VARIABLE_DECLARATION_NO_IN, b.zeroOrMore(COMMA, VARIABLE_DECLARATION_NO_IN));
