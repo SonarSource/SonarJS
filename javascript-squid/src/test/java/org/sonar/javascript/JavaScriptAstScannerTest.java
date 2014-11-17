@@ -72,7 +72,7 @@ public class JavaScriptAstScannerTest {
   @Test
   public void classes() {
     SourceFile file = JavaScriptAstScanner.scanSingleFile(new File("src/test/resources/metrics/classes.js"));
-    assertThat(file.getInt(EcmaScriptMetric.CLASSES)).isEqualTo(2);
+    assertThat(file.getInt(EcmaScriptMetric.CLASSES)).isEqualTo(3);
   }
 
   @Test

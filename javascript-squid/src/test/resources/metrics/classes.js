@@ -6,3 +6,6 @@ class c {
 
 class empty {
 }
+
+var c = class {
+};
