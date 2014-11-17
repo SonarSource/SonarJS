@@ -116,7 +116,7 @@ public class JavaScriptSquidSensor implements Sensor {
       noSonarFilter.addResource(sonarFile, squidFile.getNoSonarTagLines());
       saveClassComplexity(sonarFile, squidFile);
       saveFilesComplexityDistribution(sonarFile, squidFile);
-      saveFunctionsComplexityDistribution(sonarFile, squidFile);
+      saveFunctionsComplexityAndDistribution(sonarFile, squidFile);
       saveMeasures(sonarFile, squidFile);
       saveIssues(sonarFile, squidFile);
     }
@@ -143,13 +143,17 @@ public class JavaScriptSquidSensor implements Sensor {
     context.saveMeasure(sonarFile, CoreMetrics.COMPLEXITY_IN_CLASSES, complexityInClasses);
   }
 
-  private void saveFunctionsComplexityDistribution(File sonarFile, SourceFile squidFile) {
+  private void saveFunctionsComplexityAndDistribution(File sonarFile, SourceFile squidFile) {
     Collection<SourceCode> squidFunctionsInFile = scanner.getIndex().search(new QueryByParent(squidFile), new QueryByType(SourceFunction.class));
     RangeDistributionBuilder complexityDistribution = new RangeDistributionBuilder(CoreMetrics.FUNCTION_COMPLEXITY_DISTRIBUTION, FUNCTIONS_DISTRIB_BOTTOM_LIMITS);
+    double complexityInFunction = 0;
     for (SourceCode squidFunction : squidFunctionsInFile) {
-      complexityDistribution.add(squidFunction.getDouble(EcmaScriptMetric.COMPLEXITY));
+      double functionComplexity = squidFunction.getDouble(EcmaScriptMetric.COMPLEXITY);
+      complexityDistribution.add(functionComplexity);
+      complexityInFunction += functionComplexity;
     }
     context.saveMeasure(sonarFile, complexityDistribution.build().setPersistenceMode(PersistenceMode.MEMORY));
+    context.saveMeasure(sonarFile, CoreMetrics.COMPLEXITY_IN_FUNCTIONS, complexityInFunction);
  }
 
   private void saveFilesComplexityDistribution(File sonarFile, SourceFile squidFile) {
