@@ -58,6 +58,7 @@ import org.sonar.sslr.parser.LexerlessGrammar;
 import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 
 public class JavaScriptSquidSensor implements Sensor {
 
@@ -134,11 +135,15 @@ public class JavaScriptSquidSensor implements Sensor {
   }
 
   private void saveClassComplexity(org.sonar.api.resources.File sonarFile, SourceFile squidFile) {
-    Collection<SourceCode> classes = scanner.getIndex().search(new QueryByParent(squidFile), new QueryByType(SourceClass.class));
     double complexityInClasses = 0;
-    for (SourceCode squidClass : classes) {
-      double classComplexity = squidClass.getDouble(EcmaScriptMetric.COMPLEXITY);
-      complexityInClasses += classComplexity;
+    Set<SourceCode> children = squidFile.getChildren();
+
+    if (children != null) {
+      for (SourceCode sourceCode : squidFile.getChildren()) {
+        if (sourceCode.isType(SourceClass.class)) {
+          complexityInClasses += sourceCode.getDouble(EcmaScriptMetric.COMPLEXITY);
+        }
+      }
     }
     context.saveMeasure(sonarFile, CoreMetrics.COMPLEXITY_IN_CLASSES, complexityInClasses);
   }
