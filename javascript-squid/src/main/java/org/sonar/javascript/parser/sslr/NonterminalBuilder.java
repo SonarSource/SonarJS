@@ -17,26 +17,10 @@
  * License along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.javascript.parser;
+package org.sonar.javascript.parser.sslr;
 
-import com.sonar.sslr.impl.Parser;
-import org.sonar.javascript.EcmaScriptConfiguration;
-import org.sonar.javascript.ast.parser.TreeFactory;
-import org.sonar.javascript.parser.sslr.ActionParser2;
-import org.sonar.sslr.parser.LexerlessGrammar;
+public interface NonterminalBuilder<T> {
 
-public final class EcmaScriptParser {
-
-  private EcmaScriptParser() {
-  }
-
-  public static Parser<LexerlessGrammar> create(EcmaScriptConfiguration conf) {
-    return new ActionParser2(
-      conf.getCharset(),
-      EcmaScriptGrammar.createGrammarBuilder(),
-      ActionGrammar.class,
-      new TreeFactory(),
-      EcmaScriptGrammar.SCRIPT);
-  }
+  T is(T method);
 
 }

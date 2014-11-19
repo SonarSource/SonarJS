@@ -17,26 +17,29 @@
  * License along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.javascript.parser;
+package org.sonar.javascript.parser.sslr;
 
-import com.sonar.sslr.impl.Parser;
-import org.sonar.javascript.EcmaScriptConfiguration;
-import org.sonar.javascript.ast.parser.TreeFactory;
-import org.sonar.javascript.parser.sslr.ActionParser2;
-import org.sonar.sslr.parser.LexerlessGrammar;
+import com.sonar.sslr.api.AstNode;
+import org.sonar.sslr.grammar.GrammarRuleKey;
 
-public final class EcmaScriptParser {
+import java.util.List;
 
-  private EcmaScriptParser() {
-  }
+public interface GrammarBuilder {
 
-  public static Parser<LexerlessGrammar> create(EcmaScriptConfiguration conf) {
-    return new ActionParser2(
-      conf.getCharset(),
-      EcmaScriptGrammar.createGrammarBuilder(),
-      ActionGrammar.class,
-      new TreeFactory(),
-      EcmaScriptGrammar.SCRIPT);
-  }
+  <T> NonterminalBuilder<T> nonterminal();
+
+  <T> NonterminalBuilder<T> nonterminal(GrammarRuleKey ruleKey);
+
+  <T> T firstOf(T... methods);
+
+  <T> Optional<T> optional(T method);
+
+  <T> List<T> oneOrMore(T method);
+
+  <T> Optional<List<T>> zeroOrMore(T method);
+
+  AstNode invokeRule(GrammarRuleKey ruleKey);
+
+  AstNode token(String value);
 
 }

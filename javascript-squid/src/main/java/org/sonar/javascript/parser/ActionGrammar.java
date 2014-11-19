@@ -19,24 +19,17 @@
  */
 package org.sonar.javascript.parser;
 
-import com.sonar.sslr.impl.Parser;
-import org.sonar.javascript.EcmaScriptConfiguration;
 import org.sonar.javascript.ast.parser.TreeFactory;
-import org.sonar.javascript.parser.sslr.ActionParser2;
-import org.sonar.sslr.parser.LexerlessGrammar;
+import org.sonar.javascript.parser.sslr.GrammarBuilder;
 
-public final class EcmaScriptParser {
+public class ActionGrammar {
 
-  private EcmaScriptParser() {
-  }
+  private final GrammarBuilder b;
+  private final TreeFactory f;
 
-  public static Parser<LexerlessGrammar> create(EcmaScriptConfiguration conf) {
-    return new ActionParser2(
-      conf.getCharset(),
-      EcmaScriptGrammar.createGrammarBuilder(),
-      ActionGrammar.class,
-      new TreeFactory(),
-      EcmaScriptGrammar.SCRIPT);
+  public ActionGrammar(GrammarBuilder b, TreeFactory f) {
+    this.b = b;
+    this.f = f;
   }
 
 }
