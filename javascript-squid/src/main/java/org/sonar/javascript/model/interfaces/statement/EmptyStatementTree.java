@@ -17,27 +17,20 @@
  * License along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.javascript.model;
+package org.sonar.javascript.model.interfaces.statement;
 
-import javax.annotation.Nullable;
+import org.sonar.javascript.model.interfaces.Tree;
 
 /**
- * <a href="http://www.ecma-international.org/ecma-262/5.1/#sec-12.2">Variable Declaration</a>.
- *
+ * <a href="http://www.ecma-international.org/ecma-262/5.1/#sec-12.3">Empty Statement.</a>
  * <pre>
- *   {@link #identifier()}
- *   {@link #identifier()} = {@link #initialiser()}
+ *   ;
  * </pre>
  *
  * <p>This interface is not intended to be implemented by clients.</p>
  */
-public interface VariableDeclarationTree extends Tree {
+public interface EmptyStatementTree extends StatementTree {
 
-  // TODO
-  Tree identifier();
-
-  // TODO
-  @Nullable
-  Tree initialiser();
+  Tree semiColonToken();
 
 }

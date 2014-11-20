@@ -17,20 +17,25 @@
  * License along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.javascript.model;
+package org.sonar.javascript.model.interfaces.statement;
+
+import org.sonar.javascript.model.interfaces.Tree;
 
 /**
- * <a href="http://www.ecma-international.org/ecma-262/5.1/#sec-12.13">throw Statement</a>.
+ * <a href="http://www.ecma-international.org/ecma-262/5.1/#sec-12.14">Catch Block</a>.
  *
  * <pre>
- *   throw {@link #expression()} ;
+ *   catch ( {@link #identifier()} ) {@link #block()}
  * </pre>
  *
  * <p>This interface is not intended to be implemented by clients.</p>
  */
-public interface ThrowStatementTree extends StatementTree {
+public interface CatchBlockTree extends Tree {
 
   // TODO
-  Tree expression();
+  Tree identifier();
+
+  // TODO
+  Tree block();
 
 }

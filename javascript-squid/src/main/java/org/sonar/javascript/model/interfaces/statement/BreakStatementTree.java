@@ -17,23 +17,26 @@
  * License along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.javascript.model;
+package org.sonar.javascript.model.interfaces.statement;
 
-import apple.laf.JRSUIUtils;
+import org.sonar.javascript.model.interfaces.Tree;
+
+import javax.annotation.Nullable;
 
 /**
- * <a href="http://www.ecma-international.org/ecma-262/5.1/#sec-12.12">Labelled Statement</a>.
+ * <a href="http://www.ecma-international.org/ecma-262/5.1/#sec-12.8">break Statement</a>.
  *
  * <pre>
- *   {@link #label()} : {@link #statement()}
+ *   break ;
+ *   break {@link #label()} ;
  * </pre>
  *
  * <p>This interface is not intended to be implemented by clients.</p>
  */
-public interface LabelledStatementTree extends StatementTree {
+public interface BreakStatementTree extends StatementTree {
 
-   Tree label();
-
-  StatementTree statement();
+  // TODO
+  @Nullable
+  Tree label();
 
 }

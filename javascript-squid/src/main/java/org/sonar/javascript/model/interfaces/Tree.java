@@ -17,20 +17,19 @@
  * License along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.javascript.model;
-
-import com.google.common.annotations.Beta;
-
-import java.util.List;
+package org.sonar.javascript.model.interfaces;
 
 /**
- * Represents a token in the syntax tree.
+ * Common interface for all nodes in an abstract syntax tree.
+ *
+ * <p>This interface is not intended to be implemented by clients.</p>
  */
-@Beta
-public interface SyntaxToken extends Tree {
+public interface Tree {
 
-  String text();
+  int getLine();
 
-  List<SyntaxTrivia> trivias();
+  <T extends Tree> boolean is(Class<T> cls);
+
+  <T extends Tree> T as(Class<T> cls);
 
 }

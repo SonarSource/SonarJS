@@ -17,24 +17,19 @@
  * License along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.javascript.model;
+package org.sonar.javascript.model.interfaces.lexical;
 
-import javax.annotation.Nullable;
+import com.google.common.annotations.Beta;
+import org.sonar.javascript.model.interfaces.Tree;
 
 /**
- * <a href="http://www.ecma-international.org/ecma-262/5.1/#sec-12.7">continue Statement</a>.
- *
- * <pre>
- *   continue ;
- *   continue {@link #label()} ;
- * </pre>
- *
- * <p>This interface is not intended to be implemented by clients.</p>
+ * Represents a Trivia in the SyntaxTree.
  */
-public interface ContinueStatementTree extends StatementTree {
+@Beta
+public interface SyntaxTrivia extends Tree {
 
-  // TODO
-  @Nullable
-  Tree label();
+  String comment();
+
+  int startLine();
 
 }

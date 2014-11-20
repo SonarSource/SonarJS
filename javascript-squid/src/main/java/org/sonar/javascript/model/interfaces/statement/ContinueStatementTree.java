@@ -17,21 +17,26 @@
  * License along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.javascript.model;
+package org.sonar.javascript.model.interfaces.statement;
 
-import java.util.List;
+import org.sonar.javascript.model.interfaces.Tree;
+
+import javax.annotation.Nullable;
 
 /**
- * <a href="http://www.ecma-international.org/ecma-262/5.1/#sec-12.2">Variable Statement</a>
+ * <a href="http://www.ecma-international.org/ecma-262/5.1/#sec-12.7">continue Statement</a>.
  *
  * <pre>
- *   var {@link #declarations()} ;
+ *   continue ;
+ *   continue {@link #label()} ;
  * </pre>
  *
  * <p>This interface is not intended to be implemented by clients.</p>
  */
-public interface VariableStatementTree extends StatementTree {
+public interface ContinueStatementTree extends StatementTree {
 
-  List<VariableDeclarationTree> declarations();
+  // TODO
+  @Nullable
+  Tree label();
 
 }

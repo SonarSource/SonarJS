@@ -17,18 +17,14 @@
  * License along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.javascript.model;
+package org.sonar.javascript.model.interfaces.statement;
+
+import org.sonar.javascript.model.interfaces.Tree;
 
 /**
- * <a href="http://www.ecma-international.org/ecma-262/5.1/#sec-12.3">Empty Statement.</a>
- * <pre>
- *   ;
- * </pre>
+ * Common interface for all types of <a href="http://www.ecma-international.org/ecma-262/5.1/#sec-12">statements</a>.
  *
  * <p>This interface is not intended to be implemented by clients.</p>
  */
-public interface EmptyStatementTree extends StatementTree {
-
-  Tree semiColonToken();
-
+public interface StatementTree extends Tree {
 }

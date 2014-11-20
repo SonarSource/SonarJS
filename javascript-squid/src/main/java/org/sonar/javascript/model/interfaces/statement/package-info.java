@@ -17,38 +17,9 @@
  * License along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.javascript.model;
-
-import javax.annotation.Nullable;
-import java.util.List;
 
 /**
- * <a href="http://www.ecma-international.org/ecma-262/5.1/#sec-12.6.3">for Statement</a>.
- *
- * <pre>
- *   for ( {@link #initExpression()} ; {@link #condition()} ; {@link #incrementExpression()}) {@link #statement()}
- *   for ( var {@link #initVariables()} ; {@link #condition()} ; {@link #incrementExpression()} ) {@link #statement()}
- * </pre>
- *
- * <p>This interface is not intended to be implemented by clients.</p>
+ * Provides interfaces to represent JavaScript source code as abstract syntax trees (AST).
  */
-public interface ForStatementTree extends StatementTree {
-
-  @Nullable
-  List<VariableDeclarationTree> initVariables();
-
-  // TODO
-  @Nullable
-  Tree initExpression();
-
-  // TODO
-  @Nullable
-  Tree condition();
-
-  // TODO
-  @Nullable
-  Tree incrementExpression();
-
-  StatementTree statement();
-
-}
+@javax.annotation.ParametersAreNonnullByDefault
+package org.sonar.javascript.model.interfaces.statement;

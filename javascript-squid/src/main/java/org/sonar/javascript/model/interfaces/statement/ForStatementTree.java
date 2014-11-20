@@ -17,22 +17,40 @@
  * License along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.javascript.model;
+package org.sonar.javascript.model.interfaces.statement;
+
+import org.sonar.javascript.model.interfaces.Tree;
+
+import javax.annotation.Nullable;
+import java.util.List;
 
 /**
- * <a href="http://www.ecma-international.org/ecma-262/5.1/#sec-12.6.1">do-while Statement</a>.
+ * <a href="http://www.ecma-international.org/ecma-262/5.1/#sec-12.6.3">for Statement</a>.
  *
  * <pre>
- *   do {@link #statement()} while ( {@link #condition()} ) ;
+ *   for ( {@link #initExpression()} ; {@link #condition()} ; {@link #incrementExpression()}) {@link #statement()}
+ *   for ( var {@link #initVariables()} ; {@link #condition()} ; {@link #incrementExpression()} ) {@link #statement()}
  * </pre>
  *
  * <p>This interface is not intended to be implemented by clients.</p>
  */
-public interface DoWhileStatementTree extends StatementTree {
+public interface ForStatementTree extends StatementTree {
 
-  StatementTree statement();
+  @Nullable
+  List<VariableDeclarationTree> initVariables();
 
   // TODO
+  @Nullable
+  Tree initExpression();
+
+  // TODO
+  @Nullable
   Tree condition();
+
+  // TODO
+  @Nullable
+  Tree incrementExpression();
+
+  StatementTree statement();
 
 }

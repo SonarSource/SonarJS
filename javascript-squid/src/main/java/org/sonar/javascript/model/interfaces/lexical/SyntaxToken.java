@@ -17,9 +17,21 @@
  * License along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
+package org.sonar.javascript.model.interfaces.lexical;
+
+import com.google.common.annotations.Beta;
+import org.sonar.javascript.model.interfaces.Tree;
+
+import java.util.List;
 
 /**
- * Provides interfaces to represent JavaScript source code as abstract syntax trees (AST).
+ * Represents a token in the syntax tree.
  */
-@javax.annotation.ParametersAreNonnullByDefault
-package org.sonar.javascript.model;
+@Beta
+public interface SyntaxToken extends Tree {
+
+  String text();
+
+  List<SyntaxTrivia> trivias();
+
+}

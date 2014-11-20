@@ -17,18 +17,16 @@
  * License along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.javascript.model;
-
-import com.google.common.annotations.Beta;
+package org.sonar.javascript.model.interfaces.statement;
 
 /**
- * Represents a Trivia in the SyntaxTree.
+ * <a href="http://www.ecma-international.org/ecma-262/5.1/#sec-12.15">debugger Statement</a>.
+ *
+ * <pre>
+ *   debugger ;
+ * </pre>
+ *
+ * <p>This interface is not intended to be implemented by clients.</p>
  */
-@Beta
-public interface SyntaxTrivia extends Tree {
-
-  String comment();
-
-  int startLine();
-
+public interface DebuggerStatementTree extends StatementTree {
 }

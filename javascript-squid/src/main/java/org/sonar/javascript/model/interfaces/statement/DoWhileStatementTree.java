@@ -17,22 +17,24 @@
  * License along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.javascript.model;
+package org.sonar.javascript.model.interfaces.statement;
+
+import org.sonar.javascript.model.interfaces.Tree;
 
 /**
- * <a href="http://www.ecma-international.org/ecma-262/5.1/#sec-12.10">with Statement</a>.
+ * <a href="http://www.ecma-international.org/ecma-262/5.1/#sec-12.6.1">do-while Statement</a>.
  *
  * <pre>
- *   with ( {@link #expression()} ) {@link #statement()}
+ *   do {@link #statement()} while ( {@link #condition()} ) ;
  * </pre>
  *
  * <p>This interface is not intended to be implemented by clients.</p>
  */
-public interface WithStatementTree extends StatementTree {
-
-  // TODO
-  Tree expression();
+public interface DoWhileStatementTree extends StatementTree {
 
   StatementTree statement();
+
+  // TODO
+  Tree condition();
 
 }

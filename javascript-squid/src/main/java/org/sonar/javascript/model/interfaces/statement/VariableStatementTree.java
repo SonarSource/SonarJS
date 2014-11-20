@@ -17,12 +17,21 @@
  * License along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.javascript.model;
+package org.sonar.javascript.model.interfaces.statement;
+
+import java.util.List;
 
 /**
- * Common interface for all types of <a href="http://www.ecma-international.org/ecma-262/5.1/#sec-12">statements</a>.
+ * <a href="http://www.ecma-international.org/ecma-262/5.1/#sec-12.2">Variable Statement</a>
+ *
+ * <pre>
+ *   var {@link #declarations()} ;
+ * </pre>
  *
  * <p>This interface is not intended to be implemented by clients.</p>
  */
-public interface StatementTree extends Tree {
+public interface VariableStatementTree extends StatementTree {
+
+  List<VariableDeclarationTree> declarations();
+
 }
