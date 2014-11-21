@@ -22,7 +22,7 @@ package org.sonar.javascript.parser;
 import org.sonar.javascript.api.EcmaScriptPunctuator;
 import org.sonar.javascript.ast.parser.TreeFactory;
 import org.sonar.javascript.model.implementations.statement.EmptyStatementTreeImpl;
-import org.sonar.javascript.model.interfaces.Tree;
+import org.sonar.javascript.model.interfaces.Tree.Kind;
 import org.sonar.javascript.parser.sslr.GrammarBuilder;
 
 public class ActionGrammar {
@@ -36,7 +36,7 @@ public class ActionGrammar {
   }
 
   public EmptyStatementTreeImpl EMPTY_STATEMENT() {
-    return b.<EmptyStatementTreeImpl>nonterminal(Tree.Kind.EMPTY_STATEMENT)
+    return b.<EmptyStatementTreeImpl>nonterminal(Kind.EMPTY_STATEMENT)
       .is(f.emptyStatement(b.invokeRule(EcmaScriptPunctuator.SEMI)));
   }
 }

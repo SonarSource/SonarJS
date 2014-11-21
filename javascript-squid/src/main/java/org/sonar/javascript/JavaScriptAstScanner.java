@@ -22,7 +22,7 @@ package org.sonar.javascript;
 import com.google.common.base.Charsets;
 import com.sonar.sslr.api.AstNode;
 import com.sonar.sslr.impl.Parser;
-import org.sonar.javascript.model.interfaces.Tree;
+import org.sonar.javascript.model.interfaces.Tree.Kind;
 import org.sonar.squidbridge.AstScanner;
 import org.sonar.squidbridge.SourceCodeBuilderCallback;
 import org.sonar.squidbridge.SourceCodeBuilderVisitor;
@@ -138,7 +138,7 @@ public final class JavaScriptAstScanner {
         .setMetricDef(EcmaScriptMetric.STATEMENTS)
         .subscribeTo(
             EcmaScriptGrammar.VARIABLE_STATEMENT,
-            Tree.Kind.EMPTY_STATEMENT,
+            Kind.EMPTY_STATEMENT,
             EcmaScriptGrammar.EXPRESSION_STATEMENT,
             EcmaScriptGrammar.IF_STATEMENT,
             EcmaScriptGrammar.ITERATION_STATEMENT,

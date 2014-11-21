@@ -24,7 +24,7 @@ import org.sonar.javascript.api.EcmaScriptKeyword;
 import org.sonar.javascript.api.EcmaScriptPunctuator;
 import org.sonar.javascript.lexer.EcmaScriptLexer;
 import org.sonar.javascript.lexer.EcmaScriptRegexpChannel;
-import org.sonar.javascript.model.interfaces.Tree;
+import org.sonar.javascript.model.interfaces.Tree.Kind;
 import org.sonar.sslr.grammar.GrammarRuleKey;
 import org.sonar.sslr.grammar.LexerlessGrammarBuilder;
 import org.sonar.sslr.parser.LexerlessGrammar;
@@ -886,7 +886,7 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
     b.rule(STATEMENT).is(b.firstOf(
       BLOCK,
       VARIABLE_STATEMENT,
-      Tree.Kind.EMPTY_STATEMENT,
+      Kind.EMPTY_STATEMENT,
       LABELLED_STATEMENT,
       EXPRESSION_STATEMENT,
       IF_STATEMENT,
