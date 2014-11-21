@@ -21,24 +21,22 @@ package org.sonar.javascript.parser.grammar.expressions;
 
 import org.junit.Test;
 import org.sonar.javascript.parser.EcmaScriptGrammar;
-import org.sonar.sslr.parser.LexerlessGrammar;
 
-import static org.sonar.sslr.tests.Assertions.assertThat;
+import static org.sonar.javascript.sslr.tests.Assertions.assertThat;
 
 public class ExpressionTest {
 
-  LexerlessGrammar g = EcmaScriptGrammar.createGrammar();
 
   @Test
   public void ok() {
-    assertThat(g.rule(EcmaScriptGrammar.EXPRESSION))
+    assertThat(EcmaScriptGrammar.EXPRESSION)
       .matches("a = 1")
       .matches("a = 1, b = 1");
   }
 
   @Test
   public void realLife() {
-    assertThat(g.rule(EcmaScriptGrammar.EXPRESSION))
+    assertThat(EcmaScriptGrammar.EXPRESSION)
       .matches("a + ' ' + b")
       .matches("i++")
       .matches("1 / a == 1 / b")

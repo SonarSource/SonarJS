@@ -21,18 +21,15 @@ package org.sonar.javascript.parser.grammar.lexical;
 
 import org.junit.Test;
 import org.sonar.javascript.api.EcmaScriptTokenType;
-import org.sonar.javascript.parser.EcmaScriptGrammar;
-import org.sonar.sslr.parser.LexerlessGrammar;
 
-import static org.sonar.sslr.tests.Assertions.assertThat;
+import static org.sonar.javascript.sslr.tests.Assertions.assertThat;
 
 public class RegularExpressionLiteralTest {
 
-  LexerlessGrammar g = EcmaScriptGrammar.createGrammar();
 
   @Test
   public void ok() {
-    assertThat(g.rule(EcmaScriptTokenType.REGULAR_EXPRESSION_LITERAL))
+    assertThat(EcmaScriptTokenType.REGULAR_EXPRESSION_LITERAL)
         .matches("/[]/")
         .matches("/[^/]/")
         .matches("/[^\\\\h;m,.\\-:/\\d]+/gi")

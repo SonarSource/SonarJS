@@ -22,6 +22,7 @@ package org.sonar.javascript.ast.parser;
 import com.google.common.base.Preconditions;
 import com.sonar.sslr.api.AstNode;
 import com.sonar.sslr.api.AstNodeType;
+import org.sonar.javascript.model.implementations.statement.EmptyStatementTreeImpl;
 import org.sonar.javascript.parser.sslr.Optional;
 
 import java.util.List;
@@ -30,9 +31,9 @@ public class TreeFactory {
 
   // Statements
 
-//  public EmptyStatementTreeImpl emptyStatement(AstNode semicolon) {
-//    return new EmptyStatementTreeImpl(semicolon);
-//  }
+  public EmptyStatementTreeImpl emptyStatement(AstNode semicolon) {
+    return new EmptyStatementTreeImpl(semicolon);
+  }
 
   // End of statements
 

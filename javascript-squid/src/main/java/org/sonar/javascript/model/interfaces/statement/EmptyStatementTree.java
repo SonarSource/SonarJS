@@ -31,6 +31,6 @@ import org.sonar.javascript.model.interfaces.Tree;
  */
 public interface EmptyStatementTree extends StatementTree {
 
-  Tree semiColonToken();
+  Tree semicolonToken();
 
 }

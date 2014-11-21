@@ -24,6 +24,7 @@ import org.sonar.javascript.api.EcmaScriptKeyword;
 import org.sonar.javascript.api.EcmaScriptPunctuator;
 import org.sonar.javascript.lexer.EcmaScriptLexer;
 import org.sonar.javascript.lexer.EcmaScriptRegexpChannel;
+import org.sonar.javascript.model.interfaces.Tree;
 import org.sonar.sslr.grammar.GrammarRuleKey;
 import org.sonar.sslr.grammar.LexerlessGrammarBuilder;
 import org.sonar.sslr.parser.LexerlessGrammar;
@@ -313,7 +314,6 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
   VARIABLE_DECLARATION_NO_IN,
   INITIALISER,
   INITIALISER_NO_IN,
-  EMPTY_STATEMENT,
   EXPRESSION_STATEMENT,
   IF_STATEMENT,
   ELSE_CLAUSE,
@@ -886,7 +886,7 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
     b.rule(STATEMENT).is(b.firstOf(
       BLOCK,
       VARIABLE_STATEMENT,
-      EMPTY_STATEMENT,
+      Tree.Kind.EMPTY_STATEMENT,
       LABELLED_STATEMENT,
       EXPRESSION_STATEMENT,
       IF_STATEMENT,
@@ -908,7 +908,6 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
     b.rule(VARIABLE_DECLARATION_NO_IN).is(b.firstOf(BINDING_IDENTIFIER_INITIALISER_NO_IN, BINDING_PATTERN_INITIALISER_NO_IN));
     b.rule(INITIALISER).is(EQU, ASSIGNMENT_EXPRESSION);
     b.rule(INITIALISER_NO_IN).is(EQU, ASSIGNMENT_EXPRESSION_NO_IN);
-    b.rule(EMPTY_STATEMENT).is(SEMI);
     b.rule(EXPRESSION_STATEMENT).is(b.nextNot(b.firstOf(LCURLYBRACE, FUNCTION)), EXPRESSION, EOS);
     b.rule(CONDITION).is(EXPRESSION);
     b.rule(IF_STATEMENT).is(IF, LPARENTHESIS, CONDITION, RPARENTHESIS, STATEMENT, b.optional(ELSE_CLAUSE));

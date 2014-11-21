@@ -21,17 +21,15 @@ package org.sonar.javascript.parser.grammar.statements;
 
 import org.junit.Test;
 import org.sonar.javascript.parser.EcmaScriptGrammar;
-import org.sonar.sslr.parser.LexerlessGrammar;
 
-import static org.sonar.sslr.tests.Assertions.assertThat;
+import static org.sonar.javascript.sslr.tests.Assertions.assertThat;
 
 public class ForDeclarationTest {
 
-  LexerlessGrammar g = EcmaScriptGrammar.createGrammar();
 
   @Test
   public void ok() {
-    assertThat(g.rule(EcmaScriptGrammar.FOR_DECLARATION))
+    assertThat(EcmaScriptGrammar.FOR_DECLARATION)
         .matches("let a");
   }
 

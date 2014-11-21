@@ -21,17 +21,15 @@ package org.sonar.javascript.parser.grammar.functions;
 
 import org.junit.Test;
 import org.sonar.javascript.parser.EcmaScriptGrammar;
-import org.sonar.sslr.parser.LexerlessGrammar;
 
-import static org.sonar.sslr.tests.Assertions.assertThat;
+import static org.sonar.javascript.sslr.tests.Assertions.assertThat;
 
 public class SourceElementsTest {
 
-  LexerlessGrammar g = EcmaScriptGrammar.createGrammar();
 
   @Test
   public void ok() {
-    assertThat(g.rule(EcmaScriptGrammar.STATEMENT_LIST))
+    assertThat(EcmaScriptGrammar.STATEMENT_LIST)
         .matches("var a;")
         .matches("var a; var b;");
   }

@@ -22,17 +22,15 @@ package org.sonar.javascript.parser.grammar.functions;
 import com.google.common.base.Joiner;
 import org.junit.Test;
 import org.sonar.javascript.parser.EcmaScriptGrammar;
-import org.sonar.sslr.parser.LexerlessGrammar;
 
-import static org.sonar.sslr.tests.Assertions.assertThat;
+import static org.sonar.javascript.sslr.tests.Assertions.assertThat;
 
 public class ProgramTest {
 
-  LexerlessGrammar g = EcmaScriptGrammar.createGrammar();
 
   @Test
   public void realLife() {
-    assertThat(g.rule(EcmaScriptGrammar.SCRIPT))
+    assertThat(EcmaScriptGrammar.SCRIPT)
         .matches("{}")
         .matches("var a;")
         .matches("if (true) {}")
@@ -40,21 +38,21 @@ public class ProgramTest {
         .matches("var r = /^\\s+/;")
         .matches("function func() { doSomething() }");
 
-    assertThat(g.rule(EcmaScriptGrammar.SCRIPT)).matches(code(
-        "#!/usr/bin/env node",
-        "function func() { }"));
+    assertThat(EcmaScriptGrammar.SCRIPT).matches(code(
+      "#!/usr/bin/env node",
+      "function func() { }"));
 
-    assertThat(g.rule(EcmaScriptGrammar.SCRIPT)).matches("\uFEFF");
+    assertThat(EcmaScriptGrammar.SCRIPT).matches("\uFEFF");
 
     // http://www.w3schools.com/js/tryit.asp?filename=tryjs_ifthenelse
-    assertThat(g.rule(EcmaScriptGrammar.SCRIPT)).matches(code(
-        "var d = new Date();",
-        "var time = d.getHours();",
-        "if (time < 10) {",
-        "  document.write(\"Good morning\");",
-        "} else {",
-        "  document.write(\"Good day\");",
-        "}"));
+    assertThat(EcmaScriptGrammar.SCRIPT).matches(code(
+      "var d = new Date();",
+      "var time = d.getHours();",
+      "if (time < 10) {",
+      "  document.write(\"Good morning\");",
+      "} else {",
+      "  document.write(\"Good day\");",
+      "}"));
   }
 
   private static String code(String... lines) {

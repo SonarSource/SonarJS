@@ -21,38 +21,36 @@ package org.sonar.javascript.parser.grammar.lexical;
 
 import org.junit.Test;
 import org.sonar.javascript.parser.EcmaScriptGrammar;
-import org.sonar.sslr.parser.LexerlessGrammar;
 
-import static org.sonar.sslr.tests.Assertions.assertThat;
+import static org.sonar.javascript.sslr.tests.Assertions.assertThat;
 
 public class AutomaticSemicolonInsertionTest {
 
-  LexerlessGrammar g = EcmaScriptGrammar.createGrammar();
 
   /**
    * http://www.ecma-international.org/ecma-262/5.1/#sec-7.9.2
    */
   @Test
   public void test() {
-    assertThat(g.rule(EcmaScriptGrammar.SCRIPT))
+    assertThat(EcmaScriptGrammar.SCRIPT)
         .as("not valid").notMatches("{ 1 2 } 3")
         .as("transformed to valid").matches("{ 1 \n 2 } 3");
 
-    assertThat(g.rule(EcmaScriptGrammar.FOR_STATEMENT))
+    assertThat(EcmaScriptGrammar.FOR_STATEMENT)
         .as("not valid and not transformed").notMatches("for (a; b \n ) ;")
         .as("valid").matches("for (a; b ; \n ) ;");
 
-    assertThat(g.rule(EcmaScriptGrammar.RETURN_STATEMENT))
+    assertThat(EcmaScriptGrammar.RETURN_STATEMENT)
         .matchesPrefix("return \n", "a + b");
 
-    assertThat(g.rule(EcmaScriptGrammar.EXPRESSION_STATEMENT))
+    assertThat(EcmaScriptGrammar.EXPRESSION_STATEMENT)
         .matchesPrefix("a = b \n", "++c");
 
-    assertThat(g.rule(EcmaScriptGrammar.IF_STATEMENT))
+    assertThat(EcmaScriptGrammar.IF_STATEMENT)
         .as("not valid and not transformed").notMatches("if (a > b) \n else c = d")
         .as("valid").matches("if (a > b) ; \n else c = d");
 
-    assertThat(g.rule(EcmaScriptGrammar.EXPRESSION_STATEMENT))
+    assertThat(EcmaScriptGrammar.EXPRESSION_STATEMENT)
         .as("not transformed").matches("a = b + c \n (d + e).print()");
   }
 

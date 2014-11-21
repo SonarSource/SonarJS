@@ -21,17 +21,15 @@ package org.sonar.javascript.parser.grammar.expressions;
 
 import org.junit.Test;
 import org.sonar.javascript.parser.EcmaScriptGrammar;
-import org.sonar.sslr.parser.LexerlessGrammar;
 
-import static org.sonar.sslr.tests.Assertions.assertThat;
+import static org.sonar.javascript.sslr.tests.Assertions.assertThat;
 
 public class ObjectLiteralTest {
 
-  LexerlessGrammar g = EcmaScriptGrammar.createGrammar();
 
   @Test
   public void ok() {
-    assertThat(g.rule(EcmaScriptGrammar.OBJECT_LITERAL))
+    assertThat(EcmaScriptGrammar.OBJECT_LITERAL)
         .matches("{ }")
         .matches("{ propertyName , }")
         .matches("{ propertyName = 1 , }")
@@ -40,7 +38,7 @@ public class ObjectLiteralTest {
         .matches("{ propertyName : assignmentExpression , propertyName : assignmentExpression }")
         .matches("{ propertyName : assignmentExpression , propertyName : assignmentExpression , }");
 
-    assertThat(g.rule(EcmaScriptGrammar.OBJECT_LITERAL))
+    assertThat(EcmaScriptGrammar.OBJECT_LITERAL)
         .notMatches("{ , }")
         .notMatches("{ propertyName : assignmentExpression , , }");
   }

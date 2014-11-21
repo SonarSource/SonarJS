@@ -21,13 +21,11 @@ package org.sonar.javascript.parser.grammar.lexical;
 
 import org.junit.Test;
 import org.sonar.javascript.parser.EcmaScriptGrammar;
-import org.sonar.sslr.parser.LexerlessGrammar;
+import org.sonar.javascript.parser.TemporaryOldGrammarParserTest;
 
 import static org.sonar.sslr.tests.Assertions.assertThat;
 
-public class EndOfStatementNoLineBreakTest {
-
-  LexerlessGrammar g = EcmaScriptGrammar.createGrammar();
+public class EndOfStatementNoLineBreakTest extends TemporaryOldGrammarParserTest {
 
   @Test
   public void ok() {

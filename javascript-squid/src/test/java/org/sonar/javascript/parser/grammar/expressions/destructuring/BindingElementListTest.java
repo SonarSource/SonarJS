@@ -21,17 +21,15 @@ package org.sonar.javascript.parser.grammar.expressions.destructuring;
 
 import org.junit.Test;
 import org.sonar.javascript.parser.EcmaScriptGrammar;
-import org.sonar.sslr.parser.LexerlessGrammar;
 
-import static org.sonar.sslr.tests.Assertions.assertThat;
+import static org.sonar.javascript.sslr.tests.Assertions.assertThat;
 
 public class BindingElementListTest {
 
-  LexerlessGrammar g = EcmaScriptGrammar.createGrammar();
 
   @Test
   public void ok() {
-    assertThat(g.rule(EcmaScriptGrammar.BINDING_ELEMENT_LIST))
+    assertThat(EcmaScriptGrammar.BINDING_ELEMENT_LIST)
         .matches("identifier")
         .matches("identifier , identifier")
         .matches("identifier , identifier , identifier");

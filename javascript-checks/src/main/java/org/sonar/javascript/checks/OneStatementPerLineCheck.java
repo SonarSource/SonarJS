@@ -24,6 +24,7 @@ import com.sonar.sslr.api.AstNode;
 import org.sonar.check.BelongsToProfile;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
+import org.sonar.javascript.model.interfaces.Tree;
 import org.sonar.javascript.parser.EcmaScriptGrammar;
 import org.sonar.squidbridge.checks.SquidCheck;
 import org.sonar.sslr.parser.LexerlessGrammar;
@@ -46,7 +47,7 @@ public class OneStatementPerLineCheck extends SquidCheck<LexerlessGrammar> {
   @Override
   public void visitNode(AstNode astNode) {
     AstNode statement = astNode.getFirstChild();
-    if (statement.is(EcmaScriptGrammar.BLOCK) || statement.is(EcmaScriptGrammar.EMPTY_STATEMENT) || statement.is(EcmaScriptGrammar.LABELLED_STATEMENT)) {
+    if (statement.is(EcmaScriptGrammar.BLOCK) || statement.is(Tree.Kind.EMPTY_STATEMENT) || statement.is(EcmaScriptGrammar.LABELLED_STATEMENT)) {
       // skip
     } else {
       int line = statement.getTokenLine();

@@ -21,17 +21,15 @@ package org.sonar.javascript.parser.grammar.functions;
 
 import org.junit.Test;
 import org.sonar.javascript.parser.EcmaScriptGrammar;
-import org.sonar.sslr.parser.LexerlessGrammar;
 
-import static org.sonar.sslr.tests.Assertions.assertThat;
+import static org.sonar.javascript.sslr.tests.Assertions.assertThat;
 
 public class FormalParameterTest {
 
-  LexerlessGrammar g = EcmaScriptGrammar.createGrammar();
 
   @Test
   public void ok() {
-    assertThat(g.rule(EcmaScriptGrammar.FORMAL_PARAMETER))
+    assertThat(EcmaScriptGrammar.FORMAL_PARAMETER)
         .matches("a = 4")
         .matches("a");
   }

@@ -21,13 +21,11 @@ package org.sonar.javascript.parser.grammar.statements;
 
 import org.junit.Test;
 import org.sonar.javascript.parser.EcmaScriptGrammar;
-import org.sonar.sslr.parser.LexerlessGrammar;
+import org.sonar.javascript.parser.TemporaryOldGrammarParserTest;
 
-import static org.sonar.sslr.tests.Assertions.assertThat;
+import static org.sonar.javascript.sslr.tests.Assertions.assertThat;
 
-public class ThrowStatementTest {
-
-  LexerlessGrammar g = EcmaScriptGrammar.createGrammar();
+public class ThrowStatementTest extends TemporaryOldGrammarParserTest {
 
   @Test
   public void ok() {

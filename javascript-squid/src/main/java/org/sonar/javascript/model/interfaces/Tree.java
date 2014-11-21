@@ -19,6 +19,12 @@
  */
 package org.sonar.javascript.model.interfaces;
 
+import com.sonar.sslr.api.AstNodeType;
+import org.sonar.javascript.model.interfaces.lexical.SyntaxToken;
+import org.sonar.javascript.model.interfaces.lexical.SyntaxTrivia;
+import org.sonar.javascript.model.interfaces.statement.EmptyStatementTree;
+import org.sonar.sslr.grammar.GrammarRuleKey;
+
 /**
  * Common interface for all nodes in an abstract syntax tree.
  *
@@ -26,10 +32,30 @@ package org.sonar.javascript.model.interfaces;
  */
 public interface Tree {
 
-  int getLine();
+  boolean is(Kind... kind);
 
-  <T extends Tree> boolean is(Class<T> cls);
+//  void accept(TreeVisitor visitor);
 
-  <T extends Tree> T as(Class<T> cls);
+  public enum Kind implements AstNodeType, GrammarRuleKey {
+
+    /**
+     * {@link EmptyStatementTree}
+     */
+    EMPTY_STATEMENT(EmptyStatementTree.class),
+
+    TOKEN(SyntaxToken.class),
+
+    TRIVIA(SyntaxTrivia.class);
+
+    final Class<? extends Tree> associatedInterface;
+
+    private Kind(Class<? extends Tree> associatedInterface) {
+      this.associatedInterface = associatedInterface;
+    }
+
+    public Class<? extends Tree> getAssociatedInterface() {
+      return associatedInterface;
+    }
+  }
 
 }

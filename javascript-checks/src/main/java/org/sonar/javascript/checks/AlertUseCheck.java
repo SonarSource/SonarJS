@@ -35,7 +35,7 @@ public class AlertUseCheck extends SquidCheck<LexerlessGrammar> {
 
   @Override
   public void init() {
-    subscribeTo(EcmaScriptGrammar.CALL_EXPRESSION);
+    subscribeTo(EcmaScriptGrammar.STATEMENT, EcmaScriptGrammar.CALL_EXPRESSION);
   }
 
   @Override

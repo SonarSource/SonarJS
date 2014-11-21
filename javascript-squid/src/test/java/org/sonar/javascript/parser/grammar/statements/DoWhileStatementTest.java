@@ -21,17 +21,15 @@ package org.sonar.javascript.parser.grammar.statements;
 
 import org.junit.Test;
 import org.sonar.javascript.parser.EcmaScriptGrammar;
-import org.sonar.sslr.parser.LexerlessGrammar;
 
-import static org.sonar.sslr.tests.Assertions.assertThat;
+import static org.sonar.javascript.sslr.tests.Assertions.assertThat;
 
 public class DoWhileStatementTest {
 
-  LexerlessGrammar g = EcmaScriptGrammar.createGrammar();
 
   @Test
   public void realLife() {
-    assertThat(g.rule(EcmaScriptGrammar.DO_WHILE_STATEMENT))
+    assertThat(EcmaScriptGrammar.DO_WHILE_STATEMENT)
         .as("inner statement must end by newline or semicolon").notMatches("do something() while (condition);");
   }
 

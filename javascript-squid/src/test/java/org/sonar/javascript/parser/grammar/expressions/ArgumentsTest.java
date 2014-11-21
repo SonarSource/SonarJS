@@ -21,22 +21,20 @@ package org.sonar.javascript.parser.grammar.expressions;
 
 import org.junit.Test;
 import org.sonar.javascript.parser.EcmaScriptGrammar;
-import org.sonar.sslr.parser.LexerlessGrammar;
 
-import static org.sonar.sslr.tests.Assertions.assertThat;
+import static org.sonar.javascript.sslr.tests.Assertions.assertThat;
 
 public class ArgumentsTest {
 
-  LexerlessGrammar g = EcmaScriptGrammar.createGrammar();
 
   @Test
   public void ok() {
-    assertThat(g.rule(EcmaScriptGrammar.ARGUMENTS))
+    assertThat(EcmaScriptGrammar.ARGUMENTS)
         .matches("( )")
         .matches("( assignmentExpression )")
         .matches("( assignmentExpression , assignmentExpression )");
 
-    assertThat(g.rule(EcmaScriptGrammar.ARGUMENTS))
+    assertThat(EcmaScriptGrammar.ARGUMENTS)
         .notMatches("( , )")
         .notMatches("( assignmentExpression , )");
   }

@@ -21,29 +21,27 @@ package org.sonar.javascript.parser.grammar.expressions;
 
 import org.junit.Test;
 import org.sonar.javascript.parser.EcmaScriptGrammar;
-import org.sonar.sslr.parser.LexerlessGrammar;
 
-import static org.sonar.sslr.tests.Assertions.assertThat;
+import static org.sonar.javascript.sslr.tests.Assertions.assertThat;
 
 public class CallExpressionTest {
 
-  LexerlessGrammar g = EcmaScriptGrammar.createGrammar();
 
   @Test
   public void ok() {
-    assertThat(g.rule(EcmaScriptGrammar.CALL_EXPRESSION))
+    assertThat(EcmaScriptGrammar.CALL_EXPRESSION)
       .matches("memberExpression ( arguments )")
       .matches("'template literal' ( arguments )")
       .matches("memberExpression ( arguments ) ( arguments )");
 
-    assertThat(g.rule(EcmaScriptGrammar.CALL_EXPRESSION))
+    assertThat(EcmaScriptGrammar.CALL_EXPRESSION)
       .matches("memberExpression ( arguments ) [ expression ]")
       .matches("memberExpression ( arguments ) . identifierName");
   }
 
   @Test
   public void real_life() {
-    assertThat(g.rule(EcmaScriptGrammar.CALL_EXPRESSION))
+    assertThat(EcmaScriptGrammar.CALL_EXPRESSION)
       .matches("super.release()");
   }
 }

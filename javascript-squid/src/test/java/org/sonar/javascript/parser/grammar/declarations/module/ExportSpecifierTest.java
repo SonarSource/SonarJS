@@ -21,17 +21,15 @@ package org.sonar.javascript.parser.grammar.declarations.module;
 
 import org.junit.Test;
 import org.sonar.javascript.parser.EcmaScriptGrammar;
-import org.sonar.sslr.parser.LexerlessGrammar;
 
-import static org.sonar.sslr.tests.Assertions.assertThat;
+import static org.sonar.javascript.sslr.tests.Assertions.assertThat;
 
 public class ExportSpecifierTest {
 
-  LexerlessGrammar g = EcmaScriptGrammar.createGrammar();
 
   @Test
   public void ok() {
-    assertThat(g.rule(EcmaScriptGrammar.EXPORT_SPECIFIER))
+    assertThat(EcmaScriptGrammar.EXPORT_SPECIFIER)
       .matches("identifier")
       .matches("identifier as class")
       .matches("class")

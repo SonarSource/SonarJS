@@ -21,17 +21,15 @@ package org.sonar.javascript.parser.grammar.expressions;
 
 import org.junit.Test;
 import org.sonar.javascript.parser.EcmaScriptGrammar;
-import org.sonar.sslr.parser.LexerlessGrammar;
 
-import static org.sonar.sslr.tests.Assertions.assertThat;
+import static org.sonar.javascript.sslr.tests.Assertions.assertThat;
 
 public class AssignmentExpressionTest {
 
-  LexerlessGrammar g = EcmaScriptGrammar.createGrammar();
 
   @Test
   public void ok() {
-    assertThat(g.rule(EcmaScriptGrammar.ASSIGNMENT_EXPRESSION))
+    assertThat(EcmaScriptGrammar.ASSIGNMENT_EXPRESSION)
         .matches("conditionalExpression")
         .matches("yield")
         .matches("leftHandSideExpression = conditionalExpression")
@@ -40,7 +38,7 @@ public class AssignmentExpressionTest {
 
   @Test
   public void realLife() {
-    assertThat(g.rule(EcmaScriptGrammar.ASSIGNMENT_EXPRESSION))
+    assertThat(EcmaScriptGrammar.ASSIGNMENT_EXPRESSION)
         .matches("this.first = first");
   }
 
