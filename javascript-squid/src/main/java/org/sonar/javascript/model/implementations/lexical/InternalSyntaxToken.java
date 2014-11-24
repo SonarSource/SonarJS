@@ -79,11 +79,6 @@ public class InternalSyntaxToken extends JavaScriptTree implements SyntaxToken {
     return result;
   }
 
-//  @Override
-//  public void accept(TreeVisitor visitor) {
-//    // FIXME do nothing at the moment
-//  }
-
   @Override
   public int getLine() {
     return token.getLine();
