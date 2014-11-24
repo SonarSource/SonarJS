@@ -32,9 +32,13 @@ import java.util.Iterator;
 
 public class EmptyStatementTreeImpl extends JavaScriptTree implements EmptyStatementTree {
 
-  public EmptyStatementTreeImpl(AstNode astNode) {
+  private final SyntaxToken semicolon;
+
+  public EmptyStatementTreeImpl(InternalSyntaxToken semicolon) {
     super(Kind.EMPTY_STATEMENT);
-    addChild(astNode);
+    this.semicolon = semicolon;
+
+    addChild(semicolon);
   }
 
   @Override
@@ -49,7 +53,7 @@ public class EmptyStatementTreeImpl extends JavaScriptTree implements EmptyState
 
   @Override
   public SyntaxToken semicolonToken() {
-    return InternalSyntaxToken.createLegacy(getAstNode().getFirstChild(EcmaScriptPunctuator.SEMI));
+    return semicolon;
   }
 
   @Override
