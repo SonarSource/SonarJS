@@ -46,11 +46,6 @@ public class EmptyStatementTreeImpl extends JavaScriptTree implements EmptyState
     return Kind.EMPTY_STATEMENT;
   }
 
-//  @Override
-//  public void accept(TreeVisitor visitor) {
-//    visitor.visitEmptyStatement(this);
-//  }
-
   @Override
   public SyntaxToken semicolonToken() {
     return semicolon;
