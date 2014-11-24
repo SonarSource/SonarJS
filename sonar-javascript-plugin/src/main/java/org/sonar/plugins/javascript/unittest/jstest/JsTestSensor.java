@@ -39,6 +39,7 @@ public class JsTestSensor extends JsTestDriverSensor {
     collect(project, context, getIOFile(jsTestDriverFolder));
   }
 
+  @Override
   protected String getUnitTestFileName(String className) {
     // For JsTest assume notation com/company/MyJsTest.js that maps directly to file name
     return className;

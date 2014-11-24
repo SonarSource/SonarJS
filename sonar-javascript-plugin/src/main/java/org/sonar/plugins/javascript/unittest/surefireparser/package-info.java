@@ -17,21 +17,5 @@
  * License along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.plugins.javascript.core;
-
-import org.sonar.api.batch.AbstractSourceImporter;
-import org.sonar.api.batch.Phase;
-
-@Phase(name = Phase.Name.PRE)
-public class JavaScriptSourceImporter extends AbstractSourceImporter {
-
-  public JavaScriptSourceImporter(JavaScript javascript) {
-    super(javascript);
-  }
-
-  @Override
-  public String toString() {
-    return getClass().getSimpleName();
-  }
-
-}
+@javax.annotation.ParametersAreNonnullByDefault
+package org.sonar.plugins.javascript.unittest.surefireparser;

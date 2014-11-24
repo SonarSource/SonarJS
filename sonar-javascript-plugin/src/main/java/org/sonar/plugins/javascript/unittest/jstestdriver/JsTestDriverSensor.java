@@ -48,6 +48,7 @@ public class JsTestDriverSensor implements Sensor {
 
   private static final Logger LOG = LoggerFactory.getLogger(JsTestDriverSensor.class);
 
+  @Override
   public boolean shouldExecuteOnProject(Project project) {
     return StringUtils.isNotBlank(getReportsDirectoryPath()) &&
       // Required for compatibility with SonarQube 3.7
@@ -55,6 +56,7 @@ public class JsTestDriverSensor implements Sensor {
         || StringUtils.isBlank(project.getLanguageKey()) && !fileSystem.files(FileQuery.onSource().onLanguage(JavaScript.KEY)).isEmpty());
   }
 
+  @Override
   public void analyse(Project project, SensorContext context) {
     collect(project, context, getIOFile(getReportsDirectoryPath()));
   }
