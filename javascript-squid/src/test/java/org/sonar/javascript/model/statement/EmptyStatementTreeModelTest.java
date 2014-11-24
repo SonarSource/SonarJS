@@ -17,20 +17,23 @@
  * License along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.javascript.model.interfaces.statement;
+package org.sonar.javascript.model.statement;
 
-import org.sonar.javascript.model.interfaces.lexical.SyntaxToken;
+import org.junit.Test;
+import org.sonar.javascript.model.JavaScriptTreeModelTest;
+import org.sonar.javascript.model.interfaces.Tree.Kind;
+import org.sonar.javascript.model.interfaces.statement.EmptyStatementTree;
 
-/**
- * <a href="http://www.ecma-international.org/ecma-262/5.1/#sec-12.3">Empty Statement.</a>
- * <pre>
- *   ;
- * </pre>
- * <p/>
- * <p>This interface is not intended to be implemented by clients.</p>
- */
-public interface EmptyStatementTree extends StatementTree {
+import static org.fest.assertions.Assertions.assertThat;
 
-  SyntaxToken semicolonToken();
+public class EmptyStatementTreeModelTest extends JavaScriptTreeModelTest {
+
+  @Test
+  public void empty_statement() throws Exception {
+    EmptyStatementTree tree = parse("var a;;", Kind.EMPTY_STATEMENT);
+
+    assertThat(tree.is(Kind.EMPTY_STATEMENT)).isTrue();
+    assertThat(tree.semicolonToken().text()).isEqualTo(";");
+  }
 
 }
