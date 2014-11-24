@@ -67,7 +67,7 @@ public class JsTestDriverSensor implements Sensor {
     new AbstractSurefireParser() {
 
       @Override
-      protected Resource<?> getUnitTestResource(String classKey) {
+      protected Resource getUnitTestResource(String classKey) {
         File unitTestFile = getUnitTestFile(fileSystem.testDirs(), getUnitTestFileName(classKey));
         org.sonar.api.resources.File sonarFile = org.sonar.api.resources.File.fromIOFile(unitTestFile, project);
 
@@ -83,7 +83,7 @@ public class JsTestDriverSensor implements Sensor {
 
   protected String getUnitTestFileName(String className) {
     // For JsTestDriver assume notation com.company.MyJsTest that maps to com/company/MyJsTest.js
-    String fileName = className.substring((className.indexOf('.') + 1));
+    String fileName = className.substring(className.indexOf('.') + 1);
     fileName = fileName.replace('.', '/');
     fileName = fileName + ".js";
     return fileName;

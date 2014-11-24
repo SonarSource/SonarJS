@@ -24,7 +24,6 @@ import org.sonar.api.config.Settings;
 import org.sonar.api.resources.Project;
 import org.sonar.api.scan.filesystem.ModuleFileSystem;
 import org.sonar.plugins.javascript.JavaScriptPlugin;
-import org.sonar.plugins.javascript.core.JavaScript;
 import org.sonar.plugins.javascript.unittest.jstestdriver.JsTestDriverSensor;
 
 public class JsTestSensor extends JsTestDriverSensor {
