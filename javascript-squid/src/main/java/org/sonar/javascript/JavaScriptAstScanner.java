@@ -149,7 +149,7 @@ public final class JavaScriptAstScanner {
             EcmaScriptGrammar.SWITCH_STATEMENT,
             EcmaScriptGrammar.THROW_STATEMENT,
             EcmaScriptGrammar.TRY_STATEMENT,
-            EcmaScriptGrammar.DEBUGGER_STATEMENT)
+            Kind.DEBUGGER_STATEMENT)
         .build());
 
     builder.withSquidAstVisitor(CounterVisitor.<LexerlessGrammar>builder()

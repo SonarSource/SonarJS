@@ -22,8 +22,8 @@ package org.sonar.javascript.ast.parser;
 import com.google.common.base.Preconditions;
 import com.sonar.sslr.api.AstNode;
 import com.sonar.sslr.api.AstNodeType;
-import org.sonar.javascript.api.EcmaScriptPunctuator;
 import org.sonar.javascript.model.implementations.lexical.InternalSyntaxToken;
+import org.sonar.javascript.model.implementations.statement.DebuggerStatementTreeImpl;
 import org.sonar.javascript.model.implementations.statement.EmptyStatementTreeImpl;
 import org.sonar.javascript.parser.sslr.Optional;
 
@@ -35,6 +35,10 @@ public class TreeFactory {
 
   public EmptyStatementTreeImpl emptyStatement(AstNode semicolon) {
     return new EmptyStatementTreeImpl(InternalSyntaxToken.create(semicolon));
+  }
+
+  public DebuggerStatementTreeImpl debuggerStatement(AstNode debuggerWord, AstNode eos) {
+    return new DebuggerStatementTreeImpl(InternalSyntaxToken.create(debuggerWord), eos);
   }
 
   // End of statements

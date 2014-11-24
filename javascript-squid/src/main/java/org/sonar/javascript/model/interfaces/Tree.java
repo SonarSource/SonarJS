@@ -22,6 +22,7 @@ package org.sonar.javascript.model.interfaces;
 import com.sonar.sslr.api.AstNodeType;
 import org.sonar.javascript.model.interfaces.lexical.SyntaxToken;
 import org.sonar.javascript.model.interfaces.lexical.SyntaxTrivia;
+import org.sonar.javascript.model.interfaces.statement.DebuggerStatementTree;
 import org.sonar.javascript.model.interfaces.statement.EmptyStatementTree;
 import org.sonar.sslr.grammar.GrammarRuleKey;
 
@@ -42,6 +43,11 @@ public interface Tree {
      * {@link EmptyStatementTree}
      */
     EMPTY_STATEMENT(EmptyStatementTree.class),
+
+    /**
+     * {@link DebuggerStatementTree}
+     */
+    DEBUGGER_STATEMENT(DebuggerStatementTree.class),
 
     TOKEN(SyntaxToken.class),
 

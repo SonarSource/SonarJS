@@ -898,7 +898,7 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
       SWITCH_STATEMENT,
       THROW_STATEMENT,
       TRY_STATEMENT,
-      DEBUGGER_STATEMENT));
+      Kind.DEBUGGER_STATEMENT));
     b.rule(BLOCK).is(LCURLYBRACE, b.optional(STATEMENT_LIST), RCURLYBRACE);
     b.rule(STATEMENT_LIST).is(b.oneOrMore(b.firstOf(ecmascript6(DECLARATION), STATEMENT)));
     b.rule(VARIABLE_STATEMENT).is(VAR, VARIABLE_DECLARATION_LIST, EOS);
