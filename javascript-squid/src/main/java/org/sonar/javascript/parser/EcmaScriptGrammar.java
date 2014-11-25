@@ -307,7 +307,6 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
   STATEMENT,
   BLOCK,
   STATEMENT_LIST,
-  VARIABLE_STATEMENT,
   VARIABLE_DECLARATION_LIST,
   VARIABLE_DECLARATION_LIST_NO_IN,
   VARIABLE_DECLARATION,
@@ -885,7 +884,7 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
   private static void statements(LexerlessGrammarBuilder b) {
     b.rule(STATEMENT).is(b.firstOf(
       BLOCK,
-      VARIABLE_STATEMENT,
+      Kind.VARIABLE_STATEMENT,
       Kind.EMPTY_STATEMENT,
       LABELLED_STATEMENT,
       EXPRESSION_STATEMENT,
@@ -901,7 +900,6 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
       Kind.DEBUGGER_STATEMENT));
     b.rule(BLOCK).is(LCURLYBRACE, b.optional(STATEMENT_LIST), RCURLYBRACE);
     b.rule(STATEMENT_LIST).is(b.oneOrMore(b.firstOf(ecmascript6(DECLARATION), STATEMENT)));
-    b.rule(VARIABLE_STATEMENT).is(VAR, VARIABLE_DECLARATION_LIST, EOS);
     b.rule(VARIABLE_DECLARATION_LIST).is(VARIABLE_DECLARATION, b.zeroOrMore(COMMA, VARIABLE_DECLARATION));
     b.rule(VARIABLE_DECLARATION_LIST_NO_IN).is(VARIABLE_DECLARATION_NO_IN, b.zeroOrMore(COMMA, VARIABLE_DECLARATION_NO_IN));
     b.rule(VARIABLE_DECLARATION).is(b.firstOf(BINDING_IDENTIFIER_INITIALISER, BINDING_PATTERN_INITIALISER));
@@ -979,7 +977,7 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
       b.firstOf(
         EXPORT_ALL_CLAUSE,
         EXPORT_LIST_CLAUSE,
-        VARIABLE_STATEMENT,
+        Kind.VARIABLE_STATEMENT,
         DECLARATION,
         EXPORT_DEFAULT_CLAUSE));
 

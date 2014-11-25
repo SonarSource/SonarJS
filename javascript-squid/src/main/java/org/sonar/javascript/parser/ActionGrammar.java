@@ -24,6 +24,7 @@ import org.sonar.javascript.api.EcmaScriptPunctuator;
 import org.sonar.javascript.ast.parser.TreeFactory;
 import org.sonar.javascript.model.implementations.statement.DebuggerStatementTreeImpl;
 import org.sonar.javascript.model.implementations.statement.EmptyStatementTreeImpl;
+import org.sonar.javascript.model.implementations.statement.VariableStatementTreeImpl;
 import org.sonar.javascript.model.interfaces.Tree.Kind;
 import org.sonar.javascript.model.interfaces.statement.DebuggerStatementTree;
 import org.sonar.javascript.parser.sslr.GrammarBuilder;
@@ -47,4 +48,10 @@ public class ActionGrammar {
     return b.<DebuggerStatementTreeImpl>nonterminal(Kind.DEBUGGER_STATEMENT)
       .is(f.debuggerStatement(b.invokeRule(EcmaScriptKeyword.DEBUGGER), b.invokeRule(EcmaScriptGrammar.EOS)));
   }
+
+  public VariableStatementTreeImpl VARIABLE_STATEMENT() {
+    return b.<VariableStatementTreeImpl>nonterminal(Kind.VARIABLE_STATEMENT)
+      .is(f.variableStatement(b.invokeRule(EcmaScriptKeyword.VAR), b.invokeRule(EcmaScriptGrammar.VARIABLE_DECLARATION_LIST), b.invokeRule(EcmaScriptGrammar.EOS)));
+  }
+
 }

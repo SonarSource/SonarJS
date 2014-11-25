@@ -137,7 +137,7 @@ public final class JavaScriptAstScanner {
     builder.withSquidAstVisitor(CounterVisitor.<LexerlessGrammar> builder()
         .setMetricDef(EcmaScriptMetric.STATEMENTS)
         .subscribeTo(
-            EcmaScriptGrammar.VARIABLE_STATEMENT,
+            Kind.VARIABLE_STATEMENT,
             Kind.EMPTY_STATEMENT,
             EcmaScriptGrammar.EXPRESSION_STATEMENT,
             EcmaScriptGrammar.IF_STATEMENT,

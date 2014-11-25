@@ -17,27 +17,20 @@
  * License along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.javascript.model.interfaces.statement;
+package org.sonar.javascript.parser.grammar.statements;
 
-import org.sonar.javascript.model.interfaces.Tree;
-import org.sonar.javascript.model.interfaces.lexical.SyntaxToken;
+import org.junit.Test;
+import org.sonar.javascript.model.interfaces.Tree.Kind;
 
-import java.util.List;
+import static org.sonar.javascript.sslr.tests.Assertions.assertThat;
 
-/**
- * <a href="http://www.ecma-international.org/ecma-262/5.1/#sec-12.2">Variable Statement</a>
- *
- * <pre>
- *   var {@link #declarations()} ;
- * </pre>
- *
- * <p>This interface is not intended to be implemented by clients.</p>
- */
-public interface VariableStatementTree extends StatementTree {
+public class VariableDeclarationStatementTest {
 
-  SyntaxToken varKeyword();
 
-  List<VariableDeclarationTree> declarations();
+  @Test
+  public void ok() {
+    assertThat(Kind.VARIABLE_STATEMENT)
+      .matches("var variableDeclarationList ;");
+  }
 
-  Tree endOfStatement();
 }

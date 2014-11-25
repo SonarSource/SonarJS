@@ -25,6 +25,7 @@ import com.sonar.sslr.api.AstNodeType;
 import org.sonar.javascript.model.implementations.lexical.InternalSyntaxToken;
 import org.sonar.javascript.model.implementations.statement.DebuggerStatementTreeImpl;
 import org.sonar.javascript.model.implementations.statement.EmptyStatementTreeImpl;
+import org.sonar.javascript.model.implementations.statement.VariableStatementTreeImpl;
 import org.sonar.javascript.parser.sslr.Optional;
 
 import java.util.List;
@@ -39,6 +40,10 @@ public class TreeFactory {
 
   public DebuggerStatementTreeImpl debuggerStatement(AstNode debuggerWord, AstNode eos) {
     return new DebuggerStatementTreeImpl(InternalSyntaxToken.create(debuggerWord), eos);
+  }
+
+  public VariableStatementTreeImpl variableStatement(AstNode varKeyword, AstNode variableDeclarationList, AstNode eos) {
+    return new VariableStatementTreeImpl(InternalSyntaxToken.create(varKeyword), variableDeclarationList, eos);
   }
 
   // End of statements
