@@ -20,10 +20,12 @@
 package org.sonar.javascript.model.interfaces;
 
 import com.sonar.sslr.api.AstNodeType;
+import org.sonar.javascript.model.interfaces.lexical.IdentifierTree;
 import org.sonar.javascript.model.interfaces.lexical.SyntaxToken;
 import org.sonar.javascript.model.interfaces.lexical.SyntaxTrivia;
 import org.sonar.javascript.model.interfaces.statement.DebuggerStatementTree;
 import org.sonar.javascript.model.interfaces.statement.EmptyStatementTree;
+import org.sonar.javascript.model.interfaces.statement.LabelledStatementTree;
 import org.sonar.javascript.model.interfaces.statement.VariableStatementTree;
 import org.sonar.sslr.grammar.GrammarRuleKey;
 
@@ -54,6 +56,16 @@ public interface Tree {
      * {@link VariableStatementTree}
      */
     VARIABLE_STATEMENT(VariableStatementTree.class),
+
+    /**
+     * {@link LabelledStatementTree}
+     */
+    LABELLED_STATEMENT(LabelledStatementTree.class),
+
+    /**
+     * {@link IdentifierTree}
+     */
+    IDENTIFIER(IdentifierTree.class),
 
     TOKEN(SyntaxToken.class),
 

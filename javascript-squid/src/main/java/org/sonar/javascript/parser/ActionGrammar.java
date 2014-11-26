@@ -21,9 +21,11 @@ package org.sonar.javascript.parser;
 
 import org.sonar.javascript.api.EcmaScriptKeyword;
 import org.sonar.javascript.api.EcmaScriptPunctuator;
+import org.sonar.javascript.api.EcmaScriptTokenType;
 import org.sonar.javascript.ast.parser.TreeFactory;
 import org.sonar.javascript.model.implementations.statement.DebuggerStatementTreeImpl;
 import org.sonar.javascript.model.implementations.statement.EmptyStatementTreeImpl;
+import org.sonar.javascript.model.implementations.statement.LabelledStatementTreeImpl;
 import org.sonar.javascript.model.implementations.statement.VariableStatementTreeImpl;
 import org.sonar.javascript.model.interfaces.Tree.Kind;
 import org.sonar.javascript.model.interfaces.statement.DebuggerStatementTree;
@@ -53,5 +55,10 @@ public class ActionGrammar {
     return b.<VariableStatementTreeImpl>nonterminal(Kind.VARIABLE_STATEMENT)
       .is(f.variableStatement(b.invokeRule(EcmaScriptKeyword.VAR), b.invokeRule(EcmaScriptGrammar.VARIABLE_DECLARATION_LIST), b.invokeRule(EcmaScriptGrammar.EOS)));
   }
+
+ public LabelledStatementTreeImpl LABELLED_STATEMENT() {
+   return b.<LabelledStatementTreeImpl>nonterminal(Kind.LABELLED_STATEMENT)
+     .is(f.labelledStatement(b.invokeRule(EcmaScriptTokenType.IDENTIFIER), b.invokeRule(EcmaScriptPunctuator.COLON), b.invokeRule(EcmaScriptGrammar.STATEMENT)));
+ }
 
 }

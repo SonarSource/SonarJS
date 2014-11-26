@@ -22,9 +22,11 @@ package org.sonar.javascript.ast.parser;
 import com.google.common.base.Preconditions;
 import com.sonar.sslr.api.AstNode;
 import com.sonar.sslr.api.AstNodeType;
+import org.sonar.javascript.model.implementations.lexical.IdentifierTreeImpl;
 import org.sonar.javascript.model.implementations.lexical.InternalSyntaxToken;
 import org.sonar.javascript.model.implementations.statement.DebuggerStatementTreeImpl;
 import org.sonar.javascript.model.implementations.statement.EmptyStatementTreeImpl;
+import org.sonar.javascript.model.implementations.statement.LabelledStatementTreeImpl;
 import org.sonar.javascript.model.implementations.statement.VariableStatementTreeImpl;
 import org.sonar.javascript.parser.sslr.Optional;
 
@@ -44,6 +46,10 @@ public class TreeFactory {
 
   public VariableStatementTreeImpl variableStatement(AstNode varKeyword, AstNode variableDeclarationList, AstNode eos) {
     return new VariableStatementTreeImpl(InternalSyntaxToken.create(varKeyword), variableDeclarationList, eos);
+  }
+
+  public LabelledStatementTreeImpl labelledStatement(AstNode identifier, AstNode colon, AstNode statement) {
+    return new LabelledStatementTreeImpl(new IdentifierTreeImpl(InternalSyntaxToken.create(identifier)), InternalSyntaxToken.create(colon), statement);
   }
 
   // End of statements

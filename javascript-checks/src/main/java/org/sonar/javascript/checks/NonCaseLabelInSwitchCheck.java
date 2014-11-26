@@ -24,6 +24,7 @@ import org.sonar.check.BelongsToProfile;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.javascript.api.EcmaScriptTokenType;
+import org.sonar.javascript.model.interfaces.Tree.Kind;
 import org.sonar.javascript.parser.EcmaScriptGrammar;
 import org.sonar.squidbridge.checks.SquidCheck;
 import org.sonar.sslr.parser.LexerlessGrammar;
@@ -42,7 +43,7 @@ public class NonCaseLabelInSwitchCheck extends SquidCheck<LexerlessGrammar> {
   public void init() {
     subscribeTo(
       EcmaScriptGrammar.CASE_CLAUSE,
-      EcmaScriptGrammar.LABELLED_STATEMENT);
+      Kind.LABELLED_STATEMENT);
   }
 
   @Override
@@ -54,7 +55,7 @@ public class NonCaseLabelInSwitchCheck extends SquidCheck<LexerlessGrammar> {
   public void visitNode(AstNode astNode) {
     if (astNode.is(EcmaScriptGrammar.CASE_CLAUSE)) {
       inCase = true;
-    } else if (inCase && astNode.is(EcmaScriptGrammar.LABELLED_STATEMENT)) {
+    } else if (inCase && astNode.is(Kind.LABELLED_STATEMENT)) {
       getContext().createLineViolation(this, "Remove this misleading \"{0}\" label.",
         astNode, astNode.getFirstChild(EcmaScriptTokenType.IDENTIFIER).getTokenValue());
     }

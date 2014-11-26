@@ -25,6 +25,7 @@ import org.sonar.check.BelongsToProfile;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.javascript.api.EcmaScriptTokenType;
+import org.sonar.javascript.model.interfaces.Tree.Kind;
 import org.sonar.javascript.parser.EcmaScriptGrammar;
 import org.sonar.squidbridge.checks.SquidCheck;
 import org.sonar.sslr.grammar.GrammarRuleKey;
@@ -68,7 +69,7 @@ public class TooManyBreakOrContinueInLoopCheck extends SquidCheck<LexerlessGramm
         EcmaScriptGrammar.BREAK_STATEMENT,
         EcmaScriptGrammar.CONTINUE_STATEMENT,
         EcmaScriptGrammar.SWITCH_STATEMENT,
-        EcmaScriptGrammar.LABELLED_STATEMENT);
+        Kind.LABELLED_STATEMENT);
     subscribeTo(FUNCTION_NODES);
   }
 
@@ -79,8 +80,8 @@ public class TooManyBreakOrContinueInLoopCheck extends SquidCheck<LexerlessGramm
 
   @Override
   public void visitNode(AstNode astNode) {
-    if (astNode.is(EcmaScriptGrammar.LABELLED_STATEMENT)) {
-      String label = astNode.getFirstChild(EcmaScriptTokenType.IDENTIFIER).getTokenValue();
+    if (astNode.is(Kind.LABELLED_STATEMENT)) {
+      String label = astNode.getFirstChild(Kind.IDENTIFIER).getTokenValue();
       jumpTargets.push(new JumpTarget(label));
     } else if (astNode.is(EcmaScriptGrammar.BREAK_STATEMENT, EcmaScriptGrammar.CONTINUE_STATEMENT)) {
       AstNode labelNode = astNode.getFirstChild(EcmaScriptTokenType.IDENTIFIER);

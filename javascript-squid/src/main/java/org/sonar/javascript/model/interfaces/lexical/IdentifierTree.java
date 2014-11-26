@@ -17,26 +17,19 @@
  * License along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.javascript.model.interfaces.statement;
+package org.sonar.javascript.model.interfaces.lexical;
 
-import org.sonar.javascript.model.interfaces.lexical.IdentifierTree;
-import org.sonar.javascript.model.interfaces.lexical.SyntaxToken;
+import org.sonar.javascript.model.interfaces.expression.ExpressionTree;
 
 /**
- * <a href="http://www.ecma-international.org/ecma-262/5.1/#sec-12.12">Labelled Statement</a>.
- *
- * <pre>
- *   {@link #label()} : {@link #statement()}
- * </pre>
- *
+ * <a href="http://www.ecma-international.org/ecma-262/5.1/#sec-7.6">Identifier</a>
+ * <p/>
  * <p>This interface is not intended to be implemented by clients.</p>
  */
-public interface LabelledStatementTree extends StatementTree {
+public interface IdentifierTree extends ExpressionTree {
 
-  IdentifierTree label();
+  SyntaxToken identifierToken();
 
-  SyntaxToken colon();
-
-  StatementTree statement();
+  String name();
 
 }

@@ -47,7 +47,7 @@ public class OneStatementPerLineCheck extends SquidCheck<LexerlessGrammar> {
   @Override
   public void visitNode(AstNode astNode) {
     AstNode statement = astNode.getFirstChild();
-    if (statement.is(EcmaScriptGrammar.BLOCK) || statement.is(Kind.EMPTY_STATEMENT) || statement.is(EcmaScriptGrammar.LABELLED_STATEMENT)) {
+    if (statement.is(EcmaScriptGrammar.BLOCK) || statement.is(Kind.EMPTY_STATEMENT) || statement.is(Kind.LABELLED_STATEMENT)) {
       // skip
     } else {
       int line = statement.getTokenLine();

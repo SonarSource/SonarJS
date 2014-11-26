@@ -17,26 +17,25 @@
  * License along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.javascript.model.interfaces.statement;
+package org.sonar.javascript.model.statement;
 
-import org.sonar.javascript.model.interfaces.lexical.IdentifierTree;
-import org.sonar.javascript.model.interfaces.lexical.SyntaxToken;
+import org.junit.Test;
+import org.sonar.javascript.model.JavaScriptTreeModelTest;
+import org.sonar.javascript.model.interfaces.Tree.Kind;
+import org.sonar.javascript.model.interfaces.statement.LabelledStatementTree;
+import org.sonar.javascript.model.interfaces.statement.VariableStatementTree;
 
-/**
- * <a href="http://www.ecma-international.org/ecma-262/5.1/#sec-12.12">Labelled Statement</a>.
- *
- * <pre>
- *   {@link #label()} : {@link #statement()}
- * </pre>
- *
- * <p>This interface is not intended to be implemented by clients.</p>
- */
-public interface LabelledStatementTree extends StatementTree {
+import static org.fest.assertions.Assertions.assertThat;
 
-  IdentifierTree label();
+public class LabelledStatementTreeModelTest extends JavaScriptTreeModelTest {
 
-  SyntaxToken colon();
+  @Test
+  public void test() throws Exception {
+    LabelledStatementTree tree = parse("label: doSomething();", Kind.LABELLED_STATEMENT);
 
-  StatementTree statement();
+    assertThat(tree.is(Kind.LABELLED_STATEMENT)).isTrue();
+    assertThat(tree.label().name()).isEqualTo("label");
+    assertThat(tree.colon().text()).isEqualTo(":");
+  }
 
 }
