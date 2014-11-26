@@ -28,9 +28,11 @@ import org.sonar.javascript.model.implementations.statement.ContinueStatementTre
 import org.sonar.javascript.model.implementations.statement.DebuggerStatementTreeImpl;
 import org.sonar.javascript.model.implementations.statement.EmptyStatementTreeImpl;
 import org.sonar.javascript.model.implementations.statement.LabelledStatementTreeImpl;
+import org.sonar.javascript.model.implementations.statement.ReturnStatementTreeImpl;
 import org.sonar.javascript.model.implementations.statement.VariableStatementTreeImpl;
 import org.sonar.javascript.model.interfaces.Tree.Kind;
 import org.sonar.javascript.model.interfaces.statement.DebuggerStatementTree;
+import org.sonar.javascript.model.interfaces.statement.ReturnStatementTree;
 import org.sonar.javascript.parser.sslr.GrammarBuilder;
 
 public class ActionGrammar {
@@ -109,4 +111,24 @@ public class ActionGrammar {
       .is(f.newBreakWithoutLabel(b.invokeRule(EcmaScriptGrammar.EOS_NO_LB)));
   }
 
+  public ReturnStatementTreeImpl RETURN_STATEMENT() {
+    return b.<ReturnStatementTreeImpl>nonterminal(Kind.RETURN_STATEMENT)
+      .is(f.completeReturnStatement(
+        b.invokeRule(EcmaScriptKeyword.RETURN),
+        b.firstOf(
+          RETURN_WITH_EXPRESSION(),
+          RETURN_WITHOUT_EXPRESSION())));
+  }
+
+  public ReturnStatementTreeImpl RETURN_WITH_EXPRESSION() {
+    return b.<ReturnStatementTreeImpl>nonterminal()
+      .is(f.newReturnWithExpression(
+        b.invokeRule(EcmaScriptGrammar.EXPRESSION_NO_LB),
+        b.invokeRule(EcmaScriptGrammar.EOS)));
+  }
+
+  public ReturnStatementTreeImpl RETURN_WITHOUT_EXPRESSION() {
+    return b.<ReturnStatementTreeImpl>nonterminal()
+      .is(f.newReturnWithoutExpression(b.invokeRule(EcmaScriptGrammar.EOS_NO_LB)));
+  }
 }

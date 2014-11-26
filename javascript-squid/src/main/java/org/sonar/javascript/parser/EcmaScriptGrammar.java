@@ -247,6 +247,7 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
   ES6_ASSIGNMENT_EXPRESSION_NO_IN,
   ASSIGNMENT_OPERATOR,
   EXPRESSION,
+  EXPRESSION_NO_LB,
   EXPRESSION_NO_IN,
   /** ECMAScript 6 **/
   ARROW_FUNCTION,
@@ -874,6 +875,7 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
       b.sequence(b.nextNot(LCURLYBRACE), ASSIGNMENT_EXPRESSION_NO_IN)));
 
     b.rule(EXPRESSION).is(ASSIGNMENT_EXPRESSION, b.zeroOrMore(COMMA, ASSIGNMENT_EXPRESSION));
+    b.rule(EXPRESSION_NO_LB).is(SPACING_NO_LB, NEXT_NOT_LB, EXPRESSION).skip();
     b.rule(EXPRESSION_NO_IN).is(ASSIGNMENT_EXPRESSION_NO_IN, b.zeroOrMore(COMMA, ASSIGNMENT_EXPRESSION_NO_IN));
   }
 
@@ -891,7 +893,7 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
       ITERATION_STATEMENT,
       Kind.CONTINUE_STATEMENT,
       Kind.BREAK_STATEMENT,
-      RETURN_STATEMENT,
+      Kind.RETURN_STATEMENT,
       WITH_STATEMENT,
       SWITCH_STATEMENT,
       THROW_STATEMENT,
@@ -940,9 +942,6 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
         ecmascript6(b.sequence(LEXICAL_DECLARATION_NO_IN, b.optional(EXPRESSION_NO_IN))),
         b.optional(ecmascript6(b.nextNot(LET, LBRACKET)), EXPRESSION_NO_IN)),
       SEMI, b.optional(CONDITION), SEMI, b.optional(EXPRESSION), RPARENTHESIS, STATEMENT);
-    b.rule(RETURN_STATEMENT).is(RETURN, b.firstOf(
-      b.sequence(/* no line terminator here */SPACING_NO_LB, NEXT_NOT_LB, EXPRESSION, EOS),
-      EOS_NO_LB));
     b.rule(WITH_STATEMENT).is(WITH, LPARENTHESIS, EXPRESSION, RPARENTHESIS, STATEMENT);
     b.rule(SWITCH_STATEMENT).is(SWITCH, LPARENTHESIS, EXPRESSION, RPARENTHESIS, CASE_BLOCK);
     b.rule(CASE_BLOCK).is(LCURLYBRACE, b.optional(CASE_CLAUSES), b.optional(DEFAULT_CLAUSE, b.optional(CASE_CLAUSES)), RCURLYBRACE);

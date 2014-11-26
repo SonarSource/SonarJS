@@ -24,6 +24,7 @@ import org.sonar.check.BelongsToProfile;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.javascript.api.EcmaScriptKeyword;
+import org.sonar.javascript.model.interfaces.Tree.Kind;
 import org.sonar.javascript.parser.EcmaScriptGrammar;
 import org.sonar.squidbridge.checks.SquidCheck;
 import org.sonar.sslr.parser.LexerlessGrammar;
@@ -81,7 +82,7 @@ public class ReturnOfBooleanExpressionCheck extends SquidCheck<LexerlessGrammar>
   }
 
   public static boolean isSimpleReturnBooleanLiteral(AstNode statement) {
-    AstNode returnStmt = statement.getFirstChild(EcmaScriptGrammar.RETURN_STATEMENT);
+    AstNode returnStmt = statement.getFirstChild(Kind.RETURN_STATEMENT);
     if (returnStmt == null) {
       return false;
     }

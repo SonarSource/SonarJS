@@ -22,6 +22,7 @@ package org.sonar.javascript.metrics;
 import com.sonar.sslr.api.AstNode;
 import org.sonar.javascript.api.EcmaScriptMetric;
 import org.sonar.javascript.api.EcmaScriptPunctuator;
+import org.sonar.javascript.model.interfaces.Tree.Kind;
 import org.sonar.javascript.parser.EcmaScriptGrammar;
 import org.sonar.squidbridge.SquidAstVisitor;
 import org.sonar.sslr.parser.LexerlessGrammar;
@@ -43,7 +44,7 @@ public class ComplexityVisitor extends SquidAstVisitor<LexerlessGrammar> {
         EcmaScriptGrammar.ITERATION_STATEMENT,
         EcmaScriptGrammar.CASE_CLAUSE,
         EcmaScriptGrammar.CATCH,
-        EcmaScriptGrammar.RETURN_STATEMENT,
+        Kind.RETURN_STATEMENT,
         EcmaScriptGrammar.THROW_STATEMENT,
         // Expressions
         EcmaScriptPunctuator.QUERY,
@@ -54,7 +55,7 @@ public class ComplexityVisitor extends SquidAstVisitor<LexerlessGrammar> {
   @Override
   public void visitNode(AstNode astNode) {
 
-    if (astNode.is(EcmaScriptGrammar.RETURN_STATEMENT) && isLastReturnStatement(astNode)) {
+    if (astNode.is(Kind.RETURN_STATEMENT) && isLastReturnStatement(astNode)) {
       return;
     }
     getContext().peekSourceCode().add(EcmaScriptMetric.COMPLEXITY, 1);

@@ -38,7 +38,7 @@ public class UnreachableCodeCheck extends SquidCheck<LexerlessGrammar> {
   public void init() {
     subscribeTo(
         Kind.BREAK_STATEMENT,
-        EcmaScriptGrammar.RETURN_STATEMENT,
+        Kind.RETURN_STATEMENT,
         Kind.CONTINUE_STATEMENT,
         EcmaScriptGrammar.THROW_STATEMENT);
   }

@@ -20,6 +20,7 @@
 package org.sonar.javascript.parser.grammar.lexical;
 
 import org.junit.Test;
+import org.sonar.javascript.model.interfaces.Tree.Kind;
 import org.sonar.javascript.parser.EcmaScriptGrammar;
 
 import static org.sonar.javascript.sslr.tests.Assertions.assertThat;
@@ -40,7 +41,7 @@ public class AutomaticSemicolonInsertionTest {
         .as("not valid and not transformed").notMatches("for (a; b \n ) ;")
         .as("valid").matches("for (a; b ; \n ) ;");
 
-    assertThat(EcmaScriptGrammar.RETURN_STATEMENT)
+    assertThat(Kind.RETURN_STATEMENT)
         .matchesPrefix("return \n", "a + b");
 
     assertThat(EcmaScriptGrammar.EXPRESSION_STATEMENT)

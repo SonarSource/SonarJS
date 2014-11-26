@@ -29,7 +29,9 @@ import org.sonar.javascript.model.implementations.statement.ContinueStatementTre
 import org.sonar.javascript.model.implementations.statement.DebuggerStatementTreeImpl;
 import org.sonar.javascript.model.implementations.statement.EmptyStatementTreeImpl;
 import org.sonar.javascript.model.implementations.statement.LabelledStatementTreeImpl;
+import org.sonar.javascript.model.implementations.statement.ReturnStatementTreeImpl;
 import org.sonar.javascript.model.implementations.statement.VariableStatementTreeImpl;
+import org.sonar.javascript.model.interfaces.statement.ReturnStatementTree;
 import org.sonar.javascript.parser.sslr.Optional;
 
 import java.util.List;
@@ -76,6 +78,18 @@ public class TreeFactory {
 
   public BreakStatementTreeImpl newBreakWithoutLabel(AstNode eos) {
     return new BreakStatementTreeImpl(eos);
+  }
+
+  public ReturnStatementTreeImpl completeReturnStatement(AstNode returnToken, ReturnStatementTreeImpl expressionOrEndOfStatement) {
+    return expressionOrEndOfStatement.complete(InternalSyntaxToken.create(returnToken));
+  }
+
+  public ReturnStatementTreeImpl newReturnWithExpression(AstNode expression, AstNode eos) {
+    return new ReturnStatementTreeImpl(expression, eos);
+  }
+
+  public ReturnStatementTreeImpl newReturnWithoutExpression(AstNode eos) {
+    return new ReturnStatementTreeImpl(eos);
   }
 
   // End of statements

@@ -20,7 +20,7 @@
 package org.sonar.javascript.parser.grammar.statements;
 
 import org.junit.Test;
-import org.sonar.javascript.parser.EcmaScriptGrammar;
+import org.sonar.javascript.model.interfaces.Tree.Kind;
 import org.sonar.javascript.parser.TemporaryOldGrammarParserTest;
 
 import static org.sonar.javascript.sslr.tests.Assertions.assertThat;
@@ -29,7 +29,7 @@ public class ReturnStatementTest extends TemporaryOldGrammarParserTest {
 
   @Test
   public void ok() {
-    assertThat(g.rule(EcmaScriptGrammar.RETURN_STATEMENT))
+    assertThat(g.rule(Kind.RETURN_STATEMENT))
         .as("EOS is line terminator")
         .matchesPrefix("return \n", "42 ;")
         .matchesPrefix("return 42 \n", "42 ;")
@@ -53,7 +53,7 @@ public class ReturnStatementTest extends TemporaryOldGrammarParserTest {
 
   @Test
   public void realLife() {
-    assertThat(g.rule(EcmaScriptGrammar.RETURN_STATEMENT))
+    assertThat(g.rule(Kind.RETURN_STATEMENT))
         .matches("return;")
         .matches("return a + b;")
         .matches("return this.first + (this.middle ? ' ' + this.middle : '') + ' ' + this.last;");
