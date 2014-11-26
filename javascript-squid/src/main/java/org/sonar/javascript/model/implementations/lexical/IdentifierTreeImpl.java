@@ -20,7 +20,6 @@
 package org.sonar.javascript.model.implementations.lexical;
 
 import com.google.common.base.Preconditions;
-import org.sonar.javascript.api.EcmaScriptTokenType;
 import org.sonar.javascript.model.implementations.JavaScriptTree;
 import org.sonar.javascript.model.interfaces.Tree;
 import org.sonar.javascript.model.interfaces.lexical.IdentifierTree;

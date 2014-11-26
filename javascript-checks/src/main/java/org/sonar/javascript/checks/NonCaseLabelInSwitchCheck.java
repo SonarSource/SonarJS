@@ -23,7 +23,6 @@ import com.sonar.sslr.api.AstNode;
 import org.sonar.check.BelongsToProfile;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
-import org.sonar.javascript.api.EcmaScriptTokenType;
 import org.sonar.javascript.model.interfaces.Tree.Kind;
 import org.sonar.javascript.parser.EcmaScriptGrammar;
 import org.sonar.squidbridge.checks.SquidCheck;
@@ -57,7 +56,7 @@ public class NonCaseLabelInSwitchCheck extends SquidCheck<LexerlessGrammar> {
       inCase = true;
     } else if (inCase && astNode.is(Kind.LABELLED_STATEMENT)) {
       getContext().createLineViolation(this, "Remove this misleading \"{0}\" label.",
-        astNode, astNode.getFirstChild(EcmaScriptTokenType.IDENTIFIER).getTokenValue());
+        astNode, astNode.getFirstChild(Kind.IDENTIFIER).getTokenValue());
     }
   }
 
