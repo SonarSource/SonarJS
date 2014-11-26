@@ -45,11 +45,11 @@ public class ContinueStatementTreeImpl extends JavaScriptTree implements Continu
     addChild(eos);
   }
 
-  public ContinueStatementTreeImpl(IdentifierTree label, AstNode identifier, AstNode eos) {
+  public ContinueStatementTreeImpl(IdentifierTree label, AstNode eos) {
     super(Kind.CONTINUE_STATEMENT);
     this.label = label;
 
-    addChild(identifier);
+    addChild((AstNode) label);
     addChild(eos);
   }
 

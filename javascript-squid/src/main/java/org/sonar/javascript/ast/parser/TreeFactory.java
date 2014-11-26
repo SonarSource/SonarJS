@@ -58,7 +58,7 @@ public class TreeFactory {
   }
 
   public ContinueStatementTreeImpl newContinueWithLabel(AstNode identifier, AstNode eos) {
-     return new ContinueStatementTreeImpl(new IdentifierTreeImpl(InternalSyntaxToken.create(identifier)), identifier, eos);
+     return new ContinueStatementTreeImpl(new IdentifierTreeImpl(InternalSyntaxToken.create(identifier)), eos);
   }
 
   public ContinueStatementTreeImpl newContinueWithoutLabel(AstNode eos) {
