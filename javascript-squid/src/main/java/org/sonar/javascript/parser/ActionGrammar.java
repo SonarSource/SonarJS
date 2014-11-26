@@ -23,6 +23,7 @@ import org.sonar.javascript.api.EcmaScriptKeyword;
 import org.sonar.javascript.api.EcmaScriptPunctuator;
 import org.sonar.javascript.api.EcmaScriptTokenType;
 import org.sonar.javascript.ast.parser.TreeFactory;
+import org.sonar.javascript.model.implementations.statement.ContinueStatementTreeImpl;
 import org.sonar.javascript.model.implementations.statement.DebuggerStatementTreeImpl;
 import org.sonar.javascript.model.implementations.statement.EmptyStatementTreeImpl;
 import org.sonar.javascript.model.implementations.statement.LabelledStatementTreeImpl;
@@ -60,5 +61,26 @@ public class ActionGrammar {
    return b.<LabelledStatementTreeImpl>nonterminal(Kind.LABELLED_STATEMENT)
      .is(f.labelledStatement(b.invokeRule(EcmaScriptTokenType.IDENTIFIER), b.invokeRule(EcmaScriptPunctuator.COLON), b.invokeRule(EcmaScriptGrammar.STATEMENT)));
  }
+
+  public ContinueStatementTreeImpl CONTINUE_STATEMENT() {
+    return b.<ContinueStatementTreeImpl>nonterminal(Kind.CONTINUE_STATEMENT)
+      .is(f.completeContinueStatement(
+        b.invokeRule(EcmaScriptKeyword.CONTINUE),
+        b.firstOf(
+          CONTINUE_WITH_LABEL(),
+          CONTINUE_WITHOUT_LABEL())));
+  }
+
+  public ContinueStatementTreeImpl CONTINUE_WITH_LABEL() {
+    return b.<ContinueStatementTreeImpl>nonterminal()
+      .is(f.newContinueWithLabel(
+        b.invokeRule(EcmaScriptGrammar.IDENTIFIER_NO_LB),
+        b.invokeRule(EcmaScriptGrammar.EOS)));
+  }
+
+  public ContinueStatementTreeImpl CONTINUE_WITHOUT_LABEL() {
+    return b.<ContinueStatementTreeImpl>nonterminal()
+      .is(f.newContinueWithoutLabel(b.invokeRule(EcmaScriptGrammar.EOS_NO_LB)));
+  }
 
 }

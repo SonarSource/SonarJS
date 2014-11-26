@@ -142,7 +142,7 @@ public final class JavaScriptAstScanner {
             EcmaScriptGrammar.EXPRESSION_STATEMENT,
             EcmaScriptGrammar.IF_STATEMENT,
             EcmaScriptGrammar.ITERATION_STATEMENT,
-            EcmaScriptGrammar.CONTINUE_STATEMENT,
+            Kind.CONTINUE_STATEMENT,
             EcmaScriptGrammar.BREAK_STATEMENT,
             EcmaScriptGrammar.RETURN_STATEMENT,
             EcmaScriptGrammar.WITH_STATEMENT,

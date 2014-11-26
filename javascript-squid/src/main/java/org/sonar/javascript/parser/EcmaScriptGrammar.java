@@ -179,6 +179,7 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
   DOLLAR_SIGN,
   /** ECMAScript 6 **/
   BACKSLASH,
+  IDENTIFIER_NO_LB,
 
   KEYWORD,
   LETTER_OR_DIGIT,
@@ -329,7 +330,6 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
   FOR_DECLARATION,
   /** ECMAScript 6 **/
   FOR_BINDING,
-  CONTINUE_STATEMENT,
   BREAK_STATEMENT,
   RETURN_STATEMENT,
   WITH_STATEMENT,
@@ -535,6 +535,7 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
       SPACING,
       b.nextNot(KEYWORD),
       b.regexp(EcmaScriptLexer.IDENTIFIER));
+    b.rule(IDENTIFIER_NO_LB).is(SPACING_NO_LB, NEXT_NOT_LB, IDENTIFIER).skip();
     b.rule(NUMERIC_LITERAL).is(
       SPACING,
       b.regexp(EcmaScriptLexer.NUMERIC_LITERAL));
@@ -889,7 +890,7 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
       EXPRESSION_STATEMENT,
       IF_STATEMENT,
       ITERATION_STATEMENT,
-      CONTINUE_STATEMENT,
+      Kind.CONTINUE_STATEMENT,
       BREAK_STATEMENT,
       RETURN_STATEMENT,
       WITH_STATEMENT,
@@ -940,9 +941,6 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
         ecmascript6(b.sequence(LEXICAL_DECLARATION_NO_IN, b.optional(EXPRESSION_NO_IN))),
         b.optional(ecmascript6(b.nextNot(LET, LBRACKET)), EXPRESSION_NO_IN)),
       SEMI, b.optional(CONDITION), SEMI, b.optional(EXPRESSION), RPARENTHESIS, STATEMENT);
-    b.rule(CONTINUE_STATEMENT).is(CONTINUE, b.firstOf(
-      b.sequence(/* no line terminator here */SPACING_NO_LB, NEXT_NOT_LB, IDENTIFIER, EOS),
-      EOS_NO_LB));
     b.rule(BREAK_STATEMENT).is(BREAK, b.firstOf(
       b.sequence(/* no line terminator here */SPACING_NO_LB, NEXT_NOT_LB, IDENTIFIER, EOS),
       EOS_NO_LB));

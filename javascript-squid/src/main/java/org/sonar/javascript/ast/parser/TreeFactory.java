@@ -24,6 +24,7 @@ import com.sonar.sslr.api.AstNode;
 import com.sonar.sslr.api.AstNodeType;
 import org.sonar.javascript.model.implementations.lexical.IdentifierTreeImpl;
 import org.sonar.javascript.model.implementations.lexical.InternalSyntaxToken;
+import org.sonar.javascript.model.implementations.statement.ContinueStatementTreeImpl;
 import org.sonar.javascript.model.implementations.statement.DebuggerStatementTreeImpl;
 import org.sonar.javascript.model.implementations.statement.EmptyStatementTreeImpl;
 import org.sonar.javascript.model.implementations.statement.LabelledStatementTreeImpl;
@@ -50,6 +51,18 @@ public class TreeFactory {
 
   public LabelledStatementTreeImpl labelledStatement(AstNode identifier, AstNode colon, AstNode statement) {
     return new LabelledStatementTreeImpl(new IdentifierTreeImpl(InternalSyntaxToken.create(identifier)), InternalSyntaxToken.create(colon), statement);
+  }
+
+  public ContinueStatementTreeImpl completeContinueStatement(AstNode continueToken, ContinueStatementTreeImpl labelOrEndOfStatement) {
+    return labelOrEndOfStatement.complete(InternalSyntaxToken.create(continueToken));
+  }
+
+  public ContinueStatementTreeImpl newContinueWithLabel(AstNode identifier, AstNode eos) {
+     return new ContinueStatementTreeImpl(new IdentifierTreeImpl(InternalSyntaxToken.create(identifier)), identifier, eos);
+  }
+
+  public ContinueStatementTreeImpl newContinueWithoutLabel(AstNode eos) {
+    return new ContinueStatementTreeImpl(eos);
   }
 
   // End of statements
