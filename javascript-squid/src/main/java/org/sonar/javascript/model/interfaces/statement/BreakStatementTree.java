@@ -20,6 +20,8 @@
 package org.sonar.javascript.model.interfaces.statement;
 
 import org.sonar.javascript.model.interfaces.Tree;
+import org.sonar.javascript.model.interfaces.lexical.IdentifierTree;
+import org.sonar.javascript.model.interfaces.lexical.SyntaxToken;
 
 import javax.annotation.Nullable;
 
@@ -35,8 +37,11 @@ import javax.annotation.Nullable;
  */
 public interface BreakStatementTree extends StatementTree {
 
-  // TODO
+  SyntaxToken breakKeyword();
+
   @Nullable
-  Tree label();
+  IdentifierTree label();
+
+  Tree endOfStatement();
 
 }

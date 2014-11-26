@@ -24,6 +24,7 @@ import com.sonar.sslr.api.AstNode;
 import com.sonar.sslr.api.AstNodeType;
 import org.sonar.javascript.model.implementations.lexical.IdentifierTreeImpl;
 import org.sonar.javascript.model.implementations.lexical.InternalSyntaxToken;
+import org.sonar.javascript.model.implementations.statement.BreakStatementTreeImpl;
 import org.sonar.javascript.model.implementations.statement.ContinueStatementTreeImpl;
 import org.sonar.javascript.model.implementations.statement.DebuggerStatementTreeImpl;
 import org.sonar.javascript.model.implementations.statement.EmptyStatementTreeImpl;
@@ -63,6 +64,18 @@ public class TreeFactory {
 
   public ContinueStatementTreeImpl newContinueWithoutLabel(AstNode eos) {
     return new ContinueStatementTreeImpl(eos);
+  }
+
+  public BreakStatementTreeImpl completeBreakStatement(AstNode breakToken, BreakStatementTreeImpl labelOrEndOfStatement) {
+    return labelOrEndOfStatement.complete(InternalSyntaxToken.create(breakToken));
+  }
+
+  public BreakStatementTreeImpl newBreakWithLabel(AstNode identifier, AstNode eos) {
+    return new BreakStatementTreeImpl(new IdentifierTreeImpl(InternalSyntaxToken.create(identifier)), eos);
+  }
+
+  public BreakStatementTreeImpl newBreakWithoutLabel(AstNode eos) {
+    return new BreakStatementTreeImpl(eos);
   }
 
   // End of statements

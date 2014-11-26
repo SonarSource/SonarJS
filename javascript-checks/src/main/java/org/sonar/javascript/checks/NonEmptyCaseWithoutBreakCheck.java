@@ -23,6 +23,7 @@ import com.sonar.sslr.api.AstNode;
 import org.sonar.check.BelongsToProfile;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
+import org.sonar.javascript.model.interfaces.Tree.Kind;
 import org.sonar.javascript.parser.EcmaScriptGrammar;
 import org.sonar.squidbridge.checks.SquidCheck;
 import org.sonar.sslr.parser.LexerlessGrammar;
@@ -43,7 +44,7 @@ public class NonEmptyCaseWithoutBreakCheck extends SquidCheck<LexerlessGrammar> 
     if (astNode.getNextAstNode().is(EcmaScriptGrammar.CASE_CLAUSE, EcmaScriptGrammar.DEFAULT_CLAUSE, EcmaScriptGrammar.CASE_CLAUSES)) {
       AstNode statementList = astNode.getFirstChild(EcmaScriptGrammar.STATEMENT_LIST);
       if (statementList != null
-        && statementList.getLastChild().getFirstChild().isNot(EcmaScriptGrammar.BREAK_STATEMENT, EcmaScriptGrammar.RETURN_STATEMENT, EcmaScriptGrammar.THROW_STATEMENT)) {
+        && statementList.getLastChild().getFirstChild().isNot(Kind.BREAK_STATEMENT, EcmaScriptGrammar.RETURN_STATEMENT, EcmaScriptGrammar.THROW_STATEMENT)) {
         getContext().createLineViolation(this, "Last statement in this switch-clause should be an unconditional break.", astNode);
       }
     }

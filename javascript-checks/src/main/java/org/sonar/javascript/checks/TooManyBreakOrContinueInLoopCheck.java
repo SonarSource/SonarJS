@@ -66,7 +66,7 @@ public class TooManyBreakOrContinueInLoopCheck extends SquidCheck<LexerlessGramm
   public void init() {
     subscribeTo(
         EcmaScriptGrammar.ITERATION_STATEMENT,
-        EcmaScriptGrammar.BREAK_STATEMENT,
+        Kind.BREAK_STATEMENT,
         Kind.CONTINUE_STATEMENT,
         EcmaScriptGrammar.SWITCH_STATEMENT,
         Kind.LABELLED_STATEMENT);
@@ -83,8 +83,8 @@ public class TooManyBreakOrContinueInLoopCheck extends SquidCheck<LexerlessGramm
     if (astNode.is(Kind.LABELLED_STATEMENT)) {
       String label = astNode.getFirstChild(Kind.IDENTIFIER).getTokenValue();
       jumpTargets.push(new JumpTarget(label));
-    } else if (astNode.is(EcmaScriptGrammar.BREAK_STATEMENT, Kind.CONTINUE_STATEMENT)) {
-      AstNode labelNode = astNode.getFirstChild(EcmaScriptTokenType.IDENTIFIER, Kind.IDENTIFIER);
+    } else if (astNode.is(Kind.BREAK_STATEMENT, Kind.CONTINUE_STATEMENT)) {
+      AstNode labelNode = astNode.getFirstChild(Kind.IDENTIFIER);
       String label = labelNode == null ? null : labelNode.getTokenValue();
       for (int i = jumpTargets.size() - 1; i >= 0; i--) {
         JumpTarget jumpTarget = jumpTargets.get(i);
@@ -100,7 +100,7 @@ public class TooManyBreakOrContinueInLoopCheck extends SquidCheck<LexerlessGramm
 
   @Override
   public void leaveNode(AstNode astNode) {
-    if (astNode.isNot(EcmaScriptGrammar.BREAK_STATEMENT, Kind.CONTINUE_STATEMENT)) {
+    if (astNode.isNot(Kind.BREAK_STATEMENT, Kind.CONTINUE_STATEMENT)) {
       JumpTarget jumpTarget = jumpTargets.pop();
       if (astNode.is(EcmaScriptGrammar.ITERATION_STATEMENT) && (jumpTarget.jumps > 1)) {
         getContext().createLineViolation(this, "Reduce the total number of \"break\" and \"continue\" statements in this loop to use one at most.", astNode);

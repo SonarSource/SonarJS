@@ -23,6 +23,7 @@ import org.sonar.javascript.api.EcmaScriptKeyword;
 import org.sonar.javascript.api.EcmaScriptPunctuator;
 import org.sonar.javascript.api.EcmaScriptTokenType;
 import org.sonar.javascript.ast.parser.TreeFactory;
+import org.sonar.javascript.model.implementations.statement.BreakStatementTreeImpl;
 import org.sonar.javascript.model.implementations.statement.ContinueStatementTreeImpl;
 import org.sonar.javascript.model.implementations.statement.DebuggerStatementTreeImpl;
 import org.sonar.javascript.model.implementations.statement.EmptyStatementTreeImpl;
@@ -41,6 +42,10 @@ public class ActionGrammar {
     this.b = b;
     this.f = f;
   }
+
+  /**
+   * A.4 Statement
+   */
 
   public EmptyStatementTreeImpl EMPTY_STATEMENT() {
     return b.<EmptyStatementTreeImpl>nonterminal(Kind.EMPTY_STATEMENT)
@@ -81,6 +86,27 @@ public class ActionGrammar {
   public ContinueStatementTreeImpl CONTINUE_WITHOUT_LABEL() {
     return b.<ContinueStatementTreeImpl>nonterminal()
       .is(f.newContinueWithoutLabel(b.invokeRule(EcmaScriptGrammar.EOS_NO_LB)));
+  }
+
+  public BreakStatementTreeImpl BREAK_STATEMENT() {
+    return b.<BreakStatementTreeImpl>nonterminal(Kind.BREAK_STATEMENT)
+      .is(f.completeBreakStatement(
+        b.invokeRule(EcmaScriptKeyword.BREAK),
+        b.firstOf(
+          BREAK_WITH_LABEL(),
+          BREAK_WITHOUT_LABEL())));
+  }
+
+  public BreakStatementTreeImpl BREAK_WITH_LABEL() {
+    return b.<BreakStatementTreeImpl>nonterminal()
+      .is(f.newBreakWithLabel(
+        b.invokeRule(EcmaScriptGrammar.IDENTIFIER_NO_LB),
+        b.invokeRule(EcmaScriptGrammar.EOS)));
+  }
+
+  public BreakStatementTreeImpl BREAK_WITHOUT_LABEL() {
+    return b.<BreakStatementTreeImpl>nonterminal()
+      .is(f.newBreakWithoutLabel(b.invokeRule(EcmaScriptGrammar.EOS_NO_LB)));
   }
 
 }

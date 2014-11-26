@@ -20,7 +20,7 @@
 package org.sonar.javascript.parser.grammar.statements;
 
 import org.junit.Test;
-import org.sonar.javascript.parser.EcmaScriptGrammar;
+import org.sonar.javascript.model.interfaces.Tree.Kind;
 import org.sonar.javascript.parser.TemporaryOldGrammarParserTest;
 
 import static org.sonar.sslr.tests.Assertions.assertThat;
@@ -29,7 +29,7 @@ public class BreakStatementTest extends TemporaryOldGrammarParserTest {
 
   @Test
   public void ok() {
-    assertThat(g.rule(EcmaScriptGrammar.BREAK_STATEMENT))
+    assertThat(g.rule(Kind.BREAK_STATEMENT))
         .as("EOS is line terminator")
         .matchesPrefix("break \n", "another-statement ;")
         .matchesPrefix("break label \n", "another-statement ;")

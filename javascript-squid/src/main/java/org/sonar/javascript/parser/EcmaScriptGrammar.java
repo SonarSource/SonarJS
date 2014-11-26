@@ -330,7 +330,6 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
   FOR_DECLARATION,
   /** ECMAScript 6 **/
   FOR_BINDING,
-  BREAK_STATEMENT,
   RETURN_STATEMENT,
   WITH_STATEMENT,
   SWITCH_STATEMENT,
@@ -891,7 +890,7 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
       IF_STATEMENT,
       ITERATION_STATEMENT,
       Kind.CONTINUE_STATEMENT,
-      BREAK_STATEMENT,
+      Kind.BREAK_STATEMENT,
       RETURN_STATEMENT,
       WITH_STATEMENT,
       SWITCH_STATEMENT,
@@ -941,9 +940,6 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
         ecmascript6(b.sequence(LEXICAL_DECLARATION_NO_IN, b.optional(EXPRESSION_NO_IN))),
         b.optional(ecmascript6(b.nextNot(LET, LBRACKET)), EXPRESSION_NO_IN)),
       SEMI, b.optional(CONDITION), SEMI, b.optional(EXPRESSION), RPARENTHESIS, STATEMENT);
-    b.rule(BREAK_STATEMENT).is(BREAK, b.firstOf(
-      b.sequence(/* no line terminator here */SPACING_NO_LB, NEXT_NOT_LB, IDENTIFIER, EOS),
-      EOS_NO_LB));
     b.rule(RETURN_STATEMENT).is(RETURN, b.firstOf(
       b.sequence(/* no line terminator here */SPACING_NO_LB, NEXT_NOT_LB, EXPRESSION, EOS),
       EOS_NO_LB));
