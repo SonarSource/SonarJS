@@ -38,14 +38,14 @@ public class WithStatementTreeImpl extends JavaScriptTree implements WithStateme
   private final SyntaxToken openingParenthesis;
   private final SyntaxToken closingParenthesis;
 
-  public WithStatementTreeImpl(InternalSyntaxToken withKeyword, InternalSyntaxToken opningParenthesis, AstNode expression, InternalSyntaxToken closingParenthesis, AstNode statement) {
+  public WithStatementTreeImpl(InternalSyntaxToken withKeyword, InternalSyntaxToken openingParenthesis, AstNode expression, InternalSyntaxToken closingParenthesis, AstNode statement) {
     super(Kind.WITH_STATEMENT);
     this.withKeyword = withKeyword;
-    this.openingParenthesis = opningParenthesis;
+    this.openingParenthesis = openingParenthesis;
     this.closingParenthesis = closingParenthesis;
 
     addChild(withKeyword);
-    addChild(opningParenthesis);
+    addChild(openingParenthesis);
     addChild(expression);
     addChild(closingParenthesis);
     addChild(statement);
