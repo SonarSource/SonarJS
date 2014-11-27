@@ -23,6 +23,7 @@ import com.sonar.sslr.api.AstNodeType;
 import org.sonar.javascript.model.interfaces.lexical.IdentifierTree;
 import org.sonar.javascript.model.interfaces.lexical.SyntaxToken;
 import org.sonar.javascript.model.interfaces.lexical.SyntaxTrivia;
+import org.sonar.javascript.model.interfaces.statement.BlockTree;
 import org.sonar.javascript.model.interfaces.statement.BreakStatementTree;
 import org.sonar.javascript.model.interfaces.statement.ContinueStatementTree;
 import org.sonar.javascript.model.interfaces.statement.DebuggerStatementTree;
@@ -91,6 +92,11 @@ public interface Tree {
      * {@link WithStatementTree}
      */
     WITH_STATEMENT(WithStatementTree.class),
+
+    /**
+     * {@link BlockTree}
+     */
+    BLOCK(BlockTree.class),
 
     /**
      * {@link IdentifierTree}

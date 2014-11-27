@@ -307,7 +307,6 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
   // A.4 Statements
 
   STATEMENT,
-  BLOCK,
   STATEMENT_LIST,
   VARIABLE_DECLARATION_LIST,
   VARIABLE_DECLARATION_LIST_NO_IN,
@@ -883,7 +882,7 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
    */
   private static void statements(LexerlessGrammarBuilder b) {
     b.rule(STATEMENT).is(b.firstOf(
-      BLOCK,
+      Kind.BLOCK,
       Kind.VARIABLE_STATEMENT,
       Kind.EMPTY_STATEMENT,
       Kind.LABELLED_STATEMENT,
@@ -898,7 +897,6 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
       Kind.THROW_STATEMENT,
       TRY_STATEMENT,
       Kind.DEBUGGER_STATEMENT));
-    b.rule(BLOCK).is(LCURLYBRACE, b.optional(STATEMENT_LIST), RCURLYBRACE);
     b.rule(STATEMENT_LIST).is(b.oneOrMore(b.firstOf(ecmascript6(DECLARATION), STATEMENT)));
     b.rule(VARIABLE_DECLARATION_LIST).is(VARIABLE_DECLARATION, b.zeroOrMore(COMMA, VARIABLE_DECLARATION));
     b.rule(VARIABLE_DECLARATION_LIST_NO_IN).is(VARIABLE_DECLARATION_NO_IN, b.zeroOrMore(COMMA, VARIABLE_DECLARATION_NO_IN));
@@ -946,10 +944,10 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
     b.rule(CASE_CLAUSES).is(b.oneOrMore(CASE_CLAUSE));
     b.rule(CASE_CLAUSE).is(CASE, EXPRESSION, COLON, b.optional(STATEMENT_LIST));
     b.rule(DEFAULT_CLAUSE).is(DEFAULT, COLON, b.optional(STATEMENT_LIST));
-    b.rule(TRY_STATEMENT).is(TRY, BLOCK, b.firstOf(b.sequence(CATCH, b.optional(FINALLY)), FINALLY));
-    b.rule(CATCH).is(EcmaScriptKeyword.CATCH, LPARENTHESIS, CATCH_PARAMETER, RPARENTHESIS, BLOCK);
+    b.rule(TRY_STATEMENT).is(TRY, Kind.BLOCK, b.firstOf(b.sequence(CATCH, b.optional(FINALLY)), FINALLY));
+    b.rule(CATCH).is(EcmaScriptKeyword.CATCH, LPARENTHESIS, CATCH_PARAMETER, RPARENTHESIS, Kind.BLOCK);
     b.rule(CATCH_PARAMETER).is(b.firstOf(BINDING_IDENTIFIER, BINDING_PATTERN));
-    b.rule(FINALLY).is(EcmaScriptKeyword.FINALLY, BLOCK);
+    b.rule(FINALLY).is(EcmaScriptKeyword.FINALLY, Kind.BLOCK);
     b.rule(DEBUGGER_STATEMENT).is(DEBUGGER, EOS);
   }
 

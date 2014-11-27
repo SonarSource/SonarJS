@@ -24,6 +24,7 @@ import org.sonar.check.BelongsToProfile;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.javascript.api.EcmaScriptKeyword;
+import org.sonar.javascript.model.interfaces.Tree.Kind;
 import org.sonar.javascript.parser.EcmaScriptGrammar;
 import org.sonar.squidbridge.checks.SquidCheck;
 import org.sonar.sslr.parser.LexerlessGrammar;
@@ -55,7 +56,7 @@ public class AlwaysUseCurlyBracesCheck extends SquidCheck<LexerlessGrammar> {
         && statement.getPreviousSibling().is(EcmaScriptKeyword.ELSE)) {
         continue;
       }
-      if (!statement.getFirstChild().is(EcmaScriptGrammar.BLOCK)) {
+      if (!statement.getFirstChild().is(Kind.BLOCK)) {
         getContext().createLineViolation(this, "Missing curly brace.", astNode);
         break;
       }

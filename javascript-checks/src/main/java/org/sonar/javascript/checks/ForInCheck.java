@@ -23,6 +23,7 @@ import com.sonar.sslr.api.AstNode;
 import org.sonar.check.BelongsToProfile;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
+import org.sonar.javascript.model.interfaces.Tree.Kind;
 import org.sonar.javascript.parser.EcmaScriptGrammar;
 import org.sonar.squidbridge.checks.SquidCheck;
 import org.sonar.sslr.parser.LexerlessGrammar;
@@ -42,7 +43,7 @@ public class ForInCheck extends SquidCheck<LexerlessGrammar> {
   public void visitNode(AstNode astNode) {
     AstNode statementNode = astNode.getFirstChild(EcmaScriptGrammar.STATEMENT);
 
-    if (statementNode.getFirstChild().is(EcmaScriptGrammar.BLOCK)) {
+    if (statementNode.getFirstChild().is(Kind.BLOCK)) {
       AstNode statementListNode = statementNode.getFirstChild().getFirstChild(EcmaScriptGrammar.STATEMENT_LIST);
       if (statementListNode == null) {
         statementNode = null;

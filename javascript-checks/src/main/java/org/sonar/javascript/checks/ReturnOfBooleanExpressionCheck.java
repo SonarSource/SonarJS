@@ -70,7 +70,7 @@ public class ReturnOfBooleanExpressionCheck extends SquidCheck<LexerlessGrammar>
   }
 
   public static boolean isBlockReturningBooleanLiteral(AstNode statement) {
-    AstNode block = statement.getFirstChild(EcmaScriptGrammar.BLOCK);
+    AstNode block = statement.getFirstChild(Kind.BLOCK);
     if (block == null) {
       return false;
     }

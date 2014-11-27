@@ -23,6 +23,7 @@ import com.sonar.sslr.api.AstNode;
 import org.sonar.check.BelongsToProfile;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
+import org.sonar.javascript.model.interfaces.Tree.Kind;
 import org.sonar.javascript.parser.EcmaScriptGrammar;
 import org.sonar.squidbridge.checks.SquidCheck;
 import org.sonar.sslr.parser.LexerlessGrammar;
@@ -49,7 +50,7 @@ public class CollapsibleIfStatementsCheck extends SquidCheck<LexerlessGrammar> {
   }
 
   private boolean isBlockAndContainsOnlyOneIfStatement(AstNode statement) {
-    if (!statement.is(EcmaScriptGrammar.BLOCK)) {
+    if (!statement.is(Kind.BLOCK)) {
       return false;
     }
     AstNode statementList = statement.getFirstChild(EcmaScriptGrammar.STATEMENT_LIST);

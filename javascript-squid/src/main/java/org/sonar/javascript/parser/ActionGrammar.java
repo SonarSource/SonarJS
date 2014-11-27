@@ -23,6 +23,7 @@ import org.sonar.javascript.api.EcmaScriptKeyword;
 import org.sonar.javascript.api.EcmaScriptPunctuator;
 import org.sonar.javascript.api.EcmaScriptTokenType;
 import org.sonar.javascript.ast.parser.TreeFactory;
+import org.sonar.javascript.model.implementations.statement.BlockTreeImpl;
 import org.sonar.javascript.model.implementations.statement.BreakStatementTreeImpl;
 import org.sonar.javascript.model.implementations.statement.ContinueStatementTreeImpl;
 import org.sonar.javascript.model.implementations.statement.DebuggerStatementTreeImpl;
@@ -150,5 +151,10 @@ public class ActionGrammar {
         b.invokeRule(EcmaScriptGrammar.EXPRESSION),
         b.invokeRule(EcmaScriptPunctuator.RPARENTHESIS),
         b.invokeRule(EcmaScriptGrammar.STATEMENT)));
+  }
+
+  public BlockTreeImpl BLOCK() {
+    return b.<BlockTreeImpl>nonterminal(Kind.BLOCK)
+      .is(f.newBlock(b.invokeRule(EcmaScriptPunctuator.LCURLYBRACE), b.optional(b.invokeRule(EcmaScriptGrammar.STATEMENT_LIST)), b.invokeRule(EcmaScriptPunctuator.RCURLYBRACE)));
   }
 }
