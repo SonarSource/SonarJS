@@ -20,7 +20,7 @@
 package org.sonar.javascript.parser.grammar.statements;
 
 import org.junit.Test;
-import org.sonar.javascript.parser.EcmaScriptGrammar;
+import org.sonar.javascript.model.interfaces.Tree.Kind;
 import org.sonar.javascript.parser.TemporaryOldGrammarParserTest;
 
 import static org.sonar.javascript.sslr.tests.Assertions.assertThat;
@@ -29,7 +29,7 @@ public class ThrowStatementTest extends TemporaryOldGrammarParserTest {
 
   @Test
   public void ok() {
-    assertThat(g.rule(EcmaScriptGrammar.THROW_STATEMENT))
+    assertThat(g.rule(Kind.THROW_STATEMENT))
         .as("EOS is line terminator")
         .notMatches("throw \n 42 ;")
         .matchesPrefix("throw 42 \n", "42 ;")

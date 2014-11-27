@@ -29,6 +29,7 @@ import org.sonar.javascript.model.implementations.statement.DebuggerStatementTre
 import org.sonar.javascript.model.implementations.statement.EmptyStatementTreeImpl;
 import org.sonar.javascript.model.implementations.statement.LabelledStatementTreeImpl;
 import org.sonar.javascript.model.implementations.statement.ReturnStatementTreeImpl;
+import org.sonar.javascript.model.implementations.statement.ThrowStatementTreeImpl;
 import org.sonar.javascript.model.implementations.statement.VariableStatementTreeImpl;
 import org.sonar.javascript.model.interfaces.Tree.Kind;
 import org.sonar.javascript.model.interfaces.statement.DebuggerStatementTree;
@@ -130,5 +131,13 @@ public class ActionGrammar {
   public ReturnStatementTreeImpl RETURN_WITHOUT_EXPRESSION() {
     return b.<ReturnStatementTreeImpl>nonterminal()
       .is(f.newReturnWithoutExpression(b.invokeRule(EcmaScriptGrammar.EOS_NO_LB)));
+  }
+
+  public ThrowStatementTreeImpl THROW_STATEMENT() {
+    return b.<ThrowStatementTreeImpl>nonterminal(Kind.THROW_STATEMENT)
+      .is(f.newThrowStatement(
+        b.invokeRule(EcmaScriptKeyword.THROW),
+        b.invokeRule(EcmaScriptGrammar.EXPRESSION_NO_LB),
+        b.invokeRule(EcmaScriptGrammar.EOS)));
   }
 }

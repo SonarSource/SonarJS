@@ -30,8 +30,10 @@ import org.sonar.javascript.model.implementations.statement.DebuggerStatementTre
 import org.sonar.javascript.model.implementations.statement.EmptyStatementTreeImpl;
 import org.sonar.javascript.model.implementations.statement.LabelledStatementTreeImpl;
 import org.sonar.javascript.model.implementations.statement.ReturnStatementTreeImpl;
+import org.sonar.javascript.model.implementations.statement.ThrowStatementTreeImpl;
 import org.sonar.javascript.model.implementations.statement.VariableStatementTreeImpl;
 import org.sonar.javascript.model.interfaces.statement.ReturnStatementTree;
+import org.sonar.javascript.model.interfaces.statement.ThrowStatementTree;
 import org.sonar.javascript.parser.sslr.Optional;
 
 import java.util.List;
@@ -90,6 +92,10 @@ public class TreeFactory {
 
   public ReturnStatementTreeImpl newReturnWithoutExpression(AstNode eos) {
     return new ReturnStatementTreeImpl(eos);
+  }
+
+  public ThrowStatementTreeImpl newThrowStatement(AstNode throwToken, AstNode expression, AstNode eos) {
+    return new ThrowStatementTreeImpl(InternalSyntaxToken.create(throwToken), expression, eos);
   }
 
   // End of statements

@@ -40,7 +40,7 @@ public class UnreachableCodeCheck extends SquidCheck<LexerlessGrammar> {
         Kind.BREAK_STATEMENT,
         Kind.RETURN_STATEMENT,
         Kind.CONTINUE_STATEMENT,
-        EcmaScriptGrammar.THROW_STATEMENT);
+        Kind.THROW_STATEMENT);
   }
 
   @Override

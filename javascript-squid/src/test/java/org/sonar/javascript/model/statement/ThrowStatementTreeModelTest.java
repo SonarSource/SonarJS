@@ -17,26 +17,25 @@
  * License along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.javascript.model.interfaces.statement;
+package org.sonar.javascript.model.statement;
 
-import org.sonar.javascript.model.interfaces.Tree;
-import org.sonar.javascript.model.interfaces.lexical.SyntaxToken;
+import org.junit.Test;
+import org.sonar.javascript.api.EcmaScriptKeyword;
+import org.sonar.javascript.model.JavaScriptTreeModelTest;
+import org.sonar.javascript.model.interfaces.Tree.Kind;
+import org.sonar.javascript.model.interfaces.statement.ReturnStatementTree;
+import org.sonar.javascript.model.interfaces.statement.ThrowStatementTree;
 
-/**
- * <a href="http://www.ecma-international.org/ecma-262/5.1/#sec-12.13">throw Statement</a>.
- *
- * <pre>
- *   throw {@link #expression()} ;
- * </pre>
- *
- * <p>This interface is not intended to be implemented by clients.</p>
- */
-public interface ThrowStatementTree extends StatementTree {
+import static org.fest.assertions.Assertions.assertThat;
 
-  SyntaxToken throwKeyword();
+public class ThrowStatementTreeModelTest extends JavaScriptTreeModelTest {
 
-  Tree expression();
+  @Test
+  public void test() throws Exception {
+   ThrowStatementTree tree = parse("throw expr ;", Kind.THROW_STATEMENT);
 
-  Tree endOfStatement();
+    assertThat(tree.is(Kind.THROW_STATEMENT)).isTrue();
+    assertThat(tree.throwKeyword().text()).isEqualTo(EcmaScriptKeyword.THROW.getValue());
+  }
 
 }

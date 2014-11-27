@@ -29,6 +29,7 @@ import org.sonar.javascript.model.interfaces.statement.DebuggerStatementTree;
 import org.sonar.javascript.model.interfaces.statement.EmptyStatementTree;
 import org.sonar.javascript.model.interfaces.statement.LabelledStatementTree;
 import org.sonar.javascript.model.interfaces.statement.ReturnStatementTree;
+import org.sonar.javascript.model.interfaces.statement.ThrowStatementTree;
 import org.sonar.javascript.model.interfaces.statement.VariableStatementTree;
 import org.sonar.sslr.grammar.GrammarRuleKey;
 
@@ -79,6 +80,11 @@ public interface Tree {
      * {@link ReturnStatementTree}
      */
     RETURN_STATEMENT(ReturnStatementTree.class),
+
+    /**
+     * {@link ThrowStatementTree}
+     */
+    THROW_STATEMENT(ThrowStatementTree.class),
 
     /**
      * {@link IdentifierTree}
