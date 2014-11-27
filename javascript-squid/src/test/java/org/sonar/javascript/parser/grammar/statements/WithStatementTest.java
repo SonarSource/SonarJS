@@ -17,30 +17,20 @@
  * License along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.javascript.checks;
+package org.sonar.javascript.parser.grammar.statements;
 
-import com.sonar.sslr.api.AstNode;
-import org.sonar.check.BelongsToProfile;
-import org.sonar.check.Priority;
-import org.sonar.check.Rule;
+import org.junit.Test;
 import org.sonar.javascript.model.interfaces.Tree.Kind;
-import org.sonar.squidbridge.checks.SquidCheck;
-import org.sonar.sslr.parser.LexerlessGrammar;
+import org.sonar.javascript.parser.TemporaryOldGrammarParserTest;
 
-@Rule(
-  key = "WithStatement",
-  priority = Priority.MAJOR)
-@BelongsToProfile(title = CheckList.SONAR_WAY_PROFILE, priority = Priority.MAJOR)
-public class WithStatementCheck extends SquidCheck<LexerlessGrammar> {
+import static org.sonar.javascript.sslr.tests.Assertions.assertThat;
 
-  @Override
-  public void init() {
-    subscribeTo(Kind.WITH_STATEMENT);
-  }
+public class WithStatementTest extends TemporaryOldGrammarParserTest {
 
-  @Override
-  public void visitNode(AstNode astNode) {
-    getContext().createLineViolation(this, "Remove this use of \"with\".", astNode);
+  @Test
+  public void ok() {
+    assertThat(g.rule(Kind.WITH_STATEMENT))
+        .matches("with ( expr ) statement");
   }
 
 }

@@ -893,7 +893,7 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
       Kind.CONTINUE_STATEMENT,
       Kind.BREAK_STATEMENT,
       Kind.RETURN_STATEMENT,
-      WITH_STATEMENT,
+      Kind.WITH_STATEMENT,
       SWITCH_STATEMENT,
       Kind.THROW_STATEMENT,
       TRY_STATEMENT,
@@ -941,7 +941,6 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
         ecmascript6(b.sequence(LEXICAL_DECLARATION_NO_IN, b.optional(EXPRESSION_NO_IN))),
         b.optional(ecmascript6(b.nextNot(LET, LBRACKET)), EXPRESSION_NO_IN)),
       SEMI, b.optional(CONDITION), SEMI, b.optional(EXPRESSION), RPARENTHESIS, STATEMENT);
-    b.rule(WITH_STATEMENT).is(WITH, LPARENTHESIS, EXPRESSION, RPARENTHESIS, STATEMENT);
     b.rule(SWITCH_STATEMENT).is(SWITCH, LPARENTHESIS, EXPRESSION, RPARENTHESIS, CASE_BLOCK);
     b.rule(CASE_BLOCK).is(LCURLYBRACE, b.optional(CASE_CLAUSES), b.optional(DEFAULT_CLAUSE, b.optional(CASE_CLAUSES)), RCURLYBRACE);
     b.rule(CASE_CLAUSES).is(b.oneOrMore(CASE_CLAUSE));

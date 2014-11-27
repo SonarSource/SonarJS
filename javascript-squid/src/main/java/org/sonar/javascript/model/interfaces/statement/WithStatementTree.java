@@ -20,6 +20,7 @@
 package org.sonar.javascript.model.interfaces.statement;
 
 import org.sonar.javascript.model.interfaces.Tree;
+import org.sonar.javascript.model.interfaces.lexical.SyntaxToken;
 
 /**
  * <a href="http://www.ecma-international.org/ecma-262/5.1/#sec-12.10">with Statement</a>.
@@ -32,8 +33,13 @@ import org.sonar.javascript.model.interfaces.Tree;
  */
 public interface WithStatementTree extends StatementTree {
 
-  // TODO
+  SyntaxToken withKeyword();
+
+  SyntaxToken openingParenthesis();
+
   Tree expression();
+
+  SyntaxToken closingParenthesis();
 
   StatementTree statement();
 
