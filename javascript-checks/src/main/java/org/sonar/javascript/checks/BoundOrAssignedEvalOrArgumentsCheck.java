@@ -26,6 +26,7 @@ import org.sonar.check.Rule;
 import org.sonar.javascript.api.EcmaScriptPunctuator;
 import org.sonar.javascript.api.EcmaScriptTokenType;
 import org.sonar.javascript.checks.utils.IdentifierUtils;
+import org.sonar.javascript.model.interfaces.Tree.Kind;
 import org.sonar.javascript.parser.EcmaScriptGrammar;
 import org.sonar.squidbridge.checks.SquidCheck;
 import org.sonar.sslr.grammar.GrammarRuleKey;
@@ -54,7 +55,7 @@ public class BoundOrAssignedEvalOrArgumentsCheck extends SquidCheck<LexerlessGra
   @Override
   public void init() {
     subscribeTo(
-      EcmaScriptGrammar.CATCH,
+      Kind.CATCH_BLOCK,
       EcmaScriptGrammar.PROPERTY_SET_PARAMETER_LIST,
       EcmaScriptGrammar.ASSIGNMENT_EXPRESSION,
       EcmaScriptGrammar.POSTFIX_EXPRESSION,
@@ -67,7 +68,7 @@ public class BoundOrAssignedEvalOrArgumentsCheck extends SquidCheck<LexerlessGra
   public void visitNode(AstNode astNode) {
     if (astNode.is(FUNCTION_NODES)) {
       checkFunction(astNode);
-    } else if (astNode.is(EcmaScriptGrammar.CATCH) || astNode.is(CONST_AND_VAR_NODES)) {
+    } else if (astNode.is(Kind.CATCH_BLOCK) || astNode.is(CONST_AND_VAR_NODES)) {
       checkVariableDeclaration(astNode);
     } else if (astNode.is(EcmaScriptGrammar.PROPERTY_SET_PARAMETER_LIST)) {
       checkPropertySetParameterList(astNode);
@@ -102,7 +103,7 @@ public class BoundOrAssignedEvalOrArgumentsCheck extends SquidCheck<LexerlessGra
   }
 
   private void checkVariableDeclaration(AstNode astNode) {
-    List<AstNode> identifiers = astNode.is(EcmaScriptGrammar.CATCH) ?
+    List<AstNode> identifiers = astNode.is(Kind.CATCH_BLOCK) ?
       IdentifierUtils.getCatchIdentifiers(astNode) : IdentifierUtils.getVariableIdentifiers(astNode);
 
     for (AstNode identifier : identifiers) {

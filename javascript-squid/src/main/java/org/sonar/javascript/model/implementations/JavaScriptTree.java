@@ -99,6 +99,14 @@ public abstract class JavaScriptTree extends AstNode implements Tree {
     super.addChild(child);
   }
 
+  public void addChildren(AstNode... children) {
+    Preconditions.checkState(!isLegacy(), "Children should not be added to legacy nodes");
+
+    for (AstNode child: children) {
+      super.addChild(child);
+    }
+  }
+
   public AstNode getAstNode() {
     return astNode;
   }

@@ -25,17 +25,20 @@ import org.sonar.javascript.api.EcmaScriptTokenType;
 import org.sonar.javascript.ast.parser.TreeFactory;
 import org.sonar.javascript.model.implementations.statement.BlockTreeImpl;
 import org.sonar.javascript.model.implementations.statement.BreakStatementTreeImpl;
+import org.sonar.javascript.model.implementations.statement.CatchBlockTreeImpl;
 import org.sonar.javascript.model.implementations.statement.ContinueStatementTreeImpl;
 import org.sonar.javascript.model.implementations.statement.DebuggerStatementTreeImpl;
 import org.sonar.javascript.model.implementations.statement.EmptyStatementTreeImpl;
 import org.sonar.javascript.model.implementations.statement.LabelledStatementTreeImpl;
 import org.sonar.javascript.model.implementations.statement.ReturnStatementTreeImpl;
 import org.sonar.javascript.model.implementations.statement.ThrowStatementTreeImpl;
+import org.sonar.javascript.model.implementations.statement.TryStatementTreeImpl;
 import org.sonar.javascript.model.implementations.statement.VariableStatementTreeImpl;
 import org.sonar.javascript.model.implementations.statement.WithStatementTreeImpl;
 import org.sonar.javascript.model.interfaces.Tree.Kind;
 import org.sonar.javascript.model.interfaces.statement.DebuggerStatementTree;
 import org.sonar.javascript.model.interfaces.statement.ReturnStatementTree;
+import org.sonar.javascript.model.interfaces.statement.TryStatementTree;
 import org.sonar.javascript.parser.sslr.GrammarBuilder;
 
 public class ActionGrammar {
@@ -157,4 +160,32 @@ public class ActionGrammar {
     return b.<BlockTreeImpl>nonterminal(Kind.BLOCK)
       .is(f.newBlock(b.invokeRule(EcmaScriptPunctuator.LCURLYBRACE), b.optional(b.invokeRule(EcmaScriptGrammar.STATEMENT_LIST)), b.invokeRule(EcmaScriptPunctuator.RCURLYBRACE)));
   }
+
+  public TryStatementTreeImpl TRY_STATEMENT() {
+    return b.<TryStatementTreeImpl>nonterminal(Kind.TRY_STATEMENT)
+      .is(f.completeTryStatement(
+        b.invokeRule(EcmaScriptKeyword.TRY),
+        BLOCK(),
+        b.firstOf(
+          f.newTryStatementWithCatch(CATCH_CLAUSE(), b.optional(FINALLY_CLAUSE())),
+          FINALLY_CLAUSE())
+      )
+    );
+  }
+
+  public TryStatementTreeImpl FINALLY_CLAUSE() {
+    return b.<TryStatementTreeImpl>nonterminal(EcmaScriptGrammar.FINALLY)
+      .is(f.newTryStatementWithFinally(b.invokeRule(EcmaScriptKeyword.FINALLY), BLOCK()));
+  }
+
+  public CatchBlockTreeImpl CATCH_CLAUSE() {
+    return b.<CatchBlockTreeImpl>nonterminal(Kind.CATCH_BLOCK)
+      .is(f.newCatchBlock(
+        b.invokeRule(EcmaScriptKeyword.CATCH),
+        b.invokeRule(EcmaScriptPunctuator.LPARENTHESIS),
+        b.invokeRule(EcmaScriptGrammar.CATCH_PARAMETER),
+        b.invokeRule(EcmaScriptPunctuator.RPARENTHESIS),
+        BLOCK()));
+  }
+
 }

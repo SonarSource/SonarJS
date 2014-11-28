@@ -43,7 +43,7 @@ public class ComplexityVisitor extends SquidAstVisitor<LexerlessGrammar> {
         EcmaScriptGrammar.IF_STATEMENT,
         EcmaScriptGrammar.ITERATION_STATEMENT,
         EcmaScriptGrammar.CASE_CLAUSE,
-        EcmaScriptGrammar.CATCH,
+        Kind.CATCH_BLOCK,
         Kind.RETURN_STATEMENT,
         Kind.THROW_STATEMENT,
         // Expressions

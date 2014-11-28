@@ -17,21 +17,36 @@
  * License along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.javascript.parser.grammar.statements;
+package org.sonar.javascript.model.interfaces.statement;
 
-import org.junit.Test;
-import org.sonar.javascript.model.interfaces.Tree.Kind;
+import org.sonar.javascript.model.interfaces.lexical.SyntaxToken;
 
-import static org.sonar.javascript.sslr.tests.Assertions.assertThat;
+import javax.annotation.Nullable;
 
-public class TryStatementTest {
+/**
+ * <a href="http://www.ecma-international.org/ecma-262/5.1/#sec-12.14">try Statement</a>.
+ * <p/>
+ * <pre>
+ *   try {@link #block()} {@link #catchBlock()}
+ *   try {@link #block()} {@link #finallyBlock()}
+ *   try {@link #block()} {@link #catchBlock()} {@link #finallyBlock()}
+ * </pre>
+ * <p/>
+ * <p>This interface is not intended to be implemented by clients.</p>
+ */
+public interface TryStatementTree extends StatementTree {
 
+  SyntaxToken tryKeyword();
 
-  @Test
-  public void realLife() {
-    assertThat(Kind.TRY_STATEMENT)
-        .matches("try { doSomethingWrong(); } catch (error) { makeItAllGood(); }")
-        .notMatches("try { }");
-  }
+  BlockTree block();
+
+  @Nullable
+  CatchBlockTree catchBlock();
+
+  @Nullable
+  SyntaxToken finallyKeyword();
+
+  @Nullable
+  BlockTree finallyBlock();
 
 }

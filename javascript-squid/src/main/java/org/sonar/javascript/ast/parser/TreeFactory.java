@@ -26,17 +26,21 @@ import org.sonar.javascript.model.implementations.lexical.IdentifierTreeImpl;
 import org.sonar.javascript.model.implementations.lexical.InternalSyntaxToken;
 import org.sonar.javascript.model.implementations.statement.BlockTreeImpl;
 import org.sonar.javascript.model.implementations.statement.BreakStatementTreeImpl;
+import org.sonar.javascript.model.implementations.statement.CatchBlockTreeImpl;
 import org.sonar.javascript.model.implementations.statement.ContinueStatementTreeImpl;
 import org.sonar.javascript.model.implementations.statement.DebuggerStatementTreeImpl;
 import org.sonar.javascript.model.implementations.statement.EmptyStatementTreeImpl;
 import org.sonar.javascript.model.implementations.statement.LabelledStatementTreeImpl;
 import org.sonar.javascript.model.implementations.statement.ReturnStatementTreeImpl;
 import org.sonar.javascript.model.implementations.statement.ThrowStatementTreeImpl;
+import org.sonar.javascript.model.implementations.statement.TryStatementTreeImpl;
 import org.sonar.javascript.model.implementations.statement.VariableStatementTreeImpl;
 import org.sonar.javascript.model.implementations.statement.WithStatementTreeImpl;
 import org.sonar.javascript.model.interfaces.statement.BlockTree;
+import org.sonar.javascript.model.interfaces.statement.CatchBlockTree;
 import org.sonar.javascript.model.interfaces.statement.ReturnStatementTree;
 import org.sonar.javascript.model.interfaces.statement.ThrowStatementTree;
+import org.sonar.javascript.model.interfaces.statement.TryStatementTree;
 import org.sonar.javascript.model.interfaces.statement.WithStatementTree;
 import org.sonar.javascript.parser.sslr.Optional;
 
@@ -113,6 +117,30 @@ public class TreeFactory {
     return new BlockTreeImpl(InternalSyntaxToken.create(openingCurlyBrace), InternalSyntaxToken.create(closingCurlyBrace));
   }
 
+  public TryStatementTreeImpl newTryStatementWithCatch(CatchBlockTreeImpl catchBlock, Optional<TryStatementTreeImpl> partial) {
+     if (partial.isPresent()) {
+       return partial.get().complete(catchBlock);
+     }
+    return new TryStatementTreeImpl(catchBlock);
+  }
+
+  public TryStatementTreeImpl newTryStatementWithFinally(AstNode finallyKeyword, BlockTreeImpl block) {
+    return new TryStatementTreeImpl(InternalSyntaxToken.create(finallyKeyword), block);
+  }
+
+  public TryStatementTreeImpl completeTryStatement(AstNode tryToken, BlockTreeImpl block, TryStatementTreeImpl catchFinallyBlock) {
+    return catchFinallyBlock.complete(InternalSyntaxToken.create(tryToken), block);
+  }
+
+  public CatchBlockTreeImpl newCatchBlock(AstNode catchToken, AstNode lparenToken, AstNode catchParameter, AstNode rparenToken, BlockTreeImpl block) {
+    return new CatchBlockTreeImpl(
+      InternalSyntaxToken.create(catchToken),
+      InternalSyntaxToken.create(lparenToken),
+      catchParameter,
+      InternalSyntaxToken.create(rparenToken),
+      block);
+  }
+
   // End of statements
 
   // Helpers
@@ -123,6 +151,7 @@ public class TreeFactory {
       return "WRAPPER_AST_NODE";
     }
   };
+
 
   public static class Tuple<T, U> extends AstNode {
 

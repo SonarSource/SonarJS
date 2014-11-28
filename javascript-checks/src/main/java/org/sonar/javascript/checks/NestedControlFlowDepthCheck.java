@@ -25,6 +25,7 @@ import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
 import org.sonar.javascript.api.EcmaScriptKeyword;
+import org.sonar.javascript.model.interfaces.Tree.Kind;
 import org.sonar.javascript.parser.EcmaScriptGrammar;
 import org.sonar.squidbridge.checks.SquidCheck;
 import org.sonar.sslr.parser.LexerlessGrammar;
@@ -57,7 +58,7 @@ public class NestedControlFlowDepthCheck extends SquidCheck<LexerlessGrammar> {
       EcmaScriptGrammar.WHILE_STATEMENT,
       EcmaScriptGrammar.DO_WHILE_STATEMENT,
       EcmaScriptGrammar.SWITCH_STATEMENT,
-      EcmaScriptGrammar.TRY_STATEMENT);
+      Kind.TRY_STATEMENT);
   }
 
   @Override

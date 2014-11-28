@@ -24,6 +24,7 @@ import com.google.common.collect.Lists;
 import com.sonar.sslr.api.AstNode;
 import org.sonar.javascript.api.EcmaScriptPunctuator;
 import org.sonar.javascript.api.EcmaScriptTokenType;
+import org.sonar.javascript.model.interfaces.Tree.Kind;
 import org.sonar.javascript.parser.EcmaScriptGrammar;
 
 import javax.annotation.Nullable;
@@ -35,7 +36,7 @@ public class IdentifierUtils {
   }
 
   public static List<AstNode> getCatchIdentifiers(AstNode catchNode) {
-    Preconditions.checkArgument(catchNode.is(EcmaScriptGrammar.CATCH));
+    Preconditions.checkArgument(catchNode.is(Kind.CATCH_BLOCK));
 
     AstNode parameterChild = catchNode.getFirstChild(EcmaScriptGrammar.CATCH_PARAMETER).getFirstChild();
     List<AstNode> identifiers = Lists.newArrayList();

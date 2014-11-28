@@ -20,22 +20,27 @@
 package org.sonar.javascript.model.interfaces.statement;
 
 import org.sonar.javascript.model.interfaces.Tree;
+import org.sonar.javascript.model.interfaces.lexical.SyntaxToken;
 
 /**
  * <a href="http://www.ecma-international.org/ecma-262/5.1/#sec-12.14">Catch Block</a>.
  *
  * <pre>
- *   catch ( {@link #identifier()} ) {@link #block()}
+ *   catch ( {@link #catchParameter()} ) {@link #block()}
  * </pre>
  *
  * <p>This interface is not intended to be implemented by clients.</p>
  */
 public interface CatchBlockTree extends Tree {
 
-  // TODO
-  Tree identifier();
+  SyntaxToken catchKeyword();
 
-  // TODO
-  Tree block();
+  SyntaxToken openParenthesis();
+
+  Tree catchParameter();
+
+  SyntaxToken closeParenthesis();
+
+  BlockTree block();
 
 }

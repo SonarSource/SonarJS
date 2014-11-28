@@ -25,12 +25,14 @@ import org.sonar.javascript.model.interfaces.lexical.SyntaxToken;
 import org.sonar.javascript.model.interfaces.lexical.SyntaxTrivia;
 import org.sonar.javascript.model.interfaces.statement.BlockTree;
 import org.sonar.javascript.model.interfaces.statement.BreakStatementTree;
+import org.sonar.javascript.model.interfaces.statement.CatchBlockTree;
 import org.sonar.javascript.model.interfaces.statement.ContinueStatementTree;
 import org.sonar.javascript.model.interfaces.statement.DebuggerStatementTree;
 import org.sonar.javascript.model.interfaces.statement.EmptyStatementTree;
 import org.sonar.javascript.model.interfaces.statement.LabelledStatementTree;
 import org.sonar.javascript.model.interfaces.statement.ReturnStatementTree;
 import org.sonar.javascript.model.interfaces.statement.ThrowStatementTree;
+import org.sonar.javascript.model.interfaces.statement.TryStatementTree;
 import org.sonar.javascript.model.interfaces.statement.VariableStatementTree;
 import org.sonar.javascript.model.interfaces.statement.WithStatementTree;
 import org.sonar.sslr.grammar.GrammarRuleKey;
@@ -97,6 +99,16 @@ public interface Tree {
      * {@link BlockTree}
      */
     BLOCK(BlockTree.class),
+
+    /**
+     * {@link TryStatementTree}
+     */
+    TRY_STATEMENT(TryStatementTree.class),
+
+    /**
+     * {@link CatchBlockTree}
+     */
+    CATCH_BLOCK(CatchBlockTree.class),
 
     /**
      * {@link IdentifierTree}

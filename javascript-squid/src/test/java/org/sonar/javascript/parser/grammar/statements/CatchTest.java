@@ -20,7 +20,7 @@
 package org.sonar.javascript.parser.grammar.statements;
 
 import org.junit.Test;
-import org.sonar.javascript.parser.EcmaScriptGrammar;
+import org.sonar.javascript.model.interfaces.Tree.Kind;
 
 import static org.sonar.javascript.sslr.tests.Assertions.assertThat;
 
@@ -29,7 +29,7 @@ public class CatchTest {
 
   @Test
   public void realLife() {
-    assertThat(EcmaScriptGrammar.CATCH)
+    assertThat(Kind.CATCH_BLOCK)
         .matches("catch ( identifier ) { }")
         .matches("catch ( { } ) { }");
   }
