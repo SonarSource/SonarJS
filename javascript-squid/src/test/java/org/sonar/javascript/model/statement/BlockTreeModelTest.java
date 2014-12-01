@@ -21,12 +21,10 @@ package org.sonar.javascript.model.statement;
 
 import static org.fest.assertions.Assertions.assertThat;
 import org.junit.Test;
-import org.sonar.javascript.api.EcmaScriptKeyword;
 import org.sonar.javascript.api.EcmaScriptPunctuator;
 import org.sonar.javascript.model.JavaScriptTreeModelTest;
 import org.sonar.javascript.model.interfaces.Tree.Kind;
 import org.sonar.javascript.model.interfaces.statement.BlockTree;
-import org.sonar.javascript.model.interfaces.statement.DebuggerStatementTree;
 
 public class BlockTreeModelTest extends JavaScriptTreeModelTest {
 
@@ -35,8 +33,8 @@ public class BlockTreeModelTest extends JavaScriptTreeModelTest {
    BlockTree tree = parse("{ }", Kind.BLOCK);
 
     assertThat(tree.is(Kind.BLOCK)).isTrue();
-    assertThat(tree.openingCurlyBrace().text()).isEqualTo(EcmaScriptPunctuator.LCURLYBRACE.getValue());
-    assertThat(tree.closingCurlyBrace().text()).isEqualTo(EcmaScriptPunctuator.RCURLYBRACE.getValue());
+    assertThat(tree.openCurlyBrace().text()).isEqualTo(EcmaScriptPunctuator.LCURLYBRACE.getValue());
+    assertThat(tree.closeCurlyBrace().text()).isEqualTo(EcmaScriptPunctuator.RCURLYBRACE.getValue());
   }
 
 }

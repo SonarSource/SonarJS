@@ -33,9 +33,9 @@ import org.sonar.javascript.model.interfaces.lexical.SyntaxToken;
  */
 public interface BlockTree extends StatementTree {
 
-  SyntaxToken openingCurlyBrace();
+  SyntaxToken openCurlyBrace();
 
   Tree statements();
 
-  SyntaxToken closingCurlyBrace();
+  SyntaxToken closeCurlyBrace();
 }

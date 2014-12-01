@@ -26,33 +26,31 @@ import org.sonar.javascript.model.implementations.lexical.InternalSyntaxToken;
 import org.sonar.javascript.model.interfaces.Tree;
 import org.sonar.javascript.model.interfaces.lexical.SyntaxToken;
 import org.sonar.javascript.model.interfaces.statement.BlockTree;
-import org.sonar.javascript.model.interfaces.statement.StatementTree;
-import org.sonar.javascript.model.interfaces.statement.WithStatementTree;
 
 import java.util.Iterator;
 
 public class BlockTreeImpl extends JavaScriptTree implements BlockTree {
 
-  private final SyntaxToken openingCurlyBrace;
-  private final SyntaxToken closingCurlyBrace;
+  private final SyntaxToken openCurlyBrace;
+  private final SyntaxToken closeCurlyBrace;
 
-  public BlockTreeImpl(InternalSyntaxToken openingCurlyBrace, AstNode statements, InternalSyntaxToken closingCurlyBrace) {
+  public BlockTreeImpl(InternalSyntaxToken openCurlyBrace, AstNode statements, InternalSyntaxToken closeCurlyBrace) {
     super(Kind.BLOCK);
-    this.openingCurlyBrace = openingCurlyBrace;
-    this.closingCurlyBrace = closingCurlyBrace;
+    this.openCurlyBrace = openCurlyBrace;
+    this.closeCurlyBrace = closeCurlyBrace;
 
-    addChild(openingCurlyBrace);
+    addChild(openCurlyBrace);
     addChild(statements);
-    addChild(closingCurlyBrace);
+    addChild(closeCurlyBrace);
   }
 
-  public BlockTreeImpl(InternalSyntaxToken openingCurlyBrace, InternalSyntaxToken closingCurlyBrace) {
+  public BlockTreeImpl(InternalSyntaxToken openCurlyBrace, InternalSyntaxToken closeCurlyBrace) {
     super(Kind.BLOCK);
-    this.openingCurlyBrace = openingCurlyBrace;
-    this.closingCurlyBrace = closingCurlyBrace;
+    this.openCurlyBrace = openCurlyBrace;
+    this.closeCurlyBrace = closeCurlyBrace;
 
-    addChild(openingCurlyBrace);
-    addChild(closingCurlyBrace);
+    addChild(openCurlyBrace);
+    addChild(closeCurlyBrace);
   }
 
   @Override
@@ -61,8 +59,8 @@ public class BlockTreeImpl extends JavaScriptTree implements BlockTree {
   }
 
   @Override
-  public SyntaxToken openingCurlyBrace() {
-    return openingCurlyBrace;
+  public SyntaxToken openCurlyBrace() {
+    return openCurlyBrace;
   }
 
   @Override
@@ -71,8 +69,8 @@ public class BlockTreeImpl extends JavaScriptTree implements BlockTree {
   }
 
   @Override
-  public SyntaxToken closingCurlyBrace() {
-    return closingCurlyBrace;
+  public SyntaxToken closeCurlyBrace() {
+    return closeCurlyBrace;
   }
 
   @Override
