@@ -22,7 +22,7 @@ package org.sonar.javascript.ast.parser;
 import com.google.common.base.Preconditions;
 import com.sonar.sslr.api.AstNode;
 import com.sonar.sslr.api.AstNodeType;
-import org.sonar.javascript.model.implementations.lexical.IdentifierTreeImpl;
+import org.sonar.javascript.model.implementations.expression.IdentifierTreeImpl;
 import org.sonar.javascript.model.implementations.lexical.InternalSyntaxToken;
 import org.sonar.javascript.model.implementations.statement.BlockTreeImpl;
 import org.sonar.javascript.model.implementations.statement.BreakStatementTreeImpl;
@@ -36,12 +36,6 @@ import org.sonar.javascript.model.implementations.statement.ThrowStatementTreeIm
 import org.sonar.javascript.model.implementations.statement.TryStatementTreeImpl;
 import org.sonar.javascript.model.implementations.statement.VariableStatementTreeImpl;
 import org.sonar.javascript.model.implementations.statement.WithStatementTreeImpl;
-import org.sonar.javascript.model.interfaces.statement.BlockTree;
-import org.sonar.javascript.model.interfaces.statement.CatchBlockTree;
-import org.sonar.javascript.model.interfaces.statement.ReturnStatementTree;
-import org.sonar.javascript.model.interfaces.statement.ThrowStatementTree;
-import org.sonar.javascript.model.interfaces.statement.TryStatementTree;
-import org.sonar.javascript.model.interfaces.statement.WithStatementTree;
 import org.sonar.javascript.parser.sslr.Optional;
 
 import java.util.List;

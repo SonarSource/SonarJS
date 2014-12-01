@@ -19,7 +19,7 @@
  */
 package org.sonar.javascript.model.interfaces.statement;
 
-import org.sonar.javascript.model.interfaces.lexical.IdentifierTree;
+import org.sonar.javascript.model.interfaces.expression.IdentifierTree;
 import org.sonar.javascript.model.interfaces.lexical.SyntaxToken;
 
 /**
