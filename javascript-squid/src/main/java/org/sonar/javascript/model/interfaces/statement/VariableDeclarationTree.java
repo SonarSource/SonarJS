@@ -20,6 +20,8 @@
 package org.sonar.javascript.model.interfaces.statement;
 
 import org.sonar.javascript.model.interfaces.Tree;
+import org.sonar.javascript.model.interfaces.expression.ExpressionTree;
+import org.sonar.javascript.model.interfaces.lexical.SyntaxToken;
 
 import javax.annotation.Nullable;
 
@@ -35,10 +37,11 @@ import javax.annotation.Nullable;
  */
 public interface VariableDeclarationTree extends Tree {
 
-  // TODO
-  Tree identifier();
+  ExpressionTree identifier();
 
-  // TODO
+  @Nullable
+  SyntaxToken equalToken();
+
   @Nullable
   Tree initialiser();
 

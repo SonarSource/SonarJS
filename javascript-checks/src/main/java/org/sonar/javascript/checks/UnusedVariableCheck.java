@@ -27,6 +27,7 @@ import org.sonar.check.Rule;
 import org.sonar.javascript.api.EcmaScriptTokenType;
 import org.sonar.javascript.checks.utils.FunctionUtils;
 import org.sonar.javascript.checks.utils.IdentifierUtils;
+import org.sonar.javascript.model.interfaces.Tree.Kind;
 import org.sonar.javascript.parser.EcmaScriptGrammar;
 import org.sonar.squidbridge.checks.SquidCheck;
 import org.sonar.sslr.grammar.GrammarRuleKey;
@@ -83,7 +84,7 @@ public class UnusedVariableCheck extends SquidCheck<LexerlessGrammar> {
   }
 
   private static final GrammarRuleKey[] CONST_AND_VAR_NODES = {
-    EcmaScriptGrammar.VARIABLE_DECLARATION,
+    Kind.VARIABLE_DECLARATION,
     EcmaScriptGrammar.VARIABLE_DECLARATION_NO_IN,
     EcmaScriptGrammar.LEXICAL_BINDING,
     EcmaScriptGrammar.LEXICAL_BINDING_NO_IN};

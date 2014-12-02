@@ -19,14 +19,14 @@
  */
 package org.sonar.javascript.model.implementations.statement;
 
+import com.google.common.base.Preconditions;
 import com.google.common.collect.Iterators;
 import com.sonar.sslr.api.AstNode;
 import org.sonar.javascript.model.implementations.JavaScriptTree;
+import org.sonar.javascript.model.implementations.SeparatedList;
 import org.sonar.javascript.model.implementations.lexical.InternalSyntaxToken;
 import org.sonar.javascript.model.interfaces.Tree;
 import org.sonar.javascript.model.interfaces.lexical.SyntaxToken;
-import org.sonar.javascript.model.interfaces.statement.DebuggerStatementTree;
-import org.sonar.javascript.model.interfaces.statement.VariableDeclarationTree;
 import org.sonar.javascript.model.interfaces.statement.VariableStatementTree;
 
 import java.util.Iterator;
@@ -34,15 +34,26 @@ import java.util.List;
 
 public class VariableStatementTreeImpl extends JavaScriptTree implements VariableStatementTree {
 
-  private final SyntaxToken varKeyWord;
+  private SyntaxToken varKeyword;
+  private final SeparatedList<VariableDeclarationTreeImpl> declarations;
 
-  public VariableStatementTreeImpl(InternalSyntaxToken varKeyWord, AstNode variableDeclarationList, AstNode eos) {
+  public VariableStatementTreeImpl(List<VariableDeclarationTreeImpl> declarations, List<InternalSyntaxToken> commas, List<AstNode> children) {
     super(Kind.VARIABLE_STATEMENT);
-    this.varKeyWord = varKeyWord;
+    Preconditions.checkArgument(commas.size() == declarations.size() - 1, "Variable declaration cannot be null");
+    this.declarations = new SeparatedList<VariableDeclarationTreeImpl>(declarations, commas);
 
-    addChild(varKeyWord);
-    addChild(variableDeclarationList);
+    for (AstNode child : children) {
+      addChild(child);
+    }
+  }
+
+  public VariableStatementTreeImpl complete(InternalSyntaxToken varKeyword, AstNode eos) {
+    Preconditions.checkState(this.varKeyword == null, "Already complete");
+    this.varKeyword = varKeyword;
+
+    prependChildren(varKeyword);
     addChild(eos);
+    return this;
   }
 
   @Override
@@ -52,12 +63,12 @@ public class VariableStatementTreeImpl extends JavaScriptTree implements Variabl
 
   @Override
   public SyntaxToken varKeyword() {
-    return varKeyWord;
+    return varKeyword;
   }
 
   @Override
-  public List<VariableDeclarationTree> declarations() {
-    throw new UnsupportedOperationException("Not supported yet in the strongly typed AST.");
+  public SeparatedList<VariableDeclarationTreeImpl> declarations() {
+    return declarations;
   }
 
   @Override
@@ -67,6 +78,6 @@ public class VariableStatementTreeImpl extends JavaScriptTree implements Variabl
 
   @Override
   public Iterator<Tree> childrenIterator() {
-    return Iterators.emptyIterator();
+    return Iterators.forArray(declarations.toArray(new Tree[declarations.size()]));
   }
 }

@@ -20,6 +20,7 @@
 package org.sonar.javascript.ast.parser;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
 import com.sonar.sslr.api.AstNode;
 import com.sonar.sslr.api.AstNodeType;
 import org.sonar.javascript.model.implementations.expression.IdentifierTreeImpl;
@@ -34,6 +35,7 @@ import org.sonar.javascript.model.implementations.statement.LabelledStatementTre
 import org.sonar.javascript.model.implementations.statement.ReturnStatementTreeImpl;
 import org.sonar.javascript.model.implementations.statement.ThrowStatementTreeImpl;
 import org.sonar.javascript.model.implementations.statement.TryStatementTreeImpl;
+import org.sonar.javascript.model.implementations.statement.VariableDeclarationTreeImpl;
 import org.sonar.javascript.model.implementations.statement.VariableStatementTreeImpl;
 import org.sonar.javascript.model.implementations.statement.WithStatementTreeImpl;
 import org.sonar.javascript.parser.sslr.Optional;
@@ -52,8 +54,33 @@ public class TreeFactory {
     return new DebuggerStatementTreeImpl(InternalSyntaxToken.create(debuggerWord), eos);
   }
 
-  public VariableStatementTreeImpl variableStatement(AstNode varKeyword, AstNode variableDeclarationList, AstNode eos) {
-    return new VariableStatementTreeImpl(InternalSyntaxToken.create(varKeyword), variableDeclarationList, eos);
+  public VariableStatementTreeImpl newVariableStatement(VariableDeclarationTreeImpl variableDeclaration, Optional<List<Tuple<AstNode, VariableDeclarationTreeImpl>>> rest) {
+    List<AstNode> children = Lists.newArrayList();
+    List<InternalSyntaxToken> commas = Lists.newArrayList();
+    List<VariableDeclarationTreeImpl> declarations = Lists.newArrayList();
+
+    declarations.add(variableDeclaration);
+    children.add(variableDeclaration);
+
+    if (rest.isPresent()) {
+      for (Tuple<AstNode, VariableDeclarationTreeImpl> tuple : rest.get()) {
+
+        commas.add(InternalSyntaxToken.create(tuple.first()));
+        declarations.add(tuple.second());
+
+        children.add(tuple.first());
+        children.add(tuple.second());
+      }
+    }
+    return new VariableStatementTreeImpl(declarations, commas, children);
+  }
+
+  public VariableStatementTreeImpl completeVariableStatement(AstNode varKeyword, VariableStatementTreeImpl partial, AstNode eos) {
+    return partial.complete(InternalSyntaxToken.create(varKeyword), eos);
+  }
+
+  public VariableDeclarationTreeImpl variableDeclaration(AstNode bindingIdentifierInitialiser) {
+    return new VariableDeclarationTreeImpl(bindingIdentifierInitialiser);
   }
 
   public LabelledStatementTreeImpl labelledStatement(AstNode identifier, AstNode colon, AstNode statement) {
@@ -65,7 +92,7 @@ public class TreeFactory {
   }
 
   public ContinueStatementTreeImpl newContinueWithLabel(AstNode identifier, AstNode eos) {
-     return new ContinueStatementTreeImpl(new IdentifierTreeImpl(InternalSyntaxToken.create(identifier)), eos);
+    return new ContinueStatementTreeImpl(new IdentifierTreeImpl(InternalSyntaxToken.create(identifier)), eos);
   }
 
   public ContinueStatementTreeImpl newContinueWithoutLabel(AstNode eos) {
@@ -112,9 +139,9 @@ public class TreeFactory {
   }
 
   public TryStatementTreeImpl newTryStatementWithCatch(CatchBlockTreeImpl catchBlock, Optional<TryStatementTreeImpl> partial) {
-     if (partial.isPresent()) {
-       return partial.get().complete(catchBlock);
-     }
+    if (partial.isPresent()) {
+      return partial.get().complete(catchBlock);
+    }
     return new TryStatementTreeImpl(catchBlock);
   }
 

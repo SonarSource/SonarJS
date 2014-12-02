@@ -20,6 +20,7 @@
 package org.sonar.javascript.model;
 
 import com.google.common.base.Charsets;
+import com.sonar.sslr.api.AstNode;
 import com.sonar.sslr.impl.Parser;
 import org.sonar.javascript.EcmaScriptConfiguration;
 import org.sonar.javascript.model.interfaces.Tree;
@@ -40,5 +41,16 @@ public abstract class JavaScriptTreeModelTest {
    */
   protected <T extends Tree> T parse(String s, Kind descendantToReturn) throws Exception {
     return (T) p.parse(s).getFirstDescendant(descendantToReturn);
+  }
+
+  /**
+   * Parse the given string and return the parent node of the generated AST
+   *
+   * @param s the string to parse
+   *
+   * @return return the parent node of the generated AST
+   */
+  protected AstNode parse(String s) throws Exception {
+    return p.parse(s);
   }
 }

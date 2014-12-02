@@ -33,13 +33,15 @@ import org.sonar.javascript.model.implementations.statement.LabelledStatementTre
 import org.sonar.javascript.model.implementations.statement.ReturnStatementTreeImpl;
 import org.sonar.javascript.model.implementations.statement.ThrowStatementTreeImpl;
 import org.sonar.javascript.model.implementations.statement.TryStatementTreeImpl;
+import org.sonar.javascript.model.implementations.statement.VariableDeclarationTreeImpl;
 import org.sonar.javascript.model.implementations.statement.VariableStatementTreeImpl;
 import org.sonar.javascript.model.implementations.statement.WithStatementTreeImpl;
 import org.sonar.javascript.model.interfaces.Tree.Kind;
 import org.sonar.javascript.model.interfaces.statement.DebuggerStatementTree;
-import org.sonar.javascript.model.interfaces.statement.ReturnStatementTree;
-import org.sonar.javascript.model.interfaces.statement.TryStatementTree;
+import org.sonar.javascript.model.interfaces.statement.VariableDeclarationTree;
 import org.sonar.javascript.parser.sslr.GrammarBuilder;
+
+import java.util.List;
 
 public class ActionGrammar {
 
@@ -67,7 +69,17 @@ public class ActionGrammar {
 
   public VariableStatementTreeImpl VARIABLE_STATEMENT() {
     return b.<VariableStatementTreeImpl>nonterminal(Kind.VARIABLE_STATEMENT)
-      .is(f.variableStatement(b.invokeRule(EcmaScriptKeyword.VAR), b.invokeRule(EcmaScriptGrammar.VARIABLE_DECLARATION_LIST), b.invokeRule(EcmaScriptGrammar.EOS)));
+      .is(f.completeVariableStatement(b.invokeRule(EcmaScriptKeyword.VAR), VARIABLE_DECLARATION_LIST(), b.invokeRule(EcmaScriptGrammar.EOS)));
+  }
+
+  public VariableStatementTreeImpl VARIABLE_DECLARATION_LIST() {
+    return b.<VariableStatementTreeImpl>nonterminal(EcmaScriptGrammar.VARIABLE_DECLARATION_LIST)
+      .is(f.newVariableStatement(VARIABLE_DECLARATION(), b.zeroOrMore(f.newTuple1(b.invokeRule(EcmaScriptPunctuator.COMMA), VARIABLE_DECLARATION()))));
+  }
+
+  public VariableDeclarationTreeImpl VARIABLE_DECLARATION() {
+    return b.<VariableDeclarationTreeImpl>nonterminal(Kind.VARIABLE_DECLARATION)
+      .is(f.variableDeclaration(b.firstOf(b.invokeRule(EcmaScriptGrammar.BINDING_IDENTIFIER_INITIALISER), b.invokeRule(EcmaScriptGrammar.BINDING_PATTERN_INITIALISER))));
   }
 
  public LabelledStatementTreeImpl LABELLED_STATEMENT() {
@@ -187,5 +199,9 @@ public class ActionGrammar {
         b.invokeRule(EcmaScriptPunctuator.RPARENTHESIS),
         BLOCK()));
   }
+
+  /**
+   * A.4 [END] Statement
+   */
 
 }

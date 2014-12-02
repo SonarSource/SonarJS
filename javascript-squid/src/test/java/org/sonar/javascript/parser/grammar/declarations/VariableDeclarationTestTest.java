@@ -20,7 +20,7 @@
 package org.sonar.javascript.parser.grammar.declarations;
 
 import org.junit.Test;
-import org.sonar.javascript.parser.EcmaScriptGrammar;
+import org.sonar.javascript.model.interfaces.Tree.Kind;
 
 import static org.sonar.javascript.sslr.tests.Assertions.assertThat;
 
@@ -29,7 +29,7 @@ public class VariableDeclarationTestTest {
 
   @Test
   public void ok() {
-    assertThat(EcmaScriptGrammar.VARIABLE_DECLARATION)
+    assertThat(Kind.VARIABLE_DECLARATION)
       .matches("identifier")
       .matches("identifier = 1")
       .matches("{ } = 1");

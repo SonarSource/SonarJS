@@ -19,6 +19,9 @@
  */
 package org.sonar.javascript.model.interfaces.statement;
 
+import org.sonar.javascript.model.implementations.SeparatedList;
+import org.sonar.javascript.model.implementations.lexical.InternalSyntaxToken;
+import org.sonar.javascript.model.implementations.statement.VariableDeclarationTreeImpl;
 import org.sonar.javascript.model.interfaces.Tree;
 import org.sonar.javascript.model.interfaces.lexical.SyntaxToken;
 
@@ -26,18 +29,18 @@ import java.util.List;
 
 /**
  * <a href="http://www.ecma-international.org/ecma-262/5.1/#sec-12.2">Variable Statement</a>
- *
+ * <p/>
  * <pre>
  *   var {@link #declarations()} ;
  * </pre>
- *
+ * <p/>
  * <p>This interface is not intended to be implemented by clients.</p>
  */
 public interface VariableStatementTree extends StatementTree {
 
   SyntaxToken varKeyword();
 
-  List<VariableDeclarationTree> declarations();
+  SeparatedList<VariableDeclarationTreeImpl> declarations();
 
   Tree endOfStatement();
 }

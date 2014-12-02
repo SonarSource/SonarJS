@@ -19,33 +19,32 @@
  */
 package org.sonar.javascript.model.statement;
 
+import com.sonar.sslr.api.AstNode;
+import static org.fest.assertions.Assertions.assertThat;
 import org.junit.Test;
 import org.sonar.javascript.model.JavaScriptTreeModelTest;
+import org.sonar.javascript.model.implementations.statement.VariableDeclarationTreeImpl;
 import org.sonar.javascript.model.interfaces.Tree.Kind;
+import org.sonar.javascript.model.interfaces.statement.VariableDeclarationTree;
 import org.sonar.javascript.model.interfaces.statement.VariableStatementTree;
 
-import static org.fest.assertions.Assertions.assertThat;
+import java.util.List;
 
-public class VariableStatementTreeModelTest extends JavaScriptTreeModelTest {
+public class VariableDeclarationTreeModelTest extends JavaScriptTreeModelTest {
 
   @Test
   public void single_declaration() throws Exception {
-    VariableStatementTree tree = parse("var varDeclaration ;", Kind.VARIABLE_STATEMENT);
+    VariableDeclarationTreeImpl tree = parse("var varDeclaration ;", Kind.VARIABLE_DECLARATION);
 
-    assertThat(tree.is(Kind.VARIABLE_STATEMENT)).isTrue();
-    assertThat(tree.varKeyword().text()).isEqualTo("var");
-    assertThat(tree.declarations().size()).isEqualTo(1);
-    assertThat(tree.declarations().getSeparators().size()).isEqualTo(0);
+    assertThat(tree.is(Kind.VARIABLE_DECLARATION)).isTrue();
   }
 
   @Test
   public void multiple_declarations() throws Exception {
-    VariableStatementTree tree = parse("var varDeclaration , varDeclaration , varDeclaration ;", Kind.VARIABLE_STATEMENT);
+    List<AstNode> nodes = parse("var varDeclaration , varDeclaration , varDeclaration ;").getDescendants(Kind.VARIABLE_DECLARATION);
 
-    assertThat(tree.is(Kind.VARIABLE_STATEMENT)).isTrue();
-    assertThat(tree.varKeyword().text()).isEqualTo("var");
-    assertThat(tree.declarations().size()).isEqualTo(3);
-    assertThat(tree.declarations().getSeparators().size()).isEqualTo(2);
+    assertThat(nodes.size()).isEqualTo(3);
+    assertThat(((VariableDeclarationTree) nodes.get(0)).is(Kind.VARIABLE_DECLARATION)).isTrue();
   }
 
 }

@@ -47,7 +47,7 @@ public class BoundOrAssignedEvalOrArgumentsCheck extends SquidCheck<LexerlessGra
     EcmaScriptGrammar.GENERATOR_EXPRESSION};
 
   private static final GrammarRuleKey[] CONST_AND_VAR_NODES = {
-    EcmaScriptGrammar.VARIABLE_DECLARATION,
+    Kind.VARIABLE_DECLARATION,
     EcmaScriptGrammar.VARIABLE_DECLARATION_NO_IN,
     EcmaScriptGrammar.LEXICAL_BINDING,
     EcmaScriptGrammar.LEXICAL_BINDING_NO_IN};
