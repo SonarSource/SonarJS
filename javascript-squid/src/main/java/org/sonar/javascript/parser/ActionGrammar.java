@@ -38,10 +38,7 @@ import org.sonar.javascript.model.implementations.statement.VariableStatementTre
 import org.sonar.javascript.model.implementations.statement.WithStatementTreeImpl;
 import org.sonar.javascript.model.interfaces.Tree.Kind;
 import org.sonar.javascript.model.interfaces.statement.DebuggerStatementTree;
-import org.sonar.javascript.model.interfaces.statement.VariableDeclarationTree;
 import org.sonar.javascript.parser.sslr.GrammarBuilder;
-
-import java.util.List;
 
 public class ActionGrammar {
 
@@ -82,10 +79,10 @@ public class ActionGrammar {
       .is(f.variableDeclaration(b.firstOf(b.invokeRule(EcmaScriptGrammar.BINDING_IDENTIFIER_INITIALISER), b.invokeRule(EcmaScriptGrammar.BINDING_PATTERN_INITIALISER))));
   }
 
- public LabelledStatementTreeImpl LABELLED_STATEMENT() {
-   return b.<LabelledStatementTreeImpl>nonterminal(Kind.LABELLED_STATEMENT)
-     .is(f.labelledStatement(b.invokeRule(EcmaScriptTokenType.IDENTIFIER), b.invokeRule(EcmaScriptPunctuator.COLON), b.invokeRule(EcmaScriptGrammar.STATEMENT)));
- }
+  public LabelledStatementTreeImpl LABELLED_STATEMENT() {
+    return b.<LabelledStatementTreeImpl>nonterminal(Kind.LABELLED_STATEMENT)
+      .is(f.labelledStatement(b.invokeRule(EcmaScriptTokenType.IDENTIFIER), b.invokeRule(EcmaScriptPunctuator.COLON), b.invokeRule(EcmaScriptGrammar.STATEMENT)));
+  }
 
   public ContinueStatementTreeImpl CONTINUE_STATEMENT() {
     return b.<ContinueStatementTreeImpl>nonterminal(Kind.CONTINUE_STATEMENT)
@@ -176,13 +173,11 @@ public class ActionGrammar {
   public TryStatementTreeImpl TRY_STATEMENT() {
     return b.<TryStatementTreeImpl>nonterminal(Kind.TRY_STATEMENT)
       .is(f.completeTryStatement(
-        b.invokeRule(EcmaScriptKeyword.TRY),
-        BLOCK(),
-        b.firstOf(
-          f.newTryStatementWithCatch(CATCH_CLAUSE(), b.optional(FINALLY_CLAUSE())),
-          FINALLY_CLAUSE())
-      )
-    );
+          b.invokeRule(EcmaScriptKeyword.TRY),
+          BLOCK(),
+          b.firstOf(
+            f.newTryStatementWithCatch(CATCH_CLAUSE(), b.optional(FINALLY_CLAUSE())),
+            FINALLY_CLAUSE())));
   }
 
   public TryStatementTreeImpl FINALLY_CLAUSE() {
