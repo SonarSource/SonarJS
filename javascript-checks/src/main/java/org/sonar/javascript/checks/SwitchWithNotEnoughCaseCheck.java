@@ -46,13 +46,9 @@ public class SwitchWithNotEnoughCaseCheck extends SquidCheck<LexerlessGrammar> {
   }
 
   public static boolean isLessThanThreeCases(AstNode caseBlock) {
-    int numberOfCase = 0;
+    int numberOfCase = caseBlock.getChildren(EcmaScriptGrammar.CASE_CLAUSE).size();
 
-    for (AstNode caseClauses : caseBlock.getChildren(EcmaScriptGrammar.CASE_CLAUSES)) {
-      numberOfCase += caseClauses.getChildren(EcmaScriptGrammar.CASE_CLAUSE).size();
-    }
-
-    if (caseBlock.getFirstChild(EcmaScriptGrammar.DEFAULT_CLAUSE) != null) {
+    if (caseBlock.hasDirectChildren(EcmaScriptGrammar.DEFAULT_CLAUSE)) {
       numberOfCase++;
     }
 

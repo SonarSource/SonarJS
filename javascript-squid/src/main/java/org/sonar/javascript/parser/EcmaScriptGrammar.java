@@ -328,7 +328,6 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
   WITH_STATEMENT,
   SWITCH_STATEMENT,
   CASE_BLOCK,
-  CASE_CLAUSES,
   CASE_CLAUSE,
   DEFAULT_CLAUSE,
   CATCH_PARAMETER,
@@ -930,8 +929,7 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
         b.optional(ecmascript6(b.nextNot(LET, LBRACKET)), EXPRESSION_NO_IN)),
       SEMI, b.optional(CONDITION), SEMI, b.optional(EXPRESSION), RPARENTHESIS, STATEMENT);
     b.rule(SWITCH_STATEMENT).is(SWITCH, LPARENTHESIS, EXPRESSION, RPARENTHESIS, CASE_BLOCK);
-    b.rule(CASE_BLOCK).is(LCURLYBRACE, b.optional(CASE_CLAUSES), b.optional(DEFAULT_CLAUSE, b.optional(CASE_CLAUSES)), RCURLYBRACE);
-    b.rule(CASE_CLAUSES).is(b.oneOrMore(CASE_CLAUSE));
+    b.rule(CASE_BLOCK).is(LCURLYBRACE, b.zeroOrMore(CASE_CLAUSE), b.optional(DEFAULT_CLAUSE, b.zeroOrMore(CASE_CLAUSE)), RCURLYBRACE);
     b.rule(CASE_CLAUSE).is(CASE, EXPRESSION, COLON, b.optional(STATEMENT_LIST));
     b.rule(DEFAULT_CLAUSE).is(DEFAULT, COLON, b.optional(STATEMENT_LIST));
     b.rule(CATCH_PARAMETER).is(b.firstOf(BINDING_IDENTIFIER, BINDING_PATTERN));

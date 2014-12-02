@@ -24,14 +24,14 @@ import org.sonar.javascript.parser.EcmaScriptGrammar;
 
 import static org.sonar.javascript.sslr.tests.Assertions.assertThat;
 
-public class CaseClausesTest {
+public class CaseClauseTest {
 
 
   @Test
   public void ok() {
-    assertThat(EcmaScriptGrammar.CASE_CLAUSES)
+    assertThat(EcmaScriptGrammar.CASE_CLAUSE)
         .matches("case 1:")
-        .matches("case 1: case 2:");
+        .matches("case 1: statement");
   }
 
 }
