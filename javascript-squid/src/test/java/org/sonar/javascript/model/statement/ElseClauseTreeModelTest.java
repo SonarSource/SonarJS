@@ -17,37 +17,28 @@
  * License along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.javascript.checks;
+package org.sonar.javascript.model.statement;
 
-import com.sonar.sslr.api.AstNode;
-import org.sonar.check.Priority;
-import org.sonar.check.Rule;
+import org.junit.Test;
+import org.sonar.javascript.api.EcmaScriptKeyword;
+import org.sonar.javascript.api.EcmaScriptPunctuator;
+import org.sonar.javascript.model.JavaScriptTreeModelTest;
+import org.sonar.javascript.model.implementations.statement.ElseClauseTreeImpl;
 import org.sonar.javascript.model.implementations.statement.IfStatementTreeImpl;
 import org.sonar.javascript.model.interfaces.Tree.Kind;
-import org.sonar.squidbridge.checks.SquidCheck;
-import org.sonar.sslr.parser.LexerlessGrammar;
+import org.sonar.javascript.model.interfaces.statement.ElseClauseTree;
 
-@Rule(
-  key = "ElseIfWithoutElse",
-  priority = Priority.MAJOR)
-public class ElseIfWithoutElseCheck extends SquidCheck<LexerlessGrammar> {
+import static org.fest.assertions.Assertions.assertThat;
 
-  @Override
-  public void init() {
-    subscribeTo(Kind.IF_STATEMENT);
-  }
+public class ElseClauseTreeModelTest extends JavaScriptTreeModelTest {
 
-  @Override
-  public void visitNode(AstNode node) {
-    IfStatementTreeImpl ifStmt = (IfStatementTreeImpl) node;
+  @Test
+  public void test() throws Exception {
+    ElseClauseTreeImpl tree = parse("if (a) {} else {}", Kind.ELSE_CLAUSE);
 
-    if (isElseIf(ifStmt) && !ifStmt.hasElse()) {
-      getContext().createLineViolation(this, "Add the missing \"else\" clause.", node);
-    }
-  }
-
-  private boolean isElseIf(AstNode node) {
-    return node.getParent().getParent().is(Kind.ELSE_CLAUSE);
+    System.out.println(tree.getKind());
+    assertThat(tree.is(Kind.ELSE_CLAUSE)).isTrue();
+    assertThat(tree.elseKeyword().text()).isEqualTo(EcmaScriptKeyword.ELSE.getValue());
   }
 
 }

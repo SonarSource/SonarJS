@@ -32,7 +32,9 @@ import org.sonar.javascript.model.implementations.statement.CatchBlockTreeImpl;
 import org.sonar.javascript.model.implementations.statement.ContinueStatementTreeImpl;
 import org.sonar.javascript.model.implementations.statement.DebuggerStatementTreeImpl;
 import org.sonar.javascript.model.implementations.statement.DefaultClauseTreeImpl;
+import org.sonar.javascript.model.implementations.statement.ElseClauseTreeImpl;
 import org.sonar.javascript.model.implementations.statement.EmptyStatementTreeImpl;
+import org.sonar.javascript.model.implementations.statement.IfStatementTreeImpl;
 import org.sonar.javascript.model.implementations.statement.LabelledStatementTreeImpl;
 import org.sonar.javascript.model.implementations.statement.ReturnStatementTreeImpl;
 import org.sonar.javascript.model.implementations.statement.SwitchStatementTreeImpl;
@@ -42,6 +44,7 @@ import org.sonar.javascript.model.implementations.statement.VariableDeclarationT
 import org.sonar.javascript.model.implementations.statement.VariableStatementTreeImpl;
 import org.sonar.javascript.model.implementations.statement.WithStatementTreeImpl;
 import org.sonar.javascript.model.interfaces.statement.CaseClauseTree;
+import org.sonar.javascript.model.interfaces.statement.ElseClauseTree;
 import org.sonar.javascript.model.interfaces.statement.SwitchClauseTree;
 import org.sonar.javascript.model.interfaces.statement.SwitchStatementTree;
 import org.sonar.javascript.parser.sslr.Optional;
@@ -205,6 +208,17 @@ public class TreeFactory {
       return new CaseClauseTreeImpl(InternalSyntaxToken.create(caseToken), expression, InternalSyntaxToken.create(colonToken), statementList.get());
     }
     return new CaseClauseTreeImpl(InternalSyntaxToken.create(caseToken), expression, InternalSyntaxToken.create(colonToken));
+  }
+
+  public ElseClauseTreeImpl elseClause(AstNode elseToken, AstNode statement) {
+    return new ElseClauseTreeImpl(InternalSyntaxToken.create(elseToken), statement);
+  }
+
+  public IfStatementTreeImpl ifStatement(AstNode ifToken, AstNode openParenToken, AstNode condition, AstNode closeParenToken, AstNode statement, Optional<ElseClauseTreeImpl> elseClause) {
+    if (elseClause.isPresent()) {
+      return new IfStatementTreeImpl(InternalSyntaxToken.create(ifToken), InternalSyntaxToken.create(openParenToken), condition, InternalSyntaxToken.create(closeParenToken), statement, elseClause.get());
+    }
+    return new IfStatementTreeImpl(InternalSyntaxToken.create(ifToken), InternalSyntaxToken.create(openParenToken), condition, InternalSyntaxToken.create(closeParenToken), statement);
   }
 
   // End of statements

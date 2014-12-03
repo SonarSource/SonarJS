@@ -36,7 +36,7 @@ public class CollapsibleIfStatementsCheck extends SquidCheck<LexerlessGrammar> {
 
   @Override
   public void init() {
-    subscribeTo(EcmaScriptGrammar.IF_STATEMENT);
+    subscribeTo(Kind.IF_STATEMENT);
   }
 
   @Override
@@ -61,7 +61,7 @@ public class CollapsibleIfStatementsCheck extends SquidCheck<LexerlessGrammar> {
   }
 
   private boolean isIfStatementWithoutElse(AstNode statement) {
-    if (statement.isNot(EcmaScriptGrammar.IF_STATEMENT) || statement.hasDirectChildren(EcmaScriptGrammar.ELSE_CLAUSE)) {
+    if (statement.isNot(Kind.IF_STATEMENT) || statement.hasDirectChildren(Kind.ELSE_CLAUSE)) {
       return false;
     }
     return true;

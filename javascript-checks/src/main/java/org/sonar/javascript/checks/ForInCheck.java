@@ -54,7 +54,7 @@ public class ForInCheck extends SquidCheck<LexerlessGrammar> {
       statementNode = statementNode.getFirstChild();
     }
 
-    if (statementNode != null && statementNode.isNot(EcmaScriptGrammar.IF_STATEMENT)) {
+    if (statementNode != null && statementNode.isNot(Kind.IF_STATEMENT)) {
       getContext().createLineViolation(this, "Insert an if statement at the beginning of this loop to filter items.", astNode);
     }
   }

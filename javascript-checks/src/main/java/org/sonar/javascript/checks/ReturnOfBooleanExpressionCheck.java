@@ -37,7 +37,7 @@ public class ReturnOfBooleanExpressionCheck extends SquidCheck<LexerlessGrammar>
 
   @Override
   public void init() {
-    subscribeTo(EcmaScriptGrammar.IF_STATEMENT);
+    subscribeTo(Kind.IF_STATEMENT);
   }
 
   @Override
@@ -50,7 +50,7 @@ public class ReturnOfBooleanExpressionCheck extends SquidCheck<LexerlessGrammar>
   }
 
   public static AstNode getTrueStatement(AstNode ifStmt) {
-    return ifStmt.getFirstChild(EcmaScriptGrammar.ELSE_CLAUSE).getFirstChild(EcmaScriptGrammar.STATEMENT);
+    return ifStmt.getFirstChild(Kind.ELSE_CLAUSE).getFirstChild(EcmaScriptGrammar.STATEMENT);
   }
 
   public static AstNode getFalseStatement(AstNode ifStmt) {
@@ -58,11 +58,11 @@ public class ReturnOfBooleanExpressionCheck extends SquidCheck<LexerlessGrammar>
   }
 
   public static boolean isNotIfElse(AstNode ifStmt) {
-    return !ifStmt.getParent().getParent().is(EcmaScriptGrammar.ELSE_CLAUSE);
+    return !ifStmt.getParent().getParent().is(Kind.ELSE_CLAUSE);
   }
 
   public static boolean hasElse(AstNode ifStmt) {
-    return ifStmt.hasDirectChildren(EcmaScriptGrammar.ELSE_CLAUSE);
+    return ifStmt.hasDirectChildren(Kind.ELSE_CLAUSE);
   }
 
   public static boolean returnsBoolean(AstNode statement) {

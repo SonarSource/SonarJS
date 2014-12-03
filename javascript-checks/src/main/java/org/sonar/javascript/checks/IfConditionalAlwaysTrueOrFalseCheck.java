@@ -24,6 +24,7 @@ import org.sonar.check.BelongsToProfile;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.javascript.api.EcmaScriptKeyword;
+import org.sonar.javascript.model.interfaces.Tree.Kind;
 import org.sonar.javascript.parser.EcmaScriptGrammar;
 import org.sonar.squidbridge.checks.SquidCheck;
 import org.sonar.sslr.parser.LexerlessGrammar;
@@ -36,7 +37,7 @@ public class IfConditionalAlwaysTrueOrFalseCheck extends SquidCheck<LexerlessGra
 
   @Override
   public void init() {
-    subscribeTo(EcmaScriptGrammar.IF_STATEMENT);
+    subscribeTo(Kind.IF_STATEMENT);
   }
 
   @Override

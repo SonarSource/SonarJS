@@ -47,7 +47,7 @@ public class AutomaticSemicolonInsertionTest {
     assertThat(EcmaScriptGrammar.EXPRESSION_STATEMENT)
         .matchesPrefix("a = b \n", "++c");
 
-    assertThat(EcmaScriptGrammar.IF_STATEMENT)
+    assertThat(Kind.IF_STATEMENT)
         .as("not valid and not transformed").notMatches("if (a > b) \n else c = d")
         .as("valid").matches("if (a > b) ; \n else c = d");
 

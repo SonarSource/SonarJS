@@ -57,7 +57,7 @@ public class UnreachableCodeCheck extends SquidCheck<LexerlessGrammar> {
 
   public static boolean isUnReachableCode(AstNode node) {
     return node != null
-      && !node.is(EcmaScriptGrammar.ELSE_CLAUSE)
+      && !node.is(Kind.ELSE_CLAUSE)
       && !node.is(EcmaScriptGrammar.DECLARATION);
   }
 

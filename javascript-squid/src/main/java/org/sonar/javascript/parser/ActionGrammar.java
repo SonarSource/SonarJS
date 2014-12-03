@@ -30,7 +30,9 @@ import org.sonar.javascript.model.implementations.statement.CatchBlockTreeImpl;
 import org.sonar.javascript.model.implementations.statement.ContinueStatementTreeImpl;
 import org.sonar.javascript.model.implementations.statement.DebuggerStatementTreeImpl;
 import org.sonar.javascript.model.implementations.statement.DefaultClauseTreeImpl;
+import org.sonar.javascript.model.implementations.statement.ElseClauseTreeImpl;
 import org.sonar.javascript.model.implementations.statement.EmptyStatementTreeImpl;
+import org.sonar.javascript.model.implementations.statement.IfStatementTreeImpl;
 import org.sonar.javascript.model.implementations.statement.LabelledStatementTreeImpl;
 import org.sonar.javascript.model.implementations.statement.ReturnStatementTreeImpl;
 import org.sonar.javascript.model.implementations.statement.SwitchStatementTreeImpl;
@@ -41,7 +43,6 @@ import org.sonar.javascript.model.implementations.statement.VariableStatementTre
 import org.sonar.javascript.model.implementations.statement.WithStatementTreeImpl;
 import org.sonar.javascript.model.interfaces.Tree.Kind;
 import org.sonar.javascript.model.interfaces.statement.DebuggerStatementTree;
-import org.sonar.javascript.model.interfaces.statement.DefaultClauseTree;
 import org.sonar.javascript.parser.sslr.GrammarBuilder;
 
 public class ActionGrammar {
@@ -235,6 +236,23 @@ public class ActionGrammar {
         b.optional(b.invokeRule(EcmaScriptGrammar.STATEMENT_LIST))));
   }
 
+  public IfStatementTreeImpl IF_STATEMENT() {
+    return b.<IfStatementTreeImpl>nonterminal(Kind.IF_STATEMENT)
+      .is(f.ifStatement(
+        b.invokeRule(EcmaScriptKeyword.IF),
+        b.invokeRule(EcmaScriptPunctuator.LPARENTHESIS),
+        b.invokeRule(EcmaScriptGrammar.CONDITION),
+        b.invokeRule(EcmaScriptPunctuator.RPARENTHESIS),
+        b.invokeRule(EcmaScriptGrammar.STATEMENT),
+        b.optional(ELSE_CLAUSE())));
+  }
+
+  public ElseClauseTreeImpl ELSE_CLAUSE() {
+    return b.<ElseClauseTreeImpl>nonterminal(Kind.ELSE_CLAUSE)
+      .is(f.elseClause(
+        b.invokeRule(EcmaScriptKeyword.ELSE),
+        b.invokeRule(EcmaScriptGrammar.STATEMENT)));
+  }
   /**
    * A.4 [END] Statement
    */

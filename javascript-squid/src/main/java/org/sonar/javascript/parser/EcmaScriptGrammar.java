@@ -307,8 +307,6 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
   INITIALISER,
   INITIALISER_NO_IN,
   EXPRESSION_STATEMENT,
-  IF_STATEMENT,
-  ELSE_CLAUSE,
   ITERATION_STATEMENT,
   DO_WHILE_STATEMENT,
   WHILE_STATEMENT,
@@ -871,7 +869,7 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
       Kind.EMPTY_STATEMENT,
       Kind.LABELLED_STATEMENT,
       EXPRESSION_STATEMENT,
-      IF_STATEMENT,
+      Kind.IF_STATEMENT,
       ITERATION_STATEMENT,
       Kind.CONTINUE_STATEMENT,
       Kind.BREAK_STATEMENT,
@@ -888,8 +886,6 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
     b.rule(INITIALISER_NO_IN).is(EQU, ASSIGNMENT_EXPRESSION_NO_IN);
     b.rule(EXPRESSION_STATEMENT).is(b.nextNot(b.firstOf(LCURLYBRACE, FUNCTION)), EXPRESSION, EOS);
     b.rule(CONDITION).is(EXPRESSION);
-    b.rule(IF_STATEMENT).is(IF, LPARENTHESIS, CONDITION, RPARENTHESIS, STATEMENT, b.optional(ELSE_CLAUSE));
-    b.rule(ELSE_CLAUSE).is(ELSE, STATEMENT);
     b.rule(ITERATION_STATEMENT).is(b.firstOf(
       DO_WHILE_STATEMENT,
       WHILE_STATEMENT,

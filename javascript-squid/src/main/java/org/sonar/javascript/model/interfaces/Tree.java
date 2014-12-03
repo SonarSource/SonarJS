@@ -30,7 +30,9 @@ import org.sonar.javascript.model.interfaces.statement.CatchBlockTree;
 import org.sonar.javascript.model.interfaces.statement.ContinueStatementTree;
 import org.sonar.javascript.model.interfaces.statement.DebuggerStatementTree;
 import org.sonar.javascript.model.interfaces.statement.DefaultClauseTree;
+import org.sonar.javascript.model.interfaces.statement.ElseClauseTree;
 import org.sonar.javascript.model.interfaces.statement.EmptyStatementTree;
+import org.sonar.javascript.model.interfaces.statement.IfStatementTree;
 import org.sonar.javascript.model.interfaces.statement.LabelledStatementTree;
 import org.sonar.javascript.model.interfaces.statement.ReturnStatementTree;
 import org.sonar.javascript.model.interfaces.statement.SwitchStatementTree;
@@ -133,6 +135,16 @@ public interface Tree {
      * {@link DefaultClauseTree}
      */
     DEFAULT_CLAUSE(DefaultClauseTree.class),
+
+    /**
+     * {@link IfStatementTree}
+     */
+    IF_STATEMENT(IfStatementTree.class),
+
+    /**
+     * {@link ElseClauseTree}
+     */
+    ELSE_CLAUSE(ElseClauseTree.class),
 
     /**
      * {@link IdentifierTree}

@@ -40,19 +40,19 @@ public class AlwaysUseCurlyBracesCheck extends SquidCheck<LexerlessGrammar> {
   @Override
   public void init() {
     subscribeTo(
-        EcmaScriptGrammar.IF_STATEMENT,
+        Kind.IF_STATEMENT,
         EcmaScriptGrammar.FOR_IN_STATEMENT,
         EcmaScriptGrammar.FOR_STATEMENT,
         EcmaScriptGrammar.WHILE_STATEMENT,
         EcmaScriptGrammar.DO_WHILE_STATEMENT,
-        EcmaScriptGrammar.ELSE_CLAUSE);
+        Kind.ELSE_CLAUSE);
   }
 
   @Override
   public void visitNode(AstNode astNode) {
     List<AstNode> statements = astNode.getChildren(EcmaScriptGrammar.STATEMENT);
     for (AstNode statement : statements) {
-      if (statement.getFirstChild().is(EcmaScriptGrammar.IF_STATEMENT)
+      if (statement.getFirstChild().is(Kind.IF_STATEMENT)
         && statement.getPreviousSibling().is(EcmaScriptKeyword.ELSE)) {
         continue;
       }
