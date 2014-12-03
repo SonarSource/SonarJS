@@ -210,6 +210,8 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
   /** ECMAScript 6 **/
   ARGUMENTS_LIST,
   LEFT_HAND_SIDE_EXPRESSION,
+  LEFT_HAND_SIDE_EXPRESSION_NO_LET,
+  LEFT_HAND_SIDE_EXPRESSION_NO_LET_AND_LBRACKET,
   POSTFIX_EXPRESSION,
   UNARY_EXPRESSION,
   MULTIPLICATIVE_EXPRESSION,
@@ -898,16 +900,18 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
       FOR, LPARENTHESIS,
       b.firstOf(
         b.sequence(VAR, b.firstOf(VARIABLE_DECLARATION_LIST_NO_IN, ecmascript6(FOR_BINDING))),
-        b.sequence(ecmascript6(b.nextNot(LET, LBRACKET)), LEFT_HAND_SIDE_EXPRESSION),
+        LEFT_HAND_SIDE_EXPRESSION_NO_LET_AND_LBRACKET,
         ecmascript6(FOR_DECLARATION)),
       IN, EXPRESSION, RPARENTHESIS, STATEMENT);
+    b.rule(LEFT_HAND_SIDE_EXPRESSION_NO_LET_AND_LBRACKET).is(ecmascript6(b.nextNot(LET, LBRACKET)), LEFT_HAND_SIDE_EXPRESSION).skip();
     b.rule(FOR_OF_STATEMENT).is(
       FOR, LPARENTHESIS,
       b.firstOf(
         b.sequence(VAR, FOR_BINDING),
-        b.sequence(b.nextNot(LET), LEFT_HAND_SIDE_EXPRESSION),
+        LEFT_HAND_SIDE_EXPRESSION_NO_LET,
         FOR_DECLARATION),
       OF, ASSIGNMENT_EXPRESSION, RPARENTHESIS, STATEMENT);
+    b.rule(LEFT_HAND_SIDE_EXPRESSION_NO_LET).is(b.nextNot(LET), LEFT_HAND_SIDE_EXPRESSION).skip();
     b.rule(FOR_DECLARATION).is(LET_OR_CONST, FOR_BINDING);
     b.rule(OF).is(word(b, "of"));
     b.rule(FOR_STATEMENT).is(
