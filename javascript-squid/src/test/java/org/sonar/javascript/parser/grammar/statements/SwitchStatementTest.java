@@ -20,7 +20,7 @@
 package org.sonar.javascript.parser.grammar.statements;
 
 import org.junit.Test;
-import org.sonar.javascript.parser.EcmaScriptGrammar;
+import org.sonar.javascript.model.interfaces.Tree.Kind;
 
 import static org.sonar.javascript.sslr.tests.Assertions.assertThat;
 
@@ -29,7 +29,7 @@ public class SwitchStatementTest {
 
   @Test
   public void ok() {
-    assertThat(EcmaScriptGrammar.SWITCH_STATEMENT)
+    assertThat(Kind.SWITCH_STATEMENT)
         .matches("switch ( expression ) { }")
         .matches("switch ( expression ) { case expression: break; }")
         .matches("switch ( expression ) { case expression: break; default: break; }")

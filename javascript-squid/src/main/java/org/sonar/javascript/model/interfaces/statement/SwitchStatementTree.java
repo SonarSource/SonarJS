@@ -17,21 +17,38 @@
  * License along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.javascript.parser.grammar.statements;
+package org.sonar.javascript.model.interfaces.statement;
 
-import org.junit.Test;
-import org.sonar.javascript.model.interfaces.Tree.Kind;
+import org.sonar.javascript.model.interfaces.expression.ExpressionTree;
+import org.sonar.javascript.model.interfaces.lexical.SyntaxToken;
 
-import static org.sonar.javascript.sslr.tests.Assertions.assertThat;
+import java.util.List;
 
-public class CaseClauseTest {
+/**
+ * <a href="http://www.ecma-international.org/ecma-262/5.1/#sec-12.11">switch Statement</a>.
+ *
+ * <pre>
+ *   switch ({@link #expression()}) {
+ *     {@link #cases()}
+ *   }
+ * </pre>
+ *
+ * <p>This interface is not intended to be implemented by clients.</p>
+ */
+public interface SwitchStatementTree extends StatementTree {
 
+  SyntaxToken switchKeyword();
 
-  @Test
-  public void ok() {
-    assertThat(Kind.CASE_CLAUSE)
-        .matches("case 1:")
-        .matches("case 1: statement");
-  }
+  SyntaxToken openParenthesis();
+
+  ExpressionTree expression();
+
+  SyntaxToken closeParenthesis();
+
+  SyntaxToken openCurlyBrace();
+
+  List<SwitchClauseTree> cases();
+
+  SyntaxToken closeCurlyBrace();
 
 }

@@ -68,7 +68,7 @@ public class TooManyBreakOrContinueInLoopCheck extends SquidCheck<LexerlessGramm
         EcmaScriptGrammar.ITERATION_STATEMENT,
         Kind.BREAK_STATEMENT,
         Kind.CONTINUE_STATEMENT,
-        EcmaScriptGrammar.SWITCH_STATEMENT,
+        Kind.SWITCH_STATEMENT,
         Kind.LABELLED_STATEMENT);
     subscribeTo(FUNCTION_NODES);
   }

@@ -25,12 +25,15 @@ import org.sonar.javascript.api.EcmaScriptTokenType;
 import org.sonar.javascript.ast.parser.TreeFactory;
 import org.sonar.javascript.model.implementations.statement.BlockTreeImpl;
 import org.sonar.javascript.model.implementations.statement.BreakStatementTreeImpl;
+import org.sonar.javascript.model.implementations.statement.CaseClauseTreeImpl;
 import org.sonar.javascript.model.implementations.statement.CatchBlockTreeImpl;
 import org.sonar.javascript.model.implementations.statement.ContinueStatementTreeImpl;
 import org.sonar.javascript.model.implementations.statement.DebuggerStatementTreeImpl;
+import org.sonar.javascript.model.implementations.statement.DefaultClauseTreeImpl;
 import org.sonar.javascript.model.implementations.statement.EmptyStatementTreeImpl;
 import org.sonar.javascript.model.implementations.statement.LabelledStatementTreeImpl;
 import org.sonar.javascript.model.implementations.statement.ReturnStatementTreeImpl;
+import org.sonar.javascript.model.implementations.statement.SwitchStatementTreeImpl;
 import org.sonar.javascript.model.implementations.statement.ThrowStatementTreeImpl;
 import org.sonar.javascript.model.implementations.statement.TryStatementTreeImpl;
 import org.sonar.javascript.model.implementations.statement.VariableDeclarationTreeImpl;
@@ -38,6 +41,7 @@ import org.sonar.javascript.model.implementations.statement.VariableStatementTre
 import org.sonar.javascript.model.implementations.statement.WithStatementTreeImpl;
 import org.sonar.javascript.model.interfaces.Tree.Kind;
 import org.sonar.javascript.model.interfaces.statement.DebuggerStatementTree;
+import org.sonar.javascript.model.interfaces.statement.DefaultClauseTree;
 import org.sonar.javascript.parser.sslr.GrammarBuilder;
 
 public class ActionGrammar {
@@ -193,6 +197,42 @@ public class ActionGrammar {
         b.invokeRule(EcmaScriptGrammar.CATCH_PARAMETER),
         b.invokeRule(EcmaScriptPunctuator.RPARENTHESIS),
         BLOCK()));
+  }
+
+  public SwitchStatementTreeImpl SWITCH_STATEMENT() {
+    return b.<SwitchStatementTreeImpl>nonterminal(Kind.SWITCH_STATEMENT)
+      .is(f.completeSwitchStatement(
+        b.invokeRule(EcmaScriptKeyword.SWITCH),
+        b.invokeRule(EcmaScriptPunctuator.LPARENTHESIS),
+        b.invokeRule(EcmaScriptGrammar.EXPRESSION),
+        b.invokeRule(EcmaScriptPunctuator.RPARENTHESIS),
+        CASE_BLOCK()));
+  }
+
+  public SwitchStatementTreeImpl CASE_BLOCK() {
+    return b.<SwitchStatementTreeImpl>nonterminal()
+      .is(f.newSwitchStatement(
+        b.invokeRule(EcmaScriptPunctuator.LCURLYBRACE),
+        b.zeroOrMore(CASE_CLAUSE()),
+        b.optional(f.newTuple2(DEFAULT_CLAUSE(), b.zeroOrMore(CASE_CLAUSE()))),
+        b.invokeRule(EcmaScriptPunctuator.RCURLYBRACE)));
+  }
+
+  public CaseClauseTreeImpl CASE_CLAUSE() {
+    return b.<CaseClauseTreeImpl>nonterminal(Kind.CASE_CLAUSE)
+      .is(f.caseClause(
+        b.invokeRule(EcmaScriptKeyword.CASE),
+        b.invokeRule(EcmaScriptGrammar.EXPRESSION),
+        b.invokeRule(EcmaScriptPunctuator.COLON),
+        b.optional(b.invokeRule(EcmaScriptGrammar.STATEMENT_LIST))));
+  }
+
+  public DefaultClauseTreeImpl DEFAULT_CLAUSE() {
+    return b.<DefaultClauseTreeImpl>nonterminal(Kind.DEFAULT_CLAUSE)
+      .is(f.defaultClause(
+        b.invokeRule(EcmaScriptKeyword.DEFAULT),
+        b.invokeRule(EcmaScriptPunctuator.COLON),
+        b.optional(b.invokeRule(EcmaScriptGrammar.STATEMENT_LIST))));
   }
 
   /**

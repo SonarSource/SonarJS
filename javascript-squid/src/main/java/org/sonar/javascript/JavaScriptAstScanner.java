@@ -146,7 +146,7 @@ public final class JavaScriptAstScanner {
             Kind.BREAK_STATEMENT,
             Kind.RETURN_STATEMENT,
             Kind.WITH_STATEMENT,
-            EcmaScriptGrammar.SWITCH_STATEMENT,
+            Kind.SWITCH_STATEMENT,
             Kind.THROW_STATEMENT,
             Kind.TRY_STATEMENT,
             Kind.DEBUGGER_STATEMENT)

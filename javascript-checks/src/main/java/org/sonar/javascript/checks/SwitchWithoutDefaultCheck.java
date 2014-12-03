@@ -19,12 +19,14 @@
  */
 package org.sonar.javascript.checks;
 
+import com.google.common.collect.Iterables;
 import com.sonar.sslr.api.AstNode;
 import org.sonar.check.BelongsToProfile;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
-import org.sonar.javascript.api.EcmaScriptPunctuator;
-import org.sonar.javascript.parser.EcmaScriptGrammar;
+import org.sonar.javascript.model.implementations.statement.SwitchStatementTreeImpl;
+import org.sonar.javascript.model.interfaces.Tree.Kind;
+import org.sonar.javascript.model.interfaces.statement.SwitchClauseTree;
 import org.sonar.squidbridge.checks.SquidCheck;
 import org.sonar.sslr.parser.LexerlessGrammar;
 
@@ -36,17 +38,29 @@ public class SwitchWithoutDefaultCheck extends SquidCheck<LexerlessGrammar> {
 
   @Override
   public void init() {
-    subscribeTo(EcmaScriptGrammar.CASE_BLOCK);
+    subscribeTo(Kind.SWITCH_STATEMENT);
   }
 
   @Override
   public void visitNode(AstNode astNode) {
-    AstNode defaultClauseNode = astNode.getFirstChild(EcmaScriptGrammar.DEFAULT_CLAUSE);
-    if (defaultClauseNode == null) {
+    SwitchStatementTreeImpl switchStmt = (SwitchStatementTreeImpl) astNode;
+
+    if (!hasDefaultCase(switchStmt)) {
       getContext().createLineViolation(this, "Avoid switch statement without a \"default\" clause.", astNode);
-    } else if (defaultClauseNode.getNextSibling().isNot(EcmaScriptPunctuator.RCURLYBRACE)) {
+
+    } else if (!Iterables.getLast(switchStmt.cases()).is(Kind.DEFAULT_CLAUSE)) {
       getContext().createLineViolation(this, "\"default\" clause should be the last one.", astNode);
     }
+  }
+
+  private boolean hasDefaultCase(SwitchStatementTreeImpl switchStmt) {
+    for (SwitchClauseTree clause : switchStmt.cases()) {
+
+      if (clause.is(Kind.DEFAULT_CLAUSE)) {
+        return true;
+      }
+    }
+    return false;
   }
 
 }

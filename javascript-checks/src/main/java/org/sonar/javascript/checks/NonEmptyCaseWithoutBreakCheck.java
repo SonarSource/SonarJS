@@ -36,12 +36,12 @@ public class NonEmptyCaseWithoutBreakCheck extends SquidCheck<LexerlessGrammar> 
 
   @Override
   public void init() {
-    subscribeTo(EcmaScriptGrammar.CASE_CLAUSE, EcmaScriptGrammar.DEFAULT_CLAUSE);
+    subscribeTo(Kind.CASE_CLAUSE, Kind.DEFAULT_CLAUSE);
   }
 
   @Override
   public void visitNode(AstNode astNode) {
-    if (astNode.getNextAstNode().is(EcmaScriptGrammar.CASE_CLAUSE, EcmaScriptGrammar.DEFAULT_CLAUSE)) {
+    if (astNode.getNextAstNode().is(Kind.CASE_CLAUSE, Kind.DEFAULT_CLAUSE)) {
       AstNode statementList = astNode.getFirstChild(EcmaScriptGrammar.STATEMENT_LIST);
       if (statementList != null
         && statementList.getLastChild().getFirstChild().isNot(Kind.BREAK_STATEMENT, Kind.RETURN_STATEMENT, Kind.THROW_STATEMENT)) {

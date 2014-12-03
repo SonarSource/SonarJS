@@ -27,17 +27,23 @@ import org.sonar.javascript.model.implementations.expression.IdentifierTreeImpl;
 import org.sonar.javascript.model.implementations.lexical.InternalSyntaxToken;
 import org.sonar.javascript.model.implementations.statement.BlockTreeImpl;
 import org.sonar.javascript.model.implementations.statement.BreakStatementTreeImpl;
+import org.sonar.javascript.model.implementations.statement.CaseClauseTreeImpl;
 import org.sonar.javascript.model.implementations.statement.CatchBlockTreeImpl;
 import org.sonar.javascript.model.implementations.statement.ContinueStatementTreeImpl;
 import org.sonar.javascript.model.implementations.statement.DebuggerStatementTreeImpl;
+import org.sonar.javascript.model.implementations.statement.DefaultClauseTreeImpl;
 import org.sonar.javascript.model.implementations.statement.EmptyStatementTreeImpl;
 import org.sonar.javascript.model.implementations.statement.LabelledStatementTreeImpl;
 import org.sonar.javascript.model.implementations.statement.ReturnStatementTreeImpl;
+import org.sonar.javascript.model.implementations.statement.SwitchStatementTreeImpl;
 import org.sonar.javascript.model.implementations.statement.ThrowStatementTreeImpl;
 import org.sonar.javascript.model.implementations.statement.TryStatementTreeImpl;
 import org.sonar.javascript.model.implementations.statement.VariableDeclarationTreeImpl;
 import org.sonar.javascript.model.implementations.statement.VariableStatementTreeImpl;
 import org.sonar.javascript.model.implementations.statement.WithStatementTreeImpl;
+import org.sonar.javascript.model.interfaces.statement.CaseClauseTree;
+import org.sonar.javascript.model.interfaces.statement.SwitchClauseTree;
+import org.sonar.javascript.model.interfaces.statement.SwitchStatementTree;
 import org.sonar.javascript.parser.sslr.Optional;
 
 import java.util.List;
@@ -160,6 +166,45 @@ public class TreeFactory {
       catchParameter,
       InternalSyntaxToken.create(rparenToken),
       block);
+  }
+
+  public SwitchStatementTreeImpl newSwitchStatement(AstNode openCurlyBrace, Optional<List<CaseClauseTreeImpl>> caseClauseList, Optional<Tuple<DefaultClauseTreeImpl, Optional<List<CaseClauseTreeImpl>>>> defaultAndRestCases, AstNode closeCurlyBrace) {
+    List<SwitchClauseTree> cases = Lists.newArrayList();
+
+    // First case list
+    if (caseClauseList.isPresent()) {
+      cases.addAll(caseClauseList.get());
+    }
+
+    // default case
+    if (defaultAndRestCases.isPresent()) {
+      cases.add(defaultAndRestCases.get().first());
+
+      // case list following default
+      if (defaultAndRestCases.get().second().isPresent()) {
+        cases.addAll(defaultAndRestCases.get().second().get());
+      }
+    }
+
+    return new SwitchStatementTreeImpl(InternalSyntaxToken.create(openCurlyBrace), cases, InternalSyntaxToken.create(closeCurlyBrace));
+  }
+
+  public SwitchStatementTreeImpl completeSwitchStatement(AstNode switchToken, AstNode openParenthesis, AstNode expression, AstNode closeParenthesis, SwitchStatementTreeImpl caseBlock) {
+    return caseBlock.complete(InternalSyntaxToken.create(switchToken), InternalSyntaxToken.create(openParenthesis), expression, InternalSyntaxToken.create(closeParenthesis));
+  }
+
+  public DefaultClauseTreeImpl defaultClause(AstNode defaultToken, AstNode colonToken, Optional<AstNode> statementList) {
+    if (statementList.isPresent()) {
+      return new DefaultClauseTreeImpl(InternalSyntaxToken.create(defaultToken), InternalSyntaxToken.create(colonToken), statementList.get());
+    }
+    return new DefaultClauseTreeImpl(InternalSyntaxToken.create(defaultToken), InternalSyntaxToken.create(colonToken));
+  }
+
+  public CaseClauseTreeImpl caseClause(AstNode caseToken, AstNode expression, AstNode colonToken, Optional<AstNode> statementList) {
+    if (statementList.isPresent()) {
+      return new CaseClauseTreeImpl(InternalSyntaxToken.create(caseToken), expression, InternalSyntaxToken.create(colonToken), statementList.get());
+    }
+    return new CaseClauseTreeImpl(InternalSyntaxToken.create(caseToken), expression, InternalSyntaxToken.create(colonToken));
   }
 
   // End of statements

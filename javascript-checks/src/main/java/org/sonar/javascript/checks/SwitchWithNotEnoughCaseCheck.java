@@ -23,6 +23,9 @@ import com.sonar.sslr.api.AstNode;
 import org.sonar.check.BelongsToProfile;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
+import org.sonar.javascript.model.implementations.statement.SwitchStatementTreeImpl;
+import org.sonar.javascript.model.interfaces.Tree.Kind;
+import org.sonar.javascript.model.interfaces.statement.SwitchStatementTree;
 import org.sonar.javascript.parser.EcmaScriptGrammar;
 import org.sonar.squidbridge.checks.SquidCheck;
 import org.sonar.sslr.parser.LexerlessGrammar;
@@ -35,25 +38,16 @@ public class SwitchWithNotEnoughCaseCheck extends SquidCheck<LexerlessGrammar> {
 
   @Override
   public void init() {
-    subscribeTo(EcmaScriptGrammar.CASE_BLOCK);
+    subscribeTo(Kind.SWITCH_STATEMENT);
   }
 
   @Override
   public void visitNode(AstNode astNode) {
-    if (isLessThanThreeCases(astNode)) {
+    SwitchStatementTreeImpl switchStmt = (SwitchStatementTreeImpl) astNode;
+
+    if (switchStmt.cases().size() < 3) {
       getContext().createLineViolation(this, "Replace this \"switch\" statement with \"if\" statements to increase readability.", astNode);
     }
   }
-
-  public static boolean isLessThanThreeCases(AstNode caseBlock) {
-    int numberOfCase = caseBlock.getChildren(EcmaScriptGrammar.CASE_CLAUSE).size();
-
-    if (caseBlock.hasDirectChildren(EcmaScriptGrammar.DEFAULT_CLAUSE)) {
-      numberOfCase++;
-    }
-
-    return numberOfCase < 3;
-  }
-
 
 }

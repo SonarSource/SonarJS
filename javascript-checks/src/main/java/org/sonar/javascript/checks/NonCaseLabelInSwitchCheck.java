@@ -41,7 +41,7 @@ public class NonCaseLabelInSwitchCheck extends SquidCheck<LexerlessGrammar> {
   @Override
   public void init() {
     subscribeTo(
-      EcmaScriptGrammar.CASE_CLAUSE,
+      Kind.CASE_CLAUSE,
       Kind.LABELLED_STATEMENT);
   }
 
@@ -52,7 +52,7 @@ public class NonCaseLabelInSwitchCheck extends SquidCheck<LexerlessGrammar> {
 
   @Override
   public void visitNode(AstNode astNode) {
-    if (astNode.is(EcmaScriptGrammar.CASE_CLAUSE)) {
+    if (astNode.is(Kind.CASE_CLAUSE)) {
       inCase = true;
     } else if (inCase && astNode.is(Kind.LABELLED_STATEMENT)) {
       getContext().createLineViolation(this, "Remove this misleading \"{0}\" label.",
@@ -62,7 +62,7 @@ public class NonCaseLabelInSwitchCheck extends SquidCheck<LexerlessGrammar> {
 
   @Override
   public void leaveNode(AstNode astNode) {
-    if (astNode.is(EcmaScriptGrammar.CASE_CLAUSE)) {
+    if (astNode.is(Kind.CASE_CLAUSE)) {
       inCase = false;
     }
   }

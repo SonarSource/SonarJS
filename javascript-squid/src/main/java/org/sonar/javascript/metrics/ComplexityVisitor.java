@@ -20,6 +20,7 @@
 package org.sonar.javascript.metrics;
 
 import com.sonar.sslr.api.AstNode;
+import com.sonar.sslr.impl.ast.AstXmlPrinter;
 import org.sonar.javascript.api.EcmaScriptMetric;
 import org.sonar.javascript.api.EcmaScriptPunctuator;
 import org.sonar.javascript.model.interfaces.Tree.Kind;
@@ -42,7 +43,7 @@ public class ComplexityVisitor extends SquidAstVisitor<LexerlessGrammar> {
         // Branching nodes
         EcmaScriptGrammar.IF_STATEMENT,
         EcmaScriptGrammar.ITERATION_STATEMENT,
-        EcmaScriptGrammar.CASE_CLAUSE,
+        Kind.CASE_CLAUSE,
         Kind.CATCH_BLOCK,
         Kind.RETURN_STATEMENT,
         Kind.THROW_STATEMENT,

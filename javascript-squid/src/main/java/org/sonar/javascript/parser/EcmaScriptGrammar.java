@@ -48,7 +48,6 @@ import static org.sonar.javascript.api.EcmaScriptKeyword.INSTANCEOF;
 import static org.sonar.javascript.api.EcmaScriptKeyword.NEW;
 import static org.sonar.javascript.api.EcmaScriptKeyword.NULL;
 import static org.sonar.javascript.api.EcmaScriptKeyword.SUPER;
-import static org.sonar.javascript.api.EcmaScriptKeyword.SWITCH;
 import static org.sonar.javascript.api.EcmaScriptKeyword.THIS;
 import static org.sonar.javascript.api.EcmaScriptKeyword.TRUE;
 import static org.sonar.javascript.api.EcmaScriptKeyword.TYPEOF;
@@ -325,10 +324,6 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
   FOR_BINDING,
   RETURN_STATEMENT,
   WITH_STATEMENT,
-  SWITCH_STATEMENT,
-  CASE_BLOCK,
-  CASE_CLAUSE,
-  DEFAULT_CLAUSE,
   CATCH_PARAMETER,
   FINALLY,
 
@@ -882,7 +877,7 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
       Kind.BREAK_STATEMENT,
       Kind.RETURN_STATEMENT,
       Kind.WITH_STATEMENT,
-      SWITCH_STATEMENT,
+      Kind.SWITCH_STATEMENT,
       Kind.THROW_STATEMENT,
       Kind.TRY_STATEMENT,
       Kind.DEBUGGER_STATEMENT));
@@ -926,10 +921,6 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
         ecmascript6(b.sequence(LEXICAL_DECLARATION_NO_IN, b.optional(EXPRESSION_NO_IN))),
         b.optional(ecmascript6(b.nextNot(LET, LBRACKET)), EXPRESSION_NO_IN)),
       SEMI, b.optional(CONDITION), SEMI, b.optional(EXPRESSION), RPARENTHESIS, STATEMENT);
-    b.rule(SWITCH_STATEMENT).is(SWITCH, LPARENTHESIS, EXPRESSION, RPARENTHESIS, CASE_BLOCK);
-    b.rule(CASE_BLOCK).is(LCURLYBRACE, b.zeroOrMore(CASE_CLAUSE), b.optional(DEFAULT_CLAUSE, b.zeroOrMore(CASE_CLAUSE)), RCURLYBRACE);
-    b.rule(CASE_CLAUSE).is(CASE, EXPRESSION, COLON, b.optional(STATEMENT_LIST));
-    b.rule(DEFAULT_CLAUSE).is(DEFAULT, COLON, b.optional(STATEMENT_LIST));
     b.rule(CATCH_PARAMETER).is(b.firstOf(BINDING_IDENTIFIER, BINDING_PATTERN));
   }
 
