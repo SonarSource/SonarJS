@@ -32,7 +32,6 @@ import org.sonar.sslr.parser.LexerlessGrammar;
 import static org.sonar.javascript.api.EcmaScriptKeyword.CASE;
 import static org.sonar.javascript.api.EcmaScriptKeyword.CLASS;
 import static org.sonar.javascript.api.EcmaScriptKeyword.CONST;
-import static org.sonar.javascript.api.EcmaScriptKeyword.DEBUGGER;
 import static org.sonar.javascript.api.EcmaScriptKeyword.DEFAULT;
 import static org.sonar.javascript.api.EcmaScriptKeyword.DELETE;
 import static org.sonar.javascript.api.EcmaScriptKeyword.DO;
@@ -332,7 +331,6 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
   DEFAULT_CLAUSE,
   CATCH_PARAMETER,
   FINALLY,
-  DEBUGGER_STATEMENT,
 
   // A.5 Declarations
 
@@ -933,7 +931,6 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
     b.rule(CASE_CLAUSE).is(CASE, EXPRESSION, COLON, b.optional(STATEMENT_LIST));
     b.rule(DEFAULT_CLAUSE).is(DEFAULT, COLON, b.optional(STATEMENT_LIST));
     b.rule(CATCH_PARAMETER).is(b.firstOf(BINDING_IDENTIFIER, BINDING_PATTERN));
-    b.rule(DEBUGGER_STATEMENT).is(DEBUGGER, EOS);
   }
 
   /**
