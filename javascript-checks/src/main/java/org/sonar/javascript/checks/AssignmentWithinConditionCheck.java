@@ -25,6 +25,7 @@ import com.sonar.sslr.api.AstNodeType;
 import org.sonar.check.BelongsToProfile;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
+import org.sonar.javascript.model.interfaces.Tree.Kind;
 import org.sonar.javascript.parser.EcmaScriptGrammar;
 import org.sonar.squidbridge.checks.SquidCheck;
 import org.sonar.sslr.parser.LexerlessGrammar;
@@ -101,7 +102,7 @@ public class AssignmentWithinConditionCheck extends SquidCheck<LexerlessGrammar>
 
   private boolean isTargetedExpression(AstNode astNode) {
     return astNode.is(EcmaScriptGrammar.EXPRESSION, EcmaScriptGrammar.EXPRESSION_NO_IN)
-      && astNode.getParent().isNot(EcmaScriptGrammar.EXPRESSION_STATEMENT, EcmaScriptGrammar.CONDITION, EcmaScriptGrammar.FOR_STATEMENT);
+      && astNode.getParent().isNot(Kind.EXPRESSION_STATEMENT, EcmaScriptGrammar.CONDITION, EcmaScriptGrammar.FOR_STATEMENT);
   }
 
   private void pop() {

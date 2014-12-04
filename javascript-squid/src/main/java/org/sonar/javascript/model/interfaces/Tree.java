@@ -33,6 +33,7 @@ import org.sonar.javascript.model.interfaces.statement.DefaultClauseTree;
 import org.sonar.javascript.model.interfaces.statement.DoWhileStatementTree;
 import org.sonar.javascript.model.interfaces.statement.ElseClauseTree;
 import org.sonar.javascript.model.interfaces.statement.EmptyStatementTree;
+import org.sonar.javascript.model.interfaces.statement.ExpressionStatementTree;
 import org.sonar.javascript.model.interfaces.statement.IfStatementTree;
 import org.sonar.javascript.model.interfaces.statement.LabelledStatementTree;
 import org.sonar.javascript.model.interfaces.statement.ReturnStatementTree;
@@ -157,6 +158,11 @@ public interface Tree {
      * {@link DoWhileStatementTree}
      */
     DO_WHILE_STATEMENT(DoWhileStatementTree.class),
+
+    /**
+     * {@link ExpressionStatementTree}
+     */
+    EXPRESSION_STATEMENT(ExpressionStatementTree.class),
 
     /**
      * {@link IdentifierTree}

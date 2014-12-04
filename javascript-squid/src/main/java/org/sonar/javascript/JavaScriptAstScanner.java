@@ -139,7 +139,7 @@ public final class JavaScriptAstScanner {
         .subscribeTo(
             Kind.VARIABLE_STATEMENT,
             Kind.EMPTY_STATEMENT,
-            EcmaScriptGrammar.EXPRESSION_STATEMENT,
+            Kind.EXPRESSION_STATEMENT,
             Kind.IF_STATEMENT,
             EcmaScriptGrammar.ITERATION_STATEMENT,
             Kind.CONTINUE_STATEMENT,

@@ -33,6 +33,7 @@ import org.sonar.javascript.model.implementations.statement.DefaultClauseTreeImp
 import org.sonar.javascript.model.implementations.statement.DoWhileStatementTreeImpl;
 import org.sonar.javascript.model.implementations.statement.ElseClauseTreeImpl;
 import org.sonar.javascript.model.implementations.statement.EmptyStatementTreeImpl;
+import org.sonar.javascript.model.implementations.statement.ExpressionStatementTreeImpl;
 import org.sonar.javascript.model.implementations.statement.IfStatementTreeImpl;
 import org.sonar.javascript.model.implementations.statement.LabelledStatementTreeImpl;
 import org.sonar.javascript.model.implementations.statement.ReturnStatementTreeImpl;
@@ -277,6 +278,14 @@ public class ActionGrammar {
         b.invokeRule(EcmaScriptPunctuator.RPARENTHESIS),
         b.invokeRule(EcmaScriptGrammar.EOS)));
   }
+
+  public ExpressionStatementTreeImpl EXPRESSION_STATEMENT() {
+    return b.<ExpressionStatementTreeImpl>nonterminal(Kind.EXPRESSION_STATEMENT)
+      .is(f.expressionStatement(
+        b.invokeRule(EcmaScriptGrammar.EXPRESSION_NO_LCURLY_AND_FUNCTION), b.invokeRule(EcmaScriptGrammar.EOS)));
+
+  }
+
   /**
    * A.4 [END] Statement
    */

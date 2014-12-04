@@ -32,7 +32,8 @@ import org.sonar.javascript.model.interfaces.Tree;
  */
 public interface ExpressionStatementTree extends StatementTree {
 
-  // TODO
   Tree expression();
+
+  Tree endOfStatement();
 
 }

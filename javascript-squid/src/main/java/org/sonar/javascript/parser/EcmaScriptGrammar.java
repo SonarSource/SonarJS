@@ -237,6 +237,7 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
   ES6_ASSIGNMENT_EXPRESSION_NO_IN,
   ASSIGNMENT_OPERATOR,
   EXPRESSION,
+  EXPRESSION_NO_LCURLY_AND_FUNCTION,
   EXPRESSION_NO_LB,
   EXPRESSION_NO_IN,
   /** ECMAScript 6 **/
@@ -864,7 +865,7 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
       Kind.VARIABLE_STATEMENT,
       Kind.EMPTY_STATEMENT,
       Kind.LABELLED_STATEMENT,
-      EXPRESSION_STATEMENT,
+      Kind.EXPRESSION_STATEMENT,
       Kind.IF_STATEMENT,
       ITERATION_STATEMENT,
       Kind.CONTINUE_STATEMENT,
@@ -878,7 +879,6 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
     b.rule(STATEMENT_LIST).is(b.oneOrMore(b.firstOf(ecmascript6(DECLARATION), STATEMENT)));
     b.rule(VARIABLE_DECLARATION_LIST_NO_IN).is(VARIABLE_DECLARATION_NO_IN, b.zeroOrMore(COMMA, VARIABLE_DECLARATION_NO_IN));
     b.rule(VARIABLE_DECLARATION_NO_IN).is(b.firstOf(BINDING_IDENTIFIER_INITIALISER_NO_IN, BINDING_PATTERN_INITIALISER_NO_IN));
-    b.rule(EXPRESSION_STATEMENT).is(b.nextNot(b.firstOf(LCURLYBRACE, FUNCTION)), EXPRESSION, EOS);
     b.rule(CONDITION).is(EXPRESSION);
     b.rule(ITERATION_STATEMENT).is(b.firstOf(
       Kind.DO_WHILE_STATEMENT,
@@ -893,7 +893,6 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
         LEFT_HAND_SIDE_EXPRESSION_NO_LET_AND_LBRACKET,
         ecmascript6(FOR_DECLARATION)),
       IN, EXPRESSION, RPARENTHESIS, STATEMENT);
-    b.rule(LEFT_HAND_SIDE_EXPRESSION_NO_LET_AND_LBRACKET).is(ecmascript6(b.nextNot(LET, LBRACKET)), LEFT_HAND_SIDE_EXPRESSION).skip();
     b.rule(FOR_OF_STATEMENT).is(
       FOR, LPARENTHESIS,
       b.firstOf(
@@ -901,7 +900,6 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
         LEFT_HAND_SIDE_EXPRESSION_NO_LET,
         FOR_DECLARATION),
       OF, ASSIGNMENT_EXPRESSION, RPARENTHESIS, STATEMENT);
-    b.rule(LEFT_HAND_SIDE_EXPRESSION_NO_LET).is(b.nextNot(LET), LEFT_HAND_SIDE_EXPRESSION).skip();
     b.rule(FOR_DECLARATION).is(LET_OR_CONST, FOR_BINDING);
     b.rule(OF).is(word(b, "of"));
     b.rule(FOR_STATEMENT).is(
@@ -912,6 +910,12 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
         b.optional(ecmascript6(b.nextNot(LET, LBRACKET)), EXPRESSION_NO_IN)),
       SEMI, b.optional(CONDITION), SEMI, b.optional(EXPRESSION), RPARENTHESIS, STATEMENT);
     b.rule(CATCH_PARAMETER).is(b.firstOf(BINDING_IDENTIFIER, BINDING_PATTERN));
+
+    // Temporary rules waiting for b.nextNot method migration
+    b.rule(LEFT_HAND_SIDE_EXPRESSION_NO_LET_AND_LBRACKET).is(ecmascript6(b.nextNot(LET, LBRACKET)), LEFT_HAND_SIDE_EXPRESSION).skip();
+    b.rule(LEFT_HAND_SIDE_EXPRESSION_NO_LET).is(b.nextNot(LET), LEFT_HAND_SIDE_EXPRESSION).skip();
+    b.rule(EXPRESSION_NO_LCURLY_AND_FUNCTION).is(b.nextNot(b.firstOf(LCURLYBRACE, FUNCTION)), EXPRESSION).skip();
+
   }
 
   /**
