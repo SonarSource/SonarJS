@@ -44,7 +44,7 @@ public class AlwaysUseCurlyBracesCheck extends SquidCheck<LexerlessGrammar> {
         EcmaScriptGrammar.FOR_IN_STATEMENT,
         EcmaScriptGrammar.FOR_STATEMENT,
         Kind.WHILE_STATEMENT,
-        EcmaScriptGrammar.DO_WHILE_STATEMENT,
+        Kind.DO_WHILE_STATEMENT,
         Kind.ELSE_CLAUSE);
   }
 

@@ -30,6 +30,7 @@ import org.sonar.javascript.model.implementations.statement.CatchBlockTreeImpl;
 import org.sonar.javascript.model.implementations.statement.ContinueStatementTreeImpl;
 import org.sonar.javascript.model.implementations.statement.DebuggerStatementTreeImpl;
 import org.sonar.javascript.model.implementations.statement.DefaultClauseTreeImpl;
+import org.sonar.javascript.model.implementations.statement.DoWhileStatementTreeImpl;
 import org.sonar.javascript.model.implementations.statement.ElseClauseTreeImpl;
 import org.sonar.javascript.model.implementations.statement.EmptyStatementTreeImpl;
 import org.sonar.javascript.model.implementations.statement.IfStatementTreeImpl;
@@ -265,6 +266,17 @@ public class ActionGrammar {
         b.invokeRule(EcmaScriptGrammar.STATEMENT)));
   }
 
+  public DoWhileStatementTreeImpl DO_WHILE_STATEMENT() {
+    return b.<DoWhileStatementTreeImpl>nonterminal(Kind.DO_WHILE_STATEMENT)
+      .is(f.doWhileStatement(
+        b.invokeRule(EcmaScriptKeyword.DO),
+        b.invokeRule(EcmaScriptGrammar.STATEMENT),
+        b.invokeRule(EcmaScriptKeyword.WHILE),
+        b.invokeRule(EcmaScriptPunctuator.LPARENTHESIS),
+        b.invokeRule(EcmaScriptGrammar.CONDITION),
+        b.invokeRule(EcmaScriptPunctuator.RPARENTHESIS),
+        b.invokeRule(EcmaScriptGrammar.EOS)));
+  }
   /**
    * A.4 [END] Statement
    */

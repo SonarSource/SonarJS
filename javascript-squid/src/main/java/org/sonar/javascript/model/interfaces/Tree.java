@@ -30,6 +30,7 @@ import org.sonar.javascript.model.interfaces.statement.CatchBlockTree;
 import org.sonar.javascript.model.interfaces.statement.ContinueStatementTree;
 import org.sonar.javascript.model.interfaces.statement.DebuggerStatementTree;
 import org.sonar.javascript.model.interfaces.statement.DefaultClauseTree;
+import org.sonar.javascript.model.interfaces.statement.DoWhileStatementTree;
 import org.sonar.javascript.model.interfaces.statement.ElseClauseTree;
 import org.sonar.javascript.model.interfaces.statement.EmptyStatementTree;
 import org.sonar.javascript.model.interfaces.statement.IfStatementTree;
@@ -151,6 +152,11 @@ public interface Tree {
      * {@link WhileStatementTree}
      */
     WHILE_STATEMENT(WhileStatementTree.class),
+
+    /**
+     * {@link DoWhileStatementTree}
+     */
+    DO_WHILE_STATEMENT(DoWhileStatementTree.class),
 
     /**
      * {@link IdentifierTree}

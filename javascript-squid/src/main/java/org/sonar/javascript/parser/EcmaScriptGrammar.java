@@ -34,7 +34,6 @@ import static org.sonar.javascript.api.EcmaScriptKeyword.CLASS;
 import static org.sonar.javascript.api.EcmaScriptKeyword.CONST;
 import static org.sonar.javascript.api.EcmaScriptKeyword.DEFAULT;
 import static org.sonar.javascript.api.EcmaScriptKeyword.DELETE;
-import static org.sonar.javascript.api.EcmaScriptKeyword.DO;
 import static org.sonar.javascript.api.EcmaScriptKeyword.ELSE;
 import static org.sonar.javascript.api.EcmaScriptKeyword.EXPORT;
 import static org.sonar.javascript.api.EcmaScriptKeyword.EXTENDS;
@@ -53,7 +52,6 @@ import static org.sonar.javascript.api.EcmaScriptKeyword.TRUE;
 import static org.sonar.javascript.api.EcmaScriptKeyword.TYPEOF;
 import static org.sonar.javascript.api.EcmaScriptKeyword.VAR;
 import static org.sonar.javascript.api.EcmaScriptKeyword.VOID;
-import static org.sonar.javascript.api.EcmaScriptKeyword.WHILE;
 import static org.sonar.javascript.api.EcmaScriptKeyword.YIELD;
 import static org.sonar.javascript.api.EcmaScriptPunctuator.AND;
 import static org.sonar.javascript.api.EcmaScriptPunctuator.ANDAND;
@@ -310,7 +308,6 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
   INITIALISER_NO_IN,
   EXPRESSION_STATEMENT,
   ITERATION_STATEMENT,
-  DO_WHILE_STATEMENT,
   FOR_IN_STATEMENT,
   /** ECMAScript 6 **/
   FOR_OF_STATEMENT,
@@ -888,12 +885,11 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
     b.rule(EXPRESSION_STATEMENT).is(b.nextNot(b.firstOf(LCURLYBRACE, FUNCTION)), EXPRESSION, EOS);
     b.rule(CONDITION).is(EXPRESSION);
     b.rule(ITERATION_STATEMENT).is(b.firstOf(
-      DO_WHILE_STATEMENT,
+      Kind.DO_WHILE_STATEMENT,
       Kind.WHILE_STATEMENT,
       FOR_IN_STATEMENT,
       ecmascript6(FOR_OF_STATEMENT),
       FOR_STATEMENT));
-    b.rule(DO_WHILE_STATEMENT).is(DO, STATEMENT, WHILE, LPARENTHESIS, CONDITION, RPARENTHESIS, EOS);
     b.rule(FOR_IN_STATEMENT).is(
       FOR, LPARENTHESIS,
       b.firstOf(
