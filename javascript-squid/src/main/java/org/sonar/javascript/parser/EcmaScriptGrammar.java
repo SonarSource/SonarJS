@@ -29,12 +29,10 @@ import org.sonar.sslr.grammar.GrammarRuleKey;
 import org.sonar.sslr.grammar.LexerlessGrammarBuilder;
 import org.sonar.sslr.parser.LexerlessGrammar;
 
-import static org.sonar.javascript.api.EcmaScriptKeyword.CASE;
 import static org.sonar.javascript.api.EcmaScriptKeyword.CLASS;
 import static org.sonar.javascript.api.EcmaScriptKeyword.CONST;
 import static org.sonar.javascript.api.EcmaScriptKeyword.DEFAULT;
 import static org.sonar.javascript.api.EcmaScriptKeyword.DELETE;
-import static org.sonar.javascript.api.EcmaScriptKeyword.ELSE;
 import static org.sonar.javascript.api.EcmaScriptKeyword.EXPORT;
 import static org.sonar.javascript.api.EcmaScriptKeyword.EXTENDS;
 import static org.sonar.javascript.api.EcmaScriptKeyword.FALSE;
