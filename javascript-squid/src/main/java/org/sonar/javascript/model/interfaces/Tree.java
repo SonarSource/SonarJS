@@ -40,6 +40,7 @@ import org.sonar.javascript.model.interfaces.statement.ThrowStatementTree;
 import org.sonar.javascript.model.interfaces.statement.TryStatementTree;
 import org.sonar.javascript.model.interfaces.statement.VariableDeclarationTree;
 import org.sonar.javascript.model.interfaces.statement.VariableStatementTree;
+import org.sonar.javascript.model.interfaces.statement.WhileStatementTree;
 import org.sonar.javascript.model.interfaces.statement.WithStatementTree;
 import org.sonar.sslr.grammar.GrammarRuleKey;
 
@@ -145,6 +146,11 @@ public interface Tree {
      * {@link ElseClauseTree}
      */
     ELSE_CLAUSE(ElseClauseTree.class),
+
+    /**
+     * {@link WhileStatementTree}
+     */
+    WHILE_STATEMENT(WhileStatementTree.class),
 
     /**
      * {@link IdentifierTree}

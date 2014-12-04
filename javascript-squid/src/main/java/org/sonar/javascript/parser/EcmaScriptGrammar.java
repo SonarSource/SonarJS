@@ -311,7 +311,6 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
   EXPRESSION_STATEMENT,
   ITERATION_STATEMENT,
   DO_WHILE_STATEMENT,
-  WHILE_STATEMENT,
   FOR_IN_STATEMENT,
   /** ECMAScript 6 **/
   FOR_OF_STATEMENT,
@@ -890,12 +889,11 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
     b.rule(CONDITION).is(EXPRESSION);
     b.rule(ITERATION_STATEMENT).is(b.firstOf(
       DO_WHILE_STATEMENT,
-      WHILE_STATEMENT,
+      Kind.WHILE_STATEMENT,
       FOR_IN_STATEMENT,
       ecmascript6(FOR_OF_STATEMENT),
       FOR_STATEMENT));
     b.rule(DO_WHILE_STATEMENT).is(DO, STATEMENT, WHILE, LPARENTHESIS, CONDITION, RPARENTHESIS, EOS);
-    b.rule(WHILE_STATEMENT).is(WHILE, LPARENTHESIS, CONDITION, RPARENTHESIS, STATEMENT);
     b.rule(FOR_IN_STATEMENT).is(
       FOR, LPARENTHESIS,
       b.firstOf(

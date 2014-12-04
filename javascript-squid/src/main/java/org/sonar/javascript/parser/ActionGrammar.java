@@ -40,6 +40,7 @@ import org.sonar.javascript.model.implementations.statement.ThrowStatementTreeIm
 import org.sonar.javascript.model.implementations.statement.TryStatementTreeImpl;
 import org.sonar.javascript.model.implementations.statement.VariableDeclarationTreeImpl;
 import org.sonar.javascript.model.implementations.statement.VariableStatementTreeImpl;
+import org.sonar.javascript.model.implementations.statement.WhileStatementTreeImpl;
 import org.sonar.javascript.model.implementations.statement.WithStatementTreeImpl;
 import org.sonar.javascript.model.interfaces.Tree.Kind;
 import org.sonar.javascript.model.interfaces.statement.DebuggerStatementTree;
@@ -253,6 +254,17 @@ public class ActionGrammar {
         b.invokeRule(EcmaScriptKeyword.ELSE),
         b.invokeRule(EcmaScriptGrammar.STATEMENT)));
   }
+
+  public WhileStatementTreeImpl WHILE_STATEMENT() {
+    return b.<WhileStatementTreeImpl>nonterminal(Kind.WHILE_STATEMENT)
+      .is(f.whileStatement(
+        b.invokeRule(EcmaScriptKeyword.WHILE),
+        b.invokeRule(EcmaScriptPunctuator.LPARENTHESIS),
+        b.invokeRule(EcmaScriptGrammar.CONDITION),
+        b.invokeRule(EcmaScriptPunctuator.RPARENTHESIS),
+        b.invokeRule(EcmaScriptGrammar.STATEMENT)));
+  }
+
   /**
    * A.4 [END] Statement
    */

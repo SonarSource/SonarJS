@@ -19,21 +19,27 @@
  */
 package org.sonar.javascript.model.interfaces.statement;
 
-import org.sonar.javascript.model.interfaces.Tree;
+import org.sonar.javascript.model.interfaces.expression.ExpressionTree;
+import org.sonar.javascript.model.interfaces.lexical.SyntaxToken;
 
 /**
  * <a href="http://www.ecma-international.org/ecma-262/5.1/#sec-12.6.2">while Statement</a>.
- *
+ * <p/>
  * <pre>
  *   while ( {@link #condition()} ) {@link #statement()}
  * </pre>
- *
+ * <p/>
  * <p>This interface is not intended to be implemented by clients.</p>
  */
 public interface WhileStatementTree extends StatementTree {
 
-  // TODO
-  Tree condition();
+  SyntaxToken whileKeyword();
+
+  SyntaxToken openParenthesis();
+
+  ExpressionTree condition();
+
+  SyntaxToken closeParenthesis();
 
   StatementTree statement();
 

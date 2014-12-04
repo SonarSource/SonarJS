@@ -42,6 +42,7 @@ import org.sonar.javascript.model.implementations.statement.ThrowStatementTreeIm
 import org.sonar.javascript.model.implementations.statement.TryStatementTreeImpl;
 import org.sonar.javascript.model.implementations.statement.VariableDeclarationTreeImpl;
 import org.sonar.javascript.model.implementations.statement.VariableStatementTreeImpl;
+import org.sonar.javascript.model.implementations.statement.WhileStatementTreeImpl;
 import org.sonar.javascript.model.implementations.statement.WithStatementTreeImpl;
 import org.sonar.javascript.model.interfaces.statement.CaseClauseTree;
 import org.sonar.javascript.model.interfaces.statement.ElseClauseTree;
@@ -219,6 +220,10 @@ public class TreeFactory {
       return new IfStatementTreeImpl(InternalSyntaxToken.create(ifToken), InternalSyntaxToken.create(openParenToken), condition, InternalSyntaxToken.create(closeParenToken), statement, elseClause.get());
     }
     return new IfStatementTreeImpl(InternalSyntaxToken.create(ifToken), InternalSyntaxToken.create(openParenToken), condition, InternalSyntaxToken.create(closeParenToken), statement);
+  }
+
+  public WhileStatementTreeImpl whileStatement(AstNode whileToken, AstNode openParenthesis, AstNode condition, AstNode closeParenthesis, AstNode statetment) {
+    return new WhileStatementTreeImpl(InternalSyntaxToken.create(whileToken), InternalSyntaxToken.create(openParenthesis), condition, InternalSyntaxToken.create(closeParenthesis), statetment);
   }
 
   // End of statements
