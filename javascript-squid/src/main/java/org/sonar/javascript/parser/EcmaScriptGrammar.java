@@ -307,7 +307,6 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
   INITIALISER_NO_IN,
   EXPRESSION_STATEMENT,
   ITERATION_STATEMENT,
-  FOR_IN_STATEMENT,
   FOR_STATEMENT,
   /** ECMAScrip 6 **/
   OF,
@@ -881,15 +880,9 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
     b.rule(ITERATION_STATEMENT).is(b.firstOf(
       Kind.DO_WHILE_STATEMENT,
       Kind.WHILE_STATEMENT,
-      FOR_IN_STATEMENT,
+      Kind.FOR_IN_STATEMENT,
       ecmascript6(Kind.FOR_OF_STATEMENT),
       FOR_STATEMENT));
-    b.rule(FOR_IN_STATEMENT).is(
-      FOR, LPARENTHESIS,
-      b.firstOf(
-        FOR_DECLARATION,
-        LEFT_HAND_SIDE_EXPRESSION_NO_LET_AND_LBRACKET),
-      IN, EXPRESSION, RPARENTHESIS, STATEMENT);
 
     b.rule(FOR_DECLARATION).is(b.firstOf(VAR, LET_OR_CONST), FOR_BINDING);
     b.rule(OF).is(word(b, "of"));

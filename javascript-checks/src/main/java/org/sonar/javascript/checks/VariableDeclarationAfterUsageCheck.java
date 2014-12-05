@@ -87,7 +87,7 @@ public class VariableDeclarationAfterUsageCheck extends SquidCheck<LexerlessGram
       EcmaScriptGrammar.FORMAL_PARAMETER_LIST,
       EcmaScriptGrammar.ARROW_PARAMETERS,
       Kind.FOR_OF_STATEMENT,
-      EcmaScriptGrammar.FOR_IN_STATEMENT);
+      Kind.FOR_IN_STATEMENT);
     subscribeTo(CONST_AND_VAR_NODES);
     subscribeTo(FunctionUtils.getFunctionNodes());
   }
@@ -108,7 +108,7 @@ public class VariableDeclarationAfterUsageCheck extends SquidCheck<LexerlessGram
       declareInCurrentScope(IdentifierUtils.getArrowParametersIdentifier(astNode));
     } else if (astNode.is(CONST_AND_VAR_NODES)) {
       declareInCurrentScope(IdentifierUtils.getVariableIdentifiers(astNode));
-    } else if (astNode.is(EcmaScriptGrammar.FOR_IN_STATEMENT, Kind.FOR_OF_STATEMENT)) {
+    } else if (astNode.is(Kind.FOR_IN_STATEMENT, Kind.FOR_OF_STATEMENT)) {
       AstNode identifier = getIdentifierFromLeftHandSideExpr(astNode.getFirstChild(EcmaScriptGrammar.LEFT_HAND_SIDE_EXPRESSION));
       if (identifier != null) {
         declareInCurrentScope(ImmutableList.of(identifier));

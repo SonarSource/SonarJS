@@ -34,6 +34,7 @@ import org.sonar.javascript.model.implementations.statement.DoWhileStatementTree
 import org.sonar.javascript.model.implementations.statement.ElseClauseTreeImpl;
 import org.sonar.javascript.model.implementations.statement.EmptyStatementTreeImpl;
 import org.sonar.javascript.model.implementations.statement.ExpressionStatementTreeImpl;
+import org.sonar.javascript.model.implementations.statement.ForInStatementTreeImpl;
 import org.sonar.javascript.model.implementations.statement.ForOfStatementTreeImpl;
 import org.sonar.javascript.model.implementations.statement.IfStatementTreeImpl;
 import org.sonar.javascript.model.implementations.statement.LabelledStatementTreeImpl;
@@ -305,6 +306,19 @@ public class ActionGrammar {
         b.invokeRule(EcmaScriptPunctuator.RPARENTHESIS),
         b.invokeRule(EcmaScriptGrammar.STATEMENT)));
   }
+
+  public ForInStatementTreeImpl FOR_IN_STATEMENT() {
+    return b.<ForInStatementTreeImpl>nonterminal(Kind.FOR_IN_STATEMENT)
+      .is(f.forInStatement(
+        b.invokeRule(EcmaScriptKeyword.FOR),
+        b.invokeRule(EcmaScriptPunctuator.LPARENTHESIS),
+        b.firstOf(b.invokeRule(EcmaScriptGrammar.FOR_DECLARATION), b.invokeRule(EcmaScriptGrammar.LEFT_HAND_SIDE_EXPRESSION_NO_LET_AND_LBRACKET)),
+        b.invokeRule(EcmaScriptKeyword.IN),
+        b.invokeRule(EcmaScriptGrammar.EXPRESSION),
+        b.invokeRule(EcmaScriptPunctuator.RPARENTHESIS),
+        b.invokeRule(EcmaScriptGrammar.STATEMENT)));
+  }
+
   /**
    * A.4 [END] Statement
    */

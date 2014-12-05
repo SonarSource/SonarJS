@@ -36,7 +36,7 @@ public class ForInCheck extends SquidCheck<LexerlessGrammar> {
 
   @Override
   public void init() {
-    subscribeTo(EcmaScriptGrammar.FOR_IN_STATEMENT);
+    subscribeTo(Kind.FOR_IN_STATEMENT);
   }
 
   @Override

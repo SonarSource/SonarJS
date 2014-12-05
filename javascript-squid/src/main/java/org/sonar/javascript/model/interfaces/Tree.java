@@ -34,6 +34,7 @@ import org.sonar.javascript.model.interfaces.statement.DoWhileStatementTree;
 import org.sonar.javascript.model.interfaces.statement.ElseClauseTree;
 import org.sonar.javascript.model.interfaces.statement.EmptyStatementTree;
 import org.sonar.javascript.model.interfaces.statement.ExpressionStatementTree;
+import org.sonar.javascript.model.interfaces.statement.ForInStatementTree;
 import org.sonar.javascript.model.interfaces.statement.ForOfStatementTree;
 import org.sonar.javascript.model.interfaces.statement.IfStatementTree;
 import org.sonar.javascript.model.interfaces.statement.LabelledStatementTree;
@@ -169,6 +170,11 @@ public interface Tree {
      * {@link ForOfStatementTree}
      */
     FOR_OF_STATEMENT(ForOfStatementTree.class),
+
+    /**
+     * {@link ForInStatementTree}
+     */
+    FOR_IN_STATEMENT(ForInStatementTree.class),
 
     /**
      * {@link IdentifierTree}
