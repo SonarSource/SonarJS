@@ -45,3 +45,9 @@ var a = (a) => {
 function* fun(a) {
     var a = 1; // NOK
 }
+
+function f() {
+    var a = 1;
+
+    for (var a in arr) { }
+}

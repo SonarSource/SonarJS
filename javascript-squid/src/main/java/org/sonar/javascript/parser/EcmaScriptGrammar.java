@@ -889,19 +889,20 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
     b.rule(FOR_IN_STATEMENT).is(
       FOR, LPARENTHESIS,
       b.firstOf(
-        b.sequence(VAR, b.firstOf(VARIABLE_DECLARATION_LIST_NO_IN, ecmascript6(FOR_BINDING))),
-        LEFT_HAND_SIDE_EXPRESSION_NO_LET_AND_LBRACKET,
-        ecmascript6(FOR_DECLARATION)),
+        FOR_DECLARATION,
+        LEFT_HAND_SIDE_EXPRESSION_NO_LET_AND_LBRACKET),
       IN, EXPRESSION, RPARENTHESIS, STATEMENT);
+
     b.rule(FOR_OF_STATEMENT).is(
       FOR, LPARENTHESIS,
       b.firstOf(
-        b.sequence(VAR, FOR_BINDING),
-        LEFT_HAND_SIDE_EXPRESSION_NO_LET,
-        FOR_DECLARATION),
+        FOR_DECLARATION,
+        LEFT_HAND_SIDE_EXPRESSION_NO_LET),
       OF, ASSIGNMENT_EXPRESSION, RPARENTHESIS, STATEMENT);
-    b.rule(FOR_DECLARATION).is(LET_OR_CONST, FOR_BINDING);
+
+    b.rule(FOR_DECLARATION).is(b.firstOf(VAR, LET_OR_CONST), FOR_BINDING);
     b.rule(OF).is(word(b, "of"));
+
     b.rule(FOR_STATEMENT).is(
       FOR, LPARENTHESIS,
       b.firstOf(

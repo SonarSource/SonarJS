@@ -26,3 +26,5 @@ var f = () => {
 }
 
 var c;
+
+for (e in es6) {}

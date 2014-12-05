@@ -57,18 +57,24 @@ public class IdentifierUtils {
       Kind.VARIABLE_DECLARATION,
       EcmaScriptGrammar.VARIABLE_DECLARATION_NO_IN,
       EcmaScriptGrammar.LEXICAL_BINDING,
-      EcmaScriptGrammar.LEXICAL_DECLARATION_NO_IN));
+      EcmaScriptGrammar.LEXICAL_DECLARATION_NO_IN,
+      EcmaScriptGrammar.FOR_BINDING));
 
     List<AstNode> identifiers = Lists.newArrayList();
     AstNode child = variableDeclaration.getFirstChild();
 
-    if (child.is(EcmaScriptGrammar.BINDING_IDENTIFIER_INITIALISER, EcmaScriptGrammar.BINDING_IDENTIFIER_INITIALISER_NO_IN)) {
-      AstNode identifier = child.getFirstChild(EcmaScriptGrammar.BINDING_IDENTIFIER).getFirstChild(EcmaScriptTokenType.IDENTIFIER);
+    if (child.is(EcmaScriptGrammar.BINDING_IDENTIFIER_INITIALISER, EcmaScriptGrammar.BINDING_IDENTIFIER_INITIALISER_NO_IN, EcmaScriptGrammar.BINDING_IDENTIFIER)) {
+      AstNode identifier = child.is(EcmaScriptGrammar.BINDING_IDENTIFIER) ?
+        child.getFirstChild(EcmaScriptTokenType.IDENTIFIER)
+        : child.getFirstChild(EcmaScriptGrammar.BINDING_IDENTIFIER).getFirstChild(EcmaScriptTokenType.IDENTIFIER);
+
       if (identifier != null) {
         identifiers.add(identifier);
       }
+
     } else {
-      identifiers.addAll(getBindingPatternIdentifiers(child.getFirstChild(EcmaScriptGrammar.BINDING_PATTERN)));
+      AstNode bindingPattern = child.is(EcmaScriptGrammar.BINDING_PATTERN) ? child : child.getFirstChild(EcmaScriptGrammar.BINDING_PATTERN);
+      identifiers.addAll(getBindingPatternIdentifiers(bindingPattern));
     }
 
     return identifiers;

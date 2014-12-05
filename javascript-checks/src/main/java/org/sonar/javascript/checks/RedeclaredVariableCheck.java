@@ -47,7 +47,8 @@ public class RedeclaredVariableCheck extends SquidCheck<LexerlessGrammar> {
   public void init() {
     subscribeTo(
       Kind.VARIABLE_DECLARATION,
-      EcmaScriptGrammar.VARIABLE_DECLARATION_NO_IN);
+      EcmaScriptGrammar.VARIABLE_DECLARATION_NO_IN,
+      EcmaScriptGrammar.FOR_BINDING);
     subscribeTo(FunctionUtils.getFunctionNodes());
   }
 
@@ -65,11 +66,15 @@ public class RedeclaredVariableCheck extends SquidCheck<LexerlessGrammar> {
       addParametersToScope(astNode, currentScope);
     } else {
       Set<String> currentScope = stack.peek();
-      String variableName = astNode.getTokenValue();
-      if (currentScope.contains(variableName)) {
-        getContext().createLineViolation(this, "Rename variable \"" + variableName + "\" as this name is already used.", astNode);
-      } else {
-        currentScope.add(variableName);
+
+      for (AstNode identifier : IdentifierUtils.getVariableIdentifiers(astNode)) {
+        String variableName = identifier.getTokenValue();
+
+        if (currentScope.contains(variableName)) {
+          getContext().createLineViolation(this, "Rename variable \"" + variableName + "\" as this name is already used.", astNode);
+        } else {
+          currentScope.add(variableName);
+        }
       }
     }
   }

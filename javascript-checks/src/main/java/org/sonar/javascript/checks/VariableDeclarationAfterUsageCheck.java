@@ -19,6 +19,7 @@
  */
 package org.sonar.javascript.checks;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Maps;
 import com.sonar.sslr.api.AstNode;
 import org.sonar.check.BelongsToProfile;
@@ -74,7 +75,8 @@ public class VariableDeclarationAfterUsageCheck extends SquidCheck<LexerlessGram
     Kind.VARIABLE_DECLARATION,
     EcmaScriptGrammar.VARIABLE_DECLARATION_NO_IN,
     EcmaScriptGrammar.LEXICAL_BINDING,
-    EcmaScriptGrammar.LEXICAL_BINDING_NO_IN};
+    EcmaScriptGrammar.LEXICAL_BINDING_NO_IN,
+    EcmaScriptGrammar.FOR_BINDING};
 
   private Scope currentScope;
 
@@ -83,7 +85,9 @@ public class VariableDeclarationAfterUsageCheck extends SquidCheck<LexerlessGram
     subscribeTo(
       EcmaScriptGrammar.PRIMARY_EXPRESSION,
       EcmaScriptGrammar.FORMAL_PARAMETER_LIST,
-      EcmaScriptGrammar.ARROW_PARAMETERS);
+      EcmaScriptGrammar.ARROW_PARAMETERS,
+      EcmaScriptGrammar.FOR_OF_STATEMENT,
+      EcmaScriptGrammar.FOR_IN_STATEMENT);
     subscribeTo(CONST_AND_VAR_NODES);
     subscribeTo(FunctionUtils.getFunctionNodes());
   }
@@ -104,6 +108,11 @@ public class VariableDeclarationAfterUsageCheck extends SquidCheck<LexerlessGram
       declareInCurrentScope(IdentifierUtils.getArrowParametersIdentifier(astNode));
     } else if (astNode.is(CONST_AND_VAR_NODES)) {
       declareInCurrentScope(IdentifierUtils.getVariableIdentifiers(astNode));
+    } else if (astNode.is(EcmaScriptGrammar.FOR_IN_STATEMENT, EcmaScriptGrammar.FOR_OF_STATEMENT)) {
+      AstNode identifier = getIdentifierFromLeftHandSideExpr(astNode.getFirstChild(EcmaScriptGrammar.LEFT_HAND_SIDE_EXPRESSION));
+      if (identifier != null) {
+        declareInCurrentScope(ImmutableList.of(identifier));
+      }
 
     } else if (astNode.is(EcmaScriptGrammar.PRIMARY_EXPRESSION)) {
       AstNode identifier = astNode.getFirstChild(EcmaScriptTokenType.IDENTIFIER);
@@ -111,6 +120,18 @@ public class VariableDeclarationAfterUsageCheck extends SquidCheck<LexerlessGram
         currentScope.use(identifier);
       }
     }
+  }
+
+  private AstNode getIdentifierFromLeftHandSideExpr(AstNode leftHeandSideExpr) {
+    if (leftHeandSideExpr != null) {
+      AstNode expression = leftHeandSideExpr.getFirstChild().getFirstChild().getFirstChild();
+
+      if (expression.is(EcmaScriptGrammar.PRIMARY_EXPRESSION)) {
+        AstNode primaryExpr = expression.getFirstChild();
+        return primaryExpr.is(EcmaScriptTokenType.IDENTIFIER) ? primaryExpr : null;
+      }
+    }
+    return null;
   }
 
   private void declareInCurrentScope(List<AstNode> identifiers) {

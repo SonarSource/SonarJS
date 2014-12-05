@@ -72,7 +72,8 @@ public class VariableShadowingCheck extends SquidCheck<LexerlessGrammar> {
     Kind.VARIABLE_DECLARATION,
     EcmaScriptGrammar.VARIABLE_DECLARATION_NO_IN,
     EcmaScriptGrammar.LEXICAL_BINDING,
-    EcmaScriptGrammar.LEXICAL_BINDING_NO_IN};
+    EcmaScriptGrammar.LEXICAL_BINDING_NO_IN,
+    EcmaScriptGrammar.FOR_BINDING};
 
   private Scope currentScope;
 
