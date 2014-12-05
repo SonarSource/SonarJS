@@ -36,6 +36,7 @@ import org.sonar.javascript.model.implementations.statement.DoWhileStatementTree
 import org.sonar.javascript.model.implementations.statement.ElseClauseTreeImpl;
 import org.sonar.javascript.model.implementations.statement.EmptyStatementTreeImpl;
 import org.sonar.javascript.model.implementations.statement.ExpressionStatementTreeImpl;
+import org.sonar.javascript.model.implementations.statement.ForOfStatementTreeImpl;
 import org.sonar.javascript.model.implementations.statement.IfStatementTreeImpl;
 import org.sonar.javascript.model.implementations.statement.LabelledStatementTreeImpl;
 import org.sonar.javascript.model.implementations.statement.ReturnStatementTreeImpl;
@@ -234,6 +235,16 @@ public class TreeFactory {
 
   public ExpressionStatementTreeImpl expressionStatement(AstNode expression, AstNode eos) {
     return new ExpressionStatementTreeImpl(expression, eos);
+  }
+
+  public ForOfStatementTreeImpl forOfStatement(AstNode forToken, AstNode openParenthesis, AstNode variableOrExpression, AstNode ofToken, AstNode expression, AstNode closeParenthesis, AstNode statement) {
+    return new ForOfStatementTreeImpl(
+      InternalSyntaxToken.create(forToken),
+      InternalSyntaxToken.create(openParenthesis),
+      variableOrExpression,
+      InternalSyntaxToken.create(ofToken),
+      expression, InternalSyntaxToken.create(closeParenthesis),
+      statement);
   }
 
   // End of statements

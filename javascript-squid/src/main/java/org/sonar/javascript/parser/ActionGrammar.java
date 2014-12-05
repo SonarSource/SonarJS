@@ -34,6 +34,7 @@ import org.sonar.javascript.model.implementations.statement.DoWhileStatementTree
 import org.sonar.javascript.model.implementations.statement.ElseClauseTreeImpl;
 import org.sonar.javascript.model.implementations.statement.EmptyStatementTreeImpl;
 import org.sonar.javascript.model.implementations.statement.ExpressionStatementTreeImpl;
+import org.sonar.javascript.model.implementations.statement.ForOfStatementTreeImpl;
 import org.sonar.javascript.model.implementations.statement.IfStatementTreeImpl;
 import org.sonar.javascript.model.implementations.statement.LabelledStatementTreeImpl;
 import org.sonar.javascript.model.implementations.statement.ReturnStatementTreeImpl;
@@ -46,6 +47,7 @@ import org.sonar.javascript.model.implementations.statement.WhileStatementTreeIm
 import org.sonar.javascript.model.implementations.statement.WithStatementTreeImpl;
 import org.sonar.javascript.model.interfaces.Tree.Kind;
 import org.sonar.javascript.model.interfaces.statement.DebuggerStatementTree;
+import org.sonar.javascript.model.interfaces.statement.ForOfStatementTree;
 import org.sonar.javascript.parser.sslr.GrammarBuilder;
 
 public class ActionGrammar {
@@ -98,7 +100,8 @@ public class ActionGrammar {
         b.invokeRule(EcmaScriptKeyword.CONTINUE),
         b.firstOf(
           CONTINUE_WITH_LABEL(),
-          CONTINUE_WITHOUT_LABEL())));
+          CONTINUE_WITHOUT_LABEL())
+      ));
   }
 
   public ContinueStatementTreeImpl CONTINUE_WITH_LABEL() {
@@ -119,7 +122,8 @@ public class ActionGrammar {
         b.invokeRule(EcmaScriptKeyword.BREAK),
         b.firstOf(
           BREAK_WITH_LABEL(),
-          BREAK_WITHOUT_LABEL())));
+          BREAK_WITHOUT_LABEL())
+      ));
   }
 
   public BreakStatementTreeImpl BREAK_WITH_LABEL() {
@@ -140,7 +144,8 @@ public class ActionGrammar {
         b.invokeRule(EcmaScriptKeyword.RETURN),
         b.firstOf(
           RETURN_WITH_EXPRESSION(),
-          RETURN_WITHOUT_EXPRESSION())));
+          RETURN_WITHOUT_EXPRESSION())
+      ));
   }
 
   public ReturnStatementTreeImpl RETURN_WITH_EXPRESSION() {
@@ -181,11 +186,12 @@ public class ActionGrammar {
   public TryStatementTreeImpl TRY_STATEMENT() {
     return b.<TryStatementTreeImpl>nonterminal(Kind.TRY_STATEMENT)
       .is(f.completeTryStatement(
-          b.invokeRule(EcmaScriptKeyword.TRY),
-          BLOCK(),
-          b.firstOf(
-            f.newTryStatementWithCatch(CATCH_CLAUSE(), b.optional(FINALLY_CLAUSE())),
-            FINALLY_CLAUSE())));
+        b.invokeRule(EcmaScriptKeyword.TRY),
+        BLOCK(),
+        b.firstOf(
+          f.newTryStatementWithCatch(CATCH_CLAUSE(), b.optional(FINALLY_CLAUSE())),
+          FINALLY_CLAUSE())
+      ));
   }
 
   public TryStatementTreeImpl FINALLY_CLAUSE() {
@@ -283,9 +289,22 @@ public class ActionGrammar {
     return b.<ExpressionStatementTreeImpl>nonterminal(Kind.EXPRESSION_STATEMENT)
       .is(f.expressionStatement(
         b.invokeRule(EcmaScriptGrammar.EXPRESSION_NO_LCURLY_AND_FUNCTION), b.invokeRule(EcmaScriptGrammar.EOS)));
-
   }
 
+  /**
+   * ECMAScript 6
+   */
+  public ForOfStatementTreeImpl FOR_OF_STATEMENT() {
+    return b.<ForOfStatementTreeImpl>nonterminal(Kind.FOR_OF_STATEMENT)
+      .is(f.forOfStatement(
+        b.invokeRule(EcmaScriptKeyword.FOR),
+        b.invokeRule(EcmaScriptPunctuator.LPARENTHESIS),
+        b.firstOf(b.invokeRule(EcmaScriptGrammar.FOR_DECLARATION), b.invokeRule(EcmaScriptGrammar.LEFT_HAND_SIDE_EXPRESSION_NO_LET)),
+        b.invokeRule(EcmaScriptGrammar.OF),
+        b.invokeRule(EcmaScriptGrammar.ASSIGNMENT_EXPRESSION),
+        b.invokeRule(EcmaScriptPunctuator.RPARENTHESIS),
+        b.invokeRule(EcmaScriptGrammar.STATEMENT)));
+  }
   /**
    * A.4 [END] Statement
    */

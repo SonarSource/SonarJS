@@ -17,22 +17,34 @@
  * License along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.javascript.parser.grammar.statements;
+package org.sonar.javascript.model.interfaces.statement;
 
-import org.junit.Test;
-import org.sonar.javascript.model.interfaces.Tree.Kind;
+import org.sonar.javascript.model.interfaces.expression.ExpressionTree;
+import org.sonar.javascript.model.interfaces.lexical.SyntaxToken;
 
-import static org.sonar.javascript.sslr.tests.Assertions.assertThat;
+/**
+ * <a href="http://people.mozilla.org/~jorendorff/es6-draft.html#sec-for-in-and-for-of-statements">for of Statement</a>.
+ * <p/>
+ * <pre>
+ *   for ( {@link #variableOrExpression()} of {@link #expression()} {@link #statement()}
+ * </pre>
+ * <p/>
+ * <p>This interface is not intended to be implemented by clients.</p>
+ */
+public interface ForOfStatementTree extends StatementTree {
 
-public class ForOfStatementTest {
+  SyntaxToken forKeyword();
 
+  SyntaxToken openParenthesis();
 
-  @Test
-  public void ok() {
-    assertThat(Kind.FOR_OF_STATEMENT)
-      .matches("for (word of words) {}")
-      .matches("for (var word of words) {}")
-      .matches("for (const word of words) {}");
-  }
+  ExpressionTree variableOrExpression();
+
+  SyntaxToken ofKeyword();
+
+  ExpressionTree expression();
+
+  SyntaxToken closeParenthesis();
+
+  StatementTree statement();
 
 }
