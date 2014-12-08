@@ -889,10 +889,10 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
 
     b.rule(FOR_STATEMENT).is(
       FOR, LPARENTHESIS,
-      b.firstOf(
+      b.optional(b.firstOf(
         b.sequence(VAR, VARIABLE_DECLARATION_LIST_NO_IN),
-        ecmascript6(b.sequence(LEXICAL_DECLARATION_NO_IN, b.optional(EXPRESSION_NO_IN))),
-        b.optional(ecmascript6(b.nextNot(LET, LBRACKET)), EXPRESSION_NO_IN)),
+        ecmascript6(LEXICAL_DECLARATION_NO_IN),
+        ecmascript6(b.sequence(b.nextNot(LET, LBRACKET), EXPRESSION_NO_IN)))),
       SEMI, b.optional(CONDITION), SEMI, b.optional(EXPRESSION), RPARENTHESIS, STATEMENT);
     b.rule(CATCH_PARAMETER).is(b.firstOf(BINDING_IDENTIFIER, BINDING_PATTERN));
 
