@@ -30,8 +30,8 @@ public class LexicalDeclarationTest {
   @Test
   public void ok() {
     assertThat(EcmaScriptGrammar.LEXICAL_DECLARATION)
-        .matches("let a")
-        .matches("const a");
+        .matches("let a ;")
+        .matches("const a ;");
   }
 
 }
