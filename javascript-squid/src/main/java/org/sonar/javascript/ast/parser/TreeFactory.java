@@ -38,6 +38,7 @@ import org.sonar.javascript.model.implementations.statement.EmptyStatementTreeIm
 import org.sonar.javascript.model.implementations.statement.ExpressionStatementTreeImpl;
 import org.sonar.javascript.model.implementations.statement.ForInStatementTreeImpl;
 import org.sonar.javascript.model.implementations.statement.ForOfStatementTreeImpl;
+import org.sonar.javascript.model.implementations.statement.ForStatementTreeImpl;
 import org.sonar.javascript.model.implementations.statement.IfStatementTreeImpl;
 import org.sonar.javascript.model.implementations.statement.LabelledStatementTreeImpl;
 import org.sonar.javascript.model.implementations.statement.ReturnStatementTreeImpl;
@@ -54,6 +55,7 @@ import org.sonar.javascript.model.interfaces.statement.SwitchClauseTree;
 import org.sonar.javascript.model.interfaces.statement.SwitchStatementTree;
 import org.sonar.javascript.parser.sslr.Optional;
 
+import java.awt.geom.AffineTransform;
 import java.util.List;
 
 public class TreeFactory {
@@ -268,6 +270,34 @@ public class TreeFactory {
       return "WRAPPER_AST_NODE";
     }
   };
+
+  public ForStatementTreeImpl forStatement(AstNode forToken, AstNode openParenthesis, Optional<AstNode> init, AstNode firstSemiToken, Optional<AstNode> condition, AstNode secondSemiToken, Optional<AstNode> update, AstNode closeParenthesis, AstNode statement) {
+    List<AstNode> children = Lists.newArrayList();
+
+    children.add(forToken);
+    children.add(openParenthesis);
+    if (init.isPresent()) {
+      children.add(init.get());
+    }
+    children.add(firstSemiToken);
+    if (condition.isPresent()) {
+      children.add(condition.get());
+    }
+    children.add(secondSemiToken);
+    if (update.isPresent()) {
+      children.add(update.get());
+    }
+    children.add(closeParenthesis);
+    children.add(statement);
+
+    return new ForStatementTreeImpl(
+      InternalSyntaxToken.create(forToken),
+      InternalSyntaxToken.create(openParenthesis),
+      InternalSyntaxToken.create(firstSemiToken),
+      InternalSyntaxToken.create(secondSemiToken),
+      InternalSyntaxToken.create(closeParenthesis),
+      children);
+  }
 
 
   public static class Tuple<T, U> extends AstNode {

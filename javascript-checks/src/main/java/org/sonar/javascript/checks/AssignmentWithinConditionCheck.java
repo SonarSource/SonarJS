@@ -102,7 +102,7 @@ public class AssignmentWithinConditionCheck extends SquidCheck<LexerlessGrammar>
 
   private boolean isTargetedExpression(AstNode astNode) {
     return astNode.is(EcmaScriptGrammar.EXPRESSION, EcmaScriptGrammar.EXPRESSION_NO_IN)
-      && astNode.getParent().isNot(Kind.EXPRESSION_STATEMENT, EcmaScriptGrammar.CONDITION, EcmaScriptGrammar.FOR_STATEMENT);
+      && astNode.getParent().isNot(Kind.EXPRESSION_STATEMENT, EcmaScriptGrammar.CONDITION, Kind.FOR_STATEMENT);
   }
 
   private void pop() {

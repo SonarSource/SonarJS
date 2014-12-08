@@ -53,7 +53,7 @@ public class NestedControlFlowDepthCheck extends SquidCheck<LexerlessGrammar> {
   public void init() {
     subscribeTo(
       Kind.IF_STATEMENT,
-      EcmaScriptGrammar.FOR_STATEMENT,
+      Kind.FOR_STATEMENT,
       Kind.FOR_IN_STATEMENT,
       Kind.WHILE_STATEMENT,
       Kind.DO_WHILE_STATEMENT,

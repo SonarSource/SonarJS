@@ -20,7 +20,7 @@
 package org.sonar.javascript.parser.grammar.statements;
 
 import org.junit.Test;
-import org.sonar.javascript.parser.EcmaScriptGrammar;
+import org.sonar.javascript.model.interfaces.Tree.Kind;
 
 import static org.sonar.javascript.sslr.tests.Assertions.assertThat;
 
@@ -29,7 +29,7 @@ public class ForStatementTest {
 
   @Test
   public void ok() {
-    assertThat(EcmaScriptGrammar.FOR_STATEMENT)
+    assertThat(Kind.FOR_STATEMENT)
         .matches("for (let a; a < 3; a++) {}")
         .as("unexpected end of input").notMatches("for (true; true; true)");
   }

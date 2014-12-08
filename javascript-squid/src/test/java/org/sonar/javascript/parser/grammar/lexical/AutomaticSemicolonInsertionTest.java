@@ -37,7 +37,7 @@ public class AutomaticSemicolonInsertionTest {
         .as("not valid").notMatches("{ 1 2 } 3")
         .as("transformed to valid").matches("{ 1 \n 2 } 3");
 
-    assertThat(EcmaScriptGrammar.FOR_STATEMENT)
+    assertThat(Kind.FOR_STATEMENT)
         .as("not valid and not transformed").notMatches("for (a; b \n ) ;")
         .as("valid").matches("for (a; b ; \n ) ;");
 

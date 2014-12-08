@@ -238,6 +238,7 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
   ASSIGNMENT_OPERATOR,
   EXPRESSION,
   EXPRESSION_NO_LCURLY_AND_FUNCTION,
+  EXPRESSION_NO_IN_NO_LET_AND_BRACKET,
   EXPRESSION_NO_LB,
   EXPRESSION_NO_IN,
   /** ECMAScript 6 **/
@@ -307,13 +308,13 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
   INITIALISER_NO_IN,
   EXPRESSION_STATEMENT,
   ITERATION_STATEMENT,
-  FOR_STATEMENT,
   /** ECMAScrip 6 **/
   OF,
   /** ECMAScript 6 **/
   FOR_DECLARATION,
   /** ECMAScript 6 **/
   FOR_BINDING,
+  FOR_VAR_DECLARATION,
   RETURN_STATEMENT,
   WITH_STATEMENT,
   CATCH_PARAMETER,
@@ -882,24 +883,19 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
       Kind.WHILE_STATEMENT,
       Kind.FOR_IN_STATEMENT,
       ecmascript6(Kind.FOR_OF_STATEMENT),
-      FOR_STATEMENT));
+      Kind.FOR_STATEMENT));
 
     b.rule(FOR_DECLARATION).is(b.firstOf(VAR, LET_OR_CONST), FOR_BINDING);
     b.rule(OF).is(word(b, "of"));
 
-    b.rule(FOR_STATEMENT).is(
-      FOR, LPARENTHESIS,
-      b.optional(b.firstOf(
-        b.sequence(VAR, VARIABLE_DECLARATION_LIST_NO_IN),
-        ecmascript6(LEXICAL_DECLARATION_NO_IN),
-        ecmascript6(b.sequence(b.nextNot(LET, LBRACKET), EXPRESSION_NO_IN)))),
-      SEMI, b.optional(CONDITION), SEMI, b.optional(EXPRESSION), RPARENTHESIS, STATEMENT);
     b.rule(CATCH_PARAMETER).is(b.firstOf(BINDING_IDENTIFIER, BINDING_PATTERN));
 
     // Temporary rules waiting for b.nextNot method migration
     b.rule(LEFT_HAND_SIDE_EXPRESSION_NO_LET_AND_LBRACKET).is(ecmascript6(b.nextNot(LET, LBRACKET)), LEFT_HAND_SIDE_EXPRESSION).skip();
     b.rule(LEFT_HAND_SIDE_EXPRESSION_NO_LET).is(b.nextNot(LET), LEFT_HAND_SIDE_EXPRESSION).skip();
     b.rule(EXPRESSION_NO_LCURLY_AND_FUNCTION).is(b.nextNot(b.firstOf(LCURLYBRACE, FUNCTION)), EXPRESSION).skip();
+    b.rule(EXPRESSION_NO_IN_NO_LET_AND_BRACKET).is(ecmascript6(b.nextNot(LET, LBRACKET)), EXPRESSION_NO_IN).skip();
+    b.rule(FOR_VAR_DECLARATION).is(VAR, VARIABLE_DECLARATION_LIST_NO_IN);
 
   }
 

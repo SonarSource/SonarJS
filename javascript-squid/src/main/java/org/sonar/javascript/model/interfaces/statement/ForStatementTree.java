@@ -20,6 +20,7 @@
 package org.sonar.javascript.model.interfaces.statement;
 
 import org.sonar.javascript.model.interfaces.Tree;
+import org.sonar.javascript.model.interfaces.lexical.SyntaxToken;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -28,28 +29,34 @@ import java.util.List;
  * <a href="http://www.ecma-international.org/ecma-262/5.1/#sec-12.6.3">for Statement</a>.
  *
  * <pre>
- *   for ( {@link #initExpression()} ; {@link #condition()} ; {@link #incrementExpression()}) {@link #statement()}
- *   for ( var {@link #initVariables()} ; {@link #condition()} ; {@link #incrementExpression()} ) {@link #statement()}
+ *   for ( {@link #init()} ; {@link #condition()} ; {@link #update()} ) {@link #statement()}
+ *   for ( var {@link #init()} ; {@link #condition()} ; {@link #update()} ) {@link #statement()}
  * </pre>
  *
  * <p>This interface is not intended to be implemented by clients.</p>
  */
 public interface ForStatementTree extends StatementTree {
 
-  @Nullable
-  List<VariableDeclarationTree> initVariables();
+  SyntaxToken forKeyword();
 
-  // TODO
+  SyntaxToken openParenthesis();
+
   @Nullable
-  Tree initExpression();
+  List<VariableDeclarationTree> init();
+
+  SyntaxToken firstSemicolon();
 
   // TODO
   @Nullable
   Tree condition();
 
+  SyntaxToken secondSemicolon();
+
   // TODO
   @Nullable
-  Tree incrementExpression();
+  Tree update();
+
+  SyntaxToken closeParenthesis();
 
   StatementTree statement();
 

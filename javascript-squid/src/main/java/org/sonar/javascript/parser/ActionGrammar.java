@@ -36,6 +36,7 @@ import org.sonar.javascript.model.implementations.statement.EmptyStatementTreeIm
 import org.sonar.javascript.model.implementations.statement.ExpressionStatementTreeImpl;
 import org.sonar.javascript.model.implementations.statement.ForInStatementTreeImpl;
 import org.sonar.javascript.model.implementations.statement.ForOfStatementTreeImpl;
+import org.sonar.javascript.model.implementations.statement.ForStatementTreeImpl;
 import org.sonar.javascript.model.implementations.statement.IfStatementTreeImpl;
 import org.sonar.javascript.model.implementations.statement.LabelledStatementTreeImpl;
 import org.sonar.javascript.model.implementations.statement.ReturnStatementTreeImpl;
@@ -48,7 +49,6 @@ import org.sonar.javascript.model.implementations.statement.WhileStatementTreeIm
 import org.sonar.javascript.model.implementations.statement.WithStatementTreeImpl;
 import org.sonar.javascript.model.interfaces.Tree.Kind;
 import org.sonar.javascript.model.interfaces.statement.DebuggerStatementTree;
-import org.sonar.javascript.model.interfaces.statement.ForOfStatementTree;
 import org.sonar.javascript.parser.sslr.GrammarBuilder;
 
 public class ActionGrammar {
@@ -319,8 +319,29 @@ public class ActionGrammar {
         b.invokeRule(EcmaScriptGrammar.STATEMENT)));
   }
 
+  public ForStatementTreeImpl FOR_STATEMENT() {
+    return b.<ForStatementTreeImpl>nonterminal(Kind.FOR_STATEMENT)
+      .is(f.forStatement(
+        b.invokeRule(EcmaScriptKeyword.FOR),
+        b.invokeRule(EcmaScriptPunctuator.LPARENTHESIS),
+
+        b.optional(b.firstOf(
+          b.invokeRule(EcmaScriptGrammar.FOR_VAR_DECLARATION),
+          b.invokeRule(ES6(EcmaScriptGrammar.LEXICAL_DECLARATION_NO_IN)),
+          b.invokeRule(EcmaScriptGrammar.EXPRESSION_NO_IN_NO_LET_AND_BRACKET))), b.invokeRule(EcmaScriptPunctuator.SEMI),
+        b.optional(b.invokeRule(EcmaScriptGrammar.CONDITION)), b.invokeRule(EcmaScriptPunctuator.SEMI),
+        b.optional(b.invokeRule(EcmaScriptGrammar.EXPRESSION)),
+
+        b.invokeRule(EcmaScriptPunctuator.RPARENTHESIS),
+        b.invokeRule(EcmaScriptGrammar.STATEMENT)));
+  }
+
   /**
    * A.4 [END] Statement
    */
+
+  private <T> T ES6(T object) {
+    return object;
+  }
 
 }

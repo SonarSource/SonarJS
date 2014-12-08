@@ -24,6 +24,7 @@ import org.sonar.check.BelongsToProfile;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.javascript.api.EcmaScriptPunctuator;
+import org.sonar.javascript.model.interfaces.Tree.Kind;
 import org.sonar.javascript.parser.EcmaScriptGrammar;
 import org.sonar.squidbridge.checks.SquidCheck;
 import org.sonar.sslr.parser.LexerlessGrammar;
@@ -61,7 +62,7 @@ public class CommaOperatorUseCheck extends SquidCheck<LexerlessGrammar> {
   }
 
   public static boolean isInitOrIncrementOfForLoop(AstNode expr) {
-    return expr.getParent().is(EcmaScriptGrammar.FOR_STATEMENT);
+    return expr.getParent().is(Kind.FOR_STATEMENT);
   }
 
   public static boolean containsCommaOperator(AstNode expr) {

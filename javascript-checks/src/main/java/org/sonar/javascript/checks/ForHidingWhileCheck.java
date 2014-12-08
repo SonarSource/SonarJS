@@ -24,6 +24,7 @@ import org.sonar.check.BelongsToProfile;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.javascript.api.EcmaScriptKeyword;
+import org.sonar.javascript.model.interfaces.Tree.Kind;
 import org.sonar.javascript.parser.EcmaScriptGrammar;
 import org.sonar.squidbridge.checks.SquidCheck;
 import org.sonar.sslr.parser.LexerlessGrammar;
@@ -36,7 +37,7 @@ public class ForHidingWhileCheck extends SquidCheck<LexerlessGrammar> {
 
   @Override
   public void init() {
-    subscribeTo(EcmaScriptGrammar.FOR_STATEMENT);
+    subscribeTo(Kind.FOR_STATEMENT);
   }
 
   @Override
@@ -47,7 +48,7 @@ public class ForHidingWhileCheck extends SquidCheck<LexerlessGrammar> {
   }
 
   public static boolean hasInitialisation(AstNode forStmt) {
-    return forStmt.hasDirectChildren(EcmaScriptKeyword.VAR, EcmaScriptGrammar.EXPRESSION_NO_IN);
+    return forStmt.hasDirectChildren(EcmaScriptGrammar.FOR_VAR_DECLARATION, EcmaScriptGrammar.EXPRESSION_NO_IN);
   }
 
   public static boolean hasIncrement(AstNode forStmt) {
