@@ -23,7 +23,7 @@ import com.sonar.sslr.api.AstNode;
 import org.sonar.check.BelongsToProfile;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
-import org.sonar.javascript.checks.utils.FunctionUtils;
+import org.sonar.javascript.checks.utils.CheckUtils;
 import org.sonar.javascript.checks.utils.IdentifierUtils;
 import org.sonar.javascript.model.interfaces.Tree.Kind;
 import org.sonar.javascript.parser.EcmaScriptGrammar;
@@ -49,7 +49,7 @@ public class RedeclaredVariableCheck extends SquidCheck<LexerlessGrammar> {
       Kind.VARIABLE_DECLARATION,
       EcmaScriptGrammar.VARIABLE_DECLARATION_NO_IN,
       EcmaScriptGrammar.FOR_BINDING);
-    subscribeTo(FunctionUtils.getFunctionNodes());
+    subscribeTo(CheckUtils.getFunctionNodes());
   }
 
   @Override
@@ -60,7 +60,7 @@ public class RedeclaredVariableCheck extends SquidCheck<LexerlessGrammar> {
 
   @Override
   public void visitNode(AstNode astNode) {
-    if (astNode.is(FunctionUtils.getFunctionNodes())) {
+    if (astNode.is(CheckUtils.getFunctionNodes())) {
       Set<String> currentScope = new HashSet<String>();
       stack.add(currentScope);
       addParametersToScope(astNode, currentScope);
@@ -81,7 +81,7 @@ public class RedeclaredVariableCheck extends SquidCheck<LexerlessGrammar> {
 
   @Override
   public void leaveNode(AstNode astNode) {
-    if (astNode.is(FunctionUtils.getFunctionNodes())) {
+    if (astNode.is(CheckUtils.getFunctionNodes())) {
       stack.pop();
     }
   }

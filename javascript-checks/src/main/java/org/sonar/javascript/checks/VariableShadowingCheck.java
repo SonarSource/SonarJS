@@ -29,7 +29,7 @@ import com.sonar.sslr.impl.ast.AstWalker;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.javascript.api.EcmaScriptTokenType;
-import org.sonar.javascript.checks.utils.FunctionUtils;
+import org.sonar.javascript.checks.utils.CheckUtils;
 import org.sonar.javascript.checks.utils.IdentifierUtils;
 import org.sonar.javascript.model.interfaces.Tree.Kind;
 import org.sonar.javascript.parser.EcmaScriptGrammar;
@@ -80,7 +80,7 @@ public class VariableShadowingCheck extends SquidCheck<LexerlessGrammar> {
   @Override
   public void init() {
     subscribeTo(EcmaScriptGrammar.FORMAL_PARAMETER_LIST);
-    subscribeTo(FunctionUtils.getFunctionNodes());
+    subscribeTo(CheckUtils.getFunctionNodes());
     subscribeTo(CONST_AND_VAR_NODES);
   }
 
@@ -95,7 +95,7 @@ public class VariableShadowingCheck extends SquidCheck<LexerlessGrammar> {
 
   @Override
   public void visitNode(AstNode astNode) {
-    if (astNode.is(FunctionUtils.getFunctionNodes())) {
+    if (astNode.is(CheckUtils.getFunctionNodes())) {
       // enter new scope
       currentScope = scopes.get(astNode);
     } else if (astNode.is(EcmaScriptGrammar.FORMAL_PARAMETER_LIST)) {
@@ -120,7 +120,7 @@ public class VariableShadowingCheck extends SquidCheck<LexerlessGrammar> {
 
   @Override
   public void leaveNode(AstNode astNode) {
-    if (astNode.is(FunctionUtils.getFunctionNodes())) {
+    if (astNode.is(CheckUtils.getFunctionNodes())) {
       // leave scope
       currentScope = currentScope.outerScope;
     }
@@ -146,7 +146,7 @@ public class VariableShadowingCheck extends SquidCheck<LexerlessGrammar> {
       return ImmutableList.<AstNodeType>builder()
         .add(EcmaScriptGrammar.FORMAL_PARAMETER_LIST)
         .addAll(Arrays.asList(CONST_AND_VAR_NODES))
-        .addAll(Arrays.asList(FunctionUtils.getFunctionNodes())).build();
+        .addAll(Arrays.asList(CheckUtils.getFunctionNodes())).build();
     }
 
     @Override
@@ -157,7 +157,7 @@ public class VariableShadowingCheck extends SquidCheck<LexerlessGrammar> {
 
     @Override
     public void visitNode(AstNode astNode) {
-      if (astNode.is(FunctionUtils.getFunctionNodes())) {
+      if (astNode.is(CheckUtils.getFunctionNodes())) {
         // enter new scope
         currentScope = new Scope(currentScope);
         scopes.put(astNode, currentScope);
@@ -176,7 +176,7 @@ public class VariableShadowingCheck extends SquidCheck<LexerlessGrammar> {
 
     @Override
     public void leaveNode(AstNode astNode) {
-      if (astNode.is(FunctionUtils.getFunctionNodes())) {
+      if (astNode.is(CheckUtils.getFunctionNodes())) {
         // leave scope
         currentScope = currentScope.outerScope;
       }

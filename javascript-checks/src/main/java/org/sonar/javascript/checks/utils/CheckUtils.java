@@ -24,9 +24,9 @@ import org.sonar.sslr.grammar.GrammarRuleKey;
 
 import java.util.Arrays;
 
-public class FunctionUtils {
+public class CheckUtils {
 
-  private FunctionUtils() {
+  private CheckUtils() {
   }
 
   private static final GrammarRuleKey[] FUNCTION_NODES = {

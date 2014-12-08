@@ -24,7 +24,7 @@ import org.sonar.check.BelongsToProfile;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.javascript.api.EcmaScriptTokenType;
-import org.sonar.javascript.checks.utils.FunctionUtils;
+import org.sonar.javascript.checks.utils.CheckUtils;
 import org.sonar.javascript.parser.EcmaScriptGrammar;
 import org.sonar.squidbridge.checks.SquidCheck;
 import org.sonar.sslr.parser.LexerlessGrammar;
@@ -43,7 +43,7 @@ public class RedeclaredFunctionCheck extends SquidCheck<LexerlessGrammar> {
 
   @Override
   public void init() {
-    subscribeTo(FunctionUtils.getFunctionNodes());
+    subscribeTo(CheckUtils.getFunctionNodes());
   }
 
   @Override
@@ -69,7 +69,7 @@ public class RedeclaredFunctionCheck extends SquidCheck<LexerlessGrammar> {
 
   @Override
   public void leaveNode(AstNode astNode) {
-    if (astNode.is(FunctionUtils.getFunctionNodes())) {
+    if (astNode.is(CheckUtils.getFunctionNodes())) {
       stack.pop();
     }
   }

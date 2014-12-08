@@ -25,7 +25,7 @@ import org.sonar.check.BelongsToProfile;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.javascript.api.EcmaScriptTokenType;
-import org.sonar.javascript.checks.utils.FunctionUtils;
+import org.sonar.javascript.checks.utils.CheckUtils;
 import org.sonar.javascript.checks.utils.IdentifierUtils;
 import org.sonar.javascript.model.interfaces.Tree.Kind;
 import org.sonar.javascript.parser.EcmaScriptGrammar;
@@ -99,7 +99,7 @@ public class UnusedVariableCheck extends SquidCheck<LexerlessGrammar> {
       EcmaScriptGrammar.FORMAL_PARAMETER_LIST,
       EcmaScriptGrammar.ARROW_PARAMETERS);
     subscribeTo(CONST_AND_VAR_NODES);
-    subscribeTo(FunctionUtils.getFunctionNodes());
+    subscribeTo(CheckUtils.getFunctionNodes());
   }
 
   @Override
@@ -109,7 +109,7 @@ public class UnusedVariableCheck extends SquidCheck<LexerlessGrammar> {
 
   @Override
   public void visitNode(AstNode astNode) {
-    if (astNode.is(FunctionUtils.getFunctionNodes())) {
+    if (astNode.is(CheckUtils.getFunctionNodes())) {
       // enter new scope
       currentScope = new Scope(currentScope);
 
@@ -136,7 +136,7 @@ public class UnusedVariableCheck extends SquidCheck<LexerlessGrammar> {
 
   @Override
   public void leaveNode(AstNode astNode) {
-    if (astNode.is(FunctionUtils.getFunctionNodes())) {
+    if (astNode.is(CheckUtils.getFunctionNodes())) {
       // leave scope
       for (Map.Entry<String, Variable> entry : currentScope.variables.entrySet()) {
         if (entry.getValue().usages == 0) {
