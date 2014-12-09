@@ -25,6 +25,7 @@ import org.sonar.check.BelongsToProfile;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.javascript.api.EcmaScriptTokenType;
+import org.sonar.javascript.checks.utils.CheckUtils;
 import org.sonar.javascript.model.interfaces.Tree.Kind;
 import org.sonar.javascript.parser.EcmaScriptGrammar;
 import org.sonar.squidbridge.checks.SquidCheck;
@@ -64,8 +65,8 @@ public class TooManyBreakOrContinueInLoopCheck extends SquidCheck<LexerlessGramm
 
   @Override
   public void init() {
+    subscribeTo(CheckUtils.iterationStatements());
     subscribeTo(
-        EcmaScriptGrammar.ITERATION_STATEMENT,
         Kind.BREAK_STATEMENT,
         Kind.CONTINUE_STATEMENT,
         Kind.SWITCH_STATEMENT,
@@ -102,7 +103,7 @@ public class TooManyBreakOrContinueInLoopCheck extends SquidCheck<LexerlessGramm
   public void leaveNode(AstNode astNode) {
     if (astNode.isNot(Kind.BREAK_STATEMENT, Kind.CONTINUE_STATEMENT)) {
       JumpTarget jumpTarget = jumpTargets.pop();
-      if (astNode.is(EcmaScriptGrammar.ITERATION_STATEMENT) && (jumpTarget.jumps > 1)) {
+      if (astNode.is(CheckUtils.iterationStatements()) && (jumpTarget.jumps > 1)) {
         getContext().createLineViolation(this, "Reduce the total number of \"break\" and \"continue\" statements in this loop to use one at most.", astNode);
       }
     }

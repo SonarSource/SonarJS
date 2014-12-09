@@ -42,7 +42,11 @@ public class ComplexityVisitor extends SquidAstVisitor<LexerlessGrammar> {
         EcmaScriptGrammar.GENERATOR_DECLARATION,
         // Branching nodes
         Kind.IF_STATEMENT,
-        EcmaScriptGrammar.ITERATION_STATEMENT,
+        Kind.DO_WHILE_STATEMENT,
+        Kind.WHILE_STATEMENT,
+        Kind.FOR_IN_STATEMENT,
+        Kind.FOR_OF_STATEMENT,
+        Kind.FOR_STATEMENT,
         Kind.CASE_CLAUSE,
         Kind.CATCH_BLOCK,
         Kind.RETURN_STATEMENT,

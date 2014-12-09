@@ -49,6 +49,7 @@ import org.sonar.javascript.model.implementations.statement.WhileStatementTreeIm
 import org.sonar.javascript.model.implementations.statement.WithStatementTreeImpl;
 import org.sonar.javascript.model.interfaces.Tree.Kind;
 import org.sonar.javascript.model.interfaces.statement.DebuggerStatementTree;
+import org.sonar.javascript.model.interfaces.statement.StatementTree;
 import org.sonar.javascript.parser.sslr.GrammarBuilder;
 
 public class ActionGrammar {
@@ -334,6 +335,16 @@ public class ActionGrammar {
 
         b.invokeRule(EcmaScriptPunctuator.RPARENTHESIS),
         b.invokeRule(EcmaScriptGrammar.STATEMENT)));
+  }
+
+  public StatementTree ITERATION_STATEMENT() {
+    return b.<StatementTree>nonterminal(EcmaScriptGrammar.ITERATION_STATEMENT)
+      .is(b.firstOf(
+        DO_WHILE_STATEMENT(),
+        WHILE_STATEMENT(),
+        FOR_IN_STATEMENT(),
+        ES6(FOR_OF_STATEMENT()),
+        FOR_STATEMENT()));
   }
 
   /**

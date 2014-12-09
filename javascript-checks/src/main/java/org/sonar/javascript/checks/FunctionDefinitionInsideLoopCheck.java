@@ -23,6 +23,7 @@ import com.sonar.sslr.api.AstNode;
 import org.sonar.check.BelongsToProfile;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
+import org.sonar.javascript.checks.utils.CheckUtils;
 import org.sonar.javascript.parser.EcmaScriptGrammar;
 import org.sonar.squidbridge.checks.SquidCheck;
 import org.sonar.sslr.parser.LexerlessGrammar;
@@ -39,6 +40,7 @@ public class FunctionDefinitionInsideLoopCheck extends SquidCheck<LexerlessGramm
 
   @Override
   public void init() {
+    subscribeTo(CheckUtils.iterationStatements());
     subscribeTo(
         EcmaScriptGrammar.ITERATION_STATEMENT,
         EcmaScriptGrammar.FUNCTION_EXPRESSION,
@@ -55,7 +57,7 @@ public class FunctionDefinitionInsideLoopCheck extends SquidCheck<LexerlessGramm
 
   @Override
   public void visitNode(AstNode astNode) {
-    if (astNode.is(EcmaScriptGrammar.ITERATION_STATEMENT)) {
+    if (astNode.is(CheckUtils.iterationStatements())) {
       stack.push(stack.pop() + 1);
     } else {
       if (stack.peek() > 0) {
@@ -67,7 +69,7 @@ public class FunctionDefinitionInsideLoopCheck extends SquidCheck<LexerlessGramm
 
   @Override
   public void leaveNode(AstNode astNode) {
-    if (astNode.is(EcmaScriptGrammar.ITERATION_STATEMENT)) {
+    if (astNode.is(CheckUtils.iterationStatements())) {
       stack.push(stack.pop() - 1);
     } else {
       stack.pop();

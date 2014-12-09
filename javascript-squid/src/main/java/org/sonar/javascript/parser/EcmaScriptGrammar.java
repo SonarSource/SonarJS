@@ -878,12 +878,6 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
     b.rule(VARIABLE_DECLARATION_LIST_NO_IN).is(VARIABLE_DECLARATION_NO_IN, b.zeroOrMore(COMMA, VARIABLE_DECLARATION_NO_IN));
     b.rule(VARIABLE_DECLARATION_NO_IN).is(b.firstOf(BINDING_IDENTIFIER_INITIALISER_NO_IN, BINDING_PATTERN_INITIALISER_NO_IN));
     b.rule(CONDITION).is(EXPRESSION);
-    b.rule(ITERATION_STATEMENT).is(b.firstOf(
-      Kind.DO_WHILE_STATEMENT,
-      Kind.WHILE_STATEMENT,
-      Kind.FOR_IN_STATEMENT,
-      ecmascript6(Kind.FOR_OF_STATEMENT),
-      Kind.FOR_STATEMENT));
 
     b.rule(FOR_DECLARATION).is(b.firstOf(VAR, LET_OR_CONST), FOR_BINDING);
     b.rule(OF).is(word(b, "of"));

@@ -19,6 +19,8 @@
  */
 package org.sonar.javascript.checks.utils;
 
+import com.sonar.sslr.api.AstNodeType;
+import org.sonar.javascript.model.interfaces.Tree.Kind;
 import org.sonar.javascript.parser.EcmaScriptGrammar;
 import org.sonar.sslr.grammar.GrammarRuleKey;
 
@@ -28,6 +30,13 @@ public class CheckUtils {
 
   private CheckUtils() {
   }
+
+  private static final AstNodeType[] ITERATION_STATEMENTS = {
+    Kind.DO_WHILE_STATEMENT,
+    Kind.WHILE_STATEMENT,
+    Kind.FOR_IN_STATEMENT,
+    Kind.FOR_OF_STATEMENT,
+    Kind.FOR_STATEMENT};
 
   private static final GrammarRuleKey[] FUNCTION_NODES = {
     EcmaScriptGrammar.FUNCTION_EXPRESSION,
@@ -42,5 +51,10 @@ public class CheckUtils {
   public static GrammarRuleKey[] getFunctionNodes() {
     return Arrays.copyOf(FUNCTION_NODES, FUNCTION_NODES.length);
   }
+
+  public static AstNodeType[] iterationStatements() {
+    return Arrays.copyOf(ITERATION_STATEMENTS, FUNCTION_NODES.length);
+  }
+
 }
 
