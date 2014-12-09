@@ -86,7 +86,7 @@ public class NestedControlFlowDepthCheck extends SquidCheck<LexerlessGrammar> {
   }
 
   private boolean isElseIf(AstNode astNode) {
-    return astNode.getParent().getPreviousSibling() != null
+    return astNode.is(Kind.IF_STATEMENT) && astNode.getParent().getPreviousSibling() != null
       && astNode.getParent().getPreviousSibling().is(EcmaScriptKeyword.ELSE);
   }
 

@@ -3,8 +3,11 @@ function sayHello() {
     if (true) { // level 2
     }
   } else if (true) { // level 1
-    if (true) { // level 2
-    }
+      if (true) { // level 2
+      } else      // level 2
+          for (; ;)  // level 3
+              if (true) {  //level 4
+              }
   }
 
   for (var i = 0; i < 0; i++) { // level 1

@@ -41,11 +41,12 @@ public class NestedControlFlowDepthCheckTest {
   public void testDefault() {
     SourceFile file = JavaScriptAstScanner.scanSingleFile(new File("src/test/resources/checks/nestedControlFlowDepth.js"), check);
     CheckMessagesVerifier.verify(file.getCheckMessages())
-      .next().atLine(14).withMessage("Refactor this code to not nest more than 3 if/for/while/switch/try statements.")
+      .next().atLine(9).withMessage("Refactor this code to not nest more than 3 if/for/while/switch/try statements.")
       .next().atLine(17)
       .next().atLine(20)
       .next().atLine(23)
       .next().atLine(26)
+      .next().atLine(29)
       .noMore();
   }
 
@@ -55,7 +56,7 @@ public class NestedControlFlowDepthCheckTest {
 
     SourceFile file = JavaScriptAstScanner.scanSingleFile(new File("src/test/resources/checks/nestedControlFlowDepth.js"), check);
     CheckMessagesVerifier.verify(file.getCheckMessages())
-      .next().atLine(28).withMessage("Refactor this code to not nest more than 4 if/for/while/switch/try statements.")
+      .next().atLine(31).withMessage("Refactor this code to not nest more than 4 if/for/while/switch/try statements.")
       .noMore();
   }
 
