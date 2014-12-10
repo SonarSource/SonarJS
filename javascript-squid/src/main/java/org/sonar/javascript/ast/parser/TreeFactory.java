@@ -51,6 +51,7 @@ import org.sonar.javascript.model.implementations.statement.WhileStatementTreeIm
 import org.sonar.javascript.model.implementations.statement.WithStatementTreeImpl;
 import org.sonar.javascript.model.interfaces.statement.CaseClauseTree;
 import org.sonar.javascript.model.interfaces.statement.ElseClauseTree;
+import org.sonar.javascript.model.interfaces.statement.StatementTree;
 import org.sonar.javascript.model.interfaces.statement.SwitchClauseTree;
 import org.sonar.javascript.model.interfaces.statement.SwitchStatementTree;
 import org.sonar.javascript.parser.sslr.Optional;
@@ -99,7 +100,7 @@ public class TreeFactory {
     return new VariableDeclarationTreeImpl(bindingIdentifierInitialiser);
   }
 
-  public LabelledStatementTreeImpl labelledStatement(AstNode identifier, AstNode colon, AstNode statement) {
+  public LabelledStatementTreeImpl labelledStatement(AstNode identifier, AstNode colon, StatementTree statement) {
     return new LabelledStatementTreeImpl(new IdentifierTreeImpl(InternalSyntaxToken.create(identifier)), InternalSyntaxToken.create(colon), statement);
   }
 
@@ -143,7 +144,7 @@ public class TreeFactory {
     return new ThrowStatementTreeImpl(InternalSyntaxToken.create(throwToken), expression, eos);
   }
 
-  public WithStatementTreeImpl newWithStatement(AstNode withToken, AstNode openingParen, AstNode expression, AstNode closingParen, AstNode statement) {
+  public WithStatementTreeImpl newWithStatement(AstNode withToken, AstNode openingParen, AstNode expression, AstNode closingParen, StatementTree statement) {
     return new WithStatementTreeImpl(InternalSyntaxToken.create(withToken), InternalSyntaxToken.create(openingParen), expression, InternalSyntaxToken.create(closingParen), statement);
   }
 
@@ -217,22 +218,22 @@ public class TreeFactory {
     return new CaseClauseTreeImpl(InternalSyntaxToken.create(caseToken), expression, InternalSyntaxToken.create(colonToken));
   }
 
-  public ElseClauseTreeImpl elseClause(AstNode elseToken, AstNode statement) {
+  public ElseClauseTreeImpl elseClause(AstNode elseToken, StatementTree statement) {
     return new ElseClauseTreeImpl(InternalSyntaxToken.create(elseToken), statement);
   }
 
-  public IfStatementTreeImpl ifStatement(AstNode ifToken, AstNode openParenToken, AstNode condition, AstNode closeParenToken, AstNode statement, Optional<ElseClauseTreeImpl> elseClause) {
+  public IfStatementTreeImpl ifStatement(AstNode ifToken, AstNode openParenToken, AstNode condition, AstNode closeParenToken, StatementTree statement, Optional<ElseClauseTreeImpl> elseClause) {
     if (elseClause.isPresent()) {
       return new IfStatementTreeImpl(InternalSyntaxToken.create(ifToken), InternalSyntaxToken.create(openParenToken), condition, InternalSyntaxToken.create(closeParenToken), statement, elseClause.get());
     }
     return new IfStatementTreeImpl(InternalSyntaxToken.create(ifToken), InternalSyntaxToken.create(openParenToken), condition, InternalSyntaxToken.create(closeParenToken), statement);
   }
 
-  public WhileStatementTreeImpl whileStatement(AstNode whileToken, AstNode openParenthesis, AstNode condition, AstNode closeParenthesis, AstNode statetment) {
+  public WhileStatementTreeImpl whileStatement(AstNode whileToken, AstNode openParenthesis, AstNode condition, AstNode closeParenthesis, StatementTree statetment) {
     return new WhileStatementTreeImpl(InternalSyntaxToken.create(whileToken), InternalSyntaxToken.create(openParenthesis), condition, InternalSyntaxToken.create(closeParenthesis), statetment);
   }
 
-  public DoWhileStatementTreeImpl doWhileStatement(AstNode doToken, AstNode statement, AstNode whileToken, AstNode openParenthesis, AstNode condition, AstNode closeParenthesis, AstNode eos) {
+  public DoWhileStatementTreeImpl doWhileStatement(AstNode doToken, StatementTree statement, AstNode whileToken, AstNode openParenthesis, AstNode condition, AstNode closeParenthesis, AstNode eos) {
     return new DoWhileStatementTreeImpl(InternalSyntaxToken.create(doToken), statement, InternalSyntaxToken.create(whileToken), InternalSyntaxToken.create(openParenthesis), condition, InternalSyntaxToken.create(closeParenthesis), eos);
   }
 
@@ -240,7 +241,7 @@ public class TreeFactory {
     return new ExpressionStatementTreeImpl(expression, eos);
   }
 
-  public ForOfStatementTreeImpl forOfStatement(AstNode forToken, AstNode openParenthesis, AstNode variableOrExpression, AstNode ofToken, AstNode expression, AstNode closeParenthesis, AstNode statement) {
+  public ForOfStatementTreeImpl forOfStatement(AstNode forToken, AstNode openParenthesis, AstNode variableOrExpression, AstNode ofToken, AstNode expression, AstNode closeParenthesis, StatementTree statement) {
     return new ForOfStatementTreeImpl(
       InternalSyntaxToken.create(forToken),
       InternalSyntaxToken.create(openParenthesis),
@@ -250,7 +251,7 @@ public class TreeFactory {
       statement);
   }
 
-  public ForInStatementTreeImpl forInStatement(AstNode forToken, AstNode openParenthesis, AstNode variableOrExpression, AstNode inToken, AstNode expression, AstNode closeParenthesis, AstNode statement) {
+  public ForInStatementTreeImpl forInStatement(AstNode forToken, AstNode openParenthesis, AstNode variableOrExpression, AstNode inToken, AstNode expression, AstNode closeParenthesis, StatementTree statement) {
     return new ForInStatementTreeImpl(
       InternalSyntaxToken.create(forToken),
       InternalSyntaxToken.create(openParenthesis),
@@ -271,7 +272,7 @@ public class TreeFactory {
     }
   };
 
-  public ForStatementTreeImpl forStatement(AstNode forToken, AstNode openParenthesis, Optional<AstNode> init, AstNode firstSemiToken, Optional<AstNode> condition, AstNode secondSemiToken, Optional<AstNode> update, AstNode closeParenthesis, AstNode statement) {
+  public ForStatementTreeImpl forStatement(AstNode forToken, AstNode openParenthesis, Optional<AstNode> init, AstNode firstSemiToken, Optional<AstNode> condition, AstNode secondSemiToken, Optional<AstNode> update, AstNode closeParenthesis, StatementTree statement) {
     List<AstNode> children = Lists.newArrayList();
 
     children.add(forToken);
@@ -288,7 +289,7 @@ public class TreeFactory {
       children.add(update.get());
     }
     children.add(closeParenthesis);
-    children.add(statement);
+    children.add((AstNode) statement);
 
     return new ForStatementTreeImpl(
       InternalSyntaxToken.create(forToken),
@@ -296,6 +297,7 @@ public class TreeFactory {
       InternalSyntaxToken.create(firstSemiToken),
       InternalSyntaxToken.create(secondSemiToken),
       InternalSyntaxToken.create(closeParenthesis),
+      statement,
       children);
   }
 

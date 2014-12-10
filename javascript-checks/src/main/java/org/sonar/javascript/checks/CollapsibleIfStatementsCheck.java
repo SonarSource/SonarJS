@@ -23,7 +23,11 @@ import com.sonar.sslr.api.AstNode;
 import org.sonar.check.BelongsToProfile;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
+import org.sonar.javascript.model.implementations.statement.IfStatementTreeImpl;
 import org.sonar.javascript.model.interfaces.Tree.Kind;
+import org.sonar.javascript.model.interfaces.statement.BlockTree;
+import org.sonar.javascript.model.interfaces.statement.IfStatementTree;
+import org.sonar.javascript.model.interfaces.statement.StatementTree;
 import org.sonar.javascript.parser.EcmaScriptGrammar;
 import org.sonar.squidbridge.checks.SquidCheck;
 import org.sonar.sslr.parser.LexerlessGrammar;
@@ -41,11 +45,13 @@ public class CollapsibleIfStatementsCheck extends SquidCheck<LexerlessGrammar> {
 
   @Override
   public void visitNode(AstNode node) {
-    if (isIfStatementWithoutElse(node)) {
-      AstNode innerStatement = node.getFirstChild(EcmaScriptGrammar.STATEMENT).getFirstChild();
-      if (isBlockAndContainsOnlyOneIfStatement(innerStatement) || isIfStatementWithoutElse(innerStatement)) {
+    IfStatementTreeImpl ifStatement = (IfStatementTreeImpl) node;
+
+    if (!ifStatement.hasElse()) {
+      StatementTree innerStatement =  ifStatement.thenStatement();
+
+      if (isBlockAndContainsOnlyOneIfStatement((AstNode) innerStatement) || isIfStatementWithoutElse((AstNode) innerStatement))
         getContext().createLineViolation(this, "Merge this if statement with the nested one.", node);
-      }
     }
   }
 
@@ -54,10 +60,11 @@ public class CollapsibleIfStatementsCheck extends SquidCheck<LexerlessGrammar> {
       return false;
     }
     AstNode statementList = statement.getFirstChild(EcmaScriptGrammar.STATEMENT_LIST);
-    if (statementList == null || statementList.getNumberOfChildren() != 1 || statementList.getFirstChild().isNot(EcmaScriptGrammar.STATEMENT)) {
+
+    if (statementList == null || statementList.getNumberOfChildren() != 1 || statementList.getFirstChild().is(EcmaScriptGrammar.DECLARATION)) {
       return false;
     }
-    return isIfStatementWithoutElse(statementList.getFirstChild().getFirstChild());
+    return isIfStatementWithoutElse(statementList.getFirstChild());
   }
 
   private boolean isIfStatementWithoutElse(AstNode statement) {

@@ -35,15 +35,17 @@ public class LabelledStatementTreeImpl extends JavaScriptTree implements Labelle
 
   private final IdentifierTree label;
   private final SyntaxToken colon;
+  private final StatementTree statement;
 
-  public LabelledStatementTreeImpl(IdentifierTree label, InternalSyntaxToken colon, AstNode statement) {
+  public LabelledStatementTreeImpl(IdentifierTree label, InternalSyntaxToken colon, StatementTree statement) {
     super(Kind.LABELLED_STATEMENT);
     this.label = label;
     this.colon = colon;
+    this.statement = statement;
 
     addChild((AstNode) label);
     addChild(colon);
-    addChild(statement);
+    addChild((AstNode) statement);
   }
 
   @Override
@@ -63,7 +65,7 @@ public class LabelledStatementTreeImpl extends JavaScriptTree implements Labelle
 
   @Override
   public StatementTree statement() {
-    throw new UnsupportedOperationException("Not supported yet in the strongly typed AST.");
+    return statement;
   }
 
   @Override

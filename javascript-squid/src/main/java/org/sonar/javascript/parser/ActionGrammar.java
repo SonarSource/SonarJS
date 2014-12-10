@@ -93,7 +93,7 @@ public class ActionGrammar {
 
   public LabelledStatementTreeImpl LABELLED_STATEMENT() {
     return b.<LabelledStatementTreeImpl>nonterminal(Kind.LABELLED_STATEMENT)
-      .is(f.labelledStatement(b.invokeRule(EcmaScriptTokenType.IDENTIFIER), b.invokeRule(EcmaScriptPunctuator.COLON), b.invokeRule(EcmaScriptGrammar.STATEMENT)));
+      .is(f.labelledStatement(b.invokeRule(EcmaScriptTokenType.IDENTIFIER), b.invokeRule(EcmaScriptPunctuator.COLON), STATEMENT()));
   }
 
   public ContinueStatementTreeImpl CONTINUE_STATEMENT() {
@@ -177,7 +177,7 @@ public class ActionGrammar {
         b.invokeRule(EcmaScriptPunctuator.LPARENTHESIS),
         b.invokeRule(EcmaScriptGrammar.EXPRESSION),
         b.invokeRule(EcmaScriptPunctuator.RPARENTHESIS),
-        b.invokeRule(EcmaScriptGrammar.STATEMENT)));
+        STATEMENT()));
   }
 
   public BlockTreeImpl BLOCK() {
@@ -254,7 +254,7 @@ public class ActionGrammar {
         b.invokeRule(EcmaScriptPunctuator.LPARENTHESIS),
         b.invokeRule(EcmaScriptGrammar.CONDITION),
         b.invokeRule(EcmaScriptPunctuator.RPARENTHESIS),
-        b.invokeRule(EcmaScriptGrammar.STATEMENT),
+        STATEMENT(),
         b.optional(ELSE_CLAUSE())));
   }
 
@@ -262,7 +262,7 @@ public class ActionGrammar {
     return b.<ElseClauseTreeImpl>nonterminal(Kind.ELSE_CLAUSE)
       .is(f.elseClause(
         b.invokeRule(EcmaScriptKeyword.ELSE),
-        b.invokeRule(EcmaScriptGrammar.STATEMENT)));
+        STATEMENT()));
   }
 
   public WhileStatementTreeImpl WHILE_STATEMENT() {
@@ -272,14 +272,14 @@ public class ActionGrammar {
         b.invokeRule(EcmaScriptPunctuator.LPARENTHESIS),
         b.invokeRule(EcmaScriptGrammar.CONDITION),
         b.invokeRule(EcmaScriptPunctuator.RPARENTHESIS),
-        b.invokeRule(EcmaScriptGrammar.STATEMENT)));
+        STATEMENT()));
   }
 
   public DoWhileStatementTreeImpl DO_WHILE_STATEMENT() {
     return b.<DoWhileStatementTreeImpl>nonterminal(Kind.DO_WHILE_STATEMENT)
       .is(f.doWhileStatement(
         b.invokeRule(EcmaScriptKeyword.DO),
-        b.invokeRule(EcmaScriptGrammar.STATEMENT),
+        STATEMENT(),
         b.invokeRule(EcmaScriptKeyword.WHILE),
         b.invokeRule(EcmaScriptPunctuator.LPARENTHESIS),
         b.invokeRule(EcmaScriptGrammar.CONDITION),
@@ -305,7 +305,7 @@ public class ActionGrammar {
         b.invokeRule(EcmaScriptGrammar.OF),
         b.invokeRule(EcmaScriptGrammar.ASSIGNMENT_EXPRESSION),
         b.invokeRule(EcmaScriptPunctuator.RPARENTHESIS),
-        b.invokeRule(EcmaScriptGrammar.STATEMENT)));
+        STATEMENT()));
   }
 
   public ForInStatementTreeImpl FOR_IN_STATEMENT() {
@@ -317,7 +317,7 @@ public class ActionGrammar {
         b.invokeRule(EcmaScriptKeyword.IN),
         b.invokeRule(EcmaScriptGrammar.EXPRESSION),
         b.invokeRule(EcmaScriptPunctuator.RPARENTHESIS),
-        b.invokeRule(EcmaScriptGrammar.STATEMENT)));
+        STATEMENT()));
   }
 
   public ForStatementTreeImpl FOR_STATEMENT() {
@@ -334,7 +334,8 @@ public class ActionGrammar {
         b.optional(b.invokeRule(EcmaScriptGrammar.EXPRESSION)),
 
         b.invokeRule(EcmaScriptPunctuator.RPARENTHESIS),
-        b.invokeRule(EcmaScriptGrammar.STATEMENT)));
+        STATEMENT()
+      ));
   }
 
   public StatementTree ITERATION_STATEMENT() {
@@ -345,6 +346,26 @@ public class ActionGrammar {
         FOR_IN_STATEMENT(),
         ES6(FOR_OF_STATEMENT()),
         FOR_STATEMENT()));
+  }
+
+  public StatementTree STATEMENT() {
+    return b.<StatementTree>nonterminal(EcmaScriptGrammar.STATEMENT)
+      .is(b.firstOf(
+        BLOCK(),
+        VARIABLE_STATEMENT(),
+        EMPTY_STATEMENT(),
+        LABELLED_STATEMENT(),
+        EXPRESSION_STATEMENT(),
+        IF_STATEMENT(),
+        ITERATION_STATEMENT(),
+        CONTINUE_STATEMENT(),
+        BREAK_STATEMENT(),
+        RETURN_STATEMENT(),
+        WITH_STATEMENT(),
+        SWITCH_STATEMENT(),
+        THROW_STATEMENT(),
+        TRY_STATEMENT(),
+        DEBUGGER_STATEMENT()));
   }
 
   /**

@@ -41,14 +41,16 @@ public class ForStatementTreeImpl extends JavaScriptTree implements ForStatement
   private final SyntaxToken firstSemicolon;
   private final SyntaxToken secondSemicolon;
   private final SyntaxToken closeParenthesis;
+  private final StatementTree statement;
 
-  public ForStatementTreeImpl(InternalSyntaxToken forKeyword, InternalSyntaxToken openParenthesis, InternalSyntaxToken firstSemicolon, InternalSyntaxToken secondSemicolon, InternalSyntaxToken closeParenthesis, List<AstNode> children) {
+  public ForStatementTreeImpl(InternalSyntaxToken forKeyword, InternalSyntaxToken openParenthesis, InternalSyntaxToken firstSemicolon, InternalSyntaxToken secondSemicolon, InternalSyntaxToken closeParenthesis, StatementTree statement, List<AstNode> children) {
     super(Kind.FOR_STATEMENT);
     this.forKeyword = forKeyword;
     this.openParenthesis = openParenthesis;
     this.firstSemicolon = firstSemicolon;
     this.secondSemicolon = secondSemicolon;
     this.closeParenthesis = closeParenthesis;
+    this.statement = statement;
 
     addChildren(children.toArray(new AstNode[children.size()]));
   }
@@ -98,7 +100,7 @@ public class ForStatementTreeImpl extends JavaScriptTree implements ForStatement
 
   @Override
   public StatementTree statement() {
-    throw new UnsupportedOperationException("Not supported yet in the strongly typed AST.");
+    return statement;
   }
 
   @Override

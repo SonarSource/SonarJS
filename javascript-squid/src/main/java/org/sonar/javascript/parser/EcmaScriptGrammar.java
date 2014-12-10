@@ -306,7 +306,6 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
   VARIABLE_DECLARATION_NO_IN,
   INITIALISER,
   INITIALISER_NO_IN,
-  EXPRESSION_STATEMENT,
   ITERATION_STATEMENT,
   /** ECMAScrip 6 **/
   OF,
@@ -858,22 +857,6 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
    * A.4 Statement
    */
   private static void statements(LexerlessGrammarBuilder b) {
-    b.rule(STATEMENT).is(b.firstOf(
-      Kind.BLOCK,
-      Kind.VARIABLE_STATEMENT,
-      Kind.EMPTY_STATEMENT,
-      Kind.LABELLED_STATEMENT,
-      Kind.EXPRESSION_STATEMENT,
-      Kind.IF_STATEMENT,
-      ITERATION_STATEMENT,
-      Kind.CONTINUE_STATEMENT,
-      Kind.BREAK_STATEMENT,
-      Kind.RETURN_STATEMENT,
-      Kind.WITH_STATEMENT,
-      Kind.SWITCH_STATEMENT,
-      Kind.THROW_STATEMENT,
-      Kind.TRY_STATEMENT,
-      Kind.DEBUGGER_STATEMENT));
     b.rule(STATEMENT_LIST).is(b.oneOrMore(b.firstOf(ecmascript6(DECLARATION), STATEMENT)));
     b.rule(VARIABLE_DECLARATION_LIST_NO_IN).is(VARIABLE_DECLARATION_NO_IN, b.zeroOrMore(COMMA, VARIABLE_DECLARATION_NO_IN));
     b.rule(VARIABLE_DECLARATION_NO_IN).is(b.firstOf(BINDING_IDENTIFIER_INITIALISER_NO_IN, BINDING_PATTERN_INITIALISER_NO_IN));

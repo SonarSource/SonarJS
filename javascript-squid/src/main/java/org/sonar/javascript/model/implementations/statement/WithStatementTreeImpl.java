@@ -37,18 +37,20 @@ public class WithStatementTreeImpl extends JavaScriptTree implements WithStateme
   private final SyntaxToken withKeyword;
   private final SyntaxToken openingParenthesis;
   private final SyntaxToken closingParenthesis;
+  private final StatementTree statement;
 
-  public WithStatementTreeImpl(InternalSyntaxToken withKeyword, InternalSyntaxToken openingParenthesis, AstNode expression, InternalSyntaxToken closingParenthesis, AstNode statement) {
+  public WithStatementTreeImpl(InternalSyntaxToken withKeyword, InternalSyntaxToken openingParenthesis, AstNode expression, InternalSyntaxToken closingParenthesis, StatementTree statement) {
     super(Kind.WITH_STATEMENT);
     this.withKeyword = withKeyword;
     this.openingParenthesis = openingParenthesis;
     this.closingParenthesis = closingParenthesis;
+    this.statement = statement;
 
     addChild(withKeyword);
     addChild(openingParenthesis);
     addChild(expression);
     addChild(closingParenthesis);
-    addChild(statement);
+    addChild((AstNode) statement);
   }
 
   @Override
@@ -78,7 +80,7 @@ public class WithStatementTreeImpl extends JavaScriptTree implements WithStateme
 
   @Override
   public StatementTree statement() {
-    throw new UnsupportedOperationException("Not supported yet in the strongly typed AST.");
+    return statement;
   }
 
   @Override

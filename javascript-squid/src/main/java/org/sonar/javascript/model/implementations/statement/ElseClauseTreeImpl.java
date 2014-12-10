@@ -36,12 +36,14 @@ import java.util.Iterator;
 public class ElseClauseTreeImpl extends JavaScriptTree implements ElseClauseTree {
 
   private SyntaxToken elseKeyword;
+  private final StatementTree statement;
 
-  public ElseClauseTreeImpl(InternalSyntaxToken elseKeyword, AstNode statement) {
+  public ElseClauseTreeImpl(InternalSyntaxToken elseKeyword, StatementTree statement) {
     super(Kind.ELSE_CLAUSE);
     this.elseKeyword = elseKeyword;
+    this.statement = statement;
 
-    addChildren(elseKeyword, statement);
+    addChildren(elseKeyword, (AstNode) statement);
   }
 
   @Override
@@ -52,7 +54,7 @@ public class ElseClauseTreeImpl extends JavaScriptTree implements ElseClauseTree
   @Nullable
   @Override
   public StatementTree statement() {
-    throw new UnsupportedOperationException("Not supported yet in the strongly typed AST.");
+    return statement;
   }
 
   @Override

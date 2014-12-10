@@ -19,11 +19,13 @@
  */
 package org.sonar.javascript.checks;
 
+import com.google.common.collect.ImmutableList;
 import com.sonar.sslr.api.AstNode;
 import org.sonar.check.BelongsToProfile;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.javascript.api.EcmaScriptKeyword;
+import org.sonar.javascript.model.implementations.statement.IfStatementTreeImpl;
 import org.sonar.javascript.model.interfaces.Tree.Kind;
 import org.sonar.javascript.parser.EcmaScriptGrammar;
 import org.sonar.squidbridge.checks.SquidCheck;
@@ -42,27 +44,17 @@ public class ReturnOfBooleanExpressionCheck extends SquidCheck<LexerlessGrammar>
 
   @Override
   public void visitNode(AstNode astNode) {
-    if (isNotIfElse(astNode) && hasElse(astNode)
-      && returnsBoolean(getTrueStatement(astNode))
-      && returnsBoolean(getFalseStatement(astNode))) {
+    IfStatementTreeImpl ifStatement = (IfStatementTreeImpl) astNode;
+
+    if (isNotIfElse(ifStatement) && ifStatement.hasElse()
+      && returnsBoolean((AstNode) ifStatement.elseClause().statement())
+      && returnsBoolean((AstNode) ifStatement.thenStatement())) {
       getContext().createLineViolation(this, "Replace this if-then-else statement by a single return statement.", astNode);
     }
   }
 
-  public static AstNode getTrueStatement(AstNode ifStmt) {
-    return ifStmt.getFirstChild(Kind.ELSE_CLAUSE).getFirstChild(EcmaScriptGrammar.STATEMENT);
-  }
-
-  public static AstNode getFalseStatement(AstNode ifStmt) {
-    return ifStmt.getFirstChild(EcmaScriptGrammar.STATEMENT);
-  }
-
-  public static boolean isNotIfElse(AstNode ifStmt) {
-    return !ifStmt.getParent().getParent().is(Kind.ELSE_CLAUSE);
-  }
-
-  public static boolean hasElse(AstNode ifStmt) {
-    return ifStmt.hasDirectChildren(Kind.ELSE_CLAUSE);
+  public static boolean isNotIfElse(IfStatementTreeImpl ifStmt) {
+    return !ifStmt.getParent().is(Kind.ELSE_CLAUSE);
   }
 
   public static boolean returnsBoolean(AstNode statement) {
@@ -70,24 +62,26 @@ public class ReturnOfBooleanExpressionCheck extends SquidCheck<LexerlessGrammar>
   }
 
   public static boolean isBlockReturningBooleanLiteral(AstNode statement) {
-    AstNode block = statement.getFirstChild(Kind.BLOCK);
-    if (block == null) {
+    if (statement.isNot(Kind.BLOCK)) {
       return false;
     }
 
-    AstNode stmtList = block.getFirstChild(EcmaScriptGrammar.STATEMENT_LIST);
-    return stmtList != null
-      && stmtList.getChildren(EcmaScriptGrammar.STATEMENT).size() == 1
-      && isSimpleReturnBooleanLiteral(stmtList.getFirstChild());
+    AstNode stmtList = statement.getFirstChild(EcmaScriptGrammar.STATEMENT_LIST);
+
+    if (stmtList != null) {
+      ImmutableList<AstNode> statements = getStatementChildren(stmtList);
+      return statements.size() == 1 && isSimpleReturnBooleanLiteral(statements.get(0));
+    }
+
+    return false;
   }
 
   public static boolean isSimpleReturnBooleanLiteral(AstNode statement) {
-    AstNode returnStmt = statement.getFirstChild(Kind.RETURN_STATEMENT);
-    if (returnStmt == null) {
+    if (statement.isNot(Kind.RETURN_STATEMENT)) {
       return false;
     }
 
-    AstNode expression = returnStmt.getFirstChild(EcmaScriptGrammar.EXPRESSION);
+    AstNode expression = statement.getFirstChild(EcmaScriptGrammar.EXPRESSION);
 
     return hasASingleToken(expression)
       && (EcmaScriptKeyword.TRUE.getValue().equals(expression.getTokenValue())
@@ -97,4 +91,16 @@ public class ReturnOfBooleanExpressionCheck extends SquidCheck<LexerlessGrammar>
   private static boolean hasASingleToken(AstNode expression) {
     return expression != null && expression.getFirstChild().getToken().equals(expression.getLastToken());
   }
+
+  private static ImmutableList<AstNode> getStatementChildren(AstNode statementList) {
+    ImmutableList.Builder<AstNode> builder = ImmutableList.builder();
+
+    for (AstNode node : statementList.getChildren()) {
+      if (node.isNot(EcmaScriptGrammar.DECLARATION)) {
+        builder.add(node);
+      }
+    }
+    return builder.build();
+  }
+
 }

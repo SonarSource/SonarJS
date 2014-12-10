@@ -39,15 +39,17 @@ public class DoWhileStatementTreeImpl extends JavaScriptTree implements DoWhileS
   private final SyntaxToken whileKeyword;
   private final SyntaxToken openingParenthesis;
   private final SyntaxToken closingParenthesis;
+  private final StatementTree statement;
 
-  public DoWhileStatementTreeImpl(InternalSyntaxToken doKeyword, AstNode statement, InternalSyntaxToken whileKeyword, InternalSyntaxToken openingParenthesis, AstNode condition, InternalSyntaxToken closingParenthesis, AstNode eos) {
+  public DoWhileStatementTreeImpl(InternalSyntaxToken doKeyword, StatementTree statement, InternalSyntaxToken whileKeyword, InternalSyntaxToken openingParenthesis, AstNode condition, InternalSyntaxToken closingParenthesis, AstNode eos) {
     super(Kind.DO_WHILE_STATEMENT);
     this.doKeyword = doKeyword;
     this.whileKeyword = whileKeyword;
     this.openingParenthesis = openingParenthesis;
     this.closingParenthesis = closingParenthesis;
+    this.statement = statement;
 
-    addChildren(doKeyword, statement, whileKeyword, openingParenthesis, condition, closingParenthesis, eos);
+    addChildren(doKeyword, (AstNode) statement, whileKeyword, openingParenthesis, condition, closingParenthesis, eos);
   }
 
   @Override
@@ -76,7 +78,7 @@ public class DoWhileStatementTreeImpl extends JavaScriptTree implements DoWhileS
 
   @Override
   public StatementTree statement() {
-    throw new UnsupportedOperationException("Not supported yet in the strongly typed AST.");
+    return statement;
   }
 
   @Override

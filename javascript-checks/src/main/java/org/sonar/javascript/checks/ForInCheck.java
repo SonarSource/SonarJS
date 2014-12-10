@@ -24,6 +24,7 @@ import org.sonar.check.BelongsToProfile;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.javascript.model.interfaces.Tree.Kind;
+import org.sonar.javascript.model.interfaces.statement.ForInStatementTree;
 import org.sonar.javascript.parser.EcmaScriptGrammar;
 import org.sonar.squidbridge.checks.SquidCheck;
 import org.sonar.sslr.parser.LexerlessGrammar;
@@ -41,22 +42,30 @@ public class ForInCheck extends SquidCheck<LexerlessGrammar> {
 
   @Override
   public void visitNode(AstNode astNode) {
-    AstNode statementNode = astNode.getFirstChild(EcmaScriptGrammar.STATEMENT);
+    ForInStatementTree forInStatement = (ForInStatementTree) astNode;
+    AstNode statementNode = (AstNode) forInStatement.statement();
 
-    if (statementNode.getFirstChild().is(Kind.BLOCK)) {
-      AstNode statementListNode = statementNode.getFirstChild().getFirstChild(EcmaScriptGrammar.STATEMENT_LIST);
+    if (statementNode.is(Kind.BLOCK)) {
+      AstNode statementListNode = statementNode.getFirstChild(EcmaScriptGrammar.STATEMENT_LIST);
       if (statementListNode == null) {
         statementNode = null;
       } else {
-        statementNode = statementListNode.getChildren(EcmaScriptGrammar.STATEMENT).get(0).getFirstChild();
+        statementNode = getFirstStatement(statementListNode);
       }
-    } else {
-      statementNode = statementNode.getFirstChild();
     }
 
     if (statementNode != null && statementNode.isNot(Kind.IF_STATEMENT)) {
       getContext().createLineViolation(this, "Insert an if statement at the beginning of this loop to filter items.", astNode);
     }
+  }
+
+  private static AstNode getFirstStatement(AstNode statementList) {
+    for (AstNode node : statementList.getChildren()) {
+       if (node.isNot(EcmaScriptGrammar.DECLARATION)) {
+         return node;
+       }
+    }
+    return null;
   }
 
 }

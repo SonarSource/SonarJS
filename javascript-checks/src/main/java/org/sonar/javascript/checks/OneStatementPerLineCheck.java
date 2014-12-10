@@ -25,7 +25,6 @@ import org.sonar.check.BelongsToProfile;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.javascript.model.interfaces.Tree.Kind;
-import org.sonar.javascript.parser.EcmaScriptGrammar;
 import org.sonar.squidbridge.checks.SquidCheck;
 import org.sonar.sslr.parser.LexerlessGrammar;
 
@@ -41,21 +40,33 @@ public class OneStatementPerLineCheck extends SquidCheck<LexerlessGrammar> {
 
   @Override
   public void init() {
-    subscribeTo(EcmaScriptGrammar.STATEMENT);
+    subscribeTo(
+      Kind.VARIABLE_STATEMENT,
+      Kind.EXPRESSION_STATEMENT,
+      Kind.IF_STATEMENT,
+      Kind.DO_WHILE_STATEMENT,
+      Kind.WHILE_STATEMENT,
+      Kind.FOR_IN_STATEMENT,
+      Kind.FOR_OF_STATEMENT,
+      Kind.FOR_STATEMENT,
+      Kind.CONTINUE_STATEMENT,
+      Kind.BREAK_STATEMENT,
+      Kind.RETURN_STATEMENT,
+      Kind.WITH_STATEMENT,
+      Kind.SWITCH_STATEMENT,
+      Kind.THROW_STATEMENT,
+      Kind.TRY_STATEMENT,
+      Kind.DEBUGGER_STATEMENT);
   }
 
   @Override
   public void visitNode(AstNode astNode) {
-    AstNode statement = astNode.getFirstChild();
-    if (statement.is(Kind.BLOCK) || statement.is(Kind.EMPTY_STATEMENT) || statement.is(Kind.LABELLED_STATEMENT)) {
-      // skip
-    } else {
-      int line = statement.getTokenLine();
-      if (!statementsPerLine.containsKey(line)) {
-        statementsPerLine.put(line, 0);
-      }
-      statementsPerLine.put(line, statementsPerLine.get(line) + 1);
+    int line = astNode.getTokenLine();
+    if (!statementsPerLine.containsKey(line)) {
+      statementsPerLine.put(line, 0);
     }
+    statementsPerLine.put(line, statementsPerLine.get(line) + 1);
+
   }
 
   @Override

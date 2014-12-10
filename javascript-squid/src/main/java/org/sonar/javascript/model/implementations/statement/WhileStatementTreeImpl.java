@@ -37,14 +37,16 @@ public class WhileStatementTreeImpl extends JavaScriptTree implements WhileState
   private final SyntaxToken whileKeyword;
   private final SyntaxToken openingParenthesis;
   private final SyntaxToken closingParenthesis;
+  private final StatementTree statement;
 
-  public WhileStatementTreeImpl(InternalSyntaxToken whileKeyword, InternalSyntaxToken openingParenthesis, AstNode condition, InternalSyntaxToken closingParenthesis, AstNode statement) {
+  public WhileStatementTreeImpl(InternalSyntaxToken whileKeyword, InternalSyntaxToken openingParenthesis, AstNode condition, InternalSyntaxToken closingParenthesis, StatementTree statement) {
     super(Kind.WHILE_STATEMENT);
     this.whileKeyword = whileKeyword;
     this.openingParenthesis = openingParenthesis;
     this.closingParenthesis = closingParenthesis;
+    this.statement = statement;
 
-    addChildren(whileKeyword, openingParenthesis, condition, closingParenthesis, statement);
+    addChildren(whileKeyword, openingParenthesis, condition, closingParenthesis, (AstNode) statement);
   }
 
   @Override
@@ -69,7 +71,7 @@ public class WhileStatementTreeImpl extends JavaScriptTree implements WhileState
 
   @Override
   public StatementTree statement() {
-    throw new UnsupportedOperationException("Not supported yet in the strongly typed AST.");
+    return statement;
   }
 
   @Override

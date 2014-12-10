@@ -39,6 +39,7 @@ public class ForOfStatementTreeModelTest extends JavaScriptTreeModelTest {
     assertThat(tree.openParenthesis().text()).isEqualTo(EcmaScriptPunctuator.LPARENTHESIS.getValue());
     assertThat(tree.ofKeyword().text()).isEqualTo("of");
     assertThat(tree.closeParenthesis().text()).isEqualTo(EcmaScriptPunctuator.RPARENTHESIS.getValue());
+    assertThat(tree.statement().is(Kind.BLOCK));
   }
 
 }

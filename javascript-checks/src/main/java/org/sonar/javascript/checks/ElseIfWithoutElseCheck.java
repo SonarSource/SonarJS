@@ -47,7 +47,7 @@ public class ElseIfWithoutElseCheck extends SquidCheck<LexerlessGrammar> {
   }
 
   private boolean isElseIf(AstNode node) {
-    return node.getParent().getParent().is(Kind.ELSE_CLAUSE);
+    return node.getParent().is(Kind.ELSE_CLAUSE);
   }
 
 }

@@ -24,7 +24,7 @@ import org.sonar.check.BelongsToProfile;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.javascript.api.EcmaScriptKeyword;
-import org.sonar.javascript.parser.EcmaScriptGrammar;
+import org.sonar.javascript.model.interfaces.Tree.Kind;
 import org.sonar.squidbridge.checks.SquidCheck;
 import org.sonar.sslr.parser.LexerlessGrammar;
 
@@ -36,7 +36,7 @@ public class ConstructorFunctionsForSideEffectsCheck extends SquidCheck<Lexerles
 
   @Override
   public void init() {
-    subscribeTo(EcmaScriptGrammar.STATEMENT);
+    subscribeTo(Kind.EXPRESSION_STATEMENT);
   }
 
   @Override

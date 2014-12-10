@@ -37,16 +37,18 @@ public class ForOfStatementTreeImpl extends JavaScriptTree implements ForOfState
   private final SyntaxToken openParenthesis;
   private final SyntaxToken ofKeyword;
   private final SyntaxToken closeParenthesis;
+  private final StatementTree statement;
 
   public ForOfStatementTreeImpl(InternalSyntaxToken forKeyword, InternalSyntaxToken openParenthesis, AstNode variableOrExpression,
-                                InternalSyntaxToken ofKeyword, AstNode expression, InternalSyntaxToken closeParenthesis, AstNode statement) {
+                                InternalSyntaxToken ofKeyword, AstNode expression, InternalSyntaxToken closeParenthesis, StatementTree statement) {
     super(Kind.FOR_OF_STATEMENT);
     this.forKeyword = forKeyword;
     this.openParenthesis = openParenthesis;
     this.ofKeyword = ofKeyword;
     this.closeParenthesis = closeParenthesis;
+    this.statement = statement;
 
-    addChildren(forKeyword, openParenthesis, variableOrExpression, ofKeyword, expression, closeParenthesis, statement);
+    addChildren(forKeyword, openParenthesis, variableOrExpression, ofKeyword, expression, closeParenthesis,(AstNode) statement);
   }
 
   @Override
@@ -81,7 +83,7 @@ public class ForOfStatementTreeImpl extends JavaScriptTree implements ForOfState
 
   @Override
   public StatementTree statement() {
-    throw new UnsupportedOperationException("Not supported yet in the strongly typed AST.");
+    return statement;
   }
 
   @Override

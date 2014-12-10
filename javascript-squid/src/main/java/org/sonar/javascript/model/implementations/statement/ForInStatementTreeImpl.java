@@ -30,6 +30,7 @@ import org.sonar.javascript.model.interfaces.statement.ForInStatementTree;
 import org.sonar.javascript.model.interfaces.statement.ForOfStatementTree;
 import org.sonar.javascript.model.interfaces.statement.StatementTree;
 
+import java.beans.Statement;
 import java.util.Iterator;
 
 public class ForInStatementTreeImpl extends JavaScriptTree implements ForInStatementTree {
@@ -38,16 +39,18 @@ public class ForInStatementTreeImpl extends JavaScriptTree implements ForInState
   private final SyntaxToken openParenthesis;
   private final SyntaxToken inKeyword;
   private final SyntaxToken closeParenthesis;
+  private final StatementTree statement;
 
   public ForInStatementTreeImpl(InternalSyntaxToken forKeyword, InternalSyntaxToken openParenthesis, AstNode variableOrExpression,
-                                InternalSyntaxToken inKeyword, AstNode expression, InternalSyntaxToken closeParenthesis, AstNode statement) {
+                                InternalSyntaxToken inKeyword, AstNode expression, InternalSyntaxToken closeParenthesis, StatementTree statement) {
     super(Kind.FOR_IN_STATEMENT);
     this.forKeyword = forKeyword;
     this.openParenthesis = openParenthesis;
     this.inKeyword = inKeyword;
     this.closeParenthesis = closeParenthesis;
+    this.statement = statement;
 
-    addChildren(forKeyword, openParenthesis, variableOrExpression, inKeyword, expression, closeParenthesis, statement);
+    addChildren(forKeyword, openParenthesis, variableOrExpression, inKeyword, expression, closeParenthesis, (AstNode) statement);
   }
 
   @Override
@@ -82,7 +85,7 @@ public class ForInStatementTreeImpl extends JavaScriptTree implements ForInState
 
   @Override
   public StatementTree statement() {
-    throw new UnsupportedOperationException("Not supported yet in the strongly typed AST.");
+    return statement;
   }
 
   @Override

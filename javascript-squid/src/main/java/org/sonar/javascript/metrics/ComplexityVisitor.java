@@ -20,7 +20,6 @@
 package org.sonar.javascript.metrics;
 
 import com.sonar.sslr.api.AstNode;
-import com.sonar.sslr.impl.ast.AstXmlPrinter;
 import org.sonar.javascript.api.EcmaScriptMetric;
 import org.sonar.javascript.api.EcmaScriptPunctuator;
 import org.sonar.javascript.model.interfaces.Tree.Kind;
@@ -73,8 +72,6 @@ public class ComplexityVisitor extends SquidAstVisitor<LexerlessGrammar> {
 
   private static boolean isNotNested(AstNode returnNode) {
     AstNode parent = returnNode
-      // Statement
-      .getParent()
       // Statement list
       .getParent();
     return parent.getParent().is(EcmaScriptGrammar.FUNCTION_BODY);

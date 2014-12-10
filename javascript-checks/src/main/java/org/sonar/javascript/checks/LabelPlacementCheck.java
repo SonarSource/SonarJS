@@ -25,6 +25,7 @@ import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.javascript.checks.utils.CheckUtils;
 import org.sonar.javascript.model.interfaces.Tree.Kind;
+import org.sonar.javascript.model.interfaces.statement.LabelledStatementTree;
 import org.sonar.javascript.parser.EcmaScriptGrammar;
 import org.sonar.squidbridge.checks.SquidCheck;
 import org.sonar.sslr.parser.LexerlessGrammar;
@@ -35,6 +36,14 @@ import org.sonar.sslr.parser.LexerlessGrammar;
 @BelongsToProfile(title = CheckList.SONAR_WAY_PROFILE, priority = Priority.MAJOR)
 public class LabelPlacementCheck extends SquidCheck<LexerlessGrammar> {
 
+  private static final Kind[] ITERATION_STATEMENTS = {
+    Kind.DO_WHILE_STATEMENT,
+    Kind.WHILE_STATEMENT,
+    Kind.FOR_IN_STATEMENT,
+    Kind.FOR_OF_STATEMENT,
+    Kind.FOR_STATEMENT
+  };
+
   @Override
   public void init() {
     subscribeTo(Kind.LABELLED_STATEMENT);
@@ -42,7 +51,9 @@ public class LabelPlacementCheck extends SquidCheck<LexerlessGrammar> {
 
   @Override
   public void visitNode(AstNode astNode) {
-    if (!astNode.getFirstChild(EcmaScriptGrammar.STATEMENT).getFirstChild().is(CheckUtils.iterationStatements())) {
+    LabelledStatementTree labelStatement = (LabelledStatementTree) astNode;
+
+    if (!labelStatement.statement().is(ITERATION_STATEMENTS)) {
       getContext().createLineViolation(this, "Remove this \"{0}\" label.", astNode,
         astNode.getFirstChild(Kind.IDENTIFIER).getTokenValue());
     }

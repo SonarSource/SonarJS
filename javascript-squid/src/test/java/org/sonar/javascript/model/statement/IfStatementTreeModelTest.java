@@ -39,6 +39,7 @@ public class IfStatementTreeModelTest extends JavaScriptTreeModelTest {
     assertThat(tree.ifKeyword().text()).isEqualTo(EcmaScriptKeyword.IF.getValue());
     assertThat(tree.openParenthesis().text()).isEqualTo(EcmaScriptPunctuator.LPARENTHESIS.getValue());
     assertThat(tree.closeParenthesis().text()).isEqualTo(EcmaScriptPunctuator.RPARENTHESIS.getValue());
+    assertThat(tree.thenStatement().is(Kind.BLOCK));
   }
 
   @Test
@@ -49,6 +50,9 @@ public class IfStatementTreeModelTest extends JavaScriptTreeModelTest {
     assertThat(tree.ifKeyword().text()).isEqualTo(EcmaScriptKeyword.IF.getValue());
     assertThat(tree.openParenthesis().text()).isEqualTo(EcmaScriptPunctuator.LPARENTHESIS.getValue());
     assertThat(tree.closeParenthesis().text()).isEqualTo(EcmaScriptPunctuator.RPARENTHESIS.getValue());
-    assertThat(tree.elseClause()).isNotNull();
+    assertThat(tree.thenStatement().is(Kind.BLOCK));
+
+    assertThat(tree.elseClause().elseKeyword().text()).isEqualTo(EcmaScriptKeyword.ELSE.getValue());
+    assertThat(tree.elseClause().statement().is(Kind.BLOCK));
   }
 }
