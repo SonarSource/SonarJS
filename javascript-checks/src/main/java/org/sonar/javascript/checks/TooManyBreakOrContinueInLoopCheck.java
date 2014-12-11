@@ -65,7 +65,7 @@ public class TooManyBreakOrContinueInLoopCheck extends SquidCheck<LexerlessGramm
 
   @Override
   public void init() {
-    subscribeTo(CheckUtils.iterationStatements());
+    subscribeTo(CheckUtils.iterationStatementsArray());
     subscribeTo(
         Kind.BREAK_STATEMENT,
         Kind.CONTINUE_STATEMENT,
@@ -103,7 +103,7 @@ public class TooManyBreakOrContinueInLoopCheck extends SquidCheck<LexerlessGramm
   public void leaveNode(AstNode astNode) {
     if (astNode.isNot(Kind.BREAK_STATEMENT, Kind.CONTINUE_STATEMENT)) {
       JumpTarget jumpTarget = jumpTargets.pop();
-      if (astNode.is(CheckUtils.iterationStatements()) && (jumpTarget.jumps > 1)) {
+      if (CheckUtils.isIterationStatement(astNode) && (jumpTarget.jumps > 1)) {
         getContext().createLineViolation(this, "Reduce the total number of \"break\" and \"continue\" statements in this loop to use one at most.", astNode);
       }
     }

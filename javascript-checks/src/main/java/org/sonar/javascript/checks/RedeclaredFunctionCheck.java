@@ -43,7 +43,7 @@ public class RedeclaredFunctionCheck extends SquidCheck<LexerlessGrammar> {
 
   @Override
   public void init() {
-    subscribeTo(CheckUtils.getFunctionNodes());
+    subscribeTo(CheckUtils.functionNodesArray());
   }
 
   @Override
@@ -69,7 +69,7 @@ public class RedeclaredFunctionCheck extends SquidCheck<LexerlessGrammar> {
 
   @Override
   public void leaveNode(AstNode astNode) {
-    if (astNode.is(CheckUtils.getFunctionNodes())) {
+    if (CheckUtils.isFunction(astNode)) {
       stack.pop();
     }
   }

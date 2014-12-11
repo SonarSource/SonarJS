@@ -19,26 +19,25 @@
  */
 package org.sonar.javascript.checks.utils;
 
+import com.google.common.collect.ImmutableSet;
+import com.sonar.sslr.api.AstNode;
 import com.sonar.sslr.api.AstNodeType;
 import org.sonar.javascript.model.interfaces.Tree.Kind;
 import org.sonar.javascript.parser.EcmaScriptGrammar;
-import org.sonar.sslr.grammar.GrammarRuleKey;
-
-import java.util.Arrays;
 
 public class CheckUtils {
 
   private CheckUtils() {
   }
 
-  private static final AstNodeType[] ITERATION_STATEMENTS = {
+  public static final ImmutableSet<Kind> ITERATION_STATEMENTS = ImmutableSet.of(
     Kind.DO_WHILE_STATEMENT,
     Kind.WHILE_STATEMENT,
     Kind.FOR_IN_STATEMENT,
     Kind.FOR_OF_STATEMENT,
-    Kind.FOR_STATEMENT};
+    Kind.FOR_STATEMENT);
 
-  private static final GrammarRuleKey[] FUNCTION_NODES = {
+  public static final ImmutableSet<AstNodeType> FUNCTION_NODES = ImmutableSet.<AstNodeType>of(
     EcmaScriptGrammar.FUNCTION_EXPRESSION,
     EcmaScriptGrammar.FUNCTION_DECLARATION,
     EcmaScriptGrammar.METHOD,
@@ -46,15 +45,21 @@ public class CheckUtils {
     EcmaScriptGrammar.GENERATOR_DECLARATION,
     EcmaScriptGrammar.GENERATOR_EXPRESSION,
     EcmaScriptGrammar.ARROW_FUNCTION,
-    EcmaScriptGrammar.ARROW_FUNCTION_NO_IN};
+    EcmaScriptGrammar.ARROW_FUNCTION_NO_IN);
 
-  public static GrammarRuleKey[] getFunctionNodes() {
-    return Arrays.copyOf(FUNCTION_NODES, FUNCTION_NODES.length);
+  public static AstNodeType[] functionNodesArray() {
+    return FUNCTION_NODES.toArray(new AstNodeType[FUNCTION_NODES.size()]);
+  }
+  public static boolean isFunction(AstNode astNode) {
+    return FUNCTION_NODES.contains(astNode.getType());
   }
 
-  public static AstNodeType[] iterationStatements() {
-    return Arrays.copyOf(ITERATION_STATEMENTS, FUNCTION_NODES.length);
+  public static Kind[] iterationStatementsArray() {
+    return ITERATION_STATEMENTS.toArray(new Kind[ITERATION_STATEMENTS.size()]);
   }
 
+  public static boolean isIterationStatement(AstNode astNode) {
+    return ITERATION_STATEMENTS.contains(astNode.getType());
+  }
 }
 

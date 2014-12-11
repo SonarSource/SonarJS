@@ -40,7 +40,7 @@ public class FunctionDefinitionInsideLoopCheck extends SquidCheck<LexerlessGramm
 
   @Override
   public void init() {
-    subscribeTo(CheckUtils.iterationStatements());
+    subscribeTo(CheckUtils.iterationStatementsArray());
     subscribeTo(
         EcmaScriptGrammar.ITERATION_STATEMENT,
         EcmaScriptGrammar.FUNCTION_EXPRESSION,
@@ -57,7 +57,7 @@ public class FunctionDefinitionInsideLoopCheck extends SquidCheck<LexerlessGramm
 
   @Override
   public void visitNode(AstNode astNode) {
-    if (astNode.is(CheckUtils.iterationStatements())) {
+    if (CheckUtils.isIterationStatement(astNode)) {
       stack.push(stack.pop() + 1);
     } else {
       if (stack.peek() > 0) {
@@ -69,7 +69,7 @@ public class FunctionDefinitionInsideLoopCheck extends SquidCheck<LexerlessGramm
 
   @Override
   public void leaveNode(AstNode astNode) {
-    if (astNode.is(CheckUtils.iterationStatements())) {
+    if (CheckUtils.isIterationStatement(astNode)) {
       stack.push(stack.pop() - 1);
     } else {
       stack.pop();
