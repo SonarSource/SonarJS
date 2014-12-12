@@ -13,7 +13,7 @@
 
   <name>JavaScript :: Sonar Plugin</name>
   <description>Enables analysis of JavaScript projects.</description>
-  <url>http://docs.codehaus.org/display/SONAR/JavaScript+Plugin</url>
+  <url>http://docs.sonarqube.org/display/SONAR/JavaScript+Plugin</url>
 
   <scm>
     <connection>scm:git:git@github.com:SonarCommunity/sonar-javascript.git</connection>
