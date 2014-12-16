@@ -20,8 +20,14 @@
 package org.sonar.javascript.model.interfaces;
 
 import com.sonar.sslr.api.AstNodeType;
+import org.sonar.javascript.model.interfaces.expression.ArrayInitialiserTree;
+import org.sonar.javascript.model.interfaces.expression.ExpressionTree;
+import org.sonar.javascript.model.interfaces.expression.FunctionExpressionTree;
 import org.sonar.javascript.model.interfaces.expression.IdentifierTree;
 import org.sonar.javascript.model.interfaces.expression.LiteralTree;
+import org.sonar.javascript.model.interfaces.expression.ObjectInitialiserTree;
+import org.sonar.javascript.model.interfaces.expression.PairPropertyTree;
+import org.sonar.javascript.model.interfaces.expression.ThisTree;
 import org.sonar.javascript.model.interfaces.lexical.SyntaxToken;
 import org.sonar.javascript.model.interfaces.lexical.SyntaxTrivia;
 import org.sonar.javascript.model.interfaces.statement.BlockTree;
@@ -217,6 +223,69 @@ public interface Tree {
      * {@code regexp}
      */
     REGULAR_EXPRESSION_LITERAL(LiteralTree.class),
+
+    /**
+     * {@link ArrayInitialiserTree}
+     */
+    ARRAY_INITIALISER(ArrayInitialiserTree.class),
+
+    /**
+     * {@link ExpressionTree}
+     * {@code undefined}
+     */
+    UNDEFINED(ExpressionTree.class),
+
+    /**
+     * {@link ObjectInitialiserTree}
+     */
+    OBJECT_INITIALISER(ObjectInitialiserTree.class),
+
+    /**
+     * {@link PairPropertyTree}
+     */
+    PAIR_PROPERTY(PairPropertyTree.class),
+
+    /**
+     * {@link FunctionExpressionTree}
+     * {@code * name () {}}
+     */
+    METHOD_GENERATOR(FunctionExpressionTree.class),
+
+    /**
+     * {@link FunctionExpressionTree}
+     * {@code name() {}}
+     */
+    METHOD(FunctionExpressionTree.class),
+
+    /**
+     * {@link FunctionExpressionTree}
+     * {@code set name (val) {}}
+     */
+    METHOD_SETTER(FunctionExpressionTree.class),
+
+    /**
+     * {@link FunctionExpressionTree}
+     * {@code get name () {}}
+     */
+    METHOD_GETTER(FunctionExpressionTree.class),
+
+    /**
+     * {@link FunctionExpressionTree}
+     * {@code function * () {}}
+     */
+    GENERATOR_FUNCTION_EXPRESSION(FunctionExpressionTree.class),
+
+    /**
+     * {@link FunctionExpressionTree}
+     * {@code function * () {}}
+     */
+    FUNCTION_EXPRESSION(FunctionExpressionTree.class),
+
+    /**
+     * {@link ThisTree}
+     * {@code this}
+     */
+    THIS(ThisTree.class),
 
     TOKEN(SyntaxToken.class),
 

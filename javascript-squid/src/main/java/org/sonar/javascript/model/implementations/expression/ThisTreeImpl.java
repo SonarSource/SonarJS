@@ -17,14 +17,41 @@
  * License along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.javascript.model.interfaces.expression;
+package org.sonar.javascript.model.implementations.expression;
 
+import com.google.common.collect.Iterators;
+import org.sonar.javascript.model.implementations.JavaScriptTree;
+import org.sonar.javascript.model.implementations.lexical.InternalSyntaxToken;
 import org.sonar.javascript.model.interfaces.Tree;
+import org.sonar.javascript.model.interfaces.expression.LiteralTree;
 
-/**
- * Common interface for all types of <a href="http://www.ecma-international.org/ecma-262/5.1/#sec-A.5">Functions</a>.
- *
- * <p>This interface is not intended to be implemented by clients.</p>
- */
-public interface ExpressionTree extends Tree {
+import java.util.Iterator;
+
+public class ThisTreeImpl extends JavaScriptTree implements LiteralTree {
+
+  private final InternalSyntaxToken token;
+
+  public ThisTreeImpl(InternalSyntaxToken token) {
+    super(Kind.THIS, token.getToken());
+    this.token = token;
+
+    addChild(token);
+  }
+
+  @Override
+  public Kind getKind() {
+    return Kind.THIS;
+  }
+
+  @Override
+  public String value() {
+    return token.text();
+  }
+
+  @Override
+  public Iterator<Tree> childrenIterator() {
+    return Iterators.<Tree>singletonIterator(
+      token);
+  }
+
 }

@@ -17,14 +17,36 @@
  * License along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.javascript.model.interfaces.expression;
+package org.sonar.javascript.model.implementations.expression;
 
+import com.google.common.collect.Iterators;
+import org.sonar.javascript.model.implementations.JavaScriptTree;
 import org.sonar.javascript.model.interfaces.Tree;
+import org.sonar.javascript.model.interfaces.expression.LiteralTree;
 
-/**
- * Common interface for all types of <a href="http://www.ecma-international.org/ecma-262/5.1/#sec-A.5">Functions</a>.
- *
- * <p>This interface is not intended to be implemented by clients.</p>
- */
-public interface ExpressionTree extends Tree {
+import java.util.Iterator;
+
+public class UndefinedTreeImpl extends JavaScriptTree implements LiteralTree {
+
+  private static final String UNDEFINED_VALUE = "undefined";
+
+  public UndefinedTreeImpl() {
+    super(Kind.UNDEFINED);
+  }
+
+  @Override
+  public Kind getKind() {
+    return Kind.UNDEFINED;
+  }
+
+  @Override
+  public String value() {
+    return UNDEFINED_VALUE;
+  }
+
+  @Override
+  public Iterator<Tree> childrenIterator() {
+    return Iterators.emptyIterator();
+  }
+
 }

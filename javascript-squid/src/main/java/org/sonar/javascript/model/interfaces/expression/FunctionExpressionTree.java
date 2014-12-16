@@ -19,12 +19,14 @@
  */
 package org.sonar.javascript.model.interfaces.expression;
 
-import org.sonar.javascript.model.interfaces.Tree;
+import org.sonar.javascript.model.interfaces.declaration.FunctionTree;
 
 /**
- * Common interface for all types of <a href="http://www.ecma-international.org/ecma-262/5.1/#sec-A.5">Functions</a>.
+ * Common interface for all types of <a href="http://www.ecma-international.org/ecma-262/5.1/#sec-11.2.5">Function Expression</a>.
+ * <p/>
  *
  * <p>This interface is not intended to be implemented by clients.</p>
  */
-public interface ExpressionTree extends Tree {
+public interface FunctionExpressionTree extends FunctionTree, ExpressionTree {
+
 }

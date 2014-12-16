@@ -20,11 +20,24 @@
 package org.sonar.javascript.model.interfaces.expression;
 
 import org.sonar.javascript.model.interfaces.Tree;
+import org.sonar.javascript.model.interfaces.lexical.SyntaxToken;
 
 /**
- * Common interface for all types of <a href="http://www.ecma-international.org/ecma-262/5.1/#sec-A.5">Functions</a>.
+ * Common interface for all types of <a href="http://www.ecma-international.org/ecma-262/5.1/#sec-11.1.5">Property Definition</a>.
+ * <p/>
+ *
+ * <pre>
+ *   {@link #key()} {@link #colon()} {@link #value()}
+ * </pre>
  *
  * <p>This interface is not intended to be implemented by clients.</p>
  */
-public interface ExpressionTree extends Tree {
+public interface PairPropertyTree extends Tree {
+
+  ExpressionTree key();
+
+  SyntaxToken colon();
+
+  ExpressionTree value();
+
 }
