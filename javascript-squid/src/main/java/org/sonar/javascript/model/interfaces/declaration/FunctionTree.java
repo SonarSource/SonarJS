@@ -24,19 +24,26 @@ import org.sonar.javascript.model.interfaces.Tree;
 import org.sonar.javascript.model.interfaces.expression.ExpressionTree;
 import org.sonar.javascript.model.interfaces.expression.IdentifierTree;
 import org.sonar.javascript.model.interfaces.lexical.SyntaxToken;
-import org.sonar.javascript.model.interfaces.statement.StatementTree;
 
 import javax.annotation.Nullable;
 import java.util.List;
 
 /**
- * Common interface for all types of <a href="http://www.ecma-international.org/ecma-262/5.1/#sec-11.1.5">Function</a>.
+ * Common interface for functions.
+ *
+ * <a href="http://www.ecma-international.org/ecma-262/5.1/#sec-13">Function Definition</a>.
+ * <a href="http://www.ecma-international.org/ecma-262/5.1/#sec-11.2.5">Function Expression</a>.
+ * <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-arrow-function-definitions">Arrow Function Definition - ES6</a>.
+ * <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-generator-function-definitions">Generator Function Definition - ES6</a>.
+ * <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-method-definitions">Method Definition - ES6</a>.
  * <p/>
  *
  * <pre>
  *   {@link #keyword()} {@link #name()} {@link #parameters()} {@link #statements()}
  *   {@link #keyword()} {@link #parameters()} {@link #statements()}
+ *   {@link #keyword()} {@link #star()} {@link #parameters()} {@link #statements()}
  *   {@link #name()} {@link #parameters()} {@link #statements()}
+ *   {@link #name()} {@link #star()} {@link #parameters()} {@link #statements()}
  * </pre>
  *
  * <p>This interface is not intended to be implemented by clients.</p>
