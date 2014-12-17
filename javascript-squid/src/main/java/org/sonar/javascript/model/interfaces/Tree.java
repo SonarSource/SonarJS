@@ -22,13 +22,18 @@ package org.sonar.javascript.model.interfaces;
 import com.sonar.sslr.api.AstNodeType;
 import org.sonar.javascript.model.interfaces.expression.ArrayInitialiserTree;
 import org.sonar.javascript.model.interfaces.expression.ArrowFunctionTree;
+import org.sonar.javascript.model.interfaces.expression.AssignmentExpressionTree;
+import org.sonar.javascript.model.interfaces.expression.BinaryExpressionTree;
 import org.sonar.javascript.model.interfaces.expression.ExpressionTree;
 import org.sonar.javascript.model.interfaces.expression.FunctionExpressionTree;
 import org.sonar.javascript.model.interfaces.expression.IdentifierTree;
 import org.sonar.javascript.model.interfaces.expression.LiteralTree;
+import org.sonar.javascript.model.interfaces.expression.NewExpressionTree;
 import org.sonar.javascript.model.interfaces.expression.ObjectInitialiserTree;
 import org.sonar.javascript.model.interfaces.expression.PairPropertyTree;
+import org.sonar.javascript.model.interfaces.expression.ParenthesisedExpressionTree;
 import org.sonar.javascript.model.interfaces.expression.ThisTree;
+import org.sonar.javascript.model.interfaces.expression.UnaryExpressionTree;
 import org.sonar.javascript.model.interfaces.lexical.SyntaxToken;
 import org.sonar.javascript.model.interfaces.lexical.SyntaxTrivia;
 import org.sonar.javascript.model.interfaces.statement.BlockTree;
@@ -287,11 +292,294 @@ public interface Tree {
      */
     ARROW_FUNCTION(ArrowFunctionTree.class),
 
+
+    /**
+     * {@link ParenthesisedExpressionTree}
+     */
+    PARENTHESISED_EXPRESSION(ParenthesisedExpressionTree.class),
+
     /**
      * {@link ThisTree}
      * {@code this}
      */
     THIS(ThisTree.class),
+
+    /**
+     * {@link UnaryExpressionTree}
+     * {@code ++}
+     */
+    POSTFIX_INCREMENT(UnaryExpressionTree.class),
+
+    /**
+     * {@link UnaryExpressionTree}
+     * {@code --}
+     */
+    POSTFIX_DECREMENT(UnaryExpressionTree.class),
+
+    /**
+     * {@link UnaryExpressionTree}
+     * {@code ++}
+     */
+    PREFIX_INCREMENT(UnaryExpressionTree.class),
+
+    /**
+     * {@link UnaryExpressionTree}
+     * {@code --}
+     */
+    PREFIX_DECREMENT(UnaryExpressionTree.class),
+
+    /**
+     * {@link UnaryExpressionTree}
+     * {@code +}
+     */
+    UNARY_PLUS(UnaryExpressionTree.class),
+
+    /**
+     * {@link UnaryExpressionTree}
+     * {@code -}
+     */
+    UNARY_MINUS(UnaryExpressionTree.class),
+
+    /**
+     * {@link UnaryExpressionTree}
+     * {@code ~}
+     */
+    BITWISE_COMPLEMENT(UnaryExpressionTree.class),
+
+    /**
+     * {@link UnaryExpressionTree}
+     * {@code !}
+     */
+    LOGICAL_COMPLEMENT(UnaryExpressionTree.class),
+
+    /**
+     * {@link UnaryExpressionTree}
+     * {@code delete!}
+     */
+    DELETE(UnaryExpressionTree.class),
+
+    /**
+     * {@link UnaryExpressionTree}
+     * {@code void}
+     */
+    VOID(UnaryExpressionTree.class),
+
+    /**
+     * {@link UnaryExpressionTree}
+     * {@code typeof}
+     */
+
+    /**
+     * {@link BinaryExpressionTree}
+     * {@code *}
+     */
+    MULTIPLY(BinaryExpressionTree.class),
+
+    /**
+     * {@link BinaryExpressionTree}
+     * {@code /}
+     */
+    DIVIDE(BinaryExpressionTree.class),
+
+    /**
+     * {@link BinaryExpressionTree}
+     * {@code %}
+     */
+    REMAINDER(BinaryExpressionTree.class),
+
+    /**
+     * {@link BinaryExpressionTree}
+     * {@code +}
+     */
+    PLUS(BinaryExpressionTree.class),
+
+    /**
+     * {@link BinaryExpressionTree}
+     * {@code -}
+     */
+    MINUS(BinaryExpressionTree.class),
+
+    /**
+     * {@link BinaryExpressionTree}
+     * {@code <<}
+     */
+    LEFT_SHIFT(BinaryExpressionTree.class),
+
+    /**
+     * {@link BinaryExpressionTree}
+     * {@code >>}
+     */
+    RIGHT_SHIFT(BinaryExpressionTree.class),
+
+    /**
+     * {@link BinaryExpressionTree}
+     * {@code >>>}
+     */
+    UNSIGNED_RIGHT_SHIFT(BinaryExpressionTree.class),
+
+    /**
+     * {@link BinaryExpressionTree}
+     * {@code <}
+     */
+    LESS_THAN(BinaryExpressionTree.class),
+
+    /**
+     * {@link BinaryExpressionTree}
+     * {@code >}
+     */
+    GREATER_THAN(BinaryExpressionTree.class),
+
+    /**
+     * {@link BinaryExpressionTree}
+     * {@code <=}
+     */
+    LESS_THAN_OR_EQUAL_TO(BinaryExpressionTree.class),
+
+    /**
+     * {@link BinaryExpressionTree}
+     * {@code >=}
+     */
+    GREATER_THAN_OR_EQUAL_TO(BinaryExpressionTree.class),
+
+    /**
+     * {@link BinaryExpressionTree}
+     * {@code ==}
+     */
+    EQUAL_TO(BinaryExpressionTree.class),
+
+    /**
+     * {@link BinaryExpressionTree}
+     * {@code ==}
+     */
+    STRICT_EQUAL_TO(BinaryExpressionTree.class),
+
+    /**
+     * {@link BinaryExpressionTree}
+     * {@code !=}
+     */
+    NOT_EQUAL_TO(BinaryExpressionTree.class),
+
+    /**
+     * {@link BinaryExpressionTree}
+     * {@code !==}
+     */
+    STRICT_NOT_EQUAL_TO(BinaryExpressionTree.class),
+
+    /**
+     * {@link BinaryExpressionTree}
+     * {@code &}
+     */
+    AND(BinaryExpressionTree.class),
+
+    /**
+     * {@link BinaryExpressionTree}
+     * {@code ^}
+     */
+    XOR(BinaryExpressionTree.class),
+
+    /**
+     * {@link BinaryExpressionTree}
+     * {@code |}
+     */
+    OR(BinaryExpressionTree.class),
+
+    /**
+     * {@link BinaryExpressionTree}
+     * {@code &&}
+     */
+    CONDITIONAL_AND(BinaryExpressionTree.class),
+
+    /**
+     * {@link BinaryExpressionTree}
+     * {@code ||}
+     */
+    CONDITIONAL_OR(BinaryExpressionTree.class),
+
+    /**
+     * {@link AssignmentExpressionTree}
+     * {@code =}
+     */
+    ASSIGNMENT(AssignmentExpressionTree.class),
+
+    /**
+     * {@link AssignmentExpressionTree}
+     * {@code *=}
+     */
+    MULTIPLY_ASSIGNMENT(AssignmentExpressionTree.class),
+
+    /**
+     * {@link AssignmentExpressionTree}
+     * {@code /=}
+     */
+    DIVIDE_ASSIGNMENT(AssignmentExpressionTree.class),
+
+    /**
+     * {@link AssignmentExpressionTree}
+     * {@code %=}
+     */
+    REMAINDER_ASSIGNMENT(AssignmentExpressionTree.class),
+
+    /**
+     * {@link AssignmentExpressionTree}
+     * {@code +=}
+     */
+    PLUS_ASSIGNMENT(AssignmentExpressionTree.class),
+
+    /**
+     * {@link AssignmentExpressionTree}
+     * {@code -=}
+     */
+    MINUS_ASSIGNMENT(AssignmentExpressionTree.class),
+
+    /**
+     * {@link AssignmentExpressionTree}
+     * {@code <<=}
+     */
+    LEFT_SHIFT_ASSIGNMENT(AssignmentExpressionTree.class),
+
+    /**
+     * {@link AssignmentExpressionTree}
+     * {@code >>=}
+     */
+    RIGHT_SHIFT_ASSIGNMENT(AssignmentExpressionTree.class),
+
+    /**
+     * {@link AssignmentExpressionTree}
+     * {@code >>>=}
+     */
+    UNSIGNED_RIGHT_SHIFT_ASSIGNMENT(AssignmentExpressionTree.class),
+
+    /**
+     * {@link AssignmentExpressionTree}
+     * {@code &=}
+     */
+    AND_ASSIGNMENT(AssignmentExpressionTree.class),
+
+    /**
+     * {@link AssignmentExpressionTree}
+     * {@code ^=}
+     */
+    XOR_ASSIGNMENT(AssignmentExpressionTree.class),
+
+    /**
+     * {@link AssignmentExpressionTree}
+     * {@code |=}
+     */
+    OR_ASSIGNMENT(AssignmentExpressionTree.class),
+
+    /**
+     * {@link NewExpressionTree}
+     * {@code new expression}
+     */
+    NEW_EXPRESSION(NewExpressionTree.class),
+
+    /**
+     * {@link NewExpressionTree}
+     * {@code new super}
+     */
+    NEW_SUPER(NewExpressionTree.class),
+
+    TYPEOF(UnaryExpressionTree.class),
 
     TOKEN(SyntaxToken.class),
 
