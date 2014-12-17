@@ -38,14 +38,6 @@ import java.util.List;
  * <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-method-definitions">Method Definition - ES6</a>.
  * <p/>
  *
- * <pre>
- *   {@link #keyword()} {@link #name()} {@link #parameters()} {@link #statements()}
- *   {@link #keyword()} {@link #parameters()} {@link #statements()}
- *   {@link #keyword()} {@link #star()} {@link #parameters()} {@link #statements()}
- *   {@link #name()} {@link #parameters()} {@link #statements()}
- *   {@link #name()} {@link #star()} {@link #parameters()} {@link #statements()}
- * </pre>
- *
  * <p>This interface is not intended to be implemented by clients.</p>
  */
 public interface FunctionTree extends Tree {
