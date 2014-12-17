@@ -632,7 +632,6 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
       ARRAY_INITIALIZER,
       OBJECT_LITERAL,
       FUNCTION_EXPRESSION,
-      // Also covers PARENTHESIZED_EXPRESSION
       PARENTHESISED_EXPRESSION,
       ecmascript6(CLASS_EXPRESSION),
       ecmascript6(GENERATOR_EXPRESSION),
