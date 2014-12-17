@@ -203,8 +203,6 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
   /** ECMAScript 6 **/
   ARGUMENTS_LIST,
   LEFT_HAND_SIDE_EXPRESSION,
-  LEFT_HAND_SIDE_EXPRESSION_NO_LET,
-  LEFT_HAND_SIDE_EXPRESSION_NO_LET_AND_LBRACKET,
   POSTFIX_EXPRESSION,
   UNARY_EXPRESSION,
   MULTIPLICATIVE_EXPRESSION,
@@ -234,8 +232,6 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
   ES6_ASSIGNMENT_EXPRESSION_NO_IN,
   ASSIGNMENT_OPERATOR,
   EXPRESSION,
-  EXPRESSION_NO_LCURLY_AND_FUNCTION,
-  EXPRESSION_NO_IN_NO_LET_AND_BRACKET,
   EXPRESSION_NO_LB,
   EXPRESSION_NO_IN,
   /** ECMAScript 6 **/
@@ -311,7 +307,6 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
   FOR_DECLARATION,
   /** ECMAScript 6 **/
   FOR_BINDING,
-  FOR_VAR_DECLARATION,
   RETURN_STATEMENT,
   WITH_STATEMENT,
   CATCH_PARAMETER,
@@ -436,7 +431,14 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
   SCRIPT,
   SCRIPT_BODY,
 
-  SHEBANG;
+  SHEBANG,
+
+  // Temporary rules for migration
+  LEFT_HAND_SIDE_EXPRESSION_NO_LET_AND_LBRACKET,
+  LEFT_HAND_SIDE_EXPRESSION_NO_LET,
+  EXPRESSION_NO_LCURLY_AND_FUNCTION,
+  EXPRESSION_NO_IN_NO_LET_AND_BRACKET,
+  FOR_VAR_DECLARATION;
 
   public static LexerlessGrammar createGrammar() {
     return createGrammarBuilder().build();
