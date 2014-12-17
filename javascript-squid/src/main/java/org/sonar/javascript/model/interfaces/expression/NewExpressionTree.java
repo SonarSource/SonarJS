@@ -48,6 +48,7 @@ public interface NewExpressionTree extends ExpressionTree {
   @Nullable
   SyntaxToken openParenthesis();
 
+  @Nullable
   List<ExpressionTree> arguments();
 
   @Nullable
