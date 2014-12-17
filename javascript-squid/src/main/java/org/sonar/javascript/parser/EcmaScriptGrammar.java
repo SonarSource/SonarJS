@@ -438,7 +438,8 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
   LEFT_HAND_SIDE_EXPRESSION_NO_LET,
   EXPRESSION_NO_LCURLY_AND_FUNCTION,
   EXPRESSION_NO_IN_NO_LET_AND_BRACKET,
-  FOR_VAR_DECLARATION;
+  FOR_VAR_DECLARATION,
+  DOUBLEARROW_NO_LB;
 
   public static LexerlessGrammar createGrammar() {
     return createGrammarBuilder().build();
@@ -827,7 +828,7 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
     b.rule(YIELD_EXPRESSION).is(YIELD, b.optional(/* no line terminator here */SPACING_NO_LB, NEXT_NOT_LB, b.optional(STAR), ASSIGNMENT_EXPRESSION));
     b.rule(YIELD_EXPRESSION_NO_IN).is(YIELD, b.optional(/* no line terminator here */SPACING_NO_LB, NEXT_NOT_LB, b.optional(STAR), ASSIGNMENT_EXPRESSION_NO_IN));
 
-    b.rule(ARROW_FUNCTION).is(ARROW_PARAMETERS, /* no line terminator here */SPACING_NO_LB, NEXT_NOT_LB, DOUBLEARROW, CONCISE_BODY);
+    b.rule(ARROW_FUNCTION).is(ARROW_PARAMETERS, /* no line terminator here */DOUBLEARROW_NO_LB, CONCISE_BODY);
     b.rule(ARROW_FUNCTION_NO_IN).is(ARROW_PARAMETERS, /* no line terminator here */SPACING_NO_LB, NEXT_NOT_LB, DOUBLEARROW, CONCISE_BODY_NO_IN);
     b.rule(ARROW_PARAMETERS).is(b.firstOf(BINDING_IDENTIFIER, ARROW_PARAMETER_LIST));
 
@@ -841,6 +842,10 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
     b.rule(EXPRESSION).is(ASSIGNMENT_EXPRESSION, b.zeroOrMore(COMMA, ASSIGNMENT_EXPRESSION));
     b.rule(EXPRESSION_NO_LB).is(SPACING_NO_LB, NEXT_NOT_LB, EXPRESSION).skip();
     b.rule(EXPRESSION_NO_IN).is(ASSIGNMENT_EXPRESSION_NO_IN, b.zeroOrMore(COMMA, ASSIGNMENT_EXPRESSION_NO_IN));
+
+    // Temporary rules
+    b.rule(DOUBLEARROW_NO_LB).is(SPACING_NO_LB, NEXT_NOT_LB, DOUBLEARROW);
+
   }
 
   /**

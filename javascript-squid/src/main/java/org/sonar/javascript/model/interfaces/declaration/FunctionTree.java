@@ -51,16 +51,20 @@ public interface FunctionTree extends Tree {
   @Nullable
   IdentifierTree name();
 
+  @Nullable
   SyntaxToken openParenthesis();
 
   SeparatedList<ExpressionTree> parameters();
 
+  @Nullable
   SyntaxToken closeParenthesis();
 
+  @Nullable
   SyntaxToken openCurlyBrace();
 
-  List<StatementTree> statements();
+  <T extends Tree> List<T> statements();
 
+  @Nullable
   SyntaxToken closeCurlyBrace();
 
 }

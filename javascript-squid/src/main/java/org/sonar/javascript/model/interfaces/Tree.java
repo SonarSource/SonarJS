@@ -21,6 +21,7 @@ package org.sonar.javascript.model.interfaces;
 
 import com.sonar.sslr.api.AstNodeType;
 import org.sonar.javascript.model.interfaces.expression.ArrayInitialiserTree;
+import org.sonar.javascript.model.interfaces.expression.ArrowFunctionTree;
 import org.sonar.javascript.model.interfaces.expression.ExpressionTree;
 import org.sonar.javascript.model.interfaces.expression.FunctionExpressionTree;
 import org.sonar.javascript.model.interfaces.expression.IdentifierTree;
@@ -280,6 +281,11 @@ public interface Tree {
      * {@code function * () {}}
      */
     FUNCTION_EXPRESSION(FunctionExpressionTree.class),
+
+    /**
+     * {@link ArrowFunctionTree}
+     */
+    ARROW_FUNCTION(ArrowFunctionTree.class),
 
     /**
      * {@link ThisTree}
