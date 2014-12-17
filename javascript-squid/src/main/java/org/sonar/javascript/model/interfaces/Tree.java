@@ -28,6 +28,7 @@ import org.sonar.javascript.model.interfaces.expression.ExpressionTree;
 import org.sonar.javascript.model.interfaces.expression.FunctionExpressionTree;
 import org.sonar.javascript.model.interfaces.expression.IdentifierTree;
 import org.sonar.javascript.model.interfaces.expression.LiteralTree;
+import org.sonar.javascript.model.interfaces.expression.MemberExpressionTree;
 import org.sonar.javascript.model.interfaces.expression.NewExpressionTree;
 import org.sonar.javascript.model.interfaces.expression.ObjectInitialiserTree;
 import org.sonar.javascript.model.interfaces.expression.PairPropertyTree;
@@ -578,6 +579,16 @@ public interface Tree {
      * {@code new super}
      */
     NEW_SUPER(NewExpressionTree.class),
+
+    /**
+     * {@link MemberExpressionTree}
+     */
+    DOT_MEMBER_EXPRESSION(MemberExpressionTree.class),
+
+    /**
+     * {@link MemberExpressionTree}
+     */
+    BRACKET_MEMBER_EXPRESSION(MemberExpressionTree.class),
 
     TYPEOF(UnaryExpressionTree.class),
 
