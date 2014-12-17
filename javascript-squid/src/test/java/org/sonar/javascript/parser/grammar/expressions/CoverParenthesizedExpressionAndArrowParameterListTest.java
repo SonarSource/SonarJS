@@ -29,7 +29,7 @@ public class CoverParenthesizedExpressionAndArrowParameterListTest {
 
   @Test
   public void ok() {
-    assertThat(EcmaScriptGrammar.COVER_PARENTHESIZED_EXPRESSION_AND_ARROW_PARAMETER_LIST)
+    assertThat(EcmaScriptGrammar.ARROW_PARAMETER_LIST)
         .matches("( )")
         .matches("( conditionalExpression, conditionalExpression )")
         .matches("( ... identifier )")

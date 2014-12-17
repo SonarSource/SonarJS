@@ -35,7 +35,6 @@ import static org.sonar.javascript.api.EcmaScriptKeyword.DEFAULT;
 import static org.sonar.javascript.api.EcmaScriptKeyword.DELETE;
 import static org.sonar.javascript.api.EcmaScriptKeyword.EXPORT;
 import static org.sonar.javascript.api.EcmaScriptKeyword.EXTENDS;
-import static org.sonar.javascript.api.EcmaScriptKeyword.FALSE;
 import static org.sonar.javascript.api.EcmaScriptKeyword.FOR;
 import static org.sonar.javascript.api.EcmaScriptKeyword.FUNCTION;
 import static org.sonar.javascript.api.EcmaScriptKeyword.IF;
@@ -43,10 +42,8 @@ import static org.sonar.javascript.api.EcmaScriptKeyword.IMPORT;
 import static org.sonar.javascript.api.EcmaScriptKeyword.IN;
 import static org.sonar.javascript.api.EcmaScriptKeyword.INSTANCEOF;
 import static org.sonar.javascript.api.EcmaScriptKeyword.NEW;
-import static org.sonar.javascript.api.EcmaScriptKeyword.NULL;
 import static org.sonar.javascript.api.EcmaScriptKeyword.SUPER;
 import static org.sonar.javascript.api.EcmaScriptKeyword.THIS;
-import static org.sonar.javascript.api.EcmaScriptKeyword.TRUE;
 import static org.sonar.javascript.api.EcmaScriptKeyword.TYPEOF;
 import static org.sonar.javascript.api.EcmaScriptKeyword.VAR;
 import static org.sonar.javascript.api.EcmaScriptKeyword.VOID;
@@ -252,7 +249,8 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
   /** ECMAScript 6 **/
   CONCISE_BODY_NO_IN,
   /** ECMAScript 6 **/
-  COVER_PARENTHESIZED_EXPRESSION_AND_ARROW_PARAMETER_LIST,
+  ARROW_PARAMETER_LIST,
+  PARENTHESISED_EXPRESSION,
   /** ECMAScript 6 **/
   GENERATOR_EXPRESSION,
   /** ECMAScript 6 **/
@@ -635,11 +633,13 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
       OBJECT_LITERAL,
       FUNCTION_EXPRESSION,
       // Also covers PARENTHESIZED_EXPRESSION
-      COVER_PARENTHESIZED_EXPRESSION_AND_ARROW_PARAMETER_LIST,
+      PARENTHESISED_EXPRESSION,
       ecmascript6(CLASS_EXPRESSION),
       ecmascript6(GENERATOR_EXPRESSION),
       ecmascript6(GENERATOR_COMPREHENSION),
       ecmascript6(TEMPLATE_LITERAL)));
+
+    b.rule(PARENTHESISED_EXPRESSION).is(LPARENTHESIS, EXPRESSION, RPARENTHESIS);
 
     b.rule(TEMPLATE_LITERAL).is(b.firstOf(
       NO_SUBSTITUTION_TEMPLATE,
@@ -683,7 +683,7 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
     b.rule(SINGLE_NAME_BINDING).is(BINDING_IDENTIFIER, b.optional(INITIALISER));
     b.rule(BINDING_REST_ELEMENT).is(ELLIPSIS, BINDING_IDENTIFIER);
 
-    b.rule(COVER_PARENTHESIZED_EXPRESSION_AND_ARROW_PARAMETER_LIST).is(
+    b.rule(ARROW_PARAMETER_LIST).is(
       LPARENTHESIS,
       b.optional(b.firstOf(
         REST_PARAMETER,
@@ -828,7 +828,7 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
 
     b.rule(ARROW_FUNCTION).is(ARROW_PARAMETERS, /* no line terminator here */SPACING_NO_LB, NEXT_NOT_LB, DOUBLEARROW, CONCISE_BODY);
     b.rule(ARROW_FUNCTION_NO_IN).is(ARROW_PARAMETERS, /* no line terminator here */SPACING_NO_LB, NEXT_NOT_LB, DOUBLEARROW, CONCISE_BODY_NO_IN);
-    b.rule(ARROW_PARAMETERS).is(b.firstOf(BINDING_IDENTIFIER, COVER_PARENTHESIZED_EXPRESSION_AND_ARROW_PARAMETER_LIST));
+    b.rule(ARROW_PARAMETERS).is(b.firstOf(BINDING_IDENTIFIER, ARROW_PARAMETER_LIST));
 
     b.rule(CONCISE_BODY).is(b.firstOf(
       b.sequence(LCURLYBRACE, FUNCTION_BODY, RCURLYBRACE),

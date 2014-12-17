@@ -30,7 +30,6 @@ public class ArgumentsListTest {
   @Test
   public void ok() {
     assertThat(EcmaScriptGrammar.ARGUMENTS_LIST)
-        .matches("( )")
         .matches("assignmentExpression")
         .matches("... assignmentExpression")
         .matches("assignmentExpression , assignmentExpression")
