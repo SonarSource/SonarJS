@@ -147,10 +147,6 @@ public class FunctionExpressionTreeImpl extends JavaScriptTree implements Functi
 
   @Override
   public Iterator<Tree> childrenIterator() {
-    return Iterators.concat(
-      Iterators.forArray(name),
-      Iterators.forArray(parameters.toArray(new Tree[parameters.size()])),
-      Iterators.forArray(statements.toArray(new Tree[statements.size()]))
-    );
+    return Iterators.concat(Iterators.singletonIterator(name), parameters.iterator(), statements.iterator());
   }
 }

@@ -127,9 +127,7 @@ public class ArrowFunctionTreeImpl extends JavaScriptTree implements ArrowFuncti
 
   @Override
   public Iterator<Tree> childrenIterator() {
-    return Iterators.concat(
-      Iterators.forArray(parameters.toArray(new Tree[parameters.size()])),
-      Iterators.forArray(statements.<Tree>toArray(new Tree[statements.size()])));
+    return Iterators.concat(parameters.iterator(), statements.iterator());
   }
 
   @Override
