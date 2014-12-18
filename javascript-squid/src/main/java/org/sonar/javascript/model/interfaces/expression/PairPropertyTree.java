@@ -19,7 +19,6 @@
  */
 package org.sonar.javascript.model.interfaces.expression;
 
-import org.sonar.javascript.model.interfaces.Tree;
 import org.sonar.javascript.model.interfaces.lexical.SyntaxToken;
 
 /**
@@ -27,12 +26,12 @@ import org.sonar.javascript.model.interfaces.lexical.SyntaxToken;
  * <p/>
  *
  * <pre>
- *   {@link #key()} {@link #colon()} {@link #value()}
+ *   {@link #key()} : {@link #value()}
  * </pre>
  *
  * <p>This interface is not intended to be implemented by clients.</p>
  */
-public interface PairPropertyTree extends Tree {
+public interface PairPropertyTree extends ExpressionTree {
 
   ExpressionTree key();
 
