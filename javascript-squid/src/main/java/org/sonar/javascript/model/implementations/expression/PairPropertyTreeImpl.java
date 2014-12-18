@@ -34,16 +34,16 @@ import java.util.Iterator;
 public class PairPropertyTreeImpl extends JavaScriptTree implements PairPropertyTree {
 
   private final ExpressionTree key;
-  private final SyntaxToken colon;
+  private final SyntaxToken operator;
   private final ExpressionTree value;
 
-  public PairPropertyTreeImpl(ExpressionTree key, InternalSyntaxToken colon, ExpressionTree value) {
+  public PairPropertyTreeImpl(ExpressionTree key, InternalSyntaxToken operator, ExpressionTree value) {
     super(Kind.PAIR_PROPERTY);
     this.key = key;
-    this.colon = colon;
+    this.operator = operator;
     this.value = value;
 
-    addChildren((AstNode) key, colon, (AstNode) value);
+    addChildren((AstNode) key, operator, (AstNode) value);
   }
 
   @Override
@@ -53,8 +53,8 @@ public class PairPropertyTreeImpl extends JavaScriptTree implements PairProperty
 
   @Nullable
   @Override
-  public SyntaxToken colon() {
-    return colon;
+  public SyntaxToken operator() {
+    return operator;
   }
 
   @Override
