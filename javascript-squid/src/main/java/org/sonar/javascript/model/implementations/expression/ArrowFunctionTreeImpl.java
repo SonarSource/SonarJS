@@ -39,7 +39,7 @@ public class ArrowFunctionTreeImpl extends JavaScriptTree implements ArrowFuncti
 
   @Nullable
   private final SyntaxToken openParenthesis;
-  private final List<ExpressionTree> parameters;
+  private final SeparatedList<ExpressionTree> parameters;
   @Nullable
   private final SyntaxToken closeParenthesis;
   @Nullable
@@ -91,7 +91,7 @@ public class ArrowFunctionTreeImpl extends JavaScriptTree implements ArrowFuncti
 
   @Override
   public SeparatedList<ExpressionTree> parameters() {
-    return parameters();
+    return parameters;
   }
 
   @Nullable

@@ -44,7 +44,7 @@ public class FunctionExpressionTreeImpl extends JavaScriptTree implements Functi
   @Nullable
   private final IdentifierTree name;
   private final SyntaxToken openParenthesis;
-  private final List<ExpressionTree> parameters;
+  private final SeparatedList<ExpressionTree> parameters;
   private final SyntaxToken closeParenthesis;
   private final SyntaxToken openCurlyBrace;
   private final List<StatementTree> statements;
@@ -121,7 +121,7 @@ public class FunctionExpressionTreeImpl extends JavaScriptTree implements Functi
 
   @Override
   public SeparatedList<ExpressionTree> parameters() {
-    return parameters();
+    return parameters;
   }
 
   @Override

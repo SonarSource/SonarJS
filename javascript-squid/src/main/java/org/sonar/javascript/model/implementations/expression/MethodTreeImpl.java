@@ -45,7 +45,7 @@ public class MethodTreeImpl extends JavaScriptTree implements FunctionTree, Expr
   private final SyntaxToken star;
   private final IdentifierTree name;
   private final SyntaxToken openParenthesis;
-  private final List<ExpressionTree> parameters;
+  private final SeparatedList<ExpressionTree> parameters;
   private final SyntaxToken closeParenthesis;
   private final SyntaxToken openCurlyBrace;
   private final List<StatementTree> statements;
@@ -149,7 +149,7 @@ public class MethodTreeImpl extends JavaScriptTree implements FunctionTree, Expr
 
   @Override
   public SeparatedList<ExpressionTree> parameters() {
-    return parameters();
+    return parameters;
   }
 
   @Override
