@@ -20,7 +20,7 @@
 package org.sonar.javascript.model.interfaces;
 
 import com.sonar.sslr.api.AstNodeType;
-import org.sonar.javascript.model.interfaces.expression.ArrayInitialiserTree;
+import org.sonar.javascript.model.interfaces.expression.ArrayLiteralTree;
 import org.sonar.javascript.model.interfaces.expression.ArrowFunctionTree;
 import org.sonar.javascript.model.interfaces.expression.AssignmentExpressionTree;
 import org.sonar.javascript.model.interfaces.expression.BinaryExpressionTree;
@@ -233,9 +233,9 @@ public interface Tree {
     REGULAR_EXPRESSION_LITERAL(LiteralTree.class),
 
     /**
-     * {@link ArrayInitialiserTree}
+     * {@link ArrayLiteralTree}
      */
-    ARRAY_INITIALISER(ArrayInitialiserTree.class),
+    ARRAY_LITERAL(ArrayLiteralTree.class),
 
     /**
      * {@link ExpressionTree}

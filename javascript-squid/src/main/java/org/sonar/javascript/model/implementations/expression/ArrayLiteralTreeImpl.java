@@ -25,21 +25,21 @@ import org.sonar.javascript.model.implementations.JavaScriptTree;
 import org.sonar.javascript.model.implementations.SeparatedList;
 import org.sonar.javascript.model.implementations.lexical.InternalSyntaxToken;
 import org.sonar.javascript.model.interfaces.Tree;
-import org.sonar.javascript.model.interfaces.expression.ArrayInitialiserTree;
+import org.sonar.javascript.model.interfaces.expression.ArrayLiteralTree;
 import org.sonar.javascript.model.interfaces.lexical.SyntaxToken;
 
 import java.beans.Expression;
 import java.util.Iterator;
 import java.util.List;
 
-public class ArrayInitialiserTreeImpl extends JavaScriptTree implements ArrayInitialiserTree {
+public class ArrayLiteralTreeImpl extends JavaScriptTree implements ArrayLiteralTree {
 
   private final SyntaxToken openBracket;
   private final SeparatedList<Expression> elements;
   private final SyntaxToken closeBracket;
 
-  public ArrayInitialiserTreeImpl(InternalSyntaxToken openBracket, List<Expression> elements, List<InternalSyntaxToken> commas, InternalSyntaxToken closeBracket, List<AstNode> children) {
-    super(Kind.ARRAY_INITIALISER);
+  public ArrayLiteralTreeImpl(InternalSyntaxToken openBracket, List<Expression> elements, List<InternalSyntaxToken> commas, InternalSyntaxToken closeBracket, List<AstNode> children) {
+    super(Kind.ARRAY_LITERAL);
     this.openBracket = openBracket;
     this.closeBracket = closeBracket;
     this.elements = new SeparatedList<Expression>(elements, commas);
@@ -66,7 +66,7 @@ public class ArrayInitialiserTreeImpl extends JavaScriptTree implements ArrayIni
 
   @Override
   public Kind getKind() {
-    return Kind.ARRAY_INITIALISER;
+    return Kind.ARRAY_LITERAL;
   }
 
   @Override

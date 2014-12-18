@@ -39,7 +39,7 @@ public class ObjectInitialiserTreeImpl extends JavaScriptTree implements ObjectI
   private final SyntaxToken closeCurlyBrace;
 
   public ObjectInitialiserTreeImpl(InternalSyntaxToken openCurlyBrace, List<ExpressionTree> properties, List<InternalSyntaxToken> commas, InternalSyntaxToken closeCurlyBrace, List<AstNode> children) {
-    super(Kind.ARRAY_INITIALISER);
+    super(Kind.ARRAY_LITERAL);
     this.openCurlyBrace = openCurlyBrace;
     this.closeCurlyBrace = closeCurlyBrace;
     this.properties = new SeparatedList<ExpressionTree>(properties, commas);

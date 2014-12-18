@@ -34,7 +34,7 @@ import java.beans.Expression;
  *
  * <p>This interface is not intended to be implemented by clients.</p>
  */
-public interface ArrayInitialiserTree extends ExpressionTree {
+public interface ArrayLiteralTree extends ExpressionTree {
 
   SyntaxToken openBracket();
 
