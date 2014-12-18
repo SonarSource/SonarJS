@@ -23,7 +23,6 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.sonar.sslr.api.AstNode;
 import com.sonar.sslr.api.AstNodeType;
-import org.sonar.javascript.api.EcmaScriptKeyword;
 import org.sonar.javascript.model.implementations.expression.IdentifierTreeImpl;
 import org.sonar.javascript.model.implementations.expression.LiteralTreeImpl;
 import org.sonar.javascript.model.implementations.lexical.InternalSyntaxToken;
@@ -52,15 +51,10 @@ import org.sonar.javascript.model.implementations.statement.VariableStatementTre
 import org.sonar.javascript.model.implementations.statement.WhileStatementTreeImpl;
 import org.sonar.javascript.model.implementations.statement.WithStatementTreeImpl;
 import org.sonar.javascript.model.interfaces.Tree.Kind;
-import org.sonar.javascript.model.interfaces.expression.LiteralTree;
-import org.sonar.javascript.model.interfaces.statement.CaseClauseTree;
-import org.sonar.javascript.model.interfaces.statement.ElseClauseTree;
 import org.sonar.javascript.model.interfaces.statement.StatementTree;
 import org.sonar.javascript.model.interfaces.statement.SwitchClauseTree;
-import org.sonar.javascript.model.interfaces.statement.SwitchStatementTree;
 import org.sonar.javascript.parser.sslr.Optional;
 
-import java.awt.geom.AffineTransform;
 import java.util.List;
 
 public class TreeFactory {
@@ -265,17 +259,6 @@ public class TreeFactory {
       statement);
   }
 
-  // End of statements
-
-  // Helpers
-
-  public static final AstNodeType WRAPPER_AST_NODE = new AstNodeType() {
-    @Override
-    public String toString() {
-      return "WRAPPER_AST_NODE";
-    }
-  };
-
   public ForStatementTreeImpl forStatement(AstNode forToken, AstNode openParenthesis, Optional<AstNode> init, AstNode firstSemiToken, Optional<AstNode> condition, AstNode secondSemiToken, Optional<AstNode> update, AstNode closeParenthesis, StatementTree statement) {
     List<AstNode> children = Lists.newArrayList();
 
@@ -304,6 +287,17 @@ public class TreeFactory {
       statement,
       children);
   }
+
+  // End of statements
+
+  // Helpers
+
+  public static final AstNodeType WRAPPER_AST_NODE = new AstNodeType() {
+    @Override
+    public String toString() {
+      return "WRAPPER_AST_NODE";
+    }
+  };
 
   public LiteralTreeImpl nullLiteral(AstNode nullToken) {
     return new LiteralTreeImpl(Kind.NULL_LITERAL, InternalSyntaxToken.create(nullToken));
@@ -383,66 +377,6 @@ public class TreeFactory {
   }
 
   public <T, U> Tuple<T, U> newTuple2(T first, U second) {
-    return newTuple(first, second);
-  }
-
-  public <T, U> Tuple<T, U> newTuple3(T first, U second) {
-    return newTuple(first, second);
-  }
-
-  public <T, U> Tuple<T, U> newTuple4(T first, U second) {
-    return newTuple(first, second);
-  }
-
-  public <T, U> Tuple<T, U> newTuple5(T first, U second) {
-    return newTuple(first, second);
-  }
-
-  public <T, U> Tuple<T, U> newTuple6(T first, U second) {
-    return newTuple(first, second);
-  }
-
-  public <T, U> Tuple<T, U> newTuple7(T first, U second) {
-    return newTuple(first, second);
-  }
-
-  public <T, U> Tuple<T, U> newTuple8(T first, U second) {
-    return newTuple(first, second);
-  }
-
-  public <T, U> Tuple<T, U> newTuple9(T first, U second) {
-    return newTuple(first, second);
-  }
-
-  public <T, U> Tuple<T, U> newTuple10(T first, U second) {
-    return newTuple(first, second);
-  }
-
-  public <T, U> Tuple<T, U> newTuple11(T first, U second) {
-    return newTuple(first, second);
-  }
-
-  public <T, U> Tuple<T, U> newTuple12(T first, U second) {
-    return newTuple(first, second);
-  }
-
-  public <T, U> Tuple<T, U> newTuple13(T first, U second) {
-    return newTuple(first, second);
-  }
-
-  public <T, U> Tuple<T, U> newTuple14(T first, U second) {
-    return newTuple(first, second);
-  }
-
-  public <T, U> Tuple<T, U> newTuple15(T first, U second) {
-    return newTuple(first, second);
-  }
-
-  public <T, U> Tuple<T, U> newTuple16(T first, U second) {
-    return newTuple(first, second);
-  }
-
-  public <T, U> Tuple<T, U> newTuple17(T first, U second) {
     return newTuple(first, second);
   }
 

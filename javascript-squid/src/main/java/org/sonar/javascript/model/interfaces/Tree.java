@@ -65,7 +65,7 @@ import org.sonar.sslr.grammar.GrammarRuleKey;
 
 /**
  * Common interface for all nodes in an abstract syntax tree.
- *
+ * <p/>
  * <p>This interface is not intended to be implemented by clients.</p>
  */
 public interface Tree {
