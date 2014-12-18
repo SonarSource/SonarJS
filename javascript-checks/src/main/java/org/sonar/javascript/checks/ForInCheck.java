@@ -61,9 +61,9 @@ public class ForInCheck extends SquidCheck<LexerlessGrammar> {
 
   private static AstNode getFirstStatement(AstNode statementList) {
     for (AstNode node : statementList.getChildren()) {
-       if (node.isNot(EcmaScriptGrammar.DECLARATION)) {
-         return node;
-       }
+      if (node.isNot(EcmaScriptGrammar.DECLARATION)) {
+        return node;
+      }
     }
     return null;
   }

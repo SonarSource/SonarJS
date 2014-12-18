@@ -24,7 +24,6 @@ import com.sonar.sslr.api.AstNode;
 import org.sonar.check.BelongsToProfile;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
-import org.sonar.javascript.api.EcmaScriptTokenType;
 import org.sonar.javascript.checks.utils.CheckUtils;
 import org.sonar.javascript.model.interfaces.Tree.Kind;
 import org.sonar.javascript.parser.EcmaScriptGrammar;
@@ -44,12 +43,16 @@ public class TooManyBreakOrContinueInLoopCheck extends SquidCheck<LexerlessGramm
     private final String label;
     private int jumps;
 
-    /** Creates unlabeled target. */
+    /**
+     * Creates unlabeled target.
+     */
     public JumpTarget() {
       this.label = null;
     }
 
-    /** Creates labeled target. */
+    /**
+     * Creates labeled target.
+     */
     public JumpTarget(String label) {
       this.label = label;
     }
@@ -67,10 +70,10 @@ public class TooManyBreakOrContinueInLoopCheck extends SquidCheck<LexerlessGramm
   public void init() {
     subscribeTo(CheckUtils.iterationStatementsArray());
     subscribeTo(
-        Kind.BREAK_STATEMENT,
-        Kind.CONTINUE_STATEMENT,
-        Kind.SWITCH_STATEMENT,
-        Kind.LABELLED_STATEMENT);
+      Kind.BREAK_STATEMENT,
+      Kind.CONTINUE_STATEMENT,
+      Kind.SWITCH_STATEMENT,
+      Kind.LABELLED_STATEMENT);
     subscribeTo(FUNCTION_NODES);
   }
 

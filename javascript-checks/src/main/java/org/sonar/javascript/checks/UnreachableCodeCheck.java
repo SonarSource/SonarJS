@@ -24,7 +24,6 @@ import org.sonar.check.BelongsToProfile;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.javascript.model.interfaces.Tree.Kind;
-import org.sonar.javascript.model.interfaces.statement.StatementTree;
 import org.sonar.javascript.parser.EcmaScriptGrammar;
 import org.sonar.squidbridge.checks.SquidCheck;
 import org.sonar.sslr.parser.LexerlessGrammar;
@@ -38,10 +37,10 @@ public class UnreachableCodeCheck extends SquidCheck<LexerlessGrammar> {
   @Override
   public void init() {
     subscribeTo(
-        Kind.BREAK_STATEMENT,
-        Kind.RETURN_STATEMENT,
-        Kind.CONTINUE_STATEMENT,
-        Kind.THROW_STATEMENT);
+      Kind.BREAK_STATEMENT,
+      Kind.RETURN_STATEMENT,
+      Kind.CONTINUE_STATEMENT,
+      Kind.THROW_STATEMENT);
   }
 
   @Override

@@ -25,8 +25,6 @@ import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.javascript.model.implementations.statement.IfStatementTreeImpl;
 import org.sonar.javascript.model.interfaces.Tree.Kind;
-import org.sonar.javascript.model.interfaces.statement.BlockTree;
-import org.sonar.javascript.model.interfaces.statement.IfStatementTree;
 import org.sonar.javascript.model.interfaces.statement.StatementTree;
 import org.sonar.javascript.parser.EcmaScriptGrammar;
 import org.sonar.squidbridge.checks.SquidCheck;
@@ -48,10 +46,11 @@ public class CollapsibleIfStatementsCheck extends SquidCheck<LexerlessGrammar> {
     IfStatementTreeImpl ifStatement = (IfStatementTreeImpl) node;
 
     if (!ifStatement.hasElse()) {
-      StatementTree innerStatement =  ifStatement.thenStatement();
+      StatementTree innerStatement = ifStatement.thenStatement();
 
-      if (isBlockAndContainsOnlyOneIfStatement((AstNode) innerStatement) || isIfStatementWithoutElse((AstNode) innerStatement))
+      if (isBlockAndContainsOnlyOneIfStatement((AstNode) innerStatement) || isIfStatementWithoutElse((AstNode) innerStatement)) {
         getContext().createLineViolation(this, "Merge this if statement with the nested one.", node);
+      }
     }
   }
 

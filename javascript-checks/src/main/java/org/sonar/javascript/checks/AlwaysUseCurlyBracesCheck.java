@@ -23,13 +23,9 @@ import com.sonar.sslr.api.AstNode;
 import org.sonar.check.BelongsToProfile;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
-import org.sonar.javascript.api.EcmaScriptKeyword;
 import org.sonar.javascript.model.interfaces.Tree.Kind;
-import org.sonar.javascript.parser.EcmaScriptGrammar;
 import org.sonar.squidbridge.checks.SquidCheck;
 import org.sonar.sslr.parser.LexerlessGrammar;
-
-import java.util.List;
 
 @Rule(
   key = "CurlyBraces",
@@ -40,12 +36,12 @@ public class AlwaysUseCurlyBracesCheck extends SquidCheck<LexerlessGrammar> {
   @Override
   public void init() {
     subscribeTo(
-        Kind.IF_STATEMENT,
-        Kind.FOR_IN_STATEMENT,
-        Kind.FOR_STATEMENT,
-        Kind.WHILE_STATEMENT,
-        Kind.DO_WHILE_STATEMENT,
-        Kind.ELSE_CLAUSE);
+      Kind.IF_STATEMENT,
+      Kind.FOR_IN_STATEMENT,
+      Kind.FOR_STATEMENT,
+      Kind.WHILE_STATEMENT,
+      Kind.DO_WHILE_STATEMENT,
+      Kind.ELSE_CLAUSE);
   }
 
   @Override

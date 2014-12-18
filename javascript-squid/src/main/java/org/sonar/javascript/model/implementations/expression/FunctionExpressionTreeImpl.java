@@ -19,7 +19,6 @@
  */
 package org.sonar.javascript.model.implementations.expression;
 
-import com.google.common.base.Preconditions;
 import com.google.common.collect.Iterators;
 import com.sonar.sslr.api.AstNode;
 import com.sonar.sslr.api.AstNodeType;
@@ -55,7 +54,9 @@ public class FunctionExpressionTreeImpl extends JavaScriptTree implements Functi
   /**
    * Constructor for function expression
    */
-  public FunctionExpressionTreeImpl(InternalSyntaxToken keyword, @Nullable IdentifierTreeImpl name, InternalSyntaxToken openParenthesis, SeparatedList<ExpressionTree> parameters, InternalSyntaxToken closeParenthesis, InternalSyntaxToken openCurlyBrace, List<StatementTree> statements, InternalSyntaxToken closeCurlyBrace, List<AstNode> children) {
+  public FunctionExpressionTreeImpl(InternalSyntaxToken keyword, @Nullable IdentifierTreeImpl name, InternalSyntaxToken openParenthesis,
+                                    SeparatedList<ExpressionTree> parameters, InternalSyntaxToken closeParenthesis, InternalSyntaxToken openCurlyBrace,
+                                    List<StatementTree> statements, InternalSyntaxToken closeCurlyBrace, List<AstNode> children) {
     super(Kind.FUNCTION_EXPRESSION);
     this.keyword = keyword;
     this.star = null;
@@ -74,7 +75,10 @@ public class FunctionExpressionTreeImpl extends JavaScriptTree implements Functi
     }
   }
 
-  public FunctionExpressionTreeImpl(InternalSyntaxToken keyword, InternalSyntaxToken star, @Nullable IdentifierTreeImpl name, InternalSyntaxToken openParenthesis, SeparatedList<ExpressionTree> parameters, InternalSyntaxToken closeParenthesis, InternalSyntaxToken openCurlyBrace, List<StatementTree> statements, InternalSyntaxToken closeCurlyBrace, List<AstNode> children) {
+  public FunctionExpressionTreeImpl(InternalSyntaxToken keyword, InternalSyntaxToken star, @Nullable IdentifierTreeImpl name,
+                                    InternalSyntaxToken openParenthesis, SeparatedList<ExpressionTree> parameters,
+                                    InternalSyntaxToken closeParenthesis, InternalSyntaxToken openCurlyBrace, List<StatementTree> statements,
+                                    InternalSyntaxToken closeCurlyBrace, List<AstNode> children) {
     super(Kind.GENERATOR_FUNCTION_EXPRESSION);
     this.keyword = keyword;
     this.star = star;
