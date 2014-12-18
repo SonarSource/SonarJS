@@ -38,7 +38,6 @@ public class PrimaryExpressionTest {
         .matches("{}")
         .matches("class {}")
         .matches("function * () {}")
-        .matches("(for ( forBinding of assignmentExpression ) assignmentExpression)")
         .matches("``")
         .matches("( expression )");
   }
