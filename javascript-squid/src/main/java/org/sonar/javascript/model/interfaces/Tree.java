@@ -35,6 +35,7 @@ import org.sonar.javascript.model.interfaces.expression.PairPropertyTree;
 import org.sonar.javascript.model.interfaces.expression.ParenthesisedExpressionTree;
 import org.sonar.javascript.model.interfaces.expression.ThisTree;
 import org.sonar.javascript.model.interfaces.expression.UnaryExpressionTree;
+import org.sonar.javascript.model.interfaces.expression.YieldExpressionTree;
 import org.sonar.javascript.model.interfaces.lexical.SyntaxToken;
 import org.sonar.javascript.model.interfaces.lexical.SyntaxTrivia;
 import org.sonar.javascript.model.interfaces.statement.BlockTree;
@@ -589,6 +590,11 @@ public interface Tree {
      * {@link MemberExpressionTree}
      */
     BRACKET_MEMBER_EXPRESSION(MemberExpressionTree.class),
+
+    /**
+     * {@link YieldExpressionTree}
+     */
+    YIELD_EXPRESSION(YieldExpressionTree.class),
 
     TYPEOF(UnaryExpressionTree.class),
 
