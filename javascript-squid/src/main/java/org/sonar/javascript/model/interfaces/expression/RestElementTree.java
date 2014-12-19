@@ -32,7 +32,7 @@ import org.sonar.javascript.model.interfaces.lexical.SyntaxToken;
  */
 public interface RestElementTree extends ExpressionTree {
 
-  SyntaxToken ellispis();
+  SyntaxToken ellipsis();
 
   ExpressionTree element();
 

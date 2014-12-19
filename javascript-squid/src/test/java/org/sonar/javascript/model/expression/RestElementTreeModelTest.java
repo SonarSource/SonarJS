@@ -20,11 +20,9 @@
 package org.sonar.javascript.model.expression;
 
 import org.junit.Test;
-import org.sonar.javascript.api.EcmaScriptKeyword;
 import org.sonar.javascript.api.EcmaScriptPunctuator;
 import org.sonar.javascript.model.JavaScriptTreeModelTest;
 import org.sonar.javascript.model.interfaces.Tree.Kind;
-import org.sonar.javascript.model.interfaces.expression.LiteralTree;
 import org.sonar.javascript.model.interfaces.expression.RestElementTree;
 
 import static org.fest.assertions.Assertions.assertThat;
@@ -36,7 +34,7 @@ public class RestElementTreeModelTest extends JavaScriptTreeModelTest {
     RestElementTree tree = parse("[... expression];", Kind.REST_ELEMENT);
 
     assertThat(tree.is(Kind.REST_ELEMENT)).isTrue();
-    assertThat(tree.ellispis().text()).isEqualTo(EcmaScriptPunctuator.ELLIPSIS.getValue());
+    assertThat(tree.ellipsis().text()).isEqualTo(EcmaScriptPunctuator.ELLIPSIS.getValue());
   }
 
 }
