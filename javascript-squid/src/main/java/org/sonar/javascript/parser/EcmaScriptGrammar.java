@@ -184,7 +184,6 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
   // A.3 Expressions
 
   PRIMARY_EXPRESSION,
-  ARRAY_LITERAL,
   OBJECT_LITERAL,
   /** ECMAScript 6 **/
   COVER_INITIALIZED_NAME,
@@ -618,7 +617,7 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
       // Not IDENTIFIER_REFERENCE, to avoid conflicts with YIELD_EXPRESSION from ASSIGNMENT_EXPRESSION
       IDENTIFIER,
       LITERAL,
-      ARRAY_LITERAL,
+      Kind.ARRAY_LITERAL,
       OBJECT_LITERAL,
       FUNCTION_EXPRESSION,
       PARENTHESISED_EXPRESSION,
@@ -650,17 +649,7 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
     b.rule(GENERATOR_EXPRESSION).is(FUNCTION, STAR, b.optional(BINDING_IDENTIFIER),
       LPARENTHESIS, b.optional(FORMAL_PARAMETER_LIST), RPARENTHESIS, LCURLYBRACE, FUNCTION_BODY, RCURLYBRACE);
 
-    b.rule(ARRAY_LITERAL).is(
-      LBRACKET,
-      b.optional(b.firstOf(
-        b.sequence(ELEMENT_LIST, b.optional(COMMA, b.optional(ELISION))),
-        ELISION)),
-      RBRACKET);
-
-    b.rule(ELEMENT_LIST).is(b.optional(ELISION), ARRAY_INITIALIZER_ELEMENT, b.zeroOrMore(COMMA, b.optional(ELISION), ARRAY_INITIALIZER_ELEMENT));
-    b.rule(ARRAY_INITIALIZER_ELEMENT).is(b.firstOf(SPREAD_ELEMENT, ASSIGNMENT_EXPRESSION));
     b.rule(ELISION).is(b.oneOrMore(COMMA));
-    b.rule(SPREAD_ELEMENT).is(ELLIPSIS, ASSIGNMENT_EXPRESSION);
 
     b.rule(OBJECT_LITERAL).is(LCURLYBRACE, b.optional(PROPERTY_DEFINITION, b.zeroOrMore(COMMA, PROPERTY_DEFINITION), b.optional(COMMA)), RCURLYBRACE);
     b.rule(PROPERTY_DEFINITION).is(b.firstOf(

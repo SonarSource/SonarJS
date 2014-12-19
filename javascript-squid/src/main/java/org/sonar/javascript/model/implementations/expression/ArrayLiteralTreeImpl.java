@@ -21,6 +21,7 @@ package org.sonar.javascript.model.implementations.expression;
 
 import com.google.common.collect.Iterators;
 import com.sonar.sslr.api.AstNode;
+import org.apache.commons.collections.ListUtils;
 import org.sonar.javascript.model.implementations.JavaScriptTree;
 import org.sonar.javascript.model.implementations.SeparatedList;
 import org.sonar.javascript.model.implementations.lexical.InternalSyntaxToken;
@@ -28,25 +29,41 @@ import org.sonar.javascript.model.interfaces.Tree;
 import org.sonar.javascript.model.interfaces.expression.ArrayLiteralTree;
 import org.sonar.javascript.model.interfaces.lexical.SyntaxToken;
 
-import java.beans.Expression;
 import java.util.Iterator;
 import java.util.List;
 
 public class ArrayLiteralTreeImpl extends JavaScriptTree implements ArrayLiteralTree {
 
-  private final SyntaxToken openBracket;
-  private final SeparatedList<Expression> elements;
-  private final SyntaxToken closeBracket;
+  private SyntaxToken openBracket;
+  // FIXME remove usage of AstNode
+  private final SeparatedList<AstNode> elements;
+  private SyntaxToken closeBracket;
 
-  public ArrayLiteralTreeImpl(InternalSyntaxToken openBracket, List<Expression> elements, List<InternalSyntaxToken> commas, InternalSyntaxToken closeBracket, List<AstNode> children) {
+  public ArrayLiteralTreeImpl(InternalSyntaxToken openBracket, InternalSyntaxToken closeBracket) {
     super(Kind.ARRAY_LITERAL);
     this.openBracket = openBracket;
+    this.elements = new SeparatedList<AstNode>(ListUtils.EMPTY_LIST, ListUtils.EMPTY_LIST);
     this.closeBracket = closeBracket;
-    this.elements = new SeparatedList<Expression>(elements, commas);
 
-    for (AstNode child: children) {
+    addChildren(openBracket, closeBracket);
+  }
+
+  public ArrayLiteralTreeImpl(List<AstNode> elements, List<InternalSyntaxToken> commas, List<AstNode> children) {
+    super(Kind.ARRAY_LITERAL);
+    this.elements = new SeparatedList<AstNode>(elements, commas);
+
+    for (AstNode child : children) {
       addChild(child);
     }
+  }
+
+  public ArrayLiteralTreeImpl complete(InternalSyntaxToken openBracket, InternalSyntaxToken closeBracket) {
+    this.openBracket = openBracket;
+    this.closeBracket = closeBracket;
+
+    prependChildren(openBracket);
+    addChild(closeBracket);
+    return this;
   }
 
   @Override
@@ -55,7 +72,7 @@ public class ArrayLiteralTreeImpl extends JavaScriptTree implements ArrayLiteral
   }
 
   @Override
-  public SeparatedList<Expression> elements() {
+  public SeparatedList<AstNode> elements() {
     return elements;
   }
 
@@ -71,7 +88,7 @@ public class ArrayLiteralTreeImpl extends JavaScriptTree implements ArrayLiteral
 
   @Override
   public Iterator<Tree> childrenIterator() {
-    return Iterators.forArray(elements.toArray(new Tree[elements.size()]));
+    return Iterators.emptyIterator();
   }
 
 }

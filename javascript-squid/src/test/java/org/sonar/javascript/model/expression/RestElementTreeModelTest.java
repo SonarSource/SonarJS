@@ -17,29 +17,26 @@
  * License along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.javascript.parser.grammar.expressions;
+package org.sonar.javascript.model.expression;
 
 import org.junit.Test;
+import org.sonar.javascript.api.EcmaScriptKeyword;
+import org.sonar.javascript.api.EcmaScriptPunctuator;
+import org.sonar.javascript.model.JavaScriptTreeModelTest;
 import org.sonar.javascript.model.interfaces.Tree.Kind;
+import org.sonar.javascript.model.interfaces.expression.LiteralTree;
+import org.sonar.javascript.model.interfaces.expression.RestElementTree;
 
-import static org.sonar.javascript.sslr.tests.Assertions.assertThat;
+import static org.fest.assertions.Assertions.assertThat;
 
-public class ArrayLiteralTest {
-
+public class RestElementTreeModelTest extends JavaScriptTreeModelTest {
 
   @Test
-  public void ok() {
-    assertThat(Kind.ARRAY_LITERAL)
-        .matches("[ ]")
-        .matches("[ assignmentExpression ]")
-        .matches("[ assignmentExpression , ]")
-        .matches("[ assignmentExpression , assignmentExpression ]")
-        .matches("[ assignmentExpression , assignmentExpression , ]");
+  public void spread_element() throws Exception {
+    RestElementTree tree = parse("[... expression];", Kind.REST_ELEMENT);
 
-    assertThat(Kind.ARRAY_LITERAL)
-        .matches("[ , , , ]")
-        .matches("[ , assignment ]")
-        .matches("[ assignmentExpression , , , ]");
+    assertThat(tree.is(Kind.REST_ELEMENT)).isTrue();
+    assertThat(tree.ellispis().text()).isEqualTo(EcmaScriptPunctuator.ELLIPSIS.getValue());
   }
 
 }

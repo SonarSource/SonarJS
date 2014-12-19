@@ -23,8 +23,11 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.sonar.sslr.api.AstNode;
 import com.sonar.sslr.api.AstNodeType;
+import org.sonar.javascript.model.implementations.expression.ArrayLiteralTreeImpl;
 import org.sonar.javascript.model.implementations.expression.IdentifierTreeImpl;
 import org.sonar.javascript.model.implementations.expression.LiteralTreeImpl;
+import org.sonar.javascript.model.implementations.expression.RestElementTreeImpl;
+import org.sonar.javascript.model.implementations.expression.UndefinedTreeImpl;
 import org.sonar.javascript.model.implementations.lexical.InternalSyntaxToken;
 import org.sonar.javascript.model.implementations.statement.BlockTreeImpl;
 import org.sonar.javascript.model.implementations.statement.BreakStatementTreeImpl;
@@ -290,6 +293,112 @@ public class TreeFactory {
 
   // End of statements
 
+  // Expressions
+
+  public AstNode arrayInitialiserElement(Optional<AstNode> spreadOperatorToken, AstNode expression) {
+    if (spreadOperatorToken.isPresent()) {
+      return new RestElementTreeImpl(InternalSyntaxToken.create(spreadOperatorToken.get()), expression);
+    }
+    return expression;
+  }
+
+  /**
+   * Creates a new array literal. Undefined element is added to the array elements list when array element is elided.
+   * <p/>
+   * <p/>
+   * From ECMAScript 6 draft:
+   * <blockquote>
+   * Whenever a comma in the element list is not preceded by an AssignmentExpression i.e., a comma at the beginning
+   * or after another comma), the missing array element contributes to the length of the Array and increases the
+   * index of subsequent elements.
+   * </blockquote>
+   */
+  public ArrayLiteralTreeImpl newArrayLiteralWithElements(Optional<List<AstNode>> commaTokens, AstNode element, Optional<List<Tuple<AstNode, AstNode>>> restElements, Optional<List<AstNode>> restCommas) {
+    List<AstNode> children = Lists.newArrayList();
+    List<AstNode> elements = Lists.newArrayList();
+    List<InternalSyntaxToken> commas = Lists.newArrayList();
+
+    // Elided array element at the beginning, e.g [ ,a]
+    if (commaTokens.isPresent()) {
+      for (AstNode comma : commaTokens.get()) {
+        elements.add(new UndefinedTreeImpl());
+        commas.add(InternalSyntaxToken.create(comma));
+        children.add(comma);
+      }
+    }
+
+    // First element
+    elements.add(element);
+    children.add(element);
+
+    // Other elements
+    if (restElements.isPresent()) {
+      for (Tuple<AstNode, AstNode> t : restElements.get()) {
+
+        // First comma
+        commas.add(InternalSyntaxToken.create(t.first().getFirstChild()));
+        children.add(t.first().getFirstChild());
+
+        // Elided array element in the middle, e.g [ a , , a  ]
+        int nbCommas = t.first().getNumberOfChildren();
+
+        if (nbCommas > 1) {
+          for (AstNode comma : t.first().getChildren().subList(1, nbCommas)) {
+            elements.add(new UndefinedTreeImpl());
+            commas.add(InternalSyntaxToken.create(comma));
+            children.add(comma);
+          }
+        }
+        // Add element
+        elements.add(t.second());
+        children.add(t.second());
+      }
+    }
+
+    // Trailing comma and/or elided array element at the end, e.g resp [ a ,] / [ a , ,]
+    if (restCommas.isPresent()) {
+      int nbEndingComma = restCommas.get().size();
+
+      // Trailing comma after the last element
+      commas.add(InternalSyntaxToken.create(restCommas.get().get(0)));
+      children.add(restCommas.get().get(0));
+
+      // Elided array element at the end
+      if (nbEndingComma > 1) {
+        for (AstNode comma : restCommas.get().subList(1, nbEndingComma)) {
+          elements.add(new UndefinedTreeImpl());
+          commas.add(InternalSyntaxToken.create(comma));
+          children.add(comma);
+        }
+
+      }
+    }
+    return new ArrayLiteralTreeImpl(elements, commas, children);
+  }
+
+  public ArrayLiteralTreeImpl completeArrayLiteral(AstNode openBracketToken, Optional<ArrayLiteralTreeImpl> elements, AstNode closeBracket) {
+    if (elements.isPresent()) {
+      return elements.get().complete(InternalSyntaxToken.create(openBracketToken), InternalSyntaxToken.create(closeBracket));
+    }
+    return new ArrayLiteralTreeImpl(InternalSyntaxToken.create(openBracketToken), InternalSyntaxToken.create(closeBracket));
+  }
+
+  public ArrayLiteralTreeImpl newArrayLiteralWithElidedElements(List<AstNode> commaTokens) {
+    List<AstNode> children = Lists.newArrayList();
+    List<AstNode> elements = Lists.newArrayList();
+    List<InternalSyntaxToken> commas = Lists.newArrayList();
+
+    for (AstNode comma : commaTokens) {
+      elements.add(new UndefinedTreeImpl());
+      commas.add(InternalSyntaxToken.create(comma));
+      children.add(comma);
+    }
+
+    return new ArrayLiteralTreeImpl(elements, commas, children);
+  }
+
+  // End of expressions
+
   // Helpers
 
   public static final AstNodeType WRAPPER_AST_NODE = new AstNodeType() {
@@ -298,6 +407,14 @@ public class TreeFactory {
       return "WRAPPER_AST_NODE";
     }
   };
+
+  public AstNode newWrapperAstNode(List<AstNode> e1) {
+    AstNode astNode = new AstNode(WRAPPER_AST_NODE, WRAPPER_AST_NODE.toString(), null);
+    for (AstNode child : e1) {
+      astNode.addChild(child);
+    }
+    return astNode;
+  }
 
   public LiteralTreeImpl nullLiteral(AstNode nullToken) {
     return new LiteralTreeImpl(Kind.NULL_LITERAL, InternalSyntaxToken.create(nullToken));
@@ -377,6 +494,10 @@ public class TreeFactory {
   }
 
   public <T, U> Tuple<T, U> newTuple2(T first, U second) {
+    return newTuple(first, second);
+  }
+
+  public <T, U> Tuple<T, U> newTuple3(T first, U second) {
     return newTuple(first, second);
   }
 

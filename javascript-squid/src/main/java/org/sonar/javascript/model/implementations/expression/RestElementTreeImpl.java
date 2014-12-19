@@ -17,45 +17,49 @@
  * License along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.javascript.model.implementations.statement;
+package org.sonar.javascript.model.implementations.expression;
 
 import com.google.common.collect.Iterators;
 import com.sonar.sslr.api.AstNode;
-import com.sonar.sslr.api.AstNodeType;
 import org.sonar.javascript.model.implementations.JavaScriptTree;
+import org.sonar.javascript.model.implementations.lexical.InternalSyntaxToken;
 import org.sonar.javascript.model.interfaces.Tree;
-import org.sonar.javascript.model.interfaces.statement.ExpressionStatementTree;
+import org.sonar.javascript.model.interfaces.expression.ExpressionTree;
+import org.sonar.javascript.model.interfaces.expression.LiteralTree;
+import org.sonar.javascript.model.interfaces.expression.RestElementTree;
+import org.sonar.javascript.model.interfaces.lexical.SyntaxToken;
 
 import java.util.Iterator;
 
-public class ExpressionStatementTreeImpl extends JavaScriptTree implements ExpressionStatementTree {
+public class RestElementTreeImpl extends JavaScriptTree implements RestElementTree {
 
-  public ExpressionStatementTreeImpl(AstNode expression, AstNode eos) {
-    super(Kind.EXPRESSION_STATEMENT);
+  private final SyntaxToken ellispis;
 
-    addChildren(expression, eos);
+  public RestElementTreeImpl(InternalSyntaxToken ellispis, AstNode element) {
+    super(Kind.REST_ELEMENT);
+    this.ellispis = ellispis;
+
+    addChildren(ellispis, element);
   }
 
-  public AstNode getAstNode() {
-    return getAstNode();
-  }
   @Override
-  public Tree expression() {
+  public SyntaxToken ellispis() {
+    return ellispis;
+  }
+
+  @Override
+  public ExpressionTree element() {
     throw new UnsupportedOperationException("Not supported yet in the strongly typed AST.");
   }
 
   @Override
-  public Tree endOfStatement() {
-    throw new UnsupportedOperationException("Not supported yet in the strongly typed AST.");
-  }
-
-  @Override
-  public AstNodeType getKind() {
-    return Kind.EXPRESSION_STATEMENT;
+  public Kind getKind() {
+    return Kind.REST_ELEMENT;
   }
 
   @Override
   public Iterator<Tree> childrenIterator() {
     return Iterators.emptyIterator();
   }
+
 }

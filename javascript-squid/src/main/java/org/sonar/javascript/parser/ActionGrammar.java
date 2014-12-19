@@ -19,10 +19,12 @@
  */
 package org.sonar.javascript.parser;
 
+import com.sonar.sslr.api.AstNode;
 import org.sonar.javascript.api.EcmaScriptKeyword;
 import org.sonar.javascript.api.EcmaScriptPunctuator;
 import org.sonar.javascript.api.EcmaScriptTokenType;
 import org.sonar.javascript.ast.parser.TreeFactory;
+import org.sonar.javascript.model.implementations.expression.ArrayLiteralTreeImpl;
 import org.sonar.javascript.model.implementations.expression.LiteralTreeImpl;
 import org.sonar.javascript.model.implementations.statement.BlockTreeImpl;
 import org.sonar.javascript.model.implementations.statement.BreakStatementTreeImpl;
@@ -49,6 +51,7 @@ import org.sonar.javascript.model.implementations.statement.VariableStatementTre
 import org.sonar.javascript.model.implementations.statement.WhileStatementTreeImpl;
 import org.sonar.javascript.model.implementations.statement.WithStatementTreeImpl;
 import org.sonar.javascript.model.interfaces.Tree.Kind;
+import org.sonar.javascript.model.interfaces.expression.ExpressionTree;
 import org.sonar.javascript.model.interfaces.statement.DebuggerStatementTree;
 import org.sonar.javascript.model.interfaces.statement.StatementTree;
 import org.sonar.javascript.parser.sslr.GrammarBuilder;
@@ -385,6 +388,31 @@ public class ActionGrammar {
         f.numericLiteral(b.invokeRule(EcmaScriptTokenType.NUMERIC_LITERAL)),
         f.stringLiteral(b.invokeRule(EcmaScriptGrammar.STRING_LITERAL)),
         f.regexpLiteral(b.invokeRule(EcmaScriptTokenType.REGULAR_EXPRESSION_LITERAL))));
+  }
+
+  public AstNode ARRAY_INITIALISER_ELEMENT() {
+    return b.<AstNode>nonterminal(EcmaScriptGrammar.ARRAY_INITIALIZER_ELEMENT)
+      .is(f.arrayInitialiserElement(b.optional(b.invokeRule(EcmaScriptPunctuator.ELLIPSIS)), b.invokeRule(EcmaScriptGrammar.ASSIGNMENT_EXPRESSION)));
+  }
+
+  public ArrayLiteralTreeImpl ELEMENT_LIST() {
+    return b.<ArrayLiteralTreeImpl>nonterminal(EcmaScriptGrammar.ELEMENT_LIST)
+      .is(f.newArrayLiteralWithElements(
+        b.zeroOrMore(b.invokeRule(EcmaScriptPunctuator.COMMA)),
+        ARRAY_INITIALISER_ELEMENT(),
+        b.zeroOrMore(
+          f.newTuple3(f.newWrapperAstNode(b.oneOrMore(b.invokeRule(EcmaScriptPunctuator.COMMA))), ARRAY_INITIALISER_ELEMENT())),
+        b.zeroOrMore(b.invokeRule(EcmaScriptPunctuator.COMMA))));
+  }
+
+  public ArrayLiteralTreeImpl ARRAY_LITERAL() {
+    return b.<ArrayLiteralTreeImpl>nonterminal(Kind.ARRAY_LITERAL)
+      .is(f.completeArrayLiteral(
+        b.invokeRule(EcmaScriptPunctuator.LBRACKET),
+        b.optional(b.firstOf(
+            ELEMENT_LIST(),
+            f.newArrayLiteralWithElidedElements(b.oneOrMore(b.invokeRule(EcmaScriptPunctuator.COMMA))))),
+        b.invokeRule(EcmaScriptPunctuator.RBRACKET)));
   }
 
   /**

@@ -33,6 +33,7 @@ import org.sonar.javascript.model.interfaces.expression.NewExpressionTree;
 import org.sonar.javascript.model.interfaces.expression.ObjectInitialiserTree;
 import org.sonar.javascript.model.interfaces.expression.PairPropertyTree;
 import org.sonar.javascript.model.interfaces.expression.ParenthesisedExpressionTree;
+import org.sonar.javascript.model.interfaces.expression.RestElementTree;
 import org.sonar.javascript.model.interfaces.expression.ThisTree;
 import org.sonar.javascript.model.interfaces.expression.UnaryExpressionTree;
 import org.sonar.javascript.model.interfaces.expression.YieldExpressionTree;
@@ -595,6 +596,16 @@ public interface Tree {
      * {@link YieldExpressionTree}
      */
     YIELD_EXPRESSION(YieldExpressionTree.class),
+
+    /**
+     * {@link RestElementTree}
+     */
+    REST_ELEMENT(RestElementTree.class),
+
+    /**
+     * {@link ExpressionTree}
+     */
+    TEMPORARY_EXPRESSION(ExpressionTree.class),
 
     TYPEOF(UnaryExpressionTree.class),
 
