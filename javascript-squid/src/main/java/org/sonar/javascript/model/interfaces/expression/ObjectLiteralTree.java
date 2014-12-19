@@ -34,7 +34,7 @@ import org.sonar.javascript.model.interfaces.lexical.SyntaxToken;
  *
  * <p>This interface is not intended to be implemented by clients.</p>
  */
-public interface ObjectInitialiserTree extends ExpressionTree {
+public interface ObjectLiteralTree extends ExpressionTree {
 
   SyntaxToken openCurlyBrace();
 

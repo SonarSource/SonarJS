@@ -26,19 +26,19 @@ import org.sonar.javascript.model.implementations.SeparatedList;
 import org.sonar.javascript.model.implementations.lexical.InternalSyntaxToken;
 import org.sonar.javascript.model.interfaces.Tree;
 import org.sonar.javascript.model.interfaces.expression.ExpressionTree;
-import org.sonar.javascript.model.interfaces.expression.ObjectInitialiserTree;
+import org.sonar.javascript.model.interfaces.expression.ObjectLiteralTree;
 import org.sonar.javascript.model.interfaces.lexical.SyntaxToken;
 
 import java.util.Iterator;
 import java.util.List;
 
-public class ObjectInitialiserTreeImpl extends JavaScriptTree implements ObjectInitialiserTree {
+public class ObjectLiteralTreeImpl extends JavaScriptTree implements ObjectLiteralTree {
 
   private final SyntaxToken openCurlyBrace;
   private final SeparatedList<ExpressionTree> properties;
   private final SyntaxToken closeCurlyBrace;
 
-  public ObjectInitialiserTreeImpl(InternalSyntaxToken openCurlyBrace, List<ExpressionTree> properties, List<InternalSyntaxToken> commas, InternalSyntaxToken closeCurlyBrace, List<AstNode> children) {
+  public ObjectLiteralTreeImpl(InternalSyntaxToken openCurlyBrace, List<ExpressionTree> properties, List<InternalSyntaxToken> commas, InternalSyntaxToken closeCurlyBrace, List<AstNode> children) {
     super(Kind.ARRAY_LITERAL);
     this.openCurlyBrace = openCurlyBrace;
     this.closeCurlyBrace = closeCurlyBrace;
@@ -66,7 +66,7 @@ public class ObjectInitialiserTreeImpl extends JavaScriptTree implements ObjectI
 
   @Override
   public Kind getKind() {
-    return Kind.OBJECT_INITIALISER;
+    return Kind.OBJECT_LITERAL;
   }
 
   @Override

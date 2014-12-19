@@ -33,7 +33,7 @@ import org.sonar.javascript.model.interfaces.expression.IdentifierTree;
 import org.sonar.javascript.model.interfaces.expression.LiteralTree;
 import org.sonar.javascript.model.interfaces.expression.MemberExpressionTree;
 import org.sonar.javascript.model.interfaces.expression.NewExpressionTree;
-import org.sonar.javascript.model.interfaces.expression.ObjectInitialiserTree;
+import org.sonar.javascript.model.interfaces.expression.ObjectLiteralTree;
 import org.sonar.javascript.model.interfaces.expression.PairPropertyTree;
 import org.sonar.javascript.model.interfaces.expression.ParenthesisedExpressionTree;
 import org.sonar.javascript.model.interfaces.expression.RestElementTree;
@@ -248,9 +248,9 @@ public interface Tree {
     UNDEFINED(ExpressionTree.class),
 
     /**
-     * {@link ObjectInitialiserTree}
+     * {@link ObjectLiteralTree}
      */
-    OBJECT_INITIALISER(ObjectInitialiserTree.class),
+    OBJECT_LITERAL(ObjectLiteralTree.class),
 
     /**
      * {@link PairPropertyTree}
