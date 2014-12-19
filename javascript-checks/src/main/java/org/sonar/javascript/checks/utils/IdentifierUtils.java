@@ -101,9 +101,9 @@ public class IdentifierUtils {
         }
       }
       // Rest parameter
-      AstNode restParameter = child.getFirstChild(EcmaScriptGrammar.REST_PARAMETER);
+      AstNode restParameter = child.getFirstChild(EcmaScriptGrammar.BINDING_REST_ELEMENT);
       if (restParameter != null) {
-        identifiers.add(getRestIdentifier(restParameter.getFirstChild()));
+        identifiers.add(getRestIdentifier(restParameter));
       }
     }
     return identifiers;

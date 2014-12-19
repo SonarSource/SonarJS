@@ -642,8 +642,8 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
     b.rule(ARROW_PARAMETER_LIST).is(
       LPARENTHESIS,
       b.optional(b.firstOf(
-        REST_PARAMETER,
-        b.sequence(EXPRESSION, b.optional(COMMA, REST_PARAMETER)))),
+        BINDING_REST_ELEMENT,
+        b.sequence(EXPRESSION, b.optional(COMMA, BINDING_REST_ELEMENT)))),
       RPARENTHESIS);
     b.rule(CLASS_EXPRESSION).is(CLASS, b.optional(BINDING_IDENTIFIER), CLASS_TAIL);
 
