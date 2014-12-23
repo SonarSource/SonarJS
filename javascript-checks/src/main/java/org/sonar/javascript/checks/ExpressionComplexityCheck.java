@@ -27,6 +27,7 @@ import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
 import org.sonar.javascript.api.EcmaScriptPunctuator;
+import org.sonar.javascript.model.interfaces.Tree.Kind;
 import org.sonar.javascript.parser.EcmaScriptGrammar;
 import org.sonar.squidbridge.checks.SquidCheck;
 import org.sonar.sslr.grammar.GrammarRuleKey;
@@ -93,7 +94,7 @@ public class ExpressionComplexityCheck extends SquidCheck<LexerlessGrammar> {
 
   @Override
   public void init() {
-    subscribeTo(EcmaScriptGrammar.FUNCTION_EXPRESSION);
+    subscribeTo(Kind.FUNCTION_EXPRESSION);
     subscribeTo(EXPRESSIONS);
     subscribeTo(LOGICAL_AND_CONDITIONAL_EXPRS);
   }
@@ -110,7 +111,7 @@ public class ExpressionComplexityCheck extends SquidCheck<LexerlessGrammar> {
           EcmaScriptPunctuator.ANDAND,
           EcmaScriptPunctuator.QUERY).size());
     }
-    if (astNode.is(EcmaScriptGrammar.FUNCTION_EXPRESSION)) {
+    if (astNode.is(Kind.FUNCTION_EXPRESSION)) {
       statementLevel.add(new ExpressionComplexity());
     }
   }
@@ -129,7 +130,7 @@ public class ExpressionComplexityCheck extends SquidCheck<LexerlessGrammar> {
         }
         currentExpression.resetExprOperatorCounter();
       }
-    } else if (astNode.is(EcmaScriptGrammar.FUNCTION_EXPRESSION)) {
+    } else if (astNode.is(Kind.FUNCTION_EXPRESSION)) {
       statementLevel.remove(statementLevel.size() - 1);
     }
 

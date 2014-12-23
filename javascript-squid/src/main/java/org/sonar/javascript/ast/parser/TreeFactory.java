@@ -58,6 +58,7 @@ import org.sonar.javascript.model.implementations.statement.VariableStatementTre
 import org.sonar.javascript.model.implementations.statement.WhileStatementTreeImpl;
 import org.sonar.javascript.model.implementations.statement.WithStatementTreeImpl;
 import org.sonar.javascript.model.interfaces.Tree.Kind;
+import org.sonar.javascript.model.interfaces.expression.FunctionExpressionTree;
 import org.sonar.javascript.model.interfaces.statement.StatementTree;
 import org.sonar.javascript.model.interfaces.statement.SwitchClauseTree;
 import org.sonar.javascript.parser.sslr.Optional;
@@ -473,6 +474,39 @@ public class TreeFactory {
 
   public LiteralTreeImpl regexpLiteral(AstNode regexpToken) {
     return new LiteralTreeImpl(Kind.REGULAR_EXPRESSION_LITERAL, InternalSyntaxToken.create(regexpToken));
+  }
+
+  public FunctionExpressionTreeImpl functionExpression(AstNode functionKeyword, Optional<AstNode> functionName, AstNode openParenthesis, Optional<AstNode> parameters, AstNode closeParenthesis, AstNode openCurlyBrace, AstNode functionBody, AstNode closeCurlyBrace) {
+    ImmutableList.Builder<AstNode> children = ImmutableList.builder();
+    InternalSyntaxToken functionToken = InternalSyntaxToken.create(functionKeyword);
+    InternalSyntaxToken openParenToken = InternalSyntaxToken.create(openParenthesis);
+    InternalSyntaxToken closeParenToken = InternalSyntaxToken.create(closeParenthesis);
+    InternalSyntaxToken openCurlyToken = InternalSyntaxToken.create(openCurlyBrace);
+    InternalSyntaxToken closeCurlyToken = InternalSyntaxToken.create(closeCurlyBrace);
+
+
+    if (functionName.isPresent()) {
+      IdentifierTreeImpl name = new IdentifierTreeImpl(InternalSyntaxToken.create(functionName.get()));
+      children.add(functionToken, name, openParenToken);
+      // FIXME to remove when FORMAL_PARAMETER_LIST migrated
+      if (parameters.isPresent()) {
+        children.add(parameters.get());
+      }
+      children.add(closeParenthesis, openCurlyBrace, functionBody, closeCurlyBrace);
+
+      return new FunctionExpressionTreeImpl(Kind.FUNCTION_EXPRESSION,
+        functionToken, name, openParenToken, null /*FIXME with list of parameters*/, closeParenToken, openCurlyToken, closeCurlyToken, children.build());
+    }
+
+    children.add(functionToken, openParenToken);
+    // FIXME to remove when FORMAL_PARAMETER_LIST migrated
+    if (parameters.isPresent()) {
+      children.add(parameters.get());
+    }
+    children.add(closeParenthesis, openCurlyBrace, functionBody, closeCurlyBrace);
+
+    return new FunctionExpressionTreeImpl(Kind.FUNCTION_EXPRESSION,
+      functionToken, openParenToken, null /*FIXME with list of parameters*/, closeParenToken, openCurlyToken, closeCurlyToken, children.build());
   }
 
 

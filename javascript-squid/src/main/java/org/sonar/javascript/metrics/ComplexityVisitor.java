@@ -34,7 +34,7 @@ public class ComplexityVisitor extends SquidAstVisitor<LexerlessGrammar> {
     subscribeTo(
         // Functions
         EcmaScriptGrammar.FUNCTION_DECLARATION,
-        EcmaScriptGrammar.FUNCTION_EXPRESSION,
+        Kind.FUNCTION_EXPRESSION,
         EcmaScriptGrammar.METHOD,
         EcmaScriptGrammar.GENERATOR_METHOD,
         Kind.GENERATOR_FUNCTION_EXPRESSION,

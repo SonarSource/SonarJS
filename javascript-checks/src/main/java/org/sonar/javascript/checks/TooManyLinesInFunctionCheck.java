@@ -49,7 +49,7 @@ public class TooManyLinesInFunctionCheck extends SquidCheck<LexerlessGrammar> {
       EcmaScriptGrammar.GENERATOR_DECLARATION,
       Kind.GENERATOR_FUNCTION_EXPRESSION,
       EcmaScriptGrammar.FUNCTION_DECLARATION,
-      EcmaScriptGrammar.FUNCTION_EXPRESSION);
+      Kind.FUNCTION_EXPRESSION);
   }
 
   @Override
@@ -65,7 +65,7 @@ public class TooManyLinesInFunctionCheck extends SquidCheck<LexerlessGrammar> {
     AstNode rcurly = functionDec.getFirstChild(EcmaScriptPunctuator.RCURLYBRACE);
     AstNode nextAstNode = rcurly.getNextAstNode();
 
-    return functionDec.is(Kind.GENERATOR_FUNCTION_EXPRESSION, EcmaScriptGrammar.FUNCTION_EXPRESSION)
+    return functionDec.is(Kind.GENERATOR_FUNCTION_EXPRESSION, Kind.FUNCTION_EXPRESSION)
       && (nextAstNode.is(EcmaScriptGrammar.ARGUMENTS) || nextAstNode.is(EcmaScriptPunctuator.RPARENTHESIS) && nextAstNode.getNextAstNode().is(EcmaScriptGrammar.ARGUMENTS));
   }
 

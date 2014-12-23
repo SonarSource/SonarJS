@@ -432,6 +432,18 @@ public class ActionGrammar {
         b.invokeRule(EcmaScriptPunctuator.RCURLYBRACE)));
   }
 
+  public FunctionExpressionTreeImpl FUNCTION_EXPRESSION() {
+    return b.<FunctionExpressionTreeImpl>nonterminal(Kind.FUNCTION_EXPRESSION)
+      .is(f.functionExpression(
+        b.invokeRule(EcmaScriptKeyword.FUNCTION),
+        b.optional(b.invokeRule(EcmaScriptTokenType.IDENTIFIER)),
+        b.invokeRule(EcmaScriptPunctuator.LPARENTHESIS),
+        b.optional(b.invokeRule(EcmaScriptGrammar.FORMAL_PARAMETER_LIST)),
+        b.invokeRule(EcmaScriptPunctuator.RPARENTHESIS),
+        b.invokeRule(EcmaScriptPunctuator.LCURLYBRACE),
+        b.invokeRule(EcmaScriptGrammar.FUNCTION_BODY),
+        b.invokeRule(EcmaScriptPunctuator.RCURLYBRACE)));
+  }
 
   /**
    * A.3 [END] Expressions

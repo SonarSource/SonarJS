@@ -80,7 +80,7 @@ public class UnusedFunctionArgumentCheck extends SquidCheck<LexerlessGrammar> {
   }
 
   private static final GrammarRuleKey[] FUNCTION_NODES = {
-    EcmaScriptGrammar.FUNCTION_EXPRESSION,
+    Kind.FUNCTION_EXPRESSION,
     EcmaScriptGrammar.FUNCTION_DECLARATION,
     Kind.GENERATOR_FUNCTION_EXPRESSION,
     EcmaScriptGrammar.GENERATOR_DECLARATION};

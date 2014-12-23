@@ -99,6 +99,54 @@ public class FunctionExpressionTreeImpl extends JavaScriptTree implements Functi
     }
   }
 
+  /**
+   * Constructor for named function expression and function declaration
+   */
+  public FunctionExpressionTreeImpl(Kind kind, InternalSyntaxToken functionKeyword, IdentifierTreeImpl name, InternalSyntaxToken openParenthesis,
+    SeparatedList<ExpressionTree> parameters, InternalSyntaxToken closeParenthesis, InternalSyntaxToken openCurlyBrace, InternalSyntaxToken closeCurlyBrace,
+    ImmutableList<AstNode> children) {
+
+    super(kind);
+    this.functionKeyword = functionKeyword;
+    this.star = null;
+    this.name = name;
+    this.openParenthesis = openParenthesis;
+    this.parameters = parameters;
+    this.closeParenthesis = closeParenthesis;
+    this.openCurlyBrace = openCurlyBrace;
+    this.closeCurlyBrace = closeCurlyBrace;
+
+    this.kind = kind;
+
+    for (AstNode child : children) {
+      addChild(child);
+    }
+  }
+
+  /**
+   * Constructor for NOT named function expression
+   */
+  public FunctionExpressionTreeImpl(Kind kind, InternalSyntaxToken functionKeyword, InternalSyntaxToken openParenthesis,
+    SeparatedList<ExpressionTree> parameters, InternalSyntaxToken closeParenthesis, InternalSyntaxToken openCurlyBrace,
+    InternalSyntaxToken closeCurlyBrace, ImmutableList<AstNode> children) {
+
+    super(kind);
+    this.functionKeyword = functionKeyword;
+    this.star = null;
+    this.name = null;
+    this.openParenthesis = openParenthesis;
+    this.parameters = parameters;
+    this.closeParenthesis = closeParenthesis;
+    this.openCurlyBrace = openCurlyBrace;
+    this.closeCurlyBrace = closeCurlyBrace;
+
+    this.kind = kind;
+
+    for (AstNode child : children) {
+      addChild(child);
+    }
+  }
+
   @Override
   public SyntaxToken keyword() {
     return functionKeyword;

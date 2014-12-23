@@ -61,7 +61,7 @@ public class TooManyBreakOrContinueInLoopCheck extends SquidCheck<LexerlessGramm
   private Stack<JumpTarget> jumpTargets;
 
   private static final GrammarRuleKey[] FUNCTION_NODES = {
-    EcmaScriptGrammar.FUNCTION_EXPRESSION,
+    Kind.FUNCTION_EXPRESSION,
     EcmaScriptGrammar.FUNCTION_DECLARATION,
     EcmaScriptGrammar.GENERATOR_DECLARATION,
     Kind.GENERATOR_FUNCTION_EXPRESSION};

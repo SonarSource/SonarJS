@@ -17,32 +17,21 @@
  * License along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.javascript.checks;
+package org.sonar.javascript.parser.grammar.expressions;
 
-import com.sonar.sslr.api.AstNode;
-import org.sonar.check.BelongsToProfile;
-import org.sonar.check.Priority;
-import org.sonar.check.Rule;
+import org.junit.Test;
 import org.sonar.javascript.model.interfaces.Tree.Kind;
-import org.sonar.squidbridge.checks.SquidCheck;
-import org.sonar.sslr.parser.LexerlessGrammar;
+import static org.sonar.javascript.sslr.tests.Assertions.assertThat;
 
-@Rule(
-  key = "NamedFunctionExpression",
-  priority = Priority.MAJOR)
-@BelongsToProfile(title = CheckList.SONAR_WAY_PROFILE, priority = Priority.MAJOR)
-public class NamedFunctionExpressionCheck extends SquidCheck<LexerlessGrammar> {
+public class FunctionExpressionTest {
 
-  @Override
-  public void init() {
-    subscribeTo(Kind.FUNCTION_EXPRESSION);
-  }
-
-  @Override
-  public void visitNode(AstNode astNode) {
-    if (astNode.getFirstChild(Kind.IDENTIFIER) != null) {
-      getContext().createLineViolation(this, "Make this function anonymous by removing its name: 'function() {...}'.", astNode);
-    }
+  @Test
+  public void ok() {
+    assertThat(Kind.FUNCTION_EXPRESSION)
+      .matches("function () {}")
+      .matches("function f() {}")
+      .matches("function (p1, p2) {}")
+      .matches("function f (p1, p2) {}");
   }
 
 }

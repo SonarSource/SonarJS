@@ -38,7 +38,7 @@ public class CheckUtils {
     Kind.FOR_STATEMENT);
 
   public static final ImmutableSet<AstNodeType> FUNCTION_NODES = ImmutableSet.<AstNodeType>of(
-    EcmaScriptGrammar.FUNCTION_EXPRESSION,
+    Kind.FUNCTION_EXPRESSION,
     EcmaScriptGrammar.FUNCTION_DECLARATION,
     EcmaScriptGrammar.METHOD,
     EcmaScriptGrammar.GENERATOR_METHOD,

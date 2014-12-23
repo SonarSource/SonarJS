@@ -41,7 +41,7 @@ import java.util.List;
 public class BoundOrAssignedEvalOrArgumentsCheck extends SquidCheck<LexerlessGrammar> {
 
   private static final GrammarRuleKey[] FUNCTION_NODES = {
-    EcmaScriptGrammar.FUNCTION_EXPRESSION,
+    Kind.FUNCTION_EXPRESSION,
     EcmaScriptGrammar.FUNCTION_DECLARATION,
     EcmaScriptGrammar.GENERATOR_DECLARATION,
     Kind.GENERATOR_FUNCTION_EXPRESSION};
@@ -81,7 +81,7 @@ public class BoundOrAssignedEvalOrArgumentsCheck extends SquidCheck<LexerlessGra
   }
 
   private void checkFunction(AstNode functionNode) {
-    AstNode identifier = functionNode.getFirstChild(EcmaScriptTokenType.IDENTIFIER);
+    AstNode identifier = functionNode.getFirstChild(EcmaScriptTokenType.IDENTIFIER, Kind.IDENTIFIER);
     if (identifier != null && isEvalOrArguments(identifier.getTokenValue())) {
       getContext().createLineViolation(this, createMessageFor("function", identifier.getTokenValue()), identifier);
     }

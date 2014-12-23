@@ -286,7 +286,7 @@ public interface Tree {
 
     /**
      * {@link FunctionExpressionTree}
-     * {@code function * () {}}
+     * {@code function () {}}
      */
     FUNCTION_EXPRESSION(FunctionExpressionTree.class),
 
