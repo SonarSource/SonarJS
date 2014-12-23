@@ -20,12 +20,12 @@
 package org.sonar.javascript.model.interfaces;
 
 import com.sonar.sslr.api.AstNodeType;
+import org.sonar.javascript.model.interfaces.expression.FunctionTree;
 import org.sonar.javascript.model.interfaces.expression.ArrayLiteralTree;
 import org.sonar.javascript.model.interfaces.expression.ArrowFunctionTree;
 import org.sonar.javascript.model.interfaces.expression.AssignmentExpressionTree;
 import org.sonar.javascript.model.interfaces.expression.BinaryExpressionTree;
 import org.sonar.javascript.model.interfaces.expression.ExpressionTree;
-import org.sonar.javascript.model.interfaces.expression.FunctionExpressionTree;
 import org.sonar.javascript.model.interfaces.expression.IdentifierTree;
 import org.sonar.javascript.model.interfaces.expression.LiteralTree;
 import org.sonar.javascript.model.interfaces.expression.MemberExpressionTree;
@@ -255,40 +255,16 @@ public interface Tree {
     PAIR_PROPERTY(PairPropertyTree.class),
 
     /**
-     * {@link FunctionExpressionTree}
-     * {@code * name () {}}
-     */
-    METHOD_GENERATOR(FunctionExpressionTree.class),
-
-    /**
-     * {@link FunctionExpressionTree}
-     * {@code name() {}}
-     */
-    METHOD(FunctionExpressionTree.class),
-
-    /**
-     * {@link FunctionExpressionTree}
-     * {@code set name (val) {}}
-     */
-    METHOD_SETTER(FunctionExpressionTree.class),
-
-    /**
-     * {@link FunctionExpressionTree}
-     * {@code get name () {}}
-     */
-    METHOD_GETTER(FunctionExpressionTree.class),
-
-    /**
-     * {@link FunctionExpressionTree}
+     * {@link FunctionTree}
      * {@code function * () {}}
      */
-    GENERATOR_FUNCTION_EXPRESSION(FunctionExpressionTree.class),
+    GENERATOR_FUNCTION_EXPRESSION(FunctionTree.class),
 
     /**
-     * {@link FunctionExpressionTree}
+     * {@link FunctionTree}
      * {@code function () {}}
      */
-    FUNCTION_EXPRESSION(FunctionExpressionTree.class),
+    FUNCTION_EXPRESSION(FunctionTree.class),
 
     /**
      * {@link ArrowFunctionTree}
@@ -603,9 +579,14 @@ public interface Tree {
     REST_ELEMENT(RestElementTree.class),
 
     /**
-     * {@link ExpressionTree}
+     * {@link FunctionTree}
      */
-    TEMPORARY_EXPRESSION(ExpressionTree.class),
+    FUNCTION_DECLARATION(FunctionTree.class),
+
+    /**
+     * {@link FunctionTree}
+     */
+    GENERATOR_FUNCTION_DECLARATION(FunctionTree.class),
 
     TYPEOF(UnaryExpressionTree.class),
 

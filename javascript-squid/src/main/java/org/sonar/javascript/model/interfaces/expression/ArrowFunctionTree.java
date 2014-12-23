@@ -19,25 +19,40 @@
  */
 package org.sonar.javascript.model.interfaces.expression;
 
-import org.sonar.javascript.model.interfaces.declaration.FunctionTree;
+import org.sonar.javascript.model.implementations.SeparatedList;
 import org.sonar.javascript.model.interfaces.lexical.SyntaxToken;
+import org.sonar.javascript.model.interfaces.Tree;
+import org.sonar.javascript.model.interfaces.statement.BlockTree;
+
+import javax.annotation.Nullable;
 
 /**
  * ECMAScript 6 feature
- * <p/>
- * Common interface for all types of <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-arrow-function-definitions">Function</a>.
- * <p/>
+ * <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-arrow-function-definitions">Arrow function</a>.
+ * <p>
+ *   Arrow function definition ({@link Tree.Kind#ARROW_FUNCTION}):
  * <pre>
- *   {@link #parameters()} => { {@link #statements()} }
- *   {@link #parameters()} => {@link #statements()}
- *   ( {@link #parameters()} ) => { {@link #statements()} }
- *   ( {@link #parameters()} ) => {@link #statements()}
+ *   {@link #parameters()} => {@link #conciseBody()}
+ *   ( {@link #parameters()} ) => {@link #conciseBody()}
  * </pre>
- * <p/>
+ * </p>
  * <p>This interface is not intended to be implemented by clients.</p>
  */
-public interface ArrowFunctionTree extends FunctionTree {
+public interface ArrowFunctionTree extends ExpressionTree {
+
+  @Nullable
+  SyntaxToken openParenthesis();
+
+  SeparatedList<ExpressionTree> parameters();
+
+  @Nullable
+  SyntaxToken closeParenthesis();
 
   SyntaxToken doubleArrow();
+
+  /**
+   * Either {@link BlockTree} or {@link ExpressionTree}
+   */
+  Tree conciseBody();
 
 }

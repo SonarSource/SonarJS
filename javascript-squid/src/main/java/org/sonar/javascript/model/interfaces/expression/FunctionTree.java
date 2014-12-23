@@ -17,7 +17,7 @@
  * License along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.javascript.model.interfaces.declaration;
+package org.sonar.javascript.model.interfaces.expression;
 
 import org.sonar.javascript.model.implementations.SeparatedList;
 import org.sonar.javascript.model.interfaces.Tree;
@@ -28,22 +28,51 @@ import org.sonar.javascript.model.interfaces.lexical.SyntaxToken;
 import javax.annotation.Nullable;
 import java.util.List;
 
+
 /**
- * Common interface for functions.
- *
- * <a href="http://www.ecma-international.org/ecma-262/5.1/#sec-13">Function Definition</a>.
- * <a href="http://www.ecma-international.org/ecma-262/5.1/#sec-11.2.5">Function Expression</a>.
- * <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-arrow-function-definitions">Arrow Function Definition - ES6</a>.
- * <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-generator-function-definitions">Generator Function Definition - ES6</a>.
- * <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-method-definitions">Method Definition - ES6</a>.
+ * <a href="http://www.ecma-international.org/ecma-262/5.1/#sec-13">Function declaration</a>,
+ * <a href="http://www.ecma-international.org/ecma-262/5.1/#sec-11.2.5">Function expression</a>,
+ * <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-generator-function-definitions">Generator function declaration - ES6</a>,
+ * <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-generator-function-definitions">Generator function expression - ES6</a>.
  * <p/>
  *
- * <p>This interface is not intended to be implemented by clients.</p>
+ * <p>
+ * Function declaration ({@link Tree.Kind#FUNCTION_DECLARATION}):
+ * <pre>
+ *    function {@link #name()} ( {@link #parameters()} ) {
+ *      {@link #statements()}
+ *    }
+ * </pre>
+ * Function expression ({@link Tree.Kind#FUNCTION_EXPRESSION}):
+ * <pre>
+ *    function {@link #name()} ( {@link #parameters()} ) {
+ *      {@link #statements()}
+ *    }
+ *    function ( {@link #parameters()} ) {
+ *      {@link #statements()}
+ *    }
+ * </pre>
+ * Generator function declaration ({@link Tree.Kind#GENERATOR_FUNCTION_DECLARATION}):
+ * <pre>
+ *    function * {@link #name()} ( {@link #parameters()} ) {
+ *      {@link #statements()}
+ *    }
+ * </pre>
+ * Generator function expression ({@link Tree.Kind#GENERATOR_FUNCTION_EXPRESSION}):
+ * <pre>
+ *    function * {@link #name()} ( {@link #parameters()} ) {
+ *      {@link #statements()}
+ *    }
+ *    function * ( {@link #parameters()} ) {
+ *      {@link #statements()}
+ *    }
+ * </pre>
+ * </p>
+ *
  */
 public interface FunctionTree extends ExpressionTree {
 
-  @Nullable
-  SyntaxToken keyword();
+  SyntaxToken functionKeyword();
 
   @Nullable
   SyntaxToken star();
@@ -51,20 +80,16 @@ public interface FunctionTree extends ExpressionTree {
   @Nullable
   IdentifierTree name();
 
-  @Nullable
   SyntaxToken openParenthesis();
 
   SeparatedList<ExpressionTree> parameters();
 
-  @Nullable
   SyntaxToken closeParenthesis();
 
-  @Nullable
   SyntaxToken openCurlyBrace();
 
   <T extends Tree> List<T> statements();
 
-  @Nullable
   SyntaxToken closeCurlyBrace();
 
 }

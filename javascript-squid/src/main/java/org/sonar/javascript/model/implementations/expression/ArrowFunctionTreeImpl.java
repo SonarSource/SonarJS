@@ -42,45 +42,22 @@ public class ArrowFunctionTreeImpl extends JavaScriptTree implements ArrowFuncti
   private final SeparatedList<ExpressionTree> parameters;
   @Nullable
   private final SyntaxToken closeParenthesis;
-  @Nullable
-  private final SyntaxToken openCurlyBrace;
-  private final List statements;
-  @Nullable
-  private final SyntaxToken closeCurlyBrace;
-  private final Kind kind;
+  private final SyntaxToken doubleArrow;
+  private final Tree body;
 
-  public ArrowFunctionTreeImpl(InternalSyntaxToken openParenthesis, SeparatedList<ExpressionTree> parameters, InternalSyntaxToken closeParenthesis, InternalSyntaxToken openCurlyBrace, List statements, InternalSyntaxToken closeCurlyBrace, List<AstNode> children) {
+  public ArrowFunctionTreeImpl(InternalSyntaxToken openParenthesis, SeparatedList<ExpressionTree> parameters, InternalSyntaxToken closeParenthesis,
+    InternalSyntaxToken doubleArrow, Tree body, List<AstNode> children) {
+
     super(Kind.ARROW_FUNCTION);
     this.openParenthesis = openParenthesis;
     this.parameters = parameters;
     this.closeParenthesis = closeParenthesis;
-    this.openCurlyBrace = openCurlyBrace;
-    this.statements = statements;
-    this.closeCurlyBrace = closeCurlyBrace;
-
-    this.kind = Kind.FUNCTION_EXPRESSION;
+    this.doubleArrow = doubleArrow;
+    this.body = body;
 
     for (AstNode child : children) {
       addChild(child);
     }
-  }
-
-  @Nullable
-  @Override
-  public SyntaxToken keyword() {
-    return null;
-  }
-
-  @Nullable
-  @Override
-  public SyntaxToken star() {
-    return null;
-  }
-
-  @Nullable
-  @Override
-  public IdentifierTree name() {
-    return null;
   }
 
   @Nullable
@@ -100,24 +77,14 @@ public class ArrowFunctionTreeImpl extends JavaScriptTree implements ArrowFuncti
     return closeParenthesis;
   }
 
-  @Nullable
   @Override
-  public SyntaxToken openCurlyBrace() {
-    return openCurlyBrace;
+  public SyntaxToken doubleArrow() {
+    return doubleArrow;
   }
 
-  /**
-   * Returns list of statements if body is a block, list of expression otherwise
-   */
   @Override
-  public <T extends Tree> List<T> statements() {
-    return statements;
-  }
-
-  @Nullable
-  @Override
-  public SyntaxToken closeCurlyBrace() {
-    return closeCurlyBrace;
+  public Tree conciseBody() {
+    return body;
   }
 
   @Override
@@ -127,11 +94,6 @@ public class ArrowFunctionTreeImpl extends JavaScriptTree implements ArrowFuncti
 
   @Override
   public Iterator<Tree> childrenIterator() {
-    return Iterators.concat(parameters.iterator(), statements.iterator());
-  }
-
-  @Override
-  public SyntaxToken doubleArrow() {
-    return null;
+    return Iterators.emptyIterator();
   }
 }
