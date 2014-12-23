@@ -24,6 +24,7 @@ import org.sonar.check.BelongsToProfile;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.javascript.checks.utils.CheckUtils;
+import org.sonar.javascript.model.interfaces.Tree;
 import org.sonar.javascript.parser.EcmaScriptGrammar;
 import org.sonar.squidbridge.checks.SquidCheck;
 import org.sonar.sslr.parser.LexerlessGrammar;
@@ -45,7 +46,7 @@ public class FunctionDefinitionInsideLoopCheck extends SquidCheck<LexerlessGramm
         EcmaScriptGrammar.ITERATION_STATEMENT,
         EcmaScriptGrammar.FUNCTION_EXPRESSION,
         EcmaScriptGrammar.FUNCTION_DECLARATION,
-        EcmaScriptGrammar.GENERATOR_EXPRESSION,
+        Tree.Kind.GENERATOR_FUNCTION_EXPRESSION,
         EcmaScriptGrammar.GENERATOR_DECLARATION);
   }
 

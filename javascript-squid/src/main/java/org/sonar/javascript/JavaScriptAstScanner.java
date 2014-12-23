@@ -56,7 +56,7 @@ public final class JavaScriptAstScanner {
       EcmaScriptGrammar.FUNCTION_EXPRESSION,
       EcmaScriptGrammar.METHOD,
       EcmaScriptGrammar.GENERATOR_METHOD,
-      EcmaScriptGrammar.GENERATOR_EXPRESSION,
+      Kind.GENERATOR_FUNCTION_EXPRESSION,
       EcmaScriptGrammar.GENERATOR_DECLARATION};
 
   private JavaScriptAstScanner() {

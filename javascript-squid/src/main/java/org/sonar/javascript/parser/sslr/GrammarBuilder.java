@@ -20,6 +20,7 @@
 package org.sonar.javascript.parser.sslr;
 
 import com.sonar.sslr.api.AstNode;
+import org.sonar.javascript.model.implementations.expression.RestElementTreeImpl;
 import org.sonar.sslr.grammar.GrammarRuleKey;
 
 import java.util.List;

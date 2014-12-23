@@ -179,7 +179,7 @@ public class MethodTreeImpl extends JavaScriptTree implements FunctionTree, Expr
 
   @Override
   public Iterator<Tree> childrenIterator() {
-    return Iterators.concat(Iterators.singletonIterator(name), parameters.iterator(), statements.iterator());
+    return Iterators.<Tree>singletonIterator(name);
   }
 
 }

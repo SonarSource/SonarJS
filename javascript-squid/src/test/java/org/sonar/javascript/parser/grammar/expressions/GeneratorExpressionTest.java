@@ -20,16 +20,15 @@
 package org.sonar.javascript.parser.grammar.expressions;
 
 import org.junit.Test;
-import org.sonar.javascript.parser.EcmaScriptGrammar;
+import org.sonar.javascript.model.interfaces.Tree;
 
 import static org.sonar.javascript.sslr.tests.Assertions.assertThat;
 
 public class GeneratorExpressionTest {
 
-
   @Test
   public void ok() {
-    assertThat(EcmaScriptGrammar.GENERATOR_EXPRESSION)
+    assertThat(Tree.Kind.GENERATOR_FUNCTION_EXPRESSION)
       .matches("function * () {}")
       .matches("function * f() {}")
       .matches("function * (p1, p2) {}")

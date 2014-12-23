@@ -20,10 +20,14 @@
 package org.sonar.javascript.ast.parser;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.sonar.sslr.api.AstNode;
 import com.sonar.sslr.api.AstNodeType;
+import org.apache.commons.collections.ListUtils;
+import org.sonar.javascript.model.implementations.SeparatedList;
 import org.sonar.javascript.model.implementations.expression.ArrayLiteralTreeImpl;
+import org.sonar.javascript.model.implementations.expression.FunctionExpressionTreeImpl;
 import org.sonar.javascript.model.implementations.expression.IdentifierTreeImpl;
 import org.sonar.javascript.model.implementations.expression.LiteralTreeImpl;
 import org.sonar.javascript.model.implementations.expression.RestElementTreeImpl;
@@ -416,6 +420,41 @@ public class TreeFactory {
     return astNode;
   }
 
+
+  public FunctionExpressionTreeImpl generatorExpression(AstNode functionKeyword, AstNode starOperator, Optional<AstNode> functionName, AstNode openParenthesis, Optional<AstNode> parameters, AstNode closeParenthesis, AstNode openCurlyBrace, AstNode functionBody, AstNode closeCurlyBrace) {
+    ImmutableList.Builder<AstNode> children = ImmutableList.builder();
+    InternalSyntaxToken functionToken = InternalSyntaxToken.create(functionKeyword);
+    InternalSyntaxToken starToken = InternalSyntaxToken.create(starOperator);
+    InternalSyntaxToken openParenToken = InternalSyntaxToken.create(openParenthesis);
+    InternalSyntaxToken closeParenToken = InternalSyntaxToken.create(closeParenthesis);
+    InternalSyntaxToken openCurlyToken = InternalSyntaxToken.create(openCurlyBrace);
+    InternalSyntaxToken closeCurlyToken = InternalSyntaxToken.create(closeCurlyBrace);
+
+
+    if (functionName.isPresent()) {
+      IdentifierTreeImpl name = new IdentifierTreeImpl(InternalSyntaxToken.create(functionName.get()));
+      children.add(functionToken, starToken, name, openParenToken);
+      // FIXME to remove when FORMAL_PARAMETER_LIST migrated
+      if (parameters.isPresent()) {
+        children.add(parameters.get());
+      }
+      children.add(closeParenthesis, openCurlyBrace, functionBody, closeCurlyBrace);
+
+      return new FunctionExpressionTreeImpl(Kind.GENERATOR_FUNCTION_EXPRESSION,
+        functionToken, starToken, name, openParenToken, null /*FIXME with list of parameters*/, closeParenToken, openCurlyToken, closeCurlyToken, children.build());
+    }
+
+    children.add(functionToken, starToken, openParenToken);
+    // FIXME to remove when FORMAL_PARAMETER_LIST migrated
+    if (parameters.isPresent()) {
+      children.add(parameters.get());
+    }
+    children.add(closeParenthesis, openCurlyBrace, functionBody, closeCurlyBrace);
+
+    return new FunctionExpressionTreeImpl(Kind.GENERATOR_FUNCTION_EXPRESSION,
+    functionToken, starToken, openParenToken, null /*FIXME with list of parameters*/, closeParenToken, openCurlyToken, closeCurlyToken, children.build());
+  }
+
   public LiteralTreeImpl nullLiteral(AstNode nullToken) {
     return new LiteralTreeImpl(Kind.NULL_LITERAL, InternalSyntaxToken.create(nullToken));
   }
@@ -498,6 +537,14 @@ public class TreeFactory {
   }
 
   public <T, U> Tuple<T, U> newTuple3(T first, U second) {
+    return newTuple(first, second);
+  }
+
+  public <T, U> Tuple<T, U> newTuple4(T first, U second) {
+    return newTuple(first, second);
+  }
+
+  public <T, U> Tuple<T, U> newTuple5(T first, U second) {
     return newTuple(first, second);
   }
 

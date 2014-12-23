@@ -25,6 +25,7 @@ import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
 import org.sonar.javascript.api.EcmaScriptPunctuator;
+import org.sonar.javascript.model.interfaces.Tree.Kind;
 import org.sonar.javascript.parser.EcmaScriptGrammar;
 import org.sonar.squidbridge.checks.SquidCheck;
 import org.sonar.sslr.parser.LexerlessGrammar;
@@ -46,7 +47,7 @@ public class TooManyLinesInFunctionCheck extends SquidCheck<LexerlessGrammar> {
     subscribeTo(EcmaScriptGrammar.METHOD,
       EcmaScriptGrammar.GENERATOR_METHOD,
       EcmaScriptGrammar.GENERATOR_DECLARATION,
-      EcmaScriptGrammar.GENERATOR_EXPRESSION,
+      Kind.GENERATOR_FUNCTION_EXPRESSION,
       EcmaScriptGrammar.FUNCTION_DECLARATION,
       EcmaScriptGrammar.FUNCTION_EXPRESSION);
   }
@@ -64,7 +65,7 @@ public class TooManyLinesInFunctionCheck extends SquidCheck<LexerlessGrammar> {
     AstNode rcurly = functionDec.getFirstChild(EcmaScriptPunctuator.RCURLYBRACE);
     AstNode nextAstNode = rcurly.getNextAstNode();
 
-    return functionDec.is(EcmaScriptGrammar.GENERATOR_EXPRESSION, EcmaScriptGrammar.FUNCTION_EXPRESSION)
+    return functionDec.is(Kind.GENERATOR_FUNCTION_EXPRESSION, EcmaScriptGrammar.FUNCTION_EXPRESSION)
       && (nextAstNode.is(EcmaScriptGrammar.ARGUMENTS) || nextAstNode.is(EcmaScriptPunctuator.RPARENTHESIS) && nextAstNode.getNextAstNode().is(EcmaScriptGrammar.ARGUMENTS));
   }
 

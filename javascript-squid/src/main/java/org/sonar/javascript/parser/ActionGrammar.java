@@ -24,8 +24,11 @@ import org.sonar.javascript.api.EcmaScriptKeyword;
 import org.sonar.javascript.api.EcmaScriptPunctuator;
 import org.sonar.javascript.api.EcmaScriptTokenType;
 import org.sonar.javascript.ast.parser.TreeFactory;
+import org.sonar.javascript.model.implementations.SeparatedList;
 import org.sonar.javascript.model.implementations.expression.ArrayLiteralTreeImpl;
+import org.sonar.javascript.model.implementations.expression.FunctionExpressionTreeImpl;
 import org.sonar.javascript.model.implementations.expression.LiteralTreeImpl;
+import org.sonar.javascript.model.implementations.expression.RestElementTreeImpl;
 import org.sonar.javascript.model.implementations.statement.BlockTreeImpl;
 import org.sonar.javascript.model.implementations.statement.BreakStatementTreeImpl;
 import org.sonar.javascript.model.implementations.statement.CaseClauseTreeImpl;
@@ -414,6 +417,21 @@ public class ActionGrammar {
             f.newArrayLiteralWithElidedElements(b.oneOrMore(b.invokeRule(EcmaScriptPunctuator.COMMA))))),
         b.invokeRule(EcmaScriptPunctuator.RBRACKET)));
   }
+
+  public FunctionExpressionTreeImpl GENERATOR_EXPRESSION() {
+    return b.<FunctionExpressionTreeImpl>nonterminal(Kind.GENERATOR_FUNCTION_EXPRESSION)
+      .is(f.generatorExpression(
+        b.invokeRule(EcmaScriptKeyword.FUNCTION),
+        b.invokeRule(EcmaScriptPunctuator.STAR),
+        b.optional(b.invokeRule(EcmaScriptGrammar.BINDING_IDENTIFIER)),
+        b.invokeRule(EcmaScriptPunctuator.LPARENTHESIS),
+        b.optional(b.invokeRule(EcmaScriptGrammar.FORMAL_PARAMETER_LIST)),
+        b.invokeRule(EcmaScriptPunctuator.RPARENTHESIS),
+        b.invokeRule(EcmaScriptPunctuator.LCURLYBRACE),
+        b.invokeRule(EcmaScriptGrammar.FUNCTION_BODY),
+        b.invokeRule(EcmaScriptPunctuator.RCURLYBRACE)));
+  }
+
 
   /**
    * A.3 [END] Expressions

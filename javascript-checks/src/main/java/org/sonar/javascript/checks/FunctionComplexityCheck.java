@@ -25,6 +25,7 @@ import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
 import org.sonar.javascript.api.EcmaScriptMetric;
+import org.sonar.javascript.model.interfaces.Tree;
 import org.sonar.javascript.parser.EcmaScriptGrammar;
 import org.sonar.squidbridge.api.SourceFunction;
 import org.sonar.squidbridge.checks.SquidCheck;
@@ -49,7 +50,7 @@ public class FunctionComplexityCheck extends SquidCheck<LexerlessGrammar> {
       EcmaScriptGrammar.METHOD,
       EcmaScriptGrammar.GENERATOR_METHOD,
       EcmaScriptGrammar.GENERATOR_DECLARATION,
-      EcmaScriptGrammar.GENERATOR_EXPRESSION,
+      Tree.Kind.GENERATOR_FUNCTION_EXPRESSION,
       EcmaScriptGrammar.FUNCTION_DECLARATION,
       EcmaScriptGrammar.FUNCTION_EXPRESSION);
   }

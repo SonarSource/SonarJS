@@ -622,7 +622,7 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
       FUNCTION_EXPRESSION,
       PARENTHESISED_EXPRESSION,
       ecmascript6(CLASS_EXPRESSION),
-      ecmascript6(GENERATOR_EXPRESSION),
+      ecmascript6(Kind.GENERATOR_FUNCTION_EXPRESSION),
       ecmascript6(TEMPLATE_LITERAL)));
 
     b.rule(PARENTHESISED_EXPRESSION).is(LPARENTHESIS, EXPRESSION, RPARENTHESIS);
@@ -646,8 +646,6 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
         b.sequence(EXPRESSION, b.optional(COMMA, REST_PARAMETER)))),
       RPARENTHESIS);
     b.rule(CLASS_EXPRESSION).is(CLASS, b.optional(BINDING_IDENTIFIER), CLASS_TAIL);
-    b.rule(GENERATOR_EXPRESSION).is(FUNCTION, STAR, b.optional(BINDING_IDENTIFIER),
-      LPARENTHESIS, b.optional(FORMAL_PARAMETER_LIST), RPARENTHESIS, LCURLYBRACE, FUNCTION_BODY, RCURLYBRACE);
 
     b.rule(ELISION).is(b.oneOrMore(COMMA));
 
