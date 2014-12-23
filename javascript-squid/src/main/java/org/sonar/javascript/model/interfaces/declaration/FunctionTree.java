@@ -40,7 +40,7 @@ import java.util.List;
  *
  * <p>This interface is not intended to be implemented by clients.</p>
  */
-public interface FunctionTree extends Tree {
+public interface FunctionTree extends ExpressionTree {
 
   @Nullable
   SyntaxToken keyword();
