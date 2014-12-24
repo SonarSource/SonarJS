@@ -58,13 +58,13 @@ public class UnusedFunctionArgumentCheck extends SquidCheck<LexerlessGrammar> {
     }
 
     private void declare(AstNode astNode) {
-      Preconditions.checkState(astNode.is(EcmaScriptTokenType.IDENTIFIER));
+      Preconditions.checkState(astNode.is(EcmaScriptTokenType.IDENTIFIER, Kind.IDENTIFIER));
       String identifier = astNode.getTokenValue();
       arguments.put(identifier, 0);
     }
 
     private void use(AstNode astNode) {
-      Preconditions.checkState(astNode.is(EcmaScriptTokenType.IDENTIFIER));
+      Preconditions.checkState(astNode.is(EcmaScriptTokenType.IDENTIFIER, Kind.IDENTIFIER));
       String identifier = astNode.getTokenValue();
       Scope scope = this;
       while (scope != null) {
@@ -90,7 +90,7 @@ public class UnusedFunctionArgumentCheck extends SquidCheck<LexerlessGrammar> {
   @Override
   public void init() {
     subscribeTo(
-      EcmaScriptGrammar.FORMAL_PARAMETER_LIST,
+      Kind.FORMAL_PARAMETER_LIST,
       EcmaScriptGrammar.PRIMARY_EXPRESSION);
     subscribeTo(FUNCTION_NODES);
   }
@@ -105,7 +105,7 @@ public class UnusedFunctionArgumentCheck extends SquidCheck<LexerlessGrammar> {
     if (astNode.is(FUNCTION_NODES)) {
       // enter new scope
       currentScope = new Scope(currentScope, astNode);
-    } else if (currentScope != null && astNode.is(EcmaScriptGrammar.FORMAL_PARAMETER_LIST)) {
+    } else if (currentScope != null && astNode.is(Kind.FORMAL_PARAMETER_LIST)) {
       declareInCurrentScope(IdentifierUtils.getParametersIdentifier(astNode));
     } else if (currentScope != null && astNode.is(EcmaScriptGrammar.PRIMARY_EXPRESSION)) {
       AstNode identifier = astNode.getFirstChild(EcmaScriptTokenType.IDENTIFIER);

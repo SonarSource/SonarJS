@@ -60,7 +60,7 @@ public class VariableShadowingCheck extends SquidCheck<LexerlessGrammar> {
     }
 
     private void declare(AstNode astNode) {
-      Preconditions.checkState(astNode.is(EcmaScriptTokenType.IDENTIFIER));
+      Preconditions.checkState(astNode.is(EcmaScriptTokenType.IDENTIFIER, Kind.IDENTIFIER));
       String identifier = astNode.getTokenValue();
       if (!declaration.containsKey(identifier)) {
         declaration.put(identifier, astNode);
@@ -79,7 +79,7 @@ public class VariableShadowingCheck extends SquidCheck<LexerlessGrammar> {
 
   @Override
   public void init() {
-    subscribeTo(EcmaScriptGrammar.FORMAL_PARAMETER_LIST);
+    subscribeTo(Kind.FORMAL_PARAMETER_LIST);
     subscribeTo(CheckUtils.functionNodesArray());
     subscribeTo(CONST_AND_VAR_NODES);
   }
@@ -98,7 +98,7 @@ public class VariableShadowingCheck extends SquidCheck<LexerlessGrammar> {
     if (CheckUtils.isFunction(astNode)) {
       // enter new scope
       currentScope = scopes.get(astNode);
-    } else if (astNode.is(EcmaScriptGrammar.FORMAL_PARAMETER_LIST)) {
+    } else if (astNode.is(Kind.FORMAL_PARAMETER_LIST)) {
       checkIdentifiers(IdentifierUtils.getParametersIdentifier(astNode));
     } else if (astNode.is(CONST_AND_VAR_NODES)) {
       checkIdentifiers(IdentifierUtils.getVariableIdentifiers(astNode));
@@ -106,7 +106,7 @@ public class VariableShadowingCheck extends SquidCheck<LexerlessGrammar> {
   }
 
   private void check(AstNode astNode) {
-    Preconditions.checkState(astNode.is(EcmaScriptTokenType.IDENTIFIER));
+    Preconditions.checkState(astNode.is(EcmaScriptTokenType.IDENTIFIER, Kind.IDENTIFIER));
     String identifier = astNode.getTokenValue();
     Scope scope = currentScope.outerScope;
     while (scope != null) {
@@ -144,7 +144,7 @@ public class VariableShadowingCheck extends SquidCheck<LexerlessGrammar> {
 
     public List<AstNodeType> getAstNodeTypesToVisit() {
       return ImmutableList.<AstNodeType>builder()
-        .add(EcmaScriptGrammar.FORMAL_PARAMETER_LIST)
+        .add(Kind.FORMAL_PARAMETER_LIST)
         .addAll(Arrays.asList(CONST_AND_VAR_NODES))
         .addAll(CheckUtils.FUNCTION_NODES).build();
     }
@@ -161,7 +161,7 @@ public class VariableShadowingCheck extends SquidCheck<LexerlessGrammar> {
         // enter new scope
         currentScope = new Scope(currentScope);
         scopes.put(astNode, currentScope);
-      } else if (astNode.is(EcmaScriptGrammar.FORMAL_PARAMETER_LIST)) {
+      } else if (astNode.is(Kind.FORMAL_PARAMETER_LIST)) {
         declareInCurrentScope(IdentifierUtils.getParametersIdentifier(astNode));
       } else if (astNode.is(CONST_AND_VAR_NODES)) {
         declareInCurrentScope(IdentifierUtils.getVariableIdentifiers(astNode));

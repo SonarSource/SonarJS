@@ -19,6 +19,8 @@
  */
 package org.sonar.javascript.model.implementations;
 
+import com.sonar.sslr.api.AstNode;
+import org.apache.commons.collections.ListUtils;
 import org.sonar.javascript.model.implementations.lexical.InternalSyntaxToken;
 
 import java.util.Collection;
@@ -30,10 +32,24 @@ public class SeparatedList<T> implements List<T> {
 
   private final List<T> list;
   private final List<InternalSyntaxToken> separators;
+  /**
+   * +   * FIXME to remove when remove use of AstNode
+   * +   * /!\ HACK: Use only to be able to pass the AstNode children to the parent in order.
+   * +   * this list is used temporary during construction of the AST. It might be empty
+   * +   * and/or not up to date.
+   * +
+   */
+  private List<AstNode> children = ListUtils.EMPTY_LIST;
 
   public SeparatedList(List<T> list, List<InternalSyntaxToken> separators) {
     this.list = list;
     this.separators = separators;
+  }
+
+  public SeparatedList(List<T> list, List<InternalSyntaxToken> separators, List<AstNode> children) {
+    this.list = list;
+    this.separators = separators;
+    this.children = children;
   }
 
   public InternalSyntaxToken getSeparator(int i) {
@@ -42,6 +58,18 @@ public class SeparatedList<T> implements List<T> {
 
   public List<InternalSyntaxToken> getSeparators() {
     return separators;
+  }
+
+  public void addChild(AstNode child) {
+    children.add(child);
+  }
+
+  public List<AstNode> getChildren() {
+    return children;
+  }
+
+  public void clearChildren() {
+    children = ListUtils.EMPTY_LIST;
   }
 
   @Override

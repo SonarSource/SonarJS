@@ -85,7 +85,7 @@ public class BoundOrAssignedEvalOrArgumentsCheck extends SquidCheck<LexerlessGra
     if (identifier != null && isEvalOrArguments(identifier.getTokenValue())) {
       getContext().createLineViolation(this, createMessageFor("function", identifier.getTokenValue()), identifier);
     }
-    AstNode formalParameterList = functionNode.getFirstChild(EcmaScriptGrammar.FORMAL_PARAMETER_LIST);
+    AstNode formalParameterList = functionNode.getFirstChild(Kind.FORMAL_PARAMETER_LIST);
 
     if (formalParameterList != null) {
       checkFormalParamList(formalParameterList);

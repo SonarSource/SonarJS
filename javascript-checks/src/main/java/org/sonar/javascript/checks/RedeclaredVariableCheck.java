@@ -95,7 +95,7 @@ public class RedeclaredVariableCheck extends SquidCheck<LexerlessGrammar> {
     if (functionNode.is(EcmaScriptGrammar.ARROW_FUNCTION)) {
       addArrowParametersToScope(functionNode.getFirstChild(EcmaScriptGrammar.ARROW_PARAMETERS), currentScope);
     } else {
-      addFormalParametersToScope(functionNode.getFirstChild(EcmaScriptGrammar.FORMAL_PARAMETER_LIST), currentScope);
+      addFormalParametersToScope(functionNode.getFirstChild(Kind.FORMAL_PARAMETER_LIST), currentScope);
     }
   }
 

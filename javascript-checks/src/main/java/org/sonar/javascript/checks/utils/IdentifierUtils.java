@@ -110,27 +110,21 @@ public class IdentifierUtils {
   }
 
   public static List<AstNode> getParametersIdentifier(AstNode formalParameterList) {
-    Preconditions.checkArgument(formalParameterList.is(EcmaScriptGrammar.FORMAL_PARAMETER_LIST, EcmaScriptGrammar.PROPERTY_SET_PARAMETER_LIST));
+    Preconditions.checkArgument(formalParameterList.is(Kind.FORMAL_PARAMETER_LIST, EcmaScriptGrammar.PROPERTY_SET_PARAMETER_LIST));
     List<AstNode> identifiers = Lists.newArrayList();
 
-    for (AstNode parameter : formalParameterList.getChildren(EcmaScriptGrammar.FORMAL_PARAMETER, EcmaScriptGrammar.REST_PARAMETER)) {
+    for (AstNode parameter : formalParameterList.getChildren(EcmaScriptGrammar.BINDING_ELEMENT, Kind.REST_ELEMENT)) {
 
-      if (parameter.is(EcmaScriptGrammar.FORMAL_PARAMETER)) {
-        identifiers.addAll(getFormalParameterIdentifiers(parameter));
+      if (parameter.is(EcmaScriptGrammar.BINDING_ELEMENT)) {
+        identifiers.addAll(getBindingElementIdentifiers(parameter));
       } else {
-        AstNode id = getRestIdentifier(parameter.getFirstChild());
+        AstNode id = getRestIdentifier(parameter);
         if (id != null) {
           identifiers.add(id);
         }
       }
     }
     return identifiers;
-  }
-
-  private static List<AstNode> getFormalParameterIdentifiers(AstNode formalParameter) {
-    Preconditions.checkArgument(formalParameter.is(EcmaScriptGrammar.FORMAL_PARAMETER));
-
-    return getBindingElementIdentifiers(formalParameter.getFirstChild());
   }
 
   private static List<AstNode> getBindingElementIdentifiers(AstNode bindingElement) {
@@ -168,7 +162,7 @@ public class IdentifierUtils {
         identifiers.addAll(getBindingElementIdentifiers(elisionElement.getFirstChild(EcmaScriptGrammar.BINDING_ELEMENT)));
       }
     }
-    AstNode restElement = arrayBindingPatter.getFirstChild(EcmaScriptGrammar.BINDING_REST_ELEMENT);
+    AstNode restElement = arrayBindingPatter.getFirstChild(EcmaScriptGrammar.BINDING_REST_ELEMENT, Kind.REST_ELEMENT);
 
     if (restElement != null) {
       AstNode id = getRestIdentifier(restElement);
@@ -181,9 +175,9 @@ public class IdentifierUtils {
 
   @Nullable
   private static AstNode getRestIdentifier(AstNode bindingRestElement) {
-    Preconditions.checkArgument(bindingRestElement.is(EcmaScriptGrammar.BINDING_REST_ELEMENT));
+    Preconditions.checkArgument(bindingRestElement.is(Kind.REST_ELEMENT));
 
-    return bindingRestElement.getFirstChild(EcmaScriptGrammar.BINDING_IDENTIFIER).getFirstChild(EcmaScriptTokenType.IDENTIFIER);
+    return bindingRestElement.getFirstChild(Kind.IDENTIFIER);
   }
 
   private static List<AstNode> getObjectBindingIdentifiers(AstNode objectBindingPattern) {

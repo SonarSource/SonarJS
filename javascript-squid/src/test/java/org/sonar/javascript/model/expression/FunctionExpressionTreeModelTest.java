@@ -37,8 +37,7 @@ public class FunctionExpressionTreeModelTest extends JavaScriptTreeModelTest {
     assertThat(tree.is(Kind.FUNCTION_EXPRESSION)).isTrue();
     assertThat(tree.functionKeyword().text()).isEqualTo(EcmaScriptKeyword.FUNCTION.getValue());
     assertThat(tree.name().name()).isEqualTo("f");
-    assertThat(tree.openParenthesis().text()).isEqualTo(EcmaScriptPunctuator.LPARENTHESIS.getValue());
-    assertThat(tree.closeParenthesis().text()).isEqualTo(EcmaScriptPunctuator.RPARENTHESIS.getValue());
+    assertThat(tree.parameters().is(Kind.FORMAL_PARAMETER_LIST)).isTrue();
     assertThat(tree.openCurlyBrace().text()).isEqualTo(EcmaScriptPunctuator.LCURLYBRACE.getValue());
     assertThat(tree.closeCurlyBrace().text()).isEqualTo(EcmaScriptPunctuator.RCURLYBRACE.getValue());
   }
@@ -50,8 +49,7 @@ public class FunctionExpressionTreeModelTest extends JavaScriptTreeModelTest {
     assertThat(tree.is(Kind.FUNCTION_EXPRESSION)).isTrue();
     assertThat(tree.functionKeyword().text()).isEqualTo(EcmaScriptKeyword.FUNCTION.getValue());
     assertThat(tree.name()).isNull();
-    assertThat(tree.openParenthesis().text()).isEqualTo(EcmaScriptPunctuator.LPARENTHESIS.getValue());
-    assertThat(tree.closeParenthesis().text()).isEqualTo(EcmaScriptPunctuator.RPARENTHESIS.getValue());
+    assertThat(tree.parameters().is(Kind.FORMAL_PARAMETER_LIST)).isTrue();
     assertThat(tree.openCurlyBrace().text()).isEqualTo(EcmaScriptPunctuator.LCURLYBRACE.getValue());
     assertThat(tree.closeCurlyBrace().text()).isEqualTo(EcmaScriptPunctuator.RCURLYBRACE.getValue());
   }

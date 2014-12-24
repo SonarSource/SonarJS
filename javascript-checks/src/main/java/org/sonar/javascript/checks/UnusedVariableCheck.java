@@ -96,7 +96,7 @@ public class UnusedVariableCheck extends SquidCheck<LexerlessGrammar> {
   public void init() {
     subscribeTo(
       EcmaScriptGrammar.PRIMARY_EXPRESSION,
-      EcmaScriptGrammar.FORMAL_PARAMETER_LIST,
+      Kind.FORMAL_PARAMETER_LIST,
       EcmaScriptGrammar.ARROW_PARAMETERS);
     subscribeTo(CONST_AND_VAR_NODES);
     subscribeTo(CheckUtils.functionNodesArray());
@@ -119,7 +119,7 @@ public class UnusedVariableCheck extends SquidCheck<LexerlessGrammar> {
       if (astNode.is(EcmaScriptGrammar.ARROW_PARAMETERS)) {
         declareInCurrentScope(IdentifierUtils.getArrowParametersIdentifier(astNode), 1);
 
-      } else if (astNode.is(EcmaScriptGrammar.FORMAL_PARAMETER_LIST)) {
+      } else if (astNode.is(Kind.FORMAL_PARAMETER_LIST)) {
         declareInCurrentScope(IdentifierUtils.getParametersIdentifier(astNode), 1);
 
       } else if (astNode.is(CONST_AND_VAR_NODES)) {

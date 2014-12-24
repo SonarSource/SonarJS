@@ -24,6 +24,7 @@ import org.sonar.check.BelongsToProfile;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
+import org.sonar.javascript.model.interfaces.Tree.Kind;
 import org.sonar.javascript.parser.EcmaScriptGrammar;
 import org.sonar.squidbridge.checks.SquidCheck;
 import org.sonar.sslr.parser.LexerlessGrammar;
@@ -43,7 +44,7 @@ public class ExcessiveParameterListCheck extends SquidCheck<LexerlessGrammar> {
 
   @Override
   public void init() {
-    subscribeTo(EcmaScriptGrammar.FORMAL_PARAMETER_LIST);
+    subscribeTo(Kind.FORMAL_PARAMETER_LIST);
   }
 
   @Override
@@ -52,14 +53,15 @@ public class ExcessiveParameterListCheck extends SquidCheck<LexerlessGrammar> {
     if (numberOfParameters > maximumFunctionParameters) {
       getContext().createLineViolation(this,
           "Function has {0,number,integer} parameters which is greater than {1,number,integer} authorized.",
-          node,
+          // Report issue on the line of the first parameter
+          node.getFirstChild(EcmaScriptGrammar.BINDING_ELEMENT, EcmaScriptGrammar.BINDING_REST_ELEMENT),
           numberOfParameters,
           maximumFunctionParameters);
     }
   }
 
   private int getNumberOfParameters(AstNode node) {
-    return (node.getNumberOfChildren() - 1) / 2 + 1;
+    return (node.getNumberOfChildren() - 3) / 2 + 1;
   }
 
   public void setMaximumFunctionParameters(int threshold) {

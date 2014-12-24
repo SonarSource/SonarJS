@@ -24,9 +24,11 @@ import org.sonar.javascript.api.EcmaScriptKeyword;
 import org.sonar.javascript.api.EcmaScriptPunctuator;
 import org.sonar.javascript.api.EcmaScriptTokenType;
 import org.sonar.javascript.ast.parser.TreeFactory;
+import org.sonar.javascript.model.implementations.declaration.FormalParameterListTreeImpl;
 import org.sonar.javascript.model.implementations.expression.ArrayLiteralTreeImpl;
 import org.sonar.javascript.model.implementations.expression.FunctionExpressionTreeImpl;
 import org.sonar.javascript.model.implementations.expression.LiteralTreeImpl;
+import org.sonar.javascript.model.implementations.expression.RestElementTreeImpl;
 import org.sonar.javascript.model.implementations.statement.BlockTreeImpl;
 import org.sonar.javascript.model.implementations.statement.BreakStatementTreeImpl;
 import org.sonar.javascript.model.implementations.statement.CaseClauseTreeImpl;
@@ -405,14 +407,34 @@ public class ActionGrammar {
         b.zeroOrMore(b.invokeRule(EcmaScriptPunctuator.COMMA))));
   }
 
+  public FormalParameterListTreeImpl FORMAL_PARAMETER_LIST() {
+    return b.<FormalParameterListTreeImpl>nonterminal(Kind.FORMAL_PARAMETER_LIST)
+      .is(f.comleteFormalParameterList(
+        b.invokeRule(EcmaScriptPunctuator.LPARENTHESIS),
+        b.optional(b.firstOf(
+          f.newFormalParameterList(
+            b.invokeRule(EcmaScriptGrammar.BINDING_ELEMENT),
+            b.zeroOrMore(f.newTuple4(b.invokeRule(EcmaScriptPunctuator.COMMA), b.invokeRule(EcmaScriptGrammar.BINDING_ELEMENT))),
+            b.optional(ES6(f.newTuple5(b.invokeRule(EcmaScriptPunctuator.COMMA), BINDING_REST_ELEMENT())))),
+          ES6(f.newFormalRestParameterList(BINDING_REST_ELEMENT()))
+        )),
+        b.invokeRule(EcmaScriptPunctuator.RPARENTHESIS)
+      ));
+  }
+
+  public RestElementTreeImpl BINDING_REST_ELEMENT() {
+    return b.<RestElementTreeImpl>nonterminal(EcmaScriptGrammar.BINDING_REST_ELEMENT)
+      .is(f.bindingRestElement(b.invokeRule(EcmaScriptPunctuator.ELLIPSIS), b.invokeRule(EcmaScriptGrammar.BINDING_IDENTIFIER)));
+  }
   public ArrayLiteralTreeImpl ARRAY_LITERAL() {
     return b.<ArrayLiteralTreeImpl>nonterminal(Kind.ARRAY_LITERAL)
       .is(f.completeArrayLiteral(
         b.invokeRule(EcmaScriptPunctuator.LBRACKET),
         b.optional(b.firstOf(
-            ELEMENT_LIST(),
-            f.newArrayLiteralWithElidedElements(b.oneOrMore(b.invokeRule(EcmaScriptPunctuator.COMMA))))),
-        b.invokeRule(EcmaScriptPunctuator.RBRACKET)));
+          ELEMENT_LIST(),
+          f.newArrayLiteralWithElidedElements(b.oneOrMore(b.invokeRule(EcmaScriptPunctuator.COMMA))))),
+        b.invokeRule(EcmaScriptPunctuator.RBRACKET)
+      ));
   }
 
   public FunctionExpressionTreeImpl GENERATOR_EXPRESSION() {
@@ -421,9 +443,7 @@ public class ActionGrammar {
         b.invokeRule(EcmaScriptKeyword.FUNCTION),
         b.invokeRule(EcmaScriptPunctuator.STAR),
         b.optional(b.invokeRule(EcmaScriptGrammar.BINDING_IDENTIFIER)),
-        b.invokeRule(EcmaScriptPunctuator.LPARENTHESIS),
-        b.optional(b.invokeRule(EcmaScriptGrammar.FORMAL_PARAMETER_LIST)),
-        b.invokeRule(EcmaScriptPunctuator.RPARENTHESIS),
+        FORMAL_PARAMETER_LIST(),
         b.invokeRule(EcmaScriptPunctuator.LCURLYBRACE),
         b.invokeRule(EcmaScriptGrammar.FUNCTION_BODY),
         b.invokeRule(EcmaScriptPunctuator.RCURLYBRACE)));
@@ -434,9 +454,7 @@ public class ActionGrammar {
       .is(f.functionExpression(
         b.invokeRule(EcmaScriptKeyword.FUNCTION),
         b.optional(b.invokeRule(EcmaScriptTokenType.IDENTIFIER)),
-        b.invokeRule(EcmaScriptPunctuator.LPARENTHESIS),
-        b.optional(b.invokeRule(EcmaScriptGrammar.FORMAL_PARAMETER_LIST)),
-        b.invokeRule(EcmaScriptPunctuator.RPARENTHESIS),
+        FORMAL_PARAMETER_LIST(),
         b.invokeRule(EcmaScriptPunctuator.LCURLYBRACE),
         b.invokeRule(EcmaScriptGrammar.FUNCTION_BODY),
         b.invokeRule(EcmaScriptPunctuator.RCURLYBRACE)));

@@ -25,7 +25,7 @@ import org.sonar.check.BelongsToProfile;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.javascript.checks.utils.IdentifierUtils;
-import org.sonar.javascript.parser.EcmaScriptGrammar;
+import org.sonar.javascript.model.interfaces.Tree.Kind;
 import org.sonar.squidbridge.checks.SquidCheck;
 import org.sonar.sslr.parser.LexerlessGrammar;
 
@@ -39,7 +39,7 @@ public class DuplicateFunctionArgumentCheck extends SquidCheck<LexerlessGrammar>
 
   @Override
   public void init() {
-    subscribeTo(EcmaScriptGrammar.FORMAL_PARAMETER_LIST);
+    subscribeTo(Kind.FORMAL_PARAMETER_LIST);
   }
 
   @Override

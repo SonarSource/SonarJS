@@ -17,21 +17,29 @@
  * License along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.javascript.parser.grammar.functions;
+package org.sonar.javascript.model.interfaces.declaration;
 
-import org.junit.Test;
-import org.sonar.javascript.parser.EcmaScriptGrammar;
+import org.sonar.javascript.model.implementations.SeparatedList;
+import org.sonar.javascript.model.interfaces.expression.ExpressionTree;
+import org.sonar.javascript.model.interfaces.lexical.SyntaxToken;
 
-import static org.sonar.javascript.sslr.tests.Assertions.assertThat;
+/**
+ * <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-function-definitions">Formal Parameter List</a>.
+ * <p/>
+ *
+ * <pre>
+ *   ( {@link #formalParameters()} )
+ * </pre>
+ *
+ * <p/>
+ * <p>This interface is not intended to be implemented by clients.</p>
+ */
+public interface FormalParameterListTree extends DeclarationTree {
 
-public class FormalParameterTest {
 
+  SyntaxToken openParenthesis();
 
-  @Test
-  public void ok() {
-    assertThat(EcmaScriptGrammar.FORMAL_PARAMETER)
-        .matches("a = 4")
-        .matches("a");
-  }
+  SeparatedList<ExpressionTree> formalParameters();
 
+  SyntaxToken closeParenthesis();
 }

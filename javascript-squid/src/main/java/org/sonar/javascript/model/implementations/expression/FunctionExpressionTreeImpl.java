@@ -24,14 +24,13 @@ import com.google.common.collect.Iterators;
 import com.sonar.sslr.api.AstNode;
 import com.sonar.sslr.api.AstNodeType;
 import org.sonar.javascript.model.implementations.JavaScriptTree;
-import org.sonar.javascript.model.implementations.SeparatedList;
+import org.sonar.javascript.model.implementations.declaration.FormalParameterListTreeImpl;
 import org.sonar.javascript.model.implementations.lexical.InternalSyntaxToken;
 import org.sonar.javascript.model.interfaces.Tree;
+import org.sonar.javascript.model.interfaces.declaration.FormalParameterListTree;
 import org.sonar.javascript.model.interfaces.expression.FunctionTree;
-import org.sonar.javascript.model.interfaces.expression.ExpressionTree;
 import org.sonar.javascript.model.interfaces.expression.IdentifierTree;
 import org.sonar.javascript.model.interfaces.lexical.SyntaxToken;
-import org.sonar.javascript.model.interfaces.statement.StatementTree;
 
 import javax.annotation.Nullable;
 import java.util.Iterator;
@@ -44,9 +43,7 @@ public class FunctionExpressionTreeImpl extends JavaScriptTree implements Functi
   private final SyntaxToken star;
   @Nullable
   private final IdentifierTree name;
-  private final SyntaxToken openParenthesis;
-  private final SeparatedList<ExpressionTree> parameters;
-  private final SyntaxToken closeParenthesis;
+  private final FormalParameterListTree parameters;
   private final SyntaxToken openCurlyBrace;
   private final SyntaxToken closeCurlyBrace;
   private final Kind kind;
@@ -54,17 +51,15 @@ public class FunctionExpressionTreeImpl extends JavaScriptTree implements Functi
   /**
    * Constructor for named generator expression and  generator declaration
    */
-  public FunctionExpressionTreeImpl(Kind kind, InternalSyntaxToken functionKeyword, InternalSyntaxToken star, IdentifierTreeImpl name, InternalSyntaxToken openParenthesis,
-    SeparatedList<ExpressionTree> parameters, InternalSyntaxToken closeParenthesis, InternalSyntaxToken openCurlyBrace, InternalSyntaxToken closeCurlyBrace,
+  public FunctionExpressionTreeImpl(Kind kind, InternalSyntaxToken functionKeyword, InternalSyntaxToken star, IdentifierTreeImpl name,
+    FormalParameterListTreeImpl parameters, InternalSyntaxToken openCurlyBrace, InternalSyntaxToken closeCurlyBrace,
     List<AstNode> children) {
 
     super(kind);
     this.functionKeyword = functionKeyword;
     this.star = star;
     this.name = name;
-    this.openParenthesis = openParenthesis;
     this.parameters = parameters;
-    this.closeParenthesis = closeParenthesis;
     this.openCurlyBrace = openCurlyBrace;
     this.closeCurlyBrace = closeCurlyBrace;
 
@@ -78,17 +73,15 @@ public class FunctionExpressionTreeImpl extends JavaScriptTree implements Functi
   /**
    * Constructor for NOT named generator expression
    */
-  public FunctionExpressionTreeImpl(Kind kind, InternalSyntaxToken functionKeyword, InternalSyntaxToken star, InternalSyntaxToken openParenthesis,
-    SeparatedList<ExpressionTree> parameters, InternalSyntaxToken closeParenthesis, InternalSyntaxToken openCurlyBrace, InternalSyntaxToken closeCurlyBrace,
+  public FunctionExpressionTreeImpl(Kind kind, InternalSyntaxToken functionKeyword, InternalSyntaxToken star,
+    FormalParameterListTreeImpl parameters, InternalSyntaxToken openCurlyBrace, InternalSyntaxToken closeCurlyBrace,
     ImmutableList<AstNode> children) {
 
     super(kind);
     this.functionKeyword = functionKeyword;
     this.star = star;
     this.name = null;
-    this.openParenthesis = openParenthesis;
     this.parameters = parameters;
-    this.closeParenthesis = closeParenthesis;
     this.openCurlyBrace = openCurlyBrace;
     this.closeCurlyBrace = closeCurlyBrace;
 
@@ -102,17 +95,15 @@ public class FunctionExpressionTreeImpl extends JavaScriptTree implements Functi
   /**
    * Constructor for named function expression and function declaration
    */
-  public FunctionExpressionTreeImpl(Kind kind, InternalSyntaxToken functionKeyword, IdentifierTreeImpl name, InternalSyntaxToken openParenthesis,
-    SeparatedList<ExpressionTree> parameters, InternalSyntaxToken closeParenthesis, InternalSyntaxToken openCurlyBrace, InternalSyntaxToken closeCurlyBrace,
+  public FunctionExpressionTreeImpl(Kind kind, InternalSyntaxToken functionKeyword, IdentifierTreeImpl name,
+    FormalParameterListTreeImpl parameters, InternalSyntaxToken openCurlyBrace, InternalSyntaxToken closeCurlyBrace,
     ImmutableList<AstNode> children) {
 
     super(kind);
     this.functionKeyword = functionKeyword;
     this.star = null;
     this.name = name;
-    this.openParenthesis = openParenthesis;
     this.parameters = parameters;
-    this.closeParenthesis = closeParenthesis;
     this.openCurlyBrace = openCurlyBrace;
     this.closeCurlyBrace = closeCurlyBrace;
 
@@ -126,17 +117,14 @@ public class FunctionExpressionTreeImpl extends JavaScriptTree implements Functi
   /**
    * Constructor for NOT named function expression
    */
-  public FunctionExpressionTreeImpl(Kind kind, InternalSyntaxToken functionKeyword, InternalSyntaxToken openParenthesis,
-    SeparatedList<ExpressionTree> parameters, InternalSyntaxToken closeParenthesis, InternalSyntaxToken openCurlyBrace,
-    InternalSyntaxToken closeCurlyBrace, ImmutableList<AstNode> children) {
+  public FunctionExpressionTreeImpl(Kind kind, InternalSyntaxToken functionKeyword, FormalParameterListTreeImpl parameters,
+    InternalSyntaxToken openCurlyBrace, InternalSyntaxToken closeCurlyBrace, ImmutableList<AstNode> children) {
 
     super(kind);
     this.functionKeyword = functionKeyword;
     this.star = null;
     this.name = null;
-    this.openParenthesis = openParenthesis;
     this.parameters = parameters;
-    this.closeParenthesis = closeParenthesis;
     this.openCurlyBrace = openCurlyBrace;
     this.closeCurlyBrace = closeCurlyBrace;
 
@@ -165,18 +153,8 @@ public class FunctionExpressionTreeImpl extends JavaScriptTree implements Functi
   }
 
   @Override
-  public SyntaxToken openParenthesis() {
-    return openParenthesis;
-  }
-
-  @Override
-  public SeparatedList<ExpressionTree> parameters() {
+  public FormalParameterListTree parameters() {
     return parameters;
-  }
-
-  @Override
-  public SyntaxToken closeParenthesis() {
-    return closeParenthesis;
   }
 
   @Override
@@ -185,7 +163,7 @@ public class FunctionExpressionTreeImpl extends JavaScriptTree implements Functi
   }
 
   @Override
-  public List<StatementTree> statements() {
+  public List<Tree> statements() {
     throw new UnsupportedOperationException("Not supported yet in the strongly typed AST.");
   }
 

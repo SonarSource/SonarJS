@@ -37,8 +37,7 @@ public class GeneratorExpressionTreeModelTest extends JavaScriptTreeModelTest {
     assertThat(tree.functionKeyword().text()).isEqualTo(EcmaScriptKeyword.FUNCTION.getValue());
     assertThat(tree.name().name()).isEqualTo("f");
     assertThat(tree.star().text()).isEqualTo(EcmaScriptPunctuator.STAR.getValue());
-    assertThat(tree.openParenthesis().text()).isEqualTo(EcmaScriptPunctuator.LPARENTHESIS.getValue());
-    assertThat(tree.closeParenthesis().text()).isEqualTo(EcmaScriptPunctuator.RPARENTHESIS.getValue());
+    assertThat(tree.parameters().is(Kind.FORMAL_PARAMETER_LIST)).isTrue();
     assertThat(tree.openCurlyBrace().text()).isEqualTo(EcmaScriptPunctuator.LCURLYBRACE.getValue());
     assertThat(tree.closeCurlyBrace().text()).isEqualTo(EcmaScriptPunctuator.RCURLYBRACE.getValue());
   }
@@ -51,8 +50,7 @@ public class GeneratorExpressionTreeModelTest extends JavaScriptTreeModelTest {
     assertThat(tree.functionKeyword().text()).isEqualTo(EcmaScriptKeyword.FUNCTION.getValue());
     assertThat(tree.name()).isNull();
     assertThat(tree.star().text()).isEqualTo(EcmaScriptPunctuator.STAR.getValue());
-    assertThat(tree.openParenthesis().text()).isEqualTo(EcmaScriptPunctuator.LPARENTHESIS.getValue());
-    assertThat(tree.closeParenthesis().text()).isEqualTo(EcmaScriptPunctuator.RPARENTHESIS.getValue());
+    assertThat(tree.parameters().is(Kind.FORMAL_PARAMETER_LIST)).isTrue();
     assertThat(tree.openCurlyBrace().text()).isEqualTo(EcmaScriptPunctuator.LCURLYBRACE.getValue());
     assertThat(tree.closeCurlyBrace().text()).isEqualTo(EcmaScriptPunctuator.RCURLYBRACE.getValue());
   }

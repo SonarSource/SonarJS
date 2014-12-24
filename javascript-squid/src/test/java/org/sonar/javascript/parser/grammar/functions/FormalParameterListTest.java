@@ -20,21 +20,22 @@
 package org.sonar.javascript.parser.grammar.functions;
 
 import org.junit.Test;
-import org.sonar.javascript.parser.EcmaScriptGrammar;
+import org.sonar.javascript.model.interfaces.Tree.Kind;
 
 import static org.sonar.javascript.sslr.tests.Assertions.assertThat;
 
 public class FormalParameterListTest {
 
-
   @Test
   public void ok() {
-    assertThat(EcmaScriptGrammar.FORMAL_PARAMETER_LIST)
-        .matches("IDENTIFIER")
-        .matches("IDENTIFIER, IDENTIFIER")
-        .matches("...a")
-        .matches("IDENTIFIER, ...a")
-        .matches("identifier, identifier, ... a");
+    assertThat(Kind.FORMAL_PARAMETER_LIST)
+        .matches("( )")
+        .matches("( IDENTIFIER )")
+        .matches("( IDENTIFIER = a )")
+        .matches("( IDENTIFIER, IDENTIFIER )")
+        .matches("( ...a )")
+        .matches("( IDENTIFIER, ...a )")
+        .matches("( identifier, identifier, ... a )");
   }
 
 }

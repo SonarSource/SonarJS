@@ -26,6 +26,7 @@ import com.sonar.sslr.api.AstNode;
 import com.sonar.sslr.api.AstNodeType;
 import org.apache.commons.collections.ListUtils;
 import org.sonar.javascript.model.implementations.SeparatedList;
+import org.sonar.javascript.model.implementations.declaration.FormalParameterListTreeImpl;
 import org.sonar.javascript.model.implementations.expression.ArrayLiteralTreeImpl;
 import org.sonar.javascript.model.implementations.expression.FunctionExpressionTreeImpl;
 import org.sonar.javascript.model.implementations.expression.IdentifierTreeImpl;
@@ -58,6 +59,8 @@ import org.sonar.javascript.model.implementations.statement.VariableStatementTre
 import org.sonar.javascript.model.implementations.statement.WhileStatementTreeImpl;
 import org.sonar.javascript.model.implementations.statement.WithStatementTreeImpl;
 import org.sonar.javascript.model.interfaces.Tree.Kind;
+import org.sonar.javascript.model.interfaces.declaration.FormalParameterListTree;
+import org.sonar.javascript.model.interfaces.expression.ExpressionTree;
 import org.sonar.javascript.model.interfaces.statement.StatementTree;
 import org.sonar.javascript.model.interfaces.statement.SwitchClauseTree;
 import org.sonar.javascript.parser.sslr.Optional;
@@ -421,38 +424,26 @@ public class TreeFactory {
   }
 
 
-  public FunctionExpressionTreeImpl generatorExpression(AstNode functionKeyword, AstNode starOperator, Optional<AstNode> functionName, AstNode openParenthesis, Optional<AstNode> parameters, AstNode closeParenthesis, AstNode openCurlyBrace, AstNode functionBody, AstNode closeCurlyBrace) {
+  public FunctionExpressionTreeImpl generatorExpression(AstNode functionKeyword, AstNode starOperator, Optional<AstNode> functionName, FormalParameterListTreeImpl parameters, AstNode openCurlyBrace, AstNode functionBody, AstNode closeCurlyBrace) {
     ImmutableList.Builder<AstNode> children = ImmutableList.builder();
     InternalSyntaxToken functionToken = InternalSyntaxToken.create(functionKeyword);
     InternalSyntaxToken starToken = InternalSyntaxToken.create(starOperator);
-    InternalSyntaxToken openParenToken = InternalSyntaxToken.create(openParenthesis);
-    InternalSyntaxToken closeParenToken = InternalSyntaxToken.create(closeParenthesis);
     InternalSyntaxToken openCurlyToken = InternalSyntaxToken.create(openCurlyBrace);
     InternalSyntaxToken closeCurlyToken = InternalSyntaxToken.create(closeCurlyBrace);
 
 
     if (functionName.isPresent()) {
       IdentifierTreeImpl name = new IdentifierTreeImpl(InternalSyntaxToken.create(functionName.get()));
-      children.add(functionToken, starToken, name, openParenToken);
-      // FIXME to remove when FORMAL_PARAMETER_LIST migrated
-      if (parameters.isPresent()) {
-        children.add(parameters.get());
-      }
-      children.add(closeParenthesis, openCurlyBrace, functionBody, closeCurlyBrace);
+      children.add(functionToken, starToken, name, parameters, openCurlyBrace, functionBody, closeCurlyBrace);
 
       return new FunctionExpressionTreeImpl(Kind.GENERATOR_FUNCTION_EXPRESSION,
-        functionToken, starToken, name, openParenToken, null /*FIXME with list of parameters*/, closeParenToken, openCurlyToken, closeCurlyToken, children.build());
+        functionToken, starToken, name, parameters, openCurlyToken, closeCurlyToken, children.build());
     }
 
-    children.add(functionToken, starToken, openParenToken);
-    // FIXME to remove when FORMAL_PARAMETER_LIST migrated
-    if (parameters.isPresent()) {
-      children.add(parameters.get());
-    }
-    children.add(closeParenthesis, openCurlyBrace, functionBody, closeCurlyBrace);
+    children.add(functionToken, starToken, parameters, openCurlyBrace, functionBody, closeCurlyBrace);
 
     return new FunctionExpressionTreeImpl(Kind.GENERATOR_FUNCTION_EXPRESSION,
-    functionToken, starToken, openParenToken, null /*FIXME with list of parameters*/, closeParenToken, openCurlyToken, closeCurlyToken, children.build());
+      functionToken, starToken, parameters, openCurlyToken, closeCurlyToken, children.build());
   }
 
   public LiteralTreeImpl nullLiteral(AstNode nullToken) {
@@ -475,39 +466,62 @@ public class TreeFactory {
     return new LiteralTreeImpl(Kind.REGULAR_EXPRESSION_LITERAL, InternalSyntaxToken.create(regexpToken));
   }
 
-  public FunctionExpressionTreeImpl functionExpression(AstNode functionKeyword, Optional<AstNode> functionName, AstNode openParenthesis, Optional<AstNode> parameters, AstNode closeParenthesis, AstNode openCurlyBrace, AstNode functionBody, AstNode closeCurlyBrace) {
+  public FunctionExpressionTreeImpl functionExpression(AstNode functionKeyword, Optional<AstNode> functionName, FormalParameterListTreeImpl parameters, AstNode openCurlyBrace, AstNode functionBody, AstNode closeCurlyBrace) {
     ImmutableList.Builder<AstNode> children = ImmutableList.builder();
     InternalSyntaxToken functionToken = InternalSyntaxToken.create(functionKeyword);
-    InternalSyntaxToken openParenToken = InternalSyntaxToken.create(openParenthesis);
-    InternalSyntaxToken closeParenToken = InternalSyntaxToken.create(closeParenthesis);
     InternalSyntaxToken openCurlyToken = InternalSyntaxToken.create(openCurlyBrace);
     InternalSyntaxToken closeCurlyToken = InternalSyntaxToken.create(closeCurlyBrace);
 
 
     if (functionName.isPresent()) {
       IdentifierTreeImpl name = new IdentifierTreeImpl(InternalSyntaxToken.create(functionName.get()));
-      children.add(functionToken, name, openParenToken);
-      // FIXME to remove when FORMAL_PARAMETER_LIST migrated
-      if (parameters.isPresent()) {
-        children.add(parameters.get());
-      }
-      children.add(closeParenthesis, openCurlyBrace, functionBody, closeCurlyBrace);
+      children.add(functionToken, name, parameters, openCurlyBrace, functionBody, closeCurlyBrace);
 
-      return new FunctionExpressionTreeImpl(Kind.FUNCTION_EXPRESSION,
-        functionToken, name, openParenToken, null /*FIXME with list of parameters*/, closeParenToken, openCurlyToken, closeCurlyToken, children.build());
+      return new FunctionExpressionTreeImpl(Kind.FUNCTION_EXPRESSION, functionToken, name, parameters, openCurlyToken, closeCurlyToken, children.build());
     }
 
-    children.add(functionToken, openParenToken);
-    // FIXME to remove when FORMAL_PARAMETER_LIST migrated
-    if (parameters.isPresent()) {
-      children.add(parameters.get());
-    }
-    children.add(closeParenthesis, openCurlyBrace, functionBody, closeCurlyBrace);
+    children.add(functionToken, parameters, openCurlyBrace, functionBody, closeCurlyBrace);
 
-    return new FunctionExpressionTreeImpl(Kind.FUNCTION_EXPRESSION,
-      functionToken, openParenToken, null /*FIXME with list of parameters*/, closeParenToken, openCurlyToken, closeCurlyToken, children.build());
+    return new FunctionExpressionTreeImpl(Kind.FUNCTION_EXPRESSION, functionToken, parameters, openCurlyToken, closeCurlyToken, children.build());
   }
 
+  public FormalParameterListTreeImpl newFormalRestParameterList(RestElementTreeImpl restParameter) {
+    return new FormalParameterListTreeImpl(new SeparatedList<ExpressionTree>(Lists.newArrayList((ExpressionTree) restParameter), ListUtils.EMPTY_LIST, ImmutableList.of((AstNode) restParameter)));
+  }
+
+  public FormalParameterListTreeImpl newFormalParameterList(AstNode formalParameter, Optional<List<Tuple<AstNode, AstNode>>> formalParameters, Optional<Tuple<AstNode, RestElementTreeImpl>> restElement) {
+    List<AstNode> children = Lists.newArrayList();
+    List<InternalSyntaxToken> commas = Lists.newArrayList();
+
+    children.add(formalParameter);
+
+    if (formalParameters.isPresent()) {
+      for (Tuple<AstNode, AstNode> t : formalParameters.get()) {
+        commas.add(InternalSyntaxToken.create(t.first()));
+        children.add(t.first());
+        children.add(t.second());
+      }
+    }
+
+    if (restElement.isPresent()) {
+      commas.add(InternalSyntaxToken.create(restElement.get().first()));
+      children.add(restElement.get().first());
+      children.add(restElement.get().second());
+    }
+
+    return new FormalParameterListTreeImpl(new SeparatedList<ExpressionTree>(ListUtils.EMPTY_LIST /*FIXME when patterns are migrated*/, commas, children));
+  }
+
+  public RestElementTreeImpl bindingRestElement(AstNode ellipsis, AstNode identifier) {
+    return new RestElementTreeImpl(InternalSyntaxToken.create(ellipsis), new IdentifierTreeImpl(InternalSyntaxToken.create(identifier)));
+  }
+
+  public FormalParameterListTreeImpl comleteFormalParameterList(AstNode openParenthesis, Optional<FormalParameterListTreeImpl> parameters, AstNode closeParenthesis) {
+    if (parameters.isPresent()) {
+      return parameters.get().complete(InternalSyntaxToken.create(openParenthesis), InternalSyntaxToken.create(closeParenthesis));
+    }
+    return new FormalParameterListTreeImpl(InternalSyntaxToken.create(openParenthesis), InternalSyntaxToken.create(closeParenthesis));
+  }
 
   public static class Tuple<T, U> extends AstNode {
 

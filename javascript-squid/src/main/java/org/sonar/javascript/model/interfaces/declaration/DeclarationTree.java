@@ -17,20 +17,16 @@
  * License along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.javascript.parser.grammar.functions;
+package org.sonar.javascript.model.interfaces.declaration;
 
-import org.junit.Test;
-import org.sonar.javascript.parser.EcmaScriptGrammar;
+import org.sonar.javascript.model.interfaces.Tree;
 
-import static org.sonar.javascript.sslr.tests.Assertions.assertThat;
-
-public class RestParameterTest {
-
-
-  @Test
-  public void ok() {
-    assertThat(EcmaScriptGrammar.REST_PARAMETER)
-        .matches("... a");
-  }
-
+/**
+ * Common interface for all types <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-declarations-and-the-variable-statement">Declaration</a>.
+ * <p/>
+ * <p/>
+ * <p/>
+ * <p>This interface is not intended to be implemented by clients.</p>
+ */
+public interface DeclarationTree extends Tree {
 }
