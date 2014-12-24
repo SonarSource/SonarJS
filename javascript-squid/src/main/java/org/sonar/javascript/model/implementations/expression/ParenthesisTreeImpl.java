@@ -30,13 +30,13 @@ import org.sonar.javascript.model.interfaces.lexical.SyntaxToken;
 
 import java.util.Iterator;
 
-public class CloseParenthesisTreeImpl extends JavaScriptTree implements ParenthesisedExpressionTree {
+public class ParenthesisTreeImpl extends JavaScriptTree implements ParenthesisedExpressionTree {
 
   private final InternalSyntaxToken openParenthesis;
   private final ExpressionTree expression;
   private final InternalSyntaxToken closeParenthesis;
 
-  public CloseParenthesisTreeImpl(InternalSyntaxToken openParenthesis, ExpressionTree expression, InternalSyntaxToken closeParenthesis) {
+  public ParenthesisTreeImpl(InternalSyntaxToken openParenthesis, ExpressionTree expression, InternalSyntaxToken closeParenthesis) {
     super(Kind.PARENTHESISED_EXPRESSION);
     this.openParenthesis = openParenthesis;
     this.expression = expression;
