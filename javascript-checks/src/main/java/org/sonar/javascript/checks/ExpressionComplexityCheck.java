@@ -45,9 +45,9 @@ public class ExpressionComplexityCheck extends SquidCheck<LexerlessGrammar> {
   private List<ExpressionComplexity> statementLevel = Lists.newArrayList();
   private static final int DEFAULT = 3;
   private static final GrammarRuleKey[] LOGICAL_AND_CONDITIONAL_EXPRS = {
-    EcmaScriptGrammar.CONDITIONAL_EXPRESSION,
-    EcmaScriptGrammar.LOGICAL_AND_EXPRESSION,
-    EcmaScriptGrammar.LOGICAL_OR_EXPRESSION
+    Kind.CONDITIONAL_EXPRESSION,
+    Kind.CONDITIONAL_AND,
+    Kind.CONDITIONAL_OR
   };
   private static final GrammarRuleKey[] EXPRESSIONS = {
     EcmaScriptGrammar.EXPRESSION,

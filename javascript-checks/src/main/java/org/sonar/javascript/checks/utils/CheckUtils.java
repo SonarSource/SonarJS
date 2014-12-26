@@ -30,6 +30,35 @@ public class CheckUtils {
   private CheckUtils() {
   }
 
+  public static final ImmutableSet<Kind> RELATIONAL_EXPRESSION = ImmutableSet.of(
+    Kind.LESS_THAN,
+    Kind.GREATER_THAN,
+    Kind.LESS_THAN_OR_EQUAL_TO,
+    Kind.GREATER_THAN_OR_EQUAL_TO,
+    Kind.INSTANCE_OF,
+    Kind.RELATIONAL_IN);
+
+  public static final ImmutableSet<Kind> POSTFIX_EXPRESSION = ImmutableSet.of(
+    Kind.POSTFIX_INCREMENT,
+    Kind.POSTFIX_DECREMENT);
+
+  public static final ImmutableSet<Kind> PREFIX_EXPRESSION = ImmutableSet.of(
+    Kind.DELETE,
+    Kind.VOID,
+    Kind.TYPEOF,
+    Kind.PREFIX_INCREMENT,
+    Kind.PREFIX_DECREMENT,
+    Kind.UNARY_PLUS,
+    Kind.UNARY_MINUS,
+    Kind.BITWISE_COMPLEMENT,
+    Kind.LOGICAL_COMPLEMENT);
+
+  public static final ImmutableSet<Kind> EQUALITY_EXPRESSION = ImmutableSet.of(
+    Kind.EQUAL_TO,
+    Kind.NOT_EQUAL_TO,
+    Kind.STRICT_EQUAL_TO,
+    Kind.STRICT_NOT_EQUAL_TO);
+
   public static final ImmutableSet<Kind> ITERATION_STATEMENTS = ImmutableSet.of(
     Kind.DO_WHILE_STATEMENT,
     Kind.WHILE_STATEMENT,
@@ -47,9 +76,50 @@ public class CheckUtils {
     EcmaScriptGrammar.ARROW_FUNCTION,
     EcmaScriptGrammar.ARROW_FUNCTION_NO_IN);
 
+  public static Kind[] postfixExpressionArray() {
+    return POSTFIX_EXPRESSION.toArray(new Kind[POSTFIX_EXPRESSION.size()]);
+  }
+
+  public static boolean isPostfixExpression(AstNodeType type) {
+    return POSTFIX_EXPRESSION.contains(type);
+  }
+
+  public static boolean isPostfixExpression(AstNode astNodeType) {
+    return POSTFIX_EXPRESSION.contains(astNodeType.getType());
+  }
+
+  public static Kind[] relationalExpressionArray() {
+    return RELATIONAL_EXPRESSION.toArray(new Kind[RELATIONAL_EXPRESSION.size()]);
+  }
+
+  public static boolean isRelationalExpression(AstNodeType type) {
+    return RELATIONAL_EXPRESSION.contains(type);
+  }
+
+  public static Kind[] prefixExpressionArray() {
+    return PREFIX_EXPRESSION.toArray(new Kind[PREFIX_EXPRESSION.size()]);
+  }
+
+  public static boolean isPrefixExpression(AstNode astNode) {
+    return PREFIX_EXPRESSION.contains(astNode.getType());
+  }
+
+  public static Kind[] equalityExpressionArray() {
+    return EQUALITY_EXPRESSION.toArray(new Kind[EQUALITY_EXPRESSION.size()]);
+  }
+
+  public static boolean isEqualityExpression(AstNode astNode) {
+    return EQUALITY_EXPRESSION.contains(astNode.getType());
+  }
+
+  public static boolean isEqualityExpression(AstNodeType type) {
+    return EQUALITY_EXPRESSION.contains(type);
+  }
+
   public static AstNodeType[] functionNodesArray() {
     return FUNCTION_NODES.toArray(new AstNodeType[FUNCTION_NODES.size()]);
   }
+
   public static boolean isFunction(AstNode astNode) {
     return FUNCTION_NODES.contains(astNode.getType());
   }

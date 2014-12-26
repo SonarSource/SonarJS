@@ -25,7 +25,9 @@ import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.javascript.api.EcmaScriptKeyword;
 import org.sonar.javascript.api.EcmaScriptPunctuator;
-import org.sonar.javascript.parser.EcmaScriptGrammar;
+import org.sonar.javascript.checks.utils.CheckUtils;
+import org.sonar.javascript.model.interfaces.Tree.Kind;
+import org.sonar.javascript.model.interfaces.expression.BinaryExpressionTree;
 import org.sonar.squidbridge.checks.SquidCheck;
 import org.sonar.sslr.parser.LexerlessGrammar;
 
@@ -37,32 +39,35 @@ public class BooleanEqualityComparisonCheck extends SquidCheck<LexerlessGrammar>
 
   @Override
   public void init() {
+    subscribeTo(CheckUtils.equalityExpressionArray());
+    subscribeTo(Kind.LOGICAL_COMPLEMENT);
     subscribeTo(
-      EcmaScriptGrammar.UNARY_EXPRESSION,
-      EcmaScriptGrammar.EQUALITY_EXPRESSION,
-      EcmaScriptGrammar.LOGICAL_AND_EXPRESSION,
-      EcmaScriptGrammar.LOGICAL_OR_EXPRESSION);
+      Kind.CONDITIONAL_AND,
+      Kind.CONDITIONAL_OR);
   }
 
   @Override
   public void visitNode(AstNode astNode) {
-    AstNode boolLiteral = getBooleanLiteralFromExpresion(astNode);
+      AstNode boolLiteral = getBooleanLiteralFromExpresion(astNode);
 
-    if (boolLiteral != null) {
-      getContext().createLineViolation(this, "Remove the literal \"" + boolLiteral.getTokenOriginalValue() + "\" boolean value.", astNode);
-    }
+      if (boolLiteral != null) {
+        getContext().createLineViolation(this, "Remove the literal \"" + boolLiteral.getTokenOriginalValue() + "\" boolean value.", boolLiteral);
+      }
   }
-
   private static AstNode getBooleanLiteralFromExpresion(AstNode expression) {
-    if (expression.is(EcmaScriptGrammar.UNARY_EXPRESSION)) {
+    if (expression.is(Kind.LOGICAL_COMPLEMENT)) {
       return getBooleanLiteralFromUnaryExpression(expression);
+    }
+
+    BinaryExpressionTree binaryExpr = (BinaryExpressionTree) expression;
+
     // e.g x == y == false
-    } else if (expression.getNumberOfChildren() != 3){
+    if (expression.getParent().is(CheckUtils.equalityExpressionArray())) {
       return null;
     }
 
-    AstNode leftExpr = expression.getFirstChild();
-    AstNode rightExpr = expression.getLastChild();
+    AstNode leftExpr = (AstNode) binaryExpr.leftOperand();
+    AstNode rightExpr = (AstNode) binaryExpr.rightOperand();
 
     if (isBooleanLiteral(leftExpr)) {
       return leftExpr;

@@ -54,6 +54,7 @@ import org.sonar.javascript.model.implementations.statement.VariableStatementTre
 import org.sonar.javascript.model.implementations.statement.WhileStatementTreeImpl;
 import org.sonar.javascript.model.implementations.statement.WithStatementTreeImpl;
 import org.sonar.javascript.model.interfaces.Tree.Kind;
+import org.sonar.javascript.model.interfaces.expression.ExpressionTree;
 import org.sonar.javascript.model.interfaces.statement.DebuggerStatementTree;
 import org.sonar.javascript.model.interfaces.statement.StatementTree;
 import org.sonar.javascript.parser.sslr.GrammarBuilder;
@@ -409,7 +410,7 @@ public class ActionGrammar {
 
   public FormalParameterListTreeImpl FORMAL_PARAMETER_LIST() {
     return b.<FormalParameterListTreeImpl>nonterminal(Kind.FORMAL_PARAMETER_LIST)
-      .is(f.comleteFormalParameterList(
+      .is(f.completeFormalParameterList(
         b.invokeRule(EcmaScriptPunctuator.LPARENTHESIS),
         b.optional(b.firstOf(
           f.newFormalParameterList(
@@ -458,6 +459,186 @@ public class ActionGrammar {
         b.invokeRule(EcmaScriptPunctuator.LCURLYBRACE),
         b.invokeRule(EcmaScriptGrammar.FUNCTION_BODY),
         b.invokeRule(EcmaScriptPunctuator.RCURLYBRACE)));
+  }
+
+  public ExpressionTree CONDITIONAL_EXPRESSION() {
+   return b.<ExpressionTree>nonterminal(Kind.CONDITIONAL_EXPRESSION)
+     .is(f.completeConditionalExpression(
+       CONDITIONAL_OR_EXPRESSION(),
+       b.optional(f.newConditionalExpression(
+         b.invokeRule(EcmaScriptPunctuator.QUERY),
+         b.invokeRule(EcmaScriptGrammar.ASSIGNMENT_EXPRESSION),
+         b.invokeRule(EcmaScriptPunctuator.COLON),
+         b.invokeRule(EcmaScriptGrammar.ASSIGNMENT_EXPRESSION)))
+     ));
+  }
+
+  public ExpressionTree CONDITIONAL_OR_EXPRESSION() {
+    return b.<ExpressionTree>nonterminal(Kind.CONDITIONAL_OR)
+      .is(f.newConditionalOr(
+        CONDITIONAL_AND_EXPRESSION(),
+        b.zeroOrMore(f.newTuple6(
+          b.invokeRule(EcmaScriptPunctuator.OROR),
+          CONDITIONAL_AND_EXPRESSION()
+        ))
+      ));
+  }
+
+  public ExpressionTree CONDITIONAL_AND_EXPRESSION() {
+    return b.<ExpressionTree>nonterminal(Kind.CONDITIONAL_AND)
+      .is(f.newConditionalAnd(
+        BITWISE_OR_EXPRESSION(),
+        b.zeroOrMore(f.newTuple7(
+          b.invokeRule(EcmaScriptPunctuator.ANDAND),
+          BITWISE_OR_EXPRESSION()
+        ))
+      ));
+  }
+
+  public ExpressionTree BITWISE_OR_EXPRESSION() {
+    return b.<ExpressionTree>nonterminal(Kind.BITWISE_OR)
+      .is(f.newBitwiseOr(
+        BITWISE_XOR_EXPRESSION(),
+        b.zeroOrMore(f.newTuple8(
+          b.invokeRule(EcmaScriptPunctuator.OR),
+          BITWISE_XOR_EXPRESSION()
+        ))
+      ));
+  }
+
+  public ExpressionTree BITWISE_XOR_EXPRESSION() {
+    return b.<ExpressionTree>nonterminal(Kind.BITWISE_XOR)
+      .is(f.newBitwiseXor(
+        BITWISE_AND_EXPRESSION(),
+        b.zeroOrMore(f.newTuple9(
+          b.invokeRule(EcmaScriptPunctuator.XOR),
+          BITWISE_AND_EXPRESSION()
+        ))
+      ));
+  }
+
+  public ExpressionTree BITWISE_AND_EXPRESSION() {
+    return b.<ExpressionTree>nonterminal(Kind.BITWISE_AND)
+      .is(f.newBitwiseAnd(
+        EQUALITY_EXPRESSION(),
+        b.zeroOrMore(f.newTuple10(
+          b.invokeRule(EcmaScriptPunctuator.AND),
+          EQUALITY_EXPRESSION()
+        ))
+      ));
+  }
+
+  public ExpressionTree EQUALITY_EXPRESSION() {
+    return b.<ExpressionTree>nonterminal(EcmaScriptGrammar.EQUALITY_EXPRESSION)
+      .is(f.newEquality(
+        RELATIONAL_EXPRESSION(),
+        b.zeroOrMore(f.newTuple11(
+          b.firstOf(
+            b.invokeRule(EcmaScriptPunctuator.EQUAL),
+            b.invokeRule(EcmaScriptPunctuator.NOTEQUAL),
+            b.invokeRule(EcmaScriptPunctuator.EQUAL2),
+            b.invokeRule(EcmaScriptPunctuator.NOTEQUAL2)),
+          RELATIONAL_EXPRESSION()
+        ))
+        )
+      );
+  }
+
+  public ExpressionTree RELATIONAL_EXPRESSION() {
+    return b.<ExpressionTree>nonterminal(EcmaScriptGrammar.RELATIONAL_EXPRESSION)
+      .is(f.newRelational(
+          SHIFT_EXPRESSION(),
+          b.zeroOrMore(f.newTuple12(
+            b.firstOf(
+              b.invokeRule(EcmaScriptPunctuator.LT),
+              b.invokeRule(EcmaScriptPunctuator.GT),
+              b.invokeRule(EcmaScriptPunctuator.LE),
+              b.invokeRule(EcmaScriptPunctuator.GE),
+              b.invokeRule(EcmaScriptKeyword.INSTANCEOF),
+              b.invokeRule(EcmaScriptKeyword.IN)),
+            SHIFT_EXPRESSION()
+          ))
+        )
+      );
+  }
+
+  public ExpressionTree SHIFT_EXPRESSION() {
+    return b.<ExpressionTree>nonterminal(EcmaScriptGrammar.SHIFT_EXPRESSION)
+      .is(f.newShift(
+          ADDITIVE_EXPRESSION(),
+          b.zeroOrMore(f.newTuple13(
+            b.firstOf(
+              b.invokeRule(EcmaScriptPunctuator.SL),
+              b.invokeRule(EcmaScriptPunctuator.SR),
+              b.invokeRule(EcmaScriptPunctuator.SR2)),
+            ADDITIVE_EXPRESSION()
+          ))
+        )
+      );
+  }
+
+  public ExpressionTree ADDITIVE_EXPRESSION() {
+    return b.<ExpressionTree>nonterminal(EcmaScriptGrammar.ADDITIVE_EXPRESSION)
+      .is(f.newAdditive(
+          MULTIPLICATIVE_EXPRESSION(),
+          b.zeroOrMore(f.newTuple14(
+            b.firstOf(
+              b.invokeRule(EcmaScriptPunctuator.PLUS),
+              b.invokeRule(EcmaScriptPunctuator.MINUS)),
+            MULTIPLICATIVE_EXPRESSION()
+          ))
+        )
+      );
+  }
+
+  public ExpressionTree MULTIPLICATIVE_EXPRESSION() {
+    return b.<ExpressionTree>nonterminal(EcmaScriptGrammar.MULTIPLICATIVE_EXPRESSION)
+      .is(f.newMultiplicative(
+          UNARY_EXPRESSION(),
+          b.zeroOrMore(f.newTuple15(
+            b.firstOf(
+              b.invokeRule(EcmaScriptPunctuator.STAR),
+              b.invokeRule(EcmaScriptPunctuator.DIV),
+              b.invokeRule(EcmaScriptPunctuator.MOD)),
+            UNARY_EXPRESSION()
+          ))
+        )
+      );
+  }
+
+  public ExpressionTree UNARY_EXPRESSION() {
+    return b.<ExpressionTree>nonterminal(EcmaScriptGrammar.UNARY_EXPRESSION)
+      .is(b.firstOf(
+        POSTFIX_EXPRESSION(),
+        f.newDelete(b.invokeRule(EcmaScriptKeyword.DELETE), UNARY_EXPRESSION()),
+        f.newVoid(b.invokeRule(EcmaScriptKeyword.VOID), UNARY_EXPRESSION()),
+        f.newTypeOf(b.invokeRule(EcmaScriptKeyword.TYPEOF), UNARY_EXPRESSION()),
+        f.newPrefixInc(b.invokeRule(EcmaScriptPunctuator.INC), UNARY_EXPRESSION()),
+        f.newPrefixDec(b.invokeRule(EcmaScriptPunctuator.DEC), UNARY_EXPRESSION()),
+        f.newPrefixPlus(b.invokeRule(EcmaScriptPunctuator.PLUS), UNARY_EXPRESSION()),
+        f.newPrefixMinus(b.invokeRule(EcmaScriptPunctuator.MINUS), UNARY_EXPRESSION()),
+        f.newPrefixBitewiseCompletement(b.invokeRule(EcmaScriptPunctuator.TILDA), UNARY_EXPRESSION()),
+        f.newPrefixLogicalComplement(b.invokeRule(EcmaScriptPunctuator.BANG), UNARY_EXPRESSION())
+      ));
+  }
+
+  public ExpressionTree POSTFIX_EXPRESSION() {
+   return b.<ExpressionTree>nonterminal(EcmaScriptGrammar.POSTFIX_EXPRESSION)
+     .is(f.postfix(
+       LEFT_HAND_SIDE_EXPRESSION(),
+       b.optional(b.firstOf(
+         b.invokeRule(EcmaScriptGrammar.INC_NO_LB),
+         b.invokeRule(EcmaScriptGrammar.DEC_NO_LB)
+       ))
+     ));
+  }
+
+  public ExpressionTree LEFT_HAND_SIDE_EXPRESSION() {
+    return b.<ExpressionTree>nonterminal(EcmaScriptGrammar.LEFT_HAND_SIDE_EXPRESSION)
+      .is(f.newLeftHandSideExpression(b.firstOf(
+        b.invokeRule(EcmaScriptGrammar.CALL_EXPRESSION),
+        b.invokeRule(EcmaScriptGrammar.NEW_EXPRESSION)
+      )));
   }
 
   /**

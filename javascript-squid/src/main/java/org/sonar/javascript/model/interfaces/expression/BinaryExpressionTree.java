@@ -52,9 +52,9 @@ import org.sonar.javascript.model.interfaces.lexical.SyntaxToken;
  *   {@link #leftOperand()} {@link Tree.Kind#STRICT_EQUAL_TO ===} {@link #rightOperand()}
  *   {@link #leftOperand()} {@link Tree.Kind#NOT_EQUAL_TO !=} {@link #rightOperand()}
  *   {@link #leftOperand()} {@link Tree.Kind#STRICT_NOT_EQUAL_TO !==} {@link #rightOperand()}
- *   {@link #leftOperand()} {@link Tree.Kind#AND &} {@link #rightOperand()}
- *   {@link #leftOperand()} {@link Tree.Kind#XOR ^} {@link #rightOperand()}
- *   {@link #leftOperand()} {@link Tree.Kind#OR |} {@link #rightOperand()}
+ *   {@link #leftOperand()} {@link Tree.Kind#BITWISE_AND &} {@link #rightOperand()}
+ *   {@link #leftOperand()} {@link Tree.Kind#BITWISE_XOR ^} {@link #rightOperand()}
+ *   {@link #leftOperand()} {@link Tree.Kind#BITWISE_OR |} {@link #rightOperand()}
  *   {@link #leftOperand()} {@link Tree.Kind#CONDITIONAL_AND &&} {@link #rightOperand()}
  *   {@link #leftOperand()} {@link Tree.Kind#CONDITIONAL_OR ||} {@link #rightOperand()}
  * </pre>

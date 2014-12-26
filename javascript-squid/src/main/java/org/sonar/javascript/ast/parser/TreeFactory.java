@@ -22,15 +22,23 @@ package org.sonar.javascript.ast.parser;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.sonar.sslr.api.AstNode;
 import com.sonar.sslr.api.AstNodeType;
 import org.apache.commons.collections.ListUtils;
+import org.sonar.javascript.api.EcmaScriptKeyword;
+import org.sonar.javascript.api.EcmaScriptPunctuator;
 import org.sonar.javascript.model.implementations.SeparatedList;
 import org.sonar.javascript.model.implementations.declaration.FormalParameterListTreeImpl;
 import org.sonar.javascript.model.implementations.expression.ArrayLiteralTreeImpl;
+import org.sonar.javascript.model.implementations.expression.BinaryExpressionTreeImpl;
+import org.sonar.javascript.model.implementations.expression.ConditionalExpressionTreeImpl;
 import org.sonar.javascript.model.implementations.expression.FunctionExpressionTreeImpl;
 import org.sonar.javascript.model.implementations.expression.IdentifierTreeImpl;
+import org.sonar.javascript.model.implementations.expression.LeftHandSideExpressionTreeImpl;
 import org.sonar.javascript.model.implementations.expression.LiteralTreeImpl;
+import org.sonar.javascript.model.implementations.expression.PostfixExpressionTreeImpl;
+import org.sonar.javascript.model.implementations.expression.PrefixExpressionTreeImpl;
 import org.sonar.javascript.model.implementations.expression.RestElementTreeImpl;
 import org.sonar.javascript.model.implementations.expression.UndefinedTreeImpl;
 import org.sonar.javascript.model.implementations.lexical.InternalSyntaxToken;
@@ -59,15 +67,90 @@ import org.sonar.javascript.model.implementations.statement.VariableStatementTre
 import org.sonar.javascript.model.implementations.statement.WhileStatementTreeImpl;
 import org.sonar.javascript.model.implementations.statement.WithStatementTreeImpl;
 import org.sonar.javascript.model.interfaces.Tree.Kind;
-import org.sonar.javascript.model.interfaces.declaration.FormalParameterListTree;
 import org.sonar.javascript.model.interfaces.expression.ExpressionTree;
 import org.sonar.javascript.model.interfaces.statement.StatementTree;
 import org.sonar.javascript.model.interfaces.statement.SwitchClauseTree;
+import org.sonar.javascript.parser.EcmaScriptGrammar;
 import org.sonar.javascript.parser.sslr.Optional;
 
 import java.util.List;
+import java.util.Map;
 
 public class TreeFactory {
+
+  private static final Map<EcmaScriptPunctuator, Kind> EXPRESSION_KIND_BY_PUNCTUATORS = Maps.newEnumMap(EcmaScriptPunctuator.class);
+
+  static {
+    EXPRESSION_KIND_BY_PUNCTUATORS.put(EcmaScriptPunctuator.OROR, Kind.CONDITIONAL_OR);
+    EXPRESSION_KIND_BY_PUNCTUATORS.put(EcmaScriptPunctuator.ANDAND, Kind.CONDITIONAL_AND);
+    EXPRESSION_KIND_BY_PUNCTUATORS.put(EcmaScriptPunctuator.OR, Kind.BITWISE_OR);
+    EXPRESSION_KIND_BY_PUNCTUATORS.put(EcmaScriptPunctuator.XOR, Kind.BITWISE_XOR);
+    EXPRESSION_KIND_BY_PUNCTUATORS.put(EcmaScriptPunctuator.AND, Kind.BITWISE_AND);
+    EXPRESSION_KIND_BY_PUNCTUATORS.put(EcmaScriptPunctuator.EQUAL, Kind.EQUAL_TO);
+    EXPRESSION_KIND_BY_PUNCTUATORS.put(EcmaScriptPunctuator.NOTEQUAL, Kind.NOT_EQUAL_TO);
+    EXPRESSION_KIND_BY_PUNCTUATORS.put(EcmaScriptPunctuator.EQUAL2, Kind.STRICT_EQUAL_TO);
+    EXPRESSION_KIND_BY_PUNCTUATORS.put(EcmaScriptPunctuator.NOTEQUAL2, Kind.STRICT_NOT_EQUAL_TO);
+    EXPRESSION_KIND_BY_PUNCTUATORS.put(EcmaScriptPunctuator.LT, Kind.LESS_THAN);
+    EXPRESSION_KIND_BY_PUNCTUATORS.put(EcmaScriptPunctuator.GT, Kind.GREATER_THAN);
+    EXPRESSION_KIND_BY_PUNCTUATORS.put(EcmaScriptPunctuator.LE, Kind.LESS_THAN_OR_EQUAL_TO);
+    EXPRESSION_KIND_BY_PUNCTUATORS.put(EcmaScriptPunctuator.GE, Kind.GREATER_THAN_OR_EQUAL_TO);
+    EXPRESSION_KIND_BY_PUNCTUATORS.put(EcmaScriptPunctuator.SL, Kind.LEFT_SHIFT);
+    EXPRESSION_KIND_BY_PUNCTUATORS.put(EcmaScriptPunctuator.SR, Kind.RIGHT_SHIFT);
+    EXPRESSION_KIND_BY_PUNCTUATORS.put(EcmaScriptPunctuator.SR2, Kind.UNSIGNED_RIGHT_SHIFT);
+    EXPRESSION_KIND_BY_PUNCTUATORS.put(EcmaScriptPunctuator.PLUS, Kind.PLUS);
+    EXPRESSION_KIND_BY_PUNCTUATORS.put(EcmaScriptPunctuator.MINUS, Kind.MINUS);
+    EXPRESSION_KIND_BY_PUNCTUATORS.put(EcmaScriptPunctuator.STAR, Kind.MULTIPLY);
+    EXPRESSION_KIND_BY_PUNCTUATORS.put(EcmaScriptPunctuator.DIV, Kind.DIVIDE);
+    EXPRESSION_KIND_BY_PUNCTUATORS.put(EcmaScriptPunctuator.MOD, Kind.REMAINDER);
+  }
+
+  private static final Map<EcmaScriptKeyword, Kind> EXPRESSION_KIND_BY_KEYWORDS = Maps.newEnumMap(EcmaScriptKeyword.class);
+
+  static {
+    EXPRESSION_KIND_BY_KEYWORDS.put(EcmaScriptKeyword.INSTANCEOF, Kind.INSTANCE_OF);
+    EXPRESSION_KIND_BY_KEYWORDS.put(EcmaScriptKeyword.IN, Kind.RELATIONAL_IN);
+  }
+
+  private static final Map<EcmaScriptPunctuator, Kind> PREFIX_KIND_BY_PUNCTUATORS = Maps.newEnumMap(EcmaScriptPunctuator.class);
+
+  static {
+    PREFIX_KIND_BY_PUNCTUATORS.put(EcmaScriptPunctuator.INC, Kind.PREFIX_INCREMENT);
+    PREFIX_KIND_BY_PUNCTUATORS.put(EcmaScriptPunctuator.DEC, Kind.PREFIX_DECREMENT);
+    PREFIX_KIND_BY_PUNCTUATORS.put(EcmaScriptPunctuator.PLUS, Kind.UNARY_PLUS);
+    PREFIX_KIND_BY_PUNCTUATORS.put(EcmaScriptPunctuator.MINUS, Kind.UNARY_MINUS);
+    PREFIX_KIND_BY_PUNCTUATORS.put(EcmaScriptPunctuator.TILDA, Kind.BITWISE_COMPLEMENT);
+    PREFIX_KIND_BY_PUNCTUATORS.put(EcmaScriptPunctuator.BANG, Kind.LOGICAL_COMPLEMENT);
+  }
+
+  private static final Map<EcmaScriptKeyword, Kind> PREFIX_KIND_BY_KEYWORDS = Maps.newEnumMap(EcmaScriptKeyword.class);
+
+  static {
+    PREFIX_KIND_BY_KEYWORDS.put(EcmaScriptKeyword.DELETE, Kind.DELETE);
+    PREFIX_KIND_BY_KEYWORDS.put(EcmaScriptKeyword.VOID, Kind.VOID);
+    PREFIX_KIND_BY_KEYWORDS.put(EcmaScriptKeyword.TYPEOF, Kind.TYPEOF);
+  }
+
+  private Kind getBinaryOperator(AstNodeType punctuator) {
+    Kind kind = EXPRESSION_KIND_BY_PUNCTUATORS.get(punctuator);
+    if (kind == null) {
+      kind = EXPRESSION_KIND_BY_KEYWORDS.get(punctuator);
+      if (kind == null) {
+        throw new IllegalArgumentException("Mapping not found for binary operator " + punctuator);
+      }
+    }
+    return kind;
+  }
+
+  private Kind getPrefixOperator(AstNodeType punctuator) {
+    Kind kind = PREFIX_KIND_BY_PUNCTUATORS.get(punctuator);
+    if (kind == null) {
+      kind = PREFIX_KIND_BY_KEYWORDS.get(punctuator);
+      if (kind == null) {
+        throw new IllegalArgumentException("Mapping not found for unary operator " + punctuator);
+      }
+    }
+    return kind;
+  }
 
   // Statements
 
@@ -516,11 +599,128 @@ public class TreeFactory {
     return new RestElementTreeImpl(InternalSyntaxToken.create(ellipsis), new IdentifierTreeImpl(InternalSyntaxToken.create(identifier)));
   }
 
-  public FormalParameterListTreeImpl comleteFormalParameterList(AstNode openParenthesis, Optional<FormalParameterListTreeImpl> parameters, AstNode closeParenthesis) {
+  public FormalParameterListTreeImpl completeFormalParameterList(AstNode openParenthesis, Optional<FormalParameterListTreeImpl> parameters, AstNode closeParenthesis) {
     if (parameters.isPresent()) {
       return parameters.get().complete(InternalSyntaxToken.create(openParenthesis), InternalSyntaxToken.create(closeParenthesis));
     }
     return new FormalParameterListTreeImpl(InternalSyntaxToken.create(openParenthesis), InternalSyntaxToken.create(closeParenthesis));
+  }
+
+  public ConditionalExpressionTreeImpl newConditionalExpression(AstNode queryToken, AstNode trueExpression, AstNode colonToken, AstNode falseExpression) {
+    return new ConditionalExpressionTreeImpl(InternalSyntaxToken.create(queryToken), trueExpression, InternalSyntaxToken.create(colonToken), falseExpression);
+  }
+
+  public ExpressionTree completeConditionalExpression(ExpressionTree expression, Optional<ConditionalExpressionTreeImpl> partial) {
+    return partial.isPresent() ? partial.get().complete(expression) : expression;
+  }
+
+  public ExpressionTree newConditionalOr(ExpressionTree expression, Optional<List<Tuple<AstNode, ExpressionTree>>> operatorAndOperands) {
+    return buildBinaryExpression(expression, operatorAndOperands);
+  }
+
+  public ExpressionTree newConditionalAnd(ExpressionTree expression, Optional<List<Tuple<AstNode, ExpressionTree>>> operatorAndOperands) {
+    return buildBinaryExpression(expression, operatorAndOperands);
+  }
+
+  public ExpressionTree newBitwiseOr(ExpressionTree expression, Optional<List<Tuple<AstNode, ExpressionTree>>> operatorAndOperands) {
+    return buildBinaryExpression(expression, operatorAndOperands);
+  }
+
+  public ExpressionTree newBitwiseXor(ExpressionTree expression, Optional<List<Tuple<AstNode, ExpressionTree>>> operatorAndOperands) {
+    return buildBinaryExpression(expression, operatorAndOperands);
+  }
+
+  public ExpressionTree newBitwiseAnd(ExpressionTree expression, Optional<List<Tuple<AstNode, ExpressionTree>>> operatorAndOperands) {
+    return buildBinaryExpression(expression, operatorAndOperands);
+  }
+
+  public ExpressionTree newEquality(ExpressionTree expression, Optional<List<Tuple<AstNode, ExpressionTree>>> operatorAndOperands) {
+    return buildBinaryExpression(expression, operatorAndOperands);
+  }
+
+  public ExpressionTree newRelational(ExpressionTree expression, Optional<List<Tuple<AstNode, ExpressionTree>>> operatorAndOperands) {
+    return buildBinaryExpression(expression, operatorAndOperands);
+  }
+
+  public ExpressionTree newShift(ExpressionTree expression, Optional<List<Tuple<AstNode, ExpressionTree>>> operatorAndOperands) {
+    return buildBinaryExpression(expression, operatorAndOperands);
+  }
+
+  public ExpressionTree newAdditive(ExpressionTree expression, Optional<List<Tuple<AstNode, ExpressionTree>>> operatorAndOperands) {
+    return buildBinaryExpression(expression, operatorAndOperands);
+  }
+
+  public ExpressionTree newMultiplicative(ExpressionTree expression, Optional<List<Tuple<AstNode, ExpressionTree>>> operatorAndOperands) {
+    return buildBinaryExpression(expression, operatorAndOperands);
+  }
+
+  private ExpressionTree buildBinaryExpression(ExpressionTree expression, Optional<List<Tuple<AstNode, ExpressionTree>>> operatorAndOperands) {
+    if (!operatorAndOperands.isPresent()) {
+      return expression;
+    }
+
+    ExpressionTree result = expression;
+
+    for (Tuple<AstNode, ExpressionTree> t : operatorAndOperands.get()) {
+      result = new BinaryExpressionTreeImpl(
+        getBinaryOperator(t.first().getType()),
+        result,
+        InternalSyntaxToken.create(t.first()),
+        t.second());
+    }
+    return result;
+  }
+
+  public ExpressionTree newDelete(AstNode operator, ExpressionTree expression) {
+    return buildPrefixExpression(operator, expression);
+  }
+
+  public ExpressionTree newTypeOf(AstNode operator, ExpressionTree expression) {
+    return buildPrefixExpression(operator, expression);
+  }
+
+  public ExpressionTree newVoid(AstNode operator, ExpressionTree expression) {
+    return buildPrefixExpression(operator, expression);
+  }
+
+  public ExpressionTree newPrefixInc(AstNode operator, ExpressionTree expression) {
+    return buildPrefixExpression(operator, expression);
+  }
+
+  public ExpressionTree newPrefixDec(AstNode operator, ExpressionTree expression) {
+    return buildPrefixExpression(operator, expression);
+  }
+
+  public ExpressionTree newPrefixPlus(AstNode operator, ExpressionTree expression) {
+    return buildPrefixExpression(operator, expression);
+  }
+
+  public ExpressionTree newPrefixMinus(AstNode operator, ExpressionTree expression) {
+    return buildPrefixExpression(operator, expression);
+  }
+
+  public ExpressionTree newPrefixBitewiseCompletement(AstNode operator, ExpressionTree expression) {
+    return buildPrefixExpression(operator, expression);
+  }
+
+  public ExpressionTree newPrefixLogicalComplement(AstNode operator, ExpressionTree expression) {
+    return buildPrefixExpression(operator, expression);
+  }
+
+  private ExpressionTree buildPrefixExpression(AstNode operator, ExpressionTree expression) {
+    return new PrefixExpressionTreeImpl(getPrefixOperator(operator.getType()), InternalSyntaxToken.create(operator), expression);
+  }
+
+  public ExpressionTree postfix(ExpressionTree expression, Optional<AstNode> operator) {
+    if (!operator.isPresent()) {
+      return expression;
+    }
+    Kind kind = operator.get().is(EcmaScriptGrammar.INC_NO_LB) ? Kind.POSTFIX_INCREMENT : Kind.POSTFIX_DECREMENT;
+    return new PostfixExpressionTreeImpl(kind, expression, InternalSyntaxToken.create(operator.get()));
+  }
+
+  public ExpressionTree newLeftHandSideExpression(AstNode expression) {
+    return new LeftHandSideExpressionTreeImpl(expression);
   }
 
   public static class Tuple<T, U> extends AstNode {
@@ -595,6 +795,45 @@ public class TreeFactory {
     return newTuple(first, second);
   }
 
+  public <T, U> Tuple<T, U> newTuple6(T first, U second) {
+    return newTuple(first, second);
+  }
+
+  public <T, U> Tuple<T, U> newTuple7(T first, U second) {
+    return newTuple(first, second);
+  }
+
+  public <T, U> Tuple<T, U> newTuple8(T first, U second) {
+    return newTuple(first, second);
+  }
+
+  public <T, U> Tuple<T, U> newTuple9(T first, U second) {
+    return newTuple(first, second);
+  }
+
+  public <T, U> Tuple<T, U> newTuple10(T first, U second) {
+    return newTuple(first, second);
+  }
+
+  public <T, U> Tuple<T, U> newTuple11(T first, U second) {
+    return newTuple(first, second);
+  }
+
+  public <T, U> Tuple<T, U> newTuple12(T first, U second) {
+    return newTuple(first, second);
+  }
+
+  public <T, U> Tuple<T, U> newTuple13(T first, U second) {
+    return newTuple(first, second);
+  }
+
+  public <T, U> Tuple<T, U> newTuple14(T first, U second) {
+    return newTuple(first, second);
+  }
+
+  public <T, U> Tuple<T, U> newTuple15(T first, U second) {
+    return newTuple(first, second);
+  }
   // End
 
 }

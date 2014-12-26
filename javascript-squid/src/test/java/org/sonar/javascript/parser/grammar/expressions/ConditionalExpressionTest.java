@@ -20,7 +20,7 @@
 package org.sonar.javascript.parser.grammar.expressions;
 
 import org.junit.Test;
-import org.sonar.javascript.parser.EcmaScriptGrammar;
+import org.sonar.javascript.model.interfaces.Tree.Kind;
 
 import static org.sonar.javascript.sslr.tests.Assertions.assertThat;
 
@@ -29,7 +29,7 @@ public class ConditionalExpressionTest {
 
   @Test
   public void realLife() {
-    assertThat(EcmaScriptGrammar.CONDITIONAL_EXPRESSION)
+    assertThat(Kind.CONDITIONAL_EXPRESSION)
         .matches("a ? b : c");
   }
 

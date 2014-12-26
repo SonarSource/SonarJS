@@ -21,6 +21,8 @@ package org.sonar.javascript.model.interfaces;
 
 import com.sonar.sslr.api.AstNodeType;
 import org.sonar.javascript.model.interfaces.declaration.FormalParameterListTree;
+import org.sonar.javascript.model.interfaces.expression.CallExpressionTree;
+import org.sonar.javascript.model.interfaces.expression.ConditionalExpressionTree;
 import org.sonar.javascript.model.interfaces.expression.FunctionTree;
 import org.sonar.javascript.model.interfaces.expression.ArrayLiteralTree;
 import org.sonar.javascript.model.interfaces.expression.ArrowFunctionTree;
@@ -334,7 +336,7 @@ public interface Tree {
 
     /**
      * {@link UnaryExpressionTree}
-     * {@code delete!}
+     * {@code delete}
      */
     DELETE(UnaryExpressionTree.class),
 
@@ -399,6 +401,16 @@ public interface Tree {
 
     /**
      * {@link BinaryExpressionTree}
+     */
+    RELATIONAL_IN(BinaryExpressionTree.class),
+
+    /**
+     * {@link BinaryExpressionTree}
+     */
+    INSTANCE_OF(BinaryExpressionTree.class),
+
+    /**
+     * {@link BinaryExpressionTree}
      * {@code <}
      */
     LESS_THAN(BinaryExpressionTree.class),
@@ -449,19 +461,19 @@ public interface Tree {
      * {@link BinaryExpressionTree}
      * {@code &}
      */
-    AND(BinaryExpressionTree.class),
+    BITWISE_AND(BinaryExpressionTree.class),
 
     /**
      * {@link BinaryExpressionTree}
      * {@code ^}
      */
-    XOR(BinaryExpressionTree.class),
+    BITWISE_XOR(BinaryExpressionTree.class),
 
     /**
      * {@link BinaryExpressionTree}
      * {@code |}
      */
-    OR(BinaryExpressionTree.class),
+    BITWISE_OR(BinaryExpressionTree.class),
 
     /**
      * {@link BinaryExpressionTree}
@@ -474,6 +486,11 @@ public interface Tree {
      * {@code ||}
      */
     CONDITIONAL_OR(BinaryExpressionTree.class),
+
+    /**
+     * {@link ConditionalExpressionTree}
+     */
+    CONDITIONAL_EXPRESSION(ConditionalExpressionTree.class),
 
     /**
      * {@link AssignmentExpressionTree}
@@ -552,6 +569,11 @@ public interface Tree {
      * {@code new expression}
      */
     NEW_EXPRESSION(NewExpressionTree.class),
+
+    /**
+     * {@link NewExpressionTree}
+     */
+    CALL_EXPRESSION(CallExpressionTree.class),
 
     /**
      * {@link NewExpressionTree}

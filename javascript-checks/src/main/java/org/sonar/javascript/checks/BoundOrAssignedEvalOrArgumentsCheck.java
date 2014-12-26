@@ -25,6 +25,7 @@ import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.javascript.api.EcmaScriptPunctuator;
 import org.sonar.javascript.api.EcmaScriptTokenType;
+import org.sonar.javascript.checks.utils.CheckUtils;
 import org.sonar.javascript.checks.utils.IdentifierUtils;
 import org.sonar.javascript.model.interfaces.Tree.Kind;
 import org.sonar.javascript.parser.EcmaScriptGrammar;
@@ -57,9 +58,9 @@ public class BoundOrAssignedEvalOrArgumentsCheck extends SquidCheck<LexerlessGra
     subscribeTo(
       Kind.CATCH_BLOCK,
       EcmaScriptGrammar.PROPERTY_SET_PARAMETER_LIST,
-      EcmaScriptGrammar.ASSIGNMENT_EXPRESSION,
-      EcmaScriptGrammar.POSTFIX_EXPRESSION,
-      EcmaScriptGrammar.UNARY_EXPRESSION);
+      EcmaScriptGrammar.ASSIGNMENT_EXPRESSION);
+    subscribeTo(CheckUtils.postfixExpressionArray());
+    subscribeTo(CheckUtils.prefixExpressionArray());
     subscribeTo(FUNCTION_NODES);
     subscribeTo(CONST_AND_VAR_NODES);
   }
@@ -74,7 +75,7 @@ public class BoundOrAssignedEvalOrArgumentsCheck extends SquidCheck<LexerlessGra
       checkPropertySetParameterList(astNode);
     } else if (astNode.is(EcmaScriptGrammar.ASSIGNMENT_EXPRESSION)) {
       checkModification(astNode.getFirstDescendant(EcmaScriptGrammar.MEMBER_EXPRESSION));
-    } else if (astNode.is(EcmaScriptGrammar.UNARY_EXPRESSION, EcmaScriptGrammar.POSTFIX_EXPRESSION)
+    } else if (CheckUtils.isPostfixExpression(astNode) || CheckUtils.isPrefixExpression(astNode)
       && astNode.hasDirectChildren(EcmaScriptPunctuator.INC, EcmaScriptPunctuator.DEC)) {
       checkModification(astNode.getFirstDescendant(EcmaScriptGrammar.MEMBER_EXPRESSION));
     }

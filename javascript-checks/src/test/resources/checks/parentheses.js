@@ -33,4 +33,6 @@ function sayHello() {
   }
 
   foo = (1 + 2);
+
+  v in (array1 || array2); // OK
 }

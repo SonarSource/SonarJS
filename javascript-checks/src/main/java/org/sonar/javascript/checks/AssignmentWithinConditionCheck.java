@@ -25,6 +25,7 @@ import com.sonar.sslr.api.AstNodeType;
 import org.sonar.check.BelongsToProfile;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
+import org.sonar.javascript.checks.utils.CheckUtils;
 import org.sonar.javascript.model.interfaces.Tree.Kind;
 import org.sonar.javascript.parser.EcmaScriptGrammar;
 import org.sonar.squidbridge.checks.SquidCheck;
@@ -44,9 +45,17 @@ public class AssignmentWithinConditionCheck extends SquidCheck<LexerlessGrammar>
   private static final AstNodeType[] SCOPES = {
     EcmaScriptGrammar.CONDITION,
     EcmaScriptGrammar.FUNCTION_BODY,
-    EcmaScriptGrammar.RELATIONAL_EXPRESSION,
+    Kind.LESS_THAN,
+    Kind.GREATER_THAN,
+    Kind.LESS_THAN_OR_EQUAL_TO,
+    Kind.GREATER_THAN_OR_EQUAL_TO,
+    Kind.INSTANCE_OF,
+    Kind.RELATIONAL_IN,
     EcmaScriptGrammar.RELATIONAL_EXPRESSION_NO_IN,
-    EcmaScriptGrammar.EQUALITY_EXPRESSION,
+    Kind.EQUAL_TO,
+    Kind.NOT_EQUAL_TO,
+    Kind.STRICT_EQUAL_TO,
+    Kind.STRICT_NOT_EQUAL_TO,
     EcmaScriptGrammar.EQUALITY_EXPRESSION_NO_IN
   };
 
@@ -96,8 +105,8 @@ public class AssignmentWithinConditionCheck extends SquidCheck<LexerlessGrammar>
   }
 
   private boolean isExcludedExpression(AstNodeType node) {
-    return EcmaScriptGrammar.EQUALITY_EXPRESSION.equals(node) || EcmaScriptGrammar.EQUALITY_EXPRESSION_NO_IN.equals(node)
-      || EcmaScriptGrammar.RELATIONAL_EXPRESSION.equals(node) || EcmaScriptGrammar.RELATIONAL_EXPRESSION_NO_IN.equals(node);
+    return CheckUtils.isEqualityExpression(node) || EcmaScriptGrammar.EQUALITY_EXPRESSION_NO_IN.equals(node)
+      || CheckUtils.isRelationalExpression(node) || EcmaScriptGrammar.RELATIONAL_EXPRESSION_NO_IN.equals(node);
   }
 
   private boolean isTargetedExpression(AstNode astNode) {
