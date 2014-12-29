@@ -118,7 +118,7 @@ public final class JavaScriptAstScanner {
 
     builder.withSquidAstVisitor(new SourceCodeBuilderVisitor<LexerlessGrammar>(new SourceCodeBuilderCallback() {
       public SourceCode createSourceCode(SourceCode parentSourceCode, AstNode astNode) {
-        AstNode identifier = astNode.getFirstChild(EcmaScriptTokenType.IDENTIFIER, EcmaScriptGrammar.PROPERTY_NAME, EcmaScriptGrammar.IDENTIFIER_REFERENCE);
+        AstNode identifier = astNode.getFirstChild(EcmaScriptTokenType.IDENTIFIER, EcmaScriptGrammar.PROPERTY_NAME, Kind.IDENTIFIER);
         final String functionName = identifier == null ? "anonymous" : identifier.getTokenValue();
         final String fileKey = parentSourceCode.isType(SourceFile.class) ? parentSourceCode.getKey() : parentSourceCode.getParent(SourceFile.class).getKey();
         SourceFunction function = new SourceFunction(fileKey + ":" + functionName + ":" + astNode.getToken().getLine() + ":" + astNode.getToken().getColumn());

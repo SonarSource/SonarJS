@@ -508,7 +508,7 @@ public class TreeFactory {
   }
 
 
-  public FunctionExpressionTreeImpl generatorExpression(AstNode functionKeyword, AstNode starOperator, Optional<AstNode> functionName, ParameterListTreeImpl parameters, AstNode openCurlyBrace, AstNode functionBody, AstNode closeCurlyBrace) {
+  public FunctionExpressionTreeImpl generatorExpression(AstNode functionKeyword, AstNode starOperator, Optional<IdentifierTreeImpl> functionName, ParameterListTreeImpl parameters, AstNode openCurlyBrace, AstNode functionBody, AstNode closeCurlyBrace) {
     ImmutableList.Builder<AstNode> children = ImmutableList.builder();
     InternalSyntaxToken functionToken = InternalSyntaxToken.create(functionKeyword);
     InternalSyntaxToken starToken = InternalSyntaxToken.create(starOperator);
@@ -517,11 +517,10 @@ public class TreeFactory {
 
 
     if (functionName.isPresent()) {
-      IdentifierTreeImpl name = new IdentifierTreeImpl(InternalSyntaxToken.create(functionName.get()));
-      children.add(functionToken, starToken, name, parameters, openCurlyBrace, functionBody, closeCurlyBrace);
+      children.add(functionToken, starToken, functionName.get(), parameters, openCurlyBrace, functionBody, closeCurlyBrace);
 
       return new FunctionExpressionTreeImpl(Kind.GENERATOR_FUNCTION_EXPRESSION,
-        functionToken, starToken, name, parameters, openCurlyToken, closeCurlyToken, children.build());
+        functionToken, starToken, functionName.get(), parameters, openCurlyToken, closeCurlyToken, children.build());
     }
 
     children.add(functionToken, starToken, parameters, openCurlyBrace, functionBody, closeCurlyBrace);
@@ -596,8 +595,8 @@ public class TreeFactory {
     return new ParameterListTreeImpl(Kind.FORMAL_PARAMETER_LIST, new SeparatedList<ExpressionTree>(ListUtils.EMPTY_LIST /*FIXME when patterns are migrated*/, commas, children));
   }
 
-  public RestElementTreeImpl bindingRestElement(AstNode ellipsis, AstNode identifier) {
-    return new RestElementTreeImpl(InternalSyntaxToken.create(ellipsis), new IdentifierTreeImpl(InternalSyntaxToken.create(identifier)));
+  public RestElementTreeImpl bindingRestElement(AstNode ellipsis, IdentifierTreeImpl identifier) {
+    return new RestElementTreeImpl(InternalSyntaxToken.create(ellipsis), identifier);
   }
 
   public ParameterListTreeImpl completeFormalParameterList(AstNode openParenthesis, Optional<ParameterListTreeImpl> parameters, AstNode closeParenthesis) {
@@ -700,6 +699,10 @@ public class TreeFactory {
       return new YieldExpressionTreeImpl(InternalSyntaxToken.create(starToken.get()), expression);
     }
     return new YieldExpressionTreeImpl(expression);
+  }
+
+  public IdentifierTreeImpl identifierReference(AstNode identifierOrYield) {
+    return new IdentifierTreeImpl(InternalSyntaxToken.create(identifierOrYield));
   }
 
   public static class Tuple<T, U> extends AstNode {

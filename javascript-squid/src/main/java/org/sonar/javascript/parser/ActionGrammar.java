@@ -430,7 +430,7 @@ public class ActionGrammar {
    */
   public RestElementTreeImpl BINDING_REST_ELEMENT() {
     return b.<RestElementTreeImpl>nonterminal(EcmaScriptGrammar.BINDING_REST_ELEMENT)
-      .is(f.bindingRestElement(b.invokeRule(EcmaScriptPunctuator.ELLIPSIS), b.invokeRule(EcmaScriptGrammar.IDENTIFIER_REFERENCE)));
+      .is(f.bindingRestElement(b.invokeRule(EcmaScriptPunctuator.ELLIPSIS), IDENTIFIER_REFERENCE()));
   }
   public ArrayLiteralTreeImpl ARRAY_LITERAL() {
     return b.<ArrayLiteralTreeImpl>nonterminal(Kind.ARRAY_LITERAL)
@@ -451,7 +451,7 @@ public class ActionGrammar {
       .is(f.generatorExpression(
         b.invokeRule(EcmaScriptKeyword.FUNCTION),
         b.invokeRule(EcmaScriptPunctuator.STAR),
-        b.optional(b.invokeRule(EcmaScriptGrammar.IDENTIFIER_REFERENCE)),
+        b.optional(IDENTIFIER_REFERENCE()),
         FORMAL_PARAMETER_LIST(),
         b.invokeRule(EcmaScriptPunctuator.LCURLYBRACE),
         b.invokeRule(EcmaScriptGrammar.FUNCTION_BODY),
@@ -664,6 +664,13 @@ public class ActionGrammar {
       ));
   }
 
+  public IdentifierTreeImpl IDENTIFIER_REFERENCE() {
+    return b.<IdentifierTreeImpl>nonterminal(EcmaScriptGrammar.IDENTIFIER_REFERENCE)
+      .is(f.identifierReference(b.firstOf(
+        b.invokeRule(EcmaScriptKeyword.YIELD),
+        b.invokeRule(EcmaScriptTokenType.IDENTIFIER)))
+      );
+  }
   /**
    * A.3 [END] Expressions
    */
