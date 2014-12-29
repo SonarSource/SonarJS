@@ -29,7 +29,7 @@ public class ArrayInitializerElementTest {
 
   @Test
   public void ok() {
-    assertThat(EcmaScriptGrammar.ARRAY_INITIALIZER_ELEMENT)
+    assertThat(EcmaScriptGrammar.ARRAY_LITERAL_ELEMENT)
         .matches("assignmentExpression")
         .matches("... assignmentExpression");
   }

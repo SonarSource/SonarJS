@@ -393,18 +393,18 @@ public class ActionGrammar {
         f.regexpLiteral(b.invokeRule(EcmaScriptTokenType.REGULAR_EXPRESSION_LITERAL))));
   }
 
-  public AstNode ARRAY_INITIALISER_ELEMENT() {
-    return b.<AstNode>nonterminal(EcmaScriptGrammar.ARRAY_INITIALIZER_ELEMENT)
+  public AstNode ARRAY_LITERAL_ELEMENT() {
+    return b.<AstNode>nonterminal(EcmaScriptGrammar.ARRAY_LITERAL_ELEMENT)
       .is(f.arrayInitialiserElement(b.optional(b.invokeRule(EcmaScriptPunctuator.ELLIPSIS)), b.invokeRule(EcmaScriptGrammar.ASSIGNMENT_EXPRESSION)));
   }
 
-  public ArrayLiteralTreeImpl ELEMENT_LIST() {
+  public ArrayLiteralTreeImpl ARRAY_ELEMENT_LIST() {
     return b.<ArrayLiteralTreeImpl>nonterminal(EcmaScriptGrammar.ELEMENT_LIST)
       .is(f.newArrayLiteralWithElements(
         b.zeroOrMore(b.invokeRule(EcmaScriptPunctuator.COMMA)),
-        ARRAY_INITIALISER_ELEMENT(),
+        ARRAY_LITERAL_ELEMENT(),
         b.zeroOrMore(
-          f.newTuple3(f.newWrapperAstNode(b.oneOrMore(b.invokeRule(EcmaScriptPunctuator.COMMA))), ARRAY_INITIALISER_ELEMENT())),
+          f.newTuple3(f.newWrapperAstNode(b.oneOrMore(b.invokeRule(EcmaScriptPunctuator.COMMA))), ARRAY_LITERAL_ELEMENT())),
         b.zeroOrMore(b.invokeRule(EcmaScriptPunctuator.COMMA))));
   }
 
@@ -423,6 +423,9 @@ public class ActionGrammar {
       ));
   }
 
+  /**
+   * ECMAScript 6
+   */
   public RestElementTreeImpl BINDING_REST_ELEMENT() {
     return b.<RestElementTreeImpl>nonterminal(EcmaScriptGrammar.BINDING_REST_ELEMENT)
       .is(f.bindingRestElement(b.invokeRule(EcmaScriptPunctuator.ELLIPSIS), b.invokeRule(EcmaScriptGrammar.BINDING_IDENTIFIER)));
@@ -432,12 +435,15 @@ public class ActionGrammar {
       .is(f.completeArrayLiteral(
         b.invokeRule(EcmaScriptPunctuator.LBRACKET),
         b.optional(b.firstOf(
-          ELEMENT_LIST(),
+          ARRAY_ELEMENT_LIST(),
           f.newArrayLiteralWithElidedElements(b.oneOrMore(b.invokeRule(EcmaScriptPunctuator.COMMA))))),
         b.invokeRule(EcmaScriptPunctuator.RBRACKET)
       ));
   }
 
+  /**
+   * ECMAScript 6
+   */
   public FunctionExpressionTreeImpl GENERATOR_EXPRESSION() {
     return b.<FunctionExpressionTreeImpl>nonterminal(Kind.GENERATOR_FUNCTION_EXPRESSION)
       .is(f.generatorExpression(

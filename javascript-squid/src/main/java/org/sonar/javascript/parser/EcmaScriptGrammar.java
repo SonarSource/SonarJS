@@ -254,7 +254,7 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
   /** ECMAScript 6 **/
   YIELD_EXPRESSION_NO_IN,
   /** ECMAScript 6 **/
-  ARRAY_INITIALIZER_ELEMENT,
+  ARRAY_LITERAL_ELEMENT,
   /** ECMAScript 6 **/
   SPREAD_ELEMENT,
   /** ECMAScript 6 **/
@@ -302,8 +302,6 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
   FUNCTION_DECLARATION,
   FUNCTION_EXPRESSION,
   FORMAL_PARAMETER,
-  /** ECMAScript 6 **/
-  REST_PARAMETER,
   FUNCTION_BODY,
   /** ECMAScript 6 **/
   LEXICAL_DECLARATION,
@@ -831,7 +829,6 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
       ecmascript6(LEXICAL_DECLARATION)));
 
     b.rule(FUNCTION_DECLARATION).is(FUNCTION, IDENTIFIER, Kind.FORMAL_PARAMETER_LIST, LCURLYBRACE, FUNCTION_BODY, RCURLYBRACE);
-    b.rule(REST_PARAMETER).is(BINDING_REST_ELEMENT);
 
     b.rule(FUNCTION_BODY).is(b.optional(STATEMENT_LIST));
 
