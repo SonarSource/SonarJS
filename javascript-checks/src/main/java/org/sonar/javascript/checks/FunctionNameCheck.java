@@ -60,7 +60,7 @@ public class FunctionNameCheck extends SquidCheck<LexerlessGrammar> {
     String identifier = astNode.getFirstChild(
       EcmaScriptTokenType.IDENTIFIER,
       EcmaScriptGrammar.PROPERTY_NAME,
-      EcmaScriptGrammar.BINDING_IDENTIFIER).getTokenValue();
+      EcmaScriptGrammar.IDENTIFIER_REFERENCE).getTokenValue();
 
 
     if (!pattern.matcher(identifier).matches()) {

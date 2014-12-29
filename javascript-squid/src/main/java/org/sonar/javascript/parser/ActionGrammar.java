@@ -27,6 +27,7 @@ import org.sonar.javascript.ast.parser.TreeFactory;
 import org.sonar.javascript.model.implementations.declaration.ParameterListTreeImpl;
 import org.sonar.javascript.model.implementations.expression.ArrayLiteralTreeImpl;
 import org.sonar.javascript.model.implementations.expression.FunctionExpressionTreeImpl;
+import org.sonar.javascript.model.implementations.expression.IdentifierTreeImpl;
 import org.sonar.javascript.model.implementations.expression.LiteralTreeImpl;
 import org.sonar.javascript.model.implementations.expression.RestElementTreeImpl;
 import org.sonar.javascript.model.implementations.expression.YieldExpressionTreeImpl;
@@ -429,7 +430,7 @@ public class ActionGrammar {
    */
   public RestElementTreeImpl BINDING_REST_ELEMENT() {
     return b.<RestElementTreeImpl>nonterminal(EcmaScriptGrammar.BINDING_REST_ELEMENT)
-      .is(f.bindingRestElement(b.invokeRule(EcmaScriptPunctuator.ELLIPSIS), b.invokeRule(EcmaScriptGrammar.BINDING_IDENTIFIER)));
+      .is(f.bindingRestElement(b.invokeRule(EcmaScriptPunctuator.ELLIPSIS), b.invokeRule(EcmaScriptGrammar.IDENTIFIER_REFERENCE)));
   }
   public ArrayLiteralTreeImpl ARRAY_LITERAL() {
     return b.<ArrayLiteralTreeImpl>nonterminal(Kind.ARRAY_LITERAL)
@@ -450,7 +451,7 @@ public class ActionGrammar {
       .is(f.generatorExpression(
         b.invokeRule(EcmaScriptKeyword.FUNCTION),
         b.invokeRule(EcmaScriptPunctuator.STAR),
-        b.optional(b.invokeRule(EcmaScriptGrammar.BINDING_IDENTIFIER)),
+        b.optional(b.invokeRule(EcmaScriptGrammar.IDENTIFIER_REFERENCE)),
         FORMAL_PARAMETER_LIST(),
         b.invokeRule(EcmaScriptPunctuator.LCURLYBRACE),
         b.invokeRule(EcmaScriptGrammar.FUNCTION_BODY),

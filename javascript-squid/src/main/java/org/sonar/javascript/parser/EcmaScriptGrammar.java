@@ -326,8 +326,6 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
   /** ECMAScript 6 **/
   BINDING_PATTERN_INITIALISER_NO_IN,
   /** ECMAScript 6 **/
-  BINDING_IDENTIFIER,
-  /** ECMAScript 6 **/
   IDENTIFIER_REFERENCE,
   /** ECMAScript 6 **/
   COMPUTED_PROPERTY_NAME,
@@ -643,7 +641,7 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
         BINDING_REST_ELEMENT,
         b.sequence(EXPRESSION, b.optional(COMMA, BINDING_REST_ELEMENT)))),
       RPARENTHESIS);
-    b.rule(CLASS_EXPRESSION).is(CLASS, b.optional(BINDING_IDENTIFIER), CLASS_TAIL);
+    b.rule(CLASS_EXPRESSION).is(CLASS, b.optional(IDENTIFIER_REFERENCE), CLASS_TAIL);
 
     b.rule(ELISION).is(b.oneOrMore(COMMA));
 
@@ -732,7 +730,7 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
 
     b.rule(ARROW_FUNCTION).is(ARROW_PARAMETERS, /* no line terminator here */DOUBLEARROW_NO_LB, CONCISE_BODY);
     b.rule(ARROW_FUNCTION_NO_IN).is(ARROW_PARAMETERS, /* no line terminator here */SPACING_NO_LB, NEXT_NOT_LB, DOUBLEARROW, CONCISE_BODY_NO_IN);
-    b.rule(ARROW_PARAMETERS).is(b.firstOf(BINDING_IDENTIFIER, ARROW_PARAMETER_LIST));
+    b.rule(ARROW_PARAMETERS).is(b.firstOf(IDENTIFIER_REFERENCE, ARROW_PARAMETER_LIST));
 
     b.rule(CONCISE_BODY).is(b.firstOf(
       b.sequence(LCURLYBRACE, FUNCTION_BODY, RCURLYBRACE),
@@ -765,7 +763,7 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
     b.rule(FOR_DECLARATION).is(b.firstOf(VAR, LET_OR_CONST), FOR_BINDING);
     b.rule(OF).is(word(b, "of"));
 
-    b.rule(CATCH_PARAMETER).is(b.firstOf(BINDING_IDENTIFIER, BINDING_PATTERN));
+    b.rule(CATCH_PARAMETER).is(b.firstOf(IDENTIFIER_REFERENCE, BINDING_PATTERN));
 
     // Temporary rules waiting for b.nextNot method migration
     b.rule(LEFT_HAND_SIDE_EXPRESSION_NO_LET_AND_LBRACKET).is(ecmascript6(b.nextNot(LET, LBRACKET)), LEFT_HAND_SIDE_EXPRESSION).skip();
@@ -808,7 +806,7 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
       SIMPLE_IMPORT,
       IMPORT_FROM));
 
-    b.rule(MODULE_IMPORT).is(MODULE_WORD, /* no line terminator here */SPACING_NO_LB, NEXT_NOT_LB, BINDING_IDENTIFIER, FROM_CLAUSE, EOS);
+    b.rule(MODULE_IMPORT).is(MODULE_WORD, /* no line terminator here */SPACING_NO_LB, NEXT_NOT_LB, IDENTIFIER_REFERENCE, FROM_CLAUSE, EOS);
     b.rule(MODULE_WORD).is(word(b, "module"));
     b.rule(SIMPLE_IMPORT).is(IMPORT, STRING_LITERAL, EOS);
     b.rule(IMPORT_FROM).is(IMPORT, IMPORT_CLAUSE, FROM_CLAUSE, EOS);
@@ -817,10 +815,10 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
     b.rule(FROM).is(word(b, "from"));
     b.rule(IMPORT_CLAUSE).is(b.firstOf(
       NAMED_IMPORTS,
-      b.sequence(BINDING_IDENTIFIER, b.optional(COMMA, NAMED_IMPORTS))));
+      b.sequence(IDENTIFIER_REFERENCE, b.optional(COMMA, NAMED_IMPORTS))));
     b.rule(NAMED_IMPORTS).is(LCURLYBRACE, b.optional(IMPORTS_LIST, b.optional(COMMA)), RCURLYBRACE);
     b.rule(IMPORTS_LIST).is(IMPORT_SPECIFIER, b.zeroOrMore(COMMA, IMPORT_SPECIFIER));
-    b.rule(IMPORT_SPECIFIER).is(b.optional(IDENTIFIER_NAME, AS), BINDING_IDENTIFIER);
+    b.rule(IMPORT_SPECIFIER).is(b.optional(IDENTIFIER_NAME, AS), IDENTIFIER_REFERENCE);
     b.rule(AS).is(word(b, "as"));
 
     b.rule(DECLARATION).is(b.firstOf(
@@ -833,7 +831,7 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
 
     b.rule(FUNCTION_BODY).is(b.optional(STATEMENT_LIST));
 
-    b.rule(GENERATOR_DECLARATION).is(FUNCTION, STAR, BINDING_IDENTIFIER,
+    b.rule(GENERATOR_DECLARATION).is(FUNCTION, STAR, IDENTIFIER_REFERENCE,
       Kind.FORMAL_PARAMETER_LIST, LCURLYBRACE, FUNCTION_BODY, RCURLYBRACE);
 
     b.rule(LEXICAL_DECLARATION).is(LET_OR_CONST, BINDING_LIST, EOS);
@@ -844,12 +842,12 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
     b.rule(BINDING_LIST_NO_IN).is(LEXICAL_BINDING_NO_IN, b.zeroOrMore(COMMA, LEXICAL_BINDING_NO_IN));
     b.rule(LEXICAL_BINDING).is(b.firstOf(BINDING_IDENTIFIER_INITIALISER, BINDING_PATTERN_INITIALISER));
     b.rule(LEXICAL_BINDING_NO_IN).is(b.firstOf(BINDING_IDENTIFIER_INITIALISER_NO_IN, BINDING_PATTERN_INITIALISER_NO_IN));
-    b.rule(BINDING_IDENTIFIER_INITIALISER).is(BINDING_IDENTIFIER, b.optional(INITIALISER));
-    b.rule(BINDING_IDENTIFIER_INITIALISER_NO_IN).is(BINDING_IDENTIFIER, b.optional(INITIALISER_NO_IN));
+    b.rule(BINDING_IDENTIFIER_INITIALISER).is(IDENTIFIER_REFERENCE, b.optional(INITIALISER));
+    b.rule(BINDING_IDENTIFIER_INITIALISER_NO_IN).is(IDENTIFIER_REFERENCE, b.optional(INITIALISER_NO_IN));
 
     b.rule(BINDING_PATTERN_INITIALISER).is(BINDING_PATTERN, INITIALISER);
     b.rule(BINDING_PATTERN_INITIALISER_NO_IN).is(BINDING_PATTERN, INITIALISER_NO_IN);
-    b.rule(FOR_BINDING).is(b.firstOf(BINDING_IDENTIFIER, BINDING_PATTERN));
+    b.rule(FOR_BINDING).is(b.firstOf(IDENTIFIER_REFERENCE, BINDING_PATTERN));
 
     b.rule(BINDING_PATTERN).is(b.firstOf(OBJECT_BINDING_PATTERN, ARRAY_BINDING_PATTERN));
 
@@ -871,13 +869,12 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
     b.rule(BINDING_ELEMENT).is(b.firstOf(
       SINGLE_NAME_BINDING,
       b.sequence(BINDING_PATTERN, b.optional(INITIALISER))));
-    b.rule(SINGLE_NAME_BINDING).is(BINDING_IDENTIFIER, b.optional(INITIALISER));
+    b.rule(SINGLE_NAME_BINDING).is(IDENTIFIER_REFERENCE, b.optional(INITIALISER));
     b.rule(INITIALISER).is(EQU, ASSIGNMENT_EXPRESSION);
     b.rule(INITIALISER_NO_IN).is(EQU, ASSIGNMENT_EXPRESSION_NO_IN);
-    b.rule(BINDING_IDENTIFIER).is(b.firstOf(ecmascript6(DEFAULT), ecmascript6(YIELD), IDENTIFIER));
     b.rule(IDENTIFIER_REFERENCE).is(b.firstOf(YIELD, IDENTIFIER));
 
-    b.rule(CLASS_DECLARATION).is(CLASS, BINDING_IDENTIFIER, CLASS_TAIL);
+    b.rule(CLASS_DECLARATION).is(CLASS, IDENTIFIER_REFERENCE, CLASS_TAIL);
     b.rule(CLASS_TAIL).is(b.optional(CLASS_HERITAGE), LCURLYBRACE, b.optional(CLASS_BODY), RCURLYBRACE);
     b.rule(CLASS_HERITAGE).is(EXTENDS, LEFT_HAND_SIDE_EXPRESSION);
     b.rule(CLASS_BODY).is(b.oneOrMore(CLASS_ELEMENT));

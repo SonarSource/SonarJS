@@ -41,7 +41,7 @@ public class IdentifierUtils {
     AstNode parameterChild = catchNode.getFirstChild(EcmaScriptGrammar.CATCH_PARAMETER).getFirstChild();
     List<AstNode> identifiers = Lists.newArrayList();
 
-    if (parameterChild.is(EcmaScriptGrammar.BINDING_IDENTIFIER)) {
+    if (parameterChild.is(EcmaScriptGrammar.IDENTIFIER_REFERENCE)) {
       AstNode identifier = parameterChild.getFirstChild(EcmaScriptTokenType.IDENTIFIER);
       if (identifier != null) {
         identifiers.add(identifier);
@@ -63,10 +63,10 @@ public class IdentifierUtils {
     List<AstNode> identifiers = Lists.newArrayList();
     AstNode child = variableDeclaration.getFirstChild();
 
-    if (child.is(EcmaScriptGrammar.BINDING_IDENTIFIER_INITIALISER, EcmaScriptGrammar.BINDING_IDENTIFIER_INITIALISER_NO_IN, EcmaScriptGrammar.BINDING_IDENTIFIER)) {
-      AstNode identifier = child.is(EcmaScriptGrammar.BINDING_IDENTIFIER) ?
+    if (child.is(EcmaScriptGrammar.BINDING_IDENTIFIER_INITIALISER, EcmaScriptGrammar.BINDING_IDENTIFIER_INITIALISER_NO_IN, EcmaScriptGrammar.IDENTIFIER_REFERENCE)) {
+      AstNode identifier = child.is(EcmaScriptGrammar.IDENTIFIER_REFERENCE) ?
         child.getFirstChild(EcmaScriptTokenType.IDENTIFIER)
-        : child.getFirstChild(EcmaScriptGrammar.BINDING_IDENTIFIER).getFirstChild(EcmaScriptTokenType.IDENTIFIER);
+        : child.getFirstChild(EcmaScriptGrammar.IDENTIFIER_REFERENCE).getFirstChild(EcmaScriptTokenType.IDENTIFIER);
 
       if (identifier != null) {
         identifiers.add(identifier);
@@ -88,7 +88,7 @@ public class IdentifierUtils {
     List<AstNode> identifiers = Lists.newArrayList();
     AstNode child = arrowParameters.getFirstChild();
 
-    if (child.is(EcmaScriptGrammar.BINDING_IDENTIFIER) && child.getFirstChild().is(EcmaScriptTokenType.IDENTIFIER)) {
+    if (child.is(EcmaScriptGrammar.IDENTIFIER_REFERENCE) && child.getFirstChild().is(EcmaScriptTokenType.IDENTIFIER)) {
       identifiers.add(child.getFirstChild());
     } else {
       // Retrieve parameters from expression
@@ -204,7 +204,7 @@ public class IdentifierUtils {
     Preconditions.checkArgument(singleNameBinding.is(EcmaScriptGrammar.SINGLE_NAME_BINDING));
     List<AstNode> identifier = Lists.newArrayList();
 
-    AstNode id = singleNameBinding.getFirstChild(EcmaScriptGrammar.BINDING_IDENTIFIER).getFirstChild(EcmaScriptTokenType.IDENTIFIER);
+    AstNode id = singleNameBinding.getFirstChild(EcmaScriptGrammar.IDENTIFIER_REFERENCE).getFirstChild(EcmaScriptTokenType.IDENTIFIER);
     if (id != null) {
       identifier.add(id);
     }
