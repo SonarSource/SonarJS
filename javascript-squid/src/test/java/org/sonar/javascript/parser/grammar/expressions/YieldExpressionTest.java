@@ -20,7 +20,7 @@
 package org.sonar.javascript.parser.grammar.expressions;
 
 import org.junit.Test;
-import org.sonar.javascript.parser.EcmaScriptGrammar;
+import org.sonar.javascript.model.interfaces.Tree.Kind;
 
 import static org.sonar.javascript.sslr.tests.Assertions.assertThat;
 
@@ -29,7 +29,7 @@ public class YieldExpressionTest {
 
   @Test
   public void ok() {
-    assertThat(EcmaScriptGrammar.YIELD_EXPRESSION)
+    assertThat(Kind.YIELD_EXPRESSION)
       .matches("yield")
       .matches("yield assignmentExpression")
       .matches("yield * assignmentExpression");

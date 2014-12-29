@@ -250,8 +250,6 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
   /** ECMAScript 6 **/
   CLASS_EXPRESSION,
   /** ECMAScript 6 **/
-  YIELD_EXPRESSION,
-  /** ECMAScript 6 **/
   YIELD_EXPRESSION_NO_IN,
   /** ECMAScript 6 **/
   ARRAY_LITERAL_ELEMENT,
@@ -422,6 +420,8 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
   INC_NO_LB,
   DEC_NO_LB,
   FOR_VAR_DECLARATION,
+  STAR_NO_LB,
+  ASSIGNMENT_EXPRESSION_NO_LB,
   DOUBLEARROW_NO_LB;
 
   public static LexerlessGrammar createGrammar() {
@@ -694,7 +694,7 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
     b.rule(LOGICAL_AND_EXPRESSION_NO_IN).is(BITWISE_OR_EXPRESSION_NO_IN, b.zeroOrMore(ANDAND, BITWISE_OR_EXPRESSION_NO_IN)).skipIfOneChild();
     b.rule(LOGICAL_OR_EXPRESSION_NO_IN).is(LOGICAL_AND_EXPRESSION_NO_IN, b.zeroOrMore(OROR, LOGICAL_AND_EXPRESSION_NO_IN)).skipIfOneChild();
     b.rule(CONDITIONAL_EXPRESSION_NO_IN).is(LOGICAL_OR_EXPRESSION_NO_IN, b.optional(QUERY, ASSIGNMENT_EXPRESSION, COLON, ASSIGNMENT_EXPRESSION_NO_IN)).skipIfOneChild();
-    b.rule(ES6_ASSIGNMENT_EXPRESSION).is(b.firstOf(YIELD_EXPRESSION, ARROW_FUNCTION));
+    b.rule(ES6_ASSIGNMENT_EXPRESSION).is(b.firstOf(ecmascript6(Kind.YIELD_EXPRESSION), ARROW_FUNCTION));
     b.rule(ES6_ASSIGNMENT_EXPRESSION_NO_IN).is(b.firstOf(YIELD_EXPRESSION_NO_IN, ARROW_FUNCTION_NO_IN));
 
     b.rule(ASSIGNMENT_EXPRESSION).is(b.firstOf(
@@ -728,7 +728,6 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
       XOR_EQU,
       OR_EQU)).skip();
 
-    b.rule(YIELD_EXPRESSION).is(YIELD, b.optional(/* no line terminator here */SPACING_NO_LB, NEXT_NOT_LB, b.optional(STAR), ASSIGNMENT_EXPRESSION));
     b.rule(YIELD_EXPRESSION_NO_IN).is(YIELD, b.optional(/* no line terminator here */SPACING_NO_LB, NEXT_NOT_LB, b.optional(STAR), ASSIGNMENT_EXPRESSION_NO_IN));
 
     b.rule(ARROW_FUNCTION).is(ARROW_PARAMETERS, /* no line terminator here */DOUBLEARROW_NO_LB, CONCISE_BODY);
@@ -750,6 +749,8 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
     b.rule(DOUBLEARROW_NO_LB).is(SPACING_NO_LB, NEXT_NOT_LB, DOUBLEARROW);
     b.rule(INC_NO_LB).is(SPACING_NO_LB, NEXT_NOT_LB, INC);
     b.rule(DEC_NO_LB).is(SPACING_NO_LB, NEXT_NOT_LB, DEC);
+    b.rule(STAR_NO_LB).is(SPACING_NO_LB, NEXT_NOT_LB, STAR);
+    b.rule(ASSIGNMENT_EXPRESSION_NO_LB).is(SPACING_NO_LB, NEXT_NOT_LB, ASSIGNMENT_EXPRESSION);
   }
 
   /**

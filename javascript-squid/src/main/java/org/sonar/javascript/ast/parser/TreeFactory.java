@@ -41,6 +41,7 @@ import org.sonar.javascript.model.implementations.expression.PostfixExpressionTr
 import org.sonar.javascript.model.implementations.expression.PrefixExpressionTreeImpl;
 import org.sonar.javascript.model.implementations.expression.RestElementTreeImpl;
 import org.sonar.javascript.model.implementations.expression.UndefinedTreeImpl;
+import org.sonar.javascript.model.implementations.expression.YieldExpressionTreeImpl;
 import org.sonar.javascript.model.implementations.lexical.InternalSyntaxToken;
 import org.sonar.javascript.model.implementations.statement.BlockTreeImpl;
 import org.sonar.javascript.model.implementations.statement.BreakStatementTreeImpl;
@@ -685,6 +686,20 @@ public class TreeFactory {
 
   public ExpressionTree newLeftHandSideExpression(AstNode expression) {
     return new LeftHandSideExpressionTreeImpl(expression);
+  }
+
+  public YieldExpressionTreeImpl completeYieldExpression(AstNode yieldToken, Optional<YieldExpressionTreeImpl> partial) {
+    if (partial.isPresent()) {
+      return partial.get().complete(InternalSyntaxToken.create(yieldToken));
+    }
+    return new YieldExpressionTreeImpl(InternalSyntaxToken.create(yieldToken));
+  }
+
+  public YieldExpressionTreeImpl newYieldExpression(Optional<AstNode> starToken, AstNode expression) {
+    if (starToken.isPresent()) {
+      return new YieldExpressionTreeImpl(InternalSyntaxToken.create(starToken.get()), expression);
+    }
+    return new YieldExpressionTreeImpl(expression);
   }
 
   public static class Tuple<T, U> extends AstNode {

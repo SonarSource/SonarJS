@@ -29,6 +29,7 @@ import org.sonar.javascript.model.implementations.expression.ArrayLiteralTreeImp
 import org.sonar.javascript.model.implementations.expression.FunctionExpressionTreeImpl;
 import org.sonar.javascript.model.implementations.expression.LiteralTreeImpl;
 import org.sonar.javascript.model.implementations.expression.RestElementTreeImpl;
+import org.sonar.javascript.model.implementations.expression.YieldExpressionTreeImpl;
 import org.sonar.javascript.model.implementations.statement.BlockTreeImpl;
 import org.sonar.javascript.model.implementations.statement.BreakStatementTreeImpl;
 import org.sonar.javascript.model.implementations.statement.CaseClauseTreeImpl;
@@ -649,6 +650,17 @@ public class ActionGrammar {
         b.invokeRule(EcmaScriptGrammar.CALL_EXPRESSION),
         b.invokeRule(EcmaScriptGrammar.NEW_EXPRESSION)
       )));
+  }
+
+  public YieldExpressionTreeImpl YIELD_EXPRESSION() {
+    return b.<YieldExpressionTreeImpl>nonterminal(Kind.YIELD_EXPRESSION)
+      .is(f.completeYieldExpression(
+        b.invokeRule(EcmaScriptKeyword.YIELD),
+        b.optional(f.newYieldExpression(
+          b.optional(b.invokeRule(EcmaScriptGrammar.STAR_NO_LB)),
+          b.invokeRule(EcmaScriptGrammar.ASSIGNMENT_EXPRESSION_NO_LB))
+        )
+      ));
   }
 
   /**
