@@ -36,9 +36,6 @@ public class ExpressionStatementTreeImpl extends JavaScriptTree implements Expre
     addChildren(expression, eos);
   }
 
-  public AstNode getAstNode() {
-    return getAstNode();
-  }
   @Override
   public Tree expression() {
     throw new UnsupportedOperationException("Not supported yet in the strongly typed AST.");
