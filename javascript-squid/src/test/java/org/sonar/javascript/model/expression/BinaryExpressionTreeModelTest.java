@@ -20,7 +20,10 @@
 package org.sonar.javascript.model.expression;
 
 import static org.fest.assertions.Assertions.assertThat;
+
+import com.sonar.sslr.api.TokenType;
 import org.junit.Test;
+import org.sonar.javascript.api.EcmaScriptKeyword;
 import org.sonar.javascript.api.EcmaScriptPunctuator;
 import org.sonar.javascript.model.JavaScriptTreeModelTest;
 import org.sonar.javascript.model.interfaces.Tree.Kind;
@@ -53,7 +56,97 @@ public class BinaryExpressionTreeModelTest extends JavaScriptTreeModelTest {
     test_binary_expression("a ^ b ^ c;", Kind.BITWISE_XOR, EcmaScriptPunctuator.XOR);
   }
 
-  private void test_binary_expression(String str, Kind kind, EcmaScriptPunctuator operator) throws Exception {
+  @Test
+  public void equality_equal_to() throws Exception {
+    test_binary_expression("a == b == c;", Kind.EQUAL_TO, EcmaScriptPunctuator.EQUAL);
+  }
+
+  @Test
+  public void equality_not_equal_to() throws Exception {
+    test_binary_expression("a != b != c;", Kind.NOT_EQUAL_TO, EcmaScriptPunctuator.NOTEQUAL);
+  }
+
+  @Test
+  public void equality_strict_equal_to() throws Exception {
+    test_binary_expression("a === b === c;", Kind.STRICT_EQUAL_TO, EcmaScriptPunctuator.EQUAL2);
+  }
+
+  @Test
+  public void equality_strict_not_equal_to() throws Exception {
+    test_binary_expression("a !== b !== c;", Kind.STRICT_NOT_EQUAL_TO, EcmaScriptPunctuator.NOTEQUAL2);
+  }
+
+  @Test
+  public void relation_less_than() throws Exception {
+    test_binary_expression("a < b < c;", Kind.LESS_THAN, EcmaScriptPunctuator.LT);
+  }
+
+  @Test
+  public void relation_greater_than() throws Exception {
+    test_binary_expression("a > b > c;", Kind.GREATER_THAN, EcmaScriptPunctuator.GT);
+  }
+
+  @Test
+  public void relation_less_or_equal_to() throws Exception {
+    test_binary_expression("a <= b <= c;", Kind.LESS_THAN_OR_EQUAL_TO, EcmaScriptPunctuator.LE);
+  }
+
+  @Test
+  public void relation_greater_or_equal_to() throws Exception {
+    test_binary_expression("a >= b >= c;", Kind.GREATER_THAN_OR_EQUAL_TO, EcmaScriptPunctuator.GE);
+  }
+
+  @Test
+  public void relation_instance_of() throws Exception {
+    test_binary_expression("a instanceof b instanceof c;", Kind.INSTANCE_OF, EcmaScriptKeyword.INSTANCEOF);
+  }
+
+  @Test
+  public void relation_in() throws Exception {
+    test_binary_expression("a in b in c;", Kind.RELATIONAL_IN, EcmaScriptKeyword.IN);
+  }
+
+  @Test
+  public void shift_left() throws Exception {
+    test_binary_expression("a << b << c;", Kind.LEFT_SHIFT, EcmaScriptPunctuator.SL);
+  }
+
+  @Test
+  public void shift_right() throws Exception {
+    test_binary_expression("a >> b >> c;", Kind.RIGHT_SHIFT, EcmaScriptPunctuator.SR);
+  }
+
+  @Test
+  public void shift_unsigned_right() throws Exception {
+    test_binary_expression("a >>> b >>> c;", Kind.UNSIGNED_RIGHT_SHIFT, EcmaScriptPunctuator.SR2);
+  }
+
+  @Test
+  public void additive_plus() throws Exception {
+    test_binary_expression("a + b + c;", Kind.PLUS, EcmaScriptPunctuator.PLUS);
+  }
+
+  @Test
+  public void additive_minus() throws Exception {
+    test_binary_expression("a - b - c;", Kind.MINUS, EcmaScriptPunctuator.MINUS);
+  }
+
+  @Test
+  public void multiplicative_multiply() throws Exception {
+    test_binary_expression("a * b * c;", Kind.MULTIPLY, EcmaScriptPunctuator.STAR);
+  }
+
+  @Test
+  public void multiplicative_divide() throws Exception {
+    test_binary_expression("a / b / c;", Kind.DIVIDE, EcmaScriptPunctuator.DIV);
+  }
+
+  @Test
+  public void multiplicative_remainder() throws Exception {
+    test_binary_expression("a % b % c;", Kind.REMAINDER, EcmaScriptPunctuator.MOD);
+  }
+
+  private void test_binary_expression(String str, Kind kind, TokenType operator) throws Exception {
     BinaryExpressionTree tree = parse(str, kind);
 
     assertThat(tree.is(kind)).isTrue();
