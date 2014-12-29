@@ -24,7 +24,7 @@ import org.sonar.javascript.api.EcmaScriptKeyword;
 import org.sonar.javascript.api.EcmaScriptPunctuator;
 import org.sonar.javascript.api.EcmaScriptTokenType;
 import org.sonar.javascript.ast.parser.TreeFactory;
-import org.sonar.javascript.model.implementations.declaration.FormalParameterListTreeImpl;
+import org.sonar.javascript.model.implementations.declaration.ParameterListTreeImpl;
 import org.sonar.javascript.model.implementations.expression.ArrayLiteralTreeImpl;
 import org.sonar.javascript.model.implementations.expression.FunctionExpressionTreeImpl;
 import org.sonar.javascript.model.implementations.expression.LiteralTreeImpl;
@@ -409,8 +409,8 @@ public class ActionGrammar {
         b.zeroOrMore(b.invokeRule(EcmaScriptPunctuator.COMMA))));
   }
 
-  public FormalParameterListTreeImpl FORMAL_PARAMETER_LIST() {
-    return b.<FormalParameterListTreeImpl>nonterminal(Kind.FORMAL_PARAMETER_LIST)
+  public ParameterListTreeImpl FORMAL_PARAMETER_LIST() {
+    return b.<ParameterListTreeImpl>nonterminal(Kind.FORMAL_PARAMETER_LIST)
       .is(f.completeFormalParameterList(
         b.invokeRule(EcmaScriptPunctuator.LPARENTHESIS),
         b.optional(b.firstOf(
@@ -538,15 +538,15 @@ public class ActionGrammar {
   public ExpressionTree EQUALITY_EXPRESSION() {
     return b.<ExpressionTree>nonterminal(EcmaScriptGrammar.EQUALITY_EXPRESSION)
       .is(f.newEquality(
-        RELATIONAL_EXPRESSION(),
-        b.zeroOrMore(f.newTuple11(
-          b.firstOf(
-            b.invokeRule(EcmaScriptPunctuator.EQUAL),
-            b.invokeRule(EcmaScriptPunctuator.NOTEQUAL),
-            b.invokeRule(EcmaScriptPunctuator.EQUAL2),
-            b.invokeRule(EcmaScriptPunctuator.NOTEQUAL2)),
-          RELATIONAL_EXPRESSION()
-        ))
+          RELATIONAL_EXPRESSION(),
+          b.zeroOrMore(f.newTuple11(
+            b.firstOf(
+              b.invokeRule(EcmaScriptPunctuator.EQUAL),
+              b.invokeRule(EcmaScriptPunctuator.NOTEQUAL),
+              b.invokeRule(EcmaScriptPunctuator.EQUAL2),
+              b.invokeRule(EcmaScriptPunctuator.NOTEQUAL2)),
+            RELATIONAL_EXPRESSION()
+          ))
         )
       );
   }
@@ -657,8 +657,8 @@ public class ActionGrammar {
       .is(f.completeYieldExpression(
         b.invokeRule(EcmaScriptKeyword.YIELD),
         b.optional(f.newYieldExpression(
-          b.optional(b.invokeRule(EcmaScriptGrammar.STAR_NO_LB)),
-          b.invokeRule(EcmaScriptGrammar.ASSIGNMENT_EXPRESSION_NO_LB))
+            b.optional(b.invokeRule(EcmaScriptGrammar.STAR_NO_LB)),
+            b.invokeRule(EcmaScriptGrammar.ASSIGNMENT_EXPRESSION_NO_LB))
         )
       ));
   }

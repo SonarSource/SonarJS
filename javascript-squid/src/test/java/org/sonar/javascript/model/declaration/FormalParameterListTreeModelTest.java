@@ -24,29 +24,29 @@ import org.junit.Test;
 import org.sonar.javascript.api.EcmaScriptPunctuator;
 import org.sonar.javascript.model.JavaScriptTreeModelTest;
 import org.sonar.javascript.model.interfaces.Tree.Kind;
-import org.sonar.javascript.model.interfaces.declaration.FormalParameterListTree;
+import org.sonar.javascript.model.interfaces.declaration.ParameterListTree;
 
 public class FormalParameterListTreeModelTest extends JavaScriptTreeModelTest {
 
 
   @Test
   public void parameters() throws Exception {
-    FormalParameterListTree tree = parse("function f(p1, p2, ...p3) {};", Kind.FORMAL_PARAMETER_LIST);
+    ParameterListTree tree = parse("function f(p1, p2, ...p3) {};", Kind.FORMAL_PARAMETER_LIST);
 
     assertThat(tree.is(Kind.FORMAL_PARAMETER_LIST)).isTrue();
     assertThat(tree.openParenthesis().text()).isEqualTo(EcmaScriptPunctuator.LPARENTHESIS.getValue());
-    assertThat(tree.formalParameters().getSeparators().size()).isEqualTo(2);
+    assertThat(tree.parameters().getSeparators().size()).isEqualTo(2);
     assertThat(tree.closeParenthesis().text()).isEqualTo(EcmaScriptPunctuator.RPARENTHESIS.getValue());
   }
 
 
   @Test
   public void no_parameter() throws Exception {
-    FormalParameterListTree tree = parse("function f() {};", Kind.FORMAL_PARAMETER_LIST);
+    ParameterListTree tree = parse("function f() {};", Kind.FORMAL_PARAMETER_LIST);
 
     assertThat(tree.is(Kind.FORMAL_PARAMETER_LIST)).isTrue();
     assertThat(tree.openParenthesis().text()).isEqualTo(EcmaScriptPunctuator.LPARENTHESIS.getValue());
-    assertThat(tree.formalParameters().getSeparators().size()).isEqualTo(0);
+    assertThat(tree.parameters().getSeparators().size()).isEqualTo(0);
     assertThat(tree.closeParenthesis().text()).isEqualTo(EcmaScriptPunctuator.RPARENTHESIS.getValue());
   }
 

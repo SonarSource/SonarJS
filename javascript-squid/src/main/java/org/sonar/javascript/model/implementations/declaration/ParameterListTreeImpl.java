@@ -26,22 +26,22 @@ import org.sonar.javascript.model.implementations.JavaScriptTree;
 import org.sonar.javascript.model.implementations.SeparatedList;
 import org.sonar.javascript.model.implementations.lexical.InternalSyntaxToken;
 import org.sonar.javascript.model.interfaces.Tree;
-import org.sonar.javascript.model.interfaces.declaration.FormalParameterListTree;
+import org.sonar.javascript.model.interfaces.declaration.ParameterListTree;
 import org.sonar.javascript.model.interfaces.expression.ExpressionTree;
-import org.sonar.javascript.model.interfaces.expression.ParenthesisedExpressionTree;
 import org.sonar.javascript.model.interfaces.lexical.SyntaxToken;
 
 import java.util.Iterator;
-import java.util.List;
 
-public class FormalParameterListTreeImpl extends JavaScriptTree implements FormalParameterListTree {
+public class ParameterListTreeImpl extends JavaScriptTree implements ParameterListTree {
 
   private InternalSyntaxToken openParenthesis;
   private final SeparatedList<ExpressionTree> parameters;
   private InternalSyntaxToken closeParenthesis;
+  private final Kind kind;
 
-  public FormalParameterListTreeImpl(SeparatedList<ExpressionTree> parameters) {
-    super(Kind.FORMAL_PARAMETER_LIST);
+  public ParameterListTreeImpl(Kind kind, SeparatedList<ExpressionTree> parameters) {
+    super(kind);
+    this.kind = kind;
     this.parameters = parameters;
 
     for (AstNode child : parameters.getChildren()) {
@@ -50,8 +50,9 @@ public class FormalParameterListTreeImpl extends JavaScriptTree implements Forma
     parameters.clearChildren();
   }
 
-  public FormalParameterListTreeImpl(InternalSyntaxToken openParenthesis, InternalSyntaxToken closeParenthesis) {
-    super(Kind.FORMAL_PARAMETER_LIST);
+  public ParameterListTreeImpl(Kind kind, InternalSyntaxToken openParenthesis, InternalSyntaxToken closeParenthesis) {
+    super(kind);
+    this.kind = kind;
     this.openParenthesis = openParenthesis;
     this.parameters = new SeparatedList<ExpressionTree>(ListUtils.EMPTY_LIST, ListUtils.EMPTY_LIST);
     this.closeParenthesis = closeParenthesis;
@@ -60,7 +61,7 @@ public class FormalParameterListTreeImpl extends JavaScriptTree implements Forma
     addChild(closeParenthesis);
   }
 
-  public FormalParameterListTreeImpl complete(InternalSyntaxToken openParenthesis, InternalSyntaxToken closeParenthesis) {
+  public ParameterListTreeImpl complete(InternalSyntaxToken openParenthesis, InternalSyntaxToken closeParenthesis) {
     this.openParenthesis = openParenthesis;
     this.closeParenthesis = closeParenthesis;
 
@@ -75,7 +76,7 @@ public class FormalParameterListTreeImpl extends JavaScriptTree implements Forma
   }
 
   @Override
-  public SeparatedList<ExpressionTree> formalParameters() {
+  public SeparatedList<ExpressionTree> parameters() {
     return parameters;
   }
 
@@ -86,7 +87,7 @@ public class FormalParameterListTreeImpl extends JavaScriptTree implements Forma
 
   @Override
   public Kind getKind() {
-    return Kind.FORMAL_PARAMETER_LIST;
+    return kind;
   }
 
   @Override

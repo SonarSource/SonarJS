@@ -28,18 +28,18 @@ import org.sonar.javascript.model.interfaces.lexical.SyntaxToken;
  * <p/>
  *
  * <pre>
- *   ( {@link #formalParameters()} )
+ *   ( {@link #parameters()} )
  * </pre>
  *
  * <p/>
  * <p>This interface is not intended to be implemented by clients.</p>
  */
-public interface FormalParameterListTree extends DeclarationTree {
+public interface ParameterListTree extends DeclarationTree {
 
 
   SyntaxToken openParenthesis();
 
-  SeparatedList<ExpressionTree> formalParameters();
+  SeparatedList<ExpressionTree> parameters();
 
   SyntaxToken closeParenthesis();
 }

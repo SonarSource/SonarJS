@@ -20,7 +20,7 @@
 package org.sonar.javascript.model.interfaces;
 
 import com.sonar.sslr.api.AstNodeType;
-import org.sonar.javascript.model.interfaces.declaration.FormalParameterListTree;
+import org.sonar.javascript.model.interfaces.declaration.ParameterListTree;
 import org.sonar.javascript.model.interfaces.expression.CallExpressionTree;
 import org.sonar.javascript.model.interfaces.expression.ConditionalExpressionTree;
 import org.sonar.javascript.model.interfaces.expression.FunctionTree;
@@ -612,9 +612,14 @@ public interface Tree {
     GENERATOR_FUNCTION_DECLARATION(FunctionTree.class),
 
     /**
-     * {@link FormalParameterListTree}
+     * {@link ParameterListTree}
      */
-    FORMAL_PARAMETER_LIST(FormalParameterListTree.class),
+    FORMAL_PARAMETER_LIST(ParameterListTree.class),
+
+    /**
+     * {@link ParameterListTree}
+     */
+    ARROW_PARAMETER_LIST(ParameterListTree.class),
 
     TYPEOF(UnaryExpressionTree.class),
 

@@ -19,11 +19,8 @@
  */
 package org.sonar.javascript.model.interfaces.expression;
 
-import org.sonar.javascript.model.implementations.SeparatedList;
 import org.sonar.javascript.model.interfaces.Tree;
-import org.sonar.javascript.model.interfaces.declaration.FormalParameterListTree;
-import org.sonar.javascript.model.interfaces.expression.ExpressionTree;
-import org.sonar.javascript.model.interfaces.expression.IdentifierTree;
+import org.sonar.javascript.model.interfaces.declaration.ParameterListTree;
 import org.sonar.javascript.model.interfaces.lexical.SyntaxToken;
 
 import javax.annotation.Nullable;
@@ -81,7 +78,7 @@ public interface FunctionTree extends ExpressionTree {
   @Nullable
   IdentifierTree name();
 
-  FormalParameterListTree parameters();
+  ParameterListTree parameters();
 
   SyntaxToken openCurlyBrace();
 
