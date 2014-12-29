@@ -616,21 +616,25 @@ public class ActionGrammar {
     return b.<ExpressionTree>nonterminal(EcmaScriptGrammar.UNARY_EXPRESSION)
       .is(b.firstOf(
         POSTFIX_EXPRESSION(),
-        f.newDelete(b.invokeRule(EcmaScriptKeyword.DELETE), UNARY_EXPRESSION()),
-        f.newVoid(b.invokeRule(EcmaScriptKeyword.VOID), UNARY_EXPRESSION()),
-        f.newTypeOf(b.invokeRule(EcmaScriptKeyword.TYPEOF), UNARY_EXPRESSION()),
-        f.newPrefixInc(b.invokeRule(EcmaScriptPunctuator.INC), UNARY_EXPRESSION()),
-        f.newPrefixDec(b.invokeRule(EcmaScriptPunctuator.DEC), UNARY_EXPRESSION()),
-        f.newPrefixPlus(b.invokeRule(EcmaScriptPunctuator.PLUS), UNARY_EXPRESSION()),
-        f.newPrefixMinus(b.invokeRule(EcmaScriptPunctuator.MINUS), UNARY_EXPRESSION()),
-        f.newPrefixBitewiseCompletement(b.invokeRule(EcmaScriptPunctuator.TILDA), UNARY_EXPRESSION()),
-        f.newPrefixLogicalComplement(b.invokeRule(EcmaScriptPunctuator.BANG), UNARY_EXPRESSION())
+        f.prefixExpression(
+          b.firstOf(
+            b.invokeRule(EcmaScriptKeyword.DELETE),
+            b.invokeRule(EcmaScriptKeyword.VOID),
+            b.invokeRule(EcmaScriptKeyword.TYPEOF),
+            b.invokeRule(EcmaScriptPunctuator.INC),
+            b.invokeRule(EcmaScriptPunctuator.DEC),
+            b.invokeRule(EcmaScriptPunctuator.PLUS),
+            b.invokeRule(EcmaScriptPunctuator.MINUS),
+            b.invokeRule(EcmaScriptPunctuator.TILDA),
+            b.invokeRule(EcmaScriptPunctuator.BANG)),
+          UNARY_EXPRESSION()
+        )
       ));
   }
 
   public ExpressionTree POSTFIX_EXPRESSION() {
    return b.<ExpressionTree>nonterminal(EcmaScriptGrammar.POSTFIX_EXPRESSION)
-     .is(f.postfix(
+     .is(f.postfixExpression(
        LEFT_HAND_SIDE_EXPRESSION(),
        b.optional(b.firstOf(
          b.invokeRule(EcmaScriptGrammar.INC_NO_LB),

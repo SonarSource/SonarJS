@@ -671,47 +671,11 @@ public class TreeFactory {
     return result;
   }
 
-  public ExpressionTree newDelete(AstNode operator, ExpressionTree expression) {
-    return buildPrefixExpression(operator, expression);
-  }
-
-  public ExpressionTree newTypeOf(AstNode operator, ExpressionTree expression) {
-    return buildPrefixExpression(operator, expression);
-  }
-
-  public ExpressionTree newVoid(AstNode operator, ExpressionTree expression) {
-    return buildPrefixExpression(operator, expression);
-  }
-
-  public ExpressionTree newPrefixInc(AstNode operator, ExpressionTree expression) {
-    return buildPrefixExpression(operator, expression);
-  }
-
-  public ExpressionTree newPrefixDec(AstNode operator, ExpressionTree expression) {
-    return buildPrefixExpression(operator, expression);
-  }
-
-  public ExpressionTree newPrefixPlus(AstNode operator, ExpressionTree expression) {
-    return buildPrefixExpression(operator, expression);
-  }
-
-  public ExpressionTree newPrefixMinus(AstNode operator, ExpressionTree expression) {
-    return buildPrefixExpression(operator, expression);
-  }
-
-  public ExpressionTree newPrefixBitewiseCompletement(AstNode operator, ExpressionTree expression) {
-    return buildPrefixExpression(operator, expression);
-  }
-
-  public ExpressionTree newPrefixLogicalComplement(AstNode operator, ExpressionTree expression) {
-    return buildPrefixExpression(operator, expression);
-  }
-
-  private ExpressionTree buildPrefixExpression(AstNode operator, ExpressionTree expression) {
+  public ExpressionTree prefixExpression(AstNode operator, ExpressionTree expression) {
     return new PrefixExpressionTreeImpl(getPrefixOperator(operator.getType()), InternalSyntaxToken.create(operator), expression);
   }
 
-  public ExpressionTree postfix(ExpressionTree expression, Optional<AstNode> operator) {
+  public ExpressionTree postfixExpression(ExpressionTree expression, Optional<AstNode> operator) {
     if (!operator.isPresent()) {
       return expression;
     }
