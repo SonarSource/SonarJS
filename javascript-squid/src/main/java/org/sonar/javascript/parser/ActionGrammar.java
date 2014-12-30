@@ -673,6 +673,11 @@ public class ActionGrammar {
       );
   }
 
+  public IdentifierTreeImpl IDENTIFIER_NAME() {
+    return b.<IdentifierTreeImpl>nonterminal()
+      .is(f.identifierName(b.invokeRule(EcmaScriptGrammar.IDENTIFIER_NAME)));
+  }
+
   public ParameterListTreeImpl ARROW_PARAMETER_LIST() {
     return b.<ParameterListTreeImpl>nonterminal(Kind.ARROW_PARAMETER_LIST)
       .is(f.completeArrowParameterList(

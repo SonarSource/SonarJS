@@ -738,6 +738,10 @@ public class TreeFactory {
     return new ArrowFunctionTreeImpl(parameters, InternalSyntaxToken.create(doubleArrow), body);
   }
 
+  public IdentifierTreeImpl identifierName(AstNode identifier) {
+    return new IdentifierTreeImpl(InternalSyntaxToken.create(identifier));
+  }
+
   public static class Tuple<T, U> extends AstNode {
 
     private final T first;
