@@ -32,13 +32,10 @@ import org.sonar.javascript.model.interfaces.lexical.SyntaxToken;
  * <p/>
  * <p>This interface is not intended to be implemented by clients.</p>
  */
-public interface BracketMemberExpressionTree extends ExpressionTree {
+public interface BracketMemberExpressionTree extends MemberExpressionTree {
 
-  ExpressionTree object();
 
   SyntaxToken openBracket();
-
-  ExpressionTree property();
 
   SyntaxToken closeBracket();
 

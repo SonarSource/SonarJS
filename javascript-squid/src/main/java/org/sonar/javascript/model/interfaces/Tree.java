@@ -21,14 +21,14 @@ package org.sonar.javascript.model.interfaces;
 
 import com.sonar.sslr.api.AstNodeType;
 import org.sonar.javascript.model.interfaces.declaration.ParameterListTree;
-import org.sonar.javascript.model.interfaces.expression.CallExpressionTree;
-import org.sonar.javascript.model.interfaces.expression.ConditionalExpressionTree;
-import org.sonar.javascript.model.interfaces.expression.FunctionTree;
 import org.sonar.javascript.model.interfaces.expression.ArrayLiteralTree;
 import org.sonar.javascript.model.interfaces.expression.ArrowFunctionTree;
 import org.sonar.javascript.model.interfaces.expression.AssignmentExpressionTree;
 import org.sonar.javascript.model.interfaces.expression.BinaryExpressionTree;
+import org.sonar.javascript.model.interfaces.expression.CallExpressionTree;
+import org.sonar.javascript.model.interfaces.expression.ConditionalExpressionTree;
 import org.sonar.javascript.model.interfaces.expression.ExpressionTree;
+import org.sonar.javascript.model.interfaces.expression.FunctionTree;
 import org.sonar.javascript.model.interfaces.expression.IdentifierTree;
 import org.sonar.javascript.model.interfaces.expression.LiteralTree;
 import org.sonar.javascript.model.interfaces.expression.MemberExpressionTree;
@@ -37,7 +37,7 @@ import org.sonar.javascript.model.interfaces.expression.ObjectLiteralTree;
 import org.sonar.javascript.model.interfaces.expression.PairPropertyTree;
 import org.sonar.javascript.model.interfaces.expression.ParenthesisedExpressionTree;
 import org.sonar.javascript.model.interfaces.expression.RestElementTree;
-import org.sonar.javascript.model.interfaces.expression.ThisTree;
+import org.sonar.javascript.model.interfaces.expression.TaggedTemplateTree;
 import org.sonar.javascript.model.interfaces.expression.UnaryExpressionTree;
 import org.sonar.javascript.model.interfaces.expression.YieldExpressionTree;
 import org.sonar.javascript.model.interfaces.lexical.SyntaxToken;
@@ -281,10 +281,16 @@ public interface Tree {
     PARENTHESISED_EXPRESSION(ParenthesisedExpressionTree.class),
 
     /**
-     * {@link ThisTree}
+     * {@link LiteralTree}
      * {@code this}
      */
-    THIS(ThisTree.class),
+    THIS(LiteralTree.class),
+
+    /**
+     * {@link LiteralTree}
+     * {@code super}
+     */
+    SUPER(LiteralTree.class),
 
     /**
      * {@link UnaryExpressionTree}
@@ -620,6 +626,11 @@ public interface Tree {
      * {@link ParameterListTree}
      */
     ARROW_PARAMETER_LIST(ParameterListTree.class),
+
+    /**
+     * {@link TaggedTemplateTree}
+     */
+    TAGGED_TEMPLATE(TaggedTemplateTree.class),
 
     TYPEOF(UnaryExpressionTree.class),
 

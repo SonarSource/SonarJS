@@ -34,7 +34,9 @@ import org.sonar.javascript.model.implementations.declaration.ParameterListTreeI
 import org.sonar.javascript.model.implementations.expression.ArrayLiteralTreeImpl;
 import org.sonar.javascript.model.implementations.expression.ArrowFunctionTreeImpl;
 import org.sonar.javascript.model.implementations.expression.BinaryExpressionTreeImpl;
+import org.sonar.javascript.model.implementations.expression.BracketMemberExpressionTreeImpl;
 import org.sonar.javascript.model.implementations.expression.ConditionalExpressionTreeImpl;
+import org.sonar.javascript.model.implementations.expression.DotMemberExpressionTreeImpl;
 import org.sonar.javascript.model.implementations.expression.FunctionExpressionTreeImpl;
 import org.sonar.javascript.model.implementations.expression.IdentifierTreeImpl;
 import org.sonar.javascript.model.implementations.expression.LeftHandSideExpressionTreeImpl;
@@ -42,6 +44,8 @@ import org.sonar.javascript.model.implementations.expression.LiteralTreeImpl;
 import org.sonar.javascript.model.implementations.expression.PostfixExpressionTreeImpl;
 import org.sonar.javascript.model.implementations.expression.PrefixExpressionTreeImpl;
 import org.sonar.javascript.model.implementations.expression.RestElementTreeImpl;
+import org.sonar.javascript.model.implementations.expression.SuperTreeImpl;
+import org.sonar.javascript.model.implementations.expression.TaggedTemplateTreeImpl;
 import org.sonar.javascript.model.implementations.expression.UndefinedTreeImpl;
 import org.sonar.javascript.model.implementations.expression.YieldExpressionTreeImpl;
 import org.sonar.javascript.model.implementations.lexical.InternalSyntaxToken;
@@ -71,7 +75,9 @@ import org.sonar.javascript.model.implementations.statement.WhileStatementTreeIm
 import org.sonar.javascript.model.implementations.statement.WithStatementTreeImpl;
 import org.sonar.javascript.model.interfaces.Tree;
 import org.sonar.javascript.model.interfaces.Tree.Kind;
+import org.sonar.javascript.model.interfaces.expression.DotMemberExpressionTree;
 import org.sonar.javascript.model.interfaces.expression.ExpressionTree;
+import org.sonar.javascript.model.interfaces.expression.MemberExpressionTree;
 import org.sonar.javascript.model.interfaces.statement.StatementTree;
 import org.sonar.javascript.model.interfaces.statement.SwitchClauseTree;
 import org.sonar.javascript.parser.EcmaScriptGrammar;
@@ -740,6 +746,49 @@ public class TreeFactory {
 
   public IdentifierTreeImpl identifierName(AstNode identifier) {
     return new IdentifierTreeImpl(InternalSyntaxToken.create(identifier));
+  }
+
+  public DotMemberExpressionTreeImpl newDotMemberExpression(AstNode dotToken, IdentifierTreeImpl identifier) {
+    return new DotMemberExpressionTreeImpl(InternalSyntaxToken.create(dotToken), identifier);
+  }
+
+  public BracketMemberExpressionTreeImpl newBracketMemberExpression(AstNode openBracket, AstNode expression, AstNode closeBracket) {
+    return new BracketMemberExpressionTreeImpl(InternalSyntaxToken.create(openBracket), expression, InternalSyntaxToken.create(closeBracket));
+  }
+
+  public AstNode completeSuperMemberExpression(SuperTreeImpl superExpression, MemberExpressionTree partial) {
+    if (partial.is(Kind.DOT_MEMBER_EXPRESSION)) {
+      return ((DotMemberExpressionTreeImpl) partial).complete(superExpression);
+    }
+    return ((BracketMemberExpressionTreeImpl) partial).complete(superExpression);
+  }
+
+  public SuperTreeImpl superExpression(AstNode superToken) {
+    return new SuperTreeImpl(InternalSyntaxToken.create(superToken));
+  }
+
+  public TaggedTemplateTreeImpl newTaggedTemplate(AstNode template) {
+    return new TaggedTemplateTreeImpl(template);
+  }
+
+  public AstNode completeMemberExpression(AstNode object, Optional<List<ExpressionTree>> properties) {
+    if (!properties.isPresent()) {
+      return object;
+    }
+
+    AstNode result = object;
+    for (ExpressionTree property : properties.get()) {
+      if (property.is(Kind.DOT_MEMBER_EXPRESSION)) {
+        result = ((DotMemberExpressionTreeImpl) property).complete(result);
+
+      } else if (property.is(Kind.BRACKET_MEMBER_EXPRESSION)) {
+        result = ((BracketMemberExpressionTreeImpl) property).complete(result);
+
+      } else {
+        result = ((TaggedTemplateTreeImpl) property).complete(result);
+      }
+    }
+    return result;
   }
 
   public static class Tuple<T, U> extends AstNode {

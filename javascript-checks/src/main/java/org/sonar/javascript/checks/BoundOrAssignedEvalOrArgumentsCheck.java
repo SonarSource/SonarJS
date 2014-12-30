@@ -74,10 +74,10 @@ public class BoundOrAssignedEvalOrArgumentsCheck extends SquidCheck<LexerlessGra
     } else if (astNode.is(EcmaScriptGrammar.PROPERTY_SET_PARAMETER_LIST)) {
       checkPropertySetParameterList(astNode);
     } else if (astNode.is(EcmaScriptGrammar.ASSIGNMENT_EXPRESSION)) {
-      checkModification(astNode.getFirstDescendant(EcmaScriptGrammar.MEMBER_EXPRESSION));
+      checkModification(astNode.getFirstDescendant(EcmaScriptGrammar.CALL_EXPRESSION, EcmaScriptGrammar.NEW_EXPRESSION));
     } else if (CheckUtils.isPostfixExpression(astNode) || CheckUtils.isPrefixExpression(astNode)
       && astNode.hasDirectChildren(EcmaScriptPunctuator.INC, EcmaScriptPunctuator.DEC)) {
-      checkModification(astNode.getFirstDescendant(EcmaScriptGrammar.MEMBER_EXPRESSION));
+      checkModification(astNode.getFirstDescendant(EcmaScriptGrammar.CALL_EXPRESSION, EcmaScriptGrammar.NEW_EXPRESSION));
     }
   }
 
@@ -127,8 +127,8 @@ public class BoundOrAssignedEvalOrArgumentsCheck extends SquidCheck<LexerlessGra
   }
 
   private void checkModification(AstNode astNode) {
-    if (isEvalOrArguments(astNode.getTokenValue()) && !astNode.hasDirectChildren(EcmaScriptGrammar.BRACKET_EXPRESSION)
-      && !astNode.getParent().is(EcmaScriptGrammar.SIMPLE_CALL_EXPRESSION)) {
+    if (isEvalOrArguments(astNode.getTokenValue()) && !astNode.hasDirectChildren(Kind.BRACKET_MEMBER_EXPRESSION)
+      && astNode.isNot(EcmaScriptGrammar.SIMPLE_CALL_EXPRESSION)) {
       getContext().createLineViolation(this, "Remove the modification of \"" + astNode.getTokenValue() + "\".", astNode);
     }
   }

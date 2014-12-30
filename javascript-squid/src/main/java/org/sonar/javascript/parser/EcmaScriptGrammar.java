@@ -192,8 +192,6 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
   PAIR_PROPERTY,
   PROPERTY_NAME,
   MEMBER_EXPRESSION,
-  /** ECMAScript 6 **/
-  SUPER_MEMBER_EXPRESSION,
   NEW_MEMBER_EXPRESSION,
   NEW_EXPRESSION,
   CALL_EXPRESSION,
@@ -253,8 +251,6 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
   ELISION,
   /** ECMAScript 6 **/
   ELEMENT_LIST,
-  BRACKET_EXPRESSION,
-  OBJECT_PROPERTY_ACCESS,
   BINDING_REST_ELEMENT,
   SINGLE_NAME_BINDING,
   BINDING_ELEMENT,
@@ -642,17 +638,6 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
     b.rule(COVER_INITIALIZED_NAME).is(IDENTIFIER_REFERENCE, b.optional(INITIALISER));
     b.rule(PAIR_PROPERTY).is(PROPERTY_NAME, COLON, ASSIGNMENT_EXPRESSION);
 
-    b.rule(MEMBER_EXPRESSION).is(
-      b.firstOf(
-        ecmascript6(SUPER_MEMBER_EXPRESSION),
-        NEW_MEMBER_EXPRESSION,
-        PRIMARY_EXPRESSION),
-      b.zeroOrMore(
-        b.firstOf(
-          BRACKET_EXPRESSION,
-          OBJECT_PROPERTY_ACCESS,
-          ecmascript6(TEMPLATE_LITERAL))));
-    b.rule(SUPER_MEMBER_EXPRESSION).is(b.sequence(SUPER, b.firstOf(BRACKET_EXPRESSION, OBJECT_PROPERTY_ACCESS)));
     b.rule(NEW_MEMBER_EXPRESSION).is(b.sequence(NEW, b.firstOf(ecmascript6(SUPER), MEMBER_EXPRESSION), ARGUMENTS));
     b.rule(NEW_EXPRESSION).is(b.firstOf(
       MEMBER_EXPRESSION,
@@ -663,11 +648,9 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
       SIMPLE_CALL_EXPRESSION,
       b.zeroOrMore(b.firstOf(
         ARGUMENTS,
-        BRACKET_EXPRESSION,
-        OBJECT_PROPERTY_ACCESS,
+        Kind.BRACKET_MEMBER_EXPRESSION,
+        Kind.DOT_MEMBER_EXPRESSION,
         ecmascript6(TEMPLATE_LITERAL))));
-    b.rule(BRACKET_EXPRESSION).is(LBRACKET, EXPRESSION, RBRACKET);
-    b.rule(OBJECT_PROPERTY_ACCESS).is(DOT, IDENTIFIER_NAME);
     b.rule(SIMPLE_CALL_EXPRESSION).is(b.firstOf(MEMBER_EXPRESSION, ecmascript6(SUPER)), ARGUMENTS);
     b.rule(ARGUMENTS).is(LPARENTHESIS, b.optional(ARGUMENTS_LIST), RPARENTHESIS);
     b.rule(ARGUMENTS_LIST).is(b.optional(ELLIPSIS), ASSIGNMENT_EXPRESSION, b.zeroOrMore(COMMA, b.optional(ELLIPSIS), ASSIGNMENT_EXPRESSION));

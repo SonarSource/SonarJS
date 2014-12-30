@@ -23,6 +23,7 @@ import com.sonar.sslr.api.AstNode;
 import org.sonar.check.BelongsToProfile;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
+import org.sonar.javascript.model.interfaces.Tree;
 import org.sonar.javascript.parser.EcmaScriptGrammar;
 import org.sonar.squidbridge.checks.SquidCheck;
 import org.sonar.sslr.parser.LexerlessGrammar;
@@ -43,9 +44,9 @@ public class EvalCheck extends SquidCheck<LexerlessGrammar> {
     AstNode simpleCallExprNode = node.getFirstChild(EcmaScriptGrammar.SIMPLE_CALL_EXPRESSION);
 
     if (simpleCallExprNode != null) {
-      AstNode memberExpressionNode = simpleCallExprNode.getFirstChild(EcmaScriptGrammar.MEMBER_EXPRESSION);
+      AstNode memberExpressionNode = simpleCallExprNode.getFirstChild();
 
-      if (memberExpressionNode != null && "eval".equals(memberExpressionNode.getTokenValue())) {
+      if (memberExpressionNode.isNot(Tree.Kind.SUPER) && "eval".equals(memberExpressionNode.getTokenValue())) {
         getContext().createLineViolation(this, "Remove this use of the \"eval\" function.", node);
       }
     }

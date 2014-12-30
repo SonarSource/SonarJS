@@ -27,10 +27,14 @@ import org.sonar.javascript.ast.parser.TreeFactory;
 import org.sonar.javascript.model.implementations.declaration.ParameterListTreeImpl;
 import org.sonar.javascript.model.implementations.expression.ArrayLiteralTreeImpl;
 import org.sonar.javascript.model.implementations.expression.ArrowFunctionTreeImpl;
+import org.sonar.javascript.model.implementations.expression.BracketMemberExpressionTreeImpl;
+import org.sonar.javascript.model.implementations.expression.DotMemberExpressionTreeImpl;
 import org.sonar.javascript.model.implementations.expression.FunctionExpressionTreeImpl;
 import org.sonar.javascript.model.implementations.expression.IdentifierTreeImpl;
 import org.sonar.javascript.model.implementations.expression.LiteralTreeImpl;
 import org.sonar.javascript.model.implementations.expression.RestElementTreeImpl;
+import org.sonar.javascript.model.implementations.expression.SuperTreeImpl;
+import org.sonar.javascript.model.implementations.expression.TaggedTemplateTreeImpl;
 import org.sonar.javascript.model.implementations.expression.YieldExpressionTreeImpl;
 import org.sonar.javascript.model.implementations.statement.BlockTreeImpl;
 import org.sonar.javascript.model.implementations.statement.BreakStatementTreeImpl;
@@ -58,6 +62,8 @@ import org.sonar.javascript.model.implementations.statement.WhileStatementTreeIm
 import org.sonar.javascript.model.implementations.statement.WithStatementTreeImpl;
 import org.sonar.javascript.model.interfaces.Tree.Kind;
 import org.sonar.javascript.model.interfaces.expression.ExpressionTree;
+import org.sonar.javascript.model.interfaces.expression.MemberExpressionTree;
+import org.sonar.javascript.model.interfaces.expression.TaggedTemplateTree;
 import org.sonar.javascript.model.interfaces.statement.DebuggerStatementTree;
 import org.sonar.javascript.model.interfaces.statement.StatementTree;
 import org.sonar.javascript.parser.sslr.GrammarBuilder;
@@ -705,6 +711,59 @@ public class ActionGrammar {
           BLOCK(),
           b.invokeRule(EcmaScriptGrammar.ASSIGNMENT_EXPRESSION_NO_LCURLY))
       ));
+  }
+
+  // FIXME: get rid of AstNode
+  public AstNode MEMBER_EXPRESSION() {
+    return b.<AstNode>nonterminal(EcmaScriptGrammar.MEMBER_EXPRESSION)
+      .is(f.completeMemberExpression(
+        b.firstOf(
+          ES6(SUPER_PROPERTY()),
+          b.invokeRule(EcmaScriptGrammar.NEW_MEMBER_EXPRESSION),
+          b.invokeRule(EcmaScriptGrammar.PRIMARY_EXPRESSION)),
+        b.zeroOrMore(
+          b.firstOf(
+            BRACKET_EXPRESSION(),
+            OBJECT_PROPERTY_ACCESS(),
+            ES6(TAGGED_TEMPLATE())))
+      ));
+  }
+
+  // FIXME: get rid of AstNode
+  public AstNode SUPER_PROPERTY() {
+    return b.<AstNode>nonterminal()
+      .is(f.completeSuperMemberExpression(
+        SUPER(),
+        b.firstOf(
+          OBJECT_PROPERTY_ACCESS(),
+          BRACKET_EXPRESSION())
+      ));
+  }
+
+  public SuperTreeImpl SUPER() {
+    return b.<SuperTreeImpl>nonterminal(Kind.SUPER)
+      .is(f.superExpression(b.invokeRule(EcmaScriptKeyword.SUPER)));
+  }
+
+  public MemberExpressionTree OBJECT_PROPERTY_ACCESS() {
+    return b.<DotMemberExpressionTreeImpl>nonterminal(Kind.DOT_MEMBER_EXPRESSION)
+      .is(f.newDotMemberExpression(
+        b.invokeRule(EcmaScriptPunctuator.DOT),
+        IDENTIFIER_NAME()));
+  }
+
+  public MemberExpressionTree BRACKET_EXPRESSION() {
+    return b.<BracketMemberExpressionTreeImpl>nonterminal(Kind.BRACKET_MEMBER_EXPRESSION)
+      .is(f.newBracketMemberExpression(
+        b.invokeRule(EcmaScriptPunctuator.LBRACKET),
+        b.invokeRule(EcmaScriptGrammar.EXPRESSION),
+        b.invokeRule(EcmaScriptPunctuator.RBRACKET)));
+  }
+
+  public ExpressionTree TAGGED_TEMPLATE() {
+    return b.<TaggedTemplateTreeImpl>nonterminal(Kind.TAGGED_TEMPLATE)
+      .is(f.newTaggedTemplate(b.invokeRule(EcmaScriptGrammar.TEMPLATE_LITERAL)));
+
   }
 
   /**

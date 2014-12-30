@@ -23,6 +23,7 @@ import com.sonar.sslr.api.AstNode;
 import org.sonar.check.BelongsToProfile;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
+import org.sonar.javascript.model.interfaces.Tree.Kind;
 import org.sonar.javascript.parser.EcmaScriptGrammar;
 import org.sonar.squidbridge.checks.SquidCheck;
 import org.sonar.sslr.parser.LexerlessGrammar;
@@ -42,15 +43,13 @@ public class AlertUseCheck extends SquidCheck<LexerlessGrammar> {
   public void visitNode(AstNode astNode) {
     AstNode simpleCallExpr = astNode.getFirstChild(EcmaScriptGrammar.SIMPLE_CALL_EXPRESSION);
 
-    if (simpleCallExpr != null && isAlertCall(simpleCallExpr.getFirstChild(EcmaScriptGrammar.MEMBER_EXPRESSION))) {
+    if (simpleCallExpr != null && isAlertCall(simpleCallExpr.getFirstChild())) {
       getContext().createLineViolation(this, "Remove this usage of alert(...).", astNode);
     }
   }
 
   public static boolean isAlertCall(AstNode memberExpr) {
-    return memberExpr != null
-      && memberExpr.getNumberOfChildren() == 1
-      && memberExpr.getFirstChild().is(EcmaScriptGrammar.PRIMARY_EXPRESSION)
+    return memberExpr.isNot(Kind.DOT_MEMBER_EXPRESSION, Kind.BRACKET_MEMBER_EXPRESSION, Kind.TAGGED_TEMPLATE)
       && "alert".equals(memberExpr.getFirstChild().getTokenValue());
   }
 }

@@ -19,21 +19,21 @@
  */
 package org.sonar.javascript.model.interfaces.expression;
 
-import org.sonar.javascript.model.interfaces.lexical.SyntaxToken;
-
 /**
- * <a href="http://www.ecma-international.org/ecma-262/5.1/#sec-11.2.1">Property Accessors</a>.
+ * <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-tagged-templates">Tagged Templates</a>.
  * <p/>
- * <p/>
+ *
  * <pre>
- *   {@link #object()} . {@link #property()}
+ *   {@link #callee()} {@link #template()}
  * </pre>
- * <p/>
+ *
  * <p/>
  * <p>This interface is not intended to be implemented by clients.</p>
  */
-public interface DotMemberExpressionTree extends MemberExpressionTree {
+public interface TaggedTemplateTree extends ExpressionTree {
 
-  SyntaxToken dot();
+  ExpressionTree callee();
+
+  ExpressionTree template();
 
 }
