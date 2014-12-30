@@ -24,16 +24,14 @@ import org.sonar.javascript.parser.EcmaScriptGrammar;
 
 import static org.sonar.javascript.sslr.tests.Assertions.assertThat;
 
-public class CoverParenthesizedExpressionAndArrowParameterListTest {
+public class ConciseBodyNoInTest {
 
 
   @Test
   public void ok() {
-    assertThat(EcmaScriptGrammar.ARROW_PARAMETER_LIST)
-        .matches("( )")
-        .matches("( conditionalExpression, conditionalExpression )")
-        .matches("( ... identifier )")
-        .matches("( conditionalExpression, ... identifier )");
+    assertThat(EcmaScriptGrammar.CONCISE_BODY_NO_IN)
+        .matches("conditionalExpression")
+        .matches("{ }");
   }
 
 }

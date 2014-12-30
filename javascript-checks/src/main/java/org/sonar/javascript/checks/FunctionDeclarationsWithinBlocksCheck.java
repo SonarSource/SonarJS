@@ -23,6 +23,7 @@ import com.sonar.sslr.api.AstNode;
 import org.sonar.check.BelongsToProfile;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
+import org.sonar.javascript.checks.utils.CheckUtils;
 import org.sonar.javascript.model.interfaces.Tree.Kind;
 import org.sonar.javascript.parser.EcmaScriptGrammar;
 import org.sonar.squidbridge.checks.SquidCheck;
@@ -42,7 +43,7 @@ public class FunctionDeclarationsWithinBlocksCheck extends SquidCheck<LexerlessG
   @Override
   public void visitNode(AstNode astNode) {
     AstNode stmtList = astNode.getFirstChild(EcmaScriptGrammar.STATEMENT_LIST);
-    if (stmtList != null) {
+    if (stmtList != null && !CheckUtils.isFunction(astNode.getParent())) {
 
       for (AstNode declarationNode : stmtList.getChildren(EcmaScriptGrammar.DECLARATION)) {
         if (declarationNode.getFirstChild().is(EcmaScriptGrammar.FUNCTION_DECLARATION)) {

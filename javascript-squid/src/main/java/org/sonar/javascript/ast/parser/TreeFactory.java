@@ -28,9 +28,11 @@ import com.sonar.sslr.api.AstNodeType;
 import org.apache.commons.collections.ListUtils;
 import org.sonar.javascript.api.EcmaScriptKeyword;
 import org.sonar.javascript.api.EcmaScriptPunctuator;
+import org.sonar.javascript.model.implementations.JavaScriptTree;
 import org.sonar.javascript.model.implementations.SeparatedList;
 import org.sonar.javascript.model.implementations.declaration.ParameterListTreeImpl;
 import org.sonar.javascript.model.implementations.expression.ArrayLiteralTreeImpl;
+import org.sonar.javascript.model.implementations.expression.ArrowFunctionTreeImpl;
 import org.sonar.javascript.model.implementations.expression.BinaryExpressionTreeImpl;
 import org.sonar.javascript.model.implementations.expression.ConditionalExpressionTreeImpl;
 import org.sonar.javascript.model.implementations.expression.FunctionExpressionTreeImpl;
@@ -67,6 +69,7 @@ import org.sonar.javascript.model.implementations.statement.VariableDeclarationT
 import org.sonar.javascript.model.implementations.statement.VariableStatementTreeImpl;
 import org.sonar.javascript.model.implementations.statement.WhileStatementTreeImpl;
 import org.sonar.javascript.model.implementations.statement.WithStatementTreeImpl;
+import org.sonar.javascript.model.interfaces.Tree;
 import org.sonar.javascript.model.interfaces.Tree.Kind;
 import org.sonar.javascript.model.interfaces.expression.ExpressionTree;
 import org.sonar.javascript.model.interfaces.statement.StatementTree;
@@ -705,6 +708,36 @@ public class TreeFactory {
     return new IdentifierTreeImpl(InternalSyntaxToken.create(identifierOrYield));
   }
 
+  public ParameterListTreeImpl newArrowParameterList(AstNode expression, Optional<Tuple<AstNode, RestElementTreeImpl>> restParameter) {
+    List<AstNode> children = Lists.newArrayList();
+    List<InternalSyntaxToken> commas = Lists.newArrayList();
+
+    children.add(expression);
+
+    if (restParameter.isPresent()) {
+      commas.add(InternalSyntaxToken.create(restParameter.get().first()));
+      children.add(restParameter.get().first());
+      children.add(restParameter.get().second());
+    }
+
+    return new ParameterListTreeImpl(Kind.ARROW_PARAMETER_LIST, new SeparatedList<ExpressionTree>(ListUtils.EMPTY_LIST /*FIXME when expression are migrated*/, commas, children));
+  }
+
+  public ParameterListTreeImpl newArrowRestParameterList(RestElementTreeImpl restParameter) {
+    return new ParameterListTreeImpl(Kind.ARROW_PARAMETER_LIST, new SeparatedList<ExpressionTree>(Lists.newArrayList((ExpressionTree) restParameter), ListUtils.EMPTY_LIST, ImmutableList.of((AstNode) restParameter)));
+  }
+
+  public ParameterListTreeImpl completeArrowParameterList(AstNode openParenToken, Optional<ParameterListTreeImpl> parameters, AstNode closeParenToken) {
+    if (parameters.isPresent()) {
+      return parameters.get().complete(InternalSyntaxToken.create(openParenToken), InternalSyntaxToken.create(closeParenToken));
+    }
+    return new ParameterListTreeImpl(Kind.ARROW_PARAMETER_LIST, InternalSyntaxToken.create(openParenToken), InternalSyntaxToken.create(closeParenToken));
+  }
+
+  public ArrowFunctionTreeImpl arrowFunction(Tree parameters, AstNode doubleArrow, AstNode body) {
+    return new ArrowFunctionTreeImpl(parameters, InternalSyntaxToken.create(doubleArrow), body);
+  }
+
   public static class Tuple<T, U> extends AstNode {
 
     private final T first;
@@ -814,6 +847,10 @@ public class TreeFactory {
   }
 
   public <T, U> Tuple<T, U> newTuple15(T first, U second) {
+    return newTuple(first, second);
+  }
+
+  public <T, U> Tuple<T, U> newTuple16(T first, U second) {
     return newTuple(first, second);
   }
   // End

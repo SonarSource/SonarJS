@@ -84,15 +84,14 @@ public class IdentifierUtils {
    * Return list of AstNode corresponding to the function parameter(s).
    */
   public static List<AstNode> getArrowParametersIdentifier(AstNode arrowParameters) {
-    Preconditions.checkArgument(arrowParameters.is(EcmaScriptGrammar.ARROW_PARAMETERS));
+    Preconditions.checkArgument(arrowParameters.is(Kind.ARROW_PARAMETER_LIST, Kind.IDENTIFIER));
     List<AstNode> identifiers = Lists.newArrayList();
-    AstNode child = arrowParameters.getFirstChild();
 
-    if (child.is(Kind.IDENTIFIER) && child.getFirstChild().is(EcmaScriptTokenType.IDENTIFIER)) {
-      identifiers.add(child.getFirstChild());
+    if (arrowParameters.is(Kind.IDENTIFIER) && arrowParameters.getFirstChild().is(EcmaScriptTokenType.IDENTIFIER)) {
+      identifiers.add(arrowParameters.getFirstChild());
     } else {
       // Retrieve parameters from expression
-      AstNode expression = child.getFirstChild(EcmaScriptGrammar.EXPRESSION);
+      AstNode expression = arrowParameters.getFirstChild(EcmaScriptGrammar.EXPRESSION);
       if (expression != null) {
         for (AstNode expressionChild : expression.getChildren()) {
           if (expressionChild.isNot(EcmaScriptPunctuator.COMMA)) {
@@ -101,7 +100,7 @@ public class IdentifierUtils {
         }
       }
       // Rest parameter
-      AstNode restParameter = child.getFirstChild(EcmaScriptGrammar.BINDING_REST_ELEMENT);
+      AstNode restParameter = arrowParameters.getFirstChild(Kind.REST_ELEMENT);
       if (restParameter != null) {
         identifiers.add(getRestIdentifier(restParameter));
       }

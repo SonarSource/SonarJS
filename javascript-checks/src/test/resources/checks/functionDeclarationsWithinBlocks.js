@@ -1,14 +1,18 @@
 function sayHello() {
   if (x) {
-    function foo() {} // NOK
+    function foo() {}        // NOK
   }
 
   if (x) {
     let foo;
-    foo = function() {} // OK
+    foo = function() {}      // OK
   }
 
   if (x) {
     // empty block
   }
+
+  p => {
+    var foo = function() {}; // OK
+  };
 }

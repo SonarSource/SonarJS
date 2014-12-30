@@ -237,13 +237,7 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
   /** ECMAScript 6 **/
   ARROW_FUNCTION_NO_IN,
   /** ECMAScript 6 **/
-  ARROW_PARAMETERS,
-  /** ECMAScript 6 **/
-  CONCISE_BODY,
-  /** ECMAScript 6 **/
   CONCISE_BODY_NO_IN,
-  /** ECMAScript 6 **/
-  ARROW_PARAMETER_LIST,
   PARENTHESISED_EXPRESSION,
   /** ECMAScript 6 **/
   GENERATOR_EXPRESSION,
@@ -420,6 +414,7 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
   FOR_VAR_DECLARATION,
   STAR_NO_LB,
   ASSIGNMENT_EXPRESSION_NO_LB,
+  ASSIGNMENT_EXPRESSION_NO_LCURLY,
   DOUBLEARROW_NO_LB;
 
   public static LexerlessGrammar createGrammar() {
@@ -635,12 +630,6 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
     b.rule(TEMPLATE_MIDDLE).is(RCURLYBRACE, b.optional(TEMPLATE_CHARACTERS), DOLLAR_SIGN, LCURLYBRACE);
     b.rule(TEMPLATE_TAIL).is(RCURLYBRACE, b.optional(TEMPLATE_CHARACTERS), BACKTICK);
 
-    b.rule(ARROW_PARAMETER_LIST).is(
-      LPARENTHESIS,
-      b.optional(b.firstOf(
-        BINDING_REST_ELEMENT,
-        b.sequence(EXPRESSION, b.optional(COMMA, BINDING_REST_ELEMENT)))),
-      RPARENTHESIS);
     b.rule(CLASS_EXPRESSION).is(CLASS, b.optional(IDENTIFIER_REFERENCE), CLASS_TAIL);
 
     b.rule(ELISION).is(b.oneOrMore(COMMA));
@@ -692,7 +681,7 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
     b.rule(LOGICAL_AND_EXPRESSION_NO_IN).is(BITWISE_OR_EXPRESSION_NO_IN, b.zeroOrMore(ANDAND, BITWISE_OR_EXPRESSION_NO_IN)).skipIfOneChild();
     b.rule(LOGICAL_OR_EXPRESSION_NO_IN).is(LOGICAL_AND_EXPRESSION_NO_IN, b.zeroOrMore(OROR, LOGICAL_AND_EXPRESSION_NO_IN)).skipIfOneChild();
     b.rule(CONDITIONAL_EXPRESSION_NO_IN).is(LOGICAL_OR_EXPRESSION_NO_IN, b.optional(QUERY, ASSIGNMENT_EXPRESSION, COLON, ASSIGNMENT_EXPRESSION_NO_IN)).skipIfOneChild();
-    b.rule(ES6_ASSIGNMENT_EXPRESSION).is(b.firstOf(ecmascript6(Kind.YIELD_EXPRESSION), ARROW_FUNCTION));
+    b.rule(ES6_ASSIGNMENT_EXPRESSION).is(b.firstOf(ecmascript6(Kind.YIELD_EXPRESSION), Kind.ARROW_FUNCTION));
     b.rule(ES6_ASSIGNMENT_EXPRESSION_NO_IN).is(b.firstOf(YIELD_EXPRESSION_NO_IN, ARROW_FUNCTION_NO_IN));
 
     b.rule(ASSIGNMENT_EXPRESSION).is(b.firstOf(
@@ -728,16 +717,11 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
 
     b.rule(YIELD_EXPRESSION_NO_IN).is(YIELD, b.optional(/* no line terminator here */SPACING_NO_LB, NEXT_NOT_LB, b.optional(STAR), ASSIGNMENT_EXPRESSION_NO_IN));
 
-    b.rule(ARROW_FUNCTION).is(ARROW_PARAMETERS, /* no line terminator here */DOUBLEARROW_NO_LB, CONCISE_BODY);
-    b.rule(ARROW_FUNCTION_NO_IN).is(ARROW_PARAMETERS, /* no line terminator here */SPACING_NO_LB, NEXT_NOT_LB, DOUBLEARROW, CONCISE_BODY_NO_IN);
-    b.rule(ARROW_PARAMETERS).is(b.firstOf(IDENTIFIER_REFERENCE, ARROW_PARAMETER_LIST));
+    b.rule(ARROW_FUNCTION_NO_IN).is(Kind.ARROW_PARAMETER_LIST, /* no line terminator here */SPACING_NO_LB, NEXT_NOT_LB, DOUBLEARROW, CONCISE_BODY_NO_IN);
 
-    b.rule(CONCISE_BODY).is(b.firstOf(
-      b.sequence(LCURLYBRACE, FUNCTION_BODY, RCURLYBRACE),
-      b.sequence(b.nextNot(LCURLYBRACE), ASSIGNMENT_EXPRESSION)));
     b.rule(CONCISE_BODY_NO_IN).is(b.firstOf(
-      b.sequence(LPARENTHESIS, FUNCTION_BODY, RCURLYBRACE),
-      b.sequence(b.nextNot(LCURLYBRACE), ASSIGNMENT_EXPRESSION_NO_IN)));
+      b.sequence(LCURLYBRACE, FUNCTION_BODY, RCURLYBRACE),
+      ASSIGNMENT_EXPRESSION_NO_LCURLY));
 
     b.rule(EXPRESSION).is(ASSIGNMENT_EXPRESSION, b.zeroOrMore(COMMA, ASSIGNMENT_EXPRESSION));
     b.rule(EXPRESSION_NO_LB).is(SPACING_NO_LB, NEXT_NOT_LB, EXPRESSION).skip();
@@ -749,6 +733,7 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
     b.rule(DEC_NO_LB).is(SPACING_NO_LB, NEXT_NOT_LB, DEC);
     b.rule(STAR_NO_LB).is(SPACING_NO_LB, NEXT_NOT_LB, STAR);
     b.rule(ASSIGNMENT_EXPRESSION_NO_LB).is(SPACING_NO_LB, NEXT_NOT_LB, ASSIGNMENT_EXPRESSION);
+    b.rule(ASSIGNMENT_EXPRESSION_NO_LCURLY).is(b.nextNot(LCURLYBRACE), ASSIGNMENT_EXPRESSION);
   }
 
   /**

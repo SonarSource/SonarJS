@@ -26,6 +26,7 @@ import org.sonar.javascript.api.EcmaScriptTokenType;
 import org.sonar.javascript.ast.parser.TreeFactory;
 import org.sonar.javascript.model.implementations.declaration.ParameterListTreeImpl;
 import org.sonar.javascript.model.implementations.expression.ArrayLiteralTreeImpl;
+import org.sonar.javascript.model.implementations.expression.ArrowFunctionTreeImpl;
 import org.sonar.javascript.model.implementations.expression.FunctionExpressionTreeImpl;
 import org.sonar.javascript.model.implementations.expression.IdentifierTreeImpl;
 import org.sonar.javascript.model.implementations.expression.LiteralTreeImpl;
@@ -671,6 +672,36 @@ public class ActionGrammar {
         b.invokeRule(EcmaScriptTokenType.IDENTIFIER)))
       );
   }
+
+  public ParameterListTreeImpl ARROW_PARAMETER_LIST() {
+    return b.<ParameterListTreeImpl>nonterminal(Kind.ARROW_PARAMETER_LIST)
+      .is(f.completeArrowParameterList(
+        b.invokeRule(EcmaScriptPunctuator.LPARENTHESIS),
+        b.optional(
+          b.firstOf(
+            f.newArrowRestParameterList(BINDING_REST_ELEMENT()),
+            f.newArrowParameterList(
+              // TODO martin: assignment_expression (comma, assignment_expression)* instead
+              b.invokeRule(EcmaScriptGrammar.EXPRESSION),
+              b.optional(f.newTuple16(b.invokeRule(EcmaScriptPunctuator.COMMA), BINDING_REST_ELEMENT())))
+          )),
+        b.invokeRule(EcmaScriptPunctuator.RPARENTHESIS)
+      ));
+  }
+
+  public ArrowFunctionTreeImpl ARROW_FUNCTION() {
+    return b.<ArrowFunctionTreeImpl>nonterminal(Kind.ARROW_FUNCTION)
+      .is(f.arrowFunction(
+        b.firstOf(
+          IDENTIFIER_REFERENCE(),
+          ARROW_PARAMETER_LIST()),
+        b.invokeRule(EcmaScriptGrammar.DOUBLEARROW_NO_LB),
+        b.firstOf(
+          BLOCK(),
+          b.invokeRule(EcmaScriptGrammar.ASSIGNMENT_EXPRESSION_NO_LCURLY))
+      ));
+  }
+
   /**
    * A.3 [END] Expressions
    */

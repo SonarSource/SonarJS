@@ -45,6 +45,7 @@ public class AssignmentWithinConditionCheck extends SquidCheck<LexerlessGrammar>
   private static final AstNodeType[] SCOPES = {
     EcmaScriptGrammar.CONDITION,
     EcmaScriptGrammar.FUNCTION_BODY,
+    Kind.ARROW_FUNCTION,
     Kind.LESS_THAN,
     Kind.GREATER_THAN,
     Kind.LESS_THAN_OR_EQUAL_TO,

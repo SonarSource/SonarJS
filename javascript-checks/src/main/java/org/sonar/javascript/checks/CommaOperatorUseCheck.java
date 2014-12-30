@@ -58,7 +58,7 @@ public class CommaOperatorUseCheck extends SquidCheck<LexerlessGrammar> {
   }
 
   private static boolean isArrowFunctionParameter(AstNode expr) {
-    return expr.getParent().getParent().is(EcmaScriptGrammar.ARROW_PARAMETERS);
+    return expr.getParent().is(Kind.ARROW_PARAMETER_LIST);
   }
 
   public static boolean isInitOrIncrementOfForLoop(AstNode expr) {

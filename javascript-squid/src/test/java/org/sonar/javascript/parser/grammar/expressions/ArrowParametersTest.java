@@ -20,7 +20,7 @@
 package org.sonar.javascript.parser.grammar.expressions;
 
 import org.junit.Test;
-import org.sonar.javascript.parser.EcmaScriptGrammar;
+import org.sonar.javascript.model.interfaces.Tree.Kind;
 
 import static org.sonar.javascript.sslr.tests.Assertions.assertThat;
 
@@ -29,9 +29,12 @@ public class ArrowParametersTest {
 
   @Test
   public void ok() {
-    assertThat(EcmaScriptGrammar.ARROW_PARAMETERS)
-        .matches("identifier")
-        .matches("( identifier )");
+    assertThat(Kind.ARROW_PARAMETER_LIST)
+      .matches("( )")
+      .matches("( identifier )")
+      .matches("( conditionalExpression, conditionalExpression )")
+      .matches("( ... identifier )")
+      .matches("( conditionalExpression, ... identifier )");
   }
 
 }

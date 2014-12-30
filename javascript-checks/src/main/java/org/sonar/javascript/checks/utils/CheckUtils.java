@@ -73,7 +73,7 @@ public class CheckUtils {
     EcmaScriptGrammar.GENERATOR_METHOD,
     EcmaScriptGrammar.GENERATOR_DECLARATION,
     Kind.GENERATOR_FUNCTION_EXPRESSION,
-    EcmaScriptGrammar.ARROW_FUNCTION,
+    Kind.ARROW_FUNCTION,
     EcmaScriptGrammar.ARROW_FUNCTION_NO_IN);
 
   public static Kind[] postfixExpressionArray() {
