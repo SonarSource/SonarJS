@@ -31,12 +31,13 @@ public class CallExpressionTest {
   public void ok() {
     assertThat(EcmaScriptGrammar.CALL_EXPRESSION)
       .matches("memberExpression ( arguments )")
-      .matches("'template literal' ( arguments )")
       .matches("memberExpression ( arguments ) ( arguments )");
 
     assertThat(EcmaScriptGrammar.CALL_EXPRESSION)
+      .matches("memberExpression ( arguments ) ( arguments )")
       .matches("memberExpression ( arguments ) [ expression ]")
-      .matches("memberExpression ( arguments ) . identifierName");
+      .matches("memberExpression ( arguments ) . identifierName")
+      .matches("memberExpression ( arguments ) `template literal`");
   }
 
   @Test

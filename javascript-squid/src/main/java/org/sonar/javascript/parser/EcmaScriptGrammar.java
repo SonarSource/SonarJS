@@ -660,13 +660,12 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
       b.sequence(NEW, NEW_EXPRESSION)));
 
     b.rule(CALL_EXPRESSION).is(
-      b.firstOf(
-        SIMPLE_CALL_EXPRESSION,
-        ecmascript6(TEMPLATE_LITERAL)),
+      SIMPLE_CALL_EXPRESSION,
       b.zeroOrMore(b.firstOf(
         ARGUMENTS,
         BRACKET_EXPRESSION,
-        OBJECT_PROPERTY_ACCESS)));
+        OBJECT_PROPERTY_ACCESS,
+        ecmascript6(TEMPLATE_LITERAL))));
     b.rule(BRACKET_EXPRESSION).is(LBRACKET, EXPRESSION, RBRACKET);
     b.rule(OBJECT_PROPERTY_ACCESS).is(DOT, IDENTIFIER_NAME);
     b.rule(SIMPLE_CALL_EXPRESSION).is(b.firstOf(MEMBER_EXPRESSION, ecmascript6(SUPER)), ARGUMENTS);
