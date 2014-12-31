@@ -28,3 +28,4 @@ var f = () => {
 var c;
 
 for (e in es6) {}
+var e;

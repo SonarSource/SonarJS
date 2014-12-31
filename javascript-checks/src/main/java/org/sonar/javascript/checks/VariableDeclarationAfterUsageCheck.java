@@ -125,7 +125,7 @@ public class VariableDeclarationAfterUsageCheck extends SquidCheck<LexerlessGram
 
   private AstNode getIdentifierFromLeftHandSideExpr(AstNode leftHeandSideExpr) {
     if (leftHeandSideExpr != null) {
-      AstNode expression = leftHeandSideExpr.getFirstChild().getFirstChild().getFirstChild();
+      AstNode expression = leftHeandSideExpr.getFirstChild().getFirstChild();
 
       if (expression.is(EcmaScriptGrammar.PRIMARY_EXPRESSION)) {
         AstNode primaryExpr = expression.getFirstChild();
