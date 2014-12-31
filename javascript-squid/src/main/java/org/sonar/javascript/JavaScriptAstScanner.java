@@ -36,11 +36,11 @@ import org.sonar.squidbridge.api.SourceProject;
 import org.sonar.squidbridge.indexer.QueryByType;
 import org.sonar.squidbridge.metrics.CommentsVisitor;
 import org.sonar.squidbridge.metrics.CounterVisitor;
-import org.sonar.squidbridge.metrics.LinesOfCodeVisitor;
 import org.sonar.squidbridge.metrics.LinesVisitor;
 import org.sonar.javascript.api.EcmaScriptMetric;
 import org.sonar.javascript.api.EcmaScriptTokenType;
 import org.sonar.javascript.metrics.ComplexityVisitor;
+import org.sonar.javascript.metrics.LinesOfCodeVisitor;
 import org.sonar.javascript.parser.EcmaScriptGrammar;
 import org.sonar.javascript.parser.EcmaScriptParser;
 import org.sonar.sslr.grammar.GrammarRuleKey;
@@ -129,7 +129,7 @@ public final class JavaScriptAstScanner {
 
     /* Metrics */
     builder.withSquidAstVisitor(new LinesVisitor<LexerlessGrammar>(EcmaScriptMetric.LINES));
-    builder.withSquidAstVisitor(new LinesOfCodeVisitor<LexerlessGrammar>(EcmaScriptMetric.LINES_OF_CODE));
+    builder.withSquidAstVisitor(new LinesOfCodeVisitor(EcmaScriptMetric.LINES_OF_CODE));
     builder.withSquidAstVisitor(CommentsVisitor.<LexerlessGrammar> builder().withCommentMetric(EcmaScriptMetric.COMMENT_LINES)
         .withNoSonar(true)
         .withIgnoreHeaderComment(conf.getIgnoreHeaderComments())
