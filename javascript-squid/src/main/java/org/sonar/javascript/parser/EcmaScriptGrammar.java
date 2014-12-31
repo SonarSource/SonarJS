@@ -422,7 +422,7 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
 
     b.rule(IDENTIFIER_NAME).is(
       SPACING,
-      b.regexp(EcmaScriptLexer.IDENTIFIER)).skip();
+      b.regexp(EcmaScriptLexer.IDENTIFIER));
 
     lexical(b);
     expressions(b);
