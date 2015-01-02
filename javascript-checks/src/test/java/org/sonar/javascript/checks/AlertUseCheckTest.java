@@ -36,6 +36,7 @@ public class AlertUseCheckTest {
     CheckMessagesVerifier.verify(file.getCheckMessages())
     .next().atLine(1)
     .next().atLine(8)
+    .next().atLine(10)
     .noMore();
 
   }

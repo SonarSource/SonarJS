@@ -24,6 +24,8 @@ import org.sonar.check.BelongsToProfile;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.javascript.model.interfaces.Tree.Kind;
+import org.sonar.javascript.model.interfaces.expression.CallExpressionTree;
+import org.sonar.javascript.model.interfaces.expression.MemberExpressionTree;
 import org.sonar.javascript.parser.EcmaScriptGrammar;
 import org.sonar.squidbridge.checks.SquidCheck;
 import org.sonar.sslr.parser.LexerlessGrammar;
@@ -36,20 +38,19 @@ public class AlertUseCheck extends SquidCheck<LexerlessGrammar> {
 
   @Override
   public void init() {
-    subscribeTo(EcmaScriptGrammar.CALL_EXPRESSION);
+    subscribeTo(Kind.CALL_EXPRESSION);
   }
 
   @Override
   public void visitNode(AstNode astNode) {
-    AstNode simpleCallExpr = astNode.getFirstChild(EcmaScriptGrammar.SIMPLE_CALL_EXPRESSION);
+    AstNode callee = astNode.getFirstChild();
 
-    if (simpleCallExpr != null && isAlertCall(simpleCallExpr.getFirstChild())) {
+    if (callee.is(EcmaScriptGrammar.PRIMARY_EXPRESSION) && isAlertCall(callee)) {
       getContext().createLineViolation(this, "Remove this usage of alert(...).", astNode);
     }
   }
 
-  public static boolean isAlertCall(AstNode memberExpr) {
-    return memberExpr.isNot(Kind.DOT_MEMBER_EXPRESSION, Kind.BRACKET_MEMBER_EXPRESSION, Kind.TAGGED_TEMPLATE)
-      && "alert".equals(memberExpr.getFirstChild().getTokenValue());
+  public static boolean isAlertCall(AstNode callee) {
+    return "alert".equals(callee.getFirstChild().getTokenValue());
   }
 }

@@ -35,6 +35,7 @@ import org.sonar.javascript.model.implementations.expression.ArrayLiteralTreeImp
 import org.sonar.javascript.model.implementations.expression.ArrowFunctionTreeImpl;
 import org.sonar.javascript.model.implementations.expression.BinaryExpressionTreeImpl;
 import org.sonar.javascript.model.implementations.expression.BracketMemberExpressionTreeImpl;
+import org.sonar.javascript.model.implementations.expression.CallExpressionTreeImpl;
 import org.sonar.javascript.model.implementations.expression.ConditionalExpressionTreeImpl;
 import org.sonar.javascript.model.implementations.expression.DotMemberExpressionTreeImpl;
 import org.sonar.javascript.model.implementations.expression.FunctionExpressionTreeImpl;
@@ -75,6 +76,8 @@ import org.sonar.javascript.model.implementations.statement.WhileStatementTreeIm
 import org.sonar.javascript.model.implementations.statement.WithStatementTreeImpl;
 import org.sonar.javascript.model.interfaces.Tree;
 import org.sonar.javascript.model.interfaces.Tree.Kind;
+import org.sonar.javascript.model.interfaces.declaration.ParameterListTree;
+import org.sonar.javascript.model.interfaces.expression.BracketMemberExpressionTree;
 import org.sonar.javascript.model.interfaces.expression.DotMemberExpressionTree;
 import org.sonar.javascript.model.interfaces.expression.ExpressionTree;
 import org.sonar.javascript.model.interfaces.expression.MemberExpressionTree;
@@ -818,6 +821,32 @@ public class TreeFactory {
       return arguments.get().complete(InternalSyntaxToken.create(openParenToken), InternalSyntaxToken.create(closeParenToken));
     }
     return new ParameterListTreeImpl(Kind.ARGUMENTS, InternalSyntaxToken.create(openParenToken), InternalSyntaxToken.create(closeParenToken));
+  }
+
+  public CallExpressionTreeImpl simpleCallExpression(AstNode expression, ParameterListTree arguments) {
+    return new CallExpressionTreeImpl(expression, arguments);
+  }
+
+  public AstNode callExpression(CallExpressionTreeImpl callExpression, Optional<List<ExpressionTree>> arguments) {
+
+    if (!arguments.isPresent()) {
+      return callExpression;
+    }
+
+    ExpressionTree callee = callExpression;
+
+    for (ExpressionTree arg : arguments.get()) {
+      if (arg instanceof BracketMemberExpressionTree) {
+        callee = ((BracketMemberExpressionTreeImpl) arg).complete((AstNode) callee);
+      } else if (arg instanceof DotMemberExpressionTreeImpl) {
+        callee = ((DotMemberExpressionTreeImpl) arg).complete((AstNode) callee);
+      } else if (arg instanceof TaggedTemplateTreeImpl) {
+        callee = ((TaggedTemplateTreeImpl) arg).complete((AstNode) callee);
+      } else {
+        callee = new CallExpressionTreeImpl((AstNode) callee, (ParameterListTreeImpl) arg);
+      }
+    }
+    return (AstNode) callee;
   }
 
   public static class Tuple<T, U> extends AstNode {

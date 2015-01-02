@@ -34,7 +34,7 @@ import org.sonar.javascript.model.interfaces.lexical.SyntaxToken;
  * <p/>
  * <p>This interface is not intended to be implemented by clients.</p>
  */
-public interface ParameterListTree extends DeclarationTree {
+public interface ParameterListTree extends DeclarationTree, ExpressionTree {
 
 
   SyntaxToken openParenthesis();

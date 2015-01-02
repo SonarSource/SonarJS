@@ -19,17 +19,13 @@
  */
 package org.sonar.javascript.checks;
 
-import com.google.common.collect.Lists;
 import com.sonar.sslr.api.AstNode;
 import org.sonar.check.BelongsToProfile;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.javascript.model.interfaces.Tree.Kind;
-import org.sonar.javascript.parser.EcmaScriptGrammar;
 import org.sonar.squidbridge.checks.SquidCheck;
 import org.sonar.sslr.parser.LexerlessGrammar;
-
-import java.util.List;
 
 @Rule(
   key = "S1472",
@@ -39,30 +35,18 @@ public class FunctionCallArgumentsOnNewLineCheck extends SquidCheck<LexerlessGra
 
   @Override
   public void init() {
-    subscribeTo(EcmaScriptGrammar.CALL_EXPRESSION);
+    subscribeTo(Kind.CALL_EXPRESSION);
   }
 
   @Override
   public void visitNode(AstNode astNode) {
-    for (AstNode args : getCallArguments(astNode)) {
-      int memberCallingLine = args.getPreviousSibling().getLastToken().getLine();
 
-      if (args.getTokenLine() != memberCallingLine) {
-        getContext().createLineViolation(this, "Make those call arguments start on line {0}", args, memberCallingLine);
-      }
+    AstNode arguments = astNode.getFirstChild(Kind.ARGUMENTS);
+    int calleLine =  arguments.getPreviousSibling().getLastChild().getLastToken().getLine();
+
+    if (calleLine != arguments.getTokenLine()) {
+      getContext().createLineViolation(this, "Make those call arguments start on line {0}", arguments, calleLine);
     }
-  }
-
-  private List<AstNode> getCallArguments(AstNode callExpr) {
-    List<AstNode> callArguments = Lists.newArrayList();
-    AstNode simpleCallExpr = callExpr.getFirstChild(EcmaScriptGrammar.SIMPLE_CALL_EXPRESSION);
-
-    if (simpleCallExpr != null) {
-      callArguments.add(simpleCallExpr.getFirstChild(Kind.ARGUMENTS));
-    }
-    callArguments.addAll(callExpr.getChildren(Kind.ARGUMENTS));
-
-    return callArguments;
   }
 
 }

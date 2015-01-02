@@ -6,3 +6,5 @@ var a = function alert() {return 1;};   // OK
 
 `alert` ();                             // OK
 `${alert()}`;                           // NOK
+
+alert()();                              // NOK

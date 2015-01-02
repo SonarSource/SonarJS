@@ -28,6 +28,7 @@ import org.sonar.javascript.model.implementations.declaration.ParameterListTreeI
 import org.sonar.javascript.model.implementations.expression.ArrayLiteralTreeImpl;
 import org.sonar.javascript.model.implementations.expression.ArrowFunctionTreeImpl;
 import org.sonar.javascript.model.implementations.expression.BracketMemberExpressionTreeImpl;
+import org.sonar.javascript.model.implementations.expression.CallExpressionTreeImpl;
 import org.sonar.javascript.model.implementations.expression.DotMemberExpressionTreeImpl;
 import org.sonar.javascript.model.implementations.expression.FunctionExpressionTreeImpl;
 import org.sonar.javascript.model.implementations.expression.IdentifierTreeImpl;
@@ -61,6 +62,7 @@ import org.sonar.javascript.model.implementations.statement.VariableStatementTre
 import org.sonar.javascript.model.implementations.statement.WhileStatementTreeImpl;
 import org.sonar.javascript.model.implementations.statement.WithStatementTreeImpl;
 import org.sonar.javascript.model.interfaces.Tree.Kind;
+import org.sonar.javascript.model.interfaces.expression.CallExpressionTree;
 import org.sonar.javascript.model.interfaces.expression.ExpressionTree;
 import org.sonar.javascript.model.interfaces.expression.MemberExpressionTree;
 import org.sonar.javascript.model.interfaces.statement.DebuggerStatementTree;
@@ -655,7 +657,7 @@ public class ActionGrammar {
   public ExpressionTree LEFT_HAND_SIDE_EXPRESSION() {
     return b.<ExpressionTree>nonterminal(EcmaScriptGrammar.LEFT_HAND_SIDE_EXPRESSION)
       .is(f.newLeftHandSideExpression(b.firstOf(
-        b.invokeRule(EcmaScriptGrammar.CALL_EXPRESSION),
+        CALL_EXPRESSION(),
         b.invokeRule(EcmaScriptGrammar.NEW_EXPRESSION)
       )));
   }
@@ -779,8 +781,8 @@ public class ActionGrammar {
   public ParameterListTreeImpl ARGUMENT_LIST() {
     return b.<ParameterListTreeImpl>nonterminal(EcmaScriptGrammar.ARGUMENTS_LIST)
       .is(f.newArgumentList(
-        ARGUMENT(),
-        b.zeroOrMore(f.newTuple17(b.invokeRule(EcmaScriptPunctuator.COMMA), ARGUMENT())))
+          ARGUMENT(),
+          b.zeroOrMore(f.newTuple17(b.invokeRule(EcmaScriptPunctuator.COMMA), ARGUMENT())))
       );
   }
 
@@ -790,6 +792,18 @@ public class ActionGrammar {
       .is(f.argument(
         b.optional(b.invokeRule(EcmaScriptPunctuator.ELLIPSIS)),
         b.invokeRule(EcmaScriptGrammar.ASSIGNMENT_EXPRESSION)));
+  }
+
+  public AstNode CALL_EXPRESSION() {
+    return b.<AstNode>nonterminal(Kind.CALL_EXPRESSION)
+      .is(f.callExpression(
+        f.simpleCallExpression(b.firstOf(MEMBER_EXPRESSION(), SUPER()), ARGUMENTS()),
+        b.zeroOrMore(b.firstOf(
+          ARGUMENTS(),
+          BRACKET_EXPRESSION(),
+          OBJECT_PROPERTY_ACCESS(),
+          ES6(TAGGED_TEMPLATE())
+        ))));
   }
 
   /**

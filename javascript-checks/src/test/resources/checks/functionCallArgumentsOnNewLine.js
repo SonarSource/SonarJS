@@ -23,3 +23,5 @@ var fn = function () {
 
 `characters` ()
 ()                         // NOK
+
+a()()();
