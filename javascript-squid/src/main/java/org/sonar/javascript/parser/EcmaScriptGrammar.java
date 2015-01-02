@@ -232,7 +232,6 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
   ARROW_FUNCTION_NO_IN,
   /** ECMAScript 6 **/
   CONCISE_BODY_NO_IN,
-  PARENTHESISED_EXPRESSION,
   /** ECMAScript 6 **/
   GENERATOR_EXPRESSION,
   /** ECMAScript 6 **/
@@ -603,12 +602,10 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
       Kind.ARRAY_LITERAL,
       OBJECT_LITERAL,
       Kind.FUNCTION_EXPRESSION,
-      PARENTHESISED_EXPRESSION,
+      Kind.PARENTHESISED_EXPRESSION,
       ecmascript6(CLASS_EXPRESSION),
       ecmascript6(Kind.GENERATOR_FUNCTION_EXPRESSION),
       ecmascript6(TEMPLATE_LITERAL)));
-
-    b.rule(PARENTHESISED_EXPRESSION).is(LPARENTHESIS, EXPRESSION, RPARENTHESIS);
 
     b.rule(TEMPLATE_LITERAL).is(b.firstOf(
       NO_SUBSTITUTION_TEMPLATE,

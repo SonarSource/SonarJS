@@ -30,19 +30,17 @@ import org.sonar.javascript.model.interfaces.lexical.SyntaxToken;
 
 import java.util.Iterator;
 
-public class ParenthesisTreeImpl extends JavaScriptTree implements ParenthesisedExpressionTree {
+public class ParenthesisedExpressionTreeImpl extends JavaScriptTree implements ParenthesisedExpressionTree {
 
   private final InternalSyntaxToken openParenthesis;
-  private final ExpressionTree expression;
   private final InternalSyntaxToken closeParenthesis;
 
-  public ParenthesisTreeImpl(InternalSyntaxToken openParenthesis, ExpressionTree expression, InternalSyntaxToken closeParenthesis) {
+  public ParenthesisedExpressionTreeImpl(InternalSyntaxToken openParenthesis, AstNode expression, InternalSyntaxToken closeParenthesis) {
     super(Kind.PARENTHESISED_EXPRESSION);
     this.openParenthesis = openParenthesis;
-    this.expression = expression;
     this.closeParenthesis = closeParenthesis;
 
-    addChildren(openParenthesis, (AstNode) expression, closeParenthesis);
+    addChildren(openParenthesis, expression, closeParenthesis);
   }
 
   @Override
@@ -52,7 +50,7 @@ public class ParenthesisTreeImpl extends JavaScriptTree implements Parenthesised
 
   @Override
   public ExpressionTree expression() {
-    return expression;
+    throw new UnsupportedOperationException("Not supported yet in the strongly typed AST.");
   }
 
   @Override
@@ -67,7 +65,7 @@ public class ParenthesisTreeImpl extends JavaScriptTree implements Parenthesised
 
   @Override
   public Iterator<Tree> childrenIterator() {
-    return Iterators.<Tree>singletonIterator(expression);
+    return Iterators.emptyIterator();
   }
 
 }

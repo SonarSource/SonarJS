@@ -28,7 +28,6 @@ import com.sonar.sslr.api.AstNodeType;
 import org.apache.commons.collections.ListUtils;
 import org.sonar.javascript.api.EcmaScriptKeyword;
 import org.sonar.javascript.api.EcmaScriptPunctuator;
-import org.sonar.javascript.model.implementations.JavaScriptTree;
 import org.sonar.javascript.model.implementations.SeparatedList;
 import org.sonar.javascript.model.implementations.declaration.ParameterListTreeImpl;
 import org.sonar.javascript.model.implementations.expression.ArrayLiteralTreeImpl;
@@ -42,6 +41,7 @@ import org.sonar.javascript.model.implementations.expression.FunctionExpressionT
 import org.sonar.javascript.model.implementations.expression.IdentifierTreeImpl;
 import org.sonar.javascript.model.implementations.expression.LeftHandSideExpressionTreeImpl;
 import org.sonar.javascript.model.implementations.expression.LiteralTreeImpl;
+import org.sonar.javascript.model.implementations.expression.ParenthesisedExpressionTreeImpl;
 import org.sonar.javascript.model.implementations.expression.PostfixExpressionTreeImpl;
 import org.sonar.javascript.model.implementations.expression.PrefixExpressionTreeImpl;
 import org.sonar.javascript.model.implementations.expression.RestElementTreeImpl;
@@ -78,7 +78,6 @@ import org.sonar.javascript.model.interfaces.Tree;
 import org.sonar.javascript.model.interfaces.Tree.Kind;
 import org.sonar.javascript.model.interfaces.declaration.ParameterListTree;
 import org.sonar.javascript.model.interfaces.expression.BracketMemberExpressionTree;
-import org.sonar.javascript.model.interfaces.expression.DotMemberExpressionTree;
 import org.sonar.javascript.model.interfaces.expression.ExpressionTree;
 import org.sonar.javascript.model.interfaces.expression.MemberExpressionTree;
 import org.sonar.javascript.model.interfaces.statement.StatementTree;
@@ -847,6 +846,10 @@ public class TreeFactory {
       }
     }
     return (AstNode) callee;
+  }
+
+  public ParenthesisedExpressionTreeImpl parenthesisedExpression(AstNode openParenToken, AstNode expression, AstNode closeParenToken) {
+    return new ParenthesisedExpressionTreeImpl(InternalSyntaxToken.create(openParenToken), expression, InternalSyntaxToken.create(closeParenToken));
   }
 
   public static class Tuple<T, U> extends AstNode {

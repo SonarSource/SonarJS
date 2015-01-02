@@ -28,11 +28,11 @@ import org.sonar.javascript.model.implementations.declaration.ParameterListTreeI
 import org.sonar.javascript.model.implementations.expression.ArrayLiteralTreeImpl;
 import org.sonar.javascript.model.implementations.expression.ArrowFunctionTreeImpl;
 import org.sonar.javascript.model.implementations.expression.BracketMemberExpressionTreeImpl;
-import org.sonar.javascript.model.implementations.expression.CallExpressionTreeImpl;
 import org.sonar.javascript.model.implementations.expression.DotMemberExpressionTreeImpl;
 import org.sonar.javascript.model.implementations.expression.FunctionExpressionTreeImpl;
 import org.sonar.javascript.model.implementations.expression.IdentifierTreeImpl;
 import org.sonar.javascript.model.implementations.expression.LiteralTreeImpl;
+import org.sonar.javascript.model.implementations.expression.ParenthesisedExpressionTreeImpl;
 import org.sonar.javascript.model.implementations.expression.RestElementTreeImpl;
 import org.sonar.javascript.model.implementations.expression.SuperTreeImpl;
 import org.sonar.javascript.model.implementations.expression.TaggedTemplateTreeImpl;
@@ -62,7 +62,6 @@ import org.sonar.javascript.model.implementations.statement.VariableStatementTre
 import org.sonar.javascript.model.implementations.statement.WhileStatementTreeImpl;
 import org.sonar.javascript.model.implementations.statement.WithStatementTreeImpl;
 import org.sonar.javascript.model.interfaces.Tree.Kind;
-import org.sonar.javascript.model.interfaces.expression.CallExpressionTree;
 import org.sonar.javascript.model.interfaces.expression.ExpressionTree;
 import org.sonar.javascript.model.interfaces.expression.MemberExpressionTree;
 import org.sonar.javascript.model.interfaces.statement.DebuggerStatementTree;
@@ -804,6 +803,14 @@ public class ActionGrammar {
           OBJECT_PROPERTY_ACCESS(),
           ES6(TAGGED_TEMPLATE())
         ))));
+  }
+
+  public ParenthesisedExpressionTreeImpl PARENTHESISED_EXPRESSION() {
+    return b.<ParenthesisedExpressionTreeImpl>nonterminal(Kind.PARENTHESISED_EXPRESSION)
+      .is(f.parenthesisedExpression(
+        b.invokeRule(EcmaScriptPunctuator.LPARENTHESIS),
+        b.invokeRule(EcmaScriptGrammar.EXPRESSION),
+        b.invokeRule(EcmaScriptPunctuator.RPARENTHESIS)));
   }
 
   /**
