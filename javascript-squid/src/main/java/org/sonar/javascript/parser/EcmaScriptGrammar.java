@@ -196,8 +196,6 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
   NEW_EXPRESSION,
   CALL_EXPRESSION,
   SIMPLE_CALL_EXPRESSION,
-  ARGUMENTS,
-  /** ECMAScript 6 **/
   ARGUMENTS_LIST,
   LEFT_HAND_SIDE_EXPRESSION,
   POSTFIX_EXPRESSION,
@@ -638,7 +636,7 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
     b.rule(COVER_INITIALIZED_NAME).is(IDENTIFIER_REFERENCE, b.optional(INITIALISER));
     b.rule(PAIR_PROPERTY).is(PROPERTY_NAME, COLON, ASSIGNMENT_EXPRESSION);
 
-    b.rule(NEW_MEMBER_EXPRESSION).is(b.sequence(NEW, b.firstOf(ecmascript6(SUPER), MEMBER_EXPRESSION), ARGUMENTS));
+    b.rule(NEW_MEMBER_EXPRESSION).is(b.sequence(NEW, b.firstOf(ecmascript6(SUPER), MEMBER_EXPRESSION), Kind.ARGUMENTS));
     b.rule(NEW_EXPRESSION).is(b.firstOf(
       MEMBER_EXPRESSION,
       ecmascript6(b.sequence(NEW, SUPER)),
@@ -647,13 +645,11 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
     b.rule(CALL_EXPRESSION).is(
       SIMPLE_CALL_EXPRESSION,
       b.zeroOrMore(b.firstOf(
-        ARGUMENTS,
+        Kind.ARGUMENTS,
         Kind.BRACKET_MEMBER_EXPRESSION,
         Kind.DOT_MEMBER_EXPRESSION,
         ecmascript6(TEMPLATE_LITERAL))));
-    b.rule(SIMPLE_CALL_EXPRESSION).is(b.firstOf(MEMBER_EXPRESSION, ecmascript6(SUPER)), ARGUMENTS);
-    b.rule(ARGUMENTS).is(LPARENTHESIS, b.optional(ARGUMENTS_LIST), RPARENTHESIS);
-    b.rule(ARGUMENTS_LIST).is(b.optional(ELLIPSIS), ASSIGNMENT_EXPRESSION, b.zeroOrMore(COMMA, b.optional(ELLIPSIS), ASSIGNMENT_EXPRESSION));
+    b.rule(SIMPLE_CALL_EXPRESSION).is(b.firstOf(MEMBER_EXPRESSION, ecmascript6(SUPER)), Kind.ARGUMENTS);
 
     b.rule(RELATIONAL_EXPRESSION_NO_IN).is(SHIFT_EXPRESSION, b.zeroOrMore(b.firstOf(LT, GT, LE, GE, INSTANCEOF), SHIFT_EXPRESSION)).skipIfOneChild();
     b.rule(EQUALITY_EXPRESSION_NO_IN).is(RELATIONAL_EXPRESSION_NO_IN, b.zeroOrMore(b.firstOf(EQUAL, NOTEQUAL, EQUAL2, NOTEQUAL2), RELATIONAL_EXPRESSION_NO_IN)).skipIfOneChild();

@@ -19,6 +19,7 @@
  */
 package org.sonar.javascript.model.interfaces.expression;
 
+import org.sonar.javascript.model.interfaces.declaration.ParameterListTree;
 import org.sonar.javascript.model.interfaces.lexical.SyntaxToken;
 
 import java.util.List;
@@ -38,9 +39,6 @@ public interface CallExpressionTree extends ExpressionTree {
 
   ExpressionTree callee();
 
-  SyntaxToken openParenthesis();
+  ParameterListTree arguments();
 
-  List<ExpressionTree> arguments();
-
-  SyntaxToken closeParenthesis();
 }

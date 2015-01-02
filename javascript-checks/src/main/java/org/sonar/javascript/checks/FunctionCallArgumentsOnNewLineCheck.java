@@ -24,6 +24,7 @@ import com.sonar.sslr.api.AstNode;
 import org.sonar.check.BelongsToProfile;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
+import org.sonar.javascript.model.interfaces.Tree.Kind;
 import org.sonar.javascript.parser.EcmaScriptGrammar;
 import org.sonar.squidbridge.checks.SquidCheck;
 import org.sonar.sslr.parser.LexerlessGrammar;
@@ -57,9 +58,9 @@ public class FunctionCallArgumentsOnNewLineCheck extends SquidCheck<LexerlessGra
     AstNode simpleCallExpr = callExpr.getFirstChild(EcmaScriptGrammar.SIMPLE_CALL_EXPRESSION);
 
     if (simpleCallExpr != null) {
-      callArguments.add(simpleCallExpr.getFirstChild(EcmaScriptGrammar.ARGUMENTS));
+      callArguments.add(simpleCallExpr.getFirstChild(Kind.ARGUMENTS));
     }
-    callArguments.addAll(callExpr.getChildren(EcmaScriptGrammar.ARGUMENTS));
+    callArguments.addAll(callExpr.getChildren(Kind.ARGUMENTS));
 
     return callArguments;
   }

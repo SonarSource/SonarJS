@@ -33,7 +33,6 @@ import java.util.List;
  * <pre>
  *   new {@link #expression()}
  *   new {@link Tree.Kind#NEW_SUPER super}
- *   new {@link #expression()} ( {@link #arguments()} )
  * </pre>
  *
  * <p/>
@@ -45,12 +44,4 @@ public interface NewExpressionTree extends ExpressionTree {
 
   Tree expression();
 
-  @Nullable
-  SyntaxToken openParenthesis();
-
-  @Nullable
-  List<ExpressionTree> arguments();
-
-  @Nullable
-  SyntaxToken closeParenthesis();
 }

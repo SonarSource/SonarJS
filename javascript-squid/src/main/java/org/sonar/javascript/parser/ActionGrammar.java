@@ -63,7 +63,6 @@ import org.sonar.javascript.model.implementations.statement.WithStatementTreeImp
 import org.sonar.javascript.model.interfaces.Tree.Kind;
 import org.sonar.javascript.model.interfaces.expression.ExpressionTree;
 import org.sonar.javascript.model.interfaces.expression.MemberExpressionTree;
-import org.sonar.javascript.model.interfaces.expression.TaggedTemplateTree;
 import org.sonar.javascript.model.interfaces.statement.DebuggerStatementTree;
 import org.sonar.javascript.model.interfaces.statement.StatementTree;
 import org.sonar.javascript.parser.sslr.GrammarBuilder;
@@ -439,6 +438,7 @@ public class ActionGrammar {
     return b.<RestElementTreeImpl>nonterminal(EcmaScriptGrammar.BINDING_REST_ELEMENT)
       .is(f.bindingRestElement(b.invokeRule(EcmaScriptPunctuator.ELLIPSIS), IDENTIFIER_REFERENCE()));
   }
+
   public ArrayLiteralTreeImpl ARRAY_LITERAL() {
     return b.<ArrayLiteralTreeImpl>nonterminal(Kind.ARRAY_LITERAL)
       .is(f.completeArrayLiteral(
@@ -674,8 +674,8 @@ public class ActionGrammar {
   public IdentifierTreeImpl IDENTIFIER_REFERENCE() {
     return b.<IdentifierTreeImpl>nonterminal(EcmaScriptGrammar.IDENTIFIER_REFERENCE)
       .is(f.identifierReference(b.firstOf(
-        b.invokeRule(EcmaScriptKeyword.YIELD),
-        b.invokeRule(EcmaScriptTokenType.IDENTIFIER)))
+          b.invokeRule(EcmaScriptKeyword.YIELD),
+          b.invokeRule(EcmaScriptTokenType.IDENTIFIER)))
       );
   }
 
@@ -764,6 +764,32 @@ public class ActionGrammar {
     return b.<TaggedTemplateTreeImpl>nonterminal(Kind.TAGGED_TEMPLATE)
       .is(f.newTaggedTemplate(b.invokeRule(EcmaScriptGrammar.TEMPLATE_LITERAL)));
 
+  }
+
+  public ParameterListTreeImpl ARGUMENTS() {
+    return b.<ParameterListTreeImpl>nonterminal(Kind.ARGUMENTS)
+      .is(f.completeArguments(
+        b.invokeRule(EcmaScriptPunctuator.LPARENTHESIS),
+        b.optional(ARGUMENT_LIST()),
+        b.invokeRule(EcmaScriptPunctuator.RPARENTHESIS)
+
+      ));
+  }
+
+  public ParameterListTreeImpl ARGUMENT_LIST() {
+    return b.<ParameterListTreeImpl>nonterminal(EcmaScriptGrammar.ARGUMENTS_LIST)
+      .is(f.newArgumentList(
+        ARGUMENT(),
+        b.zeroOrMore(f.newTuple17(b.invokeRule(EcmaScriptPunctuator.COMMA), ARGUMENT())))
+      );
+  }
+
+  // FIXME get rid of AstNode
+  public AstNode ARGUMENT() {
+    return b.<AstNode>nonterminal()
+      .is(f.argument(
+        b.optional(b.invokeRule(EcmaScriptPunctuator.ELLIPSIS)),
+        b.invokeRule(EcmaScriptGrammar.ASSIGNMENT_EXPRESSION)));
   }
 
   /**

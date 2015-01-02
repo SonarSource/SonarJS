@@ -791,6 +791,35 @@ public class TreeFactory {
     return result;
   }
 
+  public AstNode argument(Optional<AstNode> ellipsisToken, AstNode expression) {
+    return ellipsisToken.isPresent() ?
+      new RestElementTreeImpl(InternalSyntaxToken.create(ellipsisToken.get()), expression) : expression;
+  }
+
+  public ParameterListTreeImpl newArgumentList(AstNode argument, Optional<List<Tuple<AstNode, AstNode>>> restArguments) {
+    List<AstNode> children = Lists.newArrayList();
+    List<InternalSyntaxToken> commas = Lists.newArrayList();
+
+    children.add(argument);
+
+    if (restArguments.isPresent()) {
+      for (Tuple<AstNode, AstNode> t : restArguments.get()) {
+        commas.add(InternalSyntaxToken.create(t.first()));
+        children.add(t.first());
+        children.add(t.second());
+      }
+    }
+
+    return new ParameterListTreeImpl(Kind.ARGUMENTS, new SeparatedList<ExpressionTree>(ListUtils.EMPTY_LIST /*FIXME when assignment expression is migrated*/, commas, children));
+  }
+
+  public ParameterListTreeImpl completeArguments(AstNode openParenToken, Optional<ParameterListTreeImpl> arguments, AstNode closeParenToken) {
+    if (arguments.isPresent()) {
+      return arguments.get().complete(InternalSyntaxToken.create(openParenToken), InternalSyntaxToken.create(closeParenToken));
+    }
+    return new ParameterListTreeImpl(Kind.ARGUMENTS, InternalSyntaxToken.create(openParenToken), InternalSyntaxToken.create(closeParenToken));
+  }
+
   public static class Tuple<T, U> extends AstNode {
 
     private final T first;
@@ -904,6 +933,10 @@ public class TreeFactory {
   }
 
   public <T, U> Tuple<T, U> newTuple16(T first, U second) {
+    return newTuple(first, second);
+  }
+
+  public <T, U> Tuple<T, U> newTuple17(T first, U second) {
     return newTuple(first, second);
   }
   // End

@@ -632,6 +632,11 @@ public interface Tree {
      */
     TAGGED_TEMPLATE(TaggedTemplateTree.class),
 
+    /**
+     * {@link ParameterListTree}
+     */
+    ARGUMENTS(ParameterListTree.class),
+
     TYPEOF(UnaryExpressionTree.class),
 
     TOKEN(SyntaxToken.class),
