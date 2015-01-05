@@ -43,6 +43,7 @@ import org.sonar.javascript.model.implementations.expression.FunctionExpressionT
 import org.sonar.javascript.model.implementations.expression.IdentifierTreeImpl;
 import org.sonar.javascript.model.implementations.expression.LeftHandSideExpressionTreeImpl;
 import org.sonar.javascript.model.implementations.expression.LiteralTreeImpl;
+import org.sonar.javascript.model.implementations.expression.PairPropertyTreeImpl;
 import org.sonar.javascript.model.implementations.expression.ParenthesisedExpressionTreeImpl;
 import org.sonar.javascript.model.implementations.expression.PostfixExpressionTreeImpl;
 import org.sonar.javascript.model.implementations.expression.PrefixExpressionTreeImpl;
@@ -863,6 +864,10 @@ public class TreeFactory {
 
   public ComputedPropertyNameTreeImpl computedPropertyName(AstNode openBracketToken, AstNode expression, AstNode closeBracketToken) {
     return new ComputedPropertyNameTreeImpl(InternalSyntaxToken.create(openBracketToken), expression, InternalSyntaxToken.create(closeBracketToken));
+  }
+
+  public PairPropertyTreeImpl pairProperty(ExpressionTree name, AstNode colonToken, AstNode value) {
+    return new PairPropertyTreeImpl(name, InternalSyntaxToken.create(colonToken), value);
   }
 
   public static class Tuple<T, U> extends AstNode {

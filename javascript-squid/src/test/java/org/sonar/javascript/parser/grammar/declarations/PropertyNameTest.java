@@ -31,6 +31,9 @@ public class PropertyNameTest {
   public void ok() {
     assertThat(EcmaScriptGrammar.PROPERTY_NAME)
       .matches("a")
+      .matches("\"a\"")
+      .matches("1")
+
       .matches("[x = 1]");
   }
 

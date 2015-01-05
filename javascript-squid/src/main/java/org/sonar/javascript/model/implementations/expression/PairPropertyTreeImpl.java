@@ -35,15 +35,13 @@ public class PairPropertyTreeImpl extends JavaScriptTree implements PairProperty
 
   private final ExpressionTree key;
   private final SyntaxToken operator;
-  private final ExpressionTree value;
 
-  public PairPropertyTreeImpl(ExpressionTree key, InternalSyntaxToken operator, ExpressionTree value) {
+  public PairPropertyTreeImpl(ExpressionTree key, InternalSyntaxToken operator, AstNode value) {
     super(Kind.PAIR_PROPERTY);
     this.key = key;
     this.operator = operator;
-    this.value = value;
 
-    addChildren((AstNode) key, operator, (AstNode) value);
+    addChildren((AstNode) key, operator, value);
   }
 
   @Override
@@ -59,7 +57,7 @@ public class PairPropertyTreeImpl extends JavaScriptTree implements PairProperty
 
   @Override
   public ExpressionTree value() {
-    return value;
+    throw new UnsupportedOperationException("Not supported yet in the strongly typed AST.");
   }
 
   @Override
@@ -69,7 +67,7 @@ public class PairPropertyTreeImpl extends JavaScriptTree implements PairProperty
 
   @Override
   public Iterator<Tree> childrenIterator() {
-    return Iterators.<Tree>forArray(key, value);
+    return Iterators.emptyIterator();
   }
 
 }

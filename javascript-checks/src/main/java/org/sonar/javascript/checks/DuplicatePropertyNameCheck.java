@@ -24,7 +24,9 @@ import com.sonar.sslr.api.AstNode;
 import org.sonar.check.BelongsToProfile;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
+import org.sonar.javascript.model.implementations.expression.PairPropertyTreeImpl;
 import org.sonar.javascript.model.interfaces.Tree.Kind;
+import org.sonar.javascript.model.interfaces.expression.PairPropertyTree;
 import org.sonar.javascript.parser.EcmaScriptGrammar;
 import org.sonar.squidbridge.checks.SquidCheck;
 import org.sonar.sslr.parser.LexerlessGrammar;
@@ -71,8 +73,8 @@ public class DuplicatePropertyNameCheck extends SquidCheck<LexerlessGrammar> {
   private static AstNode getPropertyName(AstNode propertyAssignment) {
     AstNode objectProperty = propertyAssignment.getFirstChild();
 
-    if (objectProperty.is(EcmaScriptGrammar.PAIR_PROPERTY)) {
-      return objectProperty.getFirstChild(EcmaScriptGrammar.PROPERTY_NAME);
+    if (objectProperty.is(Kind.PAIR_PROPERTY)) {
+      return objectProperty.getFirstChild();
 
     } else /* COVER_INITIALIZED_NAME */ {
       return objectProperty.getFirstChild(Kind.IDENTIFIER);

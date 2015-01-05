@@ -189,7 +189,6 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
   COVER_INITIALIZED_NAME,
   /** ECMAScript 6 **/
   PROPERTY_DEFINITION,
-  PAIR_PROPERTY,
   PROPERTY_NAME,
   MEMBER_EXPRESSION,
   NEW_MEMBER_EXPRESSION,
@@ -310,8 +309,6 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
   BINDING_PATTERN_INITIALISER_NO_IN,
   /** ECMAScript 6 **/
   IDENTIFIER_REFERENCE,
-  /** ECMAScript 6 **/
-  LITERAL_PROPERTY_NAME,
   /** ECMAScript 6 **/
   GENERATOR_METHOD,
   /** ECMAScript 6 **/
@@ -619,11 +616,10 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
 
     b.rule(OBJECT_LITERAL).is(LCURLYBRACE, b.optional(PROPERTY_DEFINITION, b.zeroOrMore(COMMA, PROPERTY_DEFINITION), b.optional(COMMA)), RCURLYBRACE);
     b.rule(PROPERTY_DEFINITION).is(b.firstOf(
-      PAIR_PROPERTY,
+      Kind.PAIR_PROPERTY,
       METHOD_DEFINITION,
       ecmascript6(COVER_INITIALIZED_NAME)));
     b.rule(COVER_INITIALIZED_NAME).is(IDENTIFIER_REFERENCE, b.optional(INITIALISER));
-    b.rule(PAIR_PROPERTY).is(PROPERTY_NAME, COLON, ASSIGNMENT_EXPRESSION);
 
     b.rule(NEW_MEMBER_EXPRESSION).is(b.sequence(NEW, b.firstOf(ecmascript6(SUPER), MEMBER_EXPRESSION), Kind.ARGUMENTS));
     b.rule(NEW_EXPRESSION).is(b.firstOf(
@@ -832,8 +828,6 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
     b.rule(GETTER_METHOD).is(b.sequence(GET, PROPERTY_NAME, LPARENTHESIS, RPARENTHESIS, LCURLYBRACE, FUNCTION_BODY, RCURLYBRACE));
     b.rule(GET).is(word(b, "get"));
     b.rule(GENERATOR_METHOD).is(STAR, PROPERTY_NAME, Kind.FORMAL_PARAMETER_LIST, LCURLYBRACE, FUNCTION_BODY, RCURLYBRACE);
-
-    b.rule(PROPERTY_NAME).is(b.firstOf(LITERAL_PROPERTY_NAME, ecmascript6(Kind.COMPUTED_PROPERTY_NAME)));
   }
 
   /**

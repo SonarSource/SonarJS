@@ -34,6 +34,7 @@ import org.sonar.javascript.model.implementations.expression.DotMemberExpression
 import org.sonar.javascript.model.implementations.expression.FunctionExpressionTreeImpl;
 import org.sonar.javascript.model.implementations.expression.IdentifierTreeImpl;
 import org.sonar.javascript.model.implementations.expression.LiteralTreeImpl;
+import org.sonar.javascript.model.implementations.expression.PairPropertyTreeImpl;
 import org.sonar.javascript.model.implementations.expression.ParenthesisedExpressionTreeImpl;
 import org.sonar.javascript.model.implementations.expression.RestElementTreeImpl;
 import org.sonar.javascript.model.implementations.expression.SuperTreeImpl;
@@ -66,6 +67,7 @@ import org.sonar.javascript.model.implementations.statement.WithStatementTreeImp
 import org.sonar.javascript.model.interfaces.Tree.Kind;
 import org.sonar.javascript.model.interfaces.expression.ExpressionTree;
 import org.sonar.javascript.model.interfaces.expression.MemberExpressionTree;
+import org.sonar.javascript.model.interfaces.expression.PairPropertyTree;
 import org.sonar.javascript.model.interfaces.statement.DebuggerStatementTree;
 import org.sonar.javascript.model.interfaces.statement.ExpressionStatementTree;
 import org.sonar.javascript.model.interfaces.statement.StatementTree;
@@ -845,11 +847,28 @@ public class ActionGrammar {
   }
 
   public ExpressionTree LITERAL_PROPERTY_NAME() {
-    return b.<ExpressionTree>nonterminal(EcmaScriptGrammar.LITERAL_PROPERTY_NAME)
+    return b.<ExpressionTree>nonterminal()
       .is(b.firstOf(
         IDENTIFIER_NAME(),
         STRING_LITERAL(),
         NUMERIC_LITERAL()
+      ));
+  }
+
+  public ExpressionTree PROPERTY_NAME() {
+    return b.<ExpressionTree>nonterminal(EcmaScriptGrammar.PROPERTY_NAME)
+      .is(b.firstOf(
+        LITERAL_PROPERTY_NAME(),
+        COMPUTED_PROPERTY_NAME()
+      ));
+  }
+
+  public PairPropertyTreeImpl PAIR_PROPERTY() {
+    return b.<PairPropertyTreeImpl>nonterminal(Kind.PAIR_PROPERTY)
+      .is(f.pairProperty(
+        PROPERTY_NAME(),
+        b.invokeRule(EcmaScriptPunctuator.COLON),
+        b.invokeRule(EcmaScriptGrammar.ASSIGNMENT_EXPRESSION)
       ));
   }
 
