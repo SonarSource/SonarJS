@@ -104,10 +104,10 @@ public final class JavaScriptAstScanner {
         cls.setStartAtLine(astNode.getTokenLine());
         return cls;
       }
-    }, EcmaScriptGrammar.CLASS_DECLARATION, EcmaScriptGrammar.CLASS_EXPRESSION));
+    }, EcmaScriptGrammar.CLASS_DECLARATION, Kind.CLASS_EXPRESSION));
 
     builder.withSquidAstVisitor(CounterVisitor.<LexerlessGrammar>builder().setMetricDef(EcmaScriptMetric.CLASSES)
-      .subscribeTo(EcmaScriptGrammar.CLASS_DECLARATION, EcmaScriptGrammar.CLASS_EXPRESSION)
+      .subscribeTo(EcmaScriptGrammar.CLASS_DECLARATION, Kind.CLASS_EXPRESSION)
       .build());
 
     /* Functions */

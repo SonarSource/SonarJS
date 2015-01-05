@@ -28,6 +28,7 @@ import org.sonar.javascript.model.implementations.declaration.ParameterListTreeI
 import org.sonar.javascript.model.implementations.expression.ArrayLiteralTreeImpl;
 import org.sonar.javascript.model.implementations.expression.ArrowFunctionTreeImpl;
 import org.sonar.javascript.model.implementations.expression.BracketMemberExpressionTreeImpl;
+import org.sonar.javascript.model.implementations.expression.ClassExpressionTreeImpl;
 import org.sonar.javascript.model.implementations.expression.DotMemberExpressionTreeImpl;
 import org.sonar.javascript.model.implementations.expression.FunctionExpressionTreeImpl;
 import org.sonar.javascript.model.implementations.expression.IdentifierTreeImpl;
@@ -811,6 +812,15 @@ public class ActionGrammar {
         b.invokeRule(EcmaScriptPunctuator.LPARENTHESIS),
         b.invokeRule(EcmaScriptGrammar.EXPRESSION),
         b.invokeRule(EcmaScriptPunctuator.RPARENTHESIS)));
+  }
+
+  public ClassExpressionTreeImpl CLASS_EXPRESSION() {
+    return b.<ClassExpressionTreeImpl>nonterminal(Kind.CLASS_EXPRESSION)
+      .is(f.classExpression(
+        b.invokeRule(EcmaScriptKeyword.CLASS),
+        b.optional(IDENTIFIER_REFERENCE()),
+        b.invokeRule(EcmaScriptGrammar.CLASS_TAIL)
+      ));
   }
 
   /**

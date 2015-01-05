@@ -26,6 +26,7 @@ import org.sonar.javascript.model.interfaces.expression.ArrowFunctionTree;
 import org.sonar.javascript.model.interfaces.expression.AssignmentExpressionTree;
 import org.sonar.javascript.model.interfaces.expression.BinaryExpressionTree;
 import org.sonar.javascript.model.interfaces.expression.CallExpressionTree;
+import org.sonar.javascript.model.interfaces.expression.ClassExpressionTree;
 import org.sonar.javascript.model.interfaces.expression.ConditionalExpressionTree;
 import org.sonar.javascript.model.interfaces.expression.ExpressionTree;
 import org.sonar.javascript.model.interfaces.expression.FunctionTree;
@@ -636,6 +637,11 @@ public interface Tree {
      * {@link ParameterListTree}
      */
     ARGUMENTS(ParameterListTree.class),
+
+    /**
+     * {@link ClassExpressionTree}
+     */
+    CLASS_EXPRESSION(ClassExpressionTree.class),
 
     TYPEOF(UnaryExpressionTree.class),
 

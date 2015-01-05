@@ -17,21 +17,33 @@
  * License along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.javascript.parser.grammar.expressions;
+package org.sonar.javascript.model.interfaces.expression;
 
-import org.junit.Test;
-import org.sonar.javascript.model.interfaces.Tree.Kind;
+import org.sonar.javascript.model.interfaces.declaration.DeclarationTree;
+import org.sonar.javascript.model.interfaces.lexical.SyntaxToken;
+import org.sonar.javascript.model.interfaces.statement.StatementTree;
 
-import static org.sonar.javascript.sslr.tests.Assertions.assertThat;
+import javax.annotation.Nullable;
 
-public class ClassExpressionTest {
+/**
+ * Interface for type
+ * <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-class-definitions">Class expression</a>
+ *
+ * <pre>
+ *  class {@link #name()} {@link #heritage()} { {@link #body()} }
+ * </pre>
+ *
+ * <p>This interface is not intended to be implemented by clients.</p>
+ */
+public interface ClassExpressionTree extends ExpressionTree {
 
+  SyntaxToken classKeyword();
 
-  @Test
-  public void ok() {
-    assertThat(Kind.CLASS_EXPRESSION)
-      .matches("class {}")
-      .matches("class C {}");
-  }
+  @Nullable
+  IdentifierTree name();
+
+  DeclarationTree heritage();
+
+  StatementTree body();
 
 }

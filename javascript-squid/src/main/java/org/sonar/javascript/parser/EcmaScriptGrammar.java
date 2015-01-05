@@ -235,8 +235,6 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
   /** ECMAScript 6 **/
   GENERATOR_EXPRESSION,
   /** ECMAScript 6 **/
-  CLASS_EXPRESSION,
-  /** ECMAScript 6 **/
   YIELD_EXPRESSION_NO_IN,
   /** ECMAScript 6 **/
   ARRAY_LITERAL_ELEMENT,
@@ -603,7 +601,7 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
       OBJECT_LITERAL,
       Kind.FUNCTION_EXPRESSION,
       Kind.PARENTHESISED_EXPRESSION,
-      ecmascript6(CLASS_EXPRESSION),
+      ecmascript6(Kind.CLASS_EXPRESSION),
       ecmascript6(Kind.GENERATOR_FUNCTION_EXPRESSION),
       ecmascript6(TEMPLATE_LITERAL)));
 
@@ -618,8 +616,6 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
     b.rule(TEMPLATE_MIDDLE_LIST).is(b.oneOrMore(TEMPLATE_MIDDLE, EXPRESSION));
     b.rule(TEMPLATE_MIDDLE).is(RCURLYBRACE, b.optional(TEMPLATE_CHARACTERS), DOLLAR_SIGN, LCURLYBRACE);
     b.rule(TEMPLATE_TAIL).is(RCURLYBRACE, b.optional(TEMPLATE_CHARACTERS), BACKTICK);
-
-    b.rule(CLASS_EXPRESSION).is(CLASS, b.optional(IDENTIFIER_REFERENCE), CLASS_TAIL);
 
     b.rule(ELISION).is(b.oneOrMore(COMMA));
 
