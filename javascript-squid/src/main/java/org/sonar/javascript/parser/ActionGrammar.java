@@ -736,7 +736,7 @@ public class ActionGrammar {
       .is(f.completeMemberExpression(
         b.firstOf(
           ES6(SUPER_PROPERTY()),
-          b.invokeRule(EcmaScriptGrammar.NEW_MEMBER_EXPRESSION),
+          f.newExpressionWithArgument(b.invokeRule(EcmaScriptKeyword.NEW), b.firstOf(ES6(SUPER()), MEMBER_EXPRESSION()), ARGUMENTS()),
           b.invokeRule(EcmaScriptGrammar.PRIMARY_EXPRESSION)),
         b.zeroOrMore(
           b.firstOf(

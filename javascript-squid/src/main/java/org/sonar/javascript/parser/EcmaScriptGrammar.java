@@ -190,7 +190,6 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
   PROPERTY_DEFINITION,
   PROPERTY_NAME,
   MEMBER_EXPRESSION,
-  NEW_MEMBER_EXPRESSION,
   NEW_EXPRESSION,
   ARGUMENTS_LIST,
   LEFT_HAND_SIDE_EXPRESSION,
@@ -615,7 +614,6 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
 
     b.rule(COVER_INITIALIZED_NAME).is(IDENTIFIER_REFERENCE, b.optional(INITIALISER));
 
-    b.rule(NEW_MEMBER_EXPRESSION).is(b.sequence(NEW, b.firstOf(ecmascript6(SUPER), MEMBER_EXPRESSION), Kind.ARGUMENTS));
     b.rule(NEW_EXPRESSION).is(b.firstOf(
       MEMBER_EXPRESSION,
       ecmascript6(b.sequence(NEW, SUPER)),

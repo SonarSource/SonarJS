@@ -43,6 +43,7 @@ import org.sonar.javascript.model.implementations.expression.FunctionExpressionT
 import org.sonar.javascript.model.implementations.expression.IdentifierTreeImpl;
 import org.sonar.javascript.model.implementations.expression.LeftHandSideExpressionTreeImpl;
 import org.sonar.javascript.model.implementations.expression.LiteralTreeImpl;
+import org.sonar.javascript.model.implementations.expression.NewExpressionTreeImpl;
 import org.sonar.javascript.model.implementations.expression.ObjectLiteralTreeImpl;
 import org.sonar.javascript.model.implementations.expression.PairPropertyTreeImpl;
 import org.sonar.javascript.model.implementations.expression.ParenthesisedExpressionTreeImpl;
@@ -898,6 +899,14 @@ public class TreeFactory {
       return partial.get().complete(InternalSyntaxToken.create(openCurlyToken), InternalSyntaxToken.create(closeCurlyToken));
     }
     return new ObjectLiteralTreeImpl(InternalSyntaxToken.create(openCurlyToken), InternalSyntaxToken.create(closeCurlyToken));
+  }
+
+  public NewExpressionTreeImpl newExpressionWithArgument(AstNode newToken, AstNode expression, ParameterListTreeImpl arguments) {
+    return new NewExpressionTreeImpl(
+      expression.is(Kind.SUPER) ? Kind.NEW_SUPER : Kind.NEW_EXPRESSION,
+      InternalSyntaxToken.create(newToken),
+      expression,
+      arguments);
   }
 
   public static class Tuple<T, U> extends AstNode {

@@ -20,6 +20,7 @@
 package org.sonar.javascript.model.interfaces.expression;
 
 import org.sonar.javascript.model.interfaces.Tree;
+import org.sonar.javascript.model.interfaces.declaration.ParameterListTree;
 import org.sonar.javascript.model.interfaces.lexical.SyntaxToken;
 
 import javax.annotation.Nullable;
@@ -32,7 +33,9 @@ import java.util.List;
  *
  * <pre>
  *   new {@link #expression()}
+ *   new {@link #expression()} {@link #arguments()}
  *   new {@link Tree.Kind#NEW_SUPER super}
+ *   new {@link Tree.Kind#NEW_SUPER super} {@link #arguments()}
  * </pre>
  *
  * <p/>
@@ -44,4 +47,6 @@ public interface NewExpressionTree extends ExpressionTree {
 
   Tree expression();
 
+  @Nullable
+  ParameterListTree arguments();
 }
