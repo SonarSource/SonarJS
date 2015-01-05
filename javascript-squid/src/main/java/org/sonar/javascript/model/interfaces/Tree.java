@@ -27,6 +27,7 @@ import org.sonar.javascript.model.interfaces.expression.AssignmentExpressionTree
 import org.sonar.javascript.model.interfaces.expression.BinaryExpressionTree;
 import org.sonar.javascript.model.interfaces.expression.CallExpressionTree;
 import org.sonar.javascript.model.interfaces.expression.ClassExpressionTree;
+import org.sonar.javascript.model.interfaces.expression.ComputedPropertyNameTree;
 import org.sonar.javascript.model.interfaces.expression.ConditionalExpressionTree;
 import org.sonar.javascript.model.interfaces.expression.ExpressionTree;
 import org.sonar.javascript.model.interfaces.expression.FunctionTree;
@@ -642,6 +643,11 @@ public interface Tree {
      * {@link ClassExpressionTree}
      */
     CLASS_EXPRESSION(ClassExpressionTree.class),
+
+    /**
+     * {@link ComputedPropertyNameTree}
+     */
+    COMPUTED_PROPERTY_NAME(ComputedPropertyNameTree.class),
 
     TYPEOF(UnaryExpressionTree.class),
 

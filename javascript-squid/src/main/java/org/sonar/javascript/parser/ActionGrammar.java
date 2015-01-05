@@ -29,6 +29,7 @@ import org.sonar.javascript.model.implementations.expression.ArrayLiteralTreeImp
 import org.sonar.javascript.model.implementations.expression.ArrowFunctionTreeImpl;
 import org.sonar.javascript.model.implementations.expression.BracketMemberExpressionTreeImpl;
 import org.sonar.javascript.model.implementations.expression.ClassExpressionTreeImpl;
+import org.sonar.javascript.model.implementations.expression.ComputedPropertyNameTreeImpl;
 import org.sonar.javascript.model.implementations.expression.DotMemberExpressionTreeImpl;
 import org.sonar.javascript.model.implementations.expression.FunctionExpressionTreeImpl;
 import org.sonar.javascript.model.implementations.expression.IdentifierTreeImpl;
@@ -820,6 +821,15 @@ public class ActionGrammar {
         b.invokeRule(EcmaScriptKeyword.CLASS),
         b.optional(IDENTIFIER_REFERENCE()),
         b.invokeRule(EcmaScriptGrammar.CLASS_TAIL)
+      ));
+  }
+
+  public ComputedPropertyNameTreeImpl COMPUTED_PROPERTY_NAME() {
+    return b.<ComputedPropertyNameTreeImpl>nonterminal(Kind.COMPUTED_PROPERTY_NAME)
+      .is(f.computedPropertyName(
+        b.invokeRule(EcmaScriptPunctuator.LBRACKET),
+        b.invokeRule(EcmaScriptGrammar.ASSIGNMENT_EXPRESSION),
+        b.invokeRule(EcmaScriptPunctuator.RBRACKET)
       ));
   }
 

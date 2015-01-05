@@ -311,8 +311,6 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
   /** ECMAScript 6 **/
   IDENTIFIER_REFERENCE,
   /** ECMAScript 6 **/
-  COMPUTED_PROPERTY_NAME,
-  /** ECMAScript 6 **/
   LITERAL_PROPERTY_NAME,
   /** ECMAScript 6 **/
   GENERATOR_METHOD,
@@ -835,9 +833,8 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
     b.rule(GET).is(word(b, "get"));
     b.rule(GENERATOR_METHOD).is(STAR, PROPERTY_NAME, Kind.FORMAL_PARAMETER_LIST, LCURLYBRACE, FUNCTION_BODY, RCURLYBRACE);
 
-    b.rule(PROPERTY_NAME).is(b.firstOf(LITERAL_PROPERTY_NAME, ecmascript6(COMPUTED_PROPERTY_NAME)));
+    b.rule(PROPERTY_NAME).is(b.firstOf(LITERAL_PROPERTY_NAME, ecmascript6(Kind.COMPUTED_PROPERTY_NAME)));
     b.rule(LITERAL_PROPERTY_NAME).is(b.firstOf(IDENTIFIER_NAME, STRING_LITERAL, NUMERIC_LITERAL));
-    b.rule(COMPUTED_PROPERTY_NAME).is(LBRACKET, ASSIGNMENT_EXPRESSION, RBRACKET);
   }
 
   /**
