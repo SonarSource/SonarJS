@@ -34,6 +34,7 @@ import org.sonar.javascript.model.implementations.expression.DotMemberExpression
 import org.sonar.javascript.model.implementations.expression.FunctionExpressionTreeImpl;
 import org.sonar.javascript.model.implementations.expression.IdentifierTreeImpl;
 import org.sonar.javascript.model.implementations.expression.LiteralTreeImpl;
+import org.sonar.javascript.model.implementations.expression.ObjectLiteralTreeImpl;
 import org.sonar.javascript.model.implementations.expression.PairPropertyTreeImpl;
 import org.sonar.javascript.model.implementations.expression.ParenthesisedExpressionTreeImpl;
 import org.sonar.javascript.model.implementations.expression.RestElementTreeImpl;
@@ -859,7 +860,7 @@ public class ActionGrammar {
     return b.<ExpressionTree>nonterminal(EcmaScriptGrammar.PROPERTY_NAME)
       .is(b.firstOf(
         LITERAL_PROPERTY_NAME(),
-        COMPUTED_PROPERTY_NAME()
+        ES6(COMPUTED_PROPERTY_NAME())
       ));
   }
 
@@ -869,6 +870,29 @@ public class ActionGrammar {
         PROPERTY_NAME(),
         b.invokeRule(EcmaScriptPunctuator.COLON),
         b.invokeRule(EcmaScriptGrammar.ASSIGNMENT_EXPRESSION)
+      ));
+  }
+
+  // FIXME: get rid of use of AstNode
+  public AstNode PROPERTY_DEFINITION() {
+    return b.<AstNode>nonterminal(EcmaScriptGrammar.PROPERTY_DEFINITION)
+      .is(b.firstOf(
+        PAIR_PROPERTY(),
+        b.invokeRule(EcmaScriptGrammar.METHOD_DEFINITION),
+        ES6(b.invokeRule(EcmaScriptGrammar.COVER_INITIALIZED_NAME))
+      ));
+  }
+
+  public ObjectLiteralTreeImpl OBJECT_LITERAL() {
+    return b.<ObjectLiteralTreeImpl>nonterminal(Kind.OBJECT_LITERAL)
+      .is(f.completeObjectLiteral(
+        b.invokeRule(EcmaScriptPunctuator.LCURLYBRACE),
+        b.optional(f.newObjectLiteral(
+          PROPERTY_DEFINITION(),
+          b.zeroOrMore(f.newTuple18(b.invokeRule(EcmaScriptPunctuator.COMMA), PROPERTY_DEFINITION())),
+          b.optional(b.invokeRule(EcmaScriptPunctuator.COMMA))
+        )),
+        b.invokeRule(EcmaScriptPunctuator.RCURLYBRACE)
       ));
   }
 

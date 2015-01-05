@@ -24,9 +24,7 @@ import com.sonar.sslr.api.AstNode;
 import org.sonar.check.BelongsToProfile;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
-import org.sonar.javascript.model.implementations.expression.PairPropertyTreeImpl;
 import org.sonar.javascript.model.interfaces.Tree.Kind;
-import org.sonar.javascript.model.interfaces.expression.PairPropertyTree;
 import org.sonar.javascript.parser.EcmaScriptGrammar;
 import org.sonar.squidbridge.checks.SquidCheck;
 import org.sonar.sslr.parser.LexerlessGrammar;
@@ -42,42 +40,38 @@ public class DuplicatePropertyNameCheck extends SquidCheck<LexerlessGrammar> {
 
   @Override
   public void init() {
-    subscribeTo(EcmaScriptGrammar.OBJECT_LITERAL);
+    subscribeTo(Kind.OBJECT_LITERAL);
   }
 
   @Override
   public void visitNode(AstNode astNode) {
     Set<String> values = Sets.newHashSet();
-    List<AstNode> propertyAssignments = astNode.getChildren(EcmaScriptGrammar.PROPERTY_DEFINITION);
+    List<AstNode> pairProperties = astNode.getChildren(Kind.PAIR_PROPERTY, EcmaScriptGrammar.COVER_INITIALIZED_NAME);
 
-    for (AstNode propertyAssignment : propertyAssignments) {
+    for (AstNode property : pairProperties) {
 
-      if (propertyAssignment.getFirstChild().isNot(EcmaScriptGrammar.METHOD_DEFINITION)) {
-        AstNode propertyName = getPropertyName(propertyAssignment);
-        String value = propertyName.getTokenValue();
+      AstNode propertyName = getPropertyName(property);
+      String value = propertyName.getTokenValue();
 
-        if (value.startsWith("\"") || value.startsWith("'")) {
-          value = value.substring(1, value.length() - 1);
-        }
-        String unescaped = EscapeUtils.unescape(value);
+      if (value.startsWith("\"") || value.startsWith("'")) {
+        value = value.substring(1, value.length() - 1);
+      }
+      String unescaped = EscapeUtils.unescape(value);
 
-        if (values.contains(unescaped)) {
-          getContext().createLineViolation(this, "Rename or remove duplicate property name '" + value + "'.", propertyName);
-        } else {
-          values.add(unescaped);
-        }
+      if (values.contains(unescaped)) {
+        getContext().createLineViolation(this, "Rename or remove duplicate property name '" + value + "'.", propertyName);
+      } else {
+        values.add(unescaped);
       }
     }
   }
 
-  private static AstNode getPropertyName(AstNode propertyAssignment) {
-    AstNode objectProperty = propertyAssignment.getFirstChild();
-
-    if (objectProperty.is(Kind.PAIR_PROPERTY)) {
-      return objectProperty.getFirstChild();
+  private static AstNode getPropertyName(AstNode property) {
+    if (property.is(Kind.PAIR_PROPERTY)) {
+      return property.getFirstChild();
 
     } else /* COVER_INITIALIZED_NAME */ {
-      return objectProperty.getFirstChild(Kind.IDENTIFIER);
+      return property.getFirstChild(Kind.IDENTIFIER);
     }
   }
 

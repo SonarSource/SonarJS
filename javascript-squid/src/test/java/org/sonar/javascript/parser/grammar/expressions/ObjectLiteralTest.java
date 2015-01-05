@@ -20,7 +20,7 @@
 package org.sonar.javascript.parser.grammar.expressions;
 
 import org.junit.Test;
-import org.sonar.javascript.parser.EcmaScriptGrammar;
+import org.sonar.javascript.model.interfaces.Tree.Kind;
 
 import static org.sonar.javascript.sslr.tests.Assertions.assertThat;
 
@@ -29,7 +29,7 @@ public class ObjectLiteralTest {
 
   @Test
   public void ok() {
-    assertThat(EcmaScriptGrammar.OBJECT_LITERAL)
+    assertThat(Kind.OBJECT_LITERAL)
         .matches("{ }")
         .matches("{ propertyName , }")
         .matches("{ propertyName = 1 , }")
@@ -38,7 +38,7 @@ public class ObjectLiteralTest {
         .matches("{ propertyName : assignmentExpression , propertyName : assignmentExpression }")
         .matches("{ propertyName : assignmentExpression , propertyName : assignmentExpression , }");
 
-    assertThat(EcmaScriptGrammar.OBJECT_LITERAL)
+    assertThat(Kind.OBJECT_LITERAL)
         .notMatches("{ , }")
         .notMatches("{ propertyName : assignmentExpression , , }");
   }

@@ -43,6 +43,7 @@ import org.sonar.javascript.model.implementations.expression.FunctionExpressionT
 import org.sonar.javascript.model.implementations.expression.IdentifierTreeImpl;
 import org.sonar.javascript.model.implementations.expression.LeftHandSideExpressionTreeImpl;
 import org.sonar.javascript.model.implementations.expression.LiteralTreeImpl;
+import org.sonar.javascript.model.implementations.expression.ObjectLiteralTreeImpl;
 import org.sonar.javascript.model.implementations.expression.PairPropertyTreeImpl;
 import org.sonar.javascript.model.implementations.expression.ParenthesisedExpressionTreeImpl;
 import org.sonar.javascript.model.implementations.expression.PostfixExpressionTreeImpl;
@@ -870,6 +871,35 @@ public class TreeFactory {
     return new PairPropertyTreeImpl(name, InternalSyntaxToken.create(colonToken), value);
   }
 
+  public ObjectLiteralTreeImpl newObjectLiteral(AstNode property, Optional<List<Tuple<AstNode, AstNode>>> restProperties, Optional<AstNode> trailingComma) {
+    List<AstNode> children = Lists.newArrayList();
+    List<InternalSyntaxToken> commas = Lists.newArrayList();
+
+    children.add(property);
+
+    if (restProperties.isPresent()) {
+      for (Tuple<AstNode, AstNode> t : restProperties.get()) {
+        commas.add(InternalSyntaxToken.create(t.first()));
+        children.add(t.first());
+        children.add(t.second());
+      }
+    }
+
+    if (trailingComma.isPresent()) {
+      commas.add(InternalSyntaxToken.create(trailingComma.get()));
+      children.add(trailingComma.get());
+    }
+
+    return new ObjectLiteralTreeImpl(new SeparatedList<ExpressionTree>(ListUtils.EMPTY_LIST /*FIXME when property definition is fully migrated*/, commas, children));
+  }
+
+  public ObjectLiteralTreeImpl completeObjectLiteral(AstNode openCurlyToken, Optional<ObjectLiteralTreeImpl> partial, AstNode closeCurlyToken) {
+    if (partial.isPresent()) {
+      return partial.get().complete(InternalSyntaxToken.create(openCurlyToken), InternalSyntaxToken.create(closeCurlyToken));
+    }
+    return new ObjectLiteralTreeImpl(InternalSyntaxToken.create(openCurlyToken), InternalSyntaxToken.create(closeCurlyToken));
+  }
+
   public static class Tuple<T, U> extends AstNode {
 
     private final T first;
@@ -989,6 +1019,11 @@ public class TreeFactory {
   public <T, U> Tuple<T, U> newTuple17(T first, U second) {
     return newTuple(first, second);
   }
+
+  public <T, U> Tuple<T, U> newTuple18(T first, U second) {
+    return newTuple(first, second);
+  }
+
   // End
 
 }

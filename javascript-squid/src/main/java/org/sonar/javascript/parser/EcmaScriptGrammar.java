@@ -184,7 +184,6 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
   // A.3 Expressions
 
   PRIMARY_EXPRESSION,
-  OBJECT_LITERAL,
   /** ECMAScript 6 **/
   COVER_INITIALIZED_NAME,
   /** ECMAScript 6 **/
@@ -593,7 +592,7 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
       IDENTIFIER,
       LITERAL,
       Kind.ARRAY_LITERAL,
-      OBJECT_LITERAL,
+      Kind.OBJECT_LITERAL,
       Kind.FUNCTION_EXPRESSION,
       Kind.PARENTHESISED_EXPRESSION,
       ecmascript6(Kind.CLASS_EXPRESSION),
@@ -614,11 +613,6 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
 
     b.rule(ELISION).is(b.oneOrMore(COMMA));
 
-    b.rule(OBJECT_LITERAL).is(LCURLYBRACE, b.optional(PROPERTY_DEFINITION, b.zeroOrMore(COMMA, PROPERTY_DEFINITION), b.optional(COMMA)), RCURLYBRACE);
-    b.rule(PROPERTY_DEFINITION).is(b.firstOf(
-      Kind.PAIR_PROPERTY,
-      METHOD_DEFINITION,
-      ecmascript6(COVER_INITIALIZED_NAME)));
     b.rule(COVER_INITIALIZED_NAME).is(IDENTIFIER_REFERENCE, b.optional(INITIALISER));
 
     b.rule(NEW_MEMBER_EXPRESSION).is(b.sequence(NEW, b.firstOf(ecmascript6(SUPER), MEMBER_EXPRESSION), Kind.ARGUMENTS));

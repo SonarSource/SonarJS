@@ -21,6 +21,7 @@ package org.sonar.javascript.model.implementations.expression;
 
 import com.google.common.collect.Iterators;
 import com.sonar.sslr.api.AstNode;
+import org.apache.commons.collections.ListUtils;
 import org.sonar.javascript.model.implementations.JavaScriptTree;
 import org.sonar.javascript.model.implementations.SeparatedList;
 import org.sonar.javascript.model.implementations.lexical.InternalSyntaxToken;
@@ -34,19 +35,36 @@ import java.util.List;
 
 public class ObjectLiteralTreeImpl extends JavaScriptTree implements ObjectLiteralTree {
 
-  private final SyntaxToken openCurlyBrace;
+  private SyntaxToken openCurlyBrace;
   private final SeparatedList<ExpressionTree> properties;
-  private final SyntaxToken closeCurlyBrace;
+  private SyntaxToken closeCurlyBrace;
 
-  public ObjectLiteralTreeImpl(InternalSyntaxToken openCurlyBrace, List<ExpressionTree> properties, List<InternalSyntaxToken> commas, InternalSyntaxToken closeCurlyBrace, List<AstNode> children) {
-    super(Kind.ARRAY_LITERAL);
+  public ObjectLiteralTreeImpl(InternalSyntaxToken openCurlyBrace, InternalSyntaxToken closeCurlyBrace) {
+    super(Kind.OBJECT_LITERAL);
     this.openCurlyBrace = openCurlyBrace;
     this.closeCurlyBrace = closeCurlyBrace;
-    this.properties = new SeparatedList<ExpressionTree>(properties, commas);
+    this.properties = new SeparatedList<ExpressionTree>(ListUtils.EMPTY_LIST, ListUtils.EMPTY_LIST);
 
-    for (AstNode child : children) {
+    addChildren(openCurlyBrace, closeCurlyBrace);
+  }
+
+  public ObjectLiteralTreeImpl(SeparatedList<ExpressionTree> properties) {
+    super(Kind.OBJECT_LITERAL);
+    this.properties = properties;
+
+    for (AstNode child : properties.getChildren()) {
       addChild(child);
     }
+    properties.clearChildren();
+  }
+
+  public ObjectLiteralTreeImpl complete(InternalSyntaxToken openCurlyBrace, InternalSyntaxToken closeCurlyBrace) {
+    this.openCurlyBrace = openCurlyBrace;
+    this.closeCurlyBrace = closeCurlyBrace;
+
+    prependChildren(openCurlyBrace);
+    addChild(closeCurlyBrace);
+    return this;
   }
 
   @Override

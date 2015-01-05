@@ -40,7 +40,7 @@ public class TrailingCommaCheck extends SquidCheck<LexerlessGrammar> {
 
   @Override
   public void init() {
-    subscribeTo(Kind.ARRAY_LITERAL, EcmaScriptGrammar.OBJECT_LITERAL);
+    subscribeTo(Kind.ARRAY_LITERAL, Kind.OBJECT_LITERAL);
   }
 
   @Override
