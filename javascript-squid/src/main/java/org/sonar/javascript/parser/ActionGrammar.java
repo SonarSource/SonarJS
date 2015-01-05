@@ -67,6 +67,7 @@ import org.sonar.javascript.model.interfaces.Tree.Kind;
 import org.sonar.javascript.model.interfaces.expression.ExpressionTree;
 import org.sonar.javascript.model.interfaces.expression.MemberExpressionTree;
 import org.sonar.javascript.model.interfaces.statement.DebuggerStatementTree;
+import org.sonar.javascript.model.interfaces.statement.ExpressionStatementTree;
 import org.sonar.javascript.model.interfaces.statement.StatementTree;
 import org.sonar.javascript.parser.sslr.GrammarBuilder;
 
@@ -399,9 +400,19 @@ public class ActionGrammar {
       .is(b.firstOf(
         f.nullLiteral(b.invokeRule(EcmaScriptKeyword.NULL)),
         f.booleanLiteral(b.firstOf(b.invokeRule(EcmaScriptKeyword.TRUE), b.invokeRule(EcmaScriptKeyword.FALSE))),
-        f.numericLiteral(b.invokeRule(EcmaScriptTokenType.NUMERIC_LITERAL)),
-        f.stringLiteral(b.invokeRule(EcmaScriptGrammar.STRING_LITERAL)),
+        NUMERIC_LITERAL(),
+        STRING_LITERAL(),
         f.regexpLiteral(b.invokeRule(EcmaScriptTokenType.REGULAR_EXPRESSION_LITERAL))));
+  }
+
+  public LiteralTreeImpl NUMERIC_LITERAL() {
+    return b.<LiteralTreeImpl>nonterminal(Kind.NUMERIC_LITERAL)
+      .is(f.numericLiteral(b.invokeRule(EcmaScriptTokenType.NUMERIC_LITERAL)));
+  }
+
+  public LiteralTreeImpl STRING_LITERAL() {
+    return b.<LiteralTreeImpl>nonterminal(Kind.STRING_LITERAL)
+      .is(f.stringLiteral(b.invokeRule(EcmaScriptGrammar.STRING_LITERAL)));
   }
 
   public AstNode ARRAY_LITERAL_ELEMENT() {
@@ -830,6 +841,15 @@ public class ActionGrammar {
         b.invokeRule(EcmaScriptPunctuator.LBRACKET),
         b.invokeRule(EcmaScriptGrammar.ASSIGNMENT_EXPRESSION),
         b.invokeRule(EcmaScriptPunctuator.RBRACKET)
+      ));
+  }
+
+  public ExpressionTree LITERAL_PROPERTY_NAME() {
+    return b.<ExpressionTree>nonterminal(EcmaScriptGrammar.LITERAL_PROPERTY_NAME)
+      .is(b.firstOf(
+        IDENTIFIER_NAME(),
+        STRING_LITERAL(),
+        NUMERIC_LITERAL()
       ));
   }
 

@@ -751,10 +751,10 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
 
     b.rule(MODULE_IMPORT).is(MODULE_WORD, /* no line terminator here */SPACING_NO_LB, NEXT_NOT_LB, IDENTIFIER_REFERENCE, FROM_CLAUSE, EOS);
     b.rule(MODULE_WORD).is(word(b, "module"));
-    b.rule(SIMPLE_IMPORT).is(IMPORT, STRING_LITERAL, EOS);
+    b.rule(SIMPLE_IMPORT).is(IMPORT, Kind.STRING_LITERAL, EOS);
     b.rule(IMPORT_FROM).is(IMPORT, IMPORT_CLAUSE, FROM_CLAUSE, EOS);
 
-    b.rule(FROM_CLAUSE).is(FROM, STRING_LITERAL);
+    b.rule(FROM_CLAUSE).is(FROM, Kind.STRING_LITERAL);
     b.rule(FROM).is(word(b, "from"));
     b.rule(IMPORT_CLAUSE).is(b.firstOf(
       NAMED_IMPORTS,
@@ -834,7 +834,6 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
     b.rule(GENERATOR_METHOD).is(STAR, PROPERTY_NAME, Kind.FORMAL_PARAMETER_LIST, LCURLYBRACE, FUNCTION_BODY, RCURLYBRACE);
 
     b.rule(PROPERTY_NAME).is(b.firstOf(LITERAL_PROPERTY_NAME, ecmascript6(Kind.COMPUTED_PROPERTY_NAME)));
-    b.rule(LITERAL_PROPERTY_NAME).is(b.firstOf(IDENTIFIER_NAME, STRING_LITERAL, NUMERIC_LITERAL));
   }
 
   /**
