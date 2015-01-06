@@ -909,6 +909,13 @@ public class TreeFactory {
       arguments);
   }
 
+  public AstNode newExpression(AstNode newToken, AstNode expression) {
+    return new NewExpressionTreeImpl(
+      expression.is(Kind.SUPER) ? Kind.NEW_SUPER : Kind.NEW_EXPRESSION,
+      InternalSyntaxToken.create(newToken),
+      expression);
+  }
+
   public static class Tuple<T, U> extends AstNode {
 
     private final T first;

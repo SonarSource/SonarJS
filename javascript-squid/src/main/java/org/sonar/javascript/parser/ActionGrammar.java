@@ -34,6 +34,7 @@ import org.sonar.javascript.model.implementations.expression.DotMemberExpression
 import org.sonar.javascript.model.implementations.expression.FunctionExpressionTreeImpl;
 import org.sonar.javascript.model.implementations.expression.IdentifierTreeImpl;
 import org.sonar.javascript.model.implementations.expression.LiteralTreeImpl;
+import org.sonar.javascript.model.implementations.expression.NewExpressionTreeImpl;
 import org.sonar.javascript.model.implementations.expression.ObjectLiteralTreeImpl;
 import org.sonar.javascript.model.implementations.expression.PairPropertyTreeImpl;
 import org.sonar.javascript.model.implementations.expression.ParenthesisedExpressionTreeImpl;
@@ -68,9 +69,7 @@ import org.sonar.javascript.model.implementations.statement.WithStatementTreeImp
 import org.sonar.javascript.model.interfaces.Tree.Kind;
 import org.sonar.javascript.model.interfaces.expression.ExpressionTree;
 import org.sonar.javascript.model.interfaces.expression.MemberExpressionTree;
-import org.sonar.javascript.model.interfaces.expression.PairPropertyTree;
 import org.sonar.javascript.model.interfaces.statement.DebuggerStatementTree;
-import org.sonar.javascript.model.interfaces.statement.ExpressionStatementTree;
 import org.sonar.javascript.model.interfaces.statement.StatementTree;
 import org.sonar.javascript.parser.sslr.GrammarBuilder;
 
@@ -673,7 +672,7 @@ public class ActionGrammar {
     return b.<ExpressionTree>nonterminal(EcmaScriptGrammar.LEFT_HAND_SIDE_EXPRESSION)
       .is(f.newLeftHandSideExpression(b.firstOf(
         CALL_EXPRESSION(),
-        b.invokeRule(EcmaScriptGrammar.NEW_EXPRESSION)
+        NEW_EXPRESSION()
       )));
   }
 
@@ -893,6 +892,15 @@ public class ActionGrammar {
           b.optional(b.invokeRule(EcmaScriptPunctuator.COMMA))
         )),
         b.invokeRule(EcmaScriptPunctuator.RCURLYBRACE)
+      ));
+  }
+
+  // FIXME: get rid of AstNode
+  public AstNode NEW_EXPRESSION() {
+    return b.<AstNode>nonterminal()
+      .is(b.firstOf(
+        MEMBER_EXPRESSION(),
+        f.newExpression(b.invokeRule(EcmaScriptKeyword.NEW), b.firstOf(ES6(SUPER()), NEW_EXPRESSION()))
       ));
   }
 

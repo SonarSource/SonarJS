@@ -38,12 +38,39 @@ public class NewExpressionTreeModelTest extends JavaScriptTreeModelTest {
   }
 
   @Test
+  public void new_super_without_arguments() throws Exception {
+    NewExpressionTree tree = parse("new super", Kind.NEW_SUPER);
+
+    assertThat(tree.is(Kind.NEW_SUPER)).isTrue();
+    // TODO check for super
+    assertThat(tree.arguments()).isNull();
+  }
+
+  @Test
   public void new_expression_with_arguments() throws Exception {
     NewExpressionTree tree = parse("new Name ()", Kind.NEW_EXPRESSION);
 
     assertThat(tree.is(Kind.NEW_EXPRESSION)).isTrue();
     // TODO check for expression
     assertThat(tree.arguments()).isNotNull();
+  }
+
+ @Test
+  public void new_expression_without_arguments() throws Exception {
+    NewExpressionTree tree = parse("new Name", Kind.NEW_EXPRESSION);
+
+    assertThat(tree.is(Kind.NEW_EXPRESSION)).isTrue();
+    // TODO check for expression
+    assertThat(tree.arguments()).isNull();
+  }
+
+  @Test
+  public void nested_new_expression_without_arguments() throws Exception {
+    NewExpressionTree tree = parse("new new Name", Kind.NEW_EXPRESSION);
+
+    assertThat(tree.is(Kind.NEW_EXPRESSION)).isTrue();
+    // TODO check for expression
+    assertThat(tree.arguments()).isNull();
   }
 
 }

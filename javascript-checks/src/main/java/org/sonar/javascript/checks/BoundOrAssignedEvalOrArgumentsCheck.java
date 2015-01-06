@@ -74,10 +74,10 @@ public class BoundOrAssignedEvalOrArgumentsCheck extends SquidCheck<LexerlessGra
     } else if (astNode.is(EcmaScriptGrammar.PROPERTY_SET_PARAMETER_LIST)) {
       checkPropertySetParameterList(astNode);
     } else if (astNode.is(EcmaScriptGrammar.ASSIGNMENT_EXPRESSION)) {
-      checkModification(astNode.getFirstDescendant(Kind.CALL_EXPRESSION, EcmaScriptGrammar.NEW_EXPRESSION));
+      checkModification(astNode.getFirstDescendant(EcmaScriptGrammar.LEFT_HAND_SIDE_EXPRESSION, EcmaScriptGrammar.LEFT_HAND_SIDE_EXPRESSION_NO_LET, EcmaScriptGrammar.LEFT_HAND_SIDE_EXPRESSION_NO_LET_AND_LBRACKET));
     } else if (CheckUtils.isPostfixExpression(astNode) || CheckUtils.isPrefixExpression(astNode)
       && astNode.hasDirectChildren(EcmaScriptPunctuator.INC, EcmaScriptPunctuator.DEC)) {
-      checkModification(astNode.getFirstDescendant(Kind.CALL_EXPRESSION, EcmaScriptGrammar.NEW_EXPRESSION));
+      checkModification(astNode.getFirstDescendant(EcmaScriptGrammar.LEFT_HAND_SIDE_EXPRESSION, EcmaScriptGrammar.LEFT_HAND_SIDE_EXPRESSION_NO_LET, EcmaScriptGrammar.LEFT_HAND_SIDE_EXPRESSION_NO_LET_AND_LBRACKET));
     }
   }
 

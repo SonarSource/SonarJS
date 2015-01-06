@@ -23,8 +23,10 @@ import com.google.common.collect.ImmutableSet;
 import com.sonar.sslr.api.AstNode;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
-import org.sonar.javascript.checks.utils.CheckUtils;
+import org.sonar.javascript.api.EcmaScriptKeyword;
+import org.sonar.javascript.model.interfaces.Tree;
 import org.sonar.javascript.model.interfaces.Tree.Kind;
+import org.sonar.javascript.model.interfaces.expression.BinaryExpressionTree;
 import org.sonar.javascript.model.interfaces.expression.UnaryExpressionTree;
 import org.sonar.javascript.parser.EcmaScriptGrammar;
 import org.sonar.squidbridge.checks.SquidCheck;
@@ -42,31 +44,45 @@ import java.util.Set;
   priority = Priority.MINOR)
 public class ParenthesesCheck extends SquidCheck<LexerlessGrammar> {
 
-  private static final Set<String> NO_PARENTHESES_AFTER = ImmutableSet.of("return", "throw", "new", "in");
-
   @Override
   public void init() {
-    subscribeTo(CheckUtils.prefixExpressionArray());
     subscribeTo(
-      EcmaScriptGrammar.EXPRESSION,
-      EcmaScriptGrammar.NEW_EXPRESSION);
+      Kind.DELETE,
+      Kind.TYPEOF,
+      Kind.VOID,
+      EcmaScriptKeyword.RETURN,
+      EcmaScriptKeyword.THROW,
+      Kind.NEW_EXPRESSION,
+      EcmaScriptKeyword.IN);
   }
 
   @Override
   public void visitNode(AstNode node) {
-    if (CheckUtils.isPrefixExpression(node)) {
+    if (node.is(Kind.DELETE, Kind.TYPEOF, Kind.VOID)) {
       UnaryExpressionTree prefixExpr = (UnaryExpressionTree) node;
 
-      if (prefixExpr.is(Kind.DELETE, Kind.TYPEOF, Kind.VOID) && startsWithOpenParenthesis(((AstNode) prefixExpr.expression()))) {
+      if (startsWithOpenParenthesis(((AstNode) prefixExpr.expression()))) {
         reportIssue(node);
       }
-    }
 
-    if (startsWithOpenParenthesis(node)
-      && node.getPreviousSibling() != null
-      && NO_PARENTHESES_AFTER.contains(node.getPreviousSibling().getTokenValue())) {
+    } else if (node.is(Kind.NEW_EXPRESSION)) {
+      AstNode expression = node.getFirstChild(EcmaScriptKeyword.NEW).getNextAstNode().getFirstChild();
+
+      if (!node.hasDirectChildren(Kind.ARGUMENTS) && expression.is(Kind.PARENTHESISED_EXPRESSION) && isBinaryExpression(expression.getFirstChild(EcmaScriptGrammar.EXPRESSION))) {
+        reportIssue(node);
+      }
+
+    } else if (isNotRelationalInExpression(node) && startsWithOpenParenthesis(node.getNextAstNode())) {
       reportIssue(node);
     }
+  }
+
+  private boolean isBinaryExpression(AstNode expression) {
+    return !(expression.getFirstChild() instanceof BinaryExpressionTree);
+  }
+
+  private boolean isNotRelationalInExpression(AstNode node) {
+    return !(node.is(EcmaScriptKeyword.IN) && node.getParent().is(Kind.RELATIONAL_IN));
   }
 
   private void reportIssue(AstNode node) {
