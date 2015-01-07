@@ -17,27 +17,27 @@
  * License along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.javascript.model.statement;
+package org.sonar.javascript.model.expression;
 
 import org.junit.Test;
-import org.sonar.javascript.api.EcmaScriptKeyword;
 import org.sonar.javascript.api.EcmaScriptPunctuator;
 import org.sonar.javascript.model.JavaScriptTreeModelTest;
-import org.sonar.javascript.model.implementations.statement.ElseClauseTreeImpl;
-import org.sonar.javascript.model.implementations.statement.IfStatementTreeImpl;
+import org.sonar.javascript.model.implementations.expression.TemplateExpressionTreeImpl;
 import org.sonar.javascript.model.interfaces.Tree.Kind;
-import org.sonar.javascript.model.interfaces.statement.ElseClauseTree;
 
 import static org.fest.assertions.Assertions.assertThat;
 
-public class ElseClauseTreeModelTest extends JavaScriptTreeModelTest {
+public class TemplateExpressionTreeModelTest extends JavaScriptTreeModelTest {
 
   @Test
   public void test() throws Exception {
-    ElseClauseTreeImpl tree = parse("if (a) {} else {}", Kind.ELSE_CLAUSE);
+    TemplateExpressionTreeImpl tree = parse("` ${ expression } `", Kind.TEMPLATE_EXPRESSION);
 
-    assertThat(tree.is(Kind.ELSE_CLAUSE)).isTrue();
-    assertThat(tree.elseKeyword().text()).isEqualTo(EcmaScriptKeyword.ELSE.getValue());
+    assertThat(tree.is(Kind.TEMPLATE_EXPRESSION)).isTrue();
+    assertThat(tree.dollar().text()).isEqualTo("$");
+    assertThat(tree.openCurlyBrace().text()).isEqualTo(EcmaScriptPunctuator.LCURLYBRACE.getValue());
+    // TODO expression
+    assertThat(tree.closeCurlyBrace().text()).isEqualTo(EcmaScriptPunctuator.RCURLYBRACE.getValue());
   }
 
 }

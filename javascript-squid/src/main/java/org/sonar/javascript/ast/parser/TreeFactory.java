@@ -52,6 +52,9 @@ import org.sonar.javascript.model.implementations.expression.PrefixExpressionTre
 import org.sonar.javascript.model.implementations.expression.RestElementTreeImpl;
 import org.sonar.javascript.model.implementations.expression.SuperTreeImpl;
 import org.sonar.javascript.model.implementations.expression.TaggedTemplateTreeImpl;
+import org.sonar.javascript.model.implementations.expression.TemplateCharactersTreeImpl;
+import org.sonar.javascript.model.implementations.expression.TemplateExpressionTreeImpl;
+import org.sonar.javascript.model.implementations.expression.TemplateLiteralTreeImpl;
 import org.sonar.javascript.model.implementations.expression.UndefinedTreeImpl;
 import org.sonar.javascript.model.implementations.expression.YieldExpressionTreeImpl;
 import org.sonar.javascript.model.implementations.lexical.InternalSyntaxToken;
@@ -85,6 +88,9 @@ import org.sonar.javascript.model.interfaces.declaration.ParameterListTree;
 import org.sonar.javascript.model.interfaces.expression.BracketMemberExpressionTree;
 import org.sonar.javascript.model.interfaces.expression.ExpressionTree;
 import org.sonar.javascript.model.interfaces.expression.MemberExpressionTree;
+import org.sonar.javascript.model.interfaces.expression.TemplateCharactersTree;
+import org.sonar.javascript.model.interfaces.expression.TemplateExpressionTree;
+import org.sonar.javascript.model.interfaces.lexical.SyntaxToken;
 import org.sonar.javascript.model.interfaces.statement.StatementTree;
 import org.sonar.javascript.model.interfaces.statement.SwitchClauseTree;
 import org.sonar.javascript.parser.EcmaScriptGrammar;
@@ -523,6 +529,16 @@ public class TreeFactory {
     return astNode;
   }
 
+  public AstNode newWrapperAstNode2(AstNode e1, Optional<TemplateCharactersTreeImpl> e2, TemplateExpressionTreeImpl e3) {
+    AstNode astNode = new AstNode(WRAPPER_AST_NODE, WRAPPER_AST_NODE.toString(), null);
+    astNode.addChild(e1);
+    if (e2.isPresent()) {
+      astNode.addChild(e2.get());
+    }
+    astNode.addChild(e3);
+
+    return astNode;
+  }
 
   public FunctionExpressionTreeImpl generatorExpression(AstNode functionKeyword, AstNode starOperator, Optional<IdentifierTreeImpl> functionName, ParameterListTreeImpl parameters, AstNode openCurlyBrace, AstNode functionBody, AstNode closeCurlyBrace) {
     ImmutableList.Builder<AstNode> children = ImmutableList.builder();
@@ -914,6 +930,72 @@ public class TreeFactory {
       expression.is(Kind.SUPER) ? Kind.NEW_SUPER : Kind.NEW_EXPRESSION,
       InternalSyntaxToken.create(newToken),
       expression);
+  }
+
+  public TemplateLiteralTreeImpl noSubstitutionTemplate(AstNode openBacktickToken, Optional<TemplateCharactersTreeImpl> templateCharacters, AstNode closeBacktickToken) {
+    return new TemplateLiteralTreeImpl(
+      InternalSyntaxToken.create(openBacktickToken),
+      templateCharacters.isPresent() ? Lists.newArrayList(templateCharacters.get()) : ListUtils.EMPTY_LIST,
+      InternalSyntaxToken.create(closeBacktickToken));
+  }
+
+  public TemplateExpressionTreeImpl newTemplateExpressionHead(AstNode dollar, AstNode openCurlyBrace, AstNode expression) {
+    return new TemplateExpressionTreeImpl(InternalSyntaxToken.create(dollar), InternalSyntaxToken.create(openCurlyBrace), expression);
+  }
+
+  public TemplateLiteralTreeImpl substitutionTemplate(AstNode openBacktick, Optional<TemplateCharactersTreeImpl> headCharacters, TemplateExpressionTreeImpl firstTemplateExpressionHead, Optional<List<AstNode>> middleTemplateExpression, AstNode tailCloseCurlyBrace, Optional<TemplateCharactersTreeImpl> tailCharacters, AstNode closeBacktick) {
+    List<AstNode> children = Lists.newArrayList();
+    List<TemplateCharactersTree> strings = Lists.newArrayList();
+    List<TemplateExpressionTree> expressions = Lists.newArrayList();
+
+    // TEMPLATE HEAD
+    children.add(openBacktick);
+    if (headCharacters.isPresent()) {
+      strings.add(headCharacters.get());
+      children.add(headCharacters.get());
+    }
+
+    TemplateExpressionTreeImpl expressionHead = firstTemplateExpressionHead;
+
+    // TEMPLATE MIDDLE
+    if (middleTemplateExpression.isPresent()) {
+
+      for (AstNode middle : middleTemplateExpression.get()) {
+        for (AstNode node : middle.getChildren()) {
+
+          if (node.is(EcmaScriptPunctuator.RCURLYBRACE)) {
+            expressionHead.complete(InternalSyntaxToken.create(node));
+            expressions.add(expressionHead);
+            children.add(expressionHead);
+
+          } else if (node instanceof TemplateExpressionTreeImpl) {
+            expressionHead = (TemplateExpressionTreeImpl) node;
+
+          } else {
+            // Template characters
+            strings.add((TemplateCharactersTree) node);
+            children.add(node);
+          }
+        }
+      }
+    }
+
+    // TEMPLATE TAIL
+    expressionHead.complete(InternalSyntaxToken.create(tailCloseCurlyBrace));
+    expressions.add(expressionHead);
+    children.add(expressionHead);
+    if (tailCharacters.isPresent()) {
+      strings.add(tailCharacters.get());
+      children.add(tailCharacters.get());
+    }
+
+    children.add(closeBacktick);
+
+    return new TemplateLiteralTreeImpl(InternalSyntaxToken.create(openBacktick), strings, expressions, InternalSyntaxToken.create(closeBacktick), children);
+  }
+
+  public TemplateCharactersTreeImpl templateCharacters(List<AstNode> characters) {
+    return new TemplateCharactersTreeImpl(characters);
   }
 
   public static class Tuple<T, U> extends AstNode {

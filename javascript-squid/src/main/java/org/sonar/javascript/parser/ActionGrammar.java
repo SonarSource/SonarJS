@@ -34,13 +34,15 @@ import org.sonar.javascript.model.implementations.expression.DotMemberExpression
 import org.sonar.javascript.model.implementations.expression.FunctionExpressionTreeImpl;
 import org.sonar.javascript.model.implementations.expression.IdentifierTreeImpl;
 import org.sonar.javascript.model.implementations.expression.LiteralTreeImpl;
-import org.sonar.javascript.model.implementations.expression.NewExpressionTreeImpl;
 import org.sonar.javascript.model.implementations.expression.ObjectLiteralTreeImpl;
 import org.sonar.javascript.model.implementations.expression.PairPropertyTreeImpl;
 import org.sonar.javascript.model.implementations.expression.ParenthesisedExpressionTreeImpl;
 import org.sonar.javascript.model.implementations.expression.RestElementTreeImpl;
 import org.sonar.javascript.model.implementations.expression.SuperTreeImpl;
 import org.sonar.javascript.model.implementations.expression.TaggedTemplateTreeImpl;
+import org.sonar.javascript.model.implementations.expression.TemplateCharactersTreeImpl;
+import org.sonar.javascript.model.implementations.expression.TemplateExpressionTreeImpl;
+import org.sonar.javascript.model.implementations.expression.TemplateLiteralTreeImpl;
 import org.sonar.javascript.model.implementations.expression.YieldExpressionTreeImpl;
 import org.sonar.javascript.model.implementations.statement.BlockTreeImpl;
 import org.sonar.javascript.model.implementations.statement.BreakStatementTreeImpl;
@@ -778,7 +780,7 @@ public class ActionGrammar {
 
   public ExpressionTree TAGGED_TEMPLATE() {
     return b.<TaggedTemplateTreeImpl>nonterminal(Kind.TAGGED_TEMPLATE)
-      .is(f.newTaggedTemplate(b.invokeRule(EcmaScriptGrammar.TEMPLATE_LITERAL)));
+      .is(f.newTaggedTemplate(b.invokeRule(Kind.TEMPLATE_LITERAL)));
 
   }
 
@@ -902,6 +904,43 @@ public class ActionGrammar {
         MEMBER_EXPRESSION(),
         f.newExpression(b.invokeRule(EcmaScriptKeyword.NEW), b.firstOf(ES6(SUPER()), NEW_EXPRESSION()))
       ));
+  }
+
+  public TemplateLiteralTreeImpl TEMPLATE_LITERAL() {
+    return b.<TemplateLiteralTreeImpl>nonterminal(Kind.TEMPLATE_LITERAL)
+      .is(b.firstOf(
+        f.noSubstitutionTemplate(b.invokeRule(EcmaScriptGrammar.BACKTICK), b.optional(TEMPLATE_CHARACTERS()), b.invokeRule(EcmaScriptGrammar.BACKTICK)),
+        f.substitutionTemplate(
+          //HEAD
+          b.invokeRule(EcmaScriptGrammar.BACKTICK),
+          b.optional(TEMPLATE_CHARACTERS()),
+          TEMPLATE_EXPRESSION_HEAD(),
+          // MIDDLE
+          b.zeroOrMore(f.newWrapperAstNode2(
+            b.invokeRule(EcmaScriptPunctuator.RCURLYBRACE),
+            b.optional(TEMPLATE_CHARACTERS()),
+            TEMPLATE_EXPRESSION_HEAD()
+          )),
+          //TAIL
+          b.invokeRule(EcmaScriptPunctuator.RCURLYBRACE),
+          b.optional(TEMPLATE_CHARACTERS()),
+          b.invokeRule(EcmaScriptGrammar.BACKTICK)
+        )
+      ));
+  }
+
+  public TemplateExpressionTreeImpl TEMPLATE_EXPRESSION_HEAD() {
+    return b.<TemplateExpressionTreeImpl>nonterminal()
+      .is(f.newTemplateExpressionHead(
+          b.invokeRule(EcmaScriptGrammar.DOLLAR_SIGN),
+          b.invokeRule(EcmaScriptPunctuator.LCURLYBRACE),
+          b.invokeRule(EcmaScriptGrammar.EXPRESSION)
+        ));
+  }
+
+  public TemplateCharactersTreeImpl TEMPLATE_CHARACTERS() {
+    return b.<TemplateCharactersTreeImpl>nonterminal()
+      .is(f.templateCharacters(b.oneOrMore(b.invokeRule(EcmaScriptGrammar.TEMPLATE_CHARACTER))));
   }
 
   /**

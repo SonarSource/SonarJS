@@ -17,21 +17,30 @@
  * License along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.javascript.parser.grammar.expressions.TemplateLiteral;
+package org.sonar.javascript.model.interfaces.expression;
 
-import org.junit.Test;
-import org.sonar.javascript.parser.EcmaScriptGrammar;
+import org.sonar.javascript.model.interfaces.Tree;
+import org.sonar.javascript.model.interfaces.lexical.SyntaxToken;
 
-import static org.sonar.javascript.sslr.tests.Assertions.assertThat;
+import java.util.List;
 
-public class TemplateHeadTest {
+/**
+ * Interface for type <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-template-literals">Template literal</a>.
+ * <p/>
+ * <pre>
+ *   ` {@link #strings()} {@link #expressions()} `
+ * </pre>
+ * <p/>
+ * <p>This interface is not intended to be implemented by clients.</p>
+ */
+public interface TemplateLiteralTree extends Tree {
 
+  SyntaxToken openBacktick();
 
-  @Test
-  public void ok() {
-    assertThat(EcmaScriptGrammar.TEMPLATE_HEAD)
-        .matches("` ${")
-        .matches("` characters ${");
-  }
+  List<TemplateCharactersTree> strings();
+
+  List<TemplateExpressionTree> expressions();
+
+  SyntaxToken closeBacktick();
 
 }

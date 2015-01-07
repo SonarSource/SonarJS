@@ -17,21 +17,16 @@
  * License along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.javascript.parser.grammar.expressions.TemplateLiteral;
+package org.sonar.javascript.model.interfaces.expression;
 
-import org.junit.Test;
-import org.sonar.javascript.parser.EcmaScriptGrammar;
+/**
+ * Interface for <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-template-literals">template character</a>.
+ * <p/>
+ * <p/>
+ * <p>This interface is not intended to be implemented by clients.</p>
+ */
+public interface TemplateCharactersTree extends ExpressionTree {
 
-import static org.sonar.javascript.sslr.tests.Assertions.assertThat;
-
-public class TemplateTailTest {
-
-
-  @Test
-  public void ok() {
-    assertThat(EcmaScriptGrammar.TEMPLATE_TAIL)
-        .matches("} `")
-        .matches("} characters `");
-  }
+  String value();
 
 }

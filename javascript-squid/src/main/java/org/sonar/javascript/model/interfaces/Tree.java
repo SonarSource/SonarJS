@@ -40,6 +40,9 @@ import org.sonar.javascript.model.interfaces.expression.PairPropertyTree;
 import org.sonar.javascript.model.interfaces.expression.ParenthesisedExpressionTree;
 import org.sonar.javascript.model.interfaces.expression.RestElementTree;
 import org.sonar.javascript.model.interfaces.expression.TaggedTemplateTree;
+import org.sonar.javascript.model.interfaces.expression.TemplateCharactersTree;
+import org.sonar.javascript.model.interfaces.expression.TemplateExpressionTree;
+import org.sonar.javascript.model.interfaces.expression.TemplateLiteralTree;
 import org.sonar.javascript.model.interfaces.expression.UnaryExpressionTree;
 import org.sonar.javascript.model.interfaces.expression.YieldExpressionTree;
 import org.sonar.javascript.model.interfaces.lexical.SyntaxToken;
@@ -648,6 +651,21 @@ public interface Tree {
      * {@link ComputedPropertyNameTree}
      */
     COMPUTED_PROPERTY_NAME(ComputedPropertyNameTree.class),
+
+    /**
+     * {@link TemplateExpressionTree}
+     */
+    TEMPLATE_EXPRESSION(TemplateExpressionTree.class),
+
+    /**
+     * {@link TemplateLiteralTree}
+     */
+    TEMPLATE_LITERAL(TemplateLiteralTree.class),
+
+    /**
+     * {@link TemplateCharactersTree}
+     */
+    TEMPLATE_CHARACTERS(TemplateCharactersTree.class),
 
     TYPEOF(UnaryExpressionTree.class),
 

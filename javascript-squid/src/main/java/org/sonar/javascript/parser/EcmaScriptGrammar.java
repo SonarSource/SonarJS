@@ -135,27 +135,9 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
   BOOLEAN_LITERAL,
   STRING_LITERAL,
   /** ECMAScript 6 **/
-  TEMPLATE_LITERAL,
-  /** ECMAScript 6 **/
-  SUBSTITUTION_TEMPLATE,
-  /** ECMAScript 6 **/
-  NO_SUBSTITUTION_TEMPLATE,
-  /** ECMAScript 6 **/
-  TEMPLATE_SUBSTITUTION_TAIL,
-  /** ECMAScript 6 **/
-  TEMPLATE_HEAD,
-  /** ECMAScript 6 **/
   TEMPLATE_SPANS,
   /** ECMAScript 6 **/
-  TEMPLATE_TAIL,
-  /** ECMAScript 6 **/
-  TEMPLATE_MIDDLE_LIST,
-  /** ECMAScript 6 **/
-  TEMPLATE_MIDDLE,
-  /** ECMAScript 6 **/
   TEMPLATE_CHARACTER,
-  /** ECMAScript 6 **/
-  TEMPLATE_CHARACTERS,
   /** ECMAScript 6 **/
   LINE_CONTINUATION,
   /** ECMAScript 6 **/
@@ -467,7 +449,6 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
       SPACING,
       b.regexp(EcmaScriptRegexpChannel.REGULAR_EXPRESSION));
 
-    b.rule(TEMPLATE_CHARACTERS).is(b.oneOrMore(TEMPLATE_CHARACTER));
     b.rule(TEMPLATE_CHARACTER).is(b.firstOf(
       b.sequence(DOLLAR_SIGN, b.nextNot(LCURLYBRACE)),
       b.sequence(BACKSLASH, EcmaScriptLexer.WHITESPACE),
@@ -595,19 +576,7 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
       Kind.PARENTHESISED_EXPRESSION,
       ecmascript6(Kind.CLASS_EXPRESSION),
       ecmascript6(Kind.GENERATOR_FUNCTION_EXPRESSION),
-      ecmascript6(TEMPLATE_LITERAL)));
-
-    b.rule(TEMPLATE_LITERAL).is(b.firstOf(
-      NO_SUBSTITUTION_TEMPLATE,
-      SUBSTITUTION_TEMPLATE));
-
-    b.rule(NO_SUBSTITUTION_TEMPLATE).is(BACKTICK, b.optional(TEMPLATE_CHARACTERS), BACKTICK);
-
-    b.rule(SUBSTITUTION_TEMPLATE).is(TEMPLATE_HEAD, EXPRESSION, b.optional(TEMPLATE_MIDDLE_LIST), TEMPLATE_TAIL);
-    b.rule(TEMPLATE_HEAD).is(BACKTICK, b.optional(TEMPLATE_CHARACTERS), DOLLAR_SIGN, LCURLYBRACE);
-    b.rule(TEMPLATE_MIDDLE_LIST).is(b.oneOrMore(TEMPLATE_MIDDLE, EXPRESSION));
-    b.rule(TEMPLATE_MIDDLE).is(RCURLYBRACE, b.optional(TEMPLATE_CHARACTERS), DOLLAR_SIGN, LCURLYBRACE);
-    b.rule(TEMPLATE_TAIL).is(RCURLYBRACE, b.optional(TEMPLATE_CHARACTERS), BACKTICK);
+      ecmascript6(Kind.TEMPLATE_LITERAL)));
 
     b.rule(ELISION).is(b.oneOrMore(COMMA));
 

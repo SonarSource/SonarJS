@@ -20,7 +20,7 @@
 package org.sonar.javascript.parser.grammar.expressions.TemplateLiteral;
 
 import org.junit.Test;
-import org.sonar.javascript.parser.EcmaScriptGrammar;
+import org.sonar.javascript.model.interfaces.Tree.Kind;
 
 import static org.sonar.javascript.sslr.tests.Assertions.assertThat;
 
@@ -29,14 +29,23 @@ public class TemplateLiteralTest {
 
   @Test
   public void ok() {
-    assertThat(EcmaScriptGrammar.TEMPLATE_LITERAL)
+    assertThat(Kind.TEMPLATE_LITERAL)
+      // No substitution
       .matches("` `")
-      .matches("` ${ expression } `");
+      .matches("` characters `")
+
+      // With substitution
+      .matches("` ${ expression } `")
+      .matches("` characters ${ expression } `")
+      .matches("` ${ expression } characters `")
+
+      .matches("` ${ expression } ${ expression } `")
+      .matches("` ${ expression } characters ${ expression } `");
   }
 
   @Test
   public void real_life() throws Exception {
-    assertThat(EcmaScriptGrammar.TEMPLATE_LITERAL)
+    assertThat(Kind.TEMPLATE_LITERAL)
       .matches("`Hello ${name}, how are you ${time}?`");
   }
 
