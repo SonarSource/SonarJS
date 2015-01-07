@@ -566,7 +566,7 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
    */
   private static void expressions(LexerlessGrammarBuilder b) {
     b.rule(PRIMARY_EXPRESSION).is(b.firstOf(
-      THIS,
+      Kind.THIS,
       // Not IDENTIFIER_REFERENCE, to avoid conflicts with YIELD_EXPRESSION from ASSIGNMENT_EXPRESSION
       IDENTIFIER,
       LITERAL,

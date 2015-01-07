@@ -55,6 +55,7 @@ import org.sonar.javascript.model.implementations.expression.TaggedTemplateTreeI
 import org.sonar.javascript.model.implementations.expression.TemplateCharactersTreeImpl;
 import org.sonar.javascript.model.implementations.expression.TemplateExpressionTreeImpl;
 import org.sonar.javascript.model.implementations.expression.TemplateLiteralTreeImpl;
+import org.sonar.javascript.model.implementations.expression.ThisTreeImpl;
 import org.sonar.javascript.model.implementations.expression.UndefinedTreeImpl;
 import org.sonar.javascript.model.implementations.expression.YieldExpressionTreeImpl;
 import org.sonar.javascript.model.implementations.lexical.InternalSyntaxToken;
@@ -996,6 +997,10 @@ public class TreeFactory {
 
   public TemplateCharactersTreeImpl templateCharacters(List<AstNode> characters) {
     return new TemplateCharactersTreeImpl(characters);
+  }
+
+  public ThisTreeImpl thisExpression(AstNode thisKeyword) {
+    return new ThisTreeImpl(InternalSyntaxToken.create(thisKeyword));
   }
 
   public static class Tuple<T, U> extends AstNode {

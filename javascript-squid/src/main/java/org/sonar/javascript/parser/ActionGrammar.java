@@ -43,6 +43,7 @@ import org.sonar.javascript.model.implementations.expression.TaggedTemplateTreeI
 import org.sonar.javascript.model.implementations.expression.TemplateCharactersTreeImpl;
 import org.sonar.javascript.model.implementations.expression.TemplateExpressionTreeImpl;
 import org.sonar.javascript.model.implementations.expression.TemplateLiteralTreeImpl;
+import org.sonar.javascript.model.implementations.expression.ThisTreeImpl;
 import org.sonar.javascript.model.implementations.expression.YieldExpressionTreeImpl;
 import org.sonar.javascript.model.implementations.statement.BlockTreeImpl;
 import org.sonar.javascript.model.implementations.statement.BreakStatementTreeImpl;
@@ -943,6 +944,11 @@ public class ActionGrammar {
       .is(f.templateCharacters(b.oneOrMore(b.invokeRule(EcmaScriptGrammar.TEMPLATE_CHARACTER))));
   }
 
+  public ThisTreeImpl THIS() {
+    return b.<ThisTreeImpl>nonterminal(Kind.THIS)
+      .is(f.thisExpression(b.invokeRule(EcmaScriptKeyword.THIS)));
+
+  }
   /**
    * A.3 [END] Expressions
    */

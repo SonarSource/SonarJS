@@ -17,42 +17,25 @@
  * License along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.javascript.model.implementations.expression;
+package org.sonar.javascript.model.expression;
 
-import com.google.common.collect.Iterators;
-import org.sonar.javascript.model.implementations.JavaScriptTree;
-import org.sonar.javascript.model.implementations.lexical.InternalSyntaxToken;
-import org.sonar.javascript.model.interfaces.Tree;
-import org.sonar.javascript.model.interfaces.expression.LiteralTree;
+import org.junit.Test;
+import org.sonar.javascript.api.EcmaScriptKeyword;
+import org.sonar.javascript.model.JavaScriptTreeModelTest;
+import org.sonar.javascript.model.interfaces.Tree.Kind;
+import org.sonar.javascript.model.interfaces.expression.NewExpressionTree;
 import org.sonar.javascript.model.interfaces.expression.ThisTree;
 
-import java.util.Iterator;
+import static org.fest.assertions.Assertions.assertThat;
 
-public class ThisTreeImpl extends JavaScriptTree implements ThisTree {
+public class ThisTreeModelTest extends JavaScriptTreeModelTest {
 
-  private final InternalSyntaxToken token;
+  @Test
+  public void new_super_with_arguments() throws Exception {
+    ThisTree tree = parse("this", Kind.THIS);
 
-  public ThisTreeImpl(InternalSyntaxToken token) {
-    super(Kind.THIS, token.getToken());
-    this.token = token;
-
-    addChild(token);
-  }
-
-  @Override
-  public Kind getKind() {
-    return Kind.THIS;
-  }
-
-  @Override
-  public String value() {
-    return token.text();
-  }
-
-  @Override
-  public Iterator<Tree> childrenIterator() {
-    return Iterators.<Tree>singletonIterator(
-      token);
+    assertThat(tree.is(Kind.THIS)).isTrue();
+    assertThat(tree.value()).isEqualTo(EcmaScriptKeyword.THIS.getValue());
   }
 
 }
