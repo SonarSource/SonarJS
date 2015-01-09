@@ -31,9 +31,11 @@ import java.util.Iterator;
 public class IdentifierTreeImpl extends JavaScriptTree implements IdentifierTree {
 
   private final InternalSyntaxToken nameToken;
+  private final Kind kind;
 
-  public IdentifierTreeImpl(InternalSyntaxToken nameToken) {
-    super(Kind.IDENTIFIER, nameToken.getToken());
+  public IdentifierTreeImpl(Kind kind, InternalSyntaxToken nameToken) {
+    super(kind, nameToken.getToken());
+    this.kind = kind;
     this.nameToken = Preconditions.checkNotNull(nameToken);
 
     addChild(nameToken);
@@ -41,7 +43,7 @@ public class IdentifierTreeImpl extends JavaScriptTree implements IdentifierTree
 
   @Override
   public Kind getKind() {
-    return Kind.IDENTIFIER;
+    return kind;
   }
 
   @Override

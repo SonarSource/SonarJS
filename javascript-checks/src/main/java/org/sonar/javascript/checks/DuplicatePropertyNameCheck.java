@@ -71,7 +71,7 @@ public class DuplicatePropertyNameCheck extends SquidCheck<LexerlessGrammar> {
       return property.getFirstChild();
 
     } else /* COVER_INITIALIZED_NAME */ {
-      return property.getFirstChild(Kind.IDENTIFIER);
+      return property.getFirstChild(Kind.IDENTIFIER_REFERENCE);
     }
   }
 

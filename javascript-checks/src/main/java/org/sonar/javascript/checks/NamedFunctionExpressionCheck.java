@@ -23,6 +23,7 @@ import com.sonar.sslr.api.AstNode;
 import org.sonar.check.BelongsToProfile;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
+import org.sonar.javascript.model.implementations.expression.FunctionExpressionTreeImpl;
 import org.sonar.javascript.model.interfaces.Tree.Kind;
 import org.sonar.squidbridge.checks.SquidCheck;
 import org.sonar.sslr.parser.LexerlessGrammar;
@@ -40,7 +41,7 @@ public class NamedFunctionExpressionCheck extends SquidCheck<LexerlessGrammar> {
 
   @Override
   public void visitNode(AstNode astNode) {
-    if (astNode.getFirstChild(Kind.IDENTIFIER) != null) {
+    if (((FunctionExpressionTreeImpl) astNode).name() != null) {
       getContext().createLineViolation(this, "Make this function anonymous by removing its name: 'function() {...}'.", astNode);
     }
   }

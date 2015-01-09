@@ -212,6 +212,26 @@ public interface Tree {
     IDENTIFIER(IdentifierTree.class),
 
     /**
+     * {@link IdentifierTree}
+     */
+    IDENTIFIER_REFERENCE(IdentifierTree.class),
+
+    /**
+     * {@link IdentifierTree}
+     */
+    IDENTIFIER_NAME(IdentifierTree.class),
+
+    /**
+     * {@link IdentifierTree}
+     */
+    BINDING_IDENTIFIER(IdentifierTree.class),
+
+    /**
+     * {@link IdentifierTree}
+     */
+    LABEL_IDENTIFIER(IdentifierTree.class),
+
+    /**
      * {@link LiteralTree}
      * {@code null}
      */

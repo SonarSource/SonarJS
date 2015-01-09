@@ -26,6 +26,7 @@ import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.javascript.checks.utils.CheckUtils;
 import org.sonar.javascript.model.interfaces.Tree.Kind;
+import org.sonar.javascript.model.interfaces.statement.LabelledStatementTree;
 import org.sonar.javascript.parser.EcmaScriptGrammar;
 import org.sonar.squidbridge.checks.SquidCheck;
 import org.sonar.sslr.grammar.GrammarRuleKey;
@@ -85,10 +86,10 @@ public class TooManyBreakOrContinueInLoopCheck extends SquidCheck<LexerlessGramm
   @Override
   public void visitNode(AstNode astNode) {
     if (astNode.is(Kind.LABELLED_STATEMENT)) {
-      String label = astNode.getFirstChild(Kind.IDENTIFIER).getTokenValue();
+      String label = ((LabelledStatementTree) astNode).label().name();
       jumpTargets.push(new JumpTarget(label));
     } else if (astNode.is(Kind.BREAK_STATEMENT, Kind.CONTINUE_STATEMENT)) {
-      AstNode labelNode = astNode.getFirstChild(Kind.IDENTIFIER);
+      AstNode labelNode = astNode.getFirstChild(Kind.LABEL_IDENTIFIER);
       String label = labelNode == null ? null : labelNode.getTokenValue();
       for (int i = jumpTargets.size() - 1; i >= 0; i--) {
         JumpTarget jumpTarget = jumpTargets.get(i);

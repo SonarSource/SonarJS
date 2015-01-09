@@ -82,7 +82,7 @@ public class BoundOrAssignedEvalOrArgumentsCheck extends SquidCheck<LexerlessGra
   }
 
   private void checkFunction(AstNode functionNode) {
-    AstNode identifier = functionNode.getFirstChild(EcmaScriptTokenType.IDENTIFIER, Kind.IDENTIFIER);
+    AstNode identifier = functionNode.getFirstChild(EcmaScriptTokenType.IDENTIFIER, Kind.BINDING_IDENTIFIER);
     if (identifier != null && isEvalOrArguments(identifier.getTokenValue())) {
       getContext().createLineViolation(this, createMessageFor("function", identifier.getTokenValue()), identifier);
     }

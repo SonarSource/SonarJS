@@ -41,7 +41,7 @@ public class IdentifierUtils {
     AstNode parameterChild = catchNode.getFirstChild(EcmaScriptGrammar.CATCH_PARAMETER).getFirstChild();
     List<AstNode> identifiers = Lists.newArrayList();
 
-    if (parameterChild.is(Kind.IDENTIFIER)) {
+    if (parameterChild.is(Kind.BINDING_IDENTIFIER)) {
       AstNode identifier = parameterChild.getFirstChild(EcmaScriptTokenType.IDENTIFIER);
       if (identifier != null) {
         identifiers.add(identifier);
@@ -63,10 +63,10 @@ public class IdentifierUtils {
     List<AstNode> identifiers = Lists.newArrayList();
     AstNode child = variableDeclaration.getFirstChild();
 
-    if (child.is(EcmaScriptGrammar.BINDING_IDENTIFIER_INITIALISER, EcmaScriptGrammar.BINDING_IDENTIFIER_INITIALISER_NO_IN, Kind.IDENTIFIER)) {
-      AstNode identifier = child.is(Kind.IDENTIFIER) ?
+    if (child.is(EcmaScriptGrammar.BINDING_IDENTIFIER_INITIALISER, EcmaScriptGrammar.BINDING_IDENTIFIER_INITIALISER_NO_IN, Kind.BINDING_IDENTIFIER)) {
+      AstNode identifier = child.is(Kind.BINDING_IDENTIFIER) ?
         child.getFirstChild(EcmaScriptTokenType.IDENTIFIER)
-        : child.getFirstChild(Kind.IDENTIFIER).getFirstChild(EcmaScriptTokenType.IDENTIFIER);
+        : child.getFirstChild(Kind.BINDING_IDENTIFIER).getFirstChild(EcmaScriptTokenType.IDENTIFIER);
 
       if (identifier != null) {
         identifiers.add(identifier);
@@ -176,7 +176,7 @@ public class IdentifierUtils {
   private static AstNode getRestIdentifier(AstNode bindingRestElement) {
     Preconditions.checkArgument(bindingRestElement.is(Kind.REST_ELEMENT));
 
-    return bindingRestElement.getFirstChild(Kind.IDENTIFIER);
+    return bindingRestElement.getFirstChild(Kind.BINDING_IDENTIFIER);
   }
 
   private static List<AstNode> getObjectBindingIdentifiers(AstNode objectBindingPattern) {
@@ -203,7 +203,7 @@ public class IdentifierUtils {
     Preconditions.checkArgument(singleNameBinding.is(EcmaScriptGrammar.SINGLE_NAME_BINDING));
     List<AstNode> identifier = Lists.newArrayList();
 
-    AstNode id = singleNameBinding.getFirstChild(Kind.IDENTIFIER).getFirstChild(EcmaScriptTokenType.IDENTIFIER);
+    AstNode id = singleNameBinding.getFirstChild(Kind.BINDING_IDENTIFIER).getFirstChild(EcmaScriptTokenType.IDENTIFIER);
     if (id != null) {
       identifier.add(id);
     }

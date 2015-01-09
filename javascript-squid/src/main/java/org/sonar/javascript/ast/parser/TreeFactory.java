@@ -215,8 +215,8 @@ public class TreeFactory {
     return new VariableDeclarationTreeImpl(bindingIdentifierInitialiser);
   }
 
-  public LabelledStatementTreeImpl labelledStatement(AstNode identifier, AstNode colon, StatementTree statement) {
-    return new LabelledStatementTreeImpl(new IdentifierTreeImpl(InternalSyntaxToken.create(identifier)), InternalSyntaxToken.create(colon), statement);
+  public LabelledStatementTreeImpl labelledStatement(IdentifierTreeImpl identifier, AstNode colon, StatementTree statement) {
+    return new LabelledStatementTreeImpl(identifier, InternalSyntaxToken.create(colon), statement);
   }
 
   public ContinueStatementTreeImpl completeContinueStatement(AstNode continueToken, ContinueStatementTreeImpl labelOrEndOfStatement) {
@@ -224,7 +224,7 @@ public class TreeFactory {
   }
 
   public ContinueStatementTreeImpl newContinueWithLabel(AstNode identifier, AstNode eos) {
-    return new ContinueStatementTreeImpl(new IdentifierTreeImpl(InternalSyntaxToken.create(identifier)), eos);
+    return new ContinueStatementTreeImpl((IdentifierTreeImpl) identifier, eos);
   }
 
   public ContinueStatementTreeImpl newContinueWithoutLabel(AstNode eos) {
@@ -236,7 +236,7 @@ public class TreeFactory {
   }
 
   public BreakStatementTreeImpl newBreakWithLabel(AstNode identifier, AstNode eos) {
-    return new BreakStatementTreeImpl(new IdentifierTreeImpl(InternalSyntaxToken.create(identifier)), eos);
+    return new BreakStatementTreeImpl((IdentifierTreeImpl) identifier, eos);
   }
 
   public BreakStatementTreeImpl newBreakWithoutLabel(AstNode eos) {
@@ -590,7 +590,7 @@ public class TreeFactory {
 
 
     if (functionName.isPresent()) {
-      IdentifierTreeImpl name = new IdentifierTreeImpl(InternalSyntaxToken.create(functionName.get()));
+      IdentifierTreeImpl name = new IdentifierTreeImpl(Kind.BINDING_IDENTIFIER, InternalSyntaxToken.create(functionName.get()));
       children.add(functionToken, name, parameters, openCurlyBrace, functionBody, closeCurlyBrace);
 
       return new FunctionExpressionTreeImpl(Kind.FUNCTION_EXPRESSION, functionToken, name, parameters, openCurlyToken, closeCurlyToken, children.build());
@@ -734,8 +734,12 @@ public class TreeFactory {
     return new YieldExpressionTreeImpl(expression);
   }
 
-  public IdentifierTreeImpl identifierReference(AstNode identifierOrYield) {
-    return new IdentifierTreeImpl(InternalSyntaxToken.create(identifierOrYield));
+  public IdentifierTreeImpl identifierReference(AstNode identifier) {
+    return new IdentifierTreeImpl(Kind.IDENTIFIER_REFERENCE, InternalSyntaxToken.create(identifier));
+  }
+
+  public IdentifierTreeImpl bindingIdentifier(AstNode identifier) {
+    return new IdentifierTreeImpl(Kind.BINDING_IDENTIFIER, InternalSyntaxToken.create(identifier));
   }
 
   public ParameterListTreeImpl newArrowParameterList(AstNode expression, Optional<Tuple<AstNode, RestElementTreeImpl>> restParameter) {
@@ -769,7 +773,7 @@ public class TreeFactory {
   }
 
   public IdentifierTreeImpl identifierName(AstNode identifier) {
-    return new IdentifierTreeImpl(InternalSyntaxToken.create(identifier));
+    return new IdentifierTreeImpl(Kind.IDENTIFIER_NAME, InternalSyntaxToken.create(identifier));
   }
 
   public DotMemberExpressionTreeImpl newDotMemberExpression(AstNode dotToken, IdentifierTreeImpl identifier) {
@@ -1003,13 +1007,18 @@ public class TreeFactory {
     return new ThisTreeImpl(InternalSyntaxToken.create(thisKeyword));
   }
 
+  public IdentifierTreeImpl labelIdentifier(AstNode identifier) {
+    return new IdentifierTreeImpl(Kind.LABEL_IDENTIFIER, InternalSyntaxToken.create(identifier));
+  }
+
   public static class Tuple<T, U> extends AstNode {
 
     private final T first;
     private final U second;
 
     public Tuple(T first, U second) {
-      super(WRAPPER_AST_NODE, WRAPPER_AST_NODE.toString(), null);
+      super(WRAPPER_AST_NODE, WRAPPER_AST_NODE
+        .toString(), null);
 
       this.first = first;
       this.second = second;

@@ -24,6 +24,7 @@ import org.sonar.check.BelongsToProfile;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.javascript.model.interfaces.Tree.Kind;
+import org.sonar.javascript.model.interfaces.statement.LabelledStatementTree;
 import org.sonar.squidbridge.checks.SquidCheck;
 import org.sonar.sslr.parser.LexerlessGrammar;
 
@@ -55,7 +56,7 @@ public class NonCaseLabelInSwitchCheck extends SquidCheck<LexerlessGrammar> {
       inCase = true;
     } else if (inCase && astNode.is(Kind.LABELLED_STATEMENT)) {
       getContext().createLineViolation(this, "Remove this misleading \"{0}\" label.",
-        astNode, astNode.getFirstChild(Kind.IDENTIFIER).getTokenValue());
+        astNode, ((LabelledStatementTree) astNode).label().name());
     }
   }
 

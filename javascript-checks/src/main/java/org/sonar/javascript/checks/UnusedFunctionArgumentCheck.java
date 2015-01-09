@@ -58,13 +58,13 @@ public class UnusedFunctionArgumentCheck extends SquidCheck<LexerlessGrammar> {
     }
 
     private void declare(AstNode astNode) {
-      Preconditions.checkState(astNode.is(EcmaScriptTokenType.IDENTIFIER, Kind.IDENTIFIER));
+      Preconditions.checkState(astNode.is(EcmaScriptTokenType.IDENTIFIER, Kind.BINDING_IDENTIFIER));
       String identifier = astNode.getTokenValue();
       arguments.put(identifier, 0);
     }
 
     private void use(AstNode astNode) {
-      Preconditions.checkState(astNode.is(EcmaScriptTokenType.IDENTIFIER, Kind.IDENTIFIER));
+      Preconditions.checkState(astNode.is(EcmaScriptTokenType.IDENTIFIER, Kind.BINDING_IDENTIFIER));
       String identifier = astNode.getTokenValue();
       Scope scope = this;
       while (scope != null) {

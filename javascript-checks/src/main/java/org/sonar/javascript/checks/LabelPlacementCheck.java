@@ -52,8 +52,7 @@ public class LabelPlacementCheck extends SquidCheck<LexerlessGrammar> {
     LabelledStatementTree labelStatement = (LabelledStatementTree) astNode;
 
     if (!labelStatement.statement().is(ITERATION_STATEMENTS)) {
-      getContext().createLineViolation(this, "Remove this \"{0}\" label.", astNode,
-        astNode.getFirstChild(Kind.IDENTIFIER).getTokenValue());
+      getContext().createLineViolation(this, "Remove this \"{0}\" label.", astNode, labelStatement.label().name());
     }
   }
 

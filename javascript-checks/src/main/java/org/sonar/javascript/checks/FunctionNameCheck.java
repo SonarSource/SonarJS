@@ -25,7 +25,7 @@ import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
 import org.sonar.javascript.api.EcmaScriptTokenType;
-import org.sonar.javascript.model.interfaces.Tree;
+import org.sonar.javascript.model.interfaces.Tree.Kind;
 import org.sonar.javascript.parser.EcmaScriptGrammar;
 import org.sonar.squidbridge.checks.SquidCheck;
 import org.sonar.sslr.parser.LexerlessGrammar;
@@ -59,9 +59,8 @@ public class FunctionNameCheck extends SquidCheck<LexerlessGrammar> {
   @Override
   public void visitNode(AstNode astNode) {
     String identifier = astNode.getFirstChild(
-      EcmaScriptTokenType.IDENTIFIER,
-      EcmaScriptGrammar.PROPERTY_NAME,
-      Tree.Kind.IDENTIFIER).getTokenValue();
+      Kind.BINDING_IDENTIFIER,
+      Kind.IDENTIFIER_NAME).getTokenValue();
 
 
     if (!pattern.matcher(identifier).matches()) {

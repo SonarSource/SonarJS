@@ -32,6 +32,7 @@ import org.sonar.javascript.api.EcmaScriptTokenType;
 import org.sonar.javascript.checks.utils.CheckUtils;
 import org.sonar.javascript.checks.utils.IdentifierUtils;
 import org.sonar.javascript.model.interfaces.Tree.Kind;
+import org.sonar.javascript.model.interfaces.expression.IdentifierTree;
 import org.sonar.javascript.parser.EcmaScriptGrammar;
 import org.sonar.squidbridge.checks.SquidCheck;
 import org.sonar.sslr.parser.LexerlessGrammar;
@@ -60,7 +61,7 @@ public class VariableShadowingCheck extends SquidCheck<LexerlessGrammar> {
     }
 
     private void declare(AstNode astNode) {
-      Preconditions.checkState(astNode.is(EcmaScriptTokenType.IDENTIFIER, Kind.IDENTIFIER));
+      Preconditions.checkState(astNode.is(EcmaScriptTokenType.IDENTIFIER, Kind.BINDING_IDENTIFIER));
       String identifier = astNode.getTokenValue();
       if (!declaration.containsKey(identifier)) {
         declaration.put(identifier, astNode);
@@ -106,7 +107,7 @@ public class VariableShadowingCheck extends SquidCheck<LexerlessGrammar> {
   }
 
   private void check(AstNode astNode) {
-    Preconditions.checkState(astNode.is(EcmaScriptTokenType.IDENTIFIER, Kind.IDENTIFIER));
+    Preconditions.checkState(astNode.is(EcmaScriptTokenType.IDENTIFIER, Kind.BINDING_IDENTIFIER));
     String identifier = astNode.getTokenValue();
     Scope scope = currentScope.outerScope;
     while (scope != null) {

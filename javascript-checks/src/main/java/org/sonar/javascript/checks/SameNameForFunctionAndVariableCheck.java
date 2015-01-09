@@ -72,7 +72,7 @@ public class SameNameForFunctionAndVariableCheck extends SquidCheck<LexerlessGra
   @Override
   public void visitNode(AstNode astNode) {
     if (astNode.is(EcmaScriptGrammar.FUNCTION_DECLARATION, EcmaScriptGrammar.GENERATOR_DECLARATION)) {
-      String functionName = astNode.getFirstChild(EcmaScriptTokenType.IDENTIFIER, Kind.IDENTIFIER).getTokenValue();
+      String functionName = astNode.getFirstChild(EcmaScriptTokenType.IDENTIFIER, Kind.BINDING_IDENTIFIER).getTokenValue();
       check(astNode, variablesStack.peek(), functionName);
       functionsStack.peek().add(functionName);
     } else if (astNode.is(CONST_AND_VAR_NODES)) {

@@ -117,7 +117,7 @@ public class ActionGrammar {
 
   public LabelledStatementTreeImpl LABELLED_STATEMENT() {
     return b.<LabelledStatementTreeImpl>nonterminal(Kind.LABELLED_STATEMENT)
-      .is(f.labelledStatement(b.invokeRule(EcmaScriptTokenType.IDENTIFIER), b.invokeRule(EcmaScriptPunctuator.COLON), STATEMENT()));
+      .is(f.labelledStatement(LABEL_IDENTIFIER(), b.invokeRule(EcmaScriptPunctuator.COLON), STATEMENT()));
   }
 
   public ContinueStatementTreeImpl CONTINUE_STATEMENT() {
@@ -455,7 +455,7 @@ public class ActionGrammar {
    */
   public RestElementTreeImpl BINDING_REST_ELEMENT() {
     return b.<RestElementTreeImpl>nonterminal(EcmaScriptGrammar.BINDING_REST_ELEMENT)
-      .is(f.bindingRestElement(b.invokeRule(EcmaScriptPunctuator.ELLIPSIS), IDENTIFIER_REFERENCE()));
+      .is(f.bindingRestElement(b.invokeRule(EcmaScriptPunctuator.ELLIPSIS), BINDING_IDENTIFIER()));
   }
 
   public ArrayLiteralTreeImpl ARRAY_LITERAL() {
@@ -477,7 +477,7 @@ public class ActionGrammar {
       .is(f.generatorExpression(
         b.invokeRule(EcmaScriptKeyword.FUNCTION),
         b.invokeRule(EcmaScriptPunctuator.STAR),
-        b.optional(IDENTIFIER_REFERENCE()),
+        b.optional(BINDING_IDENTIFIER()),
         FORMAL_PARAMETER_LIST(),
         b.invokeRule(EcmaScriptPunctuator.LCURLYBRACE),
         b.invokeRule(EcmaScriptGrammar.FUNCTION_BODY),
@@ -698,6 +698,19 @@ public class ActionGrammar {
       );
   }
 
+  public IdentifierTreeImpl BINDING_IDENTIFIER() {
+    return b.<IdentifierTreeImpl>nonterminal(EcmaScriptGrammar.BINDING_IDENTIFIER)
+      .is(f.bindingIdentifier(b.firstOf(
+          b.invokeRule(EcmaScriptKeyword.YIELD),
+          b.invokeRule(EcmaScriptTokenType.IDENTIFIER)))
+      );
+  }
+
+  public IdentifierTreeImpl LABEL_IDENTIFIER() {
+    return b.<IdentifierTreeImpl>nonterminal(Kind.LABEL_IDENTIFIER)
+      .is(f.labelIdentifier(b.invokeRule(EcmaScriptTokenType.IDENTIFIER)));
+  }
+
   public IdentifierTreeImpl IDENTIFIER_NAME() {
     return b.<IdentifierTreeImpl>nonterminal()
       .is(f.identifierName(b.invokeRule(EcmaScriptGrammar.IDENTIFIER_NAME)));
@@ -723,7 +736,7 @@ public class ActionGrammar {
     return b.<ArrowFunctionTreeImpl>nonterminal(Kind.ARROW_FUNCTION)
       .is(f.arrowFunction(
         b.firstOf(
-          IDENTIFIER_REFERENCE(),
+          BINDING_IDENTIFIER(),
           ARROW_PARAMETER_LIST()),
         b.invokeRule(EcmaScriptGrammar.DOUBLEARROW_NO_LB),
         b.firstOf(
@@ -835,7 +848,7 @@ public class ActionGrammar {
     return b.<ClassExpressionTreeImpl>nonterminal(Kind.CLASS_EXPRESSION)
       .is(f.classExpression(
         b.invokeRule(EcmaScriptKeyword.CLASS),
-        b.optional(IDENTIFIER_REFERENCE()),
+        b.optional(BINDING_IDENTIFIER()),
         b.invokeRule(EcmaScriptGrammar.CLASS_TAIL)
       ));
   }
