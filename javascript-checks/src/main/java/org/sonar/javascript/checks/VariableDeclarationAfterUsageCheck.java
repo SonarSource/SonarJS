@@ -88,9 +88,7 @@ public class VariableDeclarationAfterUsageCheck extends SquidCheck<LexerlessGram
     subscribeTo(
       Kind.IDENTIFIER_REFERENCE,
       Kind.FORMAL_PARAMETER_LIST,
-      Kind.ARROW_FUNCTION,
-      Kind.FOR_OF_STATEMENT,
-      Kind.FOR_IN_STATEMENT);
+      Kind.ARROW_FUNCTION);
     subscribeTo(CONST_AND_VAR_NODES);
     subscribeTo(CheckUtils.functionNodesArray());
   }
@@ -111,23 +109,14 @@ public class VariableDeclarationAfterUsageCheck extends SquidCheck<LexerlessGram
       declareInCurrentScope(IdentifierUtils.getArrowParametersIdentifier(astNode.getFirstChild(Kind.ARROW_PARAMETER_LIST, Kind.IDENTIFIER)));
     } else if (astNode.is(CONST_AND_VAR_NODES)) {
       declareInCurrentScope(IdentifierUtils.getVariableIdentifiers(astNode));
-    } else if (astNode.is(Kind.FOR_IN_STATEMENT, Kind.FOR_OF_STATEMENT)) {
-      AstNode identifier = getIdentifierFromLeftHandSideExpr(astNode.getFirstChild(EcmaScriptGrammar.LEFT_HAND_SIDE_EXPRESSION));
-      if (identifier != null && identifier instanceof IdentifierTree) {
-        declareInCurrentScope(ImmutableList.of(identifier));
-      }
 
     } else if (astNode.is(Kind.IDENTIFIER_REFERENCE)) {
-      currentScope.use(astNode);
+      if (astNode.getParent().is(Kind.FOR_IN_STATEMENT, Kind.FOR_OF_STATEMENT)) {
+        declareInCurrentScope(ImmutableList.of(astNode));
+      } else {
+        currentScope.use(astNode);
+      }
     }
-  }
-
-  private AstNode getIdentifierFromLeftHandSideExpr(AstNode leftHeandSideExpr) {
-    if (leftHeandSideExpr != null) {
-      AstNode expression = leftHeandSideExpr.getFirstChild();
-      return expression.is(Kind.IDENTIFIER_REFERENCE) ? expression : null;
-    }
-    return null;
   }
 
   private void declareInCurrentScope(List<AstNode> identifiers) {

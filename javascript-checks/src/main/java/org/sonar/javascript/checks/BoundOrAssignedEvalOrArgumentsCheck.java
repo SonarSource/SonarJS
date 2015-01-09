@@ -58,9 +58,11 @@ public class BoundOrAssignedEvalOrArgumentsCheck extends SquidCheck<LexerlessGra
     subscribeTo(
       Kind.CATCH_BLOCK,
       EcmaScriptGrammar.PROPERTY_SET_PARAMETER_LIST,
-      EcmaScriptGrammar.ASSIGNMENT_EXPRESSION);
-    subscribeTo(CheckUtils.postfixExpressionArray());
-    subscribeTo(CheckUtils.prefixExpressionArray());
+      EcmaScriptGrammar.ASSIGNMENT_EXPRESSION,
+      Kind.PREFIX_INCREMENT,
+      Kind.PREFIX_DECREMENT,
+      Kind.POSTFIX_INCREMENT,
+      Kind.POSTFIX_DECREMENT);
     subscribeTo(FUNCTION_NODES);
     subscribeTo(CONST_AND_VAR_NODES);
   }
@@ -74,10 +76,11 @@ public class BoundOrAssignedEvalOrArgumentsCheck extends SquidCheck<LexerlessGra
     } else if (astNode.is(EcmaScriptGrammar.PROPERTY_SET_PARAMETER_LIST)) {
       checkPropertySetParameterList(astNode);
     } else if (astNode.is(EcmaScriptGrammar.ASSIGNMENT_EXPRESSION)) {
-      checkModification(astNode.getFirstDescendant(EcmaScriptGrammar.LEFT_HAND_SIDE_EXPRESSION, EcmaScriptGrammar.LEFT_HAND_SIDE_EXPRESSION_NO_LET, EcmaScriptGrammar.LEFT_HAND_SIDE_EXPRESSION_NO_LET_AND_LBRACKET));
-    } else if (CheckUtils.isPostfixExpression(astNode) || CheckUtils.isPrefixExpression(astNode)
-      && astNode.hasDirectChildren(EcmaScriptPunctuator.INC, EcmaScriptPunctuator.DEC)) {
-      checkModification(astNode.getFirstDescendant(EcmaScriptGrammar.LEFT_HAND_SIDE_EXPRESSION, EcmaScriptGrammar.LEFT_HAND_SIDE_EXPRESSION_NO_LET, EcmaScriptGrammar.LEFT_HAND_SIDE_EXPRESSION_NO_LET_AND_LBRACKET));
+      checkModification(astNode.getFirstChild());
+    } else if (astNode.is(Kind.PREFIX_INCREMENT, Kind.PREFIX_DECREMENT)) {
+      checkModification(astNode.getLastChild());
+    } else if (astNode.is(Kind.POSTFIX_INCREMENT, Kind.POSTFIX_DECREMENT)) {
+      checkModification(astNode.getFirstChild());
     }
   }
 
@@ -127,7 +130,7 @@ public class BoundOrAssignedEvalOrArgumentsCheck extends SquidCheck<LexerlessGra
   }
 
   private void checkModification(AstNode astNode) {
-    if (isEvalOrArguments(astNode.getTokenValue()) && !astNode.hasDirectChildren(Kind.BRACKET_MEMBER_EXPRESSION)) {
+    if (astNode.isNot(Kind.BRACKET_MEMBER_EXPRESSION) && isEvalOrArguments(astNode.getTokenValue())) {
       getContext().createLineViolation(this, "Remove the modification of \"" + astNode.getTokenValue() + "\".", astNode);
     }
   }

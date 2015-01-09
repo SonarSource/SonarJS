@@ -41,7 +41,6 @@ import org.sonar.javascript.model.implementations.expression.ConditionalExpressi
 import org.sonar.javascript.model.implementations.expression.DotMemberExpressionTreeImpl;
 import org.sonar.javascript.model.implementations.expression.FunctionExpressionTreeImpl;
 import org.sonar.javascript.model.implementations.expression.IdentifierTreeImpl;
-import org.sonar.javascript.model.implementations.expression.LeftHandSideExpressionTreeImpl;
 import org.sonar.javascript.model.implementations.expression.LiteralTreeImpl;
 import org.sonar.javascript.model.implementations.expression.NewExpressionTreeImpl;
 import org.sonar.javascript.model.implementations.expression.ObjectLiteralTreeImpl;
@@ -715,10 +714,6 @@ public class TreeFactory {
     }
     Kind kind = operator.get().is(EcmaScriptGrammar.INC_NO_LB) ? Kind.POSTFIX_INCREMENT : Kind.POSTFIX_DECREMENT;
     return new PostfixExpressionTreeImpl(kind, expression, InternalSyntaxToken.create(operator.get()));
-  }
-
-  public ExpressionTree newLeftHandSideExpression(ExpressionTree expression) {
-    return new LeftHandSideExpressionTreeImpl(expression);
   }
 
   public YieldExpressionTreeImpl completeYieldExpression(AstNode yieldToken, Optional<YieldExpressionTreeImpl> partial) {

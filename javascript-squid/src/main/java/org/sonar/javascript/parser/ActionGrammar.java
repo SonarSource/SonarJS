@@ -674,10 +674,10 @@ public class ActionGrammar {
 
   public ExpressionTree LEFT_HAND_SIDE_EXPRESSION() {
     return b.<ExpressionTree>nonterminal(EcmaScriptGrammar.LEFT_HAND_SIDE_EXPRESSION)
-      .is(f.newLeftHandSideExpression(b.firstOf(
+      .is(b.firstOf(
         CALL_EXPRESSION(),
         NEW_EXPRESSION()
-      )));
+      ));
   }
 
   public YieldExpressionTreeImpl YIELD_EXPRESSION() {
