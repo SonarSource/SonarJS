@@ -689,11 +689,7 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
     b.rule(EXPORT_LIST_CLAUSE).is(EXPORT_CLAUSE, b.optional(FROM_CLAUSE), EOS);
     b.rule(EXPORT_CLAUSE).is(LCURLYBRACE, b.optional(EXPORT_LIST, b.optional(COMMA)), RCURLYBRACE);
     b.rule(EXPORT_LIST).is(EXPORT_SPECIFIER, b.zeroOrMore(COMMA, EXPORT_SPECIFIER));
-    b.rule(EXPORT_SPECIFIER).is(
-      b.firstOf(
-        IDENTIFIER_REFERENCE,
-        IDENTIFIER_NAME),
-      b.optional(AS, IDENTIFIER_NAME));
+    b.rule(EXPORT_SPECIFIER).is(IDENTIFIER_NAME, b.optional(AS, IDENTIFIER_NAME));
 
     b.rule(IMPORT_DECLARATION).is(b.firstOf(
       MODULE_IMPORT,
