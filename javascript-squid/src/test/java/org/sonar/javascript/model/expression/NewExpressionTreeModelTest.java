@@ -20,6 +20,7 @@
 package org.sonar.javascript.model.expression;
 
 import org.junit.Test;
+import org.sonar.javascript.api.EcmaScriptKeyword;
 import org.sonar.javascript.model.JavaScriptTreeModelTest;
 import org.sonar.javascript.model.interfaces.Tree.Kind;
 import org.sonar.javascript.model.interfaces.expression.NewExpressionTree;
@@ -33,7 +34,8 @@ public class NewExpressionTreeModelTest extends JavaScriptTreeModelTest {
     NewExpressionTree tree = parse("new super ()", Kind.NEW_SUPER);
 
     assertThat(tree.is(Kind.NEW_SUPER)).isTrue();
-    // TODO check for super
+    assertThat(tree.newKeyword().text()).isEqualTo(EcmaScriptKeyword.NEW.getValue());
+    assertThat(tree.expression().is(Kind.SUPER)).isTrue();
     assertThat(tree.arguments()).isNotNull();
   }
 
@@ -42,7 +44,8 @@ public class NewExpressionTreeModelTest extends JavaScriptTreeModelTest {
     NewExpressionTree tree = parse("new super", Kind.NEW_SUPER);
 
     assertThat(tree.is(Kind.NEW_SUPER)).isTrue();
-    // TODO check for super
+    assertThat(tree.newKeyword().text()).isEqualTo(EcmaScriptKeyword.NEW.getValue());
+    assertThat(tree.expression().is(Kind.SUPER)).isTrue();
     assertThat(tree.arguments()).isNull();
   }
 
@@ -51,7 +54,8 @@ public class NewExpressionTreeModelTest extends JavaScriptTreeModelTest {
     NewExpressionTree tree = parse("new Name ()", Kind.NEW_EXPRESSION);
 
     assertThat(tree.is(Kind.NEW_EXPRESSION)).isTrue();
-    // TODO check for expression
+    assertThat(tree.newKeyword().text()).isEqualTo(EcmaScriptKeyword.NEW.getValue());
+    assertThat(tree.expression().is(Kind.IDENTIFIER_REFERENCE)).isTrue();
     assertThat(tree.arguments()).isNotNull();
   }
 
@@ -60,7 +64,8 @@ public class NewExpressionTreeModelTest extends JavaScriptTreeModelTest {
     NewExpressionTree tree = parse("new Name", Kind.NEW_EXPRESSION);
 
     assertThat(tree.is(Kind.NEW_EXPRESSION)).isTrue();
-    // TODO check for expression
+    assertThat(tree.newKeyword().text()).isEqualTo(EcmaScriptKeyword.NEW.getValue());
+    assertThat(tree.expression().is(Kind.IDENTIFIER_REFERENCE)).isTrue();
     assertThat(tree.arguments()).isNull();
   }
 
@@ -69,7 +74,15 @@ public class NewExpressionTreeModelTest extends JavaScriptTreeModelTest {
     NewExpressionTree tree = parse("new new Name", Kind.NEW_EXPRESSION);
 
     assertThat(tree.is(Kind.NEW_EXPRESSION)).isTrue();
-    // TODO check for expression
+    assertThat(tree.newKeyword().text()).isEqualTo(EcmaScriptKeyword.NEW.getValue());
+    assertThat(tree.expression().is(Kind.NEW_EXPRESSION)).isTrue();
+    assertThat(tree.arguments()).isNull();
+
+    tree = (NewExpressionTree) tree.expression();
+
+    assertThat(tree.is(Kind.NEW_EXPRESSION)).isTrue();
+    assertThat(tree.newKeyword().text()).isEqualTo(EcmaScriptKeyword.NEW.getValue());
+    assertThat(tree.expression().is(Kind.IDENTIFIER_REFERENCE)).isTrue();
     assertThat(tree.arguments()).isNull();
   }
 

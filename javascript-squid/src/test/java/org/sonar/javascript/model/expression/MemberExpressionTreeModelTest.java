@@ -34,7 +34,17 @@ public class MemberExpressionTreeModelTest extends JavaScriptTreeModelTest {
     DotMemberExpressionTree tree = parse("a.b.c;", Kind.DOT_MEMBER_EXPRESSION);
 
     assertThat(tree.is(Kind.DOT_MEMBER_EXPRESSION)).isTrue();
+    assertThat(tree.object().is(Kind.DOT_MEMBER_EXPRESSION)).isTrue();
     assertThat(tree.dot().text()).isEqualTo(EcmaScriptPunctuator.DOT.getValue());
+    assertThat(tree.property().is(Kind.IDENTIFIER_NAME)).isTrue();
+
+    tree = (DotMemberExpressionTree) tree.object();
+
+    assertThat(tree.is(Kind.DOT_MEMBER_EXPRESSION)).isTrue();
+    assertThat(tree.object().is(Kind.IDENTIFIER_REFERENCE)).isTrue();
+    assertThat(tree.dot().text()).isEqualTo(EcmaScriptPunctuator.DOT.getValue());
+    assertThat(tree.property().is(Kind.IDENTIFIER_NAME)).isTrue();
+
   }
 
   @Test

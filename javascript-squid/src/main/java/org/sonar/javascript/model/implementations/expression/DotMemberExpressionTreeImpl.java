@@ -35,12 +35,14 @@ public class DotMemberExpressionTreeImpl extends JavaScriptTree implements DotMe
 
   private ExpressionTree object;
   private final SyntaxToken dot;
+  private ExpressionTree property;
 
-  public DotMemberExpressionTreeImpl(InternalSyntaxToken dot, AstNode property) {
+  public DotMemberExpressionTreeImpl(InternalSyntaxToken dot, ExpressionTree property) {
     super(Kind.DOT_MEMBER_EXPRESSION);
     this.dot = dot;
+    this.property = property;
 
-    addChildren(dot, property);
+    addChildren(dot, (AstNode) property);
   }
 
   public DotMemberExpressionTreeImpl complete(ExpressionTree object) {
@@ -62,7 +64,7 @@ public class DotMemberExpressionTreeImpl extends JavaScriptTree implements DotMe
 
   @Override
   public ExpressionTree property() {
-    throw new UnsupportedOperationException("Not supported yet in the strongly typed AST.");
+    return property;
   }
 
   @Override
