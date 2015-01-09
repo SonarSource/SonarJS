@@ -22,14 +22,16 @@ package org.sonar.javascript.checks;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Maps;
 import com.sonar.sslr.api.AstNode;
-import com.sonar.sslr.impl.ast.AstXmlPrinter;
 import org.sonar.check.BelongsToProfile;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
-import org.sonar.javascript.api.EcmaScriptTokenType;
 import org.sonar.javascript.checks.utils.CheckUtils;
 import org.sonar.javascript.checks.utils.IdentifierUtils;
 import org.sonar.javascript.model.interfaces.Tree.Kind;
+import org.sonar.javascript.model.interfaces.expression.CallExpressionTree;
+import org.sonar.javascript.model.interfaces.expression.IdentifierTree;
+import org.sonar.javascript.model.interfaces.expression.MemberExpressionTree;
+import org.sonar.javascript.model.interfaces.expression.NewExpressionTree;
 import org.sonar.javascript.parser.EcmaScriptGrammar;
 import org.sonar.squidbridge.checks.SquidCheck;
 import org.sonar.sslr.grammar.GrammarRuleKey;
@@ -84,7 +86,7 @@ public class VariableDeclarationAfterUsageCheck extends SquidCheck<LexerlessGram
   @Override
   public void init() {
     subscribeTo(
-      EcmaScriptGrammar.PRIMARY_EXPRESSION,
+      Kind.IDENTIFIER_REFERENCE,
       Kind.FORMAL_PARAMETER_LIST,
       Kind.ARROW_FUNCTION,
       Kind.FOR_OF_STATEMENT,
@@ -111,26 +113,19 @@ public class VariableDeclarationAfterUsageCheck extends SquidCheck<LexerlessGram
       declareInCurrentScope(IdentifierUtils.getVariableIdentifiers(astNode));
     } else if (astNode.is(Kind.FOR_IN_STATEMENT, Kind.FOR_OF_STATEMENT)) {
       AstNode identifier = getIdentifierFromLeftHandSideExpr(astNode.getFirstChild(EcmaScriptGrammar.LEFT_HAND_SIDE_EXPRESSION));
-      if (identifier != null) {
+      if (identifier != null && identifier instanceof IdentifierTree) {
         declareInCurrentScope(ImmutableList.of(identifier));
       }
 
-    } else if (astNode.is(EcmaScriptGrammar.PRIMARY_EXPRESSION)) {
-      AstNode identifier = astNode.getFirstChild(EcmaScriptTokenType.IDENTIFIER);
-      if (identifier != null) {
-        currentScope.use(identifier);
-      }
+    } else if (astNode.is(Kind.IDENTIFIER_REFERENCE)) {
+      currentScope.use(astNode);
     }
   }
 
   private AstNode getIdentifierFromLeftHandSideExpr(AstNode leftHeandSideExpr) {
     if (leftHeandSideExpr != null) {
       AstNode expression = leftHeandSideExpr.getFirstChild();
-
-      if (expression.is(EcmaScriptGrammar.PRIMARY_EXPRESSION)) {
-        AstNode primaryExpr = expression.getFirstChild();
-        return primaryExpr.is(EcmaScriptTokenType.IDENTIFIER) ? primaryExpr : null;
-      }
+      return expression.is(Kind.IDENTIFIER_REFERENCE) ? expression : null;
     }
     return null;
   }

@@ -25,30 +25,37 @@ import org.sonar.javascript.model.implementations.JavaScriptTree;
 import org.sonar.javascript.model.interfaces.Tree;
 import org.sonar.javascript.model.interfaces.expression.ExpressionTree;
 import org.sonar.javascript.model.interfaces.expression.TaggedTemplateTree;
+import org.sonar.javascript.model.interfaces.expression.TemplateLiteralTree;
 
 import java.util.Iterator;
 
 public class TaggedTemplateTreeImpl extends JavaScriptTree implements TaggedTemplateTree {
 
-  public TaggedTemplateTreeImpl(AstNode template) {
+  private ExpressionTree callee;
+  private final TemplateLiteralTree template;
+
+  public TaggedTemplateTreeImpl(TemplateLiteralTreeImpl template) {
     super(Kind.TAGGED_TEMPLATE);
+    this.template = template;
 
     addChildren(template);
   }
 
-  public TaggedTemplateTreeImpl complete(AstNode callee) {
-    prependChildren(callee);
+  public TaggedTemplateTreeImpl complete(ExpressionTree callee) {
+    this.callee = callee;
+
+    prependChildren((AstNode) callee);
     return this;
   }
 
   @Override
   public ExpressionTree callee() {
-    throw new UnsupportedOperationException("Not supported yet in the strongly typed AST.");
+    return callee;
   }
 
   @Override
-  public ExpressionTree template() {
-    throw new UnsupportedOperationException("Not supported yet in the strongly typed AST.");
+  public TemplateLiteralTree template() {
+    return template;
   }
 
   @Override

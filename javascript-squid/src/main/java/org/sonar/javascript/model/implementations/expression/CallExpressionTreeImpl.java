@@ -22,29 +22,29 @@ package org.sonar.javascript.model.implementations.expression;
 import com.google.common.collect.Iterators;
 import com.sonar.sslr.api.AstNode;
 import org.sonar.javascript.model.implementations.JavaScriptTree;
-import org.sonar.javascript.model.implementations.declaration.ParameterListTreeImpl;
 import org.sonar.javascript.model.interfaces.Tree;
 import org.sonar.javascript.model.interfaces.declaration.ParameterListTree;
 import org.sonar.javascript.model.interfaces.expression.CallExpressionTree;
 import org.sonar.javascript.model.interfaces.expression.ExpressionTree;
-import org.sonar.javascript.model.interfaces.lexical.SyntaxToken;
 
 import java.util.Iterator;
 
 public class CallExpressionTreeImpl extends JavaScriptTree implements CallExpressionTree {
 
+  private final ExpressionTree callee;
   private final ParameterListTree arguments;
 
-  public CallExpressionTreeImpl(AstNode callee, ParameterListTree arguments) {
+  public CallExpressionTreeImpl(ExpressionTree callee, ParameterListTree arguments) {
     super(Kind.CALL_EXPRESSION);
+    this.callee = callee;
     this.arguments = arguments;
 
-    addChildren(callee, (AstNode) arguments);
+    addChildren((AstNode) callee, (AstNode) arguments);
   }
 
   @Override
   public ExpressionTree callee() {
-    throw new UnsupportedOperationException("Not supported yet in the strongly typed AST.");
+    return callee;
   }
 
   @Override

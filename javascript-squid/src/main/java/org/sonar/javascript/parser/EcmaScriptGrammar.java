@@ -567,19 +567,6 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
    * A.3 Expressions
    */
   private static void expressions(LexerlessGrammarBuilder b) {
-    b.rule(PRIMARY_EXPRESSION).is(b.firstOf(
-      Kind.THIS,
-      // Not IDENTIFIER_REFERENCE, to avoid conflicts with YIELD_EXPRESSION from ASSIGNMENT_EXPRESSION
-      IDENTIFIER,
-      LITERAL,
-      Kind.ARRAY_LITERAL,
-      Kind.OBJECT_LITERAL,
-      Kind.FUNCTION_EXPRESSION,
-      Kind.PARENTHESISED_EXPRESSION,
-      ecmascript6(Kind.CLASS_EXPRESSION),
-      ecmascript6(Kind.GENERATOR_FUNCTION_EXPRESSION),
-      ecmascript6(Kind.TEMPLATE_LITERAL)));
-
     b.rule(ELISION).is(b.oneOrMore(COMMA));
 
     b.rule(COVER_INITIALIZED_NAME).is(IDENTIFIER_REFERENCE, b.optional(INITIALISER));

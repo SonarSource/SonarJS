@@ -33,6 +33,7 @@ import java.util.Iterator;
 
 public class DotMemberExpressionTreeImpl extends JavaScriptTree implements DotMemberExpressionTree {
 
+  private ExpressionTree object;
   private final SyntaxToken dot;
 
   public DotMemberExpressionTreeImpl(InternalSyntaxToken dot, AstNode property) {
@@ -42,14 +43,16 @@ public class DotMemberExpressionTreeImpl extends JavaScriptTree implements DotMe
     addChildren(dot, property);
   }
 
-  public DotMemberExpressionTreeImpl complete(AstNode object) {
-    prependChildren(object);
+  public DotMemberExpressionTreeImpl complete(ExpressionTree object) {
+    this.object = object;
+
+    prependChildren((AstNode) object);
     return this;
   }
 
   @Override
   public ExpressionTree object() {
-    throw new UnsupportedOperationException("Not supported yet in the strongly typed AST.");
+    return object;
   }
 
   @Override

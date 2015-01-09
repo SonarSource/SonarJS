@@ -41,4 +41,5 @@ class C {
 
 var f = (p) => {
     var x;                  // NOK
+    var y = p.y;            // NOK
 }

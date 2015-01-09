@@ -31,6 +31,10 @@ import org.sonar.check.Rule;
 import org.sonar.javascript.api.EcmaScriptTokenType;
 import org.sonar.javascript.checks.utils.IdentifierUtils;
 import org.sonar.javascript.model.interfaces.Tree.Kind;
+import org.sonar.javascript.model.interfaces.expression.CallExpressionTree;
+import org.sonar.javascript.model.interfaces.expression.IdentifierTree;
+import org.sonar.javascript.model.interfaces.expression.MemberExpressionTree;
+import org.sonar.javascript.model.interfaces.expression.NewExpressionTree;
 import org.sonar.javascript.parser.EcmaScriptGrammar;
 import org.sonar.squidbridge.checks.SquidCheck;
 import org.sonar.sslr.grammar.GrammarRuleKey;
@@ -64,7 +68,7 @@ public class UnusedFunctionArgumentCheck extends SquidCheck<LexerlessGrammar> {
     }
 
     private void use(AstNode astNode) {
-      Preconditions.checkState(astNode.is(EcmaScriptTokenType.IDENTIFIER, Kind.BINDING_IDENTIFIER));
+      Preconditions.checkState(astNode.is(EcmaScriptTokenType.IDENTIFIER, Kind.BINDING_IDENTIFIER, Kind.IDENTIFIER_REFERENCE));
       String identifier = astNode.getTokenValue();
       Scope scope = this;
       while (scope != null) {
@@ -91,7 +95,7 @@ public class UnusedFunctionArgumentCheck extends SquidCheck<LexerlessGrammar> {
   public void init() {
     subscribeTo(
       Kind.FORMAL_PARAMETER_LIST,
-      EcmaScriptGrammar.PRIMARY_EXPRESSION);
+      Kind.IDENTIFIER_REFERENCE);
     subscribeTo(FUNCTION_NODES);
   }
 
@@ -107,14 +111,11 @@ public class UnusedFunctionArgumentCheck extends SquidCheck<LexerlessGrammar> {
       currentScope = new Scope(currentScope, astNode);
     } else if (currentScope != null && astNode.is(Kind.FORMAL_PARAMETER_LIST)) {
       declareInCurrentScope(IdentifierUtils.getParametersIdentifier(astNode));
-    } else if (currentScope != null && astNode.is(EcmaScriptGrammar.PRIMARY_EXPRESSION)) {
-      AstNode identifier = astNode.getFirstChild(EcmaScriptTokenType.IDENTIFIER);
-      if (identifier != null) {
-        if ("arguments".equals(identifier.getTokenValue())) {
-          currentScope.useArgumentsArray = true;
-        }
-        currentScope.use(identifier);
+    } else if (currentScope != null && astNode.is(Kind.IDENTIFIER_REFERENCE)) {
+      if ("arguments".equals(astNode.getTokenValue())) {
+        currentScope.useArgumentsArray = true;
       }
+      currentScope.use(astNode);
     }
   }
 

@@ -24,10 +24,13 @@ import com.sonar.sslr.api.AstNode;
 import org.sonar.check.BelongsToProfile;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
-import org.sonar.javascript.api.EcmaScriptTokenType;
 import org.sonar.javascript.checks.utils.CheckUtils;
 import org.sonar.javascript.checks.utils.IdentifierUtils;
 import org.sonar.javascript.model.interfaces.Tree.Kind;
+import org.sonar.javascript.model.interfaces.expression.CallExpressionTree;
+import org.sonar.javascript.model.interfaces.expression.IdentifierTree;
+import org.sonar.javascript.model.interfaces.expression.MemberExpressionTree;
+import org.sonar.javascript.model.interfaces.expression.NewExpressionTree;
 import org.sonar.javascript.parser.EcmaScriptGrammar;
 import org.sonar.squidbridge.checks.SquidCheck;
 import org.sonar.sslr.grammar.GrammarRuleKey;
@@ -95,7 +98,7 @@ public class UnusedVariableCheck extends SquidCheck<LexerlessGrammar> {
   @Override
   public void init() {
     subscribeTo(
-      EcmaScriptGrammar.PRIMARY_EXPRESSION,
+      Kind.IDENTIFIER_REFERENCE,
       Kind.FORMAL_PARAMETER_LIST,
       Kind.ARROW_FUNCTION);
     subscribeTo(CONST_AND_VAR_NODES);
@@ -125,11 +128,8 @@ public class UnusedVariableCheck extends SquidCheck<LexerlessGrammar> {
       } else if (astNode.is(CONST_AND_VAR_NODES)) {
         declareInCurrentScope(IdentifierUtils.getVariableIdentifiers(astNode), 0);
 
-      } else if (astNode.is(EcmaScriptGrammar.PRIMARY_EXPRESSION)) {
-        AstNode identifier = astNode.getFirstChild(EcmaScriptTokenType.IDENTIFIER);
-        if (identifier != null) {
-          currentScope.use(identifier);
-        }
+      } else if (astNode.is(Kind.IDENTIFIER_REFERENCE)) {
+        currentScope.use(astNode);
       }
     }
   }

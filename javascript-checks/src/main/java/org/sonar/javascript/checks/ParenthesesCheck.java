@@ -19,20 +19,16 @@
  */
 package org.sonar.javascript.checks;
 
-import com.google.common.collect.ImmutableSet;
 import com.sonar.sslr.api.AstNode;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.javascript.api.EcmaScriptKeyword;
-import org.sonar.javascript.model.interfaces.Tree;
 import org.sonar.javascript.model.interfaces.Tree.Kind;
 import org.sonar.javascript.model.interfaces.expression.BinaryExpressionTree;
 import org.sonar.javascript.model.interfaces.expression.UnaryExpressionTree;
 import org.sonar.javascript.parser.EcmaScriptGrammar;
 import org.sonar.squidbridge.checks.SquidCheck;
 import org.sonar.sslr.parser.LexerlessGrammar;
-
-import java.util.Set;
 
 /**
  * http://google-styleguide.googlecode.com/svn/trunk/javascriptguide.xml?showone=Parentheses#Parentheses
@@ -66,7 +62,7 @@ public class ParenthesesCheck extends SquidCheck<LexerlessGrammar> {
       }
 
     } else if (node.is(Kind.NEW_EXPRESSION)) {
-      AstNode expression = node.getFirstChild(EcmaScriptKeyword.NEW).getNextAstNode().getFirstChild();
+      AstNode expression = node.getFirstChild(EcmaScriptKeyword.NEW).getNextAstNode();
 
       if (!node.hasDirectChildren(Kind.ARGUMENTS) && expression.is(Kind.PARENTHESISED_EXPRESSION) && isBinaryExpression(expression.getFirstChild(EcmaScriptGrammar.EXPRESSION))) {
         reportIssue(node);

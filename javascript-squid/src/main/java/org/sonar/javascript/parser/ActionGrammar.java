@@ -70,6 +70,7 @@ import org.sonar.javascript.model.implementations.statement.VariableStatementTre
 import org.sonar.javascript.model.implementations.statement.WhileStatementTreeImpl;
 import org.sonar.javascript.model.implementations.statement.WithStatementTreeImpl;
 import org.sonar.javascript.model.interfaces.Tree.Kind;
+import org.sonar.javascript.model.interfaces.expression.CallExpressionTree;
 import org.sonar.javascript.model.interfaces.expression.ExpressionTree;
 import org.sonar.javascript.model.interfaces.expression.MemberExpressionTree;
 import org.sonar.javascript.model.interfaces.statement.DebuggerStatementTree;
@@ -745,14 +746,13 @@ public class ActionGrammar {
       ));
   }
 
-  // FIXME: get rid of AstNode
-  public AstNode MEMBER_EXPRESSION() {
-    return b.<AstNode>nonterminal(EcmaScriptGrammar.MEMBER_EXPRESSION)
+  public ExpressionTree MEMBER_EXPRESSION() {
+    return b.<ExpressionTree>nonterminal(EcmaScriptGrammar.MEMBER_EXPRESSION)
       .is(f.completeMemberExpression(
         b.firstOf(
           ES6(SUPER_PROPERTY()),
           f.newExpressionWithArgument(b.invokeRule(EcmaScriptKeyword.NEW), b.firstOf(ES6(SUPER()), MEMBER_EXPRESSION()), ARGUMENTS()),
-          b.invokeRule(EcmaScriptGrammar.PRIMARY_EXPRESSION)),
+          PRIMARY_EXPRESSION()),
         b.zeroOrMore(
           b.firstOf(
             BRACKET_EXPRESSION(),
@@ -761,9 +761,8 @@ public class ActionGrammar {
       ));
   }
 
-  // FIXME: get rid of AstNode
-  public AstNode SUPER_PROPERTY() {
-    return b.<AstNode>nonterminal()
+  public MemberExpressionTree SUPER_PROPERTY() {
+    return b.<MemberExpressionTree>nonterminal()
       .is(f.completeSuperMemberExpression(
         SUPER(),
         b.firstOf(
@@ -794,7 +793,7 @@ public class ActionGrammar {
 
   public ExpressionTree TAGGED_TEMPLATE() {
     return b.<TaggedTemplateTreeImpl>nonterminal(Kind.TAGGED_TEMPLATE)
-      .is(f.newTaggedTemplate(b.invokeRule(Kind.TEMPLATE_LITERAL)));
+      .is(f.newTaggedTemplate(TEMPLATE_LITERAL()));
 
   }
 
@@ -824,8 +823,8 @@ public class ActionGrammar {
         b.invokeRule(EcmaScriptGrammar.ASSIGNMENT_EXPRESSION)));
   }
 
-  public AstNode CALL_EXPRESSION() {
-    return b.<AstNode>nonterminal(Kind.CALL_EXPRESSION)
+  public ExpressionTree CALL_EXPRESSION() {
+    return b.<ExpressionTree>nonterminal(Kind.CALL_EXPRESSION)
       .is(f.callExpression(
         f.simpleCallExpression(b.firstOf(MEMBER_EXPRESSION(), SUPER()), ARGUMENTS()),
         b.zeroOrMore(b.firstOf(
@@ -911,9 +910,8 @@ public class ActionGrammar {
       ));
   }
 
-  // FIXME: get rid of AstNode
-  public AstNode NEW_EXPRESSION() {
-    return b.<AstNode>nonterminal()
+  public ExpressionTree NEW_EXPRESSION() {
+    return b.<ExpressionTree>nonterminal()
       .is(b.firstOf(
         MEMBER_EXPRESSION(),
         f.newExpression(b.invokeRule(EcmaScriptKeyword.NEW), b.firstOf(ES6(SUPER()), NEW_EXPRESSION()))
@@ -962,6 +960,25 @@ public class ActionGrammar {
       .is(f.thisExpression(b.invokeRule(EcmaScriptKeyword.THIS)));
 
   }
+
+  public ExpressionTree PRIMARY_EXPRESSION() {
+    return b.<ExpressionTree>nonterminal(EcmaScriptGrammar.PRIMARY_EXPRESSION)
+      .is(
+        b.firstOf(
+          THIS(),
+          // Not IDENTIFIER_REFERENCE, to avoid conflicts with YIELD_EXPRESSION from ASSIGNMENT_EXPRESSION
+          f.identifierReferenceWithoutYield(b.invokeRule(EcmaScriptTokenType.IDENTIFIER)),
+          LITERAL(),
+          ARRAY_LITERAL(),
+          OBJECT_LITERAL(),
+          FUNCTION_EXPRESSION(),
+          PARENTHESISED_EXPRESSION(),
+          CLASS_EXPRESSION(),
+          GENERATOR_EXPRESSION(),
+          TEMPLATE_LITERAL()
+      ));
+  }
+
   /**
    * A.3 [END] Expressions
    */

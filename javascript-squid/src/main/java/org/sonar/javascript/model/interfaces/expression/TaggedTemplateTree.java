@@ -34,6 +34,6 @@ public interface TaggedTemplateTree extends ExpressionTree {
 
   ExpressionTree callee();
 
-  ExpressionTree template();
+  TemplateLiteralTree template();
 
 }

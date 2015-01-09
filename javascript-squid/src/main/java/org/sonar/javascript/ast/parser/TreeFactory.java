@@ -87,6 +87,7 @@ import org.sonar.javascript.model.interfaces.Tree;
 import org.sonar.javascript.model.interfaces.Tree.Kind;
 import org.sonar.javascript.model.interfaces.declaration.ParameterListTree;
 import org.sonar.javascript.model.interfaces.expression.BracketMemberExpressionTree;
+import org.sonar.javascript.model.interfaces.expression.CallExpressionTree;
 import org.sonar.javascript.model.interfaces.expression.ExpressionTree;
 import org.sonar.javascript.model.interfaces.expression.MemberExpressionTree;
 import org.sonar.javascript.model.interfaces.expression.TemplateCharactersTree;
@@ -716,7 +717,7 @@ public class TreeFactory {
     return new PostfixExpressionTreeImpl(kind, expression, InternalSyntaxToken.create(operator.get()));
   }
 
-  public ExpressionTree newLeftHandSideExpression(AstNode expression) {
+  public ExpressionTree newLeftHandSideExpression(ExpressionTree expression) {
     return new LeftHandSideExpressionTreeImpl(expression);
   }
 
@@ -784,7 +785,7 @@ public class TreeFactory {
     return new BracketMemberExpressionTreeImpl(InternalSyntaxToken.create(openBracket), expression, InternalSyntaxToken.create(closeBracket));
   }
 
-  public AstNode completeSuperMemberExpression(SuperTreeImpl superExpression, MemberExpressionTree partial) {
+  public MemberExpressionTree completeSuperMemberExpression(SuperTreeImpl superExpression, MemberExpressionTree partial) {
     if (partial.is(Kind.DOT_MEMBER_EXPRESSION)) {
       return ((DotMemberExpressionTreeImpl) partial).complete(superExpression);
     }
@@ -795,16 +796,16 @@ public class TreeFactory {
     return new SuperTreeImpl(InternalSyntaxToken.create(superToken));
   }
 
-  public TaggedTemplateTreeImpl newTaggedTemplate(AstNode template) {
+  public TaggedTemplateTreeImpl newTaggedTemplate(TemplateLiteralTreeImpl template) {
     return new TaggedTemplateTreeImpl(template);
   }
 
-  public AstNode completeMemberExpression(AstNode object, Optional<List<ExpressionTree>> properties) {
+  public ExpressionTree completeMemberExpression(ExpressionTree object, Optional<List<ExpressionTree>> properties) {
     if (!properties.isPresent()) {
       return object;
     }
 
-    AstNode result = object;
+    ExpressionTree result = object;
     for (ExpressionTree property : properties.get()) {
       if (property.is(Kind.DOT_MEMBER_EXPRESSION)) {
         result = ((DotMemberExpressionTreeImpl) property).complete(result);
@@ -848,11 +849,11 @@ public class TreeFactory {
     return new ParameterListTreeImpl(Kind.ARGUMENTS, InternalSyntaxToken.create(openParenToken), InternalSyntaxToken.create(closeParenToken));
   }
 
-  public CallExpressionTreeImpl simpleCallExpression(AstNode expression, ParameterListTree arguments) {
+  public CallExpressionTreeImpl simpleCallExpression(ExpressionTree expression, ParameterListTree arguments) {
     return new CallExpressionTreeImpl(expression, arguments);
   }
 
-  public AstNode callExpression(CallExpressionTreeImpl callExpression, Optional<List<ExpressionTree>> arguments) {
+  public ExpressionTree callExpression(CallExpressionTreeImpl callExpression, Optional<List<ExpressionTree>> arguments) {
 
     if (!arguments.isPresent()) {
       return callExpression;
@@ -862,16 +863,16 @@ public class TreeFactory {
 
     for (ExpressionTree arg : arguments.get()) {
       if (arg instanceof BracketMemberExpressionTree) {
-        callee = ((BracketMemberExpressionTreeImpl) arg).complete((AstNode) callee);
+        callee = ((BracketMemberExpressionTreeImpl) arg).complete(callee);
       } else if (arg instanceof DotMemberExpressionTreeImpl) {
-        callee = ((DotMemberExpressionTreeImpl) arg).complete((AstNode) callee);
+        callee = ((DotMemberExpressionTreeImpl) arg).complete(callee);
       } else if (arg instanceof TaggedTemplateTreeImpl) {
-        callee = ((TaggedTemplateTreeImpl) arg).complete((AstNode) callee);
+        callee = ((TaggedTemplateTreeImpl) arg).complete(callee);
       } else {
-        callee = new CallExpressionTreeImpl((AstNode) callee, (ParameterListTreeImpl) arg);
+        callee = new CallExpressionTreeImpl(callee, (ParameterListTreeImpl) arg);
       }
     }
-    return (AstNode) callee;
+    return callee;
   }
 
   public ParenthesisedExpressionTreeImpl parenthesisedExpression(AstNode openParenToken, AstNode expression, AstNode closeParenToken) {
@@ -922,7 +923,7 @@ public class TreeFactory {
     return new ObjectLiteralTreeImpl(InternalSyntaxToken.create(openCurlyToken), InternalSyntaxToken.create(closeCurlyToken));
   }
 
-  public NewExpressionTreeImpl newExpressionWithArgument(AstNode newToken, AstNode expression, ParameterListTreeImpl arguments) {
+  public NewExpressionTreeImpl newExpressionWithArgument(AstNode newToken, ExpressionTree expression, ParameterListTreeImpl arguments) {
     return new NewExpressionTreeImpl(
       expression.is(Kind.SUPER) ? Kind.NEW_SUPER : Kind.NEW_EXPRESSION,
       InternalSyntaxToken.create(newToken),
@@ -930,7 +931,7 @@ public class TreeFactory {
       arguments);
   }
 
-  public AstNode newExpression(AstNode newToken, AstNode expression) {
+  public ExpressionTree newExpression(AstNode newToken, ExpressionTree expression) {
     return new NewExpressionTreeImpl(
       expression.is(Kind.SUPER) ? Kind.NEW_SUPER : Kind.NEW_EXPRESSION,
       InternalSyntaxToken.create(newToken),
@@ -1009,6 +1010,10 @@ public class TreeFactory {
 
   public IdentifierTreeImpl labelIdentifier(AstNode identifier) {
     return new IdentifierTreeImpl(Kind.LABEL_IDENTIFIER, InternalSyntaxToken.create(identifier));
+  }
+
+  public IdentifierTreeImpl identifierReferenceWithoutYield(AstNode identifier) {
+    return new IdentifierTreeImpl(Kind.IDENTIFIER_REFERENCE, InternalSyntaxToken.create(identifier));
   }
 
   public static class Tuple<T, U> extends AstNode {

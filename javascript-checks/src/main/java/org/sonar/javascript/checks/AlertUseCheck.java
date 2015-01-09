@@ -25,8 +25,8 @@ import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.javascript.model.interfaces.Tree.Kind;
 import org.sonar.javascript.model.interfaces.expression.CallExpressionTree;
-import org.sonar.javascript.model.interfaces.expression.MemberExpressionTree;
-import org.sonar.javascript.parser.EcmaScriptGrammar;
+import org.sonar.javascript.model.interfaces.expression.ExpressionTree;
+import org.sonar.javascript.model.interfaces.expression.IdentifierTree;
 import org.sonar.squidbridge.checks.SquidCheck;
 import org.sonar.sslr.parser.LexerlessGrammar;
 
@@ -43,14 +43,14 @@ public class AlertUseCheck extends SquidCheck<LexerlessGrammar> {
 
   @Override
   public void visitNode(AstNode astNode) {
-    AstNode callee = astNode.getFirstChild();
+    ExpressionTree callee = ((CallExpressionTree)astNode).callee();
 
-    if (callee.is(EcmaScriptGrammar.PRIMARY_EXPRESSION) && isAlertCall(callee)) {
+    if (callee.is(Kind.IDENTIFIER_REFERENCE) && isAlertCall((IdentifierTree) callee)) {
       getContext().createLineViolation(this, "Remove this usage of alert(...).", astNode);
     }
   }
 
-  public static boolean isAlertCall(AstNode callee) {
-    return "alert".equals(callee.getFirstChild().getTokenValue());
+  public static boolean isAlertCall(IdentifierTree identifier) {
+    return "alert".equals(identifier.name());
   }
 }

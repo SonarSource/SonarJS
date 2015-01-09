@@ -26,6 +26,7 @@ import org.sonar.javascript.model.implementations.declaration.ParameterListTreeI
 import org.sonar.javascript.model.implementations.lexical.InternalSyntaxToken;
 import org.sonar.javascript.model.interfaces.Tree;
 import org.sonar.javascript.model.interfaces.declaration.ParameterListTree;
+import org.sonar.javascript.model.interfaces.expression.ExpressionTree;
 import org.sonar.javascript.model.interfaces.expression.NewExpressionTree;
 import org.sonar.javascript.model.interfaces.lexical.SyntaxToken;
 
@@ -36,24 +37,27 @@ public class NewExpressionTreeImpl extends JavaScriptTree implements NewExpressi
 
   private final Kind kind;
   private final SyntaxToken newKeyword;
+  private final ExpressionTree expression;
   private final ParameterListTree arguments;
 
-  public NewExpressionTreeImpl(Kind kind, InternalSyntaxToken newKeyword, AstNode expression) {
+  public NewExpressionTreeImpl(Kind kind, InternalSyntaxToken newKeyword, ExpressionTree expression) {
     super(kind);
     this.kind = kind;
+    this.expression = expression;
     this.newKeyword =  newKeyword;
     this.arguments = null;
 
-    addChildren(newKeyword, expression);
+    addChildren(newKeyword, (AstNode) expression);
   }
 
-  public NewExpressionTreeImpl(Kind kind, InternalSyntaxToken newKeyword, AstNode expression, ParameterListTreeImpl arguments) {
+  public NewExpressionTreeImpl(Kind kind, InternalSyntaxToken newKeyword, ExpressionTree expression, ParameterListTreeImpl arguments) {
     super(kind);
     this.kind = kind;
     this.newKeyword = newKeyword;
+    this.expression = expression;
     this.arguments = arguments;
 
-    addChildren(newKeyword, expression, arguments);
+    addChildren(newKeyword, (AstNode) expression, arguments);
   }
 
   @Override
@@ -63,7 +67,7 @@ public class NewExpressionTreeImpl extends JavaScriptTree implements NewExpressi
 
   @Override
   public Tree expression() {
-    throw new UnsupportedOperationException("Not supported yet in the strongly typed AST.");
+    return expression;
   }
 
   @Nullable

@@ -33,7 +33,7 @@ import java.util.List;
  * <p/>
  * <p>This interface is not intended to be implemented by clients.</p>
  */
-public interface TemplateLiteralTree extends Tree {
+public interface TemplateLiteralTree extends ExpressionTree {
 
   SyntaxToken openBacktick();
 

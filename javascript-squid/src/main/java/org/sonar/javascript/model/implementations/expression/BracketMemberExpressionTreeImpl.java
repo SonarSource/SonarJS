@@ -33,6 +33,7 @@ import java.util.Iterator;
 
 public class BracketMemberExpressionTreeImpl extends JavaScriptTree implements BracketMemberExpressionTree {
 
+  private ExpressionTree object;
   private final SyntaxToken openBracket;
   private final SyntaxToken closeBracket;
 
@@ -44,14 +45,16 @@ public class BracketMemberExpressionTreeImpl extends JavaScriptTree implements B
     addChildren(openBracket, property, closeBracket);
   }
 
-  public BracketMemberExpressionTreeImpl complete(AstNode object) {
-    prependChildren(object);
+  public BracketMemberExpressionTreeImpl complete(ExpressionTree object) {
+    this.object = object;
+
+    prependChildren((AstNode) object);
     return this;
   }
 
   @Override
   public ExpressionTree object() {
-    throw new UnsupportedOperationException("Not supported yet in the strongly typed AST.");
+    return object;
   }
 
   @Override

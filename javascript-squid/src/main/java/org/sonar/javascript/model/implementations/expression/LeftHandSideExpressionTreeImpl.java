@@ -34,10 +34,10 @@ import java.util.Iterator;
 
 public class LeftHandSideExpressionTreeImpl extends JavaScriptTree implements ExpressionTree {
 
-  public LeftHandSideExpressionTreeImpl(AstNode expression) {
+  public LeftHandSideExpressionTreeImpl(ExpressionTree expression) {
     /* FIXME: temporary node */
     super(EcmaScriptGrammar.LEFT_HAND_SIDE_EXPRESSION);
-    addChild(expression);
+    addChild((AstNode) expression);
   }
 
   @Override
