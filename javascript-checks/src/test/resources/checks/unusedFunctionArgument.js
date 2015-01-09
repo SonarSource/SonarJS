@@ -67,3 +67,10 @@ class C {
 function fun(a) {           // OK
   return {a};
 }
+
+function fun() {
+  return {
+    fun(a) {               // OK - not supported by this check
+      }
+  }
+}

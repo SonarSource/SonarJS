@@ -31,10 +31,6 @@ import org.sonar.check.Rule;
 import org.sonar.javascript.api.EcmaScriptTokenType;
 import org.sonar.javascript.checks.utils.IdentifierUtils;
 import org.sonar.javascript.model.interfaces.Tree.Kind;
-import org.sonar.javascript.model.interfaces.expression.CallExpressionTree;
-import org.sonar.javascript.model.interfaces.expression.IdentifierTree;
-import org.sonar.javascript.model.interfaces.expression.MemberExpressionTree;
-import org.sonar.javascript.model.interfaces.expression.NewExpressionTree;
 import org.sonar.javascript.parser.EcmaScriptGrammar;
 import org.sonar.squidbridge.checks.SquidCheck;
 import org.sonar.sslr.grammar.GrammarRuleKey;
@@ -87,7 +83,8 @@ public class UnusedFunctionArgumentCheck extends SquidCheck<LexerlessGrammar> {
     Kind.FUNCTION_EXPRESSION,
     EcmaScriptGrammar.FUNCTION_DECLARATION,
     Kind.GENERATOR_FUNCTION_EXPRESSION,
-    EcmaScriptGrammar.GENERATOR_DECLARATION};
+    EcmaScriptGrammar.GENERATOR_DECLARATION,
+  };
 
   private Scope currentScope;
 
@@ -106,10 +103,10 @@ public class UnusedFunctionArgumentCheck extends SquidCheck<LexerlessGrammar> {
 
   @Override
   public void visitNode(AstNode astNode) {
-    if (astNode.is(FUNCTION_NODES)) {
+    if (astNode.is(FUNCTION_NODES) || astNode.is(EcmaScriptGrammar.METHOD, EcmaScriptGrammar.GENERATOR_METHOD)) {
       // enter new scope
       currentScope = new Scope(currentScope, astNode);
-    } else if (currentScope != null && astNode.is(Kind.FORMAL_PARAMETER_LIST)) {
+    } else if (currentScope != null && astNode.is(Kind.FORMAL_PARAMETER_LIST) && astNode.getParent().isNot(EcmaScriptGrammar.METHOD, EcmaScriptGrammar.GENERATOR_METHOD)) {
       declareInCurrentScope(IdentifierUtils.getParametersIdentifier(astNode));
     } else if (currentScope != null && astNode.is(Kind.IDENTIFIER_REFERENCE)) {
       if ("arguments".equals(astNode.getTokenValue())) {
@@ -126,6 +123,8 @@ public class UnusedFunctionArgumentCheck extends SquidCheck<LexerlessGrammar> {
       if (!currentScope.useArgumentsArray) {
         reportUnusedArguments(astNode);
       }
+      currentScope = currentScope.outerScope;
+    } else if (astNode.is(EcmaScriptGrammar.METHOD, EcmaScriptGrammar.GENERATOR_METHOD)) {
       currentScope = currentScope.outerScope;
     }
   }
