@@ -63,3 +63,7 @@ class C {
         this.value = value; // OK
     }
 }
+
+function fun(a) {           // OK
+  return {a};
+}
