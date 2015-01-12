@@ -23,7 +23,6 @@ import com.sonar.sslr.api.AstNode;
 import org.sonar.check.BelongsToProfile;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
-import org.sonar.javascript.api.EcmaScriptPunctuator;
 import org.sonar.javascript.api.EcmaScriptTokenType;
 import org.sonar.javascript.checks.utils.CheckUtils;
 import org.sonar.javascript.checks.utils.IdentifierUtils;
@@ -58,11 +57,11 @@ public class BoundOrAssignedEvalOrArgumentsCheck extends SquidCheck<LexerlessGra
     subscribeTo(
       Kind.CATCH_BLOCK,
       EcmaScriptGrammar.PROPERTY_SET_PARAMETER_LIST,
-      EcmaScriptGrammar.ASSIGNMENT_EXPRESSION,
       Kind.PREFIX_INCREMENT,
       Kind.PREFIX_DECREMENT,
       Kind.POSTFIX_INCREMENT,
       Kind.POSTFIX_DECREMENT);
+    subscribeTo(CheckUtils.assignmentExpressionArray());
     subscribeTo(FUNCTION_NODES);
     subscribeTo(CONST_AND_VAR_NODES);
   }
@@ -75,7 +74,7 @@ public class BoundOrAssignedEvalOrArgumentsCheck extends SquidCheck<LexerlessGra
       checkVariableDeclaration(astNode);
     } else if (astNode.is(EcmaScriptGrammar.PROPERTY_SET_PARAMETER_LIST)) {
       checkPropertySetParameterList(astNode);
-    } else if (astNode.is(EcmaScriptGrammar.ASSIGNMENT_EXPRESSION)) {
+    } else if (CheckUtils.isAssignmentExpression(astNode)) {
       checkModification(astNode.getFirstChild());
     } else if (astNode.is(Kind.PREFIX_INCREMENT, Kind.PREFIX_DECREMENT)) {
       checkModification(astNode.getLastChild());

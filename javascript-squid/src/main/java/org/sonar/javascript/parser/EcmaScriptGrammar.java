@@ -195,8 +195,6 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
   LOGICAL_OR_EXPRESSION_NO_IN,
   CONDITIONAL_EXPRESSION_NO_IN,
   ASSIGNMENT_EXPRESSION,
-  /** ECMAScript 6 **/
-  ES6_ASSIGNMENT_EXPRESSION,
   ASSIGNMENT_EXPRESSION_NO_IN,
   /** ECMAScript 6 **/
   ES6_ASSIGNMENT_EXPRESSION_NO_IN,
@@ -380,7 +378,8 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
   STAR_NO_LB,
   ASSIGNMENT_EXPRESSION_NO_LB,
   ASSIGNMENT_EXPRESSION_NO_LCURLY,
-  DOUBLEARROW_NO_LB;
+  DOUBLEARROW_NO_LB,
+  CONDITIONAL_EXPRESSION_LOOKAHEAD;
 
   public static LexerlessGrammar createGrammar() {
     return createGrammarBuilder().build();
@@ -579,21 +578,8 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
     b.rule(LOGICAL_AND_EXPRESSION_NO_IN).is(BITWISE_OR_EXPRESSION_NO_IN, b.zeroOrMore(ANDAND, BITWISE_OR_EXPRESSION_NO_IN)).skipIfOneChild();
     b.rule(LOGICAL_OR_EXPRESSION_NO_IN).is(LOGICAL_AND_EXPRESSION_NO_IN, b.zeroOrMore(OROR, LOGICAL_AND_EXPRESSION_NO_IN)).skipIfOneChild();
     b.rule(CONDITIONAL_EXPRESSION_NO_IN).is(LOGICAL_OR_EXPRESSION_NO_IN, b.optional(QUERY, ASSIGNMENT_EXPRESSION, COLON, ASSIGNMENT_EXPRESSION_NO_IN)).skipIfOneChild();
-    b.rule(ES6_ASSIGNMENT_EXPRESSION).is(b.firstOf(ecmascript6(Kind.YIELD_EXPRESSION), Kind.ARROW_FUNCTION));
     b.rule(ES6_ASSIGNMENT_EXPRESSION_NO_IN).is(b.firstOf(YIELD_EXPRESSION_NO_IN, ARROW_FUNCTION_NO_IN));
 
-    b.rule(ASSIGNMENT_EXPRESSION).is(b.firstOf(
-      b.sequence(LEFT_HAND_SIDE_EXPRESSION, ASSIGNMENT_OPERATOR, ASSIGNMENT_EXPRESSION),
-      // For performance reasons, call CONDITIONAL_EXPRESSION
-      b.sequence(
-        Kind.CONDITIONAL_EXPRESSION,
-        // Negative lookahead to prevent conflicts with ES6_ASSIGNMENT_EXPRESSION
-        b.nextNot(
-          b.regexp("(?:[" + EcmaScriptLexer.WHITESPACE + "]|" + EcmaScriptLexer.SINGLE_LINE_COMMENT + "|" + EcmaScriptLexer.MULTI_LINE_COMMENT_NO_LB + ")*+"),
-          "=>")),
-      // Assignment_expression_no_yield might be needed, because of identifier_reference that can be "yield" (see ES6 spec).
-      ecmascript6(ES6_ASSIGNMENT_EXPRESSION)
-      )).skipIfOneChild();
     b.rule(ASSIGNMENT_EXPRESSION_NO_IN).is(b.firstOf(
       b.sequence(LEFT_HAND_SIDE_EXPRESSION, ASSIGNMENT_OPERATOR, ASSIGNMENT_EXPRESSION_NO_IN),
       ecmascript6(ES6_ASSIGNMENT_EXPRESSION_NO_IN),
@@ -632,6 +618,11 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
     b.rule(STAR_NO_LB).is(SPACING_NO_LB, NEXT_NOT_LB, STAR);
     b.rule(ASSIGNMENT_EXPRESSION_NO_LB).is(SPACING_NO_LB, NEXT_NOT_LB, ASSIGNMENT_EXPRESSION);
     b.rule(ASSIGNMENT_EXPRESSION_NO_LCURLY).is(b.nextNot(LCURLYBRACE), ASSIGNMENT_EXPRESSION);
+    b.rule(CONDITIONAL_EXPRESSION_LOOKAHEAD).is(Kind.CONDITIONAL_EXPRESSION,
+      // Negative lookahead to prevent conflicts with ES6_ASSIGNMENT_EXPRESSION
+      b.nextNot(
+        b.regexp("(?:[" + EcmaScriptLexer.WHITESPACE + "]|" + EcmaScriptLexer.SINGLE_LINE_COMMENT + "|" + EcmaScriptLexer.MULTI_LINE_COMMENT_NO_LB + ")*+"),
+        "=>")).skip();
   }
 
   /**

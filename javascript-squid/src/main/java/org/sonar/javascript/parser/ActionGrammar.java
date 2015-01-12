@@ -979,6 +979,36 @@ public class ActionGrammar {
       ));
   }
 
+  public ExpressionTree ES6_ASSIGNMENT_EXPRESSION() {
+    return b.<ExpressionTree>nonterminal()
+      .is(b.firstOf(YIELD_EXPRESSION(), ARROW_FUNCTION()));
+  }
+
+  public ExpressionTree ASSIGNMENT_EXPRESSION() {
+    return b.<ExpressionTree>nonterminal(EcmaScriptGrammar.ASSIGNMENT_EXPRESSION)
+      .is(
+        b.firstOf(
+          f.assignmentExpression(
+            LEFT_HAND_SIDE_EXPRESSION(),
+            b.firstOf(
+              b.invokeRule(EcmaScriptPunctuator.EQU),
+              b.invokeRule(EcmaScriptPunctuator.STAR_EQU),
+              b.invokeRule(EcmaScriptPunctuator.DIV_EQU),
+              b.invokeRule(EcmaScriptPunctuator.MOD_EQU),
+              b.invokeRule(EcmaScriptPunctuator.PLUS_EQU),
+              b.invokeRule(EcmaScriptPunctuator.MINUS_EQU),
+              b.invokeRule(EcmaScriptPunctuator.SL_EQU),
+              b.invokeRule(EcmaScriptPunctuator.SR_EQU),
+              b.invokeRule(EcmaScriptPunctuator.SR_EQU2),
+              b.invokeRule(EcmaScriptPunctuator.AND_EQU),
+              b.invokeRule(EcmaScriptPunctuator.XOR_EQU),
+              b.invokeRule(EcmaScriptPunctuator.OR_EQU)),
+            ASSIGNMENT_EXPRESSION()),
+          (ExpressionTree) b.invokeRule(EcmaScriptGrammar.CONDITIONAL_EXPRESSION_LOOKAHEAD),
+          ES6_ASSIGNMENT_EXPRESSION()
+      ));
+  }
+
   /**
    * A.3 [END] Expressions
    */

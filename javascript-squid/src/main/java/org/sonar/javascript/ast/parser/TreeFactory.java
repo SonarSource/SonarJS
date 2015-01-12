@@ -32,6 +32,7 @@ import org.sonar.javascript.model.implementations.SeparatedList;
 import org.sonar.javascript.model.implementations.declaration.ParameterListTreeImpl;
 import org.sonar.javascript.model.implementations.expression.ArrayLiteralTreeImpl;
 import org.sonar.javascript.model.implementations.expression.ArrowFunctionTreeImpl;
+import org.sonar.javascript.model.implementations.expression.AssignmentExpressionTreeImpl;
 import org.sonar.javascript.model.implementations.expression.BinaryExpressionTreeImpl;
 import org.sonar.javascript.model.implementations.expression.BracketMemberExpressionTreeImpl;
 import org.sonar.javascript.model.implementations.expression.CallExpressionTreeImpl;
@@ -126,6 +127,18 @@ public class TreeFactory {
     EXPRESSION_KIND_BY_PUNCTUATORS.put(EcmaScriptPunctuator.STAR, Kind.MULTIPLY);
     EXPRESSION_KIND_BY_PUNCTUATORS.put(EcmaScriptPunctuator.DIV, Kind.DIVIDE);
     EXPRESSION_KIND_BY_PUNCTUATORS.put(EcmaScriptPunctuator.MOD, Kind.REMAINDER);
+    EXPRESSION_KIND_BY_PUNCTUATORS.put(EcmaScriptPunctuator.EQU, Kind.ASSIGNMENT);
+    EXPRESSION_KIND_BY_PUNCTUATORS.put(EcmaScriptPunctuator.STAR_EQU, Kind.MULTIPLY_ASSIGNMENT);
+    EXPRESSION_KIND_BY_PUNCTUATORS.put(EcmaScriptPunctuator.DIV_EQU, Kind.DIVIDE_ASSIGNMENT);
+    EXPRESSION_KIND_BY_PUNCTUATORS.put(EcmaScriptPunctuator.MOD_EQU, Kind.REMAINDER_ASSIGNMENT);
+    EXPRESSION_KIND_BY_PUNCTUATORS.put(EcmaScriptPunctuator.PLUS_EQU, Kind.PLUS_ASSIGNMENT);
+    EXPRESSION_KIND_BY_PUNCTUATORS.put(EcmaScriptPunctuator.MINUS_EQU, Kind.MINUS_ASSIGNMENT);
+    EXPRESSION_KIND_BY_PUNCTUATORS.put(EcmaScriptPunctuator.SL_EQU, Kind.LEFT_SHIFT_ASSIGNMENT);
+    EXPRESSION_KIND_BY_PUNCTUATORS.put(EcmaScriptPunctuator.SR_EQU, Kind.RIGHT_SHIFT_ASSIGNMENT);
+    EXPRESSION_KIND_BY_PUNCTUATORS.put(EcmaScriptPunctuator.SR_EQU2, Kind.UNSIGNED_RIGHT_SHIFT_ASSIGNMENT);
+    EXPRESSION_KIND_BY_PUNCTUATORS.put(EcmaScriptPunctuator.AND_EQU, Kind.AND_ASSIGNMENT);
+    EXPRESSION_KIND_BY_PUNCTUATORS.put(EcmaScriptPunctuator.XOR_EQU, Kind.XOR_ASSIGNMENT);
+    EXPRESSION_KIND_BY_PUNCTUATORS.put(EcmaScriptPunctuator.OR_EQU, Kind.OR_ASSIGNMENT);
   }
 
   private static final Map<EcmaScriptKeyword, Kind> EXPRESSION_KIND_BY_KEYWORDS = Maps.newEnumMap(EcmaScriptKeyword.class);
@@ -1009,6 +1022,10 @@ public class TreeFactory {
 
   public IdentifierTreeImpl identifierReferenceWithoutYield(AstNode identifier) {
     return new IdentifierTreeImpl(Kind.IDENTIFIER_REFERENCE, InternalSyntaxToken.create(identifier));
+  }
+
+  public ExpressionTree assignmentExpression(ExpressionTree variable, AstNode operator, ExpressionTree expression) {
+    return new AssignmentExpressionTreeImpl(EXPRESSION_KIND_BY_PUNCTUATORS.get(operator.getType()), variable, InternalSyntaxToken.create(operator), expression);
   }
 
   public static class Tuple<T, U> extends AstNode {

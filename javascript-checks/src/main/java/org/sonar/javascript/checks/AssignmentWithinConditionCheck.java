@@ -63,9 +63,9 @@ public class AssignmentWithinConditionCheck extends SquidCheck<LexerlessGrammar>
   @Override
   public void init() {
     subscribeTo(
-      EcmaScriptGrammar.ASSIGNMENT_EXPRESSION,
       EcmaScriptGrammar.EXPRESSION,
       EcmaScriptGrammar.EXPRESSION_NO_IN);
+    subscribeTo(CheckUtils.assignmentExpressionArray());
     subscribeTo(SCOPES);
   }
 
@@ -78,7 +78,7 @@ public class AssignmentWithinConditionCheck extends SquidCheck<LexerlessGrammar>
   public void visitNode(AstNode astNode) {
     if (isTargetedExpression(astNode) || astNode.is(SCOPES)) {
       stack.add(astNode.getType());
-    } else if (astNode.is(EcmaScriptGrammar.ASSIGNMENT_EXPRESSION) && inExpression() && !exclusion()) {
+    } else if (CheckUtils.isAssignmentExpression(astNode) && inExpression() && !exclusion()) {
       getContext().createLineViolation(this, "Extract the assignment out of this expression.", astNode);
     }
   }

@@ -30,6 +30,20 @@ public class CheckUtils {
   private CheckUtils() {
   }
 
+  public static final ImmutableSet<Kind> ASSIGNMENT_EXPRESSION = ImmutableSet.of(
+    Kind.ASSIGNMENT,
+    Kind.MULTIPLY_ASSIGNMENT,
+    Kind.DIVIDE_ASSIGNMENT,
+    Kind.REMAINDER_ASSIGNMENT,
+    Kind.PLUS_ASSIGNMENT,
+    Kind.MINUS_ASSIGNMENT,
+    Kind.LEFT_SHIFT_ASSIGNMENT,
+    Kind.RIGHT_SHIFT_ASSIGNMENT,
+    Kind.UNSIGNED_RIGHT_SHIFT_ASSIGNMENT,
+    Kind.AND_ASSIGNMENT,
+    Kind.XOR_ASSIGNMENT,
+    Kind.OR_ASSIGNMENT);
+
   public static final ImmutableSet<Kind> RELATIONAL_EXPRESSION = ImmutableSet.of(
     Kind.LESS_THAN,
     Kind.GREATER_THAN,
@@ -75,6 +89,14 @@ public class CheckUtils {
     Kind.GENERATOR_FUNCTION_EXPRESSION,
     Kind.ARROW_FUNCTION,
     EcmaScriptGrammar.ARROW_FUNCTION_NO_IN);
+
+  public static Kind[] assignmentExpressionArray() {
+    return ASSIGNMENT_EXPRESSION.toArray(new Kind[ASSIGNMENT_EXPRESSION.size()]);
+  }
+
+  public static boolean isAssignmentExpression(AstNode astNode) {
+    return ASSIGNMENT_EXPRESSION.contains(astNode.getType());
+  }
 
   public static Kind[] postfixExpressionArray() {
     return POSTFIX_EXPRESSION.toArray(new Kind[POSTFIX_EXPRESSION.size()]);
