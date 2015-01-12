@@ -27,32 +27,32 @@ import static org.sonar.javascript.sslr.tests.Assertions.assertThat;
 
 public class AutomaticSemicolonInsertionTest {
 
-
   /**
    * http://www.ecma-international.org/ecma-262/5.1/#sec-7.9.2
    */
   @Test
   public void test() {
     assertThat(EcmaScriptGrammar.SCRIPT)
-        .as("not valid").notMatches("{ 1 2 } 3")
-        .as("transformed to valid").matches("{ 1 \n 2 } 3");
+      .as("not valid").notMatches("{ 1 2 } 3")
+      .as("transformed to valid").matches("{ 1 \n 2 } 3");
 
     assertThat(Kind.FOR_STATEMENT)
-        .as("not valid and not transformed").notMatches("for (a; b \n ) ;")
-        .as("valid").matches("for (a; b ; \n ) ;");
+      .as("not valid and not transformed").notMatches("for (a; b \n ) ;")
+      .as("valid").matches("for (a; b ; \n ) ;");
 
+    // Spaces are no longer part of the node
     assertThat(Kind.RETURN_STATEMENT)
-        .matchesPrefix("return \n", "a + b");
+      .matchesPrefix("return", " \n a + b");
 
     assertThat(Kind.EXPRESSION_STATEMENT)
-        .matchesPrefix("a = b \n", "++c");
+      .matchesPrefix("a = b", " \n ++c");
 
     assertThat(Kind.IF_STATEMENT)
-        .as("not valid and not transformed").notMatches("if (a > b) \n else c = d")
-        .as("valid").matches("if (a > b) ; \n else c = d");
+      .as("not valid and not transformed").notMatches("if (a > b) \n else c = d")
+      .as("valid").matches("if (a > b) ; \n else c = d");
 
     assertThat(Kind.EXPRESSION_STATEMENT)
-        .as("not transformed").matches("a = b + c \n (d + e).print()");
+      .as("not transformed").matches("a = b + c \n (d + e).print()");
   }
 
 }

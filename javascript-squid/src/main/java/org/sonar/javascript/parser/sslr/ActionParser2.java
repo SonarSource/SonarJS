@@ -23,33 +23,39 @@ import com.google.common.base.Preconditions;
 import com.google.common.base.Throwables;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+import com.google.common.io.Files;
 import com.sonar.sslr.api.AstNode;
 import com.sonar.sslr.api.Grammar;
+import com.sonar.sslr.api.RecognitionException;
 import com.sonar.sslr.api.Rule;
 import com.sonar.sslr.impl.Parser;
 import com.sonar.sslr.impl.matcher.RuleDefinition;
 import net.sf.cglib.proxy.Enhancer;
 import net.sf.cglib.proxy.MethodInterceptor;
 import net.sf.cglib.proxy.MethodProxy;
+import org.sonar.javascript.ast.parser.AstNodeSanitizer;
+import org.sonar.javascript.parser.sslr.DelayedRuleInvocationExpression;
+import org.sonar.javascript.parser.sslr.GrammarBuilder;
+import org.sonar.javascript.parser.sslr.Input;
+import org.sonar.javascript.parser.sslr.NonterminalBuilder;
+import org.sonar.javascript.parser.sslr.Optional;
 import org.sonar.sslr.grammar.GrammarRuleKey;
 import org.sonar.sslr.grammar.LexerlessGrammarBuilder;
-import org.sonar.sslr.internal.vm.CompilationHandler;
+import org.sonar.sslr.internal.matchers.InputBuffer;
 import org.sonar.sslr.internal.vm.FirstOfExpression;
-import org.sonar.sslr.internal.vm.Instruction;
-import org.sonar.sslr.internal.vm.OneOrMoreExpression;
 import org.sonar.sslr.internal.vm.ParsingExpression;
 import org.sonar.sslr.internal.vm.SequenceExpression;
 import org.sonar.sslr.internal.vm.StringExpression;
-import org.sonar.sslr.parser.LexerlessGrammar;
-import org.sonar.sslr.parser.ParserAdapter;
+import org.sonar.sslr.parser.ParseError;
+import org.sonar.sslr.parser.ParseErrorFormatter;
+import org.sonar.sslr.parser.ParseRunner;
+import org.sonar.sslr.parser.ParsingResult;
 
 import javax.annotation.Nullable;
+
 import java.io.File;
-import java.lang.reflect.Field;
+import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.nio.charset.Charset;
@@ -60,40 +66,19 @@ import java.util.Set;
 
 public class ActionParser2 extends Parser {
 
-  private final Set<String> FIELDS_TO_FIND = ImmutableSet.of("type", "name", "token", "children", "childIndex", "parent", "fromIndex", "toIndex");
-  private final Set<String> FIELDS_TO_COPY = ImmutableSet.of("token", "childIndex", "parent", "fromIndex", "toIndex");
-  private final Field[] fields;
+  private final Charset charset;
 
-  private final Object action;
-
+  private final AstNodeSanitizer astNodeSanitzer = new AstNodeSanitizer();
   private final GrammarBuilderInterceptor grammarBuilderInterceptor;
-  private final Parser parser;
+  private final SyntaxTreeCreator<AstNode> syntaxTreeCreator;
+  private final GrammarRuleKey rootRule;
+  private final Grammar grammar;
+  private final ParseRunner parseRunner;
 
-  private AstNode rootNode;
-
-  public ActionParser2(Charset charset, LexerlessGrammarBuilder b, Class grammarClass, Object action, GrammarRuleKey rootRule) {
+  public ActionParser2(Charset charset, LexerlessGrammarBuilder b, Class grammarClass, Object treeFactory, GrammarRuleKey rootRule) {
     super(null);
 
-    List<Field> fields = Lists.newArrayList();
-    Set<String> foundFields = Sets.newHashSet();
-
-    for (Field field : AstNode.class.getDeclaredFields()) {
-      if (FIELDS_TO_FIND.contains(field.getName())) {
-        foundFields.add(field.getName());
-      }
-
-      if (FIELDS_TO_COPY.contains(field.getName())) {
-        field.setAccessible(true);
-        fields.add(field);
-      }
-    }
-
-    Preconditions.checkState(foundFields.size() == FIELDS_TO_FIND.size(), "Did not find all expected fields");
-    Preconditions.checkState(fields.size() == FIELDS_TO_COPY.size(), "Did not find all fields to copy");
-
-    this.fields = fields.toArray(new Field[fields.size()]);
-
-    this.action = action;
+    this.charset = charset;
 
     this.grammarBuilderInterceptor = new GrammarBuilderInterceptor(b);
     Enhancer grammarEnhancer = new Enhancer();
@@ -102,12 +87,12 @@ public class ActionParser2 extends Parser {
 
     ActionMethodInterceptor actionMethodInterceptor = new ActionMethodInterceptor(grammarBuilderInterceptor);
     Enhancer actionEnhancer = new Enhancer();
-    actionEnhancer.setSuperclass(action.getClass());
+    actionEnhancer.setSuperclass(treeFactory.getClass());
     actionEnhancer.setCallback(actionMethodInterceptor);
 
     Object grammar = grammarEnhancer.create(
-      new Class[]{GrammarBuilder.class, action.getClass()},
-      new Object[]{grammarBuilderInterceptor, actionEnhancer.create()});
+      new Class[] {GrammarBuilder.class, treeFactory.getClass()},
+      new Object[] {grammarBuilderInterceptor, actionEnhancer.create()});
 
     for (Method method : grammarClass.getMethods()) {
       if (method.getDeclaringClass().equals(Object.class)) {
@@ -123,8 +108,12 @@ public class ActionParser2 extends Parser {
       }
     }
 
+    this.syntaxTreeCreator = new SyntaxTreeCreator<AstNode>(treeFactory, grammarBuilderInterceptor);
+
     b.setRootRule(rootRule);
-    this.parser = new ParserAdapter<LexerlessGrammar>(charset, b.build());
+    this.rootRule = rootRule;
+    this.grammar = b.build();
+    this.parseRunner = new ParseRunner(this.grammar.getRootRule());
   }
 
   @Override
@@ -134,148 +123,37 @@ public class ActionParser2 extends Parser {
 
   @Override
   public AstNode parse(File file) {
-    AstNode astNode = parser.parse(file);
-
-    rootNode = astNode;
-    applyActions(astNode);
-
-    return rootNode;
+    try {
+      return parse(new Input(Files.toString(file, charset).toCharArray(), file.toURI()));
+    } catch (IOException e) {
+      throw Throwables.propagate(e);
+    }
   }
 
   @Override
   public AstNode parse(String source) {
-    AstNode astNode = parser.parse(source);
-
-    rootNode = astNode;
-    applyActions(astNode);
-
-    return rootNode;
+    return parse(new Input(source.toCharArray()));
   }
 
-  private void applyActions(AstNode astNode) {
-    AstNode[] children = astNode.getChildren().toArray(new AstNode[astNode.getChildren().size()]);
-    for (AstNode childAstNode : children) {
-      applyActions(childAstNode);
+  private AstNode parse(Input input) {
+    ParsingResult result = parseRunner.parse(input.input());
+
+    if (!result.isMatched()) {
+      ParseError parseError = result.getParseError();
+      InputBuffer inputBuffer = parseError.getInputBuffer();
+      int line = inputBuffer.getPosition(parseError.getErrorIndex()).getLine();
+      String message = new ParseErrorFormatter().format(parseError);
+      throw new RecognitionException(line, message);
     }
 
-    Method method = grammarBuilderInterceptor.actionForRuleKey(astNode.getType());
-    if (method != null) {
-      children = astNode.getChildren().toArray(new AstNode[astNode.getChildren().size()]);
-      Object[] convertedChildren = convertTypes(children);
-
-      Preconditions.checkState(
-        convertedChildren.length == method.getParameterTypes().length,
-        "Argument mismatch! Expected: " + method.getParameterTypes().length + " parameters, but got: " + convertedChildren.length + "\n" +
-          astNode);
-
-      try {
-        AstNode typedNode = (AstNode) method.invoke(action, convertedChildren);
-        replaceAstNode(astNode, typedNode);
-      } catch (InvocationTargetException e) {
-        throw Throwables.propagate(e);
-      } catch (IllegalAccessException e) {
-        throw Throwables.propagate(e);
-      }
-    }
-
-    if (grammarBuilderInterceptor.hasMethodForRuleKey(astNode.getType())) {
-      children = astNode.getChildren().toArray(new AstNode[astNode.getChildren().size()]);
-      Preconditions.checkState(children.length == 1, "Unexpected number of children: " + children.length);
-      AstNode typedNode = children[0];
-      replaceAstNode(astNode, typedNode);
-    }
-  }
-
-  private void replaceAstNode(AstNode o, AstNode n) {
-    for (Field field : fields) {
-      try {
-        field.set(n, field.get(o));
-      } catch (IllegalAccessException e) {
-        throw Throwables.propagate(e);
-      }
-    }
-
-    AstNode parent = n.getParent();
-    if (parent != null) {
-      List<AstNode> children = parent.getChildren();
-      // TODO Replace iteration by childIndex
-      for (int i = 0; i < children.size(); i++) {
-        if (o.equals(children.get(i))) {
-          children.set(i, n);
-          break;
-        }
-      }
-    } else {
-      rootNode = n;
-    }
-  }
-
-  private Object[] convertTypes(AstNode[] nodes) {
-    List result = Lists.newArrayList();
-
-    ImmutableList.Builder listBuilder = ImmutableList.builder();
-    Object listBuilderRepeatedRuleKey = null;
-
-    for (AstNode child : nodes) {
-      if (grammarBuilderInterceptor.isRepeatedRule(child.getType())) {
-        Object[] converted = convertTypes(child.getChildren().toArray(new AstNode[0]));
-        Preconditions.checkState(converted.length == 1, "Unexpected number of children: " + converted.length);
-
-        if (listBuilderRepeatedRuleKey != null && !child.getType().equals(listBuilderRepeatedRuleKey)) {
-          result.add(listBuilder.build());
-          listBuilder = ImmutableList.builder();
-          listBuilderRepeatedRuleKey = null;
-        }
-
-        listBuilder.add(converted[0]);
-        listBuilderRepeatedRuleKey = child.getType();
-      } else {
-        if (listBuilderRepeatedRuleKey != null) {
-          result.add(listBuilder.build());
-          listBuilder = ImmutableList.builder();
-          listBuilderRepeatedRuleKey = null;
-        }
-
-        result.add(convertType(child));
-      }
-    }
-
-    if (listBuilderRepeatedRuleKey != null) {
-      result.add(listBuilder.build());
-      listBuilder = ImmutableList.builder();
-      listBuilderRepeatedRuleKey = null;
-    }
-
-    return result.toArray();
-  }
-
-  private Object convertType(AstNode node) {
-    Object result;
-
-    if (grammarBuilderInterceptor.isOptionalRule(node.getType())) {
-      Object[] children = convertTypes(node.getChildren().toArray(new AstNode[0]));
-      Preconditions.checkState(children.length <= 1, "Unexpected number of children: " + children.length);
-
-      Optional option;
-      if (children.length == 1) {
-        option = Optional.of(children[0]);
-      } else {
-        option = Optional.absent();
-      }
-
-      result = option;
-    } else if (grammarBuilderInterceptor.isRepeatedRule(node.getType())) {
-      throw new IllegalStateException("Did not expect a repeated rule: " + node);
-    } else {
-      result = node;
-    }
-
-    return result;
+    AstNode astNode = syntaxTreeCreator.create(result.getParseTreeRoot(), input);
+    astNodeSanitzer.sanitize(astNode);
+    return astNode;
   }
 
   @Override
   public Grammar getGrammar() {
-    return parser.getGrammar();
+    return grammar;
   }
 
   @Override
@@ -289,7 +167,7 @@ public class ActionParser2 extends Parser {
   }
 
   public GrammarRuleKey rootRule() {
-    return (GrammarRuleKey) parser.getGrammar().getRootRule();
+    return rootRule;
   }
 
   public static class GrammarBuilderInterceptor implements MethodInterceptor, GrammarBuilder, NonterminalBuilder {
@@ -298,7 +176,8 @@ public class ActionParser2 extends Parser {
     private final BiMap<Method, GrammarRuleKey> mapping = HashBiMap.create();
     private final BiMap<Method, GrammarRuleKey> actions = HashBiMap.create();
     private final Set<GrammarRuleKey> optionals = Sets.newHashSet();
-    private final Set<GrammarRuleKey> repeated = Sets.newHashSet();
+    private final Set<GrammarRuleKey> oneOrMores = Sets.newHashSet();
+    private final Set<GrammarRuleKey> zeroOrMores = Sets.newHashSet();
 
     private Method buildingMethod = null;
     private GrammarRuleKey ruleKey = null;
@@ -315,14 +194,13 @@ public class ActionParser2 extends Parser {
       }
 
       if (buildingMethod != null) {
-        push(new RuleExpression(b, this, method));
+        push(new DelayedRuleInvocationExpression(b, this, method));
         return null;
       }
 
       buildingMethod = method;
-      Object result = proxy.invokeSuper(obj, args);
 
-      return result;
+      return proxy.invokeSuper(obj, args);
     }
 
     @Override
@@ -362,7 +240,6 @@ public class ActionParser2 extends Parser {
       ParsingExpression expression = pop();
       GrammarRuleKey ruleKey = new DummyGrammarRuleKey("optional", expression);
       optionals.add(ruleKey);
-      // FIXME Fix corner case where "expression" can already match the empty string...
       b.rule(ruleKey).is(b.optional(expression));
       invokeRule(ruleKey);
       return null;
@@ -372,24 +249,25 @@ public class ActionParser2 extends Parser {
     public <T> List<T> oneOrMore(T method) {
       ParsingExpression expression = pop();
       GrammarRuleKey ruleKey = new DummyGrammarRuleKey("oneOrMore", expression);
-      repeated.add(ruleKey);
-      b.rule(ruleKey).is(expression);
+      oneOrMores.add(ruleKey);
+      b.rule(ruleKey).is(b.oneOrMore(expression));
       invokeRule(ruleKey);
-      expression = pop();
-      push(new OneOrMoreExpression(expression));
       return null;
     }
 
     @Override
     public <T> Optional<List<T>> zeroOrMore(T method) {
-      oneOrMore(method);
-      optional(method);
+      ParsingExpression expression = pop();
+      GrammarRuleKey ruleKey = new DummyGrammarRuleKey("zeroOrMore", expression);
+      zeroOrMores.add(ruleKey);
+      b.rule(ruleKey).is(b.zeroOrMore(expression));
+      invokeRule(ruleKey);
       return null;
     }
 
     @Override
     public AstNode invokeRule(GrammarRuleKey ruleKey) {
-      push(new RuleExpression(b, ruleKey));
+      push(new DelayedRuleInvocationExpression(b, ruleKey));
       return null;
     }
 
@@ -451,8 +329,12 @@ public class ActionParser2 extends Parser {
       return optionals.contains(ruleKey);
     }
 
-    public boolean isRepeatedRule(Object ruleKey) {
-      return repeated.contains(ruleKey);
+    public boolean isOneOrMoreRule(Object ruleKey) {
+      return oneOrMores.contains(ruleKey);
+    }
+
+    public boolean isZeroOrMoreRule(Object ruleKey) {
+      return zeroOrMores.contains(ruleKey);
     }
 
   }
@@ -520,52 +402,6 @@ public class ActionParser2 extends Parser {
       sb.append(')');
 
       return sb.toString();
-    }
-
-  }
-
-  private static class RuleExpression implements ParsingExpression {
-
-    private final LexerlessGrammarBuilder b;
-
-    private GrammarRuleKey ruleKey;
-    private final GrammarBuilderInterceptor grammarBuilderInterceptor;
-    private final Method method;
-
-    public RuleExpression(LexerlessGrammarBuilder b, GrammarRuleKey ruleKey) {
-      this.b = b;
-
-      this.ruleKey = ruleKey;
-      this.grammarBuilderInterceptor = null;
-      this.method = null;
-    }
-
-    public RuleExpression(LexerlessGrammarBuilder b, GrammarBuilderInterceptor grammarBuilderInterceptor, Method method) {
-      this.b = b;
-
-      this.ruleKey = null;
-      this.grammarBuilderInterceptor = grammarBuilderInterceptor;
-      this.method = method;
-    }
-
-    @Override
-    public Instruction[] compile(CompilationHandler compiler) {
-      // TODO Horrible
-      if (ruleKey == null) {
-        ruleKey = grammarBuilderInterceptor.ruleKeyForMethod(method);
-        Preconditions.checkState(ruleKey != null, "Cannot find rule key for method: " + method.getName());
-      }
-
-      return compiler.compile((ParsingExpression) b.sequence(b.nextNot(b.nothing()), ruleKey));
-    }
-
-    @Override
-    public String toString() {
-      if (ruleKey != null) {
-        return ruleKey.toString();
-      } else {
-        return method.getName() + "()";
-      }
     }
 
   }
