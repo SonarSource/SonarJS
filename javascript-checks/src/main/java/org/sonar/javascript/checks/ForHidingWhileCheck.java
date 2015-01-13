@@ -47,7 +47,11 @@ public class ForHidingWhileCheck extends SquidCheck<LexerlessGrammar> {
   }
 
   public static boolean hasInitialisation(AstNode forStmt) {
-    return forStmt.hasDirectChildren(EcmaScriptGrammar.FOR_VAR_DECLARATION, EcmaScriptGrammar.EXPRESSION_NO_IN);
+    return forStmt.hasDirectChildren(
+      EcmaScriptGrammar.FOR_VAR_DECLARATION,
+      EcmaScriptGrammar.EXPRESSION_NO_IN,
+      EcmaScriptGrammar.LEXICAL_DECLARATION_NO_IN,
+      EcmaScriptGrammar.EXPRESSION_NO_IN_NO_LET_AND_BRACKET /*FIXME martin: temporary fix, to remove */);
   }
 
   public static boolean hasIncrement(AstNode forStmt) {
