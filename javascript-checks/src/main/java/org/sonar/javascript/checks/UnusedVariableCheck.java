@@ -27,10 +27,6 @@ import org.sonar.check.Rule;
 import org.sonar.javascript.checks.utils.CheckUtils;
 import org.sonar.javascript.checks.utils.IdentifierUtils;
 import org.sonar.javascript.model.interfaces.Tree.Kind;
-import org.sonar.javascript.model.interfaces.expression.CallExpressionTree;
-import org.sonar.javascript.model.interfaces.expression.IdentifierTree;
-import org.sonar.javascript.model.interfaces.expression.MemberExpressionTree;
-import org.sonar.javascript.model.interfaces.expression.NewExpressionTree;
 import org.sonar.javascript.parser.EcmaScriptGrammar;
 import org.sonar.squidbridge.checks.SquidCheck;
 import org.sonar.sslr.grammar.GrammarRuleKey;
@@ -120,7 +116,7 @@ public class UnusedVariableCheck extends SquidCheck<LexerlessGrammar> {
 
       // declare all parameters as variables, which are already used, so that they won't trigger violations
       if (astNode.is(Kind.ARROW_FUNCTION)) {
-        declareInCurrentScope(IdentifierUtils.getArrowParametersIdentifier(astNode.getFirstChild(Kind.IDENTIFIER, Kind.ARROW_PARAMETER_LIST)), 1);
+        declareInCurrentScope(IdentifierUtils.getArrowParametersIdentifier(astNode.getFirstChild(Kind.IDENTIFIER, Kind.FORMAL_PARAMETER_LIST)), 1);
 
       } else if (astNode.is(Kind.FORMAL_PARAMETER_LIST)) {
         declareInCurrentScope(IdentifierUtils.getParametersIdentifier(astNode), 1);

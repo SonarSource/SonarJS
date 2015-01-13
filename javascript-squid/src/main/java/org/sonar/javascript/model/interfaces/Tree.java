@@ -648,11 +648,6 @@ public interface Tree {
     FORMAL_PARAMETER_LIST(ParameterListTree.class),
 
     /**
-     * {@link ParameterListTree}
-     */
-    ARROW_PARAMETER_LIST(ParameterListTree.class),
-
-    /**
      * {@link TaggedTemplateTree}
      */
     TAGGED_TEMPLATE(TaggedTemplateTree.class),

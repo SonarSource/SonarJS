@@ -751,32 +751,6 @@ public class TreeFactory {
     return new IdentifierTreeImpl(Kind.BINDING_IDENTIFIER, InternalSyntaxToken.create(identifier));
   }
 
-  public ParameterListTreeImpl newArrowParameterList(AstNode expression, Optional<Tuple<AstNode, RestElementTreeImpl>> restParameter) {
-    List<AstNode> children = Lists.newArrayList();
-    List<InternalSyntaxToken> commas = Lists.newArrayList();
-
-    children.add(expression);
-
-    if (restParameter.isPresent()) {
-      commas.add(InternalSyntaxToken.create(restParameter.get().first()));
-      children.add(restParameter.get().first());
-      children.add(restParameter.get().second());
-    }
-
-    return new ParameterListTreeImpl(Kind.ARROW_PARAMETER_LIST, new SeparatedList<ExpressionTree>(ListUtils.EMPTY_LIST /*FIXME when expression are migrated*/, commas, children));
-  }
-
-  public ParameterListTreeImpl newArrowRestParameterList(RestElementTreeImpl restParameter) {
-    return new ParameterListTreeImpl(Kind.ARROW_PARAMETER_LIST, new SeparatedList<ExpressionTree>(Lists.newArrayList((ExpressionTree) restParameter), ListUtils.EMPTY_LIST, ImmutableList.of((AstNode) restParameter)));
-  }
-
-  public ParameterListTreeImpl completeArrowParameterList(AstNode openParenToken, Optional<ParameterListTreeImpl> parameters, AstNode closeParenToken) {
-    if (parameters.isPresent()) {
-      return parameters.get().complete(InternalSyntaxToken.create(openParenToken), InternalSyntaxToken.create(closeParenToken));
-    }
-    return new ParameterListTreeImpl(Kind.ARROW_PARAMETER_LIST, InternalSyntaxToken.create(openParenToken), InternalSyntaxToken.create(closeParenToken));
-  }
-
   public ArrowFunctionTreeImpl arrowFunction(Tree parameters, AstNode doubleArrow, AstNode body) {
     return new ArrowFunctionTreeImpl(parameters, InternalSyntaxToken.create(doubleArrow), body);
   }

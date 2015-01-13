@@ -717,28 +717,12 @@ public class ActionGrammar {
       .is(f.identifierName(b.invokeRule(EcmaScriptGrammar.IDENTIFIER_NAME)));
   }
 
-  public ParameterListTreeImpl ARROW_PARAMETER_LIST() {
-    return b.<ParameterListTreeImpl>nonterminal(Kind.ARROW_PARAMETER_LIST)
-      .is(f.completeArrowParameterList(
-        b.invokeRule(EcmaScriptPunctuator.LPARENTHESIS),
-        b.optional(
-          b.firstOf(
-            f.newArrowRestParameterList(BINDING_REST_ELEMENT()),
-            f.newArrowParameterList(
-              // TODO martin: assignment_expression (comma, assignment_expression)* instead
-              b.invokeRule(EcmaScriptGrammar.EXPRESSION),
-              b.optional(f.newTuple16(b.invokeRule(EcmaScriptPunctuator.COMMA), BINDING_REST_ELEMENT())))
-          )),
-        b.invokeRule(EcmaScriptPunctuator.RPARENTHESIS)
-      ));
-  }
-
   public ArrowFunctionTreeImpl ARROW_FUNCTION() {
     return b.<ArrowFunctionTreeImpl>nonterminal(Kind.ARROW_FUNCTION)
       .is(f.arrowFunction(
         b.firstOf(
           BINDING_IDENTIFIER(),
-          ARROW_PARAMETER_LIST()),
+          FORMAL_PARAMETER_LIST()),
         b.invokeRule(EcmaScriptGrammar.DOUBLEARROW_NO_LB),
         b.firstOf(
           BLOCK(),

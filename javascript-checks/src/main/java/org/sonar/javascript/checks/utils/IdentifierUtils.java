@@ -84,28 +84,13 @@ public class IdentifierUtils {
    * Return list of AstNode corresponding to the function parameter(s).
    */
   public static List<AstNode> getArrowParametersIdentifier(AstNode arrowParameters) {
-    Preconditions.checkArgument(arrowParameters.is(Kind.ARROW_PARAMETER_LIST, Kind.IDENTIFIER));
-    List<AstNode> identifiers = Lists.newArrayList();
+    Preconditions.checkArgument(arrowParameters.is(Kind.FORMAL_PARAMETER_LIST, Kind.BINDING_IDENTIFIER));
 
-    if (arrowParameters.is(Kind.IDENTIFIER) && arrowParameters.getFirstChild().is(EcmaScriptTokenType.IDENTIFIER)) {
-      identifiers.add(arrowParameters.getFirstChild());
+    if (arrowParameters.is(Kind.BINDING_IDENTIFIER)) {
+      return Lists.newArrayList(arrowParameters.getFirstChild());
     } else {
-      // Retrieve parameters from expression
-      AstNode expression = arrowParameters.getFirstChild(EcmaScriptGrammar.EXPRESSION);
-      if (expression != null) {
-        for (AstNode expressionChild : expression.getChildren()) {
-          if (expressionChild.isNot(EcmaScriptPunctuator.COMMA)) {
-            identifiers.add(expressionChild);
-          }
-        }
-      }
-      // Rest parameter
-      AstNode restParameter = arrowParameters.getFirstChild(Kind.REST_ELEMENT);
-      if (restParameter != null) {
-        identifiers.add(getRestIdentifier(restParameter));
-      }
+      return getParametersIdentifier(arrowParameters);
     }
-    return identifiers;
   }
 
   public static List<AstNode> getParametersIdentifier(AstNode formalParameterList) {

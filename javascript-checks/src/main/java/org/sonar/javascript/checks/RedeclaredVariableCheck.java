@@ -93,7 +93,7 @@ public class RedeclaredVariableCheck extends SquidCheck<LexerlessGrammar> {
 
   private void addParametersToScope(AstNode functionNode, Set<String> currentScope) {
     if (functionNode.is(Kind.ARROW_FUNCTION)) {
-      addArrowParametersToScope(functionNode.getFirstChild(Kind.ARROW_PARAMETER_LIST, Kind.IDENTIFIER), currentScope);
+      addArrowParametersToScope(functionNode.getFirstChild(Kind.FORMAL_PARAMETER_LIST, Kind.IDENTIFIER), currentScope);
     } else {
       addFormalParametersToScope(functionNode.getFirstChild(Kind.FORMAL_PARAMETER_LIST), currentScope);
     }

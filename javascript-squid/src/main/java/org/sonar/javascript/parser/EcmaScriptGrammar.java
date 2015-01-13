@@ -601,7 +601,7 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
 
     b.rule(YIELD_EXPRESSION_NO_IN).is(YIELD, b.optional(/* no line terminator here */SPACING_NO_LB, NEXT_NOT_LB, b.optional(STAR), ASSIGNMENT_EXPRESSION_NO_IN));
 
-    b.rule(ARROW_FUNCTION_NO_IN).is(Kind.ARROW_PARAMETER_LIST, /* no line terminator here */SPACING_NO_LB, NEXT_NOT_LB, DOUBLEARROW, CONCISE_BODY_NO_IN);
+    b.rule(ARROW_FUNCTION_NO_IN).is(Kind.FORMAL_PARAMETER_LIST, /* no line terminator here */SPACING_NO_LB, NEXT_NOT_LB, DOUBLEARROW, CONCISE_BODY_NO_IN);
 
     b.rule(CONCISE_BODY_NO_IN).is(b.firstOf(
       b.sequence(LCURLYBRACE, FUNCTION_BODY, RCURLYBRACE),
