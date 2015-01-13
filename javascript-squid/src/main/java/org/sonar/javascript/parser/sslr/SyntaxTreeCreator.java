@@ -123,8 +123,15 @@ public class SyntaxTreeCreator<T> {
     List<Object> convertedChildren = Lists.newArrayList();
     for (ParseNode child : children) {
       Object result = visit(child);
+
       if (result != null) {
-        if (result instanceof AstNode && ((AstNode) result).hasToBeSkippedFromAst()) {
+        // FIXME to remove aafter full migration: Allow to skip optional nodes that are supposed to bw skipped from the AST
+        if ((result instanceof Optional && ((Optional) result).isPresent() && ((Optional) result).get() instanceof AstNode) && ((AstNode) ((Optional) result).get()).hasToBeSkippedFromAst()){
+          for (AstNode resultChild : ((AstNode) ((Optional) result).get()).getChildren()) {
+            convertedChildren.add(resultChild);
+          }
+
+        } else if (result instanceof AstNode && ((AstNode) result).hasToBeSkippedFromAst()) {
           for (AstNode resultChild : ((AstNode) result).getChildren()) {
             convertedChildren.add(resultChild);
           }
