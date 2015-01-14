@@ -28,7 +28,7 @@ import org.sonar.javascript.model.implementations.declaration.ParameterListTreeI
 import org.sonar.javascript.model.implementations.lexical.InternalSyntaxToken;
 import org.sonar.javascript.model.interfaces.Tree;
 import org.sonar.javascript.model.interfaces.declaration.ParameterListTree;
-import org.sonar.javascript.model.interfaces.expression.FunctionTree;
+import org.sonar.javascript.model.interfaces.expression.FunctionExpressionTree;
 import org.sonar.javascript.model.interfaces.expression.IdentifierTree;
 import org.sonar.javascript.model.interfaces.lexical.SyntaxToken;
 
@@ -36,7 +36,7 @@ import javax.annotation.Nullable;
 import java.util.Iterator;
 import java.util.List;
 
-public class FunctionExpressionTreeImpl extends JavaScriptTree implements FunctionTree {
+public class FunctionExpressionTreeImpl extends JavaScriptTree implements FunctionExpressionTree {
 
   private final SyntaxToken functionKeyword;
   @Nullable

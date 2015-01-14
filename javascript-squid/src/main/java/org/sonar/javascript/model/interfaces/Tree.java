@@ -24,6 +24,7 @@ import org.sonar.javascript.model.interfaces.declaration.AccessorMethodDeclarati
 import org.sonar.javascript.model.interfaces.declaration.ArrayBindingPatternTree;
 import org.sonar.javascript.model.interfaces.declaration.BindingElementTree;
 import org.sonar.javascript.model.interfaces.declaration.ClassDeclarationTree;
+import org.sonar.javascript.model.interfaces.declaration.FunctionDeclarationTree;
 import org.sonar.javascript.model.interfaces.declaration.GeneratorMethodDeclarationTree;
 import org.sonar.javascript.model.interfaces.declaration.ObjectBindingPatternTree;
 import org.sonar.javascript.model.interfaces.declaration.ParameterListTree;
@@ -36,7 +37,7 @@ import org.sonar.javascript.model.interfaces.expression.ClassExpressionTree;
 import org.sonar.javascript.model.interfaces.expression.ComputedPropertyNameTree;
 import org.sonar.javascript.model.interfaces.expression.ConditionalExpressionTree;
 import org.sonar.javascript.model.interfaces.expression.ExpressionTree;
-import org.sonar.javascript.model.interfaces.expression.FunctionTree;
+import org.sonar.javascript.model.interfaces.expression.FunctionExpressionTree;
 import org.sonar.javascript.model.interfaces.expression.IdentifierTree;
 import org.sonar.javascript.model.interfaces.expression.LexicalDeclarationTree;
 import org.sonar.javascript.model.interfaces.expression.LiteralTree;
@@ -290,16 +291,16 @@ public interface Tree {
     PAIR_PROPERTY(PairPropertyTree.class),
 
     /**
-     * {@link FunctionTree}
+     * {@link org.sonar.javascript.model.interfaces.expression.FunctionExpressionTree}
      * {@code function * () {}}
      */
-    GENERATOR_FUNCTION_EXPRESSION(FunctionTree.class),
+    GENERATOR_FUNCTION_EXPRESSION(FunctionExpressionTree.class),
 
     /**
-     * {@link FunctionTree}
+     * {@link org.sonar.javascript.model.interfaces.expression.FunctionExpressionTree}
      * {@code function () {}}
      */
-    FUNCTION_EXPRESSION(FunctionTree.class),
+    FUNCTION_EXPRESSION(FunctionExpressionTree.class),
 
     /**
      * {@link ArrowFunctionTree}
@@ -640,14 +641,14 @@ public interface Tree {
     REST_ELEMENT(RestElementTree.class),
 
     /**
-     * {@link FunctionTree}
+     * {@link FunctionDeclarationTree}
      */
-    FUNCTION_DECLARATION(FunctionTree.class),
+    FUNCTION_DECLARATION(FunctionDeclarationTree.class),
 
     /**
-     * {@link FunctionTree}
+     * {@link FunctionDeclarationTree}
      */
-    GENERATOR_FUNCTION_DECLARATION(FunctionTree.class),
+    GENERATOR_FUNCTION_DECLARATION(FunctionDeclarationTree.class),
 
     /**
      * {@link ParameterListTree}

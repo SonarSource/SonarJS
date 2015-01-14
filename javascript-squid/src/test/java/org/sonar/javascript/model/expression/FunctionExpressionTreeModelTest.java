@@ -25,14 +25,13 @@ import org.sonar.javascript.api.EcmaScriptKeyword;
 import org.sonar.javascript.api.EcmaScriptPunctuator;
 import org.sonar.javascript.model.JavaScriptTreeModelTest;
 import org.sonar.javascript.model.interfaces.Tree.Kind;
-import org.sonar.javascript.model.interfaces.expression.FunctionTree;
-import org.sonar.javascript.model.interfaces.expression.RestElementTree;
+import org.sonar.javascript.model.interfaces.expression.FunctionExpressionTree;
 
 public class FunctionExpressionTreeModelTest extends JavaScriptTreeModelTest {
 
   @Test
   public void named() throws Exception {
-    FunctionTree tree = parse("a = function f() {}", Kind.FUNCTION_EXPRESSION);
+    FunctionExpressionTree tree = parse("a = function f() {}", Kind.FUNCTION_EXPRESSION);
 
     assertThat(tree.is(Kind.FUNCTION_EXPRESSION)).isTrue();
     assertThat(tree.functionKeyword().text()).isEqualTo(EcmaScriptKeyword.FUNCTION.getValue());
@@ -44,7 +43,7 @@ public class FunctionExpressionTreeModelTest extends JavaScriptTreeModelTest {
 
   @Test
   public void not_named() throws Exception {
-    FunctionTree tree = parse("a = function () {}", Kind.FUNCTION_EXPRESSION);
+    FunctionExpressionTree tree = parse("a = function () {}", Kind.FUNCTION_EXPRESSION);
 
     assertThat(tree.is(Kind.FUNCTION_EXPRESSION)).isTrue();
     assertThat(tree.functionKeyword().text()).isEqualTo(EcmaScriptKeyword.FUNCTION.getValue());
