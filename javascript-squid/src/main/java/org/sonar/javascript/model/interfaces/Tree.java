@@ -20,6 +20,12 @@
 package org.sonar.javascript.model.interfaces;
 
 import com.sonar.sslr.api.AstNodeType;
+import org.sonar.javascript.model.interfaces.declaration.AccessorMethodDeclarationTree;
+import org.sonar.javascript.model.interfaces.declaration.ArrayBindingPatternTree;
+import org.sonar.javascript.model.interfaces.declaration.BindingElementTree;
+import org.sonar.javascript.model.interfaces.declaration.ClassDeclarationTree;
+import org.sonar.javascript.model.interfaces.declaration.GeneratorMethodDeclarationTree;
+import org.sonar.javascript.model.interfaces.declaration.ObjectBindingPatternTree;
 import org.sonar.javascript.model.interfaces.declaration.ParameterListTree;
 import org.sonar.javascript.model.interfaces.expression.ArrayLiteralTree;
 import org.sonar.javascript.model.interfaces.expression.ArrowFunctionTree;
@@ -32,6 +38,7 @@ import org.sonar.javascript.model.interfaces.expression.ConditionalExpressionTre
 import org.sonar.javascript.model.interfaces.expression.ExpressionTree;
 import org.sonar.javascript.model.interfaces.expression.FunctionTree;
 import org.sonar.javascript.model.interfaces.expression.IdentifierTree;
+import org.sonar.javascript.model.interfaces.expression.LexicalDeclarationTree;
 import org.sonar.javascript.model.interfaces.expression.LiteralTree;
 import org.sonar.javascript.model.interfaces.expression.MemberExpressionTree;
 import org.sonar.javascript.model.interfaces.expression.NewExpressionTree;
@@ -681,6 +688,56 @@ public interface Tree {
      * {@link TemplateCharactersTree}
      */
     TEMPLATE_CHARACTERS(TemplateCharactersTree.class),
+
+    /**
+     * {@link org.sonar.javascript.model.interfaces.declaration.AccessorMethodDeclarationTree}
+     */
+    SET_METHOD(AccessorMethodDeclarationTree.class),
+
+    /**
+     * {@link org.sonar.javascript.model.interfaces.declaration.AccessorMethodDeclarationTree}
+     */
+    GET_METHOD(AccessorMethodDeclarationTree.class),
+
+    /**
+     * {@link org.sonar.javascript.model.interfaces.declaration.AccessorMethodDeclarationTree}
+     */
+    GENERATOR_METHOD(GeneratorMethodDeclarationTree.class),
+
+    /**
+     * {@link ClassDeclarationTree}
+     */
+    CLASS_DECLARATION(ClassDeclarationTree.class),
+
+    /**
+     * {@link BindingElementTree}
+     */
+    SINGLE_NAME_BINDING(BindingElementTree.class),
+
+    /**
+     * {@link BindingElementTree}
+     */
+    BINDING_PATTERN_ELEMENT(BindingElementTree.class),
+
+    /**
+     * {@link ObjectBindingPatternTree}
+     */
+    OBJECT_BINDING_PATTERN(ObjectBindingPatternTree.class),
+
+    /**
+     * {@link ObjectBindingPatternTree}
+     */
+    ARRAY_BINDING_PATTERN(ArrayBindingPatternTree.class),
+
+    /**
+     * {@link LexicalDeclarationTree}
+     */
+    LET_DECLARATION(LexicalDeclarationTree.class),
+
+    /**
+     * {@link LexicalDeclarationTree}
+     */
+    CONST_DECLARATION(LexicalDeclarationTree.class),
 
     TYPEOF(UnaryExpressionTree.class),
 
