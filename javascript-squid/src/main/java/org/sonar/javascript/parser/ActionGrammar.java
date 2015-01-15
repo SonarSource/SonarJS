@@ -65,12 +65,11 @@ import org.sonar.javascript.model.implementations.statement.ReturnStatementTreeI
 import org.sonar.javascript.model.implementations.statement.SwitchStatementTreeImpl;
 import org.sonar.javascript.model.implementations.statement.ThrowStatementTreeImpl;
 import org.sonar.javascript.model.implementations.statement.TryStatementTreeImpl;
-import org.sonar.javascript.model.implementations.statement.VariableDeclarationTreeImpl;
+import org.sonar.javascript.model.implementations.declaration.VariableDeclarationTreeImpl;
 import org.sonar.javascript.model.implementations.statement.VariableStatementTreeImpl;
 import org.sonar.javascript.model.implementations.statement.WhileStatementTreeImpl;
 import org.sonar.javascript.model.implementations.statement.WithStatementTreeImpl;
 import org.sonar.javascript.model.interfaces.Tree.Kind;
-import org.sonar.javascript.model.interfaces.expression.CallExpressionTree;
 import org.sonar.javascript.model.interfaces.expression.ExpressionTree;
 import org.sonar.javascript.model.interfaces.expression.MemberExpressionTree;
 import org.sonar.javascript.model.interfaces.statement.DebuggerStatementTree;
@@ -928,10 +927,10 @@ public class ActionGrammar {
   public TemplateExpressionTreeImpl TEMPLATE_EXPRESSION_HEAD() {
     return b.<TemplateExpressionTreeImpl>nonterminal()
       .is(f.newTemplateExpressionHead(
-          b.invokeRule(EcmaScriptGrammar.DOLLAR_SIGN),
-          b.invokeRule(EcmaScriptPunctuator.LCURLYBRACE),
-          b.invokeRule(EcmaScriptGrammar.EXPRESSION)
-        ));
+        b.invokeRule(EcmaScriptGrammar.DOLLAR_SIGN),
+        b.invokeRule(EcmaScriptPunctuator.LCURLYBRACE),
+        b.invokeRule(EcmaScriptGrammar.EXPRESSION)
+      ));
   }
 
   public TemplateCharactersTreeImpl TEMPLATE_CHARACTERS() {
@@ -960,7 +959,7 @@ public class ActionGrammar {
           CLASS_EXPRESSION(),
           GENERATOR_EXPRESSION(),
           TEMPLATE_LITERAL()
-      ));
+        ));
   }
 
   public ExpressionTree ES6_ASSIGNMENT_EXPRESSION() {

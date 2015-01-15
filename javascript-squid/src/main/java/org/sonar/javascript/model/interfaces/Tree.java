@@ -83,7 +83,7 @@ import org.sonar.javascript.model.interfaces.statement.ReturnStatementTree;
 import org.sonar.javascript.model.interfaces.statement.SwitchStatementTree;
 import org.sonar.javascript.model.interfaces.statement.ThrowStatementTree;
 import org.sonar.javascript.model.interfaces.statement.TryStatementTree;
-import org.sonar.javascript.model.interfaces.statement.VariableDeclarationTree;
+import org.sonar.javascript.model.interfaces.declaration.VariableDeclarationTree;
 import org.sonar.javascript.model.interfaces.statement.VariableStatementTree;
 import org.sonar.javascript.model.interfaces.statement.WhileStatementTree;
 import org.sonar.javascript.model.interfaces.statement.WithStatementTree;

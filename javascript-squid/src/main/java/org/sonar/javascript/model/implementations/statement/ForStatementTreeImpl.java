@@ -28,7 +28,7 @@ import org.sonar.javascript.model.interfaces.Tree;
 import org.sonar.javascript.model.interfaces.lexical.SyntaxToken;
 import org.sonar.javascript.model.interfaces.statement.ForStatementTree;
 import org.sonar.javascript.model.interfaces.statement.StatementTree;
-import org.sonar.javascript.model.interfaces.statement.VariableDeclarationTree;
+import org.sonar.javascript.model.interfaces.declaration.VariableDeclarationTree;
 
 import javax.annotation.Nullable;
 import java.util.Iterator;

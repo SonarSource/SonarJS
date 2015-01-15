@@ -23,10 +23,9 @@ import com.sonar.sslr.api.AstNode;
 import static org.fest.assertions.Assertions.assertThat;
 import org.junit.Test;
 import org.sonar.javascript.model.JavaScriptTreeModelTest;
-import org.sonar.javascript.model.implementations.statement.VariableDeclarationTreeImpl;
+import org.sonar.javascript.model.implementations.declaration.VariableDeclarationTreeImpl;
 import org.sonar.javascript.model.interfaces.Tree.Kind;
-import org.sonar.javascript.model.interfaces.statement.VariableDeclarationTree;
-import org.sonar.javascript.model.interfaces.statement.VariableStatementTree;
+import org.sonar.javascript.model.interfaces.declaration.VariableDeclarationTree;
 
 import java.util.List;
 

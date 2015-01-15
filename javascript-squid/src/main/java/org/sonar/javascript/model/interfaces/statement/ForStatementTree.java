@@ -20,6 +20,7 @@
 package org.sonar.javascript.model.interfaces.statement;
 
 import org.sonar.javascript.model.interfaces.Tree;
+import org.sonar.javascript.model.interfaces.declaration.VariableDeclarationTree;
 import org.sonar.javascript.model.interfaces.lexical.SyntaxToken;
 
 import javax.annotation.Nullable;
