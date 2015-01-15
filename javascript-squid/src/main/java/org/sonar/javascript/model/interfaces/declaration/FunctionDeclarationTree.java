@@ -19,13 +19,11 @@
  */
 package org.sonar.javascript.model.interfaces.declaration;
 
-import org.sonar.javascript.model.interfaces.Tree;
-import org.sonar.javascript.model.interfaces.expression.ExpressionTree;
 import org.sonar.javascript.model.interfaces.expression.IdentifierTree;
 import org.sonar.javascript.model.interfaces.lexical.SyntaxToken;
+import org.sonar.javascript.model.interfaces.statement.BlockTree;
 
 import javax.annotation.Nullable;
-import java.util.List;
 
 /**
  * <a href="http://www.ecma-international.org/ecma-262/5.1/#sec-13">Function declaration</a>,
@@ -35,34 +33,27 @@ import java.util.List;
  * <p>
  * Function declaration ({@link org.sonar.javascript.model.interfaces.Tree.Kind#FUNCTION_DECLARATION}):
  * <pre>
- *    function {@link #name()} ( {@link #parameters()} ) {
- *      {@link #statements()}
+ *    function {@link #name()} ( {@link #parameters()} ) {@link #body()
  *    }
  * </pre>
  * Generator function declaration ({@link org.sonar.javascript.model.interfaces.Tree.Kind#GENERATOR_FUNCTION_DECLARATION}):
  * <pre>
- *    function * {@link #name()} ( {@link #parameters()} ) {
- *      {@link #statements()}
+ *    function * {@link #name()} ( {@link #parameters()} ) {@link #body()
  *    }
  * </pre>
  * </p>
- *
  */
 public interface FunctionDeclarationTree extends DeclarationTree {
 
   SyntaxToken functionKeyword();
 
   @Nullable
-  SyntaxToken star();
+  SyntaxToken starToken();
 
   IdentifierTree name();
 
   ParameterListTree parameters();
 
-  SyntaxToken openCurlyBrace();
-
-  List<Tree> statements();
-
-  SyntaxToken closeCurlyBrace();
+  BlockTree body();
 
 }

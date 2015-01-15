@@ -17,36 +17,55 @@
  * License along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.javascript.model.interfaces.declaration;
+package org.sonar.javascript.model.implementations.declaration;
 
+import com.google.common.collect.Iterators;
+import org.sonar.javascript.model.implementations.JavaScriptTree;
 import org.sonar.javascript.model.interfaces.Tree;
+import org.sonar.javascript.model.interfaces.declaration.SpecifierTree;
+import org.sonar.javascript.model.interfaces.expression.IdentifierTree;
 import org.sonar.javascript.model.interfaces.lexical.SyntaxToken;
 
 import javax.annotation.Nullable;
+import java.util.Iterator;
 
-/**
- * Interface for type <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-exports">Named Export Declarations</a>.
- * <p/>
- *
- * <pre>
- *    export {@link #object()}
- *    export {@link #object()} ;
- *    export {@link #object()} {@link #fromClause()};
- * </pre>
- *
- * <p/>
- * <p>This interface is not intended to be implemented by clients.</p>
- */
-public interface ExportDeclarationTree extends DeclarationTree {
+public class SpecifierTreeImpl extends JavaScriptTree implements SpecifierTree {
 
-  SyntaxToken exportToken();
+  private final Kind kind;
+  private IdentifierTree name;
+  private SyntaxToken asToken;
+  private IdentifierTree localName;
 
-  Tree object();
+  public SpecifierTreeImpl(Kind kind) {
+    super(kind);
+    this.kind = kind;
+  }
 
-  @Nullable
-  FromClauseTree fromClause();
+  @Override
+  public IdentifierTree name() {
+    return name;
+  }
 
   @Nullable
-  Tree eos();
+  @Override
+  public SyntaxToken asToken() {
+    return asToken;
+  }
+
+  @Nullable
+  @Override
+  public IdentifierTree localName() {
+    return localName;
+  }
+
+  @Override
+  public Kind getKind() {
+    return kind;
+  }
+
+  @Override
+  public Iterator<Tree> childrenIterator() {
+    return Iterators.emptyIterator();
+  }
 
 }

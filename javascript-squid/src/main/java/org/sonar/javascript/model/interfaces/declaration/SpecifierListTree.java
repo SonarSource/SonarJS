@@ -34,10 +34,10 @@ import org.sonar.javascript.model.interfaces.lexical.SyntaxToken;
  */
 public interface SpecifierListTree extends DeclarationTree {
 
-  SyntaxToken openCUrlyBraceToken();
+  SyntaxToken openCurlyBraceToken();
 
   SeparatedList<SpecifierTree> specifiers();
 
-  SyntaxToken closeCUrlyBraceToken();
+  SyntaxToken closeCurlyBraceToken();
 
 }

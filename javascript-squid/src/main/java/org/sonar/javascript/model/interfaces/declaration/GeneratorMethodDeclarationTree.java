@@ -34,6 +34,6 @@ import org.sonar.javascript.model.interfaces.Tree;
  */
 public interface GeneratorMethodDeclarationTree extends MethodDeclarationTree {
 
-  InternalSyntaxToken starToken();
+  org.sonar.javascript.model.interfaces.lexical.SyntaxToken starToken();
 
 }

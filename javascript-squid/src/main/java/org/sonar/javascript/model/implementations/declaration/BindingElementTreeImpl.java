@@ -17,32 +17,54 @@
  * License along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.javascript.model.interfaces.declaration;
+package org.sonar.javascript.model.implementations.declaration;
 
+import com.google.common.collect.Iterators;
+import org.sonar.javascript.model.implementations.JavaScriptTree;
 import org.sonar.javascript.model.interfaces.Tree;
+import org.sonar.javascript.model.interfaces.declaration.BindingElementTree;
 import org.sonar.javascript.model.interfaces.expression.ExpressionTree;
+import org.sonar.javascript.model.interfaces.expression.IdentifierTree;
 import org.sonar.javascript.model.interfaces.lexical.SyntaxToken;
 
 import javax.annotation.Nullable;
+import java.util.Iterator;
 
-/**
- * <a href="http://www.ecma-international.org/ecma-262/5.1/#sec-12.2">Variable Declaration</a>.
- *
- * <pre>
- *   {@link #identifier()}
- *   {@link #identifier()} = {@link #initialiser()}
- * </pre>
- *
- * <p>This interface is not intended to be implemented by clients.</p>
- */
-public interface BindingElementTree extends Tree {
+public class BindingElementTreeImpl extends JavaScriptTree implements BindingElementTree {
 
-  org.sonar.javascript.model.interfaces.expression.IdentifierTree identifier();
+  private IdentifierTree identifier;
+  private SyntaxToken equalToken;
+  private ExpressionTree initialiser;
+
+  public BindingElementTreeImpl() {
+    super(Kind.BINDING_PATTERN_ELEMENT);
+  }
+
+  @Override
+  public IdentifierTree identifier() {
+    return identifier;
+  }
 
   @Nullable
-  SyntaxToken equalToken();
+  @Override
+  public SyntaxToken equalToken() {
+    return equalToken;
+  }
 
   @Nullable
-  ExpressionTree initialiser();
+  @Override
+  public ExpressionTree initialiser() {
+    return initialiser;
+  }
+
+  @Override
+  public Kind getKind() {
+    return Kind.BINDING_PATTERN_ELEMENT;
+  }
+
+  @Override
+  public Iterator<Tree> childrenIterator() {
+    return Iterators.emptyIterator();
+  }
 
 }

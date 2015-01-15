@@ -23,13 +23,17 @@ import com.sonar.sslr.api.AstNodeType;
 import org.sonar.javascript.model.interfaces.declaration.AccessorMethodDeclarationTree;
 import org.sonar.javascript.model.interfaces.declaration.ArrayBindingPatternTree;
 import org.sonar.javascript.model.interfaces.declaration.BindingElementTree;
+import org.sonar.javascript.model.interfaces.declaration.BindingPropertyTree;
 import org.sonar.javascript.model.interfaces.declaration.ClassDeclarationTree;
+import org.sonar.javascript.model.interfaces.declaration.DefaultExportDeclarationTree;
 import org.sonar.javascript.model.interfaces.declaration.ImportClauseTree;
 import org.sonar.javascript.model.interfaces.declaration.ImportDeclarationTree;
 import org.sonar.javascript.model.interfaces.declaration.ImportModuleDeclarationTree;
+import org.sonar.javascript.model.interfaces.declaration.MethodDeclarationTree;
+import org.sonar.javascript.model.interfaces.declaration.NameSpaceExportDeclarationTree;
 import org.sonar.javascript.model.interfaces.declaration.NameSpaceImportTree;
+import org.sonar.javascript.model.interfaces.declaration.NamedExportDeclarationTree;
 import org.sonar.javascript.model.interfaces.declaration.SpecifierListTree;
-import org.sonar.javascript.model.interfaces.declaration.ExportDeclarationTree;
 import org.sonar.javascript.model.interfaces.declaration.SpecifierTree;
 import org.sonar.javascript.model.interfaces.declaration.FromClauseTree;
 import org.sonar.javascript.model.interfaces.declaration.FunctionDeclarationTree;
@@ -699,19 +703,24 @@ public interface Tree {
     TEMPLATE_CHARACTERS(TemplateCharactersTree.class),
 
     /**
-     * {@link org.sonar.javascript.model.interfaces.declaration.AccessorMethodDeclarationTree}
+     * {@link AccessorMethodDeclarationTree}
      */
     SET_METHOD(AccessorMethodDeclarationTree.class),
 
     /**
-     * {@link org.sonar.javascript.model.interfaces.declaration.AccessorMethodDeclarationTree}
+     * {@link AccessorMethodDeclarationTree}
      */
     GET_METHOD(AccessorMethodDeclarationTree.class),
 
     /**
-     * {@link org.sonar.javascript.model.interfaces.declaration.AccessorMethodDeclarationTree}
+     * {@link AccessorMethodDeclarationTree}
      */
     GENERATOR_METHOD(GeneratorMethodDeclarationTree.class),
+
+    /**
+     * {@link MethodDeclarationTree}
+     */
+    METHOD(MethodDeclarationTree.class),
 
     /**
      * {@link ClassDeclarationTree}
@@ -734,6 +743,11 @@ public interface Tree {
     OBJECT_BINDING_PATTERN(ObjectBindingPatternTree.class),
 
     /**
+     * {@link BindingPropertyTree}
+     */
+    BINDING_PROPERTY(BindingPropertyTree.class),
+
+    /**
      * {@link ObjectBindingPatternTree}
      */
     ARRAY_BINDING_PATTERN(ArrayBindingPatternTree.class),
@@ -749,19 +763,19 @@ public interface Tree {
     CONST_DECLARATION(LexicalDeclarationTree.class),
 
     /**
-     * {@link ExportDeclarationTree}
+     * {@link DefaultExportDeclarationTree}
      */
-    DEFAULT_EXPORT_DECLARATION(ExportDeclarationTree.class),
+    DEFAULT_EXPORT_DECLARATION(DefaultExportDeclarationTree.class),
 
     /**
-     * {@link ExportDeclarationTree}
+     * {@link NamedExportDeclarationTree}
      */
-    NAMED_EXPORT_DECLARATION(ExportDeclarationTree.class),
+    NAMED_EXPORT_DECLARATION(NamedExportDeclarationTree.class),
 
     /**
-     * {@link ExportDeclarationTree}
+     * {@link NameSpaceExportDeclarationTree}
      */
-    NAMESPACE_EXPORT_DECLARATION(ExportDeclarationTree.class),
+    NAMESPACE_EXPORT_DECLARATION(NameSpaceExportDeclarationTree.class),
 
     /**
      * {@link FromClauseTree}

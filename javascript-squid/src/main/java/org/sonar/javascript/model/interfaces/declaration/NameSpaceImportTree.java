@@ -25,7 +25,6 @@ import org.sonar.javascript.model.interfaces.Tree;
 
 /**
  * Interface for <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-exports">Export Specifier</a>.
- * <p/>
  *
  * <pre>
  *    {@link Tree.Kind#NAMESPACE_IMPORT *} as {@link #localName()}

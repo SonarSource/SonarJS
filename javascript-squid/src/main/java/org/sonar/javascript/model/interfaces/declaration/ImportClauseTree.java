@@ -29,21 +29,23 @@ import javax.annotation.Nullable;
  * <p/>
  *
  * <pre>
- *    {@link #importedElement()}
- *    {@link #importedElement()} , {@link #namedImport()}
+ *    {@link #defaultImport()}
+ *    {@link #defaultImport()} , {@link #namedImport()}
  * </pre>
  *
  * </p>
  * <p>This interface is not intended to be implemented by clients.</p>
  */
+// TODO: review this model, all fields are nullable...
 public interface ImportClauseTree extends DeclarationTree {
 
-  DeclarationTree importedElement();
+  @Nullable
+  IdentifierTree defaultImport();
 
   @Nullable
   SyntaxToken commaToken();
 
   @Nullable
-  IdentifierTree namedImport();
+  DeclarationTree namedImport();
 
 }
