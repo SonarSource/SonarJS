@@ -24,6 +24,10 @@ import org.sonar.javascript.model.interfaces.declaration.AccessorMethodDeclarati
 import org.sonar.javascript.model.interfaces.declaration.ArrayBindingPatternTree;
 import org.sonar.javascript.model.interfaces.declaration.BindingElementTree;
 import org.sonar.javascript.model.interfaces.declaration.ClassDeclarationTree;
+import org.sonar.javascript.model.interfaces.declaration.ExportClauseTree;
+import org.sonar.javascript.model.interfaces.declaration.ExportDeclarationTree;
+import org.sonar.javascript.model.interfaces.declaration.ExportSpecifierTree;
+import org.sonar.javascript.model.interfaces.declaration.FromClauseTree;
 import org.sonar.javascript.model.interfaces.declaration.FunctionDeclarationTree;
 import org.sonar.javascript.model.interfaces.declaration.GeneratorMethodDeclarationTree;
 import org.sonar.javascript.model.interfaces.declaration.ObjectBindingPatternTree;
@@ -739,6 +743,26 @@ public interface Tree {
      * {@link LexicalDeclarationTree}
      */
     CONST_DECLARATION(LexicalDeclarationTree.class),
+
+    /**
+     * {@link ExportDeclarationTree}
+     */
+    EXPORT_DECLARATION(ExportDeclarationTree.class),
+
+    /**
+     * {@link FromClauseTree}
+     */
+    FROM_CLAUSE(FromClauseTree.class),
+
+    /**
+     * {@link ExportClauseTree}
+     */
+    EXPORT_CLAUSE(ExportClauseTree.class),
+
+    /**
+     * {@link ExportSpecifierTree}
+     */
+    EXPORT_SPECIFIER(ExportSpecifierTree.class),
 
     TYPEOF(UnaryExpressionTree.class),
 
