@@ -17,15 +17,20 @@
  * License along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.javascript.model.interfaces.declaration;
+package org.sonar.javascript.model.interfaces;
 
-import org.sonar.javascript.model.interfaces.Tree;
+import org.sonar.javascript.model.interfaces.declaration.DeclarationTree;
+
+import java.util.List;
 
 /**
- * Common interface for all types <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-declarations-and-the-variable-statement">Declaration</a>.
+ * Interface for type <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-modules">Module</a>.
  * <p/>
- *
+ * <p/>
  * <p>This interface is not intended to be implemented by clients.</p>
  */
-public interface DeclarationTree extends Tree {
+public interface ModuleTree extends DeclarationTree {
+
+  List<Tree> items();
+
 }

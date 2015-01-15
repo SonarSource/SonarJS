@@ -26,7 +26,7 @@ import org.sonar.javascript.model.interfaces.lexical.SyntaxToken;
  * Interface for <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-imports">From Clause</a>.
  * <p/>
  * <pre>
- *    from {@link #moduleSpecifier()}
+ *    from {@link #module()}
  * </pre>
  * </p>
  */
@@ -34,6 +34,6 @@ public interface FromClauseTree extends DeclarationTree {
 
   SyntaxToken fromToken();
 
-  LiteralTree moduleSpecifier();
+  LiteralTree module();
 
 }

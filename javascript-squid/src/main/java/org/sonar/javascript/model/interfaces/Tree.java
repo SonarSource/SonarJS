@@ -24,9 +24,13 @@ import org.sonar.javascript.model.interfaces.declaration.AccessorMethodDeclarati
 import org.sonar.javascript.model.interfaces.declaration.ArrayBindingPatternTree;
 import org.sonar.javascript.model.interfaces.declaration.BindingElementTree;
 import org.sonar.javascript.model.interfaces.declaration.ClassDeclarationTree;
-import org.sonar.javascript.model.interfaces.declaration.ExportClauseTree;
+import org.sonar.javascript.model.interfaces.declaration.ImportClauseTree;
+import org.sonar.javascript.model.interfaces.declaration.ImportDeclarationTree;
+import org.sonar.javascript.model.interfaces.declaration.ImportModuleDeclarationTree;
+import org.sonar.javascript.model.interfaces.declaration.NameSpaceImportTree;
+import org.sonar.javascript.model.interfaces.declaration.SpecifierListTree;
 import org.sonar.javascript.model.interfaces.declaration.ExportDeclarationTree;
-import org.sonar.javascript.model.interfaces.declaration.ExportSpecifierTree;
+import org.sonar.javascript.model.interfaces.declaration.SpecifierTree;
 import org.sonar.javascript.model.interfaces.declaration.FromClauseTree;
 import org.sonar.javascript.model.interfaces.declaration.FunctionDeclarationTree;
 import org.sonar.javascript.model.interfaces.declaration.GeneratorMethodDeclarationTree;
@@ -747,7 +751,17 @@ public interface Tree {
     /**
      * {@link ExportDeclarationTree}
      */
-    EXPORT_DECLARATION(ExportDeclarationTree.class),
+    DEFAULT_EXPORT_DECLARATION(ExportDeclarationTree.class),
+
+    /**
+     * {@link ExportDeclarationTree}
+     */
+    NAMED_EXPORT_DECLARATION(ExportDeclarationTree.class),
+
+    /**
+     * {@link ExportDeclarationTree}
+     */
+    NAMESPACE_EXPORT_DECLARATION(ExportDeclarationTree.class),
 
     /**
      * {@link FromClauseTree}
@@ -755,14 +769,49 @@ public interface Tree {
     FROM_CLAUSE(FromClauseTree.class),
 
     /**
-     * {@link ExportClauseTree}
+     * {@link SpecifierListTree}
      */
-    EXPORT_CLAUSE(ExportClauseTree.class),
+    EXPORT_CLAUSE(SpecifierListTree.class),
 
     /**
-     * {@link ExportSpecifierTree}
+     * {@link SpecifierListTree}
      */
-    EXPORT_SPECIFIER(ExportSpecifierTree.class),
+    NAMED_IMPORTS(SpecifierListTree.class),
+
+    /**
+     * {@link SpecifierTree}
+     */
+    EXPORT_SPECIFIER(SpecifierTree.class),
+
+    /**
+     * {@link SpecifierTree}
+     */
+    IMPORT_SPECIFIER(SpecifierTree.class),
+
+    /**
+     * {@link NameSpaceImportTree}
+     */
+    NAMESPACE_IMPORT(NameSpaceImportTree.class),
+
+    /**
+     * {@link ImportDeclarationTree}
+     */
+    IMPORT_DECLARATION(ImportDeclarationTree.class),
+
+    /**
+     * {@link ImportModuleDeclarationTree}
+     */
+    IMPORT_MODULE_DECLARATION(ImportModuleDeclarationTree.class),
+
+    /**
+     * {@link ModuleTree}
+     */
+    MODULE(ModuleTree.class),
+
+    /**
+     * {@link ImportClauseTree}
+     */
+    IMPORT_CLAUSE(ImportClauseTree.class),
 
     TYPEOF(UnaryExpressionTree.class),
 

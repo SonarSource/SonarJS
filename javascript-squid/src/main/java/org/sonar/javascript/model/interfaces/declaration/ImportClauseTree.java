@@ -25,23 +25,25 @@ import org.sonar.javascript.model.interfaces.lexical.SyntaxToken;
 import javax.annotation.Nullable;
 
 /**
- * Interface for <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-exports">Export Specifier</a>.
+ * Interface for <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-imports">Import Clause</a>.
  * <p/>
  *
  * <pre>
- *    {@link #name()}
- *    {@link #name()} as {@link #alias()}
+ *    {@link #importedElement()}
+ *    {@link #importedElement()} , {@link #namedImport()}
  * </pre>
+ *
  * </p>
+ * <p>This interface is not intended to be implemented by clients.</p>
  */
-public interface ExportSpecifierTree extends DeclarationTree {
+public interface ImportClauseTree extends DeclarationTree {
 
-  IdentifierTree name();
-
-  @Nullable
-  SyntaxToken asToken();
+  DeclarationTree importedElement();
 
   @Nullable
-  IdentifierTree alias();
+  SyntaxToken commaToken();
+
+  @Nullable
+  IdentifierTree namedImport();
 
 }

@@ -19,13 +19,29 @@
  */
 package org.sonar.javascript.model.interfaces.declaration;
 
-import org.sonar.javascript.model.interfaces.Tree;
+import org.sonar.javascript.model.interfaces.expression.IdentifierTree;
+import org.sonar.javascript.model.interfaces.lexical.SyntaxToken;
+
+import javax.annotation.Nullable;
 
 /**
- * Common interface for all types <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-declarations-and-the-variable-statement">Declaration</a>.
+ * Interface for <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-exports">Export Specifier</a>.
  * <p/>
  *
- * <p>This interface is not intended to be implemented by clients.</p>
+ * <pre>
+ *    {@link #name()}
+ *    {@link #name()} as {@link #alias()}
+ * </pre>
+ * </p>
  */
-public interface DeclarationTree extends Tree {
+public interface SpecifierTree extends DeclarationTree {
+
+  IdentifierTree name();
+
+  @Nullable
+  SyntaxToken asToken();
+
+  @Nullable
+  IdentifierTree localName();
+
 }

@@ -676,6 +676,7 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
       SIMPLE_IMPORT,
       IMPORT_FROM));
 
+    // FIXME: update import & export declaration according to last ES6 specification draft
     b.rule(MODULE_IMPORT).is(MODULE_WORD, /* no line terminator here */SPACING_NO_LB, NEXT_NOT_LB, BINDING_IDENTIFIER, FROM_CLAUSE, EOS);
     b.rule(MODULE_WORD).is(word(b, "module"));
     b.rule(SIMPLE_IMPORT).is(IMPORT, Kind.STRING_LITERAL, EOS);

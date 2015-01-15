@@ -19,13 +19,25 @@
  */
 package org.sonar.javascript.model.interfaces.declaration;
 
+import org.sonar.javascript.model.interfaces.expression.IdentifierTree;
+import org.sonar.javascript.model.interfaces.lexical.SyntaxToken;
 import org.sonar.javascript.model.interfaces.Tree;
 
 /**
- * Common interface for all types <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-declarations-and-the-variable-statement">Declaration</a>.
+ * Interface for <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-exports">Export Specifier</a>.
  * <p/>
  *
- * <p>This interface is not intended to be implemented by clients.</p>
+ * <pre>
+ *    {@link Tree.Kind#NAMESPACE_IMPORT *} as {@link #localName()}
+ * </pre>
+ * </p>
  */
-public interface DeclarationTree extends Tree {
+public interface NameSpaceImportTree extends DeclarationTree {
+
+  SyntaxToken starToken();
+
+  SyntaxToken asToken();
+
+  IdentifierTree localName();
+
 }

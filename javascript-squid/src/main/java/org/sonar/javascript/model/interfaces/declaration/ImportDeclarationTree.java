@@ -20,12 +20,26 @@
 package org.sonar.javascript.model.interfaces.declaration;
 
 import org.sonar.javascript.model.interfaces.Tree;
+import org.sonar.javascript.model.interfaces.lexical.SyntaxToken;
+
+import javax.annotation.Nullable;
 
 /**
- * Common interface for all types <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-declarations-and-the-variable-statement">Declaration</a>.
+ * Interface for types <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-exports">Named and Default Imports</a>.
  * <p/>
  *
- * <p>This interface is not intended to be implemented by clients.</p>
+ * <pre>
+ *    import {@link #importClause()} {@link #fromClause()} ;
+ * </pre>
  */
-public interface DeclarationTree extends Tree {
+public interface ImportDeclarationTree extends DeclarationTree {
+
+  SyntaxToken importToken();
+
+  ImportClauseTree importClause();
+
+  FromClauseTree fromClause();
+
+  Tree eos();
+
 }
