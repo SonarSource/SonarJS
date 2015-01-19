@@ -368,7 +368,9 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
     lexical(b);
     expressions(b);
     statements(b);
-    declarations(b);
+    module_declaration(b);
+    lexical_var_and_destructuring_declarations(b);
+    class_and_function_declarations(b);
     programs(b);
 
     b.setRootRule(SCRIPT);
@@ -587,7 +589,9 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
   /**
    * A.5 Declarations
    */
-  private static void declarations(LexerlessGrammarBuilder b) {
+
+
+  private static void module_declaration(LexerlessGrammarBuilder b) {
     b.rule(MODULE).is(MODULE_BODY);
     b.rule(MODULE_BODY).is(b.oneOrMore(MODULE_ITEM));
     b.rule(MODULE_ITEM).is(b.firstOf(IMPORT_DECLARATION, EXPORT_DECLARATION, DECLARATION, STATEMENT));
@@ -628,18 +632,13 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
     b.rule(IMPORT_SPECIFIER).is(b.optional(IDENTIFIER_NAME, AS), BINDING_IDENTIFIER);
     b.rule(AS).is(word(b, "as"));
 
+  }
+  private static void lexical_var_and_destructuring_declarations(LexerlessGrammarBuilder b) {
     b.rule(DECLARATION).is(b.firstOf(
       FUNCTION_DECLARATION,
       ecmascript6(GENERATOR_DECLARATION),
       ecmascript6(CLASS_DECLARATION),
       ecmascript6(LEXICAL_DECLARATION)));
-
-    b.rule(FUNCTION_DECLARATION).is(FUNCTION, BINDING_IDENTIFIER, Kind.FORMAL_PARAMETER_LIST, LCURLYBRACE, FUNCTION_BODY, RCURLYBRACE);
-
-    b.rule(FUNCTION_BODY).is(b.optional(STATEMENT_LIST));
-
-    b.rule(GENERATOR_DECLARATION).is(FUNCTION, STAR, BINDING_IDENTIFIER,
-      Kind.FORMAL_PARAMETER_LIST, LCURLYBRACE, FUNCTION_BODY, RCURLYBRACE);
 
     b.rule(LEXICAL_DECLARATION).is(LET_OR_CONST, BINDING_LIST, EOS);
     b.rule(LEXICAL_DECLARATION_NO_IN).is(LET_OR_CONST, BINDING_LIST_NO_IN);
@@ -679,6 +678,16 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
     b.rule(SINGLE_NAME_BINDING).is(BINDING_IDENTIFIER, b.optional(INITIALISER));
     b.rule(INITIALISER).is(EQU, ASSIGNMENT_EXPRESSION);
     b.rule(INITIALISER_NO_IN).is(EQU, ASSIGNMENT_EXPRESSION_NO_IN);
+
+  }
+
+  private static void class_and_function_declarations(LexerlessGrammarBuilder b) {
+    b.rule(FUNCTION_DECLARATION).is(FUNCTION, BINDING_IDENTIFIER, Kind.FORMAL_PARAMETER_LIST, LCURLYBRACE, FUNCTION_BODY, RCURLYBRACE);
+
+    b.rule(FUNCTION_BODY).is(b.optional(STATEMENT_LIST));
+
+    b.rule(GENERATOR_DECLARATION).is(FUNCTION, STAR, BINDING_IDENTIFIER,
+      Kind.FORMAL_PARAMETER_LIST, LCURLYBRACE, FUNCTION_BODY, RCURLYBRACE);
 
     b.rule(CLASS_DECLARATION).is(CLASS, BINDING_IDENTIFIER, CLASS_TAIL);
     b.rule(CLASS_TAIL).is(b.optional(CLASS_HERITAGE), LCURLYBRACE, b.optional(CLASS_BODY), RCURLYBRACE);
