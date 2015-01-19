@@ -1190,6 +1190,10 @@ public class ActionGrammar {
 
   // [END] Module, import & export
 
+  // [START] Classes, methods, functions & generators
+
+  // [END] Classes, methods, functions & generators
+
   /**
    * A.5 [END] Declaration
    */
