@@ -24,31 +24,33 @@ import com.sonar.sslr.api.AstNode;
 import org.sonar.javascript.model.implementations.JavaScriptTree;
 import org.sonar.javascript.model.implementations.lexical.InternalSyntaxToken;
 import org.sonar.javascript.model.interfaces.Tree;
+import org.sonar.javascript.model.interfaces.expression.ExpressionTree;
 import org.sonar.javascript.model.interfaces.lexical.SyntaxToken;
 import org.sonar.javascript.model.interfaces.statement.StatementTree;
-import org.sonar.javascript.model.interfaces.statement.ThrowStatementTree;
 import org.sonar.javascript.model.interfaces.statement.WithStatementTree;
 
-import javax.annotation.Nullable;
 import java.util.Iterator;
 
 public class WithStatementTreeImpl extends JavaScriptTree implements WithStatementTree {
 
   private final SyntaxToken withKeyword;
   private final SyntaxToken openingParenthesis;
+  private final ExpressionTree expression;
   private final SyntaxToken closingParenthesis;
   private final StatementTree statement;
 
-  public WithStatementTreeImpl(InternalSyntaxToken withKeyword, InternalSyntaxToken openingParenthesis, AstNode expression, InternalSyntaxToken closingParenthesis, StatementTree statement) {
+  public WithStatementTreeImpl(InternalSyntaxToken withKeyword, InternalSyntaxToken openingParenthesis, ExpressionTree expression, InternalSyntaxToken closingParenthesis,
+    StatementTree statement) {
     super(Kind.WITH_STATEMENT);
     this.withKeyword = withKeyword;
     this.openingParenthesis = openingParenthesis;
+    this.expression = expression;
     this.closingParenthesis = closingParenthesis;
     this.statement = statement;
 
     addChild(withKeyword);
     addChild(openingParenthesis);
-    addChild(expression);
+    addChild((AstNode) expression);
     addChild(closingParenthesis);
     addChild((AstNode) statement);
   }
@@ -70,7 +72,7 @@ public class WithStatementTreeImpl extends JavaScriptTree implements WithStateme
 
   @Override
   public Tree expression() {
-    throw new UnsupportedOperationException("Not supported yet in the strongly typed AST.");
+    return expression;
   }
 
   @Override

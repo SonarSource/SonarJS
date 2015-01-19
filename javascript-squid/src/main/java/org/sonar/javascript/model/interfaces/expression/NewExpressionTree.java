@@ -24,7 +24,6 @@ import org.sonar.javascript.model.interfaces.declaration.ParameterListTree;
 import org.sonar.javascript.model.interfaces.lexical.SyntaxToken;
 
 import javax.annotation.Nullable;
-import java.util.List;
 
 /**
  * <a href="http://www.ecma-international.org/ecma-262/5.1/#sec-11.2.2">New Expression</a>.
@@ -45,8 +44,9 @@ public interface NewExpressionTree extends ExpressionTree {
 
   SyntaxToken newKeyword();
 
-  Tree expression();
+  ExpressionTree expression();
 
   @Nullable
   ParameterListTree arguments();
+
 }

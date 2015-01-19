@@ -25,7 +25,6 @@ import org.sonar.javascript.api.EcmaScriptPunctuator;
 import org.sonar.javascript.model.JavaScriptTreeModelTest;
 import org.sonar.javascript.model.implementations.statement.SwitchStatementTreeImpl;
 import org.sonar.javascript.model.interfaces.Tree.Kind;
-import org.sonar.javascript.model.interfaces.statement.WithStatementTree;
 
 import static org.fest.assertions.Assertions.assertThat;
 
@@ -38,6 +37,7 @@ public class SwitchStatementTreeModelTest extends JavaScriptTreeModelTest {
     assertThat(tree.is(Kind.SWITCH_STATEMENT)).isTrue();
     assertThat(tree.switchKeyword().text()).isEqualTo(EcmaScriptKeyword.SWITCH.getValue());
     assertThat(tree.openParenthesis().text()).isEqualTo(EcmaScriptPunctuator.LPARENTHESIS.getValue());
+    assertThat(tree.expression()).isNotNull();
     assertThat(tree.closeParenthesis().text()).isEqualTo(EcmaScriptPunctuator.RPARENTHESIS.getValue());
 
     assertThat(tree.openCurlyBrace().text()).isEqualTo(EcmaScriptPunctuator.LCURLYBRACE.getValue());
@@ -51,10 +51,12 @@ public class SwitchStatementTreeModelTest extends JavaScriptTreeModelTest {
     assertThat(tree.is(Kind.SWITCH_STATEMENT)).isTrue();
     assertThat(tree.switchKeyword().text()).isEqualTo(EcmaScriptKeyword.SWITCH.getValue());
     assertThat(tree.openParenthesis().text()).isEqualTo(EcmaScriptPunctuator.LPARENTHESIS.getValue());
+    assertThat(tree.expression()).isNotNull();
     assertThat(tree.closeParenthesis().text()).isEqualTo(EcmaScriptPunctuator.RPARENTHESIS.getValue());
 
     assertThat(tree.openCurlyBrace().text()).isEqualTo(EcmaScriptPunctuator.LCURLYBRACE.getValue());
     assertThat(tree.cases().size()).isEqualTo(2);
     assertThat(tree.closeCurlyBrace().text()).isEqualTo(EcmaScriptPunctuator.RCURLYBRACE.getValue());
   }
+
 }

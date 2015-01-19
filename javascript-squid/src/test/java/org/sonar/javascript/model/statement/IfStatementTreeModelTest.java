@@ -25,7 +25,6 @@ import org.sonar.javascript.api.EcmaScriptPunctuator;
 import org.sonar.javascript.model.JavaScriptTreeModelTest;
 import org.sonar.javascript.model.implementations.statement.IfStatementTreeImpl;
 import org.sonar.javascript.model.interfaces.Tree.Kind;
-import org.sonar.javascript.model.interfaces.statement.ContinueStatementTree;
 
 import static org.fest.assertions.Assertions.assertThat;
 
@@ -38,6 +37,7 @@ public class IfStatementTreeModelTest extends JavaScriptTreeModelTest {
     assertThat(tree.is(Kind.IF_STATEMENT)).isTrue();
     assertThat(tree.ifKeyword().text()).isEqualTo(EcmaScriptKeyword.IF.getValue());
     assertThat(tree.openParenthesis().text()).isEqualTo(EcmaScriptPunctuator.LPARENTHESIS.getValue());
+    assertThat(tree.condition()).isNotNull();
     assertThat(tree.closeParenthesis().text()).isEqualTo(EcmaScriptPunctuator.RPARENTHESIS.getValue());
     assertThat(tree.thenStatement().is(Kind.BLOCK));
   }
@@ -49,10 +49,12 @@ public class IfStatementTreeModelTest extends JavaScriptTreeModelTest {
     assertThat(tree.is(Kind.IF_STATEMENT)).isTrue();
     assertThat(tree.ifKeyword().text()).isEqualTo(EcmaScriptKeyword.IF.getValue());
     assertThat(tree.openParenthesis().text()).isEqualTo(EcmaScriptPunctuator.LPARENTHESIS.getValue());
+    assertThat(tree.condition()).isNotNull();
     assertThat(tree.closeParenthesis().text()).isEqualTo(EcmaScriptPunctuator.RPARENTHESIS.getValue());
     assertThat(tree.thenStatement().is(Kind.BLOCK));
 
     assertThat(tree.elseClause().elseKeyword().text()).isEqualTo(EcmaScriptKeyword.ELSE.getValue());
     assertThat(tree.elseClause().statement().is(Kind.BLOCK));
   }
+
 }

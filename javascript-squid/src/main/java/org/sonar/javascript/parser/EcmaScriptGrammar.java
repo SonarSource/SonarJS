@@ -115,8 +115,6 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
 
   IDENTIFIER_NAME,
 
-  CONDITION,
-
   // A.1 Lexical
 
   LITERAL,
@@ -143,6 +141,7 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
   /**
    * Spacing.
    */
+  SPACING_NO_LINE_BREAK_NOT_FOLLOWED_BY_LINE_BREAK,
   SPACING,
 
   /**
@@ -382,6 +381,8 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
    * A.1 Lexical
    */
   private static void lexical(LexerlessGrammarBuilder b) {
+    b.rule(SPACING_NO_LINE_BREAK_NOT_FOLLOWED_BY_LINE_BREAK).is(SPACING_NO_LB, NEXT_NOT_LB);
+
     b.rule(SPACING).is(
       b.skippedTrivia(b.regexp("[" + EcmaScriptLexer.LINE_TERMINATOR + EcmaScriptLexer.WHITESPACE + "]*+")),
       b.zeroOrMore(
@@ -543,8 +544,6 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
   private static void expressions(LexerlessGrammarBuilder b) {
     b.rule(ELISION).is(b.oneOrMore(COMMA));
 
-    b.rule(EXPRESSION).is(ASSIGNMENT_EXPRESSION, b.zeroOrMore(COMMA, ASSIGNMENT_EXPRESSION));
-    b.rule(EXPRESSION_NO_LB).is(SPACING_NO_LB, NEXT_NOT_LB, EXPRESSION).skip();
     b.rule(EXPRESSION_NO_IN).is(ASSIGNMENT_EXPRESSION_NO_IN, b.zeroOrMore(COMMA, ASSIGNMENT_EXPRESSION_NO_IN));
 
     // Temporary rules
@@ -570,7 +569,6 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
     b.rule(STATEMENT_LIST).is(b.oneOrMore(b.firstOf(ecmascript6(DECLARATION), STATEMENT)));
     b.rule(VARIABLE_DECLARATION_LIST_NO_IN).is(VARIABLE_DECLARATION_NO_IN, b.zeroOrMore(COMMA, VARIABLE_DECLARATION_NO_IN));
     b.rule(VARIABLE_DECLARATION_NO_IN).is(b.firstOf(BINDING_IDENTIFIER_INITIALISER_NO_IN, BINDING_PATTERN_INITIALISER_NO_IN));
-    b.rule(CONDITION).is(EXPRESSION);
 
     b.rule(FOR_DECLARATION).is(b.firstOf(VAR, LET_OR_CONST), FOR_BINDING);
     b.rule(OF).is(word(b, "of"));

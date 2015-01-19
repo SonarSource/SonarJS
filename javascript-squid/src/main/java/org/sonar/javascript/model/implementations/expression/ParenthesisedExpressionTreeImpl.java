@@ -33,14 +33,16 @@ import java.util.Iterator;
 public class ParenthesisedExpressionTreeImpl extends JavaScriptTree implements ParenthesisedExpressionTree {
 
   private final InternalSyntaxToken openParenthesis;
+  private final ExpressionTree expression;
   private final InternalSyntaxToken closeParenthesis;
 
-  public ParenthesisedExpressionTreeImpl(InternalSyntaxToken openParenthesis, AstNode expression, InternalSyntaxToken closeParenthesis) {
+  public ParenthesisedExpressionTreeImpl(InternalSyntaxToken openParenthesis, ExpressionTree expression, InternalSyntaxToken closeParenthesis) {
     super(Kind.PARENTHESISED_EXPRESSION);
     this.openParenthesis = openParenthesis;
+    this.expression = expression;
     this.closeParenthesis = closeParenthesis;
 
-    addChildren(openParenthesis, expression, closeParenthesis);
+    addChildren(openParenthesis, (AstNode) expression, closeParenthesis);
   }
 
   @Override
@@ -50,7 +52,7 @@ public class ParenthesisedExpressionTreeImpl extends JavaScriptTree implements P
 
   @Override
   public ExpressionTree expression() {
-    throw new UnsupportedOperationException("Not supported yet in the strongly typed AST.");
+    return expression;
   }
 
   @Override

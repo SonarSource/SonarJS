@@ -19,146 +19,149 @@
  */
 package org.sonar.javascript.model.expression;
 
-import static org.fest.assertions.Assertions.assertThat;
-
-import com.sonar.sslr.api.TokenType;
 import org.junit.Test;
-import org.sonar.javascript.api.EcmaScriptKeyword;
-import org.sonar.javascript.api.EcmaScriptPunctuator;
 import org.sonar.javascript.model.JavaScriptTreeModelTest;
 import org.sonar.javascript.model.interfaces.Tree.Kind;
 import org.sonar.javascript.model.interfaces.expression.BinaryExpressionTree;
+
+import static org.fest.assertions.Assertions.assertThat;
 
 public class BinaryExpressionTreeModelTest extends JavaScriptTreeModelTest {
 
   @Test
   public void conditional_or() throws Exception {
-    test_binary_expression("a || b || c;", Kind.CONDITIONAL_OR, EcmaScriptPunctuator.OROR);
+    test_binary_expression("a || b || c;", Kind.CONDITIONAL_OR, "||");
   }
 
   @Test
   public void conditional_and() throws Exception {
-    test_binary_expression("a && b && c;", Kind.CONDITIONAL_AND, EcmaScriptPunctuator.ANDAND);
+    test_binary_expression("a && b && c;", Kind.CONDITIONAL_AND, "&&");
   }
 
   @Test
   public void bitwise_or() throws Exception {
-    test_binary_expression("a | b | c;", Kind.BITWISE_OR, EcmaScriptPunctuator.OR);
+    test_binary_expression("a | b | c;", Kind.BITWISE_OR, "|");
   }
 
   @Test
   public void bitwise_and() throws Exception {
-    test_binary_expression("a & b & c;", Kind.BITWISE_AND, EcmaScriptPunctuator.AND);
+    test_binary_expression("a & b & c;", Kind.BITWISE_AND, "&");
   }
 
   @Test
   public void bitwise_xor() throws Exception {
-    test_binary_expression("a ^ b ^ c;", Kind.BITWISE_XOR, EcmaScriptPunctuator.XOR);
+    test_binary_expression("a ^ b ^ c;", Kind.BITWISE_XOR, "^");
   }
 
   @Test
   public void equality_equal_to() throws Exception {
-    test_binary_expression("a == b == c;", Kind.EQUAL_TO, EcmaScriptPunctuator.EQUAL);
+    test_binary_expression("a == b == c;", Kind.EQUAL_TO, "==");
   }
 
   @Test
   public void equality_not_equal_to() throws Exception {
-    test_binary_expression("a != b != c;", Kind.NOT_EQUAL_TO, EcmaScriptPunctuator.NOTEQUAL);
+    test_binary_expression("a != b != c;", Kind.NOT_EQUAL_TO, "!=");
   }
 
   @Test
   public void equality_strict_equal_to() throws Exception {
-    test_binary_expression("a === b === c;", Kind.STRICT_EQUAL_TO, EcmaScriptPunctuator.EQUAL2);
+    test_binary_expression("a === b === c;", Kind.STRICT_EQUAL_TO, "===");
   }
 
   @Test
   public void equality_strict_not_equal_to() throws Exception {
-    test_binary_expression("a !== b !== c;", Kind.STRICT_NOT_EQUAL_TO, EcmaScriptPunctuator.NOTEQUAL2);
+    test_binary_expression("a !== b !== c;", Kind.STRICT_NOT_EQUAL_TO, "!==");
   }
 
   @Test
   public void relation_less_than() throws Exception {
-    test_binary_expression("a < b < c;", Kind.LESS_THAN, EcmaScriptPunctuator.LT);
+    test_binary_expression("a < b < c;", Kind.LESS_THAN, "<");
   }
 
   @Test
   public void relation_greater_than() throws Exception {
-    test_binary_expression("a > b > c;", Kind.GREATER_THAN, EcmaScriptPunctuator.GT);
+    test_binary_expression("a > b > c;", Kind.GREATER_THAN, ">");
   }
 
   @Test
   public void relation_less_or_equal_to() throws Exception {
-    test_binary_expression("a <= b <= c;", Kind.LESS_THAN_OR_EQUAL_TO, EcmaScriptPunctuator.LE);
+    test_binary_expression("a <= b <= c;", Kind.LESS_THAN_OR_EQUAL_TO, "<=");
   }
 
   @Test
   public void relation_greater_or_equal_to() throws Exception {
-    test_binary_expression("a >= b >= c;", Kind.GREATER_THAN_OR_EQUAL_TO, EcmaScriptPunctuator.GE);
+    test_binary_expression("a >= b >= c;", Kind.GREATER_THAN_OR_EQUAL_TO, ">=");
   }
 
   @Test
   public void relation_instance_of() throws Exception {
-    test_binary_expression("a instanceof b instanceof c;", Kind.INSTANCE_OF, EcmaScriptKeyword.INSTANCEOF);
+    test_binary_expression("a instanceof b instanceof c;", Kind.INSTANCE_OF, "instanceof");
   }
 
   @Test
   public void relation_in() throws Exception {
-    test_binary_expression("a in b in c;", Kind.RELATIONAL_IN, EcmaScriptKeyword.IN);
+    test_binary_expression("a in b in c;", Kind.RELATIONAL_IN, "in");
   }
 
   @Test
   public void shift_left() throws Exception {
-    test_binary_expression("a << b << c;", Kind.LEFT_SHIFT, EcmaScriptPunctuator.SL);
+    test_binary_expression("a << b << c;", Kind.LEFT_SHIFT, "<<");
   }
 
   @Test
   public void shift_right() throws Exception {
-    test_binary_expression("a >> b >> c;", Kind.RIGHT_SHIFT, EcmaScriptPunctuator.SR);
+    test_binary_expression("a >> b >> c;", Kind.RIGHT_SHIFT, ">>");
   }
 
   @Test
   public void shift_unsigned_right() throws Exception {
-    test_binary_expression("a >>> b >>> c;", Kind.UNSIGNED_RIGHT_SHIFT, EcmaScriptPunctuator.SR2);
+    test_binary_expression("a >>> b >>> c;", Kind.UNSIGNED_RIGHT_SHIFT, ">>>");
   }
 
   @Test
   public void additive_plus() throws Exception {
-    test_binary_expression("a + b + c;", Kind.PLUS, EcmaScriptPunctuator.PLUS);
+    test_binary_expression("a + b + c;", Kind.PLUS, "+");
   }
 
   @Test
   public void additive_minus() throws Exception {
-    test_binary_expression("a - b - c;", Kind.MINUS, EcmaScriptPunctuator.MINUS);
+    test_binary_expression("a - b - c;", Kind.MINUS, "-");
   }
 
   @Test
   public void multiplicative_multiply() throws Exception {
-    test_binary_expression("a * b * c;", Kind.MULTIPLY, EcmaScriptPunctuator.STAR);
+    test_binary_expression("a * b * c;", Kind.MULTIPLY, "*");
   }
 
   @Test
   public void multiplicative_divide() throws Exception {
-    test_binary_expression("a / b / c;", Kind.DIVIDE, EcmaScriptPunctuator.DIV);
+    test_binary_expression("a / b / c;", Kind.DIVIDE, "/");
   }
 
   @Test
   public void multiplicative_remainder() throws Exception {
-    test_binary_expression("a % b % c;", Kind.REMAINDER, EcmaScriptPunctuator.MOD);
+    test_binary_expression("a % b % c;", Kind.REMAINDER, "%");
   }
 
-  private void test_binary_expression(String str, Kind kind, TokenType operator) throws Exception {
+  @Test
+  public void comma() throws Exception {
+    test_binary_expression("a, b, c", Kind.COMMA_OPERATOR, ",");
+  }
+
+  private void test_binary_expression(String str, Kind kind, String operator) throws Exception {
     BinaryExpressionTree tree = parse(str, kind);
 
     assertThat(tree.is(kind)).isTrue();
     assertThat(tree.leftOperand()).isNotNull();
-    assertThat(tree.operator().text()).isEqualTo(operator.getValue());
+    assertThat(tree.operator().text()).isEqualTo(operator);
     assertThat(tree.rightOperand()).isNotNull();
 
     tree = (BinaryExpressionTree) tree.leftOperand();
 
     assertThat(tree.is(kind)).isTrue();
     assertThat(tree.leftOperand()).isNotNull();
-    assertThat(tree.operator().text()).isEqualTo(operator.getValue());
+    assertThat(tree.operator().text()).isEqualTo(operator);
     assertThat(tree.rightOperand()).isNotNull();
   }
+
 }

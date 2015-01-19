@@ -31,6 +31,7 @@ import org.sonar.javascript.model.interfaces.expression.NewExpressionTree;
 import org.sonar.javascript.model.interfaces.lexical.SyntaxToken;
 
 import javax.annotation.Nullable;
+
 import java.util.Iterator;
 
 public class NewExpressionTreeImpl extends JavaScriptTree implements NewExpressionTree {
@@ -66,7 +67,7 @@ public class NewExpressionTreeImpl extends JavaScriptTree implements NewExpressi
   }
 
   @Override
-  public Tree expression() {
+  public ExpressionTree expression() {
     return expression;
   }
 
@@ -76,6 +77,7 @@ public class NewExpressionTreeImpl extends JavaScriptTree implements NewExpressi
     return arguments;
   }
 
+  @Override
   public Kind getKind() {
     return kind;
   }

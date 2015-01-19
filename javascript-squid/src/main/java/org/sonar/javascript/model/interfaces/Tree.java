@@ -26,6 +26,9 @@ import org.sonar.javascript.model.interfaces.declaration.BindingElementTree;
 import org.sonar.javascript.model.interfaces.declaration.BindingPropertyTree;
 import org.sonar.javascript.model.interfaces.declaration.ClassDeclarationTree;
 import org.sonar.javascript.model.interfaces.declaration.DefaultExportDeclarationTree;
+import org.sonar.javascript.model.interfaces.declaration.FromClauseTree;
+import org.sonar.javascript.model.interfaces.declaration.FunctionDeclarationTree;
+import org.sonar.javascript.model.interfaces.declaration.GeneratorMethodDeclarationTree;
 import org.sonar.javascript.model.interfaces.declaration.ImportClauseTree;
 import org.sonar.javascript.model.interfaces.declaration.ImportDeclarationTree;
 import org.sonar.javascript.model.interfaces.declaration.ImportModuleDeclarationTree;
@@ -33,13 +36,11 @@ import org.sonar.javascript.model.interfaces.declaration.MethodDeclarationTree;
 import org.sonar.javascript.model.interfaces.declaration.NameSpaceExportDeclarationTree;
 import org.sonar.javascript.model.interfaces.declaration.NameSpaceImportTree;
 import org.sonar.javascript.model.interfaces.declaration.NamedExportDeclarationTree;
-import org.sonar.javascript.model.interfaces.declaration.SpecifierListTree;
-import org.sonar.javascript.model.interfaces.declaration.SpecifierTree;
-import org.sonar.javascript.model.interfaces.declaration.FromClauseTree;
-import org.sonar.javascript.model.interfaces.declaration.FunctionDeclarationTree;
-import org.sonar.javascript.model.interfaces.declaration.GeneratorMethodDeclarationTree;
 import org.sonar.javascript.model.interfaces.declaration.ObjectBindingPatternTree;
 import org.sonar.javascript.model.interfaces.declaration.ParameterListTree;
+import org.sonar.javascript.model.interfaces.declaration.SpecifierListTree;
+import org.sonar.javascript.model.interfaces.declaration.SpecifierTree;
+import org.sonar.javascript.model.interfaces.declaration.VariableDeclarationTree;
 import org.sonar.javascript.model.interfaces.expression.ArrayLiteralTree;
 import org.sonar.javascript.model.interfaces.expression.ArrowFunctionTree;
 import org.sonar.javascript.model.interfaces.expression.AssignmentExpressionTree;
@@ -87,7 +88,6 @@ import org.sonar.javascript.model.interfaces.statement.ReturnStatementTree;
 import org.sonar.javascript.model.interfaces.statement.SwitchStatementTree;
 import org.sonar.javascript.model.interfaces.statement.ThrowStatementTree;
 import org.sonar.javascript.model.interfaces.statement.TryStatementTree;
-import org.sonar.javascript.model.interfaces.declaration.VariableDeclarationTree;
 import org.sonar.javascript.model.interfaces.statement.VariableStatementTree;
 import org.sonar.javascript.model.interfaces.statement.WhileStatementTree;
 import org.sonar.javascript.model.interfaces.statement.WithStatementTree;
@@ -537,6 +537,12 @@ public interface Tree {
      * {@code ||}
      */
     CONDITIONAL_OR(BinaryExpressionTree.class),
+
+    /**
+     * {@link BinaryExpressionTree}
+     * {@code ,}
+     */
+    COMMA_OPERATOR(BinaryExpressionTree.class),
 
     /**
      * {@link ConditionalExpressionTree}

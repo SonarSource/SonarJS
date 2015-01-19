@@ -23,7 +23,6 @@ import org.junit.Test;
 import org.sonar.javascript.api.EcmaScriptKeyword;
 import org.sonar.javascript.model.JavaScriptTreeModelTest;
 import org.sonar.javascript.model.interfaces.Tree.Kind;
-import org.sonar.javascript.model.interfaces.statement.ReturnStatementTree;
 import org.sonar.javascript.model.interfaces.statement.ThrowStatementTree;
 
 import static org.fest.assertions.Assertions.assertThat;
@@ -36,6 +35,7 @@ public class ThrowStatementTreeModelTest extends JavaScriptTreeModelTest {
 
     assertThat(tree.is(Kind.THROW_STATEMENT)).isTrue();
     assertThat(tree.throwKeyword().text()).isEqualTo(EcmaScriptKeyword.THROW.getValue());
+    assertThat(tree.expression()).isNotNull();
   }
 
 }

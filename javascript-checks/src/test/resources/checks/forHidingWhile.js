@@ -15,3 +15,5 @@ for(var i = 0;; i++) {            // OK
 
 for (i; condition; ) {            // OK
 }
+
+for ( ; i < length; i++ ) {}

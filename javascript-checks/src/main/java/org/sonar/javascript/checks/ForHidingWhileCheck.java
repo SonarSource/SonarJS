@@ -24,6 +24,7 @@ import org.sonar.check.BelongsToProfile;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.javascript.model.interfaces.Tree.Kind;
+import org.sonar.javascript.model.interfaces.statement.ForStatementTree;
 import org.sonar.javascript.parser.EcmaScriptGrammar;
 import org.sonar.squidbridge.checks.SquidCheck;
 import org.sonar.sslr.parser.LexerlessGrammar;
@@ -55,6 +56,7 @@ public class ForHidingWhileCheck extends SquidCheck<LexerlessGrammar> {
   }
 
   public static boolean hasIncrement(AstNode forStmt) {
-    return forStmt.hasDirectChildren(EcmaScriptGrammar.EXPRESSION);
+    return ((ForStatementTree) forStmt).update() != null;
   }
+
 }

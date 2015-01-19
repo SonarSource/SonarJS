@@ -24,16 +24,19 @@ import com.google.common.collect.Iterators;
 import com.sonar.sslr.api.AstNode;
 import org.sonar.javascript.model.implementations.JavaScriptTree;
 import org.sonar.javascript.model.implementations.lexical.InternalSyntaxToken;
-import org.sonar.javascript.model.interfaces.Tree ;
+import org.sonar.javascript.model.interfaces.Tree;
+import org.sonar.javascript.model.interfaces.expression.ExpressionTree;
 import org.sonar.javascript.model.interfaces.lexical.SyntaxToken;
 import org.sonar.javascript.model.interfaces.statement.ReturnStatementTree;
 
 import javax.annotation.Nullable;
+
 import java.util.Iterator;
 
 public class ReturnStatementTreeImpl extends JavaScriptTree implements ReturnStatementTree {
 
   private SyntaxToken returnKeyword;
+  private ExpressionTree expression;
 
   public ReturnStatementTreeImpl(AstNode eos) {
     super(Kind.RETURN_STATEMENT);
@@ -41,10 +44,12 @@ public class ReturnStatementTreeImpl extends JavaScriptTree implements ReturnSta
     addChild(eos);
   }
 
-  public ReturnStatementTreeImpl(AstNode expression, AstNode eos) {
+  public ReturnStatementTreeImpl(ExpressionTree expression, AstNode eos) {
     super(Kind.RETURN_STATEMENT);
 
-    addChild(expression);
+    this.expression = expression;
+
+    addChild((AstNode) expression);
     addChild(eos);
   }
 
@@ -68,8 +73,8 @@ public class ReturnStatementTreeImpl extends JavaScriptTree implements ReturnSta
 
   @Nullable
   @Override
-  public Tree expression() {
-    throw new UnsupportedOperationException("Not supported yet in the strongly typed AST.");
+  public ExpressionTree expression() {
+    return expression;
   }
 
   @Nullable

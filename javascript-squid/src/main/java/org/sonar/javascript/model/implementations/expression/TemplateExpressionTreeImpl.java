@@ -25,10 +25,8 @@ import org.sonar.javascript.model.implementations.JavaScriptTree;
 import org.sonar.javascript.model.implementations.lexical.InternalSyntaxToken;
 import org.sonar.javascript.model.interfaces.Tree;
 import org.sonar.javascript.model.interfaces.expression.ExpressionTree;
-import org.sonar.javascript.model.interfaces.expression.LiteralTree;
 import org.sonar.javascript.model.interfaces.expression.TemplateExpressionTree;
 import org.sonar.javascript.model.interfaces.lexical.SyntaxToken;
-import org.sonar.sslr.internal.vm.OptionalExpression;
 
 import java.util.Iterator;
 
@@ -37,13 +35,15 @@ public class TemplateExpressionTreeImpl extends JavaScriptTree implements Templa
   private final InternalSyntaxToken dollar;
   private final InternalSyntaxToken openCurlyBrace;
   private InternalSyntaxToken closeCurlyBrace;
+  private final ExpressionTree expression;
 
-  public TemplateExpressionTreeImpl(InternalSyntaxToken dollar, InternalSyntaxToken openCurlyBrace, AstNode expression) {
+  public TemplateExpressionTreeImpl(InternalSyntaxToken dollar, InternalSyntaxToken openCurlyBrace, ExpressionTree expression) {
     super(Kind.TEMPLATE_EXPRESSION);
     this.dollar = dollar;
     this.openCurlyBrace = openCurlyBrace;
+    this.expression = expression;
 
-    addChildren(dollar, openCurlyBrace, expression);
+    addChildren(dollar, openCurlyBrace, (AstNode) expression);
   }
 
   public TemplateExpressionTreeImpl complete(InternalSyntaxToken closeCurlyBrace) {
@@ -65,7 +65,7 @@ public class TemplateExpressionTreeImpl extends JavaScriptTree implements Templa
 
   @Override
   public ExpressionTree expression() {
-    throw new UnsupportedOperationException("Not supported yet in the strongly typed AST.");
+    return expression;
   }
 
   @Override

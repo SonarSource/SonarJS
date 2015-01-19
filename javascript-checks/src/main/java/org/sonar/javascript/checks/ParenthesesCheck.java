@@ -25,8 +25,9 @@ import org.sonar.check.Rule;
 import org.sonar.javascript.api.EcmaScriptKeyword;
 import org.sonar.javascript.model.interfaces.Tree.Kind;
 import org.sonar.javascript.model.interfaces.expression.BinaryExpressionTree;
+import org.sonar.javascript.model.interfaces.expression.NewExpressionTree;
+import org.sonar.javascript.model.interfaces.expression.ParenthesisedExpressionTree;
 import org.sonar.javascript.model.interfaces.expression.UnaryExpressionTree;
-import org.sonar.javascript.parser.EcmaScriptGrammar;
 import org.sonar.squidbridge.checks.SquidCheck;
 import org.sonar.sslr.parser.LexerlessGrammar;
 
@@ -57,24 +58,21 @@ public class ParenthesesCheck extends SquidCheck<LexerlessGrammar> {
     if (node.is(Kind.DELETE, Kind.TYPEOF, Kind.VOID)) {
       UnaryExpressionTree prefixExpr = (UnaryExpressionTree) node;
 
-      if (startsWithOpenParenthesis(((AstNode) prefixExpr.expression()))) {
+      if (startsWithOpenParenthesis((AstNode) prefixExpr.expression())) {
         reportIssue(node);
       }
 
     } else if (node.is(Kind.NEW_EXPRESSION)) {
-      AstNode expression = node.getFirstChild(EcmaScriptKeyword.NEW).getNextAstNode();
+      NewExpressionTree tree = (NewExpressionTree) node;
 
-      if (!node.hasDirectChildren(Kind.ARGUMENTS) && expression.is(Kind.PARENTHESISED_EXPRESSION) && isBinaryExpression(expression.getFirstChild(EcmaScriptGrammar.EXPRESSION))) {
+      if (tree.arguments() == null &&
+        tree.expression().is(Kind.PARENTHESISED_EXPRESSION) && !(((ParenthesisedExpressionTree) tree.expression()).expression() instanceof BinaryExpressionTree)) {
         reportIssue(node);
       }
 
     } else if (isNotRelationalInExpression(node) && startsWithOpenParenthesis(node.getNextAstNode())) {
       reportIssue(node);
     }
-  }
-
-  private boolean isBinaryExpression(AstNode expression) {
-    return !(expression.getFirstChild() instanceof BinaryExpressionTree);
   }
 
   private boolean isNotRelationalInExpression(AstNode node) {

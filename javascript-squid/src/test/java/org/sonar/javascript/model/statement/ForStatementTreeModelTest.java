@@ -24,7 +24,6 @@ import org.sonar.javascript.api.EcmaScriptKeyword;
 import org.sonar.javascript.api.EcmaScriptPunctuator;
 import org.sonar.javascript.model.JavaScriptTreeModelTest;
 import org.sonar.javascript.model.interfaces.Tree.Kind;
-import org.sonar.javascript.model.interfaces.statement.ForOfStatementTree;
 import org.sonar.javascript.model.interfaces.statement.ForStatementTree;
 
 import static org.fest.assertions.Assertions.assertThat;
@@ -39,9 +38,23 @@ public class ForStatementTreeModelTest extends JavaScriptTreeModelTest {
     assertThat(tree.forKeyword().text()).isEqualTo(EcmaScriptKeyword.FOR.getValue());
     assertThat(tree.openParenthesis().text()).isEqualTo(EcmaScriptPunctuator.LPARENTHESIS.getValue());
     assertThat(tree.firstSemicolon().text()).isEqualTo(EcmaScriptPunctuator.SEMI.getValue());
+    assertThat(tree.condition()).isNull();
     assertThat(tree.secondSemicolon().text()).isEqualTo(EcmaScriptPunctuator.SEMI.getValue());
+    assertThat(tree.condition()).isNull();
     assertThat(tree.closeParenthesis().text()).isEqualTo(EcmaScriptPunctuator.RPARENTHESIS.getValue());
     assertThat(tree.statement().is(Kind.BLOCK));
+  }
+
+  @Test
+  public void condition() throws Exception {
+    ForStatementTree tree = parse("for ( ; i < 42; ) { }", Kind.FOR_STATEMENT);
+    assertThat(tree.condition()).isNotNull();
+  }
+
+  @Test
+  public void update() throws Exception {
+    ForStatementTree tree = parse("for ( ; ; i++ ) { }", Kind.FOR_STATEMENT);
+    assertThat(tree.update()).isNotNull();
   }
 
 }

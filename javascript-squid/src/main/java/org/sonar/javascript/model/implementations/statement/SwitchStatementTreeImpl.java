@@ -26,7 +26,6 @@ import org.sonar.javascript.model.implementations.lexical.InternalSyntaxToken;
 import org.sonar.javascript.model.interfaces.Tree;
 import org.sonar.javascript.model.interfaces.expression.ExpressionTree;
 import org.sonar.javascript.model.interfaces.lexical.SyntaxToken;
-import org.sonar.javascript.model.interfaces.statement.CaseClauseTree;
 import org.sonar.javascript.model.interfaces.statement.SwitchClauseTree;
 import org.sonar.javascript.model.interfaces.statement.SwitchStatementTree;
 
@@ -38,11 +37,12 @@ public class SwitchStatementTreeImpl extends JavaScriptTree implements SwitchSta
   private SyntaxToken switchKeyword;
 
   private SyntaxToken openParenthesis;
+  private ExpressionTree expression;
   private SyntaxToken closeParenthesis;
 
-  private SyntaxToken openCurlyBrace;
-  private List<SwitchClauseTree> cases;
-  private SyntaxToken closeCurlyBrace;
+  private final SyntaxToken openCurlyBrace;
+  private final List<SwitchClauseTree> cases;
+  private final SyntaxToken closeCurlyBrace;
 
   public SwitchStatementTreeImpl(InternalSyntaxToken openCurlyBrace, List<SwitchClauseTree> cases, InternalSyntaxToken closeCurlyBrace) {
     super(Kind.SWITCH_STATEMENT);
@@ -57,12 +57,13 @@ public class SwitchStatementTreeImpl extends JavaScriptTree implements SwitchSta
     addChild(closeCurlyBrace);
   }
 
-  public SwitchStatementTreeImpl complete(InternalSyntaxToken switchKeyword, InternalSyntaxToken openParenthesis, AstNode expression, InternalSyntaxToken closeParenthesis) {
+  public SwitchStatementTreeImpl complete(InternalSyntaxToken switchKeyword, InternalSyntaxToken openParenthesis, ExpressionTree expression, InternalSyntaxToken closeParenthesis) {
     this.switchKeyword = switchKeyword;
     this.openParenthesis = openParenthesis;
+    this.expression = expression;
     this.closeParenthesis = closeParenthesis;
 
-    prependChildren(switchKeyword, openParenthesis, expression, closeParenthesis);
+    prependChildren(switchKeyword, openParenthesis, (AstNode) expression, closeParenthesis);
     return this;
   }
 
@@ -78,7 +79,7 @@ public class SwitchStatementTreeImpl extends JavaScriptTree implements SwitchSta
 
   @Override
   public ExpressionTree expression() {
-    throw new UnsupportedOperationException("Not supported yet in the strongly typed AST.");
+    return expression;
   }
 
   @Override

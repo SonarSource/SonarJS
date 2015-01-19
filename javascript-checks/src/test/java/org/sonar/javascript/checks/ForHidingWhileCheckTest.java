@@ -19,16 +19,16 @@
  */
 package org.sonar.javascript.checks;
 
-import org.sonar.squidbridge.checks.CheckMessagesVerifier;
 import org.junit.Test;
 import org.sonar.javascript.JavaScriptAstScanner;
 import org.sonar.squidbridge.api.SourceFile;
+import org.sonar.squidbridge.checks.CheckMessagesVerifier;
 
 import java.io.File;
 
 public class ForHidingWhileCheckTest {
 
-  private ForHidingWhileCheck check = new ForHidingWhileCheck();
+  private final ForHidingWhileCheck check = new ForHidingWhileCheck();
   @Test
   public void test() {
     SourceFile file = JavaScriptAstScanner.scanSingleFile(new File("src/test/resources/checks/forHidingWhile.js"), check);
@@ -37,4 +37,5 @@ public class ForHidingWhileCheckTest {
       .next().atLine(4)
       .noMore();
   }
+
 }

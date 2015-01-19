@@ -19,14 +19,14 @@
  */
 package org.sonar.javascript.model.statement;
 
-import static org.fest.assertions.Assertions.assertThat;
 import org.junit.Test;
 import org.sonar.javascript.api.EcmaScriptKeyword;
 import org.sonar.javascript.api.EcmaScriptPunctuator;
 import org.sonar.javascript.model.JavaScriptTreeModelTest;
 import org.sonar.javascript.model.interfaces.Tree.Kind;
 import org.sonar.javascript.model.interfaces.statement.ForInStatementTree;
-import org.sonar.javascript.model.interfaces.statement.ForOfStatementTree;
+
+import static org.fest.assertions.Assertions.assertThat;
 
 public class ForInStatementTreeModelTest extends JavaScriptTreeModelTest {
 
@@ -38,6 +38,7 @@ public class ForInStatementTreeModelTest extends JavaScriptTreeModelTest {
     assertThat(tree.forKeyword().text()).isEqualTo(EcmaScriptKeyword.FOR.getValue());
     assertThat(tree.openParenthesis().text()).isEqualTo(EcmaScriptPunctuator.LPARENTHESIS.getValue());
     assertThat(tree.inKeyword().text()).isEqualTo(EcmaScriptKeyword.IN.getValue());
+    assertThat(tree.expression()).isNotNull();
     assertThat(tree.closeParenthesis().text()).isEqualTo(EcmaScriptPunctuator.RPARENTHESIS.getValue());
     assertThat(tree.statement().is(Kind.BLOCK));
   }

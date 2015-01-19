@@ -24,7 +24,6 @@ import org.sonar.javascript.api.EcmaScriptKeyword;
 import org.sonar.javascript.api.EcmaScriptPunctuator;
 import org.sonar.javascript.model.JavaScriptTreeModelTest;
 import org.sonar.javascript.model.interfaces.Tree.Kind;
-import org.sonar.javascript.model.interfaces.statement.ThrowStatementTree;
 import org.sonar.javascript.model.interfaces.statement.WithStatementTree;
 
 import static org.fest.assertions.Assertions.assertThat;
@@ -38,6 +37,7 @@ public class WithStatementTreeModelTest extends JavaScriptTreeModelTest {
     assertThat(tree.is(Kind.WITH_STATEMENT)).isTrue();
     assertThat(tree.withKeyword().text()).isEqualTo(EcmaScriptKeyword.WITH.getValue());
     assertThat(tree.openingParenthesis().text()).isEqualTo(EcmaScriptPunctuator.LPARENTHESIS.getValue());
+    assertThat(tree.expression()).isNotNull();
     assertThat(tree.closingParenthesis().text()).isEqualTo(EcmaScriptPunctuator.RPARENTHESIS.getValue());
     assertThat(tree.statement().is(Kind.BLOCK));
   }

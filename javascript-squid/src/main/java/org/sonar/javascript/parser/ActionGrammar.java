@@ -176,9 +176,10 @@ public class ActionGrammar {
 
   public ReturnStatementTreeImpl RETURN_WITH_EXPRESSION() {
     return b.<ReturnStatementTreeImpl>nonterminal()
-      .is(f.newReturnWithExpression(
-        b.invokeRule(EcmaScriptGrammar.EXPRESSION_NO_LB),
-        b.invokeRule(EcmaScriptGrammar.EOS)));
+      .is(
+        f.newReturnWithExpression(
+          EXPRESSION_NO_LINE_BREAK(),
+          b.invokeRule(EcmaScriptGrammar.EOS)));
   }
 
   public ReturnStatementTreeImpl RETURN_WITHOUT_EXPRESSION() {
@@ -188,10 +189,11 @@ public class ActionGrammar {
 
   public ThrowStatementTreeImpl THROW_STATEMENT() {
     return b.<ThrowStatementTreeImpl>nonterminal(Kind.THROW_STATEMENT)
-      .is(f.newThrowStatement(
-        b.invokeRule(EcmaScriptKeyword.THROW),
-        b.invokeRule(EcmaScriptGrammar.EXPRESSION_NO_LB),
-        b.invokeRule(EcmaScriptGrammar.EOS)));
+      .is(
+        f.newThrowStatement(
+          b.invokeRule(EcmaScriptKeyword.THROW),
+          EXPRESSION_NO_LINE_BREAK(),
+          b.invokeRule(EcmaScriptGrammar.EOS)));
   }
 
   public WithStatementTreeImpl WITH_STATEMENT() {
@@ -199,7 +201,7 @@ public class ActionGrammar {
       .is(f.newWithStatement(
         b.invokeRule(EcmaScriptKeyword.WITH),
         b.invokeRule(EcmaScriptPunctuator.LPARENTHESIS),
-        b.invokeRule(EcmaScriptGrammar.EXPRESSION),
+        EXPRESSION(),
         b.invokeRule(EcmaScriptPunctuator.RPARENTHESIS),
         STATEMENT()));
   }
@@ -240,7 +242,7 @@ public class ActionGrammar {
       .is(f.completeSwitchStatement(
         b.invokeRule(EcmaScriptKeyword.SWITCH),
         b.invokeRule(EcmaScriptPunctuator.LPARENTHESIS),
-        b.invokeRule(EcmaScriptGrammar.EXPRESSION),
+        EXPRESSION(),
         b.invokeRule(EcmaScriptPunctuator.RPARENTHESIS),
         CASE_BLOCK()));
   }
@@ -256,11 +258,12 @@ public class ActionGrammar {
 
   public CaseClauseTreeImpl CASE_CLAUSE() {
     return b.<CaseClauseTreeImpl>nonterminal(Kind.CASE_CLAUSE)
-      .is(f.caseClause(
-        b.invokeRule(EcmaScriptKeyword.CASE),
-        b.invokeRule(EcmaScriptGrammar.EXPRESSION),
-        b.invokeRule(EcmaScriptPunctuator.COLON),
-        b.optional(b.invokeRule(EcmaScriptGrammar.STATEMENT_LIST))));
+      .is(
+        f.caseClause(
+          b.invokeRule(EcmaScriptKeyword.CASE),
+          EXPRESSION(),
+          b.invokeRule(EcmaScriptPunctuator.COLON),
+          b.optional(b.invokeRule(EcmaScriptGrammar.STATEMENT_LIST))));
   }
 
   public DefaultClauseTreeImpl DEFAULT_CLAUSE() {
@@ -273,13 +276,14 @@ public class ActionGrammar {
 
   public IfStatementTreeImpl IF_STATEMENT() {
     return b.<IfStatementTreeImpl>nonterminal(Kind.IF_STATEMENT)
-      .is(f.ifStatement(
-        b.invokeRule(EcmaScriptKeyword.IF),
-        b.invokeRule(EcmaScriptPunctuator.LPARENTHESIS),
-        b.invokeRule(EcmaScriptGrammar.CONDITION),
-        b.invokeRule(EcmaScriptPunctuator.RPARENTHESIS),
-        STATEMENT(),
-        b.optional(ELSE_CLAUSE())));
+      .is(
+        f.ifStatement(
+          b.invokeRule(EcmaScriptKeyword.IF),
+          b.invokeRule(EcmaScriptPunctuator.LPARENTHESIS),
+          EXPRESSION(),
+          b.invokeRule(EcmaScriptPunctuator.RPARENTHESIS),
+          STATEMENT(),
+          b.optional(ELSE_CLAUSE())));
   }
 
   public ElseClauseTreeImpl ELSE_CLAUSE() {
@@ -291,24 +295,26 @@ public class ActionGrammar {
 
   public WhileStatementTreeImpl WHILE_STATEMENT() {
     return b.<WhileStatementTreeImpl>nonterminal(Kind.WHILE_STATEMENT)
-      .is(f.whileStatement(
-        b.invokeRule(EcmaScriptKeyword.WHILE),
-        b.invokeRule(EcmaScriptPunctuator.LPARENTHESIS),
-        b.invokeRule(EcmaScriptGrammar.CONDITION),
-        b.invokeRule(EcmaScriptPunctuator.RPARENTHESIS),
-        STATEMENT()));
+      .is(
+        f.whileStatement(
+          b.invokeRule(EcmaScriptKeyword.WHILE),
+          b.invokeRule(EcmaScriptPunctuator.LPARENTHESIS),
+          EXPRESSION(),
+          b.invokeRule(EcmaScriptPunctuator.RPARENTHESIS),
+          STATEMENT()));
   }
 
   public DoWhileStatementTreeImpl DO_WHILE_STATEMENT() {
     return b.<DoWhileStatementTreeImpl>nonterminal(Kind.DO_WHILE_STATEMENT)
-      .is(f.doWhileStatement(
-        b.invokeRule(EcmaScriptKeyword.DO),
-        STATEMENT(),
-        b.invokeRule(EcmaScriptKeyword.WHILE),
-        b.invokeRule(EcmaScriptPunctuator.LPARENTHESIS),
-        b.invokeRule(EcmaScriptGrammar.CONDITION),
-        b.invokeRule(EcmaScriptPunctuator.RPARENTHESIS),
-        b.invokeRule(EcmaScriptGrammar.EOS)));
+      .is(
+        f.doWhileStatement(
+          b.invokeRule(EcmaScriptKeyword.DO),
+          STATEMENT(),
+          b.invokeRule(EcmaScriptKeyword.WHILE),
+          b.invokeRule(EcmaScriptPunctuator.LPARENTHESIS),
+          EXPRESSION(),
+          b.invokeRule(EcmaScriptPunctuator.RPARENTHESIS),
+          b.invokeRule(EcmaScriptGrammar.EOS)));
   }
 
   public ExpressionStatementTreeImpl EXPRESSION_STATEMENT() {
@@ -334,32 +340,39 @@ public class ActionGrammar {
 
   public ForInStatementTreeImpl FOR_IN_STATEMENT() {
     return b.<ForInStatementTreeImpl>nonterminal(Kind.FOR_IN_STATEMENT)
-      .is(f.forInStatement(
-        b.invokeRule(EcmaScriptKeyword.FOR),
-        b.invokeRule(EcmaScriptPunctuator.LPARENTHESIS),
-        b.firstOf(b.invokeRule(EcmaScriptGrammar.FOR_DECLARATION), b.invokeRule(EcmaScriptGrammar.LEFT_HAND_SIDE_EXPRESSION_NO_LET_AND_LBRACKET)),
-        b.invokeRule(EcmaScriptKeyword.IN),
-        b.invokeRule(EcmaScriptGrammar.EXPRESSION),
-        b.invokeRule(EcmaScriptPunctuator.RPARENTHESIS),
-        STATEMENT()));
+      .is(
+        f.forInStatement(
+          b.invokeRule(EcmaScriptKeyword.FOR),
+          b.invokeRule(EcmaScriptPunctuator.LPARENTHESIS),
+          b.firstOf(
+            b.invokeRule(EcmaScriptGrammar.FOR_DECLARATION),
+            b.invokeRule(EcmaScriptGrammar.LEFT_HAND_SIDE_EXPRESSION_NO_LET_AND_LBRACKET)),
+          b.invokeRule(EcmaScriptKeyword.IN),
+          EXPRESSION(),
+          b.invokeRule(EcmaScriptPunctuator.RPARENTHESIS),
+          STATEMENT()));
   }
 
   public ForStatementTreeImpl FOR_STATEMENT() {
     return b.<ForStatementTreeImpl>nonterminal(Kind.FOR_STATEMENT)
-      .is(f.forStatement(
-        b.invokeRule(EcmaScriptKeyword.FOR),
-        b.invokeRule(EcmaScriptPunctuator.LPARENTHESIS),
+      .is(
+        f.forStatement(
+          b.invokeRule(EcmaScriptKeyword.FOR),
+          b.invokeRule(EcmaScriptPunctuator.LPARENTHESIS),
 
-        b.optional(b.firstOf(
-          b.invokeRule(EcmaScriptGrammar.FOR_VAR_DECLARATION),
-          b.invokeRule(ES6(EcmaScriptGrammar.LEXICAL_DECLARATION_NO_IN)),
-          b.invokeRule(EcmaScriptGrammar.EXPRESSION_NO_IN_NO_LET_AND_BRACKET))), b.invokeRule(EcmaScriptPunctuator.SEMI),
-        b.optional(b.invokeRule(EcmaScriptGrammar.CONDITION)), b.invokeRule(EcmaScriptPunctuator.SEMI),
-        b.optional(b.invokeRule(EcmaScriptGrammar.EXPRESSION)),
+          b.optional(
+            b.firstOf(
+              b.invokeRule(EcmaScriptGrammar.FOR_VAR_DECLARATION),
+              b.invokeRule(ES6(EcmaScriptGrammar.LEXICAL_DECLARATION_NO_IN)),
+              b.invokeRule(EcmaScriptGrammar.EXPRESSION_NO_IN_NO_LET_AND_BRACKET))),
+          b.invokeRule(EcmaScriptPunctuator.SEMI),
 
-        b.invokeRule(EcmaScriptPunctuator.RPARENTHESIS),
-        STATEMENT()
-      ));
+          b.optional(EXPRESSION()),
+          b.invokeRule(EcmaScriptPunctuator.SEMI),
+
+          b.optional(EXPRESSION()),
+          b.invokeRule(EcmaScriptPunctuator.RPARENTHESIS),
+          STATEMENT()));
   }
 
   public StatementTree ITERATION_STATEMENT() {
@@ -893,10 +906,11 @@ public class ActionGrammar {
 
   public MemberExpressionTree BRACKET_EXPRESSION() {
     return b.<BracketMemberExpressionTreeImpl>nonterminal(Kind.BRACKET_MEMBER_EXPRESSION)
-      .is(f.newBracketMemberExpression(
-        b.invokeRule(EcmaScriptPunctuator.LBRACKET),
-        b.invokeRule(EcmaScriptGrammar.EXPRESSION),
-        b.invokeRule(EcmaScriptPunctuator.RBRACKET)));
+      .is(
+        f.newBracketMemberExpression(
+          b.invokeRule(EcmaScriptPunctuator.LBRACKET),
+          EXPRESSION(),
+          b.invokeRule(EcmaScriptPunctuator.RBRACKET)));
   }
 
   public ExpressionTree TAGGED_TEMPLATE() {
@@ -945,10 +959,11 @@ public class ActionGrammar {
 
   public ParenthesisedExpressionTreeImpl PARENTHESISED_EXPRESSION() {
     return b.<ParenthesisedExpressionTreeImpl>nonterminal(Kind.PARENTHESISED_EXPRESSION)
-      .is(f.parenthesisedExpression(
-        b.invokeRule(EcmaScriptPunctuator.LPARENTHESIS),
-        b.invokeRule(EcmaScriptGrammar.EXPRESSION),
-        b.invokeRule(EcmaScriptPunctuator.RPARENTHESIS)));
+      .is(
+        f.parenthesisedExpression(
+          b.invokeRule(EcmaScriptPunctuator.LPARENTHESIS),
+          EXPRESSION(),
+          b.invokeRule(EcmaScriptPunctuator.RPARENTHESIS)));
   }
 
   public ClassExpressionTreeImpl CLASS_EXPRESSION() {
@@ -1051,11 +1066,11 @@ public class ActionGrammar {
 
   public TemplateExpressionTreeImpl TEMPLATE_EXPRESSION_HEAD() {
     return b.<TemplateExpressionTreeImpl>nonterminal()
-      .is(f.newTemplateExpressionHead(
-        b.invokeRule(EcmaScriptGrammar.DOLLAR_SIGN),
-        b.invokeRule(EcmaScriptPunctuator.LCURLYBRACE),
-        b.invokeRule(EcmaScriptGrammar.EXPRESSION)
-      ));
+      .is(
+        f.newTemplateExpressionHead(
+          b.invokeRule(EcmaScriptGrammar.DOLLAR_SIGN),
+          b.invokeRule(EcmaScriptPunctuator.LCURLYBRACE),
+          EXPRESSION()));
   }
 
   public TemplateCharactersTreeImpl TEMPLATE_CHARACTERS() {
@@ -1146,6 +1161,17 @@ public class ActionGrammar {
           CONDITIONAL_EXPRESSION_NO_IN()
         ));
   }
+
+  public ExpressionTree EXPRESSION() {
+    return b.<ExpressionTree>nonterminal(EcmaScriptGrammar.EXPRESSION)
+      .is(f.expression(ASSIGNMENT_EXPRESSION(), b.zeroOrMore(f.newTuple26(b.invokeRule(EcmaScriptPunctuator.COMMA), ASSIGNMENT_EXPRESSION()))));
+  }
+
+  public ExpressionTree EXPRESSION_NO_LINE_BREAK() {
+    return b.<ExpressionTree>nonterminal(EcmaScriptGrammar.EXPRESSION_NO_LB)
+      .is(f.expressionNoLineBreak(b.invokeRule(EcmaScriptGrammar.SPACING_NO_LINE_BREAK_NOT_FOLLOWED_BY_LINE_BREAK), EXPRESSION()));
+  }
+
   /**
    * A.3 [END] Expressions
    */

@@ -32,36 +32,42 @@ import org.sonar.javascript.model.interfaces.statement.IfStatementTree;
 import org.sonar.javascript.model.interfaces.statement.StatementTree;
 
 import javax.annotation.Nullable;
+
 import java.util.Iterator;
 
 public class IfStatementTreeImpl extends JavaScriptTree implements IfStatementTree {
 
   private final SyntaxToken ifKeyword;
   private final SyntaxToken openParenthesis;
+  private final ExpressionTree condition;
   private final SyntaxToken closeParenthesis;
   private final ElseClauseTree elseClause;
   private final StatementTree statement;
 
-  public IfStatementTreeImpl(InternalSyntaxToken ifKeyword, InternalSyntaxToken openParenthesis, AstNode condition, InternalSyntaxToken closeParenthesis, StatementTree statement) {
+  public IfStatementTreeImpl(InternalSyntaxToken ifKeyword, InternalSyntaxToken openParenthesis, ExpressionTree condition, InternalSyntaxToken closeParenthesis,
+    StatementTree statement) {
     super(Kind.IF_STATEMENT);
     this.ifKeyword = ifKeyword;
     this.openParenthesis = openParenthesis;
+    this.condition = condition;
     this.closeParenthesis = closeParenthesis;
     this.elseClause = null;
     this.statement = statement;
 
-    addChildren(ifKeyword, openParenthesis, condition, closeParenthesis, (AstNode) statement);
+    addChildren(ifKeyword, openParenthesis, (AstNode) condition, closeParenthesis, (AstNode) statement);
   }
 
-  public IfStatementTreeImpl(InternalSyntaxToken ifKeyword, InternalSyntaxToken openParenthesis, AstNode condition, InternalSyntaxToken closeParenthesis, StatementTree statement, ElseClauseTreeImpl elseClause) {
+  public IfStatementTreeImpl(InternalSyntaxToken ifKeyword, InternalSyntaxToken openParenthesis, ExpressionTree condition, InternalSyntaxToken closeParenthesis,
+    StatementTree statement, ElseClauseTreeImpl elseClause) {
     super(Kind.IF_STATEMENT);
     this.ifKeyword = ifKeyword;
     this.openParenthesis = openParenthesis;
+    this.condition = condition;
     this.closeParenthesis = closeParenthesis;
     this.elseClause = elseClause;
     this.statement = statement;
 
-    addChildren(ifKeyword, openParenthesis, condition, closeParenthesis, (AstNode) statement, elseClause);
+    addChildren(ifKeyword, openParenthesis, (AstNode) condition, closeParenthesis, (AstNode) statement, elseClause);
   }
 
   @Override
@@ -76,7 +82,7 @@ public class IfStatementTreeImpl extends JavaScriptTree implements IfStatementTr
 
   @Override
   public ExpressionTree condition() {
-    throw new UnsupportedOperationException("Not supported yet in the strongly typed AST.");
+    return condition;
   }
 
   @Override

@@ -25,7 +25,6 @@ import org.sonar.javascript.model.implementations.JavaScriptTree;
 import org.sonar.javascript.model.implementations.lexical.InternalSyntaxToken;
 import org.sonar.javascript.model.interfaces.Tree;
 import org.sonar.javascript.model.interfaces.expression.BracketMemberExpressionTree;
-import org.sonar.javascript.model.interfaces.expression.DotMemberExpressionTree;
 import org.sonar.javascript.model.interfaces.expression.ExpressionTree;
 import org.sonar.javascript.model.interfaces.lexical.SyntaxToken;
 
@@ -35,14 +34,16 @@ public class BracketMemberExpressionTreeImpl extends JavaScriptTree implements B
 
   private ExpressionTree object;
   private final SyntaxToken openBracket;
+  private final ExpressionTree property;
   private final SyntaxToken closeBracket;
 
-  public BracketMemberExpressionTreeImpl(InternalSyntaxToken openBracket, AstNode property, InternalSyntaxToken closeBracket) {
+  public BracketMemberExpressionTreeImpl(InternalSyntaxToken openBracket, ExpressionTree property, InternalSyntaxToken closeBracket) {
     super(Kind.BRACKET_MEMBER_EXPRESSION);
     this.openBracket = openBracket;
+    this.property = property;
     this.closeBracket = closeBracket;
 
-    addChildren(openBracket, property, closeBracket);
+    addChildren(openBracket, (AstNode) property, closeBracket);
   }
 
   public BracketMemberExpressionTreeImpl complete(ExpressionTree object) {
@@ -64,7 +65,7 @@ public class BracketMemberExpressionTreeImpl extends JavaScriptTree implements B
 
   @Override
   public ExpressionTree property() {
-    throw new UnsupportedOperationException("Not supported yet in the strongly typed AST.");
+    return property;
   }
 
   @Override

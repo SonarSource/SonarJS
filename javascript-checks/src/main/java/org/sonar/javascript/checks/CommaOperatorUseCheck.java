@@ -23,46 +23,58 @@ import com.sonar.sslr.api.AstNode;
 import org.sonar.check.BelongsToProfile;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
-import org.sonar.javascript.api.EcmaScriptPunctuator;
+import org.sonar.javascript.model.implementations.lexical.InternalSyntaxToken;
 import org.sonar.javascript.model.interfaces.Tree.Kind;
-import org.sonar.javascript.parser.EcmaScriptGrammar;
+import org.sonar.javascript.model.interfaces.expression.BinaryExpressionTree;
+import org.sonar.javascript.model.interfaces.lexical.SyntaxToken;
+import org.sonar.javascript.model.interfaces.statement.ForStatementTree;
 import org.sonar.squidbridge.checks.SquidCheck;
 import org.sonar.sslr.parser.LexerlessGrammar;
-
-import java.util.List;
 
 @Rule(
   key = "S878",
   priority = Priority.MAJOR)
 @BelongsToProfile(title = CheckList.SONAR_WAY_PROFILE, priority = Priority.MAJOR)
 public class CommaOperatorUseCheck extends SquidCheck<LexerlessGrammar> {
+
   @Override
   public void init() {
-    subscribeTo(
-      EcmaScriptGrammar.EXPRESSION);
+    subscribeTo(Kind.COMMA_OPERATOR);
   }
 
   @Override
   public void visitNode(AstNode astNode) {
-    if (!containsCommaOperator(astNode) || isInitOrIncrementOfForLoop(astNode)) {
+    if (isInCommaExpression(astNode) || isInitOrIncrementOfForLoop(astNode)) {
       return;
     }
 
-    List<AstNode> commas = astNode.getChildren(EcmaScriptPunctuator.COMMA);
-
-    if (commas.size() == 1) {
-      getContext().createLineViolation(this, "Remove use of this comma operator.", commas.get(0));
+    BinaryExpressionTree expr = (BinaryExpressionTree) astNode;
+    String message;
+    if (expr.leftOperand().is(Kind.COMMA_OPERATOR)) {
+      message = "Remove use of all comma operators in this expression.";
     } else {
-      getContext().createLineViolation(this, "Remove use of all comma operators in this expression.", commas.get(0));
+      message = "Remove use of this comma operator.";
     }
+
+    while (expr.leftOperand().is(Kind.COMMA_OPERATOR)) {
+      expr = (BinaryExpressionTree) expr.leftOperand();
+    }
+    SyntaxToken operator = expr.operator();
+
+    getContext().createLineViolation(this, message, (InternalSyntaxToken) operator);
+  }
+
+  public static boolean isInCommaExpression(AstNode expr) {
+    return expr.getParent().is(Kind.COMMA_OPERATOR);
   }
 
   public static boolean isInitOrIncrementOfForLoop(AstNode expr) {
-    return expr.getParent().is(Kind.FOR_STATEMENT);
-  }
+    if (!expr.getParent().is(Kind.FOR_STATEMENT)) {
+      return false;
+    }
 
-  public static boolean containsCommaOperator(AstNode expr) {
-    return expr.hasDirectChildren(EcmaScriptPunctuator.COMMA);
+    ForStatementTree tree = (ForStatementTree) expr.getParent();
+    return !tree.condition().equals(expr);
   }
 
 }

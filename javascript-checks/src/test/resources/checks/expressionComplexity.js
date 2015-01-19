@@ -39,3 +39,10 @@ var foo =  [                                                       // OK
 ];
 
 for (i = a ? (b ? (c ? (d ? 1 : 1) : 1) : 1) : 1; i < a; i++) {}   // NOK
+
+function a() {
+  return (                                                         // Non-compliant
+    a ||
+    b ||
+    (c || d || e));
+}

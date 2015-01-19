@@ -20,6 +20,7 @@
 package org.sonar.javascript.model.interfaces.statement;
 
 import org.sonar.javascript.model.interfaces.Tree;
+import org.sonar.javascript.model.interfaces.expression.ExpressionTree;
 import org.sonar.javascript.model.interfaces.lexical.SyntaxToken;
 
 import javax.annotation.Nullable;
@@ -39,7 +40,7 @@ public interface ReturnStatementTree extends StatementTree {
   SyntaxToken returnKeyword();
 
   @Nullable
-  Tree expression();
+  ExpressionTree expression();
 
   Tree endOfStatement();
 }

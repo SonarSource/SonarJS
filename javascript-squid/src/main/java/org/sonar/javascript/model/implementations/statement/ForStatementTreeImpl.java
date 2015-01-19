@@ -25,12 +25,14 @@ import com.sonar.sslr.api.AstNodeType;
 import org.sonar.javascript.model.implementations.JavaScriptTree;
 import org.sonar.javascript.model.implementations.lexical.InternalSyntaxToken;
 import org.sonar.javascript.model.interfaces.Tree;
+import org.sonar.javascript.model.interfaces.declaration.VariableDeclarationTree;
+import org.sonar.javascript.model.interfaces.expression.ExpressionTree;
 import org.sonar.javascript.model.interfaces.lexical.SyntaxToken;
 import org.sonar.javascript.model.interfaces.statement.ForStatementTree;
 import org.sonar.javascript.model.interfaces.statement.StatementTree;
-import org.sonar.javascript.model.interfaces.declaration.VariableDeclarationTree;
 
 import javax.annotation.Nullable;
+
 import java.util.Iterator;
 import java.util.List;
 
@@ -39,16 +41,28 @@ public class ForStatementTreeImpl extends JavaScriptTree implements ForStatement
   private final SyntaxToken forKeyword;
   private final SyntaxToken openParenthesis;
   private final SyntaxToken firstSemicolon;
+  private final ExpressionTree condition;
   private final SyntaxToken secondSemicolon;
+  private final ExpressionTree update;
   private final SyntaxToken closeParenthesis;
   private final StatementTree statement;
 
-  public ForStatementTreeImpl(InternalSyntaxToken forKeyword, InternalSyntaxToken openParenthesis, InternalSyntaxToken firstSemicolon, InternalSyntaxToken secondSemicolon, InternalSyntaxToken closeParenthesis, StatementTree statement, List<AstNode> children) {
+  public ForStatementTreeImpl(
+    InternalSyntaxToken forKeyword,
+    InternalSyntaxToken openParenthesis,
+    InternalSyntaxToken firstSemicolon,
+    @Nullable ExpressionTree condition, InternalSyntaxToken secondSemicolon,
+    @Nullable ExpressionTree update, InternalSyntaxToken closeParenthesis,
+    StatementTree statement,
+    List<AstNode> children) {
+
     super(Kind.FOR_STATEMENT);
     this.forKeyword = forKeyword;
     this.openParenthesis = openParenthesis;
     this.firstSemicolon = firstSemicolon;
+    this.condition = condition;
     this.secondSemicolon = secondSemicolon;
+    this.update = update;
     this.closeParenthesis = closeParenthesis;
     this.statement = statement;
 
@@ -79,7 +93,7 @@ public class ForStatementTreeImpl extends JavaScriptTree implements ForStatement
   @Nullable
   @Override
   public Tree condition() {
-    throw new UnsupportedOperationException("Not supported yet in the strongly typed AST.");
+    return condition;
   }
 
   @Override
@@ -90,7 +104,7 @@ public class ForStatementTreeImpl extends JavaScriptTree implements ForStatement
   @Nullable
   @Override
   public Tree update() {
-    throw new UnsupportedOperationException("Not supported yet in the strongly typed AST.");
+    return update;
   }
 
   @Override

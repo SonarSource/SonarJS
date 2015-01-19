@@ -36,7 +36,7 @@ public class TemplateExpressionTreeModelTest extends JavaScriptTreeModelTest {
     assertThat(tree.is(Kind.TEMPLATE_EXPRESSION)).isTrue();
     assertThat(tree.dollar().text()).isEqualTo("$");
     assertThat(tree.openCurlyBrace().text()).isEqualTo(EcmaScriptPunctuator.LCURLYBRACE.getValue());
-    // TODO expression
+    assertThat(tree.expression()).isNotNull();
     assertThat(tree.closeCurlyBrace().text()).isEqualTo(EcmaScriptPunctuator.RCURLYBRACE.getValue());
   }
 

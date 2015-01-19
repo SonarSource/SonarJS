@@ -23,9 +23,8 @@ import com.sonar.sslr.api.AstNode;
 import org.sonar.check.BelongsToProfile;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
-import org.sonar.javascript.api.EcmaScriptKeyword;
 import org.sonar.javascript.model.interfaces.Tree.Kind;
-import org.sonar.javascript.parser.EcmaScriptGrammar;
+import org.sonar.javascript.model.interfaces.statement.IfStatementTree;
 import org.sonar.squidbridge.checks.SquidCheck;
 import org.sonar.sslr.parser.LexerlessGrammar;
 
@@ -42,21 +41,11 @@ public class IfConditionalAlwaysTrueOrFalseCheck extends SquidCheck<LexerlessGra
 
   @Override
   public void visitNode(AstNode astNode) {
-    if (isOnlyBooleanLiteral(astNode.getFirstChild(EcmaScriptGrammar.CONDITION))) {
+    IfStatementTree statement = (IfStatementTree) astNode;
+    if (statement.condition().is(Kind.BOOLEAN_LITERAL)) {
       getContext().createLineViolation(this, "Remove this \"if\" statement.", astNode);
     }
 
   }
 
-  public static boolean isOnlyBooleanLiteral(AstNode exprNode) {
-    AstNode exprChild = exprNode.getFirstChild(EcmaScriptGrammar.EXPRESSION).getFirstChild();
-
-    if (!exprChild.getToken().equals(exprChild.getLastToken())) {
-      return false;
-    }
-
-    String tokenValue = exprChild.getTokenValue();
-    return EcmaScriptKeyword.TRUE.getValue().equals(tokenValue)
-      || EcmaScriptKeyword.FALSE.getValue().equals(tokenValue);
-  }
 }

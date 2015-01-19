@@ -19,16 +19,16 @@
  */
 package org.sonar.javascript.checks;
 
-import org.sonar.squidbridge.checks.CheckMessagesVerifier;
 import org.junit.Test;
 import org.sonar.javascript.JavaScriptAstScanner;
 import org.sonar.squidbridge.api.SourceFile;
+import org.sonar.squidbridge.checks.CheckMessagesVerifier;
 
 import java.io.File;
 
 public class IfConditionalAlwaysTrueOrFalseCheckTest {
 
-  private IfConditionalAlwaysTrueOrFalseCheck check = new IfConditionalAlwaysTrueOrFalseCheck();
+  private final IfConditionalAlwaysTrueOrFalseCheck check = new IfConditionalAlwaysTrueOrFalseCheck();
 
   @Test
   public void test() {
@@ -38,4 +38,5 @@ public class IfConditionalAlwaysTrueOrFalseCheckTest {
       .next().atLine(13)
       .noMore();
   }
+
 }

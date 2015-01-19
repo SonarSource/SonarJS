@@ -36,22 +36,25 @@ import java.util.List;
 public class CaseClauseTreeImpl extends JavaScriptTree implements CaseClauseTree {
 
   private final SyntaxToken caseKeyword;
+  private final ExpressionTree expression;
   private final SyntaxToken colon;
 
-  public CaseClauseTreeImpl(InternalSyntaxToken caseKeyword, AstNode expression, InternalSyntaxToken colon) {
+  public CaseClauseTreeImpl(InternalSyntaxToken caseKeyword, ExpressionTree expression, InternalSyntaxToken colon) {
     super(Kind.CASE_CLAUSE);
     this.caseKeyword = caseKeyword;
+    this.expression = expression;
     this.colon = colon;
 
-    addChildren(caseKeyword, expression, colon);
+    addChildren(caseKeyword, (AstNode) expression, colon);
   }
 
-  public CaseClauseTreeImpl(InternalSyntaxToken caseKeyword, AstNode expression, InternalSyntaxToken colon, AstNode statementList) {
+  public CaseClauseTreeImpl(InternalSyntaxToken caseKeyword, ExpressionTree expression, InternalSyntaxToken colon, AstNode statementList) {
     super(Kind.CASE_CLAUSE);
     this.caseKeyword = caseKeyword;
+    this.expression = expression;
     this.colon = colon;
 
-    addChildren(caseKeyword, expression, colon, statementList);
+    addChildren(caseKeyword, (AstNode) expression, colon, statementList);
   }
 
   @Override
@@ -61,7 +64,7 @@ public class CaseClauseTreeImpl extends JavaScriptTree implements CaseClauseTree
 
   @Override
   public ExpressionTree expression() {
-    throw new UnsupportedOperationException("Not supported yet in the strongly typed AST.");
+    return expression;
   }
 
   @Override

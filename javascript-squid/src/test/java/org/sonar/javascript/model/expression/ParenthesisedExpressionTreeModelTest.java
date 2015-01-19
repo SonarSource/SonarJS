@@ -17,34 +17,25 @@
  * License along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.javascript.model.statement;
+package org.sonar.javascript.model.expression;
 
 import org.junit.Test;
-import org.sonar.javascript.api.EcmaScriptKeyword;
 import org.sonar.javascript.model.JavaScriptTreeModelTest;
 import org.sonar.javascript.model.interfaces.Tree.Kind;
-import org.sonar.javascript.model.interfaces.statement.ReturnStatementTree;
+import org.sonar.javascript.model.interfaces.expression.ParenthesisedExpressionTree;
 
 import static org.fest.assertions.Assertions.assertThat;
 
-public class ReturnStatementTreeModelTest extends JavaScriptTreeModelTest {
+public class ParenthesisedExpressionTreeModelTest extends JavaScriptTreeModelTest {
 
   @Test
-  public void with_expression() throws Exception {
-   ReturnStatementTree tree = parse("return expr ;", Kind.RETURN_STATEMENT);
+  public void test() throws Exception {
+    ParenthesisedExpressionTree tree = parse("(a)", Kind.PARENTHESISED_EXPRESSION);
 
-    assertThat(tree.is(Kind.RETURN_STATEMENT)).isTrue();
-    assertThat(tree.returnKeyword().text()).isEqualTo(EcmaScriptKeyword.RETURN.getValue());
+    assertThat(tree.is(Kind.PARENTHESISED_EXPRESSION)).isTrue();
+    assertThat(tree.openParenthesis().text()).isEqualTo("(");
     assertThat(tree.expression()).isNotNull();
-  }
-
-  @Test
-  public void without_expression() throws Exception {
-    ReturnStatementTree tree = parse("return ;", Kind.RETURN_STATEMENT);
-
-    assertThat(tree.is(Kind.RETURN_STATEMENT)).isTrue();
-    assertThat(tree.returnKeyword().text()).isEqualTo(EcmaScriptKeyword.RETURN.getValue());
-    assertThat(tree.expression()).isNull();
+    assertThat(tree.closeParenthesis().text()).isEqualTo(")");
   }
 
 }

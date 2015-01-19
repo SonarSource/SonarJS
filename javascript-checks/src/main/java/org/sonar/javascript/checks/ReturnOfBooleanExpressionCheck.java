@@ -24,9 +24,10 @@ import com.sonar.sslr.api.AstNode;
 import org.sonar.check.BelongsToProfile;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
-import org.sonar.javascript.api.EcmaScriptKeyword;
 import org.sonar.javascript.model.implementations.statement.IfStatementTreeImpl;
 import org.sonar.javascript.model.interfaces.Tree.Kind;
+import org.sonar.javascript.model.interfaces.expression.ExpressionTree;
+import org.sonar.javascript.model.interfaces.statement.ReturnStatementTree;
 import org.sonar.javascript.parser.EcmaScriptGrammar;
 import org.sonar.squidbridge.checks.SquidCheck;
 import org.sonar.sslr.parser.LexerlessGrammar;
@@ -76,20 +77,14 @@ public class ReturnOfBooleanExpressionCheck extends SquidCheck<LexerlessGrammar>
     return false;
   }
 
-  public static boolean isSimpleReturnBooleanLiteral(AstNode statement) {
-    if (statement.isNot(Kind.RETURN_STATEMENT)) {
+  public static boolean isSimpleReturnBooleanLiteral(AstNode astNode) {
+    if (astNode.isNot(Kind.RETURN_STATEMENT)) {
       return false;
     }
 
-    AstNode expression = statement.getFirstChild(EcmaScriptGrammar.EXPRESSION);
-
-    return hasASingleToken(expression)
-      && (EcmaScriptKeyword.TRUE.getValue().equals(expression.getTokenValue())
-      || EcmaScriptKeyword.FALSE.getValue().equals(expression.getTokenValue()));
-  }
-
-  private static boolean hasASingleToken(AstNode expression) {
-    return expression != null && expression.getFirstChild().getToken().equals(expression.getLastToken());
+    ReturnStatementTree statement = (ReturnStatementTree) astNode;
+    ExpressionTree expression = statement.expression();
+    return expression != null && expression.is(Kind.BOOLEAN_LITERAL);
   }
 
   private static ImmutableList<AstNode> getStatementChildren(AstNode statementList) {

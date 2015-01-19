@@ -19,13 +19,14 @@
  */
 package org.sonar.javascript.model.expression;
 
-import static org.fest.assertions.Assertions.assertThat;
 import org.junit.Test;
 import org.sonar.javascript.api.EcmaScriptPunctuator;
 import org.sonar.javascript.model.JavaScriptTreeModelTest;
 import org.sonar.javascript.model.implementations.expression.BracketMemberExpressionTreeImpl;
 import org.sonar.javascript.model.interfaces.Tree.Kind;
 import org.sonar.javascript.model.interfaces.expression.DotMemberExpressionTree;
+
+import static org.fest.assertions.Assertions.assertThat;
 
 public class MemberExpressionTreeModelTest extends JavaScriptTreeModelTest {
 
@@ -53,6 +54,7 @@ public class MemberExpressionTreeModelTest extends JavaScriptTreeModelTest {
 
     assertThat(tree.is(Kind.BRACKET_MEMBER_EXPRESSION)).isTrue();
     assertThat(tree.openBracket().text()).isEqualTo(EcmaScriptPunctuator.LBRACKET.getValue());
+    assertThat(tree.property()).isNotNull();
     assertThat(tree.closeBracket().text()).isEqualTo(EcmaScriptPunctuator.RBRACKET.getValue());
   }
 

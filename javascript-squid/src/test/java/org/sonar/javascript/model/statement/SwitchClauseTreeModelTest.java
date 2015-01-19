@@ -25,7 +25,6 @@ import org.sonar.javascript.api.EcmaScriptPunctuator;
 import org.sonar.javascript.model.JavaScriptTreeModelTest;
 import org.sonar.javascript.model.implementations.statement.CaseClauseTreeImpl;
 import org.sonar.javascript.model.implementations.statement.DefaultClauseTreeImpl;
-import org.sonar.javascript.model.implementations.statement.SwitchStatementTreeImpl;
 import org.sonar.javascript.model.interfaces.Tree.Kind;
 
 import static org.fest.assertions.Assertions.assertThat;
@@ -38,6 +37,7 @@ public class SwitchClauseTreeModelTest extends JavaScriptTreeModelTest {
 
     assertThat(tree.is(Kind.CASE_CLAUSE)).isTrue();
     assertThat(tree.keyword().text()).isEqualTo(EcmaScriptKeyword.CASE.getValue());
+    assertThat(tree.expression()).isNotNull();
     assertThat(tree.colon().text()).isEqualTo(EcmaScriptPunctuator.COLON.getValue());
   }
 

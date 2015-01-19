@@ -24,22 +24,27 @@ import com.sonar.sslr.api.AstNode;
 import org.sonar.javascript.model.implementations.JavaScriptTree;
 import org.sonar.javascript.model.implementations.lexical.InternalSyntaxToken;
 import org.sonar.javascript.model.interfaces.Tree;
+import org.sonar.javascript.model.interfaces.expression.ExpressionTree;
 import org.sonar.javascript.model.interfaces.lexical.SyntaxToken;
 import org.sonar.javascript.model.interfaces.statement.ThrowStatementTree;
 
 import javax.annotation.Nullable;
+
 import java.util.Iterator;
 
 public class ThrowStatementTreeImpl extends JavaScriptTree implements ThrowStatementTree {
 
   private final SyntaxToken throwKeyword;
+  private final ExpressionTree expression;
 
-  public ThrowStatementTreeImpl(InternalSyntaxToken throwKeyword, AstNode expression, AstNode eos) {
+  public ThrowStatementTreeImpl(InternalSyntaxToken throwKeyword, ExpressionTree expression, AstNode eos) {
     super(Kind.THROW_STATEMENT);
+
     this.throwKeyword = throwKeyword;
+    this.expression = expression;
 
     addChild(throwKeyword);
-    addChild(expression);
+    addChild((AstNode) expression);
     addChild(eos);
   }
 
@@ -55,8 +60,8 @@ public class ThrowStatementTreeImpl extends JavaScriptTree implements ThrowState
 
   @Nullable
   @Override
-  public Tree expression() {
-    throw new UnsupportedOperationException("Not supported yet in the strongly typed AST.");
+  public ExpressionTree expression() {
+    return expression;
   }
 
   @Nullable
