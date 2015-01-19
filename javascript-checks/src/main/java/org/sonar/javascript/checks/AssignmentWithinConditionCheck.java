@@ -37,7 +37,8 @@ import java.util.List;
 @Rule(
   key = "AssignmentWithinCondition",
   priority = Priority.MAJOR)
-@BelongsToProfile(title = CheckList.SONAR_WAY_PROFILE, priority = Priority.MAJOR)
+// FIXME: SONARJS-309 Fix and re-introduce the rule
+//@BelongsToProfile(title = CheckList.SONAR_WAY_PROFILE, priority = Priority.MAJOR)
 public class AssignmentWithinConditionCheck extends SquidCheck<LexerlessGrammar> {
 
   private List<AstNodeType> stack;

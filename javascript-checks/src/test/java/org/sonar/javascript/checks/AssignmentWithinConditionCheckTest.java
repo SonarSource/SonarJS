@@ -19,6 +19,7 @@
  */
 package org.sonar.javascript.checks;
 
+import org.junit.Ignore;
 import org.sonar.squidbridge.checks.CheckMessagesVerifier;
 import org.junit.Test;
 import org.sonar.javascript.JavaScriptAstScanner;
@@ -26,6 +27,7 @@ import org.sonar.squidbridge.api.SourceFile;
 
 import java.io.File;
 
+@Ignore("SONARJS-309 Fix and re-introduce the rule")
 public class AssignmentWithinConditionCheckTest {
 
   @Test
