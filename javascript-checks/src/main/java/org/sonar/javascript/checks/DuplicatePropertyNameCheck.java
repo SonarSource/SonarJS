@@ -25,7 +25,6 @@ import org.sonar.check.BelongsToProfile;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.javascript.model.interfaces.Tree.Kind;
-import org.sonar.javascript.parser.EcmaScriptGrammar;
 import org.sonar.squidbridge.checks.SquidCheck;
 import org.sonar.sslr.parser.LexerlessGrammar;
 
@@ -46,11 +45,11 @@ public class DuplicatePropertyNameCheck extends SquidCheck<LexerlessGrammar> {
   @Override
   public void visitNode(AstNode astNode) {
     Set<String> values = Sets.newHashSet();
-    List<AstNode> pairProperties = astNode.getChildren(Kind.PAIR_PROPERTY, EcmaScriptGrammar.COVER_INITIALIZED_NAME);
+    List<AstNode> pairProperties = astNode.getChildren(Kind.PAIR_PROPERTY, Kind.IDENTIFIER_REFERENCE);
 
     for (AstNode property : pairProperties) {
 
-      AstNode propertyName = getPropertyName(property);
+      AstNode propertyName = property.getFirstChild();
       String value = propertyName.getTokenValue();
 
       if (value.startsWith("\"") || value.startsWith("'")) {
@@ -63,15 +62,6 @@ public class DuplicatePropertyNameCheck extends SquidCheck<LexerlessGrammar> {
       } else {
         values.add(unescaped);
       }
-    }
-  }
-
-  private static AstNode getPropertyName(AstNode property) {
-    if (property.is(Kind.PAIR_PROPERTY)) {
-      return property.getFirstChild();
-
-    } else /* COVER_INITIALIZED_NAME */ {
-      return property.getFirstChild(Kind.IDENTIFIER_REFERENCE);
     }
   }
 

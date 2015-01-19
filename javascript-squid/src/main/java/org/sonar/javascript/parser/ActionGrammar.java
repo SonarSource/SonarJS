@@ -1001,8 +1001,8 @@ public class ActionGrammar {
       .is(b.firstOf(
         PAIR_PROPERTY(),
         b.invokeRule(EcmaScriptGrammar.METHOD_DEFINITION),
-        ES6(b.invokeRule(EcmaScriptGrammar.COVER_INITIALIZED_NAME))
-      ));
+        IDENTIFIER_REFERENCE())
+      );
   }
 
   public ObjectLiteralTreeImpl OBJECT_LITERAL() {

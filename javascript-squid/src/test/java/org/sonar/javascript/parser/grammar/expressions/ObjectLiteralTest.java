@@ -32,7 +32,6 @@ public class ObjectLiteralTest {
     assertThat(Kind.OBJECT_LITERAL)
         .matches("{ }")
         .matches("{ propertyName , }")
-        .matches("{ propertyName = 1 , }")
         .matches("{ propertyName : assignmentExpression , }")
         .matches("{ propertyName : assignmentExpression , }")
         .matches("{ propertyName : assignmentExpression , propertyName : assignmentExpression }")

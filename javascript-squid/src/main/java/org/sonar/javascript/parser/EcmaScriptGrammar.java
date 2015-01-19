@@ -156,8 +156,6 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
 
   PRIMARY_EXPRESSION,
   /** ECMAScript 6 **/
-  COVER_INITIALIZED_NAME,
-  /** ECMAScript 6 **/
   PROPERTY_DEFINITION,
   PROPERTY_NAME,
   MEMBER_EXPRESSION,
@@ -542,8 +540,6 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
    */
   private static void expressions(LexerlessGrammarBuilder b) {
     b.rule(ELISION).is(b.oneOrMore(COMMA));
-
-    b.rule(COVER_INITIALIZED_NAME).is(IDENTIFIER_REFERENCE, b.optional(INITIALISER));
 
     b.rule(EXPRESSION).is(ASSIGNMENT_EXPRESSION, b.zeroOrMore(COMMA, ASSIGNMENT_EXPRESSION));
     b.rule(EXPRESSION_NO_LB).is(SPACING_NO_LB, NEXT_NOT_LB, EXPRESSION).skip();
