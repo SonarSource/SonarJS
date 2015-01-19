@@ -29,6 +29,7 @@ import org.apache.commons.collections.ListUtils;
 import org.sonar.javascript.api.EcmaScriptKeyword;
 import org.sonar.javascript.api.EcmaScriptPunctuator;
 import org.sonar.javascript.model.implementations.SeparatedList;
+import org.sonar.javascript.model.implementations.declaration.FromClauseTreeImpl;
 import org.sonar.javascript.model.implementations.declaration.ParameterListTreeImpl;
 import org.sonar.javascript.model.implementations.declaration.VariableDeclarationTreeImpl;
 import org.sonar.javascript.model.implementations.expression.ArrayLiteralTreeImpl;
@@ -1073,6 +1074,10 @@ public class TreeFactory {
 
   public ExpressionTree expressionNoLineBreak(AstNode spacingNoLineBreak, ExpressionTree expression) {
     return expression;
+  }
+
+  public FromClauseTreeImpl fromClause(AstNode fromToken, LiteralTreeImpl module) {
+    return new FromClauseTreeImpl(InternalSyntaxToken.create(fromToken), module);
   }
 
   public static class Tuple<T, U> extends AstNode {

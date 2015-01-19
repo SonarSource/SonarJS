@@ -298,8 +298,6 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
   /** ECMAScript 6 **/
   IMPORT_CLAUSE,
   /** ECMAScript 6 **/
-  FROM_CLAUSE,
-  /** ECMAScript 6 **/
   MODULE_IMPORT,
   /** ECMAScript 6 **/
   NAMED_IMPORTS,
@@ -587,8 +585,6 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
   /**
    * A.5 Declarations
    */
-
-
   private static void module_declaration(LexerlessGrammarBuilder b) {
     b.rule(MODULE).is(MODULE_BODY);
     b.rule(MODULE_BODY).is(b.oneOrMore(MODULE_ITEM));
@@ -602,9 +598,9 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
         DECLARATION,
         EXPORT_DEFAULT_CLAUSE));
 
-    b.rule(EXPORT_ALL_CLAUSE).is(STAR, FROM_CLAUSE, EOS);
+    b.rule(EXPORT_ALL_CLAUSE).is(STAR, Kind.FROM_CLAUSE, EOS);
     b.rule(EXPORT_DEFAULT_CLAUSE).is(DEFAULT, ASSIGNMENT_EXPRESSION, EOS);
-    b.rule(EXPORT_LIST_CLAUSE).is(EXPORT_CLAUSE, b.optional(FROM_CLAUSE), EOS);
+    b.rule(EXPORT_LIST_CLAUSE).is(EXPORT_CLAUSE, b.optional(Kind.FROM_CLAUSE), EOS);
     b.rule(EXPORT_CLAUSE).is(LCURLYBRACE, b.optional(EXPORT_LIST, b.optional(COMMA)), RCURLYBRACE);
     b.rule(EXPORT_LIST).is(EXPORT_SPECIFIER, b.zeroOrMore(COMMA, EXPORT_SPECIFIER));
     b.rule(EXPORT_SPECIFIER).is(IDENTIFIER_NAME, b.optional(AS, IDENTIFIER_NAME));
@@ -615,12 +611,11 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
       IMPORT_FROM));
 
     // FIXME: update import & export declaration according to last ES6 specification draft
-    b.rule(MODULE_IMPORT).is(MODULE_WORD, /* no line terminator here */SPACING_NO_LB, NEXT_NOT_LB, BINDING_IDENTIFIER, FROM_CLAUSE, EOS);
+    b.rule(MODULE_IMPORT).is(MODULE_WORD, /* no line terminator here */SPACING_NO_LB, NEXT_NOT_LB, BINDING_IDENTIFIER, Kind.FROM_CLAUSE, EOS);
     b.rule(MODULE_WORD).is(word(b, "module"));
     b.rule(SIMPLE_IMPORT).is(IMPORT, Kind.STRING_LITERAL, EOS);
-    b.rule(IMPORT_FROM).is(IMPORT, IMPORT_CLAUSE, FROM_CLAUSE, EOS);
+    b.rule(IMPORT_FROM).is(IMPORT, IMPORT_CLAUSE, Kind.FROM_CLAUSE, EOS);
 
-    b.rule(FROM_CLAUSE).is(FROM, Kind.STRING_LITERAL);
     b.rule(FROM).is(word(b, "from"));
     b.rule(IMPORT_CLAUSE).is(b.firstOf(
       NAMED_IMPORTS,

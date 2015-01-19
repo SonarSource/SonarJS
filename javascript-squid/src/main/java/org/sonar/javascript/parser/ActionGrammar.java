@@ -24,6 +24,7 @@ import org.sonar.javascript.api.EcmaScriptKeyword;
 import org.sonar.javascript.api.EcmaScriptPunctuator;
 import org.sonar.javascript.api.EcmaScriptTokenType;
 import org.sonar.javascript.ast.parser.TreeFactory;
+import org.sonar.javascript.model.implementations.declaration.FromClauseTreeImpl;
 import org.sonar.javascript.model.implementations.declaration.ParameterListTreeImpl;
 import org.sonar.javascript.model.implementations.declaration.VariableDeclarationTreeImpl;
 import org.sonar.javascript.model.implementations.expression.ArrayLiteralTreeImpl;
@@ -1174,6 +1175,23 @@ public class ActionGrammar {
 
   /**
    * A.3 [END] Expressions
+   */
+
+  /**
+   * A.5 Declarations
+   */
+
+  // [START] Module, import & export
+
+  public FromClauseTreeImpl FROM_CLAUSE() {
+    return b.<FromClauseTreeImpl>nonterminal(Kind.FROM_CLAUSE)
+      .is(f.fromClause(b.invokeRule(EcmaScriptGrammar.FROM), STRING_LITERAL()));
+  }
+
+  // [END] Module, import & export
+
+  /**
+   * A.5 [END] Declaration
    */
 
   private <T> T ES6(T object) {

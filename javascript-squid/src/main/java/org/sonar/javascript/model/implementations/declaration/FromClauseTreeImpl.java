@@ -40,6 +40,8 @@ public class FromClauseTreeImpl extends JavaScriptTree implements FromClauseTree
 
     this.fromToken = fromToken;
     this.module = module;
+
+    addChildren(fromToken, module);
   }
 
   @Override
