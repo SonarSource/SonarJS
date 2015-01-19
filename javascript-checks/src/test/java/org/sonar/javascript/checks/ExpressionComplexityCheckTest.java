@@ -41,6 +41,7 @@ public class ExpressionComplexityCheckTest {
       .next().atLine(28)
       .next().atLine(30)
       .next().atLine(38)
+      .next().atLine(41)
       .noMore();
   }
 }

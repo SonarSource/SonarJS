@@ -87,8 +87,7 @@ public class CheckUtils {
     EcmaScriptGrammar.GENERATOR_METHOD,
     EcmaScriptGrammar.GENERATOR_DECLARATION,
     Kind.GENERATOR_FUNCTION_EXPRESSION,
-    Kind.ARROW_FUNCTION,
-    EcmaScriptGrammar.ARROW_FUNCTION_NO_IN);
+    Kind.ARROW_FUNCTION);
 
   public static Kind[] assignmentExpressionArray() {
     return ASSIGNMENT_EXPRESSION.toArray(new Kind[ASSIGNMENT_EXPRESSION.size()]);

@@ -654,11 +654,22 @@ public class TreeFactory {
     return new ConditionalExpressionTreeImpl(InternalSyntaxToken.create(queryToken), trueExpression, InternalSyntaxToken.create(colonToken), falseExpression);
   }
 
+  public ConditionalExpressionTreeImpl newConditionalExpressionNoIn(AstNode queryToken, AstNode trueExpression, AstNode colonToken, AstNode falseExpression) {
+    return new ConditionalExpressionTreeImpl(InternalSyntaxToken.create(queryToken), trueExpression, InternalSyntaxToken.create(colonToken), falseExpression);
+  }
+
   public ExpressionTree completeConditionalExpression(ExpressionTree expression, Optional<ConditionalExpressionTreeImpl> partial) {
     return partial.isPresent() ? partial.get().complete(expression) : expression;
   }
 
+  public ExpressionTree completeConditionalExpressionNoIn(ExpressionTree expression, Optional<ConditionalExpressionTreeImpl> partial) {
+    return partial.isPresent() ? partial.get().complete(expression) : expression;
+  }
   public ExpressionTree newConditionalOr(ExpressionTree expression, Optional<List<Tuple<AstNode, ExpressionTree>>> operatorAndOperands) {
+    return buildBinaryExpression(expression, operatorAndOperands);
+  }
+
+  public ExpressionTree newConditionalOrNoIn(ExpressionTree expression, Optional<List<Tuple<AstNode, ExpressionTree>>> operatorAndOperands) {
     return buildBinaryExpression(expression, operatorAndOperands);
   }
 
@@ -666,7 +677,15 @@ public class TreeFactory {
     return buildBinaryExpression(expression, operatorAndOperands);
   }
 
+  public ExpressionTree newConditionalAndNoIn(ExpressionTree expression, Optional<List<Tuple<AstNode, ExpressionTree>>> operatorAndOperands) {
+    return buildBinaryExpression(expression, operatorAndOperands);
+  }
+
   public ExpressionTree newBitwiseOr(ExpressionTree expression, Optional<List<Tuple<AstNode, ExpressionTree>>> operatorAndOperands) {
+    return buildBinaryExpression(expression, operatorAndOperands);
+  }
+
+  public ExpressionTree newBitwiseOrNoIn(ExpressionTree expression, Optional<List<Tuple<AstNode, ExpressionTree>>> operatorAndOperands) {
     return buildBinaryExpression(expression, operatorAndOperands);
   }
 
@@ -674,7 +693,15 @@ public class TreeFactory {
     return buildBinaryExpression(expression, operatorAndOperands);
   }
 
+  public ExpressionTree newBitwiseXorNoIn(ExpressionTree expression, Optional<List<Tuple<AstNode, ExpressionTree>>> operatorAndOperands) {
+    return buildBinaryExpression(expression, operatorAndOperands);
+  }
+
   public ExpressionTree newBitwiseAnd(ExpressionTree expression, Optional<List<Tuple<AstNode, ExpressionTree>>> operatorAndOperands) {
+    return buildBinaryExpression(expression, operatorAndOperands);
+  }
+
+  public ExpressionTree newBitwiseAndNoIn(ExpressionTree expression, Optional<List<Tuple<AstNode, ExpressionTree>>> operatorAndOperands) {
     return buildBinaryExpression(expression, operatorAndOperands);
   }
 
@@ -682,7 +709,15 @@ public class TreeFactory {
     return buildBinaryExpression(expression, operatorAndOperands);
   }
 
+  public ExpressionTree newEqualityNoIn(ExpressionTree expression, Optional<List<Tuple<AstNode, ExpressionTree>>> operatorAndOperands) {
+    return buildBinaryExpression(expression, operatorAndOperands);
+  }
+
   public ExpressionTree newRelational(ExpressionTree expression, Optional<List<Tuple<AstNode, ExpressionTree>>> operatorAndOperands) {
+    return buildBinaryExpression(expression, operatorAndOperands);
+  }
+
+  public ExpressionTree newRelationalNoIn(ExpressionTree expression, Optional<List<Tuple<AstNode, ExpressionTree>>> operatorAndOperands) {
     return buildBinaryExpression(expression, operatorAndOperands);
   }
 
@@ -734,7 +769,21 @@ public class TreeFactory {
     return new YieldExpressionTreeImpl(InternalSyntaxToken.create(yieldToken));
   }
 
+  public YieldExpressionTreeImpl completeYieldExpressionNoIn(AstNode yieldToken, Optional<YieldExpressionTreeImpl> partial) {
+    if (partial.isPresent()) {
+      return partial.get().complete(InternalSyntaxToken.create(yieldToken));
+    }
+    return new YieldExpressionTreeImpl(InternalSyntaxToken.create(yieldToken));
+  }
+
   public YieldExpressionTreeImpl newYieldExpression(Optional<AstNode> starToken, AstNode expression) {
+    if (starToken.isPresent()) {
+      return new YieldExpressionTreeImpl(InternalSyntaxToken.create(starToken.get()), expression);
+    }
+    return new YieldExpressionTreeImpl(expression);
+  }
+
+  public YieldExpressionTreeImpl newYieldExpressionNoIn(Optional<AstNode> starToken, AstNode expression) {
     if (starToken.isPresent()) {
       return new YieldExpressionTreeImpl(InternalSyntaxToken.create(starToken.get()), expression);
     }
@@ -750,6 +799,10 @@ public class TreeFactory {
   }
 
   public ArrowFunctionTreeImpl arrowFunction(Tree parameters, AstNode doubleArrow, AstNode body) {
+    return new ArrowFunctionTreeImpl(parameters, InternalSyntaxToken.create(doubleArrow), body);
+  }
+
+  public ArrowFunctionTreeImpl arrowFunctionNoIn(Tree parameters, AstNode doubleArrow, AstNode body) {
     return new ArrowFunctionTreeImpl(parameters, InternalSyntaxToken.create(doubleArrow), body);
   }
 
@@ -1000,6 +1053,10 @@ public class TreeFactory {
     return new AssignmentExpressionTreeImpl(EXPRESSION_KIND_BY_PUNCTUATORS.get(operator.getType()), variable, InternalSyntaxToken.create(operator), expression);
   }
 
+  public ExpressionTree assignmentExpressionNoIn(ExpressionTree variable, AstNode operator, ExpressionTree expression) {
+    return new AssignmentExpressionTreeImpl(EXPRESSION_KIND_BY_PUNCTUATORS.get(operator.getType()), variable, InternalSyntaxToken.create(operator), expression);
+  }
+
   public static class Tuple<T, U> extends AstNode {
 
     private final T first;
@@ -1125,6 +1182,33 @@ public class TreeFactory {
     return newTuple(first, second);
   }
 
-  // End
+  public <T, U> Tuple<T, U> newTuple19(T first, U second) {
+    return newTuple(first, second);
+  }
+
+  public <T, U> Tuple<T, U> newTuple20(T first, U second) {
+    return newTuple(first, second);
+  }
+
+  public <T, U> Tuple<T, U> newTuple21(T first, U second) {
+    return newTuple(first, second);
+  }
+
+  public <T, U> Tuple<T, U> newTuple22(T first, U second) {
+    return newTuple(first, second);
+  }
+
+  public <T, U> Tuple<T, U> newTuple23(T first, U second) {
+    return newTuple(first, second);
+  }
+
+  public <T, U> Tuple<T, U> newTuple24(T first, U second) {
+    return newTuple(first, second);
+  }
+
+  public <T, U> Tuple<T, U> newTuple25(T first, U second) {
+    return newTuple(first, second);
+  }
+    // End
 
 }

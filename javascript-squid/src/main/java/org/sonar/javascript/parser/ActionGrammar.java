@@ -432,7 +432,8 @@ public class ActionGrammar {
         ARRAY_LITERAL_ELEMENT(),
         b.zeroOrMore(
           f.newTuple3(f.newWrapperAstNode(b.oneOrMore(b.invokeRule(EcmaScriptPunctuator.COMMA))), ARRAY_LITERAL_ELEMENT())),
-        b.zeroOrMore(b.invokeRule(EcmaScriptPunctuator.COMMA))));
+        b.zeroOrMore(b.invokeRule(EcmaScriptPunctuator.COMMA))
+      ));
   }
 
   public ParameterListTreeImpl FORMAL_PARAMETER_LIST() {
@@ -507,6 +508,18 @@ public class ActionGrammar {
      ));
   }
 
+  public ExpressionTree CONDITIONAL_EXPRESSION_NO_IN() {
+    return b.<ExpressionTree>nonterminal()
+      .is(f.completeConditionalExpressionNoIn(
+        CONDITIONAL_OR_EXPRESSION_NO_IN(),
+        b.optional(f.newConditionalExpressionNoIn(
+            b.invokeRule(EcmaScriptPunctuator.QUERY),
+            b.invokeRule(EcmaScriptGrammar.ASSIGNMENT_EXPRESSION),
+            b.invokeRule(EcmaScriptPunctuator.COLON),
+            b.invokeRule(EcmaScriptGrammar.ASSIGNMENT_EXPRESSION_NO_IN)
+      ))));
+  }
+
   public ExpressionTree CONDITIONAL_OR_EXPRESSION() {
     return b.<ExpressionTree>nonterminal(Kind.CONDITIONAL_OR)
       .is(f.newConditionalOr(
@@ -514,6 +527,17 @@ public class ActionGrammar {
         b.zeroOrMore(f.newTuple6(
           b.invokeRule(EcmaScriptPunctuator.OROR),
           CONDITIONAL_AND_EXPRESSION()
+        ))
+      ));
+  }
+
+  public ExpressionTree CONDITIONAL_OR_EXPRESSION_NO_IN() {
+    return b.<ExpressionTree>nonterminal()
+      .is(f.newConditionalOrNoIn(
+        CONDITIONAL_AND_EXPRESSION_NO_IN(),
+        b.zeroOrMore(f.newTuple19(
+          b.invokeRule(EcmaScriptPunctuator.OROR),
+          CONDITIONAL_AND_EXPRESSION_NO_IN()
         ))
       ));
   }
@@ -529,6 +553,17 @@ public class ActionGrammar {
       ));
   }
 
+  public ExpressionTree CONDITIONAL_AND_EXPRESSION_NO_IN() {
+    return b.<ExpressionTree>nonterminal()
+      .is(f.newConditionalAndNoIn(
+        BITWISE_OR_EXPRESSION_NO_IN(),
+        b.zeroOrMore(f.newTuple20(
+          b.invokeRule(EcmaScriptPunctuator.ANDAND),
+          BITWISE_OR_EXPRESSION_NO_IN()
+        ))
+      ));
+  }
+
   public ExpressionTree BITWISE_OR_EXPRESSION() {
     return b.<ExpressionTree>nonterminal(Kind.BITWISE_OR)
       .is(f.newBitwiseOr(
@@ -536,6 +571,17 @@ public class ActionGrammar {
         b.zeroOrMore(f.newTuple8(
           b.invokeRule(EcmaScriptPunctuator.OR),
           BITWISE_XOR_EXPRESSION()
+        ))
+      ));
+  }
+
+  public ExpressionTree BITWISE_OR_EXPRESSION_NO_IN() {
+    return b.<ExpressionTree>nonterminal()
+      .is(f.newBitwiseOrNoIn(
+        BITWISE_XOR_EXPRESSION_NO_IN(),
+        b.zeroOrMore(f.newTuple21(
+          b.invokeRule(EcmaScriptPunctuator.OR),
+          BITWISE_XOR_EXPRESSION_NO_IN()
         ))
       ));
   }
@@ -551,6 +597,17 @@ public class ActionGrammar {
       ));
   }
 
+  public ExpressionTree BITWISE_XOR_EXPRESSION_NO_IN() {
+    return b.<ExpressionTree>nonterminal()
+      .is(f.newBitwiseXorNoIn(
+        BITWISE_AND_EXPRESSION_NO_IN(),
+        b.zeroOrMore(f.newTuple22(
+          b.invokeRule(EcmaScriptPunctuator.XOR),
+          BITWISE_AND_EXPRESSION_NO_IN()
+        ))
+      ));
+  }
+
   public ExpressionTree BITWISE_AND_EXPRESSION() {
     return b.<ExpressionTree>nonterminal(Kind.BITWISE_AND)
       .is(f.newBitwiseAnd(
@@ -558,6 +615,17 @@ public class ActionGrammar {
         b.zeroOrMore(f.newTuple10(
           b.invokeRule(EcmaScriptPunctuator.AND),
           EQUALITY_EXPRESSION()
+        ))
+      ));
+  }
+
+  public ExpressionTree BITWISE_AND_EXPRESSION_NO_IN() {
+    return b.<ExpressionTree>nonterminal()
+      .is(f.newBitwiseAndNoIn(
+        EQUALITY_EXPRESSION_NO_IN(),
+        b.zeroOrMore(f.newTuple23(
+          b.invokeRule(EcmaScriptPunctuator.AND),
+          EQUALITY_EXPRESSION_NO_IN()
         ))
       ));
   }
@@ -578,6 +646,22 @@ public class ActionGrammar {
       );
   }
 
+  public ExpressionTree EQUALITY_EXPRESSION_NO_IN() {
+    return b.<ExpressionTree>nonterminal()
+      .is(f.newEqualityNoIn(
+          RELATIONAL_EXPRESSION_NO_IN(),
+          b.zeroOrMore(f.newTuple24(
+            b.firstOf(
+              b.invokeRule(EcmaScriptPunctuator.EQUAL),
+              b.invokeRule(EcmaScriptPunctuator.NOTEQUAL),
+              b.invokeRule(EcmaScriptPunctuator.EQUAL2),
+              b.invokeRule(EcmaScriptPunctuator.NOTEQUAL2)),
+            RELATIONAL_EXPRESSION_NO_IN()
+          ))
+        )
+      );
+  }
+
   public ExpressionTree RELATIONAL_EXPRESSION() {
     return b.<ExpressionTree>nonterminal(EcmaScriptGrammar.RELATIONAL_EXPRESSION)
       .is(f.newRelational(
@@ -590,6 +674,23 @@ public class ActionGrammar {
               b.invokeRule(EcmaScriptPunctuator.GE),
               b.invokeRule(EcmaScriptKeyword.INSTANCEOF),
               b.invokeRule(EcmaScriptKeyword.IN)),
+            SHIFT_EXPRESSION()
+          ))
+        )
+      );
+  }
+
+  public ExpressionTree RELATIONAL_EXPRESSION_NO_IN() {
+    return b.<ExpressionTree>nonterminal()
+      .is(f.newRelationalNoIn(
+          SHIFT_EXPRESSION(),
+          b.zeroOrMore(f.newTuple25(
+            b.firstOf(
+              b.invokeRule(EcmaScriptPunctuator.LT),
+              b.invokeRule(EcmaScriptPunctuator.GT),
+              b.invokeRule(EcmaScriptPunctuator.LE),
+              b.invokeRule(EcmaScriptPunctuator.GE),
+              b.invokeRule(EcmaScriptKeyword.INSTANCEOF)),
             SHIFT_EXPRESSION()
           ))
         )
@@ -690,6 +791,17 @@ public class ActionGrammar {
       ));
   }
 
+  public YieldExpressionTreeImpl YIELD_EXPRESSION_NO_IN() {
+    return b.<YieldExpressionTreeImpl>nonterminal()
+      .is(f.completeYieldExpressionNoIn(
+        b.invokeRule(EcmaScriptKeyword.YIELD),
+        b.optional(f.newYieldExpressionNoIn(
+            b.optional(b.invokeRule(EcmaScriptGrammar.STAR_NO_LB)),
+            b.invokeRule(EcmaScriptGrammar.ASSIGNMENT_EXPRESSION_NO_IN_NO_LB))
+        )
+      ));
+  }
+
   public IdentifierTreeImpl IDENTIFIER_REFERENCE() {
     return b.<IdentifierTreeImpl>nonterminal(EcmaScriptGrammar.IDENTIFIER_REFERENCE)
       .is(f.identifierReference(b.firstOf(
@@ -726,6 +838,19 @@ public class ActionGrammar {
         b.firstOf(
           BLOCK(),
           b.invokeRule(EcmaScriptGrammar.ASSIGNMENT_EXPRESSION_NO_LCURLY))
+      ));
+  }
+
+  public ArrowFunctionTreeImpl ARROW_FUNCTION_NO_IN() {
+    return b.<ArrowFunctionTreeImpl>nonterminal()
+      .is(f.arrowFunctionNoIn(
+        b.firstOf(
+          BINDING_IDENTIFIER(),
+          FORMAL_PARAMETER_LIST()),
+        b.invokeRule(EcmaScriptGrammar.DOUBLEARROW_NO_LB),
+        b.firstOf(
+          BLOCK(),
+          b.invokeRule(EcmaScriptGrammar.ASSIGNMENT_EXPRESSION_NO_IN_NO_LCURLY))
       ));
   }
 
@@ -967,6 +1092,11 @@ public class ActionGrammar {
       .is(b.firstOf(YIELD_EXPRESSION(), ARROW_FUNCTION()));
   }
 
+  public ExpressionTree ES6_ASSIGNMENT_EXPRESSION_NO_IN() {
+    return b.<ExpressionTree>nonterminal()
+      .is(b.firstOf(YIELD_EXPRESSION_NO_IN(), ARROW_FUNCTION_NO_IN()));
+  }
+
   public ExpressionTree ASSIGNMENT_EXPRESSION() {
     return b.<ExpressionTree>nonterminal(EcmaScriptGrammar.ASSIGNMENT_EXPRESSION)
       .is(
@@ -992,6 +1122,30 @@ public class ActionGrammar {
       ));
   }
 
+  public ExpressionTree ASSIGNMENT_EXPRESSION_NO_IN() {
+    return b.<ExpressionTree>nonterminal(EcmaScriptGrammar.ASSIGNMENT_EXPRESSION_NO_IN)
+      .is(
+        b.firstOf(
+          f.assignmentExpressionNoIn(
+            LEFT_HAND_SIDE_EXPRESSION(),
+            b.firstOf(
+              b.invokeRule(EcmaScriptPunctuator.EQU),
+              b.invokeRule(EcmaScriptPunctuator.STAR_EQU),
+              b.invokeRule(EcmaScriptPunctuator.DIV_EQU),
+              b.invokeRule(EcmaScriptPunctuator.MOD_EQU),
+              b.invokeRule(EcmaScriptPunctuator.PLUS_EQU),
+              b.invokeRule(EcmaScriptPunctuator.MINUS_EQU),
+              b.invokeRule(EcmaScriptPunctuator.SL_EQU),
+              b.invokeRule(EcmaScriptPunctuator.SR_EQU),
+              b.invokeRule(EcmaScriptPunctuator.SR_EQU2),
+              b.invokeRule(EcmaScriptPunctuator.AND_EQU),
+              b.invokeRule(EcmaScriptPunctuator.XOR_EQU),
+              b.invokeRule(EcmaScriptPunctuator.OR_EQU)),
+            ASSIGNMENT_EXPRESSION_NO_IN()),
+          ES6_ASSIGNMENT_EXPRESSION_NO_IN(),
+          CONDITIONAL_EXPRESSION_NO_IN()
+        ));
+  }
   /**
    * A.3 [END] Expressions
    */

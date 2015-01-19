@@ -53,12 +53,10 @@ public class AssignmentWithinConditionCheck extends SquidCheck<LexerlessGrammar>
     Kind.GREATER_THAN_OR_EQUAL_TO,
     Kind.INSTANCE_OF,
     Kind.RELATIONAL_IN,
-    EcmaScriptGrammar.RELATIONAL_EXPRESSION_NO_IN,
     Kind.EQUAL_TO,
     Kind.NOT_EQUAL_TO,
     Kind.STRICT_EQUAL_TO,
     Kind.STRICT_NOT_EQUAL_TO,
-    EcmaScriptGrammar.EQUALITY_EXPRESSION_NO_IN
   };
 
   @Override
@@ -107,8 +105,7 @@ public class AssignmentWithinConditionCheck extends SquidCheck<LexerlessGrammar>
   }
 
   private boolean isExcludedExpression(AstNodeType node) {
-    return CheckUtils.isEqualityExpression(node) || EcmaScriptGrammar.EQUALITY_EXPRESSION_NO_IN.equals(node)
-      || CheckUtils.isRelationalExpression(node) || EcmaScriptGrammar.RELATIONAL_EXPRESSION_NO_IN.equals(node);
+    return CheckUtils.isEqualityExpression(node) || CheckUtils.isRelationalExpression(node);
   }
 
   private boolean isTargetedExpression(AstNode astNode) {
