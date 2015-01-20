@@ -17,23 +17,22 @@
  * License along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.javascript.model.expression;
+package org.sonar.javascript.model.declaration;
 
 import org.junit.Test;
-import org.sonar.javascript.api.EcmaScriptKeyword;
 import org.sonar.javascript.model.JavaScriptTreeModelTest;
 import org.sonar.javascript.model.interfaces.Tree.Kind;
-import org.sonar.javascript.model.interfaces.expression.ClassExpressionTree;
+import org.sonar.javascript.model.interfaces.declaration.ClassDeclarationTree;
 
 import static org.fest.assertions.Assertions.assertThat;
 
-public class ClassExpressionTreeModelTest extends JavaScriptTreeModelTest {
+public class ClassDeclarationTreeModelTest extends JavaScriptTreeModelTest {
 
   @Test
-  public void with_name() throws Exception {
-    ClassExpressionTree tree = parse("var c = class C { }", Kind.CLASS_EXPRESSION);
+  public void test() throws Exception {
+    ClassDeclarationTree tree = parse("class C { }", Kind.CLASS_DECLARATION);
 
-    assertThat(tree.is(Kind.CLASS_EXPRESSION)).isTrue();
+    assertThat(tree.is(Kind.CLASS_DECLARATION)).isTrue();
     assertThat(tree.classToken().text()).isEqualTo("class");
     assertThat(tree.name().name()).isEqualTo("C");
     assertThat(tree.extendsToken()).isNull();
@@ -44,22 +43,8 @@ public class ClassExpressionTreeModelTest extends JavaScriptTreeModelTest {
   }
 
   @Test
-  public void without_name() throws Exception {
-    ClassExpressionTree tree = parse("var c = class { }", Kind.CLASS_EXPRESSION);
-
-    assertThat(tree.is(Kind.CLASS_EXPRESSION)).isTrue();
-    assertThat(tree.classToken().text()).isEqualTo(EcmaScriptKeyword.CLASS.getValue());
-    assertThat(tree.name()).isNull();
-    assertThat(tree.extendsToken()).isNull();
-    assertThat(tree.superClass()).isNull();
-    assertThat(tree.openCurlyBraceToken().text()).isEqualTo("{");
-    // TODO members
-    assertThat(tree.closeCurlyBraceToken().text()).isEqualTo("}");
-  }
-
-  @Test
   public void extends_clause() throws Exception {
-    ClassExpressionTree tree = parse("var c = class extends S { }", Kind.CLASS_EXPRESSION);
+    ClassDeclarationTree tree = parse("class C extends S { }", Kind.CLASS_DECLARATION);
 
     assertThat(tree.extendsToken().text()).isEqualTo("extends");
     assertThat(tree.superClass()).isNotNull();

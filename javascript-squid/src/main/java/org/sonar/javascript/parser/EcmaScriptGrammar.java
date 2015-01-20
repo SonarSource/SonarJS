@@ -29,11 +29,9 @@ import org.sonar.sslr.grammar.GrammarRuleKey;
 import org.sonar.sslr.grammar.LexerlessGrammarBuilder;
 import org.sonar.sslr.parser.LexerlessGrammar;
 
-import static org.sonar.javascript.api.EcmaScriptKeyword.CLASS;
 import static org.sonar.javascript.api.EcmaScriptKeyword.CONST;
 import static org.sonar.javascript.api.EcmaScriptKeyword.DEFAULT;
 import static org.sonar.javascript.api.EcmaScriptKeyword.EXPORT;
-import static org.sonar.javascript.api.EcmaScriptKeyword.EXTENDS;
 import static org.sonar.javascript.api.EcmaScriptKeyword.FUNCTION;
 import static org.sonar.javascript.api.EcmaScriptKeyword.IMPORT;
 import static org.sonar.javascript.api.EcmaScriptKeyword.VAR;
@@ -262,12 +260,6 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
   GENERATOR_METHOD,
   /** ECMAScript 6 **/
   CLASS_DECLARATION,
-  /** ECMAScript 6 **/
-  CLASS_TAIL,
-  /** ECMAScript 6 **/
-  CLASS_HERITAGE,
-  /** ECMAScript 6 **/
-  CLASS_BODY,
   /** ECMAScript 6 **/
   CLASS_ELEMENT,
   /** ECMAScript 6 **/
@@ -659,10 +651,6 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
     b.rule(GENERATOR_DECLARATION).is(FUNCTION, STAR, BINDING_IDENTIFIER,
       Kind.FORMAL_PARAMETER_LIST, LCURLYBRACE, FUNCTION_BODY, RCURLYBRACE);
 
-    b.rule(CLASS_DECLARATION).is(CLASS, BINDING_IDENTIFIER, CLASS_TAIL);
-    b.rule(CLASS_TAIL).is(b.optional(CLASS_HERITAGE), LCURLYBRACE, b.optional(CLASS_BODY), RCURLYBRACE);
-    b.rule(CLASS_HERITAGE).is(EXTENDS, LEFT_HAND_SIDE_EXPRESSION);
-    b.rule(CLASS_BODY).is(b.oneOrMore(CLASS_ELEMENT));
     b.rule(CLASS_ELEMENT).is(b.firstOf(STATIC_METHOD_DEFINITION, METHOD_DEFINITION, SEMI));
 
     b.rule(STATIC_METHOD_DEFINITION).is(STATIC, METHOD_DEFINITION);

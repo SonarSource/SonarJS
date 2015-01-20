@@ -22,6 +22,8 @@ package org.sonar.javascript.model.implementations.declaration;
 import com.google.common.collect.Iterators;
 import com.sonar.sslr.api.AstNode;
 import org.sonar.javascript.model.implementations.JavaScriptTree;
+import org.sonar.javascript.model.implementations.expression.IdentifierTreeImpl;
+import org.sonar.javascript.model.implementations.lexical.InternalSyntaxToken;
 import org.sonar.javascript.model.interfaces.Tree;
 import org.sonar.javascript.model.interfaces.declaration.ClassDeclarationTree;
 import org.sonar.javascript.model.interfaces.declaration.MethodDeclarationTree;
@@ -30,21 +32,43 @@ import org.sonar.javascript.model.interfaces.expression.IdentifierTree;
 import org.sonar.javascript.model.interfaces.lexical.SyntaxToken;
 
 import javax.annotation.Nullable;
+
 import java.util.Iterator;
 import java.util.List;
 
 public class ClassDeclarationTreeImpl extends JavaScriptTree implements ClassDeclarationTree {
 
-  private SyntaxToken classToken;
-  private IdentifierTree name;
-  private SyntaxToken extendsToken;
-  private ExpressionTree superClass;
-  private SyntaxToken openCurlyBraceToken;
-  private List<MethodDeclarationTree> elements;
-  private SyntaxToken closeCurlyBraceToken;
+  private final InternalSyntaxToken classToken;
+  private final IdentifierTreeImpl name;
+  @Nullable
+  private final InternalSyntaxToken extendsToken;
+  @Nullable
+  private final ExpressionTree superClass;
+  private final InternalSyntaxToken openCurlyBraceToken;
+  private final InternalSyntaxToken closeCurlyBraceToken;
 
-  public ClassDeclarationTreeImpl() {
+  public ClassDeclarationTreeImpl(InternalSyntaxToken classToken, IdentifierTreeImpl name,
+    @Nullable InternalSyntaxToken extendsToken, @Nullable ExpressionTree superClass,
+    InternalSyntaxToken openCurlyBraceToken, List<AstNode> elements, InternalSyntaxToken closeCurlyBraceToken) {
+
     super(Kind.CLASS_DECLARATION);
+
+    this.classToken = classToken;
+    this.name = name;
+    this.extendsToken = extendsToken;
+    this.superClass = superClass;
+    this.openCurlyBraceToken = openCurlyBraceToken;
+    this.closeCurlyBraceToken = closeCurlyBraceToken;
+
+    addChild(classToken);
+    addChild(name);
+    addChild(extendsToken);
+    addChild((AstNode) superClass);
+    addChild(openCurlyBraceToken);
+    for (AstNode element : elements) {
+      addChild(element);
+    }
+    addChild(closeCurlyBraceToken);
   }
 
   @Override
@@ -75,8 +99,8 @@ public class ClassDeclarationTreeImpl extends JavaScriptTree implements ClassDec
   }
 
   @Override
-  public List<MethodDeclarationTree> elements() {
-    return elements;
+  public List<MethodDeclarationTree> members() {
+    throw new UnsupportedOperationException("Not supported yet in the strongly typed AST.");
   }
 
   @Override

@@ -32,8 +32,8 @@ import java.util.List;
  * <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-class-definitions">Class Definitions</a>
  *
  * <pre>
- *  class {@link #name()} { {@link #elements()} }
- *  class {@link #name()} extends {@link #superClass()}} { {@link #elements()} }
+ *  class {@link #name()} { {@link #members()} }
+ *  class {@link #name()} extends {@link #superClass()}} { {@link #members()} }
  * </pre>
  *
  * <p>This interface is not intended to be implemented by clients.</p>
@@ -52,7 +52,7 @@ public interface ClassDeclarationTree extends DeclarationTree {
 
   SyntaxToken openCurlyBraceToken();
 
-  List<MethodDeclarationTree> elements();
+  List<MethodDeclarationTree> members();
 
   SyntaxToken closeCurlyBraceToken();
 

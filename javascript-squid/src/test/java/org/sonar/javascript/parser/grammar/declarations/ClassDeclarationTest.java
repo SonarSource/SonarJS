@@ -30,7 +30,10 @@ public class ClassDeclarationTest {
   @Test
   public void ok() {
     assertThat(EcmaScriptGrammar.CLASS_DECLARATION)
-      .matches("class C {}");
+      .matches("class C {}")
+      .matches("class C extends S {}")
+      .matches("class C { ; }")
+      .matches("class C extends S { ; }");
   }
 
 }

@@ -24,6 +24,7 @@ import org.sonar.javascript.api.EcmaScriptKeyword;
 import org.sonar.javascript.api.EcmaScriptPunctuator;
 import org.sonar.javascript.api.EcmaScriptTokenType;
 import org.sonar.javascript.ast.parser.TreeFactory;
+import org.sonar.javascript.model.implementations.declaration.ClassDeclarationTreeImpl;
 import org.sonar.javascript.model.implementations.declaration.DefaultExportDeclarationTreeImpl;
 import org.sonar.javascript.model.implementations.declaration.FromClauseTreeImpl;
 import org.sonar.javascript.model.implementations.declaration.NamedExportDeclarationTreeImpl;
@@ -77,7 +78,6 @@ import org.sonar.javascript.model.implementations.statement.WithStatementTreeImp
 import org.sonar.javascript.model.interfaces.Tree.Kind;
 import org.sonar.javascript.model.interfaces.declaration.ExportDeclarationTree;
 import org.sonar.javascript.model.interfaces.declaration.NameSpaceExportDeclarationTree;
-import org.sonar.javascript.model.interfaces.declaration.SpecifierListTree;
 import org.sonar.javascript.model.interfaces.expression.ExpressionTree;
 import org.sonar.javascript.model.interfaces.expression.MemberExpressionTree;
 import org.sonar.javascript.model.interfaces.statement.DebuggerStatementTree;
@@ -976,11 +976,15 @@ public class ActionGrammar {
 
   public ClassExpressionTreeImpl CLASS_EXPRESSION() {
     return b.<ClassExpressionTreeImpl>nonterminal(Kind.CLASS_EXPRESSION)
-      .is(f.classExpression(
-        b.invokeRule(EcmaScriptKeyword.CLASS),
-        b.optional(BINDING_IDENTIFIER()),
-        b.invokeRule(EcmaScriptGrammar.CLASS_TAIL)
-      ));
+      .is(
+        f.classExpression(
+          b.invokeRule(EcmaScriptKeyword.CLASS),
+          b.optional(BINDING_IDENTIFIER()),
+          // TODO Factor the duplication with CLASS_DECLARATION() into CLASS_TRAIT() ?
+          b.optional(f.newTuple28(b.invokeRule(EcmaScriptKeyword.EXTENDS), LEFT_HAND_SIDE_EXPRESSION())),
+          b.invokeRule(EcmaScriptPunctuator.LCURLYBRACE),
+          b.zeroOrMore(b.invokeRule(EcmaScriptGrammar.CLASS_ELEMENT)),
+          b.invokeRule(EcmaScriptPunctuator.RCURLYBRACE)));
   }
 
   public ComputedPropertyNameTreeImpl COMPUTED_PROPERTY_NAME() {
@@ -1265,6 +1269,18 @@ public class ActionGrammar {
   // [END] Module, import & export
 
   // [START] Classes, methods, functions & generators
+
+  public ClassDeclarationTreeImpl CLASS_DECLARATION() {
+    return b.<ClassDeclarationTreeImpl>nonterminal(EcmaScriptGrammar.CLASS_DECLARATION)
+      .is(
+        f.classDeclaration(
+          b.invokeRule(EcmaScriptKeyword.CLASS), BINDING_IDENTIFIER(),
+          // TODO Factor the duplication with CLASS_EXPRESSION() into CLASS_TRAIT() ?
+          b.optional(f.newTuple27(b.invokeRule(EcmaScriptKeyword.EXTENDS), LEFT_HAND_SIDE_EXPRESSION())),
+          b.invokeRule(EcmaScriptPunctuator.LCURLYBRACE),
+          b.zeroOrMore(b.invokeRule(EcmaScriptGrammar.CLASS_ELEMENT)),
+          b.invokeRule(EcmaScriptPunctuator.RCURLYBRACE)));
+  }
 
   // [END] Classes, methods, functions & generators
 

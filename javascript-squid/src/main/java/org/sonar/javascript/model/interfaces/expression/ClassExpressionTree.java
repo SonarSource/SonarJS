@@ -19,31 +19,42 @@
  */
 package org.sonar.javascript.model.interfaces.expression;
 
-import org.sonar.javascript.model.interfaces.declaration.DeclarationTree;
+import org.sonar.javascript.model.interfaces.declaration.MethodDeclarationTree;
 import org.sonar.javascript.model.interfaces.lexical.SyntaxToken;
-import org.sonar.javascript.model.interfaces.statement.StatementTree;
 
 import javax.annotation.Nullable;
+
+import java.util.List;
 
 /**
  * Interface for type
  * <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-class-definitions">Class expression</a>
  *
  * <pre>
- *  class {@link #name()} {@link #heritage()} { {@link #body()} }
+ *  class { {@link #members()} }
+ *  class {@link #name()} { {@link #members()} }
+ *  class {@link #name()} extends {@link #superClass()}} { {@link #members()} }
  * </pre>
  *
  * <p>This interface is not intended to be implemented by clients.</p>
  */
 public interface ClassExpressionTree extends ExpressionTree {
 
-  SyntaxToken classKeyword();
+  SyntaxToken classToken();
 
   @Nullable
   IdentifierTree name();
 
-  DeclarationTree heritage();
+  @Nullable
+  SyntaxToken extendsToken();
 
-  StatementTree body();
+  @Nullable
+  ExpressionTree superClass();
+
+  SyntaxToken openCurlyBraceToken();
+
+  List<MethodDeclarationTree> members();
+
+  SyntaxToken closeCurlyBraceToken();
 
 }

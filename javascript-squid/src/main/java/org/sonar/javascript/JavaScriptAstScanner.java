@@ -22,14 +22,20 @@ package org.sonar.javascript;
 import com.google.common.base.Charsets;
 import com.sonar.sslr.api.AstNode;
 import com.sonar.sslr.impl.Parser;
+import org.sonar.javascript.api.EcmaScriptMetric;
+import org.sonar.javascript.api.EcmaScriptTokenType;
+import org.sonar.javascript.metrics.ComplexityVisitor;
+import org.sonar.javascript.metrics.LinesOfCodeVisitor;
 import org.sonar.javascript.model.interfaces.Tree.Kind;
+import org.sonar.javascript.parser.EcmaScriptGrammar;
+import org.sonar.javascript.parser.EcmaScriptParser;
 import org.sonar.squidbridge.AstScanner;
 import org.sonar.squidbridge.SourceCodeBuilderCallback;
 import org.sonar.squidbridge.SourceCodeBuilderVisitor;
 import org.sonar.squidbridge.SquidAstVisitor;
 import org.sonar.squidbridge.SquidAstVisitorContextImpl;
-import org.sonar.squidbridge.api.SourceCode;
 import org.sonar.squidbridge.api.SourceClass;
+import org.sonar.squidbridge.api.SourceCode;
 import org.sonar.squidbridge.api.SourceFile;
 import org.sonar.squidbridge.api.SourceFunction;
 import org.sonar.squidbridge.api.SourceProject;
@@ -37,12 +43,6 @@ import org.sonar.squidbridge.indexer.QueryByType;
 import org.sonar.squidbridge.metrics.CommentsVisitor;
 import org.sonar.squidbridge.metrics.CounterVisitor;
 import org.sonar.squidbridge.metrics.LinesVisitor;
-import org.sonar.javascript.api.EcmaScriptMetric;
-import org.sonar.javascript.api.EcmaScriptTokenType;
-import org.sonar.javascript.metrics.ComplexityVisitor;
-import org.sonar.javascript.metrics.LinesOfCodeVisitor;
-import org.sonar.javascript.parser.EcmaScriptGrammar;
-import org.sonar.javascript.parser.EcmaScriptParser;
 import org.sonar.sslr.grammar.GrammarRuleKey;
 import org.sonar.sslr.parser.LexerlessGrammar;
 
@@ -104,10 +104,10 @@ public final class JavaScriptAstScanner {
         cls.setStartAtLine(astNode.getTokenLine());
         return cls;
       }
-    }, EcmaScriptGrammar.CLASS_DECLARATION, Kind.CLASS_EXPRESSION));
+    }, Kind.CLASS_DECLARATION, Kind.CLASS_EXPRESSION));
 
     builder.withSquidAstVisitor(CounterVisitor.<LexerlessGrammar>builder().setMetricDef(EcmaScriptMetric.CLASSES)
-      .subscribeTo(EcmaScriptGrammar.CLASS_DECLARATION, Kind.CLASS_EXPRESSION)
+      .subscribeTo(Kind.CLASS_DECLARATION, Kind.CLASS_EXPRESSION)
       .build());
 
     /* Functions */
@@ -117,6 +117,7 @@ public final class JavaScriptAstScanner {
         .build());
 
     builder.withSquidAstVisitor(new SourceCodeBuilderVisitor<LexerlessGrammar>(new SourceCodeBuilderCallback() {
+      @Override
       public SourceCode createSourceCode(SourceCode parentSourceCode, AstNode astNode) {
         AstNode identifier = astNode.getFirstChild(EcmaScriptTokenType.IDENTIFIER, EcmaScriptGrammar.PROPERTY_NAME, Kind.IDENTIFIER);
         final String functionName = identifier == null ? "anonymous" : identifier.getTokenValue();

@@ -29,6 +29,7 @@ import org.apache.commons.collections.ListUtils;
 import org.sonar.javascript.api.EcmaScriptKeyword;
 import org.sonar.javascript.api.EcmaScriptPunctuator;
 import org.sonar.javascript.model.implementations.SeparatedList;
+import org.sonar.javascript.model.implementations.declaration.ClassDeclarationTreeImpl;
 import org.sonar.javascript.model.implementations.declaration.DefaultExportDeclarationTreeImpl;
 import org.sonar.javascript.model.implementations.declaration.FromClauseTreeImpl;
 import org.sonar.javascript.model.implementations.declaration.NameSpaceExportDeclarationTreeImpl;
@@ -91,7 +92,6 @@ import org.sonar.javascript.model.implementations.statement.WhileStatementTreeIm
 import org.sonar.javascript.model.implementations.statement.WithStatementTreeImpl;
 import org.sonar.javascript.model.interfaces.Tree;
 import org.sonar.javascript.model.interfaces.Tree.Kind;
-import org.sonar.javascript.model.interfaces.declaration.DefaultExportDeclarationTree;
 import org.sonar.javascript.model.interfaces.declaration.NameSpaceExportDeclarationTree;
 import org.sonar.javascript.model.interfaces.declaration.ParameterListTree;
 import org.sonar.javascript.model.interfaces.declaration.SpecifierTree;
@@ -105,7 +105,7 @@ import org.sonar.javascript.model.interfaces.statement.SwitchClauseTree;
 import org.sonar.javascript.parser.EcmaScriptGrammar;
 import org.sonar.javascript.parser.sslr.Optional;
 
-import javax.swing.text.html.Option;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -932,11 +932,24 @@ public class TreeFactory {
     return new ParenthesisedExpressionTreeImpl(InternalSyntaxToken.create(openParenToken), expression, InternalSyntaxToken.create(closeParenToken));
   }
 
-  public ClassExpressionTreeImpl classExpression(AstNode classToken, Optional<IdentifierTreeImpl> name, AstNode classTail) {
-    if (name.isPresent()) {
-      return new ClassExpressionTreeImpl(InternalSyntaxToken.create(classToken), name.get(), ImmutableList.of(classToken, name.get(), classTail));
+  public ClassExpressionTreeImpl classExpression(AstNode classToken, Optional<IdentifierTreeImpl> name, Optional<Tuple<AstNode, ExpressionTree>> extendsClause,
+    AstNode openCurlyBraceToken, Optional<List<AstNode>> members, AstNode closeCurlyBraceToken) {
+
+    if (extendsClause.isPresent()) {
+      return new ClassExpressionTreeImpl(
+        InternalSyntaxToken.create(classToken), name.orNull(),
+        InternalSyntaxToken.create(extendsClause.get().first()), extendsClause.get().second(),
+        InternalSyntaxToken.create(openCurlyBraceToken),
+        members.or(Collections.<AstNode>emptyList()),
+        InternalSyntaxToken.create(closeCurlyBraceToken));
     }
-    return new ClassExpressionTreeImpl(InternalSyntaxToken.create(classToken), ImmutableList.of(classToken, classTail));
+
+    return new ClassExpressionTreeImpl(
+      InternalSyntaxToken.create(classToken), name.orNull(),
+      null, null,
+      InternalSyntaxToken.create(openCurlyBraceToken),
+      members.or(Collections.<AstNode>emptyList()),
+      InternalSyntaxToken.create(closeCurlyBraceToken));
   }
 
   public ComputedPropertyNameTreeImpl computedPropertyName(AstNode openBracketToken, AstNode expression, AstNode closeBracketToken) {
@@ -1155,6 +1168,31 @@ public class TreeFactory {
     return new NameSpaceExportDeclarationTreeImpl(InternalSyntaxToken.create(exportToken), InternalSyntaxToken.create(starToken), fromClause, eos);
   }
 
+  // [START] Classes, methods, functions & generators
+
+  public ClassDeclarationTreeImpl classDeclaration(AstNode classToken, IdentifierTreeImpl name,
+    Optional<Tuple<AstNode, ExpressionTree>> extendsClause,
+    AstNode openCurlyBraceToken, Optional<List<AstNode>> members, AstNode closeCurlyBraceToken) {
+
+    if (extendsClause.isPresent()) {
+      return new ClassDeclarationTreeImpl(
+        InternalSyntaxToken.create(classToken), name,
+        InternalSyntaxToken.create(extendsClause.get().first()), extendsClause.get().second(),
+        InternalSyntaxToken.create(openCurlyBraceToken),
+        members.or(Collections.<AstNode>emptyList()),
+        InternalSyntaxToken.create(closeCurlyBraceToken));
+    }
+
+    return new ClassDeclarationTreeImpl(
+      InternalSyntaxToken.create(classToken), name,
+      null, null,
+      InternalSyntaxToken.create(openCurlyBraceToken),
+      members.or(Collections.<AstNode>emptyList()),
+      InternalSyntaxToken.create(closeCurlyBraceToken));
+  }
+
+  // [END] Classes, methods, functions & generators
+
   public static class Tuple<T, U> extends AstNode {
 
     private final T first;
@@ -1312,7 +1350,16 @@ public class TreeFactory {
     return newTuple(first, second);
   }
 
+  public <T, U> Tuple<T, U> newTuple27(T first, U second) {
+    return newTuple(first, second);
+  }
+
+  public <T, U> Tuple<T, U> newTuple28(T first, U second) {
+    return newTuple(first, second);
+  }
+
   public <T, U> Tuple<T, U> newTuple50(T first, U second) {
     return newTuple(first, second);
   }
+
 }

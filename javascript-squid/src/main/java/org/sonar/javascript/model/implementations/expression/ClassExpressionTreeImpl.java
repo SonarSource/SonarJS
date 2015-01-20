@@ -19,48 +19,58 @@
  */
 package org.sonar.javascript.model.implementations.expression;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterators;
 import com.sonar.sslr.api.AstNode;
 import org.sonar.javascript.model.implementations.JavaScriptTree;
 import org.sonar.javascript.model.implementations.lexical.InternalSyntaxToken;
 import org.sonar.javascript.model.interfaces.Tree;
-import org.sonar.javascript.model.interfaces.declaration.DeclarationTree;
+import org.sonar.javascript.model.interfaces.declaration.MethodDeclarationTree;
 import org.sonar.javascript.model.interfaces.expression.ClassExpressionTree;
+import org.sonar.javascript.model.interfaces.expression.ExpressionTree;
 import org.sonar.javascript.model.interfaces.expression.IdentifierTree;
 import org.sonar.javascript.model.interfaces.lexical.SyntaxToken;
-import org.sonar.javascript.model.interfaces.statement.StatementTree;
+
+import javax.annotation.Nullable;
 
 import java.util.Iterator;
+import java.util.List;
 
 public class ClassExpressionTreeImpl extends JavaScriptTree implements ClassExpressionTree {
 
-  private final InternalSyntaxToken classKeyword;
+  private final InternalSyntaxToken classToken;
   private final IdentifierTreeImpl name;
+  private final InternalSyntaxToken extendsToken;
+  private final ExpressionTree superClass;
+  private final InternalSyntaxToken openCurlyBraceToken;
+  private final InternalSyntaxToken closeCurlyBraceToken;
 
-  public ClassExpressionTreeImpl(InternalSyntaxToken classKeyword, IdentifierTreeImpl name, ImmutableList<AstNode> children) {
+  public ClassExpressionTreeImpl(InternalSyntaxToken classToken, @Nullable IdentifierTreeImpl name,
+    @Nullable InternalSyntaxToken extendsToken, @Nullable ExpressionTree superClass,
+    InternalSyntaxToken openCurlyBraceToken, List<AstNode> elements, InternalSyntaxToken closeCurlyBraceToken) {
+
     super(Kind.CLASS_EXPRESSION);
-    this.classKeyword = classKeyword;
+
+    this.classToken = classToken;
     this.name = name;
+    this.extendsToken = extendsToken;
+    this.superClass = superClass;
+    this.openCurlyBraceToken = openCurlyBraceToken;
+    this.closeCurlyBraceToken = closeCurlyBraceToken;
 
-    for (AstNode child : children) {
-      addChild(child);
+    addChild(classToken);
+    addChild(name);
+    addChild(extendsToken);
+    addChild((AstNode) superClass);
+    addChild(openCurlyBraceToken);
+    for (AstNode element : elements) {
+      addChild(element);
     }
-  }
-
-  public ClassExpressionTreeImpl(InternalSyntaxToken classKeyword, ImmutableList<AstNode> children) {
-    super(Kind.CLASS_EXPRESSION);
-    this.classKeyword = classKeyword;
-    this.name = null;
-
-    for (AstNode child : children) {
-      addChild(child);
-    }
+    addChild(closeCurlyBraceToken);
   }
 
   @Override
-  public SyntaxToken classKeyword() {
-    return classKeyword;
+  public SyntaxToken classToken() {
+    return classToken;
   }
 
   @Override
@@ -69,13 +79,29 @@ public class ClassExpressionTreeImpl extends JavaScriptTree implements ClassExpr
   }
 
   @Override
-  public DeclarationTree heritage() {
+  public SyntaxToken extendsToken() {
+    return extendsToken;
+  }
+
+  @Override
+  @Nullable
+  public ExpressionTree superClass() {
+    return superClass;
+  }
+
+  @Override
+  public SyntaxToken openCurlyBraceToken() {
+    return openCurlyBraceToken;
+  }
+
+  @Override
+  public List<MethodDeclarationTree> members() {
     throw new UnsupportedOperationException("Not supported yet in the strongly typed AST.");
   }
 
   @Override
-  public StatementTree body() {
-    throw new UnsupportedOperationException("Not supported yet in the strongly typed AST.");
+  public SyntaxToken closeCurlyBraceToken() {
+    return closeCurlyBraceToken;
   }
 
   @Override
