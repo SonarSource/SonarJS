@@ -27,6 +27,7 @@ import org.sonar.javascript.ast.parser.TreeFactory;
 import org.sonar.javascript.model.implementations.declaration.ClassDeclarationTreeImpl;
 import org.sonar.javascript.model.implementations.declaration.DefaultExportDeclarationTreeImpl;
 import org.sonar.javascript.model.implementations.declaration.FromClauseTreeImpl;
+import org.sonar.javascript.model.implementations.declaration.MethodDeclarationTreeImpl;
 import org.sonar.javascript.model.implementations.declaration.NamedExportDeclarationTreeImpl;
 import org.sonar.javascript.model.implementations.declaration.ParameterListTreeImpl;
 import org.sonar.javascript.model.implementations.declaration.SpecifierListTreeImpl;
@@ -1027,7 +1028,7 @@ public class ActionGrammar {
     return b.<AstNode>nonterminal(EcmaScriptGrammar.PROPERTY_DEFINITION)
       .is(b.firstOf(
         PAIR_PROPERTY(),
-        b.invokeRule(EcmaScriptGrammar.METHOD_DEFINITION),
+        METHOD_DEFINITION(),
         IDENTIFIER_REFERENCE())
       );
   }
@@ -1275,8 +1276,39 @@ public class ActionGrammar {
           // TODO Factor the duplication with CLASS_EXPRESSION() into CLASS_TRAIT() ?
           b.optional(f.newTuple27(b.invokeRule(EcmaScriptKeyword.EXTENDS), LEFT_HAND_SIDE_EXPRESSION())),
           b.invokeRule(EcmaScriptPunctuator.LCURLYBRACE),
-          b.zeroOrMore(b.invokeRule(EcmaScriptGrammar.CLASS_ELEMENT)),
+          b.zeroOrMore(CLASS_ELEMENT()),
           b.invokeRule(EcmaScriptPunctuator.RCURLYBRACE)));
+  }
+
+  public AstNode CLASS_ELEMENT() {
+    return b.<AstNode>nonterminal(EcmaScriptGrammar.CLASS_ELEMENT)
+      .is(
+        b.firstOf(
+          STATIC_METHOD_DEFINITION(),
+          METHOD_DEFINITION(),
+          b.invokeRule(EcmaScriptPunctuator.SEMI)));
+  }
+
+  public MethodDeclarationTreeImpl STATIC_METHOD_DEFINITION() {
+    return b.<MethodDeclarationTreeImpl>nonterminal()
+      .is(f.completeStaticMethod(b.invokeRule(EcmaScriptGrammar.STATIC), METHOD_DEFINITION()));
+  }
+
+  public MethodDeclarationTreeImpl METHOD_DEFINITION() {
+    return b.<MethodDeclarationTreeImpl>nonterminal(EcmaScriptGrammar.METHOD_DEFINITION)
+      .is(
+        b.firstOf(
+          f.methodOrGenerator(
+            b.optional(b.invokeRule(EcmaScriptPunctuator.STAR)),
+            PROPERTY_NAME(), FORMAL_PARAMETER_LIST(),
+            BLOCK()),
+          f.accessor(
+            b.firstOf(
+              b.invokeRule(EcmaScriptGrammar.GET),
+              b.invokeRule(EcmaScriptGrammar.SET)),
+            PROPERTY_NAME(),
+            FORMAL_PARAMETER_LIST(),
+            BLOCK())));
   }
 
   // [END] Classes, methods, functions & generators

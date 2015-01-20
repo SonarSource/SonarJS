@@ -53,3 +53,18 @@ class C {
 
 function * generator () {  // +1 genrator declaration
 }
+
+Person.prototype = {
+  whoAreYou : function() { // +1
+    return this.first + ' ' + this.last; // +0
+  },
+
+  set first(first) { // +0
+    this.first = first;
+  },
+
+  get first() { // +0
+    return this.first; // +0
+  }
+};
+

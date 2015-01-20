@@ -30,8 +30,6 @@ import org.sonar.sslr.grammar.LexerlessGrammarBuilder;
 import org.sonar.sslr.parser.LexerlessGrammar;
 
 import static org.sonar.javascript.api.EcmaScriptKeyword.CONST;
-import static org.sonar.javascript.api.EcmaScriptKeyword.DEFAULT;
-import static org.sonar.javascript.api.EcmaScriptKeyword.EXPORT;
 import static org.sonar.javascript.api.EcmaScriptKeyword.FUNCTION;
 import static org.sonar.javascript.api.EcmaScriptKeyword.IMPORT;
 import static org.sonar.javascript.api.EcmaScriptKeyword.VAR;
@@ -257,23 +255,13 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
   /** ECMAScript 6 **/
   BINDING_IDENTIFIER,
   /** ECMAScript 6 **/
-  GENERATOR_METHOD,
-  /** ECMAScript 6 **/
   CLASS_DECLARATION,
   /** ECMAScript 6 **/
   CLASS_ELEMENT,
-  /** ECMAScript 6 **/
-  STATIC_METHOD_DEFINITION,
-  /** ECMAScript 6 **/
-  STATIC,
-  /** ECMAScript 6 **/
   METHOD_DEFINITION,
   /** ECMAScript 6 **/
-  METHOD,
-  GETTER_METHOD,
+  STATIC,
   GET,
-  SETTER_METHOD,
-  PROPERTY_SET_PARAMETER_LIST,
   SET,
   /** ECMAScript 6 **/
   MODULE_WORD,
@@ -602,7 +590,10 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
       ecmascript6(CLASS_DECLARATION),
       ecmascript6(LEXICAL_DECLARATION)));
 
+    // TODO Replace by BLOCK
+    b.rule(FUNCTION_BODY).is(b.optional(STATEMENT_LIST));
     b.rule(FUNCTION_DECLARATION).is(FUNCTION, BINDING_IDENTIFIER, Kind.FORMAL_PARAMETER_LIST, LCURLYBRACE, FUNCTION_BODY, RCURLYBRACE);
+    b.rule(GENERATOR_DECLARATION).is(FUNCTION, STAR, BINDING_IDENTIFIER, Kind.FORMAL_PARAMETER_LIST, LCURLYBRACE, FUNCTION_BODY, RCURLYBRACE);
 
     b.rule(LEXICAL_DECLARATION).is(LET_OR_CONST, BINDING_LIST, EOS);
     b.rule(LEXICAL_DECLARATION_NO_IN).is(LET_OR_CONST, BINDING_LIST_NO_IN);
@@ -646,23 +637,9 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
   }
 
   private static void class_and_function_declarations(LexerlessGrammarBuilder b) {
-    b.rule(FUNCTION_BODY).is(b.optional(STATEMENT_LIST));
-
-    b.rule(GENERATOR_DECLARATION).is(FUNCTION, STAR, BINDING_IDENTIFIER,
-      Kind.FORMAL_PARAMETER_LIST, LCURLYBRACE, FUNCTION_BODY, RCURLYBRACE);
-
-    b.rule(CLASS_ELEMENT).is(b.firstOf(STATIC_METHOD_DEFINITION, METHOD_DEFINITION, SEMI));
-
-    b.rule(STATIC_METHOD_DEFINITION).is(STATIC, METHOD_DEFINITION);
     b.rule(STATIC).is(word(b, "static"));
-    b.rule(METHOD_DEFINITION).is(b.firstOf(ecmascript6(METHOD), ecmascript6(GENERATOR_METHOD), GETTER_METHOD, SETTER_METHOD));
-    b.rule(METHOD).is(PROPERTY_NAME, Kind.FORMAL_PARAMETER_LIST, LCURLYBRACE, FUNCTION_BODY, RCURLYBRACE);
-    b.rule(SETTER_METHOD).is(b.sequence(SET, PROPERTY_NAME, LPARENTHESIS, PROPERTY_SET_PARAMETER_LIST, RPARENTHESIS, LCURLYBRACE, FUNCTION_BODY, RCURLYBRACE));
-    b.rule(PROPERTY_SET_PARAMETER_LIST).is(BINDING_ELEMENT);
     b.rule(SET).is(word(b, "set"));
-    b.rule(GETTER_METHOD).is(b.sequence(GET, PROPERTY_NAME, LPARENTHESIS, RPARENTHESIS, LCURLYBRACE, FUNCTION_BODY, RCURLYBRACE));
     b.rule(GET).is(word(b, "get"));
-    b.rule(GENERATOR_METHOD).is(STAR, PROPERTY_NAME, Kind.FORMAL_PARAMETER_LIST, LCURLYBRACE, FUNCTION_BODY, RCURLYBRACE);
   }
 
   /**

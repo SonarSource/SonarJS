@@ -47,8 +47,8 @@ public class FunctionComplexityCheck extends SquidCheck<LexerlessGrammar> {
   @Override
   public void init() {
     subscribeTo(
-      EcmaScriptGrammar.METHOD,
-      EcmaScriptGrammar.GENERATOR_METHOD,
+      Kind.METHOD,
+      Kind.GENERATOR_METHOD,
       EcmaScriptGrammar.GENERATOR_DECLARATION,
       Kind.GENERATOR_FUNCTION_EXPRESSION,
       EcmaScriptGrammar.FUNCTION_DECLARATION,

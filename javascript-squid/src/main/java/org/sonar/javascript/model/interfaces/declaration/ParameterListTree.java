@@ -36,10 +36,10 @@ import org.sonar.javascript.model.interfaces.lexical.SyntaxToken;
  */
 public interface ParameterListTree extends DeclarationTree, ExpressionTree {
 
-
   SyntaxToken openParenthesis();
 
   SeparatedList<ExpressionTree> parameters();
 
   SyntaxToken closeParenthesis();
+
 }

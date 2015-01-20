@@ -35,6 +35,6 @@ import org.sonar.javascript.model.interfaces.Tree;
  */
 public interface AccessorMethodDeclarationTree extends MethodDeclarationTree {
 
-  InternalSyntaxToken keyword();
+  InternalSyntaxToken accessorToken();
 
 }

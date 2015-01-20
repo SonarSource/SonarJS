@@ -56,7 +56,7 @@ public class BoundOrAssignedEvalOrArgumentsCheck extends SquidCheck<LexerlessGra
   public void init() {
     subscribeTo(
       Kind.CATCH_BLOCK,
-      EcmaScriptGrammar.PROPERTY_SET_PARAMETER_LIST,
+      Kind.FORMAL_PARAMETER_LIST,
       Kind.PREFIX_INCREMENT,
       Kind.PREFIX_DECREMENT,
       Kind.POSTFIX_INCREMENT,
@@ -72,7 +72,7 @@ public class BoundOrAssignedEvalOrArgumentsCheck extends SquidCheck<LexerlessGra
       checkFunction(astNode);
     } else if (astNode.is(Kind.CATCH_BLOCK) || astNode.is(CONST_AND_VAR_NODES)) {
       checkVariableDeclaration(astNode);
-    } else if (astNode.is(EcmaScriptGrammar.PROPERTY_SET_PARAMETER_LIST)) {
+    } else if (astNode.is(Kind.FORMAL_PARAMETER_LIST) && astNode.getParent().is(Kind.SET_METHOD)) {
       checkPropertySetParameterList(astNode);
     } else if (CheckUtils.isAssignmentExpression(astNode)) {
       checkModification(astNode.getFirstChild());

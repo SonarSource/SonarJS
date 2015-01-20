@@ -55,3 +55,12 @@ var f = function () {  // OK
 function f() {         // OK
   return 1;
 }
+
+class A {
+  myMethod() {
+    return 42;
+  }
+  *myGenerator() {
+    yield 42;
+  }
+}

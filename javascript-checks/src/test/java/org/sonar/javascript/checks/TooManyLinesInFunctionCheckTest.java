@@ -28,7 +28,7 @@ import java.io.File;
 
 public class TooManyLinesInFunctionCheckTest {
 
-  private TooManyLinesInFunctionCheck check = new TooManyLinesInFunctionCheck();
+  private final TooManyLinesInFunctionCheck check = new TooManyLinesInFunctionCheck();
 
   @Test
   public void testDefault() {
@@ -50,4 +50,5 @@ public class TooManyLinesInFunctionCheckTest {
       .next().atLine(30)
       .noMore();
   }
+
 }

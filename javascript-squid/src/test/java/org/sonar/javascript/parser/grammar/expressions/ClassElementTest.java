@@ -24,7 +24,7 @@ import org.sonar.javascript.parser.EcmaScriptGrammar;
 
 import static org.sonar.javascript.sslr.tests.Assertions.assertThat;
 
-public class PropertyAssignmentTest {
+public class ClassElementTest {
 
 
   @Test

@@ -19,8 +19,8 @@
  */
 package org.sonar.javascript.model.interfaces.declaration;
 
-import org.sonar.javascript.model.implementations.lexical.InternalSyntaxToken;
 import org.sonar.javascript.model.interfaces.Tree;
+import org.sonar.javascript.model.interfaces.lexical.SyntaxToken;
 
 /**
  * Interface for type <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-generator-function-definitions">Generator Method</a>.
@@ -34,6 +34,6 @@ import org.sonar.javascript.model.interfaces.Tree;
  */
 public interface GeneratorMethodDeclarationTree extends MethodDeclarationTree {
 
-  org.sonar.javascript.model.interfaces.lexical.SyntaxToken starToken();
+  SyntaxToken starToken();
 
 }

@@ -33,6 +33,7 @@ import org.sonar.javascript.model.implementations.declaration.ClassDeclarationTr
 import org.sonar.javascript.model.implementations.declaration.DefaultExportDeclarationTreeImpl;
 import org.sonar.javascript.model.implementations.declaration.ExportClauseTreeImpl;
 import org.sonar.javascript.model.implementations.declaration.FromClauseTreeImpl;
+import org.sonar.javascript.model.implementations.declaration.MethodDeclarationTreeImpl;
 import org.sonar.javascript.model.implementations.declaration.NameSpaceExportDeclarationTreeImpl;
 import org.sonar.javascript.model.implementations.declaration.NamedExportDeclarationTreeImpl;
 import org.sonar.javascript.model.implementations.declaration.ParameterListTreeImpl;
@@ -1165,6 +1166,13 @@ public class TreeFactory {
     return new NameSpaceExportDeclarationTreeImpl(InternalSyntaxToken.create(exportToken), InternalSyntaxToken.create(starToken), fromClause, eos);
   }
 
+  public ExportClauseTreeImpl exportClause(SpecifierListTreeImpl exportList, Optional<FromClauseTreeImpl> fromClause, AstNode eos) {
+    if (fromClause.isPresent()) {
+      return new ExportClauseTreeImpl(exportList, fromClause.get(), eos);
+    }
+    return new ExportClauseTreeImpl(exportList, eos);
+  }
+
   // [START] Classes, methods, functions & generators
 
   public ClassDeclarationTreeImpl classDeclaration(AstNode classToken, IdentifierTreeImpl name,
@@ -1188,11 +1196,24 @@ public class TreeFactory {
       InternalSyntaxToken.create(closeCurlyBraceToken));
   }
 
-  public ExportClauseTreeImpl exportClause(SpecifierListTreeImpl exportList, Optional<FromClauseTreeImpl> fromClause, AstNode eos) {
-    if (fromClause.isPresent()) {
-      return new ExportClauseTreeImpl(exportList, fromClause.get(), eos);
-    }
-    return new ExportClauseTreeImpl(exportList, eos);
+  public MethodDeclarationTreeImpl completeStaticMethod(AstNode staticToken, MethodDeclarationTreeImpl method) {
+    return method.completeWithStaticToken(InternalSyntaxToken.create(staticToken));
+  }
+
+  public MethodDeclarationTreeImpl methodOrGenerator(
+    Optional<AstNode> starToken,
+    ExpressionTree name, ParameterListTreeImpl parameters,
+    BlockTreeImpl body) {
+
+    return MethodDeclarationTreeImpl.newMethodOrGenerator(starToken.isPresent() ? InternalSyntaxToken.create(starToken.get()) : null, name, parameters, body);
+  }
+
+  public MethodDeclarationTreeImpl accessor(
+    AstNode accessorToken, ExpressionTree name,
+    ParameterListTreeImpl parameters,
+    BlockTreeImpl body) {
+
+    return MethodDeclarationTreeImpl.newAccessor(InternalSyntaxToken.create(accessorToken), name, parameters, body);
   }
 
   // [END] Classes, methods, functions & generators

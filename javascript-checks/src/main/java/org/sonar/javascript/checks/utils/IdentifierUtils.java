@@ -22,12 +22,12 @@ package org.sonar.javascript.checks.utils;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.sonar.sslr.api.AstNode;
-import org.sonar.javascript.api.EcmaScriptPunctuator;
 import org.sonar.javascript.api.EcmaScriptTokenType;
 import org.sonar.javascript.model.interfaces.Tree.Kind;
 import org.sonar.javascript.parser.EcmaScriptGrammar;
 
 import javax.annotation.Nullable;
+
 import java.util.List;
 
 public class IdentifierUtils {
@@ -94,7 +94,7 @@ public class IdentifierUtils {
   }
 
   public static List<AstNode> getParametersIdentifier(AstNode formalParameterList) {
-    Preconditions.checkArgument(formalParameterList.is(Kind.FORMAL_PARAMETER_LIST, EcmaScriptGrammar.PROPERTY_SET_PARAMETER_LIST));
+    Preconditions.checkArgument(formalParameterList.is(Kind.FORMAL_PARAMETER_LIST));
     List<AstNode> identifiers = Lists.newArrayList();
 
     for (AstNode parameter : formalParameterList.getChildren(EcmaScriptGrammar.BINDING_ELEMENT, Kind.REST_ELEMENT)) {

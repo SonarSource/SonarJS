@@ -103,10 +103,10 @@ public class UnusedFunctionArgumentCheck extends SquidCheck<LexerlessGrammar> {
 
   @Override
   public void visitNode(AstNode astNode) {
-    if (astNode.is(FUNCTION_NODES) || astNode.is(EcmaScriptGrammar.METHOD, EcmaScriptGrammar.GENERATOR_METHOD)) {
+    if (astNode.is(FUNCTION_NODES) || astNode.is(Kind.METHOD, Kind.GENERATOR_METHOD)) {
       // enter new scope
       currentScope = new Scope(currentScope, astNode);
-    } else if (currentScope != null && astNode.is(Kind.FORMAL_PARAMETER_LIST) && astNode.getParent().isNot(EcmaScriptGrammar.METHOD, EcmaScriptGrammar.GENERATOR_METHOD)) {
+    } else if (currentScope != null && astNode.is(Kind.FORMAL_PARAMETER_LIST) && astNode.getParent().isNot(Kind.METHOD, Kind.GENERATOR_METHOD)) {
       declareInCurrentScope(IdentifierUtils.getParametersIdentifier(astNode));
     } else if (currentScope != null && astNode.is(Kind.IDENTIFIER_REFERENCE)) {
       if ("arguments".equals(astNode.getTokenValue())) {
@@ -124,7 +124,7 @@ public class UnusedFunctionArgumentCheck extends SquidCheck<LexerlessGrammar> {
         reportUnusedArguments(astNode);
       }
       currentScope = currentScope.outerScope;
-    } else if (astNode.is(EcmaScriptGrammar.METHOD, EcmaScriptGrammar.GENERATOR_METHOD)) {
+    } else if (astNode.is(Kind.METHOD, Kind.GENERATOR_METHOD)) {
       currentScope = currentScope.outerScope;
     }
   }

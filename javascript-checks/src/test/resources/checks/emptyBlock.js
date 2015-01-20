@@ -25,3 +25,9 @@ for (var i = 0; i < length; i++) {
 for (var i = 0; i < length; i++) {
   doSomething();
 }
+
+class Foo {
+  foo() {}
+  set foo(a) {}
+  get foo() {}
+}

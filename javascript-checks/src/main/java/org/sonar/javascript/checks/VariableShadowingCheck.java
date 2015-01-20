@@ -32,7 +32,6 @@ import org.sonar.javascript.api.EcmaScriptTokenType;
 import org.sonar.javascript.checks.utils.CheckUtils;
 import org.sonar.javascript.checks.utils.IdentifierUtils;
 import org.sonar.javascript.model.interfaces.Tree.Kind;
-import org.sonar.javascript.model.interfaces.expression.IdentifierTree;
 import org.sonar.javascript.parser.EcmaScriptGrammar;
 import org.sonar.squidbridge.checks.SquidCheck;
 import org.sonar.sslr.parser.LexerlessGrammar;
@@ -46,11 +45,16 @@ import java.util.Map;
   priority = Priority.MAJOR)
 public class VariableShadowingCheck extends SquidCheck<LexerlessGrammar> {
 
+  private static final AstNodeType[] NEW_NODES_USING_FORMAL_PARAMETER_LIST = {
+    Kind.SET_METHOD,
+    Kind.GET_METHOD
+  };
+
   private Map<AstNode, Scope> scopes;
 
   private static class Scope {
     private final Scope outerScope;
-    private Map<String, AstNode> declaration = Maps.newHashMap();
+    private final Map<String, AstNode> declaration = Maps.newHashMap();
 
     public Scope() {
       this.outerScope = null;
@@ -99,7 +103,7 @@ public class VariableShadowingCheck extends SquidCheck<LexerlessGrammar> {
     if (CheckUtils.isFunction(astNode)) {
       // enter new scope
       currentScope = scopes.get(astNode);
-    } else if (astNode.is(Kind.FORMAL_PARAMETER_LIST)) {
+    } else if (astNode.is(Kind.FORMAL_PARAMETER_LIST) && !astNode.getParent().is(NEW_NODES_USING_FORMAL_PARAMETER_LIST)) {
       checkIdentifiers(IdentifierUtils.getParametersIdentifier(astNode));
     } else if (astNode.is(CONST_AND_VAR_NODES)) {
       checkIdentifiers(IdentifierUtils.getVariableIdentifiers(astNode));
@@ -143,6 +147,7 @@ public class VariableShadowingCheck extends SquidCheck<LexerlessGrammar> {
 
     private Scope currentScope;
 
+    @Override
     public List<AstNodeType> getAstNodeTypesToVisit() {
       return ImmutableList.<AstNodeType>builder()
         .add(Kind.FORMAL_PARAMETER_LIST)
@@ -162,7 +167,7 @@ public class VariableShadowingCheck extends SquidCheck<LexerlessGrammar> {
         // enter new scope
         currentScope = new Scope(currentScope);
         scopes.put(astNode, currentScope);
-      } else if (astNode.is(Kind.FORMAL_PARAMETER_LIST)) {
+      } else if (astNode.is(Kind.FORMAL_PARAMETER_LIST) && !astNode.getParent().is(NEW_NODES_USING_FORMAL_PARAMETER_LIST)) {
         declareInCurrentScope(IdentifierUtils.getParametersIdentifier(astNode));
       } else if (astNode.is(CONST_AND_VAR_NODES)) {
         declareInCurrentScope(IdentifierUtils.getVariableIdentifiers(astNode));

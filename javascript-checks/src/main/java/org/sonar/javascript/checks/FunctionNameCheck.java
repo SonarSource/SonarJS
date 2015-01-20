@@ -24,7 +24,6 @@ import org.sonar.check.BelongsToProfile;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
-import org.sonar.javascript.api.EcmaScriptTokenType;
 import org.sonar.javascript.model.interfaces.Tree.Kind;
 import org.sonar.javascript.parser.EcmaScriptGrammar;
 import org.sonar.squidbridge.checks.SquidCheck;
@@ -52,8 +51,8 @@ public class FunctionNameCheck extends SquidCheck<LexerlessGrammar> {
     subscribeTo(
       EcmaScriptGrammar.FUNCTION_DECLARATION,
       EcmaScriptGrammar.GENERATOR_DECLARATION,
-      EcmaScriptGrammar.GENERATOR_METHOD,
-      EcmaScriptGrammar.METHOD);
+      Kind.GENERATOR_METHOD,
+      Kind.METHOD);
   }
 
   @Override

@@ -19,33 +19,95 @@
  */
 package org.sonar.javascript.model.implementations.declaration;
 
+import com.google.common.base.Preconditions;
 import com.google.common.collect.Iterators;
+import com.sonar.sslr.api.AstNode;
 import org.sonar.javascript.model.implementations.JavaScriptTree;
+import org.sonar.javascript.model.implementations.lexical.InternalSyntaxToken;
+import org.sonar.javascript.model.implementations.statement.BlockTreeImpl;
 import org.sonar.javascript.model.interfaces.Tree;
+import org.sonar.javascript.model.interfaces.declaration.AccessorMethodDeclarationTree;
+import org.sonar.javascript.model.interfaces.declaration.GeneratorMethodDeclarationTree;
 import org.sonar.javascript.model.interfaces.declaration.MethodDeclarationTree;
 import org.sonar.javascript.model.interfaces.declaration.ParameterListTree;
 import org.sonar.javascript.model.interfaces.expression.ExpressionTree;
 import org.sonar.javascript.model.interfaces.lexical.SyntaxToken;
-import org.sonar.javascript.model.interfaces.statement.BlockTree;
 
 import javax.annotation.Nullable;
+
 import java.util.Iterator;
 
-public class MethodDeclarationTreeImpl extends JavaScriptTree implements MethodDeclarationTree {
+public class MethodDeclarationTreeImpl extends JavaScriptTree implements MethodDeclarationTree, GeneratorMethodDeclarationTree, AccessorMethodDeclarationTree {
 
-  private SyntaxToken staticToken;
-  private ExpressionTree name;
-  private ParameterListTree parameters;
-  private BlockTree body;
+  private final Kind kind;
+  @Nullable
+  private InternalSyntaxToken staticToken;
+  @Nullable
+  private final InternalSyntaxToken starToken;
+  @Nullable
+  private final InternalSyntaxToken accessorToken;
+  private final ExpressionTree name;
+  private final ParameterListTreeImpl parameters;
+  private final BlockTreeImpl body;
 
-  public MethodDeclarationTreeImpl() {
-    super(Kind.METHOD);
+  private MethodDeclarationTreeImpl(
+    Kind kind,
+    @Nullable InternalSyntaxToken starToken, @Nullable InternalSyntaxToken accessorToken,
+    ExpressionTree name,
+    ParameterListTreeImpl parameters,
+    BlockTreeImpl body) {
+
+    super(kind);
+    this.kind = kind;
+    this.starToken = starToken;
+    this.accessorToken = accessorToken;
+    this.name = name;
+    this.parameters = parameters;
+    this.body = body;
+
+    if (starToken != null) {
+      addChild(starToken);
+    }
+    if (accessorToken != null) {
+      addChild(accessorToken);
+    }
+    addChild((AstNode) name);
+    addChild(parameters);
+    addChild(body);
+  }
+
+  public static MethodDeclarationTreeImpl newMethodOrGenerator(@Nullable InternalSyntaxToken starToken, ExpressionTree name, ParameterListTreeImpl parameters, BlockTreeImpl body) {
+    return new MethodDeclarationTreeImpl(starToken == null ? Kind.METHOD : Kind.GENERATOR_METHOD, starToken, null, name, parameters, body);
+  }
+
+  public static MethodDeclarationTreeImpl newAccessor(InternalSyntaxToken accessorToken, ExpressionTree name, ParameterListTreeImpl parameters, BlockTreeImpl body) {
+    return new MethodDeclarationTreeImpl(accessorToken.text().equals("get") ? Kind.GET_METHOD : Kind.SET_METHOD, null, accessorToken, name, parameters, body);
+  }
+
+  public MethodDeclarationTreeImpl completeWithStaticToken(InternalSyntaxToken staticToken) {
+    this.staticToken = staticToken;
+
+    prependChildren(staticToken);
+
+    return this;
   }
 
   @Nullable
   @Override
   public SyntaxToken staticToken() {
     return staticToken;
+  }
+
+  @Override
+  public SyntaxToken starToken() {
+    Preconditions.checkState(this.is(Kind.GENERATOR_METHOD));
+    return starToken;
+  }
+
+  @Override
+  public InternalSyntaxToken accessorToken() {
+    Preconditions.checkState(this.is(Kind.GET_METHOD) || this.is(Kind.SET_METHOD));
+    return accessorToken;
   }
 
   @Override
@@ -59,13 +121,13 @@ public class MethodDeclarationTreeImpl extends JavaScriptTree implements MethodD
   }
 
   @Override
-  public BlockTree body() {
+  public BlockTreeImpl body() {
     return body;
   }
 
   @Override
   public Kind getKind() {
-    return Kind.METHOD;
+    return kind;
   }
 
   @Override

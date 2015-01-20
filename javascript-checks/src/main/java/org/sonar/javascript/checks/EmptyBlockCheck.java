@@ -24,6 +24,7 @@ import org.sonar.check.BelongsToProfile;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.javascript.api.EcmaScriptPunctuator;
+import org.sonar.javascript.model.implementations.declaration.MethodDeclarationTreeImpl;
 import org.sonar.javascript.model.interfaces.Tree.Kind;
 import org.sonar.javascript.parser.EcmaScriptGrammar;
 import org.sonar.squidbridge.checks.SquidCheck;
@@ -42,7 +43,7 @@ public class EmptyBlockCheck extends SquidCheck<LexerlessGrammar> {
 
   @Override
   public void visitNode(AstNode astNode) {
-    if (!astNode.hasDirectChildren(EcmaScriptGrammar.STATEMENT_LIST) && !hasComment(astNode)) {
+    if (!(astNode.getParent() instanceof MethodDeclarationTreeImpl) && !astNode.hasDirectChildren(EcmaScriptGrammar.STATEMENT_LIST) && !hasComment(astNode)) {
       getContext().createLineViolation(this, "Either remove or fill this block of code.", astNode);
     }
   }
@@ -50,4 +51,5 @@ public class EmptyBlockCheck extends SquidCheck<LexerlessGrammar> {
   private static boolean hasComment(AstNode blockNode) {
     return blockNode.getFirstChild(EcmaScriptPunctuator.RCURLYBRACE).getToken().hasTrivia();
   }
+
 }

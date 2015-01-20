@@ -25,6 +25,7 @@ import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
 import org.sonar.javascript.api.EcmaScriptPunctuator;
+import org.sonar.javascript.model.implementations.declaration.MethodDeclarationTreeImpl;
 import org.sonar.javascript.model.interfaces.Tree.Kind;
 import org.sonar.javascript.parser.EcmaScriptGrammar;
 import org.sonar.squidbridge.checks.SquidCheck;
@@ -44,8 +45,9 @@ public class TooManyLinesInFunctionCheck extends SquidCheck<LexerlessGrammar> {
 
   @Override
   public void init() {
-    subscribeTo(EcmaScriptGrammar.METHOD,
-      EcmaScriptGrammar.GENERATOR_METHOD,
+    subscribeTo(
+      Kind.METHOD,
+      Kind.GENERATOR_METHOD,
       EcmaScriptGrammar.GENERATOR_DECLARATION,
       Kind.GENERATOR_FUNCTION_EXPRESSION,
       EcmaScriptGrammar.FUNCTION_DECLARATION,
@@ -70,6 +72,10 @@ public class TooManyLinesInFunctionCheck extends SquidCheck<LexerlessGrammar> {
   }
 
   public static int getNumberOfLine(AstNode functionNode) {
+    if (functionNode.is(Kind.METHOD, Kind.GENERATOR_METHOD)) {
+      functionNode = ((MethodDeclarationTreeImpl) functionNode).body();
+    }
+
     int firstLine = functionNode.getFirstChild(EcmaScriptPunctuator.LCURLYBRACE).getTokenLine();
     int lastLine = functionNode.getFirstChild(EcmaScriptPunctuator.RCURLYBRACE).getTokenLine();
 

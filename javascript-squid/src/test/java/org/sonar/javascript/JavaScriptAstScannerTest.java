@@ -92,7 +92,7 @@ public class JavaScriptAstScannerTest {
   @Test
   public void complexity() {
     SourceFile file = JavaScriptAstScanner.scanSingleFile(new File("src/test/resources/metrics/complexity.js"));
-    assertThat(file.getInt(EcmaScriptMetric.COMPLEXITY)).isEqualTo(19);
+    assertThat(file.getInt(EcmaScriptMetric.COMPLEXITY)).isEqualTo(20);
   }
 
 }

@@ -54,8 +54,8 @@ public final class JavaScriptAstScanner {
   private static final GrammarRuleKey[] FUNCTION_NODES = {
       EcmaScriptGrammar.FUNCTION_DECLARATION,
       Kind.FUNCTION_EXPRESSION,
-      EcmaScriptGrammar.METHOD,
-      EcmaScriptGrammar.GENERATOR_METHOD,
+    Kind.METHOD,
+    Kind.GENERATOR_METHOD,
       Kind.GENERATOR_FUNCTION_EXPRESSION,
       EcmaScriptGrammar.GENERATOR_DECLARATION};
 
@@ -160,8 +160,8 @@ public final class JavaScriptAstScanner {
     builder.withSquidAstVisitor(CounterVisitor.<LexerlessGrammar>builder()
       .setMetricDef(EcmaScriptMetric.ACCESSORS)
       .subscribeTo(
-        EcmaScriptGrammar.GETTER_METHOD,
-        EcmaScriptGrammar.SETTER_METHOD)
+        Kind.GET_METHOD,
+        Kind.SET_METHOD)
       .build());
 
     builder.withSquidAstVisitor(new ComplexityVisitor());
