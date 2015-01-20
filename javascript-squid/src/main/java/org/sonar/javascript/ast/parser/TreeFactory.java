@@ -31,6 +31,7 @@ import org.sonar.javascript.api.EcmaScriptPunctuator;
 import org.sonar.javascript.model.implementations.SeparatedList;
 import org.sonar.javascript.model.implementations.declaration.ClassDeclarationTreeImpl;
 import org.sonar.javascript.model.implementations.declaration.DefaultExportDeclarationTreeImpl;
+import org.sonar.javascript.model.implementations.declaration.ExportClauseTreeImpl;
 import org.sonar.javascript.model.implementations.declaration.FromClauseTreeImpl;
 import org.sonar.javascript.model.implementations.declaration.NameSpaceExportDeclarationTreeImpl;
 import org.sonar.javascript.model.implementations.declaration.NamedExportDeclarationTreeImpl;
@@ -1113,12 +1114,8 @@ public class TreeFactory {
     return new ExpressionStatementTreeImpl((AstNode) expression, eos);
   }
 
-  public NamedExportDeclarationTreeImpl namedExportDeclaration(AstNode exportToken, AstNode object , Optional<FromClauseTreeImpl> fromClause, Optional<AstNode> eos) {
-   return new NamedExportDeclarationTreeImpl(
-     InternalSyntaxToken.create(exportToken),
-     object,
-     fromClause.isPresent() ? fromClause.get() : null,
-     eos.isPresent() ? eos.get() : null);
+  public NamedExportDeclarationTreeImpl namedExportDeclaration(AstNode exportToken, AstNode object) {
+   return new NamedExportDeclarationTreeImpl(InternalSyntaxToken.create(exportToken), object);
   }
 
   public SpecifierTreeImpl newExportSpecifier(AstNode asToken, IdentifierTreeImpl identifier) {
@@ -1154,14 +1151,14 @@ public class TreeFactory {
       children.add(trailingComma.get());
     }
 
-    return new SpecifierListTreeImpl(Kind.EXPORT_CLAUSE, new SeparatedList<SpecifierTree>(specifiers, commas), children);
+    return new SpecifierListTreeImpl(new SeparatedList<SpecifierTree>(specifiers, commas), children);
   }
 
-  public SpecifierListTreeImpl exportClause(AstNode openCurlyBraceToken, Optional<SpecifierListTreeImpl> specifierList, AstNode closeCurlyBraceToken) {
+  public SpecifierListTreeImpl exportList(AstNode openCurlyBraceToken, Optional<SpecifierListTreeImpl> specifierList, AstNode closeCurlyBraceToken) {
     if (specifierList.isPresent()) {
       return specifierList.get().complete(InternalSyntaxToken.create(openCurlyBraceToken), InternalSyntaxToken.create(closeCurlyBraceToken));
     }
-    return new SpecifierListTreeImpl(Kind.ELSE_CLAUSE, InternalSyntaxToken.create(openCurlyBraceToken), InternalSyntaxToken.create(closeCurlyBraceToken));
+    return new SpecifierListTreeImpl(InternalSyntaxToken.create(openCurlyBraceToken), InternalSyntaxToken.create(closeCurlyBraceToken));
   }
 
   public NameSpaceExportDeclarationTree namespaceExportDeclaration(AstNode exportToken, AstNode starToken, FromClauseTreeImpl fromClause, AstNode eos) {
@@ -1189,6 +1186,13 @@ public class TreeFactory {
       InternalSyntaxToken.create(openCurlyBraceToken),
       members.or(Collections.<AstNode>emptyList()),
       InternalSyntaxToken.create(closeCurlyBraceToken));
+  }
+
+  public ExportClauseTreeImpl exportClause(SpecifierListTreeImpl exportList, Optional<FromClauseTreeImpl> fromClause, AstNode eos) {
+    if (fromClause.isPresent()) {
+      return new ExportClauseTreeImpl(exportList, fromClause.get(), eos);
+    }
+    return new ExportClauseTreeImpl(exportList, eos);
   }
 
   // [END] Classes, methods, functions & generators
@@ -1359,6 +1363,10 @@ public class TreeFactory {
   }
 
   public <T, U> Tuple<T, U> newTuple50(T first, U second) {
+    return newTuple(first, second);
+  }
+
+  public <T, U> Tuple<T, U> newTuple51(T first, U second) {
     return newTuple(first, second);
   }
 

@@ -25,15 +25,15 @@ import org.sonar.javascript.parser.EcmaScriptGrammar;
 
 import static org.sonar.javascript.sslr.tests.Assertions.assertThat;
 
-public class ExportClauseTest {
+public class ExportListTest {
 
 
   @Test
   public void ok() {
-    assertThat(Tree.Kind.EXPORT_CLAUSE)
+    assertThat(Tree.Kind.EXPORT_LIST)
       .matches("{ }")
       .matches("{ identifier }")
-      .matches("{ identifier , identifier }")
+      .matches("{ ident1fier , identifier }")
       .matches("{ identifier , }");
   }
 

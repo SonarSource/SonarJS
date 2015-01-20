@@ -1217,18 +1217,15 @@ public class ActionGrammar {
       .is(f.namedExportDeclaration(
         b.invokeRule(EcmaScriptKeyword.EXPORT),
         b.firstOf(
-          EXPORT_CLAUSE(),
+          f.exportClause(EXPORT_LIST(), b.optional(FROM_CLAUSE()), b.invokeRule(EcmaScriptGrammar.EOS)),
           VARIABLE_STATEMENT(),
-          b.invokeRule(EcmaScriptGrammar.DECLARATION)),
-        b.optional(FROM_CLAUSE()),
-        b.optional(b.invokeRule(EcmaScriptGrammar.EOS))
-      ));
+          b.invokeRule(EcmaScriptGrammar.DECLARATION)))
+      );
   }
 
-
-  public SpecifierListTreeImpl EXPORT_CLAUSE() {
-    return b.<SpecifierListTreeImpl>nonterminal(Kind.EXPORT_CLAUSE)
-      .is(f.exportClause(
+  public SpecifierListTreeImpl EXPORT_LIST() {
+    return b.<SpecifierListTreeImpl>nonterminal(Kind.EXPORT_LIST)
+      .is(f.exportList(
         b.invokeRule(EcmaScriptPunctuator.LCURLYBRACE),
         b.optional(f.newExportSpecifierList(
           EXPORT_SPECIFIER(),

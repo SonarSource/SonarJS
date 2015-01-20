@@ -20,12 +20,14 @@
 package org.sonar.javascript.model.interfaces;
 
 import com.sonar.sslr.api.AstNodeType;
+import org.sonar.javascript.model.implementations.declaration.SpecifierListTreeImpl;
 import org.sonar.javascript.model.interfaces.declaration.AccessorMethodDeclarationTree;
 import org.sonar.javascript.model.interfaces.declaration.ArrayBindingPatternTree;
 import org.sonar.javascript.model.interfaces.declaration.BindingElementTree;
 import org.sonar.javascript.model.interfaces.declaration.BindingPropertyTree;
 import org.sonar.javascript.model.interfaces.declaration.ClassDeclarationTree;
 import org.sonar.javascript.model.interfaces.declaration.DefaultExportDeclarationTree;
+import org.sonar.javascript.model.interfaces.declaration.ExportClauseTree;
 import org.sonar.javascript.model.interfaces.declaration.FromClauseTree;
 import org.sonar.javascript.model.interfaces.declaration.FunctionDeclarationTree;
 import org.sonar.javascript.model.interfaces.declaration.GeneratorMethodDeclarationTree;
@@ -789,9 +791,14 @@ public interface Tree {
     FROM_CLAUSE(FromClauseTree.class),
 
     /**
-     * {@link SpecifierListTree}
+     * {@link ExportClauseTree}
      */
-    EXPORT_CLAUSE(SpecifierListTree.class),
+    EXPORT_CLAUSE(ExportClauseTree.class),
+
+    /**
+import org.sonar.javascript.model.implementations.declaration.SpecifierListTreeImpl;     * {@linkorg.sonar.javascript.
+     */
+    EXPORT_LIST(SpecifierListTreeImpl.class),
 
     /**
      * {@link SpecifierListTree}

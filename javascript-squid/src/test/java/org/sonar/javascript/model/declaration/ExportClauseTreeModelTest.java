@@ -23,38 +23,32 @@ import static org.fest.assertions.Assertions.assertThat;
 import org.junit.Test;
 import org.sonar.javascript.model.JavaScriptTreeModelTest;
 import org.sonar.javascript.model.interfaces.Tree.Kind;
-import org.sonar.javascript.model.interfaces.declaration.DefaultExportDeclarationTree;
+import org.sonar.javascript.model.interfaces.declaration.ExportClauseTree;
 import org.sonar.javascript.model.interfaces.declaration.NamedExportDeclarationTree;
 
-public class NamedExportDeclarationTreeModelTest extends JavaScriptTreeModelTest {
+public class ExportClauseTreeModelTest extends JavaScriptTreeModelTest {
 
   @Test
-  public void export_clause() throws Exception {
-    NamedExportDeclarationTree tree = parse("export { } ;", Kind.NAMED_EXPORT_DECLARATION);
+  public void with_from_clause() throws Exception {
+    ExportClauseTree tree = parse("export { } from \"mod\";", Kind.EXPORT_CLAUSE);
 
-    assertThat(tree.is(Kind.NAMED_EXPORT_DECLARATION)).isTrue();
-    assertThat(tree.exportToken().text()).isEqualTo("export");
-    // TODO: add object
+    assertThat(tree.is(Kind.EXPORT_CLAUSE)).isTrue();
+    assertThat(tree.exports()).isNotNull();
+    assertThat(expressionToString(tree.exports())).isEqualTo("{ }");
+    assertThat(tree.fromClause()).isNotNull();
+    assertThat(expressionToString(tree.fromClause())).isEqualTo("from \"mod\"");
     // TODO: add eos
   }
 
-  @Test
-  public void variable_statement() throws Exception {
-    NamedExportDeclarationTree tree = parse("export var a ;", Kind.NAMED_EXPORT_DECLARATION);
-
-    assertThat(tree.is(Kind.NAMED_EXPORT_DECLARATION)).isTrue();
-    assertThat(tree.exportToken().text()).isEqualTo("export");
-    // TODO: add object
-    // TODO: add eos
-  }
 
   @Test
-  public void declaration() throws Exception {
-    NamedExportDeclarationTree tree = parse("export class C {}", Kind.NAMED_EXPORT_DECLARATION);
+  public void without_from_clause() throws Exception {
+    ExportClauseTree tree = parse("export { } ;", Kind.EXPORT_CLAUSE);
 
-    assertThat(tree.is(Kind.NAMED_EXPORT_DECLARATION)).isTrue();
-    assertThat(tree.exportToken().text()).isEqualTo("export");
-    // TODO: add object
+    assertThat(tree.is(Kind.EXPORT_CLAUSE)).isTrue();
+    assertThat(tree.exports()).isNotNull();
+    assertThat(expressionToString(tree.exports())).isEqualTo("{ }");
+    assertThat(tree.fromClause()).isNull();
     // TODO: add eos
   }
 

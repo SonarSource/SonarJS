@@ -20,23 +20,21 @@
 package org.sonar.javascript.model.interfaces.declaration;
 
 import org.sonar.javascript.model.interfaces.Tree;
-import org.sonar.javascript.model.interfaces.lexical.SyntaxToken;
-
-import javax.annotation.Nullable;
 
 /**
- * Interface for type <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-exports">Named Export Declarations</a>.
+ * Interface for <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-imports">Export Clause</a>.
  * <p/>
- *
  * <pre>
- *    {@link Tree.Kind#NAMED_EXPORT_DECLARATION export} {@link #object()}
+ *    {@link #exports()} {@link #fromClause()} ;
  * </pre>
- *
- * <p/>
- * <p>This interface is not intended to be implemented by clients.</p>
+ * </p>
  */
-public interface NamedExportDeclarationTree extends ExportDeclarationTree {
+public interface ExportClauseTree extends DeclarationTree {
 
-  Tree object();
+  SpecifierListTree exports();
+
+  FromClauseTree fromClause();
+
+  Tree eos();
 
 }

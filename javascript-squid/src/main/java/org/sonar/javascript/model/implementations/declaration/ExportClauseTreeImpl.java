@@ -22,37 +22,54 @@ package org.sonar.javascript.model.implementations.declaration;
 import com.google.common.collect.Iterators;
 import com.sonar.sslr.api.AstNode;
 import org.sonar.javascript.model.implementations.JavaScriptTree;
-import org.sonar.javascript.model.implementations.lexical.InternalSyntaxToken;
 import org.sonar.javascript.model.interfaces.Tree;
-import org.sonar.javascript.model.interfaces.declaration.NamedExportDeclarationTree;
-import org.sonar.javascript.model.interfaces.lexical.SyntaxToken;
+import org.sonar.javascript.model.interfaces.declaration.ExportClauseTree;
+import org.sonar.javascript.model.interfaces.declaration.FromClauseTree;
+import org.sonar.javascript.model.interfaces.declaration.SpecifierListTree;
 
 import java.util.Iterator;
 
-public class NamedExportDeclarationTreeImpl extends JavaScriptTree implements NamedExportDeclarationTree {
+public class ExportClauseTreeImpl extends JavaScriptTree implements ExportClauseTree {
 
-  private SyntaxToken exportToken;
+  private final SpecifierListTree exports;
+  private final FromClauseTree fromClause;
 
-  public NamedExportDeclarationTreeImpl(InternalSyntaxToken exportToken, AstNode object) {
-    super(Kind.NAMED_EXPORT_DECLARATION);
-    this.exportToken = exportToken;
+  public ExportClauseTreeImpl(SpecifierListTreeImpl exports, AstNode eos) {
+    super(Kind.EXPORT_CLAUSE);
 
-    addChildren(exportToken, object);
+    this.exports = exports;
+    this.fromClause = null;
+
+    addChildren(exports, eos);
+  }
+
+  public ExportClauseTreeImpl(SpecifierListTreeImpl exports, FromClauseTreeImpl fromClause, AstNode eos) {
+    super(Kind.EXPORT_CLAUSE);
+
+    this.exports = exports;
+    this.fromClause = fromClause;
+
+    addChildren(exports, fromClause, eos);
   }
 
   @Override
-  public SyntaxToken exportToken() {
-    return exportToken;
+  public SpecifierListTree exports() {
+    return exports;
   }
 
   @Override
-  public Tree object() {
+  public FromClauseTree fromClause() {
+    return fromClause;
+  }
+
+  @Override
+  public Tree eos() {
     throw new UnsupportedOperationException("Not supported yet in the strongly typed AST.");
   }
 
   @Override
   public Kind getKind() {
-    return Kind.NAMED_EXPORT_DECLARATION;
+    return Kind.EXPORT_CLAUSE;
   }
 
   @Override
