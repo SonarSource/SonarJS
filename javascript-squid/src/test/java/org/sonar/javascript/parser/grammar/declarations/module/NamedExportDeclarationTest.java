@@ -20,18 +20,20 @@
 package org.sonar.javascript.parser.grammar.declarations.module;
 
 import org.junit.Test;
-import org.sonar.javascript.parser.EcmaScriptGrammar;
+import org.sonar.javascript.model.interfaces.Tree.Kind;
 
 import static org.sonar.javascript.sslr.tests.Assertions.assertThat;
 
-public class ExportListTest {
+public class NamedExportDeclarationTest {
 
 
   @Test
   public void ok() {
-    assertThat(EcmaScriptGrammar.EXPORT_LIST)
-      .matches("identifier")
-      .matches("identifier, identifier");
+    assertThat(Kind.NAMED_EXPORT_DECLARATION)
+      .matches("export { } ;")
+      .matches("export { } from \"f\" ;")
+      .matches("export var a;")
+      .matches("export function f() {}");
   }
 
 }

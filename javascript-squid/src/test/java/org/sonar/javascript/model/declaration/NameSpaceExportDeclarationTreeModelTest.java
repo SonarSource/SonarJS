@@ -17,23 +17,28 @@
  * License along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.javascript.parser.grammar.declarations.module;
+package org.sonar.javascript.model.declaration;
 
+import static org.fest.assertions.Assertions.assertThat;
 import org.junit.Test;
+import org.sonar.javascript.model.JavaScriptTreeModelTest;
 import org.sonar.javascript.model.interfaces.Tree.Kind;
+import org.sonar.javascript.model.interfaces.declaration.DefaultExportDeclarationTree;
+import org.sonar.javascript.model.interfaces.declaration.NameSpaceExportDeclarationTree;
 
-import static org.sonar.javascript.sslr.tests.Assertions.assertThat;
+public class NameSpaceExportDeclarationTreeModelTest extends JavaScriptTreeModelTest {
 
-public class ExportSpecifierTest {
 
   @Test
-  public void ok() {
-    // TODO: IMPORT_SPECIFIER
-    assertThat(Kind.EXPORT_SPECIFIER)
-      .matches("identifier")
-      .matches("identifier as class")
-      .matches("class")
-      .matches("class as class");
+  public void test() throws Exception {
+    NameSpaceExportDeclarationTree tree = parse("export * from \"mod\";", Kind.NAMESPACE_EXPORT_DECLARATION);
+
+    assertThat(tree.is(Kind.NAMESPACE_EXPORT_DECLARATION)).isTrue();
+    assertThat(tree.exportToken().text()).isEqualTo("export");
+    assertThat(tree.starToken().text()).isEqualTo("*");
+    assertThat(tree.fromClause()).isNotNull();
+    assertThat(expressionToString(tree.fromClause())).isEqualTo("from \"mod\"");
+    // TODO: add eos
   }
 
 }

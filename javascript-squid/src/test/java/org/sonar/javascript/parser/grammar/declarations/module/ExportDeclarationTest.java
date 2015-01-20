@@ -30,11 +30,19 @@ public class ExportDeclarationTest {
   @Test
   public void ok() {
     assertThat(EcmaScriptGrammar.EXPORT_DECLARATION)
+      // Namespace export
       .matches("export * from \"f\" ;")
+
+      // Named export
       .matches("export { } ;")
       .matches("export var a;")
       .matches("export class C {}")
-      .matches("export default function f() {};");
+
+      // Default export
+      .matches("export default function f() {}")
+      .matches("export default function * f() {}")
+      .matches("export default class C {}")
+      .matches("export default expression ;");
   }
 
 }

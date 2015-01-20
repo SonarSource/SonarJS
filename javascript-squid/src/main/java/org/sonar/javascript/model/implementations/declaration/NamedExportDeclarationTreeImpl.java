@@ -20,7 +20,9 @@
 package org.sonar.javascript.model.implementations.declaration;
 
 import com.google.common.collect.Iterators;
+import com.sonar.sslr.api.AstNode;
 import org.sonar.javascript.model.implementations.JavaScriptTree;
+import org.sonar.javascript.model.implementations.lexical.InternalSyntaxToken;
 import org.sonar.javascript.model.interfaces.Tree;
 import org.sonar.javascript.model.interfaces.declaration.FromClauseTree;
 import org.sonar.javascript.model.interfaces.declaration.NamedExportDeclarationTree;
@@ -31,22 +33,26 @@ import java.util.Iterator;
 
 public class NamedExportDeclarationTreeImpl extends JavaScriptTree implements NamedExportDeclarationTree {
 
-  private Tree object;
-  private FromClauseTree fromClause;
-  private Tree eos;
+  private SyntaxToken exportToken;
+  @Nullable
+  private final FromClauseTree fromClause;
 
-  public NamedExportDeclarationTreeImpl() {
+  public NamedExportDeclarationTreeImpl(InternalSyntaxToken exportToken, AstNode object, @Nullable FromClauseTreeImpl fromClause, @Nullable AstNode eos) {
     super(Kind.NAMED_EXPORT_DECLARATION);
+    this.exportToken = exportToken;
+    this.fromClause = fromClause;
+
+    addChildren(exportToken, object, fromClause, eos);
   }
 
   @Override
   public SyntaxToken exportToken() {
-    return exportToken();
+    return exportToken;
   }
 
   @Override
   public Tree object() {
-    return object;
+    throw new UnsupportedOperationException("Not supported yet in the strongly typed AST.");
   }
 
   @Nullable
@@ -58,7 +64,7 @@ public class NamedExportDeclarationTreeImpl extends JavaScriptTree implements Na
   @Nullable
   @Override
   public Tree eos() {
-    return eos;
+    throw new UnsupportedOperationException("Not supported yet in the strongly typed AST.");
   }
 
   @Override

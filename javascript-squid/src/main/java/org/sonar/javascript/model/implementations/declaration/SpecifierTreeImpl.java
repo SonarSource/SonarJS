@@ -21,6 +21,8 @@ package org.sonar.javascript.model.implementations.declaration;
 
 import com.google.common.collect.Iterators;
 import org.sonar.javascript.model.implementations.JavaScriptTree;
+import org.sonar.javascript.model.implementations.expression.IdentifierTreeImpl;
+import org.sonar.javascript.model.implementations.lexical.InternalSyntaxToken;
 import org.sonar.javascript.model.interfaces.Tree;
 import org.sonar.javascript.model.interfaces.declaration.SpecifierTree;
 import org.sonar.javascript.model.interfaces.expression.IdentifierTree;
@@ -33,12 +35,33 @@ public class SpecifierTreeImpl extends JavaScriptTree implements SpecifierTree {
 
   private final Kind kind;
   private IdentifierTree name;
-  private SyntaxToken asToken;
-  private IdentifierTree localName;
+  private final SyntaxToken asToken;
+  private final IdentifierTree localName;
 
-  public SpecifierTreeImpl(Kind kind) {
+  public SpecifierTreeImpl(Kind kind, IdentifierTreeImpl name) {
     super(kind);
     this.kind = kind;
+    this.name = name;
+    this.asToken = null;
+    this.localName = null;
+
+    addChild(name);
+  }
+
+  public SpecifierTreeImpl(Kind kind, InternalSyntaxToken asToken, IdentifierTreeImpl localName) {
+    super(kind);
+    this.kind = kind;
+    this.asToken = asToken;
+    this.localName = localName;
+
+    addChildren(asToken, localName);
+  }
+
+  public SpecifierTreeImpl complete(IdentifierTreeImpl name) {
+    this.name = name;
+
+    prependChildren(name);
+    return this;
   }
 
   @Override

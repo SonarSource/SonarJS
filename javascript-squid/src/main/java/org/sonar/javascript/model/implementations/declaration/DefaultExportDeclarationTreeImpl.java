@@ -20,11 +20,11 @@
 package org.sonar.javascript.model.implementations.declaration;
 
 import com.google.common.collect.Iterators;
+import com.sonar.sslr.api.AstNode;
 import org.sonar.javascript.model.implementations.JavaScriptTree;
+import org.sonar.javascript.model.implementations.lexical.InternalSyntaxToken;
 import org.sonar.javascript.model.interfaces.Tree;
 import org.sonar.javascript.model.interfaces.declaration.DefaultExportDeclarationTree;
-import org.sonar.javascript.model.interfaces.declaration.FromClauseTree;
-import org.sonar.javascript.model.interfaces.declaration.NamedExportDeclarationTree;
 import org.sonar.javascript.model.interfaces.lexical.SyntaxToken;
 
 import javax.annotation.Nullable;
@@ -32,17 +32,20 @@ import java.util.Iterator;
 
 public class DefaultExportDeclarationTreeImpl extends JavaScriptTree implements DefaultExportDeclarationTree {
 
-  private Tree object;
-  private SyntaxToken defaultToken;
-  private Tree eos;
+  private final SyntaxToken exportToken;
+  private final SyntaxToken defaultToken;
 
-  public DefaultExportDeclarationTreeImpl() {
+  public DefaultExportDeclarationTreeImpl(InternalSyntaxToken exportToken, InternalSyntaxToken defaultToken, AstNode object) {
     super(Kind.DEFAULT_EXPORT_DECLARATION);
+    this.exportToken = exportToken;
+    this.defaultToken = defaultToken;
+
+    addChildren(exportToken, defaultToken, object);
   }
 
   @Override
   public SyntaxToken exportToken() {
-    return exportToken();
+    return exportToken;
   }
 
   @Override
@@ -52,13 +55,13 @@ public class DefaultExportDeclarationTreeImpl extends JavaScriptTree implements 
 
   @Override
   public Tree object() {
-    return object;
+    throw new UnsupportedOperationException("Not supported yet in the strongly typed AST.");
   }
 
   @Nullable
   @Override
   public Tree eos() {
-    return eos;
+    throw new UnsupportedOperationException("Not supported yet in the strongly typed AST.");
   }
 
   @Override

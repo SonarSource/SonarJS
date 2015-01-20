@@ -21,7 +21,9 @@ package org.sonar.javascript.model;
 
 import com.google.common.base.Charsets;
 import com.sonar.sslr.api.AstNode;
+import com.sonar.sslr.api.Token;
 import com.sonar.sslr.impl.Parser;
+import org.apache.bcel.generic.ASTORE;
 import org.sonar.javascript.EcmaScriptConfiguration;
 import org.sonar.javascript.model.interfaces.Tree;
 import org.sonar.javascript.model.interfaces.Tree.Kind;
@@ -52,5 +54,16 @@ public abstract class JavaScriptTreeModelTest {
    */
   protected AstNode parse(String s) throws Exception {
     return p.parse(s);
+  }
+
+  /**
+   * Return the concatenation of all the given node tokens value, with a space between each token.
+   */
+  protected String expressionToString(Tree node) {
+    StringBuilder builder = new StringBuilder();
+    for (Token t : ((AstNode) node).getTokens()) {
+      builder.append(t.getValue() + " ");
+    }
+    return builder.toString().trim();
   }
 }

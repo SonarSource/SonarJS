@@ -17,21 +17,18 @@
  * License along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.javascript.parser.grammar.declarations.module;
+package org.sonar.javascript.model.interfaces.declaration;
 
-import org.junit.Test;
-import org.sonar.javascript.parser.EcmaScriptGrammar;
+import org.sonar.javascript.model.interfaces.lexical.SyntaxToken;
 
-import static org.sonar.javascript.sslr.tests.Assertions.assertThat;
+/**
+ * Common interface for types of <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-exports">Export Declarations</a>.
+ * <p/>
+ *
+ * <p>This interface is not intended to be implemented by clients.</p>
+ */
+public interface ExportDeclarationTree extends DeclarationTree {
 
-public class ExportListClauseTest {
-
-
-  @Test
-  public void ok() {
-    assertThat(EcmaScriptGrammar.EXPORT_LIST_CLAUSE)
-      .matches("{ } ;")
-      .matches("{ } from \"f\" ;");
-  }
+  SyntaxToken exportToken();
 
 }

@@ -24,8 +24,12 @@ import org.sonar.javascript.api.EcmaScriptKeyword;
 import org.sonar.javascript.api.EcmaScriptPunctuator;
 import org.sonar.javascript.api.EcmaScriptTokenType;
 import org.sonar.javascript.ast.parser.TreeFactory;
+import org.sonar.javascript.model.implementations.declaration.DefaultExportDeclarationTreeImpl;
 import org.sonar.javascript.model.implementations.declaration.FromClauseTreeImpl;
+import org.sonar.javascript.model.implementations.declaration.NamedExportDeclarationTreeImpl;
 import org.sonar.javascript.model.implementations.declaration.ParameterListTreeImpl;
+import org.sonar.javascript.model.implementations.declaration.SpecifierListTreeImpl;
+import org.sonar.javascript.model.implementations.declaration.SpecifierTreeImpl;
 import org.sonar.javascript.model.implementations.declaration.VariableDeclarationTreeImpl;
 import org.sonar.javascript.model.implementations.expression.ArrayLiteralTreeImpl;
 import org.sonar.javascript.model.implementations.expression.ArrowFunctionTreeImpl;
@@ -71,6 +75,9 @@ import org.sonar.javascript.model.implementations.statement.VariableStatementTre
 import org.sonar.javascript.model.implementations.statement.WhileStatementTreeImpl;
 import org.sonar.javascript.model.implementations.statement.WithStatementTreeImpl;
 import org.sonar.javascript.model.interfaces.Tree.Kind;
+import org.sonar.javascript.model.interfaces.declaration.ExportDeclarationTree;
+import org.sonar.javascript.model.interfaces.declaration.NameSpaceExportDeclarationTree;
+import org.sonar.javascript.model.interfaces.declaration.SpecifierListTree;
 import org.sonar.javascript.model.interfaces.expression.ExpressionTree;
 import org.sonar.javascript.model.interfaces.expression.MemberExpressionTree;
 import org.sonar.javascript.model.interfaces.statement.DebuggerStatementTree;
@@ -1186,6 +1193,73 @@ public class ActionGrammar {
   public FromClauseTreeImpl FROM_CLAUSE() {
     return b.<FromClauseTreeImpl>nonterminal(Kind.FROM_CLAUSE)
       .is(f.fromClause(b.invokeRule(EcmaScriptGrammar.FROM), STRING_LITERAL()));
+  }
+
+  public DefaultExportDeclarationTreeImpl DEFAULT_EXPORT_DECLARATION() {
+    return b.<DefaultExportDeclarationTreeImpl>nonterminal(Kind.DEFAULT_EXPORT_DECLARATION)
+      .is(f.defaultExportDeclaration(
+        b.invokeRule(EcmaScriptKeyword.EXPORT),
+        b.invokeRule(EcmaScriptKeyword.DEFAULT),
+        b.firstOf(
+          b.invokeRule(EcmaScriptGrammar.FUNCTION_DECLARATION),
+          b.invokeRule(EcmaScriptGrammar.GENERATOR_DECLARATION),
+          b.invokeRule(EcmaScriptGrammar.CLASS_DECLARATION),
+          f.exportedExpressionStatement(b.invokeRule(EcmaScriptGrammar.NOT_FUNCTION_AND_CLASS), ASSIGNMENT_EXPRESSION(), b.invokeRule(EcmaScriptGrammar.EOS)))
+      ));
+  }
+
+  public NamedExportDeclarationTreeImpl NAMED_EXPORT_DECLARATION() {
+    return b.<NamedExportDeclarationTreeImpl>nonterminal(Kind.NAMED_EXPORT_DECLARATION)
+      .is(f.namedExportDeclaration(
+        b.invokeRule(EcmaScriptKeyword.EXPORT),
+        b.firstOf(
+          EXPORT_CLAUSE(),
+          VARIABLE_STATEMENT(),
+          b.invokeRule(EcmaScriptGrammar.DECLARATION)),
+        b.optional(FROM_CLAUSE()),
+        b.optional(b.invokeRule(EcmaScriptGrammar.EOS))
+      ));
+  }
+
+
+  public SpecifierListTreeImpl EXPORT_CLAUSE() {
+    return b.<SpecifierListTreeImpl>nonterminal(Kind.EXPORT_CLAUSE)
+      .is(f.exportClause(
+        b.invokeRule(EcmaScriptPunctuator.LCURLYBRACE),
+        b.optional(f.newExportSpecifierList(
+          EXPORT_SPECIFIER(),
+          b.zeroOrMore(f.newTuple50(b.invokeRule(EcmaScriptPunctuator.COMMA), EXPORT_SPECIFIER())),
+          b.optional(b.invokeRule(EcmaScriptPunctuator.COMMA)))),
+        b.invokeRule(EcmaScriptPunctuator.RCURLYBRACE)
+      ));
+  }
+
+  public SpecifierTreeImpl EXPORT_SPECIFIER() {
+    return b.<SpecifierTreeImpl>nonterminal(Kind.EXPORT_SPECIFIER)
+      .is(f.completeExportSpecifier(
+        IDENTIFIER_NAME(),
+        b.optional(f.newExportSpecifier(b.invokeRule(EcmaScriptGrammar.AS), IDENTIFIER_NAME()))
+      ));
+  }
+
+  public NameSpaceExportDeclarationTree NAMESPACE_EXPORT_DECLARATION() {
+    return b.<NameSpaceExportDeclarationTree>nonterminal(Kind.NAMESPACE_EXPORT_DECLARATION)
+      .is(f.namespaceExportDeclaration(
+        b.invokeRule(EcmaScriptKeyword.EXPORT),
+        b.invokeRule(EcmaScriptPunctuator.STAR),
+        FROM_CLAUSE(),
+        b.invokeRule(EcmaScriptGrammar.EOS)
+      ));
+  }
+
+  public ExportDeclarationTree EXPORT_DECLARATION() {
+    return b.<ExportDeclarationTree>nonterminal(EcmaScriptGrammar.EXPORT_DECLARATION)
+      .is(b.firstOf(
+        NAMESPACE_EXPORT_DECLARATION(),
+        DEFAULT_EXPORT_DECLARATION(),
+        NAMED_EXPORT_DECLARATION()
+      ));
+
   }
 
   // [END] Module, import & export

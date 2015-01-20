@@ -20,22 +20,36 @@
 package org.sonar.javascript.model.implementations.declaration;
 
 import com.google.common.collect.Iterators;
+import com.sonar.sslr.api.AstNode;
 import org.sonar.javascript.model.implementations.JavaScriptTree;
+import org.sonar.javascript.model.implementations.lexical.InternalSyntaxToken;
 import org.sonar.javascript.model.interfaces.Tree;
+import org.sonar.javascript.model.interfaces.declaration.FromClauseTree;
+import org.sonar.javascript.model.interfaces.declaration.NameSpaceExportDeclarationTree;
 import org.sonar.javascript.model.interfaces.declaration.NameSpaceImportTree;
 import org.sonar.javascript.model.interfaces.expression.IdentifierTree;
 import org.sonar.javascript.model.interfaces.lexical.SyntaxToken;
 
 import java.util.Iterator;
 
-public class NameSpaceExportTreeImpl extends JavaScriptTree implements NameSpaceImportTree {
+public class NameSpaceExportDeclarationTreeImpl extends JavaScriptTree implements NameSpaceExportDeclarationTree {
 
-  private SyntaxToken starToken;
-  private SyntaxToken asToken;
-  private IdentifierTree localName;
+  private final SyntaxToken exportToken;
+  private final SyntaxToken starToken;
+  private final FromClauseTree fromClause;
 
-  public NameSpaceExportTreeImpl() {
-    super(Kind.NAMESPACE_IMPORT);
+  public NameSpaceExportDeclarationTreeImpl(InternalSyntaxToken exportToken, InternalSyntaxToken starToken, FromClauseTreeImpl fromClause, AstNode eos) {
+    super(Kind.NAMESPACE_EXPORT_DECLARATION);
+    this.exportToken = exportToken;
+    this.starToken = starToken;
+    this.fromClause = fromClause;
+
+    addChildren(exportToken, starToken, fromClause, eos);
+  }
+
+  @Override
+  public SyntaxToken exportToken() {
+    return exportToken;
   }
 
   @Override
@@ -44,18 +58,17 @@ public class NameSpaceExportTreeImpl extends JavaScriptTree implements NameSpace
   }
 
   @Override
-  public SyntaxToken asToken() {
-    return asToken;
+  public FromClauseTree fromClause() {
+    return fromClause;
   }
 
   @Override
-  public IdentifierTree localName() {
-    return localName;
+  public Tree eos() {
+    throw new UnsupportedOperationException("Not supported yet in the strongly typed AST.");
   }
 
-  @Override
   public Kind getKind() {
-    return Kind.NAMESPACE_IMPORT;
+    return Kind.NAMESPACE_EXPORT_DECLARATION;
   }
 
   @Override

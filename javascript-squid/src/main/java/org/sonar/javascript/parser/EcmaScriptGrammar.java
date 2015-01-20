@@ -314,18 +314,6 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
   /** ECMAScript 6 **/
   AS,
   /** ECMAScript 6 **/
-  EXPORT_LIST_CLAUSE,
-  /** ECMAScript 6 **/
-  EXPORT_ALL_CLAUSE,
-  /** ECMAScript 6 **/
-  EXPORT_DEFAULT_CLAUSE,
-  /** ECMAScript 6 **/
-  EXPORT_CLAUSE,
-  /** ECMAScript 6 **/
-  EXPORT_LIST,
-  /** ECMAScript 6 **/
-  EXPORT_SPECIFIER,
-  /** ECMAScript 6 **/
   GENERATOR_DECLARATION,
 
   // A.6 Programs
@@ -349,7 +337,8 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
   ASSIGNMENT_EXPRESSION_NO_LCURLY,
   ASSIGNMENT_EXPRESSION_NO_IN_NO_LCURLY,
   DOUBLEARROW_NO_LB,
-  CONDITIONAL_EXPRESSION_LOOKAHEAD;
+  CONDITIONAL_EXPRESSION_LOOKAHEAD,
+  NOT_FUNCTION_AND_CLASS;
 
   public static LexerlessGrammar createGrammar() {
     return createGrammarBuilder().build();
@@ -589,21 +578,6 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
     b.rule(MODULE).is(MODULE_BODY);
     b.rule(MODULE_BODY).is(b.oneOrMore(MODULE_ITEM));
     b.rule(MODULE_ITEM).is(b.firstOf(IMPORT_DECLARATION, EXPORT_DECLARATION, DECLARATION, STATEMENT));
-    b.rule(EXPORT_DECLARATION).is(
-      EXPORT,
-      b.firstOf(
-        EXPORT_ALL_CLAUSE,
-        EXPORT_LIST_CLAUSE,
-        Kind.VARIABLE_STATEMENT,
-        DECLARATION,
-        EXPORT_DEFAULT_CLAUSE));
-
-    b.rule(EXPORT_ALL_CLAUSE).is(STAR, Kind.FROM_CLAUSE, EOS);
-    b.rule(EXPORT_DEFAULT_CLAUSE).is(DEFAULT, ASSIGNMENT_EXPRESSION, EOS);
-    b.rule(EXPORT_LIST_CLAUSE).is(EXPORT_CLAUSE, b.optional(Kind.FROM_CLAUSE), EOS);
-    b.rule(EXPORT_CLAUSE).is(LCURLYBRACE, b.optional(EXPORT_LIST, b.optional(COMMA)), RCURLYBRACE);
-    b.rule(EXPORT_LIST).is(EXPORT_SPECIFIER, b.zeroOrMore(COMMA, EXPORT_SPECIFIER));
-    b.rule(EXPORT_SPECIFIER).is(IDENTIFIER_NAME, b.optional(AS, IDENTIFIER_NAME));
 
     b.rule(IMPORT_DECLARATION).is(b.firstOf(
       MODULE_IMPORT,
@@ -625,7 +599,10 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
     b.rule(IMPORT_SPECIFIER).is(b.optional(IDENTIFIER_NAME, AS), BINDING_IDENTIFIER);
     b.rule(AS).is(word(b, "as"));
 
+    // Temporary rules
+    b.rule(NOT_FUNCTION_AND_CLASS).is(b.nextNot(EcmaScriptKeyword.FUNCTION, EcmaScriptKeyword.CLASS));
   }
+
   private static void lexical_var_and_destructuring_declarations(LexerlessGrammarBuilder b) {
     b.rule(DECLARATION).is(b.firstOf(
       FUNCTION_DECLARATION,

@@ -20,6 +20,7 @@
 package org.sonar.javascript.parser.grammar.declarations.module;
 
 import org.junit.Test;
+import org.sonar.javascript.model.interfaces.Tree;
 import org.sonar.javascript.parser.EcmaScriptGrammar;
 
 import static org.sonar.javascript.sslr.tests.Assertions.assertThat;
@@ -29,9 +30,10 @@ public class ExportClauseTest {
 
   @Test
   public void ok() {
-    assertThat(EcmaScriptGrammar.EXPORT_CLAUSE)
+    assertThat(Tree.Kind.EXPORT_CLAUSE)
       .matches("{ }")
       .matches("{ identifier }")
+      .matches("{ identifier , identifier }")
       .matches("{ identifier , }");
   }
 

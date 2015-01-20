@@ -20,25 +20,53 @@
 package org.sonar.javascript.model.implementations.declaration;
 
 import com.google.common.collect.Iterators;
+import com.sonar.sslr.api.AstNode;
 import org.sonar.javascript.model.implementations.JavaScriptTree;
 import org.sonar.javascript.model.implementations.SeparatedList;
+import org.sonar.javascript.model.implementations.lexical.InternalSyntaxToken;
 import org.sonar.javascript.model.interfaces.Tree;
 import org.sonar.javascript.model.interfaces.declaration.SpecifierListTree;
 import org.sonar.javascript.model.interfaces.declaration.SpecifierTree;
 import org.sonar.javascript.model.interfaces.lexical.SyntaxToken;
 
 import java.util.Iterator;
+import java.util.List;
 
 public class SpecifierListTreeImpl extends JavaScriptTree implements SpecifierListTree {
 
   private Kind kind;
   private SyntaxToken openCurlyBraceToken;
-  private SeparatedList<SpecifierTree> specifiers;
+  private final SeparatedList<SpecifierTree> specifiers;
   private SyntaxToken closeCurlyBraceToken;
 
-  public SpecifierListTreeImpl(Kind kind) {
+  public SpecifierListTreeImpl(Kind kind, InternalSyntaxToken openCurlyBraceToken, InternalSyntaxToken closeCurlyBraceToken) {
     super(kind);
     this.kind = kind;
+    this.openCurlyBraceToken = openCurlyBraceToken;
+    this.specifiers = null;
+    this.closeCurlyBraceToken = closeCurlyBraceToken;
+
+    addChildren(openCurlyBraceToken, closeCurlyBraceToken);
+  }
+
+  public SpecifierListTreeImpl(Kind kind, SeparatedList<SpecifierTree> specifiers, List<AstNode> children) {
+    super(kind);
+    this.kind = kind;
+    this.specifiers = specifiers;
+
+    for (AstNode child : children) {
+      addChild(child);
+    }
+
+  }
+
+  public SpecifierListTreeImpl complete(InternalSyntaxToken openCurlyBraceToken, InternalSyntaxToken closeCurlyBraceToken) {
+    this.openCurlyBraceToken = openCurlyBraceToken;
+    this.closeCurlyBraceToken = closeCurlyBraceToken;
+
+    prependChildren(openCurlyBraceToken);
+    addChild(closeCurlyBraceToken);
+    return this;
   }
 
   @Override

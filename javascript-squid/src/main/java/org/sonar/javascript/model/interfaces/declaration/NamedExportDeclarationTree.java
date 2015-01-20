@@ -37,9 +37,7 @@ import javax.annotation.Nullable;
  * <p/>
  * <p>This interface is not intended to be implemented by clients.</p>
  */
-public interface NamedExportDeclarationTree extends DeclarationTree {
-
-  SyntaxToken exportToken();
+public interface NamedExportDeclarationTree extends ExportDeclarationTree {
 
   Tree object();
 

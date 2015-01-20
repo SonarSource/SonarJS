@@ -29,8 +29,13 @@ import org.apache.commons.collections.ListUtils;
 import org.sonar.javascript.api.EcmaScriptKeyword;
 import org.sonar.javascript.api.EcmaScriptPunctuator;
 import org.sonar.javascript.model.implementations.SeparatedList;
+import org.sonar.javascript.model.implementations.declaration.DefaultExportDeclarationTreeImpl;
 import org.sonar.javascript.model.implementations.declaration.FromClauseTreeImpl;
+import org.sonar.javascript.model.implementations.declaration.NameSpaceExportDeclarationTreeImpl;
+import org.sonar.javascript.model.implementations.declaration.NamedExportDeclarationTreeImpl;
 import org.sonar.javascript.model.implementations.declaration.ParameterListTreeImpl;
+import org.sonar.javascript.model.implementations.declaration.SpecifierListTreeImpl;
+import org.sonar.javascript.model.implementations.declaration.SpecifierTreeImpl;
 import org.sonar.javascript.model.implementations.declaration.VariableDeclarationTreeImpl;
 import org.sonar.javascript.model.implementations.expression.ArrayLiteralTreeImpl;
 import org.sonar.javascript.model.implementations.expression.ArrowFunctionTreeImpl;
@@ -86,7 +91,10 @@ import org.sonar.javascript.model.implementations.statement.WhileStatementTreeIm
 import org.sonar.javascript.model.implementations.statement.WithStatementTreeImpl;
 import org.sonar.javascript.model.interfaces.Tree;
 import org.sonar.javascript.model.interfaces.Tree.Kind;
+import org.sonar.javascript.model.interfaces.declaration.DefaultExportDeclarationTree;
+import org.sonar.javascript.model.interfaces.declaration.NameSpaceExportDeclarationTree;
 import org.sonar.javascript.model.interfaces.declaration.ParameterListTree;
+import org.sonar.javascript.model.interfaces.declaration.SpecifierTree;
 import org.sonar.javascript.model.interfaces.expression.BracketMemberExpressionTree;
 import org.sonar.javascript.model.interfaces.expression.ExpressionTree;
 import org.sonar.javascript.model.interfaces.expression.MemberExpressionTree;
@@ -97,6 +105,7 @@ import org.sonar.javascript.model.interfaces.statement.SwitchClauseTree;
 import org.sonar.javascript.parser.EcmaScriptGrammar;
 import org.sonar.javascript.parser.sslr.Optional;
 
+import javax.swing.text.html.Option;
 import java.util.List;
 import java.util.Map;
 
@@ -1080,6 +1089,72 @@ public class TreeFactory {
     return new FromClauseTreeImpl(InternalSyntaxToken.create(fromToken), module);
   }
 
+  public DefaultExportDeclarationTreeImpl defaultExportDeclaration(AstNode exportToken, AstNode defaultToken, AstNode declaration) {
+    return new DefaultExportDeclarationTreeImpl(
+      InternalSyntaxToken.create(exportToken),
+      InternalSyntaxToken.create(defaultToken),
+      declaration);
+  }
+
+  public ExpressionStatementTreeImpl exportedExpressionStatement(AstNode lookahead, ExpressionTree expression, AstNode eos) {
+    return new ExpressionStatementTreeImpl((AstNode) expression, eos);
+  }
+
+  public NamedExportDeclarationTreeImpl namedExportDeclaration(AstNode exportToken, AstNode object , Optional<FromClauseTreeImpl> fromClause, Optional<AstNode> eos) {
+   return new NamedExportDeclarationTreeImpl(
+     InternalSyntaxToken.create(exportToken),
+     object,
+     fromClause.isPresent() ? fromClause.get() : null,
+     eos.isPresent() ? eos.get() : null);
+  }
+
+  public SpecifierTreeImpl newExportSpecifier(AstNode asToken, IdentifierTreeImpl identifier) {
+    return new SpecifierTreeImpl(Kind.EXPORT_SPECIFIER, InternalSyntaxToken.create(asToken), identifier);
+  }
+
+  public SpecifierTreeImpl completeExportSpecifier(IdentifierTreeImpl name, Optional<SpecifierTreeImpl> localName) {
+    if (localName.isPresent()) {
+      return localName.get().complete(name);
+    }
+    return new SpecifierTreeImpl(Kind.EXPORT_SPECIFIER, name);
+  }
+
+  public SpecifierListTreeImpl newExportSpecifierList(SpecifierTreeImpl specifier, Optional<List<Tuple<AstNode, SpecifierTreeImpl>>> restSpecifier, Optional<AstNode> trailingComma) {
+    List<InternalSyntaxToken> commas = Lists.newArrayList();
+    List<SpecifierTree> specifiers = Lists.newArrayList();
+    List<AstNode> children = Lists.newArrayList();
+
+    specifiers.add(specifier);
+    children.add(specifier);
+
+    if (restSpecifier.isPresent()) {
+      for (Tuple<AstNode, SpecifierTreeImpl> t : restSpecifier.get()) {
+        commas.add(InternalSyntaxToken.create(t.first()));
+        specifiers.add(t.second());
+        children.add(t.first());
+        children.add(t.second());
+      }
+    }
+
+    if (trailingComma.isPresent()) {
+      commas.add(InternalSyntaxToken.create(trailingComma.get()));
+      children.add(trailingComma.get());
+    }
+
+    return new SpecifierListTreeImpl(Kind.EXPORT_CLAUSE, new SeparatedList<SpecifierTree>(specifiers, commas), children);
+  }
+
+  public SpecifierListTreeImpl exportClause(AstNode openCurlyBraceToken, Optional<SpecifierListTreeImpl> specifierList, AstNode closeCurlyBraceToken) {
+    if (specifierList.isPresent()) {
+      return specifierList.get().complete(InternalSyntaxToken.create(openCurlyBraceToken), InternalSyntaxToken.create(closeCurlyBraceToken));
+    }
+    return new SpecifierListTreeImpl(Kind.ELSE_CLAUSE, InternalSyntaxToken.create(openCurlyBraceToken), InternalSyntaxToken.create(closeCurlyBraceToken));
+  }
+
+  public NameSpaceExportDeclarationTree namespaceExportDeclaration(AstNode exportToken, AstNode starToken, FromClauseTreeImpl fromClause, AstNode eos) {
+    return new NameSpaceExportDeclarationTreeImpl(InternalSyntaxToken.create(exportToken), InternalSyntaxToken.create(starToken), fromClause, eos);
+  }
+
   public static class Tuple<T, U> extends AstNode {
 
     private final T first;
@@ -1237,4 +1312,7 @@ public class TreeFactory {
     return newTuple(first, second);
   }
 
+  public <T, U> Tuple<T, U> newTuple50(T first, U second) {
+    return newTuple(first, second);
+  }
 }
