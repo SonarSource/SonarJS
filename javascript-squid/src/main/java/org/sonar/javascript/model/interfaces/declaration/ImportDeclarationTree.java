@@ -36,7 +36,7 @@ public interface ImportDeclarationTree extends DeclarationTree {
 
   SyntaxToken importToken();
 
-  ImportClauseTree importClause();
+  DeclarationTree importClause();
 
   FromClauseTree fromClause();
 

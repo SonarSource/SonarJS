@@ -20,8 +20,11 @@
 package org.sonar.javascript.model.implementations.declaration;
 
 import com.google.common.collect.Iterators;
+import com.sonar.sslr.api.AstNode;
 import org.sonar.javascript.model.implementations.JavaScriptTree;
+import org.sonar.javascript.model.implementations.lexical.InternalSyntaxToken;
 import org.sonar.javascript.model.interfaces.Tree;
+import org.sonar.javascript.model.interfaces.declaration.DeclarationTree;
 import org.sonar.javascript.model.interfaces.declaration.FromClauseTree;
 import org.sonar.javascript.model.interfaces.declaration.ImportClauseTree;
 import org.sonar.javascript.model.interfaces.declaration.ImportDeclarationTree;
@@ -34,10 +37,14 @@ public class ImportDeclarationTreeImpl extends JavaScriptTree implements ImportD
   private SyntaxToken importToken;
   private ImportClauseTree importClause;
   private FromClauseTree fromClause;
-  private Tree eos;
 
-  public ImportDeclarationTreeImpl() {
+  public ImportDeclarationTreeImpl(InternalSyntaxToken importToken, ImportClauseTreeImpl importClause, FromClauseTreeImpl fromClause, AstNode eos) {
     super(Kind.IMPORT_DECLARATION);
+    this.importToken = importToken;
+    this.importClause = importClause;
+    this.fromClause = fromClause;
+
+    addChildren(importToken, importClause, fromClause, eos);
   }
 
   @Override
@@ -46,7 +53,7 @@ public class ImportDeclarationTreeImpl extends JavaScriptTree implements ImportD
   }
 
   @Override
-  public ImportClauseTree importClause() {
+  public DeclarationTree importClause() {
     return importClause;
   }
 
@@ -57,7 +64,7 @@ public class ImportDeclarationTreeImpl extends JavaScriptTree implements ImportD
 
   @Override
   public Tree eos() {
-    return eos;
+    throw new UnsupportedOperationException("Not supported yet in the strongly typed AST.");
   }
 
   @Override

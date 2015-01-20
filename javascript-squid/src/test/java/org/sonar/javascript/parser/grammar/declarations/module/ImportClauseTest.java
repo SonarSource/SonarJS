@@ -20,7 +20,7 @@
 package org.sonar.javascript.parser.grammar.declarations.module;
 
 import org.junit.Test;
-import org.sonar.javascript.parser.EcmaScriptGrammar;
+import org.sonar.javascript.model.interfaces.Tree.Kind;
 
 import static org.sonar.javascript.sslr.tests.Assertions.assertThat;
 
@@ -29,10 +29,13 @@ public class ImportClauseTest {
 
   @Test
   public void ok() {
-    assertThat(EcmaScriptGrammar.IMPORT_CLAUSE)
+    assertThat(Kind.IMPORT_CLAUSE)
+      .matches("{ }")
+      .matches("* as identifier")
       .matches("identifier")
       .matches("identifier, { }")
-      .matches("{ }");
+      .matches("identifier, * as identifier")
+     ;
   }
 
 }

@@ -28,6 +28,7 @@ import org.sonar.javascript.model.implementations.declaration.ClassDeclarationTr
 import org.sonar.javascript.model.implementations.declaration.DefaultExportDeclarationTreeImpl;
 import org.sonar.javascript.model.implementations.declaration.FromClauseTreeImpl;
 import org.sonar.javascript.model.implementations.declaration.MethodDeclarationTreeImpl;
+import org.sonar.javascript.model.implementations.declaration.ImportClauseTreeImpl;
 import org.sonar.javascript.model.implementations.declaration.NamedExportDeclarationTreeImpl;
 import org.sonar.javascript.model.implementations.declaration.ParameterListTreeImpl;
 import org.sonar.javascript.model.implementations.declaration.SpecifierListTreeImpl;
@@ -77,8 +78,12 @@ import org.sonar.javascript.model.implementations.statement.VariableStatementTre
 import org.sonar.javascript.model.implementations.statement.WhileStatementTreeImpl;
 import org.sonar.javascript.model.implementations.statement.WithStatementTreeImpl;
 import org.sonar.javascript.model.interfaces.Tree.Kind;
+import org.sonar.javascript.model.interfaces.declaration.DeclarationTree;
 import org.sonar.javascript.model.interfaces.declaration.ExportDeclarationTree;
+import org.sonar.javascript.model.interfaces.declaration.ImportModuleDeclarationTree;
 import org.sonar.javascript.model.interfaces.declaration.NameSpaceExportDeclarationTree;
+import org.sonar.javascript.model.interfaces.declaration.SpecifierListTree;
+import org.sonar.javascript.model.interfaces.declaration.SpecifierTree;
 import org.sonar.javascript.model.interfaces.expression.ExpressionTree;
 import org.sonar.javascript.model.interfaces.expression.MemberExpressionTree;
 import org.sonar.javascript.model.interfaces.statement.DebuggerStatementTree;
@@ -1264,6 +1269,68 @@ public class ActionGrammar {
 
   }
 
+  public ImportModuleDeclarationTree IMPORT_MODULE_DECLARATION() {
+    return b.<ImportModuleDeclarationTree>nonterminal()
+      .is(f.importModuleDeclaration(
+          b.invokeRule(EcmaScriptKeyword.IMPORT), STRING_LITERAL(), b.invokeRule(EcmaScriptGrammar.EOS))
+      );
+  }
+
+  public SpecifierListTree IMPORT_LIST() {
+    return b.<SpecifierListTree>nonterminal(Kind.IMPORT_LIST)
+      .is(f.importList(
+        b.invokeRule(EcmaScriptPunctuator.LCURLYBRACE),
+        b.optional(f.newImportSpecifierList(
+          IMPORT_SPECIFIER(),
+          b.zeroOrMore(f.newTuple51(b.invokeRule(EcmaScriptPunctuator.COMMA), IMPORT_SPECIFIER())),
+          b.optional(b.invokeRule(EcmaScriptPunctuator.COMMA)))),
+        b.invokeRule(EcmaScriptPunctuator.RCURLYBRACE)
+      ));
+  }
+
+  public SpecifierTreeImpl IMPORT_SPECIFIER() {
+    return b.<SpecifierTreeImpl>nonterminal(Kind.IMPORT_SPECIFIER)
+      .is(f.completeImportSpecifier(
+        b.firstOf(
+          BINDING_IDENTIFIER(),
+          IDENTIFIER_NAME()),
+        b.optional(f.newImportSpecifier(b.invokeRule(EcmaScriptGrammar.AS), BINDING_IDENTIFIER()))
+      ));
+  }
+
+  public SpecifierTree NAMESPACE_IMPORT() {
+    return b.<SpecifierTree>nonterminal(Kind.NAMESPACE_IMPORT_SPECIFIER)
+      .is(f.nameSpaceImport(
+        b.invokeRule(EcmaScriptPunctuator.STAR),
+        b.invokeRule(EcmaScriptGrammar.AS),
+        BINDING_IDENTIFIER()
+      ));
+  }
+
+  public ImportClauseTreeImpl IMPORT_CLAUSE() {
+    return b.<ImportClauseTreeImpl>nonterminal(Kind.IMPORT_CLAUSE)
+      .is(f.importClause(
+        b.firstOf(
+          IMPORT_LIST(),
+          NAMESPACE_IMPORT(),
+          f.defaultImport(
+            BINDING_IDENTIFIER(),
+            b.optional(f.newTuple52(b.invokeRule(EcmaScriptPunctuator.COMMA), b.firstOf(NAMESPACE_IMPORT(), IMPORT_LIST()))))
+        )
+      ));
+  }
+
+  public DeclarationTree IMPORT_DECLARATION() {
+    return b.<DeclarationTree>nonterminal(EcmaScriptGrammar.IMPORT_DECLARATION)
+      .is(b.firstOf(
+        f.importDeclaration(
+          b.invokeRule(EcmaScriptKeyword.IMPORT),
+          IMPORT_CLAUSE(),
+          FROM_CLAUSE(),
+          b.invokeRule(EcmaScriptGrammar.EOS)),
+        IMPORT_MODULE_DECLARATION()
+      ));
+  }
   // [END] Module, import & export
 
   // [START] Classes, methods, functions & generators

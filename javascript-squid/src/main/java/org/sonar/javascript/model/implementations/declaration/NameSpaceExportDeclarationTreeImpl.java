@@ -26,8 +26,6 @@ import org.sonar.javascript.model.implementations.lexical.InternalSyntaxToken;
 import org.sonar.javascript.model.interfaces.Tree;
 import org.sonar.javascript.model.interfaces.declaration.FromClauseTree;
 import org.sonar.javascript.model.interfaces.declaration.NameSpaceExportDeclarationTree;
-import org.sonar.javascript.model.interfaces.declaration.NameSpaceImportTree;
-import org.sonar.javascript.model.interfaces.expression.IdentifierTree;
 import org.sonar.javascript.model.interfaces.lexical.SyntaxToken;
 
 import java.util.Iterator;
@@ -60,11 +58,6 @@ public class NameSpaceExportDeclarationTreeImpl extends JavaScriptTree implement
   @Override
   public FromClauseTree fromClause() {
     return fromClause;
-  }
-
-  @Override
-  public Tree eos() {
-    throw new UnsupportedOperationException("Not supported yet in the strongly typed AST.");
   }
 
   public Kind getKind() {

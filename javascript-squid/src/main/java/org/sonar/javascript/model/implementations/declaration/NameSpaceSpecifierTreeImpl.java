@@ -21,47 +21,51 @@ package org.sonar.javascript.model.implementations.declaration;
 
 import com.google.common.collect.Iterators;
 import org.sonar.javascript.model.implementations.JavaScriptTree;
+import org.sonar.javascript.model.implementations.expression.IdentifierTreeImpl;
+import org.sonar.javascript.model.implementations.lexical.InternalSyntaxToken;
 import org.sonar.javascript.model.interfaces.Tree;
-import org.sonar.javascript.model.interfaces.declaration.FromClauseTree;
-import org.sonar.javascript.model.interfaces.declaration.NameSpaceExportDeclarationTree;
+import org.sonar.javascript.model.interfaces.declaration.SpecifierTree;
+import org.sonar.javascript.model.interfaces.expression.IdentifierTree;
 import org.sonar.javascript.model.interfaces.lexical.SyntaxToken;
 
+import javax.annotation.Nullable;
 import java.util.Iterator;
 
-public class NameSpaceImportTreeImpl extends JavaScriptTree implements NameSpaceExportDeclarationTree {
+public class NameSpaceSpecifierTreeImpl extends JavaScriptTree implements SpecifierTree {
 
-  private SyntaxToken exportToken;
-  private SyntaxToken starToken;
-  private FromClauseTree fromClause;
-  private Tree eos;
+  private final SyntaxToken starToken;
+  private final SyntaxToken asToken;
+  private final IdentifierTree localName;
 
-  public NameSpaceImportTreeImpl() {
-    super(Kind.NAMESPACE_EXPORT_DECLARATION);
+  public NameSpaceSpecifierTreeImpl(InternalSyntaxToken starToken, InternalSyntaxToken asToken, IdentifierTreeImpl localName) {
+    super(Kind.NAMESPACE_IMPORT_SPECIFIER);
+    this.starToken = starToken;
+    this.asToken = asToken;
+    this.localName = localName;
+
+    addChildren(asToken, localName);
   }
 
   @Override
-  public SyntaxToken exportToken() {
-    return exportToken;
-  }
-
-  @Override
-  public SyntaxToken starToken() {
+  public SyntaxToken name() {
     return starToken;
   }
 
+  @Nullable
   @Override
-  public FromClauseTree fromClause() {
-    return fromClause;
+  public SyntaxToken asToken() {
+    return asToken;
   }
 
+  @Nullable
   @Override
-  public Tree eos() {
-    return eos;
+  public IdentifierTree localName() {
+    return localName;
   }
 
   @Override
   public Kind getKind() {
-    return Kind.NAMESPACE_EXPORT_DECLARATION;
+    return Kind.NAMESPACE_IMPORT_SPECIFIER;
   }
 
   @Override

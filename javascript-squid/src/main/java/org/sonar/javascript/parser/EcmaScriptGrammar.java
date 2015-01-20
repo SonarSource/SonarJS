@@ -31,7 +31,6 @@ import org.sonar.sslr.parser.LexerlessGrammar;
 
 import static org.sonar.javascript.api.EcmaScriptKeyword.CONST;
 import static org.sonar.javascript.api.EcmaScriptKeyword.FUNCTION;
-import static org.sonar.javascript.api.EcmaScriptKeyword.IMPORT;
 import static org.sonar.javascript.api.EcmaScriptKeyword.VAR;
 import static org.sonar.javascript.api.EcmaScriptPunctuator.AND;
 import static org.sonar.javascript.api.EcmaScriptPunctuator.ANDAND;
@@ -264,8 +263,6 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
   GET,
   SET,
   /** ECMAScript 6 **/
-  MODULE_WORD,
-  /** ECMAScript 6 **/
   MODULE,
   /** ECMAScript 6 **/
   MODULE_BODY,
@@ -275,20 +272,6 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
   IMPORT_DECLARATION,
   /** ECMAScript 6 **/
   EXPORT_DECLARATION,
-  /** ECMAScript 6 **/
-  IMPORT_CLAUSE,
-  /** ECMAScript 6 **/
-  MODULE_IMPORT,
-  /** ECMAScript 6 **/
-  NAMED_IMPORTS,
-  /** ECMAScript 6 **/
-  IMPORTS_LIST,
-  /** ECMAScript 6 **/
-  IMPORT_SPECIFIER,
-  /** ECMAScript 6 **/
-  IMPORT_FROM,
-  /** ECMAScript 6 **/
-  SIMPLE_IMPORT,
   /** ECMAScript 6 **/
   FROM,
   /** ECMAScript 6 **/
@@ -559,24 +542,8 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
     b.rule(MODULE_BODY).is(b.oneOrMore(MODULE_ITEM));
     b.rule(MODULE_ITEM).is(b.firstOf(IMPORT_DECLARATION, EXPORT_DECLARATION, DECLARATION, STATEMENT));
 
-    b.rule(IMPORT_DECLARATION).is(b.firstOf(
-      MODULE_IMPORT,
-      SIMPLE_IMPORT,
-      IMPORT_FROM));
-
-    // FIXME: update import & export declaration according to last ES6 specification draft
-    b.rule(MODULE_IMPORT).is(MODULE_WORD, /* no line terminator here */SPACING_NO_LB, NEXT_NOT_LB, BINDING_IDENTIFIER, Kind.FROM_CLAUSE, EOS);
-    b.rule(MODULE_WORD).is(word(b, "module"));
-    b.rule(SIMPLE_IMPORT).is(IMPORT, Kind.STRING_LITERAL, EOS);
-    b.rule(IMPORT_FROM).is(IMPORT, IMPORT_CLAUSE, Kind.FROM_CLAUSE, EOS);
 
     b.rule(FROM).is(word(b, "from"));
-    b.rule(IMPORT_CLAUSE).is(b.firstOf(
-      NAMED_IMPORTS,
-      b.sequence(BINDING_IDENTIFIER, b.optional(COMMA, NAMED_IMPORTS))));
-    b.rule(NAMED_IMPORTS).is(LCURLYBRACE, b.optional(IMPORTS_LIST, b.optional(COMMA)), RCURLYBRACE);
-    b.rule(IMPORTS_LIST).is(IMPORT_SPECIFIER, b.zeroOrMore(COMMA, IMPORT_SPECIFIER));
-    b.rule(IMPORT_SPECIFIER).is(b.optional(IDENTIFIER_NAME, AS), BINDING_IDENTIFIER);
     b.rule(AS).is(word(b, "as"));
 
     // Temporary rules

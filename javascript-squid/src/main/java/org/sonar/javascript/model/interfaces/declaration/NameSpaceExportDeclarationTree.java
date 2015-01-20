@@ -19,17 +19,14 @@
  */
 package org.sonar.javascript.model.interfaces.declaration;
 
-import org.sonar.javascript.model.interfaces.Tree;
 import org.sonar.javascript.model.interfaces.lexical.SyntaxToken;
-
-import javax.annotation.Nullable;
 
 /**
  * Interface for type <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-exports">Namespace Export Declarations</a>.
  * <p/>
  *
  * <pre>
- *    export * {@link #fromClause()} ;
+ *    * {@link #fromClause()} ;
  * </pre>
  *
  * </p>
@@ -40,7 +37,5 @@ public interface NameSpaceExportDeclarationTree extends ExportDeclarationTree {
   SyntaxToken starToken();
 
   FromClauseTree fromClause();
-
-  Tree eos();
 
 }

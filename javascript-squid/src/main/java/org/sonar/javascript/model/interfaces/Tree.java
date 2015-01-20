@@ -20,6 +20,7 @@
 package org.sonar.javascript.model.interfaces;
 
 import com.sonar.sslr.api.AstNodeType;
+import org.sonar.javascript.model.implementations.declaration.NameSpaceSpecifierTreeImpl;
 import org.sonar.javascript.model.implementations.declaration.SpecifierListTreeImpl;
 import org.sonar.javascript.model.interfaces.declaration.AccessorMethodDeclarationTree;
 import org.sonar.javascript.model.interfaces.declaration.ArrayBindingPatternTree;
@@ -36,7 +37,6 @@ import org.sonar.javascript.model.interfaces.declaration.ImportDeclarationTree;
 import org.sonar.javascript.model.interfaces.declaration.ImportModuleDeclarationTree;
 import org.sonar.javascript.model.interfaces.declaration.MethodDeclarationTree;
 import org.sonar.javascript.model.interfaces.declaration.NameSpaceExportDeclarationTree;
-import org.sonar.javascript.model.interfaces.declaration.NameSpaceImportTree;
 import org.sonar.javascript.model.interfaces.declaration.NamedExportDeclarationTree;
 import org.sonar.javascript.model.interfaces.declaration.ObjectBindingPatternTree;
 import org.sonar.javascript.model.interfaces.declaration.ParameterListTree;
@@ -796,9 +796,14 @@ public interface Tree {
     EXPORT_CLAUSE(ExportClauseTree.class),
 
     /**
-import org.sonar.javascript.model.implementations.declaration.SpecifierListTreeImpl;     * {@linkorg.sonar.javascript.
+     * {@link SpecifierListTreeImpl}
      */
     EXPORT_LIST(SpecifierListTreeImpl.class),
+
+    /**
+     * {@link SpecifierListTreeImpl
+     */
+    IMPORT_LIST(SpecifierListTreeImpl.class),
 
     /**
      * {@link SpecifierListTree}
@@ -816,9 +821,9 @@ import org.sonar.javascript.model.implementations.declaration.SpecifierListTreeI
     IMPORT_SPECIFIER(SpecifierTree.class),
 
     /**
-     * {@link NameSpaceImportTree}
+     * {@link SpecifierTree}
      */
-    NAMESPACE_IMPORT(NameSpaceImportTree.class),
+    NAMESPACE_IMPORT_SPECIFIER(SpecifierTree.class),
 
     /**
      * {@link ImportDeclarationTree}

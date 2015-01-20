@@ -30,10 +30,8 @@ public class ImportDeclarationTest {
   @Test
   public void ok() {
     assertThat(EcmaScriptGrammar.IMPORT_DECLARATION)
-      .matches("module identifier from \"f\";")
-      .notMatches("module \n identifier from \"f\";")
-      .matches("import \"f\";")
-      .matches("import identifier from \"f\";");
+      .matches("import identifier from \"f\";")
+      .matches("import \"f\";");
   }
 
 }

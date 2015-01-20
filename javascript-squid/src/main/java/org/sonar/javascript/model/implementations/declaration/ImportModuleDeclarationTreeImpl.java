@@ -20,7 +20,10 @@
 package org.sonar.javascript.model.implementations.declaration;
 
 import com.google.common.collect.Iterators;
+import com.sonar.sslr.api.AstNode;
 import org.sonar.javascript.model.implementations.JavaScriptTree;
+import org.sonar.javascript.model.implementations.expression.LiteralTreeImpl;
+import org.sonar.javascript.model.implementations.lexical.InternalSyntaxToken;
 import org.sonar.javascript.model.interfaces.Tree;
 import org.sonar.javascript.model.interfaces.declaration.FromClauseTree;
 import org.sonar.javascript.model.interfaces.declaration.ImportClauseTree;
@@ -34,10 +37,13 @@ public class ImportModuleDeclarationTreeImpl extends JavaScriptTree implements I
 
   private SyntaxToken importToken;
   private LiteralTree moduleName;
-  private Tree eos;
 
-  public ImportModuleDeclarationTreeImpl() {
+  public ImportModuleDeclarationTreeImpl(InternalSyntaxToken importToken, LiteralTreeImpl moduleName, AstNode eos) {
     super(Kind.IMPORT_MODULE_DECLARATION);
+    this.importToken = importToken;
+    this.moduleName = moduleName;
+
+    addChildren(importToken, moduleName, eos);
   }
 
   @Override
@@ -52,7 +58,7 @@ public class ImportModuleDeclarationTreeImpl extends JavaScriptTree implements I
 
   @Override
   public Tree eos() {
-    return eos;
+    throw new UnsupportedOperationException("Not supported yet in the strongly typed AST.");
   }
 
   @Override

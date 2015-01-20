@@ -19,6 +19,7 @@
  */
 package org.sonar.javascript.model.interfaces.declaration;
 
+import org.sonar.javascript.model.interfaces.Tree;
 import org.sonar.javascript.model.interfaces.expression.IdentifierTree;
 import org.sonar.javascript.model.interfaces.lexical.SyntaxToken;
 
@@ -30,13 +31,13 @@ import javax.annotation.Nullable;
  *
  * <pre>
  *    {@link #name()}
- *    {@link #name()} as {@link #alias()}
+ *    {@link #name()} as {@link #localName()}
  * </pre>
  * </p>
  */
 public interface SpecifierTree extends DeclarationTree {
 
-  IdentifierTree name();
+  Tree name();
 
   @Nullable
   SyntaxToken asToken();

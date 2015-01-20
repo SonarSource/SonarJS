@@ -37,9 +37,11 @@ public class SpecifierListTreeImpl extends JavaScriptTree implements SpecifierLi
   private SyntaxToken openCurlyBraceToken;
   private final SeparatedList<SpecifierTree> specifiers;
   private SyntaxToken closeCurlyBraceToken;
+  private final Kind kind;
 
-  public SpecifierListTreeImpl(InternalSyntaxToken openCurlyBraceToken, InternalSyntaxToken closeCurlyBraceToken) {
-    super(Kind.EXPORT_LIST);
+  public SpecifierListTreeImpl(Kind kind, InternalSyntaxToken openCurlyBraceToken, InternalSyntaxToken closeCurlyBraceToken) {
+    super(kind);
+    this.kind = kind;
     this.openCurlyBraceToken = openCurlyBraceToken;
     this.specifiers = null;
     this.closeCurlyBraceToken = closeCurlyBraceToken;
@@ -47,8 +49,9 @@ public class SpecifierListTreeImpl extends JavaScriptTree implements SpecifierLi
     addChildren(openCurlyBraceToken, closeCurlyBraceToken);
   }
 
-  public SpecifierListTreeImpl(SeparatedList<SpecifierTree> specifiers, List<AstNode> children) {
-    super(Kind.EXPORT_LIST);
+  public SpecifierListTreeImpl(Kind kind, SeparatedList<SpecifierTree> specifiers, List<AstNode> children) {
+    super(kind);
+    this.kind = kind;
     this.specifiers = specifiers;
 
     for (AstNode child : children) {
@@ -83,7 +86,7 @@ public class SpecifierListTreeImpl extends JavaScriptTree implements SpecifierLi
 
   @Override
   public Kind getKind() {
-    return Kind.EXPORT_LIST;
+    return kind;
   }
 
   @Override

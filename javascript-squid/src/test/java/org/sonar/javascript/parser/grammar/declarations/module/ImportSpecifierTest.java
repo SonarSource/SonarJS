@@ -20,7 +20,7 @@
 package org.sonar.javascript.parser.grammar.declarations.module;
 
 import org.junit.Test;
-import org.sonar.javascript.parser.EcmaScriptGrammar;
+import org.sonar.javascript.model.interfaces.Tree.Kind;
 
 import static org.sonar.javascript.sslr.tests.Assertions.assertThat;
 
@@ -29,7 +29,7 @@ public class ImportSpecifierTest {
 
   @Test
   public void ok() {
-    assertThat(EcmaScriptGrammar.IMPORT_SPECIFIER)
+    assertThat(Kind.IMPORT_SPECIFIER)
       .matches("identifier")
       .matches("identifier as identifier");
   }
