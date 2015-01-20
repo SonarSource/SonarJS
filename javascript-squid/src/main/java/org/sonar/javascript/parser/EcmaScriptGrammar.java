@@ -602,6 +602,8 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
       ecmascript6(CLASS_DECLARATION),
       ecmascript6(LEXICAL_DECLARATION)));
 
+    b.rule(FUNCTION_DECLARATION).is(FUNCTION, BINDING_IDENTIFIER, Kind.FORMAL_PARAMETER_LIST, LCURLYBRACE, FUNCTION_BODY, RCURLYBRACE);
+
     b.rule(LEXICAL_DECLARATION).is(LET_OR_CONST, BINDING_LIST, EOS);
     b.rule(LEXICAL_DECLARATION_NO_IN).is(LET_OR_CONST, BINDING_LIST_NO_IN);
     b.rule(LET_OR_CONST).is(b.firstOf(LET, CONST));
@@ -644,8 +646,6 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
   }
 
   private static void class_and_function_declarations(LexerlessGrammarBuilder b) {
-    b.rule(FUNCTION_DECLARATION).is(FUNCTION, BINDING_IDENTIFIER, Kind.FORMAL_PARAMETER_LIST, LCURLYBRACE, FUNCTION_BODY, RCURLYBRACE);
-
     b.rule(FUNCTION_BODY).is(b.optional(STATEMENT_LIST));
 
     b.rule(GENERATOR_DECLARATION).is(FUNCTION, STAR, BINDING_IDENTIFIER,
