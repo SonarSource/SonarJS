@@ -20,11 +20,10 @@
 package org.sonar.javascript.model.interfaces;
 
 import com.sonar.sslr.api.AstNodeType;
-import org.sonar.javascript.model.implementations.declaration.NameSpaceSpecifierTreeImpl;
 import org.sonar.javascript.model.implementations.declaration.SpecifierListTreeImpl;
 import org.sonar.javascript.model.interfaces.declaration.AccessorMethodDeclarationTree;
 import org.sonar.javascript.model.interfaces.declaration.ArrayBindingPatternTree;
-import org.sonar.javascript.model.interfaces.declaration.BindingElementTree;
+import org.sonar.javascript.model.interfaces.declaration.InitializedBindingElementTree;
 import org.sonar.javascript.model.interfaces.declaration.BindingPropertyTree;
 import org.sonar.javascript.model.interfaces.declaration.ClassDeclarationTree;
 import org.sonar.javascript.model.interfaces.declaration.DefaultExportDeclarationTree;
@@ -736,14 +735,14 @@ public interface Tree {
     CLASS_DECLARATION(ClassDeclarationTree.class),
 
     /**
-     * {@link BindingElementTree}
+     * {@link org.sonar.javascript.model.interfaces.declaration.InitializedBindingElementTree}
      */
-    SINGLE_NAME_BINDING(BindingElementTree.class),
+    SINGLE_NAME_BINDING(InitializedBindingElementTree.class),
 
     /**
-     * {@link BindingElementTree}
+     * {@link org.sonar.javascript.model.interfaces.declaration.InitializedBindingElementTree}
      */
-    BINDING_PATTERN_ELEMENT(BindingElementTree.class),
+    BINDING_ELEMENT(InitializedBindingElementTree.class),
 
     /**
      * {@link ObjectBindingPatternTree}

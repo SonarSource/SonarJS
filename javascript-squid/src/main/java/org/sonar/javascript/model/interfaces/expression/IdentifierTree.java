@@ -19,6 +19,7 @@
  */
 package org.sonar.javascript.model.interfaces.expression;
 
+import org.sonar.javascript.model.interfaces.declaration.BindingElementTree;
 import org.sonar.javascript.model.interfaces.lexical.SyntaxToken;
 
 /**
@@ -26,7 +27,7 @@ import org.sonar.javascript.model.interfaces.lexical.SyntaxToken;
  * <p/>
  * <p>This interface is not intended to be implemented by clients.</p>
  */
-public interface IdentifierTree extends ExpressionTree {
+public interface IdentifierTree extends ExpressionTree, BindingElementTree {
 
   SyntaxToken identifierToken();
 

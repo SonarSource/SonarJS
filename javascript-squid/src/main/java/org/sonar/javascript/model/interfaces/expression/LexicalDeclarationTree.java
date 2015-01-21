@@ -21,11 +21,9 @@ package org.sonar.javascript.model.interfaces.expression;
 
 import org.sonar.javascript.model.implementations.SeparatedList;
 import org.sonar.javascript.model.interfaces.Tree;
-import org.sonar.javascript.model.interfaces.declaration.BindingElementTree;
+import org.sonar.javascript.model.interfaces.declaration.InitializedBindingElementTree;
 import org.sonar.javascript.model.interfaces.declaration.DeclarationTree;
 import org.sonar.javascript.model.interfaces.lexical.SyntaxToken;
-
-import javax.annotation.Nullable;
 
 /**
  * Interface for <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-let-and-const-declarations">Let and Const Declarations</a>.
@@ -41,5 +39,5 @@ public interface LexicalDeclarationTree extends DeclarationTree {
 
   SyntaxToken keywordToken();
 
-  SeparatedList<BindingElementTree> bindingList();
+  SeparatedList<InitializedBindingElementTree> bindingList();
 }

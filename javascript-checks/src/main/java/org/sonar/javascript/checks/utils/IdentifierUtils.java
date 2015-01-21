@@ -23,7 +23,9 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.sonar.sslr.api.AstNode;
 import org.sonar.javascript.api.EcmaScriptTokenType;
+import org.sonar.javascript.model.interfaces.Tree;
 import org.sonar.javascript.model.interfaces.Tree.Kind;
+import org.sonar.javascript.model.interfaces.declaration.ObjectBindingPatternTree;
 import org.sonar.javascript.parser.EcmaScriptGrammar;
 
 import javax.annotation.Nullable;
@@ -97,9 +99,9 @@ public class IdentifierUtils {
     Preconditions.checkArgument(formalParameterList.is(Kind.FORMAL_PARAMETER_LIST));
     List<AstNode> identifiers = Lists.newArrayList();
 
-    for (AstNode parameter : formalParameterList.getChildren(EcmaScriptGrammar.BINDING_ELEMENT, Kind.REST_ELEMENT)) {
+    for (AstNode parameter : formalParameterList.getChildren(Kind.BINDING_IDENTIFIER, Kind.BINDING_ELEMENT, Kind.REST_ELEMENT)) {
 
-      if (parameter.is(EcmaScriptGrammar.BINDING_ELEMENT)) {
+      if (parameter.is(Kind.BINDING_IDENTIFIER, Kind.BINDING_ELEMENT)) {
         identifiers.addAll(getBindingElementIdentifiers(parameter));
       } else {
         AstNode id = getRestIdentifier(parameter);
@@ -112,14 +114,12 @@ public class IdentifierUtils {
   }
 
   private static List<AstNode> getBindingElementIdentifiers(AstNode bindingElement) {
-    Preconditions.checkArgument(bindingElement.is(EcmaScriptGrammar.BINDING_ELEMENT));
+    Preconditions.checkArgument(bindingElement.is(Kind.BINDING_IDENTIFIER, Kind.BINDING_ELEMENT));
 
-    AstNode child = bindingElement.getFirstChild();
-
-    if (child.is(EcmaScriptGrammar.SINGLE_NAME_BINDING)) {
-      return getSingleNameIdentifier(child);
+    if (bindingElement.is(Kind.BINDING_IDENTIFIER)) {
+      return getSingleNameIdentifier(bindingElement);
     } else {
-      return getBindingPatternIdentifiers(child);
+      return getBindingPatternIdentifiers(bindingElement);
     }
 
   }
@@ -128,7 +128,7 @@ public class IdentifierUtils {
     Preconditions.checkArgument(bindingPattern.is(EcmaScriptGrammar.BINDING_PATTERN));
     AstNode child = bindingPattern.getFirstChild();
 
-    if (child.is(EcmaScriptGrammar.OBJECT_BINDING_PATTERN)) {
+    if (child.is(Kind.OBJECT_BINDING_PATTERN)) {
       return getObjectBindingIdentifiers(child);
     } else {
       return getArrayBindingIdentifiers(child);
@@ -143,7 +143,7 @@ public class IdentifierUtils {
     if (elementList != null) {
 
       for (AstNode elisionElement : elementList.getChildren(EcmaScriptGrammar.BINDING_ELISION_ELEMENT)) {
-        identifiers.addAll(getBindingElementIdentifiers(elisionElement.getFirstChild(EcmaScriptGrammar.BINDING_ELEMENT)));
+        identifiers.addAll(getBindingElementIdentifiers(elisionElement.getFirstChild(Kind.BINDING_IDENTIFIER, Kind.BINDING_ELEMENT)));
       }
     }
     AstNode restElement = arrayBindingPatter.getFirstChild(EcmaScriptGrammar.BINDING_REST_ELEMENT, Kind.REST_ELEMENT);
@@ -165,30 +165,24 @@ public class IdentifierUtils {
   }
 
   private static List<AstNode> getObjectBindingIdentifiers(AstNode objectBindingPattern) {
-    Preconditions.checkArgument(objectBindingPattern.is(EcmaScriptGrammar.OBJECT_BINDING_PATTERN));
+    Preconditions.checkArgument(objectBindingPattern.is(Kind.OBJECT_BINDING_PATTERN));
     List<AstNode> identifiers = Lists.newArrayList();
-    AstNode propertyList = objectBindingPattern.getFirstChild(EcmaScriptGrammar.BINDING_PROPERTY_LIST);
 
-    if (propertyList != null) {
-
-      for (AstNode property : propertyList.getChildren(EcmaScriptGrammar.BINDING_PROPERTY)) {
-        AstNode propertyChild = property.getFirstChild();
-
-        if (propertyChild.is(EcmaScriptGrammar.SINGLE_NAME_BINDING)) {
-          identifiers.addAll(getSingleNameIdentifier(propertyChild));
-        } else {
-          identifiers.addAll(getBindingElementIdentifiers(property.getFirstChild(EcmaScriptGrammar.BINDING_ELEMENT)));
-        }
+    for (Tree property : ((ObjectBindingPatternTree) objectBindingPattern).elements()) {
+      if (property.is(Kind.BINDING_PROPERTY)) {
+        identifiers.addAll(getBindingElementIdentifiers(((AstNode) property).getLastChild()));
+      } else {
+        identifiers.addAll(getSingleNameIdentifier((AstNode) property));
       }
     }
     return identifiers;
   }
 
   private static List<AstNode> getSingleNameIdentifier(AstNode singleNameBinding) {
-    Preconditions.checkArgument(singleNameBinding.is(EcmaScriptGrammar.SINGLE_NAME_BINDING));
+    Preconditions.checkArgument(singleNameBinding.is(Kind.BINDING_IDENTIFIER));
     List<AstNode> identifier = Lists.newArrayList();
 
-    AstNode id = singleNameBinding.getFirstChild(Kind.BINDING_IDENTIFIER).getFirstChild(EcmaScriptTokenType.IDENTIFIER);
+    AstNode id = singleNameBinding.getFirstChild(EcmaScriptTokenType.IDENTIFIER);
     if (id != null) {
       identifier.add(id);
     }

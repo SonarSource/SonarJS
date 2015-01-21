@@ -20,7 +20,7 @@
 package org.sonar.javascript.model.interfaces.declaration;
 
 import org.sonar.javascript.model.implementations.SeparatedList;
-import org.sonar.javascript.model.interfaces.expression.ExpressionTree;
+import org.sonar.javascript.model.interfaces.Tree;
 import org.sonar.javascript.model.interfaces.lexical.SyntaxToken;
 
 /**
@@ -29,17 +29,17 @@ import org.sonar.javascript.model.interfaces.lexical.SyntaxToken;
  *
  * <pre>
  *   { }
- *   { {@link #bindingElements()} }
- *   { {@link #bindingElements()} , }
+ *   { {@link #elements()} }
+ *   { {@link #elements()} , }
  * </pre>
  *
  * <p>This interface is not intended to be implemented by clients.</p>
  */
-public interface ObjectBindingPatternTree extends DeclarationTree {
+public interface ObjectBindingPatternTree extends DeclarationTree, BindingElementTree {
 
   SyntaxToken openCurlyBrace();
 
-  SeparatedList<DeclarationTree> bindingElements();
+  SeparatedList<Tree> elements();
 
   SyntaxToken closeCurlyBrace();
 

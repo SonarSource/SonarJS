@@ -20,7 +20,6 @@
 package org.sonar.javascript.model.interfaces.declaration;
 
 import org.sonar.javascript.model.implementations.SeparatedList;
-import org.sonar.javascript.model.interfaces.expression.ExpressionTree;
 import org.sonar.javascript.model.interfaces.lexical.SyntaxToken;
 
 /**
@@ -37,7 +36,7 @@ public interface ArrayBindingPatternTree extends DeclarationTree {
 
   SyntaxToken openBracket();
 
-  SeparatedList<BindingElementTree> bindingElements();
+  SeparatedList<InitializedBindingElementTree> bindingElements();
 
   SyntaxToken closeBracket();
 

@@ -24,6 +24,7 @@ import org.sonar.javascript.api.EcmaScriptKeyword;
 import org.sonar.javascript.api.EcmaScriptPunctuator;
 import org.sonar.javascript.api.EcmaScriptTokenType;
 import org.sonar.javascript.ast.parser.TreeFactory;
+import org.sonar.javascript.model.implementations.declaration.BindingElementTreeImpl;
 import org.sonar.javascript.model.implementations.declaration.ClassDeclarationTreeImpl;
 import org.sonar.javascript.model.implementations.declaration.DefaultExportDeclarationTreeImpl;
 import org.sonar.javascript.model.implementations.declaration.FromClauseTreeImpl;
@@ -32,6 +33,7 @@ import org.sonar.javascript.model.implementations.declaration.ImportClauseTreeIm
 import org.sonar.javascript.model.implementations.declaration.MethodDeclarationTreeImpl;
 import org.sonar.javascript.model.implementations.declaration.ModuleTreeImpl;
 import org.sonar.javascript.model.implementations.declaration.NamedExportDeclarationTreeImpl;
+import org.sonar.javascript.model.implementations.declaration.ObjectBindingPatternTreeImpl;
 import org.sonar.javascript.model.implementations.declaration.ParameterListTreeImpl;
 import org.sonar.javascript.model.implementations.declaration.SpecifierListTreeImpl;
 import org.sonar.javascript.model.implementations.declaration.SpecifierTreeImpl;
@@ -79,6 +81,7 @@ import org.sonar.javascript.model.implementations.statement.TryStatementTreeImpl
 import org.sonar.javascript.model.implementations.statement.VariableStatementTreeImpl;
 import org.sonar.javascript.model.implementations.statement.WhileStatementTreeImpl;
 import org.sonar.javascript.model.implementations.statement.WithStatementTreeImpl;
+import org.sonar.javascript.model.interfaces.Tree;
 import org.sonar.javascript.model.interfaces.Tree.Kind;
 import org.sonar.javascript.model.interfaces.declaration.DeclarationTree;
 import org.sonar.javascript.model.interfaces.declaration.ExportDeclarationTree;
@@ -472,7 +475,7 @@ public class ActionGrammar {
         b.optional(b.firstOf(
           f.newFormalParameterList(
             b.invokeRule(EcmaScriptGrammar.BINDING_ELEMENT),
-            b.zeroOrMore(f.newTuple4(b.invokeRule(EcmaScriptPunctuator.COMMA), b.invokeRule(EcmaScriptGrammar.BINDING_ELEMENT))),
+            b.zeroOrMore(f.newTuple4(b.invokeRule(EcmaScriptPunctuator.COMMA), BINDING_ELEMENT())),
             b.optional(ES6(f.newTuple5(b.invokeRule(EcmaScriptPunctuator.COMMA), BINDING_REST_ELEMENT())))),
           ES6(f.newFormalRestParameterList(BINDING_REST_ELEMENT()))
         )),
@@ -1344,6 +1347,64 @@ public class ActionGrammar {
       ));
   }
   // [END] Module, import & export
+
+  // [START] Destructuring pattern
+
+  public BindingElementTreeImpl INITIALISER() {
+    return b.<BindingElementTreeImpl>nonterminal(EcmaScriptGrammar.INITIALISER)
+      .is(f.newBindingElement(
+        b.invokeRule(EcmaScriptPunctuator.EQU),
+        ASSIGNMENT_EXPRESSION()
+      ));
+  }
+
+  public ObjectBindingPatternTreeImpl OBJECT_BINDING_PATTERN() {
+    return b.<ObjectBindingPatternTreeImpl>nonterminal(Kind.OBJECT_BINDING_PATTERN)
+      .is(f.completeObjectBindingPattern(
+        b.invokeRule(EcmaScriptPunctuator.LCURLYBRACE),
+        b.optional(BINDING_PROPERTY_LIST()),
+        b.invokeRule(EcmaScriptPunctuator.RCURLYBRACE)
+      ));
+  }
+
+  public ObjectBindingPatternTreeImpl BINDING_PROPERTY_LIST() {
+    return b.<ObjectBindingPatternTreeImpl>nonterminal()
+      .is(f.newObjectBindingPattern(
+        BINDING_PROPERTY(),
+        b.zeroOrMore(f.newTuple53(b.invokeRule(EcmaScriptPunctuator.COMMA), BINDING_PROPERTY())),
+        b.optional(b.invokeRule(EcmaScriptPunctuator.COMMA))
+      ));
+  }
+
+  public Tree BINDING_PROPERTY() {
+    return b.<Tree>nonterminal()
+      .is(b.firstOf(
+        f.bindingProperty(
+          PROPERTY_NAME(),
+          b.invokeRule(EcmaScriptPunctuator.COLON),
+          BINDING_ELEMENT()),
+        SINGLE_NAME_BINDING()
+      ));
+  }
+
+  // FIXME: get rid of AstNode
+  public AstNode BINDING_ELEMENT() {
+    return b.<AstNode>nonterminal(EcmaScriptGrammar.BINDING_ELEMENT)
+      .is(b.firstOf(
+        (AstNode) SINGLE_NAME_BINDING(),
+        f.newBindingPatternElement(b.invokeRule(EcmaScriptGrammar.BINDING_PATTERN), b.optional(INITIALISER()))
+      ));
+  }
+
+  public Tree SINGLE_NAME_BINDING() {
+    return b.<Tree>nonterminal(EcmaScriptGrammar.SINGLE_NAME_BINDING)
+      .is(f.singleNameBinding(
+        BINDING_IDENTIFIER(),
+        b.optional(INITIALISER())
+      ));
+  }
+
+  // [END] Destructuring pattern
 
   // [START] Classes, methods, functions & generators
 

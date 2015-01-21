@@ -20,29 +20,42 @@
 package org.sonar.javascript.model.implementations.declaration;
 
 import com.google.common.collect.Iterators;
+import com.sonar.sslr.api.AstNode;
 import org.sonar.javascript.model.implementations.JavaScriptTree;
+import org.sonar.javascript.model.implementations.lexical.InternalSyntaxToken;
 import org.sonar.javascript.model.interfaces.Tree;
 import org.sonar.javascript.model.interfaces.declaration.BindingElementTree;
+import org.sonar.javascript.model.interfaces.declaration.InitializedBindingElementTree;
 import org.sonar.javascript.model.interfaces.expression.ExpressionTree;
-import org.sonar.javascript.model.interfaces.expression.IdentifierTree;
 import org.sonar.javascript.model.interfaces.lexical.SyntaxToken;
 
 import javax.annotation.Nullable;
 import java.util.Iterator;
 
-public class BindingElementTreeImpl extends JavaScriptTree implements BindingElementTree {
+public class BindingElementTreeImpl extends JavaScriptTree implements InitializedBindingElementTree {
 
-  private IdentifierTree identifier;
+  private Tree left;
   private SyntaxToken equalToken;
-  private ExpressionTree initialiser;
+  private ExpressionTree right;
 
-  public BindingElementTreeImpl() {
-    super(Kind.BINDING_PATTERN_ELEMENT);
+  public BindingElementTreeImpl(InternalSyntaxToken equalToken, ExpressionTree right) {
+    super(Kind.BINDING_ELEMENT);
+    this.equalToken = equalToken;
+    this.right = right;
+
+    addChildren(equalToken, (AstNode) right);
+  }
+
+  // FIXME: get rid of AstNode
+  public BindingElementTreeImpl complete(AstNode left) {
+
+    prependChildren((AstNode) left);
+    return this;
   }
 
   @Override
-  public IdentifierTree identifier() {
-    return identifier;
+  public BindingElementTree left() {
+    throw new UnsupportedOperationException("Not supported yet in the strongly typed AST.");
   }
 
   @Nullable
@@ -53,13 +66,13 @@ public class BindingElementTreeImpl extends JavaScriptTree implements BindingEle
 
   @Nullable
   @Override
-  public ExpressionTree initialiser() {
-    return initialiser;
+  public ExpressionTree right() {
+    return right;
   }
 
   @Override
   public Kind getKind() {
-    return Kind.BINDING_PATTERN_ELEMENT;
+    return Kind.BINDING_ELEMENT;
   }
 
   @Override

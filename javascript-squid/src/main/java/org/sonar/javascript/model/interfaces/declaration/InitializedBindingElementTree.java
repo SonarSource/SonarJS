@@ -17,21 +17,27 @@
  * License along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.javascript.parser.grammar.expressions.destructuring;
+package org.sonar.javascript.model.interfaces.declaration;
 
-import org.junit.Test;
-import org.sonar.javascript.parser.EcmaScriptGrammar;
+import org.sonar.javascript.model.interfaces.expression.ExpressionTree;
+import org.sonar.javascript.model.interfaces.lexical.SyntaxToken;
 
-import static org.sonar.javascript.sslr.tests.Assertions.assertThat;
+/**
+ * <a href="http://www.ecma-international.org/ecma-262/5.1/#sec-12.2">Variable Declaration</a>.
+ *
+ * <pre>
+ *   {@link #left()}
+ *   {@link #left()} = {@link #right()}
+ * </pre>
+ *
+ * <p>This interface is not intended to be implemented by clients.</p>
+ */
+public interface InitializedBindingElementTree extends BindingElementTree {
 
-public class BindingPropertyTest {
+  BindingElementTree left();
 
+  SyntaxToken equalToken();
 
-  @Test
-  public void ok() {
-    assertThat(EcmaScriptGrammar.BINDING_PROPERTY)
-        .matches("identifier")
-        .matches("identifier : identifier");
-  }
+  ExpressionTree right();
 
 }

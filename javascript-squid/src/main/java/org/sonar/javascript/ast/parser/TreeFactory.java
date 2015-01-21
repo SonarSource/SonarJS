@@ -29,6 +29,8 @@ import org.apache.commons.collections.ListUtils;
 import org.sonar.javascript.api.EcmaScriptKeyword;
 import org.sonar.javascript.api.EcmaScriptPunctuator;
 import org.sonar.javascript.model.implementations.SeparatedList;
+import org.sonar.javascript.model.implementations.declaration.BindingElementTreeImpl;
+import org.sonar.javascript.model.implementations.declaration.BindingPropertyTreeImpl;
 import org.sonar.javascript.model.implementations.declaration.ClassDeclarationTreeImpl;
 import org.sonar.javascript.model.implementations.declaration.DefaultExportDeclarationTreeImpl;
 import org.sonar.javascript.model.implementations.declaration.ExportClauseTreeImpl;
@@ -42,6 +44,7 @@ import org.sonar.javascript.model.implementations.declaration.ModuleTreeImpl;
 import org.sonar.javascript.model.implementations.declaration.NameSpaceExportDeclarationTreeImpl;
 import org.sonar.javascript.model.implementations.declaration.NameSpaceSpecifierTreeImpl;
 import org.sonar.javascript.model.implementations.declaration.NamedExportDeclarationTreeImpl;
+import org.sonar.javascript.model.implementations.declaration.ObjectBindingPatternTreeImpl;
 import org.sonar.javascript.model.implementations.declaration.ParameterListTreeImpl;
 import org.sonar.javascript.model.implementations.declaration.SpecifierListTreeImpl;
 import org.sonar.javascript.model.implementations.declaration.SpecifierTreeImpl;
@@ -100,6 +103,7 @@ import org.sonar.javascript.model.implementations.statement.WhileStatementTreeIm
 import org.sonar.javascript.model.implementations.statement.WithStatementTreeImpl;
 import org.sonar.javascript.model.interfaces.Tree;
 import org.sonar.javascript.model.interfaces.Tree.Kind;
+import org.sonar.javascript.model.interfaces.declaration.BindingPropertyTree;
 import org.sonar.javascript.model.interfaces.declaration.DeclarationTree;
 import org.sonar.javascript.model.interfaces.declaration.ImportClauseTree;
 import org.sonar.javascript.model.interfaces.declaration.ImportModuleDeclarationTree;
@@ -1304,6 +1308,68 @@ public class TreeFactory {
     return new FunctionDeclarationTreeImpl(InternalSyntaxToken.create(functionToken), InternalSyntaxToken.create(starToken), name, parameters, body);
   }
 
+  // [START] Destructuring pattern
+
+  public BindingElementTreeImpl newBindingElement(AstNode equalToken, ExpressionTree expression) {
+    return new BindingElementTreeImpl(InternalSyntaxToken.create(equalToken), expression);
+  }
+
+  public Tree singleNameBinding(IdentifierTreeImpl identifier, Optional<BindingElementTreeImpl> initialiser) {
+    if (initialiser.isPresent()) {
+      return initialiser.get().complete(identifier);
+    }
+    return identifier;
+  }
+
+  // FIXME: get rid of AstNode
+  public AstNode newBindingPatternElement(AstNode left, Optional<BindingElementTreeImpl> initialiser) {
+    if (initialiser.isPresent()) {
+      return initialiser.get().complete(left);
+    }
+    return left;
+  }
+
+  public BindingPropertyTree bindingProperty(ExpressionTree propertyName, AstNode colonToken, AstNode bindingElement) {
+    return new BindingPropertyTreeImpl(propertyName, InternalSyntaxToken.create(colonToken), bindingElement);
+  }
+
+  public ObjectBindingPatternTreeImpl newObjectBindingPattern(Tree bindingProperty, Optional<List<Tuple<AstNode, Tree>>> restProperties, Optional<AstNode> trailingComma) {
+    List<Tree> properties = Lists.newArrayList();
+    List<InternalSyntaxToken> commas = Lists.newArrayList();
+    List<AstNode> children = Lists.newArrayList();
+
+    properties.add(bindingProperty);
+    children.add((AstNode) bindingProperty);
+
+    if (restProperties.isPresent()) {
+      for (Tuple<AstNode, Tree> t : restProperties.get()) {
+        // Comma
+        commas.add(InternalSyntaxToken.create(t.first()));
+        children.add(t.first());
+
+        // Property
+        properties.add(t.second());
+        children.add((AstNode) t.second());
+      }
+    }
+
+    if (trailingComma.isPresent()) {
+      commas.add(InternalSyntaxToken.create(trailingComma.get()));
+      children.add(trailingComma.get());
+    }
+
+    return new ObjectBindingPatternTreeImpl(new SeparatedList<Tree>(properties, commas, children));
+  }
+
+  public ObjectBindingPatternTreeImpl completeObjectBindingPattern(AstNode openCurlyBraceToken, Optional<ObjectBindingPatternTreeImpl> partial, AstNode closeCurlyBraceToken) {
+    if (partial.isPresent()) {
+      return partial.get().complete(InternalSyntaxToken.create(openCurlyBraceToken), InternalSyntaxToken.create(closeCurlyBraceToken));
+    }
+    return new ObjectBindingPatternTreeImpl(InternalSyntaxToken.create(openCurlyBraceToken), InternalSyntaxToken.create(closeCurlyBraceToken));
+  }
+
+  // [END] Destructuring pattern
+
   // [END] Classes, methods, functions & generators
 
   public static class Tuple<T, U> extends AstNode {
@@ -1480,6 +1546,10 @@ public class TreeFactory {
   }
 
   public <T, U> Tuple<T, U> newTuple52(T first, U second) {
+    return newTuple(first, second);
+  }
+
+  public <T, U> Tuple<T, U> newTuple53(T first, U second) {
     return newTuple(first, second);
   }
 

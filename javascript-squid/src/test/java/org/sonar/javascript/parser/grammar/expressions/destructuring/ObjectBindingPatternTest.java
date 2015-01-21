@@ -20,7 +20,7 @@
 package org.sonar.javascript.parser.grammar.expressions.destructuring;
 
 import org.junit.Test;
-import org.sonar.javascript.parser.EcmaScriptGrammar;
+import org.sonar.javascript.model.interfaces.Tree.Kind;
 
 import static org.sonar.javascript.sslr.tests.Assertions.assertThat;
 
@@ -29,9 +29,10 @@ public class ObjectBindingPatternTest {
 
   @Test
   public void ok() {
-    assertThat(EcmaScriptGrammar.OBJECT_BINDING_PATTERN)
+    assertThat(Kind.OBJECT_BINDING_PATTERN)
         .matches("{ }")
         .matches("{ identifier }")
+        .matches("{ identifier : identifier}")
         .matches("{ identifier , identifier }")
         .matches("{ identifier , }");
   }

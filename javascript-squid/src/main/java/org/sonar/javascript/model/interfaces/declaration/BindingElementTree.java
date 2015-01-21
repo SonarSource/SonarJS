@@ -20,29 +20,7 @@
 package org.sonar.javascript.model.interfaces.declaration;
 
 import org.sonar.javascript.model.interfaces.Tree;
-import org.sonar.javascript.model.interfaces.expression.ExpressionTree;
-import org.sonar.javascript.model.interfaces.lexical.SyntaxToken;
 
-import javax.annotation.Nullable;
-
-/**
- * <a href="http://www.ecma-international.org/ecma-262/5.1/#sec-12.2">Variable Declaration</a>.
- *
- * <pre>
- *   {@link #identifier()}
- *   {@link #identifier()} = {@link #initialiser()}
- * </pre>
- *
- * <p>This interface is not intended to be implemented by clients.</p>
- */
 public interface BindingElementTree extends Tree {
-
-  org.sonar.javascript.model.interfaces.expression.IdentifierTree identifier();
-
-  @Nullable
-  SyntaxToken equalToken();
-
-  @Nullable
-  ExpressionTree initialiser();
 
 }

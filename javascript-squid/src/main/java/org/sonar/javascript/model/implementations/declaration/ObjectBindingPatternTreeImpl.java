@@ -20,8 +20,11 @@
 package org.sonar.javascript.model.implementations.declaration;
 
 import com.google.common.collect.Iterators;
+import com.sonar.sslr.api.AstNode;
+import org.apache.commons.collections.ListUtils;
 import org.sonar.javascript.model.implementations.JavaScriptTree;
 import org.sonar.javascript.model.implementations.SeparatedList;
+import org.sonar.javascript.model.implementations.lexical.InternalSyntaxToken;
 import org.sonar.javascript.model.interfaces.Tree;
 import org.sonar.javascript.model.interfaces.declaration.DeclarationTree;
 import org.sonar.javascript.model.interfaces.declaration.ObjectBindingPatternTree;
@@ -32,11 +35,34 @@ import java.util.Iterator;
 public class ObjectBindingPatternTreeImpl extends JavaScriptTree implements ObjectBindingPatternTree {
 
   private SyntaxToken openCurlyBrace;
-  private SeparatedList<DeclarationTree> bindingElements;
+  private SeparatedList<Tree> bindingElements;
   private SyntaxToken closeCurlyBrace;
 
-  public ObjectBindingPatternTreeImpl() {
+  public ObjectBindingPatternTreeImpl(SeparatedList<Tree> bindingElements) {
     super(Kind.OBJECT_BINDING_PATTERN);
+    this.bindingElements = bindingElements;
+
+    for (AstNode child: bindingElements.getChildren()) {
+      addChild(child);
+    }
+  }
+
+  public ObjectBindingPatternTreeImpl(InternalSyntaxToken openCurlyBrace, InternalSyntaxToken closeCurlyBrace) {
+    super(Kind.OBJECT_BINDING_PATTERN);
+    this.openCurlyBrace = openCurlyBrace;
+    this.bindingElements = new SeparatedList<Tree>(ListUtils.EMPTY_LIST, ListUtils.EMPTY_LIST);
+    this.closeCurlyBrace = closeCurlyBrace;
+
+    addChildren(openCurlyBrace, closeCurlyBrace);
+  }
+
+  public ObjectBindingPatternTreeImpl complete(InternalSyntaxToken openCurlyBrace, InternalSyntaxToken closeCurlyBrace) {
+    this.openCurlyBrace = openCurlyBrace;
+    this.closeCurlyBrace = closeCurlyBrace;
+
+    prependChildren(openCurlyBrace);
+    addChild(closeCurlyBrace);
+    return this;
   }
 
   @Override
@@ -45,7 +71,7 @@ public class ObjectBindingPatternTreeImpl extends JavaScriptTree implements Obje
   }
 
   @Override
-  public SeparatedList<DeclarationTree> bindingElements() {
+  public SeparatedList<Tree> elements() {
     return bindingElements;
   }
 

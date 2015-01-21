@@ -27,14 +27,14 @@ import org.sonar.javascript.model.interfaces.lexical.SyntaxToken;
  * <p/>
  *
  * <pre>
- *   {@link #key()} : {@link #value()}
+ *   {@link #name()} : {@link #value()}
  * </pre>
  *
  * <p>This interface is not intended to be implemented by clients.</p>
  */
 public interface BindingPropertyTree extends DeclarationTree {
 
-  ExpressionTree key();
+  ExpressionTree name();
 
   SyntaxToken colonToken();
 

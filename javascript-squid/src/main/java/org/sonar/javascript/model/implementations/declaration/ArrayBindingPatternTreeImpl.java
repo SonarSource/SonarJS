@@ -24,18 +24,15 @@ import org.sonar.javascript.model.implementations.JavaScriptTree;
 import org.sonar.javascript.model.implementations.SeparatedList;
 import org.sonar.javascript.model.interfaces.Tree;
 import org.sonar.javascript.model.interfaces.declaration.ArrayBindingPatternTree;
-import org.sonar.javascript.model.interfaces.declaration.BindingElementTree;
-import org.sonar.javascript.model.interfaces.expression.ExpressionTree;
-import org.sonar.javascript.model.interfaces.expression.IdentifierTree;
+import org.sonar.javascript.model.interfaces.declaration.InitializedBindingElementTree;
 import org.sonar.javascript.model.interfaces.lexical.SyntaxToken;
 
-import javax.annotation.Nullable;
 import java.util.Iterator;
 
 public class ArrayBindingPatternTreeImpl extends JavaScriptTree implements ArrayBindingPatternTree {
 
   private SyntaxToken openBracket;
-  private SeparatedList<BindingElementTree> bindingElements;
+  private SeparatedList<InitializedBindingElementTree> bindingElements;
   private SyntaxToken closeBracket;
 
   public ArrayBindingPatternTreeImpl() {
@@ -48,7 +45,7 @@ public class ArrayBindingPatternTreeImpl extends JavaScriptTree implements Array
   }
 
   @Override
-  public SeparatedList<BindingElementTree> bindingElements() {
+  public SeparatedList<InitializedBindingElementTree> bindingElements() {
     return bindingElements;
   }
 
