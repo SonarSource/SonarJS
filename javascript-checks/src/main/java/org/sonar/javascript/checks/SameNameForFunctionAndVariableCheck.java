@@ -45,7 +45,8 @@ public class SameNameForFunctionAndVariableCheck extends SquidCheck<LexerlessGra
 
   private static final GrammarRuleKey[] FUNCTION_NODES = {
     Kind.FUNCTION_DECLARATION,
-    EcmaScriptGrammar.FUNCTION_EXPRESSION,
+    Kind.FUNCTION_EXPRESSION,
+    Kind.GENERATOR_FUNCTION_EXPRESSION,
     Kind.GENERATOR_DECLARATION,
     Kind.FUNCTION_EXPRESSION};
 
@@ -71,10 +72,13 @@ public class SameNameForFunctionAndVariableCheck extends SquidCheck<LexerlessGra
 
   @Override
   public void visitNode(AstNode astNode) {
-    if (astNode.is(Kind.FUNCTION_DECLARATION, Kind.GENERATOR_DECLARATION)) {
-      String functionName = astNode.getFirstChild(EcmaScriptTokenType.IDENTIFIER, Kind.BINDING_IDENTIFIER).getTokenValue();
-      check(astNode, variablesStack.peek(), functionName);
-      functionsStack.peek().add(functionName);
+    if (astNode.is(Kind.FUNCTION_DECLARATION, Kind.GENERATOR_DECLARATION, Kind.FUNCTION_EXPRESSION, Kind.GENERATOR_FUNCTION_EXPRESSION)) {
+      AstNode functionNameNode = astNode.getFirstChild(EcmaScriptTokenType.IDENTIFIER, Kind.BINDING_IDENTIFIER);
+      if (functionNameNode != null) {
+        String functionName = functionNameNode.getTokenValue();
+        check(astNode, variablesStack.peek(), functionName);
+        functionsStack.peek().add(functionName);
+      }
     } else if (astNode.is(CONST_AND_VAR_NODES)) {
       String variableName = astNode.getTokenValue();
       check(astNode, functionsStack.peek(), variableName);
