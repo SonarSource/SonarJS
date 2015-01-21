@@ -99,9 +99,9 @@ public class IdentifierUtils {
     Preconditions.checkArgument(formalParameterList.is(Kind.FORMAL_PARAMETER_LIST));
     List<AstNode> identifiers = Lists.newArrayList();
 
-    for (AstNode parameter : formalParameterList.getChildren(Kind.BINDING_IDENTIFIER, Kind.BINDING_ELEMENT, Kind.REST_ELEMENT)) {
+    for (AstNode parameter : formalParameterList.getChildren(Kind.BINDING_IDENTIFIER, Kind.BINDING_ELEMENT, EcmaScriptGrammar.BINDING_PATTERN, Kind.REST_ELEMENT)) {
 
-      if (parameter.is(Kind.BINDING_IDENTIFIER, Kind.BINDING_ELEMENT)) {
+      if (parameter.is(Kind.BINDING_IDENTIFIER, Kind.BINDING_ELEMENT, EcmaScriptGrammar.BINDING_PATTERN)) {
         identifiers.addAll(getBindingElementIdentifiers(parameter));
       } else {
         AstNode id = getRestIdentifier(parameter);
@@ -114,10 +114,12 @@ public class IdentifierUtils {
   }
 
   private static List<AstNode> getBindingElementIdentifiers(AstNode bindingElement) {
-    Preconditions.checkArgument(bindingElement.is(Kind.BINDING_IDENTIFIER, Kind.BINDING_ELEMENT));
+    Preconditions.checkArgument(bindingElement.is(Kind.BINDING_IDENTIFIER, Kind.BINDING_ELEMENT, EcmaScriptGrammar.BINDING_PATTERN));
 
     if (bindingElement.is(Kind.BINDING_IDENTIFIER)) {
       return getSingleNameIdentifier(bindingElement);
+    } else if (bindingElement.is(Kind.BINDING_ELEMENT)) {
+      return getSingleNameIdentifier(bindingElement.getFirstChild());
     } else {
       return getBindingPatternIdentifiers(bindingElement);
     }
@@ -169,7 +171,9 @@ public class IdentifierUtils {
     List<AstNode> identifiers = Lists.newArrayList();
 
     for (Tree property : ((ObjectBindingPatternTree) objectBindingPattern).elements()) {
-      if (property.is(Kind.BINDING_PROPERTY)) {
+      if (((AstNode)property).is(EcmaScriptGrammar.BINDING_PATTERN)) {
+        identifiers.addAll(getBindingElementIdentifiers((AstNode) property));
+      } else if (property.is(Kind.BINDING_PROPERTY)) {
         identifiers.addAll(getBindingElementIdentifiers(((AstNode) property).getLastChild()));
       } else {
         identifiers.addAll(getSingleNameIdentifier((AstNode) property));
@@ -179,10 +183,16 @@ public class IdentifierUtils {
   }
 
   private static List<AstNode> getSingleNameIdentifier(AstNode singleNameBinding) {
-    Preconditions.checkArgument(singleNameBinding.is(Kind.BINDING_IDENTIFIER));
+    Preconditions.checkArgument(singleNameBinding.is(Kind.BINDING_IDENTIFIER, Kind.BINDING_ELEMENT));
     List<AstNode> identifier = Lists.newArrayList();
+    AstNode id;
 
-    AstNode id = singleNameBinding.getFirstChild(EcmaScriptTokenType.IDENTIFIER);
+    if (singleNameBinding.is(Kind.BINDING_ELEMENT)) {
+      id = singleNameBinding.getFirstChild(Kind.BINDING_IDENTIFIER).getFirstChild(EcmaScriptTokenType.IDENTIFIER);
+    } else {
+      id = singleNameBinding.getFirstChild(EcmaScriptTokenType.IDENTIFIER);
+    }
+
     if (id != null) {
       identifier.add(id);
     }

@@ -474,7 +474,7 @@ public class ActionGrammar {
         b.invokeRule(EcmaScriptPunctuator.LPARENTHESIS),
         b.optional(b.firstOf(
           f.newFormalParameterList(
-            b.invokeRule(EcmaScriptGrammar.BINDING_ELEMENT),
+            BINDING_ELEMENT(),
             b.zeroOrMore(f.newTuple4(b.invokeRule(EcmaScriptPunctuator.COMMA), BINDING_ELEMENT())),
             b.optional(ES6(f.newTuple5(b.invokeRule(EcmaScriptPunctuator.COMMA), BINDING_REST_ELEMENT())))),
           ES6(f.newFormalRestParameterList(BINDING_REST_ELEMENT()))

@@ -45,6 +45,7 @@ public class ObjectBindingPatternTreeImpl extends JavaScriptTree implements Obje
     for (AstNode child: bindingElements.getChildren()) {
       addChild(child);
     }
+    bindingElements.clearChildren();
   }
 
   public ObjectBindingPatternTreeImpl(InternalSyntaxToken openCurlyBrace, InternalSyntaxToken closeCurlyBrace) {
