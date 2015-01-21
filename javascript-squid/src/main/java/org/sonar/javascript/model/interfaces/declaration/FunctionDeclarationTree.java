@@ -36,7 +36,7 @@ import javax.annotation.Nullable;
  *    function {@link #name()} ( {@link #parameters()} ) {@link #body()
  *    }
  * </pre>
- * Generator function declaration ({@link org.sonar.javascript.model.interfaces.Tree.Kind#GENERATOR_FUNCTION_DECLARATION}):
+ * Generator function declaration ({@link org.sonar.javascript.model.interfaces.Tree.Kind#GENERATOR_DECLARATION}):
  * <pre>
  *    function * {@link #name()} ( {@link #parameters()} ) {@link #body()
  *    }

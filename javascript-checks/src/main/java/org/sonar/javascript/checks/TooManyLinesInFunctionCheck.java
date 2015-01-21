@@ -26,7 +26,6 @@ import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
 import org.sonar.javascript.api.EcmaScriptPunctuator;
 import org.sonar.javascript.model.interfaces.Tree.Kind;
-import org.sonar.javascript.parser.EcmaScriptGrammar;
 import org.sonar.squidbridge.checks.SquidCheck;
 import org.sonar.sslr.parser.LexerlessGrammar;
 
@@ -47,9 +46,9 @@ public class TooManyLinesInFunctionCheck extends SquidCheck<LexerlessGrammar> {
     subscribeTo(
       Kind.METHOD,
       Kind.GENERATOR_METHOD,
-      EcmaScriptGrammar.GENERATOR_DECLARATION,
+      Kind.GENERATOR_DECLARATION,
       Kind.GENERATOR_FUNCTION_EXPRESSION,
-      EcmaScriptGrammar.FUNCTION_DECLARATION,
+      Kind.FUNCTION_DECLARATION,
       Kind.FUNCTION_EXPRESSION);
   }
 

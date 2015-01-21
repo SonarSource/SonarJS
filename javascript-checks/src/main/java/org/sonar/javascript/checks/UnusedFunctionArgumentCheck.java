@@ -31,7 +31,6 @@ import org.sonar.check.Rule;
 import org.sonar.javascript.api.EcmaScriptTokenType;
 import org.sonar.javascript.checks.utils.IdentifierUtils;
 import org.sonar.javascript.model.interfaces.Tree.Kind;
-import org.sonar.javascript.parser.EcmaScriptGrammar;
 import org.sonar.squidbridge.checks.SquidCheck;
 import org.sonar.sslr.grammar.GrammarRuleKey;
 import org.sonar.sslr.parser.LexerlessGrammar;
@@ -81,9 +80,9 @@ public class UnusedFunctionArgumentCheck extends SquidCheck<LexerlessGrammar> {
 
   private static final GrammarRuleKey[] FUNCTION_NODES = {
     Kind.FUNCTION_EXPRESSION,
-    EcmaScriptGrammar.FUNCTION_DECLARATION,
+    Kind.FUNCTION_DECLARATION,
     Kind.GENERATOR_FUNCTION_EXPRESSION,
-    EcmaScriptGrammar.GENERATOR_DECLARATION,
+    Kind.GENERATOR_DECLARATION,
   };
 
   private Scope currentScope;
@@ -135,7 +134,7 @@ public class UnusedFunctionArgumentCheck extends SquidCheck<LexerlessGrammar> {
   }
 
   public void reportUnusedArguments(AstNode functionNode) {
-    if (functionNode.is(EcmaScriptGrammar.FUNCTION_DECLARATION, EcmaScriptGrammar.GENERATOR_DECLARATION)) {
+    if (functionNode.is(Kind.FUNCTION_DECLARATION, Kind.GENERATOR_DECLARATION)) {
       reportAllUnusedArgs();
     } else {
       reportDanglingUnusedArgs();

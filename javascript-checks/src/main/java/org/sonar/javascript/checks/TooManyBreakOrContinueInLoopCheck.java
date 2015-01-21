@@ -27,7 +27,6 @@ import org.sonar.check.Rule;
 import org.sonar.javascript.checks.utils.CheckUtils;
 import org.sonar.javascript.model.interfaces.Tree.Kind;
 import org.sonar.javascript.model.interfaces.statement.LabelledStatementTree;
-import org.sonar.javascript.parser.EcmaScriptGrammar;
 import org.sonar.squidbridge.checks.SquidCheck;
 import org.sonar.sslr.grammar.GrammarRuleKey;
 import org.sonar.sslr.parser.LexerlessGrammar;
@@ -63,8 +62,8 @@ public class TooManyBreakOrContinueInLoopCheck extends SquidCheck<LexerlessGramm
 
   private static final GrammarRuleKey[] FUNCTION_NODES = {
     Kind.FUNCTION_EXPRESSION,
-    EcmaScriptGrammar.FUNCTION_DECLARATION,
-    EcmaScriptGrammar.GENERATOR_DECLARATION,
+    Kind.FUNCTION_DECLARATION,
+    Kind.GENERATOR_DECLARATION,
     Kind.GENERATOR_FUNCTION_EXPRESSION};
 
   @Override
@@ -107,7 +106,7 @@ public class TooManyBreakOrContinueInLoopCheck extends SquidCheck<LexerlessGramm
   public void leaveNode(AstNode astNode) {
     if (astNode.isNot(Kind.BREAK_STATEMENT, Kind.CONTINUE_STATEMENT)) {
       JumpTarget jumpTarget = jumpTargets.pop();
-      if (CheckUtils.isIterationStatement(astNode) && (jumpTarget.jumps > 1)) {
+      if (CheckUtils.isIterationStatement(astNode) && jumpTarget.jumps > 1) {
         getContext().createLineViolation(this, "Reduce the total number of \"break\" and \"continue\" statements in this loop to use one at most.", astNode);
       }
     }

@@ -32,40 +32,42 @@ import org.sonar.javascript.model.interfaces.lexical.SyntaxToken;
 import org.sonar.javascript.model.interfaces.statement.BlockTree;
 
 import javax.annotation.Nullable;
+
 import java.util.Iterator;
 
 public class FunctionDeclarationTreeImpl extends JavaScriptTree implements FunctionDeclarationTree {
 
-  private SyntaxToken functionKeyword;
-  private SyntaxToken starToken;
-  private IdentifierTree name;
-  private ParameterListTree parameters;
-  private BlockTree body;
-  private Kind kind;
+  private final SyntaxToken functionKeyword;
+  private final SyntaxToken starToken;
+  private final IdentifierTree name;
+  private final ParameterListTree parameters;
+  private final BlockTree body;
+  private final Kind kind;
 
   public FunctionDeclarationTreeImpl(InternalSyntaxToken functionKeyword, InternalSyntaxToken starToken, IdentifierTreeImpl name, ParameterListTreeImpl parameters, BlockTreeImpl body) {
-    super(Kind.GENERATOR_FUNCTION_DECLARATION);
+    super(Kind.GENERATOR_DECLARATION);
     this.functionKeyword = functionKeyword;
     this.starToken = starToken;
     this.name = name;
     this.parameters = parameters;
     this.body = body;
-    this.kind = Kind.GENERATOR_FUNCTION_DECLARATION;
+    this.kind = Kind.GENERATOR_DECLARATION;
 
     addChildren(functionKeyword, starToken, name, parameters, body);
   }
 
   public FunctionDeclarationTreeImpl(InternalSyntaxToken functionKeyword, IdentifierTreeImpl name, ParameterListTreeImpl parameters, BlockTreeImpl body) {
-    super(Kind.GENERATOR_FUNCTION_DECLARATION);
+    super(Kind.FUNCTION_DECLARATION);
     this.functionKeyword = functionKeyword;
     this.starToken = null;
     this.name = name;
     this.parameters = parameters;
     this.body = body;
-    this.kind = Kind.GENERATOR_FUNCTION_DECLARATION;
+    this.kind = Kind.FUNCTION_DECLARATION;
 
     addChildren(functionKeyword, name, parameters, body);
   }
+
   @Override
   public SyntaxToken functionKeyword() {
     return functionKeyword;

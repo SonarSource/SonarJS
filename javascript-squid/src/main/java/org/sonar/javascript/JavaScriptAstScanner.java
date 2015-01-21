@@ -52,12 +52,12 @@ import java.util.Collection;
 public final class JavaScriptAstScanner {
 
   private static final GrammarRuleKey[] FUNCTION_NODES = {
-      EcmaScriptGrammar.FUNCTION_DECLARATION,
-      Kind.FUNCTION_EXPRESSION,
+    Kind.FUNCTION_DECLARATION,
+    Kind.FUNCTION_EXPRESSION,
     Kind.METHOD,
     Kind.GENERATOR_METHOD,
-      Kind.GENERATOR_FUNCTION_EXPRESSION,
-      EcmaScriptGrammar.GENERATOR_DECLARATION};
+    Kind.GENERATOR_FUNCTION_EXPRESSION,
+    Kind.GENERATOR_DECLARATION};
 
   private JavaScriptAstScanner() {
   }

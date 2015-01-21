@@ -33,6 +33,7 @@ import org.sonar.javascript.model.implementations.declaration.ClassDeclarationTr
 import org.sonar.javascript.model.implementations.declaration.DefaultExportDeclarationTreeImpl;
 import org.sonar.javascript.model.implementations.declaration.ExportClauseTreeImpl;
 import org.sonar.javascript.model.implementations.declaration.FromClauseTreeImpl;
+import org.sonar.javascript.model.implementations.declaration.FunctionDeclarationTreeImpl;
 import org.sonar.javascript.model.implementations.declaration.ImportClauseTreeImpl;
 import org.sonar.javascript.model.implementations.declaration.ImportDeclarationTreeImpl;
 import org.sonar.javascript.model.implementations.declaration.ImportModuleDeclarationTreeImpl;
@@ -1248,6 +1249,10 @@ public class TreeFactory {
     return new ImportDeclarationTreeImpl(InternalSyntaxToken.create(importToken), importClause, fromClause, eos);
   }
 
+  public ModuleTreeImpl module(List<AstNode> items) {
+    return new ModuleTreeImpl(items);
+  }
+
   // [START] Classes, methods, functions & generators
 
   public ClassDeclarationTreeImpl classDeclaration(AstNode classToken, IdentifierTreeImpl name,
@@ -1291,8 +1296,12 @@ public class TreeFactory {
     return MethodDeclarationTreeImpl.newAccessor(InternalSyntaxToken.create(accessorToken), name, parameters, body);
   }
 
-  public ModuleTreeImpl module(List<AstNode> items) {
-    return new ModuleTreeImpl(items);
+  public FunctionDeclarationTreeImpl functionDeclaration(AstNode functionToken, IdentifierTreeImpl name, ParameterListTreeImpl parameters, BlockTreeImpl body) {
+    return new FunctionDeclarationTreeImpl(InternalSyntaxToken.create(functionToken), name, parameters, body);
+  }
+
+  public FunctionDeclarationTreeImpl generatorDeclaration(AstNode functionToken, AstNode starToken, IdentifierTreeImpl name, ParameterListTreeImpl parameters, BlockTreeImpl body) {
+    return new FunctionDeclarationTreeImpl(InternalSyntaxToken.create(functionToken), InternalSyntaxToken.create(starToken), name, parameters, body);
   }
 
   // [END] Classes, methods, functions & generators

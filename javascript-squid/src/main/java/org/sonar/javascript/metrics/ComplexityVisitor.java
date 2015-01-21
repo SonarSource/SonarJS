@@ -23,7 +23,6 @@ import com.sonar.sslr.api.AstNode;
 import org.sonar.javascript.api.EcmaScriptMetric;
 import org.sonar.javascript.api.EcmaScriptPunctuator;
 import org.sonar.javascript.model.interfaces.Tree.Kind;
-import org.sonar.javascript.parser.EcmaScriptGrammar;
 import org.sonar.squidbridge.SquidAstVisitor;
 import org.sonar.sslr.parser.LexerlessGrammar;
 
@@ -33,12 +32,12 @@ public class ComplexityVisitor extends SquidAstVisitor<LexerlessGrammar> {
   public void init() {
     subscribeTo(
       // Functions
-      EcmaScriptGrammar.FUNCTION_DECLARATION,
+      Kind.FUNCTION_DECLARATION,
       Kind.FUNCTION_EXPRESSION,
       Kind.METHOD,
       Kind.GENERATOR_METHOD,
       Kind.GENERATOR_FUNCTION_EXPRESSION,
-      EcmaScriptGrammar.GENERATOR_DECLARATION,
+      Kind.GENERATOR_DECLARATION,
       // Branching nodes
       Kind.IF_STATEMENT,
       Kind.DO_WHILE_STATEMENT,
@@ -82,8 +81,8 @@ public class ComplexityVisitor extends SquidAstVisitor<LexerlessGrammar> {
         Kind.GENERATOR_METHOD,
         Kind.GENERATOR_FUNCTION_EXPRESSION,
         Kind.FUNCTION_EXPRESSION,
-        EcmaScriptGrammar.FUNCTION_DECLARATION,
-        EcmaScriptGrammar.GENERATOR_DECLARATION);
+        Kind.FUNCTION_DECLARATION,
+        Kind.GENERATOR_DECLARATION);
   }
 
 }

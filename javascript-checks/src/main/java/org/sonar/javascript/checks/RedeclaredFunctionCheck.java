@@ -23,10 +23,8 @@ import com.sonar.sslr.api.AstNode;
 import org.sonar.check.BelongsToProfile;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
-import org.sonar.javascript.api.EcmaScriptTokenType;
 import org.sonar.javascript.checks.utils.CheckUtils;
 import org.sonar.javascript.model.interfaces.Tree.Kind;
-import org.sonar.javascript.parser.EcmaScriptGrammar;
 import org.sonar.squidbridge.checks.SquidCheck;
 import org.sonar.sslr.parser.LexerlessGrammar;
 
@@ -56,7 +54,7 @@ public class RedeclaredFunctionCheck extends SquidCheck<LexerlessGrammar> {
   @Override
   public void visitNode(AstNode astNode) {
     // Only checking for duplicated function declaration
-    if (astNode.is(EcmaScriptGrammar.FUNCTION_DECLARATION)) {
+    if (astNode.is(Kind.FUNCTION_DECLARATION)) {
       Set<String> currentScope = stack.peek();
       String functionName = astNode.getFirstChild(Kind.BINDING_IDENTIFIER).getTokenValue();
       if (currentScope.contains(functionName)) {

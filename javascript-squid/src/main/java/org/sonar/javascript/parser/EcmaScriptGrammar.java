@@ -548,9 +548,6 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
       ecmascript6(CLASS_DECLARATION),
       ecmascript6(LEXICAL_DECLARATION)));
 
-    b.rule(FUNCTION_DECLARATION).is(FUNCTION, BINDING_IDENTIFIER, Kind.FORMAL_PARAMETER_LIST, Kind.BLOCK);
-    b.rule(GENERATOR_DECLARATION).is(FUNCTION, STAR, BINDING_IDENTIFIER, Kind.FORMAL_PARAMETER_LIST, Kind.BLOCK);
-
     b.rule(LET_OR_CONST).is(b.firstOf(LET, CONST));
     b.rule(LET).is(word(b, "let"));
 

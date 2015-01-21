@@ -27,6 +27,7 @@ import org.sonar.javascript.ast.parser.TreeFactory;
 import org.sonar.javascript.model.implementations.declaration.ClassDeclarationTreeImpl;
 import org.sonar.javascript.model.implementations.declaration.DefaultExportDeclarationTreeImpl;
 import org.sonar.javascript.model.implementations.declaration.FromClauseTreeImpl;
+import org.sonar.javascript.model.implementations.declaration.FunctionDeclarationTreeImpl;
 import org.sonar.javascript.model.implementations.declaration.ImportClauseTreeImpl;
 import org.sonar.javascript.model.implementations.declaration.MethodDeclarationTreeImpl;
 import org.sonar.javascript.model.implementations.declaration.ModuleTreeImpl;
@@ -1210,8 +1211,8 @@ public class ActionGrammar {
         b.invokeRule(EcmaScriptKeyword.EXPORT),
         b.invokeRule(EcmaScriptKeyword.DEFAULT),
         b.firstOf(
-          b.invokeRule(EcmaScriptGrammar.FUNCTION_DECLARATION),
-          b.invokeRule(EcmaScriptGrammar.GENERATOR_DECLARATION),
+          FUNCTION_DECLARATION(),
+          GENERATOR_DECLARATION(),
           b.invokeRule(EcmaScriptGrammar.CLASS_DECLARATION),
           f.exportedExpressionStatement(b.invokeRule(EcmaScriptGrammar.NOT_FUNCTION_AND_CLASS), ASSIGNMENT_EXPRESSION(), b.invokeRule(EcmaScriptGrammar.EOS)))
       ));
@@ -1387,6 +1388,16 @@ public class ActionGrammar {
             PROPERTY_NAME(),
             FORMAL_PARAMETER_LIST(),
             BLOCK())));
+  }
+
+  public FunctionDeclarationTreeImpl FUNCTION_DECLARATION() {
+    return b.<FunctionDeclarationTreeImpl>nonterminal(EcmaScriptGrammar.FUNCTION_DECLARATION)
+      .is(f.functionDeclaration(b.invokeRule(EcmaScriptKeyword.FUNCTION), BINDING_IDENTIFIER(), FORMAL_PARAMETER_LIST(), BLOCK()));
+  }
+
+  public FunctionDeclarationTreeImpl GENERATOR_DECLARATION() {
+    return b.<FunctionDeclarationTreeImpl>nonterminal(EcmaScriptGrammar.GENERATOR_DECLARATION)
+      .is(f.generatorDeclaration(b.invokeRule(EcmaScriptKeyword.FUNCTION), b.invokeRule(EcmaScriptPunctuator.STAR), BINDING_IDENTIFIER(), FORMAL_PARAMETER_LIST(), BLOCK()));
   }
 
   // [END] Classes, methods, functions & generators

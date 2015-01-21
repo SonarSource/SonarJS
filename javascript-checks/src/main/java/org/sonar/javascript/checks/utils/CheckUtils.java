@@ -23,7 +23,6 @@ import com.google.common.collect.ImmutableSet;
 import com.sonar.sslr.api.AstNode;
 import com.sonar.sslr.api.AstNodeType;
 import org.sonar.javascript.model.interfaces.Tree.Kind;
-import org.sonar.javascript.parser.EcmaScriptGrammar;
 
 public class CheckUtils {
 
@@ -82,10 +81,10 @@ public class CheckUtils {
 
   public static final ImmutableSet<AstNodeType> FUNCTION_NODES = ImmutableSet.<AstNodeType>of(
     Kind.FUNCTION_EXPRESSION,
-    EcmaScriptGrammar.FUNCTION_DECLARATION,
+    Kind.FUNCTION_DECLARATION,
     Kind.METHOD,
     Kind.GENERATOR_METHOD,
-    EcmaScriptGrammar.GENERATOR_DECLARATION,
+    Kind.GENERATOR_DECLARATION,
     Kind.GENERATOR_FUNCTION_EXPRESSION,
     Kind.ARROW_FUNCTION);
 

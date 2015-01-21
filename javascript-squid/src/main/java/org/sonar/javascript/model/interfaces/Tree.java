@@ -668,7 +668,7 @@ public interface Tree {
     /**
      * {@link FunctionDeclarationTree}
      */
-    GENERATOR_FUNCTION_DECLARATION(FunctionDeclarationTree.class),
+    GENERATOR_DECLARATION(FunctionDeclarationTree.class),
 
     /**
      * {@link ParameterListTree}

@@ -46,7 +46,7 @@ public class EmptyBlockCheck extends SquidCheck<LexerlessGrammar> {
   public void visitNode(AstNode astNode) {
     if (!(astNode.getParent() instanceof MethodDeclarationTreeImpl) &&
       !(astNode.getParent() instanceof FunctionExpressionTreeImpl) &&
-      !astNode.getParent().is(EcmaScriptGrammar.FUNCTION_DECLARATION, EcmaScriptGrammar.GENERATOR_DECLARATION) &&
+      !astNode.getParent().is(Kind.FUNCTION_DECLARATION, Kind.GENERATOR_DECLARATION) &&
       !astNode.hasDirectChildren(EcmaScriptGrammar.STATEMENT_LIST) &&
       !hasComment(astNode)) {
       getContext().createLineViolation(this, "Either remove or fill this block of code.", astNode);
