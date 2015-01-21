@@ -1334,6 +1334,18 @@ public class ActionGrammar {
         IMPORT_MODULE_DECLARATION()
       ));
   }
+
+  // FIXME: get rid of AstNode
+  public ModuleTreeImpl MODULE_BODY() {
+    return b.<ModuleTreeImpl>nonterminal(EcmaScriptGrammar.MODULE_BODY)
+      .is(f.module(b.oneOrMore(
+          b.firstOf(
+            (AstNode) IMPORT_DECLARATION(),
+            (AstNode) EXPORT_DECLARATION(),
+            b.invokeRule(EcmaScriptGrammar.DECLARATION),
+            (AstNode) STATEMENT()))
+      ));
+  }
   // [END] Module, import & export
 
   // [START] Classes, methods, functions & generators
@@ -1379,18 +1391,6 @@ public class ActionGrammar {
             PROPERTY_NAME(),
             FORMAL_PARAMETER_LIST(),
             BLOCK())));
-  }
-
-  // FIXME: get rid of AstNode
-  public ModuleTreeImpl MODULE_BODY() {
-    return b.<ModuleTreeImpl>nonterminal(EcmaScriptGrammar.MODULE_BODY)
-      .is(f.module(b.oneOrMore(
-          b.firstOf(
-            (AstNode) IMPORT_DECLARATION(),
-            (AstNode) EXPORT_DECLARATION(),
-            b.invokeRule(EcmaScriptGrammar.DECLARATION),
-            (AstNode) STATEMENT()))
-      ));
   }
 
   // [END] Classes, methods, functions & generators
