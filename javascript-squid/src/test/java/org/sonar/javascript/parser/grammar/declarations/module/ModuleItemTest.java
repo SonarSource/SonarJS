@@ -29,7 +29,7 @@ public class ModuleItemTest {
 
   @Test
   public void ok() {
-    assertThat(EcmaScriptGrammar.MODULE_ITEM)
+    assertThat(EcmaScriptGrammar.MODULE_BODY)
       .matches("import \"f\" ;")
       .matches("export { } ;")
       .matches("var a;");

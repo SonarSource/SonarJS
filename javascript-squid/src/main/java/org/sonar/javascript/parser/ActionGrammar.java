@@ -29,6 +29,7 @@ import org.sonar.javascript.model.implementations.declaration.DefaultExportDecla
 import org.sonar.javascript.model.implementations.declaration.FromClauseTreeImpl;
 import org.sonar.javascript.model.implementations.declaration.MethodDeclarationTreeImpl;
 import org.sonar.javascript.model.implementations.declaration.ImportClauseTreeImpl;
+import org.sonar.javascript.model.implementations.declaration.ModuleTreeImpl;
 import org.sonar.javascript.model.implementations.declaration.NamedExportDeclarationTreeImpl;
 import org.sonar.javascript.model.implementations.declaration.ParameterListTreeImpl;
 import org.sonar.javascript.model.implementations.declaration.SpecifierListTreeImpl;
@@ -77,6 +78,8 @@ import org.sonar.javascript.model.implementations.statement.TryStatementTreeImpl
 import org.sonar.javascript.model.implementations.statement.VariableStatementTreeImpl;
 import org.sonar.javascript.model.implementations.statement.WhileStatementTreeImpl;
 import org.sonar.javascript.model.implementations.statement.WithStatementTreeImpl;
+import org.sonar.javascript.model.interfaces.ModuleTree;
+import org.sonar.javascript.model.interfaces.Tree;
 import org.sonar.javascript.model.interfaces.Tree.Kind;
 import org.sonar.javascript.model.interfaces.declaration.DeclarationTree;
 import org.sonar.javascript.model.interfaces.declaration.ExportDeclarationTree;
@@ -1376,6 +1379,18 @@ public class ActionGrammar {
             PROPERTY_NAME(),
             FORMAL_PARAMETER_LIST(),
             BLOCK())));
+  }
+
+  // FIXME: get rid of AstNode
+  public ModuleTreeImpl MODULE_BODY() {
+    return b.<ModuleTreeImpl>nonterminal(EcmaScriptGrammar.MODULE_BODY)
+      .is(f.module(b.oneOrMore(
+          b.firstOf(
+            (AstNode) IMPORT_DECLARATION(),
+            (AstNode) EXPORT_DECLARATION(),
+            b.invokeRule(EcmaScriptGrammar.DECLARATION),
+            (AstNode) STATEMENT()))
+      ));
   }
 
   // [END] Classes, methods, functions & generators

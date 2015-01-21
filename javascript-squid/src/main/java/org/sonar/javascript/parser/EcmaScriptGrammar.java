@@ -265,8 +265,6 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
   /** ECMAScript 6 **/
   MODULE_BODY,
   /** ECMAScript 6 **/
-  MODULE_ITEM,
-  /** ECMAScript 6 **/
   IMPORT_DECLARATION,
   /** ECMAScript 6 **/
   EXPORT_DECLARATION,
@@ -537,9 +535,6 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
    * A.5 Declarations
    */
   private static void module_declaration(LexerlessGrammarBuilder b) {
-    b.rule(MODULE_BODY).is(b.oneOrMore(MODULE_ITEM));
-    b.rule(MODULE_ITEM).is(b.firstOf(IMPORT_DECLARATION, EXPORT_DECLARATION, DECLARATION, STATEMENT));
-
     b.rule(FROM).is(word(b, "from"));
     b.rule(AS).is(word(b, "as"));
 

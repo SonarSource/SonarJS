@@ -19,12 +19,10 @@
  */
 package org.sonar.javascript.ast.parser;
 
-import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.sonar.sslr.api.AstNode;
-import com.sonar.sslr.api.AstNodeType;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+
 import org.apache.commons.collections.ListUtils;
 import org.sonar.javascript.api.EcmaScriptKeyword;
 import org.sonar.javascript.api.EcmaScriptPunctuator;
@@ -33,10 +31,11 @@ import org.sonar.javascript.model.implementations.declaration.ClassDeclarationTr
 import org.sonar.javascript.model.implementations.declaration.DefaultExportDeclarationTreeImpl;
 import org.sonar.javascript.model.implementations.declaration.ExportClauseTreeImpl;
 import org.sonar.javascript.model.implementations.declaration.FromClauseTreeImpl;
-import org.sonar.javascript.model.implementations.declaration.MethodDeclarationTreeImpl;
 import org.sonar.javascript.model.implementations.declaration.ImportClauseTreeImpl;
 import org.sonar.javascript.model.implementations.declaration.ImportDeclarationTreeImpl;
 import org.sonar.javascript.model.implementations.declaration.ImportModuleDeclarationTreeImpl;
+import org.sonar.javascript.model.implementations.declaration.MethodDeclarationTreeImpl;
+import org.sonar.javascript.model.implementations.declaration.ModuleTreeImpl;
 import org.sonar.javascript.model.implementations.declaration.NameSpaceExportDeclarationTreeImpl;
 import org.sonar.javascript.model.implementations.declaration.NameSpaceSpecifierTreeImpl;
 import org.sonar.javascript.model.implementations.declaration.NamedExportDeclarationTreeImpl;
@@ -114,9 +113,12 @@ import org.sonar.javascript.model.interfaces.statement.SwitchClauseTree;
 import org.sonar.javascript.parser.EcmaScriptGrammar;
 import org.sonar.javascript.parser.sslr.Optional;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.sonar.sslr.api.AstNode;
+import com.sonar.sslr.api.AstNodeType;
 
 public class TreeFactory {
 
@@ -1290,6 +1292,10 @@ public class TreeFactory {
     BlockTreeImpl body) {
 
     return MethodDeclarationTreeImpl.newAccessor(InternalSyntaxToken.create(accessorToken), name, parameters, body);
+  }
+
+  public ModuleTreeImpl module(List<AstNode> items) {
+    return new ModuleTreeImpl(items);
   }
 
   // [END] Classes, methods, functions & generators
