@@ -74,7 +74,16 @@ public class ComplexityVisitor extends SquidAstVisitor<LexerlessGrammar> {
     AstNode parent = returnNode
       // Statement list
       .getParent();
-    return parent.getParent().is(EcmaScriptGrammar.FUNCTION_BODY) ||
-      parent.getParent().is(Kind.BLOCK) && parent.getParent().getParent().is(Kind.SET_METHOD, Kind.GET_METHOD, Kind.METHOD, Kind.GENERATOR_METHOD);
+    return parent.getParent().is(Kind.BLOCK) &&
+      parent.getParent().getParent().is(
+        Kind.SET_METHOD,
+        Kind.GET_METHOD,
+        Kind.METHOD,
+        Kind.GENERATOR_METHOD,
+        Kind.GENERATOR_FUNCTION_EXPRESSION,
+        Kind.FUNCTION_EXPRESSION,
+        EcmaScriptGrammar.FUNCTION_DECLARATION,
+        EcmaScriptGrammar.GENERATOR_DECLARATION);
   }
+
 }

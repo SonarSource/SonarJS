@@ -19,13 +19,14 @@
  */
 package org.sonar.javascript.model.expression;
 
-import static org.fest.assertions.Assertions.assertThat;
 import org.junit.Test;
 import org.sonar.javascript.api.EcmaScriptKeyword;
 import org.sonar.javascript.api.EcmaScriptPunctuator;
 import org.sonar.javascript.model.JavaScriptTreeModelTest;
 import org.sonar.javascript.model.interfaces.Tree.Kind;
 import org.sonar.javascript.model.interfaces.expression.FunctionExpressionTree;
+
+import static org.fest.assertions.Assertions.assertThat;
 
 public class GeneratorExpressionTreeModelTest extends JavaScriptTreeModelTest {
 
@@ -38,8 +39,7 @@ public class GeneratorExpressionTreeModelTest extends JavaScriptTreeModelTest {
     assertThat(tree.name().name()).isEqualTo("f");
     assertThat(tree.star().text()).isEqualTo(EcmaScriptPunctuator.STAR.getValue());
     assertThat(tree.parameters().is(Kind.FORMAL_PARAMETER_LIST)).isTrue();
-    assertThat(tree.openCurlyBrace().text()).isEqualTo(EcmaScriptPunctuator.LCURLYBRACE.getValue());
-    assertThat(tree.closeCurlyBrace().text()).isEqualTo(EcmaScriptPunctuator.RCURLYBRACE.getValue());
+    assertThat(tree.body()).isNotNull();
   }
 
   @Test
@@ -51,8 +51,7 @@ public class GeneratorExpressionTreeModelTest extends JavaScriptTreeModelTest {
     assertThat(tree.name()).isNull();
     assertThat(tree.star().text()).isEqualTo(EcmaScriptPunctuator.STAR.getValue());
     assertThat(tree.parameters().is(Kind.FORMAL_PARAMETER_LIST)).isTrue();
-    assertThat(tree.openCurlyBrace().text()).isEqualTo(EcmaScriptPunctuator.LCURLYBRACE.getValue());
-    assertThat(tree.closeCurlyBrace().text()).isEqualTo(EcmaScriptPunctuator.RCURLYBRACE.getValue());
+    assertThat(tree.body()).isNotNull();
   }
 
 }

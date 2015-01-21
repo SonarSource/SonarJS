@@ -26,6 +26,7 @@ import com.sonar.sslr.api.AstNodeType;
 import org.sonar.javascript.model.implementations.JavaScriptTree;
 import org.sonar.javascript.model.implementations.declaration.ParameterListTreeImpl;
 import org.sonar.javascript.model.implementations.lexical.InternalSyntaxToken;
+import org.sonar.javascript.model.implementations.statement.BlockTreeImpl;
 import org.sonar.javascript.model.interfaces.Tree;
 import org.sonar.javascript.model.interfaces.declaration.ParameterListTree;
 import org.sonar.javascript.model.interfaces.expression.FunctionExpressionTree;
@@ -33,6 +34,7 @@ import org.sonar.javascript.model.interfaces.expression.IdentifierTree;
 import org.sonar.javascript.model.interfaces.lexical.SyntaxToken;
 
 import javax.annotation.Nullable;
+
 import java.util.Iterator;
 import java.util.List;
 
@@ -44,15 +46,14 @@ public class FunctionExpressionTreeImpl extends JavaScriptTree implements Functi
   @Nullable
   private final IdentifierTree name;
   private final ParameterListTree parameters;
-  private final SyntaxToken openCurlyBrace;
-  private final SyntaxToken closeCurlyBrace;
+  private final BlockTreeImpl body;
   private final Kind kind;
 
   /**
    * Constructor for named generator expression and  generator declaration
    */
   public FunctionExpressionTreeImpl(Kind kind, InternalSyntaxToken functionKeyword, InternalSyntaxToken star, IdentifierTreeImpl name,
-    ParameterListTreeImpl parameters, InternalSyntaxToken openCurlyBrace, InternalSyntaxToken closeCurlyBrace,
+    ParameterListTreeImpl parameters, BlockTreeImpl body,
     List<AstNode> children) {
 
     super(kind);
@@ -60,8 +61,7 @@ public class FunctionExpressionTreeImpl extends JavaScriptTree implements Functi
     this.star = star;
     this.name = name;
     this.parameters = parameters;
-    this.openCurlyBrace = openCurlyBrace;
-    this.closeCurlyBrace = closeCurlyBrace;
+    this.body = body;
 
     this.kind = kind;
 
@@ -74,7 +74,7 @@ public class FunctionExpressionTreeImpl extends JavaScriptTree implements Functi
    * Constructor for NOT named generator expression
    */
   public FunctionExpressionTreeImpl(Kind kind, InternalSyntaxToken functionKeyword, InternalSyntaxToken star,
-    ParameterListTreeImpl parameters, InternalSyntaxToken openCurlyBrace, InternalSyntaxToken closeCurlyBrace,
+    ParameterListTreeImpl parameters, BlockTreeImpl body,
     ImmutableList<AstNode> children) {
 
     super(kind);
@@ -82,8 +82,7 @@ public class FunctionExpressionTreeImpl extends JavaScriptTree implements Functi
     this.star = star;
     this.name = null;
     this.parameters = parameters;
-    this.openCurlyBrace = openCurlyBrace;
-    this.closeCurlyBrace = closeCurlyBrace;
+    this.body = body;
 
     this.kind = kind;
 
@@ -96,7 +95,7 @@ public class FunctionExpressionTreeImpl extends JavaScriptTree implements Functi
    * Constructor for named function expression and function declaration
    */
   public FunctionExpressionTreeImpl(Kind kind, InternalSyntaxToken functionKeyword, IdentifierTreeImpl name,
-    ParameterListTreeImpl parameters, InternalSyntaxToken openCurlyBrace, InternalSyntaxToken closeCurlyBrace,
+    ParameterListTreeImpl parameters, BlockTreeImpl body,
     ImmutableList<AstNode> children) {
 
     super(kind);
@@ -104,8 +103,7 @@ public class FunctionExpressionTreeImpl extends JavaScriptTree implements Functi
     this.star = null;
     this.name = name;
     this.parameters = parameters;
-    this.openCurlyBrace = openCurlyBrace;
-    this.closeCurlyBrace = closeCurlyBrace;
+    this.body = body;
 
     this.kind = kind;
 
@@ -118,15 +116,14 @@ public class FunctionExpressionTreeImpl extends JavaScriptTree implements Functi
    * Constructor for NOT named function expression
    */
   public FunctionExpressionTreeImpl(Kind kind, InternalSyntaxToken functionKeyword, ParameterListTreeImpl parameters,
-    InternalSyntaxToken openCurlyBrace, InternalSyntaxToken closeCurlyBrace, ImmutableList<AstNode> children) {
+    BlockTreeImpl body, ImmutableList<AstNode> children) {
 
     super(kind);
     this.functionKeyword = functionKeyword;
     this.star = null;
     this.name = null;
     this.parameters = parameters;
-    this.openCurlyBrace = openCurlyBrace;
-    this.closeCurlyBrace = closeCurlyBrace;
+    this.body = body;
 
     this.kind = kind;
 
@@ -158,27 +155,18 @@ public class FunctionExpressionTreeImpl extends JavaScriptTree implements Functi
   }
 
   @Override
-  public SyntaxToken openCurlyBrace() {
-    return openCurlyBrace;
-  }
-
-  @Override
-  public List<Tree> statements() {
-    throw new UnsupportedOperationException("Not supported yet in the strongly typed AST.");
-  }
-
-  @Override
-  public SyntaxToken closeCurlyBrace() {
-    return closeCurlyBrace;
-  }
-
-  @Override
   public AstNodeType getKind() {
     return kind;
+  }
+
+  @Override
+  public BlockTreeImpl body() {
+    return body;
   }
 
   @Override
   public Iterator<Tree> childrenIterator() {
     return Iterators.<Tree>singletonIterator(name);
   }
+
 }

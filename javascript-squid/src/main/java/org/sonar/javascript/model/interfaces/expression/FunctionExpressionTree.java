@@ -19,36 +19,16 @@
  */
 package org.sonar.javascript.model.interfaces.expression;
 
-import org.sonar.javascript.model.interfaces.Tree;
 import org.sonar.javascript.model.interfaces.declaration.ParameterListTree;
 import org.sonar.javascript.model.interfaces.lexical.SyntaxToken;
+import org.sonar.javascript.model.interfaces.statement.BlockTree;
 
 import javax.annotation.Nullable;
-import java.util.List;
 
 /**
  * <a href="http://www.ecma-international.org/ecma-262/5.1/#sec-11.2.5">Function expression</a>,
  * <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-generator-function-definitions">Generator function expression - ES6</a>.
  * <p/>
- *
- * Function expression ({@link Tree.Kind#FUNCTION_EXPRESSION}):
- * <pre>
- *    function {@link #name()} ( {@link #parameters()} ) {
- *      {@link #statements()}
- *    }
- *    function ( {@link #parameters()} ) {
- *      {@link #statements()}
- *    }
- * </pre>
- * Generator function expression ({@link Tree.Kind#GENERATOR_FUNCTION_EXPRESSION}):
- * <pre>
- *    function * {@link #name()} ( {@link #parameters()} ) {
- *      {@link #statements()}
- *    }
- *    function * ( {@link #parameters()} ) {
- *      {@link #statements()}
- *    }
- * </pre>
  * </p>
  *
  */
@@ -64,10 +44,6 @@ public interface FunctionExpressionTree extends ExpressionTree {
 
   ParameterListTree parameters();
 
-  SyntaxToken openCurlyBrace();
-
-  List<Tree> statements();
-
-  SyntaxToken closeCurlyBrace();
+  BlockTree body();
 
 }

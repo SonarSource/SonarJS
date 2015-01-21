@@ -25,7 +25,6 @@ import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
 import org.sonar.javascript.api.EcmaScriptPunctuator;
-import org.sonar.javascript.model.implementations.declaration.MethodDeclarationTreeImpl;
 import org.sonar.javascript.model.interfaces.Tree.Kind;
 import org.sonar.javascript.parser.EcmaScriptGrammar;
 import org.sonar.squidbridge.checks.SquidCheck;
@@ -64,7 +63,7 @@ public class TooManyLinesInFunctionCheck extends SquidCheck<LexerlessGrammar> {
   }
 
   private boolean isImmediatelyInvokedFunctionExpression(AstNode functionDec) {
-    AstNode rcurly = functionDec.getFirstChild(EcmaScriptPunctuator.RCURLYBRACE);
+    AstNode rcurly = functionDec.getFirstChild(Kind.BLOCK).getFirstChild(EcmaScriptPunctuator.RCURLYBRACE);
     AstNode nextAstNode = rcurly.getNextAstNode();
 
     return functionDec.is(Kind.GENERATOR_FUNCTION_EXPRESSION, Kind.FUNCTION_EXPRESSION)
@@ -72,9 +71,7 @@ public class TooManyLinesInFunctionCheck extends SquidCheck<LexerlessGrammar> {
   }
 
   public static int getNumberOfLine(AstNode functionNode) {
-    if (functionNode.is(Kind.METHOD, Kind.GENERATOR_METHOD)) {
-      functionNode = ((MethodDeclarationTreeImpl) functionNode).body();
-    }
+    functionNode = functionNode.getFirstChild(Kind.BLOCK);
 
     int firstLine = functionNode.getFirstChild(EcmaScriptPunctuator.LCURLYBRACE).getTokenLine();
     int lastLine = functionNode.getFirstChild(EcmaScriptPunctuator.RCURLYBRACE).getTokenLine();

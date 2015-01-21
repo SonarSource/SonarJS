@@ -31,3 +31,10 @@ class Foo {
   set foo(a) {}
   get foo() {}
 }
+
+function foo() {}
+function* foo() {}
+var myObject = {
+  myProperty: function() {},
+  myProperty2: function*() {}
+}

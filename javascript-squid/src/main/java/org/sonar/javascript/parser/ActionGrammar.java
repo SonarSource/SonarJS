@@ -27,8 +27,8 @@ import org.sonar.javascript.ast.parser.TreeFactory;
 import org.sonar.javascript.model.implementations.declaration.ClassDeclarationTreeImpl;
 import org.sonar.javascript.model.implementations.declaration.DefaultExportDeclarationTreeImpl;
 import org.sonar.javascript.model.implementations.declaration.FromClauseTreeImpl;
-import org.sonar.javascript.model.implementations.declaration.MethodDeclarationTreeImpl;
 import org.sonar.javascript.model.implementations.declaration.ImportClauseTreeImpl;
+import org.sonar.javascript.model.implementations.declaration.MethodDeclarationTreeImpl;
 import org.sonar.javascript.model.implementations.declaration.ModuleTreeImpl;
 import org.sonar.javascript.model.implementations.declaration.NamedExportDeclarationTreeImpl;
 import org.sonar.javascript.model.implementations.declaration.ParameterListTreeImpl;
@@ -78,8 +78,6 @@ import org.sonar.javascript.model.implementations.statement.TryStatementTreeImpl
 import org.sonar.javascript.model.implementations.statement.VariableStatementTreeImpl;
 import org.sonar.javascript.model.implementations.statement.WhileStatementTreeImpl;
 import org.sonar.javascript.model.implementations.statement.WithStatementTreeImpl;
-import org.sonar.javascript.model.interfaces.ModuleTree;
-import org.sonar.javascript.model.interfaces.Tree;
 import org.sonar.javascript.model.interfaces.Tree.Kind;
 import org.sonar.javascript.model.interfaces.declaration.DeclarationTree;
 import org.sonar.javascript.model.interfaces.declaration.ExportDeclarationTree;
@@ -505,25 +503,23 @@ public class ActionGrammar {
    */
   public FunctionExpressionTreeImpl GENERATOR_EXPRESSION() {
     return b.<FunctionExpressionTreeImpl>nonterminal(Kind.GENERATOR_FUNCTION_EXPRESSION)
-      .is(f.generatorExpression(
-        b.invokeRule(EcmaScriptKeyword.FUNCTION),
-        b.invokeRule(EcmaScriptPunctuator.STAR),
-        b.optional(BINDING_IDENTIFIER()),
-        FORMAL_PARAMETER_LIST(),
-        b.invokeRule(EcmaScriptPunctuator.LCURLYBRACE),
-        b.invokeRule(EcmaScriptGrammar.FUNCTION_BODY),
-        b.invokeRule(EcmaScriptPunctuator.RCURLYBRACE)));
+      .is(
+        f.generatorExpression(
+          b.invokeRule(EcmaScriptKeyword.FUNCTION),
+          b.invokeRule(EcmaScriptPunctuator.STAR),
+          b.optional(BINDING_IDENTIFIER()),
+          FORMAL_PARAMETER_LIST(),
+          BLOCK()));
   }
 
   public FunctionExpressionTreeImpl FUNCTION_EXPRESSION() {
     return b.<FunctionExpressionTreeImpl>nonterminal(Kind.FUNCTION_EXPRESSION)
-      .is(f.functionExpression(
-        b.invokeRule(EcmaScriptKeyword.FUNCTION),
-        b.optional(b.invokeRule(EcmaScriptTokenType.IDENTIFIER)),
-        FORMAL_PARAMETER_LIST(),
-        b.invokeRule(EcmaScriptPunctuator.LCURLYBRACE),
-        b.invokeRule(EcmaScriptGrammar.FUNCTION_BODY),
-        b.invokeRule(EcmaScriptPunctuator.RCURLYBRACE)));
+      .is(
+        f.functionExpression(
+          b.invokeRule(EcmaScriptKeyword.FUNCTION),
+          b.optional(b.invokeRule(EcmaScriptTokenType.IDENTIFIER)),
+          FORMAL_PARAMETER_LIST(),
+          BLOCK()));
   }
 
   public ExpressionTree CONDITIONAL_EXPRESSION() {

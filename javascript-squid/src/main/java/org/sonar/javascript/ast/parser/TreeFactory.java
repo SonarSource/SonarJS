@@ -19,10 +19,12 @@
  */
 package org.sonar.javascript.ast.parser;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-
+import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.sonar.sslr.api.AstNode;
+import com.sonar.sslr.api.AstNodeType;
 import org.apache.commons.collections.ListUtils;
 import org.sonar.javascript.api.EcmaScriptKeyword;
 import org.sonar.javascript.api.EcmaScriptPunctuator;
@@ -113,12 +115,9 @@ import org.sonar.javascript.model.interfaces.statement.SwitchClauseTree;
 import org.sonar.javascript.parser.EcmaScriptGrammar;
 import org.sonar.javascript.parser.sslr.Optional;
 
-import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.sonar.sslr.api.AstNode;
-import com.sonar.sslr.api.AstNodeType;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 
 public class TreeFactory {
 
@@ -583,25 +582,25 @@ public class TreeFactory {
     return astNode;
   }
 
-  public FunctionExpressionTreeImpl generatorExpression(AstNode functionKeyword, AstNode starOperator, Optional<IdentifierTreeImpl> functionName, ParameterListTreeImpl parameters, AstNode openCurlyBrace, AstNode functionBody, AstNode closeCurlyBrace) {
+  public FunctionExpressionTreeImpl generatorExpression(AstNode functionKeyword, AstNode starOperator, Optional<IdentifierTreeImpl> functionName, ParameterListTreeImpl parameters,
+    BlockTreeImpl body) {
+
     ImmutableList.Builder<AstNode> children = ImmutableList.builder();
     InternalSyntaxToken functionToken = InternalSyntaxToken.create(functionKeyword);
     InternalSyntaxToken starToken = InternalSyntaxToken.create(starOperator);
-    InternalSyntaxToken openCurlyToken = InternalSyntaxToken.create(openCurlyBrace);
-    InternalSyntaxToken closeCurlyToken = InternalSyntaxToken.create(closeCurlyBrace);
 
 
     if (functionName.isPresent()) {
-      children.add(functionToken, starToken, functionName.get(), parameters, openCurlyBrace, functionBody, closeCurlyBrace);
+      children.add(functionToken, starToken, functionName.get(), parameters, body);
 
       return new FunctionExpressionTreeImpl(Kind.GENERATOR_FUNCTION_EXPRESSION,
-        functionToken, starToken, functionName.get(), parameters, openCurlyToken, closeCurlyToken, children.build());
+        functionToken, starToken, functionName.get(), parameters, body, children.build());
     }
 
-    children.add(functionToken, starToken, parameters, openCurlyBrace, functionBody, closeCurlyBrace);
+    children.add(functionToken, starToken, parameters, body);
 
     return new FunctionExpressionTreeImpl(Kind.GENERATOR_FUNCTION_EXPRESSION,
-      functionToken, starToken, parameters, openCurlyToken, closeCurlyToken, children.build());
+      functionToken, starToken, parameters, body, children.build());
   }
 
   public LiteralTreeImpl nullLiteral(AstNode nullToken) {
@@ -624,23 +623,21 @@ public class TreeFactory {
     return new LiteralTreeImpl(Kind.REGULAR_EXPRESSION_LITERAL, InternalSyntaxToken.create(regexpToken));
   }
 
-  public FunctionExpressionTreeImpl functionExpression(AstNode functionKeyword, Optional<AstNode> functionName, ParameterListTreeImpl parameters, AstNode openCurlyBrace, AstNode functionBody, AstNode closeCurlyBrace) {
+  public FunctionExpressionTreeImpl functionExpression(AstNode functionKeyword, Optional<AstNode> functionName, ParameterListTreeImpl parameters, BlockTreeImpl body) {
     ImmutableList.Builder<AstNode> children = ImmutableList.builder();
     InternalSyntaxToken functionToken = InternalSyntaxToken.create(functionKeyword);
-    InternalSyntaxToken openCurlyToken = InternalSyntaxToken.create(openCurlyBrace);
-    InternalSyntaxToken closeCurlyToken = InternalSyntaxToken.create(closeCurlyBrace);
 
 
     if (functionName.isPresent()) {
       IdentifierTreeImpl name = new IdentifierTreeImpl(Kind.BINDING_IDENTIFIER, InternalSyntaxToken.create(functionName.get()));
-      children.add(functionToken, name, parameters, openCurlyBrace, functionBody, closeCurlyBrace);
+      children.add(functionToken, name, parameters, body);
 
-      return new FunctionExpressionTreeImpl(Kind.FUNCTION_EXPRESSION, functionToken, name, parameters, openCurlyToken, closeCurlyToken, children.build());
+      return new FunctionExpressionTreeImpl(Kind.FUNCTION_EXPRESSION, functionToken, name, parameters, body, children.build());
     }
 
-    children.add(functionToken, parameters, openCurlyBrace, functionBody, closeCurlyBrace);
+    children.add(functionToken, parameters, body);
 
-    return new FunctionExpressionTreeImpl(Kind.FUNCTION_EXPRESSION, functionToken, parameters, openCurlyToken, closeCurlyToken, children.build());
+    return new FunctionExpressionTreeImpl(Kind.FUNCTION_EXPRESSION, functionToken, parameters, body, children.build());
   }
 
   public ParameterListTreeImpl newFormalRestParameterList(RestElementTreeImpl restParameter) {
