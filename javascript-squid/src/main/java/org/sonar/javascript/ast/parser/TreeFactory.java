@@ -31,7 +31,6 @@ import org.sonar.javascript.api.EcmaScriptPunctuator;
 import org.sonar.javascript.model.implementations.SeparatedList;
 import org.sonar.javascript.model.implementations.declaration.ArrayBindingPatternTreeImpl;
 import org.sonar.javascript.model.implementations.declaration.BindingPropertyTreeImpl;
-import org.sonar.javascript.model.implementations.declaration.ClassDeclarationTreeImpl;
 import org.sonar.javascript.model.implementations.declaration.DefaultExportDeclarationTreeImpl;
 import org.sonar.javascript.model.implementations.declaration.ExportClauseTreeImpl;
 import org.sonar.javascript.model.implementations.declaration.FromClauseTreeImpl;
@@ -55,7 +54,7 @@ import org.sonar.javascript.model.implementations.expression.AssignmentExpressio
 import org.sonar.javascript.model.implementations.expression.BinaryExpressionTreeImpl;
 import org.sonar.javascript.model.implementations.expression.BracketMemberExpressionTreeImpl;
 import org.sonar.javascript.model.implementations.expression.CallExpressionTreeImpl;
-import org.sonar.javascript.model.implementations.expression.ClassExpressionTreeImpl;
+import org.sonar.javascript.model.implementations.expression.ClassTreeImpl;
 import org.sonar.javascript.model.implementations.expression.ComputedPropertyNameTreeImpl;
 import org.sonar.javascript.model.implementations.expression.ConditionalExpressionTreeImpl;
 import org.sonar.javascript.model.implementations.expression.DotMemberExpressionTreeImpl;
@@ -107,6 +106,7 @@ import org.sonar.javascript.model.interfaces.declaration.BindingElementTree;
 import org.sonar.javascript.model.interfaces.declaration.DeclarationTree;
 import org.sonar.javascript.model.interfaces.declaration.ImportClauseTree;
 import org.sonar.javascript.model.interfaces.declaration.ImportModuleDeclarationTree;
+import org.sonar.javascript.model.interfaces.declaration.MethodDeclarationTree;
 import org.sonar.javascript.model.interfaces.declaration.NameSpaceExportDeclarationTree;
 import org.sonar.javascript.model.interfaces.declaration.ParameterListTree;
 import org.sonar.javascript.model.interfaces.declaration.SpecifierTree;
@@ -115,6 +115,7 @@ import org.sonar.javascript.model.interfaces.expression.ExpressionTree;
 import org.sonar.javascript.model.interfaces.expression.MemberExpressionTree;
 import org.sonar.javascript.model.interfaces.expression.TemplateCharactersTree;
 import org.sonar.javascript.model.interfaces.expression.TemplateExpressionTree;
+import org.sonar.javascript.model.interfaces.lexical.SyntaxToken;
 import org.sonar.javascript.model.interfaces.statement.StatementTree;
 import org.sonar.javascript.model.interfaces.statement.SwitchClauseTree;
 import org.sonar.javascript.parser.sslr.Optional;
@@ -394,7 +395,7 @@ public class TreeFactory {
     return new ExpressionStatementTreeImpl(expression, eos);
   }
 
-  public ForOfStatementTreeImpl forOfStatement(AstNode forToken, AstNode openParenthesis, AstNode variableOrExpression, AstNode ofToken, AstNode expression, AstNode closeParenthesis, StatementTree statement) {
+  public ForOfStatementTreeImpl forOfStatement(AstNode forToken, AstNode openParenthesis, AstNode variableOrExpression, AstNode ofToken, ExpressionTree expression, AstNode closeParenthesis, StatementTree statement) {
     return new ForOfStatementTreeImpl(
       InternalSyntaxToken.create(forToken),
       InternalSyntaxToken.create(openParenthesis),
@@ -682,11 +683,11 @@ public class TreeFactory {
     return new ParameterListTreeImpl(Kind.FORMAL_PARAMETER_LIST, InternalSyntaxToken.create(openParenthesis), InternalSyntaxToken.create(closeParenthesis));
   }
 
-  public ConditionalExpressionTreeImpl newConditionalExpression(AstNode queryToken, AstNode trueExpression, AstNode colonToken, AstNode falseExpression) {
+  public ConditionalExpressionTreeImpl newConditionalExpression(AstNode queryToken, ExpressionTree trueExpression, AstNode colonToken, ExpressionTree falseExpression) {
     return new ConditionalExpressionTreeImpl(InternalSyntaxToken.create(queryToken), trueExpression, InternalSyntaxToken.create(colonToken), falseExpression);
   }
 
-  public ConditionalExpressionTreeImpl newConditionalExpressionNoIn(AstNode queryToken, AstNode trueExpression, AstNode colonToken, AstNode falseExpression) {
+  public ConditionalExpressionTreeImpl newConditionalExpressionNoIn(AstNode queryToken, ExpressionTree trueExpression, AstNode colonToken, ExpressionTree falseExpression) {
     return new ConditionalExpressionTreeImpl(InternalSyntaxToken.create(queryToken), trueExpression, InternalSyntaxToken.create(colonToken), falseExpression);
   }
 
@@ -808,14 +809,14 @@ public class TreeFactory {
     return new YieldExpressionTreeImpl(InternalSyntaxToken.create(yieldToken));
   }
 
-  public YieldExpressionTreeImpl newYieldExpression(AstNode spacingNoLB, Optional<AstNode> starToken, AstNode expression) {
+  public YieldExpressionTreeImpl newYieldExpression(AstNode spacingNoLB, Optional<AstNode> starToken, ExpressionTree expression) {
     if (starToken.isPresent()) {
       return new YieldExpressionTreeImpl(InternalSyntaxToken.create(starToken.get()), expression);
     }
     return new YieldExpressionTreeImpl(expression);
   }
 
-  public YieldExpressionTreeImpl newYieldExpressionNoIn(AstNode spacingNoLB, Optional<AstNode> starToken, AstNode expression) {
+  public YieldExpressionTreeImpl newYieldExpressionNoIn(AstNode spacingNoLB, Optional<AstNode> starToken, ExpressionTree expression) {
     if (starToken.isPresent()) {
       return new YieldExpressionTreeImpl(InternalSyntaxToken.create(starToken.get()), expression);
     }
@@ -830,11 +831,11 @@ public class TreeFactory {
     return new IdentifierTreeImpl(Kind.BINDING_IDENTIFIER, InternalSyntaxToken.create(identifier));
   }
 
-  public ArrowFunctionTreeImpl arrowFunction(Tree parameters, AstNode spacingNoLB, AstNode doubleArrow, AstNode body) {
+  public ArrowFunctionTreeImpl arrowFunction(Tree parameters, AstNode spacingNoLB, AstNode doubleArrow, Tree body) {
     return new ArrowFunctionTreeImpl(parameters, InternalSyntaxToken.create(doubleArrow), body);
   }
 
-  public ArrowFunctionTreeImpl arrowFunctionNoIn(Tree parameters, AstNode spacingNoLB, AstNode doubleArrow, AstNode body) {
+  public ArrowFunctionTreeImpl arrowFunctionNoIn(Tree parameters, AstNode spacingNoLB, AstNode doubleArrow, Tree body) {
     return new ArrowFunctionTreeImpl(parameters, InternalSyntaxToken.create(doubleArrow), body);
   }
 
@@ -944,31 +945,46 @@ public class TreeFactory {
     return new ParenthesisedExpressionTreeImpl(InternalSyntaxToken.create(openParenToken), expression, InternalSyntaxToken.create(closeParenToken));
   }
 
-  public ClassExpressionTreeImpl classExpression(AstNode classToken, Optional<IdentifierTreeImpl> name, Optional<Tuple<AstNode, ExpressionTree>> extendsClause,
+  public ClassTreeImpl classExpression(AstNode classToken, Optional<IdentifierTreeImpl> name, Optional<Tuple<AstNode, ExpressionTree>> extendsClause,
     AstNode openCurlyBraceToken, Optional<List<AstNode>> members, AstNode closeCurlyBraceToken) {
 
+      List<MethodDeclarationTree> elements = Lists.newArrayList();
+      List<SyntaxToken> semicolon = Lists.newArrayList();
+      List<AstNode> children = Lists.newArrayList();
+
+      if (members.isPresent()) {
+        for (AstNode member : members.get()) {
+          if (member instanceof MethodDeclarationTree) {
+            elements.add((MethodDeclarationTree) member);
+          } else {
+            semicolon.add(InternalSyntaxToken.create(member));
+          }
+          children.add(member);
+        }
+      }
+
     if (extendsClause.isPresent()) {
-      return new ClassExpressionTreeImpl(
+      return ClassTreeImpl.newClassExpression(
         InternalSyntaxToken.create(classToken), name.orNull(),
         InternalSyntaxToken.create(extendsClause.get().first()), extendsClause.get().second(),
         InternalSyntaxToken.create(openCurlyBraceToken),
-        members.or(Collections.<AstNode>emptyList()),
-        InternalSyntaxToken.create(closeCurlyBraceToken));
+        elements, semicolon,
+        InternalSyntaxToken.create(closeCurlyBraceToken), children);
     }
 
-    return new ClassExpressionTreeImpl(
+    return ClassTreeImpl.newClassExpression(
       InternalSyntaxToken.create(classToken), name.orNull(),
       null, null,
       InternalSyntaxToken.create(openCurlyBraceToken),
-      members.or(Collections.<AstNode>emptyList()),
-      InternalSyntaxToken.create(closeCurlyBraceToken));
+      elements, semicolon,
+      InternalSyntaxToken.create(closeCurlyBraceToken), children);
   }
 
-  public ComputedPropertyNameTreeImpl computedPropertyName(AstNode openBracketToken, AstNode expression, AstNode closeBracketToken) {
+  public ComputedPropertyNameTreeImpl computedPropertyName(AstNode openBracketToken, ExpressionTree expression, AstNode closeBracketToken) {
     return new ComputedPropertyNameTreeImpl(InternalSyntaxToken.create(openBracketToken), expression, InternalSyntaxToken.create(closeBracketToken));
   }
 
-  public PairPropertyTreeImpl pairProperty(ExpressionTree name, AstNode colonToken, AstNode value) {
+  public PairPropertyTreeImpl pairProperty(ExpressionTree name, AstNode colonToken, ExpressionTree value) {
     return new PairPropertyTreeImpl(name, InternalSyntaxToken.create(colonToken), value);
   }
 
@@ -1258,25 +1274,40 @@ public class TreeFactory {
 
   // [START] Classes, methods, functions & generators
 
-  public ClassDeclarationTreeImpl classDeclaration(AstNode classToken, IdentifierTreeImpl name,
+  public ClassTreeImpl classDeclaration(AstNode classToken, IdentifierTreeImpl name,
     Optional<Tuple<AstNode, ExpressionTree>> extendsClause,
     AstNode openCurlyBraceToken, Optional<List<AstNode>> members, AstNode closeCurlyBraceToken) {
 
+    List<MethodDeclarationTree> elements = Lists.newArrayList();
+    List<SyntaxToken> semicolon = Lists.newArrayList();
+    List<AstNode> children = Lists.newArrayList();
+
+    if (members.isPresent()) {
+      for (AstNode member : members.get()) {
+        if (member instanceof MethodDeclarationTree) {
+          elements.add((MethodDeclarationTree) member);
+        } else {
+          semicolon.add(InternalSyntaxToken.create(member));
+        }
+        children.add(member);
+      }
+    }
+
     if (extendsClause.isPresent()) {
-      return new ClassDeclarationTreeImpl(
+      return ClassTreeImpl.newClassDeclaration(
         InternalSyntaxToken.create(classToken), name,
         InternalSyntaxToken.create(extendsClause.get().first()), extendsClause.get().second(),
         InternalSyntaxToken.create(openCurlyBraceToken),
-        members.or(Collections.<AstNode>emptyList()),
-        InternalSyntaxToken.create(closeCurlyBraceToken));
+        elements, semicolon,
+        InternalSyntaxToken.create(closeCurlyBraceToken), children);
     }
 
-    return new ClassDeclarationTreeImpl(
+    return ClassTreeImpl.newClassDeclaration(
       InternalSyntaxToken.create(classToken), name,
       null, null,
       InternalSyntaxToken.create(openCurlyBraceToken),
-      members.or(Collections.<AstNode>emptyList()),
-      InternalSyntaxToken.create(closeCurlyBraceToken));
+      elements, semicolon,
+      InternalSyntaxToken.create(closeCurlyBraceToken), children);
   }
 
   public MethodDeclarationTreeImpl completeStaticMethod(AstNode staticToken, MethodDeclarationTreeImpl method) {
@@ -1402,6 +1433,14 @@ public class TreeFactory {
       InternalSyntaxToken.create(openBracketToken),
       new SeparatedList<Optional<BindingElementTree>>(elements.build(), separators.build()), children,
       InternalSyntaxToken.create(closeBracketToken));
+  }
+
+  public ExpressionTree assignmentNoCurly(AstNode lookahead, ExpressionTree expression) {
+    return expression;
+  }
+
+  public ExpressionTree assignmentNoCurlyNoIn(AstNode lookahead, ExpressionTree expressionNoIn) {
+    return expressionNoIn;
   }
 
   // [END] Destructuring pattern

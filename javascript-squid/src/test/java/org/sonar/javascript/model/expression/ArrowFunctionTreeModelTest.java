@@ -36,7 +36,8 @@ public class ArrowFunctionTreeModelTest extends JavaScriptTreeModelTest {
     assertThat(tree.is(Kind.ARROW_FUNCTION)).isTrue();
     assertThat(tree.parameters().is(Kind.IDENTIFIER));
     assertThat(((IdentifierTree) tree.parameters()).name()).isEqualTo("p");
-    assertThat(tree.doubleArrow().text()).isEqualTo(EcmaScriptPunctuator.DOUBLEARROW.getValue());
+    assertThat(tree.doubleArrow().text()).isEqualTo("=>");
+    assertThat(expressionToString(tree.conciseBody())).isEqualTo("p");
   }
 
   @Test
@@ -47,6 +48,7 @@ public class ArrowFunctionTreeModelTest extends JavaScriptTreeModelTest {
     assertThat(tree.parameters().is(Kind.IDENTIFIER));
     assertThat(((IdentifierTree) tree.parameters()).name()).isEqualTo("p");
     assertThat(tree.doubleArrow().text()).isEqualTo(EcmaScriptPunctuator.DOUBLEARROW.getValue());
+    assertThat(tree.conciseBody().is(Kind.BLOCK)).isTrue();
   }
 
   @Test
@@ -56,6 +58,7 @@ public class ArrowFunctionTreeModelTest extends JavaScriptTreeModelTest {
     assertThat(tree.is(Kind.ARROW_FUNCTION)).isTrue();
     assertThat(tree.parameters().is(Kind.FORMAL_PARAMETER_LIST));
     assertThat(tree.doubleArrow().text()).isEqualTo(EcmaScriptPunctuator.DOUBLEARROW.getValue());
+    assertThat(expressionToString(tree.conciseBody())).isEqualTo("p");
   }
 
   @Test
@@ -66,6 +69,7 @@ public class ArrowFunctionTreeModelTest extends JavaScriptTreeModelTest {
     assertThat(tree.is(Kind.ARROW_FUNCTION)).isTrue();
     assertThat(tree.parameters().is(Kind.FORMAL_PARAMETER_LIST));
     assertThat(tree.doubleArrow().text()).isEqualTo(EcmaScriptPunctuator.DOUBLEARROW.getValue());
+    assertThat(expressionToString(tree.conciseBody())).isEqualTo("p");
   }
 
 }

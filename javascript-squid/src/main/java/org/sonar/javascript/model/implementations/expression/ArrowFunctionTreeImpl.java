@@ -34,13 +34,15 @@ public class ArrowFunctionTreeImpl extends JavaScriptTree implements ArrowFuncti
 
   private final Tree parameters;
   private final SyntaxToken doubleArrow;
+  private Tree body;
 
-  public ArrowFunctionTreeImpl(Tree parameters, InternalSyntaxToken doubleArrow, AstNode body) {
+  public ArrowFunctionTreeImpl(Tree parameters, InternalSyntaxToken doubleArrow, Tree body) {
     super(Kind.ARROW_FUNCTION);
     this.parameters = parameters;
     this.doubleArrow = doubleArrow;
+    this.body = body;
 
-    addChildren((AstNode) parameters, doubleArrow, body);
+    addChildren((AstNode) parameters, doubleArrow, (AstNode) body);
   }
 
   @Override
@@ -55,7 +57,7 @@ public class ArrowFunctionTreeImpl extends JavaScriptTree implements ArrowFuncti
 
   @Override
   public Tree conciseBody() {
-    throw new UnsupportedOperationException("Not supported yet in the strongly typed AST.");
+    return body;
   }
 
   @Override

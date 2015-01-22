@@ -240,8 +240,6 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
   /** ECMAScript 6 **/
   BINDING_IDENTIFIER,
   /** ECMAScript 6 **/
-  CLASS_DECLARATION,
-  /** ECMAScript 6 **/
   CLASS_ELEMENT,
   METHOD_DEFINITION,
   /** ECMAScript 6 **/
@@ -275,6 +273,7 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
   EXPRESSION_NO_IN_NO_LET_AND_BRACKET,
   FOR_VAR_DECLARATION,
   ASSIGNMENT_EXPRESSION_NO_LCURLY,
+  NEXT_NOT_LCURLY,
   ASSIGNMENT_EXPRESSION_NO_IN_NO_LCURLY,
   CONDITIONAL_EXPRESSION_LOOKAHEAD,
   NOT_FUNCTION_AND_CLASS;
@@ -472,6 +471,7 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
 
     // Temporary rules
     b.rule(ASSIGNMENT_EXPRESSION_NO_LCURLY).is(b.nextNot(LCURLYBRACE), ASSIGNMENT_EXPRESSION);
+    b.rule(NEXT_NOT_LCURLY).is(b.nextNot(LCURLYBRACE));
     b.rule(ASSIGNMENT_EXPRESSION_NO_IN_NO_LCURLY).is(b.nextNot(LCURLYBRACE), ASSIGNMENT_EXPRESSION_NO_IN);
     b.rule(CONDITIONAL_EXPRESSION_LOOKAHEAD).is(Kind.CONDITIONAL_EXPRESSION,
       // Negative lookahead to prevent conflicts with ES6_ASSIGNMENT_EXPRESSION
@@ -518,7 +518,7 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
     b.rule(DECLARATION).is(b.firstOf(
       FUNCTION_DECLARATION,
       ecmascript6(GENERATOR_DECLARATION),
-      ecmascript6(CLASS_DECLARATION),
+      ecmascript6(Kind.CLASS_DECLARATION),
       ecmascript6(LEXICAL_DECLARATION)));
 
     b.rule(LET_OR_CONST).is(b.firstOf(LET, CONST));

@@ -17,30 +17,27 @@
  * License along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.javascript.model.statement;
+package org.sonar.javascript.model.expression;
 
 import static org.fest.assertions.Assertions.assertThat;
+
 import org.junit.Test;
-import org.sonar.javascript.api.EcmaScriptKeyword;
 import org.sonar.javascript.api.EcmaScriptPunctuator;
 import org.sonar.javascript.model.JavaScriptTreeModelTest;
 import org.sonar.javascript.model.interfaces.Tree.Kind;
-import org.sonar.javascript.model.interfaces.statement.ForOfStatementTree;
-import org.sonar.javascript.model.interfaces.statement.WhileStatementTree;
+import org.sonar.javascript.model.interfaces.expression.PairPropertyTree;
+import org.sonar.javascript.model.interfaces.expression.RestElementTree;
 
-public class ForOfStatementTreeModelTest extends JavaScriptTreeModelTest {
+public class PairPropertyTreeModelTest extends JavaScriptTreeModelTest {
 
   @Test
   public void test() throws Exception {
-   ForOfStatementTree tree = parse("for ( var a of expression ) { }", Kind.FOR_OF_STATEMENT);
+    PairPropertyTree tree = parse("var z = { a : b }", Kind.PAIR_PROPERTY);
 
-    assertThat(tree.is(Kind.FOR_OF_STATEMENT)).isTrue();
-    assertThat(tree.forKeyword().text()).isEqualTo("for");
-    assertThat(tree.openParenthesis().text()).isEqualTo("(");
-    assertThat(tree.ofKeyword().text()).isEqualTo("of");
-    assertThat(expressionToString(tree.expression())).isEqualTo("expression");
-    assertThat(tree.closeParenthesis().text()).isEqualTo(")");
-    assertThat(tree.statement().is(Kind.BLOCK));
+    assertThat(tree.is(Kind.PAIR_PROPERTY)).isTrue();
+    assertThat(expressionToString(tree.key())).isEqualTo("a");
+    assertThat(tree.colonToken().text()).isEqualTo(":");
+    assertThat(expressionToString(tree.value())).isEqualTo("b");
   }
 
 }

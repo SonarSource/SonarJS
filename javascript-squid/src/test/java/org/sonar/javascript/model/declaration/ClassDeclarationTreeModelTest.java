@@ -22,15 +22,15 @@ package org.sonar.javascript.model.declaration;
 import org.junit.Test;
 import org.sonar.javascript.model.JavaScriptTreeModelTest;
 import org.sonar.javascript.model.interfaces.Tree.Kind;
-import org.sonar.javascript.model.interfaces.declaration.ClassDeclarationTree;
+import org.sonar.javascript.model.interfaces.expression.ClassTree;
 
 import static org.fest.assertions.Assertions.assertThat;
 
 public class ClassDeclarationTreeModelTest extends JavaScriptTreeModelTest {
 
   @Test
-  public void test() throws Exception {
-    ClassDeclarationTree tree = parse("class C { }", Kind.CLASS_DECLARATION);
+  public void without_members() throws Exception {
+    ClassTree tree = parse("class C { }", Kind.CLASS_DECLARATION);
 
     assertThat(tree.is(Kind.CLASS_DECLARATION)).isTrue();
     assertThat(tree.classToken().text()).isEqualTo("class");
@@ -38,13 +38,29 @@ public class ClassDeclarationTreeModelTest extends JavaScriptTreeModelTest {
     assertThat(tree.extendsToken()).isNull();
     assertThat(tree.superClass()).isNull();
     assertThat(tree.openCurlyBraceToken().text()).isEqualTo("{");
-    // TODO members
+    assertThat(tree.elements()).isEmpty();
+    assertThat(tree.semicolons()).isEmpty();
+    assertThat(tree.closeCurlyBraceToken().text()).isEqualTo("}");
+  }
+
+  @Test
+  public void with_members() throws Exception {
+    ClassTree tree = parse("class C { m() {} static m(){} ; }", Kind.CLASS_DECLARATION);
+
+    assertThat(tree.is(Kind.CLASS_DECLARATION)).isTrue();
+    assertThat(tree.classToken().text()).isEqualTo("class");
+    assertThat(tree.name().name()).isEqualTo("C");
+    assertThat(tree.extendsToken()).isNull();
+    assertThat(tree.superClass()).isNull();
+    assertThat(tree.openCurlyBraceToken().text()).isEqualTo("{");
+    assertThat(tree.elements()).hasSize(2);
+    assertThat(tree.semicolons()).hasSize(1);
     assertThat(tree.closeCurlyBraceToken().text()).isEqualTo("}");
   }
 
   @Test
   public void extends_clause() throws Exception {
-    ClassDeclarationTree tree = parse("class C extends S { }", Kind.CLASS_DECLARATION);
+    ClassTree tree = parse("class C extends S { }", Kind.CLASS_DECLARATION);
 
     assertThat(tree.extendsToken().text()).isEqualTo("extends");
     assertThat(tree.superClass()).isNotNull();

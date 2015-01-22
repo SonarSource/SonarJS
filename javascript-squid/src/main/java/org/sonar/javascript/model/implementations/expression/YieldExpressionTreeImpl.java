@@ -37,27 +37,31 @@ public class YieldExpressionTreeImpl extends JavaScriptTree implements YieldExpr
   private InternalSyntaxToken yieldKeyword;
   @Nullable
   private final InternalSyntaxToken star;
+  private final ExpressionTree argument;
 
   public YieldExpressionTreeImpl(InternalSyntaxToken yieldKeyword) {
     super(Kind.YIELD_EXPRESSION);
     this.yieldKeyword = yieldKeyword;
     this.star = null;
+    this.argument = null;
 
     addChildren(yieldKeyword);
   }
 
-  public YieldExpressionTreeImpl(InternalSyntaxToken star, AstNode expression) {
+  public YieldExpressionTreeImpl(InternalSyntaxToken star, ExpressionTree argument) {
     super(Kind.YIELD_EXPRESSION);
     this.star = star;
+    this.argument = argument;
 
-    addChildren(star, expression);
+    addChildren(star, (AstNode) argument);
   }
 
-  public YieldExpressionTreeImpl(AstNode expression) {
+  public YieldExpressionTreeImpl(ExpressionTree argument) {
     super(Kind.YIELD_EXPRESSION);
     this.star = null;
+    this.argument = argument;
 
-    addChildren(expression);
+    addChildren((AstNode) argument);
   }
 
   public YieldExpressionTreeImpl complete(InternalSyntaxToken yieldKeyword) {
@@ -80,7 +84,7 @@ public class YieldExpressionTreeImpl extends JavaScriptTree implements YieldExpr
 
   @Override
   public ExpressionTree argument() {
-    throw new UnsupportedOperationException("Not supported yet in the strongly typed AST.");
+    return argument;
   }
 
   @Override

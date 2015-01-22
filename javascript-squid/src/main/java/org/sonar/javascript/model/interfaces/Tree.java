@@ -24,7 +24,6 @@ import org.sonar.javascript.model.implementations.declaration.SpecifierListTreeI
 import org.sonar.javascript.model.interfaces.declaration.AccessorMethodDeclarationTree;
 import org.sonar.javascript.model.interfaces.declaration.ArrayBindingPatternTree;
 import org.sonar.javascript.model.interfaces.declaration.BindingPropertyTree;
-import org.sonar.javascript.model.interfaces.declaration.ClassDeclarationTree;
 import org.sonar.javascript.model.interfaces.declaration.DefaultExportDeclarationTree;
 import org.sonar.javascript.model.interfaces.declaration.ExportClauseTree;
 import org.sonar.javascript.model.interfaces.declaration.FromClauseTree;
@@ -46,7 +45,7 @@ import org.sonar.javascript.model.interfaces.expression.ArrowFunctionTree;
 import org.sonar.javascript.model.interfaces.expression.AssignmentExpressionTree;
 import org.sonar.javascript.model.interfaces.expression.BinaryExpressionTree;
 import org.sonar.javascript.model.interfaces.expression.CallExpressionTree;
-import org.sonar.javascript.model.interfaces.expression.ClassExpressionTree;
+import org.sonar.javascript.model.interfaces.expression.ClassTree;
 import org.sonar.javascript.model.interfaces.expression.ComputedPropertyNameTree;
 import org.sonar.javascript.model.interfaces.expression.ConditionalExpressionTree;
 import org.sonar.javascript.model.interfaces.expression.ExpressionTree;
@@ -679,9 +678,9 @@ public interface Tree {
     ARGUMENTS(ParameterListTree.class),
 
     /**
-     * {@link ClassExpressionTree}
+     * {@link org.sonar.javascript.model.interfaces.expression.ClassTree}
      */
-    CLASS_EXPRESSION(ClassExpressionTree.class),
+    CLASS_EXPRESSION(ClassTree.class),
 
     /**
      * {@link ComputedPropertyNameTree}
@@ -724,9 +723,9 @@ public interface Tree {
     METHOD(MethodDeclarationTree.class),
 
     /**
-     * {@link ClassDeclarationTree}
+     * {@link ClassTree}
      */
-    CLASS_DECLARATION(ClassDeclarationTree.class),
+    CLASS_DECLARATION(ClassTree.class),
 
     /**
      * {@link InitializedBindingElementTree}

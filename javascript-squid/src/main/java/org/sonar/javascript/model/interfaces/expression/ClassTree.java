@@ -19,6 +19,7 @@
  */
 package org.sonar.javascript.model.interfaces.expression;
 
+import org.sonar.javascript.model.interfaces.declaration.DeclarationTree;
 import org.sonar.javascript.model.interfaces.declaration.MethodDeclarationTree;
 import org.sonar.javascript.model.interfaces.lexical.SyntaxToken;
 
@@ -31,14 +32,14 @@ import java.util.List;
  * <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-class-definitions">Class expression</a>
  *
  * <pre>
- *  class { {@link #members()} }
- *  class {@link #name()} { {@link #members()} }
- *  class {@link #name()} extends {@link #superClass()}} { {@link #members()} }
+ *  class { {@link #elements()} }
+ *  class {@link #name()} { {@link #elements()} }
+ *  class {@link #name()} extends {@link #superClass()}} { {@link #elements()} }
  * </pre>
  *
  * <p>This interface is not intended to be implemented by clients.</p>
  */
-public interface ClassExpressionTree extends ExpressionTree {
+public interface ClassTree extends ExpressionTree, DeclarationTree {
 
   SyntaxToken classToken();
 
@@ -53,7 +54,9 @@ public interface ClassExpressionTree extends ExpressionTree {
 
   SyntaxToken openCurlyBraceToken();
 
-  List<MethodDeclarationTree> members();
+  List<MethodDeclarationTree> elements();
+
+  List<SyntaxToken> semicolons();
 
   SyntaxToken closeCurlyBraceToken();
 

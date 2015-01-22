@@ -38,7 +38,7 @@ import org.sonar.javascript.model.interfaces.statement.BlockTree;
 public interface ArrowFunctionTree extends ExpressionTree {
 
   /**
-   * Either {@link IdentifierTree} or {@link ParameterListTree} ({@link Tree.Kind#ARROW_PARAMETER_LIST})
+   * Either {@link IdentifierTree} or {@link ParameterListTree} ({@link Tree.Kind#FORMAL_PARAMETER_LIST})
    */
   Tree parameters();
 

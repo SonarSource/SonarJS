@@ -35,8 +35,9 @@ public class ComputedPropertyNameTreeModelTest extends JavaScriptTreeModelTest {
     ComputedPropertyNameTree tree = parse("var a = { [ 1 ] : value } ;", Kind.COMPUTED_PROPERTY_NAME);
 
     assertThat(tree.is(Kind.COMPUTED_PROPERTY_NAME)).isTrue();
-    assertThat(tree.openCurlyBrace().text()).isEqualTo(EcmaScriptPunctuator.LBRACKET.getValue());
-    assertThat(tree.closeCurlyBrace().text()).isEqualTo(EcmaScriptPunctuator.RBRACKET.getValue());
+    assertThat(tree.openCurlyBrace().text()).isEqualTo("[");
+    assertThat(expressionToString(tree.expression())).isEqualTo("1");
+    assertThat(tree.closeCurlyBrace().text()).isEqualTo("]");
   }
 
 }

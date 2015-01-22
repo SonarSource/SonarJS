@@ -23,7 +23,7 @@ import org.junit.Test;
 import org.sonar.javascript.api.EcmaScriptKeyword;
 import org.sonar.javascript.model.JavaScriptTreeModelTest;
 import org.sonar.javascript.model.interfaces.Tree.Kind;
-import org.sonar.javascript.model.interfaces.expression.ClassExpressionTree;
+import org.sonar.javascript.model.interfaces.expression.ClassTree;
 
 import static org.fest.assertions.Assertions.assertThat;
 
@@ -31,7 +31,7 @@ public class ClassExpressionTreeModelTest extends JavaScriptTreeModelTest {
 
   @Test
   public void with_name() throws Exception {
-    ClassExpressionTree tree = parse("var c = class C { }", Kind.CLASS_EXPRESSION);
+    ClassTree tree = parse("var c = class C { }", Kind.CLASS_EXPRESSION);
 
     assertThat(tree.is(Kind.CLASS_EXPRESSION)).isTrue();
     assertThat(tree.classToken().text()).isEqualTo("class");
@@ -45,7 +45,7 @@ public class ClassExpressionTreeModelTest extends JavaScriptTreeModelTest {
 
   @Test
   public void without_name() throws Exception {
-    ClassExpressionTree tree = parse("var c = class { }", Kind.CLASS_EXPRESSION);
+    ClassTree tree = parse("var c = class { }", Kind.CLASS_EXPRESSION);
 
     assertThat(tree.is(Kind.CLASS_EXPRESSION)).isTrue();
     assertThat(tree.classToken().text()).isEqualTo(EcmaScriptKeyword.CLASS.getValue());
@@ -59,7 +59,7 @@ public class ClassExpressionTreeModelTest extends JavaScriptTreeModelTest {
 
   @Test
   public void extends_clause() throws Exception {
-    ClassExpressionTree tree = parse("var c = class extends S { }", Kind.CLASS_EXPRESSION);
+    ClassTree tree = parse("var c = class extends S { }", Kind.CLASS_EXPRESSION);
 
     assertThat(tree.extendsToken().text()).isEqualTo("extends");
     assertThat(tree.superClass()).isNotNull();

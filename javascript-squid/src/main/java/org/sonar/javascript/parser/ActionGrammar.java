@@ -26,7 +26,6 @@ import org.sonar.javascript.api.EcmaScriptTokenType;
 import org.sonar.javascript.ast.parser.TreeFactory;
 import org.sonar.javascript.model.implementations.SeparatedList;
 import org.sonar.javascript.model.implementations.declaration.ArrayBindingPatternTreeImpl;
-import org.sonar.javascript.model.implementations.declaration.ClassDeclarationTreeImpl;
 import org.sonar.javascript.model.implementations.declaration.DefaultExportDeclarationTreeImpl;
 import org.sonar.javascript.model.implementations.declaration.FromClauseTreeImpl;
 import org.sonar.javascript.model.implementations.declaration.FunctionDeclarationTreeImpl;
@@ -42,7 +41,7 @@ import org.sonar.javascript.model.implementations.declaration.SpecifierTreeImpl;
 import org.sonar.javascript.model.implementations.expression.ArrayLiteralTreeImpl;
 import org.sonar.javascript.model.implementations.expression.ArrowFunctionTreeImpl;
 import org.sonar.javascript.model.implementations.expression.BracketMemberExpressionTreeImpl;
-import org.sonar.javascript.model.implementations.expression.ClassExpressionTreeImpl;
+import org.sonar.javascript.model.implementations.expression.ClassTreeImpl;
 import org.sonar.javascript.model.implementations.expression.ComputedPropertyNameTreeImpl;
 import org.sonar.javascript.model.implementations.expression.DotMemberExpressionTreeImpl;
 import org.sonar.javascript.model.implementations.expression.FunctionExpressionTreeImpl;
@@ -348,7 +347,7 @@ public class ActionGrammar {
         b.invokeRule(EcmaScriptPunctuator.LPARENTHESIS),
         b.firstOf(b.invokeRule(EcmaScriptGrammar.FOR_DECLARATION), b.invokeRule(EcmaScriptGrammar.LEFT_HAND_SIDE_EXPRESSION_NO_LET)),
         b.invokeRule(EcmaScriptGrammar.OF),
-        b.invokeRule(EcmaScriptGrammar.ASSIGNMENT_EXPRESSION),
+        ASSIGNMENT_EXPRESSION(),
         b.invokeRule(EcmaScriptPunctuator.RPARENTHESIS),
         STATEMENT()));
   }
@@ -528,9 +527,9 @@ public class ActionGrammar {
        CONDITIONAL_OR_EXPRESSION(),
        b.optional(f.newConditionalExpression(
          b.invokeRule(EcmaScriptPunctuator.QUERY),
-         b.invokeRule(EcmaScriptGrammar.ASSIGNMENT_EXPRESSION),
+         ASSIGNMENT_EXPRESSION(),
          b.invokeRule(EcmaScriptPunctuator.COLON),
-         b.invokeRule(EcmaScriptGrammar.ASSIGNMENT_EXPRESSION)))
+         ASSIGNMENT_EXPRESSION()))
      ));
   }
 
@@ -540,9 +539,9 @@ public class ActionGrammar {
         CONDITIONAL_OR_EXPRESSION_NO_IN(),
         b.optional(f.newConditionalExpressionNoIn(
             b.invokeRule(EcmaScriptPunctuator.QUERY),
-            b.invokeRule(EcmaScriptGrammar.ASSIGNMENT_EXPRESSION),
+            ASSIGNMENT_EXPRESSION(),
             b.invokeRule(EcmaScriptPunctuator.COLON),
-            b.invokeRule(EcmaScriptGrammar.ASSIGNMENT_EXPRESSION_NO_IN)
+            ASSIGNMENT_EXPRESSION_NO_IN()
       ))));
   }
 
@@ -815,7 +814,7 @@ public class ActionGrammar {
         b.optional(f.newYieldExpression(
             b.invokeRule(EcmaScriptGrammar.SPACING_NO_LINE_BREAK_NOT_FOLLOWED_BY_LINE_BREAK),
             b.optional(b.invokeRule(EcmaScriptPunctuator.STAR)),
-            b.invokeRule(EcmaScriptGrammar.ASSIGNMENT_EXPRESSION))
+            ASSIGNMENT_EXPRESSION())
         )
       ));
   }
@@ -827,7 +826,7 @@ public class ActionGrammar {
         b.optional(f.newYieldExpressionNoIn(
             b.invokeRule(EcmaScriptGrammar.SPACING_NO_LINE_BREAK_NOT_FOLLOWED_BY_LINE_BREAK),
             b.optional(b.invokeRule(EcmaScriptPunctuator.STAR)),
-            b.invokeRule(EcmaScriptGrammar.ASSIGNMENT_EXPRESSION_NO_IN))
+            ASSIGNMENT_EXPRESSION_NO_IN())
         )
       ));
   }
@@ -868,7 +867,7 @@ public class ActionGrammar {
         b.invokeRule(EcmaScriptPunctuator.DOUBLEARROW),
         b.firstOf(
           BLOCK(),
-          b.invokeRule(EcmaScriptGrammar.ASSIGNMENT_EXPRESSION_NO_LCURLY))
+          f.assignmentNoCurly(b.invokeRule(EcmaScriptGrammar.NEXT_NOT_LCURLY), ASSIGNMENT_EXPRESSION()))
       ));
   }
 
@@ -882,7 +881,7 @@ public class ActionGrammar {
         b.invokeRule(EcmaScriptPunctuator.DOUBLEARROW),
         b.firstOf(
           BLOCK(),
-          b.invokeRule(EcmaScriptGrammar.ASSIGNMENT_EXPRESSION_NO_IN_NO_LCURLY))
+          f.assignmentNoCurlyNoIn(b.invokeRule(EcmaScriptGrammar.NEXT_NOT_LCURLY), ASSIGNMENT_EXPRESSION()))
       ));
   }
 
@@ -984,8 +983,8 @@ public class ActionGrammar {
           b.invokeRule(EcmaScriptPunctuator.RPARENTHESIS)));
   }
 
-  public ClassExpressionTreeImpl CLASS_EXPRESSION() {
-    return b.<ClassExpressionTreeImpl>nonterminal(Kind.CLASS_EXPRESSION)
+  public ClassTreeImpl CLASS_EXPRESSION() {
+    return b.<ClassTreeImpl>nonterminal(Kind.CLASS_EXPRESSION)
       .is(
         f.classExpression(
           b.invokeRule(EcmaScriptKeyword.CLASS),
@@ -993,7 +992,7 @@ public class ActionGrammar {
           // TODO Factor the duplication with CLASS_DECLARATION() into CLASS_TRAIT() ?
           b.optional(f.newTuple28(b.invokeRule(EcmaScriptKeyword.EXTENDS), LEFT_HAND_SIDE_EXPRESSION())),
           b.invokeRule(EcmaScriptPunctuator.LCURLYBRACE),
-          b.zeroOrMore(b.invokeRule(EcmaScriptGrammar.CLASS_ELEMENT)),
+          b.zeroOrMore(CLASS_ELEMENT()),
           b.invokeRule(EcmaScriptPunctuator.RCURLYBRACE)));
   }
 
@@ -1001,7 +1000,7 @@ public class ActionGrammar {
     return b.<ComputedPropertyNameTreeImpl>nonterminal(Kind.COMPUTED_PROPERTY_NAME)
       .is(f.computedPropertyName(
         b.invokeRule(EcmaScriptPunctuator.LBRACKET),
-        b.invokeRule(EcmaScriptGrammar.ASSIGNMENT_EXPRESSION),
+        ASSIGNMENT_EXPRESSION(),
         b.invokeRule(EcmaScriptPunctuator.RBRACKET)
       ));
   }
@@ -1028,7 +1027,7 @@ public class ActionGrammar {
       .is(f.pairProperty(
         PROPERTY_NAME(),
         b.invokeRule(EcmaScriptPunctuator.COLON),
-        b.invokeRule(EcmaScriptGrammar.ASSIGNMENT_EXPRESSION)
+        ASSIGNMENT_EXPRESSION()
       ));
   }
 
@@ -1217,7 +1216,7 @@ public class ActionGrammar {
         b.firstOf(
           FUNCTION_DECLARATION(),
           GENERATOR_DECLARATION(),
-          b.invokeRule(EcmaScriptGrammar.CLASS_DECLARATION),
+          CLASS_DECLARATION(),
           f.exportedExpressionStatement(b.invokeRule(EcmaScriptGrammar.NOT_FUNCTION_AND_CLASS), ASSIGNMENT_EXPRESSION(), b.invokeRule(EcmaScriptGrammar.EOS)))
       ));
   }
@@ -1423,8 +1422,8 @@ public class ActionGrammar {
 
   // [START] Classes, methods, functions & generators
 
-  public ClassDeclarationTreeImpl CLASS_DECLARATION() {
-    return b.<ClassDeclarationTreeImpl>nonterminal(EcmaScriptGrammar.CLASS_DECLARATION)
+  public ClassTreeImpl CLASS_DECLARATION() {
+    return b.<ClassTreeImpl>nonterminal(Kind.CLASS_DECLARATION)
       .is(
         f.classDeclaration(
           b.invokeRule(EcmaScriptKeyword.CLASS), BINDING_IDENTIFIER(),

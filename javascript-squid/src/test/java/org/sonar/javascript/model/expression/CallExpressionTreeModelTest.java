@@ -20,13 +20,9 @@
 package org.sonar.javascript.model.expression;
 
 import org.junit.Test;
-import org.sonar.javascript.api.EcmaScriptPunctuator;
 import org.sonar.javascript.model.JavaScriptTreeModelTest;
-import org.sonar.javascript.model.implementations.expression.BracketMemberExpressionTreeImpl;
 import org.sonar.javascript.model.interfaces.Tree.Kind;
 import org.sonar.javascript.model.interfaces.expression.CallExpressionTree;
-import org.sonar.javascript.model.interfaces.expression.ClassExpressionTree;
-import org.sonar.javascript.model.interfaces.expression.DotMemberExpressionTree;
 
 import static org.fest.assertions.Assertions.assertThat;
 

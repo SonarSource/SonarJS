@@ -36,8 +36,9 @@ public class YieldExpressionTreeModelTest extends JavaScriptTreeModelTest {
     YieldExpressionTree tree = parse("yield;", Kind.YIELD_EXPRESSION);
 
     assertThat(tree.is(Kind.YIELD_EXPRESSION)).isTrue();
-    assertThat(tree.yieldKeyword().text()).isEqualTo(EcmaScriptKeyword.YIELD.getValue());
+    assertThat(tree.yieldKeyword().text()).isEqualTo("yield");
     assertThat(tree.star()).isNull();
+    assertThat(tree.argument()).isNull();
   }
 
   @Test
@@ -45,8 +46,9 @@ public class YieldExpressionTreeModelTest extends JavaScriptTreeModelTest {
     YieldExpressionTree tree = parse("yield * expression;", Kind.YIELD_EXPRESSION);
 
     assertThat(tree.is(Kind.YIELD_EXPRESSION)).isTrue();
-    assertThat(tree.yieldKeyword().text()).isEqualTo(EcmaScriptKeyword.YIELD.getValue());
-    assertThat(tree.star().text()).isEqualTo(EcmaScriptPunctuator.STAR.getValue());
+    assertThat(tree.yieldKeyword().text()).isEqualTo("yield");
+    assertThat(tree.star().text()).isEqualTo("*");
+    assertThat(expressionToString(tree.argument())).isEqualTo("expression");
   }
 
   @Test
@@ -54,8 +56,9 @@ public class YieldExpressionTreeModelTest extends JavaScriptTreeModelTest {
     YieldExpressionTree tree = parse("yield expression;", Kind.YIELD_EXPRESSION);
 
     assertThat(tree.is(Kind.YIELD_EXPRESSION)).isTrue();
-    assertThat(tree.yieldKeyword().text()).isEqualTo(EcmaScriptKeyword.YIELD.getValue());
+    assertThat(tree.yieldKeyword().text()).isEqualTo("yield");
     assertThat(tree.star()).isNull();
+    assertThat(expressionToString(tree.argument())).isEqualTo("expression");
   }
 
 }

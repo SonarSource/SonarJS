@@ -27,7 +27,6 @@ import org.sonar.javascript.model.interfaces.lexical.SyntaxToken;
  *
  * <pre>
  *   {@link #key()} : {@link #value()}
- *   {@link #key()} = {@link #value()}
  * </pre>
  *
  * <p>This interface is not intended to be implemented by clients.</p>
@@ -36,7 +35,7 @@ public interface PairPropertyTree extends ExpressionTree {
 
   ExpressionTree key();
 
-  SyntaxToken operator();
+  SyntaxToken colonToken();
 
   ExpressionTree value();
 

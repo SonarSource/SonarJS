@@ -33,14 +33,16 @@ import java.util.Iterator;
 public class ComputedPropertyNameTreeImpl extends JavaScriptTree implements ComputedPropertyNameTree {
 
   private final SyntaxToken openBracket;
+  private final ExpressionTree expression;
   private final SyntaxToken closeBracket;
 
-  public ComputedPropertyNameTreeImpl(InternalSyntaxToken openBracket, AstNode expression, InternalSyntaxToken closeBracket) {
+  public ComputedPropertyNameTreeImpl(InternalSyntaxToken openBracket, ExpressionTree expression, InternalSyntaxToken closeBracket) {
     super(Kind.COMPUTED_PROPERTY_NAME);
     this.openBracket = openBracket;
+    this.expression = expression;
     this.closeBracket = closeBracket;
 
-    addChildren(openBracket, expression, closeBracket);
+    addChildren(openBracket, (AstNode) expression, closeBracket);
   }
 
   @Override
@@ -50,7 +52,7 @@ public class ComputedPropertyNameTreeImpl extends JavaScriptTree implements Comp
 
   @Override
   public ExpressionTree expression() {
-    throw new UnsupportedOperationException("Not supported yet in the strongly typed AST.");
+    return expression;
   }
 
   @Override

@@ -34,25 +34,32 @@ import java.util.Iterator;
 
 public class ConditionalExpressionTreeImpl extends JavaScriptTree implements ConditionalExpressionTree {
 
+  private ExpressionTree condition;
   private final SyntaxToken query;
+  private final ExpressionTree trueExpression;
   private final SyntaxToken colon;
+  private final ExpressionTree falseExpression;
 
-  public ConditionalExpressionTreeImpl(InternalSyntaxToken query, AstNode trueExpression, InternalSyntaxToken colon, AstNode falseExpression) {
+  public ConditionalExpressionTreeImpl(InternalSyntaxToken query, ExpressionTree trueExpression, InternalSyntaxToken colon, ExpressionTree falseExpression) {
     super(Kind.CONDITIONAL_EXPRESSION);
     this.query = query;
+    this.trueExpression = trueExpression;
     this.colon = colon;
+    this.falseExpression = falseExpression;
 
-    addChildren(query, trueExpression, colon, falseExpression);
+    addChildren(query, (AstNode) trueExpression, colon, (AstNode) falseExpression);
   }
 
-  public ConditionalExpressionTreeImpl complete(ExpressionTree expression) {
-    prependChildren((AstNode) expression);
+  public ConditionalExpressionTreeImpl complete(ExpressionTree condition) {
+    this.condition = condition;
+
+    prependChildren((AstNode) condition);
     return this;
   }
 
   @Override
   public ExpressionTree condition() {
-    throw new UnsupportedOperationException("Not supported yet in the strongly typed AST.");
+    return condition;
   }
 
   @Override
@@ -62,7 +69,7 @@ public class ConditionalExpressionTreeImpl extends JavaScriptTree implements Con
 
   @Override
   public ExpressionTree trueExpression() {
-    throw new UnsupportedOperationException("Not supported yet in the strongly typed AST.");
+    return trueExpression;
   }
 
   @Override
@@ -72,7 +79,7 @@ public class ConditionalExpressionTreeImpl extends JavaScriptTree implements Con
 
   @Override
   public ExpressionTree falseExpression() {
-    throw new UnsupportedOperationException("Not supported yet in the strongly typed AST.");
+    return falseExpression;
   }
 
   @Override
