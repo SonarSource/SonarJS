@@ -25,7 +25,7 @@ import com.sonar.sslr.api.AstNodeType;
 import org.sonar.javascript.model.implementations.JavaScriptTree;
 import org.sonar.javascript.model.implementations.lexical.InternalSyntaxToken;
 import org.sonar.javascript.model.interfaces.Tree;
-import org.sonar.javascript.model.interfaces.declaration.VariableDeclarationTree;
+import org.sonar.javascript.model.interfaces.declaration.BindingElementTree;
 import org.sonar.javascript.model.interfaces.expression.ExpressionTree;
 import org.sonar.javascript.model.interfaces.lexical.SyntaxToken;
 import org.sonar.javascript.model.interfaces.statement.ForStatementTree;
@@ -81,7 +81,7 @@ public class ForStatementTreeImpl extends JavaScriptTree implements ForStatement
 
   @Nullable
   @Override
-  public List<VariableDeclarationTree> init() {
+  public List<BindingElementTree> init() {
     throw new UnsupportedOperationException("Not supported yet in the strongly typed AST.");
   }
 

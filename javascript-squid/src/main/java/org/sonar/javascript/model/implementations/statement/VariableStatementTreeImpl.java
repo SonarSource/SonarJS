@@ -19,14 +19,13 @@
  */
 package org.sonar.javascript.model.implementations.statement;
 
-import com.google.common.base.Preconditions;
 import com.google.common.collect.Iterators;
 import com.sonar.sslr.api.AstNode;
 import org.sonar.javascript.model.implementations.JavaScriptTree;
 import org.sonar.javascript.model.implementations.SeparatedList;
-import org.sonar.javascript.model.implementations.declaration.VariableDeclarationTreeImpl;
 import org.sonar.javascript.model.implementations.lexical.InternalSyntaxToken;
 import org.sonar.javascript.model.interfaces.Tree;
+import org.sonar.javascript.model.interfaces.declaration.BindingElementTree;
 import org.sonar.javascript.model.interfaces.lexical.SyntaxToken;
 import org.sonar.javascript.model.interfaces.statement.VariableStatementTree;
 
@@ -35,41 +34,37 @@ import java.util.List;
 
 public class VariableStatementTreeImpl extends JavaScriptTree implements VariableStatementTree {
 
-  private SyntaxToken varKeyword;
-  private final SeparatedList<VariableDeclarationTreeImpl> declarations;
+  private final Kind kind;
+  private final InternalSyntaxToken token;
+  private final SeparatedList<BindingElementTree> variables;
 
-  public VariableStatementTreeImpl(List<VariableDeclarationTreeImpl> declarations, List<InternalSyntaxToken> commas, List<AstNode> children) {
-    super(Kind.VARIABLE_STATEMENT);
-    Preconditions.checkArgument(commas.size() == declarations.size() - 1, "Variable declaration cannot be null");
-    this.declarations = new SeparatedList<VariableDeclarationTreeImpl>(declarations, commas);
+  public VariableStatementTreeImpl(Kind kind, InternalSyntaxToken token, SeparatedList<BindingElementTree> variables, List<AstNode> children, AstNode eos) {
+    super(kind);
 
+    this.kind = kind;
+    this.token = token;
+    this.variables = variables;
+
+    addChild(token);
     for (AstNode child : children) {
       addChild(child);
     }
-  }
-
-  public VariableStatementTreeImpl complete(InternalSyntaxToken varKeyword, AstNode eos) {
-    Preconditions.checkState(this.varKeyword == null, "Already complete");
-    this.varKeyword = varKeyword;
-
-    prependChildren(varKeyword);
     addChild(eos);
-    return this;
   }
 
   @Override
   public Kind getKind() {
-    return Kind.VARIABLE_STATEMENT;
+    return kind;
   }
 
   @Override
   public SyntaxToken varKeyword() {
-    return varKeyword;
+    return token;
   }
 
   @Override
-  public SeparatedList<VariableDeclarationTreeImpl> declarations() {
-    return declarations;
+  public SeparatedList<BindingElementTree> variables() {
+    return variables;
   }
 
   @Override
@@ -79,6 +74,7 @@ public class VariableStatementTreeImpl extends JavaScriptTree implements Variabl
 
   @Override
   public Iterator<Tree> childrenIterator() {
-    return Iterators.forArray(declarations.toArray(new Tree[declarations.size()]));
+    return Iterators.forArray(variables.toArray(new Tree[variables.size()]));
   }
+
 }

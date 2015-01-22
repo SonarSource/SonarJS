@@ -41,7 +41,6 @@ import org.sonar.javascript.model.interfaces.declaration.ObjectBindingPatternTre
 import org.sonar.javascript.model.interfaces.declaration.ParameterListTree;
 import org.sonar.javascript.model.interfaces.declaration.SpecifierListTree;
 import org.sonar.javascript.model.interfaces.declaration.SpecifierTree;
-import org.sonar.javascript.model.interfaces.declaration.VariableDeclarationTree;
 import org.sonar.javascript.model.interfaces.expression.ArrayLiteralTree;
 import org.sonar.javascript.model.interfaces.expression.ArrowFunctionTree;
 import org.sonar.javascript.model.interfaces.expression.AssignmentExpressionTree;
@@ -166,11 +165,6 @@ public interface Tree {
      * {@link CatchBlockTree}
      */
     CATCH_BLOCK(CatchBlockTree.class),
-
-    /**
-     * {@link VariableDeclarationTree}
-     */
-    VARIABLE_DECLARATION(VariableDeclarationTree.class),
 
     /**
      * {@link SwitchStatementTree}

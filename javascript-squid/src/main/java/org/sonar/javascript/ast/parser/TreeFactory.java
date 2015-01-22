@@ -49,7 +49,6 @@ import org.sonar.javascript.model.implementations.declaration.ObjectBindingPatte
 import org.sonar.javascript.model.implementations.declaration.ParameterListTreeImpl;
 import org.sonar.javascript.model.implementations.declaration.SpecifierListTreeImpl;
 import org.sonar.javascript.model.implementations.declaration.SpecifierTreeImpl;
-import org.sonar.javascript.model.implementations.declaration.VariableDeclarationTreeImpl;
 import org.sonar.javascript.model.implementations.expression.ArrayLiteralTreeImpl;
 import org.sonar.javascript.model.implementations.expression.ArrowFunctionTreeImpl;
 import org.sonar.javascript.model.implementations.expression.AssignmentExpressionTreeImpl;
@@ -223,33 +222,31 @@ public class TreeFactory {
     return new DebuggerStatementTreeImpl(InternalSyntaxToken.create(debuggerWord), eos);
   }
 
-  public VariableStatementTreeImpl newVariableStatement(VariableDeclarationTreeImpl variableDeclaration, Optional<List<Tuple<AstNode, VariableDeclarationTreeImpl>>> rest) {
-    List<AstNode> children = Lists.newArrayList();
-    List<InternalSyntaxToken> commas = Lists.newArrayList();
-    List<VariableDeclarationTreeImpl> declarations = Lists.newArrayList();
+  public VariableStatementTreeImpl variableStatement(AstNode varToken, SeparatedList<BindingElementTree> elements, AstNode eosToken) {
+    return new VariableStatementTreeImpl(Kind.VARIABLE_STATEMENT, InternalSyntaxToken.create(varToken), elements, elements.getChildren(), eosToken);
+  }
 
-    declarations.add(variableDeclaration);
-    children.add(variableDeclaration);
+  public SeparatedList<BindingElementTree> bindingElementList(BindingElementTree element, Optional<List<Tuple<AstNode, BindingElementTree>>> rest) {
+    List<AstNode> children = Lists.newArrayList();
+
+    ImmutableList.Builder<BindingElementTree> elements = ImmutableList.builder();
+    ImmutableList.Builder<InternalSyntaxToken> commas = ImmutableList.builder();
+
+    children.add((AstNode) element);
+    elements.add(element);
 
     if (rest.isPresent()) {
-      for (Tuple<AstNode, VariableDeclarationTreeImpl> tuple : rest.get()) {
+      for (Tuple<AstNode, BindingElementTree> pair : rest.get()) {
+        InternalSyntaxToken commaToken = InternalSyntaxToken.create(pair.first());
+        children.add(commaToken);
+        children.add((AstNode) pair.second());
 
-        commas.add(InternalSyntaxToken.create(tuple.first()));
-        declarations.add(tuple.second());
-
-        children.add(tuple.first());
-        children.add(tuple.second());
+        commas.add(commaToken);
+        elements.add(pair.second());
       }
     }
-    return new VariableStatementTreeImpl(declarations, commas, children);
-  }
 
-  public VariableStatementTreeImpl completeVariableStatement(AstNode varKeyword, VariableStatementTreeImpl partial, AstNode eos) {
-    return partial.complete(InternalSyntaxToken.create(varKeyword), eos);
-  }
-
-  public VariableDeclarationTreeImpl variableDeclaration(AstNode bindingIdentifierInitialiser) {
-    return new VariableDeclarationTreeImpl(bindingIdentifierInitialiser);
+    return new SeparatedList<BindingElementTree>(elements.build(), commas.build(), children);
   }
 
   public LabelledStatementTreeImpl labelledStatement(IdentifierTreeImpl identifier, AstNode colon, StatementTree statement) {

@@ -19,96 +19,15 @@
  */
 package org.sonar.javascript.checks;
 
-import com.sonar.sslr.api.AstNode;
 import org.sonar.check.BelongsToProfile;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
-import org.sonar.javascript.api.EcmaScriptTokenType;
-import org.sonar.javascript.model.interfaces.Tree.Kind;
-import org.sonar.javascript.parser.EcmaScriptGrammar;
 import org.sonar.squidbridge.checks.SquidCheck;
-import org.sonar.sslr.grammar.GrammarRuleKey;
 import org.sonar.sslr.parser.LexerlessGrammar;
-
-import java.util.HashSet;
-import java.util.Set;
-import java.util.Stack;
 
 @Rule(
   key = "SameNameForFunctionAndVariable",
   priority = Priority.MAJOR)
 @BelongsToProfile(title = CheckList.SONAR_WAY_PROFILE, priority = Priority.MAJOR)
 public class SameNameForFunctionAndVariableCheck extends SquidCheck<LexerlessGrammar> {
-
-  private Stack<Set<String>> variablesStack;
-  private Stack<Set<String>> functionsStack;
-
-  private static final GrammarRuleKey[] FUNCTION_NODES = {
-    Kind.FUNCTION_DECLARATION,
-    Kind.FUNCTION_EXPRESSION,
-    Kind.GENERATOR_FUNCTION_EXPRESSION,
-    Kind.GENERATOR_DECLARATION,
-    Kind.FUNCTION_EXPRESSION};
-
-  private static final GrammarRuleKey[] CONST_AND_VAR_NODES = {
-    Kind.VARIABLE_DECLARATION,
-    EcmaScriptGrammar.VARIABLE_DECLARATION_NO_IN,
-    EcmaScriptGrammar.LEXICAL_BINDING,
-    EcmaScriptGrammar.LEXICAL_BINDING_NO_IN};
-
-  @Override
-  public void init() {
-    subscribeTo(CONST_AND_VAR_NODES);
-    subscribeTo(FUNCTION_NODES);
-  }
-
-  @Override
-  public void visitFile(AstNode astNode) {
-    variablesStack = new Stack<Set<String>>();
-    variablesStack.add(new HashSet<String>());
-    functionsStack = new Stack<Set<String>>();
-    functionsStack.add(new HashSet<String>());
-  }
-
-  @Override
-  public void visitNode(AstNode astNode) {
-    if (astNode.is(Kind.FUNCTION_DECLARATION, Kind.GENERATOR_DECLARATION, Kind.FUNCTION_EXPRESSION, Kind.GENERATOR_FUNCTION_EXPRESSION)) {
-      AstNode functionNameNode = astNode.getFirstChild(EcmaScriptTokenType.IDENTIFIER, Kind.BINDING_IDENTIFIER);
-      if (functionNameNode != null) {
-        String functionName = functionNameNode.getTokenValue();
-        check(astNode, variablesStack.peek(), functionName);
-        functionsStack.peek().add(functionName);
-      }
-    } else if (astNode.is(CONST_AND_VAR_NODES)) {
-      String variableName = astNode.getTokenValue();
-      check(astNode, functionsStack.peek(), variableName);
-      variablesStack.peek().add(variableName);
-    }
-
-    if (astNode.is(FUNCTION_NODES)) {
-      variablesStack.add(new HashSet<String>());
-      functionsStack.add(new HashSet<String>());
-    }
-  }
-
-  private void check(AstNode astNode, Set<String> names, String name) {
-    if (names.contains(name)) {
-      getContext().createLineViolation(this, "Refactor the code to avoid using \"" + name + "\" for both a variable and a function.", astNode);
-    }
-  }
-
-  @Override
-  public void leaveNode(AstNode astNode) {
-    if (astNode.is(FUNCTION_NODES)) {
-      variablesStack.pop();
-      functionsStack.pop();
-    }
-  }
-
-  @Override
-  public void leaveFile(AstNode astNode) {
-    variablesStack = null;
-    functionsStack = null;
-  }
-
 }

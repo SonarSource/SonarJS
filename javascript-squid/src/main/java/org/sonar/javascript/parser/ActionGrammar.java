@@ -24,6 +24,7 @@ import org.sonar.javascript.api.EcmaScriptKeyword;
 import org.sonar.javascript.api.EcmaScriptPunctuator;
 import org.sonar.javascript.api.EcmaScriptTokenType;
 import org.sonar.javascript.ast.parser.TreeFactory;
+import org.sonar.javascript.model.implementations.SeparatedList;
 import org.sonar.javascript.model.implementations.declaration.ArrayBindingPatternTreeImpl;
 import org.sonar.javascript.model.implementations.declaration.ClassDeclarationTreeImpl;
 import org.sonar.javascript.model.implementations.declaration.DefaultExportDeclarationTreeImpl;
@@ -38,7 +39,6 @@ import org.sonar.javascript.model.implementations.declaration.ObjectBindingPatte
 import org.sonar.javascript.model.implementations.declaration.ParameterListTreeImpl;
 import org.sonar.javascript.model.implementations.declaration.SpecifierListTreeImpl;
 import org.sonar.javascript.model.implementations.declaration.SpecifierTreeImpl;
-import org.sonar.javascript.model.implementations.declaration.VariableDeclarationTreeImpl;
 import org.sonar.javascript.model.implementations.expression.ArrayLiteralTreeImpl;
 import org.sonar.javascript.model.implementations.expression.ArrowFunctionTreeImpl;
 import org.sonar.javascript.model.implementations.expression.BracketMemberExpressionTreeImpl;
@@ -122,17 +122,12 @@ public class ActionGrammar {
 
   public VariableStatementTreeImpl VARIABLE_STATEMENT() {
     return b.<VariableStatementTreeImpl>nonterminal(Kind.VARIABLE_STATEMENT)
-      .is(f.completeVariableStatement(b.invokeRule(EcmaScriptKeyword.VAR), VARIABLE_DECLARATION_LIST(), b.invokeRule(EcmaScriptGrammar.EOS)));
+      .is(f.variableStatement(b.invokeRule(EcmaScriptKeyword.VAR), BINDING_ELEMENT_LIST(), b.invokeRule(EcmaScriptGrammar.EOS)));
   }
 
-  public VariableStatementTreeImpl VARIABLE_DECLARATION_LIST() {
-    return b.<VariableStatementTreeImpl>nonterminal(EcmaScriptGrammar.VARIABLE_DECLARATION_LIST)
-      .is(f.newVariableStatement(VARIABLE_DECLARATION(), b.zeroOrMore(f.newTuple1(b.invokeRule(EcmaScriptPunctuator.COMMA), VARIABLE_DECLARATION()))));
-  }
-
-  public VariableDeclarationTreeImpl VARIABLE_DECLARATION() {
-    return b.<VariableDeclarationTreeImpl>nonterminal(Kind.VARIABLE_DECLARATION)
-      .is(f.variableDeclaration(b.firstOf(b.invokeRule(EcmaScriptGrammar.BINDING_IDENTIFIER_INITIALISER), b.invokeRule(EcmaScriptGrammar.BINDING_PATTERN_INITIALISER))));
+  public SeparatedList<BindingElementTree> BINDING_ELEMENT_LIST() {
+    return b.<SeparatedList<BindingElementTree>>nonterminal()
+      .is(f.bindingElementList(BINDING_ELEMENT(), b.zeroOrMore(f.newTuple1(b.invokeRule(EcmaScriptPunctuator.COMMA), BINDING_ELEMENT()))));
   }
 
   public LabelledStatementTreeImpl LABELLED_STATEMENT() {

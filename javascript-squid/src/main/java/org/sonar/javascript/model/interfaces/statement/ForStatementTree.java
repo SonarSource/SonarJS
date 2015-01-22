@@ -20,10 +20,11 @@
 package org.sonar.javascript.model.interfaces.statement;
 
 import org.sonar.javascript.model.interfaces.Tree;
-import org.sonar.javascript.model.interfaces.declaration.VariableDeclarationTree;
+import org.sonar.javascript.model.interfaces.declaration.BindingElementTree;
 import org.sonar.javascript.model.interfaces.lexical.SyntaxToken;
 
 import javax.annotation.Nullable;
+
 import java.util.List;
 
 /**
@@ -43,7 +44,7 @@ public interface ForStatementTree extends StatementTree {
   SyntaxToken openParenthesis();
 
   @Nullable
-  List<VariableDeclarationTree> init();
+  List<BindingElementTree> init();
 
   SyntaxToken firstSemicolon();
 
