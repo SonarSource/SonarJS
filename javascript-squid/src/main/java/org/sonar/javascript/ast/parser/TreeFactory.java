@@ -118,7 +118,6 @@ import org.sonar.javascript.model.interfaces.expression.TemplateCharactersTree;
 import org.sonar.javascript.model.interfaces.expression.TemplateExpressionTree;
 import org.sonar.javascript.model.interfaces.statement.StatementTree;
 import org.sonar.javascript.model.interfaces.statement.SwitchClauseTree;
-import org.sonar.javascript.parser.EcmaScriptGrammar;
 import org.sonar.javascript.parser.sslr.Optional;
 
 import java.util.Collections;
@@ -1315,13 +1314,6 @@ public class TreeFactory {
 
   public InitializedBindingElementTreeImpl newInitializedBindingElement(AstNode equalToken, ExpressionTree expression) {
     return new InitializedBindingElementTreeImpl(InternalSyntaxToken.create(equalToken), expression);
-  }
-
-  public BindingElementTree completeSingleNameBinding(IdentifierTreeImpl left, Optional<InitializedBindingElementTreeImpl> initializer) {
-    if (!initializer.isPresent()) {
-      return left;
-    }
-    return initializer.get().completeWithLeft(left);
   }
 
   public BindingElementTree completeBindingElement(BindingElementTree left, Optional<InitializedBindingElementTreeImpl> initializer) {

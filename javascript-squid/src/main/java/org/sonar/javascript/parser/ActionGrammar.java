@@ -1392,7 +1392,7 @@ public class ActionGrammar {
       .is(
         b.firstOf(
           f.bindingProperty(PROPERTY_NAME(), b.invokeRule(EcmaScriptPunctuator.COLON), BINDING_ELEMENT()),
-          f.completeSingleNameBinding(BINDING_IDENTIFIER(), b.optional(INITIALISER()))));
+          BINDING_ELEMENT()));
   }
 
   public BindingElementTree BINDING_ELEMENT() {
