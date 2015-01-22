@@ -795,9 +795,11 @@ public class ActionGrammar {
    return b.<ExpressionTree>nonterminal(EcmaScriptGrammar.POSTFIX_EXPRESSION)
      .is(f.postfixExpression(
        LEFT_HAND_SIDE_EXPRESSION(),
-       b.optional(b.firstOf(
-         b.invokeRule(EcmaScriptGrammar.INC_NO_LB),
-         b.invokeRule(EcmaScriptGrammar.DEC_NO_LB)
+       b.optional(f.newTuple16(
+         b.invokeRule(EcmaScriptGrammar.SPACING_NO_LINE_BREAK_NOT_FOLLOWED_BY_LINE_BREAK),
+         b.firstOf(
+           b.invokeRule(EcmaScriptPunctuator.INC),
+           b.invokeRule(EcmaScriptPunctuator.DEC))
        ))
      ));
   }
@@ -815,8 +817,9 @@ public class ActionGrammar {
       .is(f.completeYieldExpression(
         b.invokeRule(EcmaScriptKeyword.YIELD),
         b.optional(f.newYieldExpression(
-            b.optional(b.invokeRule(EcmaScriptGrammar.STAR_NO_LB)),
-            b.invokeRule(EcmaScriptGrammar.ASSIGNMENT_EXPRESSION_NO_LB))
+            b.invokeRule(EcmaScriptGrammar.SPACING_NO_LINE_BREAK_NOT_FOLLOWED_BY_LINE_BREAK),
+            b.optional(b.invokeRule(EcmaScriptPunctuator.STAR)),
+            b.invokeRule(EcmaScriptGrammar.ASSIGNMENT_EXPRESSION))
         )
       ));
   }
@@ -826,8 +829,9 @@ public class ActionGrammar {
       .is(f.completeYieldExpressionNoIn(
         b.invokeRule(EcmaScriptKeyword.YIELD),
         b.optional(f.newYieldExpressionNoIn(
-            b.optional(b.invokeRule(EcmaScriptGrammar.STAR_NO_LB)),
-            b.invokeRule(EcmaScriptGrammar.ASSIGNMENT_EXPRESSION_NO_IN_NO_LB))
+            b.invokeRule(EcmaScriptGrammar.SPACING_NO_LINE_BREAK_NOT_FOLLOWED_BY_LINE_BREAK),
+            b.optional(b.invokeRule(EcmaScriptPunctuator.STAR)),
+            b.invokeRule(EcmaScriptGrammar.ASSIGNMENT_EXPRESSION_NO_IN))
         )
       ));
   }
@@ -864,7 +868,8 @@ public class ActionGrammar {
         b.firstOf(
           BINDING_IDENTIFIER(),
           FORMAL_PARAMETER_LIST()),
-        b.invokeRule(EcmaScriptGrammar.DOUBLEARROW_NO_LB),
+        b.invokeRule(EcmaScriptGrammar.SPACING_NO_LINE_BREAK_NOT_FOLLOWED_BY_LINE_BREAK),
+        b.invokeRule(EcmaScriptPunctuator.DOUBLEARROW),
         b.firstOf(
           BLOCK(),
           b.invokeRule(EcmaScriptGrammar.ASSIGNMENT_EXPRESSION_NO_LCURLY))
@@ -877,7 +882,8 @@ public class ActionGrammar {
         b.firstOf(
           BINDING_IDENTIFIER(),
           FORMAL_PARAMETER_LIST()),
-        b.invokeRule(EcmaScriptGrammar.DOUBLEARROW_NO_LB),
+        b.invokeRule(EcmaScriptGrammar.SPACING_NO_LINE_BREAK_NOT_FOLLOWED_BY_LINE_BREAK),
+        b.invokeRule(EcmaScriptPunctuator.DOUBLEARROW),
         b.firstOf(
           BLOCK(),
           b.invokeRule(EcmaScriptGrammar.ASSIGNMENT_EXPRESSION_NO_IN_NO_LCURLY))

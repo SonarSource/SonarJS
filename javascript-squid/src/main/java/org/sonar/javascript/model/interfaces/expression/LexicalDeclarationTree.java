@@ -40,4 +40,6 @@ public interface LexicalDeclarationTree extends DeclarationTree {
   SyntaxToken keywordToken();
 
   SeparatedList<InitializedBindingElementTree> bindingList();
+
+  Tree eos();
 }

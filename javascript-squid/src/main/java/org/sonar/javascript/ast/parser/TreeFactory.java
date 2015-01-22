@@ -787,12 +787,12 @@ public class TreeFactory {
     return new PrefixExpressionTreeImpl(getPrefixOperator(operator.getType()), InternalSyntaxToken.create(operator), expression);
   }
 
-  public ExpressionTree postfixExpression(ExpressionTree expression, Optional<AstNode> operator) {
-    if (!operator.isPresent()) {
+  public ExpressionTree postfixExpression(ExpressionTree expression, Optional<Tuple<AstNode, AstNode>> operatorNoLB) {
+    if (!operatorNoLB.isPresent()) {
       return expression;
     }
-    Kind kind = operator.get().is(EcmaScriptGrammar.INC_NO_LB) ? Kind.POSTFIX_INCREMENT : Kind.POSTFIX_DECREMENT;
-    return new PostfixExpressionTreeImpl(kind, expression, InternalSyntaxToken.create(operator.get()));
+    Kind kind = operatorNoLB.get().second().is(EcmaScriptPunctuator.INC) ? Kind.POSTFIX_INCREMENT : Kind.POSTFIX_DECREMENT;
+    return new PostfixExpressionTreeImpl(kind, expression, InternalSyntaxToken.create(operatorNoLB.get().second()));
   }
 
   public YieldExpressionTreeImpl completeYieldExpression(AstNode yieldToken, Optional<YieldExpressionTreeImpl> partial) {
@@ -809,14 +809,14 @@ public class TreeFactory {
     return new YieldExpressionTreeImpl(InternalSyntaxToken.create(yieldToken));
   }
 
-  public YieldExpressionTreeImpl newYieldExpression(Optional<AstNode> starToken, AstNode expression) {
+  public YieldExpressionTreeImpl newYieldExpression(AstNode spacingNoLB, Optional<AstNode> starToken, AstNode expression) {
     if (starToken.isPresent()) {
       return new YieldExpressionTreeImpl(InternalSyntaxToken.create(starToken.get()), expression);
     }
     return new YieldExpressionTreeImpl(expression);
   }
 
-  public YieldExpressionTreeImpl newYieldExpressionNoIn(Optional<AstNode> starToken, AstNode expression) {
+  public YieldExpressionTreeImpl newYieldExpressionNoIn(AstNode spacingNoLB, Optional<AstNode> starToken, AstNode expression) {
     if (starToken.isPresent()) {
       return new YieldExpressionTreeImpl(InternalSyntaxToken.create(starToken.get()), expression);
     }
@@ -831,11 +831,11 @@ public class TreeFactory {
     return new IdentifierTreeImpl(Kind.BINDING_IDENTIFIER, InternalSyntaxToken.create(identifier));
   }
 
-  public ArrowFunctionTreeImpl arrowFunction(Tree parameters, AstNode doubleArrow, AstNode body) {
+  public ArrowFunctionTreeImpl arrowFunction(Tree parameters, AstNode spacingNoLB, AstNode doubleArrow, AstNode body) {
     return new ArrowFunctionTreeImpl(parameters, InternalSyntaxToken.create(doubleArrow), body);
   }
 
-  public ArrowFunctionTreeImpl arrowFunctionNoIn(Tree parameters, AstNode doubleArrow, AstNode body) {
+  public ArrowFunctionTreeImpl arrowFunctionNoIn(Tree parameters, AstNode spacingNoLB, AstNode doubleArrow, AstNode body) {
     return new ArrowFunctionTreeImpl(parameters, InternalSyntaxToken.create(doubleArrow), body);
   }
 
