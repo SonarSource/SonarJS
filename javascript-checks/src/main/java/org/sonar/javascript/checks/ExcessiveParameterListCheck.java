@@ -54,7 +54,7 @@ public class ExcessiveParameterListCheck extends SquidCheck<LexerlessGrammar> {
       getContext().createLineViolation(this,
           "Function has {0,number,integer} parameters which is greater than {1,number,integer} authorized.",
           // Report issue on the line of the first parameter
-          node.getFirstChild(Kind.BINDING_IDENTIFIER, Kind.BINDING_ELEMENT, EcmaScriptGrammar.BINDING_REST_ELEMENT),
+          node.getFirstChild(Kind.BINDING_IDENTIFIER, Kind.INITIALIZED_BINDING_ELEMENT, EcmaScriptGrammar.BINDING_REST_ELEMENT),
           numberOfParameters,
           maximumFunctionParameters);
     }

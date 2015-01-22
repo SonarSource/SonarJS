@@ -19,8 +19,8 @@
  */
 package org.sonar.javascript.model.implementations.declaration;
 
-import com.google.common.collect.Iterators;
 import com.sonar.sslr.api.AstNode;
+import com.sonar.sslr.api.AstNodeType;
 import org.sonar.javascript.model.implementations.JavaScriptTree;
 import org.sonar.javascript.model.implementations.lexical.InternalSyntaxToken;
 import org.sonar.javascript.model.interfaces.Tree;
@@ -29,25 +29,25 @@ import org.sonar.javascript.model.interfaces.declaration.InitializedBindingEleme
 import org.sonar.javascript.model.interfaces.expression.ExpressionTree;
 import org.sonar.javascript.model.interfaces.lexical.SyntaxToken;
 
-import javax.annotation.Nullable;
 import java.util.Iterator;
 
-public class BindingElementTreeImpl extends JavaScriptTree implements InitializedBindingElementTree {
+public class InitializedBindingElementTreeImpl extends JavaScriptTree implements InitializedBindingElementTree {
 
-  private Tree left;
-  private SyntaxToken equalToken;
-  private ExpressionTree right;
+  private BindingElementTree left;
+  private final SyntaxToken equalToken;
+  private final ExpressionTree right;
 
-  public BindingElementTreeImpl(InternalSyntaxToken equalToken, ExpressionTree right) {
-    super(Kind.BINDING_ELEMENT);
+  public InitializedBindingElementTreeImpl(InternalSyntaxToken equalToken, ExpressionTree right) {
+    super(Kind.INITIALIZED_BINDING_ELEMENT);
+
     this.equalToken = equalToken;
     this.right = right;
 
     addChildren(equalToken, (AstNode) right);
   }
 
-  // FIXME: get rid of AstNode
-  public BindingElementTreeImpl complete(AstNode left) {
+  public InitializedBindingElementTreeImpl completeWithLeft(BindingElementTree left) {
+    this.left = left;
 
     prependChildren((AstNode) left);
     return this;
@@ -55,29 +55,27 @@ public class BindingElementTreeImpl extends JavaScriptTree implements Initialize
 
   @Override
   public BindingElementTree left() {
-    throw new UnsupportedOperationException("Not supported yet in the strongly typed AST.");
+    return left;
   }
 
-  @Nullable
   @Override
   public SyntaxToken equalToken() {
     return equalToken;
   }
 
-  @Nullable
   @Override
   public ExpressionTree right() {
     return right;
   }
 
   @Override
-  public Kind getKind() {
-    return Kind.BINDING_ELEMENT;
+  public Iterator<Tree> childrenIterator() {
+    return null;
   }
 
   @Override
-  public Iterator<Tree> childrenIterator() {
-    return Iterators.emptyIterator();
+  public AstNodeType getKind() {
+    return Kind.INITIALIZED_BINDING_ELEMENT;
   }
 
 }

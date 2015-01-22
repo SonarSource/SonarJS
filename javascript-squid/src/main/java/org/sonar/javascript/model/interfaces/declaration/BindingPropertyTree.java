@@ -32,7 +32,7 @@ import org.sonar.javascript.model.interfaces.lexical.SyntaxToken;
  *
  * <p>This interface is not intended to be implemented by clients.</p>
  */
-public interface BindingPropertyTree extends DeclarationTree {
+public interface BindingPropertyTree extends DeclarationTree, BindingElementTree {
 
   ExpressionTree name();
 

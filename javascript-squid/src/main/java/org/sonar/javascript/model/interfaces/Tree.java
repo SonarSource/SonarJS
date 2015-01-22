@@ -23,7 +23,6 @@ import com.sonar.sslr.api.AstNodeType;
 import org.sonar.javascript.model.implementations.declaration.SpecifierListTreeImpl;
 import org.sonar.javascript.model.interfaces.declaration.AccessorMethodDeclarationTree;
 import org.sonar.javascript.model.interfaces.declaration.ArrayBindingPatternTree;
-import org.sonar.javascript.model.interfaces.declaration.InitializedBindingElementTree;
 import org.sonar.javascript.model.interfaces.declaration.BindingPropertyTree;
 import org.sonar.javascript.model.interfaces.declaration.ClassDeclarationTree;
 import org.sonar.javascript.model.interfaces.declaration.DefaultExportDeclarationTree;
@@ -34,6 +33,7 @@ import org.sonar.javascript.model.interfaces.declaration.GeneratorMethodDeclarat
 import org.sonar.javascript.model.interfaces.declaration.ImportClauseTree;
 import org.sonar.javascript.model.interfaces.declaration.ImportDeclarationTree;
 import org.sonar.javascript.model.interfaces.declaration.ImportModuleDeclarationTree;
+import org.sonar.javascript.model.interfaces.declaration.InitializedBindingElementTree;
 import org.sonar.javascript.model.interfaces.declaration.MethodDeclarationTree;
 import org.sonar.javascript.model.interfaces.declaration.NameSpaceExportDeclarationTree;
 import org.sonar.javascript.model.interfaces.declaration.NamedExportDeclarationTree;
@@ -735,14 +735,9 @@ public interface Tree {
     CLASS_DECLARATION(ClassDeclarationTree.class),
 
     /**
-     * {@link org.sonar.javascript.model.interfaces.declaration.InitializedBindingElementTree}
+     * {@link InitializedBindingElementTree}
      */
-    SINGLE_NAME_BINDING(InitializedBindingElementTree.class),
-
-    /**
-     * {@link org.sonar.javascript.model.interfaces.declaration.InitializedBindingElementTree}
-     */
-    BINDING_ELEMENT(InitializedBindingElementTree.class),
+    INITIALIZED_BINDING_ELEMENT(InitializedBindingElementTree.class),
 
     /**
      * {@link ObjectBindingPatternTree}

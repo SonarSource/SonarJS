@@ -24,7 +24,7 @@ import com.sonar.sslr.api.AstNode;
 import org.sonar.javascript.model.implementations.JavaScriptTree;
 import org.sonar.javascript.model.implementations.lexical.InternalSyntaxToken;
 import org.sonar.javascript.model.interfaces.Tree;
-import org.sonar.javascript.model.interfaces.declaration.InitializedBindingElementTree;
+import org.sonar.javascript.model.interfaces.declaration.BindingElementTree;
 import org.sonar.javascript.model.interfaces.declaration.BindingPropertyTree;
 import org.sonar.javascript.model.interfaces.expression.ExpressionTree;
 import org.sonar.javascript.model.interfaces.lexical.SyntaxToken;
@@ -33,16 +33,17 @@ import java.util.Iterator;
 
 public class BindingPropertyTreeImpl extends JavaScriptTree implements BindingPropertyTree {
 
-  private ExpressionTree name;
-  private SyntaxToken colonToken;
+  private final ExpressionTree name;
+  private final SyntaxToken colonToken;
+  private final BindingElementTree value;
 
-  // FIXME: get rid of AstNode
-  public BindingPropertyTreeImpl(ExpressionTree name, InternalSyntaxToken colonToken, AstNode value) {
+  public BindingPropertyTreeImpl(ExpressionTree name, InternalSyntaxToken colonToken, BindingElementTree value) {
     super(Kind.BINDING_PROPERTY);
     this.name = name;
     this.colonToken = colonToken;
+    this.value = value;
 
-    addChildren((AstNode) name, colonToken, value);
+    addChildren((AstNode) name, colonToken, (AstNode) value);
   }
 
   @Override
@@ -56,8 +57,8 @@ public class BindingPropertyTreeImpl extends JavaScriptTree implements BindingPr
   }
 
   @Override
-  public InitializedBindingElementTree value() {
-    throw new UnsupportedOperationException("Not supported yet in the strongly typed AST.");
+  public BindingElementTree value() {
+    return value;
   }
 
   @Override

@@ -30,15 +30,19 @@ public class ArrayBindingPatternTest {
   @Test
   public void ok() {
     assertThat(EcmaScriptGrammar.ARRAY_BINDING_PATTERN)
-        .matches("[ ]")
-        .matches("[ , ]")
-        .matches("[ ...a ]")
-        .matches("[ , ...a ]")
-        .matches("[ identifier , ]")
-        .matches("[ identifier , , ]")
-        .matches("[ identifier , ...a ]")
-        .matches("[ identifier , , ...a ]")
-        .matches("[ identifier , ]");
+      .matches("[ ]")
+      .matches("[ , ]")
+      .matches("[ ...a ]")
+      .matches("[ , ...a ]")
+      .matches("[ identifier , ]")
+      .matches("[ identifier , , ]")
+      .matches("[ identifier , ...a ]")
+      .matches("[ identifier , , ...a ]")
+      .matches("[ identifier , ]")
+      .matches("[ , ]")
+      .matches("[ a ]")
+      .matches("[ a, b ]")
+      .matches("[ , , ]");
   }
 
 }

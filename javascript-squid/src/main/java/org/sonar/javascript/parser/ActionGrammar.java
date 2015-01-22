@@ -24,12 +24,13 @@ import org.sonar.javascript.api.EcmaScriptKeyword;
 import org.sonar.javascript.api.EcmaScriptPunctuator;
 import org.sonar.javascript.api.EcmaScriptTokenType;
 import org.sonar.javascript.ast.parser.TreeFactory;
-import org.sonar.javascript.model.implementations.declaration.BindingElementTreeImpl;
+import org.sonar.javascript.model.implementations.declaration.ArrayBindingPatternTreeImpl;
 import org.sonar.javascript.model.implementations.declaration.ClassDeclarationTreeImpl;
 import org.sonar.javascript.model.implementations.declaration.DefaultExportDeclarationTreeImpl;
 import org.sonar.javascript.model.implementations.declaration.FromClauseTreeImpl;
 import org.sonar.javascript.model.implementations.declaration.FunctionDeclarationTreeImpl;
 import org.sonar.javascript.model.implementations.declaration.ImportClauseTreeImpl;
+import org.sonar.javascript.model.implementations.declaration.InitializedBindingElementTreeImpl;
 import org.sonar.javascript.model.implementations.declaration.MethodDeclarationTreeImpl;
 import org.sonar.javascript.model.implementations.declaration.ModuleTreeImpl;
 import org.sonar.javascript.model.implementations.declaration.NamedExportDeclarationTreeImpl;
@@ -81,8 +82,8 @@ import org.sonar.javascript.model.implementations.statement.TryStatementTreeImpl
 import org.sonar.javascript.model.implementations.statement.VariableStatementTreeImpl;
 import org.sonar.javascript.model.implementations.statement.WhileStatementTreeImpl;
 import org.sonar.javascript.model.implementations.statement.WithStatementTreeImpl;
-import org.sonar.javascript.model.interfaces.Tree;
 import org.sonar.javascript.model.interfaces.Tree.Kind;
+import org.sonar.javascript.model.interfaces.declaration.BindingElementTree;
 import org.sonar.javascript.model.interfaces.declaration.DeclarationTree;
 import org.sonar.javascript.model.interfaces.declaration.ExportDeclarationTree;
 import org.sonar.javascript.model.interfaces.declaration.ImportModuleDeclarationTree;
@@ -452,9 +453,9 @@ public class ActionGrammar {
       .is(f.stringLiteral(b.invokeRule(EcmaScriptGrammar.STRING_LITERAL)));
   }
 
-  public AstNode ARRAY_LITERAL_ELEMENT() {
-    return b.<AstNode>nonterminal(EcmaScriptGrammar.ARRAY_LITERAL_ELEMENT)
-      .is(f.arrayInitialiserElement(b.optional(b.invokeRule(EcmaScriptPunctuator.ELLIPSIS)), b.invokeRule(EcmaScriptGrammar.ASSIGNMENT_EXPRESSION)));
+  public ExpressionTree ARRAY_LITERAL_ELEMENT() {
+    return b.<ExpressionTree>nonterminal(EcmaScriptGrammar.ARRAY_LITERAL_ELEMENT)
+      .is(f.arrayInitialiserElement(b.optional(b.invokeRule(EcmaScriptPunctuator.ELLIPSIS)), ASSIGNMENT_EXPRESSION()));
   }
 
   public ArrayLiteralTreeImpl ARRAY_ELEMENT_LIST() {
@@ -960,12 +961,11 @@ public class ActionGrammar {
       );
   }
 
-  // FIXME get rid of AstNode
-  public AstNode ARGUMENT() {
-    return b.<AstNode>nonterminal()
+  public ExpressionTree ARGUMENT() {
+    return b.<ExpressionTree>nonterminal()
       .is(f.argument(
         b.optional(b.invokeRule(EcmaScriptPunctuator.ELLIPSIS)),
-        b.invokeRule(EcmaScriptGrammar.ASSIGNMENT_EXPRESSION)));
+        ASSIGNMENT_EXPRESSION()));
   }
 
   public ExpressionTree CALL_EXPRESSION() {
@@ -1356,58 +1356,72 @@ public class ActionGrammar {
 
   // [START] Destructuring pattern
 
-  public BindingElementTreeImpl INITIALISER() {
-    return b.<BindingElementTreeImpl>nonterminal(EcmaScriptGrammar.INITIALISER)
-      .is(f.newBindingElement(
-        b.invokeRule(EcmaScriptPunctuator.EQU),
-        ASSIGNMENT_EXPRESSION()
-      ));
+  public BindingElementTree BINDING_PATTERN() {
+    return b.<BindingElementTree>nonterminal(EcmaScriptGrammar.BINDING_PATTERN)
+      .is(
+        b.firstOf(
+          OBJECT_BINDING_PATTERN(),
+          ARRAY_BINDING_PATTERN()));
+  }
+
+  public InitializedBindingElementTreeImpl INITIALISER() {
+    return b.<InitializedBindingElementTreeImpl>nonterminal(EcmaScriptGrammar.INITIALISER)
+      .is(f.newInitializedBindingElement(b.invokeRule(EcmaScriptPunctuator.EQU), ASSIGNMENT_EXPRESSION()));
   }
 
   public ObjectBindingPatternTreeImpl OBJECT_BINDING_PATTERN() {
     return b.<ObjectBindingPatternTreeImpl>nonterminal(Kind.OBJECT_BINDING_PATTERN)
-      .is(f.completeObjectBindingPattern(
-        b.invokeRule(EcmaScriptPunctuator.LCURLYBRACE),
-        b.optional(BINDING_PROPERTY_LIST()),
-        b.invokeRule(EcmaScriptPunctuator.RCURLYBRACE)
-      ));
+      .is(
+        f.completeObjectBindingPattern(
+          b.invokeRule(EcmaScriptPunctuator.LCURLYBRACE),
+          b.optional(BINDING_PROPERTY_LIST()),
+          b.invokeRule(EcmaScriptPunctuator.RCURLYBRACE)));
   }
 
   public ObjectBindingPatternTreeImpl BINDING_PROPERTY_LIST() {
     return b.<ObjectBindingPatternTreeImpl>nonterminal()
-      .is(f.newObjectBindingPattern(
-        BINDING_PROPERTY(),
-        b.zeroOrMore(f.newTuple53(b.invokeRule(EcmaScriptPunctuator.COMMA), BINDING_PROPERTY())),
-        b.optional(b.invokeRule(EcmaScriptPunctuator.COMMA))
-      ));
+      .is(
+        f.newObjectBindingPattern(
+          BINDING_PROPERTY(),
+          b.zeroOrMore(f.newTuple53(b.invokeRule(EcmaScriptPunctuator.COMMA), BINDING_PROPERTY())),
+          b.optional(b.invokeRule(EcmaScriptPunctuator.COMMA))));
   }
 
-  public Tree BINDING_PROPERTY() {
-    return b.<Tree>nonterminal()
-      .is(b.firstOf(
-        f.bindingProperty(
-          PROPERTY_NAME(),
-          b.invokeRule(EcmaScriptPunctuator.COLON),
-          BINDING_ELEMENT()),
-        SINGLE_NAME_BINDING()
-      ));
+  public BindingElementTree BINDING_PROPERTY() {
+    return b.<BindingElementTree>nonterminal()
+      .is(
+        b.firstOf(
+          f.bindingProperty(PROPERTY_NAME(), b.invokeRule(EcmaScriptPunctuator.COLON), BINDING_ELEMENT()),
+          f.completeSingleNameBinding(BINDING_IDENTIFIER(), b.optional(INITIALISER()))));
   }
 
-  // FIXME: get rid of AstNode
-  public AstNode BINDING_ELEMENT() {
-    return b.<AstNode>nonterminal(EcmaScriptGrammar.BINDING_ELEMENT)
-      .is(b.firstOf(
-        (AstNode) SINGLE_NAME_BINDING(),
-        f.newBindingPatternElement(b.invokeRule(EcmaScriptGrammar.BINDING_PATTERN), b.optional(INITIALISER()))
-      ));
+  public BindingElementTree BINDING_ELEMENT() {
+    return b.<BindingElementTree>nonterminal(EcmaScriptGrammar.BINDING_ELEMENT)
+      .is(
+        f.completeBindingElement(
+          b.firstOf(
+            BINDING_IDENTIFIER(),
+            BINDING_PATTERN()),
+          b.optional(INITIALISER())));
   }
 
-  public Tree SINGLE_NAME_BINDING() {
-    return b.<Tree>nonterminal(EcmaScriptGrammar.SINGLE_NAME_BINDING)
-      .is(f.singleNameBinding(
-        BINDING_IDENTIFIER(),
-        b.optional(INITIALISER())
-      ));
+  public ArrayBindingPatternTreeImpl ARRAY_BINDING_PATTERN() {
+    return b.<ArrayBindingPatternTreeImpl>nonterminal(EcmaScriptGrammar.ARRAY_BINDING_PATTERN)
+      .is(
+        f.arrayBindingPattern(
+          b.invokeRule(EcmaScriptPunctuator.LBRACKET),
+          b.optional(
+            b.firstOf(
+              BINDING_ELEMENT(),
+              BINDING_REST_ELEMENT())),
+          b.zeroOrMore(
+            f.newTuple29(
+              b.invokeRule(EcmaScriptPunctuator.COMMA),
+              b.optional(
+                b.firstOf(
+                  BINDING_ELEMENT(),
+                  BINDING_REST_ELEMENT())))),
+          b.invokeRule(EcmaScriptPunctuator.RBRACKET)));
   }
 
   // [END] Destructuring pattern

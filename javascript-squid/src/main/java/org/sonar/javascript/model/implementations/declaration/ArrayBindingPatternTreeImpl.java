@@ -20,38 +20,56 @@
 package org.sonar.javascript.model.implementations.declaration;
 
 import com.google.common.collect.Iterators;
+import com.sonar.sslr.api.AstNode;
 import org.sonar.javascript.model.implementations.JavaScriptTree;
 import org.sonar.javascript.model.implementations.SeparatedList;
+import org.sonar.javascript.model.implementations.lexical.InternalSyntaxToken;
 import org.sonar.javascript.model.interfaces.Tree;
 import org.sonar.javascript.model.interfaces.declaration.ArrayBindingPatternTree;
-import org.sonar.javascript.model.interfaces.declaration.InitializedBindingElementTree;
-import org.sonar.javascript.model.interfaces.lexical.SyntaxToken;
+import org.sonar.javascript.model.interfaces.declaration.BindingElementTree;
+import org.sonar.javascript.parser.sslr.Optional;
 
 import java.util.Iterator;
+import java.util.List;
 
 public class ArrayBindingPatternTreeImpl extends JavaScriptTree implements ArrayBindingPatternTree {
 
-  private SyntaxToken openBracket;
-  private SeparatedList<InitializedBindingElementTree> bindingElements;
-  private SyntaxToken closeBracket;
+  private final InternalSyntaxToken openBracketToken;
+  private final SeparatedList<Optional<BindingElementTree>> elements;
+  private final InternalSyntaxToken closeBracketToken;
 
-  public ArrayBindingPatternTreeImpl() {
+  public ArrayBindingPatternTreeImpl(
+    InternalSyntaxToken openBracketToken,
+    SeparatedList<Optional<BindingElementTree>> elements,
+    List<AstNode> children,
+    InternalSyntaxToken closeBracketToken) {
+
     super(Kind.ARRAY_BINDING_PATTERN);
+
+    this.openBracketToken = openBracketToken;
+    this.elements = elements;
+    this.closeBracketToken = closeBracketToken;
+
+    addChild(openBracketToken);
+    for (AstNode child : children) {
+      addChild(child);
+    }
+    addChild(closeBracketToken);
   }
 
   @Override
-  public SyntaxToken openBracket() {
-    return openBracket;
+  public InternalSyntaxToken openBracketToken() {
+    return openBracketToken;
   }
 
   @Override
-  public SeparatedList<InitializedBindingElementTree> bindingElements() {
-    return bindingElements;
+  public SeparatedList<Optional<BindingElementTree>> elements() {
+    return elements;
   }
 
   @Override
-  public SyntaxToken closeBracket() {
-    return closeBracket;
+  public InternalSyntaxToken closeBracketToken() {
+    return closeBracketToken;
   }
 
   @Override

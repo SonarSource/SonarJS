@@ -21,23 +21,24 @@ package org.sonar.javascript.model.interfaces.declaration;
 
 import org.sonar.javascript.model.implementations.SeparatedList;
 import org.sonar.javascript.model.interfaces.lexical.SyntaxToken;
+import org.sonar.javascript.parser.sslr.Optional;
 
 /**
  * Common interface for all types of <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-destructuring-binding-patterns">Array Binding Pattern</a>.
  * <p/>
  * <pre>
  *   [ ]
- *   [  {@link #bindingElements()} ]
+ *   [  {@link #elements()} ]
  * </pre>
  * <p/>
  * <p>This interface is not intended to be implemented by clients.</p>
  */
-public interface ArrayBindingPatternTree extends DeclarationTree {
+public interface ArrayBindingPatternTree extends DeclarationTree, BindingElementTree {
 
-  SyntaxToken openBracket();
+  SyntaxToken openBracketToken();
 
-  SeparatedList<InitializedBindingElementTree> bindingElements();
+  SeparatedList<Optional<BindingElementTree>> elements();
 
-  SyntaxToken closeBracket();
+  SyntaxToken closeBracketToken();
 
 }

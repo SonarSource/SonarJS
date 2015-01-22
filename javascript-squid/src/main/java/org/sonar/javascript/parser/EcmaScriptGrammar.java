@@ -182,15 +182,11 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
   /** ECMAScript 6 **/
   SPREAD_ELEMENT,
   /** ECMAScript 6 **/
-  ELISION,
-  /** ECMAScript 6 **/
   ELEMENT_LIST,
   BINDING_REST_ELEMENT,
   SINGLE_NAME_BINDING,
   BINDING_ELEMENT,
   BINDING_PROPERTY,
-  BINDING_ELISION_ELEMENT,
-  BINDING_ELEMENT_LIST,
   ARRAY_BINDING_PATTERN,
   BINDING_PATTERN,
 
@@ -479,8 +475,6 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
    * A.3 Expressions
    */
   private static void expressions(LexerlessGrammarBuilder b) {
-    b.rule(ELISION).is(b.oneOrMore(COMMA));
-
     b.rule(EXPRESSION_NO_IN).is(ASSIGNMENT_EXPRESSION_NO_IN, b.zeroOrMore(COMMA, ASSIGNMENT_EXPRESSION_NO_IN));
 
     // Temporary rules
@@ -542,15 +536,6 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
     b.rule(LEXICAL_BINDING).is(b.firstOf(BINDING_IDENTIFIER_INITIALISER, BINDING_PATTERN_INITIALISER));
     b.rule(BINDING_IDENTIFIER_INITIALISER).is(BINDING_IDENTIFIER, b.optional(INITIALISER));
     b.rule(BINDING_PATTERN_INITIALISER).is(BINDING_PATTERN, INITIALISER);
-    b.rule(BINDING_PATTERN).is(b.firstOf(Kind.OBJECT_BINDING_PATTERN, ARRAY_BINDING_PATTERN));
-    b.rule(ARRAY_BINDING_PATTERN).is(
-      LBRACKET,
-      b.optional(b.firstOf(
-        b.sequence(BINDING_ELEMENT_LIST, b.optional(COMMA, b.optional(ELISION), b.optional(BINDING_REST_ELEMENT))),
-        b.sequence(b.optional(ELISION), b.optional(BINDING_REST_ELEMENT)))),
-      RBRACKET);
-    b.rule(BINDING_ELEMENT_LIST).is(BINDING_ELISION_ELEMENT, b.zeroOrMore(COMMA, BINDING_ELISION_ELEMENT));
-    b.rule(BINDING_ELISION_ELEMENT).is(b.optional(ELISION), BINDING_ELEMENT);
 
     b.rule(LEXICAL_DECLARATION_NO_IN).is(LET_OR_CONST, BINDING_LIST_NO_IN);
     b.rule(BINDING_LIST_NO_IN).is(LEXICAL_BINDING_NO_IN, b.zeroOrMore(COMMA, LEXICAL_BINDING_NO_IN));

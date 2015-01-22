@@ -24,22 +24,24 @@ import com.sonar.sslr.api.AstNode;
 import org.sonar.javascript.model.implementations.JavaScriptTree;
 import org.sonar.javascript.model.implementations.lexical.InternalSyntaxToken;
 import org.sonar.javascript.model.interfaces.Tree;
+import org.sonar.javascript.model.interfaces.declaration.BindingElementTree;
 import org.sonar.javascript.model.interfaces.expression.ExpressionTree;
-import org.sonar.javascript.model.interfaces.expression.LiteralTree;
 import org.sonar.javascript.model.interfaces.expression.RestElementTree;
 import org.sonar.javascript.model.interfaces.lexical.SyntaxToken;
 
 import java.util.Iterator;
 
-public class RestElementTreeImpl extends JavaScriptTree implements RestElementTree {
+public class RestElementTreeImpl extends JavaScriptTree implements RestElementTree, BindingElementTree {
 
   private final SyntaxToken ellispis;
+  private final ExpressionTree element;
 
-  public RestElementTreeImpl(InternalSyntaxToken ellispis, AstNode element) {
+  public RestElementTreeImpl(InternalSyntaxToken ellispis, ExpressionTree element) {
     super(Kind.REST_ELEMENT);
     this.ellispis = ellispis;
+    this.element = element;
 
-    addChildren(ellispis, element);
+    addChildren(ellispis, (AstNode) element);
   }
 
   @Override
@@ -49,7 +51,7 @@ public class RestElementTreeImpl extends JavaScriptTree implements RestElementTr
 
   @Override
   public ExpressionTree element() {
-    throw new UnsupportedOperationException("Not supported yet in the strongly typed AST.");
+    return element;
   }
 
   @Override

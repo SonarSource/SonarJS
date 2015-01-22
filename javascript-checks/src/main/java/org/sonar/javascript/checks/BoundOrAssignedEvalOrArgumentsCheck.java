@@ -19,127 +19,15 @@
  */
 package org.sonar.javascript.checks;
 
-import com.sonar.sslr.api.AstNode;
 import org.sonar.check.BelongsToProfile;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
-import org.sonar.javascript.api.EcmaScriptTokenType;
-import org.sonar.javascript.checks.utils.CheckUtils;
-import org.sonar.javascript.checks.utils.IdentifierUtils;
-import org.sonar.javascript.model.interfaces.Tree.Kind;
-import org.sonar.javascript.parser.EcmaScriptGrammar;
 import org.sonar.squidbridge.checks.SquidCheck;
-import org.sonar.sslr.grammar.GrammarRuleKey;
 import org.sonar.sslr.parser.LexerlessGrammar;
-
-import java.util.List;
 
 @Rule(
   key = "BoundOrAssignedEvalOrArguments",
   priority = Priority.CRITICAL)
 @BelongsToProfile(title = CheckList.SONAR_WAY_PROFILE, priority = Priority.CRITICAL)
 public class BoundOrAssignedEvalOrArgumentsCheck extends SquidCheck<LexerlessGrammar> {
-
-  private static final GrammarRuleKey[] FUNCTION_NODES = {
-    Kind.FUNCTION_EXPRESSION,
-    Kind.FUNCTION_DECLARATION,
-    Kind.GENERATOR_DECLARATION,
-    Kind.GENERATOR_FUNCTION_EXPRESSION};
-
-  private static final GrammarRuleKey[] CONST_AND_VAR_NODES = {
-    Kind.VARIABLE_DECLARATION,
-    EcmaScriptGrammar.VARIABLE_DECLARATION_NO_IN,
-    EcmaScriptGrammar.LEXICAL_BINDING,
-    EcmaScriptGrammar.LEXICAL_BINDING_NO_IN};
-
-  @Override
-  public void init() {
-    subscribeTo(
-      Kind.CATCH_BLOCK,
-      Kind.FORMAL_PARAMETER_LIST,
-      Kind.PREFIX_INCREMENT,
-      Kind.PREFIX_DECREMENT,
-      Kind.POSTFIX_INCREMENT,
-      Kind.POSTFIX_DECREMENT);
-    subscribeTo(CheckUtils.assignmentExpressionArray());
-    subscribeTo(FUNCTION_NODES);
-    subscribeTo(CONST_AND_VAR_NODES);
-  }
-
-  @Override
-  public void visitNode(AstNode astNode) {
-    if (astNode.is(FUNCTION_NODES)) {
-      checkFunction(astNode);
-    } else if (astNode.is(Kind.CATCH_BLOCK) || astNode.is(CONST_AND_VAR_NODES)) {
-      checkVariableDeclaration(astNode);
-    } else if (astNode.is(Kind.FORMAL_PARAMETER_LIST) && astNode.getParent().is(Kind.SET_METHOD)) {
-      checkPropertySetParameterList(astNode);
-    } else if (CheckUtils.isAssignmentExpression(astNode)) {
-      checkModification(astNode.getFirstChild());
-    } else if (astNode.is(Kind.PREFIX_INCREMENT, Kind.PREFIX_DECREMENT)) {
-      checkModification(astNode.getLastChild());
-    } else if (astNode.is(Kind.POSTFIX_INCREMENT, Kind.POSTFIX_DECREMENT)) {
-      checkModification(astNode.getFirstChild());
-    }
-  }
-
-  private void checkFunction(AstNode functionNode) {
-    AstNode identifier = functionNode.getFirstChild(EcmaScriptTokenType.IDENTIFIER, Kind.BINDING_IDENTIFIER);
-    if (identifier != null && isEvalOrArguments(identifier.getTokenValue())) {
-      getContext().createLineViolation(this, createMessageFor("function", identifier.getTokenValue()), identifier);
-    }
-    AstNode formalParameterList = functionNode.getFirstChild(Kind.FORMAL_PARAMETER_LIST);
-
-    if (formalParameterList != null) {
-      checkFormalParamList(formalParameterList);
-    }
-  }
-
-  private void checkFormalParamList(AstNode formalParameterList) {
-    for (AstNode identifier : IdentifierUtils.getParametersIdentifier(formalParameterList)) {
-      String identifierName = identifier.getTokenValue();
-
-      if (isEvalOrArguments(identifierName)) {
-        getContext().createLineViolation(this, createMessageFor("parameter", identifierName), identifier);
-      }
-    }
-  }
-
-  private void checkVariableDeclaration(AstNode astNode) {
-    List<AstNode> identifiers = astNode.is(Kind.CATCH_BLOCK) ?
-      IdentifierUtils.getCatchIdentifiers(astNode) : IdentifierUtils.getVariableIdentifiers(astNode);
-
-    for (AstNode identifier : identifiers) {
-      String identifierName = identifier.getTokenValue();
-
-      if (isEvalOrArguments(identifierName)) {
-        getContext().createLineViolation(this, createMessageFor("variable", identifierName), identifier);
-      }
-    }
-  }
-
-  private void checkPropertySetParameterList(AstNode propertySetParameterList) {
-    for (AstNode identifier : IdentifierUtils.getParametersIdentifier(propertySetParameterList)) {
-      String identifierName = identifier.getTokenValue();
-
-      if (isEvalOrArguments(identifierName)) {
-        getContext().createLineViolation(this, createMessageFor("parameter", identifierName), identifier);
-      }
-    }
-  }
-
-  private void checkModification(AstNode astNode) {
-    if (astNode.isNot(Kind.BRACKET_MEMBER_EXPRESSION) && isEvalOrArguments(astNode.getTokenValue())) {
-      getContext().createLineViolation(this, "Remove the modification of \"" + astNode.getTokenValue() + "\".", astNode);
-    }
-  }
-
-  private static String createMessageFor(String name, String value) {
-    return "Do not use \"" + value + "\" to declare a " + name + " - use another name.";
-  }
-
-  private boolean isEvalOrArguments(String name) {
-    return "eval".equals(name) || "arguments".equals(name);
-  }
-
 }

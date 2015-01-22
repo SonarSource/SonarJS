@@ -19,138 +19,15 @@
  */
 package org.sonar.javascript.checks;
 
-import com.google.common.collect.Maps;
-import com.sonar.sslr.api.AstNode;
 import org.sonar.check.BelongsToProfile;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
-import org.sonar.javascript.checks.utils.CheckUtils;
-import org.sonar.javascript.checks.utils.IdentifierUtils;
-import org.sonar.javascript.model.interfaces.Tree.Kind;
-import org.sonar.javascript.parser.EcmaScriptGrammar;
 import org.sonar.squidbridge.checks.SquidCheck;
-import org.sonar.sslr.grammar.GrammarRuleKey;
 import org.sonar.sslr.parser.LexerlessGrammar;
-
-import java.util.List;
-import java.util.Map;
 
 @Rule(
   key = "UnusedVariable",
   priority = Priority.MAJOR)
 @BelongsToProfile(title = CheckList.SONAR_WAY_PROFILE, priority = Priority.MAJOR)
 public class UnusedVariableCheck extends SquidCheck<LexerlessGrammar> {
-
-  private static class Variable {
-    final AstNode declaration;
-    int usages;
-
-    public Variable(AstNode declaration, int usages) {
-      this.declaration = declaration;
-      this.usages = usages;
-    }
-  }
-
-  private static class Scope {
-    private final Scope outerScope;
-    private final Map<String, Variable> variables;
-
-    public Scope(Scope outerScope) {
-      this.outerScope = outerScope;
-      this.variables = Maps.newHashMap();
-    }
-
-    private void declare(AstNode astNode, int usages) {
-      String identifier = astNode.getTokenValue();
-      if (!variables.containsKey(identifier)) {
-        variables.put(identifier, new Variable(astNode, usages));
-      }
-    }
-
-    private void use(AstNode astNode) {
-      String identifier = astNode.getTokenValue();
-      Scope scope = this;
-      while (scope != null) {
-        Variable var = scope.variables.get(identifier);
-        if (var != null) {
-          var.usages++;
-          return;
-        }
-        scope = scope.outerScope;
-      }
-      variables.put(identifier, new Variable(astNode, 1));
-    }
-  }
-
-  private static final GrammarRuleKey[] CONST_AND_VAR_NODES = {
-    Kind.VARIABLE_DECLARATION,
-    EcmaScriptGrammar.VARIABLE_DECLARATION_NO_IN,
-    EcmaScriptGrammar.LEXICAL_BINDING,
-    EcmaScriptGrammar.LEXICAL_BINDING_NO_IN,
-    EcmaScriptGrammar.FOR_BINDING};
-
-  private Scope currentScope;
-
-  @Override
-  public void init() {
-    subscribeTo(
-      Kind.IDENTIFIER_REFERENCE,
-      Kind.FORMAL_PARAMETER_LIST,
-      Kind.ARROW_FUNCTION);
-    subscribeTo(CONST_AND_VAR_NODES);
-    subscribeTo(CheckUtils.functionNodesArray());
-  }
-
-  @Override
-  public void visitFile(AstNode astNode) {
-    currentScope = null;
-  }
-
-  @Override
-  public void visitNode(AstNode astNode) {
-    if (CheckUtils.isFunction(astNode)) {
-      // enter new scope
-      currentScope = new Scope(currentScope);
-
-    } else if (currentScope != null) {
-
-      // declare all parameters as variables, which are already used, so that they won't trigger violations
-      if (astNode.is(Kind.ARROW_FUNCTION)) {
-        declareInCurrentScope(IdentifierUtils.getArrowParametersIdentifier(astNode.getFirstChild(Kind.IDENTIFIER, Kind.FORMAL_PARAMETER_LIST)), 1);
-
-      } else if (astNode.is(Kind.FORMAL_PARAMETER_LIST)) {
-        declareInCurrentScope(IdentifierUtils.getParametersIdentifier(astNode), 1);
-
-      } else if (astNode.is(CONST_AND_VAR_NODES)) {
-        declareInCurrentScope(IdentifierUtils.getVariableIdentifiers(astNode), 0);
-
-      } else if (astNode.is(Kind.IDENTIFIER_REFERENCE)) {
-        currentScope.use(astNode);
-      }
-    }
-  }
-
-  @Override
-  public void leaveNode(AstNode astNode) {
-    if (CheckUtils.isFunction(astNode)) {
-      // leave scope
-      for (Map.Entry<String, Variable> entry : currentScope.variables.entrySet()) {
-        if (entry.getValue().usages == 0) {
-          getContext().createLineViolation(this, "Remove the declaration of the unused '" + entry.getKey() + "' variable.", entry.getValue().declaration);
-        }
-      }
-      currentScope = currentScope.outerScope;
-    }
-  }
-
-  @Override
-  public void leaveFile(AstNode astNode) {
-    currentScope = null;
-  }
-
-  private void declareInCurrentScope(List<AstNode> identifiers, int usage) {
-    for (AstNode identifier : identifiers) {
-      currentScope.declare(identifier, usage);
-    }
-  }
 }

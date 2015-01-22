@@ -29,7 +29,7 @@ import org.apache.commons.collections.ListUtils;
 import org.sonar.javascript.api.EcmaScriptKeyword;
 import org.sonar.javascript.api.EcmaScriptPunctuator;
 import org.sonar.javascript.model.implementations.SeparatedList;
-import org.sonar.javascript.model.implementations.declaration.BindingElementTreeImpl;
+import org.sonar.javascript.model.implementations.declaration.ArrayBindingPatternTreeImpl;
 import org.sonar.javascript.model.implementations.declaration.BindingPropertyTreeImpl;
 import org.sonar.javascript.model.implementations.declaration.ClassDeclarationTreeImpl;
 import org.sonar.javascript.model.implementations.declaration.DefaultExportDeclarationTreeImpl;
@@ -39,6 +39,7 @@ import org.sonar.javascript.model.implementations.declaration.FunctionDeclaratio
 import org.sonar.javascript.model.implementations.declaration.ImportClauseTreeImpl;
 import org.sonar.javascript.model.implementations.declaration.ImportDeclarationTreeImpl;
 import org.sonar.javascript.model.implementations.declaration.ImportModuleDeclarationTreeImpl;
+import org.sonar.javascript.model.implementations.declaration.InitializedBindingElementTreeImpl;
 import org.sonar.javascript.model.implementations.declaration.MethodDeclarationTreeImpl;
 import org.sonar.javascript.model.implementations.declaration.ModuleTreeImpl;
 import org.sonar.javascript.model.implementations.declaration.NameSpaceExportDeclarationTreeImpl;
@@ -103,7 +104,7 @@ import org.sonar.javascript.model.implementations.statement.WhileStatementTreeIm
 import org.sonar.javascript.model.implementations.statement.WithStatementTreeImpl;
 import org.sonar.javascript.model.interfaces.Tree;
 import org.sonar.javascript.model.interfaces.Tree.Kind;
-import org.sonar.javascript.model.interfaces.declaration.BindingPropertyTree;
+import org.sonar.javascript.model.interfaces.declaration.BindingElementTree;
 import org.sonar.javascript.model.interfaces.declaration.DeclarationTree;
 import org.sonar.javascript.model.interfaces.declaration.ImportClauseTree;
 import org.sonar.javascript.model.interfaces.declaration.ImportModuleDeclarationTree;
@@ -455,7 +456,7 @@ public class TreeFactory {
 
   // Expressions
 
-  public AstNode arrayInitialiserElement(Optional<AstNode> spreadOperatorToken, AstNode expression) {
+  public ExpressionTree arrayInitialiserElement(Optional<AstNode> spreadOperatorToken, ExpressionTree expression) {
     if (spreadOperatorToken.isPresent()) {
       return new RestElementTreeImpl(InternalSyntaxToken.create(spreadOperatorToken.get()), expression);
     }
@@ -473,7 +474,8 @@ public class TreeFactory {
    * index of subsequent elements.
    * </blockquote>
    */
-  public ArrayLiteralTreeImpl newArrayLiteralWithElements(Optional<List<AstNode>> commaTokens, AstNode element, Optional<List<Tuple<AstNode, AstNode>>> restElements, Optional<List<AstNode>> restCommas) {
+  public ArrayLiteralTreeImpl newArrayLiteralWithElements(Optional<List<AstNode>> commaTokens, ExpressionTree element, Optional<List<Tuple<AstNode, ExpressionTree>>> restElements,
+    Optional<List<AstNode>> restCommas) {
     List<AstNode> children = Lists.newArrayList();
     List<AstNode> elements = Lists.newArrayList();
     List<InternalSyntaxToken> commas = Lists.newArrayList();
@@ -488,12 +490,12 @@ public class TreeFactory {
     }
 
     // First element
-    elements.add(element);
-    children.add(element);
+    elements.add((AstNode) element);
+    children.add((AstNode) element);
 
     // Other elements
     if (restElements.isPresent()) {
-      for (Tuple<AstNode, AstNode> t : restElements.get()) {
+      for (Tuple<AstNode, ExpressionTree> t : restElements.get()) {
 
         // First comma
         commas.add(InternalSyntaxToken.create(t.first().getFirstChild()));
@@ -510,8 +512,8 @@ public class TreeFactory {
           }
         }
         // Add element
-        elements.add(t.second());
-        children.add(t.second());
+        elements.add((AstNode) t.second());
+        children.add((AstNode) t.second());
       }
     }
 
@@ -649,17 +651,18 @@ public class TreeFactory {
     return new ParameterListTreeImpl(Kind.FORMAL_PARAMETER_LIST, new SeparatedList<ExpressionTree>(Lists.newArrayList((ExpressionTree) restParameter), ListUtils.EMPTY_LIST, ImmutableList.of((AstNode) restParameter)));
   }
 
-  public ParameterListTreeImpl newFormalParameterList(AstNode formalParameter, Optional<List<Tuple<AstNode, AstNode>>> formalParameters, Optional<Tuple<AstNode, RestElementTreeImpl>> restElement) {
+  public ParameterListTreeImpl newFormalParameterList(BindingElementTree formalParameter, Optional<List<Tuple<AstNode, BindingElementTree>>> formalParameters,
+    Optional<Tuple<AstNode, RestElementTreeImpl>> restElement) {
     List<AstNode> children = Lists.newArrayList();
     List<InternalSyntaxToken> commas = Lists.newArrayList();
 
-    children.add(formalParameter);
+    children.add((AstNode) formalParameter);
 
     if (formalParameters.isPresent()) {
-      for (Tuple<AstNode, AstNode> t : formalParameters.get()) {
+      for (Tuple<AstNode, BindingElementTree> t : formalParameters.get()) {
         commas.add(InternalSyntaxToken.create(t.first()));
         children.add(t.first());
-        children.add(t.second());
+        children.add((AstNode) t.second());
       }
     }
 
@@ -886,22 +889,22 @@ public class TreeFactory {
     return result;
   }
 
-  public AstNode argument(Optional<AstNode> ellipsisToken, AstNode expression) {
+  public ExpressionTree argument(Optional<AstNode> ellipsisToken, ExpressionTree expression) {
     return ellipsisToken.isPresent() ?
       new RestElementTreeImpl(InternalSyntaxToken.create(ellipsisToken.get()), expression) : expression;
   }
 
-  public ParameterListTreeImpl newArgumentList(AstNode argument, Optional<List<Tuple<AstNode, AstNode>>> restArguments) {
+  public ParameterListTreeImpl newArgumentList(ExpressionTree argument, Optional<List<Tuple<AstNode, ExpressionTree>>> restArguments) {
     List<AstNode> children = Lists.newArrayList();
     List<InternalSyntaxToken> commas = Lists.newArrayList();
 
-    children.add(argument);
+    children.add((AstNode) argument);
 
     if (restArguments.isPresent()) {
-      for (Tuple<AstNode, AstNode> t : restArguments.get()) {
+      for (Tuple<AstNode, ExpressionTree> t : restArguments.get()) {
         commas.add(InternalSyntaxToken.create(t.first()));
         children.add(t.first());
-        children.add(t.second());
+        children.add((AstNode) t.second());
       }
     }
 
@@ -1310,30 +1313,31 @@ public class TreeFactory {
 
   // [START] Destructuring pattern
 
-  public BindingElementTreeImpl newBindingElement(AstNode equalToken, ExpressionTree expression) {
-    return new BindingElementTreeImpl(InternalSyntaxToken.create(equalToken), expression);
+  public InitializedBindingElementTreeImpl newInitializedBindingElement(AstNode equalToken, ExpressionTree expression) {
+    return new InitializedBindingElementTreeImpl(InternalSyntaxToken.create(equalToken), expression);
   }
 
-  public Tree singleNameBinding(IdentifierTreeImpl identifier, Optional<BindingElementTreeImpl> initialiser) {
-    if (initialiser.isPresent()) {
-      return initialiser.get().complete(identifier);
+  public BindingElementTree completeSingleNameBinding(IdentifierTreeImpl left, Optional<InitializedBindingElementTreeImpl> initializer) {
+    if (!initializer.isPresent()) {
+      return left;
     }
-    return identifier;
+    return initializer.get().completeWithLeft(left);
   }
 
-  // FIXME: get rid of AstNode
-  public AstNode newBindingPatternElement(AstNode left, Optional<BindingElementTreeImpl> initialiser) {
-    if (initialiser.isPresent()) {
-      return initialiser.get().complete(left);
+  public BindingElementTree completeBindingElement(BindingElementTree left, Optional<InitializedBindingElementTreeImpl> initializer) {
+    if (!initializer.isPresent()) {
+      return left;
     }
-    return left;
+    return initializer.get().completeWithLeft(left);
   }
 
-  public BindingPropertyTree bindingProperty(ExpressionTree propertyName, AstNode colonToken, AstNode bindingElement) {
+  public BindingPropertyTreeImpl bindingProperty(ExpressionTree propertyName, AstNode colonToken, BindingElementTree bindingElement) {
     return new BindingPropertyTreeImpl(propertyName, InternalSyntaxToken.create(colonToken), bindingElement);
   }
 
-  public ObjectBindingPatternTreeImpl newObjectBindingPattern(Tree bindingProperty, Optional<List<Tuple<AstNode, Tree>>> restProperties, Optional<AstNode> trailingComma) {
+  public ObjectBindingPatternTreeImpl newObjectBindingPattern(Tree bindingProperty, Optional<List<Tuple<AstNode, BindingElementTree>>> restProperties,
+    Optional<AstNode> trailingComma) {
+
     List<Tree> properties = Lists.newArrayList();
     List<InternalSyntaxToken> commas = Lists.newArrayList();
     List<AstNode> children = Lists.newArrayList();
@@ -1342,7 +1346,7 @@ public class TreeFactory {
     children.add((AstNode) bindingProperty);
 
     if (restProperties.isPresent()) {
-      for (Tuple<AstNode, Tree> t : restProperties.get()) {
+      for (Tuple<AstNode, BindingElementTree> t : restProperties.get()) {
         // Comma
         commas.add(InternalSyntaxToken.create(t.first()));
         children.add(t.first());
@@ -1366,6 +1370,49 @@ public class TreeFactory {
       return partial.get().complete(InternalSyntaxToken.create(openCurlyBraceToken), InternalSyntaxToken.create(closeCurlyBraceToken));
     }
     return new ObjectBindingPatternTreeImpl(InternalSyntaxToken.create(openCurlyBraceToken), InternalSyntaxToken.create(closeCurlyBraceToken));
+  }
+
+  // TODO Test model
+  public ArrayBindingPatternTreeImpl arrayBindingPattern(
+    AstNode openBracketToken, Optional<BindingElementTree> firstElement, Optional<List<Tuple<AstNode, Optional<BindingElementTree>>>> rest, AstNode closeBracketToken) {
+
+    List<AstNode> children = Lists.newArrayList();
+    ImmutableList.Builder<Optional<BindingElementTree>> elements = ImmutableList.builder();
+    ImmutableList.Builder<InternalSyntaxToken> separators = ImmutableList.builder();
+
+    boolean skipComma = false;
+
+    if (firstElement.isPresent()) {
+      children.add((AstNode) firstElement.get());
+      elements.add(firstElement);
+      skipComma = true;
+    }
+
+    if (rest.isPresent()) {
+      List<Tuple<AstNode, Optional<BindingElementTree>>> list = rest.get();
+      for (Tuple<AstNode, Optional<BindingElementTree>> pair : list) {
+        if (!skipComma) {
+          elements.add(Optional.<BindingElementTree>absent());
+        }
+
+        InternalSyntaxToken commaToken = InternalSyntaxToken.create(pair.first());
+        children.add(commaToken);
+        separators.add(commaToken);
+
+        if (pair.second().isPresent()) {
+          children.add((AstNode) pair.second().get());
+          elements.add(pair.second());
+          skipComma = true;
+        } else {
+          skipComma = false;
+        }
+      }
+    }
+
+    return new ArrayBindingPatternTreeImpl(
+      InternalSyntaxToken.create(openBracketToken),
+      new SeparatedList<Optional<BindingElementTree>>(elements.build(), separators.build()), children,
+      InternalSyntaxToken.create(closeBracketToken));
   }
 
   // [END] Destructuring pattern
@@ -1534,6 +1581,10 @@ public class TreeFactory {
   }
 
   public <T, U> Tuple<T, U> newTuple28(T first, U second) {
+    return newTuple(first, second);
+  }
+
+  public <T, U> Tuple<T, U> newTuple29(T first, U second) {
     return newTuple(first, second);
   }
 
