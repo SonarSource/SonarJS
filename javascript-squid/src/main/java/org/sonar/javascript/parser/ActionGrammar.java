@@ -364,7 +364,7 @@ public class ActionGrammar {
           b.invokeRule(EcmaScriptPunctuator.LPARENTHESIS),
           b.firstOf(
             b.invokeRule(EcmaScriptGrammar.FOR_DECLARATION),
-            b.invokeRule(EcmaScriptGrammar.LEFT_HAND_SIDE_EXPRESSION_NO_LET_AND_LBRACKET)),
+            (AstNode) f.skipLookahead2(b.invokeRule(EcmaScriptGrammar.NEXT_NOT_LET_OR_BRACKET), LEFT_HAND_SIDE_EXPRESSION())),
           b.invokeRule(EcmaScriptKeyword.IN),
           EXPRESSION(),
           b.invokeRule(EcmaScriptPunctuator.RPARENTHESIS),
@@ -382,7 +382,7 @@ public class ActionGrammar {
             b.firstOf(
               b.invokeRule(EcmaScriptGrammar.FOR_VAR_DECLARATION),
               b.invokeRule(ES6(EcmaScriptGrammar.LEXICAL_DECLARATION_NO_IN)),
-              b.invokeRule(EcmaScriptGrammar.EXPRESSION_NO_IN_NO_LET_AND_BRACKET))),
+              (AstNode) f.skipLookahead1(b.invokeRule(EcmaScriptGrammar.NEXT_NOT_LET_OR_BRACKET), EXPRESSION_NO_IN()))),
           b.invokeRule(EcmaScriptPunctuator.SEMI),
 
           b.optional(EXPRESSION()),

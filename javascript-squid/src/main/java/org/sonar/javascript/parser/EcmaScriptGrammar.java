@@ -262,12 +262,11 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
   SHEBANG,
 
   // Temporary rules for migration
-  LEFT_HAND_SIDE_EXPRESSION_NO_LET_AND_LBRACKET,
   LEFT_HAND_SIDE_EXPRESSION_NO_LET,
   EXPRESSION_NO_LCURLY_AND_FUNCTION,
-  EXPRESSION_NO_IN_NO_LET_AND_BRACKET,
   FOR_VAR_DECLARATION,
   NEXT_NOT_LCURLY,
+  NEXT_NOT_LET_OR_BRACKET,
   CONDITIONAL_EXPRESSION_LOOKAHEAD,
   NOT_FUNCTION_AND_CLASS;
 
@@ -482,10 +481,9 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
     b.rule(OF).is(word(b, "of"));
 
     // Temporary rules waiting for b.nextNot method migration
-    b.rule(LEFT_HAND_SIDE_EXPRESSION_NO_LET_AND_LBRACKET).is(ecmascript6(b.nextNot(LET, LBRACKET)), LEFT_HAND_SIDE_EXPRESSION).skip();
+    b.rule(NEXT_NOT_LET_OR_BRACKET).is(b.nextNot(LET, LBRACKET));
     b.rule(LEFT_HAND_SIDE_EXPRESSION_NO_LET).is(b.nextNot(LET), LEFT_HAND_SIDE_EXPRESSION).skip();
     b.rule(EXPRESSION_NO_LCURLY_AND_FUNCTION).is(b.nextNot(b.firstOf(LCURLYBRACE, FUNCTION)), EXPRESSION).skip();
-    b.rule(EXPRESSION_NO_IN_NO_LET_AND_BRACKET).is(ecmascript6(b.nextNot(LET, LBRACKET)), EXPRESSION_NO_IN).skip();
     b.rule(FOR_VAR_DECLARATION).is(VAR, VARIABLE_DECLARATION_LIST_NO_IN);
 
   }

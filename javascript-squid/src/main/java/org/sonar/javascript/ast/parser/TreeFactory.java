@@ -1452,6 +1452,13 @@ public class TreeFactory {
     return expressionNoIn;
   }
 
+  public ExpressionTree skipLookahead1(AstNode lookahead, ExpressionTree expression) {
+    return expression;
+  }
+
+  public ExpressionTree skipLookahead2(AstNode lookahead, ExpressionTree expression) {
+    return expression;
+  }
   // [END] Destructuring pattern
 
   // [END] Classes, methods, functions & generators
