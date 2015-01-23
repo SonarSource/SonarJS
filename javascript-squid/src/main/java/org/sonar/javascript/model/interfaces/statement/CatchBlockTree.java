@@ -26,7 +26,7 @@ import org.sonar.javascript.model.interfaces.lexical.SyntaxToken;
  * <a href="http://www.ecma-international.org/ecma-262/5.1/#sec-12.14">Catch Block</a>.
  *
  * <pre>
- *   catch ( {@link #catchParameter()} ) {@link #block()}
+ *   catch ( {@link #parameter()} ) {@link #block()}
  * </pre>
  *
  * <p>This interface is not intended to be implemented by clients.</p>
@@ -37,7 +37,7 @@ public interface CatchBlockTree extends Tree {
 
   SyntaxToken openParenthesis();
 
-  Tree catchParameter();
+  Tree parameter();
 
   SyntaxToken closeParenthesis();
 

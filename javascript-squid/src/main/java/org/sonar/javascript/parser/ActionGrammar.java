@@ -246,7 +246,10 @@ public class ActionGrammar {
       .is(f.newCatchBlock(
         b.invokeRule(EcmaScriptKeyword.CATCH),
         b.invokeRule(EcmaScriptPunctuator.LPARENTHESIS),
-        b.invokeRule(EcmaScriptGrammar.CATCH_PARAMETER),
+        b.firstOf(
+          BINDING_IDENTIFIER(),
+          BINDING_PATTERN()
+        ),
         b.invokeRule(EcmaScriptPunctuator.RPARENTHESIS),
         BLOCK()));
   }

@@ -208,7 +208,6 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
   FOR_BINDING,
   RETURN_STATEMENT,
   WITH_STATEMENT,
-  CATCH_PARAMETER,
   FINALLY,
 
   // A.5 Declarations
@@ -485,8 +484,6 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
     b.rule(FOR_DECLARATION).is(b.firstOf(VAR, LET, CONST), FOR_BINDING);
     b.rule(FOR_BINDING).is(b.firstOf(BINDING_IDENTIFIER, BINDING_PATTERN));
     b.rule(OF).is(word(b, "of"));
-
-    b.rule(CATCH_PARAMETER).is(b.firstOf(BINDING_IDENTIFIER, BINDING_PATTERN));
 
     // Temporary rules waiting for b.nextNot method migration
     b.rule(LEFT_HAND_SIDE_EXPRESSION_NO_LET_AND_LBRACKET).is(ecmascript6(b.nextNot(LET, LBRACKET)), LEFT_HAND_SIDE_EXPRESSION).skip();

@@ -320,7 +320,7 @@ public class TreeFactory {
     return catchFinallyBlock.complete(InternalSyntaxToken.create(tryToken), block);
   }
 
-  public CatchBlockTreeImpl newCatchBlock(AstNode catchToken, AstNode lparenToken, AstNode catchParameter, AstNode rparenToken, BlockTreeImpl block) {
+  public CatchBlockTreeImpl newCatchBlock(AstNode catchToken, AstNode lparenToken, BindingElementTree catchParameter, AstNode rparenToken, BlockTreeImpl block) {
     return new CatchBlockTreeImpl(
       InternalSyntaxToken.create(catchToken),
       InternalSyntaxToken.create(lparenToken),

@@ -36,9 +36,10 @@ public class CatchBlockTreeModelTest extends JavaScriptTreeModelTest {
    CatchBlockTree tree = parse("try { } catch ( e ) { }", Kind.CATCH_BLOCK);
 
     assertThat(tree.is(Kind.CATCH_BLOCK)).isTrue();
-    assertThat(tree.catchKeyword().text()).isEqualTo(EcmaScriptKeyword.CATCH.getValue());
-    assertThat(tree.openParenthesis().text()).isEqualTo(EcmaScriptPunctuator.LPARENTHESIS.getValue());
-    assertThat(tree.closeParenthesis().text()).isEqualTo(EcmaScriptPunctuator.RPARENTHESIS.getValue());
+    assertThat(tree.catchKeyword().text()).isEqualTo("catch");
+    assertThat(tree.openParenthesis().text()).isEqualTo("(");
+    assertThat(expressionToString(tree.parameter())).isEqualTo("e");
+    assertThat(tree.closeParenthesis().text()).isEqualTo(")");
   }
 
 }

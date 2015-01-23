@@ -24,6 +24,7 @@ import com.sonar.sslr.api.AstNode;
 import org.sonar.javascript.model.implementations.JavaScriptTree;
 import org.sonar.javascript.model.implementations.lexical.InternalSyntaxToken;
 import org.sonar.javascript.model.interfaces.Tree;
+import org.sonar.javascript.model.interfaces.declaration.BindingElementTree;
 import org.sonar.javascript.model.interfaces.lexical.SyntaxToken;
 import org.sonar.javascript.model.interfaces.statement.BlockTree;
 import org.sonar.javascript.model.interfaces.statement.CatchBlockTree;
@@ -34,17 +35,19 @@ public class CatchBlockTreeImpl extends JavaScriptTree implements CatchBlockTree
 
   private final SyntaxToken catchKeyword;
   private final SyntaxToken openParenthesis;
+  private final BindingElementTree parameter;
   private final SyntaxToken closeParenthesis;
   private final BlockTree block;
 
-  public CatchBlockTreeImpl(InternalSyntaxToken catchKeyword, InternalSyntaxToken openParenthesis, AstNode catchParameter, InternalSyntaxToken closeParenthesis, BlockTreeImpl block) {
+  public CatchBlockTreeImpl(InternalSyntaxToken catchKeyword, InternalSyntaxToken openParenthesis, BindingElementTree parameter, InternalSyntaxToken closeParenthesis, BlockTreeImpl block) {
     super(Kind.CATCH_BLOCK);
     this.catchKeyword = catchKeyword;
     this.openParenthesis = openParenthesis;
+    this.parameter = parameter;
     this.closeParenthesis = closeParenthesis;
     this.block = block;
 
-    addChildren(catchKeyword, openParenthesis, catchParameter, closeParenthesis, block);
+    addChildren(catchKeyword, openParenthesis, (AstNode) parameter, closeParenthesis, block);
   }
 
   @Override
@@ -63,8 +66,8 @@ public class CatchBlockTreeImpl extends JavaScriptTree implements CatchBlockTree
   }
 
   @Override
-  public Tree catchParameter() {
-    throw new UnsupportedOperationException("Not supported yet in the strongly typed AST.");
+  public Tree parameter() {
+    return parameter;
   }
 
   @Override
