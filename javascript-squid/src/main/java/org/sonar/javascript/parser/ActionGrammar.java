@@ -1188,6 +1188,11 @@ public class ActionGrammar {
       .is(f.expression(ASSIGNMENT_EXPRESSION(), b.zeroOrMore(f.newTuple26(b.invokeRule(EcmaScriptPunctuator.COMMA), ASSIGNMENT_EXPRESSION()))));
   }
 
+  public ExpressionTree EXPRESSION_NO_IN() {
+    return b.<ExpressionTree>nonterminal(EcmaScriptGrammar.EXPRESSION_NO_IN)
+      .is(f.expressionNoIn(ASSIGNMENT_EXPRESSION_NO_IN(), b.zeroOrMore(f.newTuple54(b.invokeRule(EcmaScriptPunctuator.COMMA), ASSIGNMENT_EXPRESSION_NO_IN()))));
+  }
+
   public ExpressionTree EXPRESSION_NO_LINE_BREAK() {
     return b.<ExpressionTree>nonterminal(EcmaScriptGrammar.EXPRESSION_NO_LB)
       .is(f.expressionNoLineBreak(b.invokeRule(EcmaScriptGrammar.SPACING_NO_LINE_BREAK_NOT_FOLLOWED_BY_LINE_BREAK), EXPRESSION()));

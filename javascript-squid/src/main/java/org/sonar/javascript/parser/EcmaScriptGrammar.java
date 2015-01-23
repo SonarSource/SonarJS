@@ -463,8 +463,6 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
    * A.3 Expressions
    */
   private static void expressions(LexerlessGrammarBuilder b) {
-    b.rule(EXPRESSION_NO_IN).is(ASSIGNMENT_EXPRESSION_NO_IN, b.zeroOrMore(COMMA, ASSIGNMENT_EXPRESSION_NO_IN));
-
     // Temporary rules
     b.rule(ASSIGNMENT_EXPRESSION_NO_LCURLY).is(b.nextNot(LCURLYBRACE), ASSIGNMENT_EXPRESSION);
     b.rule(NEXT_NOT_LCURLY).is(b.nextNot(LCURLYBRACE));

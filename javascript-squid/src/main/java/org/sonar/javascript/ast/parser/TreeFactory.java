@@ -1122,6 +1122,10 @@ public class TreeFactory {
     return buildBinaryExpression(expression, operatorAndOperands);
   }
 
+  public ExpressionTree expressionNoIn(ExpressionTree expression, Optional<List<Tuple<AstNode, ExpressionTree>>> operatorAndOperands) {
+    return buildBinaryExpression(expression, operatorAndOperands);
+  }
+
   public ExpressionTree expressionNoLineBreak(AstNode spacingNoLineBreak, ExpressionTree expression) {
     return expression;
   }
@@ -1637,4 +1641,7 @@ public class TreeFactory {
     return newTuple(first, second);
   }
 
+  public <T, U> Tuple<T, U> newTuple54(T first, U second) {
+    return newTuple(first, second);
+  }
 }
