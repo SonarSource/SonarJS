@@ -20,6 +20,7 @@
 package org.sonar.javascript.model.interfaces.expression;
 
 import org.sonar.javascript.model.implementations.SeparatedList;
+import org.sonar.javascript.model.interfaces.Tree;
 import org.sonar.javascript.model.interfaces.lexical.SyntaxToken;
 
 /**
@@ -38,7 +39,7 @@ public interface ObjectLiteralTree extends ExpressionTree {
 
   SyntaxToken openCurlyBrace();
 
-  SeparatedList<ExpressionTree> properties();
+  SeparatedList<Tree> properties();
 
   SyntaxToken closeCurlyBrace();
 

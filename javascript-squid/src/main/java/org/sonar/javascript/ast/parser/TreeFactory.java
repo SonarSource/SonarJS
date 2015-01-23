@@ -998,17 +998,21 @@ public class TreeFactory {
     return new PairPropertyTreeImpl(name, InternalSyntaxToken.create(colonToken), value);
   }
 
-  public ObjectLiteralTreeImpl newObjectLiteral(AstNode property, Optional<List<Tuple<AstNode, AstNode>>> restProperties, Optional<AstNode> trailingComma) {
+  public ObjectLiteralTreeImpl newObjectLiteral(Tree property, Optional<List<Tuple<AstNode, Tree>>> restProperties, Optional<AstNode> trailingComma) {
     List<AstNode> children = Lists.newArrayList();
     List<InternalSyntaxToken> commas = Lists.newArrayList();
+    List<Tree> properties = Lists.newArrayList();
 
-    children.add(property);
+    children.add((AstNode) property);
+    properties.add(property);
 
     if (restProperties.isPresent()) {
-      for (Tuple<AstNode, AstNode> t : restProperties.get()) {
+      for (Tuple<AstNode, Tree> t : restProperties.get()) {
         commas.add(InternalSyntaxToken.create(t.first()));
         children.add(t.first());
-        children.add(t.second());
+
+        properties.add(t.second());
+        children.add((AstNode) t.second());
       }
     }
 
@@ -1017,7 +1021,7 @@ public class TreeFactory {
       children.add(trailingComma.get());
     }
 
-    return new ObjectLiteralTreeImpl(new SeparatedList<ExpressionTree>(ListUtils.EMPTY_LIST /*FIXME when property definition is fully migrated*/, commas, children));
+    return new ObjectLiteralTreeImpl(new SeparatedList<Tree>(properties, commas, children));
   }
 
   public ObjectLiteralTreeImpl completeObjectLiteral(AstNode openCurlyToken, Optional<ObjectLiteralTreeImpl> partial, AstNode closeCurlyToken) {
@@ -1282,7 +1286,7 @@ public class TreeFactory {
     return new ImportDeclarationTreeImpl(InternalSyntaxToken.create(importToken), importClause, fromClause, eos);
   }
 
-  public ModuleTreeImpl module(List<AstNode> items) {
+  public ModuleTreeImpl module(List<Tree> items) {
     return new ModuleTreeImpl(items);
   }
 

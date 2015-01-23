@@ -33,12 +33,19 @@ public class ObjectLiteralTreeModelTest extends JavaScriptTreeModelTest {
 
   @Test
   public void with_properties() throws Exception {
-   ObjectLiteralTree tree = parse("var a = { key : value, }", Kind.OBJECT_LITERAL);
+   ObjectLiteralTree tree = parse("var a = { key : value , method ( ) { } , identifier , }", Kind.OBJECT_LITERAL);
 
     assertThat(tree.is(Kind.OBJECT_LITERAL)).isTrue();
-    assertThat(tree.openCurlyBrace().text()).isEqualTo(EcmaScriptPunctuator.LCURLYBRACE.getValue());
-    // TODO check list of properties
-    assertThat(tree.closeCurlyBrace().text()).isEqualTo(EcmaScriptPunctuator.RCURLYBRACE.getValue());
+    assertThat(tree.openCurlyBrace().text()).isEqualTo("{");
+
+    assertThat(tree.properties()).hasSize(3);
+    assertThat(expressionToString(tree.properties().get(0))).isEqualTo("key : value");
+    assertThat(expressionToString(tree.properties().get(1))).isEqualTo("method ( ) { }");
+    assertThat(expressionToString(tree.properties().get(2))).isEqualTo("identifier");
+
+    assertThat(tree.properties().getSeparators()).hasSize(3);
+
+    assertThat(tree.closeCurlyBrace().text()).isEqualTo("}");
   }
 
   @Test
@@ -46,9 +53,12 @@ public class ObjectLiteralTreeModelTest extends JavaScriptTreeModelTest {
     ObjectLiteralTree tree = parse("var a = { }", Kind.OBJECT_LITERAL);
 
     assertThat(tree.is(Kind.OBJECT_LITERAL)).isTrue();
-    assertThat(tree.openCurlyBrace().text()).isEqualTo(EcmaScriptPunctuator.LCURLYBRACE.getValue());
-    // TODO check list of properties
-    assertThat(tree.closeCurlyBrace().text()).isEqualTo(EcmaScriptPunctuator.RCURLYBRACE.getValue());
+    assertThat(tree.openCurlyBrace().text()).isEqualTo("{");
+
+    assertThat(tree.properties()).hasSize(0);
+    assertThat(tree.properties().getSeparators()).hasSize(0);
+
+    assertThat(tree.closeCurlyBrace().text()).isEqualTo("}");
   }
 
 }

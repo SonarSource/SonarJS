@@ -36,19 +36,19 @@ import java.util.List;
 public class ObjectLiteralTreeImpl extends JavaScriptTree implements ObjectLiteralTree {
 
   private SyntaxToken openCurlyBrace;
-  private final SeparatedList<ExpressionTree> properties;
+  private final SeparatedList<Tree> properties;
   private SyntaxToken closeCurlyBrace;
 
   public ObjectLiteralTreeImpl(InternalSyntaxToken openCurlyBrace, InternalSyntaxToken closeCurlyBrace) {
     super(Kind.OBJECT_LITERAL);
     this.openCurlyBrace = openCurlyBrace;
     this.closeCurlyBrace = closeCurlyBrace;
-    this.properties = new SeparatedList<ExpressionTree>(ListUtils.EMPTY_LIST, ListUtils.EMPTY_LIST);
+    this.properties = new SeparatedList<Tree>(ListUtils.EMPTY_LIST, ListUtils.EMPTY_LIST);
 
     addChildren(openCurlyBrace, closeCurlyBrace);
   }
 
-  public ObjectLiteralTreeImpl(SeparatedList<ExpressionTree> properties) {
+  public ObjectLiteralTreeImpl(SeparatedList<Tree> properties) {
     super(Kind.OBJECT_LITERAL);
     this.properties = properties;
 
@@ -73,7 +73,7 @@ public class ObjectLiteralTreeImpl extends JavaScriptTree implements ObjectLiter
   }
 
   @Override
-  public SeparatedList<ExpressionTree> properties() {
+  public SeparatedList<Tree> properties() {
     return properties;
   }
 

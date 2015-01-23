@@ -81,6 +81,7 @@ import org.sonar.javascript.model.implementations.statement.TryStatementTreeImpl
 import org.sonar.javascript.model.implementations.statement.VariableStatementTreeImpl;
 import org.sonar.javascript.model.implementations.statement.WhileStatementTreeImpl;
 import org.sonar.javascript.model.implementations.statement.WithStatementTreeImpl;
+import org.sonar.javascript.model.interfaces.Tree;
 import org.sonar.javascript.model.interfaces.Tree.Kind;
 import org.sonar.javascript.model.interfaces.declaration.BindingElementTree;
 import org.sonar.javascript.model.interfaces.declaration.DeclarationTree;
@@ -1043,9 +1044,8 @@ public class ActionGrammar {
       ));
   }
 
-  // FIXME: get rid of use of AstNode
-  public AstNode PROPERTY_DEFINITION() {
-    return b.<AstNode>nonterminal(EcmaScriptGrammar.PROPERTY_DEFINITION)
+  public Tree PROPERTY_DEFINITION() {
+    return b.<Tree>nonterminal(EcmaScriptGrammar.PROPERTY_DEFINITION)
       .is(b.firstOf(
         PAIR_PROPERTY(),
         METHOD_DEFINITION(),
@@ -1352,19 +1352,18 @@ public class ActionGrammar {
       ));
   }
 
-  // FIXME: get rid of AstNode
   public ModuleTreeImpl MODULE_BODY() {
     return b.<ModuleTreeImpl>nonterminal(EcmaScriptGrammar.MODULE_BODY)
       .is(
         f.module(
           b.oneOrMore(
             b.firstOf(
-              (AstNode) IMPORT_DECLARATION(),
-              (AstNode) EXPORT_DECLARATION(),
+              IMPORT_DECLARATION(),
+              EXPORT_DECLARATION(),
               VARIABLE_STATEMENT(),
               CLASS_DECLARATION(),
               FUNCTION_AND_GENERATOR_DECLARATION(),
-              (AstNode) STATEMENT()))));
+              STATEMENT()))));
   }
   // [END] Module, import & export
 

@@ -39,20 +39,19 @@ public class ModuleTreeImpl extends JavaScriptTree implements ModuleTree {
 
   private final List<Tree> items;
 
-  // FIXME: get rid of AstNode
-  public ModuleTreeImpl(List<AstNode> items) {
+  public ModuleTreeImpl(List<Tree> items) {
     super(Kind.MODULE);
 
-    this.items = null;
+    this.items = items;
 
-    for (AstNode item : items) {
-      addChild(item);
+    for (Tree item : items) {
+      addChild((AstNode) item);
     }
   }
 
   @Override
   public List<Tree> items() {
-    throw new UnsupportedOperationException("Not supported yet in the strongly typed AST.");
+    return items;
   }
 
   @Override
