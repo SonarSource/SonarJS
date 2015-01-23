@@ -464,6 +464,8 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
    */
   private static void statements(LexerlessGrammarBuilder b) {
     b.rule(STATEMENT_LIST).is(b.oneOrMore(STATEMENT));
+
+    b.rule(FOR_VAR_DECLARATION).is(VAR, VARIABLE_DECLARATION_LIST_NO_IN);
     b.rule(VARIABLE_DECLARATION_LIST_NO_IN).is(VARIABLE_DECLARATION_NO_IN, b.zeroOrMore(COMMA, VARIABLE_DECLARATION_NO_IN));
     b.rule(VARIABLE_DECLARATION_NO_IN).is(b.firstOf(BINDING_IDENTIFIER_INITIALISER_NO_IN, BINDING_PATTERN_INITIALISER_NO_IN));
 
@@ -473,7 +475,6 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
     b.rule(NEXT_NOT_LET_OR_BRACKET).is(b.nextNot(LET, LBRACKET));
     b.rule(LEFT_HAND_SIDE_EXPRESSION_NO_LET).is(b.nextNot(LET));
     b.rule(NO_LCURLY_AND_FUNCTION).is(b.nextNot(b.firstOf(LCURLYBRACE, FUNCTION)));
-    b.rule(FOR_VAR_DECLARATION).is(VAR, VARIABLE_DECLARATION_LIST_NO_IN);
 
   }
 
