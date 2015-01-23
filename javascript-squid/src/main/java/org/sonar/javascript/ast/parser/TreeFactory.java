@@ -223,8 +223,18 @@ public class TreeFactory {
     return new DebuggerStatementTreeImpl(InternalSyntaxToken.create(debuggerWord), eos);
   }
 
-  public VariableStatementTreeImpl variableStatement(AstNode varToken, SeparatedList<BindingElementTree> elements, AstNode eosToken) {
-    return new VariableStatementTreeImpl(Kind.VARIABLE_STATEMENT, InternalSyntaxToken.create(varToken), elements, elements.getChildren(), eosToken);
+  public VariableStatementTreeImpl variableStatement(AstNode token, SeparatedList<BindingElementTree> elements, AstNode eosToken) {
+    Kind kind;
+    if (token.is(EcmaScriptKeyword.VAR)) {
+      kind = Kind.VARIABLE_STATEMENT;
+    } else if (token.is(EcmaScriptGrammar.LET)) {
+      kind = Kind.LET_DECLARATION;
+    } else if (token.is(EcmaScriptKeyword.CONST)) {
+      kind = Kind.CONST_DECLARATION;
+    } else {
+      throw new UnsupportedOperationException("Unsupported type: " + token.getType() + ", " + token);
+    }
+    return new VariableStatementTreeImpl(kind, InternalSyntaxToken.create(token), elements, elements.getChildren(), eosToken);
   }
 
   public SeparatedList<BindingElementTree> bindingElementList(BindingElementTree element, Optional<List<Tuple<AstNode, BindingElementTree>>> rest) {
@@ -391,7 +401,7 @@ public class TreeFactory {
     return new DoWhileStatementTreeImpl(InternalSyntaxToken.create(doToken), statement, InternalSyntaxToken.create(whileToken), InternalSyntaxToken.create(openParenthesis), condition, InternalSyntaxToken.create(closeParenthesis), eos);
   }
 
-  public ExpressionStatementTreeImpl expressionStatement(AstNode expression, AstNode eos) {
+  public ExpressionStatementTreeImpl expressionStatement(AstNode lookahead, ExpressionTree expression, AstNode eos) {
     return new ExpressionStatementTreeImpl(expression, eos);
   }
 
@@ -1142,7 +1152,7 @@ public class TreeFactory {
   }
 
   public ExpressionStatementTreeImpl exportedExpressionStatement(AstNode lookahead, ExpressionTree expression, AstNode eos) {
-    return new ExpressionStatementTreeImpl((AstNode) expression, eos);
+    return new ExpressionStatementTreeImpl(expression, eos);
   }
 
   public NamedExportDeclarationTreeImpl namedExportDeclaration(AstNode exportToken, AstNode object) {
@@ -1334,12 +1344,12 @@ public class TreeFactory {
     return MethodDeclarationTreeImpl.newAccessor(InternalSyntaxToken.create(accessorToken), name, parameters, body);
   }
 
-  public FunctionDeclarationTreeImpl functionDeclaration(AstNode functionToken, IdentifierTreeImpl name, ParameterListTreeImpl parameters, BlockTreeImpl body) {
-    return new FunctionDeclarationTreeImpl(InternalSyntaxToken.create(functionToken), name, parameters, body);
-  }
+  public FunctionDeclarationTreeImpl functionAndGeneratorDeclaration(
+    AstNode functionToken, Optional<AstNode> starToken, IdentifierTreeImpl name, ParameterListTreeImpl parameters, BlockTreeImpl body) {
 
-  public FunctionDeclarationTreeImpl generatorDeclaration(AstNode functionToken, AstNode starToken, IdentifierTreeImpl name, ParameterListTreeImpl parameters, BlockTreeImpl body) {
-    return new FunctionDeclarationTreeImpl(InternalSyntaxToken.create(functionToken), InternalSyntaxToken.create(starToken), name, parameters, body);
+    return starToken.isPresent() ?
+      new FunctionDeclarationTreeImpl(InternalSyntaxToken.create(functionToken), InternalSyntaxToken.create(starToken.get()), name, parameters, body) :
+      new FunctionDeclarationTreeImpl(InternalSyntaxToken.create(functionToken), name, parameters, body);
   }
 
   // [START] Destructuring pattern
@@ -1437,11 +1447,6 @@ public class TreeFactory {
       InternalSyntaxToken.create(openBracketToken),
       new SeparatedList<Optional<BindingElementTree>>(elements.build(), separators.build()), children,
       InternalSyntaxToken.create(closeBracketToken));
-  }
-
-  public VariableStatementTreeImpl lexicalDeclaration(AstNode token, SeparatedList<BindingElementTree> variables, AstNode eos) {
-    Kind kind = token.is(EcmaScriptGrammar.LET) ? Kind.LET_DECLARATION : Kind.CONST_DECLARATION;
-    return new VariableStatementTreeImpl(kind, InternalSyntaxToken.create(token), variables, variables.getChildren(), eos);
   }
 
   public ExpressionTree assignmentNoCurly(AstNode lookahead, ExpressionTree expression) {

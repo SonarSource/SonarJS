@@ -22,6 +22,7 @@ package org.sonar.javascript.model.interfaces.declaration;
 import org.sonar.javascript.model.interfaces.expression.IdentifierTree;
 import org.sonar.javascript.model.interfaces.lexical.SyntaxToken;
 import org.sonar.javascript.model.interfaces.statement.BlockTree;
+import org.sonar.javascript.model.interfaces.statement.StatementTree;
 
 import javax.annotation.Nullable;
 
@@ -43,7 +44,7 @@ import javax.annotation.Nullable;
  * </pre>
  * </p>
  */
-public interface FunctionDeclarationTree extends DeclarationTree {
+public interface FunctionDeclarationTree extends StatementTree {
 
   SyntaxToken functionKeyword();
 

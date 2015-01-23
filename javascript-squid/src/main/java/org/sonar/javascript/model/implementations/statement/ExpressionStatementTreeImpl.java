@@ -24,21 +24,26 @@ import com.sonar.sslr.api.AstNode;
 import com.sonar.sslr.api.AstNodeType;
 import org.sonar.javascript.model.implementations.JavaScriptTree;
 import org.sonar.javascript.model.interfaces.Tree;
+import org.sonar.javascript.model.interfaces.expression.ExpressionTree;
 import org.sonar.javascript.model.interfaces.statement.ExpressionStatementTree;
 
 import java.util.Iterator;
 
 public class ExpressionStatementTreeImpl extends JavaScriptTree implements ExpressionStatementTree {
 
-  public ExpressionStatementTreeImpl(AstNode expression, AstNode eos) {
+  private final ExpressionTree expression;
+
+  public ExpressionStatementTreeImpl(ExpressionTree expression, AstNode eos) {
     super(Kind.EXPRESSION_STATEMENT);
 
-    addChildren(expression, eos);
+    this.expression = expression;
+
+    addChildren((AstNode) expression, eos);
   }
 
   @Override
   public Tree expression() {
-    throw new UnsupportedOperationException("Not supported yet in the strongly typed AST.");
+    return expression;
   }
 
   @Override
@@ -55,4 +60,5 @@ public class ExpressionStatementTreeImpl extends JavaScriptTree implements Expre
   public Iterator<Tree> childrenIterator() {
     return Iterators.emptyIterator();
   }
+
 }

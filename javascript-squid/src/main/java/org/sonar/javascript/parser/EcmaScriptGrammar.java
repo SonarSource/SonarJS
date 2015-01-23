@@ -212,12 +212,9 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
 
   // A.5 Declarations
 
-  DECLARATION,
   FUNCTION_DECLARATION,
   FUNCTION_EXPRESSION,
   FORMAL_PARAMETER,
-  /** ECMAScript 6 **/
-  LEXICAL_DECLARATION,
   /** ECMAScript 6 **/
   LEXICAL_DECLARATION_NO_IN,
   /** ECMAScript 6 **/
@@ -251,8 +248,6 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
   FROM,
   /** ECMAScript 6 **/
   AS,
-  /** ECMAScript 6 **/
-  GENERATOR_DECLARATION,
 
   // A.6 Programs
 
@@ -263,7 +258,7 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
 
   // Temporary rules for migration
   LEFT_HAND_SIDE_EXPRESSION_NO_LET,
-  EXPRESSION_NO_LCURLY_AND_FUNCTION,
+  NO_LCURLY_AND_FUNCTION,
   FOR_VAR_DECLARATION,
   NEXT_NOT_LCURLY,
   NEXT_NOT_LET_OR_BRACKET,
@@ -472,7 +467,7 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
    * A.4 Statement
    */
   private static void statements(LexerlessGrammarBuilder b) {
-    b.rule(STATEMENT_LIST).is(b.oneOrMore(b.firstOf(ecmascript6(DECLARATION), STATEMENT)));
+    b.rule(STATEMENT_LIST).is(b.oneOrMore(STATEMENT));
     b.rule(VARIABLE_DECLARATION_LIST_NO_IN).is(VARIABLE_DECLARATION_NO_IN, b.zeroOrMore(COMMA, VARIABLE_DECLARATION_NO_IN));
     b.rule(VARIABLE_DECLARATION_NO_IN).is(b.firstOf(BINDING_IDENTIFIER_INITIALISER_NO_IN, BINDING_PATTERN_INITIALISER_NO_IN));
 
@@ -483,7 +478,7 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
     // Temporary rules waiting for b.nextNot method migration
     b.rule(NEXT_NOT_LET_OR_BRACKET).is(b.nextNot(LET, LBRACKET));
     b.rule(LEFT_HAND_SIDE_EXPRESSION_NO_LET).is(b.nextNot(LET), LEFT_HAND_SIDE_EXPRESSION).skip();
-    b.rule(EXPRESSION_NO_LCURLY_AND_FUNCTION).is(b.nextNot(b.firstOf(LCURLYBRACE, FUNCTION)), EXPRESSION).skip();
+    b.rule(NO_LCURLY_AND_FUNCTION).is(b.nextNot(b.firstOf(LCURLYBRACE, FUNCTION)));
     b.rule(FOR_VAR_DECLARATION).is(VAR, VARIABLE_DECLARATION_LIST_NO_IN);
 
   }
@@ -523,14 +518,6 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
     b.rule(SCRIPT).is(b.optional(SHEBANG), b.optional(MODULE_BODY), SPACING, EOF);
 
     b.rule(SHEBANG).is("#!", b.regexp("[^\\n\\r]*+")).skip();
-  }
-
-  /**
-   * Declares constructs supported since ECMAScript 6.
-   * Based on draft <a href="http://people.mozilla.org/~jorendorff/es6-draft.html"></a>
-   */
-  private static Object ecmascript6(Object object) {
-    return object;
   }
 
   private final String internalName;

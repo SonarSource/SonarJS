@@ -24,6 +24,7 @@ import org.sonar.check.BelongsToProfile;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.javascript.model.interfaces.Tree.Kind;
+import org.sonar.javascript.model.interfaces.statement.ExpressionStatementTree;
 import org.sonar.squidbridge.checks.SquidCheck;
 import org.sonar.sslr.parser.LexerlessGrammar;
 
@@ -56,7 +57,8 @@ public class UnreachableCodeCheck extends SquidCheck<LexerlessGrammar> {
         Kind.ELSE_CLAUSE,
         Kind.FUNCTION_DECLARATION,
         Kind.GENERATOR_DECLARATION,
-        Kind.CLASS_DECLARATION);
+        Kind.CLASS_DECLARATION)
+      && !(node.is(Kind.EXPRESSION_STATEMENT) && ((ExpressionStatementTree) node).expression().is(Kind.CLASS_EXPRESSION));
   }
 
 }

@@ -30,9 +30,10 @@ public class StatementListTest {
   @Test
   public void ok() {
     assertThat(EcmaScriptGrammar.STATEMENT_LIST)
-        .matches("break;")
-        .matches("break; break;")
-        .matches("function f() {}");
+      .matches("break;")
+      .matches("break; break;")
+      .matches("function f() {}")
+      .matches("class C {}");
   }
 
 }

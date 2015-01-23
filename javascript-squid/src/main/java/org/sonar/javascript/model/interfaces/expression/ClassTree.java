@@ -19,9 +19,9 @@
  */
 package org.sonar.javascript.model.interfaces.expression;
 
-import org.sonar.javascript.model.interfaces.declaration.DeclarationTree;
 import org.sonar.javascript.model.interfaces.declaration.MethodDeclarationTree;
 import org.sonar.javascript.model.interfaces.lexical.SyntaxToken;
+import org.sonar.javascript.model.interfaces.statement.StatementTree;
 
 import javax.annotation.Nullable;
 
@@ -39,7 +39,7 @@ import java.util.List;
  *
  * <p>This interface is not intended to be implemented by clients.</p>
  */
-public interface ClassTree extends ExpressionTree, DeclarationTree {
+public interface ClassTree extends ExpressionTree, StatementTree {
 
   SyntaxToken classToken();
 

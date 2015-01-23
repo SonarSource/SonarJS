@@ -81,7 +81,6 @@ import org.sonar.javascript.model.implementations.statement.TryStatementTreeImpl
 import org.sonar.javascript.model.implementations.statement.VariableStatementTreeImpl;
 import org.sonar.javascript.model.implementations.statement.WhileStatementTreeImpl;
 import org.sonar.javascript.model.implementations.statement.WithStatementTreeImpl;
-import org.sonar.javascript.model.interfaces.Tree;
 import org.sonar.javascript.model.interfaces.Tree.Kind;
 import org.sonar.javascript.model.interfaces.declaration.BindingElementTree;
 import org.sonar.javascript.model.interfaces.declaration.DeclarationTree;
@@ -122,7 +121,14 @@ public class ActionGrammar {
 
   public VariableStatementTreeImpl VARIABLE_STATEMENT() {
     return b.<VariableStatementTreeImpl>nonterminal(Kind.VARIABLE_STATEMENT)
-      .is(f.variableStatement(b.invokeRule(EcmaScriptKeyword.VAR), BINDING_ELEMENT_LIST(), b.invokeRule(EcmaScriptGrammar.EOS)));
+      .is(
+        f.variableStatement(
+          b.firstOf(
+            b.invokeRule(EcmaScriptKeyword.VAR),
+            b.invokeRule(EcmaScriptGrammar.LET),
+            b.invokeRule(EcmaScriptKeyword.CONST)),
+          BINDING_ELEMENT_LIST(),
+          b.invokeRule(EcmaScriptGrammar.EOS)));
   }
 
   public SeparatedList<BindingElementTree> BINDING_ELEMENT_LIST() {
@@ -337,8 +343,7 @@ public class ActionGrammar {
 
   public ExpressionStatementTreeImpl EXPRESSION_STATEMENT() {
     return b.<ExpressionStatementTreeImpl>nonterminal(Kind.EXPRESSION_STATEMENT)
-      .is(f.expressionStatement(
-        b.invokeRule(EcmaScriptGrammar.EXPRESSION_NO_LCURLY_AND_FUNCTION), b.invokeRule(EcmaScriptGrammar.EOS)));
+      .is(f.expressionStatement(b.invokeRule(EcmaScriptGrammar.NO_LCURLY_AND_FUNCTION), EXPRESSION(), b.invokeRule(EcmaScriptGrammar.EOS)));
   }
 
   /**
@@ -405,22 +410,25 @@ public class ActionGrammar {
 
   public StatementTree STATEMENT() {
     return b.<StatementTree>nonterminal(EcmaScriptGrammar.STATEMENT)
-      .is(b.firstOf(
-        BLOCK(),
-        VARIABLE_STATEMENT(),
-        EMPTY_STATEMENT(),
-        LABELLED_STATEMENT(),
-        EXPRESSION_STATEMENT(),
-        IF_STATEMENT(),
-        ITERATION_STATEMENT(),
-        CONTINUE_STATEMENT(),
-        BREAK_STATEMENT(),
-        RETURN_STATEMENT(),
-        WITH_STATEMENT(),
-        SWITCH_STATEMENT(),
-        THROW_STATEMENT(),
-        TRY_STATEMENT(),
-        DEBUGGER_STATEMENT()));
+      .is(
+        b.firstOf(
+          BLOCK(),
+          VARIABLE_STATEMENT(),
+          EMPTY_STATEMENT(),
+          LABELLED_STATEMENT(),
+          EXPRESSION_STATEMENT(),
+          IF_STATEMENT(),
+          ITERATION_STATEMENT(),
+          CONTINUE_STATEMENT(),
+          BREAK_STATEMENT(),
+          RETURN_STATEMENT(),
+          WITH_STATEMENT(),
+          SWITCH_STATEMENT(),
+          THROW_STATEMENT(),
+          TRY_STATEMENT(),
+          DEBUGGER_STATEMENT(),
+          FUNCTION_AND_GENERATOR_DECLARATION(),
+          CLASS_DECLARATION()));
   }
 
   /**
@@ -1223,8 +1231,7 @@ public class ActionGrammar {
         b.invokeRule(EcmaScriptKeyword.EXPORT),
         b.invokeRule(EcmaScriptKeyword.DEFAULT),
         b.firstOf(
-          FUNCTION_DECLARATION(),
-          GENERATOR_DECLARATION(),
+          FUNCTION_AND_GENERATOR_DECLARATION(),
           CLASS_DECLARATION(),
           f.exportedExpressionStatement(b.invokeRule(EcmaScriptGrammar.NOT_FUNCTION_AND_CLASS), ASSIGNMENT_EXPRESSION(), b.invokeRule(EcmaScriptGrammar.EOS)))
       ));
@@ -1232,13 +1239,14 @@ public class ActionGrammar {
 
   public NamedExportDeclarationTreeImpl NAMED_EXPORT_DECLARATION() {
     return b.<NamedExportDeclarationTreeImpl>nonterminal(Kind.NAMED_EXPORT_DECLARATION)
-      .is(f.namedExportDeclaration(
-        b.invokeRule(EcmaScriptKeyword.EXPORT),
-        b.firstOf(
-          f.exportClause(EXPORT_LIST(), b.optional(FROM_CLAUSE()), b.invokeRule(EcmaScriptGrammar.EOS)),
-          VARIABLE_STATEMENT(),
-          b.invokeRule(EcmaScriptGrammar.DECLARATION)))
-      );
+      .is(
+        f.namedExportDeclaration(
+          b.invokeRule(EcmaScriptKeyword.EXPORT),
+          b.firstOf(
+            f.exportClause(EXPORT_LIST(), b.optional(FROM_CLAUSE()), b.invokeRule(EcmaScriptGrammar.EOS)),
+            VARIABLE_STATEMENT(),
+            CLASS_DECLARATION(),
+            FUNCTION_AND_GENERATOR_DECLARATION())));
   }
 
   public SpecifierListTreeImpl EXPORT_LIST() {
@@ -1347,27 +1355,20 @@ public class ActionGrammar {
   // FIXME: get rid of AstNode
   public ModuleTreeImpl MODULE_BODY() {
     return b.<ModuleTreeImpl>nonterminal(EcmaScriptGrammar.MODULE_BODY)
-      .is(f.module(b.oneOrMore(
-          b.firstOf(
-            (AstNode) IMPORT_DECLARATION(),
-            (AstNode) EXPORT_DECLARATION(),
-            b.invokeRule(EcmaScriptGrammar.DECLARATION),
-            (AstNode) STATEMENT()))
-      ));
+      .is(
+        f.module(
+          b.oneOrMore(
+            b.firstOf(
+              (AstNode) IMPORT_DECLARATION(),
+              (AstNode) EXPORT_DECLARATION(),
+              VARIABLE_STATEMENT(),
+              CLASS_DECLARATION(),
+              FUNCTION_AND_GENERATOR_DECLARATION(),
+              (AstNode) STATEMENT()))));
   }
   // [END] Module, import & export
 
   // [START] Destructuring pattern
-
-  public Tree DECLARATION() {
-    return b.<Tree>nonterminal(EcmaScriptGrammar.DECLARATION)
-      .is(
-        b.firstOf(
-          FUNCTION_DECLARATION(),
-          GENERATOR_DECLARATION(),
-          CLASS_DECLARATION(),
-          LEXICAL_DECLARATION()));
-  }
 
   public BindingElementTree BINDING_PATTERN() {
     return b.<BindingElementTree>nonterminal(EcmaScriptGrammar.BINDING_PATTERN)
@@ -1437,17 +1438,6 @@ public class ActionGrammar {
           b.invokeRule(EcmaScriptPunctuator.RBRACKET)));
   }
 
-  public VariableStatementTreeImpl LEXICAL_DECLARATION() {
-    return b.<VariableStatementTreeImpl>nonterminal(EcmaScriptGrammar.LEXICAL_DECLARATION)
-      .is(
-        f.lexicalDeclaration(
-          b.firstOf(
-            b.invokeRule(EcmaScriptGrammar.LET),
-            b.invokeRule(EcmaScriptKeyword.CONST)),
-          BINDING_ELEMENT_LIST(),
-          b.invokeRule(EcmaScriptGrammar.EOS)));
-  }
-
   // [END] Destructuring pattern
 
   // [START] Classes, methods, functions & generators
@@ -1495,14 +1485,12 @@ public class ActionGrammar {
             BLOCK())));
   }
 
-  public FunctionDeclarationTreeImpl FUNCTION_DECLARATION() {
+  public FunctionDeclarationTreeImpl FUNCTION_AND_GENERATOR_DECLARATION() {
     return b.<FunctionDeclarationTreeImpl>nonterminal(EcmaScriptGrammar.FUNCTION_DECLARATION)
-      .is(f.functionDeclaration(b.invokeRule(EcmaScriptKeyword.FUNCTION), BINDING_IDENTIFIER(), FORMAL_PARAMETER_LIST(), BLOCK()));
-  }
-
-  public FunctionDeclarationTreeImpl GENERATOR_DECLARATION() {
-    return b.<FunctionDeclarationTreeImpl>nonterminal(EcmaScriptGrammar.GENERATOR_DECLARATION)
-      .is(f.generatorDeclaration(b.invokeRule(EcmaScriptKeyword.FUNCTION), b.invokeRule(EcmaScriptPunctuator.STAR), BINDING_IDENTIFIER(), FORMAL_PARAMETER_LIST(), BLOCK()));
+      .is(
+        f.functionAndGeneratorDeclaration(
+          b.invokeRule(EcmaScriptKeyword.FUNCTION), b.optional(b.invokeRule(EcmaScriptPunctuator.STAR)), BINDING_IDENTIFIER(), FORMAL_PARAMETER_LIST(),
+          BLOCK()));
   }
 
   // [END] Classes, methods, functions & generators
