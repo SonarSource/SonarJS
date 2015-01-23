@@ -19,16 +19,11 @@
  */
 package org.sonar.javascript.model.interfaces.statement;
 
-import org.sonar.javascript.model.implementations.SeparatedList;
 import org.sonar.javascript.model.interfaces.Tree;
-import org.sonar.javascript.model.interfaces.declaration.BindingElementTree;
-import org.sonar.javascript.model.interfaces.lexical.SyntaxToken;
 
 public interface VariableStatementTree extends StatementTree {
 
-  SyntaxToken token();
-
-  SeparatedList<BindingElementTree> variables();
+  VariableDeclarationTree declaration();
 
   Tree endOfStatement();
 

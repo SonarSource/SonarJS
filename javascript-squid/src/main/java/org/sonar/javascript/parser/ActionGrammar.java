@@ -78,6 +78,7 @@ import org.sonar.javascript.model.implementations.statement.ReturnStatementTreeI
 import org.sonar.javascript.model.implementations.statement.SwitchStatementTreeImpl;
 import org.sonar.javascript.model.implementations.statement.ThrowStatementTreeImpl;
 import org.sonar.javascript.model.implementations.statement.TryStatementTreeImpl;
+import org.sonar.javascript.model.implementations.statement.VariableDeclarationTreeImpl;
 import org.sonar.javascript.model.implementations.statement.VariableStatementTreeImpl;
 import org.sonar.javascript.model.implementations.statement.WhileStatementTreeImpl;
 import org.sonar.javascript.model.implementations.statement.WithStatementTreeImpl;
@@ -122,14 +123,18 @@ public class ActionGrammar {
 
   public VariableStatementTreeImpl VARIABLE_STATEMENT() {
     return b.<VariableStatementTreeImpl>nonterminal(Kind.VARIABLE_STATEMENT)
+      .is(f.variableStatement(VARIABLE_DECLARATION(), b.invokeRule(EcmaScriptGrammar.EOS)));
+  }
+
+  public VariableDeclarationTreeImpl VARIABLE_DECLARATION() {
+    return b.<VariableDeclarationTreeImpl>nonterminal()
       .is(
-        f.variableStatement(
+        f.variableDeclaration(
           b.firstOf(
             b.invokeRule(EcmaScriptKeyword.VAR),
             b.invokeRule(EcmaScriptGrammar.LET),
             b.invokeRule(EcmaScriptKeyword.CONST)),
-          BINDING_ELEMENT_LIST(),
-          b.invokeRule(EcmaScriptGrammar.EOS)));
+          BINDING_ELEMENT_LIST()));
   }
 
   public SeparatedList<BindingElementTree> BINDING_ELEMENT_LIST() {
@@ -355,7 +360,9 @@ public class ActionGrammar {
       .is(f.forOfStatement(
         b.invokeRule(EcmaScriptKeyword.FOR),
         b.invokeRule(EcmaScriptPunctuator.LPARENTHESIS),
-        b.firstOf(b.invokeRule(EcmaScriptGrammar.FOR_DECLARATION), b.invokeRule(EcmaScriptGrammar.LEFT_HAND_SIDE_EXPRESSION_NO_LET)),
+        b.firstOf(
+          VARIABLE_DECLARATION(),
+          f.skipLookahead3(b.invokeRule(EcmaScriptGrammar.LEFT_HAND_SIDE_EXPRESSION_NO_LET), LEFT_HAND_SIDE_EXPRESSION())),
         b.invokeRule(EcmaScriptGrammar.OF),
         ASSIGNMENT_EXPRESSION(),
         b.invokeRule(EcmaScriptPunctuator.RPARENTHESIS),
@@ -369,8 +376,8 @@ public class ActionGrammar {
           b.invokeRule(EcmaScriptKeyword.FOR),
           b.invokeRule(EcmaScriptPunctuator.LPARENTHESIS),
           b.firstOf(
-            b.invokeRule(EcmaScriptGrammar.FOR_DECLARATION),
-            (AstNode) f.skipLookahead2(b.invokeRule(EcmaScriptGrammar.NEXT_NOT_LET_OR_BRACKET), LEFT_HAND_SIDE_EXPRESSION())),
+            VARIABLE_DECLARATION(),
+            f.skipLookahead2(b.invokeRule(EcmaScriptGrammar.NEXT_NOT_LET_OR_BRACKET), LEFT_HAND_SIDE_EXPRESSION())),
           b.invokeRule(EcmaScriptKeyword.IN),
           EXPRESSION(),
           b.invokeRule(EcmaScriptPunctuator.RPARENTHESIS),
@@ -401,12 +408,13 @@ public class ActionGrammar {
 
   public StatementTree ITERATION_STATEMENT() {
     return b.<StatementTree>nonterminal(EcmaScriptGrammar.ITERATION_STATEMENT)
-      .is(b.firstOf(
-        DO_WHILE_STATEMENT(),
-        WHILE_STATEMENT(),
-        FOR_IN_STATEMENT(),
-        ES6(FOR_OF_STATEMENT()),
-        FOR_STATEMENT()));
+      .is(
+        b.firstOf(
+          DO_WHILE_STATEMENT(),
+          WHILE_STATEMENT(),
+          FOR_IN_STATEMENT(),
+          ES6(FOR_OF_STATEMENT()),
+          FOR_STATEMENT()));
   }
 
   public StatementTree STATEMENT() {
@@ -814,10 +822,10 @@ public class ActionGrammar {
 
   public ExpressionTree LEFT_HAND_SIDE_EXPRESSION() {
     return b.<ExpressionTree>nonterminal(EcmaScriptGrammar.LEFT_HAND_SIDE_EXPRESSION)
-      .is(b.firstOf(
-        CALL_EXPRESSION(),
-        NEW_EXPRESSION()
-      ));
+      .is(
+        b.firstOf(
+          CALL_EXPRESSION(),
+          NEW_EXPRESSION()));
   }
 
   public YieldExpressionTreeImpl YIELD_EXPRESSION() {

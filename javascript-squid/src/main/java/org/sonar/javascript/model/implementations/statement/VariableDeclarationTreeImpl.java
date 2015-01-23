@@ -21,37 +21,48 @@ package org.sonar.javascript.model.implementations.statement;
 
 import com.sonar.sslr.api.AstNode;
 import org.sonar.javascript.model.implementations.JavaScriptTree;
+import org.sonar.javascript.model.implementations.SeparatedList;
+import org.sonar.javascript.model.implementations.lexical.InternalSyntaxToken;
 import org.sonar.javascript.model.interfaces.Tree;
-import org.sonar.javascript.model.interfaces.statement.VariableStatementTree;
+import org.sonar.javascript.model.interfaces.declaration.BindingElementTree;
+import org.sonar.javascript.model.interfaces.lexical.SyntaxToken;
+import org.sonar.javascript.model.interfaces.statement.VariableDeclarationTree;
 
 import java.util.Iterator;
+import java.util.List;
 
-public class VariableStatementTreeImpl extends JavaScriptTree implements VariableStatementTree {
+public class VariableDeclarationTreeImpl extends JavaScriptTree implements VariableDeclarationTree {
 
-  private final VariableDeclarationTreeImpl declaration;
+  private final Kind kind;
+  private final InternalSyntaxToken token;
+  private final SeparatedList<BindingElementTree> variables;
 
-  public VariableStatementTreeImpl(VariableDeclarationTreeImpl declaration, AstNode eos) {
-    super(Kind.VARIABLE_STATEMENT);
+  public VariableDeclarationTreeImpl(Kind kind, InternalSyntaxToken token, SeparatedList<BindingElementTree> variables, List<AstNode> children) {
+    super(kind);
 
-    this.declaration = declaration;
+    this.kind = kind;
+    this.token = token;
+    this.variables = variables;
 
-    addChild(declaration);
-    addChild(eos);
+    addChild(token);
+    for (AstNode child : children) {
+      addChild(child);
+    }
   }
 
   @Override
   public Kind getKind() {
-    return Kind.VARIABLE_STATEMENT;
+    return kind;
   }
 
   @Override
-  public VariableDeclarationTreeImpl declaration() {
-    return declaration;
+  public SyntaxToken token() {
+    return token;
   }
 
   @Override
-  public Tree endOfStatement() {
-    throw new UnsupportedOperationException("Not supported yet in the strongly typed AST.");
+  public SeparatedList<BindingElementTree> variables() {
+    return variables;
   }
 
   @Override

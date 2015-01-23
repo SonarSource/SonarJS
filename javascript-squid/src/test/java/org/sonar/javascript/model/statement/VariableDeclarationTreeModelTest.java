@@ -17,33 +17,33 @@
  * License along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.javascript.model.declaration;
+package org.sonar.javascript.model.statement;
 
 import org.junit.Test;
 import org.sonar.javascript.model.JavaScriptTreeModelTest;
 import org.sonar.javascript.model.interfaces.Tree.Kind;
-import org.sonar.javascript.model.interfaces.statement.VariableStatementTree;
+import org.sonar.javascript.model.interfaces.statement.VariableDeclarationTree;
 
 import static org.fest.assertions.Assertions.assertThat;
 
-public class LexicalDeclarationTreeModelTest extends JavaScriptTreeModelTest {
+public class VariableDeclarationTreeModelTest extends JavaScriptTreeModelTest {
 
   @Test
-  public void let_decl() throws Exception {
-    VariableStatementTree tree = parse("let a, b, [,,] = foo;", Kind.LET_DECLARATION);
+  public void single_declaration() throws Exception {
+    VariableDeclarationTree tree = parse("var varDeclaration ;", Kind.VAR_DECLARATION);
 
-    assertThat(tree.is(Kind.LET_DECLARATION)).isTrue();
-    assertThat(tree.token().text()).isEqualTo("let");
-    assertThat(tree.variables()).hasSize(3);
-    assertThat(tree.variables().getSeparators()).hasSize(2);
+    assertThat(tree.is(Kind.VAR_DECLARATION)).isTrue();
+    assertThat(tree.token().text()).isEqualTo("var");
+    assertThat(tree.variables()).hasSize(1);
+    assertThat(tree.variables().getSeparators()).isEmpty();
   }
 
   @Test
-  public void const_decl() throws Exception {
-    VariableStatementTree tree = parse("const a, b, [,,] = foo;", Kind.CONST_DECLARATION);
+  public void multiple_declarations() throws Exception {
+    VariableDeclarationTree tree = parse("let varDeclaration , varDeclaration , varDeclaration ;", Kind.LET_DECLARATION);
 
-    assertThat(tree.is(Kind.CONST_DECLARATION)).isTrue();
-    assertThat(tree.token().text()).isEqualTo("const");
+    assertThat(tree.is(Kind.LET_DECLARATION)).isTrue();
+    assertThat(tree.token().text()).isEqualTo("let");
     assertThat(tree.variables()).hasSize(3);
     assertThat(tree.variables().getSeparators()).hasSize(2);
   }

@@ -97,6 +97,7 @@ import org.sonar.javascript.model.implementations.statement.ReturnStatementTreeI
 import org.sonar.javascript.model.implementations.statement.SwitchStatementTreeImpl;
 import org.sonar.javascript.model.implementations.statement.ThrowStatementTreeImpl;
 import org.sonar.javascript.model.implementations.statement.TryStatementTreeImpl;
+import org.sonar.javascript.model.implementations.statement.VariableDeclarationTreeImpl;
 import org.sonar.javascript.model.implementations.statement.VariableStatementTreeImpl;
 import org.sonar.javascript.model.implementations.statement.WhileStatementTreeImpl;
 import org.sonar.javascript.model.implementations.statement.WithStatementTreeImpl;
@@ -223,10 +224,14 @@ public class TreeFactory {
     return new DebuggerStatementTreeImpl(InternalSyntaxToken.create(debuggerWord), eos);
   }
 
-  public VariableStatementTreeImpl variableStatement(AstNode token, SeparatedList<BindingElementTree> elements, AstNode eosToken) {
+  public VariableStatementTreeImpl variableStatement(VariableDeclarationTreeImpl declaration, AstNode eosToken) {
+    return new VariableStatementTreeImpl(declaration, eosToken);
+  }
+
+  public VariableDeclarationTreeImpl variableDeclaration(AstNode token, SeparatedList<BindingElementTree> variables) {
     Kind kind;
     if (token.is(EcmaScriptKeyword.VAR)) {
-      kind = Kind.VARIABLE_STATEMENT;
+      kind = Kind.VAR_DECLARATION;
     } else if (token.is(EcmaScriptGrammar.LET)) {
       kind = Kind.LET_DECLARATION;
     } else if (token.is(EcmaScriptKeyword.CONST)) {
@@ -234,7 +239,7 @@ public class TreeFactory {
     } else {
       throw new UnsupportedOperationException("Unsupported type: " + token.getType() + ", " + token);
     }
-    return new VariableStatementTreeImpl(kind, InternalSyntaxToken.create(token), elements, elements.getChildren(), eosToken);
+    return new VariableDeclarationTreeImpl(kind, InternalSyntaxToken.create(token), variables, variables.getChildren());
   }
 
   public SeparatedList<BindingElementTree> bindingElementList(BindingElementTree element, Optional<List<Tuple<AstNode, BindingElementTree>>> rest) {
@@ -405,7 +410,8 @@ public class TreeFactory {
     return new ExpressionStatementTreeImpl(expression, eos);
   }
 
-  public ForOfStatementTreeImpl forOfStatement(AstNode forToken, AstNode openParenthesis, AstNode variableOrExpression, AstNode ofToken, ExpressionTree expression, AstNode closeParenthesis, StatementTree statement) {
+  public ForOfStatementTreeImpl forOfStatement(AstNode forToken, AstNode openParenthesis, Tree variableOrExpression, AstNode ofToken, ExpressionTree expression,
+    AstNode closeParenthesis, StatementTree statement) {
     return new ForOfStatementTreeImpl(
       InternalSyntaxToken.create(forToken),
       InternalSyntaxToken.create(openParenthesis),
@@ -415,7 +421,7 @@ public class TreeFactory {
       statement);
   }
 
-  public ForInStatementTreeImpl forInStatement(AstNode forToken, AstNode openParenthesis, AstNode variableOrExpression, AstNode inToken, ExpressionTree expression,
+  public ForInStatementTreeImpl forInStatement(AstNode forToken, AstNode openParenthesis, Tree variableOrExpression, AstNode inToken, ExpressionTree expression,
     AstNode closeParenthesis, StatementTree statement) {
 
     return new ForInStatementTreeImpl(
@@ -1468,6 +1474,11 @@ public class TreeFactory {
   public ExpressionTree skipLookahead2(AstNode lookahead, ExpressionTree expression) {
     return expression;
   }
+
+  public ExpressionTree skipLookahead3(AstNode lookahead, ExpressionTree expression) {
+    return expression;
+  }
+
   // [END] Destructuring pattern
 
   // [END] Classes, methods, functions & generators
@@ -1660,4 +1671,5 @@ public class TreeFactory {
   public <T, U> Tuple<T, U> newTuple54(T first, U second) {
     return newTuple(first, second);
   }
+
 }

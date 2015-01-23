@@ -19,6 +19,7 @@
  */
 package org.sonar.javascript.model.interfaces.statement;
 
+import org.sonar.javascript.model.interfaces.Tree;
 import org.sonar.javascript.model.interfaces.expression.ExpressionTree;
 import org.sonar.javascript.model.interfaces.lexical.SyntaxToken;
 
@@ -37,7 +38,7 @@ public interface ForOfStatementTree extends StatementTree {
 
   SyntaxToken openParenthesis();
 
-  ExpressionTree variableOrExpression();
+  Tree variableOrExpression();
 
   SyntaxToken ofKeyword();
 

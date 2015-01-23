@@ -51,7 +51,6 @@ import org.sonar.javascript.model.interfaces.expression.ConditionalExpressionTre
 import org.sonar.javascript.model.interfaces.expression.ExpressionTree;
 import org.sonar.javascript.model.interfaces.expression.FunctionExpressionTree;
 import org.sonar.javascript.model.interfaces.expression.IdentifierTree;
-import org.sonar.javascript.model.interfaces.expression.LexicalDeclarationTree;
 import org.sonar.javascript.model.interfaces.expression.LiteralTree;
 import org.sonar.javascript.model.interfaces.expression.MemberExpressionTree;
 import org.sonar.javascript.model.interfaces.expression.NewExpressionTree;
@@ -87,6 +86,7 @@ import org.sonar.javascript.model.interfaces.statement.ReturnStatementTree;
 import org.sonar.javascript.model.interfaces.statement.SwitchStatementTree;
 import org.sonar.javascript.model.interfaces.statement.ThrowStatementTree;
 import org.sonar.javascript.model.interfaces.statement.TryStatementTree;
+import org.sonar.javascript.model.interfaces.statement.VariableDeclarationTree;
 import org.sonar.javascript.model.interfaces.statement.VariableStatementTree;
 import org.sonar.javascript.model.interfaces.statement.WhileStatementTree;
 import org.sonar.javascript.model.interfaces.statement.WithStatementTree;
@@ -119,6 +119,21 @@ public interface Tree {
      * {@link VariableStatementTree}
      */
     VARIABLE_STATEMENT(VariableStatementTree.class),
+
+    /**
+     * {@link VariableDeclarationTree}
+     */
+    VAR_DECLARATION(VariableDeclarationTree.class),
+
+    /**
+     * {@link VariableDeclarationTree}
+     */
+    LET_DECLARATION(VariableDeclarationTree.class),
+
+    /**
+     * {@link VariableDeclarationTree}
+     */
+    CONST_DECLARATION(VariableDeclarationTree.class),
 
     /**
      * {@link LabelledStatementTree}
@@ -746,16 +761,6 @@ public interface Tree {
      * {@link ObjectBindingPatternTree}
      */
     ARRAY_BINDING_PATTERN(ArrayBindingPatternTree.class),
-
-    /**
-     * {@link LexicalDeclarationTree}
-     */
-    LET_DECLARATION(LexicalDeclarationTree.class),
-
-    /**
-     * {@link LexicalDeclarationTree}
-     */
-    CONST_DECLARATION(LexicalDeclarationTree.class),
 
     /**
      * {@link DefaultExportDeclarationTree}

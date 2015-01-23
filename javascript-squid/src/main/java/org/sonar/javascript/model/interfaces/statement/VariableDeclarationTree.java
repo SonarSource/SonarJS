@@ -17,21 +17,17 @@
  * License along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.javascript.parser.grammar.expressions;
+package org.sonar.javascript.model.interfaces.statement;
 
-import org.junit.Test;
-import org.sonar.javascript.parser.EcmaScriptGrammar;
+import org.sonar.javascript.model.implementations.SeparatedList;
+import org.sonar.javascript.model.interfaces.Tree;
+import org.sonar.javascript.model.interfaces.declaration.BindingElementTree;
+import org.sonar.javascript.model.interfaces.lexical.SyntaxToken;
 
-import static org.sonar.javascript.sslr.tests.Assertions.assertThat;
+public interface VariableDeclarationTree extends Tree {
 
-public class ForBindingTest {
+  SyntaxToken token();
 
-
-  @Test
-  public void ok() {
-    assertThat(EcmaScriptGrammar.FOR_BINDING)
-        .matches("identifier")
-        .matches("{ }");
-  }
+  SeparatedList<BindingElementTree> variables();
 
 }

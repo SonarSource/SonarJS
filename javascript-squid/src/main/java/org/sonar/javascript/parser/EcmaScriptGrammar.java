@@ -202,10 +202,6 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
   ITERATION_STATEMENT,
   /** ECMAScrip 6 **/
   OF,
-  /** ECMAScript 6 **/
-  FOR_DECLARATION,
-  /** ECMAScript 6 **/
-  FOR_BINDING,
   RETURN_STATEMENT,
   WITH_STATEMENT,
   FINALLY,
@@ -471,13 +467,11 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
     b.rule(VARIABLE_DECLARATION_LIST_NO_IN).is(VARIABLE_DECLARATION_NO_IN, b.zeroOrMore(COMMA, VARIABLE_DECLARATION_NO_IN));
     b.rule(VARIABLE_DECLARATION_NO_IN).is(b.firstOf(BINDING_IDENTIFIER_INITIALISER_NO_IN, BINDING_PATTERN_INITIALISER_NO_IN));
 
-    b.rule(FOR_DECLARATION).is(b.firstOf(VAR, LET, CONST), FOR_BINDING);
-    b.rule(FOR_BINDING).is(b.firstOf(BINDING_IDENTIFIER, BINDING_PATTERN));
     b.rule(OF).is(word(b, "of"));
 
     // Temporary rules waiting for b.nextNot method migration
     b.rule(NEXT_NOT_LET_OR_BRACKET).is(b.nextNot(LET, LBRACKET));
-    b.rule(LEFT_HAND_SIDE_EXPRESSION_NO_LET).is(b.nextNot(LET), LEFT_HAND_SIDE_EXPRESSION).skip();
+    b.rule(LEFT_HAND_SIDE_EXPRESSION_NO_LET).is(b.nextNot(LET));
     b.rule(NO_LCURLY_AND_FUNCTION).is(b.nextNot(b.firstOf(LCURLYBRACE, FUNCTION)));
     b.rule(FOR_VAR_DECLARATION).is(VAR, VARIABLE_DECLARATION_LIST_NO_IN);
 

@@ -35,23 +35,25 @@ public class ForInStatementTreeImpl extends JavaScriptTree implements ForInState
 
   private final SyntaxToken forKeyword;
   private final SyntaxToken openParenthesis;
+  private final Tree variableOrExpression;
   private final SyntaxToken inKeyword;
   private final ExpressionTree expression;
   private final SyntaxToken closeParenthesis;
   private final StatementTree statement;
 
-  public ForInStatementTreeImpl(InternalSyntaxToken forKeyword, InternalSyntaxToken openParenthesis, AstNode variableOrExpression,
+  public ForInStatementTreeImpl(InternalSyntaxToken forKeyword, InternalSyntaxToken openParenthesis, Tree variableOrExpression,
     InternalSyntaxToken inKeyword, ExpressionTree expression, InternalSyntaxToken closeParenthesis, StatementTree statement) {
 
     super(Kind.FOR_IN_STATEMENT);
     this.forKeyword = forKeyword;
     this.openParenthesis = openParenthesis;
+    this.variableOrExpression = variableOrExpression;
     this.inKeyword = inKeyword;
     this.expression = expression;
     this.closeParenthesis = closeParenthesis;
     this.statement = statement;
 
-    addChildren(forKeyword, openParenthesis, variableOrExpression, inKeyword, (AstNode) expression, closeParenthesis, (AstNode) statement);
+    addChildren(forKeyword, openParenthesis, (AstNode) variableOrExpression, inKeyword, (AstNode) expression, closeParenthesis, (AstNode) statement);
   }
 
   @Override
@@ -65,8 +67,8 @@ public class ForInStatementTreeImpl extends JavaScriptTree implements ForInState
   }
 
   @Override
-  public ExpressionTree variableOrExpression() {
-    throw new UnsupportedOperationException("Not supported yet in the strongly typed AST.");
+  public Tree variableOrExpression() {
+    return variableOrExpression;
   }
 
   @Override
