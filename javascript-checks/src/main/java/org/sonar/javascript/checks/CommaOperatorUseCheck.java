@@ -28,8 +28,6 @@ import org.sonar.javascript.model.implementations.lexical.InternalSyntaxToken;
 import org.sonar.javascript.model.interfaces.Tree.Kind;
 import org.sonar.javascript.model.interfaces.expression.BinaryExpressionTree;
 import org.sonar.javascript.model.interfaces.lexical.SyntaxToken;
-import org.sonar.javascript.model.interfaces.statement.ForStatementTree;
-import org.sonar.javascript.parser.EcmaScriptGrammar;
 import org.sonar.squidbridge.checks.SquidCheck;
 import org.sonar.sslr.parser.LexerlessGrammar;
 
@@ -71,12 +69,8 @@ public class CommaOperatorUseCheck extends SquidCheck<LexerlessGrammar> {
   }
 
   public static boolean isInitOrIncrementOfForLoop(AstNode expr) {
-    if (expr.getParent().is(Kind.FOR_STATEMENT)
-      && (expr.getPreviousAstNode().is(EcmaScriptPunctuator.LPARENTHESIS) || expr.getNextAstNode().is(EcmaScriptPunctuator.RPARENTHESIS))) {
-      return true;
-    }
-
-    return false;
+    return (expr.getParent().is(Kind.FOR_STATEMENT)
+      && (expr.getPreviousAstNode().is(EcmaScriptPunctuator.LPARENTHESIS) || expr.getNextAstNode().is(EcmaScriptPunctuator.RPARENTHESIS)));
   }
 
 }
