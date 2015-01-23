@@ -58,7 +58,7 @@ public class VariableStatementTreeImpl extends JavaScriptTree implements Variabl
   }
 
   @Override
-  public SyntaxToken varKeyword() {
+  public SyntaxToken token() {
     return token;
   }
 

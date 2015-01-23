@@ -26,9 +26,10 @@ import org.sonar.javascript.model.interfaces.lexical.SyntaxToken;
 
 public interface VariableStatementTree extends StatementTree {
 
-  SyntaxToken varKeyword();
+  SyntaxToken token();
 
   SeparatedList<BindingElementTree> variables();
 
   Tree endOfStatement();
+
 }
