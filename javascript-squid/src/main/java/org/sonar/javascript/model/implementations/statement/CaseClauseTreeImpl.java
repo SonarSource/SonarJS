@@ -22,6 +22,7 @@ package org.sonar.javascript.model.implementations.statement;
 import com.google.common.collect.Iterators;
 import com.sonar.sslr.api.AstNode;
 import com.sonar.sslr.api.AstNodeType;
+import org.apache.commons.collections.ListUtils;
 import org.sonar.javascript.model.implementations.JavaScriptTree;
 import org.sonar.javascript.model.implementations.lexical.InternalSyntaxToken;
 import org.sonar.javascript.model.interfaces.Tree;
@@ -38,23 +39,29 @@ public class CaseClauseTreeImpl extends JavaScriptTree implements CaseClauseTree
   private final SyntaxToken caseKeyword;
   private final ExpressionTree expression;
   private final SyntaxToken colon;
+  private final List<StatementTree> statements;
 
   public CaseClauseTreeImpl(InternalSyntaxToken caseKeyword, ExpressionTree expression, InternalSyntaxToken colon) {
     super(Kind.CASE_CLAUSE);
     this.caseKeyword = caseKeyword;
     this.expression = expression;
     this.colon = colon;
+    this.statements = ListUtils.EMPTY_LIST;
 
     addChildren(caseKeyword, (AstNode) expression, colon);
   }
 
-  public CaseClauseTreeImpl(InternalSyntaxToken caseKeyword, ExpressionTree expression, InternalSyntaxToken colon, AstNode statementList) {
+  public CaseClauseTreeImpl(InternalSyntaxToken caseKeyword, ExpressionTree expression, InternalSyntaxToken colon, List<StatementTree> statements) {
     super(Kind.CASE_CLAUSE);
     this.caseKeyword = caseKeyword;
     this.expression = expression;
     this.colon = colon;
+    this.statements = statements;
 
-    addChildren(caseKeyword, (AstNode) expression, colon, statementList);
+    addChildren(caseKeyword, (AstNode) expression, colon);
+    for (StatementTree child : statements) {
+      addChild((AstNode) child);
+    }
   }
 
   @Override
@@ -74,7 +81,7 @@ public class CaseClauseTreeImpl extends JavaScriptTree implements CaseClauseTree
 
   @Override
   public List<StatementTree> statements() {
-    throw new UnsupportedOperationException("Not supported yet in the strongly typed AST.");
+    return statements;
   }
 
   @Override

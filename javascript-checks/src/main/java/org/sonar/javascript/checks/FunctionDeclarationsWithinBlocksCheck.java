@@ -25,7 +25,8 @@ import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.javascript.checks.utils.CheckUtils;
 import org.sonar.javascript.model.interfaces.Tree.Kind;
-import org.sonar.javascript.parser.EcmaScriptGrammar;
+import org.sonar.javascript.model.interfaces.statement.BlockTree;
+import org.sonar.javascript.model.interfaces.statement.StatementTree;
 import org.sonar.squidbridge.checks.SquidCheck;
 import org.sonar.sslr.parser.LexerlessGrammar;
 
@@ -42,11 +43,14 @@ public class FunctionDeclarationsWithinBlocksCheck extends SquidCheck<LexerlessG
 
   @Override
   public void visitNode(AstNode astNode) {
-    AstNode stmtList = astNode.getFirstChild(EcmaScriptGrammar.STATEMENT_LIST);
-    if (stmtList != null && !CheckUtils.isFunction(astNode.getParent())) {
+    if (CheckUtils.isFunction(astNode.getParent())) {
+      return;
+    }
+    BlockTree block = (BlockTree) astNode;
 
-      for (AstNode declarationNode : stmtList.getChildren(Kind.FUNCTION_DECLARATION)) {
-        getContext().createLineViolation(this, "Do not use function declarations within blocks.", declarationNode);
+    for (StatementTree stmt : block.statements()) {
+      if (stmt.is(Kind.FUNCTION_DECLARATION)) {
+        getContext().createLineViolation(this, "Do not use function declarations within blocks.", (AstNode) stmt);
       }
     }
   }

@@ -191,7 +191,6 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
   // A.4 Statements
 
   STATEMENT,
-  STATEMENT_LIST,
   VARIABLE_DECLARATION,
   INITIALISER,
   ITERATION_STATEMENT,
@@ -258,7 +257,6 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
 
     lexical(b);
     expressions(b);
-    statements(b);
     programs(b);
 
     b.setRootRule(SCRIPT);
@@ -452,13 +450,6 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
       b.nextNot(
         b.regexp("(?:[" + EcmaScriptLexer.WHITESPACE + "]|" + EcmaScriptLexer.SINGLE_LINE_COMMENT + "|" + EcmaScriptLexer.MULTI_LINE_COMMENT_NO_LB + ")*+"),
         "=>")).skip();
-  }
-
-  /**
-   * A.4 Statement
-   */
-  private static void statements(LexerlessGrammarBuilder b) {
-    b.rule(STATEMENT_LIST).is(b.oneOrMore(STATEMENT));
   }
 
   /**

@@ -70,11 +70,8 @@ public class ComplexityVisitor extends SquidAstVisitor<LexerlessGrammar> {
   }
 
   private static boolean isNotNested(AstNode returnNode) {
-    AstNode parent = returnNode
-      // Statement list
-      .getParent();
-    return parent.getParent().is(Kind.BLOCK) &&
-      parent.getParent().getParent().is(
+    return returnNode.getParent().is(Kind.BLOCK) &&
+      returnNode.getParent().getParent().is(
         Kind.SET_METHOD,
         Kind.GET_METHOD,
         Kind.METHOD,

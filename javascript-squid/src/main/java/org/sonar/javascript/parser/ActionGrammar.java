@@ -251,7 +251,10 @@ public class ActionGrammar {
 
   public BlockTreeImpl BLOCK() {
     return b.<BlockTreeImpl>nonterminal(Kind.BLOCK)
-      .is(f.newBlock(b.invokeRule(EcmaScriptPunctuator.LCURLYBRACE), b.optional(b.invokeRule(EcmaScriptGrammar.STATEMENT_LIST)), b.invokeRule(EcmaScriptPunctuator.RCURLYBRACE)));
+      .is(f.newBlock(
+        b.invokeRule(EcmaScriptPunctuator.LCURLYBRACE),
+        b.optional(b.oneOrMore(STATEMENT())),
+        b.invokeRule(EcmaScriptPunctuator.RCURLYBRACE)));
   }
 
   public TryStatementTreeImpl TRY_STATEMENT() {
@@ -309,7 +312,7 @@ public class ActionGrammar {
           b.invokeRule(EcmaScriptKeyword.CASE),
           EXPRESSION(),
           b.invokeRule(EcmaScriptPunctuator.COLON),
-          b.optional(b.invokeRule(EcmaScriptGrammar.STATEMENT_LIST))));
+          b.optional(b.oneOrMore(STATEMENT()))));
   }
 
   public DefaultClauseTreeImpl DEFAULT_CLAUSE() {
@@ -317,7 +320,7 @@ public class ActionGrammar {
       .is(f.defaultClause(
         b.invokeRule(EcmaScriptKeyword.DEFAULT),
         b.invokeRule(EcmaScriptPunctuator.COLON),
-        b.optional(b.invokeRule(EcmaScriptGrammar.STATEMENT_LIST))));
+        b.optional(b.oneOrMore(STATEMENT()))));
   }
 
   public IfStatementTreeImpl IF_STATEMENT() {

@@ -21,7 +21,6 @@ package org.sonar.javascript.parser.grammar.statements;
 
 import org.junit.Test;
 import org.sonar.javascript.parser.EcmaScriptGrammar;
-
 import static org.sonar.javascript.sslr.tests.Assertions.assertThat;
 
 public class StatementTest {
@@ -30,9 +29,12 @@ public class StatementTest {
   @Test
   public void realLife() {
     assertThat(EcmaScriptGrammar.STATEMENT)
-        .matches(";")
-        .matches("document.write(\"Hello world\");")
-        .matches("test : doSomething();");
+      .matches(";")
+      .matches("document.write(\"Hello world\");")
+      .matches("test : doSomething();")
+      .matches("break;")
+      .matches("function f() {}")
+      .matches("class C {}");
   }
 
 }

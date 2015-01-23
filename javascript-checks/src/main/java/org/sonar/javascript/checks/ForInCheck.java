@@ -24,8 +24,9 @@ import org.sonar.check.BelongsToProfile;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.javascript.model.interfaces.Tree.Kind;
+import org.sonar.javascript.model.interfaces.statement.BlockTree;
 import org.sonar.javascript.model.interfaces.statement.ForInStatementTree;
-import org.sonar.javascript.parser.EcmaScriptGrammar;
+import org.sonar.javascript.model.interfaces.statement.StatementTree;
 import org.sonar.squidbridge.checks.SquidCheck;
 import org.sonar.sslr.parser.LexerlessGrammar;
 
@@ -43,19 +44,14 @@ public class ForInCheck extends SquidCheck<LexerlessGrammar> {
   @Override
   public void visitNode(AstNode astNode) {
     ForInStatementTree forInStatement = (ForInStatementTree) astNode;
-    AstNode statementNode = (AstNode) forInStatement.statement();
+    StatementTree statementNode = forInStatement.statement();
 
     if (statementNode.is(Kind.BLOCK)) {
-      AstNode statementListNode = statementNode.getFirstChild(EcmaScriptGrammar.STATEMENT_LIST);
-      if (statementListNode == null) {
-        statementNode = null;
-      } else {
-        statementNode = statementListNode.getFirstChild();
-      }
-    }
+      BlockTree block = (BlockTree) statementNode;
 
-    if (statementNode != null && statementNode.isNot(Kind.IF_STATEMENT)) {
-      getContext().createLineViolation(this, "Insert an if statement at the beginning of this loop to filter items.", astNode);
+      if (!block.statements().isEmpty() && !block.statements().get(0).is(Kind.IF_STATEMENT)) {
+        getContext().createLineViolation(this, "Insert an if statement at the beginning of this loop to filter items.", astNode);
+      }
     }
   }
 

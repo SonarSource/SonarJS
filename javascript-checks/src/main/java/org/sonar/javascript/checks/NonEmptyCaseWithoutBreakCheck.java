@@ -19,11 +19,14 @@
  */
 package org.sonar.javascript.checks;
 
+import com.google.common.collect.Iterables;
 import com.sonar.sslr.api.AstNode;
 import org.sonar.check.BelongsToProfile;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.javascript.model.interfaces.Tree.Kind;
+import org.sonar.javascript.model.interfaces.statement.BlockTree;
+import org.sonar.javascript.model.interfaces.statement.SwitchClauseTree;
 import org.sonar.javascript.parser.EcmaScriptGrammar;
 import org.sonar.squidbridge.checks.SquidCheck;
 import org.sonar.sslr.parser.LexerlessGrammar;
@@ -42,9 +45,11 @@ public class NonEmptyCaseWithoutBreakCheck extends SquidCheck<LexerlessGrammar> 
   @Override
   public void visitNode(AstNode astNode) {
     if (astNode.getNextAstNode().is(Kind.CASE_CLAUSE, Kind.DEFAULT_CLAUSE)) {
-      AstNode statementList = astNode.getFirstChild(EcmaScriptGrammar.STATEMENT_LIST);
-      if (statementList != null
-        && statementList.getLastChild().isNot(Kind.BREAK_STATEMENT, Kind.RETURN_STATEMENT, Kind.THROW_STATEMENT)) {
+      SwitchClauseTree block = (SwitchClauseTree) astNode;
+
+
+      if (!block.statements().isEmpty()
+        && !Iterables.getLast(block.statements()).is(Kind.BREAK_STATEMENT, Kind.RETURN_STATEMENT, Kind.THROW_STATEMENT)) {
         getContext().createLineViolation(this, "Last statement in this switch-clause should be an unconditional break.", astNode);
       }
     }

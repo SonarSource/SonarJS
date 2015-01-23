@@ -21,35 +21,38 @@ package org.sonar.javascript.model.statement;
 
 import static org.fest.assertions.Assertions.assertThat;
 import org.junit.Test;
-import org.sonar.javascript.api.EcmaScriptPunctuator;
 import org.sonar.javascript.model.JavaScriptTreeModelTest;
 import org.sonar.javascript.model.interfaces.Tree.Kind;
 import org.sonar.javascript.model.interfaces.statement.BlockTree;
+import org.sonar.javascript.model.interfaces.statement.CaseClauseTree;
 
-public class BlockTreeModelTest extends JavaScriptTreeModelTest {
+public class CaseClauseTreeModelTest extends JavaScriptTreeModelTest {
 
   @Test
   public void without_statements() throws Exception {
-   BlockTree tree = parse("{ }", Kind.BLOCK);
+    CaseClauseTree tree = parse("switch (a) { case 1 : }", Kind.CASE_CLAUSE);
 
-    assertThat(tree.is(Kind.BLOCK)).isTrue();
-    assertThat(tree.openCurlyBrace().text()).isEqualTo("{");
+    assertThat(tree.is(Kind.CASE_CLAUSE)).isTrue();
+    assertThat(tree.keyword().text()).isEqualTo("case");
+    assertThat(expressionToString(tree.expression())).isEqualTo("1");
+    assertThat(tree.colon().text()).isEqualTo(":");
+
+
     assertThat(tree.statements()).hasSize(0);
-    assertThat(tree.closeCurlyBrace().text()).isEqualTo("}");
   }
 
   @Test
   public void with_statements() throws Exception {
-    BlockTree tree = parse("{ expr ; var a ; }", Kind.BLOCK);
+   CaseClauseTree tree = parse("switch (a) { case 1 : expr ; return ; }", Kind.CASE_CLAUSE);
 
-    assertThat(tree.is(Kind.BLOCK)).isTrue();
-    assertThat(tree.openCurlyBrace().text()).isEqualTo("{");
+    assertThat(tree.is(Kind.CASE_CLAUSE)).isTrue();
+    assertThat(tree.keyword().text()).isEqualTo("case");
+    assertThat(expressionToString(tree.expression())).isEqualTo("1");
+    assertThat(tree.colon().text()).isEqualTo(":");
 
     assertThat(tree.statements()).hasSize(2);
     assertThat(expressionToString(tree.statements().get(0))).isEqualTo("expr ;");
-    assertThat(expressionToString(tree.statements().get(1))).isEqualTo("var a ;");
-
-    assertThat(tree.closeCurlyBrace().text()).isEqualTo("}");
+    assertThat(expressionToString(tree.statements().get(1))).isEqualTo("return ;");
   }
 
 }

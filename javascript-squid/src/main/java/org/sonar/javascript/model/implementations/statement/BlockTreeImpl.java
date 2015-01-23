@@ -21,32 +21,40 @@ package org.sonar.javascript.model.implementations.statement;
 
 import com.google.common.collect.Iterators;
 import com.sonar.sslr.api.AstNode;
+import org.apache.commons.collections.ListUtils;
 import org.sonar.javascript.model.implementations.JavaScriptTree;
 import org.sonar.javascript.model.implementations.lexical.InternalSyntaxToken;
 import org.sonar.javascript.model.interfaces.Tree;
 import org.sonar.javascript.model.interfaces.lexical.SyntaxToken;
 import org.sonar.javascript.model.interfaces.statement.BlockTree;
+import org.sonar.javascript.model.interfaces.statement.StatementTree;
 
 import java.util.Iterator;
+import java.util.List;
 
 public class BlockTreeImpl extends JavaScriptTree implements BlockTree {
 
   private final SyntaxToken openCurlyBrace;
+  private final List<StatementTree> statements;
   private final SyntaxToken closeCurlyBrace;
 
-  public BlockTreeImpl(InternalSyntaxToken openCurlyBrace, AstNode statements, InternalSyntaxToken closeCurlyBrace) {
+  public BlockTreeImpl(InternalSyntaxToken openCurlyBrace, List<StatementTree> statements, InternalSyntaxToken closeCurlyBrace) {
     super(Kind.BLOCK);
     this.openCurlyBrace = openCurlyBrace;
+    this.statements = statements;
     this.closeCurlyBrace = closeCurlyBrace;
 
     addChild(openCurlyBrace);
-    addChild(statements);
+    for (StatementTree child : statements) {
+      addChild((AstNode) child);
+    }
     addChild(closeCurlyBrace);
   }
 
   public BlockTreeImpl(InternalSyntaxToken openCurlyBrace, InternalSyntaxToken closeCurlyBrace) {
     super(Kind.BLOCK);
     this.openCurlyBrace = openCurlyBrace;
+    this.statements = ListUtils.EMPTY_LIST;
     this.closeCurlyBrace = closeCurlyBrace;
 
     addChild(openCurlyBrace);
@@ -64,8 +72,8 @@ public class BlockTreeImpl extends JavaScriptTree implements BlockTree {
   }
 
   @Override
-  public Tree statements() {
-    throw new UnsupportedOperationException("Not supported yet in the strongly typed AST.");
+  public List<StatementTree> statements() {
+    return statements;
   }
 
   @Override

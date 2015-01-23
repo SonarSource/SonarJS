@@ -26,6 +26,7 @@ import org.sonar.check.Rule;
 import org.sonar.javascript.model.implementations.statement.IfStatementTreeImpl;
 import org.sonar.javascript.model.interfaces.Tree.Kind;
 import org.sonar.javascript.model.interfaces.expression.ExpressionTree;
+import org.sonar.javascript.model.interfaces.statement.BlockTree;
 import org.sonar.javascript.model.interfaces.statement.ReturnStatementTree;
 import org.sonar.javascript.parser.EcmaScriptGrammar;
 import org.sonar.squidbridge.checks.SquidCheck;
@@ -68,14 +69,10 @@ public class ReturnOfBooleanExpressionCheck extends SquidCheck<LexerlessGrammar>
       return false;
     }
 
-    AstNode stmtList = statement.getFirstChild(EcmaScriptGrammar.STATEMENT_LIST);
+    BlockTree block =  (BlockTree) statement;
 
-    if (stmtList != null) {
-      List<AstNode> statements = stmtList.getChildren();
-      return statements.size() == 1 && isSimpleReturnBooleanLiteral(statements.get(0));
-    }
 
-    return false;
+    return block.statements().size() == 1 && isSimpleReturnBooleanLiteral((AstNode) block.statements().get(0));
   }
 
   public static boolean isSimpleReturnBooleanLiteral(AstNode astNode) {

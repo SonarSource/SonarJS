@@ -21,35 +21,34 @@ package org.sonar.javascript.model.statement;
 
 import static org.fest.assertions.Assertions.assertThat;
 import org.junit.Test;
-import org.sonar.javascript.api.EcmaScriptPunctuator;
 import org.sonar.javascript.model.JavaScriptTreeModelTest;
 import org.sonar.javascript.model.interfaces.Tree.Kind;
-import org.sonar.javascript.model.interfaces.statement.BlockTree;
+import org.sonar.javascript.model.interfaces.statement.DefaultClauseTree;
 
-public class BlockTreeModelTest extends JavaScriptTreeModelTest {
+public class DefaultClauseTreeModelTest extends JavaScriptTreeModelTest {
 
   @Test
   public void without_statements() throws Exception {
-   BlockTree tree = parse("{ }", Kind.BLOCK);
+    DefaultClauseTree tree = parse("switch (a) { default : }", Kind.DEFAULT_CLAUSE);
 
-    assertThat(tree.is(Kind.BLOCK)).isTrue();
-    assertThat(tree.openCurlyBrace().text()).isEqualTo("{");
+    assertThat(tree.is(Kind.DEFAULT_CLAUSE)).isTrue();
+    assertThat(tree.keyword().text()).isEqualTo("default");
+    assertThat(tree.colon().text()).isEqualTo(":");
+
     assertThat(tree.statements()).hasSize(0);
-    assertThat(tree.closeCurlyBrace().text()).isEqualTo("}");
   }
 
   @Test
   public void with_statements() throws Exception {
-    BlockTree tree = parse("{ expr ; var a ; }", Kind.BLOCK);
+    DefaultClauseTree tree = parse("switch (a) { default : expr ; return ; }", Kind.DEFAULT_CLAUSE);
 
-    assertThat(tree.is(Kind.BLOCK)).isTrue();
-    assertThat(tree.openCurlyBrace().text()).isEqualTo("{");
+    assertThat(tree.is(Kind.DEFAULT_CLAUSE)).isTrue();
+    assertThat(tree.keyword().text()).isEqualTo("default");
+    assertThat(tree.colon().text()).isEqualTo(":");
 
     assertThat(tree.statements()).hasSize(2);
     assertThat(expressionToString(tree.statements().get(0))).isEqualTo("expr ;");
-    assertThat(expressionToString(tree.statements().get(1))).isEqualTo("var a ;");
-
-    assertThat(tree.closeCurlyBrace().text()).isEqualTo("}");
+    assertThat(expressionToString(tree.statements().get(1))).isEqualTo("return ;");
   }
 
 }

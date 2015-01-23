@@ -329,7 +329,7 @@ public class TreeFactory {
     return new WithStatementTreeImpl(InternalSyntaxToken.create(withToken), InternalSyntaxToken.create(openingParen), expression, InternalSyntaxToken.create(closingParen), statement);
   }
 
-  public BlockTreeImpl newBlock(AstNode openingCurlyBrace, Optional<AstNode> statements, AstNode closingCurlyBrace) {
+  public BlockTreeImpl newBlock(AstNode openingCurlyBrace, Optional<List<StatementTree>> statements, AstNode closingCurlyBrace) {
     if (statements.isPresent()) {
       return new BlockTreeImpl(InternalSyntaxToken.create(openingCurlyBrace), statements.get(), InternalSyntaxToken.create(closingCurlyBrace));
     }
@@ -387,16 +387,16 @@ public class TreeFactory {
     return caseBlock.complete(InternalSyntaxToken.create(switchToken), InternalSyntaxToken.create(openParenthesis), expression, InternalSyntaxToken.create(closeParenthesis));
   }
 
-  public DefaultClauseTreeImpl defaultClause(AstNode defaultToken, AstNode colonToken, Optional<AstNode> statementList) {
-    if (statementList.isPresent()) {
-      return new DefaultClauseTreeImpl(InternalSyntaxToken.create(defaultToken), InternalSyntaxToken.create(colonToken), statementList.get());
+  public DefaultClauseTreeImpl defaultClause(AstNode defaultToken, AstNode colonToken, Optional<List<StatementTree>> statements) {
+    if (statements.isPresent()) {
+      return new DefaultClauseTreeImpl(InternalSyntaxToken.create(defaultToken), InternalSyntaxToken.create(colonToken), statements.get());
     }
     return new DefaultClauseTreeImpl(InternalSyntaxToken.create(defaultToken), InternalSyntaxToken.create(colonToken));
   }
 
-  public CaseClauseTreeImpl caseClause(AstNode caseToken, ExpressionTree expression, AstNode colonToken, Optional<AstNode> statementList) {
-    if (statementList.isPresent()) {
-      return new CaseClauseTreeImpl(InternalSyntaxToken.create(caseToken), expression, InternalSyntaxToken.create(colonToken), statementList.get());
+  public CaseClauseTreeImpl caseClause(AstNode caseToken, ExpressionTree expression, AstNode colonToken, Optional<List<StatementTree>> statements) {
+    if (statements.isPresent()) {
+      return new CaseClauseTreeImpl(InternalSyntaxToken.create(caseToken), expression, InternalSyntaxToken.create(colonToken), statements.get());
     }
     return new CaseClauseTreeImpl(InternalSyntaxToken.create(caseToken), expression, InternalSyntaxToken.create(colonToken));
   }

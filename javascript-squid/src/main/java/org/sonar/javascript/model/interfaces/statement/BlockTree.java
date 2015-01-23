@@ -19,8 +19,9 @@
  */
 package org.sonar.javascript.model.interfaces.statement;
 
-import org.sonar.javascript.model.interfaces.Tree;
 import org.sonar.javascript.model.interfaces.lexical.SyntaxToken;
+
+import java.util.List;
 
 /**
  * <a href="http://www.ecma-international.org/ecma-262/5.1/#sec-12.1">Block</a>.
@@ -35,7 +36,7 @@ public interface BlockTree extends StatementTree {
 
   SyntaxToken openCurlyBrace();
 
-  Tree statements();
+  List<StatementTree> statements();
 
   SyntaxToken closeCurlyBrace();
 }

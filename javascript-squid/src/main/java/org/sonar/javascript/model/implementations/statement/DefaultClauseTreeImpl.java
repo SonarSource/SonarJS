@@ -22,6 +22,7 @@ package org.sonar.javascript.model.implementations.statement;
 import com.google.common.collect.Iterators;
 import com.sonar.sslr.api.AstNode;
 import com.sonar.sslr.api.AstNodeType;
+import org.apache.commons.collections.ListUtils;
 import org.sonar.javascript.model.implementations.JavaScriptTree;
 import org.sonar.javascript.model.implementations.lexical.InternalSyntaxToken;
 import org.sonar.javascript.model.interfaces.Tree;
@@ -36,21 +37,27 @@ public class DefaultClauseTreeImpl extends JavaScriptTree implements DefaultClau
 
   private final SyntaxToken defaultKeyword;
   private final SyntaxToken colon;
+  private final List<StatementTree> statements;
 
   public DefaultClauseTreeImpl(InternalSyntaxToken defaultKeyword, InternalSyntaxToken colon) {
     super(Kind.DEFAULT_CLAUSE);
     this.defaultKeyword = defaultKeyword;
     this.colon = colon;
+    this.statements = ListUtils.EMPTY_LIST;
 
     addChildren(defaultKeyword, colon);
   }
 
-  public DefaultClauseTreeImpl(InternalSyntaxToken defaultKeyword, InternalSyntaxToken colon, AstNode statementList) {
+  public DefaultClauseTreeImpl(InternalSyntaxToken defaultKeyword, InternalSyntaxToken colon, List<StatementTree> statements) {
     super(Kind.DEFAULT_CLAUSE);
     this.defaultKeyword = defaultKeyword;
     this.colon = colon;
+    this.statements = statements;
 
-    addChildren(defaultKeyword, colon, statementList);
+    addChildren(defaultKeyword, colon);
+    for (StatementTree child : statements) {
+      addChild((AstNode) child);
+    }
   }
 
   @Override
@@ -65,7 +72,7 @@ public class DefaultClauseTreeImpl extends JavaScriptTree implements DefaultClau
 
   @Override
   public List<StatementTree> statements() {
-    throw new UnsupportedOperationException("Not supported yet in the strongly typed AST.");
+    return statements;
   }
 
   @Override

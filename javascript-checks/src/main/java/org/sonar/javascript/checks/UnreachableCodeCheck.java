@@ -23,6 +23,7 @@ import com.sonar.sslr.api.AstNode;
 import org.sonar.check.BelongsToProfile;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
+import org.sonar.javascript.api.EcmaScriptPunctuator;
 import org.sonar.javascript.model.interfaces.Tree.Kind;
 import org.sonar.javascript.model.interfaces.statement.ExpressionStatementTree;
 import org.sonar.squidbridge.checks.SquidCheck;
@@ -46,6 +47,7 @@ public class UnreachableCodeCheck extends SquidCheck<LexerlessGrammar> {
   @Override
   public void visitNode(AstNode node) {
     AstNode nextStatement = node.getNextSibling();
+
     if (isUnReachableCode(nextStatement)) {
       getContext().createLineViolation(this, "This statement can't be reached and so start a dead code block.", nextStatement);
     }
@@ -57,7 +59,8 @@ public class UnreachableCodeCheck extends SquidCheck<LexerlessGrammar> {
         Kind.ELSE_CLAUSE,
         Kind.FUNCTION_DECLARATION,
         Kind.GENERATOR_DECLARATION,
-        Kind.CLASS_DECLARATION)
+        Kind.CLASS_DECLARATION,
+      EcmaScriptPunctuator.RCURLYBRACE)
       && !(node.is(Kind.EXPRESSION_STATEMENT) && ((ExpressionStatementTree) node).expression().is(Kind.CLASS_EXPRESSION));
   }
 
