@@ -75,3 +75,13 @@ function sayHello() {
   }
 
 }
+
+function a() {
+  return;
+  function* g() {} // OK
+}
+
+function b() {
+  return;
+  class C {} // OK
+}

@@ -24,7 +24,6 @@ import org.sonar.check.BelongsToProfile;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.javascript.model.interfaces.Tree.Kind;
-import org.sonar.javascript.parser.EcmaScriptGrammar;
 import org.sonar.squidbridge.checks.SquidCheck;
 import org.sonar.sslr.parser.LexerlessGrammar;
 
@@ -53,8 +52,11 @@ public class UnreachableCodeCheck extends SquidCheck<LexerlessGrammar> {
 
   public static boolean isUnReachableCode(AstNode node) {
     return node != null
-      && !node.is(Kind.ELSE_CLAUSE)
-      && !node.is(EcmaScriptGrammar.DECLARATION);
+      && !node.is(
+        Kind.ELSE_CLAUSE,
+        Kind.FUNCTION_DECLARATION,
+        Kind.GENERATOR_DECLARATION,
+        Kind.CLASS_DECLARATION);
   }
 
 }

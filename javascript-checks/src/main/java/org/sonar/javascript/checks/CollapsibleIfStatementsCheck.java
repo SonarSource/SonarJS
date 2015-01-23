@@ -60,7 +60,7 @@ public class CollapsibleIfStatementsCheck extends SquidCheck<LexerlessGrammar> {
     }
     AstNode statementList = statement.getFirstChild(EcmaScriptGrammar.STATEMENT_LIST);
 
-    if (statementList == null || statementList.getNumberOfChildren() != 1 || statementList.getFirstChild().is(EcmaScriptGrammar.DECLARATION)) {
+    if (statementList == null || statementList.getNumberOfChildren() != 1) {
       return false;
     }
     return isIfStatementWithoutElse(statementList.getFirstChild());

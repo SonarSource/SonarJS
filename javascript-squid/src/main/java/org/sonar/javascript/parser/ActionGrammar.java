@@ -81,6 +81,7 @@ import org.sonar.javascript.model.implementations.statement.TryStatementTreeImpl
 import org.sonar.javascript.model.implementations.statement.VariableStatementTreeImpl;
 import org.sonar.javascript.model.implementations.statement.WhileStatementTreeImpl;
 import org.sonar.javascript.model.implementations.statement.WithStatementTreeImpl;
+import org.sonar.javascript.model.interfaces.Tree;
 import org.sonar.javascript.model.interfaces.Tree.Kind;
 import org.sonar.javascript.model.interfaces.declaration.BindingElementTree;
 import org.sonar.javascript.model.interfaces.declaration.DeclarationTree;
@@ -1357,6 +1358,16 @@ public class ActionGrammar {
   // [END] Module, import & export
 
   // [START] Destructuring pattern
+
+  public Tree DECLARATION() {
+    return b.<Tree>nonterminal(EcmaScriptGrammar.DECLARATION)
+      .is(
+        b.firstOf(
+          FUNCTION_DECLARATION(),
+          GENERATOR_DECLARATION(),
+          CLASS_DECLARATION(),
+          LEXICAL_DECLARATION()));
+  }
 
   public BindingElementTree BINDING_PATTERN() {
     return b.<BindingElementTree>nonterminal(EcmaScriptGrammar.BINDING_PATTERN)

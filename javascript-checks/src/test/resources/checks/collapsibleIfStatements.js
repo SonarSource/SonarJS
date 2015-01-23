@@ -52,3 +52,15 @@ if (a)
   if (b) {
   } else {
   }
+
+if (a) { // OK
+  if (b) { // OK
+  }
+  function f() {}
+}
+
+if (a) { // OK
+  function f() {}
+  if (b) { // OK
+  }
+}

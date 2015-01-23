@@ -45,10 +45,8 @@ public class FunctionDeclarationsWithinBlocksCheck extends SquidCheck<LexerlessG
     AstNode stmtList = astNode.getFirstChild(EcmaScriptGrammar.STATEMENT_LIST);
     if (stmtList != null && !CheckUtils.isFunction(astNode.getParent())) {
 
-      for (AstNode declarationNode : stmtList.getChildren(EcmaScriptGrammar.DECLARATION)) {
-        if (declarationNode.getFirstChild().is(Kind.FUNCTION_DECLARATION)) {
-          getContext().createLineViolation(this, "Do not use function declarations within blocks.", declarationNode);
-        }
+      for (AstNode declarationNode : stmtList.getChildren(Kind.FUNCTION_DECLARATION)) {
+        getContext().createLineViolation(this, "Do not use function declarations within blocks.", declarationNode);
       }
     }
   }

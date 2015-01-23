@@ -19,7 +19,6 @@
  */
 package org.sonar.javascript.checks;
 
-import com.google.common.collect.ImmutableList;
 import com.sonar.sslr.api.AstNode;
 import org.sonar.check.BelongsToProfile;
 import org.sonar.check.Priority;
@@ -31,6 +30,8 @@ import org.sonar.javascript.model.interfaces.statement.ReturnStatementTree;
 import org.sonar.javascript.parser.EcmaScriptGrammar;
 import org.sonar.squidbridge.checks.SquidCheck;
 import org.sonar.sslr.parser.LexerlessGrammar;
+
+import java.util.List;
 
 @Rule(
   key = "S1126",
@@ -70,7 +71,7 @@ public class ReturnOfBooleanExpressionCheck extends SquidCheck<LexerlessGrammar>
     AstNode stmtList = statement.getFirstChild(EcmaScriptGrammar.STATEMENT_LIST);
 
     if (stmtList != null) {
-      ImmutableList<AstNode> statements = getStatementChildren(stmtList);
+      List<AstNode> statements = stmtList.getChildren();
       return statements.size() == 1 && isSimpleReturnBooleanLiteral(statements.get(0));
     }
 
@@ -85,17 +86,6 @@ public class ReturnOfBooleanExpressionCheck extends SquidCheck<LexerlessGrammar>
     ReturnStatementTree statement = (ReturnStatementTree) astNode;
     ExpressionTree expression = statement.expression();
     return expression != null && expression.is(Kind.BOOLEAN_LITERAL);
-  }
-
-  private static ImmutableList<AstNode> getStatementChildren(AstNode statementList) {
-    ImmutableList.Builder<AstNode> builder = ImmutableList.builder();
-
-    for (AstNode node : statementList.getChildren()) {
-      if (node.isNot(EcmaScriptGrammar.DECLARATION)) {
-        builder.add(node);
-      }
-    }
-    return builder.build();
   }
 
 }

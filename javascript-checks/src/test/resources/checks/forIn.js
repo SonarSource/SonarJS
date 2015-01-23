@@ -17,3 +17,8 @@ for (name in object) { // OK
   }
   print(object[name]);
 }
+
+for (key in arr) { // NOK
+  function f() {}
+  print(arr[key]);
+}

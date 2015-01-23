@@ -502,11 +502,6 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
   }
 
   private static void lexical_var_and_destructuring_declarations(LexerlessGrammarBuilder b) {
-    b.rule(DECLARATION).is(b.firstOf(
-      FUNCTION_DECLARATION,
-      ecmascript6(GENERATOR_DECLARATION),
-      ecmascript6(Kind.CLASS_DECLARATION),
-      ecmascript6(LEXICAL_DECLARATION)));
     b.rule(LET).is(word(b, "let"));
 
     b.rule(LEXICAL_DECLARATION_NO_IN).is(b.firstOf(LET, CONST), BINDING_LIST_NO_IN);

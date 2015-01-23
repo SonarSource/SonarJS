@@ -70,4 +70,11 @@ function f() {
   } else {
     return false;
   }
+
+  if (something) { // OK
+    function f() {}
+    return false;
+  } else {
+    return true;
+  }
 }
