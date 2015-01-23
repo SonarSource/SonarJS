@@ -238,12 +238,12 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
   SHEBANG,
 
   // Temporary rules for migration
-  LEFT_HAND_SIDE_EXPRESSION_NO_LET,
-  NO_LCURLY_AND_FUNCTION,
+  NEXT_NOT_LET,
+  NEXT_NOT_LCURLY_AND_FUNCTION,
   NEXT_NOT_LCURLY,
-  NEXT_NOT_LET_OR_BRACKET,
+  NEXT_NOT_LET_AND_BRACKET,
   CONDITIONAL_EXPRESSION_LOOKAHEAD,
-  NOT_FUNCTION_AND_CLASS;
+  NEXT_NOT_FUNCTION_AND_CLASS;
 
   public static LexerlessGrammar createGrammar() {
     return createGrammarBuilder().build();
@@ -259,9 +259,6 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
     lexical(b);
     expressions(b);
     statements(b);
-    module_declaration(b);
-    lexical_var_and_destructuring_declarations(b);
-    class_and_function_declarations(b);
     programs(b);
 
     b.setRootRule(SCRIPT);
@@ -328,6 +325,22 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
     b.rule(BACKSLASH).is(character(b, "\\"));
     b.rule(BACKTICK).is(character(b, "`"));
     b.rule(DOLLAR_SIGN).is(character(b, "$"));
+
+    // Keywords
+    b.rule(OF).is(word(b, "of"));
+    b.rule(FROM).is(word(b, "from"));
+    b.rule(AS).is(word(b, "as"));
+    b.rule(LET).is(word(b, "let"));
+    b.rule(STATIC).is(word(b, "static"));
+    b.rule(SET).is(word(b, "set"));
+    b.rule(GET).is(word(b, "get"));
+
+    // Temporary rules waiting for b.nextNot method migration
+    b.rule(NEXT_NOT_LET_AND_BRACKET).is(b.nextNot(LET, LBRACKET));
+    b.rule(NEXT_NOT_LET).is(b.nextNot(LET));
+    b.rule(NEXT_NOT_LCURLY_AND_FUNCTION).is(b.nextNot(b.firstOf(LCURLYBRACE, FUNCTION)));
+    b.rule(NEXT_NOT_FUNCTION_AND_CLASS).is(b.nextNot(EcmaScriptKeyword.FUNCTION, EcmaScriptKeyword.CLASS));
+    b.rule(NEXT_NOT_LCURLY).is(b.nextNot(LCURLYBRACE));
 
     punctuators(b);
     keywords(b);
@@ -434,8 +447,6 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
    * A.3 Expressions
    */
   private static void expressions(LexerlessGrammarBuilder b) {
-    // Temporary rules
-    b.rule(NEXT_NOT_LCURLY).is(b.nextNot(LCURLYBRACE));
     b.rule(CONDITIONAL_EXPRESSION_LOOKAHEAD).is(Kind.CONDITIONAL_EXPRESSION,
       // Negative lookahead to prevent conflicts with ES6_ASSIGNMENT_EXPRESSION
       b.nextNot(
@@ -448,35 +459,6 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
    */
   private static void statements(LexerlessGrammarBuilder b) {
     b.rule(STATEMENT_LIST).is(b.oneOrMore(STATEMENT));
-
-    b.rule(OF).is(word(b, "of"));
-
-    // Temporary rules waiting for b.nextNot method migration
-    b.rule(NEXT_NOT_LET_OR_BRACKET).is(b.nextNot(LET, LBRACKET));
-    b.rule(LEFT_HAND_SIDE_EXPRESSION_NO_LET).is(b.nextNot(LET));
-    b.rule(NO_LCURLY_AND_FUNCTION).is(b.nextNot(b.firstOf(LCURLYBRACE, FUNCTION)));
-
-  }
-
-  /**
-   * A.5 Declarations
-   */
-  private static void module_declaration(LexerlessGrammarBuilder b) {
-    b.rule(FROM).is(word(b, "from"));
-    b.rule(AS).is(word(b, "as"));
-
-    // Temporary rules
-    b.rule(NOT_FUNCTION_AND_CLASS).is(b.nextNot(EcmaScriptKeyword.FUNCTION, EcmaScriptKeyword.CLASS));
-  }
-
-  private static void lexical_var_and_destructuring_declarations(LexerlessGrammarBuilder b) {
-    b.rule(LET).is(word(b, "let"));
-  }
-
-  private static void class_and_function_declarations(LexerlessGrammarBuilder b) {
-    b.rule(STATIC).is(word(b, "static"));
-    b.rule(SET).is(word(b, "set"));
-    b.rule(GET).is(word(b, "get"));
   }
 
   /**
@@ -484,7 +466,6 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
    */
   private static void programs(LexerlessGrammarBuilder b) {
     b.rule(SCRIPT).is(b.optional(SHEBANG), b.optional(MODULE_BODY), SPACING, EOF);
-
     b.rule(SHEBANG).is("#!", b.regexp("[^\\n\\r]*+")).skip();
   }
 

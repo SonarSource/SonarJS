@@ -365,7 +365,7 @@ public class ActionGrammar {
 
   public ExpressionStatementTreeImpl EXPRESSION_STATEMENT() {
     return b.<ExpressionStatementTreeImpl>nonterminal(Kind.EXPRESSION_STATEMENT)
-      .is(f.expressionStatement(b.invokeRule(EcmaScriptGrammar.NO_LCURLY_AND_FUNCTION), EXPRESSION(), b.invokeRule(EcmaScriptGrammar.EOS)));
+      .is(f.expressionStatement(b.invokeRule(EcmaScriptGrammar.NEXT_NOT_LCURLY_AND_FUNCTION), EXPRESSION(), b.invokeRule(EcmaScriptGrammar.EOS)));
   }
 
   /**
@@ -378,7 +378,7 @@ public class ActionGrammar {
         b.invokeRule(EcmaScriptPunctuator.LPARENTHESIS),
         b.firstOf(
           VARIABLE_DECLARATION(),
-          f.skipLookahead3(b.invokeRule(EcmaScriptGrammar.LEFT_HAND_SIDE_EXPRESSION_NO_LET), LEFT_HAND_SIDE_EXPRESSION())),
+          f.skipLookahead3(b.invokeRule(EcmaScriptGrammar.NEXT_NOT_LET), LEFT_HAND_SIDE_EXPRESSION())),
         b.invokeRule(EcmaScriptGrammar.OF),
         ASSIGNMENT_EXPRESSION(),
         b.invokeRule(EcmaScriptPunctuator.RPARENTHESIS),
@@ -393,7 +393,7 @@ public class ActionGrammar {
           b.invokeRule(EcmaScriptPunctuator.LPARENTHESIS),
           b.firstOf(
             VARIABLE_DECLARATION(),
-            f.skipLookahead2(b.invokeRule(EcmaScriptGrammar.NEXT_NOT_LET_OR_BRACKET), LEFT_HAND_SIDE_EXPRESSION())),
+            f.skipLookahead2(b.invokeRule(EcmaScriptGrammar.NEXT_NOT_LET_AND_BRACKET), LEFT_HAND_SIDE_EXPRESSION())),
           b.invokeRule(EcmaScriptKeyword.IN),
           EXPRESSION(),
           b.invokeRule(EcmaScriptPunctuator.RPARENTHESIS),
@@ -410,7 +410,7 @@ public class ActionGrammar {
           b.optional(
             b.firstOf(
               VARIABLE_DECLARATION_NO_IN(),
-              f.skipLookahead1(b.invokeRule(EcmaScriptGrammar.NEXT_NOT_LET_OR_BRACKET), EXPRESSION_NO_IN()))),
+              f.skipLookahead1(b.invokeRule(EcmaScriptGrammar.NEXT_NOT_LET_AND_BRACKET), EXPRESSION_NO_IN()))),
           b.invokeRule(EcmaScriptPunctuator.SEMI),
 
           b.optional(EXPRESSION()),
@@ -1256,7 +1256,7 @@ public class ActionGrammar {
         b.firstOf(
           FUNCTION_AND_GENERATOR_DECLARATION(),
           CLASS_DECLARATION(),
-          f.exportedExpressionStatement(b.invokeRule(EcmaScriptGrammar.NOT_FUNCTION_AND_CLASS), ASSIGNMENT_EXPRESSION(), b.invokeRule(EcmaScriptGrammar.EOS)))
+          f.exportedExpressionStatement(b.invokeRule(EcmaScriptGrammar.NEXT_NOT_FUNCTION_AND_CLASS), ASSIGNMENT_EXPRESSION(), b.invokeRule(EcmaScriptGrammar.EOS)))
       ));
   }
 
