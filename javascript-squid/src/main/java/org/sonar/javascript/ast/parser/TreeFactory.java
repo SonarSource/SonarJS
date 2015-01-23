@@ -408,6 +408,7 @@ public class TreeFactory {
   public ForInStatementTreeImpl forInStatement(AstNode forToken, AstNode openParenthesis, AstNode variableOrExpression, AstNode inToken, ExpressionTree expression,
     AstNode closeParenthesis, StatementTree statement) {
 
+    System.out.println(variableOrExpression);
     return new ForInStatementTreeImpl(
       InternalSyntaxToken.create(forToken),
       InternalSyntaxToken.create(openParenthesis),
