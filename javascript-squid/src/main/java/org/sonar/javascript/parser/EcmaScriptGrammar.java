@@ -224,8 +224,6 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
   /** ECMAScript 6 **/
   LET,
   /** ECMAScript 6 **/
-  BINDING_LIST,
-  /** ECMAScript 6 **/
   BINDING_LIST_NO_IN,
   /** ECMAScript 6 **/
   LEXICAL_BINDING_NO_IN,
@@ -518,11 +516,7 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
       ecmascript6(GENERATOR_DECLARATION),
       ecmascript6(Kind.CLASS_DECLARATION),
       ecmascript6(LEXICAL_DECLARATION)));
-
     b.rule(LET).is(word(b, "let"));
-
-    b.rule(LEXICAL_DECLARATION).is(b.firstOf(LET, CONST), BINDING_LIST, EOS);
-    b.rule(BINDING_LIST).is(BINDING_ELEMENT, b.zeroOrMore(COMMA, BINDING_ELEMENT));
 
     b.rule(LEXICAL_DECLARATION_NO_IN).is(b.firstOf(LET, CONST), BINDING_LIST_NO_IN);
     b.rule(BINDING_LIST_NO_IN).is(LEXICAL_BINDING_NO_IN, b.zeroOrMore(COMMA, LEXICAL_BINDING_NO_IN));

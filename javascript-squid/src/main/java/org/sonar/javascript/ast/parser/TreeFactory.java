@@ -118,9 +118,9 @@ import org.sonar.javascript.model.interfaces.expression.TemplateExpressionTree;
 import org.sonar.javascript.model.interfaces.lexical.SyntaxToken;
 import org.sonar.javascript.model.interfaces.statement.StatementTree;
 import org.sonar.javascript.model.interfaces.statement.SwitchClauseTree;
+import org.sonar.javascript.parser.EcmaScriptGrammar;
 import org.sonar.javascript.parser.sslr.Optional;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -1433,6 +1433,11 @@ public class TreeFactory {
       InternalSyntaxToken.create(openBracketToken),
       new SeparatedList<Optional<BindingElementTree>>(elements.build(), separators.build()), children,
       InternalSyntaxToken.create(closeBracketToken));
+  }
+
+  public VariableStatementTreeImpl lexicalDeclaration(AstNode token, SeparatedList<BindingElementTree> variables, AstNode eos) {
+    Kind kind = token.is(EcmaScriptGrammar.LET) ? Kind.LET_DECLARATION : Kind.CONST_DECLARATION;
+    return new VariableStatementTreeImpl(kind, InternalSyntaxToken.create(token), variables, variables.getChildren(), eos);
   }
 
   public ExpressionTree assignmentNoCurly(AstNode lookahead, ExpressionTree expression) {

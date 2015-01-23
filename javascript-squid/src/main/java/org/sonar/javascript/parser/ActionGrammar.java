@@ -1418,6 +1418,17 @@ public class ActionGrammar {
           b.invokeRule(EcmaScriptPunctuator.RBRACKET)));
   }
 
+  public VariableStatementTreeImpl LEXICAL_DECLARATION() {
+    return b.<VariableStatementTreeImpl>nonterminal(EcmaScriptGrammar.LEXICAL_DECLARATION)
+      .is(
+        f.lexicalDeclaration(
+          b.firstOf(
+            b.invokeRule(EcmaScriptGrammar.LET),
+            b.invokeRule(EcmaScriptKeyword.CONST)),
+          BINDING_ELEMENT_LIST(),
+          b.invokeRule(EcmaScriptGrammar.EOS)));
+  }
+
   // [END] Destructuring pattern
 
   // [START] Classes, methods, functions & generators
