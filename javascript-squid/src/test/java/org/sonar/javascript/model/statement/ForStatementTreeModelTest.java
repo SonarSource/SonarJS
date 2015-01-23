@@ -46,6 +46,12 @@ public class ForStatementTreeModelTest extends JavaScriptTreeModelTest {
   }
 
   @Test
+  public void init() throws Exception {
+    ForStatementTree tree = parse("for ( var i = 0 ; ; ) { }", Kind.FOR_STATEMENT);
+    assertThat(tree.init()).isNotNull();
+  }
+
+  @Test
   public void condition() throws Exception {
     ForStatementTree tree = parse("for ( ; i < 42; ) { }", Kind.FOR_STATEMENT);
     assertThat(tree.condition()).isNotNull();

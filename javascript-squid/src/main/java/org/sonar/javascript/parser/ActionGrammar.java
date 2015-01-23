@@ -129,7 +129,7 @@ public class ActionGrammar {
   public VariableDeclarationTreeImpl VARIABLE_DECLARATION() {
     return b.<VariableDeclarationTreeImpl>nonterminal()
       .is(
-        f.variableDeclaration(
+        f.variableDeclaration1(
           b.firstOf(
             b.invokeRule(EcmaScriptKeyword.VAR),
             b.invokeRule(EcmaScriptGrammar.LET),
@@ -137,9 +137,25 @@ public class ActionGrammar {
           BINDING_ELEMENT_LIST()));
   }
 
+  public VariableDeclarationTreeImpl VARIABLE_DECLARATION_NO_IN() {
+    return b.<VariableDeclarationTreeImpl>nonterminal()
+      .is(
+        f.variableDeclaration2(
+          b.firstOf(
+            b.invokeRule(EcmaScriptKeyword.VAR),
+            b.invokeRule(EcmaScriptGrammar.LET),
+            b.invokeRule(EcmaScriptKeyword.CONST)),
+          BINDING_ELEMENT_NO_IN_LIST()));
+  }
+
   public SeparatedList<BindingElementTree> BINDING_ELEMENT_LIST() {
     return b.<SeparatedList<BindingElementTree>>nonterminal()
-      .is(f.bindingElementList(BINDING_ELEMENT(), b.zeroOrMore(f.newTuple1(b.invokeRule(EcmaScriptPunctuator.COMMA), BINDING_ELEMENT()))));
+      .is(f.bindingElementList1(BINDING_ELEMENT(), b.zeroOrMore(f.newTuple1(b.invokeRule(EcmaScriptPunctuator.COMMA), BINDING_ELEMENT()))));
+  }
+
+  public SeparatedList<BindingElementTree> BINDING_ELEMENT_NO_IN_LIST() {
+    return b.<SeparatedList<BindingElementTree>>nonterminal()
+      .is(f.bindingElementList2(BINDING_ELEMENT_NO_IN(), b.zeroOrMore(f.newTuple30(b.invokeRule(EcmaScriptPunctuator.COMMA), BINDING_ELEMENT_NO_IN()))));
   }
 
   public LabelledStatementTreeImpl LABELLED_STATEMENT() {
@@ -393,9 +409,8 @@ public class ActionGrammar {
 
           b.optional(
             b.firstOf(
-              b.invokeRule(EcmaScriptGrammar.FOR_VAR_DECLARATION),
-              b.invokeRule(ES6(EcmaScriptGrammar.LEXICAL_DECLARATION_NO_IN)),
-              (AstNode) f.skipLookahead1(b.invokeRule(EcmaScriptGrammar.NEXT_NOT_LET_OR_BRACKET), EXPRESSION_NO_IN()))),
+              VARIABLE_DECLARATION_NO_IN(),
+              f.skipLookahead1(b.invokeRule(EcmaScriptGrammar.NEXT_NOT_LET_OR_BRACKET), EXPRESSION_NO_IN()))),
           b.invokeRule(EcmaScriptPunctuator.SEMI),
 
           b.optional(EXPRESSION()),
@@ -1387,7 +1402,12 @@ public class ActionGrammar {
 
   public InitializedBindingElementTreeImpl INITIALISER() {
     return b.<InitializedBindingElementTreeImpl>nonterminal(EcmaScriptGrammar.INITIALISER)
-      .is(f.newInitializedBindingElement(b.invokeRule(EcmaScriptPunctuator.EQU), ASSIGNMENT_EXPRESSION()));
+      .is(f.newInitializedBindingElement1(b.invokeRule(EcmaScriptPunctuator.EQU), ASSIGNMENT_EXPRESSION()));
+  }
+
+  public InitializedBindingElementTreeImpl INITIALISER_NO_IN() {
+    return b.<InitializedBindingElementTreeImpl>nonterminal()
+      .is(f.newInitializedBindingElement2(b.invokeRule(EcmaScriptPunctuator.EQU), ASSIGNMENT_EXPRESSION_NO_IN()));
   }
 
   public ObjectBindingPatternTreeImpl OBJECT_BINDING_PATTERN() {
@@ -1419,11 +1439,21 @@ public class ActionGrammar {
   public BindingElementTree BINDING_ELEMENT() {
     return b.<BindingElementTree>nonterminal(EcmaScriptGrammar.BINDING_ELEMENT)
       .is(
-        f.completeBindingElement(
+        f.completeBindingElement1(
           b.firstOf(
             BINDING_IDENTIFIER(),
             BINDING_PATTERN()),
           b.optional(INITIALISER())));
+  }
+
+  public BindingElementTree BINDING_ELEMENT_NO_IN() {
+    return b.<BindingElementTree>nonterminal()
+      .is(
+        f.completeBindingElement2(
+          b.firstOf(
+            BINDING_IDENTIFIER(),
+            BINDING_PATTERN()),
+          b.optional(INITIALISER_NO_IN())));
   }
 
   public ArrayBindingPatternTreeImpl ARRAY_BINDING_PATTERN() {

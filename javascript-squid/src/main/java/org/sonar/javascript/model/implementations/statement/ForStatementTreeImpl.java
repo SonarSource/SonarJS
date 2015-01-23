@@ -25,7 +25,6 @@ import com.sonar.sslr.api.AstNodeType;
 import org.sonar.javascript.model.implementations.JavaScriptTree;
 import org.sonar.javascript.model.implementations.lexical.InternalSyntaxToken;
 import org.sonar.javascript.model.interfaces.Tree;
-import org.sonar.javascript.model.interfaces.declaration.BindingElementTree;
 import org.sonar.javascript.model.interfaces.expression.ExpressionTree;
 import org.sonar.javascript.model.interfaces.lexical.SyntaxToken;
 import org.sonar.javascript.model.interfaces.statement.ForStatementTree;
@@ -40,6 +39,7 @@ public class ForStatementTreeImpl extends JavaScriptTree implements ForStatement
 
   private final SyntaxToken forKeyword;
   private final SyntaxToken openParenthesis;
+  private final Tree init;
   private final SyntaxToken firstSemicolon;
   private final ExpressionTree condition;
   private final SyntaxToken secondSemicolon;
@@ -50,6 +50,7 @@ public class ForStatementTreeImpl extends JavaScriptTree implements ForStatement
   public ForStatementTreeImpl(
     InternalSyntaxToken forKeyword,
     InternalSyntaxToken openParenthesis,
+    @Nullable Tree init,
     InternalSyntaxToken firstSemicolon,
     @Nullable ExpressionTree condition, InternalSyntaxToken secondSemicolon,
     @Nullable ExpressionTree update, InternalSyntaxToken closeParenthesis,
@@ -59,6 +60,7 @@ public class ForStatementTreeImpl extends JavaScriptTree implements ForStatement
     super(Kind.FOR_STATEMENT);
     this.forKeyword = forKeyword;
     this.openParenthesis = openParenthesis;
+    this.init = init;
     this.firstSemicolon = firstSemicolon;
     this.condition = condition;
     this.secondSemicolon = secondSemicolon;
@@ -81,8 +83,8 @@ public class ForStatementTreeImpl extends JavaScriptTree implements ForStatement
 
   @Nullable
   @Override
-  public List<BindingElementTree> init() {
-    throw new UnsupportedOperationException("Not supported yet in the strongly typed AST.");
+  public Tree init() {
+    return init;
   }
 
   @Override
@@ -92,7 +94,7 @@ public class ForStatementTreeImpl extends JavaScriptTree implements ForStatement
 
   @Nullable
   @Override
-  public Tree condition() {
+  public ExpressionTree condition() {
     return condition;
   }
 
@@ -103,7 +105,7 @@ public class ForStatementTreeImpl extends JavaScriptTree implements ForStatement
 
   @Nullable
   @Override
-  public Tree update() {
+  public ExpressionTree update() {
     return update;
   }
 

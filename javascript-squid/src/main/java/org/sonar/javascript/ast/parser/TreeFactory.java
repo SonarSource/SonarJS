@@ -228,7 +228,7 @@ public class TreeFactory {
     return new VariableStatementTreeImpl(declaration, eosToken);
   }
 
-  public VariableDeclarationTreeImpl variableDeclaration(AstNode token, SeparatedList<BindingElementTree> variables) {
+  private VariableDeclarationTreeImpl variableDeclaration(AstNode token, SeparatedList<BindingElementTree> variables) {
     Kind kind;
     if (token.is(EcmaScriptKeyword.VAR)) {
       kind = Kind.VAR_DECLARATION;
@@ -242,7 +242,15 @@ public class TreeFactory {
     return new VariableDeclarationTreeImpl(kind, InternalSyntaxToken.create(token), variables, variables.getChildren());
   }
 
-  public SeparatedList<BindingElementTree> bindingElementList(BindingElementTree element, Optional<List<Tuple<AstNode, BindingElementTree>>> rest) {
+  public VariableDeclarationTreeImpl variableDeclaration1(AstNode token, SeparatedList<BindingElementTree> variables) {
+    return variableDeclaration(token, variables);
+  }
+
+  public VariableDeclarationTreeImpl variableDeclaration2(AstNode token, SeparatedList<BindingElementTree> variables) {
+    return variableDeclaration(token, variables);
+  }
+
+  private SeparatedList<BindingElementTree> bindingElementList(BindingElementTree element, Optional<List<Tuple<AstNode, BindingElementTree>>> rest) {
     List<AstNode> children = Lists.newArrayList();
 
     ImmutableList.Builder<BindingElementTree> elements = ImmutableList.builder();
@@ -263,6 +271,14 @@ public class TreeFactory {
     }
 
     return new SeparatedList<BindingElementTree>(elements.build(), commas.build(), children);
+  }
+
+  public SeparatedList<BindingElementTree> bindingElementList1(BindingElementTree element, Optional<List<Tuple<AstNode, BindingElementTree>>> rest) {
+    return bindingElementList(element, rest);
+  }
+
+  public SeparatedList<BindingElementTree> bindingElementList2(BindingElementTree element, Optional<List<Tuple<AstNode, BindingElementTree>>> rest) {
+    return bindingElementList(element, rest);
   }
 
   public LabelledStatementTreeImpl labelledStatement(IdentifierTreeImpl identifier, AstNode colon, StatementTree statement) {
@@ -433,14 +449,14 @@ public class TreeFactory {
       statement);
   }
 
-  public ForStatementTreeImpl forStatement(AstNode forToken, AstNode openParenthesis, Optional<AstNode> init, AstNode firstSemiToken, Optional<ExpressionTree> condition,
+  public ForStatementTreeImpl forStatement(AstNode forToken, AstNode openParenthesis, Optional<Tree> init, AstNode firstSemiToken, Optional<ExpressionTree> condition,
     AstNode secondSemiToken, Optional<ExpressionTree> update, AstNode closeParenthesis, StatementTree statement) {
     List<AstNode> children = Lists.newArrayList();
 
     children.add(forToken);
     children.add(openParenthesis);
     if (init.isPresent()) {
-      children.add(init.get());
+      children.add((AstNode) init.get());
     }
     children.add(firstSemiToken);
     if (condition.isPresent()) {
@@ -456,10 +472,11 @@ public class TreeFactory {
     return new ForStatementTreeImpl(
       InternalSyntaxToken.create(forToken),
       InternalSyntaxToken.create(openParenthesis),
+      init.orNull(),
       InternalSyntaxToken.create(firstSemiToken),
-      condition.isPresent() ? condition.get() : null,
+      condition.orNull(),
       InternalSyntaxToken.create(secondSemiToken),
-      update.isPresent() ? update.get() : null,
+      update.orNull(),
       InternalSyntaxToken.create(closeParenthesis),
       statement,
       children);
@@ -1364,15 +1381,27 @@ public class TreeFactory {
 
   // [START] Destructuring pattern
 
-  public InitializedBindingElementTreeImpl newInitializedBindingElement(AstNode equalToken, ExpressionTree expression) {
+  public InitializedBindingElementTreeImpl newInitializedBindingElement1(AstNode equalToken, ExpressionTree expression) {
     return new InitializedBindingElementTreeImpl(InternalSyntaxToken.create(equalToken), expression);
   }
 
-  public BindingElementTree completeBindingElement(BindingElementTree left, Optional<InitializedBindingElementTreeImpl> initializer) {
+  public InitializedBindingElementTreeImpl newInitializedBindingElement2(AstNode equalToken, ExpressionTree expression) {
+    return new InitializedBindingElementTreeImpl(InternalSyntaxToken.create(equalToken), expression);
+  }
+
+  private BindingElementTree completeBindingElement(BindingElementTree left, Optional<InitializedBindingElementTreeImpl> initializer) {
     if (!initializer.isPresent()) {
       return left;
     }
     return initializer.get().completeWithLeft(left);
+  }
+
+  public BindingElementTree completeBindingElement1(BindingElementTree left, Optional<InitializedBindingElementTreeImpl> initializer) {
+    return completeBindingElement(left, initializer);
+  }
+
+  public BindingElementTree completeBindingElement2(BindingElementTree left, Optional<InitializedBindingElementTreeImpl> initializer) {
+    return completeBindingElement(left, initializer);
   }
 
   public BindingPropertyTreeImpl bindingProperty(ExpressionTree propertyName, AstNode colonToken, BindingElementTree bindingElement) {
@@ -1649,6 +1678,10 @@ public class TreeFactory {
   }
 
   public <T, U> Tuple<T, U> newTuple29(T first, U second) {
+    return newTuple(first, second);
+  }
+
+  public <T, U> Tuple<T, U> newTuple30(T first, U second) {
     return newTuple(first, second);
   }
 

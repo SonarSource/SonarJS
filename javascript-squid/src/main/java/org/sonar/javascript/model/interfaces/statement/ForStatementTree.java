@@ -20,12 +20,10 @@
 package org.sonar.javascript.model.interfaces.statement;
 
 import org.sonar.javascript.model.interfaces.Tree;
-import org.sonar.javascript.model.interfaces.declaration.BindingElementTree;
+import org.sonar.javascript.model.interfaces.expression.ExpressionTree;
 import org.sonar.javascript.model.interfaces.lexical.SyntaxToken;
 
 import javax.annotation.Nullable;
-
-import java.util.List;
 
 /**
  * <a href="http://www.ecma-international.org/ecma-262/5.1/#sec-12.6.3">for Statement</a>.
@@ -44,19 +42,17 @@ public interface ForStatementTree extends StatementTree {
   SyntaxToken openParenthesis();
 
   @Nullable
-  List<BindingElementTree> init();
+  Tree init();
 
   SyntaxToken firstSemicolon();
 
-  // TODO
   @Nullable
-  Tree condition();
+  ExpressionTree condition();
 
   SyntaxToken secondSemicolon();
 
-  // TODO
   @Nullable
-  Tree update();
+  ExpressionTree update();
 
   SyntaxToken closeParenthesis();
 

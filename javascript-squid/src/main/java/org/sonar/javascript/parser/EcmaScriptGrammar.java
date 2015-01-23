@@ -29,9 +29,7 @@ import org.sonar.sslr.grammar.GrammarRuleKey;
 import org.sonar.sslr.grammar.LexerlessGrammarBuilder;
 import org.sonar.sslr.parser.LexerlessGrammar;
 
-import static org.sonar.javascript.api.EcmaScriptKeyword.CONST;
 import static org.sonar.javascript.api.EcmaScriptKeyword.FUNCTION;
-import static org.sonar.javascript.api.EcmaScriptKeyword.VAR;
 import static org.sonar.javascript.api.EcmaScriptPunctuator.AND;
 import static org.sonar.javascript.api.EcmaScriptPunctuator.ANDAND;
 import static org.sonar.javascript.api.EcmaScriptPunctuator.AND_EQU;
@@ -194,11 +192,8 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
 
   STATEMENT,
   STATEMENT_LIST,
-  VARIABLE_DECLARATION_LIST_NO_IN,
   VARIABLE_DECLARATION,
-  VARIABLE_DECLARATION_NO_IN,
   INITIALISER,
-  INITIALISER_NO_IN,
   ITERATION_STATEMENT,
   /** ECMAScrip 6 **/
   OF,
@@ -212,17 +207,7 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
   FUNCTION_EXPRESSION,
   FORMAL_PARAMETER,
   /** ECMAScript 6 **/
-  LEXICAL_DECLARATION_NO_IN,
-  /** ECMAScript 6 **/
   LET,
-  /** ECMAScript 6 **/
-  BINDING_LIST_NO_IN,
-  /** ECMAScript 6 **/
-  LEXICAL_BINDING_NO_IN,
-  /** ECMAScript 6 **/
-  BINDING_IDENTIFIER_INITIALISER_NO_IN,
-  /** ECMAScript 6 **/
-  BINDING_PATTERN_INITIALISER_NO_IN,
   /** ECMAScript 6 **/
   IDENTIFIER_REFERENCE,
   /** ECMAScript 6 **/
@@ -255,7 +240,6 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
   // Temporary rules for migration
   LEFT_HAND_SIDE_EXPRESSION_NO_LET,
   NO_LCURLY_AND_FUNCTION,
-  FOR_VAR_DECLARATION,
   NEXT_NOT_LCURLY,
   NEXT_NOT_LET_OR_BRACKET,
   CONDITIONAL_EXPRESSION_LOOKAHEAD,
@@ -465,10 +449,6 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
   private static void statements(LexerlessGrammarBuilder b) {
     b.rule(STATEMENT_LIST).is(b.oneOrMore(STATEMENT));
 
-    b.rule(FOR_VAR_DECLARATION).is(VAR, VARIABLE_DECLARATION_LIST_NO_IN);
-    b.rule(VARIABLE_DECLARATION_LIST_NO_IN).is(VARIABLE_DECLARATION_NO_IN, b.zeroOrMore(COMMA, VARIABLE_DECLARATION_NO_IN));
-    b.rule(VARIABLE_DECLARATION_NO_IN).is(b.firstOf(BINDING_IDENTIFIER_INITIALISER_NO_IN, BINDING_PATTERN_INITIALISER_NO_IN));
-
     b.rule(OF).is(word(b, "of"));
 
     // Temporary rules waiting for b.nextNot method migration
@@ -491,13 +471,6 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
 
   private static void lexical_var_and_destructuring_declarations(LexerlessGrammarBuilder b) {
     b.rule(LET).is(word(b, "let"));
-
-    b.rule(LEXICAL_DECLARATION_NO_IN).is(b.firstOf(LET, CONST), BINDING_LIST_NO_IN);
-    b.rule(BINDING_LIST_NO_IN).is(LEXICAL_BINDING_NO_IN, b.zeroOrMore(COMMA, LEXICAL_BINDING_NO_IN));
-    b.rule(LEXICAL_BINDING_NO_IN).is(b.firstOf(BINDING_IDENTIFIER_INITIALISER_NO_IN, BINDING_PATTERN_INITIALISER_NO_IN));
-    b.rule(BINDING_PATTERN_INITIALISER_NO_IN).is(BINDING_PATTERN, INITIALISER_NO_IN);
-    b.rule(BINDING_IDENTIFIER_INITIALISER_NO_IN).is(BINDING_IDENTIFIER, b.optional(INITIALISER_NO_IN));
-    b.rule(INITIALISER_NO_IN).is(EQU, ASSIGNMENT_EXPRESSION_NO_IN);
   }
 
   private static void class_and_function_declarations(LexerlessGrammarBuilder b) {
