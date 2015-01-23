@@ -884,7 +884,7 @@ public class ActionGrammar {
         b.invokeRule(EcmaScriptPunctuator.DOUBLEARROW),
         b.firstOf(
           BLOCK(),
-          f.assignmentNoCurlyNoIn(b.invokeRule(EcmaScriptGrammar.NEXT_NOT_LCURLY), ASSIGNMENT_EXPRESSION()))
+          f.assignmentNoCurlyNoIn(b.invokeRule(EcmaScriptGrammar.NEXT_NOT_LCURLY), ASSIGNMENT_EXPRESSION_NO_IN()))
       ));
   }
 
