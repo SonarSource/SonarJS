@@ -23,7 +23,6 @@ import com.google.common.base.Charsets;
 import com.sonar.sslr.api.AstNode;
 import com.sonar.sslr.api.Token;
 import com.sonar.sslr.impl.Parser;
-import org.apache.bcel.generic.ASTORE;
 import org.sonar.javascript.EcmaScriptConfiguration;
 import org.sonar.javascript.model.interfaces.Tree;
 import org.sonar.javascript.model.interfaces.Tree.Kind;
@@ -42,7 +41,8 @@ public abstract class JavaScriptTreeModelTest {
    * @return the node found for the given kind, null if not found.
    */
   protected <T extends Tree> T parse(String s, Kind descendantToReturn) throws Exception {
-    return (T) p.parse(s).getFirstDescendant(descendantToReturn);
+    AstNode node = p.parse(s);
+    return (T) (node.is(descendantToReturn) ? node : node.getFirstDescendant(descendantToReturn));
   }
 
   /**

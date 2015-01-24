@@ -46,6 +46,7 @@ import org.sonar.javascript.model.implementations.declaration.NameSpaceSpecifier
 import org.sonar.javascript.model.implementations.declaration.NamedExportDeclarationTreeImpl;
 import org.sonar.javascript.model.implementations.declaration.ObjectBindingPatternTreeImpl;
 import org.sonar.javascript.model.implementations.declaration.ParameterListTreeImpl;
+import org.sonar.javascript.model.implementations.declaration.ScriptTreeImpl;
 import org.sonar.javascript.model.implementations.declaration.SpecifierListTreeImpl;
 import org.sonar.javascript.model.implementations.declaration.SpecifierTreeImpl;
 import org.sonar.javascript.model.implementations.expression.ArrayLiteralTreeImpl;
@@ -122,6 +123,7 @@ import org.sonar.javascript.model.interfaces.statement.SwitchClauseTree;
 import org.sonar.javascript.parser.EcmaScriptGrammar;
 import org.sonar.javascript.parser.sslr.Optional;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -1515,6 +1517,13 @@ public class TreeFactory {
   // [END] Destructuring pattern
 
   // [END] Classes, methods, functions & generators
+
+  public ScriptTreeImpl script(Optional<AstNode> shebangToken, Optional<ModuleTreeImpl> items, AstNode spacing, AstNode eof) {
+    return new ScriptTreeImpl(
+      shebangToken.isPresent() ? InternalSyntaxToken.create(shebangToken.get()) : null,
+      items.isPresent() ? items.get() : new ModuleTreeImpl(Collections.<Tree>emptyList()),
+      spacing, eof);
+  }
 
   public static class Tuple<T, U> extends AstNode {
 

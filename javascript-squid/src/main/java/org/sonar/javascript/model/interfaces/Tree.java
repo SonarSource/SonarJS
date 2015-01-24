@@ -38,6 +38,7 @@ import org.sonar.javascript.model.interfaces.declaration.NameSpaceExportDeclarat
 import org.sonar.javascript.model.interfaces.declaration.NamedExportDeclarationTree;
 import org.sonar.javascript.model.interfaces.declaration.ObjectBindingPatternTree;
 import org.sonar.javascript.model.interfaces.declaration.ParameterListTree;
+import org.sonar.javascript.model.interfaces.declaration.ScriptTree;
 import org.sonar.javascript.model.interfaces.declaration.SpecifierListTree;
 import org.sonar.javascript.model.interfaces.declaration.SpecifierTree;
 import org.sonar.javascript.model.interfaces.expression.ArrayLiteralTree;
@@ -104,6 +105,11 @@ public interface Tree {
 //  void accept(TreeVisitor visitor);
 
   public enum Kind implements AstNodeType, GrammarRuleKey {
+
+    /**
+     * {@link ScriptTree}
+     */
+    SCRIPT(ScriptTree.class),
 
     /**
      * {@link EmptyStatementTree}

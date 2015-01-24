@@ -136,6 +136,7 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
    */
   SPACING_NO_LINE_BREAK_NOT_FOLLOWED_BY_LINE_BREAK,
   SPACING,
+  SPACING_NOT_SKIPPED,
 
   /**
    * Spacing without line break.
@@ -256,7 +257,6 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
       b.regexp(EcmaScriptLexer.IDENTIFIER));
 
     lexical(b);
-    programs(b);
 
     b.setRootRule(SCRIPT);
 
@@ -274,6 +274,7 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
       b.zeroOrMore(
         b.commentTrivia(b.regexp(EcmaScriptLexer.COMMENT)),
         b.skippedTrivia(b.regexp("[" + EcmaScriptLexer.LINE_TERMINATOR + EcmaScriptLexer.WHITESPACE + "]*+")))).skip();
+    b.rule(SPACING_NOT_SKIPPED).is(SPACING);
 
     b.rule(SPACING_NO_LB).is(
       b.zeroOrMore(
@@ -331,6 +332,7 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
     b.rule(STATIC).is(word(b, "static"));
     b.rule(SET).is(word(b, "set"));
     b.rule(GET).is(word(b, "get"));
+    b.rule(SHEBANG).is(b.regexp("#![^\\n\\r]*+"));
 
     // Temporary rules waiting for b.nextNot method migration
     b.rule(NEXT_NOT_LET_AND_BRACKET).is(b.nextNot(LET, LBRACKET));
@@ -443,14 +445,6 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
       }
     }
     throw new IllegalStateException(value);
-  }
-
-  /**
-   * A.6 Programs
-   */
-  private static void programs(LexerlessGrammarBuilder b) {
-    b.rule(SCRIPT).is(b.optional(SHEBANG), b.optional(MODULE_BODY), SPACING, EOF);
-    b.rule(SHEBANG).is("#!", b.regexp("[^\\n\\r]*+")).skip();
   }
 
   private final String internalName;

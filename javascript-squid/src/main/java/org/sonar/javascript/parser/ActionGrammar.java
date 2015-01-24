@@ -36,6 +36,7 @@ import org.sonar.javascript.model.implementations.declaration.ModuleTreeImpl;
 import org.sonar.javascript.model.implementations.declaration.NamedExportDeclarationTreeImpl;
 import org.sonar.javascript.model.implementations.declaration.ObjectBindingPatternTreeImpl;
 import org.sonar.javascript.model.implementations.declaration.ParameterListTreeImpl;
+import org.sonar.javascript.model.implementations.declaration.ScriptTreeImpl;
 import org.sonar.javascript.model.implementations.declaration.SpecifierListTreeImpl;
 import org.sonar.javascript.model.implementations.declaration.SpecifierTreeImpl;
 import org.sonar.javascript.model.implementations.expression.ArrayLiteralTreeImpl;
@@ -1543,6 +1544,16 @@ public class ActionGrammar {
   /**
    * A.5 [END] Declaration
    */
+
+  public ScriptTreeImpl SCRIPT() {
+    return b.<ScriptTreeImpl>nonterminal(EcmaScriptGrammar.SCRIPT)
+      .is(
+        f.script(
+          b.optional(b.invokeRule(EcmaScriptGrammar.SHEBANG)),
+          b.optional(MODULE_BODY()),
+          b.invokeRule(EcmaScriptGrammar.SPACING_NOT_SKIPPED),
+          b.invokeRule(EcmaScriptGrammar.EOF)));
+  }
 
   private <T> T ES6(T object) {
     return object;
