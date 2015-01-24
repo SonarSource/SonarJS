@@ -1508,6 +1508,10 @@ public class TreeFactory {
     return expression;
   }
 
+  public ExpressionTree skipLookahead4(ExpressionTree expression, AstNode lookahead) {
+    return expression;
+  }
+
   // [END] Destructuring pattern
 
   // [END] Classes, methods, functions & generators

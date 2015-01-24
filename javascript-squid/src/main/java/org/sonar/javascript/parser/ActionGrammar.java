@@ -572,6 +572,11 @@ public class ActionGrammar {
      ));
   }
 
+  public ExpressionTree CONDITIONAL_EXPRESSION_NOT_ES6_ASSIGNMENT_EXPRESSION() {
+    return b.<ExpressionTree>nonterminal()
+      .is(f.skipLookahead4(CONDITIONAL_EXPRESSION(), b.invokeRule(EcmaScriptGrammar.NEXT_NOT_ES6_ASSIGNMENT_EXPRESSION)));
+  }
+
   public ExpressionTree CONDITIONAL_EXPRESSION_NO_IN() {
     return b.<ExpressionTree>nonterminal()
       .is(f.completeConditionalExpressionNoIn(
@@ -1191,7 +1196,7 @@ public class ActionGrammar {
               b.invokeRule(EcmaScriptPunctuator.XOR_EQU),
               b.invokeRule(EcmaScriptPunctuator.OR_EQU)),
             ASSIGNMENT_EXPRESSION()),
-          (ExpressionTree) b.invokeRule(EcmaScriptGrammar.CONDITIONAL_EXPRESSION_LOOKAHEAD),
+          CONDITIONAL_EXPRESSION_NOT_ES6_ASSIGNMENT_EXPRESSION(),
           ES6_ASSIGNMENT_EXPRESSION()
       ));
   }

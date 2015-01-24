@@ -241,7 +241,7 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
   NEXT_NOT_LCURLY_AND_FUNCTION,
   NEXT_NOT_LCURLY,
   NEXT_NOT_LET_AND_BRACKET,
-  CONDITIONAL_EXPRESSION_LOOKAHEAD,
+  NEXT_NOT_ES6_ASSIGNMENT_EXPRESSION,
   NEXT_NOT_FUNCTION_AND_CLASS;
 
   public static LexerlessGrammar createGrammar() {
@@ -256,7 +256,6 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
       b.regexp(EcmaScriptLexer.IDENTIFIER));
 
     lexical(b);
-    expressions(b);
     programs(b);
 
     b.setRootRule(SCRIPT);
@@ -339,6 +338,11 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
     b.rule(NEXT_NOT_LCURLY_AND_FUNCTION).is(b.nextNot(b.firstOf(LCURLYBRACE, FUNCTION)));
     b.rule(NEXT_NOT_FUNCTION_AND_CLASS).is(b.nextNot(EcmaScriptKeyword.FUNCTION, EcmaScriptKeyword.CLASS));
     b.rule(NEXT_NOT_LCURLY).is(b.nextNot(LCURLYBRACE));
+    // Negative lookahead to prevent conflicts with ES6_ASSIGNMENT_EXPRESSION
+    b.rule(NEXT_NOT_ES6_ASSIGNMENT_EXPRESSION).is(
+      b.nextNot(
+        b.regexp("(?:[" + EcmaScriptLexer.WHITESPACE + "]|" + EcmaScriptLexer.SINGLE_LINE_COMMENT + "|" + EcmaScriptLexer.MULTI_LINE_COMMENT_NO_LB + ")*+"),
+        "=>"));
 
     punctuators(b);
     keywords(b);
@@ -439,17 +443,6 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
       }
     }
     throw new IllegalStateException(value);
-  }
-
-  /**
-   * A.3 Expressions
-   */
-  private static void expressions(LexerlessGrammarBuilder b) {
-    b.rule(CONDITIONAL_EXPRESSION_LOOKAHEAD).is(Kind.CONDITIONAL_EXPRESSION,
-      // Negative lookahead to prevent conflicts with ES6_ASSIGNMENT_EXPRESSION
-      b.nextNot(
-        b.regexp("(?:[" + EcmaScriptLexer.WHITESPACE + "]|" + EcmaScriptLexer.SINGLE_LINE_COMMENT + "|" + EcmaScriptLexer.MULTI_LINE_COMMENT_NO_LB + ")*+"),
-        "=>")).skip();
   }
 
   /**
