@@ -34,13 +34,15 @@ public class DefaultExportDeclarationTreeImpl extends JavaScriptTree implements 
 
   private final SyntaxToken exportToken;
   private final SyntaxToken defaultToken;
+  private final Tree object;
 
-  public DefaultExportDeclarationTreeImpl(InternalSyntaxToken exportToken, InternalSyntaxToken defaultToken, AstNode object) {
+  public DefaultExportDeclarationTreeImpl(InternalSyntaxToken exportToken, InternalSyntaxToken defaultToken, Tree object) {
     super(Kind.DEFAULT_EXPORT_DECLARATION);
     this.exportToken = exportToken;
     this.defaultToken = defaultToken;
+    this.object = object;
 
-    addChildren(exportToken, defaultToken, object);
+    addChildren(exportToken, defaultToken, (AstNode) object);
   }
 
   @Override
@@ -55,7 +57,7 @@ public class DefaultExportDeclarationTreeImpl extends JavaScriptTree implements 
 
   @Override
   public Tree object() {
-    throw new UnsupportedOperationException("Not supported yet in the strongly typed AST.");
+    return object;
   }
 
   @Nullable

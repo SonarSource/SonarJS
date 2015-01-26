@@ -35,29 +35,29 @@ public class DefaultExportDeclarationTreeModelTest extends JavaScriptTreeModelTe
     assertThat(tree.is(Kind.DEFAULT_EXPORT_DECLARATION)).isTrue();
     assertThat(tree.exportToken().text()).isEqualTo("export");
     assertThat(tree.defaultToken().text()).isEqualTo("default");
-    // TODO: add object
+    assertThat(expressionToString(tree.object())).isEqualTo("a ;");
     // TODO: add eos
   }
 
   @Test
   public void generator() throws Exception {
-    DefaultExportDeclarationTree tree = parse("export default function * f() {} ;", Kind.DEFAULT_EXPORT_DECLARATION);
+    DefaultExportDeclarationTree tree = parse("export default function * f ( ) { }", Kind.DEFAULT_EXPORT_DECLARATION);
 
     assertThat(tree.is(Kind.DEFAULT_EXPORT_DECLARATION)).isTrue();
     assertThat(tree.exportToken().text()).isEqualTo("export");
     assertThat(tree.defaultToken().text()).isEqualTo("default");
-    // TODO: add object
+    assertThat(expressionToString(tree.object())).isEqualTo("function * f ( ) { }");
     // TODO: add eos
   }
 
   @Test
   public void function() throws Exception {
-    DefaultExportDeclarationTree tree = parse("export default function f() {} ;", Kind.DEFAULT_EXPORT_DECLARATION);
+    DefaultExportDeclarationTree tree = parse("export default function f ( ) { }", Kind.DEFAULT_EXPORT_DECLARATION);
 
     assertThat(tree.is(Kind.DEFAULT_EXPORT_DECLARATION)).isTrue();
     assertThat(tree.exportToken().text()).isEqualTo("export");
     assertThat(tree.defaultToken().text()).isEqualTo("default");
-    // TODO: add object
+    assertThat(expressionToString(tree.object())).isEqualTo("function f ( ) { }");
     // TODO: add eos
   }
 

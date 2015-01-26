@@ -1173,7 +1173,7 @@ public class TreeFactory {
     return new FromClauseTreeImpl(InternalSyntaxToken.create(fromToken), module);
   }
 
-  public DefaultExportDeclarationTreeImpl defaultExportDeclaration(AstNode exportToken, AstNode defaultToken, AstNode declaration) {
+  public DefaultExportDeclarationTreeImpl defaultExportDeclaration(AstNode exportToken, AstNode defaultToken, Tree declaration) {
     return new DefaultExportDeclarationTreeImpl(
       InternalSyntaxToken.create(exportToken),
       InternalSyntaxToken.create(defaultToken),
