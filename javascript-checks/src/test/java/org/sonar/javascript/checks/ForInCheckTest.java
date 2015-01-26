@@ -36,6 +36,7 @@ public class ForInCheckTest {
     CheckMessagesVerifier.verify(file.getCheckMessages())
       .next().atLine(1).withMessage("Insert an if statement at the beginning of this loop to filter items.")
       .next().atLine(21)
+      .next().atLine(26)
       .noMore();
   }
 

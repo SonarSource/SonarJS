@@ -48,11 +48,13 @@ public class ForInCheck extends SquidCheck<LexerlessGrammar> {
 
     if (statementNode.is(Kind.BLOCK)) {
       BlockTree block = (BlockTree) statementNode;
-
-      if (!block.statements().isEmpty() && !block.statements().get(0).is(Kind.IF_STATEMENT)) {
-        getContext().createLineViolation(this, "Insert an if statement at the beginning of this loop to filter items.", astNode);
-      }
+      statementNode = !block.statements().isEmpty() ? block.statements().get(0) : null;
     }
+
+    if (statementNode != null && !statementNode.is(Kind.IF_STATEMENT)) {
+      getContext().createLineViolation(this, "Insert an if statement at the beginning of this loop to filter items.", astNode);
+    }
+
   }
 
 }

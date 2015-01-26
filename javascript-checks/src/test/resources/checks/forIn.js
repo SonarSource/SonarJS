@@ -22,3 +22,6 @@ for (key in arr) { // NOK
   function f() {}
   print(arr[key]);
 }
+
+for (key in obj)   // NOK
+    a[key] = b[key];
