@@ -19,6 +19,7 @@
  */
 package org.sonar.javascript.model.implementations.declaration;
 
+import com.google.common.collect.Iterators;
 import com.sonar.sslr.api.AstNode;
 import com.sonar.sslr.api.AstNodeType;
 import org.sonar.javascript.model.implementations.JavaScriptTree;
@@ -68,7 +69,7 @@ public class ScriptTreeImpl extends JavaScriptTree implements ScriptTree {
 
   @Override
   public Iterator<Tree> childrenIterator() {
-    throw new UnsupportedOperationException();
+    return Iterators.<Tree>singletonIterator(items);
   }
 
 }

@@ -20,6 +20,7 @@
 package org.sonar.javascript.model.implementations.declaration;
 
 import com.google.common.collect.Iterators;
+import com.google.common.collect.Lists;
 import com.sonar.sslr.api.AstNode;
 import org.sonar.javascript.model.implementations.JavaScriptTree;
 import org.sonar.javascript.model.implementations.SeparatedList;
@@ -79,7 +80,13 @@ public class ArrayBindingPatternTreeImpl extends JavaScriptTree implements Array
 
   @Override
   public Iterator<Tree> childrenIterator() {
-    return Iterators.emptyIterator();
+    List<Tree> nonElidedElements = Lists.newArrayList();
+    for (Optional<BindingElementTree> e : elements) {
+      if (e.isPresent()) {
+        nonElidedElements.add(e.get());
+      }
+    }
+    return Iterators.concat(nonElidedElements.iterator());
   }
 
 }

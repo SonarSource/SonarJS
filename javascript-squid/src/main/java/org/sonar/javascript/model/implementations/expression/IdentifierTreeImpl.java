@@ -20,6 +20,7 @@
 package org.sonar.javascript.model.implementations.expression;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.Iterators;
 import org.sonar.javascript.model.implementations.JavaScriptTree;
 import org.sonar.javascript.model.implementations.lexical.InternalSyntaxToken;
 import org.sonar.javascript.model.interfaces.Tree;
@@ -68,7 +69,7 @@ public class IdentifierTreeImpl extends JavaScriptTree implements IdentifierTree
 
   @Override
   public Iterator<Tree> childrenIterator() {
-    throw new UnsupportedOperationException();
+    return Iterators.<Tree>singletonIterator(nameToken);
   }
 
 }

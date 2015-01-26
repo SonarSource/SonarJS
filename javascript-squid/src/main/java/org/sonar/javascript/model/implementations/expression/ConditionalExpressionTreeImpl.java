@@ -89,7 +89,7 @@ public class ConditionalExpressionTreeImpl extends JavaScriptTree implements Con
 
   @Override
   public Iterator<Tree> childrenIterator() {
-    return Iterators.emptyIterator();
+    return Iterators.<Tree>forArray(condition, trueExpression, falseExpression);
   }
 
 }

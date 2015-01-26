@@ -55,8 +55,7 @@ public class LiteralTreeImpl extends JavaScriptTree implements LiteralTree {
 
   @Override
   public Iterator<Tree> childrenIterator() {
-    return Iterators.<Tree>singletonIterator(
-      token);
+    return Iterators.<Tree>singletonIterator(token);
   }
 
 }

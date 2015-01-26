@@ -68,7 +68,7 @@ public class BindingPropertyTreeImpl extends JavaScriptTree implements BindingPr
 
   @Override
   public Iterator<Tree> childrenIterator() {
-    return Iterators.emptyIterator();
+    return Iterators.forArray(name, value);
   }
 
 }

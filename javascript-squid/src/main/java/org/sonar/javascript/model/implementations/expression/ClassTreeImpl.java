@@ -139,7 +139,9 @@ public class ClassTreeImpl extends JavaScriptTree implements ClassTree {
 
   @Override
   public Iterator<Tree> childrenIterator() {
-    return Iterators.emptyIterator();
+    return Iterators.concat(
+      Iterators.singletonIterator(superClass),
+      elements.iterator());
   }
 
 }

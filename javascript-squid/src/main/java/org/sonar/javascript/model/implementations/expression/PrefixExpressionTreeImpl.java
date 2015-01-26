@@ -63,6 +63,6 @@ public class PrefixExpressionTreeImpl extends JavaScriptTree implements UnaryExp
 
   @Override
   public Iterator<Tree> childrenIterator() {
-    return Iterators.emptyIterator();
+    return Iterators.<Tree>singletonIterator(expression);
   }
 }

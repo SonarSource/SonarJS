@@ -62,7 +62,7 @@ public class FromClauseTreeImpl extends JavaScriptTree implements FromClauseTree
 
   @Override
   public Iterator<Tree> childrenIterator() {
-    return Iterators.emptyIterator();
+    return Iterators.<Tree>forArray(module);
   }
 
 }

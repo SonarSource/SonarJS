@@ -61,7 +61,7 @@ public class RestElementTreeImpl extends JavaScriptTree implements RestElementTr
 
   @Override
   public Iterator<Tree> childrenIterator() {
-    return Iterators.emptyIterator();
+    return Iterators.<Tree>singletonIterator(element);
   }
 
 }

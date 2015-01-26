@@ -19,6 +19,7 @@
  */
 package org.sonar.javascript.model.implementations.declaration;
 
+import com.google.common.collect.Iterators;
 import com.sonar.sslr.api.AstNode;
 import com.sonar.sslr.api.AstNodeType;
 import org.sonar.javascript.model.implementations.JavaScriptTree;
@@ -70,7 +71,7 @@ public class InitializedBindingElementTreeImpl extends JavaScriptTree implements
 
   @Override
   public Iterator<Tree> childrenIterator() {
-    return null;
+    return Iterators.forArray(left, right);
   }
 
   @Override

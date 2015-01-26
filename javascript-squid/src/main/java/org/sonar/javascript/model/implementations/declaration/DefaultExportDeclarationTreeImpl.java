@@ -73,7 +73,7 @@ public class DefaultExportDeclarationTreeImpl extends JavaScriptTree implements 
 
   @Override
   public Iterator<Tree> childrenIterator() {
-    return Iterators.emptyIterator();
+    return Iterators.singletonIterator(object);
   }
 
 }

@@ -35,7 +35,7 @@ public class DotMemberExpressionTreeImpl extends JavaScriptTree implements DotMe
 
   private ExpressionTree object;
   private final SyntaxToken dot;
-  private ExpressionTree property;
+  private final ExpressionTree property;
 
   public DotMemberExpressionTreeImpl(InternalSyntaxToken dot, ExpressionTree property) {
     super(Kind.DOT_MEMBER_EXPRESSION);
@@ -74,7 +74,7 @@ public class DotMemberExpressionTreeImpl extends JavaScriptTree implements DotMe
 
   @Override
   public Iterator<Tree> childrenIterator() {
-    return Iterators.emptyIterator();
+    return Iterators.<Tree>forArray(object, property);
   }
 
 }

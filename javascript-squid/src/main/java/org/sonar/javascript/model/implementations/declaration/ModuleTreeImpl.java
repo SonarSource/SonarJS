@@ -61,7 +61,7 @@ public class ModuleTreeImpl extends JavaScriptTree implements ModuleTree {
 
   @Override
   public Iterator<Tree> childrenIterator() {
-    return Iterators.emptyIterator();
+    return Iterators.concat(items.iterator());
   }
 
 }

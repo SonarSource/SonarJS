@@ -59,7 +59,7 @@ public class CallExpressionTreeImpl extends JavaScriptTree implements CallExpres
 
   @Override
   public Iterator<Tree> childrenIterator() {
-    return Iterators.emptyIterator();
+    return Iterators.<Tree>forArray(callee, arguments);
   }
 
 }

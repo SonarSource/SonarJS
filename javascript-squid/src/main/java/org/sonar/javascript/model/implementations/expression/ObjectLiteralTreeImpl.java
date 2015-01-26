@@ -89,7 +89,7 @@ public class ObjectLiteralTreeImpl extends JavaScriptTree implements ObjectLiter
 
   @Override
   public Iterator<Tree> childrenIterator() {
-    return Iterators.forArray(properties.toArray(new Tree[properties.size()]));
+    return Iterators.concat(properties.iterator());
   }
 
 }

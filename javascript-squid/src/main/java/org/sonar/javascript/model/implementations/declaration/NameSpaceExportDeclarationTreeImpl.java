@@ -66,7 +66,7 @@ public class NameSpaceExportDeclarationTreeImpl extends JavaScriptTree implement
 
   @Override
   public Iterator<Tree> childrenIterator() {
-    return Iterators.emptyIterator();
+    return Iterators.<Tree>singletonIterator(fromClause);
   }
 
 }

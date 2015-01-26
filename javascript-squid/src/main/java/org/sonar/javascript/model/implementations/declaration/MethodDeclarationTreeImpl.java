@@ -132,7 +132,7 @@ public class MethodDeclarationTreeImpl extends JavaScriptTree implements MethodD
 
   @Override
   public Iterator<Tree> childrenIterator() {
-    return Iterators.emptyIterator();
+    return Iterators.forArray(name, parameters, body);
   }
 
 }

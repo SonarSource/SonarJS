@@ -59,7 +59,7 @@ public class NamedExportDeclarationTreeImpl extends JavaScriptTree implements Na
 
   @Override
   public Iterator<Tree> childrenIterator() {
-    return Iterators.emptyIterator();
+    return Iterators.singletonIterator(object);
   }
 
 }

@@ -74,7 +74,7 @@ public class ExportClauseTreeImpl extends JavaScriptTree implements ExportClause
 
   @Override
   public Iterator<Tree> childrenIterator() {
-    return Iterators.emptyIterator();
+    return Iterators.<Tree>forArray(exports, fromClause);
   }
 
 }

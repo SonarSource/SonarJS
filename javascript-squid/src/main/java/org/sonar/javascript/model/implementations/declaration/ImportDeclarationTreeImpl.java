@@ -74,7 +74,7 @@ public class ImportDeclarationTreeImpl extends JavaScriptTree implements ImportD
 
   @Override
   public Iterator<Tree> childrenIterator() {
-    return Iterators.emptyIterator();
+    return Iterators.<Tree>forArray(importClause, fromClause);
   }
 
 }

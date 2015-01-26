@@ -166,7 +166,7 @@ public class FunctionExpressionTreeImpl extends JavaScriptTree implements Functi
 
   @Override
   public Iterator<Tree> childrenIterator() {
-    return Iterators.<Tree>singletonIterator(name);
+    return Iterators.forArray(name, parameters, body);
   }
 
 }
