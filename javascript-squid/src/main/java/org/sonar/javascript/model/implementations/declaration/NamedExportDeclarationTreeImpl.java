@@ -31,13 +31,15 @@ import java.util.Iterator;
 
 public class NamedExportDeclarationTreeImpl extends JavaScriptTree implements NamedExportDeclarationTree {
 
-  private SyntaxToken exportToken;
+  private final SyntaxToken exportToken;
+  private final Tree object;
 
-  public NamedExportDeclarationTreeImpl(InternalSyntaxToken exportToken, AstNode object) {
+  public NamedExportDeclarationTreeImpl(InternalSyntaxToken exportToken, Tree object) {
     super(Kind.NAMED_EXPORT_DECLARATION);
     this.exportToken = exportToken;
+    this.object = object;
 
-    addChildren(exportToken, object);
+    addChildren(exportToken, (AstNode) object);
   }
 
   @Override
@@ -47,7 +49,7 @@ public class NamedExportDeclarationTreeImpl extends JavaScriptTree implements Na
 
   @Override
   public Tree object() {
-    throw new UnsupportedOperationException("Not supported yet in the strongly typed AST.");
+    return object;
   }
 
   @Override

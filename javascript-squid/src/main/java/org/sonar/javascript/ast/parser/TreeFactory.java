@@ -1184,7 +1184,7 @@ public class TreeFactory {
     return new ExpressionStatementTreeImpl(expression, eos);
   }
 
-  public NamedExportDeclarationTreeImpl namedExportDeclaration(AstNode exportToken, AstNode object) {
+  public NamedExportDeclarationTreeImpl namedExportDeclaration(AstNode exportToken, Tree object) {
    return new NamedExportDeclarationTreeImpl(InternalSyntaxToken.create(exportToken), object);
   }
 

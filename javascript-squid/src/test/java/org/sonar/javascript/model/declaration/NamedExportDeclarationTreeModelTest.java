@@ -23,7 +23,6 @@ import static org.fest.assertions.Assertions.assertThat;
 import org.junit.Test;
 import org.sonar.javascript.model.JavaScriptTreeModelTest;
 import org.sonar.javascript.model.interfaces.Tree.Kind;
-import org.sonar.javascript.model.interfaces.declaration.DefaultExportDeclarationTree;
 import org.sonar.javascript.model.interfaces.declaration.NamedExportDeclarationTree;
 
 public class NamedExportDeclarationTreeModelTest extends JavaScriptTreeModelTest {
@@ -34,7 +33,7 @@ public class NamedExportDeclarationTreeModelTest extends JavaScriptTreeModelTest
 
     assertThat(tree.is(Kind.NAMED_EXPORT_DECLARATION)).isTrue();
     assertThat(tree.exportToken().text()).isEqualTo("export");
-    // TODO: add object
+    assertThat(expressionToString(tree.object())).isEqualTo("{ } ;");
     // TODO: add eos
   }
 
@@ -44,17 +43,17 @@ public class NamedExportDeclarationTreeModelTest extends JavaScriptTreeModelTest
 
     assertThat(tree.is(Kind.NAMED_EXPORT_DECLARATION)).isTrue();
     assertThat(tree.exportToken().text()).isEqualTo("export");
-    // TODO: add object
+    assertThat(expressionToString(tree.object())).isEqualTo("var a ;");
     // TODO: add eos
   }
 
   @Test
   public void declaration() throws Exception {
-    NamedExportDeclarationTree tree = parse("export class C {}", Kind.NAMED_EXPORT_DECLARATION);
+    NamedExportDeclarationTree tree = parse("export class C { }", Kind.NAMED_EXPORT_DECLARATION);
 
     assertThat(tree.is(Kind.NAMED_EXPORT_DECLARATION)).isTrue();
     assertThat(tree.exportToken().text()).isEqualTo("export");
-    // TODO: add object
+    assertThat(expressionToString(tree.object())).isEqualTo("class C { }");
     // TODO: add eos
   }
 
