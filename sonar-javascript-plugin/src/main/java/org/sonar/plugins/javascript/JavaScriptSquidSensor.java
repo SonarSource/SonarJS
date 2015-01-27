@@ -41,12 +41,15 @@ import org.sonar.api.scan.filesystem.ModuleFileSystem;
 import org.sonar.javascript.EcmaScriptConfiguration;
 import org.sonar.javascript.JavaScriptAstScanner;
 import org.sonar.javascript.api.EcmaScriptMetric;
+import org.sonar.javascript.ast.visitors.SubscriptionAstTreeVisitor;
+import org.sonar.javascript.ast.visitors.VisitorsBridge;
 import org.sonar.javascript.checks.CheckList;
 import org.sonar.javascript.metrics.FileLinesVisitor;
 import org.sonar.plugins.javascript.core.JavaScript;
 import org.sonar.squidbridge.AstScanner;
 import org.sonar.squidbridge.SquidAstVisitor;
 import org.sonar.squidbridge.api.CheckMessage;
+import org.sonar.squidbridge.api.CodeVisitor;
 import org.sonar.squidbridge.api.SourceClass;
 import org.sonar.squidbridge.api.SourceCode;
 import org.sonar.squidbridge.api.SourceFile;
@@ -94,10 +97,22 @@ public class JavaScriptSquidSensor implements Sensor {
     this.project = project;
     this.context = context;
 
-    Collection<SquidAstVisitor<LexerlessGrammar>> squidChecks = annotationCheckFactory.getChecks();
-    List<SquidAstVisitor<LexerlessGrammar>> visitors = Lists.newArrayList(squidChecks);
-    visitors.add(new FileLinesVisitor(project, fileLinesContextFactory));
-    scanner = JavaScriptAstScanner.create(createConfiguration(project), visitors.toArray(new SquidAstVisitor[visitors.size()]));
+    List<SquidAstVisitor<LexerlessGrammar>> astNodeVisitors = Lists.newArrayList();
+    List<SubscriptionAstTreeVisitor> treeVisitors = Lists.newArrayList();
+    Collection<CodeVisitor> squidChecks = annotationCheckFactory.getChecks();
+
+    for (CodeVisitor visitor : squidChecks) {
+      if (treeVisitors instanceof SquidAstVisitor) {
+        astNodeVisitors.add((SquidAstVisitor<LexerlessGrammar>) visitor);
+      } else {
+        treeVisitors.add((SubscriptionAstTreeVisitor) visitor);
+      }
+    }
+
+    astNodeVisitors.add(new VisitorsBridge(treeVisitors));
+    astNodeVisitors.add(new FileLinesVisitor(project, fileLinesContextFactory));
+
+    scanner = JavaScriptAstScanner.create(createConfiguration(project), astNodeVisitors.toArray(new SquidAstVisitor[astNodeVisitors.size()]));
     scanner.scanFiles(moduleFileSystem.files(FileQuery.onSource().onLanguage(JavaScript.KEY)));
 
     Collection<SourceCode> squidSourceFiles = scanner.getIndex().search(new QueryByType(SourceFile.class));
