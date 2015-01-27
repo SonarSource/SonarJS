@@ -26,6 +26,7 @@ import org.sonar.javascript.model.implementations.JavaScriptTree;
 import org.sonar.javascript.model.interfaces.Tree;
 import org.sonar.javascript.model.interfaces.declaration.ScriptTree;
 import org.sonar.squidbridge.api.CheckMessage;
+import org.sonar.squidbridge.api.CodeVisitor;
 import org.sonar.squidbridge.api.SourceFile;
 
 import com.google.common.base.Preconditions;
@@ -47,27 +48,21 @@ public class AstTreeVisitorContextImpl implements AstTreeVisitorContext {
   }
 
   @Override
-  public void addIssue(Tree tree, RuleKey ruleKey, String message) {
-    addIssue(((JavaScriptTree) tree).getLine(), ruleKey, message);
+  public void addIssue(CodeVisitor check, Tree tree, String message) {
+    addIssue(check, ((JavaScriptTree) tree).getLine(), message);
   }
 
   @Override
-  public void addIssueOnFile(RuleKey ruleKey, String message) {
-    addIssue(-1, ruleKey, message);
-  }
-
-  @Override
-  public void addIssue(int line, RuleKey ruleKey, String message) {
-    Preconditions.checkNotNull(ruleKey);
+  public void addIssue(CodeVisitor check, int line, String message) {
+    Preconditions.checkNotNull(check);
     Preconditions.checkNotNull(message);
 
-    CheckMessage checkMessage = new CheckMessage(ruleKey, message);
+    CheckMessage checkMessage = new CheckMessage(check, message);
 
     if (line > 0) {
       checkMessage.setLine(line);
     }
 
-    checkMessage.setBypassExclusion("NoSonar".equals(ruleKey.rule()));
     sourceFile.log(checkMessage);
   }
 

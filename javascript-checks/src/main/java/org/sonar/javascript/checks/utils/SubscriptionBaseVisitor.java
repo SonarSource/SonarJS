@@ -28,11 +28,7 @@ import org.sonar.javascript.model.interfaces.Tree;
 public abstract class SubscriptionBaseVisitor extends SubscriptionAstTreeVisitor {
 
   public void addIssue(Tree tree, String message) {
-    getContext().addIssue(tree, getRuleKey(), message);
-  }
-
-  public void addIssue(int line, String message) {
-    getContext().addIssue(line, getRuleKey(), message);
+    getContext().addIssue(this, tree, message);
   }
 
   private RuleKey getRuleKey() {

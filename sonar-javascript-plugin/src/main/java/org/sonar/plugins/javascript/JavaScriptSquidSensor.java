@@ -44,6 +44,7 @@ import org.sonar.javascript.api.EcmaScriptMetric;
 import org.sonar.javascript.ast.visitors.SubscriptionAstTreeVisitor;
 import org.sonar.javascript.ast.visitors.VisitorsBridge;
 import org.sonar.javascript.checks.CheckList;
+import org.sonar.javascript.checks.utils.SubscriptionBaseVisitor;
 import org.sonar.javascript.metrics.FileLinesVisitor;
 import org.sonar.plugins.javascript.core.JavaScript;
 import org.sonar.squidbridge.AstScanner;
@@ -103,7 +104,7 @@ public class JavaScriptSquidSensor implements Sensor {
     Collection<CodeVisitor> squidChecks = annotationCheckFactory.getChecks();
 
     for (CodeVisitor visitor : squidChecks) {
-      if (treeVisitors instanceof SubscriptionAstTreeVisitor) {
+      if (visitor instanceof SubscriptionAstTreeVisitor) {
         treeVisitors.add((SubscriptionAstTreeVisitor) visitor);
       } else {
         astNodeVisitors.add(visitor);

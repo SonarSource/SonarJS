@@ -19,21 +19,114 @@
  */
 package org.sonar.javascript.checks;
 
+import java.util.List;
+
 import org.sonar.check.BelongsToProfile;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
-import org.sonar.squidbridge.checks.SquidCheck;
-import org.sonar.sslr.parser.LexerlessGrammar;
+import org.sonar.javascript.checks.utils.SubscriptionBaseVisitor;
+import org.sonar.javascript.model.interfaces.Tree;
+import org.sonar.javascript.model.interfaces.Tree.Kind;
+
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
 
 @Rule(
   key = "S1067",
   priority = Priority.MAJOR)
 @BelongsToProfile(title = CheckList.SONAR_WAY_PROFILE, priority = Priority.MAJOR)
-public class ExpressionComplexityCheck extends SquidCheck<LexerlessGrammar> {
+public class ExpressionComplexityCheck extends SubscriptionBaseVisitor {
 
   private static final int DEFAULT = 3;
+
   @RuleProperty(defaultValue = "" + DEFAULT)
   public int max = DEFAULT;
+
+  private List<ExpressionComplexity> statementLevel = Lists.newArrayList();
+  private static final Kind[] SCOPES = {
+      Kind.FUNCTION_EXPRESSION,
+      Kind.GENERATOR_FUNCTION_EXPRESSION
+  };
+
+ private static final Kind[] CONDITIONAL_EXPRS = {
+      Kind.CONDITIONAL_EXPRESSION,
+      Kind.CONDITIONAL_AND,
+      Kind.CONDITIONAL_OR
+ };
+
+  @Override
+  public List<Kind> nodesToVisit() {
+    return ImmutableList.<Kind>builder()
+      .add(CONDITIONAL_EXPRS)
+      .add(SCOPES).build();
+  }
+
+  public static class ExpressionComplexity {
+    private int nestedLevel = 0;
+    private int counterOperator = 0;
+
+    public void increaseOperatorCounter(int nbOperator) {
+      counterOperator += nbOperator;
+    }
+
+    public void incrementNestedExprLevel() {
+      nestedLevel++;
+    }
+
+    public void decrementNestedExprLevel() {
+      nestedLevel--;
+    }
+
+    public boolean isOnFirstExprLevel() {
+      return nestedLevel == 0;
+    }
+
+    public int getExprNumberOfOperator() {
+      return counterOperator;
+    }
+
+    public void resetExprOperatorCounter() {
+      counterOperator = 0;
+    }
+  }
+
+  @Override
+  public void visitFile(Tree scriptTree) {
+    statementLevel.clear();
+    statementLevel.add(new ExpressionComplexity());
+  }
+
+  @Override
+  public void visitNode(Tree tree) {
+    if (tree.is(CONDITIONAL_EXPRS)) {
+      Iterables.getLast(statementLevel).incrementNestedExprLevel();
+      Iterables.getLast(statementLevel).increaseOperatorCounter(1);
+
+    } else if (tree.is(SCOPES)) {
+      statementLevel.add(new ExpressionComplexity());
+    }
+  }
+
+  @Override
+  public void leaveNode(Tree tree) {
+    if (tree.is(CONDITIONAL_EXPRS)) {
+      ExpressionComplexity currentExpression = Iterables.getLast(statementLevel);
+      currentExpression.decrementNestedExprLevel();
+
+      if (currentExpression.isOnFirstExprLevel()) {
+        if (currentExpression.getExprNumberOfOperator() > max) {
+          addIssue(
+            tree,
+            "Reduce the number of conditional operators (" + currentExpression.getExprNumberOfOperator() + ") used in the expression (maximum allowed " + max + ").");
+        }
+        currentExpression.resetExprOperatorCounter();
+      }
+
+    } else if (tree.is(SCOPES)) {
+      statementLevel.remove(statementLevel.size() - 1);
+    }
+  }
 
 }

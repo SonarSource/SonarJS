@@ -17,26 +17,20 @@
  * License along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.javascript.ast.visitors;
+package org.sonar.javascript.checks.utils;
+
+import com.google.common.collect.Lists;
+import org.sonar.javascript.JavaScriptAstScanner;
+import org.sonar.javascript.ast.visitors.SubscriptionAstTreeVisitor;
+import org.sonar.javascript.ast.visitors.VisitorsBridge;
+import org.sonar.squidbridge.api.SourceFile;
 
 import java.io.File;
 
-import org.sonar.api.rule.RuleKey;
-import org.sonar.javascript.model.interfaces.Tree;
-import org.sonar.javascript.model.interfaces.declaration.ScriptTree;
-import org.sonar.squidbridge.api.CodeCheck;
-import org.sonar.squidbridge.api.CodeVisitor;
+public class TreeCheckTest {
 
-public interface AstTreeVisitorContext {
-
-  ScriptTree getTree();
-
-  void addIssue(CodeVisitor check, Tree tree, String message);
-
-  void addIssue(CodeVisitor check, int line, String message);
-
-  String getFileKey();
-
-  File getFile();
+  public SourceFile scanFile(String fileName, SubscriptionBaseVisitor check) {
+    return JavaScriptAstScanner.scanSingleFile(new File(fileName), new VisitorsBridge(Lists.<SubscriptionAstTreeVisitor>newArrayList(check)));
+  }
 
 }

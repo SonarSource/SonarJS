@@ -57,8 +57,13 @@ public abstract class SubscriptionAstTreeVisitor implements CodeVisitor {
     // default behaviour is to do nothing
   }
 
+  public void visitFile(Tree scriptTree) {
+    // default behaviour is to do nothing
+  }
+
   public void scanFile(AstTreeVisitorContext context) {
     this.context = context;
+    visitFile(context.getTree());
     scanTree(context.getTree());
   }
 
