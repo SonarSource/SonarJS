@@ -54,6 +54,7 @@ import org.sonar.squidbridge.api.SourceClass;
 import org.sonar.squidbridge.api.SourceCode;
 import org.sonar.squidbridge.api.SourceFile;
 import org.sonar.squidbridge.api.SourceFunction;
+import org.sonar.squidbridge.checks.SquidCheck;
 import org.sonar.squidbridge.indexer.QueryByParent;
 import org.sonar.squidbridge.indexer.QueryByType;
 import org.sonar.sslr.parser.LexerlessGrammar;
@@ -97,15 +98,15 @@ public class JavaScriptSquidSensor implements Sensor {
     this.project = project;
     this.context = context;
 
-    List<SquidAstVisitor<LexerlessGrammar>> astNodeVisitors = Lists.newArrayList();
+    List<CodeVisitor> astNodeVisitors = Lists.newArrayList();
     List<SubscriptionAstTreeVisitor> treeVisitors = Lists.newArrayList();
     Collection<CodeVisitor> squidChecks = annotationCheckFactory.getChecks();
 
     for (CodeVisitor visitor : squidChecks) {
-      if (treeVisitors instanceof SquidAstVisitor) {
-        astNodeVisitors.add((SquidAstVisitor<LexerlessGrammar>) visitor);
-      } else {
+      if (treeVisitors instanceof SubscriptionAstTreeVisitor) {
         treeVisitors.add((SubscriptionAstTreeVisitor) visitor);
+      } else {
+        astNodeVisitors.add(visitor);
       }
     }
 
