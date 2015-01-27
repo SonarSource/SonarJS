@@ -70,7 +70,7 @@ public class LabelledStatementTreeImpl extends JavaScriptTree implements Labelle
 
   @Override
   public Iterator<Tree> childrenIterator() {
-    return Iterators.<Tree>singletonIterator(label);
+    return Iterators.<Tree>forArray(label, statement);
   }
 
 }

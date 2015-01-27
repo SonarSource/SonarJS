@@ -19,6 +19,7 @@
  */
 package org.sonar.javascript.model.implementations.statement;
 
+import com.google.common.collect.Iterators;
 import com.sonar.sslr.api.AstNode;
 import org.sonar.javascript.model.implementations.JavaScriptTree;
 import org.sonar.javascript.model.implementations.SeparatedList;
@@ -67,7 +68,7 @@ public class VariableDeclarationTreeImpl extends JavaScriptTree implements Varia
 
   @Override
   public Iterator<Tree> childrenIterator() {
-    throw new UnsupportedOperationException();
+    return Iterators.<Tree>concat(variables.iterator());
   }
 
 }

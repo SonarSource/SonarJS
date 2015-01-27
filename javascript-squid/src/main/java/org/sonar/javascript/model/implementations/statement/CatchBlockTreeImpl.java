@@ -82,7 +82,7 @@ public class CatchBlockTreeImpl extends JavaScriptTree implements CatchBlockTree
 
   @Override
   public Iterator<Tree> childrenIterator() {
-    return Iterators.<Tree>singletonIterator(block);
+    return Iterators.forArray(parameter, block);
   }
 
 }

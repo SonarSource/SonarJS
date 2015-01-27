@@ -65,7 +65,9 @@ public class TaggedTemplateTreeImpl extends JavaScriptTree implements TaggedTemp
 
   @Override
   public Iterator<Tree> childrenIterator() {
-    return Iterators.<Tree>forArray(callee, template);
+    return Iterators.<Tree>forArray(
+      callee,
+      template);
   }
 
 }

@@ -87,7 +87,7 @@ public class WithStatementTreeImpl extends JavaScriptTree implements WithStateme
 
   @Override
   public Iterator<Tree> childrenIterator() {
-    return Iterators.emptyIterator();
+    return Iterators.forArray(expression, statement);
   }
 
 }

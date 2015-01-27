@@ -84,6 +84,6 @@ public class WhileStatementTreeImpl extends JavaScriptTree implements WhileState
 
   @Override
   public Iterator<Tree> childrenIterator() {
-    return Iterators.emptyIterator();
+    return Iterators.forArray(condition, statement);
   }
 }

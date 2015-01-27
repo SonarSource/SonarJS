@@ -91,7 +91,10 @@ public class TemplateLiteralTreeImpl extends JavaScriptTree implements TemplateL
 
   @Override
   public Iterator<Tree> childrenIterator() {
-    return Iterators.emptyIterator();
+    return Iterators.<Tree>concat(
+      strings.iterator(),
+      expressions.iterator()
+    );
   }
 
 }

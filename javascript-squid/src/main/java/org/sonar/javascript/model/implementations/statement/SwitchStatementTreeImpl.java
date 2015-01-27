@@ -19,6 +19,7 @@
  */
 package org.sonar.javascript.model.implementations.statement;
 
+import com.google.common.collect.Iterators;
 import com.sonar.sslr.api.AstNode;
 import com.sonar.sslr.api.AstNodeType;
 import org.sonar.javascript.model.implementations.JavaScriptTree;
@@ -109,6 +110,6 @@ public class SwitchStatementTreeImpl extends JavaScriptTree implements SwitchSta
 
   @Override
   public Iterator<Tree> childrenIterator() {
-    return null;
+    return Iterators.<Tree>singletonIterator(expression);
   }
 }

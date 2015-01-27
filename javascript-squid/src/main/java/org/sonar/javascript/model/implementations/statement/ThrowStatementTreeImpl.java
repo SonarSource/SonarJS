@@ -72,7 +72,7 @@ public class ThrowStatementTreeImpl extends JavaScriptTree implements ThrowState
 
   @Override
   public Iterator<Tree> childrenIterator() {
-    return Iterators.emptyIterator();
+    return Iterators.<Tree>singletonIterator(expression);
   }
 
 }
