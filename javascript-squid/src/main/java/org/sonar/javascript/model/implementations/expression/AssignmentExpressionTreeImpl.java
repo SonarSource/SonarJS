@@ -69,7 +69,7 @@ public class AssignmentExpressionTreeImpl extends JavaScriptTree implements Assi
 
   @Override
   public Iterator<Tree> childrenIterator() {
-    return Iterators.emptyIterator();
+    return Iterators.<Tree>forArray(variable, expression);
   }
 
 }

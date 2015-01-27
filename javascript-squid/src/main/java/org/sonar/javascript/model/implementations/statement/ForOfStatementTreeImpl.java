@@ -97,7 +97,7 @@ public class ForOfStatementTreeImpl extends JavaScriptTree implements ForOfState
 
   @Override
   public Iterator<Tree> childrenIterator() {
-    return Iterators.emptyIterator();
+    return Iterators.forArray(variableOrExpression, expression, statement);
   }
 
 }

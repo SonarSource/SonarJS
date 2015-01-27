@@ -126,7 +126,7 @@ public class ForStatementTreeImpl extends JavaScriptTree implements ForStatement
 
   @Override
   public Iterator<Tree> childrenIterator() {
-    return Iterators.emptyIterator();
+    return Iterators.forArray(init, condition, update, statement);
   }
 
 }

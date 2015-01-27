@@ -19,9 +19,10 @@
  */
 package org.sonar.javascript.model.implementations.statement;
 
-import com.google.common.collect.Iterators;
-import com.sonar.sslr.api.AstNode;
-import com.sonar.sslr.api.AstNodeType;
+import java.util.Iterator;
+
+import javax.annotation.Nullable;
+
 import org.sonar.javascript.model.implementations.JavaScriptTree;
 import org.sonar.javascript.model.implementations.lexical.InternalSyntaxToken;
 import org.sonar.javascript.model.interfaces.Tree;
@@ -31,9 +32,9 @@ import org.sonar.javascript.model.interfaces.statement.ElseClauseTree;
 import org.sonar.javascript.model.interfaces.statement.IfStatementTree;
 import org.sonar.javascript.model.interfaces.statement.StatementTree;
 
-import javax.annotation.Nullable;
-
-import java.util.Iterator;
+import com.google.common.collect.Iterators;
+import com.sonar.sslr.api.AstNode;
+import com.sonar.sslr.api.AstNodeType;
 
 public class IfStatementTreeImpl extends JavaScriptTree implements IfStatementTree {
 
@@ -112,7 +113,11 @@ public class IfStatementTreeImpl extends JavaScriptTree implements IfStatementTr
 
   @Override
   public Iterator<Tree> childrenIterator() {
-    return Iterators.emptyIterator();
+    if (hasElse()) {
+      return Iterators.forArray(condition, elseClause, statement);
+    } else {
+      return Iterators.forArray(condition, statement);
+    }
   }
 
 }

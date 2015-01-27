@@ -83,7 +83,7 @@ public class BlockTreeImpl extends JavaScriptTree implements BlockTree {
 
   @Override
   public Iterator<Tree> childrenIterator() {
-    return Iterators.emptyIterator();
+    return Iterators.<Tree>concat(statements.iterator());
   }
 
 }
