@@ -509,7 +509,7 @@ public class TreeFactory {
   public ArrayLiteralTreeImpl newArrayLiteralWithElements(Optional<List<AstNode>> commaTokens, ExpressionTree element, Optional<List<Tuple<AstNode, ExpressionTree>>> restElements,
     Optional<List<AstNode>> restCommas) {
     List<AstNode> children = Lists.newArrayList();
-    List<AstNode> elements = Lists.newArrayList();
+    List<ExpressionTree> elements = Lists.newArrayList();
     List<InternalSyntaxToken> commas = Lists.newArrayList();
 
     // Elided array element at the beginning, e.g [ ,a]
@@ -522,7 +522,7 @@ public class TreeFactory {
     }
 
     // First element
-    elements.add((AstNode) element);
+    elements.add(element);
     children.add((AstNode) element);
 
     // Other elements
@@ -544,7 +544,7 @@ public class TreeFactory {
           }
         }
         // Add element
-        elements.add((AstNode) t.second());
+        elements.add(t.second());
         children.add((AstNode) t.second());
       }
     }
@@ -579,7 +579,7 @@ public class TreeFactory {
 
   public ArrayLiteralTreeImpl newArrayLiteralWithElidedElements(List<AstNode> commaTokens) {
     List<AstNode> children = Lists.newArrayList();
-    List<AstNode> elements = Lists.newArrayList();
+    List<ExpressionTree> elements = Lists.newArrayList();
     List<InternalSyntaxToken> commas = Lists.newArrayList();
 
     for (AstNode comma : commaTokens) {

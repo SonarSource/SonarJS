@@ -19,7 +19,6 @@
  */
 package org.sonar.javascript.model.interfaces.expression;
 
-import com.sonar.sslr.api.AstNode;
 import org.sonar.javascript.model.implementations.SeparatedList;
 import org.sonar.javascript.model.interfaces.lexical.SyntaxToken;
 
@@ -37,8 +36,7 @@ public interface ArrayLiteralTree extends ExpressionTree {
 
   SyntaxToken openBracket();
 
-  // FIXME
-  SeparatedList<AstNode> elements();
+  SeparatedList<ExpressionTree> elements();
 
   SyntaxToken closeBracket();
 

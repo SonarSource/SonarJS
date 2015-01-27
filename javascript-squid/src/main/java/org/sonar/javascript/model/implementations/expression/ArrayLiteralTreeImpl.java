@@ -27,6 +27,7 @@ import org.sonar.javascript.model.implementations.SeparatedList;
 import org.sonar.javascript.model.implementations.lexical.InternalSyntaxToken;
 import org.sonar.javascript.model.interfaces.Tree;
 import org.sonar.javascript.model.interfaces.expression.ArrayLiteralTree;
+import org.sonar.javascript.model.interfaces.expression.ExpressionTree;
 import org.sonar.javascript.model.interfaces.lexical.SyntaxToken;
 
 import java.util.Iterator;
@@ -35,22 +36,21 @@ import java.util.List;
 public class ArrayLiteralTreeImpl extends JavaScriptTree implements ArrayLiteralTree {
 
   private SyntaxToken openBracket;
-  // FIXME remove usage of AstNode
-  private final SeparatedList<AstNode> elements;
+  private final SeparatedList<ExpressionTree> elements;
   private SyntaxToken closeBracket;
 
   public ArrayLiteralTreeImpl(InternalSyntaxToken openBracket, InternalSyntaxToken closeBracket) {
     super(Kind.ARRAY_LITERAL);
     this.openBracket = openBracket;
-    this.elements = new SeparatedList<AstNode>(ListUtils.EMPTY_LIST, ListUtils.EMPTY_LIST);
+    this.elements = new SeparatedList<ExpressionTree>(ListUtils.EMPTY_LIST, ListUtils.EMPTY_LIST);
     this.closeBracket = closeBracket;
 
     addChildren(openBracket, closeBracket);
   }
 
-  public ArrayLiteralTreeImpl(List<AstNode> elements, List<InternalSyntaxToken> commas, List<AstNode> children) {
+  public ArrayLiteralTreeImpl(List<ExpressionTree> elements, List<InternalSyntaxToken> commas, List<AstNode> children) {
     super(Kind.ARRAY_LITERAL);
-    this.elements = new SeparatedList<AstNode>(elements, commas);
+    this.elements = new SeparatedList<ExpressionTree>(elements, commas);
 
     for (AstNode child : children) {
       addChild(child);
@@ -72,7 +72,7 @@ public class ArrayLiteralTreeImpl extends JavaScriptTree implements ArrayLiteral
   }
 
   @Override
-  public SeparatedList<AstNode> elements() {
+  public SeparatedList<ExpressionTree> elements() {
     return elements;
   }
 
