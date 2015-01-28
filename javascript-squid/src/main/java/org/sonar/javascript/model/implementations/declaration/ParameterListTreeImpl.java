@@ -26,6 +26,7 @@ import org.sonar.javascript.model.implementations.JavaScriptTree;
 import org.sonar.javascript.model.implementations.SeparatedList;
 import org.sonar.javascript.model.implementations.lexical.InternalSyntaxToken;
 import org.sonar.javascript.model.interfaces.Tree;
+import org.sonar.javascript.model.interfaces.declaration.BindingElementTree;
 import org.sonar.javascript.model.interfaces.declaration.ParameterListTree;
 import org.sonar.javascript.model.interfaces.expression.ExpressionTree;
 import org.sonar.javascript.model.interfaces.lexical.SyntaxToken;
@@ -35,11 +36,11 @@ import java.util.Iterator;
 public class ParameterListTreeImpl extends JavaScriptTree implements ParameterListTree {
 
   private InternalSyntaxToken openParenthesis;
-  private final SeparatedList<ExpressionTree> parameters;
+  private final SeparatedList<Tree> parameters;
   private InternalSyntaxToken closeParenthesis;
   private final Kind kind;
 
-  public ParameterListTreeImpl(Kind kind, SeparatedList<ExpressionTree> parameters) {
+  public ParameterListTreeImpl(Kind kind, SeparatedList<Tree> parameters) {
     super(kind);
     this.kind = kind;
     this.parameters = parameters;
@@ -54,7 +55,7 @@ public class ParameterListTreeImpl extends JavaScriptTree implements ParameterLi
     super(kind);
     this.kind = kind;
     this.openParenthesis = openParenthesis;
-    this.parameters = new SeparatedList<ExpressionTree>(ListUtils.EMPTY_LIST, ListUtils.EMPTY_LIST);
+    this.parameters = new SeparatedList<Tree>(ListUtils.EMPTY_LIST, ListUtils.EMPTY_LIST);
     this.closeParenthesis = closeParenthesis;
 
     prependChildren(openParenthesis);
@@ -76,7 +77,7 @@ public class ParameterListTreeImpl extends JavaScriptTree implements ParameterLi
   }
 
   @Override
-  public SeparatedList<ExpressionTree> parameters() {
+  public SeparatedList<Tree> parameters() {
     return parameters;
   }
 

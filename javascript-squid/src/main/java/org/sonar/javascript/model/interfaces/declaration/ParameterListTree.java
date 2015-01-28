@@ -20,6 +20,7 @@
 package org.sonar.javascript.model.interfaces.declaration;
 
 import org.sonar.javascript.model.implementations.SeparatedList;
+import org.sonar.javascript.model.interfaces.Tree;
 import org.sonar.javascript.model.interfaces.expression.ExpressionTree;
 import org.sonar.javascript.model.interfaces.lexical.SyntaxToken;
 
@@ -38,7 +39,7 @@ public interface ParameterListTree extends DeclarationTree, ExpressionTree {
 
   SyntaxToken openParenthesis();
 
-  SeparatedList<ExpressionTree> parameters();
+  SeparatedList<Tree> parameters();
 
   SyntaxToken closeParenthesis();
 

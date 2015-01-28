@@ -115,6 +115,7 @@ import org.sonar.javascript.model.interfaces.declaration.SpecifierTree;
 import org.sonar.javascript.model.interfaces.expression.BracketMemberExpressionTree;
 import org.sonar.javascript.model.interfaces.expression.ExpressionTree;
 import org.sonar.javascript.model.interfaces.expression.MemberExpressionTree;
+import org.sonar.javascript.model.interfaces.expression.RestElementTree;
 import org.sonar.javascript.model.interfaces.expression.TemplateCharactersTree;
 import org.sonar.javascript.model.interfaces.expression.TemplateExpressionTree;
 import org.sonar.javascript.model.interfaces.lexical.SyntaxToken;
@@ -680,20 +681,23 @@ public class TreeFactory {
   }
 
   public ParameterListTreeImpl newFormalRestParameterList(RestElementTreeImpl restParameter) {
-    return new ParameterListTreeImpl(Kind.FORMAL_PARAMETER_LIST, new SeparatedList<ExpressionTree>(Lists.newArrayList((ExpressionTree) restParameter), ListUtils.EMPTY_LIST, ImmutableList.of((AstNode) restParameter)));
+    return new ParameterListTreeImpl(Kind.FORMAL_PARAMETER_LIST, new SeparatedList<Tree>(Lists.newArrayList((Tree) restParameter), ListUtils.EMPTY_LIST, ImmutableList.of((AstNode) restParameter)));
   }
 
   public ParameterListTreeImpl newFormalParameterList(BindingElementTree formalParameter, Optional<List<Tuple<AstNode, BindingElementTree>>> formalParameters,
     Optional<Tuple<AstNode, RestElementTreeImpl>> restElement) {
     List<AstNode> children = Lists.newArrayList();
+    List<Tree> parameters = Lists.newArrayList();
     List<InternalSyntaxToken> commas = Lists.newArrayList();
 
+    parameters.add(formalParameter);
     children.add((AstNode) formalParameter);
 
     if (formalParameters.isPresent()) {
       for (Tuple<AstNode, BindingElementTree> t : formalParameters.get()) {
         commas.add(InternalSyntaxToken.create(t.first()));
         children.add(t.first());
+        parameters.add(t.second());
         children.add((AstNode) t.second());
       }
     }
@@ -701,10 +705,11 @@ public class TreeFactory {
     if (restElement.isPresent()) {
       commas.add(InternalSyntaxToken.create(restElement.get().first()));
       children.add(restElement.get().first());
+      parameters.add(restElement.get().second());
       children.add(restElement.get().second());
     }
 
-    return new ParameterListTreeImpl(Kind.FORMAL_PARAMETER_LIST, new SeparatedList<ExpressionTree>(ListUtils.EMPTY_LIST /*FIXME when patterns are migrated*/, commas, children));
+    return new ParameterListTreeImpl(Kind.FORMAL_PARAMETER_LIST, new SeparatedList<Tree>(parameters, commas, children));
   }
 
   public RestElementTreeImpl bindingRestElement(AstNode ellipsis, IdentifierTreeImpl identifier) {
@@ -928,19 +933,22 @@ public class TreeFactory {
 
   public ParameterListTreeImpl newArgumentList(ExpressionTree argument, Optional<List<Tuple<AstNode, ExpressionTree>>> restArguments) {
     List<AstNode> children = Lists.newArrayList();
+    List<Tree> arguments = Lists.newArrayList();
     List<InternalSyntaxToken> commas = Lists.newArrayList();
 
+    arguments.add(argument);
     children.add((AstNode) argument);
 
     if (restArguments.isPresent()) {
       for (Tuple<AstNode, ExpressionTree> t : restArguments.get()) {
         commas.add(InternalSyntaxToken.create(t.first()));
         children.add(t.first());
+        arguments.add(t.second());
         children.add((AstNode) t.second());
       }
     }
 
-    return new ParameterListTreeImpl(Kind.ARGUMENTS, new SeparatedList<ExpressionTree>(ListUtils.EMPTY_LIST /*FIXME when assignment expression is migrated*/, commas, children));
+    return new ParameterListTreeImpl(Kind.ARGUMENTS, new SeparatedList<Tree>(arguments, commas, children));
   }
 
   public ParameterListTreeImpl completeArguments(AstNode openParenToken, Optional<ParameterListTreeImpl> arguments, AstNode closeParenToken) {
@@ -1447,7 +1455,6 @@ public class TreeFactory {
     return new ObjectBindingPatternTreeImpl(InternalSyntaxToken.create(openCurlyBraceToken), InternalSyntaxToken.create(closeCurlyBraceToken));
   }
 
-  // TODO Test model
   public ArrayBindingPatternTreeImpl arrayBindingPattern(
     AstNode openBracketToken, Optional<BindingElementTree> firstElement, Optional<List<Tuple<AstNode, Optional<BindingElementTree>>>> rest, AstNode closeBracketToken) {
 

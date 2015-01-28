@@ -17,23 +17,24 @@
  * License along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.javascript.model.declaration;
+package org.sonar.javascript.model.expression;
 
 import static org.fest.assertions.Assertions.assertThat;
+
 import org.junit.Test;
 import org.sonar.javascript.api.EcmaScriptPunctuator;
 import org.sonar.javascript.model.JavaScriptTreeModelTest;
 import org.sonar.javascript.model.interfaces.Tree.Kind;
 import org.sonar.javascript.model.interfaces.declaration.ParameterListTree;
 
-public class FormalParameterListTreeModelTest extends JavaScriptTreeModelTest {
+public class ArgumentsTreeModelTest extends JavaScriptTreeModelTest {
 
 
   @Test
   public void parameters() throws Exception {
-    ParameterListTree tree = parse("function f(p1, p2, ...p3) {};", Kind.FORMAL_PARAMETER_LIST);
+    ParameterListTree tree = parse("f(p1, p2, ... p3)", Kind.ARGUMENTS);
 
-    assertThat(tree.is(Kind.FORMAL_PARAMETER_LIST)).isTrue();
+    assertThat(tree.is(Kind.ARGUMENTS)).isTrue();
     assertThat(tree.openParenthesis().text()).isEqualTo("(");
 
     assertThat(tree.parameters().size()).isEqualTo(3);
@@ -42,15 +43,16 @@ public class FormalParameterListTreeModelTest extends JavaScriptTreeModelTest {
     assertThat(expressionToString(tree.parameters().get(2))).isEqualTo("... p3");
 
     assertThat(tree.parameters().getSeparators().size()).isEqualTo(2);
+
     assertThat(tree.closeParenthesis().text()).isEqualTo(")");
   }
 
 
   @Test
   public void no_parameter() throws Exception {
-    ParameterListTree tree = parse("function f() {};", Kind.FORMAL_PARAMETER_LIST);
+    ParameterListTree tree = parse("f()", Kind.ARGUMENTS);
 
-    assertThat(tree.is(Kind.FORMAL_PARAMETER_LIST)).isTrue();
+    assertThat(tree.is(Kind.ARGUMENTS)).isTrue();
     assertThat(tree.openParenthesis().text()).isEqualTo("(");
 
     assertThat(tree.parameters().size()).isEqualTo(0);
