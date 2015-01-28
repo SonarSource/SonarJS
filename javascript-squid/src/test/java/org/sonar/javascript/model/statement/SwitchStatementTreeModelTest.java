@@ -35,28 +35,33 @@ public class SwitchStatementTreeModelTest extends JavaScriptTreeModelTest {
    SwitchStatementTreeImpl tree = parse("switch (a) { }", Kind.SWITCH_STATEMENT);
 
     assertThat(tree.is(Kind.SWITCH_STATEMENT)).isTrue();
-    assertThat(tree.switchKeyword().text()).isEqualTo(EcmaScriptKeyword.SWITCH.getValue());
-    assertThat(tree.openParenthesis().text()).isEqualTo(EcmaScriptPunctuator.LPARENTHESIS.getValue());
-    assertThat(tree.expression()).isNotNull();
-    assertThat(tree.closeParenthesis().text()).isEqualTo(EcmaScriptPunctuator.RPARENTHESIS.getValue());
+    assertThat(tree.switchKeyword().text()).isEqualTo("switch");
+    assertThat(tree.openParenthesis().text()).isEqualTo("(");
+    assertThat(expressionToString(tree.expression())).isEqualTo("a");
+    assertThat(tree.closeParenthesis().text()).isEqualTo(")");
 
-    assertThat(tree.openCurlyBrace().text()).isEqualTo(EcmaScriptPunctuator.LCURLYBRACE.getValue());
-    assertThat(tree.closeCurlyBrace().text()).isEqualTo(EcmaScriptPunctuator.RCURLYBRACE.getValue());
+    assertThat(tree.openCurlyBrace().text()).isEqualTo("{");
+    assertThat(tree.cases()).hasSize(0);
+    assertThat(tree.closeCurlyBrace().text()).isEqualTo("}");
   }
 
   @Test
   public void with_cases() throws Exception {
-    SwitchStatementTreeImpl tree = parse("switch (a) { case 1: case 2: }", Kind.SWITCH_STATEMENT);
+    SwitchStatementTreeImpl tree = parse("switch (a) { case 1 : case 2 : }", Kind.SWITCH_STATEMENT);
 
     assertThat(tree.is(Kind.SWITCH_STATEMENT)).isTrue();
-    assertThat(tree.switchKeyword().text()).isEqualTo(EcmaScriptKeyword.SWITCH.getValue());
-    assertThat(tree.openParenthesis().text()).isEqualTo(EcmaScriptPunctuator.LPARENTHESIS.getValue());
-    assertThat(tree.expression()).isNotNull();
-    assertThat(tree.closeParenthesis().text()).isEqualTo(EcmaScriptPunctuator.RPARENTHESIS.getValue());
+    assertThat(tree.switchKeyword().text()).isEqualTo("switch");
+    assertThat(tree.openParenthesis().text()).isEqualTo("(");
+    assertThat(expressionToString(tree.expression())).isEqualTo("a");
+    assertThat(tree.closeParenthesis().text()).isEqualTo(")");
 
-    assertThat(tree.openCurlyBrace().text()).isEqualTo(EcmaScriptPunctuator.LCURLYBRACE.getValue());
-    assertThat(tree.cases().size()).isEqualTo(2);
-    assertThat(tree.closeCurlyBrace().text()).isEqualTo(EcmaScriptPunctuator.RCURLYBRACE.getValue());
+    assertThat(tree.openCurlyBrace().text()).isEqualTo("{");
+
+    assertThat(tree.cases()).hasSize(2);
+    assertThat(expressionToString(tree.cases().get(0))).isEqualTo("case 1 :");
+    assertThat(expressionToString(tree.cases().get(1))).isEqualTo("case 2 :");
+
+    assertThat(tree.closeCurlyBrace().text()).isEqualTo("}");
   }
 
 }

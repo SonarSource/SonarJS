@@ -110,6 +110,8 @@ public class SwitchStatementTreeImpl extends JavaScriptTree implements SwitchSta
 
   @Override
   public Iterator<Tree> childrenIterator() {
-    return Iterators.<Tree>singletonIterator(expression);
+    return Iterators.concat(
+      Iterators.singletonIterator(expression),
+      cases.iterator());
   }
 }

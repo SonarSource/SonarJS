@@ -36,9 +36,9 @@ public class SwitchClauseTreeModelTest extends JavaScriptTreeModelTest {
     CaseClauseTreeImpl tree = parse("switch (a) { case 1: }", Kind.CASE_CLAUSE);
 
     assertThat(tree.is(Kind.CASE_CLAUSE)).isTrue();
-    assertThat(tree.keyword().text()).isEqualTo(EcmaScriptKeyword.CASE.getValue());
-    assertThat(tree.expression()).isNotNull();
-    assertThat(tree.colon().text()).isEqualTo(EcmaScriptPunctuator.COLON.getValue());
+    assertThat(tree.keyword().text()).isEqualTo("case");
+    assertThat(expressionToString(tree.expression())).isEqualTo("1");
+    assertThat(tree.colon().text()).isEqualTo(":");
   }
 
   @Test
@@ -46,8 +46,8 @@ public class SwitchClauseTreeModelTest extends JavaScriptTreeModelTest {
     DefaultClauseTreeImpl tree = parse("switch (a) { default: }", Kind.DEFAULT_CLAUSE);
 
     assertThat(tree.is(Kind.DEFAULT_CLAUSE)).isTrue();
-    assertThat(tree.keyword().text()).isEqualTo(EcmaScriptKeyword.DEFAULT.getValue());
-    assertThat(tree.colon().text()).isEqualTo(EcmaScriptPunctuator.COLON.getValue());
+    assertThat(tree.keyword().text()).isEqualTo("default");
+    assertThat(tree.colon().text()).isEqualTo(":");
   }
 
 }
