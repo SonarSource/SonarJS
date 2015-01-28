@@ -22,6 +22,7 @@ package org.sonar.javascript.model.implementations.lexical;
 import com.sonar.sslr.api.AstNode;
 import com.sonar.sslr.api.AstNodeType;
 import org.sonar.javascript.api.EcmaScriptTokenType;
+import org.sonar.javascript.ast.visitors.TreeVisitor;
 import org.sonar.javascript.model.implementations.JavaScriptTree;
 import org.sonar.javascript.model.interfaces.Tree;
 import org.sonar.javascript.model.interfaces.lexical.SyntaxTrivia;
@@ -64,11 +65,6 @@ public class InternalSyntaxTrivia extends JavaScriptTree implements SyntaxTrivia
     throw new UnsupportedOperationException();
   }
 
-//  @Override
-//  public void accept(TreeVisitor visitor) {
-//    //FIXME do nothing
-//  }
-
   public static SyntaxTrivia create(String comment, int startLine) {
     return new InternalSyntaxTrivia(comment, startLine);
   }
@@ -76,5 +72,10 @@ public class InternalSyntaxTrivia extends JavaScriptTree implements SyntaxTrivia
   @Override
   public int getLine() {
     return startLine;
+  }
+
+  @Override
+  public void accept(TreeVisitor visitor) {
+    //FIXME do nothing
   }
 }

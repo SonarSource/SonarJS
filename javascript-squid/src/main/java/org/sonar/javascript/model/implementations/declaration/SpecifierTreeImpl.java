@@ -20,6 +20,7 @@
 package org.sonar.javascript.model.implementations.declaration;
 
 import com.google.common.collect.Iterators;
+import org.sonar.javascript.ast.visitors.TreeVisitor;
 import org.sonar.javascript.model.implementations.JavaScriptTree;
 import org.sonar.javascript.model.implementations.expression.IdentifierTreeImpl;
 import org.sonar.javascript.model.implementations.lexical.InternalSyntaxToken;
@@ -91,4 +92,8 @@ public class SpecifierTreeImpl extends JavaScriptTree implements SpecifierTree {
     return Iterators.<Tree>forArray(name, localName);
   }
 
+  @Override
+  public void accept(TreeVisitor visitor) {
+    visitor.visitSpecifier(this);
+  }
 }

@@ -27,6 +27,7 @@ import com.sonar.sslr.api.GenericTokenType;
 import com.sonar.sslr.api.Token;
 import com.sonar.sslr.api.Trivia;
 import org.sonar.javascript.api.EcmaScriptTokenType;
+import org.sonar.javascript.ast.visitors.TreeVisitor;
 import org.sonar.javascript.model.implementations.JavaScriptTree;
 import org.sonar.javascript.model.interfaces.Tree;
 import org.sonar.javascript.model.interfaces.lexical.SyntaxToken;
@@ -111,6 +112,11 @@ public class InternalSyntaxToken extends JavaScriptTree implements SyntaxToken {
 
   public static InternalSyntaxToken createLegacy(AstNode astNode) {
     return new InternalSyntaxToken(astNode);
+  }
+
+  @Override
+  public void accept(TreeVisitor visitor) {
+    // FIXME do nothing at the moment
   }
 
 }

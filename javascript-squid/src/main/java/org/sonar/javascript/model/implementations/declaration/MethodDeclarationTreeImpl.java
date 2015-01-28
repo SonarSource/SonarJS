@@ -22,6 +22,7 @@ package org.sonar.javascript.model.implementations.declaration;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Iterators;
 import com.sonar.sslr.api.AstNode;
+import org.sonar.javascript.ast.visitors.TreeVisitor;
 import org.sonar.javascript.model.implementations.JavaScriptTree;
 import org.sonar.javascript.model.implementations.lexical.InternalSyntaxToken;
 import org.sonar.javascript.model.implementations.statement.BlockTreeImpl;
@@ -135,4 +136,8 @@ public class MethodDeclarationTreeImpl extends JavaScriptTree implements MethodD
     return Iterators.forArray(name, parameters, body);
   }
 
+  @Override
+  public void accept(TreeVisitor visitor) {
+    visitor.visitMethodDeclaration(this);
+  }
 }

@@ -23,6 +23,7 @@ import java.util.Iterator;
 
 import javax.annotation.Nullable;
 
+import org.sonar.javascript.ast.visitors.TreeVisitor;
 import org.sonar.javascript.model.implementations.JavaScriptTree;
 import org.sonar.javascript.model.implementations.lexical.InternalSyntaxToken;
 import org.sonar.javascript.model.interfaces.Tree;
@@ -120,4 +121,8 @@ public class IfStatementTreeImpl extends JavaScriptTree implements IfStatementTr
     }
   }
 
+  @Override
+  public void accept(TreeVisitor visitor) {
+    visitor.visitIfStatement(this);
+  }
 }

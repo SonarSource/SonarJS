@@ -21,6 +21,7 @@ package org.sonar.javascript.model.implementations.expression;
 
 import com.google.common.collect.Iterators;
 import com.sonar.sslr.api.AstNode;
+import org.sonar.javascript.ast.visitors.TreeVisitor;
 import org.sonar.javascript.model.implementations.JavaScriptTree;
 import org.sonar.javascript.model.implementations.lexical.InternalSyntaxToken;
 import org.sonar.javascript.model.interfaces.Tree;
@@ -83,4 +84,8 @@ public class TemplateExpressionTreeImpl extends JavaScriptTree implements Templa
     return Iterators.<Tree>singletonIterator(expression);
   }
 
+  @Override
+  public void accept(TreeVisitor visitor) {
+    visitor.visitTemplateExpression(this);
+  }
 }

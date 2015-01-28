@@ -23,6 +23,7 @@ import java.util.List;
 
 import javax.annotation.Nullable;
 
+import org.sonar.javascript.JavaScriptFileScanner;
 import org.sonar.javascript.model.interfaces.declaration.ScriptTree;
 import org.sonar.squidbridge.SquidAstVisitor;
 import org.sonar.squidbridge.api.SourceFile;
@@ -32,9 +33,9 @@ import com.sonar.sslr.api.AstNode;
 
 public class VisitorsBridge extends SquidAstVisitor<LexerlessGrammar> {
 
-  private final List<SubscriptionAstTreeVisitor> scanners;
+  private final List<JavaScriptFileScanner> scanners;
 
-  public VisitorsBridge(List<SubscriptionAstTreeVisitor> visitors) {
+  public VisitorsBridge(List<JavaScriptFileScanner> visitors) {
     this.scanners = visitors;
   }
 
@@ -42,7 +43,7 @@ public class VisitorsBridge extends SquidAstVisitor<LexerlessGrammar> {
   public void visitFile(@Nullable AstNode astNode) {
     if (astNode != null) {
       ScriptTree tree = (ScriptTree) astNode;
-      for (SubscriptionAstTreeVisitor scanner : scanners) {
+      for (JavaScriptFileScanner scanner : scanners) {
         scanner.scanFile(new AstTreeVisitorContextImpl(tree, (SourceFile) getContext().peekSourceCode(), getContext().getFile()));
       }
     }

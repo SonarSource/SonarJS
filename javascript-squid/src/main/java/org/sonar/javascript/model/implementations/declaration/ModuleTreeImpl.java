@@ -23,6 +23,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import com.sonar.sslr.api.AstNode;
+import org.sonar.javascript.ast.visitors.TreeVisitor;
 import org.sonar.javascript.model.implementations.JavaScriptTree;
 import org.sonar.javascript.model.implementations.expression.LiteralTreeImpl;
 import org.sonar.javascript.model.implementations.lexical.InternalSyntaxToken;
@@ -64,4 +65,8 @@ public class ModuleTreeImpl extends JavaScriptTree implements ModuleTree {
     return Iterators.concat(items.iterator());
   }
 
+  @Override
+  public void accept(TreeVisitor visitor) {
+    visitor.visitModule(this);
+  }
 }

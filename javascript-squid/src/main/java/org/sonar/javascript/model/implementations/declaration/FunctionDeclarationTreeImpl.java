@@ -20,6 +20,7 @@
 package org.sonar.javascript.model.implementations.declaration;
 
 import com.google.common.collect.Iterators;
+import org.sonar.javascript.ast.visitors.TreeVisitor;
 import org.sonar.javascript.model.implementations.JavaScriptTree;
 import org.sonar.javascript.model.implementations.expression.IdentifierTreeImpl;
 import org.sonar.javascript.model.implementations.lexical.InternalSyntaxToken;
@@ -104,4 +105,8 @@ public class FunctionDeclarationTreeImpl extends JavaScriptTree implements Funct
     return Iterators.forArray(name, parameters, body);
   }
 
+  @Override
+  public void accept(TreeVisitor visitor) {
+    visitor.visitFunctionDeclaration(this);
+  }
 }

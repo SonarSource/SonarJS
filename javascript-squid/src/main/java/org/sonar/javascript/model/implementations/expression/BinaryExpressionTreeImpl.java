@@ -22,6 +22,7 @@ package org.sonar.javascript.model.implementations.expression;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Iterators;
 import com.sonar.sslr.api.AstNode;
+import org.sonar.javascript.ast.visitors.TreeVisitor;
 import org.sonar.javascript.model.implementations.JavaScriptTree;
 import org.sonar.javascript.model.implementations.lexical.InternalSyntaxToken;
 import org.sonar.javascript.model.interfaces.Tree;
@@ -73,4 +74,8 @@ public class BinaryExpressionTreeImpl extends JavaScriptTree implements BinaryEx
     return Iterators.<Tree>forArray(leftOperand, rightOperand);
   }
 
+  @Override
+  public void accept(TreeVisitor visitor) {
+    visitor.visitBinaryExpression(this);
+  }
 }

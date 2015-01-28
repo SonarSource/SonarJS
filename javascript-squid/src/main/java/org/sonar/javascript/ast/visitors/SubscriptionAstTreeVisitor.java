@@ -23,14 +23,13 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
+import org.sonar.javascript.JavaScriptFileScanner;
 import org.sonar.javascript.model.implementations.JavaScriptTree;
 import org.sonar.javascript.model.interfaces.Tree;
-import org.sonar.javascript.model.interfaces.declaration.ScriptTree;
 import org.sonar.javascript.model.interfaces.lexical.SyntaxToken;
 import org.sonar.javascript.model.interfaces.lexical.SyntaxTrivia;
-import org.sonar.squidbridge.api.CodeVisitor;
 
-public abstract class SubscriptionAstTreeVisitor implements CodeVisitor {
+public abstract class SubscriptionAstTreeVisitor implements JavaScriptFileScanner {
 
   private AstTreeVisitorContext context;
   private Collection<Tree.Kind> nodesToVisit;
@@ -61,6 +60,7 @@ public abstract class SubscriptionAstTreeVisitor implements CodeVisitor {
     // default behaviour is to do nothing
   }
 
+  @Override
   public void scanFile(AstTreeVisitorContext context) {
     this.context = context;
     visitFile(context.getTree());

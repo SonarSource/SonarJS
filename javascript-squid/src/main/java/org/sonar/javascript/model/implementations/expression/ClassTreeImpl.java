@@ -24,6 +24,7 @@ import java.util.List;
 
 import javax.annotation.Nullable;
 
+import org.sonar.javascript.ast.visitors.TreeVisitor;
 import org.sonar.javascript.model.implementations.JavaScriptTree;
 import org.sonar.javascript.model.implementations.lexical.InternalSyntaxToken;
 import org.sonar.javascript.model.interfaces.Tree;
@@ -144,4 +145,8 @@ public class ClassTreeImpl extends JavaScriptTree implements ClassTree {
       elements.iterator());
   }
 
+  @Override
+  public void accept(TreeVisitor visitor) {
+    visitor.visitClassDeclaration(this);
+  }
 }

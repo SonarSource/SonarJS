@@ -21,6 +21,7 @@ package org.sonar.javascript.model.implementations.expression;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Iterators;
+import org.sonar.javascript.ast.visitors.TreeVisitor;
 import org.sonar.javascript.model.implementations.JavaScriptTree;
 import org.sonar.javascript.model.implementations.lexical.InternalSyntaxToken;
 import org.sonar.javascript.model.interfaces.Tree;
@@ -58,4 +59,8 @@ public class LiteralTreeImpl extends JavaScriptTree implements LiteralTree {
     return Iterators.<Tree>singletonIterator(token);
   }
 
+  @Override
+  public void accept(TreeVisitor visitor) {
+    visitor.visitLiteral(this);
+  }
 }

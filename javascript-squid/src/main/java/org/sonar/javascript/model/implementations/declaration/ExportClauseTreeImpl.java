@@ -21,6 +21,7 @@ package org.sonar.javascript.model.implementations.declaration;
 
 import com.google.common.collect.Iterators;
 import com.sonar.sslr.api.AstNode;
+import org.sonar.javascript.ast.visitors.TreeVisitor;
 import org.sonar.javascript.model.implementations.JavaScriptTree;
 import org.sonar.javascript.model.interfaces.Tree;
 import org.sonar.javascript.model.interfaces.declaration.ExportClauseTree;
@@ -77,4 +78,8 @@ public class ExportClauseTreeImpl extends JavaScriptTree implements ExportClause
     return Iterators.<Tree>forArray(exports, fromClause);
   }
 
+  @Override
+  public void accept(TreeVisitor visitor) {
+    visitor.visitExportClause(this);
+  }
 }

@@ -40,6 +40,7 @@ import org.sonar.api.scan.filesystem.FileQuery;
 import org.sonar.api.scan.filesystem.ModuleFileSystem;
 import org.sonar.javascript.EcmaScriptConfiguration;
 import org.sonar.javascript.JavaScriptAstScanner;
+import org.sonar.javascript.JavaScriptFileScanner;
 import org.sonar.javascript.api.EcmaScriptMetric;
 import org.sonar.javascript.ast.visitors.SubscriptionAstTreeVisitor;
 import org.sonar.javascript.ast.visitors.VisitorsBridge;
@@ -100,12 +101,12 @@ public class JavaScriptSquidSensor implements Sensor {
     this.context = context;
 
     List<CodeVisitor> astNodeVisitors = Lists.newArrayList();
-    List<SubscriptionAstTreeVisitor> treeVisitors = Lists.newArrayList();
+    List<JavaScriptFileScanner> treeVisitors = Lists.newArrayList();
     Collection<CodeVisitor> squidChecks = annotationCheckFactory.getChecks();
 
     for (CodeVisitor visitor : squidChecks) {
-      if (visitor instanceof SubscriptionAstTreeVisitor) {
-        treeVisitors.add((SubscriptionAstTreeVisitor) visitor);
+      if (visitor instanceof JavaScriptFileScanner) {
+        treeVisitors.add((JavaScriptFileScanner) visitor);
       } else {
         astNodeVisitors.add(visitor);
       }

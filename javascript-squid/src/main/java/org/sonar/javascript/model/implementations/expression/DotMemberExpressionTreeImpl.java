@@ -21,6 +21,7 @@ package org.sonar.javascript.model.implementations.expression;
 
 import com.google.common.collect.Iterators;
 import com.sonar.sslr.api.AstNode;
+import org.sonar.javascript.ast.visitors.TreeVisitor;
 import org.sonar.javascript.model.implementations.JavaScriptTree;
 import org.sonar.javascript.model.implementations.lexical.InternalSyntaxToken;
 import org.sonar.javascript.model.interfaces.Tree;
@@ -77,4 +78,8 @@ public class DotMemberExpressionTreeImpl extends JavaScriptTree implements DotMe
     return Iterators.<Tree>forArray(object, property);
   }
 
+  @Override
+  public void accept(TreeVisitor visitor) {
+    visitor.visitMemberExpression(this);
+  }
 }

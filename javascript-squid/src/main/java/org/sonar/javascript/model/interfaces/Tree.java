@@ -20,6 +20,7 @@
 package org.sonar.javascript.model.interfaces;
 
 import com.sonar.sslr.api.AstNodeType;
+import org.sonar.javascript.ast.visitors.TreeVisitor;
 import org.sonar.javascript.model.implementations.declaration.SpecifierListTreeImpl;
 import org.sonar.javascript.model.interfaces.declaration.AccessorMethodDeclarationTree;
 import org.sonar.javascript.model.interfaces.declaration.ArrayBindingPatternTree;
@@ -102,7 +103,7 @@ public interface Tree {
 
   boolean is(Kind... kind);
 
-//  void accept(TreeVisitor visitor);
+  void accept(TreeVisitor visitor);
 
   public enum Kind implements AstNodeType, GrammarRuleKey {
 

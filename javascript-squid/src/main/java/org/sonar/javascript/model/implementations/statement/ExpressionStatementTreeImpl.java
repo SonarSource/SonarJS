@@ -22,6 +22,7 @@ package org.sonar.javascript.model.implementations.statement;
 import com.google.common.collect.Iterators;
 import com.sonar.sslr.api.AstNode;
 import com.sonar.sslr.api.AstNodeType;
+import org.sonar.javascript.ast.visitors.TreeVisitor;
 import org.sonar.javascript.model.implementations.JavaScriptTree;
 import org.sonar.javascript.model.interfaces.Tree;
 import org.sonar.javascript.model.interfaces.expression.ExpressionTree;
@@ -61,4 +62,8 @@ public class ExpressionStatementTreeImpl extends JavaScriptTree implements Expre
     return Iterators.<Tree>singletonIterator(expression);
   }
 
+  @Override
+  public void accept(TreeVisitor visitor) {
+    visitor.visitExpressionStatement(this);
+  }
 }

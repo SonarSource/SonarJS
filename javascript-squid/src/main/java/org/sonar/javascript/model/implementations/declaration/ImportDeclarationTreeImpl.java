@@ -21,6 +21,7 @@ package org.sonar.javascript.model.implementations.declaration;
 
 import com.google.common.collect.Iterators;
 import com.sonar.sslr.api.AstNode;
+import org.sonar.javascript.ast.visitors.TreeVisitor;
 import org.sonar.javascript.model.implementations.JavaScriptTree;
 import org.sonar.javascript.model.implementations.lexical.InternalSyntaxToken;
 import org.sonar.javascript.model.interfaces.Tree;
@@ -77,4 +78,8 @@ public class ImportDeclarationTreeImpl extends JavaScriptTree implements ImportD
     return Iterators.<Tree>forArray(importClause, fromClause);
   }
 
+  @Override
+  public void accept(TreeVisitor visitor) {
+    visitor.visitImportDeclaration(this);
+  }
 }

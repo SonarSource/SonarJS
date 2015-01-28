@@ -22,6 +22,7 @@ package org.sonar.javascript.model.implementations.declaration;
 import com.google.common.collect.Iterators;
 import com.google.common.collect.Lists;
 import com.sonar.sslr.api.AstNode;
+import org.sonar.javascript.ast.visitors.TreeVisitor;
 import org.sonar.javascript.model.implementations.JavaScriptTree;
 import org.sonar.javascript.model.implementations.SeparatedList;
 import org.sonar.javascript.model.implementations.lexical.InternalSyntaxToken;
@@ -89,4 +90,8 @@ public class ArrayBindingPatternTreeImpl extends JavaScriptTree implements Array
     return Iterators.concat(nonElidedElements.iterator());
   }
 
+  @Override
+  public void accept(TreeVisitor visitor) {
+    visitor.visitArrayBindingPattern(this);
+  }
 }

@@ -20,6 +20,7 @@
 package org.sonar.javascript.model.implementations.expression;
 
 import com.google.common.collect.Iterators;
+import org.sonar.javascript.ast.visitors.TreeVisitor;
 import org.sonar.javascript.model.implementations.JavaScriptTree;
 import org.sonar.javascript.model.interfaces.Tree;
 import org.sonar.javascript.model.interfaces.expression.LiteralTree;
@@ -47,6 +48,11 @@ public class UndefinedTreeImpl extends JavaScriptTree implements LiteralTree {
   @Override
   public Iterator<Tree> childrenIterator() {
     return Iterators.emptyIterator();
+  }
+
+  @Override
+  public void accept(TreeVisitor visitor) {
+    visitor.visitLiteral(this);
   }
 
 }

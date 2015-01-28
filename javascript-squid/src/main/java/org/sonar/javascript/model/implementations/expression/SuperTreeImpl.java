@@ -20,6 +20,7 @@
 package org.sonar.javascript.model.implementations.expression;
 
 import com.google.common.collect.Iterators;
+import org.sonar.javascript.ast.visitors.TreeVisitor;
 import org.sonar.javascript.model.implementations.JavaScriptTree;
 import org.sonar.javascript.model.implementations.lexical.InternalSyntaxToken;
 import org.sonar.javascript.model.interfaces.Tree;
@@ -54,4 +55,8 @@ public class SuperTreeImpl extends JavaScriptTree implements LiteralTree {
       token);
   }
 
+  @Override
+  public void accept(TreeVisitor visitor) {
+    visitor.visitSuper(this);
+  }
 }

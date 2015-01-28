@@ -22,6 +22,7 @@ package org.sonar.javascript.model.implementations.declaration;
 import com.google.common.collect.Iterators;
 import com.sonar.sslr.api.AstNode;
 import org.apache.commons.collections.ListUtils;
+import org.sonar.javascript.ast.visitors.TreeVisitor;
 import org.sonar.javascript.model.implementations.JavaScriptTree;
 import org.sonar.javascript.model.implementations.SeparatedList;
 import org.sonar.javascript.model.implementations.lexical.InternalSyntaxToken;
@@ -96,4 +97,8 @@ public class ParameterListTreeImpl extends JavaScriptTree implements ParameterLi
     return Iterators.<Tree>concat(parameters.iterator());
   }
 
+  @Override
+  public void accept(TreeVisitor visitor) {
+    visitor.visitParameterList(this);
+  }
 }

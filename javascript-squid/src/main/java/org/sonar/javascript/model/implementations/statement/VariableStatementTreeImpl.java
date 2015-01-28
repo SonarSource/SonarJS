@@ -21,6 +21,7 @@ package org.sonar.javascript.model.implementations.statement;
 
 import com.google.common.collect.Iterators;
 import com.sonar.sslr.api.AstNode;
+import org.sonar.javascript.ast.visitors.TreeVisitor;
 import org.sonar.javascript.model.implementations.JavaScriptTree;
 import org.sonar.javascript.model.interfaces.Tree;
 import org.sonar.javascript.model.interfaces.statement.VariableStatementTree;
@@ -60,4 +61,8 @@ public class VariableStatementTreeImpl extends JavaScriptTree implements Variabl
     return Iterators.<Tree>singletonIterator(declaration);
   }
 
+  @Override
+  public void accept(TreeVisitor visitor) {
+    visitor.visitVariableStatement(this);
+  }
 }

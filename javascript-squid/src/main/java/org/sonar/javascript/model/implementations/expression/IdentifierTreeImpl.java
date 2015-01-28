@@ -21,6 +21,7 @@ package org.sonar.javascript.model.implementations.expression;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Iterators;
+import org.sonar.javascript.ast.visitors.TreeVisitor;
 import org.sonar.javascript.model.implementations.JavaScriptTree;
 import org.sonar.javascript.model.implementations.lexical.InternalSyntaxToken;
 import org.sonar.javascript.model.interfaces.Tree;
@@ -72,4 +73,8 @@ public class IdentifierTreeImpl extends JavaScriptTree implements IdentifierTree
     return Iterators.<Tree>singletonIterator(nameToken);
   }
 
+  @Override
+  public void accept(TreeVisitor visitor) {
+    visitor.visitIdentifier(this);
+  }
 }

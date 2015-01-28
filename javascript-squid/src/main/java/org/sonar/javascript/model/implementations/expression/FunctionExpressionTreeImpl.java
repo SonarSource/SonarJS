@@ -23,6 +23,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterators;
 import com.sonar.sslr.api.AstNode;
 import com.sonar.sslr.api.AstNodeType;
+import org.sonar.javascript.ast.visitors.TreeVisitor;
 import org.sonar.javascript.model.implementations.JavaScriptTree;
 import org.sonar.javascript.model.implementations.declaration.ParameterListTreeImpl;
 import org.sonar.javascript.model.implementations.lexical.InternalSyntaxToken;
@@ -169,4 +170,8 @@ public class FunctionExpressionTreeImpl extends JavaScriptTree implements Functi
     return Iterators.forArray(name, parameters, body);
   }
 
+  @Override
+  public void accept(TreeVisitor visitor) {
+    visitor.visitFunctionExpression(this);
+  }
 }

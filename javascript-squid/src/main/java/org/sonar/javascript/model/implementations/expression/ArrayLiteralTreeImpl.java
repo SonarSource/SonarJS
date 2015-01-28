@@ -22,6 +22,7 @@ package org.sonar.javascript.model.implementations.expression;
 import com.google.common.collect.Iterators;
 import com.sonar.sslr.api.AstNode;
 import org.apache.commons.collections.ListUtils;
+import org.sonar.javascript.ast.visitors.TreeVisitor;
 import org.sonar.javascript.model.implementations.JavaScriptTree;
 import org.sonar.javascript.model.implementations.SeparatedList;
 import org.sonar.javascript.model.implementations.lexical.InternalSyntaxToken;
@@ -91,4 +92,8 @@ public class ArrayLiteralTreeImpl extends JavaScriptTree implements ArrayLiteral
     return Iterators.<Tree>concat(elements.iterator());
   }
 
+  @Override
+  public void accept(TreeVisitor visitor) {
+    visitor.visitArrayLiteral(this);
+  }
 }

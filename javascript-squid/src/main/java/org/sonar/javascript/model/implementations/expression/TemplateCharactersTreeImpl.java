@@ -21,6 +21,7 @@ package org.sonar.javascript.model.implementations.expression;
 
 import com.google.common.collect.Iterators;
 import com.sonar.sslr.api.AstNode;
+import org.sonar.javascript.ast.visitors.TreeVisitor;
 import org.sonar.javascript.model.implementations.JavaScriptTree;
 import org.sonar.javascript.model.interfaces.Tree;
 import org.sonar.javascript.model.interfaces.expression.TemplateCharactersTree;
@@ -59,4 +60,8 @@ public class TemplateCharactersTreeImpl extends JavaScriptTree implements Templa
     return Iterators.emptyIterator();
   }
 
+  @Override
+  public void accept(TreeVisitor visitor) {
+    visitor.visitTemplateCharacters(this);
+  }
 }
