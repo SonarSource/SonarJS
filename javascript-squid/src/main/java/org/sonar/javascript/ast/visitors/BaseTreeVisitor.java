@@ -19,12 +19,14 @@
  */
 package org.sonar.javascript.ast.visitors;
 
-import org.sonar.javascript.model.implementations.SeparatedList;
+import java.util.List;
+
+import javax.annotation.Nullable;
+
 import org.sonar.javascript.model.implementations.expression.SuperTreeImpl;
 import org.sonar.javascript.model.interfaces.ModuleTree;
 import org.sonar.javascript.model.interfaces.Tree;
 import org.sonar.javascript.model.interfaces.declaration.ArrayBindingPatternTree;
-import org.sonar.javascript.model.interfaces.declaration.BindingElementTree;
 import org.sonar.javascript.model.interfaces.declaration.BindingPropertyTree;
 import org.sonar.javascript.model.interfaces.declaration.DefaultExportDeclarationTree;
 import org.sonar.javascript.model.interfaces.declaration.ExportClauseTree;
@@ -50,7 +52,6 @@ import org.sonar.javascript.model.interfaces.expression.CallExpressionTree;
 import org.sonar.javascript.model.interfaces.expression.ClassTree;
 import org.sonar.javascript.model.interfaces.expression.ComputedPropertyNameTree;
 import org.sonar.javascript.model.interfaces.expression.ConditionalExpressionTree;
-import org.sonar.javascript.model.interfaces.expression.DotMemberExpressionTree;
 import org.sonar.javascript.model.interfaces.expression.FunctionExpressionTree;
 import org.sonar.javascript.model.interfaces.expression.IdentifierTree;
 import org.sonar.javascript.model.interfaces.expression.LiteralTree;
@@ -93,16 +94,8 @@ import org.sonar.javascript.model.interfaces.statement.WhileStatementTree;
 import org.sonar.javascript.model.interfaces.statement.WithStatementTree;
 import org.sonar.javascript.parser.sslr.Optional;
 
-import javax.annotation.Nullable;
-import java.util.List;
-
 public class BaseTreeVisitor implements TreeVisitor {
 
-  protected void scan(List<? extends Tree> trees) {
-    for (Tree tree : trees) {
-      scan(tree);
-    }
-  }
 
   protected void scan(@Nullable Tree tree) {
     if (tree != null) {
@@ -110,9 +103,25 @@ public class BaseTreeVisitor implements TreeVisitor {
     }
   }
 
-  protected void scan(SeparatedList<? extends Tree> trees) {
-    for (Tree tree : trees) {
-      scan(tree);
+  protected <T> void scan(List<T> trees) {
+    for (T tree : trees) {
+
+      if (tree instanceof Optional) {
+        scan((Optional) tree);
+
+      } else if (tree instanceof Tree) {
+        scan((Tree) tree);
+
+      } else {
+        // FIXME martin
+        throw new IllegalArgumentException("List element type should be Optional or Tree.");
+      }
+    }
+  }
+
+  private void scan(Optional<Tree> tree) {
+    if (tree.isPresent()) {
+      scan(tree.get());
     }
   }
 
@@ -227,7 +236,9 @@ public class BaseTreeVisitor implements TreeVisitor {
   }
 
   public void visitForInStatement(ForInStatementTree tree) {
-
+    scan(tree.variableOrExpression());
+    scan(tree.expression());
+    scan(tree.statement());
   }
 
   public void visitForOfStatement(ForOfStatementTree tree) {
@@ -303,11 +314,11 @@ public class BaseTreeVisitor implements TreeVisitor {
   }
 
   public void visitArrayBindingPattern(ArrayBindingPatternTree tree) {
-    // FIXME
+    scan(tree.elements());
   }
 
   public void visitObjectBindingPattern(ObjectBindingPatternTree tree) {
-    // FIXME
+    scan(tree.elements());
   }
 
   public void visitObjectLiteral(ObjectLiteralTree tree) {
