@@ -19,15 +19,155 @@
  */
 package org.sonar.javascript.checks;
 
+import javax.annotation.Nullable;
+
+import org.sonar.check.BelongsToProfile;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
-import org.sonar.squidbridge.checks.SquidCheck;
-import org.sonar.sslr.parser.LexerlessGrammar;
+import org.sonar.javascript.JavaScriptFileScanner;
+import org.sonar.javascript.ast.visitors.AstTreeVisitorContext;
+import org.sonar.javascript.ast.visitors.BaseTreeVisitor;
+import org.sonar.javascript.model.interfaces.Tree;
+import org.sonar.javascript.model.interfaces.Tree.Kind;
+import org.sonar.javascript.model.interfaces.declaration.InitializedBindingElementTree;
+import org.sonar.javascript.model.interfaces.expression.ArrowFunctionTree;
+import org.sonar.javascript.model.interfaces.expression.AssignmentExpressionTree;
+import org.sonar.javascript.model.interfaces.expression.BinaryExpressionTree;
+import org.sonar.javascript.model.interfaces.expression.ExpressionTree;
+import org.sonar.javascript.model.interfaces.expression.ParenthesisedExpressionTree;
+import org.sonar.javascript.model.interfaces.statement.ExpressionStatementTree;
+import org.sonar.javascript.model.interfaces.statement.ForStatementTree;
 
 @Rule(
   key = "AssignmentWithinCondition",
   priority = Priority.MAJOR)
-// FIXME: SONARJS-309 Fix and re-introduce the rule
-//@BelongsToProfile(title = CheckList.SONAR_WAY_PROFILE, priority = Priority.MAJOR)
-public class AssignmentWithinConditionCheck extends SquidCheck<LexerlessGrammar> {
+@BelongsToProfile(title = CheckList.SONAR_WAY_PROFILE, priority = Priority.MAJOR)
+public class AssignmentWithinConditionCheck extends BaseTreeVisitor implements JavaScriptFileScanner {
+
+  // FIXME martin: handle in an interface
+  private AstTreeVisitorContext context;
+
+  @Override
+  public void scanFile(AstTreeVisitorContext context) {
+    this.context = context;
+    scan(context.getTree());
+  }
+
+  @Override
+  public void visitInitializedBindingElement(InitializedBindingElementTree tree) {
+    scan(tree.left());
+    visitInitialisationExpression(tree.right());
+
+  }
+
+  private void visitInitialisationExpression(ExpressionTree left) {
+    if (left instanceof AssignmentExpressionTree) {
+      scan(((AssignmentExpressionTree) left).variable());
+      visitInitialisationExpression(((AssignmentExpressionTree) left).expression());
+
+    } else {
+      scan(left);
+    }
+  }
+
+  @Override
+  public void visitForStatement(ForStatementTree tree) {
+    visitCommaOperatorExpression(tree.init());
+    scan(tree.condition());
+    scan(tree.statement());
+  }
+
+  @Override
+  public void visitArrowFunction(ArrowFunctionTree lambdaExpressionTree) {
+    // skip arrow function if body is an assignement
+    if (!(lambdaExpressionTree.conciseBody() instanceof AssignmentExpressionTree)) {
+      super.visitArrowFunction(lambdaExpressionTree);
+    }
+  }
+
+  @Override
+  public void visitExpressionStatement(ExpressionStatementTree tree) {
+    Tree expressionTree = tree.expression();
+
+    if (expressionTree.is(Kind.COMMA_OPERATOR)) {
+      visitCommaOperatorExpression(((BinaryExpressionTree) expressionTree).leftOperand());
+      visitCommaOperatorExpression(((BinaryExpressionTree) expressionTree).rightOperand());
+
+    } else {
+      while (expressionTree instanceof AssignmentExpressionTree) {
+        AssignmentExpressionTree assignmentExpressionTree = (AssignmentExpressionTree) expressionTree;
+        scan(assignmentExpressionTree.variable());
+        expressionTree = assignmentExpressionTree.expression();
+      }
+
+      scan(expressionTree);
+    }
+  }
+
+  public void visitCommaOperatorExpression(Tree expression) {
+    if (expression == null) {
+      return;
+    }
+
+    if (expression.is(Kind.COMMA_OPERATOR)) {
+      visitCommaOperatorExpression(((BinaryExpressionTree) expression).leftOperand());
+      visitCommaOperatorExpression(((BinaryExpressionTree) expression).rightOperand());
+
+    } else if (expression instanceof AssignmentExpressionTree) {
+      super.visitAssignmentExpression((AssignmentExpressionTree) expression);
+
+    } else {
+      scan(expression);
+    }
+  }
+
+  @Override
+  public void visitBinaryExpression(BinaryExpressionTree tree) {
+    if (isRelationalExpression(tree)) {
+      visitInnerExpression(tree.leftOperand());
+      visitInnerExpression(tree.rightOperand());
+    } else {
+      super.visitBinaryExpression(tree);
+    }
+  }
+
+  private void visitInnerExpression(ExpressionTree tree) {
+    AssignmentExpressionTree assignmentExpressionTree = getInnerAssignmentExpression(tree);
+    if (assignmentExpressionTree != null) {
+      super.visitAssignmentExpression(assignmentExpressionTree);
+    } else {
+      scan(tree);
+    }
+  }
+
+  @Nullable
+  private static AssignmentExpressionTree getInnerAssignmentExpression(ExpressionTree tree) {
+    if (tree.is(Kind.PARENTHESISED_EXPRESSION)) {
+      ParenthesisedExpressionTree parenthesizedTree = (ParenthesisedExpressionTree) tree;
+
+      if (parenthesizedTree.expression() instanceof AssignmentExpressionTree) {
+        return (AssignmentExpressionTree) parenthesizedTree.expression();
+      }
+    }
+    return null;
+  }
+
+  private static boolean isRelationalExpression(Tree tree) {
+    return tree.is(Kind.EQUAL_TO) ||
+      tree.is(Kind.STRICT_EQUAL_TO) ||
+      tree.is(Kind.NOT_EQUAL_TO) ||
+      tree.is(Kind.STRICT_NOT_EQUAL_TO) ||
+      tree.is(Kind.LESS_THAN) ||
+      tree.is(Kind.LESS_THAN_OR_EQUAL_TO) ||
+      tree.is(Kind.GREATER_THAN) ||
+      tree.is(Kind.GREATER_THAN_OR_EQUAL_TO) ||
+      tree.is(Kind.RELATIONAL_IN);
+  }
+
+  @Override
+  public void visitAssignmentExpression(AssignmentExpressionTree tree) {
+    super.visitAssignmentExpression(tree);
+
+    context.addIssue(this, tree, "Extract the assignment out of this expression.");
+  }
 }
