@@ -125,109 +125,133 @@ public class BaseTreeVisitor implements TreeVisitor {
     }
   }
 
+  @Override
   public void visitScript(ScriptTree tree) {
     scan(tree.items());
   }
 
+  @Override
   public void visitModule(ModuleTree tree) {
     scan(tree.items());
   }
 
+  @Override
   public void visitImportDeclaration(ImportDeclarationTree tree) {
     scan(tree.importClause());
     scan(tree.fromClause());
   }
 
+  @Override
   public void visitImportModuletDeclaration(ImportModuleDeclarationTree tree) {
     scan(tree.moduleName());
   }
 
+  @Override
   public void visitImportClause(ImportClauseTree tree) {
     scan(tree.namedImport());
   }
 
+  @Override
   public void visitSpecifierList(SpecifierListTree tree) {
     scan(tree.specifiers());
   }
 
+  @Override
   public void visitSpecifier(SpecifierTree tree) {
     scan(tree.name());
     scan(tree.localName());
   }
 
+  @Override
   public void visitFromClause(FromClauseTree tree) {
     scan(tree.module());
   }
 
+  @Override
   public void visitDefaultExportDeclaration(DefaultExportDeclarationTree tree) {
     scan(tree.object());
   }
 
+  @Override
   public void visitNameSpaceExportDeclaration(NameSpaceExportDeclarationTree tree) {
     scan(tree.fromClause());
   }
 
+  @Override
   public void visitNamedExportDeclaration(NamedExportDeclarationTree tree) {
     scan(tree.object());
   }
 
+  @Override
   public void visitVariableStatement(VariableStatementTree tree) {
     scan(tree.declaration());
   }
 
+  @Override
   public void visitVariableDeclaration(VariableDeclarationTree tree) {
     scan(tree.variables());
   }
 
+  @Override
   public void visitClassDeclaration(ClassTree tree) {
     scan(tree.name());
     scan(tree.superClass());
     scan(tree.elements());
   }
 
+  @Override
   public void visitMethodDeclaration(MethodDeclarationTree tree) {
     scan(tree.name());
     scan(tree.parameters());
     scan(tree.body());
   }
 
+  @Override
   public void visitParameterList(ParameterListTree tree) {
     scan(tree.parameters());
   }
 
+  @Override
   public void visitFunctionDeclaration(FunctionDeclarationTree tree) {
     scan(tree.name());
     scan(tree.parameters());
     scan(tree.body());
   }
 
+  @Override
   public void visitBlock(BlockTree tree) {
     scan(tree.statements());
   }
 
+  @Override
   public void visitEmptyStatement(EmptyStatementTree tree) {
     // no subtrees
   }
 
+  @Override
   public void visitLabelledStatement(LabelledStatementTree tree) {
     scan(tree.label());
     scan(tree.statement());
   }
 
+  @Override
   public void visitExpressionStatement(ExpressionStatementTree tree) {
     scan(tree.expression());
   }
 
+  @Override
   public void visitIfStatement(IfStatementTree tree) {
     scan(tree.condition());
     scan(tree.thenStatement());
     scan(tree.elseClause());
   }
 
+  @Override
   public void visitElseClause(ElseClauseTree tree) {
     scan(tree.statement());
   }
 
+  @Override
   public void visitForStatement(ForStatementTree tree) {
     scan(tree.init());
     scan(tree.condition());
@@ -235,49 +259,59 @@ public class BaseTreeVisitor implements TreeVisitor {
     scan(tree.statement());
   }
 
+  @Override
   public void visitForInStatement(ForInStatementTree tree) {
     scan(tree.variableOrExpression());
     scan(tree.expression());
     scan(tree.statement());
   }
 
+  @Override
   public void visitForOfStatement(ForOfStatementTree tree) {
     scan(tree.variableOrExpression());
     scan(tree.expression());
     scan(tree.statement());
   }
 
+  @Override
   public void visitWhileStatement(WhileStatementTree tree) {
     scan(tree.condition());
     scan(tree.statement());
   }
 
+  @Override
   public void visitDoWhileStatement(DoWhileStatementTree tree) {
     scan(tree.statement());
     scan(tree.condition());
   }
 
+  @Override
   public void visitContinueStatement(ContinueStatementTree tree) {
     scan(tree.label());
   }
 
+  @Override
   public void visitIdentifier(IdentifierTree tree) {
     // no sub-tree
   }
 
+  @Override
   public void visitBreakStatement(BreakStatementTree tree) {
     scan(tree.label());
   }
 
+  @Override
   public void visitReturnStatement(ReturnStatementTree tree) {
     scan(tree.expression());
   }
 
+  @Override
   public void visitWithStatement(WithStatementTree tree) {
     scan(tree.expression());
     scan(tree.statement());
   }
 
+  @Override
   public void visitSwitchStatement(SwitchStatementTree tree) {
     scan(tree.expression());
     scan(tree.cases());
@@ -294,134 +328,163 @@ public class BaseTreeVisitor implements TreeVisitor {
     scan(tree.statements());
   }
 
+  @Override
   public void visitThrowStatement(ThrowStatementTree tree) {
     scan(tree.expression());
   }
 
+  @Override
   public void visitTryStatement(TryStatementTree tree) {
     scan(tree.block());
     scan(tree.catchBlock());
     scan(tree.finallyBlock());
   }
 
+  @Override
   public void visitCatchBlock(CatchBlockTree tree) {
     scan(tree.parameter());
     scan(tree.block());
   }
 
+  @Override
   public void visitDebugger(DebuggerStatementTree tree) {
     // no sub tree
   }
 
+  @Override
   public void visitArrayBindingPattern(ArrayBindingPatternTree tree) {
     scan(tree.elements());
   }
 
+  @Override
   public void visitObjectBindingPattern(ObjectBindingPatternTree tree) {
     scan(tree.elements());
   }
 
+  @Override
   public void visitObjectLiteral(ObjectLiteralTree tree) {
     scan(tree.properties());
   }
 
+  @Override
   public void visitBindingProperty(BindingPropertyTree tree) {
     scan(tree.name());
     scan(tree.value());
   }
 
+  @Override
   public void visitInitializedBindingElement(InitializedBindingElementTree tree) {
     scan(tree.left());
     scan(tree.right());
   }
 
+  @Override
   public void visitLiteral(LiteralTree tree) {
     // no sub-tree
   }
 
+  @Override
   public void visitArrayLiteral(ArrayLiteralTree tree) {
     scan(tree.elements());
   }
 
+  @Override
   public void visitAssignmentExpression(AssignmentExpressionTree tree) {
     scan(tree.variable());
     scan(tree.expression());
   }
 
+  @Override
   public void visitConditionalExpression(ConditionalExpressionTree tree) {
     scan(tree.condition());
     scan(tree.trueExpression());
     scan(tree.falseExpression());
   }
 
+  @Override
   public void visitArrowFunction(ArrowFunctionTree tree) {
     scan(tree.parameters());
     scan(tree.conciseBody());
   }
 
+  @Override
   public void visitYieldExpression(YieldExpressionTree tree) {
     scan(tree.argument());
   }
 
+  @Override
   public void visitBinaryExpression(BinaryExpressionTree tree) {
     scan(tree.leftOperand());
     scan(tree.rightOperand());
   }
 
+  @Override
   public void visitUnaryExpression(UnaryExpressionTree tree) {
     scan(tree.expression());
   }
 
+  @Override
   public void visitMemberExpression(MemberExpressionTree tree) {
     scan(tree.object());
     scan(tree.property());
   }
 
+  @Override
   public void visitTaggedTemplate(TaggedTemplateTree tree) {
     scan(tree.callee());
     scan(tree.template());
   }
 
+  @Override
   public void visitCallExpression(CallExpressionTree tree) {
     scan(tree.callee());
     scan(tree.arguments());
   }
 
+  @Override
   public void visitTemplateLiteral(TemplateLiteralTree tree) {
     scan(tree.strings());
     scan(tree.expressions());
   }
 
+  @Override
   public void visitTemplateExpression(TemplateExpressionTree tree) {
     scan(tree.expression());
   }
 
+  @Override
   public void visitTemplateCharacters(TemplateCharactersTree tree) {
     // no sub-tree
   }
 
+  @Override
   public void visitParenthesisedExpression(ParenthesisedExpressionTree tree) {
     scan(tree.expression());
   }
 
+  @Override
   public void visitComputedPropertyName(ComputedPropertyNameTree tree) {
     scan(tree.expression());
   }
 
+  @Override
   public void visitPairProperty(PairPropertyTree tree) {
     scan(tree.key());
     scan(tree.value());
   }
 
+  @Override
   public void visitNewExpression(NewExpressionTree tree) {
     scan(tree.expression());
     scan(tree.arguments());
   }
 
+  @Override
   public void visitThisTree(ThisTree tree) {
     // no sub-tree
   }
 
+  @Override
   public void visitFunctionExpression(FunctionExpressionTree tree) {
     scan(tree.name());
     scan(tree.parameters());
