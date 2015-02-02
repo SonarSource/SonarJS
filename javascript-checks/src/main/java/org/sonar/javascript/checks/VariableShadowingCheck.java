@@ -98,7 +98,7 @@ public class VariableShadowingCheck extends SquidCheck<LexerlessGrammar> {
     if (CheckUtils.isFunction(astNode)) {
       // enter new scope
       currentScope = scopes.get(astNode);
-    } else if (astNode.is(Kind.FORMAL_PARAMETER_LIST) && !astNode.getParent().is(NEW_NODES_USING_FORMAL_PARAMETER_LIST)) {
+    } else if (astNode.is(Kind.FORMAL_PARAMETER_LIST)) {
       checkIdentifiers(((ParameterListTreeImpl) astNode).parameterIdentifiers());
     } else if (astNode.is(CONST_AND_VAR_NODES)) {
       checkIdentifiers(((VariableDeclarationTreeImpl) astNode).variableIdentifiers());
@@ -161,7 +161,7 @@ public class VariableShadowingCheck extends SquidCheck<LexerlessGrammar> {
         // enter new scope
         currentScope = new Scope(currentScope);
         scopes.put(astNode, currentScope);
-      } else if (astNode.is(Kind.FORMAL_PARAMETER_LIST) && !astNode.getParent().is(NEW_NODES_USING_FORMAL_PARAMETER_LIST)) {
+      } else if (astNode.is(Kind.FORMAL_PARAMETER_LIST)) {
         declareInCurrentScope(((ParameterListTreeImpl) astNode).parameterIdentifiers());
       } else if (astNode.is(CONST_AND_VAR_NODES)) {
         declareInCurrentScope(((VariableDeclarationTreeImpl) astNode).variableIdentifiers());

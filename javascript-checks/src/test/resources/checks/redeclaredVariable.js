@@ -51,3 +51,13 @@ function f() {
 
     for (var a in arr) { }
 }
+
+var obj = {
+    set x(x) {
+        var c;
+    },
+
+    set y (y) {
+         var c;   // OK
+    }
+};

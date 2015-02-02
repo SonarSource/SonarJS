@@ -36,3 +36,14 @@ class C {
 var a = () => {
     var x;             // NOK
 };
+
+var obj = {
+
+    get x () {
+        var c;
+    },
+
+    doSomething () {
+        var c;         // OK
+    }
+}
