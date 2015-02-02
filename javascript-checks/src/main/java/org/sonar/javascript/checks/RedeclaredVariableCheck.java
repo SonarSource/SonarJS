@@ -19,15 +19,99 @@
  */
 package org.sonar.javascript.checks;
 
+import com.sonar.sslr.api.AstNode;
 import org.sonar.check.BelongsToProfile;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
+import org.sonar.javascript.checks.utils.CheckUtils;
+import org.sonar.javascript.model.implementations.declaration.ParameterListTreeImpl;
+import org.sonar.javascript.model.implementations.statement.VariableDeclarationTreeImpl;
+import org.sonar.javascript.model.interfaces.Tree;
+import org.sonar.javascript.model.interfaces.Tree.Kind;
+import org.sonar.javascript.model.interfaces.expression.ArrowFunctionTree;
+import org.sonar.javascript.model.interfaces.expression.IdentifierTree;
 import org.sonar.squidbridge.checks.SquidCheck;
 import org.sonar.sslr.parser.LexerlessGrammar;
+
+import java.util.HashSet;
+import java.util.Set;
+import java.util.Stack;
 
 @Rule(
   key = "RedeclaredVariable",
   priority = Priority.MAJOR)
 @BelongsToProfile(title = CheckList.SONAR_WAY_PROFILE, priority = Priority.MAJOR)
 public class RedeclaredVariableCheck extends SquidCheck<LexerlessGrammar> {
+
+  private Stack<Set<String>> stack;
+
+  @Override
+  public void init() {
+    subscribeTo(
+      Kind.VAR_DECLARATION,
+      Kind.LET_DECLARATION,
+      Kind.CONST_DECLARATION);
+    subscribeTo(CheckUtils.functionNodesArray());
+  }
+
+  @Override
+  public void visitFile(AstNode astNode) {
+    stack = new Stack<Set<String>>();
+    stack.add(new HashSet<String>());
+  }
+
+  @Override
+  public void visitNode(AstNode astNode) {
+    if (CheckUtils.isFunction(astNode)) {
+      Set<String> currentScope = new HashSet<String>();
+      stack.add(currentScope);
+      addParametersToScope(astNode, currentScope);
+    } else {
+      Set<String> currentScope = stack.peek();
+
+      for (IdentifierTree identifier : ((VariableDeclarationTreeImpl) astNode).variableIdentifiers()) {
+        String variableName = identifier.name();
+
+        if (currentScope.contains(variableName)) {
+          getContext().createLineViolation(this, "Rename variable \"" + variableName + "\" as this name is already used.", (AstNode) identifier);
+        } else {
+          currentScope.add(variableName);
+        }
+      }
+    }
+  }
+
+  @Override
+  public void leaveNode(AstNode astNode) {
+    if (CheckUtils.isFunction(astNode)) {
+      stack.pop();
+    }
+  }
+
+  @Override
+  public void leaveFile(AstNode astNode) {
+    stack = null;
+  }
+
+  private void addParametersToScope(AstNode functionNode, Set<String> currentScope) {
+    if (functionNode.is(Kind.ARROW_FUNCTION)) {
+      addArrowParametersToScope(((ArrowFunctionTree) functionNode).parameters(), currentScope);
+    } else {
+      addFormalParametersToScope((ParameterListTreeImpl) functionNode.getFirstChild(Kind.FORMAL_PARAMETER_LIST), currentScope);
+    }
+  }
+
+  private void addArrowParametersToScope(Tree parameters, Set<String> currentScope) {
+    if (parameters.is(Kind.FORMAL_PARAMETER_LIST)) {
+      for (IdentifierTree identifier : ((ParameterListTreeImpl) parameters).parameterIdentifiers()) {
+        currentScope.add(identifier.name());
+      }
+    }
+  }
+
+  private void addFormalParametersToScope(ParameterListTreeImpl formalParameterList, Set<String> currentScope) {
+      for (IdentifierTree identifier : formalParameterList.parameterIdentifiers()) {
+        currentScope.add(identifier.name());
+      }
+  }
 }

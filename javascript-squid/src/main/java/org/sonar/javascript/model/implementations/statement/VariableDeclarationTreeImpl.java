@@ -20,13 +20,18 @@
 package org.sonar.javascript.model.implementations.statement;
 
 import com.google.common.collect.Iterators;
+import com.google.common.collect.Lists;
 import com.sonar.sslr.api.AstNode;
 import org.sonar.javascript.ast.visitors.TreeVisitor;
 import org.sonar.javascript.model.implementations.JavaScriptTree;
 import org.sonar.javascript.model.implementations.SeparatedList;
+import org.sonar.javascript.model.implementations.declaration.ArrayBindingPatternTreeImpl;
+import org.sonar.javascript.model.implementations.declaration.InitializedBindingElementTreeImpl;
+import org.sonar.javascript.model.implementations.declaration.ObjectBindingPatternTreeImpl;
 import org.sonar.javascript.model.implementations.lexical.InternalSyntaxToken;
 import org.sonar.javascript.model.interfaces.Tree;
 import org.sonar.javascript.model.interfaces.declaration.BindingElementTree;
+import org.sonar.javascript.model.interfaces.expression.IdentifierTree;
 import org.sonar.javascript.model.interfaces.lexical.SyntaxToken;
 import org.sonar.javascript.model.interfaces.statement.VariableDeclarationTree;
 
@@ -75,5 +80,26 @@ public class VariableDeclarationTreeImpl extends JavaScriptTree implements Varia
   @Override
   public void accept(TreeVisitor visitor) {
     visitor.visitVariableDeclaration(this);
+  }
+
+  public List<IdentifierTree> variableIdentifiers() {
+    List<IdentifierTree> identifiers = Lists.newArrayList();
+
+    for (Tree parameter : variables) {
+
+      if (parameter.is(Tree.Kind.BINDING_IDENTIFIER)) {
+        identifiers.add((IdentifierTree) parameter);
+
+      } else if (parameter.is(Tree.Kind.INITIALIZED_BINDING_ELEMENT)) {
+        identifiers.addAll(((InitializedBindingElementTreeImpl) parameter).bindingIdentifiers());
+
+      } else if (parameter.is(Tree.Kind.OBJECT_BINDING_PATTERN)) {
+        identifiers.addAll(((ObjectBindingPatternTreeImpl) parameter).bindingIdentifiers());
+
+      } else {
+        identifiers.addAll(((ArrayBindingPatternTreeImpl) parameter).bindingIdentifiers());
+      }
+    }
+    return identifiers;
   }
 }

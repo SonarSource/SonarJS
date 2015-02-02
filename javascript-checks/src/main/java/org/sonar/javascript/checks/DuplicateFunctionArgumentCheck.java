@@ -19,15 +19,47 @@
  */
 package org.sonar.javascript.checks;
 
+import com.google.common.collect.Sets;
+import com.sonar.sslr.api.AstNode;
 import org.sonar.check.BelongsToProfile;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
+import org.sonar.javascript.model.implementations.declaration.ParameterListTreeImpl;
+import org.sonar.javascript.model.interfaces.Tree;
+import org.sonar.javascript.model.interfaces.expression.IdentifierTree;
 import org.sonar.squidbridge.checks.SquidCheck;
 import org.sonar.sslr.parser.LexerlessGrammar;
+
+import java.util.Set;
 
 @Rule(
   key = "DuplicateFunctionArgument",
   priority = Priority.CRITICAL)
 @BelongsToProfile(title = CheckList.SONAR_WAY_PROFILE, priority = Priority.CRITICAL)
 public class DuplicateFunctionArgumentCheck extends SquidCheck<LexerlessGrammar> {
+
+  @Override
+  public void init() {
+    subscribeTo(Tree.Kind.FORMAL_PARAMETER_LIST);
+  }
+
+  @Override
+  public void visitNode(AstNode astNode) {
+    Set<String> values = Sets.newHashSet();
+
+    for (IdentifierTree identifier : ((ParameterListTreeImpl) astNode).parameterIdentifiers()) {
+      checkIdentifier((AstNode) identifier, identifier.name(), values);
+    }
+  }
+
+  private void checkIdentifier(AstNode identifier, String value, Set<String> values) {
+    String unescaped = EscapeUtils.unescape(value);
+
+    if (values.contains(unescaped)) {
+      getContext().createLineViolation(this, "Rename or remove duplicate function argument '" + value + "'.", identifier);
+    } else {
+      values.add(unescaped);
+    }
+  }
+
 }
