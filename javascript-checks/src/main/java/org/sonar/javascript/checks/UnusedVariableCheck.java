@@ -24,7 +24,6 @@ import com.sonar.sslr.api.AstNode;
 import org.sonar.check.BelongsToProfile;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
-import org.sonar.javascript.checks.utils.CheckUtils;
 import org.sonar.javascript.model.implementations.declaration.ParameterListTreeImpl;
 import org.sonar.javascript.model.implementations.statement.VariableDeclarationTreeImpl;
 import org.sonar.javascript.model.interfaces.Tree.Kind;
@@ -83,11 +82,21 @@ public class UnusedVariableCheck extends SquidCheck<LexerlessGrammar> {
       variables.put(identifier, new Variable(astNode, 1));
     }
   }
+  public static final GrammarRuleKey[] FUNCTION_NODES = {
+    Kind.FUNCTION_EXPRESSION,
+    Kind.FUNCTION_DECLARATION,
+    Kind.METHOD,
+    Kind.GENERATOR_METHOD,
+    Kind.GENERATOR_DECLARATION,
+    Kind.GENERATOR_FUNCTION_EXPRESSION,
+    Kind.ARROW_FUNCTION
+  };
 
   private static final GrammarRuleKey[] CONST_AND_VAR_NODES = {
     Kind.VAR_DECLARATION,
     Kind.LET_DECLARATION,
-    Kind.CONST_DECLARATION};
+    Kind.CONST_DECLARATION
+  };
 
   private Scope currentScope;
 
@@ -98,7 +107,7 @@ public class UnusedVariableCheck extends SquidCheck<LexerlessGrammar> {
       Kind.FORMAL_PARAMETER_LIST,
       Kind.ARROW_FUNCTION);
     subscribeTo(CONST_AND_VAR_NODES);
-    subscribeTo(CheckUtils.functionNodesArray());
+    subscribeTo(FUNCTION_NODES);
   }
 
   @Override
@@ -108,7 +117,7 @@ public class UnusedVariableCheck extends SquidCheck<LexerlessGrammar> {
 
   @Override
   public void visitNode(AstNode astNode) {
-    if (CheckUtils.isFunction(astNode)) {
+    if (astNode.is(FUNCTION_NODES)) {
       // enter new scope
       currentScope = new Scope(currentScope);
 
@@ -132,7 +141,7 @@ public class UnusedVariableCheck extends SquidCheck<LexerlessGrammar> {
 
   @Override
   public void leaveNode(AstNode astNode) {
-    if (CheckUtils.isFunction(astNode)) {
+    if (astNode.is(FUNCTION_NODES)) {
       // leave scope
       for (Map.Entry<String, Variable> entry : currentScope.variables.entrySet()) {
         if (entry.getValue().usages == 0) {
