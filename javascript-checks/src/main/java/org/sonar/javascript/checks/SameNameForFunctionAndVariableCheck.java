@@ -19,15 +19,105 @@
  */
 package org.sonar.javascript.checks;
 
+import com.sonar.sslr.api.AstNode;
 import org.sonar.check.BelongsToProfile;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
+import org.sonar.javascript.model.implementations.statement.VariableDeclarationTreeImpl;
+import org.sonar.javascript.model.interfaces.Tree.Kind;
+import org.sonar.javascript.model.interfaces.declaration.FunctionDeclarationTree;
+import org.sonar.javascript.model.interfaces.expression.FunctionExpressionTree;
+import org.sonar.javascript.model.interfaces.expression.IdentifierTree;
 import org.sonar.squidbridge.checks.SquidCheck;
+import org.sonar.sslr.grammar.GrammarRuleKey;
 import org.sonar.sslr.parser.LexerlessGrammar;
+
+import java.util.HashSet;
+import java.util.Set;
+import java.util.Stack;
 
 @Rule(
   key = "SameNameForFunctionAndVariable",
   priority = Priority.MAJOR)
 @BelongsToProfile(title = CheckList.SONAR_WAY_PROFILE, priority = Priority.MAJOR)
 public class SameNameForFunctionAndVariableCheck extends SquidCheck<LexerlessGrammar> {
+
+  private Stack<Set<String>> variablesStack;
+  private Stack<Set<String>> functionsStack;
+
+  private static final GrammarRuleKey[] FUNCTION_NODES = {
+    Kind.FUNCTION_DECLARATION,
+    Kind.FUNCTION_EXPRESSION,
+    Kind.GENERATOR_DECLARATION,
+    Kind.GENERATOR_FUNCTION_EXPRESSION};
+
+  private static final GrammarRuleKey[] CONST_AND_VAR_NODES = {
+    Kind.VAR_DECLARATION,
+    Kind.LET_DECLARATION,
+    Kind.CONST_DECLARATION};
+
+  @Override
+  public void init() {
+    subscribeTo(CONST_AND_VAR_NODES);
+    subscribeTo(FUNCTION_NODES);
+  }
+
+  @Override
+  public void visitFile(AstNode astNode) {
+    variablesStack = new Stack<Set<String>>();
+    variablesStack.add(new HashSet<String>());
+    functionsStack = new Stack<Set<String>>();
+    functionsStack.add(new HashSet<String>());
+  }
+
+  @Override
+  public void visitNode(AstNode astNode) {
+    if (astNode.is(Kind.FUNCTION_DECLARATION, Kind.GENERATOR_DECLARATION)) {
+      checkFunctionName(astNode, ((FunctionDeclarationTree) astNode).name());
+
+    } else if (astNode.is(Kind.FUNCTION_EXPRESSION, Kind.GENERATOR_FUNCTION_EXPRESSION)) {
+      checkFunctionName(astNode, ((FunctionExpressionTree) astNode).name());
+
+    } else if (astNode.is(CONST_AND_VAR_NODES)) {
+      for (IdentifierTree identifier : ((VariableDeclarationTreeImpl) astNode).variableIdentifiers()) {
+        String variableName = identifier.name();
+        check((AstNode) identifier, functionsStack.peek(), variableName);
+        variablesStack.peek().add(variableName);
+      }
+    }
+
+    if (astNode.is(FUNCTION_NODES)) {
+      variablesStack.add(new HashSet<String>());
+      functionsStack.add(new HashSet<String>());
+    }
+  }
+
+  private void checkFunctionName(AstNode functionNode, IdentifierTree nameIdentifier) {
+    if (nameIdentifier != null) {
+      String functionName = nameIdentifier.name();
+
+      check(functionNode, variablesStack.peek(), functionName);
+      functionsStack.peek().add(functionName);
+    }
+  }
+
+  private void check(AstNode astNode, Set<String> names, String name) {
+    if (names.contains(name)) {
+      getContext().createLineViolation(this, "Refactor the code to avoid using \"" + name + "\" for both a variable and a function.", astNode);
+    }
+  }
+
+  @Override
+  public void leaveNode(AstNode astNode) {
+    if (astNode.is(FUNCTION_NODES)) {
+      variablesStack.pop();
+      functionsStack.pop();
+    }
+  }
+
+  @Override
+  public void leaveFile(AstNode astNode) {
+    variablesStack = null;
+    functionsStack = null;
+  }
 }
