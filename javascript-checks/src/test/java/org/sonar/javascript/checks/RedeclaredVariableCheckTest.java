@@ -27,7 +27,6 @@ import org.sonar.squidbridge.checks.CheckMessagesVerifier;
 
 import java.io.File;
 
-@Ignore
 public class RedeclaredVariableCheckTest {
 
   @Test
