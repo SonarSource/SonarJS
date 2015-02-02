@@ -34,12 +34,14 @@ import java.io.StringWriter;
   priority = Priority.MAJOR)
 public class ParsingErrorCheck extends SquidCheck<LexerlessGrammar> implements AstScannerExceptionHandler {
 
+  @Override
   public void processException(Exception e) {
     StringWriter exception = new StringWriter();
     e.printStackTrace(new PrintWriter(exception));
     getContext().createFileViolation(this, exception.toString());
   }
 
+  @Override
   public void processRecognitionException(RecognitionException e) {
     getContext().createLineViolation(this, e.getMessage(), e.getLine());
   }

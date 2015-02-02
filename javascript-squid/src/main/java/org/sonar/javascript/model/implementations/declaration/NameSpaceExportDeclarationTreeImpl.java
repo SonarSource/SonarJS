@@ -61,6 +61,7 @@ public class NameSpaceExportDeclarationTreeImpl extends JavaScriptTree implement
     return fromClause;
   }
 
+  @Override
   public Kind getKind() {
     return Kind.NAMESPACE_EXPORT_DECLARATION;
   }

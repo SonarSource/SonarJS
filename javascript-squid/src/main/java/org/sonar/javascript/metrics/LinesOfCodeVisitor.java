@@ -55,6 +55,7 @@ public class LinesOfCodeVisitor extends SquidAstVisitor<LexerlessGrammar> implem
   /**
    * {@inheritDoc}
    */
+  @Override
   public void visitToken(Token token) {
     if (token.getType() != EOF) {
       lines.add(token.getLine());

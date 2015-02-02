@@ -34,6 +34,7 @@ import org.sonar.sslr.parser.LexerlessGrammar;
 @BelongsToProfile(title = CheckList.SONAR_WAY_PROFILE, priority = Priority.MAJOR)
 public class ConditionalCommentCheck extends SquidCheck<LexerlessGrammar> implements AstAndTokenVisitor {
 
+  @Override
   public void visitToken(Token token) {
     for (Trivia trivia : token.getTrivia()) {
       if (trivia.isComment()) {

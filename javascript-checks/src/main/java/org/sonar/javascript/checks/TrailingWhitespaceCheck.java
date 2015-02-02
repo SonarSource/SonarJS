@@ -43,6 +43,7 @@ public class TrailingWhitespaceCheck extends SquidCheck<LexerlessGrammar> implem
 
   private Charset charset;
 
+  @Override
   public void setCharset(Charset charset) {
     this.charset = charset;
   }

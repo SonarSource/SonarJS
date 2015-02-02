@@ -55,6 +55,7 @@ public class LineLengthCheck extends SquidCheck<LexerlessGrammar> implements Ast
     previousToken = null;
   }
 
+  @Override
   public void visitToken(Token token) {
     if (!token.isGeneratedCode()) {
       if (previousToken != null && previousToken.getLine() != token.getLine()) {

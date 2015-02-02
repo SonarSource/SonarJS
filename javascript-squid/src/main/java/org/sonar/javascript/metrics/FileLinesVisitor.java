@@ -53,6 +53,7 @@ public class FileLinesVisitor extends SquidAstVisitor<LexerlessGrammar> implemen
     this.fileLinesContextFactory = fileLinesContextFactory;
   }
 
+  @Override
   public void visitToken(Token token) {
     if (token.getType().equals(GenericTokenType.EOF)) {
       return;

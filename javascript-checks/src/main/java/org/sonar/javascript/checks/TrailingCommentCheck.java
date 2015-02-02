@@ -54,6 +54,7 @@ public class TrailingCommentCheck extends SquidCheck<LexerlessGrammar> implement
     pattern = Pattern.compile(legalCommentPattern);
   }
 
+  @Override
   public void visitToken(Token token) {
     for (Trivia trivia : token.getTrivia()) {
       if (trivia.isComment() && trivia.getToken().getLine() == previousTokenLine) {

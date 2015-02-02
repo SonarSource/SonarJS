@@ -50,10 +50,12 @@ public class CoverageSensor implements Sensor {
     this.settings = settings;
   }
 
+  @Override
   public boolean shouldExecuteOnProject(Project project) {
     return !moduleFileSystem.files(FileQuery.onSource().onLanguage(JavaScript.KEY)).isEmpty();
   }
 
+  @Override
   public void analyse(Project project, SensorContext context) {
     if (isLCOVReportProvided()) {
       saveMeasureFromLCOVFile(project, context);

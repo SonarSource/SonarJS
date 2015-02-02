@@ -56,6 +56,7 @@ public class JavaScriptPlugin extends SonarPlugin {
   public static final String JSTEST_REPORTS_PATH = PROPERTY_PREFIX + ".jstest.reportsPath";
   public static final String JSTEST_REPORTS_PATH_DEFAULT_VALUE = "";
 
+  @Override
   public List getExtensions() {
     return ImmutableList.of(
         JavaScript.class,

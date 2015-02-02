@@ -82,7 +82,7 @@ public class UnusedVariableCheck extends SquidCheck<LexerlessGrammar> {
       variables.put(identifier, new Variable(astNode, 1));
     }
   }
-  public static final GrammarRuleKey[] FUNCTION_NODES = {
+  private static final GrammarRuleKey[] FUNCTION_NODES = {
     Kind.FUNCTION_EXPRESSION,
     Kind.FUNCTION_DECLARATION,
     Kind.METHOD,

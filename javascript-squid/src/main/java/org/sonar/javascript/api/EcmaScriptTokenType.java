@@ -29,14 +29,17 @@ public enum EcmaScriptTokenType implements TokenType, GrammarRuleKey {
   REGULAR_EXPRESSION_LITERAL,
   EMPTY;
 
+  @Override
   public String getName() {
     return name();
   }
 
+  @Override
   public String getValue() {
     return name();
   }
 
+  @Override
   public boolean hasToBeSkippedFromAst(AstNode node) {
     return false;
   }

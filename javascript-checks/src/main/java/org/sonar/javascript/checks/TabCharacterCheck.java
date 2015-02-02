@@ -41,6 +41,7 @@ public class TabCharacterCheck extends SquidCheck<LexerlessGrammar> implements C
 
   private Charset charset;
 
+  @Override
   public void setCharset(Charset charset) {
     this.charset = charset;
   }
