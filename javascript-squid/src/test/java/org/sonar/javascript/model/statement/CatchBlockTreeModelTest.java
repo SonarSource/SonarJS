@@ -20,12 +20,13 @@
 package org.sonar.javascript.model.statement;
 
 import org.junit.Test;
-import org.sonar.javascript.api.EcmaScriptKeyword;
-import org.sonar.javascript.api.EcmaScriptPunctuator;
 import org.sonar.javascript.model.JavaScriptTreeModelTest;
+import org.sonar.javascript.model.implementations.statement.CatchBlockTreeImpl;
 import org.sonar.javascript.model.interfaces.Tree.Kind;
+import org.sonar.javascript.model.interfaces.expression.IdentifierTree;
 import org.sonar.javascript.model.interfaces.statement.CatchBlockTree;
-import org.sonar.javascript.model.interfaces.statement.ThrowStatementTree;
+
+import java.util.List;
 
 import static org.fest.assertions.Assertions.assertThat;
 
@@ -40,6 +41,23 @@ public class CatchBlockTreeModelTest extends JavaScriptTreeModelTest {
     assertThat(tree.openParenthesis().text()).isEqualTo("(");
     assertThat(expressionToString(tree.parameter())).isEqualTo("e");
     assertThat(tree.closeParenthesis().text()).isEqualTo(")");
+  }
+
+  @Test
+  public void bindingIdentifiers() throws Exception {
+    // Identifier
+    CatchBlockTreeImpl tree = parse("try { } catch (e) { }", Kind.CATCH_BLOCK);
+
+    List<IdentifierTree> bindingName = tree.parameterIdentifiers();
+    assertThat(bindingName).hasSize(1);
+    assertThat(bindingName.get(0).name()).isEqualTo("e");
+
+    // Binding pattern
+    tree = parse("try { } catch ( {a : e} ) { }", Kind.CATCH_BLOCK);
+
+    bindingName = tree.parameterIdentifiers();
+    assertThat(bindingName).hasSize(1);
+    assertThat(bindingName.get(0).name()).isEqualTo("e");
   }
 
 }

@@ -22,6 +22,7 @@ package org.sonar.javascript.model.implementations.declaration;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Iterators;
 import com.sonar.sslr.api.AstNode;
+import org.apache.commons.lang.StringUtils;
 import org.sonar.javascript.ast.visitors.TreeVisitor;
 import org.sonar.javascript.model.implementations.JavaScriptTree;
 import org.sonar.javascript.model.implementations.lexical.InternalSyntaxToken;
@@ -32,6 +33,8 @@ import org.sonar.javascript.model.interfaces.declaration.GeneratorMethodDeclarat
 import org.sonar.javascript.model.interfaces.declaration.MethodDeclarationTree;
 import org.sonar.javascript.model.interfaces.declaration.ParameterListTree;
 import org.sonar.javascript.model.interfaces.expression.ExpressionTree;
+import org.sonar.javascript.model.interfaces.expression.IdentifierTree;
+import org.sonar.javascript.model.interfaces.expression.LiteralTree;
 import org.sonar.javascript.model.interfaces.lexical.SyntaxToken;
 
 import javax.annotation.Nullable;
@@ -114,6 +117,24 @@ public class MethodDeclarationTreeImpl extends JavaScriptTree implements MethodD
   @Override
   public ExpressionTree name() {
     return name;
+  }
+
+  public String nameToString() {
+    if (name instanceof IdentifierTree) {
+      return ((IdentifierTree) name).name();
+
+    } else if (name.is(Kind.STRING_LITERAL)) {
+      String value = ((LiteralTree) name).value();
+      return value.substring(1, value.length() - 1);
+
+    } else if (name.is(Kind.NUMERIC_LITERAL)) {
+      // FIXME martn: handle unicode sequence
+      return ((LiteralTree) name).value();
+
+    } else {
+      // FIXME martin: handle computed property name (ES6)
+      return ((AstNode) name).getTokenValue();
+    }
   }
 
   @Override

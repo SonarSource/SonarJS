@@ -21,8 +21,12 @@ package org.sonar.javascript.model.declaration;
 
 import org.junit.Test;
 import org.sonar.javascript.model.JavaScriptTreeModelTest;
+import org.sonar.javascript.model.implementations.declaration.ArrayBindingPatternTreeImpl;
 import org.sonar.javascript.model.interfaces.Tree.Kind;
 import org.sonar.javascript.model.interfaces.declaration.ArrayBindingPatternTree;
+import org.sonar.javascript.model.interfaces.expression.IdentifierTree;
+
+import java.util.List;
 
 import static org.fest.assertions.Assertions.assertThat;
 
@@ -79,4 +83,14 @@ public class ArrayBindingPatternTreeModelTest extends JavaScriptTreeModelTest {
     assertThat(tree.elements().getSeparators()).hasSize(2);
   }
 
+  @Test
+  public void bindingIdentifiers() throws Exception {
+    ArrayBindingPatternTreeImpl tree = parse("var [a, , b, ...c] = obj", Kind.ARRAY_BINDING_PATTERN);
+
+    List<IdentifierTree> bindingName = tree.bindingIdentifiers();
+    assertThat(bindingName).hasSize(3);
+    assertThat(bindingName.get(0).name()).isEqualTo("a");
+    assertThat(bindingName.get(1).name()).isEqualTo("b");
+    assertThat(bindingName.get(2).name()).isEqualTo("c");
+  }
 }

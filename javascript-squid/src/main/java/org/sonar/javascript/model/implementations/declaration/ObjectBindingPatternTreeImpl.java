@@ -20,6 +20,7 @@
 package org.sonar.javascript.model.implementations.declaration;
 
 import com.google.common.collect.Iterators;
+import com.google.common.collect.Lists;
 import com.sonar.sslr.api.AstNode;
 import org.apache.commons.collections.ListUtils;
 import org.sonar.javascript.ast.visitors.TreeVisitor;
@@ -27,11 +28,16 @@ import org.sonar.javascript.model.implementations.JavaScriptTree;
 import org.sonar.javascript.model.implementations.SeparatedList;
 import org.sonar.javascript.model.implementations.lexical.InternalSyntaxToken;
 import org.sonar.javascript.model.interfaces.Tree;
+import org.sonar.javascript.model.interfaces.declaration.BindingElementTree;
+import org.sonar.javascript.model.interfaces.declaration.BindingPropertyTree;
 import org.sonar.javascript.model.interfaces.declaration.DeclarationTree;
+import org.sonar.javascript.model.interfaces.declaration.InitializedBindingElementTree;
 import org.sonar.javascript.model.interfaces.declaration.ObjectBindingPatternTree;
+import org.sonar.javascript.model.interfaces.expression.IdentifierTree;
 import org.sonar.javascript.model.interfaces.lexical.SyntaxToken;
 
 import java.util.Iterator;
+import java.util.List;
 
 public class ObjectBindingPatternTreeImpl extends JavaScriptTree implements ObjectBindingPatternTree {
 
@@ -96,4 +102,47 @@ public class ObjectBindingPatternTreeImpl extends JavaScriptTree implements Obje
   public void accept(TreeVisitor visitor) {
     visitor.visitObjectBindingPattern(this);
   }
+
+  /**
+   * Return the list of new binding names introduced by this object binding pattern.
+   * <p>
+   * Example:
+   * <pre>
+   *   { f:first, l:last, siblings:{ a, b c} } // will return [first, last, a, b, c]
+   * </pre>
+   */
+  public List<IdentifierTree> bindingIdentifiers() {
+    List<IdentifierTree> bindingIdentifiers = Lists.newArrayList();
+
+    for (Tree element : bindingElements) {
+
+      if (element.is(Kind.BINDING_PROPERTY)) {
+        bindingIdentifiers.addAll(identifierFromBindingElement(((BindingPropertyTree) element).value()));
+
+      } else if (element.is(Kind.INITIALIZED_BINDING_ELEMENT)) {
+        bindingIdentifiers.addAll(identifierFromBindingElement(((InitializedBindingElementTree) element).left()));
+
+      } else {
+        bindingIdentifiers.addAll(identifierFromBindingElement((BindingElementTree) element));
+      }
+    }
+    return bindingIdentifiers;
+  }
+
+  private List<IdentifierTree> identifierFromBindingElement(BindingElementTree bindingEement) {
+    List<IdentifierTree> bindingIdentifiers = Lists.newArrayList();
+
+   if (bindingEement.is(Kind.BINDING_IDENTIFIER)) {
+      bindingIdentifiers.add((IdentifierTree) bindingEement);
+
+    } else if (bindingEement.is(Kind.OBJECT_BINDING_PATTERN)) {
+      bindingIdentifiers.addAll(((ObjectBindingPatternTreeImpl) bindingEement).bindingIdentifiers());
+
+    } else {
+      bindingIdentifiers.addAll(((ArrayBindingPatternTreeImpl) bindingEement).bindingIdentifiers());
+    }
+
+    return bindingIdentifiers;
+  }
+
 }

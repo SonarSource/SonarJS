@@ -23,10 +23,14 @@ import static org.fest.assertions.Assertions.assertThat;
 
 import org.junit.Test;
 import org.sonar.javascript.model.JavaScriptTreeModelTest;
+import org.sonar.javascript.model.implementations.declaration.ObjectBindingPatternTreeImpl;
 import org.sonar.javascript.model.interfaces.Tree.Kind;
 import org.sonar.javascript.model.interfaces.declaration.BindingPropertyTree;
 import org.sonar.javascript.model.interfaces.declaration.DefaultExportDeclarationTree;
 import org.sonar.javascript.model.interfaces.declaration.ObjectBindingPatternTree;
+import org.sonar.javascript.model.interfaces.expression.IdentifierTree;
+
+import java.util.List;
 
 public class ObjectBindingPatternTreeModelTest extends JavaScriptTreeModelTest {
 
@@ -46,6 +50,19 @@ public class ObjectBindingPatternTreeModelTest extends JavaScriptTreeModelTest {
     assertThat(tree.elements().get(2).is(Kind.BINDING_PROPERTY)).isTrue();
 
     assertThat(tree.closeCurlyBrace().text()).isEqualTo("}");
+  }
+
+  @Test
+  public void bindingIdentifiers() throws Exception {
+    ObjectBindingPatternTreeImpl tree = parse("var { a, b = 1, c : z, d : { x, y } } = obj", Kind.OBJECT_BINDING_PATTERN);
+
+    List<IdentifierTree> bindingName = tree.bindingIdentifiers();
+    assertThat(bindingName).hasSize(5);
+    assertThat(bindingName.get(0).name()).isEqualTo("a");
+    assertThat(bindingName.get(1).name()).isEqualTo("b");
+    assertThat(bindingName.get(2).name()).isEqualTo("z");
+    assertThat(bindingName.get(3).name()).isEqualTo("x");
+    assertThat(bindingName.get(4).name()).isEqualTo("y");
   }
 
 }

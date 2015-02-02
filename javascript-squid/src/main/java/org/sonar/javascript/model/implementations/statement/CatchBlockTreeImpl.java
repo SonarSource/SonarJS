@@ -19,18 +19,24 @@
  */
 package org.sonar.javascript.model.implementations.statement;
 
-import com.google.common.collect.Iterators;
-import com.sonar.sslr.api.AstNode;
+import java.util.Iterator;
+import java.util.List;
+
+import com.google.common.collect.Lists;
 import org.sonar.javascript.ast.visitors.TreeVisitor;
 import org.sonar.javascript.model.implementations.JavaScriptTree;
+import org.sonar.javascript.model.implementations.declaration.ArrayBindingPatternTreeImpl;
+import org.sonar.javascript.model.implementations.declaration.ObjectBindingPatternTreeImpl;
 import org.sonar.javascript.model.implementations.lexical.InternalSyntaxToken;
 import org.sonar.javascript.model.interfaces.Tree;
 import org.sonar.javascript.model.interfaces.declaration.BindingElementTree;
+import org.sonar.javascript.model.interfaces.expression.IdentifierTree;
 import org.sonar.javascript.model.interfaces.lexical.SyntaxToken;
 import org.sonar.javascript.model.interfaces.statement.BlockTree;
 import org.sonar.javascript.model.interfaces.statement.CatchBlockTree;
 
-import java.util.Iterator;
+import com.google.common.collect.Iterators;
+import com.sonar.sslr.api.AstNode;
 
 public class CatchBlockTreeImpl extends JavaScriptTree implements CatchBlockTree {
 
@@ -90,4 +96,21 @@ public class CatchBlockTreeImpl extends JavaScriptTree implements CatchBlockTree
   public void accept(TreeVisitor visitor) {
     visitor.visitCatchBlock(this);
   }
+
+  public List<IdentifierTree> parameterIdentifiers() {
+    List<IdentifierTree> bindingIdentifiers = Lists.newArrayList();
+
+    if (parameter.is(Kind.BINDING_IDENTIFIER)) {
+      return Lists.newArrayList((IdentifierTree) parameter);
+
+    } else if (parameter.is(Kind.OBJECT_BINDING_PATTERN)) {
+      bindingIdentifiers.addAll(((ObjectBindingPatternTreeImpl) parameter).bindingIdentifiers());
+
+    } else {
+      bindingIdentifiers.addAll(((ArrayBindingPatternTreeImpl) parameter).bindingIdentifiers());
+    }
+
+    return bindingIdentifiers;
+  }
+
 }

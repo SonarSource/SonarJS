@@ -19,20 +19,23 @@
  */
 package org.sonar.javascript.model.implementations.declaration;
 
-import com.google.common.collect.Iterators;
-import com.sonar.sslr.api.AstNode;
+import java.util.Iterator;
+import java.util.List;
+
 import org.apache.commons.collections.ListUtils;
 import org.sonar.javascript.ast.visitors.TreeVisitor;
 import org.sonar.javascript.model.implementations.JavaScriptTree;
 import org.sonar.javascript.model.implementations.SeparatedList;
 import org.sonar.javascript.model.implementations.lexical.InternalSyntaxToken;
 import org.sonar.javascript.model.interfaces.Tree;
-import org.sonar.javascript.model.interfaces.declaration.BindingElementTree;
 import org.sonar.javascript.model.interfaces.declaration.ParameterListTree;
-import org.sonar.javascript.model.interfaces.expression.ExpressionTree;
+import org.sonar.javascript.model.interfaces.expression.IdentifierTree;
+import org.sonar.javascript.model.interfaces.expression.RestElementTree;
 import org.sonar.javascript.model.interfaces.lexical.SyntaxToken;
 
-import java.util.Iterator;
+import com.google.common.collect.Iterators;
+import com.google.common.collect.Lists;
+import com.sonar.sslr.api.AstNode;
 
 public class ParameterListTreeImpl extends JavaScriptTree implements ParameterListTree {
 
@@ -101,4 +104,29 @@ public class ParameterListTreeImpl extends JavaScriptTree implements ParameterLi
   public void accept(TreeVisitor visitor) {
     visitor.visitParameterList(this);
   }
+
+  public List<IdentifierTree> parameterIdentifiers() {
+    List<IdentifierTree> identifiers = Lists.newArrayList();
+
+    for (Tree parameter : parameters) {
+
+      if (parameter.is(Tree.Kind.BINDING_IDENTIFIER)) {
+        identifiers.add((IdentifierTree) parameter);
+
+      } else if (parameter.is(Tree.Kind.INITIALIZED_BINDING_ELEMENT)) {
+        identifiers.addAll(((InitializedBindingElementTreeImpl) parameter).bindingIdentifiers());
+
+      } else if (parameter.is(Tree.Kind.OBJECT_BINDING_PATTERN)) {
+        identifiers.addAll(((ObjectBindingPatternTreeImpl) parameter).bindingIdentifiers());
+
+      } else if (parameter.is(Kind.REST_ELEMENT)) {
+        identifiers.add((IdentifierTree) ((RestElementTree) parameter).element());
+
+      } else {
+        identifiers.addAll(((ArrayBindingPatternTreeImpl) parameter).bindingIdentifiers());
+      }
+    }
+    return identifiers;
+  }
+
 }

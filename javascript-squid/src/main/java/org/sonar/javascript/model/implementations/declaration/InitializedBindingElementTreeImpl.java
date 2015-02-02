@@ -19,9 +19,9 @@
  */
 package org.sonar.javascript.model.implementations.declaration;
 
-import com.google.common.collect.Iterators;
-import com.sonar.sslr.api.AstNode;
-import com.sonar.sslr.api.AstNodeType;
+import java.util.Iterator;
+import java.util.List;
+
 import org.sonar.javascript.ast.visitors.TreeVisitor;
 import org.sonar.javascript.model.implementations.JavaScriptTree;
 import org.sonar.javascript.model.implementations.lexical.InternalSyntaxToken;
@@ -29,9 +29,13 @@ import org.sonar.javascript.model.interfaces.Tree;
 import org.sonar.javascript.model.interfaces.declaration.BindingElementTree;
 import org.sonar.javascript.model.interfaces.declaration.InitializedBindingElementTree;
 import org.sonar.javascript.model.interfaces.expression.ExpressionTree;
+import org.sonar.javascript.model.interfaces.expression.IdentifierTree;
 import org.sonar.javascript.model.interfaces.lexical.SyntaxToken;
 
-import java.util.Iterator;
+import com.google.common.collect.Iterators;
+import com.google.common.collect.Lists;
+import com.sonar.sslr.api.AstNode;
+import com.sonar.sslr.api.AstNodeType;
 
 public class InitializedBindingElementTreeImpl extends JavaScriptTree implements InitializedBindingElementTree {
 
@@ -84,4 +88,21 @@ public class InitializedBindingElementTreeImpl extends JavaScriptTree implements
   public void accept(TreeVisitor visitor) {
     visitor.visitInitializedBindingElement(this);
   }
+
+  public List<IdentifierTree> bindingIdentifiers() {
+    List<IdentifierTree> bindingIdentifiers = Lists.newArrayList();
+
+    if (left.is(Kind.BINDING_IDENTIFIER)) {
+      return Lists.newArrayList((IdentifierTree) left);
+
+    } else if (left.is(Kind.OBJECT_BINDING_PATTERN)) {
+      bindingIdentifiers.addAll(((ObjectBindingPatternTreeImpl) left).bindingIdentifiers());
+
+    } else {
+      bindingIdentifiers.addAll(((ArrayBindingPatternTreeImpl) left).bindingIdentifiers());
+    }
+
+    return bindingIdentifiers;
+  }
+
 }
