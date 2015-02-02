@@ -70,10 +70,10 @@ public class TooManyLinesInFunctionCheck extends SquidCheck<LexerlessGrammar> {
   }
 
   public static int getNumberOfLine(AstNode functionNode) {
-    functionNode = functionNode.getFirstChild(Kind.BLOCK);
+    AstNode block = functionNode.getFirstChild(Kind.BLOCK);
 
-    int firstLine = functionNode.getFirstChild(EcmaScriptPunctuator.LCURLYBRACE).getTokenLine();
-    int lastLine = functionNode.getFirstChild(EcmaScriptPunctuator.RCURLYBRACE).getTokenLine();
+    int firstLine = block.getFirstChild(EcmaScriptPunctuator.LCURLYBRACE).getTokenLine();
+    int lastLine = block.getFirstChild(EcmaScriptPunctuator.RCURLYBRACE).getTokenLine();
 
     return lastLine - firstLine + 1;
   }
