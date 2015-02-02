@@ -33,8 +33,6 @@ import org.sonar.javascript.model.interfaces.expression.IdentifierTree;
 import org.sonar.javascript.model.interfaces.expression.RestElementTree;
 import org.sonar.javascript.parser.sslr.Optional;
 
-import javax.swing.text.html.Option;
-import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 

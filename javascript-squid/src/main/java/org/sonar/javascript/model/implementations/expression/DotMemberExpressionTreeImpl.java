@@ -27,7 +27,6 @@ import org.sonar.javascript.model.implementations.lexical.InternalSyntaxToken;
 import org.sonar.javascript.model.interfaces.Tree;
 import org.sonar.javascript.model.interfaces.expression.DotMemberExpressionTree;
 import org.sonar.javascript.model.interfaces.expression.ExpressionTree;
-import org.sonar.javascript.model.interfaces.expression.RestElementTree;
 import org.sonar.javascript.model.interfaces.lexical.SyntaxToken;
 
 import java.util.Iterator;

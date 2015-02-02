@@ -30,7 +30,6 @@ import org.sonar.javascript.model.implementations.lexical.InternalSyntaxToken;
 import org.sonar.javascript.model.interfaces.Tree;
 import org.sonar.javascript.model.interfaces.declaration.BindingElementTree;
 import org.sonar.javascript.model.interfaces.declaration.BindingPropertyTree;
-import org.sonar.javascript.model.interfaces.declaration.DeclarationTree;
 import org.sonar.javascript.model.interfaces.declaration.InitializedBindingElementTree;
 import org.sonar.javascript.model.interfaces.declaration.ObjectBindingPatternTree;
 import org.sonar.javascript.model.interfaces.expression.IdentifierTree;

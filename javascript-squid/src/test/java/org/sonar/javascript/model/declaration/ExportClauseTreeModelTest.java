@@ -24,7 +24,6 @@ import org.junit.Test;
 import org.sonar.javascript.model.JavaScriptTreeModelTest;
 import org.sonar.javascript.model.interfaces.Tree.Kind;
 import org.sonar.javascript.model.interfaces.declaration.ExportClauseTree;
-import org.sonar.javascript.model.interfaces.declaration.NamedExportDeclarationTree;
 
 public class ExportClauseTreeModelTest extends JavaScriptTreeModelTest {
 

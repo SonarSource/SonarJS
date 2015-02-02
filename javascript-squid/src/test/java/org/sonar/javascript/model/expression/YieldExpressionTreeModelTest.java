@@ -20,11 +20,8 @@
 package org.sonar.javascript.model.expression;
 
 import org.junit.Test;
-import org.sonar.javascript.api.EcmaScriptKeyword;
-import org.sonar.javascript.api.EcmaScriptPunctuator;
 import org.sonar.javascript.model.JavaScriptTreeModelTest;
 import org.sonar.javascript.model.interfaces.Tree.Kind;
-import org.sonar.javascript.model.interfaces.expression.RestElementTree;
 import org.sonar.javascript.model.interfaces.expression.YieldExpressionTree;
 
 import static org.fest.assertions.Assertions.assertThat;

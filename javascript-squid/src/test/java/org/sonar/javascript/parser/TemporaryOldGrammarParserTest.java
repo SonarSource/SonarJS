@@ -21,15 +21,12 @@ package org.sonar.javascript.parser;
 
 import com.google.common.base.Charsets;
 import org.junit.Before;
-import org.junit.Test;
 import org.sonar.javascript.ast.parser.TreeFactory;
 import org.sonar.javascript.parser.ActionGrammar;
 import org.sonar.javascript.parser.EcmaScriptGrammar;
 import org.sonar.javascript.parser.sslr.ActionParser2;
 import org.sonar.sslr.grammar.LexerlessGrammarBuilder;
 import org.sonar.sslr.parser.LexerlessGrammar;
-
-import static org.sonar.sslr.tests.Assertions.assertThat;
 
 public class TemporaryOldGrammarParserTest {
 

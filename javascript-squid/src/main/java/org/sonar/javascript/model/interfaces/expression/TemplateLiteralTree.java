@@ -19,7 +19,6 @@
  */
 package org.sonar.javascript.model.interfaces.expression;
 
-import org.sonar.javascript.model.interfaces.Tree;
 import org.sonar.javascript.model.interfaces.lexical.SyntaxToken;
 
 import java.util.List;

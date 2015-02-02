@@ -115,7 +115,6 @@ import org.sonar.javascript.model.interfaces.declaration.SpecifierTree;
 import org.sonar.javascript.model.interfaces.expression.BracketMemberExpressionTree;
 import org.sonar.javascript.model.interfaces.expression.ExpressionTree;
 import org.sonar.javascript.model.interfaces.expression.MemberExpressionTree;
-import org.sonar.javascript.model.interfaces.expression.RestElementTree;
 import org.sonar.javascript.model.interfaces.expression.TemplateCharactersTree;
 import org.sonar.javascript.model.interfaces.expression.TemplateExpressionTree;
 import org.sonar.javascript.model.interfaces.lexical.SyntaxToken;

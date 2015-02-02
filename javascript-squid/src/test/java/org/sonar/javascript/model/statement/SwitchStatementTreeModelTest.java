@@ -20,8 +20,6 @@
 package org.sonar.javascript.model.statement;
 
 import org.junit.Test;
-import org.sonar.javascript.api.EcmaScriptKeyword;
-import org.sonar.javascript.api.EcmaScriptPunctuator;
 import org.sonar.javascript.model.JavaScriptTreeModelTest;
 import org.sonar.javascript.model.implementations.statement.SwitchStatementTreeImpl;
 import org.sonar.javascript.model.interfaces.Tree.Kind;

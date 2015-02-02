@@ -24,7 +24,6 @@ import org.sonar.javascript.ast.visitors.TreeVisitor;
 import org.sonar.javascript.model.implementations.JavaScriptTree;
 import org.sonar.javascript.model.implementations.lexical.InternalSyntaxToken;
 import org.sonar.javascript.model.interfaces.Tree;
-import org.sonar.javascript.model.interfaces.expression.LiteralTree;
 import org.sonar.javascript.model.interfaces.expression.ThisTree;
 
 import java.util.Iterator;

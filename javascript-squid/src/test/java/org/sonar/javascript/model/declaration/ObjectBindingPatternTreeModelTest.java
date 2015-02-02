@@ -25,8 +25,6 @@ import org.junit.Test;
 import org.sonar.javascript.model.JavaScriptTreeModelTest;
 import org.sonar.javascript.model.implementations.declaration.ObjectBindingPatternTreeImpl;
 import org.sonar.javascript.model.interfaces.Tree.Kind;
-import org.sonar.javascript.model.interfaces.declaration.BindingPropertyTree;
-import org.sonar.javascript.model.interfaces.declaration.DefaultExportDeclarationTree;
 import org.sonar.javascript.model.interfaces.declaration.ObjectBindingPatternTree;
 import org.sonar.javascript.model.interfaces.expression.IdentifierTree;
 

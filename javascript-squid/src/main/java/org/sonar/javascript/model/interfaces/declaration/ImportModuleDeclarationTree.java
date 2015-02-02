@@ -23,8 +23,6 @@ import org.sonar.javascript.model.interfaces.Tree;
 import org.sonar.javascript.model.interfaces.expression.LiteralTree;
 import org.sonar.javascript.model.interfaces.lexical.SyntaxToken;
 
-import javax.annotation.Nullable;
-
 /**
  * Interface for <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-imports">Import Module</a>.
  * <p/>

@@ -27,7 +27,6 @@ import org.sonar.api.resources.Project;
 import org.sonar.api.scan.filesystem.FileQuery;
 import org.sonar.api.scan.filesystem.ModuleFileSystem;
 import org.sonar.plugins.javascript.JavaScriptPlugin;
-import org.sonar.plugins.javascript.core.JavaScript;
 
 import java.io.File;
 

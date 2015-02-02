@@ -20,8 +20,6 @@
 package org.sonar.javascript.model.implementations.lexical;
 
 import com.sonar.sslr.api.AstNode;
-import com.sonar.sslr.api.AstNodeType;
-import org.sonar.javascript.api.EcmaScriptTokenType;
 import org.sonar.javascript.ast.visitors.TreeVisitor;
 import org.sonar.javascript.model.implementations.JavaScriptTree;
 import org.sonar.javascript.model.interfaces.Tree;

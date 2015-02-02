@@ -34,7 +34,6 @@ import org.sonar.javascript.model.interfaces.expression.ExpressionTree;
 import org.sonar.javascript.model.interfaces.expression.IdentifierTree;
 import org.sonar.javascript.model.interfaces.lexical.SyntaxToken;
 
-import com.google.common.base.Preconditions;
 import com.google.common.collect.Iterators;
 import com.sonar.sslr.api.AstNode;
 

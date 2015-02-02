@@ -22,8 +22,6 @@ package org.sonar.javascript.model.interfaces.declaration;
 import org.sonar.javascript.model.interfaces.Tree;
 import org.sonar.javascript.model.interfaces.lexical.SyntaxToken;
 
-import javax.annotation.Nullable;
-
 /**
  * Interface for types <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-exports">Named and Default Imports</a>.
  * <p/>

@@ -28,11 +28,8 @@ import org.sonar.javascript.model.interfaces.Tree.Kind;
 import org.sonar.javascript.model.interfaces.expression.ExpressionTree;
 import org.sonar.javascript.model.interfaces.statement.BlockTree;
 import org.sonar.javascript.model.interfaces.statement.ReturnStatementTree;
-import org.sonar.javascript.parser.EcmaScriptGrammar;
 import org.sonar.squidbridge.checks.SquidCheck;
 import org.sonar.sslr.parser.LexerlessGrammar;
-
-import java.util.List;
 
 @Rule(
   key = "S1126",

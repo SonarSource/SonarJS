@@ -23,7 +23,6 @@ import org.junit.Test;
 import org.sonar.javascript.api.EcmaScriptKeyword;
 import org.sonar.javascript.model.JavaScriptTreeModelTest;
 import org.sonar.javascript.model.interfaces.Tree.Kind;
-import org.sonar.javascript.model.interfaces.statement.ThrowStatementTree;
 import org.sonar.javascript.model.interfaces.statement.TryStatementTree;
 
 import static org.fest.assertions.Assertions.assertThat;

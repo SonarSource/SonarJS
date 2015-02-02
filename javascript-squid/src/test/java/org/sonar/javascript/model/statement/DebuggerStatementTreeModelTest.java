@@ -22,11 +22,9 @@ package org.sonar.javascript.model.statement;
 import static org.fest.assertions.Assertions.assertThat;
 import org.junit.Test;
 import org.sonar.javascript.api.EcmaScriptKeyword;
-import org.sonar.javascript.api.EcmaScriptPunctuator;
 import org.sonar.javascript.model.JavaScriptTreeModelTest;
 import org.sonar.javascript.model.interfaces.Tree.Kind;
 import org.sonar.javascript.model.interfaces.statement.DebuggerStatementTree;
-import org.sonar.javascript.model.interfaces.statement.WithStatementTree;
 
 public class DebuggerStatementTreeModelTest extends JavaScriptTreeModelTest {
 

@@ -31,7 +31,6 @@ import org.sonar.check.Rule;
 import org.sonar.javascript.api.EcmaScriptTokenType;
 import org.sonar.javascript.model.implementations.declaration.ParameterListTreeImpl;
 import org.sonar.javascript.model.interfaces.Tree.Kind;
-import org.sonar.javascript.model.interfaces.declaration.ParameterListTree;
 import org.sonar.javascript.model.interfaces.expression.IdentifierTree;
 import org.sonar.squidbridge.checks.SquidCheck;
 import org.sonar.sslr.grammar.GrammarRuleKey;

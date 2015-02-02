@@ -25,14 +25,8 @@ import java.util.List;
 import com.sonar.sslr.api.AstNode;
 import org.sonar.javascript.ast.visitors.TreeVisitor;
 import org.sonar.javascript.model.implementations.JavaScriptTree;
-import org.sonar.javascript.model.implementations.expression.LiteralTreeImpl;
-import org.sonar.javascript.model.implementations.lexical.InternalSyntaxToken;
 import org.sonar.javascript.model.interfaces.ModuleTree;
 import org.sonar.javascript.model.interfaces.Tree;
-import org.sonar.javascript.model.interfaces.declaration.DeclarationTree;
-import org.sonar.javascript.model.interfaces.declaration.FromClauseTree;
-import org.sonar.javascript.model.interfaces.expression.LiteralTree;
-import org.sonar.javascript.model.interfaces.lexical.SyntaxToken;
 
 import com.google.common.collect.Iterators;
 

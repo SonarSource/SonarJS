@@ -27,10 +27,8 @@ import org.sonar.javascript.model.implementations.lexical.InternalSyntaxToken;
 import org.sonar.javascript.model.interfaces.Tree;
 import org.sonar.javascript.model.interfaces.expression.ConditionalExpressionTree;
 import org.sonar.javascript.model.interfaces.expression.ExpressionTree;
-import org.sonar.javascript.model.interfaces.expression.PairPropertyTree;
 import org.sonar.javascript.model.interfaces.lexical.SyntaxToken;
 
-import javax.annotation.Nullable;
 import java.util.Iterator;
 
 public class ConditionalExpressionTreeImpl extends JavaScriptTree implements ConditionalExpressionTree {

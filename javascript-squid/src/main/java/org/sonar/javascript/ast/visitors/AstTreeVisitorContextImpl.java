@@ -21,7 +21,6 @@ package org.sonar.javascript.ast.visitors;
 
 import java.io.File;
 
-import org.sonar.api.rule.RuleKey;
 import org.sonar.javascript.model.implementations.JavaScriptTree;
 import org.sonar.javascript.model.interfaces.Tree;
 import org.sonar.javascript.model.interfaces.declaration.ScriptTree;

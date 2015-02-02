@@ -26,8 +26,6 @@ import org.sonar.javascript.model.implementations.JavaScriptTree;
 import org.sonar.javascript.model.implementations.expression.LiteralTreeImpl;
 import org.sonar.javascript.model.implementations.lexical.InternalSyntaxToken;
 import org.sonar.javascript.model.interfaces.Tree;
-import org.sonar.javascript.model.interfaces.declaration.FromClauseTree;
-import org.sonar.javascript.model.interfaces.declaration.ImportClauseTree;
 import org.sonar.javascript.model.interfaces.declaration.ImportModuleDeclarationTree;
 import org.sonar.javascript.model.interfaces.expression.LiteralTree;
 import org.sonar.javascript.model.interfaces.lexical.SyntaxToken;

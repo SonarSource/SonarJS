@@ -23,7 +23,6 @@ import static org.fest.assertions.Assertions.assertThat;
 import org.junit.Test;
 import org.sonar.javascript.model.JavaScriptTreeModelTest;
 import org.sonar.javascript.model.interfaces.Tree.Kind;
-import org.sonar.javascript.model.interfaces.statement.BlockTree;
 import org.sonar.javascript.model.interfaces.statement.CaseClauseTree;
 
 public class CaseClauseTreeModelTest extends JavaScriptTreeModelTest {

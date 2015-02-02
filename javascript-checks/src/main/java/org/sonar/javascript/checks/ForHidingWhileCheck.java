@@ -26,7 +26,6 @@ import org.sonar.check.Rule;
 import org.sonar.javascript.api.EcmaScriptPunctuator;
 import org.sonar.javascript.model.interfaces.Tree.Kind;
 import org.sonar.javascript.model.interfaces.statement.ForStatementTree;
-import org.sonar.javascript.parser.EcmaScriptGrammar;
 import org.sonar.squidbridge.checks.SquidCheck;
 import org.sonar.sslr.parser.LexerlessGrammar;
 

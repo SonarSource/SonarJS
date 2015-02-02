@@ -20,8 +20,6 @@
 package org.sonar.javascript.model.statement;
 
 import org.junit.Test;
-import org.sonar.javascript.api.EcmaScriptKeyword;
-import org.sonar.javascript.api.EcmaScriptPunctuator;
 import org.sonar.javascript.model.JavaScriptTreeModelTest;
 import org.sonar.javascript.model.implementations.statement.CaseClauseTreeImpl;
 import org.sonar.javascript.model.implementations.statement.DefaultClauseTreeImpl;

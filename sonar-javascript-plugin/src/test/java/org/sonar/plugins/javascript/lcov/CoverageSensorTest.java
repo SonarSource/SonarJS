@@ -33,16 +33,12 @@ import org.sonar.api.resources.Resource;
 import org.sonar.api.scan.filesystem.FileQuery;
 import org.sonar.api.scan.filesystem.ModuleFileSystem;
 import org.sonar.plugins.javascript.JavaScriptPlugin;
-import org.sonar.plugins.javascript.core.JavaScript;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 
 import static org.fest.assertions.Assertions.assertThat;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyObject;
-import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.*;
 
 public class CoverageSensorTest {

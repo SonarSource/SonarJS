@@ -23,10 +23,7 @@ import org.junit.Ignore;
 import org.sonar.javascript.checks.utils.TreeCheckTest;
 import org.sonar.squidbridge.checks.CheckMessagesVerifier;
 import org.junit.Test;
-import org.sonar.javascript.JavaScriptAstScanner;
 import org.sonar.squidbridge.api.SourceFile;
-
-import java.io.File;
 
 @Ignore("SONARJS-309 Fix and re-introduce the rule")
 public class AssignmentWithinConditionCheckTest extends TreeCheckTest {

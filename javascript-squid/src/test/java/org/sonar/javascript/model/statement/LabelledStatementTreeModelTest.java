@@ -23,7 +23,6 @@ import org.junit.Test;
 import org.sonar.javascript.model.JavaScriptTreeModelTest;
 import org.sonar.javascript.model.interfaces.Tree.Kind;
 import org.sonar.javascript.model.interfaces.statement.LabelledStatementTree;
-import org.sonar.javascript.model.interfaces.statement.VariableStatementTree;
 
 import static org.fest.assertions.Assertions.assertThat;
 

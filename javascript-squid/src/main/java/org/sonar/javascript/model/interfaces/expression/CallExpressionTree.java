@@ -20,9 +20,6 @@
 package org.sonar.javascript.model.interfaces.expression;
 
 import org.sonar.javascript.model.interfaces.declaration.ParameterListTree;
-import org.sonar.javascript.model.interfaces.lexical.SyntaxToken;
-
-import java.util.List;
 
 /**
  * <a href="http://www.ecma-international.org/ecma-262/5.1/#sec-11.2.3">Call Expression</a>.
