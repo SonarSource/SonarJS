@@ -28,6 +28,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.sonar.javascript.JavaScriptAstScanner;
 import org.sonar.javascript.TestUtils;
+import org.sonar.javascript.ast.resolve.SymbolModel;
 import org.sonar.javascript.model.JavaScriptTreeModelTest;
 import org.sonar.javascript.model.implementations.declaration.ScriptTreeImpl;
 import org.sonar.squidbridge.api.CheckMessage;
@@ -44,7 +45,8 @@ public class AstTreeVisitorContextTest extends JavaScriptTreeModelTest {
   public void setUp() throws Exception {
     file = TestUtils.getResource("/metrics/lines.js");
     sourceFile = JavaScriptAstScanner.scanSingleFile(file);
-    context = new AstTreeVisitorContextImpl(new ScriptTreeImpl(null, null, null, null), sourceFile, file);
+    ScriptTreeImpl scriptTree = new ScriptTreeImpl(null, null, null, null);
+    context = new AstTreeVisitorContextImpl(scriptTree, sourceFile, file, SymbolModel.createFor(scriptTree));
   }
 
   @Test

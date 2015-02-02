@@ -17,31 +17,34 @@
  * License along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.javascript.ast.visitors;
+package org.sonar.javascript.ast.resolve;
 
-import java.io.File;
+import java.util.List;
 
-import org.sonar.javascript.ast.resolve.SymbolModel;
 import org.sonar.javascript.model.interfaces.Tree;
-import org.sonar.javascript.model.interfaces.declaration.ScriptTree;
-import org.sonar.squidbridge.api.CodeVisitor;
 
-public interface AstTreeVisitorContext {
+import com.google.common.collect.Lists;
 
-  ScriptTree getTree();
+public class Symbol {
 
-  void addIssue(CodeVisitor check, Tree tree, String message);
+  private final String name;
+  private List<Tree> declarations = Lists.newArrayList();
 
-  void addIssue(CodeVisitor check, int line, String message);
+  public Symbol(String name, Tree declaration) {
+    this.name = name;
+    this.declarations.add(declaration);
+  }
 
-  void addIssue(CodeVisitor check, Tree tree, String message, double cost);
+  public String name() {
+    return name;
+  }
 
-  void addIssue(CodeVisitor check, int line, String message, double cost);
+  public List<Tree> declarations() {
+    return declarations;
+  }
 
-  String getFileKey();
-
-  File getFile();
-
-  SymbolModel getSymbolModel();
-
+  @Override
+  public String toString() {
+    return "Symbol{name=" + name + ", declarations=" + declarations.size() + "}";
+  }
 }
