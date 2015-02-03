@@ -19,9 +19,18 @@
  */
 package org.sonar.plugins.javascript;
 
-import com.google.common.collect.Lists;
+import java.util.Collection;
+import java.util.List;
+import java.util.Locale;
+import java.util.Set;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.Sensor;
 import org.sonar.api.batch.SensorContext;
+import org.sonar.api.batch.fs.FilePredicate;
+import org.sonar.api.batch.fs.FileSystem;
+import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.checks.AnnotationCheckFactory;
 import org.sonar.api.checks.NoSonarFilter;
 import org.sonar.api.component.ResourcePerspectives;
@@ -36,8 +45,6 @@ import org.sonar.api.resources.File;
 import org.sonar.api.resources.Project;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.ActiveRule;
-import org.sonar.api.scan.filesystem.FileQuery;
-import org.sonar.api.scan.filesystem.ModuleFileSystem;
 import org.sonar.javascript.EcmaScriptConfiguration;
 import org.sonar.javascript.JavaScriptAstScanner;
 import org.sonar.javascript.JavaScriptFileScanner;
@@ -58,43 +65,43 @@ import org.sonar.squidbridge.indexer.QueryByParent;
 import org.sonar.squidbridge.indexer.QueryByType;
 import org.sonar.sslr.parser.LexerlessGrammar;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Locale;
-import java.util.Set;
+import com.google.common.collect.Lists;
 
 public class JavaScriptSquidSensor implements Sensor {
 
+  private static final Logger LOG = LoggerFactory.getLogger(JavaScriptSquidSensor.class);
   private static final Number[] FUNCTIONS_DISTRIB_BOTTOM_LIMITS = {1, 2, 4, 6, 8, 10, 12, 20, 30};
   private static final Number[] FILES_DISTRIB_BOTTOM_LIMITS = {0, 5, 10, 20, 30, 60, 90};
 
   private final AnnotationCheckFactory annotationCheckFactory;
   private final FileLinesContextFactory fileLinesContextFactory;
   private final ResourcePerspectives resourcePerspectives;
-  private final ModuleFileSystem moduleFileSystem;
+  private final FileSystem fileSystem;
   private final NoSonarFilter noSonarFilter;
+  private final FilePredicate mainFilePredicate;
 
-  private Project project;
   private SensorContext context;
   private AstScanner<LexerlessGrammar> scanner;
 
   public JavaScriptSquidSensor(RulesProfile profile, FileLinesContextFactory fileLinesContextFactory,
-                               ResourcePerspectives resourcePerspectives, ModuleFileSystem moduleFileSystem, NoSonarFilter noSonarFilter) {
+    ResourcePerspectives resourcePerspectives, FileSystem fileSystem, NoSonarFilter noSonarFilter) {
     this.annotationCheckFactory = AnnotationCheckFactory.create(profile, CheckList.REPOSITORY_KEY, CheckList.getChecks());
     this.fileLinesContextFactory = fileLinesContextFactory;
     this.resourcePerspectives = resourcePerspectives;
-    this.moduleFileSystem = moduleFileSystem;
+    this.fileSystem = fileSystem;
     this.noSonarFilter = noSonarFilter;
+    this.mainFilePredicate = fileSystem.predicates().and(
+      fileSystem.predicates().hasType(InputFile.Type.MAIN),
+      fileSystem.predicates().hasLanguage(JavaScript.KEY));
   }
 
   @Override
   public boolean shouldExecuteOnProject(Project project) {
-    return !moduleFileSystem.files(FileQuery.onSource().onLanguage(JavaScript.KEY)).isEmpty();
+    return fileSystem.hasFiles(mainFilePredicate);
   }
 
   @Override
   public void analyse(Project project, SensorContext context) {
-    this.project = project;
     this.context = context;
 
     List<CodeVisitor> astNodeVisitors = Lists.newArrayList();
@@ -110,31 +117,37 @@ public class JavaScriptSquidSensor implements Sensor {
     }
 
     astNodeVisitors.add(new VisitorsBridge(treeVisitors));
-    astNodeVisitors.add(new FileLinesVisitor(project, fileLinesContextFactory));
+    astNodeVisitors.add(new FileLinesVisitor(fileLinesContextFactory, fileSystem));
 
-    scanner = JavaScriptAstScanner.create(createConfiguration(project), astNodeVisitors.toArray(new SquidAstVisitor[astNodeVisitors.size()]));
-    scanner.scanFiles(moduleFileSystem.files(FileQuery.onSource().onLanguage(JavaScript.KEY)));
+    scanner = JavaScriptAstScanner.create(createConfiguration(), astNodeVisitors.toArray(new SquidAstVisitor[astNodeVisitors.size()]));
+    scanner.scanFiles(Lists.newArrayList(fileSystem.files(mainFilePredicate)));
 
     Collection<SourceCode> squidSourceFiles = scanner.getIndex().search(new QueryByType(SourceFile.class));
     save(squidSourceFiles);
   }
 
-  private EcmaScriptConfiguration createConfiguration(Project project) {
-    return new EcmaScriptConfiguration(moduleFileSystem.sourceCharset());
+  private EcmaScriptConfiguration createConfiguration() {
+    return new EcmaScriptConfiguration(fileSystem.encoding());
   }
 
   private void save(Collection<SourceCode> squidSourceFiles) {
     for (SourceCode squidSourceFile : squidSourceFiles) {
       SourceFile squidFile = (SourceFile) squidSourceFile;
 
-      File sonarFile = File.fromIOFile(new java.io.File(squidFile.getKey()), project);
+      InputFile inputFile = fileSystem.inputFile(fileSystem.predicates().hasAbsolutePath(squidFile.getKey()));
 
-      noSonarFilter.addResource(sonarFile, squidFile.getNoSonarTagLines());
-      saveClassComplexity(sonarFile, squidFile);
-      saveFilesComplexityDistribution(sonarFile, squidFile);
-      saveFunctionsComplexityAndDistribution(sonarFile, squidFile);
-      saveMeasures(sonarFile, squidFile);
-      saveIssues(sonarFile, squidFile);
+      if (inputFile != null) {
+        File sonarFile = File.create(inputFile.relativePath());
+        noSonarFilter.addResource(sonarFile, squidFile.getNoSonarTagLines());
+        saveClassComplexity(sonarFile, squidFile);
+        saveFilesComplexityDistribution(sonarFile, squidFile);
+        saveFunctionsComplexityAndDistribution(sonarFile, squidFile);
+        saveMeasures(sonarFile, squidFile);
+        saveIssues(sonarFile, squidFile);
+
+      } else {
+        LOG.warn("Cannot save analysis information for file {}. Unable to retrieve the associated sonar resource.", squidFile.getKey());
+      }
     }
   }
 

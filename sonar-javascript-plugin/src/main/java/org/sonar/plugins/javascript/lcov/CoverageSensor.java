@@ -24,6 +24,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.Sensor;
 import org.sonar.api.batch.SensorContext;
+import org.sonar.api.batch.fs.FilePredicate;
+import org.sonar.api.batch.fs.FileSystem;
+import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.config.Settings;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.CoverageMeasuresBuilder;
@@ -31,7 +34,6 @@ import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.PropertiesBuilder;
 import org.sonar.api.resources.Project;
 import org.sonar.api.scan.filesystem.FileQuery;
-import org.sonar.api.scan.filesystem.ModuleFileSystem;
 import org.sonar.plugins.javascript.JavaScriptPlugin;
 import org.sonar.plugins.javascript.core.JavaScript;
 
@@ -42,17 +44,21 @@ public class CoverageSensor implements Sensor {
 
   private static final Logger LOG = LoggerFactory.getLogger(CoverageSensor.class);
 
-  private final ModuleFileSystem moduleFileSystem;
+  private final FileSystem fileSystem;
   private final Settings settings;
+  private final FilePredicate mainFilePredicate;
 
-  public CoverageSensor(ModuleFileSystem moduleFileSystem, Settings settings) {
-    this.moduleFileSystem = moduleFileSystem;
+  public CoverageSensor(FileSystem fileSystem, Settings settings) {
+    this.fileSystem = fileSystem;
     this.settings = settings;
+    this.mainFilePredicate = fileSystem.predicates().and(
+      fileSystem.predicates().hasType(InputFile.Type.MAIN),
+      fileSystem.predicates().hasLanguage(JavaScript.KEY));
   }
 
   @Override
   public boolean shouldExecuteOnProject(Project project) {
-    return !moduleFileSystem.files(FileQuery.onSource().onLanguage(JavaScript.KEY)).isEmpty();
+    return fileSystem.hasFiles(mainFilePredicate);
   }
 
   @Override
@@ -68,14 +74,14 @@ public class CoverageSensor implements Sensor {
   }
 
   protected void saveZeroValueForAllFiles(Project project, SensorContext context) {
-    for (File file : moduleFileSystem.files(FileQuery.onSource().onLanguage(JavaScript.KEY))) {
-      saveZeroValueForResource(org.sonar.api.resources.File.fromIOFile(file, project), context);
+    for (InputFile inputFile : fileSystem.inputFiles(mainFilePredicate)) {
+      saveZeroValueForResource(org.sonar.api.resources.File.create(inputFile.relativePath()), context);
     }
   }
 
   protected void saveMeasureFromLCOVFile(Project project, SensorContext context) {
     String providedPath = settings.getString(JavaScriptPlugin.LCOV_REPORT_PATH);
-    File lcovFile = getIOFile(moduleFileSystem.baseDir(), providedPath);
+    File lcovFile = getIOFile(fileSystem.baseDir(), providedPath);
 
     if (!lcovFile.isFile()) {
       LOG.warn("No coverage information will be saved because LCOV file cannot be analysed. Provided LCOV file path: {}", providedPath);
@@ -84,13 +90,13 @@ public class CoverageSensor implements Sensor {
 
     LOG.info("Analysing {}", lcovFile);
 
-    LCOVParser parser = new LCOVParser(moduleFileSystem.baseDir());
+    LCOVParser parser = new LCOVParser(fileSystem.baseDir());
     Map<String, CoverageMeasuresBuilder> coveredFiles = parser.parseFile(lcovFile);
 
-    for (File file : moduleFileSystem.files(FileQuery.onSource().onLanguage(JavaScript.KEY))) {
+    for (InputFile inputFile : fileSystem.inputFiles(mainFilePredicate)) {
       try {
-        CoverageMeasuresBuilder fileCoverage = coveredFiles.get(file.getAbsolutePath());
-        org.sonar.api.resources.File resource = org.sonar.api.resources.File.fromIOFile(file, project);
+        CoverageMeasuresBuilder fileCoverage = coveredFiles.get(inputFile.absolutePath());
+        org.sonar.api.resources.File resource = org.sonar.api.resources.File.create(inputFile.relativePath());
 
         if (fileCoverage != null) {
           for (Measure measure : fileCoverage.createMeasures()) {
@@ -101,9 +107,9 @@ public class CoverageSensor implements Sensor {
           saveZeroValueForResource(resource, context);
         }
       } catch (Exception e) {
-        LOG.error("Problem while calculating coverage for " + file.getAbsolutePath(), e);
+        LOG.error("Problem while calculating coverage for " + inputFile.absolutePath(), e);
       }
-    }
+   }
   }
 
   private void saveZeroValueForResource(org.sonar.api.resources.File resource, SensorContext context) {
@@ -142,7 +148,6 @@ public class CoverageSensor implements Sensor {
     if (!file.isAbsolute()) {
       file = new File(baseDir, path);
     }
-
 
     return file;
   }

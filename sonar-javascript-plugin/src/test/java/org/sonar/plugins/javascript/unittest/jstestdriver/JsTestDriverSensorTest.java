@@ -19,42 +19,38 @@
  */
 package org.sonar.plugins.javascript.unittest.jstestdriver;
 
-import com.google.common.collect.ImmutableList;
-import org.junit.Before;
-import org.junit.Test;
-import org.sonar.api.batch.SensorContext;
-import org.sonar.api.config.Settings;
-import org.sonar.api.measures.CoreMetrics;
-import org.sonar.api.resources.Project;
-import org.sonar.api.resources.ProjectFileSystem;
-import org.sonar.api.resources.Resource;
-import org.sonar.api.scan.filesystem.FileQuery;
-import org.sonar.api.scan.filesystem.ModuleFileSystem;
-import org.sonar.plugins.javascript.JavaScriptPlugin;
-import org.sonar.test.TestUtils;
-
-import java.io.File;
-import java.nio.charset.Charset;
-import java.util.Arrays;
-
 import static org.fest.assertions.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
-import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyObject;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+
+import java.io.File;
+
+import org.junit.Before;
+import org.junit.Test;
+import org.sonar.api.batch.SensorContext;
+import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.fs.internal.DefaultFileSystem;
+import org.sonar.api.batch.fs.internal.DefaultInputFile;
+import org.sonar.api.config.Settings;
+import org.sonar.api.measures.CoreMetrics;
+import org.sonar.api.resources.Project;
+import org.sonar.api.resources.Resource;
+import org.sonar.plugins.javascript.JavaScriptPlugin;
+import org.sonar.plugins.javascript.core.JavaScript;
+import org.sonar.test.TestUtils;
 
 public class JsTestDriverSensorTest {
 
   private static final File PROJECT_BASE_DIR = TestUtils.getResource("org/sonar/plugins/javascript/unittest/jstestdriver/sensortests");
-  private static final File TEST_DIR = new File(PROJECT_BASE_DIR, "test");
 
   private JsTestDriverSensor sensor;
   private SensorContext context;
   private Settings settings;
-  private ModuleFileSystem fileSystem = mock(ModuleFileSystem.class);
+  private DefaultFileSystem fileSystem = new DefaultFileSystem();
+  private final Project project = new Project("project");
 
   @Before
   public void init() {
@@ -66,27 +62,21 @@ public class JsTestDriverSensorTest {
   @Test
   public void test_shouldExecuteOnProject() {
     // Not a JavaScript project
-    assertThat(sensor.shouldExecuteOnProject(mockProject("java"))).isFalse();
+    assertThat(sensor.shouldExecuteOnProject(project)).isFalse();
 
     // No report path provided
-    assertThat(sensor.shouldExecuteOnProject(mockProject("js"))).isFalse();
-    assertThat(mock_sensor_for_SQ_over_4_0().shouldExecuteOnProject(mockProject(""))).isFalse();
+    assertThat(sensor.shouldExecuteOnProject(project)).isFalse();
 
     settings.setProperty(JavaScriptPlugin.JSTESTDRIVER_REPORTS_PATH, "jstestdriver");
-    assertThat(sensor.shouldExecuteOnProject(mockProject("js"))).isTrue();
-    assertThat(mock_sensor_for_SQ_over_4_0().shouldExecuteOnProject(mockProject(""))).isTrue();
+    fileSystem.add(new DefaultInputFile("File.jsp").setLanguage(JavaScript.KEY).setType(InputFile.Type.MAIN));
+    assertThat(sensor.shouldExecuteOnProject(project)).isTrue();
   }
 
   @Test
   public void testAnalyseUnitTests() {
     settings.setProperty(JavaScriptPlugin.JSTESTDRIVER_REPORTS_PATH, "reports/jstestdriver");
-
-    when(fileSystem.sourceCharset()).thenReturn(Charset.defaultCharset());
-
-    when(fileSystem.baseDir()).thenReturn(PROJECT_BASE_DIR);
-    when(fileSystem.testDirs()).thenReturn(Arrays.asList(TEST_DIR));
-
-    Project project = mockProject("js");
+    fileSystem.setBaseDir(PROJECT_BASE_DIR);
+    fileSystem.add(newTestInputFile("PersonTest.js", "org/sonar/plugins/javascript/unittest/jstestdriver/sensortests/test/PersonTest.js"));
 
     sensor.analyse(project, context);
 
@@ -109,28 +99,18 @@ public class JsTestDriverSensorTest {
     assertThat(sensor.toString()).isEqualTo("JsTestDriverSensor");
   }
 
-  private Project mockProject(final String language) {
-    return new Project("mock") {
-      @Override
-      public String getLanguageKey() {
-        return language;
-      }
-
-      @Override
-      public ProjectFileSystem getFileSystem() {
-        ProjectFileSystem pfs = mock(ProjectFileSystem.class);
-        when(pfs.getSourceDirs()).thenReturn(ImmutableList.of(TEST_DIR));
-
-        return pfs;
-      }
-    };
+  public DefaultInputFile newSourceInputFile(String name, String path) {
+    return new DefaultInputFile(name)
+      .setAbsolutePath(TestUtils.getResource(path).getAbsolutePath())
+      .setType(InputFile.Type.MAIN)
+      .setLanguage(JavaScript.KEY);
   }
 
-  private JsTestDriverSensor mock_sensor_for_SQ_over_4_0() {
-    ModuleFileSystem fs = mock(ModuleFileSystem.class);
-    when(fs.files(any(FileQuery.class))).thenReturn(ImmutableList.of(new File("mock")));
-
-    return new JsTestDriverSensor(fs, settings);
+  public DefaultInputFile newTestInputFile(String name, String path) {
+    return new DefaultInputFile(name)
+      .setAbsolutePath(TestUtils.getResource(path).getAbsolutePath())
+      .setType(InputFile.Type.TEST)
+      .setLanguage(JavaScript.KEY);
   }
 
 }

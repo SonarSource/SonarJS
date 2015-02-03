@@ -24,61 +24,62 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.Sensor;
 import org.sonar.api.batch.SensorContext;
+import org.sonar.api.batch.fs.FilePredicate;
+import org.sonar.api.batch.fs.FileSystem;
+import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.config.Settings;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
-import org.sonar.api.scan.filesystem.FileQuery;
-import org.sonar.api.scan.filesystem.ModuleFileSystem;
 import org.sonar.plugins.javascript.JavaScriptPlugin;
 import org.sonar.plugins.javascript.core.JavaScript;
 import org.sonar.plugins.javascript.unittest.surefireparser.AbstractSurefireParser;
 
 import java.io.File;
-import java.util.List;
 
 public class JsTestDriverSensor implements Sensor {
 
-  protected ModuleFileSystem fileSystem;
+  protected FileSystem fileSystem;
   protected Settings settings;
+  private final FilePredicate mainFilePredicate;
+  private final FilePredicate testFilePredicate;
 
-  public JsTestDriverSensor(ModuleFileSystem fileSystem, Settings settings) {
+  public JsTestDriverSensor(FileSystem fileSystem, Settings settings) {
     this.fileSystem = fileSystem;
     this.settings = settings;
+    this.mainFilePredicate = fileSystem.predicates().and(
+      fileSystem.predicates().hasType(InputFile.Type.MAIN),
+      fileSystem.predicates().hasLanguage(JavaScript.KEY));
+
+    this.testFilePredicate = fileSystem.predicates().and(
+      fileSystem.predicates().hasType(InputFile.Type.TEST),
+      fileSystem.predicates().hasLanguage(JavaScript.KEY));
   }
 
   private static final Logger LOG = LoggerFactory.getLogger(JsTestDriverSensor.class);
 
   @Override
   public boolean shouldExecuteOnProject(Project project) {
-    return StringUtils.isNotBlank(getReportsDirectoryPath()) &&
-      // Required for compatibility with SonarQube 3.7
-      (JavaScript.KEY.equals(project.getLanguageKey())
-        || StringUtils.isBlank(project.getLanguageKey()) && !fileSystem.files(FileQuery.onSource().onLanguage(JavaScript.KEY)).isEmpty());
+    return StringUtils.isNotBlank(getReportsDirectoryPath()) && fileSystem.hasFiles(mainFilePredicate);
   }
 
   @Override
   public void analyse(Project project, SensorContext context) {
-    collect(project, context, getIOFile(getReportsDirectoryPath()));
+    collect(context, getIOFile(getReportsDirectoryPath()));
   }
 
-  protected void collect(final Project project, final SensorContext context, File reportsDir) {
+  protected void collect(final SensorContext context, File reportsDir) {
     LOG.info("Parsing Unit Test run results in Surefire format from folder {}", reportsDir);
 
     new AbstractSurefireParser() {
 
       @Override
       protected Resource getUnitTestResource(String classKey) {
-        File unitTestFile = getUnitTestFile(fileSystem.testDirs(), getUnitTestFileName(classKey));
-        org.sonar.api.resources.File sonarFile = org.sonar.api.resources.File.fromIOFile(unitTestFile, project);
+        fileSystem.predicates().hasType(InputFile.Type.MAIN);
+        org.sonar.api.resources.File sonarFile = org.sonar.api.resources.File.create(getTestFileRelativePathToBaseDir(getUnitTestFileName(classKey)));
 
-        if (sonarFile == null) {
-          // support SQ < 4.2
-          sonarFile = org.sonar.api.resources.File.fromIOFile(unitTestFile, fileSystem.testDirs());
-        }
         return context.getResource(sonarFile);
       }
     }.collect(context, reportsDir);
-
   }
 
   protected String getUnitTestFileName(String className) {
@@ -89,16 +90,13 @@ public class JsTestDriverSensor implements Sensor {
     return fileName;
   }
 
-  protected File getUnitTestFile(List<File> testDirectories, String name) {
-    File unitTestFile = new File("");
-    for (File dir : testDirectories) {
-      unitTestFile = new File(dir, name);
-
-      if (unitTestFile.exists()) {
-        break;
+  protected String getTestFileRelativePathToBaseDir(String name) {
+    for (InputFile inputFile : fileSystem.inputFiles(testFilePredicate)) {
+      if (inputFile.file().getAbsolutePath().endsWith(name)) {
+        return inputFile.relativePath();
       }
     }
-    return unitTestFile;
+    return name;
   }
 
   /**

@@ -67,12 +67,17 @@
 
     <maven.test.redirectTestOutputToFile>true</maven.test.redirectTestOutputToFile>
 
-    <sonar.version>3.7</sonar.version>
+    <sonar.version>4.5.1</sonar.version>
     <sslr.version>1.20</sslr.version>
   </properties>
 
   <dependencyManagement>
     <dependencies>
+      <dependency>
+        <groupId>${project.groupId}</groupId>
+        <artifactId>javascript-squid</artifactId>
+        <version>${project.version}</version>
+      </dependency>
       <dependency>
         <groupId>org.codehaus.sonar</groupId>
         <artifactId>sonar-plugin-api</artifactId>
@@ -80,7 +85,7 @@
       </dependency>
       <dependency>
         <groupId>org.codehaus.sonar</groupId>
-        <artifactId>sonar-squid</artifactId>
+        <artifactId>sonar-deprecated</artifactId>
         <version>${sonar.version}</version>
       </dependency>
       <dependency>

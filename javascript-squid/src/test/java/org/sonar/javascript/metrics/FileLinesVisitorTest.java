@@ -19,18 +19,6 @@
  */
 package org.sonar.javascript.metrics;
 
-import com.google.common.collect.ImmutableList;
-import org.junit.Test;
-import org.sonar.api.measures.CoreMetrics;
-import org.sonar.api.measures.FileLinesContext;
-import org.sonar.api.measures.FileLinesContextFactory;
-import org.sonar.api.resources.Project;
-import org.sonar.api.resources.ProjectFileSystem;
-import org.sonar.api.resources.Resource;
-import org.sonar.javascript.JavaScriptAstScanner;
-
-import java.io.File;
-
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.anyInt;
 import static org.mockito.Mockito.eq;
@@ -39,25 +27,43 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.io.File;
+
+import org.junit.Test;
+import org.sonar.api.batch.fs.FileSystem;
+import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.fs.internal.DefaultFileSystem;
+import org.sonar.api.batch.fs.internal.DefaultInputFile;
+import org.sonar.api.measures.CoreMetrics;
+import org.sonar.api.measures.FileLinesContext;
+import org.sonar.api.measures.FileLinesContextFactory;
+import org.sonar.javascript.JavaScriptAstScanner;
+import org.sonar.javascript.TestUtils;
+
 public class FileLinesVisitorTest {
 
   @Test
-  public void test() {
+  public void test() throws Exception {
     FileLinesContextFactory fileLinesContextFactory = mock(FileLinesContextFactory.class);
-
     FileLinesContext fileLinesContext = mock(FileLinesContext.class);
-    when(fileLinesContextFactory.createFor(any(Resource.class))).thenReturn(fileLinesContext);
+    when(fileLinesContextFactory.createFor(any(InputFile.class))).thenReturn(fileLinesContext);
 
-    ProjectFileSystem fs = mock(ProjectFileSystem.class);
-    when(fs.getSourceDirs()).thenReturn(ImmutableList.of(new File("src/test/resources/")));
-
-    Project project = new Project("key");
-    project.setFileSystem(fs);
-
-    FileLinesVisitor visitor = new FileLinesVisitor(project, fileLinesContextFactory);
-    JavaScriptAstScanner.scanSingleFile(new File("src/test/resources/metrics/lines.js"), visitor);
+    File file = TestUtils.getResource("/metrics/lines.js");
+    FileLinesVisitor visitor = new FileLinesVisitor(fileLinesContextFactory, newFileSystem(file));
+    JavaScriptAstScanner.scanSingleFile(file, visitor);
 
     verify(fileLinesContext, times(3)).setIntValue(eq(CoreMetrics.NCLOC_DATA_KEY), anyInt(), eq(1));
     verify(fileLinesContext, times(1)).setIntValue(eq(CoreMetrics.COMMENT_LINES_DATA_KEY), anyInt(), eq(1));
   }
+
+  private FileSystem newFileSystem(File file) {
+    DefaultFileSystem fs = new DefaultFileSystem();
+
+    fs.add(new DefaultInputFile(file.getName())
+      .setAbsolutePath(file.getAbsolutePath())
+      .setType(InputFile.Type.MAIN));
+
+    return fs;
+  }
+
 }

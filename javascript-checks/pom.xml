@@ -16,7 +16,10 @@
     <dependency>
       <groupId>${project.groupId}</groupId>
       <artifactId>javascript-squid</artifactId>
-      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.codehaus.sonar</groupId>
+      <artifactId>sonar-deprecated</artifactId>
     </dependency>
 
     <dependency>

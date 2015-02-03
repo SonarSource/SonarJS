@@ -20,22 +20,22 @@
 package org.sonar.plugins.javascript.unittest.jstest;
 
 import org.sonar.api.batch.SensorContext;
+import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.config.Settings;
 import org.sonar.api.resources.Project;
-import org.sonar.api.scan.filesystem.ModuleFileSystem;
 import org.sonar.plugins.javascript.JavaScriptPlugin;
 import org.sonar.plugins.javascript.unittest.jstestdriver.JsTestDriverSensor;
 
 public class JsTestSensor extends JsTestDriverSensor {
 
-  public JsTestSensor(ModuleFileSystem fileSystem, Settings settings) {
+  public JsTestSensor(FileSystem fileSystem, Settings settings) {
     super(fileSystem, settings);
   }
 
   @Override
   public void analyse(Project project, SensorContext context) {
     String jsTestDriverFolder = getReportsDirectoryPath();
-    collect(project, context, getIOFile(jsTestDriverFolder));
+    collect(context, getIOFile(jsTestDriverFolder));
   }
 
   @Override
