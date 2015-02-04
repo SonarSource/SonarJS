@@ -95,7 +95,7 @@ public class CoverageSensor implements Sensor {
 
     for (InputFile inputFile : fileSystem.inputFiles(mainFilePredicate)) {
       try {
-        CoverageMeasuresBuilder fileCoverage = coveredFiles.get(inputFile.absolutePath());
+        CoverageMeasuresBuilder fileCoverage = coveredFiles.get(inputFile.file().getAbsolutePath());
         org.sonar.api.resources.File resource = org.sonar.api.resources.File.create(inputFile.relativePath());
 
         if (fileCoverage != null) {
