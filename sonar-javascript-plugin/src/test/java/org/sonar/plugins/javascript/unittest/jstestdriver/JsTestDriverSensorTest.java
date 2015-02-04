@@ -99,13 +99,6 @@ public class JsTestDriverSensorTest {
     assertThat(sensor.toString()).isEqualTo("JsTestDriverSensor");
   }
 
-  public DefaultInputFile newSourceInputFile(String name, String path) {
-    return new DefaultInputFile(name)
-      .setAbsolutePath(TestUtils.getResource(path).getAbsolutePath())
-      .setType(InputFile.Type.MAIN)
-      .setLanguage(JavaScript.KEY);
-  }
-
   public DefaultInputFile newTestInputFile(String name, String path) {
     return new DefaultInputFile(name)
       .setAbsolutePath(TestUtils.getResource(path).getAbsolutePath())
