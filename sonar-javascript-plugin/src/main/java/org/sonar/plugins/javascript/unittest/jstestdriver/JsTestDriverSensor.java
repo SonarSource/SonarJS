@@ -74,7 +74,6 @@ public class JsTestDriverSensor implements Sensor {
 
       @Override
       protected Resource getUnitTestResource(String classKey) {
-        fileSystem.predicates().hasType(InputFile.Type.MAIN);
         org.sonar.api.resources.File sonarFile = org.sonar.api.resources.File.create(getTestFileRelativePathToBaseDir(getUnitTestFileName(classKey)));
 
         return context.getResource(sonarFile);
