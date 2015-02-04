@@ -19,22 +19,25 @@
  */
 package org.sonar.javascript.checks;
 
-import com.google.common.collect.Sets;
-import com.sonar.sslr.api.AstNode;
+import java.util.Set;
+
 import org.sonar.check.BelongsToProfile;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.javascript.model.implementations.declaration.ParameterListTreeImpl;
 import org.sonar.javascript.model.interfaces.Tree;
 import org.sonar.javascript.model.interfaces.expression.IdentifierTree;
+import org.sonar.squidbridge.annotations.Tags;
 import org.sonar.squidbridge.checks.SquidCheck;
 import org.sonar.sslr.parser.LexerlessGrammar;
 
-import java.util.Set;
+import com.google.common.collect.Sets;
+import com.sonar.sslr.api.AstNode;
 
 @Rule(
   key = "DuplicateFunctionArgument",
-  priority = Priority.CRITICAL)
+  priority = Priority.CRITICAL,
+  tags = {Tags.PITFALL})
 @BelongsToProfile(title = CheckList.SONAR_WAY_PROFILE, priority = Priority.CRITICAL)
 public class DuplicateFunctionArgumentCheck extends SquidCheck<LexerlessGrammar> {
 

@@ -19,7 +19,10 @@
  */
 package org.sonar.javascript.checks;
 
-import com.sonar.sslr.api.AstNode;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.Stack;
+
 import org.sonar.check.BelongsToProfile;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
@@ -28,17 +31,17 @@ import org.sonar.javascript.model.interfaces.Tree.Kind;
 import org.sonar.javascript.model.interfaces.declaration.FunctionDeclarationTree;
 import org.sonar.javascript.model.interfaces.expression.FunctionExpressionTree;
 import org.sonar.javascript.model.interfaces.expression.IdentifierTree;
+import org.sonar.squidbridge.annotations.Tags;
 import org.sonar.squidbridge.checks.SquidCheck;
 import org.sonar.sslr.grammar.GrammarRuleKey;
 import org.sonar.sslr.parser.LexerlessGrammar;
 
-import java.util.HashSet;
-import java.util.Set;
-import java.util.Stack;
+import com.sonar.sslr.api.AstNode;
 
 @Rule(
   key = "SameNameForFunctionAndVariable",
-  priority = Priority.MAJOR)
+  priority = Priority.MAJOR,
+  tags = {Tags.BRAIN_OVERLOAD, Tags.PITFALL})
 @BelongsToProfile(title = CheckList.SONAR_WAY_PROFILE, priority = Priority.MAJOR)
 public class SameNameForFunctionAndVariableCheck extends SquidCheck<LexerlessGrammar> {
 

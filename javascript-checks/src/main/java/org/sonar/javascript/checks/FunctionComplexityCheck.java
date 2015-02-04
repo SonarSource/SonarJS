@@ -26,13 +26,15 @@ import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
 import org.sonar.javascript.api.EcmaScriptMetric;
 import org.sonar.javascript.model.interfaces.Tree.Kind;
+import org.sonar.squidbridge.annotations.Tags;
 import org.sonar.squidbridge.api.SourceFunction;
 import org.sonar.squidbridge.checks.SquidCheck;
 import org.sonar.sslr.parser.LexerlessGrammar;
 
 @Rule(
   key = "FunctionComplexity",
-  priority = Priority.MAJOR)
+  priority = Priority.MAJOR,
+  tags = {Tags.BRAIN_OVERLOAD})
 @BelongsToProfile(title = CheckList.SONAR_WAY_PROFILE, priority = Priority.MAJOR)
 public class FunctionComplexityCheck extends SquidCheck<LexerlessGrammar> {
 

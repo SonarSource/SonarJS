@@ -19,23 +19,26 @@
  */
 package org.sonar.javascript.checks;
 
-import com.google.common.io.Files;
-import com.sonar.sslr.api.AstNode;
+import java.io.IOException;
+import java.nio.charset.Charset;
+import java.util.List;
+
 import org.sonar.api.utils.SonarException;
 import org.sonar.check.BelongsToProfile;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.javascript.CharsetAwareVisitor;
+import org.sonar.squidbridge.annotations.Tags;
 import org.sonar.squidbridge.checks.SquidCheck;
 import org.sonar.sslr.parser.LexerlessGrammar;
 
-import java.io.IOException;
-import java.nio.charset.Charset;
-import java.util.List;
+import com.google.common.io.Files;
+import com.sonar.sslr.api.AstNode;
 
 @Rule(
   key = "TabCharacter",
-  priority = Priority.MINOR)
+  priority = Priority.MINOR,
+  tags = {Tags.CONVENTION})
 @BelongsToProfile(title = CheckList.SONAR_WAY_PROFILE, priority = Priority.MINOR)
 public class TabCharacterCheck extends SquidCheck<LexerlessGrammar> implements CharsetAwareVisitor {
 

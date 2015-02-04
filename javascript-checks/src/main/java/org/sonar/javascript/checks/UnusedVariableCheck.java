@@ -19,8 +19,9 @@
  */
 package org.sonar.javascript.checks;
 
-import com.google.common.collect.Maps;
-import com.sonar.sslr.api.AstNode;
+import java.util.List;
+import java.util.Map;
+
 import org.sonar.check.BelongsToProfile;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
@@ -29,16 +30,18 @@ import org.sonar.javascript.model.implementations.statement.VariableDeclarationT
 import org.sonar.javascript.model.interfaces.Tree.Kind;
 import org.sonar.javascript.model.interfaces.expression.ArrowFunctionTree;
 import org.sonar.javascript.model.interfaces.expression.IdentifierTree;
+import org.sonar.squidbridge.annotations.Tags;
 import org.sonar.squidbridge.checks.SquidCheck;
 import org.sonar.sslr.grammar.GrammarRuleKey;
 import org.sonar.sslr.parser.LexerlessGrammar;
 
-import java.util.List;
-import java.util.Map;
+import com.google.common.collect.Maps;
+import com.sonar.sslr.api.AstNode;
 
 @Rule(
   key = "UnusedVariable",
-  priority = Priority.MAJOR)
+  priority = Priority.MAJOR,
+  tags = {Tags.UNUSED})
 @BelongsToProfile(title = CheckList.SONAR_WAY_PROFILE, priority = Priority.MAJOR)
 public class UnusedVariableCheck extends SquidCheck<LexerlessGrammar> {
 

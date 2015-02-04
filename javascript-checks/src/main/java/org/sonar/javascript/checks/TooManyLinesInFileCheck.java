@@ -19,18 +19,21 @@
  */
 package org.sonar.javascript.checks;
 
-import com.sonar.sslr.api.AstNode;
-import com.sonar.sslr.api.GenericTokenType;
 import org.sonar.check.BelongsToProfile;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
+import org.sonar.squidbridge.annotations.Tags;
 import org.sonar.squidbridge.checks.SquidCheck;
 import org.sonar.sslr.parser.LexerlessGrammar;
 
+import com.sonar.sslr.api.AstNode;
+import com.sonar.sslr.api.GenericTokenType;
+
 @Rule(
   key = "S104",
-  priority = Priority.MAJOR)
+  priority = Priority.MAJOR,
+  tags = {Tags.BRAIN_OVERLOAD})
 @BelongsToProfile(title = CheckList.SONAR_WAY_PROFILE, priority = Priority.MAJOR)
 public class TooManyLinesInFileCheck extends SquidCheck<LexerlessGrammar> {
 

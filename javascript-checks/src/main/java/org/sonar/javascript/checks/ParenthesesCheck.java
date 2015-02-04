@@ -19,7 +19,6 @@
  */
 package org.sonar.javascript.checks;
 
-import com.sonar.sslr.api.AstNode;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.javascript.api.EcmaScriptKeyword;
@@ -31,6 +30,8 @@ import org.sonar.javascript.model.interfaces.expression.UnaryExpressionTree;
 import org.sonar.squidbridge.checks.SquidCheck;
 import org.sonar.sslr.parser.LexerlessGrammar;
 
+import com.sonar.sslr.api.AstNode;
+
 /**
  * http://google-styleguide.googlecode.com/svn/trunk/javascriptguide.xml?showone=Parentheses#Parentheses
  *
@@ -38,7 +39,9 @@ import org.sonar.sslr.parser.LexerlessGrammar;
  */
 @Rule(
   key = "Parentheses",
-  priority = Priority.MINOR)
+  priority = Priority.MINOR,
+  // FIXME use a constant
+  tags = {"confusing"})
 public class ParenthesesCheck extends SquidCheck<LexerlessGrammar> {
 
   @Override

@@ -19,12 +19,10 @@
  */
 package org.sonar.javascript.checks;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Maps;
-import com.sonar.sslr.api.AstNode;
-import com.sonar.sslr.api.AstNodeType;
-import com.sonar.sslr.api.AstVisitor;
-import com.sonar.sslr.impl.ast.AstWalker;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.javascript.checks.utils.CheckUtils;
@@ -32,16 +30,21 @@ import org.sonar.javascript.model.implementations.declaration.ParameterListTreeI
 import org.sonar.javascript.model.implementations.statement.VariableDeclarationTreeImpl;
 import org.sonar.javascript.model.interfaces.Tree.Kind;
 import org.sonar.javascript.model.interfaces.expression.IdentifierTree;
+import org.sonar.squidbridge.annotations.Tags;
 import org.sonar.squidbridge.checks.SquidCheck;
 import org.sonar.sslr.parser.LexerlessGrammar;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Maps;
+import com.sonar.sslr.api.AstNode;
+import com.sonar.sslr.api.AstNodeType;
+import com.sonar.sslr.api.AstVisitor;
+import com.sonar.sslr.impl.ast.AstWalker;
 
 @Rule(
   key = "VariableShadowing",
-  priority = Priority.MAJOR)
+  priority = Priority.MAJOR,
+  tags = {Tags.PITFALL})
 public class VariableShadowingCheck extends SquidCheck<LexerlessGrammar> {
 
   private Map<AstNode, Scope> scopes;

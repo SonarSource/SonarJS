@@ -19,22 +19,25 @@
  */
 package org.sonar.javascript.checks;
 
-import com.sonar.sslr.api.AstAndTokenVisitor;
-import com.sonar.sslr.api.AstNode;
-import com.sonar.sslr.api.Token;
-import com.sonar.sslr.api.Trivia;
+import java.util.regex.Pattern;
+
 import org.sonar.check.BelongsToProfile;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
+import org.sonar.squidbridge.annotations.Tags;
 import org.sonar.squidbridge.checks.SquidCheck;
 import org.sonar.sslr.parser.LexerlessGrammar;
 
-import java.util.regex.Pattern;
+import com.sonar.sslr.api.AstAndTokenVisitor;
+import com.sonar.sslr.api.AstNode;
+import com.sonar.sslr.api.Token;
+import com.sonar.sslr.api.Trivia;
 
 @Rule(
   key = "TrailingComment",
-  priority = Priority.MINOR)
+  priority = Priority.MINOR,
+  tags = {Tags.CONVENTION})
 @BelongsToProfile(title = CheckList.SONAR_WAY_PROFILE, priority = Priority.MINOR)
 public class TrailingCommentCheck extends SquidCheck<LexerlessGrammar> implements AstAndTokenVisitor {
 

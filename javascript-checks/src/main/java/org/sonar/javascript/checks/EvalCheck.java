@@ -24,12 +24,15 @@ import org.sonar.check.BelongsToProfile;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.javascript.model.interfaces.Tree.Kind;
+import org.sonar.squidbridge.annotations.Tags;
 import org.sonar.squidbridge.checks.SquidCheck;
 import org.sonar.sslr.parser.LexerlessGrammar;
 
 @Rule(
   key = "Eval",
-  priority = Priority.MAJOR)
+  priority = Priority.MAJOR,
+  // FIXME: use constant
+  tags = {Tags.CWE, "injection", Tags.SECURITY})
 @BelongsToProfile(title = CheckList.SONAR_WAY_PROFILE, priority = Priority.MAJOR)
 public class EvalCheck extends SquidCheck<LexerlessGrammar> {
 

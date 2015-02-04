@@ -26,12 +26,14 @@ import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
 import org.sonar.javascript.api.EcmaScriptPunctuator;
 import org.sonar.javascript.model.interfaces.Tree.Kind;
+import org.sonar.squidbridge.annotations.Tags;
 import org.sonar.squidbridge.checks.SquidCheck;
 import org.sonar.sslr.parser.LexerlessGrammar;
 
 @Rule(
   key = "S138",
-  priority = Priority.MAJOR)
+  priority = Priority.MAJOR,
+  tags = {Tags.BRAIN_OVERLOAD})
 @BelongsToProfile(title = CheckList.SONAR_WAY_PROFILE, priority = Priority.MAJOR)
 public class TooManyLinesInFunctionCheck extends SquidCheck<LexerlessGrammar> {
   private static final int DEFAULT = 100;

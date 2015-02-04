@@ -19,18 +19,21 @@
  */
 package org.sonar.javascript.checks;
 
-import com.sonar.sslr.api.AstNode;
 import org.sonar.check.BelongsToProfile;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.javascript.api.EcmaScriptPunctuator;
 import org.sonar.javascript.parser.EcmaScriptGrammar;
+import org.sonar.squidbridge.annotations.Tags;
 import org.sonar.squidbridge.checks.SquidCheck;
 import org.sonar.sslr.parser.LexerlessGrammar;
 
+import com.sonar.sslr.api.AstNode;
+
 @Rule(
   key = "Semicolon",
-  priority = Priority.MAJOR)
+  priority = Priority.MAJOR,
+  tags = {Tags.CONVENTION})
 @BelongsToProfile(title = CheckList.SONAR_WAY_PROFILE, priority = Priority.MAJOR)
 public class SemicolonCheck extends SquidCheck<LexerlessGrammar> {
 

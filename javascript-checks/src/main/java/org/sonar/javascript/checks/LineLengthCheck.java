@@ -19,18 +19,21 @@
  */
 package org.sonar.javascript.checks;
 
-import com.sonar.sslr.api.AstAndTokenVisitor;
-import com.sonar.sslr.api.AstNode;
-import com.sonar.sslr.api.Token;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
+import org.sonar.squidbridge.annotations.Tags;
 import org.sonar.squidbridge.checks.SquidCheck;
 import org.sonar.sslr.parser.LexerlessGrammar;
 
+import com.sonar.sslr.api.AstAndTokenVisitor;
+import com.sonar.sslr.api.AstNode;
+import com.sonar.sslr.api.Token;
+
 @Rule(
   key = "LineLength",
-  priority = Priority.MINOR)
+  priority = Priority.MINOR,
+  tags = {Tags.CONVENTION})
 public class LineLengthCheck extends SquidCheck<LexerlessGrammar> implements AstAndTokenVisitor {
 
   private Token previousToken;

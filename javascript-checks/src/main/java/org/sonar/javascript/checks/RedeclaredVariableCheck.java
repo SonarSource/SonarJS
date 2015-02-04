@@ -19,7 +19,10 @@
  */
 package org.sonar.javascript.checks;
 
-import com.sonar.sslr.api.AstNode;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.Stack;
+
 import org.sonar.check.BelongsToProfile;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
@@ -30,16 +33,16 @@ import org.sonar.javascript.model.interfaces.Tree;
 import org.sonar.javascript.model.interfaces.Tree.Kind;
 import org.sonar.javascript.model.interfaces.expression.ArrowFunctionTree;
 import org.sonar.javascript.model.interfaces.expression.IdentifierTree;
+import org.sonar.squidbridge.annotations.Tags;
 import org.sonar.squidbridge.checks.SquidCheck;
 import org.sonar.sslr.parser.LexerlessGrammar;
 
-import java.util.HashSet;
-import java.util.Set;
-import java.util.Stack;
+import com.sonar.sslr.api.AstNode;
 
 @Rule(
   key = "RedeclaredVariable",
-  priority = Priority.MAJOR)
+  priority = Priority.MAJOR,
+  tags = {Tags.BUG})
 @BelongsToProfile(title = CheckList.SONAR_WAY_PROFILE, priority = Priority.MAJOR)
 public class RedeclaredVariableCheck extends SquidCheck<LexerlessGrammar> {
 

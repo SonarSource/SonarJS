@@ -19,7 +19,9 @@
  */
 package org.sonar.javascript.checks;
 
-import com.sonar.sslr.api.AstNode;
+import static org.sonar.squidbridge.annotations.Tags.MISRA;
+import static org.sonar.squidbridge.annotations.Tags.UNUSED;
+
 import org.sonar.check.BelongsToProfile;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
@@ -29,9 +31,12 @@ import org.sonar.javascript.model.interfaces.statement.ExpressionStatementTree;
 import org.sonar.squidbridge.checks.SquidCheck;
 import org.sonar.sslr.parser.LexerlessGrammar;
 
+import com.sonar.sslr.api.AstNode;
+
 @Rule(
   key = "UnreachableCode",
-  priority = Priority.MAJOR)
+  priority = Priority.MAJOR,
+  tags = {MISRA, UNUSED})
 @BelongsToProfile(title = CheckList.SONAR_WAY_PROFILE, priority = Priority.MAJOR)
 public class UnreachableCodeCheck extends SquidCheck<LexerlessGrammar> {
 

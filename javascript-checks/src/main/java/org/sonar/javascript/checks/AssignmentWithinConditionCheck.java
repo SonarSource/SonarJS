@@ -37,10 +37,12 @@ import org.sonar.javascript.model.interfaces.expression.ExpressionTree;
 import org.sonar.javascript.model.interfaces.expression.ParenthesisedExpressionTree;
 import org.sonar.javascript.model.interfaces.statement.ExpressionStatementTree;
 import org.sonar.javascript.model.interfaces.statement.ForStatementTree;
+import org.sonar.squidbridge.annotations.Tags;
 
 @Rule(
   key = "AssignmentWithinCondition",
-  priority = Priority.MAJOR)
+  priority = Priority.MAJOR,
+  tags = {Tags.BUG, Tags.CWE, Tags.MISRA})
 @BelongsToProfile(title = CheckList.SONAR_WAY_PROFILE, priority = Priority.MAJOR)
 public class AssignmentWithinConditionCheck extends BaseTreeVisitor implements JavaScriptFileScanner {
 

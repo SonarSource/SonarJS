@@ -19,18 +19,21 @@
  */
 package org.sonar.javascript.checks;
 
-import com.sonar.sslr.api.AstAndTokenVisitor;
-import com.sonar.sslr.api.Token;
-import com.sonar.sslr.api.Trivia;
 import org.sonar.check.BelongsToProfile;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
+import org.sonar.squidbridge.annotations.Tags;
 import org.sonar.squidbridge.checks.SquidCheck;
 import org.sonar.sslr.parser.LexerlessGrammar;
 
+import com.sonar.sslr.api.AstAndTokenVisitor;
+import com.sonar.sslr.api.Token;
+import com.sonar.sslr.api.Trivia;
+
 @Rule(
   key = "ConditionalComment",
-  priority = Priority.MAJOR)
+  priority = Priority.MAJOR,
+  tags = {Tags.CROSS_BROWSER})
 @BelongsToProfile(title = CheckList.SONAR_WAY_PROFILE, priority = Priority.MAJOR)
 public class ConditionalCommentCheck extends SquidCheck<LexerlessGrammar> implements AstAndTokenVisitor {
 

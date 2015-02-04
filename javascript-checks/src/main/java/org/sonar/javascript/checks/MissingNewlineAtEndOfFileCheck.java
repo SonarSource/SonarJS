@@ -19,20 +19,23 @@
  */
 package org.sonar.javascript.checks;
 
-import com.google.common.io.Closeables;
-import com.sonar.sslr.api.AstNode;
-import org.sonar.api.utils.SonarException;
-import org.sonar.check.Priority;
-import org.sonar.check.Rule;
-import org.sonar.squidbridge.checks.SquidCheck;
-import org.sonar.sslr.parser.LexerlessGrammar;
-
 import java.io.IOException;
 import java.io.RandomAccessFile;
 
+import org.sonar.api.utils.SonarException;
+import org.sonar.check.Priority;
+import org.sonar.check.Rule;
+import org.sonar.squidbridge.annotations.Tags;
+import org.sonar.squidbridge.checks.SquidCheck;
+import org.sonar.sslr.parser.LexerlessGrammar;
+
+import com.google.common.io.Closeables;
+import com.sonar.sslr.api.AstNode;
+
 @Rule(
   key = "MissingNewlineAtEndOfFile",
-  priority = Priority.MINOR)
+  priority = Priority.MINOR,
+  tags = {Tags.CONVENTION})
 public class MissingNewlineAtEndOfFileCheck extends SquidCheck<LexerlessGrammar> {
 
   @Override
