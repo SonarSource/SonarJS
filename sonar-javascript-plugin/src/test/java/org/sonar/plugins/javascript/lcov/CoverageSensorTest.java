@@ -48,19 +48,14 @@ import org.sonar.test.TestUtils;
 
 public class CoverageSensorTest {
 
-  private CoverageSensor sensor;
   private SensorContext context;
   private Settings settings;
-  private DefaultFileSystem fileSystem = new DefaultFileSystem();
   private Project project;
 
   @Before
   public void init() {
-    fileSystem.setBaseDir(TestUtils.getResource("org/sonar/plugins/javascript/unittest/jstestdriver/"));
-
     settings = new Settings();
     settings.setProperty(JavaScriptPlugin.LCOV_REPORT_PATH, "jsTestDriver.conf-coverage.dat");
-    sensor = new CoverageSensor(fileSystem, settings);
     context = mock(SensorContext.class);
     project = new Project("project");
 
@@ -68,16 +63,16 @@ public class CoverageSensorTest {
 
   @Test
   public void test_should_execute() {
-    DefaultFileSystem localFS = new DefaultFileSystem();
+    DefaultFileSystem fs = new DefaultFileSystem();
     Settings localSettings = new Settings();
     localSettings.setProperty(JavaScriptPlugin.LCOV_REPORT_PATH, "jsTestDriver.conf-coverage.dat");
-    CoverageSensor localSensor = new CoverageSensor(localFS, localSettings);
+    CoverageSensor localSensor = newSensor(fs, localSettings);
 
     // no JS files -> do not execute
     assertThat(localSensor.shouldExecuteOnProject(project)).isFalse();
 
     // at least one JS file -> do execute
-    localFS.add(new DefaultInputFile("file.js").setType(InputFile.Type.MAIN).setLanguage(JavaScript.KEY));
+    fs.add(new DefaultInputFile("file.js").setType(InputFile.Type.MAIN).setLanguage(JavaScript.KEY));
     assertThat(localSensor.shouldExecuteOnProject(project)).isTrue();
 
     // no path to report -> do execute
@@ -87,29 +82,31 @@ public class CoverageSensorTest {
 
   @Test
   public void report_not_found() throws Exception {
+    DefaultFileSystem fs = newFileSystem();
+
     // Setting with bad report path
     Settings localSettings = new Settings();
     localSettings.setProperty(JavaScriptPlugin.LCOV_REPORT_PATH, "/fake/path/jsTestDriver.conf-coverage.dat");
 
-    // sensor with local settings
-    CoverageSensor localSensor = new CoverageSensor(fileSystem, localSettings);
-    localSensor.analyse(project, context);
+    newSensor(fs, localSettings).analyse(project, context);
 
     verifyZeroInteractions(context);
   }
 
   @Test
   public void test_file_in_coverage_report() {
-    fileSystem.add(newSourceInputFile("Another.js", "org/sonar/plugins/javascript/unittest/jstestdriver/sensortests/main/Another.js"));
-    fileSystem.add(newSourceInputFile("Person.js", "org/sonar/plugins/javascript/unittest/jstestdriver/sensortests/main/Person.js"));
-    sensor.analyse(project, context);
+    DefaultFileSystem fs = newFileSystem();
+    fs.add(newSourceInputFile("Another.js", "org/sonar/plugins/javascript/unittest/jstestdriver/sensortests/main/Another.js"));
+    fs.add(newSourceInputFile("Person.js", "org/sonar/plugins/javascript/unittest/jstestdriver/sensortests/main/Person.js"));
+    newSensor(fs, settings).analyse(project, context);
 
     verify(context, atLeast(3)).saveMeasure(any(Resource.class), (Measure) anyObject());
   }
 
   @Test
   public void test_file_not_in_coverage_report() {
-    fileSystem.add(newSourceInputFile("Another.js", "org/sonar/plugins/javascript/unittest/jstestdriver/sensortests/main/Another.js"));
+    DefaultFileSystem fs = newFileSystem();
+    fs.add(newSourceInputFile("Another.js", "org/sonar/plugins/javascript/unittest/jstestdriver/sensortests/main/Another.js"));
 
     when(context.getMeasure(any(org.sonar.api.resources.File.class), eq(CoreMetrics.LINES))).thenReturn(
       new Measure(CoreMetrics.LINES, (double) 20));
@@ -117,7 +114,7 @@ public class CoverageSensorTest {
       .thenReturn(
         new Measure(CoreMetrics.LINES, (double) 22));
 
-    sensor.analyse(project, context);
+    newSensor(fs, settings).analyse(project, context);
 
     verify(context).saveMeasure((Resource) anyObject(), eq(CoreMetrics.LINES_TO_COVER), eq(22.0));
     verify(context).saveMeasure((Resource) anyObject(), eq(CoreMetrics.UNCOVERED_LINES), eq(22.0));
@@ -125,12 +122,14 @@ public class CoverageSensorTest {
 
   @Test
   public void test_save_zero_value_for_all_files() throws Exception {
-    fileSystem.add(newSourceInputFile("Person.js", "org/sonar/plugins/javascript/unittest/jstestdriver/sensortests/main/Person.js"));
+    DefaultFileSystem fs = newFileSystem();
+    fs.add(newSourceInputFile("Person.js", "org/sonar/plugins/javascript/unittest/jstestdriver/sensortests/main/Person.js"));
 
     settings.setProperty(JavaScriptPlugin.FORCE_ZERO_COVERAGE_KEY, "true");
     settings.setProperty(JavaScriptPlugin.LCOV_REPORT_PATH, "");
     when(context.getMeasure(any(Resource.class), any(Metric.class))).thenReturn(new Measure().setValue(1d));
-    sensor.analyse(project, context);
+
+    newSensor(fs, settings).analyse(project, context);
 
     verify(context, times(1)).saveMeasure((Resource) anyObject(), eq(CoreMetrics.LINES_TO_COVER), eq(1d));
     verify(context, times(1)).saveMeasure((Resource) anyObject(), eq(CoreMetrics.UNCOVERED_LINES), eq(1d));
@@ -139,7 +138,7 @@ public class CoverageSensorTest {
 
   @Test
   public void test_toString() {
-    assertThat(sensor.toString()).isEqualTo("CoverageSensor");
+    assertThat(newSensor(newFileSystem(), settings).toString()).isEqualTo("CoverageSensor");
   }
 
   public DefaultInputFile newSourceInputFile(String name, String path) {
@@ -147,6 +146,17 @@ public class CoverageSensorTest {
       .setAbsolutePath(TestUtils.getResource(path).getAbsolutePath())
       .setType(InputFile.Type.MAIN)
       .setLanguage(JavaScript.KEY);
+  }
+
+  public DefaultFileSystem newFileSystem() {
+    DefaultFileSystem fs = new DefaultFileSystem();
+    fs.setBaseDir(TestUtils.getResource("org/sonar/plugins/javascript/unittest/jstestdriver/"));
+
+    return fs;
+  }
+
+  public CoverageSensor newSensor(DefaultFileSystem fs, Settings settings) {
+    return new CoverageSensor(fs, settings);
   }
 
 }
