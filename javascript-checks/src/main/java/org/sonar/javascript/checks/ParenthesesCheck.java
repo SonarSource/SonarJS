@@ -61,7 +61,7 @@ public class ParenthesesCheck extends SquidCheck<LexerlessGrammar> {
     if (node.is(Kind.DELETE, Kind.TYPEOF, Kind.VOID)) {
       UnaryExpressionTree prefixExpr = (UnaryExpressionTree) node;
 
-      if (startsWithOpenParenthesis((AstNode) prefixExpr.expression())) {
+      if (prefixExpr.expression().is(Kind.PARENTHESISED_EXPRESSION)) {
         reportIssue(node);
       }
 
@@ -73,7 +73,7 @@ public class ParenthesesCheck extends SquidCheck<LexerlessGrammar> {
         reportIssue(node);
       }
 
-    } else if (isNotRelationalInExpression(node) && startsWithOpenParenthesis(node.getNextAstNode())) {
+    } else if (isNotRelationalInExpression(node) && node.getNextAstNode().is(Kind.PARENTHESISED_EXPRESSION)) {
       reportIssue(node);
     }
   }
