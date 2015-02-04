@@ -25,12 +25,11 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.fs.FileSystem;
-import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.FileLinesContext;
 import org.sonar.api.measures.FileLinesContextFactory;
 import org.sonar.api.resources.File;
-import org.sonar.api.resources.Project;
+import org.sonar.api.scan.filesystem.PathResolver;
 import org.sonar.javascript.api.EcmaScriptMetric;
 import org.sonar.squidbridge.SquidAstVisitor;
 import org.sonar.sslr.parser.LexerlessGrammar;
@@ -51,13 +50,15 @@ public class FileLinesVisitor extends SquidAstVisitor<LexerlessGrammar> implemen
 
   private final FileLinesContextFactory fileLinesContextFactory;
   private final FileSystem fileSystem;
+  private final PathResolver pathResolver;
 
   private final Set<Integer> linesOfCode = Sets.newHashSet();
   private final Set<Integer> linesOfComments = Sets.newHashSet();
 
-  public FileLinesVisitor(FileLinesContextFactory fileLinesContextFactory, FileSystem fileSystem) {
+  public FileLinesVisitor(FileLinesContextFactory fileLinesContextFactory, FileSystem fileSystem, PathResolver pathResolver) {
     this.fileLinesContextFactory = fileLinesContextFactory;
     this.fileSystem = fileSystem;
+    this.pathResolver = pathResolver;
   }
 
   @Override
@@ -77,10 +78,9 @@ public class FileLinesVisitor extends SquidAstVisitor<LexerlessGrammar> implemen
 
   @Override
   public void leaveFile(AstNode astNode) {
-    InputFile inputFile = fileSystem.inputFile(fileSystem.predicates().is(getContext().getFile()));
+    FileLinesContext fileLinesContext = fileLinesContextFactory.createFor(File.create(pathResolver.relativePath(fileSystem.baseDir(), getContext().getFile().getAbsoluteFile())));
 
-    if (inputFile != null) {
-      FileLinesContext fileLinesContext = fileLinesContextFactory.createFor(inputFile);
+    if (fileLinesContext != null) {
 
       int fileLength = getContext().peekSourceCode().getInt(EcmaScriptMetric.LINES);
       for (int line = 1; line <= fileLength; line++) {

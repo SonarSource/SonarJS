@@ -38,8 +38,10 @@ import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.FileLinesContext;
 import org.sonar.api.measures.FileLinesContextFactory;
 import org.sonar.api.profiles.RulesProfile;
+import org.sonar.api.resources.File;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
+import org.sonar.api.scan.filesystem.PathResolver;
 import org.sonar.plugins.javascript.core.JavaScript;
 import org.sonar.test.TestUtils;
 
@@ -62,7 +64,7 @@ public class JavaScriptSquidSensorTest {
   public void should_execute_if_js_files() {
     DefaultFileSystem localFS = new DefaultFileSystem();
     JavaScriptSquidSensor sensor = new JavaScriptSquidSensor(mock(RulesProfile.class), fileLinesContextFactory, mock(ResourcePerspectives.class), localFS, new NoSonarFilter(
-      mock(SensorContext.class)));
+      mock(SensorContext.class)), new PathResolver());
 
     // no JS files -> do not execute
     assertThat(sensor.shouldExecuteOnProject(project)).isFalse();
@@ -74,14 +76,16 @@ public class JavaScriptSquidSensorTest {
 
   @Test
   public void should_analyse() {
+    fileSystem.setBaseDir(TestUtils.getResource("/cpd/"));
     fileSystem.add(new DefaultInputFile("Person.js")
       .setAbsolutePath(TestUtils.getResource("/cpd/Person.js").getAbsolutePath())
       .setType(InputFile.Type.MAIN)
       .setLanguage(JavaScript.KEY));
 
     SensorContext context = mock(SensorContext.class);
+    when(context.getResource(any(Resource.class))).thenReturn(File.create((new PathResolver()).relativePath(fileSystem.baseDir(), TestUtils.getResource("/cpd/Person.js"))));
     JavaScriptSquidSensor sensor = new JavaScriptSquidSensor(mock(RulesProfile.class), fileLinesContextFactory, mock(ResourcePerspectives.class), fileSystem, new NoSonarFilter(
-      mock(SensorContext.class)));
+      mock(SensorContext.class)), new PathResolver());
 
     sensor.analyse(project, context);
 
@@ -102,7 +106,7 @@ public class JavaScriptSquidSensorTest {
       mock(RulesProfile.class),
       fileLinesContextFactory,
       mock(ResourcePerspectives.class),
-      new DefaultFileSystem(), new NoSonarFilter(mock(SensorContext.class)));
+      new DefaultFileSystem(), new NoSonarFilter(mock(SensorContext.class)), new PathResolver());
 
     assertThat(sensor.toString()).isNotNull();
   }

@@ -45,6 +45,7 @@ import org.sonar.api.resources.File;
 import org.sonar.api.resources.Project;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.ActiveRule;
+import org.sonar.api.scan.filesystem.PathResolver;
 import org.sonar.javascript.EcmaScriptConfiguration;
 import org.sonar.javascript.JavaScriptAstScanner;
 import org.sonar.javascript.JavaScriptFileScanner;
@@ -79,17 +80,19 @@ public class JavaScriptSquidSensor implements Sensor {
   private final FileSystem fileSystem;
   private final NoSonarFilter noSonarFilter;
   private final FilePredicate mainFilePredicate;
+  private final PathResolver pathResolver;
 
   private SensorContext context;
   private AstScanner<LexerlessGrammar> scanner;
 
   public JavaScriptSquidSensor(RulesProfile profile, FileLinesContextFactory fileLinesContextFactory,
-    ResourcePerspectives resourcePerspectives, FileSystem fileSystem, NoSonarFilter noSonarFilter) {
+    ResourcePerspectives resourcePerspectives, FileSystem fileSystem, NoSonarFilter noSonarFilter, PathResolver pathResolver) {
     this.annotationCheckFactory = AnnotationCheckFactory.create(profile, CheckList.REPOSITORY_KEY, CheckList.getChecks());
     this.fileLinesContextFactory = fileLinesContextFactory;
     this.resourcePerspectives = resourcePerspectives;
     this.fileSystem = fileSystem;
     this.noSonarFilter = noSonarFilter;
+    this.pathResolver = pathResolver;
     this.mainFilePredicate = fileSystem.predicates().and(
       fileSystem.predicates().hasType(InputFile.Type.MAIN),
       fileSystem.predicates().hasLanguage(JavaScript.KEY));
@@ -117,7 +120,7 @@ public class JavaScriptSquidSensor implements Sensor {
     }
 
     astNodeVisitors.add(new VisitorsBridge(treeVisitors));
-    astNodeVisitors.add(new FileLinesVisitor(fileLinesContextFactory, fileSystem));
+    astNodeVisitors.add(new FileLinesVisitor(fileLinesContextFactory, fileSystem, pathResolver));
 
     scanner = JavaScriptAstScanner.create(createConfiguration(), astNodeVisitors.toArray(new SquidAstVisitor[astNodeVisitors.size()]));
     scanner.scanFiles(Lists.newArrayList(fileSystem.files(mainFilePredicate)));
@@ -134,10 +137,9 @@ public class JavaScriptSquidSensor implements Sensor {
     for (SourceCode squidSourceFile : squidSourceFiles) {
       SourceFile squidFile = (SourceFile) squidSourceFile;
 
-      InputFile inputFile = fileSystem.inputFile(fileSystem.predicates().hasAbsolutePath(squidFile.getKey()));
+      File sonarFile = context.getResource(File.create(pathResolver.relativePath(fileSystem.baseDir(), new java.io.File(squidFile.getKey()))));
 
-      if (inputFile != null) {
-        File sonarFile = File.create(inputFile.relativePath());
+      if (sonarFile != null) {
         noSonarFilter.addResource(sonarFile, squidFile.getNoSonarTagLines());
         saveClassComplexity(sonarFile, squidFile);
         saveFilesComplexityDistribution(sonarFile, squidFile);
