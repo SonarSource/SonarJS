@@ -33,7 +33,6 @@ import org.sonar.api.measures.CoverageMeasuresBuilder;
 import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.PropertiesBuilder;
 import org.sonar.api.resources.Project;
-import org.sonar.api.scan.filesystem.FileQuery;
 import org.sonar.plugins.javascript.JavaScriptPlugin;
 import org.sonar.plugins.javascript.core.JavaScript;
 
@@ -83,8 +82,10 @@ public class CoverageSensor implements Sensor {
     String providedPath = settings.getString(JavaScriptPlugin.LCOV_REPORT_PATH);
     File lcovFile = getIOFile(fileSystem.baseDir(), providedPath);
 
+
     if (!lcovFile.isFile()) {
-      LOG.warn("No coverage information will be saved because LCOV file cannot be analysed. Provided LCOV file path: {}", providedPath);
+      LOG.warn("No coverage information will be saved because LCOV file cannot be found. Provided LCOV file path: {}", providedPath);
+      LOG.warn("Provided LCOV file path: {}. Seek file with path: {}", providedPath, lcovFile.getAbsolutePath());
       return;
     }
 
@@ -104,6 +105,8 @@ public class CoverageSensor implements Sensor {
           }
         } else {
           // colour all lines as not executed
+          LOG.debug("Default value of zero will be saved for file: {}", resource.getEffectiveKey());
+          LOG.debug("Because: either was not present in LCOV report either was not able to retrieve associated SonarQube resource");
           saveZeroValueForResource(resource, context);
         }
       } catch (Exception e) {
