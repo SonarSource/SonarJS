@@ -32,7 +32,6 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.startsWith;
 import static org.hamcrest.core.Is.is;
 
-@Ignore
 public class SurefireStaxHandlerTest {
 
   private UnitTestIndex index;
@@ -117,7 +116,7 @@ public class SurefireStaxHandlerTest {
   }
 
   private void parse(String path) throws XMLStreamException {
-    File xml = TestUtils.getResource(getClass(), path);
+    File xml = TestUtils.getResource("/org/sonar/plugins/javascript/surefireparser/" + path);
     SurefireStaxHandler staxParser = new SurefireStaxHandler(index);
     StaxParser parser = new StaxParser(staxParser, false);
     parser.parse(xml);

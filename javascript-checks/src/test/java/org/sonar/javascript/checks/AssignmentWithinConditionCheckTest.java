@@ -19,13 +19,11 @@
  */
 package org.sonar.javascript.checks;
 
-import org.junit.Ignore;
-import org.sonar.javascript.checks.utils.TreeCheckTest;
-import org.sonar.squidbridge.checks.CheckMessagesVerifier;
 import org.junit.Test;
+import org.sonar.javascript.checks.utils.TreeCheckTest;
 import org.sonar.squidbridge.api.SourceFile;
+import org.sonar.squidbridge.checks.CheckMessagesVerifier;
 
-@Ignore("SONARJS-309 Fix and re-introduce the rule")
 public class AssignmentWithinConditionCheckTest extends TreeCheckTest {
 
   @Test
@@ -34,15 +32,15 @@ public class AssignmentWithinConditionCheckTest extends TreeCheckTest {
 
     SourceFile file = scanFile("src/test/resources/checks/assignmentWithinCondition.js", check);
     CheckMessagesVerifier.verify(file.getCheckMessages())
-        .next().atLine(1).withMessage("Extract the assignment out of this expression.")
-        .next().atLine(4)
-        .next().atLine(16)
-        .next().atLine(23)
-        .next().atLine(28)
-        .next().atLine(47)
-        .next().atLine(56)
-        .next().atLine(60)
-        .noMore();
+      .next().atLine(1).withMessage("Extract the assignment out of this expression.")
+      .next().atLine(4)
+      .next().atLine(16)
+      .next().atLine(23)
+      .next().atLine(28)
+      .next().atLine(47)
+      .next().atLine(56)
+      .next().atLine(60)
+      .noMore();
   }
 
 }

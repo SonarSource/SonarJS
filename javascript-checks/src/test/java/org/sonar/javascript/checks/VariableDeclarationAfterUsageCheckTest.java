@@ -19,15 +19,13 @@
  */
 package org.sonar.javascript.checks;
 
-import org.junit.Ignore;
+import java.io.File;
+
 import org.junit.Test;
 import org.sonar.javascript.JavaScriptAstScanner;
 import org.sonar.squidbridge.api.SourceFile;
 import org.sonar.squidbridge.checks.CheckMessagesVerifier;
 
-import java.io.File;
-
-@Ignore
 public class VariableDeclarationAfterUsageCheckTest {
 
   @Test
@@ -36,13 +34,13 @@ public class VariableDeclarationAfterUsageCheckTest {
 
     SourceFile file = JavaScriptAstScanner.scanSingleFile(new File("src/test/resources/checks/variableDeclarationAfterUsageCheck.js"), check);
     CheckMessagesVerifier.verify(file.getCheckMessages())
-        .next().atLine(5).withMessage("Variable 'x' referenced before declaration.")
-        .next().atLine(9)
-        .next().atLine(14)
-        .next().atLine(18)
-        .next().atLine(21)
-        .next().atLine(25)
-        .noMore();
+      .next().atLine(5).withMessage("Variable 'x' referenced before declaration.")
+      .next().atLine(9)
+      .next().atLine(14)
+      .next().atLine(18)
+      .next().atLine(21)
+      .next().atLine(25)
+      .noMore();
   }
 
 }
