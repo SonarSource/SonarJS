@@ -112,8 +112,6 @@ public abstract class AbstractSurefireParser {
 
         if (resource != null) {
           save(entry.getValue(), resource, context);
-        } else {
-          LOGGER.warn("Test result will not be saved for test class {}, because SonarQube associated resource not found.", entry.getKey());
         }
       }
     }

@@ -19,6 +19,8 @@
  */
 package org.sonar.plugins.javascript.unittest.jstestdriver;
 
+import java.io.File;
+
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,8 +35,6 @@ import org.sonar.api.resources.Resource;
 import org.sonar.plugins.javascript.JavaScriptPlugin;
 import org.sonar.plugins.javascript.core.JavaScript;
 import org.sonar.plugins.javascript.unittest.surefireparser.AbstractSurefireParser;
-
-import java.io.File;
 
 public class JsTestDriverSensor implements Sensor {
 
@@ -74,10 +74,16 @@ public class JsTestDriverSensor implements Sensor {
 
       @Override
       protected Resource getUnitTestResource(String classKey) {
-        String relativePath = getTestFileRelativePathToBaseDir(classKey);
-        org.sonar.api.resources.File sonarFile = org.sonar.api.resources.File.create(relativePath);
+        String relativePath = getTestFileRelativePathToBaseDir(getUnitTestFileName(classKey));
+        org.sonar.api.resources.File file = org.sonar.api.resources.File.create(relativePath);
 
-        return context.getResource(sonarFile);
+        Resource sonarResource = context.getResource(file);
+
+        if (sonarResource == null) {
+          LOG.warn("Test result will not be saved for test class {}, because SonarQube associated resource not found with relative path: {}.", getUnitTestFileName(classKey), sonarResource);
+        }
+
+        return sonarResource;
       }
     }.collect(context, reportsDir);
   }
@@ -91,11 +97,10 @@ public class JsTestDriverSensor implements Sensor {
   }
 
   protected String getTestFileRelativePathToBaseDir(String fileName) {
-    LOG.debug("Seeking unit test file with name: " + fileName);
     for (InputFile inputFile : fileSystem.inputFiles(testFilePredicate)) {
 
       if (inputFile.file().getAbsolutePath().endsWith(fileName)) {
-        LOG.debug("Found file {}");
+        LOG.debug("Found test potential corresponding test file to class name mentioned in the report: {}");
         LOG.debug("Will fetch SonarQube associated resource with (logical) relative path to project base directory: {}", inputFile.relativePath());
         return inputFile.relativePath();
       }
