@@ -75,7 +75,7 @@ public class VariableDeclarationAfterUsageCheck extends SquidCheck<LexerlessGram
     }
   }
 
-  public static final GrammarRuleKey[] FUNCTION_NODES = {
+  private static final GrammarRuleKey[] FUNCTION_NODES = {
     Kind.FUNCTION_EXPRESSION,
     Kind.FUNCTION_DECLARATION,
     Kind.METHOD,
