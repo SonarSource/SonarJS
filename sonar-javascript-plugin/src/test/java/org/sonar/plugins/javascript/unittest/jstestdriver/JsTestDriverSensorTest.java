@@ -21,10 +21,16 @@ package org.sonar.plugins.javascript.unittest.jstestdriver;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyDouble;
 import static org.mockito.Matchers.anyObject;
 import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
 
 import java.io.File;
 
@@ -36,6 +42,7 @@ import org.sonar.api.batch.fs.internal.DefaultFileSystem;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.config.Settings;
 import org.sonar.api.measures.CoreMetrics;
+import org.sonar.api.measures.Metric;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 import org.sonar.plugins.javascript.JavaScriptPlugin;
@@ -74,9 +81,12 @@ public class JsTestDriverSensorTest {
 
   @Test
   public void testAnalyseUnitTests() {
+    DefaultInputFile inputFile = newTestInputFile("PersonTest.js", "org/sonar/plugins/javascript/unittest/jstestdriver/sensortests/test/PersonTest.js");
+
     settings.setProperty(JavaScriptPlugin.JSTESTDRIVER_REPORTS_PATH, "reports/jstestdriver");
     fileSystem.setBaseDir(PROJECT_BASE_DIR);
-    fileSystem.add(newTestInputFile("PersonTest.js", "org/sonar/plugins/javascript/unittest/jstestdriver/sensortests/test/PersonTest.js"));
+    fileSystem.add(inputFile);
+    when(context.getResource(any(Resource.class))).thenReturn(org.sonar.api.resources.File.create(inputFile.relativePath()));
 
     sensor.analyse(project, context);
 
@@ -86,6 +96,17 @@ public class JsTestDriverSensorTest {
     verify(context).saveMeasure((Resource) anyObject(), eq(CoreMetrics.TEST_FAILURES), eq(0.0));
     verify(context).saveMeasure((Resource) anyObject(), eq(CoreMetrics.TEST_EXECUTION_TIME), eq(700.0));
     verify(context).saveMeasure((Resource) anyObject(), eq(CoreMetrics.TEST_SUCCESS_DENSITY), eq(100.0));
+  }
+
+  @Test
+  public void wrong_file_name_in_report() {
+    settings.setProperty(JavaScriptPlugin.JSTESTDRIVER_REPORTS_PATH, "reports/wrong-jstestdriver-report");
+    fileSystem.setBaseDir(PROJECT_BASE_DIR);
+    fileSystem.add(newTestInputFile("PersonTest.js", "org/sonar/plugins/javascript/unittest/jstestdriver/sensortests/test/PersonTest.js"));
+
+    sensor.analyse(project, context);
+
+    verify(context, never()).saveMeasure(any(Resource.class), any(Metric.class), anyDouble());
   }
 
   @Test

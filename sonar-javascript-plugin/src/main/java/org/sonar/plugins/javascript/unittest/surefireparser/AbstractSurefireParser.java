@@ -106,9 +106,15 @@ public abstract class AbstractSurefireParser {
   private void save(UnitTestIndex index, SensorContext context) {
     for (Map.Entry<String, UnitTestClassReport> entry : index.getIndexByClassname().entrySet()) {
       UnitTestClassReport report = entry.getValue();
+
       if (report.getTests() > 0) {
         Resource resource = getUnitTestResource(entry.getKey());
-        save(entry.getValue(), resource, context);
+
+        if (resource != null) {
+          save(entry.getValue(), resource, context);
+        } else {
+          LOGGER.warn("Test result will not be saved for test class {}, because SonarQube associated resource not found.", entry.getKey());
+        }
       }
     }
   }

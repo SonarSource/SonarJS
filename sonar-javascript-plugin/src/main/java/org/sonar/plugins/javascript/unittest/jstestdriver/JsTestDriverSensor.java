@@ -74,7 +74,8 @@ public class JsTestDriverSensor implements Sensor {
 
       @Override
       protected Resource getUnitTestResource(String classKey) {
-        org.sonar.api.resources.File sonarFile = org.sonar.api.resources.File.create(getTestFileRelativePathToBaseDir(getUnitTestFileName(classKey)));
+        String relativePath = getTestFileRelativePathToBaseDir(classKey);
+        org.sonar.api.resources.File sonarFile = org.sonar.api.resources.File.create(relativePath);
 
         return context.getResource(sonarFile);
       }
@@ -89,13 +90,17 @@ public class JsTestDriverSensor implements Sensor {
     return fileName;
   }
 
-  protected String getTestFileRelativePathToBaseDir(String name) {
+  protected String getTestFileRelativePathToBaseDir(String fileName) {
+    LOG.debug("Seeking unit test file with name: " + fileName);
     for (InputFile inputFile : fileSystem.inputFiles(testFilePredicate)) {
-      if (inputFile.file().getAbsolutePath().endsWith(name)) {
+
+      if (inputFile.file().getAbsolutePath().endsWith(fileName)) {
+        LOG.debug("Found file {}");
+        LOG.debug("Will fetch SonarQube associated resource with (logical) relative path to project base directory: {}", inputFile.relativePath());
         return inputFile.relativePath();
       }
     }
-    return name;
+    return fileName;
   }
 
   /**
