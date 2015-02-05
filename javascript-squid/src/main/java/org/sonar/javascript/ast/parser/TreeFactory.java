@@ -19,12 +19,10 @@
  */
 package org.sonar.javascript.ast.parser;
 
-import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.sonar.sslr.api.AstNode;
-import com.sonar.sslr.api.AstNodeType;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+
 import org.apache.commons.collections.ListUtils;
 import org.sonar.javascript.api.EcmaScriptKeyword;
 import org.sonar.javascript.api.EcmaScriptPunctuator;
@@ -123,9 +121,12 @@ import org.sonar.javascript.model.interfaces.statement.SwitchClauseTree;
 import org.sonar.javascript.parser.EcmaScriptGrammar;
 import org.sonar.javascript.parser.sslr.Optional;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.sonar.sslr.api.AstNode;
+import com.sonar.sslr.api.AstNodeType;
 
 public class TreeFactory {
 
@@ -328,7 +329,8 @@ public class TreeFactory {
   }
 
   public WithStatementTreeImpl newWithStatement(AstNode withToken, AstNode openingParen, ExpressionTree expression, AstNode closingParen, StatementTree statement) {
-    return new WithStatementTreeImpl(InternalSyntaxToken.create(withToken), InternalSyntaxToken.create(openingParen), expression, InternalSyntaxToken.create(closingParen), statement);
+    return new WithStatementTreeImpl(InternalSyntaxToken.create(withToken), InternalSyntaxToken.create(openingParen), expression, InternalSyntaxToken.create(closingParen),
+      statement);
   }
 
   public BlockTreeImpl newBlock(AstNode openingCurlyBrace, Optional<List<StatementTree>> statements, AstNode closingCurlyBrace) {
@@ -362,7 +364,8 @@ public class TreeFactory {
       block);
   }
 
-  public SwitchStatementTreeImpl newSwitchStatement(AstNode openCurlyBrace, Optional<List<CaseClauseTreeImpl>> caseClauseList, Optional<Tuple<DefaultClauseTreeImpl, Optional<List<CaseClauseTreeImpl>>>> defaultAndRestCases, AstNode closeCurlyBrace) {
+  public SwitchStatementTreeImpl newSwitchStatement(AstNode openCurlyBrace, Optional<List<CaseClauseTreeImpl>> caseClauseList,
+    Optional<Tuple<DefaultClauseTreeImpl, Optional<List<CaseClauseTreeImpl>>>> defaultAndRestCases, AstNode closeCurlyBrace) {
     List<SwitchClauseTree> cases = Lists.newArrayList();
 
     // First case list
@@ -386,7 +389,11 @@ public class TreeFactory {
   public SwitchStatementTreeImpl completeSwitchStatement(AstNode switchToken, AstNode openParenthesis, ExpressionTree expression, AstNode closeParenthesis,
     SwitchStatementTreeImpl caseBlock) {
 
-    return caseBlock.complete(InternalSyntaxToken.create(switchToken), InternalSyntaxToken.create(openParenthesis), expression, InternalSyntaxToken.create(closeParenthesis));
+    return caseBlock.complete(
+      InternalSyntaxToken.create(switchToken),
+      InternalSyntaxToken.create(openParenthesis),
+      expression,
+      InternalSyntaxToken.create(closeParenthesis));
   }
 
   public DefaultClauseTreeImpl defaultClause(AstNode defaultToken, AstNode colonToken, Optional<List<StatementTree>> statements) {
@@ -410,18 +417,41 @@ public class TreeFactory {
   public IfStatementTreeImpl ifStatement(AstNode ifToken, AstNode openParenToken, ExpressionTree condition, AstNode closeParenToken, StatementTree statement,
     Optional<ElseClauseTreeImpl> elseClause) {
     if (elseClause.isPresent()) {
-      return new IfStatementTreeImpl(InternalSyntaxToken.create(ifToken), InternalSyntaxToken.create(openParenToken), condition, InternalSyntaxToken.create(closeParenToken), statement, elseClause.get());
+      return new IfStatementTreeImpl(
+        InternalSyntaxToken.create(ifToken),
+        InternalSyntaxToken.create(openParenToken),
+        condition,
+        InternalSyntaxToken.create(closeParenToken),
+        statement,
+        elseClause.get());
     }
-    return new IfStatementTreeImpl(InternalSyntaxToken.create(ifToken), InternalSyntaxToken.create(openParenToken), condition, InternalSyntaxToken.create(closeParenToken), statement);
+    return new IfStatementTreeImpl(
+      InternalSyntaxToken.create(ifToken),
+      InternalSyntaxToken.create(openParenToken),
+      condition,
+      InternalSyntaxToken.create(closeParenToken),
+      statement);
   }
 
   public WhileStatementTreeImpl whileStatement(AstNode whileToken, AstNode openParenthesis, ExpressionTree condition, AstNode closeParenthesis, StatementTree statetment) {
-    return new WhileStatementTreeImpl(InternalSyntaxToken.create(whileToken), InternalSyntaxToken.create(openParenthesis), condition, InternalSyntaxToken.create(closeParenthesis), statetment);
+    return new WhileStatementTreeImpl(
+      InternalSyntaxToken.create(whileToken),
+      InternalSyntaxToken.create(openParenthesis),
+      condition,
+      InternalSyntaxToken.create(closeParenthesis),
+      statetment);
   }
 
   public DoWhileStatementTreeImpl doWhileStatement(AstNode doToken, StatementTree statement, AstNode whileToken, AstNode openParenthesis, ExpressionTree condition,
     AstNode closeParenthesis, AstNode eos) {
-    return new DoWhileStatementTreeImpl(InternalSyntaxToken.create(doToken), statement, InternalSyntaxToken.create(whileToken), InternalSyntaxToken.create(openParenthesis), condition, InternalSyntaxToken.create(closeParenthesis), eos);
+    return new DoWhileStatementTreeImpl(
+      InternalSyntaxToken.create(doToken),
+      statement,
+      InternalSyntaxToken.create(whileToken),
+      InternalSyntaxToken.create(openParenthesis),
+      condition,
+      InternalSyntaxToken.create(closeParenthesis),
+      eos);
   }
 
   public ExpressionStatementTreeImpl expressionStatement(AstNode lookahead, ExpressionTree expression, AstNode eos) {
@@ -533,7 +563,7 @@ public class TreeFactory {
         commas.add(InternalSyntaxToken.create(t.first().getFirstChild()));
         children.add(t.first().getFirstChild());
 
-        // Elided array element in the middle, e.g [ a , , a  ]
+        // Elided array element in the middle, e.g [ a , , a ]
         int nbCommas = t.first().getNumberOfChildren();
 
         if (nbCommas > 1) {
@@ -628,7 +658,6 @@ public class TreeFactory {
     InternalSyntaxToken functionToken = InternalSyntaxToken.create(functionKeyword);
     InternalSyntaxToken starToken = InternalSyntaxToken.create(starOperator);
 
-
     if (functionName.isPresent()) {
       children.add(functionToken, starToken, functionName.get(), parameters, body);
 
@@ -666,7 +695,6 @@ public class TreeFactory {
     ImmutableList.Builder<AstNode> children = ImmutableList.builder();
     InternalSyntaxToken functionToken = InternalSyntaxToken.create(functionKeyword);
 
-
     if (functionName.isPresent()) {
       IdentifierTreeImpl name = new IdentifierTreeImpl(Kind.BINDING_IDENTIFIER, InternalSyntaxToken.create(functionName.get()));
       children.add(functionToken, name, parameters, body);
@@ -680,7 +708,9 @@ public class TreeFactory {
   }
 
   public ParameterListTreeImpl newFormalRestParameterList(RestElementTreeImpl restParameter) {
-    return new ParameterListTreeImpl(Kind.FORMAL_PARAMETER_LIST, new SeparatedList<Tree>(Lists.newArrayList((Tree) restParameter), ListUtils.EMPTY_LIST, ImmutableList.of((AstNode) restParameter)));
+    return new ParameterListTreeImpl(
+      Kind.FORMAL_PARAMETER_LIST,
+      new SeparatedList<Tree>(Lists.newArrayList((Tree) restParameter), ListUtils.EMPTY_LIST, ImmutableList.of((AstNode) restParameter)));
   }
 
   public ParameterListTreeImpl newFormalParameterList(BindingElementTree formalParameter, Optional<List<Tuple<AstNode, BindingElementTree>>> formalParameters,
@@ -737,6 +767,7 @@ public class TreeFactory {
   public ExpressionTree completeConditionalExpressionNoIn(ExpressionTree expression, Optional<ConditionalExpressionTreeImpl> partial) {
     return partial.isPresent() ? partial.get().complete(expression) : expression;
   }
+
   public ExpressionTree newConditionalOr(ExpressionTree expression, Optional<List<Tuple<AstNode, ExpressionTree>>> operatorAndOperands) {
     return buildBinaryExpression(expression, operatorAndOperands);
   }
@@ -990,20 +1021,20 @@ public class TreeFactory {
   public ClassTreeImpl classExpression(AstNode classToken, Optional<IdentifierTreeImpl> name, Optional<Tuple<AstNode, ExpressionTree>> extendsClause,
     AstNode openCurlyBraceToken, Optional<List<AstNode>> members, AstNode closeCurlyBraceToken) {
 
-      List<MethodDeclarationTree> elements = Lists.newArrayList();
-      List<SyntaxToken> semicolon = Lists.newArrayList();
-      List<AstNode> children = Lists.newArrayList();
+    List<MethodDeclarationTree> elements = Lists.newArrayList();
+    List<SyntaxToken> semicolon = Lists.newArrayList();
+    List<AstNode> children = Lists.newArrayList();
 
-      if (members.isPresent()) {
-        for (AstNode member : members.get()) {
-          if (member instanceof MethodDeclarationTree) {
-            elements.add((MethodDeclarationTree) member);
-          } else {
-            semicolon.add(InternalSyntaxToken.create(member));
-          }
-          children.add(member);
+    if (members.isPresent()) {
+      for (AstNode member : members.get()) {
+        if (member instanceof MethodDeclarationTree) {
+          elements.add((MethodDeclarationTree) member);
+        } else {
+          semicolon.add(InternalSyntaxToken.create(member));
         }
+        children.add(member);
       }
+    }
 
     if (extendsClause.isPresent()) {
       return ClassTreeImpl.newClassExpression(
@@ -1089,7 +1120,9 @@ public class TreeFactory {
     return new TemplateExpressionTreeImpl(InternalSyntaxToken.create(dollar), InternalSyntaxToken.create(openCurlyBrace), expression);
   }
 
-  public TemplateLiteralTreeImpl substitutionTemplate(AstNode openBacktick, Optional<TemplateCharactersTreeImpl> headCharacters, TemplateExpressionTreeImpl firstTemplateExpressionHead, Optional<List<AstNode>> middleTemplateExpression, AstNode tailCloseCurlyBrace, Optional<TemplateCharactersTreeImpl> tailCharacters, AstNode closeBacktick) {
+  public TemplateLiteralTreeImpl substitutionTemplate(AstNode openBacktick, Optional<TemplateCharactersTreeImpl> headCharacters,
+    TemplateExpressionTreeImpl firstTemplateExpressionHead, Optional<List<AstNode>> middleTemplateExpression, AstNode tailCloseCurlyBrace,
+    Optional<TemplateCharactersTreeImpl> tailCharacters, AstNode closeBacktick) {
     List<AstNode> children = Lists.newArrayList();
     List<TemplateCharactersTree> strings = Lists.newArrayList();
     List<TemplateExpressionTree> expressions = Lists.newArrayList();
@@ -1192,7 +1225,7 @@ public class TreeFactory {
   }
 
   public NamedExportDeclarationTreeImpl namedExportDeclaration(AstNode exportToken, Tree object) {
-   return new NamedExportDeclarationTreeImpl(InternalSyntaxToken.create(exportToken), object);
+    return new NamedExportDeclarationTreeImpl(InternalSyntaxToken.create(exportToken), object);
   }
 
   public SpecifierTreeImpl newExportSpecifier(AstNode asToken, IdentifierTreeImpl identifier) {
