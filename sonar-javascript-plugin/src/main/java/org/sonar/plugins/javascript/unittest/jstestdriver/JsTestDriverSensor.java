@@ -80,7 +80,8 @@ public class JsTestDriverSensor implements Sensor {
         Resource sonarResource = context.getResource(file);
 
         if (sonarResource == null) {
-          LOG.warn("Test result will not be saved for test class {}, because SonarQube associated resource not found with relative path: {}.", getUnitTestFileName(classKey), sonarResource);
+          LOG.warn("Test result will not be saved for test class {}, because SonarQube associated resource not found with relative path: {}.",
+            getUnitTestFileName(classKey), sonarResource);
         }
 
         return sonarResource;
