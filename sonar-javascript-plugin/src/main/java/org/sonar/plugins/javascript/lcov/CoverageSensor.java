@@ -64,22 +64,22 @@ public class CoverageSensor implements Sensor {
   @Override
   public void analyse(Project project, SensorContext context) {
     if (isLCOVReportProvided()) {
-      saveMeasureFromLCOVFile(project, context);
+      saveMeasureFromLCOVFile(context);
 
     } else if (isForceZeroCoverageActivated()) {
-      saveZeroValueForAllFiles(project, context);
+      saveZeroValueForAllFiles(context);
     }
 
     // Else, nothing to do, there will be no coverage information for JavaScript files.
   }
 
-  protected void saveZeroValueForAllFiles(Project project, SensorContext context) {
+  protected void saveZeroValueForAllFiles(SensorContext context) {
     for (InputFile inputFile : fileSystem.inputFiles(mainFilePredicate)) {
       saveZeroValueForResource(org.sonar.api.resources.File.create(inputFile.relativePath()), context);
     }
   }
 
-  protected void saveMeasureFromLCOVFile(Project project, SensorContext context) {
+  protected void saveMeasureFromLCOVFile(SensorContext context) {
     String providedPath = settings.getString(JavaScriptPlugin.LCOV_REPORT_PATH);
     File lcovFile = getIOFile(fileSystem.baseDir(), providedPath);
 
