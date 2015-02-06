@@ -23,6 +23,7 @@ import java.util.List;
 
 import javax.annotation.Nullable;
 
+import org.sonar.javascript.JavaScriptFileScanner;
 import org.sonar.javascript.model.implementations.expression.SuperTreeImpl;
 import org.sonar.javascript.model.interfaces.ModuleTree;
 import org.sonar.javascript.model.interfaces.Tree;
@@ -94,8 +95,22 @@ import org.sonar.javascript.model.interfaces.statement.WhileStatementTree;
 import org.sonar.javascript.model.interfaces.statement.WithStatementTree;
 import org.sonar.javascript.parser.sslr.Optional;
 
-public class BaseTreeVisitor implements TreeVisitor {
+import com.google.common.base.Preconditions;
 
+public class BaseTreeVisitor implements TreeVisitor, JavaScriptFileScanner {
+
+  private AstTreeVisitorContext context = null;
+
+  public AstTreeVisitorContext getContext() {
+    Preconditions.checkState(context != null, "this#scanFile(context) should be called to initialised the context before accessing it");
+    return context;
+  }
+
+  @Override
+  public void scanFile(AstTreeVisitorContext context) {
+    this.context = context;
+    scan(context.getTree());
+  }
 
   protected void scan(@Nullable Tree tree) {
     if (tree != null) {
@@ -506,4 +521,5 @@ public class BaseTreeVisitor implements TreeVisitor {
     scan(tree.exports());
     scan(tree.fromClause());
   }
+
 }

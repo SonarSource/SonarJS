@@ -44,16 +44,7 @@ import org.sonar.squidbridge.annotations.Tags;
   priority = Priority.MAJOR,
   tags = {Tags.BUG, Tags.CWE, Tags.MISRA})
 @BelongsToProfile(title = CheckList.SONAR_WAY_PROFILE, priority = Priority.MAJOR)
-public class AssignmentWithinConditionCheck extends BaseTreeVisitor implements JavaScriptFileScanner {
-
-  // FIXME martin: handle in an interface
-  private AstTreeVisitorContext context;
-
-  @Override
-  public void scanFile(AstTreeVisitorContext context) {
-    this.context = context;
-    scan(context.getTree());
-  }
+public class AssignmentWithinConditionCheck extends BaseTreeVisitor {
 
   @Override
   public void visitInitializedBindingElement(InitializedBindingElementTree tree) {
@@ -170,6 +161,6 @@ public class AssignmentWithinConditionCheck extends BaseTreeVisitor implements J
   public void visitAssignmentExpression(AssignmentExpressionTree tree) {
     super.visitAssignmentExpression(tree);
 
-    context.addIssue(this, tree, "Extract the assignment out of this expression.");
+    getContext().addIssue(this, tree, "Extract the assignment out of this expression.");
   }
 }

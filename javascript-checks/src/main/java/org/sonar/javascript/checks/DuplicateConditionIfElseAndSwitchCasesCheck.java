@@ -45,16 +45,7 @@ import com.sonar.sslr.api.AstNode;
   priority = Priority.CRITICAL,
   tags = {Tags.BUG, Tags.CERT, Tags.PITFALL, Tags.UNUSED})
 @BelongsToProfile(title = CheckList.SONAR_WAY_PROFILE, priority = Priority.CRITICAL)
-public class DuplicateConditionIfElseAndSwitchCasesCheck extends BaseTreeVisitor implements JavaScriptFileScanner {
-
-  // FIXME martin: handle in an interface
-  private AstTreeVisitorContext context;
-
-  @Override
-  public void scanFile(AstTreeVisitorContext context) {
-    this.context = context;
-    scan(context.getTree());
-  }
+public class DuplicateConditionIfElseAndSwitchCasesCheck extends BaseTreeVisitor {
 
   @Override
   public void visitIfStatement(IfStatementTree tree) {
@@ -65,7 +56,7 @@ public class DuplicateConditionIfElseAndSwitchCasesCheck extends BaseTreeVisitor
       IfStatementTree ifStatement = (IfStatementTree) elseClause.statement();
 
       if (SyntacticEquivalence.areEquivalent(condition, ifStatement.condition())) {
-        context.addIssue(this,
+        getContext().addIssue(this,
           ifStatement.condition(),
           "This branch duplicates the one on line " + ((AstNode) condition).getTokenLine() + ".");
       }
@@ -83,7 +74,7 @@ public class DuplicateConditionIfElseAndSwitchCasesCheck extends BaseTreeVisitor
         ExpressionTree conditionToCompare = getCondition(tree.cases().get(j));
 
         if (SyntacticEquivalence.areEquivalent(condition, conditionToCompare)) {
-          context.addIssue(this,
+          getContext().addIssue(this,
             conditionToCompare,
             "This branch duplicates the one on line " + ((AstNode) condition).getTokenLine() + ".");
         }
