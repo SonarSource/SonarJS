@@ -101,11 +101,6 @@
       </dependency>
       <dependency>
         <groupId>org.codehaus.sonar.sslr</groupId>
-        <artifactId>sslr-xpath</artifactId>
-        <version>${sslr.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.codehaus.sonar.sslr</groupId>
         <artifactId>sslr-toolkit</artifactId>
         <version>${sslr.version}</version>
       </dependency>

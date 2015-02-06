@@ -64,7 +64,6 @@
               <includes>
                 <include>${project.groupId}:javascript-squid</include>
                 <include>org.codehaus.sonar.sslr:sslr-core</include>
-                <include>org.codehaus.sonar.sslr:sslr-xpath</include>
                 <include>jaxen:jaxen</include>
                 <include>org.codehaus.sonar.sslr:sslr-toolkit</include>
                 <include>org.codehaus.sonar.sslr-squid-bridge:sslr-squid-bridge</include>
