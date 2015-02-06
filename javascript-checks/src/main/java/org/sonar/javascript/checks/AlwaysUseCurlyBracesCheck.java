@@ -32,7 +32,7 @@ import com.sonar.sslr.api.AstNode;
 @Rule(
   key = "CurlyBraces",
   priority = Priority.MAJOR,
-  tags = {Tags.CONVENTION, Tags.CWE})
+  tags = {Tags.CONVENTION, Tags.CWE, Tags.MISRA})
 @BelongsToProfile(title = CheckList.SONAR_WAY_PROFILE, priority = Priority.MAJOR)
 public class AlwaysUseCurlyBracesCheck extends SquidCheck<LexerlessGrammar> {
 
