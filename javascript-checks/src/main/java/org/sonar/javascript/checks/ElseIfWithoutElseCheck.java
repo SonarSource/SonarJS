@@ -32,7 +32,7 @@ import com.sonar.sslr.api.AstNode;
 @Rule(
   key = "ElseIfWithoutElse",
   priority = Priority.MAJOR,
-  tags = {Tags.CERT})
+  tags = {Tags.CERT, Tags.MISRA})
 public class ElseIfWithoutElseCheck extends SquidCheck<LexerlessGrammar> {
 
   @Override

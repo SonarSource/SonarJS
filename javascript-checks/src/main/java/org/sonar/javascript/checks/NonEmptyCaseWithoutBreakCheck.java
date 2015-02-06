@@ -34,7 +34,7 @@ import com.sonar.sslr.api.AstNode;
 @Rule(
   key = "NonEmptyCaseWithoutBreak",
   priority = Priority.MAJOR,
-  tags = {Tags.CERT, Tags.CWE, Tags.PITFALL})
+  tags = {Tags.CERT, Tags.CWE, Tags.PITFALL, Tags.MISRA})
 @BelongsToProfile(title = CheckList.SONAR_WAY_PROFILE, priority = Priority.MAJOR)
 public class NonEmptyCaseWithoutBreakCheck extends SquidCheck<LexerlessGrammar> {
 

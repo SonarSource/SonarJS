@@ -32,7 +32,7 @@ import org.sonar.sslr.parser.LexerlessGrammar;
 @Rule(
   key = "S1145",
   priority = Priority.MAJOR,
-  tags = {Tags.BUG, Tags.CWE, Tags.SECURITY})
+  tags = {Tags.BUG, Tags.CWE, Tags.MISRA, Tags.SECURITY})
 @BelongsToProfile(title = CheckList.SONAR_WAY_PROFILE, priority = Priority.MAJOR)
 public class IfConditionalAlwaysTrueOrFalseCheck extends SquidCheck<LexerlessGrammar> {
 

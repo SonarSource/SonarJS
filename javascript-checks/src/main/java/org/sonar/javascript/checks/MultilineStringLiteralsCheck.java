@@ -29,7 +29,9 @@ import org.sonar.sslr.parser.LexerlessGrammar;
 
 @Rule(
   key = "MultilineStringLiterals",
-  priority = Priority.BLOCKER)
+  priority = Priority.BLOCKER,
+  // FIXME use constant instead
+  tags = {"bad-practice"})
 @BelongsToProfile(title = CheckList.SONAR_WAY_PROFILE, priority = Priority.MAJOR)
 public class MultilineStringLiteralsCheck extends SquidCheck<LexerlessGrammar> {
 

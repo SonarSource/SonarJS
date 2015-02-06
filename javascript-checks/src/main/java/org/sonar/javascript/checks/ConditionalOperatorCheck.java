@@ -19,16 +19,19 @@
  */
 package org.sonar.javascript.checks;
 
-import com.sonar.sslr.api.AstNode;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.javascript.api.EcmaScriptPunctuator;
 import org.sonar.squidbridge.checks.SquidCheck;
 import org.sonar.sslr.parser.LexerlessGrammar;
 
+import com.sonar.sslr.api.AstNode;
+
 @Rule(
   key = "ConditionalOperator",
-  priority = Priority.MINOR)
+  priority = Priority.MINOR,
+  // FIXME use constant instead
+  tags = {"confusing"})
 public class ConditionalOperatorCheck extends SquidCheck<LexerlessGrammar> {
 
   @Override

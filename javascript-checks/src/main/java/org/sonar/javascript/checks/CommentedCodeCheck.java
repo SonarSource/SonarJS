@@ -26,6 +26,7 @@ import org.sonar.check.BelongsToProfile;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.javascript.api.EcmaScriptKeyword;
+import org.sonar.squidbridge.annotations.Tags;
 import org.sonar.squidbridge.checks.SquidCheck;
 import org.sonar.squidbridge.recognizer.CodeRecognizer;
 import org.sonar.squidbridge.recognizer.ContainsDetector;
@@ -35,8 +36,6 @@ import org.sonar.squidbridge.recognizer.KeywordsDetector;
 import org.sonar.squidbridge.recognizer.LanguageFootprint;
 import org.sonar.sslr.parser.LexerlessGrammar;
 
-import sun.security.x509.ReasonFlags;
-
 import com.google.common.collect.ImmutableSet;
 import com.sonar.sslr.api.AstAndTokenVisitor;
 import com.sonar.sslr.api.Token;
@@ -45,7 +44,7 @@ import com.sonar.sslr.api.Trivia;
 @Rule(
   key = "CommentedCode",
   priority = Priority.BLOCKER,
-  tags = {ReasonFlags.UNUSED})
+  tags = {Tags.UNUSED, Tags.MISRA})
 @BelongsToProfile(title = CheckList.SONAR_WAY_PROFILE, priority = Priority.MAJOR)
 public class CommentedCodeCheck extends SquidCheck<LexerlessGrammar> implements AstAndTokenVisitor {
 
