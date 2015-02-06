@@ -35,7 +35,7 @@ public class DuplicateConditionIfElseAndSwitchCasesCheckTest extends TreeCheckTe
       .next().atLine(2).withMessage("This branch duplicates the one on line 1.")
       .next().atLine(7)
       .next().atLine(12)
-      .next().atLine(17)
+      .next().atLine(17).withMessage("This case duplicates the one on line 16.")
       .next().atLine(23)
       .next().atLine(31)
       .noMore();

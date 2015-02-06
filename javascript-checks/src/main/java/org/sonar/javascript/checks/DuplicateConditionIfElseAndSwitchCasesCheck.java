@@ -76,7 +76,7 @@ public class DuplicateConditionIfElseAndSwitchCasesCheck extends BaseTreeVisitor
         if (SyntacticEquivalence.areEquivalent(condition, conditionToCompare)) {
           getContext().addIssue(this,
             conditionToCompare,
-            "This branch duplicates the one on line " + ((AstNode) condition).getTokenLine() + ".");
+            "This case duplicates the one on line " + ((AstNode) condition).getTokenLine() + ".");
         }
       }
     }
