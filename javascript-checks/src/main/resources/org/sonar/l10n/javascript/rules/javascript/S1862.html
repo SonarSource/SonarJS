@@ -1,0 +1,70 @@
+<p>
+  A <code>switch</code> and a chain of <code>if</code>/<code>else if</code> statements is evaluated from top to bottom. At most, only one branch will be executed: the first one with a condition that evaluates to <code>true</code>.
+</p>
+<p>
+  Therefore, duplicating a condition automatically leads to dead code. Usually, this is due to a copy/paste error. At best, it's simply dead code and at worst, it's a bug that is likely to induce further bugs as the code is maintained, and obviously it could lead to unexpected behavior.
+</p>
+
+<p>
+For a <code>switch</code>, if the first case ends with a break, the second case will never be executed, rendering it dead code. Worse there is the risk in this situation that future maintenance will be done on the dead case, rather than on the one that's actually used.
+</p>
+
+<p>
+On the other hand, if the first case does not end with a break, both cases will be executed, but future maintainers may not notice that.
+</p>
+
+<h2>Noncompliant Code Example</h2>
+<pre>
+if (param == 1)
+  openWindow();
+else if (param == 2)
+  closeWindow();
+else if (param == 1)  // Noncompliant
+  moveWindowToTheBackground();
+}
+
+switch(i) {
+  case 1:
+    //...
+    break;
+  case 3:
+    //...
+    break;
+  case 1:  // Noncompliant
+    //...
+    break;
+  default:
+    // ...
+    break;
+}
+</pre>
+
+<h2>Compliant Solution</h2>
+<pre>
+if (param == 1)
+  openWindow();
+else if (param == 2)
+  closeWindow();
+else if (param == 3)
+  moveWindowToTheBackground();
+}
+
+switch(i) {
+  case 1:
+    //...
+    break;
+  case 3:
+    //...
+    break;
+  default:
+    // ...
+    break;
+}
+</pre>
+
+<h2>See</h2>
+  <ul>
+    <li> <a href="https://www.securecoding.cert.org/confluence/x/NYA5">CERT, MSC12-C</a> - Detect and remove code that has no effect </li>
+    <li><a href="https://www.securecoding.cert.org/confluence/x/SIIyAQ">CERT, MSC12-CPP</a>- Detect and remove code that has no effect </li>
+  </ul>
+

@@ -107,6 +107,7 @@ public final class CheckList {
         NonCaseLabelInSwitchCheck.class,
         BooleanEqualityComparisonCheck.class,
         ExpressionComplexityCheck.class,
+        DuplicateConditionIfElseAndSwitchCasesCheck.class,
         NestedControlFlowDepthCheck.class);
   }
 
