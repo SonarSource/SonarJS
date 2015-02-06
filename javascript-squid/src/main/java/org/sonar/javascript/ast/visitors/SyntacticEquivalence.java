@@ -40,9 +40,10 @@ public final class SyntacticEquivalence {
    * @return true, if nodes are syntactically equivalent
    */
   public static boolean areEquivalent(List<? extends Tree> leftList, List<? extends Tree> rightList) {
-    if (leftList.size() != rightList.size()) {
+    if (leftList.size() != rightList.size() || leftList.isEmpty()) {
       return false;
     }
+
     for (int i = 0; i < leftList.size(); i++) {
       Tree left = leftList.get(i);
       Tree right = rightList.get(i);

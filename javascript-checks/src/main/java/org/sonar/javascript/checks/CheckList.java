@@ -108,6 +108,7 @@ public final class CheckList {
         BooleanEqualityComparisonCheck.class,
         ExpressionComplexityCheck.class,
         DuplicateConditionIfElseAndSwitchCasesCheck.class,
+        DuplicateBranchImplementationCheck.class,
         NestedControlFlowDepthCheck.class);
   }
 
