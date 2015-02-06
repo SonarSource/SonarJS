@@ -34,8 +34,6 @@ public class AssignmentWithinConditionCheckTest extends TreeCheckTest {
     CheckMessagesVerifier.verify(file.getCheckMessages())
       .next().atLine(1).withMessage("Extract the assignment out of this expression.")
       .next().atLine(4)
-      .next().atLine(16)
-      .next().atLine(23)
       .next().atLine(28)
       .next().atLine(47)
       .next().atLine(56)

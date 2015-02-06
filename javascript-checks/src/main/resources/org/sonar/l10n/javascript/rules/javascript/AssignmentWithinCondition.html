@@ -23,7 +23,11 @@ doSomething(i);
 </pre>
 
 <h2>Exceptions</h2>
-<p>Assignments enclosed in relational expressions are allowed.</p>
+<p>Assignments in <code>while</code> statement conditions, and assignments enclosed in relational expressions are allowed.</p>
 <pre>
-while ((line = nextLine()) != null) { }
+while ((line = nextLine()) != null) {...}  // Compliant
+
+while (line = nextLine()) {...}  // Compliant
+
+if (line = nextLine()) {...}  // Noncompliant
 </pre>

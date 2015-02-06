@@ -35,8 +35,10 @@ import org.sonar.javascript.model.interfaces.expression.AssignmentExpressionTree
 import org.sonar.javascript.model.interfaces.expression.BinaryExpressionTree;
 import org.sonar.javascript.model.interfaces.expression.ExpressionTree;
 import org.sonar.javascript.model.interfaces.expression.ParenthesisedExpressionTree;
+import org.sonar.javascript.model.interfaces.statement.DoWhileStatementTree;
 import org.sonar.javascript.model.interfaces.statement.ExpressionStatementTree;
 import org.sonar.javascript.model.interfaces.statement.ForStatementTree;
+import org.sonar.javascript.model.interfaces.statement.WhileStatementTree;
 import org.sonar.squidbridge.annotations.Tags;
 
 @Rule(
@@ -45,6 +47,18 @@ import org.sonar.squidbridge.annotations.Tags;
   tags = {Tags.BUG, Tags.CWE, Tags.MISRA})
 @BelongsToProfile(title = CheckList.SONAR_WAY_PROFILE, priority = Priority.MAJOR)
 public class AssignmentWithinConditionCheck extends BaseTreeVisitor {
+
+  @Override
+  public void visitDoWhileStatement(DoWhileStatementTree tree) {
+    // Exception: skip assignment in while statement
+    scan(tree.statement());
+  }
+
+  @Override
+  public void visitWhileStatement(WhileStatementTree tree) {
+    // Exception: skip assignment in do while statement
+    scan(tree.statement());
+  }
 
   @Override
   public void visitInitializedBindingElement(InitializedBindingElementTree tree) {

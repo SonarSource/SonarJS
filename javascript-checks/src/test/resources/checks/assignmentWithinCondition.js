@@ -13,14 +13,14 @@ if ((value = someFunction()) === true) {  // OK
 if ((value = someFunction()) > val) {     // OK
 }
 
-while (a = 1) {                           // NOK
+while (a = 1) {                           // OK
 }
 
 while (a == 1) {                          // OK
 }
 
 do {
-} while (a = 1)                           // NOK
+} while (a = 1)                           // OK
 
 do {
 } while (a == 1)                          // OK
