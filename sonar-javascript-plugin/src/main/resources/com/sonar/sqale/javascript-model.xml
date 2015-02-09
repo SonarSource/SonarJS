@@ -815,6 +815,19 @@
           <txt>mn</txt>
         </prop>
       </chc>
+      <chc>
+        <rule-repo>javascript</rule-repo>
+        <rule-key>S1871</rule-key>
+        <prop>
+          <key>remediationFunction</key>
+          <txt>constant_issue</txt>
+        </prop>
+        <prop>
+          <key>remediationFactor</key>
+          <val>10.0</val>
+          <txt>mn</txt>
+        </prop>
+      </chc>
     </chc>
     <chc>
       <key>SYNCHRONIZATION_RELIABILITY</key>
