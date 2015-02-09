@@ -246,7 +246,7 @@
         <rule-key>TabCharacter</rule-key>
         <prop>
           <key>remediationFunction</key>
-          <txt>linear</txt>
+          <txt>constant_issue</txt>
         </prop>
         <prop>
           <key>remediationFactor</key>
@@ -557,7 +557,7 @@
         <rule-key>TrailingWhitespace</rule-key>
         <prop>
           <key>remediationFunction</key>
-          <txt>linear</txt>
+          <txt>constant_issue</txt>
         </prop>
         <prop>
           <key>remediationFactor</key>
