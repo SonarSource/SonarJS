@@ -25,12 +25,15 @@ import java.util.Map;
 import org.sonar.check.BelongsToProfile;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
+import org.sonar.javascript.api.EcmaScriptKeyword;
+import org.sonar.javascript.api.EcmaScriptPunctuator;
 import org.sonar.javascript.model.implementations.declaration.ParameterListTreeImpl;
 import org.sonar.javascript.model.implementations.statement.VariableDeclarationTreeImpl;
 import org.sonar.javascript.model.interfaces.Tree;
 import org.sonar.javascript.model.interfaces.Tree.Kind;
 import org.sonar.javascript.model.interfaces.expression.ArrowFunctionTree;
 import org.sonar.javascript.model.interfaces.expression.IdentifierTree;
+import org.sonar.javascript.parser.EcmaScriptGrammar;
 import org.sonar.squidbridge.annotations.Tags;
 import org.sonar.squidbridge.checks.SquidCheck;
 import org.sonar.sslr.grammar.GrammarRuleKey;
@@ -127,7 +130,9 @@ public class VariableDeclarationAfterUsageCheck extends SquidCheck<LexerlessGram
       declareInCurrentScope(((VariableDeclarationTreeImpl) astNode).variableIdentifiers());
 
     } else if (astNode.is(Kind.IDENTIFIER_REFERENCE)) {
-      if (astNode.getParent().is(Kind.FOR_IN_STATEMENT, Kind.FOR_OF_STATEMENT)) {
+
+      if (astNode.getParent().is(Kind.FOR_IN_STATEMENT, Kind.FOR_OF_STATEMENT)
+        && astNode.getNextAstNode().is(EcmaScriptKeyword.IN, EcmaScriptGrammar.OF)) {
         declareInCurrentScope(ImmutableList.of((IdentifierTree) astNode));
       } else {
         currentScope.use(astNode);
