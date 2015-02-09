@@ -80,8 +80,8 @@ public class JsTestDriverSensor implements Sensor {
         Resource sonarResource = context.getResource(file);
 
         if (sonarResource == null) {
-          LOG.warn("Test result will not be saved for test class {}, because SonarQube associated resource not found with relative path: {}.",
-            getUnitTestFileName(classKey), sonarResource);
+          LOG.warn("Test result will not be saved for test class \"{}\", because SonarQube associated resource has not been found using relative path: \"{}\"",
+            getUnitTestClassName(classKey), relativePath);
         }
 
         return sonarResource;
@@ -91,17 +91,21 @@ public class JsTestDriverSensor implements Sensor {
 
   protected String getUnitTestFileName(String className) {
     // For JsTestDriver assume notation com.company.MyJsTest that maps to com/company/MyJsTest.js
-    String fileName = className.substring(className.indexOf('.') + 1);
+    String fileName = getUnitTestClassName(className);
     fileName = fileName.replace('.', '/');
     fileName = fileName + ".js";
     return fileName;
+  }
+
+  private String getUnitTestClassName(String classNameFromReport) {
+    return classNameFromReport.substring(classNameFromReport.indexOf('.') + 1);
   }
 
   protected String getTestFileRelativePathToBaseDir(String fileName) {
     for (InputFile inputFile : fileSystem.inputFiles(testFilePredicate)) {
 
       if (inputFile.file().getAbsolutePath().endsWith(fileName)) {
-        LOG.debug("Found test potential corresponding test file to class name mentioned in the report: {}");
+        LOG.debug("Found potential test file corresponding to file name: {}", fileName);
         LOG.debug("Will fetch SonarQube associated resource with (logical) relative path to project base directory: {}", inputFile.relativePath());
         return inputFile.relativePath();
       }
