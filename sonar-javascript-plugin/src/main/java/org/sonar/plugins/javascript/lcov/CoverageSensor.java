@@ -105,7 +105,7 @@ public class CoverageSensor implements Sensor {
           }
         } else {
           // colour all lines as not executed
-          LOG.debug("Default value of zero will be saved for file: {}", resource.getEffectiveKey());
+          LOG.debug("Default value of zero will be saved for file: {}", resource.getPath());
           LOG.debug("Because: either was not present in LCOV report either was not able to retrieve associated SonarQube resource");
           saveZeroValueForResource(resource, context);
         }
