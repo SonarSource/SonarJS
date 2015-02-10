@@ -24,12 +24,12 @@ import java.util.List;
 
 import javax.annotation.Nullable;
 
-import com.google.common.annotations.VisibleForTesting;
 import org.sonar.javascript.model.implementations.JavaScriptTree;
 import org.sonar.javascript.model.interfaces.Tree;
 import org.sonar.javascript.model.interfaces.expression.IdentifierTree;
 import org.sonar.javascript.model.interfaces.lexical.SyntaxToken;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Objects;
 
 public final class SyntacticEquivalence {

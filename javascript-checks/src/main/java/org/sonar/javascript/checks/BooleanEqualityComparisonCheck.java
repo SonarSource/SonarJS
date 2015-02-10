@@ -51,12 +51,13 @@ public class BooleanEqualityComparisonCheck extends SquidCheck<LexerlessGrammar>
 
   @Override
   public void visitNode(AstNode astNode) {
-      AstNode boolLiteral = getBooleanLiteralFromExpresion(astNode);
+    AstNode boolLiteral = getBooleanLiteralFromExpresion(astNode);
 
-      if (boolLiteral != null) {
-        getContext().createLineViolation(this, "Remove the literal \"" + boolLiteral.getTokenOriginalValue() + "\" boolean value.", boolLiteral);
-      }
+    if (boolLiteral != null) {
+      getContext().createLineViolation(this, "Remove the literal \"" + boolLiteral.getTokenOriginalValue() + "\" boolean value.", boolLiteral);
+    }
   }
+
   private static AstNode getBooleanLiteralFromExpresion(AstNode expression) {
     if (expression.is(Kind.LOGICAL_COMPLEMENT)) {
       return getBooleanLiteralFromUnaryExpression(expression);

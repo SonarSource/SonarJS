@@ -24,8 +24,6 @@ import javax.annotation.Nullable;
 import org.sonar.check.BelongsToProfile;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
-import org.sonar.javascript.JavaScriptFileScanner;
-import org.sonar.javascript.ast.visitors.AstTreeVisitorContext;
 import org.sonar.javascript.ast.visitors.BaseTreeVisitor;
 import org.sonar.javascript.ast.visitors.SyntacticEquivalence;
 import org.sonar.javascript.model.interfaces.Tree;

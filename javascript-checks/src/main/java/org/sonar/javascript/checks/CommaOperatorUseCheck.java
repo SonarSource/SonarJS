@@ -72,8 +72,8 @@ public class CommaOperatorUseCheck extends SquidCheck<LexerlessGrammar> {
   }
 
   public static boolean isInitOrIncrementOfForLoop(AstNode expr) {
-    return (expr.getParent().is(Kind.FOR_STATEMENT)
-      && (expr.getPreviousAstNode().is(EcmaScriptPunctuator.LPARENTHESIS) || expr.getNextAstNode().is(EcmaScriptPunctuator.RPARENTHESIS)));
+    return expr.getParent().is(Kind.FOR_STATEMENT)
+      && (expr.getPreviousAstNode().is(EcmaScriptPunctuator.LPARENTHESIS) || expr.getNextAstNode().is(EcmaScriptPunctuator.RPARENTHESIS));
   }
 
 }
