@@ -85,12 +85,14 @@ public class ArrayBindingPatternTreeModelTest extends JavaScriptTreeModelTest {
 
   @Test
   public void bindingIdentifiers() throws Exception {
-    ArrayBindingPatternTreeImpl tree = parse("var [a, , b, ...c] = obj", Kind.ARRAY_BINDING_PATTERN);
+    ArrayBindingPatternTreeImpl tree = parse("var [a, , b, ...c, { d }, [ i ]] = obj", Kind.ARRAY_BINDING_PATTERN);
 
     List<IdentifierTree> bindingName = tree.bindingIdentifiers();
-    assertThat(bindingName).hasSize(3);
+    assertThat(bindingName).hasSize(5);
     assertThat(bindingName.get(0).name()).isEqualTo("a");
     assertThat(bindingName.get(1).name()).isEqualTo("b");
     assertThat(bindingName.get(2).name()).isEqualTo("c");
+    assertThat(bindingName.get(3).name()).isEqualTo("d");
+    assertThat(bindingName.get(4).name()).isEqualTo("i");
   }
 }
