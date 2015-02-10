@@ -47,11 +47,7 @@ public class EmptyBlockCheck extends SquidCheck<LexerlessGrammar> {
 
   @Override
   public void visitNode(AstNode astNode) {
-    if (!(astNode.getParent() instanceof MethodDeclarationTreeImpl) &&
-      !(astNode.getParent() instanceof FunctionExpressionTreeImpl) &&
-      !astNode.getParent().is(Kind.FUNCTION_DECLARATION, Kind.GENERATOR_DECLARATION) &&
-      ((BlockTree) astNode).statements().isEmpty() &&
-      !hasComment(astNode)) {
+    if (!isFunctionBody(astNode) && ((BlockTree) astNode).statements().isEmpty() && !hasComment(astNode)) {
       getContext().createLineViolation(this, "Either remove or fill this block of code.", astNode);
     }
   }
@@ -60,4 +56,11 @@ public class EmptyBlockCheck extends SquidCheck<LexerlessGrammar> {
     return blockNode.getFirstChild(EcmaScriptPunctuator.RCURLYBRACE).getToken().hasTrivia();
   }
 
+  private static boolean isFunctionBody(AstNode block) {
+    AstNode parent = block.getParent();
+
+   return parent instanceof MethodDeclarationTreeImpl
+     || parent instanceof FunctionExpressionTreeImpl
+     || parent.is(Kind.FUNCTION_DECLARATION, Kind.GENERATOR_DECLARATION);
+  }
 }
