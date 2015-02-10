@@ -86,7 +86,7 @@ public class JsTestDriverSensorTest {
     settings.setProperty(JavaScriptPlugin.JSTESTDRIVER_REPORTS_PATH, "reports/jstestdriver");
     fileSystem.setBaseDir(PROJECT_BASE_DIR);
     fileSystem.add(inputFile);
-    when(context.getResource(any(Resource.class))).thenReturn(org.sonar.api.resources.File.create(inputFile.relativePath()));
+    when(context.getResource(any(InputFile.class))).thenReturn(org.sonar.api.resources.File.create(inputFile.relativePath()));
 
     sensor.analyse(project, context);
 

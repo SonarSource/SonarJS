@@ -74,17 +74,18 @@ public class JsTestDriverSensor implements Sensor {
 
       @Override
       protected Resource getUnitTestResource(String classKey) {
-        String relativePath = getTestFileRelativePathToBaseDir(getUnitTestFileName(classKey));
-        org.sonar.api.resources.File file = org.sonar.api.resources.File.create(relativePath);
+        InputFile inputFile = getTestFileRelativePathToBaseDir(getUnitTestFileName(classKey));
 
-        Resource sonarResource = context.getResource(file);
+        if (inputFile != null) {
+          return context.getResource(inputFile);
 
-        if (sonarResource == null) {
-          LOG.warn("Test result will not be saved for test class \"{}\", because SonarQube associated resource has not been found using relative path: \"{}\"",
-            getUnitTestClassName(classKey), relativePath);
+        } else {
+          // Sonar resource not found from test file
+          LOG.warn("Test result will not be saved for test class \"{}\", because SonarQube associated resource has not been found using file name: \"{}\"",
+            getUnitTestClassName(classKey), getUnitTestFileName(classKey));
+          return null;
         }
 
-        return sonarResource;
       }
     }.collect(context, reportsDir);
   }
@@ -101,16 +102,16 @@ public class JsTestDriverSensor implements Sensor {
     return classNameFromReport.substring(classNameFromReport.indexOf('.') + 1);
   }
 
-  protected String getTestFileRelativePathToBaseDir(String fileName) {
+  protected InputFile getTestFileRelativePathToBaseDir(String fileName) {
     for (InputFile inputFile : fileSystem.inputFiles(testFilePredicate)) {
 
       if (inputFile.file().getAbsolutePath().endsWith(fileName)) {
         LOG.debug("Found potential test file corresponding to file name: {}", fileName);
         LOG.debug("Will fetch SonarQube associated resource with (logical) relative path to project base directory: {}", inputFile.relativePath());
-        return inputFile.relativePath();
+        return inputFile;
       }
     }
-    return fileName;
+    return null;
   }
 
   /**
