@@ -24,6 +24,7 @@ import java.util.List;
 
 import javax.annotation.Nullable;
 
+import com.google.common.annotations.VisibleForTesting;
 import org.sonar.javascript.model.implementations.JavaScriptTree;
 import org.sonar.javascript.model.interfaces.Tree;
 import org.sonar.javascript.model.interfaces.expression.IdentifierTree;
@@ -89,7 +90,8 @@ public final class SyntacticEquivalence {
   /**
    * Caller must guarantee that nodes of the same kind.
    */
-  private static boolean areLeafsEquivalent(JavaScriptTree leftNode, JavaScriptTree rightNode) {
+  @VisibleForTesting
+  protected static boolean areLeafsEquivalent(JavaScriptTree leftNode, JavaScriptTree rightNode) {
     if (leftNode instanceof IdentifierTree) {
       return Objects.equal(((IdentifierTree) leftNode).name(), ((IdentifierTree) rightNode).name());
     } else if (leftNode instanceof SyntaxToken) {

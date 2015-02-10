@@ -128,7 +128,7 @@ public class BaseTreeVisitor implements TreeVisitor, JavaScriptFileScanner {
         scan((Tree) tree);
 
       } else {
-        // FIXME martin
+        // FIXME martin: improve message
         throw new IllegalArgumentException("List element type should be Optional or Tree.");
       }
     }
