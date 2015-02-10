@@ -41,7 +41,6 @@ public class ExpressionComplexityCheckTest extends TreeCheckTest {
       .next().atLine(30)
       .next().atLine(38)
       .next().atLine(41)
-      // FIXME: was 44
       .next().atLine(45)
       .noMore();
   }
