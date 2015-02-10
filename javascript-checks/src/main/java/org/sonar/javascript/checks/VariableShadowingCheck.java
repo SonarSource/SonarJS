@@ -48,10 +48,6 @@ import com.sonar.sslr.impl.ast.AstWalker;
 public class VariableShadowingCheck extends SquidCheck<LexerlessGrammar> {
 
   private Map<AstNode, Scope> scopes;
-  private static final AstNodeType[] NEW_NODES_USING_FORMAL_PARAMETER_LIST = {
-    Kind.SET_METHOD,
-    Kind.GET_METHOD
-  };
 
   private static class Scope {
     private final Scope outerScope;

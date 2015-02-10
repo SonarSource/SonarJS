@@ -48,15 +48,15 @@ public class ExpressionComplexityCheck extends SubscriptionBaseVisitor {
 
   private List<ExpressionComplexity> statementLevel = Lists.newArrayList();
   private static final Kind[] SCOPES = {
-      Kind.FUNCTION_EXPRESSION,
-      Kind.GENERATOR_FUNCTION_EXPRESSION
+    Kind.FUNCTION_EXPRESSION,
+    Kind.GENERATOR_FUNCTION_EXPRESSION
   };
 
- private static final Kind[] CONDITIONAL_EXPRS = {
-      Kind.CONDITIONAL_EXPRESSION,
-      Kind.CONDITIONAL_AND,
-      Kind.CONDITIONAL_OR
- };
+  private static final Kind[] CONDITIONAL_EXPRS = {
+    Kind.CONDITIONAL_EXPRESSION,
+    Kind.CONDITIONAL_AND,
+    Kind.CONDITIONAL_OR
+  };
 
   @Override
   public List<Kind> nodesToVisit() {

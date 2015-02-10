@@ -86,8 +86,4 @@ public class ParenthesesCheck extends SquidCheck<LexerlessGrammar> {
     getContext().createLineViolation(this, "Those parentheses are useless.", node);
   }
 
-  private boolean startsWithOpenParenthesis(AstNode expression) {
-    return "(".equals(expression.getTokenValue());
-  }
-
 }

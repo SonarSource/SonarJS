@@ -41,7 +41,9 @@ public class TemplateLiteralTreeImpl extends JavaScriptTree implements TemplateL
   private final List<TemplateExpressionTree> expressions;
   private final SyntaxToken closeBacktick;
 
-  public TemplateLiteralTreeImpl(InternalSyntaxToken openBacktick, List<TemplateCharactersTree> strings, List<TemplateExpressionTree> expressions, InternalSyntaxToken closeBacktick, List<AstNode> children) {
+  public TemplateLiteralTreeImpl(InternalSyntaxToken openBacktick, List<TemplateCharactersTree> strings,
+    List<TemplateExpressionTree> expressions, InternalSyntaxToken closeBacktick, List<AstNode> children) {
+
     super(Kind.TEMPLATE_LITERAL);
     this.openBacktick = openBacktick;
     this.strings = strings;
@@ -53,7 +55,9 @@ public class TemplateLiteralTreeImpl extends JavaScriptTree implements TemplateL
     }
   }
 
-  public TemplateLiteralTreeImpl(InternalSyntaxToken openBacktick, List<TemplateCharactersTree> strings, InternalSyntaxToken closeBacktick) {
+  public TemplateLiteralTreeImpl(InternalSyntaxToken openBacktick, List<TemplateCharactersTree> strings,
+    InternalSyntaxToken closeBacktick) {
+
     super(Kind.TEMPLATE_LITERAL);
     this.openBacktick = openBacktick;
     this.strings = strings;

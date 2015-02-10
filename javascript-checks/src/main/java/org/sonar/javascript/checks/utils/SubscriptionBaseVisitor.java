@@ -19,10 +19,7 @@
  */
 package org.sonar.javascript.checks.utils;
 
-import org.sonar.api.rule.RuleKey;
-import org.sonar.api.rules.RuleAnnotationUtils;
 import org.sonar.javascript.ast.visitors.SubscriptionAstTreeVisitor;
-import org.sonar.javascript.checks.CheckList;
 import org.sonar.javascript.model.interfaces.Tree;
 
 public abstract class SubscriptionBaseVisitor extends SubscriptionAstTreeVisitor {
@@ -31,7 +28,4 @@ public abstract class SubscriptionBaseVisitor extends SubscriptionAstTreeVisitor
     getContext().addIssue(this, tree, message);
   }
 
-  private RuleKey getRuleKey() {
-    return RuleKey.of(CheckList.REPOSITORY_KEY, RuleAnnotationUtils.getRuleKey(this.getClass()));
-  }
 }

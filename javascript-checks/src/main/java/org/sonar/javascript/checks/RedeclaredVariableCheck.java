@@ -113,8 +113,8 @@ public class RedeclaredVariableCheck extends SquidCheck<LexerlessGrammar> {
   }
 
   private void addFormalParametersToScope(ParameterListTreeImpl formalParameterList, Set<String> currentScope) {
-      for (IdentifierTree identifier : formalParameterList.parameterIdentifiers()) {
-        currentScope.add(identifier.name());
-      }
+    for (IdentifierTree identifier : formalParameterList.parameterIdentifiers()) {
+      currentScope.add(identifier.name());
+    }
   }
 }

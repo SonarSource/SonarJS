@@ -84,7 +84,7 @@ public class MethodDeclarationTreeImpl extends JavaScriptTree implements MethodD
   }
 
   public static MethodDeclarationTreeImpl newAccessor(InternalSyntaxToken accessorToken, ExpressionTree name, ParameterListTreeImpl parameters, BlockTreeImpl body) {
-    return new MethodDeclarationTreeImpl(accessorToken.text().equals("get") ? Kind.GET_METHOD : Kind.SET_METHOD, null, accessorToken, name, parameters, body);
+    return new MethodDeclarationTreeImpl("get".equals(accessorToken.text()) ? Kind.GET_METHOD : Kind.SET_METHOD, null, accessorToken, name, parameters, body);
   }
 
   public MethodDeclarationTreeImpl completeWithStaticToken(InternalSyntaxToken staticToken) {
