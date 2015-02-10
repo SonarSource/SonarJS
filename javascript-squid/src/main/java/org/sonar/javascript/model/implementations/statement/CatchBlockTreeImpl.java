@@ -46,7 +46,9 @@ public class CatchBlockTreeImpl extends JavaScriptTree implements CatchBlockTree
   private final SyntaxToken closeParenthesis;
   private final BlockTree block;
 
-  public CatchBlockTreeImpl(InternalSyntaxToken catchKeyword, InternalSyntaxToken openParenthesis, BindingElementTree parameter, InternalSyntaxToken closeParenthesis, BlockTreeImpl block) {
+  public CatchBlockTreeImpl(InternalSyntaxToken catchKeyword, InternalSyntaxToken openParenthesis,
+    BindingElementTree parameter, InternalSyntaxToken closeParenthesis, BlockTreeImpl block) {
+
     super(Kind.CATCH_BLOCK);
     this.catchKeyword = catchKeyword;
     this.openParenthesis = openParenthesis;

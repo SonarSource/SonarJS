@@ -75,7 +75,8 @@ public class DelayedRuleInvocationExpression implements ParsingExpression {
     }
 
     try {
-      b.rule(ruleKey); // Ensure the MutableParsingRule is created in the definitions
+      // Ensure the MutableParsingRule is created in the definitions
+      b.rule(ruleKey);
       return compiler.compile((MutableParsingRule) ((Map) DEFINITIONS_FIELD.get(b)).get(ruleKey));
     } catch (IllegalArgumentException e) {
       throw Throwables.propagate(e);

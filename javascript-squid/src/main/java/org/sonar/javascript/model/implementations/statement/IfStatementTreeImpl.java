@@ -100,7 +100,7 @@ public class IfStatementTreeImpl extends JavaScriptTree implements IfStatementTr
   @Nullable
   @Override
   public ElseClauseTree elseClause() {
-     return elseClause;
+    return elseClause;
   }
 
   public boolean hasElse() {
