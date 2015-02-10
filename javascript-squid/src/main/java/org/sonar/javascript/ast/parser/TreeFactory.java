@@ -1239,7 +1239,8 @@ public class TreeFactory {
     return new SpecifierTreeImpl(Kind.EXPORT_SPECIFIER, name);
   }
 
-  public SpecifierListTreeImpl newExportSpecifierList(SpecifierTreeImpl specifier, Optional<List<Tuple<AstNode, SpecifierTreeImpl>>> restSpecifier, Optional<AstNode> trailingComma) {
+  public SpecifierListTreeImpl newExportSpecifierList(SpecifierTreeImpl specifier, Optional<List<Tuple<AstNode, SpecifierTreeImpl>>> restSpecifier,
+    Optional<AstNode> trailingComma) {
     List<InternalSyntaxToken> commas = Lists.newArrayList();
     List<SpecifierTree> specifiers = Lists.newArrayList();
     List<AstNode> children = Lists.newArrayList();
@@ -1297,7 +1298,8 @@ public class TreeFactory {
     return new SpecifierTreeImpl(Kind.IMPORT_SPECIFIER, name);
   }
 
-  public SpecifierListTreeImpl newImportSpecifierList(SpecifierTreeImpl specifier, Optional<List<Tuple<AstNode, SpecifierTreeImpl>>> restSpecifier, Optional<AstNode> trailingComma) {
+  public SpecifierListTreeImpl newImportSpecifierList(SpecifierTreeImpl specifier, Optional<List<Tuple<AstNode, SpecifierTreeImpl>>> restSpecifier,
+                                                      Optional<AstNode> trailingComma) {
     List<InternalSyntaxToken> commas = Lists.newArrayList();
     List<SpecifierTree> specifiers = Lists.newArrayList();
     List<AstNode> children = Lists.newArrayList();
