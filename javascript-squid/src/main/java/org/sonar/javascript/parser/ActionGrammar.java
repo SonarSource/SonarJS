@@ -19,7 +19,6 @@
  */
 package org.sonar.javascript.parser;
 
-import com.sonar.sslr.api.AstNode;
 import org.sonar.javascript.api.EcmaScriptKeyword;
 import org.sonar.javascript.api.EcmaScriptPunctuator;
 import org.sonar.javascript.api.EcmaScriptTokenType;
@@ -98,6 +97,8 @@ import org.sonar.javascript.model.interfaces.statement.DebuggerStatementTree;
 import org.sonar.javascript.model.interfaces.statement.StatementTree;
 import org.sonar.javascript.parser.sslr.GrammarBuilder;
 
+import com.sonar.sslr.api.AstNode;
+
 public class ActionGrammar {
 
   private final GrammarBuilder b;
@@ -171,7 +172,7 @@ public class ActionGrammar {
         b.firstOf(
           CONTINUE_WITH_LABEL(),
           CONTINUE_WITHOUT_LABEL())
-      ));
+        ));
   }
 
   public ContinueStatementTreeImpl CONTINUE_WITH_LABEL() {
@@ -193,7 +194,7 @@ public class ActionGrammar {
         b.firstOf(
           BREAK_WITH_LABEL(),
           BREAK_WITHOUT_LABEL())
-      ));
+        ));
   }
 
   public BreakStatementTreeImpl BREAK_WITH_LABEL() {
@@ -215,7 +216,7 @@ public class ActionGrammar {
         b.firstOf(
           RETURN_WITH_EXPRESSION(),
           RETURN_WITHOUT_EXPRESSION())
-      ));
+        ));
   }
 
   public ReturnStatementTreeImpl RETURN_WITH_EXPRESSION() {
@@ -266,7 +267,7 @@ public class ActionGrammar {
         b.firstOf(
           f.newTryStatementWithCatch(CATCH_CLAUSE(), b.optional(FINALLY_CLAUSE())),
           FINALLY_CLAUSE())
-      ));
+        ));
   }
 
   public TryStatementTreeImpl FINALLY_CLAUSE() {
@@ -282,7 +283,7 @@ public class ActionGrammar {
         b.firstOf(
           BINDING_IDENTIFIER(),
           BINDING_PATTERN()
-        ),
+          ),
         b.invokeRule(EcmaScriptPunctuator.RPARENTHESIS),
         BLOCK()));
   }
@@ -500,7 +501,7 @@ public class ActionGrammar {
         b.zeroOrMore(
           f.newTuple3(f.newWrapperAstNode(b.oneOrMore(b.invokeRule(EcmaScriptPunctuator.COMMA))), ARRAY_LITERAL_ELEMENT())),
         b.zeroOrMore(b.invokeRule(EcmaScriptPunctuator.COMMA))
-      ));
+        ));
   }
 
   public ParameterListTreeImpl FORMAL_PARAMETER_LIST() {
@@ -513,9 +514,9 @@ public class ActionGrammar {
             b.zeroOrMore(f.newTuple4(b.invokeRule(EcmaScriptPunctuator.COMMA), BINDING_ELEMENT())),
             b.optional(ES6(f.newTuple5(b.invokeRule(EcmaScriptPunctuator.COMMA), BINDING_REST_ELEMENT())))),
           ES6(f.newFormalRestParameterList(BINDING_REST_ELEMENT()))
-        )),
+          )),
         b.invokeRule(EcmaScriptPunctuator.RPARENTHESIS)
-      ));
+        ));
   }
 
   /**
@@ -534,7 +535,7 @@ public class ActionGrammar {
           ARRAY_ELEMENT_LIST(),
           f.newArrayLiteralWithElidedElements(b.oneOrMore(b.invokeRule(EcmaScriptPunctuator.COMMA))))),
         b.invokeRule(EcmaScriptPunctuator.RBRACKET)
-      ));
+        ));
   }
 
   /**
@@ -562,15 +563,15 @@ public class ActionGrammar {
   }
 
   public ExpressionTree CONDITIONAL_EXPRESSION() {
-   return b.<ExpressionTree>nonterminal(Kind.CONDITIONAL_EXPRESSION)
-     .is(f.completeConditionalExpression(
-       CONDITIONAL_OR_EXPRESSION(),
-       b.optional(f.newConditionalExpression(
-         b.invokeRule(EcmaScriptPunctuator.QUERY),
-         ASSIGNMENT_EXPRESSION(),
-         b.invokeRule(EcmaScriptPunctuator.COLON),
-         ASSIGNMENT_EXPRESSION()))
-     ));
+    return b.<ExpressionTree>nonterminal(Kind.CONDITIONAL_EXPRESSION)
+      .is(f.completeConditionalExpression(
+        CONDITIONAL_OR_EXPRESSION(),
+        b.optional(f.newConditionalExpression(
+          b.invokeRule(EcmaScriptPunctuator.QUERY),
+          ASSIGNMENT_EXPRESSION(),
+          b.invokeRule(EcmaScriptPunctuator.COLON),
+          ASSIGNMENT_EXPRESSION()))
+      ));
   }
 
   public ExpressionTree CONDITIONAL_EXPRESSION_NOT_ES6_ASSIGNMENT_EXPRESSION() {
@@ -583,11 +584,11 @@ public class ActionGrammar {
       .is(f.completeConditionalExpressionNoIn(
         CONDITIONAL_OR_EXPRESSION_NO_IN(),
         b.optional(f.newConditionalExpressionNoIn(
-            b.invokeRule(EcmaScriptPunctuator.QUERY),
-            ASSIGNMENT_EXPRESSION(),
-            b.invokeRule(EcmaScriptPunctuator.COLON),
-            ASSIGNMENT_EXPRESSION_NO_IN()
-      ))));
+          b.invokeRule(EcmaScriptPunctuator.QUERY),
+          ASSIGNMENT_EXPRESSION(),
+          b.invokeRule(EcmaScriptPunctuator.COLON),
+          ASSIGNMENT_EXPRESSION_NO_IN()
+          ))));
   }
 
   public ExpressionTree CONDITIONAL_OR_EXPRESSION() {
@@ -597,8 +598,8 @@ public class ActionGrammar {
         b.zeroOrMore(f.newTuple6(
           b.invokeRule(EcmaScriptPunctuator.OROR),
           CONDITIONAL_AND_EXPRESSION()
-        ))
-      ));
+          ))
+        ));
   }
 
   public ExpressionTree CONDITIONAL_OR_EXPRESSION_NO_IN() {
@@ -608,8 +609,8 @@ public class ActionGrammar {
         b.zeroOrMore(f.newTuple19(
           b.invokeRule(EcmaScriptPunctuator.OROR),
           CONDITIONAL_AND_EXPRESSION_NO_IN()
-        ))
-      ));
+          ))
+        ));
   }
 
   public ExpressionTree CONDITIONAL_AND_EXPRESSION() {
@@ -619,8 +620,8 @@ public class ActionGrammar {
         b.zeroOrMore(f.newTuple7(
           b.invokeRule(EcmaScriptPunctuator.ANDAND),
           BITWISE_OR_EXPRESSION()
-        ))
-      ));
+          ))
+        ));
   }
 
   public ExpressionTree CONDITIONAL_AND_EXPRESSION_NO_IN() {
@@ -630,8 +631,8 @@ public class ActionGrammar {
         b.zeroOrMore(f.newTuple20(
           b.invokeRule(EcmaScriptPunctuator.ANDAND),
           BITWISE_OR_EXPRESSION_NO_IN()
-        ))
-      ));
+          ))
+        ));
   }
 
   public ExpressionTree BITWISE_OR_EXPRESSION() {
@@ -641,8 +642,8 @@ public class ActionGrammar {
         b.zeroOrMore(f.newTuple8(
           b.invokeRule(EcmaScriptPunctuator.OR),
           BITWISE_XOR_EXPRESSION()
-        ))
-      ));
+          ))
+        ));
   }
 
   public ExpressionTree BITWISE_OR_EXPRESSION_NO_IN() {
@@ -652,8 +653,8 @@ public class ActionGrammar {
         b.zeroOrMore(f.newTuple21(
           b.invokeRule(EcmaScriptPunctuator.OR),
           BITWISE_XOR_EXPRESSION_NO_IN()
-        ))
-      ));
+          ))
+        ));
   }
 
   public ExpressionTree BITWISE_XOR_EXPRESSION() {
@@ -663,8 +664,8 @@ public class ActionGrammar {
         b.zeroOrMore(f.newTuple9(
           b.invokeRule(EcmaScriptPunctuator.XOR),
           BITWISE_AND_EXPRESSION()
-        ))
-      ));
+          ))
+        ));
   }
 
   public ExpressionTree BITWISE_XOR_EXPRESSION_NO_IN() {
@@ -674,8 +675,8 @@ public class ActionGrammar {
         b.zeroOrMore(f.newTuple22(
           b.invokeRule(EcmaScriptPunctuator.XOR),
           BITWISE_AND_EXPRESSION_NO_IN()
-        ))
-      ));
+          ))
+        ));
   }
 
   public ExpressionTree BITWISE_AND_EXPRESSION() {
@@ -685,8 +686,8 @@ public class ActionGrammar {
         b.zeroOrMore(f.newTuple10(
           b.invokeRule(EcmaScriptPunctuator.AND),
           EQUALITY_EXPRESSION()
-        ))
-      ));
+          ))
+        ));
   }
 
   public ExpressionTree BITWISE_AND_EXPRESSION_NO_IN() {
@@ -696,21 +697,21 @@ public class ActionGrammar {
         b.zeroOrMore(f.newTuple23(
           b.invokeRule(EcmaScriptPunctuator.AND),
           EQUALITY_EXPRESSION_NO_IN()
-        ))
-      ));
+          ))
+        ));
   }
 
   public ExpressionTree EQUALITY_EXPRESSION() {
     return b.<ExpressionTree>nonterminal(EcmaScriptGrammar.EQUALITY_EXPRESSION)
       .is(f.newEquality(
-          RELATIONAL_EXPRESSION(),
-          b.zeroOrMore(f.newTuple11(
-            b.firstOf(
-              b.invokeRule(EcmaScriptPunctuator.EQUAL),
-              b.invokeRule(EcmaScriptPunctuator.NOTEQUAL),
-              b.invokeRule(EcmaScriptPunctuator.EQUAL2),
-              b.invokeRule(EcmaScriptPunctuator.NOTEQUAL2)),
-            RELATIONAL_EXPRESSION()
+        RELATIONAL_EXPRESSION(),
+        b.zeroOrMore(f.newTuple11(
+          b.firstOf(
+            b.invokeRule(EcmaScriptPunctuator.EQUAL),
+            b.invokeRule(EcmaScriptPunctuator.NOTEQUAL),
+            b.invokeRule(EcmaScriptPunctuator.EQUAL2),
+            b.invokeRule(EcmaScriptPunctuator.NOTEQUAL2)),
+          RELATIONAL_EXPRESSION()
           ))
         )
       );
@@ -719,14 +720,14 @@ public class ActionGrammar {
   public ExpressionTree EQUALITY_EXPRESSION_NO_IN() {
     return b.<ExpressionTree>nonterminal()
       .is(f.newEqualityNoIn(
-          RELATIONAL_EXPRESSION_NO_IN(),
-          b.zeroOrMore(f.newTuple24(
-            b.firstOf(
-              b.invokeRule(EcmaScriptPunctuator.EQUAL),
-              b.invokeRule(EcmaScriptPunctuator.NOTEQUAL),
-              b.invokeRule(EcmaScriptPunctuator.EQUAL2),
-              b.invokeRule(EcmaScriptPunctuator.NOTEQUAL2)),
-            RELATIONAL_EXPRESSION_NO_IN()
+        RELATIONAL_EXPRESSION_NO_IN(),
+        b.zeroOrMore(f.newTuple24(
+          b.firstOf(
+            b.invokeRule(EcmaScriptPunctuator.EQUAL),
+            b.invokeRule(EcmaScriptPunctuator.NOTEQUAL),
+            b.invokeRule(EcmaScriptPunctuator.EQUAL2),
+            b.invokeRule(EcmaScriptPunctuator.NOTEQUAL2)),
+          RELATIONAL_EXPRESSION_NO_IN()
           ))
         )
       );
@@ -735,16 +736,16 @@ public class ActionGrammar {
   public ExpressionTree RELATIONAL_EXPRESSION() {
     return b.<ExpressionTree>nonterminal(EcmaScriptGrammar.RELATIONAL_EXPRESSION)
       .is(f.newRelational(
-          SHIFT_EXPRESSION(),
-          b.zeroOrMore(f.newTuple12(
-            b.firstOf(
-              b.invokeRule(EcmaScriptPunctuator.LT),
-              b.invokeRule(EcmaScriptPunctuator.GT),
-              b.invokeRule(EcmaScriptPunctuator.LE),
-              b.invokeRule(EcmaScriptPunctuator.GE),
-              b.invokeRule(EcmaScriptKeyword.INSTANCEOF),
-              b.invokeRule(EcmaScriptKeyword.IN)),
-            SHIFT_EXPRESSION()
+        SHIFT_EXPRESSION(),
+        b.zeroOrMore(f.newTuple12(
+          b.firstOf(
+            b.invokeRule(EcmaScriptPunctuator.LT),
+            b.invokeRule(EcmaScriptPunctuator.GT),
+            b.invokeRule(EcmaScriptPunctuator.LE),
+            b.invokeRule(EcmaScriptPunctuator.GE),
+            b.invokeRule(EcmaScriptKeyword.INSTANCEOF),
+            b.invokeRule(EcmaScriptKeyword.IN)),
+          SHIFT_EXPRESSION()
           ))
         )
       );
@@ -753,15 +754,15 @@ public class ActionGrammar {
   public ExpressionTree RELATIONAL_EXPRESSION_NO_IN() {
     return b.<ExpressionTree>nonterminal()
       .is(f.newRelationalNoIn(
-          SHIFT_EXPRESSION(),
-          b.zeroOrMore(f.newTuple25(
-            b.firstOf(
-              b.invokeRule(EcmaScriptPunctuator.LT),
-              b.invokeRule(EcmaScriptPunctuator.GT),
-              b.invokeRule(EcmaScriptPunctuator.LE),
-              b.invokeRule(EcmaScriptPunctuator.GE),
-              b.invokeRule(EcmaScriptKeyword.INSTANCEOF)),
-            SHIFT_EXPRESSION()
+        SHIFT_EXPRESSION(),
+        b.zeroOrMore(f.newTuple25(
+          b.firstOf(
+            b.invokeRule(EcmaScriptPunctuator.LT),
+            b.invokeRule(EcmaScriptPunctuator.GT),
+            b.invokeRule(EcmaScriptPunctuator.LE),
+            b.invokeRule(EcmaScriptPunctuator.GE),
+            b.invokeRule(EcmaScriptKeyword.INSTANCEOF)),
+          SHIFT_EXPRESSION()
           ))
         )
       );
@@ -770,13 +771,13 @@ public class ActionGrammar {
   public ExpressionTree SHIFT_EXPRESSION() {
     return b.<ExpressionTree>nonterminal(EcmaScriptGrammar.SHIFT_EXPRESSION)
       .is(f.newShift(
-          ADDITIVE_EXPRESSION(),
-          b.zeroOrMore(f.newTuple13(
-            b.firstOf(
-              b.invokeRule(EcmaScriptPunctuator.SL),
-              b.invokeRule(EcmaScriptPunctuator.SR),
-              b.invokeRule(EcmaScriptPunctuator.SR2)),
-            ADDITIVE_EXPRESSION()
+        ADDITIVE_EXPRESSION(),
+        b.zeroOrMore(f.newTuple13(
+          b.firstOf(
+            b.invokeRule(EcmaScriptPunctuator.SL),
+            b.invokeRule(EcmaScriptPunctuator.SR),
+            b.invokeRule(EcmaScriptPunctuator.SR2)),
+          ADDITIVE_EXPRESSION()
           ))
         )
       );
@@ -785,12 +786,12 @@ public class ActionGrammar {
   public ExpressionTree ADDITIVE_EXPRESSION() {
     return b.<ExpressionTree>nonterminal(EcmaScriptGrammar.ADDITIVE_EXPRESSION)
       .is(f.newAdditive(
-          MULTIPLICATIVE_EXPRESSION(),
-          b.zeroOrMore(f.newTuple14(
-            b.firstOf(
-              b.invokeRule(EcmaScriptPunctuator.PLUS),
-              b.invokeRule(EcmaScriptPunctuator.MINUS)),
-            MULTIPLICATIVE_EXPRESSION()
+        MULTIPLICATIVE_EXPRESSION(),
+        b.zeroOrMore(f.newTuple14(
+          b.firstOf(
+            b.invokeRule(EcmaScriptPunctuator.PLUS),
+            b.invokeRule(EcmaScriptPunctuator.MINUS)),
+          MULTIPLICATIVE_EXPRESSION()
           ))
         )
       );
@@ -799,13 +800,13 @@ public class ActionGrammar {
   public ExpressionTree MULTIPLICATIVE_EXPRESSION() {
     return b.<ExpressionTree>nonterminal(EcmaScriptGrammar.MULTIPLICATIVE_EXPRESSION)
       .is(f.newMultiplicative(
-          UNARY_EXPRESSION(),
-          b.zeroOrMore(f.newTuple15(
-            b.firstOf(
-              b.invokeRule(EcmaScriptPunctuator.STAR),
-              b.invokeRule(EcmaScriptPunctuator.DIV),
-              b.invokeRule(EcmaScriptPunctuator.MOD)),
-            UNARY_EXPRESSION()
+        UNARY_EXPRESSION(),
+        b.zeroOrMore(f.newTuple15(
+          b.firstOf(
+            b.invokeRule(EcmaScriptPunctuator.STAR),
+            b.invokeRule(EcmaScriptPunctuator.DIV),
+            b.invokeRule(EcmaScriptPunctuator.MOD)),
+          UNARY_EXPRESSION()
           ))
         )
       );
@@ -827,21 +828,21 @@ public class ActionGrammar {
             b.invokeRule(EcmaScriptPunctuator.TILDA),
             b.invokeRule(EcmaScriptPunctuator.BANG)),
           UNARY_EXPRESSION()
-        )
-      ));
+          )
+        ));
   }
 
   public ExpressionTree POSTFIX_EXPRESSION() {
-   return b.<ExpressionTree>nonterminal(EcmaScriptGrammar.POSTFIX_EXPRESSION)
-     .is(f.postfixExpression(
-       LEFT_HAND_SIDE_EXPRESSION(),
-       b.optional(f.newTuple16(
-         b.invokeRule(EcmaScriptGrammar.SPACING_NO_LINE_BREAK_NOT_FOLLOWED_BY_LINE_BREAK),
-         b.firstOf(
-           b.invokeRule(EcmaScriptPunctuator.INC),
-           b.invokeRule(EcmaScriptPunctuator.DEC))
-       ))
-     ));
+    return b.<ExpressionTree>nonterminal(EcmaScriptGrammar.POSTFIX_EXPRESSION)
+      .is(f.postfixExpression(
+        LEFT_HAND_SIDE_EXPRESSION(),
+        b.optional(f.newTuple16(
+          b.invokeRule(EcmaScriptGrammar.SPACING_NO_LINE_BREAK_NOT_FOLLOWED_BY_LINE_BREAK),
+          b.firstOf(
+            b.invokeRule(EcmaScriptPunctuator.INC),
+            b.invokeRule(EcmaScriptPunctuator.DEC))
+        ))
+      ));
   }
 
   public ExpressionTree LEFT_HAND_SIDE_EXPRESSION() {
@@ -857,11 +858,11 @@ public class ActionGrammar {
       .is(f.completeYieldExpression(
         b.invokeRule(EcmaScriptKeyword.YIELD),
         b.optional(f.newYieldExpression(
-            b.invokeRule(EcmaScriptGrammar.SPACING_NO_LINE_BREAK_NOT_FOLLOWED_BY_LINE_BREAK),
-            b.optional(b.invokeRule(EcmaScriptPunctuator.STAR)),
-            ASSIGNMENT_EXPRESSION())
-        )
-      ));
+          b.invokeRule(EcmaScriptGrammar.SPACING_NO_LINE_BREAK_NOT_FOLLOWED_BY_LINE_BREAK),
+          b.optional(b.invokeRule(EcmaScriptPunctuator.STAR)),
+          ASSIGNMENT_EXPRESSION())
+          )
+        ));
   }
 
   public YieldExpressionTreeImpl YIELD_EXPRESSION_NO_IN() {
@@ -869,26 +870,26 @@ public class ActionGrammar {
       .is(f.completeYieldExpressionNoIn(
         b.invokeRule(EcmaScriptKeyword.YIELD),
         b.optional(f.newYieldExpressionNoIn(
-            b.invokeRule(EcmaScriptGrammar.SPACING_NO_LINE_BREAK_NOT_FOLLOWED_BY_LINE_BREAK),
-            b.optional(b.invokeRule(EcmaScriptPunctuator.STAR)),
-            ASSIGNMENT_EXPRESSION_NO_IN())
-        )
-      ));
+          b.invokeRule(EcmaScriptGrammar.SPACING_NO_LINE_BREAK_NOT_FOLLOWED_BY_LINE_BREAK),
+          b.optional(b.invokeRule(EcmaScriptPunctuator.STAR)),
+          ASSIGNMENT_EXPRESSION_NO_IN())
+          )
+        ));
   }
 
   public IdentifierTreeImpl IDENTIFIER_REFERENCE() {
     return b.<IdentifierTreeImpl>nonterminal(EcmaScriptGrammar.IDENTIFIER_REFERENCE)
       .is(f.identifierReference(b.firstOf(
-          b.invokeRule(EcmaScriptKeyword.YIELD),
-          b.invokeRule(EcmaScriptTokenType.IDENTIFIER)))
+        b.invokeRule(EcmaScriptKeyword.YIELD),
+        b.invokeRule(EcmaScriptTokenType.IDENTIFIER)))
       );
   }
 
   public IdentifierTreeImpl BINDING_IDENTIFIER() {
     return b.<IdentifierTreeImpl>nonterminal(EcmaScriptGrammar.BINDING_IDENTIFIER)
       .is(f.bindingIdentifier(b.firstOf(
-          b.invokeRule(EcmaScriptKeyword.YIELD),
-          b.invokeRule(EcmaScriptTokenType.IDENTIFIER)))
+        b.invokeRule(EcmaScriptKeyword.YIELD),
+        b.invokeRule(EcmaScriptTokenType.IDENTIFIER)))
       );
   }
 
@@ -913,7 +914,7 @@ public class ActionGrammar {
         b.firstOf(
           BLOCK(),
           f.assignmentNoCurly(b.invokeRule(EcmaScriptGrammar.NEXT_NOT_LCURLY), ASSIGNMENT_EXPRESSION()))
-      ));
+        ));
   }
 
   public ArrowFunctionTreeImpl ARROW_FUNCTION_NO_IN() {
@@ -927,7 +928,7 @@ public class ActionGrammar {
         b.firstOf(
           BLOCK(),
           f.assignmentNoCurlyNoIn(b.invokeRule(EcmaScriptGrammar.NEXT_NOT_LCURLY), ASSIGNMENT_EXPRESSION_NO_IN()))
-      ));
+        ));
   }
 
   public ExpressionTree MEMBER_EXPRESSION() {
@@ -942,7 +943,7 @@ public class ActionGrammar {
             BRACKET_EXPRESSION(),
             OBJECT_PROPERTY_ACCESS(),
             ES6(TAGGED_TEMPLATE())))
-      ));
+        ));
   }
 
   public MemberExpressionTree SUPER_PROPERTY() {
@@ -952,7 +953,7 @@ public class ActionGrammar {
         b.firstOf(
           OBJECT_PROPERTY_ACCESS(),
           BRACKET_EXPRESSION())
-      ));
+        ));
   }
 
   public SuperTreeImpl SUPER() {
@@ -989,14 +990,14 @@ public class ActionGrammar {
         b.optional(ARGUMENT_LIST()),
         b.invokeRule(EcmaScriptPunctuator.RPARENTHESIS)
 
-      ));
+        ));
   }
 
   public ParameterListTreeImpl ARGUMENT_LIST() {
     return b.<ParameterListTreeImpl>nonterminal(EcmaScriptGrammar.ARGUMENTS_LIST)
       .is(f.newArgumentList(
-          ARGUMENT(),
-          b.zeroOrMore(f.newTuple17(b.invokeRule(EcmaScriptPunctuator.COMMA), ARGUMENT())))
+        ARGUMENT(),
+        b.zeroOrMore(f.newTuple17(b.invokeRule(EcmaScriptPunctuator.COMMA), ARGUMENT())))
       );
   }
 
@@ -1016,7 +1017,7 @@ public class ActionGrammar {
           BRACKET_EXPRESSION(),
           OBJECT_PROPERTY_ACCESS(),
           ES6(TAGGED_TEMPLATE())
-        ))));
+          ))));
   }
 
   public ParenthesisedExpressionTreeImpl PARENTHESISED_EXPRESSION() {
@@ -1047,7 +1048,7 @@ public class ActionGrammar {
         b.invokeRule(EcmaScriptPunctuator.LBRACKET),
         ASSIGNMENT_EXPRESSION(),
         b.invokeRule(EcmaScriptPunctuator.RBRACKET)
-      ));
+        ));
   }
 
   public ExpressionTree LITERAL_PROPERTY_NAME() {
@@ -1056,7 +1057,7 @@ public class ActionGrammar {
         IDENTIFIER_NAME(),
         STRING_LITERAL(),
         NUMERIC_LITERAL()
-      ));
+        ));
   }
 
   public ExpressionTree PROPERTY_NAME() {
@@ -1064,7 +1065,7 @@ public class ActionGrammar {
       .is(b.firstOf(
         LITERAL_PROPERTY_NAME(),
         ES6(COMPUTED_PROPERTY_NAME())
-      ));
+        ));
   }
 
   public PairPropertyTreeImpl PAIR_PROPERTY() {
@@ -1073,7 +1074,7 @@ public class ActionGrammar {
         PROPERTY_NAME(),
         b.invokeRule(EcmaScriptPunctuator.COLON),
         ASSIGNMENT_EXPRESSION()
-      ));
+        ));
   }
 
   public Tree PROPERTY_DEFINITION() {
@@ -1093,9 +1094,9 @@ public class ActionGrammar {
           PROPERTY_DEFINITION(),
           b.zeroOrMore(f.newTuple18(b.invokeRule(EcmaScriptPunctuator.COMMA), PROPERTY_DEFINITION())),
           b.optional(b.invokeRule(EcmaScriptPunctuator.COMMA))
-        )),
+          )),
         b.invokeRule(EcmaScriptPunctuator.RCURLYBRACE)
-      ));
+        ));
   }
 
   public ExpressionTree NEW_EXPRESSION() {
@@ -1103,7 +1104,7 @@ public class ActionGrammar {
       .is(b.firstOf(
         MEMBER_EXPRESSION(),
         f.newExpression(b.invokeRule(EcmaScriptKeyword.NEW), b.firstOf(ES6(SUPER()), NEW_EXPRESSION()))
-      ));
+        ));
   }
 
   public TemplateLiteralTreeImpl TEMPLATE_LITERAL() {
@@ -1111,7 +1112,7 @@ public class ActionGrammar {
       .is(b.firstOf(
         f.noSubstitutionTemplate(b.invokeRule(EcmaScriptGrammar.BACKTICK), b.optional(TEMPLATE_CHARACTERS()), b.invokeRule(EcmaScriptGrammar.BACKTICK)),
         f.substitutionTemplate(
-          //HEAD
+          // HEAD
           b.invokeRule(EcmaScriptGrammar.BACKTICK),
           b.optional(TEMPLATE_CHARACTERS()),
           TEMPLATE_EXPRESSION_HEAD(),
@@ -1120,13 +1121,13 @@ public class ActionGrammar {
             b.invokeRule(EcmaScriptPunctuator.RCURLYBRACE),
             b.optional(TEMPLATE_CHARACTERS()),
             TEMPLATE_EXPRESSION_HEAD()
-          )),
-          //TAIL
+            )),
+          // TAIL
           b.invokeRule(EcmaScriptPunctuator.RCURLYBRACE),
           b.optional(TEMPLATE_CHARACTERS()),
           b.invokeRule(EcmaScriptGrammar.BACKTICK)
-        )
-      ));
+          )
+        ));
   }
 
   public TemplateExpressionTreeImpl TEMPLATE_EXPRESSION_HEAD() {
@@ -1164,7 +1165,7 @@ public class ActionGrammar {
           CLASS_EXPRESSION(),
           GENERATOR_EXPRESSION(),
           TEMPLATE_LITERAL()
-        ));
+          ));
   }
 
   public ExpressionTree ES6_ASSIGNMENT_EXPRESSION() {
@@ -1199,7 +1200,7 @@ public class ActionGrammar {
             ASSIGNMENT_EXPRESSION()),
           CONDITIONAL_EXPRESSION_NOT_ES6_ASSIGNMENT_EXPRESSION(),
           ES6_ASSIGNMENT_EXPRESSION()
-      ));
+          ));
   }
 
   public ExpressionTree ASSIGNMENT_EXPRESSION_NO_IN() {
@@ -1224,7 +1225,7 @@ public class ActionGrammar {
             ASSIGNMENT_EXPRESSION_NO_IN()),
           ES6_ASSIGNMENT_EXPRESSION_NO_IN(),
           CONDITIONAL_EXPRESSION_NO_IN()
-        ));
+          ));
   }
 
   public ExpressionTree EXPRESSION() {
@@ -1266,7 +1267,7 @@ public class ActionGrammar {
           FUNCTION_AND_GENERATOR_DECLARATION(),
           CLASS_DECLARATION(),
           f.exportedExpressionStatement(b.invokeRule(EcmaScriptGrammar.NEXT_NOT_FUNCTION_AND_CLASS), ASSIGNMENT_EXPRESSION(), b.invokeRule(EcmaScriptGrammar.EOS)))
-      ));
+        ));
   }
 
   public NamedExportDeclarationTreeImpl NAMED_EXPORT_DECLARATION() {
@@ -1290,7 +1291,7 @@ public class ActionGrammar {
           b.zeroOrMore(f.newTuple50(b.invokeRule(EcmaScriptPunctuator.COMMA), EXPORT_SPECIFIER())),
           b.optional(b.invokeRule(EcmaScriptPunctuator.COMMA)))),
         b.invokeRule(EcmaScriptPunctuator.RCURLYBRACE)
-      ));
+        ));
   }
 
   public SpecifierTreeImpl EXPORT_SPECIFIER() {
@@ -1298,7 +1299,7 @@ public class ActionGrammar {
       .is(f.completeExportSpecifier(
         IDENTIFIER_NAME(),
         b.optional(f.newExportSpecifier(b.invokeRule(EcmaScriptGrammar.AS), IDENTIFIER_NAME()))
-      ));
+        ));
   }
 
   public NameSpaceExportDeclarationTree NAMESPACE_EXPORT_DECLARATION() {
@@ -1308,7 +1309,7 @@ public class ActionGrammar {
         b.invokeRule(EcmaScriptPunctuator.STAR),
         FROM_CLAUSE(),
         b.invokeRule(EcmaScriptGrammar.EOS)
-      ));
+        ));
   }
 
   public ExportDeclarationTree EXPORT_DECLARATION() {
@@ -1317,14 +1318,14 @@ public class ActionGrammar {
         NAMESPACE_EXPORT_DECLARATION(),
         DEFAULT_EXPORT_DECLARATION(),
         NAMED_EXPORT_DECLARATION()
-      ));
+        ));
 
   }
 
   public ImportModuleDeclarationTree IMPORT_MODULE_DECLARATION() {
     return b.<ImportModuleDeclarationTree>nonterminal()
       .is(f.importModuleDeclaration(
-          b.invokeRule(EcmaScriptKeyword.IMPORT), STRING_LITERAL(), b.invokeRule(EcmaScriptGrammar.EOS))
+        b.invokeRule(EcmaScriptKeyword.IMPORT), STRING_LITERAL(), b.invokeRule(EcmaScriptGrammar.EOS))
       );
   }
 
@@ -1337,7 +1338,7 @@ public class ActionGrammar {
           b.zeroOrMore(f.newTuple51(b.invokeRule(EcmaScriptPunctuator.COMMA), IMPORT_SPECIFIER())),
           b.optional(b.invokeRule(EcmaScriptPunctuator.COMMA)))),
         b.invokeRule(EcmaScriptPunctuator.RCURLYBRACE)
-      ));
+        ));
   }
 
   public SpecifierTreeImpl IMPORT_SPECIFIER() {
@@ -1347,7 +1348,7 @@ public class ActionGrammar {
           BINDING_IDENTIFIER(),
           IDENTIFIER_NAME()),
         b.optional(f.newImportSpecifier(b.invokeRule(EcmaScriptGrammar.AS), BINDING_IDENTIFIER()))
-      ));
+        ));
   }
 
   public SpecifierTree NAMESPACE_IMPORT() {
@@ -1356,7 +1357,7 @@ public class ActionGrammar {
         b.invokeRule(EcmaScriptPunctuator.STAR),
         b.invokeRule(EcmaScriptGrammar.AS),
         BINDING_IDENTIFIER()
-      ));
+        ));
   }
 
   public ImportClauseTreeImpl IMPORT_CLAUSE() {
@@ -1368,8 +1369,8 @@ public class ActionGrammar {
           f.defaultImport(
             BINDING_IDENTIFIER(),
             b.optional(f.newTuple52(b.invokeRule(EcmaScriptPunctuator.COMMA), b.firstOf(NAMESPACE_IMPORT(), IMPORT_LIST()))))
-        )
-      ));
+          )
+        ));
   }
 
   public DeclarationTree IMPORT_DECLARATION() {
@@ -1381,7 +1382,7 @@ public class ActionGrammar {
           FROM_CLAUSE(),
           b.invokeRule(EcmaScriptGrammar.EOS)),
         IMPORT_MODULE_DECLARATION()
-      ));
+        ));
   }
 
   public ModuleTreeImpl MODULE_BODY() {
@@ -1397,6 +1398,7 @@ public class ActionGrammar {
               FUNCTION_AND_GENERATOR_DECLARATION(),
               STATEMENT()))));
   }
+
   // [END] Module, import & export
 
   // [START] Destructuring pattern
