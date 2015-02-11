@@ -59,8 +59,8 @@ public class EmptyBlockCheck extends SquidCheck<LexerlessGrammar> {
   private static boolean isFunctionBody(AstNode block) {
     AstNode parent = block.getParent();
 
-   return parent instanceof MethodDeclarationTreeImpl
-     || parent instanceof FunctionExpressionTreeImpl
-     || parent.is(Kind.FUNCTION_DECLARATION, Kind.GENERATOR_DECLARATION);
+    return parent instanceof MethodDeclarationTreeImpl
+      || parent instanceof FunctionExpressionTreeImpl
+      || parent.is(Kind.FUNCTION_DECLARATION, Kind.GENERATOR_DECLARATION);
   }
 }
