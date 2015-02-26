@@ -82,7 +82,6 @@ public class CoverageSensor implements Sensor {
     String providedPath = settings.getString(JavaScriptPlugin.LCOV_REPORT_PATH);
     File lcovFile = getIOFile(fileSystem.baseDir(), providedPath);
 
-
     if (!lcovFile.isFile()) {
       LOG.warn("No coverage information will be saved because LCOV file cannot be found. Provided LCOV file path: {}", providedPath);
       LOG.warn("Provided LCOV file path: {}. Seek file with path: {}", providedPath, lcovFile.getAbsolutePath());
@@ -91,12 +90,12 @@ public class CoverageSensor implements Sensor {
 
     LOG.info("Analysing {}", lcovFile);
 
-    LCOVParser parser = new LCOVParser(fileSystem.baseDir());
-    Map<String, CoverageMeasuresBuilder> coveredFiles = parser.parseFile(lcovFile);
+    LCOVParser parser = new LCOVParser(fileSystem);
+    Map<InputFile, CoverageMeasuresBuilder> coveredFiles = parser.parseFile(lcovFile);
 
     for (InputFile inputFile : fileSystem.inputFiles(mainFilePredicate)) {
       try {
-        CoverageMeasuresBuilder fileCoverage = coveredFiles.get(inputFile.file().getAbsolutePath());
+        CoverageMeasuresBuilder fileCoverage = coveredFiles.get(inputFile);
         org.sonar.api.resources.File resource = org.sonar.api.resources.File.create(inputFile.relativePath());
 
         if (fileCoverage != null) {
@@ -112,7 +111,7 @@ public class CoverageSensor implements Sensor {
       } catch (Exception e) {
         LOG.error("Problem while calculating coverage for " + inputFile.absolutePath(), e);
       }
-   }
+    }
   }
 
   private void saveZeroValueForResource(org.sonar.api.resources.File resource, SensorContext context) {

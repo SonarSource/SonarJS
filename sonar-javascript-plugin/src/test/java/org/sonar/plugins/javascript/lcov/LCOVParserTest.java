@@ -19,9 +19,14 @@
  */
 package org.sonar.plugins.javascript.lcov;
 
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.junit.rules.TemporaryFolder;
+import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.fs.internal.DefaultFileSystem;
+import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.measures.CoverageMeasuresBuilder;
 import org.sonar.api.utils.SonarException;
 
@@ -36,37 +41,50 @@ public class LCOVParserTest {
   @Rule
   public ExpectedException thrown = ExpectedException.none();
 
-  private static final String BASE_DIR = "module/base/dir/";
-  private LCOVParser parser = new LCOVParser(new File(BASE_DIR));
+  @Rule
+  public TemporaryFolder temp = new TemporaryFolder();
+
+  private DefaultFileSystem fs;
+  private LCOVParser parser;
+  private File baseDir;
+
+  @Before
+  public void prepare() throws Exception {
+    baseDir = temp.newFolder();
+    fs = new DefaultFileSystem();
+    parser = new LCOVParser(fs);
+  }
 
   @Test
-  public void test() {
-    File file1 = new File(BASE_DIR, "file1.js");
-    File file2 = new File(BASE_DIR, "file2.js");
+  public void testSeveralFiles() {
+    DefaultInputFile file1 = new DefaultInputFile("file1.js").setFile(new File(baseDir, "file1.js"));
+    fs.add(file1);
+    DefaultInputFile file2 = new DefaultInputFile("file2.js").setFile(new File(baseDir, "file2.js"));
+    fs.add(file2);
 
-    Map<String, CoverageMeasuresBuilder> result = parser.parse(Arrays.asList(
-        "SF:file1.js",
-        "DA:1,1",
-        "end_of_record",
-        "SF:./file2.js",
-        "FN:2,(anonymous_1)",
-        "FNDA:2,(anonymous_1)",
-        "DA:1,1",
-        "DA:2,0",
-        "BRDA:11,1,0,2",
-        "BRDA:11,1,1,1",
-        "BRDA:11,2,0,0",
-        "BRDA:11,2,1,-",
-        "end_of_record"));
+    Map<InputFile, CoverageMeasuresBuilder> result = parser.parse(Arrays.asList(
+      "SF:file1.js",
+      "DA:1,1",
+      "end_of_record",
+      "SF:./file2.js",
+      "FN:2,(anonymous_1)",
+      "FNDA:2,(anonymous_1)",
+      "DA:1,1",
+      "DA:2,0",
+      "BRDA:11,1,0,2",
+      "BRDA:11,1,1,1",
+      "BRDA:11,2,0,0",
+      "BRDA:11,2,1,-",
+      "end_of_record"));
     assertThat(result).hasSize(2);
 
-    CoverageMeasuresBuilder fileCoverage = result.get(file1.getAbsolutePath());
+    CoverageMeasuresBuilder fileCoverage = result.get(file1);
     assertThat(fileCoverage.getLinesToCover()).isEqualTo(1);
     assertThat(fileCoverage.getCoveredLines()).isEqualTo(1);
     assertThat(fileCoverage.getConditions()).isEqualTo(0);
     assertThat(fileCoverage.getCoveredConditions()).isEqualTo(0);
 
-    fileCoverage = result.get(file2.getAbsolutePath());
+    fileCoverage = result.get(file2);
     assertThat(fileCoverage.getLinesToCover()).isEqualTo(2);
     assertThat(fileCoverage.getCoveredLines()).isEqualTo(1);
     assertThat(fileCoverage.getConditions()).isEqualTo(4);
@@ -74,10 +92,43 @@ public class LCOVParserTest {
   }
 
   @Test
-  public void merge() {
-    File file = new File(BASE_DIR, "file.js");
+  public void testNotIndexedFiles() {
+    DefaultInputFile file1 = new DefaultInputFile("file1.js").setFile(new File(baseDir, "file1.js"));
+    fs.add(file1);
+    // File 2 is not indexed
+    DefaultInputFile file2 = new DefaultInputFile("file2.js").setFile(new File(baseDir, "file2.js"));
 
-    Map<String, CoverageMeasuresBuilder> result = parser.parse(Arrays.asList(
+    Map<InputFile, CoverageMeasuresBuilder> result = parser.parse(Arrays.asList(
+      "SF:file1.js",
+      "DA:1,1",
+      "end_of_record",
+      "SF:./file2.js",
+      "FN:2,(anonymous_1)",
+      "FNDA:2,(anonymous_1)",
+      "DA:1,1",
+      "DA:2,0",
+      "BRDA:11,1,0,2",
+      "BRDA:11,1,1,1",
+      "BRDA:11,2,0,0",
+      "BRDA:11,2,1,-",
+      "end_of_record"));
+    assertThat(result).hasSize(1);
+
+    CoverageMeasuresBuilder fileCoverage = result.get(file1);
+    assertThat(fileCoverage.getLinesToCover()).isEqualTo(1);
+    assertThat(fileCoverage.getCoveredLines()).isEqualTo(1);
+    assertThat(fileCoverage.getConditions()).isEqualTo(0);
+    assertThat(fileCoverage.getCoveredConditions()).isEqualTo(0);
+
+    assertThat(result.get(file2)).isNull();
+  }
+
+  @Test
+  public void merge() {
+    DefaultInputFile file = new DefaultInputFile("file.js").setFile(new File(baseDir, "file.js"));
+    fs.add(file);
+
+    Map<InputFile, CoverageMeasuresBuilder> result = parser.parse(Arrays.asList(
       "SF:file.js",
       "BRDA:1,0,0,-",
       "BRDA:1,0,1,1",
@@ -89,7 +140,7 @@ public class LCOVParserTest {
       "DA:3,1",
       "end_of_record"));
 
-    CoverageMeasuresBuilder fileCoverage = result.get(file.getAbsolutePath());
+    CoverageMeasuresBuilder fileCoverage = result.get(file);
     assertThat(fileCoverage.getLinesToCover()).isEqualTo(2);
     assertThat(fileCoverage.getCoveredLines()).isEqualTo(2);
     assertThat(fileCoverage.getConditions()).isEqualTo(2);
