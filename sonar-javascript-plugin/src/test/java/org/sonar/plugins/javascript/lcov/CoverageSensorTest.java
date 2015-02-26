@@ -19,17 +19,6 @@
  */
 package org.sonar.plugins.javascript.lcov;
 
-import static org.fest.assertions.Assertions.assertThat;
-import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.anyObject;
-import static org.mockito.Mockito.atLeast;
-import static org.mockito.Mockito.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
-import static org.mockito.Mockito.when;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.batch.SensorContext;
@@ -45,6 +34,12 @@ import org.sonar.api.resources.Resource;
 import org.sonar.plugins.javascript.JavaScriptPlugin;
 import org.sonar.plugins.javascript.core.JavaScript;
 import org.sonar.test.TestUtils;
+
+import static org.fest.assertions.Assertions.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyObject;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.*;
 
 public class CoverageSensorTest {
 
@@ -96,8 +91,8 @@ public class CoverageSensorTest {
   @Test
   public void test_file_in_coverage_report() {
     DefaultFileSystem fs = newFileSystem();
-    fs.add(newSourceInputFile("Another.js", "org/sonar/plugins/javascript/unittest/jstestdriver/sensortests/main/Another.js"));
-    fs.add(newSourceInputFile("Person.js", "org/sonar/plugins/javascript/unittest/jstestdriver/sensortests/main/Person.js"));
+    fs.add(newSourceInputFile("sensortests/main/Another.js", "org/sonar/plugins/javascript/unittest/jstestdriver/sensortests/main/Another.js"));
+    fs.add(newSourceInputFile("sensortests/main/Person.js", "org/sonar/plugins/javascript/unittest/jstestdriver/sensortests/main/Person.js"));
     newSensor(fs, settings).analyse(project, context);
 
     verify(context, atLeast(3)).saveMeasure(any(Resource.class), (Measure) anyObject());
@@ -106,7 +101,7 @@ public class CoverageSensorTest {
   @Test
   public void test_file_not_in_coverage_report() {
     DefaultFileSystem fs = newFileSystem();
-    fs.add(newSourceInputFile("Another.js", "org/sonar/plugins/javascript/unittest/jstestdriver/sensortests/main/Another.js"));
+    fs.add(newSourceInputFile("sensortests/main/Another.js", "org/sonar/plugins/javascript/unittest/jstestdriver/sensortests/main/Another.js"));
 
     when(context.getMeasure(any(org.sonar.api.resources.File.class), eq(CoreMetrics.LINES))).thenReturn(
       new Measure(CoreMetrics.LINES, (double) 20));
@@ -123,7 +118,7 @@ public class CoverageSensorTest {
   @Test
   public void test_save_zero_value_for_all_files() throws Exception {
     DefaultFileSystem fs = newFileSystem();
-    fs.add(newSourceInputFile("Person.js", "org/sonar/plugins/javascript/unittest/jstestdriver/sensortests/main/Person.js"));
+    fs.add(newSourceInputFile("sensortests/main/Person.js", "org/sonar/plugins/javascript/unittest/jstestdriver/sensortests/main/Person.js"));
 
     settings.setProperty(JavaScriptPlugin.FORCE_ZERO_COVERAGE_KEY, "true");
     settings.setProperty(JavaScriptPlugin.LCOV_REPORT_PATH, "");
@@ -135,14 +130,13 @@ public class CoverageSensorTest {
     verify(context, times(1)).saveMeasure((Resource) anyObject(), eq(CoreMetrics.UNCOVERED_LINES), eq(1d));
   }
 
-
   @Test
   public void test_toString() {
     assertThat(newSensor(newFileSystem(), settings).toString()).isEqualTo("CoverageSensor");
   }
 
-  public DefaultInputFile newSourceInputFile(String name, String path) {
-    return new DefaultInputFile(name)
+  public DefaultInputFile newSourceInputFile(String relativePath, String path) {
+    return new DefaultInputFile(relativePath)
       .setAbsolutePath(TestUtils.getResource(path).getAbsolutePath())
       .setType(InputFile.Type.MAIN)
       .setLanguage(JavaScript.KEY);

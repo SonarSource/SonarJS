@@ -24,8 +24,12 @@ import com.google.common.collect.Maps;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.sonar.api.batch.fs.FileSystem;
+import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.measures.CoverageMeasuresBuilder;
 import org.sonar.api.utils.SonarException;
+
+import javax.annotation.CheckForNull;
 
 import java.io.File;
 import java.io.IOException;
@@ -43,13 +47,13 @@ public final class LCOVParser {
   private static final String DA = "DA:";
   private static final String BRDA = "BRDA:";
 
-  private final File moduleBaseDir;
+  private final FileSystem fs;
 
-  public LCOVParser(File moduleBaseDir) {
-    this.moduleBaseDir = moduleBaseDir;
+  public LCOVParser(FileSystem fs) {
+    this.fs = fs;
   }
 
-  public Map<String, CoverageMeasuresBuilder> parseFile(File file) {
+  public Map<InputFile, CoverageMeasuresBuilder> parseFile(File file) {
     final List<String> lines;
     try {
       lines = FileUtils.readLines(file);
@@ -59,53 +63,55 @@ public final class LCOVParser {
     return parse(lines);
   }
 
-  public Map<String, CoverageMeasuresBuilder> parse(List<String> lines) {
-    final Map<String, FileData> files = Maps.newHashMap();
-    FileData fileData = new FileData();
+  public Map<InputFile, CoverageMeasuresBuilder> parse(List<String> lines) {
+    final Map<InputFile, FileData> files = Maps.newHashMap();
+    FileData fileData = null;
 
     for (String line : lines) {
       if (line.startsWith(SF)) {
         // SF:<absolute path to the source file>
-        String filePath = line.substring(SF.length());
+        fileData = loadCurrentFileData(files, line);
+      } else if (fileData != null) {
+        if (line.startsWith(DA)) {
+          // DA:<line number>,<execution count>[,<checksum>]
+          String execution = line.substring(DA.length());
+          String executionCount = execution.substring(execution.indexOf(',') + 1);
+          String lineNumber = execution.substring(0, execution.indexOf(','));
 
-        // some tools (like Istanbul, Karma) provide relative paths, so let's consider them relative to project directory
-        try {
-          filePath = CoverageSensor.getIOFile(moduleBaseDir, filePath).getCanonicalPath();
-        } catch (IOException e) {
-          filePath = "";
-          LOG.error("Unable to retreive coverage onfo for file {}, because: {}", filePath, e);
+          fileData.addLine(Integer.valueOf(lineNumber), Integer.valueOf(executionCount));
+        } else if (line.startsWith(BRDA)) {
+          // BRDA:<line number>,<block number>,<branch number>,<taken>
+          String[] tokens = line.substring(BRDA.length()).trim().split(",");
+          String lineNumber = tokens[0];
+          String branchNumber = tokens[1] + tokens[2];
+          String taken = tokens[3];
+
+          fileData.addBranch(Integer.valueOf(lineNumber), branchNumber, "-".equals(taken) ? 0 : Integer.valueOf(taken));
         }
-
-        fileData = files.get(filePath);
-        if (fileData == null) {
-          fileData = new FileData();
-          files.put(filePath, fileData);
-        }
-
-      } else if (line.startsWith(DA)) {
-        // DA:<line number>,<execution count>[,<checksum>]
-        String execution = line.substring(DA.length());
-        String executionCount = execution.substring(execution.indexOf(',') + 1);
-        String lineNumber = execution.substring(0, execution.indexOf(','));
-
-        fileData.addLine(Integer.valueOf(lineNumber), Integer.valueOf(executionCount));
-
-      } else if (line.startsWith(BRDA)) {
-        // BRDA:<line number>,<block number>,<branch number>,<taken>
-        String[] tokens = line.substring(BRDA.length()).trim().split(",");
-        String lineNumber = tokens[0];
-        String branchNumber = tokens[1] + tokens[2];
-        String taken = tokens[3];
-
-        fileData.addBranch(Integer.valueOf(lineNumber), branchNumber, "-".equals(taken) ? 0 : Integer.valueOf(taken));
       }
     }
 
-    Map<String, CoverageMeasuresBuilder> coveredFiles = Maps.newHashMap();
-    for (Map.Entry<String, FileData> e : files.entrySet()) {
+    Map<InputFile, CoverageMeasuresBuilder> coveredFiles = Maps.newHashMap();
+    for (Map.Entry<InputFile, FileData> e : files.entrySet()) {
       coveredFiles.put(e.getKey(), e.getValue().convert());
     }
     return coveredFiles;
+  }
+
+  @CheckForNull
+  private FileData loadCurrentFileData(final Map<InputFile, FileData> files, String line) {
+    String filePath = line.substring(SF.length());
+    FileData fileData = null;
+    // some tools (like Istanbul, Karma) provide relative paths, so let's consider them relative to project directory
+    InputFile inputFile = fs.inputFile(fs.predicates().hasPath(filePath));
+    if (inputFile != null) {
+      fileData = files.get(inputFile);
+      if (fileData == null) {
+        fileData = new FileData();
+        files.put(inputFile, fileData);
+      }
+    }
+    return fileData;
   }
 
   private static class FileData {
