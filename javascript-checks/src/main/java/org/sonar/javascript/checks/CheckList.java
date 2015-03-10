@@ -109,6 +109,7 @@ public final class CheckList {
         ExpressionComplexityCheck.class,
         DuplicateConditionIfElseAndSwitchCasesCheck.class,
         DuplicateBranchImplementationCheck.class,
+        IdenticalExpressionOnBinaryOperatorCheck.class,
         NestedControlFlowDepthCheck.class);
   }
 
