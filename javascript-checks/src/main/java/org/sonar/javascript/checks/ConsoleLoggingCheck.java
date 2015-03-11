@@ -51,7 +51,6 @@ public class ConsoleLoggingCheck extends SubscriptionBaseVisitor {
     CallExpressionTree callExpression = (CallExpressionTree) tree;
 
     if (callExpression.callee().is(Kind.DOT_MEMBER_EXPRESSION)) {
-
       DotMemberExpressionTree callee = (DotMemberExpressionTree) callExpression.callee();
 
       if (isCalleeConsoleLogging(callee)) {
