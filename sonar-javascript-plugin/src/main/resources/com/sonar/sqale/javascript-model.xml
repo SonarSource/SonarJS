@@ -460,6 +460,19 @@
     <chc>
       <key>SECURITY_FEATURES</key>
       <name>Security features</name>
+      <chc>
+        <rule-repo>javascript</rule-repo>
+        <rule-key>S2228</rule-key>
+        <prop>
+          <key>remediationFunction</key>
+          <txt>constant_issue</txt>
+        </prop>
+        <prop>
+          <key>remediationFactor</key>
+          <val>5.0</val>
+          <txt>min</txt>
+        </prop>
+      </chc>
     </chc>
   </chc>
   <chc>
