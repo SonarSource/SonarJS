@@ -111,7 +111,8 @@ public final class CheckList {
         DuplicateBranchImplementationCheck.class,
         IdenticalExpressionOnBinaryOperatorCheck.class,
         ConsoleLoggingCheck.class,
-        NestedControlFlowDepthCheck.class);
+        NestedControlFlowDepthCheck.class,
+        SelfAssignmentCheck.class);
   }
 
 }
