@@ -110,6 +110,7 @@ public final class CheckList {
         DuplicateConditionIfElseAndSwitchCasesCheck.class,
         DuplicateBranchImplementationCheck.class,
         IdenticalExpressionOnBinaryOperatorCheck.class,
+        ConsoleLoggingCheck.class,
         NestedControlFlowDepthCheck.class);
   }
 

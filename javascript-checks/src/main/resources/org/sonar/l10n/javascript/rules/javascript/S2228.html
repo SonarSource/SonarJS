@@ -1,0 +1,8 @@
+<p>
+  Debug statements are always useful during development. But include them in production code - particularly in code that runs client-side - and you run the risk of inadvertently exposing sensitive information, slowing down the browser, or even erroring-out the site for some users. (Not all browsers support <code>console.log()</code>).
+</p>
+
+<h2>Noncompliant Code Example</h2>
+<pre>
+console.log(password_entered); // Noncompliant
+</pre>
