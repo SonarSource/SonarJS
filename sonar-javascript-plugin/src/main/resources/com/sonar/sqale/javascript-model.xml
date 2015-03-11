@@ -554,6 +554,19 @@
       <name>Data related reliability</name>
       <chc>
         <rule-repo>javascript</rule-repo>
+        <rule-key>S1656</rule-key>
+        <prop>
+          <key>remediationFunction</key>
+          <txt>constant_issue</txt>
+        </prop>
+        <prop>
+          <key>remediationFactor</key>
+          <val>3.0</val>
+          <txt>mn</txt>
+        </prop>
+      </chc>
+      <chc>
+        <rule-repo>javascript</rule-repo>
         <rule-key>TrailingWhitespace</rule-key>
         <prop>
           <key>remediationFunction</key>
