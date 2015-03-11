@@ -112,6 +112,7 @@ public final class CheckList {
         IdenticalExpressionOnBinaryOperatorCheck.class,
         ConsoleLoggingCheck.class,
         NestedControlFlowDepthCheck.class,
+        ComparisonWithNaNCheck.class,
         SelfAssignmentCheck.class);
   }
 
