@@ -113,7 +113,8 @@ public final class CheckList {
         ConsoleLoggingCheck.class,
         NestedControlFlowDepthCheck.class,
         ComparisonWithNaNCheck.class,
-        SelfAssignmentCheck.class);
+        SelfAssignmentCheck.class,
+        NullDereferenceInConditionalCheck.class);
   }
 
 }
