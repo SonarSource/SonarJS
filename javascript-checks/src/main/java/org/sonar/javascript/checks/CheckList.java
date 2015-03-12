@@ -114,6 +114,7 @@ public final class CheckList {
         NestedControlFlowDepthCheck.class,
         ComparisonWithNaNCheck.class,
         SelfAssignmentCheck.class,
+        SpaceInModelPropertyNameCheck.class,
         NullDereferenceInConditionalCheck.class);
   }
 

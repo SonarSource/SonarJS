@@ -1,0 +1,23 @@
+<p>
+  When using the Backbone.js framework, the names of model attributes should not contain spaces. This is because the Events object accepts space-delimited lists of events, so an attributes with spaces in the names could be misinterpreted.
+</p>
+
+<h2>Noncompliant Code Example</h2>
+<pre>
+Person = Backbone.Model.extend({
+        defaults: {
+            'first name': 'Bob',      // Noncompliant
+            'birth date': new Date()  // Noncompliant
+        },
+    });
+</pre>
+
+<h2>Compliant Solution</h2>
+<pre>
+Person = Backbone.Model.extend({
+        defaults: {
+            firstName: 'Bob',
+            birthDate: new Date()
+        },
+    });
+</pre>
