@@ -26,10 +26,7 @@ import org.sonar.javascript.ast.visitors.BaseTreeVisitor;
 import org.sonar.javascript.ast.visitors.SyntacticEquivalence;
 import org.sonar.javascript.model.interfaces.Tree.Kind;
 import org.sonar.javascript.model.interfaces.expression.BinaryExpressionTree;
-import org.sonar.javascript.model.interfaces.expression.ExpressionTree;
-import org.sonar.javascript.model.interfaces.expression.IdentifierTree;
 import org.sonar.javascript.model.interfaces.expression.LiteralTree;
-import org.sonar.javascript.model.interfaces.expression.MemberExpressionTree;
 import org.sonar.squidbridge.annotations.Tags;
 
 @Rule(
@@ -41,16 +38,19 @@ public class IdenticalExpressionOnBinaryOperatorCheck extends BaseTreeVisitor {
 
   @Override
   public void visitBinaryExpression(BinaryExpressionTree tree) {
-    if (!tree.is(Kind.MULTIPLY, Kind.PLUS, Kind.ASSIGNMENT)) {
+    if (!tree.is(Kind.MULTIPLY, Kind.PLUS, Kind.ASSIGNMENT)
+      && SyntacticEquivalence.areEquivalent(tree.leftOperand(), tree.rightOperand()) && isExcluded(tree)) {
 
-      if (SyntacticEquivalence.areEquivalent(tree.leftOperand(), tree.rightOperand()) && !isOneOntoOneShifting(tree) && !isPotentialNanComparison(tree)) {
-        getContext().addIssue(this,
+      getContext().addIssue(this,
           tree,
           "Identical sub-expressions on both sides of operator \"" + tree.operator().text() + "\"");
-      }
     }
 
     super.visitBinaryExpression(tree);
+  }
+
+  private boolean isExcluded(BinaryExpressionTree tree) {
+    return !isOneOntoOneShifting(tree) && !isPotentialNanComparison(tree);
   }
 
   private boolean isPotentialNanComparison(BinaryExpressionTree tree) {
@@ -62,7 +62,7 @@ public class IdenticalExpressionOnBinaryOperatorCheck extends BaseTreeVisitor {
   private boolean isOneOntoOneShifting(BinaryExpressionTree tree) {
     return tree.is(Kind.LEFT_SHIFT)
       && tree.leftOperand().is(Kind.NUMERIC_LITERAL)
-      && ((LiteralTree) tree.leftOperand()).value().equals("1");
+      && "1".equals(((LiteralTree) tree.leftOperand()).value());
   }
 
 }
