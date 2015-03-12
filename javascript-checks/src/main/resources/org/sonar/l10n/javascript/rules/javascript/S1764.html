@@ -44,13 +44,12 @@ var k = 0;
 <p>The specific case of testing one variable against itself is a valid test for <code>NaN</code> and is therefore ignored.</p>
 <p>Similarly, left-shifting 1 onto 1 is common in the construction of bit masks, and is ignored.</p>
 <pre>
-float f;
-if(f !== f) { //test for NaN value
+if(f !== f) { // test for NaN value
   console.log("f is NaN");
 }
 
-int i = 1 << 1; // Compliant
-int j = a << a; // Noncompliant
+var i = 1 << 1; // Compliant
+var j = a << a; // Noncompliant
 </pre>
 
 <h2>See</h2>
