@@ -1,0 +1,23 @@
+<p>
+  It is possible to name a variable <code>undefined</code> in a local scope, but it is a very bad idea because <code>undefined</code> is what's returned for values and properties that have not yet been created. Make <code>undefined</code> a variable and you lose your ability to test whether other variables and properties exist.
+ </p>
+
+<h2>Noncompliant Code Example</h2>
+<pre>
+function foo () {
+   var undefined = 1; // Noncompliant
+   if (nonExistantVar == undefined) { // this logic doesn't work now
+     // ...
+   }
+ }
+ </pre>
+
+<h2>Compliant Solution</h2>
+<pre>
+function foo () {
+   var bob = 1; // anything is better than naming it 'undefined'
+   if (nonExistantVar == undefined) {
+     // ...
+   }
+ }
+ </pre>

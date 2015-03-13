@@ -79,7 +79,7 @@ public class CheckUtils {
     Kind.FOR_OF_STATEMENT,
     Kind.FOR_STATEMENT);
 
-  public static final ImmutableSet<AstNodeType> FUNCTION_NODES = ImmutableSet.<AstNodeType>of(
+  public static final ImmutableSet<Kind> FUNCTION_NODES = ImmutableSet.of(
     Kind.FUNCTION_EXPRESSION,
     Kind.FUNCTION_DECLARATION,
     Kind.METHOD,
@@ -138,8 +138,8 @@ public class CheckUtils {
     return EQUALITY_EXPRESSION.contains(type);
   }
 
-  public static AstNodeType[] functionNodesArray() {
-    return FUNCTION_NODES.toArray(new AstNodeType[FUNCTION_NODES.size()]);
+  public static Kind[] functionNodesArray() {
+    return FUNCTION_NODES.toArray(new Kind[FUNCTION_NODES.size()]);
   }
 
   public static boolean isFunction(AstNode astNode) {
