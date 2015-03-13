@@ -631,6 +631,19 @@
       <name>Instruction related reliability</name>
       <chc>
         <rule-repo>javascript</rule-repo>
+        <rule-key>S2251</rule-key>
+        <prop>
+          <key>remediationFunction</key>
+          <txt>constant_issue</txt>
+        </prop>
+        <prop>
+          <key>remediationFactor</key>
+          <val>5.0</val>
+          <txt>mn</txt>
+        </prop>
+      </chc>
+      <chc>
+        <rule-repo>javascript</rule-repo>
         <rule-key>AssignmentWithinCondition</rule-key>
         <prop>
           <key>remediationFunction</key>

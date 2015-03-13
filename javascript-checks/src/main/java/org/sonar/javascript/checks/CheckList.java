@@ -115,7 +115,8 @@ public final class CheckList {
         ComparisonWithNaNCheck.class,
         SelfAssignmentCheck.class,
         SpaceInModelPropertyNameCheck.class,
-        NullDereferenceInConditionalCheck.class);
+        NullDereferenceInConditionalCheck.class,
+        ForLoopIncrementSignCheck.class);
   }
 
 }
