@@ -1,0 +1,26 @@
+<p>
+  When using the Backbone.js framework, model <code>defaults</code> should be a function rather than an object if it contains arrays or objects. This is because objects and arrays are passed by reference in JavaScript. So a <code>defaults</code> object that contains arrays or objects is going to set the default value of every instance to point to the same shared object or array.
+</p>
+<p>
+  Use a function instead and a fresh copy of the object or array will be peeled off for each instance.
+</p>
+
+<h2>Noncompliant Code Example</h2>
+<pre>
+var Person = Backbone.Model.extend({
+  defaults: {  // Noncompliant; every instance of Person will share the same instance of favoriteColors
+    favoriteColors: ["blue","purple","raspberry"]
+  }
+});
+</pre>
+
+<h2>Compliant Solution</h2>
+<pre>
+var Person = Backbone.Model.extend({
+  defaults: function() {
+    return {
+      favoriteColors: ["blue","purple","raspberry"]
+    };
+  }
+});
+</pre>
