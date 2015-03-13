@@ -23,12 +23,11 @@ import org.apache.commons.lang.StringUtils;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.javascript.ast.visitors.BaseTreeVisitor;
+import org.sonar.javascript.checks.utils.BackboneCheckUtils;
 import org.sonar.javascript.model.interfaces.Tree;
 import org.sonar.javascript.model.interfaces.Tree.Kind;
 import org.sonar.javascript.model.interfaces.expression.CallExpressionTree;
-import org.sonar.javascript.model.interfaces.expression.DotMemberExpressionTree;
 import org.sonar.javascript.model.interfaces.expression.ExpressionTree;
-import org.sonar.javascript.model.interfaces.expression.IdentifierTree;
 import org.sonar.javascript.model.interfaces.expression.LiteralTree;
 import org.sonar.javascript.model.interfaces.expression.ObjectLiteralTree;
 import org.sonar.javascript.model.interfaces.expression.PairPropertyTree;
@@ -42,27 +41,23 @@ public class SpaceInModelPropertyNameCheck extends BaseTreeVisitor {
 
   @Override
   public void visitCallExpression(CallExpressionTree tree) {
-    if (isBackboneModelExtension(tree.callee()) && !tree.arguments().parameters().isEmpty()) {
+    if (BackboneCheckUtils.isModelCreation(tree) && !tree.arguments().parameters().isEmpty()) {
       Tree parameter = tree.arguments().parameters().get(0);
 
       if (parameter.is(Kind.OBJECT_LITERAL)) {
-        for (Tree prop : ((ObjectLiteralTree) parameter).properties()) {
-          checkForDefaults(prop);
+        PairPropertyTree defaultsProp = BackboneCheckUtils.getModelProperty((ObjectLiteralTree) parameter, "defaults");
+
+        if (defaultsProp != null && defaultsProp.value().is(Kind.OBJECT_LITERAL)) {
+          checkForSpaceInPropertyNames((ObjectLiteralTree) defaultsProp.value());
         }
       }
     }
     super.visitCallExpression(tree);
   }
 
-  private void checkForDefaults(Tree prop) {
-    if (prop.is(Kind.PAIR_PROPERTY)) {
-      PairPropertyTree pairProperty = (PairPropertyTree) prop;
-
-      if (isExpressionIdentifierNamed(pairProperty.key(), "defaults") && pairProperty.value().is(Kind.OBJECT_LITERAL)) {
-        for (Tree attribute : ((ObjectLiteralTree) pairProperty.value()).properties()) {
-          checkSpaceInKey(attribute);
-        }
-      }
+  private void checkForSpaceInPropertyNames(ObjectLiteralTree objectLiteral) {
+    for (Tree attribute : objectLiteral.properties()) {
+      checkSpaceInKey(attribute);
     }
   }
 
@@ -74,25 +69,6 @@ public class SpaceInModelPropertyNameCheck extends BaseTreeVisitor {
         getContext().addIssue(this, key, "Rename this property to remove the spaces.");
       }
     }
-  }
-
-  private boolean isBackboneModelExtension(ExpressionTree expression) {
-    if (expression.is(Kind.DOT_MEMBER_EXPRESSION)) {
-      DotMemberExpressionTree memberExpr = (DotMemberExpressionTree) expression;
-
-      if (isExpressionIdentifierNamed(memberExpr.property(), "extend") && memberExpr.object().is(Kind.DOT_MEMBER_EXPRESSION)) {
-        memberExpr = (DotMemberExpressionTree) memberExpr.object();
-
-        return isExpressionIdentifierNamed(memberExpr.object(), "Backbone")
-          && isExpressionIdentifierNamed(memberExpr.property(), "Model");
-      }
-    }
-
-    return false;
-  }
-
-  private boolean isExpressionIdentifierNamed(ExpressionTree tree, String name) {
-    return tree instanceof IdentifierTree && name.equals(((IdentifierTree) tree).name());
   }
 
 }
