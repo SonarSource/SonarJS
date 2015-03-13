@@ -117,6 +117,7 @@ public final class CheckList {
         SpaceInModelPropertyNameCheck.class,
         NullDereferenceInConditionalCheck.class,
         ModelDefaultsWithArrayOrObjectCheck.class,
+        ReturnInSetterCheck.class,
         ForLoopIncrementSignCheck.class);
   }
 

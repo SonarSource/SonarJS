@@ -1,0 +1,22 @@
+Functions declared with the <code>set</code> keyword will automatically return the values they were passed. Thus any value explicitly returned from a setter will be ignored, and explicitly returning a value is an error.
+
+<h2>Noncompliant Code Example</h2>
+<pre>
+var person = {
+  // ...
+  set name(name) {
+    this.name = name;
+    return 42;  // Noncompliant
+  }
+}
+</pre>
+
+<h2>Compliant Solution</h2>
+<pre>
+var person = {
+  // ...
+  set name(name) {
+    this.name = name;
+  }
+}
+</pre>
