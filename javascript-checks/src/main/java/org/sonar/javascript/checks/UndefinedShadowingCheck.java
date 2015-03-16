@@ -38,7 +38,7 @@ import com.google.common.collect.ImmutableList;
 @Rule(
   key = "S2137",
   priority = Priority.CRITICAL,
-  tags = {Tags.BUG})
+  tags = {Tags.PITFALL})
 @BelongsToProfile(title = CheckList.SONAR_WAY_PROFILE, priority = Priority.CRITICAL)
 public class UndefinedShadowingCheck extends SubscriptionBaseVisitor {
 
