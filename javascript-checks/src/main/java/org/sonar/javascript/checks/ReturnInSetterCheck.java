@@ -38,8 +38,7 @@ public class ReturnInSetterCheck extends BaseTreeVisitor {
   @Override
   public void visitMethodDeclaration(MethodDeclarationTree tree) {
     if (tree.is(Tree.Kind.SET_METHOD)) {
-      MethodDeclarationTree methodDeclarationTree = (MethodDeclarationTree) tree;
-      methodDeclarationTree.body().accept(forbiddenReturnVisitor);
+      tree.body().accept(forbiddenReturnVisitor);
     }
     super.visitMethodDeclaration(tree);
   }
