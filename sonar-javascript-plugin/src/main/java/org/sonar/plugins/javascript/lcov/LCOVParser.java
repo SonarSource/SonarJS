@@ -22,8 +22,6 @@ package org.sonar.plugins.javascript.lcov;
 import com.google.common.base.Objects;
 import com.google.common.collect.Maps;
 import org.apache.commons.io.FileUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.measures.CoverageMeasuresBuilder;
