@@ -20,6 +20,7 @@
 package org.sonar.javascript.checks;
 
 import com.google.common.base.Preconditions;
+import org.sonar.check.BelongsToProfile;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.javascript.ast.visitors.BaseTreeVisitor;
@@ -40,6 +41,7 @@ import javax.annotation.Nullable;
   key = "S2251",
   tags = {"bug"},
   priority = Priority.BLOCKER)
+@BelongsToProfile(title = CheckList.SONAR_WAY_PROFILE, priority = Priority.BLOCKER)
 public class ForLoopIncrementSignCheck extends BaseTreeVisitor {
 
   @Override
