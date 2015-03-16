@@ -118,6 +118,7 @@ public final class CheckList {
         NullDereferenceInConditionalCheck.class,
         ModelDefaultsWithArrayOrObjectCheck.class,
         ReturnInSetterCheck.class,
+        UselessIncrementCheck.class,
         UndefinedShadowingCheck.class,
         ForLoopIncrementSignCheck.class);
   }
