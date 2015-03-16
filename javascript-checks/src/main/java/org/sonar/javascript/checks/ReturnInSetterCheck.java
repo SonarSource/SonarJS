@@ -19,6 +19,7 @@
  */
 package org.sonar.javascript.checks;
 
+import org.sonar.check.BelongsToProfile;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.javascript.ast.visitors.BaseTreeVisitor;
@@ -31,6 +32,7 @@ import org.sonar.javascript.model.interfaces.statement.ReturnStatementTree;
   key = "S2432",
   tags = {"bug"},
   priority = Priority.CRITICAL)
+@BelongsToProfile(title = CheckList.SONAR_WAY_PROFILE, priority = Priority.CRITICAL)
 public class ReturnInSetterCheck extends BaseTreeVisitor {
 
   private final TreeVisitor forbiddenReturnVisitor = new ForbiddenReturnVisitor();
