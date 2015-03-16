@@ -120,6 +120,7 @@ public final class CheckList {
         ReturnInSetterCheck.class,
         UselessIncrementCheck.class,
         UndefinedShadowingCheck.class,
+        ArgumentsCallerCalleeUsageCheck.class,
         ForLoopIncrementSignCheck.class);
   }
 

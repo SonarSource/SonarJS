@@ -1,0 +1,19 @@
+<p>
+  Both <code>arguments.caller</code> and <code>arguments.callee</code> make quite a few optimizations impossible so they were deprecated in latest versions of JavaScript. In fact, EcmaScript 5 forbids the use of both in <code>strict</code> mode, according to the docs:
+</p>
+<blockquote>
+  Arguments objects for strict mode functions define non-configurable accessor properties named "caller" and "callee" which throw a TypeError exception on access.
+</blockquote>
+<p>
+  The same restriction applies to the function's <code>caller</code> and <code>arguments</code> properties in <code>strict</code> mode.
+</p>
+
+<h2>Noncompliant Code Example</h2>
+<pre>
+function whoCalled() {
+   if (arguments.caller == null)   //Noncompliant
+      console.log('I was called from the global scope.');
+   else
+      console.log(arguments.caller + ' called me!');
+}
+</pre>
