@@ -617,6 +617,19 @@
           <txt>h</txt>
         </prop>
       </chc>
+      <chc>
+        <rule-repo>javascript</rule-repo>
+        <rule-key>S2508</rule-key>
+        <prop>
+          <key>remediationFunction</key>
+          <txt>constant_issue</txt>
+        </prop>
+        <prop>
+          <key>remediationFactor</key>
+          <val>5.0</val>
+          <txt>mn</txt>
+        </prop>
+      </chc>
     </chc>
     <chc>
       <key>EXCEPTION_HANDLING</key>
