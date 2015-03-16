@@ -20,6 +20,7 @@
 package org.sonar.javascript.checks;
 
 import com.sonar.sslr.api.Token;
+import org.sonar.check.BelongsToProfile;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.javascript.ast.visitors.AstTreeVisitorContext;
@@ -40,6 +41,7 @@ import java.util.List;
   key = "S1697",
   priority = Priority.BLOCKER,
   tags = {Tags.BUG})
+@BelongsToProfile(title = CheckList.SONAR_WAY_PROFILE, priority = Priority.BLOCKER)
 public class NullDereferenceInConditionalCheck extends BaseTreeVisitor {
 
   private static final String MESSAGE_FORMAT =
