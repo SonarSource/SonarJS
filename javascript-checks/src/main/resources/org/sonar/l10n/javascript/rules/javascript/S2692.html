@@ -1,0 +1,35 @@
+<p>
+  Most checks against an <code>indexOf</code> call against a string or array compare it with -1 because 0 is a valid index. Any checks which look for values >0 ignore the first element, which is likely a bug.
+</p>
+
+<h2>Noncompliant Code Example</h2>
+<pre>
+var color = "blue";
+var name = "ishmael";
+var number = 123;
+
+var arr = [color, name];
+
+if (arr.indexOf("blue") > 0) { // Noncompliant
+  // ...
+}
+if (arr[0].indexOf("ish") > 0 { // Noncompliant
+  // ...
+}
+</pre>
+
+<h2>Compliant Solution</h2>
+<pre>
+var color = "blue";
+var name = "ishmael";
+var number = 123;
+
+var arr = [color, name];
+
+if (arr.indexOf("blue") >= 0) {
+  // ...
+}
+if (arr[0].indexOf("ish") > -1 {
+  // ...
+}
+</pre>
