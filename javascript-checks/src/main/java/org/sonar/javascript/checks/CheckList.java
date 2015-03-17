@@ -122,6 +122,7 @@ public final class CheckList {
         UndefinedShadowingCheck.class,
         ArgumentsCallerCalleeUsageCheck.class,
         IndexOfCompareToPositiveNumberCheck.class,
+        ParseIntCallWithoutBaseCheck.class,
         ForLoopIncrementSignCheck.class);
   }
 
