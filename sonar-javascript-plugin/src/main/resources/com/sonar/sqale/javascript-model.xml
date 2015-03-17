@@ -759,6 +759,19 @@
           <txt>mn</txt>
         </prop>
       </chc>
+      <chc>
+        <rule-repo>javascript</rule-repo>
+        <rule-key>S2685</rule-key>
+        <prop>
+          <key>remediationFunction</key>
+          <txt>constant_issue</txt>
+        </prop>
+        <prop>
+          <key>remediationFactor</key>
+          <val>30.0</val>
+          <txt>mn</txt>
+        </prop>
+      </chc>
     </chc>
     <chc>
       <key>LOGIC_RELIABILITY</key>
