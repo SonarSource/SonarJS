@@ -123,6 +123,7 @@ public final class CheckList {
         ArgumentsCallerCalleeUsageCheck.class,
         IndexOfCompareToPositiveNumberCheck.class,
         ParseIntCallWithoutBaseCheck.class,
+        ForLoopConditionAndUpdateCheck.class,
         ForLoopIncrementSignCheck.class);
   }
 

@@ -1,0 +1,15 @@
+<p>It is almost always an error when a <code>for</code> loop's stop condition and incrementer don't act on the same variable. Even when it is not, it could confuse future maintainers of the code, and should be avoided.</p>
+
+<h2>Noncompliant Code Example</h2>
+<pre>
+for (i = 0; i &lt; 10; j++) {  // Noncompliant
+  // ...
+}
+</pre>
+
+<h2>Compliant Solution</h2>
+<pre>
+for (i = 0; i &lt; 10; i++) {
+  // ...
+}
+</pre>

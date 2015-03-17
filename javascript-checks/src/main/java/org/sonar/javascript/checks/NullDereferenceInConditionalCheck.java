@@ -19,14 +19,13 @@
  */
 package org.sonar.javascript.checks;
 
-import com.sonar.sslr.api.Token;
 import org.sonar.check.BelongsToProfile;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.javascript.ast.visitors.AstTreeVisitorContext;
 import org.sonar.javascript.ast.visitors.BaseTreeVisitor;
 import org.sonar.javascript.ast.visitors.SyntacticEquivalence;
-import org.sonar.javascript.model.implementations.JavaScriptTree;
+import org.sonar.javascript.checks.utils.CheckUtils;
 import org.sonar.javascript.model.interfaces.Tree;
 import org.sonar.javascript.model.interfaces.expression.BinaryExpressionTree;
 import org.sonar.javascript.model.interfaces.expression.ExpressionTree;
@@ -34,8 +33,6 @@ import org.sonar.javascript.model.interfaces.expression.IdentifierTree;
 import org.sonar.javascript.model.interfaces.expression.MemberExpressionTree;
 import org.sonar.javascript.model.interfaces.expression.ParenthesisedExpressionTree;
 import org.sonar.squidbridge.annotations.Tags;
-
-import java.util.List;
 
 @Rule(
   key = "S1697",
@@ -108,29 +105,12 @@ public class NullDereferenceInConditionalCheck extends BaseTreeVisitor {
     @Override
     public void visitMemberExpression(MemberExpressionTree tree) {
       if (SyntacticEquivalence.areEquivalent(tree.object(), nullExpression)) {
-        context.addIssue(NullDereferenceInConditionalCheck.this, nullExpression, String.format(MESSAGE_FORMAT, asString(nullExpression)));
+        context.addIssue(NullDereferenceInConditionalCheck.this, nullExpression, 
+          String.format(MESSAGE_FORMAT, CheckUtils.asString(nullExpression)));
       }
       super.visitMemberExpression(tree);
     }
 
-  }
-  
-  private static String asString(ExpressionTree tree) {
-    List<Token> tokens = ((JavaScriptTree) tree).getTokens();
-    StringBuilder sb = new StringBuilder();
-    Token prevToken = null;
-    for (Token token : tokens) {
-      if (prevToken != null && !areAdjacent(prevToken, token)) {
-        sb.append(" ");
-      }
-      sb.append(token.getOriginalValue());
-      prevToken = token;
-    }
-    return sb.toString();
-  }
-
-  private static boolean areAdjacent(Token prevToken, Token token) {
-    return prevToken.getColumn() + prevToken.getOriginalValue().length() == token.getColumn();
   }
 
 }

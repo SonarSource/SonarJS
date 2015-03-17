@@ -804,6 +804,19 @@
       </chc>
       <chc>
         <rule-repo>javascript</rule-repo>
+        <rule-key>S1994</rule-key>
+        <prop>
+          <key>remediationFunction</key>
+          <txt>constant_issue</txt>
+        </prop>
+        <prop>
+          <key>remediationFactor</key>
+          <val>20.0</val>
+          <txt>mn</txt>
+        </prop>
+      </chc>
+      <chc>
+        <rule-repo>javascript</rule-repo>
         <rule-key>S1697</rule-key>
         <prop>
           <key>remediationFunction</key>

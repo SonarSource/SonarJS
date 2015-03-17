@@ -22,7 +22,12 @@ package org.sonar.javascript.checks.utils;
 import com.google.common.collect.ImmutableSet;
 import com.sonar.sslr.api.AstNode;
 import com.sonar.sslr.api.AstNodeType;
+import com.sonar.sslr.api.Token;
+import org.sonar.javascript.model.implementations.JavaScriptTree;
+import org.sonar.javascript.model.interfaces.Tree;
 import org.sonar.javascript.model.interfaces.Tree.Kind;
+
+import java.util.List;
 
 public class CheckUtils {
 
@@ -152,6 +157,24 @@ public class CheckUtils {
 
   public static boolean isIterationStatement(AstNode astNode) {
     return ITERATION_STATEMENTS.contains(astNode.getType());
+  }
+  
+  public static String asString(Tree tree) {
+    List<Token> tokens = ((JavaScriptTree) tree).getTokens();
+    StringBuilder sb = new StringBuilder();
+    Token prevToken = null;
+    for (Token token : tokens) {
+      if (prevToken != null && !areAdjacent(prevToken, token)) {
+        sb.append(" ");
+      }
+      sb.append(token.getOriginalValue());
+      prevToken = token;
+    }
+    return sb.toString();
+  }
+
+  private static boolean areAdjacent(Token prevToken, Token token) {
+    return prevToken.getColumn() + prevToken.getOriginalValue().length() == token.getColumn();
   }
 }
 
