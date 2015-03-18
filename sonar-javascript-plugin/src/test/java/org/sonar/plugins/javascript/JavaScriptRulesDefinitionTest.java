@@ -21,6 +21,8 @@ package org.sonar.plugins.javascript;
 
 import org.junit.Test;
 import org.sonar.api.server.rule.RulesDefinition;
+import org.sonar.api.server.rule.RulesDefinition.Param;
+import org.sonar.api.server.rule.RulesDefinition.Rule;
 import org.sonar.javascript.checks.CheckList;
 
 import static org.fest.assertions.Assertions.assertThat;
@@ -41,6 +43,12 @@ public class JavaScriptRulesDefinitionTest {
     RulesDefinition.Rule alertUseRule = repository.rule("ArrayAndObjectConstructors");
     assertThat(alertUseRule).isNotNull();
     assertThat(alertUseRule.name()).isEqualTo("Array and Object constructors should not be used");
+
+    for (Rule rule : repository.rules()) {
+      for (Param param : rule.params()) {
+        assertThat(param.description()).as("description for " + param.key()).isNotEmpty();
+      }
+    }
   }
 
 }

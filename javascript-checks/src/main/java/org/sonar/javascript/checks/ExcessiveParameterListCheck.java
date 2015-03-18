@@ -47,6 +47,7 @@ public class ExcessiveParameterListCheck extends SquidCheck<LexerlessGrammar> {
 
   @RuleProperty(
     key = "maximumFunctionParameters",
+    description = "The maximum authorized number of parameters",
     defaultValue = "" + DEFAULT_MAXIMUM_FUNCTION_PARAMETERS)
   private int maximumFunctionParameters = DEFAULT_MAXIMUM_FUNCTION_PARAMETERS;
 

@@ -19,8 +19,6 @@
  */
 package org.sonar.javascript.checks;
 
-import java.util.regex.Pattern;
-
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.BelongsToProfile;
 import org.sonar.check.Priority;
@@ -36,6 +34,8 @@ import com.sonar.sslr.api.AstNode;
 import com.sonar.sslr.api.Token;
 import com.sonar.sslr.api.Trivia;
 
+import java.util.regex.Pattern;
+
 @Rule(
   key = "TrailingComment",
   name = "Avoid trailing comment",
@@ -50,6 +50,7 @@ public class TrailingCommentCheck extends SquidCheck<LexerlessGrammar> implement
 
   @RuleProperty(
     key = "legalCommentPattern",
+    description = "Pattern for text of trailing comments that are allowed.",
     defaultValue = DEFAULT_LEGAL_COMMENT_PATTERN)
   private String legalCommentPattern = DEFAULT_LEGAL_COMMENT_PATTERN;
 

@@ -48,6 +48,7 @@ public class NestedControlFlowDepthCheck extends SquidCheck<LexerlessGrammar> {
 
   @RuleProperty(
     key = "maximumNestingLevel",
+    description = "Maximum allowed \"if/for/while/switch/try\" statements nesting depth",
     defaultValue = "" + DEFAULT_MAXIMUM_NESTING_LEVEL)
   public int maximumNestingLevel = DEFAULT_MAXIMUM_NESTING_LEVEL;
 

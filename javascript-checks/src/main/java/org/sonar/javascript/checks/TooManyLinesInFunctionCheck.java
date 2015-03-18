@@ -43,6 +43,7 @@ public class TooManyLinesInFunctionCheck extends SquidCheck<LexerlessGrammar> {
 
   @RuleProperty(
     key = "max",
+    description = "Maximum authorized lines in a function",
     defaultValue = "" + DEFAULT)
   public int max = DEFAULT;
 

@@ -46,6 +46,7 @@ public class FunctionNameCheck extends SquidCheck<LexerlessGrammar> {
 
   @RuleProperty(
     key = "format",
+    description = "Regular expression used to check the function names against.",
     defaultValue = "" + DEFAULT)
   public String format = DEFAULT;
 

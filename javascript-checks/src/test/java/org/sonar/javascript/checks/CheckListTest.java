@@ -23,7 +23,6 @@ import org.apache.commons.io.FileUtils;
 import org.junit.Test;
 import org.sonar.api.rules.AnnotationRuleParser;
 import org.sonar.api.rules.Rule;
-import org.sonar.api.rules.RuleParam;
 
 import com.google.common.collect.Lists;
 
@@ -78,14 +77,6 @@ public class CheckListTest {
       assertThat(rule.getDescription())
           .overridingErrorMessage("Description of " + rule.getKey() + " should be in separate file")
           .isNull();
-
-      for (RuleParam param : rule.getParams()) {
-        resourceBundle.getString("rule." + CheckList.REPOSITORY_KEY + "." + rule.getKey() + ".param." + param.getKey());
-
-        assertThat(param.getDescription())
-            .overridingErrorMessage("Description for param " + param.getKey() + " of " + rule.getKey() + " should be in separate file")
-            .isEmpty();
-      }
     }
 
     assertThat(keys).doesNotHaveDuplicates();

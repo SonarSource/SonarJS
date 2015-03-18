@@ -48,6 +48,7 @@ public class FunctionComplexityCheck extends SquidCheck<LexerlessGrammar> {
 
   @RuleProperty(
     key = "maximumFunctionComplexityThreshold",
+    description = "The maximum authorized complexity in function",
     defaultValue = "" + DEFAULT_MAXIMUM_FUNCTION_COMPLEXITY_THRESHOLD)
   private int maximumFunctionComplexityThreshold = DEFAULT_MAXIMUM_FUNCTION_COMPLEXITY_THRESHOLD;
 
