@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 
+import com.google.common.collect.Lists;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.Sensor;
@@ -31,7 +32,8 @@ import org.sonar.api.batch.SensorContext;
 import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
-import org.sonar.api.checks.AnnotationCheckFactory;
+import org.sonar.api.batch.rule.CheckFactory;
+import org.sonar.api.batch.rule.Checks;
 import org.sonar.api.checks.NoSonarFilter;
 import org.sonar.api.component.ResourcePerspectives;
 import org.sonar.api.issue.Issuable;
@@ -40,11 +42,9 @@ import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.FileLinesContextFactory;
 import org.sonar.api.measures.PersistenceMode;
 import org.sonar.api.measures.RangeDistributionBuilder;
-import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.resources.File;
 import org.sonar.api.resources.Project;
 import org.sonar.api.rule.RuleKey;
-import org.sonar.api.rules.ActiveRule;
 import org.sonar.api.scan.filesystem.PathResolver;
 import org.sonar.javascript.EcmaScriptConfiguration;
 import org.sonar.javascript.JavaScriptAstScanner;
@@ -66,15 +66,13 @@ import org.sonar.squidbridge.indexer.QueryByParent;
 import org.sonar.squidbridge.indexer.QueryByType;
 import org.sonar.sslr.parser.LexerlessGrammar;
 
-import com.google.common.collect.Lists;
-
 public class JavaScriptSquidSensor implements Sensor {
 
   private static final Logger LOG = LoggerFactory.getLogger(JavaScriptSquidSensor.class);
   private static final Number[] FUNCTIONS_DISTRIB_BOTTOM_LIMITS = {1, 2, 4, 6, 8, 10, 12, 20, 30};
   private static final Number[] FILES_DISTRIB_BOTTOM_LIMITS = {0, 5, 10, 20, 30, 60, 90};
 
-  private final AnnotationCheckFactory annotationCheckFactory;
+  private final Checks<CodeVisitor> checks;
   private final FileLinesContextFactory fileLinesContextFactory;
   private final ResourcePerspectives resourcePerspectives;
   private final FileSystem fileSystem;
@@ -85,9 +83,11 @@ public class JavaScriptSquidSensor implements Sensor {
   private SensorContext context;
   private AstScanner<LexerlessGrammar> scanner;
 
-  public JavaScriptSquidSensor(RulesProfile profile, FileLinesContextFactory fileLinesContextFactory,
+  public JavaScriptSquidSensor(CheckFactory checkFactory, FileLinesContextFactory fileLinesContextFactory,
     ResourcePerspectives resourcePerspectives, FileSystem fileSystem, NoSonarFilter noSonarFilter, PathResolver pathResolver) {
-    this.annotationCheckFactory = AnnotationCheckFactory.create(profile, CheckList.REPOSITORY_KEY, CheckList.getChecks());
+    this.checks = checkFactory
+      .<CodeVisitor>create(CheckList.REPOSITORY_KEY)
+      .addAnnotatedChecks(CheckList.getChecks());
     this.fileLinesContextFactory = fileLinesContextFactory;
     this.resourcePerspectives = resourcePerspectives;
     this.fileSystem = fileSystem;
@@ -109,9 +109,8 @@ public class JavaScriptSquidSensor implements Sensor {
 
     List<CodeVisitor> astNodeVisitors = Lists.newArrayList();
     List<JavaScriptFileScanner> treeVisitors = Lists.newArrayList();
-    Collection<CodeVisitor> squidChecks = annotationCheckFactory.getChecks();
 
-    for (CodeVisitor visitor : squidChecks) {
+    for (CodeVisitor visitor : checks.all()) {
       if (visitor instanceof JavaScriptFileScanner) {
         treeVisitors.add((JavaScriptFileScanner) visitor);
       } else {
@@ -202,12 +201,12 @@ public class JavaScriptSquidSensor implements Sensor {
     if (messages != null) {
 
       for (CheckMessage message : messages) {
-        ActiveRule rule = annotationCheckFactory.getActiveRule(message.getCheck());
+        RuleKey ruleKey = checks.ruleKey((CodeVisitor) message.getCheck());
         Issuable issuable = resourcePerspectives.as(Issuable.class, sonarFile);
 
         if (issuable != null) {
           Issue issue = issuable.newIssueBuilder()
-            .ruleKey(RuleKey.of(rule.getRepositoryKey(), rule.getRuleKey()))
+            .ruleKey(ruleKey)
             .line(message.getLine())
             .message(message.getText(Locale.ENGLISH))
             .build();
