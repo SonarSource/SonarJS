@@ -20,12 +20,12 @@
 package org.sonar.plugins.javascript.lcov;
 
 import com.google.common.base.Objects;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.apache.commons.io.FileUtils;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.measures.CoverageMeasuresBuilder;
-import org.sonar.api.utils.SonarException;
 
 import javax.annotation.CheckForNull;
 
@@ -43,23 +43,38 @@ public final class LCOVParser {
   private static final String DA = "DA:";
   private static final String BRDA = "BRDA:";
 
+  private final Map<InputFile, CoverageMeasuresBuilder> coverageByFile;
   private final FileSystem fs;
+  private final List<String> unresolvedPaths = Lists.newArrayList();
 
-  public LCOVParser(FileSystem fs) {
+  private LCOVParser(FileSystem fs, List<String> lines) {
     this.fs = fs;
+    this.coverageByFile = parse(lines);
   }
 
-  public Map<InputFile, CoverageMeasuresBuilder> parseFile(File file) {
+  public static Map<InputFile, CoverageMeasuresBuilder> parse(FileSystem fs, List<String> lines) {
+    return new LCOVParser(fs, lines).coverageByFile();
+  }
+
+  public static LCOVParser create(FileSystem fs, File file) {
     final List<String> lines;
     try {
       lines = FileUtils.readLines(file);
     } catch (IOException e) {
-      throw new SonarException("Could not read content from file: " + file, e);
+      throw new IllegalArgumentException("Could not read content from file: " + file, e);
     }
-    return parse(lines);
+    return new LCOVParser(fs, lines);
   }
 
-  public Map<InputFile, CoverageMeasuresBuilder> parse(List<String> lines) {
+  public Map<InputFile, CoverageMeasuresBuilder> coverageByFile() {
+    return coverageByFile;
+  }
+
+  public List<String> unresolvedPaths() {
+    return unresolvedPaths;
+  }
+
+  private Map<InputFile, CoverageMeasuresBuilder> parse(List<String> lines) {
     final Map<InputFile, FileData> files = Maps.newHashMap();
     FileData fileData = null;
 
@@ -106,6 +121,8 @@ public final class LCOVParser {
         fileData = new FileData();
         files.put(inputFile, fileData);
       }
+    } else {
+      unresolvedPaths.add(filePath);
     }
     return fileData;
   }

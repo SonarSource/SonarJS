@@ -37,6 +37,7 @@ import org.sonar.plugins.javascript.JavaScriptPlugin;
 import org.sonar.plugins.javascript.core.JavaScript;
 
 import java.io.File;
+import java.util.List;
 import java.util.Map;
 
 public class CoverageSensor implements Sensor {
@@ -90,8 +91,8 @@ public class CoverageSensor implements Sensor {
 
     LOG.info("Analysing {}", lcovFile);
 
-    LCOVParser parser = new LCOVParser(fileSystem);
-    Map<InputFile, CoverageMeasuresBuilder> coveredFiles = parser.parseFile(lcovFile);
+    LCOVParser parser = LCOVParser.create(fileSystem, lcovFile);
+    Map<InputFile, CoverageMeasuresBuilder> coveredFiles = parser.coverageByFile();
 
     for (InputFile inputFile : fileSystem.inputFiles(mainFilePredicate)) {
       try {
@@ -111,6 +112,14 @@ public class CoverageSensor implements Sensor {
       } catch (Exception e) {
         LOG.error("Problem while calculating coverage for " + inputFile.absolutePath(), e);
       }
+    }
+
+    List<String> unresolvedPaths = parser.unresolvedPaths();
+    if (!unresolvedPaths.isEmpty()) {
+      LOG.warn(
+        String.format(
+          "Could not resolve %d file paths in %s, first unresolved path: %s",
+          unresolvedPaths.size(), lcovFile.getName(), unresolvedPaths.get(0)));
     }
   }
 

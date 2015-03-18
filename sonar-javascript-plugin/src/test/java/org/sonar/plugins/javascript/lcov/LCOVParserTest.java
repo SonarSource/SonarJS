@@ -28,7 +28,6 @@ import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultFileSystem;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.measures.CoverageMeasuresBuilder;
-import org.sonar.api.utils.SonarException;
 
 import java.io.File;
 import java.util.Arrays;
@@ -45,14 +44,12 @@ public class LCOVParserTest {
   public TemporaryFolder temp = new TemporaryFolder();
 
   private DefaultFileSystem fs;
-  private LCOVParser parser;
   private File baseDir;
 
   @Before
   public void prepare() throws Exception {
     baseDir = temp.newFolder();
     fs = new DefaultFileSystem();
-    parser = new LCOVParser(fs);
   }
 
   @Test
@@ -62,7 +59,7 @@ public class LCOVParserTest {
     DefaultInputFile file2 = new DefaultInputFile("file2.js").setFile(new File(baseDir, "file2.js"));
     fs.add(file2);
 
-    Map<InputFile, CoverageMeasuresBuilder> result = parser.parse(Arrays.asList(
+    Map<InputFile, CoverageMeasuresBuilder> result = LCOVParser.parse(fs, Arrays.asList(
       "SF:file1.js",
       "DA:1,1",
       "end_of_record",
@@ -98,7 +95,7 @@ public class LCOVParserTest {
     // File 2 is not indexed
     DefaultInputFile file2 = new DefaultInputFile("file2.js").setFile(new File(baseDir, "file2.js"));
 
-    Map<InputFile, CoverageMeasuresBuilder> result = parser.parse(Arrays.asList(
+    Map<InputFile, CoverageMeasuresBuilder> result = LCOVParser.parse(fs, Arrays.asList(
       "SF:file1.js",
       "DA:1,1",
       "end_of_record",
@@ -128,7 +125,7 @@ public class LCOVParserTest {
     DefaultInputFile file = new DefaultInputFile("file.js").setFile(new File(baseDir, "file.js"));
     fs.add(file);
 
-    Map<InputFile, CoverageMeasuresBuilder> result = parser.parse(Arrays.asList(
+    Map<InputFile, CoverageMeasuresBuilder> result = LCOVParser.parse(fs, Arrays.asList(
       "SF:file.js",
       "BRDA:1,0,0,-",
       "BRDA:1,0,1,1",
@@ -149,9 +146,9 @@ public class LCOVParserTest {
 
   @Test
   public void unreadable_file() {
-    thrown.expect(SonarException.class);
+    thrown.expect(IllegalArgumentException.class);
     thrown.expectMessage("Could not read content from file: not-found");
-    parser.parseFile(new File("not-found"));
+    LCOVParser.create(fs, new File("not-found"));
   }
 
 }
