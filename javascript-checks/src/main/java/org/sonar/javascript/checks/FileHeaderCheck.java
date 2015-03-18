@@ -19,15 +19,17 @@
  */
 package org.sonar.javascript.checks;
 
-import com.google.common.io.Files;
-import com.sonar.sslr.api.AstNode;
 import org.sonar.api.utils.SonarException;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
 import org.sonar.javascript.CharsetAwareVisitor;
+import org.sonar.squidbridge.annotations.NoSqale;
 import org.sonar.squidbridge.checks.SquidCheck;
 import org.sonar.sslr.parser.LexerlessGrammar;
+
+import com.google.common.io.Files;
+import com.sonar.sslr.api.AstNode;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
@@ -36,8 +38,10 @@ import java.util.List;
 
 @Rule(
   key = "S1451",
+  name = "Copyright and license headers should be defined",
   priority = Priority.BLOCKER)
 //@BelongsToProfile(title = CheckList.SONAR_WAY_PROFILE, priority = Priority.BLOCKER)
+@NoSqale
 public class FileHeaderCheck extends SquidCheck<LexerlessGrammar> implements CharsetAwareVisitor {
 
   private static final String DEFAULT_HEADER_FORMAT = "";

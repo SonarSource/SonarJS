@@ -23,11 +23,14 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.Stack;
 
+import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.BelongsToProfile;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.javascript.checks.utils.CheckUtils;
 import org.sonar.javascript.model.interfaces.Tree.Kind;
+import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
+import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 import org.sonar.squidbridge.checks.SquidCheck;
 import org.sonar.sslr.parser.LexerlessGrammar;
 
@@ -35,9 +38,12 @@ import com.sonar.sslr.api.AstNode;
 
 @Rule(
   key = "RedeclaredFunction",
+  name = "Functions should not be redeclared",
   priority = Priority.MAJOR,
   tags = {Tags.BUG, Tags.PITFALL})
 @BelongsToProfile(title = CheckList.SONAR_WAY_PROFILE, priority = Priority.MAJOR)
+@SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.UNDERSTANDABILITY)
+@SqaleConstantRemediation("30min")
 public class RedeclaredFunctionCheck extends SquidCheck<LexerlessGrammar> {
 
   private Stack<Set<String>> stack;

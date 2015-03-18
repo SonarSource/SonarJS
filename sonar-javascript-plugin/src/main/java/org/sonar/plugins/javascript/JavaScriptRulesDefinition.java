@@ -19,27 +19,24 @@
  */
 package org.sonar.plugins.javascript;
 
-import org.sonar.api.rules.AnnotationRuleParser;
-import org.sonar.api.rules.Rule;
-import org.sonar.api.rules.RuleRepository;
+import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.javascript.checks.CheckList;
 import org.sonar.plugins.javascript.core.JavaScript;
+import org.sonar.squidbridge.annotations.AnnotationBasedRulesDefinition;
+import org.sonar.squidbridge.rules.SqaleXmlLoader;
 
-import java.util.List;
-
-public class JavaScriptRuleRepository extends RuleRepository {
-
-  private final AnnotationRuleParser annotationRuleParser;
-
-  public JavaScriptRuleRepository(AnnotationRuleParser annotationRuleParser) {
-    super(CheckList.REPOSITORY_KEY, JavaScript.KEY);
-    setName(CheckList.REPOSITORY_NAME);
-    this.annotationRuleParser = annotationRuleParser;
-  }
+public class JavaScriptRulesDefinition implements RulesDefinition {
 
   @Override
-  public List<Rule> createRules() {
-    return annotationRuleParser.parse(CheckList.REPOSITORY_KEY, CheckList.getChecks());
+  public void define(Context context) {
+    NewRepository repository = context
+      .createRepository(CheckList.REPOSITORY_KEY, JavaScript.KEY)
+      .setName(CheckList.REPOSITORY_NAME);
+
+    AnnotationBasedRulesDefinition.load(repository, "javascript", CheckList.getChecks());
+    SqaleXmlLoader.load(repository, "/com/sonar/sqale/javascript-model.xml");
+
+    repository.done();
   }
 
 }

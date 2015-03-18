@@ -21,10 +21,13 @@ package org.sonar.javascript.checks;
 
 import java.util.Set;
 
+import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.BelongsToProfile;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.javascript.api.EcmaScriptTokenType;
+import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
+import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 import org.sonar.squidbridge.checks.SquidCheck;
 import org.sonar.sslr.parser.LexerlessGrammar;
 
@@ -33,9 +36,12 @@ import com.sonar.sslr.api.AstNode;
 
 @Rule(
   key = "FutureReservedWords",
+  name = "\"future reserved words\" should not be used as identifiers",
   priority = Priority.CRITICAL,
   tags = {Tags.LOCK_IN, Tags.PITFALL})
 @BelongsToProfile(title = CheckList.SONAR_WAY_PROFILE, priority = Priority.CRITICAL)
+@SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.LANGUAGE_RELATED_PORTABILITY)
+@SqaleConstantRemediation("10min")
 public class FutureReservedWordsCheck extends SquidCheck<LexerlessGrammar> {
 
   private static final Set<String> FUTURE_RESERVED_WORDS = ImmutableSet.of("implements", "interface", "package", "private", "protected", "public", "static");

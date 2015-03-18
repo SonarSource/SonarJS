@@ -28,11 +28,14 @@ import org.sonar.javascript.model.interfaces.Tree.Kind;
 import org.sonar.javascript.model.interfaces.expression.CallExpressionTree;
 import org.sonar.javascript.model.interfaces.expression.ObjectLiteralTree;
 import org.sonar.javascript.model.interfaces.expression.PairPropertyTree;
+import org.sonar.squidbridge.annotations.NoSqale;
 
 @Rule(
   key = "S2550",
+  name = "\"defaults\" should be a function when objects or arrays are used",
   priority = Priority.CRITICAL,
   tags = {Tags.BUG, Tags.BACKBONE})
+@NoSqale
 public class ModelDefaultsWithArrayOrObjectCheck extends BaseTreeVisitor {
 
   @Override

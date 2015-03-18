@@ -23,6 +23,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
+import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.javascript.checks.utils.CheckUtils;
@@ -30,6 +31,8 @@ import org.sonar.javascript.model.implementations.declaration.ParameterListTreeI
 import org.sonar.javascript.model.implementations.statement.VariableDeclarationTreeImpl;
 import org.sonar.javascript.model.interfaces.Tree.Kind;
 import org.sonar.javascript.model.interfaces.expression.IdentifierTree;
+import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
+import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 import org.sonar.squidbridge.checks.SquidCheck;
 import org.sonar.sslr.parser.LexerlessGrammar;
 
@@ -42,8 +45,11 @@ import com.sonar.sslr.impl.ast.AstWalker;
 
 @Rule(
   key = "VariableShadowing",
+  name = "Variables should not be shadowed",
   priority = Priority.MAJOR,
   tags = {Tags.PITFALL})
+@SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.UNDERSTANDABILITY)
+@SqaleConstantRemediation("20min")
 public class VariableShadowingCheck extends SquidCheck<LexerlessGrammar> {
 
   private Map<AstNode, Scope> scopes;

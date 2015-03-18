@@ -19,15 +19,13 @@
  */
 package org.sonar.javascript.checks;
 
-import com.google.common.collect.Lists;
 import org.apache.commons.io.FileUtils;
 import org.junit.Test;
-import org.sonar.api.batch.rule.ActiveRules;
-import org.sonar.api.batch.rule.CheckFactory;
-import org.sonar.api.batch.rule.Checks;
 import org.sonar.api.rules.AnnotationRuleParser;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleParam;
+
+import com.google.common.collect.Lists;
 
 import java.io.File;
 import java.util.List;
@@ -73,7 +71,6 @@ public class CheckListTest {
     List<Rule> rules = new AnnotationRuleParser().parse("repositoryKey", checks);
     for (Rule rule : rules) {
       keys.add(rule.getKey());
-      resourceBundle.getString("rule." + CheckList.REPOSITORY_KEY + "." + rule.getKey() + ".name");
       assertThat(getClass().getResource("/org/sonar/l10n/javascript/rules/javascript/" + rule.getKey() + ".html"))
           .overridingErrorMessage("No description for " + rule.getKey())
           .isNotNull();

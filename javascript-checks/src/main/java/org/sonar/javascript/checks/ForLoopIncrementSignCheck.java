@@ -19,7 +19,10 @@
  */
 package org.sonar.javascript.checks;
 
-import com.google.common.base.Preconditions;
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
+
+import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.BelongsToProfile;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
@@ -33,15 +36,19 @@ import org.sonar.javascript.model.interfaces.expression.IdentifierTree;
 import org.sonar.javascript.model.interfaces.expression.LiteralTree;
 import org.sonar.javascript.model.interfaces.expression.UnaryExpressionTree;
 import org.sonar.javascript.model.interfaces.statement.ForStatementTree;
+import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
+import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
+import com.google.common.base.Preconditions;
 
 @Rule(
   key = "S2251",
-  tags = {Tags.BUG},
-  priority = Priority.BLOCKER)
+  name = "A \"for\" loop update clause should move the counter in the right direction",
+  priority = Priority.BLOCKER,
+  tags = {Tags.BUG})
 @BelongsToProfile(title = CheckList.SONAR_WAY_PROFILE, priority = Priority.BLOCKER)
+@SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.INSTRUCTION_RELIABILITY)
+@SqaleConstantRemediation("5min")
 public class ForLoopIncrementSignCheck extends BaseTreeVisitor {
 
   @Override

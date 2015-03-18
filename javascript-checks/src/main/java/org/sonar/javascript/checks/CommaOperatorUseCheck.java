@@ -27,6 +27,7 @@ import org.sonar.javascript.model.implementations.lexical.InternalSyntaxToken;
 import org.sonar.javascript.model.interfaces.Tree.Kind;
 import org.sonar.javascript.model.interfaces.expression.BinaryExpressionTree;
 import org.sonar.javascript.model.interfaces.lexical.SyntaxToken;
+import org.sonar.squidbridge.annotations.NoSqale;
 import org.sonar.squidbridge.checks.SquidCheck;
 import org.sonar.sslr.parser.LexerlessGrammar;
 
@@ -34,9 +35,11 @@ import com.sonar.sslr.api.AstNode;
 
 @Rule(
   key = "S878",
+  name = "Comma operator should not be used",
   priority = Priority.MAJOR,
   tags = {Tags.MISRA})
 @BelongsToProfile(title = CheckList.SONAR_WAY_PROFILE, priority = Priority.MAJOR)
+@NoSqale
 public class CommaOperatorUseCheck extends SquidCheck<LexerlessGrammar> {
 
   @Override

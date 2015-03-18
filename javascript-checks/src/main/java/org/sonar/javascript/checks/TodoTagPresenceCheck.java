@@ -20,18 +20,22 @@
 package org.sonar.javascript.checks;
 
 
-import com.sonar.sslr.api.AstAndTokenVisitor;
-import com.sonar.sslr.api.Token;
 import org.sonar.check.BelongsToProfile;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
+import org.sonar.squidbridge.annotations.NoSqale;
 import org.sonar.squidbridge.checks.SquidCheck;
 import org.sonar.sslr.parser.LexerlessGrammar;
 
+import com.sonar.sslr.api.AstAndTokenVisitor;
+import com.sonar.sslr.api.Token;
+
 @Rule(
   key = "S1135",
+  name = "\"TODO\" tags should be handled",
   priority = Priority.INFO)
 @BelongsToProfile(title = CheckList.SONAR_WAY_PROFILE, priority = Priority.INFO)
+@NoSqale
 public class TodoTagPresenceCheck extends SquidCheck<LexerlessGrammar> implements AstAndTokenVisitor {
 
   private static final String PATTERN = "TODO";

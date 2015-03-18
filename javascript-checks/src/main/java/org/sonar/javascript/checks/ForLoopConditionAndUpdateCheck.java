@@ -19,9 +19,11 @@
  */
 package org.sonar.javascript.checks;
 
-import com.google.common.base.Joiner;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
+import java.util.ArrayDeque;
+import java.util.Deque;
+import java.util.List;
+
+import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.BelongsToProfile;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
@@ -36,16 +38,21 @@ import org.sonar.javascript.model.interfaces.expression.IdentifierTree;
 import org.sonar.javascript.model.interfaces.expression.MemberExpressionTree;
 import org.sonar.javascript.model.interfaces.expression.UnaryExpressionTree;
 import org.sonar.javascript.model.interfaces.statement.ForStatementTree;
+import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
+import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 
-import java.util.ArrayDeque;
-import java.util.Deque;
-import java.util.List;
+import com.google.common.base.Joiner;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
 
 @Rule(
   key = "S1994",
-  tags = {Tags.BUG},
-  priority = Priority.CRITICAL)
+  name = "\"for\" loop incrementers should modify the variable being tested in the loop's stop condition",
+  priority = Priority.CRITICAL,
+  tags = {Tags.BUG})
 @BelongsToProfile(title = CheckList.SONAR_WAY_PROFILE, priority = Priority.CRITICAL)
+@SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.LOGIC_RELIABILITY)
+@SqaleConstantRemediation("20min")
 public class ForLoopConditionAndUpdateCheck extends BaseTreeVisitor {
 
   @Override

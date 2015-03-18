@@ -22,6 +22,7 @@ package org.sonar.javascript.checks;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.javascript.checks.utils.CheckUtils;
@@ -34,14 +35,19 @@ import org.sonar.javascript.model.interfaces.expression.DotMemberExpressionTree;
 import org.sonar.javascript.model.interfaces.expression.ExpressionTree;
 import org.sonar.javascript.model.interfaces.expression.FunctionExpressionTree;
 import org.sonar.javascript.model.interfaces.expression.IdentifierTree;
+import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
+import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 
 @Rule(
   key = "S2685",
+  name = "\"arguments.caller\" and \"arguments.callee\" should not be used",
   priority = Priority.CRITICAL,
   tags = {Tags.OBSOLETE})
+@SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.INSTRUCTION_RELIABILITY)
+@SqaleConstantRemediation("30min")
 public class ArgumentsCallerCalleeUsageCheck extends SubscriptionBaseVisitor {
 
   LinkedList<String> scope = Lists.newLinkedList();

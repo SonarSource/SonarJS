@@ -65,7 +65,7 @@ public class JavaScriptPlugin extends SonarPlugin {
         JavaScriptCpdMapping.class,
 
         JavaScriptSquidSensor.class,
-        JavaScriptRuleRepository.class,
+        JavaScriptRulesDefinition.class,
         JavaScriptProfile.class,
 
         JavaScriptCommonRulesEngine.class,

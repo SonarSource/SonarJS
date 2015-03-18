@@ -21,6 +21,7 @@ package org.sonar.javascript.checks;
 
 import java.util.List;
 
+import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.BelongsToProfile;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
@@ -31,14 +32,19 @@ import org.sonar.javascript.model.implementations.statement.VariableDeclarationT
 import org.sonar.javascript.model.interfaces.Tree;
 import org.sonar.javascript.model.interfaces.Tree.Kind;
 import org.sonar.javascript.model.interfaces.expression.IdentifierTree;
+import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
+import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 
 import com.google.common.collect.ImmutableList;
 
 @Rule(
   key = "S2137",
+  name = "Local variables should not shadow \"undefined\"",
   priority = Priority.CRITICAL,
   tags = {Tags.PITFALL})
 @BelongsToProfile(title = CheckList.SONAR_WAY_PROFILE, priority = Priority.CRITICAL)
+@SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.INSTRUCTION_RELIABILITY)
+@SqaleConstantRemediation("10min")
 public class UndefinedShadowingCheck extends SubscriptionBaseVisitor {
 
   private int scopeLevel = 0;

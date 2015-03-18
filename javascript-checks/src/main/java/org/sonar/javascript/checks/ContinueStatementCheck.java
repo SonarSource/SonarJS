@@ -19,9 +19,12 @@
  */
 package org.sonar.javascript.checks;
 
+import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.javascript.model.interfaces.Tree.Kind;
+import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
+import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 import org.sonar.squidbridge.checks.SquidCheck;
 import org.sonar.sslr.parser.LexerlessGrammar;
 
@@ -29,8 +32,11 @@ import com.sonar.sslr.api.AstNode;
 
 @Rule(
   key = "ContinueStatement",
+  name = "Avoid using \"continue\" branching statement",
   priority = Priority.MAJOR,
   tags = {Tags.MISRA})
+@SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.LOGIC_CHANGEABILITY)
+@SqaleConstantRemediation("5h")
 public class ContinueStatementCheck extends SquidCheck<LexerlessGrammar> {
   @Override
   public void init() {

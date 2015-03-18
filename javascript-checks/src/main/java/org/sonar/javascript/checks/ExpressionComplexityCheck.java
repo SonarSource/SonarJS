@@ -19,8 +19,6 @@
  */
 package org.sonar.javascript.checks;
 
-import java.util.List;
-
 import org.sonar.check.BelongsToProfile;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
@@ -28,16 +26,21 @@ import org.sonar.check.RuleProperty;
 import org.sonar.javascript.checks.utils.SubscriptionBaseVisitor;
 import org.sonar.javascript.model.interfaces.Tree;
 import org.sonar.javascript.model.interfaces.Tree.Kind;
+import org.sonar.squidbridge.annotations.NoSqale;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 
+import java.util.List;
+
 @Rule(
   key = "S1067",
+  name = "Expressions should not be too complex",
   priority = Priority.MAJOR,
   tags = {Tags.BRAIN_OVERLOAD})
 @BelongsToProfile(title = CheckList.SONAR_WAY_PROFILE, priority = Priority.MAJOR)
+@NoSqale
 public class ExpressionComplexityCheck extends SubscriptionBaseVisitor {
 
   private static final int DEFAULT = 3;

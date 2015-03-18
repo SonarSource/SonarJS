@@ -22,9 +22,12 @@ package org.sonar.javascript.checks;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 
+import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.api.utils.SonarException;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
+import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
+import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 import org.sonar.squidbridge.checks.SquidCheck;
 import org.sonar.sslr.parser.LexerlessGrammar;
 
@@ -33,8 +36,11 @@ import com.sonar.sslr.api.AstNode;
 
 @Rule(
   key = "MissingNewlineAtEndOfFile",
+  name = "Missing new line at the end of file",
   priority = Priority.MINOR,
   tags = {Tags.CONVENTION})
+@SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.SOFTWARE_RELATED_PORTABILITY)
+@SqaleConstantRemediation("10min")
 public class MissingNewlineAtEndOfFileCheck extends SquidCheck<LexerlessGrammar> {
 
   @Override

@@ -20,23 +20,27 @@
 package org.sonar.plugins.javascript;
 
 import org.junit.Test;
-import org.sonar.api.rules.AnnotationRuleParser;
-import org.sonar.api.rules.Rule;
+import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.javascript.checks.CheckList;
-
-import java.util.List;
 
 import static org.fest.assertions.Assertions.assertThat;
 
-public class JavaScriptRuleRepositoryTest {
+public class JavaScriptRulesDefinitionTest {
 
   @Test
   public void test() {
-    JavaScriptRuleRepository ruleRepository = new JavaScriptRuleRepository(new AnnotationRuleParser());
-    assertThat(ruleRepository.getKey()).isEqualTo("javascript");
-    assertThat(ruleRepository.getName()).isEqualTo("SonarQube");
-    List<Rule> rules = ruleRepository.createRules();
-    assertThat(rules.size()).isEqualTo(CheckList.getChecks().size());
+    JavaScriptRulesDefinition rulesDefinition = new JavaScriptRulesDefinition();
+    RulesDefinition.Context context = new RulesDefinition.Context();
+    rulesDefinition.define(context);
+    RulesDefinition.Repository repository = context.repository("javascript");
+
+    assertThat(repository.name()).isEqualTo("SonarQube");
+    assertThat(repository.language()).isEqualTo("js");
+    assertThat(repository.rules()).hasSize(CheckList.getChecks().size());
+
+    RulesDefinition.Rule alertUseRule = repository.rule("ArrayAndObjectConstructors");
+    assertThat(alertUseRule).isNotNull();
+    assertThat(alertUseRule.name()).isEqualTo("Array and Object constructors should not be used");
   }
 
 }

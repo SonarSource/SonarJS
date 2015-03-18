@@ -19,9 +19,12 @@
  */
 package org.sonar.javascript.checks;
 
+import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.javascript.api.EcmaScriptPunctuator;
+import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
+import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 import org.sonar.squidbridge.checks.SquidCheck;
 import org.sonar.sslr.parser.LexerlessGrammar;
 
@@ -29,8 +32,11 @@ import com.sonar.sslr.api.AstNode;
 
 @Rule(
   key = "ConditionalOperator",
+  name = "Avoid use of conditional operator",
   priority = Priority.MINOR,
   tags = {Tags.CONFUSING})
+@SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.READABILITY)
+@SqaleConstantRemediation("10min")
 public class ConditionalOperatorCheck extends SquidCheck<LexerlessGrammar> {
 
   @Override

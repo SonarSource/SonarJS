@@ -27,6 +27,7 @@ import org.sonar.javascript.model.interfaces.Tree.Kind;
 import org.sonar.javascript.model.interfaces.expression.ExpressionTree;
 import org.sonar.javascript.model.interfaces.statement.BlockTree;
 import org.sonar.javascript.model.interfaces.statement.ReturnStatementTree;
+import org.sonar.squidbridge.annotations.NoSqale;
 import org.sonar.squidbridge.checks.SquidCheck;
 import org.sonar.sslr.parser.LexerlessGrammar;
 
@@ -34,9 +35,11 @@ import com.sonar.sslr.api.AstNode;
 
 @Rule(
   key = "S1126",
+  name = "Return of boolean expressions should not be wrapped into an \"if-then-else\" statement",
   priority = Priority.MINOR,
   tags = {Tags.CLUMSY})
 @BelongsToProfile(title = CheckList.SONAR_WAY_PROFILE, priority = Priority.MINOR)
+@NoSqale
 public class ReturnOfBooleanExpressionCheck extends SquidCheck<LexerlessGrammar> {
 
   @Override

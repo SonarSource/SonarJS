@@ -24,12 +24,15 @@ import java.nio.charset.Charset;
 import java.util.List;
 import java.util.regex.Pattern;
 
+import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.api.utils.SonarException;
 import org.sonar.check.BelongsToProfile;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.javascript.CharsetAwareVisitor;
 import org.sonar.javascript.lexer.EcmaScriptLexer;
+import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
+import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 import org.sonar.squidbridge.checks.SquidCheck;
 import org.sonar.sslr.parser.LexerlessGrammar;
 
@@ -38,9 +41,12 @@ import com.sonar.sslr.api.AstNode;
 
 @Rule(
   key = "TrailingWhitespace",
+  name = "Avoid trailing whitespaces",
   priority = Priority.MAJOR,
   tags = {Tags.CONVENTION})
 @BelongsToProfile(title = CheckList.SONAR_WAY_PROFILE, priority = Priority.MAJOR)
+@SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.DATA_RELIABILITY)
+@SqaleConstantRemediation("1min")
 public class TrailingWhitespaceCheck extends SquidCheck<LexerlessGrammar> implements CharsetAwareVisitor {
 
   private Charset charset;
