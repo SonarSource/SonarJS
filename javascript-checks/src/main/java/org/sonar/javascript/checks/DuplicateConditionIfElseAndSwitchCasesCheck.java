@@ -34,7 +34,6 @@ import org.sonar.javascript.model.interfaces.statement.ElseClauseTree;
 import org.sonar.javascript.model.interfaces.statement.IfStatementTree;
 import org.sonar.javascript.model.interfaces.statement.SwitchClauseTree;
 import org.sonar.javascript.model.interfaces.statement.SwitchStatementTree;
-import org.sonar.squidbridge.annotations.Tags;
 
 import com.sonar.sslr.api.AstNode;
 

@@ -30,8 +30,7 @@ import com.sonar.sslr.api.AstNode;
 @Rule(
   key = "ConditionalOperator",
   priority = Priority.MINOR,
-  // FIXME use constant instead
-  tags = {"confusing"})
+  tags = {Tags.CONFUSING})
 public class ConditionalOperatorCheck extends SquidCheck<LexerlessGrammar> {
 
   @Override

@@ -26,7 +26,6 @@ import org.sonar.javascript.ast.visitors.SyntacticEquivalence;
 import org.sonar.javascript.model.interfaces.Tree;
 import org.sonar.javascript.model.interfaces.expression.AssignmentExpressionTree;
 import org.sonar.javascript.model.interfaces.expression.ExpressionTree;
-import org.sonar.squidbridge.annotations.Tags;
 
 @Rule(
   key = "S1656",

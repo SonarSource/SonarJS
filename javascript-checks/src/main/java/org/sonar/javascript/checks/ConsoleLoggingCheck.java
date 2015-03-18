@@ -30,14 +30,13 @@ import org.sonar.javascript.model.interfaces.Tree.Kind;
 import org.sonar.javascript.model.interfaces.expression.CallExpressionTree;
 import org.sonar.javascript.model.interfaces.expression.DotMemberExpressionTree;
 import org.sonar.javascript.model.interfaces.expression.IdentifierTree;
-import org.sonar.squidbridge.annotations.Tags;
 
 import com.google.common.collect.ImmutableList;
 
 @Rule(
   key = "S2228",
   priority = Priority.MAJOR,
-  tags = {"owasp-a6", Tags.SECURITY})
+  tags = {Tags.OWASP_A6, Tags.SECURITY})
 @BelongsToProfile(title = CheckList.SONAR_WAY_PROFILE, priority = Priority.MAJOR)
 public class ConsoleLoggingCheck extends SubscriptionBaseVisitor {
 

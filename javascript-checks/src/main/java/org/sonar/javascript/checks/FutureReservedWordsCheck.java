@@ -25,7 +25,6 @@ import org.sonar.check.BelongsToProfile;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.javascript.api.EcmaScriptTokenType;
-import org.sonar.squidbridge.annotations.Tags;
 import org.sonar.squidbridge.checks.SquidCheck;
 import org.sonar.sslr.parser.LexerlessGrammar;
 
@@ -35,8 +34,7 @@ import com.sonar.sslr.api.AstNode;
 @Rule(
   key = "FutureReservedWords",
   priority = Priority.CRITICAL,
-  // FIXME use constant instead
-  tags = {"lock-in", Tags.PITFALL})
+  tags = {Tags.LOCK_IN, Tags.PITFALL})
 @BelongsToProfile(title = CheckList.SONAR_WAY_PROFILE, priority = Priority.CRITICAL)
 public class FutureReservedWordsCheck extends SquidCheck<LexerlessGrammar> {
 

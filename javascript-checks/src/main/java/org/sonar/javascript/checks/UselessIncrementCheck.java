@@ -30,7 +30,7 @@ import org.sonar.javascript.model.interfaces.expression.UnaryExpressionTree;
 
 @Rule(
   key = "S2123",
-  tags = {"bug"},
+  tags = {Tags.BUG},
   priority = Priority.CRITICAL)
 @BelongsToProfile(title = CheckList.SONAR_WAY_PROFILE, priority = Priority.CRITICAL)
 public class UselessIncrementCheck extends BaseTreeVisitor {

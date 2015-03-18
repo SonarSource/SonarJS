@@ -31,7 +31,6 @@ import org.sonar.javascript.model.implementations.statement.VariableDeclarationT
 import org.sonar.javascript.model.interfaces.Tree;
 import org.sonar.javascript.model.interfaces.Tree.Kind;
 import org.sonar.javascript.model.interfaces.expression.IdentifierTree;
-import org.sonar.squidbridge.annotations.Tags;
 
 import com.google.common.collect.ImmutableList;
 

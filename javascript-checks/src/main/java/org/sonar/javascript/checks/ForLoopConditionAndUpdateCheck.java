@@ -43,7 +43,7 @@ import java.util.List;
 
 @Rule(
   key = "S1994",
-  tags = {"bug"},
+  tags = {Tags.BUG},
   priority = Priority.CRITICAL)
 @BelongsToProfile(title = CheckList.SONAR_WAY_PROFILE, priority = Priority.CRITICAL)
 public class ForLoopConditionAndUpdateCheck extends BaseTreeVisitor {

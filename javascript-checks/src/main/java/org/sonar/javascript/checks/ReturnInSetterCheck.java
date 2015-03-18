@@ -30,7 +30,7 @@ import org.sonar.javascript.model.interfaces.statement.ReturnStatementTree;
 
 @Rule(
   key = "S2432",
-  tags = {"bug"},
+  tags = {Tags.BUG},
   priority = Priority.CRITICAL)
 @BelongsToProfile(title = CheckList.SONAR_WAY_PROFILE, priority = Priority.CRITICAL)
 public class ReturnInSetterCheck extends BaseTreeVisitor {

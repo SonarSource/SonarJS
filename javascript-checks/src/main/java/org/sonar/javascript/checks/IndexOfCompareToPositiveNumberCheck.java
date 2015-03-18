@@ -32,7 +32,6 @@ import org.sonar.javascript.model.interfaces.expression.DotMemberExpressionTree;
 import org.sonar.javascript.model.interfaces.expression.ExpressionTree;
 import org.sonar.javascript.model.interfaces.expression.IdentifierTree;
 import org.sonar.javascript.model.interfaces.expression.LiteralTree;
-import org.sonar.squidbridge.annotations.Tags;
 
 import com.google.common.collect.ImmutableList;
 

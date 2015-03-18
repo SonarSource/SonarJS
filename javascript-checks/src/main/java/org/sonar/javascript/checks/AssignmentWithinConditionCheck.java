@@ -37,7 +37,6 @@ import org.sonar.javascript.model.interfaces.statement.DoWhileStatementTree;
 import org.sonar.javascript.model.interfaces.statement.ExpressionStatementTree;
 import org.sonar.javascript.model.interfaces.statement.ForStatementTree;
 import org.sonar.javascript.model.interfaces.statement.WhileStatementTree;
-import org.sonar.squidbridge.annotations.Tags;
 
 @Rule(
   key = "AssignmentWithinCondition",

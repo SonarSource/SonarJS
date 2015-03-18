@@ -39,7 +39,7 @@ import javax.annotation.Nullable;
 
 @Rule(
   key = "S2251",
-  tags = {"bug"},
+  tags = {Tags.BUG},
   priority = Priority.BLOCKER)
 @BelongsToProfile(title = CheckList.SONAR_WAY_PROFILE, priority = Priority.BLOCKER)
 public class ForLoopIncrementSignCheck extends BaseTreeVisitor {

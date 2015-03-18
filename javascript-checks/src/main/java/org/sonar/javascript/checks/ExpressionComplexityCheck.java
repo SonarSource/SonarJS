@@ -28,7 +28,6 @@ import org.sonar.check.RuleProperty;
 import org.sonar.javascript.checks.utils.SubscriptionBaseVisitor;
 import org.sonar.javascript.model.interfaces.Tree;
 import org.sonar.javascript.model.interfaces.Tree.Kind;
-import org.sonar.squidbridge.annotations.Tags;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;

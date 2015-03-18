@@ -28,12 +28,11 @@ import org.sonar.javascript.model.interfaces.Tree.Kind;
 import org.sonar.javascript.model.interfaces.expression.CallExpressionTree;
 import org.sonar.javascript.model.interfaces.expression.ObjectLiteralTree;
 import org.sonar.javascript.model.interfaces.expression.PairPropertyTree;
-import org.sonar.squidbridge.annotations.Tags;
 
 @Rule(
   key = "S2550",
   priority = Priority.CRITICAL,
-  tags = {Tags.BUG, "backbone"})
+  tags = {Tags.BUG, Tags.BACKBONE})
 public class ModelDefaultsWithArrayOrObjectCheck extends BaseTreeVisitor {
 
   @Override

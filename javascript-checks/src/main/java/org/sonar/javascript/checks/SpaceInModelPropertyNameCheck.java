@@ -31,12 +31,11 @@ import org.sonar.javascript.model.interfaces.expression.ExpressionTree;
 import org.sonar.javascript.model.interfaces.expression.LiteralTree;
 import org.sonar.javascript.model.interfaces.expression.ObjectLiteralTree;
 import org.sonar.javascript.model.interfaces.expression.PairPropertyTree;
-import org.sonar.squidbridge.annotations.Tags;
 
 @Rule(
   key = "S2508",
   priority = Priority.CRITICAL,
-  tags = {Tags.BUG, "backbone"})
+  tags = {Tags.BUG, Tags.BACKBONE})
 public class SpaceInModelPropertyNameCheck extends BaseTreeVisitor {
 
   @Override

@@ -40,8 +40,7 @@ import com.sonar.sslr.api.AstNode;
 @Rule(
   key = "Parentheses",
   priority = Priority.MINOR,
-  // FIXME use a constant
-  tags = {"confusing"})
+  tags = {Tags.CONFUSING})
 public class ParenthesesCheck extends SquidCheck<LexerlessGrammar> {
 
   @Override

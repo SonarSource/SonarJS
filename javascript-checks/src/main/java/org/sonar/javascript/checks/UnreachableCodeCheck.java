@@ -19,8 +19,8 @@
  */
 package org.sonar.javascript.checks;
 
-import static org.sonar.squidbridge.annotations.Tags.MISRA;
-import static org.sonar.squidbridge.annotations.Tags.UNUSED;
+import static org.sonar.javascript.checks.Tags.MISRA;
+import static org.sonar.javascript.checks.Tags.UNUSED;
 
 import org.sonar.check.BelongsToProfile;
 import org.sonar.check.Priority;
