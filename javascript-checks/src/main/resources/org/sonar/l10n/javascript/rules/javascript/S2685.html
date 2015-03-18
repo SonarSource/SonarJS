@@ -15,5 +15,8 @@ function whoCalled() {
       console.log('I was called from the global scope.');
    else
       console.log(arguments.caller + ' called me!');
+
+      console.log(whoCalled.caller);  // Noncompliant
+      console.log(whoCalled.arguments);  // Noncompliant
 }
 </pre>
