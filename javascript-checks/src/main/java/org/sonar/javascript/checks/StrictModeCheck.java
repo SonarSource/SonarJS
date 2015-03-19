@@ -37,8 +37,8 @@ import com.sonar.sslr.api.AstNode;
   priority = Priority.INFO,
   tags = {Tags.CROSS_BROWSER, Tags.USER_EXPERIENCE})
 @ActivatedByDefault
-@SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.SOFTWARE_RELATED_PORTABILITY)
-@SqaleConstantRemediation("20min")
+@SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.ARCHITECTURE_RELIABILITY)
+@SqaleConstantRemediation("5min")
 public class StrictModeCheck extends SquidCheck<LexerlessGrammar> {
 
   @Override

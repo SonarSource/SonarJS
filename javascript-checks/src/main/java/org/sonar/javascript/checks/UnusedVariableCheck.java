@@ -47,7 +47,7 @@ import com.sonar.sslr.api.AstNode;
   tags = {Tags.UNUSED})
 @ActivatedByDefault
 @SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.UNDERSTANDABILITY)
-@SqaleConstantRemediation("20min")
+@SqaleConstantRemediation("5min")
 public class UnusedVariableCheck extends SquidCheck<LexerlessGrammar> {
 
   private static class Variable {

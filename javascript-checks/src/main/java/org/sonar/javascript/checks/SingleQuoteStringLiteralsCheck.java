@@ -33,10 +33,10 @@ import com.sonar.sslr.api.AstNode;
 @Rule(
   key = "SingleQuote",
   name = "Single quotes should be used for string literals",
-  priority = Priority.MAJOR,
+  priority = Priority.MINOR,
   tags = {Tags.CONVENTION})
 @SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.READABILITY)
-@SqaleConstantRemediation("10min")
+@SqaleConstantRemediation("1min")
 public class SingleQuoteStringLiteralsCheck extends SquidCheck<LexerlessGrammar> {
 
   @Override

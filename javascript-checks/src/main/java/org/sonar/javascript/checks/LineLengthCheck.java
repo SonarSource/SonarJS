@@ -34,11 +34,11 @@ import com.sonar.sslr.api.Token;
 
 @Rule(
   key = "LineLength",
-  name = "Maximum authorized line length exceeded",
+  name = "Lines should not be too long",
   priority = Priority.MINOR,
   tags = {Tags.CONVENTION})
 @SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.READABILITY)
-@SqaleConstantRemediation("10min")
+@SqaleConstantRemediation("1min")
 public class LineLengthCheck extends SquidCheck<LexerlessGrammar> implements AstAndTokenVisitor {
 
   private Token previousToken;

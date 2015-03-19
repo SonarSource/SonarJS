@@ -35,11 +35,11 @@ import com.sonar.sslr.api.AstNode;
 @Rule(
   key = "Semicolon",
   name = "Each statement should end with a semicolon",
-  priority = Priority.MAJOR,
+  priority = Priority.MINOR,
   tags = {Tags.CONVENTION})
 @ActivatedByDefault
 @SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.LOGIC_RELIABILITY)
-@SqaleConstantRemediation("10min")
+@SqaleConstantRemediation("1min")
 public class SemicolonCheck extends SquidCheck<LexerlessGrammar> {
 
   @Override

@@ -42,7 +42,7 @@ import com.sonar.sslr.api.AstNode;
 
 @Rule(
   key = "S1862",
-  name = "Conditions in related \"if/else if\" statements and \"cases\" in a \"switch\" should not have the same condition",
+  name = "Related \"if/else if\" statements and \"cases\" in a \"switch\" should not have the same condition",
   priority = Priority.CRITICAL,
   tags = {Tags.BUG, Tags.CERT, Tags.PITFALL, Tags.UNUSED})
 @ActivatedByDefault

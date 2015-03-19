@@ -42,8 +42,8 @@ import com.sonar.sslr.api.AstNode;
   priority = Priority.MAJOR,
   tags = {Tags.BUG, Tags.PITFALL})
 @ActivatedByDefault
-@SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.UNDERSTANDABILITY)
-@SqaleConstantRemediation("30min")
+@SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.LOGIC_RELIABILITY)
+@SqaleConstantRemediation("20min")
 public class RedeclaredFunctionCheck extends SquidCheck<LexerlessGrammar> {
 
   private Stack<Set<String>> stack;

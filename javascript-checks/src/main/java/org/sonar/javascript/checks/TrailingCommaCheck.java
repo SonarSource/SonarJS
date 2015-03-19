@@ -38,11 +38,11 @@ import com.sonar.sslr.api.AstNode;
 @Rule(
   key = "TrailingComma",
   name = "Trailing commas should not be used",
-  priority = Priority.MAJOR,
+  priority = Priority.BLOCKER,
   tags = {Tags.CROSS_BROWSER})
 @ActivatedByDefault
-@SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.COMPILER_RELATED_PORTABILITY)
-@SqaleConstantRemediation("10min")
+@SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.INSTRUCTION_RELIABILITY)
+@SqaleConstantRemediation("1min")
 public class TrailingCommaCheck extends SquidCheck<LexerlessGrammar> {
 
   @Override

@@ -41,7 +41,7 @@ import com.sonar.sslr.api.AstNode;
   tags = {Tags.LOCK_IN, Tags.PITFALL})
 @ActivatedByDefault
 @SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.LANGUAGE_RELATED_PORTABILITY)
-@SqaleConstantRemediation("10min")
+@SqaleConstantRemediation("5min")
 public class FutureReservedWordsCheck extends SquidCheck<LexerlessGrammar> {
 
   private static final Set<String> FUTURE_RESERVED_WORDS = ImmutableSet.of("implements", "interface", "package", "private", "protected", "public", "static");

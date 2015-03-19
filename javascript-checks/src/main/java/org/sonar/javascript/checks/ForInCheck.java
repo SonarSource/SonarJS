@@ -41,7 +41,7 @@ import com.sonar.sslr.api.AstNode;
   tags = {Tags.BUG})
 @ActivatedByDefault
 @SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.LOGIC_RELIABILITY)
-@SqaleConstantRemediation("30min")
+@SqaleConstantRemediation("5min")
 public class ForInCheck extends SquidCheck<LexerlessGrammar> {
 
   @Override

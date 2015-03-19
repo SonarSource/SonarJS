@@ -33,12 +33,12 @@ import com.sonar.sslr.api.AstNode;
 
 @Rule(
   key = "CurlyBraces",
-  name = "Always use curly braces for \"if/else/for/while/do\" statements",
+  name = "Control structures should always use curly braces",
   priority = Priority.MAJOR,
-  tags = {Tags.CONVENTION, Tags.CWE, Tags.MISRA})
+  tags = {Tags.CERT, Tags.CWE, Tags.MISRA, Tags.PITFALL})
 @ActivatedByDefault
 @SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.READABILITY)
-@SqaleConstantRemediation("10min")
+@SqaleConstantRemediation("2min")
 public class AlwaysUseCurlyBracesCheck extends SquidCheck<LexerlessGrammar> {
 
   @Override

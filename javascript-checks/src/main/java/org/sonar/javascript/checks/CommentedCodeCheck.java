@@ -46,11 +46,11 @@ import com.sonar.sslr.api.Trivia;
 @Rule(
   key = "CommentedCode",
   name = "Sections of code should not be \"commented out\"",
-  priority = Priority.BLOCKER,
-  tags = {Tags.UNUSED, Tags.MISRA})
+  priority = Priority.MAJOR,
+  tags = {Tags.MISRA, Tags.UNUSED})
 @ActivatedByDefault
 @SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.UNDERSTANDABILITY)
-@SqaleConstantRemediation("30min")
+@SqaleConstantRemediation("5min")
 public class CommentedCodeCheck extends SquidCheck<LexerlessGrammar> implements AstAndTokenVisitor {
 
   private static final double THRESHOLD = 0.9;

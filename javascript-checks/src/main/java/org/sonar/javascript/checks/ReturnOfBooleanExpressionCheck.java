@@ -19,6 +19,7 @@
  */
 package org.sonar.javascript.checks;
 
+import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.javascript.model.implementations.statement.IfStatementTreeImpl;
@@ -27,7 +28,8 @@ import org.sonar.javascript.model.interfaces.expression.ExpressionTree;
 import org.sonar.javascript.model.interfaces.statement.BlockTree;
 import org.sonar.javascript.model.interfaces.statement.ReturnStatementTree;
 import org.sonar.squidbridge.annotations.ActivatedByDefault;
-import org.sonar.squidbridge.annotations.NoSqale;
+import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
+import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 import org.sonar.squidbridge.checks.SquidCheck;
 import org.sonar.sslr.parser.LexerlessGrammar;
 
@@ -39,7 +41,8 @@ import com.sonar.sslr.api.AstNode;
   priority = Priority.MINOR,
   tags = {Tags.CLUMSY})
 @ActivatedByDefault
-@NoSqale
+@SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.READABILITY)
+@SqaleConstantRemediation("2min")
 public class ReturnOfBooleanExpressionCheck extends SquidCheck<LexerlessGrammar> {
 
   @Override

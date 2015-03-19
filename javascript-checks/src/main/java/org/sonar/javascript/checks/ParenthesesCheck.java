@@ -42,11 +42,11 @@ import com.sonar.sslr.api.AstNode;
  */
 @Rule(
   key = "Parentheses",
-  name = "Avoid use of parentheses where not required by syntax or semantics",
-  priority = Priority.MINOR,
+  name = "Useless parentheses around expressions should be removed to prevent any misunderstanding",
+  priority = Priority.MAJOR,
   tags = {Tags.CONFUSING})
 @SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.READABILITY)
-@SqaleConstantRemediation("10min")
+@SqaleConstantRemediation("1min")
 public class ParenthesesCheck extends SquidCheck<LexerlessGrammar> {
 
   @Override

@@ -41,11 +41,11 @@ import com.sonar.sslr.api.AstNode;
 
 @Rule(
   key = "TrailingWhitespace",
-  name = "Avoid trailing whitespaces",
-  priority = Priority.MAJOR,
+  name = "Lines should not end with trailing whitespaces",
+  priority = Priority.MINOR,
   tags = {Tags.CONVENTION})
 @ActivatedByDefault
-@SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.DATA_RELIABILITY)
+@SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.READABILITY)
 @SqaleConstantRemediation("1min")
 public class TrailingWhitespaceCheck extends SquidCheck<LexerlessGrammar> implements CharsetAwareVisitor {
 

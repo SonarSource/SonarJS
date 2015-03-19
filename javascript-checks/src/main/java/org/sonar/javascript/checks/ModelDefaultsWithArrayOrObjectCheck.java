@@ -19,6 +19,7 @@
  */
 package org.sonar.javascript.checks;
 
+import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.javascript.ast.visitors.BaseTreeVisitor;
@@ -28,14 +29,16 @@ import org.sonar.javascript.model.interfaces.Tree.Kind;
 import org.sonar.javascript.model.interfaces.expression.CallExpressionTree;
 import org.sonar.javascript.model.interfaces.expression.ObjectLiteralTree;
 import org.sonar.javascript.model.interfaces.expression.PairPropertyTree;
-import org.sonar.squidbridge.annotations.NoSqale;
+import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
+import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 
 @Rule(
   key = "S2550",
   name = "\"defaults\" should be a function when objects or arrays are used",
   priority = Priority.CRITICAL,
-  tags = {Tags.BUG, Tags.BACKBONE})
-@NoSqale
+  tags = {Tags.BACKBONE, Tags.BUG})
+@SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.DATA_RELIABILITY)
+@SqaleConstantRemediation("5min")
 public class ModelDefaultsWithArrayOrObjectCheck extends BaseTreeVisitor {
 
   @Override

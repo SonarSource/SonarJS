@@ -40,8 +40,8 @@ import com.sonar.sslr.api.AstNode;
   priority = Priority.MAJOR,
   tags = {Tags.CLUMSY})
 @ActivatedByDefault
-@SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.UNDERSTANDABILITY)
-@SqaleConstantRemediation("30min")
+@SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.READABILITY)
+@SqaleConstantRemediation("5min")
 public class CollapsibleIfStatementsCheck extends SquidCheck<LexerlessGrammar> {
 
   @Override

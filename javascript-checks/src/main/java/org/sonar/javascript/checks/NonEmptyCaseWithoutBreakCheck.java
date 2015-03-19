@@ -35,12 +35,12 @@ import com.sonar.sslr.api.AstNode;
 
 @Rule(
   key = "NonEmptyCaseWithoutBreak",
-  name = "An unconditional \"break\" statement shall terminate every non-empty switch-clause",
-  priority = Priority.MAJOR,
-  tags = {Tags.CERT, Tags.CWE, Tags.PITFALL, Tags.MISRA})
+  name = "Switch cases should end with an unconditional \"break\" statement",
+  priority = Priority.CRITICAL,
+  tags = {Tags.CERT, Tags.CWE, Tags.MISRA, Tags.PITFALL})
 @ActivatedByDefault
 @SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.LOGIC_RELIABILITY)
-@SqaleConstantRemediation("30min")
+@SqaleConstantRemediation("10min")
 public class NonEmptyCaseWithoutBreakCheck extends SquidCheck<LexerlessGrammar> {
 
   @Override

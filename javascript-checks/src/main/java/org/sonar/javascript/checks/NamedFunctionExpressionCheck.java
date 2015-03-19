@@ -38,8 +38,8 @@ import com.sonar.sslr.api.AstNode;
   priority = Priority.MAJOR,
   tags = {Tags.CROSS_BROWSER, Tags.USER_EXPERIENCE})
 @ActivatedByDefault
-@SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.SOFTWARE_RELATED_PORTABILITY)
-@SqaleConstantRemediation("20min")
+@SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.LANGUAGE_RELATED_PORTABILITY)
+@SqaleConstantRemediation("15min")
 public class NamedFunctionExpressionCheck extends SquidCheck<LexerlessGrammar> {
 
   @Override

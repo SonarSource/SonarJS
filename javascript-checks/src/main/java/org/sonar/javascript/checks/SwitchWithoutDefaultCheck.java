@@ -36,12 +36,12 @@ import com.sonar.sslr.api.AstNode;
 
 @Rule(
   key = "SwitchWithoutDefault",
-  name = "The final clause of a \"switch\" statement shall be the default-clause",
+  name = "\"switch\" statements should end with a \"default\" clause",
   priority = Priority.MAJOR,
   tags = {Tags.CERT, Tags.CWE, Tags.MISRA})
 @ActivatedByDefault
 @SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.LOGIC_RELIABILITY)
-@SqaleConstantRemediation("1h")
+@SqaleConstantRemediation("5min")
 public class SwitchWithoutDefaultCheck extends SquidCheck<LexerlessGrammar> {
 
   @Override

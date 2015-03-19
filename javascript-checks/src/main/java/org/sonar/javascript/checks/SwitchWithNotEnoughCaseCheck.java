@@ -19,12 +19,14 @@
  */
 package org.sonar.javascript.checks;
 
+import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.javascript.model.implementations.statement.SwitchStatementTreeImpl;
 import org.sonar.javascript.model.interfaces.Tree.Kind;
 import org.sonar.squidbridge.annotations.ActivatedByDefault;
-import org.sonar.squidbridge.annotations.NoSqale;
+import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
+import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 import org.sonar.squidbridge.checks.SquidCheck;
 import org.sonar.sslr.parser.LexerlessGrammar;
 
@@ -32,11 +34,12 @@ import com.sonar.sslr.api.AstNode;
 
 @Rule(
   key = "S1301",
-  name = "\"switch\" statements should have at least 3 cases",
+  name = "\"switch\" statements should have at least 3 \"case\" clauses",
   priority = Priority.MINOR,
   tags = {Tags.MISRA})
 @ActivatedByDefault
-@NoSqale
+@SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.READABILITY)
+@SqaleConstantRemediation("5min")
 public class SwitchWithNotEnoughCaseCheck extends SquidCheck<LexerlessGrammar> {
 
   @Override

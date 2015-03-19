@@ -43,8 +43,8 @@ import com.sonar.sslr.api.AstNode;
   priority = Priority.MAJOR,
   tags = {Tags.BRAIN_OVERLOAD})
 @ActivatedByDefault
-@SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.UNIT_TESTABILITY)
-@SqaleConstantRemediation("30min")
+@SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.UNDERSTANDABILITY)
+@SqaleConstantRemediation("20min")
 public class TooManyBreakOrContinueInLoopCheck extends SquidCheck<LexerlessGrammar> {
 
   private static class JumpTarget {

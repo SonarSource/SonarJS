@@ -35,12 +35,12 @@ import com.sonar.sslr.api.AstNode;
 
 @Rule(
   key = "ExcessiveParameterList",
-  name = "Avoid function with too many parameters",
+  name = "[Functions|Methods|Lambdas] should not have too many parameters",
   priority = Priority.MAJOR,
   tags = {Tags.BRAIN_OVERLOAD})
 @ActivatedByDefault
 @SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.UNIT_TESTABILITY)
-@SqaleConstantRemediation("1h")
+@SqaleConstantRemediation("20min")
 public class ExcessiveParameterListCheck extends SquidCheck<LexerlessGrammar> {
 
   private static final int DEFAULT_MAXIMUM_FUNCTION_PARAMETERS = 7;

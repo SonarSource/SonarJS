@@ -36,7 +36,7 @@ import com.sonar.sslr.api.AstNode;
 
 @Rule(
   key = "FunctionComplexity",
-  name = "Avoid too complex function",
+  name = "Functions should not be too complex",
   priority = Priority.MAJOR,
   tags = {Tags.BRAIN_OVERLOAD})
 @ActivatedByDefault

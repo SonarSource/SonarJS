@@ -42,12 +42,12 @@ import com.sonar.sslr.api.AstNode;
 
 @Rule(
   key = "SameNameForFunctionAndVariable",
-  name = "The same name should not be used to declaration both a function and a variable in the same scope",
+  name = "The same name should not be used to declare both a function and a variable in the same scope",
   priority = Priority.MAJOR,
   tags = {Tags.BRAIN_OVERLOAD, Tags.PITFALL})
 @ActivatedByDefault
 @SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.UNDERSTANDABILITY)
-@SqaleConstantRemediation("1h")
+@SqaleConstantRemediation("10min")
 public class SameNameForFunctionAndVariableCheck extends SquidCheck<LexerlessGrammar> {
 
   private Stack<Set<String>> variablesStack;

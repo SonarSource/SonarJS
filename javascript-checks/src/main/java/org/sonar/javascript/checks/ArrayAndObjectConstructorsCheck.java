@@ -34,11 +34,11 @@ import com.sonar.sslr.api.AstNode;
 @Rule(
   key = "ArrayAndObjectConstructors",
   name = "Array and Object constructors should not be used",
-  priority = Priority.BLOCKER,
+  priority = Priority.MAJOR,
   tags = {Tags.BUG})
 @ActivatedByDefault
-@SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.INSTRUCTION_RELIABILITY)
-@SqaleConstantRemediation("30min")
+@SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.LOGIC_RELIABILITY)
+@SqaleConstantRemediation("5min")
 public class ArrayAndObjectConstructorsCheck extends SquidCheck<LexerlessGrammar> {
 
   @Override

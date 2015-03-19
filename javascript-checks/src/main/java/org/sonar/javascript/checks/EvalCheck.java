@@ -33,12 +33,12 @@ import com.sonar.sslr.api.AstNode;
 
 @Rule(
   key = "Eval",
-  name = "\"eval\" should not be used",
-  priority = Priority.MAJOR,
-  tags = {Tags.CWE, Tags.INJECTION, Tags.SECURITY})
+  name = "Code should not be dynamically injected and executed to prevent Eval Injection vulnerability",
+  priority = Priority.CRITICAL,
+  tags = {Tags.CWE, Tags.OWASP_A3, Tags.SECURITY})
 @ActivatedByDefault
 @SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.INPUT_VALIDATION_AND_REPRESENTATION)
-@SqaleConstantRemediation("1h")
+@SqaleConstantRemediation("30min")
 public class EvalCheck extends SquidCheck<LexerlessGrammar> {
 
   @Override

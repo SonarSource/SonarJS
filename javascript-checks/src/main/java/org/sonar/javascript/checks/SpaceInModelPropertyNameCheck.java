@@ -39,7 +39,7 @@ import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
   key = "S2508",
   name = "The names of model properties should not contains spaces",
   priority = Priority.CRITICAL,
-  tags = {Tags.BUG, Tags.BACKBONE})
+  tags = {Tags.BACKBONE, Tags.BUG})
 @SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.DATA_RELIABILITY)
 @SqaleConstantRemediation("5min")
 public class SpaceInModelPropertyNameCheck extends BaseTreeVisitor {

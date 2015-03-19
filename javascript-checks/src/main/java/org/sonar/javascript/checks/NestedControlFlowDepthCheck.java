@@ -34,12 +34,12 @@ import com.sonar.sslr.api.AstNode;
 
 @Rule(
   key = "NestedIfDepth",
-  name = "Control flow statements \"if\", \"for\", \"while\", \"switch\" and \"try\" should not be nested too deeply",
-  priority = Priority.MINOR,
+    name = "Control flow statements \"if\", \"for\", \"while\", \"switch\" and \"try\" should not be nested too deeply",
+  priority = Priority.MAJOR,
   tags = {Tags.BRAIN_OVERLOAD})
 @ActivatedByDefault
 @SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.LOGIC_CHANGEABILITY)
-@SqaleConstantRemediation("1h")
+@SqaleConstantRemediation("10min")
 public class NestedControlFlowDepthCheck extends SquidCheck<LexerlessGrammar> {
 
   private int nestedLevel;

@@ -36,7 +36,7 @@ import org.sonar.sslr.parser.LexerlessGrammar;
 public class CommentRegularExpressionCheck extends AbstractCommentRegularExpressionCheck<LexerlessGrammar> {
 
   private static final String DEFAULT_REGULAR_EXPRESSION = "";
-  private static final String DEFAULT_MESSAGE = "The regular expression matches this comment";
+  private static final String DEFAULT_MESSAGE = "The regular expression matches this comment.";
 
   @RuleProperty(
     key = "regularExpression",

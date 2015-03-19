@@ -39,7 +39,7 @@ import com.sonar.sslr.api.AstNode;
 
 @Rule(
   key = "TabCharacter",
-  name = "Avoid use of tabulation character",
+  name = "Tabulation characters should not be used",
   priority = Priority.MINOR,
   tags = {Tags.CONVENTION})
 @ActivatedByDefault

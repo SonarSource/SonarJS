@@ -33,12 +33,12 @@ import com.sonar.sslr.api.AstNode;
 
 @Rule(
   key = "OctalNumber",
-  name = "Do not use octal numbers",
-  priority = Priority.CRITICAL,
-  tags = {Tags.MISRA, Tags.PITFALL})
+  name = "Octal values should not be used",
+  priority = Priority.MAJOR,
+  tags = {Tags.CERT, Tags.MISRA, Tags.PITFALL})
 @ActivatedByDefault
 @SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.DATA_RELIABILITY)
-@SqaleConstantRemediation("10min")
+@SqaleConstantRemediation("5min")
 public class OctalNumberCheck extends SquidCheck<LexerlessGrammar> {
 
   @Override

@@ -34,11 +34,11 @@ import com.sonar.sslr.api.AstNode;
 @Rule(
   key = "BitwiseOperators",
   name = "Bitwise operators should not be used",
-  priority = Priority.BLOCKER,
+  priority = Priority.MAJOR,
   tags = {Tags.PITFALL})
 @ActivatedByDefault
-@SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.CPU_EFFICIENCY)
-@SqaleConstantRemediation("1h")
+@SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.UNDERSTANDABILITY)
+@SqaleConstantRemediation("5min")
 public class BitwiseOperatorsCheck extends SquidCheck<LexerlessGrammar> {
 
   @Override

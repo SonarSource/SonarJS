@@ -49,7 +49,7 @@ import com.sonar.sslr.impl.ast.AstWalker;
   priority = Priority.MAJOR,
   tags = {Tags.PITFALL})
 @SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.UNDERSTANDABILITY)
-@SqaleConstantRemediation("20min")
+@SqaleConstantRemediation("10min")
 public class VariableShadowingCheck extends SquidCheck<LexerlessGrammar> {
 
   private Map<AstNode, Scope> scopes;

@@ -36,11 +36,11 @@ import com.sonar.sslr.api.AstNode;
 
 @Rule(
   key = "MissingNewlineAtEndOfFile",
-  name = "Missing new line at the end of file",
+  name = "Files should contain an empty new line at the end",
   priority = Priority.MINOR,
   tags = {Tags.CONVENTION})
-@SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.SOFTWARE_RELATED_PORTABILITY)
-@SqaleConstantRemediation("10min")
+@SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.READABILITY)
+@SqaleConstantRemediation("1min")
 public class MissingNewlineAtEndOfFileCheck extends SquidCheck<LexerlessGrammar> {
 
   @Override

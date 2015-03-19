@@ -46,7 +46,7 @@ import com.sonar.sslr.api.AstNode;
   priority = Priority.CRITICAL,
   tags = {Tags.BUG})
 @ActivatedByDefault
-@SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.UNDERSTANDABILITY)
+@SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.INSTRUCTION_RELIABILITY)
 @SqaleConstantRemediation("10min")
 public class BoundOrAssignedEvalOrArgumentsCheck extends SquidCheck<LexerlessGrammar> {
 

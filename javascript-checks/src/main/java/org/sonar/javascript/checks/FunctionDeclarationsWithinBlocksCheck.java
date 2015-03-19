@@ -37,11 +37,11 @@ import com.sonar.sslr.api.AstNode;
 @Rule(
   key = "FunctionDeclarationsWithinBlocks",
   name = "Function declarations should not be made within blocks",
-  priority = Priority.BLOCKER,
+  priority = Priority.MAJOR,
   tags = {Tags.CROSS_BROWSER, Tags.USER_EXPERIENCE})
 @ActivatedByDefault
-@SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.COMPILER_RELATED_PORTABILITY)
-@SqaleConstantRemediation("1h")
+@SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.INSTRUCTION_RELIABILITY)
+@SqaleConstantRemediation("5min")
 public class FunctionDeclarationsWithinBlocksCheck extends SquidCheck<LexerlessGrammar> {
 
   @Override

@@ -38,8 +38,8 @@ import java.util.regex.Pattern;
 
 @Rule(
   key = "TrailingComment",
-  name = "Avoid trailing comment",
-  priority = Priority.MINOR,
+  name = "Comments should not be located at the end of lines of code",
+  priority = Priority.INFO,
   tags = {Tags.CONVENTION})
 @ActivatedByDefault
 @SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.READABILITY)

@@ -41,8 +41,8 @@ import com.sonar.sslr.api.AstNode;
   priority = Priority.CRITICAL,
   tags = {Tags.BUG, Tags.PITFALL})
 @ActivatedByDefault
-@SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.DATA_RELIABILITY)
-@SqaleConstantRemediation("1h")
+@SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.INSTRUCTION_RELIABILITY)
+@SqaleConstantRemediation("5min")
 public class DuplicatePropertyNameCheck extends SquidCheck<LexerlessGrammar> {
 
   @Override

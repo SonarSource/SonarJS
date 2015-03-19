@@ -32,11 +32,11 @@ import com.sonar.sslr.api.AstNode;
 
 @Rule(
   key = "ContinueStatement",
-  name = "Avoid using \"continue\" branching statement",
-  priority = Priority.MAJOR,
+  name = "\"continue\" should not be used",
+  priority = Priority.CRITICAL,
   tags = {Tags.MISRA})
-@SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.LOGIC_CHANGEABILITY)
-@SqaleConstantRemediation("5h")
+@SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.UNIT_TESTABILITY)
+@SqaleConstantRemediation("30min")
 public class ContinueStatementCheck extends SquidCheck<LexerlessGrammar> {
   @Override
   public void init() {

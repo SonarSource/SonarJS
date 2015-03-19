@@ -39,7 +39,7 @@ import com.sonar.sslr.api.AstNode;
   tags = {Tags.PITFALL})
 @ActivatedByDefault
 @SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.UNDERSTANDABILITY)
-@SqaleConstantRemediation("10min")
+@SqaleConstantRemediation("5min")
 public class ConstructorFunctionsForSideEffectsCheck extends SquidCheck<LexerlessGrammar> {
 
   @Override

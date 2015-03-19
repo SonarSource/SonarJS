@@ -33,11 +33,11 @@ import com.sonar.sslr.api.AstNode;
 
 @Rule(
   key = "ElseIfWithoutElse",
-  name = "\"if ... else if\" constructs shall be terminated with an \"else\" clause",
+    name = "\"if ... else if\" constructs shall be terminated with an \"else\" clause",
   priority = Priority.MAJOR,
   tags = {Tags.CERT, Tags.MISRA})
 @SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.LOGIC_RELIABILITY)
-@SqaleConstantRemediation("20min")
+@SqaleConstantRemediation("5min")
 public class ElseIfWithoutElseCheck extends SquidCheck<LexerlessGrammar> {
 
   @Override

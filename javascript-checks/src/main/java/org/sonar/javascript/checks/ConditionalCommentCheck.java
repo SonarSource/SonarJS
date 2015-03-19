@@ -38,8 +38,8 @@ import com.sonar.sslr.api.Trivia;
   priority = Priority.MAJOR,
   tags = {Tags.CROSS_BROWSER})
 @ActivatedByDefault
-@SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.SOFTWARE_RELATED_PORTABILITY)
-@SqaleConstantRemediation("1h")
+@SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.LOGIC_RELIABILITY)
+@SqaleConstantRemediation("5min")
 public class ConditionalCommentCheck extends SquidCheck<LexerlessGrammar> implements AstAndTokenVisitor {
 
   @Override

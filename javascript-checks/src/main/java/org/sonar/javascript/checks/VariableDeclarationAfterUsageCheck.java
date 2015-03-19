@@ -46,12 +46,12 @@ import com.sonar.sslr.api.AstNode;
 
 @Rule(
   key = "VariableDeclarationAfterUsage",
-  name = "Declare variables before usage",
+  name = "Variables should be declared before they are used",
   priority = Priority.MAJOR,
   tags = {Tags.PITFALL})
 @ActivatedByDefault
 @SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.LOGIC_RELIABILITY)
-@SqaleConstantRemediation("20min")
+@SqaleConstantRemediation("10min")
 public class VariableDeclarationAfterUsageCheck extends SquidCheck<LexerlessGrammar> {
 
   private static class Scope {

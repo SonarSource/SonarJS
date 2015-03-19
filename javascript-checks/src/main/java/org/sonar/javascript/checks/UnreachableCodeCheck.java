@@ -19,9 +19,6 @@
  */
 package org.sonar.javascript.checks;
 
-import static org.sonar.javascript.checks.Tags.MISRA;
-import static org.sonar.javascript.checks.Tags.UNUSED;
-
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
@@ -38,12 +35,12 @@ import com.sonar.sslr.api.AstNode;
 
 @Rule(
   key = "UnreachableCode",
-  name = "Unreachable code",
+  name = "Jump statements should not be followed by other statements",
   priority = Priority.MAJOR,
-  tags = {MISRA, UNUSED})
+  tags = {Tags.CERT, Tags.CWE, Tags.MISRA, Tags.UNUSED})
 @ActivatedByDefault
-@SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.UNDERSTANDABILITY)
-@SqaleConstantRemediation("30min")
+@SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.LOGIC_RELIABILITY)
+@SqaleConstantRemediation("5 min")
 public class UnreachableCodeCheck extends SquidCheck<LexerlessGrammar> {
 
   @Override

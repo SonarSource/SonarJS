@@ -35,8 +35,8 @@ import com.sonar.sslr.api.AstNode;
   name = "Avoid use of conditional operator",
   priority = Priority.MINOR,
   tags = {Tags.CONFUSING})
-@SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.READABILITY)
-@SqaleConstantRemediation("10min")
+@SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.UNDERSTANDABILITY)
+@SqaleConstantRemediation("5min")
 public class ConditionalOperatorCheck extends SquidCheck<LexerlessGrammar> {
 
   @Override

@@ -34,11 +34,11 @@ import com.sonar.sslr.api.AstNode;
 @Rule(
   key = "MultilineStringLiterals",
   name = "Multiline string literals should not be used",
-  priority = Priority.BLOCKER,
+  priority = Priority.MAJOR,
   tags = {Tags.BAD_PRACTICE})
 @ActivatedByDefault
-@SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.COMPILER_RELATED_PORTABILITY)
-@SqaleConstantRemediation("10min")
+@SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.INSTRUCTION_RELIABILITY)
+@SqaleConstantRemediation("5min")
 public class MultilineStringLiteralsCheck extends SquidCheck<LexerlessGrammar> {
 
   @Override

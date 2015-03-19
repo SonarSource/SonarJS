@@ -50,7 +50,7 @@ import com.sonar.sslr.api.AstNode;
   tags = {Tags.MISRA, Tags.UNUSED})
 @ActivatedByDefault
 @SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.UNDERSTANDABILITY)
-@SqaleConstantRemediation("20min")
+@SqaleConstantRemediation("5min")
 public class UnusedFunctionArgumentCheck extends SquidCheck<LexerlessGrammar> {
 
   private static class Scope {

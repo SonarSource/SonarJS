@@ -36,12 +36,12 @@ import com.sonar.sslr.api.AstNode;
 
 @Rule(
   key = "OneStatementPerLine",
-  name = "Do not use more that one statement per line",
-  priority = Priority.MAJOR,
+  name = "Statements should be on separate lines",
+  priority = Priority.MINOR,
   tags = {Tags.CONVENTION})
 @ActivatedByDefault
 @SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.READABILITY)
-@SqaleConstantRemediation("10min")
+@SqaleConstantRemediation("1min")
 public class OneStatementPerLineCheck extends SquidCheck<LexerlessGrammar> {
 
   private final Map<Integer, Integer> statementsPerLine = Maps.newHashMap();

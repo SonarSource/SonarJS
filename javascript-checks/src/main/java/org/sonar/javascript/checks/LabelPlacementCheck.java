@@ -39,7 +39,7 @@ import com.sonar.sslr.api.AstNode;
   tags = {Tags.PITFALL})
 @ActivatedByDefault
 @SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.LOGIC_RELIABILITY)
-@SqaleConstantRemediation("30min")
+@SqaleConstantRemediation("20min")
 public class LabelPlacementCheck extends SquidCheck<LexerlessGrammar> {
 
   private static final Kind[] ITERATION_STATEMENTS = {

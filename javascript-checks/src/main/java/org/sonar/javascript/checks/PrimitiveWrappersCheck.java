@@ -41,7 +41,7 @@ import com.sonar.sslr.api.AstNode;
   tags = {Tags.PITFALL})
 @ActivatedByDefault
 @SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.INSTRUCTION_RELIABILITY)
-@SqaleConstantRemediation("10min")
+@SqaleConstantRemediation("1min")
 public class PrimitiveWrappersCheck extends SquidCheck<LexerlessGrammar> {
 
   private static final Set<String> WRAPPERS = ImmutableSet.of("Boolean", "Number", "String");

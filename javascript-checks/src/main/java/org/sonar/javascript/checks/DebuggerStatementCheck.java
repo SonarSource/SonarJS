@@ -34,11 +34,11 @@ import com.sonar.sslr.api.AstNode;
 @Rule(
   key = "DebuggerStatement",
   name = "Debugger statements should not be used",
-  priority = Priority.MAJOR,
+  priority = Priority.CRITICAL,
   tags = {Tags.CWE, Tags.SECURITY, Tags.USER_EXPERIENCE})
 @ActivatedByDefault
-@SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.INSTRUCTION_RELIABILITY)
-@SqaleConstantRemediation("20min")
+@SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.SECURITY_FEATURES)
+@SqaleConstantRemediation("5min")
 public class DebuggerStatementCheck extends SquidCheck<LexerlessGrammar> {
 
   @Override
