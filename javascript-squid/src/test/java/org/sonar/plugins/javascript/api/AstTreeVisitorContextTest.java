@@ -17,7 +17,7 @@
  * License along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.javascript.ast.visitors;
+package org.sonar.plugins.javascript.api;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -25,10 +25,10 @@ import org.sonar.api.config.Settings;
 import org.sonar.javascript.JavaScriptAstScanner;
 import org.sonar.javascript.TestUtils;
 import org.sonar.javascript.ast.resolve.SymbolModelImpl;
+import org.sonar.javascript.ast.visitors.AstTreeVisitorContextImpl;
 import org.sonar.javascript.model.JavaScriptTreeModelTest;
 import org.sonar.javascript.model.internal.declaration.ScriptTreeImpl;
 import org.sonar.squidbridge.api.CheckMessage;
-import org.sonar.squidbridge.api.CodeVisitor;
 import org.sonar.squidbridge.api.SourceFile;
 
 import java.io.File;
@@ -58,7 +58,7 @@ public class AstTreeVisitorContextTest extends JavaScriptTreeModelTest {
 
   @Test
   public void addIssue_with_line_number() throws Exception {
-    context.addIssue(mock(CodeVisitor.class), 1, "msg");
+    context.addIssue(mock(JavaScriptCheck.class), 1, "msg");
     assertThat(sourceFile.getCheckMessages().size()).isEqualTo(1);
 
     CheckMessage checkMessage = sourceFile.getCheckMessages().iterator().next();
@@ -68,7 +68,7 @@ public class AstTreeVisitorContextTest extends JavaScriptTreeModelTest {
 
   @Test
   public void addIssue_without_number() throws Exception {
-    context.addIssue(mock(CodeVisitor.class), 0, "msg");
+    context.addIssue(mock(JavaScriptCheck.class), 0, "msg");
     assertThat(sourceFile.getCheckMessages().size()).isEqualTo(1);
 
     CheckMessage checkMessage = sourceFile.getCheckMessages().iterator().next();

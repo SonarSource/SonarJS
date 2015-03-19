@@ -25,7 +25,7 @@ import org.junit.Test;
 import org.sonar.javascript.model.JavaScriptTreeModelTest;
 import org.sonar.javascript.model.internal.JavaScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
-import org.sonar.plugins.javascript.api.tree.declaration.ScriptTree;
+import org.sonar.plugins.javascript.api.tree.ScriptTree;
 
 import java.io.File;
 

@@ -22,7 +22,7 @@ package org.sonar.javascript.highlighter;
 import com.google.common.base.Preconditions;
 import com.sonar.sslr.api.Token;
 import org.sonar.api.source.Symbolizable;
-import org.sonar.javascript.api.SymbolModel;
+import org.sonar.plugins.javascript.api.SymbolModel;
 import org.sonar.javascript.ast.resolve.Symbol;
 import org.sonar.javascript.ast.resolve.SymbolDeclaration;
 import org.sonar.javascript.ast.resolve.Usage;

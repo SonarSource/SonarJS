@@ -30,9 +30,7 @@ import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.rule.CheckFactory;
-import org.sonar.api.batch.rule.Checks;
 import org.sonar.api.checks.NoSonarFilter;
-import org.sonar.api.component.Perspective;
 import org.sonar.api.component.ResourcePerspectives;
 import org.sonar.api.config.Settings;
 import org.sonar.api.issue.Issuable;
@@ -49,12 +47,13 @@ import org.sonar.api.scan.filesystem.PathResolver;
 import org.sonar.api.source.Highlightable;
 import org.sonar.javascript.EcmaScriptConfiguration;
 import org.sonar.javascript.JavaScriptAstScanner;
-import org.sonar.plugins.javascript.api.JavaScriptFileScanner;
 import org.sonar.javascript.api.EcmaScriptMetric;
 import org.sonar.javascript.ast.visitors.VisitorsBridge;
 import org.sonar.javascript.checks.CheckList;
 import org.sonar.javascript.highlighter.JavaScriptHighlighter;
 import org.sonar.javascript.metrics.FileLinesVisitor;
+import org.sonar.plugins.javascript.api.CustomJavaScriptRulesDefinition;
+import org.sonar.plugins.javascript.api.JavaScriptFileScanner;
 import org.sonar.plugins.javascript.core.JavaScript;
 import org.sonar.squidbridge.AstScanner;
 import org.sonar.squidbridge.SquidAstVisitor;
@@ -77,7 +76,6 @@ import java.util.Set;
 public class JavaScriptSquidSensor implements Sensor {
 
 
-
   @DependedUpon
   public Collection<Metric> generatesNCLOCMetric() {
     return ImmutableList.<Metric>of(CoreMetrics.NCLOC, CoreMetrics.NCLOC_DATA);
@@ -87,7 +85,7 @@ public class JavaScriptSquidSensor implements Sensor {
   private static final Number[] FUNCTIONS_DISTRIB_BOTTOM_LIMITS = {1, 2, 4, 6, 8, 10, 12, 20, 30};
   private static final Number[] FILES_DISTRIB_BOTTOM_LIMITS = {0, 5, 10, 20, 30, 60, 90};
 
-  private final Checks<CodeVisitor> checks;
+  private final JavaScriptChecks checks;
   private final FileLinesContextFactory fileLinesContextFactory;
   private final ResourcePerspectives resourcePerspectives;
   private final FileSystem fileSystem;
@@ -100,10 +98,17 @@ public class JavaScriptSquidSensor implements Sensor {
   private AstScanner<LexerlessGrammar> scanner;
 
   public JavaScriptSquidSensor(CheckFactory checkFactory, FileLinesContextFactory fileLinesContextFactory,
-    ResourcePerspectives resourcePerspectives, FileSystem fileSystem, NoSonarFilter noSonarFilter, PathResolver pathResolver, Settings settings) {
-    this.checks = checkFactory
-      .<CodeVisitor>create(CheckList.REPOSITORY_KEY)
-      .addAnnotatedChecks(CheckList.getChecks());
+                               ResourcePerspectives resourcePerspectives, FileSystem fileSystem, NoSonarFilter noSonarFilter, PathResolver pathResolver, Settings settings) {
+    this(checkFactory, fileLinesContextFactory, resourcePerspectives, fileSystem, noSonarFilter, pathResolver, settings, null);
+  }
+
+  public JavaScriptSquidSensor(CheckFactory checkFactory, FileLinesContextFactory fileLinesContextFactory,
+                               ResourcePerspectives resourcePerspectives, FileSystem fileSystem, NoSonarFilter noSonarFilter,
+                               PathResolver pathResolver, Settings settings, @Nullable CustomJavaScriptRulesDefinition[] customRulesDefinition) {
+
+    this.checks = JavaScriptChecks.createJavaScriptCheck(checkFactory)
+      .addChecks(CheckList.REPOSITORY_KEY, CheckList.getChecks())
+      .addCustomChecks(customRulesDefinition);
     this.fileLinesContextFactory = fileLinesContextFactory;
     this.resourcePerspectives = resourcePerspectives;
     this.fileSystem = fileSystem;
@@ -149,20 +154,17 @@ public class JavaScriptSquidSensor implements Sensor {
 
   private void highlight() {
     JavaScriptHighlighter highlighter = new JavaScriptHighlighter(createConfiguration());
-    for (InputFile inputFile : fileSystem.inputFiles(mainFilePredicate)){
-      highlighter.highlight(perspective(Highlightable.class, inputFile), inputFile.file());
-    }
-  }
 
-  <P extends Perspective<?>> P perspective(Class<P> clazz, @Nullable InputFile file) {
-    if (file == null) {
-      throw new IllegalArgumentException("Cannot get " + clazz.getCanonicalName() + "for a null file");
+    for (InputFile inputFile : fileSystem.inputFiles(mainFilePredicate)) {
+      Highlightable perspective = resourcePerspectives.as(Highlightable.class, inputFile);
+
+      if (perspective != null) {
+        highlighter.highlight(perspective, inputFile.file());
+
+      } else {
+        LOG.warn("Could not get " + Highlightable.class.getCanonicalName() + " for " + inputFile.file());
+      }
     }
-    P result = resourcePerspectives.as(clazz, file);
-    if (result == null) {
-      throw new IllegalStateException("Could not get " + clazz.getCanonicalName() + " for " + file);
-    }
-    return result;
   }
 
   private EcmaScriptConfiguration createConfiguration() {
@@ -225,7 +227,7 @@ public class JavaScriptSquidSensor implements Sensor {
     }
     context.saveMeasure(sonarFile, complexityDistribution.build().setPersistenceMode(PersistenceMode.MEMORY));
     context.saveMeasure(sonarFile, CoreMetrics.COMPLEXITY_IN_FUNCTIONS, complexityInFunction);
- }
+  }
 
   private void saveFilesComplexityDistribution(File sonarFile, SourceFile squidFile) {
     RangeDistributionBuilder complexityDistribution = new RangeDistributionBuilder(CoreMetrics.FILE_COMPLEXITY_DISTRIBUTION, FILES_DISTRIB_BOTTOM_LIMITS);
@@ -238,10 +240,10 @@ public class JavaScriptSquidSensor implements Sensor {
     if (messages != null) {
 
       for (CheckMessage message : messages) {
-        RuleKey ruleKey = checks.ruleKey((CodeVisitor) message.getCheck());
+        RuleKey ruleKey = checks.ruleKeyFor((CodeVisitor) message.getCheck());
         Issuable issuable = resourcePerspectives.as(Issuable.class, sonarFile);
 
-        if (issuable != null) {
+        if (issuable != null && ruleKey != null) {
           Issue issue = issuable.newIssueBuilder()
             .ruleKey(ruleKey)
             .line(message.getLine())

@@ -19,7 +19,11 @@
  */
 package org.sonar.javascript.ast.visitors;
 
-import com.sonar.sslr.api.AstNode;
+import java.io.File;
+import java.util.List;
+
+import javax.annotation.Nullable;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.fs.FileSystem;
@@ -27,17 +31,15 @@ import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.component.ResourcePerspectives;
 import org.sonar.api.config.Settings;
 import org.sonar.api.source.Symbolizable;
-import org.sonar.plugins.javascript.api.JavaScriptFileScanner;
 import org.sonar.javascript.ast.resolve.SymbolModelImpl;
 import org.sonar.javascript.highlighter.SourceFileOffsets;
-import org.sonar.plugins.javascript.api.tree.declaration.ScriptTree;
+import org.sonar.plugins.javascript.api.JavaScriptFileScanner;
+import org.sonar.plugins.javascript.api.tree.ScriptTree;
 import org.sonar.squidbridge.SquidAstVisitor;
 import org.sonar.squidbridge.api.SourceFile;
 import org.sonar.sslr.parser.LexerlessGrammar;
 
-import javax.annotation.Nullable;
-import java.io.File;
-import java.util.List;
+import com.sonar.sslr.api.AstNode;
 
 public class VisitorsBridge extends SquidAstVisitor<LexerlessGrammar> {
 

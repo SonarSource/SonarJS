@@ -22,7 +22,7 @@ package org.sonar.javascript.model.internal.declaration;
 import java.util.Iterator;
 import java.util.List;
 
-import org.sonar.javascript.ast.visitors.TreeVisitor;
+import org.sonar.plugins.javascript.api.visitors.TreeVisitor;
 import org.sonar.javascript.model.internal.JavaScriptTree;
 import org.sonar.javascript.model.internal.lexical.InternalSyntaxToken;
 import org.sonar.plugins.javascript.api.tree.Tree;

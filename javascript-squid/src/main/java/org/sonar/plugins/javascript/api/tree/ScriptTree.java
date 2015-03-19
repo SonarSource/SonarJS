@@ -17,33 +17,21 @@
  * License along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.javascript.ast.visitors;
+package org.sonar.plugins.javascript.api.tree;
 
-import org.sonar.javascript.api.SymbolModel;
+import com.google.common.annotations.Beta;
+import org.sonar.plugins.javascript.api.tree.ModuleTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
-import org.sonar.plugins.javascript.api.tree.declaration.ScriptTree;
-import org.sonar.squidbridge.api.CodeVisitor;
+import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 
-import java.io.File;
+import javax.annotation.Nullable;
 
-public interface AstTreeVisitorContext {
+@Beta
+public interface ScriptTree extends Tree {
 
-  ScriptTree getTree();
+  @Nullable
+  SyntaxToken shebangToken();
 
-  void addIssue(CodeVisitor check, Tree tree, String message);
-
-  void addIssue(CodeVisitor check, int line, String message);
-
-  void addIssue(CodeVisitor check, Tree tree, String message, double cost);
-
-  void addIssue(CodeVisitor check, int line, String message, double cost);
-
-  String getFileKey();
-
-  File getFile();
-
-  SymbolModel getSymbolModel();
-
-  String[] getPropertyValues(String name);
+  ModuleTree items();
 
 }

@@ -22,7 +22,7 @@ package org.sonar.javascript.checks;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
-import org.sonar.javascript.ast.visitors.BaseTreeVisitor;
+import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
 import org.sonar.plugins.javascript.api.tree.statement.ForStatementTree;
 import org.sonar.squidbridge.annotations.ActivatedByDefault;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
@@ -43,7 +43,7 @@ public class ForHidingWhileCheck extends BaseTreeVisitor {
     if (tree.init() == null && tree.update() == null) {
       getContext().addIssue(this, tree, "Replace this \"for\" loop with a \"while\" loop");
     }
-    
+
     super.visitForStatement(tree);
   }
 }

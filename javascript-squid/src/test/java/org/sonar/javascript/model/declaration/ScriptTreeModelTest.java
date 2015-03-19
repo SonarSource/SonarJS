@@ -22,7 +22,7 @@ package org.sonar.javascript.model.declaration;
 import org.junit.Test;
 import org.sonar.javascript.model.JavaScriptTreeModelTest;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
-import org.sonar.plugins.javascript.api.tree.declaration.ScriptTree;
+import org.sonar.plugins.javascript.api.tree.ScriptTree;
 
 import static org.fest.assertions.Assertions.assertThat;
 

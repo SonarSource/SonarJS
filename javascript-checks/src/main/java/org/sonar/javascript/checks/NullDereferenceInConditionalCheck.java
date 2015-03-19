@@ -22,8 +22,8 @@ package org.sonar.javascript.checks;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
-import org.sonar.javascript.ast.visitors.AstTreeVisitorContext;
-import org.sonar.javascript.ast.visitors.BaseTreeVisitor;
+import org.sonar.plugins.javascript.api.AstTreeVisitorContext;
+import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
 import org.sonar.javascript.ast.visitors.SyntacticEquivalence;
 import org.sonar.javascript.checks.utils.CheckUtils;
 import org.sonar.plugins.javascript.api.tree.Tree;
@@ -110,7 +110,7 @@ public class NullDereferenceInConditionalCheck extends BaseTreeVisitor {
     @Override
     public void visitMemberExpression(MemberExpressionTree tree) {
       if (SyntacticEquivalence.areEquivalent(tree.object(), nullExpression)) {
-        context.addIssue(NullDereferenceInConditionalCheck.this, nullExpression, 
+        context.addIssue(NullDereferenceInConditionalCheck.this, nullExpression,
           String.format(MESSAGE_FORMAT, CheckUtils.asString(nullExpression)));
       }
       super.visitMemberExpression(tree);

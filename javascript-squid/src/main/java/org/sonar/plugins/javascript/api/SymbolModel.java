@@ -17,21 +17,31 @@
  * License along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.plugins.javascript.api.tree.declaration;
+package org.sonar.plugins.javascript.api;
 
 import com.google.common.annotations.Beta;
-import org.sonar.plugins.javascript.api.tree.ModuleTree;
-import org.sonar.plugins.javascript.api.tree.Tree;
-import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
+import org.sonar.javascript.ast.resolve.Symbol;
 
-import javax.annotation.Nullable;
+import java.util.Set;
 
 @Beta
-public interface ScriptTree extends Tree {
+public interface SymbolModel {
+  /**
+   * Returns all symbols in script
+   */
+  Set<Symbol> getSymbols();
 
-  @Nullable
-  SyntaxToken shebangToken();
+  /**
+   *
+   * @param kind kind of symbols to look for
+   * @return list of symbols with the given kind
+   */
+  Set<Symbol> getSymbols(Symbol.Kind kind);
 
-  ModuleTree items();
-
+  /**
+   *
+   * @param name name of symbols to look for
+   * @return list of symbols with the given name
+   */
+  Set<Symbol> getSymbols(String name);
 }

@@ -23,7 +23,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import com.sonar.sslr.api.AstNode;
-import org.sonar.javascript.ast.visitors.TreeVisitor;
+import org.sonar.plugins.javascript.api.visitors.TreeVisitor;
 import org.sonar.javascript.model.internal.JavaScriptTree;
 import org.sonar.plugins.javascript.api.tree.ModuleTree;
 import org.sonar.plugins.javascript.api.tree.Tree;

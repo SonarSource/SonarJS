@@ -26,7 +26,7 @@ import org.junit.Test;
 import org.sonar.api.source.Symbolizable;
 import org.sonar.javascript.ast.resolve.SymbolModelImpl;
 import org.sonar.javascript.model.JavaScriptTreeModelTest;
-import org.sonar.plugins.javascript.api.tree.declaration.ScriptTree;
+import org.sonar.plugins.javascript.api.tree.ScriptTree;
 
 import java.io.File;
 import java.nio.charset.Charset;

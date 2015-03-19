@@ -21,12 +21,13 @@ package org.sonar.javascript.ast.visitors;
 
 import com.google.common.base.Preconditions;
 import org.sonar.api.config.Settings;
-import org.sonar.javascript.api.SymbolModel;
 import org.sonar.javascript.model.internal.JavaScriptTree;
+import org.sonar.plugins.javascript.api.AstTreeVisitorContext;
+import org.sonar.plugins.javascript.api.JavaScriptCheck;
+import org.sonar.plugins.javascript.api.SymbolModel;
+import org.sonar.plugins.javascript.api.tree.ScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
-import org.sonar.plugins.javascript.api.tree.declaration.ScriptTree;
 import org.sonar.squidbridge.api.CheckMessage;
-import org.sonar.squidbridge.api.CodeVisitor;
 import org.sonar.squidbridge.api.SourceFile;
 
 import java.io.File;
@@ -52,22 +53,22 @@ public class AstTreeVisitorContextImpl implements AstTreeVisitorContext {
   }
 
   @Override
-  public void addIssue(CodeVisitor check, Tree tree, String message) {
+  public void addIssue(JavaScriptCheck check, Tree tree, String message) {
     commonAddIssue(check, getLine(tree), message, -1);
   }
 
   @Override
-  public void addIssue(CodeVisitor check, int line, String message) {
+  public void addIssue(JavaScriptCheck check, int line, String message) {
     commonAddIssue(check, line, message, -1);
   }
 
   @Override
-  public void addIssue(CodeVisitor check, Tree tree, String message, double cost){
+  public void addIssue(JavaScriptCheck check, Tree tree, String message, double cost){
     commonAddIssue(check, getLine(tree), message, cost);
   }
 
   @Override
-  public void addIssue(CodeVisitor check, int line, String message, double cost){
+  public void addIssue(JavaScriptCheck check, int line, String message, double cost){
     commonAddIssue(check, line, message, cost);
   }
 
@@ -84,7 +85,7 @@ public class AstTreeVisitorContextImpl implements AstTreeVisitorContext {
   /**
    * Cost is set if <code>cost<code/> is more than zero.
    * */
-  private void commonAddIssue(CodeVisitor check, int line, String message, double cost){
+  private void commonAddIssue(JavaScriptCheck check, int line, String message, double cost){
     Preconditions.checkNotNull(check);
     Preconditions.checkNotNull(message);
 

@@ -20,11 +20,9 @@
 package org.sonar.plugins.javascript.api;
 
 import com.google.common.annotations.Beta;
-import org.sonar.javascript.ast.visitors.AstTreeVisitorContext;
-import org.sonar.squidbridge.api.CodeVisitor;
 
 @Beta
-public interface JavaScriptFileScanner extends CodeVisitor {
+public interface JavaScriptFileScanner extends JavaScriptCheck {
 
   void scanFile(AstTreeVisitorContext context);
 
