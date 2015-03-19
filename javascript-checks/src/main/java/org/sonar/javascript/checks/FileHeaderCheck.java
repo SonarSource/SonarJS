@@ -40,7 +40,7 @@ import java.util.List;
   key = "S1451",
   name = "Copyright and license headers should be defined",
   priority = Priority.BLOCKER)
-//@BelongsToProfile(title = CheckList.SONAR_WAY_PROFILE, priority = Priority.BLOCKER)
+//@ActivatedByDefault
 @NoSqale
 public class FileHeaderCheck extends SquidCheck<LexerlessGrammar> implements CharsetAwareVisitor {
 

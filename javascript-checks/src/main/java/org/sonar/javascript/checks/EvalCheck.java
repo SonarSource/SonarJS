@@ -20,10 +20,10 @@
 package org.sonar.javascript.checks;
 
 import org.sonar.api.server.rule.RulesDefinition;
-import org.sonar.check.BelongsToProfile;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.javascript.model.interfaces.Tree.Kind;
+import org.sonar.squidbridge.annotations.ActivatedByDefault;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 import org.sonar.squidbridge.checks.SquidCheck;
@@ -36,7 +36,7 @@ import com.sonar.sslr.api.AstNode;
   name = "\"eval\" should not be used",
   priority = Priority.MAJOR,
   tags = {Tags.CWE, Tags.INJECTION, Tags.SECURITY})
-@BelongsToProfile(title = CheckList.SONAR_WAY_PROFILE, priority = Priority.MAJOR)
+@ActivatedByDefault
 @SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.INPUT_VALIDATION_AND_REPRESENTATION)
 @SqaleConstantRemediation("1h")
 public class EvalCheck extends SquidCheck<LexerlessGrammar> {

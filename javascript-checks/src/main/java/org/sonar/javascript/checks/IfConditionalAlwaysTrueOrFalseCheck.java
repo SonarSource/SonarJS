@@ -19,11 +19,11 @@
  */
 package org.sonar.javascript.checks;
 
-import org.sonar.check.BelongsToProfile;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.javascript.model.interfaces.Tree.Kind;
 import org.sonar.javascript.model.interfaces.statement.IfStatementTree;
+import org.sonar.squidbridge.annotations.ActivatedByDefault;
 import org.sonar.squidbridge.annotations.NoSqale;
 import org.sonar.squidbridge.checks.SquidCheck;
 import org.sonar.sslr.parser.LexerlessGrammar;
@@ -35,7 +35,7 @@ import com.sonar.sslr.api.AstNode;
   name = "\"if\" statement conditions should not unconditionally evaluate to \"true\" or to \"false\"",
   priority = Priority.MAJOR,
   tags = {Tags.BUG, Tags.CWE, Tags.MISRA, Tags.SECURITY})
-@BelongsToProfile(title = CheckList.SONAR_WAY_PROFILE, priority = Priority.MAJOR)
+@ActivatedByDefault
 @NoSqale
 public class IfConditionalAlwaysTrueOrFalseCheck extends SquidCheck<LexerlessGrammar> {
 

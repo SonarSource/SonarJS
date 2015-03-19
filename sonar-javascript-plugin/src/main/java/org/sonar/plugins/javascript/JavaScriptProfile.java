@@ -19,24 +19,26 @@
  */
 package org.sonar.plugins.javascript;
 
-import org.sonar.api.profiles.AnnotationProfileParser;
 import org.sonar.api.profiles.ProfileDefinition;
 import org.sonar.api.profiles.RulesProfile;
+import org.sonar.api.rules.RuleFinder;
 import org.sonar.api.utils.ValidationMessages;
 import org.sonar.javascript.checks.CheckList;
 import org.sonar.plugins.javascript.core.JavaScript;
+import org.sonar.squidbridge.annotations.AnnotationBasedProfileBuilder;
 
 public class JavaScriptProfile extends ProfileDefinition {
 
-  private final AnnotationProfileParser annotationProfileParser;
+  private final RuleFinder ruleFinder;
 
-  public JavaScriptProfile(AnnotationProfileParser annotationProfileParser) {
-    this.annotationProfileParser = annotationProfileParser;
+  public JavaScriptProfile(RuleFinder ruleFinder) {
+    this.ruleFinder = ruleFinder;
   }
 
   @Override
-  public RulesProfile createProfile(ValidationMessages validation) {
-    return annotationProfileParser.parse(CheckList.REPOSITORY_KEY, CheckList.SONAR_WAY_PROFILE, JavaScript.KEY, CheckList.getChecks(), validation);
+  public RulesProfile createProfile(ValidationMessages messages) {
+    AnnotationBasedProfileBuilder annotationBasedProfileBuilder = new AnnotationBasedProfileBuilder(ruleFinder);
+    return annotationBasedProfileBuilder.build(CheckList.REPOSITORY_KEY, CheckList.SONAR_WAY_PROFILE, JavaScript.KEY, CheckList.getChecks(), messages);
   }
 
 }

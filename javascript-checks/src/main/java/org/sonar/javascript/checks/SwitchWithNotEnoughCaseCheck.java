@@ -19,11 +19,11 @@
  */
 package org.sonar.javascript.checks;
 
-import org.sonar.check.BelongsToProfile;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.javascript.model.implementations.statement.SwitchStatementTreeImpl;
 import org.sonar.javascript.model.interfaces.Tree.Kind;
+import org.sonar.squidbridge.annotations.ActivatedByDefault;
 import org.sonar.squidbridge.annotations.NoSqale;
 import org.sonar.squidbridge.checks.SquidCheck;
 import org.sonar.sslr.parser.LexerlessGrammar;
@@ -35,7 +35,7 @@ import com.sonar.sslr.api.AstNode;
   name = "\"switch\" statements should have at least 3 cases",
   priority = Priority.MINOR,
   tags = {Tags.MISRA})
-@BelongsToProfile(title = CheckList.SONAR_WAY_PROFILE, priority = Priority.MINOR)
+@ActivatedByDefault
 @NoSqale
 public class SwitchWithNotEnoughCaseCheck extends SquidCheck<LexerlessGrammar> {
 

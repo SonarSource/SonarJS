@@ -19,13 +19,13 @@
  */
 package org.sonar.javascript.checks;
 
-import org.sonar.check.BelongsToProfile;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.javascript.model.interfaces.Tree.Kind;
 import org.sonar.javascript.model.interfaces.expression.CallExpressionTree;
 import org.sonar.javascript.model.interfaces.expression.ExpressionTree;
 import org.sonar.javascript.model.interfaces.expression.IdentifierTree;
+import org.sonar.squidbridge.annotations.ActivatedByDefault;
 import org.sonar.squidbridge.annotations.NoSqale;
 import org.sonar.squidbridge.checks.SquidCheck;
 import org.sonar.sslr.parser.LexerlessGrammar;
@@ -37,7 +37,7 @@ import com.sonar.sslr.api.AstNode;
   name = "\"alert(...)\" should not be used",
   priority = Priority.MAJOR,
   tags = {Tags.CWE, Tags.SECURITY, Tags.USER_EXPERIENCE})
-@BelongsToProfile(title = CheckList.SONAR_WAY_PROFILE, priority = Priority.MAJOR)
+@ActivatedByDefault
 @NoSqale
 public class AlertUseCheck extends SquidCheck<LexerlessGrammar> {
 

@@ -22,7 +22,6 @@ package org.sonar.plugins.javascript;
 import org.junit.Test;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
-import org.sonar.api.profiles.AnnotationProfileParser;
 import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleFinder;
@@ -42,11 +41,11 @@ public class JavaScriptProfileTest {
     ValidationMessages validation = ValidationMessages.create();
 
     RuleFinder ruleFinder = ruleFinder();
-    JavaScriptProfile definition = new JavaScriptProfile(new AnnotationProfileParser(ruleFinder));
+    JavaScriptProfile definition = new JavaScriptProfile(ruleFinder);
     RulesProfile profile = definition.createProfile(validation);
 
     assertThat(profile.getLanguage()).isEqualTo(JavaScript.KEY);
-    assertThat(profile.getName()).isEqualTo(RulesProfile.SONAR_WAY_NAME);
+    assertThat(profile.getName()).isEqualTo(CheckList.SONAR_WAY_PROFILE);
     assertThat(profile.getActiveRulesByRepository(CheckList.REPOSITORY_KEY))
     // FIXME: SONARJS-309 Fix and re-introduce AssignmentWithinExpression rule
         .hasSize(72);

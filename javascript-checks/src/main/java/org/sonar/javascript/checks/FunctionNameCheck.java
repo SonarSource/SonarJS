@@ -19,11 +19,11 @@
  */
 package org.sonar.javascript.checks;
 
-import org.sonar.check.BelongsToProfile;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
 import org.sonar.javascript.model.interfaces.Tree.Kind;
+import org.sonar.squidbridge.annotations.ActivatedByDefault;
 import org.sonar.squidbridge.annotations.NoSqale;
 import org.sonar.squidbridge.checks.SquidCheck;
 import org.sonar.sslr.parser.LexerlessGrammar;
@@ -37,7 +37,7 @@ import java.util.regex.Pattern;
   name = "Function names should comply with a naming convention",
   priority = Priority.MAJOR,
   tags = {Tags.CONVENTION})
-@BelongsToProfile(title = CheckList.SONAR_WAY_PROFILE, priority = Priority.MAJOR)
+@ActivatedByDefault
 @NoSqale
 public class FunctionNameCheck extends SquidCheck<LexerlessGrammar> {
 

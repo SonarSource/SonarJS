@@ -22,12 +22,12 @@ package org.sonar.javascript.checks;
 import java.util.Stack;
 
 import org.sonar.api.server.rule.RulesDefinition;
-import org.sonar.check.BelongsToProfile;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.javascript.checks.utils.CheckUtils;
 import org.sonar.javascript.model.interfaces.Tree.Kind;
 import org.sonar.javascript.model.interfaces.statement.LabelledStatementTree;
+import org.sonar.squidbridge.annotations.ActivatedByDefault;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 import org.sonar.squidbridge.checks.SquidCheck;
@@ -42,7 +42,7 @@ import com.sonar.sslr.api.AstNode;
   name = "Loops should not contain more than a single \"break\" or \"continue\" statement",
   priority = Priority.MAJOR,
   tags = {Tags.BRAIN_OVERLOAD})
-@BelongsToProfile(title = CheckList.SONAR_WAY_PROFILE, priority = Priority.MAJOR)
+@ActivatedByDefault
 @SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.UNIT_TESTABILITY)
 @SqaleConstantRemediation("30min")
 public class TooManyBreakOrContinueInLoopCheck extends SquidCheck<LexerlessGrammar> {

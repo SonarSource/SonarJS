@@ -21,11 +21,11 @@ package org.sonar.javascript.checks;
 
 import javax.annotation.Nullable;
 
-import org.sonar.check.BelongsToProfile;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.javascript.model.interfaces.Tree.Kind;
 import org.sonar.javascript.model.interfaces.statement.LabelledStatementTree;
+import org.sonar.squidbridge.annotations.ActivatedByDefault;
 import org.sonar.squidbridge.annotations.NoSqale;
 import org.sonar.squidbridge.checks.SquidCheck;
 import org.sonar.sslr.parser.LexerlessGrammar;
@@ -37,7 +37,7 @@ import com.sonar.sslr.api.AstNode;
   name = "\"switch\" statements should not contain non-case labels",
   priority = Priority.CRITICAL,
   tags = {Tags.MISRA, Tags.PITFALL})
-@BelongsToProfile(title = CheckList.SONAR_WAY_PROFILE, priority = Priority.CRITICAL)
+@ActivatedByDefault
 @NoSqale
 public class NonCaseLabelInSwitchCheck extends SquidCheck<LexerlessGrammar> {
 

@@ -19,7 +19,6 @@
  */
 package org.sonar.javascript.checks;
 
-import org.sonar.check.BelongsToProfile;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.javascript.api.EcmaScriptKeyword;
@@ -27,6 +26,7 @@ import org.sonar.javascript.api.EcmaScriptPunctuator;
 import org.sonar.javascript.checks.utils.CheckUtils;
 import org.sonar.javascript.model.interfaces.Tree.Kind;
 import org.sonar.javascript.model.interfaces.expression.BinaryExpressionTree;
+import org.sonar.squidbridge.annotations.ActivatedByDefault;
 import org.sonar.squidbridge.annotations.NoSqale;
 import org.sonar.squidbridge.checks.SquidCheck;
 import org.sonar.sslr.parser.LexerlessGrammar;
@@ -38,7 +38,7 @@ import com.sonar.sslr.api.AstNode;
   name = "Literal boolean values should not be used in condition expressions",
   priority = Priority.MINOR,
   tags = {Tags.CLUMSY})
-@BelongsToProfile(title = CheckList.SONAR_WAY_PROFILE, priority = Priority.MINOR)
+@ActivatedByDefault
 @NoSqale
 public class BooleanEqualityComparisonCheck extends SquidCheck<LexerlessGrammar> {
 

@@ -19,10 +19,10 @@
  */
 package org.sonar.javascript.checks;
 
-import org.sonar.check.BelongsToProfile;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.javascript.model.interfaces.Tree.Kind;
+import org.sonar.squidbridge.annotations.ActivatedByDefault;
 import org.sonar.squidbridge.annotations.NoSqale;
 import org.sonar.squidbridge.checks.SquidCheck;
 import org.sonar.sslr.parser.LexerlessGrammar;
@@ -34,7 +34,7 @@ import com.sonar.sslr.api.AstNode;
   name = "Function call arguments should not start on new line",
   priority = Priority.CRITICAL,
   tags = {Tags.PITFALL})
-@BelongsToProfile(title = CheckList.SONAR_WAY_PROFILE, priority = Priority.CRITICAL)
+@ActivatedByDefault
 @NoSqale
 public class FunctionCallArgumentsOnNewLineCheck extends SquidCheck<LexerlessGrammar> {
 
