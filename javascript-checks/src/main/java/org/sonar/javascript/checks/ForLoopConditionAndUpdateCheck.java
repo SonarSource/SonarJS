@@ -58,9 +58,10 @@ public class ForLoopConditionAndUpdateCheck extends BaseTreeVisitor {
   @Override
   public void visitForStatement(ForStatementTree forStatement) {
     List<ExpressionTree> updatedExpressions = updatedExpressions(forStatement.update());
-    if (!updatedExpressions.isEmpty() && forStatement.condition() != null) {
+    ExpressionTree condition = forStatement.condition();
+    if (!updatedExpressions.isEmpty() && condition != null) {
       ConditionVisitor conditionVisitor = new ConditionVisitor(updatedExpressions);
-      forStatement.condition().accept(conditionVisitor);
+      condition.accept(conditionVisitor);
       if (!conditionVisitor.foundUpdatedExpression) {
         String updated = expressionList(updatedExpressions);
         String tested = expressionList(conditionVisitor.testedExpressions);
