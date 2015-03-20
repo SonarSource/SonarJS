@@ -1,8 +1,6 @@
-<p>
-  Continuing a string across a linebreak is supported in most script engines, but it is not a part of ECMAScript. Additionally, the whitespace at the beginning of each line can't be safely stripped at compile time, and the whitespace after the slash will result in tricky errors.
-</p>
-
+<p>Continuing a string across a linebreak is supported in most script engines, but it is not a part of ECMAScript. Additionally, the whitespace at the beginning of each line can't be safely stripped at compile time, and any whitespace after the slash will result in tricky errors.</p>
 <h2>Noncompliant Code Example</h2>
+
 <pre>
 var myString = 'A rather long string of English text, an error message \
                 actually that just keeps going and going -- an error \
@@ -11,8 +9,8 @@ var myString = 'A rather long string of English text, an error message \
                 you\'ve got an error and all the extraneous whitespace is \
                 just gravy.  Have a nice day.';  // Noncompliant
 </pre>
-
 <h2>Compliant Solution</h2>
+
 <pre>
 var myString = 'A rather long string of English text, an error message ' +
     'actually that just keeps going and going -- an error ' +
@@ -21,3 +19,4 @@ var myString = 'A rather long string of English text, an error message ' +
     'you\'ve got an error and all the extraneous whitespace is ' +
     'just gravy.  Have a nice day.';
 </pre>
+

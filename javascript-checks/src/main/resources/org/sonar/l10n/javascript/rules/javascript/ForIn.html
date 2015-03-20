@@ -1,19 +1,14 @@
-<p>
-  The <code>for...in</code> in statement allows you to loop through the names of all of the properties of an object. Unfortunately, the list of properties includes all those properties that were inherited through the prototype chain. This has the bad side effect of serving up method functions when the interest is in data properties. Programs that don't take this into account can fail.
-</p>
-
-<p>
-  Therefore, the body of every <code>for...in</code> statement should be wrapped in an if statement that filters which properties are acted upon. It can select for a particular type or range of values, or it can exclude functions, or it can exclude properties from the prototype.
-</p>
-
+<p>The <code>for...in</code> in statement allows you to loop through the names of all of the properties of an object. Unfortunately, the list of properties includes all those properties that were inherited through the prototype chain. This has the bad side effect of serving up method functions when the interest is in data properties. Programs that don't take this into account can fail.</p>
+<p>Therefore, the body of every <code>for...in</code> statement should be wrapped in an <code>if</code> statement that filters which properties are acted upon. It can select for a particular type or range of values, or it can exclude functions, or it can exclude properties from the prototype. </p>
 <h2>Noncompliant Code Example</h2>
+
 <pre>
 for (name in object) {
     doSomething(name);  // Noncompliant
 }
 </pre>
-
 <h2>Compliant Solution</h2>
+
 <pre>
 for (name in object) {
   if (object.hasOwnProperty(name)) {
@@ -21,3 +16,4 @@ for (name in object) {
   }
 }
 </pre>
+

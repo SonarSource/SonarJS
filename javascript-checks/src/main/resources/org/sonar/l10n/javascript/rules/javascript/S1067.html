@@ -1,18 +1,3 @@
-<p>
-  The complexity of an expression is defined by the number of <code>&&</code>, <code>||</code> and <code>condition ? ifTrue : ifFalse</code> operators it contains.</br>
-  A single expression's complexity should not become too high to keep the code readable.
-</p>
+<p>The complexity of an expression is defined by the number of <code>&amp;&amp;</code>, <code>||</code> and <code>condition ? ifTrue : ifFalse</code> operators it contains.</p>
+<p>A single expression's complexity should not become too high to keep the code readable.</p>
 
-<h2>Noncompliant Code Example</h2>
-<p>
-  With the default threshold value 3
-</p>
-<pre>
-if (((condition1 && condition2) || (condition3 && condition4)) && condition5) { }
-</pre>
-
-
-<h2>Compliant Solution</h2>
-<pre>
-if ( (myFirstCondition() || mySecondCondition()) && myLastCondition()) { }
-</pre>

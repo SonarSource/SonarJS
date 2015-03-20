@@ -1,15 +1,13 @@
 <p>
-The use of the 'continue' branching statement increase the essential complexity of the source code
+The use of the <code>continue</code> branching statement increase the essential complexity of the source code
 and so prevent any refactoring of this source code to replace all well structured control structures with a single statement.
 </p>
 
-<p>
-For instance, in the following program fragment, it's not possible to apply the 'extract method' refactoring pattern :
-</p>
+<h2>Noncompliant Code Example</h2>
 
 <pre>
-mylabel: for (i = 0 ; i < 3; i++) {
-  for (j = 0; j < 4 ; j++) {
+mylabel: for (i = 0 ; i &lt; 3; i++) {
+  for (j = 0; j &lt; 4 ; j++) {
     doSomething();
     if (checkSomething()) {
       continue mylabel; // Non-Compliant
@@ -17,3 +15,8 @@ mylabel: for (i = 0 ; i < 3; i++) {
   }
 }
 </pre>
+
+<h2>See</h2>
+<ul>
+<li>MISRA C:2004, 14.5</li>
+</ul>

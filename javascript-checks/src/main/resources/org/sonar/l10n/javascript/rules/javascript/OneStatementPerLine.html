@@ -1,11 +1,14 @@
-<p>
-For better readability, do not put more than one statement on a single line.
-</p>
-
-<p>
-The following code snippet illustrates this rule :
-</p>
+<p>For better readability, do not put more than one statement on a single line.</p>
+<h2>Noncompliant Code Example</h2>
 
 <pre>
-var foo = "something"; var bar = "somethingElse";     // Non-Compliant - there are two statements
+if(someCondition) doSomething();
 </pre>
+<h2>Compliant Solution</h2>
+
+<pre>
+if(someCondition) {
+  doSomething();
+}
+</pre>
+

@@ -1,26 +1,19 @@
-<p>
-  Return of boolean literal statements wrapped into <code>if-then-else</code> ones should be simplified.
-</p>
-<p>
-  Sometimes the developer will not have the time or will simply forget to get back to that tag.
-  This rule is meant to track those tags, and ensure that they do not go unnoticed.
-</p>
-
+<p>Return of boolean literal statements wrapped into <code>if-then-else</code> ones should be simplified.</p>
 <h2>Noncompliant Code Example</h2>
+
 <pre>
-if (condition) {
+if (expression) {  
   return true;
 } else {
   return false;
 }
 </pre>
-
-
 <h2>Compliant Solution</h2>
+
 <pre>
-return condition;
+return expression; 
 </pre>
-<p>Note that if type of condition is not boolean, then double negation should be used for proper conversion:</p>
 <pre>
-return !!condition;
+return !!expression;
 </pre>
+

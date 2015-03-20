@@ -1,24 +1,19 @@
-<p>
-  In JavaScript, the semicolon (';') is optional as a statement separator, but omitting semicolons can be confusing, and lead to unexpected results because a semicolon is implicitly inserted at the end of each line.
-</p>
-
-
+<p>In JavaScript, the semicolon (<code>;</code>) is optional as a statement separator, but omitting semicolons can be confusing, and lead to unexpected results because a semicolon is implicitly inserted at the end of each line.</p>
 <h2>Noncompliant Code Example</h2>
-<p>
-  Here is an example of such confusing code:
-</p>
+
 <pre>
 function fun() {
   return  // Noncompliant. ';' implicitly inserted at end of line
-       5  // Noncompliant. ';' implicitly inserted at end of line
+       5   // Noncompliant. ';' implicitly inserted at end of line
 }
 print(fun());  // prints "undefined", not "5"
 </pre>
-
 <h2>Compliant Solution</h2>
+
 <pre>
 function fun() {
   return 5;
 }
 print(fun());
 </pre>
+

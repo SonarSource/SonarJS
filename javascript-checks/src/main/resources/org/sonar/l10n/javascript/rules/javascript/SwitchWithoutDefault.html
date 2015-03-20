@@ -1,14 +1,12 @@
 <p>
-The requirement for a final default clause is defensive programming.
-This clause should either take appropriate action or contain a suitable comment as to why no action is taken.
+The requirement for a final <code>default</code> clause is defensive programming.
+The clause should either take appropriate action or contain a suitable comment as to why no action is taken.
 </p>
 
-<p>
-The following code snippet illustrates this rule:
-</p>
+<h2>Noncompliant Code Example</h2>
 
 <pre>
-switch (param) { // Non-Compliant - default clause is missing
+switch (param) {  //missing default clause
   case 0:
     doSomething();
     break;
@@ -18,20 +16,45 @@ switch (param) { // Non-Compliant - default clause is missing
 }
 
 switch (param) {
-  default: // Non-Compliant - default clause should be the last one
+  default: // default clause should be the last one
+    error();
+    break;
+  case 0:
     doSomething();
     break;
-  case 0:
-    doSomethingElse();
-    break;
-}
-
-switch (param) {
-  case 0:
-    doSomethingElse();
-    break;
-  default: // Compliant
+  case 1:
     doSomethingElse();
     break;
 }
 </pre>
+
+<h2>Compliant Solution</h2>
+<pre>
+switch (param) {
+  case 0:
+    doSomething();
+    break;
+  case 1:
+    doSomethingElse();
+    break;
+  default:
+    error();
+    break;
+}
+</pre>
+
+<h2>See</h2>
+
+<ul>
+<li> MISRA C:2004, 15.0 - The MISRA C <em>switch</em> syntax shall be used.</li>
+<li> MISRA C:2004, 15.3 - The final clause of a switch statement shall be the default clause</li>
+<li> MISRA C++:2008, 6-4-3 - A switch statement shall be a well-formed switch statement.</li>
+<li> MISRA C++:2008, 6-4-6 - The final clause of a switch statement shall be the default-clause</li>
+<li> MISRA C:2012, 16.1 - All switch statements shall be well-formed</li>
+<li> MISRA C:2012, 16.4 - Every <em>switch</em> statement shall have a <em>default</em> label</li>
+<li> MISRA C:2012, 16.5 - A <em>default</em> label shall appear as either the first or the last <em>switch label</em> of a <em>switch</em> statement</li>
+<li> <a href="http://cwe.mitre.org/data/definitions/478.html">MITRE, CWE-478</a> - Missing Default Case in Switch Statement</li>
+<li> <a href="https://www.securecoding.cert.org/confluence/x/YgE">CERT, MSC01-C</a> - Strive for logical completeness</li>
+<li> <a href="https://www.securecoding.cert.org/confluence/x/JoIyAQ">CERT, MSC01-CPP</a> - Strive for logical completeness</li>
+</ul>
+

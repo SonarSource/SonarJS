@@ -1,36 +1,34 @@
-<p>
-  Even if it is legal, mixing case and non-case labels in the body of a switch statement is very confusing and can even be the result of a typing error.
-</p>
-
+<p>Even if it is legal, mixing case and non-case labels in the body of a switch statement is very confusing and can even be the result of a typing error.</p>
 <h2>Noncompliant Code Examples</h2>
-<p>Case 1, the code is syntactically correct but the behaviour is not the expected one</p>
+
+<p>Case 1, the code is syntactically correct but the behavior is not the expected one</p>
 <pre>
 switch (day) {
   case MONDAY:
   case TUESDAY:
-  WEDNESDAY:   //instead of "case WEDNESDAY"
+  WEDNESDAY:   // instead of "case WEDNESDAY"
     doSomething();
     break;
   ...
 }
 </pre>
-<p>Case 2, the code is correct and behaves as expected but is hardly readable</p>
+<p>Case 2, the code is correct and behaves as expected but is hardly readable </p>
 <pre>
 switch (day) {
   case MONDAY:
     break;
   case TUESDAY:
-    foo:for(i = 0 ; i < X ; i++) {
+    foo:for(i = 0 ; i &lt; X ; i++) {
          /* ... */
-        break foo;  //This break statement doesn't relate to the nesting case TUESDAY
+        break foo;  // this break statement doesn't relate to the nesting case TUESDAY
          /* ... */
     }
     break;
     /* ... */
 }
 </pre>
-
 <h2>Compliant Solution</h2>
+
 <p>Case 1</p>
 <pre>
 switch (day) {
@@ -48,9 +46,17 @@ switch (day) {
   case MONDAY:
     break;
   case TUESDAY:
-    compute(args); //Put the content of the labelled "for" statement in a dedicated method
+    compute(args); // put the content of the labelled "for" statement in a dedicated method
     break;
 
     /* ... */
 }
 </pre>
+<h2>See</h2>
+
+<ul>
+<li> MISRA C:2004, 15.0 - The MISRA C <em>switch</em> syntax shall be used.</li>
+<li> MISRA C++:2008, 6-4-3 - A switch statement shall be a well-formed switch statement.</li>
+<li> MISRA C:2012, 16.1 - All switch statements shall be well-formed</li>
+</ul>
+

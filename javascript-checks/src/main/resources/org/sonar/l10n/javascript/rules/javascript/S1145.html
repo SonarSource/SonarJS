@@ -1,22 +1,38 @@
-<p>
-  <code>if</code> statements with conditions that are always false have the effect of making blocks of code non-functional. This can be useful during debugging, but should not be checked in. <code>if</code> statements with conditions that are always true are completely redundant, and make the code less readable.
-</p>
-<p>
-  In either case, non-conditional <code>if</code> statements should be removed.
-</p>
-
+<p><code>if</code> statements with conditions that are always false have the effect of making blocks of code non-functional. <code>if</code> statements with conditions that are always true are completely redundant, and make the code less readable.</p>
+<p>There are three possible causes for the presence of such code: </p>
+<ul>
+<li> An if statement was changed during debugging and that debug code has been committed.</li>
+<li> Some value was left unset.</li>
+<li> Some logic is not doing what the programmer thought it did.</li>
+</ul>
+<p>In any of these cases, unconditional <code>if</code> statements should be removed.</p>
 <h2>Noncompliant Code Example</h2>
+
 <pre>
-if (true) {
+if (true) {  // Noncompliant
   doSomething();
 }
 ...
-if (false) {
+if (false) {  // Noncompliant
   doSomethingElse();
 }
-</pre>
 
+if (!options || options === true) { doThirdThing(); }  // Noncompliant; always true
+</pre>
 <h2>Compliant Solution</h2>
+
 <pre>
 doSomething();
+
+doThirdThing();
 </pre>
+<h2>See</h2>
+
+<ul>
+<li> <a href="http://cwe.mitre.org/data/definitions/489.html">MITRE, CWE-489</a> - Leftover Debug Code</li>
+<li> <a href="http://cwe.mitre.org/data/definitions/570.html">MITRE, CWE-570</a> - Expression is Always False</li>
+<li> <a href="http://cwe.mitre.org/data/definitions/571.html">MITRE, CWE-571</a> - Expression is Always True</li>
+<li> MISRA C:2004, 13.7</li>
+<li> MISRA C:2012, 14.3</li>
+</ul>
+

@@ -46,7 +46,7 @@ public class TooManyLinesInFileCheck extends SquidCheck<LexerlessGrammar> {
 
   @RuleProperty(
     key = "maximum",
-    description = "Maximum authorized lines in a file",
+    description = "Maximum authorized lines in a file.",
     defaultValue = "" + DEFAULT)
   public int maximum = DEFAULT;
 

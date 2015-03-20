@@ -1,23 +1,28 @@
-<p>
-return, break, continue, or throw statements should be followed by a } or case or default.
-</p>
-
-<p>
-The following code snippet illustrates this rule :
-</p>
+<p>Jump statements (<code>return</code>, <code>break</code> and <code>continue</code>) and <code>throw</code> expressions move control flow out of the current code block. Typically, any statements in a block that come after a jump or <code>throw</code> are simply wasted keystrokes lying in wait to confuse the unwary. </p>
+<h2>Noncompliant Code Example</h2>
 
 <pre>
-function sayHello() {
-  if (true) {
-    return;
-    var b; // Non-Compliant - this will never be executed
-  } else {
-    var c;
-  }
-
-  while (true) {
-    break;
-    var d; // Non-Compliant - this will never be executed
-  }
+fun(a) {
+  var i = 10;
+  return i + a;       // Noncompliant 
+  i++;             // this is never executed
 }
 </pre>
+<h2>Compliant Solution</h2>
+
+<pre>
+int fun(int a) {
+  int i = 10;
+  return i + a;
+}
+</pre>
+<h2>See</h2>
+
+<ul>
+<li> MISRA C++:2008, 0-1-9 - There shall be no dead code</li>
+<li> MISRA C:2012, 2.2 - There shall be no dead code</li>
+<li> <a href="http://cwe.mitre.org/data/definitions/561.html">MITRE, CWE-561</a> - Dead Code</li>
+<li> <a href="https://www.securecoding.cert.org/confluence/x/NYA5">CERT, MSC12-C</a> - Detect and remove code that has no effect or is never executed</li>
+<li> <a href="https://www.securecoding.cert.org/confluence/x/SIIyAQ">CERT, MSC12-CPP</a> - Detect and remove code that has no effect</li>
+</ul>
+

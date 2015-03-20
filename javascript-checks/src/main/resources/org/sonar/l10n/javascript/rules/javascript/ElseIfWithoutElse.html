@@ -1,9 +1,10 @@
-<p>
-  This rule applies whenever an <code>if</code> statement is followed by one or more <code>else if</code> statements, the final <code>else if </code> shall be followed by an <code>else if</code> statement.
-</p>
-<p>
-  The requirement for a final <code>else</code> statement is defensive programming. The <code>else</code> statement should either take appropriate action or contain a suitable comment as to why no action is taken. This is consistent with the requirement to have a final <code>default</code> clause in a <code>switch</code> statement.
-</p>
+<p>This rule applies whenever an <code>if</code> statement is followed by one or </p>
+<p>more <code>else if</code> statements, the final <code>else if</code> shall be followed by an <code>else</code> statement.</p>
+<p>The requirement for a final <code>else</code> statement is defensive programming. </p>
+<p>The <code>else</code> statement should either take appropriate action or contain </p>
+<p>a suitable comment as to why no action is taken. This is consistent with the </p>
+<p>requirement to have a final <code>default</code> clause in a <code>switch</code></p>
+<p>statement. </p>
 
 <h2>Noncompliant Code Example</h2>
 <pre>
@@ -24,3 +25,15 @@ if (x == 0) {
   throw new IllegalStateException();
 }
 </pre>
+
+<h2>See</h2>
+
+<ul>
+<li> MISRA C:2004, 14.10</li>
+<li> MISRA C++:2008, 6-4-2</li>
+<li> MISRA C:2012, 15.7</li>
+<li> <a href="https://www.securecoding.cert.org/confluence/x/YgE">CERT, MSC01-C</a> - Strive for logical completeness</li>
+<li> <a href="https://www.securecoding.cert.org/confluence/x/JoIyAQ">CERT, MSC01-CPP</a> - Strive for logical completeness</li>
+<li> <a href="https://www.securecoding.cert.org/confluence/x/PQHRAw">CERT, MSC64-Java</a> - Strive for logical completeness</li>
+</ul>
+

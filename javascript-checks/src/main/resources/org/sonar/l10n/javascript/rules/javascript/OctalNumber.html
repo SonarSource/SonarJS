@@ -1,17 +1,13 @@
 <p>
-Octal numbers should be avoided because the syntax to declare them (prefix by zero) makes it ambiguous for novice JavaScript developers to understand the real value of the number.
-For instance, the octal "0644" number actually equals to 420, not 644.
+Integer literals starting with a zero are octal rather than decimal values. While using octal values is fully supported, most developers do not have experience with them. They may not recognize octal values as such, mistaking them instead for decimal values.
 </p>
 
-<p>
-What's more, even if all browsers support it, this syntax is not part of ECMAScript and will generate an error in JavaScript strict mode code.
-</p>
-
-<p>
-The following code snippet illustrates this rule :
-</p>
-
+<h2>Noncompliant Code Example</h2>
 <pre>
-var i = 0644; // Non-Compliant
-var j = 420; // Compliant
+var myNumber = 010;   // myNumber will hold 8, not 10 - was this really expected?
+</pre>
+
+<h2>Compliant Solution</h2>
+<pre>
+var myNumber = 8;
 </pre>

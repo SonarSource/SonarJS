@@ -1,12 +1,8 @@
-<p>
-  Any statement or block of statement can be identified by a label, but those labels should be used only on 'while', 'do-while' and 'for' statements.
-  Using labels in any other context leads to unstructured code.
-</p>
-
-
+<p>Any statement or block of statements can be identified by a label, but those labels should be used only on 'while', 'do-while' and 'for' statements. Using labels in any other context leads to unstructured, confusing code. </p>
 <h2>Noncompliant Code Example</h2>
+
 <pre>
-myLabel:if (i % 2 == 0) {  // Non-Compliant
+myLabel:if (i % 2 == 0) {  // Noncompliant
   if (i == 12) {
     print("12");
     break myLabel;
@@ -14,11 +10,12 @@ myLabel:if (i % 2 == 0) {  // Non-Compliant
   print("Odd number, but not 12");
 }
 </pre>
-
 <h2>Compliant Solution</h2>
+
 <pre>
-myLabel:for (i = 0; i < 10; i++) {   // Compliant
+myLabel:for (i = 0; i &lt; 10; i++) {   // Compliant
   print("Loop");
   break myLabel;
 }
 </pre>
+

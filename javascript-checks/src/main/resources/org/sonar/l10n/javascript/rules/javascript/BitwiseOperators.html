@@ -1,18 +1,16 @@
-<p>
- JavaScript does not have an integer type, but it does have bitwise operators <<, >>, >>>, ~, &, |. These operators convert their operands from floating point values to integers and back, so they are not as efficient as in C or other languages. Further, they are rarely useful in browser applications, and the similarity to the logical operators can mask some programming errors.
-</p>
-
+<p>JavaScript does not have an integer type, but it does have bitwise operators <code>&lt;&lt;</code>, <code>&gt;&gt;</code>, <code>&gt;&gt;&gt;</code>, <code>~</code>, <code>&amp;</code>, <code>|</code>. These operators convert their operands from floating point values to integers and back, so they are not as efficient as in C or other languages. Further, they are rarely useful in browser applications, and the similarity to the logical operators can mask some programming errors.</p>
 <h2>Noncompliant Code Example</h2>
-<pre>
-if (a & b) { ... } // Noncompliant; & used in error
-var oppositeSigns = ((x ^ y) < 0); // Noncompliant; there's a clearer way to test for this
-</pre>
 
-<h2>Compliant Solution</h2>
 <pre>
-if (a && b) { ... }
+if (a &amp; b) { ... } // Noncompliant; &amp; used in error
+var oppositeSigns = ((x ^ y) &lt; 0); // Noncompliant; there's a clearer way to test for this
+</pre>
+<h2>Compliant Solution</h2>
+
+<pre>
+if (a &amp;&amp; b) { ... }
 var oppositeSigns = false;
-if ( (x < 0 && y > 0) || (x > 0 && y < 0) ) {
+if ( (x &lt; 0 &amp;&amp; y &gt; 0) || (x &gt; 0 &amp;&amp; y &lt; 0) ) {
   oppositeSigns = true;
 }
 </pre>

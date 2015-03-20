@@ -1,13 +1,12 @@
-<p>
-  Some people like to call a constructor functions without assigning the result to a variable. There is no advantage in this approach since the object the new operator creates isn't used anywhere. Therefore this misleading syntax should be avoided.
-</p>
-
+<p>Some people like to call a constructor functions without assigning the result to a variable. There is no advantage in this approach since the object the <code>new</code> operator creates isn't used anywhere. Therefore this misleading syntax should be avoided.</p>
 <h2>Noncompliant Code Example</h2>
+
 <pre>
 new MyConstructor(); // Non-Compliant
 </pre>
-
 <h2>Compliant Solution</h2>
+
 <pre>
 var something = new MyConstructor();  // Compliant
 </pre>
+

@@ -1,24 +1,26 @@
-<p>
-  The comma operator takes two expressions, execute them from left to right and return the result of the second one. Use of this operator is generally detrimental to the readability and reliability of code, and the same effect can be achieved by other means.
-</p>
-
+<p>The comma operator takes two expressions, executes them from left to right and returns the result of the second one. Use of this operator is generally detrimental to the readability and reliability of code, and the same effect can be achieved by other means.</p>
 <h2>Noncompliant Code Example</h2>
+
 <pre>
-i = a += 2, a + b;  //What's the value of i?
+i = a += 2, a + b;  // What's the value of i ?
 </pre>
-
-
 <h2>Compliant Solution</h2>
+
 <pre>
 a +=  2;
 i = a + b;
 </pre>
-
 <h2>Exceptions</h2>
-<p>
-  Use of comma operator is tolerated in initialization and increment expressions of <code>for</code> loop
-</p>
+
+<p>Use of comma operator is tolerated in initialization and increment expressions of <code>for</code> loops.</p>
 <pre>
-for(i = 0, j = 5; i < 6; i++, j++) {
-}
+for(i = 0, j = 5; i &lt; 6; i++, j++) { ... }
 </pre>
+<h2>See</h2>
+
+<ul>
+<li> MISRA C:2004, 12.10 - The comma operator shall not be used.</li>
+<li> MISRA C++:2008, 5-18-1 - The comma operator shall not be used.</li>
+<li> MISRA C:2012, 12.3 - The comma operator should not be used</li>
+</ul>
+

@@ -1,8 +1,12 @@
-<p>
-  Because semicolons at the ends of statements are optional, starting function call arguments on a separate line makes the code confusing and might lead to errors.
-</p>
-
+<p>Because semicolons at the ends of statements are optional, starting function call arguments on a separate line makes the code confusing. It could lead to errors and most likely <em>will</em> lead to questions for maintainers.</p>
+<p>What was the initial purpose of the developer ?</p>
+<ol>
+<li> Was it to define a function and then to execute some unrelated code inside a closure ?</li>
+<li> Or to pass the second function as a parameter to the first one ?</li>
+</ol>
+<p>The first option will be the one chosen by the JavaScript interpreter..</p>
 <h2>Noncompliant Code Example</h2>
+
 <pre>
 var fn = function () {
   //...
@@ -12,43 +16,27 @@ var fn = function () {
   //...
 })();
 </pre>
-<p>
-  What was the initial purpose of the developer?
-
-    <ol>
-      <li>Was it to define a function and then to execute some unrelated code inside a closure?</li>
-      <li>Or to pass the second function as a parameter to the first one?</li>
-    </ol>
-</p>
-<p>
-  The first option will be the one chosen by the JavaScript interpreter.
-</p>
-
 <h2>Compliant Solution</h2>
-<p>
-  Either
-</p>
+
+<p>Either</p>
 <pre>
 // define a function
 var fn = function () {
   //...
-}; // <-- semicolon added
+}; // &lt;-- semicolon added
 
 // then execute some code inside a closure
 (function () {
   //...
 })();
 </pre>
-<p>
-  or
-</p>
+<p>Or </p>
 <pre>
 var fn = function () {
   //...
-}(function () { // <-- start function call arguments on same line
+}(function () { // &lt;-- start function call arguments on same line
   //...
 })();
 </pre>
-<p>
-  By extension and to improve readability, any kind of function call arguments should not start on new line.
-</p>
+<p>By extension and to improve readability, any kind of function call arguments should not start on new line.</p>
+

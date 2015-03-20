@@ -1,11 +1,7 @@
-<p>
-Trailing whitespaces are simply useless and should not stay in code. In JavaScript, they can even be source of nasty bugs with multi-line strings.
-</p>
+<p>Trailing whitespaces are simply useless and should not stay in code. They may generate noise when comparing different versions of the same file.</p>
+<p>If you encounter issues from this rule, this probably means that you are not using an automated code formatter - which you should if you have the opportunity to do so. </p>
 
-<p>
-If you encounter issues from this rule, this probably means that you are not using an automated code formatter - which you should if you have the opportunity to do so.
-</p>
-
+<h2>Noncompliant Code Example</h2>
 <pre>
 // The following string will error if there is a whitespace after '\'
 var str = "Hello \

@@ -1,24 +1,19 @@
-<p>
-The <code>==</code> and <code>!=</code> operators do type coercion before comparing values.
-This is bad because it can mask type errors. For example, it evaluates <code>' \t\r\n' == 0</code> as true.
-It is best to always use the side-effect-less <code>===</code> and <code>!===</code> operators instead.
-</p>
-
+<p>The <code>==</code> and <code>!=</code> operators do type coercion before comparing values. This is bad because it can mask type errors. For example, it evaluates <code>' \t\r\n' == 0</code> as <code>true</code>.</p>
+<p>It is best to always use the side-effect-less <code>===</code> and <code>!==</code> operators instead.</p>
 <h2>Noncompliant Code Example</h2>
+
 <pre>
 if (var == 'howdy') {...} // Noncompliant
 </pre>
-
 <h2>Compliant Solution</h2>
+
 <pre>
 if (var === 'howdy') {...}
 </pre>
-
 <h2>Exceptions</h2>
-<p>
-  Even if testing the equality of a variable against null doesn't do exactly what most JavaScript developers believe, usage of <code>==</code> or <code>!=</code> is tolerated in such context.
-  In the following case, if <code>foo</code> hasn't been initialized, its default value is not <code>null</code> but <code>undefined</code>. Nevertheless <code>undefined == null</code>, so JavaScript developers get the expected behavior.
-</p>
+
+<p>Even if testing the equality of a variable against null doesn't do exactly what most JavaScript developers believe, usage of <code>==</code> or <code>!=</code> is tolerated in such context. In the following case, if <code>foo</code> hasn't been initialized, its default value is not <code>null</code> but <code>undefined</code>. Nevertheless <code>undefined == null</code>, so JavaScript developers get the expected behavior.</p>
 <pre>
 if(foo == null) {...}
 </pre>
+

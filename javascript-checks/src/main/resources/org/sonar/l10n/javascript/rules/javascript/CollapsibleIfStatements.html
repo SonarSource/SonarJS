@@ -1,23 +1,18 @@
-<p>
-  Merging collapsible <code>if</code> statements increases the code's readability.
-</p>
-
+<p>Merging collapsible <code>if</code> statements increases the code's readability.</p>
 <h2>Noncompliant Code Example</h2>
+
 <pre>
-if (file != null) {
-  if (file.isFile() || file.isDirectory()) {
-    ...
+if (x != undefined) {
+  if (x === 2) {
+    // ...
   }
 }
 </pre>
-
 <h2>Compliant Solution</h2>
-<pre>
-if (file != null && isFileOrDirectory(file)) {
-  /* ... */
-}
 
-private static boolean isFileOrDirectory(File file) {
-  return file.isFile() || file.isDirectory();
+<pre>
+if (x != undefined &amp;&amp; x === 2) {
+  // ...
 }
 </pre>
+

@@ -1,8 +1,13 @@
-<p>
-  The <code>eval</code> function is a way to run arbitrary code at run-time. Generally it is considered to be very dangerous because it allows execution of arbitrary code. Its use thus is discouraged. If you have carefully verified that there is no other option than to use this construct, pay special attention not to pass any user-provided data into it without properly validating it beforehand.
-</p>
-
+<p>The <code>eval</code> function is a way to run arbitrary code at run-time. Generally it is considered to be very dangerous because it allows execution of arbitrary code. Its use is thus discouraged. If you have carefully verified that there is no other option than to use this construct, pay special attention not to pass any user-provided data into it without properly validating it beforehand.</p>
 <h2>Noncompliant Code Example</h2>
+
 <pre>
 eval(code_to_be_dynamically_executed)
 </pre>
+<h2>See</h2>
+
+<ul>
+<li> <a href="http://cwe.mitre.org/data/definitions/95.html">MITRE CWE-95</a> - CWE-95: Improper Neutralization of Directives in Dynamically Evaluated Code ('Eval Injection')</li>
+<li> <a href="https://www.owasp.org/index.php/Top_10_2013-A3-Cross-Site_Scripting_(XSS)">OWASP Top Ten 2013 Category A3</a> - Cross-Site Scripting (XSS)</li>
+</ul>
+

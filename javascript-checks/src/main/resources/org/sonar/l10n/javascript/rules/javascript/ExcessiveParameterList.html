@@ -1,3 +1,16 @@
-<p>
-Long parameter lists can indicate that a new structure should be created to wrap the numerous parameters or that the function is doing too many things.
-</p>
+<p>A long parameter list can indicate that a new structure should be created to wrap the numerous parameters or that the function is doing too many things.</p>
+
+<h2>Noncompliant Code Example</h2>
+The following code snippet illustrates this rule with a maximum number of 4 parameters:
+<pre>
+function doSomething(param1, param2, param3, param4, param5) { 
+...
+}
+</pre>
+
+<h2>Compliant Solution</h2>
+<pre>
+public void doSomething(int param1, int param2, int param3, String param4) {
+...
+}
+</pre>

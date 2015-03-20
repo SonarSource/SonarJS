@@ -1,26 +1,62 @@
-<p>
-When the last statement of a switch-clause is not a break statement, the control flow "falls" into the next switch-clause.
-Whilst this is sometimes intentional, it is often a mistake which could lead to some unexpected behaviors.
-
-This rule doesn't apply to empty switch-clauses. Indeed those empty switch-clauses allow to specify the same behavior to a group of cases.
-</p>
-
-<p>
-The following code snippet illustrates this rule:
-</p>
-
+<p>When the execution is not explicitly terminated at the end of a switch case, it continues to execute the statements of the following case. While this is sometimes intentional, it often is a mistake which leads to unexpected behavior. </p>
+<h2>Noncompliant Code Example</h2>
 <pre>
-switch (param) {
-  case 0: // Compliant
-  case 1: // Compliant
+switch (myVariable) {
+  case 1:                              
+    foo();
     break;
-  case 2: // Compliant
-    return;
-  case 3: // Compliant
-    throw new Error();
-  case 4: // Non-Compliant
+  case 2:  // Both 'doSomething()' and 'doSomethingElse()' will be executed. Is it on purpose ?
     doSomething();
-  default: // Compliant
+  default:                               
+    doSomethingElse();
+    break;
+}
+</pre>
+<h2>Compliant Solution</h2>
+<pre>
+switch (myVariable) {
+  case 1:                              
+    foo();
+    break;
+  case 2: 
+    doSomething();
+    break;
+  default:                               
+    doSomethingElse();
+    break;
+}
+</pre>
+<h2>Exceptions</h2>
+
+<p>This rule is relaxed in the following cases:</p>
+<pre>
+switch (myVariable) {
+  case 0:                                // Empty case used to specify the same behavior for a group of cases.
+  case 1:                               
+    doSomething();
+    break;
+  case 2:                                // Use of return statement
+    return;
+  case 3:                                // Use of throw statement
+    throw new IllegalStateException();
+  case 4:                                // Use of continue statement
+    continue;
+  default:                               // For the last case, use of break statement is optional 
     doSomethingElse();
 }
 </pre>
+
+<h2>See</h2>
+
+<ul>
+<li> MISRA C:2004, 15.0 - The MISRA C <em>switch</em> syntax shall be used.</li>
+<li> MISRA C:2004, 15.2 - An unconditional break statement shall terminate every non-empty switch clause</li>
+<li> MISRA C++:2008, 6-4-3 - A switch statement shall be a well-formed switch statement.</li>
+<li> MISRA C++:2008, 6-4-5 - An unconditional throw or break statement shall terminate every non-empty switch-clause</li>
+<li> MISRA C:2012, 16.1 - All switch statements shall be well-formed</li>
+<li> MISRA C:2012, 16.3 - An unconditional break statement shall terminate every switch-clause</li>
+<li> <a href="http://cwe.mitre.org/data/definitions/484.html">MITRE, CWE-484</a> - Omitted Break Statement in Switch</li>
+<li> <a href="https://www.securecoding.cert.org/confluence/x/YIFLAQ">CERT, MSC17-C</a> - Finish every set of statements associated with a case label with a break statement</li>
+<li> <a href="https://www.securecoding.cert.org/confluence/x/ZoFLAQ">CERT, MSC18-CPP</a> - Finish every set of statements associated with a case label with a break statement</li>
+</ul>
+

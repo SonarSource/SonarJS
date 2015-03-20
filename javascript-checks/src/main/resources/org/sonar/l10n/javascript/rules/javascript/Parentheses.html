@@ -1,23 +1,10 @@
-<p>
-Avoid use of parentheses where not required by syntax or semantics.
-</p>
-
-<p>
-The following code snippet illustrates this rule :
-</p>
-
+<p>Useless parentheses can sometimes be misleading and so should be removed. </p>
+<p>The following code snippet illustrates this rule:</p>
 <pre>
-function sayHello() {
-  var a = typeof (37); // Non-Compliant
-  var b = typeof 38;
-
-  var c = {};
-  c.a = a;
-  c.b = b;
-  delete (a); // Non-Compliant
-  delete b;
-
-  void 0;
-  void (1); // Non-Compliant
-}
+return 3;             // Compliant
+return (x);           // Non-Compliant
+return (x + 1);       // Non-Compliant
+int x = (y / 2 + 1);  // Non-Compliant
+int y = (4+X) * y;    // Compliant
 </pre>
+

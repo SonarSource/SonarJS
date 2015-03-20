@@ -14,7 +14,7 @@ if ( a == a ) { // always true
 if ( a != a ) { // always false
   doY();
 }
-if ( a == b && a == b ) { // if the first one is true, the second one is too
+if ( a == b &amp;&amp; a == b ) { // if the first one is true, the second one is too
   doX();
 }
 if ( a == b || a == b ) { // if the first one is true, the second one is too
@@ -40,7 +40,7 @@ var j = 1;
 var k = 0;
 </pre>
 
-<h2>Exception</h2>
+<h2>Exceptions</h2>
 <p>The specific case of testing one variable against itself is a valid test for <code>NaN</code> and is therefore ignored.</p>
 <p>Similarly, left-shifting 1 onto 1 is common in the construction of bit masks, and is ignored.</p>
 <pre>
@@ -48,13 +48,15 @@ if(f !== f) { // test for NaN value
   console.log("f is NaN");
 }
 
-var i = 1 << 1; // Compliant
-var j = a << a; // Noncompliant
+var i = 1 &lt;&lt; 1; // Compliant
+var j = a &lt;&lt; a; // Noncompliant
 </pre>
 
 <h2>See</h2>
+
 <ul>
-  <li><a href="https://www.securecoding.cert.org/confluence/display/c/MSC12-C.+Detect+and+remove+code+that+has+no+effect+or+is+never+executed;jsessionid=48C9FA697A18ACE1D89FD7FFB1CB2E73">CERT, MSC12-C</a> - Detect and remove code that has no effect</li>
-  <li><a href="https://www.securecoding.cert.org/confluence/display/cplusplus/MSC12-CPP.+Detect+and+remove+code+that+has+no+effect">CERT, MSC12-CPP</a> - Detect and remove code that has no effect</li>
-  <li>Rule S1656 - Implements a check on <code>=</code>.</li>
+<li> <a href="https://www.securecoding.cert.org/confluence/x/NYA5">CERT, MSC12-C</a> - Detect and remove code that has no effect</li>
+<li> <a href="https://www.securecoding.cert.org/confluence/x/SIIyAQ">CERT, MSC12-CPP</a> - Detect and remove code that has no effect</li>
+<li> Rule {rule:javascript:S1656} - Implements a check on <code>=</code>. </li>
 </ul>
+

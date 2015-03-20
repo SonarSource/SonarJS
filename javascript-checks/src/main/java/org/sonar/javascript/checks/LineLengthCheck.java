@@ -46,7 +46,7 @@ public class LineLengthCheck extends SquidCheck<LexerlessGrammar> implements Ast
 
   @RuleProperty(
     key = "maximumLineLength",
-    description = "The maximum authorized line length",
+    description = "The maximum authorized line length.",
     defaultValue = "" + DEFAULT_MAXIMUM_LINE_LENHGTH)
   public int maximumLineLength = DEFAULT_MAXIMUM_LINE_LENHGTH;
 

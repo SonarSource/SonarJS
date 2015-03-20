@@ -1,7 +1,4 @@
-<p>
-  alert(...) can be useful for debugging during development, but in production mode this kind of pop-up should never be displayed.
-</p>
-
+<p>alert(...) can be useful for debugging during development, but in production mode this kind of pop-up could expose sensitive information to attackers, and should never be displayed. </p>
 <h2>Noncompliant Code Example</h2>
 <pre>
 if(unexpectedCondition)
@@ -9,3 +6,9 @@ if(unexpectedCondition)
   alert("Unexpected Condition");
 }
 </pre>
+<h2>See</h2>
+
+<ul>
+<li> <a href="http://cwe.mitre.org/data/definitions/489.html">MITRE, CWE-489</a> - Leftover Debug Code</li>
+</ul>
+

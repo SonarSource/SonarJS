@@ -1,24 +1,23 @@
-<p>
-This rule verifies that single-line comments are not located at the end of a line of code.
+<p>This rule verifies that single-line comments are not located at the end of a line of code.
 The main idea behind this rule is that in order to be really readable,
-trailing comments would have to be property written and formatted (correct alignment,
+trailing comments would have to be properly written and formatted (correct alignment,
 no interference with the visual structure of the code, not too long to be visible) but most often,
 automatic code formatters would not handle this correctly: the code would end up less readable.
-Comments are far better placed on the previous empty line of code, where they will always be visible and properly formatted.
-</p>
-
-<p>
-However, this rule allows to write trailing "metadata comments" - for which the pattern is configurable,
-as those metadata comments are usually very short and heavily used in some cases.
-</p>
-
+Comments are far better placed on the previous empty line of code, where they will always be visible and properly formatted.</p>
+<h2>Noncompliant Code Example</h2>
 <pre>
-// The following line is non-compliant
 var a1 = b + c; // This is a trailing comment that can be very very long
+</pre>
 
+<h2>Compliant Solution</h2>
+<pre>
 // This very long comment is better placed before the line of code
 var a2 = b + c;
+</pre>
 
-// The following line if compliant with the default configuration of the rule
-var a3 = "id"; // $NON-NLS-1$
+<h2>Exceptions</h2>
+
+<p>By default, the property "legalTrailingCommentPattern" allows to ignore comments containing only one word :</p>
+<pre>
+doSomething(); //FIXME
 </pre>

@@ -1,27 +1,25 @@
-<p>
-  The debugger statement can be placed anywhere in procedures to suspend execution. Using the debugger statement is similar to setting a breakpoint in the code. By definition such statement must absolutely be removed from the source code to prevent any unexpected behavior or added vulnerability to attacks in production.
-</p>
-
+<p>The debugger statement can be placed anywhere in procedures to suspend execution. Using the debugger statement is similar to setting a breakpoint in the code. By definition such statement must absolutely be removed from the source code to prevent any unexpected behavior or added vulnerability to attacks in production.</p>
 <h2>Noncompliant Code Example</h2>
+
 <pre>
-for (i = 1; i<5; i++) {
+for (i = 1; i&lt;5; i++) {
   // Print i to the Output window.
   Debug.write("loop index is " + i);
   // Wait for user to resume.
   debugger;
 }
 </pre>
-
 <h2>Compliant Solution</h2>
+
 <pre>
-for (i = 1; i<5; i++) {
+for (i = 1; i&lt;5; i++) {
   // Print i to the Output window.
   Debug.write("loop index is " + i);
 }
 </pre>
-
 <h2>See</h2>
+
 <ul>
-  <li><a href="http://cwe.mitre.org/data/definitions/489.html">MITRE, CWE-489</a> - Leftover Debug Code</li>
-  <li><a href="http://cwe.mitre.org/data/definitions/485.html">MITRE, CWE-485</a> - Insufficient Encapsulation</li>
+<li> <a href="http://cwe.mitre.org/data/definitions/489.html">MITRE, CWE-489</a> - Leftover Debug Code</li>
 </ul>
+

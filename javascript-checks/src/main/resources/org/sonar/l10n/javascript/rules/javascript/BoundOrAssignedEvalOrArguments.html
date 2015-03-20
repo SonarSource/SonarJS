@@ -1,12 +1,7 @@
-<p>
-  In JavaScript, <cod>eval</cod> is used to add or remove bindings and to change binding values. <code>arguments</code> is used to access function arguments through indexed properties. As a consequence, those two names, <code>eval</code> and <code>arguments</code>, should not be bound or assigned because doing so would overwrite the original definition of those two elements.
-</p>
-
-<p>
-  What's more, using either of those two names to assign or bind will generate an error in JavaScript strict mode code.
-</p>
-
+<p>In JavaScript, <code>eval</code> is used to add or remove bindings and to change binding values. <code>arguments</code> is used to access function arguments through indexed properties. As a consequence, those two names, <code>eval</code> and <code>arguments</code>, should not be bound or assigned because doing so would overwrite the original definition of those two elements. </p>
+<p>What's more, using either of those two names to assign or bind will generate an error in JavaScript strict mode code.</p>
 <h2>Noncompliant Code Example</h2>
+
 <pre>
 eval = 17; // Noncompliant
 arguments++; // Noncompliant
@@ -25,8 +20,8 @@ function fun() {
   }
 }
 </pre>
-
 <h2>Compliant Solution</h2>
+
 <pre>
 result = 17;
 args++;
@@ -35,8 +30,8 @@ var obj = { set p(arg) { } };
 var result;
 try { } catch (args) { }
 function x(arg) { }
-function args() { }
-var y = function fun() { };
+function args() { } 
+var y = function fun() { }; 
 var f = new Function("args", "return 17;");
 
 function fun() {
@@ -45,3 +40,4 @@ function fun() {
   }
 }
 </pre>
+
