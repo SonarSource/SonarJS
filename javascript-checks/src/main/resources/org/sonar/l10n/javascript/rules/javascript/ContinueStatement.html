@@ -1,22 +1,26 @@
-<p>
-The use of the <code>continue</code> branching statement increase the essential complexity of the source code
-and so prevent any refactoring of this source code to replace all well structured control structures with a single statement.
-</p>
-
+<p><code>continue</code> is an unstructured control flow statement. It makes code less testable, less readable and less maintainable. Structured control flow statements such as <code>if</code> should be used instead.</p>
 <h2>Noncompliant Code Example</h2>
 
 <pre>
-mylabel: for (i = 0 ; i &lt; 3; i++) {
-  for (j = 0; j &lt; 4 ; j++) {
-    doSomething();
-    if (checkSomething()) {
-      continue mylabel; // Non-Compliant
+  for (i = 0; i < 10; i++) {
+    if (i == 5) {
+      continue;  /* Non-Compliant */
+    }
+    alert("i = " + i);
+  }
+</pre>
+<h2>Compliant Solution</h2>
+
+<pre>
+  for (i = 0; i < 10; i++) {
+    if (i != 5) {  /* Compliant */
+      alert("i = " + i);
     }
   }
-}
 </pre>
-
 <h2>See</h2>
+
 <ul>
-<li>MISRA C:2004, 14.5</li>
+<li> MISRA C:2004, 14.5</li>
 </ul>
+
