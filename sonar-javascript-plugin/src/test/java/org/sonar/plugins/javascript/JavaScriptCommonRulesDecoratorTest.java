@@ -20,8 +20,9 @@
 package org.sonar.plugins.javascript;
 
 import org.junit.Test;
-import org.sonar.api.profiles.RulesProfile;
-import org.sonar.api.resources.ProjectFileSystem;
+import org.sonar.api.batch.fs.FileSystem;
+import org.sonar.api.batch.rule.CheckFactory;
+import org.sonar.api.component.ResourcePerspectives;
 import org.sonar.plugins.javascript.core.JavaScript;
 
 import static org.fest.assertions.Assertions.assertThat;
@@ -30,7 +31,8 @@ import static org.mockito.Mockito.mock;
 public class JavaScriptCommonRulesDecoratorTest {
   @Test
   public void test_declaration() throws Exception {
-    JavaScriptCommonRulesDecorator decorator = new JavaScriptCommonRulesDecorator(mock(ProjectFileSystem.class), mock(RulesProfile.class));
+    JavaScriptCommonRulesDecorator decorator =
+      new JavaScriptCommonRulesDecorator(mock(FileSystem.class), mock(CheckFactory.class), mock(ResourcePerspectives.class));
     assertThat(decorator.language()).isEqualTo(JavaScript.KEY);
 
   }

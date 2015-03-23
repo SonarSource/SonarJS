@@ -19,13 +19,14 @@
  */
 package org.sonar.plugins.javascript;
 
-import org.sonar.api.profiles.RulesProfile;
-import org.sonar.api.resources.ProjectFileSystem;
-import org.sonar.commonrules.api.CommonRulesDecorator;
+import org.sonar.api.batch.fs.FileSystem;
+import org.sonar.api.batch.rule.CheckFactory;
+import org.sonar.api.component.ResourcePerspectives;
 import org.sonar.plugins.javascript.core.JavaScript;
+import org.sonar.squidbridge.commonrules.api.CommonRulesDecorator;
 
 public class JavaScriptCommonRulesDecorator extends CommonRulesDecorator {
-  public JavaScriptCommonRulesDecorator(ProjectFileSystem fs, RulesProfile qProfile) {
-    super(JavaScript.KEY, fs, qProfile);
+  public JavaScriptCommonRulesDecorator(FileSystem fs, CheckFactory checkFactory, ResourcePerspectives perspectives) {
+    super(JavaScript.KEY, fs, checkFactory, perspectives);
   }
 }

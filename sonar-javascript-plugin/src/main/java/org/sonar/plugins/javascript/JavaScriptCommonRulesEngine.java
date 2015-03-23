@@ -19,9 +19,9 @@
  */
 package org.sonar.plugins.javascript;
 
-import org.sonar.commonrules.api.CommonRulesEngine;
-import org.sonar.commonrules.api.CommonRulesRepository;
 import org.sonar.plugins.javascript.core.JavaScript;
+import org.sonar.squidbridge.commonrules.api.CommonRulesEngine;
+import org.sonar.squidbridge.commonrules.api.CommonRulesRepository;
 
 public class JavaScriptCommonRulesEngine extends CommonRulesEngine {
 

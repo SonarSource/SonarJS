@@ -19,17 +19,15 @@
  */
 package org.sonar.javascript.checks;
 
+import java.io.File;
+import java.util.List;
+
 import org.apache.commons.io.FileUtils;
 import org.junit.Test;
 import org.sonar.api.rules.AnnotationRuleParser;
 import org.sonar.api.rules.Rule;
 
 import com.google.common.collect.Lists;
-
-import java.io.File;
-import java.util.List;
-import java.util.Locale;
-import java.util.ResourceBundle;
 
 import static org.fest.assertions.Assertions.assertThat;
 
@@ -63,8 +61,6 @@ public class CheckListTest {
           .overridingErrorMessage("No test for " + cls.getSimpleName())
           .isNotNull();
     }
-
-    ResourceBundle resourceBundle = ResourceBundle.getBundle("org.sonar.l10n.javascript", Locale.ENGLISH);
 
     List<String> keys = Lists.newArrayList();
     List<Rule> rules = new AnnotationRuleParser().parse("repositoryKey", checks);
