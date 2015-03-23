@@ -27,6 +27,7 @@ import org.sonar.javascript.ast.visitors.SyntacticEquivalence;
 import org.sonar.javascript.model.interfaces.Tree;
 import org.sonar.javascript.model.interfaces.expression.AssignmentExpressionTree;
 import org.sonar.javascript.model.interfaces.expression.ExpressionTree;
+import org.sonar.squidbridge.annotations.ActivatedByDefault;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 
@@ -35,6 +36,7 @@ import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
   name = "Variables should not be self-assigned",
   priority = Priority.MAJOR,
   tags = {Tags.BUG, Tags.CERT})
+@ActivatedByDefault
 @SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.DATA_RELIABILITY)
 @SqaleConstantRemediation("3min")
 public class SelfAssignmentCheck extends BaseTreeVisitor {
