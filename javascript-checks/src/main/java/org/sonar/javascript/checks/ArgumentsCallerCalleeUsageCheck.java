@@ -19,9 +19,8 @@
  */
 package org.sonar.javascript.checks;
 
-import java.util.LinkedList;
-import java.util.List;
-
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
@@ -38,8 +37,8 @@ import org.sonar.javascript.model.interfaces.expression.IdentifierTree;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
+import java.util.LinkedList;
+import java.util.List;
 
 @Rule(
   key = "S2685",
@@ -49,6 +48,10 @@ import com.google.common.collect.Lists;
 @SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.INSTRUCTION_RELIABILITY)
 @SqaleConstantRemediation("30min")
 public class ArgumentsCallerCalleeUsageCheck extends SubscriptionBaseVisitor {
+
+  private static final String ARGUMENTS = "arguments";
+  private static final String CALLER = "caller";
+  private static final String CALLEE = "callee";
 
   LinkedList<String> scope = Lists.newLinkedList();
   private static final Kind[] FUNCTION_NODES = {
@@ -91,19 +94,29 @@ public class ArgumentsCallerCalleeUsageCheck extends SubscriptionBaseVisitor {
     String object = ((IdentifierTree) expression.object()).name();
     String property = ((IdentifierTree) expression.property()).name();
 
-    if ("caller".equals(property)) {
+    if (ARGUMENTS.equals(object)) {
+      checkArgumentsProperty(expression, property);
 
-      if ("arguments".equals(object)) {
-        addIssue(expression, "Remove this use of \"arguments.caller\".");
-      } else if (scope.contains(object)) {
-        addIssue(expression, "Remove this use of \"" + object + ".caller\".");
-      }
+    } else if (scope.contains(object)) {
+      checkFunctionsProperty(expression, object, property);
+    }
+  }
 
-    } else if ("arguments".equals(property) && scope.contains(object)) {
-      addIssue(expression, "Remove this use of \"" + object + ".arguments\".");
+  private void checkFunctionsProperty(Tree tree, String object, String property) {
+    if (CALLER.equals(property)) {
+      addIssue(tree, "Remove this use of \"" + object + ".caller\".");
 
-    } else if ("callee".equals(property) && "arguments".equals(object)) {
-      addIssue(expression, "Name the enclosing function instead of using the deprecated property \"arguments.callee\".");
+    } else if (ARGUMENTS.equals(property)) {
+      addIssue(tree, "Remove this use of \"" + object + ".arguments\".");
+    }
+  }
+
+  private void checkArgumentsProperty(Tree tree, String property) {
+    if (CALLER.equals(property)) {
+      addIssue(tree, "Remove this use of \"arguments.caller\".");
+
+    } else if (CALLEE.equals(property)) {
+      addIssue(tree, "Name the enclosing function instead of using the deprecated property \"arguments.callee\".");
     }
   }
 
