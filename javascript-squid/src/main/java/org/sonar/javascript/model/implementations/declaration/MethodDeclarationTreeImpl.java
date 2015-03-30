@@ -40,7 +40,7 @@ import javax.annotation.Nullable;
 
 import java.util.Iterator;
 
-public class MethodDeclarationTreeImpl extends JavaScriptTree implements MethodDeclarationTree, GeneratorMethodDeclarationTree, AccessorMethodDeclarationTree {
+public class MethodDeclarationTreeImpl extends JavaScriptTree implements GeneratorMethodDeclarationTree, AccessorMethodDeclarationTree {
 
   private final Kind kind;
   @Nullable
