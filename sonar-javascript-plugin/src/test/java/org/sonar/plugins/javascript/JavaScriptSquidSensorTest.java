@@ -36,6 +36,7 @@ import org.sonar.api.resources.File;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.scan.filesystem.PathResolver;
+import org.sonar.api.source.Highlightable;
 import org.sonar.plugins.javascript.core.JavaScript;
 import org.sonar.test.TestUtils;
 
@@ -79,16 +80,23 @@ public class JavaScriptSquidSensorTest {
   @Test
   public void should_analyse() {
     fileSystem.setBaseDir(TestUtils.getResource("/cpd/"));
-    fileSystem.add(new DefaultInputFile("Person.js")
-      .setAbsolutePath(TestUtils.getResource("/cpd/Person.js").getAbsolutePath())
-      .setType(InputFile.Type.MAIN)
-      .setLanguage(JavaScript.KEY));
+    InputFile inputFile = new DefaultInputFile("Person.js")
+        .setAbsolutePath(TestUtils.getResource("/cpd/Person.js").getAbsolutePath())
+        .setType(InputFile.Type.MAIN)
+        .setLanguage(JavaScript.KEY);
+    fileSystem.add(inputFile);
 
     SensorContext context = mock(SensorContext.class);
-    when(context.getResource(any(Resource.class))).thenReturn(File.create((new PathResolver()).relativePath(fileSystem.baseDir(), TestUtils.getResource("/cpd/Person.js"))));
-    JavaScriptSquidSensor sensor = new JavaScriptSquidSensor(checkFactory, fileLinesContextFactory, mock(ResourcePerspectives.class), fileSystem, new NoSonarFilter(
-      mock(SensorContext.class)), new PathResolver());
+    ResourcePerspectives perspectives = mock(ResourcePerspectives.class);
+    Highlightable highlightable = mock(Highlightable.class);
+    Highlightable.HighlightingBuilder builder = mock(Highlightable.HighlightingBuilder.class);
 
+    when(perspectives.as(Highlightable.class, inputFile)).thenReturn(highlightable);
+    when(highlightable.newHighlighting()).thenReturn(builder);
+    when(context.getResource(any(Resource.class))).thenReturn(File.create((new PathResolver()).relativePath(fileSystem.baseDir(), TestUtils.getResource("/cpd/Person.js"))));
+
+    JavaScriptSquidSensor sensor = new JavaScriptSquidSensor(checkFactory, fileLinesContextFactory, perspectives, fileSystem, new NoSonarFilter(
+        mock(SensorContext.class)), new PathResolver());
     sensor.analyse(project, context);
 
     verify(context).saveMeasure(any(Resource.class), eq(CoreMetrics.LINES), eq(32.0));

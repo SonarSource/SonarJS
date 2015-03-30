@@ -35,6 +35,7 @@ import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.rule.CheckFactory;
 import org.sonar.api.batch.rule.Checks;
 import org.sonar.api.checks.NoSonarFilter;
+import org.sonar.api.component.Perspective;
 import org.sonar.api.component.ResourcePerspectives;
 import org.sonar.api.issue.Issuable;
 import org.sonar.api.issue.Issue;
@@ -46,6 +47,7 @@ import org.sonar.api.resources.File;
 import org.sonar.api.resources.Project;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.scan.filesystem.PathResolver;
+import org.sonar.api.source.Highlightable;
 import org.sonar.javascript.EcmaScriptConfiguration;
 import org.sonar.javascript.JavaScriptAstScanner;
 import org.sonar.javascript.JavaScriptFileScanner;
@@ -54,6 +56,7 @@ import org.sonar.javascript.ast.visitors.VisitorsBridge;
 import org.sonar.javascript.checks.CheckList;
 import org.sonar.javascript.metrics.FileLinesVisitor;
 import org.sonar.plugins.javascript.core.JavaScript;
+import org.sonar.plugins.javascript.highlighter.JavaScriptHighlighter;
 import org.sonar.squidbridge.AstScanner;
 import org.sonar.squidbridge.SquidAstVisitor;
 import org.sonar.squidbridge.api.CheckMessage;
@@ -65,6 +68,8 @@ import org.sonar.squidbridge.api.SourceFunction;
 import org.sonar.squidbridge.indexer.QueryByParent;
 import org.sonar.squidbridge.indexer.QueryByType;
 import org.sonar.sslr.parser.LexerlessGrammar;
+
+import javax.annotation.Nullable;
 
 public class JavaScriptSquidSensor implements Sensor {
 
@@ -126,6 +131,26 @@ public class JavaScriptSquidSensor implements Sensor {
 
     Collection<SourceCode> squidSourceFiles = scanner.getIndex().search(new QueryByType(SourceFile.class));
     save(squidSourceFiles);
+
+    highlight();
+  }
+
+  private void highlight() {
+    JavaScriptHighlighter highlighter = new JavaScriptHighlighter(createConfiguration());
+    for (InputFile inputFile : fileSystem.inputFiles(mainFilePredicate)){
+      highlighter.highlight(perspective(Highlightable.class, inputFile), inputFile.file());
+    }
+  }
+
+  <P extends Perspective<?>> P perspective(Class<P> clazz, @Nullable InputFile file) {
+    if (file == null) {
+      throw new IllegalArgumentException("Cannot get " + clazz.getCanonicalName() + "for a null file");
+    }
+    P result = resourcePerspectives.as(clazz, file);
+    if (result == null) {
+      throw new IllegalStateException("Could not get " + clazz.getCanonicalName() + " for " + file);
+    }
+    return result;
   }
 
   private EcmaScriptConfiguration createConfiguration() {

@@ -24,7 +24,6 @@ import org.sonar.api.PropertyType;
 import org.sonar.api.SonarPlugin;
 import org.sonar.api.config.PropertyDefinition;
 import org.sonar.api.resources.Qualifiers;
-import org.sonar.plugins.javascript.colorizer.JavaScriptColorizerFormat;
 import org.sonar.plugins.javascript.core.JavaScript;
 import org.sonar.plugins.javascript.core.JavaScriptSourceImporter;
 import org.sonar.plugins.javascript.cpd.JavaScriptCpdMapping;
@@ -61,7 +60,6 @@ public class JavaScriptPlugin extends SonarPlugin {
     return ImmutableList.of(
         JavaScript.class,
         JavaScriptSourceImporter.class,
-        JavaScriptColorizerFormat.class,
         JavaScriptCpdMapping.class,
 
         JavaScriptSquidSensor.class,

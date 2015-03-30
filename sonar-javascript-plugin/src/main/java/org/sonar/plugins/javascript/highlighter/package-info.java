@@ -17,14 +17,8 @@
  * License along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.plugins.javascript.colorizer;
+@ParametersAreNonnullByDefault
+package org.sonar.plugins.javascript.highlighter;
 
-import org.sonar.colorizer.InlineDocTokenizer;
+import javax.annotation.ParametersAreNonnullByDefault;
 
-public class HtmlCommentTokenizer extends InlineDocTokenizer {
-
-  public HtmlCommentTokenizer(String tagBefore, String tagAfter) {
-    super("<!--", tagBefore, tagAfter);
-  }
-
-}
