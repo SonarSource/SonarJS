@@ -63,10 +63,16 @@ public class JavaScriptHighlighter {
   }
 
   private void highlightComments(Highlightable.HighlightingBuilder highlighting, List<Token> tokens, SourceFileOffsets offsets) {
+    String code;
     for (Token token : tokens) {
       if (!token.getTrivia().isEmpty()) {
         for (Trivia trivia : token.getTrivia()) {
-          highlight(highlighting, offsets.startOffset(trivia.getToken()), offsets.endOffset(trivia.getToken()), "cd");
+          if (trivia.getToken().getValue().startsWith("/**")) {
+            code = "cppd";
+          } else {
+            code = "cd";
+          }
+          highlight(highlighting, offsets.startOffset(trivia.getToken()), offsets.endOffset(trivia.getToken()), code);
         }
       }
     }

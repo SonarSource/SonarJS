@@ -70,7 +70,7 @@ public class JavaScriptHighlighterTest {
   @Test
   public void javadoc_comment() throws Exception {
     Highlightable.HighlightingBuilder builder = highlight("  /**Comment*/ ");
-    verify(builder).highlight(2, 14, "cd");
+    verify(builder).highlight(2, 14, "cppd");
   }
 
   @Test
