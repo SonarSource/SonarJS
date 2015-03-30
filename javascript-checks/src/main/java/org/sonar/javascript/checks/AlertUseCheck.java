@@ -19,12 +19,10 @@
  */
 package org.sonar.javascript.checks;
 
-import com.google.common.collect.ImmutableList;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
-import org.sonar.javascript.checks.utils.SubscriptionBaseVisitor;
-import org.sonar.javascript.model.interfaces.Tree;
+import org.sonar.javascript.ast.visitors.BaseTreeVisitor;
 import org.sonar.javascript.model.interfaces.Tree.Kind;
 import org.sonar.javascript.model.interfaces.expression.CallExpressionTree;
 import org.sonar.javascript.model.interfaces.expression.ExpressionTree;
@@ -32,8 +30,6 @@ import org.sonar.javascript.model.interfaces.expression.IdentifierTree;
 import org.sonar.squidbridge.annotations.ActivatedByDefault;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
-
-import java.util.List;
 
 @Rule(
   key = "S1442",
@@ -43,22 +39,16 @@ import java.util.List;
 @ActivatedByDefault
 @SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.SECURITY_FEATURES)
 @SqaleConstantRemediation("10min")
-public class AlertUseCheck extends SubscriptionBaseVisitor {
+public class AlertUseCheck extends BaseTreeVisitor {
 
   @Override
-  public List<Kind> nodesToVisit() {
-    return ImmutableList.<Kind>builder()
-        .add(Kind.CALL_EXPRESSION)
-        .build();
-  }
-
-  @Override
-  public void visitNode(Tree tree) {
-    ExpressionTree callee = ((CallExpressionTree)tree).callee();
-
+  public void visitCallExpression(CallExpressionTree tree) {
+    ExpressionTree callee = tree.callee();
     if (callee.is(Kind.IDENTIFIER_REFERENCE) && isAlertCall((IdentifierTree) callee)) {
-      addIssue(tree, "Remove this usage of alert(...).");
+      getContext().addIssue(this, tree, "Remove this usage of alert(...).");
     }
+
+    super.visitCallExpression(tree);
   }
 
   public static boolean isAlertCall(IdentifierTree identifier) {
