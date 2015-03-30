@@ -19,9 +19,12 @@
  */
 package org.sonar.javascript.checks;
 
+import com.google.common.collect.ImmutableList;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
+import org.sonar.javascript.checks.utils.SubscriptionBaseVisitor;
+import org.sonar.javascript.model.interfaces.Tree;
 import org.sonar.javascript.model.interfaces.Tree.Kind;
 import org.sonar.javascript.model.interfaces.expression.CallExpressionTree;
 import org.sonar.javascript.model.interfaces.expression.ExpressionTree;
@@ -29,10 +32,8 @@ import org.sonar.javascript.model.interfaces.expression.IdentifierTree;
 import org.sonar.squidbridge.annotations.ActivatedByDefault;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
-import org.sonar.squidbridge.checks.SquidCheck;
-import org.sonar.sslr.parser.LexerlessGrammar;
 
-import com.sonar.sslr.api.AstNode;
+import java.util.List;
 
 @Rule(
   key = "S1442",
@@ -42,19 +43,21 @@ import com.sonar.sslr.api.AstNode;
 @ActivatedByDefault
 @SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.SECURITY_FEATURES)
 @SqaleConstantRemediation("10min")
-public class AlertUseCheck extends SquidCheck<LexerlessGrammar> {
+public class AlertUseCheck extends SubscriptionBaseVisitor {
 
   @Override
-  public void init() {
-    subscribeTo(Kind.CALL_EXPRESSION);
+  public List<Kind> nodesToVisit() {
+    return ImmutableList.<Kind>builder()
+        .add(Kind.CALL_EXPRESSION)
+        .build();
   }
 
   @Override
-  public void visitNode(AstNode astNode) {
-    ExpressionTree callee = ((CallExpressionTree)astNode).callee();
+  public void visitNode(Tree tree) {
+    ExpressionTree callee = ((CallExpressionTree)tree).callee();
 
     if (callee.is(Kind.IDENTIFIER_REFERENCE) && isAlertCall((IdentifierTree) callee)) {
-      getContext().createLineViolation(this, "Remove this usage of alert(...).", astNode);
+      addIssue(tree, "Remove this usage of alert(...).");
     }
   }
 
