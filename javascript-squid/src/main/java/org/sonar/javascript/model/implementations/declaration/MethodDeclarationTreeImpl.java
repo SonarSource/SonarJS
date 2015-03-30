@@ -19,9 +19,10 @@
  */
 package org.sonar.javascript.model.implementations.declaration;
 
-import com.google.common.base.Preconditions;
-import com.google.common.collect.Iterators;
-import com.sonar.sslr.api.AstNode;
+import java.util.Iterator;
+
+import javax.annotation.Nullable;
+
 import org.sonar.javascript.ast.visitors.TreeVisitor;
 import org.sonar.javascript.model.implementations.JavaScriptTree;
 import org.sonar.javascript.model.implementations.lexical.InternalSyntaxToken;
@@ -29,16 +30,15 @@ import org.sonar.javascript.model.implementations.statement.BlockTreeImpl;
 import org.sonar.javascript.model.interfaces.Tree;
 import org.sonar.javascript.model.interfaces.declaration.AccessorMethodDeclarationTree;
 import org.sonar.javascript.model.interfaces.declaration.GeneratorMethodDeclarationTree;
-import org.sonar.javascript.model.interfaces.declaration.MethodDeclarationTree;
 import org.sonar.javascript.model.interfaces.declaration.ParameterListTree;
 import org.sonar.javascript.model.interfaces.expression.ExpressionTree;
 import org.sonar.javascript.model.interfaces.expression.IdentifierTree;
 import org.sonar.javascript.model.interfaces.expression.LiteralTree;
 import org.sonar.javascript.model.interfaces.lexical.SyntaxToken;
 
-import javax.annotation.Nullable;
-
-import java.util.Iterator;
+import com.google.common.base.Preconditions;
+import com.google.common.collect.Iterators;
+import com.sonar.sslr.api.AstNode;
 
 public class MethodDeclarationTreeImpl extends JavaScriptTree implements GeneratorMethodDeclarationTree, AccessorMethodDeclarationTree {
 
