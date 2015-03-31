@@ -19,33 +19,11 @@
  */
 package org.sonar.javascript.model.interfaces.statement;
 
-import org.sonar.javascript.model.interfaces.expression.ExpressionTree;
-import org.sonar.javascript.model.interfaces.lexical.SyntaxToken;
-
 /**
- * <a href="http://www.ecma-international.org/ecma-262/5.1/#sec-12.6.1">do-while Statement</a>.
- * <p/>
- * <pre>
- *   do {@link #statement()} while ( {@link #condition()} ) ;
- * </pre>
- * <p/>
+ * Common interface for <a href="http://www.ecma-international.org/ecma-262/5.1/#sec-12.6">iteration statements</a>.
+ *
  * <p>This interface is not intended to be implemented by clients.</p>
  */
-public interface DoWhileStatementTree extends IterationStatementTree {
-
-  SyntaxToken doKeyword();
-
-  @Override
+public interface IterationStatementTree extends StatementTree {
   StatementTree statement();
-
-  SyntaxToken whileKeyword();
-
-  SyntaxToken openParenthesis();
-
-  ExpressionTree condition();
-
-  SyntaxToken closeParenthesis();
-
-  SyntaxToken endOfStatement();
-
 }

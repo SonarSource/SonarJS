@@ -35,7 +35,7 @@ import javax.annotation.Nullable;
  *
  * <p>This interface is not intended to be implemented by clients.</p>
  */
-public interface ForStatementTree extends StatementTree {
+public interface ForStatementTree extends IterationStatementTree {
 
   SyntaxToken forKeyword();
 
@@ -56,6 +56,7 @@ public interface ForStatementTree extends StatementTree {
 
   SyntaxToken closeParenthesis();
 
+  @Override
   StatementTree statement();
 
 }

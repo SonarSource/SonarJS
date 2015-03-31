@@ -31,7 +31,7 @@ import org.sonar.javascript.model.interfaces.lexical.SyntaxToken;
  * <p/>
  * <p>This interface is not intended to be implemented by clients.</p>
  */
-public interface WhileStatementTree extends StatementTree {
+public interface WhileStatementTree extends IterationStatementTree {
 
   SyntaxToken whileKeyword();
 
@@ -41,6 +41,7 @@ public interface WhileStatementTree extends StatementTree {
 
   SyntaxToken closeParenthesis();
 
+  @Override
   StatementTree statement();
 
 }

@@ -32,7 +32,7 @@ import org.sonar.javascript.model.interfaces.lexical.SyntaxToken;
  * <p/>
  * <p>This interface is not intended to be implemented by clients.</p>
  */
-public interface ForInStatementTree extends StatementTree {
+public interface ForInStatementTree extends IterationStatementTree {
 
   SyntaxToken forKeyword();
 
@@ -46,6 +46,7 @@ public interface ForInStatementTree extends StatementTree {
 
   SyntaxToken closeParenthesis();
 
+  @Override
   StatementTree statement();
 
 }
