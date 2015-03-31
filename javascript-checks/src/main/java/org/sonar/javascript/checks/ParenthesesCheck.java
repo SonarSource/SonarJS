@@ -22,18 +22,20 @@ package org.sonar.javascript.checks;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
-import org.sonar.javascript.api.EcmaScriptKeyword;
+import org.sonar.javascript.ast.visitors.BaseTreeVisitor;
+import org.sonar.javascript.checks.utils.CheckUtils;
 import org.sonar.javascript.model.interfaces.Tree.Kind;
-import org.sonar.javascript.model.interfaces.expression.BinaryExpressionTree;
+import org.sonar.javascript.model.interfaces.expression.ExpressionTree;
 import org.sonar.javascript.model.interfaces.expression.NewExpressionTree;
 import org.sonar.javascript.model.interfaces.expression.ParenthesisedExpressionTree;
 import org.sonar.javascript.model.interfaces.expression.UnaryExpressionTree;
+import org.sonar.javascript.model.interfaces.statement.ForInStatementTree;
+import org.sonar.javascript.model.interfaces.statement.ReturnStatementTree;
+import org.sonar.javascript.model.interfaces.statement.ThrowStatementTree;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
-import org.sonar.squidbridge.checks.SquidCheck;
-import org.sonar.sslr.parser.LexerlessGrammar;
 
-import com.sonar.sslr.api.AstNode;
+import javax.annotation.Nullable;
 
 /**
  * http://google-styleguide.googlecode.com/svn/trunk/javascriptguide.xml?showone=Parentheses#Parentheses
@@ -47,48 +49,47 @@ import com.sonar.sslr.api.AstNode;
   tags = {Tags.CONFUSING})
 @SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.READABILITY)
 @SqaleConstantRemediation("1min")
-public class ParenthesesCheck extends SquidCheck<LexerlessGrammar> {
+public class ParenthesesCheck extends BaseTreeVisitor {
 
   @Override
-  public void init() {
-    subscribeTo(
-      Kind.DELETE,
-      Kind.TYPEOF,
-      Kind.VOID,
-      EcmaScriptKeyword.RETURN,
-      EcmaScriptKeyword.THROW,
-      Kind.NEW_EXPRESSION,
-      EcmaScriptKeyword.IN);
-  }
-
-  @Override
-  public void visitNode(AstNode node) {
-    if (node.is(Kind.DELETE, Kind.TYPEOF, Kind.VOID)) {
-      UnaryExpressionTree prefixExpr = (UnaryExpressionTree) node;
-
-      if (prefixExpr.expression().is(Kind.PARENTHESISED_EXPRESSION)) {
-        reportIssue(node);
-      }
-
-    } else if (node.is(Kind.NEW_EXPRESSION)) {
-      NewExpressionTree tree = (NewExpressionTree) node;
-
-      if (tree.arguments() == null &&
-        tree.expression().is(Kind.PARENTHESISED_EXPRESSION) && !(((ParenthesisedExpressionTree) tree.expression()).expression() instanceof BinaryExpressionTree)) {
-        reportIssue(node);
-      }
-
-    } else if (isNotRelationalInExpression(node) && node.getNextAstNode().is(Kind.PARENTHESISED_EXPRESSION)) {
-      reportIssue(node);
+  public void visitUnaryExpression(UnaryExpressionTree tree){
+    if (tree.is(Kind.DELETE, Kind.TYPEOF, Kind.VOID)){
+      checkExpression(tree.expression());
     }
+    super.visitUnaryExpression(tree);
   }
 
-  private boolean isNotRelationalInExpression(AstNode node) {
-    return !(node.is(EcmaScriptKeyword.IN) && node.getParent().is(Kind.RELATIONAL_IN));
+  @Override
+  public void visitReturnStatement(ReturnStatementTree tree){
+    checkExpression(tree.expression());
+    super.visitReturnStatement(tree);
   }
 
-  private void reportIssue(AstNode node) {
-    getContext().createLineViolation(this, "Those parentheses are useless.", node);
+  @Override
+  public void visitThrowStatement(ThrowStatementTree tree){
+    checkExpression(tree.expression());
+    super.visitThrowStatement(tree);
+  }
+
+  @Override
+  public void visitNewExpression(NewExpressionTree tree) {
+    if (tree.arguments() == null) {
+      checkExpression(tree.expression());
+    }
+    super.visitNewExpression(tree);
+  }
+
+  @Override
+  public void visitForInStatement(ForInStatementTree tree) {
+    checkExpression(tree.expression());
+    super.visitForInStatement(tree);
+  }
+
+  private void checkExpression(@Nullable ExpressionTree expression) {
+    if (expression != null && expression.is(Kind.PARENTHESISED_EXPRESSION)){
+      String expressingString = CheckUtils.asString(((ParenthesisedExpressionTree) expression).expression());
+      getContext().addIssue(this, expression, String.format("The parentheses around \"%s\" are useless.", expressingString));
+    }
   }
 
 }

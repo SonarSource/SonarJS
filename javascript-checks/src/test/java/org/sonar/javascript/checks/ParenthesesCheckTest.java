@@ -19,28 +19,26 @@
  */
 package org.sonar.javascript.checks;
 
-import org.sonar.squidbridge.checks.CheckMessagesVerifier;
 import org.junit.Test;
-import org.sonar.javascript.JavaScriptAstScanner;
+import org.sonar.javascript.checks.utils.TreeCheckTest;
 import org.sonar.squidbridge.api.SourceFile;
+import org.sonar.squidbridge.checks.CheckMessagesVerifier;
 
-import java.io.File;
-
-public class ParenthesesCheckTest {
+public class ParenthesesCheckTest extends TreeCheckTest {
 
   @Test
   public void test() {
     ParenthesesCheck check = new ParenthesesCheck();
 
-    SourceFile file = JavaScriptAstScanner.scanSingleFile(new File("src/test/resources/checks/parentheses.js"), check);
+    SourceFile file = scanFile("src/test/resources/checks/parentheses.js", check);
     CheckMessagesVerifier.verify(file.getCheckMessages())
-        .next().atLine(2).withMessage("Those parentheses are useless.")
-        .next().atLine(8)
-        .next().atLine(12)
-        .next().atLine(15)
-        .next().atLine(23)
-        .next().atLine(26)
-        .next().atLine(30)
+        .next().atLine(2).withMessage("The parentheses around \"37\" are useless.")
+        .next().atLine(8).withMessage("The parentheses around \"a\" are useless.")
+        .next().atLine(12).withMessage("The parentheses around \"1\" are useless.")
+        .next().atLine(15).withMessage("The parentheses around \"1\" are useless.")
+        .next().atLine(23).withMessage("The parentheses around \"new Error('myExceptionTwo')\" are useless.")
+        .next().atLine(26).withMessage("The parentheses around \"Error('error')\" are useless.")
+        .next().atLine(30).withMessage("The parentheses around \"object\" are useless.")
         .noMore();
   }
 

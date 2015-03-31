@@ -38,3 +38,4 @@ function sayHello() {
 }
 
 new (a || b)();            // OK
+
