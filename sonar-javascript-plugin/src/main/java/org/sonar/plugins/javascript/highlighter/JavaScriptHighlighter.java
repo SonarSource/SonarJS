@@ -68,7 +68,7 @@ public class JavaScriptHighlighter {
       if (!token.getTrivia().isEmpty()) {
         for (Trivia trivia : token.getTrivia()) {
           if (trivia.getToken().getValue().startsWith("/**")) {
-            code = "cppd";
+            code = "j";
           } else {
             code = "cd";
           }
