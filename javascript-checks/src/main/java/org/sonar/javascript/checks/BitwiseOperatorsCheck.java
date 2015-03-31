@@ -19,17 +19,21 @@
  */
 package org.sonar.javascript.checks;
 
+import com.google.common.collect.ImmutableList;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
-import org.sonar.javascript.api.EcmaScriptPunctuator;
+import org.sonar.javascript.checks.utils.SubscriptionBaseVisitor;
+import org.sonar.javascript.model.interfaces.Tree;
+import org.sonar.javascript.model.interfaces.expression.AssignmentExpressionTree;
+import org.sonar.javascript.model.interfaces.expression.BinaryExpressionTree;
+import org.sonar.javascript.model.interfaces.expression.UnaryExpressionTree;
+import org.sonar.javascript.model.interfaces.lexical.SyntaxToken;
 import org.sonar.squidbridge.annotations.ActivatedByDefault;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
-import org.sonar.squidbridge.checks.SquidCheck;
-import org.sonar.sslr.parser.LexerlessGrammar;
 
-import com.sonar.sslr.api.AstNode;
+import java.util.List;
 
 @Rule(
   key = "BitwiseOperators",
@@ -39,29 +43,38 @@ import com.sonar.sslr.api.AstNode;
 @ActivatedByDefault
 @SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.UNDERSTANDABILITY)
 @SqaleConstantRemediation("5min")
-public class BitwiseOperatorsCheck extends SquidCheck<LexerlessGrammar> {
+public class BitwiseOperatorsCheck extends SubscriptionBaseVisitor {
 
   @Override
-  public void init() {
-    subscribeTo(
-        EcmaScriptPunctuator.AND,
-        EcmaScriptPunctuator.OR,
-        EcmaScriptPunctuator.XOR,
-        EcmaScriptPunctuator.TILDA,
-        EcmaScriptPunctuator.SL,
-        EcmaScriptPunctuator.SR,
-        EcmaScriptPunctuator.SR2,
-        EcmaScriptPunctuator.AND_EQU,
-        EcmaScriptPunctuator.OR_EQU,
-        EcmaScriptPunctuator.XOR_EQU,
-        EcmaScriptPunctuator.SL_EQU,
-        EcmaScriptPunctuator.SR_EQU,
-        EcmaScriptPunctuator.SR_EQU2);
+  public List<Tree.Kind> nodesToVisit() {
+    return ImmutableList.<Tree.Kind>builder()
+        .add(Tree.Kind.BITWISE_AND)
+        .add(Tree.Kind.BITWISE_OR)
+        .add(Tree.Kind.BITWISE_XOR)
+        .add(Tree.Kind.BITWISE_COMPLEMENT)
+        .add(Tree.Kind.LEFT_SHIFT)
+        .add(Tree.Kind.RIGHT_SHIFT)
+        .add(Tree.Kind.UNSIGNED_RIGHT_SHIFT)
+        .add(Tree.Kind.AND_ASSIGNMENT)
+        .add(Tree.Kind.OR_ASSIGNMENT)
+        .add(Tree.Kind.XOR_ASSIGNMENT)
+        .add(Tree.Kind.LEFT_SHIFT_ASSIGNMENT)
+        .add(Tree.Kind.RIGHT_SHIFT_ASSIGNMENT)
+        .add(Tree.Kind.UNSIGNED_RIGHT_SHIFT_ASSIGNMENT)
+        .build();
   }
 
   @Override
-  public void visitNode(AstNode astNode) {
-    getContext().createLineViolation(this, "Remove the use of \"{0}\" operator.", astNode, astNode.getTokenValue());
+  public void visitNode(Tree tree) {
+    SyntaxToken operator;
+    if (tree.is(Tree.Kind.BITWISE_COMPLEMENT)){
+      operator = ((UnaryExpressionTree) tree).operator();
+    } else if (tree instanceof BinaryExpressionTree) {
+      operator = ((BinaryExpressionTree) tree).operator();
+    } else {
+      operator = ((AssignmentExpressionTree) tree).operator();
+    }
+    getContext().addIssue(this, operator, String.format("Remove the use of \"%s\" operator.", operator.text()));
   }
 
 }
