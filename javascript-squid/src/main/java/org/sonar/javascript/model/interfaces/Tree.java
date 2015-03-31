@@ -508,7 +508,7 @@ public interface Tree {
 
     /**
      * {@link BinaryExpressionTree}
-     * {@code ==}
+     * {@code ===}
      */
     STRICT_EQUAL_TO(BinaryExpressionTree.class),
 

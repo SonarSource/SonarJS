@@ -22,18 +22,15 @@ package org.sonar.javascript.checks;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
-import org.sonar.javascript.api.EcmaScriptKeyword;
-import org.sonar.javascript.api.EcmaScriptPunctuator;
-import org.sonar.javascript.checks.utils.CheckUtils;
+import org.sonar.javascript.ast.visitors.BaseTreeVisitor;
 import org.sonar.javascript.model.interfaces.Tree.Kind;
 import org.sonar.javascript.model.interfaces.expression.BinaryExpressionTree;
+import org.sonar.javascript.model.interfaces.expression.ExpressionTree;
+import org.sonar.javascript.model.interfaces.expression.LiteralTree;
+import org.sonar.javascript.model.interfaces.expression.UnaryExpressionTree;
 import org.sonar.squidbridge.annotations.ActivatedByDefault;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
-import org.sonar.squidbridge.checks.SquidCheck;
-import org.sonar.sslr.parser.LexerlessGrammar;
-
-import com.sonar.sslr.api.AstNode;
 
 @Rule(
   key = "S1125",
@@ -43,66 +40,37 @@ import com.sonar.sslr.api.AstNode;
 @ActivatedByDefault
 @SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.READABILITY)
 @SqaleConstantRemediation("2min")
-public class BooleanEqualityComparisonCheck extends SquidCheck<LexerlessGrammar> {
+public class BooleanEqualityComparisonCheck extends BaseTreeVisitor {
 
-  @Override
-  public void init() {
-    subscribeTo(CheckUtils.equalityExpressionArray());
-    subscribeTo(Kind.LOGICAL_COMPLEMENT);
-    subscribeTo(
+  private static final Kind[] BINARY_OPERATORS = {
       Kind.CONDITIONAL_AND,
-      Kind.CONDITIONAL_OR);
+      Kind.CONDITIONAL_OR,
+      Kind.EQUAL_TO,
+      Kind.NOT_EQUAL_TO
+  };
+
+  @Override
+  public void visitUnaryExpression(UnaryExpressionTree tree) {
+    if (tree.is(Kind.LOGICAL_COMPLEMENT)) {
+      visitExpression(tree.expression());
+    }
+    super.visitUnaryExpression(tree);
   }
 
   @Override
-  public void visitNode(AstNode astNode) {
-    AstNode boolLiteral = getBooleanLiteralFromExpresion(astNode);
-
-    if (boolLiteral != null) {
-      getContext().createLineViolation(this, "Remove the literal \"" + boolLiteral.getTokenOriginalValue() + "\" boolean value.", boolLiteral);
+  public void visitBinaryExpression(BinaryExpressionTree tree) {
+    if (tree.is(BINARY_OPERATORS)) {
+      visitExpression(tree.leftOperand());
+      visitExpression(tree.rightOperand());
     }
+    super.visitBinaryExpression(tree);
   }
 
-  private static AstNode getBooleanLiteralFromExpresion(AstNode expression) {
-    if (expression.is(Kind.LOGICAL_COMPLEMENT)) {
-      return getBooleanLiteralFromUnaryExpression(expression);
+  private void visitExpression(ExpressionTree expression) {
+    if (expression.is(Kind.BOOLEAN_LITERAL)){
+      String message = String.format("Remove the literal \"%s\" boolean value.", ((LiteralTree) expression).value());
+      getContext().addIssue(this, expression, message);
     }
-
-    BinaryExpressionTree binaryExpr = (BinaryExpressionTree) expression;
-
-    // e.g x == y == false
-    if (expression.getParent().is(CheckUtils.equalityExpressionArray())) {
-      return null;
-    }
-
-    AstNode leftExpr = (AstNode) binaryExpr.leftOperand();
-    AstNode rightExpr = (AstNode) binaryExpr.rightOperand();
-
-    if (isBooleanLiteral(leftExpr)) {
-      return leftExpr;
-    } else if (isBooleanLiteral(rightExpr)) {
-      return rightExpr;
-    } else {
-      return null;
-    }
-  }
-
-  private static AstNode getBooleanLiteralFromUnaryExpression(AstNode unaryExpression) {
-    AstNode boolLiteral = null;
-
-    if (unaryExpression.getFirstChild().is(EcmaScriptPunctuator.BANG)) {
-      AstNode expr = unaryExpression.getLastChild();
-
-      if (isBooleanLiteral(expr)) {
-        boolLiteral = expr;
-      }
-    }
-    return boolLiteral;
-  }
-
-  public static boolean isBooleanLiteral(AstNode node) {
-    return EcmaScriptKeyword.FALSE.getValue().equals(node.getTokenValue())
-      || EcmaScriptKeyword.TRUE.getValue().equals(node.getTokenValue());
   }
 
 }

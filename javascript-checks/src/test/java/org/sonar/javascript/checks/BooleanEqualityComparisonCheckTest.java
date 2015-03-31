@@ -19,37 +19,34 @@
  */
 package org.sonar.javascript.checks;
 
-import org.sonar.squidbridge.checks.CheckMessagesVerifier;
 import org.junit.Test;
-import org.sonar.javascript.JavaScriptAstScanner;
+import org.sonar.javascript.checks.utils.TreeCheckTest;
 import org.sonar.squidbridge.api.SourceFile;
+import org.sonar.squidbridge.checks.CheckMessagesVerifier;
 
-import java.io.File;
-
-public class BooleanEqualityComparisonCheckTest {
+public class BooleanEqualityComparisonCheckTest extends TreeCheckTest {
 
   private BooleanEqualityComparisonCheck check = new BooleanEqualityComparisonCheck();
 
   @Test
   public void test() {
-    SourceFile file = JavaScriptAstScanner.scanSingleFile(new File("src/test/resources/checks/booleanEqualityComparison.js"), check);
+    SourceFile file = scanFile("src/test/resources/checks/booleanEqualityComparison.js", check);
     CheckMessagesVerifier.verify(file.getCheckMessages())
       .next().atLine(1).withMessage("Remove the literal \"true\" boolean value.")
       .next().atLine(2)
       .next().atLine(3).withMessage("Remove the literal \"false\" boolean value.")
       .next().atLine(4)
-      .next().atLine(5).withMessage("Remove the literal \"false\" boolean value.")
-      .next().atLine(6)
       .next().atLine(7).withMessage("Remove the literal \"false\" boolean value.")
       .next().atLine(8)
-      .next().atLine(9).withMessage("Remove the literal \"false\" boolean value.")
-      .next().atLine(10)
       .next().atLine(11)
       .next().atLine(12)
       .next().atLine(13)
       .next().atLine(14)
       .next().atLine(15).withMessage("Remove the literal \"false\" boolean value.")
       .next().atLine(16).withMessage("Remove the literal \"true\" boolean value.")
+      .next().atLine(25).withMessage("Remove the literal \"true\" boolean value.")
+      .next().atLine(26).withMessage("Remove the literal \"false\" boolean value.")
+      .next().atLine(27).withMessage("Remove the literal \"true\" boolean value.")
       .noMore();
   }
 }
