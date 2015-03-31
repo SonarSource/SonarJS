@@ -22,14 +22,14 @@ package org.sonar.javascript.checks;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
-import org.sonar.javascript.api.EcmaScriptKeyword;
+import org.sonar.javascript.ast.visitors.BaseTreeVisitor;
+import org.sonar.javascript.model.interfaces.Tree;
+import org.sonar.javascript.model.interfaces.expression.ExpressionTree;
+import org.sonar.javascript.model.interfaces.expression.IdentifierTree;
+import org.sonar.javascript.model.interfaces.expression.NewExpressionTree;
 import org.sonar.squidbridge.annotations.ActivatedByDefault;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
-import org.sonar.squidbridge.checks.SquidCheck;
-import org.sonar.sslr.parser.LexerlessGrammar;
-
-import com.sonar.sslr.api.AstNode;
 
 @Rule(
   key = "ArrayAndObjectConstructors",
@@ -39,21 +39,17 @@ import com.sonar.sslr.api.AstNode;
 @ActivatedByDefault
 @SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.LOGIC_RELIABILITY)
 @SqaleConstantRemediation("5min")
-public class ArrayAndObjectConstructorsCheck extends SquidCheck<LexerlessGrammar> {
+public class ArrayAndObjectConstructorsCheck extends BaseTreeVisitor {
 
   @Override
-  public void init() {
-    subscribeTo(EcmaScriptKeyword.NEW);
-  }
-
-  @Override
-  public void visitNode(AstNode astNode) {
-    if ("Array".equals(astNode.getNextSibling().getTokenValue())) {
-      getContext().createLineViolation(this, "Use a literal instead of the Array constructor.", astNode);
+  public void visitNewExpression(NewExpressionTree tree) {
+    ExpressionTree expression = tree.expression();
+    if (expression.is(Tree.Kind.IDENTIFIER_REFERENCE)){
+      String next = ((IdentifierTree)expression).name();
+      if ("Array".equals(next) || "Object".equals(next)){
+        getContext().addIssue(this, tree, String.format("Use a literal instead of the %s constructor.", next));
+      }
     }
-    if ("Object".equals(astNode.getNextSibling().getTokenValue())) {
-      getContext().createLineViolation(this, "Use a literal instead of the Object constructor.", astNode);
-    }
+    super.visitNewExpression(tree);
   }
-
 }
