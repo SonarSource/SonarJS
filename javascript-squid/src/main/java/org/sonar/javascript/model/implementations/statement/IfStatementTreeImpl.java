@@ -93,7 +93,7 @@ public class IfStatementTreeImpl extends JavaScriptTree implements IfStatementTr
   }
 
   @Override
-  public StatementTree thenStatement() {
+  public StatementTree statement() {
     return statement;
   }
 

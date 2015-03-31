@@ -256,7 +256,7 @@ public class BaseTreeVisitor implements TreeVisitor, JavaScriptFileScanner {
   @Override
   public void visitIfStatement(IfStatementTree tree) {
     scan(tree.condition());
-    scan(tree.thenStatement());
+    scan(tree.statement());
     scan(tree.elseClause());
   }
 

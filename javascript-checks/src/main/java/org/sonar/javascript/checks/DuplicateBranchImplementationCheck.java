@@ -51,7 +51,7 @@ public class DuplicateBranchImplementationCheck extends BaseTreeVisitor {
 
   @Override
   public void visitIfStatement(IfStatementTree tree) {
-    StatementTree implementation = tree.thenStatement();
+    StatementTree implementation = tree.statement();
     ElseClauseTree elseClause = tree.elseClause();
 
     while (elseClause != null) {
@@ -118,7 +118,7 @@ public class DuplicateBranchImplementationCheck extends BaseTreeVisitor {
   }
 
   private static StatementTree getImplementationFromElseClause(ElseClauseTree elseClause) {
-    return elseClause.statement().is(Kind.IF_STATEMENT) ? ((IfStatementTree) elseClause.statement()).thenStatement() : elseClause.statement();
+    return elseClause.statement().is(Kind.IF_STATEMENT) ? ((IfStatementTree) elseClause.statement()).statement() : elseClause.statement();
   }
 
   public ElseClauseTree getNextElse(ElseClauseTree elseClause) {

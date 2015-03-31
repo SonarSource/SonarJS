@@ -28,8 +28,8 @@ import javax.annotation.Nullable;
  * <a href="http://www.ecma-international.org/ecma-262/5.1/#sec-12.5">if Statement</a>.
  * <p/>
  * <pre>
- *   if ({@link #condition()}) {@link #thenStatement()}
- *   if ({@link #condition()}) {@link #thenStatement()} {@link #elseClause()}
+ *   if ({@link #condition()}) {@link #statement()}
+ *   if ({@link #condition()}) {@link #statement()} {@link #elseClause()}
  * </pre>
  * <p/>
  * <p>This interface is not intended to be implemented by clients.</p>
@@ -44,7 +44,7 @@ public interface IfStatementTree extends StatementTree {
 
   SyntaxToken closeParenthesis();
 
-  StatementTree thenStatement();
+  StatementTree statement();
 
   @Nullable
   ElseClauseTree elseClause();

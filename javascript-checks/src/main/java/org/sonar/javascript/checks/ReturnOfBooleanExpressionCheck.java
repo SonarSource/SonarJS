@@ -56,7 +56,7 @@ public class ReturnOfBooleanExpressionCheck extends SquidCheck<LexerlessGrammar>
 
     if (isNotIfElse(ifStatement) && ifStatement.hasElse()
       && returnsBoolean((AstNode) ifStatement.elseClause().statement())
-      && returnsBoolean((AstNode) ifStatement.thenStatement())) {
+      && returnsBoolean((AstNode) ifStatement.statement())) {
       getContext().createLineViolation(this, "Replace this if-then-else statement by a single return statement.", astNode);
     }
   }

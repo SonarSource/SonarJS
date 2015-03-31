@@ -54,7 +54,7 @@ public class CollapsibleIfStatementsCheck extends SquidCheck<LexerlessGrammar> {
     IfStatementTreeImpl ifStatement = (IfStatementTreeImpl) node;
 
     if (!ifStatement.hasElse()) {
-      StatementTree innerStatement = ifStatement.thenStatement();
+      StatementTree innerStatement = ifStatement.statement();
 
       if (isBlockAndContainsOnlyOneIfStatement((AstNode) innerStatement) || isIfStatementWithoutElse(innerStatement)) {
         getContext().createLineViolation(this, "Merge this if statement with the nested one.", node);
