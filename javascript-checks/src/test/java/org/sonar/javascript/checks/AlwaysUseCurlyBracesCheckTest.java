@@ -19,20 +19,18 @@
  */
 package org.sonar.javascript.checks;
 
+import org.junit.Test;
+import org.sonar.javascript.checks.utils.TreeCheckTest;
 import org.sonar.squidbridge.api.SourceFile;
 import org.sonar.squidbridge.checks.CheckMessagesVerifier;
-import org.junit.Test;
-import org.sonar.javascript.JavaScriptAstScanner;
 
-import java.io.File;
-
-public class AlwaysUseCurlyBracesCheckTest {
+public class AlwaysUseCurlyBracesCheckTest extends TreeCheckTest {
 
   @Test
   public void test() {
     AlwaysUseCurlyBracesCheck check = new AlwaysUseCurlyBracesCheck();
 
-    SourceFile file = JavaScriptAstScanner.scanSingleFile(new File("src/test/resources/checks/alwaysUseCurlyBraces.js"), check);
+    SourceFile file = scanFile("src/test/resources/checks/alwaysUseCurlyBraces.js", check);
     CheckMessagesVerifier.verify(file.getCheckMessages())
         .next().atLine(3).withMessage("Missing curly brace.")
         .next().atLine(5)
@@ -40,6 +38,7 @@ public class AlwaysUseCurlyBracesCheckTest {
         .next().atLine(9)
         .next().atLine(15)
         .next().atLine(21)
+        .next().atLine(35)
         .noMore();
   }
 

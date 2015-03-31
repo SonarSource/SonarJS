@@ -19,48 +19,66 @@
  */
 package org.sonar.javascript.checks;
 
+import com.google.common.collect.ImmutableList;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
+import org.sonar.javascript.checks.utils.SubscriptionBaseVisitor;
+import org.sonar.javascript.model.interfaces.Tree;
 import org.sonar.javascript.model.interfaces.Tree.Kind;
+import org.sonar.javascript.model.interfaces.statement.IfStatementTree;
+import org.sonar.javascript.model.interfaces.statement.IterationStatementTree;
+import org.sonar.javascript.model.interfaces.statement.ElseClauseTree;
+import org.sonar.javascript.model.interfaces.statement.StatementTree;
 import org.sonar.squidbridge.annotations.ActivatedByDefault;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
-import org.sonar.squidbridge.checks.SquidCheck;
-import org.sonar.sslr.parser.LexerlessGrammar;
 
-import com.sonar.sslr.api.AstNode;
+import java.util.List;
 
 @Rule(
-  key = "CurlyBraces",
-  name = "Control structures should always use curly braces",
-  priority = Priority.MAJOR,
-  tags = {Tags.CERT, Tags.CWE, Tags.MISRA, Tags.PITFALL})
+    key = "CurlyBraces",
+    name = "Control structures should always use curly braces",
+    priority = Priority.MAJOR,
+    tags = {Tags.CERT, Tags.CWE, Tags.MISRA, Tags.PITFALL})
 @ActivatedByDefault
 @SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.READABILITY)
 @SqaleConstantRemediation("2min")
-public class AlwaysUseCurlyBracesCheck extends SquidCheck<LexerlessGrammar> {
+public class AlwaysUseCurlyBracesCheck extends SubscriptionBaseVisitor {
 
   @Override
-  public void init() {
-    subscribeTo(
-      Kind.IF_STATEMENT,
-      Kind.FOR_IN_STATEMENT,
-      Kind.FOR_STATEMENT,
-      Kind.WHILE_STATEMENT,
-      Kind.DO_WHILE_STATEMENT,
-      Kind.ELSE_CLAUSE);
+  public List<Kind> nodesToVisit() {
+    return ImmutableList.<Kind>builder()
+        .add(Kind.IF_STATEMENT)
+        .add(Kind.ELSE_CLAUSE)
+        .add(Kind.FOR_IN_STATEMENT)
+        .add(Kind.FOR_STATEMENT)
+        .add(Kind.WHILE_STATEMENT)
+        .add(Kind.DO_WHILE_STATEMENT)
+        .build();
   }
 
   @Override
-  public void visitNode(AstNode astNode) {
-    if (!isElseIf(astNode) && !astNode.hasDirectChildren(Kind.BLOCK)) {
-      getContext().createLineViolation(this, "Missing curly brace.", astNode);
+  public void visitNode(Tree tree) {
+    if (tree.is(Kind.ELSE_CLAUSE)) {
+      visitElseClause(tree);
+    } else if (tree.is(Kind.IF_STATEMENT)) {
+      checkAreCurlyBracesUsed(((IfStatementTree) tree).statement(), tree);
+    } else {
+      checkAreCurlyBracesUsed(((IterationStatementTree) tree).statement(), tree);
     }
   }
 
-  private boolean isElseIf(AstNode statement) {
-    return statement.is(Kind.ELSE_CLAUSE) && statement.hasDirectChildren(Kind.IF_STATEMENT);
+  private void visitElseClause(Tree tree) {
+    if (!((ElseClauseTree) tree).statement().is(Kind.IF_STATEMENT)) {
+      checkAreCurlyBracesUsed(((ElseClauseTree) tree).statement(), tree);
+    }
+  }
+
+  private void checkAreCurlyBracesUsed(StatementTree statement, Tree tree) {
+    if (!statement.is(Kind.BLOCK)) {
+      getContext().addIssue(this, tree, "Missing curly brace.");
+    }
   }
 
 }

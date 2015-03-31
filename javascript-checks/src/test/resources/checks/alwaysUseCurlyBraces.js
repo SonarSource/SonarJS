@@ -32,4 +32,6 @@ function sayHello() {
     something();
   } while (condition);
 
+  for(var p in a)  something()
+
 }
