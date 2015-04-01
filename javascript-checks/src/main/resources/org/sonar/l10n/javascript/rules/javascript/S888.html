@@ -1,11 +1,11 @@
 <p>
-  Testing for loop termination using an equality operator (== and !=) is dangerous, because it could set up an infinite loop. Using a relational operator instead casts a wider
-  net, and makes it harder (but not impossible) to accidentally write an infinite loop.
+  Testing <code>for</code> loop termination using an equality operator (<code>==</code> and <code>!=</code>) is dangerous, because it could set up an infinite loop.
+  Using a relational operator instead casts a wider net, and makes it harder (but not impossible) to accidentally write an infinite loop.
 </p>
 
 <h2>Noncompliant Code Example</h2>
 <pre>
-for (int i = 1; i != 10; i += 2)  // Noncompliant. Infinite; i goes from 9 straight to 11.
+for (var i = 1; i != 10; i += 2)  // Noncompliant. Infinite; i goes from 9 straight to 11.
 {
   //...
 }
@@ -13,7 +13,7 @@ for (int i = 1; i != 10; i += 2)  // Noncompliant. Infinite; i goes from 9 strai
 
 <h2>Compliant Solution</h2>
 <pre>
-for (int i = 1; i <= 10; i += 2)  // Compliant
+for (var i = 1; i <= 10; i += 2)  // Compliant
 {
   //...
 }
