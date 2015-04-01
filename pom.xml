@@ -10,7 +10,7 @@
 
   <groupId>org.codehaus.sonar-plugins.javascript</groupId>
   <artifactId>javascript</artifactId>
-  <version>2.4-SNAPSHOT</version>
+  <version>2.4</version>
   <packaging>pom</packaging>
 
   <name>JavaScript</name>
@@ -51,7 +51,7 @@
     <connection>scm:git:git@github.com:SonarCommunity/sonar-javascript.git</connection>
     <developerConnection>scm:git:git@github.com:SonarCommunity/sonar-javascript.git</developerConnection>
     <url>https://github.com/SonarCommunity/sonar-javascript</url>
-    <tag>HEAD</tag>
+    <tag>2.4</tag>
   </scm>
   <issueManagement>
     <system>JIRA</system>
