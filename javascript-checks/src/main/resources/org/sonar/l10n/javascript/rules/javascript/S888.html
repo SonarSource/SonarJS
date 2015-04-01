@@ -1,0 +1,35 @@
+<p>
+  Testing for loop termination using an equality operator (== and !=) is dangerous, because it could set up an infinite loop. Using a relational operator instead casts a wider
+  net, and makes it harder (but not impossible) to accidentally write an infinite loop.
+</p>
+
+<h2>Noncompliant Code Example</h2>
+<pre>
+for (int i = 1; i != 10; i += 2)  // Noncompliant. Infinite; i goes from 9 straight to 11.
+{
+  //...
+}
+</pre>
+
+<h2>Compliant Solution</h2>
+<pre>
+for (int i = 1; i <= 10; i += 2)  // Compliant
+{
+  //...
+}
+</pre>
+
+<h2>Exceptions</h2>
+<p>An equality operator may be used if the loop counter is not modified within the body of the loop and either:</p>
+<ul>
+  <li>starts below the ending value and is incremented by 1 on each iteration.</li>
+  <li>starts above the ending value and is decremented by 1 on each iteration.</li>
+</ul>
+
+<h2>See</h2>
+<ul>
+  <li>MISRA C++:2008, 6-5-2</li>
+  <li><a href="http://cwe.mitre.org/data/definitions/835">MITRE, CWE-835</a> - Loop with Unreachable Exit Condition ('Infinite Loop')</li>
+  <li><a href="https://www.securecoding.cert.org/confluence/x/EwDJAQ">CERT, MSC21-C</a> - Use robust loop termination conditions</li>
+  <li><a href="https://www.securecoding.cert.org/confluence/x/GwDJAQ">CERT, MSC21-CPP</a> - Use inequality to terminate a loop whose counter changes by more than one</li>
+</ul>

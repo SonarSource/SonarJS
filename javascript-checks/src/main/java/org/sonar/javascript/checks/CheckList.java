@@ -124,7 +124,8 @@ public final class CheckList {
         IndexOfCompareToPositiveNumberCheck.class,
         ParseIntCallWithoutBaseCheck.class,
         ForLoopConditionAndUpdateCheck.class,
-        ForLoopIncrementSignCheck.class);
+        ForLoopIncrementSignCheck.class,
+        EqualInForLoopTerminationCheck.class);
   }
 
 }
