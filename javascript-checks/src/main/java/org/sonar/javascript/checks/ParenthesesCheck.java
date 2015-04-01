@@ -25,6 +25,7 @@ import org.sonar.check.Rule;
 import org.sonar.javascript.ast.visitors.BaseTreeVisitor;
 import org.sonar.javascript.checks.utils.CheckUtils;
 import org.sonar.javascript.model.interfaces.Tree.Kind;
+import org.sonar.javascript.model.interfaces.expression.BinaryExpressionTree;
 import org.sonar.javascript.model.interfaces.expression.ExpressionTree;
 import org.sonar.javascript.model.interfaces.expression.NewExpressionTree;
 import org.sonar.javascript.model.interfaces.expression.ParenthesisedExpressionTree;
@@ -73,8 +74,12 @@ public class ParenthesesCheck extends BaseTreeVisitor {
 
   @Override
   public void visitNewExpression(NewExpressionTree tree) {
-    if (tree.arguments() == null) {
-      checkExpression(tree.expression());
+    if (tree.arguments() == null && tree.expression().is(Kind.PARENTHESISED_EXPRESSION)) {
+      ParenthesisedExpressionTree parenthesisedExpression = (ParenthesisedExpressionTree) tree.expression();
+      // new (a || b)
+      if (!(parenthesisedExpression.expression() instanceof BinaryExpressionTree)) {
+        checkExpression(tree.expression());
+      }
     }
     super.visitNewExpression(tree);
   }

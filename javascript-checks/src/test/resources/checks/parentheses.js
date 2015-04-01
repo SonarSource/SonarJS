@@ -37,5 +37,6 @@ function sayHello() {
   v in (array1 || array2); // OK
 }
 
-new (a || b)();            // OK
+new A();            // OK
 
+new (a || b);      // OK
