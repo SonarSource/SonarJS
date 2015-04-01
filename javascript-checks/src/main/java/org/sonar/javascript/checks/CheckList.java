@@ -126,6 +126,7 @@ public final class CheckList {
         ForLoopConditionAndUpdateCheck.class,
         ForLoopIncrementSignCheck.class,
         EqualInForLoopTerminationCheck.class,
+        UndefinedAssignmentCheck.class,
         NotStoredSelectionCheck.class,
         SelectionTestedWithoutLengthCheck.class);
   }
