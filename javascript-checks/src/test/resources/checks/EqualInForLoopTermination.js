@@ -21,7 +21,7 @@ for (i=10; i!=0; i--){ }  // ok
 //  i++ // changes to counter -> no exception
 //}
 
-for ( i = 0; checkSet[i] != null; i++ ) {
+for ( i = 0; checkSet[i] != null; i++ ) { // ok
 }
 
 for ( cur = event.target; cur != this; cur = cur.parentNode || this ) { // ok

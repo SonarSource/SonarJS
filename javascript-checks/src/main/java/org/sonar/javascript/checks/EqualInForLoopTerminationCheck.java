@@ -79,6 +79,9 @@ public class EqualInForLoopTerminationCheck extends BaseTreeVisitor {
     if (init != null && condition != null && update != null) {
       int updateByOne = checkForUpdateByOne(update);
       if (condition.is(Tree.Kind.NOT_EQUAL_TO) && updateByOne != 0) {
+        if (((BinaryExpressionTree) condition).rightOperand().is(Tree.Kind.NULL_LITERAL)){
+          return true;
+        }
         Integer endValue = getValue(condition);
         Integer beginValue = getValue(init);
         if (endValue != null && beginValue != null && updateByOne == Integer.signum(endValue - beginValue)) {

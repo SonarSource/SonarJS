@@ -37,7 +37,6 @@ public class EqualInForLoopTerminationCheckTest extends TreeCheckTest {
     .next().atLine(9)
     .next().atLine(11)
     .next().atLine(15)
-    .next().atLine(24)
     .next().atLine(30)
     .noMore();
 
