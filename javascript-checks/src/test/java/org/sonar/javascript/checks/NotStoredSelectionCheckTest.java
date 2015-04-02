@@ -33,8 +33,8 @@ public class NotStoredSelectionCheckTest extends TreeCheckTest {
     check.threshold = 1;
     SourceFile file = scanFile("src/test/resources/checks/NotStoredSelection.js", check);
     CheckMessagesVerifier.verify(file.getCheckMessages())
-    .next().atLine(2)
-    .next().atLine(7)
+    .next().atLine(2).withMessage("Selection \"$( \"p\" )\" is made 2 times. It should be stored in a variable and reused.")
+    .next().atLine(7).withMessage("Selection \"$( \"p\" )\" is made 3 times. It should be stored in a variable and reused.")
     .next().atLine(13)
     .next().atLine(16)
     .next().atLine(24)

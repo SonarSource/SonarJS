@@ -106,7 +106,8 @@ public class NotStoredSelectionCheck extends BaseTreeVisitor {
     }
     for (Entry entry : duplications.values()) {
       if (entry.count > threshold) {
-        getContext().addIssue(this, entry.literalTree, "This selection is made multiple times. It should be stored in a variable and reused.", (double) entry.count - threshold);
+        String message = String.format("Selection \"$( %s )\" is made %s times. It should be stored in a variable and reused.", entry.literalTree.value(), entry.count);
+        getContext().addIssue(this, entry.literalTree, message, (double) entry.count - threshold);
       }
     }
   }

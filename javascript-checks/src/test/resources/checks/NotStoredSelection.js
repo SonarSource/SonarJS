@@ -6,8 +6,8 @@ function fun1(){
 function fun2(){
   $( "p" ).hide();
   $( "p" ).show();
+  $( "p" ).show();
 }
-
 
 function fun3(){
   $( "p" ).hide();
