@@ -1,0 +1,30 @@
+<p>
+  jQuery doesn't cache elements for you. If you've made a selection that you might need to make again, you should save the selection in a variable rather than making the
+  selection repeatedly.
+</p>
+
+<h2>Noncompliant Code Example</h2>
+<pre>
+$( "p" ).hide();
+$( "p" ).show();
+</pre>
+
+<h2>Compliant Solution</h2>
+<pre>
+var paragraph = $( "p" );
+
+paragraph.hide();
+paragraph.show();
+</pre>
+
+<h2>Exception</h2>
+<p>
+  Stored selections are not updated when the DOM changes. Since variables may need to updated this rule ignores selections that are repeated during an assignment.
+</p>
+<pre>
+var paragraph = $("p");
+
+// ...
+
+paragraph = $("p");
+</pre>

@@ -125,7 +125,8 @@ public final class CheckList {
         ParseIntCallWithoutBaseCheck.class,
         ForLoopConditionAndUpdateCheck.class,
         ForLoopIncrementSignCheck.class,
-        EqualInForLoopTerminationCheck.class);
+        EqualInForLoopTerminationCheck.class,
+        NotStoredSelectionCheck.class);
   }
 
 }

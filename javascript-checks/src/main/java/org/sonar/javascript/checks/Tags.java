@@ -32,12 +32,14 @@ public class Tags {
   public static final String CROSS_BROWSER = "cross-browser";
   public static final String CWE = "cwe";
   public static final String INJECTION = "injection";
+  public static final String JQUERY = "jquery";
   public static final String LOCK_IN = "lock-in";
   public static final String MISRA = "misra";
   public static final String OBSOLETE = "obsolete";
   public static final String OWASP_A3 = "owasp-a3";
   public static final String OWASP_A6 = "owasp-a6";
   public static final String PITFALL = "pitfall";
+  public static final String PERFORMANCE = "performance";
   public static final String SECURITY = "security";
   public static final String UNUSED = "unused";
   public static final String USER_EXPERIENCE = "user-experience";
