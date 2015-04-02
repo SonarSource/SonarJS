@@ -19,11 +19,11 @@
  */
 package org.sonar.javascript.ast.visitors;
 
-import java.io.File;
-
 import org.sonar.javascript.model.interfaces.Tree;
 import org.sonar.javascript.model.interfaces.declaration.ScriptTree;
 import org.sonar.squidbridge.api.CodeVisitor;
+
+import java.io.File;
 
 public interface AstTreeVisitorContext {
 
@@ -32,6 +32,10 @@ public interface AstTreeVisitorContext {
   void addIssue(CodeVisitor check, Tree tree, String message);
 
   void addIssue(CodeVisitor check, int line, String message);
+
+  void addIssue(CodeVisitor check, Tree tree, String message, double cost);
+
+  void addIssue(CodeVisitor check, int line, String message, double cost);
 
   String getFileKey();
 
