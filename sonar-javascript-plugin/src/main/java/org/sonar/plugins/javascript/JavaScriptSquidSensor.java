@@ -19,14 +19,11 @@
  */
 package org.sonar.plugins.javascript;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Locale;
-import java.util.Set;
-
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.sonar.api.batch.DependedUpon;
 import org.sonar.api.batch.Sensor;
 import org.sonar.api.batch.SensorContext;
 import org.sonar.api.batch.fs.FilePredicate;
@@ -41,6 +38,7 @@ import org.sonar.api.issue.Issuable;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.FileLinesContextFactory;
+import org.sonar.api.measures.Metric;
 import org.sonar.api.measures.PersistenceMode;
 import org.sonar.api.measures.RangeDistributionBuilder;
 import org.sonar.api.resources.File;
@@ -70,8 +68,17 @@ import org.sonar.squidbridge.indexer.QueryByType;
 import org.sonar.sslr.parser.LexerlessGrammar;
 
 import javax.annotation.Nullable;
+import java.util.Collection;
+import java.util.List;
+import java.util.Locale;
+import java.util.Set;
 
 public class JavaScriptSquidSensor implements Sensor {
+
+  @DependedUpon
+  public Collection<Metric> generatesNCLOCMetric() {
+    return ImmutableList.<Metric>of(CoreMetrics.NCLOC, CoreMetrics.NCLOC_DATA);
+  }
 
   private static final Logger LOG = LoggerFactory.getLogger(JavaScriptSquidSensor.class);
   private static final Number[] FUNCTIONS_DISTRIB_BOTTOM_LIMITS = {1, 2, 4, 6, 8, 10, 12, 20, 30};

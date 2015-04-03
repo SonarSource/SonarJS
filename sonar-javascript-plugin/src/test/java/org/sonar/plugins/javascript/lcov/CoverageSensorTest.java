@@ -103,16 +103,17 @@ public class CoverageSensorTest {
     DefaultFileSystem fs = newFileSystem();
     fs.add(newSourceInputFile("sensortests/main/Another.js", "org/sonar/plugins/javascript/unittest/jstestdriver/sensortests/main/Another.js"));
 
-    when(context.getMeasure(any(org.sonar.api.resources.File.class), eq(CoreMetrics.LINES))).thenReturn(
-      new Measure(CoreMetrics.LINES, (double) 20));
     when(context.getMeasure(any(org.sonar.api.resources.File.class), eq(CoreMetrics.NCLOC)))
       .thenReturn(
-        new Measure(CoreMetrics.LINES, (double) 22));
+        new Measure(CoreMetrics.NCLOC, (double) 2));
+    when(context.getMeasure(any(org.sonar.api.resources.File.class), eq(CoreMetrics.NCLOC_DATA)))
+      .thenReturn(
+        new Measure(CoreMetrics.NCLOC_DATA, "1=0;2=1;3=1;4=0"));
 
     newSensor(fs, settings).analyse(project, context);
 
-    verify(context).saveMeasure((Resource) anyObject(), eq(CoreMetrics.LINES_TO_COVER), eq(22.0));
-    verify(context).saveMeasure((Resource) anyObject(), eq(CoreMetrics.UNCOVERED_LINES), eq(22.0));
+    verify(context).saveMeasure((Resource) anyObject(), eq(CoreMetrics.LINES_TO_COVER), eq(2.0));
+    verify(context).saveMeasure((Resource) anyObject(), eq(CoreMetrics.UNCOVERED_LINES), eq(2.0));
   }
 
   @Test
@@ -123,7 +124,9 @@ public class CoverageSensorTest {
     settings.setProperty(JavaScriptPlugin.FORCE_ZERO_COVERAGE_KEY, "true");
     settings.setProperty(JavaScriptPlugin.LCOV_REPORT_PATH, "");
     when(context.getMeasure(any(Resource.class), any(Metric.class))).thenReturn(new Measure().setValue(1d));
-
+    when(context.getMeasure(any(org.sonar.api.resources.File.class), eq(CoreMetrics.NCLOC_DATA)))
+        .thenReturn(
+            new Measure(CoreMetrics.NCLOC_DATA, "1=0;2=1;3=1;4=0"));
     newSensor(fs, settings).analyse(project, context);
 
     verify(context, times(1)).saveMeasure((Resource) anyObject(), eq(CoreMetrics.LINES_TO_COVER), eq(1d));

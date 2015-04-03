@@ -19,9 +19,11 @@
  */
 package org.sonar.plugins.javascript.lcov;
 
+import com.google.common.collect.ImmutableList;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.sonar.api.batch.DependsUpon;
 import org.sonar.api.batch.Sensor;
 import org.sonar.api.batch.SensorContext;
 import org.sonar.api.batch.fs.FilePredicate;
@@ -31,16 +33,23 @@ import org.sonar.api.config.Settings;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.CoverageMeasuresBuilder;
 import org.sonar.api.measures.Measure;
+import org.sonar.api.measures.Metric;
 import org.sonar.api.measures.PropertiesBuilder;
 import org.sonar.api.resources.Project;
 import org.sonar.plugins.javascript.JavaScriptPlugin;
 import org.sonar.plugins.javascript.core.JavaScript;
 
 import java.io.File;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
 public class CoverageSensor implements Sensor {
+
+  @DependsUpon
+  public Collection<Metric> dependsUponMetrics() {
+    return ImmutableList.<Metric>of(CoreMetrics.NCLOC, CoreMetrics.NCLOC_DATA);
+  }
 
   private static final Logger LOG = LoggerFactory.getLogger(CoverageSensor.class);
 
@@ -124,17 +133,25 @@ public class CoverageSensor implements Sensor {
   }
 
   private void saveZeroValueForResource(org.sonar.api.resources.File resource, SensorContext context) {
-    PropertiesBuilder<Integer, Integer> lineHitsData = new PropertiesBuilder<Integer, Integer>(CoreMetrics.COVERAGE_LINE_HITS_DATA);
-
-    for (int x = 1; x < context.getMeasure(resource, CoreMetrics.LINES).getIntValue(); x++) {
-      lineHitsData.add(x, 0);
-    }
-
     // use non comment lines of code for coverage calculation
-    Measure ncloc = context.getMeasure(resource, CoreMetrics.NCLOC);
-    context.saveMeasure(resource, lineHitsData.build());
-    context.saveMeasure(resource, CoreMetrics.LINES_TO_COVER, ncloc.getValue());
-    context.saveMeasure(resource, CoreMetrics.UNCOVERED_LINES, ncloc.getValue());
+    double ncloc = context.getMeasure(resource, CoreMetrics.NCLOC).getValue();
+    context.saveMeasure(resource, getZeroCoverageLineHitsDataMetric(resource, context));
+    context.saveMeasure(resource, CoreMetrics.LINES_TO_COVER, ncloc);
+    context.saveMeasure(resource, CoreMetrics.UNCOVERED_LINES, ncloc);
+  }
+
+  private Measure getZeroCoverageLineHitsDataMetric(org.sonar.api.resources.File resource, SensorContext context) {
+    PropertiesBuilder<Integer, Integer> lineHitsData = new PropertiesBuilder<>(CoreMetrics.COVERAGE_LINE_HITS_DATA);
+    String nclocData = context.getMeasure(resource, CoreMetrics.NCLOC_DATA).getData();
+    String[] lines = nclocData.split(";");
+    for (String line : lines){
+      String[] info = line.split("=");
+      if (info.length == 2 && info[1].equals("1")){
+        int lineNumber = Integer.parseInt(info[0]);
+        lineHitsData.add(lineNumber, 0);
+      }
+    }
+    return lineHitsData.build();
   }
 
   @Override
