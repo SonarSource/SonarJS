@@ -143,12 +143,14 @@ public class CoverageSensor implements Sensor {
   private Measure getZeroCoverageLineHitsDataMetric(org.sonar.api.resources.File resource, SensorContext context) {
     PropertiesBuilder<Integer, Integer> lineHitsData = new PropertiesBuilder<>(CoreMetrics.COVERAGE_LINE_HITS_DATA);
     String nclocData = context.getMeasure(resource, CoreMetrics.NCLOC_DATA).getData();
-    String[] lines = nclocData.split(";");
-    for (String line : lines){
-      String[] info = line.split("=");
-      if (info.length == 2 && info[1].equals("1")){
-        int lineNumber = Integer.parseInt(info[0]);
-        lineHitsData.add(lineNumber, 0);
+    if (nclocData != null) {
+      String[] lines = nclocData.split(";");
+      for (String line : lines) {
+        String[] info = line.split("=");
+        if (info.length == 2 && "1".equals(info[1])) {
+          int lineNumber = Integer.parseInt(info[0]);
+          lineHitsData.add(lineNumber, 0);
+        }
       }
     }
     return lineHitsData.build();
