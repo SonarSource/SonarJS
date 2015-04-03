@@ -49,15 +49,14 @@ public class UnusedVariableCheck extends BaseTreeVisitor {
     for (Symbol variable : symbolModel.getSymbols(Symbol.Kind.VARIABLE)) {
       Tree declaration = variable.getFirstDeclaration();
 
-      if (symbolModel.getUsageFor(variable).isEmpty() && isGlobalOrCatchVariable(symbolModel, declaration)) {
+      if (symbolModel.getUsageFor(variable).isEmpty() && !isGlobalOrCatchVariable(symbolModel, declaration)) {
         getContext().addIssue(this, declaration, "Remove the declaration of the unused '" + variable.name() + "' variable.");
       }
     }
   }
 
   private boolean isGlobalOrCatchVariable(SymbolModel symbolModel, Tree declaration) {
-    return !symbolModel.getScopeFor(declaration).getTree().is(Kind.SCRIPT, Kind.CATCH_BLOCK);
+    return symbolModel.getScopeFor(declaration).getTree().is(Kind.SCRIPT, Kind.CATCH_BLOCK);
   }
-
 
 }
