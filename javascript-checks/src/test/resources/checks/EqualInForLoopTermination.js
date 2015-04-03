@@ -28,3 +28,6 @@ for ( cur = event.target; cur != this; cur = cur.parentNode || this ) { // ok
 }
 
 for(i=from, j=0; i!=to; i+=dir, j++){} // nok
+
+for (; checkSet[i] != null; i++ ) { // ok
+}

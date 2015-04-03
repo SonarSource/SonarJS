@@ -71,22 +71,39 @@ public class EqualInForLoopTerminationCheck extends BaseTreeVisitor {
   }
 
   private boolean isException(ForStatementTree forStatement) {
-    // todo(Lena): consider usage of counter inside the loop. Do it with symbol table.
-    Tree init = forStatement.init();
-    ExpressionTree condition = forStatement.condition();
-    ExpressionTree update = forStatement.update();
+    return isNullConditionException(forStatement) || isTrivialIteratorException(forStatement);
+  }
 
-    if (init != null && condition != null && update != null) {
-      int updateByOne = checkForUpdateByOne(update);
-      if (condition.is(Tree.Kind.NOT_EQUAL_TO) && updateByOne != 0) {
-        if (((BinaryExpressionTree) condition).rightOperand().is(Tree.Kind.NULL_LITERAL)){
-          return true;
-        }
-        Integer endValue = getValue(condition);
-        Integer beginValue = getValue(init);
-        if (endValue != null && beginValue != null && updateByOne == Integer.signum(endValue - beginValue)) {
-          return true;
-        }
+  private boolean isTrivialIteratorException(ForStatementTree forStatement) {
+    // todo(Lena): SONARJS-383 consider usage of counter inside the loop. Do it with symbol table.
+    ExpressionTree condition = forStatement.condition();
+    if (condition != null && condition.is(Tree.Kind.NOT_EQUAL_TO)) {
+      ExpressionTree update = forStatement.update();
+      Tree init = forStatement.init();
+      if (init != null && update != null) {
+        return checkForTrivialIteratorException(init, condition, update);
+      }
+    }
+    return false;
+  }
+
+  private boolean checkForTrivialIteratorException(Tree init, ExpressionTree condition, ExpressionTree update) {
+    int updateByOne = checkForUpdateByOne(update);
+    if (updateByOne != 0) {
+      Integer endValue = getValue(condition);
+      Integer beginValue = getValue(init);
+      if (endValue != null && beginValue != null && updateByOne == Integer.signum(endValue - beginValue)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  private boolean isNullConditionException(ForStatementTree forStatement) {
+    ExpressionTree condition = forStatement.condition();
+    if (condition != null && condition.is(Tree.Kind.NOT_EQUAL_TO)) {
+      if (((BinaryExpressionTree) condition).rightOperand().is(Tree.Kind.NULL_LITERAL)) {
+        return true;
       }
     }
     return false;
@@ -99,10 +116,10 @@ public class EqualInForLoopTerminationCheck extends BaseTreeVisitor {
     } else if (isOneVarDeclaration(tree)) {
       BindingElementTree variable = ((VariableDeclarationTree) tree).variables().get(0);
       if (variable.is(Tree.Kind.INITIALIZED_BINDING_ELEMENT)) {
-        result = getInteger(((InitializedBindingElementTree)variable).right());
+        result = getInteger(((InitializedBindingElementTree) variable).right());
       }
     } else if (tree.is(Tree.Kind.ASSIGNMENT)) {
-      result = getInteger(((AssignmentExpressionTree)tree).expression());
+      result = getInteger(((AssignmentExpressionTree) tree).expression());
     }
     return result;
   }
@@ -137,8 +154,8 @@ public class EqualInForLoopTerminationCheck extends BaseTreeVisitor {
 
   private boolean isUpdateIncDec(ExpressionTree update) {
     boolean result = false;
-    if (update.is(Tree.Kind.COMMA_OPERATOR)){
-      BinaryExpressionTree commaExpressions = (BinaryExpressionTree)update;
+    if (update.is(Tree.Kind.COMMA_OPERATOR)) {
+      BinaryExpressionTree commaExpressions = (BinaryExpressionTree) update;
       result = isUpdateIncDec(commaExpressions.leftOperand()) && isUpdateIncDec(commaExpressions.rightOperand());
     } else if (update.is(Tree.Kind.POSTFIX_INCREMENT, Tree.Kind.PREFIX_INCREMENT) || update.is(Tree.Kind.PLUS_ASSIGNMENT)) {
       result = true;
@@ -151,7 +168,7 @@ public class EqualInForLoopTerminationCheck extends BaseTreeVisitor {
   private boolean isUpdateOnOneWithAssign(ExpressionTree update) {
     if (update.is(Tree.Kind.PLUS_ASSIGNMENT, Tree.Kind.MINUS_ASSIGNMENT)) {
       ExpressionTree rightExpression = ((AssignmentExpressionTree) update).expression();
-      return rightExpression.is(Tree.Kind.NUMERIC_LITERAL) && ((LiteralTree) rightExpression).value().equals("1");
+      return rightExpression.is(Tree.Kind.NUMERIC_LITERAL) && "1".equals(((LiteralTree) rightExpression).value());
     }
     return false;
   }
