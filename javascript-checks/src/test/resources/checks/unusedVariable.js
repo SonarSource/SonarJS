@@ -43,3 +43,11 @@ var f = (p) => {
     var x;                  // NOK
     var y = p.y;            // NOK
 }
+
+var f = p => {
+  var x;                    // NOK
+}
+
+try {
+} catch (e) {               // OK
+}

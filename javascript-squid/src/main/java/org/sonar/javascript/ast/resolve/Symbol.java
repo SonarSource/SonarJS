@@ -56,6 +56,10 @@ public class Symbol {
     return declarations;
   }
 
+  public Tree getFirstDeclaration() {
+   return declarations.get(0);
+  }
+
   @Override
   public String toString() {
     return "Symbol{name=" + name + ", declarations=" + declarations.size() + "}";
