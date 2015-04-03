@@ -24,12 +24,14 @@ import java.util.List;
 import org.sonar.javascript.ast.visitors.BaseTreeVisitor;
 import org.sonar.javascript.model.implementations.declaration.MethodDeclarationTreeImpl;
 import org.sonar.javascript.model.implementations.declaration.ParameterListTreeImpl;
+import org.sonar.javascript.model.implementations.expression.ArrowFunctionTreeImpl;
 import org.sonar.javascript.model.implementations.statement.CatchBlockTreeImpl;
 import org.sonar.javascript.model.implementations.statement.VariableDeclarationTreeImpl;
 import org.sonar.javascript.model.interfaces.Tree;
 import org.sonar.javascript.model.interfaces.declaration.FunctionDeclarationTree;
 import org.sonar.javascript.model.interfaces.declaration.MethodDeclarationTree;
 import org.sonar.javascript.model.interfaces.declaration.ScriptTree;
+import org.sonar.javascript.model.interfaces.expression.ArrowFunctionTree;
 import org.sonar.javascript.model.interfaces.expression.ClassTree;
 import org.sonar.javascript.model.interfaces.expression.FunctionExpressionTree;
 import org.sonar.javascript.model.interfaces.expression.IdentifierTree;
@@ -61,7 +63,7 @@ public class SymbolDeclarationVisitor extends BaseTreeVisitor {
   @Override
   public void visitClassDeclaration(ClassTree tree) {
     if (tree.name() != null) {
-      addSymbol(tree.name().name(), tree);
+      addSymbol(tree.name().name(), tree, Symbol.Kind.CLASS);
     }
     newScope(tree);
 
@@ -71,9 +73,9 @@ public class SymbolDeclarationVisitor extends BaseTreeVisitor {
 
   @Override
   public void visitMethodDeclaration(MethodDeclarationTree tree) {
-    addSymbol(((MethodDeclarationTreeImpl) tree).nameToString(), tree);
+    addSymbol(((MethodDeclarationTreeImpl) tree).nameToString(), tree, Symbol.Kind.FUNCTION);
     newScope(tree);
-    addSymbols(((ParameterListTreeImpl) tree.parameters()).parameterIdentifiers());
+    addSymbols(((ParameterListTreeImpl) tree.parameters()).parameterIdentifiers(), Symbol.Kind.PARAMETER);
 
     super.visitMethodDeclaration(tree);
     leaveScope();
@@ -82,7 +84,7 @@ public class SymbolDeclarationVisitor extends BaseTreeVisitor {
   @Override
   public void visitCatchBlock(CatchBlockTree tree) {
     newScope(tree);
-    addSymbols(((CatchBlockTreeImpl) tree).parameterIdentifiers());
+    addSymbols(((CatchBlockTreeImpl) tree).parameterIdentifiers(), Symbol.Kind.VARIABLE);
 
     super.visitCatchBlock(tree);
     leaveScope();
@@ -90,11 +92,20 @@ public class SymbolDeclarationVisitor extends BaseTreeVisitor {
 
   @Override
   public void visitFunctionDeclaration(FunctionDeclarationTree tree) {
-    addSymbol(tree.name().name(), tree);
+    addSymbol(tree.name().name(), tree, Symbol.Kind.FUNCTION);
     newScope(tree);
-    addSymbols(((ParameterListTreeImpl) tree.parameters()).parameterIdentifiers());
+    addSymbols(((ParameterListTreeImpl) tree.parameters()).parameterIdentifiers(), Symbol.Kind.PARAMETER);
 
     super.visitFunctionDeclaration(tree);
+    leaveScope();
+  }
+
+  @Override
+  public void visitArrowFunction(ArrowFunctionTree tree) {
+    newScope(tree);
+    addSymbols(((ArrowFunctionTreeImpl) tree).parameterIdentifiers(), Symbol.Kind.PARAMETER);
+
+    super.visitArrowFunction(tree);
     leaveScope();
   }
 
@@ -111,9 +122,9 @@ public class SymbolDeclarationVisitor extends BaseTreeVisitor {
     newScope(tree);
     if (tree.name() != null) {
       // Not available in enclosing scope
-      addSymbol(tree.name().name(), tree);
+      addSymbol(tree.name().name(), tree, Symbol.Kind.FUNCTION);
     }
-    addSymbols(((ParameterListTreeImpl) tree.parameters()).parameterIdentifiers());
+    addSymbols(((ParameterListTreeImpl) tree.parameters()).parameterIdentifiers(), Symbol.Kind.PARAMETER);
 
     super.visitFunctionExpression(tree);
     leaveScope();
@@ -121,9 +132,8 @@ public class SymbolDeclarationVisitor extends BaseTreeVisitor {
 
   @Override
   public void visitVariableDeclaration(VariableDeclarationTree tree) {
-    addSymbols(((VariableDeclarationTreeImpl) tree).variableIdentifiers());
+    addSymbols(((VariableDeclarationTreeImpl) tree).variableIdentifiers(), Symbol.Kind.VARIABLE);
     super.visitVariableDeclaration(tree);
-
   }
 
   /*
@@ -139,15 +149,15 @@ public class SymbolDeclarationVisitor extends BaseTreeVisitor {
     symbolModel.setScopeFor(tree, currentScope);
   }
 
-  private void addSymbol(String name, Tree tree) {
-    Symbol symbol = currentScope.createSymbol(name, tree);
+  private void addSymbol(String name, Tree tree, Symbol.Kind kind) {
+    Symbol symbol = currentScope.createSymbol(name, tree, kind);
     symbolModel.setScopeForSymbol(symbol, currentScope);
     setScopeForTree(tree);
   }
 
-  private void addSymbols(List<IdentifierTree> identifiers) {
+  private void addSymbols(List<IdentifierTree> identifiers, Symbol.Kind kind) {
     for (IdentifierTree identifier : identifiers) {
-      addSymbol(identifier.name(), identifier);
+      addSymbol(identifier.name(), identifier, kind);
     }
   }
 

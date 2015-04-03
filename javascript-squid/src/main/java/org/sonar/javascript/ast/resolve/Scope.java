@@ -60,14 +60,14 @@ public class Scope {
    *
    * @return the symbol
    */
-  public Symbol createSymbol(String name, Tree declaration) {
+  public Symbol createSymbol(String name, Tree declaration, Symbol.Kind kind) {
     Symbol symbol = symbols.get(name);
 
     if (symbol != null) {
       symbol.declarations().add(declaration);
 
     } else {
-      symbol = new Symbol(name, declaration);
+      symbol = new Symbol(name, declaration, kind);
       symbols.put(name, symbol);
     }
 

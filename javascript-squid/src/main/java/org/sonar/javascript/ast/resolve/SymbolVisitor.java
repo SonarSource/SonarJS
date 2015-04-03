@@ -24,6 +24,7 @@ import org.sonar.javascript.model.interfaces.Tree;
 import org.sonar.javascript.model.interfaces.declaration.FunctionDeclarationTree;
 import org.sonar.javascript.model.interfaces.declaration.MethodDeclarationTree;
 import org.sonar.javascript.model.interfaces.declaration.ScriptTree;
+import org.sonar.javascript.model.interfaces.expression.ArrowFunctionTree;
 import org.sonar.javascript.model.interfaces.expression.AssignmentExpressionTree;
 import org.sonar.javascript.model.interfaces.expression.ClassTree;
 import org.sonar.javascript.model.interfaces.expression.FunctionExpressionTree;
@@ -87,6 +88,13 @@ public class SymbolVisitor extends BaseTreeVisitor {
     leaveScope();
   }
 
+  @Override
+  public void visitArrowFunction(ArrowFunctionTree tree) {
+    enterScope(tree);
+    super.visitArrowFunction(tree);
+    leaveScope();
+  }
+
   /**
    * When an assignment is done to a symbol that has not been declared before,
    * a global variable is created with the left-hand side identifier as name.
@@ -97,8 +105,13 @@ public class SymbolVisitor extends BaseTreeVisitor {
       IdentifierTree identifier = (IdentifierTree) tree.variable();
 
       if (!addUsageFor(identifier)) {
-        createSymbolForScope(identifier.name(), identifier, currentScope.globalScope());
+        createSymbolForScope(identifier.name(), identifier, currentScope.globalScope(), Symbol.Kind.VARIABLE);
       }
+      // no need to scan variable has it has been handle
+      scan(tree.expression());
+
+    } else {
+      super.visitAssignmentExpression(tree);
     }
   }
 
@@ -115,9 +128,10 @@ public class SymbolVisitor extends BaseTreeVisitor {
       IdentifierTree identifier = (IdentifierTree) tree.expression();
 
       if (!addUsageFor(identifier)) {
-        createSymbolForScope(identifier.name(), identifier, currentScope.globalScope());
+        createSymbolForScope(identifier.name(), identifier, currentScope.globalScope(), Symbol.Kind.VARIABLE);
       }
     }
+    super.visitForOfStatement(tree);
   }
 
   /*
@@ -129,8 +143,8 @@ public class SymbolVisitor extends BaseTreeVisitor {
     }
   }
 
-  private void createSymbolForScope(String name, Tree tree, Scope scope) {
-    Symbol symbol = scope.createSymbol(name, tree);
+  private void createSymbolForScope(String name, Tree tree, Scope scope, Symbol.Kind kind) {
+    Symbol symbol = scope.createSymbol(name, tree, kind);
     symbolModel.setScopeForSymbol(symbol, scope);
     symbolModel.setScopeFor(tree, scope);
   }
@@ -144,7 +158,6 @@ public class SymbolVisitor extends BaseTreeVisitor {
    */
   private boolean addUsageFor(IdentifierTree identifier) {
     Symbol symbol = currentScope.lookupSymbol(identifier.name());
-
     if (symbol != null) {
       symbolModel.addUsage(symbol, identifier);
       return true;

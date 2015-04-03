@@ -27,16 +27,29 @@ import com.google.common.collect.Lists;
 
 public class Symbol {
 
+  public enum Kind {
+    VARIABLE,
+    FUNCTION,
+    PARAMETER,
+    CLASS
+  }
+
   private final String name;
   private List<Tree> declarations = Lists.newArrayList();
+  private Kind kind;
 
-  public Symbol(String name, Tree declaration) {
+  public Symbol(String name, Tree declaration, Kind kind) {
     this.name = name;
+    this.kind = kind;
     this.declarations.add(declaration);
   }
 
   public String name() {
     return name;
+  }
+
+  public Kind kind() {
+    return kind;
   }
 
   public List<Tree> declarations() {

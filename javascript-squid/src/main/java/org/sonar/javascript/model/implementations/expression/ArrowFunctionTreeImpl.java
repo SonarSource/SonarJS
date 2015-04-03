@@ -19,17 +19,22 @@
  */
 package org.sonar.javascript.model.implementations.expression;
 
-import com.google.common.collect.Iterators;
-import com.sonar.sslr.api.AstNode;
-import com.sonar.sslr.api.AstNodeType;
+import java.util.Iterator;
+import java.util.List;
+
 import org.sonar.javascript.ast.visitors.TreeVisitor;
 import org.sonar.javascript.model.implementations.JavaScriptTree;
+import org.sonar.javascript.model.implementations.declaration.ParameterListTreeImpl;
 import org.sonar.javascript.model.implementations.lexical.InternalSyntaxToken;
 import org.sonar.javascript.model.interfaces.Tree;
 import org.sonar.javascript.model.interfaces.expression.ArrowFunctionTree;
+import org.sonar.javascript.model.interfaces.expression.IdentifierTree;
 import org.sonar.javascript.model.interfaces.lexical.SyntaxToken;
 
-import java.util.Iterator;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Iterators;
+import com.sonar.sslr.api.AstNode;
+import com.sonar.sslr.api.AstNodeType;
 
 public class ArrowFunctionTreeImpl extends JavaScriptTree implements ArrowFunctionTree {
 
@@ -74,5 +79,13 @@ public class ArrowFunctionTreeImpl extends JavaScriptTree implements ArrowFuncti
   @Override
   public void accept(TreeVisitor visitor) {
     visitor.visitArrowFunction(this);
+  }
+
+  public List<IdentifierTree> parameterIdentifiers() {
+    if (parameters.is(Kind.BINDING_IDENTIFIER)) {
+      return ImmutableList.of((IdentifierTree) parameters);
+    } else {
+      return ((ParameterListTreeImpl) parameters).parameterIdentifiers();
+    }
   }
 }

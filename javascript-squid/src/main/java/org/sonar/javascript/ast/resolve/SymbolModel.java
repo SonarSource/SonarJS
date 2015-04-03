@@ -20,13 +20,18 @@
 package org.sonar.javascript.ast.resolve;
 
 import java.util.Collection;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.sonar.javascript.model.interfaces.Tree;
 import org.sonar.javascript.model.interfaces.declaration.ScriptTree;
 import org.sonar.javascript.model.interfaces.expression.IdentifierTree;
 
 import com.google.common.collect.HashMultimap;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Multimap;
 
@@ -66,4 +71,22 @@ public class SymbolModel {
     refersTo.put(tree, symbol);
   }
 
+  /**
+   *
+   * @param kinds
+   * @return list of symbols with the given kind or all symbols if no kinds provided
+   */
+  public List<Symbol> getSymbols(Symbol.Kind ... kinds) {
+    Set<Symbol> symbols = symbolScope.keySet();
+    if (kinds.length == 0){
+      return Lists.newArrayList(symbols);
+    }
+    List<Symbol> result = new LinkedList<>();
+    for (Symbol symbol : symbols){
+      if (ArrayUtils.contains(kinds, symbol.kind())){
+        result.add(symbol);
+      }
+    }
+    return result;
+  }
 }
