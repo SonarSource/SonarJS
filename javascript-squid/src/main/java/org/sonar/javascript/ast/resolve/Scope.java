@@ -19,11 +19,10 @@
  */
 package org.sonar.javascript.ast.resolve;
 
-import java.util.Map;
-
+import com.google.common.collect.Maps;
 import org.sonar.javascript.model.interfaces.Tree;
 
-import com.google.common.collect.Maps;
+import java.util.Map;
 
 public class Scope {
 
@@ -73,6 +72,26 @@ public class Scope {
 
     return symbol;
   }
+
+  /**
+   * Create new build-in symbol for the current scope
+   *
+   * @return the symbol
+   */
+  public Symbol createBuildInSymbol(String name, Symbol.Kind kind) {
+    Symbol symbol = symbols.get(name);
+
+    if (symbol != null) {
+      throw new IllegalStateException(String.format("Build-in \"symbol\" %s already exists in the current scope.", name));
+    } else {
+      symbol = new Symbol(name, this.getTree(), kind, true);
+      symbols.put(name, symbol);
+    }
+
+    return symbol;
+  }
+
+
 
   /**
    * @param name of the symbol to look for

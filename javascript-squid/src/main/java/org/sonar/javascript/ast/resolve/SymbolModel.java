@@ -19,21 +19,20 @@
  */
 package org.sonar.javascript.ast.resolve;
 
-import java.util.Collection;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Multimap;
 import org.apache.commons.lang.ArrayUtils;
 import org.sonar.javascript.model.interfaces.Tree;
 import org.sonar.javascript.model.interfaces.declaration.ScriptTree;
 import org.sonar.javascript.model.interfaces.expression.IdentifierTree;
 
-import com.google.common.collect.HashMultimap;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Multimap;
+import java.util.Collection;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 public class SymbolModel {
 
@@ -73,7 +72,7 @@ public class SymbolModel {
 
   /**
    *
-   * @param kinds
+   * @param kinds kinds of symbols to look for
    * @return list of symbols with the given kind or all symbols if no kinds provided
    */
   public List<Symbol> getSymbols(Symbol.Kind ... kinds) {
@@ -89,4 +88,25 @@ public class SymbolModel {
     }
     return result;
   }
+
+  /**
+   *
+   * @param names names of symbols to look for
+   * @return list of symbols with the given names or all symbols if empty list of name provided
+   */
+  public List<Symbol> getSymbols(List<String> names) {
+    Set<Symbol> symbols = symbolScope.keySet();
+    if (names.isEmpty()){
+      return Lists.newArrayList(symbols);
+    }
+    List<Symbol> result = new LinkedList<>();
+    for (Symbol symbol : symbols){
+      if (names.contains(symbol.name())){
+        result.add(symbol);
+      }
+    }
+    return result;
+  }
+
+
 }

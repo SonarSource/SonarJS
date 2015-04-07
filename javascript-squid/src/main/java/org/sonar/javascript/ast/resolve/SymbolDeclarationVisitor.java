@@ -19,8 +19,6 @@
  */
 package org.sonar.javascript.ast.resolve;
 
-import java.util.List;
-
 import org.sonar.javascript.ast.visitors.BaseTreeVisitor;
 import org.sonar.javascript.model.implementations.declaration.MethodDeclarationTreeImpl;
 import org.sonar.javascript.model.implementations.declaration.ParameterListTreeImpl;
@@ -37,6 +35,8 @@ import org.sonar.javascript.model.interfaces.expression.FunctionExpressionTree;
 import org.sonar.javascript.model.interfaces.expression.IdentifierTree;
 import org.sonar.javascript.model.interfaces.statement.CatchBlockTree;
 import org.sonar.javascript.model.interfaces.statement.VariableDeclarationTree;
+
+import java.util.List;
 
 /**
  * This visitor records all symbol explicitly declared through a declared statement.
@@ -75,10 +75,21 @@ public class SymbolDeclarationVisitor extends BaseTreeVisitor {
   public void visitMethodDeclaration(MethodDeclarationTree tree) {
     addSymbol(((MethodDeclarationTreeImpl) tree).nameToString(), tree, Symbol.Kind.FUNCTION);
     newScope(tree);
+    addFunctionBuildInSymbols();
     addSymbols(((ParameterListTreeImpl) tree.parameters()).parameterIdentifiers(), Symbol.Kind.PARAMETER);
 
     super.visitMethodDeclaration(tree);
     leaveScope();
+  }
+
+  private void addFunctionBuildInSymbols() {
+    createBuildInSymbolForScope("arguments", currentScope, Symbol.Kind.VARIABLE);
+  }
+
+  private void createBuildInSymbolForScope(String name, Scope scope, Symbol.Kind kind) {
+    Symbol symbol = scope.createBuildInSymbol(name, kind);
+    symbolModel.setScopeForSymbol(symbol, scope);
+    symbolModel.setScopeFor(scope.getTree(), scope);
   }
 
   @Override
@@ -94,6 +105,7 @@ public class SymbolDeclarationVisitor extends BaseTreeVisitor {
   public void visitFunctionDeclaration(FunctionDeclarationTree tree) {
     addSymbol(tree.name().name(), tree, Symbol.Kind.FUNCTION);
     newScope(tree);
+    addFunctionBuildInSymbols();
     addSymbols(((ParameterListTreeImpl) tree.parameters()).parameterIdentifiers(), Symbol.Kind.PARAMETER);
 
     super.visitFunctionDeclaration(tree);
@@ -120,6 +132,7 @@ public class SymbolDeclarationVisitor extends BaseTreeVisitor {
   @Override
   public void visitFunctionExpression(FunctionExpressionTree tree) {
     newScope(tree);
+    addFunctionBuildInSymbols();
     if (tree.name() != null) {
       // Not available in enclosing scope
       addSymbol(tree.name().name(), tree, Symbol.Kind.FUNCTION);

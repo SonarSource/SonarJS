@@ -22,3 +22,24 @@ try {
   throw e;                   // e
 }
 
+eval()                      // eval - 1
+
+function foo(){
+  eval()                    // eval - 2
+}
+
+function foo(){
+  var eval = function(){};
+  eval()
+}
+
+// hoisting
+function foo(){
+  eval()
+  var eval = function(){};
+}
+
+arguments = 1
+
+
+

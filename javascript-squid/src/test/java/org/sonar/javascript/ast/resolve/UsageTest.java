@@ -19,24 +19,21 @@
  */
 package org.sonar.javascript.ast.resolve;
 
-import static org.fest.assertions.Assertions.assertThat;
-import static org.junit.Assert.assertNotNull;
-
-import java.io.File;
-import java.util.Collection;
-
+import com.sonar.sslr.api.AstNode;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.javascript.model.JavaScriptTreeModelTest;
-import org.sonar.javascript.model.implementations.JavaScriptTree;
 import org.sonar.javascript.model.interfaces.Tree;
 import org.sonar.javascript.model.interfaces.declaration.FunctionDeclarationTree;
 import org.sonar.javascript.model.interfaces.declaration.ScriptTree;
 import org.sonar.javascript.model.interfaces.expression.FunctionExpressionTree;
-
-import com.sonar.sslr.api.AstNode;
 import org.sonar.javascript.model.interfaces.expression.IdentifierTree;
 import org.sonar.javascript.model.interfaces.statement.CatchBlockTree;
+
+import java.io.File;
+import java.util.Collection;
+
+import static org.fest.assertions.Assertions.assertThat;
 
 public class UsageTest extends JavaScriptTreeModelTest {
 
@@ -56,6 +53,20 @@ public class UsageTest extends JavaScriptTreeModelTest {
     assertThat(usagesFor("b", scriptScope)).hasSize(1);
     assertThat(usagesFor("f", scriptScope)).hasSize(2);
 
+  }
+
+  @Test
+  public void global_build_in_symbols() throws Exception {
+    Scope scriptScope = SYMBOL_MODEL.getScopeFor((ScriptTree) ROOT_NODE);
+    assertThat(usagesFor("eval", scriptScope)).hasSize(2);
+  }
+
+  @Test
+  public void arguments_build_in_symbol() throws Exception {
+    Scope scriptScope = SYMBOL_MODEL.getScopeFor((ScriptTree) ROOT_NODE);
+    assertThat(scriptScope.lookupSymbol("arguments").buildIn()).isFalse();
+    Scope functionScope = SYMBOL_MODEL.getScopeFor((FunctionDeclarationTree) ROOT_NODE.getFirstDescendant(Tree.Kind.FUNCTION_DECLARATION));
+    assertThat(functionScope.lookupSymbol("arguments").buildIn()).isTrue();
   }
 
   @Test

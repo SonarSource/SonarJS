@@ -48,9 +48,14 @@ public class SymbolVisitor extends BaseTreeVisitor {
     new SymbolDeclarationVisitor(symbolModel).visitScript(tree);
 
     enterScope(tree);
+    addBuildInSymbols();
     // Record usage and implicit symbol declarations
     super.visitScript(tree);
     leaveScope();
+  }
+
+  private void addBuildInSymbols() {
+    createBuildInSymbolForScope("eval", currentScope.globalScope(), Symbol.Kind.FUNCTION);
   }
 
   @Override
@@ -144,9 +149,16 @@ public class SymbolVisitor extends BaseTreeVisitor {
   }
 
   private void createSymbolForScope(String name, Tree tree, Scope scope, Symbol.Kind kind) {
+    //todo(Lena): move this logic to method of Scope or SymbolModel
     Symbol symbol = scope.createSymbol(name, tree, kind);
     symbolModel.setScopeForSymbol(symbol, scope);
     symbolModel.setScopeFor(tree, scope);
+  }
+
+  private void createBuildInSymbolForScope(String name, Scope scope, Symbol.Kind kind) {
+    Symbol symbol = scope.createBuildInSymbol(name, kind);
+    symbolModel.setScopeForSymbol(symbol, scope);
+    symbolModel.setScopeFor(scope.getTree(), scope);
   }
 
   private void enterScope(Tree tree) {
