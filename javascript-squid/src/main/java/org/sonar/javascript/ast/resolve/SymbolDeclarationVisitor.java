@@ -20,12 +20,14 @@
 package org.sonar.javascript.ast.resolve;
 
 import org.sonar.javascript.ast.visitors.BaseTreeVisitor;
+import org.sonar.javascript.model.implementations.declaration.InitializedBindingElementTreeImpl;
 import org.sonar.javascript.model.implementations.declaration.MethodDeclarationTreeImpl;
 import org.sonar.javascript.model.implementations.declaration.ParameterListTreeImpl;
 import org.sonar.javascript.model.implementations.expression.ArrowFunctionTreeImpl;
 import org.sonar.javascript.model.implementations.statement.CatchBlockTreeImpl;
 import org.sonar.javascript.model.implementations.statement.VariableDeclarationTreeImpl;
 import org.sonar.javascript.model.interfaces.Tree;
+import org.sonar.javascript.model.interfaces.declaration.BindingElementTree;
 import org.sonar.javascript.model.interfaces.declaration.FunctionDeclarationTree;
 import org.sonar.javascript.model.interfaces.declaration.MethodDeclarationTree;
 import org.sonar.javascript.model.interfaces.declaration.ScriptTree;
@@ -145,9 +147,19 @@ public class SymbolDeclarationVisitor extends BaseTreeVisitor {
 
   @Override
   public void visitVariableDeclaration(VariableDeclarationTree tree) {
-    //todo(Lena): check if declaration has initializer -> add a usage then
     addSymbols(((VariableDeclarationTreeImpl) tree).variableIdentifiers(), Symbol.Kind.VARIABLE);
+    addUsages(tree);
     super.visitVariableDeclaration(tree);
+  }
+
+  public void addUsages(VariableDeclarationTree tree) {
+    for (BindingElementTree bindingElement : tree.variables()) {
+      if (bindingElement.is(Tree.Kind.INITIALIZED_BINDING_ELEMENT)) {
+        for (IdentifierTree identifier : ((InitializedBindingElementTreeImpl) bindingElement).bindingIdentifiers()){
+          Usage.create(symbolModel, currentScope.lookupSymbol(identifier.name()), identifier, Usage.Kind.WRITE);
+        }
+      }
+    }
   }
 
   /*

@@ -49,8 +49,8 @@ public class UsageTest extends JavaScriptTreeModelTest {
   @Test
   public void global_symbols() throws Exception {
     Scope scriptScope = SYMBOL_MODEL.getScopeFor((ScriptTree) ROOT_NODE);
-    assertThat(usagesFor("a", scriptScope)).hasSize(2);
-    assertThat(usagesFor("b", scriptScope)).hasSize(1);
+    assertThat(usagesFor("a", scriptScope)).hasSize(3);
+    assertThat(usagesFor("b", scriptScope)).hasSize(2);
     assertThat(usagesFor("f", scriptScope)).hasSize(2);
 
   }
@@ -74,7 +74,7 @@ public class UsageTest extends JavaScriptTreeModelTest {
     Scope functionScope = SYMBOL_MODEL.getScopeFor((FunctionDeclarationTree) ROOT_NODE.getFirstDescendant(Tree.Kind.FUNCTION_DECLARATION));
     assertThat(usagesFor("p1", functionScope)).hasSize(1);
     assertThat(usagesFor("p2", functionScope)).isEmpty();
-    assertThat(usagesFor("b", functionScope)).hasSize(2);
+    assertThat(usagesFor("b", functionScope)).hasSize(3);
   }
 
   @Test
@@ -93,7 +93,7 @@ public class UsageTest extends JavaScriptTreeModelTest {
   public void usage_type() throws Exception {
     Scope scriptScope = SYMBOL_MODEL.getScopeFor((ScriptTree) ROOT_NODE);
     Collection<Usage> usages = usagesFor("var1", scriptScope);
-    assertThat(usages).hasSize(3);
+    assertThat(usages).hasSize(4);
     Iterator<Usage> iterator = usages.iterator();
     int readCounter = 0;
     int writeCounter = 0;
@@ -103,7 +103,7 @@ public class UsageTest extends JavaScriptTreeModelTest {
       writeCounter += !next.kind().equals(Usage.Kind.READ) ? 1 : 0;
     }
     assertThat(readCounter).isEqualTo(2);
-    assertThat(writeCounter).isEqualTo(2);
+    assertThat(writeCounter).isEqualTo(3);
   }
 
   public Collection<Usage> usagesFor(String name, Scope scope) {

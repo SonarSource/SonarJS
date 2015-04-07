@@ -116,7 +116,8 @@ public class SymbolVisitor extends BaseTreeVisitor {
       }
 
       if (!addUsageFor(identifier, usageKind)) {
-        createSymbolForScope(identifier.name(), identifier, currentScope.globalScope(), Symbol.Kind.VARIABLE);
+        Symbol symbol = createSymbolForScope(identifier.name(), identifier, currentScope.globalScope(), Symbol.Kind.VARIABLE);
+        Usage.create(symbolModel, symbol, identifier, usageKind);
       }
       // no need to scan variable has it has been handle
       scan(tree.expression());
@@ -170,17 +171,19 @@ public class SymbolVisitor extends BaseTreeVisitor {
     }
   }
 
-  private void createSymbolForScope(String name, Tree tree, Scope scope, Symbol.Kind kind) {
+  private Symbol createSymbolForScope(String name, Tree tree, Scope scope, Symbol.Kind kind) {
     //todo(Lena): move this logic to method of Scope or SymbolModel
     Symbol symbol = scope.createSymbol(name, tree, kind);
     symbolModel.setScopeForSymbol(symbol, scope);
     symbolModel.setScopeFor(tree, scope);
+    return symbol;
   }
 
-  private void createBuildInSymbolForScope(String name, Scope scope, Symbol.Kind kind) {
+  private Symbol createBuildInSymbolForScope(String name, Scope scope, Symbol.Kind kind) {
     Symbol symbol = scope.createBuildInSymbol(name, kind);
     symbolModel.setScopeForSymbol(symbol, scope);
     symbolModel.setScopeFor(scope.getTree(), scope);
+    return symbol;
   }
 
   private void enterScope(Tree tree) {

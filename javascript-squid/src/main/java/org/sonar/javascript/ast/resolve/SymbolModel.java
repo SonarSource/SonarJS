@@ -20,6 +20,7 @@
 package org.sonar.javascript.ast.resolve;
 
 import com.google.common.collect.HashMultimap;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Multimap;
@@ -105,6 +106,15 @@ public class SymbolModel {
       }
     }
     return result;
+  }
+
+  /**
+   *
+   * @param name name of symbols to look for
+   * @return list of symbols with the given names or all symbols if empty list of name provided
+   */
+  public List<Symbol> getSymbols(String name) {
+    return getSymbols(ImmutableList.of(name));
   }
 
 

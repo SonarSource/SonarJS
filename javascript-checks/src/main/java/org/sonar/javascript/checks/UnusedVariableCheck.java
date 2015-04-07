@@ -24,6 +24,7 @@ import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.javascript.ast.resolve.Symbol;
 import org.sonar.javascript.ast.resolve.SymbolModel;
+import org.sonar.javascript.ast.resolve.Usage;
 import org.sonar.javascript.ast.visitors.BaseTreeVisitor;
 import org.sonar.javascript.model.interfaces.Tree;
 import org.sonar.javascript.model.interfaces.Tree.Kind;
@@ -31,6 +32,8 @@ import org.sonar.javascript.model.interfaces.declaration.ScriptTree;
 import org.sonar.squidbridge.annotations.ActivatedByDefault;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
+
+import java.util.Collection;
 
 @Rule(
   key = "UnusedVariable",
@@ -49,10 +52,15 @@ public class UnusedVariableCheck extends BaseTreeVisitor {
     for (Symbol variable : symbolModel.getSymbols(Symbol.Kind.VARIABLE)) {
       Tree declaration = variable.getFirstDeclaration();
 
-      if (symbolModel.getUsageFor(variable).isEmpty() && !isGlobalOrCatchVariable(symbolModel, declaration) && !variable.buildIn()) {
+      Collection<Usage> usages = symbolModel.getUsageFor(variable);
+      if (noUsages(usages, variable) && !isGlobalOrCatchVariable(symbolModel, declaration) && !variable.buildIn()) {
         getContext().addIssue(this, declaration, "Remove the declaration of the unused '" + variable.name() + "' variable.");
       }
     }
+  }
+
+  private boolean noUsages(Collection<Usage> usages, Symbol variable) {
+    return usages.isEmpty() || (usages.size() == 1 && usages.iterator().next().tree().equals(variable.getFirstDeclaration()));
   }
 
   private boolean isGlobalOrCatchVariable(SymbolModel symbolModel, Tree declaration) {
