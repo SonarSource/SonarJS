@@ -27,11 +27,11 @@ import org.sonar.javascript.model.interfaces.Tree;
 import org.sonar.javascript.model.interfaces.declaration.FunctionDeclarationTree;
 import org.sonar.javascript.model.interfaces.declaration.ScriptTree;
 import org.sonar.javascript.model.interfaces.expression.FunctionExpressionTree;
-import org.sonar.javascript.model.interfaces.expression.IdentifierTree;
 import org.sonar.javascript.model.interfaces.statement.CatchBlockTree;
 
 import java.io.File;
 import java.util.Collection;
+import java.util.Iterator;
 
 import static org.fest.assertions.Assertions.assertThat;
 
@@ -89,7 +89,24 @@ public class UsageTest extends JavaScriptTreeModelTest {
     assertThat(usagesFor("e", catchScope)).hasSize(1);
   }
 
-  public Collection<IdentifierTree> usagesFor(String name, Scope scope) {
+  @Test
+  public void usage_type() throws Exception {
+    Scope scriptScope = SYMBOL_MODEL.getScopeFor((ScriptTree) ROOT_NODE);
+    Collection<Usage> usages = usagesFor("var1", scriptScope);
+    assertThat(usages).hasSize(3);
+    Iterator<Usage> iterator = usages.iterator();
+    int readCounter = 0;
+    int writeCounter = 0;
+    while (iterator.hasNext()){
+      Usage next = iterator.next();
+      readCounter += !next.kind().equals(Usage.Kind.WRITE) ? 1 : 0;
+      writeCounter += !next.kind().equals(Usage.Kind.READ) ? 1 : 0;
+    }
+    assertThat(readCounter).isEqualTo(2);
+    assertThat(writeCounter).isEqualTo(2);
+  }
+
+  public Collection<Usage> usagesFor(String name, Scope scope) {
     return SYMBOL_MODEL.getUsageFor(scope.lookupSymbol(name));
   }
 

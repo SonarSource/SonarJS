@@ -19,6 +19,7 @@
  */
 package org.sonar.javascript.ast.resolve;
 
+import org.sonar.javascript.api.EcmaScriptPunctuator;
 import org.sonar.javascript.ast.visitors.BaseTreeVisitor;
 import org.sonar.javascript.model.interfaces.Tree;
 import org.sonar.javascript.model.interfaces.declaration.FunctionDeclarationTree;
@@ -29,6 +30,7 @@ import org.sonar.javascript.model.interfaces.expression.AssignmentExpressionTree
 import org.sonar.javascript.model.interfaces.expression.ClassTree;
 import org.sonar.javascript.model.interfaces.expression.FunctionExpressionTree;
 import org.sonar.javascript.model.interfaces.expression.IdentifierTree;
+import org.sonar.javascript.model.interfaces.expression.UnaryExpressionTree;
 import org.sonar.javascript.model.interfaces.statement.CatchBlockTree;
 import org.sonar.javascript.model.interfaces.statement.ForOfStatementTree;
 
@@ -108,8 +110,12 @@ public class SymbolVisitor extends BaseTreeVisitor {
   public void visitAssignmentExpression(AssignmentExpressionTree tree) {
     if (tree.variable() instanceof IdentifierTree) {
       IdentifierTree identifier = (IdentifierTree) tree.variable();
+      Usage.Kind usageKind = Usage.Kind.WRITE;
+      if (!tree.operator().text().equals(EcmaScriptPunctuator.EQU.getValue())) {
+        usageKind = Usage.Kind.READ_WRITE;
+      }
 
-      if (!addUsageFor(identifier)) {
+      if (!addUsageFor(identifier, usageKind)) {
         createSymbolForScope(identifier.name(), identifier, currentScope.globalScope(), Symbol.Kind.VARIABLE);
       }
       // no need to scan variable has it has been handle
@@ -123,8 +129,24 @@ public class SymbolVisitor extends BaseTreeVisitor {
   @Override
   public void visitIdentifier(IdentifierTree tree) {
     if (tree.is(Tree.Kind.IDENTIFIER_REFERENCE)) {
-      addUsageFor(tree);
+      addUsageFor(tree, Usage.Kind.READ);
     }
+  }
+
+  @Override
+  public void visitUnaryExpression(UnaryExpressionTree tree) {
+    if (isIncDec(tree) && tree.expression().is(Tree.Kind.IDENTIFIER_REFERENCE)){
+      addUsageFor((IdentifierTree)tree.expression(), Usage.Kind.READ_WRITE);
+    }
+  }
+
+  private boolean isIncDec(UnaryExpressionTree tree) {
+    return tree.is(
+        Tree.Kind.PREFIX_INCREMENT,
+        Tree.Kind.PREFIX_DECREMENT,
+        Tree.Kind.POSTFIX_INCREMENT,
+        Tree.Kind.POSTFIX_DECREMENT
+    );
   }
 
   @Override
@@ -132,7 +154,7 @@ public class SymbolVisitor extends BaseTreeVisitor {
     if (tree.expression() instanceof IdentifierTree) {
       IdentifierTree identifier = (IdentifierTree) tree.expression();
 
-      if (!addUsageFor(identifier)) {
+      if (!addUsageFor(identifier, Usage.Kind.READ)) {
         createSymbolForScope(identifier.name(), identifier, currentScope.globalScope(), Symbol.Kind.VARIABLE);
       }
     }
@@ -168,10 +190,10 @@ public class SymbolVisitor extends BaseTreeVisitor {
   /**
    * @return true if symbol found and usage recorded, false otherwise.
    */
-  private boolean addUsageFor(IdentifierTree identifier) {
+  private boolean addUsageFor(IdentifierTree identifier, Usage.Kind kind) {
     Symbol symbol = currentScope.lookupSymbol(identifier.name());
     if (symbol != null) {
-      symbolModel.addUsage(symbol, identifier);
+      Usage.create(symbolModel, symbol, identifier, kind);
       return true;
     }
 

@@ -145,6 +145,7 @@ public class SymbolDeclarationVisitor extends BaseTreeVisitor {
 
   @Override
   public void visitVariableDeclaration(VariableDeclarationTree tree) {
+    //todo(Lena): check if declaration has initializer -> add a usage then
     addSymbols(((VariableDeclarationTreeImpl) tree).variableIdentifiers(), Symbol.Kind.VARIABLE);
     super.visitVariableDeclaration(tree);
   }

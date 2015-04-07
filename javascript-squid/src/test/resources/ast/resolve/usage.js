@@ -41,5 +41,8 @@ function foo(){
 
 arguments = 1
 
-
+var var1 = 1
+var1 = 2
+foo(var1)
+var1++
 

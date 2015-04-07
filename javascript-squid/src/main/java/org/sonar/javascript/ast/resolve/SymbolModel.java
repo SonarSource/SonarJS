@@ -26,7 +26,6 @@ import com.google.common.collect.Multimap;
 import org.apache.commons.lang.ArrayUtils;
 import org.sonar.javascript.model.interfaces.Tree;
 import org.sonar.javascript.model.interfaces.declaration.ScriptTree;
-import org.sonar.javascript.model.interfaces.expression.IdentifierTree;
 
 import java.util.Collection;
 import java.util.LinkedList;
@@ -38,8 +37,8 @@ public class SymbolModel {
 
   private Map<Tree, Scope> scopes = Maps.newHashMap();
   private Map<Symbol, Scope> symbolScope = Maps.newHashMap();
-  private Multimap<Symbol, IdentifierTree> usagesTree = HashMultimap.create();
-  private Map<IdentifierTree, Symbol> refersTo = Maps.newHashMap();
+  private Multimap<Symbol, Usage> usagesTree = HashMultimap.create();
+  private Map<Usage, Symbol> refersTo = Maps.newHashMap();
 
   public static SymbolModel createFor(ScriptTree script) {
     SymbolModel symbolModel = new SymbolModel();
@@ -61,13 +60,13 @@ public class SymbolModel {
     symbolScope.put(symbol, scope);
   }
 
-  public Collection<IdentifierTree> getUsageFor(Symbol symbol) {
+  public Collection<Usage> getUsageFor(Symbol symbol) {
     return usagesTree.get(symbol);
   }
 
-  public void addUsage(Symbol symbol, IdentifierTree tree) {
-    usagesTree.put(symbol, tree);
-    refersTo.put(tree, symbol);
+  public void addUsage(Symbol symbol, Usage usage) {
+    usagesTree.put(symbol, usage);
+    refersTo.put(usage, symbol);
   }
 
   /**
