@@ -20,12 +20,9 @@
 package org.sonar.javascript.checks;
 
 import org.junit.Test;
-import org.sonar.javascript.JavaScriptAstScanner;
 import org.sonar.javascript.checks.utils.TreeCheckTest;
 import org.sonar.squidbridge.api.SourceFile;
 import org.sonar.squidbridge.checks.CheckMessagesVerifier;
-
-import java.io.File;
 
 public class UnusedVariableCheckTest extends TreeCheckTest {
 
@@ -44,6 +41,7 @@ public class UnusedVariableCheckTest extends TreeCheckTest {
         .next().atLine(43)
         .next().atLine(44)
         .next().atLine(48)
+        .next().atLine(62)
         .noMore();
   }
 

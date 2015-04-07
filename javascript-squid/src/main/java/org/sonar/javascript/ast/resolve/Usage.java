@@ -30,6 +30,7 @@ public class Usage {
   }
   private Kind kind;
   private IdentifierTree tree;
+  private boolean init = false;
 
   private Usage(IdentifierTree tree, Kind kind){
     this.kind = kind;
@@ -44,9 +45,18 @@ public class Usage {
     return tree;
   }
 
+  public boolean isInit() {
+    return  init;
+  }
+
   public static Usage create(SymbolModel symbolModel, Symbol symbol, IdentifierTree tree, Kind kind){
     Usage usage = new Usage(tree, kind);
     symbolModel.addUsage(symbol, usage);
+    return usage;
+  }
+  public static Usage createInit(SymbolModel symbolModel, Symbol symbol, IdentifierTree tree, Kind kind){
+    Usage usage = create(symbolModel, symbol, tree, kind);
+    usage.init = true;
     return usage;
   }
 

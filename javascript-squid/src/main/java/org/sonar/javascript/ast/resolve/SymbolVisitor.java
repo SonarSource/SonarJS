@@ -138,6 +138,8 @@ public class SymbolVisitor extends BaseTreeVisitor {
   public void visitUnaryExpression(UnaryExpressionTree tree) {
     if (isIncDec(tree) && tree.expression().is(Tree.Kind.IDENTIFIER_REFERENCE)){
       addUsageFor((IdentifierTree)tree.expression(), Usage.Kind.READ_WRITE);
+    } else {
+      super.visitUnaryExpression(tree);
     }
   }
 

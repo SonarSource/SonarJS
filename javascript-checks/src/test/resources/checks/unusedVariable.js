@@ -51,3 +51,14 @@ var f = p => {
 try {
 } catch (e) {               // OK
 }
+
+function foo(){
+var x1 = 1,              // OK
+  y1 = -x1;               // OK
+foo(y1)
+}
+
+function foo(){
+  var x = 1;               // NOK
+  var x = 2;
+}
