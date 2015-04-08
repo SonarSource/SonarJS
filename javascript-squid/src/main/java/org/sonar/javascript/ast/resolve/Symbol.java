@@ -27,10 +27,18 @@ import java.util.List;
 public class Symbol {
 
   public enum Kind {
-    VARIABLE,
-    FUNCTION,
-    PARAMETER,
-    CLASS
+    VARIABLE("variable"),
+    FUNCTION("function"),
+    PARAMETER("parameter"),
+    CLASS("class");
+
+    private Kind(String value) {
+      this.value = value;
+    }
+    private final String value;
+    public String getValue() {
+      return value;
+    }
   }
 
   private final String name;
@@ -64,7 +72,7 @@ public class Symbol {
     return buildIn;
   }
 
-  public boolean is(Symbol.Kind kind){
+  public boolean is(Symbol.Kind kind) {
     return kind.equals(this.kind);
   }
 
@@ -73,7 +81,7 @@ public class Symbol {
   }
 
   public Tree getFirstDeclaration() {
-   return declarations.get(0);
+    return declarations.get(0);
   }
 
   @Override

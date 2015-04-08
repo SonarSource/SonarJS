@@ -77,15 +77,18 @@ public class SymbolDeclarationVisitor extends BaseTreeVisitor {
   public void visitMethodDeclaration(MethodDeclarationTree tree) {
     addSymbol(((MethodDeclarationTreeImpl) tree).nameToString(), tree, Symbol.Kind.FUNCTION);
     newScope(tree);
-    addFunctionBuildInSymbols();
     addSymbols(((ParameterListTreeImpl) tree.parameters()).parameterIdentifiers(), Symbol.Kind.PARAMETER);
+    addFunctionBuildInSymbols();
 
     super.visitMethodDeclaration(tree);
     leaveScope();
   }
 
   private void addFunctionBuildInSymbols() {
-    createBuildInSymbolForScope("arguments", currentScope, Symbol.Kind.VARIABLE);
+    String arguments = "arguments";
+    if (currentScope.symbols.get(arguments) == null) {
+      createBuildInSymbolForScope(arguments, currentScope, Symbol.Kind.VARIABLE);
+    }
   }
 
   private void createBuildInSymbolForScope(String name, Scope scope, Symbol.Kind kind) {
@@ -107,8 +110,8 @@ public class SymbolDeclarationVisitor extends BaseTreeVisitor {
   public void visitFunctionDeclaration(FunctionDeclarationTree tree) {
     addSymbol(tree.name().name(), tree, Symbol.Kind.FUNCTION);
     newScope(tree);
-    addFunctionBuildInSymbols();
     addSymbols(((ParameterListTreeImpl) tree.parameters()).parameterIdentifiers(), Symbol.Kind.PARAMETER);
+    addFunctionBuildInSymbols();
 
     super.visitFunctionDeclaration(tree);
     leaveScope();
@@ -134,12 +137,12 @@ public class SymbolDeclarationVisitor extends BaseTreeVisitor {
   @Override
   public void visitFunctionExpression(FunctionExpressionTree tree) {
     newScope(tree);
-    addFunctionBuildInSymbols();
     if (tree.name() != null) {
       // Not available in enclosing scope
       addSymbol(tree.name().name(), tree, Symbol.Kind.FUNCTION);
     }
     addSymbols(((ParameterListTreeImpl) tree.parameters()).parameterIdentifiers(), Symbol.Kind.PARAMETER);
+    addFunctionBuildInSymbols();
 
     super.visitFunctionExpression(tree);
     leaveScope();

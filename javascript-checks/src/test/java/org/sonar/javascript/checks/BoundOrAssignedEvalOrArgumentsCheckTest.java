@@ -20,19 +20,17 @@
 package org.sonar.javascript.checks;
 
 import org.junit.Test;
-import org.sonar.javascript.JavaScriptAstScanner;
+import org.sonar.javascript.checks.utils.TreeCheckTest;
 import org.sonar.squidbridge.api.SourceFile;
 import org.sonar.squidbridge.checks.CheckMessagesVerifier;
 
-import java.io.File;
-
-public class BoundOrAssignedEvalOrArgumentsCheckTest {
+public class BoundOrAssignedEvalOrArgumentsCheckTest extends TreeCheckTest {
 
   @Test
   public void test() {
     BoundOrAssignedEvalOrArgumentsCheck check = new BoundOrAssignedEvalOrArgumentsCheck();
 
-    SourceFile file = JavaScriptAstScanner.scanSingleFile(new File("src/test/resources/checks/boundOrAssignedEvalOrArguments.js"), check);
+    SourceFile file = scanFile("src/test/resources/checks/boundOrAssignedEvalOrArguments.js", check);
     CheckMessagesVerifier.verify(file.getCheckMessages())
         .next().atLine(1).withMessage("Remove the modification of \"eval\".")
         .next().atLine(2).withMessage("Remove the modification of \"arguments\".")
@@ -43,17 +41,15 @@ public class BoundOrAssignedEvalOrArgumentsCheckTest {
         .next().atLine(8).withMessage("Do not use \"eval\" to declare a parameter - use another name.")
         .next().atLine(9).withMessage("Do not use \"arguments\" to declare a function - use another name.")
         .next().atLine(10).withMessage("Do not use \"eval\" to declare a function - use another name.")
-        // FIXME not able to detect:
-        // .next().atLine(10)
         .next().atLine(22).withMessage("Remove the modification of \"arguments\".")
         .next().atLine(25).withMessage("Do not use \"eval\" to declare a parameter - use another name.")
         .next().atLine(28).withMessage("Do not use \"arguments\" to declare a parameter - use another name.")
         .next().atLine(31).withMessage("Do not use \"eval\" to declare a parameter - use another name.")
         .next().atLine(43).withMessage("Do not use \"eval\" to declare a parameter - use another name.")
-        .next().atLine(44).withMessage("Do not use \"arguments\" to declare a variable - use another name.")
+        .next().atLine(44).withMessage("Remove the modification of \"arguments\".")
         .next().atLine(50)
-        .next().atLine(56)
-        .next().atLine(57)
+        .next().atLine(54)
+        .next().atLine(55)
         .noMore();
   }
 

@@ -1,9 +1,9 @@
 eval = 42;
-arguments++;
+function fun(){arguments++}
 ++eval;
 var obj = { set p(arguments) { } }; // NOK
 var obj = { set p(arg) { } };       // OK
-var eval;
+function fun(){var eval;}
 try { } catch (arguments) { }
 function x(eval) { }
 function arguments() { }
@@ -11,10 +11,10 @@ var y = function eval() { };
 var f = new Function("arguments", "return 17;");
 
 eval("");
-arguments[0] = a;  // OK
-a = arguments;     // OK
-
-fun(arguments); // OK
+function foo(a){arguments[0] = a;  // OK
+  a = arguments;     // OK
+}
+var fun = function(){fun(arguments);} // OK
 
 function fun() {
   var a = arguments.length == 0; // OK
@@ -38,20 +38,19 @@ function fun(yield) {  // OK
 }
 
 /**
- * Destructuring patern in declaration
- */
+* Destructuring patern in declaration
+*/
 function fun ({eval}) {     // NOK
- var {arguments, } = eval;  // NOK
+var {arguments, } = eval;  // NOK
 }
 
 /**
- * Generator function
- */
+* Generator function
+*/
 function* fun(eval) { // NOK
 }
 
-/**
- * Generator function
- */
-let arguments = eval;
-const arguments = eval;
+function foo(){
+  let arguments = eval;
+  const arguments = eval;
+}
