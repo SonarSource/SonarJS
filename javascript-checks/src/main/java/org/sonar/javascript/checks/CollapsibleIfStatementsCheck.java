@@ -22,17 +22,14 @@ package org.sonar.javascript.checks;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
-import org.sonar.javascript.model.implementations.statement.IfStatementTreeImpl;
+import org.sonar.javascript.ast.visitors.BaseTreeVisitor;
 import org.sonar.javascript.model.interfaces.Tree.Kind;
 import org.sonar.javascript.model.interfaces.statement.BlockTree;
+import org.sonar.javascript.model.interfaces.statement.IfStatementTree;
 import org.sonar.javascript.model.interfaces.statement.StatementTree;
 import org.sonar.squidbridge.annotations.ActivatedByDefault;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
-import org.sonar.squidbridge.checks.SquidCheck;
-import org.sonar.sslr.parser.LexerlessGrammar;
-
-import com.sonar.sslr.api.AstNode;
 
 @Rule(
   key = "CollapsibleIfStatements",
@@ -42,37 +39,31 @@ import com.sonar.sslr.api.AstNode;
 @ActivatedByDefault
 @SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.READABILITY)
 @SqaleConstantRemediation("5min")
-public class CollapsibleIfStatementsCheck extends SquidCheck<LexerlessGrammar> {
+public class CollapsibleIfStatementsCheck extends BaseTreeVisitor {
 
   @Override
-  public void init() {
-    subscribeTo(Kind.IF_STATEMENT);
-  }
+  public void visitIfStatement(IfStatementTree tree) {
+    if (tree.elseClause() == null) {
+      StatementTree innerStatement = tree.statement();
 
-  @Override
-  public void visitNode(AstNode node) {
-    IfStatementTreeImpl ifStatement = (IfStatementTreeImpl) node;
-
-    if (!ifStatement.hasElse()) {
-      StatementTree innerStatement = ifStatement.statement();
-
-      if (isBlockAndContainsOnlyOneIfStatement((AstNode) innerStatement) || isIfStatementWithoutElse(innerStatement)) {
-        getContext().createLineViolation(this, "Merge this if statement with the nested one.", node);
+      if (isBlockAndContainsOnlyOneIfStatement(innerStatement) || isIfStatementWithoutElse(innerStatement)) {
+        getContext().addIssue(this, tree, "Merge this if statement with the nested one.");
       }
     }
+    super.visitIfStatement(tree);
   }
 
-  private boolean isBlockAndContainsOnlyOneIfStatement(AstNode statement) {
+  private boolean isBlockAndContainsOnlyOneIfStatement(StatementTree statement) {
     if (!statement.is(Kind.BLOCK)) {
       return false;
     }
     BlockTree block = (BlockTree) statement;
 
-    return block.statements().size() == 1 ? isIfStatementWithoutElse(block.statements().get(0)) : false;
+    return block.statements().size() == 1 && isIfStatementWithoutElse(block.statements().get(0));
   }
 
   private boolean isIfStatementWithoutElse(StatementTree statement) {
-    return statement.is(Kind.IF_STATEMENT) && !((IfStatementTreeImpl) statement).hasElse();
+    return statement.is(Kind.IF_STATEMENT) && ((IfStatementTree)statement).elseClause() == null;
   }
 
 }
