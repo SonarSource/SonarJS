@@ -21,7 +21,6 @@ package org.sonar.javascript.ast.resolve;
 
 import org.sonar.javascript.ast.visitors.BaseTreeVisitor;
 import org.sonar.javascript.model.implementations.declaration.InitializedBindingElementTreeImpl;
-import org.sonar.javascript.model.implementations.declaration.MethodDeclarationTreeImpl;
 import org.sonar.javascript.model.implementations.declaration.ParameterListTreeImpl;
 import org.sonar.javascript.model.implementations.expression.ArrowFunctionTreeImpl;
 import org.sonar.javascript.model.implementations.statement.CatchBlockTreeImpl;
@@ -32,7 +31,6 @@ import org.sonar.javascript.model.interfaces.declaration.FunctionDeclarationTree
 import org.sonar.javascript.model.interfaces.declaration.MethodDeclarationTree;
 import org.sonar.javascript.model.interfaces.declaration.ScriptTree;
 import org.sonar.javascript.model.interfaces.expression.ArrowFunctionTree;
-import org.sonar.javascript.model.interfaces.expression.ClassTree;
 import org.sonar.javascript.model.interfaces.expression.FunctionExpressionTree;
 import org.sonar.javascript.model.interfaces.expression.IdentifierTree;
 import org.sonar.javascript.model.interfaces.statement.CatchBlockTree;
@@ -61,21 +59,9 @@ public class SymbolDeclarationVisitor extends BaseTreeVisitor {
     leaveScope();
   }
 
-  // FIXME: class are not properly handle
-  @Override
-  public void visitClassDeclaration(ClassTree tree) {
-    if (tree.name() != null) {
-      addSymbol(tree.name().name(), tree, Symbol.Kind.CLASS);
-    }
-    newScope(tree);
-
-    super.visitClassDeclaration(tree);
-    leaveScope();
-  }
 
   @Override
   public void visitMethodDeclaration(MethodDeclarationTree tree) {
-    addSymbol(((MethodDeclarationTreeImpl) tree).nameToString(), tree, Symbol.Kind.FUNCTION);
     newScope(tree);
     addSymbols(((ParameterListTreeImpl) tree.parameters()).parameterIdentifiers(), Symbol.Kind.PARAMETER);
     addFunctionBuildInSymbols();

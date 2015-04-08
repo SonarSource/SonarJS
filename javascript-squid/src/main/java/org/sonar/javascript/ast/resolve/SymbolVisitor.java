@@ -27,7 +27,6 @@ import org.sonar.javascript.model.interfaces.declaration.MethodDeclarationTree;
 import org.sonar.javascript.model.interfaces.declaration.ScriptTree;
 import org.sonar.javascript.model.interfaces.expression.ArrowFunctionTree;
 import org.sonar.javascript.model.interfaces.expression.AssignmentExpressionTree;
-import org.sonar.javascript.model.interfaces.expression.ClassTree;
 import org.sonar.javascript.model.interfaces.expression.FunctionExpressionTree;
 import org.sonar.javascript.model.interfaces.expression.IdentifierTree;
 import org.sonar.javascript.model.interfaces.expression.UnaryExpressionTree;
@@ -58,13 +57,6 @@ public class SymbolVisitor extends BaseTreeVisitor {
 
   private void addBuildInSymbols() {
     createBuildInSymbolForScope("eval", currentScope.globalScope(), Symbol.Kind.FUNCTION);
-  }
-
-  @Override
-  public void visitClassDeclaration(ClassTree tree) {
-    enterScope(tree);
-    super.visitClassDeclaration(tree);
-    leaveScope();
   }
 
   @Override
