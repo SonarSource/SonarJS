@@ -20,19 +20,17 @@
 package org.sonar.javascript.checks;
 
 import org.junit.Test;
-import org.sonar.javascript.JavaScriptAstScanner;
+import org.sonar.javascript.checks.utils.TreeCheckTest;
 import org.sonar.squidbridge.api.SourceFile;
 import org.sonar.squidbridge.checks.CheckMessagesVerifier;
 
-import java.io.File;
-
-public class DuplicateFunctionArgumentCheckTest {
+public class DuplicateFunctionArgumentCheckTest extends TreeCheckTest {
 
   @Test
   public void test() {
     DuplicateFunctionArgumentCheck check = new DuplicateFunctionArgumentCheck();
 
-    SourceFile file = JavaScriptAstScanner.scanSingleFile(new File("src/test/resources/checks/duplicateFunctionArgument.js"), check);
+    SourceFile file = scanFile("src/test/resources/checks/duplicateFunctionArgument.js", check);
     CheckMessagesVerifier.verify(file.getCheckMessages())
         .next().atLine(3).withMessage("Rename or remove duplicate function argument 'a'.")
         .next().atLine(4).withMessage("Rename or remove duplicate function argument '\\u0061'.")

@@ -19,22 +19,20 @@
  */
 package org.sonar.javascript.checks;
 
-import java.util.Set;
-
+import com.google.common.collect.Sets;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
+import org.sonar.javascript.ast.visitors.BaseTreeVisitor;
 import org.sonar.javascript.model.implementations.declaration.ParameterListTreeImpl;
 import org.sonar.javascript.model.interfaces.Tree;
+import org.sonar.javascript.model.interfaces.declaration.ParameterListTree;
 import org.sonar.javascript.model.interfaces.expression.IdentifierTree;
 import org.sonar.squidbridge.annotations.ActivatedByDefault;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
-import org.sonar.squidbridge.checks.SquidCheck;
-import org.sonar.sslr.parser.LexerlessGrammar;
 
-import com.google.common.collect.Sets;
-import com.sonar.sslr.api.AstNode;
+import java.util.Set;
 
 @Rule(
   key = "DuplicateFunctionArgument",
@@ -44,27 +42,27 @@ import com.sonar.sslr.api.AstNode;
 @ActivatedByDefault
 @SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.UNDERSTANDABILITY)
 @SqaleConstantRemediation("5min")
-public class DuplicateFunctionArgumentCheck extends SquidCheck<LexerlessGrammar> {
+public class DuplicateFunctionArgumentCheck extends BaseTreeVisitor {
+
+  private static final String MESSAGE = "Rename or remove duplicate function argument '%s'.";
 
   @Override
-  public void init() {
-    subscribeTo(Tree.Kind.FORMAL_PARAMETER_LIST);
-  }
+  public void visitParameterList(ParameterListTree tree) {
+    if (tree.is(Tree.Kind.FORMAL_PARAMETER_LIST)){
+      Set<String> values = Sets.newHashSet();
 
-  @Override
-  public void visitNode(AstNode astNode) {
-    Set<String> values = Sets.newHashSet();
-
-    for (IdentifierTree identifier : ((ParameterListTreeImpl) astNode).parameterIdentifiers()) {
-      checkIdentifier((AstNode) identifier, identifier.name(), values);
+      for (IdentifierTree identifier : ((ParameterListTreeImpl) tree).parameterIdentifiers()) {
+        checkIdentifier(identifier, identifier.name(), values);
+      }
     }
+    super.visitParameterList(tree);
   }
 
-  private void checkIdentifier(AstNode identifier, String value, Set<String> values) {
+  private void checkIdentifier(IdentifierTree identifier, String value, Set<String> values) {
     String unescaped = EscapeUtils.unescape(value);
 
     if (values.contains(unescaped)) {
-      getContext().createLineViolation(this, "Rename or remove duplicate function argument '" + value + "'.", identifier);
+      getContext().addIssue(this, identifier, String.format(MESSAGE, value));
     } else {
       values.add(unescaped);
     }
