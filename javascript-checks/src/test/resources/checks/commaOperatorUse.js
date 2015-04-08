@@ -39,7 +39,7 @@ switch(a) {
 
 doSomething(a, b);                        // OK
 
-for (i = 0, j = 0; i < a; i++, j++)       // OK
+for (i = 0, j = 0, k = 0; i < a; i++, j++)       // OK
 {}
 
 var myArray = [1, 2, 3];                  // OK
@@ -47,3 +47,13 @@ var myObject = {a:1, b:2, c:3};           // OK
 var a = 1, b = 1;                         // OK
 
 doSomething((p1, p2) => p1 + p2);         // OK
+
+for (i = (0, 1), j = 0; i < a; i++, j++)       // NOK
+{}
+
+var x, y = 2; // ok
+
+(foo(x, y), point) || (foo(x, y), point) || foo(x, y);  // NOK x 2
+
+x = function(){
+  }, 2

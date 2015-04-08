@@ -22,63 +22,93 @@ package org.sonar.javascript.checks;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
-import org.sonar.javascript.api.EcmaScriptPunctuator;
-import org.sonar.javascript.model.implementations.lexical.InternalSyntaxToken;
+import org.sonar.javascript.ast.visitors.BaseTreeVisitor;
+import org.sonar.javascript.model.interfaces.Tree;
 import org.sonar.javascript.model.interfaces.Tree.Kind;
 import org.sonar.javascript.model.interfaces.expression.BinaryExpressionTree;
+import org.sonar.javascript.model.interfaces.expression.ExpressionTree;
 import org.sonar.javascript.model.interfaces.lexical.SyntaxToken;
+import org.sonar.javascript.model.interfaces.statement.ForStatementTree;
 import org.sonar.squidbridge.annotations.ActivatedByDefault;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
-import org.sonar.squidbridge.checks.SquidCheck;
-import org.sonar.sslr.parser.LexerlessGrammar;
 
-import com.sonar.sslr.api.AstNode;
+import javax.annotation.Nullable;
+import java.util.LinkedList;
+import java.util.List;
 
 @Rule(
-  key = "S878",
-  name = "Comma operator should not be used",
-  priority = Priority.MAJOR,
-  tags = {Tags.MISRA})
+    key = "S878",
+    name = "Comma operator should not be used",
+    priority = Priority.MAJOR,
+    tags = {Tags.MISRA})
 @ActivatedByDefault
 @SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.UNDERSTANDABILITY)
 @SqaleConstantRemediation("5min")
-public class CommaOperatorUseCheck extends SquidCheck<LexerlessGrammar> {
+public class CommaOperatorUseCheck extends BaseTreeVisitor {
 
   @Override
-  public void init() {
-    subscribeTo(Kind.COMMA_OPERATOR);
-  }
+  public void visitBinaryExpression(BinaryExpressionTree tree) {
 
-  @Override
-  public void visitNode(AstNode astNode) {
-    if (isInCommaExpression(astNode) || isInitOrIncrementOfForLoop(astNode)) {
+    if (!tree.is(Kind.COMMA_OPERATOR)) {
+      super.visitBinaryExpression(tree);
       return;
     }
 
-    BinaryExpressionTree expr = (BinaryExpressionTree) astNode;
+    List<ExpressionTree> expressions = getAllSubExpressions(tree);
+
     String message;
-    if (expr.leftOperand().is(Kind.COMMA_OPERATOR)) {
+    if (expressions.size() > 2) {
       message = "Remove use of all comma operators in this expression.";
     } else {
       message = "Remove use of this comma operator.";
     }
 
-    while (expr.leftOperand().is(Kind.COMMA_OPERATOR)) {
-      expr = (BinaryExpressionTree) expr.leftOperand();
+    getContext().addIssue(this, getFirstComma(tree), message);
+    for (ExpressionTree expression : expressions) {
+      super.scan(expression);
     }
-    SyntaxToken operator = expr.operator();
-
-    getContext().createLineViolation(this, message, (InternalSyntaxToken) operator);
   }
 
-  public static boolean isInCommaExpression(AstNode expr) {
-    return expr.getParent().is(Kind.COMMA_OPERATOR);
+  @Override
+  public void visitForStatement(ForStatementTree tree) {
+    visitPossibleException(tree.init());
+    super.scan(tree.condition());
+    visitPossibleException(tree.update());
+    super.scan(tree.statement());
   }
 
-  public static boolean isInitOrIncrementOfForLoop(AstNode expr) {
-    return expr.getParent().is(Kind.FOR_STATEMENT)
-      && (expr.getPreviousAstNode().is(EcmaScriptPunctuator.LPARENTHESIS) || expr.getNextAstNode().is(EcmaScriptPunctuator.RPARENTHESIS));
+  private void visitPossibleException(@Nullable Tree tree){
+    if (tree != null && tree.is(Kind.COMMA_OPERATOR)) {
+      List<ExpressionTree> expressions = getAllSubExpressions((BinaryExpressionTree) tree);
+      for (ExpressionTree expression : expressions) {
+        super.scan(expression);
+      }
+    } else {
+      super.scan(tree);
+    }
+  }
+
+  private List<ExpressionTree> getAllSubExpressions(BinaryExpressionTree tree) {
+    List<ExpressionTree> result = new LinkedList<>();
+    result.add(tree.rightOperand());
+    ExpressionTree currentExpression = tree.leftOperand();
+    while (currentExpression.is(Kind.COMMA_OPERATOR)) {
+      result.add(((BinaryExpressionTree) currentExpression).rightOperand());
+      currentExpression = ((BinaryExpressionTree) currentExpression).leftOperand();
+    }
+    result.add(currentExpression);
+    return result;
+  }
+
+  private SyntaxToken getFirstComma(BinaryExpressionTree tree) {
+    SyntaxToken result = tree.operator();
+    ExpressionTree currentExpression = tree.leftOperand();
+    while (currentExpression.is(Kind.COMMA_OPERATOR)) {
+      result = ((BinaryExpressionTree)currentExpression).operator();
+      currentExpression = ((BinaryExpressionTree) currentExpression).leftOperand();
+    }
+    return result;
   }
 
 }
