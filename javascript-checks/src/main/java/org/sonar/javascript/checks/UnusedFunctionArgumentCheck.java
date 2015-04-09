@@ -26,12 +26,18 @@ import org.sonar.javascript.ast.resolve.Scope;
 import org.sonar.javascript.ast.resolve.Symbol;
 import org.sonar.javascript.ast.resolve.SymbolModel;
 import org.sonar.javascript.ast.visitors.BaseTreeVisitor;
+import org.sonar.javascript.model.implementations.JavaScriptTree;
+import org.sonar.javascript.model.interfaces.Tree;
+import org.sonar.javascript.model.interfaces.declaration.MethodDeclarationTree;
 import org.sonar.javascript.model.interfaces.declaration.ScriptTree;
+import org.sonar.javascript.model.interfaces.expression.IdentifierTree;
 import org.sonar.squidbridge.annotations.ActivatedByDefault;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -46,19 +52,83 @@ import java.util.List;
 public class UnusedFunctionArgumentCheck extends BaseTreeVisitor {
   private static final String MESSAGE = "Remove the unused function parameter%s \"%s\".";
 
+  class PositionComparator implements Comparator<Symbol> {
+
+    private int getLine(Symbol symbol){
+      return ((JavaScriptTree)symbol.getFirstDeclaration()).getLine();
+    }
+
+    private int getColumn(Symbol symbol){
+      return ((JavaScriptTree)symbol.getFirstDeclaration()).getToken().getColumn();
+    }
+
+    @Override
+    public int compare(Symbol symbol1, Symbol symbol2) {
+      int lineCompare = Integer.compare(getLine(symbol1), getLine(symbol2));
+      if (lineCompare == 0) {
+        return Integer.compare(getColumn(symbol1), getColumn(symbol2));
+      } else {
+        return lineCompare;
+      }
+    }
+  }
+
   @Override
   public void visitScript(ScriptTree tree) {
     SymbolModel symbolModel = getContext().getSymbolModel();
-
     Collection<Scope> scopes = symbolModel.getScopes();
+
     for (Scope scope : scopes){
-      List<Symbol> arguments = scope.getSymbols(Symbol.Kind.PARAMETER);
-      List<Symbol> unusedArguments = getUnused(symbolModel, arguments);
-      if (!unusedArguments.isEmpty()) {
-        String ending = unusedArguments.size() == 1 ? "" : "s";
-        getContext().addIssue(this, unusedArguments.get(0).getFirstDeclaration(), String.format(MESSAGE, ending, getListOfArguments(unusedArguments)));
+      visitScope(symbolModel, scope);
+    }
+  }
+
+  private void visitScope(SymbolModel symbolModel, Scope scope) {
+    if (buildInArgumentsUsed(symbolModel, scope) || scope.getTree().is(Tree.Kind.SET_METHOD)){
+      return;
+    }
+
+    List<Symbol> arguments = scope.getSymbols(Symbol.Kind.PARAMETER);
+    List<Symbol> unusedArguments = getUnusedArguments(arguments, symbolModel);
+
+    if (!unusedArguments.isEmpty()) {
+      String ending = unusedArguments.size() == 1 ? "" : "s";
+      getContext().addIssue(this, scope.getTree(), String.format(MESSAGE, ending, getListOfArguments(unusedArguments)));
+    }
+  }
+
+  private List<Symbol> getUnusedArguments(List<Symbol> arguments, SymbolModel symbolModel){
+    List<Symbol> unusedArguments = new LinkedList<>();
+    Collections.sort(arguments, new PositionComparator());
+    List<Boolean> usageInfo = getUsageInfo(symbolModel, arguments);
+    boolean usedAfter = false;
+    for (int i = arguments.size() - 1; i >= 0; i--){
+      if (usageInfo.get(i)){
+        usedAfter = true;
+      } else if (!usedAfter){
+        unusedArguments.add(0, arguments.get(i));
       }
     }
+    return unusedArguments;
+  }
+
+  private boolean buildInArgumentsUsed(SymbolModel symbolModel, Scope scope) {
+    Symbol argumentsBuildInVariable = scope.lookupSymbol("arguments");
+    boolean isBuildIn = argumentsBuildInVariable != null && argumentsBuildInVariable.buildIn();
+    boolean isUsed = !symbolModel.getUsageFor(argumentsBuildInVariable).isEmpty();
+    return isBuildIn && isUsed;
+  }
+
+  private List<Boolean> getUsageInfo(SymbolModel symbolModel, List<Symbol> symbols) {
+    List<Boolean> result = new LinkedList<>();
+    for (Symbol symbol : symbols){
+      if (symbolModel.getUsageFor(symbol).isEmpty()){
+        result.add(false);
+      } else {
+        result.add(true);
+      }
+    }
+    return result;
   }
 
   private String getListOfArguments(List<Symbol> unusedArguments) {
@@ -70,13 +140,4 @@ public class UnusedFunctionArgumentCheck extends BaseTreeVisitor {
     return result.toString().replaceFirst(", $", "");
   }
 
-  private List<Symbol> getUnused(SymbolModel symbolModel, List<Symbol> symbols) {
-    List<Symbol> result = new LinkedList<>();
-    for (Symbol symbol : symbols){
-      if (symbolModel.getUsageFor(symbol).isEmpty()){
-        result.add(symbol);
-      }
-    }
-    return result;
-  }
 }

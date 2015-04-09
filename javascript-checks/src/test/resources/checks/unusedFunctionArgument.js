@@ -34,7 +34,7 @@ function fun(a, b) {         // NOK
     a = 1;
 }
 
-function fun(a, b, c) {      // NOK
+function fun(a, b, c) {      // OK
   a = 1;
   c = 1;
 }
@@ -70,7 +70,25 @@ function fun(a) {           // OK
 
 function fun() {
   return {
-    fun(a) {               // OK - not supported by this check
+    fun(a) {               // NOK
       }
   }
+}
+
+var fun = function(         // NOK - issue on this line
+      par1,
+      par2,
+      par3
+){
+    console.log(par1);
+}
+
+
+watch('!a', (value, previous) => logger.log(value)); // NOK
+
+var a = {
+    set p(v){      // OK
+    },
+    get p(){
+    }
 }

@@ -38,9 +38,11 @@ public class UnusedFunctionArgumentCheckTest extends TreeCheckTest {
       .next().atLine(12).withMessage("Remove the unused function parameter \"c\".")
       .next().atLine(16)
       .next().atLine(33)
-      .next().atLine(37)
       .next().atLine(53).withMessage("Remove the unused function parameter \"b\".")
       .next().atLine(57)
+      .next().atLine(73)
+      .next().atLine(78)
+      .next().atLine(87)
       .noMore();
   }
 
