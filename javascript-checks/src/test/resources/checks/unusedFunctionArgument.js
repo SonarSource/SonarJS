@@ -10,7 +10,7 @@ each(function fun(p1) {      // NOK
 });
 
 each(function fun(a, b, c) { // NOK
-  b =1;
+  b = 1;
 });
 
 each(function* fun(a, b) {   // NOK

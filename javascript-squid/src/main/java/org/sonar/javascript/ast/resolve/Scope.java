@@ -22,6 +22,8 @@ package org.sonar.javascript.ast.resolve;
 import com.google.common.collect.Maps;
 import org.sonar.javascript.model.interfaces.Tree;
 
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 
 public class Scope {
@@ -104,6 +106,21 @@ public class Scope {
       scope = scope.outer;
     }
     return scope == null ? null : scope.symbols.get(name);
+  }
+
+  /**
+   * @param kind of the symbols to look for
+   *
+   * @return the symbols corresponding to the given kind
+   */
+  public List<Symbol> getSymbols(Symbol.Kind kind) {
+    List<Symbol> result = new LinkedList<>();
+    for (Symbol symbol : symbols.values()){
+      if (symbol.is(kind)){
+        result.add(symbol);
+      }
+    }
+    return result;
   }
 
   /**

@@ -29,6 +29,7 @@ import org.sonar.javascript.model.interfaces.Tree;
 import org.sonar.javascript.model.interfaces.declaration.ScriptTree;
 
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -117,5 +118,12 @@ public class SymbolModel {
     return getSymbols(ImmutableList.of(name));
   }
 
-
+  public Collection<Scope> getScopes(){
+    Collection<Scope> duplicatedScopes = symbolScope.values();
+    Set<Scope> uniqueScopes = new HashSet<>();
+    for (Scope scope : duplicatedScopes){
+      uniqueScopes.add(scope);
+    }
+    return uniqueScopes;
+  }
 }
