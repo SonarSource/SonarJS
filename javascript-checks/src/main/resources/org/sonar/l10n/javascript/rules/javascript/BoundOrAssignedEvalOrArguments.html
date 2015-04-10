@@ -1,4 +1,6 @@
-<p>In JavaScript, <code>eval</code> is used to add or remove bindings and to change binding values. <code>arguments</code> is used to access function arguments through indexed properties. As a consequence, those two names, <code>eval</code> and <code>arguments</code>, should not be bound or assigned because doing so would overwrite the original definition of those two elements. </p>
+<p>In JavaScript, <code>eval</code> is used to evaluate a string as JavaScript code, and <code>arguments</code> is used to access function arguments through indexed properties.
+  As a consequence, <code>eval</code> and <code>arguments</code> should not be bound or assigned, because doing so would overwrite the original definitions of those two reserved words. </p>
+
 <p>What's more, using either of those two names to assign or bind will generate an error in JavaScript strict mode code.</p>
 <h2>Noncompliant Code Example</h2>
 
