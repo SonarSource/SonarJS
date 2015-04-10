@@ -110,7 +110,7 @@ public class SymbolVisitor extends BaseTreeVisitor {
 
       if (!addUsageFor(identifier, usageKind)) {
         Symbol symbol = createSymbolForScope(identifier.name(), identifier, currentScope.globalScope(), Symbol.Kind.VARIABLE);
-        Usage.create(symbolModel, symbol, identifier, usageKind);
+        Usage.createInit(symbolModel, symbol, identifier, usageKind);
       }
       // no need to scan variable has it has been handle
       scan(tree.expression());
