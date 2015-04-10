@@ -31,6 +31,7 @@ import org.sonar.javascript.model.interfaces.expression.FunctionExpressionTree;
 import org.sonar.javascript.model.interfaces.expression.IdentifierTree;
 import org.sonar.javascript.model.interfaces.expression.UnaryExpressionTree;
 import org.sonar.javascript.model.interfaces.statement.CatchBlockTree;
+import org.sonar.javascript.model.interfaces.statement.ForInStatementTree;
 import org.sonar.javascript.model.interfaces.statement.ForOfStatementTree;
 
 public class SymbolVisitor extends BaseTreeVisitor {
@@ -154,6 +155,23 @@ public class SymbolVisitor extends BaseTreeVisitor {
       }
     }
     super.visitForOfStatement(tree);
+  }
+
+  @Override
+  public void visitForInStatement(ForInStatementTree tree) {
+    if (tree.variableOrExpression() instanceof IdentifierTree) {
+      IdentifierTree identifier = (IdentifierTree) tree.variableOrExpression();
+
+      if (!addUsageFor(identifier, Usage.Kind.WRITE)) {
+        createSymbolForScope(identifier.name(), identifier, currentScope.globalScope(), Symbol.Kind.VARIABLE);
+      }
+
+      scan(tree.expression());
+      scan(tree.statement());
+
+    } else {
+      super.visitForInStatement(tree);
+    }
   }
 
   /*

@@ -19,165 +19,68 @@
  */
 package org.sonar.javascript.checks;
 
-import java.util.List;
-import java.util.Map;
-
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
-import org.sonar.javascript.api.EcmaScriptKeyword;
-import org.sonar.javascript.model.implementations.declaration.ParameterListTreeImpl;
-import org.sonar.javascript.model.implementations.statement.VariableDeclarationTreeImpl;
-import org.sonar.javascript.model.interfaces.Tree;
-import org.sonar.javascript.model.interfaces.Tree.Kind;
-import org.sonar.javascript.model.interfaces.expression.ArrowFunctionTree;
-import org.sonar.javascript.model.interfaces.expression.IdentifierTree;
-import org.sonar.javascript.parser.EcmaScriptGrammar;
+import org.sonar.javascript.ast.resolve.Symbol;
+import org.sonar.javascript.ast.resolve.SymbolModel;
+import org.sonar.javascript.ast.resolve.Usage;
+import org.sonar.javascript.ast.visitors.BaseTreeVisitor;
+import org.sonar.javascript.model.implementations.JavaScriptTree;
+import org.sonar.javascript.model.interfaces.declaration.ScriptTree;
 import org.sonar.squidbridge.annotations.ActivatedByDefault;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
-import org.sonar.squidbridge.checks.SquidCheck;
-import org.sonar.sslr.grammar.GrammarRuleKey;
-import org.sonar.sslr.parser.LexerlessGrammar;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Maps;
-import com.sonar.sslr.api.AstNode;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.LinkedList;
+import java.util.List;
 
 @Rule(
-  key = "VariableDeclarationAfterUsage",
-  name = "Variables should be declared before they are used",
-  priority = Priority.MAJOR,
-  tags = {Tags.PITFALL})
+    key = "VariableDeclarationAfterUsage",
+    name = "Variables should be declared before they are used",
+    priority = Priority.MAJOR,
+    tags = {Tags.PITFALL})
 @ActivatedByDefault
 @SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.LOGIC_RELIABILITY)
 @SqaleConstantRemediation("10min")
-public class VariableDeclarationAfterUsageCheck extends SquidCheck<LexerlessGrammar> {
+public class VariableDeclarationAfterUsageCheck extends BaseTreeVisitor {
 
-  private static class Scope {
-    private final Scope outerScope;
-    Map<String, AstNode> firstDeclaration = Maps.newHashMap();
-    Map<String, AstNode> firstUsage = Maps.newHashMap();
-
-    public Scope() {
-      this.outerScope = null;
-    }
-
-    public Scope(Scope outerScope) {
-      this.outerScope = outerScope;
-    }
-
-    private void declare(IdentifierTree identifierTree) {
-      String identifier = identifierTree.name();
-      if (!firstDeclaration.containsKey(identifier)) {
-        firstDeclaration.put(identifier, (AstNode) identifierTree);
-      }
-    }
-
-    private void use(AstNode astNode) {
-      String identifier = astNode.getTokenValue();
-      if (!firstUsage.containsKey(identifier)) {
-        firstUsage.put(identifier, astNode);
-      }
-    }
-  }
-
-  private static final GrammarRuleKey[] FUNCTION_NODES = {
-    Kind.FUNCTION_EXPRESSION,
-    Kind.FUNCTION_DECLARATION,
-    Kind.METHOD,
-    Kind.GENERATOR_METHOD,
-    Kind.GENERATOR_DECLARATION,
-    Kind.GENERATOR_FUNCTION_EXPRESSION,
-    Kind.ARROW_FUNCTION
-  };
-
-  private static final GrammarRuleKey[] CONST_AND_VAR_NODES = {
-    Kind.VAR_DECLARATION,
-    Kind.LET_DECLARATION,
-    Kind.CONST_DECLARATION};
-
-  private Scope currentScope;
+  private static final String MESSAGE = "Variable '%s' referenced before declaration.";
 
   @Override
-  public void init() {
-    subscribeTo(
-      Kind.IDENTIFIER_REFERENCE,
-      Kind.FORMAL_PARAMETER_LIST,
-      Kind.ARROW_FUNCTION);
-    subscribeTo(CONST_AND_VAR_NODES);
-    subscribeTo(FUNCTION_NODES);
-  }
-
-  @Override
-  public void visitFile(AstNode astNode) {
-    currentScope = new Scope();
-  }
-
-  @Override
-  public void visitNode(AstNode astNode) {
-    if (astNode.is(FUNCTION_NODES)) {
-      // enter new scope
-      currentScope = new Scope(currentScope);
-
-    } else if (astNode.is(Kind.FORMAL_PARAMETER_LIST)) {
-      declareInCurrentScope(((ParameterListTreeImpl) astNode).parameterIdentifiers());
-
-    } else if (astNode.is(Kind.ARROW_FUNCTION)) {
-      Tree parameter = ((ArrowFunctionTree) astNode).parameters();
-      if (parameter.is(Kind.BINDING_IDENTIFIER)) {
-        declareInCurrentScope(ImmutableList.of((IdentifierTree) parameter));
-      }
-      // else is handle with FORMAL_PARAMETER_LIST
-
-    } else if (astNode.is(CONST_AND_VAR_NODES)) {
-      declareInCurrentScope(((VariableDeclarationTreeImpl) astNode).variableIdentifiers());
-
-    } else if (astNode.is(Kind.IDENTIFIER_REFERENCE)) {
-
-      if (astNode.getParent().is(Kind.FOR_IN_STATEMENT, Kind.FOR_OF_STATEMENT)
-        && astNode.getNextAstNode().is(EcmaScriptKeyword.IN, EcmaScriptGrammar.OF)) {
-        declareInCurrentScope(ImmutableList.of((IdentifierTree) astNode));
-      } else {
-        currentScope.use(astNode);
-      }
+  public void visitScript(ScriptTree tree) {
+    SymbolModel symbolModel = getContext().getSymbolModel();
+    List<Symbol> symbols = symbolModel.getSymbols(Symbol.Kind.VARIABLE);
+    for (Symbol symbol : symbols) {
+      visitSymbol(symbolModel, symbol);
     }
   }
 
-  private void declareInCurrentScope(List<IdentifierTree> identifiers) {
-    for (IdentifierTree identifier : identifiers) {
-      currentScope.declare(identifier);
+  private class LineComparator implements Comparator<Usage> {
+    @Override
+    public int compare(Usage usage1, Usage usage2) {
+      return Integer.compare(getLine(usage1), getLine(usage2));
     }
   }
 
-  @Override
-  public void leaveNode(AstNode astNode) {
-    if (astNode.is(FUNCTION_NODES)) {
-      // leave scope
-      checkCurrentScope();
-      for (Map.Entry<String, AstNode> entry : currentScope.firstUsage.entrySet()) {
-        if (!currentScope.firstDeclaration.containsKey(entry.getKey())) {
-          currentScope.outerScope.use(entry.getValue());
-        }
+  private void visitSymbol(SymbolModel symbolModel, Symbol symbol) {
+    List<Usage> usages = new LinkedList<>(symbolModel.getUsageFor(symbol));
+    if (!usages.isEmpty()) {
+      Collections.sort(usages, new LineComparator());
+      int declarationLine = ((JavaScriptTree) symbol.getFirstDeclaration().tree()).getLine();
+      Usage firstUsage = usages.get(0);
+      int firstUsageLine = getLine(firstUsage);
+      if (firstUsageLine < declarationLine) {
+        getContext().addIssue(this, firstUsage.tree(), String.format(MESSAGE, symbol.name()));
       }
-      currentScope = currentScope.outerScope;
+
     }
   }
 
-  private void checkCurrentScope() {
-    for (Map.Entry<String, AstNode> entry : currentScope.firstDeclaration.entrySet()) {
-      AstNode declaration = entry.getValue();
-      AstNode usage = currentScope.firstUsage.get(entry.getKey());
-      if (usage != null && usage.getTokenLine() < declaration.getTokenLine()) {
-        getContext().createLineViolation(this, "Variable '" + entry.getKey() + "' referenced before declaration.", usage);
-      }
-    }
-  }
-
-  @Override
-  public void leaveFile(AstNode astNode) {
-    checkCurrentScope();
-    currentScope = null;
+  private int getLine(Usage usage) {
+    return ((JavaScriptTree) usage.tree()).getLine();
   }
 
 }

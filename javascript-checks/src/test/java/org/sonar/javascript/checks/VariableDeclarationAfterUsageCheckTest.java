@@ -19,20 +19,18 @@
  */
 package org.sonar.javascript.checks;
 
-import java.io.File;
-
 import org.junit.Test;
-import org.sonar.javascript.JavaScriptAstScanner;
+import org.sonar.javascript.checks.utils.TreeCheckTest;
 import org.sonar.squidbridge.api.SourceFile;
 import org.sonar.squidbridge.checks.CheckMessagesVerifier;
 
-public class VariableDeclarationAfterUsageCheckTest {
+public class VariableDeclarationAfterUsageCheckTest extends TreeCheckTest {
 
   @Test
   public void test() {
     VariableDeclarationAfterUsageCheck check = new VariableDeclarationAfterUsageCheck();
 
-    SourceFile file = JavaScriptAstScanner.scanSingleFile(new File("src/test/resources/checks/variableDeclarationAfterUsageCheck.js"), check);
+    SourceFile file = scanFile("src/test/resources/checks/variableDeclarationAfterUsageCheck.js", check);
     CheckMessagesVerifier.verify(file.getCheckMessages())
       .next().atLine(5).withMessage("Variable 'x' referenced before declaration.")
       .next().atLine(9)
@@ -40,6 +38,7 @@ public class VariableDeclarationAfterUsageCheckTest {
       .next().atLine(18)
       .next().atLine(21)
       .next().atLine(25)
+      .next().atLine(33)
       .noMore();
   }
 

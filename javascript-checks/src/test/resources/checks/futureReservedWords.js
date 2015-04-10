@@ -9,3 +9,5 @@ var static; // NOK
 var container = {
   implements: true // OK
 }
+
+implements = 3

@@ -27,5 +27,8 @@ var f = () => {
 
 var c;
 
-for (e in es6) {}
+for (var f in es6) {}
+var f;
+
+for (e in es6) {}   // NOK
 var e;
