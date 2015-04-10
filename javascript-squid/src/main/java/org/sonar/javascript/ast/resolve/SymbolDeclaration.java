@@ -19,6 +19,7 @@
  */
 package org.sonar.javascript.ast.resolve;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.sonar.javascript.model.interfaces.Tree;
 
 public class SymbolDeclaration {
@@ -26,14 +27,15 @@ public class SymbolDeclaration {
   private Kind kind;
 
   public enum Kind {
-    VAR,
+    VARIABLE_DECLARATION,
     FUNCTION_EXPRESSION,
     FUNCTION_DECLARATION,
     PARAMETER,
     BUILD_IN,
     CATCH_BLOCK,
     ASSIGNMENT,
-    FOR_OF
+    FOR_OF,
+    FOR_IN
   }
 
   public Tree tree(){
@@ -51,5 +53,9 @@ public class SymbolDeclaration {
   public SymbolDeclaration(Tree tree, Kind kind){
     this.tree = tree;
     this.kind = kind;
+  }
+
+  public boolean is(Kind ... kinds){
+    return ArrayUtils.contains(kinds, this.kind);
   }
 }

@@ -128,7 +128,8 @@ public final class CheckList {
         EqualInForLoopTerminationCheck.class,
         UndefinedAssignmentCheck.class,
         NotStoredSelectionCheck.class,
-        SelectionTestedWithoutLengthCheck.class);
+        SelectionTestedWithoutLengthCheck.class,
+        VariableDeclarationWithoutVarCheck.class);
   }
 
 }

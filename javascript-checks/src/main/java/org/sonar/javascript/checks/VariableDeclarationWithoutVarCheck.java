@@ -22,7 +22,6 @@ package org.sonar.javascript.checks;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
-import org.sonar.javascript.ast.resolve.Scope;
 import org.sonar.javascript.ast.resolve.Symbol;
 import org.sonar.javascript.ast.resolve.SymbolDeclaration;
 import org.sonar.javascript.ast.resolve.SymbolModel;
@@ -35,31 +34,29 @@ import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 import java.util.List;
 
 @Rule(
-  key = "S2137",
-  name = "Local variables should not shadow \"undefined\"",
-  priority = Priority.CRITICAL,
-  tags = {Tags.PITFALL})
+    key = "S2703",
+    name = "Variables should always be declared with \"var\"",
+    priority = Priority.MAJOR,
+    tags = {Tags.PITFALL})
 @ActivatedByDefault
-@SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.INSTRUCTION_RELIABILITY)
-@SqaleConstantRemediation("10min")
-public class UndefinedShadowingCheck extends BaseTreeVisitor {
+@SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.LOGIC_RELIABILITY)
+@SqaleConstantRemediation("2min")
+public class VariableDeclarationWithoutVarCheck extends BaseTreeVisitor {
 
-  private static final String MESSAGE = "Rename this variable.";
+  private static final String MESSAGE = "Add the \"var\" keyword to this declaration of \"%s\".";
 
   @Override
   public void visitScript(ScriptTree tree) {
     SymbolModel symbolModel = getContext().getSymbolModel();
-    List<Symbol> symbols = symbolModel.getSymbols("undefined");
-    for (Symbol symbol : symbols){
-      Scope scope = symbolModel.getScopeFor(symbol);
-      if (scope == scope.globalScope()){
-        continue;
-      }
-
-      if (symbol.getFirstDeclaration().is(SymbolDeclaration.Kind.VARIABLE_DECLARATION)){
-        getContext().addIssue(this, symbol.getFirstDeclaration().tree(), MESSAGE);
-      }
+    List<Symbol> symbols = symbolModel.getSymbols(Symbol.Kind.VARIABLE);
+    for (Symbol symbol : symbols) {
+      visitSymbol(symbol);
     }
+  }
 
+  private void visitSymbol(Symbol symbol) {
+    if (symbol.getFirstDeclaration().is(SymbolDeclaration.Kind.ASSIGNMENT, SymbolDeclaration.Kind.FOR_OF, SymbolDeclaration.Kind.FOR_IN)){
+      getContext().addIssue(this, symbol.getFirstDeclaration().tree(), String.format(MESSAGE, symbol.name()));
+    }
   }
 }

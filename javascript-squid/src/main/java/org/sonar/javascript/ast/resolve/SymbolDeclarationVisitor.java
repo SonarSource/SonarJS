@@ -136,7 +136,7 @@ public class SymbolDeclarationVisitor extends BaseTreeVisitor {
 
   @Override
   public void visitVariableDeclaration(VariableDeclarationTree tree) {
-    addSymbols(((VariableDeclarationTreeImpl) tree).variableIdentifiers(), SymbolDeclaration.Kind.VAR, Symbol.Kind.VARIABLE);
+    addSymbols(((VariableDeclarationTreeImpl) tree).variableIdentifiers(), SymbolDeclaration.Kind.VARIABLE_DECLARATION, Symbol.Kind.VARIABLE);
     addUsages(tree);
     super.visitVariableDeclaration(tree);
   }

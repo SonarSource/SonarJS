@@ -163,10 +163,10 @@ public class SymbolVisitor extends BaseTreeVisitor {
 
   @Override
   public void visitForOfStatement(ForOfStatementTree tree) {
-    if (tree.expression() instanceof IdentifierTree) {
-      IdentifierTree identifier = (IdentifierTree) tree.expression();
+    if (tree.variableOrExpression() instanceof IdentifierTree) {
+      IdentifierTree identifier = (IdentifierTree) tree.variableOrExpression();
 
-      if (!addUsageFor(identifier, Usage.Kind.READ)) {
+      if (!addUsageFor(identifier, Usage.Kind.WRITE)) {
         createSymbolForScope(identifier.name(), identifier, currentScope.globalScope(), Symbol.Kind.VARIABLE);
       }
     }

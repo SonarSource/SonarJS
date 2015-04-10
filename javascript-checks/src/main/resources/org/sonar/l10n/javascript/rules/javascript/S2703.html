@@ -1,0 +1,29 @@
+<p>
+  JavaScript variable scope can be particularly difficult to understand and get right.
+  The situation gets even worse when you consider the accidental creation of global variables,
+  which is what happens when you declare a variable inside a method or the <code>for</code> clause of a for-loop without using the <code>var</code> keyword.
+</p>
+
+<h2>Noncompliant Code Example</h2>
+
+<pre>
+function f(){
+  i = 1;         // Noncompliant; i is global
+
+  for (j = 0; j < array.length; j++) {  // Noncompliant; j is global now too
+    // ...
+  }
+}
+</pre>
+
+<h2>Compliant Solution</h2>
+
+<pre>
+function f(){
+  var i = 1;
+
+  for (var j = 0; j < array.length; j++) {
+    // ...
+  }
+}
+</pre>
