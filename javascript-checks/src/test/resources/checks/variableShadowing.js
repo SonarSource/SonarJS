@@ -47,3 +47,15 @@ var obj = {
         var c;         // OK
     }
 }
+
+function fun1(){
+  function fun2(){ // OK (build-in "arguments" doesn't raise an issue)
+  }
+}
+
+function fun3(g){
+  var s;
+}
+function fun4(g){
+  s = 1
+}
