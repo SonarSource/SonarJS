@@ -19,28 +19,36 @@
  */
 package org.sonar.javascript.checks;
 
-import org.sonar.squidbridge.checks.CheckMessagesVerifier;
 import org.junit.Test;
-import org.sonar.javascript.JavaScriptAstScanner;
+import org.sonar.javascript.checks.utils.TreeCheckTest;
 import org.sonar.squidbridge.api.SourceFile;
+import org.sonar.squidbridge.checks.CheckMessagesVerifier;
 
-import java.io.File;
-
-public class FutureReservedWordsCheckTest {
+public class FutureReservedWordsCheckTest extends TreeCheckTest {
 
   @Test
-  public void test() {
+  public void test_es5() {
     FutureReservedWordsCheck check = new FutureReservedWordsCheck();
 
-    SourceFile file = JavaScriptAstScanner.scanSingleFile(new File("src/test/resources/checks/futureReservedWords.js"), check);
+    SourceFile file = scanFile("src/test/resources/checks/futureReservedWords.js", check);
     CheckMessagesVerifier.verify(file.getCheckMessages())
         .next().atLine(1).withMessage("Rename \"implements\" identifier to prevent potential conflicts with future evolutions of the JavaScript language.")
-        .next().atLine(2).withMessage("Rename \"interface\" identifier to prevent potential conflicts with future evolutions of the JavaScript language.")
-        .next().atLine(3).withMessage("Rename \"package\" identifier to prevent potential conflicts with future evolutions of the JavaScript language.")
-        .next().atLine(4).withMessage("Rename \"private\" identifier to prevent potential conflicts with future evolutions of the JavaScript language.")
-        .next().atLine(5).withMessage("Rename \"protected\" identifier to prevent potential conflicts with future evolutions of the JavaScript language.")
-        .next().atLine(6).withMessage("Rename \"public\" identifier to prevent potential conflicts with future evolutions of the JavaScript language.")
-        .next().atLine(7).withMessage("Rename \"static\" identifier to prevent potential conflicts with future evolutions of the JavaScript language.")
+        .next().atLine(2)
+        .next().atLine(3)
+        .next().atLine(4)
+        .noMore();
+  }
+
+  @Test
+  public void test_es6() {
+    FutureReservedWordsCheck check = new FutureReservedWordsCheck();
+    check.setEcmascript6(true);
+    SourceFile file = scanFile("src/test/resources/checks/futureReservedWords.js", check);
+    CheckMessagesVerifier.verify(file.getCheckMessages())
+        .next().atLine(1).withMessage("Rename \"implements\" identifier to prevent potential conflicts with future evolutions of the JavaScript language.")
+        .next().atLine(2)
+        .next().atLine(3)
+        .next().atLine(5)
         .noMore();
   }
 

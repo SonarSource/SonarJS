@@ -1,10 +1,8 @@
-var implements; // NOK
-var interface; // NOK
-var package; // NOK
-var private; // NOK
-var protected; // NOK
-var public; // NOK
-var static; // NOK
+var implements; // NOK both
+var interface; // NOK both
+var public; // NOK both
+var static; // NOK es5
+var await;   // NOK es6
 
 var container = {
   implements: true // OK
