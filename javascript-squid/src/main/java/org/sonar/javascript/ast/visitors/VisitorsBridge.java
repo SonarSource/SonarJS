@@ -19,12 +19,20 @@
  */
 package org.sonar.javascript.ast.visitors;
 
+import java.io.File;
 import java.util.List;
 
 import javax.annotation.Nullable;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.sonar.api.batch.fs.FileSystem;
+import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.component.ResourcePerspectives;
+import org.sonar.api.source.Symbolizable;
 import org.sonar.javascript.JavaScriptFileScanner;
 import org.sonar.javascript.ast.resolve.SymbolModel;
+import org.sonar.javascript.highlighter.SourceFileOffsets;
 import org.sonar.javascript.model.interfaces.declaration.ScriptTree;
 import org.sonar.squidbridge.SquidAstVisitor;
 import org.sonar.squidbridge.api.SourceFile;
@@ -35,23 +43,42 @@ import com.sonar.sslr.api.AstNode;
 public class VisitorsBridge extends SquidAstVisitor<LexerlessGrammar> {
 
   private final List<JavaScriptFileScanner> scanners;
+  private final ResourcePerspectives resourcePerspectives;
+  private final FileSystem fs;
+  private static final Logger LOG = LoggerFactory.getLogger(VisitorsBridge.class);
 
-  public VisitorsBridge(List<JavaScriptFileScanner> visitors) {
+  public VisitorsBridge(List<JavaScriptFileScanner> visitors, ResourcePerspectives resourcePerspectives, FileSystem fs) {
     this.scanners = visitors;
+    this.resourcePerspectives = resourcePerspectives;
+    this.fs = fs;
   }
 
   @Override
   public void visitFile(@Nullable AstNode astNode) {
     if (astNode != null) {
-      ScriptTree tree = (ScriptTree) astNode;
+      ScriptTree scriptTree = (ScriptTree) astNode;
+      File file = getContext().getFile();
 
       for (JavaScriptFileScanner scanner : scanners) {
         scanner.scanFile(new AstTreeVisitorContextImpl(
-          tree,
+          scriptTree,
           (SourceFile) getContext().peekSourceCode(),
-          getContext().getFile(),
-          SymbolModel.createFor(tree)));
+          file,
+          SymbolModel.createFor(scriptTree, symbolizableFor(file), new SourceFileOffsets(file, fs.encoding()))));
       }
+    }
+  }
+
+  @Nullable
+  private Symbolizable symbolizableFor(File file) {
+    InputFile inputFile = fs.inputFile(fs.predicates().hasAbsolutePath(file.getAbsolutePath()));
+
+    if (inputFile != null) {
+      return resourcePerspectives.as(Symbolizable.class, inputFile);
+
+    } else {
+      LOG.warn("No symbol highlighting for file: " + file.getPath() + ". Unable to find associate SonarQube resource.");
+      return null;
     }
   }
 

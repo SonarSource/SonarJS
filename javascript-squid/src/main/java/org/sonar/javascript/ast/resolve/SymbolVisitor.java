@@ -19,8 +19,13 @@
  */
 package org.sonar.javascript.ast.resolve;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.sonar.api.source.Symbolizable;
 import org.sonar.javascript.api.EcmaScriptPunctuator;
 import org.sonar.javascript.ast.visitors.BaseTreeVisitor;
+import org.sonar.javascript.highlighter.HighlightSymbolTableBuilder;
+import org.sonar.javascript.highlighter.SourceFileOffsets;
 import org.sonar.javascript.model.interfaces.Tree;
 import org.sonar.javascript.model.interfaces.declaration.FunctionDeclarationTree;
 import org.sonar.javascript.model.interfaces.declaration.MethodDeclarationTree;
@@ -36,12 +41,21 @@ import org.sonar.javascript.model.interfaces.statement.ForOfStatementTree;
 
 public class SymbolVisitor extends BaseTreeVisitor {
 
+  private static final Logger LOG = LoggerFactory.getLogger(SymbolVisitor.class);
+
+  private final Symbolizable symbolizable;
+  private final SourceFileOffsets sourceFileOffsets;
+
   private SymbolModel symbolModel;
   private Scope currentScope;
 
-  public SymbolVisitor(SymbolModel symbolModel) {
+  public SymbolVisitor(SymbolModel symbolModel, Symbolizable symbolizable, SourceFileOffsets sourceFileOffsets) {
     this.symbolModel = symbolModel;
     this.currentScope = null;
+
+    // Symbol highlighting
+    this.symbolizable = symbolizable;
+    this.sourceFileOffsets = sourceFileOffsets;
   }
 
   @Override
@@ -54,6 +68,8 @@ public class SymbolVisitor extends BaseTreeVisitor {
     // Record usage and implicit symbol declarations
     super.visitScript(tree);
     leaveScope();
+
+    highlightSymbols();
   }
 
   private void addBuildInSymbols() {
@@ -213,6 +229,14 @@ public class SymbolVisitor extends BaseTreeVisitor {
     }
 
     return false;
+  }
+
+  private void highlightSymbols() {
+    if (symbolizable != null) {
+      symbolizable.setSymbolTable(HighlightSymbolTableBuilder.build(symbolizable, symbolModel, sourceFileOffsets));
+    } else {
+      LOG.warn("Symbol in source view will not be highlighted.");
+    }
   }
 
 }

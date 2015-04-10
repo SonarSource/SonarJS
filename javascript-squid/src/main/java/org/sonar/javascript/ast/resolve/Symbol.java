@@ -19,9 +19,18 @@
  */
 package org.sonar.javascript.ast.resolve;
 
-import com.google.common.collect.Lists;
-
 import java.util.List;
+
+import javax.annotation.Nullable;
+
+import org.sonar.javascript.model.implementations.lexical.InternalSyntaxToken;
+import org.sonar.javascript.model.interfaces.Tree;
+import org.sonar.javascript.model.interfaces.declaration.FunctionDeclarationTree;
+import org.sonar.javascript.model.interfaces.expression.FunctionExpressionTree;
+import org.sonar.javascript.model.interfaces.expression.IdentifierTree;
+import org.sonar.javascript.model.interfaces.expression.LiteralTree;
+
+import com.google.common.collect.Lists;
 
 public class Symbol {
 
@@ -63,6 +72,25 @@ public class Symbol {
     return name;
   }
 
+  @Nullable
+  public InternalSyntaxToken getSymbolNameToken() {
+    Tree dec = getFirstDeclaration().tree();
+
+    if (dec instanceof IdentifierTree) {
+      return (InternalSyntaxToken) ((IdentifierTree) dec).identifierToken();
+
+    } else if (dec instanceof FunctionDeclarationTree) {
+      return (InternalSyntaxToken) ((FunctionDeclarationTree) dec).name().identifierToken();
+
+    } else if (dec instanceof FunctionExpressionTree) {
+      FunctionExpressionTree function = (FunctionExpressionTree) dec;
+      if (function.name() != null) {
+        return (InternalSyntaxToken) function.name().identifierToken();
+      }
+    }
+    return null;
+  }
+
   public Kind kind() {
     return kind;
   }
@@ -85,6 +113,6 @@ public class Symbol {
 
   @Override
   public String toString() {
-    return "Symbol{name=" + name + ", declarations=" + declarations.size() + "}";
+    return "Symbol{name=" + name + ", declarations=" + declarations.size() + ", builtIn=" + buildIn + "}";
   }
 }

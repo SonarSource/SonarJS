@@ -20,6 +20,10 @@
 package org.sonar.javascript.checks.utils;
 
 import com.google.common.collect.Lists;
+import static org.mockito.Mockito.mock;
+
+import org.sonar.api.batch.fs.internal.DefaultFileSystem;
+import org.sonar.api.component.ResourcePerspectives;
 import org.sonar.javascript.JavaScriptAstScanner;
 import org.sonar.javascript.JavaScriptFileScanner;
 import org.sonar.javascript.ast.visitors.VisitorsBridge;
@@ -30,7 +34,9 @@ import java.io.File;
 public class TreeCheckTest {
 
   public SourceFile scanFile(String fileName, JavaScriptFileScanner check) {
-    return JavaScriptAstScanner.scanSingleFile(new File(fileName), new VisitorsBridge(Lists.newArrayList(check)));
+    return JavaScriptAstScanner.scanSingleFile(
+      new File(fileName),
+      new VisitorsBridge(Lists.newArrayList(check), mock(ResourcePerspectives.class), new DefaultFileSystem()));
   }
 
 }

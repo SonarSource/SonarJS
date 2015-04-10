@@ -25,9 +25,12 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Multimap;
 import org.apache.commons.lang.ArrayUtils;
+import org.sonar.api.source.Symbolizable;
+import org.sonar.javascript.highlighter.SourceFileOffsets;
 import org.sonar.javascript.model.interfaces.Tree;
 import org.sonar.javascript.model.interfaces.declaration.ScriptTree;
 
+import javax.annotation.Nullable;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -42,10 +45,10 @@ public class SymbolModel {
   private Multimap<Symbol, Usage> usagesTree = HashMultimap.create();
   private Map<Usage, Symbol> refersTo = Maps.newHashMap();
 
-  public static SymbolModel createFor(ScriptTree script) {
+  public static SymbolModel createFor(ScriptTree script, @Nullable Symbolizable symbolizable, SourceFileOffsets sourceFileOffsets) {
     SymbolModel symbolModel = new SymbolModel();
 
-    new SymbolVisitor(symbolModel).visitScript(script);
+    new SymbolVisitor(symbolModel, symbolizable, sourceFileOffsets).visitScript(script);
 
     return symbolModel;
   }
@@ -129,5 +132,9 @@ public class SymbolModel {
 
   public Scope getScopeFor(Symbol symbol){
     return symbolScope.get(symbol);
+  }
+
+  public Set<Symbol> getAllSymbols() {
+    return symbolScope.keySet();
   }
 }

@@ -60,4 +60,12 @@ public class Usage {
     return usage;
   }
 
+  @Override
+  public String toString() {
+    return "Usage{" +
+      "kind=" + kind +
+      ", tree=" + tree +
+      ", init=" + init +
+      '}';
+  }
 }

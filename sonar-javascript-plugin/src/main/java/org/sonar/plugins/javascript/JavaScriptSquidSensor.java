@@ -130,7 +130,7 @@ public class JavaScriptSquidSensor implements Sensor {
       }
     }
 
-    astNodeVisitors.add(new VisitorsBridge(treeVisitors));
+    astNodeVisitors.add(new VisitorsBridge(treeVisitors, resourcePerspectives, fileSystem));
     astNodeVisitors.add(new FileLinesVisitor(fileLinesContextFactory, fileSystem, pathResolver));
 
     scanner = JavaScriptAstScanner.create(createConfiguration(), astNodeVisitors.toArray(new SquidAstVisitor[astNodeVisitors.size()]));
