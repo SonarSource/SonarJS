@@ -19,23 +19,20 @@
  */
 package org.sonar.javascript.checks;
 
-import java.util.List;
-
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
-import org.sonar.javascript.ast.visitors.AstTreeVisitorContext;
-import org.sonar.javascript.checks.utils.CheckUtils;
-import org.sonar.javascript.checks.utils.SubscriptionBaseVisitor;
-import org.sonar.javascript.model.implementations.statement.VariableDeclarationTreeImpl;
-import org.sonar.javascript.model.interfaces.Tree;
-import org.sonar.javascript.model.interfaces.Tree.Kind;
-import org.sonar.javascript.model.interfaces.expression.IdentifierTree;
+import org.sonar.javascript.ast.resolve.Scope;
+import org.sonar.javascript.ast.resolve.Symbol;
+import org.sonar.javascript.ast.resolve.SymbolDeclaration;
+import org.sonar.javascript.ast.resolve.SymbolModel;
+import org.sonar.javascript.ast.visitors.BaseTreeVisitor;
+import org.sonar.javascript.model.interfaces.declaration.ScriptTree;
 import org.sonar.squidbridge.annotations.ActivatedByDefault;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 
-import com.google.common.collect.ImmutableList;
+import java.util.List;
 
 @Rule(
   key = "S2137",
@@ -45,43 +42,24 @@ import com.google.common.collect.ImmutableList;
 @ActivatedByDefault
 @SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.INSTRUCTION_RELIABILITY)
 @SqaleConstantRemediation("10min")
-public class UndefinedShadowingCheck extends SubscriptionBaseVisitor {
+public class UndefinedShadowingCheck extends BaseTreeVisitor {
 
-  private int scopeLevel = 0;
-
-  @Override
-  public void scanFile(AstTreeVisitorContext context) {
-    scopeLevel = 0;
-    super.scanFile(context);
-  }
+  private static final String MESSAGE = "Rename this variable.";
 
   @Override
-  public List<Kind> nodesToVisit() {
-    return ImmutableList.<Kind>builder()
-      .addAll(CheckUtils.FUNCTION_NODES)
-      .add(Kind.VAR_DECLARATION)
-      .build();
-  }
+  public void visitScript(ScriptTree tree) {
+    SymbolModel symbolModel = getContext().getSymbolModel();
+    List<Symbol> symbols = symbolModel.getSymbols("undefined");
+    for (Symbol symbol : symbols){
+      Scope scope = symbolModel.getScopeFor(symbol);
+      if (scope == scope.globalScope()){
+        continue;
+      }
 
-  @Override
-  public void visitNode(Tree tree) {
-    if (tree.is(CheckUtils.functionNodesArray())) {
-      scopeLevel++;
-
-    } else if (scopeLevel > 0 /* in local scope */) {
-
-      for (IdentifierTree identifier : ((VariableDeclarationTreeImpl) tree).variableIdentifiers()) {
-        if ("undefined".equals(identifier.name())) {
-          addIssue(identifier, "Rename this variable.");
-        }
+      if (symbol.getFirstDeclaration().is(SymbolDeclaration.Kind.VAR)){
+        getContext().addIssue(this, symbol.getFirstDeclaration().tree(), MESSAGE);
       }
     }
-  }
 
-  @Override
-  public void leaveNode(Tree tree) {
-    if (tree.is(CheckUtils.functionNodesArray())) {
-      scopeLevel--;
-    }
   }
 }
