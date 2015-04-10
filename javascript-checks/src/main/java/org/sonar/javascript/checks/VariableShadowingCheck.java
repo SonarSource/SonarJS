@@ -42,26 +42,30 @@ import java.util.List;
 @SqaleConstantRemediation("10min")
 public class VariableShadowingCheck extends BaseTreeVisitor {
 
-  private static final String MESSAGE = "\"%s\" hides variable declared in outer scope (line %s).";
+  private static final String MESSAGE = "\"%s\" hides or potentially hides a variable declared in an outer scope at line %s.";
 
   @Override
   public void visitScript(ScriptTree tree) {
     SymbolModel symbolModel = getContext().getSymbolModel();
     List<Symbol> symbols = symbolModel.getSymbols(Symbol.Kind.VARIABLE, Symbol.Kind.PARAMETER);
     for (Symbol symbol : symbols){
-      if ("arguments".equals(symbol.name()) && symbol.buildIn()){
-        continue;
-      }
-      Scope scope = symbolModel.getScopeFor(symbol);
-      if (scope.outer() != null) {
-        Symbol localSymbol = scope.lookupSymbol(symbol.name());
-        Symbol outerSymbol = scope.outer().lookupSymbol(symbol.name());
-        if (localSymbol != null && outerSymbol != null) {
-          getContext().addIssue(this, symbol.getFirstDeclaration().tree(), String.format(MESSAGE, symbol.name(), ((JavaScriptTree)outerSymbol.getFirstDeclaration().tree()).getLine()));
-        }
+      visitSymbol(symbolModel, symbol);
+    }
+  }
+
+  private void visitSymbol(SymbolModel symbolModel, Symbol symbol) {
+    if ("arguments".equals(symbol.name()) && symbol.buildIn()){
+      return;
+    }
+    Scope scope = symbolModel.getScopeFor(symbol);
+    if (scope.outer() != null) {
+      Symbol localSymbol = scope.lookupSymbol(symbol.name());
+      Symbol outerSymbol = scope.outer().lookupSymbol(symbol.name());
+      if (localSymbol != null && outerSymbol != null) {
+        String message = String.format(MESSAGE, symbol.name(), ((JavaScriptTree) outerSymbol.getFirstDeclaration().tree()).getLine());
+        getContext().addIssue(this, symbol.getFirstDeclaration().tree(), message);
       }
     }
-
   }
 
 }
