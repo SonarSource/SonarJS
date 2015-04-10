@@ -18,7 +18,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
 @ParametersAreNonnullByDefault
-package org.sonar.plugins.javascript.highlighter;
+package org.sonar.javascript.highlighter;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 

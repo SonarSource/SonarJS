@@ -17,16 +17,16 @@
  * License along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.plugins.javascript.highlighter;
-
-import com.google.common.collect.Lists;
-import com.google.common.io.Files;
-import com.sonar.sslr.api.Token;
+package org.sonar.javascript.highlighter;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.List;
+
+import com.google.common.collect.Lists;
+import com.google.common.io.Files;
+import com.sonar.sslr.api.Token;
 
 public class SourceFileOffsets {
   private final int length;
