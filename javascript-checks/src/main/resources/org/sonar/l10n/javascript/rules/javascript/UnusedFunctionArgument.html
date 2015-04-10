@@ -21,8 +21,8 @@ function doSomething(b) {
 
 <h2>Exceptions</h2>
 <p>
-  When writing some function callbacks some arguments might be not re-used whereas they must be part of the function signature.</br>
-  For instance JQuery has the 'each' helper to iterate over arrays or objects but using the counter 'i' should remain optional:
+  When writing function callbacks, some arguments might be required as part of the function signature, but not actually needed by the callback code.
+  For instance, JQuery has the 'each' helper to iterate over arrays or objects, but using the counter 'i' should remain optional:
 </p>
 <pre>
 $(["first", "last"]).each(function (i, value) {
@@ -30,7 +30,8 @@ $(["first", "last"]).each(function (i, value) {
 });
 </pre>
 <p>
-  So the rule is the following one: only unused arguments located after some used arguments and not followed by any other used arguments should be reported as unused. Indeed, in such case it's possible to remove them from the function signature so if there are useless they must be dropped.
+  So only unused arguments listed at the end of the argument list will be flagged with issues because they could be omitted from the function signature.
+  Unused arguments which are followed by an argument that _is_ used will be ignored.
 </p>
 <p>
   Examples :
@@ -46,7 +47,7 @@ var myThirdCallBackFunction = function (p1, p2, p3, p4) {  //unused p1 is not re
                                               return p2; }
 </pre>
 <p>
-Moreover when using the 'arguments' in a function body, no parameter is reported as unused.
+  Further, when <code>arguments</code> is used in the function body, no parameter is reported as unused.
 </p>
 <pre>
 function doSomething(a, b, c) {
