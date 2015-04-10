@@ -31,9 +31,6 @@ public class Scope {
   private Scope outer;
   private final Tree tree;
   protected Map<String, Symbol> symbols = Maps.newHashMap();
-  // FIXME martin: shouldn't it be named inner ? How is it useful ?
-  private Scope next;
-
   public Scope(Scope outer, Tree tree) {
     this.outer = outer;
     this.tree = tree;
@@ -47,21 +44,13 @@ public class Scope {
     return outer;
   }
 
-  public Scope next() {
-    return next;
-  }
-
-  public void setNext(Scope next) {
-    this.next = next;
-  }
-
   /**
    * Create new symbol for the current scope, or update the symbol list of declarations
    * if a symbol with the given named has already been declared in the scope.
    *
    * @return the symbol
    */
-  public Symbol createSymbol(String name, Tree declaration, Symbol.Kind kind) {
+  public Symbol createSymbol(String name, SymbolDeclaration declaration, Symbol.Kind kind) {
     Symbol symbol = symbols.get(name);
 
     if (symbol != null) {
@@ -86,7 +75,7 @@ public class Scope {
     if (symbol != null) {
       throw new IllegalStateException(String.format("Build-in \"symbol\" %s already exists in the current scope.", name));
     } else {
-      symbol = new Symbol(name, this.getTree(), kind, true);
+      symbol = new Symbol(name, new SymbolDeclaration(this.getTree(), SymbolDeclaration.Kind.BUILD_IN), kind, true);
       symbols.put(name, symbol);
     }
 

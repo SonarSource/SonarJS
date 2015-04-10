@@ -19,11 +19,7 @@
  */
 package org.sonar.javascript.ast.resolve;
 
-import static org.fest.assertions.Assertions.assertThat;
-import static org.junit.Assert.assertNotNull;
-
-import java.io.File;
-
+import com.sonar.sslr.api.AstNode;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.javascript.model.JavaScriptTreeModelTest;
@@ -32,9 +28,12 @@ import org.sonar.javascript.model.interfaces.Tree;
 import org.sonar.javascript.model.interfaces.declaration.FunctionDeclarationTree;
 import org.sonar.javascript.model.interfaces.declaration.ScriptTree;
 import org.sonar.javascript.model.interfaces.expression.FunctionExpressionTree;
-
-import com.sonar.sslr.api.AstNode;
 import org.sonar.javascript.model.interfaces.statement.CatchBlockTree;
+
+import java.io.File;
+
+import static org.fest.assertions.Assertions.assertThat;
+import static org.junit.Assert.assertNotNull;
 
 public class ScopeTest extends JavaScriptTreeModelTest {
 
@@ -77,8 +76,8 @@ public class ScopeTest extends JavaScriptTreeModelTest {
     // redeclared variable
     assertNotNull(functionExprScope.lookupSymbol("x"));
     assertThat(functionExprScope.lookupSymbol("x").declarations()).hasSize(2);
-    assertThat(((JavaScriptTree) functionExprScope.lookupSymbol("x").declarations().get(0)).getTokenLine()).isEqualTo(18);
-    assertThat(((JavaScriptTree) functionExprScope.lookupSymbol("x").declarations().get(1)).getTokenLine()).isEqualTo(20);
+    assertThat(((JavaScriptTree) functionExprScope.lookupSymbol("x").declarations().get(0).tree()).getTokenLine()).isEqualTo(18);
+    assertThat(((JavaScriptTree) functionExprScope.lookupSymbol("x").declarations().get(1).tree()).getTokenLine()).isEqualTo(20);
   }
 
   @Test

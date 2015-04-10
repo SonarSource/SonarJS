@@ -19,11 +19,6 @@
  */
 package org.sonar.javascript.checks;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
@@ -31,25 +26,12 @@ import org.sonar.javascript.ast.resolve.Scope;
 import org.sonar.javascript.ast.resolve.Symbol;
 import org.sonar.javascript.ast.resolve.SymbolModel;
 import org.sonar.javascript.ast.visitors.BaseTreeVisitor;
-import org.sonar.javascript.checks.utils.CheckUtils;
 import org.sonar.javascript.model.implementations.JavaScriptTree;
-import org.sonar.javascript.model.implementations.declaration.ParameterListTreeImpl;
-import org.sonar.javascript.model.implementations.statement.VariableDeclarationTreeImpl;
-import org.sonar.javascript.model.interfaces.Tree;
-import org.sonar.javascript.model.interfaces.Tree.Kind;
 import org.sonar.javascript.model.interfaces.declaration.ScriptTree;
-import org.sonar.javascript.model.interfaces.expression.IdentifierTree;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
-import org.sonar.squidbridge.checks.SquidCheck;
-import org.sonar.sslr.parser.LexerlessGrammar;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Maps;
-import com.sonar.sslr.api.AstNode;
-import com.sonar.sslr.api.AstNodeType;
-import com.sonar.sslr.api.AstVisitor;
-import com.sonar.sslr.impl.ast.AstWalker;
+import java.util.List;
 
 @Rule(
   key = "VariableShadowing",
@@ -70,12 +52,12 @@ public class VariableShadowingCheck extends BaseTreeVisitor {
       if ("arguments".equals(symbol.name()) && symbol.buildIn()){
         continue;
       }
-      Scope scope = symbolModel.getScopeFor(symbol.getFirstDeclaration());
+      Scope scope = symbolModel.getScopeFor(symbol);
       if (scope.outer() != null) {
         Symbol localSymbol = scope.lookupSymbol(symbol.name());
         Symbol outerSymbol = scope.outer().lookupSymbol(symbol.name());
         if (localSymbol != null && outerSymbol != null) {
-          getContext().addIssue(this, symbol.getFirstDeclaration(), String.format(MESSAGE, symbol.name(), ((JavaScriptTree)outerSymbol.getFirstDeclaration()).getLine()));
+          getContext().addIssue(this, symbol.getFirstDeclaration().tree(), String.format(MESSAGE, symbol.name(), ((JavaScriptTree)outerSymbol.getFirstDeclaration().tree()).getLine()));
         }
       }
     }

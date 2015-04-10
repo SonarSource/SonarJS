@@ -20,7 +20,6 @@
 package org.sonar.javascript.ast.resolve;
 
 import com.google.common.collect.Lists;
-import org.sonar.javascript.model.interfaces.Tree;
 
 import java.util.List;
 
@@ -42,18 +41,18 @@ public class Symbol {
   }
 
   private final String name;
-  private List<Tree> declarations = Lists.newArrayList();
+  private List<SymbolDeclaration> declarations = Lists.newArrayList();
   private Kind kind;
   private boolean buildIn;
 
-  public Symbol(String name, Tree declaration, Kind kind) {
+  public Symbol(String name, SymbolDeclaration declaration, Kind kind) {
     this.name = name;
     this.kind = kind;
     this.declarations.add(declaration);
     this.buildIn = false;
   }
 
-  public Symbol(String name, Tree declaration, Kind kind, boolean buildIn) {
+  public Symbol(String name, SymbolDeclaration declaration, Kind kind, boolean buildIn) {
     this.name = name;
     this.kind = kind;
     this.declarations.add(declaration);
@@ -76,11 +75,11 @@ public class Symbol {
     return kind.equals(this.kind);
   }
 
-  public List<Tree> declarations() {
+  public List<SymbolDeclaration> declarations() {
     return declarations;
   }
 
-  public Tree getFirstDeclaration() {
+  public SymbolDeclaration getFirstDeclaration() {
     return declarations.get(0);
   }
 

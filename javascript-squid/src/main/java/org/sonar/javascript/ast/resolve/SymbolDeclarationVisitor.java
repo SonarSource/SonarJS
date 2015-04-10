@@ -63,7 +63,7 @@ public class SymbolDeclarationVisitor extends BaseTreeVisitor {
   @Override
   public void visitMethodDeclaration(MethodDeclarationTree tree) {
     newScope(tree);
-    addSymbols(((ParameterListTreeImpl) tree.parameters()).parameterIdentifiers(), Symbol.Kind.PARAMETER);
+    addSymbols(((ParameterListTreeImpl) tree.parameters()).parameterIdentifiers(), SymbolDeclaration.Kind.PARAMETER, Symbol.Kind.PARAMETER);
     addFunctionBuildInSymbols();
 
     super.visitMethodDeclaration(tree);
@@ -86,7 +86,7 @@ public class SymbolDeclarationVisitor extends BaseTreeVisitor {
   @Override
   public void visitCatchBlock(CatchBlockTree tree) {
     newScope(tree);
-    addSymbols(((CatchBlockTreeImpl) tree).parameterIdentifiers(), Symbol.Kind.VARIABLE);
+    addSymbols(((CatchBlockTreeImpl) tree).parameterIdentifiers(), SymbolDeclaration.Kind.CATCH_BLOCK, Symbol.Kind.VARIABLE);
 
     super.visitCatchBlock(tree);
     leaveScope();
@@ -94,9 +94,9 @@ public class SymbolDeclarationVisitor extends BaseTreeVisitor {
 
   @Override
   public void visitFunctionDeclaration(FunctionDeclarationTree tree) {
-    addSymbol(tree.name().name(), tree, Symbol.Kind.FUNCTION);
+    addSymbol(tree.name().name(), new SymbolDeclaration(tree, SymbolDeclaration.Kind.FUNCTION_DECLARATION), Symbol.Kind.FUNCTION);
     newScope(tree);
-    addSymbols(((ParameterListTreeImpl) tree.parameters()).parameterIdentifiers(), Symbol.Kind.PARAMETER);
+    addSymbols(((ParameterListTreeImpl) tree.parameters()).parameterIdentifiers(), SymbolDeclaration.Kind.PARAMETER, Symbol.Kind.PARAMETER);
     addFunctionBuildInSymbols();
 
     super.visitFunctionDeclaration(tree);
@@ -106,7 +106,7 @@ public class SymbolDeclarationVisitor extends BaseTreeVisitor {
   @Override
   public void visitArrowFunction(ArrowFunctionTree tree) {
     newScope(tree);
-    addSymbols(((ArrowFunctionTreeImpl) tree).parameterIdentifiers(), Symbol.Kind.PARAMETER);
+    addSymbols(((ArrowFunctionTreeImpl) tree).parameterIdentifiers(), SymbolDeclaration.Kind.PARAMETER, Symbol.Kind.PARAMETER);
 
     super.visitArrowFunction(tree);
     leaveScope();
@@ -125,9 +125,9 @@ public class SymbolDeclarationVisitor extends BaseTreeVisitor {
     newScope(tree);
     if (tree.name() != null) {
       // Not available in enclosing scope
-      addSymbol(tree.name().name(), tree, Symbol.Kind.FUNCTION);
+      addSymbol(tree.name().name(), new SymbolDeclaration(tree, SymbolDeclaration.Kind.FUNCTION_EXPRESSION), Symbol.Kind.FUNCTION);
     }
-    addSymbols(((ParameterListTreeImpl) tree.parameters()).parameterIdentifiers(), Symbol.Kind.PARAMETER);
+    addSymbols(((ParameterListTreeImpl) tree.parameters()).parameterIdentifiers(), SymbolDeclaration.Kind.PARAMETER, Symbol.Kind.PARAMETER);
     addFunctionBuildInSymbols();
 
     super.visitFunctionExpression(tree);
@@ -136,7 +136,7 @@ public class SymbolDeclarationVisitor extends BaseTreeVisitor {
 
   @Override
   public void visitVariableDeclaration(VariableDeclarationTree tree) {
-    addSymbols(((VariableDeclarationTreeImpl) tree).variableIdentifiers(), Symbol.Kind.VARIABLE);
+    addSymbols(((VariableDeclarationTreeImpl) tree).variableIdentifiers(), SymbolDeclaration.Kind.VAR, Symbol.Kind.VARIABLE);
     addUsages(tree);
     super.visitVariableDeclaration(tree);
   }
@@ -164,24 +164,20 @@ public class SymbolDeclarationVisitor extends BaseTreeVisitor {
     symbolModel.setScopeFor(tree, currentScope);
   }
 
-  private void addSymbol(String name, Tree tree, Symbol.Kind kind) {
-    Symbol symbol = currentScope.createSymbol(name, tree, kind);
+  private void addSymbol(String name, SymbolDeclaration declaration, Symbol.Kind kind) {
+    Symbol symbol = currentScope.createSymbol(name, declaration, kind);
     symbolModel.setScopeForSymbol(symbol, currentScope);
-    setScopeForTree(tree);
+    setScopeForTree(declaration.tree());
   }
 
-  private void addSymbols(List<IdentifierTree> identifiers, Symbol.Kind kind) {
+  private void addSymbols(List<IdentifierTree> identifiers, SymbolDeclaration.Kind declarationKind, Symbol.Kind SymbolKind) {
     for (IdentifierTree identifier : identifiers) {
-      addSymbol(identifier.name(), identifier, kind);
+      addSymbol(identifier.name(), new SymbolDeclaration(identifier, declarationKind), SymbolKind);
     }
   }
 
   private void newScope(Tree tree) {
     Scope newScope = new Scope(currentScope, tree);
-
-    if (currentScope != null) {
-      currentScope.setNext(newScope);
-    }
 
     currentScope = newScope;
     setScopeForTree(tree);

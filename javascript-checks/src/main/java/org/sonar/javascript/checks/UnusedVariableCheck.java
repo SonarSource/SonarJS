@@ -26,7 +26,6 @@ import org.sonar.javascript.ast.resolve.Symbol;
 import org.sonar.javascript.ast.resolve.SymbolModel;
 import org.sonar.javascript.ast.resolve.Usage;
 import org.sonar.javascript.ast.visitors.BaseTreeVisitor;
-import org.sonar.javascript.model.interfaces.Tree;
 import org.sonar.javascript.model.interfaces.Tree.Kind;
 import org.sonar.javascript.model.interfaces.declaration.ScriptTree;
 import org.sonar.squidbridge.annotations.ActivatedByDefault;
@@ -50,11 +49,10 @@ public class UnusedVariableCheck extends BaseTreeVisitor {
     SymbolModel symbolModel = getContext().getSymbolModel();
 
     for (Symbol variable : symbolModel.getSymbols(Symbol.Kind.VARIABLE)) {
-      Tree declaration = variable.getFirstDeclaration();
 
       Collection<Usage> usages = symbolModel.getUsageFor(variable);
-      if (noUsages(usages) && !isGlobalOrCatchVariable(symbolModel, declaration) && !variable.buildIn()) {
-        getContext().addIssue(this, declaration, "Remove the declaration of the unused '" + variable.name() + "' variable.");
+      if (noUsages(usages) && !isGlobalOrCatchVariable(symbolModel, variable) && !variable.buildIn()) {
+        getContext().addIssue(this, variable.getFirstDeclaration().tree(), "Remove the declaration of the unused '" + variable.name() + "' variable.");
       }
     }
   }
@@ -72,8 +70,8 @@ public class UnusedVariableCheck extends BaseTreeVisitor {
     return true;
   }
 
-  private boolean isGlobalOrCatchVariable(SymbolModel symbolModel, Tree declaration) {
-    return symbolModel.getScopeFor(declaration).getTree().is(Kind.SCRIPT, Kind.CATCH_BLOCK);
+  private boolean isGlobalOrCatchVariable(SymbolModel symbolModel, Symbol symbol) {
+    return symbolModel.getScopeFor(symbol).getTree().is(Kind.SCRIPT, Kind.CATCH_BLOCK);
   }
 
 }

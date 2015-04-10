@@ -67,14 +67,14 @@ public class BoundOrAssignedEvalOrArgumentsCheck extends BaseTreeVisitor {
           }
         }
       } else {
-        getContext().addIssue(this, symbol.getFirstDeclaration(), String.format(DECLARATION_MESSAGE, symbol.name(), symbol.kind().getValue()));
+        getContext().addIssue(this, symbol.getFirstDeclaration().tree(), String.format(DECLARATION_MESSAGE, symbol.name(), symbol.kind().getValue()));
       }
     }
   }
 
   private void visitParameter(Symbol symbol) {
     if (symbol.is(Symbol.Kind.PARAMETER)){
-      getContext().addIssue(this, symbol.getFirstDeclaration(), String.format(DECLARATION_MESSAGE, symbol.name(), symbol.kind().getValue()));
+      getContext().addIssue(this, symbol.getFirstDeclaration().tree(), String.format(DECLARATION_MESSAGE, symbol.name(), symbol.kind().getValue()));
     }
   }
 }

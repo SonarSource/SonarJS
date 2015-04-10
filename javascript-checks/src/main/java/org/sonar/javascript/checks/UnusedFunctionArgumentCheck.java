@@ -53,11 +53,11 @@ public class UnusedFunctionArgumentCheck extends BaseTreeVisitor {
   class PositionComparator implements Comparator<Symbol> {
 
     private int getLine(Symbol symbol){
-      return ((JavaScriptTree)symbol.getFirstDeclaration()).getLine();
+      return ((JavaScriptTree)symbol.getFirstDeclaration().tree()).getLine();
     }
 
     private int getColumn(Symbol symbol){
-      return ((JavaScriptTree)symbol.getFirstDeclaration()).getToken().getColumn();
+      return ((JavaScriptTree)symbol.getFirstDeclaration().tree()).getToken().getColumn();
     }
 
     @Override

@@ -126,4 +126,8 @@ public class SymbolModel {
     }
     return uniqueScopes;
   }
+
+  public Scope getScopeFor(Symbol symbol){
+    return symbolScope.get(symbol);
+  }
 }
