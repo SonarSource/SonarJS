@@ -36,20 +36,9 @@ public class FutureReservedWordsCheckTest extends TreeCheckTest {
         .next().atLine(2)
         .next().atLine(3)
         .next().atLine(4)
-        .noMore();
-  }
-
-  @Test
-  public void test_es6() {
-    FutureReservedWordsCheck check = new FutureReservedWordsCheck();
-    check.setEcmascript6(true);
-    SourceFile file = scanFile("src/test/resources/checks/futureReservedWords.js", check);
-    CheckMessagesVerifier.verify(file.getCheckMessages())
-        .next().atLine(1).withMessage("Rename \"implements\" identifier to prevent potential conflicts with future evolutions of the JavaScript language.")
-        .next().atLine(2)
-        .next().atLine(3)
         .next().atLine(5)
         .noMore();
   }
+
 
 }

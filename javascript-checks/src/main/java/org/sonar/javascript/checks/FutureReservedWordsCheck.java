@@ -23,7 +23,6 @@ import com.google.common.collect.ImmutableSet;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
-import org.sonar.check.RuleProperty;
 import org.sonar.javascript.ast.resolve.Symbol;
 import org.sonar.javascript.ast.resolve.SymbolModel;
 import org.sonar.javascript.ast.visitors.BaseTreeVisitor;
@@ -45,27 +44,16 @@ import java.util.Set;
 @SqaleConstantRemediation("5min")
 public class FutureReservedWordsCheck extends BaseTreeVisitor {
 
-  private static final boolean ECMASCRIPT6_DEFAULT = false;
-
-  @RuleProperty(
-      key = "ecmascript6",
-      description = "Whether use ECMAScript 5 or 6 list of future reserved words",
-      defaultValue = "" + ECMASCRIPT6_DEFAULT)
-  private boolean ecmascript6 = ECMASCRIPT6_DEFAULT;
-
   private static final String MESSAGE = "Rename \"%s\" identifier to prevent potential conflicts with future evolutions of the JavaScript language.";
 
-  private static final Set<String> COMMON_FUTURE_RESERVED_WORDS = ImmutableSet.of(
+  private static final Set<String> FUTURE_RESERVED_WORDS = ImmutableSet.of(
       "implements",
       "interface",
       "package",
       "private",
       "protected",
       "public",
-      "enum"
-  );
-
-  private static final Set<String> ES5_FUTURE_RESERVED_WORDS = ImmutableSet.of(
+      "enum",
       "class",
       "const",
       "export",
@@ -74,33 +62,19 @@ public class FutureReservedWordsCheck extends BaseTreeVisitor {
       "super",
       "let",
       "static",
-      "yield"
-  );
-
-  private static final Set<String> ES6_FUTURE_RESERVED_WORDS = ImmutableSet.of(
+      "yield",
       "await"
   );
-
-  public void setEcmascript6(boolean value){
-    ecmascript6 = value;
-  }
 
   @Override
   public void visitScript(ScriptTree tree) {
     SymbolModel symbolModel = getContext().getSymbolModel();
     List<Symbol> symbols = symbolModel.getSymbols();
     for (Symbol symbol : symbols) {
-      if (COMMON_FUTURE_RESERVED_WORDS.contains(symbol.name())) {
-        assIssue(symbol);
-      } else if ((ecmascript6 && ES6_FUTURE_RESERVED_WORDS.contains(symbol.name())) || (!ecmascript6 && ES5_FUTURE_RESERVED_WORDS.contains(symbol.name()))){
-        assIssue(symbol);
+      if (FUTURE_RESERVED_WORDS.contains(symbol.name())) {
+        getContext().addIssue(this, symbol.getFirstDeclaration().tree(), String.format(MESSAGE, symbol.name()));
       }
-
     }
-  }
-
-  private void assIssue(Symbol symbol) {
-    getContext().addIssue(this, symbol.getFirstDeclaration().tree(), String.format(MESSAGE, symbol.name()));
   }
 
 }
