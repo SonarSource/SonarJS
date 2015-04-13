@@ -19,10 +19,7 @@
  */
 package org.sonar.javascript.checks;
 
-import java.util.HashSet;
-import java.util.Set;
-import java.util.Stack;
-
+import com.sonar.sslr.api.AstNode;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
@@ -38,13 +35,17 @@ import org.sonar.squidbridge.checks.SquidCheck;
 import org.sonar.sslr.grammar.GrammarRuleKey;
 import org.sonar.sslr.parser.LexerlessGrammar;
 
-import com.sonar.sslr.api.AstNode;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.Stack;
 
 @Rule(
   key = "SameNameForFunctionAndVariable",
   name = "The same name should not be used to declare both a function and a variable in the same scope",
   priority = Priority.MAJOR,
-  tags = {Tags.BRAIN_OVERLOAD, Tags.PITFALL})
+  tags = {Tags.BRAIN_OVERLOAD, Tags.PITFALL},
+  status = org.sonar.api.rules.Rule.STATUS_DEPRECATED
+)
 @ActivatedByDefault
 @SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.UNDERSTANDABILITY)
 @SqaleConstantRemediation("10min")

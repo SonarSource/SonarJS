@@ -19,10 +19,7 @@
  */
 package org.sonar.javascript.checks;
 
-import java.util.HashSet;
-import java.util.Set;
-import java.util.Stack;
-
+import com.sonar.sslr.api.AstNode;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
@@ -34,13 +31,16 @@ import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 import org.sonar.squidbridge.checks.SquidCheck;
 import org.sonar.sslr.parser.LexerlessGrammar;
 
-import com.sonar.sslr.api.AstNode;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.Stack;
 
 @Rule(
   key = "RedeclaredFunction",
   name = "Functions should not be redeclared",
   priority = Priority.MAJOR,
-  tags = {Tags.BUG, Tags.PITFALL})
+  tags = {Tags.BUG, Tags.PITFALL},
+  status = org.sonar.api.rules.Rule.STATUS_DEPRECATED)
 @ActivatedByDefault
 @SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.LOGIC_RELIABILITY)
 @SqaleConstantRemediation("20min")
