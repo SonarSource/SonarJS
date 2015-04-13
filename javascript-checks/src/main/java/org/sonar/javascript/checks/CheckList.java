@@ -129,7 +129,8 @@ public final class CheckList {
         UndefinedAssignmentCheck.class,
         NotStoredSelectionCheck.class,
         SelectionTestedWithoutLengthCheck.class,
-        VariableDeclarationWithoutVarCheck.class);
+        VariableDeclarationWithoutVarCheck.class,
+        BuildInObjectOverriddenCheck.class);
   }
 
 }
