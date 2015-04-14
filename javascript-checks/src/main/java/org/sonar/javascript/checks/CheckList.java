@@ -131,7 +131,8 @@ public final class CheckList {
         SelectionTestedWithoutLengthCheck.class,
         VariableDeclarationWithoutVarCheck.class,
         BuildInObjectOverriddenCheck.class,
-        RedeclaredSymbolCheck.class);
+        RedeclaredSymbolCheck.class,
+        DeadStoreCheck.class);
   }
 
 }

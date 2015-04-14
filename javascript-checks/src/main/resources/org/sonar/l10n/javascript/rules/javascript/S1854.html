@@ -1,0 +1,41 @@
+<p>
+  A dead store happens when a local variable is assigned a value that is not read by any subsequent instruction. Calculating or retrieving a value only to then overwrite it or
+  throw it away, could indicate a serious error in the code. Even if it's not an error, it is at best a waste of resources. Therefore all calculated values should be used.
+</p>
+
+<h2>Noncompliant Code Example</h2>
+
+<pre>
+function pow(a, b) {
+  if(b == 0) {
+    return 0;
+  }
+  var x = a;
+  for(var i = 1, i < b, i++) {
+    x = x * a;  //Dead store because the last return statement should return x instead of returning a
+  }
+  return a;
+}
+</pre>
+
+<h2>Compliant Solution</h2>
+
+<pre>
+function pow(a, b) {
+  if(b == 0) {
+    return 0;
+  }
+  var x = a;
+  for(var i = 1, i < b, i++) {
+    x = x * a;
+  }
+  return x;
+}
+</pre>
+
+<h2>See</h2>
+<ul>
+  <li><a href="http://cwe.mitre.org/data/definitions/563.html">MITRE, CWE-563</a> - Assignment to Variable without Use ('Unused Variable')</li>
+  <li><a href="https://www.securecoding.cert.org/confluence/x/QYA5">CERT, MSC13-C</a> - Detect and remove unused values</li>
+  <li><a href="https://www.securecoding.cert.org/confluence/x/S4IyAQ">CERT, MSC13-CPP</a> - Detect and remove unused values</li>
+</ul>
