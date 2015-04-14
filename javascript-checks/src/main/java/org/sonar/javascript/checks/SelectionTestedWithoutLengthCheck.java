@@ -22,7 +22,6 @@ package org.sonar.javascript.checks;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
-import org.sonar.javascript.ast.visitors.BaseTreeVisitor;
 import org.sonar.javascript.model.interfaces.Tree;
 import org.sonar.javascript.model.interfaces.expression.CallExpressionTree;
 import org.sonar.javascript.model.interfaces.expression.ExpressionTree;
@@ -38,7 +37,7 @@ import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
   tags = {Tags.BUG, Tags.JQUERY})
 @SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.LOGIC_RELIABILITY)
 @SqaleConstantRemediation("2min")
-public class SelectionTestedWithoutLengthCheck extends BaseTreeVisitor {
+public class SelectionTestedWithoutLengthCheck extends AbstractJQueryCheck {
 
   @Override
   public void visitIfStatement(IfStatementTree tree) {
@@ -56,7 +55,7 @@ public class SelectionTestedWithoutLengthCheck extends BaseTreeVisitor {
       ExpressionTree callee = callExpressionTree.callee();
       if (callee.is(Tree.Kind.IDENTIFIER_REFERENCE)) {
         String calleeName = ((IdentifierTree) callee).identifierToken().text();
-        return "$".equals(calleeName);
+        return isJQueryObject(calleeName);
       }
     }
     return false;

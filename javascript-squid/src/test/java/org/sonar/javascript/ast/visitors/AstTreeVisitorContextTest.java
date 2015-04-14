@@ -19,13 +19,9 @@
  */
 package org.sonar.javascript.ast.visitors;
 
-import static org.fest.assertions.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-
-import java.io.File;
-
 import org.junit.Before;
 import org.junit.Test;
+import org.sonar.api.config.Settings;
 import org.sonar.javascript.JavaScriptAstScanner;
 import org.sonar.javascript.TestUtils;
 import org.sonar.javascript.ast.resolve.SymbolModel;
@@ -34,6 +30,11 @@ import org.sonar.javascript.model.implementations.declaration.ScriptTreeImpl;
 import org.sonar.squidbridge.api.CheckMessage;
 import org.sonar.squidbridge.api.CodeVisitor;
 import org.sonar.squidbridge.api.SourceFile;
+
+import java.io.File;
+
+import static org.fest.assertions.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 
 public class AstTreeVisitorContextTest extends JavaScriptTreeModelTest {
 
@@ -46,7 +47,8 @@ public class AstTreeVisitorContextTest extends JavaScriptTreeModelTest {
     file = TestUtils.getResource("/metrics/lines.js");
     sourceFile = JavaScriptAstScanner.scanSingleFile(file);
     ScriptTreeImpl scriptTree = new ScriptTreeImpl(null, null, null, null);
-    context = new AstTreeVisitorContextImpl(scriptTree, sourceFile, file, SymbolModel.createFor(scriptTree, null, null));
+    Settings settings = new Settings();
+    context = new AstTreeVisitorContextImpl(scriptTree, sourceFile, file, SymbolModel.createFor(scriptTree, null, null), settings);
   }
 
   @Test

@@ -24,12 +24,13 @@ import org.sonar.api.PropertyType;
 import org.sonar.api.SonarPlugin;
 import org.sonar.api.config.PropertyDefinition;
 import org.sonar.api.resources.Qualifiers;
+import org.sonar.javascript.checks.AbstractJQueryCheck;
 import org.sonar.plugins.javascript.core.JavaScript;
 import org.sonar.plugins.javascript.core.JavaScriptSourceImporter;
 import org.sonar.plugins.javascript.cpd.JavaScriptCpdMapping;
+import org.sonar.plugins.javascript.lcov.CoverageSensor;
 import org.sonar.plugins.javascript.unittest.jstest.JsTestSensor;
 import org.sonar.plugins.javascript.unittest.jstestdriver.JsTestDriverSensor;
-import org.sonar.plugins.javascript.lcov.CoverageSensor;
 
 import java.util.List;
 
@@ -54,6 +55,9 @@ public class JavaScriptPlugin extends SonarPlugin {
 
   public static final String JSTEST_REPORTS_PATH = PROPERTY_PREFIX + ".jstest.reportsPath";
   public static final String JSTEST_REPORTS_PATH_DEFAULT_VALUE = "";
+
+  public static final String JQUERY_OBJECT_ALIASES = AbstractJQueryCheck.JQUERY_OBJECT_ALIASES;
+  public static final String JQUERY_OBJECT_ALIASES_DEFAULT_VALUE = AbstractJQueryCheck.JQUERY_OBJECT_ALIASES_DEFAULT_VALUE;
 
   @Override
   public List getExtensions() {
@@ -105,6 +109,13 @@ public class JavaScriptPlugin extends SonarPlugin {
          .defaultValue(JavaScriptPlugin.JSTEST_REPORTS_PATH_DEFAULT_VALUE)
           .name("JSTest output folder")
           .description("Folder where JsTest unit test reports are located.")
+          .onQualifiers(Qualifiers.MODULE, Qualifiers.PROJECT)
+          .build(),
+
+        PropertyDefinition.builder(JavaScriptPlugin.JQUERY_OBJECT_ALIASES)
+         .defaultValue(JavaScriptPlugin.JQUERY_OBJECT_ALIASES_DEFAULT_VALUE)
+          .name("jQuery object aliases")
+          .description("Comma-separated list of names used to address jQuery object.")
           .onQualifiers(Qualifiers.MODULE, Qualifiers.PROJECT)
           .build()
     );

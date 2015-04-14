@@ -17,17 +17,25 @@
  * License along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.plugins.javascript;
+package org.sonar.javascript.checks;
 
-import org.junit.Test;
+import org.sonar.javascript.ast.visitors.BaseTreeVisitor;
 
-import static org.fest.assertions.Assertions.assertThat;
+import java.util.Arrays;
+import java.util.List;
 
-public class JavaScriptPluginTest {
+public abstract class AbstractJQueryCheck extends BaseTreeVisitor {
 
-  @Test
-  public void get_extensions() throws Exception {
-    assertThat(new JavaScriptPlugin().getExtensions()).hasSize(17);
+  private List<String> jQueryAliases = null;
+
+  // todo(Lena): PROPERTY_PREFIX ("sonar.javascript") is duplicated from JavaScriptPlugin
+  public static final String JQUERY_OBJECT_ALIASES = "sonar.javascript.jQueryObjectAliases";
+  public static final String JQUERY_OBJECT_ALIASES_DEFAULT_VALUE = "$, jQuery";
+
+  protected boolean isJQueryObject(String name){
+    if (jQueryAliases == null){
+      jQueryAliases = Arrays.asList(getContext().getPropertyValues(JQUERY_OBJECT_ALIASES));
+    }
+    return jQueryAliases.contains(name);
   }
-
 }

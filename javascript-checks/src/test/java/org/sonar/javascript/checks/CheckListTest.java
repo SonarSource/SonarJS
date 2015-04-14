@@ -19,15 +19,14 @@
  */
 package org.sonar.javascript.checks;
 
-import java.io.File;
-import java.util.List;
-
+import com.google.common.collect.Lists;
 import org.apache.commons.io.FileUtils;
 import org.junit.Test;
 import org.sonar.api.rules.AnnotationRuleParser;
 import org.sonar.api.rules.Rule;
 
-import com.google.common.collect.Lists;
+import java.io.File;
+import java.util.List;
 
 import static org.fest.assertions.Assertions.assertThat;
 
@@ -41,7 +40,8 @@ public class CheckListTest {
     int count = 0;
     List<File> files = (List<File>) FileUtils.listFiles(new File("src/main/java/org/sonar/javascript/checks/"), new String[] {"java"}, false);
     for (File file : files) {
-      if (file.getName().endsWith("Check.java")) {
+      String name = file.getName();
+      if (name.endsWith("Check.java") && !name.startsWith("Abstract")) {
         count++;
       }
     }

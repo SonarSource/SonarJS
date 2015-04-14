@@ -20,23 +20,31 @@
 package org.sonar.javascript.checks.utils;
 
 import com.google.common.collect.Lists;
-import static org.mockito.Mockito.mock;
-
+import org.apache.commons.collections.map.HashedMap;
 import org.sonar.api.batch.fs.internal.DefaultFileSystem;
 import org.sonar.api.component.ResourcePerspectives;
+import org.sonar.api.config.Settings;
 import org.sonar.javascript.JavaScriptAstScanner;
 import org.sonar.javascript.JavaScriptFileScanner;
 import org.sonar.javascript.ast.visitors.VisitorsBridge;
+import org.sonar.javascript.checks.AbstractJQueryCheck;
 import org.sonar.squidbridge.api.SourceFile;
 
 import java.io.File;
+import java.util.Map;
+
+import static org.mockito.Mockito.mock;
 
 public class TreeCheckTest {
 
   public SourceFile scanFile(String fileName, JavaScriptFileScanner check) {
+    Settings settings = new Settings();
+    Map<String, String> properties = new HashedMap();
+    properties.put(AbstractJQueryCheck.JQUERY_OBJECT_ALIASES, AbstractJQueryCheck.JQUERY_OBJECT_ALIASES_DEFAULT_VALUE);
+    settings.addProperties(properties);
     return JavaScriptAstScanner.scanSingleFile(
       new File(fileName),
-      new VisitorsBridge(Lists.newArrayList(check), mock(ResourcePerspectives.class), new DefaultFileSystem()));
+      new VisitorsBridge(Lists.newArrayList(check), mock(ResourcePerspectives.class), new DefaultFileSystem(), settings));
   }
 
 }

@@ -34,6 +34,7 @@ import org.sonar.api.batch.rule.Checks;
 import org.sonar.api.checks.NoSonarFilter;
 import org.sonar.api.component.Perspective;
 import org.sonar.api.component.ResourcePerspectives;
+import org.sonar.api.config.Settings;
 import org.sonar.api.issue.Issuable;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.measures.CoreMetrics;
@@ -75,6 +76,8 @@ import java.util.Set;
 
 public class JavaScriptSquidSensor implements Sensor {
 
+
+
   @DependedUpon
   public Collection<Metric> generatesNCLOCMetric() {
     return ImmutableList.<Metric>of(CoreMetrics.NCLOC, CoreMetrics.NCLOC_DATA);
@@ -91,12 +94,13 @@ public class JavaScriptSquidSensor implements Sensor {
   private final NoSonarFilter noSonarFilter;
   private final FilePredicate mainFilePredicate;
   private final PathResolver pathResolver;
+  private final Settings settings;
 
   private SensorContext context;
   private AstScanner<LexerlessGrammar> scanner;
 
   public JavaScriptSquidSensor(CheckFactory checkFactory, FileLinesContextFactory fileLinesContextFactory,
-    ResourcePerspectives resourcePerspectives, FileSystem fileSystem, NoSonarFilter noSonarFilter, PathResolver pathResolver) {
+    ResourcePerspectives resourcePerspectives, FileSystem fileSystem, NoSonarFilter noSonarFilter, PathResolver pathResolver, Settings settings) {
     this.checks = checkFactory
       .<CodeVisitor>create(CheckList.REPOSITORY_KEY)
       .addAnnotatedChecks(CheckList.getChecks());
@@ -108,6 +112,7 @@ public class JavaScriptSquidSensor implements Sensor {
     this.mainFilePredicate = fileSystem.predicates().and(
       fileSystem.predicates().hasType(InputFile.Type.MAIN),
       fileSystem.predicates().hasLanguage(JavaScript.KEY));
+    this.settings = settings;
   }
 
   @Override
@@ -130,7 +135,7 @@ public class JavaScriptSquidSensor implements Sensor {
       }
     }
 
-    astNodeVisitors.add(new VisitorsBridge(treeVisitors, resourcePerspectives, fileSystem));
+    astNodeVisitors.add(new VisitorsBridge(treeVisitors, resourcePerspectives, fileSystem, settings));
     astNodeVisitors.add(new FileLinesVisitor(fileLinesContextFactory, fileSystem, pathResolver));
 
     scanner = JavaScriptAstScanner.create(createConfiguration(), astNodeVisitors.toArray(new SquidAstVisitor[astNodeVisitors.size()]));

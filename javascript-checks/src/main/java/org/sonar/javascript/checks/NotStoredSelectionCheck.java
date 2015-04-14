@@ -23,7 +23,6 @@ import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
-import org.sonar.javascript.ast.visitors.BaseTreeVisitor;
 import org.sonar.javascript.model.implementations.SeparatedList;
 import org.sonar.javascript.model.interfaces.Tree;
 import org.sonar.javascript.model.interfaces.declaration.FunctionDeclarationTree;
@@ -56,7 +55,7 @@ import java.util.Map;
     coeff = "1min",
     offset = "2min",
     effortToFixDescription = "number of times selection is re-made.")
-public class NotStoredSelectionCheck extends BaseTreeVisitor {
+public class NotStoredSelectionCheck extends AbstractJQueryCheck {
 
   private static final int DEFAULT = 2;
 
@@ -67,6 +66,7 @@ public class NotStoredSelectionCheck extends BaseTreeVisitor {
   public int threshold = DEFAULT;
 
   private Deque<List<LiteralTree>> selectors;
+
 
   @Override
   public void visitScript(ScriptTree tree) {
@@ -161,7 +161,7 @@ public class NotStoredSelectionCheck extends BaseTreeVisitor {
     ExpressionTree callee = callExpressionTree.callee();
     if (callee.is(Tree.Kind.IDENTIFIER_REFERENCE)) {
       String calleeName = ((IdentifierTree) callee).identifierToken().text();
-      return "$".equals(calleeName);
+      return isJQueryObject(calleeName);
     }
     return false;
   }

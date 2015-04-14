@@ -31,8 +31,8 @@ var fun5 = function(){
 }
 
 var fun6 = function(){
-  p = $( "p" ); // ok
-  $( "p" ).show();
+  p = jQuery( "p" ); // ok
+  jQuery( "p" ).show();
 }
 
 var fun7 = function(){
@@ -41,8 +41,8 @@ var fun7 = function(){
 }
 
 fun8(function(){
-  $( "p" ).hide();
-  $( "p" ).show();
+  jQuery( "p" ).hide();
+  jQuery( "p" ).show();
 })
 
 function fun9(){

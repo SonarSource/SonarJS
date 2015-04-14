@@ -33,6 +33,7 @@ public class SelectionTestedWithoutLengthCheckTest extends TreeCheckTest {
     SourceFile file = scanFile("src/test/resources/checks/SelectionTestedWithoutLength.js", check);
     CheckMessagesVerifier.verify(file.getCheckMessages())
     .next().atLine(1)
+    .next().atLine(13)
     .noMore();
 
   }

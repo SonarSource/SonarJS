@@ -19,16 +19,13 @@
  */
 package org.sonar.javascript.ast.visitors;
 
-import java.io.File;
-import java.util.List;
-
-import javax.annotation.Nullable;
-
+import com.sonar.sslr.api.AstNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.component.ResourcePerspectives;
+import org.sonar.api.config.Settings;
 import org.sonar.api.source.Symbolizable;
 import org.sonar.javascript.JavaScriptFileScanner;
 import org.sonar.javascript.ast.resolve.SymbolModel;
@@ -38,7 +35,9 @@ import org.sonar.squidbridge.SquidAstVisitor;
 import org.sonar.squidbridge.api.SourceFile;
 import org.sonar.sslr.parser.LexerlessGrammar;
 
-import com.sonar.sslr.api.AstNode;
+import javax.annotation.Nullable;
+import java.io.File;
+import java.util.List;
 
 public class VisitorsBridge extends SquidAstVisitor<LexerlessGrammar> {
 
@@ -46,11 +45,13 @@ public class VisitorsBridge extends SquidAstVisitor<LexerlessGrammar> {
   private final ResourcePerspectives resourcePerspectives;
   private final FileSystem fs;
   private static final Logger LOG = LoggerFactory.getLogger(VisitorsBridge.class);
+  private final Settings settings;
 
-  public VisitorsBridge(List<JavaScriptFileScanner> visitors, ResourcePerspectives resourcePerspectives, FileSystem fs) {
+  public VisitorsBridge(List<JavaScriptFileScanner> visitors, ResourcePerspectives resourcePerspectives, FileSystem fs, Settings settings) {
     this.scanners = visitors;
     this.resourcePerspectives = resourcePerspectives;
     this.fs = fs;
+    this.settings = settings;
   }
 
   @Override
@@ -64,7 +65,9 @@ public class VisitorsBridge extends SquidAstVisitor<LexerlessGrammar> {
           scriptTree,
           (SourceFile) getContext().peekSourceCode(),
           file,
-          SymbolModel.createFor(scriptTree, symbolizableFor(file), new SourceFileOffsets(file, fs.encoding()))));
+          SymbolModel.createFor(scriptTree, symbolizableFor(file), new SourceFileOffsets(file, fs.encoding())),
+          settings
+        ));
       }
     }
   }
