@@ -134,7 +134,8 @@ public final class CheckList {
         RedeclaredSymbolCheck.class,
         DeadStoreCheck.class,
         DeprecatedJQueryAPICheck.class,
-        JQueryVarNameConventionCheck.class);
+        JQueryVarNameConventionCheck.class,
+        ElementUsedWithClassSelectorCheck.class);
   }
 
 }
