@@ -22,10 +22,7 @@ package org.sonar.javascript.checks;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
-import org.sonar.javascript.model.interfaces.Tree;
-import org.sonar.javascript.model.interfaces.expression.CallExpressionTree;
 import org.sonar.javascript.model.interfaces.expression.ExpressionTree;
-import org.sonar.javascript.model.interfaces.expression.IdentifierTree;
 import org.sonar.javascript.model.interfaces.statement.IfStatementTree;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
@@ -49,15 +46,4 @@ public class SelectionTestedWithoutLengthCheck extends AbstractJQueryCheck {
     super.visitIfStatement(tree);
   }
 
-  private boolean isSelector(ExpressionTree expressionTree) {
-    if (expressionTree.is(Tree.Kind.CALL_EXPRESSION)) {
-      CallExpressionTree callExpressionTree = (CallExpressionTree)expressionTree;
-      ExpressionTree callee = callExpressionTree.callee();
-      if (callee.is(Tree.Kind.IDENTIFIER_REFERENCE)) {
-        String calleeName = ((IdentifierTree) callee).identifierToken().text();
-        return isJQueryObject(calleeName);
-      }
-    }
-    return false;
-  }
 }

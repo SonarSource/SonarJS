@@ -33,7 +33,6 @@ import org.sonar.javascript.model.interfaces.expression.AssignmentExpressionTree
 import org.sonar.javascript.model.interfaces.expression.CallExpressionTree;
 import org.sonar.javascript.model.interfaces.expression.ExpressionTree;
 import org.sonar.javascript.model.interfaces.expression.FunctionExpressionTree;
-import org.sonar.javascript.model.interfaces.expression.IdentifierTree;
 import org.sonar.javascript.model.interfaces.expression.LiteralTree;
 import org.sonar.squidbridge.annotations.SqaleLinearWithOffsetRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
@@ -155,15 +154,6 @@ public class NotStoredSelectionCheck extends AbstractJQueryCheck {
       return (LiteralTree) parameters.get(0);
     }
     return null;
-  }
-
-  private boolean isSelector(CallExpressionTree callExpressionTree) {
-    ExpressionTree callee = callExpressionTree.callee();
-    if (callee.is(Tree.Kind.IDENTIFIER_REFERENCE)) {
-      String calleeName = ((IdentifierTree) callee).identifierToken().text();
-      return isJQueryObject(calleeName);
-    }
-    return false;
   }
 
   @Override

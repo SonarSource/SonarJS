@@ -132,7 +132,8 @@ public final class CheckList {
         VariableDeclarationWithoutVarCheck.class,
         BuildInObjectOverriddenCheck.class,
         RedeclaredSymbolCheck.class,
-        DeadStoreCheck.class);
+        DeadStoreCheck.class,
+        DeprecatedJQueryAPICheck.class);
   }
 
 }

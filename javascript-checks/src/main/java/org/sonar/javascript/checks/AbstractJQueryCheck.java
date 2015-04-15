@@ -20,6 +20,10 @@
 package org.sonar.javascript.checks;
 
 import org.sonar.javascript.ast.visitors.BaseTreeVisitor;
+import org.sonar.javascript.model.interfaces.Tree;
+import org.sonar.javascript.model.interfaces.expression.CallExpressionTree;
+import org.sonar.javascript.model.interfaces.expression.ExpressionTree;
+import org.sonar.javascript.model.interfaces.expression.IdentifierTree;
 
 import java.util.Arrays;
 import java.util.List;
@@ -38,4 +42,23 @@ public abstract class AbstractJQueryCheck extends BaseTreeVisitor {
     }
     return jQueryAliases.contains(name);
   }
+
+  /**
+   *
+   * @param expressionTree expression to check for jQuery selector
+   * @return true if expressionTree is one level jQuery selector, like $("#id"); false for other cases (including $("#id").next())
+   */
+  protected boolean isSelector(ExpressionTree expressionTree) {
+    if (expressionTree.is(Tree.Kind.CALL_EXPRESSION)) {
+      CallExpressionTree callExpressionTree = (CallExpressionTree)expressionTree;
+      ExpressionTree callee = callExpressionTree.callee();
+      if (callee.is(Tree.Kind.IDENTIFIER_REFERENCE)) {
+        String calleeName = ((IdentifierTree) callee).identifierToken().text();
+        return isJQueryObject(calleeName);
+      }
+      return false;
+    }
+    return false;
+  }
+
 }
