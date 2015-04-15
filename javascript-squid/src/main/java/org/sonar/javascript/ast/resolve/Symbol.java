@@ -19,18 +19,15 @@
  */
 package org.sonar.javascript.ast.resolve;
 
-import java.util.List;
-
-import javax.annotation.Nullable;
-
+import com.google.common.collect.Lists;
 import org.sonar.javascript.model.implementations.lexical.InternalSyntaxToken;
 import org.sonar.javascript.model.interfaces.Tree;
 import org.sonar.javascript.model.interfaces.declaration.FunctionDeclarationTree;
 import org.sonar.javascript.model.interfaces.expression.FunctionExpressionTree;
 import org.sonar.javascript.model.interfaces.expression.IdentifierTree;
-import org.sonar.javascript.model.interfaces.expression.LiteralTree;
 
-import com.google.common.collect.Lists;
+import javax.annotation.Nullable;
+import java.util.List;
 
 public class Symbol {
 
@@ -111,8 +108,4 @@ public class Symbol {
     return declarations.get(0);
   }
 
-  @Override
-  public String toString() {
-    return "Symbol{name=" + name + ", declarations=" + declarations.size() + ", builtIn=" + buildIn + "}";
-  }
 }

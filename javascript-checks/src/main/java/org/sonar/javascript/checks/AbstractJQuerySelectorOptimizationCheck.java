@@ -26,7 +26,7 @@ import org.sonar.javascript.model.interfaces.expression.LiteralTree;
 
 public abstract class AbstractJQuerySelectorOptimizationCheck extends AbstractJQueryCheck {
 
-  abstract protected void visitSelector(String selector, Tree tree);
+  protected abstract void visitSelector(String selector, Tree tree);
 
   @Override
   public void visitCallExpression(CallExpressionTree tree) {

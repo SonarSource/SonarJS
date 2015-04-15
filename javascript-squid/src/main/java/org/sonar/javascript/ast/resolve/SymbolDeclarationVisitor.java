@@ -170,9 +170,9 @@ public class SymbolDeclarationVisitor extends BaseTreeVisitor {
     setScopeForTree(declaration.tree());
   }
 
-  private void addSymbols(List<IdentifierTree> identifiers, SymbolDeclaration.Kind declarationKind, Symbol.Kind SymbolKind) {
+  private void addSymbols(List<IdentifierTree> identifiers, SymbolDeclaration.Kind declarationKind, Symbol.Kind symbolKind) {
     for (IdentifierTree identifier : identifiers) {
-      addSymbol(identifier.name(), new SymbolDeclaration(identifier, declarationKind), SymbolKind);
+      addSymbol(identifier.name(), new SymbolDeclaration(identifier, declarationKind), symbolKind);
     }
   }
 

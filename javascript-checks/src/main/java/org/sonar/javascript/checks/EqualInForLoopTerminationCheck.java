@@ -101,12 +101,7 @@ public class EqualInForLoopTerminationCheck extends BaseTreeVisitor {
 
   private boolean isNullConditionException(ForStatementTree forStatement) {
     ExpressionTree condition = forStatement.condition();
-    if (condition != null && condition.is(Tree.Kind.NOT_EQUAL_TO)) {
-      if (((BinaryExpressionTree) condition).rightOperand().is(Tree.Kind.NULL_LITERAL)) {
-        return true;
-      }
-    }
-    return false;
+    return condition != null && condition.is(Tree.Kind.NOT_EQUAL_TO) && ((BinaryExpressionTree) condition).rightOperand().is(Tree.Kind.NULL_LITERAL);
   }
 
   private Integer getValue(Tree tree) {
