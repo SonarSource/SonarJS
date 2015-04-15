@@ -133,7 +133,8 @@ public final class CheckList {
         BuildInObjectOverriddenCheck.class,
         RedeclaredSymbolCheck.class,
         DeadStoreCheck.class,
-        DeprecatedJQueryAPICheck.class);
+        DeprecatedJQueryAPICheck.class,
+        JQueryVarNameConventionCheck.class);
   }
 
 }

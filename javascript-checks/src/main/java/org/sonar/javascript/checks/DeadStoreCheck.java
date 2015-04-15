@@ -65,7 +65,7 @@ public class DeadStoreCheck extends BaseTreeVisitor {
     if (!hasRead(usages)) {
       for (Usage usage : usages) {
         if (!usage.isInit()) {
-          getContext().addIssue(this, usage.tree(), String.format(MESSAGE, symbol.name()));
+          getContext().addIssue(this, usage.symbolTree(), String.format(MESSAGE, symbol.name()));
         }
       }
     }

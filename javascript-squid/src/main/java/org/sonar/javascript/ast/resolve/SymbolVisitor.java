@@ -39,6 +39,8 @@ import org.sonar.javascript.model.interfaces.statement.CatchBlockTree;
 import org.sonar.javascript.model.interfaces.statement.ForInStatementTree;
 import org.sonar.javascript.model.interfaces.statement.ForOfStatementTree;
 
+import javax.annotation.Nullable;
+
 public class SymbolVisitor extends BaseTreeVisitor {
 
   private static final Logger LOG = LoggerFactory.getLogger(SymbolVisitor.class);
@@ -124,9 +126,9 @@ public class SymbolVisitor extends BaseTreeVisitor {
         usageKind = Usage.Kind.READ_WRITE;
       }
 
-      if (!addUsageFor(identifier, usageKind)) {
+      if (!addUsageFor(identifier, tree, usageKind)) {
         Symbol symbol = createSymbolForScope(identifier.name(), identifier, currentScope.globalScope(), Symbol.Kind.VARIABLE);
-        Usage.createInit(symbolModel, symbol, identifier, usageKind);
+        Usage.createInit(symbolModel, symbol, identifier, tree, usageKind);
       }
       // no need to scan variable has it has been handle
       scan(tree.expression());
@@ -139,14 +141,14 @@ public class SymbolVisitor extends BaseTreeVisitor {
   @Override
   public void visitIdentifier(IdentifierTree tree) {
     if (tree.is(Tree.Kind.IDENTIFIER_REFERENCE)) {
-      addUsageFor(tree, Usage.Kind.READ);
+      addUsageFor(tree, null, Usage.Kind.READ);
     }
   }
 
   @Override
   public void visitUnaryExpression(UnaryExpressionTree tree) {
     if (isIncDec(tree) && tree.expression().is(Tree.Kind.IDENTIFIER_REFERENCE)){
-      addUsageFor((IdentifierTree)tree.expression(), Usage.Kind.READ_WRITE);
+      addUsageFor((IdentifierTree)tree.expression(), null, Usage.Kind.READ_WRITE);
     } else {
       super.visitUnaryExpression(tree);
     }
@@ -166,7 +168,7 @@ public class SymbolVisitor extends BaseTreeVisitor {
     if (tree.variableOrExpression() instanceof IdentifierTree) {
       IdentifierTree identifier = (IdentifierTree) tree.variableOrExpression();
 
-      if (!addUsageFor(identifier, Usage.Kind.WRITE)) {
+      if (!addUsageFor(identifier, null, Usage.Kind.WRITE)) {
         createSymbolForScope(identifier.name(), identifier, currentScope.globalScope(), Symbol.Kind.VARIABLE);
       }
     }
@@ -178,7 +180,7 @@ public class SymbolVisitor extends BaseTreeVisitor {
     if (tree.variableOrExpression() instanceof IdentifierTree) {
       IdentifierTree identifier = (IdentifierTree) tree.variableOrExpression();
 
-      if (!addUsageFor(identifier, Usage.Kind.WRITE)) {
+      if (!addUsageFor(identifier, null, Usage.Kind.WRITE)) {
         createSymbolForScope(identifier.name(), identifier, currentScope.globalScope(), Symbol.Kind.VARIABLE);
       }
 
@@ -221,13 +223,16 @@ public class SymbolVisitor extends BaseTreeVisitor {
   /**
    * @return true if symbol found and usage recorded, false otherwise.
    */
-  private boolean addUsageFor(IdentifierTree identifier, Usage.Kind kind) {
+  private boolean addUsageFor(IdentifierTree identifier, @Nullable Tree usageTree, Usage.Kind kind) {
     Symbol symbol = currentScope.lookupSymbol(identifier.name());
     if (symbol != null) {
-      Usage.create(symbolModel, symbol, identifier, kind);
+      if (usageTree != null){
+        Usage.create(symbolModel, symbol, identifier, usageTree, kind);
+      } else {
+        Usage.create(symbolModel, symbol, identifier, null, kind);
+      }
       return true;
     }
-
     return false;
   }
 

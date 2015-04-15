@@ -19,7 +19,10 @@
  */
 package org.sonar.javascript.ast.resolve;
 
+import org.sonar.javascript.model.interfaces.Tree;
 import org.sonar.javascript.model.interfaces.expression.IdentifierTree;
+
+import javax.annotation.Nullable;
 
 public class Usage {
 
@@ -29,33 +32,46 @@ public class Usage {
     READ_WRITE
   }
   private Kind kind;
-  private IdentifierTree tree;
+  private IdentifierTree symbolTree;
+  private Tree usageTree;
   private boolean init = false;
 
-  private Usage(IdentifierTree tree, Kind kind){
+  private Usage(IdentifierTree symbolTree, @Nullable Tree usageTree, Kind kind){
     this.kind = kind;
-    this.tree = tree;
+    this.symbolTree = symbolTree;
+    this.usageTree = usageTree != null ? usageTree : symbolTree;
   }
 
   public Kind kind() {
     return kind;
   }
 
-  public IdentifierTree tree() {
-    return tree;
+  public IdentifierTree symbolTree() {
+    return symbolTree;
+  }
+
+  public Tree usageTree() {
+    return usageTree;
   }
 
   public boolean isInit() {
     return  init;
   }
 
-  public static Usage create(SymbolModel symbolModel, Symbol symbol, IdentifierTree tree, Kind kind){
-    Usage usage = new Usage(tree, kind);
+  public static Usage create(SymbolModel symbolModel, Symbol symbol, IdentifierTree symbolTree, Tree usageTree, Kind kind){
+    Usage usage = new Usage(symbolTree, usageTree, kind);
     symbolModel.addUsage(symbol, usage);
     return usage;
   }
-  public static Usage createInit(SymbolModel symbolModel, Symbol symbol, IdentifierTree tree, Kind kind){
-    Usage usage = create(symbolModel, symbol, tree, kind);
+
+  public static Usage create(SymbolModel symbolModel, Symbol symbol, IdentifierTree symbolTree, Kind kind){
+    Usage usage = new Usage(symbolTree, null, kind);
+    symbolModel.addUsage(symbol, usage);
+    return usage;
+  }
+
+  public static Usage createInit(SymbolModel symbolModel, Symbol symbol, IdentifierTree symbolTree, Tree usageTree, Kind kind){
+    Usage usage = create(symbolModel, symbol, symbolTree, usageTree, kind);
     usage.init = true;
     return usage;
   }
@@ -64,7 +80,7 @@ public class Usage {
   public String toString() {
     return "Usage{" +
       "kind=" + kind +
-      ", tree=" + tree +
+      ", symbolTree=" + symbolTree +
       ", init=" + init +
       '}';
   }

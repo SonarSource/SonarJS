@@ -73,14 +73,14 @@ public class VariableDeclarationAfterUsageCheck extends BaseTreeVisitor {
       Usage firstUsage = usages.get(0);
       int firstUsageLine = getLine(firstUsage);
       if (firstUsageLine < declarationLine) {
-        getContext().addIssue(this, firstUsage.tree(), String.format(MESSAGE, symbol.name()));
+        getContext().addIssue(this, firstUsage.symbolTree(), String.format(MESSAGE, symbol.name()));
       }
 
     }
   }
 
   private int getLine(Usage usage) {
-    return ((JavaScriptTree) usage.tree()).getLine();
+    return ((JavaScriptTree) usage.symbolTree()).getLine();
   }
 
 }

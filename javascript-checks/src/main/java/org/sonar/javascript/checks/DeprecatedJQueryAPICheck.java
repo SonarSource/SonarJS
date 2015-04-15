@@ -109,7 +109,7 @@ public class DeprecatedJQueryAPICheck extends AbstractJQueryCheck {
     if (expressionTree.is(Tree.Kind.DOT_MEMBER_EXPRESSION)){
       ExpressionTree object = ((DotMemberExpressionTreeImpl) expressionTree).object();
       ExpressionTree property = ((DotMemberExpressionTreeImpl) expressionTree).property();
-      if (expressionIsMultiLevelSelector(object) && propertyIsDeprecated(property, deprecated)){
+      if (isMultiLevelSelector(object) && propertyIsDeprecated(property, deprecated)){
         getContext().addIssue(this, expressionTree, String.format(MESSAGE, ((IdentifierTree)property).name() + parentheses));
       }
     }
@@ -119,20 +119,6 @@ public class DeprecatedJQueryAPICheck extends AbstractJQueryCheck {
     if (property.is(Tree.Kind.IDENTIFIER_NAME)){
       IdentifierTree identifier = (IdentifierTree) property;
       return deprecated.contains(identifier.name());
-    }
-    return false;
-  }
-
-  // e.g. $("#id") as well as $("#id").next() are jQuery selectors
-  private boolean expressionIsMultiLevelSelector(ExpressionTree expression) {
-    if (expression.is(Tree.Kind.CALL_EXPRESSION)){
-      CallExpressionTree callExpressionTree = (CallExpressionTree) expression;
-      if (isSelector(callExpressionTree)){
-        return true;
-      } else {
-        ExpressionTree callee = callExpressionTree.callee();
-        return callee.is(Tree.Kind.DOT_MEMBER_EXPRESSION) && expressionIsMultiLevelSelector(((MemberExpressionTree) callee).object());
-      }
     }
     return false;
   }

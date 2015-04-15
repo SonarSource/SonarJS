@@ -63,7 +63,7 @@ public class BoundOrAssignedEvalOrArgumentsCheck extends BaseTreeVisitor {
       if (symbol.buildIn()){
         for (Usage usage : symbolModel.getUsageFor(symbol)) {
           if (!usage.kind().equals(Usage.Kind.READ)) {
-            getContext().addIssue(this, usage.tree(), String.format(MODIFICATION_MESSAGE, symbol.name()));
+            getContext().addIssue(this, usage.symbolTree(), String.format(MODIFICATION_MESSAGE, symbol.name()));
           }
         }
       } else {

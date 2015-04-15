@@ -24,6 +24,7 @@ import org.sonar.javascript.model.interfaces.Tree;
 import org.sonar.javascript.model.interfaces.expression.CallExpressionTree;
 import org.sonar.javascript.model.interfaces.expression.ExpressionTree;
 import org.sonar.javascript.model.interfaces.expression.IdentifierTree;
+import org.sonar.javascript.model.interfaces.expression.MemberExpressionTree;
 
 import java.util.Arrays;
 import java.util.List;
@@ -57,6 +58,22 @@ public abstract class AbstractJQueryCheck extends BaseTreeVisitor {
         return isJQueryObject(calleeName);
       }
       return false;
+    }
+    return false;
+  }
+
+  /**
+   *
+   * @param expressionTree expression to check for jQuery selector
+   * @return true if expressionTree is jQuery selector, like $("#id") or $("#id").next(); false for other cases.
+   */
+  // todo(Lena) This method doesn't check that method in a chain returns selector. For example, it will return true for $("#id").val(), which is not selector .
+  protected boolean isMultiLevelSelector(ExpressionTree expressionTree) {
+    if (isSelector(expressionTree)){
+      return true;
+    } else if (expressionTree.is(Tree.Kind.CALL_EXPRESSION)){
+      ExpressionTree callee = ((CallExpressionTree)expressionTree).callee();
+      return callee.is(Tree.Kind.DOT_MEMBER_EXPRESSION) && isMultiLevelSelector(((MemberExpressionTree) callee).object());
     }
     return false;
   }

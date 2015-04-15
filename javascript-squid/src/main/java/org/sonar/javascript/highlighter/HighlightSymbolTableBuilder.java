@@ -46,7 +46,7 @@ public class HighlightSymbolTableBuilder {
 
         for (Usage usage : symbolModel.getUsageFor(symbol)) {
           if (!usage.isInit()) {
-            builder.newReference(reference, sourceFileOffsets.startOffset(((InternalSyntaxToken) usage.tree().identifierToken()).getToken()));
+            builder.newReference(reference, sourceFileOffsets.startOffset(((InternalSyntaxToken) usage.symbolTree().identifierToken()).getToken()));
           }
         }
       }
