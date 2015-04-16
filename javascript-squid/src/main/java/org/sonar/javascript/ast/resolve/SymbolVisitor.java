@@ -51,7 +51,7 @@ public class SymbolVisitor extends BaseTreeVisitor {
   private SymbolModel symbolModel;
   private Scope currentScope;
 
-  public SymbolVisitor(SymbolModel symbolModel, Symbolizable symbolizable, SourceFileOffsets sourceFileOffsets) {
+  public SymbolVisitor(SymbolModel symbolModel, @Nullable Symbolizable symbolizable, SourceFileOffsets sourceFileOffsets) {
     this.symbolModel = symbolModel;
     this.currentScope = null;
 
@@ -229,7 +229,7 @@ public class SymbolVisitor extends BaseTreeVisitor {
       if (usageTree != null){
         Usage.create(symbolModel, symbol, identifier, usageTree, kind);
       } else {
-        Usage.create(symbolModel, symbol, identifier, null, kind);
+        Usage.create(symbolModel, symbol, identifier, kind);
       }
       return true;
     }

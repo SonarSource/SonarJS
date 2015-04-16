@@ -177,9 +177,7 @@ public class SymbolDeclarationVisitor extends BaseTreeVisitor {
   }
 
   private void newScope(Tree tree) {
-    Scope newScope = new Scope(currentScope, tree);
-
-    currentScope = newScope;
+    currentScope = new Scope(currentScope, tree);
     setScopeForTree(tree);
   }
 

@@ -112,9 +112,11 @@ public class UnusedFunctionArgumentCheck extends BaseTreeVisitor {
 
   private boolean buildInArgumentsUsed(SymbolModel symbolModel, Scope scope) {
     Symbol argumentsBuildInVariable = scope.lookupSymbol("arguments");
-    boolean isBuildIn = argumentsBuildInVariable != null && argumentsBuildInVariable.buildIn();
+    if (argumentsBuildInVariable == null){
+      return false;
+    }
     boolean isUsed = !symbolModel.getUsageFor(argumentsBuildInVariable).isEmpty();
-    return isBuildIn && isUsed;
+    return argumentsBuildInVariable.buildIn() && isUsed;
   }
 
   private List<Boolean> getUsageInfo(SymbolModel symbolModel, List<Symbol> symbols) {
