@@ -7,3 +7,5 @@ var x = $("div#id .className") // OK
 var $productIds = $("#products div.id"); // NOK
 
 $productIds = $("#products div.id #id"); // OK - more than 2 levels
+
+if ($("#products div.id").length()) { } // NOK

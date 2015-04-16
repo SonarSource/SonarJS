@@ -35,6 +35,7 @@ public class IdChildrenSelectorCheckTest extends TreeCheckTest {
     .next().atLine(1).withMessage("Move \"div.className\" into \"find\" method.")
     .next().atLine(3).withMessage("Move \".className[attr='value']\" into \"find\" method.")
     .next().atLine(7).withMessage("Move \"div.id\" into \"find\" method.")
+    .next().atLine(11).withMessage("Move \"div.id\" into \"find\" method.")
     .noMore();
 
   }
