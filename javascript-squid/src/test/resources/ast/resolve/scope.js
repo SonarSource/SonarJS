@@ -31,3 +31,7 @@ try {
   var a;
 }
 
+class A {
+  f(){
+  }
+}

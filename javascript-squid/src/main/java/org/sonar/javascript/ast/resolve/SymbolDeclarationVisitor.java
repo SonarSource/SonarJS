@@ -107,6 +107,7 @@ public class SymbolDeclarationVisitor extends BaseTreeVisitor {
   public void visitArrowFunction(ArrowFunctionTree tree) {
     newScope(tree);
     addSymbols(((ArrowFunctionTreeImpl) tree).parameterIdentifiers(), SymbolDeclaration.Kind.PARAMETER, Symbol.Kind.PARAMETER);
+    addFunctionBuildInSymbols();
 
     super.visitArrowFunction(tree);
     leaveScope();

@@ -44,20 +44,20 @@ public class SymbolModelTest extends JavaScriptTreeModelTest {
 
   @Test
   public void symbols_filtering(){
-    assertThat(SYMBOL_MODEL.getSymbols()).hasSize(10);
+    assertThat(SYMBOL_MODEL.getSymbols()).hasSize(13);
 
     assertThat(SYMBOL_MODEL.getSymbols(Symbol.Kind.FUNCTION)).hasSize(2); // eval, f
-    assertThat(SYMBOL_MODEL.getSymbols(Symbol.Kind.PARAMETER)).hasSize(1); // p
-    assertThat(SYMBOL_MODEL.getSymbols(Symbol.Kind.PARAMETER, Symbol.Kind.FUNCTION)).hasSize(3);
+    assertThat(SYMBOL_MODEL.getSymbols(Symbol.Kind.PARAMETER)).hasSize(2); // p1, p2
+    assertThat(SYMBOL_MODEL.getSymbols(Symbol.Kind.PARAMETER, Symbol.Kind.FUNCTION)).hasSize(4);
 
     assertThat(SYMBOL_MODEL.getSymbols("a")).hasSize(3);
-    assertThat(SYMBOL_MODEL.getSymbols(ImmutableList.of("a", "arguments"))).hasSize(4);
-    assertThat(SYMBOL_MODEL.getSymbols(new LinkedList<String>())).hasSize(10);
+    assertThat(SYMBOL_MODEL.getSymbols(ImmutableList.of("a", "arguments"))).hasSize(5);
+    assertThat(SYMBOL_MODEL.getSymbols(new LinkedList<String>())).hasSize(13);
   }
 
   @Test
   public void symbols_scope(){
-    assertThat(SYMBOL_MODEL.getScopes()).hasSize(3); // script/global, f, catch
+    assertThat(SYMBOL_MODEL.getScopes()).hasSize(4); // script/global, f, catch
 
     Symbol f = SYMBOL_MODEL.getSymbols("f").get(0);
     Symbol e = SYMBOL_MODEL.getSymbols("e").get(0);
