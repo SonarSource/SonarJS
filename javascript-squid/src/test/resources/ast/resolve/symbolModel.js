@@ -18,5 +18,5 @@ try {
 
 f((p2) => {return a+1}) // implicit "arguments" symbol
 
-for (var i of a){}
-for (var i in a){}
+for (i of a){}
+for (i in a){}

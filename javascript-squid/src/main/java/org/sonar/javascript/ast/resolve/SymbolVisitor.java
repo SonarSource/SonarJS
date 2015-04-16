@@ -201,7 +201,7 @@ public class SymbolVisitor extends BaseTreeVisitor {
     }
   }
 
-  private Symbol createSymbolForScope(String name, Tree tree, Scope scope, Symbol.Kind kind) {
+  private Symbol createSymbolForScope(String name, IdentifierTree tree, Scope scope, Symbol.Kind kind) {
     //todo(Lena): move this logic to method of Scope or SymbolModel
     Symbol symbol = scope.createSymbol(name, new SymbolDeclaration(tree, /*todo replace it with smth else?*/ SymbolDeclaration.Kind.FOR_OF), kind);
     symbolModel.setScopeForSymbol(symbol, scope);

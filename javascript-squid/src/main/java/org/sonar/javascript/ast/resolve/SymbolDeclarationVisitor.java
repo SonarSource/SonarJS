@@ -94,7 +94,7 @@ public class SymbolDeclarationVisitor extends BaseTreeVisitor {
 
   @Override
   public void visitFunctionDeclaration(FunctionDeclarationTree tree) {
-    addSymbol(tree.name().name(), new SymbolDeclaration(tree, SymbolDeclaration.Kind.FUNCTION_DECLARATION), Symbol.Kind.FUNCTION);
+    addSymbol(tree.name().name(), new SymbolDeclaration(tree.name(), SymbolDeclaration.Kind.FUNCTION_DECLARATION), Symbol.Kind.FUNCTION);
     newScope(tree);
     addSymbols(((ParameterListTreeImpl) tree.parameters()).parameterIdentifiers(), SymbolDeclaration.Kind.PARAMETER, Symbol.Kind.PARAMETER);
     addFunctionBuildInSymbols();
@@ -124,9 +124,10 @@ public class SymbolDeclarationVisitor extends BaseTreeVisitor {
   @Override
   public void visitFunctionExpression(FunctionExpressionTree tree) {
     newScope(tree);
-    if (tree.name() != null) {
+    IdentifierTree name = tree.name();
+    if (name != null) {
       // Not available in enclosing scope
-      addSymbol(tree.name().name(), new SymbolDeclaration(tree, SymbolDeclaration.Kind.FUNCTION_EXPRESSION), Symbol.Kind.FUNCTION);
+      addSymbol(name.name(), new SymbolDeclaration(name, SymbolDeclaration.Kind.FUNCTION_EXPRESSION), Symbol.Kind.FUNCTION);
     }
     addSymbols(((ParameterListTreeImpl) tree.parameters()).parameterIdentifiers(), SymbolDeclaration.Kind.PARAMETER, Symbol.Kind.PARAMETER);
     addFunctionBuildInSymbols();
