@@ -28,7 +28,6 @@ import org.sonar.javascript.model.interfaces.Tree.Kind;
 import org.sonar.javascript.model.interfaces.declaration.FunctionDeclarationTree;
 import org.sonar.javascript.model.interfaces.expression.FunctionExpressionTree;
 import org.sonar.javascript.model.interfaces.expression.IdentifierTree;
-import org.sonar.squidbridge.annotations.ActivatedByDefault;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 import org.sonar.squidbridge.checks.SquidCheck;
@@ -46,7 +45,6 @@ import java.util.Stack;
   tags = {Tags.BRAIN_OVERLOAD, Tags.PITFALL},
   status = org.sonar.api.rules.Rule.STATUS_DEPRECATED
 )
-@ActivatedByDefault
 @SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.UNDERSTANDABILITY)
 @SqaleConstantRemediation("10min")
 public class SameNameForFunctionAndVariableCheck extends SquidCheck<LexerlessGrammar> {
