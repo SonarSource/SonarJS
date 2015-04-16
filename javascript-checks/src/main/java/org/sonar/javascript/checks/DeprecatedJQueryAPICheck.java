@@ -100,7 +100,7 @@ public class DeprecatedJQueryAPICheck extends AbstractJQueryCheck {
       ExpressionTree object = ((DotMemberExpressionTreeImpl) expressionTree).object();
       ExpressionTree property = ((DotMemberExpressionTreeImpl) expressionTree).property();
       if (isJQueryObject(object) && propertyIsDeprecated(property, deprecated)){
-        getContext().addIssue(this, expressionTree, String.format(MESSAGE, ((IdentifierTree)property).name() + parentheses));
+        getContext().addIssue(this, property, String.format(MESSAGE, ((IdentifierTree)property).name() + parentheses));
       }
     }
   }
@@ -110,7 +110,7 @@ public class DeprecatedJQueryAPICheck extends AbstractJQueryCheck {
       ExpressionTree object = ((DotMemberExpressionTreeImpl) expressionTree).object();
       ExpressionTree property = ((DotMemberExpressionTreeImpl) expressionTree).property();
       if (isMultiLevelSelector(object) && propertyIsDeprecated(property, deprecated)){
-        getContext().addIssue(this, expressionTree, String.format(MESSAGE, ((IdentifierTree)property).name() + parentheses));
+        getContext().addIssue(this, property, String.format(MESSAGE, ((IdentifierTree)property).name() + parentheses));
       }
     }
   }

@@ -11,3 +11,7 @@ $("p").prev(arg).andSelf()  // NOK
 $("p").next().context  // NOK
 
 someObj.sub() // OK
+
+$(this)
+  .toggleClass('collapsed')
+  .toggle()
