@@ -14,4 +14,4 @@ someObj.sub() // OK
 
 $(this)
   .toggleClass('collapsed')
-  .toggle()
+  .andSelf()

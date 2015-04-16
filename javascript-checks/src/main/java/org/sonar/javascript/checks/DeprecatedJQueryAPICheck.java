@@ -71,7 +71,8 @@ public class DeprecatedJQueryAPICheck extends AbstractJQueryCheck {
       "live",
       "load",
       "size",
-      "toggle",
+//      todo (Lena) conflicts with http://api.jquery.com/toggle/
+//      "toggle",
       "unload"
   );
 
