@@ -41,7 +41,7 @@ public class UniversalSelectorCheck extends AbstractJQuerySelectorOptimizationCh
   protected void visitSelector(String selector, Tree tree) {
     String[] parts = selector.split("[ >]");
     for (int i = 1; i < parts.length; i++){
-      if (parts[i].equals("*")){
+      if ("*".equals(parts[i])){
         getContext().addIssue(this, tree, MESSAGE);
         return;
       }

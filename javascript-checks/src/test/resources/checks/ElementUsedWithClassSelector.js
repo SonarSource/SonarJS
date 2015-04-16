@@ -9,3 +9,8 @@ $("div.className div.className");  // OK
 $(":contains('text').className"); // OK
 
 var $s = jQuery(" p.class-name ")  // NOK
+
+foo("div.className"); // OK
+
+$("div.className", "#id");  // OK
+

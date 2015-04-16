@@ -50,7 +50,7 @@ import java.util.List;
 public class UnusedFunctionArgumentCheck extends BaseTreeVisitor {
   private static final String MESSAGE = "Remove the unused function parameter%s \"%s\".";
 
-  static class PositionComparator implements Comparator<Symbol> {
+  private class PositionComparator implements Comparator<Symbol> {
 
     private int getLine(Symbol symbol){
       return ((JavaScriptTree)symbol.getFirstDeclaration().tree()).getLine();

@@ -33,7 +33,7 @@ public class HighlightSymbolTableBuilder {
   public static Symbolizable.SymbolTable build(Symbolizable symbolizable, SymbolModel symbolModel, SourceFileOffsets sourceFileOffsets) {
     Symbolizable.SymbolTableBuilder builder = symbolizable.newSymbolTableBuilder();
 
-    for (Symbol symbol : symbolModel.getAllSymbols()) {
+    for (Symbol symbol : symbolModel.getSymbols()) {
       InternalSyntaxToken token = symbol.getSymbolNameToken();
 
       // TODO handle built-in symbol, e.g: arguments, eval

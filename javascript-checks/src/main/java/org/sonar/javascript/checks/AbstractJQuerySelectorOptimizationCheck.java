@@ -34,10 +34,8 @@ public abstract class AbstractJQuerySelectorOptimizationCheck extends AbstractJQ
       SeparatedList<Tree> parameters = tree.arguments().parameters();
       if (parameters.size() == 1 && parameters.get(0).is(Tree.Kind.STRING_LITERAL)) {
         String value = ((LiteralTree) parameters.get(0)).value();
-        if (value.length() > 2) {
-          value = value.substring(1, value.length() - 1).trim();
-          visitSelector(value, tree);
-        }
+        value = value.substring(1, value.length() - 1).trim();
+        visitSelector(value, tree);
       }
     }
   }

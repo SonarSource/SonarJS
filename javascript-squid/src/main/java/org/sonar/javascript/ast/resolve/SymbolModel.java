@@ -45,7 +45,7 @@ public class SymbolModel {
   private Multimap<Symbol, Usage> usagesTree = HashMultimap.create();
   private Map<Usage, Symbol> refersTo = Maps.newHashMap();
 
-  public static SymbolModel createFor(ScriptTree script, @Nullable Symbolizable symbolizable, SourceFileOffsets sourceFileOffsets) {
+  public static SymbolModel createFor(ScriptTree script, @Nullable Symbolizable symbolizable, @Nullable SourceFileOffsets sourceFileOffsets) {
     SymbolModel symbolModel = new SymbolModel();
 
     new SymbolVisitor(symbolModel, symbolizable, sourceFileOffsets).visitScript(script);
@@ -134,7 +134,4 @@ public class SymbolModel {
     return symbolScope.get(symbol);
   }
 
-  public Set<Symbol> getAllSymbols() {
-    return symbolScope.keySet();
-  }
 }

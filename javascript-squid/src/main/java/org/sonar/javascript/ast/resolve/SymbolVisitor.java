@@ -51,7 +51,7 @@ public class SymbolVisitor extends BaseTreeVisitor {
   private SymbolModel symbolModel;
   private Scope currentScope;
 
-  public SymbolVisitor(SymbolModel symbolModel, @Nullable Symbolizable symbolizable, SourceFileOffsets sourceFileOffsets) {
+  public SymbolVisitor(SymbolModel symbolModel, @Nullable Symbolizable symbolizable, @Nullable SourceFileOffsets sourceFileOffsets) {
     this.symbolModel = symbolModel;
     this.currentScope = null;
 
