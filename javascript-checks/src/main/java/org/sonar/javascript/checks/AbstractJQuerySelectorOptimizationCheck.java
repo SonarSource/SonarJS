@@ -38,6 +38,7 @@ public abstract class AbstractJQuerySelectorOptimizationCheck extends AbstractJQ
         visitSelector(value, tree);
       }
     }
+    super.visitCallExpression(tree);
   }
 
 }

@@ -36,6 +36,7 @@ public class UniversalSelectorCheckTest extends TreeCheckTest {
     .next().atLine(3)
     .next().atLine(5)
     .next().atLine(7)
+    .next().atLine(13)
     .noMore();
 
   }

@@ -9,3 +9,5 @@ var x = $("div#id .className > *") // NOK
 var $productIds = $("#products *:radio"); // OK
 
 $productIds = $("*"); // OK
+
+$("#id  > * ").length();  // NOK
