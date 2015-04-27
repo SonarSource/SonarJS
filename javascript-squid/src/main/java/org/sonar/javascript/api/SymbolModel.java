@@ -17,33 +17,33 @@
  * License along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.javascript.ast.visitors;
+package org.sonar.javascript.api;
 
-import org.sonar.javascript.api.SymbolModel;
-import org.sonar.javascript.model.interfaces.Tree;
-import org.sonar.javascript.model.interfaces.declaration.ScriptTree;
-import org.sonar.squidbridge.api.CodeVisitor;
+import org.sonar.javascript.ast.resolve.Symbol;
+import org.sonar.javascript.ast.resolve.Usage;
 
-import java.io.File;
+import java.util.Collection;
+import java.util.Set;
 
-public interface AstTreeVisitorContext {
+public interface SymbolModel {
+  /**
+   * Returns all symbols in script
+   */
+  Set<Symbol> getSymbols();
 
-  ScriptTree getTree();
+  /**
+   *
+   * @param kind kind of symbols to look for
+   * @return list of symbols with the given kind
+   */
+  Set<Symbol> getSymbols(Symbol.Kind kind);
 
-  void addIssue(CodeVisitor check, Tree tree, String message);
+  /**
+   *
+   * @param name name of symbols to look for
+   * @return list of symbols with the given name
+   */
+  Set<Symbol> getSymbols(String name);
 
-  void addIssue(CodeVisitor check, int line, String message);
-
-  void addIssue(CodeVisitor check, Tree tree, String message, double cost);
-
-  void addIssue(CodeVisitor check, int line, String message, double cost);
-
-  String getFileKey();
-
-  File getFile();
-
-  SymbolModel getSymbolModel();
-
-  String[] getPropertyValues(String name);
-
+  Collection<Usage> getUsagesFor(Symbol symbol);
 }

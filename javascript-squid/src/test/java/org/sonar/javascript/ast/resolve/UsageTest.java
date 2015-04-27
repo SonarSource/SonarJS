@@ -24,75 +24,85 @@ import org.junit.Before;
 import org.junit.Test;
 import org.sonar.javascript.model.JavaScriptTreeModelTest;
 import org.sonar.javascript.model.interfaces.Tree;
-import org.sonar.javascript.model.interfaces.declaration.FunctionDeclarationTree;
 import org.sonar.javascript.model.interfaces.declaration.ScriptTree;
-import org.sonar.javascript.model.interfaces.expression.FunctionExpressionTree;
-import org.sonar.javascript.model.interfaces.statement.CatchBlockTree;
 
 import java.io.File;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.Set;
 
 import static org.fest.assertions.Assertions.assertThat;
 
 public class UsageTest extends JavaScriptTreeModelTest {
 
   private AstNode ROOT_NODE;
-  private SymbolModel SYMBOL_MODEL;
+  private SymbolModelImpl SYMBOL_MODEL;
 
   @Before
   public void setUp() throws Exception {
     ROOT_NODE = p.parse(new File("src/test/resources/ast/resolve/usage.js"));
-    SYMBOL_MODEL = SymbolModel.create((ScriptTree) ROOT_NODE, null, null);
+    SYMBOL_MODEL = SymbolModelImpl.create((ScriptTree) ROOT_NODE, null, null);
   }
 
   @Test
   public void global_symbols() throws Exception {
-    Scope scriptScope = SYMBOL_MODEL.getScopeFor((ScriptTree) ROOT_NODE);
-    assertThat(usagesFor("a", scriptScope)).hasSize(3);
-    assertThat(usagesFor("b", scriptScope)).hasSize(2);
-    assertThat(usagesFor("f", scriptScope)).hasSize(2);
+    assertThat(SYMBOL_MODEL.getUsagesFor((Symbol) SYMBOL_MODEL.getSymbols("a").toArray()[0])).hasSize(3);
+    assertThat(usagesFor("f")).hasSize(2);
 
+    Set<Symbol> symbols = SYMBOL_MODEL.getSymbols("b");
+    Symbol b = null;
+    for (Symbol symbol : symbols){
+      if (symbol.scope().getTree().is(Tree.Kind.SCRIPT)){
+        b = symbol;
+      }
+    }
+    assertThat(SYMBOL_MODEL.getUsagesFor(b)).hasSize(2);
   }
 
   @Test
   public void global_build_in_symbols() throws Exception {
-    Scope scriptScope = SYMBOL_MODEL.getScopeFor((ScriptTree) ROOT_NODE);
-    assertThat(usagesFor("eval", scriptScope)).hasSize(2);
+    assertThat(usagesFor("eval")).hasSize(2);
   }
 
   @Test
   public void arguments_build_in_symbol() throws Exception {
-    Scope scriptScope = SYMBOL_MODEL.getScopeFor((ScriptTree) ROOT_NODE);
-    assertThat(scriptScope.lookupSymbol("arguments").buildIn()).isFalse();
-    Scope functionScope = SYMBOL_MODEL.getScopeFor((FunctionDeclarationTree) ROOT_NODE.getFirstDescendant(Tree.Kind.FUNCTION_DECLARATION));
-    assertThat(functionScope.lookupSymbol("arguments").buildIn()).isTrue();
+    Set<Symbol> symbols = SYMBOL_MODEL.getSymbols("arguments");
+    for (Symbol symbol : symbols){
+      if (symbol.scope().getTree().is(Tree.Kind.SCRIPT)){
+        assertThat(symbol.buildIn()).isFalse();
+      } else {
+        assertThat(symbol.buildIn()).isTrue();
+      }
+    }
   }
 
   @Test
   public void function_symbols() throws Exception {
-    Scope functionScope = SYMBOL_MODEL.getScopeFor((FunctionDeclarationTree) ROOT_NODE.getFirstDescendant(Tree.Kind.FUNCTION_DECLARATION));
-    assertThat(usagesFor("p1", functionScope)).hasSize(1);
-    assertThat(usagesFor("p2", functionScope)).isEmpty();
-    assertThat(usagesFor("b", functionScope)).hasSize(3);
+    assertThat(usagesFor("p1")).hasSize(1);
+    assertThat(usagesFor("p2")).isEmpty();
+    Set<Symbol> symbols = SYMBOL_MODEL.getSymbols("b");
+    Symbol b = null;
+    for (Symbol symbol : symbols){
+      if (symbol.scope().getTree().is(Tree.Kind.FUNCTION_DECLARATION)){
+        b = symbol;
+      }
+    }
+    assertThat(SYMBOL_MODEL.getUsagesFor(b)).hasSize(3);
   }
 
   @Test
   public void function_expression_symbols() throws Exception {
-    Scope functionExprScope = SYMBOL_MODEL.getScopeFor((FunctionExpressionTree) ROOT_NODE.getFirstDescendant(Tree.Kind.FUNCTION_EXPRESSION));
-    assertThat(usagesFor("g", functionExprScope)).hasSize(1);
+    assertThat(usagesFor("g")).hasSize(1);
   }
 
   @Test
   public void catch_block_symbols() throws Exception {
-    Scope catchScope = SYMBOL_MODEL.getScopeFor((CatchBlockTree) ROOT_NODE.getFirstDescendant(Tree.Kind.CATCH_BLOCK));
-    assertThat(usagesFor("e", catchScope)).hasSize(1);
+    assertThat(usagesFor("e")).hasSize(1);
   }
 
   @Test
   public void usage_type() throws Exception {
-    Scope scriptScope = SYMBOL_MODEL.getScopeFor((ScriptTree) ROOT_NODE);
-    Collection<Usage> usages = usagesFor("var1", scriptScope);
+    Collection<Usage> usages = usagesFor("var1");
     assertThat(usages).hasSize(4);
     Iterator<Usage> iterator = usages.iterator();
     int readCounter = 0;
@@ -106,8 +116,12 @@ public class UsageTest extends JavaScriptTreeModelTest {
     assertThat(writeCounter).isEqualTo(3);
   }
 
-  public Collection<Usage> usagesFor(String name, Scope scope) {
-    return SYMBOL_MODEL.getUsagesFor(scope.lookupSymbol(name));
+  public Collection<Usage> usagesFor(String name) {
+    return SYMBOL_MODEL.getUsagesFor(symbol(name));
+  }
+
+  public Symbol symbol(String name) {
+    return (Symbol) SYMBOL_MODEL.getSymbols(name).toArray()[0];
   }
 
 }

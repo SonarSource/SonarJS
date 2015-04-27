@@ -23,6 +23,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.source.Symbolizable;
 import org.sonar.javascript.api.EcmaScriptPunctuator;
+import org.sonar.javascript.api.SymbolModel;
+import org.sonar.javascript.api.SymbolModelBuilder;
 import org.sonar.javascript.ast.visitors.BaseTreeVisitor;
 import org.sonar.javascript.highlighter.HighlightSymbolTableBuilder;
 import org.sonar.javascript.highlighter.SourceFileOffsets;
@@ -48,10 +50,10 @@ public class SymbolVisitor extends BaseTreeVisitor {
   private final Symbolizable symbolizable;
   private final SourceFileOffsets sourceFileOffsets;
 
-  private SymbolModel symbolModel;
+  private SymbolModelBuilder symbolModel;
   private Scope currentScope;
 
-  public SymbolVisitor(SymbolModel symbolModel, @Nullable Symbolizable symbolizable, @Nullable SourceFileOffsets sourceFileOffsets) {
+  public SymbolVisitor(SymbolModelBuilder symbolModel, @Nullable Symbolizable symbolizable, @Nullable SourceFileOffsets sourceFileOffsets) {
     this.symbolModel = symbolModel;
     this.currentScope = null;
 
@@ -219,19 +221,17 @@ public class SymbolVisitor extends BaseTreeVisitor {
     //todo(Lena): move this logic to method of Scope or SymbolModel
     Symbol symbol = scope.createSymbol(name, new SymbolDeclaration(tree, /*todo replace it with smth else?*/ SymbolDeclaration.Kind.FOR_OF), kind);
     symbolModel.setScopeForSymbol(symbol, scope);
-    symbolModel.setScopeFor(tree, scope);
     return symbol;
   }
 
   private Symbol createBuildInSymbolForScope(String name, Scope scope, Symbol.Kind kind) {
     Symbol symbol = scope.createBuildInSymbol(name, kind);
     symbolModel.setScopeForSymbol(symbol, scope);
-    symbolModel.setScopeFor(scope.getTree(), scope);
     return symbol;
   }
 
   private void enterScope(Tree tree) {
-    currentScope = symbolModel.getScopeFor(tree);
+    currentScope = getScopeFor(tree);
   }
 
   /**
@@ -252,10 +252,18 @@ public class SymbolVisitor extends BaseTreeVisitor {
 
   private void highlightSymbols() {
     if (symbolizable != null) {
-      symbolizable.setSymbolTable(HighlightSymbolTableBuilder.build(symbolizable, symbolModel, sourceFileOffsets));
+      symbolizable.setSymbolTable(HighlightSymbolTableBuilder.build(symbolizable, (SymbolModel)symbolModel, sourceFileOffsets));
     } else {
       LOG.warn("Symbol in source view will not be highlighted.");
     }
   }
 
+  private Scope getScopeFor(Tree tree){
+    for (Scope scope : symbolModel.getScopes()){
+      if (scope.getTree().equals(tree)){
+        return scope;
+      }
+    }
+    throw new IllegalStateException("No scope found for the tree");
+  }
 }

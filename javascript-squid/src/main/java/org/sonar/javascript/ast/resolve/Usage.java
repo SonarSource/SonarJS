@@ -19,6 +19,7 @@
  */
 package org.sonar.javascript.ast.resolve;
 
+import org.sonar.javascript.api.SymbolModelBuilder;
 import org.sonar.javascript.model.interfaces.Tree;
 import org.sonar.javascript.model.interfaces.expression.IdentifierTree;
 
@@ -91,25 +92,25 @@ public class Usage {
     return  init;
   }
 
-  public static Usage create(SymbolModel symbolModel, Symbol symbol, IdentifierTree symbolTree, Tree usageTree, Kind kind, Scope scope){
+  public static Usage create(SymbolModelBuilder symbolModel, Symbol symbol, IdentifierTree symbolTree, Tree usageTree, Kind kind, Scope scope){
     Usage usage = new Usage(symbolTree, usageTree, kind, scope);
     symbolModel.addUsage(symbol, usage);
     return usage;
   }
 
-  public static Usage create(SymbolModel symbolModel, Symbol symbol, IdentifierTree symbolTree, Tree usageTree, Kind kind, Scope scope, Type type){
+  public static Usage create(SymbolModelBuilder symbolModel, Symbol symbol, IdentifierTree symbolTree, Tree usageTree, Kind kind, Scope scope, Type type){
     Usage usage = new Usage(symbolTree, usageTree, kind, scope, type);
     symbolModel.addUsage(symbol, usage);
     return usage;
   }
 
-  public static Usage create(SymbolModel symbolModel, Symbol symbol, IdentifierTree symbolTree, Kind kind, Scope scope){
+  public static Usage create(SymbolModelBuilder symbolModel, Symbol symbol, IdentifierTree symbolTree, Kind kind, Scope scope){
     Usage usage = new Usage(symbolTree, null, kind, scope);
     symbolModel.addUsage(symbol, usage);
     return usage;
   }
 
-  public static Usage createInit(SymbolModel symbolModel, Symbol symbol, IdentifierTree symbolTree, Tree usageTree, Kind kind, Scope scope){
+  public static Usage createInit(SymbolModelBuilder symbolModel, Symbol symbol, IdentifierTree symbolTree, Tree usageTree, Kind kind, Scope scope){
     Usage usage = create(symbolModel, symbol, symbolTree, usageTree, kind, scope);
     usage.init = true;
     return usage;

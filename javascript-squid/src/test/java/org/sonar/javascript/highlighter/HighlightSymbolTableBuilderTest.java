@@ -19,26 +19,25 @@
  */
 package org.sonar.javascript.highlighter;
 
+import com.google.common.base.Charsets;
+import com.google.common.io.Files;
+import org.junit.Before;
+import org.junit.Test;
+import org.sonar.api.source.Symbolizable;
+import org.sonar.javascript.ast.resolve.SymbolModelImpl;
+import org.sonar.javascript.model.JavaScriptTreeModelTest;
+import org.sonar.javascript.model.interfaces.declaration.ScriptTree;
+
+import java.io.File;
+import java.nio.charset.Charset;
+import java.util.List;
+
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
-
-import java.io.File;
-import java.nio.charset.Charset;
-import java.util.List;
-
-import org.junit.Before;
-import org.junit.Test;
-import org.sonar.api.source.Symbolizable;
-import org.sonar.javascript.ast.resolve.SymbolModel;
-import org.sonar.javascript.model.JavaScriptTreeModelTest;
-import org.sonar.javascript.model.interfaces.declaration.ScriptTree;
-
-import com.google.common.base.Charsets;
-import com.google.common.io.Files;
 
 public class HighlightSymbolTableBuilderTest extends JavaScriptTreeModelTest {
 
@@ -57,7 +56,7 @@ public class HighlightSymbolTableBuilderTest extends JavaScriptTreeModelTest {
   public void sonar_symbol_table() throws Exception {
     File file = new File("src/test/resources/highlighter/symbolHighlighting.js");
     lines = Files.readLines(file, Charsets.UTF_8);
-    SymbolModel.create((ScriptTree) p.parse(file), symbolizable, new SourceFileOffsets(file, Charset.defaultCharset()));
+    SymbolModelImpl.create((ScriptTree) p.parse(file), symbolizable, new SourceFileOffsets(file, Charset.defaultCharset()));
 
     // variable
     verify(symboltableBuilder).newSymbol(offset(1, 5), offset(1, 6));

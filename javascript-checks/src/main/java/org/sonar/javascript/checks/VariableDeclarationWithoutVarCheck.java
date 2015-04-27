@@ -24,7 +24,6 @@ import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.javascript.ast.resolve.Symbol;
 import org.sonar.javascript.ast.resolve.SymbolDeclaration;
-import org.sonar.javascript.ast.resolve.SymbolModel;
 import org.sonar.javascript.ast.visitors.BaseTreeVisitor;
 import org.sonar.javascript.model.interfaces.declaration.ScriptTree;
 import org.sonar.squidbridge.annotations.ActivatedByDefault;
@@ -45,8 +44,7 @@ public class VariableDeclarationWithoutVarCheck extends BaseTreeVisitor {
 
   @Override
   public void visitScript(ScriptTree tree) {
-    SymbolModel symbolModel = getContext().getSymbolModel();
-    for (Symbol symbol : symbolModel.getSymbols(Symbol.Kind.VARIABLE)) {
+    for (Symbol symbol : getContext().getSymbolModel().getSymbols(Symbol.Kind.VARIABLE)) {
       visitSymbol(symbol);
     }
   }

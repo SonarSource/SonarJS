@@ -22,9 +22,9 @@ package org.sonar.javascript.checks;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
+import org.sonar.javascript.api.SymbolModel;
 import org.sonar.javascript.ast.resolve.Scope;
 import org.sonar.javascript.ast.resolve.Symbol;
-import org.sonar.javascript.ast.resolve.SymbolModel;
 import org.sonar.javascript.ast.visitors.BaseTreeVisitor;
 import org.sonar.javascript.model.implementations.JavaScriptTree;
 import org.sonar.javascript.model.interfaces.Tree;
@@ -36,8 +36,10 @@ import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
 @Rule(
   key = "UnusedFunctionArgument",
@@ -71,17 +73,27 @@ public class UnusedFunctionArgumentCheck extends BaseTreeVisitor {
     }
   }
 
+  public Collection<Scope> getScopes(){
+    SymbolModel symbolModel = getContext().getSymbolModel();
+    Set<Scope> uniqueScopes = new HashSet<>();
+    for (Symbol symbol : symbolModel.getSymbols()){
+      uniqueScopes.add(symbol.scope());
+    }
+    return uniqueScopes;
+  }
+
   @Override
   public void visitScript(ScriptTree tree) {
-    SymbolModel symbolModel = getContext().getSymbolModel();
-    Collection<Scope> scopes = symbolModel.getScopes();
+    Collection<Scope> scopes = getScopes();
 
     for (Scope scope : scopes){
-      visitScope(symbolModel, scope);
+      visitScope(scope);
     }
   }
 
-  private void visitScope(SymbolModel symbolModel, Scope scope) {
+  private void visitScope(Scope scope) {
+    SymbolModel symbolModel = getContext().getSymbolModel();
+
     if (buildInArgumentsUsed(symbolModel, scope) || scope.getTree().is(Tree.Kind.SET_METHOD)){
       return;
     }

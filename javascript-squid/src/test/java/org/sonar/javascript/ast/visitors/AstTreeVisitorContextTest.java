@@ -24,7 +24,7 @@ import org.junit.Test;
 import org.sonar.api.config.Settings;
 import org.sonar.javascript.JavaScriptAstScanner;
 import org.sonar.javascript.TestUtils;
-import org.sonar.javascript.ast.resolve.SymbolModel;
+import org.sonar.javascript.ast.resolve.SymbolModelImpl;
 import org.sonar.javascript.model.JavaScriptTreeModelTest;
 import org.sonar.javascript.model.implementations.declaration.ScriptTreeImpl;
 import org.sonar.squidbridge.api.CheckMessage;
@@ -48,7 +48,7 @@ public class AstTreeVisitorContextTest extends JavaScriptTreeModelTest {
     sourceFile = JavaScriptAstScanner.scanSingleFile(file);
     ScriptTreeImpl scriptTree = new ScriptTreeImpl(null, null, null, null);
     Settings settings = new Settings();
-    context = new AstTreeVisitorContextImpl(scriptTree, sourceFile, file, SymbolModel.create(scriptTree, null, null), settings);
+    context = new AstTreeVisitorContextImpl(scriptTree, sourceFile, file, SymbolModelImpl.create(scriptTree, null, null), settings);
   }
 
   @Test

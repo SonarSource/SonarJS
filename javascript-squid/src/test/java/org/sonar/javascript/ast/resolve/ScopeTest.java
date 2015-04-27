@@ -25,10 +25,7 @@ import org.junit.Test;
 import org.sonar.javascript.model.JavaScriptTreeModelTest;
 import org.sonar.javascript.model.implementations.JavaScriptTree;
 import org.sonar.javascript.model.interfaces.Tree;
-import org.sonar.javascript.model.interfaces.declaration.FunctionDeclarationTree;
 import org.sonar.javascript.model.interfaces.declaration.ScriptTree;
-import org.sonar.javascript.model.interfaces.expression.FunctionExpressionTree;
-import org.sonar.javascript.model.interfaces.statement.CatchBlockTree;
 
 import java.io.File;
 
@@ -38,17 +35,26 @@ import static org.junit.Assert.assertNotNull;
 public class ScopeTest extends JavaScriptTreeModelTest {
 
   private AstNode ROOT_NODE;
-  private SymbolModel SYMBOL_MODEL;
+  private SymbolModelImpl SYMBOL_MODEL;
+
+  private Scope getScopeFor(Tree.Kind kind){
+    for (Symbol symbol : SYMBOL_MODEL.getSymbols()){
+      if (symbol.scope().getTree().is(kind)){
+        return symbol.scope();
+      }
+    }
+    throw new IllegalStateException();
+  }
 
   @Before
   public void setUp() throws Exception {
     ROOT_NODE = p.parse(new File("src/test/resources/ast/resolve/scope.js"));
-    SYMBOL_MODEL = SymbolModel.create((ScriptTree) ROOT_NODE, null, null);
+    SYMBOL_MODEL = SymbolModelImpl.create((ScriptTree) ROOT_NODE, null, null);
   }
 
   @Test
   public void global_scope() throws Exception {
-    Scope globalScope = SYMBOL_MODEL.getScopeFor((ScriptTree) ROOT_NODE);
+    Scope globalScope = getScopeFor(Tree.Kind.SCRIPT);
 
     assertNotNull(globalScope.lookupSymbol("a"));
     assertNotNull(globalScope.lookupSymbol("f"));
@@ -60,7 +66,7 @@ public class ScopeTest extends JavaScriptTreeModelTest {
 
   @Test
   public void function_scope() throws Exception {
-    Scope functionScope = SYMBOL_MODEL.getScopeFor((FunctionDeclarationTree) ROOT_NODE.getFirstDescendant(Tree.Kind.FUNCTION_DECLARATION));
+    Scope functionScope = getScopeFor(Tree.Kind.FUNCTION_DECLARATION);
 
     assertNotNull(functionScope.lookupSymbol("p"));
     assertNotNull(functionScope.lookupSymbol("a"));
@@ -69,7 +75,7 @@ public class ScopeTest extends JavaScriptTreeModelTest {
 
   @Test
   public void function_expression_scope() throws Exception {
-    Scope functionExprScope = SYMBOL_MODEL.getScopeFor((FunctionExpressionTree) ROOT_NODE.getFirstDescendant(Tree.Kind.FUNCTION_EXPRESSION));
+    Scope functionExprScope = getScopeFor(Tree.Kind.FUNCTION_EXPRESSION);
 
     assertNotNull(functionExprScope.lookupSymbol("a"));
 
@@ -82,7 +88,7 @@ public class ScopeTest extends JavaScriptTreeModelTest {
 
   @Test
   public void catch_block_scope() throws Exception {
-    Scope catchScope = SYMBOL_MODEL.getScopeFor((CatchBlockTree) ROOT_NODE.getFirstDescendant(Tree.Kind.CATCH_BLOCK));
+    Scope catchScope = getScopeFor(Tree.Kind.CATCH_BLOCK);
 
     assertNotNull(catchScope.lookupSymbol("e"));
     assertNotNull(catchScope.lookupSymbol("a"));

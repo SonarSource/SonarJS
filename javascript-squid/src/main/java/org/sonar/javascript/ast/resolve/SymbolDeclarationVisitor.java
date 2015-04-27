@@ -19,6 +19,7 @@
  */
 package org.sonar.javascript.ast.resolve;
 
+import org.sonar.javascript.api.SymbolModelBuilder;
 import org.sonar.javascript.ast.visitors.BaseTreeVisitor;
 import org.sonar.javascript.model.implementations.declaration.InitializedBindingElementTreeImpl;
 import org.sonar.javascript.model.implementations.declaration.ParameterListTreeImpl;
@@ -44,10 +45,10 @@ import java.util.List;
  */
 public class SymbolDeclarationVisitor extends BaseTreeVisitor {
 
-  private SymbolModel symbolModel;
+  private SymbolModelBuilder symbolModel;
   private Scope currentScope;
 
-  public SymbolDeclarationVisitor(SymbolModel symbolModel) {
+  public SymbolDeclarationVisitor(SymbolModelBuilder symbolModel) {
     this.symbolModel = symbolModel;
     this.currentScope = null;
   }
@@ -80,7 +81,6 @@ public class SymbolDeclarationVisitor extends BaseTreeVisitor {
   private void createBuildInSymbolForScope(String name, Scope scope, Symbol.Kind kind) {
     Symbol symbol = scope.createBuildInSymbol(name, kind);
     symbolModel.setScopeForSymbol(symbol, scope);
-    symbolModel.setScopeFor(scope.getTree(), scope);
   }
 
   @Override
@@ -162,14 +162,9 @@ public class SymbolDeclarationVisitor extends BaseTreeVisitor {
     }
   }
 
-  private void setScopeForTree(Tree tree) {
-    symbolModel.setScopeFor(tree, currentScope);
-  }
-
   private void addSymbol(String name, SymbolDeclaration declaration, Symbol.Kind kind) {
     Symbol symbol = currentScope.createSymbol(name, declaration, kind);
     symbolModel.setScopeForSymbol(symbol, currentScope);
-    setScopeForTree(declaration.tree());
   }
 
   private void addSymbols(List<IdentifierTree> identifiers, SymbolDeclaration.Kind declarationKind, Symbol.Kind symbolKind) {
@@ -180,7 +175,7 @@ public class SymbolDeclarationVisitor extends BaseTreeVisitor {
 
   private void newScope(Tree tree) {
     currentScope = new Scope(currentScope, tree);
-    setScopeForTree(tree);
+    symbolModel.addScope(currentScope);
   }
 
 }

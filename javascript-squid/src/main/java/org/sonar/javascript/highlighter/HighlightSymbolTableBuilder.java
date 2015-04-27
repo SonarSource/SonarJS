@@ -20,9 +20,9 @@
 package org.sonar.javascript.highlighter;
 
 import org.sonar.api.source.Symbolizable;
+import org.sonar.javascript.api.SymbolModel;
 import org.sonar.javascript.ast.resolve.Symbol;
 import org.sonar.javascript.ast.resolve.SymbolDeclaration;
-import org.sonar.javascript.ast.resolve.SymbolModel;
 import org.sonar.javascript.ast.resolve.Usage;
 import org.sonar.javascript.model.implementations.lexical.InternalSyntaxToken;
 import org.sonar.javascript.model.interfaces.expression.IdentifierTree;

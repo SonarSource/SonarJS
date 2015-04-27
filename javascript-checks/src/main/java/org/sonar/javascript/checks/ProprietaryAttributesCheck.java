@@ -22,7 +22,7 @@ package org.sonar.javascript.checks;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
-import org.sonar.javascript.ast.resolve.SymbolModel;
+import org.sonar.javascript.api.SymbolModel;
 import org.sonar.javascript.ast.resolve.TypeInferring;
 import org.sonar.javascript.ast.visitors.BaseTreeVisitor;
 import org.sonar.javascript.checks.utils.CheckUtils;

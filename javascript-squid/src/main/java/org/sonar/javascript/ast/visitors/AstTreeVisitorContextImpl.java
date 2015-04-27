@@ -21,7 +21,7 @@ package org.sonar.javascript.ast.visitors;
 
 import com.google.common.base.Preconditions;
 import org.sonar.api.config.Settings;
-import org.sonar.javascript.ast.resolve.SymbolModel;
+import org.sonar.javascript.api.SymbolModel;
 import org.sonar.javascript.model.implementations.JavaScriptTree;
 import org.sonar.javascript.model.interfaces.Tree;
 import org.sonar.javascript.model.interfaces.declaration.ScriptTree;

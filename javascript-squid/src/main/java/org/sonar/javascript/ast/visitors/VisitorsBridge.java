@@ -28,7 +28,7 @@ import org.sonar.api.component.ResourcePerspectives;
 import org.sonar.api.config.Settings;
 import org.sonar.api.source.Symbolizable;
 import org.sonar.javascript.JavaScriptFileScanner;
-import org.sonar.javascript.ast.resolve.SymbolModel;
+import org.sonar.javascript.ast.resolve.SymbolModelImpl;
 import org.sonar.javascript.highlighter.SourceFileOffsets;
 import org.sonar.javascript.model.interfaces.declaration.ScriptTree;
 import org.sonar.squidbridge.SquidAstVisitor;
@@ -65,7 +65,7 @@ public class VisitorsBridge extends SquidAstVisitor<LexerlessGrammar> {
           scriptTree,
           (SourceFile) getContext().peekSourceCode(),
           file,
-          SymbolModel.create(scriptTree, symbolizableFor(file), new SourceFileOffsets(file, fs.encoding())),
+          SymbolModelImpl.create(scriptTree, symbolizableFor(file), new SourceFileOffsets(file, fs.encoding())),
           settings
         ));
       }

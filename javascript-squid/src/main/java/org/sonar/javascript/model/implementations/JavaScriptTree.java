@@ -140,5 +140,4 @@ public abstract class JavaScriptTree extends AstNode implements Tree {
   public boolean isLeaf() {
     return false;
   }
-
 }

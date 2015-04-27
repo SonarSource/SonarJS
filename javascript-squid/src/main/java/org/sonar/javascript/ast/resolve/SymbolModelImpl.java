@@ -22,9 +22,11 @@ package org.sonar.javascript.ast.resolve;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Multimap;
+import com.google.common.collect.Sets;
 import org.sonar.api.source.Symbolizable;
+import org.sonar.javascript.api.SymbolModel;
+import org.sonar.javascript.api.SymbolModelBuilder;
 import org.sonar.javascript.highlighter.SourceFileOffsets;
-import org.sonar.javascript.model.interfaces.Tree;
 import org.sonar.javascript.model.interfaces.declaration.ScriptTree;
 
 import javax.annotation.Nullable;
@@ -33,41 +35,47 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-public class SymbolModel {
+public class SymbolModelImpl implements SymbolModel, SymbolModelBuilder {
 
-  private Map<Tree, Scope> scopes = Maps.newHashMap();
   private Map<Symbol, Scope> symbolScope = Maps.newHashMap();
   private Multimap<Symbol, Usage> usagesTree = HashMultimap.create();
+  private Set<Scope> scopes = Sets.newHashSet();
 
-  public static SymbolModel create(ScriptTree script, @Nullable Symbolizable symbolizable, @Nullable SourceFileOffsets sourceFileOffsets) {
-    SymbolModel symbolModel = new SymbolModel();
+  public static SymbolModelImpl create(ScriptTree script, @Nullable Symbolizable symbolizable, @Nullable SourceFileOffsets sourceFileOffsets) {
+    SymbolModelImpl symbolModel = new SymbolModelImpl();
     new SymbolVisitor(symbolModel, symbolizable, sourceFileOffsets).visitScript(script);
     return symbolModel;
   }
 
-  public void setScopeFor(Tree tree, Scope scope) {
-    scopes.put(tree, scope);
-  }
-
-  public Scope getScopeFor(Tree tree) {
-    return scopes.get(tree);
-  }
-
+  @Override
   public void setScopeForSymbol(Symbol symbol, Scope scope) {
     symbolScope.put(symbol, scope);
   }
 
-  public Collection<Usage> getUsagesFor(Symbol symbol) {
-    return usagesTree.get(symbol);
-  }
-
+  @Override
   public void addUsage(Symbol symbol, Usage usage) {
     usagesTree.put(symbol, usage);
+  }
+
+  @Override
+  public void addScope(Scope scope){
+    scopes.add(scope);
+  }
+
+  @Override
+  public Set<Scope> getScopes(){
+    return scopes;
+  }
+
+  @Override
+  public Collection<Usage> getUsagesFor(Symbol symbol) {
+    return usagesTree.get(symbol);
   }
 
   /**
    * Returns all symbols in script
    */
+  @Override
   public Set<Symbol> getSymbols() {
     return symbolScope.keySet();
   }
@@ -77,6 +85,7 @@ public class SymbolModel {
    * @param kind kind of symbols to look for
    * @return list of symbols with the given kind
    */
+  @Override
   public Set<Symbol> getSymbols(Symbol.Kind kind) {
     Set<Symbol> result = new HashSet<>();
     for (Symbol symbol : getSymbols()){
@@ -92,6 +101,7 @@ public class SymbolModel {
    * @param name name of symbols to look for
    * @return list of symbols with the given name
    */
+  @Override
   public Set<Symbol> getSymbols(String name) {
     Set<Symbol> result = new HashSet<>();
     for (Symbol symbol : getSymbols()){
@@ -100,15 +110,6 @@ public class SymbolModel {
       }
     }
     return result;
-  }
-
-  public Collection<Scope> getScopes(){
-    Collection<Scope> duplicatedScopes = symbolScope.values();
-    Set<Scope> uniqueScopes = new HashSet<>();
-    for (Scope scope : duplicatedScopes){
-      uniqueScopes.add(scope);
-    }
-    return uniqueScopes;
   }
 
 }

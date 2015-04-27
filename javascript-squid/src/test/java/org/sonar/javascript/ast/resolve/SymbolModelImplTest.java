@@ -30,14 +30,14 @@ import java.io.File;
 
 import static org.fest.assertions.Assertions.assertThat;
 
-public class SymbolModelTest extends JavaScriptTreeModelTest {
+public class SymbolModelImplTest extends JavaScriptTreeModelTest {
 
-  private SymbolModel SYMBOL_MODEL;
+  private SymbolModelImpl SYMBOL_MODEL;
 
   @Before
   public void setUp() throws Exception {
     AstNode root = p.parse(new File("src/test/resources/ast/resolve/symbolModel.js"));
-    SYMBOL_MODEL = SymbolModel.create((ScriptTree) root, null, null);
+    SYMBOL_MODEL = SymbolModelImpl.create((ScriptTree) root, null, null);
   }
 
   @Test
@@ -53,13 +53,10 @@ public class SymbolModelTest extends JavaScriptTreeModelTest {
 
   @Test
   public void symbols_scope(){
-    assertThat(SYMBOL_MODEL.getScopes()).hasSize(4); // script/global, f, catch
-
     Symbol f = (Symbol)SYMBOL_MODEL.getSymbols("f").toArray()[0];
     Symbol e = (Symbol)SYMBOL_MODEL.getSymbols("e").toArray()[0];
     assertThat(f.scope().getTree().is(Tree.Kind.SCRIPT)).isTrue();
     assertThat(e.scope().getTree().is(Tree.Kind.CATCH_BLOCK)).isTrue();
-
   }
 
 
