@@ -20,11 +20,8 @@
 package org.sonar.javascript.ast.resolve;
 
 import com.google.common.collect.HashMultimap;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Multimap;
-import org.apache.commons.lang.ArrayUtils;
 import org.sonar.api.source.Symbolizable;
 import org.sonar.javascript.highlighter.SourceFileOffsets;
 import org.sonar.javascript.model.interfaces.Tree;
@@ -33,8 +30,6 @@ import org.sonar.javascript.model.interfaces.declaration.ScriptTree;
 import javax.annotation.Nullable;
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -43,13 +38,10 @@ public class SymbolModel {
   private Map<Tree, Scope> scopes = Maps.newHashMap();
   private Map<Symbol, Scope> symbolScope = Maps.newHashMap();
   private Multimap<Symbol, Usage> usagesTree = HashMultimap.create();
-  private Map<Usage, Symbol> refersTo = Maps.newHashMap();
 
-  public static SymbolModel createFor(ScriptTree script, @Nullable Symbolizable symbolizable, @Nullable SourceFileOffsets sourceFileOffsets) {
+  public static SymbolModel create(ScriptTree script, @Nullable Symbolizable symbolizable, @Nullable SourceFileOffsets sourceFileOffsets) {
     SymbolModel symbolModel = new SymbolModel();
-
     new SymbolVisitor(symbolModel, symbolizable, sourceFileOffsets).visitScript(script);
-
     return symbolModel;
   }
 
@@ -65,47 +57,30 @@ public class SymbolModel {
     symbolScope.put(symbol, scope);
   }
 
-  public Collection<Usage> getUsageFor(Symbol symbol) {
+  public Collection<Usage> getUsagesFor(Symbol symbol) {
     return usagesTree.get(symbol);
   }
 
   public void addUsage(Symbol symbol, Usage usage) {
     usagesTree.put(symbol, usage);
-    refersTo.put(usage, symbol);
+  }
+
+  /**
+   * Returns all symbols in script
+   */
+  public Set<Symbol> getSymbols() {
+    return symbolScope.keySet();
   }
 
   /**
    *
-   * @param kinds kinds of symbols to look for
-   * @return list of symbols with the given kind or all symbols if no kinds provided
+   * @param kind kind of symbols to look for
+   * @return list of symbols with the given kind
    */
-  public List<Symbol> getSymbols(Symbol.Kind ... kinds) {
-    Set<Symbol> symbols = symbolScope.keySet();
-    if (kinds.length == 0){
-      return Lists.newArrayList(symbols);
-    }
-    List<Symbol> result = new LinkedList<>();
-    for (Symbol symbol : symbols){
-      if (ArrayUtils.contains(kinds, symbol.kind())){
-        result.add(symbol);
-      }
-    }
-    return result;
-  }
-
-  /**
-   *
-   * @param names names of symbols to look for
-   * @return list of symbols with the given names or all symbols if empty list of name provided
-   */
-  public List<Symbol> getSymbols(List<String> names) {
-    Set<Symbol> symbols = symbolScope.keySet();
-    if (names.isEmpty()){
-      return Lists.newArrayList(symbols);
-    }
-    List<Symbol> result = new LinkedList<>();
-    for (Symbol symbol : symbols){
-      if (names.contains(symbol.name())){
+  public Set<Symbol> getSymbols(Symbol.Kind kind) {
+    Set<Symbol> result = new HashSet<>();
+    for (Symbol symbol : getSymbols()){
+      if (kind.equals(symbol.kind())){
         result.add(symbol);
       }
     }
@@ -115,10 +90,16 @@ public class SymbolModel {
   /**
    *
    * @param name name of symbols to look for
-   * @return list of symbols with the given names or all symbols if empty list of name provided
+   * @return list of symbols with the given name
    */
-  public List<Symbol> getSymbols(String name) {
-    return getSymbols(ImmutableList.of(name));
+  public Set<Symbol> getSymbols(String name) {
+    Set<Symbol> result = new HashSet<>();
+    for (Symbol symbol : getSymbols()){
+      if (name.equals(symbol.name())){
+        result.add(symbol);
+      }
+    }
+    return result;
   }
 
   public Collection<Scope> getScopes(){
@@ -128,10 +109,6 @@ public class SymbolModel {
       uniqueScopes.add(scope);
     }
     return uniqueScopes;
-  }
-
-  public Scope getScopeFor(Symbol symbol){
-    return symbolScope.get(symbol);
   }
 
 }

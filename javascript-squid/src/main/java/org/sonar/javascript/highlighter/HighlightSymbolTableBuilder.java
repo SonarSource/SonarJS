@@ -21,9 +21,13 @@ package org.sonar.javascript.highlighter;
 
 import org.sonar.api.source.Symbolizable;
 import org.sonar.javascript.ast.resolve.Symbol;
+import org.sonar.javascript.ast.resolve.SymbolDeclaration;
 import org.sonar.javascript.ast.resolve.SymbolModel;
 import org.sonar.javascript.ast.resolve.Usage;
 import org.sonar.javascript.model.implementations.lexical.InternalSyntaxToken;
+import org.sonar.javascript.model.interfaces.expression.IdentifierTree;
+
+import javax.annotation.Nullable;
 
 public class HighlightSymbolTableBuilder {
 
@@ -34,7 +38,7 @@ public class HighlightSymbolTableBuilder {
     Symbolizable.SymbolTableBuilder builder = symbolizable.newSymbolTableBuilder();
 
     for (Symbol symbol : symbolModel.getSymbols()) {
-      InternalSyntaxToken token = symbol.getSymbolNameToken();
+      InternalSyntaxToken token = getSymbolNameToken(symbol);
 
       // TODO handle built-in symbol, e.g: arguments, eval
       if (!symbol.buildIn() && token != null) {
@@ -44,7 +48,7 @@ public class HighlightSymbolTableBuilder {
         int endOffset = sourceFileOffsets.endOffset(token.getToken());
         org.sonar.api.source.Symbol reference = builder.newSymbol(startOffset, endOffset);
 
-        for (Usage usage : symbolModel.getUsageFor(symbol)) {
+        for (Usage usage : symbolModel.getUsagesFor(symbol)) {
           if (!usage.isInit()) {
             builder.newReference(reference, sourceFileOffsets.startOffset(((InternalSyntaxToken) usage.symbolTree().identifierToken()).getToken()));
           }
@@ -53,6 +57,15 @@ public class HighlightSymbolTableBuilder {
     }
 
     return builder.build();
+  }
+
+  @Nullable
+  private static InternalSyntaxToken getSymbolNameToken(Symbol symbol) {
+    if (symbol.declaration().is(SymbolDeclaration.Kind.BUILD_IN)){
+      return null;
+    } else {
+      return (InternalSyntaxToken) ((IdentifierTree) symbol.declaration().tree()).identifierToken();
+    }
   }
 
 }

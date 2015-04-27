@@ -31,8 +31,6 @@ import org.sonar.squidbridge.annotations.ActivatedByDefault;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 
-import java.util.List;
-
 @Rule(
     key = "S2703",
     name = "Variables should always be declared with \"var\"",
@@ -48,15 +46,14 @@ public class VariableDeclarationWithoutVarCheck extends BaseTreeVisitor {
   @Override
   public void visitScript(ScriptTree tree) {
     SymbolModel symbolModel = getContext().getSymbolModel();
-    List<Symbol> symbols = symbolModel.getSymbols(Symbol.Kind.VARIABLE);
-    for (Symbol symbol : symbols) {
+    for (Symbol symbol : symbolModel.getSymbols(Symbol.Kind.VARIABLE)) {
       visitSymbol(symbol);
     }
   }
 
   private void visitSymbol(Symbol symbol) {
-    if (symbol.getFirstDeclaration().is(SymbolDeclaration.Kind.ASSIGNMENT, SymbolDeclaration.Kind.FOR_OF, SymbolDeclaration.Kind.FOR_IN)){
-      getContext().addIssue(this, symbol.getFirstDeclaration().tree(), String.format(MESSAGE, symbol.name()));
+    if (symbol.declaration().is(SymbolDeclaration.Kind.ASSIGNMENT, SymbolDeclaration.Kind.FOR_OF, SymbolDeclaration.Kind.FOR_IN)){
+      getContext().addIssue(this, symbol.declaration().tree(), String.format(MESSAGE, symbol.name()));
     }
   }
 }

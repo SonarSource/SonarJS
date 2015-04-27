@@ -43,7 +43,7 @@ public class UsageTest extends JavaScriptTreeModelTest {
   @Before
   public void setUp() throws Exception {
     ROOT_NODE = p.parse(new File("src/test/resources/ast/resolve/usage.js"));
-    SYMBOL_MODEL = SymbolModel.createFor((ScriptTree) ROOT_NODE, null, null);
+    SYMBOL_MODEL = SymbolModel.create((ScriptTree) ROOT_NODE, null, null);
   }
 
   @Test
@@ -107,7 +107,7 @@ public class UsageTest extends JavaScriptTreeModelTest {
   }
 
   public Collection<Usage> usagesFor(String name, Scope scope) {
-    return SYMBOL_MODEL.getUsageFor(scope.lookupSymbol(name));
+    return SYMBOL_MODEL.getUsagesFor(scope.lookupSymbol(name));
   }
 
 }

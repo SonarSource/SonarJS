@@ -36,7 +36,6 @@ import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 
 import javax.annotation.Nullable;
 import java.util.Collection;
-import java.util.List;
 import java.util.regex.Pattern;
 
 @Rule(
@@ -66,8 +65,7 @@ public class JQueryVarNameConventionCheck extends AbstractJQueryCheck {
   public void visitScript(ScriptTree tree) {
     Pattern pattern = Pattern.compile(format);
     SymbolModel symbolModel = getContext().getSymbolModel();
-    List<Symbol> symbols = symbolModel.getSymbols(Symbol.Kind.VARIABLE);
-    for (Symbol symbol : symbols){
+    for (Symbol symbol : symbolModel.getSymbols(Symbol.Kind.VARIABLE)){
       Tree firstJQueryStorage = getJQueryStorage(symbol, symbolModel);
       if (firstJQueryStorage != null && !pattern.matcher(symbol.name()).matches()){
         getContext().addIssue(this, firstJQueryStorage, String.format(MESSAGE, symbol.name(), format));
@@ -77,7 +75,7 @@ public class JQueryVarNameConventionCheck extends AbstractJQueryCheck {
 
   @Nullable
   private Tree getJQueryStorage(Symbol symbol, SymbolModel symbolModel) {
-    Collection<Usage> usages = symbolModel.getUsageFor(symbol);
+    Collection<Usage> usages = symbolModel.getUsagesFor(symbol);
     for (Usage usage : usages){
       if (usage.kind().equals(Usage.Kind.WRITE)){
         ExpressionTree expressionTree = null;

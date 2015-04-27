@@ -33,7 +33,6 @@ import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.source.Symbolizable;
-import org.sonar.javascript.ast.resolve.Symbol;
 import org.sonar.javascript.ast.resolve.SymbolModel;
 import org.sonar.javascript.model.JavaScriptTreeModelTest;
 import org.sonar.javascript.model.interfaces.declaration.ScriptTree;
@@ -58,7 +57,7 @@ public class HighlightSymbolTableBuilderTest extends JavaScriptTreeModelTest {
   public void sonar_symbol_table() throws Exception {
     File file = new File("src/test/resources/highlighter/symbolHighlighting.js");
     lines = Files.readLines(file, Charsets.UTF_8);
-    SymbolModel.createFor((ScriptTree) p.parse(file), symbolizable, new SourceFileOffsets(file, Charset.defaultCharset()));
+    SymbolModel.create((ScriptTree) p.parse(file), symbolizable, new SourceFileOffsets(file, Charset.defaultCharset()));
 
     // variable
     verify(symboltableBuilder).newSymbol(offset(1, 5), offset(1, 6));

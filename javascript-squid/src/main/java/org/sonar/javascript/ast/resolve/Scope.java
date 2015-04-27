@@ -55,9 +55,8 @@ public class Scope {
 
     if (symbol != null) {
       symbol.declarations().add(declaration);
-
     } else {
-      symbol = new Symbol(name, declaration, kind);
+      symbol = Symbol.create(name, declaration, kind, this);
       symbols.put(name, symbol);
     }
 
@@ -75,7 +74,7 @@ public class Scope {
     if (symbol != null) {
       throw new IllegalStateException(String.format("Build-in \"symbol\" %s already exists in the current scope.", name));
     } else {
-      symbol = new Symbol(name, new SymbolDeclaration(tree, SymbolDeclaration.Kind.BUILD_IN), kind, true);
+      symbol = Symbol.createBuildIn(name, new SymbolDeclaration(tree, SymbolDeclaration.Kind.BUILD_IN), kind, this);
       symbols.put(name, symbol);
     }
 

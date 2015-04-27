@@ -19,7 +19,6 @@
  */
 package org.sonar.javascript.checks;
 
-import com.google.common.collect.ImmutableList;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
@@ -32,7 +31,7 @@ import org.sonar.squidbridge.annotations.ActivatedByDefault;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 
-import java.util.List;
+import java.util.Set;
 
 @Rule(
   key = "BoundOrAssignedEvalOrArguments",
@@ -49,32 +48,38 @@ public class BoundOrAssignedEvalOrArgumentsCheck extends BaseTreeVisitor {
 
   @Override
   public void visitScript(ScriptTree tree) {
-    SymbolModel symbolModel = getContext().getSymbolModel();
-    List<Symbol> symbols = symbolModel.getSymbols(ImmutableList.of("eval", "arguments"));
-    for (Symbol symbol : symbols){
+    for (Symbol symbol : getSymbols()){
       visitParameter(symbol);
-      visitVariableOrFunction(symbol, symbolModel);
+      visitVariableOrFunction(symbol);
     }
     super.visitScript(tree);
   }
 
-  private void visitVariableOrFunction(Symbol symbol, SymbolModel symbolModel) {
+  private Set<Symbol> getSymbols() {
+    SymbolModel symbolModel = getContext().getSymbolModel();
+    Set<Symbol> symbols = symbolModel.getSymbols("eval");
+    symbols.addAll(symbolModel.getSymbols("arguments"));
+    return symbols;
+  }
+
+  private void visitVariableOrFunction(Symbol symbol) {
+    SymbolModel symbolModel = getContext().getSymbolModel();
     if (symbol.is(Symbol.Kind.VARIABLE) || symbol.is(Symbol.Kind.FUNCTION)){
       if (symbol.buildIn()){
-        for (Usage usage : symbolModel.getUsageFor(symbol)) {
+        for (Usage usage : symbolModel.getUsagesFor(symbol)) {
           if (!usage.kind().equals(Usage.Kind.READ)) {
             getContext().addIssue(this, usage.symbolTree(), String.format(MODIFICATION_MESSAGE, symbol.name()));
           }
         }
       } else {
-        getContext().addIssue(this, symbol.getFirstDeclaration().tree(), String.format(DECLARATION_MESSAGE, symbol.name(), symbol.kind().getValue()));
+        getContext().addIssue(this, symbol.declaration().tree(), String.format(DECLARATION_MESSAGE, symbol.name(), symbol.kind().getValue()));
       }
     }
   }
 
   private void visitParameter(Symbol symbol) {
     if (symbol.is(Symbol.Kind.PARAMETER)){
-      getContext().addIssue(this, symbol.getFirstDeclaration().tree(), String.format(DECLARATION_MESSAGE, symbol.name(), symbol.kind().getValue()));
+      getContext().addIssue(this, symbol.declaration().tree(), String.format(DECLARATION_MESSAGE, symbol.name(), symbol.kind().getValue()));
     }
   }
 }

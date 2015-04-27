@@ -19,7 +19,6 @@
  */
 package org.sonar.javascript.ast.resolve;
 
-import com.google.common.collect.ImmutableList;
 import com.sonar.sslr.api.AstNode;
 import org.junit.Before;
 import org.junit.Test;
@@ -28,7 +27,6 @@ import org.sonar.javascript.model.interfaces.Tree;
 import org.sonar.javascript.model.interfaces.declaration.ScriptTree;
 
 import java.io.File;
-import java.util.LinkedList;
 
 import static org.fest.assertions.Assertions.assertThat;
 
@@ -39,7 +37,7 @@ public class SymbolModelTest extends JavaScriptTreeModelTest {
   @Before
   public void setUp() throws Exception {
     AstNode root = p.parse(new File("src/test/resources/ast/resolve/symbolModel.js"));
-    SYMBOL_MODEL = SymbolModel.createFor((ScriptTree) root, null, null);
+    SYMBOL_MODEL = SymbolModel.create((ScriptTree) root, null, null);
   }
 
   @Test
@@ -48,21 +46,19 @@ public class SymbolModelTest extends JavaScriptTreeModelTest {
 
     assertThat(SYMBOL_MODEL.getSymbols(Symbol.Kind.FUNCTION)).hasSize(2); // eval, f
     assertThat(SYMBOL_MODEL.getSymbols(Symbol.Kind.PARAMETER)).hasSize(2); // p1, p2
-    assertThat(SYMBOL_MODEL.getSymbols(Symbol.Kind.PARAMETER, Symbol.Kind.FUNCTION)).hasSize(4);
 
     assertThat(SYMBOL_MODEL.getSymbols("a")).hasSize(3);
-    assertThat(SYMBOL_MODEL.getSymbols(ImmutableList.of("a", "arguments"))).hasSize(5);
-    assertThat(SYMBOL_MODEL.getSymbols(new LinkedList<String>())).hasSize(13);
+    assertThat(SYMBOL_MODEL.getSymbols("arguments")).hasSize(2);
   }
 
   @Test
   public void symbols_scope(){
     assertThat(SYMBOL_MODEL.getScopes()).hasSize(4); // script/global, f, catch
 
-    Symbol f = SYMBOL_MODEL.getSymbols("f").get(0);
-    Symbol e = SYMBOL_MODEL.getSymbols("e").get(0);
-    assertThat(SYMBOL_MODEL.getScopeFor(f).getTree().is(Tree.Kind.SCRIPT)).isTrue();
-    assertThat(SYMBOL_MODEL.getScopeFor(e).getTree().is(Tree.Kind.CATCH_BLOCK)).isTrue();
+    Symbol f = (Symbol)SYMBOL_MODEL.getSymbols("f").toArray()[0];
+    Symbol e = (Symbol)SYMBOL_MODEL.getSymbols("e").toArray()[0];
+    assertThat(f.scope().getTree().is(Tree.Kind.SCRIPT)).isTrue();
+    assertThat(e.scope().getTree().is(Tree.Kind.CATCH_BLOCK)).isTrue();
 
   }
 

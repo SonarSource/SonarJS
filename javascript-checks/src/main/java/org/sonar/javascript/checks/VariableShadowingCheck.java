@@ -31,7 +31,7 @@ import org.sonar.javascript.model.interfaces.declaration.ScriptTree;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 
-import java.util.List;
+import java.util.Set;
 
 @Rule(
   key = "VariableShadowing",
@@ -46,24 +46,29 @@ public class VariableShadowingCheck extends BaseTreeVisitor {
 
   @Override
   public void visitScript(ScriptTree tree) {
-    SymbolModel symbolModel = getContext().getSymbolModel();
-    List<Symbol> symbols = symbolModel.getSymbols(Symbol.Kind.VARIABLE, Symbol.Kind.PARAMETER);
-    for (Symbol symbol : symbols){
-      visitSymbol(symbolModel, symbol);
+    for (Symbol symbol : getSymbols()){
+      visitSymbol(symbol);
     }
   }
 
-  private void visitSymbol(SymbolModel symbolModel, Symbol symbol) {
+  private Set<Symbol> getSymbols() {
+    SymbolModel symbolModel = getContext().getSymbolModel();
+    Set<Symbol> symbols = symbolModel.getSymbols(Symbol.Kind.VARIABLE);
+    symbols.addAll(symbolModel.getSymbols(Symbol.Kind.PARAMETER));
+    return symbols;
+  }
+
+  private void visitSymbol(Symbol symbol) {
     if ("arguments".equals(symbol.name()) && symbol.buildIn()){
       return;
     }
-    Scope scope = symbolModel.getScopeFor(symbol);
+    Scope scope = symbol.scope();
     if (scope.outer() != null) {
       Symbol localSymbol = scope.lookupSymbol(symbol.name());
       Symbol outerSymbol = scope.outer().lookupSymbol(symbol.name());
       if (localSymbol != null && outerSymbol != null) {
-        String message = String.format(MESSAGE, symbol.name(), ((JavaScriptTree) outerSymbol.getFirstDeclaration().tree()).getLine());
-        getContext().addIssue(this, symbol.getFirstDeclaration().tree(), message);
+        String message = String.format(MESSAGE, symbol.name(), ((JavaScriptTree) outerSymbol.declaration().tree()).getLine());
+        getContext().addIssue(this, symbol.declaration().tree(), message);
       }
     }
   }

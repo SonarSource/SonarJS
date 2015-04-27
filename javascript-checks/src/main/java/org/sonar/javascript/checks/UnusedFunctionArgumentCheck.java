@@ -53,11 +53,11 @@ public class UnusedFunctionArgumentCheck extends BaseTreeVisitor {
   private class PositionComparator implements Comparator<Symbol> {
 
     private int getLine(Symbol symbol){
-      return ((JavaScriptTree)symbol.getFirstDeclaration().tree()).getLine();
+      return ((JavaScriptTree)symbol.declaration().tree()).getLine();
     }
 
     private int getColumn(Symbol symbol){
-      return ((JavaScriptTree)symbol.getFirstDeclaration().tree()).getToken().getColumn();
+      return ((JavaScriptTree)symbol.declaration().tree()).getToken().getColumn();
     }
 
     @Override
@@ -115,14 +115,14 @@ public class UnusedFunctionArgumentCheck extends BaseTreeVisitor {
     if (argumentsBuildInVariable == null){
       return false;
     }
-    boolean isUsed = !symbolModel.getUsageFor(argumentsBuildInVariable).isEmpty();
+    boolean isUsed = !symbolModel.getUsagesFor(argumentsBuildInVariable).isEmpty();
     return argumentsBuildInVariable.buildIn() && isUsed;
   }
 
   private List<Boolean> getUsageInfo(SymbolModel symbolModel, List<Symbol> symbols) {
     List<Boolean> result = new LinkedList<>();
     for (Symbol symbol : symbols){
-      if (symbolModel.getUsageFor(symbol).isEmpty()){
+      if (symbolModel.getUsagesFor(symbol).isEmpty()){
         result.add(false);
       } else {
         result.add(true);

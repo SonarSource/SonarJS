@@ -30,6 +30,7 @@ import org.sonar.javascript.model.interfaces.declaration.ScriptTree;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 
+import java.util.LinkedList;
 import java.util.List;
 
 @Rule(
@@ -90,11 +91,18 @@ public class BuildInObjectOverriddenCheck extends BaseTreeVisitor {
 
   @Override
   public void visitScript(ScriptTree tree) {
-    SymbolModel symbolModel = getContext().getSymbolModel();
-    List<Symbol> symbols = symbolModel.getSymbols(BUILD_IN_OBJECTS);
+    List<Symbol> symbols = getSymbols();
     for (Symbol symbol : symbols) {
-      getContext().addIssue(this, symbol.getFirstDeclaration().tree(), String.format(MESSAGE, symbol.name()));
+      getContext().addIssue(this, symbol.declaration().tree(), String.format(MESSAGE, symbol.name()));
     }
   }
 
+  public List<Symbol> getSymbols() {
+    SymbolModel symbolModel = getContext().getSymbolModel();
+    List<Symbol> symbols = new LinkedList<>();
+    for (String name : BUILD_IN_OBJECTS){
+      symbols.addAll(symbolModel.getSymbols(name));
+    }
+    return symbols;
+  }
 }

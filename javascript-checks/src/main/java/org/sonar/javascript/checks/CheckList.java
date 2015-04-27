@@ -137,7 +137,8 @@ public final class CheckList {
         JQueryVarNameConventionCheck.class,
         ElementUsedWithClassSelectorCheck.class,
         IdChildrenSelectorCheck.class,
-        UniversalSelectorCheck.class);
+        UniversalSelectorCheck.class,
+        ProprietaryAttributesCheck.class);
   }
 
 }

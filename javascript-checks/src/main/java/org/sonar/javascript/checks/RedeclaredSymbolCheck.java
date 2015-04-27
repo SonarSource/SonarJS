@@ -33,6 +33,7 @@ import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 
 import java.util.List;
+import java.util.Set;
 
 @Rule(
   key = "S2814",
@@ -49,7 +50,7 @@ public class RedeclaredSymbolCheck extends BaseTreeVisitor {
   @Override
   public void visitScript(ScriptTree tree) {
     SymbolModel symbolModel = getContext().getSymbolModel();
-    List<Symbol> symbols = symbolModel.getSymbols();
+    Set<Symbol> symbols = symbolModel.getSymbols();
     for (Symbol symbol : symbols) {
       visitSymbol(symbol);
     }
@@ -57,7 +58,7 @@ public class RedeclaredSymbolCheck extends BaseTreeVisitor {
 
   private void visitSymbol(Symbol symbol) {
     List<SymbolDeclaration> declarations = symbol.declarations();
-    SymbolDeclaration firstDeclaration = symbol.getFirstDeclaration();
+    SymbolDeclaration firstDeclaration = symbol.declaration();
     int firstDeclarationLine = ((JavaScriptTree)firstDeclaration.tree()).getLine();
     for (int i = 1; i < declarations.size(); i++) {
       if (!(firstDeclaration.is(SymbolDeclaration.Kind.PARAMETER) && declarations.get(i).is(SymbolDeclaration.Kind.PARAMETER))) {

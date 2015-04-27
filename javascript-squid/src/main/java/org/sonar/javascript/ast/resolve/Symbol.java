@@ -20,10 +20,7 @@
 package org.sonar.javascript.ast.resolve;
 
 import com.google.common.collect.Lists;
-import org.sonar.javascript.model.implementations.lexical.InternalSyntaxToken;
-import org.sonar.javascript.model.interfaces.expression.IdentifierTree;
 
-import javax.annotation.Nullable;
 import java.util.List;
 
 public class Symbol {
@@ -34,7 +31,7 @@ public class Symbol {
     PARAMETER("parameter"),
     CLASS("class");
 
-    private Kind(String value) {
+    Kind(String value) {
       this.value = value;
     }
     private final String value;
@@ -47,37 +44,30 @@ public class Symbol {
   private List<SymbolDeclaration> declarations = Lists.newArrayList();
   private Kind kind;
   private boolean buildIn;
+  private Scope scope;
 
-  public Symbol(String name, SymbolDeclaration declaration, Kind kind) {
-    this.name = name;
-    this.kind = kind;
-    this.declarations.add(declaration);
-    this.buildIn = false;
-  }
-
-  public Symbol(String name, SymbolDeclaration declaration, Kind kind, boolean buildIn) {
+  private Symbol(String name, SymbolDeclaration declaration, Kind kind, Scope scope, boolean buildIn) {
     this.name = name;
     this.kind = kind;
     this.declarations.add(declaration);
     this.buildIn = buildIn;
+    this.scope = scope;
+  }
+
+  public static Symbol createBuildIn(String name, SymbolDeclaration declaration, Kind kind, Scope scope){
+    return new Symbol(name, declaration, kind, scope, true);
+  }
+
+  public static Symbol create(String name, SymbolDeclaration declaration, Kind kind, Scope scope){
+    return new Symbol(name, declaration, kind, scope, false);
+  }
+
+  public Scope scope() {
+    return scope;
   }
 
   public String name() {
     return name;
-  }
-
-  @Nullable
-  public InternalSyntaxToken getSymbolNameToken() {
-    SymbolDeclaration firstDeclaration = getFirstDeclaration();
-    if (firstDeclaration.is(SymbolDeclaration.Kind.BUILD_IN)){
-      return null;
-    } else {
-      return (InternalSyntaxToken) ((IdentifierTree) firstDeclaration.tree()).identifierToken();
-    }
-  }
-
-  public Kind kind() {
-    return kind;
   }
 
   public boolean buildIn() {
@@ -88,11 +78,15 @@ public class Symbol {
     return kind.equals(this.kind);
   }
 
+  public Kind kind() {
+    return kind;
+  }
+
   public List<SymbolDeclaration> declarations() {
     return declarations;
   }
 
-  public SymbolDeclaration getFirstDeclaration() {
+  public SymbolDeclaration declaration() {
     return declarations.get(0);
   }
 

@@ -31,7 +31,6 @@ import org.sonar.squidbridge.annotations.ActivatedByDefault;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 
-import java.util.List;
 import java.util.Set;
 
 @Rule(
@@ -69,10 +68,10 @@ public class FutureReservedWordsCheck extends BaseTreeVisitor {
   @Override
   public void visitScript(ScriptTree tree) {
     SymbolModel symbolModel = getContext().getSymbolModel();
-    List<Symbol> symbols = symbolModel.getSymbols();
+    Set<Symbol> symbols = symbolModel.getSymbols();
     for (Symbol symbol : symbols) {
       if (FUTURE_RESERVED_WORDS.contains(symbol.name())) {
-        getContext().addIssue(this, symbol.getFirstDeclaration().tree(), String.format(MESSAGE, symbol.name()));
+        getContext().addIssue(this, symbol.declaration().tree(), String.format(MESSAGE, symbol.name()));
       }
     }
   }
