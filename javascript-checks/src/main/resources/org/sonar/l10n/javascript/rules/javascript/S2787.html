@@ -1,0 +1,21 @@
+<p>
+  The use of DOM attributes that are only supported by specific browsers can doom your website to obsolescence as the browser market shifts or the vendor that introduced the
+  extension abandons it. Instead, it's always best to stick to standard attributes so that you site works for as broad a cross section of users as possible.
+</p>
+
+<p>This rule raises an issue when <code>innerText</code> is used.</p>
+
+<h2>Noncompliant Code Example</h2>
+<pre>
+function setData(element) {
+  element.innerText = "Hello World!"; // Noncompliant
+}
+
+</pre>
+
+<h2>Compliant Solution</h2>
+<pre>
+function setData(element) {
+  element.textContent = "Hello World!";
+}
+</pre>

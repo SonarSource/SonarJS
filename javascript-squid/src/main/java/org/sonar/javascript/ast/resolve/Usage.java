@@ -26,24 +26,57 @@ import javax.annotation.Nullable;
 
 public class Usage {
 
+  public enum Type {
+    HTMLElement
+  }
+
   public enum Kind {
     WRITE,
     READ,
-    READ_WRITE
+    READ_WRITE;
   }
   private Kind kind;
   private IdentifierTree symbolTree;
   private Tree usageTree;
   private boolean init = false;
+  private Scope scope;
+  private Type type;
 
-  private Usage(IdentifierTree symbolTree, @Nullable Tree usageTree, Kind kind){
+  /**
+   *
+   * @param symbolTree - this tree contains only symbol name identifier (we need it for symbol highlighting)
+   * @param usageTree - this tree may contain any tree with symbol identifier subtree (e.g. assignment expression).
+   *                  Could be null, in this case this.usageTree will be equal symbolTree
+   * @param kind - kind of usage
+   * @param scope - scope in which this usage appears
+   */
+  private Usage(IdentifierTree symbolTree, @Nullable Tree usageTree, Kind kind, Scope scope){
     this.kind = kind;
     this.symbolTree = symbolTree;
     this.usageTree = usageTree != null ? usageTree : symbolTree;
+    this.scope = scope;
+    this.type = null;
+  }
+
+  private Usage(IdentifierTree symbolTree, @Nullable Tree usageTree, Kind kind, Scope scope, @Nullable Type type){
+    this.kind = kind;
+    this.symbolTree = symbolTree;
+    this.usageTree = usageTree != null ? usageTree : symbolTree;
+    this.scope = scope;
+    this.type = type;
   }
 
   public Kind kind() {
     return kind;
+  }
+
+  public Scope scope() {
+    return scope;
+  }
+
+  @Nullable
+  public Type type() {
+    return type;
   }
 
   public IdentifierTree symbolTree() {
@@ -58,20 +91,26 @@ public class Usage {
     return  init;
   }
 
-  public static Usage create(SymbolModel symbolModel, Symbol symbol, IdentifierTree symbolTree, Tree usageTree, Kind kind){
-    Usage usage = new Usage(symbolTree, usageTree, kind);
+  public static Usage create(SymbolModel symbolModel, Symbol symbol, IdentifierTree symbolTree, Tree usageTree, Kind kind, Scope scope){
+    Usage usage = new Usage(symbolTree, usageTree, kind, scope);
     symbolModel.addUsage(symbol, usage);
     return usage;
   }
 
-  public static Usage create(SymbolModel symbolModel, Symbol symbol, IdentifierTree symbolTree, Kind kind){
-    Usage usage = new Usage(symbolTree, null, kind);
+  public static Usage create(SymbolModel symbolModel, Symbol symbol, IdentifierTree symbolTree, Tree usageTree, Kind kind, Scope scope, Type type){
+    Usage usage = new Usage(symbolTree, usageTree, kind, scope, type);
     symbolModel.addUsage(symbol, usage);
     return usage;
   }
 
-  public static Usage createInit(SymbolModel symbolModel, Symbol symbol, IdentifierTree symbolTree, Tree usageTree, Kind kind){
-    Usage usage = create(symbolModel, symbol, symbolTree, usageTree, kind);
+  public static Usage create(SymbolModel symbolModel, Symbol symbol, IdentifierTree symbolTree, Kind kind, Scope scope){
+    Usage usage = new Usage(symbolTree, null, kind, scope);
+    symbolModel.addUsage(symbol, usage);
+    return usage;
+  }
+
+  public static Usage createInit(SymbolModel symbolModel, Symbol symbol, IdentifierTree symbolTree, Tree usageTree, Kind kind, Scope scope){
+    Usage usage = create(symbolModel, symbol, symbolTree, usageTree, kind, scope);
     usage.init = true;
     return usage;
   }

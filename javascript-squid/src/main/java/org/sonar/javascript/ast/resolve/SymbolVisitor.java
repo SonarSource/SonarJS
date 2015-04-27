@@ -122,13 +122,18 @@ public class SymbolVisitor extends BaseTreeVisitor {
     if (tree.variable() instanceof IdentifierTree) {
       IdentifierTree identifier = (IdentifierTree) tree.variable();
       Usage.Kind usageKind = Usage.Kind.WRITE;
+      Usage.Type type = null;
       if (!tree.operator().text().equals(EcmaScriptPunctuator.EQU.getValue())) {
         usageKind = Usage.Kind.READ_WRITE;
+      } else {
+        if (TypeInferring.isHTMLElement(tree.expression())){
+          type = Usage.Type.HTMLElement;
+        }
       }
 
-      if (!addUsageFor(identifier, tree, usageKind)) {
+      if (!addUsageFor(identifier, tree, usageKind, type)) {
         Symbol symbol = createSymbolForScope(identifier.name(), identifier, currentScope.globalScope(), Symbol.Kind.VARIABLE);
-        Usage.createInit(symbolModel, symbol, identifier, tree, usageKind);
+        Usage.createInit(symbolModel, symbol, identifier, tree, usageKind, currentScope);
       }
       // no need to scan variable has it has been handle
       scan(tree.expression());
@@ -136,6 +141,15 @@ public class SymbolVisitor extends BaseTreeVisitor {
     } else {
       super.visitAssignmentExpression(tree);
     }
+  }
+
+  private boolean addUsageFor(IdentifierTree identifier, Tree usageTree, Usage.Kind kind, Usage.Type type) {
+    Symbol symbol = currentScope.lookupSymbol(identifier.name());
+    if (symbol != null) {
+      Usage.create(symbolModel, symbol, identifier, usageTree, kind, currentScope, type);
+      return true;
+    }
+    return false;
   }
 
   @Override
@@ -227,9 +241,9 @@ public class SymbolVisitor extends BaseTreeVisitor {
     Symbol symbol = currentScope.lookupSymbol(identifier.name());
     if (symbol != null) {
       if (usageTree != null){
-        Usage.create(symbolModel, symbol, identifier, usageTree, kind);
+        Usage.create(symbolModel, symbol, identifier, usageTree, kind, currentScope);
       } else {
-        Usage.create(symbolModel, symbol, identifier, kind);
+        Usage.create(symbolModel, symbol, identifier, kind, currentScope);
       }
       return true;
     }
