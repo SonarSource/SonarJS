@@ -22,18 +22,15 @@ package org.sonar.javascript.checks;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
-import org.sonar.javascript.api.EcmaScriptPunctuator;
-import org.sonar.javascript.model.implementations.declaration.MethodDeclarationTreeImpl;
-import org.sonar.javascript.model.implementations.expression.FunctionExpressionTreeImpl;
-import org.sonar.javascript.model.interfaces.Tree.Kind;
+import org.sonar.javascript.ast.visitors.BaseTreeVisitor;
+import org.sonar.javascript.model.interfaces.declaration.FunctionDeclarationTree;
+import org.sonar.javascript.model.interfaces.declaration.MethodDeclarationTree;
+import org.sonar.javascript.model.interfaces.expression.FunctionExpressionTree;
+import org.sonar.javascript.model.interfaces.lexical.SyntaxToken;
 import org.sonar.javascript.model.interfaces.statement.BlockTree;
 import org.sonar.squidbridge.annotations.ActivatedByDefault;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
-import org.sonar.squidbridge.checks.SquidCheck;
-import org.sonar.sslr.parser.LexerlessGrammar;
-
-import com.sonar.sslr.api.AstNode;
 
 @Rule(
   key = "EmptyBlock",
@@ -43,29 +40,43 @@ import com.sonar.sslr.api.AstNode;
 @ActivatedByDefault
 @SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.LOGIC_RELIABILITY)
 @SqaleConstantRemediation("5min")
-public class EmptyBlockCheck extends SquidCheck<LexerlessGrammar> {
+public class EmptyBlockCheck extends BaseTreeVisitor {
 
   @Override
-  public void init() {
-    subscribeTo(Kind.BLOCK);
-  }
-
-  @Override
-  public void visitNode(AstNode astNode) {
-    if (!isFunctionBody(astNode) && ((BlockTree) astNode).statements().isEmpty() && !hasComment(astNode)) {
-      getContext().createLineViolation(this, "Either remove or fill this block of code.", astNode);
+  public void visitBlock(BlockTree tree) {
+    if (tree.statements().isEmpty() && !hasComment(tree.closeCurlyBrace())) {
+      getContext().addIssue(this, tree, "Either remove or fill this block of code.");
     }
+    super.visitBlock(tree);
   }
 
-  private static boolean hasComment(AstNode blockNode) {
-    return blockNode.getFirstChild(EcmaScriptPunctuator.RCURLYBRACE).getToken().hasTrivia();
+  @Override
+  public void visitFunctionExpression(FunctionExpressionTree tree) {
+    scan(tree.name());
+    scan(tree.parameters());
+    // Ignoring empty function
+    scan(tree.body().statements());
   }
 
-  private static boolean isFunctionBody(AstNode block) {
-    AstNode parent = block.getParent();
-
-    return parent instanceof MethodDeclarationTreeImpl
-      || parent instanceof FunctionExpressionTreeImpl
-      || parent.is(Kind.FUNCTION_DECLARATION, Kind.GENERATOR_DECLARATION);
+  @Override
+  public void visitMethodDeclaration(MethodDeclarationTree tree) {
+    scan(tree.name());
+    scan(tree.parameters());
+    // Ignoring empty function
+    scan(tree.body().statements());
   }
+
+  @Override
+  public void visitFunctionDeclaration(FunctionDeclarationTree tree) {
+    scan(tree.name());
+    scan(tree.parameters());
+    // Ignoring empty function
+    scan(tree.body().statements());
+  }
+
+
+  private static boolean hasComment(SyntaxToken closingBrace) {
+    return !closingBrace.trivias().isEmpty();
+  }
+
 }
