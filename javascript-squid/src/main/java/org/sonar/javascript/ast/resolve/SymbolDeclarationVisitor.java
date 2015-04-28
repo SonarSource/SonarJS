@@ -74,7 +74,7 @@ public class SymbolDeclarationVisitor extends BaseTreeVisitor {
   private void addFunctionBuildInSymbols() {
     String arguments = "arguments";
     if (currentScope.symbols.get(arguments) == null) {
-      symbolModel.addBuildInSymbol(arguments, new SymbolDeclaration(currentScope.globalScope().getTree(), SymbolDeclaration.Kind.BUILD_IN), Symbol.Kind.VARIABLE, currentScope);
+      symbolModel.addBuildInSymbol(arguments, new SymbolDeclaration(currentScope.getTree(), SymbolDeclaration.Kind.BUILD_IN), Symbol.Kind.VARIABLE, currentScope);
     }
   }
 

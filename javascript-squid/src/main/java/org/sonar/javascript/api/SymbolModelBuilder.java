@@ -28,6 +28,8 @@ import java.util.Set;
 
 public interface SymbolModelBuilder {
 
+  Scope globalScope();
+
   void addUsage(Symbol symbol, Usage usage);
 
   void addScope(Scope scope);

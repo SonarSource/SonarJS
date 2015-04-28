@@ -52,7 +52,7 @@ public class UndefinedShadowingCheck extends BaseTreeVisitor {
     Collection<Symbol> symbols = symbolModel.getSymbols("undefined");
     for (Symbol symbol : symbols){
       Scope scope = symbol.scope();
-      if (scope.equals(scope.globalScope())){
+      if (scope.isGlobal()){
         continue;
       }
 

@@ -77,7 +77,7 @@ public class SymbolVisitor extends BaseTreeVisitor {
   }
 
   private void addBuildInSymbols() {
-    symbolModel.addBuildInSymbol("eval", new SymbolDeclaration(currentScope.globalScope().getTree(), SymbolDeclaration.Kind.BUILD_IN), Symbol.Kind.FUNCTION, currentScope);
+    symbolModel.addBuildInSymbol("eval", new SymbolDeclaration(symbolModel.globalScope().getTree(), SymbolDeclaration.Kind.BUILD_IN), Symbol.Kind.FUNCTION, currentScope);
   }
 
   @Override
@@ -134,7 +134,11 @@ public class SymbolVisitor extends BaseTreeVisitor {
       }
 
       if (!addUsageFor(identifier, tree, usageKind, type)) {
-        Symbol symbol = symbolModel.addSymbol(new SymbolDeclaration(identifier, /*todo remove it*/ SymbolDeclaration.Kind.ASSIGNMENT), Symbol.Kind.VARIABLE, currentScope.globalScope());
+        Symbol symbol = symbolModel.addSymbol(
+            new SymbolDeclaration(identifier, /*todo remove it*/ SymbolDeclaration.Kind.ASSIGNMENT),
+            Symbol.Kind.VARIABLE,
+            symbolModel.globalScope()
+        );
         Usage.createInit(symbolModel, symbol, identifier, tree, usageKind, currentScope);
       }
       // no need to scan variable has it has been handle
@@ -185,7 +189,7 @@ public class SymbolVisitor extends BaseTreeVisitor {
       IdentifierTree identifier = (IdentifierTree) tree.variableOrExpression();
 
       if (!addUsageFor(identifier, null, Usage.Kind.WRITE)) {
-        symbolModel.addSymbol(new SymbolDeclaration(identifier, SymbolDeclaration.Kind.FOR_OF), Symbol.Kind.VARIABLE, currentScope.globalScope());
+        symbolModel.addSymbol(new SymbolDeclaration(identifier, SymbolDeclaration.Kind.FOR_OF), Symbol.Kind.VARIABLE, symbolModel.globalScope());
       }
     }
     super.visitForOfStatement(tree);
@@ -197,7 +201,7 @@ public class SymbolVisitor extends BaseTreeVisitor {
       IdentifierTree identifier = (IdentifierTree) tree.variableOrExpression();
 
       if (!addUsageFor(identifier, null, Usage.Kind.WRITE)) {
-        symbolModel.addSymbol(new SymbolDeclaration(identifier, SymbolDeclaration.Kind.FOR_IN), Symbol.Kind.VARIABLE, currentScope);
+        symbolModel.addSymbol(new SymbolDeclaration(identifier, SymbolDeclaration.Kind.FOR_IN), Symbol.Kind.VARIABLE, symbolModel.globalScope());
       }
 
       scan(tree.expression());

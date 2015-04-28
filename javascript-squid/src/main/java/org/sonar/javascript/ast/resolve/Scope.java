@@ -73,17 +73,8 @@ public class Scope {
     return result;
   }
 
-  /**
-   * @return the global scope of the script.
-   */
-  public Scope globalScope() {
-    Scope scope = this;
-
-    while (scope.outer != null) {
-      scope = scope.outer;
-    }
-
-    return scope;
+  public boolean isGlobal() {
+    return tree.is(Tree.Kind.SCRIPT);
   }
 
   public void addSymbol(Symbol symbol) {

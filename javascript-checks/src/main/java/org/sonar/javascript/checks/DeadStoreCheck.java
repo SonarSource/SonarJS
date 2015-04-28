@@ -57,7 +57,7 @@ public class DeadStoreCheck extends BaseTreeVisitor {
 
   private void visitSymbol(Symbol symbol, SymbolModel symbolModel) {
     Scope scope = symbol.scope();
-    if (scope.equals(scope.globalScope())) {
+    if (scope.isGlobal()) {
       return;
     }
     List<Usage> usages = new LinkedList<>(symbolModel.getUsagesFor(symbol));

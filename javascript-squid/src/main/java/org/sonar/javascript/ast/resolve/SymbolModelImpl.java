@@ -42,6 +42,7 @@ public class SymbolModelImpl implements SymbolModel, SymbolModelBuilder {
   private Map<Symbol, Scope> symbolScope = Maps.newHashMap();
   private Multimap<Symbol, Usage> usagesTree = HashMultimap.create();
   private Set<Scope> scopes = Sets.newHashSet();
+  private Scope globalScope;
 
   public static SymbolModelImpl create(ScriptTree script, @Nullable Symbolizable symbolizable, @Nullable SourceFileOffsets sourceFileOffsets) {
     SymbolModelImpl symbolModel = new SymbolModelImpl();
@@ -54,12 +55,20 @@ public class SymbolModelImpl implements SymbolModel, SymbolModelBuilder {
   }
 
   @Override
+  public Scope globalScope() {
+    return globalScope;
+  }
+
+  @Override
   public void addUsage(Symbol symbol, Usage usage) {
     usagesTree.put(symbol, usage);
   }
 
   @Override
   public void addScope(Scope scope){
+    if (scopes.isEmpty()){
+      globalScope = scope;
+    }
     scopes.add(scope);
   }
 
