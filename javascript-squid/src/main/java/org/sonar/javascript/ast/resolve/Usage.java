@@ -33,27 +33,20 @@ public class Usage {
   private IdentifierTree symbolTree;
   private Tree usageTree;
   private boolean isInitialization = false;
-  private Scope scope;
 
   /**
    *
    * @param symbolTree - this tree contains only symbol name identifier (we need it for symbol highlighting)
    * @param kind - kind of usage
-   * @param scope - scope in which this usage appears
    */
-  private Usage(IdentifierTree symbolTree, Kind kind, Scope scope){
+  private Usage(IdentifierTree symbolTree, Kind kind){
     this.kind = kind;
     this.symbolTree = symbolTree;
     this.usageTree = symbolTree;
-    this.scope = scope;
   }
 
   public Kind kind() {
     return kind;
-  }
-
-  public Scope scope() {
-    return scope;
   }
 
   public IdentifierTree symbolTree() {
@@ -78,8 +71,8 @@ public class Usage {
     return this;
   }
 
-  public static Usage create(IdentifierTree symbolTree, Kind kind, Scope scope){
-    return new Usage(symbolTree, kind, scope);
+  public static Usage create(IdentifierTree symbolTree, Kind kind){
+    return new Usage(symbolTree, kind);
   }
 
 }

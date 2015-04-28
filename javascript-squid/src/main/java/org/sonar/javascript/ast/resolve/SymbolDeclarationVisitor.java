@@ -144,7 +144,7 @@ public class SymbolDeclarationVisitor extends BaseTreeVisitor {
       if (bindingElement.is(Tree.Kind.INITIALIZED_BINDING_ELEMENT)) {
         for (IdentifierTree identifier : ((InitializedBindingElementTreeImpl) bindingElement).bindingIdentifiers()){
           currentScope.lookupSymbol(identifier.name()).addUsage(
-              Usage.create(identifier, Usage.Kind.WRITE, currentScope)
+              Usage.create(identifier, Usage.Kind.WRITE)
                   .setUsageTree(bindingElement)
                   .setInitialization(true)
           );

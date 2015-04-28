@@ -135,7 +135,7 @@ public class SymbolVisitor extends BaseTreeVisitor {
             symbolModel.globalScope()
         );
         symbol.addUsage(
-            Usage.create(identifier, usageKind, currentScope)
+            Usage.create(identifier, usageKind)
                 .setUsageTree(tree)
                 .setInitialization(true)
         );
@@ -222,9 +222,9 @@ public class SymbolVisitor extends BaseTreeVisitor {
     Symbol symbol = currentScope.lookupSymbol(identifier.name());
     if (symbol != null) {
       if (usageTree != null){
-        symbol.addUsage(Usage.create(identifier, kind, currentScope).setUsageTree(usageTree));
+        symbol.addUsage(Usage.create(identifier, kind).setUsageTree(usageTree));
       } else {
-        symbol.addUsage(Usage.create(identifier, kind, currentScope));
+        symbol.addUsage(Usage.create(identifier, kind));
       }
       return true;
     }
