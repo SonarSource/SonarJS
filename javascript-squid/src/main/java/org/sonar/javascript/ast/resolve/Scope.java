@@ -22,6 +22,7 @@ package org.sonar.javascript.ast.resolve;
 import com.google.common.collect.Maps;
 import org.sonar.javascript.model.interfaces.Tree;
 
+import javax.annotation.Nullable;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -43,45 +44,6 @@ public class Scope {
   public Scope outer() {
     return outer;
   }
-
-  /**
-   * Create new symbol for the current scope, or update the symbol list of declarations
-   * if a symbol with the given named has already been declared in the scope.
-   *
-   * @return the symbol
-   */
-  public Symbol createSymbol(String name, SymbolDeclaration declaration, Symbol.Kind kind) {
-    Symbol symbol = symbols.get(name);
-
-    if (symbol != null) {
-      symbol.declarations().add(declaration);
-    } else {
-      symbol = Symbol.create(name, declaration, kind, this);
-      symbols.put(name, symbol);
-    }
-
-    return symbol;
-  }
-
-  /**
-   * Create new build-in symbol for the current scope
-   *
-   * @return the symbol
-   */
-  public Symbol createBuildInSymbol(String name, Symbol.Kind kind) {
-    Symbol symbol = symbols.get(name);
-
-    if (symbol != null) {
-      throw new IllegalStateException(String.format("Build-in \"symbol\" %s already exists in the current scope.", name));
-    } else {
-      symbol = Symbol.createBuildIn(name, new SymbolDeclaration(tree, SymbolDeclaration.Kind.BUILD_IN), kind, this);
-      symbols.put(name, symbol);
-    }
-
-    return symbol;
-  }
-
-
 
   /**
    * @param name of the symbol to look for
@@ -124,8 +86,12 @@ public class Scope {
     return scope;
   }
 
-  @Override
-  public String toString() {
-    return "Scope{" + "tree=" + tree + ", symbols=" + symbols.size() + '}';
+  public void addSymbol(Symbol symbol) {
+    symbols.put(symbol.name(), symbol);
+  }
+
+  @Nullable
+  public Symbol getSymbol(String name) {
+    return symbols.get(name);
   }
 }

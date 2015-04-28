@@ -46,20 +46,28 @@ public class Symbol {
   private boolean buildIn;
   private Scope scope;
 
-  private Symbol(String name, SymbolDeclaration declaration, Kind kind, Scope scope, boolean buildIn) {
+  private Symbol(String name, SymbolDeclaration declaration, Kind kind, Scope scope) {
     this.name = name;
     this.kind = kind;
     this.declarations.add(declaration);
-    this.buildIn = buildIn;
+    this.buildIn = false;
     this.scope = scope;
   }
 
-  public static Symbol createBuildIn(String name, SymbolDeclaration declaration, Kind kind, Scope scope){
-    return new Symbol(name, declaration, kind, scope, true);
+  public Symbol setBuildIn(boolean isBuildIn){
+    this.buildIn = isBuildIn;
+    return this;
   }
 
   public static Symbol create(String name, SymbolDeclaration declaration, Kind kind, Scope scope){
-    return new Symbol(name, declaration, kind, scope, false);
+    Symbol symbol = scope.getSymbol(name);
+    if (symbol == null) {
+      symbol = new Symbol(name, declaration, kind, scope);
+      scope.addSymbol(symbol);
+    } else {
+      symbol.declarations.add(declaration);
+    }
+    return symbol;
   }
 
   public Scope scope() {

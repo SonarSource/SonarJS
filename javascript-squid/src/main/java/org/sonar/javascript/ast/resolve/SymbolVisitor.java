@@ -77,7 +77,7 @@ public class SymbolVisitor extends BaseTreeVisitor {
   }
 
   private void addBuildInSymbols() {
-    createBuildInSymbolForScope("eval", currentScope.globalScope(), Symbol.Kind.FUNCTION);
+    symbolModel.addBuildInSymbol("eval", new SymbolDeclaration(currentScope.globalScope().getTree(), SymbolDeclaration.Kind.BUILD_IN), Symbol.Kind.FUNCTION, currentScope);
   }
 
   @Override
@@ -134,7 +134,7 @@ public class SymbolVisitor extends BaseTreeVisitor {
       }
 
       if (!addUsageFor(identifier, tree, usageKind, type)) {
-        Symbol symbol = createSymbolForScope(identifier.name(), identifier, currentScope.globalScope(), Symbol.Kind.VARIABLE);
+        Symbol symbol = symbolModel.addSymbol(new SymbolDeclaration(identifier, /*todo remove it*/ SymbolDeclaration.Kind.ASSIGNMENT), Symbol.Kind.VARIABLE, currentScope.globalScope());
         Usage.createInit(symbolModel, symbol, identifier, tree, usageKind, currentScope);
       }
       // no need to scan variable has it has been handle
@@ -185,7 +185,7 @@ public class SymbolVisitor extends BaseTreeVisitor {
       IdentifierTree identifier = (IdentifierTree) tree.variableOrExpression();
 
       if (!addUsageFor(identifier, null, Usage.Kind.WRITE)) {
-        createSymbolForScope(identifier.name(), identifier, currentScope.globalScope(), Symbol.Kind.VARIABLE);
+        symbolModel.addSymbol(new SymbolDeclaration(identifier, SymbolDeclaration.Kind.FOR_OF), Symbol.Kind.VARIABLE, currentScope.globalScope());
       }
     }
     super.visitForOfStatement(tree);
@@ -197,7 +197,7 @@ public class SymbolVisitor extends BaseTreeVisitor {
       IdentifierTree identifier = (IdentifierTree) tree.variableOrExpression();
 
       if (!addUsageFor(identifier, null, Usage.Kind.WRITE)) {
-        createSymbolForScope(identifier.name(), identifier, currentScope.globalScope(), Symbol.Kind.VARIABLE);
+        symbolModel.addSymbol(new SymbolDeclaration(identifier, SymbolDeclaration.Kind.FOR_IN), Symbol.Kind.VARIABLE, currentScope);
       }
 
       scan(tree.expression());
@@ -215,19 +215,6 @@ public class SymbolVisitor extends BaseTreeVisitor {
     if (currentScope != null) {
       currentScope = currentScope.outer();
     }
-  }
-
-  private Symbol createSymbolForScope(String name, IdentifierTree tree, Scope scope, Symbol.Kind kind) {
-    //todo(Lena): move this logic to method of Scope or SymbolModel
-    Symbol symbol = scope.createSymbol(name, new SymbolDeclaration(tree, /*todo replace it with smth else?*/ SymbolDeclaration.Kind.FOR_OF), kind);
-    symbolModel.setScopeForSymbol(symbol, scope);
-    return symbol;
-  }
-
-  private Symbol createBuildInSymbolForScope(String name, Scope scope, Symbol.Kind kind) {
-    Symbol symbol = scope.createBuildInSymbol(name, kind);
-    symbolModel.setScopeForSymbol(symbol, scope);
-    return symbol;
   }
 
   private void enterScope(Tree tree) {

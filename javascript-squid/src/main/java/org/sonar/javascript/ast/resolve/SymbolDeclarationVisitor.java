@@ -74,13 +74,8 @@ public class SymbolDeclarationVisitor extends BaseTreeVisitor {
   private void addFunctionBuildInSymbols() {
     String arguments = "arguments";
     if (currentScope.symbols.get(arguments) == null) {
-      createBuildInSymbolForScope(arguments, currentScope, Symbol.Kind.VARIABLE);
+      symbolModel.addBuildInSymbol(arguments, new SymbolDeclaration(currentScope.globalScope().getTree(), SymbolDeclaration.Kind.BUILD_IN), Symbol.Kind.VARIABLE, currentScope);
     }
-  }
-
-  private void createBuildInSymbolForScope(String name, Scope scope, Symbol.Kind kind) {
-    Symbol symbol = scope.createBuildInSymbol(name, kind);
-    symbolModel.setScopeForSymbol(symbol, scope);
   }
 
   @Override
@@ -94,7 +89,7 @@ public class SymbolDeclarationVisitor extends BaseTreeVisitor {
 
   @Override
   public void visitFunctionDeclaration(FunctionDeclarationTree tree) {
-    addSymbol(tree.name().name(), new SymbolDeclaration(tree.name(), SymbolDeclaration.Kind.FUNCTION_DECLARATION), Symbol.Kind.FUNCTION);
+    symbolModel.addSymbol(new SymbolDeclaration(tree.name(), SymbolDeclaration.Kind.FUNCTION_DECLARATION), Symbol.Kind.FUNCTION, currentScope);
     newScope(tree);
     addSymbols(((ParameterListTreeImpl) tree.parameters()).parameterIdentifiers(), SymbolDeclaration.Kind.PARAMETER, Symbol.Kind.PARAMETER);
     addFunctionBuildInSymbols();
@@ -127,7 +122,8 @@ public class SymbolDeclarationVisitor extends BaseTreeVisitor {
     IdentifierTree name = tree.name();
     if (name != null) {
       // Not available in enclosing scope
-      addSymbol(name.name(), new SymbolDeclaration(name, SymbolDeclaration.Kind.FUNCTION_EXPRESSION), Symbol.Kind.FUNCTION);
+      symbolModel.addSymbol(new SymbolDeclaration(name, SymbolDeclaration.Kind.FUNCTION_EXPRESSION), Symbol.Kind.FUNCTION, currentScope);
+
     }
     addSymbols(((ParameterListTreeImpl) tree.parameters()).parameterIdentifiers(), SymbolDeclaration.Kind.PARAMETER, Symbol.Kind.PARAMETER);
     addFunctionBuildInSymbols();
@@ -162,14 +158,9 @@ public class SymbolDeclarationVisitor extends BaseTreeVisitor {
     }
   }
 
-  private void addSymbol(String name, SymbolDeclaration declaration, Symbol.Kind kind) {
-    Symbol symbol = currentScope.createSymbol(name, declaration, kind);
-    symbolModel.setScopeForSymbol(symbol, currentScope);
-  }
-
   private void addSymbols(List<IdentifierTree> identifiers, SymbolDeclaration.Kind declarationKind, Symbol.Kind symbolKind) {
     for (IdentifierTree identifier : identifiers) {
-      addSymbol(identifier.name(), new SymbolDeclaration(identifier, declarationKind), symbolKind);
+      symbolModel.addSymbol(new SymbolDeclaration(identifier, declarationKind), symbolKind, currentScope);
     }
   }
 

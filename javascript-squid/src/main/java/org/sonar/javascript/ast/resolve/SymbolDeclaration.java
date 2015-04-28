@@ -23,7 +23,7 @@ import org.apache.commons.lang.ArrayUtils;
 import org.sonar.javascript.model.interfaces.Tree;
 
 public class SymbolDeclaration {
-  // tree is always IdentifierTree, except of build-in symbols, for which declaration tree is containing scope tree
+  // tree is always IdentifierTree, except of build-in symbols, for which declaration tree stores a scope tree
   private Tree tree;
   private Kind kind;
 

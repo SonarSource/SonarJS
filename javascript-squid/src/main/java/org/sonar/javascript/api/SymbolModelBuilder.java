@@ -21,16 +21,21 @@ package org.sonar.javascript.api;
 
 import org.sonar.javascript.ast.resolve.Scope;
 import org.sonar.javascript.ast.resolve.Symbol;
+import org.sonar.javascript.ast.resolve.SymbolDeclaration;
 import org.sonar.javascript.ast.resolve.Usage;
 
 import java.util.Set;
 
 public interface SymbolModelBuilder {
-  void setScopeForSymbol(Symbol symbol, Scope scope);
 
   void addUsage(Symbol symbol, Usage usage);
 
   void addScope(Scope scope);
 
   Set<Scope> getScopes();
+
+  Symbol addSymbol(SymbolDeclaration declaration, Symbol.Kind kind, Scope scope);
+
+  // todo remove declaration argument in future. We can infer declaration tree from scope
+  Symbol addBuildInSymbol(String name, SymbolDeclaration declaration, Symbol.Kind kind, Scope scope);
 }

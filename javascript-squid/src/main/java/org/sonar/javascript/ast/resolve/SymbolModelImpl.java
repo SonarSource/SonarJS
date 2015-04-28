@@ -19,6 +19,7 @@
  */
 package org.sonar.javascript.ast.resolve;
 
+import com.google.common.base.Preconditions;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Multimap;
@@ -28,6 +29,7 @@ import org.sonar.javascript.api.SymbolModel;
 import org.sonar.javascript.api.SymbolModelBuilder;
 import org.sonar.javascript.highlighter.SourceFileOffsets;
 import org.sonar.javascript.model.interfaces.declaration.ScriptTree;
+import org.sonar.javascript.model.interfaces.expression.IdentifierTree;
 
 import javax.annotation.Nullable;
 import java.util.Collection;
@@ -47,8 +49,7 @@ public class SymbolModelImpl implements SymbolModel, SymbolModelBuilder {
     return symbolModel;
   }
 
-  @Override
-  public void setScopeForSymbol(Symbol symbol, Scope scope) {
+  private void setScopeForSymbol(Symbol symbol, Scope scope) {
     symbolScope.put(symbol, scope);
   }
 
@@ -65,6 +66,21 @@ public class SymbolModelImpl implements SymbolModel, SymbolModelBuilder {
   @Override
   public Set<Scope> getScopes(){
     return scopes;
+  }
+
+  @Override
+  public Symbol addSymbol(SymbolDeclaration declaration, Symbol.Kind kind, Scope scope) {
+    Preconditions.checkArgument(declaration.tree() instanceof IdentifierTree);
+    Symbol symbol = Symbol.create(((IdentifierTree) declaration.tree()).name(), declaration, kind, scope);
+    setScopeForSymbol(symbol, scope);
+    return symbol;
+  }
+
+  @Override
+  public Symbol addBuildInSymbol(String name, SymbolDeclaration declaration, Symbol.Kind kind, Scope scope) {
+    Symbol symbol = Symbol.create(name, declaration, kind, scope).setBuildIn(true);
+    setScopeForSymbol(symbol, scope);
+    return symbol;
   }
 
   @Override

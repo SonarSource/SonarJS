@@ -22,7 +22,6 @@ package org.sonar.javascript.highlighter;
 import org.sonar.api.source.Symbolizable;
 import org.sonar.javascript.api.SymbolModel;
 import org.sonar.javascript.ast.resolve.Symbol;
-import org.sonar.javascript.ast.resolve.SymbolDeclaration;
 import org.sonar.javascript.ast.resolve.Usage;
 import org.sonar.javascript.model.implementations.lexical.InternalSyntaxToken;
 import org.sonar.javascript.model.interfaces.expression.IdentifierTree;
@@ -61,7 +60,7 @@ public class HighlightSymbolTableBuilder {
 
   @Nullable
   private static InternalSyntaxToken getSymbolNameToken(Symbol symbol) {
-    if (symbol.declaration().is(SymbolDeclaration.Kind.BUILD_IN)){
+    if (symbol.buildIn()){
       return null;
     } else {
       return (InternalSyntaxToken) ((IdentifierTree) symbol.declaration().tree()).identifierToken();
