@@ -32,8 +32,8 @@ import org.sonar.squidbridge.annotations.ActivatedByDefault;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 
+import java.util.Collection;
 import java.util.List;
-import java.util.Set;
 
 @Rule(
   key = "S2814",
@@ -50,7 +50,7 @@ public class RedeclaredSymbolCheck extends BaseTreeVisitor {
   @Override
   public void visitScript(ScriptTree tree) {
     SymbolModel symbolModel = getContext().getSymbolModel();
-    Set<Symbol> symbols = symbolModel.getSymbols();
+    Collection<Symbol> symbols = symbolModel.getSymbols();
     for (Symbol symbol : symbols) {
       visitSymbol(symbol);
     }

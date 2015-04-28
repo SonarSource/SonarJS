@@ -29,7 +29,6 @@ import org.sonar.javascript.model.interfaces.declaration.ScriptTree;
 import java.io.File;
 import java.util.Collection;
 import java.util.Iterator;
-import java.util.Set;
 
 import static org.fest.assertions.Assertions.assertThat;
 
@@ -49,7 +48,7 @@ public class UsageTest extends JavaScriptTreeModelTest {
     assertThat(SYMBOL_MODEL.getUsagesFor((Symbol) SYMBOL_MODEL.getSymbols("a").toArray()[0])).hasSize(3);
     assertThat(usagesFor("f")).hasSize(2);
 
-    Set<Symbol> symbols = SYMBOL_MODEL.getSymbols("b");
+    Collection<Symbol> symbols = SYMBOL_MODEL.getSymbols("b");
     Symbol b = null;
     for (Symbol symbol : symbols){
       if (symbol.scope().getTree().is(Tree.Kind.SCRIPT)){
@@ -66,7 +65,7 @@ public class UsageTest extends JavaScriptTreeModelTest {
 
   @Test
   public void arguments_build_in_symbol() throws Exception {
-    Set<Symbol> symbols = SYMBOL_MODEL.getSymbols("arguments");
+    Collection<Symbol> symbols = SYMBOL_MODEL.getSymbols("arguments");
     for (Symbol symbol : symbols){
       if (symbol.scope().getTree().is(Tree.Kind.SCRIPT)){
         assertThat(symbol.buildIn()).isFalse();
@@ -80,7 +79,7 @@ public class UsageTest extends JavaScriptTreeModelTest {
   public void function_symbols() throws Exception {
     assertThat(usagesFor("p1")).hasSize(1);
     assertThat(usagesFor("p2")).isEmpty();
-    Set<Symbol> symbols = SYMBOL_MODEL.getSymbols("b");
+    Collection<Symbol> symbols = SYMBOL_MODEL.getSymbols("b");
     Symbol b = null;
     for (Symbol symbol : symbols){
       if (symbol.scope().getTree().is(Tree.Kind.FUNCTION_DECLARATION)){

@@ -32,7 +32,7 @@ import org.sonar.squidbridge.annotations.ActivatedByDefault;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 
-import java.util.Set;
+import java.util.Collection;
 
 @Rule(
   key = "S2137",
@@ -49,7 +49,7 @@ public class UndefinedShadowingCheck extends BaseTreeVisitor {
   @Override
   public void visitScript(ScriptTree tree) {
     SymbolModel symbolModel = getContext().getSymbolModel();
-    Set<Symbol> symbols = symbolModel.getSymbols("undefined");
+    Collection<Symbol> symbols = symbolModel.getSymbols("undefined");
     for (Symbol symbol : symbols){
       Scope scope = symbol.scope();
       if (scope.equals(scope.globalScope())){

@@ -23,27 +23,26 @@ import org.sonar.javascript.ast.resolve.Symbol;
 import org.sonar.javascript.ast.resolve.Usage;
 
 import java.util.Collection;
-import java.util.Set;
 
 public interface SymbolModel {
   /**
    * Returns all symbols in script
    */
-  Set<Symbol> getSymbols();
+  Collection<Symbol> getSymbols();
 
   /**
    *
    * @param kind kind of symbols to look for
    * @return list of symbols with the given kind
    */
-  Set<Symbol> getSymbols(Symbol.Kind kind);
+  Collection<Symbol> getSymbols(Symbol.Kind kind);
 
   /**
    *
    * @param name name of symbols to look for
    * @return list of symbols with the given name
    */
-  Set<Symbol> getSymbols(String name);
+  Collection<Symbol> getSymbols(String name);
 
   Collection<Usage> getUsagesFor(Symbol symbol);
 }

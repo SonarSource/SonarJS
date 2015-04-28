@@ -68,8 +68,7 @@ public class FutureReservedWordsCheck extends BaseTreeVisitor {
   @Override
   public void visitScript(ScriptTree tree) {
     SymbolModel symbolModel = getContext().getSymbolModel();
-    Set<Symbol> symbols = symbolModel.getSymbols();
-    for (Symbol symbol : symbols) {
+    for (Symbol symbol : symbolModel.getSymbols()) {
       if (FUTURE_RESERVED_WORDS.contains(symbol.name())) {
         getContext().addIssue(this, symbol.declaration().tree(), String.format(MESSAGE, symbol.name()));
       }

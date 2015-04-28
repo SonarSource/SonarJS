@@ -31,7 +31,7 @@ import org.sonar.javascript.model.interfaces.declaration.ScriptTree;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 
-import java.util.Set;
+import java.util.Collection;
 
 @Rule(
   key = "VariableShadowing",
@@ -51,9 +51,9 @@ public class VariableShadowingCheck extends BaseTreeVisitor {
     }
   }
 
-  private Set<Symbol> getSymbols() {
+  private Collection<Symbol> getSymbols() {
     SymbolModel symbolModel = getContext().getSymbolModel();
-    Set<Symbol> symbols = symbolModel.getSymbols(Symbol.Kind.VARIABLE);
+    Collection<Symbol> symbols = symbolModel.getSymbols(Symbol.Kind.VARIABLE);
     symbols.addAll(symbolModel.getSymbols(Symbol.Kind.PARAMETER));
     return symbols;
   }

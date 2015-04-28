@@ -34,7 +34,6 @@ import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Set;
 
 @Rule(
     key = "S1854",
@@ -51,8 +50,7 @@ public class DeadStoreCheck extends BaseTreeVisitor {
   @Override
   public void visitScript(ScriptTree tree) {
     SymbolModel symbolModel = getContext().getSymbolModel();
-    Set<Symbol> symbols = symbolModel.getSymbols();
-    for (Symbol symbol : symbols) {
+    for (Symbol symbol : symbolModel.getSymbols()) {
       visitSymbol(symbol, symbolModel);
     }
   }

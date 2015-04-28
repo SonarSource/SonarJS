@@ -31,7 +31,7 @@ import org.sonar.squidbridge.annotations.ActivatedByDefault;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 
-import java.util.Set;
+import java.util.Collection;
 
 @Rule(
   key = "BoundOrAssignedEvalOrArguments",
@@ -55,9 +55,9 @@ public class BoundOrAssignedEvalOrArgumentsCheck extends BaseTreeVisitor {
     super.visitScript(tree);
   }
 
-  private Set<Symbol> getSymbols() {
+  private Collection<Symbol> getSymbols() {
     SymbolModel symbolModel = getContext().getSymbolModel();
-    Set<Symbol> symbols = symbolModel.getSymbols("eval");
+    Collection<Symbol> symbols = symbolModel.getSymbols("eval");
     symbols.addAll(symbolModel.getSymbols("arguments"));
     return symbols;
   }

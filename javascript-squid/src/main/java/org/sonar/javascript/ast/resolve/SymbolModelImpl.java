@@ -76,7 +76,7 @@ public class SymbolModelImpl implements SymbolModel, SymbolModelBuilder {
    * Returns all symbols in script
    */
   @Override
-  public Set<Symbol> getSymbols() {
+  public Collection<Symbol> getSymbols() {
     return symbolScope.keySet();
   }
 
@@ -86,7 +86,7 @@ public class SymbolModelImpl implements SymbolModel, SymbolModelBuilder {
    * @return list of symbols with the given kind
    */
   @Override
-  public Set<Symbol> getSymbols(Symbol.Kind kind) {
+  public Collection<Symbol> getSymbols(Symbol.Kind kind) {
     Set<Symbol> result = new HashSet<>();
     for (Symbol symbol : getSymbols()){
       if (kind.equals(symbol.kind())){
@@ -102,7 +102,7 @@ public class SymbolModelImpl implements SymbolModel, SymbolModelBuilder {
    * @return list of symbols with the given name
    */
   @Override
-  public Set<Symbol> getSymbols(String name) {
+  public Collection<Symbol> getSymbols(String name) {
     Set<Symbol> result = new HashSet<>();
     for (Symbol symbol : getSymbols()){
       if (name.equals(symbol.name())){
