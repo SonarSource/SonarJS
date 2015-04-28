@@ -19,17 +19,10 @@
  */
 package org.sonar.javascript.ast.resolve;
 
-import org.sonar.javascript.api.SymbolModelBuilder;
 import org.sonar.javascript.model.interfaces.Tree;
 import org.sonar.javascript.model.interfaces.expression.IdentifierTree;
 
-import javax.annotation.Nullable;
-
 public class Usage {
-
-  public enum Type {
-    HTMLElement
-  }
 
   public enum Kind {
     WRITE,
@@ -39,32 +32,20 @@ public class Usage {
   private Kind kind;
   private IdentifierTree symbolTree;
   private Tree usageTree;
-  private boolean init = false;
+  private boolean isInitialization = false;
   private Scope scope;
-  private Type type;
 
   /**
    *
    * @param symbolTree - this tree contains only symbol name identifier (we need it for symbol highlighting)
-   * @param usageTree - this tree may contain any tree with symbol identifier subtree (e.g. assignment expression).
-   *                  Could be null, in this case this.usageTree will be equal symbolTree
    * @param kind - kind of usage
    * @param scope - scope in which this usage appears
    */
-  private Usage(IdentifierTree symbolTree, @Nullable Tree usageTree, Kind kind, Scope scope){
+  private Usage(IdentifierTree symbolTree, Kind kind, Scope scope){
     this.kind = kind;
     this.symbolTree = symbolTree;
-    this.usageTree = usageTree != null ? usageTree : symbolTree;
+    this.usageTree = symbolTree;
     this.scope = scope;
-    this.type = null;
-  }
-
-  private Usage(IdentifierTree symbolTree, @Nullable Tree usageTree, Kind kind, Scope scope, @Nullable Type type){
-    this.kind = kind;
-    this.symbolTree = symbolTree;
-    this.usageTree = usageTree != null ? usageTree : symbolTree;
-    this.scope = scope;
-    this.type = type;
   }
 
   public Kind kind() {
@@ -75,11 +56,6 @@ public class Usage {
     return scope;
   }
 
-  @Nullable
-  public Type type() {
-    return type;
-  }
-
   public IdentifierTree symbolTree() {
     return symbolTree;
   }
@@ -88,32 +64,22 @@ public class Usage {
     return usageTree;
   }
 
-  public boolean isInit() {
-    return  init;
+  public boolean isInitialization() {
+    return isInitialization;
   }
 
-  public static Usage create(SymbolModelBuilder symbolModel, Symbol symbol, IdentifierTree symbolTree, Tree usageTree, Kind kind, Scope scope){
-    Usage usage = new Usage(symbolTree, usageTree, kind, scope);
-    symbolModel.addUsage(symbol, usage);
-    return usage;
+  public Usage setUsageTree(Tree usageTree){
+    this.usageTree = usageTree;
+    return this;
   }
 
-  public static Usage create(SymbolModelBuilder symbolModel, Symbol symbol, IdentifierTree symbolTree, Tree usageTree, Kind kind, Scope scope, Type type){
-    Usage usage = new Usage(symbolTree, usageTree, kind, scope, type);
-    symbolModel.addUsage(symbol, usage);
-    return usage;
+  public Usage setInitialization(boolean isInitialization){
+    this.isInitialization = isInitialization;
+    return this;
   }
 
-  public static Usage create(SymbolModelBuilder symbolModel, Symbol symbol, IdentifierTree symbolTree, Kind kind, Scope scope){
-    Usage usage = new Usage(symbolTree, null, kind, scope);
-    symbolModel.addUsage(symbol, usage);
-    return usage;
-  }
-
-  public static Usage createInit(SymbolModelBuilder symbolModel, Symbol symbol, IdentifierTree symbolTree, Tree usageTree, Kind kind, Scope scope){
-    Usage usage = create(symbolModel, symbol, symbolTree, usageTree, kind, scope);
-    usage.init = true;
-    return usage;
+  public static Usage create(IdentifierTree symbolTree, Kind kind, Scope scope){
+    return new Usage(symbolTree, kind, scope);
   }
 
 }

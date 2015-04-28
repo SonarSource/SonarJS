@@ -55,8 +55,8 @@ public class SymbolModelImplTest extends JavaScriptTreeModelTest {
   public void symbols_scope(){
     Symbol f = (Symbol)SYMBOL_MODEL.getSymbols("f").toArray()[0];
     Symbol e = (Symbol)SYMBOL_MODEL.getSymbols("e").toArray()[0];
-    assertThat(f.scope().getTree().is(Tree.Kind.SCRIPT)).isTrue();
-    assertThat(e.scope().getTree().is(Tree.Kind.CATCH_BLOCK)).isTrue();
+    assertThat(f.scope().tree().is(Tree.Kind.SCRIPT)).isTrue();
+    assertThat(e.scope().tree().is(Tree.Kind.CATCH_BLOCK)).isTrue();
   }
 
 

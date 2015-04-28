@@ -51,19 +51,19 @@ public class DeadStoreCheck extends BaseTreeVisitor {
   public void visitScript(ScriptTree tree) {
     SymbolModel symbolModel = getContext().getSymbolModel();
     for (Symbol symbol : symbolModel.getSymbols()) {
-      visitSymbol(symbol, symbolModel);
+      visitSymbol(symbol);
     }
   }
 
-  private void visitSymbol(Symbol symbol, SymbolModel symbolModel) {
+  private void visitSymbol(Symbol symbol) {
     Scope scope = symbol.scope();
     if (scope.isGlobal()) {
       return;
     }
-    List<Usage> usages = new LinkedList<>(symbolModel.getUsagesFor(symbol));
+    List<Usage> usages = new LinkedList<>(symbol.usages());
     if (!hasRead(usages)) {
       for (Usage usage : usages) {
-        if (!usage.isInit()) {
+        if (!usage.isInitialization()) {
           getContext().addIssue(this, usage.symbolTree(), String.format(MESSAGE, symbol.name()));
         }
       }

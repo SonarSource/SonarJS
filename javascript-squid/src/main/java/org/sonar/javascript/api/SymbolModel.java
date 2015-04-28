@@ -20,7 +20,6 @@
 package org.sonar.javascript.api;
 
 import org.sonar.javascript.ast.resolve.Symbol;
-import org.sonar.javascript.ast.resolve.Usage;
 
 import java.util.Collection;
 
@@ -43,6 +42,4 @@ public interface SymbolModel {
    * @return list of symbols with the given name
    */
   Collection<Symbol> getSymbols(String name);
-
-  Collection<Usage> getUsagesFor(Symbol symbol);
 }

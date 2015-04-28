@@ -74,7 +74,7 @@ public class SymbolDeclarationVisitor extends BaseTreeVisitor {
   private void addFunctionBuildInSymbols() {
     String arguments = "arguments";
     if (currentScope.symbols.get(arguments) == null) {
-      symbolModel.addBuildInSymbol(arguments, new SymbolDeclaration(currentScope.getTree(), SymbolDeclaration.Kind.BUILD_IN), Symbol.Kind.VARIABLE, currentScope);
+      symbolModel.addBuildInSymbol(arguments, new SymbolDeclaration(currentScope.tree(), SymbolDeclaration.Kind.BUILD_IN), Symbol.Kind.VARIABLE, currentScope);
     }
   }
 
@@ -143,7 +143,11 @@ public class SymbolDeclarationVisitor extends BaseTreeVisitor {
     for (BindingElementTree bindingElement : tree.variables()) {
       if (bindingElement.is(Tree.Kind.INITIALIZED_BINDING_ELEMENT)) {
         for (IdentifierTree identifier : ((InitializedBindingElementTreeImpl) bindingElement).bindingIdentifiers()){
-          Usage.createInit(symbolModel, currentScope.lookupSymbol(identifier.name()), identifier, bindingElement, Usage.Kind.WRITE, currentScope);
+          currentScope.lookupSymbol(identifier.name()).addUsage(
+              Usage.create(identifier, Usage.Kind.WRITE, currentScope)
+                  .setUsageTree(bindingElement)
+                  .setInitialization(true)
+          );
         }
       }
     }

@@ -45,17 +45,17 @@ public class UsageTest extends JavaScriptTreeModelTest {
 
   @Test
   public void global_symbols() throws Exception {
-    assertThat(SYMBOL_MODEL.getUsagesFor((Symbol) SYMBOL_MODEL.getSymbols("a").toArray()[0])).hasSize(3);
+    assertThat(((Symbol) SYMBOL_MODEL.getSymbols("a").toArray()[0]).usages()).hasSize(3);
     assertThat(usagesFor("f")).hasSize(2);
 
     Collection<Symbol> symbols = SYMBOL_MODEL.getSymbols("b");
     Symbol b = null;
     for (Symbol symbol : symbols){
-      if (symbol.scope().getTree().is(Tree.Kind.SCRIPT)){
+      if (symbol.scope().tree().is(Tree.Kind.SCRIPT)){
         b = symbol;
       }
     }
-    assertThat(SYMBOL_MODEL.getUsagesFor(b)).hasSize(2);
+    assertThat(b.usages()).hasSize(2);
   }
 
   @Test
@@ -67,7 +67,7 @@ public class UsageTest extends JavaScriptTreeModelTest {
   public void arguments_build_in_symbol() throws Exception {
     Collection<Symbol> symbols = SYMBOL_MODEL.getSymbols("arguments");
     for (Symbol symbol : symbols){
-      if (symbol.scope().getTree().is(Tree.Kind.SCRIPT)){
+      if (symbol.scope().tree().is(Tree.Kind.SCRIPT)){
         assertThat(symbol.buildIn()).isFalse();
       } else {
         assertThat(symbol.buildIn()).isTrue();
@@ -82,11 +82,11 @@ public class UsageTest extends JavaScriptTreeModelTest {
     Collection<Symbol> symbols = SYMBOL_MODEL.getSymbols("b");
     Symbol b = null;
     for (Symbol symbol : symbols){
-      if (symbol.scope().getTree().is(Tree.Kind.FUNCTION_DECLARATION)){
+      if (symbol.scope().tree().is(Tree.Kind.FUNCTION_DECLARATION)){
         b = symbol;
       }
     }
-    assertThat(SYMBOL_MODEL.getUsagesFor(b)).hasSize(3);
+    assertThat(b.usages()).hasSize(3);
   }
 
   @Test
@@ -116,7 +116,7 @@ public class UsageTest extends JavaScriptTreeModelTest {
   }
 
   public Collection<Usage> usagesFor(String name) {
-    return SYMBOL_MODEL.getUsagesFor(symbol(name));
+    return symbol(name).usages();
   }
 
   public Symbol symbol(String name) {

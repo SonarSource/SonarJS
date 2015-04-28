@@ -22,15 +22,12 @@ package org.sonar.javascript.api;
 import org.sonar.javascript.ast.resolve.Scope;
 import org.sonar.javascript.ast.resolve.Symbol;
 import org.sonar.javascript.ast.resolve.SymbolDeclaration;
-import org.sonar.javascript.ast.resolve.Usage;
 
 import java.util.Set;
 
 public interface SymbolModelBuilder {
 
   Scope globalScope();
-
-  void addUsage(Symbol symbol, Usage usage);
 
   void addScope(Scope scope);
 

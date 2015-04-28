@@ -66,7 +66,7 @@ public class JQueryVarNameConventionCheck extends AbstractJQueryCheck {
     Pattern pattern = Pattern.compile(format);
     SymbolModel symbolModel = getContext().getSymbolModel();
     for (Symbol symbol : symbolModel.getSymbols(Symbol.Kind.VARIABLE)){
-      Tree firstJQueryStorage = getJQueryStorage(symbol, symbolModel);
+      Tree firstJQueryStorage = getJQueryStorage(symbol);
       if (firstJQueryStorage != null && !pattern.matcher(symbol.name()).matches()){
         getContext().addIssue(this, firstJQueryStorage, String.format(MESSAGE, symbol.name(), format));
       }
@@ -74,8 +74,8 @@ public class JQueryVarNameConventionCheck extends AbstractJQueryCheck {
   }
 
   @Nullable
-  private Tree getJQueryStorage(Symbol symbol, SymbolModel symbolModel) {
-    Collection<Usage> usages = symbolModel.getUsagesFor(symbol);
+  private Tree getJQueryStorage(Symbol symbol) {
+    Collection<Usage> usages = symbol.usages();
     for (Usage usage : usages){
       if (usage.kind().equals(Usage.Kind.WRITE)){
         ExpressionTree expressionTree = null;

@@ -21,6 +21,8 @@ package org.sonar.javascript.ast.resolve;
 
 import com.google.common.collect.Lists;
 
+import java.util.Collection;
+import java.util.LinkedList;
 import java.util.List;
 
 public class Symbol {
@@ -45,13 +47,22 @@ public class Symbol {
   private Kind kind;
   private boolean buildIn;
   private Scope scope;
+  private List<Usage> usages = new LinkedList<>();
 
   private Symbol(String name, SymbolDeclaration declaration, Kind kind, Scope scope) {
     this.name = name;
     this.kind = kind;
-    this.declarations.add(declaration);
+    this.addDeclaration(declaration);
     this.buildIn = false;
     this.scope = scope;
+  }
+
+  public void addUsage(Usage usage){
+    usages.add(usage);
+  }
+
+  public Collection<Usage> usages(){
+    return usages;
   }
 
   public Symbol setBuildIn(boolean isBuildIn){
@@ -65,9 +76,13 @@ public class Symbol {
       symbol = new Symbol(name, declaration, kind, scope);
       scope.addSymbol(symbol);
     } else {
-      symbol.declarations.add(declaration);
+      symbol.addDeclaration(declaration);
     }
     return symbol;
+  }
+
+  private void addDeclaration(SymbolDeclaration declaration) {
+    this.declarations.add(declaration);
   }
 
   public Scope scope() {

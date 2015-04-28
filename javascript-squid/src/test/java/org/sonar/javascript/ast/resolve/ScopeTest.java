@@ -39,7 +39,7 @@ public class ScopeTest extends JavaScriptTreeModelTest {
 
   private Scope getScopeFor(Tree.Kind kind){
     for (Symbol symbol : SYMBOL_MODEL.getSymbols()){
-      if (symbol.scope().getTree().is(kind)){
+      if (symbol.scope().tree().is(kind)){
         return symbol.scope();
       }
     }

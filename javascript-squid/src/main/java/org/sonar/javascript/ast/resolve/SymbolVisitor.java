@@ -77,7 +77,7 @@ public class SymbolVisitor extends BaseTreeVisitor {
   }
 
   private void addBuildInSymbols() {
-    symbolModel.addBuildInSymbol("eval", new SymbolDeclaration(symbolModel.globalScope().getTree(), SymbolDeclaration.Kind.BUILD_IN), Symbol.Kind.FUNCTION, currentScope);
+    symbolModel.addBuildInSymbol("eval", new SymbolDeclaration(symbolModel.globalScope().tree(), SymbolDeclaration.Kind.BUILD_IN), Symbol.Kind.FUNCTION, currentScope);
   }
 
   @Override
@@ -124,22 +124,21 @@ public class SymbolVisitor extends BaseTreeVisitor {
     if (tree.variable() instanceof IdentifierTree) {
       IdentifierTree identifier = (IdentifierTree) tree.variable();
       Usage.Kind usageKind = Usage.Kind.WRITE;
-      Usage.Type type = null;
       if (!tree.operator().text().equals(EcmaScriptPunctuator.EQU.getValue())) {
         usageKind = Usage.Kind.READ_WRITE;
-      } else {
-        if (TypeInferring.isHTMLElement(tree.expression())){
-          type = Usage.Type.HTMLElement;
-        }
       }
 
-      if (!addUsageFor(identifier, tree, usageKind, type)) {
+      if (!addUsageFor(identifier, tree, usageKind)) {
         Symbol symbol = symbolModel.addSymbol(
             new SymbolDeclaration(identifier, /*todo remove it*/ SymbolDeclaration.Kind.ASSIGNMENT),
             Symbol.Kind.VARIABLE,
             symbolModel.globalScope()
         );
-        Usage.createInit(symbolModel, symbol, identifier, tree, usageKind, currentScope);
+        symbol.addUsage(
+            Usage.create(identifier, usageKind, currentScope)
+                .setUsageTree(tree)
+                .setInitialization(true)
+        );
       }
       // no need to scan variable has it has been handle
       scan(tree.expression());
@@ -147,15 +146,6 @@ public class SymbolVisitor extends BaseTreeVisitor {
     } else {
       super.visitAssignmentExpression(tree);
     }
-  }
-
-  private boolean addUsageFor(IdentifierTree identifier, Tree usageTree, Usage.Kind kind, Usage.Type type) {
-    Symbol symbol = currentScope.lookupSymbol(identifier.name());
-    if (symbol != null) {
-      Usage.create(symbolModel, symbol, identifier, usageTree, kind, currentScope, type);
-      return true;
-    }
-    return false;
   }
 
   @Override
@@ -232,9 +222,9 @@ public class SymbolVisitor extends BaseTreeVisitor {
     Symbol symbol = currentScope.lookupSymbol(identifier.name());
     if (symbol != null) {
       if (usageTree != null){
-        Usage.create(symbolModel, symbol, identifier, usageTree, kind, currentScope);
+        symbol.addUsage(Usage.create(identifier, kind, currentScope).setUsageTree(usageTree));
       } else {
-        Usage.create(symbolModel, symbol, identifier, kind, currentScope);
+        symbol.addUsage(Usage.create(identifier, kind, currentScope));
       }
       return true;
     }
@@ -251,7 +241,7 @@ public class SymbolVisitor extends BaseTreeVisitor {
 
   private Scope getScopeFor(Tree tree){
     for (Scope scope : symbolModel.getScopes()){
-      if (scope.getTree().equals(tree)){
+      if (scope.tree().equals(tree)){
         return scope;
       }
     }

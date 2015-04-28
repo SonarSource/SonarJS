@@ -37,7 +37,7 @@ public class Scope {
     this.tree = tree;
   }
 
-  public Tree getTree() {
+  public Tree tree() {
     return tree;
   }
 

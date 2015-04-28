@@ -53,7 +53,7 @@ public class VariableDeclarationAfterUsageCheck extends BaseTreeVisitor {
   public void visitScript(ScriptTree tree) {
     SymbolModel symbolModel = getContext().getSymbolModel();
     for (Symbol symbol : symbolModel.getSymbols(Symbol.Kind.VARIABLE)) {
-      visitSymbol(symbolModel, symbol);
+      visitSymbol(symbol);
     }
   }
 
@@ -64,8 +64,8 @@ public class VariableDeclarationAfterUsageCheck extends BaseTreeVisitor {
     }
   }
 
-  private void visitSymbol(SymbolModel symbolModel, Symbol symbol) {
-    List<Usage> usages = new LinkedList<>(symbolModel.getUsagesFor(symbol));
+  private void visitSymbol(Symbol symbol) {
+    List<Usage> usages = new LinkedList<>(symbol.usages());
     if (!usages.isEmpty()) {
       Collections.sort(usages, new LineComparator());
       int declarationLine = ((JavaScriptTree) symbol.declaration().tree()).getLine();

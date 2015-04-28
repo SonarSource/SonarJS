@@ -63,10 +63,9 @@ public class BoundOrAssignedEvalOrArgumentsCheck extends BaseTreeVisitor {
   }
 
   private void visitVariableOrFunction(Symbol symbol) {
-    SymbolModel symbolModel = getContext().getSymbolModel();
     if (symbol.is(Symbol.Kind.VARIABLE) || symbol.is(Symbol.Kind.FUNCTION)){
       if (symbol.buildIn()){
-        for (Usage usage : symbolModel.getUsagesFor(symbol)) {
+        for (Usage usage : symbol.usages()) {
           if (!usage.kind().equals(Usage.Kind.READ)) {
             getContext().addIssue(this, usage.symbolTree(), String.format(MODIFICATION_MESSAGE, symbol.name()));
           }

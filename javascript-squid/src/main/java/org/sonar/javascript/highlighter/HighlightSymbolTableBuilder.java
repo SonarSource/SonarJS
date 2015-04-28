@@ -47,8 +47,8 @@ public class HighlightSymbolTableBuilder {
         int endOffset = sourceFileOffsets.endOffset(token.getToken());
         org.sonar.api.source.Symbol reference = builder.newSymbol(startOffset, endOffset);
 
-        for (Usage usage : symbolModel.getUsagesFor(symbol)) {
-          if (!usage.isInit()) {
+        for (Usage usage : symbol.usages()) {
+          if (!usage.isInitialization()) {
             builder.newReference(reference, sourceFileOffsets.startOffset(((InternalSyntaxToken) usage.symbolTree().identifierToken()).getToken()));
           }
         }

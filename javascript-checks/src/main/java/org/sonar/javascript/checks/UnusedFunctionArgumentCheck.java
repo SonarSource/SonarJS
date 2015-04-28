@@ -92,25 +92,23 @@ public class UnusedFunctionArgumentCheck extends BaseTreeVisitor {
   }
 
   private void visitScope(Scope scope) {
-    SymbolModel symbolModel = getContext().getSymbolModel();
-
-    if (buildInArgumentsUsed(symbolModel, scope) || scope.getTree().is(Tree.Kind.SET_METHOD)){
+    if (buildInArgumentsUsed(scope) || scope.tree().is(Tree.Kind.SET_METHOD)){
       return;
     }
 
     List<Symbol> arguments = scope.getSymbols(Symbol.Kind.PARAMETER);
-    List<Symbol> unusedArguments = getUnusedArguments(arguments, symbolModel);
+    List<Symbol> unusedArguments = getUnusedArguments(arguments);
 
     if (!unusedArguments.isEmpty()) {
       String ending = unusedArguments.size() == 1 ? "" : "s";
-      getContext().addIssue(this, scope.getTree(), String.format(MESSAGE, ending, getListOfArguments(unusedArguments)));
+      getContext().addIssue(this, scope.tree(), String.format(MESSAGE, ending, getListOfArguments(unusedArguments)));
     }
   }
 
-  private List<Symbol> getUnusedArguments(List<Symbol> arguments, SymbolModel symbolModel){
+  private List<Symbol> getUnusedArguments(List<Symbol> arguments){
     List<Symbol> unusedArguments = new LinkedList<>();
     Collections.sort(arguments, new PositionComparator());
-    List<Boolean> usageInfo = getUsageInfo(symbolModel, arguments);
+    List<Boolean> usageInfo = getUsageInfo(arguments);
     boolean usedAfter = false;
     for (int i = arguments.size() - 1; i >= 0; i--){
       if (usageInfo.get(i)){
@@ -122,19 +120,19 @@ public class UnusedFunctionArgumentCheck extends BaseTreeVisitor {
     return unusedArguments;
   }
 
-  private boolean buildInArgumentsUsed(SymbolModel symbolModel, Scope scope) {
+  private boolean buildInArgumentsUsed(Scope scope) {
     Symbol argumentsBuildInVariable = scope.lookupSymbol("arguments");
     if (argumentsBuildInVariable == null){
       return false;
     }
-    boolean isUsed = !symbolModel.getUsagesFor(argumentsBuildInVariable).isEmpty();
+    boolean isUsed = !argumentsBuildInVariable.usages().isEmpty();
     return argumentsBuildInVariable.buildIn() && isUsed;
   }
 
-  private List<Boolean> getUsageInfo(SymbolModel symbolModel, List<Symbol> symbols) {
+  private List<Boolean> getUsageInfo(List<Symbol> symbols) {
     List<Boolean> result = new LinkedList<>();
     for (Symbol symbol : symbols){
-      if (symbolModel.getUsagesFor(symbol).isEmpty()){
+      if (symbol.usages().isEmpty()){
         result.add(false);
       } else {
         result.add(true);

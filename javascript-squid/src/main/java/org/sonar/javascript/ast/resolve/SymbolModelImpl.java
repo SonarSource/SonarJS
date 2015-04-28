@@ -60,11 +60,6 @@ public class SymbolModelImpl implements SymbolModel, SymbolModelBuilder {
   }
 
   @Override
-  public void addUsage(Symbol symbol, Usage usage) {
-    usagesTree.put(symbol, usage);
-  }
-
-  @Override
   public void addScope(Scope scope){
     if (scopes.isEmpty()){
       globalScope = scope;
@@ -90,11 +85,6 @@ public class SymbolModelImpl implements SymbolModel, SymbolModelBuilder {
     Symbol symbol = Symbol.create(name, declaration, kind, scope).setBuildIn(true);
     setScopeForSymbol(symbol, scope);
     return symbol;
-  }
-
-  @Override
-  public Collection<Usage> getUsagesFor(Symbol symbol) {
-    return usagesTree.get(symbol);
   }
 
   /**
