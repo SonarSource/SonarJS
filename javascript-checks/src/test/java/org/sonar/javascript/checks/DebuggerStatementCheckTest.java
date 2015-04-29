@@ -19,6 +19,7 @@
  */
 package org.sonar.javascript.checks;
 
+import org.sonar.javascript.checks.utils.TreeCheckTest;
 import org.sonar.squidbridge.checks.CheckMessagesVerifier;
 import org.junit.Test;
 import org.sonar.javascript.JavaScriptAstScanner;
@@ -26,13 +27,12 @@ import org.sonar.squidbridge.api.SourceFile;
 
 import java.io.File;
 
-public class DebuggerStatementCheckTest {
+public class DebuggerStatementCheckTest extends TreeCheckTest {
 
   @Test
   public void test() {
-    DebuggerStatementCheck check = new DebuggerStatementCheck();
+    SourceFile file = scanFile("src/test/resources/checks/debuggerStatement.js", new DebuggerStatementCheck());
 
-    SourceFile file = JavaScriptAstScanner.scanSingleFile(new File("src/test/resources/checks/debuggerStatement.js"), check);
     CheckMessagesVerifier.verify(file.getCheckMessages())
         .next().atLine(2).withMessage("Remove this debugger statement.")
         .noMore();

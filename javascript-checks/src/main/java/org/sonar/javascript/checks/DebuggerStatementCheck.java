@@ -22,7 +22,9 @@ package org.sonar.javascript.checks;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
+import org.sonar.javascript.ast.visitors.BaseTreeVisitor;
 import org.sonar.javascript.model.interfaces.Tree.Kind;
+import org.sonar.javascript.model.interfaces.statement.DebuggerStatementTree;
 import org.sonar.squidbridge.annotations.ActivatedByDefault;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
@@ -39,16 +41,13 @@ import com.sonar.sslr.api.AstNode;
 @ActivatedByDefault
 @SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.SECURITY_FEATURES)
 @SqaleConstantRemediation("5min")
-public class DebuggerStatementCheck extends SquidCheck<LexerlessGrammar> {
+public class DebuggerStatementCheck extends BaseTreeVisitor {
+
 
   @Override
-  public void init() {
-    subscribeTo(Kind.DEBUGGER_STATEMENT);
-  }
-
-  @Override
-  public void visitNode(AstNode astNode) {
-    getContext().createLineViolation(this, "Remove this debugger statement.", astNode);
+  public void visitDebugger(DebuggerStatementTree tree) {
+    getContext().addIssue(this, tree, "Remove this debugger statement.");
+    // no sub tree
   }
 
 }
