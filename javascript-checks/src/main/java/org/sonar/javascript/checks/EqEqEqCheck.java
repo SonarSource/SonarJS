@@ -24,11 +24,13 @@ import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.javascript.api.EcmaScriptKeyword;
 import org.sonar.javascript.api.EcmaScriptPunctuator;
+import org.sonar.javascript.ast.visitors.BaseTreeVisitor;
+import org.sonar.javascript.model.interfaces.Tree;
+import org.sonar.javascript.model.interfaces.expression.BinaryExpressionTree;
+import org.sonar.javascript.model.interfaces.expression.ExpressionTree;
 import org.sonar.squidbridge.annotations.ActivatedByDefault;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
-import org.sonar.squidbridge.checks.SquidCheck;
-import org.sonar.sslr.parser.LexerlessGrammar;
 
 import com.sonar.sslr.api.AstNode;
 
@@ -40,27 +42,25 @@ import com.sonar.sslr.api.AstNode;
 @ActivatedByDefault
 @SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.INSTRUCTION_RELIABILITY)
 @SqaleConstantRemediation("5min")
-public class EqEqEqCheck extends SquidCheck<LexerlessGrammar> {
+public class EqEqEqCheck extends BaseTreeVisitor {
 
   @Override
-  public void init() {
-    subscribeTo(EcmaScriptPunctuator.EQUAL, EcmaScriptPunctuator.NOTEQUAL);
-  }
+  public void visitBinaryExpression(BinaryExpressionTree tree) {
+    if (!isNullLiteral(tree.leftOperand()) && !isNullLiteral(tree.rightOperand())) {
 
-  @Override
-  public void visitNode(AstNode node) {
-    if (!comparesWithNull(node)) {
+      if (tree.is(Tree.Kind.EQUAL_TO)) {
+        getContext().addIssue(this, tree.operator(), "Replace \"==\" with \"===\".");
 
-      if (node.is(EcmaScriptPunctuator.EQUAL)) {
-        getContext().createLineViolation(this, "Replace \"==\" with \"===\".", node);
-      } else if (node.is(EcmaScriptPunctuator.NOTEQUAL)) {
-        getContext().createLineViolation(this, "Replace \"!=\" with \"!==\".", node);
+      } else if (tree.is(Tree.Kind.NOT_EQUAL_TO)) {
+        getContext().addIssue(this, tree.operator(), "Replace \"!=\" with \"!==\".");
       }
     }
+
+    super.visitBinaryExpression(tree);
   }
 
-  public boolean comparesWithNull(AstNode node) {
-    return EcmaScriptKeyword.NULL.getValue().equals(node.getNextSibling().getTokenValue());
+  private boolean isNullLiteral(ExpressionTree expressionTree) {
+    return expressionTree.is(Tree.Kind.NULL_LITERAL);
   }
 
 }

@@ -19,20 +19,17 @@
  */
 package org.sonar.javascript.checks;
 
-import org.sonar.squidbridge.checks.CheckMessagesVerifier;
 import org.junit.Test;
-import org.sonar.javascript.JavaScriptAstScanner;
+import org.sonar.javascript.checks.utils.TreeCheckTest;
 import org.sonar.squidbridge.api.SourceFile;
+import org.sonar.squidbridge.checks.CheckMessagesVerifier;
 
-import java.io.File;
-
-public class EqEqEqCheckTest {
+public class EqEqEqCheckTest extends TreeCheckTest {
 
   @Test
   public void test() {
-    EqEqEqCheck check = new EqEqEqCheck();
+    SourceFile file = scanFile("src/test/resources/checks/eqEqEq.js", new EqEqEqCheck());
 
-    SourceFile file = JavaScriptAstScanner.scanSingleFile(new File("src/test/resources/checks/eqEqEq.js"), check);
     CheckMessagesVerifier.verify(file.getCheckMessages())
         .next().atLine(2).withMessage("Replace \"==\" with \"===\".")
         .next().atLine(4).withMessage("Replace \"!=\" with \"!==\".")
