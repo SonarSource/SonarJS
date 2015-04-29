@@ -26,8 +26,6 @@ import org.sonar.javascript.ast.visitors.BaseTreeVisitor;
 import org.sonar.javascript.model.interfaces.statement.ContinueStatementTree;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
-import org.sonar.squidbridge.checks.SquidCheck;
-import org.sonar.sslr.parser.LexerlessGrammar;
 
 @Rule(
   key = "ContinueStatement",
