@@ -22,7 +22,10 @@ package org.sonar.javascript.checks;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
+import org.sonar.javascript.ast.visitors.BaseTreeVisitor;
 import org.sonar.javascript.model.interfaces.Tree.Kind;
+import org.sonar.javascript.model.interfaces.expression.CallExpressionTree;
+import org.sonar.javascript.model.interfaces.expression.IdentifierTree;
 import org.sonar.squidbridge.annotations.ActivatedByDefault;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
@@ -39,22 +42,15 @@ import com.sonar.sslr.api.AstNode;
 @ActivatedByDefault
 @SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.INPUT_VALIDATION_AND_REPRESENTATION)
 @SqaleConstantRemediation("30min")
-public class EvalCheck extends SquidCheck<LexerlessGrammar> {
+public class EvalCheck extends BaseTreeVisitor {
 
   @Override
-  public void init() {
-    subscribeTo(Kind.CALL_EXPRESSION);
-  }
-
-  @Override
-  public void visitNode(AstNode node) {
-    AstNode simpleCallExprNode = node.getFirstChild();
-
-    AstNode memberExpressionNode = simpleCallExprNode.getFirstChild();
-
-    if (memberExpressionNode.isNot(Kind.SUPER) && "eval".equals(memberExpressionNode.getTokenValue())) {
-      getContext().createLineViolation(this, "Remove this use of the \"eval\" function.", node);
+  public void visitCallExpression(CallExpressionTree tree) {
+    if (tree.callee() instanceof IdentifierTree && "eval".equals(((IdentifierTree) tree.callee()).name())) {
+      getContext().addIssue(this, tree, "Remove this use of the \"eval\" function.");
     }
+
+    super.visitCallExpression(tree);
   }
 
 }

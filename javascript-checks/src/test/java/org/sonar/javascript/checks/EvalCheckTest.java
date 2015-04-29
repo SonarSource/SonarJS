@@ -19,6 +19,7 @@
  */
 package org.sonar.javascript.checks;
 
+import org.sonar.javascript.checks.utils.TreeCheckTest;
 import org.sonar.squidbridge.checks.CheckMessagesVerifier;
 import org.junit.Test;
 import org.sonar.javascript.JavaScriptAstScanner;
@@ -26,13 +27,12 @@ import org.sonar.squidbridge.api.SourceFile;
 
 import java.io.File;
 
-public class EvalCheckTest {
+public class EvalCheckTest extends TreeCheckTest {
 
   @Test
   public void test() {
-    EvalCheck check = new EvalCheck();
+    SourceFile file = scanFile("src/test/resources/checks/eval.js", new EvalCheck());
 
-    SourceFile file = JavaScriptAstScanner.scanSingleFile(new File("src/test/resources/checks/eval.js"), check);
     CheckMessagesVerifier.verify(file.getCheckMessages())
         .next().atLine(2).withMessage("Remove this use of the \"eval\" function.")
         .next().atLine(5)
