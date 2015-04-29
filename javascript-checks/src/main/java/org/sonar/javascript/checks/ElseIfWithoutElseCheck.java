@@ -22,14 +22,12 @@ package org.sonar.javascript.checks;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
+import org.sonar.javascript.ast.visitors.BaseTreeVisitor;
 import org.sonar.javascript.model.implementations.statement.IfStatementTreeImpl;
 import org.sonar.javascript.model.interfaces.Tree.Kind;
+import org.sonar.javascript.model.interfaces.statement.ElseClauseTree;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
-import org.sonar.squidbridge.checks.SquidCheck;
-import org.sonar.sslr.parser.LexerlessGrammar;
-
-import com.sonar.sslr.api.AstNode;
 
 @Rule(
   key = "ElseIfWithoutElse",
@@ -38,24 +36,19 @@ import com.sonar.sslr.api.AstNode;
   tags = {Tags.CERT, Tags.MISRA})
 @SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.LOGIC_RELIABILITY)
 @SqaleConstantRemediation("5min")
-public class ElseIfWithoutElseCheck extends SquidCheck<LexerlessGrammar> {
+public class ElseIfWithoutElseCheck extends BaseTreeVisitor {
 
   @Override
-  public void init() {
-    subscribeTo(Kind.IF_STATEMENT);
-  }
+  public void visitElseClause(ElseClauseTree tree) {
+    if (tree.statement().is(Kind.IF_STATEMENT)) {
+      IfStatementTreeImpl ifStmt = (IfStatementTreeImpl) tree.statement();
 
-  @Override
-  public void visitNode(AstNode node) {
-    IfStatementTreeImpl ifStmt = (IfStatementTreeImpl) node;
+      if (!ifStmt.hasElse()) {
+        getContext().addIssue(this, ifStmt, "Add the missing \"else\" clause.");
+      }
 
-    if (isElseIf(ifStmt) && !ifStmt.hasElse()) {
-      getContext().createLineViolation(this, "Add the missing \"else\" clause.", node);
     }
-  }
-
-  private boolean isElseIf(AstNode node) {
-    return node.getParent().is(Kind.ELSE_CLAUSE);
+    super.visitElseClause(tree);
   }
 
 }
