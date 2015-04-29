@@ -23,25 +23,24 @@ import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
-import org.sonar.javascript.model.interfaces.Tree.Kind;
-import org.sonar.javascript.parser.EcmaScriptGrammar;
+import org.sonar.javascript.ast.visitors.BaseTreeVisitor;
+import org.sonar.javascript.model.interfaces.declaration.FunctionDeclarationTree;
+import org.sonar.javascript.model.interfaces.declaration.MethodDeclarationTree;
+import org.sonar.javascript.model.interfaces.declaration.ParameterListTree;
+import org.sonar.javascript.model.interfaces.expression.FunctionExpressionTree;
 import org.sonar.squidbridge.annotations.ActivatedByDefault;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
-import org.sonar.squidbridge.checks.SquidCheck;
-import org.sonar.sslr.parser.LexerlessGrammar;
-
-import com.sonar.sslr.api.AstNode;
 
 @Rule(
   key = "ExcessiveParameterList",
-  name = "[Functions|Methods|Lambdas] should not have too many parameters",
+  name = "Functions should not have too many parameters",
   priority = Priority.MAJOR,
   tags = {Tags.BRAIN_OVERLOAD})
 @ActivatedByDefault
 @SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.UNIT_TESTABILITY)
 @SqaleConstantRemediation("20min")
-public class ExcessiveParameterListCheck extends SquidCheck<LexerlessGrammar> {
+public class ExcessiveParameterListCheck extends BaseTreeVisitor {
 
   private static final int DEFAULT_MAXIMUM_FUNCTION_PARAMETERS = 7;
 
@@ -52,30 +51,36 @@ public class ExcessiveParameterListCheck extends SquidCheck<LexerlessGrammar> {
   private int maximumFunctionParameters = DEFAULT_MAXIMUM_FUNCTION_PARAMETERS;
 
   @Override
-  public void init() {
-    subscribeTo(Kind.FORMAL_PARAMETER_LIST);
+  public void visitMethodDeclaration(MethodDeclarationTree tree) {
+    checkNumberOfParameters(tree.parameters());
+    super.visitMethodDeclaration(tree);
   }
 
   @Override
-  public void visitNode(AstNode node) {
-    int numberOfParameters = getNumberOfParameters(node);
-    if (numberOfParameters > maximumFunctionParameters) {
-      getContext().createLineViolation(this,
-          "Function has {0,number,integer} parameters which is greater than {1,number,integer} authorized.",
-          // Report issue on the line of the first parameter
-          node.getFirstChild(Kind.BINDING_IDENTIFIER, Kind.INITIALIZED_BINDING_ELEMENT, EcmaScriptGrammar.BINDING_REST_ELEMENT),
-          numberOfParameters,
-          maximumFunctionParameters);
-    }
+  public void visitFunctionDeclaration(FunctionDeclarationTree tree) {
+    checkNumberOfParameters(tree.parameters());
+    super.visitFunctionDeclaration(tree);
   }
 
-  private int getNumberOfParameters(AstNode node) {
-    return (node.getNumberOfChildren() - 3) / 2 + 1;
+  @Override
+  public void visitFunctionExpression(FunctionExpressionTree tree) {
+    checkNumberOfParameters(tree.parameters());
+    super.visitFunctionExpression(tree);
+  }
+
+  private void checkNumberOfParameters(ParameterListTree tree) {
+    Integer numberOfParameters = tree.parameters().size();
+
+    if (numberOfParameters > maximumFunctionParameters) {
+      getContext().addIssue(this,
+        // Report issue on the line of the first parameter
+        tree.parameters().get(0),
+        "Function has " + numberOfParameters + " parameters which is greater than " + maximumFunctionParameters + " authorized.");
+    }
   }
 
   public void setMaximumFunctionParameters(int threshold) {
     this.maximumFunctionParameters = threshold;
   }
-
 
 }
