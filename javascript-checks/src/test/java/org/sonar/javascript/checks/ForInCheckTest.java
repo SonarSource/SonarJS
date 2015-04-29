@@ -20,19 +20,16 @@
 package org.sonar.javascript.checks;
 
 import org.junit.Test;
-import org.sonar.javascript.JavaScriptAstScanner;
+import org.sonar.javascript.checks.utils.TreeCheckTest;
 import org.sonar.squidbridge.api.SourceFile;
 import org.sonar.squidbridge.checks.CheckMessagesVerifier;
 
-import java.io.File;
-
-public class ForInCheckTest {
+public class ForInCheckTest extends TreeCheckTest {
 
   @Test
   public void test() {
-    ForInCheck check = new ForInCheck();
+    SourceFile file = scanFile("src/test/resources/checks/forIn.js", new ForInCheck());
 
-    SourceFile file = JavaScriptAstScanner.scanSingleFile(new File("src/test/resources/checks/forIn.js"), check);
     CheckMessagesVerifier.verify(file.getCheckMessages())
       .next().atLine(1).withMessage("Insert an if statement at the beginning of this loop to filter items.")
       .next().atLine(21)

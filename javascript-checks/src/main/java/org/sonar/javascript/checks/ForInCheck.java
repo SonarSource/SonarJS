@@ -22,6 +22,7 @@ package org.sonar.javascript.checks;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
+import org.sonar.javascript.ast.visitors.BaseTreeVisitor;
 import org.sonar.javascript.model.interfaces.Tree.Kind;
 import org.sonar.javascript.model.interfaces.statement.BlockTree;
 import org.sonar.javascript.model.interfaces.statement.ForInStatementTree;
@@ -42,17 +43,11 @@ import com.sonar.sslr.api.AstNode;
 @ActivatedByDefault
 @SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.LOGIC_RELIABILITY)
 @SqaleConstantRemediation("5min")
-public class ForInCheck extends SquidCheck<LexerlessGrammar> {
+public class ForInCheck extends BaseTreeVisitor {
 
   @Override
-  public void init() {
-    subscribeTo(Kind.FOR_IN_STATEMENT);
-  }
-
-  @Override
-  public void visitNode(AstNode astNode) {
-    ForInStatementTree forInStatement = (ForInStatementTree) astNode;
-    StatementTree statementNode = forInStatement.statement();
+  public void visitForInStatement(ForInStatementTree tree) {
+    StatementTree statementNode = tree.statement();
 
     if (statementNode.is(Kind.BLOCK)) {
       BlockTree block = (BlockTree) statementNode;
@@ -60,9 +55,10 @@ public class ForInCheck extends SquidCheck<LexerlessGrammar> {
     }
 
     if (statementNode != null && !statementNode.is(Kind.IF_STATEMENT)) {
-      getContext().createLineViolation(this, "Insert an if statement at the beginning of this loop to filter items.", astNode);
+      getContext().addIssue(this, tree, "Insert an if statement at the beginning of this loop to filter items.");
     }
 
+    super.visitForInStatement(tree);
   }
 
 }
