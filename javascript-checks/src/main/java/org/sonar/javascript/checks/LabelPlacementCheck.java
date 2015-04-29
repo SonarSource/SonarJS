@@ -22,6 +22,7 @@ package org.sonar.javascript.checks;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
+import org.sonar.javascript.ast.visitors.BaseTreeVisitor;
 import org.sonar.javascript.model.interfaces.Tree.Kind;
 import org.sonar.javascript.model.interfaces.statement.LabelledStatementTree;
 import org.sonar.squidbridge.annotations.ActivatedByDefault;
@@ -40,7 +41,7 @@ import com.sonar.sslr.api.AstNode;
 @ActivatedByDefault
 @SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.LOGIC_RELIABILITY)
 @SqaleConstantRemediation("20min")
-public class LabelPlacementCheck extends SquidCheck<LexerlessGrammar> {
+public class LabelPlacementCheck extends BaseTreeVisitor {
 
   private static final Kind[] ITERATION_STATEMENTS = {
     Kind.DO_WHILE_STATEMENT,
@@ -51,17 +52,13 @@ public class LabelPlacementCheck extends SquidCheck<LexerlessGrammar> {
   };
 
   @Override
-  public void init() {
-    subscribeTo(Kind.LABELLED_STATEMENT);
-  }
-
-  @Override
-  public void visitNode(AstNode astNode) {
-    LabelledStatementTree labelStatement = (LabelledStatementTree) astNode;
-
-    if (!labelStatement.statement().is(ITERATION_STATEMENTS)) {
-      getContext().createLineViolation(this, "Remove this \"{0}\" label.", astNode, labelStatement.label().name());
+  public void visitLabelledStatement(LabelledStatementTree tree) {
+    if (!tree.statement().is(ITERATION_STATEMENTS)) {
+      getContext().addIssue(this, tree, "Remove this \"" + tree.label().name() + "\" label.");
     }
+
+    super.visitLabelledStatement(tree);
   }
+
 
 }

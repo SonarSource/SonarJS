@@ -19,6 +19,7 @@
  */
 package org.sonar.javascript.checks;
 
+import org.sonar.javascript.checks.utils.TreeCheckTest;
 import org.sonar.squidbridge.checks.CheckMessagesVerifier;
 import org.junit.Test;
 import org.sonar.javascript.JavaScriptAstScanner;
@@ -26,13 +27,12 @@ import org.sonar.squidbridge.api.SourceFile;
 
 import java.io.File;
 
-public class LabelPlacementCheckTest {
+public class LabelPlacementCheckTest extends TreeCheckTest {
 
   @Test
   public void test() {
-    LabelPlacementCheck check = new LabelPlacementCheck();
+    SourceFile file = scanFile("src/test/resources/checks/labelPlacement.js", new LabelPlacementCheck());
 
-    SourceFile file = JavaScriptAstScanner.scanSingleFile(new File("src/test/resources/checks/labelPlacement.js"), check);
     CheckMessagesVerifier.verify(file.getCheckMessages())
         .next().atLine(3).withMessage("Remove this \"label\" label.")
         .noMore();
