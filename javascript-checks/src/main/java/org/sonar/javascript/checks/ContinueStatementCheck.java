@@ -22,13 +22,12 @@ package org.sonar.javascript.checks;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
-import org.sonar.javascript.model.interfaces.Tree.Kind;
+import org.sonar.javascript.ast.visitors.BaseTreeVisitor;
+import org.sonar.javascript.model.interfaces.statement.ContinueStatementTree;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 import org.sonar.squidbridge.checks.SquidCheck;
 import org.sonar.sslr.parser.LexerlessGrammar;
-
-import com.sonar.sslr.api.AstNode;
 
 @Rule(
   key = "ContinueStatement",
@@ -37,15 +36,11 @@ import com.sonar.sslr.api.AstNode;
   tags = {Tags.MISRA})
 @SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.UNIT_TESTABILITY)
 @SqaleConstantRemediation("30min")
-public class ContinueStatementCheck extends SquidCheck<LexerlessGrammar> {
-  @Override
-  public void init() {
-    subscribeTo(Kind.CONTINUE_STATEMENT);
-  }
+public class ContinueStatementCheck extends BaseTreeVisitor {
 
   @Override
-  public void visitNode(AstNode astNode) {
-    getContext().createLineViolation(this, "Avoid using continue statement.", astNode);
+  public void visitContinueStatement(ContinueStatementTree tree) {
+    getContext().addIssue(this, tree, "Avoid using continue statement.");
   }
 
 }
