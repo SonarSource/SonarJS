@@ -22,17 +22,17 @@ package org.sonar.javascript.checks;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
-import org.sonar.javascript.checks.utils.CheckUtils;
+import org.sonar.javascript.ast.visitors.BaseTreeVisitor;
 import org.sonar.javascript.model.interfaces.Tree.Kind;
+import org.sonar.javascript.model.interfaces.declaration.FunctionDeclarationTree;
+import org.sonar.javascript.model.interfaces.declaration.MethodDeclarationTree;
+import org.sonar.javascript.model.interfaces.expression.ArrowFunctionTree;
+import org.sonar.javascript.model.interfaces.expression.FunctionExpressionTree;
 import org.sonar.javascript.model.interfaces.statement.BlockTree;
 import org.sonar.javascript.model.interfaces.statement.StatementTree;
 import org.sonar.squidbridge.annotations.ActivatedByDefault;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
-import org.sonar.squidbridge.checks.SquidCheck;
-import org.sonar.sslr.parser.LexerlessGrammar;
-
-import com.sonar.sslr.api.AstNode;
 
 @Rule(
   key = "FunctionDeclarationsWithinBlocks",
@@ -42,25 +42,47 @@ import com.sonar.sslr.api.AstNode;
 @ActivatedByDefault
 @SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.INSTRUCTION_RELIABILITY)
 @SqaleConstantRemediation("5min")
-public class FunctionDeclarationsWithinBlocksCheck extends SquidCheck<LexerlessGrammar> {
+public class FunctionDeclarationsWithinBlocksCheck extends BaseTreeVisitor {
 
   @Override
-  public void init() {
-    subscribeTo(Kind.BLOCK);
-  }
+  public void visitBlock(BlockTree tree) {
+    for (StatementTree stmt : tree.statements()) {
 
-  @Override
-  public void visitNode(AstNode astNode) {
-    if (CheckUtils.isFunction(astNode.getParent())) {
-      return;
-    }
-    BlockTree block = (BlockTree) astNode;
-
-    for (StatementTree stmt : block.statements()) {
       if (stmt.is(Kind.FUNCTION_DECLARATION)) {
-        getContext().createLineViolation(this, "Do not use function declarations within blocks.", (AstNode) stmt);
+        getContext().addIssue(this, stmt, "Do not use function declarations within blocks.");
       }
     }
+
+    super.visitBlock(tree);
   }
 
+  /**
+   * Ignoring function declared in function body block
+   */
+
+
+  @Override
+  public void visitArrowFunction(ArrowFunctionTree tree) {
+    if (tree.conciseBody().is(Kind.BLOCK)) {
+      scan(((BlockTree) tree.conciseBody()).statements());
+
+    } else {
+      super.visitArrowFunction(tree);
+    }
+  }
+
+  @Override
+  public void visitFunctionDeclaration(FunctionDeclarationTree tree) {
+    scan(tree.body().statements());
+  }
+
+  @Override
+  public void visitFunctionExpression(FunctionExpressionTree tree) {
+    scan(tree.body().statements());
+  }
+
+  @Override
+  public void visitMethodDeclaration(MethodDeclarationTree tree) {
+    scan(tree.body().statements());
+  }
 }
