@@ -19,20 +19,17 @@
  */
 package org.sonar.javascript.checks;
 
-import org.sonar.squidbridge.checks.CheckMessagesVerifier;
 import org.junit.Test;
-import org.sonar.javascript.JavaScriptAstScanner;
+import org.sonar.javascript.checks.utils.TreeCheckTest;
 import org.sonar.squidbridge.api.SourceFile;
+import org.sonar.squidbridge.checks.CheckMessagesVerifier;
 
-import java.io.File;
-
-public class ConditionalOperatorCheckTest {
+public class ConditionalOperatorCheckTest extends TreeCheckTest {
 
   @Test
   public void test() {
-    ConditionalOperatorCheck check = new ConditionalOperatorCheck();
+    SourceFile file = scanFile("src/test/resources/checks/inlineConditional.js", new ConditionalOperatorCheck());
 
-    SourceFile file = JavaScriptAstScanner.scanSingleFile(new File("src/test/resources/checks/inlineConditional.js"), check);
     CheckMessagesVerifier.verify(file.getCheckMessages())
         .next().atLine(2).withMessage("Replace this conditional operator by a standard if/else control flow statement.")
         .noMore();

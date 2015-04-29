@@ -22,13 +22,10 @@ package org.sonar.javascript.checks;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
-import org.sonar.javascript.api.EcmaScriptPunctuator;
+import org.sonar.javascript.ast.visitors.BaseTreeVisitor;
+import org.sonar.javascript.model.interfaces.expression.ConditionalExpressionTree;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
-import org.sonar.squidbridge.checks.SquidCheck;
-import org.sonar.sslr.parser.LexerlessGrammar;
-
-import com.sonar.sslr.api.AstNode;
 
 @Rule(
   key = "ConditionalOperator",
@@ -37,16 +34,12 @@ import com.sonar.sslr.api.AstNode;
   tags = {Tags.CONFUSING})
 @SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.UNDERSTANDABILITY)
 @SqaleConstantRemediation("5min")
-public class ConditionalOperatorCheck extends SquidCheck<LexerlessGrammar> {
+public class ConditionalOperatorCheck extends BaseTreeVisitor {
 
   @Override
-  public void init() {
-    subscribeTo(EcmaScriptPunctuator.QUERY);
-  }
-
-  @Override
-  public void visitNode(AstNode node) {
-    getContext().createLineViolation(this, "Replace this conditional operator by a standard if/else control flow statement.", node);
+  public void visitConditionalExpression(ConditionalExpressionTree tree) {
+    getContext().addIssue(this, tree.query(), "Replace this conditional operator by a standard if/else control flow statement.");
+    super.visitConditionalExpression(tree);
   }
 
 }
