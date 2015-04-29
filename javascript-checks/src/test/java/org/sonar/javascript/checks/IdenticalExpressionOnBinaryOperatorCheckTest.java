@@ -34,12 +34,11 @@ public class IdenticalExpressionOnBinaryOperatorCheckTest extends TreeCheckTest 
     CheckMessagesVerifier.verify(file.getCheckMessages())
       .next().atLine(4).withMessage("Identical sub-expressions on both sides of operator \"==\"")
       .next().atLine(6).withMessage("Identical sub-expressions on both sides of operator \"!=\"")
-      .next().atLine(8).withMessage("Identical sub-expressions on both sides of operator \"===\"")
-      .next().atLine(10).withMessage("Identical sub-expressions on both sides of operator \"&&\"")
-      .next().atLine(12).withMessage("Identical sub-expressions on both sides of operator \"||\"")
-      .next().atLine(14).withMessage("Identical sub-expressions on both sides of operator \"/\"")
-      .next().atLine(16).withMessage("Identical sub-expressions on both sides of operator \"-\"")
-      .next().atLine(18).withMessage("Identical sub-expressions on both sides of operator \"<<\"")
+      .next().atLine(8).withMessage("Identical sub-expressions on both sides of operator \"&&\"")
+      .next().atLine(10).withMessage("Identical sub-expressions on both sides of operator \"||\"")
+      .next().atLine(12).withMessage("Identical sub-expressions on both sides of operator \"/\"")
+      .next().atLine(14).withMessage("Identical sub-expressions on both sides of operator \"-\"")
+      .next().atLine(16).withMessage("Identical sub-expressions on both sides of operator \"<<\"")
       .noMore();
   }
 }
