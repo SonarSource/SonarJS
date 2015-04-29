@@ -22,16 +22,11 @@ package org.sonar.javascript.checks;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
-import org.sonar.javascript.api.EcmaScriptPunctuator;
-import org.sonar.javascript.model.interfaces.Tree.Kind;
+import org.sonar.javascript.ast.visitors.BaseTreeVisitor;
 import org.sonar.javascript.model.interfaces.statement.ForStatementTree;
 import org.sonar.squidbridge.annotations.ActivatedByDefault;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
-import org.sonar.squidbridge.checks.SquidCheck;
-import org.sonar.sslr.parser.LexerlessGrammar;
-
-import com.sonar.sslr.api.AstNode;
 
 @Rule(
   key = "S1264",
@@ -41,26 +36,14 @@ import com.sonar.sslr.api.AstNode;
 @ActivatedByDefault
 @SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.READABILITY)
 @SqaleConstantRemediation("5min")
-public class ForHidingWhileCheck extends SquidCheck<LexerlessGrammar> {
+public class ForHidingWhileCheck extends BaseTreeVisitor {
 
   @Override
-  public void init() {
-    subscribeTo(Kind.FOR_STATEMENT);
-  }
-
-  @Override
-  public void visitNode(AstNode astNode) {
-    if (!hasInitialisation(astNode) && !hasIncrement(astNode)) {
-      getContext().createLineViolation(this, "Replace this \"for\" loop with a \"while\" loop", astNode);
+  public void visitForStatement(ForStatementTree tree) {
+    if (tree.init() == null && tree.update() == null) {
+      getContext().addIssue(this, tree, "Replace this \"for\" loop with a \"while\" loop");
     }
+    
+    super.visitForStatement(tree);
   }
-
-  public static boolean hasInitialisation(AstNode forStmt) {
-    return forStmt.getFirstChild(EcmaScriptPunctuator.LPARENTHESIS).getNextAstNode().isNot(EcmaScriptPunctuator.SEMI);
-  }
-
-  public static boolean hasIncrement(AstNode forStmt) {
-    return ((ForStatementTree) forStmt).update() != null;
-  }
-
 }

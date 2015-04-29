@@ -21,17 +21,18 @@ package org.sonar.javascript.checks;
 
 import org.junit.Test;
 import org.sonar.javascript.JavaScriptAstScanner;
+import org.sonar.javascript.checks.utils.TreeCheckTest;
 import org.sonar.squidbridge.api.SourceFile;
 import org.sonar.squidbridge.checks.CheckMessagesVerifier;
 
 import java.io.File;
 
-public class ForHidingWhileCheckTest {
+public class ForHidingWhileCheckTest extends TreeCheckTest{
 
-  private final ForHidingWhileCheck check = new ForHidingWhileCheck();
   @Test
   public void test() {
-    SourceFile file = JavaScriptAstScanner.scanSingleFile(new File("src/test/resources/checks/forHidingWhile.js"), check);
+    SourceFile file = scanFile("src/test/resources/checks/forHidingWhile.js", new ForHidingWhileCheck());
+
     CheckMessagesVerifier.verify(file.getCheckMessages())
       .next().atLine(1)
       .next().atLine(4)
