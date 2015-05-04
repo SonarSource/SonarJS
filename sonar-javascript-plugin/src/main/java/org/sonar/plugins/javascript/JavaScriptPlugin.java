@@ -28,7 +28,8 @@ import org.sonar.javascript.checks.AbstractJQueryCheck;
 import org.sonar.plugins.javascript.core.JavaScript;
 import org.sonar.plugins.javascript.core.JavaScriptSourceImporter;
 import org.sonar.plugins.javascript.cpd.JavaScriptCpdMapping;
-import org.sonar.plugins.javascript.lcov.CoverageSensor;
+import org.sonar.plugins.javascript.lcov.ITCoverageSensor;
+import org.sonar.plugins.javascript.lcov.UTCoverageSensor;
 import org.sonar.plugins.javascript.unittest.jstest.JsTestSensor;
 import org.sonar.plugins.javascript.unittest.jstestdriver.JsTestDriverSensor;
 
@@ -44,8 +45,11 @@ public class JavaScriptPlugin extends SonarPlugin {
 
   public static final String PROPERTY_PREFIX = "sonar.javascript";
 
-  public static final String LCOV_REPORT_PATH = PROPERTY_PREFIX + ".lcov.reportPath";
-  public static final String LCOV_REPORT_PATH_DEFAULT_VALUE = "";
+  public static final String LCOV_UT_REPORT_PATH = PROPERTY_PREFIX + ".lcov.reportPath";
+  public static final String LCOV_UT_REPORT_PATH_DEFAULT_VALUE = "";
+
+  public static final String LCOV_IT_REPORT_PATH = PROPERTY_PREFIX + ".lcov.itReportPath";
+  public static final String LCOV_IT_REPORT_PATH_DEFAULT_VALUE = "";
 
   public static final String FORCE_ZERO_COVERAGE_KEY = "sonar.javascript.forceZeroCoverage";
   public static final String FORCE_ZERO_COVERAGE_DEFAULT_VALUE = "false";
@@ -75,7 +79,8 @@ public class JavaScriptPlugin extends SonarPlugin {
 
         JsTestSensor.class,
         JsTestDriverSensor.class,
-        CoverageSensor.class,
+        UTCoverageSensor.class,
+        ITCoverageSensor.class,
 
         PropertyDefinition.builder(FILE_SUFFIXES_KEY)
           .defaultValue(FILE_SUFFIXES_DEFVALUE)
@@ -83,10 +88,17 @@ public class JavaScriptPlugin extends SonarPlugin {
           .description("Comma-separated list of suffixes for files to analyze.")
           .build(),
 
-        PropertyDefinition.builder(LCOV_REPORT_PATH)
-        .defaultValue(LCOV_REPORT_PATH_DEFAULT_VALUE)
-        .name("LCOV File")
-        .description("Path (absolute or relative) to the file with LCOV data.")
+        PropertyDefinition.builder(LCOV_UT_REPORT_PATH)
+        .defaultValue(LCOV_UT_REPORT_PATH_DEFAULT_VALUE)
+        .name("Unit Tests LCOV File")
+        .description("Path (absolute or relative) to the file with LCOV data for unit tests.")
+        .onQualifiers(Qualifiers.MODULE, Qualifiers.PROJECT)
+            .build(),
+
+        PropertyDefinition.builder(LCOV_IT_REPORT_PATH)
+        .defaultValue(LCOV_IT_REPORT_PATH_DEFAULT_VALUE)
+        .name("Integration Tests LCOV File")
+        .description("Path (absolute or relative) to the file with LCOV data for integration tests.")
         .onQualifiers(Qualifiers.MODULE, Qualifiers.PROJECT)
         .build(),
 

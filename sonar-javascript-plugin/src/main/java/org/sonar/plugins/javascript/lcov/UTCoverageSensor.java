@@ -39,30 +39,40 @@ import org.sonar.api.resources.Project;
 import org.sonar.plugins.javascript.JavaScriptPlugin;
 import org.sonar.plugins.javascript.core.JavaScript;
 
+import javax.annotation.Nullable;
 import java.io.File;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
-public class CoverageSensor implements Sensor {
+public class UTCoverageSensor implements Sensor {
 
   @DependsUpon
   public Collection<Metric> dependsUponMetrics() {
     return ImmutableList.<Metric>of(CoreMetrics.NCLOC, CoreMetrics.NCLOC_DATA);
   }
 
-  private static final Logger LOG = LoggerFactory.getLogger(CoverageSensor.class);
+  private static final Logger LOG = LoggerFactory.getLogger(UTCoverageSensor.class);
 
   private final FileSystem fileSystem;
   private final Settings settings;
   private final FilePredicate mainFilePredicate;
 
-  public CoverageSensor(FileSystem fileSystem, Settings settings) {
+  protected Metric linesToCoverMetric = CoreMetrics.LINES_TO_COVER;
+  protected Metric uncoveredLinesMetric = CoreMetrics.UNCOVERED_LINES;
+  protected Metric coverageLineHitsDataMetric = CoreMetrics.COVERAGE_LINE_HITS_DATA;
+  protected Metric coveredConditionsByLineMetric = CoreMetrics.COVERED_CONDITIONS_BY_LINE;
+  protected Metric conditionsByLineMetric = CoreMetrics.CONDITIONS_BY_LINE;
+  protected Metric uncoveredConditionsMetric = CoreMetrics.UNCOVERED_CONDITIONS;
+  protected Metric conditionsToCoverMetric = CoreMetrics.CONDITIONS_TO_COVER;
+  protected String reportPath = JavaScriptPlugin.LCOV_UT_REPORT_PATH;
+
+  public UTCoverageSensor(FileSystem fileSystem, Settings settings) {
     this.fileSystem = fileSystem;
     this.settings = settings;
     this.mainFilePredicate = fileSystem.predicates().and(
-      fileSystem.predicates().hasType(InputFile.Type.MAIN),
-      fileSystem.predicates().hasLanguage(JavaScript.KEY));
+        fileSystem.predicates().hasType(InputFile.Type.MAIN),
+        fileSystem.predicates().hasLanguage(JavaScript.KEY));
   }
 
   @Override
@@ -71,7 +81,7 @@ public class CoverageSensor implements Sensor {
   }
 
   @Override
-  public void analyse(Project project, SensorContext context) {
+  public void analyse(Project module, SensorContext context) {
     if (isLCOVReportProvided()) {
       saveMeasureFromLCOVFile(context);
 
@@ -89,7 +99,7 @@ public class CoverageSensor implements Sensor {
   }
 
   protected void saveMeasureFromLCOVFile(SensorContext context) {
-    String providedPath = settings.getString(JavaScriptPlugin.LCOV_REPORT_PATH);
+    String providedPath = settings.getString(reportPath);
     File lcovFile = getIOFile(fileSystem.baseDir(), providedPath);
 
     if (!lcovFile.isFile()) {
@@ -110,7 +120,7 @@ public class CoverageSensor implements Sensor {
 
         if (fileCoverage != null) {
           for (Measure measure : fileCoverage.createMeasures()) {
-            context.saveMeasure(resource, measure);
+            context.saveMeasure(resource, convertMeasure(measure));
           }
         } else {
           // colour all lines as not executed
@@ -126,9 +136,9 @@ public class CoverageSensor implements Sensor {
     List<String> unresolvedPaths = parser.unresolvedPaths();
     if (!unresolvedPaths.isEmpty()) {
       LOG.warn(
-        String.format(
-          "Could not resolve %d file paths in %s, first unresolved path: %s",
-          unresolvedPaths.size(), lcovFile.getName(), unresolvedPaths.get(0)));
+          String.format(
+              "Could not resolve %d file paths in %s, first unresolved path: %s",
+              unresolvedPaths.size(), lcovFile.getName(), unresolvedPaths.get(0)));
     }
   }
 
@@ -136,12 +146,12 @@ public class CoverageSensor implements Sensor {
     // use non comment lines of code for coverage calculation
     double ncloc = context.getMeasure(resource, CoreMetrics.NCLOC).getValue();
     context.saveMeasure(resource, getZeroCoverageLineHitsDataMetric(resource, context));
-    context.saveMeasure(resource, CoreMetrics.LINES_TO_COVER, ncloc);
-    context.saveMeasure(resource, CoreMetrics.UNCOVERED_LINES, ncloc);
+    context.saveMeasure(resource, linesToCoverMetric, ncloc);
+    context.saveMeasure(resource, uncoveredLinesMetric, ncloc);
   }
 
   private Measure getZeroCoverageLineHitsDataMetric(org.sonar.api.resources.File resource, SensorContext context) {
-    PropertiesBuilder<Integer, Integer> lineHitsData = new PropertiesBuilder<>(CoreMetrics.COVERAGE_LINE_HITS_DATA);
+    PropertiesBuilder<Integer, Integer> lineHitsData = new PropertiesBuilder<>(coverageLineHitsDataMetric);
     String nclocData = context.getMeasure(resource, CoreMetrics.NCLOC_DATA).getData();
     if (nclocData != null) {
       String[] lines = nclocData.split(";");
@@ -156,6 +166,7 @@ public class CoverageSensor implements Sensor {
     return lineHitsData.build();
   }
 
+
   @Override
   public String toString() {
     return getClass().getSimpleName();
@@ -166,7 +177,7 @@ public class CoverageSensor implements Sensor {
   }
 
   private boolean isLCOVReportProvided() {
-    return StringUtils.isNotBlank(settings.getString(JavaScriptPlugin.LCOV_REPORT_PATH));
+    return StringUtils.isNotBlank(settings.getString(reportPath));
   }
 
   /**
@@ -182,4 +193,35 @@ public class CoverageSensor implements Sensor {
     return file;
   }
 
+  private Measure convertMeasure(Measure measure) {
+    Measure itMeasure = null;
+    Metric metric = measure.getMetric();
+    Double value = measure.getValue();
+    String data = measure.getData();
+    if (CoreMetrics.LINES_TO_COVER.equals(metric)) {
+      itMeasure = new Measure(linesToCoverMetric, value);
+    } else if (CoreMetrics.UNCOVERED_LINES.equals(metric)) {
+      itMeasure = new Measure(uncoveredLinesMetric, value);
+    } else if (CoreMetrics.COVERAGE_LINE_HITS_DATA.equals(metric)) {
+      checkDataIsNotNull(data);
+      itMeasure = new Measure(coverageLineHitsDataMetric, data);
+    } else if (CoreMetrics.CONDITIONS_TO_COVER.equals(metric)) {
+      itMeasure = new Measure(conditionsToCoverMetric, value);
+    } else if (CoreMetrics.UNCOVERED_CONDITIONS.equals(metric)) {
+      itMeasure = new Measure(uncoveredConditionsMetric, value);
+    } else if (CoreMetrics.COVERED_CONDITIONS_BY_LINE.equals(metric)) {
+      checkDataIsNotNull(data);
+      itMeasure = new Measure(coveredConditionsByLineMetric, data);
+    } else if (CoreMetrics.CONDITIONS_BY_LINE.equals(metric)) {
+      checkDataIsNotNull(data);
+      itMeasure = new Measure(conditionsByLineMetric, data);
+    }
+    return itMeasure;
+  }
+
+  private void checkDataIsNotNull(@Nullable String data) {
+    if (data == null) {
+      throw new IllegalStateException("Measure data is null but it shouldn't be");
+    }
+  }
 }

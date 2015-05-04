@@ -39,9 +39,14 @@ import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyObject;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.atLeast;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.when;
 
-public class CoverageSensorTest {
+public class UTCoverageSensorTest {
 
   private SensorContext context;
   private Settings settings;
@@ -50,7 +55,7 @@ public class CoverageSensorTest {
   @Before
   public void init() {
     settings = new Settings();
-    settings.setProperty(JavaScriptPlugin.LCOV_REPORT_PATH, "jsTestDriver.conf-coverage.dat");
+    settings.setProperty(JavaScriptPlugin.LCOV_UT_REPORT_PATH, "jsTestDriver.conf-coverage.dat");
     context = mock(SensorContext.class);
     project = new Project("project");
 
@@ -60,8 +65,8 @@ public class CoverageSensorTest {
   public void test_should_execute() {
     DefaultFileSystem fs = new DefaultFileSystem();
     Settings localSettings = new Settings();
-    localSettings.setProperty(JavaScriptPlugin.LCOV_REPORT_PATH, "jsTestDriver.conf-coverage.dat");
-    CoverageSensor localSensor = newSensor(fs, localSettings);
+    localSettings.setProperty(JavaScriptPlugin.LCOV_UT_REPORT_PATH, "jsTestDriver.conf-coverage.dat");
+    UTCoverageSensor localSensor = newSensor(fs, localSettings);
 
     // no JS files -> do not execute
     assertThat(localSensor.shouldExecuteOnProject(project)).isFalse();
@@ -71,7 +76,7 @@ public class CoverageSensorTest {
     assertThat(localSensor.shouldExecuteOnProject(project)).isTrue();
 
     // no path to report -> do execute
-    localSettings.setProperty(JavaScriptPlugin.LCOV_REPORT_PATH, "");
+    localSettings.setProperty(JavaScriptPlugin.LCOV_UT_REPORT_PATH, "");
     assertThat(localSensor.shouldExecuteOnProject(project)).isTrue();
   }
 
@@ -81,7 +86,7 @@ public class CoverageSensorTest {
 
     // Setting with bad report path
     Settings localSettings = new Settings();
-    localSettings.setProperty(JavaScriptPlugin.LCOV_REPORT_PATH, "/fake/path/jsTestDriver.conf-coverage.dat");
+    localSettings.setProperty(JavaScriptPlugin.LCOV_UT_REPORT_PATH, "/fake/path/jsTestDriver.conf-coverage.dat");
 
     newSensor(fs, localSettings).analyse(project, context);
 
@@ -122,7 +127,7 @@ public class CoverageSensorTest {
     fs.add(newSourceInputFile("sensortests/main/Person.js", "org/sonar/plugins/javascript/unittest/jstestdriver/sensortests/main/Person.js"));
 
     settings.setProperty(JavaScriptPlugin.FORCE_ZERO_COVERAGE_KEY, "true");
-    settings.setProperty(JavaScriptPlugin.LCOV_REPORT_PATH, "");
+    settings.setProperty(JavaScriptPlugin.LCOV_UT_REPORT_PATH, "");
     when(context.getMeasure(any(Resource.class), any(Metric.class))).thenReturn(new Measure().setValue(1d));
     when(context.getMeasure(any(org.sonar.api.resources.File.class), eq(CoreMetrics.NCLOC_DATA)))
         .thenReturn(
@@ -131,11 +136,6 @@ public class CoverageSensorTest {
 
     verify(context, times(1)).saveMeasure((Resource) anyObject(), eq(CoreMetrics.LINES_TO_COVER), eq(1d));
     verify(context, times(1)).saveMeasure((Resource) anyObject(), eq(CoreMetrics.UNCOVERED_LINES), eq(1d));
-  }
-
-  @Test
-  public void test_toString() {
-    assertThat(newSensor(newFileSystem(), settings).toString()).isEqualTo("CoverageSensor");
   }
 
   public DefaultInputFile newSourceInputFile(String relativePath, String path) {
@@ -152,8 +152,8 @@ public class CoverageSensorTest {
     return fs;
   }
 
-  public CoverageSensor newSensor(DefaultFileSystem fs, Settings settings) {
-    return new CoverageSensor(fs, settings);
+  public UTCoverageSensor newSensor(DefaultFileSystem fs, Settings settings) {
+    return new UTCoverageSensor(fs, settings);
   }
 
 }
