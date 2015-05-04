@@ -41,7 +41,6 @@ import java.util.List;
     name = "Control structures should always use curly braces",
     priority = Priority.MAJOR,
     tags = {Tags.CERT, Tags.CWE, Tags.MISRA, Tags.PITFALL})
-@ActivatedByDefault
 @SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.READABILITY)
 @SqaleConstantRemediation("2min")
 public class AlwaysUseCurlyBracesCheck extends SubscriptionBaseVisitor {

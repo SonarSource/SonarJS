@@ -46,7 +46,6 @@ import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
   name = "Assignments should not be made from within sub-expressions",
   priority = Priority.MAJOR,
   tags = {Tags.BUG, Tags.CWE, Tags.MISRA})
-@ActivatedByDefault
 @SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.INSTRUCTION_RELIABILITY)
 @SqaleConstantRemediation("5min")
 public class AssignmentWithinConditionCheck extends BaseTreeVisitor {
