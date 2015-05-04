@@ -130,7 +130,7 @@ public final class CheckList {
         NotStoredSelectionCheck.class,
         SelectionTestedWithoutLengthCheck.class,
         VariableDeclarationWithoutVarCheck.class,
-        BuildInObjectOverriddenCheck.class,
+        BuiltInObjectOverriddenCheck.class,
         RedeclaredSymbolCheck.class,
         DeadStoreCheck.class,
         DeprecatedJQueryAPICheck.class,

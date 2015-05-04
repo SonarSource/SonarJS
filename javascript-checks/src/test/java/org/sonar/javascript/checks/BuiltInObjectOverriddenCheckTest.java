@@ -24,13 +24,13 @@ import org.sonar.javascript.checks.utils.TreeCheckTest;
 import org.sonar.squidbridge.api.SourceFile;
 import org.sonar.squidbridge.checks.CheckMessagesVerifier;
 
-public class BuildInObjectOverriddenCheckTest extends TreeCheckTest {
+public class BuiltInObjectOverriddenCheckTest extends TreeCheckTest {
 
   @Test
   public void test() {
-    BuildInObjectOverriddenCheck check = new BuildInObjectOverriddenCheck();
+    BuiltInObjectOverriddenCheck check = new BuiltInObjectOverriddenCheck();
 
-    SourceFile file = scanFile("src/test/resources/checks/buildInObjectOverridden.js", check);
+    SourceFile file = scanFile("src/test/resources/checks/builtInObjectOverridden.js", check);
     CheckMessagesVerifier.verify(file.getCheckMessages())
         .next().atLine(1).withMessage("Remove this override of \"JSON\".")
         .next().atLine(5)

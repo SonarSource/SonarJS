@@ -40,7 +40,7 @@ public class HighlightSymbolTableBuilder {
       InternalSyntaxToken token = getSymbolNameToken(symbol);
 
       // TODO handle built-in symbol, e.g: arguments, eval
-      if (!symbol.buildIn() && token != null) {
+      if (!symbol.builtIn() && token != null) {
 
 
         int startOffset = sourceFileOffsets.startOffset(token.getToken());
@@ -60,7 +60,7 @@ public class HighlightSymbolTableBuilder {
 
   @Nullable
   private static InternalSyntaxToken getSymbolNameToken(Symbol symbol) {
-    if (symbol.buildIn()){
+    if (symbol.builtIn()){
       return null;
     } else {
       return (InternalSyntaxToken) ((IdentifierTree) symbol.declaration().tree()).identifierToken();

@@ -59,7 +59,7 @@ public class VariableShadowingCheck extends BaseTreeVisitor {
   }
 
   private void visitSymbol(Symbol symbol) {
-    if ("arguments".equals(symbol.name()) && symbol.buildIn()){
+    if ("arguments".equals(symbol.name()) && symbol.builtIn()){
       return;
     }
     Scope scope = symbol.scope();

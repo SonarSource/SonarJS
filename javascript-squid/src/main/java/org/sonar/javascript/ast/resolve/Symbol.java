@@ -45,7 +45,7 @@ public class Symbol {
   private final String name;
   private List<SymbolDeclaration> declarations = Lists.newArrayList();
   private Kind kind;
-  private boolean buildIn;
+  private boolean builtIn;
   private Scope scope;
   private List<Usage> usages = new LinkedList<>();
 
@@ -53,7 +53,7 @@ public class Symbol {
     this.name = name;
     this.kind = kind;
     this.addDeclaration(declaration);
-    this.buildIn = false;
+    this.builtIn = false;
     this.scope = scope;
   }
 
@@ -65,8 +65,8 @@ public class Symbol {
     return usages;
   }
 
-  public Symbol setBuildIn(boolean isBuildIn){
-    this.buildIn = isBuildIn;
+  public Symbol setBuiltIn(boolean isBuiltIn){
+    this.builtIn = isBuiltIn;
     return this;
   }
 
@@ -93,8 +93,8 @@ public class Symbol {
     return name;
   }
 
-  public boolean buildIn() {
-    return buildIn;
+  public boolean builtIn() {
+    return builtIn;
   }
 
   public boolean is(Symbol.Kind kind) {

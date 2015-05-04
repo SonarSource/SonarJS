@@ -92,7 +92,7 @@ public class UnusedFunctionArgumentCheck extends BaseTreeVisitor {
   }
 
   private void visitScope(Scope scope) {
-    if (buildInArgumentsUsed(scope) || scope.tree().is(Tree.Kind.SET_METHOD)){
+    if (builtInArgumentsUsed(scope) || scope.tree().is(Tree.Kind.SET_METHOD)){
       return;
     }
 
@@ -120,13 +120,13 @@ public class UnusedFunctionArgumentCheck extends BaseTreeVisitor {
     return unusedArguments;
   }
 
-  private boolean buildInArgumentsUsed(Scope scope) {
-    Symbol argumentsBuildInVariable = scope.lookupSymbol("arguments");
-    if (argumentsBuildInVariable == null){
+  private boolean builtInArgumentsUsed(Scope scope) {
+    Symbol argumentsBuiltInVariable = scope.lookupSymbol("arguments");
+    if (argumentsBuiltInVariable == null){
       return false;
     }
-    boolean isUsed = !argumentsBuildInVariable.usages().isEmpty();
-    return argumentsBuildInVariable.buildIn() && isUsed;
+    boolean isUsed = !argumentsBuiltInVariable.usages().isEmpty();
+    return argumentsBuiltInVariable.builtIn() && isUsed;
   }
 
   private List<Boolean> getUsageInfo(List<Symbol> symbols) {

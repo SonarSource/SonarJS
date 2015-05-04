@@ -65,16 +65,16 @@ public class SymbolDeclarationVisitor extends BaseTreeVisitor {
   public void visitMethodDeclaration(MethodDeclarationTree tree) {
     newScope(tree);
     addSymbols(((ParameterListTreeImpl) tree.parameters()).parameterIdentifiers(), SymbolDeclaration.Kind.PARAMETER, Symbol.Kind.PARAMETER);
-    addFunctionBuildInSymbols();
+    addFunctionBuiltInSymbols();
 
     super.visitMethodDeclaration(tree);
     leaveScope();
   }
 
-  private void addFunctionBuildInSymbols() {
+  private void addFunctionBuiltInSymbols() {
     String arguments = "arguments";
     if (currentScope.symbols.get(arguments) == null) {
-      symbolModel.addBuildInSymbol(arguments, new SymbolDeclaration(currentScope.tree(), SymbolDeclaration.Kind.BUILD_IN), Symbol.Kind.VARIABLE, currentScope);
+      symbolModel.addBuiltInSymbol(arguments, new SymbolDeclaration(currentScope.tree(), SymbolDeclaration.Kind.BUILD_IN), Symbol.Kind.VARIABLE, currentScope);
     }
   }
 
@@ -92,7 +92,7 @@ public class SymbolDeclarationVisitor extends BaseTreeVisitor {
     symbolModel.addSymbol(new SymbolDeclaration(tree.name(), SymbolDeclaration.Kind.FUNCTION_DECLARATION), Symbol.Kind.FUNCTION, currentScope);
     newScope(tree);
     addSymbols(((ParameterListTreeImpl) tree.parameters()).parameterIdentifiers(), SymbolDeclaration.Kind.PARAMETER, Symbol.Kind.PARAMETER);
-    addFunctionBuildInSymbols();
+    addFunctionBuiltInSymbols();
 
     super.visitFunctionDeclaration(tree);
     leaveScope();
@@ -102,7 +102,7 @@ public class SymbolDeclarationVisitor extends BaseTreeVisitor {
   public void visitArrowFunction(ArrowFunctionTree tree) {
     newScope(tree);
     addSymbols(((ArrowFunctionTreeImpl) tree).parameterIdentifiers(), SymbolDeclaration.Kind.PARAMETER, Symbol.Kind.PARAMETER);
-    addFunctionBuildInSymbols();
+    addFunctionBuiltInSymbols();
 
     super.visitArrowFunction(tree);
     leaveScope();
@@ -126,7 +126,7 @@ public class SymbolDeclarationVisitor extends BaseTreeVisitor {
 
     }
     addSymbols(((ParameterListTreeImpl) tree.parameters()).parameterIdentifiers(), SymbolDeclaration.Kind.PARAMETER, Symbol.Kind.PARAMETER);
-    addFunctionBuildInSymbols();
+    addFunctionBuiltInSymbols();
 
     super.visitFunctionExpression(tree);
     leaveScope();

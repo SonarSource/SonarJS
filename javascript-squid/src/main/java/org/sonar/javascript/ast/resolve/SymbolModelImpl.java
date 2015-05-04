@@ -32,7 +32,6 @@ import org.sonar.javascript.model.interfaces.declaration.ScriptTree;
 import org.sonar.javascript.model.interfaces.expression.IdentifierTree;
 
 import javax.annotation.Nullable;
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -81,8 +80,8 @@ public class SymbolModelImpl implements SymbolModel, SymbolModelBuilder {
   }
 
   @Override
-  public Symbol addBuildInSymbol(String name, SymbolDeclaration declaration, Symbol.Kind kind, Scope scope) {
-    Symbol symbol = Symbol.create(name, declaration, kind, scope).setBuildIn(true);
+  public Symbol addBuiltInSymbol(String name, SymbolDeclaration declaration, Symbol.Kind kind, Scope scope) {
+    Symbol symbol = Symbol.create(name, declaration, kind, scope).setBuiltIn(true);
     setScopeForSymbol(symbol, scope);
     return symbol;
   }
@@ -91,7 +90,7 @@ public class SymbolModelImpl implements SymbolModel, SymbolModelBuilder {
    * Returns all symbols in script
    */
   @Override
-  public Collection<Symbol> getSymbols() {
+  public Set<Symbol> getSymbols() {
     return symbolScope.keySet();
   }
 
@@ -101,7 +100,7 @@ public class SymbolModelImpl implements SymbolModel, SymbolModelBuilder {
    * @return list of symbols with the given kind
    */
   @Override
-  public Collection<Symbol> getSymbols(Symbol.Kind kind) {
+  public Set<Symbol> getSymbols(Symbol.Kind kind) {
     Set<Symbol> result = new HashSet<>();
     for (Symbol symbol : getSymbols()){
       if (kind.equals(symbol.kind())){
@@ -117,7 +116,7 @@ public class SymbolModelImpl implements SymbolModel, SymbolModelBuilder {
    * @return list of symbols with the given name
    */
   @Override
-  public Collection<Symbol> getSymbols(String name) {
+  public Set<Symbol> getSymbols(String name) {
     Set<Symbol> result = new HashSet<>();
     for (Symbol symbol : getSymbols()){
       if (name.equals(symbol.name())){

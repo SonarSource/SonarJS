@@ -21,25 +21,25 @@ package org.sonar.javascript.api;
 
 import org.sonar.javascript.ast.resolve.Symbol;
 
-import java.util.Collection;
+import java.util.Set;
 
 public interface SymbolModel {
   /**
    * Returns all symbols in script
    */
-  Collection<Symbol> getSymbols();
+  Set<Symbol> getSymbols();
 
   /**
    *
    * @param kind kind of symbols to look for
    * @return list of symbols with the given kind
    */
-  Collection<Symbol> getSymbols(Symbol.Kind kind);
+  Set<Symbol> getSymbols(Symbol.Kind kind);
 
   /**
    *
    * @param name name of symbols to look for
    * @return list of symbols with the given name
    */
-  Collection<Symbol> getSymbols(String name);
+  Set<Symbol> getSymbols(String name);
 }

@@ -40,7 +40,7 @@ import java.util.List;
   tags = {Tags.BUG, Tags.CONFUSING})
 @SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.INSTRUCTION_RELIABILITY)
 @SqaleConstantRemediation("20min")
-public class BuildInObjectOverriddenCheck extends BaseTreeVisitor {
+public class BuiltInObjectOverriddenCheck extends BaseTreeVisitor {
 
   private static final String MESSAGE = "Remove this override of \"%s\".";
 
