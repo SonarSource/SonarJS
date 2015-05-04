@@ -89,9 +89,9 @@ public class Input {
   /**
    * New lines are: \n, \r\n (in which case true is returned for the \n) and \r alone.
    */
-  private static final boolean isNewLine(char[] input, int i) {
+  private static boolean isNewLine(char[] input, int i) {
     return input[i] == '\n' ||
-      input[i] == '\r' && ((i + 1) == input.length || input[i + 1] != '\n');
+        (input[i] == '\r' && (i + 1 == input.length || input[i + 1] != '\n'));
   }
 
 }
