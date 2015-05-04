@@ -20,9 +20,7 @@
 package org.sonar.javascript.ast.resolve;
 
 import com.google.common.base.Preconditions;
-import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Maps;
-import com.google.common.collect.Multimap;
 import com.google.common.collect.Sets;
 import org.sonar.api.source.Symbolizable;
 import org.sonar.javascript.api.SymbolModel;
@@ -39,7 +37,6 @@ import java.util.Set;
 public class SymbolModelImpl implements SymbolModel, SymbolModelBuilder {
 
   private Map<Symbol, Scope> symbolScope = Maps.newHashMap();
-  private Multimap<Symbol, Usage> usagesTree = HashMultimap.create();
   private Set<Scope> scopes = Sets.newHashSet();
   private Scope globalScope;
 
