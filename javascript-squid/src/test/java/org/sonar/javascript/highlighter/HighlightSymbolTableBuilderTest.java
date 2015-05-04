@@ -74,7 +74,12 @@ public class HighlightSymbolTableBuilderTest extends JavaScriptTreeModelTest {
     // function parameter
     verify(symboltableBuilder).newSymbol(offset(7, 20), offset(7, 21));
     verify(symboltableBuilder).newReference(any(org.sonar.api.source.Symbol.class), eq(offset(8, 20)));
-    // TODO: built-in symbols
+
+    // variable with several declarations
+    verify(symboltableBuilder).newSymbol(offset(11, 5), offset(11, 6));
+    verify(symboltableBuilder).newReference(any(org.sonar.api.source.Symbol.class), eq(offset(13, 5)));
+    verify(symboltableBuilder).newReference(any(org.sonar.api.source.Symbol.class), eq(offset(12, 1)));
+    verify(symboltableBuilder).newReference(any(org.sonar.api.source.Symbol.class), eq(offset(14, 1)));
 
     verify(symboltableBuilder).build();
     verifyNoMoreInteractions(symboltableBuilder);
