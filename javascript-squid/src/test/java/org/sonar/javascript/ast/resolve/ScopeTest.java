@@ -56,6 +56,7 @@ public class ScopeTest extends JavaScriptTreeModelTest {
   public void global_scope() throws Exception {
     Scope globalScope = getScopeFor(Tree.Kind.SCRIPT);
 
+    assertThat(globalScope.isGlobal()).isTrue();
     assertNotNull(globalScope.lookupSymbol("a"));
     assertNotNull(globalScope.lookupSymbol("f"));
 
@@ -68,6 +69,8 @@ public class ScopeTest extends JavaScriptTreeModelTest {
   public void function_scope() throws Exception {
     Scope functionScope = getScopeFor(Tree.Kind.FUNCTION_DECLARATION);
 
+    assertThat(functionScope.isGlobal()).isFalse();
+    assertThat(functionScope.getSymbols(Symbol.Kind.PARAMETER)).hasSize(1);
     assertNotNull(functionScope.lookupSymbol("p"));
     assertNotNull(functionScope.lookupSymbol("a"));
     assertNotNull(functionScope.lookupSymbol("b"));
