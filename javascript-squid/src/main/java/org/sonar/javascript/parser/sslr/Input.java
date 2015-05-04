@@ -91,7 +91,7 @@ public class Input {
    */
   private static final boolean isNewLine(char[] input, int i) {
     return input[i] == '\n' ||
-      input[i] == '\r' && (i + 1 == input.length || input[i + 1] != '\n');
+      input[i] == '\r' && ((i + 1) == input.length || input[i + 1] != '\n');
   }
 
 }

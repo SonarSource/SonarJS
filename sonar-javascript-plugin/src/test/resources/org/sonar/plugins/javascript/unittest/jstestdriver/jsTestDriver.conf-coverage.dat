@@ -13,6 +13,8 @@ DA:9,1
 DA:10,1
 end_of_record
 SF:sensortests/main/Person.js
+BRDA:2,0,0,2
+BRDA:2,0,1,1
 DA:2,1
 DA:3,4
 DA:4,4

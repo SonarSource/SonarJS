@@ -75,7 +75,7 @@ public class TooManyLinesInFunctionCheck extends SquidCheck<LexerlessGrammar> {
     AstNode nextAstNode = rcurly.getNextAstNode();
 
     return functionDec.is(Kind.GENERATOR_FUNCTION_EXPRESSION, Kind.FUNCTION_EXPRESSION)
-      && (nextAstNode.is(Kind.ARGUMENTS) || nextAstNode.is(EcmaScriptPunctuator.RPARENTHESIS) && nextAstNode.getNextAstNode().is(Kind.ARGUMENTS));
+      && (nextAstNode.is(Kind.ARGUMENTS) || (nextAstNode.is(EcmaScriptPunctuator.RPARENTHESIS) && nextAstNode.getNextAstNode().is(Kind.ARGUMENTS)));
   }
 
   public static int getNumberOfLine(AstNode functionNode) {

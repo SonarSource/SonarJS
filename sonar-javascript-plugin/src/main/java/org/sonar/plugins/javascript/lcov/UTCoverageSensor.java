@@ -166,12 +166,6 @@ public class UTCoverageSensor implements Sensor {
     return lineHitsData.build();
   }
 
-
-  @Override
-  public String toString() {
-    return getClass().getSimpleName();
-  }
-
   private boolean isForceZeroCoverageActivated() {
     return settings.getBoolean(JavaScriptPlugin.FORCE_ZERO_COVERAGE_KEY);
   }
