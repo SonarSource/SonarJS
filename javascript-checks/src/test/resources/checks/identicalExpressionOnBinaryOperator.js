@@ -40,3 +40,6 @@ a == b || a == c
 
 5 - x;
 
+function f() {
+  if (+a !== +a);
+}

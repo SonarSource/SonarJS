@@ -27,6 +27,7 @@ import org.sonar.javascript.ast.visitors.SyntacticEquivalence;
 import org.sonar.javascript.model.interfaces.Tree.Kind;
 import org.sonar.javascript.model.interfaces.expression.BinaryExpressionTree;
 import org.sonar.javascript.model.interfaces.expression.LiteralTree;
+import org.sonar.javascript.model.interfaces.expression.UnaryExpressionTree;
 import org.sonar.squidbridge.annotations.ActivatedByDefault;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
@@ -60,7 +61,11 @@ public class IdenticalExpressionOnBinaryOperatorCheck extends BaseTreeVisitor {
 
   private boolean isPotentialNanComparison(BinaryExpressionTree tree) {
     return tree.is(Kind.STRICT_NOT_EQUAL_TO, Kind.STRICT_EQUAL_TO)
-      && tree.leftOperand().is(Kind.IDENTIFIER_REFERENCE, Kind.IDENTIFIER, Kind.BRACKET_MEMBER_EXPRESSION, Kind.DOT_MEMBER_EXPRESSION);
+      && (tree.leftOperand().is(
+      Kind.IDENTIFIER_REFERENCE,
+      Kind.IDENTIFIER,
+      Kind.BRACKET_MEMBER_EXPRESSION,
+      Kind.DOT_MEMBER_EXPRESSION) || tree.leftOperand() instanceof UnaryExpressionTree);
 
   }
 
