@@ -30,8 +30,10 @@ import org.sonar.javascript.model.implementations.lexical.InternalSyntaxToken;
 import org.sonar.javascript.model.interfaces.Tree;
 import org.sonar.javascript.model.interfaces.expression.IdentifierTree;
 
-import javax.annotation.Nullable;
+import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
 public class HighlightSymbolTableBuilder {
 
@@ -42,27 +44,72 @@ public class HighlightSymbolTableBuilder {
     Symbolizable.SymbolTableBuilder builder = symbolizable.newSymbolTableBuilder();
 
     for (Symbol symbol : symbolModel.getSymbols()) {
-      InternalSyntaxToken token = getSymbolNameToken(symbol);
-
-      // TODO handle built-in symbol, e.g: arguments, eval
-      if (!symbol.builtIn() && token != null) {
-
-        int startOffset = sourceFileOffsets.startOffset(token.getToken());
-        int endOffset = sourceFileOffsets.endOffset(token.getToken());
-        org.sonar.api.source.Symbol reference = builder.newSymbol(startOffset, endOffset);
-
+      InternalSyntaxToken token;
+      org.sonar.api.source.Symbol reference;
+      if (!symbol.builtIn()) {
+        token = getSymbolNameToken(symbol);
+        reference = getHighlightedSymbol(sourceFileOffsets, builder, token);
         addDeclarationReferences(sourceFileOffsets, builder, symbol, reference);
         addUsagesReferences(sourceFileOffsets, builder, symbol, reference);
 
+      } else {
+
+        // first usage will be used for creation of symbol, the rest will be used for references
+        Set<IdentifierTree> usagesSet = getUsagesSet(symbol);
+
+        if (!usagesSet.isEmpty()){
+          List<IdentifierTree> usagesList = new LinkedList<>(usagesSet);
+          token = (InternalSyntaxToken) (usagesList.get(0)).identifierToken();
+          usagesList.remove(0);
+          reference = getHighlightedSymbol(sourceFileOffsets, builder, token);
+          addUsagesReferences(sourceFileOffsets, builder, reference, usagesList);
+        }
+
       }
+
     }
 
     return builder.build();
   }
 
+  private static void addUsagesReferences(SourceFileOffsets sourceFileOffsets, Symbolizable.SymbolTableBuilder builder, org.sonar.api.source.Symbol reference, List<IdentifierTree> usagesList) {
+    for (IdentifierTree tree : usagesList){
+      builder.newReference(
+          reference,
+          sourceFileOffsets.startOffset(getToken(tree))
+      );
+    }
+  }
+
+  /**
+   * @param symbol built-in symbol
+   * @return set of all usage trees of symbol (including user re-declarations).
+   */
+  private static Set<IdentifierTree> getUsagesSet(Symbol symbol) {
+    Preconditions.checkArgument(symbol.builtIn());
+    Set<IdentifierTree> usagesSet = new HashSet<>();
+
+    for (Usage usage : symbol.usages()){
+      usagesSet.add(usage.symbolTree());
+    }
+
+    for (SymbolDeclaration symbolDeclaration : symbol.declarations()){
+      if (symbolDeclaration.tree() instanceof IdentifierTree){
+        usagesSet.add((IdentifierTree) symbolDeclaration.tree());
+      }
+    }
+    return usagesSet;
+  }
+
+  private static org.sonar.api.source.Symbol getHighlightedSymbol(SourceFileOffsets sourceFileOffsets, Symbolizable.SymbolTableBuilder builder, InternalSyntaxToken token) {
+    int startOffset = sourceFileOffsets.startOffset(token.getToken());
+    int endOffset = sourceFileOffsets.endOffset(token.getToken());
+    return builder.newSymbol(startOffset, endOffset);
+  }
+
   private static void addDeclarationReferences(SourceFileOffsets sourceFileOffsets, Symbolizable.SymbolTableBuilder builder, Symbol symbol, org.sonar.api.source.Symbol reference) {
     List<SymbolDeclaration> declarations = symbol.declarations();
-    for (int i = 1; i < declarations.size(); i++){
+    for (int i = 1; i < declarations.size(); i++) {
       Tree tree = declarations.get(i).tree();
       Preconditions.checkArgument(tree instanceof IdentifierTree);
       builder.newReference(
@@ -73,7 +120,13 @@ public class HighlightSymbolTableBuilder {
   }
 
   private static void addUsagesReferences(SourceFileOffsets sourceFileOffsets, Symbolizable.SymbolTableBuilder builder, Symbol symbol, org.sonar.api.source.Symbol reference) {
-    for (Usage usage : symbol.usages()) {
+    List<Usage> usages = new LinkedList<>(symbol.usages());
+
+    if (symbol.builtIn()) {
+      usages.remove(0); // this usage was used for creation of symbol
+    }
+
+    for (Usage usage : usages) {
       if (!usage.isInitialization()) {
         builder.newReference(
             reference,
@@ -83,17 +136,13 @@ public class HighlightSymbolTableBuilder {
     }
   }
 
-  private static Token getToken(IdentifierTree identifierTree){
+  private static Token getToken(IdentifierTree identifierTree) {
     return ((InternalSyntaxToken) (identifierTree).identifierToken()).getToken();
   }
 
-  @Nullable
   private static InternalSyntaxToken getSymbolNameToken(Symbol symbol) {
-    if (symbol.builtIn()){
-      return null;
-    } else {
-      return (InternalSyntaxToken) ((IdentifierTree) symbol.declaration().tree()).identifierToken();
-    }
+    Preconditions.checkArgument(!symbol.builtIn());
+    return (InternalSyntaxToken) ((IdentifierTree) symbol.declaration().tree()).identifierToken();
   }
 
 }

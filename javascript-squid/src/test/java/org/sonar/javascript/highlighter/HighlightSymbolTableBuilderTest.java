@@ -33,23 +33,25 @@ import java.nio.charset.Charset;
 import java.util.List;
 
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
+import static org.mockito.internal.verification.VerificationModeFactory.times;
 
 public class HighlightSymbolTableBuilderTest extends JavaScriptTreeModelTest {
 
   private final Symbolizable symbolizable = mock(Symbolizable.class);
-  private final Symbolizable.SymbolTableBuilder symboltableBuilder = mock(Symbolizable.SymbolTableBuilder.class);
+  private final Symbolizable.SymbolTableBuilder symbolTableBuilder = mock(Symbolizable.SymbolTableBuilder.class);
 
   private static final String EOL = "\n";
   private List<String> lines;
 
   @Before
   public void init() {
-    when(symbolizable.newSymbolTableBuilder()).thenReturn(symboltableBuilder);
+    when(symbolizable.newSymbolTableBuilder()).thenReturn(symbolTableBuilder);
   }
 
   @Test
@@ -59,30 +61,43 @@ public class HighlightSymbolTableBuilderTest extends JavaScriptTreeModelTest {
     SymbolModelImpl.create((ScriptTree) p.parse(file), symbolizable, new SourceFileOffsets(file, Charset.defaultCharset()));
 
     // variable
-    verify(symboltableBuilder).newSymbol(offset(1, 5), offset(1, 6));
-    verify(symboltableBuilder).newReference(any(org.sonar.api.source.Symbol.class), eq(offset(5, 1)));
-    verify(symboltableBuilder).newReference(any(org.sonar.api.source.Symbol.class), eq(offset(5, 7)));
+    verify(symbolTableBuilder).newSymbol(offset(1, 5), offset(1, 6));
+    verify(symbolTableBuilder).newReference(any(org.sonar.api.source.Symbol.class), eq(offset(5, 1)));
+    verify(symbolTableBuilder).newReference(any(org.sonar.api.source.Symbol.class), eq(offset(5, 7)));
 
     // function declaration
-    verify(symboltableBuilder).newSymbol(offset(3, 10), offset(3, 11));
-    verify(symboltableBuilder).newReference(any(org.sonar.api.source.Symbol.class), eq(offset(5, 5)));
+    verify(symbolTableBuilder).newSymbol(offset(3, 10), offset(3, 11));
+    verify(symbolTableBuilder).newReference(any(org.sonar.api.source.Symbol.class), eq(offset(5, 5)));
 
     // named function expression
-    verify(symboltableBuilder).newSymbol(offset(7, 10), offset(7, 19));
-    verify(symboltableBuilder).newReference(any(org.sonar.api.source.Symbol.class), eq(offset(8, 10)));
+    verify(symbolTableBuilder).newSymbol(offset(7, 10), offset(7, 19));
+    verify(symbolTableBuilder).newReference(any(org.sonar.api.source.Symbol.class), eq(offset(8, 10)));
 
     // function parameter
-    verify(symboltableBuilder).newSymbol(offset(7, 20), offset(7, 21));
-    verify(symboltableBuilder).newReference(any(org.sonar.api.source.Symbol.class), eq(offset(8, 20)));
+    verify(symbolTableBuilder).newSymbol(offset(7, 20), offset(7, 21));
+    verify(symbolTableBuilder).newReference(any(org.sonar.api.source.Symbol.class), eq(offset(8, 20)));
 
     // variable with several declarations
-    verify(symboltableBuilder).newSymbol(offset(11, 5), offset(11, 6));
-    verify(symboltableBuilder).newReference(any(org.sonar.api.source.Symbol.class), eq(offset(13, 5)));
-    verify(symboltableBuilder).newReference(any(org.sonar.api.source.Symbol.class), eq(offset(12, 1)));
-    verify(symboltableBuilder).newReference(any(org.sonar.api.source.Symbol.class), eq(offset(14, 1)));
+    verify(symbolTableBuilder).newSymbol(offset(11, 5), offset(11, 6));
+    verify(symbolTableBuilder).newReference(any(org.sonar.api.source.Symbol.class), eq(offset(13, 5)));
+    verify(symbolTableBuilder).newReference(any(org.sonar.api.source.Symbol.class), eq(offset(12, 1)));
+    verify(symbolTableBuilder).newReference(any(org.sonar.api.source.Symbol.class), eq(offset(14, 1)));
 
-    verify(symboltableBuilder).build();
-    verifyNoMoreInteractions(symboltableBuilder);
+    verify(symbolTableBuilder).build();
+    verifyNoMoreInteractions(symbolTableBuilder);
+  }
+
+  @Test
+  public void sonar_symbol_table_built_in() throws Exception {
+    File file = new File("src/test/resources/highlighter/symbolHighlightingBuiltIn.js");
+    SymbolModelImpl.create((ScriptTree) p.parse(file), symbolizable, new SourceFileOffsets(file, Charset.defaultCharset()));
+
+    // no offsets are used as there is uncertainty about the order of usages of built-in symbols (and first usage used for newSymbol)
+    verify(symbolTableBuilder, times(3)).newSymbol(anyInt(), anyInt());
+    verify(symbolTableBuilder, times(3)).newReference(any(org.sonar.api.source.Symbol.class), anyInt());
+
+    verify(symbolTableBuilder).build();
+    verifyNoMoreInteractions(symbolTableBuilder);
   }
 
   private int offset(int line, int column) {

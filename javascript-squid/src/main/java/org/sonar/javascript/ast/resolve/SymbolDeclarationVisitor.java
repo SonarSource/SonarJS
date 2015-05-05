@@ -56,10 +56,14 @@ public class SymbolDeclarationVisitor extends BaseTreeVisitor {
   @Override
   public void visitScript(ScriptTree tree) {
     newScope(tree);
+    addBuiltInSymbols();
     super.visitScript(tree);
     leaveScope();
   }
 
+  private void addBuiltInSymbols() {
+    symbolModel.addBuiltInSymbol("eval", new SymbolDeclaration(symbolModel.globalScope().tree(), SymbolDeclaration.Kind.BUILD_IN), Symbol.Kind.FUNCTION, currentScope);
+  }
 
   @Override
   public void visitMethodDeclaration(MethodDeclarationTree tree) {

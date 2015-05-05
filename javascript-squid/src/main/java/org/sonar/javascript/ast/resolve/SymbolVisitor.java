@@ -68,16 +68,11 @@ public class SymbolVisitor extends BaseTreeVisitor {
     new SymbolDeclarationVisitor(symbolModel).visitScript(tree);
 
     enterScope(tree);
-    addBuiltInSymbols();
     // Record usage and implicit symbol declarations
     super.visitScript(tree);
     leaveScope();
 
     highlightSymbols();
-  }
-
-  private void addBuiltInSymbols() {
-    symbolModel.addBuiltInSymbol("eval", new SymbolDeclaration(symbolModel.globalScope().tree(), SymbolDeclaration.Kind.BUILD_IN), Symbol.Kind.FUNCTION, currentScope);
   }
 
   @Override
