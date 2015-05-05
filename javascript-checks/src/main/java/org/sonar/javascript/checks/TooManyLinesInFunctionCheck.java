@@ -30,6 +30,8 @@ import org.sonar.javascript.model.implementations.lexical.InternalSyntaxToken;
 import org.sonar.javascript.model.interfaces.Tree;
 import org.sonar.javascript.model.interfaces.Tree.Kind;
 import org.sonar.javascript.model.interfaces.expression.CallExpressionTree;
+import org.sonar.javascript.model.interfaces.expression.ExpressionTree;
+import org.sonar.javascript.model.interfaces.expression.NewExpressionTree;
 import org.sonar.javascript.model.interfaces.expression.ParenthesisedExpressionTree;
 import org.sonar.javascript.model.interfaces.statement.BlockTree;
 import org.sonar.squidbridge.annotations.ActivatedByDefault;
@@ -66,13 +68,20 @@ public class TooManyLinesInFunctionCheck extends SubscriptionBaseVisitor {
         Kind.GENERATOR_FUNCTION_EXPRESSION,
         Kind.FUNCTION_DECLARATION,
         Kind.FUNCTION_EXPRESSION,
-        Kind.CALL_EXPRESSION);
+        Kind.CALL_EXPRESSION,
+        Kind.NEW_EXPRESSION);
   }
 
   @Override
   public void visitNode(Tree tree) {
     if (tree.is(Kind.CALL_EXPRESSION)){
-      checkForImmediatelyInvokedFunction((CallExpressionTree) tree);
+      checkForImmediatelyInvokedFunction(((CallExpressionTree) tree).callee());
+      return;
+    }
+    if (tree.is(Kind.NEW_EXPRESSION)){
+      if (((NewExpressionTree) tree).arguments() != null) {
+        checkForImmediatelyInvokedFunction(((NewExpressionTree) tree).expression());
+      }
       return;
     }
 
@@ -84,10 +93,10 @@ public class TooManyLinesInFunctionCheck extends SubscriptionBaseVisitor {
     this.immediatelyInvokedFunctionExpression = false;
   }
 
-  private void checkForImmediatelyInvokedFunction(CallExpressionTree callExpressionTree) {
+  private void checkForImmediatelyInvokedFunction(ExpressionTree callee) {
     Kind[] funcExprKinds = {Kind.FUNCTION_EXPRESSION, Kind.GENERATOR_FUNCTION_EXPRESSION};
-    boolean directFunctionCallee = callExpressionTree.callee().is(funcExprKinds);
-    boolean parenthesisedFunctionCallee = callExpressionTree.callee().is(Kind.PARENTHESISED_EXPRESSION) && ((ParenthesisedExpressionTree) callExpressionTree.callee()).expression().is(funcExprKinds);
+    boolean directFunctionCallee = callee.is(funcExprKinds);
+    boolean parenthesisedFunctionCallee = callee.is(Kind.PARENTHESISED_EXPRESSION) && ((ParenthesisedExpressionTree) callee).expression().is(funcExprKinds);
     if (directFunctionCallee || parenthesisedFunctionCallee){
       this.immediatelyInvokedFunctionExpression = true;
     }

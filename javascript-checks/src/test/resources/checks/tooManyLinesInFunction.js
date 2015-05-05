@@ -64,3 +64,13 @@ class A {
     yield 42;
   }
 }
+
+new (function(){  // OK
+    // comment
+    var a = 1;
+})();
+
+new function(){  // NOK
+    // comment
+    var a = 1;
+};
