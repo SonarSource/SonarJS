@@ -30,6 +30,7 @@ import org.sonar.javascript.model.implementations.lexical.InternalSyntaxToken;
 import org.sonar.javascript.model.interfaces.Tree;
 import org.sonar.javascript.model.interfaces.Tree.Kind;
 import org.sonar.javascript.model.interfaces.expression.CallExpressionTree;
+import org.sonar.javascript.model.interfaces.expression.IdentifierTree;
 import org.sonar.javascript.model.interfaces.expression.ParenthesisedExpressionTree;
 import org.sonar.javascript.model.interfaces.statement.BlockTree;
 import org.sonar.squidbridge.annotations.ActivatedByDefault;
@@ -49,6 +50,7 @@ import java.util.List;
 @SqaleConstantRemediation("20min")
 public class TooManyLinesInFunctionCheck extends SubscriptionBaseVisitor {
   private static final int DEFAULT = 100;
+  private final String MESSAGE = "This function has %s lines, which is greater than the %s lines authorized. Split it into smaller functions.";
 
   @RuleProperty(
     key = "max",
@@ -56,6 +58,7 @@ public class TooManyLinesInFunctionCheck extends SubscriptionBaseVisitor {
     defaultValue = "" + DEFAULT)
   public int max = DEFAULT;
   private boolean immediatelyInvokedFunctionExpression = false;
+  private boolean amdPattern = false;
 
   @Override
   public List<Kind> nodesToVisit() {
@@ -72,16 +75,35 @@ public class TooManyLinesInFunctionCheck extends SubscriptionBaseVisitor {
   @Override
   public void visitNode(Tree tree) {
     if (tree.is(Kind.CALL_EXPRESSION)){
-      checkForImmediatelyInvokedFunction((CallExpressionTree) tree);
-      return;
-    }
 
-    int nbLines = getNumberOfLine(tree);
-    if (nbLines > max && !immediatelyInvokedFunctionExpression) {
-      String message = String.format("This function has %s lines, which is greater than the %s lines authorized. Split it into smaller functions.",nbLines, max);
-      getContext().addIssue(this, tree, message);
+      checkForImmediatelyInvokedFunction((CallExpressionTree) tree);
+      checkForAMDPattern((CallExpressionTree)tree);
+
+    } else {
+
+      int nbLines = getNumberOfLine(tree);
+      if (nbLines > max && !immediatelyInvokedFunctionExpression && !amdPattern) {
+        String message = String.format(MESSAGE, nbLines, max);
+        getContext().addIssue(this, tree, message);
+      }
+      clearCheckState();
+
     }
+  }
+
+  private void clearCheckState() {
     this.immediatelyInvokedFunctionExpression = false;
+    this.amdPattern = false;
+  }
+
+  private void checkForAMDPattern(CallExpressionTree tree) {
+    if (tree.callee().is(Kind.IDENTIFIER_REFERENCE) && "define".equals(((IdentifierTree) tree.callee()).name())){
+      for (Tree parameter : tree.arguments().parameters()){
+        if (parameter.is(Kind.FUNCTION_EXPRESSION)){
+          this.amdPattern = true;
+        }
+      }
+    }
   }
 
   private void checkForImmediatelyInvokedFunction(CallExpressionTree callExpressionTree) {

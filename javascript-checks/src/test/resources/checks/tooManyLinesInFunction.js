@@ -64,3 +64,13 @@ class A {
     yield 42;
   }
 }
+
+define([], function(){  // AMD PATTERN - OK
+    // comment
+    return 1;
+});
+
+define([], "module name", function(){  // AMD PATTERN - OK
+    // comment
+    return 1;
+});
