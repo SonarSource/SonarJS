@@ -72,7 +72,12 @@ public class HighlightSymbolTableBuilder {
     return builder.build();
   }
 
-  private static void addUsagesReferences(SourceFileOffsets sourceFileOffsets, Symbolizable.SymbolTableBuilder builder, org.sonar.api.source.Symbol reference, List<IdentifierTree> usagesList) {
+  private static void addUsagesReferences(
+      SourceFileOffsets sourceFileOffsets,
+      Symbolizable.SymbolTableBuilder builder,
+      org.sonar.api.source.Symbol reference,
+      List<IdentifierTree> usagesList
+  ) {
     for (IdentifierTree tree : usagesList){
       builder.newReference(
           reference,
@@ -123,7 +128,8 @@ public class HighlightSymbolTableBuilder {
     List<Usage> usages = new LinkedList<>(symbol.usages());
 
     if (symbol.builtIn()) {
-      usages.remove(0); // this usage was used for creation of symbol
+      // this usage was used for creation of symbol
+      usages.remove(0);
     }
 
     for (Usage usage : usages) {
