@@ -19,19 +19,25 @@
  */
 package org.sonar.javascript.checks;
 
+import com.google.common.collect.ImmutableList;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
-import org.sonar.javascript.api.EcmaScriptPunctuator;
+import org.sonar.javascript.checks.utils.SubscriptionBaseVisitor;
+import org.sonar.javascript.model.implementations.JavaScriptTree;
+import org.sonar.javascript.model.implementations.lexical.InternalSyntaxToken;
+import org.sonar.javascript.model.interfaces.Tree;
 import org.sonar.javascript.model.interfaces.Tree.Kind;
+import org.sonar.javascript.model.interfaces.expression.CallExpressionTree;
+import org.sonar.javascript.model.interfaces.expression.ParenthesisedExpressionTree;
+import org.sonar.javascript.model.interfaces.statement.BlockTree;
 import org.sonar.squidbridge.annotations.ActivatedByDefault;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
-import org.sonar.squidbridge.checks.SquidCheck;
-import org.sonar.sslr.parser.LexerlessGrammar;
 
-import com.sonar.sslr.api.AstNode;
+import java.util.Iterator;
+import java.util.List;
 
 @Rule(
   key = "S138",
@@ -41,7 +47,7 @@ import com.sonar.sslr.api.AstNode;
 @ActivatedByDefault
 @SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.UNDERSTANDABILITY)
 @SqaleConstantRemediation("20min")
-public class TooManyLinesInFunctionCheck extends SquidCheck<LexerlessGrammar> {
+public class TooManyLinesInFunctionCheck extends SubscriptionBaseVisitor {
   private static final int DEFAULT = 100;
 
   @RuleProperty(
@@ -49,41 +55,56 @@ public class TooManyLinesInFunctionCheck extends SquidCheck<LexerlessGrammar> {
     description = "Maximum authorized lines in a function",
     defaultValue = "" + DEFAULT)
   public int max = DEFAULT;
+  private boolean immediatelyInvokedFunctionExpression = false;
 
   @Override
-  public void init() {
-    subscribeTo(
-      Kind.METHOD,
-      Kind.GENERATOR_METHOD,
-      Kind.GENERATOR_DECLARATION,
-      Kind.GENERATOR_FUNCTION_EXPRESSION,
-      Kind.FUNCTION_DECLARATION,
-      Kind.FUNCTION_EXPRESSION);
+  public List<Kind> nodesToVisit() {
+    return ImmutableList.of(
+        Kind.METHOD,
+        Kind.GENERATOR_METHOD,
+        Kind.GENERATOR_DECLARATION,
+        Kind.GENERATOR_FUNCTION_EXPRESSION,
+        Kind.FUNCTION_DECLARATION,
+        Kind.FUNCTION_EXPRESSION,
+        Kind.CALL_EXPRESSION);
   }
 
   @Override
-  public void visitNode(AstNode astNode) {
-    int nbLines = getNumberOfLine(astNode);
-    if (nbLines > max && !isImmediatelyInvokedFunctionExpression(astNode)) {
-      getContext().createLineViolation(this, "This function has {0} lines, which is greater than the {1} lines authorized. Split it into smaller functions.",
-        astNode, nbLines, max);
+  public void visitNode(Tree tree) {
+    if (tree.is(Kind.CALL_EXPRESSION)){
+      checkForImmediatelyInvokedFunction((CallExpressionTree) tree);
+      return;
+    }
+
+    int nbLines = getNumberOfLine(tree);
+    if (nbLines > max && !immediatelyInvokedFunctionExpression) {
+      String message = String.format("This function has %s lines, which is greater than the %s lines authorized. Split it into smaller functions.",nbLines, max);
+      getContext().addIssue(this, tree, message);
+    }
+    this.immediatelyInvokedFunctionExpression = false;
+  }
+
+  private void checkForImmediatelyInvokedFunction(CallExpressionTree callExpressionTree) {
+    Kind[] funcExprKinds = {Kind.FUNCTION_EXPRESSION, Kind.GENERATOR_FUNCTION_EXPRESSION};
+    boolean directFunctionCallee = callExpressionTree.callee().is(funcExprKinds);
+    boolean parenthesisedFunctionCallee = callExpressionTree.callee().is(Kind.PARENTHESISED_EXPRESSION) && ((ParenthesisedExpressionTree) callExpressionTree.callee()).expression().is(funcExprKinds);
+    if (directFunctionCallee || parenthesisedFunctionCallee){
+      this.immediatelyInvokedFunctionExpression = true;
     }
   }
 
-  private boolean isImmediatelyInvokedFunctionExpression(AstNode functionDec) {
-    AstNode rcurly = functionDec.getFirstChild(Kind.BLOCK).getFirstChild(EcmaScriptPunctuator.RCURLYBRACE);
-    AstNode nextAstNode = rcurly.getNextAstNode();
+  public static int getNumberOfLine(Tree tree) {
+    Iterator<Tree> childrenIterator = ((JavaScriptTree) tree).childrenIterator();
+    while (childrenIterator.hasNext()){
+      Tree child = childrenIterator.next();
+      if (child != null && child.is(Kind.BLOCK)){
+        int firstLine = ((InternalSyntaxToken)((BlockTree) child).openCurlyBrace()).getLine();
+        int lastLine = ((InternalSyntaxToken)((BlockTree) child).closeCurlyBrace()).getLine();
 
-    return functionDec.is(Kind.GENERATOR_FUNCTION_EXPRESSION, Kind.FUNCTION_EXPRESSION)
-      && (nextAstNode.is(Kind.ARGUMENTS) || (nextAstNode.is(EcmaScriptPunctuator.RPARENTHESIS) && nextAstNode.getNextAstNode().is(Kind.ARGUMENTS)));
-  }
+        return lastLine - firstLine + 1;
+      }
+    }
+    throw new IllegalStateException("No block child found for current tree.");
 
-  public static int getNumberOfLine(AstNode functionNode) {
-    AstNode block = functionNode.getFirstChild(Kind.BLOCK);
-
-    int firstLine = block.getFirstChild(EcmaScriptPunctuator.LCURLYBRACE).getTokenLine();
-    int lastLine = block.getFirstChild(EcmaScriptPunctuator.RCURLYBRACE).getTokenLine();
-
-    return lastLine - firstLine + 1;
   }
 }

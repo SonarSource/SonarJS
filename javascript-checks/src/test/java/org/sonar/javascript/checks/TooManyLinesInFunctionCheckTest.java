@@ -20,19 +20,17 @@
 package org.sonar.javascript.checks;
 
 import org.junit.Test;
-import org.sonar.javascript.JavaScriptAstScanner;
+import org.sonar.javascript.checks.utils.TreeCheckTest;
 import org.sonar.squidbridge.api.SourceFile;
 import org.sonar.squidbridge.checks.CheckMessagesVerifier;
 
-import java.io.File;
-
-public class TooManyLinesInFunctionCheckTest {
+public class TooManyLinesInFunctionCheckTest extends TreeCheckTest {
 
   private final TooManyLinesInFunctionCheck check = new TooManyLinesInFunctionCheck();
 
   @Test
   public void testDefault() {
-    SourceFile file = JavaScriptAstScanner.scanSingleFile(new File("src/test/resources/checks/tooManyLinesInFunction.js"), check);
+    SourceFile file = scanFile("src/test/resources/checks/tooManyLinesInFunction.js", check);
     CheckMessagesVerifier.verify(file.getCheckMessages())
       .noMore();
   }
@@ -40,7 +38,7 @@ public class TooManyLinesInFunctionCheckTest {
   @Test
   public void testCustom() {
     check.max = 3;
-    SourceFile file = JavaScriptAstScanner.scanSingleFile(new File("src/test/resources/checks/tooManyLinesInFunction.js"), check);
+    SourceFile file = scanFile("src/test/resources/checks/tooManyLinesInFunction.js", check);
     CheckMessagesVerifier.verify(file.getCheckMessages())
       .next().atLine(1).withMessage("This function has 6 lines, which is greater than the " + check.max + " lines authorized. Split it into smaller functions.")
       .next().atLine(2).withMessage("This function has 4 lines, which is greater than the " + check.max + " lines authorized. Split it into smaller functions.")
