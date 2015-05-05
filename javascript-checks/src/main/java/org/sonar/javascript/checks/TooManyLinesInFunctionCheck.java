@@ -30,7 +30,9 @@ import org.sonar.javascript.model.implementations.lexical.InternalSyntaxToken;
 import org.sonar.javascript.model.interfaces.Tree;
 import org.sonar.javascript.model.interfaces.Tree.Kind;
 import org.sonar.javascript.model.interfaces.expression.CallExpressionTree;
+import org.sonar.javascript.model.interfaces.expression.ExpressionTree;
 import org.sonar.javascript.model.interfaces.expression.IdentifierTree;
+import org.sonar.javascript.model.interfaces.expression.NewExpressionTree;
 import org.sonar.javascript.model.interfaces.expression.ParenthesisedExpressionTree;
 import org.sonar.javascript.model.interfaces.statement.BlockTree;
 import org.sonar.squidbridge.annotations.ActivatedByDefault;
@@ -50,7 +52,6 @@ import java.util.List;
 @SqaleConstantRemediation("20min")
 public class TooManyLinesInFunctionCheck extends SubscriptionBaseVisitor {
   private static final int DEFAULT = 100;
-  private final String MESSAGE = "This function has %s lines, which is greater than the %s lines authorized. Split it into smaller functions.";
 
   @RuleProperty(
     key = "max",
@@ -69,26 +70,31 @@ public class TooManyLinesInFunctionCheck extends SubscriptionBaseVisitor {
         Kind.GENERATOR_FUNCTION_EXPRESSION,
         Kind.FUNCTION_DECLARATION,
         Kind.FUNCTION_EXPRESSION,
-        Kind.CALL_EXPRESSION);
+        Kind.CALL_EXPRESSION,
+        Kind.NEW_EXPRESSION);
   }
 
   @Override
   public void visitNode(Tree tree) {
-    if (tree.is(Kind.CALL_EXPRESSION)){
-
-      checkForImmediatelyInvokedFunction((CallExpressionTree) tree);
-      checkForAMDPattern((CallExpressionTree)tree);
-
-    } else {
-
-      int nbLines = getNumberOfLine(tree);
-      if (nbLines > max && !immediatelyInvokedFunctionExpression && !amdPattern) {
-        String message = String.format(MESSAGE, nbLines, max);
-        getContext().addIssue(this, tree, message);
-      }
-      clearCheckState();
-
+    if (tree.is(Kind.CALL_EXPRESSION)) {
+      checkForImmediatelyInvokedFunction(((CallExpressionTree) tree).callee());
+      checkForAMDPattern((CallExpressionTree) tree);
+      return;
     }
+
+    if (tree.is(Kind.NEW_EXPRESSION)) {
+      if (((NewExpressionTree)tree).arguments() != null) {
+        checkForImmediatelyInvokedFunction(((NewExpressionTree) tree).expression());
+      }
+      return;
+    }
+
+    int nbLines = getNumberOfLine(tree);
+    if (nbLines > max && !immediatelyInvokedFunctionExpression && !amdPattern) {
+      String message = String.format("This function has %s lines, which is greater than the %s lines authorized. Split it into smaller functions.", nbLines, max);
+      getContext().addIssue(this, tree, message);
+    }
+    clearCheckState();
   }
 
   private void clearCheckState() {
@@ -106,10 +112,10 @@ public class TooManyLinesInFunctionCheck extends SubscriptionBaseVisitor {
     }
   }
 
-  private void checkForImmediatelyInvokedFunction(CallExpressionTree callExpressionTree) {
+  private void checkForImmediatelyInvokedFunction(ExpressionTree callee) {
     Kind[] funcExprKinds = {Kind.FUNCTION_EXPRESSION, Kind.GENERATOR_FUNCTION_EXPRESSION};
-    boolean directFunctionCallee = callExpressionTree.callee().is(funcExprKinds);
-    boolean parenthesisedFunctionCallee = callExpressionTree.callee().is(Kind.PARENTHESISED_EXPRESSION) && ((ParenthesisedExpressionTree) callExpressionTree.callee()).expression().is(funcExprKinds);
+    boolean directFunctionCallee = callee.is(funcExprKinds);
+    boolean parenthesisedFunctionCallee = callee.is(Kind.PARENTHESISED_EXPRESSION) && ((ParenthesisedExpressionTree) callee).expression().is(funcExprKinds);
     if (directFunctionCallee || parenthesisedFunctionCallee){
       this.immediatelyInvokedFunctionExpression = true;
     }

@@ -65,6 +65,16 @@ class A {
   }
 }
 
+new (function(){  // OK
+    // comment
+    var a = 1;
+})();
+
+new function(){  // NOK
+    // comment
+    var a = 1;
+};
+
 define([], function(){  // AMD PATTERN - OK
     // comment
     return 1;
