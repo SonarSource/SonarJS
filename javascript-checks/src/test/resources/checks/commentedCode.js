@@ -18,4 +18,7 @@ function sayHello() {
   // ====
   // ----
   // ++++
+
+  // good
+  // http://www.example.com/ = http://www.example.com/
 }

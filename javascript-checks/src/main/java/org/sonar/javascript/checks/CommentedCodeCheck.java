@@ -19,9 +19,11 @@
  */
 package org.sonar.javascript.checks;
 
-import java.util.Set;
-import java.util.regex.Pattern;
-
+import com.google.common.collect.ImmutableSet;
+import com.sonar.sslr.api.AstAndTokenVisitor;
+import com.sonar.sslr.api.Token;
+import com.sonar.sslr.api.Trivia;
+import org.apache.commons.lang.StringUtils;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
@@ -31,17 +33,16 @@ import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 import org.sonar.squidbridge.checks.SquidCheck;
 import org.sonar.squidbridge.recognizer.CodeRecognizer;
-import org.sonar.squidbridge.recognizer.ContainsDetector;
 import org.sonar.squidbridge.recognizer.Detector;
 import org.sonar.squidbridge.recognizer.EndWithDetector;
 import org.sonar.squidbridge.recognizer.KeywordsDetector;
 import org.sonar.squidbridge.recognizer.LanguageFootprint;
 import org.sonar.sslr.parser.LexerlessGrammar;
 
-import com.google.common.collect.ImmutableSet;
-import com.sonar.sslr.api.AstAndTokenVisitor;
-import com.sonar.sslr.api.Token;
-import com.sonar.sslr.api.Trivia;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Set;
+import java.util.regex.Pattern;
 
 @Rule(
   key = "CommentedCode",
@@ -65,10 +66,29 @@ public class CommentedCodeCheck extends SquidCheck<LexerlessGrammar> implements 
       return ImmutableSet.of(
           new EndWithDetector(0.95, '}', ';', '{'),
           new KeywordsDetector(0.3, EcmaScriptKeyword.keywordValues()),
-          new ContainsDetector(0.95, "*=", "/=", "%=", "+=", "-=", "<<=", ">>=", ">>>=", "&=", "^=", "|="),
-          new ContainsDetector(0.95, "!=", "!=="));
+          new ContainsDetectorJS(0.95, "*=", "/=", "%=", "+=", "-=", "<<=", ">>=", ">>>=", "&=", "^=", "|="),
+          new ContainsDetectorJS(0.95, "!=", "!=="));
     }
 
+  }
+
+  private static class ContainsDetectorJS extends Detector {
+
+    private final List<String> strs;
+
+    public ContainsDetectorJS(double probability, String... strs) {
+      super(probability);
+      this.strs = Arrays.asList(strs);
+    }
+
+    @Override
+    public int scan(String line) {
+      int matchers = 0;
+      for (String str : strs) {
+        matchers += StringUtils.countMatches(line, str);
+      }
+      return matchers;
+    }
   }
 
   @Override
