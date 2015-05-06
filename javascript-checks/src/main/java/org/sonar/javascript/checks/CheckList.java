@@ -138,7 +138,8 @@ public final class CheckList {
         ElementUsedWithClassSelectorCheck.class,
         IdChildrenSelectorCheck.class,
         UniversalSelectorCheck.class,
-        DeleteArrayElementCheck.class);
+        DeleteArrayElementCheck.class,
+        ElementTypeSelectorCheck.class);
   }
 
 }
