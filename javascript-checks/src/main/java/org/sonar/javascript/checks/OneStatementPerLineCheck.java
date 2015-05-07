@@ -28,6 +28,8 @@ import org.sonar.javascript.checks.utils.SubscriptionBaseVisitor;
 import org.sonar.javascript.model.implementations.JavaScriptTree;
 import org.sonar.javascript.model.interfaces.Tree;
 import org.sonar.javascript.model.interfaces.Tree.Kind;
+import org.sonar.javascript.model.interfaces.expression.FunctionExpressionTree;
+import org.sonar.javascript.model.interfaces.statement.StatementTree;
 import org.sonar.squidbridge.annotations.ActivatedByDefault;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
@@ -67,6 +69,7 @@ public class OneStatementPerLineCheck extends SubscriptionBaseVisitor {
         Kind.THROW_STATEMENT,
         Kind.TRY_STATEMENT,
         Kind.DEBUGGER_STATEMENT,
+        Kind.FUNCTION_EXPRESSION,
         Kind.SCRIPT);
   }
 
@@ -77,15 +80,28 @@ public class OneStatementPerLineCheck extends SubscriptionBaseVisitor {
 
   @Override
   public void visitNode(Tree tree) {
-    if (tree.is(Kind.SCRIPT)){
+
+    int line = ((JavaScriptTree) tree).getLine();
+
+    // Exception - if function expression has 1 statement in the same line as declaration, ignore this case.
+    if (tree.is(Kind.FUNCTION_EXPRESSION) && isFunctionExpressionException((FunctionExpressionTree)tree)){
+      statementsPerLine.put(line, statementsPerLine.get(line) - 1);
+    }
+
+    if (tree.is(Kind.SCRIPT, Kind.FUNCTION_EXPRESSION)){
       return;
     }
 
-    int line = ((JavaScriptTree) tree).getLine();
     if (!statementsPerLine.containsKey(line)) {
       statementsPerLine.put(line, 0);
     }
     statementsPerLine.put(line, statementsPerLine.get(line) + 1);
+  }
+
+  private boolean isFunctionExpressionException(FunctionExpressionTree functionExpressionTree){
+    int line = ((JavaScriptTree) functionExpressionTree).getLine();
+    List<StatementTree> statements = functionExpressionTree.body().statements();
+    return statements.size() == 1 && ((JavaScriptTree)statements.get(0)).getLine() == line && statementsPerLine.containsKey(line);
   }
 
   @Override

@@ -13,8 +13,24 @@ function sayHello() {
 
    A.doSomething(function () {
       jQuery('x')
-          .on('mousemove', function (e) { that.process(e); })       //  FN (in current impl), should be negative in new implementation
-          .on('mouseup', function (e) { that.process(); });         //  FN (in current impl), should be negative in new implementation
-      jQuery('x').on('mousedown', function (e) { that.process(e); }); // Issue (in current implementation). should not be in new implmemetation
+          .on('mousemove', function (e) { that.process(e); })       //  OK - exception
+          .on('mouseup', function (e) { that.process(); });         //  OK - exception
+      jQuery('x').on('mousedown', function (e) { that.process(e); }); // OK - exception
+
+      jQuery('x').on('mousedown', function (e) { that.process(e);   // NOK
+       foo()
+      });
+
+      jQuery('x')
+        .on('mousedown', function (e) { that.process(e);   // OK - False Negative
+         foo()
+        });
+
+      jQuery('x').on('mousedown',
+            function (e) { that.process(e);   // OK
+                           foo()
+            }
+      );
+
     });
 }

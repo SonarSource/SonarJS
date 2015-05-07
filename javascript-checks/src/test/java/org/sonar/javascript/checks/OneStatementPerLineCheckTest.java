@@ -34,9 +34,7 @@ public class OneStatementPerLineCheckTest extends TreeCheckTest {
     CheckMessagesVerifier.verify(file.getCheckMessages())
         .next().atLine(2).withMessage("At most one statement is allowed per line, but 2 statements were found on this line.")
         .next().atLine(6)
-//        .next().atLine(16)
-//        .next().atLine(17)
-        .next().atLine(18)
+        .next().atLine(20)
         .noMore();
   }
 
