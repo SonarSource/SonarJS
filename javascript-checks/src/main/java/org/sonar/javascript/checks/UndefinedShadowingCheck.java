@@ -25,7 +25,6 @@ import org.sonar.check.Rule;
 import org.sonar.javascript.api.SymbolModel;
 import org.sonar.javascript.ast.resolve.Scope;
 import org.sonar.javascript.ast.resolve.Symbol;
-import org.sonar.javascript.ast.resolve.SymbolDeclaration;
 import org.sonar.javascript.ast.visitors.BaseTreeVisitor;
 import org.sonar.javascript.model.interfaces.declaration.ScriptTree;
 import org.sonar.squidbridge.annotations.ActivatedByDefault;
@@ -56,7 +55,7 @@ public class UndefinedShadowingCheck extends BaseTreeVisitor {
         continue;
       }
 
-      if (symbol.declaration().is(SymbolDeclaration.Kind.VARIABLE_DECLARATION)){
+      if (symbol.is(Symbol.Kind.VARIABLE)){
         getContext().addIssue(this, symbol.declaration().tree(), MESSAGE);
       }
     }
