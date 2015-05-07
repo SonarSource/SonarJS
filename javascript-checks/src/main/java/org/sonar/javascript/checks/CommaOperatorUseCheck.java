@@ -42,7 +42,6 @@ import java.util.List;
     name = "Comma operator should not be used",
     priority = Priority.MAJOR,
     tags = {Tags.MISRA})
-@ActivatedByDefault
 @SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.UNDERSTANDABILITY)
 @SqaleConstantRemediation("5min")
 public class CommaOperatorUseCheck extends BaseTreeVisitor {
