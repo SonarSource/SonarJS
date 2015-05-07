@@ -19,19 +19,18 @@
  */
 package org.sonar.javascript.model.interfaces.statement;
 
+import com.google.common.annotations.Beta;
 import org.sonar.javascript.model.interfaces.Tree;
 import org.sonar.javascript.model.interfaces.expression.ExpressionTree;
 import org.sonar.javascript.model.interfaces.lexical.SyntaxToken;
 
 /**
- * <a href="http://people.mozilla.org/~jorendorff/es6-draft.html#sec-for-in-and-for-of-statements">for of Statement</a>.
- * <p/>
+ * <a href="http://people.mozilla.org/~jorendorff/es6-draft.html#sec-for-in-and-for-of-statements">for of Statement</a> (<a href="http://wiki.ecmascript.org/doku.php?id=harmony:specification_drafts">ES6</a>).
  * <pre>
  *   for ( {@link #variableOrExpression()} of {@link #expression()} {@link #statement()}
  * </pre>
- * <p/>
- * <p>This interface is not intended to be implemented by clients.</p>
  */
+@Beta
 public interface ForOfStatementTree extends StatementTree {
 
   SyntaxToken forKeyword();

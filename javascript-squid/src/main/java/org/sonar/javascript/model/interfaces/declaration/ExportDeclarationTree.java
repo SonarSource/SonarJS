@@ -19,14 +19,13 @@
  */
 package org.sonar.javascript.model.interfaces.declaration;
 
+import com.google.common.annotations.Beta;
 import org.sonar.javascript.model.interfaces.lexical.SyntaxToken;
 
 /**
- * Common interface for types of <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-exports">Export Declarations</a>.
- * <p/>
- *
- * <p>This interface is not intended to be implemented by clients.</p>
+ * <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-exports">Export Declarations</a> (<a href="http://wiki.ecmascript.org/doku.php?id=harmony:specification_drafts">ES6</a>).
  */
+@Beta
 public interface ExportDeclarationTree extends DeclarationTree {
 
   SyntaxToken exportToken();

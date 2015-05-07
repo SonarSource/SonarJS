@@ -19,19 +19,16 @@
  */
 package org.sonar.javascript.model.interfaces.expression;
 
+import com.google.common.annotations.Beta;
 import org.sonar.javascript.model.interfaces.lexical.SyntaxToken;
 
 /**
- * Interface for type <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-object-initializer">Computed property name</a>.
- *
- * <p/>
- *
+ * <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-object-initializer">Computed property name</a> (<a href="http://wiki.ecmascript.org/doku.php?id=harmony:specification_drafts">ES6</a>).
  * <pre>
  *   { {@link #expression()} }
  * </pre>
- *
- * <p>This interface is not intended to be implemented by clients.</p>
  */
+@Beta
 public interface ComputedPropertyNameTree extends ExpressionTree {
 
   SyntaxToken openCurlyBrace();

@@ -21,8 +21,6 @@ package org.sonar.javascript.model.interfaces.statement;
 
 /**
  * Common interface for <a href="http://www.ecma-international.org/ecma-262/5.1/#sec-12.6">iteration statements</a>.
- *
- * <p>This interface is not intended to be implemented by clients.</p>
  */
 public interface IterationStatementTree extends StatementTree {
   StatementTree statement();

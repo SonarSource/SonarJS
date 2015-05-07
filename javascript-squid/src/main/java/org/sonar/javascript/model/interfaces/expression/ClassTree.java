@@ -19,26 +19,23 @@
  */
 package org.sonar.javascript.model.interfaces.expression;
 
+import com.google.common.annotations.Beta;
 import org.sonar.javascript.model.interfaces.declaration.MethodDeclarationTree;
 import org.sonar.javascript.model.interfaces.lexical.SyntaxToken;
 import org.sonar.javascript.model.interfaces.statement.StatementTree;
 
 import javax.annotation.Nullable;
-
 import java.util.List;
 
 /**
- * Interface for type
- * <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-class-definitions">Class expression</a>
- *
+ * <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-class-definitions">Class expression</a> (<a href="http://wiki.ecmascript.org/doku.php?id=harmony:specification_drafts">ES6</a>).
  * <pre>
  *  class { {@link #elements()} }
  *  class {@link #name()} { {@link #elements()} }
  *  class {@link #name()} extends {@link #superClass()}} { {@link #elements()} }
  * </pre>
- *
- * <p>This interface is not intended to be implemented by clients.</p>
  */
+@Beta
 public interface ClassTree extends ExpressionTree, StatementTree {
 
   SyntaxToken classToken();

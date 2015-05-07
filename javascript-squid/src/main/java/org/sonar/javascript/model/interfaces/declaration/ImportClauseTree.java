@@ -19,24 +19,20 @@
  */
 package org.sonar.javascript.model.interfaces.declaration;
 
+import com.google.common.annotations.Beta;
 import org.sonar.javascript.model.interfaces.expression.IdentifierTree;
 import org.sonar.javascript.model.interfaces.lexical.SyntaxToken;
 
 import javax.annotation.Nullable;
 
 /**
- * Interface for <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-imports">Import Clause</a>.
- * <p/>
- *
+ * <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-imports">Import Clause</a> (<a href="http://wiki.ecmascript.org/doku.php?id=harmony:specification_drafts">ES6</a>).
  * <pre>
  *    {@link #defaultImport()}
  *    {@link #defaultImport()} , {@link #namedImport()}
  * </pre>
- *
- * </p>
- * <p>This interface is not intended to be implemented by clients.</p>
  */
-// TODO: review this model, all fields are nullable...
+@Beta
 public interface ImportClauseTree extends DeclarationTree {
 
   @Nullable

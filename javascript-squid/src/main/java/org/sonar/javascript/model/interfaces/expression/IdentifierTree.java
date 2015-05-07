@@ -19,14 +19,14 @@
  */
 package org.sonar.javascript.model.interfaces.expression;
 
+import com.google.common.annotations.Beta;
 import org.sonar.javascript.model.interfaces.declaration.BindingElementTree;
 import org.sonar.javascript.model.interfaces.lexical.SyntaxToken;
 
 /**
  * <a href="http://www.ecma-international.org/ecma-262/5.1/#sec-7.6">Identifier</a>
- * <p/>
- * <p>This interface is not intended to be implemented by clients.</p>
  */
+@Beta
 public interface IdentifierTree extends ExpressionTree, BindingElementTree {
 
   SyntaxToken identifierToken();

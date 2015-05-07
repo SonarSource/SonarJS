@@ -19,6 +19,7 @@
  */
 package org.sonar.javascript.model.interfaces.expression;
 
+import com.google.common.annotations.Beta;
 import org.sonar.javascript.model.interfaces.Tree;
 import org.sonar.javascript.model.interfaces.lexical.SyntaxToken;
 
@@ -58,10 +59,8 @@ import org.sonar.javascript.model.interfaces.lexical.SyntaxToken;
  *   {@link #leftOperand()} {@link Tree.Kind#CONDITIONAL_AND &&} {@link #rightOperand()}
  *   {@link #leftOperand()} {@link Tree.Kind#CONDITIONAL_OR ||} {@link #rightOperand()}
  * </pre>
- * <p/>
- *
- * <p>This interface is not intended to be implemented by clients.</p>
  */
+@Beta
 public interface BinaryExpressionTree extends ExpressionTree {
 
   ExpressionTree leftOperand();

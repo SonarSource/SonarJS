@@ -19,14 +19,13 @@
  */
 package org.sonar.javascript.model.interfaces.expression;
 
-import org.sonar.javascript.model.interfaces.lexical.SyntaxToken;
+import com.google.common.annotations.Beta;
 import org.sonar.javascript.model.interfaces.Tree;
+import org.sonar.javascript.model.interfaces.lexical.SyntaxToken;
 
 /**
  * <a href="http://www.ecma-international.org/ecma-262/5.1/#sec-11.4">Unary Operator</a>
  * and <a href="http://www.ecma-international.org/ecma-262/5.1/#sec-11.3">Postfix Expression</a>.
- * <p/>
- *
  * <pre>
  *   {@link #expression()} {@link Tree.Kind#POSTFIX_INCREMENT ++}
  *   {@link #expression()} {@link Tree.Kind#POSTFIX_DECREMENT --}
@@ -40,10 +39,8 @@ import org.sonar.javascript.model.interfaces.Tree;
  *   {@link Tree.Kind#BITWISE_COMPLEMENT ~} {@link #expression()}
  *   {@link Tree.Kind#LOGICAL_COMPLEMENT !} {@link #expression()}
  * </pre>
- *
- * <p/>
- * <p>This interface is not intended to be implemented by clients.</p>
  */
+@Beta
 public interface UnaryExpressionTree extends ExpressionTree {
 
   SyntaxToken operator();

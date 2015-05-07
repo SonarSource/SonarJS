@@ -19,19 +19,18 @@
  */
 package org.sonar.javascript.model.interfaces.declaration;
 
+import com.google.common.annotations.Beta;
 import org.sonar.javascript.model.implementations.SeparatedList;
 import org.sonar.javascript.model.interfaces.lexical.SyntaxToken;
 
 /**
- * Interface for <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-exports">Export Clause</a>.
- * <p/>
- *
+ * Interface for <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-exports">Export Clause</a> (<a href="http://wiki.ecmascript.org/doku.php?id=harmony:specification_drafts">ES6</a>).
  * <pre>
  *    { {@link #specifiers()} }
  *    { {@link #specifiers()} , }
  * </pre>
- * </p>
  */
+@Beta
 public interface SpecifierListTree extends DeclarationTree {
 
   SyntaxToken openCurlyBraceToken();

@@ -19,22 +19,19 @@
  */
 package org.sonar.javascript.model.interfaces.declaration;
 
+import com.google.common.annotations.Beta;
 import org.sonar.javascript.model.implementations.SeparatedList;
 import org.sonar.javascript.model.interfaces.Tree;
 import org.sonar.javascript.model.interfaces.expression.ExpressionTree;
 import org.sonar.javascript.model.interfaces.lexical.SyntaxToken;
 
 /**
- * <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-function-definitions">Formal Parameter List</a>.
- * <p/>
- *
+ * <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-function-definitions">Formal Parameter List</a> (<a href="http://wiki.ecmascript.org/doku.php?id=harmony:specification_drafts">ES6</a>).
  * <pre>
  *   ( {@link #parameters()} )
  * </pre>
- *
- * <p/>
- * <p>This interface is not intended to be implemented by clients.</p>
  */
+@Beta
 public interface ParameterListTree extends DeclarationTree, ExpressionTree {
 
   SyntaxToken openParenthesis();

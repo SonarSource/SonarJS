@@ -19,6 +19,7 @@
  */
 package org.sonar.javascript.model.interfaces.statement;
 
+import com.google.common.annotations.Beta;
 import org.sonar.javascript.model.interfaces.lexical.SyntaxToken;
 
 /**
@@ -26,9 +27,8 @@ import org.sonar.javascript.model.interfaces.lexical.SyntaxToken;
  * <pre>
  *   ;
  * </pre>
- * <p/>
- * <p>This interface is not intended to be implemented by clients.</p>
  */
+@Beta
 public interface EmptyStatementTree extends StatementTree {
 
   SyntaxToken semicolonToken();

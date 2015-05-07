@@ -19,16 +19,16 @@
  */
 package org.sonar.javascript.model.interfaces.statement;
 
+import com.google.common.annotations.Beta;
+
 /**
  * <a href="http://www.ecma-international.org/ecma-262/5.1/#sec-12.11">Default Clause</a>.
- *
  * <pre>
  *   default :
  *     {@link #statements()}
  * </pre>
- *
- * <p>This interface is not intended to be implemented by clients.</p>
  */
+@Beta
 public interface DefaultClauseTree extends SwitchClauseTree {
 
 }

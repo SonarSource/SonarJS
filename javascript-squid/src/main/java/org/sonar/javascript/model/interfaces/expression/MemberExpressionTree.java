@@ -19,18 +19,16 @@
  */
 package org.sonar.javascript.model.interfaces.expression;
 
+import com.google.common.annotations.Beta;
+
 /**
  * <a href="http://www.ecma-international.org/ecma-262/5.1/#sec-11.2.1">Property Accessors</a>.
- * <p/>
- * <p/>
  * <pre>
  *   {@link #object()} . {@link #property()}
  *   {@link #object()} [ {@link #property()} ]
  * </pre>
- * <p/>
- * <p/>
- * <p>This interface is not intended to be implemented by clients.</p>
  */
+@Beta
 public interface MemberExpressionTree extends ExpressionTree {
 
   ExpressionTree object();

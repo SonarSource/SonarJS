@@ -19,17 +19,15 @@
  */
 package org.sonar.javascript.model.interfaces.expression;
 
+import com.google.common.annotations.Beta;
+
 /**
- * <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-tagged-templates">Tagged Templates</a>.
- * <p/>
- *
+ * <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-tagged-templates">Tagged Templates</a> (<a href="http://wiki.ecmascript.org/doku.php?id=harmony:specification_drafts">ES6</a>).
  * <pre>
  *   {@link #callee()} {@link #template()}
  * </pre>
- *
- * <p/>
- * <p>This interface is not intended to be implemented by clients.</p>
  */
+@Beta
 public interface TaggedTemplateTree extends ExpressionTree {
 
   ExpressionTree callee();

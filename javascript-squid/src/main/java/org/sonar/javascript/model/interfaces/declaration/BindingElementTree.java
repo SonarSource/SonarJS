@@ -19,8 +19,10 @@
  */
 package org.sonar.javascript.model.interfaces.declaration;
 
+import com.google.common.annotations.Beta;
 import org.sonar.javascript.model.interfaces.Tree;
 
+@Beta
 public interface BindingElementTree extends Tree {
 
 }

@@ -19,18 +19,17 @@
  */
 package org.sonar.javascript.model.interfaces.statement;
 
+import com.google.common.annotations.Beta;
 import org.sonar.javascript.model.interfaces.expression.ExpressionTree;
 
 /**
  * <a href="http://www.ecma-international.org/ecma-262/5.1/#sec-12.11">Case Clause</a>.
- *
  * <pre>
  *   case {@link #expression()} :
  *     {@link #statements()}
  * </pre>
- *
- * <p>This interface is not intended to be implemented by clients.</p>
  */
+@Beta
 public interface CaseClauseTree extends SwitchClauseTree {
 
   ExpressionTree expression();

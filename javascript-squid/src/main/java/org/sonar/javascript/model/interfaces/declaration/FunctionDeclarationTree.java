@@ -19,31 +19,25 @@
  */
 package org.sonar.javascript.model.interfaces.declaration;
 
+import com.google.common.annotations.Beta;
 import org.sonar.javascript.model.interfaces.expression.IdentifierTree;
 import org.sonar.javascript.model.interfaces.lexical.SyntaxToken;
 import org.sonar.javascript.model.interfaces.statement.BlockTree;
 import org.sonar.javascript.model.interfaces.statement.StatementTree;
+import org.sonar.javascript.model.interfaces.Tree;
 
 import javax.annotation.Nullable;
 
 /**
  * <a href="http://www.ecma-international.org/ecma-262/5.1/#sec-13">Function declaration</a>,
- * <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-generator-function-definitions">Generator function declaration - ES6</a>,
- * <p/>
+ * <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-generator-function-definitions">Generator function declaration</a> (<a href="http://wiki.ecmascript.org/doku.php?id=harmony:specification_drafts">ES6</a>).
  *
- * <p>
- * Function declaration ({@link org.sonar.javascript.model.interfaces.Tree.Kind#FUNCTION_DECLARATION}):
  * <pre>
- *    function {@link #name()} ( {@link #parameters()} ) {@link #body()
- *    }
+ *    {@link Tree.Kind#FUNCTION_DECLARATION function} {@link #name()} ( {@link #parameters()} ) {@link #body()}
+ *    {@link Tree.Kind#GENERATOR_DECLARATION function} * {@link #name()} ( {@link #parameters()} ) {@link #body()}
  * </pre>
- * Generator function declaration ({@link org.sonar.javascript.model.interfaces.Tree.Kind#GENERATOR_DECLARATION}):
- * <pre>
- *    function * {@link #name()} ( {@link #parameters()} ) {@link #body()
- *    }
- * </pre>
- * </p>
  */
+@Beta
 public interface FunctionDeclarationTree extends StatementTree {
 
   SyntaxToken functionKeyword();

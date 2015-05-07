@@ -19,16 +19,16 @@
  */
 package org.sonar.javascript.model.interfaces.declaration;
 
+import com.google.common.annotations.Beta;
 import org.sonar.javascript.model.interfaces.Tree;
 
 /**
- * Interface for <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-imports">Export Clause</a>.
- * <p/>
+ * <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-imports">Export Clause</a> (<a href="http://wiki.ecmascript.org/doku.php?id=harmony:specification_drafts">ES6</a>).
  * <pre>
  *    {@link #exports()} {@link #fromClause()} ;
  * </pre>
- * </p>
  */
+@Beta
 public interface ExportClauseTree extends DeclarationTree {
 
   SpecifierListTree exports();

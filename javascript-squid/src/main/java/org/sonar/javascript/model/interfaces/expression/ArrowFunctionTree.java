@@ -19,6 +19,7 @@
  */
 package org.sonar.javascript.model.interfaces.expression;
 
+import com.google.common.annotations.Beta;
 import org.sonar.javascript.model.interfaces.Tree;
 import org.sonar.javascript.model.interfaces.declaration.ParameterListTree;
 import org.sonar.javascript.model.interfaces.lexical.SyntaxToken;
@@ -35,6 +36,7 @@ import org.sonar.javascript.model.interfaces.statement.BlockTree;
  *
  * <p>This interface is not intended to be implemented by clients.</p>
  */
+@Beta
 public interface ArrowFunctionTree extends ExpressionTree {
 
   /**

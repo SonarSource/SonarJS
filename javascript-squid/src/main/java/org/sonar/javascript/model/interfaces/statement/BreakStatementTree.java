@@ -19,6 +19,7 @@
  */
 package org.sonar.javascript.model.interfaces.statement;
 
+import com.google.common.annotations.Beta;
 import org.sonar.javascript.model.interfaces.Tree;
 import org.sonar.javascript.model.interfaces.expression.IdentifierTree;
 import org.sonar.javascript.model.interfaces.lexical.SyntaxToken;
@@ -26,15 +27,13 @@ import org.sonar.javascript.model.interfaces.lexical.SyntaxToken;
 import javax.annotation.Nullable;
 
 /**
- * <a href="http://www.ecma-international.org/ecma-262/5.1/#sec-12.8">break Statement</a>.
- *
+ * <a href="http://www.ecma-international.org/ecma-262/5.1/#sec-12.8">Break Statement</a>.
  * <pre>
  *   break ;
  *   break {@link #label()} ;
  * </pre>
- *
- * <p>This interface is not intended to be implemented by clients.</p>
  */
+@Beta
 public interface BreakStatementTree extends StatementTree {
 
   SyntaxToken breakKeyword();

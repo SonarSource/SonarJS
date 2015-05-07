@@ -19,19 +19,17 @@
  */
 package org.sonar.javascript.model.interfaces.expression;
 
+import com.google.common.annotations.Beta;
 import org.sonar.javascript.model.implementations.SeparatedList;
 
 /**
- * Common interface for all types of <a href="http://www.ecma-international.org/ecma-262/5.1/#sec-11.14">Comma separated expression</a>.
- * <p/>
- *
+ * <a href="http://www.ecma-international.org/ecma-262/5.1/#sec-11.14">Comma separated expression</a>.
  * <pre>
  * {@link #expressions()}
  * {@link #expressions()} , {@link #expressions()}
  * </pre>
- *
- * <p>This interface is not intended to be implemented by clients.</p>
  */
+@Beta
 public interface SequenceExpressionTree extends ExpressionTree {
 
   SeparatedList<ExpressionTree> expressions();

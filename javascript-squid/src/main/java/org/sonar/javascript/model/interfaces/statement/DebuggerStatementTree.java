@@ -19,18 +19,17 @@
  */
 package org.sonar.javascript.model.interfaces.statement;
 
+import com.google.common.annotations.Beta;
 import org.sonar.javascript.model.interfaces.Tree;
 import org.sonar.javascript.model.interfaces.lexical.SyntaxToken;
 
 /**
  * <a href="http://www.ecma-international.org/ecma-262/5.1/#sec-12.15">debugger Statement</a>.
- *
  * <pre>
  *   debugger ;
  * </pre>
- *
- * <p>This interface is not intended to be implemented by clients.</p>
  */
+@Beta
 public interface DebuggerStatementTree extends StatementTree {
 
   SyntaxToken debuggerKeyword();

@@ -19,8 +19,10 @@
  */
 package org.sonar.javascript.model.interfaces.expression;
 
-import org.sonar.javascript.model.interfaces.lexical.SyntaxToken;
+import com.google.common.annotations.Beta;
 import org.sonar.javascript.model.interfaces.Tree;
+import org.sonar.javascript.model.interfaces.lexical.SyntaxToken;
+
 
 /**
  * <a href="http://www.ecma-international.org/ecma-262/5.1/#sec-11.13">Assignment Expression</a>
@@ -40,10 +42,8 @@ import org.sonar.javascript.model.interfaces.Tree;
  *   {@link #variable()} {@link Tree.Kind#XOR_ASSIGNMENT ^=} {@link #expression()}
  *   {@link #variable()} {@link Tree.Kind#OR_ASSIGNMENT |=} {@link #expression()}
  * </pre>
- *
- * <p/>
- * <p>This interface is not intended to be implemented by clients.</p>
  */
+@Beta
 public interface AssignmentExpressionTree extends ExpressionTree {
 
   ExpressionTree variable();

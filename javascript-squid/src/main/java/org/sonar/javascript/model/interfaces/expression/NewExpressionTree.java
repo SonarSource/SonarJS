@@ -19,6 +19,7 @@
  */
 package org.sonar.javascript.model.interfaces.expression;
 
+import com.google.common.annotations.Beta;
 import org.sonar.javascript.model.interfaces.Tree;
 import org.sonar.javascript.model.interfaces.declaration.ParameterListTree;
 import org.sonar.javascript.model.interfaces.lexical.SyntaxToken;
@@ -28,18 +29,14 @@ import javax.annotation.Nullable;
 /**
  * <a href="http://www.ecma-international.org/ecma-262/5.1/#sec-11.2.2">New Expression</a>.
  * <a href="http://www.ecma-international.org/ecma-262/5.1/#sec-11.2">New Member Expression</a>.
- * <p/>
- *
  * <pre>
  *   new {@link #expression()}
  *   new {@link #expression()} {@link #arguments()}
  *   new {@link Tree.Kind#NEW_SUPER super}
  *   new {@link Tree.Kind#NEW_SUPER super} {@link #arguments()}
  * </pre>
- *
- * <p/>
- * <p>This interface is not intended to be implemented by clients.</p>
  */
+@Beta
 public interface NewExpressionTree extends ExpressionTree {
 
   SyntaxToken newKeyword();

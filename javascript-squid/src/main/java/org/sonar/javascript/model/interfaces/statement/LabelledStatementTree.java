@@ -19,18 +19,17 @@
  */
 package org.sonar.javascript.model.interfaces.statement;
 
+import com.google.common.annotations.Beta;
 import org.sonar.javascript.model.interfaces.expression.IdentifierTree;
 import org.sonar.javascript.model.interfaces.lexical.SyntaxToken;
 
 /**
  * <a href="http://www.ecma-international.org/ecma-262/5.1/#sec-12.12">Labelled Statement</a>.
- *
  * <pre>
  *   {@link #label()} : {@link #statement()}
  * </pre>
- *
- * <p>This interface is not intended to be implemented by clients.</p>
  */
+@Beta
 public interface LabelledStatementTree extends StatementTree {
 
   IdentifierTree label();

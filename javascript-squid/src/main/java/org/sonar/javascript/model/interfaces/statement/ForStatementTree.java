@@ -19,22 +19,22 @@
  */
 package org.sonar.javascript.model.interfaces.statement;
 
+import com.google.common.annotations.Beta;
 import org.sonar.javascript.model.interfaces.Tree;
 import org.sonar.javascript.model.interfaces.expression.ExpressionTree;
 import org.sonar.javascript.model.interfaces.lexical.SyntaxToken;
 
 import javax.annotation.Nullable;
 
+
 /**
  * <a href="http://www.ecma-international.org/ecma-262/5.1/#sec-12.6.3">for Statement</a>.
- *
  * <pre>
  *   for ( {@link #init()} ; {@link #condition()} ; {@link #update()} ) {@link #statement()}
  *   for ( var {@link #init()} ; {@link #condition()} ; {@link #update()} ) {@link #statement()}
  * </pre>
- *
- * <p>This interface is not intended to be implemented by clients.</p>
  */
+@Beta
 public interface ForStatementTree extends IterationStatementTree {
 
   SyntaxToken forKeyword();

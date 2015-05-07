@@ -19,12 +19,12 @@
  */
 package org.sonar.javascript.model.interfaces.statement;
 
+import com.google.common.annotations.Beta;
 import org.sonar.javascript.model.interfaces.Tree;
 
 /**
- * Common interface for all types of <a href="http://www.ecma-international.org/ecma-262/5.1/#sec-12">statements</a>.
- *
- * <p>This interface is not intended to be implemented by clients.</p>
+ * Common interface for all types of <a href="http://www.ecma-international.org/ecma-262/5.1/#sec-12">Statements</a>.
  */
+@Beta
 public interface StatementTree extends Tree {
 }

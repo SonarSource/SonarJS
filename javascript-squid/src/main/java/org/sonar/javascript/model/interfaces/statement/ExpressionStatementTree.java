@@ -19,17 +19,16 @@
  */
 package org.sonar.javascript.model.interfaces.statement;
 
+import com.google.common.annotations.Beta;
 import org.sonar.javascript.model.interfaces.Tree;
 
 /**
  * <a href="http://www.ecma-international.org/ecma-262/5.1/#sec-12.4">Expression Statement</a>.
- *
  * <pre>
  *   {@link #expression()} ;
  * </pre>
- *
- * <p>This interface is not intended to be implemented by clients.</p>
  */
+@Beta
 public interface ExpressionStatementTree extends StatementTree {
 
   Tree expression();

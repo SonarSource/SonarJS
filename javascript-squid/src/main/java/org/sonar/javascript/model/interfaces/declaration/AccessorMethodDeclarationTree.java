@@ -19,20 +19,20 @@
  */
 package org.sonar.javascript.model.interfaces.declaration;
 
+import com.google.common.annotations.Beta;
 import org.sonar.javascript.model.implementations.lexical.InternalSyntaxToken;
 import org.sonar.javascript.model.interfaces.Tree;
 
 /**
- * Interface for <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-method-definitions">Accessors Method</a>.
- * <p/>
+ * <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-method-definitions">Accessors Method</a> (<a href="http://wiki.ecmascript.org/doku.php?id=harmony:specification_drafts">ES6</a>).
  *
  * <pre>
  *   {@link Tree.Kind#GET_METHOD get} {@link #name()} {@link #parameters()} {@link #body()}
  *   {@link Tree.Kind#SET_METHOD set} {@link #name()} {@link #parameters()} {@link #body()}
  * </pre>
  *
- * <p>This interface is not intended to be implemented by clients.</p>
  */
+@Beta
 public interface AccessorMethodDeclarationTree extends MethodDeclarationTree {
 
   InternalSyntaxToken accessorToken();

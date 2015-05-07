@@ -19,6 +19,7 @@
  */
 package org.sonar.javascript.model.interfaces;
 
+import com.google.common.annotations.Beta;
 import org.sonar.javascript.model.interfaces.declaration.DeclarationTree;
 
 import java.util.List;
@@ -29,6 +30,7 @@ import java.util.List;
  * <p/>
  * <p>This interface is not intended to be implemented by clients.</p>
  */
+@Beta
 public interface ModuleTree extends DeclarationTree {
 
   List<Tree> items();

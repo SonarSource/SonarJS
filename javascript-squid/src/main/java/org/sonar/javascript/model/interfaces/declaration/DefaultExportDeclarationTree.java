@@ -19,23 +19,20 @@
  */
 package org.sonar.javascript.model.interfaces.declaration;
 
+import com.google.common.annotations.Beta;
 import org.sonar.javascript.model.interfaces.Tree;
 import org.sonar.javascript.model.interfaces.lexical.SyntaxToken;
 
 import javax.annotation.Nullable;
 
 /**
- * Interface for type <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-exports">Default Export Declarations</a>.
- * <p/>
- *
+ * <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-exports">Default Export Declarations</a> (<a href="http://wiki.ecmascript.org/doku.php?id=harmony:specification_drafts">ES6</a>).
  * <pre>
  *    export default {@link #object()}
  *    export default {@link #object()} ;
  * </pre>
- *
- * </p>
- * <p>This interface is not intended to be implemented by clients.</p>
  */
+@Beta
 public interface DefaultExportDeclarationTree extends ExportDeclarationTree {
 
   SyntaxToken defaultToken();

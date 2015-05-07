@@ -19,6 +19,7 @@
  */
 package org.sonar.javascript.model.interfaces;
 
+import com.google.common.annotations.Beta;
 import com.sonar.sslr.api.AstNodeType;
 import org.sonar.javascript.ast.visitors.TreeVisitor;
 import org.sonar.javascript.model.implementations.declaration.SpecifierListTreeImpl;
@@ -96,9 +97,8 @@ import org.sonar.sslr.grammar.GrammarRuleKey;
 
 /**
  * Common interface for all nodes in an abstract syntax tree.
- * <p/>
- * <p>This interface is not intended to be implemented by clients.</p>
  */
+@Beta
 public interface Tree {
 
   boolean is(Kind... kind);

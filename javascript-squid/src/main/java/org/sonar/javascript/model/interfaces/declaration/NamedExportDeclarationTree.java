@@ -19,19 +19,16 @@
  */
 package org.sonar.javascript.model.interfaces.declaration;
 
+import com.google.common.annotations.Beta;
 import org.sonar.javascript.model.interfaces.Tree;
 
 /**
- * Interface for type <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-exports">Named Export Declarations</a>.
- * <p/>
- *
+ * <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-exports">Named Export Declarations</a> (<a href="http://wiki.ecmascript.org/doku.php?id=harmony:specification_drafts">ES6</a>).
  * <pre>
  *    {@link Tree.Kind#NAMED_EXPORT_DECLARATION export} {@link #object()}
  * </pre>
- *
- * <p/>
- * <p>This interface is not intended to be implemented by clients.</p>
  */
+@Beta
 public interface NamedExportDeclarationTree extends ExportDeclarationTree {
 
   Tree object();

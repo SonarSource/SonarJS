@@ -19,18 +19,17 @@
  */
 package org.sonar.javascript.model.interfaces.statement;
 
+import com.google.common.annotations.Beta;
 import org.sonar.javascript.model.interfaces.Tree;
 import org.sonar.javascript.model.interfaces.lexical.SyntaxToken;
 
 /**
  * <a href="http://www.ecma-international.org/ecma-262/5.1/#sec-12.14">Catch Block</a>.
- *
  * <pre>
  *   catch ( {@link #parameter()} ) {@link #block()}
  * </pre>
- *
- * <p>This interface is not intended to be implemented by clients.</p>
  */
+@Beta
 public interface CatchBlockTree extends Tree {
 
   SyntaxToken catchKeyword();

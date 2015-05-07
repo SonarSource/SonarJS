@@ -19,21 +19,19 @@
  */
 package org.sonar.javascript.model.interfaces.expression;
 
+import com.google.common.annotations.Beta;
 import org.sonar.javascript.model.interfaces.lexical.SyntaxToken;
 
 import javax.annotation.Nullable;
 
 /**
- * Common interface for all types of <a href="ThisTree">Yield Expression</a>.
- * <p/>
- *
+ * <a href="http://people.mozilla.org/~jorendorff/es6-draft.html#sec-generator-function-definitions">Yield Expression</a> (<a href="http://wiki.ecmascript.org/doku.php?id=harmony:specification_drafts">ES6</a>).
  * <pre>
  *   yield {@link #argument()}
  *   yield * {@link #argument()}
  * </pre>
- *
- * <p>This interface is not intended to be implemented by clients.</p>
  */
+@Beta
 public interface YieldExpressionTree extends ExpressionTree {
 
   SyntaxToken yieldKeyword();

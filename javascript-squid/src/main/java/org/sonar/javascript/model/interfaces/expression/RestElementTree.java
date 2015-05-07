@@ -19,17 +19,16 @@
  */
 package org.sonar.javascript.model.interfaces.expression;
 
+import com.google.common.annotations.Beta;
 import org.sonar.javascript.model.interfaces.lexical.SyntaxToken;
 
 /**
  * Common interface for all types of Rest Element
- * <p/>
  * <pre>
  *  ... {@link #element()}
  * </pre>
- * <p/>
- * <p>This interface is not intended to be implemented by clients.</p>
  */
+@Beta
 public interface RestElementTree extends ExpressionTree {
 
   SyntaxToken ellipsis();

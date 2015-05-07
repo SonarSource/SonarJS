@@ -19,22 +19,21 @@
  */
 package org.sonar.javascript.model.interfaces.expression;
 
+import com.google.common.annotations.Beta;
 import org.sonar.javascript.model.implementations.SeparatedList;
 import org.sonar.javascript.model.interfaces.Tree;
 import org.sonar.javascript.model.interfaces.lexical.SyntaxToken;
 
+
 /**
- * Common interface for all types of <a href="http://www.ecma-international.org/ecma-262/5.1/#sec-11.1.5">Object Initialiser</a>.
- * <p/>
- *
+ * <a href="http://www.ecma-international.org/ecma-262/5.1/#sec-11.1.5">Object Initialiser</a>.
  * <pre>
  *   { }
  *   { {@link #properties()} }
  *   { {@link #properties()} , }
  * </pre>
- *
- * <p>This interface is not intended to be implemented by clients.</p>
  */
+@Beta
 public interface ObjectLiteralTree extends ExpressionTree {
 
   SyntaxToken openCurlyBrace();

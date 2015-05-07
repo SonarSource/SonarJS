@@ -19,22 +19,21 @@
  */
 package org.sonar.javascript.model.interfaces.expression;
 
+import com.google.common.annotations.Beta;
 import org.sonar.javascript.model.implementations.SeparatedList;
 import org.sonar.javascript.model.interfaces.Tree;
-import org.sonar.javascript.model.interfaces.declaration.InitializedBindingElementTree;
 import org.sonar.javascript.model.interfaces.declaration.DeclarationTree;
+import org.sonar.javascript.model.interfaces.declaration.InitializedBindingElementTree;
 import org.sonar.javascript.model.interfaces.lexical.SyntaxToken;
 
 /**
- * Interface for <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-let-and-const-declarations">Let and Const Declarations</a>.
- *
+ * <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-let-and-const-declarations">Let and Const Declarations</a> (<a href="http://wiki.ecmascript.org/doku.php?id=harmony:specification_drafts">ES6</a>).
  * <pre>
  *   {@link Tree.Kind#LET_DECLARATION let } {@link #bindingList()}
  *   {@link Tree.Kind#CONST_DECLARATION const } {@link #bindingList()}
  * </pre>
- *
- * <p>This interface is not intended to be implemented by clients.</p>
  */
+@Beta
 public interface LexicalDeclarationTree extends DeclarationTree {
 
   SyntaxToken keywordToken();

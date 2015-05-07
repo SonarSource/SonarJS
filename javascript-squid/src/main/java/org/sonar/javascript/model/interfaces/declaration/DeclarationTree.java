@@ -19,13 +19,12 @@
  */
 package org.sonar.javascript.model.interfaces.declaration;
 
+import com.google.common.annotations.Beta;
 import org.sonar.javascript.model.interfaces.Tree;
 
 /**
  * Common interface for all types <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-declarations-and-the-variable-statement">Declaration</a>.
- * <p/>
- *
- * <p>This interface is not intended to be implemented by clients.</p>
  */
+@Beta
 public interface DeclarationTree extends Tree {
 }

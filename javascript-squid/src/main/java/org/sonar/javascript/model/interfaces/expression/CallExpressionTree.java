@@ -19,19 +19,16 @@
  */
 package org.sonar.javascript.model.interfaces.expression;
 
+import com.google.common.annotations.Beta;
 import org.sonar.javascript.model.interfaces.declaration.ParameterListTree;
 
 /**
  * <a href="http://www.ecma-international.org/ecma-262/5.1/#sec-11.2.3">Call Expression</a>.
- * <p/>
- *
  * <pre>
  *   {@link #callee()} ( {@link #arguments()} )
  * </pre>
- *
- * <p/>
- * <p>This interface is not intended to be implemented by clients.</p>
  */
+@Beta
 public interface CallExpressionTree extends ExpressionTree {
 
   ExpressionTree callee();

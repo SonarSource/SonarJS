@@ -19,8 +19,13 @@
  */
 package org.sonar.javascript.model.interfaces.statement;
 
+import com.google.common.annotations.Beta;
 import org.sonar.javascript.model.interfaces.Tree;
 
+/**
+ * <a href="http://people.mozilla.org/~jorendorff/es6-draft.html#sec-variable-statement">Variable Statement</a>.
+ */
+@Beta
 public interface VariableStatementTree extends StatementTree {
 
   VariableDeclarationTree declaration();

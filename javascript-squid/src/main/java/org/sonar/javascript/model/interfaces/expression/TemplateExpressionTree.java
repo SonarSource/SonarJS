@@ -19,17 +19,17 @@
  */
 package org.sonar.javascript.model.interfaces.expression;
 
+import com.google.common.annotations.Beta;
 import org.sonar.javascript.model.interfaces.lexical.SyntaxToken;
 
 /**
- * Interface for <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-template-literal-lexical-components">expression nested in template</a>.
+ * <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-template-literal-lexical-components">expression nested in template</a> (<a href="http://wiki.ecmascript.org/doku.php?id=harmony:specification_drafts">ES6</a>).
  *
  * <pre>
  *   ${ {@link #expression()} }
  * </pre>
- *
- * <p>This interface is not intended to be implemented by clients.</p>
  */
+@Beta
 public interface TemplateExpressionTree extends ExpressionTree {
 
   SyntaxToken dollar();

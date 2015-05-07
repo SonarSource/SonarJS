@@ -19,11 +19,17 @@
  */
 package org.sonar.javascript.model.interfaces.statement;
 
+import com.google.common.annotations.Beta;
+
 import org.sonar.javascript.model.implementations.SeparatedList;
 import org.sonar.javascript.model.interfaces.Tree;
 import org.sonar.javascript.model.interfaces.declaration.BindingElementTree;
 import org.sonar.javascript.model.interfaces.lexical.SyntaxToken;
 
+/**
+ * <a href="http://people.mozilla.org/~jorendorff/es6-draft.html#sec-variable-statement">Variable Declaration</a>.
+ */
+@Beta
 public interface VariableDeclarationTree extends Tree {
 
   SyntaxToken token();
