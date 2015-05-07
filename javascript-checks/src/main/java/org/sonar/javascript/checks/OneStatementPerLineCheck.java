@@ -48,7 +48,7 @@ import java.util.Map;
 public class OneStatementPerLineCheck extends SubscriptionBaseVisitor {
 
   private final Map<Integer, Integer> statementsPerLine = Maps.newHashMap();
-  private static final String MESSAGE = "At most one statement is allowed per line, but %s statements were found on this line.";;
+  private static final String MESSAGE = "At most one statement is allowed per line, but %s statements were found on this line.";
 
   @Override
   public List<Kind> nodesToVisit() {
