@@ -21,11 +21,11 @@ package org.sonar.javascript.model.declaration;
 
 import org.junit.Test;
 import org.sonar.javascript.model.JavaScriptTreeModelTest;
-import org.sonar.javascript.model.implementations.declaration.ArrayBindingPatternTreeImpl;
-import org.sonar.javascript.model.interfaces.Tree;
-import org.sonar.javascript.model.interfaces.Tree.Kind;
-import org.sonar.javascript.model.interfaces.declaration.ArrayBindingPatternTree;
-import org.sonar.javascript.model.interfaces.expression.IdentifierTree;
+import org.sonar.javascript.model.internal.declaration.ArrayBindingPatternTreeImpl;
+import org.sonar.plugins.javascript.api.tree.Tree;
+import org.sonar.plugins.javascript.api.tree.Tree.Kind;
+import org.sonar.plugins.javascript.api.tree.declaration.ArrayBindingPatternTree;
+import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 
 import java.util.Iterator;
 import java.util.List;

@@ -23,11 +23,11 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
-import org.sonar.javascript.JavaScriptFileScanner;
-import org.sonar.javascript.model.implementations.JavaScriptTree;
-import org.sonar.javascript.model.interfaces.Tree;
-import org.sonar.javascript.model.interfaces.lexical.SyntaxToken;
-import org.sonar.javascript.model.interfaces.lexical.SyntaxTrivia;
+import org.sonar.plugins.javascript.api.JavaScriptFileScanner;
+import org.sonar.javascript.model.internal.JavaScriptTree;
+import org.sonar.plugins.javascript.api.tree.Tree;
+import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
+import org.sonar.plugins.javascript.api.tree.lexical.SyntaxTrivia;
 
 public abstract class SubscriptionAstTreeVisitor implements JavaScriptFileScanner {
 

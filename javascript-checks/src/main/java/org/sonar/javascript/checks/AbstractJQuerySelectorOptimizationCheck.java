@@ -19,10 +19,10 @@
  */
 package org.sonar.javascript.checks;
 
-import org.sonar.javascript.model.implementations.SeparatedList;
-import org.sonar.javascript.model.interfaces.Tree;
-import org.sonar.javascript.model.interfaces.expression.CallExpressionTree;
-import org.sonar.javascript.model.interfaces.expression.LiteralTree;
+import org.sonar.javascript.model.internal.SeparatedList;
+import org.sonar.plugins.javascript.api.tree.Tree;
+import org.sonar.plugins.javascript.api.tree.expression.CallExpressionTree;
+import org.sonar.plugins.javascript.api.tree.expression.LiteralTree;
 
 public abstract class AbstractJQuerySelectorOptimizationCheck extends AbstractJQueryCheck {
 

@@ -23,9 +23,9 @@ import com.google.common.collect.ImmutableSet;
 import com.sonar.sslr.api.AstNode;
 import com.sonar.sslr.api.AstNodeType;
 import com.sonar.sslr.api.Token;
-import org.sonar.javascript.model.implementations.JavaScriptTree;
-import org.sonar.javascript.model.interfaces.Tree;
-import org.sonar.javascript.model.interfaces.Tree.Kind;
+import org.sonar.javascript.model.internal.JavaScriptTree;
+import org.sonar.plugins.javascript.api.tree.Tree;
+import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 
 import java.util.List;
 

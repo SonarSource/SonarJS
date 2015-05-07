@@ -26,7 +26,7 @@ import org.sonar.javascript.JavaScriptAstScanner;
 import org.sonar.javascript.TestUtils;
 import org.sonar.javascript.ast.resolve.SymbolModelImpl;
 import org.sonar.javascript.model.JavaScriptTreeModelTest;
-import org.sonar.javascript.model.implementations.declaration.ScriptTreeImpl;
+import org.sonar.javascript.model.internal.declaration.ScriptTreeImpl;
 import org.sonar.squidbridge.api.CheckMessage;
 import org.sonar.squidbridge.api.CodeVisitor;
 import org.sonar.squidbridge.api.SourceFile;

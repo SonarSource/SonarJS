@@ -22,9 +22,9 @@ package org.sonar.javascript.model.declaration;
 import static org.fest.assertions.Assertions.assertThat;
 import org.junit.Test;
 import org.sonar.javascript.model.JavaScriptTreeModelTest;
-import org.sonar.javascript.model.interfaces.Tree.Kind;
-import org.sonar.javascript.model.interfaces.declaration.ImportDeclarationTree;
-import org.sonar.javascript.model.interfaces.declaration.ImportModuleDeclarationTree;
+import org.sonar.plugins.javascript.api.tree.Tree.Kind;
+import org.sonar.plugins.javascript.api.tree.declaration.ImportDeclarationTree;
+import org.sonar.plugins.javascript.api.tree.declaration.ImportModuleDeclarationTree;
 
 public class ImportModuleDeclarationTreeModelTest extends JavaScriptTreeModelTest {
 

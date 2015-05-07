@@ -20,11 +20,11 @@
 package org.sonar.javascript.checks;
 
 import org.sonar.javascript.ast.visitors.BaseTreeVisitor;
-import org.sonar.javascript.model.interfaces.Tree;
-import org.sonar.javascript.model.interfaces.expression.CallExpressionTree;
-import org.sonar.javascript.model.interfaces.expression.ExpressionTree;
-import org.sonar.javascript.model.interfaces.expression.IdentifierTree;
-import org.sonar.javascript.model.interfaces.expression.MemberExpressionTree;
+import org.sonar.plugins.javascript.api.tree.Tree;
+import org.sonar.plugins.javascript.api.tree.expression.CallExpressionTree;
+import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
+import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
+import org.sonar.plugins.javascript.api.tree.expression.MemberExpressionTree;
 
 import java.util.Arrays;
 import java.util.List;

@@ -20,7 +20,7 @@
 package org.sonar.javascript.parser.grammar.expressions;
 
 import org.junit.Test;
-import org.sonar.javascript.model.interfaces.Tree;
+import org.sonar.plugins.javascript.api.tree.Tree;
 
 import static org.sonar.javascript.sslr.tests.Assertions.assertThat;
 

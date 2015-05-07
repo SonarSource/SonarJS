@@ -23,8 +23,8 @@ import static org.fest.assertions.Assertions.assertThat;
 
 import org.junit.Test;
 import org.sonar.javascript.model.JavaScriptTreeModelTest;
-import org.sonar.javascript.model.interfaces.Tree.Kind;
-import org.sonar.javascript.model.interfaces.declaration.ParameterListTree;
+import org.sonar.plugins.javascript.api.tree.Tree.Kind;
+import org.sonar.plugins.javascript.api.tree.declaration.ParameterListTree;
 
 public class ArgumentsTreeModelTest extends JavaScriptTreeModelTest {
 

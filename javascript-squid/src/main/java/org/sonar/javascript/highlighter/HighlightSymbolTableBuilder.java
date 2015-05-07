@@ -26,9 +26,9 @@ import org.sonar.javascript.api.SymbolModel;
 import org.sonar.javascript.ast.resolve.Symbol;
 import org.sonar.javascript.ast.resolve.SymbolDeclaration;
 import org.sonar.javascript.ast.resolve.Usage;
-import org.sonar.javascript.model.implementations.lexical.InternalSyntaxToken;
-import org.sonar.javascript.model.interfaces.Tree;
-import org.sonar.javascript.model.interfaces.expression.IdentifierTree;
+import org.sonar.javascript.model.internal.lexical.InternalSyntaxToken;
+import org.sonar.plugins.javascript.api.tree.Tree;
+import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 
 import java.util.HashSet;
 import java.util.LinkedList;

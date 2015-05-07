@@ -21,21 +21,21 @@ package org.sonar.javascript.ast.resolve;
 
 import org.sonar.javascript.api.SymbolModelBuilder;
 import org.sonar.javascript.ast.visitors.BaseTreeVisitor;
-import org.sonar.javascript.model.implementations.declaration.InitializedBindingElementTreeImpl;
-import org.sonar.javascript.model.implementations.declaration.ParameterListTreeImpl;
-import org.sonar.javascript.model.implementations.expression.ArrowFunctionTreeImpl;
-import org.sonar.javascript.model.implementations.statement.CatchBlockTreeImpl;
-import org.sonar.javascript.model.implementations.statement.VariableDeclarationTreeImpl;
-import org.sonar.javascript.model.interfaces.Tree;
-import org.sonar.javascript.model.interfaces.declaration.BindingElementTree;
-import org.sonar.javascript.model.interfaces.declaration.FunctionDeclarationTree;
-import org.sonar.javascript.model.interfaces.declaration.MethodDeclarationTree;
-import org.sonar.javascript.model.interfaces.declaration.ScriptTree;
-import org.sonar.javascript.model.interfaces.expression.ArrowFunctionTree;
-import org.sonar.javascript.model.interfaces.expression.FunctionExpressionTree;
-import org.sonar.javascript.model.interfaces.expression.IdentifierTree;
-import org.sonar.javascript.model.interfaces.statement.CatchBlockTree;
-import org.sonar.javascript.model.interfaces.statement.VariableDeclarationTree;
+import org.sonar.javascript.model.internal.declaration.InitializedBindingElementTreeImpl;
+import org.sonar.javascript.model.internal.declaration.ParameterListTreeImpl;
+import org.sonar.javascript.model.internal.expression.ArrowFunctionTreeImpl;
+import org.sonar.javascript.model.internal.statement.CatchBlockTreeImpl;
+import org.sonar.javascript.model.internal.statement.VariableDeclarationTreeImpl;
+import org.sonar.plugins.javascript.api.tree.Tree;
+import org.sonar.plugins.javascript.api.tree.declaration.BindingElementTree;
+import org.sonar.plugins.javascript.api.tree.declaration.FunctionDeclarationTree;
+import org.sonar.plugins.javascript.api.tree.declaration.MethodDeclarationTree;
+import org.sonar.plugins.javascript.api.tree.declaration.ScriptTree;
+import org.sonar.plugins.javascript.api.tree.expression.ArrowFunctionTree;
+import org.sonar.plugins.javascript.api.tree.expression.FunctionExpressionTree;
+import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
+import org.sonar.plugins.javascript.api.tree.statement.CatchBlockTree;
+import org.sonar.plugins.javascript.api.tree.statement.VariableDeclarationTree;
 
 import java.util.List;
 

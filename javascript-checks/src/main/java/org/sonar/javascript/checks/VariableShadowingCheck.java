@@ -26,8 +26,8 @@ import org.sonar.javascript.api.SymbolModel;
 import org.sonar.javascript.ast.resolve.Scope;
 import org.sonar.javascript.ast.resolve.Symbol;
 import org.sonar.javascript.ast.visitors.BaseTreeVisitor;
-import org.sonar.javascript.model.implementations.JavaScriptTree;
-import org.sonar.javascript.model.interfaces.declaration.ScriptTree;
+import org.sonar.javascript.model.internal.JavaScriptTree;
+import org.sonar.plugins.javascript.api.tree.declaration.ScriptTree;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 

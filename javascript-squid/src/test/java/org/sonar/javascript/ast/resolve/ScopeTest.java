@@ -23,9 +23,9 @@ import com.sonar.sslr.api.AstNode;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.javascript.model.JavaScriptTreeModelTest;
-import org.sonar.javascript.model.implementations.JavaScriptTree;
-import org.sonar.javascript.model.interfaces.Tree;
-import org.sonar.javascript.model.interfaces.declaration.ScriptTree;
+import org.sonar.javascript.model.internal.JavaScriptTree;
+import org.sonar.plugins.javascript.api.tree.Tree;
+import org.sonar.plugins.javascript.api.tree.declaration.ScriptTree;
 
 import java.io.File;
 

@@ -22,7 +22,7 @@ package org.sonar.javascript.metrics;
 import com.sonar.sslr.api.AstNode;
 import org.sonar.javascript.api.EcmaScriptMetric;
 import org.sonar.javascript.api.EcmaScriptPunctuator;
-import org.sonar.javascript.model.interfaces.Tree.Kind;
+import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.squidbridge.SquidAstVisitor;
 import org.sonar.sslr.parser.LexerlessGrammar;
 

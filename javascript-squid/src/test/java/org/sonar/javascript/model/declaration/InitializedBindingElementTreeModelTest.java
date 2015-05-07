@@ -25,10 +25,10 @@ import java.util.List;
 
 import org.junit.Test;
 import org.sonar.javascript.model.JavaScriptTreeModelTest;
-import org.sonar.javascript.model.implementations.declaration.InitializedBindingElementTreeImpl;
-import org.sonar.javascript.model.interfaces.Tree.Kind;
-import org.sonar.javascript.model.interfaces.declaration.InitializedBindingElementTree;
-import org.sonar.javascript.model.interfaces.expression.IdentifierTree;
+import org.sonar.javascript.model.internal.declaration.InitializedBindingElementTreeImpl;
+import org.sonar.plugins.javascript.api.tree.Tree.Kind;
+import org.sonar.plugins.javascript.api.tree.declaration.InitializedBindingElementTree;
+import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 
 public class InitializedBindingElementTreeModelTest extends JavaScriptTreeModelTest {
 

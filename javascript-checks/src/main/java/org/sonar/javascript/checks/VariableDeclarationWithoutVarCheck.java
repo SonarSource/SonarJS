@@ -25,7 +25,7 @@ import org.sonar.check.Rule;
 import org.sonar.javascript.ast.resolve.Symbol;
 import org.sonar.javascript.ast.resolve.SymbolDeclaration;
 import org.sonar.javascript.ast.visitors.BaseTreeVisitor;
-import org.sonar.javascript.model.interfaces.declaration.ScriptTree;
+import org.sonar.plugins.javascript.api.tree.declaration.ScriptTree;
 import org.sonar.squidbridge.annotations.ActivatedByDefault;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;

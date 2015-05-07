@@ -20,8 +20,8 @@
 package org.sonar.javascript.ast.visitors;
 
 import org.sonar.javascript.api.SymbolModel;
-import org.sonar.javascript.model.interfaces.Tree;
-import org.sonar.javascript.model.interfaces.declaration.ScriptTree;
+import org.sonar.plugins.javascript.api.tree.Tree;
+import org.sonar.plugins.javascript.api.tree.declaration.ScriptTree;
 import org.sonar.squidbridge.api.CodeVisitor;
 
 import java.io.File;

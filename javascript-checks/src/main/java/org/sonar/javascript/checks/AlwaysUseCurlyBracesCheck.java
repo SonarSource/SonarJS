@@ -24,12 +24,12 @@ import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.javascript.checks.utils.SubscriptionBaseVisitor;
-import org.sonar.javascript.model.interfaces.Tree;
-import org.sonar.javascript.model.interfaces.Tree.Kind;
-import org.sonar.javascript.model.interfaces.statement.IfStatementTree;
-import org.sonar.javascript.model.interfaces.statement.IterationStatementTree;
-import org.sonar.javascript.model.interfaces.statement.ElseClauseTree;
-import org.sonar.javascript.model.interfaces.statement.StatementTree;
+import org.sonar.plugins.javascript.api.tree.Tree;
+import org.sonar.plugins.javascript.api.tree.Tree.Kind;
+import org.sonar.plugins.javascript.api.tree.statement.IfStatementTree;
+import org.sonar.plugins.javascript.api.tree.statement.IterationStatementTree;
+import org.sonar.plugins.javascript.api.tree.statement.ElseClauseTree;
+import org.sonar.plugins.javascript.api.tree.statement.StatementTree;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 

@@ -24,10 +24,10 @@ import java.util.List;
 
 import javax.annotation.Nullable;
 
-import org.sonar.javascript.model.implementations.JavaScriptTree;
-import org.sonar.javascript.model.interfaces.Tree;
-import org.sonar.javascript.model.interfaces.expression.IdentifierTree;
-import org.sonar.javascript.model.interfaces.lexical.SyntaxToken;
+import org.sonar.javascript.model.internal.JavaScriptTree;
+import org.sonar.plugins.javascript.api.tree.Tree;
+import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
+import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Objects;

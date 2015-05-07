@@ -24,8 +24,8 @@ import com.sonar.sslr.api.AstNode;
 import com.sonar.sslr.api.Token;
 import com.sonar.sslr.impl.Parser;
 import org.sonar.javascript.EcmaScriptConfiguration;
-import org.sonar.javascript.model.interfaces.Tree;
-import org.sonar.javascript.model.interfaces.Tree.Kind;
+import org.sonar.plugins.javascript.api.tree.Tree;
+import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.javascript.parser.EcmaScriptParser;
 
 public abstract class JavaScriptTreeModelTest {

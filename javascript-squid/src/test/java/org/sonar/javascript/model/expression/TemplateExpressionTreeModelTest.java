@@ -22,8 +22,8 @@ package org.sonar.javascript.model.expression;
 import org.junit.Test;
 import org.sonar.javascript.api.EcmaScriptPunctuator;
 import org.sonar.javascript.model.JavaScriptTreeModelTest;
-import org.sonar.javascript.model.implementations.expression.TemplateExpressionTreeImpl;
-import org.sonar.javascript.model.interfaces.Tree.Kind;
+import org.sonar.javascript.model.internal.expression.TemplateExpressionTreeImpl;
+import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 
 import static org.fest.assertions.Assertions.assertThat;
 

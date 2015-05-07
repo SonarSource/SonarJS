@@ -23,9 +23,9 @@ import static org.fest.assertions.Assertions.assertThat;
 import org.junit.Test;
 import org.sonar.javascript.api.EcmaScriptPunctuator;
 import org.sonar.javascript.model.JavaScriptTreeModelTest;
-import org.sonar.javascript.model.interfaces.Tree.Kind;
-import org.sonar.javascript.model.interfaces.expression.ArrowFunctionTree;
-import org.sonar.javascript.model.interfaces.expression.IdentifierTree;
+import org.sonar.plugins.javascript.api.tree.Tree.Kind;
+import org.sonar.plugins.javascript.api.tree.expression.ArrowFunctionTree;
+import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 
 public class ArrowFunctionTreeModelTest extends JavaScriptTreeModelTest {
 

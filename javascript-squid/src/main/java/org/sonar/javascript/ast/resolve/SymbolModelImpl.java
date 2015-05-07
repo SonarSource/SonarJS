@@ -26,8 +26,8 @@ import org.sonar.api.source.Symbolizable;
 import org.sonar.javascript.api.SymbolModel;
 import org.sonar.javascript.api.SymbolModelBuilder;
 import org.sonar.javascript.highlighter.SourceFileOffsets;
-import org.sonar.javascript.model.interfaces.declaration.ScriptTree;
-import org.sonar.javascript.model.interfaces.expression.IdentifierTree;
+import org.sonar.plugins.javascript.api.tree.declaration.ScriptTree;
+import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 
 import javax.annotation.Nullable;
 import java.util.HashSet;

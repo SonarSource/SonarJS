@@ -19,8 +19,8 @@
  */
 package org.sonar.javascript.ast.resolve;
 
-import org.sonar.javascript.model.interfaces.Tree;
-import org.sonar.javascript.model.interfaces.expression.IdentifierTree;
+import org.sonar.plugins.javascript.api.tree.Tree;
+import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 
 public class Usage {
 

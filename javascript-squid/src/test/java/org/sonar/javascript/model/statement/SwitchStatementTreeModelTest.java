@@ -21,8 +21,8 @@ package org.sonar.javascript.model.statement;
 
 import org.junit.Test;
 import org.sonar.javascript.model.JavaScriptTreeModelTest;
-import org.sonar.javascript.model.implementations.statement.SwitchStatementTreeImpl;
-import org.sonar.javascript.model.interfaces.Tree.Kind;
+import org.sonar.javascript.model.internal.statement.SwitchStatementTreeImpl;
+import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 
 import static org.fest.assertions.Assertions.assertThat;
 

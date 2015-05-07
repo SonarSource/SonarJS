@@ -21,14 +21,14 @@ package org.sonar.javascript.checks.utils;
 
 import javax.annotation.Nullable;
 
-import org.sonar.javascript.model.interfaces.Tree;
-import org.sonar.javascript.model.interfaces.Tree.Kind;
-import org.sonar.javascript.model.interfaces.expression.CallExpressionTree;
-import org.sonar.javascript.model.interfaces.expression.DotMemberExpressionTree;
-import org.sonar.javascript.model.interfaces.expression.ExpressionTree;
-import org.sonar.javascript.model.interfaces.expression.IdentifierTree;
-import org.sonar.javascript.model.interfaces.expression.ObjectLiteralTree;
-import org.sonar.javascript.model.interfaces.expression.PairPropertyTree;
+import org.sonar.plugins.javascript.api.tree.Tree;
+import org.sonar.plugins.javascript.api.tree.Tree.Kind;
+import org.sonar.plugins.javascript.api.tree.expression.CallExpressionTree;
+import org.sonar.plugins.javascript.api.tree.expression.DotMemberExpressionTree;
+import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
+import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
+import org.sonar.plugins.javascript.api.tree.expression.ObjectLiteralTree;
+import org.sonar.plugins.javascript.api.tree.expression.PairPropertyTree;
 
 public class BackboneCheckUtils {
 

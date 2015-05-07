@@ -20,7 +20,7 @@
 package org.sonar.javascript.parser.grammar.lexical;
 
 import org.junit.Test;
-import org.sonar.javascript.model.interfaces.Tree.Kind;
+import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.javascript.parser.EcmaScriptGrammar;
 
 import static org.sonar.javascript.sslr.tests.Assertions.assertThat;

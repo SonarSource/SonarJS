@@ -20,7 +20,7 @@
 package org.sonar.javascript.ast.resolve;
 
 import org.apache.commons.lang.ArrayUtils;
-import org.sonar.javascript.model.interfaces.Tree;
+import org.sonar.plugins.javascript.api.tree.Tree;
 
 public class SymbolDeclaration {
   // tree is always IdentifierTree, except of build-in symbols, for which declaration tree stores a scope tree

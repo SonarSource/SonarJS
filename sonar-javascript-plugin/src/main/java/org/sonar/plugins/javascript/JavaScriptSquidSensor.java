@@ -49,7 +49,7 @@ import org.sonar.api.scan.filesystem.PathResolver;
 import org.sonar.api.source.Highlightable;
 import org.sonar.javascript.EcmaScriptConfiguration;
 import org.sonar.javascript.JavaScriptAstScanner;
-import org.sonar.javascript.JavaScriptFileScanner;
+import org.sonar.plugins.javascript.api.JavaScriptFileScanner;
 import org.sonar.javascript.api.EcmaScriptMetric;
 import org.sonar.javascript.ast.visitors.VisitorsBridge;
 import org.sonar.javascript.checks.CheckList;

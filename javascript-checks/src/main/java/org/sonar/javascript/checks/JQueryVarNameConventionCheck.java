@@ -26,11 +26,11 @@ import org.sonar.check.RuleProperty;
 import org.sonar.javascript.api.SymbolModel;
 import org.sonar.javascript.ast.resolve.Symbol;
 import org.sonar.javascript.ast.resolve.Usage;
-import org.sonar.javascript.model.interfaces.Tree;
-import org.sonar.javascript.model.interfaces.declaration.InitializedBindingElementTree;
-import org.sonar.javascript.model.interfaces.declaration.ScriptTree;
-import org.sonar.javascript.model.interfaces.expression.AssignmentExpressionTree;
-import org.sonar.javascript.model.interfaces.expression.ExpressionTree;
+import org.sonar.plugins.javascript.api.tree.Tree;
+import org.sonar.plugins.javascript.api.tree.declaration.InitializedBindingElementTree;
+import org.sonar.plugins.javascript.api.tree.declaration.ScriptTree;
+import org.sonar.plugins.javascript.api.tree.expression.AssignmentExpressionTree;
+import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 

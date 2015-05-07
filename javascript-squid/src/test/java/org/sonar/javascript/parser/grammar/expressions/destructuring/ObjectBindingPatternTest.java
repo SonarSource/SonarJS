@@ -20,7 +20,7 @@
 package org.sonar.javascript.parser.grammar.expressions.destructuring;
 
 import org.junit.Test;
-import org.sonar.javascript.model.interfaces.Tree.Kind;
+import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 
 import static org.sonar.javascript.sslr.tests.Assertions.assertThat;
 

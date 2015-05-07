@@ -22,8 +22,8 @@ package org.sonar.javascript.model.statement;
 import static org.fest.assertions.Assertions.assertThat;
 import org.junit.Test;
 import org.sonar.javascript.model.JavaScriptTreeModelTest;
-import org.sonar.javascript.model.interfaces.Tree.Kind;
-import org.sonar.javascript.model.interfaces.statement.DefaultClauseTree;
+import org.sonar.plugins.javascript.api.tree.Tree.Kind;
+import org.sonar.plugins.javascript.api.tree.statement.DefaultClauseTree;
 
 public class DefaultClauseTreeModelTest extends JavaScriptTreeModelTest {
 

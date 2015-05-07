@@ -25,7 +25,7 @@ import org.sonar.api.batch.fs.internal.DefaultFileSystem;
 import org.sonar.api.component.ResourcePerspectives;
 import org.sonar.api.config.Settings;
 import org.sonar.javascript.JavaScriptAstScanner;
-import org.sonar.javascript.JavaScriptFileScanner;
+import org.sonar.plugins.javascript.api.JavaScriptFileScanner;
 import org.sonar.javascript.ast.visitors.VisitorsBridge;
 import org.sonar.javascript.checks.AbstractJQueryCheck;
 import org.sonar.squidbridge.api.SourceFile;
