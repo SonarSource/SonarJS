@@ -19,8 +19,10 @@
  */
 package org.sonar.plugins.javascript.api.visitors;
 
+import com.google.common.annotations.Beta;
 import org.sonar.javascript.model.internal.expression.SuperTreeImpl;
 import org.sonar.plugins.javascript.api.tree.ModuleTree;
+import org.sonar.plugins.javascript.api.tree.ScriptTree;
 import org.sonar.plugins.javascript.api.tree.declaration.ArrayBindingPatternTree;
 import org.sonar.plugins.javascript.api.tree.declaration.BindingPropertyTree;
 import org.sonar.plugins.javascript.api.tree.declaration.DefaultExportDeclarationTree;
@@ -36,7 +38,6 @@ import org.sonar.plugins.javascript.api.tree.declaration.NameSpaceExportDeclarat
 import org.sonar.plugins.javascript.api.tree.declaration.NamedExportDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.declaration.ObjectBindingPatternTree;
 import org.sonar.plugins.javascript.api.tree.declaration.ParameterListTree;
-import org.sonar.plugins.javascript.api.tree.ScriptTree;
 import org.sonar.plugins.javascript.api.tree.declaration.SpecifierListTree;
 import org.sonar.plugins.javascript.api.tree.declaration.SpecifierTree;
 import org.sonar.plugins.javascript.api.tree.expression.ArrayLiteralTree;
@@ -88,6 +89,7 @@ import org.sonar.plugins.javascript.api.tree.statement.VariableStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.WhileStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.WithStatementTree;
 
+@Beta
 public interface TreeVisitor {
 
   void visitScript(ScriptTree tree);

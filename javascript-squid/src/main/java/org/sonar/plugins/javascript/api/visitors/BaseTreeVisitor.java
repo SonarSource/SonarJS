@@ -19,14 +19,14 @@
  */
 package org.sonar.plugins.javascript.api.visitors;
 
-import java.util.List;
-
-import javax.annotation.Nullable;
-
-import org.sonar.plugins.javascript.api.JavaScriptFileScanner;
-import org.sonar.plugins.javascript.api.AstTreeVisitorContext;
+import com.google.common.annotations.Beta;
+import com.google.common.base.Preconditions;
 import org.sonar.javascript.model.internal.expression.SuperTreeImpl;
+import org.sonar.javascript.parser.sslr.Optional;
+import org.sonar.plugins.javascript.api.AstTreeVisitorContext;
+import org.sonar.plugins.javascript.api.JavaScriptFileScanner;
 import org.sonar.plugins.javascript.api.tree.ModuleTree;
+import org.sonar.plugins.javascript.api.tree.ScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.declaration.ArrayBindingPatternTree;
 import org.sonar.plugins.javascript.api.tree.declaration.BindingPropertyTree;
@@ -43,7 +43,6 @@ import org.sonar.plugins.javascript.api.tree.declaration.NameSpaceExportDeclarat
 import org.sonar.plugins.javascript.api.tree.declaration.NamedExportDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.declaration.ObjectBindingPatternTree;
 import org.sonar.plugins.javascript.api.tree.declaration.ParameterListTree;
-import org.sonar.plugins.javascript.api.tree.ScriptTree;
 import org.sonar.plugins.javascript.api.tree.declaration.SpecifierListTree;
 import org.sonar.plugins.javascript.api.tree.declaration.SpecifierTree;
 import org.sonar.plugins.javascript.api.tree.expression.ArrayLiteralTree;
@@ -94,10 +93,11 @@ import org.sonar.plugins.javascript.api.tree.statement.VariableDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.statement.VariableStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.WhileStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.WithStatementTree;
-import org.sonar.javascript.parser.sslr.Optional;
 
-import com.google.common.base.Preconditions;
+import javax.annotation.Nullable;
+import java.util.List;
 
+@Beta
 public class BaseTreeVisitor implements TreeVisitor, JavaScriptFileScanner {
 
   private AstTreeVisitorContext context = null;
