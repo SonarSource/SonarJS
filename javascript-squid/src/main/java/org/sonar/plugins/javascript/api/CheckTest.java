@@ -17,25 +17,34 @@
  * License along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.javascript.checks.utils;
+package org.sonar.plugins.javascript.api;
 
-import org.apache.commons.collections.map.HashedMap;
+import com.google.common.collect.Lists;
+import org.sonar.api.batch.fs.internal.DefaultFileSystem;
 import org.sonar.api.config.Settings;
-import org.sonar.javascript.checks.AbstractJQueryCheck;
-import org.sonar.plugins.javascript.api.CheckTest;
+import org.sonar.javascript.JavaScriptAstScanner;
+import org.sonar.javascript.ast.visitors.VisitorsBridge;
+import org.sonar.squidbridge.api.SourceFile;
 
-import java.util.Map;
+import java.io.File;
 
-public class TreeCheckTest extends CheckTest {
+/**
+ * Helper class to test check.
+ */
+public class CheckTest {
 
-  @Override
+
+  /**
+   * Scan the given file with the given check.
+   */
+  public SourceFile scanFile(String fileName, JavaScriptFileScanner check) {
+    return JavaScriptAstScanner.scanSingleFile(
+      new File(fileName),
+      new VisitorsBridge(Lists.newArrayList(check), null, new DefaultFileSystem(), settings()));
+  }
+
+
   public Settings settings() {
-    Settings settings = new Settings();
-
-    Map<String, String> properties = new HashedMap();
-    properties.put(AbstractJQueryCheck.JQUERY_OBJECT_ALIASES, AbstractJQueryCheck.JQUERY_OBJECT_ALIASES_DEFAULT_VALUE);
-    settings.addProperties(properties);
-
-    return settings;
+   return new Settings();
   }
 }
