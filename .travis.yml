@@ -3,7 +3,7 @@ sudo: false
 install: true
 
 jdk:
-  - oraclejdk8
+  - openjdk7
 
 script:
   - mvn verify -B -e -V
