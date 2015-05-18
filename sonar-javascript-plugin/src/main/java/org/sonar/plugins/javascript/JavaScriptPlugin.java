@@ -26,7 +26,6 @@ import org.sonar.api.config.PropertyDefinition;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.javascript.checks.AbstractJQueryCheck;
 import org.sonar.plugins.javascript.core.JavaScript;
-import org.sonar.plugins.javascript.core.JavaScriptSourceImporter;
 import org.sonar.plugins.javascript.cpd.JavaScriptCpdMapping;
 import org.sonar.plugins.javascript.lcov.ITCoverageSensor;
 import org.sonar.plugins.javascript.lcov.UTCoverageSensor;
@@ -67,7 +66,6 @@ public class JavaScriptPlugin extends SonarPlugin {
   public List getExtensions() {
     return ImmutableList.of(
         JavaScript.class,
-        JavaScriptSourceImporter.class,
         JavaScriptCpdMapping.class,
 
         JavaScriptSquidSensor.class,
