@@ -19,20 +19,22 @@
  */
 package org.sonar.javascript.ast.resolve;
 
-import com.google.common.base.Preconditions;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
-import org.sonar.api.source.Symbolizable;
-import org.sonar.plugins.javascript.api.SymbolModel;
-import org.sonar.javascript.api.SymbolModelBuilder;
-import org.sonar.javascript.highlighter.SourceFileOffsets;
-import org.sonar.plugins.javascript.api.tree.ScriptTree;
-import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
-
-import javax.annotation.Nullable;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+
+import javax.annotation.Nullable;
+
+import org.sonar.api.source.Symbolizable;
+import org.sonar.javascript.api.SymbolModelBuilder;
+import org.sonar.javascript.highlighter.SourceFileOffsets;
+import org.sonar.plugins.javascript.api.SymbolModel;
+import org.sonar.plugins.javascript.api.tree.ScriptTree;
+import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
+
+import com.google.common.base.Preconditions;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 
 public class SymbolModelImpl implements SymbolModel, SymbolModelBuilder {
 
@@ -43,6 +45,7 @@ public class SymbolModelImpl implements SymbolModel, SymbolModelBuilder {
   public static SymbolModelImpl create(ScriptTree script, @Nullable Symbolizable symbolizable, @Nullable SourceFileOffsets sourceFileOffsets) {
     SymbolModelImpl symbolModel = new SymbolModelImpl();
     new SymbolVisitor(symbolModel, symbolizable, sourceFileOffsets).visitScript(script);
+    new TypeVisitor().visitScript(script);
     return symbolModel;
   }
 
