@@ -19,13 +19,16 @@
  */
 package org.sonar.javascript.ast.resolve;
 
-import com.google.common.collect.Lists;
-import org.sonar.javascript.model.internal.expression.IdentifierTreeImpl;
-import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
-
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
+
+import org.sonar.javascript.model.internal.expression.IdentifierTreeImpl;
+import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
+
+import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 
 public class Symbol {
 
@@ -38,6 +41,7 @@ public class Symbol {
     Kind(String value) {
       this.value = value;
     }
+
     private final String value;
     public String getValue() {
       return value;
@@ -50,6 +54,7 @@ public class Symbol {
   private boolean builtIn;
   private Scope scope;
   private List<Usage> usages = new LinkedList<>();
+  private Set<Type> types;
 
   private Symbol(String name, SymbolDeclaration declaration, Kind kind, Scope scope) {
     this.name = name;
@@ -57,6 +62,7 @@ public class Symbol {
     this.addDeclaration(declaration);
     this.builtIn = false;
     this.scope = scope;
+    this.types = Sets.newHashSet();
   }
 
   public void addUsage(Usage usage){
@@ -119,4 +125,11 @@ public class Symbol {
     return declarations.get(0);
   }
 
+  public void addType(Type type){
+    types.add(type);
+  }
+
+  public Set<Type> getTypes(){
+    return types;
+  }
 }

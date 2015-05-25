@@ -1,6 +1,6 @@
 /*
- * SonarQube Flex Plugin
- * Copyright (C) 2010 SonarSource
+ * SonarQube JavaScript Plugin
+ * Copyright (C) 2011 SonarSource and Eriks Nukis
  * dev@sonar.codehaus.org
  *
  * This program is free software; you can redistribute it and/or
