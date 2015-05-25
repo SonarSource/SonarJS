@@ -20,8 +20,11 @@
 package org.sonar.plugins.javascript.api.tree.expression;
 
 import com.google.common.annotations.Beta;
+import org.sonar.javascript.ast.resolve.Symbol;
 import org.sonar.plugins.javascript.api.tree.declaration.BindingElementTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
+
+import javax.annotation.Nullable;
 
 /**
  * <a href="http://www.ecma-international.org/ecma-262/5.1/#sec-7.6">Identifier</a>
@@ -33,4 +36,6 @@ public interface IdentifierTree extends ExpressionTree, BindingElementTree {
 
   String name();
 
+  @Nullable
+  Symbol symbol();
 }

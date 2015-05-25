@@ -21,6 +21,7 @@ package org.sonar.javascript.model.internal.expression;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Iterators;
+import org.sonar.javascript.ast.resolve.Symbol;
 import org.sonar.plugins.javascript.api.visitors.TreeVisitor;
 import org.sonar.javascript.model.internal.JavaScriptTree;
 import org.sonar.javascript.model.internal.lexical.InternalSyntaxToken;
@@ -34,6 +35,7 @@ public class IdentifierTreeImpl extends JavaScriptTree implements IdentifierTree
 
   private final InternalSyntaxToken nameToken;
   private final Kind kind;
+  private Symbol symbol = null;
 
   public IdentifierTreeImpl(Kind kind, InternalSyntaxToken nameToken) {
     super(kind, nameToken.getToken());
@@ -61,6 +63,15 @@ public class IdentifierTreeImpl extends JavaScriptTree implements IdentifierTree
   @Override
   public String toString() {
     return name();
+  }
+
+  @Override
+  public Symbol symbol() {
+    return symbol;
+  }
+
+  public void setSymbol(Symbol symbol) {
+    this.symbol = symbol;
   }
 
   @Override

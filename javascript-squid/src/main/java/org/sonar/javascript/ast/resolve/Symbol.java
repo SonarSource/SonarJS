@@ -20,6 +20,8 @@
 package org.sonar.javascript.ast.resolve;
 
 import com.google.common.collect.Lists;
+import org.sonar.javascript.model.internal.expression.IdentifierTreeImpl;
+import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 
 import java.util.Collection;
 import java.util.LinkedList;
@@ -59,6 +61,7 @@ public class Symbol {
 
   public void addUsage(Usage usage){
     usages.add(usage);
+    ((IdentifierTreeImpl)usage.symbolTree()).setSymbol(this);
   }
 
   public Collection<Usage> usages(){
@@ -83,6 +86,9 @@ public class Symbol {
 
   private void addDeclaration(SymbolDeclaration declaration) {
     this.declarations.add(declaration);
+    if (declaration.tree() instanceof IdentifierTree){
+      ((IdentifierTreeImpl)declaration.tree()).setSymbol(this);
+    }
   }
 
   public Scope scope() {
