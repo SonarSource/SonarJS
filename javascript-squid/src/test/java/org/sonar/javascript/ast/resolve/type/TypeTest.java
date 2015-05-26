@@ -17,26 +17,20 @@
  * License along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.plugins.javascript.api.tree.expression;
+package org.sonar.javascript.ast.resolve.type;
 
-import com.google.common.annotations.Beta;
+import com.sonar.sslr.api.AstNode;
+import org.sonar.javascript.ast.resolve.Symbol;
+import org.sonar.javascript.ast.resolve.SymbolModelImpl;
+import org.sonar.javascript.model.JavaScriptTreeModelTest;
 
-import org.sonar.javascript.ast.resolve.type.Type;
-import org.sonar.plugins.javascript.api.tree.Tree;
 
-import java.util.Set;
+public class TypeTest extends JavaScriptTreeModelTest {
+  protected AstNode ROOT_NODE;
+  protected SymbolModelImpl SYMBOL_MODEL;
 
-/**
- * Common interface for all types of <a href="http://www.ecma-international.org/ecma-262/5.1/#sec-11">expressions</a>.
- */
-@Beta
-public interface ExpressionTree extends Tree {
 
-  /**
-   * Returns an unmodifiable set of the possible types for the expression.
-   * Attempts to modify the returned set, whether direct or via its iterator, will result in an UnsupportedOperationException.
-   */
-
-  Set<Type> types();
-
+  protected Symbol getSymbol(String name) {
+    return SYMBOL_MODEL.getSymbols(name).iterator().next();
+  }
 }

@@ -17,27 +17,23 @@
  * License along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.javascript.ast.resolve;
-
-import static org.fest.assertions.Assertions.assertThat;
-
-import java.io.File;
+package org.sonar.javascript.ast.resolve.type;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.sonar.javascript.model.JavaScriptTreeModelTest;
+import org.sonar.javascript.ast.resolve.Symbol;
+import org.sonar.javascript.ast.resolve.SymbolModelImpl;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
 
-import com.sonar.sslr.api.AstNode;
+import java.io.File;
 
-public class TypeVisitorTest extends JavaScriptTreeModelTest {
+import static org.fest.assertions.Assertions.assertThat;
 
-  private AstNode ROOT_NODE;
-  private SymbolModelImpl SYMBOL_MODEL;
+public class LiteralTest extends TypeTest {
 
   @Before
   public void setUp() throws Exception {
-    ROOT_NODE = p.parse(new File("src/test/resources/ast/resolve/types.js"));
+    ROOT_NODE = p.parse(new File("src/test/resources/ast/resolve/type/literals.js"));
     SYMBOL_MODEL = SymbolModelImpl.create((ScriptTree) ROOT_NODE, null, null);
   }
 
@@ -109,9 +105,5 @@ public class TypeVisitorTest extends JavaScriptTreeModelTest {
     Symbol num = getSymbol("obj2");
     assertThat(num.types()).hasSize(1);
     assertThat(num.types()).contains(Type.OBJECT);
-  }
-
-  private Symbol getSymbol(String name) {
-    return SYMBOL_MODEL.getSymbols(name).iterator().next();
   }
 }
