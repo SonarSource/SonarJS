@@ -44,71 +44,71 @@ public class TypeVisitorTest extends JavaScriptTreeModelTest {
   @Test
   public void number_declaration() throws Exception {
     Symbol num = getSymbol("num1");
-    assertThat(num.getTypes()).hasSize(1);
-    assertThat(num.getTypes()).contains(Type.NUMBER);
+    assertThat(num.types()).hasSize(1);
+    assertThat(num.types()).contains(Type.NUMBER);
   }
 
   @Test
   public void number_assignment() throws Exception {
     Symbol num = getSymbol("num2");
-    assertThat(num.getTypes()).hasSize(1);
-    assertThat(num.getTypes()).contains(Type.NUMBER);
+    assertThat(num.types()).hasSize(1);
+    assertThat(num.types()).contains(Type.NUMBER);
   }
 
   @Test
   public void string_declaration() throws Exception {
     Symbol num = getSymbol("str1");
-    assertThat(num.getTypes()).hasSize(1);
-    assertThat(num.getTypes()).contains(Type.STRING);
+    assertThat(num.types()).hasSize(1);
+    assertThat(num.types()).contains(Type.STRING);
   }
 
   @Test
   public void string_assignment() throws Exception {
     Symbol num = getSymbol("str2");
-    assertThat(num.getTypes()).hasSize(1);
-    assertThat(num.getTypes()).contains(Type.STRING);
+    assertThat(num.types()).hasSize(1);
+    assertThat(num.types()).contains(Type.STRING);
   }
 
   @Test
   public void boolean_declaration() throws Exception {
     Symbol num = getSymbol("bool1");
-    assertThat(num.getTypes()).hasSize(1);
-    assertThat(num.getTypes()).contains(Type.BOOLEAN);
+    assertThat(num.types()).hasSize(1);
+    assertThat(num.types()).contains(Type.BOOLEAN);
   }
 
   @Test
   public void boolean_assignment() throws Exception {
     Symbol num = getSymbol("bool2");
-    assertThat(num.getTypes()).hasSize(1);
-    assertThat(num.getTypes()).contains(Type.BOOLEAN);
+    assertThat(num.types()).hasSize(1);
+    assertThat(num.types()).contains(Type.BOOLEAN);
   }
 
   @Test
   public void array_declaration() throws Exception {
     Symbol num = getSymbol("arr1");
-    assertThat(num.getTypes()).hasSize(1);
-    assertThat(num.getTypes()).contains(Type.ARRAY);
+    assertThat(num.types()).hasSize(1);
+    assertThat(num.types()).contains(Type.ARRAY);
   }
 
   @Test
   public void array_assignment() throws Exception {
     Symbol num = getSymbol("arr2");
-    assertThat(num.getTypes()).hasSize(1);
-    assertThat(num.getTypes()).contains(Type.ARRAY);
+    assertThat(num.types()).hasSize(1);
+    assertThat(num.types()).contains(Type.ARRAY);
   }
 
   @Test
   public void object_declaration() throws Exception {
     Symbol num = getSymbol("obj1");
-    assertThat(num.getTypes()).hasSize(1);
-    assertThat(num.getTypes()).contains(Type.OBJECT);
+    assertThat(num.types()).hasSize(1);
+    assertThat(num.types()).contains(Type.OBJECT);
   }
 
   @Test
   public void object_assignment() throws Exception {
     Symbol num = getSymbol("obj2");
-    assertThat(num.getTypes()).hasSize(1);
-    assertThat(num.getTypes()).contains(Type.OBJECT);
+    assertThat(num.types()).hasSize(1);
+    assertThat(num.types()).contains(Type.OBJECT);
   }
 
   private Symbol getSymbol(String name) {

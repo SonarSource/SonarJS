@@ -19,9 +19,12 @@
  */
 package org.sonar.javascript.model.internal.expression;
 
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
+import org.sonar.javascript.ast.resolve.Type;
 import org.sonar.plugins.javascript.api.visitors.TreeVisitor;
 import org.sonar.javascript.model.internal.JavaScriptTree;
 import org.sonar.javascript.model.internal.declaration.ParameterListTreeImpl;
@@ -87,5 +90,10 @@ public class ArrowFunctionTreeImpl extends JavaScriptTree implements ArrowFuncti
     } else {
       return ((ParameterListTreeImpl) parameters).parameterIdentifiers();
     }
+  }
+
+  @Override
+  public Set<Type> types() {
+    return Collections.emptySet();
   }
 }

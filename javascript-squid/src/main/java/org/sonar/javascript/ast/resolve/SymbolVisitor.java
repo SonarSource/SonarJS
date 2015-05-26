@@ -135,7 +135,7 @@ public class SymbolVisitor extends BaseTreeVisitor {
                 .setInitialization(true)
         );
       }
-      // no need to scan variable has it has been handle
+      // no need to inferType variable has it has been handle
       scan(tree.expression());
 
     } else {

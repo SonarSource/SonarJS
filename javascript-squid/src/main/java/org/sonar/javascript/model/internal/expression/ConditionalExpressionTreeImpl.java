@@ -21,6 +21,7 @@ package org.sonar.javascript.model.internal.expression;
 
 import com.google.common.collect.Iterators;
 import com.sonar.sslr.api.AstNode;
+import org.sonar.javascript.ast.resolve.Type;
 import org.sonar.plugins.javascript.api.visitors.TreeVisitor;
 import org.sonar.javascript.model.internal.JavaScriptTree;
 import org.sonar.javascript.model.internal.lexical.InternalSyntaxToken;
@@ -29,7 +30,9 @@ import org.sonar.plugins.javascript.api.tree.expression.ConditionalExpressionTre
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 
+import java.util.Collections;
 import java.util.Iterator;
+import java.util.Set;
 
 public class ConditionalExpressionTreeImpl extends JavaScriptTree implements ConditionalExpressionTree {
 
@@ -84,6 +87,11 @@ public class ConditionalExpressionTreeImpl extends JavaScriptTree implements Con
   @Override
   public Kind getKind() {
     return Kind.CONDITIONAL_EXPRESSION;
+  }
+
+  @Override
+  public Set<Type> types() {
+    return Collections.emptySet();
   }
 
   @Override

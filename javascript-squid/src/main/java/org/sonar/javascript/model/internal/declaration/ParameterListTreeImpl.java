@@ -19,10 +19,13 @@
  */
 package org.sonar.javascript.model.internal.declaration;
 
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.collections.ListUtils;
+import org.sonar.javascript.ast.resolve.Type;
 import org.sonar.plugins.javascript.api.visitors.TreeVisitor;
 import org.sonar.javascript.model.internal.JavaScriptTree;
 import org.sonar.javascript.model.internal.SeparatedList;
@@ -129,4 +132,8 @@ public class ParameterListTreeImpl extends JavaScriptTree implements ParameterLi
     return identifiers;
   }
 
+  @Override
+  public Set<Type> types() {
+    return Collections.emptySet();
+  }
 }

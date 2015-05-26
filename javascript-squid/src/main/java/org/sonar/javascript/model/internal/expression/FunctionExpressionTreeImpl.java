@@ -21,8 +21,10 @@ package org.sonar.javascript.model.internal.expression;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterators;
+import com.google.common.collect.Sets;
 import com.sonar.sslr.api.AstNode;
 import com.sonar.sslr.api.AstNodeType;
+import org.sonar.javascript.ast.resolve.Type;
 import org.sonar.plugins.javascript.api.visitors.TreeVisitor;
 import org.sonar.javascript.model.internal.JavaScriptTree;
 import org.sonar.javascript.model.internal.declaration.ParameterListTreeImpl;
@@ -36,8 +38,10 @@ import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 
 import javax.annotation.Nullable;
 
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 public class FunctionExpressionTreeImpl extends JavaScriptTree implements FunctionExpressionTree {
 
@@ -173,5 +177,10 @@ public class FunctionExpressionTreeImpl extends JavaScriptTree implements Functi
   @Override
   public void accept(TreeVisitor visitor) {
     visitor.visitFunctionExpression(this);
+  }
+
+  @Override
+  public Set<Type> types() {
+    return Collections.emptySet();
   }
 }
