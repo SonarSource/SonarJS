@@ -22,5 +22,4 @@ package org.sonar.javascript.parser.sslr;
 public interface NonterminalBuilder<T> {
 
   T is(T method);
-
 }

@@ -38,6 +38,6 @@ public class TypeTest extends JavaScriptTreeModelTest {
 
   public void setUp(String filename) throws Exception {
     ROOT_NODE = p.parse(new File("src/test/resources/ast/resolve/type/", filename));
-    SYMBOL_MODEL = SymbolModelImpl.create((ScriptTree) ROOT_NODE, null, null);
+    SYMBOL_MODEL = SymbolModelImpl.create((ScriptTree) ROOT_NODE, null, null, null);
   }
 }

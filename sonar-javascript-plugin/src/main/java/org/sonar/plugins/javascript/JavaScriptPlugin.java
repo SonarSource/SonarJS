@@ -24,7 +24,7 @@ import org.sonar.api.PropertyType;
 import org.sonar.api.SonarPlugin;
 import org.sonar.api.config.PropertyDefinition;
 import org.sonar.api.resources.Qualifiers;
-import org.sonar.javascript.checks.AbstractJQueryCheck;
+import org.sonar.javascript.ast.resolve.type.JQuery;
 import org.sonar.plugins.javascript.core.JavaScript;
 import org.sonar.plugins.javascript.cpd.JavaScriptCpdMapping;
 import org.sonar.plugins.javascript.lcov.ITCoverageSensor;
@@ -59,8 +59,8 @@ public class JavaScriptPlugin extends SonarPlugin {
   public static final String JSTEST_REPORTS_PATH = PROPERTY_PREFIX + ".jstest.reportsPath";
   public static final String JSTEST_REPORTS_PATH_DEFAULT_VALUE = "";
 
-  public static final String JQUERY_OBJECT_ALIASES = AbstractJQueryCheck.JQUERY_OBJECT_ALIASES;
-  public static final String JQUERY_OBJECT_ALIASES_DEFAULT_VALUE = AbstractJQueryCheck.JQUERY_OBJECT_ALIASES_DEFAULT_VALUE;
+  public static final String JQUERY_OBJECT_ALIASES = JQuery.JQUERY_OBJECT_ALIASES;
+  public static final String JQUERY_OBJECT_ALIASES_DEFAULT_VALUE = JQuery.JQUERY_OBJECT_ALIASES_DEFAULT_VALUE;
 
   @Override
   public List getExtensions() {

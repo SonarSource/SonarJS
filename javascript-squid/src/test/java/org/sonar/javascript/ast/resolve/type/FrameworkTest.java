@@ -17,49 +17,42 @@
  * License along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.javascript.ast.resolve;
+package org.sonar.javascript.ast.resolve.type;
 
-import com.sonar.sslr.api.AstNode;
 import org.junit.Before;
 import org.junit.Test;
-import org.sonar.javascript.model.JavaScriptTreeModelTest;
+import org.sonar.javascript.ast.resolve.SymbolModelImpl;
 import org.sonar.plugins.javascript.api.symbols.Symbol;
-import org.sonar.plugins.javascript.api.tree.Tree;
+import org.sonar.plugins.javascript.api.symbols.Type;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
 
 import java.io.File;
 
 import static org.fest.assertions.Assertions.assertThat;
 
-public class SymbolModelImplTest extends JavaScriptTreeModelTest {
-
-  private SymbolModelImpl SYMBOL_MODEL;
+public class FrameworkTest extends TypeTest {
 
   @Before
   public void setUp() throws Exception {
-    AstNode root = p.parse(new File("src/test/resources/ast/resolve/symbolModel.js"));
-    SYMBOL_MODEL = SymbolModelImpl.create((ScriptTree) root, null, null, null);
+    ROOT_NODE = p.parse(new File("src/test/resources/ast/resolve/type/framework.js"));
+    SYMBOL_MODEL = SymbolModelImpl.create((ScriptTree) ROOT_NODE, null, null, null);
   }
 
   @Test
-  public void symbols_filtering(){
-    assertThat(SYMBOL_MODEL.getSymbols()).hasSize(13);
+  public void simple_jquery_object() throws Exception {
+    Symbol jqueryObject1 = getSymbol("jqueryObject1");
+    assertThat(jqueryObject1.types()).hasSize(1);
+    assertThat(jqueryObject1.types()).contains(PrimitiveType.JQUERY_SELECTOR_OBJECT);
 
-    assertThat(SYMBOL_MODEL.getSymbols(Symbol.Kind.FUNCTION)).hasSize(2); // eval, f
-    assertThat(SYMBOL_MODEL.getSymbols(Symbol.Kind.PARAMETER)).hasSize(2); // p1, p2
-
-    assertThat(SYMBOL_MODEL.getSymbols("a")).hasSize(3);
-    assertThat(SYMBOL_MODEL.getSymbols("arguments")).hasSize(2);
+    Symbol jqueryObject2 = getSymbol("jqueryObject2");
+    assertThat(jqueryObject2.types()).hasSize(1);
+    assertThat(jqueryObject2.types()).contains(PrimitiveType.JQUERY_SELECTOR_OBJECT);
   }
 
   @Test
-  public void symbols_scope(){
-    Symbol f = (Symbol)SYMBOL_MODEL.getSymbols("f").toArray()[0];
-    Symbol e = (Symbol)SYMBOL_MODEL.getSymbols("e").toArray()[0];
-    assertThat(f.scope().tree().is(Tree.Kind.SCRIPT)).isTrue();
-    assertThat(e.scope().tree().is(Tree.Kind.CATCH_BLOCK)).isTrue();
+  public void not_jquery_object() throws Exception {
+    Symbol jqueryObject = getSymbol("notJqueryObject");
+    assertThat(jqueryObject.types()).excludes(Type.Kind.JQUERY_SELECTOR_OBJECT);
   }
-
-
 
 }

@@ -20,12 +20,14 @@
 package org.sonar.javascript.ast.resolve.type;
 
 import com.google.common.base.Preconditions;
+import org.sonar.api.config.Settings;
 import org.sonar.javascript.model.internal.JavaScriptTree;
-import org.sonar.plugins.javascript.api.symbols.Symbol;
 import org.sonar.javascript.model.internal.SeparatedList;
 import org.sonar.javascript.model.internal.expression.ArrayLiteralTreeImpl;
+import org.sonar.javascript.model.internal.expression.CallExpressionTreeImpl;
 import org.sonar.javascript.model.internal.expression.LiteralTreeImpl;
 import org.sonar.javascript.model.internal.expression.ObjectLiteralTreeImpl;
+import org.sonar.plugins.javascript.api.symbols.Symbol;
 import org.sonar.plugins.javascript.api.symbols.Type;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.declaration.FunctionDeclarationTree;
@@ -43,6 +45,16 @@ import javax.annotation.Nullable;
 import java.util.Set;
 
 public class TypeVisitor extends BaseTreeVisitor {
+
+  private JQuery jQueryHelper;
+
+  public TypeVisitor(@Nullable Settings settings){
+    if (settings == null){
+      jQueryHelper = new JQuery(JQuery.JQUERY_OBJECT_ALIASES_DEFAULT_VALUE.split(", "));
+    } else {
+      jQueryHelper = new JQuery(settings.getStringArray(JQuery.JQUERY_OBJECT_ALIASES));
+    }
+  }
 
   @Override
   public void visitAssignmentExpression(AssignmentExpressionTree tree) {
@@ -95,6 +107,10 @@ public class TypeVisitor extends BaseTreeVisitor {
   @Override
   public void visitCallExpression(CallExpressionTree tree) {
     super.visitCallExpression(tree);
+
+    if (jQueryHelper.isJQuerySelectorObject(tree)) {
+      ((CallExpressionTreeImpl) tree).addType(PrimitiveType.JQUERY_SELECTOR_OBJECT);
+    }
 
     FunctionType functionType = getFunctionType(tree.callee().types());
     if (functionType != null) {
@@ -160,4 +176,5 @@ public class TypeVisitor extends BaseTreeVisitor {
       symbol.addTypes(types);
     }
   }
+
 }
