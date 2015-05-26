@@ -21,9 +21,8 @@ package org.sonar.javascript.model.internal.expression;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Iterators;
-import com.google.common.collect.Sets;
 import org.sonar.javascript.ast.resolve.Symbol;
-import org.sonar.javascript.ast.resolve.Type;
+import org.sonar.javascript.ast.resolve.type.Type;
 import org.sonar.plugins.javascript.api.visitors.TreeVisitor;
 import org.sonar.javascript.model.internal.JavaScriptTree;
 import org.sonar.javascript.model.internal.lexical.InternalSyntaxToken;

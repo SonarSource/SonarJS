@@ -19,16 +19,16 @@
  */
 package org.sonar.javascript.ast.resolve;
 
+import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
+import org.sonar.javascript.ast.resolve.type.Type;
+import org.sonar.javascript.model.internal.expression.IdentifierTreeImpl;
+import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
+
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
-
-import org.sonar.javascript.model.internal.expression.IdentifierTreeImpl;
-import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
-
-import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
 
 public class Symbol {
 

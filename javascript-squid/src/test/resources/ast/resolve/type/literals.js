@@ -18,3 +18,4 @@ bool2 = true;
 
 arr2 = [1, 2, 3];
 obj2 = { key: "value" };
+

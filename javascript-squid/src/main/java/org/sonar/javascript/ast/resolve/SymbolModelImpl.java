@@ -27,6 +27,7 @@ import javax.annotation.Nullable;
 
 import org.sonar.api.source.Symbolizable;
 import org.sonar.javascript.api.SymbolModelBuilder;
+import org.sonar.javascript.ast.resolve.type.TypeVisitor;
 import org.sonar.javascript.highlighter.SourceFileOffsets;
 import org.sonar.plugins.javascript.api.SymbolModel;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;

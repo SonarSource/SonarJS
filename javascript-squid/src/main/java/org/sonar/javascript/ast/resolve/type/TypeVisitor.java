@@ -17,8 +17,9 @@
  * License along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.javascript.ast.resolve;
+package org.sonar.javascript.ast.resolve.type;
 
+import org.sonar.javascript.ast.resolve.Symbol;
 import org.sonar.javascript.model.internal.expression.ArrayLiteralTreeImpl;
 import org.sonar.javascript.model.internal.expression.LiteralTreeImpl;
 import org.sonar.javascript.model.internal.expression.ObjectLiteralTreeImpl;
