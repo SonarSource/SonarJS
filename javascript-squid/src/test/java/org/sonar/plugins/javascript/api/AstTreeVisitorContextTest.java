@@ -48,7 +48,7 @@ public class AstTreeVisitorContextTest extends JavaScriptTreeModelTest {
     sourceFile = JavaScriptAstScanner.scanSingleFile(file);
     ScriptTreeImpl scriptTree = new ScriptTreeImpl(null, null, null, null);
     Settings settings = new Settings();
-    context = new AstTreeVisitorContextImpl(scriptTree, sourceFile, file, SymbolModelImpl.create(scriptTree, null, null), settings);
+    context = new AstTreeVisitorContextImpl(scriptTree, sourceFile, file, SymbolModelImpl.create(scriptTree, null, null, settings), settings);
   }
 
   @Test

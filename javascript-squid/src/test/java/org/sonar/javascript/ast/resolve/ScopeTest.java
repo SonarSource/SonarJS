@@ -49,7 +49,7 @@ public class ScopeTest extends JavaScriptTreeModelTest {
   @Before
   public void setUp() throws Exception {
     ROOT_NODE = p.parse(new File("src/test/resources/ast/resolve/scope.js"));
-    SYMBOL_MODEL = SymbolModelImpl.create((ScriptTree) ROOT_NODE, null, null);
+    SYMBOL_MODEL = SymbolModelImpl.create((ScriptTree) ROOT_NODE, null, null, null);
   }
 
   @Test

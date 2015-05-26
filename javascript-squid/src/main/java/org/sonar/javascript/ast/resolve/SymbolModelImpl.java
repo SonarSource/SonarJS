@@ -21,6 +21,7 @@ package org.sonar.javascript.ast.resolve;
 
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import org.sonar.api.config.Settings;
 import org.sonar.api.source.Symbolizable;
 import org.sonar.javascript.api.SymbolModelBuilder;
 import org.sonar.javascript.ast.resolve.type.TypeVisitor;
@@ -40,10 +41,10 @@ public class SymbolModelImpl implements SymbolModel, SymbolModelBuilder {
   private Set<Scope> scopes = Sets.newHashSet();
   private Scope globalScope;
 
-  public static SymbolModelImpl create(ScriptTree script, @Nullable Symbolizable symbolizable, @Nullable SourceFileOffsets sourceFileOffsets) {
+  public static SymbolModelImpl create(ScriptTree script, @Nullable Symbolizable symbolizable, @Nullable SourceFileOffsets sourceFileOffsets, @Nullable Settings settings) {
     SymbolModelImpl symbolModel = new SymbolModelImpl();
     new SymbolVisitor(symbolModel, symbolizable, sourceFileOffsets).visitScript(script);
-    new TypeVisitor().visitScript(script);
+    new TypeVisitor(settings).visitScript(script);
     return symbolModel;
   }
 

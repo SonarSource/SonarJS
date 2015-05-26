@@ -51,6 +51,12 @@ public enum PrimitiveType implements Type {
     public Kind kind() {
       return Kind.BOOLEAN;
     }
+  },
+  JQUERY_SELECTOR_OBJECT {
+    @Override
+    public Kind kind() {
+      return Kind.JQUERY_SELECTOR_OBJECT;
+    }
   };
 
   @Override

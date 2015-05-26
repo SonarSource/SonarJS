@@ -41,7 +41,8 @@ public interface Type {
     BOOLEAN,
     OBJECT,
     FUNCTION,
-    ARRAY
+    ARRAY,
+    JQUERY_SELECTOR_OBJECT
   }
 
 
