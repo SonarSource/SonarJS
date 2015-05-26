@@ -21,13 +21,16 @@ package org.sonar.javascript.model.internal.expression;
 
 import com.google.common.collect.Iterators;
 import com.sonar.sslr.api.AstNode;
+import org.sonar.javascript.ast.resolve.Type;
 import org.sonar.plugins.javascript.api.visitors.TreeVisitor;
 import org.sonar.javascript.model.internal.JavaScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.expression.TemplateCharactersTree;
 
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 public class TemplateCharactersTreeImpl extends JavaScriptTree implements TemplateCharactersTree {
 
@@ -63,5 +66,10 @@ public class TemplateCharactersTreeImpl extends JavaScriptTree implements Templa
   @Override
   public void accept(TreeVisitor visitor) {
     visitor.visitTemplateCharacters(this);
+  }
+
+  @Override
+  public Set<Type> types() {
+    return Collections.emptySet();
   }
 }

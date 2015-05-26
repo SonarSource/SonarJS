@@ -129,7 +129,11 @@ public class Symbol {
     types.add(type);
   }
 
-  public Set<Type> getTypes(){
+  public void addTypes(Set<Type> type){
+    types.addAll(type);
+  }
+
+  public Set<Type> types(){
     return types;
   }
 }

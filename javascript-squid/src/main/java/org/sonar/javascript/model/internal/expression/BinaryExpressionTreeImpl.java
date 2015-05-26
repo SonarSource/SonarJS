@@ -22,6 +22,7 @@ package org.sonar.javascript.model.internal.expression;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Iterators;
 import com.sonar.sslr.api.AstNode;
+import org.sonar.javascript.ast.resolve.Type;
 import org.sonar.plugins.javascript.api.visitors.TreeVisitor;
 import org.sonar.javascript.model.internal.JavaScriptTree;
 import org.sonar.javascript.model.internal.lexical.InternalSyntaxToken;
@@ -30,7 +31,9 @@ import org.sonar.plugins.javascript.api.tree.expression.BinaryExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 
+import java.util.Collections;
 import java.util.Iterator;
+import java.util.Set;
 
 public class BinaryExpressionTreeImpl extends JavaScriptTree implements BinaryExpressionTree {
 
@@ -77,5 +80,10 @@ public class BinaryExpressionTreeImpl extends JavaScriptTree implements BinaryEx
   @Override
   public void accept(TreeVisitor visitor) {
     visitor.visitBinaryExpression(this);
+  }
+
+  @Override
+  public Set<Type> types() {
+    return Collections.emptySet();
   }
 }

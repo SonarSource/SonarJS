@@ -22,6 +22,7 @@ package org.sonar.javascript.model.internal.expression;
 import com.google.common.collect.Iterators;
 import com.sonar.sslr.api.AstNode;
 import com.sonar.sslr.api.AstNodeType;
+import org.sonar.javascript.ast.resolve.Type;
 import org.sonar.plugins.javascript.api.visitors.TreeVisitor;
 import org.sonar.javascript.model.internal.JavaScriptTree;
 import org.sonar.javascript.model.internal.lexical.InternalSyntaxToken;
@@ -31,7 +32,9 @@ import org.sonar.plugins.javascript.api.tree.expression.YieldExpressionTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 
 import javax.annotation.Nullable;
+import java.util.Collections;
 import java.util.Iterator;
+import java.util.Set;
 
 public class YieldExpressionTreeImpl extends JavaScriptTree implements YieldExpressionTree {
 
@@ -101,5 +104,10 @@ public class YieldExpressionTreeImpl extends JavaScriptTree implements YieldExpr
   @Override
   public void accept(TreeVisitor visitor) {
     visitor.visitYieldExpression(this);
+  }
+
+  @Override
+  public Set<Type> types() {
+    return Collections.emptySet();
   }
 }

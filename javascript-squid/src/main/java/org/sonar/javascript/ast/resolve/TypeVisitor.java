@@ -19,10 +19,14 @@
  */
 package org.sonar.javascript.ast.resolve;
 
+import org.sonar.javascript.model.internal.expression.ArrayLiteralTreeImpl;
+import org.sonar.javascript.model.internal.expression.LiteralTreeImpl;
+import org.sonar.javascript.model.internal.expression.ObjectLiteralTreeImpl;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.declaration.InitializedBindingElementTree;
 import org.sonar.plugins.javascript.api.tree.expression.ArrayLiteralTree;
 import org.sonar.plugins.javascript.api.tree.expression.AssignmentExpressionTree;
+import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 import org.sonar.plugins.javascript.api.tree.expression.LiteralTree;
 import org.sonar.plugins.javascript.api.tree.expression.ObjectLiteralTree;
@@ -30,54 +34,53 @@ import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
 
 public class TypeVisitor extends BaseTreeVisitor {
 
-  private Symbol currentSymbol = null;
-
   @Override
   public void visitAssignmentExpression(AssignmentExpressionTree tree) {
-    if (tree.variable() instanceof IdentifierTree) {
-      currentSymbol = ((IdentifierTree) tree.variable()).symbol();
-    }
-    super.visitAssignmentExpression(tree);
-    currentSymbol = null;
+    inferType(tree.variable(), tree.expression());
+    scan(tree.variable());
   }
 
   @Override
   public void visitInitializedBindingElement(InitializedBindingElementTree tree) {
-    if (tree.left() instanceof IdentifierTree) {
-      currentSymbol = ((IdentifierTree) tree.left()).symbol();
-    }
-    super.visitInitializedBindingElement(tree);
-    currentSymbol = null;
+    inferType(tree.left(), tree.right());
+    scan(tree.left());
   }
 
   @Override
   public void visitLiteral(LiteralTree tree) {
     if (tree.is(Tree.Kind.NUMERIC_LITERAL)) {
-      addType(Type.NUMBER);
+      ((LiteralTreeImpl) tree).addType(Type.NUMBER);
 
     } else if (tree.is(Tree.Kind.STRING_LITERAL)) {
-      addType(Type.STRING);
+      ((LiteralTreeImpl) tree).addType(Type.STRING);
 
     } else if (tree.is(Tree.Kind.BOOLEAN_LITERAL)) {
-      addType(Type.BOOLEAN);
+      ((LiteralTreeImpl) tree).addType(Type.BOOLEAN);
     }
+    super.visitLiteral(tree);
   }
 
   @Override
   public void visitArrayLiteral(ArrayLiteralTree tree) {
-    addType(Type.ARRAY);
-    // don't visit the sub-tree
+    ((ArrayLiteralTreeImpl) tree).addType(Type.ARRAY);
+    super.visitArrayLiteral(tree);
   }
 
   @Override
   public void visitObjectLiteral(ObjectLiteralTree tree) {
-    addType(Type.OBJECT);
-    // don't visit the sub-tree
+    ((ObjectLiteralTreeImpl) tree).addType(Type.OBJECT);
+    super.visitObjectLiteral(tree);
   }
 
-  private void addType(Type type) {
-    if (currentSymbol != null) {
-      currentSymbol.addType(type);
+  protected void inferType(Tree identifier, ExpressionTree assignedTree) {
+    super.scan(assignedTree);
+
+    if (identifier instanceof IdentifierTree) {
+      Symbol symbol = ((IdentifierTree) identifier).symbol();
+
+      if (symbol != null) {
+        symbol.addTypes(assignedTree.types());
+      }
     }
   }
 

@@ -21,6 +21,7 @@ package org.sonar.javascript.model.internal.expression;
 
 import com.google.common.collect.Iterators;
 import com.sonar.sslr.api.AstNode;
+import org.sonar.javascript.ast.resolve.Type;
 import org.sonar.plugins.javascript.api.visitors.TreeVisitor;
 import org.sonar.javascript.model.internal.JavaScriptTree;
 import org.sonar.javascript.model.internal.lexical.InternalSyntaxToken;
@@ -30,7 +31,9 @@ import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.RestElementTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 
+import java.util.Collections;
 import java.util.Iterator;
+import java.util.Set;
 
 public class RestElementTreeImpl extends JavaScriptTree implements RestElementTree, BindingElementTree {
 
@@ -68,5 +71,10 @@ public class RestElementTreeImpl extends JavaScriptTree implements RestElementTr
   @Override
   public void accept(TreeVisitor visitor) {
     visitor.visitRestElement(this);
+  }
+
+  @Override
+  public Set<Type> types() {
+    return Collections.emptySet();
   }
 }

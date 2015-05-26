@@ -20,8 +20,10 @@
 package org.sonar.javascript.model.internal.expression;
 
 import com.google.common.collect.Iterators;
+import com.google.common.collect.Sets;
 import com.sonar.sslr.api.AstNode;
 import org.apache.commons.collections.ListUtils;
+import org.sonar.javascript.ast.resolve.Type;
 import org.sonar.plugins.javascript.api.visitors.TreeVisitor;
 import org.sonar.javascript.model.internal.JavaScriptTree;
 import org.sonar.javascript.model.internal.SeparatedList;
@@ -31,14 +33,17 @@ import org.sonar.plugins.javascript.api.tree.expression.ArrayLiteralTree;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 public class ArrayLiteralTreeImpl extends JavaScriptTree implements ArrayLiteralTree {
 
   private SyntaxToken openBracket;
   private final SeparatedList<ExpressionTree> elements;
   private SyntaxToken closeBracket;
+  private Set<Type> types = Sets.newHashSet();
 
   public ArrayLiteralTreeImpl(InternalSyntaxToken openBracket, InternalSyntaxToken closeBracket) {
     super(Kind.ARRAY_LITERAL);
@@ -85,6 +90,15 @@ public class ArrayLiteralTreeImpl extends JavaScriptTree implements ArrayLiteral
   @Override
   public Kind getKind() {
     return Kind.ARRAY_LITERAL;
+  }
+
+  @Override
+  public Set<Type> types() {
+    return Collections.unmodifiableSet(types);
+  }
+
+  public void addType(Type type) {
+    this.types.add(type);
   }
 
   @Override
