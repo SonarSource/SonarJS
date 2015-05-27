@@ -20,22 +20,21 @@
 package org.sonar.javascript.ast.resolve;
 
 import org.sonar.javascript.api.SymbolModelBuilder;
-import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
 import org.sonar.javascript.model.internal.declaration.InitializedBindingElementTreeImpl;
 import org.sonar.javascript.model.internal.declaration.ParameterListTreeImpl;
 import org.sonar.javascript.model.internal.expression.ArrowFunctionTreeImpl;
 import org.sonar.javascript.model.internal.statement.CatchBlockTreeImpl;
-import org.sonar.javascript.model.internal.statement.VariableDeclarationTreeImpl;
+import org.sonar.plugins.javascript.api.tree.ScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.declaration.BindingElementTree;
 import org.sonar.plugins.javascript.api.tree.declaration.FunctionDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.declaration.MethodDeclarationTree;
-import org.sonar.plugins.javascript.api.tree.ScriptTree;
 import org.sonar.plugins.javascript.api.tree.expression.ArrowFunctionTree;
 import org.sonar.plugins.javascript.api.tree.expression.FunctionExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 import org.sonar.plugins.javascript.api.tree.statement.CatchBlockTree;
 import org.sonar.plugins.javascript.api.tree.statement.VariableDeclarationTree;
+import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
 
 import java.util.List;
 
@@ -62,13 +61,13 @@ public class SymbolDeclarationVisitor extends BaseTreeVisitor {
   }
 
   private void addBuiltInSymbols() {
-    symbolModel.addBuiltInSymbol("eval", new SymbolDeclaration(symbolModel.globalScope().tree(), SymbolDeclaration.Kind.BUILD_IN), Symbol.Kind.FUNCTION, currentScope);
+    symbolModel.declareBuiltInSymbol("eval", Symbol.Kind.FUNCTION, currentScope);
   }
 
   @Override
   public void visitMethodDeclaration(MethodDeclarationTree tree) {
     newScope(tree);
-    addSymbols(((ParameterListTreeImpl) tree.parameters()).parameterIdentifiers(), SymbolDeclaration.Kind.PARAMETER, Symbol.Kind.PARAMETER);
+    declareParameters(((ParameterListTreeImpl) tree.parameters()).parameterIdentifiers());
     addFunctionBuiltInSymbols();
 
     super.visitMethodDeclaration(tree);
@@ -78,14 +77,18 @@ public class SymbolDeclarationVisitor extends BaseTreeVisitor {
   private void addFunctionBuiltInSymbols() {
     String arguments = "arguments";
     if (currentScope.symbols.get(arguments) == null) {
-      symbolModel.addBuiltInSymbol(arguments, new SymbolDeclaration(currentScope.tree(), SymbolDeclaration.Kind.BUILD_IN), Symbol.Kind.VARIABLE, currentScope);
+      symbolModel.declareBuiltInSymbol(arguments, Symbol.Kind.VARIABLE, currentScope);
     }
   }
 
   @Override
   public void visitCatchBlock(CatchBlockTree tree) {
     newScope(tree);
-    addSymbols(((CatchBlockTreeImpl) tree).parameterIdentifiers(), SymbolDeclaration.Kind.CATCH_BLOCK, Symbol.Kind.VARIABLE);
+
+    for (IdentifierTree identifier : ((CatchBlockTreeImpl) tree).parameterIdentifiers()) {
+      symbolModel.declareSymbol(identifier.name(), Symbol.Kind.VARIABLE, currentScope)
+          .addUsage(Usage.create(identifier, Usage.Kind.DECLARATION));
+    }
 
     super.visitCatchBlock(tree);
     leaveScope();
@@ -93,9 +96,11 @@ public class SymbolDeclarationVisitor extends BaseTreeVisitor {
 
   @Override
   public void visitFunctionDeclaration(FunctionDeclarationTree tree) {
-    symbolModel.addSymbol(new SymbolDeclaration(tree.name(), SymbolDeclaration.Kind.FUNCTION_DECLARATION), Symbol.Kind.FUNCTION, currentScope);
+    symbolModel.declareSymbol(tree.name().name(), Symbol.Kind.FUNCTION, currentScope)
+        .addUsage(Usage.create(tree.name(), Usage.Kind.DECLARATION));
+
     newScope(tree);
-    addSymbols(((ParameterListTreeImpl) tree.parameters()).parameterIdentifiers(), SymbolDeclaration.Kind.PARAMETER, Symbol.Kind.PARAMETER);
+    declareParameters(((ParameterListTreeImpl) tree.parameters()).parameterIdentifiers());
     addFunctionBuiltInSymbols();
 
     super.visitFunctionDeclaration(tree);
@@ -105,7 +110,7 @@ public class SymbolDeclarationVisitor extends BaseTreeVisitor {
   @Override
   public void visitArrowFunction(ArrowFunctionTree tree) {
     newScope(tree);
-    addSymbols(((ArrowFunctionTreeImpl) tree).parameterIdentifiers(), SymbolDeclaration.Kind.PARAMETER, Symbol.Kind.PARAMETER);
+    declareParameters(((ArrowFunctionTreeImpl) tree).parameterIdentifiers());
     addFunctionBuiltInSymbols();
 
     super.visitArrowFunction(tree);
@@ -126,10 +131,10 @@ public class SymbolDeclarationVisitor extends BaseTreeVisitor {
     IdentifierTree name = tree.name();
     if (name != null) {
       // Not available in enclosing scope
-      symbolModel.addSymbol(new SymbolDeclaration(name, SymbolDeclaration.Kind.FUNCTION_EXPRESSION), Symbol.Kind.FUNCTION, currentScope);
+      symbolModel.declareSymbol(name.name(), Symbol.Kind.FUNCTION, currentScope).addUsage(Usage.create(name, Usage.Kind.DECLARATION));
 
     }
-    addSymbols(((ParameterListTreeImpl) tree.parameters()).parameterIdentifiers(), SymbolDeclaration.Kind.PARAMETER, Symbol.Kind.PARAMETER);
+    declareParameters(((ParameterListTreeImpl) tree.parameters()).parameterIdentifiers());
     addFunctionBuiltInSymbols();
 
     super.visitFunctionExpression(tree);
@@ -138,21 +143,21 @@ public class SymbolDeclarationVisitor extends BaseTreeVisitor {
 
   @Override
   public void visitVariableDeclaration(VariableDeclarationTree tree) {
-    addSymbols(((VariableDeclarationTreeImpl) tree).variableIdentifiers(), SymbolDeclaration.Kind.VARIABLE_DECLARATION, Symbol.Kind.VARIABLE);
     addUsages(tree);
     super.visitVariableDeclaration(tree);
   }
 
   public void addUsages(VariableDeclarationTree tree) {
+    // todo Consider other BindingElementTree types
     for (BindingElementTree bindingElement : tree.variables()) {
       if (bindingElement.is(Tree.Kind.INITIALIZED_BINDING_ELEMENT)) {
         for (IdentifierTree identifier : ((InitializedBindingElementTreeImpl) bindingElement).bindingIdentifiers()){
-          currentScope.lookupSymbol(identifier.name()).addUsage(
-              Usage.create(identifier, Usage.Kind.WRITE)
-                  .setUsageTree(bindingElement)
-                  .setInitialization(true)
-          );
+          symbolModel.declareSymbol(identifier.name(), Symbol.Kind.VARIABLE, currentScope).addUsage(Usage.create(identifier, Usage.Kind.DECLARATION_WRITE));
         }
+      }
+      if (bindingElement instanceof IdentifierTree){
+        IdentifierTree identifierTree = (IdentifierTree) bindingElement;
+        symbolModel.declareSymbol(identifierTree.name(), Symbol.Kind.VARIABLE, currentScope).addUsage(Usage.create(identifierTree, Usage.Kind.DECLARATION));
       }
     }
   }
@@ -166,9 +171,10 @@ public class SymbolDeclarationVisitor extends BaseTreeVisitor {
     }
   }
 
-  private void addSymbols(List<IdentifierTree> identifiers, SymbolDeclaration.Kind declarationKind, Symbol.Kind symbolKind) {
+  private void declareParameters(List<IdentifierTree> identifiers) {
     for (IdentifierTree identifier : identifiers) {
-      symbolModel.addSymbol(new SymbolDeclaration(identifier, declarationKind), symbolKind, currentScope);
+      symbolModel.declareSymbol(identifier.name(), Symbol.Kind.PARAMETER, currentScope)
+          .addUsage(Usage.create(identifier, Usage.Kind.LEXICAL_DECLARATION));
     }
   }
 

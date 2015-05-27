@@ -19,23 +19,19 @@
  */
 package org.sonar.javascript.ast.resolve;
 
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-
-import javax.annotation.Nullable;
-
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import org.sonar.api.source.Symbolizable;
 import org.sonar.javascript.api.SymbolModelBuilder;
 import org.sonar.javascript.ast.resolve.type.TypeVisitor;
 import org.sonar.javascript.highlighter.SourceFileOffsets;
 import org.sonar.plugins.javascript.api.SymbolModel;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
-import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 
-import com.google.common.base.Preconditions;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
+import javax.annotation.Nullable;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 public class SymbolModelImpl implements SymbolModel, SymbolModelBuilder {
 
@@ -73,17 +69,25 @@ public class SymbolModelImpl implements SymbolModel, SymbolModelBuilder {
   }
 
   @Override
-  public Symbol addSymbol(SymbolDeclaration declaration, Symbol.Kind kind, Scope scope) {
-    Preconditions.checkArgument(declaration.tree() instanceof IdentifierTree);
-    Symbol symbol = Symbol.create(((IdentifierTree) declaration.tree()).name(), declaration, kind, scope);
-    setScopeForSymbol(symbol, scope);
+  public Symbol declareSymbol(String name, Symbol.Kind kind, Scope scope) {
+    Symbol symbol = scope.getSymbol(name);
+    if (symbol == null) {
+      symbol = new Symbol(name, kind, scope);
+      scope.addSymbol(symbol);
+      setScopeForSymbol(symbol, scope);
+    }
     return symbol;
   }
 
   @Override
-  public Symbol addBuiltInSymbol(String name, SymbolDeclaration declaration, Symbol.Kind kind, Scope scope) {
-    Symbol symbol = Symbol.create(name, declaration, kind, scope).setBuiltIn(true);
-    setScopeForSymbol(symbol, scope);
+  public Symbol declareBuiltInSymbol(String name, Symbol.Kind kind, Scope scope) {
+    Symbol symbol = scope.getSymbol(name);
+    if (symbol == null) {
+      symbol = new Symbol(name, kind, scope);
+      symbol.setBuiltIn(true);
+      scope.addSymbol(symbol);
+      setScopeForSymbol(symbol, scope);
+    }
     return symbol;
   }
 

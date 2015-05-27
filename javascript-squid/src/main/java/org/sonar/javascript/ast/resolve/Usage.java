@@ -25,6 +25,9 @@ import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 public class Usage {
 
   public enum Kind {
+    DECLARATION,
+    DECLARATION_WRITE,
+    LEXICAL_DECLARATION,
     WRITE,
     READ,
     READ_WRITE;
@@ -32,7 +35,6 @@ public class Usage {
   private Kind kind;
   private IdentifierTree symbolTree;
   private Tree usageTree;
-  private boolean isInitialization = false;
 
   /**
    *
@@ -57,22 +59,18 @@ public class Usage {
     return usageTree;
   }
 
-  public boolean isInitialization() {
-    return isInitialization;
-  }
-
   public Usage setUsageTree(Tree usageTree){
     this.usageTree = usageTree;
-    return this;
-  }
-
-  public Usage setInitialization(boolean isInitialization){
-    this.isInitialization = isInitialization;
     return this;
   }
 
   public static Usage create(IdentifierTree symbolTree, Kind kind){
     return new Usage(symbolTree, kind);
   }
+
+  public boolean isDeclaration(){
+    return kind == Kind.DECLARATION_WRITE || kind == Kind.DECLARATION;
+  }
+
 
 }

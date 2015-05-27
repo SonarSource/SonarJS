@@ -19,19 +19,17 @@
  */
 package org.sonar.javascript.checks;
 
+import com.google.common.collect.ImmutableList;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
-import org.sonar.plugins.javascript.api.SymbolModel;
-import org.sonar.javascript.ast.resolve.Scope;
 import org.sonar.javascript.ast.resolve.Symbol;
-import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
 import org.sonar.squidbridge.annotations.ActivatedByDefault;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 
-import java.util.Collection;
+import java.util.List;
 
 @Rule(
   key = "S2137",
@@ -41,24 +39,26 @@ import java.util.Collection;
 @ActivatedByDefault
 @SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.INSTRUCTION_RELIABILITY)
 @SqaleConstantRemediation("10min")
-public class UndefinedShadowingCheck extends BaseTreeVisitor {
+public class UndefinedShadowingCheck extends AbstractSymbolNameCheck {
 
   private static final String MESSAGE = "Rename this variable.";
 
   @Override
-  public void visitScript(ScriptTree tree) {
-    SymbolModel symbolModel = getContext().getSymbolModel();
-    Collection<Symbol> symbols = symbolModel.getSymbols("undefined");
-    for (Symbol symbol : symbols){
-      Scope scope = symbol.scope();
-      if (scope.isGlobal()){
-        continue;
-      }
+  List<String> illegalNames() {
+    return ImmutableList.of("undefined");
+  }
 
-      if (symbol.is(Symbol.Kind.VARIABLE)){
-        getContext().addIssue(this, symbol.declaration().tree(), MESSAGE);
+  @Override
+  String getMessage(Symbol symbol) {
+    return MESSAGE;
+  }
+
+  @Override
+  public void visitScript(ScriptTree tree) {
+    for (Symbol symbol : getIllegalSymbols()){
+      if (!symbol.scope().isGlobal() && symbol.is(Symbol.Kind.VARIABLE)){
+        raiseIssuesOnDeclarations(this, symbol, MESSAGE);
       }
     }
-
   }
 }

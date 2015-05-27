@@ -42,6 +42,7 @@ public class UnusedVariableCheckTest extends TreeCheckTest {
         .next().atLine(44)
         .next().atLine(48)
         .next().atLine(62)
+        .next().atLine(63)
         .noMore();
   }
 

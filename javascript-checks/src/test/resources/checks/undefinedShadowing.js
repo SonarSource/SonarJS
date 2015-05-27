@@ -1,6 +1,6 @@
 function f() {
   var undefined = 1;  // NOK
-  var undefined;      // OK
+  var undefined;      // NOK
   var a = 1;          // OK
 }
 

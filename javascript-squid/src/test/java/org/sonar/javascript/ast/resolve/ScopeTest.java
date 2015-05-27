@@ -23,9 +23,8 @@ import com.sonar.sslr.api.AstNode;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.javascript.model.JavaScriptTreeModelTest;
-import org.sonar.javascript.model.internal.JavaScriptTree;
-import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
+import org.sonar.plugins.javascript.api.tree.Tree;
 
 import java.io.File;
 
@@ -81,12 +80,7 @@ public class ScopeTest extends JavaScriptTreeModelTest {
     Scope functionExprScope = getScopeFor(Tree.Kind.FUNCTION_EXPRESSION);
 
     assertNotNull(functionExprScope.lookupSymbol("a"));
-
-    // redeclared variable
     assertNotNull(functionExprScope.lookupSymbol("x"));
-    assertThat(functionExprScope.lookupSymbol("x").declarations()).hasSize(2);
-    assertThat(((JavaScriptTree) functionExprScope.lookupSymbol("x").declarations().get(0).tree()).getTokenLine()).isEqualTo(18);
-    assertThat(((JavaScriptTree) functionExprScope.lookupSymbol("x").declarations().get(1).tree()).getTokenLine()).isEqualTo(20);
   }
 
   @Test

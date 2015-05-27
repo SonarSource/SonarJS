@@ -14,5 +14,6 @@ function fun(){
   z = 1;   // OK
   var z;
   var var1 = var2 = 1;  // NOK
+  fun(arguments) // OK
 }
 

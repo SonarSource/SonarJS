@@ -66,13 +66,20 @@ public class VariableDeclarationAfterUsageCheck extends BaseTreeVisitor {
 
   private void visitSymbol(Symbol symbol) {
     List<Usage> usages = new LinkedList<>(symbol.usages());
+
     if (!usages.isEmpty()) {
+
       Collections.sort(usages, new LineComparator());
-      int declarationLine = ((JavaScriptTree) symbol.declaration().tree()).getLine();
-      Usage firstUsage = usages.get(0);
-      int firstUsageLine = getLine(firstUsage);
-      if (firstUsageLine < declarationLine) {
-        getContext().addIssue(this, firstUsage.symbolTree(), String.format(MESSAGE, symbol.name()));
+
+      if (usages.get(0).isDeclaration() || usages.get(0).kind() == Usage.Kind.LEXICAL_DECLARATION){
+        return;
+      }
+
+      for (int i = 1; i < usages.size(); i++){
+        if (usages.get(i).isDeclaration()){
+          getContext().addIssue(this, usages.get(0).symbolTree(), String.format(MESSAGE, symbol.name()));
+          return;
+        }
       }
 
     }

@@ -21,7 +21,6 @@ package org.sonar.javascript.api;
 
 import org.sonar.javascript.ast.resolve.Scope;
 import org.sonar.javascript.ast.resolve.Symbol;
-import org.sonar.javascript.ast.resolve.SymbolDeclaration;
 
 import java.util.Set;
 
@@ -33,8 +32,8 @@ public interface SymbolModelBuilder {
 
   Set<Scope> getScopes();
 
-  Symbol addSymbol(SymbolDeclaration declaration, Symbol.Kind kind, Scope scope);
+  Symbol declareSymbol(String name, Symbol.Kind kind, Scope scope);
 
   // todo remove declaration argument in future. We can infer declaration tree from scope
-  Symbol addBuiltInSymbol(String name, SymbolDeclaration declaration, Symbol.Kind kind, Scope scope);
+  Symbol declareBuiltInSymbol(String name, Symbol.Kind kind, Scope scope);
 }

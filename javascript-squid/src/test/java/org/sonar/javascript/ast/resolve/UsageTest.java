@@ -45,8 +45,8 @@ public class UsageTest extends JavaScriptTreeModelTest {
 
   @Test
   public void global_symbols() throws Exception {
-    assertThat(((Symbol) SYMBOL_MODEL.getSymbols("a").toArray()[0]).usages()).hasSize(3);
-    assertThat(usagesFor("f")).hasSize(2);
+    assertThat(usagesFor("a")).hasSize(3);
+    assertThat(usagesFor("f")).hasSize(3);
 
     Collection<Symbol> symbols = SYMBOL_MODEL.getSymbols("b");
     Symbol b = null;
@@ -77,8 +77,8 @@ public class UsageTest extends JavaScriptTreeModelTest {
 
   @Test
   public void function_symbols() throws Exception {
-    assertThat(usagesFor("p1")).hasSize(1);
-    assertThat(usagesFor("p2")).isEmpty();
+    assertThat(usagesFor("p1")).hasSize(2);
+    assertThat(usagesFor("p2")).hasSize(1);
     Collection<Symbol> symbols = SYMBOL_MODEL.getSymbols("b");
     Symbol b = null;
     for (Symbol symbol : symbols){
@@ -91,12 +91,12 @@ public class UsageTest extends JavaScriptTreeModelTest {
 
   @Test
   public void function_expression_symbols() throws Exception {
-    assertThat(usagesFor("g")).hasSize(1);
+    assertThat(usagesFor("g")).hasSize(2);
   }
 
   @Test
   public void catch_block_symbols() throws Exception {
-    assertThat(usagesFor("e")).hasSize(1);
+    assertThat(usagesFor("e")).hasSize(2);
   }
 
   @Test
@@ -108,7 +108,7 @@ public class UsageTest extends JavaScriptTreeModelTest {
     int writeCounter = 0;
     while (iterator.hasNext()){
       Usage next = iterator.next();
-      readCounter += !next.kind().equals(Usage.Kind.WRITE) ? 1 : 0;
+      readCounter += !next.kind().equals(Usage.Kind.WRITE) && ! next.kind().equals(Usage.Kind.DECLARATION_WRITE) ? 1 : 0;
       writeCounter += !next.kind().equals(Usage.Kind.READ) ? 1 : 0;
     }
     assertThat(readCounter).isEqualTo(2);

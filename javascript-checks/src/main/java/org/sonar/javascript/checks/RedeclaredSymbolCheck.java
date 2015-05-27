@@ -19,25 +19,20 @@
  */
 package org.sonar.javascript.checks;
 
-import com.google.common.collect.Sets;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.javascript.ast.resolve.Symbol;
+import org.sonar.javascript.ast.resolve.Usage;
 import org.sonar.javascript.model.internal.JavaScriptTree;
-import org.sonar.javascript.model.internal.statement.VariableDeclarationTreeImpl;
+import org.sonar.plugins.javascript.api.SymbolModel;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
-import org.sonar.plugins.javascript.api.tree.Tree;
-import org.sonar.plugins.javascript.api.tree.declaration.FunctionDeclarationTree;
-import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
-import org.sonar.plugins.javascript.api.tree.statement.VariableDeclarationTree;
 import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
 import org.sonar.squidbridge.annotations.ActivatedByDefault;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 
-import javax.annotation.Nullable;
-import java.util.Set;
+import java.util.Collection;
 
 @Rule(
     key = "S2814",
@@ -50,47 +45,29 @@ import java.util.Set;
 public class RedeclaredSymbolCheck extends BaseTreeVisitor {
 
   private static final String MESSAGE = "Rename \"%s\" as this name is already used in declaration at line %s.";
-  private Set<Symbol> symbolSet;
-
 
   @Override
   public void visitScript(ScriptTree tree) {
-    symbolSet = Sets.newHashSet();
-    symbolSet.addAll(getContext().getSymbolModel().getSymbols(Symbol.Kind.PARAMETER));
-    super.visitScript(tree);
-  }
-
-  @Override
-  public void visitFunctionDeclaration(FunctionDeclarationTree tree) {
-    checkSymbol(tree.name().symbol(), tree);
-    super.visitFunctionDeclaration(tree);
-  }
-
-  @Override
-  public void visitVariableDeclaration(VariableDeclarationTree tree) {
-    for (IdentifierTree variable : ((VariableDeclarationTreeImpl) tree).variableIdentifiers()) {
-      checkSymbol(variable.symbol(), variable);
+    SymbolModel symbolModel = getContext().getSymbolModel();
+    Collection<Symbol> symbols = symbolModel.getSymbols();
+    for (Symbol symbol : symbols) {
+      visitSymbol(symbol);
     }
-    super.visitVariableDeclaration(tree);
   }
 
-  private void checkSymbol(@Nullable Symbol symbol, Tree tree) {
-    if (symbol != null) {
-      if (symbolSet.contains(symbol)) {
-        getContext().addIssue(
-            this,
-            tree,
-            String.format(
-                MESSAGE,
-                symbol.name(),
-                ((JavaScriptTree)symbol.declaration().tree()).getLine()
-            )
-        );
-      } else {
-        symbolSet.add(symbol);
+  private void visitSymbol(Symbol symbol) {
+    Usage firstDeclaration = null;
+
+    for (Usage usage : symbol.usages()) {
+
+      if (firstDeclaration == null) {
+        if ((usage.isDeclaration() || usage.kind() == Usage.Kind.LEXICAL_DECLARATION)) {
+          firstDeclaration = usage;
+        }
+      } else if (usage.isDeclaration()) {
+        getContext().addIssue(this, usage.symbolTree(), String.format(MESSAGE, symbol.name(), ((JavaScriptTree) firstDeclaration.symbolTree()).getLine()));
       }
     }
   }
-
 
 }
