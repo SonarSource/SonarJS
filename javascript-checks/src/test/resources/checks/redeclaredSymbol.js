@@ -103,6 +103,6 @@ function fun5() {     // NOK
 
 var foo = function() {}
 var foo = function*() {}  // NOK
-function foo(){}
+function foo(){} // NOK
 
 function samePar(a, a, b) {}  // OK - handled by another rule DuplicateFunctionArgument
