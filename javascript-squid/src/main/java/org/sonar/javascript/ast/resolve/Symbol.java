@@ -125,10 +125,6 @@ public class Symbol {
     return declarations.get(0);
   }
 
-  public void addType(Type type){
-    types.add(type);
-  }
-
   public void addTypes(Set<Type> type){
     types.addAll(type);
   }
