@@ -12,3 +12,4 @@ function foo(){
   t = 1 // OK - global
 }
 
+function fooo(p){} // OK

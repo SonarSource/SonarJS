@@ -60,5 +60,5 @@ foo(y1)
 
 function foo(){
   var x = 1;               // NOK
-  var x = 2;
+  var x = 2;              // NOK
 }

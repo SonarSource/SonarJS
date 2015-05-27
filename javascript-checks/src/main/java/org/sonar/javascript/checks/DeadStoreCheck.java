@@ -63,7 +63,7 @@ public class DeadStoreCheck extends BaseTreeVisitor {
     List<Usage> usages = new LinkedList<>(symbol.usages());
     if (!hasRead(usages)) {
       for (Usage usage : usages) {
-        if (!usage.isInitialization()) {
+        if (!usage.isDeclaration() && usage.kind() != Usage.Kind.LEXICAL_DECLARATION) {
           getContext().addIssue(this, usage.symbolTree(), String.format(MESSAGE, symbol.name()));
         }
       }

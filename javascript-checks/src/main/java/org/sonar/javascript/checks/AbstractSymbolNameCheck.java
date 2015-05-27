@@ -19,46 +19,51 @@
  */
 package org.sonar.javascript.checks;
 
-import org.sonar.api.server.rule.RulesDefinition;
-import org.sonar.check.Priority;
-import org.sonar.check.Rule;
+import com.google.common.base.Preconditions;
 import org.sonar.javascript.ast.resolve.Symbol;
 import org.sonar.javascript.ast.resolve.Usage;
+import org.sonar.plugins.javascript.api.JavaScriptCheck;
+import org.sonar.plugins.javascript.api.SymbolModel;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
 import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
-import org.sonar.squidbridge.annotations.ActivatedByDefault;
-import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
-import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 
-@Rule(
-    key = "S2703",
-    name = "Variables should always be declared with \"var\"",
-    priority = Priority.MAJOR,
-    tags = {Tags.PITFALL})
-@ActivatedByDefault
-@SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.LOGIC_RELIABILITY)
-@SqaleConstantRemediation("2min")
-public class VariableDeclarationWithoutVarCheck extends BaseTreeVisitor {
+import java.util.LinkedList;
+import java.util.List;
 
-  private static final String MESSAGE = "Add the \"var\" keyword to this declaration of \"%s\".";
+public abstract class AbstractSymbolNameCheck extends BaseTreeVisitor {
+  abstract List<String> illegalNames();
+  abstract String getMessage(Symbol symbol);
 
   @Override
   public void visitScript(ScriptTree tree) {
-    for (Symbol symbol : getContext().getSymbolModel().getSymbols(Symbol.Kind.VARIABLE)) {
-      if (!symbol.builtIn()) {
-        visitSymbol(symbol);
-      }
+    for (Symbol symbol : getIllegalSymbols()) {
+      raiseIssuesOnDeclarations(this, symbol, getMessage(symbol));
     }
   }
 
-  private void visitSymbol(Symbol symbol) {
+  protected List<Symbol> getIllegalSymbols() {
+    SymbolModel symbolModel = getContext().getSymbolModel();
+    List<Symbol> symbols = new LinkedList<>();
+    for (String name : illegalNames()){
+      symbols.addAll(symbolModel.getSymbols(name));
+    }
+    return symbols;
+  }
+
+  protected void raiseIssuesOnDeclarations(JavaScriptCheck check, Symbol symbol, String message){
+    Preconditions.checkArgument(!symbol.builtIn());
+
+    boolean issueRaised = false;
     for (Usage usage : symbol.usages()){
       if (usage.isDeclaration()){
-        return;
+        getContext().addIssue(check, usage.symbolTree(), message);
+        issueRaised = true;
       }
     }
-    if (!symbol.usages().isEmpty()) {
-      getContext().addIssue(this, symbol.usages().iterator().next().symbolTree(), String.format(MESSAGE, symbol.name()));
+
+    if (!issueRaised){
+      getContext().addIssue(check, symbol.usages().iterator().next().symbolTree(), message);
     }
+
   }
 }

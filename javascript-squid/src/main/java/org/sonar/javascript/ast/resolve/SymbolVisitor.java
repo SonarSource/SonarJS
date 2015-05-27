@@ -124,15 +124,10 @@ public class SymbolVisitor extends BaseTreeVisitor {
       }
 
       if (!addUsageFor(identifier, tree, usageKind)) {
-        Symbol symbol = symbolModel.addSymbol(
-            new SymbolDeclaration(identifier, /*todo remove it*/ SymbolDeclaration.Kind.ASSIGNMENT),
-            Symbol.Kind.VARIABLE,
-            symbolModel.globalScope()
-        );
+        Symbol symbol = symbolModel.declareSymbol(identifier.name(), Symbol.Kind.VARIABLE, symbolModel.globalScope());
         symbol.addUsage(
             Usage.create(identifier, usageKind)
                 .setUsageTree(tree)
-                .setInitialization(true)
         );
       }
       // no need to inferType variable has it has been handle
@@ -174,7 +169,7 @@ public class SymbolVisitor extends BaseTreeVisitor {
       IdentifierTree identifier = (IdentifierTree) tree.variableOrExpression();
 
       if (!addUsageFor(identifier, null, Usage.Kind.WRITE)) {
-        symbolModel.addSymbol(new SymbolDeclaration(identifier, SymbolDeclaration.Kind.FOR_OF), Symbol.Kind.VARIABLE, symbolModel.globalScope());
+        symbolModel.declareSymbol(identifier.name(), Symbol.Kind.VARIABLE, symbolModel.globalScope()).addUsage(Usage.create(identifier, Usage.Kind.WRITE));
       }
     }
     super.visitForOfStatement(tree);
@@ -186,7 +181,7 @@ public class SymbolVisitor extends BaseTreeVisitor {
       IdentifierTree identifier = (IdentifierTree) tree.variableOrExpression();
 
       if (!addUsageFor(identifier, null, Usage.Kind.WRITE)) {
-        symbolModel.addSymbol(new SymbolDeclaration(identifier, SymbolDeclaration.Kind.FOR_IN), Symbol.Kind.VARIABLE, symbolModel.globalScope());
+        symbolModel.declareSymbol(identifier.name(), Symbol.Kind.VARIABLE, symbolModel.globalScope()).addUsage(Usage.create(identifier, Usage.Kind.WRITE));
       }
 
       scan(tree.expression());

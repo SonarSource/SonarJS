@@ -22,12 +22,13 @@ package org.sonar.javascript.checks;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
-import org.sonar.plugins.javascript.api.SymbolModel;
 import org.sonar.javascript.ast.resolve.Scope;
 import org.sonar.javascript.ast.resolve.Symbol;
-import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
+import org.sonar.javascript.ast.resolve.Usage;
 import org.sonar.javascript.model.internal.JavaScriptTree;
+import org.sonar.plugins.javascript.api.SymbolModel;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
+import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 
@@ -64,13 +65,29 @@ public class VariableShadowingCheck extends BaseTreeVisitor {
     }
     Scope scope = symbol.scope();
     if (scope.outer() != null) {
-      Symbol localSymbol = scope.lookupSymbol(symbol.name());
       Symbol outerSymbol = scope.outer().lookupSymbol(symbol.name());
-      if (localSymbol != null && outerSymbol != null) {
-        String message = String.format(MESSAGE, symbol.name(), ((JavaScriptTree) outerSymbol.declaration().tree()).getLine());
-        getContext().addIssue(this, symbol.declaration().tree(), message);
+      if (outerSymbol != null) {
+        String message = String.format(MESSAGE, symbol.name(), ((JavaScriptTree) getDeclaration(outerSymbol).symbolTree()).getLine());
+        raiseIssuesOnDeclarations(symbol, message);
       }
     }
+  }
+
+  private void raiseIssuesOnDeclarations(Symbol symbol, String message){
+    for (Usage usage : symbol.usages()){
+      if (usage.isDeclaration() || usage.kind() == Usage.Kind.LEXICAL_DECLARATION){
+        getContext().addIssue(this, usage.symbolTree(), message);
+      }
+    }
+  }
+
+  private Usage getDeclaration(Symbol symbol){
+    for (Usage usage : symbol.usages()){
+      if (usage.isDeclaration() || usage.kind() == Usage.Kind.LEXICAL_DECLARATION){
+        return usage;
+      }
+    }
+    return symbol.usages().iterator().next();
   }
 
 }

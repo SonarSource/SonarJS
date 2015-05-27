@@ -19,19 +19,18 @@
  */
 package org.sonar.javascript.checks;
 
+import com.google.common.collect.ImmutableList;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
-import org.sonar.plugins.javascript.api.SymbolModel;
 import org.sonar.javascript.ast.resolve.Symbol;
 import org.sonar.javascript.ast.resolve.Usage;
-import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
 import org.sonar.squidbridge.annotations.ActivatedByDefault;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 
-import java.util.Collection;
+import java.util.List;
 
 @Rule(
   key = "BoundOrAssignedEvalOrArguments",
@@ -41,44 +40,38 @@ import java.util.Collection;
 @ActivatedByDefault
 @SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.INSTRUCTION_RELIABILITY)
 @SqaleConstantRemediation("10min")
-public class BoundOrAssignedEvalOrArgumentsCheck extends BaseTreeVisitor {
+public class BoundOrAssignedEvalOrArgumentsCheck extends AbstractSymbolNameCheck {
 
   private static final String DECLARATION_MESSAGE = "Do not use \"%s\" to declare a %s - use another name.";
   private static final String MODIFICATION_MESSAGE = "Remove the modification of \"%s\".";
 
   @Override
+  List<String> illegalNames() {
+    return ImmutableList.of("eval", "arguments");
+  }
+
+  @Override
+  String getMessage(Symbol symbol) {
+    return null;
+  }
+
+  @Override
   public void visitScript(ScriptTree tree) {
-    for (Symbol symbol : getSymbols()){
-      visitParameter(symbol);
-      visitVariableOrFunction(symbol);
-    }
-    super.visitScript(tree);
-  }
-
-  private Collection<Symbol> getSymbols() {
-    SymbolModel symbolModel = getContext().getSymbolModel();
-    Collection<Symbol> symbols = symbolModel.getSymbols("eval");
-    symbols.addAll(symbolModel.getSymbols("arguments"));
-    return symbols;
-  }
-
-  private void visitVariableOrFunction(Symbol symbol) {
-    if (symbol.is(Symbol.Kind.VARIABLE) || symbol.is(Symbol.Kind.FUNCTION)){
-      if (symbol.builtIn()){
-        for (Usage usage : symbol.usages()) {
-          if (!usage.kind().equals(Usage.Kind.READ)) {
-            getContext().addIssue(this, usage.symbolTree(), String.format(MODIFICATION_MESSAGE, symbol.name()));
-          }
-        }
+    for (Symbol symbol : getIllegalSymbols()) {
+      if (symbol.is(Symbol.Kind.PARAMETER) || !symbol.builtIn()) {
+        raiseIssuesOnDeclarations(this, symbol, String.format(DECLARATION_MESSAGE, symbol.name(), symbol.kind().getValue()));
       } else {
-        getContext().addIssue(this, symbol.declaration().tree(), String.format(DECLARATION_MESSAGE, symbol.name(), symbol.kind().getValue()));
+        raiseIssuesOnWriteUsages(symbol);
       }
     }
   }
 
-  private void visitParameter(Symbol symbol) {
-    if (symbol.is(Symbol.Kind.PARAMETER)){
-      getContext().addIssue(this, symbol.declaration().tree(), String.format(DECLARATION_MESSAGE, symbol.name(), symbol.kind().getValue()));
+  private void raiseIssuesOnWriteUsages(Symbol symbol) {
+    for (Usage usage : symbol.usages()) {
+      if (!usage.kind().equals(Usage.Kind.READ)) {
+        getContext().addIssue(this, usage.symbolTree(), String.format(MODIFICATION_MESSAGE, symbol.name()));
+      }
     }
   }
+
 }

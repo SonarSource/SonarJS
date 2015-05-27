@@ -23,14 +23,10 @@ import com.google.common.collect.ImmutableList;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
-import org.sonar.plugins.javascript.api.SymbolModel;
 import org.sonar.javascript.ast.resolve.Symbol;
-import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
-import org.sonar.plugins.javascript.api.tree.ScriptTree;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 
-import java.util.LinkedList;
 import java.util.List;
 
 @Rule(
@@ -40,7 +36,7 @@ import java.util.List;
   tags = {Tags.BUG, Tags.CONFUSING})
 @SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.INSTRUCTION_RELIABILITY)
 @SqaleConstantRemediation("20min")
-public class BuiltInObjectOverriddenCheck extends BaseTreeVisitor {
+public class BuiltInObjectOverriddenCheck extends AbstractSymbolNameCheck {
 
   private static final String MESSAGE = "Remove this override of \"%s\".";
 
@@ -90,19 +86,12 @@ public class BuiltInObjectOverriddenCheck extends BaseTreeVisitor {
   );
 
   @Override
-  public void visitScript(ScriptTree tree) {
-    List<Symbol> symbols = getSymbols();
-    for (Symbol symbol : symbols) {
-      getContext().addIssue(this, symbol.declaration().tree(), String.format(MESSAGE, symbol.name()));
-    }
+  List<String> illegalNames() {
+    return BUILD_IN_OBJECTS;
   }
 
-  public List<Symbol> getSymbols() {
-    SymbolModel symbolModel = getContext().getSymbolModel();
-    List<Symbol> symbols = new LinkedList<>();
-    for (String name : BUILD_IN_OBJECTS){
-      symbols.addAll(symbolModel.getSymbols(name));
-    }
-    return symbols;
+  @Override
+  String getMessage(Symbol symbol) {
+    return String.format(MESSAGE, symbol.name());
   }
 }

@@ -34,6 +34,7 @@ public class UndefinedShadowingCheckTest extends TreeCheckTest {
 
     CheckMessagesVerifier.verify(file.getCheckMessages())
       .next().atLine(2).withMessage("Rename this variable.")
+      .next().atLine(3).withMessage("Rename this variable.")
       .noMore();
   }
 

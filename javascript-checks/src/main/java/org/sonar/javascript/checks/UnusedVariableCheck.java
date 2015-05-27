@@ -22,12 +22,12 @@ package org.sonar.javascript.checks;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
-import org.sonar.plugins.javascript.api.SymbolModel;
 import org.sonar.javascript.ast.resolve.Symbol;
 import org.sonar.javascript.ast.resolve.Usage;
-import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
-import org.sonar.plugins.javascript.api.tree.Tree.Kind;
+import org.sonar.plugins.javascript.api.SymbolModel;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
+import org.sonar.plugins.javascript.api.tree.Tree.Kind;
+import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
 import org.sonar.squidbridge.annotations.ActivatedByDefault;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
@@ -52,7 +52,15 @@ public class UnusedVariableCheck extends BaseTreeVisitor {
 
       Collection<Usage> usages = variable.usages();
       if (noUsages(usages) && !isGlobalOrCatchVariable(variable) && !variable.builtIn()) {
-        getContext().addIssue(this, variable.declaration().tree(), "Remove the declaration of the unused '" + variable.name() + "' variable.");
+        raiseIssuesOnDeclarations(variable, "Remove the declaration of the unused '" + variable.name() + "' variable.");
+      }
+    }
+  }
+
+  private void raiseIssuesOnDeclarations(Symbol symbol, String message){
+    for (Usage usage : symbol.usages()){
+      if (usage.isDeclaration()){
+        getContext().addIssue(this, usage.symbolTree(), message);
       }
     }
   }
@@ -63,7 +71,7 @@ public class UnusedVariableCheck extends BaseTreeVisitor {
 
   private boolean usagesAreInitializations(Collection<Usage> usages) {
     for (Usage usage : usages) {
-      if (!usage.isInitialization()) {
+      if (!usage.isDeclaration()) {
         return false;
       }
     }

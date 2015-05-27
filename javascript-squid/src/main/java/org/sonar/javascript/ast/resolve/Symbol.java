@@ -19,11 +19,9 @@
  */
 package org.sonar.javascript.ast.resolve;
 
-import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import org.sonar.javascript.ast.resolve.type.Type;
 import org.sonar.javascript.model.internal.expression.IdentifierTreeImpl;
-import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 
 import java.util.Collection;
 import java.util.LinkedList;
@@ -49,17 +47,15 @@ public class Symbol {
   }
 
   private final String name;
-  private List<SymbolDeclaration> declarations = Lists.newArrayList();
   private Kind kind;
   private boolean builtIn;
   private Scope scope;
   private List<Usage> usages = new LinkedList<>();
   private Set<Type> types;
 
-  private Symbol(String name, SymbolDeclaration declaration, Kind kind, Scope scope) {
+  public Symbol(String name, Kind kind, Scope scope) {
     this.name = name;
     this.kind = kind;
-    this.addDeclaration(declaration);
     this.builtIn = false;
     this.scope = scope;
     this.types = Sets.newHashSet();
@@ -77,24 +73,6 @@ public class Symbol {
   public Symbol setBuiltIn(boolean isBuiltIn){
     this.builtIn = isBuiltIn;
     return this;
-  }
-
-  public static Symbol create(String name, SymbolDeclaration declaration, Kind kind, Scope scope){
-    Symbol symbol = scope.getSymbol(name);
-    if (symbol == null) {
-      symbol = new Symbol(name, declaration, kind, scope);
-      scope.addSymbol(symbol);
-    } else {
-      symbol.addDeclaration(declaration);
-    }
-    return symbol;
-  }
-
-  private void addDeclaration(SymbolDeclaration declaration) {
-    this.declarations.add(declaration);
-    if (declaration.tree() instanceof IdentifierTree){
-      ((IdentifierTreeImpl)declaration.tree()).setSymbol(this);
-    }
   }
 
   public Scope scope() {
@@ -115,14 +93,6 @@ public class Symbol {
 
   public Kind kind() {
     return kind;
-  }
-
-  public List<SymbolDeclaration> declarations() {
-    return declarations;
-  }
-
-  public SymbolDeclaration declaration() {
-    return declarations.get(0);
   }
 
   public void addTypes(Set<Type> type){

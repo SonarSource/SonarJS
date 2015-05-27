@@ -19,19 +19,16 @@
  */
 package org.sonar.javascript.checks;
 
-import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.ImmutableList;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
-import org.sonar.plugins.javascript.api.SymbolModel;
 import org.sonar.javascript.ast.resolve.Symbol;
-import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
-import org.sonar.plugins.javascript.api.tree.ScriptTree;
 import org.sonar.squidbridge.annotations.ActivatedByDefault;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 
-import java.util.Set;
+import java.util.List;
 
 @Rule(
   key = "FutureReservedWords",
@@ -41,11 +38,11 @@ import java.util.Set;
 @ActivatedByDefault
 @SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.LANGUAGE_RELATED_PORTABILITY)
 @SqaleConstantRemediation("5min")
-public class FutureReservedWordsCheck extends BaseTreeVisitor {
+public class FutureReservedWordsCheck extends AbstractSymbolNameCheck {
 
   private static final String MESSAGE = "Rename \"%s\" identifier to prevent potential conflicts with future evolutions of the JavaScript language.";
 
-  private static final Set<String> FUTURE_RESERVED_WORDS = ImmutableSet.of(
+  private static final List<String> FUTURE_RESERVED_WORDS = ImmutableList.of(
       "implements",
       "interface",
       "package",
@@ -66,13 +63,12 @@ public class FutureReservedWordsCheck extends BaseTreeVisitor {
   );
 
   @Override
-  public void visitScript(ScriptTree tree) {
-    SymbolModel symbolModel = getContext().getSymbolModel();
-    for (Symbol symbol : symbolModel.getSymbols()) {
-      if (FUTURE_RESERVED_WORDS.contains(symbol.name())) {
-        getContext().addIssue(this, symbol.declaration().tree(), String.format(MESSAGE, symbol.name()));
-      }
-    }
+  List<String> illegalNames() {
+    return FUTURE_RESERVED_WORDS;
   }
 
+  @Override
+  String getMessage(Symbol symbol) {
+    return String.format(MESSAGE, symbol.name());
+  }
 }
