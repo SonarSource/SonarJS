@@ -102,4 +102,13 @@ public class Symbol {
   public Set<Type> types(){
     return types;
   }
+
+  public boolean canBe(Type.Kind kind){
+    for (Type type : types){
+      if (type.kind() == kind){
+        return true;
+      }
+    }
+    return false;
+  }
 }

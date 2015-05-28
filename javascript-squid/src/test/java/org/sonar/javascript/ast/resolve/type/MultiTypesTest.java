@@ -41,11 +41,12 @@ public class MultiTypesTest extends TypeTest {
   public void two_literal_assignments(){
     Symbol a = getSymbol("a");
     assertThat(a.types()).hasSize(2);
-    assertThat(a.types()).contains(Type.NUMBER, Type.STRING);
+    assertThat(a.types()).contains(Primitive.NUMBER, Primitive.STRING);
 
     Symbol b = getSymbol("b");
     assertThat(b.types()).hasSize(2);
-    assertThat(b.types()).contains(Type.ARRAY, Type.STRING);
+    assertThat(b.types()).contains(Primitive.STRING);
+    assertThat(b.canBe(Type.Kind.ARRAY)).isTrue();
   }
 
   @Test
