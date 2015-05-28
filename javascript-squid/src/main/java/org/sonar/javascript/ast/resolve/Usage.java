@@ -27,7 +27,7 @@ public class Usage {
   public enum Kind {
     DECLARATION,
     DECLARATION_WRITE,
-    LEXICAL_DECLARATION,
+    LEXICAL_DECLARATION,  // parameters in function signature
     WRITE,
     READ,
     READ_WRITE;
@@ -72,5 +72,7 @@ public class Usage {
     return kind == Kind.DECLARATION_WRITE || kind == Kind.DECLARATION;
   }
 
-
+  public boolean isWrite() {
+    return kind == Kind.DECLARATION_WRITE || kind == Kind.WRITE || kind == Kind.READ_WRITE;
+  }
 }
