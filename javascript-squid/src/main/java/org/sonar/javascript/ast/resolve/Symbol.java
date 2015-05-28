@@ -99,6 +99,10 @@ public class Symbol {
     types.addAll(type);
   }
 
+  public void addType(Type type){
+    types.add(type);
+  }
+
   public Set<Type> types(){
     return types;
   }

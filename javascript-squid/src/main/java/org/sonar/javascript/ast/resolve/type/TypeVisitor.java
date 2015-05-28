@@ -24,6 +24,7 @@ import org.sonar.javascript.model.internal.expression.ArrayLiteralTreeImpl;
 import org.sonar.javascript.model.internal.expression.LiteralTreeImpl;
 import org.sonar.javascript.model.internal.expression.ObjectLiteralTreeImpl;
 import org.sonar.plugins.javascript.api.tree.Tree;
+import org.sonar.plugins.javascript.api.tree.declaration.FunctionDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.declaration.InitializedBindingElementTree;
 import org.sonar.plugins.javascript.api.tree.expression.ArrayLiteralTree;
 import org.sonar.plugins.javascript.api.tree.expression.AssignmentExpressionTree;
@@ -71,6 +72,15 @@ public class TypeVisitor extends BaseTreeVisitor {
   public void visitObjectLiteral(ObjectLiteralTree tree) {
     ((ObjectLiteralTreeImpl) tree).addType(ObjectType.create());
     super.visitObjectLiteral(tree);
+  }
+
+  @Override
+  public void visitFunctionDeclaration(FunctionDeclarationTree tree) {
+    Symbol symbol = tree.name().symbol();
+    if (symbol != null){
+      symbol.addType(ObjectType.createFunction(tree));
+    }
+    super.visitFunctionDeclaration(tree);
   }
 
   protected void inferType(Tree identifier, ExpressionTree assignedTree) {
