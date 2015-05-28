@@ -17,10 +17,11 @@
  * License along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.javascript.ast.resolve;
+package org.sonar.plugins.javascript.api.symbols;
 
+import com.google.common.annotations.Beta;
 import com.google.common.collect.Sets;
-import org.sonar.javascript.ast.resolve.type.Type;
+import org.sonar.javascript.ast.resolve.Scope;
 import org.sonar.javascript.model.internal.expression.IdentifierTreeImpl;
 
 import java.util.Collection;
@@ -28,6 +29,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
+@Beta
 public class Symbol {
 
   public enum Kind {
@@ -63,7 +65,7 @@ public class Symbol {
 
   public void addUsage(Usage usage){
     usages.add(usage);
-    ((IdentifierTreeImpl)usage.symbolTree()).setSymbol(this);
+    ((IdentifierTreeImpl)usage.identifierTree()).setSymbol(this);
   }
 
   public Collection<Usage> usages(){

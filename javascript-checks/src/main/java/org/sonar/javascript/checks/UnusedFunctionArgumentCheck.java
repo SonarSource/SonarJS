@@ -24,10 +24,10 @@ import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.javascript.ast.resolve.Scope;
-import org.sonar.javascript.ast.resolve.Symbol;
-import org.sonar.javascript.ast.resolve.Usage;
+import org.sonar.plugins.javascript.api.symbols.Symbol;
+import org.sonar.plugins.javascript.api.symbols.Usage;
 import org.sonar.javascript.model.internal.JavaScriptTree;
-import org.sonar.plugins.javascript.api.SymbolModel;
+import org.sonar.plugins.javascript.api.symbols.SymbolModel;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
@@ -57,11 +57,11 @@ public class UnusedFunctionArgumentCheck extends BaseTreeVisitor {
   private class PositionComparator implements Comparator<Symbol> {
 
     private int getLine(Symbol symbol){
-      return ((JavaScriptTree)getDeclarationUsage(symbol).symbolTree()).getLine();
+      return ((JavaScriptTree)getDeclarationUsage(symbol).identifierTree()).getLine();
     }
 
     private int getColumn(Symbol symbol){
-      return ((JavaScriptTree)getDeclarationUsage(symbol).symbolTree()).getToken().getColumn();
+      return ((JavaScriptTree)getDeclarationUsage(symbol).identifierTree()).getToken().getColumn();
     }
 
     @Override

@@ -24,7 +24,7 @@ import org.sonar.api.config.Settings;
 import org.sonar.javascript.model.internal.JavaScriptTree;
 import org.sonar.plugins.javascript.api.AstTreeVisitorContext;
 import org.sonar.plugins.javascript.api.JavaScriptCheck;
-import org.sonar.plugins.javascript.api.SymbolModel;
+import org.sonar.plugins.javascript.api.symbols.SymbolModel;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.squidbridge.api.CheckMessage;

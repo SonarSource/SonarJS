@@ -20,12 +20,13 @@
 package org.sonar.javascript.ast.resolve.type;
 
 import com.google.common.base.Preconditions;
-import org.sonar.javascript.ast.resolve.Symbol;
 import org.sonar.javascript.model.internal.JavaScriptTree;
+import org.sonar.plugins.javascript.api.symbols.Symbol;
 import org.sonar.javascript.model.internal.SeparatedList;
 import org.sonar.javascript.model.internal.expression.ArrayLiteralTreeImpl;
 import org.sonar.javascript.model.internal.expression.LiteralTreeImpl;
 import org.sonar.javascript.model.internal.expression.ObjectLiteralTreeImpl;
+import org.sonar.plugins.javascript.api.symbols.Type;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.declaration.FunctionDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.declaration.InitializedBindingElementTree;

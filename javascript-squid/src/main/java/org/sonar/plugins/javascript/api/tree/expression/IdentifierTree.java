@@ -20,7 +20,7 @@
 package org.sonar.plugins.javascript.api.tree.expression;
 
 import com.google.common.annotations.Beta;
-import org.sonar.javascript.ast.resolve.Symbol;
+import org.sonar.plugins.javascript.api.symbols.Symbol;
 import org.sonar.plugins.javascript.api.tree.declaration.BindingElementTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 

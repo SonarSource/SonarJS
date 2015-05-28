@@ -22,10 +22,10 @@ package org.sonar.javascript.checks;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
-import org.sonar.plugins.javascript.api.SymbolModel;
+import org.sonar.plugins.javascript.api.symbols.SymbolModel;
 import org.sonar.javascript.ast.resolve.Scope;
-import org.sonar.javascript.ast.resolve.Symbol;
-import org.sonar.javascript.ast.resolve.Usage;
+import org.sonar.plugins.javascript.api.symbols.Symbol;
+import org.sonar.plugins.javascript.api.symbols.Usage;
 import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
 import org.sonar.squidbridge.annotations.ActivatedByDefault;
@@ -64,7 +64,7 @@ public class DeadStoreCheck extends BaseTreeVisitor {
     if (!hasRead(usages)) {
       for (Usage usage : usages) {
         if (!usage.isDeclaration() && usage.kind() != Usage.Kind.LEXICAL_DECLARATION) {
-          getContext().addIssue(this, usage.symbolTree(), String.format(MESSAGE, symbol.name()));
+          getContext().addIssue(this, usage.identifierTree(), String.format(MESSAGE, symbol.name()));
         }
       }
     }

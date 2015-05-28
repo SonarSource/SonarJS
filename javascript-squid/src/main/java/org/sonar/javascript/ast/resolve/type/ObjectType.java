@@ -19,9 +19,9 @@
  */
 package org.sonar.javascript.ast.resolve.type;
 
+import org.sonar.plugins.javascript.api.symbols.Type;
+
 public class ObjectType implements Type {
-
-
 
   @Override
   public boolean isCallable() {
@@ -30,16 +30,17 @@ public class ObjectType implements Type {
 
   @Override
   public Kind kind() {
-    if (isCallable()){
-      return Kind.FUNCTION;
-    } else {
-      return Kind.OBJECT;
-    }
+    return Kind.OBJECT;
   }
 
   protected ObjectType(){}
 
   public static ObjectType create(){
     return new ObjectType();
+  }
+
+  @Override
+  public String toString() {
+    return this.kind().name();
   }
 }

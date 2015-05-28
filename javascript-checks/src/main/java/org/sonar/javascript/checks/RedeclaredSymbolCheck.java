@@ -22,10 +22,10 @@ package org.sonar.javascript.checks;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
-import org.sonar.javascript.ast.resolve.Symbol;
-import org.sonar.javascript.ast.resolve.Usage;
+import org.sonar.plugins.javascript.api.symbols.Symbol;
+import org.sonar.plugins.javascript.api.symbols.Usage;
 import org.sonar.javascript.model.internal.JavaScriptTree;
-import org.sonar.plugins.javascript.api.SymbolModel;
+import org.sonar.plugins.javascript.api.symbols.SymbolModel;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
 import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
 import org.sonar.squidbridge.annotations.ActivatedByDefault;
@@ -65,7 +65,7 @@ public class RedeclaredSymbolCheck extends BaseTreeVisitor {
           firstDeclaration = usage;
         }
       } else if (usage.isDeclaration()) {
-        getContext().addIssue(this, usage.symbolTree(), String.format(MESSAGE, symbol.name(), ((JavaScriptTree) firstDeclaration.symbolTree()).getLine()));
+        getContext().addIssue(this, usage.identifierTree(), String.format(MESSAGE, symbol.name(), ((JavaScriptTree) firstDeclaration.identifierTree()).getLine()));
       }
     }
   }

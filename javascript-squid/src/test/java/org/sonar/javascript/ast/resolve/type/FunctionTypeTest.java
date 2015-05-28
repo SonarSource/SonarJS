@@ -21,7 +21,8 @@ package org.sonar.javascript.ast.resolve.type;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.sonar.javascript.ast.resolve.Symbol;
+import org.sonar.plugins.javascript.api.symbols.Symbol;
+import org.sonar.plugins.javascript.api.symbols.Type;
 
 import static org.fest.assertions.Assertions.assertThat;
 

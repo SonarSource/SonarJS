@@ -23,10 +23,10 @@ import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.javascript.ast.resolve.Scope;
-import org.sonar.javascript.ast.resolve.Symbol;
-import org.sonar.javascript.ast.resolve.Usage;
+import org.sonar.plugins.javascript.api.symbols.Symbol;
+import org.sonar.plugins.javascript.api.symbols.Usage;
 import org.sonar.javascript.model.internal.JavaScriptTree;
-import org.sonar.plugins.javascript.api.SymbolModel;
+import org.sonar.plugins.javascript.api.symbols.SymbolModel;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
 import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
@@ -67,7 +67,7 @@ public class VariableShadowingCheck extends BaseTreeVisitor {
     if (scope.outer() != null) {
       Symbol outerSymbol = scope.outer().lookupSymbol(symbol.name());
       if (outerSymbol != null) {
-        String message = String.format(MESSAGE, symbol.name(), ((JavaScriptTree) getDeclaration(outerSymbol).symbolTree()).getLine());
+        String message = String.format(MESSAGE, symbol.name(), ((JavaScriptTree) getDeclaration(outerSymbol).identifierTree()).getLine());
         raiseIssuesOnDeclarations(symbol, message);
       }
     }
@@ -76,7 +76,7 @@ public class VariableShadowingCheck extends BaseTreeVisitor {
   private void raiseIssuesOnDeclarations(Symbol symbol, String message){
     for (Usage usage : symbol.usages()){
       if (usage.isDeclaration() || usage.kind() == Usage.Kind.LEXICAL_DECLARATION){
-        getContext().addIssue(this, usage.symbolTree(), message);
+        getContext().addIssue(this, usage.identifierTree(), message);
       }
     }
   }

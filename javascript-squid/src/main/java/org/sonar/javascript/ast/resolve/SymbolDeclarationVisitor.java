@@ -24,6 +24,8 @@ import org.sonar.javascript.model.internal.declaration.InitializedBindingElement
 import org.sonar.javascript.model.internal.declaration.ParameterListTreeImpl;
 import org.sonar.javascript.model.internal.expression.ArrowFunctionTreeImpl;
 import org.sonar.javascript.model.internal.statement.CatchBlockTreeImpl;
+import org.sonar.plugins.javascript.api.symbols.Symbol;
+import org.sonar.plugins.javascript.api.symbols.Usage;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.declaration.BindingElementTree;

@@ -25,7 +25,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.collections.ListUtils;
-import org.sonar.javascript.ast.resolve.type.Type;
+import org.sonar.plugins.javascript.api.symbols.Type;
 import org.sonar.plugins.javascript.api.visitors.TreeVisitor;
 import org.sonar.javascript.model.internal.JavaScriptTree;
 import org.sonar.javascript.model.internal.SeparatedList;

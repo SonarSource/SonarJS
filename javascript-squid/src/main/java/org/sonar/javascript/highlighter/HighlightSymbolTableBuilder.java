@@ -21,10 +21,10 @@ package org.sonar.javascript.highlighter;
 
 import com.sonar.sslr.api.Token;
 import org.sonar.api.source.Symbolizable;
-import org.sonar.javascript.ast.resolve.Symbol;
-import org.sonar.javascript.ast.resolve.Usage;
+import org.sonar.plugins.javascript.api.symbols.Symbol;
+import org.sonar.plugins.javascript.api.symbols.Usage;
 import org.sonar.javascript.model.internal.lexical.InternalSyntaxToken;
-import org.sonar.plugins.javascript.api.SymbolModel;
+import org.sonar.plugins.javascript.api.symbols.SymbolModel;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 
 import java.util.LinkedList;
@@ -41,12 +41,12 @@ public class HighlightSymbolTableBuilder {
     for (Symbol symbol : symbolModel.getSymbols()) {
       if (!symbol.usages().isEmpty()){
         List<Usage> usagesList = new LinkedList<>(symbol.usages());
-        InternalSyntaxToken token = (InternalSyntaxToken) (usagesList.get(0).symbolTree()).identifierToken();
+        InternalSyntaxToken token = (InternalSyntaxToken) (usagesList.get(0).identifierTree()).identifierToken();
         org.sonar.api.source.Symbol reference = getHighlightedSymbol(sourceFileOffsets, builder, token);
         for (int i = 1; i < usagesList.size(); i++){
           builder.newReference(
               reference,
-              sourceFileOffsets.startOffset(getToken(usagesList.get(i).symbolTree()))
+              sourceFileOffsets.startOffset(getToken(usagesList.get(i).identifierTree()))
           );
         }
 

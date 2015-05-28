@@ -23,6 +23,8 @@ import com.sonar.sslr.api.AstNode;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.javascript.model.JavaScriptTreeModelTest;
+import org.sonar.plugins.javascript.api.symbols.Symbol;
+import org.sonar.plugins.javascript.api.symbols.Usage;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
 

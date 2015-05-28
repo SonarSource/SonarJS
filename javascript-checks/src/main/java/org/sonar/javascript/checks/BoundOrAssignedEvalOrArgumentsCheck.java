@@ -23,8 +23,8 @@ import com.google.common.collect.ImmutableList;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
-import org.sonar.javascript.ast.resolve.Symbol;
-import org.sonar.javascript.ast.resolve.Usage;
+import org.sonar.plugins.javascript.api.symbols.Symbol;
+import org.sonar.plugins.javascript.api.symbols.Usage;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
 import org.sonar.squidbridge.annotations.ActivatedByDefault;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
@@ -69,7 +69,7 @@ public class BoundOrAssignedEvalOrArgumentsCheck extends AbstractSymbolNameCheck
   private void raiseIssuesOnWriteUsages(Symbol symbol) {
     for (Usage usage : symbol.usages()) {
       if (!usage.kind().equals(Usage.Kind.READ)) {
-        getContext().addIssue(this, usage.symbolTree(), String.format(MODIFICATION_MESSAGE, symbol.name()));
+        getContext().addIssue(this, usage.identifierTree(), String.format(MODIFICATION_MESSAGE, symbol.name()));
       }
     }
   }

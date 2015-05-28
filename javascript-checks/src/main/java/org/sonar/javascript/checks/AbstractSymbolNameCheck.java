@@ -20,10 +20,10 @@
 package org.sonar.javascript.checks;
 
 import com.google.common.base.Preconditions;
-import org.sonar.javascript.ast.resolve.Symbol;
-import org.sonar.javascript.ast.resolve.Usage;
+import org.sonar.plugins.javascript.api.symbols.Symbol;
+import org.sonar.plugins.javascript.api.symbols.Usage;
 import org.sonar.plugins.javascript.api.JavaScriptCheck;
-import org.sonar.plugins.javascript.api.SymbolModel;
+import org.sonar.plugins.javascript.api.symbols.SymbolModel;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
 import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
 
@@ -56,13 +56,13 @@ public abstract class AbstractSymbolNameCheck extends BaseTreeVisitor {
     boolean issueRaised = false;
     for (Usage usage : symbol.usages()){
       if (usage.isDeclaration()){
-        getContext().addIssue(check, usage.symbolTree(), message);
+        getContext().addIssue(check, usage.identifierTree(), message);
         issueRaised = true;
       }
     }
 
     if (!issueRaised){
-      getContext().addIssue(check, symbol.usages().iterator().next().symbolTree(), message);
+      getContext().addIssue(check, symbol.usages().iterator().next().identifierTree(), message);
     }
 
   }

@@ -25,7 +25,7 @@ import com.google.common.collect.Iterators;
 import com.sonar.sslr.api.AstNode;
 import com.sonar.sslr.api.AstNodeType;
 import org.sonar.javascript.ast.resolve.type.FunctionType;
-import org.sonar.javascript.ast.resolve.type.Type;
+import org.sonar.plugins.javascript.api.symbols.Type;
 import org.sonar.javascript.model.internal.JavaScriptTree;
 import org.sonar.javascript.model.internal.declaration.ParameterListTreeImpl;
 import org.sonar.javascript.model.internal.lexical.InternalSyntaxToken;
