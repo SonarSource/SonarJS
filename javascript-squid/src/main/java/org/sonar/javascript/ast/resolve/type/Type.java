@@ -19,10 +19,17 @@
  */
 package org.sonar.javascript.ast.resolve.type;
 
-public enum Type {
-  NUMBER,
-  STRING,
-  BOOLEAN,
-  ARRAY,
-  OBJECT
+public interface Type {
+  boolean isCallable();
+
+  Kind kind();
+
+  enum Kind {
+    STRING,
+    NUMBER,
+    BOOLEAN,
+    OBJECT,
+    FUNCTION,
+    ARRAY
+  }
 }

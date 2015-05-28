@@ -50,26 +50,26 @@ public class TypeVisitor extends BaseTreeVisitor {
   @Override
   public void visitLiteral(LiteralTree tree) {
     if (tree.is(Tree.Kind.NUMERIC_LITERAL)) {
-      ((LiteralTreeImpl) tree).addType(Type.NUMBER);
+      ((LiteralTreeImpl) tree).addType(Primitive.NUMBER);
 
     } else if (tree.is(Tree.Kind.STRING_LITERAL)) {
-      ((LiteralTreeImpl) tree).addType(Type.STRING);
+      ((LiteralTreeImpl) tree).addType(Primitive.STRING);
 
     } else if (tree.is(Tree.Kind.BOOLEAN_LITERAL)) {
-      ((LiteralTreeImpl) tree).addType(Type.BOOLEAN);
+      ((LiteralTreeImpl) tree).addType(Primitive.BOOLEAN);
     }
     super.visitLiteral(tree);
   }
 
   @Override
   public void visitArrayLiteral(ArrayLiteralTree tree) {
-    ((ArrayLiteralTreeImpl) tree).addType(Type.ARRAY);
+    ((ArrayLiteralTreeImpl) tree).addType(Array.create());
     super.visitArrayLiteral(tree);
   }
 
   @Override
   public void visitObjectLiteral(ObjectLiteralTree tree) {
-    ((ObjectLiteralTreeImpl) tree).addType(Type.OBJECT);
+    ((ObjectLiteralTreeImpl) tree).addType(ObjectType.create());
     super.visitObjectLiteral(tree);
   }
 

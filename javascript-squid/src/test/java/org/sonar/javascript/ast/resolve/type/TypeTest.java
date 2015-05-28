@@ -29,8 +29,8 @@ public class TypeTest extends JavaScriptTreeModelTest {
   protected AstNode ROOT_NODE;
   protected SymbolModelImpl SYMBOL_MODEL;
 
-
   protected Symbol getSymbol(String name) {
     return SYMBOL_MODEL.getSymbols(name).iterator().next();
   }
+
 }

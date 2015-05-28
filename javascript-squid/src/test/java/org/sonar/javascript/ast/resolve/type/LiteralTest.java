@@ -41,69 +41,69 @@ public class LiteralTest extends TypeTest {
   public void number_declaration() throws Exception {
     Symbol num = getSymbol("num1");
     assertThat(num.types()).hasSize(1);
-    assertThat(num.types()).contains(Type.NUMBER);
+    assertThat(num.types()).contains(Primitive.NUMBER);
   }
 
   @Test
   public void number_assignment() throws Exception {
     Symbol num = getSymbol("num2");
     assertThat(num.types()).hasSize(1);
-    assertThat(num.types()).contains(Type.NUMBER);
+    assertThat(num.types()).contains(Primitive.NUMBER);
   }
 
   @Test
   public void string_declaration() throws Exception {
     Symbol num = getSymbol("str1");
     assertThat(num.types()).hasSize(1);
-    assertThat(num.types()).contains(Type.STRING);
+    assertThat(num.types()).contains(Primitive.STRING);
   }
 
   @Test
   public void string_assignment() throws Exception {
     Symbol num = getSymbol("str2");
     assertThat(num.types()).hasSize(1);
-    assertThat(num.types()).contains(Type.STRING);
+    assertThat(num.types()).contains(Primitive.STRING);
   }
 
   @Test
   public void boolean_declaration() throws Exception {
     Symbol num = getSymbol("bool1");
     assertThat(num.types()).hasSize(1);
-    assertThat(num.types()).contains(Type.BOOLEAN);
+    assertThat(num.types()).contains(Primitive.BOOLEAN);
   }
 
   @Test
   public void boolean_assignment() throws Exception {
     Symbol num = getSymbol("bool2");
     assertThat(num.types()).hasSize(1);
-    assertThat(num.types()).contains(Type.BOOLEAN);
+    assertThat(num.types()).contains(Primitive.BOOLEAN);
   }
 
   @Test
   public void array_declaration() throws Exception {
     Symbol num = getSymbol("arr1");
     assertThat(num.types()).hasSize(1);
-    assertThat(num.types()).contains(Type.ARRAY);
+    assertThat(num.canBe(Type.Kind.ARRAY)).isTrue();
   }
 
   @Test
   public void array_assignment() throws Exception {
     Symbol num = getSymbol("arr2");
     assertThat(num.types()).hasSize(1);
-    assertThat(num.types()).contains(Type.ARRAY);
+    assertThat(num.canBe(Type.Kind.ARRAY)).isTrue();
   }
 
   @Test
   public void object_declaration() throws Exception {
-    Symbol num = getSymbol("obj1");
-    assertThat(num.types()).hasSize(1);
-    assertThat(num.types()).contains(Type.OBJECT);
+    Symbol obj = getSymbol("obj1");
+    assertThat(obj.types()).hasSize(1);
+    assertThat(obj.canBe(Type.Kind.OBJECT)).isTrue();
   }
 
   @Test
   public void object_assignment() throws Exception {
-    Symbol num = getSymbol("obj2");
-    assertThat(num.types()).hasSize(1);
-    assertThat(num.types()).contains(Type.OBJECT);
+    Symbol obj = getSymbol("obj2");
+    assertThat(obj.types()).hasSize(1);
+    assertThat(obj.canBe(Type.Kind.OBJECT)).isTrue();
   }
 }
