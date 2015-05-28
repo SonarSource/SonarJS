@@ -17,35 +17,14 @@
  * License along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.plugins.javascript.api.tree.expression;
+package org.sonar.javascript.ast.resolve.type;
 
-import com.google.common.annotations.Beta;
-import org.sonar.javascript.ast.resolve.type.FunctionTree;
+
+import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.declaration.ParameterListTree;
-import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.javascript.api.tree.statement.BlockTree;
 
-import javax.annotation.Nullable;
-
-/**
- * <a href="http://www.ecma-international.org/ecma-262/5.1/#sec-11.2.5">Function expression</a>,
- * <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-generator-function-definitions">Generator function expression</a> (<a href="http://wiki.ecmascript.org/doku.php?id=harmony:specification_drafts">ES6</a>).
- */
-@Beta
-public interface FunctionExpressionTree extends ExpressionTree, FunctionTree {
-
-  SyntaxToken functionKeyword();
-
-  @Nullable
-  SyntaxToken star();
-
-  @Nullable
-  IdentifierTree name();
-
-  @Override
+public interface FunctionTree extends Tree {
   ParameterListTree parameters();
-
-  @Override
   BlockTree body();
-
 }

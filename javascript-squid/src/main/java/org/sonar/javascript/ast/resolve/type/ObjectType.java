@@ -19,15 +19,13 @@
  */
 package org.sonar.javascript.ast.resolve.type;
 
-import javax.annotation.Nullable;
-
 public class ObjectType implements Type {
 
-  private FunctionTypeTree functionTypeTree = null;
+
 
   @Override
   public boolean isCallable() {
-    return functionTypeTree != null;
+    return false;
   }
 
   @Override
@@ -41,18 +39,7 @@ public class ObjectType implements Type {
 
   protected ObjectType(){}
 
-  public static ObjectType createFunction(FunctionTypeTree functionTypeTree){
-    ObjectType objectType = new ObjectType();
-    objectType.functionTypeTree = functionTypeTree;
-    return objectType;
-  }
-
   public static ObjectType create(){
     return new ObjectType();
-  }
-
-  @Nullable
-  public FunctionTypeTree functionTypeTree(){
-    return functionTypeTree;
   }
 }

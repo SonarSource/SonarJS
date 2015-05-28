@@ -24,7 +24,7 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterators;
 import com.sonar.sslr.api.AstNode;
 import com.sonar.sslr.api.AstNodeType;
-import org.sonar.javascript.ast.resolve.type.ObjectType;
+import org.sonar.javascript.ast.resolve.type.FunctionType;
 import org.sonar.javascript.ast.resolve.type.Type;
 import org.sonar.javascript.model.internal.JavaScriptTree;
 import org.sonar.javascript.model.internal.declaration.ParameterListTreeImpl;
@@ -74,7 +74,7 @@ public class FunctionExpressionTreeImpl extends JavaScriptTree implements Functi
       addChild(child);
     }
 
-    this.functionType = ObjectType.createFunction(this);
+    this.functionType = FunctionType.create(this);
   }
 
   /**
@@ -97,7 +97,7 @@ public class FunctionExpressionTreeImpl extends JavaScriptTree implements Functi
       addChild(child);
     }
 
-    this.functionType = ObjectType.createFunction(this);
+    this.functionType = FunctionType.create(this);
   }
 
   /**
@@ -120,7 +120,7 @@ public class FunctionExpressionTreeImpl extends JavaScriptTree implements Functi
       addChild(child);
     }
 
-    this.functionType = ObjectType.createFunction(this);
+    this.functionType = FunctionType.create(this);
   }
 
   /**
@@ -142,7 +142,7 @@ public class FunctionExpressionTreeImpl extends JavaScriptTree implements Functi
       addChild(child);
     }
 
-    this.functionType = ObjectType.createFunction(this);
+    this.functionType = FunctionType.create(this);
   }
 
   @Override
