@@ -19,26 +19,29 @@
  */
 package org.sonar.javascript.checks;
 
+import com.google.common.base.Preconditions;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.javascript.ast.resolve.Scope;
 import org.sonar.javascript.ast.resolve.Symbol;
-import org.sonar.javascript.model.internal.declaration.ParameterListTreeImpl;
-import org.sonar.javascript.model.internal.expression.ArrowFunctionTreeImpl;
+import org.sonar.javascript.ast.resolve.Usage;
+import org.sonar.javascript.model.internal.JavaScriptTree;
+import org.sonar.plugins.javascript.api.SymbolModel;
+import org.sonar.plugins.javascript.api.tree.ScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
-import org.sonar.plugins.javascript.api.tree.declaration.FunctionDeclarationTree;
-import org.sonar.plugins.javascript.api.tree.declaration.MethodDeclarationTree;
-import org.sonar.plugins.javascript.api.tree.expression.ArrowFunctionTree;
-import org.sonar.plugins.javascript.api.tree.expression.FunctionExpressionTree;
-import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
 import org.sonar.squidbridge.annotations.ActivatedByDefault;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
 @Rule(
   key = "UnusedFunctionArgument",
@@ -51,37 +54,53 @@ import java.util.List;
 public class UnusedFunctionArgumentCheck extends BaseTreeVisitor {
   private static final String MESSAGE = "Remove the unused function parameter%s \"%s\".";
 
-  @Override
-  public void visitMethodDeclaration(MethodDeclarationTree tree) {
-    List<IdentifierTree> parameters = ((ParameterListTreeImpl) tree.parameters()).parameterIdentifiers();
-    checkParameters(parameters);
-    super.visitMethodDeclaration(tree);
+  private class PositionComparator implements Comparator<Symbol> {
+
+    private int getLine(Symbol symbol){
+      return ((JavaScriptTree)getDeclarationUsage(symbol).symbolTree()).getLine();
+    }
+
+    private int getColumn(Symbol symbol){
+      return ((JavaScriptTree)getDeclarationUsage(symbol).symbolTree()).getToken().getColumn();
+    }
+
+    @Override
+    public int compare(Symbol symbol1, Symbol symbol2) {
+      int lineCompare = Integer.compare(getLine(symbol1), getLine(symbol2));
+      if (lineCompare == 0) {
+        return Integer.compare(getColumn(symbol1), getColumn(symbol2));
+      } else {
+        return lineCompare;
+      }
+    }
+
+    private Usage getDeclarationUsage(Symbol symbol){
+      Preconditions.checkArgument(symbol.is(Symbol.Kind.PARAMETER));
+      for (Usage usage : symbol.usages()){
+        if (usage.kind() == Usage.Kind.LEXICAL_DECLARATION){
+          return usage;
+        }
+      }
+      throw new IllegalStateException(); // parameter symbol is required to have LEXICAL_DECLARATION usage
+    }
+  }
+
+  public Collection<Scope> getScopes(){
+    SymbolModel symbolModel = getContext().getSymbolModel();
+    Set<Scope> uniqueScopes = new HashSet<>();
+    for (Symbol symbol : symbolModel.getSymbols()){
+      uniqueScopes.add(symbol.scope());
+    }
+    return uniqueScopes;
   }
 
   @Override
-  public void visitFunctionDeclaration(FunctionDeclarationTree tree) {
-    List<IdentifierTree> parameters = ((ParameterListTreeImpl) tree.parameters()).parameterIdentifiers();
-    checkParameters(parameters);
-    super.visitFunctionDeclaration(tree);
-  }
+  public void visitScript(ScriptTree tree) {
+    Collection<Scope> scopes = getScopes();
 
-  @Override
-  public void visitArrowFunction(ArrowFunctionTree tree) {
-    List<IdentifierTree> parameters = ((ArrowFunctionTreeImpl) tree).parameterIdentifiers();
-    checkParameters(parameters);
-    super.visitArrowFunction(tree);
-  }
-
-  @Override
-  public void visitFunctionExpression(FunctionExpressionTree tree) {
-    List<IdentifierTree> parameters = ((ParameterListTreeImpl) tree.parameters()).parameterIdentifiers();
-    checkParameters(parameters);
-    super.visitFunctionExpression(tree);
-  }
-
-
-  private void checkParameters(List<IdentifierTree> parameters) {
-
+    for (Scope scope : scopes){
+      visitScope(scope);
+    }
   }
 
   private void visitScope(Scope scope) {
@@ -100,6 +119,7 @@ public class UnusedFunctionArgumentCheck extends BaseTreeVisitor {
 
   private List<Symbol> getUnusedArguments(List<Symbol> arguments){
     List<Symbol> unusedArguments = new LinkedList<>();
+    Collections.sort(arguments, new PositionComparator());
     List<Boolean> usageInfo = getUsageInfo(arguments);
     boolean usedAfter = false;
     for (int i = arguments.size() - 1; i >= 0; i--){
@@ -124,7 +144,7 @@ public class UnusedFunctionArgumentCheck extends BaseTreeVisitor {
   private List<Boolean> getUsageInfo(List<Symbol> symbols) {
     List<Boolean> result = new LinkedList<>();
     for (Symbol symbol : symbols){
-      if (symbol.usages().isEmpty()){
+      if (symbol.usages().size() == 1){ // only declaration
         result.add(false);
       } else {
         result.add(true);
