@@ -19,7 +19,6 @@
  */
 package org.sonar.javascript.checks;
 
-import org.junit.Ignore;
 import org.junit.Test;
 import org.sonar.javascript.checks.utils.TreeCheckTest;
 import org.sonar.squidbridge.api.SourceFile;
@@ -27,7 +26,6 @@ import org.sonar.squidbridge.checks.CheckMessagesVerifier;
 
 public class JQueryVarNameConventionCheckTest extends TreeCheckTest {
 
-  @Ignore
   @Test
   public void test() {
     JQueryVarNameConventionCheck check = new JQueryVarNameConventionCheck();

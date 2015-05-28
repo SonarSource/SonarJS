@@ -77,7 +77,7 @@ public class JQueryVarNameConventionCheck extends AbstractJQueryCheck {
   private Tree getJQueryStorage(Symbol symbol) {
     Collection<Usage> usages = symbol.usages();
     for (Usage usage : usages){
-      if (usage.kind().equals(Usage.Kind.WRITE)){
+      if (usage.isWrite()){
         ExpressionTree expressionTree = null;
         Tree usageTree = usage.usageTree();
         if (usageTree.is(Tree.Kind.ASSIGNMENT)) {
