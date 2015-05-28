@@ -22,6 +22,9 @@ package org.sonar.javascript.checks;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
+import org.sonar.javascript.ast.resolve.type.Type;
+import org.sonar.javascript.model.internal.expression.IdentifierTreeImpl;
+import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.expression.BracketMemberExpressionTree;
@@ -52,7 +55,16 @@ public class DeleteArrayElementCheck extends BaseTreeVisitor {
   }
 
   private boolean isArrayElement(ExpressionTree expression) {
-    return expression.is(Tree.Kind.BRACKET_MEMBER_EXPRESSION) && ((BracketMemberExpressionTree)expression).property().is(Tree.Kind.NUMERIC_LITERAL);
+    if (expression.is(Tree.Kind.BRACKET_MEMBER_EXPRESSION)) {
+      BracketMemberExpressionTree bracketExpr = ((BracketMemberExpressionTree) expression);
+
+      if (bracketExpr.object() instanceof IdentifierTree && ((IdentifierTreeImpl) bracketExpr.object()).hasType(Type.ARRAY)) {
+        return true;
+      }
+      return ((BracketMemberExpressionTree) expression).property().is(Tree.Kind.NUMERIC_LITERAL);
+    }
+
+    return false;
   }
 
 }

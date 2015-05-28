@@ -1,7 +1,7 @@
 var arr = ['a', 'b', 'c', 'd'];
 var i = 1;
 delete arr[1]; // NOK
-delete arr[i]; // ??
+delete arr[i]; // NOK
 delete arr // OK
 
 if (condition) {
@@ -15,3 +15,7 @@ function foo() {
 arr.splice(2, 1); // OK
 
 delete a.arr[1] // NOK
+
+var obj = { a: "b"};
+
+delete obj["a"];  // OK

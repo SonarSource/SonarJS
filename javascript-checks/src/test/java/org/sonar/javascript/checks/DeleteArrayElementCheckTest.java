@@ -33,7 +33,7 @@ public class DeleteArrayElementCheckTest extends TreeCheckTest {
     SourceFile file = scanFile("src/test/resources/checks/DeleteArrayElement.js", check);
     CheckMessagesVerifier.verify(file.getCheckMessages())
         .next().atLine(3).withMessage("Remove this use of \"delete\".")
-//        .next().atLine(4)
+        .next().atLine(4)
         .next().atLine(8)
         .next().atLine(12)
         .next().atLine(17)
