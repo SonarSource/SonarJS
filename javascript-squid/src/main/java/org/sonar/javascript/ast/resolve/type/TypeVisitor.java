@@ -20,6 +20,7 @@
 package org.sonar.javascript.ast.resolve.type;
 
 import org.sonar.javascript.ast.resolve.Symbol;
+import org.sonar.javascript.model.internal.SeparatedList;
 import org.sonar.javascript.model.internal.expression.ArrayLiteralTreeImpl;
 import org.sonar.javascript.model.internal.expression.LiteralTreeImpl;
 import org.sonar.javascript.model.internal.expression.ObjectLiteralTreeImpl;
@@ -28,11 +29,14 @@ import org.sonar.plugins.javascript.api.tree.declaration.FunctionDeclarationTree
 import org.sonar.plugins.javascript.api.tree.declaration.InitializedBindingElementTree;
 import org.sonar.plugins.javascript.api.tree.expression.ArrayLiteralTree;
 import org.sonar.plugins.javascript.api.tree.expression.AssignmentExpressionTree;
+import org.sonar.plugins.javascript.api.tree.expression.CallExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 import org.sonar.plugins.javascript.api.tree.expression.LiteralTree;
 import org.sonar.plugins.javascript.api.tree.expression.ObjectLiteralTree;
 import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
+
+import javax.annotation.Nullable;
 
 public class TypeVisitor extends BaseTreeVisitor {
 
@@ -83,7 +87,42 @@ public class TypeVisitor extends BaseTreeVisitor {
     super.visitFunctionDeclaration(tree);
   }
 
-  protected void inferType(Tree identifier, ExpressionTree assignedTree) {
+  @Override
+  public void visitCallExpression(CallExpressionTree tree) {
+    super.visitCallExpression(tree);
+    if (tree.callee() instanceof IdentifierTree){
+      Symbol symbol = ((IdentifierTree)tree.callee()).symbol();
+      if (symbol != null){
+        ObjectType functionType = getOnlyFunctionDeclaration(symbol);
+        if (functionType != null){
+          SeparatedList<Tree> parameters = functionType.functionTypeTree().parameters().parameters();
+          SeparatedList<Tree> arguments = tree.arguments().parameters();
+          if (parameters.size() >= arguments.size()){
+            for (int i = 0; i < arguments.size(); i++){
+              ((IdentifierTree)parameters.get(i)).symbol().addTypes(((ExpressionTree) arguments.get(i)).types()); // todo casting is not checked
+            }
+          }
+        }
+      }
+    }
+  }
+
+  @Nullable
+  private ObjectType getOnlyFunctionDeclaration(Symbol symbol){
+    ObjectType functionType = null;
+    for (Type type : symbol.types()){
+      if (type.isCallable()){
+        if (functionType == null){
+          functionType = (ObjectType)type;
+        } else {
+          return null;
+        }
+      }
+    }
+    return functionType;
+  }
+
+  private void inferType(Tree identifier, ExpressionTree assignedTree) {
     super.scan(assignedTree);
 
     if (identifier instanceof IdentifierTree) {

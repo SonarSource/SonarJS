@@ -51,4 +51,20 @@ public class FunctionTypeTest extends TypeTest {
     assertThat(f2.canBe(Type.Kind.FUNCTION)).isTrue();
   }
 
+  @Test
+  public void function_call() {
+    Symbol p1 = getSymbol("p1");
+    assertThat(p1.types()).hasSize(1);
+    assertThat(p1.canBe(Type.Kind.NUMBER)).isTrue();
+
+    Symbol p2 = getSymbol("p2");
+    assertThat(p2.types()).hasSize(2);
+    assertThat(p2.canBe(Type.Kind.STRING)).isTrue();
+    assertThat(p2.canBe(Type.Kind.NUMBER)).isTrue();
+
+    Symbol p3 = getSymbol("p3");
+    assertThat(p3.types()).hasSize(1);
+    assertThat(p3.canBe(Type.Kind.BOOLEAN)).isTrue();
+  }
+
 }

@@ -19,6 +19,8 @@
  */
 package org.sonar.javascript.ast.resolve.type;
 
+import javax.annotation.Nullable;
+
 public class ObjectType implements Type {
 
   private FunctionTypeTree functionTypeTree = null;
@@ -49,4 +51,8 @@ public class ObjectType implements Type {
     return new ObjectType();
   }
 
+  @Nullable
+  public FunctionTypeTree functionTypeTree(){
+    return functionTypeTree;
+  }
 }
