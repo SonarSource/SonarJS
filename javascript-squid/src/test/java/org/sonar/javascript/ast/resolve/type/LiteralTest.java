@@ -41,42 +41,42 @@ public class LiteralTest extends TypeTest {
   public void number_declaration() throws Exception {
     Symbol num = getSymbol("num1");
     assertThat(num.types()).hasSize(1);
-    assertThat(num.types()).contains(Primitive.NUMBER);
+    assertThat(num.types()).contains(PrimitiveType.NUMBER);
   }
 
   @Test
   public void number_assignment() throws Exception {
     Symbol num = getSymbol("num2");
     assertThat(num.types()).hasSize(1);
-    assertThat(num.types()).contains(Primitive.NUMBER);
+    assertThat(num.types()).contains(PrimitiveType.NUMBER);
   }
 
   @Test
   public void string_declaration() throws Exception {
     Symbol num = getSymbol("str1");
     assertThat(num.types()).hasSize(1);
-    assertThat(num.types()).contains(Primitive.STRING);
+    assertThat(num.types()).contains(PrimitiveType.STRING);
   }
 
   @Test
   public void string_assignment() throws Exception {
     Symbol num = getSymbol("str2");
     assertThat(num.types()).hasSize(1);
-    assertThat(num.types()).contains(Primitive.STRING);
+    assertThat(num.types()).contains(PrimitiveType.STRING);
   }
 
   @Test
   public void boolean_declaration() throws Exception {
     Symbol num = getSymbol("bool1");
     assertThat(num.types()).hasSize(1);
-    assertThat(num.types()).contains(Primitive.BOOLEAN);
+    assertThat(num.types()).contains(PrimitiveType.BOOLEAN);
   }
 
   @Test
   public void boolean_assignment() throws Exception {
     Symbol num = getSymbol("bool2");
     assertThat(num.types()).hasSize(1);
-    assertThat(num.types()).contains(Primitive.BOOLEAN);
+    assertThat(num.types()).contains(PrimitiveType.BOOLEAN);
   }
 
   @Test

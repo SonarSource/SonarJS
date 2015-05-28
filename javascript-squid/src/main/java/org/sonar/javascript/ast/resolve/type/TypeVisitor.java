@@ -19,7 +19,9 @@
  */
 package org.sonar.javascript.ast.resolve.type;
 
+import com.google.common.base.Preconditions;
 import org.sonar.javascript.ast.resolve.Symbol;
+import org.sonar.javascript.model.internal.JavaScriptTree;
 import org.sonar.javascript.model.internal.SeparatedList;
 import org.sonar.javascript.model.internal.expression.ArrayLiteralTreeImpl;
 import org.sonar.javascript.model.internal.expression.LiteralTreeImpl;
@@ -37,6 +39,7 @@ import org.sonar.plugins.javascript.api.tree.expression.ObjectLiteralTree;
 import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
 
 import javax.annotation.Nullable;
+import java.util.Set;
 
 public class TypeVisitor extends BaseTreeVisitor {
 
@@ -55,20 +58,20 @@ public class TypeVisitor extends BaseTreeVisitor {
   @Override
   public void visitLiteral(LiteralTree tree) {
     if (tree.is(Tree.Kind.NUMERIC_LITERAL)) {
-      ((LiteralTreeImpl) tree).addType(Primitive.NUMBER);
+      ((LiteralTreeImpl) tree).addType(PrimitiveType.NUMBER);
 
     } else if (tree.is(Tree.Kind.STRING_LITERAL)) {
-      ((LiteralTreeImpl) tree).addType(Primitive.STRING);
+      ((LiteralTreeImpl) tree).addType(PrimitiveType.STRING);
 
     } else if (tree.is(Tree.Kind.BOOLEAN_LITERAL)) {
-      ((LiteralTreeImpl) tree).addType(Primitive.BOOLEAN);
+      ((LiteralTreeImpl) tree).addType(PrimitiveType.BOOLEAN);
     }
     super.visitLiteral(tree);
   }
 
   @Override
   public void visitArrayLiteral(ArrayLiteralTree tree) {
-    ((ArrayLiteralTreeImpl) tree).addType(Array.create());
+    ((ArrayLiteralTreeImpl) tree).addType(ArrayType.create());
     super.visitArrayLiteral(tree);
   }
 
@@ -80,40 +83,55 @@ public class TypeVisitor extends BaseTreeVisitor {
 
   @Override
   public void visitFunctionDeclaration(FunctionDeclarationTree tree) {
-    Symbol symbol = tree.name().symbol();
-    if (symbol != null){
-      symbol.addType(ObjectType.createFunction(tree));
-    }
+    Preconditions.checkState(tree.name().symbol() != null,
+        String.format("Symbol has not been created for this function %s declared at line %s", tree.name().name(), ((JavaScriptTree) tree).getLine()));
+
+    tree.name().symbol().addType(FunctionType.create(tree));
+
     super.visitFunctionDeclaration(tree);
   }
 
   @Override
   public void visitCallExpression(CallExpressionTree tree) {
     super.visitCallExpression(tree);
-    if (tree.callee() instanceof IdentifierTree){
-      Symbol symbol = ((IdentifierTree)tree.callee()).symbol();
-      if (symbol != null){
-        ObjectType functionType = getOnlyFunctionDeclaration(symbol);
-        if (functionType != null){
-          SeparatedList<Tree> parameters = functionType.functionTypeTree().parameters().parameters();
-          SeparatedList<Tree> arguments = tree.arguments().parameters();
-          if (parameters.size() >= arguments.size()){
-            for (int i = 0; i < arguments.size(); i++){
-              ((IdentifierTree)parameters.get(i)).symbol().addTypes(((ExpressionTree) arguments.get(i)).types()); // todo casting is not checked
-            }
+
+    FunctionType functionType = getFunctionType(tree.callee().types());
+    if (functionType != null) {
+
+      SeparatedList<Tree> parameters = functionType.functionTree().parameters().parameters();
+      SeparatedList<Tree> arguments = tree.arguments().parameters();
+      int minSize = arguments.size() < parameters.size() ? arguments.size() : parameters.size();
+
+      for (int i = 0; i < minSize; i++) {
+        Preconditions.checkState(arguments.get(i) instanceof ExpressionTree);
+        Tree currentParameter = parameters.get(i);
+        if (currentParameter instanceof IdentifierTree) {
+          Symbol symbol = ((IdentifierTree) currentParameter).symbol();
+          if (symbol != null) {
+            symbol.addTypes(((ExpressionTree) arguments.get(i)).types());
+          } else {
+            throw new IllegalStateException(String.format(
+                "Parameter %s has no symbol associated with it (line %s)",
+                ((IdentifierTree) currentParameter).name(),
+                ((JavaScriptTree) currentParameter).getLine()
+            ));
           }
         }
       }
     }
   }
 
+  /**
+   * @param types
+   * @return element of types which is FunctionType. Returns null if there are more than one.
+   */
   @Nullable
-  private ObjectType getOnlyFunctionDeclaration(Symbol symbol){
-    ObjectType functionType = null;
-    for (Type type : symbol.types()){
-      if (type.isCallable()){
-        if (functionType == null){
-          functionType = (ObjectType)type;
+  private FunctionType getFunctionType(Set<Type> types) {
+    FunctionType functionType = null;
+    for (Type type : types) {
+      if (type.kind() == Type.Kind.FUNCTION) {
+        if (functionType == null) {
+          functionType = (FunctionType) type;
         } else {
           return null;
         }

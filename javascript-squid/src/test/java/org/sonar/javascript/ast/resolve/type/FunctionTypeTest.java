@@ -52,19 +52,38 @@ public class FunctionTypeTest extends TypeTest {
   }
 
   @Test
-  public void function_call() {
+  public void function_assignment() {
+    Symbol f3 = getSymbol("f3");
+    assertThat(f3.types()).hasSize(1);
+    assertThat(f3.canBe(Type.Kind.FUNCTION)).isTrue();
+  }
+
+  @Test
+  public void parameter_types_inferred_from_call() {
     Symbol p1 = getSymbol("p1");
     assertThat(p1.types()).hasSize(1);
     assertThat(p1.canBe(Type.Kind.NUMBER)).isTrue();
 
     Symbol p2 = getSymbol("p2");
-    assertThat(p2.types()).hasSize(2);
+    assertThat(p2.types()).hasSize(3);
     assertThat(p2.canBe(Type.Kind.STRING)).isTrue();
     assertThat(p2.canBe(Type.Kind.NUMBER)).isTrue();
+    assertThat(p2.canBe(Type.Kind.BOOLEAN)).isTrue();
 
     Symbol p3 = getSymbol("p3");
     assertThat(p3.types()).hasSize(1);
     assertThat(p3.canBe(Type.Kind.BOOLEAN)).isTrue();
+
+    Symbol n = getSymbol("n");
+    assertThat(n.types()).hasSize(0);
+
+    Symbol a = getSymbol("a");
+    assertThat(a.types()).hasSize(0);
+
+    Symbol msg = getSymbol("msg");
+    assertThat(msg.types()).hasSize(1);
+    assertThat(msg.canBe(Type.Kind.STRING)).isTrue();
+
   }
 
 }

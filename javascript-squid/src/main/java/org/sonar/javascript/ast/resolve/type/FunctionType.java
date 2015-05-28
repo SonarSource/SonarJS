@@ -19,12 +19,27 @@
  */
 package org.sonar.javascript.ast.resolve.type;
 
+public class FunctionType extends ObjectType {
 
-import org.sonar.plugins.javascript.api.tree.Tree;
-import org.sonar.plugins.javascript.api.tree.declaration.ParameterListTree;
-import org.sonar.plugins.javascript.api.tree.statement.BlockTree;
+  private FunctionTree functionTree = null;
 
-public interface FunctionTypeTree extends Tree {
-  ParameterListTree parameters();
-  BlockTree body();
+  @Override
+  public Kind kind() {
+    return Kind.FUNCTION;
+  }
+
+  @Override
+  public boolean isCallable() {
+    return true;
+  }
+
+  public static ObjectType create(FunctionTree functionTree){
+    FunctionType type = new FunctionType();
+    type.functionTree = functionTree;
+    return type;
+  }
+
+  public FunctionTree functionTree(){
+    return functionTree;
+  }
 }

@@ -20,7 +20,7 @@
 package org.sonar.plugins.javascript.api.tree.declaration;
 
 import com.google.common.annotations.Beta;
-import org.sonar.javascript.ast.resolve.type.FunctionTypeTree;
+import org.sonar.javascript.ast.resolve.type.FunctionTree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.javascript.api.tree.statement.BlockTree;
@@ -39,7 +39,7 @@ import javax.annotation.Nullable;
  * </pre>
  */
 @Beta
-public interface FunctionDeclarationTree extends StatementTree, FunctionTypeTree {
+public interface FunctionDeclarationTree extends StatementTree, FunctionTree {
 
   SyntaxToken functionKeyword();
 

@@ -19,19 +19,28 @@
  */
 package org.sonar.javascript.ast.resolve.type;
 
-public class Array extends ObjectType {
-
-  public static Array create(){
-    return new Array();
-  }
+public enum PrimitiveType implements Type {
+  NUMBER {
+    @Override
+    public Kind kind() {
+      return Kind.NUMBER;
+    }
+  },
+  STRING {
+    @Override
+    public Kind kind() {
+      return Kind.STRING;
+    }
+  },
+  BOOLEAN {
+    @Override
+    public Kind kind() {
+      return Kind.BOOLEAN;
+    }
+  };
 
   @Override
   public boolean isCallable() {
     return false;
-  }
-
-  @Override
-  public Kind kind() {
-    return Kind.ARRAY;
   }
 }
