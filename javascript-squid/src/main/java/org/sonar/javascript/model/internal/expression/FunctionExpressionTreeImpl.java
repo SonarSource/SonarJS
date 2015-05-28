@@ -20,11 +20,12 @@
 package org.sonar.javascript.model.internal.expression;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterators;
 import com.sonar.sslr.api.AstNode;
 import com.sonar.sslr.api.AstNodeType;
+import org.sonar.javascript.ast.resolve.type.ObjectType;
 import org.sonar.javascript.ast.resolve.type.Type;
-import org.sonar.plugins.javascript.api.visitors.TreeVisitor;
 import org.sonar.javascript.model.internal.JavaScriptTree;
 import org.sonar.javascript.model.internal.declaration.ParameterListTreeImpl;
 import org.sonar.javascript.model.internal.lexical.InternalSyntaxToken;
@@ -34,10 +35,9 @@ import org.sonar.plugins.javascript.api.tree.declaration.ParameterListTree;
 import org.sonar.plugins.javascript.api.tree.expression.FunctionExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
+import org.sonar.plugins.javascript.api.visitors.TreeVisitor;
 
 import javax.annotation.Nullable;
-
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
@@ -52,6 +52,7 @@ public class FunctionExpressionTreeImpl extends JavaScriptTree implements Functi
   private final ParameterListTree parameters;
   private final BlockTreeImpl body;
   private final Kind kind;
+  private Type functionType;
 
   /**
    * Constructor for named generator expression and  generator declaration
@@ -72,6 +73,8 @@ public class FunctionExpressionTreeImpl extends JavaScriptTree implements Functi
     for (AstNode child : children) {
       addChild(child);
     }
+
+    this.functionType = ObjectType.createFunction(this);
   }
 
   /**
@@ -93,6 +96,8 @@ public class FunctionExpressionTreeImpl extends JavaScriptTree implements Functi
     for (AstNode child : children) {
       addChild(child);
     }
+
+    this.functionType = ObjectType.createFunction(this);
   }
 
   /**
@@ -114,6 +119,8 @@ public class FunctionExpressionTreeImpl extends JavaScriptTree implements Functi
     for (AstNode child : children) {
       addChild(child);
     }
+
+    this.functionType = ObjectType.createFunction(this);
   }
 
   /**
@@ -134,6 +141,8 @@ public class FunctionExpressionTreeImpl extends JavaScriptTree implements Functi
     for (AstNode child : children) {
       addChild(child);
     }
+
+    this.functionType = ObjectType.createFunction(this);
   }
 
   @Override
@@ -180,6 +189,6 @@ public class FunctionExpressionTreeImpl extends JavaScriptTree implements Functi
 
   @Override
   public Set<Type> types() {
-    return Collections.emptySet();
+    return ImmutableSet.of(functionType);
   }
 }

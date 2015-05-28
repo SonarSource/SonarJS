@@ -20,7 +20,6 @@
 package org.sonar.javascript.model.internal.declaration;
 
 import com.google.common.collect.Iterators;
-import org.sonar.plugins.javascript.api.visitors.TreeVisitor;
 import org.sonar.javascript.model.internal.JavaScriptTree;
 import org.sonar.javascript.model.internal.expression.IdentifierTreeImpl;
 import org.sonar.javascript.model.internal.lexical.InternalSyntaxToken;
@@ -31,9 +30,9 @@ import org.sonar.plugins.javascript.api.tree.declaration.ParameterListTree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.javascript.api.tree.statement.BlockTree;
+import org.sonar.plugins.javascript.api.visitors.TreeVisitor;
 
 import javax.annotation.Nullable;
-
 import java.util.Iterator;
 
 public class FunctionDeclarationTreeImpl extends JavaScriptTree implements FunctionDeclarationTree {

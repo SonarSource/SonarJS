@@ -58,7 +58,7 @@ public class DeleteArrayElementCheck extends BaseTreeVisitor {
     if (expression.is(Tree.Kind.BRACKET_MEMBER_EXPRESSION)) {
       BracketMemberExpressionTree bracketExpr = ((BracketMemberExpressionTree) expression);
 
-      if (bracketExpr.object() instanceof IdentifierTree && ((IdentifierTreeImpl) bracketExpr.object()).hasType(Type.ARRAY)) {
+      if (bracketExpr.object() instanceof IdentifierTree && ((IdentifierTreeImpl) bracketExpr.object()).hasType(Type.Kind.ARRAY)) {
         return true;
       }
       return ((BracketMemberExpressionTree) expression).property().is(Tree.Kind.NUMERIC_LITERAL);
