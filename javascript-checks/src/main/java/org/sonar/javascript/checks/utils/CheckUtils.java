@@ -23,11 +23,7 @@ import com.google.common.collect.ImmutableSet;
 import com.sonar.sslr.api.AstNode;
 import com.sonar.sslr.api.AstNodeType;
 import com.sonar.sslr.api.Token;
-import org.sonar.javascript.ast.resolve.Symbol;
-import org.sonar.javascript.ast.resolve.Usage;
 import org.sonar.javascript.model.internal.JavaScriptTree;
-import org.sonar.plugins.javascript.api.AstTreeVisitorContext;
-import org.sonar.plugins.javascript.api.JavaScriptCheck;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 
@@ -162,7 +158,7 @@ public class CheckUtils {
   public static boolean isIterationStatement(AstNode astNode) {
     return ITERATION_STATEMENTS.contains(astNode.getType());
   }
-  
+
   public static String asString(Tree tree) {
     List<Token> tokens = ((JavaScriptTree) tree).getTokens();
     StringBuilder sb = new StringBuilder();

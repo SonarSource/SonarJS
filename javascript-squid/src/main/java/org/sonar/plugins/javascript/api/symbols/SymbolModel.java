@@ -17,10 +17,9 @@
  * License along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.plugins.javascript.api;
+package org.sonar.plugins.javascript.api.symbols;
 
 import com.google.common.annotations.Beta;
-import org.sonar.javascript.ast.resolve.Symbol;
 
 import java.util.Set;
 

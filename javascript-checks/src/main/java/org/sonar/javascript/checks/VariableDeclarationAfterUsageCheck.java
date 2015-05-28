@@ -22,9 +22,9 @@ package org.sonar.javascript.checks;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
-import org.sonar.plugins.javascript.api.SymbolModel;
-import org.sonar.javascript.ast.resolve.Symbol;
-import org.sonar.javascript.ast.resolve.Usage;
+import org.sonar.plugins.javascript.api.symbols.SymbolModel;
+import org.sonar.plugins.javascript.api.symbols.Symbol;
+import org.sonar.plugins.javascript.api.symbols.Usage;
 import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
 import org.sonar.javascript.model.internal.JavaScriptTree;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
@@ -77,7 +77,7 @@ public class VariableDeclarationAfterUsageCheck extends BaseTreeVisitor {
 
       for (int i = 1; i < usages.size(); i++){
         if (usages.get(i).isDeclaration()){
-          getContext().addIssue(this, usages.get(0).symbolTree(), String.format(MESSAGE, symbol.name()));
+          getContext().addIssue(this, usages.get(0).identifierTree(), String.format(MESSAGE, symbol.name()));
           return;
         }
       }
@@ -86,7 +86,7 @@ public class VariableDeclarationAfterUsageCheck extends BaseTreeVisitor {
   }
 
   private int getLine(Usage usage) {
-    return ((JavaScriptTree) usage.symbolTree()).getLine();
+    return ((JavaScriptTree) usage.identifierTree()).getLine();
   }
 
 }

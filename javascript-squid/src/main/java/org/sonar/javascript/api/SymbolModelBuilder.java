@@ -20,7 +20,7 @@
 package org.sonar.javascript.api;
 
 import org.sonar.javascript.ast.resolve.Scope;
-import org.sonar.javascript.ast.resolve.Symbol;
+import org.sonar.plugins.javascript.api.symbols.Symbol;
 
 import java.util.Set;
 

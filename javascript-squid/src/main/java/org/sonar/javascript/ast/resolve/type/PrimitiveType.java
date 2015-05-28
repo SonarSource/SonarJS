@@ -19,6 +19,8 @@
  */
 package org.sonar.javascript.ast.resolve.type;
 
+import org.sonar.plugins.javascript.api.symbols.Type;
+
 public enum PrimitiveType implements Type {
   NUMBER {
     @Override
@@ -42,5 +44,10 @@ public enum PrimitiveType implements Type {
   @Override
   public boolean isCallable() {
     return false;
+  }
+
+  @Override
+  public String toString() {
+    return this.kind().name();
   }
 }

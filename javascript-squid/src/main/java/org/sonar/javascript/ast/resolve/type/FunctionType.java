@@ -30,6 +30,7 @@ public class FunctionType extends ObjectType {
 
   @Override
   public boolean isCallable() {
+
     return true;
   }
 

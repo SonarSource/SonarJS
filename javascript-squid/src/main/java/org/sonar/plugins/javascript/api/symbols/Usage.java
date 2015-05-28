@@ -17,11 +17,13 @@
  * License along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.javascript.ast.resolve;
+package org.sonar.plugins.javascript.api.symbols;
 
+import com.google.common.annotations.Beta;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 
+@Beta
 public class Usage {
 
   public enum Kind {
@@ -33,28 +35,32 @@ public class Usage {
     READ_WRITE;
   }
   private Kind kind;
-  private IdentifierTree symbolTree;
+  private IdentifierTree identifierTree;
   private Tree usageTree;
 
   /**
    *
-   * @param symbolTree - this tree contains only symbol name identifier (we need it for symbol highlighting)
+   * @param identifierTree - this tree contains only symbol name identifier (we need it for symbol highlighting)
    * @param kind - kind of usage
    */
-  private Usage(IdentifierTree symbolTree, Kind kind){
+  private Usage(IdentifierTree identifierTree, Kind kind){
     this.kind = kind;
-    this.symbolTree = symbolTree;
-    this.usageTree = symbolTree;
+    this.identifierTree = identifierTree;
+    this.usageTree = identifierTree;
   }
 
   public Kind kind() {
     return kind;
   }
 
-  public IdentifierTree symbolTree() {
-    return symbolTree;
+  public IdentifierTree identifierTree() {
+    return identifierTree;
   }
 
+  /**
+   * @deprecated {@link #identifierTree()} should be used.
+   */
+  @Deprecated
   public Tree usageTree() {
     return usageTree;
   }

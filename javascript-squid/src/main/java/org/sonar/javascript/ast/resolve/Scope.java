@@ -20,6 +20,7 @@
 package org.sonar.javascript.ast.resolve;
 
 import com.google.common.collect.Maps;
+import org.sonar.plugins.javascript.api.symbols.Symbol;
 import org.sonar.plugins.javascript.api.tree.Tree;
 
 import javax.annotation.Nullable;

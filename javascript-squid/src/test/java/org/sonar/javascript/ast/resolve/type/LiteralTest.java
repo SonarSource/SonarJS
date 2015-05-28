@@ -19,11 +19,12 @@
  */
 package org.sonar.javascript.ast.resolve.type;
 
+import static org.fest.assertions.Assertions.assertThat;
+
 import org.junit.Before;
 import org.junit.Test;
-import org.sonar.javascript.ast.resolve.Symbol;
-
-import static org.fest.assertions.Assertions.assertThat;
+import org.sonar.plugins.javascript.api.symbols.Symbol;
+import org.sonar.plugins.javascript.api.symbols.Type;
 
 public class LiteralTest extends TypeTest {
 

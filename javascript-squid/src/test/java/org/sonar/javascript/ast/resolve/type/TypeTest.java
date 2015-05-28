@@ -20,7 +20,7 @@
 package org.sonar.javascript.ast.resolve.type;
 
 import com.sonar.sslr.api.AstNode;
-import org.sonar.javascript.ast.resolve.Symbol;
+import org.sonar.plugins.javascript.api.symbols.Symbol;
 import org.sonar.javascript.ast.resolve.SymbolModelImpl;
 import org.sonar.javascript.model.JavaScriptTreeModelTest;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;

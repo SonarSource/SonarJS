@@ -22,9 +22,9 @@ package org.sonar.javascript.checks;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
-import org.sonar.javascript.ast.resolve.Symbol;
-import org.sonar.javascript.ast.resolve.Usage;
-import org.sonar.plugins.javascript.api.SymbolModel;
+import org.sonar.plugins.javascript.api.symbols.Symbol;
+import org.sonar.plugins.javascript.api.symbols.Usage;
+import org.sonar.plugins.javascript.api.symbols.SymbolModel;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
@@ -60,7 +60,7 @@ public class UnusedVariableCheck extends BaseTreeVisitor {
   private void raiseIssuesOnDeclarations(Symbol symbol, String message){
     for (Usage usage : symbol.usages()){
       if (usage.isDeclaration()){
-        getContext().addIssue(this, usage.symbolTree(), message);
+        getContext().addIssue(this, usage.identifierTree(), message);
       }
     }
   }

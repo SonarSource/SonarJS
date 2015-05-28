@@ -21,7 +21,7 @@ package org.sonar.plugins.javascript.api.tree.expression;
 
 import com.google.common.annotations.Beta;
 
-import org.sonar.javascript.ast.resolve.type.Type;
+import org.sonar.plugins.javascript.api.symbols.Type;
 import org.sonar.plugins.javascript.api.tree.Tree;
 
 import java.util.Set;
