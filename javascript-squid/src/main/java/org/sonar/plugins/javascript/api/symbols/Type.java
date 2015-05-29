@@ -35,6 +35,7 @@ public interface Type {
   Kind kind();
 
   enum Kind {
+    UNKNOWN,
     STRING,
     NUMBER,
     BOOLEAN,
