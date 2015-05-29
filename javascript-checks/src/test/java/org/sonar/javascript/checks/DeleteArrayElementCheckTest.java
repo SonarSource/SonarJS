@@ -35,8 +35,6 @@ public class DeleteArrayElementCheckTest extends TreeCheckTest {
         .next().atLine(3).withMessage("Remove this use of \"delete\".")
         .next().atLine(4)
         .next().atLine(8)
-        .next().atLine(12)
-        .next().atLine(17)
         .noMore();
   }
 
