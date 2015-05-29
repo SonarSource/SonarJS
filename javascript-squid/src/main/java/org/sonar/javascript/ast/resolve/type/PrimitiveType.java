@@ -34,6 +34,12 @@ public enum PrimitiveType implements Type {
       return Kind.STRING;
     }
   },
+  ARRAY {
+    @Override
+    public Kind kind() {
+      return Kind.ARRAY;
+    }
+  },
   BOOLEAN {
     @Override
     public Kind kind() {
