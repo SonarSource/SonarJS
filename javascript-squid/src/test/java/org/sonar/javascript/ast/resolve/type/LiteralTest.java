@@ -22,10 +22,6 @@ package org.sonar.javascript.ast.resolve.type;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.javascript.ast.resolve.Symbol;
-import org.sonar.javascript.ast.resolve.SymbolModelImpl;
-import org.sonar.plugins.javascript.api.tree.ScriptTree;
-
-import java.io.File;
 
 import static org.fest.assertions.Assertions.assertThat;
 
@@ -33,8 +29,7 @@ public class LiteralTest extends TypeTest {
 
   @Before
   public void setUp() throws Exception {
-    ROOT_NODE = p.parse(new File("src/test/resources/ast/resolve/type/literals.js"));
-    SYMBOL_MODEL = SymbolModelImpl.create((ScriptTree) ROOT_NODE, null, null);
+    super.setUp("literals.js");
   }
 
   @Test

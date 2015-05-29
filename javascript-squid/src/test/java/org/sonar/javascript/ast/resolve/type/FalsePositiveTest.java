@@ -19,25 +19,24 @@
  */
 package org.sonar.javascript.ast.resolve.type;
 
-import com.sonar.sslr.api.AstNode;
+import org.junit.Before;
+import org.junit.Test;
 import org.sonar.javascript.ast.resolve.Symbol;
-import org.sonar.javascript.ast.resolve.SymbolModelImpl;
-import org.sonar.javascript.model.JavaScriptTreeModelTest;
-import org.sonar.plugins.javascript.api.tree.ScriptTree;
 
-import java.io.File;
+import static org.fest.assertions.Assertions.assertThat;
 
-
-public class TypeTest extends JavaScriptTreeModelTest {
-  protected AstNode ROOT_NODE;
-  protected SymbolModelImpl SYMBOL_MODEL;
-
-  protected Symbol getSymbol(String name) {
-    return SYMBOL_MODEL.getSymbols(name).iterator().next();
+public class FalsePositiveTest extends TypeTest {
+  @Before
+  public void setUp() throws Exception {
+    super.setUp("falsePositive.js");
   }
 
-  public void setUp(String filename) throws Exception {
-    ROOT_NODE = p.parse(new File("src/test/resources/ast/resolve/type/", filename));
-    SYMBOL_MODEL = SymbolModelImpl.create((ScriptTree) ROOT_NODE, null, null);
+  @Test
+  public void undefined_type(){
+    Symbol p1 = getSymbol("p1");
+    // should be 2, but it's impossible to infer second type from the source code
+    assertThat(p1.types()).hasSize(1);
+    assertThat(p1.canBe(Type.Kind.ARRAY)).isTrue();
   }
+
 }
