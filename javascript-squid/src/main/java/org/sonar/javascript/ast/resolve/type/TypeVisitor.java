@@ -109,7 +109,7 @@ public class TypeVisitor extends BaseTreeVisitor {
         if (currentParameter instanceof IdentifierTree) {
           Symbol symbol = ((IdentifierTree) currentParameter).symbol();
           if (symbol != null) {
-            symbol.addTypes(((ExpressionTree) arguments.get(i)).types());
+            addTypes(symbol, ((ExpressionTree) arguments.get(i)).types());
           } else {
             throw new IllegalStateException(String.format(
                 "Parameter %s has no symbol associated with it (line %s)",
@@ -148,9 +148,16 @@ public class TypeVisitor extends BaseTreeVisitor {
       Symbol symbol = ((IdentifierTree) identifier).symbol();
 
       if (symbol != null) {
-        symbol.addTypes(assignedTree.types());
+        addTypes(symbol, assignedTree.types());
       }
     }
   }
 
+  private void addTypes(Symbol symbol, Set<Type> types) {
+    if (types.isEmpty()){
+      symbol.addType(PrimitiveType.UNKNOWN);
+    } else {
+      symbol.addTypes(types);
+    }
+  }
 }

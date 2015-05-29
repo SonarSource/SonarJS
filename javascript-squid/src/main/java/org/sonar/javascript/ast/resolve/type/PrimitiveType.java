@@ -22,6 +22,12 @@ package org.sonar.javascript.ast.resolve.type;
 import org.sonar.plugins.javascript.api.symbols.Type;
 
 public enum PrimitiveType implements Type {
+  UNKNOWN {
+    @Override
+    public Kind kind() {
+      return Kind.UNKNOWN;
+    }
+  },
   NUMBER {
     @Override
     public Kind kind() {
