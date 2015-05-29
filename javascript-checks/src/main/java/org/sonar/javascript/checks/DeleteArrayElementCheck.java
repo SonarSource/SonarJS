@@ -22,14 +22,12 @@ package org.sonar.javascript.checks;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
-import org.sonar.plugins.javascript.api.symbols.Type;
-import org.sonar.javascript.model.internal.expression.IdentifierTreeImpl;
-import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
-import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
+import org.sonar.javascript.ast.resolve.type.PrimitiveType;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.expression.BracketMemberExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.UnaryExpressionTree;
+import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
 import org.sonar.squidbridge.annotations.ActivatedByDefault;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
@@ -57,14 +55,13 @@ public class DeleteArrayElementCheck extends BaseTreeVisitor {
   private boolean isArrayElement(ExpressionTree expression) {
     if (expression.is(Tree.Kind.BRACKET_MEMBER_EXPRESSION)) {
       BracketMemberExpressionTree bracketExpr = ((BracketMemberExpressionTree) expression);
-
-      if (bracketExpr.object() instanceof IdentifierTree && ((IdentifierTreeImpl) bracketExpr.object()).hasType(Type.Kind.ARRAY)) {
-        return true;
-      }
-      return ((BracketMemberExpressionTree) expression).property().is(Tree.Kind.NUMERIC_LITERAL);
+      return canOnlyBeArray(bracketExpr.object());
     }
-
     return false;
+  }
+
+  private boolean canOnlyBeArray(ExpressionTree expression){
+    return expression.types().size() == 1 && expression.types().contains(PrimitiveType.ARRAY);
   }
 
 }
