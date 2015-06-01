@@ -34,6 +34,7 @@ public class SelectionTestedWithoutLengthCheckTest extends TreeCheckTest {
     CheckMessagesVerifier.verify(file.getCheckMessages())
     .next().atLine(1)
     .next().atLine(13)
+    .next().atLine(17)
     .noMore();
 
   }

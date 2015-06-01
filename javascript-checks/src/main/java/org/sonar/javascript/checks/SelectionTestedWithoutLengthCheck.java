@@ -22,8 +22,10 @@ package org.sonar.javascript.checks;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
+import org.sonar.javascript.ast.resolve.type.PrimitiveType;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.tree.statement.IfStatementTree;
+import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 
@@ -34,13 +36,12 @@ import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
   tags = {Tags.BUG, Tags.JQUERY})
 @SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.LOGIC_RELIABILITY)
 @SqaleConstantRemediation("2min")
-public class SelectionTestedWithoutLengthCheck extends AbstractJQueryCheck {
+public class SelectionTestedWithoutLengthCheck extends BaseTreeVisitor {
 
   @Override
   public void visitIfStatement(IfStatementTree tree) {
-    // todo check for condition as identifier => check its "type" in symbol table
     ExpressionTree condition = tree.condition();
-    if (isSelector(condition)) {
+    if (condition.types().contains(PrimitiveType.JQUERY_SELECTOR_OBJECT)) {
       getContext().addIssue(this, condition, "Use the \"length\" property to see whether this selection contains elements.");
     }
     super.visitIfStatement(tree);
