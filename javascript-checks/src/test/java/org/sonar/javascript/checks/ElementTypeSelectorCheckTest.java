@@ -40,6 +40,7 @@ public class ElementTypeSelectorCheckTest extends TreeCheckTest {
     .next().atLine(11)
     .next().atLine(13)
     .next().atLine(15).withMessage("Use the \"[type='Text']\" selector here instead of \":Text\".")
+    .next().atLine(23)
     .noMore();
 
   }

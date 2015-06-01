@@ -20,3 +20,5 @@ jQuery("[type=text]"); // OK
 
 $("input[type='radio']");  // OK
 
+$("input:text", context); // NOK
+

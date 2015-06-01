@@ -19,20 +19,22 @@
  */
 package org.sonar.javascript.checks;
 
+import org.sonar.javascript.ast.resolve.type.PrimitiveType;
 import org.sonar.javascript.model.internal.SeparatedList;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.expression.CallExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.LiteralTree;
+import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
 
-public abstract class AbstractJQuerySelectorOptimizationCheck extends AbstractJQueryCheck {
+public abstract class AbstractJQuerySelectorOptimizationCheck extends BaseTreeVisitor {
 
-  protected abstract void visitSelector(String selector, Tree tree);
+  protected abstract void visitSelector(String selector, CallExpressionTree tree);
 
   @Override
   public void visitCallExpression(CallExpressionTree tree) {
-    if (isSelector(tree)){
+    if (tree.types().contains(PrimitiveType.JQUERY_SELECTOR_OBJECT) && tree.callee().types().contains(PrimitiveType.JQUERY_OBJECT)){
       SeparatedList<Tree> parameters = tree.arguments().parameters();
-      if (parameters.size() == 1 && parameters.get(0).is(Tree.Kind.STRING_LITERAL)) {
+      if (!parameters.isEmpty() && parameters.get(0).is(Tree.Kind.STRING_LITERAL)) {
         String value = ((LiteralTree) parameters.get(0)).value();
         value = value.substring(1, value.length() - 1).trim();
         visitSelector(value, tree);

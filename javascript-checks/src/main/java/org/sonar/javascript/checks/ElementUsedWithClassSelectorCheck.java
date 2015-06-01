@@ -22,7 +22,7 @@ package org.sonar.javascript.checks;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
-import org.sonar.plugins.javascript.api.tree.Tree;
+import org.sonar.plugins.javascript.api.tree.expression.CallExpressionTree;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 
@@ -42,9 +42,10 @@ public class ElementUsedWithClassSelectorCheck extends AbstractJQuerySelectorOpt
   private static final Pattern elementUsedWithClassSelectorPattern = Pattern.compile("(\\w+)\\.([\\w_-]+)");
 
   @Override
-  protected void visitSelector(String selector, Tree tree) {
+  protected void visitSelector(String selector, CallExpressionTree tree) {
     Matcher matcher = elementUsedWithClassSelectorPattern.matcher(selector);
-    if (matcher.matches()){
+    // ignore 2 parameters to not consider such cases: $("div.className", someContext)
+    if (tree.arguments().parameters().size() == 1 && matcher.matches()){
       getContext().addIssue(this, tree, String.format(MESSAGE, matcher.group(1)));
     }
   }
