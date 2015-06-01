@@ -56,10 +56,6 @@ public class BooleanEqualityComparisonCheck extends BaseTreeVisitor {
     if (expressionTree.is(Kind.PARENTHESISED_EXPRESSION)) {
       ParenthesisedExpressionTree parenthesisedExpressionTree = (ParenthesisedExpressionTree)expressionTree;
       isBoolean = isBooleanExpression(parenthesisedExpressionTree.expression());
-    } else if (expressionTree.is(Kind.CONDITIONAL_EXPRESSION)) {
-      ConditionalExpressionTree conditionalExpressionTree = (ConditionalExpressionTree)expressionTree;
-      isBoolean = isBooleanExpression(conditionalExpressionTree.trueExpression())
-              && isBooleanExpression(conditionalExpressionTree.falseExpression());
     } else {
       isBoolean = expressionTree.is(Kind.BOOLEAN_LITERAL)
           || expressionTree.is(Kind.LOGICAL_COMPLEMENT)
@@ -70,9 +66,7 @@ public class BooleanEqualityComparisonCheck extends BaseTreeVisitor {
 
   @Override
   public void visitConditionalExpression(ConditionalExpressionTree tree) {
-    if (isBooleanExpression(tree.condition())) {
-      visitExpression(tree.condition());
-    }
+    visitExpression(tree.condition());
     if (isBooleanExpression(tree.trueExpression()) && isBooleanExpression(tree.falseExpression())) {
       visitExpression(tree.trueExpression());
       visitExpression(tree.falseExpression());
