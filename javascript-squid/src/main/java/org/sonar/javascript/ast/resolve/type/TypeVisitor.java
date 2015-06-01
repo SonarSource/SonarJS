@@ -25,6 +25,7 @@ import org.sonar.javascript.model.internal.JavaScriptTree;
 import org.sonar.javascript.model.internal.SeparatedList;
 import org.sonar.javascript.model.internal.expression.ArrayLiteralTreeImpl;
 import org.sonar.javascript.model.internal.expression.CallExpressionTreeImpl;
+import org.sonar.javascript.model.internal.expression.IdentifierTreeImpl;
 import org.sonar.javascript.model.internal.expression.LiteralTreeImpl;
 import org.sonar.javascript.model.internal.expression.ObjectLiteralTreeImpl;
 import org.sonar.plugins.javascript.api.symbols.Symbol;
@@ -135,6 +136,13 @@ public class TypeVisitor extends BaseTreeVisitor {
           }
         }
       }
+    }
+  }
+
+  @Override
+  public void visitIdentifier(IdentifierTree tree) {
+    if (jQueryHelper.isJQueryObject(tree.name())){
+      ((IdentifierTreeImpl)tree).addType(PrimitiveType.JQUERY_OBJECT);
     }
   }
 

@@ -23,12 +23,14 @@ import com.google.common.collect.ImmutableList;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
+import org.sonar.javascript.ast.resolve.type.PrimitiveType;
 import org.sonar.javascript.model.internal.expression.DotMemberExpressionTreeImpl;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.expression.CallExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 import org.sonar.plugins.javascript.api.tree.expression.MemberExpressionTree;
+import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 
@@ -41,7 +43,7 @@ import java.util.List;
     tags = {Tags.JQUERY, Tags.OBSOLETE})
 @SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.SOFTWARE_RELATED_PORTABILITY)
 @SqaleConstantRemediation("20min")
-public class DeprecatedJQueryAPICheck extends AbstractJQueryCheck {
+public class DeprecatedJQueryAPICheck extends BaseTreeVisitor {
 
   private static final String MESSAGE = "Remove this use of \"%s\", which is deprecated.";
 
@@ -92,15 +94,11 @@ public class DeprecatedJQueryAPICheck extends AbstractJQueryCheck {
     super.visitMemberExpression(tree);
   }
 
-  private boolean isJQueryObject(ExpressionTree object) {
-    return object.is(Tree.Kind.IDENTIFIER_REFERENCE) && isJQueryObject(((IdentifierTree) object).name());
-  }
-
   private void checkJQueryProperty(ExpressionTree expressionTree, List<String> deprecated, String parentheses) {
     if (expressionTree.is(Tree.Kind.DOT_MEMBER_EXPRESSION)){
       ExpressionTree object = ((DotMemberExpressionTreeImpl) expressionTree).object();
       ExpressionTree property = ((DotMemberExpressionTreeImpl) expressionTree).property();
-      if (isJQueryObject(object) && propertyIsDeprecated(property, deprecated)){
+      if (object.types().contains(PrimitiveType.JQUERY_OBJECT) && propertyIsDeprecated(property, deprecated)){
         getContext().addIssue(this, property, String.format(MESSAGE, ((IdentifierTree)property).name() + parentheses));
       }
     }
@@ -110,7 +108,7 @@ public class DeprecatedJQueryAPICheck extends AbstractJQueryCheck {
     if (expressionTree.is(Tree.Kind.DOT_MEMBER_EXPRESSION)){
       ExpressionTree object = ((DotMemberExpressionTreeImpl) expressionTree).object();
       ExpressionTree property = ((DotMemberExpressionTreeImpl) expressionTree).property();
-      if (isMultiLevelSelector(object) && propertyIsDeprecated(property, deprecated)){
+      if (object.types().contains(PrimitiveType.JQUERY_SELECTOR_OBJECT) && propertyIsDeprecated(property, deprecated)){
         getContext().addIssue(this, property, String.format(MESSAGE, ((IdentifierTree)property).name() + parentheses));
       }
     }

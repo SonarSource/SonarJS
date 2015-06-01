@@ -44,7 +44,7 @@ public class JQuery {
     this.jQueryAliases = Arrays.asList(jQueryAliases);
   }
 
-  private boolean isJQueryObject(String name){
+  public boolean isJQueryObject(String name){
     return jQueryAliases.contains(name);
   }
 

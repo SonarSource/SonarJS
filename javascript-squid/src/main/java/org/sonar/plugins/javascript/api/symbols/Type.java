@@ -42,6 +42,7 @@ public interface Type {
     OBJECT,
     FUNCTION,
     ARRAY,
+    JQUERY_OBJECT,
     JQUERY_SELECTOR_OBJECT
   }
 
