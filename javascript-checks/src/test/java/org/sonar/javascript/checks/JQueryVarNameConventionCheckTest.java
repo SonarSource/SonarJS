@@ -33,8 +33,9 @@ public class JQueryVarNameConventionCheckTest extends TreeCheckTest {
     SourceFile file = scanFile("src/test/resources/checks/JQueryVarNameConvention.js", check);
     CheckMessagesVerifier.verify(file.getCheckMessages())
         .next().atLine(1).withMessage("Rename variable \"name1\" to match the regular expression ^\\$[a-z][a-zA-Z0-9]*$.")
-        .next().atLine(7)
+//        .next().atLine(7)
 //        .next().atLine(9)
+        .next().atLine(17)
         .noMore();
   }
 

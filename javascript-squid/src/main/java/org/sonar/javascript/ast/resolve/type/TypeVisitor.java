@@ -141,7 +141,7 @@ public class TypeVisitor extends BaseTreeVisitor {
 
   @Override
   public void visitIdentifier(IdentifierTree tree) {
-    if (jQueryHelper.isJQueryObject(tree.name())){
+    if (jQueryHelper.isJQueryObject(tree)){
       ((IdentifierTreeImpl)tree).addType(PrimitiveType.JQUERY_OBJECT);
     }
   }

@@ -44,8 +44,9 @@ public class JQuery {
     this.jQueryAliases = Arrays.asList(jQueryAliases);
   }
 
-  public boolean isJQueryObject(String name){
-    return jQueryAliases.contains(name);
+  public boolean isJQueryObject(IdentifierTree identifierTree){
+    // if identifier has symbol, it means this symbol was created by user and it's not jQuery object
+    return jQueryAliases.contains(identifierTree.name());
   }
 
   private boolean isDirectJQuerySelectorObject(ExpressionTree expressionTree) {
@@ -53,8 +54,7 @@ public class JQuery {
       CallExpressionTree callExpressionTree = (CallExpressionTree)expressionTree;
       ExpressionTree callee = callExpressionTree.callee();
       if (callee.is(Tree.Kind.IDENTIFIER_REFERENCE)) {
-        String calleeName = ((IdentifierTree) callee).identifierToken().text();
-        return isJQueryObject(calleeName);
+        return isJQueryObject((IdentifierTree) callee);
       }
       return false;
     }

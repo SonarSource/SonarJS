@@ -19,23 +19,21 @@
  */
 package org.sonar.javascript.checks;
 
+import com.google.common.base.Preconditions;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
-import org.sonar.plugins.javascript.api.symbols.SymbolModel;
+import org.sonar.plugins.javascript.api.JavaScriptCheck;
 import org.sonar.plugins.javascript.api.symbols.Symbol;
+import org.sonar.plugins.javascript.api.symbols.SymbolModel;
+import org.sonar.plugins.javascript.api.symbols.Type;
 import org.sonar.plugins.javascript.api.symbols.Usage;
-import org.sonar.plugins.javascript.api.tree.Tree;
-import org.sonar.plugins.javascript.api.tree.declaration.InitializedBindingElementTree;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
-import org.sonar.plugins.javascript.api.tree.expression.AssignmentExpressionTree;
-import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
+import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 
-import javax.annotation.Nullable;
-import java.util.Collection;
 import java.util.regex.Pattern;
 
 @Rule(
@@ -45,7 +43,7 @@ import java.util.regex.Pattern;
     tags = {Tags.JQUERY, Tags.CONVENTION})
 @SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.UNDERSTANDABILITY)
 @SqaleConstantRemediation("5min")
-public class JQueryVarNameConventionCheck extends AbstractJQueryCheck {
+public class JQueryVarNameConventionCheck extends BaseTreeVisitor {
 
   private static final String MESSAGE = "Rename variable \"%s\" to match the regular expression %s.";
 
@@ -66,31 +64,28 @@ public class JQueryVarNameConventionCheck extends AbstractJQueryCheck {
     Pattern pattern = Pattern.compile(format);
     SymbolModel symbolModel = getContext().getSymbolModel();
     for (Symbol symbol : symbolModel.getSymbols(Symbol.Kind.VARIABLE)){
-      Tree firstJQueryStorage = getJQueryStorage(symbol);
-      if (firstJQueryStorage != null && !pattern.matcher(symbol.name()).matches()){
-        getContext().addIssue(this, firstJQueryStorage, String.format(MESSAGE, symbol.name(), format));
+      boolean onlyJQuerySelectorType = symbol.canBe(Type.Kind.JQUERY_SELECTOR_OBJECT) && symbol.types().size() == 1;
+      if (!symbol.builtIn() && onlyJQuerySelectorType && !pattern.matcher(symbol.name()).matches()){
+        raiseIssuesOnDeclarations(this, symbol, String.format(MESSAGE, symbol.name(), format));
       }
     }
   }
 
-  @Nullable
-  private Tree getJQueryStorage(Symbol symbol) {
-    Collection<Usage> usages = symbol.usages();
-    for (Usage usage : usages){
-      if (usage.isWrite()){
-        ExpressionTree expressionTree = null;
-        Tree usageTree = usage.usageTree();
-        if (usageTree.is(Tree.Kind.ASSIGNMENT)) {
-          expressionTree = ((AssignmentExpressionTree) usageTree).expression();
-        } else if (usageTree.is(Tree.Kind.INITIALIZED_BINDING_ELEMENT)){
-          expressionTree = ((InitializedBindingElementTree)usageTree).right();
-        }
-        if (expressionTree != null && isSelector(expressionTree)){
-          return usageTree;
-        }
+  protected void raiseIssuesOnDeclarations(JavaScriptCheck check, Symbol symbol, String message){
+    Preconditions.checkArgument(!symbol.builtIn());
+
+    boolean issueRaised = false;
+    for (Usage usage : symbol.usages()){
+      if (usage.isDeclaration()){
+        getContext().addIssue(check, usage.identifierTree(), message);
+        issueRaised = true;
       }
     }
-    return null;
+
+    if (!issueRaised){
+      getContext().addIssue(check, symbol.usages().iterator().next().identifierTree(), message);
+    }
+
   }
 
 }
