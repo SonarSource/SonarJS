@@ -23,6 +23,7 @@ import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
+import org.sonar.javascript.ast.resolve.type.PrimitiveType;
 import org.sonar.javascript.model.internal.SeparatedList;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.declaration.FunctionDeclarationTree;
@@ -34,6 +35,7 @@ import org.sonar.plugins.javascript.api.tree.expression.CallExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.FunctionExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.LiteralTree;
+import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
 import org.sonar.squidbridge.annotations.SqaleLinearWithOffsetRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 
@@ -54,7 +56,7 @@ import java.util.Map;
     coeff = "1min",
     offset = "2min",
     effortToFixDescription = "number of times selection is re-made.")
-public class NotStoredSelectionCheck extends AbstractJQueryCheck {
+public class NotStoredSelectionCheck extends BaseTreeVisitor {
 
   private static final int DEFAULT = 2;
 
@@ -138,7 +140,7 @@ public class NotStoredSelectionCheck extends AbstractJQueryCheck {
 
   @Override
   public void visitCallExpression(CallExpressionTree tree) {
-    if (isSelector(tree)) {
+    if (tree.types().contains(PrimitiveType.JQUERY_SELECTOR_OBJECT)) {
       LiteralTree parameter = getSelectorParameter(tree);
       if (parameter != null) {
         List<LiteralTree> currentSelectors = selectors.peek();
@@ -159,19 +161,19 @@ public class NotStoredSelectionCheck extends AbstractJQueryCheck {
   @Override
   public void visitAssignmentExpression(AssignmentExpressionTree tree) {
     super.visitAssignmentExpression(tree);
-    checkForSelectors(tree.expression());
+    lookForException(tree.expression());
   }
 
   @Override
   public void visitInitializedBindingElement(InitializedBindingElementTree tree) {
     super.visitInitializedBindingElement(tree);
-    checkForSelectors(tree.right());
+    lookForException(tree.right());
   }
 
-  private void checkForSelectors(ExpressionTree tree) {
+  private void lookForException(ExpressionTree tree) {
     if (tree.is(Tree.Kind.CALL_EXPRESSION)) {
       CallExpressionTree callExpressionTree = (CallExpressionTree) tree;
-      if (isSelector(callExpressionTree)) {
+      if (callExpressionTree.types().contains(PrimitiveType.JQUERY_SELECTOR_OBJECT)) {
         LiteralTree parameter = getSelectorParameter(callExpressionTree);
         if (parameter != null){
           selectors.peek().remove(parameter);
