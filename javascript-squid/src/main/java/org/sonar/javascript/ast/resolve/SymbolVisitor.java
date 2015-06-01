@@ -129,7 +129,6 @@ public class SymbolVisitor extends BaseTreeVisitor {
         Symbol symbol = symbolModel.declareSymbol(identifier.name(), Symbol.Kind.VARIABLE, symbolModel.globalScope());
         symbol.addUsage(
             Usage.create(identifier, usageKind)
-                .setUsageTree(tree)
         );
       }
       // no need to inferType variable has it has been handle
@@ -214,7 +213,7 @@ public class SymbolVisitor extends BaseTreeVisitor {
     Symbol symbol = currentScope.lookupSymbol(identifier.name());
     if (symbol != null) {
       if (usageTree != null){
-        symbol.addUsage(Usage.create(identifier, kind).setUsageTree(usageTree));
+        symbol.addUsage(Usage.create(identifier, kind));
       } else {
         symbol.addUsage(Usage.create(identifier, kind));
       }

@@ -19,11 +19,11 @@
  */
 package org.sonar.javascript.checks.utils;
 
-import org.apache.commons.collections.map.HashedMap;
 import org.sonar.api.config.Settings;
-import org.sonar.javascript.checks.AbstractJQueryCheck;
+import org.sonar.javascript.ast.resolve.type.JQuery;
 import org.sonar.plugins.javascript.api.CheckTest;
 
+import java.util.HashMap;
 import java.util.Map;
 
 public class TreeCheckTest extends CheckTest {
@@ -32,8 +32,8 @@ public class TreeCheckTest extends CheckTest {
   public Settings settings() {
     Settings settings = new Settings();
 
-    Map<String, String> properties = new HashedMap();
-    properties.put(AbstractJQueryCheck.JQUERY_OBJECT_ALIASES, AbstractJQueryCheck.JQUERY_OBJECT_ALIASES_DEFAULT_VALUE);
+    Map<String, String> properties = new HashMap<>();
+    properties.put(JQuery.JQUERY_OBJECT_ALIASES, JQuery.JQUERY_OBJECT_ALIASES_DEFAULT_VALUE);
     settings.addProperties(properties);
 
     return settings;

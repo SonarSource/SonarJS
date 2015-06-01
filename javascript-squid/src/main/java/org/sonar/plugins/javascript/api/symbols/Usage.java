@@ -20,7 +20,6 @@
 package org.sonar.plugins.javascript.api.symbols;
 
 import com.google.common.annotations.Beta;
-import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 
 @Beta
@@ -37,7 +36,6 @@ public class Usage {
   }
   private Kind kind;
   private IdentifierTree identifierTree;
-  private Tree usageTree;
 
   /**
    *
@@ -47,7 +45,6 @@ public class Usage {
   private Usage(IdentifierTree identifierTree, Kind kind){
     this.kind = kind;
     this.identifierTree = identifierTree;
-    this.usageTree = identifierTree;
   }
 
   public Kind kind() {
@@ -56,19 +53,6 @@ public class Usage {
 
   public IdentifierTree identifierTree() {
     return identifierTree;
-  }
-
-  /**
-   * @deprecated {@link #identifierTree()} should be used.
-   */
-  @Deprecated
-  public Tree usageTree() {
-    return usageTree;
-  }
-
-  public Usage setUsageTree(Tree usageTree){
-    this.usageTree = usageTree;
-    return this;
   }
 
   public static Usage create(IdentifierTree symbolTree, Kind kind){
