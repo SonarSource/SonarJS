@@ -33,7 +33,8 @@ public class ObjectType implements Type {
     return Kind.OBJECT;
   }
 
-  protected ObjectType(){}
+  protected ObjectType(){
+  }
 
   public static ObjectType create(){
     return new ObjectType();

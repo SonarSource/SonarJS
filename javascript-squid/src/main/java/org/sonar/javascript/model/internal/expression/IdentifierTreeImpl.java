@@ -73,10 +73,6 @@ public class IdentifierTreeImpl extends JavaScriptTree implements IdentifierTree
     return symbol;
   }
 
-  public boolean hasType(Type.Kind type) {
-    return symbol != null && symbol.canBe(type);
-  }
-
   public void setSymbol(Symbol symbol) {
     this.symbol = symbol;
   }

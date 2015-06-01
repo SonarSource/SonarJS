@@ -53,11 +53,7 @@ public class DeleteArrayElementCheck extends BaseTreeVisitor {
   }
 
   private boolean isArrayElement(ExpressionTree expression) {
-    if (expression.is(Tree.Kind.BRACKET_MEMBER_EXPRESSION)) {
-      BracketMemberExpressionTree bracketExpr = ((BracketMemberExpressionTree) expression);
-      return canOnlyBeArray(bracketExpr.object());
-    }
-    return false;
+    return expression.is(Tree.Kind.BRACKET_MEMBER_EXPRESSION) && canOnlyBeArray(((BracketMemberExpressionTree) expression).object());
   }
 
   private boolean canOnlyBeArray(ExpressionTree expression){

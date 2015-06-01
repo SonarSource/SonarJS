@@ -61,7 +61,7 @@ public class RedeclaredSymbolCheck extends BaseTreeVisitor {
     for (Usage usage : symbol.usages()) {
 
       if (firstDeclaration == null) {
-        if ((usage.isDeclaration() || usage.kind() == Usage.Kind.LEXICAL_DECLARATION)) {
+        if (usage.isDeclaration() || usage.kind() == Usage.Kind.LEXICAL_DECLARATION) {
           firstDeclaration = usage;
         }
       } else if (usage.isDeclaration()) {

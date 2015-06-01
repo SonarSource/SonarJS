@@ -81,7 +81,8 @@ public class UnusedFunctionArgumentCheck extends BaseTreeVisitor {
           return usage;
         }
       }
-      throw new IllegalStateException(); // parameter symbol is required to have LEXICAL_DECLARATION usage
+      // parameter symbol is required to have LEXICAL_DECLARATION usage
+      throw new IllegalStateException();
     }
   }
 
@@ -144,7 +145,8 @@ public class UnusedFunctionArgumentCheck extends BaseTreeVisitor {
   private List<Boolean> getUsageInfo(List<Symbol> symbols) {
     List<Boolean> result = new LinkedList<>();
     for (Symbol symbol : symbols){
-      if (symbol.usages().size() == 1){ // only declaration
+      if (symbol.usages().size() == 1){
+        // only declaration
         result.add(false);
       } else {
         result.add(true);

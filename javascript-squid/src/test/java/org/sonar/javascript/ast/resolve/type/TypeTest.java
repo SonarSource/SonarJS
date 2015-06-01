@@ -28,7 +28,7 @@ import org.sonar.plugins.javascript.api.tree.ScriptTree;
 import java.io.File;
 
 
-public class TypeTest extends JavaScriptTreeModelTest {
+public abstract class TypeTest extends JavaScriptTreeModelTest {
   protected AstNode ROOT_NODE;
   protected SymbolModelImpl SYMBOL_MODEL;
 
@@ -36,7 +36,7 @@ public class TypeTest extends JavaScriptTreeModelTest {
     return SYMBOL_MODEL.getSymbols(name).iterator().next();
   }
 
-  public void setUp(String filename) throws Exception {
+  protected void setUp(String filename) throws Exception {
     ROOT_NODE = p.parse(new File("src/test/resources/ast/resolve/type/", filename));
     SYMBOL_MODEL = SymbolModelImpl.create((ScriptTree) ROOT_NODE, null, null, null);
   }

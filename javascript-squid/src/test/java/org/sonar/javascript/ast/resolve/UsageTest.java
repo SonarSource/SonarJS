@@ -104,17 +104,20 @@ public class UsageTest extends JavaScriptTreeModelTest {
   @Test
   public void usage_type() throws Exception {
     Collection<Usage> usages = usagesFor("var1");
-    assertThat(usages).hasSize(4);
+    assertThat(usages).hasSize(5);
     Iterator<Usage> iterator = usages.iterator();
     int readCounter = 0;
     int writeCounter = 0;
+    int declarationCounter = 0;
     while (iterator.hasNext()){
       Usage next = iterator.next();
-      readCounter += !next.kind().equals(Usage.Kind.WRITE) && ! next.kind().equals(Usage.Kind.DECLARATION_WRITE) ? 1 : 0;
-      writeCounter += !next.kind().equals(Usage.Kind.READ) ? 1 : 0;
+      readCounter += next.kind().equals(Usage.Kind.READ)||next.kind().equals(Usage.Kind.READ_WRITE) ? 1 : 0;
+      writeCounter += next.isWrite() ? 1 : 0;
+      declarationCounter += next.isDeclaration() ? 1 : 0;
     }
     assertThat(readCounter).isEqualTo(2);
     assertThat(writeCounter).isEqualTo(3);
+    assertThat(declarationCounter).isEqualTo(2);
   }
 
   public Collection<Usage> usagesFor(String name) {

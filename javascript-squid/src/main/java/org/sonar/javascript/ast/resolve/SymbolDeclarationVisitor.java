@@ -154,7 +154,8 @@ public class SymbolDeclarationVisitor extends BaseTreeVisitor {
     for (BindingElementTree bindingElement : tree.variables()) {
       if (bindingElement.is(Tree.Kind.INITIALIZED_BINDING_ELEMENT)) {
         for (IdentifierTree identifier : ((InitializedBindingElementTreeImpl) bindingElement).bindingIdentifiers()){
-          symbolModel.declareSymbol(identifier.name(), Symbol.Kind.VARIABLE, currentScope).addUsage(Usage.create(identifier, Usage.Kind.DECLARATION_WRITE).setUsageTree(bindingElement));
+          symbolModel.declareSymbol(identifier.name(), Symbol.Kind.VARIABLE, currentScope)
+              .addUsage(Usage.create(identifier, Usage.Kind.DECLARATION_WRITE).setUsageTree(bindingElement));
         }
       }
       if (bindingElement instanceof IdentifierTree){

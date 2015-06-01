@@ -29,7 +29,8 @@ public class Usage {
   public enum Kind {
     DECLARATION,
     DECLARATION_WRITE,
-    LEXICAL_DECLARATION,  // parameters in function signature
+    // parameters in function signature
+    LEXICAL_DECLARATION,
     WRITE,
     READ,
     READ_WRITE;
