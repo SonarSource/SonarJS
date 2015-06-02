@@ -56,7 +56,9 @@ public class OctalNumberCheck extends SquidCheck<LexerlessGrammar> {
       } catch (NumberFormatException e) {
         return;
       }
-      getContext().createLineViolation(this, "Replace the value of the octal number (" + value + ") by its decimal equivalent (" + newValue + ").", astNode);
+      if (newValue > 9) {
+        getContext().createLineViolation(this, "Replace the value of the octal number (" + value + ") by its decimal equivalent (" + newValue + ").", astNode);
+      }
     }
   }
 

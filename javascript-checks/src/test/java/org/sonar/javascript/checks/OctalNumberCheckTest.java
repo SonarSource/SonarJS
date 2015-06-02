@@ -34,7 +34,6 @@ public class OctalNumberCheckTest {
 
     SourceFile file = JavaScriptAstScanner.scanSingleFile(new File("src/test/resources/checks/octalNumber.js"), check);
     CheckMessagesVerifier.verify(file.getCheckMessages())
-        .next().atLine(2).withMessage("Replace the value of the octal number (00) by its decimal equivalent (0).")
         .next().atLine(3).withMessage("Replace the value of the octal number (0644) by its decimal equivalent (420).")
         .noMore();
   }
