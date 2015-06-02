@@ -1,19 +1,19 @@
 function fun1(){
-  $( "p" ).hide();
+  $( "p" ).hide(); // NOK
   $( "p" ).show();
 }
 
 function fun2(){
-  $( "p" ).hide();
+  $( "p" ).hide(); // NOK
   $( "p" ).show();
   $( "p" ).show();
 }
 
 function fun3(){
-  $( "p" ).hide();
+  $( "p" ).hide(); // NOK
 
   function fun4(){
-    $( "p" ).hide();
+    $( "p" ).hide(); // NOK
     $( "p" ).show();
   }
 
@@ -21,12 +21,12 @@ function fun3(){
 
 }
 
-$( "p" ).hide();
+$( "p" ).hide(); // NOK
 $( "p" ).show();
 
 
 var fun5 = function(){
-  $( "p" ).hide();
+  $( "p" ).hide(); // NOK
   $( "p" ).show();
 }
 
@@ -41,7 +41,7 @@ var fun7 = function(){
 }
 
 fun8(function(){
-  jQuery( "p" ).hide();
+  jQuery( "p" ).hide(); // NOK
   jQuery( "p" ).show();
 })
 
@@ -52,4 +52,17 @@ function fun9(){
   fun11(()=>{
     $( "p" ).hide();
   })
+}
+
+
+// Creation of elements
+function fun10(){
+  $("<div>");  // OK
+  $("<div>");
+
+  $('<div/>');  // OK
+  $('<div/>');
+
+  jQuery('<p>Hello</p>');  // OK
+  jQuery('<p>Hello</p>');
 }
