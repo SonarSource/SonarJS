@@ -50,7 +50,9 @@ public class OctalNumberCheck extends BaseTreeVisitor {
        } catch (NumberFormatException e) {
          return;
        }
-       getContext().addIssue(this, tree, "Replace the value of the octal number (" + value + ") by its decimal equivalent (" + newValue + ").");
+       if (newValue > 9) {
+         getContext().addIssue(this, tree, "Replace the value of the octal number (" + value + ") by its decimal equivalent (" + newValue + ").");
+       }
      }
    }
   }
