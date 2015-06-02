@@ -41,7 +41,8 @@ public class SelectionTestedWithoutLengthCheck extends BaseTreeVisitor {
   @Override
   public void visitIfStatement(IfStatementTree tree) {
     ExpressionTree condition = tree.condition();
-    if (condition.types().contains(PrimitiveType.JQUERY_SELECTOR_OBJECT)) {
+    boolean canBeOnlyJQuerySelector = condition.types().contains(PrimitiveType.JQUERY_SELECTOR_OBJECT) && condition.types().size() == 1;
+    if (canBeOnlyJQuerySelector) {
       getContext().addIssue(this, condition, "Use the \"length\" property to see whether this selection contains elements.");
     }
     super.visitIfStatement(tree);
