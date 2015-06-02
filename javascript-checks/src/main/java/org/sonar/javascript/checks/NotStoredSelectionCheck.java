@@ -19,6 +19,7 @@
  */
 package org.sonar.javascript.checks;
 
+import com.google.common.base.Preconditions;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
@@ -152,10 +153,22 @@ public class NotStoredSelectionCheck extends BaseTreeVisitor {
 
   private LiteralTree getSelectorParameter(CallExpressionTree tree) {
     SeparatedList<Tree> parameters = tree.arguments().parameters();
-    if (parameters.size() == 1 && parameters.get(0).is(Tree.Kind.STRING_LITERAL)) {
+    if (parameters.size() == 1 && parameters.get(0).is(Tree.Kind.STRING_LITERAL) && !isElementCreation((LiteralTree) parameters.get(0))) {
       return (LiteralTree) parameters.get(0);
     }
     return null;
+  }
+
+  /**
+   *
+   * @param literalTree string literal argument of jQuery()
+   * @return true if argument looks like HTML (e.g. "<div></div>")
+   */
+  private boolean isElementCreation(LiteralTree literalTree) {
+    Preconditions.checkArgument(literalTree.is(Tree.Kind.STRING_LITERAL));
+    String value = literalTree.value();
+    value = value.substring(1, value.length() - 1);
+    return value.startsWith("<") && value.endsWith(">");
   }
 
   @Override
