@@ -19,20 +19,18 @@
  */
 package org.sonar.javascript.checks;
 
-import org.sonar.squidbridge.checks.CheckMessagesVerifier;
 import org.junit.Test;
-import org.sonar.javascript.JavaScriptAstScanner;
+import org.sonar.javascript.checks.utils.TreeCheckTest;
 import org.sonar.squidbridge.api.SourceFile;
+import org.sonar.squidbridge.checks.CheckMessagesVerifier;
 
-import java.io.File;
-
-public class NamedFunctionExpressionCheckTest {
+public class NamedFunctionExpressionCheckTest extends TreeCheckTest {
 
   @Test
   public void test() {
     NamedFunctionExpressionCheck check = new NamedFunctionExpressionCheck();
 
-    SourceFile file = JavaScriptAstScanner.scanSingleFile(new File("src/test/resources/checks/namedFunctionExpression.js"), check);
+    SourceFile file = scanFile("src/test/resources/checks/namedFunctionExpression.js", check);
     CheckMessagesVerifier.verify(file.getCheckMessages())
         .next().atLine(1).withMessage("Make this function anonymous by removing its name: 'function() {...}'.")
         .next().atLine(2)

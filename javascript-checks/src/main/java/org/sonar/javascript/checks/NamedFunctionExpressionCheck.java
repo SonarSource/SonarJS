@@ -22,15 +22,11 @@ package org.sonar.javascript.checks;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
-import org.sonar.javascript.model.internal.expression.FunctionExpressionTreeImpl;
-import org.sonar.plugins.javascript.api.tree.Tree.Kind;
+import org.sonar.plugins.javascript.api.tree.expression.FunctionExpressionTree;
+import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
 import org.sonar.squidbridge.annotations.ActivatedByDefault;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
-import org.sonar.squidbridge.checks.SquidCheck;
-import org.sonar.sslr.parser.LexerlessGrammar;
-
-import com.sonar.sslr.api.AstNode;
 
 @Rule(
   key = "NamedFunctionExpression",
@@ -40,18 +36,14 @@ import com.sonar.sslr.api.AstNode;
 @ActivatedByDefault
 @SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.LANGUAGE_RELATED_PORTABILITY)
 @SqaleConstantRemediation("15min")
-public class NamedFunctionExpressionCheck extends SquidCheck<LexerlessGrammar> {
+public class NamedFunctionExpressionCheck extends BaseTreeVisitor {
 
   @Override
-  public void init() {
-    subscribeTo(Kind.FUNCTION_EXPRESSION);
-  }
-
-  @Override
-  public void visitNode(AstNode astNode) {
-    if (((FunctionExpressionTreeImpl) astNode).name() != null) {
-      getContext().createLineViolation(this, "Make this function anonymous by removing its name: 'function() {...}'.", astNode);
+  public void visitFunctionExpression(FunctionExpressionTree tree) {
+    if (tree.name() != null){
+      getContext().addIssue(this, tree, "Make this function anonymous by removing its name: 'function() {...}'.");
     }
+    super.visitFunctionExpression(tree);
   }
 
 }
