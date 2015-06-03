@@ -23,13 +23,11 @@ import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
+import org.sonar.plugins.javascript.api.tree.expression.LiteralTree;
+import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
 import org.sonar.squidbridge.annotations.ActivatedByDefault;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
-import org.sonar.squidbridge.checks.SquidCheck;
-import org.sonar.sslr.parser.LexerlessGrammar;
-
-import com.sonar.sslr.api.AstNode;
 
 @Rule(
   key = "MultilineStringLiterals",
@@ -39,17 +37,12 @@ import com.sonar.sslr.api.AstNode;
 @ActivatedByDefault
 @SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.INSTRUCTION_RELIABILITY)
 @SqaleConstantRemediation("5min")
-public class MultilineStringLiteralsCheck extends SquidCheck<LexerlessGrammar> {
+public class MultilineStringLiteralsCheck extends BaseTreeVisitor {
 
   @Override
-  public void init() {
-    subscribeTo(Kind.STRING_LITERAL);
-  }
-
-  @Override
-  public void visitNode(AstNode astNode) {
-    if (astNode.getTokenValue().contains("\n")) {
-      getContext().createLineViolation(this, "Use string concatenation rather than line continuation.", astNode);
+  public void visitLiteral(LiteralTree tree) {
+    if (tree.is(Kind.STRING_LITERAL) && tree.value().contains("\n")){
+      getContext().addIssue(this, tree, "Use string concatenation rather than line continuation.");
     }
   }
 
