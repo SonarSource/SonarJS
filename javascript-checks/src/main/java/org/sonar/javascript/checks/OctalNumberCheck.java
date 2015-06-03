@@ -22,14 +22,12 @@ package org.sonar.javascript.checks;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
-import org.sonar.javascript.api.EcmaScriptTokenType;
+import org.sonar.plugins.javascript.api.tree.Tree;
+import org.sonar.plugins.javascript.api.tree.expression.LiteralTree;
+import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
 import org.sonar.squidbridge.annotations.ActivatedByDefault;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
-import org.sonar.squidbridge.checks.SquidCheck;
-import org.sonar.sslr.parser.LexerlessGrammar;
-
-import com.sonar.sslr.api.AstNode;
 
 @Rule(
   key = "OctalNumber",
@@ -39,25 +37,22 @@ import com.sonar.sslr.api.AstNode;
 @ActivatedByDefault
 @SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.DATA_RELIABILITY)
 @SqaleConstantRemediation("5min")
-public class OctalNumberCheck extends SquidCheck<LexerlessGrammar> {
+public class OctalNumberCheck extends BaseTreeVisitor {
 
   @Override
-  public void init() {
-    subscribeTo(EcmaScriptTokenType.NUMERIC_LITERAL);
-  }
-
-  @Override
-  public void visitNode(AstNode astNode) {
-    String value = astNode.getTokenValue();
-    if (value.length() > 1 && value.startsWith("0")) {
-      int newValue;
-      try {
-        newValue = Integer.parseInt(value, 8);
-      } catch (NumberFormatException e) {
-        return;
-      }
-      getContext().createLineViolation(this, "Replace the value of the octal number (" + value + ") by its decimal equivalent (" + newValue + ").", astNode);
-    }
+  public void visitLiteral(LiteralTree tree) {
+   if (tree.is(Tree.Kind.NUMERIC_LITERAL)){
+     String value = tree.value();
+     if (value.length() > 1 && value.startsWith("0")) {
+       int newValue;
+       try {
+         newValue = Integer.parseInt(value, 8);
+       } catch (NumberFormatException e) {
+         return;
+       }
+       getContext().addIssue(this, tree, "Replace the value of the octal number (" + value + ") by its decimal equivalent (" + newValue + ").");
+     }
+   }
   }
 
 }
