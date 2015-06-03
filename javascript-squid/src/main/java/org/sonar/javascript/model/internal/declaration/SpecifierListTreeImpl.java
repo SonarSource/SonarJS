@@ -92,7 +92,11 @@ public class SpecifierListTreeImpl extends JavaScriptTree implements SpecifierLi
 
   @Override
   public Iterator<Tree> childrenIterator() {
-    return Iterators.<Tree>concat(specifiers.iterator());
+    return Iterators.<Tree>concat(
+        Iterators.singletonIterator(openCurlyBraceToken),
+        specifiers.iterator(),
+        Iterators.singletonIterator(closeCurlyBraceToken)
+    );
   }
 
   @Override

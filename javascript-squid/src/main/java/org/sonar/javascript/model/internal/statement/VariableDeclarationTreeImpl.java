@@ -74,7 +74,10 @@ public class VariableDeclarationTreeImpl extends JavaScriptTree implements Varia
 
   @Override
   public Iterator<Tree> childrenIterator() {
-    return Iterators.<Tree>concat(variables.iterator());
+    return Iterators.<Tree>concat(
+        Iterators.singletonIterator(token),
+        variables.iterator()
+    );
   }
 
   @Override

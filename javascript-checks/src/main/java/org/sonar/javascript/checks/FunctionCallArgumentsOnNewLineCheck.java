@@ -22,14 +22,15 @@ package org.sonar.javascript.checks;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
-import org.sonar.plugins.javascript.api.tree.Tree.Kind;
+import org.sonar.javascript.model.internal.JavaScriptTree;
+import org.sonar.plugins.javascript.api.tree.Tree;
+import org.sonar.plugins.javascript.api.tree.expression.CallExpressionTree;
+import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
 import org.sonar.squidbridge.annotations.ActivatedByDefault;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
-import org.sonar.squidbridge.checks.SquidCheck;
-import org.sonar.sslr.parser.LexerlessGrammar;
 
-import com.sonar.sslr.api.AstNode;
+import java.util.Iterator;
 
 @Rule(
   key = "S1472",
@@ -39,22 +40,36 @@ import com.sonar.sslr.api.AstNode;
 @ActivatedByDefault
 @SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.INSTRUCTION_RELIABILITY)
 @SqaleConstantRemediation("5min")
-public class FunctionCallArgumentsOnNewLineCheck extends SquidCheck<LexerlessGrammar> {
+public class FunctionCallArgumentsOnNewLineCheck extends BaseTreeVisitor {
 
   @Override
-  public void init() {
-    subscribeTo(Kind.CALL_EXPRESSION);
+  public void visitCallExpression(CallExpressionTree tree) {
+
+    int calleeLastLine = getLastLine(tree.callee());
+    int argumentsLine = ((JavaScriptTree)tree.arguments()).getLine();
+
+    if (calleeLastLine != argumentsLine){
+      getContext().addIssue(this, tree.arguments(), "Make those call arguments start on line " + calleeLastLine);
+    }
+    super.visitCallExpression(tree);
   }
 
-  @Override
-  public void visitNode(AstNode astNode) {
-
-    AstNode arguments = astNode.getFirstChild(Kind.ARGUMENTS);
-    int calleLine =  arguments.getPreviousSibling().getLastChild().getLastToken().getLine();
-
-    if (calleLine != arguments.getTokenLine()) {
-      getContext().createLineViolation(this, "Make those call arguments start on line {0}", arguments, calleLine);
+  private int getLastLine(Tree tree){
+    JavaScriptTree jsTree = (JavaScriptTree)tree;
+    System.out.println(jsTree);
+    if (jsTree.isLeaf()){
+      return jsTree.getLine();
+    } else {
+      return getLastLine(getLastElement(jsTree.childrenIterator()));
     }
+  }
+
+  public Tree getLastElement(Iterator<Tree> itr) {
+    Tree lastElement = itr.next();
+    while(itr.hasNext()) {
+      lastElement=itr.next();
+    }
+    return lastElement;
   }
 
 }

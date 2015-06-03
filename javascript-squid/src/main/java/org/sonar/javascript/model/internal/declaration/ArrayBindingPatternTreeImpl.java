@@ -89,7 +89,11 @@ public class ArrayBindingPatternTreeImpl extends JavaScriptTree implements Array
         nonElidedElements.add(e.get());
       }
     }
-    return Iterators.concat(nonElidedElements.iterator());
+    return Iterators.concat(
+        Iterators.singletonIterator(openBracketToken),
+        nonElidedElements.iterator(),
+        Iterators.singletonIterator(closeBracketToken)
+    );
   }
 
   @Override

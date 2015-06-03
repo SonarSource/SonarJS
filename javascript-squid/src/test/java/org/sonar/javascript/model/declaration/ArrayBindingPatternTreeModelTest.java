@@ -103,12 +103,20 @@ public class ArrayBindingPatternTreeModelTest extends JavaScriptTreeModelTest {
     ArrayBindingPatternTreeImpl tree1 = parse("var [ ] = obj", Kind.ARRAY_BINDING_PATTERN);
     ArrayBindingPatternTreeImpl tree2 = parse("var [a, , b, ...c, { d }, [ i ]] = obj", Kind.ARRAY_BINDING_PATTERN);
 
-    assertThat(tree1.childrenIterator().hasNext()).isFalse();
+    Iterator<Tree> treeIterator1 = tree1.childrenIterator();
+    assertThat(size(treeIterator1)).isEqualTo(2);
 
-    Iterator<Tree> it2 = tree2.childrenIterator();
-    for (int i = 0; i < 5; i++) {
-      assertThat(it2.hasNext()).isTrue();
+    Iterator<Tree> treeIterator2 = tree2.childrenIterator();
+    assertThat(size(treeIterator2)).isEqualTo(7);
+  }
+
+  private int size(Iterator iterator){
+    int result = 0;
+    while (iterator.hasNext()){
+      iterator.next();
+      result++;
     }
+    return result;
   }
 
 }

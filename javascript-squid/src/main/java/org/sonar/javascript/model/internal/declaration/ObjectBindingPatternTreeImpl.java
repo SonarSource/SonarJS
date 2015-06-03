@@ -94,7 +94,11 @@ public class ObjectBindingPatternTreeImpl extends JavaScriptTree implements Obje
 
   @Override
   public Iterator<Tree> childrenIterator() {
-    return Iterators.concat(bindingElements.iterator());
+    return Iterators.concat(
+        Iterators.singletonIterator(openCurlyBrace),
+        bindingElements.iterator(),
+        Iterators.singletonIterator(closeCurlyBrace)
+    );
   }
 
   @Override

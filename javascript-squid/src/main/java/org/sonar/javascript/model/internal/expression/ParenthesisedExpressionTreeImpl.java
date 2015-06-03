@@ -71,7 +71,11 @@ public class ParenthesisedExpressionTreeImpl extends JavaScriptTree implements P
 
   @Override
   public Iterator<Tree> childrenIterator() {
-    return Iterators.<Tree>singletonIterator(expression);
+    return Iterators.<Tree>concat(
+        Iterators.singletonIterator(openParenthesis),
+        Iterators.singletonIterator(expression),
+        Iterators.singletonIterator(closeParenthesis)
+    );
   }
 
   @Override

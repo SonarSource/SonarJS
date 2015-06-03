@@ -103,7 +103,11 @@ public class ArrayLiteralTreeImpl extends JavaScriptTree implements ArrayLiteral
 
   @Override
   public Iterator<Tree> childrenIterator() {
-    return Iterators.<Tree>concat(elements.iterator());
+    return Iterators.<Tree>concat(
+        Iterators.singletonIterator(openBracket),
+        elements.iterator(),
+        Iterators.singletonIterator(closeBracket)
+    );
   }
 
   @Override

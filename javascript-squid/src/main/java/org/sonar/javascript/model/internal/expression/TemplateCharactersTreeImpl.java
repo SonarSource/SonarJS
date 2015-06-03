@@ -64,6 +64,11 @@ public class TemplateCharactersTreeImpl extends JavaScriptTree implements Templa
   }
 
   @Override
+  public boolean isLeaf() {
+    return true;
+  }
+
+  @Override
   public void accept(TreeVisitor visitor) {
     visitor.visitTemplateCharacters(this);
   }
