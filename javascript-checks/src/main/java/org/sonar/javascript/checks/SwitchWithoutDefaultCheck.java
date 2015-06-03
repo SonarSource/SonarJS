@@ -19,20 +19,17 @@
  */
 package org.sonar.javascript.checks;
 
+import com.google.common.collect.Iterables;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
-import org.sonar.javascript.model.internal.statement.SwitchStatementTreeImpl;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.statement.SwitchClauseTree;
+import org.sonar.plugins.javascript.api.tree.statement.SwitchStatementTree;
+import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
 import org.sonar.squidbridge.annotations.ActivatedByDefault;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
-import org.sonar.squidbridge.checks.SquidCheck;
-import org.sonar.sslr.parser.LexerlessGrammar;
-
-import com.google.common.collect.Iterables;
-import com.sonar.sslr.api.AstNode;
 
 @Rule(
   key = "SwitchWithoutDefault",
@@ -42,26 +39,20 @@ import com.sonar.sslr.api.AstNode;
 @ActivatedByDefault
 @SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.LOGIC_RELIABILITY)
 @SqaleConstantRemediation("5min")
-public class SwitchWithoutDefaultCheck extends SquidCheck<LexerlessGrammar> {
+public class SwitchWithoutDefaultCheck extends BaseTreeVisitor {
 
   @Override
-  public void init() {
-    subscribeTo(Kind.SWITCH_STATEMENT);
-  }
+  public void visitSwitchStatement(SwitchStatementTree tree) {
+    if (!hasDefaultCase(tree)) {
+      getContext().addIssue(this, tree, "Avoid switch statement without a \"default\" clause.");
 
-  @Override
-  public void visitNode(AstNode astNode) {
-    SwitchStatementTreeImpl switchStmt = (SwitchStatementTreeImpl) astNode;
-
-    if (!hasDefaultCase(switchStmt)) {
-      getContext().createLineViolation(this, "Avoid switch statement without a \"default\" clause.", astNode);
-
-    } else if (!Iterables.getLast(switchStmt.cases()).is(Kind.DEFAULT_CLAUSE)) {
-      getContext().createLineViolation(this, "\"default\" clause should be the last one.", astNode);
+    } else if (!Iterables.getLast(tree.cases()).is(Kind.DEFAULT_CLAUSE)) {
+      getContext().addIssue(this, tree, "\"default\" clause should be the last one.");
     }
+    super.visitSwitchStatement(tree);
   }
 
-  private boolean hasDefaultCase(SwitchStatementTreeImpl switchStmt) {
+  private boolean hasDefaultCase(SwitchStatementTree switchStmt) {
     for (SwitchClauseTree clause : switchStmt.cases()) {
 
       if (clause.is(Kind.DEFAULT_CLAUSE)) {
