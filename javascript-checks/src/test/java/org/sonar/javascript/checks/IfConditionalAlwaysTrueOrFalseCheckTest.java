@@ -20,19 +20,17 @@
 package org.sonar.javascript.checks;
 
 import org.junit.Test;
-import org.sonar.javascript.JavaScriptAstScanner;
+import org.sonar.javascript.checks.utils.TreeCheckTest;
 import org.sonar.squidbridge.api.SourceFile;
 import org.sonar.squidbridge.checks.CheckMessagesVerifier;
 
-import java.io.File;
-
-public class IfConditionalAlwaysTrueOrFalseCheckTest {
+public class IfConditionalAlwaysTrueOrFalseCheckTest extends TreeCheckTest {
 
   private final IfConditionalAlwaysTrueOrFalseCheck check = new IfConditionalAlwaysTrueOrFalseCheck();
 
   @Test
   public void test() {
-    SourceFile file = JavaScriptAstScanner.scanSingleFile(new File("src/test/resources/checks/ifConditionalAlwaysTrueOrFalse.js"), check);
+    SourceFile file = scanFile("src/test/resources/checks/ifConditionalAlwaysTrueOrFalse.js", check);
     CheckMessagesVerifier.verify(file.getCheckMessages())
       .next().atLine(9)
       .next().atLine(13)

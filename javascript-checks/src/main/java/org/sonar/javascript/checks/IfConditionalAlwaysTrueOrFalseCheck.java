@@ -24,13 +24,10 @@ import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.statement.IfStatementTree;
+import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
 import org.sonar.squidbridge.annotations.ActivatedByDefault;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
-import org.sonar.squidbridge.checks.SquidCheck;
-import org.sonar.sslr.parser.LexerlessGrammar;
-
-import com.sonar.sslr.api.AstNode;
 
 @Rule(
   key = "S1145",
@@ -40,20 +37,15 @@ import com.sonar.sslr.api.AstNode;
 @ActivatedByDefault
 @SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.READABILITY)
 @SqaleConstantRemediation("2min")
-public class IfConditionalAlwaysTrueOrFalseCheck extends SquidCheck<LexerlessGrammar> {
+public class IfConditionalAlwaysTrueOrFalseCheck extends BaseTreeVisitor {
 
   @Override
-  public void init() {
-    subscribeTo(Kind.IF_STATEMENT);
-  }
-
-  @Override
-  public void visitNode(AstNode astNode) {
-    IfStatementTree statement = (IfStatementTree) astNode;
-    if (statement.condition().is(Kind.BOOLEAN_LITERAL)) {
-      getContext().createLineViolation(this, "Remove this \"if\" statement.", astNode);
+  public void visitIfStatement(IfStatementTree tree) {
+    if (tree.condition().is(Kind.BOOLEAN_LITERAL)){
+      getContext().addIssue(this, tree, "Remove this \"if\" statement.\"");
     }
 
+    super.visitIfStatement(tree);
   }
 
 }
