@@ -19,21 +19,22 @@
  */
 package org.sonar.javascript.checks;
 
-import java.util.List;
-import java.util.Set;
-
+import com.google.common.collect.Sets;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
-import org.sonar.plugins.javascript.api.tree.Tree.Kind;
+import org.sonar.plugins.javascript.api.tree.Tree;
+import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
+import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
+import org.sonar.plugins.javascript.api.tree.expression.LiteralTree;
+import org.sonar.plugins.javascript.api.tree.expression.ObjectLiteralTree;
+import org.sonar.plugins.javascript.api.tree.expression.PairPropertyTree;
+import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
 import org.sonar.squidbridge.annotations.ActivatedByDefault;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
-import org.sonar.squidbridge.checks.SquidCheck;
-import org.sonar.sslr.parser.LexerlessGrammar;
 
-import com.google.common.collect.Sets;
-import com.sonar.sslr.api.AstNode;
+import java.util.Set;
 
 @Rule(
   key = "DuplicatePropertyName",
@@ -43,33 +44,47 @@ import com.sonar.sslr.api.AstNode;
 @ActivatedByDefault
 @SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.INSTRUCTION_RELIABILITY)
 @SqaleConstantRemediation("5min")
-public class DuplicatePropertyNameCheck extends SquidCheck<LexerlessGrammar> {
+public class DuplicatePropertyNameCheck extends BaseTreeVisitor {
 
   @Override
-  public void init() {
-    subscribeTo(Kind.OBJECT_LITERAL);
+  public void visitObjectLiteral(ObjectLiteralTree tree) {
+    Set<String> keys = Sets.newHashSet();
+
+    for (Tree property : tree.properties()){
+      if (property.is(Tree.Kind.PAIR_PROPERTY)){
+        visitPairProperty(keys, property, (PairPropertyTree)property);
+      }
+
+      if (property instanceof IdentifierTree){
+        IdentifierTree identifier = (IdentifierTree)property;
+        addKey(keys, identifier.name(), property);
+      }
+    }
+    super.visitObjectLiteral(tree);
   }
 
-  @Override
-  public void visitNode(AstNode astNode) {
-    Set<String> values = Sets.newHashSet();
-    List<AstNode> pairProperties = astNode.getChildren(Kind.PAIR_PROPERTY, Kind.IDENTIFIER_REFERENCE);
+  private void visitPairProperty(Set<String> keys, Tree property, PairPropertyTree pairProperty) {
+    ExpressionTree key = pairProperty.key();
+    if (key.is(Tree.Kind.STRING_LITERAL)){
+      String value = ((LiteralTree)key).value();
+      value = value.substring(1, value.length() - 1);
+      addKey(keys, value, property);
+    }
 
-    for (AstNode property : pairProperties) {
+    if (key instanceof IdentifierTree){
+      addKey(keys, ((IdentifierTree)key).name(), property);
+    }
 
-      AstNode propertyName = property.getFirstChild();
-      String value = propertyName.getTokenValue();
+    if (key.is(Tree.Kind.NUMERIC_LITERAL)){
+      addKey(keys, ((LiteralTree)key).value(), property);
+    }
+  }
 
-      if (value.startsWith("\"") || value.startsWith("'")) {
-        value = value.substring(1, value.length() - 1);
-      }
-      String unescaped = EscapeUtils.unescape(value);
-
-      if (values.contains(unescaped)) {
-        getContext().createLineViolation(this, "Rename or remove duplicate property name '" + value + "'.", propertyName);
-      } else {
-        values.add(unescaped);
-      }
+  private void addKey(Set<String> keys, String key, Tree property) {
+    if (keys.contains(EscapeUtils.unescape(key))){
+      getContext().addIssue(this, property, "Rename or remove duplicate property name '" + key + "'.");
+    } else {
+      keys.add(key);
     }
   }
 
