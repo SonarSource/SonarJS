@@ -23,12 +23,10 @@ import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
+import org.sonar.plugins.javascript.api.tree.expression.LiteralTree;
+import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
-import org.sonar.squidbridge.checks.SquidCheck;
-import org.sonar.sslr.parser.LexerlessGrammar;
-
-import com.sonar.sslr.api.AstNode;
 
 @Rule(
   key = "SingleQuote",
@@ -37,17 +35,12 @@ import com.sonar.sslr.api.AstNode;
   tags = {Tags.CONVENTION})
 @SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.READABILITY)
 @SqaleConstantRemediation("1min")
-public class SingleQuoteStringLiteralsCheck extends SquidCheck<LexerlessGrammar> {
+public class SingleQuoteStringLiteralsCheck extends BaseTreeVisitor {
 
   @Override
-  public void init() {
-    subscribeTo(Kind.STRING_LITERAL);
-  }
-
-  @Override
-  public void visitNode(AstNode astNode) {
-    if (astNode.getTokenValue().charAt(0) != '\'') {
-      getContext().createLineViolation(this, "Replace double quotes by simple quote", astNode);
+  public void visitLiteral(LiteralTree tree) {
+    if (tree.is(Kind.STRING_LITERAL) && tree.value().startsWith("\"")){
+      getContext().addIssue(this, tree, "Replace double quotes by simple quote");
     }
   }
 
