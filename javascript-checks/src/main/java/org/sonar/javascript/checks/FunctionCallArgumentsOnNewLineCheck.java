@@ -56,7 +56,6 @@ public class FunctionCallArgumentsOnNewLineCheck extends BaseTreeVisitor {
 
   private int getLastLine(Tree tree){
     JavaScriptTree jsTree = (JavaScriptTree)tree;
-    System.out.println(jsTree);
     if (jsTree.isLeaf()){
       return jsTree.getLine();
     } else {

@@ -22,15 +22,11 @@ package org.sonar.javascript.checks;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
-import org.sonar.javascript.model.internal.statement.SwitchStatementTreeImpl;
-import org.sonar.plugins.javascript.api.tree.Tree.Kind;
+import org.sonar.plugins.javascript.api.tree.statement.SwitchStatementTree;
+import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
 import org.sonar.squidbridge.annotations.ActivatedByDefault;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
-import org.sonar.squidbridge.checks.SquidCheck;
-import org.sonar.sslr.parser.LexerlessGrammar;
-
-import com.sonar.sslr.api.AstNode;
 
 @Rule(
   key = "S1301",
@@ -40,20 +36,15 @@ import com.sonar.sslr.api.AstNode;
 @ActivatedByDefault
 @SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.READABILITY)
 @SqaleConstantRemediation("5min")
-public class SwitchWithNotEnoughCaseCheck extends SquidCheck<LexerlessGrammar> {
+public class SwitchWithNotEnoughCaseCheck extends BaseTreeVisitor {
 
   @Override
-  public void init() {
-    subscribeTo(Kind.SWITCH_STATEMENT);
-  }
-
-  @Override
-  public void visitNode(AstNode astNode) {
-    SwitchStatementTreeImpl switchStmt = (SwitchStatementTreeImpl) astNode;
-
-    if (switchStmt.cases().size() < 3) {
-      getContext().createLineViolation(this, "Replace this \"switch\" statement with \"if\" statements to increase readability.", astNode);
+  public void visitSwitchStatement(SwitchStatementTree tree) {
+    if (tree.cases().size() < 3) {
+      getContext().addIssue(this, tree, "Replace this \"switch\" statement with \"if\" statements to increase readability.");
     }
+
+    super.visitSwitchStatement(tree);
   }
 
 }
