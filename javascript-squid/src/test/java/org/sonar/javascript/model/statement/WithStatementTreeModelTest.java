@@ -39,7 +39,7 @@ public class WithStatementTreeModelTest extends JavaScriptTreeModelTest {
     assertThat(tree.openingParenthesis().text()).isEqualTo(EcmaScriptPunctuator.LPARENTHESIS.getValue());
     assertThat(tree.expression()).isNotNull();
     assertThat(tree.closingParenthesis().text()).isEqualTo(EcmaScriptPunctuator.RPARENTHESIS.getValue());
-    assertThat(tree.statement().is(Kind.BLOCK));
+    assertThat(tree.statement().is(Kind.EXPRESSION_STATEMENT)).isTrue();
   }
 
 }

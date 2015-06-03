@@ -19,13 +19,14 @@
  */
 package org.sonar.javascript.model.expression;
 
-import static org.fest.assertions.Assertions.assertThat;
 import org.junit.Test;
 import org.sonar.javascript.api.EcmaScriptPunctuator;
 import org.sonar.javascript.model.JavaScriptTreeModelTest;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.expression.ArrowFunctionTree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
+
+import static org.fest.assertions.Assertions.assertThat;
 
 public class ArrowFunctionTreeModelTest extends JavaScriptTreeModelTest {
 
@@ -34,7 +35,7 @@ public class ArrowFunctionTreeModelTest extends JavaScriptTreeModelTest {
     ArrowFunctionTree tree = parse("p => p;", Kind.ARROW_FUNCTION);
 
     assertThat(tree.is(Kind.ARROW_FUNCTION)).isTrue();
-    assertThat(tree.parameters().is(Kind.IDENTIFIER));
+    assertThat(tree.parameters() instanceof IdentifierTree).isTrue();
     assertThat(((IdentifierTree) tree.parameters()).name()).isEqualTo("p");
     assertThat(tree.doubleArrow().text()).isEqualTo("=>");
     assertThat(expressionToString(tree.conciseBody())).isEqualTo("p");
@@ -45,7 +46,7 @@ public class ArrowFunctionTreeModelTest extends JavaScriptTreeModelTest {
     ArrowFunctionTree tree = parse("p => {};", Kind.ARROW_FUNCTION);
 
     assertThat(tree.is(Kind.ARROW_FUNCTION)).isTrue();
-    assertThat(tree.parameters().is(Kind.IDENTIFIER));
+    assertThat(tree.parameters() instanceof IdentifierTree).isTrue();
     assertThat(((IdentifierTree) tree.parameters()).name()).isEqualTo("p");
     assertThat(tree.doubleArrow().text()).isEqualTo(EcmaScriptPunctuator.DOUBLEARROW.getValue());
     assertThat(tree.conciseBody().is(Kind.BLOCK)).isTrue();
@@ -56,7 +57,7 @@ public class ArrowFunctionTreeModelTest extends JavaScriptTreeModelTest {
     ArrowFunctionTree tree = parse("(p1, p2) => p;", Kind.ARROW_FUNCTION);
 
     assertThat(tree.is(Kind.ARROW_FUNCTION)).isTrue();
-    assertThat(tree.parameters().is(Kind.FORMAL_PARAMETER_LIST));
+    assertThat(tree.parameters().is(Kind.FORMAL_PARAMETER_LIST)).isTrue();
     assertThat(tree.doubleArrow().text()).isEqualTo(EcmaScriptPunctuator.DOUBLEARROW.getValue());
     assertThat(expressionToString(tree.conciseBody())).isEqualTo("p");
   }
@@ -67,7 +68,7 @@ public class ArrowFunctionTreeModelTest extends JavaScriptTreeModelTest {
     ArrowFunctionTree tree = parse("(p1, p2) => p;", Kind.ARROW_FUNCTION);
 
     assertThat(tree.is(Kind.ARROW_FUNCTION)).isTrue();
-    assertThat(tree.parameters().is(Kind.FORMAL_PARAMETER_LIST));
+    assertThat(tree.parameters().is(Kind.FORMAL_PARAMETER_LIST)).isTrue();
     assertThat(tree.doubleArrow().text()).isEqualTo(EcmaScriptPunctuator.DOUBLEARROW.getValue());
     assertThat(expressionToString(tree.conciseBody())).isEqualTo("p");
   }

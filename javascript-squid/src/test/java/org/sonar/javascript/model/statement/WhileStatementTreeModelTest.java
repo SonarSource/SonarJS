@@ -39,7 +39,7 @@ public class WhileStatementTreeModelTest extends JavaScriptTreeModelTest {
     assertThat(tree.openParenthesis().text()).isEqualTo(EcmaScriptPunctuator.LPARENTHESIS.getValue());
     assertThat(tree.condition()).isNotNull();
     assertThat(tree.closeParenthesis().text()).isEqualTo(EcmaScriptPunctuator.RPARENTHESIS.getValue());
-    assertThat(tree.statement().is(Kind.BLOCK));
+    assertThat(tree.statement().is(Kind.BLOCK)).isTrue();
   }
 
 }

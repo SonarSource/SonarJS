@@ -19,11 +19,12 @@
  */
 package org.sonar.javascript.model.statement;
 
-import static org.fest.assertions.Assertions.assertThat;
 import org.junit.Test;
 import org.sonar.javascript.model.JavaScriptTreeModelTest;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.statement.ForOfStatementTree;
+
+import static org.fest.assertions.Assertions.assertThat;
 
 public class ForOfStatementTreeModelTest extends JavaScriptTreeModelTest {
 
@@ -37,7 +38,7 @@ public class ForOfStatementTreeModelTest extends JavaScriptTreeModelTest {
     assertThat(tree.ofKeyword().text()).isEqualTo("of");
     assertThat(expressionToString(tree.expression())).isEqualTo("expression");
     assertThat(tree.closeParenthesis().text()).isEqualTo(")");
-    assertThat(tree.statement().is(Kind.BLOCK));
+    assertThat(tree.statement().is(Kind.BLOCK)).isTrue();
   }
 
 }

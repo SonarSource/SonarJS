@@ -19,14 +19,13 @@
  */
 package org.sonar.javascript.model.expression;
 
-import static org.fest.assertions.Assertions.assertThat;
-
+import com.google.common.collect.Iterators;
 import org.junit.Test;
 import org.sonar.javascript.model.JavaScriptTreeModelTest;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.expression.ArrayLiteralTree;
 
-import com.google.common.collect.Iterators;
+import static org.fest.assertions.Assertions.assertThat;
 
 public class ArrayLiteralTreeModelTest extends JavaScriptTreeModelTest {
 
@@ -37,8 +36,8 @@ public class ArrayLiteralTreeModelTest extends JavaScriptTreeModelTest {
     assertThat(tree.is(Kind.ARRAY_LITERAL)).isTrue();
     assertThat(tree.openBracket().text()).isEqualTo("[");
 
-    assertThat(tree.elements().isEmpty());
-    assertThat(tree.elements().getSeparators().isEmpty());
+    assertThat(tree.elements().isEmpty()).isTrue();
+    assertThat(tree.elements().getSeparators().isEmpty()).isTrue();
 
     assertThat(tree.closeBracket().text()).isEqualTo("]");
   }
@@ -108,8 +107,8 @@ public class ArrayLiteralTreeModelTest extends JavaScriptTreeModelTest {
 
     assertThat(tree2.elements().size()).isEqualTo(4);
     assertThat(expressionToString(tree2.elements().get(0))).isEqualTo("a");
-    assertThat(tree2.elements().get(1).is(Kind.UNDEFINED));
-    assertThat(tree2.elements().get(2).is(Kind.UNDEFINED));
+    assertThat(tree2.elements().get(1).is(Kind.UNDEFINED)).isTrue();
+    assertThat(tree2.elements().get(2).is(Kind.UNDEFINED)).isTrue();
     assertThat(expressionToString(tree2.elements().get(3))).isEqualTo("a");
     assertThat(tree2.elements().getSeparators().size()).isEqualTo(3);
 

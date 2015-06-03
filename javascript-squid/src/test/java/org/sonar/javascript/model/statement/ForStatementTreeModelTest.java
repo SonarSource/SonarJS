@@ -42,7 +42,7 @@ public class ForStatementTreeModelTest extends JavaScriptTreeModelTest {
     assertThat(tree.secondSemicolon().text()).isEqualTo(EcmaScriptPunctuator.SEMI.getValue());
     assertThat(tree.condition()).isNull();
     assertThat(tree.closeParenthesis().text()).isEqualTo(EcmaScriptPunctuator.RPARENTHESIS.getValue());
-    assertThat(tree.statement().is(Kind.BLOCK));
+    assertThat(tree.statement().is(Kind.BLOCK)).isTrue();
   }
 
   @Test

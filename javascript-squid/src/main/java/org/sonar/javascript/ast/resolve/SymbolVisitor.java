@@ -125,7 +125,7 @@ public class SymbolVisitor extends BaseTreeVisitor {
         usageKind = Usage.Kind.READ_WRITE;
       }
 
-      if (!addUsageFor(identifier, tree, usageKind)) {
+      if (!addUsageFor(identifier, usageKind)) {
         Symbol symbol = symbolModel.declareSymbol(identifier.name(), Symbol.Kind.VARIABLE, symbolModel.globalScope());
         symbol.addUsage(
             Usage.create(identifier, usageKind)
@@ -142,14 +142,14 @@ public class SymbolVisitor extends BaseTreeVisitor {
   @Override
   public void visitIdentifier(IdentifierTree tree) {
     if (tree.is(Tree.Kind.IDENTIFIER_REFERENCE)) {
-      addUsageFor(tree, null, Usage.Kind.READ);
+      addUsageFor(tree, Usage.Kind.READ);
     }
   }
 
   @Override
   public void visitUnaryExpression(UnaryExpressionTree tree) {
-    if (isIncDec(tree) && tree.expression().is(Tree.Kind.IDENTIFIER_REFERENCE)){
-      addUsageFor((IdentifierTree)tree.expression(), null, Usage.Kind.READ_WRITE);
+    if (isIncDec(tree) && tree.expression().is(Tree.Kind.IDENTIFIER_REFERENCE)) {
+      addUsageFor((IdentifierTree) tree.expression(), Usage.Kind.READ_WRITE);
     } else {
       super.visitUnaryExpression(tree);
     }
@@ -169,7 +169,7 @@ public class SymbolVisitor extends BaseTreeVisitor {
     if (tree.variableOrExpression() instanceof IdentifierTree) {
       IdentifierTree identifier = (IdentifierTree) tree.variableOrExpression();
 
-      if (!addUsageFor(identifier, null, Usage.Kind.WRITE)) {
+      if (!addUsageFor(identifier, Usage.Kind.WRITE)) {
         symbolModel.declareSymbol(identifier.name(), Symbol.Kind.VARIABLE, symbolModel.globalScope()).addUsage(Usage.create(identifier, Usage.Kind.WRITE));
       }
     }
@@ -181,7 +181,7 @@ public class SymbolVisitor extends BaseTreeVisitor {
     if (tree.variableOrExpression() instanceof IdentifierTree) {
       IdentifierTree identifier = (IdentifierTree) tree.variableOrExpression();
 
-      if (!addUsageFor(identifier, null, Usage.Kind.WRITE)) {
+      if (!addUsageFor(identifier, Usage.Kind.WRITE)) {
         symbolModel.declareSymbol(identifier.name(), Symbol.Kind.VARIABLE, symbolModel.globalScope()).addUsage(Usage.create(identifier, Usage.Kind.WRITE));
       }
 
@@ -209,14 +209,10 @@ public class SymbolVisitor extends BaseTreeVisitor {
   /**
    * @return true if symbol found and usage recorded, false otherwise.
    */
-  private boolean addUsageFor(IdentifierTree identifier, @Nullable Tree usageTree, Usage.Kind kind) {
+  private boolean addUsageFor(IdentifierTree identifier, Usage.Kind kind) {
     Symbol symbol = currentScope.lookupSymbol(identifier.name());
     if (symbol != null) {
-      if (usageTree != null){
-        symbol.addUsage(Usage.create(identifier, kind));
-      } else {
-        symbol.addUsage(Usage.create(identifier, kind));
-      }
+      symbol.addUsage(Usage.create(identifier, kind));
       return true;
     }
     return false;
@@ -224,15 +220,15 @@ public class SymbolVisitor extends BaseTreeVisitor {
 
   private void highlightSymbols() {
     if (symbolizable != null) {
-      symbolizable.setSymbolTable(HighlightSymbolTableBuilder.build(symbolizable, (SymbolModel)symbolModel, sourceFileOffsets));
+      symbolizable.setSymbolTable(HighlightSymbolTableBuilder.build(symbolizable, (SymbolModel) symbolModel, sourceFileOffsets));
     } else {
       LOG.warn("Symbol in source view will not be highlighted.");
     }
   }
 
-  private Scope getScopeFor(Tree tree){
-    for (Scope scope : symbolModel.getScopes()){
-      if (scope.tree().equals(tree)){
+  private Scope getScopeFor(Tree tree) {
+    for (Scope scope : symbolModel.getScopes()) {
+      if (scope.tree().equals(tree)) {
         return scope;
       }
     }

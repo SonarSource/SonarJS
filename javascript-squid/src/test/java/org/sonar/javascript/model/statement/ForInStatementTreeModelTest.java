@@ -40,7 +40,7 @@ public class ForInStatementTreeModelTest extends JavaScriptTreeModelTest {
     assertThat(tree.inKeyword().text()).isEqualTo(EcmaScriptKeyword.IN.getValue());
     assertThat(tree.expression()).isNotNull();
     assertThat(tree.closeParenthesis().text()).isEqualTo(EcmaScriptPunctuator.RPARENTHESIS.getValue());
-    assertThat(tree.statement().is(Kind.BLOCK));
+    assertThat(tree.statement().is(Kind.BLOCK)).isTrue();
   }
 
 }
