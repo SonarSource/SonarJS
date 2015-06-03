@@ -19,20 +19,18 @@
  */
 package org.sonar.javascript.checks;
 
-import org.sonar.squidbridge.checks.CheckMessagesVerifier;
 import org.junit.Test;
-import org.sonar.javascript.JavaScriptAstScanner;
+import org.sonar.javascript.checks.utils.TreeCheckTest;
 import org.sonar.squidbridge.api.SourceFile;
+import org.sonar.squidbridge.checks.CheckMessagesVerifier;
 
-import java.io.File;
-
-public class NonEmptyCaseWithoutBreakCheckTest {
+public class NonEmptyCaseWithoutBreakCheckTest extends TreeCheckTest {
 
   @Test
   public void test() {
     NonEmptyCaseWithoutBreakCheck check = new NonEmptyCaseWithoutBreakCheck();
 
-    SourceFile file = JavaScriptAstScanner.scanSingleFile(new File("src/test/resources/checks/nonEmptyCaseWithoutBreak.js"), check);
+    SourceFile file = scanFile("src/test/resources/checks/nonEmptyCaseWithoutBreak.js", check);
     CheckMessagesVerifier.verify(file.getCheckMessages())
         .next().atLine(9).withMessage("Last statement in this switch-clause should be an unconditional break.")
         .next().atLine(16)

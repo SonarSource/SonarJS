@@ -19,46 +19,43 @@
  */
 package org.sonar.javascript.checks;
 
+import com.google.common.collect.Iterables;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
+import org.sonar.plugins.javascript.api.tree.statement.StatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.SwitchClauseTree;
+import org.sonar.plugins.javascript.api.tree.statement.SwitchStatementTree;
+import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
 import org.sonar.squidbridge.annotations.ActivatedByDefault;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
-import org.sonar.squidbridge.checks.SquidCheck;
-import org.sonar.sslr.parser.LexerlessGrammar;
 
-import com.google.common.collect.Iterables;
-import com.sonar.sslr.api.AstNode;
+import java.util.LinkedList;
+import java.util.List;
 
 @Rule(
-  key = "NonEmptyCaseWithoutBreak",
-  name = "Switch cases should end with an unconditional \"break\" statement",
-  priority = Priority.CRITICAL,
-  tags = {Tags.CERT, Tags.CWE, Tags.MISRA, Tags.PITFALL})
+    key = "NonEmptyCaseWithoutBreak",
+    name = "Switch cases should end with an unconditional \"break\" statement",
+    priority = Priority.CRITICAL,
+    tags = {Tags.CERT, Tags.CWE, Tags.MISRA, Tags.PITFALL})
 @ActivatedByDefault
 @SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.LOGIC_RELIABILITY)
 @SqaleConstantRemediation("10min")
-public class NonEmptyCaseWithoutBreakCheck extends SquidCheck<LexerlessGrammar> {
+public class NonEmptyCaseWithoutBreakCheck extends BaseTreeVisitor {
 
   @Override
-  public void init() {
-    subscribeTo(Kind.CASE_CLAUSE, Kind.DEFAULT_CLAUSE);
-  }
-
-  @Override
-  public void visitNode(AstNode astNode) {
-    if (astNode.getNextAstNode().is(Kind.CASE_CLAUSE, Kind.DEFAULT_CLAUSE)) {
-      SwitchClauseTree block = (SwitchClauseTree) astNode;
-
-
-      if (!block.statements().isEmpty()
-        && !Iterables.getLast(block.statements()).is(Kind.BREAK_STATEMENT, Kind.RETURN_STATEMENT, Kind.THROW_STATEMENT)) {
-        getContext().createLineViolation(this, "Last statement in this switch-clause should be an unconditional break.", astNode);
+  public void visitSwitchStatement(SwitchStatementTree tree) {
+    List<SwitchClauseTree> cases = new LinkedList<>(tree.cases());
+    cases.remove(cases.size() - 1);
+    for (SwitchClauseTree switchClauseTree : cases){
+      List<StatementTree> statements = switchClauseTree.statements();
+      if (!statements.isEmpty() && !Iterables.getLast(statements).is(Kind.BREAK_STATEMENT, Kind.RETURN_STATEMENT, Kind.THROW_STATEMENT)) {
+        getContext().addIssue(this, switchClauseTree, "Last statement in this switch-clause should be an unconditional break.");
       }
     }
-  }
 
+    super.visitSwitchStatement(tree);
+  }
 }
