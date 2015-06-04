@@ -47,6 +47,9 @@ public class BooleanEqualityComparisonCheckTest extends TreeCheckTest {
       .next().atLine(25).withMessage("Remove the literal \"true\" boolean value.")
       .next().atLine(26).withMessage("Remove the literal \"false\" boolean value.")
       .next().atLine(27).withMessage("Remove the literal \"true\" boolean value.")
+      .next().atLine(31)
+      .next().atLine(32)
+      .next().atLine(33)
       .noMore();
   }
 }

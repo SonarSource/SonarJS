@@ -25,3 +25,9 @@ foo() && bar();   // OK
 a == true == b    // NOK
 a == b == false    // NOK
 a == (true && b) == b //NOK
+
+
+// NOK
+!(true)
+a == (false)
+foo() || (true)
