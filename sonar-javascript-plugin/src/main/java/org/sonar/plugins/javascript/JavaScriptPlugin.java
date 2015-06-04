@@ -80,46 +80,52 @@ public class JavaScriptPlugin extends SonarPlugin {
         ITCoverageSensor.class,
 
         PropertyDefinition.builder(FILE_SUFFIXES_KEY)
-          .defaultValue(FILE_SUFFIXES_DEFVALUE)
-          .name("File Suffixes")
-          .description("Comma-separated list of suffixes for files to analyze.")
-          .build(),
+            .defaultValue(FILE_SUFFIXES_DEFVALUE)
+            .name("File Suffixes")
+            .description("Comma-separated list of suffixes for files to analyze.")
+            .subCategory("General")
+            .build(),
 
         PropertyDefinition.builder(LCOV_UT_REPORT_PATH)
-        .defaultValue(LCOV_UT_REPORT_PATH_DEFAULT_VALUE)
-        .name("Unit Tests LCOV File")
-        .description("Path (absolute or relative) to the file with LCOV data for unit tests.")
-        .onQualifiers(Qualifiers.MODULE, Qualifiers.PROJECT)
+            .defaultValue(LCOV_UT_REPORT_PATH_DEFAULT_VALUE)
+            .name("Unit Tests LCOV File")
+            .description("Path (absolute or relative) to the file with LCOV data for unit tests.")
+            .onQualifiers(Qualifiers.MODULE, Qualifiers.PROJECT)
+            .subCategory("Tests and Coverage")
             .build(),
 
         PropertyDefinition.builder(LCOV_IT_REPORT_PATH)
-        .defaultValue(LCOV_IT_REPORT_PATH_DEFAULT_VALUE)
-        .name("Integration Tests LCOV File")
-        .description("Path (absolute or relative) to the file with LCOV data for integration tests.")
-        .onQualifiers(Qualifiers.MODULE, Qualifiers.PROJECT)
-        .build(),
+            .defaultValue(LCOV_IT_REPORT_PATH_DEFAULT_VALUE)
+            .name("Integration Tests LCOV File")
+            .description("Path (absolute or relative) to the file with LCOV data for integration tests.")
+            .onQualifiers(Qualifiers.MODULE, Qualifiers.PROJECT)
+            .subCategory("Tests and Coverage")
+            .build(),
 
         PropertyDefinition.builder(FORCE_ZERO_COVERAGE_KEY)
-          .defaultValue(FORCE_ZERO_COVERAGE_DEFAULT_VALUE)
-          .name("Force 0 coverage value")
-          .description("Force coverage to be set to 0 when no report is provided.")
-          .onQualifiers(Qualifiers.MODULE, Qualifiers.PROJECT)
-          .type(PropertyType.BOOLEAN)
-          .build(),
+            .defaultValue(FORCE_ZERO_COVERAGE_DEFAULT_VALUE)
+            .name("Force 0 coverage value")
+            .description("Force coverage to be set to 0 when no report is provided.")
+            .onQualifiers(Qualifiers.MODULE, Qualifiers.PROJECT)
+            .type(PropertyType.BOOLEAN)
+            .subCategory("Tests and Coverage")
+            .build(),
 
         PropertyDefinition.builder(JavaScriptPlugin.JSTESTDRIVER_REPORTS_PATH)
-          .defaultValue(JavaScriptPlugin.JSTESTDRIVER_REPORTS_PATH_DEFAULT_VALUE)
-          .name("JSTestDriver output folder")
-          .description("Folder where JsTestDriver unit test reports are located.")
-          .onQualifiers(Qualifiers.MODULE, Qualifiers.PROJECT)
-          .build(),
+            .defaultValue(JavaScriptPlugin.JSTESTDRIVER_REPORTS_PATH_DEFAULT_VALUE)
+            .name("JSTestDriver output folder")
+            .description("Folder where JsTestDriver unit test reports are located.")
+            .onQualifiers(Qualifiers.MODULE, Qualifiers.PROJECT)
+            .subCategory("Tests and Coverage")
+            .build(),
 
         PropertyDefinition.builder(JavaScriptPlugin.JQUERY_OBJECT_ALIASES)
-         .defaultValue(JavaScriptPlugin.JQUERY_OBJECT_ALIASES_DEFAULT_VALUE)
-          .name("jQuery object aliases")
-          .description("Comma-separated list of names used to address jQuery object.")
-          .onQualifiers(Qualifiers.MODULE, Qualifiers.PROJECT)
-          .build()
+            .defaultValue(JavaScriptPlugin.JQUERY_OBJECT_ALIASES_DEFAULT_VALUE)
+            .name("jQuery object aliases")
+            .description("Comma-separated list of names used to address jQuery object.")
+            .onQualifiers(Qualifiers.MODULE, Qualifiers.PROJECT)
+            .subCategory("Libraries")
+            .build()
     );
   }
 
