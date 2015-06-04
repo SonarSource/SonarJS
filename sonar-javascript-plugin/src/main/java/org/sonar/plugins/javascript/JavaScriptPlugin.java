@@ -37,7 +37,6 @@ import java.util.List;
 public class JavaScriptPlugin extends SonarPlugin {
 
   // Global JavaScript constants
-  public static final String FALSE = "false";
 
   public static final String FILE_SUFFIXES_KEY = "sonar.javascript.file.suffixes";
   public static final String FILE_SUFFIXES_DEFVALUE = ".js";
@@ -56,8 +55,8 @@ public class JavaScriptPlugin extends SonarPlugin {
   public static final String JSTESTDRIVER_REPORTS_PATH = PROPERTY_PREFIX + ".jstestdriver.reportsPath";
   public static final String JSTESTDRIVER_REPORTS_PATH_DEFAULT_VALUE = "";
 
+  // Folder where JsTest unit test reports are located. Feature is not officially supported and not displayed in UI
   public static final String JSTEST_REPORTS_PATH = PROPERTY_PREFIX + ".jstest.reportsPath";
-  public static final String JSTEST_REPORTS_PATH_DEFAULT_VALUE = "";
 
   public static final String JQUERY_OBJECT_ALIASES = JQuery.JQUERY_OBJECT_ALIASES;
   public static final String JQUERY_OBJECT_ALIASES_DEFAULT_VALUE = JQuery.JQUERY_OBJECT_ALIASES_DEFAULT_VALUE;
@@ -112,13 +111,6 @@ public class JavaScriptPlugin extends SonarPlugin {
           .defaultValue(JavaScriptPlugin.JSTESTDRIVER_REPORTS_PATH_DEFAULT_VALUE)
           .name("JSTestDriver output folder")
           .description("Folder where JsTestDriver unit test reports are located.")
-          .onQualifiers(Qualifiers.MODULE, Qualifiers.PROJECT)
-          .build(),
-
-        PropertyDefinition.builder(JavaScriptPlugin.JSTEST_REPORTS_PATH)
-         .defaultValue(JavaScriptPlugin.JSTEST_REPORTS_PATH_DEFAULT_VALUE)
-          .name("JSTest output folder")
-          .description("Folder where JsTest unit test reports are located.")
           .onQualifiers(Qualifiers.MODULE, Qualifiers.PROJECT)
           .build(),
 
