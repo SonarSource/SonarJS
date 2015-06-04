@@ -30,6 +30,7 @@ import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.javascript.parser.EcmaScriptGrammar;
 import org.sonar.javascript.parser.EcmaScriptParser;
 import org.sonar.squidbridge.AstScanner;
+import org.sonar.squidbridge.ProgressAstScanner;
 import org.sonar.squidbridge.SourceCodeBuilderCallback;
 import org.sonar.squidbridge.SourceCodeBuilderVisitor;
 import org.sonar.squidbridge.SquidAstVisitor;
@@ -82,7 +83,7 @@ public final class JavaScriptAstScanner {
     final SquidAstVisitorContextImpl<LexerlessGrammar> context = new SquidAstVisitorContextImpl<LexerlessGrammar>(new SourceProject("JavaScript Project"));
     final Parser<LexerlessGrammar> parser = EcmaScriptParser.create(conf);
 
-    AstScanner.Builder<LexerlessGrammar> builder = new ProgressAstScanner.Builder(context).setBaseParser(parser);
+    AstScanner.Builder<LexerlessGrammar> builder = new ProgressAstScanner.Builder<LexerlessGrammar>(context).setBaseParser(parser);
 
     /* Metrics */
     builder.withMetrics(EcmaScriptMetric.values());
