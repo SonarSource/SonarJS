@@ -26,8 +26,10 @@ import org.sonar.javascript.ast.resolve.Scope;
 import org.sonar.javascript.ast.resolve.type.FunctionTree;
 import org.sonar.javascript.ast.resolve.type.FunctionType;
 import org.sonar.javascript.checks.utils.CheckUtils;
+import org.sonar.javascript.model.internal.SeparatedList;
 import org.sonar.plugins.javascript.api.symbols.Symbol;
 import org.sonar.plugins.javascript.api.symbols.Type;
+import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.expression.CallExpressionTree;
 import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
@@ -37,10 +39,10 @@ import javax.annotation.Nullable;
 import java.util.Set;
 
 @Rule(
-  key = "S930",
-  name = "Function calls should not pass extra arguments",
-  priority = Priority.CRITICAL,
-  tags = {Tags.BUG, Tags.CWE, Tags.MISRA})
+    key = "S930",
+    name = "Function calls should not pass extra arguments",
+    priority = Priority.CRITICAL,
+    tags = {Tags.BUG, Tags.CWE, Tags.MISRA})
 @SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.DATA_RELIABILITY)
 @SqaleConstantRemediation("10min")
 public class TooManyArgumentsCheck extends BaseTreeVisitor {
@@ -52,12 +54,12 @@ public class TooManyArgumentsCheck extends BaseTreeVisitor {
 
     FunctionTree functionTree = getFunction(tree);
 
-    if (functionTree != null){
+    if (functionTree != null) {
 
       int parametersNumber = functionTree.parameters().parameters().size();
       int argumentsNumber = tree.arguments().parameters().size();
 
-      if (!builtInArgumentsUsed(functionTree) && argumentsNumber > parametersNumber){
+      if (!hasRestParameter(functionTree) && !builtInArgumentsUsed(functionTree) && argumentsNumber > parametersNumber) {
         String message = String.format(MESSAGE, CheckUtils.asString(tree.callee()), parametersNumber, argumentsNumber);
         getContext().addIssue(this, tree, message);
       }
@@ -67,13 +69,21 @@ public class TooManyArgumentsCheck extends BaseTreeVisitor {
     super.visitCallExpression(tree);
   }
 
+  /*
+   * @return true if function's last parameter has "... p" format and stands for all rest parameters
+   */
+  private boolean hasRestParameter(FunctionTree functionTree) {
+    SeparatedList<Tree> parameters = functionTree.parameters().parameters();
+    return !parameters.isEmpty() && (parameters.get(parameters.size() - 1).is(Tree.Kind.REST_ELEMENT));
+  }
+
 
   @Nullable
-  private FunctionTree getFunction(CallExpressionTree tree){
+  private FunctionTree getFunction(CallExpressionTree tree) {
 
     Set<Type> types = tree.callee().types();
 
-    if (types.size() == 1 && types.iterator().next().kind().equals(Type.Kind.FUNCTION)){
+    if (types.size() == 1 && types.iterator().next().kind().equals(Type.Kind.FUNCTION)) {
       return ((FunctionType) types.iterator().next()).functionTree();
     }
 
@@ -84,12 +94,12 @@ public class TooManyArgumentsCheck extends BaseTreeVisitor {
   private boolean builtInArgumentsUsed(FunctionTree tree) {
 
     Scope scope = getContext().getSymbolModel().getScope(tree);
-    if (scope == null){
+    if (scope == null) {
       throw new IllegalStateException("No scope found for FunctionTree");
     }
 
     Symbol argumentsBuiltInVariable = scope.lookupSymbol("arguments");
-    if (argumentsBuiltInVariable == null){
+    if (argumentsBuiltInVariable == null) {
       throw new IllegalStateException("No 'arguments' symbol found for function scope");
     }
 
