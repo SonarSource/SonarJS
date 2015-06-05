@@ -109,7 +109,7 @@ public class TypeVisitor extends BaseTreeVisitor {
   public void visitCallExpression(CallExpressionTree tree) {
     super.visitCallExpression(tree);
 
-    if (jQueryHelper.isJQuerySelectorObject(tree)) {
+    if (jQueryHelper.isSelectorObject(tree)) {
       ((CallExpressionTreeImpl) tree).addType(PrimitiveType.JQUERY_SELECTOR_OBJECT);
     }
 

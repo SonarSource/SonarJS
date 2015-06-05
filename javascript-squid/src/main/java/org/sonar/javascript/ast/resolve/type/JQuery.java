@@ -51,27 +51,26 @@ public class JQuery {
 
   private boolean isDirectJQuerySelectorObject(ExpressionTree expressionTree) {
     if (expressionTree.is(Tree.Kind.CALL_EXPRESSION)) {
-      CallExpressionTree callExpressionTree = (CallExpressionTree)expressionTree;
-      ExpressionTree callee = callExpressionTree.callee();
-      if (callee.is(Tree.Kind.IDENTIFIER_REFERENCE)) {
-        return isJQueryObject((IdentifierTree) callee);
-      }
-      return false;
+      ExpressionTree callee = ((CallExpressionTree) expressionTree).callee();
+      return callee.is(Tree.Kind.IDENTIFIER_REFERENCE) && isJQueryObject((IdentifierTree) callee);
     }
+
     return false;
   }
 
 
-  protected boolean isJQuerySelectorObject(ExpressionTree expressionTree) {
+  protected boolean isSelectorObject(ExpressionTree expressionTree) {
     if (isDirectJQuerySelectorObject(expressionTree)){
       return true;
     }
 
     if (expressionTree.is(Tree.Kind.CALL_EXPRESSION) && ((CallExpressionTree)expressionTree).callee().is(Tree.Kind.DOT_MEMBER_EXPRESSION)){
-      DotMemberExpressionTree callee = (DotMemberExpressionTree) ((CallExpressionTree)expressionTree).callee();
 
-      return isJQuerySelectorObject(callee.object()) && isJQuerySelectorMethod(callee.property());
+      DotMemberExpressionTree callee = (DotMemberExpressionTree) ((CallExpressionTree)expressionTree).callee();
+      return isSelectorObject(callee.object()) && isJQuerySelectorMethod(callee.property());
+
     }
+
     return false;
   }
 
