@@ -29,6 +29,7 @@ import org.sonar.javascript.highlighter.SourceFileOffsets;
 import org.sonar.plugins.javascript.api.symbols.Symbol;
 import org.sonar.plugins.javascript.api.symbols.SymbolModel;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
+import org.sonar.plugins.javascript.api.tree.Tree;
 
 import javax.annotation.Nullable;
 import java.util.HashSet;
@@ -131,6 +132,17 @@ public class SymbolModelImpl implements SymbolModel, SymbolModelBuilder {
       }
     }
     return result;
+  }
+
+  @Nullable
+  @Override
+  public Scope getScope(Tree tree) {
+    for (Scope scope : getScopes()){
+      if (scope.tree() == tree){
+        return scope;
+      }
+    }
+    return null;
   }
 
 }

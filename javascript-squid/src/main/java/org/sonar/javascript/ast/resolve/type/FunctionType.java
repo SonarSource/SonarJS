@@ -21,7 +21,7 @@ package org.sonar.javascript.ast.resolve.type;
 
 public class FunctionType extends ObjectType {
 
-  private FunctionTree functionTree = null;
+  private FunctionTree functionTree;
 
   @Override
   public Kind kind() {
