@@ -93,7 +93,7 @@ public class JsTestDriverSensor implements Sensor {
   protected String getUnitTestFileName(String className) {
     // For JsTestDriver assume notation com.company.MyJsTest that maps to com/company/MyJsTest.js
     String fileName = getUnitTestClassName(className);
-    fileName = fileName.replace('.', File.separator.charAt(0));
+    fileName = fileName.replace('.', File.separatorChar);
     fileName = fileName + ".js";
     return fileName;
   }
