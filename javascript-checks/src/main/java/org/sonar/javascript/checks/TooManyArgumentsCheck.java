@@ -51,7 +51,6 @@ public class TooManyArgumentsCheck extends BaseTreeVisitor {
 
   @Override
   public void visitCallExpression(CallExpressionTree tree) {
-
     FunctionTree functionTree = getFunction(tree);
 
     if (functionTree != null) {
@@ -72,15 +71,14 @@ public class TooManyArgumentsCheck extends BaseTreeVisitor {
   /*
    * @return true if function's last parameter has "... p" format and stands for all rest parameters
    */
-  private boolean hasRestParameter(FunctionTree functionTree) {
+  private static boolean hasRestParameter(FunctionTree functionTree) {
     SeparatedList<Tree> parameters = functionTree.parameters().parameters();
     return !parameters.isEmpty() && (parameters.get(parameters.size() - 1).is(Tree.Kind.REST_ELEMENT));
   }
 
 
   @Nullable
-  private FunctionTree getFunction(CallExpressionTree tree) {
-
+  private static FunctionTree getFunction(CallExpressionTree tree) {
     Set<Type> types = tree.callee().types();
 
     if (types.size() == 1 && types.iterator().next().kind().equals(Type.Kind.FUNCTION)) {
@@ -92,7 +90,6 @@ public class TooManyArgumentsCheck extends BaseTreeVisitor {
 
 
   private boolean builtInArgumentsUsed(FunctionTree tree) {
-
     Scope scope = getContext().getSymbolModel().getScope(tree);
     if (scope == null) {
       throw new IllegalStateException("No scope found for FunctionTree");
@@ -105,7 +102,6 @@ public class TooManyArgumentsCheck extends BaseTreeVisitor {
 
     boolean isUsed = !argumentsBuiltInVariable.usages().isEmpty();
     return argumentsBuiltInVariable.builtIn() && isUsed;
-
   }
 
 }
