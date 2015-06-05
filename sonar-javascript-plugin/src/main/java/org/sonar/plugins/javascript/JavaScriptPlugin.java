@@ -36,6 +36,13 @@ import java.util.List;
 
 public class JavaScriptPlugin extends SonarPlugin {
 
+  // Subcategories
+
+  private static final String GENERAL = "General";
+  private static final String TEST_AND_COVERAGE = "Tests and Coverage";
+  private static final String LIBRARIES = "Libraries";
+
+
   // Global JavaScript constants
 
   public static final String FILE_SUFFIXES_KEY = "sonar.javascript.file.suffixes";
@@ -83,7 +90,7 @@ public class JavaScriptPlugin extends SonarPlugin {
             .defaultValue(FILE_SUFFIXES_DEFVALUE)
             .name("File Suffixes")
             .description("Comma-separated list of suffixes for files to analyze.")
-            .subCategory("General")
+            .subCategory(GENERAL)
             .build(),
 
         PropertyDefinition.builder(LCOV_UT_REPORT_PATH)
@@ -91,7 +98,7 @@ public class JavaScriptPlugin extends SonarPlugin {
             .name("Unit Tests LCOV File")
             .description("Path (absolute or relative) to the file with LCOV data for unit tests.")
             .onQualifiers(Qualifiers.MODULE, Qualifiers.PROJECT)
-            .subCategory("Tests and Coverage")
+            .subCategory(TEST_AND_COVERAGE)
             .build(),
 
         PropertyDefinition.builder(LCOV_IT_REPORT_PATH)
@@ -99,7 +106,7 @@ public class JavaScriptPlugin extends SonarPlugin {
             .name("Integration Tests LCOV File")
             .description("Path (absolute or relative) to the file with LCOV data for integration tests.")
             .onQualifiers(Qualifiers.MODULE, Qualifiers.PROJECT)
-            .subCategory("Tests and Coverage")
+            .subCategory(TEST_AND_COVERAGE)
             .build(),
 
         PropertyDefinition.builder(FORCE_ZERO_COVERAGE_KEY)
@@ -108,7 +115,7 @@ public class JavaScriptPlugin extends SonarPlugin {
             .description("Force coverage to be set to 0 when no report is provided.")
             .onQualifiers(Qualifiers.MODULE, Qualifiers.PROJECT)
             .type(PropertyType.BOOLEAN)
-            .subCategory("Tests and Coverage")
+            .subCategory(TEST_AND_COVERAGE)
             .build(),
 
         PropertyDefinition.builder(JavaScriptPlugin.JSTESTDRIVER_REPORTS_PATH)
@@ -116,7 +123,7 @@ public class JavaScriptPlugin extends SonarPlugin {
             .name("JSTestDriver output folder")
             .description("Folder where JsTestDriver unit test reports are located.")
             .onQualifiers(Qualifiers.MODULE, Qualifiers.PROJECT)
-            .subCategory("Tests and Coverage")
+            .subCategory(TEST_AND_COVERAGE)
             .build(),
 
         PropertyDefinition.builder(JavaScriptPlugin.JQUERY_OBJECT_ALIASES)
@@ -124,7 +131,7 @@ public class JavaScriptPlugin extends SonarPlugin {
             .name("jQuery object aliases")
             .description("Comma-separated list of names used to address jQuery object.")
             .onQualifiers(Qualifiers.MODULE, Qualifiers.PROJECT)
-            .subCategory("Libraries")
+            .subCategory(LIBRARIES)
             .build()
     );
   }
