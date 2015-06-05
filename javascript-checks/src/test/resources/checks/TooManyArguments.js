@@ -24,3 +24,23 @@ var obj = {
 
 obj.foo1(1, 2, 3) // Compliant - False Negative - object properties are not covered yet
 
+
+
+//  ELLIPSIS (Rest Parameter)
+
+function foo5(par1, ... par2){}
+
+foo5(1, 2, 3, 4)  // OK
+
+
+ var foo6 = function(...p1){}
+ foo6(1, 2) // OK
+
+
+// parameter with "arguments" name
+
+function foo7(arguments){
+  console.log(arguments)
+}
+
+foo7(1, 2) // NOK
