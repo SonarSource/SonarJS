@@ -138,7 +138,7 @@ public class SymbolModelImpl implements SymbolModel, SymbolModelBuilder {
   @Override
   public Scope getScope(Tree tree) {
     for (Scope scope : getScopes()){
-      if (scope.tree() == tree){
+      if (scope.tree().equals(tree)){
         return scope;
       }
     }
