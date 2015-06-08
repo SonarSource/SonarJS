@@ -21,17 +21,15 @@ package org.sonar.javascript.model.internal.expression;
 
 import com.google.common.collect.Iterators;
 import com.sonar.sslr.api.AstNode;
-import org.sonar.plugins.javascript.api.symbols.Type;
-import org.sonar.plugins.javascript.api.visitors.TreeVisitor;
+import org.sonar.javascript.ast.resolve.type.TypeSet;
 import org.sonar.javascript.model.internal.JavaScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.TaggedTemplateTree;
 import org.sonar.plugins.javascript.api.tree.expression.TemplateLiteralTree;
+import org.sonar.plugins.javascript.api.visitors.TreeVisitor;
 
-import java.util.Collections;
 import java.util.Iterator;
-import java.util.Set;
 
 public class TaggedTemplateTreeImpl extends JavaScriptTree implements TaggedTemplateTree {
 
@@ -80,7 +78,7 @@ public class TaggedTemplateTreeImpl extends JavaScriptTree implements TaggedTemp
   }
 
   @Override
-  public Set<Type> types() {
-    return Collections.emptySet();
+  public TypeSet types() {
+    return TypeSet.emptyTypeSet();
   }
 }

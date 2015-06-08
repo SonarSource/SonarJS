@@ -20,28 +20,26 @@
 package org.sonar.javascript.model.internal.expression;
 
 import com.google.common.collect.Iterators;
-import com.google.common.collect.Sets;
 import com.sonar.sslr.api.AstNode;
 import org.apache.commons.collections.ListUtils;
-import org.sonar.plugins.javascript.api.symbols.Type;
-import org.sonar.plugins.javascript.api.visitors.TreeVisitor;
+import org.sonar.javascript.ast.resolve.type.TypeSet;
 import org.sonar.javascript.model.internal.JavaScriptTree;
 import org.sonar.javascript.model.internal.SeparatedList;
 import org.sonar.javascript.model.internal.lexical.InternalSyntaxToken;
+import org.sonar.plugins.javascript.api.symbols.Type;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.expression.ObjectLiteralTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
+import org.sonar.plugins.javascript.api.visitors.TreeVisitor;
 
-import java.util.Collections;
 import java.util.Iterator;
-import java.util.Set;
 
 public class ObjectLiteralTreeImpl extends JavaScriptTree implements ObjectLiteralTree {
 
   private SyntaxToken openCurlyBrace;
   private final SeparatedList<Tree> properties;
   private SyntaxToken closeCurlyBrace;
-  private Set<Type> types = Sets.newHashSet();
+  private TypeSet types = TypeSet.emptyTypeSet();
 
   public ObjectLiteralTreeImpl(InternalSyntaxToken openCurlyBrace, InternalSyntaxToken closeCurlyBrace) {
     super(Kind.OBJECT_LITERAL);
@@ -92,8 +90,8 @@ public class ObjectLiteralTreeImpl extends JavaScriptTree implements ObjectLiter
   }
 
   @Override
-  public Set<Type> types() {
-    return Collections.unmodifiableSet(types);
+  public TypeSet types() {
+    return types;
   }
 
   public void addType(Type type) {

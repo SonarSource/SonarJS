@@ -20,11 +20,8 @@
 package org.sonar.plugins.javascript.api.tree.expression;
 
 import com.google.common.annotations.Beta;
-
-import org.sonar.plugins.javascript.api.symbols.Type;
+import org.sonar.javascript.ast.resolve.type.TypeSet;
 import org.sonar.plugins.javascript.api.tree.Tree;
-
-import java.util.Set;
 
 /**
  * Common interface for all types of <a href="http://www.ecma-international.org/ecma-262/5.1/#sec-11">expressions</a>.
@@ -37,6 +34,6 @@ public interface ExpressionTree extends Tree {
    * Attempts to modify the returned set, whether direct or via its iterator, will result in an UnsupportedOperationException.
    */
 
-  Set<Type> types();
+  TypeSet types();
 
 }

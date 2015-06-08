@@ -23,10 +23,10 @@ import com.google.common.collect.Iterators;
 import com.google.common.collect.Lists;
 import com.sonar.sslr.api.AstNode;
 import org.apache.commons.collections.ListUtils;
+import org.sonar.javascript.ast.resolve.type.TypeSet;
 import org.sonar.javascript.model.internal.JavaScriptTree;
 import org.sonar.javascript.model.internal.SeparatedList;
 import org.sonar.javascript.model.internal.lexical.InternalSyntaxToken;
-import org.sonar.plugins.javascript.api.symbols.Type;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.declaration.ParameterListTree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
@@ -34,10 +34,8 @@ import org.sonar.plugins.javascript.api.tree.expression.RestElementTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.javascript.api.visitors.TreeVisitor;
 
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
 
 public class ParameterListTreeImpl extends JavaScriptTree implements ParameterListTree {
 
@@ -135,7 +133,7 @@ public class ParameterListTreeImpl extends JavaScriptTree implements ParameterLi
   }
 
   @Override
-  public Set<Type> types() {
-    return Collections.emptySet();
+  public TypeSet types() {
+    return TypeSet.emptyTypeSet();
   }
 }

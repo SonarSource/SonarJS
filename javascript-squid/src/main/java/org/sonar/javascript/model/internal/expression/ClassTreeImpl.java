@@ -19,15 +19,9 @@
  */
 package org.sonar.javascript.model.internal.expression;
 
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
-
-import javax.annotation.Nullable;
-
-import org.sonar.plugins.javascript.api.symbols.Type;
-import org.sonar.plugins.javascript.api.visitors.TreeVisitor;
+import com.google.common.collect.Iterators;
+import com.sonar.sslr.api.AstNode;
+import org.sonar.javascript.ast.resolve.type.TypeSet;
 import org.sonar.javascript.model.internal.JavaScriptTree;
 import org.sonar.javascript.model.internal.lexical.InternalSyntaxToken;
 import org.sonar.plugins.javascript.api.tree.Tree;
@@ -36,9 +30,11 @@ import org.sonar.plugins.javascript.api.tree.expression.ClassTree;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
+import org.sonar.plugins.javascript.api.visitors.TreeVisitor;
 
-import com.google.common.collect.Iterators;
-import com.sonar.sslr.api.AstNode;
+import javax.annotation.Nullable;
+import java.util.Iterator;
+import java.util.List;
 
 public class ClassTreeImpl extends JavaScriptTree implements ClassTree {
 
@@ -153,7 +149,7 @@ public class ClassTreeImpl extends JavaScriptTree implements ClassTree {
   }
 
   @Override
-  public Set<Type> types() {
-    return Collections.emptySet();
+  public TypeSet types() {
+    return TypeSet.emptyTypeSet();
   }
 }

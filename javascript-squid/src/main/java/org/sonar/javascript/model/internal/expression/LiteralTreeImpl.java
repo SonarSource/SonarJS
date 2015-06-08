@@ -21,23 +21,21 @@ package org.sonar.javascript.model.internal.expression;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Iterators;
-import com.google.common.collect.Sets;
-import org.sonar.plugins.javascript.api.symbols.Type;
-import org.sonar.plugins.javascript.api.visitors.TreeVisitor;
+import org.sonar.javascript.ast.resolve.type.TypeSet;
 import org.sonar.javascript.model.internal.JavaScriptTree;
 import org.sonar.javascript.model.internal.lexical.InternalSyntaxToken;
+import org.sonar.plugins.javascript.api.symbols.Type;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.expression.LiteralTree;
+import org.sonar.plugins.javascript.api.visitors.TreeVisitor;
 
-import java.util.Collections;
 import java.util.Iterator;
-import java.util.Set;
 
 public class LiteralTreeImpl extends JavaScriptTree implements LiteralTree {
 
   private final Kind kind;
   private final InternalSyntaxToken token;
-  private Set<Type> types = Sets.newHashSet();
+  private TypeSet types = TypeSet.emptyTypeSet();
 
   public LiteralTreeImpl(Kind kind, InternalSyntaxToken token) {
     super(kind, token.getToken());
@@ -59,8 +57,8 @@ public class LiteralTreeImpl extends JavaScriptTree implements LiteralTree {
 
 
   @Override
-  public Set<Type> types() {
-    return Collections.unmodifiableSet(types);
+  public TypeSet types() {
+    return types;
   }
 
   public void addType(Type type) {

@@ -20,25 +20,23 @@
 package org.sonar.javascript.model.internal.expression;
 
 import com.google.common.collect.Iterators;
-import com.google.common.collect.Sets;
 import com.sonar.sslr.api.AstNode;
-import org.sonar.plugins.javascript.api.symbols.Type;
-import org.sonar.plugins.javascript.api.visitors.TreeVisitor;
+import org.sonar.javascript.ast.resolve.type.TypeSet;
 import org.sonar.javascript.model.internal.JavaScriptTree;
+import org.sonar.plugins.javascript.api.symbols.Type;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.declaration.ParameterListTree;
 import org.sonar.plugins.javascript.api.tree.expression.CallExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
+import org.sonar.plugins.javascript.api.visitors.TreeVisitor;
 
-import java.util.Collections;
 import java.util.Iterator;
-import java.util.Set;
 
 public class CallExpressionTreeImpl extends JavaScriptTree implements CallExpressionTree {
 
   private final ExpressionTree callee;
   private final ParameterListTree arguments;
-  private Set<Type> types = Sets.newHashSet();
+  private TypeSet types = TypeSet.emptyTypeSet();
 
   public CallExpressionTreeImpl(ExpressionTree callee, ParameterListTree arguments) {
     super(Kind.CALL_EXPRESSION);
@@ -74,8 +72,8 @@ public class CallExpressionTreeImpl extends JavaScriptTree implements CallExpres
   }
 
   @Override
-  public Set<Type> types() {
-    return Collections.unmodifiableSet(types);
+  public TypeSet types() {
+    return types;
   }
 
   public void addType(Type type) {

@@ -22,19 +22,17 @@ package org.sonar.javascript.model.internal.expression;
 import com.google.common.collect.Iterators;
 import com.sonar.sslr.api.AstNode;
 import com.sonar.sslr.api.AstNodeType;
-import org.sonar.plugins.javascript.api.symbols.Type;
-import org.sonar.plugins.javascript.api.visitors.TreeVisitor;
+import org.sonar.javascript.ast.resolve.type.TypeSet;
 import org.sonar.javascript.model.internal.JavaScriptTree;
 import org.sonar.javascript.model.internal.lexical.InternalSyntaxToken;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.YieldExpressionTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
+import org.sonar.plugins.javascript.api.visitors.TreeVisitor;
 
 import javax.annotation.Nullable;
-import java.util.Collections;
 import java.util.Iterator;
-import java.util.Set;
 
 public class YieldExpressionTreeImpl extends JavaScriptTree implements YieldExpressionTree {
 
@@ -107,7 +105,7 @@ public class YieldExpressionTreeImpl extends JavaScriptTree implements YieldExpr
   }
 
   @Override
-  public Set<Type> types() {
-    return Collections.emptySet();
+  public TypeSet types() {
+    return TypeSet.emptyTypeSet();
   }
 }

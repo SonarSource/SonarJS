@@ -20,16 +20,16 @@
 package org.sonar.javascript.model.internal.expression;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterators;
 import com.sonar.sslr.api.AstNode;
 import com.sonar.sslr.api.AstNodeType;
 import org.sonar.javascript.ast.resolve.type.FunctionType;
-import org.sonar.plugins.javascript.api.symbols.Type;
+import org.sonar.javascript.ast.resolve.type.TypeSet;
 import org.sonar.javascript.model.internal.JavaScriptTree;
 import org.sonar.javascript.model.internal.declaration.ParameterListTreeImpl;
 import org.sonar.javascript.model.internal.lexical.InternalSyntaxToken;
 import org.sonar.javascript.model.internal.statement.BlockTreeImpl;
+import org.sonar.plugins.javascript.api.symbols.Type;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.declaration.ParameterListTree;
 import org.sonar.plugins.javascript.api.tree.expression.FunctionExpressionTree;
@@ -40,7 +40,6 @@ import org.sonar.plugins.javascript.api.visitors.TreeVisitor;
 import javax.annotation.Nullable;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
 
 public class FunctionExpressionTreeImpl extends JavaScriptTree implements FunctionExpressionTree {
 
@@ -188,7 +187,9 @@ public class FunctionExpressionTreeImpl extends JavaScriptTree implements Functi
   }
 
   @Override
-  public Set<Type> types() {
-    return ImmutableSet.of(functionType);
+  public TypeSet types() {
+    TypeSet set = TypeSet.emptyTypeSet();
+    set.add(functionType);
+    return set;
   }
 }

@@ -20,8 +20,8 @@
 package org.sonar.plugins.javascript.api.symbols;
 
 import com.google.common.annotations.Beta;
-import com.google.common.collect.Sets;
 import org.sonar.javascript.ast.resolve.Scope;
+import org.sonar.javascript.ast.resolve.type.TypeSet;
 import org.sonar.javascript.model.internal.expression.IdentifierTreeImpl;
 
 import java.util.Collection;
@@ -53,14 +53,14 @@ public class Symbol {
   private boolean builtIn;
   private Scope scope;
   private List<Usage> usages = new LinkedList<>();
-  private Set<Type> types;
+  private TypeSet types;
 
   public Symbol(String name, Kind kind, Scope scope) {
     this.name = name;
     this.kind = kind;
     this.builtIn = false;
     this.scope = scope;
-    this.types = Sets.newHashSet();
+    this.types = TypeSet.emptyTypeSet();
   }
 
   public void addUsage(Usage usage){
@@ -105,7 +105,7 @@ public class Symbol {
     types.add(type);
   }
 
-  public Set<Type> types(){
+  public TypeSet types(){
     return types;
   }
 
