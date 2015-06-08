@@ -140,7 +140,8 @@ public final class CheckList {
         UniversalSelectorCheck.class,
         DeleteArrayElementCheck.class,
         ElementTypeSelectorCheck.class,
-        TooManyArgumentsCheck.class);
+        TooManyArgumentsCheck.class,
+        GlobalThisCheck.class);
   }
 
 }

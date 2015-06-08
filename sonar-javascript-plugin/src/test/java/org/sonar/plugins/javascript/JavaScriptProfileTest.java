@@ -48,7 +48,7 @@ public class JavaScriptProfileTest {
     assertThat(profile.getName()).isEqualTo(CheckList.SONAR_WAY_PROFILE);
     assertThat(profile.getActiveRulesByRepository(CheckList.REPOSITORY_KEY))
     // FIXME: SONARJS-309 Fix and re-introduce AssignmentWithinExpression rule
-        .hasSize(73);
+        .hasSize(74);
     assertThat(validation.hasErrors()).isFalse();
   }
 
