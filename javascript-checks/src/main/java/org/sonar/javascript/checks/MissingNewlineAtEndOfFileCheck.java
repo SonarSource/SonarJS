@@ -58,7 +58,7 @@ public class MissingNewlineAtEndOfFileCheck extends SquidCheck<LexerlessGrammar>
     }
   }
 
-  private boolean endsWithNewline(RandomAccessFile randomAccessFile) throws IOException {
+  private static boolean endsWithNewline(RandomAccessFile randomAccessFile) throws IOException {
     if (randomAccessFile.length() < 1) {
       return false;
     }

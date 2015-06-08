@@ -62,7 +62,7 @@ public class RedeclaredVariableCheck extends SquidCheck<LexerlessGrammar> {
 
   @Override
   public void visitFile(AstNode astNode) {
-    stack = new Stack<Set<String>>();
+    stack = new Stack<>();
     stack.add(new HashSet<String>());
   }
 
@@ -107,7 +107,7 @@ public class RedeclaredVariableCheck extends SquidCheck<LexerlessGrammar> {
     }
   }
 
-  private void addArrowParametersToScope(Tree parameters, Set<String> currentScope) {
+  private static void addArrowParametersToScope(Tree parameters, Set<String> currentScope) {
     if (parameters.is(Kind.FORMAL_PARAMETER_LIST)) {
       for (IdentifierTree identifier : ((ParameterListTreeImpl) parameters).parameterIdentifiers()) {
         currentScope.add(identifier.name());
@@ -115,7 +115,7 @@ public class RedeclaredVariableCheck extends SquidCheck<LexerlessGrammar> {
     }
   }
 
-  private void addFormalParametersToScope(ParameterListTreeImpl formalParameterList, Set<String> currentScope) {
+  private static void addFormalParametersToScope(ParameterListTreeImpl formalParameterList, Set<String> currentScope) {
     for (IdentifierTree identifier : formalParameterList.parameterIdentifiers()) {
       currentScope.add(identifier.name());
     }

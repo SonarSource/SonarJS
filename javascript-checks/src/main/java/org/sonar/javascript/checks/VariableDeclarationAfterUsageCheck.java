@@ -85,7 +85,7 @@ public class VariableDeclarationAfterUsageCheck extends BaseTreeVisitor {
     }
   }
 
-  private int getLine(Usage usage) {
+  private static int getLine(Usage usage) {
     return ((JavaScriptTree) usage.identifierTree()).getLine();
   }
 

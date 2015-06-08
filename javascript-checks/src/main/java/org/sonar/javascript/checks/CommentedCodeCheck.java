@@ -106,7 +106,7 @@ public class CommentedCodeCheck extends SquidCheck<LexerlessGrammar> implements 
     }
   }
 
-  private boolean isJsDoc(Trivia trivia) {
+  private static boolean isJsDoc(Trivia trivia) {
     return trivia.getToken().getValue().startsWith("/**");
   }
 

@@ -47,7 +47,7 @@ public class ParseIntCallWithoutBaseCheck extends BaseTreeVisitor {
     super.visitCallExpression(tree);
   }
 
-  private boolean isParseIntCall(ExpressionTree callee) {
+  private static boolean isParseIntCall(ExpressionTree callee) {
     return callee.is(Kind.IDENTIFIER_REFERENCE) && "parseInt".equals(((IdentifierTree) callee).name());
   }
 

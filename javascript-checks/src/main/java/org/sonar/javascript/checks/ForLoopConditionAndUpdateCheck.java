@@ -72,7 +72,7 @@ public class ForLoopConditionAndUpdateCheck extends BaseTreeVisitor {
     super.visitForStatement(forStatement);
   }
 
-  private String expressionList(List<ExpressionTree> expressions) {
+  private static String expressionList(List<ExpressionTree> expressions) {
     List<String> names = Lists.newArrayList();
     for (ExpressionTree expression : expressions) {
       names.add(CheckUtils.asString(expression));

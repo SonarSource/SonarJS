@@ -59,7 +59,7 @@ public class IdenticalExpressionOnBinaryOperatorCheck extends BaseTreeVisitor {
     return !isOneOntoOneShifting(tree) && !isPotentialNanComparison(tree);
   }
 
-  private boolean isPotentialNanComparison(BinaryExpressionTree tree) {
+  private static boolean isPotentialNanComparison(BinaryExpressionTree tree) {
     return tree.is(Kind.STRICT_NOT_EQUAL_TO, Kind.STRICT_EQUAL_TO)
       && (tree.leftOperand().is(
       Kind.IDENTIFIER_REFERENCE,
@@ -69,7 +69,7 @@ public class IdenticalExpressionOnBinaryOperatorCheck extends BaseTreeVisitor {
 
   }
 
-  private boolean isOneOntoOneShifting(BinaryExpressionTree tree) {
+  private static boolean isOneOntoOneShifting(BinaryExpressionTree tree) {
     return tree.is(Kind.LEFT_SHIFT)
       && tree.leftOperand().is(Kind.NUMERIC_LITERAL)
       && "1".equals(((LiteralTree) tree.leftOperand()).value());

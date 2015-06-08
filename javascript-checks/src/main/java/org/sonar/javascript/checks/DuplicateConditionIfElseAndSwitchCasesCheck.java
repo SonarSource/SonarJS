@@ -89,7 +89,7 @@ public class DuplicateConditionIfElseAndSwitchCasesCheck extends BaseTreeVisitor
    * Returns null is case is default, the case expression otherwise.
    */
   @Nullable
-  private ExpressionTree getCondition(SwitchClauseTree clause) {
+  private static ExpressionTree getCondition(SwitchClauseTree clause) {
     return clause.is(Kind.CASE_CLAUSE) ? ((CaseClauseTree) clause).expression() : null;
   }
 

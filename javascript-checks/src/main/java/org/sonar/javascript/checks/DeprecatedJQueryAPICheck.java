@@ -114,7 +114,7 @@ public class DeprecatedJQueryAPICheck extends BaseTreeVisitor {
     }
   }
 
-  private boolean propertyIsDeprecated(ExpressionTree property, List<String> deprecated) {
+  private static boolean propertyIsDeprecated(ExpressionTree property, List<String> deprecated) {
     if (property.is(Tree.Kind.IDENTIFIER_NAME)){
       IdentifierTree identifier = (IdentifierTree) property;
       return deprecated.contains(identifier.name());

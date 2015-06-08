@@ -59,7 +59,7 @@ public class UndefinedAssignmentCheck extends BaseTreeVisitor {
     super.visitAssignmentExpression(tree);
   }
 
-  private boolean isUndefined(ExpressionTree expression) {
+  private static boolean isUndefined(ExpressionTree expression) {
     return expression.is(Kind.IDENTIFIER_REFERENCE) && "undefined".equals(((IdentifierTree) expression).name());
   }
 

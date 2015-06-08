@@ -55,7 +55,7 @@ public class EqEqEqCheck extends BaseTreeVisitor {
     super.visitBinaryExpression(tree);
   }
 
-  private boolean isNullLiteral(ExpressionTree expressionTree) {
+  private static boolean isNullLiteral(ExpressionTree expressionTree) {
     return expressionTree.is(Tree.Kind.NULL_LITERAL);
   }
 

@@ -164,7 +164,7 @@ public class NotStoredSelectionCheck extends BaseTreeVisitor {
    * @param literalTree string literal argument of jQuery()
    * @return true if argument looks like HTML (e.g. "<div></div>")
    */
-  private boolean isElementCreation(LiteralTree literalTree) {
+  private static boolean isElementCreation(LiteralTree literalTree) {
     Preconditions.checkArgument(literalTree.is(Tree.Kind.STRING_LITERAL));
     String value = literalTree.value();
     value = value.substring(1, value.length() - 1);

@@ -133,7 +133,7 @@ public class UnusedFunctionArgumentCheck extends BaseTreeVisitor {
     return unusedArguments;
   }
 
-  private boolean builtInArgumentsUsed(Scope scope) {
+  private static boolean builtInArgumentsUsed(Scope scope) {
     Symbol argumentsBuiltInVariable = scope.lookupSymbol("arguments");
     if (argumentsBuiltInVariable == null){
       return false;
@@ -142,7 +142,7 @@ public class UnusedFunctionArgumentCheck extends BaseTreeVisitor {
     return argumentsBuiltInVariable.builtIn() && isUsed;
   }
 
-  private List<Boolean> getUsageInfo(List<Symbol> symbols) {
+  private static List<Boolean> getUsageInfo(List<Symbol> symbols) {
     List<Boolean> result = new LinkedList<>();
     for (Symbol symbol : symbols){
       if (symbol.usages().size() == 1){
@@ -155,7 +155,7 @@ public class UnusedFunctionArgumentCheck extends BaseTreeVisitor {
     return result;
   }
 
-  private String getListOfArguments(List<Symbol> unusedArguments) {
+  private static String getListOfArguments(List<Symbol> unusedArguments) {
     StringBuilder result = new StringBuilder();
     for (Symbol symbol : unusedArguments){
       result.append(symbol.name());

@@ -52,11 +52,11 @@ public class DeleteArrayElementCheck extends BaseTreeVisitor {
     super.visitUnaryExpression(tree);
   }
 
-  private boolean isArrayElement(ExpressionTree expression) {
+  private static boolean isArrayElement(ExpressionTree expression) {
     return expression.is(Tree.Kind.BRACKET_MEMBER_EXPRESSION) && canOnlyBeArray(((BracketMemberExpressionTree) expression).object());
   }
 
-  private boolean canOnlyBeArray(ExpressionTree expression){
+  private static boolean canOnlyBeArray(ExpressionTree expression){
     return expression.types().size() == 1 && expression.types().contains(PrimitiveType.ARRAY);
   }
 

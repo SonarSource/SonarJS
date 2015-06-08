@@ -65,7 +65,7 @@ public class ConsoleLoggingCheck extends SubscriptionBaseVisitor {
 
   }
 
-  private boolean isCalleeConsoleLogging(DotMemberExpressionTree callee) {
+  private static boolean isCalleeConsoleLogging(DotMemberExpressionTree callee) {
     return callee.object().is(Kind.IDENTIFIER_REFERENCE) && "console".equals(((IdentifierTree) callee.object()).name())
       && "log".equals(((IdentifierTree) callee.property()).name());
   }

@@ -62,7 +62,7 @@ public class CollapsibleIfStatementsCheck extends BaseTreeVisitor {
     return block.statements().size() == 1 && isIfStatementWithoutElse(block.statements().get(0));
   }
 
-  private boolean isIfStatementWithoutElse(StatementTree statement) {
+  private static boolean isIfStatementWithoutElse(StatementTree statement) {
     return statement.is(Kind.IF_STATEMENT) && ((IfStatementTree)statement).elseClause() == null;
   }
 

@@ -66,7 +66,7 @@ public class EqualInForLoopTerminationCheck extends BaseTreeVisitor {
     getContext().addIssue(this, condition, message);
   }
 
-  private boolean isEquality(ExpressionTree condition) {
+  private static boolean isEquality(ExpressionTree condition) {
     return condition.is(Tree.Kind.EQUAL_TO, Tree.Kind.NOT_EQUAL_TO);
   }
 
@@ -99,7 +99,7 @@ public class EqualInForLoopTerminationCheck extends BaseTreeVisitor {
     return false;
   }
 
-  private boolean isNullConditionException(ForStatementTree forStatement) {
+  private static boolean isNullConditionException(ForStatementTree forStatement) {
     ExpressionTree condition = forStatement.condition();
     return condition != null && condition.is(Tree.Kind.NOT_EQUAL_TO) && ((BinaryExpressionTree) condition).rightOperand().is(Tree.Kind.NULL_LITERAL);
   }
@@ -119,11 +119,11 @@ public class EqualInForLoopTerminationCheck extends BaseTreeVisitor {
     return result;
   }
 
-  private boolean isOneVarDeclaration(Tree tree) {
+  private static boolean isOneVarDeclaration(Tree tree) {
     return tree.is(Tree.Kind.VAR_DECLARATION) && ((VariableDeclarationTree) tree).variables().size() == 1;
   }
 
-  private Integer getInteger(ExpressionTree expression) {
+  private static Integer getInteger(ExpressionTree expression) {
     if (expression.is(Tree.Kind.NUMERIC_LITERAL)) {
       LiteralTree literal = (LiteralTree) expression;
       Integer decoded;
@@ -160,7 +160,7 @@ public class EqualInForLoopTerminationCheck extends BaseTreeVisitor {
     return result;
   }
 
-  private boolean isUpdateOnOneWithAssign(ExpressionTree update) {
+  private static boolean isUpdateOnOneWithAssign(ExpressionTree update) {
     if (update.is(Tree.Kind.PLUS_ASSIGNMENT, Tree.Kind.MINUS_ASSIGNMENT)) {
       ExpressionTree rightExpression = ((AssignmentExpressionTree) update).expression();
       return rightExpression.is(Tree.Kind.NUMERIC_LITERAL) && "1".equals(((LiteralTree) rightExpression).value());

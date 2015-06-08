@@ -71,7 +71,7 @@ public class DeadStoreCheck extends BaseTreeVisitor {
 
   }
 
-  private boolean hasRead(List<Usage> usages) {
+  private static boolean hasRead(List<Usage> usages) {
     for (Usage usage : usages){
       if (usage.kind().equals(Usage.Kind.READ) || usage.kind().equals(Usage.Kind.READ_WRITE)){
         return true;

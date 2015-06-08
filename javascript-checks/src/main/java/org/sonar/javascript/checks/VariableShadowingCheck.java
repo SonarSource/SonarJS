@@ -81,7 +81,7 @@ public class VariableShadowingCheck extends BaseTreeVisitor {
     }
   }
 
-  private Usage getDeclaration(Symbol symbol){
+  private static Usage getDeclaration(Symbol symbol){
     for (Usage usage : symbol.usages()){
       if (usage.isDeclaration() || usage.kind() == Usage.Kind.LEXICAL_DECLARATION){
         return usage;

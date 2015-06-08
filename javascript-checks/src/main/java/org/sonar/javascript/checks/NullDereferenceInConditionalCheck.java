@@ -92,7 +92,7 @@ public class NullDereferenceInConditionalCheck extends BaseTreeVisitor {
     return false;
   }
 
-  private boolean isNullOrUndefined(Tree tree) {
+  private static boolean isNullOrUndefined(Tree tree) {
     return tree.is(Tree.Kind.NULL_LITERAL)
       || (tree.is(Tree.Kind.IDENTIFIER_REFERENCE) && "undefined".equals(((IdentifierTree) tree).identifierToken().text()));
   }

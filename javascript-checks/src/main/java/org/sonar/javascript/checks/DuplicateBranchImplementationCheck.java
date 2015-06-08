@@ -109,7 +109,7 @@ public class DuplicateBranchImplementationCheck extends BaseTreeVisitor {
     return caseTree.is(Kind.CASE_CLAUSE) && !isJumpStatement(Iterables.getLast(caseTree.statements()));
   }
 
-  private boolean isJumpStatement(StatementTree statement) {
+  private static boolean isJumpStatement(StatementTree statement) {
     return statement.is(
       Kind.BREAK_STATEMENT,
       Kind.RETURN_STATEMENT,

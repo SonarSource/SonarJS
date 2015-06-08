@@ -50,7 +50,7 @@ public class CommentContainsPatternChecker {
     }
   }
 
-  private boolean isLetterAround(String line, String pattern) {
+  private static boolean isLetterAround(String line, String pattern) {
     int start = StringUtils.indexOfIgnoreCase(line, pattern);
     int end = start + pattern.length();
 

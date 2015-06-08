@@ -57,7 +57,7 @@ public class ModelDefaultsWithArrayOrObjectCheck extends BaseTreeVisitor {
     super.visitCallExpression(tree);
   }
 
-  private boolean hasObjectOrArrayAttribute(ObjectLiteralTree objectLiteral) {
+  private static boolean hasObjectOrArrayAttribute(ObjectLiteralTree objectLiteral) {
     for (Tree property : objectLiteral.properties()) {
 
       if (property.is(Kind.PAIR_PROPERTY) && ((PairPropertyTree) property).value().is(Kind.ARRAY_LITERAL, Kind.OBJECT_LITERAL)) {

@@ -69,7 +69,7 @@ public class UnusedVariableCheck extends BaseTreeVisitor {
     return usages.isEmpty() || usagesAreInitializations(usages);
   }
 
-  private boolean usagesAreInitializations(Collection<Usage> usages) {
+  private static boolean usagesAreInitializations(Collection<Usage> usages) {
     for (Usage usage : usages) {
       if (!usage.isDeclaration()) {
         return false;
@@ -78,7 +78,7 @@ public class UnusedVariableCheck extends BaseTreeVisitor {
     return true;
   }
 
-  private boolean isGlobalOrCatchVariable(Symbol symbol) {
+  private static boolean isGlobalOrCatchVariable(Symbol symbol) {
     return symbol.scope().tree().is(Kind.SCRIPT, Kind.CATCH_BLOCK);
   }
 

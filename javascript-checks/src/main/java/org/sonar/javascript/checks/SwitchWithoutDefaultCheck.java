@@ -52,7 +52,7 @@ public class SwitchWithoutDefaultCheck extends BaseTreeVisitor {
     super.visitSwitchStatement(tree);
   }
 
-  private boolean hasDefaultCase(SwitchStatementTree switchStmt) {
+  private static boolean hasDefaultCase(SwitchStatementTree switchStmt) {
     for (SwitchClauseTree clause : switchStmt.cases()) {
 
       if (clause.is(Kind.DEFAULT_CLAUSE)) {

@@ -64,7 +64,7 @@ public class ComparisonWithNaNCheck extends SubscriptionBaseVisitor {
     }
   }
 
-  private boolean isNaN(ExpressionTree expression) {
+  private static boolean isNaN(ExpressionTree expression) {
     return expression.is(Kind.IDENTIFIER_REFERENCE) && "NaN".equals(((IdentifierTree) expression).name());
   }
 

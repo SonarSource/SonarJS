@@ -62,7 +62,7 @@ public class JavaScriptHighlighter {
     highlighting.done();
   }
 
-  private void highlightComments(Highlightable.HighlightingBuilder highlighting, List<Token> tokens, SourceFileOffsets offsets) {
+  private static void highlightComments(Highlightable.HighlightingBuilder highlighting, List<Token> tokens, SourceFileOffsets offsets) {
     String code;
     for (Token token : tokens) {
       if (!token.getTrivia().isEmpty()) {
