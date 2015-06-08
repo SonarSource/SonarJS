@@ -111,7 +111,9 @@ public class JsTestDriverSensorTest {
 
   @Test
   public void testGetUnitTestFileName() {
-    assertEquals("com/company/PersonTest.js", sensor.getUnitTestFileName("Chrome_16091263_Windows.com.company.PersonTest"));
+    String fileSeparator = File.separator;
+
+    assertEquals("com" + fileSeparator + "company" + fileSeparator + "PersonTest.js", sensor.getUnitTestFileName("Chrome_16091263_Windows.com.company.PersonTest"));
     assertEquals("PersonTest.js", sensor.getUnitTestFileName("Chrome_16091263_Windows.PersonTest"));
   }
 
