@@ -1,0 +1,40 @@
+<p>
+  When the keyword <code>this</code> is used outside of an object, it refers to the global <code>this</code> object,
+  which is the same thing as the <code>window</code> object in a standard web page. Clearly, such a misdirected usage
+  could have unintended consequences, as well as being confusing to maintainers. Instead, simply drop the <code>this</code>;
+  it will have the same effect.
+</p>
+
+<h2>Noncompliant Code Example</h2>
+
+<pre>
+this.foo = 1;   // Noncompliant
+console.log(this.foo); // Noncompliant
+
+function MyObj() {
+  this.foo = 1; // Compliant
+}
+
+MyObj.func1 = function() {
+  if (this.foo == 1) { // Compliant
+    // ...
+  }
+}
+</pre>
+
+<h2>Compliant Solution</h2>
+
+<pre>
+foo = 1;
+console.log(foo);
+
+function MyObj() {
+  this.foo = 1;
+}
+
+MyObj.func1 = function() {
+  if (this.foo == 1) {
+    // ...
+  }
+}
+</pre>
