@@ -63,6 +63,18 @@ public enum PrimitiveType implements Type {
     public Kind kind() {
       return Kind.JQUERY_OBJECT;
     }
+  },
+  BACKBONE_MODEL {
+    @Override
+    public Kind kind() {
+      return Kind.BACKBONE_MODEL;
+    }
+  },
+  BACKBONE_MODEL_OBJECT {
+    @Override
+    public Kind kind() {
+      return Kind.BACKBONE_MODEL_OBJECT;
+    }
   };
 
   @Override

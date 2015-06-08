@@ -27,6 +27,7 @@ import org.sonar.javascript.model.internal.expression.ArrayLiteralTreeImpl;
 import org.sonar.javascript.model.internal.expression.CallExpressionTreeImpl;
 import org.sonar.javascript.model.internal.expression.IdentifierTreeImpl;
 import org.sonar.javascript.model.internal.expression.LiteralTreeImpl;
+import org.sonar.javascript.model.internal.expression.NewExpressionTreeImpl;
 import org.sonar.javascript.model.internal.expression.ObjectLiteralTreeImpl;
 import org.sonar.plugins.javascript.api.symbols.Symbol;
 import org.sonar.plugins.javascript.api.symbols.Type;
@@ -39,6 +40,7 @@ import org.sonar.plugins.javascript.api.tree.expression.CallExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 import org.sonar.plugins.javascript.api.tree.expression.LiteralTree;
+import org.sonar.plugins.javascript.api.tree.expression.NewExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.ObjectLiteralTree;
 import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
 
@@ -113,6 +115,10 @@ public class TypeVisitor extends BaseTreeVisitor {
       ((CallExpressionTreeImpl) tree).addType(PrimitiveType.JQUERY_SELECTOR_OBJECT);
     }
 
+    if (Backbone.isModel(tree)){
+      ((CallExpressionTreeImpl) tree).addType(PrimitiveType.BACKBONE_MODEL);
+    }
+
     FunctionType functionType = getFunctionType(tree.callee().types());
     if (functionType != null) {
 
@@ -137,6 +143,15 @@ public class TypeVisitor extends BaseTreeVisitor {
         }
       }
     }
+  }
+
+  @Override
+  public void visitNewExpression(NewExpressionTree tree) {
+    if (tree.expression().types().contains(Type.Kind.BACKBONE_MODEL)){
+      ((NewExpressionTreeImpl) tree).addType(PrimitiveType.BACKBONE_MODEL_OBJECT);
+    }
+
+    super.visitNewExpression(tree);
   }
 
   @Override

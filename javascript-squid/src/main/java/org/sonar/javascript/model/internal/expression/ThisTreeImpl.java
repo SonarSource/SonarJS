@@ -20,7 +20,7 @@
 package org.sonar.javascript.model.internal.expression;
 
 import com.google.common.collect.Iterators;
-import org.sonar.javascript.ast.resolve.type.TypeSet;
+import org.sonar.plugins.javascript.api.symbols.TypeSet;
 import org.sonar.javascript.model.internal.JavaScriptTree;
 import org.sonar.javascript.model.internal.lexical.InternalSyntaxToken;
 import org.sonar.plugins.javascript.api.tree.Tree;

@@ -21,7 +21,6 @@ package org.sonar.plugins.javascript.api.symbols;
 
 import com.google.common.annotations.Beta;
 import org.sonar.javascript.ast.resolve.Scope;
-import org.sonar.javascript.ast.resolve.type.TypeSet;
 import org.sonar.javascript.model.internal.expression.IdentifierTreeImpl;
 
 import java.util.Collection;
