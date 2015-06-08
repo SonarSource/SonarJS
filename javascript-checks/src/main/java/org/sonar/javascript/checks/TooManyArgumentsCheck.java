@@ -32,6 +32,7 @@ import org.sonar.plugins.javascript.api.symbols.Type;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.expression.CallExpressionTree;
 import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
+import org.sonar.squidbridge.annotations.ActivatedByDefault;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 
@@ -45,6 +46,7 @@ import java.util.Set;
     tags = {Tags.BUG, Tags.CWE, Tags.MISRA})
 @SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.DATA_RELIABILITY)
 @SqaleConstantRemediation("10min")
+@ActivatedByDefault
 public class TooManyArgumentsCheck extends BaseTreeVisitor {
 
   private static final String MESSAGE = "\"%s\" expects \"%s\" arguments, but \"%s\" were provided.";
