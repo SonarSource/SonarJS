@@ -51,8 +51,8 @@ public class TypeVisitor extends BaseTreeVisitor {
 
   private JQuery jQueryHelper;
 
-  public TypeVisitor(@Nullable Settings settings){
-    if (settings == null){
+  public TypeVisitor(@Nullable Settings settings) {
+    if (settings == null) {
       jQueryHelper = new JQuery(JQuery.JQUERY_OBJECT_ALIASES_DEFAULT_VALUE.split(", "));
     } else {
       jQueryHelper = new JQuery(settings.getStringArray(JQuery.JQUERY_OBJECT_ALIASES));
@@ -115,7 +115,7 @@ public class TypeVisitor extends BaseTreeVisitor {
       ((CallExpressionTreeImpl) tree).addType(PrimitiveType.JQUERY_SELECTOR_OBJECT);
     }
 
-    if (Backbone.isModel(tree)){
+    if (Backbone.isModel(tree)) {
       ((CallExpressionTreeImpl) tree).addType(PrimitiveType.BACKBONE_MODEL);
     }
 
@@ -147,7 +147,7 @@ public class TypeVisitor extends BaseTreeVisitor {
 
   @Override
   public void visitNewExpression(NewExpressionTree tree) {
-    if (tree.expression().types().contains(Type.Kind.BACKBONE_MODEL)){
+    if (tree.expression().types().contains(Type.Kind.BACKBONE_MODEL)) {
       ((NewExpressionTreeImpl) tree).addType(PrimitiveType.BACKBONE_MODEL_OBJECT);
     }
 
@@ -156,8 +156,8 @@ public class TypeVisitor extends BaseTreeVisitor {
 
   @Override
   public void visitIdentifier(IdentifierTree tree) {
-    if (jQueryHelper.isJQueryObject(tree)){
-      ((IdentifierTreeImpl)tree).addType(PrimitiveType.JQUERY_OBJECT);
+    if (jQueryHelper.isJQueryObject(tree)) {
+      ((IdentifierTreeImpl) tree).addType(PrimitiveType.JQUERY_OBJECT);
     }
   }
 
@@ -193,7 +193,7 @@ public class TypeVisitor extends BaseTreeVisitor {
   }
 
   private void addTypes(Symbol symbol, Set<Type> types) {
-    if (types.isEmpty()){
+    if (types.isEmpty()) {
       symbol.addType(PrimitiveType.UNKNOWN);
     } else {
       symbol.addTypes(types);

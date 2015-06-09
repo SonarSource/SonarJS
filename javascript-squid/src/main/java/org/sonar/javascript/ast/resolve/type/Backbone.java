@@ -26,22 +26,27 @@ import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 import org.sonar.plugins.javascript.api.tree.expression.MemberExpressionTree;
 
 public class Backbone {
-  public static boolean isModel(ExpressionTree tree){
-    return tree.is(Tree.Kind.CALL_EXPRESSION) && isModelExtendMethod(((CallExpressionTree)tree).callee());
+
+  public static boolean isModel(ExpressionTree tree) {
+    return tree.is(Tree.Kind.CALL_EXPRESSION) && isModelExtendMethod(((CallExpressionTree) tree).callee());
   }
 
-  private static boolean isModelExtendMethod(ExpressionTree tree){
-    if (tree.is(Tree.Kind.DOT_MEMBER_EXPRESSION)){
-      MemberExpressionTree expr = (MemberExpressionTree)tree;
-      if (is(expr.property(), "extend") && expr.object().is(Tree.Kind.DOT_MEMBER_EXPRESSION)){
-        MemberExpressionTree subExpr = (MemberExpressionTree)expr.object();
+
+  private static boolean isModelExtendMethod(ExpressionTree tree) {
+    if (tree.is(Tree.Kind.DOT_MEMBER_EXPRESSION)) {
+      MemberExpressionTree expr = (MemberExpressionTree) tree;
+
+      if (is(expr.property(), "extend") && expr.object().is(Tree.Kind.DOT_MEMBER_EXPRESSION)) {
+        MemberExpressionTree subExpr = (MemberExpressionTree) expr.object();
         return is(subExpr.object(), "Backbone") && is(subExpr.property(), "Model");
       }
+
     }
     return false;
   }
 
-  private static boolean is(ExpressionTree tree, String value){
-    return tree instanceof IdentifierTree && ((IdentifierTree)tree).name().equals(value);
+
+  private static boolean is(ExpressionTree tree, String value) {
+    return tree instanceof IdentifierTree && ((IdentifierTree) tree).name().equals(value);
   }
 }

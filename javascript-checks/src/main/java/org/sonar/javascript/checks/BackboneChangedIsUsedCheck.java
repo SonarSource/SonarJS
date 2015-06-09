@@ -33,29 +33,32 @@ import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 
 @Rule(
-  key = "S2549",
-  name = "The \"changed\" property should not be manipulated directly",
-  priority = Priority.CRITICAL,
-  tags = {Tags.BACKBONE, Tags.BUG})
+    key = "S2549",
+    name = "The \"changed\" property should not be manipulated directly",
+    priority = Priority.CRITICAL,
+    tags = {Tags.BACKBONE, Tags.BUG})
 @SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.DATA_RELIABILITY)
 @SqaleConstantRemediation("30min")
 public class BackboneChangedIsUsedCheck extends BaseTreeVisitor {
 
   private static final String CHANGED = "changed";
 
-  private static boolean isChangedPropertyAccess(MemberExpressionTree tree) {
-    return isChangedProperty(tree.property()) && tree.object().types().containsOnly(Type.Kind.BACKBONE_MODEL_OBJECT);
-  }
-
   @Override
   public void visitAssignmentExpression(AssignmentExpressionTree tree) {
-    if (tree.variable().is(Tree.Kind.DOT_MEMBER_EXPRESSION) && isChangedPropertyAccess((MemberExpressionTree)tree.variable())) {
+    if (tree.variable().is(Tree.Kind.DOT_MEMBER_EXPRESSION) && isChangedPropertyAccess((MemberExpressionTree) tree.variable())) {
       getContext().addIssue(this, tree, "Remove this update of the \"changed\" property.");
     }
+
     super.visitAssignmentExpression(tree);
   }
 
+
+  private static boolean isChangedPropertyAccess(MemberExpressionTree tree) {
+    return isChangedProperty(tree.property()) && tree.object().types().contains(Type.Kind.BACKBONE_MODEL_OBJECT);
+  }
+
+
   private static boolean isChangedProperty(ExpressionTree property) {
-    return property instanceof IdentifierTree && ((IdentifierTree)property).name().equals(CHANGED);
+    return property instanceof IdentifierTree && ((IdentifierTree) property).name().equals(CHANGED);
   }
 }

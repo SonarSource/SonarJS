@@ -38,5 +38,4 @@ public class BackboneChangedIsUsedCheckTest extends TreeCheckTest {
         .noMore();
   }
 
-
 }
