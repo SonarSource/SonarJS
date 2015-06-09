@@ -19,9 +19,9 @@
  */
 package org.sonar.javascript.checks;
 
-import com.google.common.collect.ImmutableList;
-
 import java.util.List;
+
+import com.google.common.collect.ImmutableList;
 
 public final class CheckList {
 
@@ -141,6 +141,7 @@ public final class CheckList {
         DeleteArrayElementCheck.class,
         ElementTypeSelectorCheck.class,
         TooManyArgumentsCheck.class,
+        NewOperatorMisusageCheck.class,
         GlobalThisCheck.class);
   }
 
