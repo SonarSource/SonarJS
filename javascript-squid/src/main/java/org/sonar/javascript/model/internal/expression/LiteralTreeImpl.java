@@ -58,7 +58,7 @@ public class LiteralTreeImpl extends JavaScriptTree implements LiteralTree {
 
   @Override
   public TypeSet types() {
-    return types;
+    return types.immutableCopy();
   }
 
   public void addType(Type type) {

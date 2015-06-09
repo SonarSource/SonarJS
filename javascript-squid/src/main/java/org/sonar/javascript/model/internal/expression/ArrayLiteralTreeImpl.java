@@ -92,7 +92,7 @@ public class ArrayLiteralTreeImpl extends JavaScriptTree implements ArrayLiteral
 
   @Override
   public TypeSet types() {
-    return types;
+    return types.immutableCopy();
   }
 
   public void addType(Type type) {

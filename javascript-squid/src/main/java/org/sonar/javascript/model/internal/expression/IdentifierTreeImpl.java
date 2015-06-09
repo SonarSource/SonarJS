@@ -80,7 +80,7 @@ public class IdentifierTreeImpl extends JavaScriptTree implements IdentifierTree
   @Override
   public TypeSet types() {
     if (symbol == null){
-      return types;
+      return types.immutableCopy();
     } else {
       return symbol.types();
     }

@@ -105,7 +105,7 @@ public class Symbol {
   }
 
   public TypeSet types(){
-    return types;
+    return types.immutableCopy();
   }
 
   public boolean canBe(Type.Kind kind){

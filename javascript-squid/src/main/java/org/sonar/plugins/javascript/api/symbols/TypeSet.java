@@ -23,11 +23,12 @@ import com.google.common.collect.Sets;
 
 import javax.annotation.Nullable;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.Set;
 
 public class TypeSet implements Set<Type> {
-  private final Set<Type> types;
+  private Set<Type> types;
 
   public TypeSet() {
     types = Sets.newHashSet();
@@ -153,4 +154,11 @@ public class TypeSet implements Set<Type> {
   public String toString() {
     return types.toString();
   }
+
+  public TypeSet immutableCopy() {
+    TypeSet copy = new TypeSet();
+    copy.types = Collections.unmodifiableSet(types);
+    return copy;
+  }
+
 }

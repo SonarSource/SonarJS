@@ -97,7 +97,7 @@ public class NewExpressionTreeImpl extends JavaScriptTree implements NewExpressi
 
   @Override
   public TypeSet types() {
-    return types;
+    return types.immutableCopy();
   }
 
   public void addType(Type type) {

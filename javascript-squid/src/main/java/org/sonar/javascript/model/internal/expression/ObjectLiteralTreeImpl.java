@@ -91,7 +91,7 @@ public class ObjectLiteralTreeImpl extends JavaScriptTree implements ObjectLiter
 
   @Override
   public TypeSet types() {
-    return types;
+    return types.immutableCopy();
   }
 
   public void addType(Type type) {
