@@ -22,13 +22,14 @@ package org.sonar.javascript.checks;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
-import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
-import org.sonar.javascript.checks.utils.BackboneCheckUtils;
+import org.sonar.javascript.ast.resolve.type.Backbone;
+import org.sonar.plugins.javascript.api.symbols.Type;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.expression.CallExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.ObjectLiteralTree;
 import org.sonar.plugins.javascript.api.tree.expression.PairPropertyTree;
+import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 
@@ -43,11 +44,11 @@ public class ModelDefaultsWithArrayOrObjectCheck extends BaseTreeVisitor {
 
   @Override
   public void visitCallExpression(CallExpressionTree tree) {
-    if (BackboneCheckUtils.isModelCreation(tree) && !tree.arguments().parameters().isEmpty()) {
+    if (tree.types().contains(Type.Kind.BACKBONE_MODEL) && !tree.arguments().parameters().isEmpty()) {
       Tree parameter = tree.arguments().parameters().get(0);
 
       if (parameter.is(Kind.OBJECT_LITERAL)) {
-        PairPropertyTree defaultsProp = BackboneCheckUtils.getModelProperty((ObjectLiteralTree) parameter, "defaults");
+        PairPropertyTree defaultsProp = Backbone.getModelProperty((ObjectLiteralTree) parameter, "defaults");
 
         if (defaultsProp != null && defaultsProp.value().is(Kind.OBJECT_LITERAL) && hasObjectOrArrayAttribute((ObjectLiteralTree) defaultsProp.value())) {
           getContext().addIssue(this, defaultsProp, "Make \"defaults\" a function.");

@@ -24,8 +24,15 @@ import org.sonar.plugins.javascript.api.tree.expression.CallExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 import org.sonar.plugins.javascript.api.tree.expression.MemberExpressionTree;
+import org.sonar.plugins.javascript.api.tree.expression.ObjectLiteralTree;
+import org.sonar.plugins.javascript.api.tree.expression.PairPropertyTree;
+
+import javax.annotation.Nullable;
 
 public class Backbone {
+
+  private Backbone() {
+  }
 
   public static boolean isModel(ExpressionTree tree) {
     return tree.is(Tree.Kind.CALL_EXPRESSION) && isModelExtendMethod(((CallExpressionTree) tree).callee());
@@ -36,17 +43,35 @@ public class Backbone {
     if (tree.is(Tree.Kind.DOT_MEMBER_EXPRESSION)) {
       MemberExpressionTree expr = (MemberExpressionTree) tree;
 
-      if (is(expr.property(), "extend") && expr.object().is(Tree.Kind.DOT_MEMBER_EXPRESSION)) {
+      if (isExpressionIdentifierNamed(expr.property(), "extend") && expr.object().is(Tree.Kind.DOT_MEMBER_EXPRESSION)) {
         MemberExpressionTree subExpr = (MemberExpressionTree) expr.object();
-        return is(subExpr.object(), "Backbone") && is(subExpr.property(), "Model");
+        return isExpressionIdentifierNamed(subExpr.object(), "Backbone") && isExpressionIdentifierNamed(subExpr.property(), "Model");
       }
 
     }
     return false;
   }
 
+  /**
+   * @return the pair property with the given name within the given object literal, null if not found
+   */
+  @Nullable
+  public static PairPropertyTree getModelProperty(ObjectLiteralTree objectLiteral, String propertyName) {
+    for (Tree property : objectLiteral.properties()) {
 
-  private static boolean is(ExpressionTree tree, String value) {
+      if (property.is(Tree.Kind.PAIR_PROPERTY)) {
+        PairPropertyTree pairProperty = (PairPropertyTree) property;
+
+        if (isExpressionIdentifierNamed(pairProperty.key(), propertyName)) {
+          return pairProperty;
+        }
+      }
+    }
+    return null;
+  }
+
+
+  private static boolean isExpressionIdentifierNamed(ExpressionTree tree, String value) {
     return tree instanceof IdentifierTree && ((IdentifierTree) tree).name().equals(value);
   }
 }
