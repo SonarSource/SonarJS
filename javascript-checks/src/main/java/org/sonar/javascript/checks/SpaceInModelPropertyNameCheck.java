@@ -47,6 +47,8 @@ import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 @SqaleConstantRemediation("5min")
 public class SpaceInModelPropertyNameCheck extends BaseTreeVisitor {
 
+  private static final String SET = "set";
+
   @Override
   public void visitCallExpression(CallExpressionTree tree) {
     if (tree.types().contains(Type.Kind.BACKBONE_MODEL) && !tree.arguments().parameters().isEmpty()) {
@@ -86,7 +88,7 @@ public class SpaceInModelPropertyNameCheck extends BaseTreeVisitor {
   }
 
   private boolean isBackboneSetMethod(DotMemberExpressionTree dotExpr) {
-    return CheckUtils.asString(dotExpr.property()).equals("set") && dotExpr.object().types().contains(Type.Kind.BACKBONE_MODEL_OBJECT);
+    return CheckUtils.asString(dotExpr.property()).equals(SET) && dotExpr.object().types().contains(Type.Kind.BACKBONE_MODEL_OBJECT);
   }
 
   private void checkForSpaceInPropertyNames(ObjectLiteralTree objectLiteral) {
