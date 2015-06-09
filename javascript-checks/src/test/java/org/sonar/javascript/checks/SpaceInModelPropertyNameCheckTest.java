@@ -35,6 +35,8 @@ public class SpaceInModelPropertyNameCheckTest extends TreeCheckTest {
     SourceFile file = scanFile("src/test/resources/checks/spaceInModelPropertyName.js", new SpaceInModelPropertyNameCheck());
     checkMessagesVerifier.verify(file.getCheckMessages())
       .next().atLine(3).withMessage("Rename this property to remove the spaces.")
-      .next().atLine(4);
+      .next().atLine(4)
+      .next().atLine(21)
+      .next().atLine(24);
   }
 }
