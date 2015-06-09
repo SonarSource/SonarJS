@@ -1,4 +1,4 @@
-/*
+package org.sonar.javascript.checks;/*
  * SonarQube JavaScript Plugin
  * Copyright (C) 2011 SonarSource and Eriks Nukis
  * dev@sonar.codehaus.org
@@ -17,28 +17,24 @@
  * License along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.javascript.checks;
-
-import java.util.Set;
-
 import com.sonar.sslr.api.Trivia;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
+import org.sonar.javascript.ast.resolve.type.FunctionTree;
+import org.sonar.javascript.ast.resolve.type.FunctionType;
 import org.sonar.javascript.checks.utils.CheckUtils;
 import org.sonar.javascript.model.internal.JavaScriptTree;
-import org.sonar.javascript.model.internal.expression.NewExpressionTreeImpl;
 import org.sonar.plugins.javascript.api.symbols.Type;
-import org.sonar.plugins.javascript.api.tree.Tree;
-import org.sonar.plugins.javascript.api.tree.declaration.FunctionDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
-import org.sonar.plugins.javascript.api.tree.expression.FunctionExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.NewExpressionTree;
 import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
 import org.sonar.squidbridge.annotations.ActivatedByDefault;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
+
+import java.util.Set;
 
 @Rule(
   key = "S2999",
@@ -62,31 +58,36 @@ public class NewOperatorMisusageCheck extends BaseTreeVisitor {
   public void visitNewExpression(NewExpressionTree tree) {
     ExpressionTree expression = tree.expression();
 
-    if (!expression.types().isEmpty() && isNotFunction(expression.types())) {
+    if (!expression.types().isEmpty() && isNotConstructor(expression.types())) {
       getContext().addIssue(this, expression, String.format("Replace %s with a constructor function.", CheckUtils.asString(expression)));
     }
 
     super.visitNewExpression(tree);
   }
 
-  private boolean isNotFunction(Set<Type> types) {
-    boolean isFunction = false;
+  private boolean isNotConstructor(Set<Type> types) {
+    boolean isConstructor = false;
     boolean isUnknown = false;
 
     for (Type t : types) {
       if (t.kind() == Type.Kind.FUNCTION) {
-        isFunction = true;
+        isConstructor = considerJSDoc ? hasJSDocAnnotation(((FunctionType) t).functionTree()) : true;
 
       } else if (t.kind() == Type.Kind.UNKNOWN) {
         isUnknown = true;
       }
     }
 
-    return !isFunction && !isUnknown;
+    return !isConstructor && !isUnknown;
   }
 
-  private static boolean hasJSDocAnnotation(Trivia trivia) {
-    return trivia.getToken().getValue().startsWith("/**");
+  private static boolean hasJSDocAnnotation(FunctionTree funcDec) {
+    for (Trivia trivia : ((JavaScriptTree) funcDec).getToken().getTrivia()) {
+      if (trivia.toString().contains("@constructor")) {
+        return true;
+      }
+    }
+    return false;
   }
 
 }

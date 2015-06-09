@@ -48,7 +48,7 @@ new MyClass2;  // OK
  * Documented function with tag @constructor
  */
 new MyClassA;  // OK - JSDoc
-new MyClassB;  // OK - JSDoc
+new MyClassB;  // OK - JSDoc but not handle by the check
 
 
 /**
@@ -60,8 +60,8 @@ function unknownFunction() {
 
 var unknownVariable = 1;
 
-unknownFunction = unknownVariable;
-unknownVariable = unknownFunction;
+unknownFunction = getSomething();
+unknownVariable = getSomething();
 
 new unknownFunction();   // OK
 new unknownVariable;     // OK
