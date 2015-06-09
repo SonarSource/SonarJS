@@ -53,8 +53,10 @@ public class NewOperatorMisusageCheckTest extends TreeCheckTest {
       .next().atLine(38)
 
       // Function without JSDoc @constructor tag
-//      .next().atLine(43)
-//      .next().atLine(44)
+      .next().atLine(43)
+      .next().atLine(44)
+      .next().atLine(51)
+      .next().atLine(77)
       .noMore();
 
   }
