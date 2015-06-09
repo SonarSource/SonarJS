@@ -22,7 +22,7 @@ package org.sonar.javascript.checks;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
-import org.sonar.javascript.ast.resolve.type.PrimitiveType;
+import org.sonar.plugins.javascript.api.symbols.Type;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.expression.BracketMemberExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
@@ -53,11 +53,7 @@ public class DeleteArrayElementCheck extends BaseTreeVisitor {
   }
 
   private static boolean isArrayElement(ExpressionTree expression) {
-    return expression.is(Tree.Kind.BRACKET_MEMBER_EXPRESSION) && canOnlyBeArray(((BracketMemberExpressionTree) expression).object());
-  }
-
-  private static boolean canOnlyBeArray(ExpressionTree expression){
-    return expression.types().size() == 1 && expression.types().contains(PrimitiveType.ARRAY);
+    return expression.is(Tree.Kind.BRACKET_MEMBER_EXPRESSION) && ((BracketMemberExpressionTree) expression).object().types().containsOnly(Type.Kind.ARRAY);
   }
 
 }
