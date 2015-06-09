@@ -27,11 +27,6 @@ import com.google.common.annotations.Beta;
 @Beta
 public interface Type {
 
-  /**
-   * Is the type is callable
-   */
-  boolean isCallable();
-
   Kind kind();
 
   enum Kind {

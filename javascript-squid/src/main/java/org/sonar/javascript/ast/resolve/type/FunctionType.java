@@ -28,13 +28,7 @@ public class FunctionType extends ObjectType {
     return Kind.FUNCTION;
   }
 
-  @Override
-  public boolean isCallable() {
-
-    return true;
-  }
-
-  public static ObjectType create(FunctionTree functionTree){
+  public static FunctionType create(FunctionTree functionTree){
     FunctionType type = new FunctionType();
     type.functionTree = functionTree;
     return type;

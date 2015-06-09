@@ -161,4 +161,22 @@ public class TypeSet implements Set<Type> {
     return copy;
   }
 
+  /*
+   * @return the instance of type with specified kind. Return null if there are several or none of types of such kind.
+   */
+  @Nullable
+  public Type getUniqueType(Type.Kind kind){
+    Type result = null;
+    for (Type type : types){
+      if (type.kind().equals(kind)) {
+        if (result == null) {
+          result = type;
+        } else {
+          return null;
+        }
+      }
+    }
+    return result;
+  }
+
 }

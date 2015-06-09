@@ -42,11 +42,11 @@ public class FrameworkTest extends TypeTest {
   public void simple_jquery_object() throws Exception {
     Symbol jqueryObject1 = getSymbol("jqueryObject1");
     assertThat(jqueryObject1.types()).hasSize(1);
-    assertThat(jqueryObject1.types()).contains(PrimitiveType.JQUERY_SELECTOR_OBJECT);
+    assertThat(jqueryObject1.types()).contains(ObjectType.FrameworkType.JQUERY_SELECTOR_OBJECT);
 
     Symbol jqueryObject2 = getSymbol("jqueryObject2");
     assertThat(jqueryObject2.types()).hasSize(1);
-    assertThat(jqueryObject2.types()).contains(PrimitiveType.JQUERY_SELECTOR_OBJECT);
+    assertThat(jqueryObject2.types()).contains(ObjectType.FrameworkType.JQUERY_SELECTOR_OBJECT);
   }
 
   @Test

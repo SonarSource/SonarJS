@@ -24,11 +24,6 @@ import org.sonar.plugins.javascript.api.symbols.Type;
 public class ObjectType implements Type {
 
   @Override
-  public boolean isCallable() {
-    return false;
-  }
-
-  @Override
   public Kind kind() {
     return Kind.OBJECT;
   }
@@ -43,5 +38,32 @@ public class ObjectType implements Type {
   @Override
   public String toString() {
     return this.kind().name();
+  }
+
+  public enum FrameworkType implements Type {
+    JQUERY_SELECTOR_OBJECT {
+      @Override
+      public Kind kind() {
+        return Kind.JQUERY_SELECTOR_OBJECT;
+      }
+    },
+    JQUERY_OBJECT {
+      @Override
+      public Kind kind() {
+        return Kind.JQUERY_OBJECT;
+      }
+    },
+    BACKBONE_MODEL {
+      @Override
+      public Kind kind() {
+        return Kind.BACKBONE_MODEL;
+      }
+    },
+    BACKBONE_MODEL_OBJECT {
+      @Override
+      public Kind kind() {
+        return Kind.BACKBONE_MODEL_OBJECT;
+      }
+    }
   }
 }

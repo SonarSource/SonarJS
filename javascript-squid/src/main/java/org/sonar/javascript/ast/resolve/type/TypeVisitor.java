@@ -112,17 +112,21 @@ public class TypeVisitor extends BaseTreeVisitor {
     super.visitCallExpression(tree);
 
     if (jQueryHelper.isSelectorObject(tree)) {
-      ((CallExpressionTreeImpl) tree).addType(PrimitiveType.JQUERY_SELECTOR_OBJECT);
+      ((CallExpressionTreeImpl) tree).addType(ObjectType.FrameworkType.JQUERY_SELECTOR_OBJECT);
     }
 
     if (Backbone.isModel(tree)) {
-      ((CallExpressionTreeImpl) tree).addType(PrimitiveType.BACKBONE_MODEL);
+      ((CallExpressionTreeImpl) tree).addType(ObjectType.FrameworkType.BACKBONE_MODEL);
     }
 
-    FunctionType functionType = getFunctionType(tree.callee().types());
+    inferParameterType(tree);
+  }
+
+  private void inferParameterType(CallExpressionTree tree) {
+    Type functionType = tree.callee().types().getUniqueType(Type.Kind.FUNCTION);
     if (functionType != null) {
 
-      SeparatedList<Tree> parameters = functionType.functionTree().parameters().parameters();
+      SeparatedList<Tree> parameters = ((FunctionType)functionType).functionTree().parameters().parameters();
       SeparatedList<Tree> arguments = tree.arguments().parameters();
       int minSize = arguments.size() < parameters.size() ? arguments.size() : parameters.size();
 
@@ -148,7 +152,7 @@ public class TypeVisitor extends BaseTreeVisitor {
   @Override
   public void visitNewExpression(NewExpressionTree tree) {
     if (tree.expression().types().contains(Type.Kind.BACKBONE_MODEL)) {
-      ((NewExpressionTreeImpl) tree).addType(PrimitiveType.BACKBONE_MODEL_OBJECT);
+      ((NewExpressionTreeImpl) tree).addType(ObjectType.FrameworkType.BACKBONE_MODEL_OBJECT);
     }
 
     super.visitNewExpression(tree);
@@ -157,27 +161,8 @@ public class TypeVisitor extends BaseTreeVisitor {
   @Override
   public void visitIdentifier(IdentifierTree tree) {
     if (jQueryHelper.isJQueryObject(tree)) {
-      ((IdentifierTreeImpl) tree).addType(PrimitiveType.JQUERY_OBJECT);
+      ((IdentifierTreeImpl) tree).addType(ObjectType.FrameworkType.JQUERY_OBJECT);
     }
-  }
-
-  /**
-   * @param types
-   * @return element of types which is FunctionType. Returns null if there are more than one.
-   */
-  @Nullable
-  private FunctionType getFunctionType(Set<Type> types) {
-    FunctionType functionType = null;
-    for (Type type : types) {
-      if (type.kind() == Type.Kind.FUNCTION) {
-        if (functionType == null) {
-          functionType = (FunctionType) type;
-        } else {
-          return null;
-        }
-      }
-    }
-    return functionType;
   }
 
   private void inferType(Tree identifier, ExpressionTree assignedTree) {
@@ -192,7 +177,7 @@ public class TypeVisitor extends BaseTreeVisitor {
     }
   }
 
-  private void addTypes(Symbol symbol, Set<Type> types) {
+  private static void addTypes(Symbol symbol, Set<Type> types) {
     if (types.isEmpty()) {
       symbol.addType(PrimitiveType.UNKNOWN);
     } else {

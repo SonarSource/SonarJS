@@ -23,7 +23,7 @@ import com.google.common.collect.ImmutableList;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
-import org.sonar.javascript.ast.resolve.type.PrimitiveType;
+import org.sonar.javascript.ast.resolve.type.ObjectType;
 import org.sonar.javascript.model.internal.expression.DotMemberExpressionTreeImpl;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.expression.CallExpressionTree;
@@ -98,7 +98,7 @@ public class DeprecatedJQueryAPICheck extends BaseTreeVisitor {
     if (expressionTree.is(Tree.Kind.DOT_MEMBER_EXPRESSION)){
       ExpressionTree object = ((DotMemberExpressionTreeImpl) expressionTree).object();
       ExpressionTree property = ((DotMemberExpressionTreeImpl) expressionTree).property();
-      if (object.types().contains(PrimitiveType.JQUERY_OBJECT) && propertyIsDeprecated(property, deprecated)){
+      if (object.types().contains(ObjectType.FrameworkType.JQUERY_OBJECT) && propertyIsDeprecated(property, deprecated)){
         getContext().addIssue(this, property, String.format(MESSAGE, ((IdentifierTree)property).name() + parentheses));
       }
     }
@@ -108,7 +108,7 @@ public class DeprecatedJQueryAPICheck extends BaseTreeVisitor {
     if (expressionTree.is(Tree.Kind.DOT_MEMBER_EXPRESSION)){
       ExpressionTree object = ((DotMemberExpressionTreeImpl) expressionTree).object();
       ExpressionTree property = ((DotMemberExpressionTreeImpl) expressionTree).property();
-      if (object.types().contains(PrimitiveType.JQUERY_SELECTOR_OBJECT) && propertyIsDeprecated(property, deprecated)){
+      if (object.types().contains(ObjectType.FrameworkType.JQUERY_SELECTOR_OBJECT) && propertyIsDeprecated(property, deprecated)){
         getContext().addIssue(this, property, String.format(MESSAGE, ((IdentifierTree)property).name() + parentheses));
       }
     }
