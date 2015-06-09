@@ -22,7 +22,7 @@ package org.sonar.javascript.checks;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
-import org.sonar.javascript.ast.resolve.type.PrimitiveType;
+import org.sonar.plugins.javascript.api.symbols.Type;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.tree.statement.IfStatementTree;
 import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
@@ -41,8 +41,7 @@ public class SelectionTestedWithoutLengthCheck extends BaseTreeVisitor {
   @Override
   public void visitIfStatement(IfStatementTree tree) {
     ExpressionTree condition = tree.condition();
-    boolean canBeOnlyJQuerySelector = condition.types().contains(PrimitiveType.JQUERY_SELECTOR_OBJECT) && condition.types().size() == 1;
-    if (canBeOnlyJQuerySelector) {
+    if (condition.types().containsOnly(Type.Kind.JQUERY_SELECTOR_OBJECT)) {
       getContext().addIssue(this, condition, "Use the \"length\" property to see whether this selection contains elements.");
     }
     super.visitIfStatement(tree);

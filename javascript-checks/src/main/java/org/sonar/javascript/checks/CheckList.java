@@ -141,7 +141,8 @@ public final class CheckList {
         DeleteArrayElementCheck.class,
         ElementTypeSelectorCheck.class,
         TooManyArgumentsCheck.class,
-        GlobalThisCheck.class);
+        GlobalThisCheck.class,
+        BackboneChangedIsUsedCheck.class);
   }
 
 }

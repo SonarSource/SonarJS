@@ -21,26 +21,24 @@ package org.sonar.javascript.model.internal.expression;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Iterators;
-import com.google.common.collect.Sets;
-import org.sonar.plugins.javascript.api.symbols.Symbol;
-import org.sonar.plugins.javascript.api.symbols.Type;
-import org.sonar.plugins.javascript.api.visitors.TreeVisitor;
+import org.sonar.plugins.javascript.api.symbols.TypeSet;
 import org.sonar.javascript.model.internal.JavaScriptTree;
 import org.sonar.javascript.model.internal.lexical.InternalSyntaxToken;
+import org.sonar.plugins.javascript.api.symbols.Symbol;
+import org.sonar.plugins.javascript.api.symbols.Type;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
+import org.sonar.plugins.javascript.api.visitors.TreeVisitor;
 
-import java.util.Collections;
 import java.util.Iterator;
-import java.util.Set;
 
 public class IdentifierTreeImpl extends JavaScriptTree implements IdentifierTree {
 
   private final InternalSyntaxToken nameToken;
   private final Kind kind;
   private Symbol symbol = null;
-  private Set<Type> types = Sets.newHashSet();
+  private TypeSet types = TypeSet.emptyTypeSet();
 
   public IdentifierTreeImpl(Kind kind, InternalSyntaxToken nameToken) {
     super(kind, nameToken.getToken());
@@ -80,11 +78,11 @@ public class IdentifierTreeImpl extends JavaScriptTree implements IdentifierTree
   }
 
   @Override
-  public Set<Type> types() {
+  public TypeSet types() {
     if (symbol == null){
-      return types;
+      return types.immutableCopy();
     } else {
-      return Collections.unmodifiableSet(symbol.types());
+      return symbol.types();
     }
   }
 

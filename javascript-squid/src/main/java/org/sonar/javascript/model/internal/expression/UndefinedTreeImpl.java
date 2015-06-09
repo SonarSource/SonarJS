@@ -20,15 +20,13 @@
 package org.sonar.javascript.model.internal.expression;
 
 import com.google.common.collect.Iterators;
-import org.sonar.plugins.javascript.api.symbols.Type;
-import org.sonar.plugins.javascript.api.visitors.TreeVisitor;
+import org.sonar.plugins.javascript.api.symbols.TypeSet;
 import org.sonar.javascript.model.internal.JavaScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.expression.LiteralTree;
+import org.sonar.plugins.javascript.api.visitors.TreeVisitor;
 
-import java.util.Collections;
 import java.util.Iterator;
-import java.util.Set;
 
 public class UndefinedTreeImpl extends JavaScriptTree implements LiteralTree {
 
@@ -59,7 +57,7 @@ public class UndefinedTreeImpl extends JavaScriptTree implements LiteralTree {
   }
 
   @Override
-  public Set<Type> types() {
-    return Collections.emptySet();
+  public TypeSet types() {
+    return TypeSet.emptyTypeSet();
   }
 }

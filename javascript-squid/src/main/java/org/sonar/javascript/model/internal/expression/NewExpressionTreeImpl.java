@@ -21,22 +21,20 @@ package org.sonar.javascript.model.internal.expression;
 
 import com.google.common.collect.Iterators;
 import com.sonar.sslr.api.AstNode;
-import org.sonar.plugins.javascript.api.symbols.Type;
-import org.sonar.plugins.javascript.api.visitors.TreeVisitor;
+import org.sonar.plugins.javascript.api.symbols.TypeSet;
 import org.sonar.javascript.model.internal.JavaScriptTree;
 import org.sonar.javascript.model.internal.declaration.ParameterListTreeImpl;
 import org.sonar.javascript.model.internal.lexical.InternalSyntaxToken;
+import org.sonar.plugins.javascript.api.symbols.Type;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.declaration.ParameterListTree;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.NewExpressionTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
+import org.sonar.plugins.javascript.api.visitors.TreeVisitor;
 
 import javax.annotation.Nullable;
-
-import java.util.Collections;
 import java.util.Iterator;
-import java.util.Set;
 
 public class NewExpressionTreeImpl extends JavaScriptTree implements NewExpressionTree {
 
@@ -44,6 +42,7 @@ public class NewExpressionTreeImpl extends JavaScriptTree implements NewExpressi
   private final SyntaxToken newKeyword;
   private final ExpressionTree expression;
   private final ParameterListTree arguments;
+  private TypeSet types = TypeSet.emptyTypeSet();
 
   public NewExpressionTreeImpl(Kind kind, InternalSyntaxToken newKeyword, ExpressionTree expression) {
     super(kind);
@@ -97,7 +96,11 @@ public class NewExpressionTreeImpl extends JavaScriptTree implements NewExpressi
   }
 
   @Override
-  public Set<Type> types() {
-    return Collections.emptySet();
+  public TypeSet types() {
+    return types.immutableCopy();
+  }
+
+  public void addType(Type type) {
+    types.add(type);
   }
 }

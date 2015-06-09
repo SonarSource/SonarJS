@@ -27,6 +27,7 @@ import org.sonar.javascript.model.internal.expression.ArrayLiteralTreeImpl;
 import org.sonar.javascript.model.internal.expression.CallExpressionTreeImpl;
 import org.sonar.javascript.model.internal.expression.IdentifierTreeImpl;
 import org.sonar.javascript.model.internal.expression.LiteralTreeImpl;
+import org.sonar.javascript.model.internal.expression.NewExpressionTreeImpl;
 import org.sonar.javascript.model.internal.expression.ObjectLiteralTreeImpl;
 import org.sonar.plugins.javascript.api.symbols.Symbol;
 import org.sonar.plugins.javascript.api.symbols.Type;
@@ -39,6 +40,7 @@ import org.sonar.plugins.javascript.api.tree.expression.CallExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 import org.sonar.plugins.javascript.api.tree.expression.LiteralTree;
+import org.sonar.plugins.javascript.api.tree.expression.NewExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.ObjectLiteralTree;
 import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
 
@@ -49,8 +51,8 @@ public class TypeVisitor extends BaseTreeVisitor {
 
   private JQuery jQueryHelper;
 
-  public TypeVisitor(@Nullable Settings settings){
-    if (settings == null){
+  public TypeVisitor(@Nullable Settings settings) {
+    if (settings == null) {
       jQueryHelper = new JQuery(JQuery.JQUERY_OBJECT_ALIASES_DEFAULT_VALUE.split(", "));
     } else {
       jQueryHelper = new JQuery(settings.getStringArray(JQuery.JQUERY_OBJECT_ALIASES));
@@ -110,13 +112,21 @@ public class TypeVisitor extends BaseTreeVisitor {
     super.visitCallExpression(tree);
 
     if (jQueryHelper.isSelectorObject(tree)) {
-      ((CallExpressionTreeImpl) tree).addType(PrimitiveType.JQUERY_SELECTOR_OBJECT);
+      ((CallExpressionTreeImpl) tree).addType(ObjectType.FrameworkType.JQUERY_SELECTOR_OBJECT);
     }
 
-    FunctionType functionType = getFunctionType(tree.callee().types());
+    if (Backbone.isModel(tree)) {
+      ((CallExpressionTreeImpl) tree).addType(ObjectType.FrameworkType.BACKBONE_MODEL);
+    }
+
+    inferParameterType(tree);
+  }
+
+  private void inferParameterType(CallExpressionTree tree) {
+    Type functionType = tree.callee().types().getUniqueType(Type.Kind.FUNCTION);
     if (functionType != null) {
 
-      SeparatedList<Tree> parameters = functionType.functionTree().parameters().parameters();
+      SeparatedList<Tree> parameters = ((FunctionType)functionType).functionTree().parameters().parameters();
       SeparatedList<Tree> arguments = tree.arguments().parameters();
       int minSize = arguments.size() < parameters.size() ? arguments.size() : parameters.size();
 
@@ -140,29 +150,19 @@ public class TypeVisitor extends BaseTreeVisitor {
   }
 
   @Override
-  public void visitIdentifier(IdentifierTree tree) {
-    if (jQueryHelper.isJQueryObject(tree)){
-      ((IdentifierTreeImpl)tree).addType(PrimitiveType.JQUERY_OBJECT);
+  public void visitNewExpression(NewExpressionTree tree) {
+    if (tree.expression().types().contains(Type.Kind.BACKBONE_MODEL)) {
+      ((NewExpressionTreeImpl) tree).addType(ObjectType.FrameworkType.BACKBONE_MODEL_OBJECT);
     }
+
+    super.visitNewExpression(tree);
   }
 
-  /**
-   * @param types
-   * @return element of types which is FunctionType. Returns null if there are more than one.
-   */
-  @Nullable
-  private FunctionType getFunctionType(Set<Type> types) {
-    FunctionType functionType = null;
-    for (Type type : types) {
-      if (type.kind() == Type.Kind.FUNCTION) {
-        if (functionType == null) {
-          functionType = (FunctionType) type;
-        } else {
-          return null;
-        }
-      }
+  @Override
+  public void visitIdentifier(IdentifierTree tree) {
+    if (jQueryHelper.isJQueryObject(tree)) {
+      ((IdentifierTreeImpl) tree).addType(ObjectType.FrameworkType.JQUERY_OBJECT);
     }
-    return functionType;
   }
 
   private void inferType(Tree identifier, ExpressionTree assignedTree) {
@@ -177,8 +177,8 @@ public class TypeVisitor extends BaseTreeVisitor {
     }
   }
 
-  private void addTypes(Symbol symbol, Set<Type> types) {
-    if (types.isEmpty()){
+  private static void addTypes(Symbol symbol, Set<Type> types) {
+    if (types.isEmpty()) {
       symbol.addType(PrimitiveType.UNKNOWN);
     } else {
       symbol.addTypes(types);

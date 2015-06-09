@@ -51,24 +51,7 @@ public enum PrimitiveType implements Type {
     public Kind kind() {
       return Kind.BOOLEAN;
     }
-  },
-  JQUERY_SELECTOR_OBJECT {
-    @Override
-    public Kind kind() {
-      return Kind.JQUERY_SELECTOR_OBJECT;
-    }
-  },
-  JQUERY_OBJECT {
-    @Override
-    public Kind kind() {
-      return Kind.JQUERY_OBJECT;
-    }
   };
-
-  @Override
-  public boolean isCallable() {
-    return false;
-  }
 
   @Override
   public String toString() {

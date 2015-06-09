@@ -24,12 +24,12 @@ import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
-import org.sonar.javascript.ast.resolve.type.PrimitiveType;
+import org.sonar.javascript.ast.resolve.type.ObjectType;
 import org.sonar.javascript.model.internal.SeparatedList;
+import org.sonar.plugins.javascript.api.tree.ScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.declaration.FunctionDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.declaration.InitializedBindingElementTree;
-import org.sonar.plugins.javascript.api.tree.ScriptTree;
 import org.sonar.plugins.javascript.api.tree.expression.ArrowFunctionTree;
 import org.sonar.plugins.javascript.api.tree.expression.AssignmentExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.CallExpressionTree;
@@ -141,7 +141,7 @@ public class NotStoredSelectionCheck extends BaseTreeVisitor {
 
   @Override
   public void visitCallExpression(CallExpressionTree tree) {
-    if (tree.types().contains(PrimitiveType.JQUERY_SELECTOR_OBJECT)) {
+    if (tree.types().contains(ObjectType.FrameworkType.JQUERY_SELECTOR_OBJECT)) {
       LiteralTree parameter = getSelectorParameter(tree);
       if (parameter != null) {
         List<LiteralTree> currentSelectors = selectors.peek();
@@ -186,7 +186,7 @@ public class NotStoredSelectionCheck extends BaseTreeVisitor {
   private void lookForException(ExpressionTree tree) {
     if (tree.is(Tree.Kind.CALL_EXPRESSION)) {
       CallExpressionTree callExpressionTree = (CallExpressionTree) tree;
-      if (callExpressionTree.types().contains(PrimitiveType.JQUERY_SELECTOR_OBJECT)) {
+      if (callExpressionTree.types().contains(ObjectType.FrameworkType.JQUERY_SELECTOR_OBJECT)) {
         LiteralTree parameter = getSelectorParameter(callExpressionTree);
         if (parameter != null){
           selectors.peek().remove(parameter);

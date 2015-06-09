@@ -19,7 +19,7 @@
  */
 package org.sonar.javascript.checks;
 
-import org.sonar.javascript.ast.resolve.type.PrimitiveType;
+import org.sonar.javascript.ast.resolve.type.ObjectType;
 import org.sonar.javascript.model.internal.SeparatedList;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.expression.CallExpressionTree;
@@ -32,7 +32,7 @@ public abstract class AbstractJQuerySelectorOptimizationCheck extends BaseTreeVi
 
   @Override
   public void visitCallExpression(CallExpressionTree tree) {
-    if (tree.types().contains(PrimitiveType.JQUERY_SELECTOR_OBJECT) && tree.callee().types().contains(PrimitiveType.JQUERY_OBJECT)){
+    if (tree.types().contains(ObjectType.FrameworkType.JQUERY_SELECTOR_OBJECT) && tree.callee().types().contains(ObjectType.FrameworkType.JQUERY_OBJECT)){
       SeparatedList<Tree> parameters = tree.arguments().parameters();
       if (!parameters.isEmpty() && parameters.get(0).is(Tree.Kind.STRING_LITERAL)) {
         String value = ((LiteralTree) parameters.get(0)).value();

@@ -17,31 +17,25 @@
  * License along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.plugins.javascript.api.symbols;
+package org.sonar.javascript.checks;
 
-import com.google.common.annotations.Beta;
+import org.junit.Test;
+import org.sonar.javascript.checks.utils.TreeCheckTest;
+import org.sonar.squidbridge.api.SourceFile;
+import org.sonar.squidbridge.checks.CheckMessagesVerifier;
 
-/**
- * Interface to represent the different type of Symbols.
- */
-@Beta
-public interface Type {
+public class BackboneChangedIsUsedCheckTest extends TreeCheckTest {
 
-  Kind kind();
+  @Test
+  public void test() {
+    BackboneChangedIsUsedCheck check = new BackboneChangedIsUsedCheck();
 
-  enum Kind {
-    UNKNOWN,
-    STRING,
-    NUMBER,
-    BOOLEAN,
-    OBJECT,
-    FUNCTION,
-    ARRAY,
-    JQUERY_OBJECT,
-    JQUERY_SELECTOR_OBJECT,
-    BACKBONE_MODEL,
-    BACKBONE_MODEL_OBJECT,
+    SourceFile file = scanFile("src/test/resources/checks/BackboneChangedIsUsed.js", check);
+    CheckMessagesVerifier.verify(file.getCheckMessages())
+        .next().atLine(10)
+        .next().atLine(11)
+        .next().atLine(12)
+        .noMore();
   }
-
 
 }

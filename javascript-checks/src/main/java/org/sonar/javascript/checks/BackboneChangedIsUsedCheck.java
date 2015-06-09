@@ -24,36 +24,41 @@ import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.plugins.javascript.api.symbols.Type;
 import org.sonar.plugins.javascript.api.tree.Tree;
-import org.sonar.plugins.javascript.api.tree.expression.BracketMemberExpressionTree;
+import org.sonar.plugins.javascript.api.tree.expression.AssignmentExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
-import org.sonar.plugins.javascript.api.tree.expression.UnaryExpressionTree;
+import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
+import org.sonar.plugins.javascript.api.tree.expression.MemberExpressionTree;
 import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
-import org.sonar.squidbridge.annotations.ActivatedByDefault;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 
 @Rule(
-  key = "S2870",
-  name = "\"delete\" should not be used on arrays",
-  priority = Priority.CRITICAL,
-  tags = {Tags.BUG})
+    key = "S2549",
+    name = "The \"changed\" property should not be manipulated directly",
+    priority = Priority.CRITICAL,
+    tags = {Tags.BACKBONE, Tags.BUG})
 @SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.DATA_RELIABILITY)
-@SqaleConstantRemediation("5min")
-@ActivatedByDefault
-public class DeleteArrayElementCheck extends BaseTreeVisitor {
+@SqaleConstantRemediation("30min")
+public class BackboneChangedIsUsedCheck extends BaseTreeVisitor {
 
-  private static final String MESSAGE = "Remove this use of \"delete\".";
+  private static final String CHANGED = "changed";
 
   @Override
-  public void visitUnaryExpression(UnaryExpressionTree tree) {
-    if (tree.is(Tree.Kind.DELETE) && isArrayElement(tree.expression())){
-      getContext().addIssue(this, tree, MESSAGE);
+  public void visitAssignmentExpression(AssignmentExpressionTree tree) {
+    if (tree.variable().is(Tree.Kind.DOT_MEMBER_EXPRESSION) && isChangedPropertyAccess((MemberExpressionTree) tree.variable())) {
+      getContext().addIssue(this, tree, "Remove this update of the \"changed\" property.");
     }
-    super.visitUnaryExpression(tree);
+
+    super.visitAssignmentExpression(tree);
   }
 
-  private static boolean isArrayElement(ExpressionTree expression) {
-    return expression.is(Tree.Kind.BRACKET_MEMBER_EXPRESSION) && ((BracketMemberExpressionTree) expression).object().types().containsOnly(Type.Kind.ARRAY);
+
+  private static boolean isChangedPropertyAccess(MemberExpressionTree tree) {
+    return isChangedProperty(tree.property()) && tree.object().types().contains(Type.Kind.BACKBONE_MODEL_OBJECT);
   }
 
+
+  private static boolean isChangedProperty(ExpressionTree property) {
+    return property instanceof IdentifierTree && ((IdentifierTree) property).name().equals(CHANGED);
+  }
 }
