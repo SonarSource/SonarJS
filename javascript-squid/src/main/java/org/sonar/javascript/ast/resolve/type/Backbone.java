@@ -19,6 +19,7 @@
  */
 package org.sonar.javascript.ast.resolve.type;
 
+import org.sonar.plugins.javascript.api.symbols.Type;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.expression.CallExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
@@ -43,9 +44,14 @@ public class Backbone {
     if (tree.is(Tree.Kind.DOT_MEMBER_EXPRESSION)) {
       MemberExpressionTree expr = (MemberExpressionTree) tree;
 
-      if (isExpressionIdentifierNamed(expr.property(), "extend") && expr.object().is(Tree.Kind.DOT_MEMBER_EXPRESSION)) {
-        MemberExpressionTree subExpr = (MemberExpressionTree) expr.object();
-        return isExpressionIdentifierNamed(subExpr.object(), "Backbone") && isExpressionIdentifierNamed(subExpr.property(), "Model");
+      if (isExpressionIdentifierNamed(expr.property(), "extend")) {
+        if (expr.object().types().contains(Type.Kind.BACKBONE_MODEL)){
+          return true;
+        }
+        if (expr.object().is(Tree.Kind.DOT_MEMBER_EXPRESSION)) {
+          MemberExpressionTree subExpr = (MemberExpressionTree) expr.object();
+          return isExpressionIdentifierNamed(subExpr.object(), "Backbone") && isExpressionIdentifierNamed(subExpr.property(), "Model");
+        }
       }
 
     }

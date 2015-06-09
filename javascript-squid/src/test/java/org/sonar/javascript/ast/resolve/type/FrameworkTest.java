@@ -23,7 +23,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.sonar.javascript.ast.resolve.SymbolModelImpl;
 import org.sonar.plugins.javascript.api.symbols.Symbol;
-import org.sonar.plugins.javascript.api.symbols.Type;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
 
 import java.io.File;
@@ -39,20 +38,36 @@ public class FrameworkTest extends TypeTest {
   }
 
   @Test
-  public void simple_jquery_object() throws Exception {
+  public void simple_jquery_object() {
     Symbol jqueryObject1 = getSymbol("jqueryObject1");
-    assertThat(jqueryObject1.types()).hasSize(1);
-    assertThat(jqueryObject1.types()).contains(ObjectType.FrameworkType.JQUERY_SELECTOR_OBJECT);
+    assertThat(jqueryObject1.types()).containsOnly(ObjectType.FrameworkType.JQUERY_SELECTOR_OBJECT);
 
     Symbol jqueryObject2 = getSymbol("jqueryObject2");
-    assertThat(jqueryObject2.types()).hasSize(1);
-    assertThat(jqueryObject2.types()).contains(ObjectType.FrameworkType.JQUERY_SELECTOR_OBJECT);
+    assertThat(jqueryObject2.types()).containsOnly(ObjectType.FrameworkType.JQUERY_SELECTOR_OBJECT);
   }
 
   @Test
-  public void not_jquery_object() throws Exception {
+  public void not_jquery_object() {
     Symbol jqueryObject = getSymbol("notJqueryObject");
-    assertThat(jqueryObject.types()).excludes(Type.Kind.JQUERY_SELECTOR_OBJECT);
+    assertThat(jqueryObject.types()).excludes(ObjectType.FrameworkType.JQUERY_SELECTOR_OBJECT);
+  }
+
+  @Test
+  public void backbone_model() {
+    Symbol backboneClass = getSymbol("BackboneClass");
+    assertThat(backboneClass.types()).containsOnly(ObjectType.FrameworkType.BACKBONE_MODEL);
+
+    Symbol backboneObject = getSymbol("BackboneObject");
+    assertThat(backboneObject.types()).containsOnly(ObjectType.FrameworkType.BACKBONE_MODEL_OBJECT);
+  }
+
+  @Test
+  public void backbone_model_inheritance() {
+    Symbol backboneClass = getSymbol("ChildBackboneClass");
+    assertThat(backboneClass.types()).containsOnly(ObjectType.FrameworkType.BACKBONE_MODEL);
+
+    Symbol backboneObject = getSymbol("childBackboneObject");
+    assertThat(backboneObject.types()).containsOnly(ObjectType.FrameworkType.BACKBONE_MODEL_OBJECT);
   }
 
 }
