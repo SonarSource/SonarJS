@@ -71,6 +71,7 @@ public class BooleanEqualityComparisonCheck extends BaseTreeVisitor {
     if (expression.is(Kind.PARENTHESISED_EXPRESSION)){
       visitExpression(((ParenthesisedExpressionTree)expression).expression());
     }
+    
     if (expression.is(Kind.BOOLEAN_LITERAL)){
       String message = String.format("Remove the literal \"%s\" boolean value.", ((LiteralTree) expression).value());
       getContext().addIssue(this, expression, message);
