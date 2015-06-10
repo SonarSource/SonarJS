@@ -22,6 +22,7 @@ package org.sonar.javascript.checks;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
+import org.sonar.plugins.javascript.api.tree.expression.ConditionalExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.ParenthesisedExpressionTree;
 import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
@@ -50,13 +51,16 @@ public class BooleanEqualityComparisonCheck extends BaseTreeVisitor {
       Kind.NOT_EQUAL_TO
   };
 
+
   @Override
   public void visitUnaryExpression(UnaryExpressionTree tree) {
     if (tree.is(Kind.LOGICAL_COMPLEMENT)) {
       visitExpression(tree.expression());
     }
+
     super.visitUnaryExpression(tree);
   }
+
 
   @Override
   public void visitBinaryExpression(BinaryExpressionTree tree) {
@@ -64,14 +68,23 @@ public class BooleanEqualityComparisonCheck extends BaseTreeVisitor {
       visitExpression(tree.leftOperand());
       visitExpression(tree.rightOperand());
     }
+
     super.visitBinaryExpression(tree);
   }
+
+
+  @Override
+  public void visitConditionalExpression(ConditionalExpressionTree tree) {
+    visitExpression(tree.condition());
+    super.visitConditionalExpression(tree);
+  }
+
 
   private void visitExpression(ExpressionTree expression) {
     if (expression.is(Kind.PARENTHESISED_EXPRESSION)){
       visitExpression(((ParenthesisedExpressionTree)expression).expression());
     }
-    
+
     if (expression.is(Kind.BOOLEAN_LITERAL)){
       String message = String.format("Remove the literal \"%s\" boolean value.", ((LiteralTree) expression).value());
       getContext().addIssue(this, expression, message);

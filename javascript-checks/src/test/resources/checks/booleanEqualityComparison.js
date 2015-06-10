@@ -31,3 +31,12 @@ a == (true && b) == b //NOK
 !(true)
 a == (false)
 foo() || (true)
+
+true ? a : b    // NOK
+false ? a : b    // NOK
+var x = true ? a : b  // NOK
+x = a ? a :
+  true? b : a   // NOK
+x = (true) ? a : b // NOK
+
+cond ? "true" : true // OK
