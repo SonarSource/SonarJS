@@ -50,6 +50,11 @@ public class BooleanEqualityComparisonCheckTest extends TreeCheckTest {
       .next().atLine(31)
       .next().atLine(32)
       .next().atLine(33)
+      .next().atLine(35)
+      .next().atLine(36)
+      .next().atLine(37)
+      .next().atLine(39)
+      .next().atLine(40)
       .noMore();
   }
 }
