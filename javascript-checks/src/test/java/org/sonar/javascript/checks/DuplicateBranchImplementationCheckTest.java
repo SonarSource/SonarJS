@@ -32,15 +32,17 @@ public class DuplicateBranchImplementationCheckTest extends TreeCheckTest {
   public void test() {
     SourceFile file = scanFile("src/test/resources/checks/duplicateBranchImplementation.js", check);
     CheckMessagesVerifier.verify(file.getCheckMessages())
-      .next().atLine(3).withMessage("Either merge this branch with the identical one on line \"1\" or change one of the implementations.")
+      .next().atLine(3).withMessage("This branch's code block is the same as the block for the branch on line 1.")
       .next().atLine(9)
       .next().atLine(17)
       .next().atLine(23)
-      .next().atLine(33).withMessage("Either merge this case with the identical one on line \"30\" or change one of the implementations.")
+      .next().atLine(33).withMessage("This case's code block is the same as the block for the case on line 30.")
       .next().atLine(41)
       .next().atLine(54)
       .next().atLine(62)
       .next().atLine(78)
+      .next().atLine(98).withMessage("This conditional operation returns the same value whether the condition is \"true\" or \"false\".")
+      .next().atLine(101)
       .noMore();
   }
 }

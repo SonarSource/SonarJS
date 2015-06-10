@@ -19,23 +19,23 @@
  */
 package org.sonar.javascript.checks;
 
+import com.google.common.collect.Iterables;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
-import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
 import org.sonar.javascript.ast.visitors.SyntacticEquivalence;
+import org.sonar.javascript.model.internal.JavaScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
+import org.sonar.plugins.javascript.api.tree.expression.ConditionalExpressionTree;
 import org.sonar.plugins.javascript.api.tree.statement.ElseClauseTree;
 import org.sonar.plugins.javascript.api.tree.statement.IfStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.StatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.SwitchClauseTree;
 import org.sonar.plugins.javascript.api.tree.statement.SwitchStatementTree;
+import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
 import org.sonar.squidbridge.annotations.ActivatedByDefault;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
-
-import com.google.common.collect.Iterables;
-import com.sonar.sslr.api.AstNode;
 
 import java.util.List;
 
@@ -60,7 +60,8 @@ public class DuplicateBranchImplementationCheck extends BaseTreeVisitor {
       if (SyntacticEquivalence.areEquivalent(implementation, implementationToCompare)) {
         getContext().addIssue(this,
           implementationToCompare,
-          "Either merge this branch with the identical one on line \"" + ((AstNode) implementation).getTokenLine() + "\" or change one of the implementations.");
+          String.format("This branch's code block is the same as the block for the branch on line %s.", ((JavaScriptTree) implementation).getTokenLine())
+        );
         break;
       }
       elseClause = getNextElse(elseClause);
@@ -83,6 +84,16 @@ public class DuplicateBranchImplementationCheck extends BaseTreeVisitor {
     }
   }
 
+  @Override
+  public void visitConditionalExpression(ConditionalExpressionTree tree) {
+    if (SyntacticEquivalence.areEquivalent(tree.trueExpression(), tree.falseExpression())){
+      getContext().addIssue(this, tree, "This conditional operation returns the same value whether the condition is \"true\" or \"false\".");
+    }
+
+    super.visitConditionalExpression(tree);
+  }
+
+
   private void compareWithNextCases(SwitchStatementTree tree, int indexCaseReference, SwitchClauseTree caseTree) {
     for (int j = indexCaseReference + 1; j < tree.cases().size(); j++) {
       SwitchClauseTree caseTreeToCompare = tree.cases().get(j);
@@ -98,7 +109,8 @@ public class DuplicateBranchImplementationCheck extends BaseTreeVisitor {
       if (SyntacticEquivalence.areEquivalent(caseStatements, caseTreeToCompare.statements())) {
         getContext().addIssue(this,
           caseTreeToCompare,
-          "Either merge this case with the identical one on line \"" + ((AstNode) caseTree).getTokenLine() + "\" or change one of the implementations.");
+          String.format("This case's code block is the same as the block for the case on line %s.", ((JavaScriptTree) caseTree).getTokenLine())
+        );
         // break the inner loop
         break;
       }

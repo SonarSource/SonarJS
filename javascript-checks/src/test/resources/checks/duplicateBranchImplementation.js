@@ -93,3 +93,9 @@ switch (a) {
     break;
   default:
 }
+
+a = cond ? first() : second();  // OK
+a = cond ? first() : first();  // NOK
+a = cond ? "literal" : "other lireral";  // OK
+a = cond ? first() + 1 : first() + 2;  // OK
+a = cond ? first() + 1 : first() + 1;  // NOK
