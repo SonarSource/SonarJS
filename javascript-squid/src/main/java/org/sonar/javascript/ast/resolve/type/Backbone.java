@@ -44,13 +44,13 @@ public class Backbone {
     if (tree.is(Tree.Kind.DOT_MEMBER_EXPRESSION)) {
       MemberExpressionTree expr = (MemberExpressionTree) tree;
 
-      if (isExpressionIdentifierNamed(expr.property(), "extend")) {
+      if (identifierWithName(expr.property(), "extend")) {
         if (expr.object().types().contains(Type.Kind.BACKBONE_MODEL)){
           return true;
         }
         if (expr.object().is(Tree.Kind.DOT_MEMBER_EXPRESSION)) {
           MemberExpressionTree subExpr = (MemberExpressionTree) expr.object();
-          return isExpressionIdentifierNamed(subExpr.object(), "Backbone") && isExpressionIdentifierNamed(subExpr.property(), "Model");
+          return identifierWithName(subExpr.object(), "Backbone") && identifierWithName(subExpr.property(), "Model");
         }
       }
 
@@ -68,7 +68,7 @@ public class Backbone {
       if (property.is(Tree.Kind.PAIR_PROPERTY)) {
         PairPropertyTree pairProperty = (PairPropertyTree) property;
 
-        if (isExpressionIdentifierNamed(pairProperty.key(), propertyName)) {
+        if (identifierWithName(pairProperty.key(), propertyName)) {
           return pairProperty;
         }
       }
@@ -77,7 +77,7 @@ public class Backbone {
   }
 
 
-  private static boolean isExpressionIdentifierNamed(ExpressionTree tree, String value) {
+  private static boolean identifierWithName(ExpressionTree tree, String value) {
     return tree instanceof IdentifierTree && ((IdentifierTree) tree).name().equals(value);
   }
 }

@@ -53,11 +53,8 @@ public class SpaceInModelPropertyNameCheck extends BaseTreeVisitor {
       visitDefaults(tree);
     }
 
-    if (tree.callee().is(Kind.DOT_MEMBER_EXPRESSION)){
-      DotMemberExpressionTree dotExpr = (DotMemberExpressionTree)tree.callee();
-      if (isBackboneSetMethod(dotExpr)){
-        visitSetMethodCall(tree);
-      }
+    if (tree.callee().is(Kind.DOT_MEMBER_EXPRESSION) && isBackboneSetMethod((DotMemberExpressionTree)tree.callee())){
+      visitSetMethodCall(tree);
     }
 
     super.visitCallExpression(tree);
@@ -102,7 +99,7 @@ public class SpaceInModelPropertyNameCheck extends BaseTreeVisitor {
   }
 
   private void checkString(ExpressionTree key) {
-    if (key.is(Kind.STRING_LITERAL) && StringUtils.indexOf(((LiteralTree) key).value(), ' ') >= 0) {
+    if (key.is(Kind.STRING_LITERAL) && StringUtils.contains(((LiteralTree) key).value(), ' ')) {
       getContext().addIssue(this, key, "Rename this property to remove the spaces.");
     }
   }
