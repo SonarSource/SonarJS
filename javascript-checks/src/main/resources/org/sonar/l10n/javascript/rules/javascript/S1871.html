@@ -2,6 +2,11 @@
 Having two <code>cases</code> in the same <code>switch</code> statement or branches in the same <code>if</code> structure  with the same implementation is at best duplicate code, and at worst a coding error. If the same logic is truly needed for both instances, then they should be combined, for an <code>if</code> structure or one should fall through to the other for a <code>switch</code>.
 </p>
 
+<p>
+Moreover when the second and third operands of a conditional operator are the same, the operator will always return the same value regardless of the condition. Either the
+operator itself is pointless, or a mistake was made in coding it.
+</p>
+
 <h2>Noncompliant Code Example</h2>
 <pre>
 switch (i) {
@@ -29,6 +34,15 @@ else if (a >= 20 && a < 50) {
 else {
   doTheRest();
 }
+
+if (b == 0) {
+  doOneMoreThing();
+}
+else {
+  doOneMoreThing(); // Noncompliant; duplicates then-branch
+}
+
+a = (b == 0) ? getValue() : getValue();   // Noncompliant
 </pre>
 
 <h2>Compliant Solution</h2>
@@ -53,6 +67,10 @@ else if (a >= 10 && a < 20) {
 else {
   doTheRest();
 }
+
+doOneMoreThing();
+
+a = getValue();
 </pre>
 
 <p>or</p>
@@ -83,4 +101,13 @@ else if (a >= 20 && a < 50) {
 else {
   doTheRest();
 }
+
+if (b == 0) {
+  doOneMoreThing();
+}
+else {
+  doTheRest();
+}
+
+a = (b == 0) ? 0 : getValue();
 </pre>
