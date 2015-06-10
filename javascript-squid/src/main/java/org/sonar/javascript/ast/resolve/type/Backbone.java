@@ -35,8 +35,8 @@ public class Backbone {
   private Backbone() {
   }
 
-  public static boolean isModel(ExpressionTree tree) {
-    return tree.is(Tree.Kind.CALL_EXPRESSION) && isModelExtendMethod(((CallExpressionTree) tree).callee());
+  public static boolean isModel(CallExpressionTree tree) {
+    return isModelExtendMethod(tree.callee());
   }
 
 

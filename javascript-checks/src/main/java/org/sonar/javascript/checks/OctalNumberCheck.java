@@ -30,10 +30,10 @@ import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 
 @Rule(
-  key = "OctalNumber",
-  name = "Octal values should not be used",
-  priority = Priority.MAJOR,
-  tags = {Tags.CERT, Tags.MISRA, Tags.PITFALL})
+    key = "OctalNumber",
+    name = "Octal values should not be used",
+    priority = Priority.MAJOR,
+    tags = {Tags.CERT, Tags.MISRA, Tags.PITFALL})
 @ActivatedByDefault
 @SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.DATA_RELIABILITY)
 @SqaleConstantRemediation("5min")
@@ -41,20 +41,20 @@ public class OctalNumberCheck extends BaseTreeVisitor {
 
   @Override
   public void visitLiteral(LiteralTree tree) {
-   if (tree.is(Tree.Kind.NUMERIC_LITERAL)){
-     String value = tree.value();
-     if (value.length() > 1 && value.startsWith("0")) {
-       int newValue;
-       try {
-         newValue = Integer.parseInt(value, 8);
-       } catch (NumberFormatException e) {
-         return;
-       }
-       if (newValue > 9) {
-         getContext().addIssue(this, tree, "Replace the value of the octal number (" + value + ") by its decimal equivalent (" + newValue + ").");
-       }
-     }
-   }
+    if (tree.is(Tree.Kind.NUMERIC_LITERAL)) {
+      String value = tree.value();
+      if (value.length() > 1 && value.startsWith("0")) {
+        int newValue;
+        try {
+          newValue = Integer.parseInt(value, 8);
+        } catch (NumberFormatException e) {
+          return;
+        }
+        if (newValue > 9) {
+          getContext().addIssue(this, tree, "Replace the value of the octal number (" + value + ") by its decimal equivalent (" + newValue + ").");
+        }
+      }
+    }
   }
 
 }
