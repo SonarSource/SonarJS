@@ -24,7 +24,6 @@ import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.expression.CallExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.DotMemberExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
-import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 import org.sonar.plugins.javascript.api.tree.expression.ObjectLiteralTree;
 import org.sonar.plugins.javascript.api.tree.expression.PairPropertyTree;
 
@@ -50,7 +49,7 @@ public class Backbone {
         }
         if (expr.object().is(Tree.Kind.DOT_MEMBER_EXPRESSION)) {
           DotMemberExpressionTree subExpr = (DotMemberExpressionTree) expr.object();
-          return identifierWithName(subExpr.object(), "Backbone") && "Model".equals(subExpr.property().name());
+          return Utils.identifierWithName(subExpr.object(), "Backbone") && "Model".equals(subExpr.property().name());
         }
       }
 
@@ -68,16 +67,11 @@ public class Backbone {
       if (property.is(Tree.Kind.PAIR_PROPERTY)) {
         PairPropertyTree pairProperty = (PairPropertyTree) property;
 
-        if (identifierWithName(pairProperty.key(), propertyName)) {
+        if (Utils.identifierWithName(pairProperty.key(), propertyName)) {
           return pairProperty;
         }
       }
     }
     return null;
-  }
-
-
-  private static boolean identifierWithName(ExpressionTree tree, String value) {
-    return tree instanceof IdentifierTree && ((IdentifierTree) tree).name().equals(value);
   }
 }
