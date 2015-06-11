@@ -143,6 +143,7 @@ public final class CheckList {
         TooManyArgumentsCheck.class,
         GlobalThisCheck.class,
         NewOperatorMisusageCheck.class,
+        WebSQLDatabaseCheck.class,
         BackboneChangedIsUsedCheck.class);
   }
 
