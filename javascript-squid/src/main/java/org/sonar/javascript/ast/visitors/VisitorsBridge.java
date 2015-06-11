@@ -59,13 +59,14 @@ public class VisitorsBridge extends SquidAstVisitor<LexerlessGrammar> {
     if (astNode != null) {
       ScriptTree scriptTree = (ScriptTree) astNode;
       File file = getContext().getFile();
+      SymbolModelImpl symbolModel = SymbolModelImpl.create(scriptTree, symbolizableFor(file), new SourceFileOffsets(file, fs.encoding()), settings);
 
       for (JavaScriptFileScanner scanner : scanners) {
         scanner.scanFile(new AstTreeVisitorContextImpl(
           scriptTree,
           (SourceFile) getContext().peekSourceCode(),
           file,
-          SymbolModelImpl.create(scriptTree, symbolizableFor(file), new SourceFileOffsets(file, fs.encoding()), settings),
+          symbolModel,
           settings
         ));
       }
