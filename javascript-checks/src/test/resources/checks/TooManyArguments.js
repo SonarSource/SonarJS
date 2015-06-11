@@ -9,7 +9,7 @@ function foo2(){
 
   var foo3 = function(){}
 
-  foo3(1)
+  foo3(1)  // NOK
 }
 
 function foo4(){
@@ -43,4 +43,9 @@ function foo7(arguments){
   console.log(arguments)
 }
 
-foo7(1, 2) // NOK
+foo7(1, 2); // NOK
+
+(function(p1, p2){
+  doSomething1();
+  doSomething2();
+})(1, 2, 3);     // NOK

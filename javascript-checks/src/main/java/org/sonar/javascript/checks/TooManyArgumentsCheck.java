@@ -31,6 +31,8 @@ import org.sonar.plugins.javascript.api.symbols.Symbol;
 import org.sonar.plugins.javascript.api.symbols.Type;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.expression.CallExpressionTree;
+import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
+import org.sonar.plugins.javascript.api.tree.expression.ParenthesisedExpressionTree;
 import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
 import org.sonar.squidbridge.annotations.ActivatedByDefault;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
@@ -49,7 +51,7 @@ import java.util.Set;
 @ActivatedByDefault
 public class TooManyArgumentsCheck extends BaseTreeVisitor {
 
-  private static final String MESSAGE = "\"%s\" expects \"%s\" arguments, but \"%s\" were provided.";
+  private static final String MESSAGE = "%s expects \"%s\" arguments, but \"%s\" were provided.";
 
   @Override
   public void visitCallExpression(CallExpressionTree tree) {
@@ -61,13 +63,27 @@ public class TooManyArgumentsCheck extends BaseTreeVisitor {
       int argumentsNumber = tree.arguments().parameters().size();
 
       if (!hasRestParameter(functionTree) && !builtInArgumentsUsed(functionTree) && argumentsNumber > parametersNumber) {
-        String message = String.format(MESSAGE, CheckUtils.asString(tree.callee()), parametersNumber, argumentsNumber);
-        getContext().addIssue(this, tree, message);
+        String message = getMessage(tree, parametersNumber, argumentsNumber);
+        getContext().addIssue(this, tree.arguments(), message);
       }
 
     }
 
     super.visitCallExpression(tree);
+  }
+
+  private String getMessage(CallExpressionTree tree, int parametersNumber, int argumentsNumber) {
+    String callee;
+    if (isParenthesisedFunctionExpr(tree.callee())){
+      callee = "This function";
+    } else {
+      callee = "\"" + CheckUtils.asString(tree.callee()) + "\"";
+    }
+    return String.format(MESSAGE, callee, parametersNumber, argumentsNumber);
+  }
+
+  private boolean isParenthesisedFunctionExpr(ExpressionTree tree) {
+    return tree.is(Tree.Kind.PARENTHESISED_EXPRESSION) && ((ParenthesisedExpressionTree) tree).expression().is(Tree.Kind.FUNCTION_EXPRESSION);
   }
 
   /*
