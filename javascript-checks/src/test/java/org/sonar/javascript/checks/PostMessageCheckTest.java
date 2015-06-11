@@ -17,32 +17,24 @@
  * License along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.plugins.javascript.api.symbols;
+package org.sonar.javascript.checks;
 
-import com.google.common.annotations.Beta;
+import org.junit.Test;
+import org.sonar.javascript.checks.utils.TreeCheckTest;
+import org.sonar.squidbridge.api.SourceFile;
+import org.sonar.squidbridge.checks.CheckMessagesVerifier;
 
-/**
- * Interface to represent the different type of Symbols.
- */
-@Beta
-public interface Type {
+public class PostMessageCheckTest extends TreeCheckTest {
 
-  Kind kind();
+  @Test
+  public void test() {
+    SourceFile file = scanFile("src/test/resources/checks/PostMessage.js", new PostMessageCheck());
 
-  enum Kind {
-    UNKNOWN,
-    STRING,
-    NUMBER,
-    BOOLEAN,
-    OBJECT,
-    FUNCTION,
-    ARRAY,
-    JQUERY_OBJECT,
-    JQUERY_SELECTOR_OBJECT,
-    BACKBONE_MODEL,
-    BACKBONE_MODEL_OBJECT,
-    WINDOW
+    CheckMessagesVerifier.verify(file.getCheckMessages())
+//      .next().atLine(2).withMessage("Make sure this cross-domain message is being sent to the intended domain.")
+//      .next().atLine(5)
+//      .next().atLine(8)
+      .noMore();
   }
-
 
 }

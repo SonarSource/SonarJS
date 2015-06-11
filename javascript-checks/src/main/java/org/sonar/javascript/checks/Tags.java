@@ -43,6 +43,7 @@ public class Tags {
   public static final String SECURITY = "security";
   public static final String UNUSED = "unused";
   public static final String USER_EXPERIENCE = "user-experience";
+  public static final String HTML5 = "html5";
 
   private Tags() {
     // This class only defines constants
