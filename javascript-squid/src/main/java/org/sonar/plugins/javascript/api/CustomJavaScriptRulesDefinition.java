@@ -46,9 +46,18 @@ public abstract class CustomJavaScriptRulesDefinition implements RulesDefinition
     repo.done();
   }
 
+  /**
+   * Name of the custom rule repository.
+   */
   public abstract String repositoryName();
 
+  /**
+   * Key of the custom rule repository.
+   */
   public abstract String repositoryKey();
 
+  /**
+   * Array of the custom rules classes.
+   */
   public abstract Class[] checkClasses();
 }
