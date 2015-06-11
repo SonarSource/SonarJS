@@ -19,11 +19,11 @@
  */
 package org.sonar.plugins.javascript.api;
 
-import org.sonar.api.BatchExtension;
-
 import com.google.common.annotations.Beta;
+import com.google.common.collect.ImmutableList;
+import org.sonar.api.BatchExtension;
 import org.sonar.api.server.rule.RulesDefinition;
-import org.sonar.api.server.rule.RulesDefinitionAnnotationLoader;
+import org.sonar.squidbridge.annotations.AnnotationBasedRulesDefinition;
 
 /**
  * Extension point to create custom rule repository for JavaScript.
@@ -41,8 +41,7 @@ public abstract class CustomJavaScriptRulesDefinition implements RulesDefinition
     RulesDefinition.NewRepository repo = context.createRepository(repositoryKey(), "js").setName(repositoryName());
 
     // Load metadata from check classes' annotations
-    RulesDefinitionAnnotationLoader annotationLoader = new RulesDefinitionAnnotationLoader();
-    annotationLoader.load(repo, checkClasses());
+    new AnnotationBasedRulesDefinition(repo, "javascript").addRuleClasses(false, ImmutableList.copyOf(checkClasses()));
 
     repo.done();
   }
