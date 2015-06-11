@@ -29,6 +29,7 @@ import org.sonar.javascript.model.internal.expression.IdentifierTreeImpl;
 import org.sonar.javascript.model.internal.expression.LiteralTreeImpl;
 import org.sonar.javascript.model.internal.expression.NewExpressionTreeImpl;
 import org.sonar.javascript.model.internal.expression.ObjectLiteralTreeImpl;
+import org.sonar.javascript.model.internal.expression.ParenthesisedExpressionTreeImpl;
 import org.sonar.plugins.javascript.api.symbols.Symbol;
 import org.sonar.plugins.javascript.api.symbols.Type;
 import org.sonar.plugins.javascript.api.tree.Tree;
@@ -42,6 +43,7 @@ import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 import org.sonar.plugins.javascript.api.tree.expression.LiteralTree;
 import org.sonar.plugins.javascript.api.tree.expression.NewExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.ObjectLiteralTree;
+import org.sonar.plugins.javascript.api.tree.expression.ParenthesisedExpressionTree;
 import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
 
 import javax.annotation.Nullable;
@@ -163,6 +165,12 @@ public class TypeVisitor extends BaseTreeVisitor {
     if (jQueryHelper.isJQueryObject(tree)) {
       ((IdentifierTreeImpl) tree).addType(ObjectType.FrameworkType.JQUERY_OBJECT);
     }
+  }
+
+  @Override
+  public void visitParenthesisedExpression(ParenthesisedExpressionTree tree) {
+    ((ParenthesisedExpressionTreeImpl) tree).addTypes(tree.expression().types());
+    super.visitParenthesisedExpression(tree);
   }
 
   private void inferType(Tree identifier, ExpressionTree assignedTree) {

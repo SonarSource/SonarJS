@@ -37,6 +37,7 @@ public class ParenthesisedExpressionTreeImpl extends JavaScriptTree implements P
   private final InternalSyntaxToken openParenthesis;
   private final ExpressionTree expression;
   private final InternalSyntaxToken closeParenthesis;
+  private TypeSet types = TypeSet.emptyTypeSet();
 
   public ParenthesisedExpressionTreeImpl(InternalSyntaxToken openParenthesis, ExpressionTree expression, InternalSyntaxToken closeParenthesis) {
     super(Kind.PARENTHESISED_EXPRESSION);
@@ -83,6 +84,10 @@ public class ParenthesisedExpressionTreeImpl extends JavaScriptTree implements P
 
   @Override
   public TypeSet types() {
-    return TypeSet.emptyTypeSet();
+    return types.immutableCopy();
+  }
+
+  public void addTypes(TypeSet types) {
+    this.types.addAll(types);
   }
 }
