@@ -31,17 +31,29 @@ public interface Type {
 
   enum Kind {
     UNKNOWN,
+
+    // PRIMITIVE
     STRING,
     NUMBER,
     BOOLEAN,
+
+    // OBJECT
     OBJECT,
     FUNCTION,
     ARRAY,
+
+    // JQUERY
     JQUERY_OBJECT,
     JQUERY_SELECTOR_OBJECT,
+
+    // BACKBONE
     BACKBONE_MODEL,
     BACKBONE_MODEL_OBJECT,
-    WINDOW
+
+    // WEB API
+    WINDOW,
+    DOCUMENT,
+    DOM_ELEMENT,
   }
 
 

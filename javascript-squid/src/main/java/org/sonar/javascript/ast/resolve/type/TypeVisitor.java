@@ -41,6 +41,7 @@ import org.sonar.plugins.javascript.api.tree.expression.CallExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 import org.sonar.plugins.javascript.api.tree.expression.LiteralTree;
+import org.sonar.plugins.javascript.api.tree.expression.MemberExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.NewExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.ObjectLiteralTree;
 import org.sonar.plugins.javascript.api.tree.expression.ParenthesisedExpressionTree;
@@ -84,6 +85,7 @@ public class TypeVisitor extends BaseTreeVisitor {
     } else if (tree.is(Tree.Kind.BOOLEAN_LITERAL)) {
       ((LiteralTreeImpl) tree).addType(PrimitiveType.BOOLEAN);
     }
+
     super.visitLiteral(tree);
   }
 
@@ -119,6 +121,18 @@ public class TypeVisitor extends BaseTreeVisitor {
 
     if (Backbone.isModel(tree)) {
       ((CallExpressionTreeImpl) tree).addType(ObjectType.FrameworkType.BACKBONE_MODEL);
+    }
+
+    if (WebAPI.isWindow(tree)){
+      ((CallExpressionTreeImpl) tree).addType(ObjectType.WebApiType.WINDOW);
+    }
+
+    if (WebAPI.isElement(tree)){
+      ((CallExpressionTreeImpl) tree).addType(ObjectType.WebApiType.DOM_ELEMENT);
+    }
+
+    if (WebAPI.isElementList(tree)){
+      ((CallExpressionTreeImpl) tree).addType(ArrayType.create(ObjectType.WebApiType.DOM_ELEMENT));
     }
 
     inferParameterType(tree);
@@ -165,12 +179,41 @@ public class TypeVisitor extends BaseTreeVisitor {
     if (jQueryHelper.isJQueryObject(tree)) {
       ((IdentifierTreeImpl) tree).addType(ObjectType.FrameworkType.JQUERY_OBJECT);
     }
+
+    if (WebAPI.isWindow(tree)){
+      ((IdentifierTreeImpl) tree).addType(ObjectType.WebApiType.WINDOW);
+    }
+
+    if (WebAPI.isDocument(tree)){
+      ((IdentifierTreeImpl) tree).addType(ObjectType.WebApiType.DOCUMENT);
+    }
   }
 
   @Override
   public void visitParenthesisedExpression(ParenthesisedExpressionTree tree) {
+    // todo (Lena) : change these lines' order?
     ((ParenthesisedExpressionTreeImpl) tree).addTypes(tree.expression().types());
     super.visitParenthesisedExpression(tree);
+  }
+
+  @Override
+  public void visitMemberExpression(MemberExpressionTree tree) {
+    super.visitMemberExpression(tree);
+
+    if (WebAPI.isWindow(tree)) {
+      tree.addType(ObjectType.WebApiType.WINDOW);
+    }
+
+    if (WebAPI.isElement(tree)){
+      tree.addType(ObjectType.WebApiType.DOM_ELEMENT);
+    }
+
+    if (tree.is(Tree.Kind.BRACKET_MEMBER_EXPRESSION)){
+      Type arrayType = tree.object().types().getUniqueType(Type.Kind.ARRAY);
+      if (arrayType != null && ((ArrayType) arrayType).elementType() != null){
+        tree.addType(((ArrayType) arrayType).elementType());
+      }
+    }
   }
 
   private void inferType(Tree identifier, ExpressionTree assignedTree) {

@@ -64,6 +64,28 @@ public class ObjectType implements Type {
       public Kind kind() {
         return Kind.BACKBONE_MODEL_OBJECT;
       }
-    }
+    },
+  }
+
+  public enum WebApiType implements Type {
+    WINDOW {
+      @Override
+      public Kind kind() {
+        return Kind.WINDOW;
+      }
+    },
+    DOCUMENT {
+      @Override
+      public Kind kind() {
+        return Kind.DOCUMENT;
+      }
+    },
+    DOM_ELEMENT {
+      @Override
+      public Kind kind() {
+        return Kind.DOM_ELEMENT;
+      }
+    },
+
   }
 }

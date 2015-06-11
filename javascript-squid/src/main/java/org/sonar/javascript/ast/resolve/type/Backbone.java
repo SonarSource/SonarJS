@@ -23,7 +23,6 @@ import org.sonar.plugins.javascript.api.symbols.Type;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.expression.CallExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
-import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 import org.sonar.plugins.javascript.api.tree.expression.MemberExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.ObjectLiteralTree;
 import org.sonar.plugins.javascript.api.tree.expression.PairPropertyTree;
@@ -44,13 +43,13 @@ public class Backbone {
     if (tree.is(Tree.Kind.DOT_MEMBER_EXPRESSION)) {
       MemberExpressionTree expr = (MemberExpressionTree) tree;
 
-      if (identifierWithName(expr.property(), "extend")) {
+      if (Utils.identifierWithName(expr.property(), "extend")) {
         if (expr.object().types().contains(Type.Kind.BACKBONE_MODEL)){
           return true;
         }
         if (expr.object().is(Tree.Kind.DOT_MEMBER_EXPRESSION)) {
           MemberExpressionTree subExpr = (MemberExpressionTree) expr.object();
-          return identifierWithName(subExpr.object(), "Backbone") && identifierWithName(subExpr.property(), "Model");
+          return Utils.identifierWithName(subExpr.object(), "Backbone") && Utils.identifierWithName(subExpr.property(), "Model");
         }
       }
 
@@ -68,16 +67,11 @@ public class Backbone {
       if (property.is(Tree.Kind.PAIR_PROPERTY)) {
         PairPropertyTree pairProperty = (PairPropertyTree) property;
 
-        if (identifierWithName(pairProperty.key(), propertyName)) {
+        if (Utils.identifierWithName(pairProperty.key(), propertyName)) {
           return pairProperty;
         }
       }
     }
     return null;
-  }
-
-
-  private static boolean identifierWithName(ExpressionTree tree, String value) {
-    return tree instanceof IdentifierTree && ((IdentifierTree) tree).name().equals(value);
   }
 }

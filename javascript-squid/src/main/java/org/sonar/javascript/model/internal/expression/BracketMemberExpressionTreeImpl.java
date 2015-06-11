@@ -21,6 +21,7 @@ package org.sonar.javascript.model.internal.expression;
 
 import com.google.common.collect.Iterators;
 import com.sonar.sslr.api.AstNode;
+import org.sonar.plugins.javascript.api.symbols.Type;
 import org.sonar.plugins.javascript.api.symbols.TypeSet;
 import org.sonar.javascript.model.internal.JavaScriptTree;
 import org.sonar.javascript.model.internal.lexical.InternalSyntaxToken;
@@ -38,6 +39,7 @@ public class BracketMemberExpressionTreeImpl extends JavaScriptTree implements B
   private final SyntaxToken openBracket;
   private final ExpressionTree property;
   private final SyntaxToken closeBracket;
+  private TypeSet types = TypeSet.emptyTypeSet();
 
   public BracketMemberExpressionTreeImpl(InternalSyntaxToken openBracket, ExpressionTree property, InternalSyntaxToken closeBracket) {
     super(Kind.BRACKET_MEMBER_EXPRESSION);
@@ -71,6 +73,11 @@ public class BracketMemberExpressionTreeImpl extends JavaScriptTree implements B
   }
 
   @Override
+  public void addType(Type type) {
+    types.add(type);
+  }
+
+  @Override
   public SyntaxToken closeBracket() {
     return closeBracket;
   }
@@ -92,6 +99,6 @@ public class BracketMemberExpressionTreeImpl extends JavaScriptTree implements B
 
   @Override
   public TypeSet types() {
-    return TypeSet.emptyTypeSet();
+    return types.immutableCopy();
   }
 }

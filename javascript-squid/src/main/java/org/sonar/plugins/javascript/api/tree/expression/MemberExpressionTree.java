@@ -20,6 +20,7 @@
 package org.sonar.plugins.javascript.api.tree.expression;
 
 import com.google.common.annotations.Beta;
+import org.sonar.plugins.javascript.api.symbols.Type;
 
 /**
  * <a href="http://www.ecma-international.org/ecma-262/5.1/#sec-11.2.1">Property Accessors</a>.
@@ -34,4 +35,6 @@ public interface MemberExpressionTree extends ExpressionTree {
   ExpressionTree object();
 
   ExpressionTree property();
+
+  void addType(Type type);
 }

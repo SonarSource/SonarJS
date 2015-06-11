@@ -17,24 +17,13 @@
  * License along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.javascript.checks;
+package org.sonar.javascript.ast.resolve.type;
 
-import org.junit.Test;
-import org.sonar.javascript.checks.utils.TreeCheckTest;
-import org.sonar.squidbridge.api.SourceFile;
-import org.sonar.squidbridge.checks.CheckMessagesVerifier;
+import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
+import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 
-public class PostMessageCheckTest extends TreeCheckTest {
-
-  @Test
-  public void test() {
-    SourceFile file = scanFile("src/test/resources/checks/PostMessage.js", new PostMessageCheck());
-
-    CheckMessagesVerifier.verify(file.getCheckMessages())
-      .next().atLine(2).withMessage("Make sure this cross-domain message is being sent to the intended domain.")
-      .next().atLine(5)
-      .next().atLine(8)
-      .noMore();
+public class Utils {
+  public static boolean identifierWithName(ExpressionTree tree, String value) {
+    return tree instanceof IdentifierTree && ((IdentifierTree) tree).name().equals(value);
   }
-
 }
