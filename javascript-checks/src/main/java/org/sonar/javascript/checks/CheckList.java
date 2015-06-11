@@ -144,6 +144,7 @@ public final class CheckList {
         GlobalThisCheck.class,
         NewOperatorMisusageCheck.class,
         WebSQLDatabaseCheck.class,
+        PostMessageCheck.class,
         BackboneChangedIsUsedCheck.class);
   }
 
