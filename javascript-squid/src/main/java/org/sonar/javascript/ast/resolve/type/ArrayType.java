@@ -21,34 +21,29 @@ package org.sonar.javascript.ast.resolve.type;
 
 import org.sonar.plugins.javascript.api.symbols.Type;
 
-public enum PrimitiveType implements Type {
-  UNKNOWN {
-    @Override
-    public Kind kind() {
-      return Kind.UNKNOWN;
-    }
-  },
-  NUMBER {
-    @Override
-    public Kind kind() {
-      return Kind.NUMBER;
-    }
-  },
-  STRING {
-    @Override
-    public Kind kind() {
-      return Kind.STRING;
-    }
-  },
-  BOOLEAN {
-    @Override
-    public Kind kind() {
-      return Kind.BOOLEAN;
-    }
-  };
+import javax.annotation.Nullable;
+
+public class ArrayType extends ObjectType {
+
+  private Type elementType = null;
 
   @Override
-  public String toString() {
-    return this.kind().name();
+  public Kind kind() {
+    return Kind.ARRAY;
+  }
+
+  public static ArrayType create(Type elementType){
+    ArrayType type = new ArrayType();
+    type.elementType = elementType;
+    return type;
+  }
+
+  public static ArrayType create(){
+    return new ArrayType();
+  }
+
+  @Nullable
+  public Type elementType(){
+    return elementType;
   }
 }

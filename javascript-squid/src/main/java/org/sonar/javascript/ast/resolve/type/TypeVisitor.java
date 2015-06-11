@@ -89,7 +89,7 @@ public class TypeVisitor extends BaseTreeVisitor {
 
   @Override
   public void visitArrayLiteral(ArrayLiteralTree tree) {
-    ((ArrayLiteralTreeImpl) tree).addType(PrimitiveType.ARRAY);
+    ((ArrayLiteralTreeImpl) tree).addType(ArrayType.create());
     super.visitArrayLiteral(tree);
   }
 

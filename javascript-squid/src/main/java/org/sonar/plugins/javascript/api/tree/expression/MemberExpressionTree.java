@@ -34,5 +34,4 @@ public interface MemberExpressionTree extends ExpressionTree {
   ExpressionTree object();
 
   ExpressionTree property();
-
 }
