@@ -19,10 +19,20 @@
  */
 package org.sonar.javascript.ast.resolve.type;
 
+import org.sonar.plugins.javascript.api.symbols.Type;
+import org.sonar.plugins.javascript.api.tree.expression.DotMemberExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 
 public class Utils {
+
+  private Utils(){
+  }
+
+  public static boolean isPropertyAccess(DotMemberExpressionTree memberAccess, Type.Kind typeKind, String propertyName){
+    return memberAccess.object().types().contains(typeKind) && identifierWithName(memberAccess.property(), propertyName);
+  }
+
   public static boolean identifierWithName(ExpressionTree tree, String value) {
     return tree instanceof IdentifierTree && ((IdentifierTree) tree).name().equals(value);
   }

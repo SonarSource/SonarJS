@@ -55,43 +55,37 @@ public class WebAPI {
   );
 
 
-
-  private WebAPI(){
+  private WebAPI() {
   }
 
-  public static boolean isWindow(ExpressionTree tree){
+  public static boolean isWindow(ExpressionTree tree) {
 
     // window.open(...)
-    if (tree instanceof CallExpressionTree && ((CallExpressionTree) tree).callee().is(Tree.Kind.DOT_MEMBER_EXPRESSION)){
+    if (tree instanceof CallExpressionTree && ((CallExpressionTree) tree).callee().is(Tree.Kind.DOT_MEMBER_EXPRESSION)) {
       DotMemberExpressionTree callee = (DotMemberExpressionTree) ((CallExpressionTree) tree).callee();
-      if (callee.object().types().contains(Type.Kind.WINDOW) && Utils.identifierWithName(callee.property(), "open")){
+      if (Utils.isPropertyAccess(callee, Type.Kind.WINDOW, "open")){
         return true;
       }
     }
 
-
-    if (tree.is(Tree.Kind.DOT_MEMBER_EXPRESSION)){
+    // window.frames
+    // document.getElementById("frameId").contentWindow
+    if (tree.is(Tree.Kind.DOT_MEMBER_EXPRESSION)) {
       DotMemberExpressionTree memberAccess = (DotMemberExpressionTree) tree;
 
-      // window.frames
-      if (memberAccess.object().types().contains(Type.Kind.WINDOW) && Utils.identifierWithName(memberAccess.property(), "frames")){
-        return true;
-      }
-
-      // document.getElementById("frameId").contentWindow
-      if (memberAccess.object().types().contains(Type.Kind.DOM_ELEMENT) && Utils.identifierWithName(memberAccess.property(), "contentWindow")){
+      if (Utils.isPropertyAccess(memberAccess, Type.Kind.WINDOW, "frames") || Utils.isPropertyAccess(memberAccess, Type.Kind.DOM_ELEMENT, "contentWindow")) {
         return true;
       }
     }
 
     // window.frames[1]
-    if (tree.is(Tree.Kind.BRACKET_MEMBER_EXPRESSION) && ((BracketMemberExpressionTree) tree).object().types().contains(Type.Kind.WINDOW)){
-      return true;
-    }
+    return isWindowBracketAccess(tree);
 
-    return false;
   }
 
+  private static boolean isWindowBracketAccess(ExpressionTree tree) {
+    return tree.is(Tree.Kind.BRACKET_MEMBER_EXPRESSION) && ((BracketMemberExpressionTree) tree).object().types().contains(Type.Kind.WINDOW);
+  }
 
 
   public static boolean isDocument(IdentifierTree tree) {
@@ -99,39 +93,41 @@ public class WebAPI {
   }
 
   public static boolean isElement(ExpressionTree tree) {
-    // todo (Lena): code duplication here
 
-    if (tree.is(Tree.Kind.CALL_EXPRESSION) && ((CallExpressionTree) tree).callee().is(Tree.Kind.DOT_MEMBER_EXPRESSION)){
+    if (tree.is(Tree.Kind.CALL_EXPRESSION) && ((CallExpressionTree) tree).callee().is(Tree.Kind.DOT_MEMBER_EXPRESSION)) {
       DotMemberExpressionTree callee = (DotMemberExpressionTree) ((CallExpressionTree) tree).callee();
-      if (callee.object().types().contains(Type.Kind.DOCUMENT) && callee.property() instanceof IdentifierTree){
-        IdentifierTree property = (IdentifierTree) callee.property();
-        if (DOCUMENT_METHODS_TO_GET_ELEMENT.contains(property.name())){
-          return true;
-        }
+      if (isDocumentUsed(callee, DOCUMENT_METHODS_TO_GET_ELEMENT)) {
+        return true;
       }
     }
 
-    if (tree.is(Tree.Kind.DOT_MEMBER_EXPRESSION)){
-      DotMemberExpressionTree callee = (DotMemberExpressionTree) tree;
-      if (callee.object().types().contains(Type.Kind.DOCUMENT) && callee.property() instanceof IdentifierTree){
-        IdentifierTree property = (IdentifierTree) callee.property();
-        if (DOCUMENT_PROPERTIES_TO_GET_ELEMENT.contains(property.name())){
-          return true;
-        }
-      }
-    }
+    return tree.is(Tree.Kind.DOT_MEMBER_EXPRESSION) && isDocumentUsed((DotMemberExpressionTree) tree, DOCUMENT_PROPERTIES_TO_GET_ELEMENT);
 
+  }
+
+  private static boolean isDocumentUsed(DotMemberExpressionTree usage, List<String> propertiesToGetElement) {
+    if (usage.object().types().contains(Type.Kind.DOCUMENT) && usage.property() instanceof IdentifierTree) {
+      IdentifierTree property = (IdentifierTree) usage.property();
+
+      if (propertiesToGetElement.contains(property.name())) {
+        return true;
+      }
+
+    }
     return false;
   }
 
   public static boolean isElementList(ExpressionTree tree) {
-    if (tree.is(Tree.Kind.CALL_EXPRESSION) && ((CallExpressionTree) tree).callee().is(Tree.Kind.DOT_MEMBER_EXPRESSION)){
+    if (tree.is(Tree.Kind.CALL_EXPRESSION) && ((CallExpressionTree) tree).callee().is(Tree.Kind.DOT_MEMBER_EXPRESSION)) {
       DotMemberExpressionTree callee = (DotMemberExpressionTree) ((CallExpressionTree) tree).callee();
-      if (callee.object().types().contains(Type.Kind.DOCUMENT) && callee.property() instanceof IdentifierTree){
+
+      if (callee.object().types().contains(Type.Kind.DOCUMENT) && callee.property() instanceof IdentifierTree) {
         IdentifierTree property = (IdentifierTree) callee.property();
-        if (DOCUMENT_METHODS_TO_GET_ELEMENTS.contains(property.name())){
+
+        if (DOCUMENT_METHODS_TO_GET_ELEMENTS.contains(property.name())) {
           return true;
         }
+
       }
     }
 
