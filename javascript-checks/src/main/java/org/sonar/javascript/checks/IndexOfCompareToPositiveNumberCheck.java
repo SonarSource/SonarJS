@@ -19,8 +19,7 @@
  */
 package org.sonar.javascript.checks;
 
-import java.util.List;
-
+import com.google.common.collect.ImmutableList;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
@@ -31,12 +30,11 @@ import org.sonar.plugins.javascript.api.tree.expression.BinaryExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.CallExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.DotMemberExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
-import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 import org.sonar.plugins.javascript.api.tree.expression.LiteralTree;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 
-import com.google.common.collect.ImmutableList;
+import java.util.List;
 
 @Rule(
   key = "S2692",
@@ -68,14 +66,10 @@ public class IndexOfCompareToPositiveNumberCheck extends SubscriptionBaseVisitor
 
       if (callExpr.arguments().parameters().size() == 1 && callExpr.callee().is(Kind.DOT_MEMBER_EXPRESSION)) {
         DotMemberExpressionTree memberExpr = (DotMemberExpressionTree) ((CallExpressionTree) expression).callee();
-        return isExpressionIdentifierNamed(memberExpr.property(), "indexOf");
+        return "indexOf".equals(memberExpr.property().name());
       }
     }
     return false;
-  }
-
-  private static boolean isExpressionIdentifierNamed(ExpressionTree tree, String name) {
-    return tree instanceof IdentifierTree && name.equals(((IdentifierTree) tree).name());
   }
 
   private static boolean isZero(ExpressionTree expression) {

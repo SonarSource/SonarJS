@@ -22,9 +22,9 @@ package org.sonar.javascript.ast.resolve.type;
 import org.sonar.plugins.javascript.api.symbols.Type;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.expression.CallExpressionTree;
+import org.sonar.plugins.javascript.api.tree.expression.DotMemberExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
-import org.sonar.plugins.javascript.api.tree.expression.MemberExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.ObjectLiteralTree;
 import org.sonar.plugins.javascript.api.tree.expression.PairPropertyTree;
 
@@ -42,15 +42,15 @@ public class Backbone {
 
   private static boolean isModelExtendMethod(ExpressionTree tree) {
     if (tree.is(Tree.Kind.DOT_MEMBER_EXPRESSION)) {
-      MemberExpressionTree expr = (MemberExpressionTree) tree;
+      DotMemberExpressionTree expr = (DotMemberExpressionTree) tree;
 
-      if (identifierWithName(expr.property(), "extend")) {
+      if ("extend".equals(expr.property().name())) {
         if (expr.object().types().contains(Type.Kind.BACKBONE_MODEL)){
           return true;
         }
         if (expr.object().is(Tree.Kind.DOT_MEMBER_EXPRESSION)) {
-          MemberExpressionTree subExpr = (MemberExpressionTree) expr.object();
-          return identifierWithName(subExpr.object(), "Backbone") && identifierWithName(subExpr.property(), "Model");
+          DotMemberExpressionTree subExpr = (DotMemberExpressionTree) expr.object();
+          return identifierWithName(subExpr.object(), "Backbone") && subExpr.property().name().equals("Model");
         }
       }
 

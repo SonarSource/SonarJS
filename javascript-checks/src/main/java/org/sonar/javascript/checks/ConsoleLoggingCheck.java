@@ -19,8 +19,7 @@
  */
 package org.sonar.javascript.checks;
 
-import java.util.List;
-
+import com.google.common.collect.ImmutableList;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
@@ -34,7 +33,7 @@ import org.sonar.squidbridge.annotations.ActivatedByDefault;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 
-import com.google.common.collect.ImmutableList;
+import java.util.List;
 
 @Rule(
   key = "S2228",
@@ -67,7 +66,7 @@ public class ConsoleLoggingCheck extends SubscriptionBaseVisitor {
 
   private static boolean isCalleeConsoleLogging(DotMemberExpressionTree callee) {
     return callee.object().is(Kind.IDENTIFIER_REFERENCE) && "console".equals(((IdentifierTree) callee.object()).name())
-      && "log".equals(((IdentifierTree) callee.property()).name());
+      && "log".equals(callee.property().name());
   }
 
 }
