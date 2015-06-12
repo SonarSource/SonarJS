@@ -32,11 +32,13 @@ public abstract class AbstractJQuerySelectorOptimizationCheck extends BaseTreeVi
 
   @Override
   public void visitCallExpression(CallExpressionTree tree) {
-    if (tree.types().contains(ObjectType.FrameworkType.JQUERY_SELECTOR_OBJECT) && tree.callee().types().contains(ObjectType.FrameworkType.JQUERY_OBJECT)){
+    if (tree.types().contains(ObjectType.FrameworkType.JQUERY_SELECTOR_OBJECT)){
       SeparatedList<Tree> parameters = tree.arguments().parameters();
+
       if (!parameters.isEmpty() && parameters.get(0).is(Tree.Kind.STRING_LITERAL)) {
         String value = ((LiteralTree) parameters.get(0)).value();
         value = value.substring(1, value.length() - 1).trim();
+
         visitSelector(value, tree);
       }
     }

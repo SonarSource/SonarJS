@@ -22,3 +22,5 @@ $("input[type='radio']");  // OK
 
 $("input:text", context); // NOK
 
+$()   // OK
+$(str)  // OK

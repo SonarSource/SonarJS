@@ -92,7 +92,7 @@ public class ArgumentsCallerCalleeUsageCheck extends SubscriptionBaseVisitor {
     }
 
     String object = ((IdentifierTree) expression.object()).name();
-    String property = ((IdentifierTree) expression.property()).name();
+    String property = (expression.property()).name();
 
     if (ARGUMENTS.equals(object)) {
       checkArgumentsProperty(expression, property);

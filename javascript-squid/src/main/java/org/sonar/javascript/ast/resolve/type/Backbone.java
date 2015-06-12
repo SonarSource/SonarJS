@@ -50,7 +50,7 @@ public class Backbone {
         }
         if (expr.object().is(Tree.Kind.DOT_MEMBER_EXPRESSION)) {
           DotMemberExpressionTree subExpr = (DotMemberExpressionTree) expr.object();
-          return identifierWithName(subExpr.object(), "Backbone") && subExpr.property().name().equals("Model");
+          return identifierWithName(subExpr.object(), "Backbone") && "Model".equals(subExpr.property().name());
         }
       }
 
