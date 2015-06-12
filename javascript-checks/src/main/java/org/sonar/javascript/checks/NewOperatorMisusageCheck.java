@@ -83,7 +83,7 @@ public class NewOperatorMisusageCheck extends BaseTreeVisitor {
 
   private static boolean hasJSDocAnnotation(FunctionTree funcDec) {
     for (Trivia trivia : ((JavaScriptTree) funcDec).getToken().getTrivia()) {
-      if (trivia.toString().contains("@constructor")) {
+      if (trivia.toString().contains("@constructor") || trivia.toString().contains("@class")) {
         return true;
       }
     }

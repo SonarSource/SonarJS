@@ -32,11 +32,11 @@ public class NewOperatorMisusageCheckTest extends TreeCheckTest {
   public void default_without_jsdoc() {
     SourceFile file = scanFile("src/test/resources/checks/newOperatorMisusage.js", check);
     CheckMessagesVerifier.verify(file.getCheckMessages())
-    .next().atLine(30)
-    .next().atLine(31)
-    .next().atLine(32)
-    .next().atLine(37)
-    .next().atLine(38)
+      .next().atLine(36)
+      .next().atLine(37)
+      .next().atLine(38)
+      .next().atLine(43)
+      .next().atLine(44)
     .noMore();
   }
 
@@ -46,17 +46,18 @@ public class NewOperatorMisusageCheckTest extends TreeCheckTest {
     SourceFile file = scanFile("src/test/resources/checks/newOperatorMisusage.js", check);
 
     CheckMessagesVerifier.verify(file.getCheckMessages())
-      .next().atLine(30)
-      .next().atLine(31)
-      .next().atLine(32)
+      .next().atLine(36)
       .next().atLine(37)
       .next().atLine(38)
-
-      // Function without JSDoc @constructor tag
       .next().atLine(43)
       .next().atLine(44)
-      .next().atLine(51)
-      .next().atLine(77)
+
+      // Function without JSDoc @constructor tag
+      .next().atLine(49)
+      .next().atLine(50)
+      .next().atLine(57)
+      .next().atLine(58)
+      .next().atLine(83)
       .noMore();
 
   }

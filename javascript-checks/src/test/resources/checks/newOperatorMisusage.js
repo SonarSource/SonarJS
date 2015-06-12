@@ -16,6 +16,12 @@ function MyClassA () {
 var MyClassB = function () {
 };
 
+/**
+ * @class
+ */
+var MyClassC = function () {
+};
+
 var Number = 1;
 var Boolean = true;
 var String = "str";
@@ -47,9 +53,9 @@ new MyClass2;  // OK
 /**
  * Documented function with tag @constructor
  */
-new MyClassA;  // OK - JSDoc
+new MyClassA;  // OK - JSDoc @constructor
 new MyClassB;  // OK - JSDoc but not handle by the check
-
+new MyClassC;  // OK - JSDoc @class
 
 /**
  * Exclude when has UNKNOWN type
