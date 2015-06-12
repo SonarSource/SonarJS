@@ -1,4 +1,5 @@
-package org.sonar.javascript.checks;/*
+package org.sonar.javascript.checks;
+/*
  * SonarQube JavaScript Plugin
  * Copyright (C) 2011 SonarSource and Eriks Nukis
  * dev@sonar.codehaus.org

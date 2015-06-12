@@ -22,26 +22,26 @@ var MyClassB = function () {
 var MyClassC = function () {
 };
 
-var Number = 1;
-var Boolean = true;
-var String = "str";
-var Object = { a:1 };
-var Array = [1, 2, 3];
+var numeric = 1;
+var boolean = true;
+var string = "str";
+var object = { a:1 };
+var array = [1, 2, 3];
 
 
 
 /**
  * Primitives
  */
-new Number;    // NOK
-new Boolean;   // NOK
-new String;    // NOK
+new numeric;   // NOK
+new boolean;   // NOK
+new string;    // NOK
 
 /**
  * Non-function object
  */
-new Object;    // NOK
-new Array;     // NOK
+new object;    // NOK
+new array;     // NOK
 
 /**
  * Non-documented function
@@ -73,7 +73,7 @@ new unknownFunction();   // OK
 new unknownVariable;     // OK
 
 /**
- * Exclude when can be a function
+ * Exclude when has more than just function type
  */
 function f() {
 }

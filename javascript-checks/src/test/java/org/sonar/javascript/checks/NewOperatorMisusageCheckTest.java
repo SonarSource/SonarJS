@@ -55,7 +55,7 @@ public class NewOperatorMisusageCheckTest extends TreeCheckTest {
       // Function without JSDoc @constructor tag
       .next().atLine(49)
       .next().atLine(50)
-      .next().atLine(57)
+      .next().atLine(57) // False-positive=>SONARJS-454
       .next().atLine(58)
       .next().atLine(83)
       .noMore();
