@@ -27,6 +27,7 @@ import org.sonar.plugins.javascript.api.symbols.Type;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.expression.CallExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.DotMemberExpressionTree;
+import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
@@ -47,12 +48,18 @@ public class PostMessageCheck extends BaseTreeVisitor {
   public void visitCallExpression(CallExpressionTree tree) {
     if (tree.callee().is(Tree.Kind.DOT_MEMBER_EXPRESSION)){
       DotMemberExpressionTree callee = (DotMemberExpressionTree) tree.callee();
-      if (callee.object().types().contains(Type.Kind.WINDOW) && CheckUtils.asString(callee.property()).equals(POST_MESSAGE)){
+      boolean isWindow = callee.object().types().contains(Type.Kind.WINDOW) || hasWindowLikeName(callee.object());
+      if (isWindow && CheckUtils.asString(callee.property()).equals(POST_MESSAGE)){
         getContext().addIssue(this, callee.property(), MESSAGE);
       }
     }
 
     super.visitCallExpression(tree);
+  }
+
+  private boolean hasWindowLikeName(ExpressionTree tree) {
+    String str = CheckUtils.asString(tree);
+    return str.contains("window") || str.contains("Window");
   }
 
 }

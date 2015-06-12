@@ -66,7 +66,7 @@ public class VariableShadowingCheck extends BaseTreeVisitor {
     Scope scope = symbol.scope();
     if (scope.outer() != null) {
       Symbol outerSymbol = scope.outer().lookupSymbol(symbol.name());
-      if (outerSymbol != null) {
+      if (outerSymbol != null && !outerSymbol.builtIn()) {
         String message = String.format(MESSAGE, symbol.name(), ((JavaScriptTree) getDeclaration(outerSymbol).identifierTree()).getLine());
         raiseIssuesOnDeclarations(symbol, message);
       }

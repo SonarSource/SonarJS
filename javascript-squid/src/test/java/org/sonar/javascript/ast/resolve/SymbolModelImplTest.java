@@ -43,7 +43,7 @@ public class SymbolModelImplTest extends JavaScriptTreeModelTest {
 
   @Test
   public void symbols_filtering(){
-    assertThat(SYMBOL_MODEL.getSymbols()).hasSize(13);
+    assertThat(SYMBOL_MODEL.getSymbols()).hasSize(14);
 
     assertThat(SYMBOL_MODEL.getSymbols(Symbol.Kind.FUNCTION)).hasSize(2); // eval, f
     assertThat(SYMBOL_MODEL.getSymbols(Symbol.Kind.PARAMETER)).hasSize(2); // p1, p2
