@@ -31,7 +31,12 @@ import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
  */
 @Beta
 public interface DotMemberExpressionTree extends MemberExpressionTree {
+  @Override
+  ExpressionTree object();
 
   SyntaxToken dot();
+
+  @Override
+  IdentifierTree property();
 
 }

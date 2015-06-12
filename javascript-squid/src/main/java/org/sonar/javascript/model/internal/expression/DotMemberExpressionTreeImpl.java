@@ -27,6 +27,7 @@ import org.sonar.javascript.model.internal.lexical.InternalSyntaxToken;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.expression.DotMemberExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
+import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.javascript.api.visitors.TreeVisitor;
 
@@ -36,9 +37,9 @@ public class DotMemberExpressionTreeImpl extends JavaScriptTree implements DotMe
 
   private ExpressionTree object;
   private final SyntaxToken dot;
-  private final ExpressionTree property;
+  private final IdentifierTree property;
 
-  public DotMemberExpressionTreeImpl(InternalSyntaxToken dot, ExpressionTree property) {
+  public DotMemberExpressionTreeImpl(InternalSyntaxToken dot, IdentifierTree property) {
     super(Kind.DOT_MEMBER_EXPRESSION);
     this.dot = dot;
     this.property = property;
@@ -64,7 +65,7 @@ public class DotMemberExpressionTreeImpl extends JavaScriptTree implements DotMe
   }
 
   @Override
-  public ExpressionTree property() {
+  public IdentifierTree property() {
     return property;
   }
 
