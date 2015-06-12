@@ -110,7 +110,7 @@ public class BaseTreeVisitor implements TreeVisitor, JavaScriptFileScanner {
   @Override
   public void scanFile(AstTreeVisitorContext context) {
     this.context = context;
-    scan(context.getTree());
+    scan(context.getTopTree());
   }
 
   protected void scan(@Nullable Tree tree) {

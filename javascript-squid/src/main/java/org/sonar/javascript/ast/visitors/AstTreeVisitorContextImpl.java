@@ -48,7 +48,7 @@ public class AstTreeVisitorContextImpl implements AstTreeVisitorContext {
   }
 
   @Override
-  public ScriptTree getTree() {
+  public ScriptTree getTopTree() {
     return tree;
   }
 

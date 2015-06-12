@@ -29,22 +29,72 @@ import java.io.File;
 @Beta
 public interface AstTreeVisitorContext {
 
-  ScriptTree getTree();
+  /**
+   * @return the top tree node of the current file AST representation.
+   */
+  ScriptTree getTopTree();
 
+  /**
+   * Creates an issue.
+   *
+   * @param check instance of the check that creates the issue.
+   * @param tree the tree on which the issue should be raise. Means the issue will be raised on its corresponding line in the source code.
+   * @param message the issue message.
+   */
   void addIssue(JavaScriptCheck check, Tree tree, String message);
 
+  /**
+   * Creates an issue.
+   *
+   * @param check instance of the check that create the issue
+   * @param line source line on which the issue should be raised
+   * @param message the issue message
+   */
   void addIssue(JavaScriptCheck check, int line, String message);
 
+  /**
+   * Creates an issue.
+   *
+   * @param check instance of the check that create the issue
+   * @param tree the tree on which the issue should be raise. Means the issue will be raised on its corresponding line in the source code.
+   * @param message the issue message
+   * @param cost specific remediation cost for the issue, used to compute the technical debt
+   */
   void addIssue(JavaScriptCheck check, Tree tree, String message, double cost);
 
+  /**
+   * Creates an issue.
+   *
+   * @param check instance of the check that create the issue
+   * @param line source line on which the issue should be raised
+   * @param message the issue message
+   * @param cost specific remediation cost for the issue, used to compute the technical debt
+   */
   void addIssue(JavaScriptCheck check, int line, String message, double cost);
 
+
+  /**
+   * @return the current SonarQube file key
+   */
   String getFileKey();
 
+  /**
+   * @return the current file
+   */
   File getFile();
 
+  /**
+   * @return the symbol model that allows to access the symbols declared in the current file
+   */
   SymbolModel getSymbolModel();
 
+  /**
+   * Fetch project property
+   *
+   * @param name property key
+   *
+   * @return the value for the given key
+   */
   String[] getPropertyValues(String name);
 
 }

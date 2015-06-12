@@ -64,8 +64,8 @@ public abstract class SubscriptionAstTreeVisitor implements JavaScriptFileScanne
   @Override
   public void scanFile(AstTreeVisitorContext context) {
     this.context = context;
-    visitFile(context.getTree());
-    scanTree(context.getTree());
+    visitFile(context.getTopTree());
+    scanTree(context.getTopTree());
   }
 
   protected void scanTree(Tree tree) {

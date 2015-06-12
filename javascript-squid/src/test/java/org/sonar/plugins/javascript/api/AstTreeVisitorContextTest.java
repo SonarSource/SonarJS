@@ -53,7 +53,7 @@ public class AstTreeVisitorContextTest extends JavaScriptTreeModelTest {
 
   @Test
   public void getTree() throws Exception {
-    assertThat(context.getTree()).isNotNull();
+    assertThat(context.getTopTree()).isNotNull();
   }
 
   @Test
