@@ -20,6 +20,7 @@
 package org.sonar.javascript.ast.resolve;
 
 import org.sonar.javascript.api.SymbolModelBuilder;
+import org.sonar.javascript.ast.resolve.type.ObjectType;
 import org.sonar.javascript.model.internal.declaration.InitializedBindingElementTreeImpl;
 import org.sonar.javascript.model.internal.declaration.ParameterListTreeImpl;
 import org.sonar.javascript.model.internal.expression.ArrowFunctionTreeImpl;
@@ -57,13 +58,16 @@ public class SymbolDeclarationVisitor extends BaseTreeVisitor {
   @Override
   public void visitScript(ScriptTree tree) {
     newScope(tree);
-    addBuiltInSymbols();
+    addGlobalBuiltInSymbols();
     super.visitScript(tree);
     leaveScope();
   }
 
-  private void addBuiltInSymbols() {
+  private void addGlobalBuiltInSymbols() {
     symbolModel.declareBuiltInSymbol("eval", Symbol.Kind.FUNCTION, currentScope);
+
+    Symbol symbol = symbolModel.declareBuiltInSymbol("window", Symbol.Kind.VARIABLE, currentScope);
+    symbol.addType(ObjectType.WebApiType.WINDOW);
   }
 
   @Override

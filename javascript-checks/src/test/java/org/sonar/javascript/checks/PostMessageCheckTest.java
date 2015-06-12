@@ -34,6 +34,9 @@ public class PostMessageCheckTest extends TreeCheckTest {
       .next().atLine(2).withMessage("Make sure this cross-domain message is being sent to the intended domain.")
       .next().atLine(5)
       .next().atLine(8)
+      .next().atLine(10)
+      .next().atLine(11)
+      .next().atLine(14)
       .noMore();
   }
 

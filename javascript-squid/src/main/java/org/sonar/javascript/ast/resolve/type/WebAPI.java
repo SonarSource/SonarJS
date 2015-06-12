@@ -32,7 +32,6 @@ import java.util.List;
 
 public class WebAPI {
 
-  private static final String WINDOW = "window";
   private static final String DOCUMENT = "document";
 
   private static final List<String> DOCUMENT_METHODS_TO_GET_ELEMENT = ImmutableList.of(
@@ -61,10 +60,6 @@ public class WebAPI {
   }
 
   public static boolean isWindow(ExpressionTree tree){
-    // window
-    if (tree instanceof IdentifierTree && ((IdentifierTree) tree).name().equals(WINDOW)){
-      return true;
-    }
 
     // window.open(...)
     if (tree instanceof CallExpressionTree && ((CallExpressionTree) tree).callee().is(Tree.Kind.DOT_MEMBER_EXPRESSION)){

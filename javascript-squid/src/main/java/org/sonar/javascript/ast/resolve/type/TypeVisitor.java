@@ -180,10 +180,6 @@ public class TypeVisitor extends BaseTreeVisitor {
       ((IdentifierTreeImpl) tree).addType(ObjectType.FrameworkType.JQUERY_OBJECT);
     }
 
-    if (WebAPI.isWindow(tree)){
-      ((IdentifierTreeImpl) tree).addType(ObjectType.WebApiType.WINDOW);
-    }
-
     if (WebAPI.isDocument(tree)){
       ((IdentifierTreeImpl) tree).addType(ObjectType.WebApiType.DOCUMENT);
     }
