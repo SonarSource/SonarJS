@@ -85,20 +85,18 @@ public class TypeVisitor extends BaseTreeVisitor {
     } else if (tree.is(Tree.Kind.BOOLEAN_LITERAL)) {
       ((LiteralTreeImpl) tree).addType(PrimitiveType.BOOLEAN);
     }
-
-    super.visitLiteral(tree);
   }
 
   @Override
   public void visitArrayLiteral(ArrayLiteralTree tree) {
-    ((ArrayLiteralTreeImpl) tree).addType(ArrayType.create());
     super.visitArrayLiteral(tree);
+    ((ArrayLiteralTreeImpl) tree).addType(ArrayType.create());
   }
 
   @Override
   public void visitObjectLiteral(ObjectLiteralTree tree) {
-    ((ObjectLiteralTreeImpl) tree).addType(ObjectType.create());
     super.visitObjectLiteral(tree);
+    ((ObjectLiteralTreeImpl) tree).addType(ObjectType.create());
   }
 
   @Override
@@ -106,9 +104,8 @@ public class TypeVisitor extends BaseTreeVisitor {
     Preconditions.checkState(tree.name().symbol() != null,
         String.format("Symbol has not been created for this function %s declared at line %s", tree.name().name(), ((JavaScriptTree) tree).getLine()));
 
-    tree.name().symbol().addType(FunctionType.create(tree));
-
     super.visitFunctionDeclaration(tree);
+    tree.name().symbol().addType(FunctionType.create(tree));
   }
 
   @Override
@@ -167,11 +164,11 @@ public class TypeVisitor extends BaseTreeVisitor {
 
   @Override
   public void visitNewExpression(NewExpressionTree tree) {
+    super.visitNewExpression(tree);
+
     if (tree.expression().types().contains(Type.Kind.BACKBONE_MODEL)) {
       ((NewExpressionTreeImpl) tree).addType(ObjectType.FrameworkType.BACKBONE_MODEL_OBJECT);
     }
-
-    super.visitNewExpression(tree);
   }
 
   @Override
@@ -187,9 +184,8 @@ public class TypeVisitor extends BaseTreeVisitor {
 
   @Override
   public void visitParenthesisedExpression(ParenthesisedExpressionTree tree) {
-    // todo (Lena) : change these lines' order?
-    ((ParenthesisedExpressionTreeImpl) tree).addTypes(tree.expression().types());
     super.visitParenthesisedExpression(tree);
+    ((ParenthesisedExpressionTreeImpl) tree).addTypes(tree.expression().types());
   }
 
   @Override
