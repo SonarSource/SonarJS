@@ -76,7 +76,7 @@ public class TypeSet implements Set<Type> {
 
   @Override
   public boolean containsAll(Collection<?> c) {
-    return containsAll(c);
+    return types.containsAll(c);
   }
 
   @Override
@@ -91,7 +91,7 @@ public class TypeSet implements Set<Type> {
 
   @Override
   public boolean removeAll(Collection<?> c) {
-    return types.retainAll(c);
+    return types.removeAll(c);
   }
 
   @Override
