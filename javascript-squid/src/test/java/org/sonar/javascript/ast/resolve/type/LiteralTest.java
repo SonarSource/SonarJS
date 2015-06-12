@@ -19,12 +19,12 @@
  */
 package org.sonar.javascript.ast.resolve.type;
 
-import static org.fest.assertions.Assertions.assertThat;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.plugins.javascript.api.symbols.Symbol;
 import org.sonar.plugins.javascript.api.symbols.Type;
+
+import static org.fest.assertions.Assertions.assertThat;
 
 public class LiteralTest extends TypeTest {
 
@@ -78,28 +78,24 @@ public class LiteralTest extends TypeTest {
   @Test
   public void array_declaration() throws Exception {
     Symbol num = getSymbol("arr1");
-    assertThat(num.types()).hasSize(1);
-    assertThat(num.canBe(Type.Kind.ARRAY)).isTrue();
+    assertThat(num.types().containsOnlyAndUnique(Type.Kind.ARRAY)).isTrue();
   }
 
   @Test
   public void array_assignment() throws Exception {
     Symbol num = getSymbol("arr2");
-    assertThat(num.types()).hasSize(1);
-    assertThat(num.canBe(Type.Kind.ARRAY)).isTrue();
+    assertThat(num.types().containsOnlyAndUnique(Type.Kind.ARRAY)).isTrue();
   }
 
   @Test
   public void object_declaration() throws Exception {
     Symbol obj = getSymbol("obj1");
-    assertThat(obj.types()).hasSize(1);
-    assertThat(obj.canBe(Type.Kind.OBJECT)).isTrue();
+    assertThat(obj.types().containsOnlyAndUnique(Type.Kind.OBJECT)).isTrue();
   }
 
   @Test
   public void object_assignment() throws Exception {
     Symbol obj = getSymbol("obj2");
-    assertThat(obj.types()).hasSize(1);
-    assertThat(obj.canBe(Type.Kind.OBJECT)).isTrue();
+    assertThat(obj.types().containsOnlyAndUnique(Type.Kind.OBJECT)).isTrue();
   }
 }

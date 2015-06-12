@@ -36,39 +36,34 @@ public class FunctionTypeTest extends TypeTest {
   @Test
   public void function_declaration(){
     Symbol f1 = getSymbol("f1");
-    assertThat(f1.types()).hasSize(1);
-    assertThat(f1.canBe(Type.Kind.FUNCTION)).isTrue();
+    assertThat(f1.types().containsOnlyAndUnique(Type.Kind.FUNCTION)).isTrue();
   }
 
   @Test
   public void function_expression() {
     Symbol f2 = getSymbol("f2");
-    assertThat(f2.types()).hasSize(1);
-    assertThat(f2.canBe(Type.Kind.FUNCTION)).isTrue();
+    assertThat(f2.types().containsOnlyAndUnique(Type.Kind.FUNCTION)).isTrue();
   }
 
   @Test
   public void function_assignment() {
     Symbol f3 = getSymbol("f3");
-    assertThat(f3.types()).hasSize(1);
-    assertThat(f3.canBe(Type.Kind.FUNCTION)).isTrue();
+    assertThat(f3.types().containsOnlyAndUnique(Type.Kind.FUNCTION)).isTrue();
   }
 
   @Test
   public void parameter_types_inferred_from_call() {
     Symbol p1 = getSymbol("p1");
-    assertThat(p1.types()).hasSize(1);
-    assertThat(p1.canBe(Type.Kind.NUMBER)).isTrue();
+    assertThat(p1.types().containsOnlyAndUnique(Type.Kind.NUMBER)).isTrue();
 
     Symbol p2 = getSymbol("p2");
     assertThat(p2.types()).hasSize(3);
-    assertThat(p2.canBe(Type.Kind.STRING)).isTrue();
-    assertThat(p2.canBe(Type.Kind.NUMBER)).isTrue();
-    assertThat(p2.canBe(Type.Kind.BOOLEAN)).isTrue();
+    assertThat(p2.types().contains(Type.Kind.STRING)).isTrue();
+    assertThat(p2.types().contains(Type.Kind.NUMBER)).isTrue();
+    assertThat(p2.types().contains(Type.Kind.BOOLEAN)).isTrue();
 
     Symbol p3 = getSymbol("p3");
-    assertThat(p3.types()).hasSize(1);
-    assertThat(p3.canBe(Type.Kind.BOOLEAN)).isTrue();
+    assertThat(p3.types().containsOnlyAndUnique(Type.Kind.BOOLEAN)).isTrue();
 
     Symbol n = getSymbol("n");
     assertThat(n.types()).hasSize(0);
@@ -77,8 +72,7 @@ public class FunctionTypeTest extends TypeTest {
     assertThat(a.types()).hasSize(0);
 
     Symbol msg = getSymbol("msg");
-    assertThat(msg.types()).hasSize(1);
-    assertThat(msg.canBe(Type.Kind.STRING)).isTrue();
+    assertThat(msg.types().containsOnlyAndUnique(Type.Kind.STRING)).isTrue();
 
   }
 

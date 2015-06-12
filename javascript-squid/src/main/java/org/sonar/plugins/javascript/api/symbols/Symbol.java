@@ -108,12 +108,4 @@ public class Symbol {
     return types.immutableCopy();
   }
 
-  public boolean canBe(Type.Kind kind){
-    for (Type type : types){
-      if (type.kind() == kind){
-        return true;
-      }
-    }
-    return false;
-  }
 }

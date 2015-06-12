@@ -64,7 +64,7 @@ public class JQueryVarNameConventionCheck extends BaseTreeVisitor {
     Pattern pattern = Pattern.compile(format);
     SymbolModel symbolModel = getContext().getSymbolModel();
     for (Symbol symbol : symbolModel.getSymbols(Symbol.Kind.VARIABLE)){
-      boolean onlyJQuerySelectorType = symbol.canBe(Type.Kind.JQUERY_SELECTOR_OBJECT) && symbol.types().size() == 1;
+      boolean onlyJQuerySelectorType = symbol.types().containsOnly(Type.Kind.JQUERY_SELECTOR_OBJECT);
       if (!symbol.builtIn() && onlyJQuerySelectorType && !pattern.matcher(symbol.name()).matches()){
         raiseIssuesOnDeclarations(this, symbol, String.format(MESSAGE, symbol.name(), format));
       }

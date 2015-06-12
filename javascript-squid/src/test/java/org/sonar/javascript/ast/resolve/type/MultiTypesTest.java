@@ -19,12 +19,12 @@
  */
 package org.sonar.javascript.ast.resolve.type;
 
-import static org.fest.assertions.Assertions.assertThat;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.plugins.javascript.api.symbols.Symbol;
 import org.sonar.plugins.javascript.api.symbols.Type;
+
+import static org.fest.assertions.Assertions.assertThat;
 
 public class MultiTypesTest extends TypeTest {
 
@@ -41,8 +41,8 @@ public class MultiTypesTest extends TypeTest {
 
     Symbol b = getSymbol("b");
     assertThat(b.types()).hasSize(2);
-    assertThat(b.types()).contains(PrimitiveType.STRING);
-    assertThat(b.canBe(Type.Kind.ARRAY)).isTrue();
+    assertThat(b.types().contains(PrimitiveType.STRING)).isTrue();
+    assertThat(b.types().contains(Type.Kind.ARRAY)).isTrue();
   }
 
   @Test
