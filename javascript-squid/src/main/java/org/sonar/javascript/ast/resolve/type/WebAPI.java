@@ -106,28 +106,15 @@ public class WebAPI {
   }
 
   private static boolean isDocumentUsed(DotMemberExpressionTree usage, List<String> propertiesToGetElement) {
-    if (usage.object().types().contains(Type.Kind.DOCUMENT) && usage.property() instanceof IdentifierTree) {
-      IdentifierTree property = (IdentifierTree) usage.property();
-
-      if (propertiesToGetElement.contains(property.name())) {
-        return true;
-      }
-
-    }
-    return false;
+    return usage.object().types().contains(Type.Kind.DOCUMENT) && propertiesToGetElement.contains(usage.property().name());
   }
 
   public static boolean isElementList(ExpressionTree tree) {
     if (tree.is(Tree.Kind.CALL_EXPRESSION) && ((CallExpressionTree) tree).callee().is(Tree.Kind.DOT_MEMBER_EXPRESSION)) {
       DotMemberExpressionTree callee = (DotMemberExpressionTree) ((CallExpressionTree) tree).callee();
 
-      if (callee.object().types().contains(Type.Kind.DOCUMENT) && callee.property() instanceof IdentifierTree) {
-        IdentifierTree property = (IdentifierTree) callee.property();
-
-        if (DOCUMENT_METHODS_TO_GET_ELEMENTS.contains(property.name())) {
+      if (callee.object().types().contains(Type.Kind.DOCUMENT) && DOCUMENT_METHODS_TO_GET_ELEMENTS.contains(callee.property().name())) {
           return true;
-        }
-
       }
     }
 

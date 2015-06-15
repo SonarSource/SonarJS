@@ -57,7 +57,7 @@ public class PostMessageCheck extends BaseTreeVisitor {
     super.visitCallExpression(tree);
   }
 
-  private boolean hasWindowLikeName(ExpressionTree tree) {
+  private static boolean hasWindowLikeName(ExpressionTree tree) {
     String str = CheckUtils.asString(tree);
     return str.contains("window") || str.contains("Window");
   }
