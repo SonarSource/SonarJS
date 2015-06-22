@@ -1,7 +1,7 @@
 /*
  * SonarQube JavaScript Plugin
  * Copyright (C) 2011 SonarSource and Eriks Nukis
- * dev@sonar.codehaus.org
+ * sonarqube@googlegroups.com
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
