@@ -1,12 +1,18 @@
 language: java
 sudo: false
-install: true
 
 jdk:
-  - openjdk7
+  - oraclejdk7
 
-script:
-  - mvn verify -B -e -V
+install: true
+script: ./travis.sh
+env:
+  - TESTS=CI
+  - TESTS=IT-DEV
+  - TESTS=IT-LATEST
+
+matrix:
+  fast_finish: true
 
 cache:
   directories:
