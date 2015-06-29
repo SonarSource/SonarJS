@@ -29,7 +29,7 @@ import org.fest.assertions.GenericAssert;
 import org.sonar.javascript.ast.parser.TreeFactory;
 import org.sonar.javascript.parser.ActionGrammar;
 import org.sonar.javascript.parser.EcmaScriptGrammar;
-import org.sonar.javascript.parser.sslr.ActionParser2;
+import org.sonar.javascript.parser.sslr.ActionParser;
 import org.sonar.sslr.grammar.GrammarRuleKey;
 import org.sonar.sslr.grammar.LexerlessGrammarBuilder;
 import org.sonar.sslr.tests.ParsingResultComparisonFailure;
@@ -46,7 +46,7 @@ public class Assertions {
   }
 
   public static ParserAssert assertThat(LexerlessGrammarBuilder b, GrammarRuleKey rule) {
-    return new ParserAssert(new ActionParser2(
+    return new ParserAssert(new ActionParser(
       Charsets.UTF_8,
       b,
       ActionGrammar.class,
@@ -54,9 +54,9 @@ public class Assertions {
       rule));
   }
 
-  public static class ParserAssert extends GenericAssert<ParserAssert, ActionParser2> {
+  public static class ParserAssert extends GenericAssert<ParserAssert, ActionParser> {
 
-    public ParserAssert(ActionParser2 actual) {
+    public ParserAssert(ActionParser actual) {
       super(ParserAssert.class, actual);
     }
 

@@ -20,7 +20,7 @@
 package org.sonar.javascript.parser.sslr;
 
 import com.google.common.base.Throwables;
-import org.sonar.javascript.parser.sslr.ActionParser2.GrammarBuilderInterceptor;
+import org.sonar.javascript.parser.sslr.ActionParser.GrammarBuilderInterceptor;
 import org.sonar.sslr.grammar.GrammarRuleKey;
 import org.sonar.sslr.grammar.LexerlessGrammarBuilder;
 import org.sonar.sslr.internal.grammar.MutableParsingRule;

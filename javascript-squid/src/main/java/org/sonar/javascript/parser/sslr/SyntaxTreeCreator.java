@@ -66,14 +66,14 @@ public class SyntaxTreeCreator<T> {
   };
 
   private final Object treeFactory;
-  private final ActionParser2.GrammarBuilderInterceptor mapping;
+  private final ActionParser.GrammarBuilderInterceptor mapping;
 
   private final Token.Builder tokenBuilder = Token.builder();
   private final List<Trivia> trivias = Lists.newArrayList();
 
   private Input input;
 
-  public SyntaxTreeCreator(Object treeFactory, ActionParser2.GrammarBuilderInterceptor mapping) {
+  public SyntaxTreeCreator(Object treeFactory, ActionParser.GrammarBuilderInterceptor mapping) {
     this.treeFactory = treeFactory;
     this.mapping = mapping;
   }

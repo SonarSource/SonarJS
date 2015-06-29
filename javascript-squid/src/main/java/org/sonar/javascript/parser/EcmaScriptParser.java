@@ -22,7 +22,7 @@ package org.sonar.javascript.parser;
 import com.sonar.sslr.impl.Parser;
 import org.sonar.javascript.EcmaScriptConfiguration;
 import org.sonar.javascript.ast.parser.TreeFactory;
-import org.sonar.javascript.parser.sslr.ActionParser2;
+import org.sonar.javascript.parser.sslr.ActionParser;
 import org.sonar.sslr.parser.LexerlessGrammar;
 
 public final class EcmaScriptParser {
@@ -31,7 +31,7 @@ public final class EcmaScriptParser {
   }
 
   public static Parser<LexerlessGrammar> create(EcmaScriptConfiguration conf) {
-    return new ActionParser2(
+    return new ActionParser(
       conf.getCharset(),
       EcmaScriptGrammar.createGrammarBuilder(),
       ActionGrammar.class,
