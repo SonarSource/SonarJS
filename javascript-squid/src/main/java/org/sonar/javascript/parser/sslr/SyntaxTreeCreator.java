@@ -24,6 +24,7 @@ import com.google.common.base.Throwables;
 import com.google.common.collect.Lists;
 import com.sonar.sslr.api.AstNode;
 import com.sonar.sslr.api.GenericTokenType;
+import com.sonar.sslr.api.Rule;
 import com.sonar.sslr.api.Token;
 import com.sonar.sslr.api.TokenType;
 import com.sonar.sslr.api.Trivia;
@@ -151,23 +152,10 @@ public class SyntaxTreeCreator<T> {
 
     Method method = mapping.actionForRuleKey(ruleKey);
     if (method == null) {
-      Token token = null;
+      int startIndex = node.getStartIndex();
+      int endIndex = node.getEndIndex();
 
-      for (Object child : convertedChildren) {
-        if (child instanceof AstNode && ((AstNode) child).hasToken()) {
-          token = ((AstNode) child).getToken();
-          break;
-        }
-      }
-      AstNode astNode = new AstNode(rule, rule.getName(), token);
-      for (Object child : convertedChildren) {
-        astNode.addChild((AstNode) child);
-      }
-
-      astNode.setFromIndex(node.getStartIndex());
-      astNode.setToIndex(node.getEndIndex());
-
-      return astNode;
+      return createNonTerminal(rule.getRuleKey(), rule, convertedChildren, startIndex, endIndex);
     }
 
     try {
@@ -179,6 +167,26 @@ public class SyntaxTreeCreator<T> {
     } catch (InvocationTargetException e) {
       throw Throwables.propagate(e);
     }
+  }
+
+  private Object createNonTerminal(GrammarRuleKey ruleKey, Rule rule, List<Object> children, int startIndex, int endIndex) {
+    Token token = null;
+
+    for (Object child : children) {
+      if (child instanceof AstNode && ((AstNode) child).hasToken()) {
+        token = ((AstNode) child).getToken();
+        break;
+      }
+    }
+    AstNode astNode = new AstNode(rule, ruleKey.toString(), token);
+    for (Object child : children) {
+      astNode.addChild((AstNode) child);
+    }
+
+    astNode.setFromIndex(startIndex);
+    astNode.setToIndex(endIndex);
+
+    return astNode;
   }
 
   private AstNode visitTerminal(ParseNode node) {
