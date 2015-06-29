@@ -182,6 +182,7 @@ public class SyntaxTreeCreator<T> {
   }
 
   private AstNode visitTerminal(ParseNode node) {
+    TokenType type = null;
     if (node.getMatcher() instanceof TriviaExpression) {
       TriviaExpression ruleMatcher = (TriviaExpression) node.getMatcher();
       if (ruleMatcher.getTriviaKind() == TriviaKind.SKIPPED_TEXT) {
@@ -198,21 +199,34 @@ public class SyntaxTreeCreator<T> {
     } else if (node.getMatcher() instanceof TokenExpression) {
       updateTokenPositionAndValue(node);
       TokenExpression ruleMatcher = (TokenExpression) node.getMatcher();
-      tokenBuilder.setType(ruleMatcher.getTokenType());
-      if (ruleMatcher.getTokenType() == GenericTokenType.COMMENT) {
+      type = ruleMatcher.getTokenType();
+      if (GenericTokenType.COMMENT == ruleMatcher.getTokenType()) {
         tokenBuilder.setTrivia(Collections.<Trivia>emptyList());
+        tokenBuilder.setType(ruleMatcher.getTokenType());
         trivias.add(Trivia.createComment(tokenBuilder.build()));
         return null;
       }
-    } else {
-      updateTokenPositionAndValue(node);
-      tokenBuilder.setType(UNDEFINED_TOKEN_TYPE);
     }
-    Token token = tokenBuilder.setTrivia(trivias).build();
+    AstNode astNode =
+      createTerminal(input, node.getStartIndex(), node.getEndIndex(), Collections.unmodifiableList(trivias), type);
     trivias.clear();
+    return astNode;
+  }
+
+  private static AstNode createTerminal(Input input, int startIndex, int endIndex, List<Trivia> trivias, TokenType type) {
+    LineColumnValue lineColumnValue = tokenPosition(input, startIndex, endIndex);
+    Token token = Token.builder()
+      .setType(type == null ? UNDEFINED_TOKEN_TYPE : type)
+      .setLine(lineColumnValue.line)
+      .setColumn(lineColumnValue.column)
+      .setValueAndOriginalValue(lineColumnValue.value)
+      .setURI(input.uri())
+      .setGeneratedCode(false)
+      .setTrivia(trivias)
+      .build();
     AstNode astNode = new AstNode(token);
-    astNode.setFromIndex(node.getStartIndex());
-    astNode.setToIndex(node.getEndIndex());
+    astNode.setFromIndex(startIndex);
+    astNode.setToIndex(endIndex);
     return astNode;
   }
 
@@ -224,6 +238,24 @@ public class SyntaxTreeCreator<T> {
     tokenBuilder.setURI(input.uri());
     String value = input.substring(node.getStartIndex(), node.getEndIndex());
     tokenBuilder.setValueAndOriginalValue(value);
+  }
+
+  private static LineColumnValue tokenPosition(Input input, int startIndex, int endIndex) {
+    int[] lineAndColumn = input.lineAndColumnAt(startIndex);
+    String value = input.substring(startIndex, endIndex);
+    return new LineColumnValue(lineAndColumn[0], lineAndColumn[1] - 1, value);
+  }
+
+  private static class LineColumnValue {
+    final int line;
+    final int column;
+    final String value;
+
+    private LineColumnValue(int line, int column, String value) {
+      this.line = line;
+      this.column = column;
+      this.value = value;
+    }
   }
 
 }
