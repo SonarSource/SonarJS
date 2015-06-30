@@ -24,11 +24,11 @@ import com.google.common.base.Throwables;
 import com.google.common.collect.Lists;
 import com.sonar.sslr.api.AstNode;
 import com.sonar.sslr.api.GenericTokenType;
-import com.sonar.sslr.api.Rule;
 import com.sonar.sslr.api.Token;
 import com.sonar.sslr.api.TokenType;
 import com.sonar.sslr.api.Trivia;
 import com.sonar.sslr.api.Trivia.TriviaKind;
+import org.sonar.javascript.parser.sslr.ActionParser.GrammarBuilderInterceptor;
 import org.sonar.sslr.grammar.GrammarRuleKey;
 import org.sonar.sslr.internal.grammar.MutableParsingRule;
 import org.sonar.sslr.internal.matchers.ParseNode;
@@ -42,41 +42,19 @@ import java.util.List;
 
 public class SyntaxTreeCreator<T> {
 
-  private static final TokenType UNDEFINED_TOKEN_TYPE = new TokenType() {
-
-    @Override
-    public String getName() {
-      return "TOKEN";
-    }
-
-    @Override
-    public String getValue() {
-      return getName();
-    }
-
-    @Override
-    public boolean hasToBeSkippedFromAst(AstNode node) {
-      return false;
-    }
-
-    @Override
-    public String toString() {
-      return SyntaxTreeCreator.class.getSimpleName();
-    }
-
-  };
-
   private final Object treeFactory;
-  private final ActionParser.GrammarBuilderInterceptor mapping;
+  private final GrammarBuilderInterceptor mapping;
+  private final NodeBuilder nodeBuilder;
 
   private final Token.Builder tokenBuilder = Token.builder();
   private final List<Trivia> trivias = Lists.newArrayList();
 
   private Input input;
 
-  public SyntaxTreeCreator(Object treeFactory, ActionParser.GrammarBuilderInterceptor mapping) {
+  public SyntaxTreeCreator(Object treeFactory, GrammarBuilderInterceptor mapping, NodeBuilder nodeBuilder) {
     this.treeFactory = treeFactory;
     this.mapping = mapping;
+    this.nodeBuilder = nodeBuilder;
   }
 
   public T create(ParseNode node, Input input) {
@@ -155,7 +133,7 @@ public class SyntaxTreeCreator<T> {
       int startIndex = node.getStartIndex();
       int endIndex = node.getEndIndex();
 
-      return createNonTerminal(rule.getRuleKey(), rule, convertedChildren, startIndex, endIndex);
+      return nodeBuilder.createNonTerminal(rule.getRuleKey(), rule, convertedChildren, startIndex, endIndex);
     }
 
     try {
@@ -169,27 +147,7 @@ public class SyntaxTreeCreator<T> {
     }
   }
 
-  private Object createNonTerminal(GrammarRuleKey ruleKey, Rule rule, List<Object> children, int startIndex, int endIndex) {
-    Token token = null;
-
-    for (Object child : children) {
-      if (child instanceof AstNode && ((AstNode) child).hasToken()) {
-        token = ((AstNode) child).getToken();
-        break;
-      }
-    }
-    AstNode astNode = new AstNode(rule, ruleKey.toString(), token);
-    for (Object child : children) {
-      astNode.addChild((AstNode) child);
-    }
-
-    astNode.setFromIndex(startIndex);
-    astNode.setToIndex(endIndex);
-
-    return astNode;
-  }
-
-  private AstNode visitTerminal(ParseNode node) {
+  private Object visitTerminal(ParseNode node) {
     TokenType type = null;
     if (node.getMatcher() instanceof TriviaExpression) {
       TriviaExpression ruleMatcher = (TriviaExpression) node.getMatcher();
@@ -215,27 +173,9 @@ public class SyntaxTreeCreator<T> {
         return null;
       }
     }
-    AstNode astNode =
-      createTerminal(input, node.getStartIndex(), node.getEndIndex(), Collections.unmodifiableList(trivias), type);
+    Object result = nodeBuilder.createTerminal(input, node.getStartIndex(), node.getEndIndex(), Collections.unmodifiableList(trivias), type);
     trivias.clear();
-    return astNode;
-  }
-
-  private static AstNode createTerminal(Input input, int startIndex, int endIndex, List<Trivia> trivias, TokenType type) {
-    LineColumnValue lineColumnValue = tokenPosition(input, startIndex, endIndex);
-    Token token = Token.builder()
-      .setType(type == null ? UNDEFINED_TOKEN_TYPE : type)
-      .setLine(lineColumnValue.line)
-      .setColumn(lineColumnValue.column)
-      .setValueAndOriginalValue(lineColumnValue.value)
-      .setURI(input.uri())
-      .setGeneratedCode(false)
-      .setTrivia(trivias)
-      .build();
-    AstNode astNode = new AstNode(token);
-    astNode.setFromIndex(startIndex);
-    astNode.setToIndex(endIndex);
-    return astNode;
+    return result;
   }
 
   private void updateTokenPositionAndValue(ParseNode node) {
@@ -246,24 +186,6 @@ public class SyntaxTreeCreator<T> {
     tokenBuilder.setURI(input.uri());
     String value = input.substring(node.getStartIndex(), node.getEndIndex());
     tokenBuilder.setValueAndOriginalValue(value);
-  }
-
-  private static LineColumnValue tokenPosition(Input input, int startIndex, int endIndex) {
-    int[] lineAndColumn = input.lineAndColumnAt(startIndex);
-    String value = input.substring(startIndex, endIndex);
-    return new LineColumnValue(lineAndColumn[0], lineAndColumn[1] - 1, value);
-  }
-
-  private static class LineColumnValue {
-    final int line;
-    final int column;
-    final String value;
-
-    private LineColumnValue(int line, int column, String value) {
-      this.line = line;
-      this.column = column;
-      this.value = value;
-    }
   }
 
 }

@@ -35,11 +35,6 @@ import net.sf.cglib.proxy.Enhancer;
 import net.sf.cglib.proxy.MethodInterceptor;
 import net.sf.cglib.proxy.MethodProxy;
 import org.sonar.javascript.ast.parser.AstNodeSanitizer;
-import org.sonar.javascript.parser.sslr.DelayedRuleInvocationExpression;
-import org.sonar.javascript.parser.sslr.GrammarBuilder;
-import org.sonar.javascript.parser.sslr.Input;
-import org.sonar.javascript.parser.sslr.NonterminalBuilder;
-import org.sonar.javascript.parser.sslr.Optional;
 import org.sonar.sslr.grammar.GrammarRuleKey;
 import org.sonar.sslr.grammar.LexerlessGrammarBuilder;
 import org.sonar.sslr.internal.matchers.InputBuffer;
@@ -108,7 +103,7 @@ public class ActionParser extends Parser {
       }
     }
 
-    this.syntaxTreeCreator = new SyntaxTreeCreator<AstNode>(treeFactory, grammarBuilderInterceptor);
+    this.syntaxTreeCreator = new SyntaxTreeCreator<AstNode>(treeFactory, grammarBuilderInterceptor, new AstNodeBuilder());
 
     b.setRootRule(rootRule);
     this.rootRule = rootRule;
