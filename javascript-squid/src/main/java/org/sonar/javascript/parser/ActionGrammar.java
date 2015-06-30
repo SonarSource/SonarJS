@@ -19,6 +19,7 @@
  */
 package org.sonar.javascript.parser;
 
+import com.sonar.sslr.api.AstNode;
 import org.sonar.javascript.api.EcmaScriptKeyword;
 import org.sonar.javascript.api.EcmaScriptPunctuator;
 import org.sonar.javascript.api.EcmaScriptTokenType;
@@ -82,6 +83,7 @@ import org.sonar.javascript.model.internal.statement.VariableDeclarationTreeImpl
 import org.sonar.javascript.model.internal.statement.VariableStatementTreeImpl;
 import org.sonar.javascript.model.internal.statement.WhileStatementTreeImpl;
 import org.sonar.javascript.model.internal.statement.WithStatementTreeImpl;
+import org.sonar.javascript.parser.sslr.GrammarBuilder;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.declaration.BindingElementTree;
@@ -95,16 +97,13 @@ import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.MemberExpressionTree;
 import org.sonar.plugins.javascript.api.tree.statement.DebuggerStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.StatementTree;
-import org.sonar.javascript.parser.sslr.GrammarBuilder;
-
-import com.sonar.sslr.api.AstNode;
 
 public class ActionGrammar {
 
-  private final GrammarBuilder b;
+  private final GrammarBuilder<AstNode, AstNode> b;
   private final TreeFactory f;
 
-  public ActionGrammar(GrammarBuilder b, TreeFactory f) {
+  public ActionGrammar(GrammarBuilder<AstNode, AstNode> b, TreeFactory f) {
     this.b = b;
     this.f = f;
   }

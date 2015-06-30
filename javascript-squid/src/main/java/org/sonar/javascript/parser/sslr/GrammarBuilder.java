@@ -19,27 +19,26 @@
  */
 package org.sonar.javascript.parser.sslr;
 
-import com.sonar.sslr.api.AstNode;
 import org.sonar.sslr.grammar.GrammarRuleKey;
 
 import java.util.List;
 
-public interface GrammarBuilder {
+public interface GrammarBuilder<N, T> {
 
-  <T> NonterminalBuilder<T> nonterminal();
+  <U> NonterminalBuilder<U> nonterminal();
 
-  <T> NonterminalBuilder<T> nonterminal(GrammarRuleKey ruleKey);
+  <U> NonterminalBuilder<U> nonterminal(GrammarRuleKey ruleKey);
 
-  <T> T firstOf(T... methods);
+  <U> U firstOf(U... methods);
 
-  <T> Optional<T> optional(T method);
+  <U> Optional<U> optional(U method);
 
-  <T> List<T> oneOrMore(T method);
+  <U> List<U> oneOrMore(U method);
 
-  <T> Optional<List<T>> zeroOrMore(T method);
+  <U> Optional<List<U>> zeroOrMore(U method);
 
-  AstNode invokeRule(GrammarRuleKey ruleKey);
+  N invokeRule(GrammarRuleKey ruleKey);
 
-  AstNode token(String value);
+  T token(GrammarRuleKey ruleKey);
 
 }
