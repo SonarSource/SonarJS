@@ -22,7 +22,7 @@ package org.sonar.plugins.javascript.api.tree.declaration;
 import com.google.common.annotations.Beta;
 import org.sonar.javascript.model.internal.SeparatedList;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
-import org.sonar.javascript.parser.sslr.Optional;
+import com.sonar.sslr.api.typed.Optional;
 
 /**
  * Common interface for all types of <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-destructuring-binding-patterns">Array Binding Pattern</a> (<a href="http://wiki.ecmascript.org/doku.php?id=harmony:specification_drafts">ES6</a>)

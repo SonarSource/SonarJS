@@ -21,10 +21,10 @@ package org.sonar.javascript.parser;
 
 import com.google.common.base.Charsets;
 import com.sonar.sslr.api.AstNode;
+import com.sonar.sslr.api.typed.ActionParser;
+import com.sonar.sslr.api.typed.AstNodeBuilder;
 import org.junit.Before;
 import org.sonar.javascript.ast.parser.TreeFactory;
-import org.sonar.javascript.parser.sslr.ActionParser;
-import org.sonar.javascript.parser.sslr.AstNodeBuilder;
 import org.sonar.sslr.grammar.LexerlessGrammarBuilder;
 import org.sonar.sslr.parser.LexerlessGrammar;
 

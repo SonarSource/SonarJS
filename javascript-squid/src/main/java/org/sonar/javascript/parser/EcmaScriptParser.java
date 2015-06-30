@@ -25,8 +25,8 @@ import com.sonar.sslr.impl.Parser;
 import com.sonar.sslr.impl.matcher.RuleDefinition;
 import org.sonar.javascript.EcmaScriptConfiguration;
 import org.sonar.javascript.ast.parser.TreeFactory;
-import org.sonar.javascript.parser.sslr.ActionParser;
-import org.sonar.javascript.parser.sslr.AstNodeBuilder;
+import com.sonar.sslr.api.typed.ActionParser;
+import com.sonar.sslr.api.typed.AstNodeBuilder;
 import org.sonar.sslr.parser.LexerlessGrammar;
 
 import java.io.File;

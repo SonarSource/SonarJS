@@ -83,7 +83,7 @@ import org.sonar.javascript.model.internal.statement.VariableDeclarationTreeImpl
 import org.sonar.javascript.model.internal.statement.VariableStatementTreeImpl;
 import org.sonar.javascript.model.internal.statement.WhileStatementTreeImpl;
 import org.sonar.javascript.model.internal.statement.WithStatementTreeImpl;
-import org.sonar.javascript.parser.sslr.GrammarBuilder;
+import com.sonar.sslr.api.typed.GrammarBuilder;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.declaration.BindingElementTree;
