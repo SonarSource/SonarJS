@@ -6,7 +6,7 @@ jdk:
   - openjdk7
 
 script:
-  - mvn verify -B -e -V
+  - ./travis.sh
 
 cache:
   directories:
