@@ -32,15 +32,15 @@ public class MissingNewlineAtEndOfFileCheckTest extends TreeCheckTest {
   public void test() {
     SourceFile file = scanFile("src/test/resources/checks/newlineAtEndOfFile.js", check);
     CheckMessagesVerifier.verify(file.getCheckMessages())
-        .next()
-        .noMore();
+      .next()
+      .noMore();
   }
 
   @Test
   public void test2() {
     SourceFile file = scanFile("src/test/resources/checks/tabCharacter.js", check);
     CheckMessagesVerifier.verify(file.getCheckMessages())
-        .noMore();
+      .noMore();
   }
 
 }

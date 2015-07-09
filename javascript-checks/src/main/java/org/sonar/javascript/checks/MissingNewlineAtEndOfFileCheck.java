@@ -25,18 +25,14 @@ import java.io.RandomAccessFile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.server.rule.RulesDefinition;
-import org.sonar.api.utils.SonarException;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.plugins.javascript.api.AstTreeVisitorContext;
 import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
-import org.sonar.squidbridge.checks.SquidCheck;
-import org.sonar.sslr.parser.LexerlessGrammar;
 
 import com.google.common.io.Closeables;
-import com.sonar.sslr.api.AstNode;
 
 @Rule(
   key = "MissingNewlineAtEndOfFile",
