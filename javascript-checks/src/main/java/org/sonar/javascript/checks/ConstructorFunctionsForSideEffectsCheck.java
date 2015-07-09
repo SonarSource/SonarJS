@@ -24,6 +24,8 @@ import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.javascript.api.EcmaScriptKeyword;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
+import org.sonar.plugins.javascript.api.tree.statement.ExpressionStatementTree;
+import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
 import org.sonar.squidbridge.annotations.ActivatedByDefault;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
@@ -40,18 +42,15 @@ import com.sonar.sslr.api.AstNode;
 @ActivatedByDefault
 @SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.UNDERSTANDABILITY)
 @SqaleConstantRemediation("5min")
-public class ConstructorFunctionsForSideEffectsCheck extends SquidCheck<LexerlessGrammar> {
+public class ConstructorFunctionsForSideEffectsCheck extends BaseTreeVisitor {
 
   @Override
-  public void init() {
-    subscribeTo(Kind.EXPRESSION_STATEMENT);
-  }
-
-  @Override
-  public void visitNode(AstNode astNode) {
-    if (EcmaScriptKeyword.NEW.getValue().equals(astNode.getToken().getValue())) {
-      getContext().createLineViolation(this, "Replace by a standard call to the function.", astNode);
+  public void visitExpressionStatement(ExpressionStatementTree tree) {
+    if (tree.expression().is(Kind.NEW_EXPRESSION)) {
+      getContext().addIssue(this, tree, "Replace by a standard call to the function.");
     }
+
+    super.visitExpressionStatement(tree);
   }
 
 }
