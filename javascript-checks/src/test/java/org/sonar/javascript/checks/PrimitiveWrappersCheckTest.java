@@ -19,20 +19,16 @@
  */
 package org.sonar.javascript.checks;
 
-import org.sonar.squidbridge.checks.CheckMessagesVerifier;
 import org.junit.Test;
-import org.sonar.javascript.JavaScriptAstScanner;
+import org.sonar.javascript.checks.utils.TreeCheckTest;
 import org.sonar.squidbridge.api.SourceFile;
+import org.sonar.squidbridge.checks.CheckMessagesVerifier;
 
-import java.io.File;
-
-public class PrimitiveWrappersCheckTest {
+public class PrimitiveWrappersCheckTest extends TreeCheckTest {
 
   @Test
   public void test() {
-    PrimitiveWrappersCheck check = new PrimitiveWrappersCheck();
-
-    SourceFile file = JavaScriptAstScanner.scanSingleFile(new File("src/test/resources/checks/primitiveWrappers.js"), check);
+    SourceFile file = scanFile("src/test/resources/checks/primitiveWrappers.js", new PrimitiveWrappersCheck());
     CheckMessagesVerifier.verify(file.getCheckMessages())
         .next().atLine(2).withMessage("Do not use wrapper objects for primitive types.")
         .next().atLine(12)

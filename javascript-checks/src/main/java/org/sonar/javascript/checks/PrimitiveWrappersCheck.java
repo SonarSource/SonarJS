@@ -24,15 +24,14 @@ import java.util.Set;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
-import org.sonar.javascript.api.EcmaScriptKeyword;
+import org.sonar.javascript.checks.utils.CheckUtils;
+import org.sonar.plugins.javascript.api.tree.expression.NewExpressionTree;
+import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
 import org.sonar.squidbridge.annotations.ActivatedByDefault;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
-import org.sonar.squidbridge.checks.SquidCheck;
-import org.sonar.sslr.parser.LexerlessGrammar;
 
 import com.google.common.collect.ImmutableSet;
-import com.sonar.sslr.api.AstNode;
 
 @Rule(
   key = "PrimitiveWrappers",
@@ -42,20 +41,17 @@ import com.sonar.sslr.api.AstNode;
 @ActivatedByDefault
 @SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.INSTRUCTION_RELIABILITY)
 @SqaleConstantRemediation("1min")
-public class PrimitiveWrappersCheck extends SquidCheck<LexerlessGrammar> {
+public class PrimitiveWrappersCheck extends BaseTreeVisitor {
 
   private static final Set<String> WRAPPERS = ImmutableSet.of("Boolean", "Number", "String");
 
   @Override
-  public void init() {
-    subscribeTo(EcmaScriptKeyword.NEW);
-  }
-
-  @Override
-  public void visitNode(AstNode astNode) {
-    if (WRAPPERS.contains(astNode.getNextSibling().getTokenValue())) {
-      getContext().createLineViolation(this, "Do not use wrapper objects for primitive types.", astNode);
+  public void visitNewExpression(NewExpressionTree tree) {
+    if (WRAPPERS.contains(CheckUtils.asString(tree.expression()))) {
+      getContext().addIssue(this, tree.expression(), "Do not use wrapper objects for primitive types.");
     }
+
+    super.visitNewExpression(tree);
   }
 
 }
