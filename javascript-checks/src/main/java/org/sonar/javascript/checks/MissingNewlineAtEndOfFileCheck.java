@@ -43,7 +43,7 @@ import com.google.common.io.Closeables;
 @SqaleConstantRemediation("1min")
 public class MissingNewlineAtEndOfFileCheck extends BaseTreeVisitor {
 
-  private Logger LOG = LoggerFactory.getLogger(MissingNewlineAtEndOfFileCheck.class);
+  private static final Logger LOG = LoggerFactory.getLogger(MissingNewlineAtEndOfFileCheck.class);
 
   @Override
   public void scanFile(AstTreeVisitorContext context) {
