@@ -25,14 +25,17 @@ import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
-import org.sonar.plugins.javascript.api.tree.Tree.Kind;
+import org.sonar.javascript.checks.utils.CheckUtils;
+import org.sonar.plugins.javascript.api.tree.ScriptTree;
+import org.sonar.plugins.javascript.api.tree.declaration.FunctionDeclarationTree;
+import org.sonar.plugins.javascript.api.tree.declaration.MethodDeclarationTree;
+import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
+import org.sonar.plugins.javascript.api.tree.expression.FunctionExpressionTree;
+import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
+import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
 import org.sonar.squidbridge.annotations.ActivatedByDefault;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
-import org.sonar.squidbridge.checks.SquidCheck;
-import org.sonar.sslr.parser.LexerlessGrammar;
-
-import com.sonar.sslr.api.AstNode;
 
 @Rule(
   key = "S100",
@@ -42,7 +45,7 @@ import com.sonar.sslr.api.AstNode;
 @ActivatedByDefault
 @SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.READABILITY)
 @SqaleConstantRemediation("5min")
-public class FunctionNameCheck extends SquidCheck<LexerlessGrammar> {
+public class FunctionNameCheck extends BaseTreeVisitor {
 
   public static final String DEFAULT = "^[a-z][a-zA-Z0-9]*$";
   private Pattern pattern = null;
@@ -54,26 +57,36 @@ public class FunctionNameCheck extends SquidCheck<LexerlessGrammar> {
   public String format = DEFAULT;
 
   @Override
-  public void init() {
+  public void visitScript(ScriptTree tree) {
     pattern = Pattern.compile(format);
-    subscribeTo(
-      Kind.FUNCTION_DECLARATION,
-      Kind.GENERATOR_DECLARATION,
-      Kind.GENERATOR_METHOD,
-      Kind.METHOD);
+    super.visitScript(tree);
   }
 
   @Override
-  public void visitNode(AstNode astNode) {
-    String identifier = astNode.getFirstChild(
-      Kind.BINDING_IDENTIFIER,
-      Kind.IDENTIFIER_NAME).getTokenValue();
+  public void visitMethodDeclaration(MethodDeclarationTree tree) {
+    checkName(tree.name());
+    super.visitMethodDeclaration(tree);
+  }
 
+  @Override
+  public void visitFunctionDeclaration(FunctionDeclarationTree tree) {
+    checkName(tree.name());
+    super.visitFunctionDeclaration(tree);
+  }
 
-    if (!pattern.matcher(identifier).matches()) {
-      getContext().createLineViolation(this, "Rename this ''{0}'' function to match the regular expression {1}", astNode,
-        identifier,
-        format);
+  @Override
+  public void visitFunctionExpression(FunctionExpressionTree tree) {
+    checkName(tree.name());
+    super.visitFunctionExpression(tree);
+  }
+
+  public void checkName(ExpressionTree tree) {
+    if (tree != null) {
+      String name = tree instanceof IdentifierTree ? ((IdentifierTree) tree).name() : CheckUtils.asString(tree);
+
+      if (!pattern.matcher(name).matches()) {
+        getContext().addIssue(this, tree, "Rename this '" + name + "' function to match the regular expression " + format);
+      }
     }
   }
 }

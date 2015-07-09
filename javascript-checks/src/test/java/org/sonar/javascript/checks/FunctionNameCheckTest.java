@@ -19,20 +19,18 @@
  */
 package org.sonar.javascript.checks;
 
-import org.sonar.squidbridge.checks.CheckMessagesVerifier;
 import org.junit.Test;
-import org.sonar.javascript.JavaScriptAstScanner;
+import org.sonar.javascript.checks.utils.TreeCheckTest;
 import org.sonar.squidbridge.api.SourceFile;
+import org.sonar.squidbridge.checks.CheckMessagesVerifier;
 
-import java.io.File;
-
-public class FunctionNameCheckTest {
+public class FunctionNameCheckTest extends TreeCheckTest {
 
   private FunctionNameCheck check = new FunctionNameCheck();
 
   @Test
   public void testDefault() {
-    SourceFile file = JavaScriptAstScanner.scanSingleFile(new File("src/test/resources/checks/FunctionName.js"), check);
+    SourceFile file = scanFile("src/test/resources/checks/FunctionName.js", check);
     CheckMessagesVerifier.verify(file.getCheckMessages())
       .next().atLine(4).withMessage("Rename this 'DoSomething' function to match the regular expression " + check.DEFAULT)
       .next().atLine(10)
@@ -45,7 +43,7 @@ public class FunctionNameCheckTest {
   public void testCustom() {
     check.format = "^[A-Z][a-zA-Z0-9]*$";
 
-    SourceFile file = JavaScriptAstScanner.scanSingleFile(new File("src/test/resources/checks/FunctionName.js"), check);
+    SourceFile file = scanFile("src/test/resources/checks/FunctionName.js", check);
     CheckMessagesVerifier.verify(file.getCheckMessages())
       .next().atLine(1).withMessage("Rename this 'doSomething' function to match the regular expression " + check.format)
       .next().atLine(7)
