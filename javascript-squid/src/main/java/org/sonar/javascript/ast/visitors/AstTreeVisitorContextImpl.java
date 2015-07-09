@@ -63,6 +63,11 @@ public class AstTreeVisitorContextImpl implements AstTreeVisitorContext {
   }
 
   @Override
+  public void addFileIssue(JavaScriptCheck check, String message) {
+    commonAddIssue(check, -1, message, -1);
+  }
+
+  @Override
   public void addIssue(JavaScriptCheck check, Tree tree, String message, double cost){
     commonAddIssue(check, getLine(tree), message, cost);
   }
