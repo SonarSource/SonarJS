@@ -22,10 +22,14 @@ package org.sonar.javascript.checks;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.api.utils.SonarException;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
+import org.sonar.plugins.javascript.api.AstTreeVisitorContext;
+import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 import org.sonar.squidbridge.checks.SquidCheck;
@@ -41,18 +45,26 @@ import com.sonar.sslr.api.AstNode;
   tags = {Tags.CONVENTION})
 @SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.READABILITY)
 @SqaleConstantRemediation("1min")
-public class MissingNewlineAtEndOfFileCheck extends SquidCheck<LexerlessGrammar> {
+public class MissingNewlineAtEndOfFileCheck extends BaseTreeVisitor {
+
+  private Logger LOG = LoggerFactory.getLogger(MissingNewlineAtEndOfFileCheck.class);
 
   @Override
-  public void visitFile(AstNode astNode) {
+  public void scanFile(AstTreeVisitorContext context) {
+    super.scanFile(context);
+
     RandomAccessFile randomAccessFile = null;
+
     try {
       randomAccessFile = new RandomAccessFile(getContext().getFile(), "r");
       if (!endsWithNewline(randomAccessFile)) {
-        getContext().createFileViolation(this, "Add a new line at the end of this file.");
+        getContext().addFileIssue(this, "Add a new line at the end of this file.");
       }
+
     } catch (IOException e) {
-      throw new SonarException(e);
+      LOG.error("Unable to execute rule \"MissingNewlineAtEndOfFile\" for file {} because of error: {}",
+        getContext().getFile().getName(), e);
+
     } finally {
       Closeables.closeQuietly(randomAccessFile);
     }
