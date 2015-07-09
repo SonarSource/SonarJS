@@ -19,21 +19,22 @@
  */
 package org.sonar.javascript.checks;
 
+import java.util.List;
 import java.util.Stack;
 
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.javascript.checks.utils.CheckUtils;
+import org.sonar.javascript.checks.utils.SubscriptionBaseVisitor;
+import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
-import org.sonar.javascript.parser.EcmaScriptGrammar;
+import org.sonar.plugins.javascript.api.tree.statement.IterationStatementTree;
 import org.sonar.squidbridge.annotations.ActivatedByDefault;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
-import org.sonar.squidbridge.checks.SquidCheck;
-import org.sonar.sslr.parser.LexerlessGrammar;
 
-import com.sonar.sslr.api.AstNode;
+import com.google.common.collect.ImmutableList;
 
 @Rule(
   key = "FunctionDefinitionInsideLoop",
@@ -43,51 +44,60 @@ import com.sonar.sslr.api.AstNode;
 @ActivatedByDefault
 @SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.INSTRUCTION_RELIABILITY)
 @SqaleConstantRemediation("30min")
-public class FunctionDefinitionInsideLoopCheck extends SquidCheck<LexerlessGrammar> {
+public class FunctionDefinitionInsideLoopCheck extends SubscriptionBaseVisitor {
 
-  private Stack<Integer> stack;
+  private Stack<Boolean> scope = new Stack<>();
 
   @Override
-  public void init() {
-    subscribeTo(CheckUtils.iterationStatementsArray());
-    subscribeTo(
-        EcmaScriptGrammar.ITERATION_STATEMENT,
-        Kind.FUNCTION_EXPRESSION,
-      Kind.FUNCTION_DECLARATION,
+  public List<Kind> nodesToVisit() {
+    return ImmutableList.<Kind>builder()
+      .add(CheckUtils.iterationStatementsArray())
+      .add(Kind.FUNCTION_EXPRESSION,
+        Kind.FUNCTION_DECLARATION,
         Kind.GENERATOR_FUNCTION_EXPRESSION,
-      Kind.GENERATOR_DECLARATION);
+        Kind.GENERATOR_DECLARATION)
+      .build();
   }
 
   @Override
-  public void visitFile(AstNode astNode) {
-    stack = new Stack<Integer>();
-    stack.push(0);
+  public void visitFile(Tree scriptTree) {
+    scope.clear();
+    scope.push(false);
   }
 
   @Override
-  public void visitNode(AstNode astNode) {
-    if (CheckUtils.isIterationStatement(astNode)) {
-      stack.push(stack.pop() + 1);
+  public void visitNode(Tree tree) {
+    if (tree instanceof IterationStatementTree) {
+      setScopeStateInLoop(true);
+
     } else {
-      if (stack.peek() > 0) {
-        getContext().createLineViolation(this, "Define this function outside of a loop.", astNode);
+      if (isInLoop()) {
+        getContext().addIssue(this, tree, "Define this function outside of a loop.");
       }
-      stack.add(0);
+      enterScope();
     }
   }
 
   @Override
-  public void leaveNode(AstNode astNode) {
-    if (CheckUtils.isIterationStatement(astNode)) {
-      stack.push(stack.pop() - 1);
+  public void leaveNode(Tree tree) {
+    if (tree instanceof IterationStatementTree) {
+      setScopeStateInLoop(false);
+
     } else {
-      stack.pop();
+      scope.pop();
     }
   }
 
-  @Override
-  public void leaveFile(AstNode astNode) {
-    stack = null;
+  private void enterScope() {
+    scope.push(false);
   }
 
+  private void setScopeStateInLoop(Boolean isInLoop) {
+    scope.pop();
+    scope.push(isInLoop);
+  }
+
+  public boolean isInLoop() {
+    return scope.peek();
+  }
 }
