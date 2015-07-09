@@ -19,13 +19,10 @@
  */
 package org.sonar.javascript.checks;
 
-import org.sonar.javascript.checks.utils.TreeCheckTest;
-import org.sonar.squidbridge.checks.CheckMessagesVerifier;
 import org.junit.Test;
-import org.sonar.javascript.JavaScriptAstScanner;
+import org.sonar.javascript.checks.utils.TreeCheckTest;
 import org.sonar.squidbridge.api.SourceFile;
-
-import java.io.File;
+import org.sonar.squidbridge.checks.CheckMessagesVerifier;
 
 public class ConstructorFunctionsForSideEffectsCheckTest extends TreeCheckTest {
 
@@ -33,7 +30,7 @@ public class ConstructorFunctionsForSideEffectsCheckTest extends TreeCheckTest {
   public void test() {
     SourceFile file = scanFile("src/test/resources/checks/constructorFunctionsForSideEffects.js", new ConstructorFunctionsForSideEffectsCheck());
     CheckMessagesVerifier.verify(file.getCheckMessages())
-        .next().atLine(3).withMessage("Replace by a standard call to the function.")
-        .noMore();
+      .next().atLine(3).withMessage("Replace by a standard call to the function.")
+      .noMore();
   }
 }
