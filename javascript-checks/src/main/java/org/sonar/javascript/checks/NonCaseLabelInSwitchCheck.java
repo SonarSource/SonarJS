@@ -19,20 +19,16 @@
  */
 package org.sonar.javascript.checks;
 
-import javax.annotation.Nullable;
-
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
-import org.sonar.plugins.javascript.api.tree.Tree.Kind;
+import org.sonar.plugins.javascript.api.tree.ScriptTree;
+import org.sonar.plugins.javascript.api.tree.statement.CaseClauseTree;
 import org.sonar.plugins.javascript.api.tree.statement.LabelledStatementTree;
+import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
 import org.sonar.squidbridge.annotations.ActivatedByDefault;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
-import org.sonar.squidbridge.checks.SquidCheck;
-import org.sonar.sslr.parser.LexerlessGrammar;
-
-import com.sonar.sslr.api.AstNode;
 
 @Rule(
   key = "S1219",
@@ -42,36 +38,30 @@ import com.sonar.sslr.api.AstNode;
 @ActivatedByDefault
 @SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.READABILITY)
 @SqaleConstantRemediation("10min")
-public class NonCaseLabelInSwitchCheck extends SquidCheck<LexerlessGrammar> {
+public class NonCaseLabelInSwitchCheck extends BaseTreeVisitor {
 
   private boolean inCase;
 
   @Override
-  public void init() {
-    subscribeTo(
-      Kind.CASE_CLAUSE,
-      Kind.LABELLED_STATEMENT);
+  public void visitScript(ScriptTree tree) {
+    inCase = false;
+    super.visitScript(tree);
   }
 
   @Override
-  public void visitFile(@Nullable AstNode astNode) {
+  public void visitLabelledStatement(LabelledStatementTree tree) {
+    if (inCase) {
+      getContext().addIssue(this, tree, String.format("Remove this misleading \"%s\" label.", tree.label().name()));
+    }
+
+    super.visitLabelledStatement(tree);
+  }
+
+  @Override
+  public void visitCaseClause(CaseClauseTree tree) {
+    inCase = true;
+    super.visitCaseClause(tree);
     inCase = false;
   }
 
-  @Override
-  public void visitNode(AstNode astNode) {
-    if (astNode.is(Kind.CASE_CLAUSE)) {
-      inCase = true;
-    } else if (inCase && astNode.is(Kind.LABELLED_STATEMENT)) {
-      getContext().createLineViolation(this, "Remove this misleading \"{0}\" label.",
-        astNode, ((LabelledStatementTree) astNode).label().name());
-    }
-  }
-
-  @Override
-  public void leaveNode(AstNode astNode) {
-    if (astNode.is(Kind.CASE_CLAUSE)) {
-      inCase = false;
-    }
-  }
 }
