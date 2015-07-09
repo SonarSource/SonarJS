@@ -19,30 +19,28 @@
  */
 package org.sonar.javascript.checks;
 
-import org.sonar.squidbridge.checks.CheckMessagesVerifier;
 import org.junit.Test;
-import org.sonar.javascript.JavaScriptAstScanner;
+import org.sonar.javascript.checks.utils.TreeCheckTest;
 import org.sonar.squidbridge.api.SourceFile;
+import org.sonar.squidbridge.checks.CheckMessagesVerifier;
 
-import java.io.File;
-
-public class MissingNewlineAtEndOfFileCheckTest {
+public class MissingNewlineAtEndOfFileCheckTest extends TreeCheckTest {
 
   MissingNewlineAtEndOfFileCheck check = new MissingNewlineAtEndOfFileCheck();
 
   @Test
   public void test() {
-    SourceFile file = JavaScriptAstScanner.scanSingleFile(new File("src/test/resources/checks/newlineAtEndOfFile.js"), check);
+    SourceFile file = scanFile("src/test/resources/checks/newlineAtEndOfFile.js", check);
     CheckMessagesVerifier.verify(file.getCheckMessages())
-        .next()
-        .noMore();
+      .next()
+      .noMore();
   }
 
   @Test
   public void test2() {
-    SourceFile file = JavaScriptAstScanner.scanSingleFile(new File("src/test/resources/checks/tabCharacter.js"), check);
+    SourceFile file = scanFile("src/test/resources/checks/tabCharacter.js", check);
     CheckMessagesVerifier.verify(file.getCheckMessages())
-        .noMore();
+      .noMore();
   }
 
 }
