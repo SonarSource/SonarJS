@@ -46,7 +46,7 @@ import com.google.common.collect.ImmutableList;
 @SqaleConstantRemediation("30min")
 public class FunctionDefinitionInsideLoopCheck extends SubscriptionBaseVisitor {
 
-  private Stack<Boolean> scope = new Stack<>();
+  private Stack<Integer> scope = new Stack<>();
 
   @Override
   public List<Kind> nodesToVisit() {
@@ -62,13 +62,13 @@ public class FunctionDefinitionInsideLoopCheck extends SubscriptionBaseVisitor {
   @Override
   public void visitFile(Tree scriptTree) {
     scope.clear();
-    scope.push(false);
+    scope.push(0);
   }
 
   @Override
   public void visitNode(Tree tree) {
     if (tree instanceof IterationStatementTree) {
-      setScopeStateInLoop(true);
+      incrementLoopLevelinScope();
 
     } else {
       if (isInLoop()) {
@@ -81,7 +81,7 @@ public class FunctionDefinitionInsideLoopCheck extends SubscriptionBaseVisitor {
   @Override
   public void leaveNode(Tree tree) {
     if (tree instanceof IterationStatementTree) {
-      setScopeStateInLoop(false);
+      decrementLoopLevelinScope();
 
     } else {
       scope.pop();
@@ -89,15 +89,18 @@ public class FunctionDefinitionInsideLoopCheck extends SubscriptionBaseVisitor {
   }
 
   private void enterScope() {
-    scope.push(false);
+    scope.push(0);
   }
 
-  private void setScopeStateInLoop(Boolean isInLoop) {
-    scope.pop();
-    scope.push(isInLoop);
+  private void incrementLoopLevelinScope() {
+    scope.push(scope.pop() + 1);
+  }
+
+  private void decrementLoopLevelinScope() {
+    scope.push(scope.pop() - 1);
   }
 
   public boolean isInLoop() {
-    return scope.peek();
+    return scope.peek() > 0;
   }
 }
