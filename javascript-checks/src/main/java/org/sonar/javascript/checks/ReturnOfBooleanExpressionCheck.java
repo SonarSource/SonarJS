@@ -26,14 +26,14 @@ import org.sonar.javascript.model.internal.statement.IfStatementTreeImpl;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.tree.statement.BlockTree;
+import org.sonar.plugins.javascript.api.tree.statement.ElseClauseTree;
+import org.sonar.plugins.javascript.api.tree.statement.IfStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.ReturnStatementTree;
+import org.sonar.plugins.javascript.api.tree.statement.StatementTree;
+import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
 import org.sonar.squidbridge.annotations.ActivatedByDefault;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
-import org.sonar.squidbridge.checks.SquidCheck;
-import org.sonar.sslr.parser.LexerlessGrammar;
-
-import com.sonar.sslr.api.AstNode;
 
 @Rule(
   key = "S1126",
@@ -43,51 +43,51 @@ import com.sonar.sslr.api.AstNode;
 @ActivatedByDefault
 @SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.READABILITY)
 @SqaleConstantRemediation("2min")
-public class ReturnOfBooleanExpressionCheck extends SquidCheck<LexerlessGrammar> {
+public class ReturnOfBooleanExpressionCheck extends BaseTreeVisitor {
 
   @Override
-  public void init() {
-    subscribeTo(Kind.IF_STATEMENT);
-  }
-
-  @Override
-  public void visitNode(AstNode astNode) {
-    IfStatementTreeImpl ifStatement = (IfStatementTreeImpl) astNode;
-
-    if (isNotIfElse(ifStatement) && ifStatement.hasElse()
-      && returnsBoolean((AstNode) ifStatement.elseClause().statement())
-      && returnsBoolean((AstNode) ifStatement.statement())) {
-      getContext().createLineViolation(this, "Replace this if-then-else statement by a single return statement.", astNode);
+  public void visitIfStatement(IfStatementTree tree) {
+    if (tree.elseClause() != null && returnsBoolean(tree.elseClause().statement()) && returnsBoolean(tree.statement())) {
+      getContext().addIssue(this, tree, "Replace this if-then-else statement by a single return statement.");
     }
+
+    visitIf(tree);
   }
 
-  public static boolean isNotIfElse(IfStatementTreeImpl ifStmt) {
-    return !ifStmt.getParent().is(Kind.ELSE_CLAUSE);
-  }
-
-  public static boolean returnsBoolean(AstNode statement) {
+  public static boolean returnsBoolean(StatementTree statement) {
     return isBlockReturningBooleanLiteral(statement) || isSimpleReturnBooleanLiteral(statement);
   }
 
-  public static boolean isBlockReturningBooleanLiteral(AstNode statement) {
-    if (statement.isNot(Kind.BLOCK)) {
-      return false;
+  public static boolean isBlockReturningBooleanLiteral(StatementTree statement) {
+    if (statement.is(Kind.BLOCK)) {
+      BlockTree block = (BlockTree) statement;
+
+      return block.statements().size() == 1 && isSimpleReturnBooleanLiteral(block.statements().get(0));
     }
 
-    BlockTree block =  (BlockTree) statement;
-
-
-    return block.statements().size() == 1 && isSimpleReturnBooleanLiteral((AstNode) block.statements().get(0));
+    return false;
   }
 
-  public static boolean isSimpleReturnBooleanLiteral(AstNode astNode) {
-    if (astNode.isNot(Kind.RETURN_STATEMENT)) {
-      return false;
+  public static boolean isSimpleReturnBooleanLiteral(StatementTree statement) {
+    if (statement.is(Kind.RETURN_STATEMENT)) {
+      ExpressionTree returnExpr = ((ReturnStatementTree) statement).expression();
+
+      return returnExpr != null && returnExpr.is(Kind.BOOLEAN_LITERAL);
     }
 
-    ReturnStatementTree statement = (ReturnStatementTree) astNode;
-    ExpressionTree expression = statement.expression();
-    return expression != null && expression.is(Kind.BOOLEAN_LITERAL);
+    return false;
   }
 
+  private void visitIf(IfStatementTree tree) {
+    scan(tree.condition());
+    scan(tree.statement());
+
+    ElseClauseTree elseClauseTree = tree.elseClause();
+    if (tree.elseClause() != null && elseClauseTree.statement().is(Kind.IF_STATEMENT)) {
+      visitIf((IfStatementTreeImpl) tree.elseClause().statement());
+
+    } else {
+      scan(tree.elseClause());
+    }
+  }
 }
