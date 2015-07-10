@@ -63,6 +63,10 @@ public class VisitorsBridge extends SquidAstVisitor<LexerlessGrammar> {
       SymbolModelImpl symbolModel = SymbolModelImpl.create(scriptTree, symbolizableFor(file), new SourceFileOffsets(file, fs.encoding()), settings);
 
       for (JavaScriptFileScanner scanner : scanners) {
+        if (scanner instanceof CharsetAwareVisitor) {
+          ((CharsetAwareVisitor) scanner).setCharset(fs.encoding());
+        }
+
         scanner.scanFile(new AstTreeVisitorContextImpl(
           scriptTree,
           (SourceFile) getContext().peekSourceCode(),
@@ -71,9 +75,6 @@ public class VisitorsBridge extends SquidAstVisitor<LexerlessGrammar> {
           settings
         ));
 
-        if (scanner instanceof CharsetAwareVisitor) {
-          ((CharsetAwareVisitor) scanner).setCharset(fs.encoding());
-        }
       }
     }
   }
