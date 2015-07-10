@@ -19,22 +19,23 @@
  */
 package org.sonar.javascript.checks;
 
-import org.sonar.api.utils.SonarException;
+import java.io.IOException;
+import java.nio.charset.Charset;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
 import org.sonar.javascript.CharsetAwareVisitor;
+import org.sonar.plugins.javascript.api.AstTreeVisitorContext;
+import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
 import org.sonar.squidbridge.annotations.NoSqale;
-import org.sonar.squidbridge.checks.SquidCheck;
-import org.sonar.sslr.parser.LexerlessGrammar;
 
 import com.google.common.io.Files;
-import com.sonar.sslr.api.AstNode;
-
-import java.io.IOException;
-import java.nio.charset.Charset;
-import java.util.Iterator;
-import java.util.List;
 
 @Rule(
   key = "S1451",
@@ -42,8 +43,9 @@ import java.util.List;
   priority = Priority.BLOCKER)
 //@ActivatedByDefault
 @NoSqale
-public class FileHeaderCheck extends SquidCheck<LexerlessGrammar> implements CharsetAwareVisitor {
+public class FileHeaderCheck extends BaseTreeVisitor implements CharsetAwareVisitor {
 
+  private static final Logger LOG = LoggerFactory.getLogger(FileHeaderCheck.class);
   private static final String DEFAULT_HEADER_FORMAT = "";
 
   @RuleProperty(
@@ -62,21 +64,23 @@ public class FileHeaderCheck extends SquidCheck<LexerlessGrammar> implements Cha
   }
 
   @Override
-  public void init() {
+  public void scanFile(AstTreeVisitorContext context) {
+    super.scanFile(context);
+    // FIXME martin: should be done in a init method
     expectedLines = headerFormat.split("(?:\r)?\n|\r");
-  }
 
-  @Override
-  public void visitFile(AstNode astNode) {
-    List<String> lines;
+    List<String> lines = Collections.emptyList();
+
     try {
       lines = Files.readLines(getContext().getFile(), charset);
+
     } catch (IOException e) {
-      throw new SonarException(e);
+      LOG.error("Unable to execute rule \"TabCharacter\" for file {} because of error: {}",
+        getContext().getFile().getName(), e);
     }
 
     if (!matches(expectedLines, lines)) {
-      getContext().createFileViolation(this, "Add or update the header of this file.");
+      getContext().addFileIssue(this, "Add or update the header of this file.");
     }
   }
 

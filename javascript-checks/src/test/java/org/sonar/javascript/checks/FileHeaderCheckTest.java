@@ -19,84 +19,82 @@
  */
 package org.sonar.javascript.checks;
 
-import org.sonar.squidbridge.checks.CheckMessagesVerifier;
 import org.junit.Test;
-import org.sonar.javascript.JavaScriptAstScanner;
+import org.sonar.javascript.checks.utils.TreeCheckTest;
 import org.sonar.squidbridge.api.SourceFile;
+import org.sonar.squidbridge.checks.CheckMessagesVerifier;
 
-import java.io.File;
-
-public class FileHeaderCheckTest {
+public class FileHeaderCheckTest extends TreeCheckTest {
 
   @Test
   public void test() {
     FileHeaderCheck check = new FileHeaderCheck();
     check.headerFormat = "// copyright 2005";
 
-    SourceFile file = JavaScriptAstScanner.scanSingleFile(new File("src/test/resources/checks/FileHeaderCheck/file1.js"), check);
+    SourceFile file = scanFile("src/test/resources/checks/FileHeaderCheck/file1.js", check);
     CheckMessagesVerifier.verify(file.getCheckMessages())
       .noMore();
 
     check = new FileHeaderCheck();
     check.headerFormat = "// copyright 20\\d\\d";
 
-    file = JavaScriptAstScanner.scanSingleFile(new File("src/test/resources/checks/FileHeaderCheck/file1.js"), check);
+    file = scanFile("src/test/resources/checks/FileHeaderCheck/file1.js", check);
     CheckMessagesVerifier.verify(file.getCheckMessages())
       .next().atLine(null);
 
     check = new FileHeaderCheck();
     check.headerFormat = "// copyright 2005";
 
-    file = JavaScriptAstScanner.scanSingleFile(new File("src/test/resources/checks/FileHeaderCheck/file2.js"), check);
+    file = scanFile("src/test/resources/checks/FileHeaderCheck/file2.js", check);
     CheckMessagesVerifier.verify(file.getCheckMessages())
       .next().atLine(null).withMessage("Add or update the header of this file.");
 
     check = new FileHeaderCheck();
     check.headerFormat = "// copyright 2012";
 
-    file = JavaScriptAstScanner.scanSingleFile(new File("src/test/resources/checks/FileHeaderCheck/file2.js"), check);
+    file = scanFile("src/test/resources/checks/FileHeaderCheck/file2.js", check);
     CheckMessagesVerifier.verify(file.getCheckMessages())
       .noMore();
 
     check = new FileHeaderCheck();
     check.headerFormat = "// copyright 2012\n// foo";
 
-    file = JavaScriptAstScanner.scanSingleFile(new File("src/test/resources/checks/FileHeaderCheck/file2.js"), check);
+    file = scanFile("src/test/resources/checks/FileHeaderCheck/file2.js", check);
     CheckMessagesVerifier.verify(file.getCheckMessages())
       .noMore();
 
     check = new FileHeaderCheck();
     check.headerFormat = "// copyright 2012\r\n// foo";
 
-    file = JavaScriptAstScanner.scanSingleFile(new File("src/test/resources/checks/FileHeaderCheck/file2.js"), check);
+    file = scanFile("src/test/resources/checks/FileHeaderCheck/file2.js", check);
     CheckMessagesVerifier.verify(file.getCheckMessages())
       .noMore();
 
     check = new FileHeaderCheck();
     check.headerFormat = "// copyright 2012\r// foo";
 
-    file = JavaScriptAstScanner.scanSingleFile(new File("src/test/resources/checks/FileHeaderCheck/file2.js"), check);
+    file = scanFile("src/test/resources/checks/FileHeaderCheck/file2.js", check);
     CheckMessagesVerifier.verify(file.getCheckMessages())
       .noMore();
 
     check = new FileHeaderCheck();
     check.headerFormat = "// copyright 2012\r\r// foo";
 
-    file = JavaScriptAstScanner.scanSingleFile(new File("src/test/resources/checks/FileHeaderCheck/file2.js"), check);
+    file = scanFile("src/test/resources/checks/FileHeaderCheck/file2.js", check);
     CheckMessagesVerifier.verify(file.getCheckMessages())
       .next().atLine(null);
 
     check = new FileHeaderCheck();
     check.headerFormat = "// copyright 2012\n// foo\n\n\n\n\n\n\n\n\n\ngfoo";
 
-    file = JavaScriptAstScanner.scanSingleFile(new File("src/test/resources/checks/FileHeaderCheck/file2.js"), check);
+    file = scanFile("src/test/resources/checks/FileHeaderCheck/file2.js", check);
     CheckMessagesVerifier.verify(file.getCheckMessages())
       .next().atLine(null);
 
     check = new FileHeaderCheck();
     check.headerFormat = "/*foo http://www.example.org*/";
 
-    file = JavaScriptAstScanner.scanSingleFile(new File("src/test/resources/checks/FileHeaderCheck/file3.js"), check);
+    file = scanFile("src/test/resources/checks/FileHeaderCheck/file3.js", check);
     CheckMessagesVerifier.verify(file.getCheckMessages())
       .noMore();
   }
