@@ -21,15 +21,14 @@ package org.sonar.plugins.javascript.unittest.jstestdriver;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyDouble;
 import static org.mockito.Matchers.anyObject;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 import java.io.File;
@@ -81,12 +80,9 @@ public class JsTestDriverSensorTest {
 
   @Test
   public void testAnalyseUnitTests() {
-    DefaultInputFile inputFile = newTestInputFile("PersonTest.js", "org/sonar/plugins/javascript/unittest/jstestdriver/sensortests/test/PersonTest.js");
-
     settings.setProperty(JavaScriptPlugin.JSTESTDRIVER_REPORTS_PATH, "reports/jstestdriver");
-    fileSystem.setBaseDir(PROJECT_BASE_DIR);
-    fileSystem.add(inputFile);
-    when(context.getResource(any(InputFile.class))).thenReturn(org.sonar.api.resources.File.create(inputFile.relativePath()));
+    initFilesystem();
+    when(context.getResource(any(InputFile.class))).thenReturn(org.sonar.api.resources.File.create("PersonTest.js"));
 
     sensor.analyse(project, context);
 
@@ -101,8 +97,7 @@ public class JsTestDriverSensorTest {
   @Test
   public void wrong_file_name_in_report() {
     settings.setProperty(JavaScriptPlugin.JSTESTDRIVER_REPORTS_PATH, "reports/wrong-jstestdriver-report");
-    fileSystem.setBaseDir(PROJECT_BASE_DIR);
-    fileSystem.add(newTestInputFile("PersonTest.js", "org/sonar/plugins/javascript/unittest/jstestdriver/sensortests/test/PersonTest.js"));
+    initFilesystem();
 
     sensor.analyse(project, context);
 
@@ -118,6 +113,28 @@ public class JsTestDriverSensorTest {
   }
 
   @Test
+  public void get_testfile_with_common_suffix_filename() {
+    initFilesystem();
+
+    InputFile inputFile1 = sensor.getTestFileRelativePathToBaseDir("PersonTest.js");
+    assertNotNull(inputFile1);
+    assertEquals("PersonTest.js", inputFile1.relativePath());
+  }
+
+  @Test
+  public void get_testfile_with_directory() {
+    initFilesystem();
+
+    InputFile inputFile1 = sensor.getTestFileRelativePathToBaseDir("AnotherPersonTest.js");
+    assertNotNull(inputFile1);
+    assertEquals("AnotherPersonTest.js", inputFile1.relativePath());
+
+    InputFile inputFile2 = sensor.getTestFileRelativePathToBaseDir("awesome/AnotherPersonTest.js");
+    assertNotNull(inputFile2);
+    assertEquals("awesome/AnotherPersonTest.js", inputFile2.relativePath());
+  }
+
+  @Test
   public void test_toString() {
     assertThat(sensor.toString()).isEqualTo("JsTestDriverSensor");
   }
@@ -127,6 +144,13 @@ public class JsTestDriverSensorTest {
       .setAbsolutePath(TestUtils.getResource(path).getAbsolutePath())
       .setType(InputFile.Type.TEST)
       .setLanguage(JavaScript.KEY);
+  }
+
+  private void initFilesystem() {
+    fileSystem.setBaseDir(PROJECT_BASE_DIR);
+    fileSystem.add(newTestInputFile("awesome/AnotherPersonTest.js", "org/sonar/plugins/javascript/unittest/jstestdriver/sensortests/test/awesome/AnotherPersonTest.js"));
+    fileSystem.add(newTestInputFile("AnotherPersonTest.js", "org/sonar/plugins/javascript/unittest/jstestdriver/sensortests/test/AnotherPersonTest.js"));
+    fileSystem.add(newTestInputFile("PersonTest.js", "org/sonar/plugins/javascript/unittest/jstestdriver/sensortests/test/PersonTest.js"));
   }
 
 }

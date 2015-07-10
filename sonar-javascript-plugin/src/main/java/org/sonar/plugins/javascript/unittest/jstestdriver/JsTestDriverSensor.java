@@ -20,6 +20,7 @@
 package org.sonar.plugins.javascript.unittest.jstestdriver;
 
 import java.io.File;
+import java.util.Iterator;
 
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -103,13 +104,17 @@ public class JsTestDriverSensor implements Sensor {
   }
 
   protected InputFile getTestFileRelativePathToBaseDir(String fileName) {
-    for (InputFile inputFile : fileSystem.inputFiles(testFilePredicate)) {
+    FilePredicate predicate = fileSystem.predicates().and(
+            testFilePredicate,
+            fileSystem.predicates().matchesPathPattern("**" + File.separatorChar + fileName)
+    );
 
-      if (inputFile.file().getAbsolutePath().endsWith(fileName)) {
-        LOG.debug("Found potential test file corresponding to file name: {}", fileName);
-        LOG.debug("Will fetch SonarQube associated resource with (logical) relative path to project base directory: {}", inputFile.relativePath());
-        return inputFile;
-      }
+    Iterator<InputFile> fileIterator = fileSystem.inputFiles(predicate).iterator();
+    if (fileIterator.hasNext()) {
+      InputFile inputFile = fileIterator.next();
+      LOG.debug("Found potential test file corresponding to file name: {}", fileName);
+      LOG.debug("Will fetch SonarQube associated resource with (logical) relative path to project base directory: {}", inputFile.relativePath());
+      return inputFile;
     }
     return null;
   }
