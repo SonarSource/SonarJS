@@ -27,6 +27,7 @@ import org.sonar.javascript.ast.visitors.VisitorsBridge;
 import org.sonar.squidbridge.api.SourceFile;
 
 import java.io.File;
+import java.nio.charset.Charset;
 
 /**
  * Helper class to test check.
@@ -38,9 +39,12 @@ public class CheckTest {
    * Scan the given file with the given check.
    */
   public SourceFile scanFile(String fileName, JavaScriptFileScanner check) {
+    DefaultFileSystem fs = new DefaultFileSystem();
+    fs.setEncoding(Charset.defaultCharset());
+
     return JavaScriptAstScanner.scanSingleFile(
       new File(fileName),
-      new VisitorsBridge(Lists.newArrayList(check), null, new DefaultFileSystem(), settings()));
+      new VisitorsBridge(Lists.newArrayList(check), null, fs, settings()));
   }
 
 

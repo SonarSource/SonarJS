@@ -21,21 +21,22 @@ package org.sonar.javascript.checks;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
+import java.util.Collections;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.server.rule.RulesDefinition;
-import org.sonar.api.utils.SonarException;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.javascript.CharsetAwareVisitor;
+import org.sonar.plugins.javascript.api.AstTreeVisitorContext;
+import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
 import org.sonar.squidbridge.annotations.ActivatedByDefault;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
-import org.sonar.squidbridge.checks.SquidCheck;
-import org.sonar.sslr.parser.LexerlessGrammar;
 
 import com.google.common.io.Files;
-import com.sonar.sslr.api.AstNode;
 
 @Rule(
   key = "TabCharacter",
@@ -45,29 +46,36 @@ import com.sonar.sslr.api.AstNode;
 @ActivatedByDefault
 @SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.READABILITY)
 @SqaleConstantRemediation("2min")
-public class TabCharacterCheck extends SquidCheck<LexerlessGrammar> implements CharsetAwareVisitor {
+public class TabCharacterCheck extends BaseTreeVisitor implements CharsetAwareVisitor {
 
+  private static final Logger LOG = LoggerFactory.getLogger(TabCharacterCheck.class);
   private Charset charset;
+
+  @Override
+  public void scanFile(AstTreeVisitorContext context) {
+    super.scanFile(context);
+
+    List<String> lines = Collections.emptyList();
+
+    try {
+      lines = Files.readLines(getContext().getFile(), charset);
+
+    } catch (IOException e) {
+      LOG.error("Unable to execute rule \"TabCharacter\" for file {} because of error: {}",
+        getContext().getFile().getName(), e);
+    }
+
+    for (int i = 0; i < lines.size(); i++) {
+      if (lines.get(i).contains("\t")) {
+        getContext().addIssue(this, i + 1, "Replace all tab characters in this file by sequences of white-spaces.");
+        break;
+      }
+    }
+  }
 
   @Override
   public void setCharset(Charset charset) {
     this.charset = charset;
-  }
-
-  @Override
-  public void visitFile(AstNode astNode) {
-    List<String> lines;
-    try {
-      lines = Files.readLines(getContext().getFile(), charset);
-    } catch (IOException e) {
-      throw new SonarException(e);
-    }
-    for (int i = 0; i < lines.size(); i++) {
-      if (lines.get(i).contains("\t")) {
-        getContext().createLineViolation(this, "Replace all tab characters in this file by sequences of white-spaces.", i + 1);
-        break;
-      }
-    }
   }
 
 }
