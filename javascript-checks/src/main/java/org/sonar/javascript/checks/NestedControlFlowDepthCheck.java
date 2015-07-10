@@ -23,14 +23,23 @@ import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
+import org.sonar.javascript.model.internal.statement.IfStatementTreeImpl;
+import org.sonar.plugins.javascript.api.AstTreeVisitorContext;
+import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
+import org.sonar.plugins.javascript.api.tree.statement.DoWhileStatementTree;
+import org.sonar.plugins.javascript.api.tree.statement.ElseClauseTree;
+import org.sonar.plugins.javascript.api.tree.statement.ForInStatementTree;
+import org.sonar.plugins.javascript.api.tree.statement.ForOfStatementTree;
+import org.sonar.plugins.javascript.api.tree.statement.ForStatementTree;
+import org.sonar.plugins.javascript.api.tree.statement.IfStatementTree;
+import org.sonar.plugins.javascript.api.tree.statement.SwitchStatementTree;
+import org.sonar.plugins.javascript.api.tree.statement.TryStatementTree;
+import org.sonar.plugins.javascript.api.tree.statement.WhileStatementTree;
+import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
 import org.sonar.squidbridge.annotations.ActivatedByDefault;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
-import org.sonar.squidbridge.checks.SquidCheck;
-import org.sonar.sslr.parser.LexerlessGrammar;
-
-import com.sonar.sslr.api.AstNode;
 
 @Rule(
   key = "NestedIfDepth",
@@ -40,11 +49,10 @@ import com.sonar.sslr.api.AstNode;
 @ActivatedByDefault
 @SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.LOGIC_CHANGEABILITY)
 @SqaleConstantRemediation("10min")
-public class NestedControlFlowDepthCheck extends SquidCheck<LexerlessGrammar> {
-
-  private int nestedLevel;
+public class NestedControlFlowDepthCheck extends BaseTreeVisitor {
 
   private static final int DEFAULT_MAXIMUM_NESTING_LEVEL = 3;
+  private int nestedLevel;
 
   @RuleProperty(
     key = "maximumNestingLevel",
@@ -57,43 +65,94 @@ public class NestedControlFlowDepthCheck extends SquidCheck<LexerlessGrammar> {
   }
 
   @Override
-  public void init() {
-    subscribeTo(
-      Kind.IF_STATEMENT,
-      Kind.FOR_STATEMENT,
-      Kind.FOR_IN_STATEMENT,
-      Kind.WHILE_STATEMENT,
-      Kind.DO_WHILE_STATEMENT,
-      Kind.SWITCH_STATEMENT,
-      Kind.TRY_STATEMENT);
-  }
-
-  @Override
-  public void visitFile(AstNode astNode) {
+  public void scanFile(AstTreeVisitorContext context) {
+    super.scanFile(context);
     nestedLevel = 0;
   }
 
   @Override
-  public void visitNode(AstNode astNode) {
-    if (!isElseIf(astNode)) {
-      nestedLevel++;
-      if (nestedLevel == getMaximumNestingLevel() + 1) {
-        getContext().createLineViolation(this, "Refactor this code to not nest more than {0} if/for/while/switch/try statements.",
-          astNode,
-          getMaximumNestingLevel());
-      }
-    }
+  public void visitIfStatement(IfStatementTree tree) {
+    nestedLevel++;
+    checkNestedLevel(tree);
+    visitIf(tree);
+    nestedLevel--;
   }
 
   @Override
-  public void leaveNode(AstNode astNode) {
-    if (!isElseIf(astNode)) {
-      nestedLevel--;
+  public void visitForStatement(ForStatementTree tree) {
+    nestedLevel++;
+    checkNestedLevel(tree);
+    super.visitForStatement(tree);
+    nestedLevel--;
+  }
+
+  @Override
+  public void visitForInStatement(ForInStatementTree tree) {
+    nestedLevel++;
+    checkNestedLevel(tree);
+    super.visitForInStatement(tree);
+    nestedLevel--;
+  }
+
+  @Override
+  public void visitForOfStatement(ForOfStatementTree tree) {
+    nestedLevel++;
+    checkNestedLevel(tree);
+    super.visitForOfStatement(tree);
+    nestedLevel--;
+  }
+
+  @Override
+  public void visitWhileStatement(WhileStatementTree tree) {
+    nestedLevel++;
+    checkNestedLevel(tree);
+    super.visitWhileStatement(tree);
+    nestedLevel--;
+  }
+
+  @Override
+  public void visitDoWhileStatement(DoWhileStatementTree tree) {
+    nestedLevel++;
+    checkNestedLevel(tree);
+    super.visitDoWhileStatement(tree);
+    nestedLevel--;
+  }
+
+  @Override
+  public void visitSwitchStatement(SwitchStatementTree tree) {
+    nestedLevel++;
+    checkNestedLevel(tree);
+    super.visitSwitchStatement(tree);
+    nestedLevel--;
+  }
+
+  @Override
+  public void visitTryStatement(TryStatementTree tree) {
+    nestedLevel++;
+    checkNestedLevel(tree);
+    super.visitTryStatement(tree);
+    nestedLevel--;
+  }
+
+  private void checkNestedLevel(Tree tree) {
+    if (nestedLevel == getMaximumNestingLevel() + 1) {
+      getContext().addIssue(this, tree,
+        String.format("Refactor this code to not nest more than %s if/for/while/switch/try statements.",
+          getMaximumNestingLevel()));
     }
   }
 
-  private static boolean isElseIf(AstNode astNode) {
-    return astNode.is(Kind.IF_STATEMENT) && astNode.getParent().is(Kind.ELSE_CLAUSE);
+  private void visitIf(IfStatementTree tree) {
+    scan(tree.condition());
+    scan(tree.statement());
+
+    ElseClauseTree elseClauseTree = tree.elseClause();
+    if (tree.elseClause() != null && elseClauseTree.statement().is(Kind.IF_STATEMENT)) {
+      visitIf(((IfStatementTreeImpl) tree.elseClause().statement()));
+
+    } else {
+      scan(tree.elseClause());
+    }
   }
 
 }
