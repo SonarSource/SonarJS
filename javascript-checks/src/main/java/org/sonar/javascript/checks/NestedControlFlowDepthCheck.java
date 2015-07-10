@@ -148,7 +148,7 @@ public class NestedControlFlowDepthCheck extends BaseTreeVisitor {
 
     ElseClauseTree elseClauseTree = tree.elseClause();
     if (tree.elseClause() != null && elseClauseTree.statement().is(Kind.IF_STATEMENT)) {
-      visitIf(((IfStatementTreeImpl) tree.elseClause().statement()));
+      visitIf((IfStatementTreeImpl) tree.elseClause().statement());
 
     } else {
       scan(tree.elseClause());
