@@ -27,6 +27,7 @@ import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.component.ResourcePerspectives;
 import org.sonar.api.config.Settings;
 import org.sonar.api.source.Symbolizable;
+import org.sonar.javascript.CharsetAwareVisitor;
 import org.sonar.javascript.ast.resolve.SymbolModelImpl;
 import org.sonar.javascript.highlighter.SourceFileOffsets;
 import org.sonar.plugins.javascript.api.JavaScriptFileScanner;
@@ -69,6 +70,10 @@ public class VisitorsBridge extends SquidAstVisitor<LexerlessGrammar> {
           symbolModel,
           settings
         ));
+
+        if (scanner instanceof CharsetAwareVisitor) {
+          ((CharsetAwareVisitor) scanner).setCharset(fs.encoding());
+        }
       }
     }
   }
