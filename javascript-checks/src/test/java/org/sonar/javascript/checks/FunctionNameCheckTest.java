@@ -38,6 +38,17 @@ public class FunctionNameCheckTest {
       .next().atLine(10)
       .next().atLine(17)
       .next().atLine(23)
+      .next().atLine(29)
+      .next().atLine(33)
+      .next().atLine(37)
+      .next().atLine(42)
+      .next().atLine(46)
+      .next().atLine(50)
+      .next().atLine(54)
+      .next().atLine(58)
+      .next().atLine(67)
+      .next().atLine(71)
+      .next().atLine(85)
       .noMore();
   }
 
@@ -51,6 +62,18 @@ public class FunctionNameCheckTest {
       .next().atLine(7)
       .next().atLine(14)
       .next().atLine(20)
+      .next().atLine(27)
+      .next().atLine(31)
+      .next().atLine(35)
+      .next().atLine(40)
+      .next().atLine(44)
+      .next().atLine(48)
+      .next().atLine(52)
+      .next().atLine(56)
+      .next().atLine(65)
+      .next().atLine(69)
+      .next().atLine(74)
+      .next().atLine(82)
       .noMore();
   }
 }

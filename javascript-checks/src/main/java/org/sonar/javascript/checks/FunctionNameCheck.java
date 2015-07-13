@@ -29,6 +29,8 @@ import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.squidbridge.annotations.ActivatedByDefault;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
+import org.sonar.squidbridge.api.CheckMessage;
+import org.sonar.squidbridge.api.SourceCode;
 import org.sonar.squidbridge.checks.SquidCheck;
 import org.sonar.sslr.parser.LexerlessGrammar;
 
@@ -58,22 +60,67 @@ public class FunctionNameCheck extends SquidCheck<LexerlessGrammar> {
     pattern = Pattern.compile(format);
     subscribeTo(
       Kind.FUNCTION_DECLARATION,
+      Kind.FUNCTION_EXPRESSION,
       Kind.GENERATOR_DECLARATION,
+      Kind.GENERATOR_FUNCTION_EXPRESSION,
       Kind.GENERATOR_METHOD,
       Kind.METHOD);
   }
 
   @Override
   public void visitNode(AstNode astNode) {
-    String identifier = astNode.getFirstChild(
-      Kind.BINDING_IDENTIFIER,
-      Kind.IDENTIFIER_NAME).getTokenValue();
+    final AstNode identifierNode = findIdentifierNode(astNode);
 
+    if (identifierNode != null) {
+      final String identifier = identifierNode.getTokenValue();
 
-    if (!pattern.matcher(identifier).matches()) {
-      getContext().createLineViolation(this, "Rename this ''{0}'' function to match the regular expression {1}", astNode,
-        identifier,
-        format);
+      if (!pattern.matcher(identifier).matches()
+          && !checkIfViolationAlreadyExists(getContext().peekSourceCode(), identifierNode)) {
+        getContext().createLineViolation(this, "Rename this ''{0}'' function to match the regular expression {1}", identifierNode,
+          identifier,
+          format);
+      }
     }
+  }
+
+  private boolean checkIfViolationAlreadyExists(final SourceCode sourceCode, final AstNode node) {
+    for (final CheckMessage checkMessage : sourceCode.getCheckMessages()) {
+      if (checkMessage.getCheck().getClass() == this.getClass()
+          && checkMessage.getLine() == node.getTokenLine()) {
+        return true;
+      }
+    }
+
+    final SourceCode parentSourceCode = sourceCode.getParent();
+    if (parentSourceCode != null 
+        && checkIfViolationAlreadyExists(parentSourceCode, node)) {
+      return true;
+    }
+
+    return false;
+  }
+
+  private static AstNode findIdentifierNode(final AstNode astNode) {
+    final AstNode parentNode;
+    if (astNode.getType() == Kind.FUNCTION_EXPRESSION
+        || astNode.getType() == Kind.GENERATOR_FUNCTION_EXPRESSION) {
+      parentNode = astNode.getFirstAncestor(
+          Kind.ARGUMENTS, 
+          Kind.PAIR_PROPERTY, 
+          Kind.INITIALIZED_BINDING_ELEMENT);
+    } else {
+      parentNode = astNode;
+    }
+
+    final AstNode identifierNode;
+    if (parentNode != null) {
+      identifierNode = parentNode.getFirstChild(
+          Kind.BINDING_IDENTIFIER,
+          Kind.IDENTIFIER_NAME);
+    } else {
+      identifierNode = null;
+    }
+
+    return identifierNode;
   }
 }
