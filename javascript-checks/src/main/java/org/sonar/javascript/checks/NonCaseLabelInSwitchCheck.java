@@ -19,16 +19,21 @@
  */
 package org.sonar.javascript.checks;
 
+import com.google.common.collect.ImmutableList;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
-import org.sonar.plugins.javascript.api.tree.ScriptTree;
-import org.sonar.plugins.javascript.api.tree.statement.CaseClauseTree;
+import org.sonar.javascript.checks.utils.SubscriptionBaseVisitor;
+import org.sonar.plugins.javascript.api.tree.Tree;
+import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.statement.LabelledStatementTree;
-import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
 import org.sonar.squidbridge.annotations.ActivatedByDefault;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
+
+import java.util.ArrayDeque;
+import java.util.Deque;
+import java.util.List;
 
 @Rule(
   key = "S1219",
@@ -38,30 +43,69 @@ import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 @ActivatedByDefault
 @SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.READABILITY)
 @SqaleConstantRemediation("10min")
-public class NonCaseLabelInSwitchCheck extends BaseTreeVisitor {
+public class NonCaseLabelInSwitchCheck extends SubscriptionBaseVisitor {
 
-  private boolean inCase;
+  private Deque<Integer> stack = new ArrayDeque<>();
 
   @Override
-  public void visitScript(ScriptTree tree) {
-    inCase = false;
-    super.visitScript(tree);
+  public List<Kind> nodesToVisit() {
+    return ImmutableList.<Kind>builder()
+      .add(Kind.LABELLED_STATEMENT, Kind.CASE_CLAUSE)
+      .add(
+        Kind.FUNCTION_EXPRESSION,
+        Kind.FUNCTION_DECLARATION,
+        Kind.GENERATOR_FUNCTION_EXPRESSION,
+        Kind.GENERATOR_DECLARATION)
+      .build();
   }
 
   @Override
-  public void visitLabelledStatement(LabelledStatementTree tree) {
-    if (inCase) {
-      getContext().addIssue(this, tree, String.format("Remove this misleading \"%s\" label.", tree.label().name()));
+  public void visitFile(Tree scriptTree) {
+    stack.clear();
+    stack.push(0);
+  }
+
+  @Override
+  public void visitNode(Tree tree) {
+    if (tree.is(Kind.CASE_CLAUSE)) {
+      enterCase();
+
+    } else if (tree.is(Kind.LABELLED_STATEMENT)) {
+
+      if (inCase()) {
+        getContext().addIssue(this, tree,
+          String.format("Remove this misleading \"%s\" label.", ((LabelledStatementTree) tree).label().name()));
+      }
+
+    } else {
+      stack.push(0);
     }
-
-    super.visitLabelledStatement(tree);
   }
 
+
   @Override
-  public void visitCaseClause(CaseClauseTree tree) {
-    inCase = true;
-    super.visitCaseClause(tree);
-    inCase = false;
+  public void leaveNode(Tree tree) {
+    if (tree.is(Kind.CASE_CLAUSE)) {
+      leaveCase();
+
+    } else if (tree.is(Kind.LABELLED_STATEMENT)) {
+      // do nothing
+
+    } else {
+      stack.pop();
+    }
+  }
+
+  private void leaveCase() {
+    stack.push(stack.pop() - 1);
+  }
+
+  private boolean inCase() {
+    return stack.peek() > 0;
+  }
+
+  private void enterCase() {
+    stack.push(stack.pop() + 1);
   }
 
 }
