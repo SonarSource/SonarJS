@@ -19,6 +19,7 @@
  */
 package org.sonar.plugins.javascript.api;
 
+import com.google.common.base.Charsets;
 import com.google.common.collect.Lists;
 import org.sonar.api.batch.fs.internal.DefaultFileSystem;
 import org.sonar.api.config.Settings;
@@ -27,7 +28,6 @@ import org.sonar.javascript.ast.visitors.VisitorsBridge;
 import org.sonar.squidbridge.api.SourceFile;
 
 import java.io.File;
-import java.nio.charset.Charset;
 
 /**
  * Helper class to test check.
@@ -40,7 +40,7 @@ public class CheckTest {
    */
   public SourceFile scanFile(String fileName, JavaScriptFileScanner check) {
     DefaultFileSystem fs = new DefaultFileSystem();
-    fs.setEncoding(Charset.defaultCharset());
+    fs.setEncoding(Charsets.UTF_8);
 
     return JavaScriptAstScanner.scanSingleFile(
       new File(fileName),
@@ -49,6 +49,6 @@ public class CheckTest {
 
 
   public Settings settings() {
-   return new Settings();
+    return new Settings();
   }
 }
