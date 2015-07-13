@@ -19,9 +19,7 @@
  */
 package org.sonar.javascript.checks;
 
-import java.util.List;
-import java.util.Stack;
-
+import com.google.common.collect.ImmutableList;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
@@ -29,12 +27,13 @@ import org.sonar.javascript.checks.utils.CheckUtils;
 import org.sonar.javascript.checks.utils.SubscriptionBaseVisitor;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
-import org.sonar.plugins.javascript.api.tree.statement.IterationStatementTree;
 import org.sonar.squidbridge.annotations.ActivatedByDefault;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 
-import com.google.common.collect.ImmutableList;
+import java.util.ArrayDeque;
+import java.util.Deque;
+import java.util.List;
 
 @Rule(
   key = "FunctionDefinitionInsideLoop",
@@ -46,7 +45,7 @@ import com.google.common.collect.ImmutableList;
 @SqaleConstantRemediation("30min")
 public class FunctionDefinitionInsideLoopCheck extends SubscriptionBaseVisitor {
 
-  private Stack<Integer> scope = new Stack<>();
+  private Deque<Integer> scope = new ArrayDeque<>();
 
   @Override
   public List<Kind> nodesToVisit() {
@@ -67,7 +66,7 @@ public class FunctionDefinitionInsideLoopCheck extends SubscriptionBaseVisitor {
 
   @Override
   public void visitNode(Tree tree) {
-    if (tree instanceof IterationStatementTree) {
+    if (tree.is(CheckUtils.iterationStatementsArray())) {
       incrementLoopLevelinScope();
 
     } else {
@@ -80,7 +79,7 @@ public class FunctionDefinitionInsideLoopCheck extends SubscriptionBaseVisitor {
 
   @Override
   public void leaveNode(Tree tree) {
-    if (tree instanceof IterationStatementTree) {
+    if (tree.is(CheckUtils.iterationStatementsArray())) {
       decrementLoopLevelinScope();
 
     } else {
