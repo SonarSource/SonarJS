@@ -19,8 +19,6 @@
  */
 package org.sonar.javascript.checks;
 
-import java.util.regex.Pattern;
-
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
@@ -36,6 +34,9 @@ import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
 import org.sonar.squidbridge.annotations.ActivatedByDefault;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
+
+import javax.annotation.Nullable;
+import java.util.regex.Pattern;
 
 @Rule(
   key = "S100",
@@ -80,7 +81,7 @@ public class FunctionNameCheck extends BaseTreeVisitor {
     super.visitFunctionExpression(tree);
   }
 
-  public void checkName(ExpressionTree tree) {
+  private void checkName(@Nullable ExpressionTree tree) {
     if (tree != null) {
       String name = tree instanceof IdentifierTree ? ((IdentifierTree) tree).name() : CheckUtils.asString(tree);
 
