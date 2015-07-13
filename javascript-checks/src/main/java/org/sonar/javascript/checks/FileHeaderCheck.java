@@ -19,12 +19,7 @@
  */
 package org.sonar.javascript.checks;
 
-import java.io.IOException;
-import java.nio.charset.Charset;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
-
+import com.google.common.io.Files;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.check.Priority;
@@ -35,7 +30,11 @@ import org.sonar.plugins.javascript.api.AstTreeVisitorContext;
 import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
 import org.sonar.squidbridge.annotations.NoSqale;
 
-import com.google.common.io.Files;
+import java.io.IOException;
+import java.nio.charset.Charset;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
 
 @Rule(
   key = "S1451",
@@ -65,22 +64,21 @@ public class FileHeaderCheck extends BaseTreeVisitor implements CharsetAwareVisi
 
   @Override
   public void scanFile(AstTreeVisitorContext context) {
-    super.scanFile(context);
-    // FIXME martin: should be done in a init method
+    // TODO martin: should be done in a init method
     expectedLines = headerFormat.split("(?:\r)?\n|\r");
 
     List<String> lines = Collections.emptyList();
 
     try {
-      lines = Files.readLines(getContext().getFile(), charset);
+      lines = Files.readLines(context.getFile(), charset);
 
     } catch (IOException e) {
       LOG.error("Unable to execute rule \"TabCharacter\" for file {} because of error: {}",
-        getContext().getFile().getName(), e);
+        context.getFile().getName(), e);
     }
 
     if (!matches(expectedLines, lines)) {
-      getContext().addFileIssue(this, "Add or update the header of this file.");
+      context.addFileIssue(this, "Add or update the header of this file.");
     }
   }
 
