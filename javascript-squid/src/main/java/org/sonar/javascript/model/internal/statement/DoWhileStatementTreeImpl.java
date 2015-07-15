@@ -22,6 +22,7 @@ package org.sonar.javascript.model.internal.statement;
 import com.google.common.collect.Iterators;
 import com.sonar.sslr.api.AstNode;
 import com.sonar.sslr.api.AstNodeType;
+import org.sonar.plugins.javascript.api.tree.statement.EndOfStatementTree;
 import org.sonar.plugins.javascript.api.visitors.TreeVisitor;
 import org.sonar.javascript.model.internal.JavaScriptTree;
 import org.sonar.javascript.model.internal.lexical.InternalSyntaxToken;
@@ -41,9 +42,10 @@ public class DoWhileStatementTreeImpl extends JavaScriptTree implements DoWhileS
   private final ExpressionTree condition;
   private final SyntaxToken closingParenthesis;
   private final StatementTree statement;
+  private final EndOfStatementTree eos;
 
   public DoWhileStatementTreeImpl(InternalSyntaxToken doKeyword, StatementTree statement, InternalSyntaxToken whileKeyword, InternalSyntaxToken openingParenthesis,
-    ExpressionTree condition, InternalSyntaxToken closingParenthesis, AstNode eos) {
+    ExpressionTree condition, InternalSyntaxToken closingParenthesis, EndOfStatementTreeImpl eos) {
     super(Kind.DO_WHILE_STATEMENT);
     this.doKeyword = doKeyword;
     this.whileKeyword = whileKeyword;
@@ -51,6 +53,7 @@ public class DoWhileStatementTreeImpl extends JavaScriptTree implements DoWhileS
     this.condition = condition;
     this.closingParenthesis = closingParenthesis;
     this.statement = statement;
+    this.eos = eos;
 
     addChildren(doKeyword, (AstNode) statement, whileKeyword, openingParenthesis, (AstNode) condition, closingParenthesis, eos);
   }
@@ -85,8 +88,8 @@ public class DoWhileStatementTreeImpl extends JavaScriptTree implements DoWhileS
   }
 
   @Override
-  public SyntaxToken endOfStatement() {
-    throw new UnsupportedOperationException("Not supported yet in the strongly typed AST.");
+  public EndOfStatementTree endOfStatement() {
+    return eos;
   }
 
   @Override

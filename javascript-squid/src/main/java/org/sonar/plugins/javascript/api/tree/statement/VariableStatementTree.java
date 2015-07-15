@@ -20,7 +20,6 @@
 package org.sonar.plugins.javascript.api.tree.statement;
 
 import com.google.common.annotations.Beta;
-import org.sonar.plugins.javascript.api.tree.Tree;
 
 /**
  * <a href="http://people.mozilla.org/~jorendorff/es6-draft.html#sec-variable-statement">Variable Statement</a>.
@@ -30,6 +29,6 @@ public interface VariableStatementTree extends StatementTree {
 
   VariableDeclarationTree declaration();
 
-  Tree endOfStatement();
+  EndOfStatementTree endOfStatement();
 
 }

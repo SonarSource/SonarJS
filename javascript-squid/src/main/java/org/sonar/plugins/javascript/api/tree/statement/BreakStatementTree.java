@@ -20,7 +20,6 @@
 package org.sonar.plugins.javascript.api.tree.statement;
 
 import com.google.common.annotations.Beta;
-import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 
@@ -41,6 +40,6 @@ public interface BreakStatementTree extends StatementTree {
   @Nullable
   IdentifierTree label();
 
-  Tree endOfStatement();
+  EndOfStatementTree endOfStatement();
 
 }

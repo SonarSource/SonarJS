@@ -20,16 +20,17 @@
 package org.sonar.javascript.model.internal.declaration;
 
 import com.google.common.collect.Iterators;
-import com.sonar.sslr.api.AstNode;
-import org.sonar.plugins.javascript.api.visitors.TreeVisitor;
 import org.sonar.javascript.model.internal.JavaScriptTree;
 import org.sonar.javascript.model.internal.lexical.InternalSyntaxToken;
+import org.sonar.javascript.model.internal.statement.EndOfStatementTreeImpl;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.declaration.DeclarationTree;
 import org.sonar.plugins.javascript.api.tree.declaration.FromClauseTree;
 import org.sonar.plugins.javascript.api.tree.declaration.ImportClauseTree;
 import org.sonar.plugins.javascript.api.tree.declaration.ImportDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
+import org.sonar.plugins.javascript.api.tree.statement.EndOfStatementTree;
+import org.sonar.plugins.javascript.api.visitors.TreeVisitor;
 
 import java.util.Iterator;
 
@@ -38,12 +39,14 @@ public class ImportDeclarationTreeImpl extends JavaScriptTree implements ImportD
   private SyntaxToken importToken;
   private ImportClauseTree importClause;
   private FromClauseTree fromClause;
+  private final EndOfStatementTree eos;
 
-  public ImportDeclarationTreeImpl(InternalSyntaxToken importToken, ImportClauseTreeImpl importClause, FromClauseTreeImpl fromClause, AstNode eos) {
+  public ImportDeclarationTreeImpl(InternalSyntaxToken importToken, ImportClauseTreeImpl importClause, FromClauseTreeImpl fromClause, EndOfStatementTreeImpl eos) {
     super(Kind.IMPORT_DECLARATION);
     this.importToken = importToken;
     this.importClause = importClause;
     this.fromClause = fromClause;
+    this.eos = eos;
 
     addChildren(importToken, importClause, fromClause, eos);
   }
@@ -64,8 +67,8 @@ public class ImportDeclarationTreeImpl extends JavaScriptTree implements ImportD
   }
 
   @Override
-  public Tree eos() {
-    throw new UnsupportedOperationException("Not supported yet in the strongly typed AST.");
+  public EndOfStatementTree endOfStatement() {
+    return eos;
   }
 
   @Override

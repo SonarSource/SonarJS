@@ -68,6 +68,7 @@ import org.sonar.javascript.model.internal.statement.DefaultClauseTreeImpl;
 import org.sonar.javascript.model.internal.statement.DoWhileStatementTreeImpl;
 import org.sonar.javascript.model.internal.statement.ElseClauseTreeImpl;
 import org.sonar.javascript.model.internal.statement.EmptyStatementTreeImpl;
+import org.sonar.javascript.model.internal.statement.EndOfStatementTreeImpl;
 import org.sonar.javascript.model.internal.statement.ExpressionStatementTreeImpl;
 import org.sonar.javascript.model.internal.statement.ForInStatementTreeImpl;
 import org.sonar.javascript.model.internal.statement.ForOfStatementTreeImpl;
@@ -120,12 +121,12 @@ public class ActionGrammar {
 
   public DebuggerStatementTree DEBUGGER_STATEMENT() {
     return b.<DebuggerStatementTreeImpl>nonterminal(Kind.DEBUGGER_STATEMENT)
-      .is(f.debuggerStatement(b.invokeRule(EcmaScriptKeyword.DEBUGGER), b.invokeRule(EcmaScriptGrammar.EOS)));
+      .is(f.debuggerStatement(b.invokeRule(EcmaScriptKeyword.DEBUGGER), END_OF_STATEMENT()));
   }
 
   public VariableStatementTreeImpl VARIABLE_STATEMENT() {
     return b.<VariableStatementTreeImpl>nonterminal(Kind.VARIABLE_STATEMENT)
-      .is(f.variableStatement(VARIABLE_DECLARATION(), b.invokeRule(EcmaScriptGrammar.EOS)));
+      .is(f.variableStatement(VARIABLE_DECLARATION(), END_OF_STATEMENT()));
   }
 
   public VariableDeclarationTreeImpl VARIABLE_DECLARATION() {
@@ -179,12 +180,12 @@ public class ActionGrammar {
     return b.<ContinueStatementTreeImpl>nonterminal()
       .is(f.newContinueWithLabel(
         b.invokeRule(EcmaScriptGrammar.IDENTIFIER_NO_LB),
-        b.invokeRule(EcmaScriptGrammar.EOS)));
+        END_OF_STATEMENT()));
   }
 
   public ContinueStatementTreeImpl CONTINUE_WITHOUT_LABEL() {
     return b.<ContinueStatementTreeImpl>nonterminal()
-      .is(f.newContinueWithoutLabel(b.invokeRule(EcmaScriptGrammar.EOS_NO_LB)));
+      .is(f.newContinueWithoutLabel(END_OF_STATEMENT_NO_LB()));
   }
 
   public BreakStatementTreeImpl BREAK_STATEMENT() {
@@ -201,12 +202,12 @@ public class ActionGrammar {
     return b.<BreakStatementTreeImpl>nonterminal()
       .is(f.newBreakWithLabel(
         b.invokeRule(EcmaScriptGrammar.IDENTIFIER_NO_LB),
-        b.invokeRule(EcmaScriptGrammar.EOS)));
+        END_OF_STATEMENT()));
   }
 
   public BreakStatementTreeImpl BREAK_WITHOUT_LABEL() {
     return b.<BreakStatementTreeImpl>nonterminal()
-      .is(f.newBreakWithoutLabel(b.invokeRule(EcmaScriptGrammar.EOS_NO_LB)));
+      .is(f.newBreakWithoutLabel(END_OF_STATEMENT_NO_LB()));
   }
 
   public ReturnStatementTreeImpl RETURN_STATEMENT() {
@@ -224,12 +225,12 @@ public class ActionGrammar {
       .is(
         f.newReturnWithExpression(
           EXPRESSION_NO_LINE_BREAK(),
-          b.invokeRule(EcmaScriptGrammar.EOS)));
+          END_OF_STATEMENT()));
   }
 
   public ReturnStatementTreeImpl RETURN_WITHOUT_EXPRESSION() {
     return b.<ReturnStatementTreeImpl>nonterminal()
-      .is(f.newReturnWithoutExpression(b.invokeRule(EcmaScriptGrammar.EOS_NO_LB)));
+      .is(f.newReturnWithoutExpression(END_OF_STATEMENT_NO_LB()));
   }
 
   public ThrowStatementTreeImpl THROW_STATEMENT() {
@@ -238,7 +239,7 @@ public class ActionGrammar {
         f.newThrowStatement(
           b.invokeRule(EcmaScriptKeyword.THROW),
           EXPRESSION_NO_LINE_BREAK(),
-          b.invokeRule(EcmaScriptGrammar.EOS)));
+          END_OF_STATEMENT()));
   }
 
   public WithStatementTreeImpl WITH_STATEMENT() {
@@ -365,12 +366,12 @@ public class ActionGrammar {
           b.invokeRule(EcmaScriptPunctuator.LPARENTHESIS),
           EXPRESSION(),
           b.invokeRule(EcmaScriptPunctuator.RPARENTHESIS),
-          b.invokeRule(EcmaScriptGrammar.EOS)));
+          END_OF_STATEMENT()));
   }
 
   public ExpressionStatementTreeImpl EXPRESSION_STATEMENT() {
     return b.<ExpressionStatementTreeImpl>nonterminal(Kind.EXPRESSION_STATEMENT)
-      .is(f.expressionStatement(b.invokeRule(EcmaScriptGrammar.NEXT_NOT_LCURLY_AND_FUNCTION), EXPRESSION(), b.invokeRule(EcmaScriptGrammar.EOS)));
+      .is(f.expressionStatement(b.invokeRule(EcmaScriptGrammar.NEXT_NOT_LCURLY_AND_FUNCTION), EXPRESSION(), END_OF_STATEMENT()));
   }
 
   /**
@@ -458,6 +459,16 @@ public class ActionGrammar {
           DEBUGGER_STATEMENT(),
           FUNCTION_AND_GENERATOR_DECLARATION(),
           CLASS_DECLARATION()));
+  }
+
+  public EndOfStatementTreeImpl END_OF_STATEMENT() {
+    return b.<EndOfStatementTreeImpl>nonterminal()
+    .is(f.endOfStatement1(b.invokeRule(EcmaScriptGrammar.EOS)));
+  }
+
+  public EndOfStatementTreeImpl END_OF_STATEMENT_NO_LB() {
+    return b.<EndOfStatementTreeImpl>nonterminal()
+      .is(f.endOfStatement2(b.invokeRule(EcmaScriptGrammar.EOS_NO_LB)));
   }
 
   /**
@@ -1266,7 +1277,7 @@ public class ActionGrammar {
         b.firstOf(
           FUNCTION_AND_GENERATOR_DECLARATION(),
           CLASS_DECLARATION(),
-          f.exportedExpressionStatement(b.invokeRule(EcmaScriptGrammar.NEXT_NOT_FUNCTION_AND_CLASS), ASSIGNMENT_EXPRESSION(), b.invokeRule(EcmaScriptGrammar.EOS)))
+          f.exportedExpressionStatement(b.invokeRule(EcmaScriptGrammar.NEXT_NOT_FUNCTION_AND_CLASS), ASSIGNMENT_EXPRESSION(), END_OF_STATEMENT()))
         ));
   }
 
@@ -1276,7 +1287,7 @@ public class ActionGrammar {
         f.namedExportDeclaration(
           b.invokeRule(EcmaScriptKeyword.EXPORT),
           b.firstOf(
-            f.exportClause(EXPORT_LIST(), b.optional(FROM_CLAUSE()), b.invokeRule(EcmaScriptGrammar.EOS)),
+            f.exportClause(EXPORT_LIST(), b.optional(FROM_CLAUSE()), END_OF_STATEMENT()),
             VARIABLE_STATEMENT(),
             CLASS_DECLARATION(),
             FUNCTION_AND_GENERATOR_DECLARATION())));
@@ -1308,7 +1319,7 @@ public class ActionGrammar {
         b.invokeRule(EcmaScriptKeyword.EXPORT),
         b.invokeRule(EcmaScriptPunctuator.STAR),
         FROM_CLAUSE(),
-        b.invokeRule(EcmaScriptGrammar.EOS)
+        END_OF_STATEMENT()
         ));
   }
 
@@ -1325,7 +1336,7 @@ public class ActionGrammar {
   public ImportModuleDeclarationTree IMPORT_MODULE_DECLARATION() {
     return b.<ImportModuleDeclarationTree>nonterminal()
       .is(f.importModuleDeclaration(
-        b.invokeRule(EcmaScriptKeyword.IMPORT), STRING_LITERAL(), b.invokeRule(EcmaScriptGrammar.EOS))
+        b.invokeRule(EcmaScriptKeyword.IMPORT), STRING_LITERAL(), END_OF_STATEMENT())
       );
   }
 
@@ -1380,7 +1391,7 @@ public class ActionGrammar {
           b.invokeRule(EcmaScriptKeyword.IMPORT),
           IMPORT_CLAUSE(),
           FROM_CLAUSE(),
-          b.invokeRule(EcmaScriptGrammar.EOS)),
+          END_OF_STATEMENT()),
         IMPORT_MODULE_DECLARATION()
         ));
   }

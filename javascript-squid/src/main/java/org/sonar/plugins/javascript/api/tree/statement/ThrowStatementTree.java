@@ -20,7 +20,6 @@
 package org.sonar.plugins.javascript.api.tree.statement;
 
 import com.google.common.annotations.Beta;
-import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 
@@ -37,6 +36,6 @@ public interface ThrowStatementTree extends StatementTree {
 
   ExpressionTree expression();
 
-  Tree endOfStatement();
+  EndOfStatementTree endOfStatement();
 
 }

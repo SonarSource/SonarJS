@@ -20,15 +20,16 @@
 package org.sonar.javascript.model.internal.declaration;
 
 import com.google.common.collect.Iterators;
-import com.sonar.sslr.api.AstNode;
-import org.sonar.plugins.javascript.api.visitors.TreeVisitor;
 import org.sonar.javascript.model.internal.JavaScriptTree;
 import org.sonar.javascript.model.internal.expression.LiteralTreeImpl;
 import org.sonar.javascript.model.internal.lexical.InternalSyntaxToken;
+import org.sonar.javascript.model.internal.statement.EndOfStatementTreeImpl;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.declaration.ImportModuleDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.expression.LiteralTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
+import org.sonar.plugins.javascript.api.tree.statement.EndOfStatementTree;
+import org.sonar.plugins.javascript.api.visitors.TreeVisitor;
 
 import java.util.Iterator;
 
@@ -36,11 +37,13 @@ public class ImportModuleDeclarationTreeImpl extends JavaScriptTree implements I
 
   private SyntaxToken importToken;
   private LiteralTree moduleName;
+  private final EndOfStatementTree eos;
 
-  public ImportModuleDeclarationTreeImpl(InternalSyntaxToken importToken, LiteralTreeImpl moduleName, AstNode eos) {
+  public ImportModuleDeclarationTreeImpl(InternalSyntaxToken importToken, LiteralTreeImpl moduleName, EndOfStatementTreeImpl eos) {
     super(Kind.IMPORT_MODULE_DECLARATION);
     this.importToken = importToken;
     this.moduleName = moduleName;
+    this.eos = eos;
 
     addChildren(importToken, moduleName, eos);
   }
@@ -56,8 +59,8 @@ public class ImportModuleDeclarationTreeImpl extends JavaScriptTree implements I
   }
 
   @Override
-  public Tree eos() {
-    throw new UnsupportedOperationException("Not supported yet in the strongly typed AST.");
+  public EndOfStatementTree endOfStatement() {
+    return eos;
   }
 
   @Override

@@ -20,23 +20,25 @@
 package org.sonar.javascript.model.internal.statement;
 
 import com.google.common.collect.Iterators;
-import com.sonar.sslr.api.AstNode;
-import org.sonar.plugins.javascript.api.visitors.TreeVisitor;
 import org.sonar.javascript.model.internal.JavaScriptTree;
 import org.sonar.javascript.model.internal.lexical.InternalSyntaxToken;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.javascript.api.tree.statement.DebuggerStatementTree;
+import org.sonar.plugins.javascript.api.tree.statement.EndOfStatementTree;
+import org.sonar.plugins.javascript.api.visitors.TreeVisitor;
 
 import java.util.Iterator;
 
 public class DebuggerStatementTreeImpl extends JavaScriptTree implements DebuggerStatementTree {
 
   private final SyntaxToken debuggerKeyword;
+  private final EndOfStatementTree eos;
 
-  public DebuggerStatementTreeImpl(InternalSyntaxToken debuggerKeyword, AstNode eos) {
+  public DebuggerStatementTreeImpl(InternalSyntaxToken debuggerKeyword, EndOfStatementTreeImpl eos) {
     super(Kind.DEBUGGER_STATEMENT);
     this.debuggerKeyword = debuggerKeyword;
+    this.eos = eos;
 
     addChild(debuggerKeyword);
     addChild(eos);
@@ -53,8 +55,8 @@ public class DebuggerStatementTreeImpl extends JavaScriptTree implements Debugge
   }
 
   @Override
-  public Tree endOfStatement() {
-    throw new UnsupportedOperationException("Not supported yet in the strongly typed AST.");
+  public EndOfStatementTree endOfStatement() {
+    return eos;
   }
 
   @Override

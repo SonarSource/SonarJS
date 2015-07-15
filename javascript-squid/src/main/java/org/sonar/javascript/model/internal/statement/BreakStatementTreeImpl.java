@@ -22,6 +22,7 @@ package org.sonar.javascript.model.internal.statement;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Iterators;
 import com.sonar.sslr.api.AstNode;
+import org.sonar.plugins.javascript.api.tree.statement.EndOfStatementTree;
 import org.sonar.plugins.javascript.api.visitors.TreeVisitor;
 import org.sonar.javascript.model.internal.JavaScriptTree;
 import org.sonar.javascript.model.internal.lexical.InternalSyntaxToken;
@@ -38,17 +39,20 @@ public class BreakStatementTreeImpl extends JavaScriptTree implements BreakState
   private SyntaxToken breakKeyword;
   @Nullable
   private final IdentifierTree label;
+  private final EndOfStatementTree eos;
 
-  public BreakStatementTreeImpl(AstNode eos) {
+  public BreakStatementTreeImpl(EndOfStatementTreeImpl eos) {
     super(Kind.BREAK_STATEMENT);
     this.label = null;
+    this.eos = eos;
 
     addChild(eos);
   }
 
-  public BreakStatementTreeImpl(IdentifierTree label, AstNode eos) {
+  public BreakStatementTreeImpl(IdentifierTree label, EndOfStatementTreeImpl eos) {
     super(Kind.BREAK_STATEMENT);
     this.label = label;
+    this.eos = eos;
 
     addChild((AstNode) label);
     addChild(eos);
@@ -79,8 +83,8 @@ public class BreakStatementTreeImpl extends JavaScriptTree implements BreakState
   }
 
   @Override
-  public Tree endOfStatement() {
-    throw new UnsupportedOperationException("Not supported yet in the strongly typed AST.");
+  public EndOfStatementTree endOfStatement() {
+    return eos;
   }
 
   @Override

@@ -22,13 +22,14 @@ package org.sonar.javascript.model.internal.statement;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Iterators;
 import com.sonar.sslr.api.AstNode;
-import org.sonar.plugins.javascript.api.visitors.TreeVisitor;
 import org.sonar.javascript.model.internal.JavaScriptTree;
 import org.sonar.javascript.model.internal.lexical.InternalSyntaxToken;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.javascript.api.tree.statement.ContinueStatementTree;
+import org.sonar.plugins.javascript.api.tree.statement.EndOfStatementTree;
+import org.sonar.plugins.javascript.api.visitors.TreeVisitor;
 
 import javax.annotation.Nullable;
 import java.util.Iterator;
@@ -38,17 +39,20 @@ public class ContinueStatementTreeImpl extends JavaScriptTree implements Continu
   private SyntaxToken continueKeyword;
   @Nullable
   private final IdentifierTree label;
+  private final EndOfStatementTree eos;
 
-  public ContinueStatementTreeImpl(AstNode eos) {
+  public ContinueStatementTreeImpl(EndOfStatementTreeImpl eos) {
     super(Kind.CONTINUE_STATEMENT);
     this.label = null;
+    this.eos = eos;
 
     addChild(eos);
   }
 
-  public ContinueStatementTreeImpl(IdentifierTree label, AstNode eos) {
+  public ContinueStatementTreeImpl(IdentifierTree label, EndOfStatementTreeImpl eos) {
     super(Kind.CONTINUE_STATEMENT);
     this.label = label;
+    this.eos = eos;
 
     addChild((AstNode) label);
     addChild(eos);
@@ -79,8 +83,8 @@ public class ContinueStatementTreeImpl extends JavaScriptTree implements Continu
   }
 
   @Override
-  public Tree endOfStatement() {
-    throw new UnsupportedOperationException("Not supported yet in the strongly typed AST.");
+  public EndOfStatementTree endOfStatement() {
+    return eos;
   }
 
   @Override

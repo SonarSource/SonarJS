@@ -20,14 +20,15 @@
 package org.sonar.javascript.model.internal.declaration;
 
 import com.google.common.collect.Iterators;
-import com.sonar.sslr.api.AstNode;
-import org.sonar.plugins.javascript.api.visitors.TreeVisitor;
 import org.sonar.javascript.model.internal.JavaScriptTree;
 import org.sonar.javascript.model.internal.lexical.InternalSyntaxToken;
+import org.sonar.javascript.model.internal.statement.EndOfStatementTreeImpl;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.declaration.FromClauseTree;
 import org.sonar.plugins.javascript.api.tree.declaration.NameSpaceExportDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
+import org.sonar.plugins.javascript.api.tree.statement.EndOfStatementTree;
+import org.sonar.plugins.javascript.api.visitors.TreeVisitor;
 
 import java.util.Iterator;
 
@@ -36,12 +37,14 @@ public class NameSpaceExportDeclarationTreeImpl extends JavaScriptTree implement
   private final SyntaxToken exportToken;
   private final SyntaxToken starToken;
   private final FromClauseTree fromClause;
+  private final EndOfStatementTree eos;
 
-  public NameSpaceExportDeclarationTreeImpl(InternalSyntaxToken exportToken, InternalSyntaxToken starToken, FromClauseTreeImpl fromClause, AstNode eos) {
+  public NameSpaceExportDeclarationTreeImpl(InternalSyntaxToken exportToken, InternalSyntaxToken starToken, FromClauseTreeImpl fromClause, EndOfStatementTreeImpl eos) {
     super(Kind.NAMESPACE_EXPORT_DECLARATION);
     this.exportToken = exportToken;
     this.starToken = starToken;
     this.fromClause = fromClause;
+    this.eos = eos;
 
     addChildren(exportToken, starToken, fromClause, eos);
   }
@@ -59,6 +62,11 @@ public class NameSpaceExportDeclarationTreeImpl extends JavaScriptTree implement
   @Override
   public FromClauseTree fromClause() {
     return fromClause;
+  }
+
+  @Override
+  public EndOfStatementTree endOfStatement() {
+    return eos;
   }
 
   @Override

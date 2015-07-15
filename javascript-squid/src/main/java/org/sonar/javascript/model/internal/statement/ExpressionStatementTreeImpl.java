@@ -22,6 +22,7 @@ package org.sonar.javascript.model.internal.statement;
 import com.google.common.collect.Iterators;
 import com.sonar.sslr.api.AstNode;
 import com.sonar.sslr.api.AstNodeType;
+import org.sonar.plugins.javascript.api.tree.statement.EndOfStatementTree;
 import org.sonar.plugins.javascript.api.visitors.TreeVisitor;
 import org.sonar.javascript.model.internal.JavaScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
@@ -33,11 +34,13 @@ import java.util.Iterator;
 public class ExpressionStatementTreeImpl extends JavaScriptTree implements ExpressionStatementTree {
 
   private final ExpressionTree expression;
+  private final EndOfStatementTree eos;
 
-  public ExpressionStatementTreeImpl(ExpressionTree expression, AstNode eos) {
+  public ExpressionStatementTreeImpl(ExpressionTree expression, EndOfStatementTreeImpl eos) {
     super(Kind.EXPRESSION_STATEMENT);
 
     this.expression = expression;
+    this.eos = eos;
 
     addChildren((AstNode) expression, eos);
   }
@@ -48,8 +51,8 @@ public class ExpressionStatementTreeImpl extends JavaScriptTree implements Expre
   }
 
   @Override
-  public Tree endOfStatement() {
-    throw new UnsupportedOperationException("Not supported yet in the strongly typed AST.");
+  public EndOfStatementTree endOfStatement() {
+    return eos;
   }
 
   @Override

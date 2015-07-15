@@ -19,10 +19,12 @@
  */
 package org.sonar.javascript.ast.parser;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-
+import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.sonar.sslr.api.AstNode;
+import com.sonar.sslr.api.AstNodeType;
 import org.apache.commons.collections.ListUtils;
 import org.sonar.javascript.api.EcmaScriptKeyword;
 import org.sonar.javascript.api.EcmaScriptPunctuator;
@@ -86,6 +88,7 @@ import org.sonar.javascript.model.internal.statement.DefaultClauseTreeImpl;
 import org.sonar.javascript.model.internal.statement.DoWhileStatementTreeImpl;
 import org.sonar.javascript.model.internal.statement.ElseClauseTreeImpl;
 import org.sonar.javascript.model.internal.statement.EmptyStatementTreeImpl;
+import org.sonar.javascript.model.internal.statement.EndOfStatementTreeImpl;
 import org.sonar.javascript.model.internal.statement.ExpressionStatementTreeImpl;
 import org.sonar.javascript.model.internal.statement.ForInStatementTreeImpl;
 import org.sonar.javascript.model.internal.statement.ForOfStatementTreeImpl;
@@ -100,6 +103,8 @@ import org.sonar.javascript.model.internal.statement.VariableDeclarationTreeImpl
 import org.sonar.javascript.model.internal.statement.VariableStatementTreeImpl;
 import org.sonar.javascript.model.internal.statement.WhileStatementTreeImpl;
 import org.sonar.javascript.model.internal.statement.WithStatementTreeImpl;
+import org.sonar.javascript.parser.EcmaScriptGrammar;
+import org.sonar.javascript.parser.sslr.Optional;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.declaration.BindingElementTree;
@@ -117,15 +122,10 @@ import org.sonar.plugins.javascript.api.tree.expression.TemplateCharactersTree;
 import org.sonar.plugins.javascript.api.tree.expression.TemplateExpressionTree;
 import org.sonar.plugins.javascript.api.tree.statement.StatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.SwitchClauseTree;
-import org.sonar.javascript.parser.EcmaScriptGrammar;
-import org.sonar.javascript.parser.sslr.Optional;
 
-import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.sonar.sslr.api.AstNode;
-import com.sonar.sslr.api.AstNodeType;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 
 public class TreeFactory {
 
@@ -222,11 +222,29 @@ public class TreeFactory {
     return new EmptyStatementTreeImpl(InternalSyntaxToken.create(semicolon));
   }
 
-  public DebuggerStatementTreeImpl debuggerStatement(AstNode debuggerWord, AstNode eos) {
+  public DebuggerStatementTreeImpl debuggerStatement(AstNode debuggerWord, EndOfStatementTreeImpl eos) {
     return new DebuggerStatementTreeImpl(InternalSyntaxToken.create(debuggerWord), eos);
   }
 
-  public VariableStatementTreeImpl variableStatement(VariableDeclarationTreeImpl declaration, AstNode eosToken) {
+  public EndOfStatementTreeImpl endOfStatement(AstNode eos) {
+    AstNode semicolon = eos.getFirstChild(EcmaScriptPunctuator.SEMI);
+
+    if (semicolon != null) {
+      return new EndOfStatementTreeImpl(InternalSyntaxToken.create(semicolon));
+    } else {
+      return new EndOfStatementTreeImpl();
+    }
+  }
+
+  public EndOfStatementTreeImpl endOfStatement1(AstNode eos) {
+    return endOfStatement(eos);
+  }
+
+  public EndOfStatementTreeImpl endOfStatement2(AstNode eos) {
+    return endOfStatement(eos);
+  }
+
+  public VariableStatementTreeImpl variableStatement(VariableDeclarationTreeImpl declaration, EndOfStatementTreeImpl eosToken) {
     return new VariableStatementTreeImpl(declaration, eosToken);
   }
 
@@ -291,11 +309,11 @@ public class TreeFactory {
     return labelOrEndOfStatement.complete(InternalSyntaxToken.create(continueToken));
   }
 
-  public ContinueStatementTreeImpl newContinueWithLabel(AstNode identifier, AstNode eos) {
+  public ContinueStatementTreeImpl newContinueWithLabel(AstNode identifier, EndOfStatementTreeImpl eos) {
     return new ContinueStatementTreeImpl((IdentifierTreeImpl) identifier, eos);
   }
 
-  public ContinueStatementTreeImpl newContinueWithoutLabel(AstNode eos) {
+  public ContinueStatementTreeImpl newContinueWithoutLabel(EndOfStatementTreeImpl eos) {
     return new ContinueStatementTreeImpl(eos);
   }
 
@@ -303,11 +321,11 @@ public class TreeFactory {
     return labelOrEndOfStatement.complete(InternalSyntaxToken.create(breakToken));
   }
 
-  public BreakStatementTreeImpl newBreakWithLabel(AstNode identifier, AstNode eos) {
+  public BreakStatementTreeImpl newBreakWithLabel(AstNode identifier, EndOfStatementTreeImpl eos) {
     return new BreakStatementTreeImpl((IdentifierTreeImpl) identifier, eos);
   }
 
-  public BreakStatementTreeImpl newBreakWithoutLabel(AstNode eos) {
+  public BreakStatementTreeImpl newBreakWithoutLabel(EndOfStatementTreeImpl eos) {
     return new BreakStatementTreeImpl(eos);
   }
 
@@ -315,15 +333,15 @@ public class TreeFactory {
     return expressionOrEndOfStatement.complete(InternalSyntaxToken.create(returnToken));
   }
 
-  public ReturnStatementTreeImpl newReturnWithExpression(ExpressionTree expression, AstNode eos) {
+  public ReturnStatementTreeImpl newReturnWithExpression(ExpressionTree expression, EndOfStatementTreeImpl eos) {
     return new ReturnStatementTreeImpl(expression, eos);
   }
 
-  public ReturnStatementTreeImpl newReturnWithoutExpression(AstNode eos) {
+  public ReturnStatementTreeImpl newReturnWithoutExpression(EndOfStatementTreeImpl eos) {
     return new ReturnStatementTreeImpl(eos);
   }
 
-  public ThrowStatementTreeImpl newThrowStatement(AstNode throwToken, ExpressionTree expression, AstNode eos) {
+  public ThrowStatementTreeImpl newThrowStatement(AstNode throwToken, ExpressionTree expression, EndOfStatementTreeImpl eos) {
     return new ThrowStatementTreeImpl(InternalSyntaxToken.create(throwToken), expression, eos);
   }
 
@@ -442,7 +460,7 @@ public class TreeFactory {
   }
 
   public DoWhileStatementTreeImpl doWhileStatement(AstNode doToken, StatementTree statement, AstNode whileToken, AstNode openParenthesis, ExpressionTree condition,
-    AstNode closeParenthesis, AstNode eos) {
+    AstNode closeParenthesis, EndOfStatementTreeImpl eos) {
     return new DoWhileStatementTreeImpl(
       InternalSyntaxToken.create(doToken),
       statement,
@@ -453,7 +471,7 @@ public class TreeFactory {
       eos);
   }
 
-  public ExpressionStatementTreeImpl expressionStatement(AstNode lookahead, ExpressionTree expression, AstNode eos) {
+  public ExpressionStatementTreeImpl expressionStatement(AstNode lookahead, ExpressionTree expression, EndOfStatementTreeImpl eos) {
     return new ExpressionStatementTreeImpl(expression, eos);
   }
 
@@ -1218,7 +1236,7 @@ public class TreeFactory {
       declaration);
   }
 
-  public ExpressionStatementTreeImpl exportedExpressionStatement(AstNode lookahead, ExpressionTree expression, AstNode eos) {
+  public ExpressionStatementTreeImpl exportedExpressionStatement(AstNode lookahead, ExpressionTree expression, EndOfStatementTreeImpl eos) {
     return new ExpressionStatementTreeImpl(expression, eos);
   }
 
@@ -1270,18 +1288,18 @@ public class TreeFactory {
     return new SpecifierListTreeImpl(Kind.EXPORT_LIST, InternalSyntaxToken.create(openCurlyBraceToken), InternalSyntaxToken.create(closeCurlyBraceToken));
   }
 
-  public NameSpaceExportDeclarationTree namespaceExportDeclaration(AstNode exportToken, AstNode starToken, FromClauseTreeImpl fromClause, AstNode eos) {
+  public NameSpaceExportDeclarationTree namespaceExportDeclaration(AstNode exportToken, AstNode starToken, FromClauseTreeImpl fromClause, EndOfStatementTreeImpl eos) {
     return new NameSpaceExportDeclarationTreeImpl(InternalSyntaxToken.create(exportToken), InternalSyntaxToken.create(starToken), fromClause, eos);
   }
 
-  public ExportClauseTreeImpl exportClause(SpecifierListTreeImpl exportList, Optional<FromClauseTreeImpl> fromClause, AstNode eos) {
+  public ExportClauseTreeImpl exportClause(SpecifierListTreeImpl exportList, Optional<FromClauseTreeImpl> fromClause, EndOfStatementTreeImpl eos) {
     if (fromClause.isPresent()) {
       return new ExportClauseTreeImpl(exportList, fromClause.get(), eos);
     }
     return new ExportClauseTreeImpl(exportList, eos);
   }
 
-  public ImportModuleDeclarationTree importModuleDeclaration(AstNode importToken, LiteralTreeImpl moduleName, AstNode eos) {
+  public ImportModuleDeclarationTree importModuleDeclaration(AstNode importToken, LiteralTreeImpl moduleName, EndOfStatementTreeImpl eos) {
     return new ImportModuleDeclarationTreeImpl(InternalSyntaxToken.create(importToken), moduleName, eos);
   }
 
@@ -1347,7 +1365,7 @@ public class TreeFactory {
     return new ImportClauseTreeImpl(importTree);
   }
 
-  public ImportDeclarationTreeImpl importDeclaration(AstNode importToken, ImportClauseTreeImpl importClause, FromClauseTreeImpl fromClause, AstNode eos) {
+  public ImportDeclarationTreeImpl importDeclaration(AstNode importToken, ImportClauseTreeImpl importClause, FromClauseTreeImpl fromClause, EndOfStatementTreeImpl eos) {
     return new ImportDeclarationTreeImpl(InternalSyntaxToken.create(importToken), importClause, fromClause, eos);
   }
 

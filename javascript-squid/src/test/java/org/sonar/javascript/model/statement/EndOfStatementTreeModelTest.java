@@ -17,25 +17,32 @@
  * License along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.plugins.javascript.api.tree.declaration;
+package org.sonar.javascript.model.statement;
 
-import com.google.common.annotations.Beta;
-import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
+import static org.fest.assertions.Assertions.assertThat;
+import org.junit.Test;
+import org.sonar.javascript.model.JavaScriptTreeModelTest;
+import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.statement.EndOfStatementTree;
 
-/**
- * <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-exports">Namespace Export Declarations</a> (<a href="http://wiki.ecmascript.org/doku.php?id=harmony:specification_drafts">ES6</a>).
- * <pre>
- *    * {@link #fromClause()} ;
- * </pre>
- */
-@Beta
-public interface NameSpaceExportDeclarationTree extends ExportDeclarationTree {
+public class EndOfStatementTreeModelTest extends JavaScriptTreeModelTest {
 
-  SyntaxToken starToken();
+  @Test
+  public void with_semicolon() throws Exception {
+    EndOfStatementTree tree = parse("var a = 1;", Kind.END_OF_STATEMENT);
 
-  FromClauseTree fromClause();
+    assertThat(tree.is(Kind.END_OF_STATEMENT)).isTrue();
+    assertThat(tree.hasSemicolon()).isTrue();
+    assertThat(tree.semicolonToken().text()).isEqualTo(";");
+  }
 
-  EndOfStatementTree endOfStatement();
+  @Test
+  public void without_semicolon() throws Exception {
+    EndOfStatementTree tree = parse("var a = 1", Kind.END_OF_STATEMENT);
+
+    assertThat(tree.is(Kind.END_OF_STATEMENT)).isTrue();
+    assertThat(tree.hasSemicolon()).isFalse();
+    assertThat(tree.semicolonToken()).isNull();
+  }
 
 }

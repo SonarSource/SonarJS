@@ -45,6 +45,6 @@ public interface DoWhileStatementTree extends IterationStatementTree {
 
   SyntaxToken closeParenthesis();
 
-  SyntaxToken endOfStatement();
+  EndOfStatementTree endOfStatement();
 
 }

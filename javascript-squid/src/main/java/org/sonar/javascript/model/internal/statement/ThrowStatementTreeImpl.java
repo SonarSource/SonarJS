@@ -21,28 +21,30 @@ package org.sonar.javascript.model.internal.statement;
 
 import com.google.common.collect.Iterators;
 import com.sonar.sslr.api.AstNode;
-import org.sonar.plugins.javascript.api.visitors.TreeVisitor;
 import org.sonar.javascript.model.internal.JavaScriptTree;
 import org.sonar.javascript.model.internal.lexical.InternalSyntaxToken;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
+import org.sonar.plugins.javascript.api.tree.statement.EndOfStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.ThrowStatementTree;
+import org.sonar.plugins.javascript.api.visitors.TreeVisitor;
 
 import javax.annotation.Nullable;
-
 import java.util.Iterator;
 
 public class ThrowStatementTreeImpl extends JavaScriptTree implements ThrowStatementTree {
 
   private final SyntaxToken throwKeyword;
   private final ExpressionTree expression;
+  private final EndOfStatementTree eos;
 
-  public ThrowStatementTreeImpl(InternalSyntaxToken throwKeyword, ExpressionTree expression, AstNode eos) {
+  public ThrowStatementTreeImpl(InternalSyntaxToken throwKeyword, ExpressionTree expression, EndOfStatementTreeImpl eos) {
     super(Kind.THROW_STATEMENT);
 
     this.throwKeyword = throwKeyword;
     this.expression = expression;
+    this.eos = eos;
 
     addChild(throwKeyword);
     addChild((AstNode) expression);
@@ -67,8 +69,8 @@ public class ThrowStatementTreeImpl extends JavaScriptTree implements ThrowState
 
   @Nullable
   @Override
-  public Tree endOfStatement() {
-    throw new UnsupportedOperationException("Not supported yet in the strongly typed AST.");
+  public EndOfStatementTree endOfStatement() {
+    return eos;
   }
 
   @Override

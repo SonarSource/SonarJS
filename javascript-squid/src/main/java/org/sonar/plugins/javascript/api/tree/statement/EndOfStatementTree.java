@@ -17,25 +17,22 @@
  * License along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.plugins.javascript.api.tree.declaration;
+package org.sonar.plugins.javascript.api.tree.statement;
 
 import com.google.common.annotations.Beta;
+import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
-import org.sonar.plugins.javascript.api.tree.statement.EndOfStatementTree;
+
+import javax.annotation.Nullable;
 
 /**
- * <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-exports">Namespace Export Declarations</a> (<a href="http://wiki.ecmascript.org/doku.php?id=harmony:specification_drafts">ES6</a>).
- * <pre>
- *    * {@link #fromClause()} ;
- * </pre>
+ * <a href="http://www.ecma-international.org/ecma-262/5.1/#sec-7.9">End of statement</a>.
  */
 @Beta
-public interface NameSpaceExportDeclarationTree extends ExportDeclarationTree {
+public interface EndOfStatementTree extends Tree {
 
-  SyntaxToken starToken();
+  @Nullable
+  SyntaxToken semicolonToken();
 
-  FromClauseTree fromClause();
-
-  EndOfStatementTree endOfStatement();
-
+  boolean hasSemicolon();
 }

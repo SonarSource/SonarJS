@@ -33,6 +33,6 @@ public interface ExpressionStatementTree extends StatementTree {
 
   Tree expression();
 
-  Tree endOfStatement();
+  EndOfStatementTree endOfStatement();
 
 }

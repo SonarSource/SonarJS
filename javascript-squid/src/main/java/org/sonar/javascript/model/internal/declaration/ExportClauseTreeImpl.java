@@ -20,13 +20,14 @@
 package org.sonar.javascript.model.internal.declaration;
 
 import com.google.common.collect.Iterators;
-import com.sonar.sslr.api.AstNode;
-import org.sonar.plugins.javascript.api.visitors.TreeVisitor;
 import org.sonar.javascript.model.internal.JavaScriptTree;
+import org.sonar.javascript.model.internal.statement.EndOfStatementTreeImpl;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.declaration.ExportClauseTree;
 import org.sonar.plugins.javascript.api.tree.declaration.FromClauseTree;
 import org.sonar.plugins.javascript.api.tree.declaration.SpecifierListTree;
+import org.sonar.plugins.javascript.api.tree.statement.EndOfStatementTree;
+import org.sonar.plugins.javascript.api.visitors.TreeVisitor;
 
 import java.util.Iterator;
 
@@ -34,21 +35,24 @@ public class ExportClauseTreeImpl extends JavaScriptTree implements ExportClause
 
   private final SpecifierListTree exports;
   private final FromClauseTree fromClause;
+  private final EndOfStatementTree eos;
 
-  public ExportClauseTreeImpl(SpecifierListTreeImpl exports, AstNode eos) {
+  public ExportClauseTreeImpl(SpecifierListTreeImpl exports, EndOfStatementTreeImpl eos) {
     super(Kind.EXPORT_CLAUSE);
 
     this.exports = exports;
     this.fromClause = null;
+    this.eos = eos;
 
     addChildren(exports, eos);
   }
 
-  public ExportClauseTreeImpl(SpecifierListTreeImpl exports, FromClauseTreeImpl fromClause, AstNode eos) {
+  public ExportClauseTreeImpl(SpecifierListTreeImpl exports, FromClauseTreeImpl fromClause, EndOfStatementTreeImpl eos) {
     super(Kind.EXPORT_CLAUSE);
 
     this.exports = exports;
     this.fromClause = fromClause;
+    this.eos = eos;
 
     addChildren(exports, fromClause, eos);
   }
@@ -64,8 +68,8 @@ public class ExportClauseTreeImpl extends JavaScriptTree implements ExportClause
   }
 
   @Override
-  public Tree eos() {
-    throw new UnsupportedOperationException("Not supported yet in the strongly typed AST.");
+  public EndOfStatementTree eos() {
+    return eos;
   }
 
   @Override

@@ -20,51 +20,61 @@
 package org.sonar.javascript.model.internal.statement;
 
 import com.google.common.collect.Iterators;
+import com.sonar.sslr.api.AstNodeType;
 import org.sonar.javascript.model.internal.JavaScriptTree;
+import org.sonar.javascript.model.internal.lexical.InternalSyntaxToken;
 import org.sonar.plugins.javascript.api.tree.Tree;
+import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.javascript.api.tree.statement.EndOfStatementTree;
-import org.sonar.plugins.javascript.api.tree.statement.VariableStatementTree;
 import org.sonar.plugins.javascript.api.visitors.TreeVisitor;
 
+import javax.annotation.Nullable;
 import java.util.Iterator;
 
-public class VariableStatementTreeImpl extends JavaScriptTree implements VariableStatementTree {
+public class EndOfStatementTreeImpl extends JavaScriptTree implements EndOfStatementTree {
 
-  private final VariableDeclarationTreeImpl declaration;
-  private final EndOfStatementTreeImpl eos;
+  private final SyntaxToken semicolonToken;
 
-  public VariableStatementTreeImpl(VariableDeclarationTreeImpl declaration, EndOfStatementTreeImpl eos) {
-    super(Kind.VARIABLE_STATEMENT);
+  public EndOfStatementTreeImpl(InternalSyntaxToken semicolonToken) {
+    super(Kind.END_OF_STATEMENT);
+    this.semicolonToken = semicolonToken;
+    addChild(semicolonToken);
+  }
 
-    this.declaration = declaration;
-    this.eos = eos;
-
-    addChild(declaration);
-    addChild(eos);
+  public EndOfStatementTreeImpl() {
+    super(Kind.END_OF_STATEMENT);
+    this.semicolonToken = null;
   }
 
   @Override
-  public Kind getKind() {
-    return Kind.VARIABLE_STATEMENT;
-  }
-
-  @Override
-  public VariableDeclarationTreeImpl declaration() {
-    return declaration;
-  }
-
-  @Override
-  public EndOfStatementTree endOfStatement() {
-    return eos;
+  public AstNodeType getKind() {
+    return Kind.END_OF_STATEMENT;
   }
 
   @Override
   public Iterator<Tree> childrenIterator() {
-    return Iterators.<Tree>singletonIterator(declaration);
+    return Iterators.<Tree>singletonIterator(semicolonToken);
   }
 
   @Override
   public void accept(TreeVisitor visitor) {
-    visitor.visitVariableStatement(this);
+    visitor.visitEndOfStatement(this);
   }
+
+  @Nullable
+  @Override
+  public SyntaxToken semicolonToken() {
+    return semicolonToken;
+  }
+
+  @Override
+  public boolean hasSemicolon() {
+    return semicolonToken != null;
+  }
+
+  @Override
+  public boolean isLeaf() {
+    return true;
+  }
+
 }

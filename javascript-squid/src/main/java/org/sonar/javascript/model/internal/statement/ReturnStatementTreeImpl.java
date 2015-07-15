@@ -22,6 +22,7 @@ package org.sonar.javascript.model.internal.statement;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Iterators;
 import com.sonar.sslr.api.AstNode;
+import org.sonar.plugins.javascript.api.tree.statement.EndOfStatementTree;
 import org.sonar.plugins.javascript.api.visitors.TreeVisitor;
 import org.sonar.javascript.model.internal.JavaScriptTree;
 import org.sonar.javascript.model.internal.lexical.InternalSyntaxToken;
@@ -38,17 +39,20 @@ public class ReturnStatementTreeImpl extends JavaScriptTree implements ReturnSta
 
   private SyntaxToken returnKeyword;
   private ExpressionTree expression;
+  private final EndOfStatementTree eos;
 
-  public ReturnStatementTreeImpl(AstNode eos) {
+  public ReturnStatementTreeImpl(EndOfStatementTreeImpl eos) {
     super(Kind.RETURN_STATEMENT);
+    this.eos = eos;
 
     addChild(eos);
   }
 
-  public ReturnStatementTreeImpl(ExpressionTree expression, AstNode eos) {
+  public ReturnStatementTreeImpl(ExpressionTree expression, EndOfStatementTreeImpl eos) {
     super(Kind.RETURN_STATEMENT);
 
     this.expression = expression;
+    this.eos = eos;
 
     addChild((AstNode) expression);
     addChild(eos);
@@ -80,8 +84,8 @@ public class ReturnStatementTreeImpl extends JavaScriptTree implements ReturnSta
 
   @Nullable
   @Override
-  public Tree endOfStatement() {
-    throw new UnsupportedOperationException("Not supported yet in the strongly typed AST.");
+  public EndOfStatementTree endOfStatement() {
+    return eos;
   }
 
   @Override

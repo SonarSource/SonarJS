@@ -19,18 +19,17 @@
  */
 package org.sonar.javascript.checks;
 
+import com.sonar.sslr.api.AstNode;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
-import org.sonar.javascript.api.EcmaScriptPunctuator;
-import org.sonar.javascript.parser.EcmaScriptGrammar;
+import org.sonar.plugins.javascript.api.tree.Tree;
+import org.sonar.plugins.javascript.api.tree.statement.EndOfStatementTree;
 import org.sonar.squidbridge.annotations.ActivatedByDefault;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 import org.sonar.squidbridge.checks.SquidCheck;
 import org.sonar.sslr.parser.LexerlessGrammar;
-
-import com.sonar.sslr.api.AstNode;
 
 @Rule(
   key = "Semicolon",
@@ -44,12 +43,12 @@ public class SemicolonCheck extends SquidCheck<LexerlessGrammar> {
 
   @Override
   public void init() {
-    subscribeTo(EcmaScriptGrammar.EOS, EcmaScriptGrammar.EOS_NO_LB);
+    subscribeTo(Tree.Kind.END_OF_STATEMENT);
   }
 
   @Override
   public void visitNode(AstNode astNode) {
-    if (astNode.getFirstChild(EcmaScriptPunctuator.SEMI) == null) {
+    if (!((EndOfStatementTree) astNode).hasSemicolon()) {
       getContext().createLineViolation(this, "Add a semicolon at the end of this statement.", astNode.getParent());
     }
   }
