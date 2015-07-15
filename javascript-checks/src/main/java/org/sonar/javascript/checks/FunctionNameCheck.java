@@ -25,10 +25,10 @@ import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
 import org.sonar.javascript.checks.utils.CheckUtils;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
+import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.declaration.FunctionDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.declaration.MethodDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
-import org.sonar.plugins.javascript.api.tree.expression.FunctionExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
 import org.sonar.squidbridge.annotations.ActivatedByDefault;
@@ -65,7 +65,10 @@ public class FunctionNameCheck extends BaseTreeVisitor {
 
   @Override
   public void visitMethodDeclaration(MethodDeclarationTree tree) {
-    checkName(tree.name());
+    if (!tree.is(Tree.Kind.SET_METHOD) && !tree.is(Tree.Kind.GET_METHOD)) {
+      checkName(tree.name());
+    }
+
     super.visitMethodDeclaration(tree);
   }
 
@@ -73,12 +76,6 @@ public class FunctionNameCheck extends BaseTreeVisitor {
   public void visitFunctionDeclaration(FunctionDeclarationTree tree) {
     checkName(tree.name());
     super.visitFunctionDeclaration(tree);
-  }
-
-  @Override
-  public void visitFunctionExpression(FunctionExpressionTree tree) {
-    checkName(tree.name());
-    super.visitFunctionExpression(tree);
   }
 
   private void checkName(@Nullable ExpressionTree tree) {
