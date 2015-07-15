@@ -19,23 +19,30 @@
  */
 package org.sonar.javascript.checks;
 
-import java.util.Stack;
-
+import com.google.common.base.Objects;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
-import org.sonar.javascript.checks.utils.CheckUtils;
-import org.sonar.plugins.javascript.api.tree.Tree.Kind;
+import org.sonar.plugins.javascript.api.AstTreeVisitorContext;
+import org.sonar.plugins.javascript.api.tree.Tree;
+import org.sonar.plugins.javascript.api.tree.declaration.FunctionDeclarationTree;
+import org.sonar.plugins.javascript.api.tree.expression.FunctionExpressionTree;
+import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
+import org.sonar.plugins.javascript.api.tree.statement.BreakStatementTree;
+import org.sonar.plugins.javascript.api.tree.statement.ContinueStatementTree;
+import org.sonar.plugins.javascript.api.tree.statement.DoWhileStatementTree;
+import org.sonar.plugins.javascript.api.tree.statement.ForInStatementTree;
+import org.sonar.plugins.javascript.api.tree.statement.ForOfStatementTree;
+import org.sonar.plugins.javascript.api.tree.statement.ForStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.LabelledStatementTree;
+import org.sonar.plugins.javascript.api.tree.statement.SwitchStatementTree;
+import org.sonar.plugins.javascript.api.tree.statement.WhileStatementTree;
+import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
 import org.sonar.squidbridge.annotations.ActivatedByDefault;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
-import org.sonar.squidbridge.checks.SquidCheck;
-import org.sonar.sslr.grammar.GrammarRuleKey;
-import org.sonar.sslr.parser.LexerlessGrammar;
 
-import com.google.common.base.Objects;
-import com.sonar.sslr.api.AstNode;
+import java.util.Stack;
 
 @Rule(
   key = "TooManyBreakOrContinueInLoop",
@@ -45,7 +52,7 @@ import com.sonar.sslr.api.AstNode;
 @ActivatedByDefault
 @SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.UNDERSTANDABILITY)
 @SqaleConstantRemediation("20min")
-public class TooManyBreakOrContinueInLoopCheck extends SquidCheck<LexerlessGrammar> {
+public class TooManyBreakOrContinueInLoopCheck extends BaseTreeVisitor {
 
   private static class JumpTarget {
     private final String label;
@@ -66,63 +73,113 @@ public class TooManyBreakOrContinueInLoopCheck extends SquidCheck<LexerlessGramm
     }
   }
 
-  private Stack<JumpTarget> jumpTargets;
-
-  private static final GrammarRuleKey[] FUNCTION_NODES = {
-    Kind.FUNCTION_EXPRESSION,
-    Kind.FUNCTION_DECLARATION,
-    Kind.GENERATOR_DECLARATION,
-    Kind.GENERATOR_FUNCTION_EXPRESSION};
+  private Stack<JumpTarget> jumpTargets = new Stack<>();
 
   @Override
-  public void init() {
-    subscribeTo(CheckUtils.iterationStatementsArray());
-    subscribeTo(
-      Kind.BREAK_STATEMENT,
-      Kind.CONTINUE_STATEMENT,
-      Kind.SWITCH_STATEMENT,
-      Kind.LABELLED_STATEMENT);
-    subscribeTo(FUNCTION_NODES);
+  public void scanFile(AstTreeVisitorContext context) {
+    jumpTargets.clear();
+    super.scanFile(context);
   }
 
   @Override
-  public void visitFile(AstNode astNode) {
-    jumpTargets = new Stack<JumpTarget>();
+  public void visitBreakStatement(BreakStatementTree tree) {
+    increaseNumberOfJumpInScopes(tree.label());
+    super.visitBreakStatement(tree);
   }
 
   @Override
-  public void visitNode(AstNode astNode) {
-    if (astNode.is(Kind.LABELLED_STATEMENT)) {
-      String label = ((LabelledStatementTree) astNode).label().name();
-      jumpTargets.push(new JumpTarget(label));
-    } else if (astNode.is(Kind.BREAK_STATEMENT, Kind.CONTINUE_STATEMENT)) {
-      AstNode labelNode = astNode.getFirstChild(Kind.LABEL_IDENTIFIER);
-      String label = labelNode == null ? null : labelNode.getTokenValue();
-      for (int i = jumpTargets.size() - 1; i >= 0; i--) {
-        JumpTarget jumpTarget = jumpTargets.get(i);
-        jumpTarget.jumps++;
-        if (Objects.equal(label, jumpTarget.label)) {
-          break;
-        }
+  public void visitContinueStatement(ContinueStatementTree tree) {
+    increaseNumberOfJumpInScopes(tree.label());
+    super.visitContinueStatement(tree);
+  }
+
+  @Override
+  public void visitFunctionExpression(FunctionExpressionTree tree) {
+    enterScope();
+    super.visitFunctionExpression(tree);
+    leaveScope();
+  }
+
+  @Override
+  public void visitFunctionDeclaration(FunctionDeclarationTree tree) {
+    enterScope();
+    super.visitFunctionDeclaration(tree);
+    leaveScope();
+  }
+
+  @Override
+  public void visitSwitchStatement(SwitchStatementTree tree) {
+    enterScope();
+    super.visitSwitchStatement(tree);
+    leaveScope();
+  }
+
+  @Override
+  public void visitForStatement(ForStatementTree tree) {
+    enterScope();
+    super.visitForStatement(tree);
+    leaveScopeAndCheckNumberOfJump(tree);
+  }
+
+  @Override
+  public void visitForInStatement(ForInStatementTree tree) {
+    enterScope();
+    super.visitForInStatement(tree);
+    leaveScopeAndCheckNumberOfJump(tree);
+  }
+
+  @Override
+  public void visitForOfStatement(ForOfStatementTree tree) {
+    enterScope();
+    super.visitForOfStatement(tree);
+    leaveScopeAndCheckNumberOfJump(tree);
+  }
+
+  @Override
+  public void visitWhileStatement(WhileStatementTree tree) {
+    enterScope();
+    super.visitWhileStatement(tree);
+    leaveScopeAndCheckNumberOfJump(tree);
+  }
+
+  @Override
+  public void visitDoWhileStatement(DoWhileStatementTree tree) {
+    enterScope();
+    super.visitDoWhileStatement(tree);
+    leaveScopeAndCheckNumberOfJump(tree);
+  }
+
+  @Override
+  public void visitLabelledStatement(LabelledStatementTree tree) {
+    jumpTargets.push(new JumpTarget(tree.label().name()));
+    super.visitLabelledStatement(tree);
+    leaveScope();
+  }
+
+  private void enterScope() {
+    jumpTargets.push(new JumpTarget());
+  }
+
+  private void leaveScope() {
+    jumpTargets.pop();
+  }
+
+  private void increaseNumberOfJumpInScopes(IdentifierTree label) {
+    for (int i = jumpTargets.size() - 1; i >= 0; i--) {
+      JumpTarget jumpTarget = jumpTargets.get(i);
+      String labelName = label == null ? null : label.name();
+      jumpTarget.jumps++;
+
+      if (Objects.equal(labelName, jumpTarget.label)) {
+        break;
       }
-    } else {
-      jumpTargets.push(new JumpTarget());
     }
   }
 
-  @Override
-  public void leaveNode(AstNode astNode) {
-    if (astNode.isNot(Kind.BREAK_STATEMENT, Kind.CONTINUE_STATEMENT)) {
-      JumpTarget jumpTarget = jumpTargets.pop();
-      if (CheckUtils.isIterationStatement(astNode) && jumpTarget.jumps > 1) {
-        getContext().createLineViolation(this, "Reduce the total number of \"break\" and \"continue\" statements in this loop to use one at most.", astNode);
-      }
+  private void leaveScopeAndCheckNumberOfJump(Tree tree) {
+    if (jumpTargets.pop().jumps > 1) {
+      getContext().addIssue(this, tree, "Reduce the total number of \"break\" and \"continue\" statements in this loop to use one at most.");
     }
-  }
-
-  @Override
-  public void leaveFile(AstNode astNode) {
-    jumpTargets = null;
   }
 
 }

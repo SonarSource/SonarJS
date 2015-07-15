@@ -19,20 +19,16 @@
  */
 package org.sonar.javascript.checks;
 
-import org.sonar.squidbridge.checks.CheckMessagesVerifier;
 import org.junit.Test;
-import org.sonar.javascript.JavaScriptAstScanner;
+import org.sonar.javascript.checks.utils.TreeCheckTest;
 import org.sonar.squidbridge.api.SourceFile;
+import org.sonar.squidbridge.checks.CheckMessagesVerifier;
 
-import java.io.File;
-
-public class TooManyBreakOrContinueInLoopCheckTest {
+public class TooManyBreakOrContinueInLoopCheckTest extends TreeCheckTest {
 
   @Test
   public void test() {
-    TooManyBreakOrContinueInLoopCheck check = new TooManyBreakOrContinueInLoopCheck();
-
-    SourceFile file = JavaScriptAstScanner.scanSingleFile(new File("src/test/resources/checks/tooManyBreakOrContinueInLoop.js"), check);
+    SourceFile file = scanFile("src/test/resources/checks/tooManyBreakOrContinueInLoop.js", new TooManyBreakOrContinueInLoopCheck());
     CheckMessagesVerifier.verify(file.getCheckMessages())
         .next().atLine(1).withMessage("Reduce the total number of \"break\" and \"continue\" statements in this loop to use one at most.")
         .next().atLine(16)
