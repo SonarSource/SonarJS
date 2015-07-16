@@ -19,6 +19,7 @@
  */
 package org.sonar.javascript.model.internal.statement;
 
+import com.google.common.base.Functions;
 import com.google.common.collect.Iterators;
 import com.google.common.collect.Lists;
 import com.sonar.sslr.api.AstNode;
@@ -76,7 +77,7 @@ public class VariableDeclarationTreeImpl extends JavaScriptTree implements Varia
   public Iterator<Tree> childrenIterator() {
     return Iterators.<Tree>concat(
         Iterators.singletonIterator(token),
-        variables.iterator()
+        variables.elementsAndSeparators(Functions.<BindingElementTree>identity())
     );
   }
 

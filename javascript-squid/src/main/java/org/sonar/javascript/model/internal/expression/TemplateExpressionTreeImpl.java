@@ -82,7 +82,7 @@ public class TemplateExpressionTreeImpl extends JavaScriptTree implements Templa
 
   @Override
   public Iterator<Tree> childrenIterator() {
-    return Iterators.<Tree>singletonIterator(expression);
+    return Iterators.forArray(dollar, openCurlyBrace, expression, closeCurlyBrace);
   }
 
   @Override

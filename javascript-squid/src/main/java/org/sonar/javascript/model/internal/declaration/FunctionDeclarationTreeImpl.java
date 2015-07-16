@@ -105,7 +105,7 @@ public class FunctionDeclarationTreeImpl extends JavaScriptTree implements Funct
 
   @Override
   public Iterator<Tree> childrenIterator() {
-    return Iterators.forArray(name, parameters, body);
+    return Iterators.forArray(functionKeyword, starToken, name, parameters, body);
   }
 
   @Override

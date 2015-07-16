@@ -93,7 +93,7 @@ public class CaseClauseTreeImpl extends JavaScriptTree implements CaseClauseTree
   @Override
   public Iterator<Tree> childrenIterator() {
     return Iterators.concat(
-      Iterators.singletonIterator(expression),
+      Iterators.forArray(caseKeyword, expression, colon),
       statements.iterator()
     );
   }

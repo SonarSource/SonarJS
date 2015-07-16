@@ -71,7 +71,7 @@ public class NameSpaceSpecifierTreeImpl extends JavaScriptTree implements Specif
 
   @Override
   public Iterator<Tree> childrenIterator() {
-    return Iterators.<Tree>singletonIterator(localName);
+    return Iterators.forArray(starToken, asToken, localName);
   }
 
   @Override

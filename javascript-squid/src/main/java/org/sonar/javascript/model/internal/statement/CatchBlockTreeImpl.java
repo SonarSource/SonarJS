@@ -91,7 +91,7 @@ public class CatchBlockTreeImpl extends JavaScriptTree implements CatchBlockTree
 
   @Override
   public Iterator<Tree> childrenIterator() {
-    return Iterators.forArray(parameter, block);
+    return Iterators.forArray(catchKeyword, openParenthesis, parameter, closeParenthesis, block);
   }
 
   @Override

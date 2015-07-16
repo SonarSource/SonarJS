@@ -88,7 +88,7 @@ public class DotMemberExpressionTreeImpl extends JavaScriptTree implements DotMe
 
   @Override
   public Iterator<Tree> childrenIterator() {
-    return Iterators.<Tree>forArray(object, property);
+    return Iterators.forArray(object, dot, property);
   }
 
   @Override

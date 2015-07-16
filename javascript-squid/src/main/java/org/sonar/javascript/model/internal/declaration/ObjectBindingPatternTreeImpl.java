@@ -19,6 +19,7 @@
  */
 package org.sonar.javascript.model.internal.declaration;
 
+import com.google.common.base.Functions;
 import com.google.common.collect.Iterators;
 import com.google.common.collect.Lists;
 import com.sonar.sslr.api.AstNode;
@@ -96,7 +97,7 @@ public class ObjectBindingPatternTreeImpl extends JavaScriptTree implements Obje
   public Iterator<Tree> childrenIterator() {
     return Iterators.concat(
         Iterators.singletonIterator(openCurlyBrace),
-        bindingElements.iterator(),
+        bindingElements.elementsAndSeparators(Functions.<Tree>identity()),
         Iterators.singletonIterator(closeCurlyBrace)
     );
   }

@@ -19,6 +19,7 @@
  */
 package org.sonar.javascript.model.internal.expression;
 
+import com.google.common.base.Functions;
 import com.google.common.collect.Iterators;
 import com.sonar.sslr.api.AstNode;
 import org.apache.commons.collections.ListUtils;
@@ -101,7 +102,7 @@ public class ObjectLiteralTreeImpl extends JavaScriptTree implements ObjectLiter
   public Iterator<Tree> childrenIterator() {
     return Iterators.concat(
         Iterators.singletonIterator(openCurlyBrace),
-        properties.iterator(),
+        properties.elementsAndSeparators(Functions.<Tree>identity()),
         Iterators.singletonIterator(closeCurlyBrace)
     );
   }

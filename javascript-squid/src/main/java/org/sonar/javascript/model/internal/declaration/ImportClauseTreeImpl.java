@@ -87,7 +87,7 @@ public class ImportClauseTreeImpl extends JavaScriptTree implements ImportClause
 
   @Override
   public Iterator<Tree> childrenIterator() {
-    return Iterators.forArray(defaultImport, namedImport);
+    return Iterators.forArray(defaultImport, commaToken, namedImport);
   }
 
   @Override

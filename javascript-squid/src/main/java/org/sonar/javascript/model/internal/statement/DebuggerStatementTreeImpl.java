@@ -59,7 +59,7 @@ public class DebuggerStatementTreeImpl extends JavaScriptTree implements Debugge
 
   @Override
   public Iterator<Tree> childrenIterator() {
-    return Iterators.emptyIterator();
+    return Iterators.<Tree>singletonIterator(debuggerKeyword);
   }
 
   @Override

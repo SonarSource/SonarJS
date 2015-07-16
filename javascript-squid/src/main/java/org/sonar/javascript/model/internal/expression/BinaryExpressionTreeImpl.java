@@ -72,7 +72,7 @@ public class BinaryExpressionTreeImpl extends JavaScriptTree implements BinaryEx
 
   @Override
   public Iterator<Tree> childrenIterator() {
-    return Iterators.<Tree>forArray(leftOperand, rightOperand);
+    return Iterators.forArray(leftOperand, operand, rightOperand);
   }
 
   @Override

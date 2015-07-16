@@ -19,6 +19,7 @@
  */
 package org.sonar.javascript.model.internal.expression;
 
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Iterators;
 import com.sonar.sslr.api.AstNode;
 import org.sonar.plugins.javascript.api.symbols.TypeSet;
@@ -46,15 +47,14 @@ public class ClassTreeImpl extends JavaScriptTree implements ClassTree {
   @Nullable
   private ExpressionTree superClass;
   private InternalSyntaxToken openCurlyBraceToken;
-  private final List<MethodDeclarationTree> elements;
-  private final List<SyntaxToken> semicolons;
+  private final List<Tree> elements;
   private InternalSyntaxToken closeCurlyBraceToken;
   private final Kind kind;
 
   private ClassTreeImpl(Kind kind, InternalSyntaxToken classToken, @Nullable IdentifierTreeImpl name,
     @Nullable InternalSyntaxToken extendsToken, @Nullable ExpressionTree superClass,
-    InternalSyntaxToken openCurlyBraceToken, List<MethodDeclarationTree> elements,
-    List<SyntaxToken> semicolons, List<AstNode> elementsChildren, InternalSyntaxToken closeCurlyBraceToken) {
+    InternalSyntaxToken openCurlyBraceToken, List<Tree> elements,
+    List<AstNode> elementsChildren, InternalSyntaxToken closeCurlyBraceToken) {
 
     super(kind);
     this.kind = kind;
@@ -65,7 +65,6 @@ public class ClassTreeImpl extends JavaScriptTree implements ClassTree {
     this.superClass = superClass;
     this.openCurlyBraceToken = openCurlyBraceToken;
     this.elements = elements;
-    this.semicolons = semicolons;
     this.closeCurlyBraceToken = closeCurlyBraceToken;
 
     addChildren(classToken, name, extendsToken, (AstNode) superClass, openCurlyBraceToken);
@@ -77,16 +76,16 @@ public class ClassTreeImpl extends JavaScriptTree implements ClassTree {
 
   public static ClassTreeImpl newClassExpression(InternalSyntaxToken classToken, @Nullable IdentifierTreeImpl name,
     @Nullable InternalSyntaxToken extendsToken, @Nullable ExpressionTree superClass, InternalSyntaxToken openCurlyBraceToken,
-    List<MethodDeclarationTree> elements, List<SyntaxToken> semicolons, InternalSyntaxToken closeCurlyBraceToken, List<AstNode> elementsChildren) {
+    List<Tree> elements, InternalSyntaxToken closeCurlyBraceToken, List<AstNode> elementsChildren) {
 
-    return new ClassTreeImpl(Kind.CLASS_EXPRESSION, classToken, name, extendsToken, superClass, openCurlyBraceToken, elements, semicolons, elementsChildren, closeCurlyBraceToken);
+    return new ClassTreeImpl(Kind.CLASS_EXPRESSION, classToken, name, extendsToken, superClass, openCurlyBraceToken, elements, elementsChildren, closeCurlyBraceToken);
   }
 
   public static ClassTreeImpl newClassDeclaration(InternalSyntaxToken classToken, @Nullable IdentifierTreeImpl name,
     @Nullable InternalSyntaxToken extendsToken, @Nullable ExpressionTree superClass, InternalSyntaxToken openCurlyBraceToken,
-    List<MethodDeclarationTree> elements, List<SyntaxToken> semicolons, InternalSyntaxToken closeCurlyBraceToken, List<AstNode> elementsChildren ) {
+    List<Tree> elements, InternalSyntaxToken closeCurlyBraceToken, List<AstNode> elementsChildren) {
 
-    return new ClassTreeImpl(Kind.CLASS_DECLARATION, classToken, name, extendsToken, superClass, openCurlyBraceToken, elements, semicolons, elementsChildren, closeCurlyBraceToken);
+    return new ClassTreeImpl(Kind.CLASS_DECLARATION, classToken, name, extendsToken, superClass, openCurlyBraceToken, elements, elementsChildren, closeCurlyBraceToken);
   }
 
   @Override
@@ -117,13 +116,18 @@ public class ClassTreeImpl extends JavaScriptTree implements ClassTree {
   }
 
   @Override
-  public List<MethodDeclarationTree> elements() {
+  public List<Tree> elements() {
     return elements;
   }
 
   @Override
-  public List<SyntaxToken> semicolons() {
-    return semicolons;
+  public Iterable<MethodDeclarationTree> methods() {
+    return Iterables.filter(elements, MethodDeclarationTree.class);
+  }
+
+  @Override
+  public Iterable<SyntaxToken> semicolons() {
+    return Iterables.filter(elements, SyntaxToken.class);
   }
 
   @Override
@@ -139,8 +143,9 @@ public class ClassTreeImpl extends JavaScriptTree implements ClassTree {
   @Override
   public Iterator<Tree> childrenIterator() {
     return Iterators.concat(
-      Iterators.singletonIterator(superClass),
-      elements.iterator());
+      Iterators.forArray(classToken, name, extendsToken, superClass, openCurlyBraceToken),
+      elements.iterator(),
+      Iterators.singletonIterator(closeCurlyBraceToken));
   }
 
   @Override

@@ -85,8 +85,7 @@ public class ContinueStatementTreeImpl extends JavaScriptTree implements Continu
 
   @Override
   public Iterator<Tree> childrenIterator() {
-    return Iterators.<Tree>singletonIterator(
-      label);
+    return Iterators.forArray(continueKeyword, label);
   }
 
   @Override

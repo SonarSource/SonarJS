@@ -89,7 +89,7 @@ public class BracketMemberExpressionTreeImpl extends JavaScriptTree implements B
 
   @Override
   public Iterator<Tree> childrenIterator() {
-    return Iterators.<Tree>forArray(object, property);
+    return Iterators.forArray(object, openBracket, property, closeBracket);
   }
 
   @Override

@@ -153,7 +153,7 @@ public class MethodDeclarationTreeImpl extends JavaScriptTree implements Generat
 
   @Override
   public Iterator<Tree> childrenIterator() {
-    return Iterators.forArray(name, parameters, body);
+    return Iterators.forArray(staticToken, starToken, accessorToken, name, parameters, body);
   }
 
   @Override

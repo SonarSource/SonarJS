@@ -19,9 +19,13 @@
  */
 package org.sonar.javascript.model.internal;
 
+import com.google.common.base.Function;
+import com.google.common.base.Preconditions;
+import com.google.common.collect.UnmodifiableIterator;
 import com.sonar.sslr.api.AstNode;
 import org.apache.commons.collections.ListUtils;
 import org.sonar.javascript.model.internal.lexical.InternalSyntaxToken;
+import org.sonar.plugins.javascript.api.tree.Tree;
 
 import java.util.Collection;
 import java.util.Iterator;
@@ -42,13 +46,16 @@ public class SeparatedList<T> implements List<T> {
   private List<AstNode> children = ListUtils.EMPTY_LIST;
 
   public SeparatedList(List<T> list, List<InternalSyntaxToken> separators) {
+    Preconditions.checkArgument(
+      list.size() == separators.size() + 1 || list.size() == separators.size(),
+      "Instanciating a SeparatedList with inconsistent number of elements (%s) and separators (%s)",
+      list.size(), separators.size());
     this.list = list;
     this.separators = separators;
   }
 
   public SeparatedList(List<T> list, List<InternalSyntaxToken> separators, List<AstNode> children) {
-    this.list = list;
-    this.separators = separators;
+    this(list, separators);
     this.children = children;
   }
 
@@ -185,6 +192,34 @@ public class SeparatedList<T> implements List<T> {
   @Override
   public List<T> subList(int fromIndex, int toIndex) {
     return list.subList(fromIndex, toIndex);
+  }
+
+  public Iterator<Tree> elementsAndSeparators(final Function<T, ? extends Tree> elementTransformer) {
+    return new ElementAndSeparatorIterator(elementTransformer);
+  }
+
+  private final class ElementAndSeparatorIterator extends UnmodifiableIterator<Tree> {
+
+    private final Function<T, ? extends Tree> elementTransformer;
+    private final Iterator<T> elementIterator = list.iterator();
+    private final Iterator<InternalSyntaxToken> separatorIterator = separators.iterator();
+    private boolean nextIsElement = true;
+
+    private ElementAndSeparatorIterator(Function<T, ? extends Tree> elementTransformer) {
+      this.elementTransformer = elementTransformer;
+    }
+
+    @Override
+    public boolean hasNext() {
+      return elementIterator.hasNext() || separatorIterator.hasNext();
+    }
+
+    @Override
+    public Tree next() {
+      Tree next = nextIsElement ? elementTransformer.apply(elementIterator.next()) : separatorIterator.next();
+      nextIsElement = !nextIsElement;
+      return next;
+    }
   }
 
 }

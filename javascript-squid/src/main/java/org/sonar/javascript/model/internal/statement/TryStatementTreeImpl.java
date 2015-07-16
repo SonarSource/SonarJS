@@ -113,8 +113,10 @@ public class TryStatementTreeImpl extends JavaScriptTree implements TryStatement
   @Override
   public Iterator<Tree> childrenIterator() {
     return Iterators.forArray(
+      tryKeyword,
       block,
       catchBlock,
+      finallyKeyword,
       finallyBlock);
   }
 

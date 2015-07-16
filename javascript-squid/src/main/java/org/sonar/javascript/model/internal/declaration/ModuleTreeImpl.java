@@ -28,8 +28,6 @@ import org.sonar.javascript.model.internal.JavaScriptTree;
 import org.sonar.plugins.javascript.api.tree.ModuleTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
 
-import com.google.common.collect.Iterators;
-
 public class ModuleTreeImpl extends JavaScriptTree implements ModuleTree {
 
   private final List<Tree> items;
@@ -56,7 +54,7 @@ public class ModuleTreeImpl extends JavaScriptTree implements ModuleTree {
 
   @Override
   public Iterator<Tree> childrenIterator() {
-    return Iterators.concat(items.iterator());
+    return items.iterator();
   }
 
   @Override

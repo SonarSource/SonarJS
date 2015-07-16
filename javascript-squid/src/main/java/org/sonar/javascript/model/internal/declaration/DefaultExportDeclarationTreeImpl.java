@@ -74,7 +74,7 @@ public class DefaultExportDeclarationTreeImpl extends JavaScriptTree implements 
 
   @Override
   public Iterator<Tree> childrenIterator() {
-    return Iterators.singletonIterator(object);
+    return Iterators.forArray(exportToken, defaultToken, object);
   }
 
   @Override

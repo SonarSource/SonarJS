@@ -114,11 +114,7 @@ public class IfStatementTreeImpl extends JavaScriptTree implements IfStatementTr
 
   @Override
   public Iterator<Tree> childrenIterator() {
-    if (hasElse()) {
-      return Iterators.forArray(condition, elseClause, statement);
-    } else {
-      return Iterators.forArray(condition, statement);
-    }
+    return Iterators.forArray(ifKeyword, openParenthesis, condition, closeParenthesis, statement, elseClause);
   }
 
   @Override

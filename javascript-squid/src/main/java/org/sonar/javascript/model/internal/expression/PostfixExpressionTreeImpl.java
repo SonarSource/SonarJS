@@ -65,7 +65,7 @@ public class PostfixExpressionTreeImpl extends JavaScriptTree implements UnaryEx
 
   @Override
   public Iterator<Tree> childrenIterator() {
-    return Iterators.<Tree>singletonIterator(expression);
+    return Iterators.forArray(expression, operator);
   }
 
   @Override

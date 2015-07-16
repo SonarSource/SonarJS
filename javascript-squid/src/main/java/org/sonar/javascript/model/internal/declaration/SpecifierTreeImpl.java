@@ -89,7 +89,7 @@ public class SpecifierTreeImpl extends JavaScriptTree implements SpecifierTree {
 
   @Override
   public Iterator<Tree> childrenIterator() {
-    return Iterators.<Tree>forArray(name, localName);
+    return Iterators.forArray(name, asToken, localName);
   }
 
   @Override

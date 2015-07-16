@@ -67,7 +67,7 @@ public class ImportModuleDeclarationTreeImpl extends JavaScriptTree implements I
 
   @Override
   public Iterator<Tree> childrenIterator() {
-    return Iterators.<Tree>singletonIterator(moduleName);
+    return Iterators.forArray(importToken, moduleName);
   }
 
   @Override

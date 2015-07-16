@@ -69,7 +69,7 @@ public class ComputedPropertyNameTreeImpl extends JavaScriptTree implements Comp
 
   @Override
   public Iterator<Tree> childrenIterator() {
-    return Iterators.<Tree>singletonIterator(expression);
+    return Iterators.forArray(openBracket, expression, closeBracket);
   }
 
   @Override

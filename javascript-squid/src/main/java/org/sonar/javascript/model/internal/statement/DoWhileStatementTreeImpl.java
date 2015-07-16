@@ -97,7 +97,11 @@ public class DoWhileStatementTreeImpl extends JavaScriptTree implements DoWhileS
   @Override
   public Iterator<Tree> childrenIterator() {
     return Iterators.forArray(
+      doKeyword,
+      whileKeyword,
+      openingParenthesis,
       condition,
+      closingParenthesis,
       statement
     );
   }

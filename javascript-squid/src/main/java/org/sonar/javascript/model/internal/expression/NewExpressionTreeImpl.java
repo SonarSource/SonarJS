@@ -87,7 +87,7 @@ public class NewExpressionTreeImpl extends JavaScriptTree implements NewExpressi
 
   @Override
   public Iterator<Tree> childrenIterator() {
-    return Iterators.<Tree>forArray(expression, arguments);
+    return Iterators.forArray(newKeyword, expression, arguments);
   }
 
   @Override

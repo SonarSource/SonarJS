@@ -19,6 +19,7 @@
  */
 package org.sonar.javascript.model.internal.declaration;
 
+import com.google.common.base.Function;
 import com.google.common.collect.Iterators;
 import com.google.common.collect.Lists;
 import com.sonar.sslr.api.AstNode;
@@ -83,15 +84,9 @@ public class ArrayBindingPatternTreeImpl extends JavaScriptTree implements Array
 
   @Override
   public Iterator<Tree> childrenIterator() {
-    List<Tree> nonElidedElements = Lists.newArrayList();
-    for (Optional<BindingElementTree> e : elements) {
-      if (e.isPresent()) {
-        nonElidedElements.add(e.get());
-      }
-    }
     return Iterators.concat(
         Iterators.singletonIterator(openBracketToken),
-        nonElidedElements.iterator(),
+        elements.elementsAndSeparators(new ElidedElementFilter()),
         Iterators.singletonIterator(closeBracketToken)
     );
   }
@@ -130,5 +125,17 @@ public class ArrayBindingPatternTreeImpl extends JavaScriptTree implements Array
       }
     }
     return bindingIdentifiers;
+  }
+
+  private static class ElidedElementFilter implements Function<Optional<BindingElementTree>, BindingElementTree> {
+
+    @Override
+    public BindingElementTree apply(Optional<BindingElementTree> e) {
+      if (e.isPresent()) {
+        return e.get();
+      }
+      return null;
+    }
+
   }
 }

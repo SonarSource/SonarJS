@@ -99,7 +99,7 @@ public class ForInStatementTreeImpl extends JavaScriptTree implements ForInState
 
   @Override
   public Iterator<Tree> childrenIterator() {
-    return Iterators.forArray(variableOrExpression, expression, statement);
+    return Iterators.forArray(forKeyword, openParenthesis, variableOrExpression, inKeyword, expression, closeParenthesis, statement);
   }
 
   @Override

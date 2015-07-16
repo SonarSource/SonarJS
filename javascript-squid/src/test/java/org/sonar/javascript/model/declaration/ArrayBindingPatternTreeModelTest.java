@@ -107,7 +107,7 @@ public class ArrayBindingPatternTreeModelTest extends JavaScriptTreeModelTest {
     assertThat(size(treeIterator1)).isEqualTo(2);
 
     Iterator<Tree> treeIterator2 = tree2.childrenIterator();
-    assertThat(size(treeIterator2)).isEqualTo(7);
+    assertThat(size(treeIterator2)).isEqualTo(13);
   }
 
   private int size(Iterator iterator){

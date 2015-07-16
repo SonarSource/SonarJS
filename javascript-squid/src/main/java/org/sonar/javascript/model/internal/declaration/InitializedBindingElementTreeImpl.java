@@ -76,7 +76,7 @@ public class InitializedBindingElementTreeImpl extends JavaScriptTree implements
 
   @Override
   public Iterator<Tree> childrenIterator() {
-    return Iterators.forArray(left, right);
+    return Iterators.forArray(left, equalToken, right);
   }
 
   @Override

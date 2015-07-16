@@ -19,6 +19,8 @@
  */
 package org.sonar.javascript.model.internal.declaration;
 
+import com.google.common.base.Functions;
+import com.google.common.base.Preconditions;
 import com.google.common.collect.Iterators;
 import com.google.common.collect.Lists;
 import com.sonar.sslr.api.AstNode;
@@ -46,6 +48,7 @@ public class ParameterListTreeImpl extends JavaScriptTree implements ParameterLi
 
   public ParameterListTreeImpl(Kind kind, SeparatedList<Tree> parameters) {
     super(kind);
+    Preconditions.checkArgument(parameters.size() == parameters.getSeparators().size() + 1);
     this.kind = kind;
     this.parameters = parameters;
 
@@ -99,7 +102,7 @@ public class ParameterListTreeImpl extends JavaScriptTree implements ParameterLi
   public Iterator<Tree> childrenIterator() {
     return Iterators.<Tree>concat(
         Iterators.singletonIterator(openParenthesis),
-        parameters.iterator(),
+        parameters.elementsAndSeparators(Functions.<Tree>identity()),
         Iterators.singletonIterator(closeParenthesis));
   }
 

@@ -19,6 +19,7 @@
  */
 package org.sonar.javascript.model.internal.declaration;
 
+import com.google.common.base.Functions;
 import com.google.common.collect.Iterators;
 import com.sonar.sslr.api.AstNode;
 import org.sonar.plugins.javascript.api.visitors.TreeVisitor;
@@ -94,7 +95,7 @@ public class SpecifierListTreeImpl extends JavaScriptTree implements SpecifierLi
   public Iterator<Tree> childrenIterator() {
     return Iterators.<Tree>concat(
         Iterators.singletonIterator(openCurlyBraceToken),
-        specifiers.iterator(),
+        specifiers.elementsAndSeparators(Functions.<SpecifierTree>identity()),
         Iterators.singletonIterator(closeCurlyBraceToken)
     );
   }

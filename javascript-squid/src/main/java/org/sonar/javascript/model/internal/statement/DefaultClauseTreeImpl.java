@@ -83,7 +83,9 @@ public class DefaultClauseTreeImpl extends JavaScriptTree implements DefaultClau
 
   @Override
   public Iterator<Tree> childrenIterator() {
-    return Iterators.<Tree>concat(statements.iterator());
+    return Iterators.concat(
+      Iterators.forArray(defaultKeyword, colon),
+      statements.iterator());
   }
 
   @Override

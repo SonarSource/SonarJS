@@ -96,7 +96,7 @@ public class YieldExpressionTreeImpl extends JavaScriptTree implements YieldExpr
 
   @Override
   public Iterator<Tree> childrenIterator() {
-    return Iterators.<Tree>singletonIterator(argument);
+    return Iterators.forArray(yieldKeyword, star, argument);
   }
 
   @Override

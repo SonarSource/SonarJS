@@ -64,7 +64,7 @@ public class ElseClauseTreeImpl extends JavaScriptTree implements ElseClauseTree
 
   @Override
   public Iterator<Tree> childrenIterator() {
-    return Iterators.<Tree>singletonIterator(statement);
+    return Iterators.forArray(elseKeyword, statement);
   }
 
   @Override

@@ -70,7 +70,7 @@ public class ScriptTreeImpl extends JavaScriptTree implements ScriptTree {
 
   @Override
   public Iterator<Tree> childrenIterator() {
-    return Iterators.<Tree>singletonIterator(items);
+    return Iterators.<Tree>forArray(shebangToken, items);
   }
 
   @Override

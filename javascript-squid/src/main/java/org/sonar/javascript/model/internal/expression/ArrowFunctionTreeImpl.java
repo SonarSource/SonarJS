@@ -73,7 +73,7 @@ public class ArrowFunctionTreeImpl extends JavaScriptTree implements ArrowFuncti
 
   @Override
   public Iterator<Tree> childrenIterator() {
-    return Iterators.forArray(parameters, body);
+    return Iterators.forArray(parameters, doubleArrow, body);
   }
 
   @Override

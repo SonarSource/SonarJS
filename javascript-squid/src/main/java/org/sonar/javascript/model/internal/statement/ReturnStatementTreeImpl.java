@@ -86,7 +86,7 @@ public class ReturnStatementTreeImpl extends JavaScriptTree implements ReturnSta
 
   @Override
   public Iterator<Tree> childrenIterator() {
-    return Iterators.<Tree>singletonIterator(expression);
+    return Iterators.forArray(returnKeyword, expression);
   }
 
   @Override

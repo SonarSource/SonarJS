@@ -115,7 +115,6 @@ import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.MemberExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.TemplateCharactersTree;
 import org.sonar.plugins.javascript.api.tree.expression.TemplateExpressionTree;
-import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.javascript.api.tree.statement.StatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.SwitchClauseTree;
 import org.sonar.javascript.parser.EcmaScriptGrammar;
@@ -1021,8 +1020,7 @@ public class TreeFactory {
   public ClassTreeImpl classExpression(AstNode classToken, Optional<IdentifierTreeImpl> name, Optional<Tuple<AstNode, ExpressionTree>> extendsClause,
     AstNode openCurlyBraceToken, Optional<List<AstNode>> members, AstNode closeCurlyBraceToken) {
 
-    List<MethodDeclarationTree> elements = Lists.newArrayList();
-    List<SyntaxToken> semicolon = Lists.newArrayList();
+    List<Tree> elements = Lists.newArrayList();
     List<AstNode> children = Lists.newArrayList();
 
     if (members.isPresent()) {
@@ -1030,7 +1028,7 @@ public class TreeFactory {
         if (member instanceof MethodDeclarationTree) {
           elements.add((MethodDeclarationTree) member);
         } else {
-          semicolon.add(InternalSyntaxToken.create(member));
+          elements.add(InternalSyntaxToken.create(member));
         }
         children.add(member);
       }
@@ -1041,7 +1039,7 @@ public class TreeFactory {
         InternalSyntaxToken.create(classToken), name.orNull(),
         InternalSyntaxToken.create(extendsClause.get().first()), extendsClause.get().second(),
         InternalSyntaxToken.create(openCurlyBraceToken),
-        elements, semicolon,
+        elements,
         InternalSyntaxToken.create(closeCurlyBraceToken), children);
     }
 
@@ -1049,7 +1047,7 @@ public class TreeFactory {
       InternalSyntaxToken.create(classToken), name.orNull(),
       null, null,
       InternalSyntaxToken.create(openCurlyBraceToken),
-      elements, semicolon,
+      elements,
       InternalSyntaxToken.create(closeCurlyBraceToken), children);
   }
 
@@ -1363,8 +1361,7 @@ public class TreeFactory {
     Optional<Tuple<AstNode, ExpressionTree>> extendsClause,
     AstNode openCurlyBraceToken, Optional<List<AstNode>> members, AstNode closeCurlyBraceToken) {
 
-    List<MethodDeclarationTree> elements = Lists.newArrayList();
-    List<SyntaxToken> semicolon = Lists.newArrayList();
+    List<Tree> elements = Lists.newArrayList();
     List<AstNode> children = Lists.newArrayList();
 
     if (members.isPresent()) {
@@ -1372,7 +1369,7 @@ public class TreeFactory {
         if (member instanceof MethodDeclarationTree) {
           elements.add((MethodDeclarationTree) member);
         } else {
-          semicolon.add(InternalSyntaxToken.create(member));
+          elements.add(InternalSyntaxToken.create(member));
         }
         children.add(member);
       }
@@ -1383,7 +1380,7 @@ public class TreeFactory {
         InternalSyntaxToken.create(classToken), name,
         InternalSyntaxToken.create(extendsClause.get().first()), extendsClause.get().second(),
         InternalSyntaxToken.create(openCurlyBraceToken),
-        elements, semicolon,
+        elements,
         InternalSyntaxToken.create(closeCurlyBraceToken), children);
     }
 
@@ -1391,7 +1388,7 @@ public class TreeFactory {
       InternalSyntaxToken.create(classToken), name,
       null, null,
       InternalSyntaxToken.create(openCurlyBraceToken),
-      elements, semicolon,
+      elements,
       InternalSyntaxToken.create(closeCurlyBraceToken), children);
   }
 

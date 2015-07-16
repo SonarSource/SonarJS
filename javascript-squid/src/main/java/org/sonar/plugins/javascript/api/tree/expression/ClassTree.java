@@ -20,6 +20,7 @@
 package org.sonar.plugins.javascript.api.tree.expression;
 
 import com.google.common.annotations.Beta;
+import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.declaration.MethodDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.javascript.api.tree.statement.StatementTree;
@@ -51,9 +52,12 @@ public interface ClassTree extends ExpressionTree, StatementTree {
 
   SyntaxToken openCurlyBraceToken();
 
-  List<MethodDeclarationTree> elements();
+  // elements can be either method declarations or semi-colons
+  List<Tree> elements();
 
-  List<SyntaxToken> semicolons();
+  Iterable<MethodDeclarationTree> methods();
+
+  Iterable<SyntaxToken> semicolons();
 
   SyntaxToken closeCurlyBraceToken();
 

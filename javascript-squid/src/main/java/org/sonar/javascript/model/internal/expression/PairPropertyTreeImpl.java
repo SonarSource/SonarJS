@@ -71,7 +71,7 @@ public class PairPropertyTreeImpl extends JavaScriptTree implements PairProperty
 
   @Override
   public Iterator<Tree> childrenIterator() {
-    return Iterators.<Tree>forArray(key, value);
+    return Iterators.forArray(key, operator, value);
   }
 
   @Override

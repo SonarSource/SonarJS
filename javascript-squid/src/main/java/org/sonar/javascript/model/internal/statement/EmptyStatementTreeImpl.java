@@ -52,7 +52,7 @@ public class EmptyStatementTreeImpl extends JavaScriptTree implements EmptyState
 
   @Override
   public Iterator<Tree> childrenIterator() {
-    return Iterators.emptyIterator();
+    return Iterators.<Tree>singletonIterator(semicolon);
   }
 
   @Override
