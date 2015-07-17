@@ -50,13 +50,13 @@ import java.util.List;
 public class UnreachableCodeCheck extends SubscriptionBaseVisitor {
 
   private Deque<Boolean> blockLevel = new ArrayDeque<>();
-  private static Kind[] JUMP_STATEMENT = {
+  private static final Kind[] JUMP_STATEMENT = {
     Kind.BREAK_STATEMENT,
     Kind.RETURN_STATEMENT,
     Kind.CONTINUE_STATEMENT,
     Kind.THROW_STATEMENT
   };
-  private static Kind[] STATEMENTS = {
+  private static final Kind[] STATEMENTS = {
     Kind.EXPRESSION_STATEMENT,
     Kind.IF_STATEMENT,
     Kind.FOR_STATEMENT,
@@ -102,7 +102,7 @@ public class UnreachableCodeCheck extends SubscriptionBaseVisitor {
     }
   }
 
-  private boolean isScopeWithoutBlock(Tree tree) {
+  private static boolean isScopeWithoutBlock(Tree tree) {
     if (tree.is(CheckUtils.iterationStatementsArray())) {
       return !((IterationStatementTree) tree).statement().is(Kind.BLOCK);
 
@@ -117,7 +117,7 @@ public class UnreachableCodeCheck extends SubscriptionBaseVisitor {
     }
   }
 
-  private boolean isExcludedExpression(Tree tree) {
+  private static boolean isExcludedExpression(Tree tree) {
     return tree.is(Kind.EXPRESSION_STATEMENT)
       && ((ExpressionStatementTree) tree).expression().is(Kind.CLASS_EXPRESSION);
   }
