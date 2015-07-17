@@ -79,9 +79,21 @@ public class InternalSyntaxToken extends JavaScriptTree implements SyntaxToken {
     return result;
   }
 
+  /**
+   * Use {@link SyntaxToken#line()} instead.
+   */
+  @Deprecated
   @Override
   public int getLine() {
+    return line();
+  }
+
+  public int line() {
     return token.getLine();
+  }
+
+  public int column() {
+    return token.getColumn();
   }
 
   @Override
