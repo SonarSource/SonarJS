@@ -19,19 +19,25 @@
  */
 package org.sonar.javascript.checks;
 
+import com.google.common.collect.ImmutableList;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
-import org.sonar.javascript.api.EcmaScriptPunctuator;
+import org.sonar.javascript.checks.utils.CheckUtils;
+import org.sonar.javascript.checks.utils.SubscriptionBaseVisitor;
+import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
+import org.sonar.plugins.javascript.api.tree.statement.ElseClauseTree;
 import org.sonar.plugins.javascript.api.tree.statement.ExpressionStatementTree;
+import org.sonar.plugins.javascript.api.tree.statement.IfStatementTree;
+import org.sonar.plugins.javascript.api.tree.statement.IterationStatementTree;
 import org.sonar.squidbridge.annotations.ActivatedByDefault;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
-import org.sonar.squidbridge.checks.SquidCheck;
-import org.sonar.sslr.parser.LexerlessGrammar;
 
-import com.sonar.sslr.api.AstNode;
+import java.util.ArrayDeque;
+import java.util.Deque;
+import java.util.List;
 
 @Rule(
   key = "UnreachableCode",
@@ -41,35 +47,103 @@ import com.sonar.sslr.api.AstNode;
 @ActivatedByDefault
 @SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.LOGIC_RELIABILITY)
 @SqaleConstantRemediation("5 min")
-public class UnreachableCodeCheck extends SquidCheck<LexerlessGrammar> {
+public class UnreachableCodeCheck extends SubscriptionBaseVisitor {
+
+  private Deque<Boolean> blockLevel = new ArrayDeque<>();
+  private static Kind[] JUMP_STATEMENT = {
+    Kind.BREAK_STATEMENT,
+    Kind.RETURN_STATEMENT,
+    Kind.CONTINUE_STATEMENT,
+    Kind.THROW_STATEMENT
+  };
+  private static Kind[] STATEMENTS = {
+    Kind.EXPRESSION_STATEMENT,
+    Kind.IF_STATEMENT,
+    Kind.FOR_STATEMENT,
+    Kind.FOR_IN_STATEMENT,
+    Kind.FOR_OF_STATEMENT,
+    Kind.WITH_STATEMENT,
+    Kind.SWITCH_STATEMENT,
+    Kind.THROW_STATEMENT,
+    Kind.TRY_STATEMENT,
+    Kind.DEBUGGER_STATEMENT,
+    Kind.VARIABLE_STATEMENT
+  };
+
 
   @Override
-  public void init() {
-    subscribeTo(
-      Kind.BREAK_STATEMENT,
-      Kind.RETURN_STATEMENT,
-      Kind.CONTINUE_STATEMENT,
-      Kind.THROW_STATEMENT);
+  public List<Kind> nodesToVisit() {
+    return ImmutableList.<Kind>builder()
+      .add(JUMP_STATEMENT)
+      .add(STATEMENTS)
+      .add(Kind.BLOCK, Kind.CASE_CLAUSE, Kind.DEFAULT_CLAUSE, Kind.ELSE_CLAUSE)
+      .build();
   }
 
   @Override
-  public void visitNode(AstNode node) {
-    AstNode nextStatement = node.getNextSibling();
+  public void visitFile(Tree scriptTree) {
+    blockLevel.clear();
+    enterBlock();
+  }
 
-    if (isUnReachableCode(nextStatement)) {
-      getContext().createLineViolation(this, "This statement can't be reached and so start a dead code block.", nextStatement);
+
+  @Override
+  public void visitNode(Tree tree) {
+    if (tree.is(Kind.BLOCK) || isScopeWithoutBlock(tree)) {
+      enterBlock();
+
+    } else if (!isExcludedExpression(tree) && isPreeceedByAJump()) {
+      getContext().addIssue(this, tree, "This statement can't be reached and so start a dead code block.");
+      updateStateTo(false);
+    }
+
+    if (tree.is(JUMP_STATEMENT)) {
+      updateStateTo(true);
     }
   }
 
-  public static boolean isUnReachableCode(AstNode node) {
-    return node != null
-      && !node.is(
-        Kind.ELSE_CLAUSE,
-        Kind.FUNCTION_DECLARATION,
-        Kind.GENERATOR_DECLARATION,
-        Kind.CLASS_DECLARATION,
-      EcmaScriptPunctuator.RCURLYBRACE)
-      && !(node.is(Kind.EXPRESSION_STATEMENT) && ((ExpressionStatementTree) node).expression().is(Kind.CLASS_EXPRESSION));
+  private boolean isScopeWithoutBlock(Tree tree) {
+    if (tree.is(CheckUtils.iterationStatementsArray())) {
+      return !((IterationStatementTree) tree).statement().is(Kind.BLOCK);
+
+    } else if (tree.is(Kind.IF_STATEMENT)) {
+      return !((IfStatementTree) tree).statement().is(Kind.BLOCK);
+
+    } else if (tree.is(Kind.ELSE_CLAUSE)) {
+      return !((ElseClauseTree) tree).statement().is(Kind.BLOCK);
+
+    } else {
+      return tree.is(Kind.CASE_CLAUSE, Kind.DEFAULT_CLAUSE);
+    }
+  }
+
+  private boolean isExcludedExpression(Tree tree) {
+    return tree.is(Kind.EXPRESSION_STATEMENT)
+      && ((ExpressionStatementTree) tree).expression().is(Kind.CLASS_EXPRESSION);
+  }
+
+  private void updateStateTo(Boolean state) {
+    blockLevel.pop();
+    blockLevel.push(state);
+  }
+
+  private Boolean isPreeceedByAJump() {
+    return blockLevel.peek();
+  }
+
+  @Override
+  public void leaveNode(Tree tree) {
+    if (tree.is(Kind.BLOCK) || isScopeWithoutBlock(tree)) {
+      exitBlock();
+    }
+  }
+
+  private void enterBlock() {
+    blockLevel.push(false);
+  }
+
+  private void exitBlock() {
+    blockLevel.pop();
   }
 
 }

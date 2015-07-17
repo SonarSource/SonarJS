@@ -19,20 +19,18 @@
  */
 package org.sonar.javascript.checks;
 
-import org.sonar.squidbridge.checks.CheckMessagesVerifier;
 import org.junit.Test;
-import org.sonar.javascript.JavaScriptAstScanner;
+import org.sonar.javascript.checks.utils.TreeCheckTest;
 import org.sonar.squidbridge.api.SourceFile;
+import org.sonar.squidbridge.checks.CheckMessagesVerifier;
 
-import java.io.File;
-
-public class UnreachableCodeCheckTest {
+public class UnreachableCodeCheckTest extends TreeCheckTest {
 
   @Test
   public void test() {
     UnreachableCodeCheck check = new UnreachableCodeCheck();
 
-    SourceFile file = JavaScriptAstScanner.scanSingleFile(new File("src/test/resources/checks/unreachableCode.js"), check);
+    SourceFile file = scanFile("src/test/resources/checks/unreachableCode.js", check);
     CheckMessagesVerifier.verify(file.getCheckMessages())
         .next().atLine(3).withMessage("This statement can't be reached and so start a dead code block.")
         .next().atLine(7)
