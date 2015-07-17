@@ -7,3 +7,6 @@ var a = { // OK
   a : 1
 };
 var b = [ 1 ]; // OK
+var b = []; // OK
+
+var b = [ 1,, ]; // NOK

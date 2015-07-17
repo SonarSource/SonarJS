@@ -22,15 +22,14 @@ package org.sonar.javascript.checks;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
-import org.sonar.javascript.api.EcmaScriptPunctuator;
-import org.sonar.plugins.javascript.api.tree.Tree.Kind;
+import org.sonar.javascript.model.internal.SeparatedList;
+import org.sonar.plugins.javascript.api.tree.Tree;
+import org.sonar.plugins.javascript.api.tree.expression.ArrayLiteralTree;
+import org.sonar.plugins.javascript.api.tree.expression.ObjectLiteralTree;
+import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
 import org.sonar.squidbridge.annotations.ActivatedByDefault;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
-import org.sonar.squidbridge.checks.SquidCheck;
-import org.sonar.sslr.parser.LexerlessGrammar;
-
-import com.sonar.sslr.api.AstNode;
 
 /**
  * http://stackoverflow.com/questions/7246618/trailing-commas-in-javascript
@@ -43,17 +42,24 @@ import com.sonar.sslr.api.AstNode;
 @ActivatedByDefault
 @SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.INSTRUCTION_RELIABILITY)
 @SqaleConstantRemediation("1min")
-public class TrailingCommaCheck extends SquidCheck<LexerlessGrammar> {
+public class TrailingCommaCheck extends BaseTreeVisitor {
 
   @Override
-  public void init() {
-    subscribeTo(Kind.ARRAY_LITERAL, Kind.OBJECT_LITERAL);
+  public void visitObjectLiteral(ObjectLiteralTree tree) {
+    check(tree, tree.properties());
+    super.visitObjectLiteral(tree);
   }
 
   @Override
-  public void visitNode(AstNode astNode) {
-    if (astNode.getLastChild().getPreviousSibling().getType() == EcmaScriptPunctuator.COMMA) {
-      getContext().createLineViolation(this, "Avoid trailing comma in array and object literals.", astNode);
+  public void visitArrayLiteral(ArrayLiteralTree tree) {
+    check(tree, tree.elements());
+    super.visitArrayLiteral(tree);
+  }
+
+  private void check(Tree tree, SeparatedList<?> separatedList) {
+    int listSize = separatedList.size();
+    if (listSize > 0 && listSize == separatedList.getSeparators().size()) {
+      getContext().addIssue(this, tree, "Avoid trailing comma in array and object literals.");
     }
   }
 
