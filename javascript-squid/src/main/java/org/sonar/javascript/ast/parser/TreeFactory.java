@@ -118,7 +118,7 @@ import org.sonar.plugins.javascript.api.tree.expression.TemplateExpressionTree;
 import org.sonar.plugins.javascript.api.tree.statement.StatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.SwitchClauseTree;
 import org.sonar.javascript.parser.EcmaScriptGrammar;
-import org.sonar.javascript.parser.sslr.Optional;
+import com.sonar.sslr.api.typed.Optional;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;

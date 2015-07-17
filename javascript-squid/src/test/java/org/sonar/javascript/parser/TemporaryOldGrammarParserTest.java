@@ -20,11 +20,11 @@
 package org.sonar.javascript.parser;
 
 import com.google.common.base.Charsets;
+import com.sonar.sslr.api.AstNode;
+import com.sonar.sslr.api.typed.ActionParser;
+import com.sonar.sslr.api.typed.AstNodeBuilder;
 import org.junit.Before;
 import org.sonar.javascript.ast.parser.TreeFactory;
-import org.sonar.javascript.parser.ActionGrammar;
-import org.sonar.javascript.parser.EcmaScriptGrammar;
-import org.sonar.javascript.parser.sslr.ActionParser2;
 import org.sonar.sslr.grammar.LexerlessGrammarBuilder;
 import org.sonar.sslr.parser.LexerlessGrammar;
 
@@ -36,7 +36,7 @@ public class TemporaryOldGrammarParserTest {
   public void setUp() throws Exception {
     LexerlessGrammarBuilder b = EcmaScriptGrammar.createGrammarBuilder();
     // Only called to conpleted the grammar
-    new ActionParser2(Charsets.UTF_8, b, ActionGrammar.class, new TreeFactory(), EcmaScriptGrammar.SPACING_NO_LB);
+    new ActionParser<AstNode>(Charsets.UTF_8, b, ActionGrammar.class, new TreeFactory(), new AstNodeBuilder(), EcmaScriptGrammar.SPACING_NO_LB);
     g = b.build();
   }
 

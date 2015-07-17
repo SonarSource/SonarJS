@@ -19,24 +19,62 @@
  */
 package org.sonar.javascript.parser;
 
+import com.sonar.sslr.api.AstNode;
+import com.sonar.sslr.api.Rule;
 import com.sonar.sslr.impl.Parser;
+import com.sonar.sslr.impl.matcher.RuleDefinition;
 import org.sonar.javascript.EcmaScriptConfiguration;
 import org.sonar.javascript.ast.parser.TreeFactory;
-import org.sonar.javascript.parser.sslr.ActionParser2;
+import com.sonar.sslr.api.typed.ActionParser;
+import com.sonar.sslr.api.typed.AstNodeBuilder;
 import org.sonar.sslr.parser.LexerlessGrammar;
 
-public final class EcmaScriptParser {
+import java.io.File;
+import java.util.List;
 
-  private EcmaScriptParser() {
+public final class EcmaScriptParser extends Parser<LexerlessGrammar> {
+
+  private final ActionParser<AstNode> actionParser;
+
+  private EcmaScriptParser(ActionParser<AstNode> actionParser) {
+    super(null);
+    this.actionParser = actionParser;
   }
 
   public static Parser<LexerlessGrammar> create(EcmaScriptConfiguration conf) {
-    return new ActionParser2(
+    ActionParser<AstNode> actionParser = new ActionParser<AstNode>(
       conf.getCharset(),
       EcmaScriptGrammar.createGrammarBuilder(),
       ActionGrammar.class,
       new TreeFactory(),
+      new AstNodeBuilder(),
       EcmaScriptGrammar.SCRIPT);
+    return new EcmaScriptParser(actionParser);
+  }
+
+  @Override
+  public AstNode parse(List tokens) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public AstNode parse(File file) {
+    return actionParser.parse(file);
+  }
+
+  @Override
+  public AstNode parse(String source) {
+    return actionParser.parse(source);
+  }
+
+  @Override
+  public void setRootRule(Rule rootRule) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public RuleDefinition getRootRule() {
+    throw new UnsupportedOperationException();
   }
 
 }
