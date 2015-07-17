@@ -100,10 +100,10 @@ import org.sonar.plugins.javascript.api.tree.statement.StatementTree;
 
 public class ActionGrammar {
 
-  private final GrammarBuilder<AstNode, AstNode> b;
+  private final GrammarBuilder<AstNode> b;
   private final TreeFactory f;
 
-  public ActionGrammar(GrammarBuilder<AstNode, AstNode> b, TreeFactory f) {
+  public ActionGrammar(GrammarBuilder<AstNode> b, TreeFactory f) {
     this.b = b;
     this.f = f;
   }
