@@ -19,21 +19,19 @@
  */
 package org.sonar.javascript.checks;
 
-import org.sonar.squidbridge.checks.CheckMessagesVerifier;
 import org.junit.Test;
-import org.sonar.javascript.JavaScriptAstScanner;
+import org.sonar.javascript.checks.utils.TreeCheckTest;
 import org.sonar.squidbridge.api.SourceFile;
+import org.sonar.squidbridge.checks.CheckMessagesVerifier;
 
-import java.io.File;
-
-public class LineLengthCheckTest {
+public class LineLengthCheckTest extends TreeCheckTest {
 
   @Test
   public void test() {
     LineLengthCheck check = new LineLengthCheck();
     check.maximumLineLength = 30;
 
-    SourceFile file = JavaScriptAstScanner.scanSingleFile(new File("src/test/resources/checks/lineLength.js"), check);
+    SourceFile file = scanFile("src/test/resources/checks/lineLength.js", check);
     CheckMessagesVerifier.verify(file.getCheckMessages())
         .next().atLine(2).withMessage("The line contains 44 characters which is greater than 30 authorized.")
         .noMore();

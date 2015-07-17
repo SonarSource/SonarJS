@@ -19,18 +19,18 @@
  */
 package org.sonar.javascript.checks;
 
+import com.google.common.collect.ImmutableList;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
+import org.sonar.javascript.checks.utils.SubscriptionBaseVisitor;
+import org.sonar.plugins.javascript.api.tree.Tree;
+import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
-import org.sonar.squidbridge.checks.SquidCheck;
-import org.sonar.sslr.parser.LexerlessGrammar;
 
-import com.sonar.sslr.api.AstAndTokenVisitor;
-import com.sonar.sslr.api.AstNode;
-import com.sonar.sslr.api.Token;
+import java.util.List;
 
 @Rule(
   key = "LineLength",
@@ -39,9 +39,9 @@ import com.sonar.sslr.api.Token;
   tags = {Tags.CONVENTION})
 @SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.READABILITY)
 @SqaleConstantRemediation("1min")
-public class LineLengthCheck extends SquidCheck<LexerlessGrammar> implements AstAndTokenVisitor {
+public class LineLengthCheck extends SubscriptionBaseVisitor {
 
-  private Token previousToken;
+  private SyntaxToken previousToken;
   private static final int DEFAULT_MAXIMUM_LINE_LENHGTH = 80;
 
   @RuleProperty(
@@ -54,32 +54,31 @@ public class LineLengthCheck extends SquidCheck<LexerlessGrammar> implements Ast
     return maximumLineLength;
   }
 
+
   @Override
-  public void visitFile(AstNode astNode) {
+  public List<Tree.Kind> nodesToVisit() {
+    return ImmutableList.of(Tree.Kind.TOKEN);
+  }
+
+  @Override
+  public void visitFile(Tree tree) {
     previousToken = null;
   }
 
   @Override
-  public void leaveFile(AstNode astNode) {
-    previousToken = null;
-  }
+  public void visitNode(Tree tree) {
+    SyntaxToken token = (SyntaxToken) tree;
 
-  @Override
-  public void visitToken(Token token) {
-    if (!token.isGeneratedCode()) {
-      if (previousToken != null && previousToken.getLine() != token.getLine()) {
-        int length = previousToken.getColumn() + previousToken.getValue().length();
-        if (length > getMaximumLineLength()) {
-          // Note that method from AbstractLineLengthCheck generates other message - see SONARPLUGINS-1809
-          getContext().createLineViolation(this,
-              "The line contains {0,number,integer} characters which is greater than {1,number,integer} authorized.",
-              previousToken.getLine(),
-              length,
-              getMaximumLineLength());
-        }
+    if (previousToken != null && previousToken.line() != token.line()) {
+      int length = previousToken.column() + previousToken.text().length();
+      if (length > getMaximumLineLength()) {
+        // Note that method from AbstractLineLengthCheck generates other message - see SONARPLUGINS-1809
+        getContext().addIssue(this,
+          previousToken.line(),
+          String.format("The line contains %d characters which is greater than %d authorized.", length, getMaximumLineLength()));
       }
-      previousToken = token;
     }
+    previousToken = token;
   }
 
 }
