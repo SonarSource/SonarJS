@@ -31,7 +31,7 @@ import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
  * </pre>
  */
 @Beta
-public interface ForOfStatementTree extends StatementTree {
+public interface ForOfStatementTree extends IterationStatementTree {
 
   SyntaxToken forKeyword();
 
