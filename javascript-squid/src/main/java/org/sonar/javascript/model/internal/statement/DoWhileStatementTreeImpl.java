@@ -105,7 +105,8 @@ public class DoWhileStatementTreeImpl extends JavaScriptTree implements DoWhileS
       openingParenthesis,
       condition,
       closingParenthesis,
-      statement
+      statement,
+      eos
     );
   }
 

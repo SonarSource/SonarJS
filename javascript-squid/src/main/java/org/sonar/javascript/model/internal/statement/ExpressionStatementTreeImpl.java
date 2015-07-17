@@ -62,7 +62,7 @@ public class ExpressionStatementTreeImpl extends JavaScriptTree implements Expre
 
   @Override
   public Iterator<Tree> childrenIterator() {
-    return Iterators.<Tree>singletonIterator(expression);
+    return Iterators.forArray(expression, eos);
   }
 
   @Override

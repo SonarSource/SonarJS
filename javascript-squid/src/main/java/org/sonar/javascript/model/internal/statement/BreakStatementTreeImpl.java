@@ -89,7 +89,7 @@ public class BreakStatementTreeImpl extends JavaScriptTree implements BreakState
 
   @Override
   public Iterator<Tree> childrenIterator() {
-    return Iterators.forArray(breakKeyword, label);
+    return Iterators.forArray(breakKeyword, label, eos);
   }
 
   @Override

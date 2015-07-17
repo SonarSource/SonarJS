@@ -76,7 +76,7 @@ public class NameSpaceExportDeclarationTreeImpl extends JavaScriptTree implement
 
   @Override
   public Iterator<Tree> childrenIterator() {
-    return Iterators.forArray(exportToken, starToken, fromClause);
+    return Iterators.forArray(exportToken, starToken, fromClause, eos);
   }
 
   @Override

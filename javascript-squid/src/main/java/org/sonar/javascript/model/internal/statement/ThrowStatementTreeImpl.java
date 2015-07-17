@@ -75,7 +75,7 @@ public class ThrowStatementTreeImpl extends JavaScriptTree implements ThrowState
 
   @Override
   public Iterator<Tree> childrenIterator() {
-    return Iterators.forArray(throwKeyword, expression);
+    return Iterators.forArray(throwKeyword, expression, eos);
   }
 
   @Override
