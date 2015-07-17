@@ -95,11 +95,6 @@ public class IdentifierTreeImpl extends JavaScriptTree implements IdentifierTree
   }
 
   @Override
-  public boolean isLeaf() {
-    return true;
-  }
-
-  @Override
   public Iterator<Tree> childrenIterator() {
     return Iterators.<Tree>singletonIterator(nameToken);
   }

@@ -72,9 +72,4 @@ public class EndOfStatementTreeImpl extends JavaScriptTree implements EndOfState
     return semicolonToken != null;
   }
 
-  @Override
-  public boolean isLeaf() {
-    return true;
-  }
-
 }
