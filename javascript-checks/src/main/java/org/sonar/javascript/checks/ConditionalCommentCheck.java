@@ -19,18 +19,20 @@
  */
 package org.sonar.javascript.checks;
 
+import java.util.List;
+
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
+import org.sonar.javascript.checks.utils.SubscriptionBaseVisitor;
+import org.sonar.plugins.javascript.api.tree.Tree;
+import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
+import org.sonar.plugins.javascript.api.tree.lexical.SyntaxTrivia;
 import org.sonar.squidbridge.annotations.ActivatedByDefault;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
-import org.sonar.squidbridge.checks.SquidCheck;
-import org.sonar.sslr.parser.LexerlessGrammar;
 
-import com.sonar.sslr.api.AstAndTokenVisitor;
-import com.sonar.sslr.api.Token;
-import com.sonar.sslr.api.Trivia;
+import com.google.common.collect.ImmutableList;
 
 @Rule(
   key = "ConditionalComment",
@@ -40,16 +42,20 @@ import com.sonar.sslr.api.Trivia;
 @ActivatedByDefault
 @SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.LOGIC_RELIABILITY)
 @SqaleConstantRemediation("5min")
-public class ConditionalCommentCheck extends SquidCheck<LexerlessGrammar> implements AstAndTokenVisitor {
+public class ConditionalCommentCheck extends SubscriptionBaseVisitor {
 
   @Override
-  public void visitToken(Token token) {
-    for (Trivia trivia : token.getTrivia()) {
-      if (trivia.isComment()) {
-        String comment = trivia.getToken().getValue();
-        if (comment.startsWith("/*@cc_on") || comment.startsWith("//@cc_on")) {
-          getContext().createLineViolation(this, "Refactor your code to avoid using Internet Explorer's conditional comments.", trivia.getToken());
-        }
+  public List<Tree.Kind> nodesToVisit() {
+    return ImmutableList.of(Tree.Kind.TOKEN);
+  }
+  
+  @Override
+  public void visitNode(Tree tree) {
+    SyntaxToken token = (SyntaxToken) tree;
+    for (SyntaxTrivia trivia : token.trivias()) {
+      String comment = trivia.comment();
+      if (comment.startsWith("/*@cc_on") || comment.startsWith("//@cc_on")) {
+        getContext().addIssue(this, trivia, "Refactor your code to avoid using Internet Explorer's conditional comments.");
       }
     }
   }
