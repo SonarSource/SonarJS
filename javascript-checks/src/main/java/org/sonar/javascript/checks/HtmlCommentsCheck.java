@@ -19,18 +19,19 @@
  */
 package org.sonar.javascript.checks;
 
+import com.google.common.collect.ImmutableList;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
+import org.sonar.javascript.checks.utils.SubscriptionBaseVisitor;
+import org.sonar.plugins.javascript.api.tree.Tree;
+import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
+import org.sonar.plugins.javascript.api.tree.lexical.SyntaxTrivia;
 import org.sonar.squidbridge.annotations.ActivatedByDefault;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
-import org.sonar.squidbridge.checks.SquidCheck;
-import org.sonar.sslr.parser.LexerlessGrammar;
 
-import com.sonar.sslr.api.AstAndTokenVisitor;
-import com.sonar.sslr.api.Token;
-import com.sonar.sslr.api.Trivia;
+import java.util.List;
 
 @Rule(
   key = "HtmlComments",
@@ -40,15 +41,21 @@ import com.sonar.sslr.api.Trivia;
 @ActivatedByDefault
 @SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.LANGUAGE_RELATED_PORTABILITY)
 @SqaleConstantRemediation("5min")
-public class HtmlCommentsCheck extends SquidCheck<LexerlessGrammar> implements AstAndTokenVisitor {
+public class HtmlCommentsCheck extends SubscriptionBaseVisitor {
 
   @Override
-  public void visitToken(Token token) {
-    for (Trivia trivia : token.getTrivia()) {
-      if (trivia.isComment() && trivia.getToken().getValue().startsWith("<!--")) {
-        getContext().createLineViolation(this, "Replace this HTML-style comment by a standard comment", trivia.getToken().getLine());
+  public void visitNode(Tree tree) {
+    SyntaxToken token = ((SyntaxToken) tree);
+
+    for (SyntaxTrivia trivia : token.trivias()) {
+      if (trivia.comment().startsWith("<!--")) {
+        getContext().addIssue(this, trivia, "Replace this HTML-style comment by a standard comment");
       }
     }
   }
 
+  @Override
+  public List<Tree.Kind> nodesToVisit() {
+    return ImmutableList.of(Tree.Kind.TOKEN);
+  }
 }

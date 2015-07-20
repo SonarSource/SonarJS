@@ -19,20 +19,18 @@
  */
 package org.sonar.javascript.checks;
 
-import org.sonar.squidbridge.checks.CheckMessagesVerifier;
 import org.junit.Test;
-import org.sonar.javascript.JavaScriptAstScanner;
+import org.sonar.javascript.checks.utils.TreeCheckTest;
 import org.sonar.squidbridge.api.SourceFile;
+import org.sonar.squidbridge.checks.CheckMessagesVerifier;
 
-import java.io.File;
-
-public class HtmlCommentsCheckTest {
+public class HtmlCommentsCheckTest extends TreeCheckTest {
 
   @Test
   public void test() {
     HtmlCommentsCheck check = new HtmlCommentsCheck();
 
-    SourceFile file = JavaScriptAstScanner.scanSingleFile(new File("src/test/resources/checks/htmlComments.js"), check);
+    SourceFile file = scanFile("src/test/resources/checks/htmlComments.js", check);
     CheckMessagesVerifier.verify(file.getCheckMessages())
         .next().atLine(1).withMessage("Replace this HTML-style comment by a standard comment")
         .noMore();
