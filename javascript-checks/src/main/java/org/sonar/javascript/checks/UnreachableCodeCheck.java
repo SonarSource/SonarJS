@@ -50,7 +50,7 @@ import java.util.List;
 public class UnreachableCodeCheck extends SubscriptionBaseVisitor {
 
   private Deque<Boolean> blockLevel = new ArrayDeque<>();
-  private static final Kind[] JUMP_STATEMENT = {
+  private static final Kind[] JUMP_STATEMENTS = {
     Kind.BREAK_STATEMENT,
     Kind.RETURN_STATEMENT,
     Kind.CONTINUE_STATEMENT,
@@ -74,7 +74,7 @@ public class UnreachableCodeCheck extends SubscriptionBaseVisitor {
   @Override
   public List<Kind> nodesToVisit() {
     return ImmutableList.<Kind>builder()
-      .add(JUMP_STATEMENT)
+      .add(JUMP_STATEMENTS)
       .add(STATEMENTS)
       .add(Kind.BLOCK, Kind.CASE_CLAUSE, Kind.DEFAULT_CLAUSE, Kind.ELSE_CLAUSE)
       .build();
@@ -92,12 +92,12 @@ public class UnreachableCodeCheck extends SubscriptionBaseVisitor {
     if (tree.is(Kind.BLOCK) || isScopeWithoutBlock(tree)) {
       enterBlock();
 
-    } else if (!isExcludedExpression(tree) && isPreeceedByAJump()) {
+    } else if (!isExcludedExpression(tree) && isPrecededByAJump()) {
       getContext().addIssue(this, tree, "This statement can't be reached and so start a dead code block.");
       updateStateTo(false);
     }
 
-    if (tree.is(JUMP_STATEMENT)) {
+    if (tree.is(JUMP_STATEMENTS)) {
       updateStateTo(true);
     }
   }
@@ -127,7 +127,7 @@ public class UnreachableCodeCheck extends SubscriptionBaseVisitor {
     blockLevel.push(state);
   }
 
-  private Boolean isPreeceedByAJump() {
+  private Boolean isPrecededByAJump() {
     return blockLevel.peek();
   }
 
