@@ -45,7 +45,7 @@ public class HtmlCommentsCheck extends SubscriptionBaseVisitor {
 
   @Override
   public void visitNode(Tree tree) {
-    SyntaxToken token = ((SyntaxToken) tree);
+    SyntaxToken token = (SyntaxToken) tree;
 
     for (SyntaxTrivia trivia : token.trivias()) {
       if (trivia.comment().startsWith("<!--")) {
