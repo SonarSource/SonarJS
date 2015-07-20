@@ -19,32 +19,43 @@
  */
 package org.sonar.javascript.model.declaration;
 
+import static org.fest.assertions.Assertions.assertThat;
 import org.junit.Test;
 import org.sonar.javascript.model.JavaScriptTreeModelTest;
-import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
-
-import static org.fest.assertions.Assertions.assertThat;
+import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 
 public class ScriptTreeModelTest extends JavaScriptTreeModelTest {
 
   @Test
-  public void test() throws Exception {
+  public void without_statment() throws Exception {
     ScriptTree tree = parse("", Kind.SCRIPT);
 
     assertThat(tree.is(Kind.SCRIPT)).isTrue();
     assertThat(tree.shebangToken()).isNull();
     assertThat(tree.items().items()).isEmpty();
+    assertThat(tree.EOFToken()).isNotNull();
 
-    tree = parse("var i; var j;", Kind.SCRIPT);
+  }
+
+  @Test
+  public void with_statement() throws Exception {
+    ScriptTree tree = parse("var i; var j;", Kind.SCRIPT);
+
     assertThat(tree.is(Kind.SCRIPT)).isTrue();
     assertThat(tree.shebangToken()).isNull();
     assertThat(tree.items().items()).hasSize(2);
+    assertThat(tree.EOFToken()).isNotNull();
 
-    tree = parse("#!/bin/js\nvar i;", Kind.SCRIPT);
+  }
+
+  @Test
+  public void with_shebang() throws Exception {
+    ScriptTree tree = parse("#!/bin/js\nvar i;", Kind.SCRIPT);
+
     assertThat(tree.is(Kind.SCRIPT)).isTrue();
     assertThat(tree.shebangToken().text()).isEqualTo("#!/bin/js");
     assertThat(tree.items().items()).hasSize(1);
+    assertThat(tree.EOFToken()).isNotNull();
   }
-
 }

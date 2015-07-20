@@ -37,12 +37,14 @@ public class ScriptTreeImpl extends JavaScriptTree implements ScriptTree {
 
   private final InternalSyntaxToken shebangToken;
   private final ModuleTreeImpl items;
+  private final InternalSyntaxToken eof;
 
-  public ScriptTreeImpl(@Nullable InternalSyntaxToken shebangToken, ModuleTreeImpl items, AstNode spacing, AstNode eof) {
+  public ScriptTreeImpl(@Nullable InternalSyntaxToken shebangToken, ModuleTreeImpl items, AstNode spacing, InternalSyntaxToken eof) {
     super(Kind.SCRIPT);
 
     this.shebangToken = shebangToken;
     this.items = items;
+    this.eof = eof;
 
     if (shebangToken != null) {
       addChild(shebangToken);
@@ -64,13 +66,18 @@ public class ScriptTreeImpl extends JavaScriptTree implements ScriptTree {
   }
 
   @Override
+  public SyntaxToken EOFToken() {
+    return eof;
+  }
+
+  @Override
   public AstNodeType getKind() {
     return Kind.SCRIPT;
   }
 
   @Override
   public Iterator<Tree> childrenIterator() {
-    return Iterators.<Tree>forArray(shebangToken, items);
+    return Iterators.<Tree>forArray(shebangToken, items, eof);
   }
 
   @Override

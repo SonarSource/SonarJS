@@ -1578,7 +1578,8 @@ public class TreeFactory {
     return new ScriptTreeImpl(
       shebangToken.isPresent() ? InternalSyntaxToken.create(shebangToken.get()) : null,
       items.isPresent() ? items.get() : new ModuleTreeImpl(Collections.<Tree>emptyList()),
-      spacing, eof);
+      spacing,
+      InternalSyntaxToken.create(eof));
   }
 
   public static class Tuple<T, U> extends AstNode {
