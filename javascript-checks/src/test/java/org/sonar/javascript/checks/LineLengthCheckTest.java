@@ -34,6 +34,7 @@ public class LineLengthCheckTest extends TreeCheckTest {
     SourceFile file = scanFile("src/test/resources/checks/lineLength.js", check);
     CheckMessagesVerifier.verify(file.getCheckMessages())
         .next().atLine(2).withMessage("The line contains 44 characters which is greater than 30 authorized.")
+        .next().atLine(5)
         .noMore();
   }
 

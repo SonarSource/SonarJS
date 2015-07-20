@@ -25,6 +25,7 @@ import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
 import org.sonar.javascript.checks.utils.SubscriptionBaseVisitor;
+import org.sonar.javascript.model.internal.lexical.InternalSyntaxToken;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
@@ -69,7 +70,7 @@ public class LineLengthCheck extends SubscriptionBaseVisitor {
   public void visitNode(Tree tree) {
     SyntaxToken token = (SyntaxToken) tree;
 
-    if (previousToken != null && previousToken.line() != token.line()) {
+    if (previousToken != null && (previousToken.line() != token.line() || ((InternalSyntaxToken) token).isEOF())) {
       int length = previousToken.column() + previousToken.text().length();
       if (length > getMaximumLineLength()) {
         // Note that method from AbstractLineLengthCheck generates other message - see SONARPLUGINS-1809
