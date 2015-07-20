@@ -19,22 +19,22 @@
  */
 package org.sonar.javascript.checks;
 
+import java.util.List;
+import java.util.regex.Pattern;
+
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
+import org.sonar.javascript.checks.utils.SubscriptionBaseVisitor;
+import org.sonar.plugins.javascript.api.tree.Tree;
+import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
+import org.sonar.plugins.javascript.api.tree.lexical.SyntaxTrivia;
 import org.sonar.squidbridge.annotations.ActivatedByDefault;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
-import org.sonar.squidbridge.checks.SquidCheck;
-import org.sonar.sslr.parser.LexerlessGrammar;
 
-import com.sonar.sslr.api.AstAndTokenVisitor;
-import com.sonar.sslr.api.AstNode;
-import com.sonar.sslr.api.Token;
-import com.sonar.sslr.api.Trivia;
-
-import java.util.regex.Pattern;
+import com.google.common.collect.ImmutableList;
 
 @Rule(
   key = "TrailingComment",
@@ -44,7 +44,7 @@ import java.util.regex.Pattern;
 @ActivatedByDefault
 @SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.READABILITY)
 @SqaleConstantRemediation("1min")
-public class TrailingCommentCheck extends SquidCheck<LexerlessGrammar> implements AstAndTokenVisitor {
+public class TrailingCommentCheck extends SubscriptionBaseVisitor {
 
   private static final String DEFAULT_LEGAL_COMMENT_PATTERN = "^//\\s*+[^\\s]++$";
 
@@ -58,22 +58,28 @@ public class TrailingCommentCheck extends SquidCheck<LexerlessGrammar> implement
   private int previousTokenLine;
 
   @Override
-  public void visitFile(AstNode astNode) {
+  public List<Tree.Kind> nodesToVisit() {
+    return ImmutableList.of(Tree.Kind.TOKEN);
+  }
+  
+  @Override
+  public void visitFile(Tree tree) {
     previousTokenLine = -1;
     pattern = Pattern.compile(legalCommentPattern);
   }
 
   @Override
-  public void visitToken(Token token) {
-    for (Trivia trivia : token.getTrivia()) {
-      if (trivia.isComment() && trivia.getToken().getLine() == previousTokenLine) {
-        String comment = trivia.getToken().getValue();
+  public void visitNode(Tree tree) {
+    SyntaxToken token = (SyntaxToken) tree;
+    for (SyntaxTrivia trivia : token.trivias()) {
+      if (trivia.startLine() == previousTokenLine) {
+        String comment = trivia.comment();
         if (comment.startsWith("//") && !pattern.matcher(comment).matches()) {
-          getContext().createLineViolation(this, "Move this trailing comment on the previous empty line.", previousTokenLine);
+          getContext().addIssue(this, previousTokenLine, "Move this trailing comment on the previous empty line.");
         }
       }
     }
-    previousTokenLine = token.getLine();
+    previousTokenLine = token.line();
   }
 
   public void setLegalCommentPattern(String pattern) {
