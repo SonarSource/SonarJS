@@ -60,7 +60,7 @@ public class VariableStatementTreeImpl extends JavaScriptTree implements Variabl
 
   @Override
   public Iterator<Tree> childrenIterator() {
-    return Iterators.<Tree>singletonIterator(declaration);
+    return Iterators.<Tree>forArray(declaration, eos);
   }
 
   @Override
