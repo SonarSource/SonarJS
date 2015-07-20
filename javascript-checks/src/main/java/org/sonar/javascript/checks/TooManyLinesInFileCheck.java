@@ -19,18 +19,20 @@
  */
 package org.sonar.javascript.checks;
 
+import com.google.common.collect.ImmutableList;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
+import org.sonar.javascript.checks.utils.SubscriptionBaseVisitor;
+import org.sonar.javascript.model.internal.lexical.InternalSyntaxToken;
+import org.sonar.plugins.javascript.api.tree.Tree;
+import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import org.sonar.squidbridge.annotations.ActivatedByDefault;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
-import org.sonar.squidbridge.checks.SquidCheck;
-import org.sonar.sslr.parser.LexerlessGrammar;
 
-import com.sonar.sslr.api.AstNode;
-import com.sonar.sslr.api.GenericTokenType;
+import java.util.List;
 
 @Rule(
   key = "S104",
@@ -40,7 +42,7 @@ import com.sonar.sslr.api.GenericTokenType;
 @ActivatedByDefault
 @SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.READABILITY)
 @SqaleConstantRemediation("1h")
-public class TooManyLinesInFileCheck extends SquidCheck<LexerlessGrammar> {
+public class TooManyLinesInFileCheck extends SubscriptionBaseVisitor {
 
   private static final int DEFAULT = 1000;
 
@@ -51,18 +53,24 @@ public class TooManyLinesInFileCheck extends SquidCheck<LexerlessGrammar> {
   public int maximum = DEFAULT;
 
   @Override
-  public void init() {
-    subscribeTo(GenericTokenType.EOF);
+  public void visitNode(Tree tree) {
+    if (!((InternalSyntaxToken) tree).isEOF()) {
+      return;
+    }
+
+    SyntaxToken token = (SyntaxToken) tree;
+    int lines = token.line();
+
+    if (lines > maximum) {
+      getContext().addFileIssue(this, String.format("File \"%s\" has %d lines, which is greater than %d authorized. Split it into smaller files.",
+        getContext().getFile().getName(), lines, maximum));
+    }
   }
 
   @Override
-  public void visitNode(AstNode astNode) {
-    int lines = astNode.getTokenLine();
-
-    if (lines > maximum) {
-      getContext().createFileViolation(this, "File \"{0}\" has {1} lines, which is greater than {2} authorized. Split it into smaller files.",
-        getContext().getFile().getName(), lines, maximum);
-    }
+  public List<Tree.Kind> nodesToVisit() {
+    return ImmutableList.of(Tree.Kind.TOKEN);
   }
+
 }
 
