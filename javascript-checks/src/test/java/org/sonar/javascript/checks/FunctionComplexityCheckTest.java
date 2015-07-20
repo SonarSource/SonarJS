@@ -19,24 +19,27 @@
  */
 package org.sonar.javascript.checks;
 
-import org.sonar.squidbridge.checks.CheckMessagesVerifier;
 import org.junit.Test;
-import org.sonar.javascript.JavaScriptAstScanner;
+import org.sonar.javascript.checks.utils.TreeCheckTest;
 import org.sonar.squidbridge.api.SourceFile;
+import org.sonar.squidbridge.checks.CheckMessagesVerifier;
 
-import java.io.File;
-
-public class FunctionComplexityCheckTest {
+public class FunctionComplexityCheckTest extends TreeCheckTest {
 
   @Test
   public void test() {
     FunctionComplexityCheck check = new FunctionComplexityCheck();
     check.setMaximumFunctionComplexityThreshold(2);
 
-    SourceFile file = JavaScriptAstScanner.scanSingleFile(new File("src/test/resources/checks/functionComplexity.js"), check);
+    SourceFile file = scanFile("src/test/resources/checks/functionComplexity.js", check);
     CheckMessagesVerifier.verify(file.getCheckMessages())
-        .next().atLine(1).withMessage("Function has a complexity of 5 which is greater than 2 authorized.")
-        .next().atLine(14)
+        .next().atLine(11).withMessage("Function has a complexity of 3 which is greater than 2 authorized.")
+        .next().atLine(18)
+        .next().atLine(24)
+        .next().atLine(40)
+        .next().atLine(51)
+        .next().atLine(67)
+        .next().atLine(78)
         .noMore();
   }
 
