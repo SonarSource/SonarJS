@@ -64,22 +64,22 @@ public class TrailingWhitespaceCheck extends SubscriptionBaseVisitor implements 
 
   @Override
   public void visitFile(Tree scriptTree) {
-    List<String> lines;
+    List<String> lines = Collections.emptyList();
 
     try {
       lines = Files.readLines(getContext().getFile(), charset);
 
-      for (int i = 0; i < lines.size(); i++) {
-        String line = lines.get(i);
-
-        if (line.length() > 0 && Pattern.matches("[" + EcmaScriptLexer.WHITESPACE + "]", line.subSequence(line.length() - 1, line.length()))) {
-          getContext().addIssue(this, i + 1, "Remove the useless trailing whitespaces at the end of this line.");
-        }
-      }
-
     } catch (IOException e) {
       LOG.error("Unable to execute rule \"TrailingWhitespace\" for file {} because of error: {}",
         getContext().getFile().getName(), e);
+    }
+
+    for (int i = 0; i < lines.size(); i++) {
+      String line = lines.get(i);
+
+      if (line.length() > 0 && Pattern.matches("[" + EcmaScriptLexer.WHITESPACE + "]", line.subSequence(line.length() - 1, line.length()))) {
+        getContext().addIssue(this, i + 1, "Remove the useless trailing whitespaces at the end of this line.");
+      }
     }
 
   }
