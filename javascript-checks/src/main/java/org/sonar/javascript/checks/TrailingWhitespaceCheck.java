@@ -19,25 +19,25 @@
  */
 package org.sonar.javascript.checks;
 
-import java.io.IOException;
-import java.nio.charset.Charset;
-import java.util.List;
-import java.util.regex.Pattern;
-
+import com.google.common.io.Files;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.server.rule.RulesDefinition;
-import org.sonar.api.utils.SonarException;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.javascript.CharsetAwareVisitor;
+import org.sonar.javascript.checks.utils.SubscriptionBaseVisitor;
 import org.sonar.javascript.lexer.EcmaScriptLexer;
+import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.squidbridge.annotations.ActivatedByDefault;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
-import org.sonar.squidbridge.checks.SquidCheck;
-import org.sonar.sslr.parser.LexerlessGrammar;
 
-import com.google.common.io.Files;
-import com.sonar.sslr.api.AstNode;
+import java.io.IOException;
+import java.nio.charset.Charset;
+import java.util.Collections;
+import java.util.List;
+import java.util.regex.Pattern;
 
 @Rule(
   key = "TrailingWhitespace",
@@ -47,8 +47,9 @@ import com.sonar.sslr.api.AstNode;
 @ActivatedByDefault
 @SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.READABILITY)
 @SqaleConstantRemediation("1min")
-public class TrailingWhitespaceCheck extends SquidCheck<LexerlessGrammar> implements CharsetAwareVisitor {
+public class TrailingWhitespaceCheck extends SubscriptionBaseVisitor implements CharsetAwareVisitor {
 
+  private static final Logger LOG = LoggerFactory.getLogger(TrailingWhitespaceCheck.class);
   private Charset charset;
 
   @Override
@@ -57,19 +58,30 @@ public class TrailingWhitespaceCheck extends SquidCheck<LexerlessGrammar> implem
   }
 
   @Override
-  public void visitFile(AstNode astNode) {
-    List<String> lines;
+  public List<Tree.Kind> nodesToVisit() {
+    return Collections.emptyList();
+  }
+
+  @Override
+  public void visitFile(Tree scriptTree) {
+    List<String> lines = Collections.emptyList();
+
     try {
       lines = Files.readLines(getContext().getFile(), charset);
+
     } catch (IOException e) {
-      throw new SonarException(e);
+      LOG.error("Unable to execute rule \"TrailingWhitespace\" for file {} because of error: {}",
+        getContext().getFile().getName(), e);
     }
+
     for (int i = 0; i < lines.size(); i++) {
       String line = lines.get(i);
+
       if (line.length() > 0 && Pattern.matches("[" + EcmaScriptLexer.WHITESPACE + "]", line.subSequence(line.length() - 1, line.length()))) {
-        getContext().createLineViolation(this, "Remove the useless trailing whitespaces at the end of this line.", i + 1);
+        getContext().addIssue(this, i + 1, "Remove the useless trailing whitespaces at the end of this line.");
       }
     }
+
   }
 
 }
