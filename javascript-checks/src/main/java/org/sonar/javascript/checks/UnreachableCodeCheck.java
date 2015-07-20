@@ -118,8 +118,8 @@ public class UnreachableCodeCheck extends SubscriptionBaseVisitor {
   }
 
   private static boolean isExcludedExpression(Tree tree) {
-    return tree.is(Kind.EXPRESSION_STATEMENT)
-      && ((ExpressionStatementTree) tree).expression().is(Kind.CLASS_EXPRESSION);
+    return tree.is(Kind.ELSE_CLAUSE) ||
+      (tree.is(Kind.EXPRESSION_STATEMENT) && ((ExpressionStatementTree) tree).expression().is(Kind.CLASS_EXPRESSION));
   }
 
   private void updateStateTo(Boolean state) {
