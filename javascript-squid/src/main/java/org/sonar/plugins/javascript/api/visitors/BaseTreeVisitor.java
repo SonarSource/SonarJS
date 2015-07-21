@@ -103,6 +103,7 @@ public class BaseTreeVisitor implements TreeVisitor, JavaScriptFileScanner {
 
   private AstTreeVisitorContext context = null;
 
+  @Override
   public AstTreeVisitorContext getContext() {
     Preconditions.checkState(context != null, "this#scanFile(context) should be called to initialised the context before accessing it");
     return context;

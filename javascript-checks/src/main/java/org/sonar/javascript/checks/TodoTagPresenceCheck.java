@@ -20,17 +20,18 @@
 package org.sonar.javascript.checks;
 
 
+import com.google.common.collect.ImmutableList;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
+import org.sonar.javascript.checks.utils.SubscriptionBaseVisitor;
+import org.sonar.plugins.javascript.api.tree.Tree;
+import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import org.sonar.squidbridge.annotations.ActivatedByDefault;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
-import org.sonar.squidbridge.checks.SquidCheck;
-import org.sonar.sslr.parser.LexerlessGrammar;
 
-import com.sonar.sslr.api.AstAndTokenVisitor;
-import com.sonar.sslr.api.Token;
+import java.util.List;
 
 @Rule(
   key = "S1135",
@@ -39,7 +40,7 @@ import com.sonar.sslr.api.Token;
 @ActivatedByDefault
 @SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.UNDERSTANDABILITY)
 @SqaleConstantRemediation("20min")
-public class TodoTagPresenceCheck extends SquidCheck<LexerlessGrammar> implements AstAndTokenVisitor {
+public class TodoTagPresenceCheck extends SubscriptionBaseVisitor {
 
   private static final String PATTERN = "TODO";
   private static final String MESSAGE = "Complete the task associated to this TODO comment.";
@@ -47,8 +48,12 @@ public class TodoTagPresenceCheck extends SquidCheck<LexerlessGrammar> implement
   private final CommentContainsPatternChecker checker = new CommentContainsPatternChecker(this, PATTERN, MESSAGE);
 
   @Override
-  public void visitToken(Token token) {
-    checker.visitToken(token);
+  public void visitNode(Tree tree) {
+    checker.visitToken((SyntaxToken) tree);
   }
 
+  @Override
+  public List<Tree.Kind> nodesToVisit() {
+    return ImmutableList.of(Tree.Kind.TOKEN);
+  }
 }

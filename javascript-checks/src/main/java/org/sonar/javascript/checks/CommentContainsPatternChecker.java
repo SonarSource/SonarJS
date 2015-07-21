@@ -19,31 +19,31 @@
  */
 package org.sonar.javascript.checks;
 
-import com.sonar.sslr.api.Token;
-import com.sonar.sslr.api.Trivia;
 import org.apache.commons.lang.StringUtils;
-import org.sonar.squidbridge.checks.SquidCheck;
+import org.sonar.plugins.javascript.api.JavaScriptCheck;
+import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
+import org.sonar.plugins.javascript.api.tree.lexical.SyntaxTrivia;
 
 public class CommentContainsPatternChecker {
-  private final SquidCheck<?> check;
+  private final JavaScriptCheck check;
   private final String pattern;
   private final String message;
 
-  public CommentContainsPatternChecker(SquidCheck<?> check, String pattern, String message) {
+  public CommentContainsPatternChecker(JavaScriptCheck check, String pattern, String message) {
     this.check = check;
     this.pattern = pattern;
     this.message = message;
   }
 
-  public void visitToken(Token token) {
-    for (Trivia trivia : token.getTrivia()) {
-      String comment = trivia.getToken().getOriginalValue();
+  public void visitToken(SyntaxToken token) {
+    for (SyntaxTrivia trivia : token.trivias()) {
+      String comment = trivia.comment();
       if (StringUtils.containsIgnoreCase(comment, pattern)) {
         String[] lines = comment.split("\r\n?|\n");
 
         for (int i = 0; i < lines.length; i++) {
           if (StringUtils.containsIgnoreCase(lines[i], pattern) && !isLetterAround(lines[i], pattern)) {
-            check.getContext().createLineViolation(check, message, trivia.getToken().getLine() + i);
+            check.getContext().addIssue(check, trivia.startLine() + i, message);
           }
         }
       }
