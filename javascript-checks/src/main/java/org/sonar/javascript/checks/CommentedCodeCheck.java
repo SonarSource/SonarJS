@@ -19,30 +19,33 @@
  */
 package org.sonar.javascript.checks;
 
-import com.google.common.collect.ImmutableSet;
-import com.sonar.sslr.api.AstAndTokenVisitor;
-import com.sonar.sslr.api.Token;
-import com.sonar.sslr.api.Trivia;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Set;
+import java.util.regex.Pattern;
+
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
+import org.sonar.javascript.EcmaScriptCommentAnalyser;
 import org.sonar.javascript.api.EcmaScriptKeyword;
+import org.sonar.javascript.checks.utils.SubscriptionBaseVisitor;
+import org.sonar.plugins.javascript.api.tree.Tree;
+import org.sonar.plugins.javascript.api.tree.Tree.Kind;
+import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
+import org.sonar.plugins.javascript.api.tree.lexical.SyntaxTrivia;
 import org.sonar.squidbridge.annotations.ActivatedByDefault;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
-import org.sonar.squidbridge.checks.SquidCheck;
 import org.sonar.squidbridge.recognizer.CodeRecognizer;
 import org.sonar.squidbridge.recognizer.Detector;
 import org.sonar.squidbridge.recognizer.EndWithDetector;
 import org.sonar.squidbridge.recognizer.KeywordsDetector;
 import org.sonar.squidbridge.recognizer.LanguageFootprint;
-import org.sonar.sslr.parser.LexerlessGrammar;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Set;
-import java.util.regex.Pattern;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 
 @Rule(
   key = "CommentedCode",
@@ -52,8 +55,10 @@ import java.util.regex.Pattern;
 @ActivatedByDefault
 @SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.UNDERSTANDABILITY)
 @SqaleConstantRemediation("5min")
-public class CommentedCodeCheck extends SquidCheck<LexerlessGrammar> implements AstAndTokenVisitor {
+public class CommentedCodeCheck extends SubscriptionBaseVisitor {
 
+  private static final EcmaScriptCommentAnalyser COMMENT_ANALYSER = new EcmaScriptCommentAnalyser();
+  
   private static final double THRESHOLD = 0.9;
 
   private final CodeRecognizer codeRecognizer = new CodeRecognizer(THRESHOLD, new JavaScriptRecognizer());
@@ -92,13 +97,19 @@ public class CommentedCodeCheck extends SquidCheck<LexerlessGrammar> implements 
   }
 
   @Override
-  public void visitToken(Token token) {
-    for (Trivia trivia : token.getTrivia()) {
-      if (trivia.isComment() && !isJsDoc(trivia)) {
-        String[] lines = regexpToDivideStringByLine.split(getContext().getCommentAnalyser().getContents(trivia.getToken().getOriginalValue()));
+  public List<Kind> nodesToVisit() {
+    return ImmutableList.of(Kind.TOKEN);
+  }
+
+  @Override
+  public void visitNode(Tree tree) {
+    SyntaxToken token = (SyntaxToken) tree;
+    for (SyntaxTrivia trivia : token.trivias()) {
+      if (!isJsDoc(trivia)) {
+        String[] lines = regexpToDivideStringByLine.split(COMMENT_ANALYSER.getContents(trivia.comment()));
         for (int lineOffset = 0; lineOffset < lines.length; lineOffset++) {
           if (codeRecognizer.isLineOfCode(lines[lineOffset])) {
-            getContext().createLineViolation(this, "Sections of code should not be \"commented out\".", trivia.getToken().getLine() + lineOffset);
+            getContext().addIssue(this, trivia.startLine() + lineOffset, "Sections of code should not be \"commented out\".");
             break;
           }
         }
@@ -106,8 +117,8 @@ public class CommentedCodeCheck extends SquidCheck<LexerlessGrammar> implements 
     }
   }
 
-  private static boolean isJsDoc(Trivia trivia) {
-    return trivia.getToken().getValue().startsWith("/**");
+  private static boolean isJsDoc(SyntaxTrivia trivia) {
+    return trivia.comment().startsWith("/**");
   }
 
 }
