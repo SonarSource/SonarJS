@@ -19,27 +19,30 @@
  */
 package org.sonar.javascript.model.internal.expression;
 
-import com.google.common.collect.Iterators;
-import com.sonar.sslr.api.AstNode;
 import org.sonar.plugins.javascript.api.symbols.TypeSet;
 import org.sonar.javascript.model.internal.JavaScriptTree;
+import org.sonar.javascript.model.internal.lexical.InternalSyntaxToken;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.expression.TemplateCharactersTree;
 import org.sonar.plugins.javascript.api.visitors.TreeVisitor;
 
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
 public class TemplateCharactersTreeImpl extends JavaScriptTree implements TemplateCharactersTree {
 
   private final String value;
+  private final List<InternalSyntaxToken> characters;
 
-  public TemplateCharactersTreeImpl(List<AstNode> characters) {
+  public TemplateCharactersTreeImpl(List<InternalSyntaxToken> characters) {
     super(Kind.TEMPLATE_CHARACTERS);
 
+    this.characters = characters;
+
     StringBuilder builder = new StringBuilder();
-    for (AstNode character : characters) {
-      builder.append(character.getTokenValue());
+    for (InternalSyntaxToken character : characters) {
+      builder.append(character.text());
       addChild(character);
     }
 
@@ -58,12 +61,7 @@ public class TemplateCharactersTreeImpl extends JavaScriptTree implements Templa
 
   @Override
   public Iterator<Tree> childrenIterator() {
-    return Iterators.emptyIterator();
-  }
-
-  @Override
-  public boolean isLeaf() {
-    return true;
+    return Collections.<Tree>unmodifiableList(characters).iterator();
   }
 
   @Override

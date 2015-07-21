@@ -118,11 +118,10 @@ import org.sonar.plugins.javascript.api.tree.declaration.SpecifierTree;
 import org.sonar.plugins.javascript.api.tree.expression.BracketMemberExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.MemberExpressionTree;
-import org.sonar.plugins.javascript.api.tree.expression.TemplateCharactersTree;
-import org.sonar.plugins.javascript.api.tree.expression.TemplateExpressionTree;
 import org.sonar.plugins.javascript.api.tree.statement.StatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.SwitchClauseTree;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -1140,13 +1139,12 @@ public class TreeFactory {
     TemplateExpressionTreeImpl firstTemplateExpressionHead, Optional<List<AstNode>> middleTemplateExpression, AstNode tailCloseCurlyBrace,
     Optional<TemplateCharactersTreeImpl> tailCharacters, AstNode closeBacktick) {
     List<AstNode> children = Lists.newArrayList();
-    List<TemplateCharactersTree> strings = Lists.newArrayList();
-    List<TemplateExpressionTree> expressions = Lists.newArrayList();
+    List<Tree> elements = new ArrayList<>();
 
     // TEMPLATE HEAD
     children.add(openBacktick);
     if (headCharacters.isPresent()) {
-      strings.add(headCharacters.get());
+      elements.add(headCharacters.get());
       children.add(headCharacters.get());
     }
 
@@ -1160,7 +1158,7 @@ public class TreeFactory {
 
           if (node.is(EcmaScriptPunctuator.RCURLYBRACE)) {
             expressionHead.complete(InternalSyntaxToken.create(node));
-            expressions.add(expressionHead);
+            elements.add(expressionHead);
             children.add(expressionHead);
 
           } else if (node instanceof TemplateExpressionTreeImpl) {
@@ -1168,7 +1166,7 @@ public class TreeFactory {
 
           } else {
             // Template characters
-            strings.add((TemplateCharactersTree) node);
+            elements.add((Tree) node);
             children.add(node);
           }
         }
@@ -1177,20 +1175,24 @@ public class TreeFactory {
 
     // TEMPLATE TAIL
     expressionHead.complete(InternalSyntaxToken.create(tailCloseCurlyBrace));
-    expressions.add(expressionHead);
+    elements.add(expressionHead);
     children.add(expressionHead);
     if (tailCharacters.isPresent()) {
-      strings.add(tailCharacters.get());
+      elements.add(tailCharacters.get());
       children.add(tailCharacters.get());
     }
 
     children.add(closeBacktick);
 
-    return new TemplateLiteralTreeImpl(InternalSyntaxToken.create(openBacktick), strings, expressions, InternalSyntaxToken.create(closeBacktick), children);
+    return new TemplateLiteralTreeImpl(InternalSyntaxToken.create(openBacktick), elements, InternalSyntaxToken.create(closeBacktick), children);
   }
 
   public TemplateCharactersTreeImpl templateCharacters(List<AstNode> characters) {
-    return new TemplateCharactersTreeImpl(characters);
+    List<InternalSyntaxToken> characterTokens = new ArrayList<>();
+    for (AstNode character : characters) {
+      characterTokens.add(InternalSyntaxToken.create(character));
+    }
+    return new TemplateCharactersTreeImpl(characterTokens);
   }
 
   public ThisTreeImpl thisExpression(AstNode thisKeyword) {
