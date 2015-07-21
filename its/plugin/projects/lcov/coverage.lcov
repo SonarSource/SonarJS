@@ -1,0 +1,10 @@
+SF:./file.js
+BRDA:2,0,0,2
+BRDA:2,0,1,1
+BRDA:2,0,2,0
+BRDA:2,0,3,-
+DA:2,3
+DA:3,3
+DA:5,0
+DA:8,1
+end_of_record

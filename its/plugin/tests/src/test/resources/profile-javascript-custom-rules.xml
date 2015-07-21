@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<profile>
+  <name>javascript-custom-rules-profile</name>
+  <language>js</language>
+  <rules>
+    <rule>
+      <repositoryKey>javascript-custom-rules</repositoryKey>
+      <key>example</key>
+      <priority>MAJOR</priority>
+    </rule>
+  </rules>
+</profile>
+
