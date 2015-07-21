@@ -34,6 +34,12 @@ public class SemicolonCheckTest extends TreeCheckTest {
     CheckMessagesVerifier.verify(file.getCheckMessages())
         .next().atLine(2).withMessage("Add a semicolon at the end of this statement.")
         .next().atLine(7)
+        .next().atLine(22)
+        .next().atLine(24)
+        .next().atLine(28)
+        .next().atLine(32)
+        .next().atLine(34)
+        .next().atLine(37)
         .noMore();
   }
 

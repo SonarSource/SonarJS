@@ -36,6 +36,7 @@ public class ContinueStatementTreeModelTest extends JavaScriptTreeModelTest {
     assertThat(tree.is(Kind.CONTINUE_STATEMENT)).isTrue();
     assertThat(tree.continueKeyword().text()).isEqualTo(EcmaScriptKeyword.CONTINUE.getValue());
     assertThat(tree.label().name()).isEqualTo("label");
+    assertThat(tree.endOfStatement().hasSemicolon()).isTrue();
   }
 
   @Test
@@ -45,5 +46,6 @@ public class ContinueStatementTreeModelTest extends JavaScriptTreeModelTest {
     assertThat(tree.is(Kind.CONTINUE_STATEMENT)).isTrue();
     assertThat(tree.continueKeyword().text()).isEqualTo(EcmaScriptKeyword.CONTINUE.getValue());
     assertThat(tree.label()).isNull();
+    assertThat(tree.endOfStatement().hasSemicolon()).isTrue();
   }
 }

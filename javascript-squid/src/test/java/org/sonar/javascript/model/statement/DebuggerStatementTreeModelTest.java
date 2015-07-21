@@ -34,6 +34,7 @@ public class DebuggerStatementTreeModelTest extends JavaScriptTreeModelTest {
 
     assertThat(tree.is(Kind.DEBUGGER_STATEMENT)).isTrue();
     assertThat(tree.debuggerKeyword().text()).isEqualTo(EcmaScriptKeyword.DEBUGGER.getValue());
+    assertThat(tree.endOfStatement().hasSemicolon()).isTrue();
   }
 
 }

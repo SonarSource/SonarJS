@@ -19,6 +19,26 @@ function sayHello() {
   return 1; // OK
 }
 
+import x from 'mod'  // KO
+import x from 'mod'; // OK
+import 'mod'  // KO
+import 'mod'; // OK
+
+function f() {
+  do {} 
+  while (false) // KO
+  do {} 
+  while (false); // OK
+  throw x  // KO
+  throw x; // OK
+  debugger  // KO
+  debugger; // OK
+  while(false) {
+    continue  // KO
+    continue; // OK
+  }
+}
+
 export var NodeContainer = assert.define('NodeContainer', function(obj) {
   assert(obj).is(assert.structure({
     childNodes: ArrayLikeOfNodes,

@@ -30,8 +30,12 @@ var MyObj = function Object () {            // OK - not handle by the check
 
 var myObj = {
 
-  set my_field (val) {                     // OK - not handle by the check
+  set my_field (val) {                     // OK - not handled by the check
       this.my_field = val;
+  },
+
+  get my_field() {                         // OK - not handled by the check
+    return 0;
   }
 
 };

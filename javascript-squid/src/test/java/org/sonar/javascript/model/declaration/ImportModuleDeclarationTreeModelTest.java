@@ -22,9 +22,13 @@ package org.sonar.javascript.model.declaration;
 import static org.fest.assertions.Assertions.assertThat;
 import org.junit.Test;
 import org.sonar.javascript.model.JavaScriptTreeModelTest;
+import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
+import org.sonar.plugins.javascript.api.tree.declaration.ImportClauseTree;
 import org.sonar.plugins.javascript.api.tree.declaration.ImportDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.declaration.ImportModuleDeclarationTree;
+import org.sonar.plugins.javascript.api.tree.declaration.SpecifierListTree;
+import org.sonar.plugins.javascript.api.tree.declaration.SpecifierTree;
 
 public class ImportModuleDeclarationTreeModelTest extends JavaScriptTreeModelTest {
 
@@ -42,6 +46,23 @@ public class ImportModuleDeclarationTreeModelTest extends JavaScriptTreeModelTes
   }
 
   @Test
+  public void import_list() throws Exception {
+    ImportDeclarationTree tree = parse("import { foo, bar as bar2 } from 'mod' ;", Kind.IMPORT_DECLARATION);
+    ImportClauseTree importClause = (ImportClauseTree) tree.importClause();
+    SpecifierListTree namedImport = (SpecifierListTree) importClause.namedImport();
+    assertSpecifierTree(namedImport.specifiers().get(0), "foo", null, null);
+    assertSpecifierTree(namedImport.specifiers().get(1), "bar", "as", "bar2");
+    assertThat(expressionToString(tree.fromClause())).isEqualTo("from 'mod'");
+  }
+
+  @Test
+  public void namespace() throws Exception {
+    ImportDeclarationTree tree = parse("import * as foo from 'mod' ;", Kind.IMPORT_DECLARATION);
+    ImportClauseTree importClause = (ImportClauseTree) tree.importClause();
+    assertSpecifierTree((SpecifierTree) importClause.namedImport(), "*", "as", "foo");
+  }
+
+  @Test
   public void import_module_declaration() throws Exception {
     ImportModuleDeclarationTree tree = parse("import \"mod\" ;", Kind.IMPORT_MODULE_DECLARATION);
 
@@ -49,6 +70,20 @@ public class ImportModuleDeclarationTreeModelTest extends JavaScriptTreeModelTes
     assertThat(tree.importToken().text()).isEqualTo("import");
     assertThat(tree.moduleName().value()).isEqualTo("\"mod\"");
     // TODO: add eos
+  }
+
+  private void assertSpecifierTree(SpecifierTree tree, String expectedName, String expectedAsToken, String expectedLocalName) {
+    assertTreeValue(tree.name(), expectedName);
+    assertTreeValue(tree.asToken(), expectedAsToken);
+    assertTreeValue(tree.localName(), expectedLocalName);
+  }
+
+  private void assertTreeValue(Tree tree, String expectedValue) {
+    if (expectedValue == null) {
+      assertThat(tree).isNull();
+    } else {
+      assertThat(expressionToString(tree)).isEqualTo(expectedValue);
+    }
   }
 
 }
