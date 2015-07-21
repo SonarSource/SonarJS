@@ -78,7 +78,7 @@ public interface AstTreeVisitorContext {
    * @param check instance of the check that create the issue
    * @param message the issue message
    */
-  public void addFileIssue(JavaScriptCheck check, String message);
+  void addFileIssue(JavaScriptCheck check, String message);
 
   /**
    * @return the current SonarQube file key

@@ -45,6 +45,7 @@ public interface ForOfStatementTree extends IterationStatementTree {
 
   SyntaxToken closeParenthesis();
 
+  @Override
   StatementTree statement();
 
 }

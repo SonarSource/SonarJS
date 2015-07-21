@@ -80,7 +80,7 @@ public class InternalSyntaxToken extends JavaScriptTree implements SyntaxToken {
   }
 
   /**
-   * Use {@link SyntaxToken#line()} instead.
+   * @deprecated Use {@link SyntaxToken#line()} instead.
    */
   @Deprecated
   @Override
@@ -88,10 +88,12 @@ public class InternalSyntaxToken extends JavaScriptTree implements SyntaxToken {
     return line();
   }
 
+  @Override
   public int line() {
     return token.getLine();
   }
 
+  @Override
   public int column() {
     return token.getColumn();
   }

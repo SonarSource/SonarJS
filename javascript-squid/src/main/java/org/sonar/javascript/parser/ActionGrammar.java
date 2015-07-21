@@ -1568,7 +1568,7 @@ public class ActionGrammar {
           b.invokeRule(EcmaScriptGrammar.EOF)));
   }
 
-  private <T> T ES6(T object) {
+  private static <T> T ES6(T object) {
     return object;
   }
 

@@ -26,7 +26,6 @@ import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
 import org.sonar.javascript.checks.utils.SubscriptionBaseVisitor;
 import org.sonar.javascript.model.internal.JavaScriptTree;
-import org.sonar.javascript.model.internal.lexical.InternalSyntaxToken;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.expression.CallExpressionTree;
@@ -126,8 +125,8 @@ public class TooManyLinesInFunctionCheck extends SubscriptionBaseVisitor {
     while (childrenIterator.hasNext()){
       Tree child = childrenIterator.next();
       if (child != null && child.is(Kind.BLOCK)){
-        int firstLine = ((InternalSyntaxToken)((BlockTree) child).openCurlyBrace()).getLine();
-        int lastLine = ((InternalSyntaxToken)((BlockTree) child).closeCurlyBrace()).getLine();
+        int firstLine = ((BlockTree) child).openCurlyBrace().line();
+        int lastLine = ((BlockTree) child).closeCurlyBrace().line();
 
         return lastLine - firstLine + 1;
       }
