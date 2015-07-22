@@ -37,7 +37,7 @@ public class NameSpaceExportDeclarationTreeModelTest extends JavaScriptTreeModel
     assertThat(tree.starToken().text()).isEqualTo("*");
     assertThat(tree.fromClause()).isNotNull();
     assertThat(expressionToString(tree.fromClause())).isEqualTo("from \"mod\"");
-    // TODO: add eos
+    assertThat(tree.endOfStatement().hasSemicolon()).isTrue();
   }
 
 }

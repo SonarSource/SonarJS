@@ -42,7 +42,7 @@ public class ImportModuleDeclarationTreeModelTest extends JavaScriptTreeModelTes
     assertThat(expressionToString(tree.importClause())).isEqualTo("a");
     assertThat(tree.fromClause()).isNotNull();
     assertThat(expressionToString(tree.fromClause())).isEqualTo("from \"mod\"");
-    // TODO: add eos
+    assertThat(tree.endOfStatement().hasSemicolon()).isTrue();
   }
 
   @Test
@@ -69,7 +69,7 @@ public class ImportModuleDeclarationTreeModelTest extends JavaScriptTreeModelTes
     assertThat(tree.is(Kind.IMPORT_MODULE_DECLARATION)).isTrue();
     assertThat(tree.importToken().text()).isEqualTo("import");
     assertThat(tree.moduleName().value()).isEqualTo("\"mod\"");
-    // TODO: add eos
+    assertThat(tree.endOfStatement().hasSemicolon()).isTrue();
   }
 
   private void assertSpecifierTree(SpecifierTree tree, String expectedName, String expectedAsToken, String expectedLocalName) {

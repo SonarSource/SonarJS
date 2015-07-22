@@ -20,7 +20,7 @@
 package org.sonar.plugins.javascript.api.tree.declaration;
 
 import com.google.common.annotations.Beta;
-import org.sonar.plugins.javascript.api.tree.Tree;
+import org.sonar.plugins.javascript.api.tree.statement.EndOfStatementTree;
 
 /**
  * <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-imports">Export Clause</a> (<a href="http://wiki.ecmascript.org/doku.php?id=harmony:specification_drafts">ES6</a>).
@@ -35,6 +35,6 @@ public interface ExportClauseTree extends DeclarationTree {
 
   FromClauseTree fromClause();
 
-  Tree eos();
+  EndOfStatementTree eos();
 
 }

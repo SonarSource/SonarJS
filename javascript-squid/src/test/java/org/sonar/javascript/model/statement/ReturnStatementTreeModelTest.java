@@ -36,6 +36,7 @@ public class ReturnStatementTreeModelTest extends JavaScriptTreeModelTest {
     assertThat(tree.is(Kind.RETURN_STATEMENT)).isTrue();
     assertThat(tree.returnKeyword().text()).isEqualTo(EcmaScriptKeyword.RETURN.getValue());
     assertThat(tree.expression()).isNotNull();
+    assertThat(tree.endOfStatement().hasSemicolon()).isTrue();
   }
 
   @Test
@@ -45,6 +46,7 @@ public class ReturnStatementTreeModelTest extends JavaScriptTreeModelTest {
     assertThat(tree.is(Kind.RETURN_STATEMENT)).isTrue();
     assertThat(tree.returnKeyword().text()).isEqualTo(EcmaScriptKeyword.RETURN.getValue());
     assertThat(tree.expression()).isNull();
+    assertThat(tree.endOfStatement().hasSemicolon()).isTrue();
   }
 
 }

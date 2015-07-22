@@ -36,7 +36,7 @@ public class ExportClauseTreeModelTest extends JavaScriptTreeModelTest {
     assertThat(expressionToString(tree.exports())).isEqualTo("{ }");
     assertThat(tree.fromClause()).isNotNull();
     assertThat(expressionToString(tree.fromClause())).isEqualTo("from \"mod\"");
-    // TODO: add eos
+    assertThat(tree.eos().hasSemicolon()).isTrue();
   }
 
 
@@ -48,7 +48,7 @@ public class ExportClauseTreeModelTest extends JavaScriptTreeModelTest {
     assertThat(tree.exports()).isNotNull();
     assertThat(expressionToString(tree.exports())).isEqualTo("{ }");
     assertThat(tree.fromClause()).isNull();
-    // TODO: add eos
+    assertThat(tree.eos().hasSemicolon()).isTrue();
   }
 
 }
