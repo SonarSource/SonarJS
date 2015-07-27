@@ -3,11 +3,10 @@ SonarQube JavaScript
 
 This is the SonarQube JavaScript Plugin
 
+[![Build Status](https://travis-ci.org/SonarCommunity/sonar-javascript.svg?branch=master)](https://travis-ci.org/SonarCommunity/sonar-javascript)
+
 Project homepage:
-http://docs.codehaus.org/display/SONAR/JavaScript+Plugin
+http://docs.sonarqube.org/display/PLUG/JavaScript+Plugin
 
 Issue tracking:
-http://jira.codehaus.org/browse/SONARPLUGINS/component/14683
-
-CI builds:
-http://sonarplugins.ci.cloudbees.com/job/javascript
+http://jira.sonarsource.com/browse/SONARJS
