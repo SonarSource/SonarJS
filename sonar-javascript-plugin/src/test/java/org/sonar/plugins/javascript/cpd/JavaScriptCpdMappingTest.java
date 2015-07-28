@@ -20,7 +20,7 @@
 package org.sonar.plugins.javascript.cpd;
 
 import org.junit.Test;
-import org.sonar.api.resources.ProjectFileSystem;
+import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.plugins.javascript.core.JavaScript;
 
 import static org.fest.assertions.Assertions.assertThat;
@@ -31,7 +31,7 @@ public class JavaScriptCpdMappingTest {
   @Test
   public void test() {
     JavaScript language = mock(JavaScript.class);
-    ProjectFileSystem fs = mock(ProjectFileSystem.class);
+    FileSystem fs = mock(FileSystem.class);
     JavaScriptCpdMapping mapping = new JavaScriptCpdMapping(language, fs);
     assertThat(mapping.getLanguage()).isSameAs(language);
     assertThat(mapping.getTokenizer()).isInstanceOf(JavaScriptTokenizer.class);
