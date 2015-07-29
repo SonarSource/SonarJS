@@ -63,7 +63,6 @@
   </ciManagement>
 
   <properties>
-  	<bintray.package>sonar-javascript</bintray.package>
     <license.title>SonarQube JavaScript Plugin</license.title>
 
     <maven.test.redirectTestOutputToFile>true</maven.test.redirectTestOutputToFile>
