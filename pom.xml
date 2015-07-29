@@ -58,8 +58,8 @@
     <url>https://jira.codehaus.org/browse/SONARJS</url>
   </issueManagement>
   <ciManagement>
-    <system>Cloudbees</system>
-    <url>http://sonarplugins.ci.cloudbees.com/job/javascript</url>
+    <system>Travis</system>
+    <url>https://travis-ci.org/SonarCommunity/sonar-javascript</url>
   </ciManagement>
 
   <properties>
