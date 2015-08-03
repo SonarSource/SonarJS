@@ -53,7 +53,7 @@ import org.sonar.javascript.checks.CheckList;
 import org.sonar.javascript.highlighter.JavaScriptHighlighter;
 import org.sonar.javascript.metrics.FileLinesVisitor;
 import org.sonar.plugins.javascript.api.CustomJavaScriptRulesDefinition;
-import org.sonar.plugins.javascript.api.JavaScriptFileScanner;
+import org.sonar.plugins.javascript.api.JavaScriptCheck;
 import org.sonar.plugins.javascript.core.JavaScript;
 import org.sonar.squidbridge.AstScanner;
 import org.sonar.squidbridge.SquidAstVisitor;
@@ -130,11 +130,11 @@ public class JavaScriptSquidSensor implements Sensor {
     this.context = context;
 
     List<CodeVisitor> astNodeVisitors = Lists.newArrayList();
-    List<JavaScriptFileScanner> treeVisitors = Lists.newArrayList();
+    List<JavaScriptCheck> treeVisitors = Lists.newArrayList();
 
     for (CodeVisitor visitor : checks.all()) {
-      if (visitor instanceof JavaScriptFileScanner) {
-        treeVisitors.add((JavaScriptFileScanner) visitor);
+      if (visitor instanceof JavaScriptCheck) {
+        treeVisitors.add((JavaScriptCheck) visitor);
       } else {
         astNodeVisitors.add(visitor);
       }

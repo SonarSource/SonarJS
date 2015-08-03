@@ -29,4 +29,6 @@ import org.sonar.squidbridge.api.CodeVisitor;
 public interface JavaScriptCheck extends CodeVisitor {
 
   AstTreeVisitorContext getContext();
+
+  void scanFile(AstTreeVisitorContext context);
 }

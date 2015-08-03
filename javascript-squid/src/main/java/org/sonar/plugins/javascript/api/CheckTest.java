@@ -38,7 +38,7 @@ public class CheckTest {
   /**
    * Scan the given file with the given check.
    */
-  public SourceFile scanFile(String fileName, JavaScriptFileScanner check) {
+  public SourceFile scanFile(String fileName, JavaScriptCheck check) {
     DefaultFileSystem fs = new DefaultFileSystem();
     fs.setEncoding(Charsets.UTF_8);
 

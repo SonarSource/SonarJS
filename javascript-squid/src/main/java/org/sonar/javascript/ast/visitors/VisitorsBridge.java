@@ -30,7 +30,7 @@ import org.sonar.api.source.Symbolizable;
 import org.sonar.javascript.CharsetAwareVisitor;
 import org.sonar.javascript.ast.resolve.SymbolModelImpl;
 import org.sonar.javascript.highlighter.SourceFileOffsets;
-import org.sonar.plugins.javascript.api.JavaScriptFileScanner;
+import org.sonar.plugins.javascript.api.JavaScriptCheck;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
 import org.sonar.squidbridge.SquidAstVisitor;
 import org.sonar.squidbridge.api.SourceFile;
@@ -42,13 +42,13 @@ import java.util.List;
 
 public class VisitorsBridge extends SquidAstVisitor<LexerlessGrammar> {
 
-  private final List<JavaScriptFileScanner> scanners;
+  private final List<JavaScriptCheck> scanners;
   private final ResourcePerspectives resourcePerspectives;
   private final FileSystem fs;
   private static final Logger LOG = LoggerFactory.getLogger(VisitorsBridge.class);
   private final Settings settings;
 
-  public VisitorsBridge(List<JavaScriptFileScanner> visitors, @Nullable ResourcePerspectives resourcePerspectives, FileSystem fs, Settings settings) {
+  public VisitorsBridge(List<JavaScriptCheck> visitors, @Nullable ResourcePerspectives resourcePerspectives, FileSystem fs, Settings settings) {
     this.scanners = visitors;
     this.resourcePerspectives = resourcePerspectives;
     this.fs = fs;
@@ -62,7 +62,7 @@ public class VisitorsBridge extends SquidAstVisitor<LexerlessGrammar> {
       File file = getContext().getFile();
       SymbolModelImpl symbolModel = SymbolModelImpl.create(scriptTree, symbolizableFor(file), new SourceFileOffsets(file, fs.encoding()), settings);
 
-      for (JavaScriptFileScanner scanner : scanners) {
+      for (JavaScriptCheck scanner : scanners) {
         if (scanner instanceof CharsetAwareVisitor) {
           ((CharsetAwareVisitor) scanner).setCharset(fs.encoding());
         }

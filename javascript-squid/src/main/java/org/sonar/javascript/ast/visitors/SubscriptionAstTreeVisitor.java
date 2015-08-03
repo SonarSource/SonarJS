@@ -21,7 +21,7 @@ package org.sonar.javascript.ast.visitors;
 
 import org.sonar.javascript.model.internal.JavaScriptTree;
 import org.sonar.plugins.javascript.api.AstTreeVisitorContext;
-import org.sonar.plugins.javascript.api.JavaScriptFileScanner;
+import org.sonar.plugins.javascript.api.JavaScriptCheck;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxTrivia;
@@ -30,7 +30,7 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
-public abstract class SubscriptionAstTreeVisitor implements JavaScriptFileScanner {
+public abstract class SubscriptionAstTreeVisitor implements JavaScriptCheck {
 
   private AstTreeVisitorContext context;
   private Collection<Tree.Kind> nodesToVisit;
