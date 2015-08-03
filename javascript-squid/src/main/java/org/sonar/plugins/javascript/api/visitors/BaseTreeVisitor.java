@@ -24,7 +24,7 @@ import com.google.common.base.Preconditions;
 import com.sonar.sslr.api.typed.Optional;
 import org.sonar.javascript.model.internal.expression.SuperTreeImpl;
 import org.sonar.plugins.javascript.api.AstTreeVisitorContext;
-import org.sonar.plugins.javascript.api.JavaScriptFileScanner;
+import org.sonar.plugins.javascript.api.JavaScriptCheck;
 import org.sonar.plugins.javascript.api.tree.ModuleTree;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
@@ -99,7 +99,7 @@ import javax.annotation.Nullable;
 import java.util.List;
 
 @Beta
-public class BaseTreeVisitor implements TreeVisitor, JavaScriptFileScanner {
+public class BaseTreeVisitor implements TreeVisitor, JavaScriptCheck {
 
   private AstTreeVisitorContext context = null;
 
