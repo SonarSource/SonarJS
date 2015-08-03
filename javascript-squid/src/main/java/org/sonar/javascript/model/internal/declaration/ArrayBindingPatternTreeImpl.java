@@ -32,7 +32,7 @@ import org.sonar.plugins.javascript.api.tree.declaration.ArrayBindingPatternTree
 import org.sonar.plugins.javascript.api.tree.declaration.BindingElementTree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 import org.sonar.plugins.javascript.api.tree.expression.RestElementTree;
-import org.sonar.javascript.parser.sslr.Optional;
+import com.sonar.sslr.api.typed.Optional;
 
 import java.util.Iterator;
 import java.util.List;

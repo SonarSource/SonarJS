@@ -23,7 +23,7 @@ import com.google.common.base.Preconditions;
 import com.sonar.sslr.api.AstNode;
 import com.sonar.sslr.api.AstNodeType;
 import com.sonar.sslr.api.Token;
-import org.sonar.javascript.ast.parser.AstNodeReflector;
+import com.sonar.sslr.impl.typed.AstNodeReflector;
 import org.sonar.plugins.javascript.api.tree.Tree;
 
 import javax.annotation.Nullable;

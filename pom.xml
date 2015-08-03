@@ -68,7 +68,7 @@
     <maven.test.redirectTestOutputToFile>true</maven.test.redirectTestOutputToFile>
 
     <sonar.version>4.5.2</sonar.version>
-    <sslr.version>1.20</sslr.version>
+    <sslr.version>1.21</sslr.version>
   </properties>
 
   <dependencyManagement>
@@ -95,17 +95,17 @@
       </dependency>
 
       <dependency>
-        <groupId>org.codehaus.sonar.sslr</groupId>
+        <groupId>org.sonarsource.sslr</groupId>
         <artifactId>sslr-core</artifactId>
         <version>${sslr.version}</version>
       </dependency>
       <dependency>
-        <groupId>org.codehaus.sonar.sslr</groupId>
+        <groupId>org.sonarsource.sslr</groupId>
         <artifactId>sslr-toolkit</artifactId>
         <version>${sslr.version}</version>
       </dependency>
       <dependency>
-        <groupId>org.codehaus.sonar.sslr</groupId>
+        <groupId>org.sonarsource.sslr</groupId>
         <artifactId>sslr-testing-harness</artifactId>
         <version>${sslr.version}</version>
       </dependency>

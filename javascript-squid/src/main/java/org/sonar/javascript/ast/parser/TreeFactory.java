@@ -104,7 +104,6 @@ import org.sonar.javascript.model.internal.statement.VariableStatementTreeImpl;
 import org.sonar.javascript.model.internal.statement.WhileStatementTreeImpl;
 import org.sonar.javascript.model.internal.statement.WithStatementTreeImpl;
 import org.sonar.javascript.parser.EcmaScriptGrammar;
-import org.sonar.javascript.parser.sslr.Optional;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.declaration.BindingElementTree;
@@ -120,6 +119,7 @@ import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.MemberExpressionTree;
 import org.sonar.plugins.javascript.api.tree.statement.StatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.SwitchClauseTree;
+import com.sonar.sslr.api.typed.Optional;
 
 import java.util.ArrayList;
 import java.util.Collections;

@@ -13,7 +13,7 @@
 
   <dependencies>
     <dependency>
-      <groupId>org.codehaus.sonar.sslr</groupId>
+      <groupId>org.sonarsource.sslr</groupId>
       <artifactId>sslr-toolkit</artifactId>
     </dependency>
     <dependency>
@@ -63,9 +63,9 @@
             <configuration>
               <includes>
                 <include>${project.groupId}:javascript-squid</include>
-                <include>org.codehaus.sonar.sslr:sslr-core</include>
+                <include>org.sonarsource.sslr:sslr-core</include>
                 <include>jaxen:jaxen</include>
-                <include>org.codehaus.sonar.sslr:sslr-toolkit</include>
+                <include>org.sonarsource.sslr:sslr-toolkit</include>
                 <include>org.codehaus.sonar.sslr-squid-bridge:sslr-squid-bridge</include>
                 <include>org.codehaus.sonar:sonar-colorizer</include>
                 <include>org.codehaus.sonar:sonar-squid</include>

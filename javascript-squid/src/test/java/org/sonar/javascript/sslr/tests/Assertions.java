@@ -25,11 +25,12 @@ import com.sonar.sslr.api.AstNode;
 import com.sonar.sslr.api.RecognitionException;
 import com.sonar.sslr.api.Rule;
 import com.sonar.sslr.api.Token;
+import com.sonar.sslr.api.typed.ActionParser;
+import com.sonar.sslr.api.typed.AstNodeBuilder;
 import org.fest.assertions.GenericAssert;
 import org.sonar.javascript.ast.parser.TreeFactory;
 import org.sonar.javascript.parser.ActionGrammar;
 import org.sonar.javascript.parser.EcmaScriptGrammar;
-import org.sonar.javascript.parser.sslr.ActionParser2;
 import org.sonar.sslr.grammar.GrammarRuleKey;
 import org.sonar.sslr.grammar.LexerlessGrammarBuilder;
 import org.sonar.sslr.tests.ParsingResultComparisonFailure;
@@ -46,17 +47,18 @@ public class Assertions {
   }
 
   public static ParserAssert assertThat(LexerlessGrammarBuilder b, GrammarRuleKey rule) {
-    return new ParserAssert(new ActionParser2(
+    return new ParserAssert(new ActionParser<AstNode>(
       Charsets.UTF_8,
       b,
       ActionGrammar.class,
       new TreeFactory(),
+      new AstNodeBuilder(),
       rule));
   }
 
-  public static class ParserAssert extends GenericAssert<ParserAssert, ActionParser2> {
+  public static class ParserAssert extends GenericAssert<ParserAssert, ActionParser<AstNode>> {
 
-    public ParserAssert(ActionParser2 actual) {
+    public ParserAssert(ActionParser<AstNode> actual) {
       super(ParserAssert.class, actual);
     }
 

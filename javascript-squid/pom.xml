@@ -14,7 +14,7 @@
 
   <dependencies>
     <dependency>
-      <groupId>org.codehaus.sonar.sslr</groupId>
+      <groupId>org.sonarsource.sslr</groupId>
       <artifactId>sslr-core</artifactId>
     </dependency>
     <dependency>
@@ -22,7 +22,7 @@
       <artifactId>sslr-squid-bridge</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.codehaus.sonar.sslr</groupId>
+      <groupId>org.sonarsource.sslr</groupId>
       <artifactId>sslr-testing-harness</artifactId>
       <scope>test</scope>
     </dependency>
@@ -41,11 +41,6 @@
       <groupId>org.mockito</groupId>
       <artifactId>mockito-all</artifactId>
       <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>cglib</groupId>
-      <artifactId>cglib-nodep</artifactId>
-      <version>2.1_3</version>
     </dependency>
   </dependencies>
 
