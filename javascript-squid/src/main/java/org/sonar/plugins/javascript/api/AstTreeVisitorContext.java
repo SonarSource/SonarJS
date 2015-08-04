@@ -23,6 +23,7 @@ import com.google.common.annotations.Beta;
 import org.sonar.plugins.javascript.api.symbols.SymbolModel;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
+import org.sonar.squidbridge.api.SourceCode;
 
 import java.io.File;
 
@@ -89,6 +90,11 @@ public interface AstTreeVisitorContext {
    * @return the current file
    */
   File getFile();
+
+  /**
+   * @return SourceCode object for current file
+   */
+  SourceCode getSourceCode();
 
   /**
    * @return the symbol model that allows to access the symbols declared in the current file

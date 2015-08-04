@@ -28,6 +28,7 @@ import org.sonar.plugins.javascript.api.symbols.SymbolModel;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.squidbridge.api.CheckMessage;
+import org.sonar.squidbridge.api.SourceCode;
 import org.sonar.squidbridge.api.SourceFile;
 
 import java.io.File;
@@ -85,6 +86,11 @@ public class AstTreeVisitorContextImpl implements AstTreeVisitorContext {
   @Override
   public File getFile() {
     return file;
+  }
+
+  @Override
+  public SourceCode getSourceCode() {
+    return sourceFile;
   }
 
   /**

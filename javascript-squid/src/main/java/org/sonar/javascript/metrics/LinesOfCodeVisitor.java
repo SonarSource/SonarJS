@@ -19,23 +19,22 @@
  */
 package org.sonar.javascript.metrics;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Sets;
-import com.sonar.sslr.api.AstAndTokenVisitor;
-import com.sonar.sslr.api.AstNode;
-import com.sonar.sslr.api.Token;
-import org.sonar.squidbridge.SquidAstVisitor;
+import org.sonar.javascript.ast.visitors.SubscriptionAstTreeVisitor;
+import org.sonar.javascript.model.internal.lexical.InternalSyntaxToken;
+import org.sonar.plugins.javascript.api.tree.Tree;
+import org.sonar.plugins.javascript.api.tree.Tree.Kind;
+import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import org.sonar.squidbridge.measures.MetricDef;
-import org.sonar.sslr.parser.LexerlessGrammar;
 
-import javax.annotation.Nullable;
+import java.util.List;
 import java.util.Set;
-
-import static com.sonar.sslr.api.GenericTokenType.EOF;
 
 /**
  * Visitor that computes the number of lines of code of a file.
  */
-public class LinesOfCodeVisitor extends SquidAstVisitor<LexerlessGrammar> implements AstAndTokenVisitor {
+public class LinesOfCodeVisitor extends SubscriptionAstTreeVisitor {
 
   private final MetricDef metric;
   private Set<Integer> lines = Sets.newHashSet();
@@ -44,26 +43,27 @@ public class LinesOfCodeVisitor extends SquidAstVisitor<LexerlessGrammar> implem
     this.metric = metric;
   }
 
-  /**
-   * {@inheritDoc}
-   */
   @Override
-  public void visitFile(AstNode node) {
-    lines.clear();
+  public List<Kind> nodesToVisit() {
+    return ImmutableList.of(Kind.TOKEN, Kind.SCRIPT);
   }
 
-  /**
-   * {@inheritDoc}
-   */
   @Override
-  public void visitToken(Token token) {
-    if (token.getType() != EOF) {
-      lines.add(token.getLine());
+  public void visitNode(Tree tree) {
+    if (tree.is(Kind.SCRIPT)) {
+      lines.clear();
+    } else {
+      SyntaxToken token = (SyntaxToken) tree;
+      if (!((InternalSyntaxToken)token).isEOF()) {
+        lines.add(token.line());
+      }
     }
   }
 
   @Override
-  public void leaveFile(@Nullable AstNode astNode) {
-    getContext().peekSourceCode().add(metric, lines.size());
+  public void leaveNode(Tree tree) {
+    if (tree.is(Kind.SCRIPT)) {
+      getContext().getSourceCode().add(metric, lines.size());
+    }
   }
 }

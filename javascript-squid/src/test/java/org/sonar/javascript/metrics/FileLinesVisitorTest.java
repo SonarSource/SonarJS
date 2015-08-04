@@ -19,17 +19,6 @@
  */
 package org.sonar.javascript.metrics;
 
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.anyInt;
-import static org.mockito.Mockito.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
-import java.io.File;
-import java.net.URISyntaxException;
-
 import org.junit.Test;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
@@ -40,10 +29,21 @@ import org.sonar.api.measures.FileLinesContext;
 import org.sonar.api.measures.FileLinesContextFactory;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.scan.filesystem.PathResolver;
-import org.sonar.javascript.JavaScriptAstScanner;
 import org.sonar.javascript.TestUtils;
+import org.sonar.plugins.javascript.api.VisitorTest;
 
-public class FileLinesVisitorTest {
+import java.io.File;
+import java.net.URISyntaxException;
+
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.anyInt;
+import static org.mockito.Mockito.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+public class FileLinesVisitorTest extends VisitorTest {
 
   @Test
   public void test() throws Exception {
@@ -53,7 +53,7 @@ public class FileLinesVisitorTest {
 
     File file = TestUtils.getResource("/metrics/lines.js");
     FileLinesVisitor visitor = new FileLinesVisitor(fileLinesContextFactory, newFileSystem(file), new PathResolver());
-    JavaScriptAstScanner.scanSingleFile(file, visitor);
+    scanFile(file, visitor);
 
     verify(fileLinesContext, times(3)).setIntValue(eq(CoreMetrics.NCLOC_DATA_KEY), anyInt(), eq(1));
     verify(fileLinesContext, times(1)).setIntValue(eq(CoreMetrics.COMMENT_LINES_DATA_KEY), anyInt(), eq(1));

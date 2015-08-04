@@ -21,12 +21,12 @@ package org.sonar.javascript.checks.utils;
 
 import org.sonar.api.config.Settings;
 import org.sonar.javascript.ast.resolve.type.JQuery;
-import org.sonar.plugins.javascript.api.CheckTest;
+import org.sonar.plugins.javascript.api.VisitorTest;
 
 import java.util.HashMap;
 import java.util.Map;
 
-public class TreeCheckTest extends CheckTest {
+public class TreeCheckTest extends VisitorTest {
 
   @Override
   public Settings settings() {

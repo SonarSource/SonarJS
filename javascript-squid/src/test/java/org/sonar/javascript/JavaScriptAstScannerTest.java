@@ -22,7 +22,9 @@ package org.sonar.javascript;
 import com.google.common.base.Charsets;
 import com.google.common.collect.ImmutableList;
 import org.junit.Test;
+import org.sonar.api.batch.fs.internal.DefaultFileSystem;
 import org.sonar.javascript.api.EcmaScriptMetric;
+import org.sonar.plugins.javascript.api.VisitorTest;
 import org.sonar.squidbridge.AstScanner;
 import org.sonar.squidbridge.api.SourceFile;
 import org.sonar.squidbridge.api.SourceProject;
@@ -33,11 +35,13 @@ import java.io.File;
 
 import static org.fest.assertions.Assertions.assertThat;
 
-public class JavaScriptAstScannerTest {
+public class JavaScriptAstScannerTest extends VisitorTest {
 
   @Test
   public void files() {
-    AstScanner<LexerlessGrammar> scanner = JavaScriptAstScanner.create(new EcmaScriptConfiguration(Charsets.UTF_8));
+    DefaultFileSystem fs = new DefaultFileSystem();
+    fs.setEncoding(Charsets.UTF_8);
+    AstScanner<LexerlessGrammar> scanner = JavaScriptAstScanner.create(new EcmaScriptConfiguration(Charsets.UTF_8), null, fs, null);
     scanner.scanFiles(ImmutableList.of(new File("src/test/resources/metrics/lines.js"), new File("src/test/resources/metrics/lines_of_code.js")));
     SourceProject project = (SourceProject) scanner.getIndex().search(new QueryByType(SourceProject.class)).iterator().next();
     assertThat(project.getInt(EcmaScriptMetric.FILES)).isEqualTo(2);
@@ -45,7 +49,7 @@ public class JavaScriptAstScannerTest {
 
   @Test
   public void comments() {
-    SourceFile file = JavaScriptAstScanner.scanSingleFile(new File("src/test/resources/metrics/comments.js"));
+    SourceFile file = scanFile(new File("src/test/resources/metrics/comments.js"));
     assertThat(file.getInt(EcmaScriptMetric.COMMENT_LINES)).isEqualTo(3);
     assertThat(file.getNoSonarTagLines()).contains(10);
     assertThat(file.getNoSonarTagLines().size()).isEqualTo(1);
@@ -53,45 +57,45 @@ public class JavaScriptAstScannerTest {
 
   @Test
   public void lines() {
-    SourceFile file = JavaScriptAstScanner.scanSingleFile(new File("src/test/resources/metrics/lines.js"));
+    SourceFile file = scanFile(new File("src/test/resources/metrics/lines.js"));
     assertThat(file.getInt(EcmaScriptMetric.LINES)).isEqualTo(5);
   }
 
   @Test
   public void lines_of_code() {
-    SourceFile file = JavaScriptAstScanner.scanSingleFile(new File("src/test/resources/metrics/lines_of_code.js"));
+    SourceFile file = scanFile(new File("src/test/resources/metrics/lines_of_code.js"));
     assertThat(file.getInt(EcmaScriptMetric.LINES_OF_CODE)).isEqualTo(3);
   }
 
   @Test
   public void statements() {
-    SourceFile file = JavaScriptAstScanner.scanSingleFile(new File("src/test/resources/metrics/statements.js"));
+    SourceFile file = scanFile(new File("src/test/resources/metrics/statements.js"));
     assertThat(file.getInt(EcmaScriptMetric.STATEMENTS)).isEqualTo(16);
   }
 
   @Test
   public void classes() {
-    SourceFile file = JavaScriptAstScanner.scanSingleFile(new File("src/test/resources/metrics/classes.js"));
+    SourceFile file = scanFile(new File("src/test/resources/metrics/classes.js"));
     assertThat(file.getInt(EcmaScriptMetric.CLASSES)).isEqualTo(3);
   }
 
   @Test
   public void functions() {
 
-    SourceFile file = JavaScriptAstScanner.scanSingleFile(new File("src/test/resources/metrics/functions.js"));
+    SourceFile file = scanFile(new File("src/test/resources/metrics/functions.js"));
     assertThat(file.getInt(EcmaScriptMetric.FUNCTIONS)).isEqualTo(8);
     assertThat(file.getInt(EcmaScriptMetric.STATEMENTS)).isEqualTo(10);
   }
 
   @Test
   public void accessors() {
-    SourceFile file = JavaScriptAstScanner.scanSingleFile(new File("src/test/resources/metrics/accessors.js"));
+    SourceFile file = scanFile(new File("src/test/resources/metrics/accessors.js"));
     assertThat(file.getInt(EcmaScriptMetric.ACCESSORS)).isEqualTo(4);
   }
 
   @Test
   public void complexity() {
-    SourceFile file = JavaScriptAstScanner.scanSingleFile(new File("src/test/resources/metrics/complexity.js"));
+    SourceFile file = scanFile(new File("src/test/resources/metrics/complexity.js"));
     assertThat(file.getInt(EcmaScriptMetric.COMPLEXITY)).isEqualTo(20);
   }
 

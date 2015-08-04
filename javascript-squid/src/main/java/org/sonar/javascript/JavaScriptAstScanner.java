@@ -20,15 +20,21 @@
 package org.sonar.javascript;
 
 import com.google.common.base.Charsets;
+import com.google.common.collect.Lists;
 import com.sonar.sslr.api.AstNode;
 import com.sonar.sslr.impl.Parser;
+import org.sonar.api.batch.fs.FileSystem;
+import org.sonar.api.component.ResourcePerspectives;
+import org.sonar.api.config.Settings;
 import org.sonar.javascript.api.EcmaScriptMetric;
 import org.sonar.javascript.api.EcmaScriptTokenType;
+import org.sonar.javascript.ast.visitors.VisitorsBridge;
 import org.sonar.javascript.metrics.ComplexityVisitor;
 import org.sonar.javascript.metrics.LinesOfCodeVisitor;
-import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.javascript.parser.EcmaScriptGrammar;
 import org.sonar.javascript.parser.EcmaScriptParser;
+import org.sonar.plugins.javascript.api.JavaScriptCheck;
+import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.squidbridge.AstScanner;
 import org.sonar.squidbridge.ProgressAstScanner;
 import org.sonar.squidbridge.SourceCodeBuilderCallback;
@@ -47,6 +53,7 @@ import org.sonar.squidbridge.metrics.LinesVisitor;
 import org.sonar.sslr.grammar.GrammarRuleKey;
 import org.sonar.sslr.parser.LexerlessGrammar;
 
+import javax.annotation.Nullable;
 import java.io.File;
 import java.util.Collection;
 
@@ -66,11 +73,16 @@ public final class JavaScriptAstScanner {
   /**
    * Helper method for testing checks without having to deploy them on a Sonar instance.
    */
-  public static SourceFile scanSingleFile(File file, SquidAstVisitor<LexerlessGrammar>... visitors) {
+  public static SourceFile scanSingleFile(
+      File file,
+      @Nullable ResourcePerspectives resourcePerspectives,
+      FileSystem fileSystem,
+      @Nullable Settings settings,
+      SquidAstVisitor<LexerlessGrammar>... visitors) {
     if (!file.isFile()) {
       throw new IllegalArgumentException("File '" + file + "' not found.");
     }
-    AstScanner<LexerlessGrammar> scanner = create(new EcmaScriptConfiguration(Charsets.UTF_8), visitors);
+    AstScanner<LexerlessGrammar> scanner = create(new EcmaScriptConfiguration(Charsets.UTF_8), resourcePerspectives, fileSystem, settings, visitors);
     scanner.scanFile(file);
     Collection<SourceCode> sources = scanner.getIndex().search(new QueryByType(SourceFile.class));
     if (sources.size() != 1) {
@@ -79,7 +91,12 @@ public final class JavaScriptAstScanner {
     return (SourceFile) sources.iterator().next();
   }
 
-  public static AstScanner<LexerlessGrammar> create(EcmaScriptConfiguration conf, SquidAstVisitor<LexerlessGrammar>... visitors) {
+  public static AstScanner<LexerlessGrammar> create(
+      EcmaScriptConfiguration conf,
+      @Nullable ResourcePerspectives resourcePerspectives,
+      FileSystem fileSystem,
+      @Nullable Settings settings,
+      SquidAstVisitor<LexerlessGrammar>... visitors) {
     final SquidAstVisitorContextImpl<LexerlessGrammar> context = new SquidAstVisitorContextImpl<LexerlessGrammar>(new SourceProject("JavaScript Project"));
     final Parser<LexerlessGrammar> parser = EcmaScriptParser.create(conf);
 
@@ -131,7 +148,7 @@ public final class JavaScriptAstScanner {
 
     /* Metrics */
     builder.withSquidAstVisitor(new LinesVisitor<LexerlessGrammar>(EcmaScriptMetric.LINES));
-    builder.withSquidAstVisitor(new LinesOfCodeVisitor(EcmaScriptMetric.LINES_OF_CODE));
+    builder.withSquidAstVisitor(new VisitorsBridge(Lists.<JavaScriptCheck>newArrayList(new LinesOfCodeVisitor(EcmaScriptMetric.LINES_OF_CODE)), resourcePerspectives, fileSystem, settings));
     builder.withSquidAstVisitor(CommentsVisitor.<LexerlessGrammar> builder().withCommentMetric(EcmaScriptMetric.COMMENT_LINES)
         .withNoSonar(true)
         .withIgnoreHeaderComment(conf.getIgnoreHeaderComments())

@@ -25,6 +25,7 @@ import org.sonar.api.batch.fs.internal.DefaultFileSystem;
 import org.sonar.api.config.Settings;
 import org.sonar.javascript.JavaScriptAstScanner;
 import org.sonar.javascript.ast.visitors.VisitorsBridge;
+import org.sonar.squidbridge.SquidAstVisitor;
 import org.sonar.squidbridge.api.SourceFile;
 
 import java.io.File;
@@ -32,7 +33,7 @@ import java.io.File;
 /**
  * Helper class to test check.
  */
-public class CheckTest {
+public class VisitorTest {
 
 
   /**
@@ -42,9 +43,44 @@ public class CheckTest {
     DefaultFileSystem fs = new DefaultFileSystem();
     fs.setEncoding(Charsets.UTF_8);
 
+    Settings settings = settings();
     return JavaScriptAstScanner.scanSingleFile(
       new File(fileName),
-      new VisitorsBridge(Lists.newArrayList(check), null, fs, settings()));
+      null,
+      fs,
+      settings,
+      new VisitorsBridge(Lists.newArrayList(check), null, fs, settings));
+  }
+
+  /**
+   * Scan the given file with the given check.
+   */
+  public SourceFile scanFile(File file, SquidAstVisitor visitor) {
+    DefaultFileSystem fs = new DefaultFileSystem();
+    fs.setEncoding(Charsets.UTF_8);
+
+    Settings settings = settings();
+    return JavaScriptAstScanner.scanSingleFile(
+      file,
+      null,
+      fs,
+      settings,
+      visitor);
+  }
+
+  /**
+   * Scan the given file.
+   */
+  public SourceFile scanFile(File file) {
+    DefaultFileSystem fs = new DefaultFileSystem();
+    fs.setEncoding(Charsets.UTF_8);
+
+    Settings settings = settings();
+    return JavaScriptAstScanner.scanSingleFile(
+      file,
+      null,
+      fs,
+      settings);
   }
 
 

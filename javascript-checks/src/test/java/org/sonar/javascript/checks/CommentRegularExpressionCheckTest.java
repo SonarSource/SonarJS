@@ -19,14 +19,14 @@
  */
 package org.sonar.javascript.checks;
 
-import org.sonar.squidbridge.checks.CheckMessagesVerifier;
 import org.junit.Test;
-import org.sonar.javascript.JavaScriptAstScanner;
+import org.sonar.plugins.javascript.api.VisitorTest;
 import org.sonar.squidbridge.api.SourceFile;
+import org.sonar.squidbridge.checks.CheckMessagesVerifier;
 
 import java.io.File;
 
-public class CommentRegularExpressionCheckTest {
+public class CommentRegularExpressionCheckTest extends VisitorTest {
 
   @Test
   public void test() {
@@ -35,7 +35,7 @@ public class CommentRegularExpressionCheckTest {
     check.regularExpression = "(?i).*TODO.*";
     check.message = "Avoid TODO";
 
-    SourceFile file = JavaScriptAstScanner.scanSingleFile(new File("src/test/resources/checks/commentRegularExpression.js"), check);
+    SourceFile file = scanFile(new File("src/test/resources/checks/commentRegularExpression.js"), check);
     CheckMessagesVerifier.verify(file.getCheckMessages())
         .next().atLine(2).withMessage("Avoid TODO")
         .noMore();
