@@ -21,7 +21,6 @@ package org.sonar.javascript.checks;
 
 import org.junit.Test;
 import org.sonar.javascript.checks.utils.TreeCheckTest;
-import org.sonar.squidbridge.api.SourceFile;
 import org.sonar.squidbridge.checks.CheckMessagesVerifier;
 
 public class TooManyLinesInFileCheckTest extends TreeCheckTest {
@@ -30,16 +29,14 @@ public class TooManyLinesInFileCheckTest extends TreeCheckTest {
 
   @Test
   public void testDefault() {
-    SourceFile file = scanFile("src/test/resources/checks/tooManyLinesInFile.js", check);
-    CheckMessagesVerifier.verify(file.getCheckMessages())
+    CheckMessagesVerifier.verify(getIssues("src/test/resources/checks/tooManyLinesInFile.js", check))
       .noMore();
   }
 
   @Test
   public void testCustom() {
     check.maximum = 1;
-    SourceFile file = scanFile("src/test/resources/checks/tooManyLinesInFile.js", check);
-    CheckMessagesVerifier.verify(file.getCheckMessages())
+    CheckMessagesVerifier.verify(getIssues("src/test/resources/checks/tooManyLinesInFile.js", check))
       .next().withMessage("File \"tooManyLinesInFile.js\" has 7 lines, which is greater than 1 authorized. Split it into smaller files.")
       .noMore();
   }

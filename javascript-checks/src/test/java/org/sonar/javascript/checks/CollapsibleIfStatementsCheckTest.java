@@ -21,7 +21,6 @@ package org.sonar.javascript.checks;
 
 import org.junit.Test;
 import org.sonar.javascript.checks.utils.TreeCheckTest;
-import org.sonar.squidbridge.api.SourceFile;
 import org.sonar.squidbridge.checks.CheckMessagesVerifier;
 
 public class CollapsibleIfStatementsCheckTest extends TreeCheckTest{
@@ -30,8 +29,7 @@ public class CollapsibleIfStatementsCheckTest extends TreeCheckTest{
   public void test() {
     CollapsibleIfStatementsCheck check = new CollapsibleIfStatementsCheck();
 
-    SourceFile file = scanFile("src/test/resources/checks/collapsibleIfStatements.js", check);
-    CheckMessagesVerifier.verify(file.getCheckMessages())
+    CheckMessagesVerifier.verify(getIssues("src/test/resources/checks/collapsibleIfStatements.js", check))
       .next().atLine(15).withMessage("Merge this if statement with the nested one.")
 
       .next().atLine(27).withMessage("Merge this if statement with the nested one.")

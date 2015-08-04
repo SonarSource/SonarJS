@@ -20,16 +20,16 @@
 package org.sonar.javascript.checks;
 
 import org.junit.Test;
-import org.sonar.plugins.javascript.api.CheckTest;
-import org.sonar.squidbridge.api.SourceFile;
+import org.sonar.javascript.checks.utils.TreeCheckTest;
 import org.sonar.squidbridge.checks.CheckMessagesVerifier;
 
-public class CommentedCodeCheckTest extends CheckTest {
+public class CommentedCodeCheckTest extends TreeCheckTest {
 
   @Test
   public void test() {
-    SourceFile file = scanFile("src/test/resources/checks/commentedCode.js", new CommentedCodeCheck());
-    CheckMessagesVerifier.verify(file.getCheckMessages())
+    String relativePath = "src/test/resources/checks/commentedCode.js";
+    CommentedCodeCheck check = new CommentedCodeCheck();
+    CheckMessagesVerifier.verify(getIssues(relativePath, check))
         .next().atLine(7).withMessage("Sections of code should not be \"commented out\".")
         .next().atLine(14)
         .noMore();

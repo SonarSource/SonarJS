@@ -22,7 +22,6 @@ package org.sonar.javascript.checks;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.javascript.checks.utils.TreeCheckTest;
-import org.sonar.squidbridge.api.SourceFile;
 import org.sonar.squidbridge.checks.CheckMessagesVerifierRule;
 
 public class ForLoopConditionAndUpdateCheckTest extends TreeCheckTest {
@@ -32,8 +31,7 @@ public class ForLoopConditionAndUpdateCheckTest extends TreeCheckTest {
 
   @Test
   public void test() {
-    SourceFile file = scanFile("src/test/resources/checks/forLoopConditionAndUpdate.js", new ForLoopConditionAndUpdateCheck());
-    checkMessagesVerifier.verify(file.getCheckMessages())
+    checkMessagesVerifier.verify(getIssues("src/test/resources/checks/forLoopConditionAndUpdate.js", new ForLoopConditionAndUpdateCheck()))
       .next().atLine(3).withMessage("This loop's stop condition tests \"i\" but the incrementer updates \"j\".")
       .next().atLine(5).withMessage("This loop's stop condition tests \"i\" but the incrementer updates \"j\".")
       .next().atLine(7).withMessage("This loop's stop condition tests \"i, j\" but the incrementer updates \"k\".")

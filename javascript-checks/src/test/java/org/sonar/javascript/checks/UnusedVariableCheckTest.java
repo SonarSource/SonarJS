@@ -21,7 +21,6 @@ package org.sonar.javascript.checks;
 
 import org.junit.Test;
 import org.sonar.javascript.checks.utils.TreeCheckTest;
-import org.sonar.squidbridge.api.SourceFile;
 import org.sonar.squidbridge.checks.CheckMessagesVerifier;
 
 public class UnusedVariableCheckTest extends TreeCheckTest {
@@ -30,8 +29,7 @@ public class UnusedVariableCheckTest extends TreeCheckTest {
   public void test() {
     UnusedVariableCheck check = new UnusedVariableCheck();
 
-    SourceFile file = scanFile("src/test/resources/checks/unusedVariable.js", check);
-    CheckMessagesVerifier.verify(file.getCheckMessages())
+    CheckMessagesVerifier.verify(getIssues("src/test/resources/checks/unusedVariable.js", check))
         .next().atLine(4).withMessage("Remove the declaration of the unused 'a' variable.")
         .next().atLine(17)
         .next().atLine(24)

@@ -21,6 +21,8 @@ package org.sonar.plugins.javascript;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
+import com.sonar.sslr.api.RecognitionException;
+import com.sonar.sslr.impl.Parser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.DependedUpon;
@@ -30,48 +32,41 @@ import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.rule.CheckFactory;
-import org.sonar.api.checks.NoSonarFilter;
+import org.sonar.api.component.Perspective;
 import org.sonar.api.component.ResourcePerspectives;
 import org.sonar.api.config.Settings;
 import org.sonar.api.issue.Issuable;
-import org.sonar.api.issue.Issue;
+import org.sonar.api.issue.NoSonarFilter;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.FileLinesContextFactory;
 import org.sonar.api.measures.Metric;
-import org.sonar.api.measures.PersistenceMode;
-import org.sonar.api.measures.RangeDistributionBuilder;
-import org.sonar.api.resources.File;
 import org.sonar.api.resources.Project;
 import org.sonar.api.rule.RuleKey;
-import org.sonar.api.scan.filesystem.PathResolver;
 import org.sonar.api.source.Highlightable;
+import org.sonar.api.source.Symbolizable;
+import org.sonar.javascript.CharsetAwareVisitor;
 import org.sonar.javascript.EcmaScriptConfiguration;
-import org.sonar.javascript.JavaScriptAstScanner;
-import org.sonar.javascript.api.EcmaScriptMetric;
-import org.sonar.javascript.ast.visitors.VisitorsBridge;
+import org.sonar.javascript.ast.resolve.SymbolModelImpl;
 import org.sonar.javascript.checks.CheckList;
+import org.sonar.javascript.checks.ParsingErrorCheck;
+import org.sonar.javascript.checks.utils.JavaScriptCheckContext;
+import org.sonar.javascript.checks.utils.JavaScriptChecks;
 import org.sonar.javascript.highlighter.JavaScriptHighlighter;
-import org.sonar.javascript.metrics.FileLinesVisitor;
+import org.sonar.javascript.highlighter.SourceFileOffsets;
+import org.sonar.javascript.metrics.ComplexityVisitor;
+import org.sonar.javascript.metrics.MetricsVisitor;
+import org.sonar.javascript.parser.EcmaScriptParser;
 import org.sonar.plugins.javascript.api.CustomJavaScriptRulesDefinition;
 import org.sonar.plugins.javascript.api.JavaScriptCheck;
+import org.sonar.plugins.javascript.api.tree.ScriptTree;
 import org.sonar.plugins.javascript.core.JavaScript;
-import org.sonar.squidbridge.AstScanner;
-import org.sonar.squidbridge.SquidAstVisitor;
-import org.sonar.squidbridge.api.CheckMessage;
-import org.sonar.squidbridge.api.CodeVisitor;
-import org.sonar.squidbridge.api.SourceClass;
-import org.sonar.squidbridge.api.SourceCode;
-import org.sonar.squidbridge.api.SourceFile;
-import org.sonar.squidbridge.api.SourceFunction;
-import org.sonar.squidbridge.indexer.QueryByParent;
-import org.sonar.squidbridge.indexer.QueryByType;
-import org.sonar.sslr.parser.LexerlessGrammar;
+import org.sonar.squidbridge.ProgressReport;
+import org.sonar.squidbridge.api.AnalysisException;
 
 import javax.annotation.Nullable;
 import java.util.Collection;
 import java.util.List;
-import java.util.Locale;
-import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 public class JavaScriptSquidSensor implements Sensor {
 
@@ -82,8 +77,6 @@ public class JavaScriptSquidSensor implements Sensor {
   }
 
   private static final Logger LOG = LoggerFactory.getLogger(JavaScriptSquidSensor.class);
-  private static final Number[] FUNCTIONS_DISTRIB_BOTTOM_LIMITS = {1, 2, 4, 6, 8, 10, 12, 20, 30};
-  private static final Number[] FILES_DISTRIB_BOTTOM_LIMITS = {0, 5, 10, 20, 30, 60, 90};
 
   private final JavaScriptChecks checks;
   private final FileLinesContextFactory fileLinesContextFactory;
@@ -91,33 +84,31 @@ public class JavaScriptSquidSensor implements Sensor {
   private final FileSystem fileSystem;
   private final NoSonarFilter noSonarFilter;
   private final FilePredicate mainFilePredicate;
-  private final PathResolver pathResolver;
   private final Settings settings;
-
-  private SensorContext context;
-  private AstScanner<LexerlessGrammar> scanner;
+  private final Parser parser;
+  private RuleKey parsingErrorRuleKey = null;
 
   public JavaScriptSquidSensor(CheckFactory checkFactory, FileLinesContextFactory fileLinesContextFactory,
-                               ResourcePerspectives resourcePerspectives, FileSystem fileSystem, NoSonarFilter noSonarFilter, PathResolver pathResolver, Settings settings) {
-    this(checkFactory, fileLinesContextFactory, resourcePerspectives, fileSystem, noSonarFilter, pathResolver, settings, null);
+                               ResourcePerspectives resourcePerspectives, FileSystem fileSystem, NoSonarFilter noSonarFilter, Settings settings) {
+    this(checkFactory, fileLinesContextFactory, resourcePerspectives, fileSystem, noSonarFilter, settings, null);
   }
 
   public JavaScriptSquidSensor(CheckFactory checkFactory, FileLinesContextFactory fileLinesContextFactory,
                                ResourcePerspectives resourcePerspectives, FileSystem fileSystem, NoSonarFilter noSonarFilter,
-                               PathResolver pathResolver, Settings settings, @Nullable CustomJavaScriptRulesDefinition[] customRulesDefinition) {
+                               Settings settings, @Nullable CustomJavaScriptRulesDefinition[] customRulesDefinition) {
 
     this.checks = JavaScriptChecks.createJavaScriptCheck(checkFactory)
-      .addChecks(CheckList.REPOSITORY_KEY, CheckList.getChecks())
-      .addCustomChecks(customRulesDefinition);
+        .addChecks(CheckList.REPOSITORY_KEY, CheckList.getChecks())
+        .addCustomChecks(customRulesDefinition);
     this.fileLinesContextFactory = fileLinesContextFactory;
     this.resourcePerspectives = resourcePerspectives;
     this.fileSystem = fileSystem;
     this.noSonarFilter = noSonarFilter;
-    this.pathResolver = pathResolver;
     this.mainFilePredicate = fileSystem.predicates().and(
-      fileSystem.predicates().hasType(InputFile.Type.MAIN),
-      fileSystem.predicates().hasLanguage(JavaScript.KEY));
+        fileSystem.predicates().hasType(InputFile.Type.MAIN),
+        fileSystem.predicates().hasLanguage(JavaScript.KEY));
     this.settings = settings;
+    this.parser = EcmaScriptParser.create(new EcmaScriptConfiguration(fileSystem.encoding()));
   }
 
   @Override
@@ -127,30 +118,101 @@ public class JavaScriptSquidSensor implements Sensor {
 
   @Override
   public void analyse(Project project, SensorContext context) {
-    this.context = context;
-
-    List<CodeVisitor> astNodeVisitors = Lists.newArrayList();
     List<JavaScriptCheck> treeVisitors = Lists.newArrayList();
 
-    for (CodeVisitor visitor : checks.all()) {
-      if (visitor instanceof JavaScriptCheck) {
-        treeVisitors.add((JavaScriptCheck) visitor);
-      } else {
-        astNodeVisitors.add(visitor);
+    EcmaScriptConfiguration configuration = createConfiguration();
+
+    treeVisitors.add(new MetricsVisitor(fileSystem, context, noSonarFilter, configuration, fileLinesContextFactory));
+    treeVisitors.addAll(checks.all());
+
+    for (JavaScriptCheck check : treeVisitors) {
+      if (check instanceof ParsingErrorCheck) {
+        parsingErrorRuleKey = checks.ruleKeyFor(check);
+        break;
       }
     }
 
-    astNodeVisitors.add(new VisitorsBridge(treeVisitors, resourcePerspectives, fileSystem, settings));
-    astNodeVisitors.add(new FileLinesVisitor(fileLinesContextFactory, fileSystem, pathResolver));
+    ProgressReport progressReport = new ProgressReport("Report about progress of Javascript analyzer", TimeUnit.SECONDS.toMillis(10));
+    progressReport.start(Lists.newArrayList(fileSystem.files(mainFilePredicate)));
 
-    scanner = JavaScriptAstScanner.create(createConfiguration(), astNodeVisitors.toArray(new SquidAstVisitor[astNodeVisitors.size()]));
-    scanner.scanFiles(Lists.newArrayList(fileSystem.files(mainFilePredicate)));
+    for (InputFile inputFile : fileSystem.inputFiles(mainFilePredicate)) {
+      analyse(inputFile, treeVisitors);
+      progressReport.nextFile();
+    }
 
-    Collection<SourceCode> squidSourceFiles = scanner.getIndex().search(new QueryByType(SourceFile.class));
-    save(squidSourceFiles);
+    progressReport.stop();
 
     highlight();
   }
+
+  // FIXME Lena: extract this logic to another class?
+  private void analyse(InputFile inputFile, List<JavaScriptCheck> visitors) {
+    Issuable issuable = perspective(Issuable.class, inputFile);
+    ScriptTree scriptTree;
+    RecognitionException parseException = null;
+    try {
+      scriptTree = (ScriptTree) parser.parse(new java.io.File(inputFile.absolutePath()));
+      scanFile(inputFile, visitors, issuable, scriptTree);
+    } catch (RecognitionException e) {
+      parseException = e;
+      LOG.error("Unable to parse file: " + inputFile.absolutePath());
+      LOG.error(e.getMessage());
+    } catch (Exception e) {
+      throw new AnalysisException("Unable to parse file: " + inputFile.absolutePath(), e);
+    }
+
+    if (parseException != null) {
+      processRecognitionException(parseException, issuable);
+    }
+  }
+
+  private void processRecognitionException(RecognitionException e, Issuable issuable) {
+    if (parsingErrorRuleKey != null) {
+      issuable.addIssue(issuable.newIssueBuilder()
+              .ruleKey(parsingErrorRuleKey)
+              .line(e.getLine())
+              .message(e.getMessage())
+              .build()
+      );
+    }
+  }
+
+  private void scanFile(InputFile inputFile, List<JavaScriptCheck> visitors, Issuable issuable, ScriptTree scriptTree) {
+    SymbolModelImpl symbolModel = SymbolModelImpl.create(
+        scriptTree,
+        perspective(Symbolizable.class, inputFile),
+        new SourceFileOffsets(inputFile.file(), fileSystem.encoding()), settings
+    );
+
+    for (JavaScriptCheck visitor : visitors) {
+      if (visitor instanceof CharsetAwareVisitor) {
+        ((CharsetAwareVisitor) visitor).setCharset(fileSystem.encoding());
+      }
+
+      visitor.scanFile(new JavaScriptCheckContext(
+          scriptTree,
+          issuable,
+          inputFile.file(),
+          symbolModel,
+          settings,
+          checks,
+          new ComplexityVisitor()
+      ));
+
+    }
+  }
+
+  <P extends Perspective<?>> P perspective(Class<P> clazz, @Nullable InputFile file) {
+    if (file == null) {
+      throw new IllegalArgumentException("Cannot get " + clazz.getCanonicalName() + "for a null file");
+    }
+    P result = resourcePerspectives.as(clazz, file);
+    if (result == null) {
+      throw new IllegalStateException("Could not get " + clazz.getCanonicalName() + " for " + file);
+    }
+    return result;
+  }
+
 
   private void highlight() {
     JavaScriptHighlighter highlighter = new JavaScriptHighlighter(createConfiguration());
@@ -169,90 +231,6 @@ public class JavaScriptSquidSensor implements Sensor {
 
   private EcmaScriptConfiguration createConfiguration() {
     return new EcmaScriptConfiguration(fileSystem.encoding());
-  }
-
-  private void save(Collection<SourceCode> squidSourceFiles) {
-    for (SourceCode squidSourceFile : squidSourceFiles) {
-      SourceFile squidFile = (SourceFile) squidSourceFile;
-
-      File sonarFile = context.getResource(File.create(pathResolver.relativePath(fileSystem.baseDir(), new java.io.File(squidFile.getKey()))));
-
-      if (sonarFile != null) {
-        noSonarFilter.addResource(sonarFile, squidFile.getNoSonarTagLines());
-        saveClassComplexity(sonarFile, squidFile);
-        saveFilesComplexityDistribution(sonarFile, squidFile);
-        saveFunctionsComplexityAndDistribution(sonarFile, squidFile);
-        saveMeasures(sonarFile, squidFile);
-        saveIssues(sonarFile, squidFile);
-
-      } else {
-        LOG.warn("Cannot save analysis information for file {}. Unable to retrieve the associated sonar resource.", squidFile.getKey());
-      }
-    }
-  }
-
-  private void saveMeasures(File sonarFile, SourceFile squidFile) {
-    context.saveMeasure(sonarFile, CoreMetrics.LINES, squidFile.getDouble(EcmaScriptMetric.LINES));
-    context.saveMeasure(sonarFile, CoreMetrics.NCLOC, squidFile.getDouble(EcmaScriptMetric.LINES_OF_CODE));
-    context.saveMeasure(sonarFile, CoreMetrics.CLASSES, squidFile.getDouble(EcmaScriptMetric.CLASSES));
-    context.saveMeasure(sonarFile, CoreMetrics.FUNCTIONS, squidFile.getDouble(EcmaScriptMetric.FUNCTIONS));
-    context.saveMeasure(sonarFile, CoreMetrics.ACCESSORS, squidFile.getDouble(EcmaScriptMetric.ACCESSORS));
-    context.saveMeasure(sonarFile, CoreMetrics.STATEMENTS, squidFile.getDouble(EcmaScriptMetric.STATEMENTS));
-    context.saveMeasure(sonarFile, CoreMetrics.COMPLEXITY, squidFile.getDouble(EcmaScriptMetric.COMPLEXITY));
-    context.saveMeasure(sonarFile, CoreMetrics.COMMENT_LINES, squidFile.getDouble(EcmaScriptMetric.COMMENT_LINES));
-  }
-
-  private void saveClassComplexity(org.sonar.api.resources.File sonarFile, SourceFile squidFile) {
-    double complexityInClasses = 0;
-    Set<SourceCode> children = squidFile.getChildren();
-
-    if (children != null) {
-      for (SourceCode sourceCode : squidFile.getChildren()) {
-        if (sourceCode.isType(SourceClass.class)) {
-          complexityInClasses += sourceCode.getDouble(EcmaScriptMetric.COMPLEXITY);
-        }
-      }
-    }
-    context.saveMeasure(sonarFile, CoreMetrics.COMPLEXITY_IN_CLASSES, complexityInClasses);
-  }
-
-  private void saveFunctionsComplexityAndDistribution(File sonarFile, SourceFile squidFile) {
-    Collection<SourceCode> squidFunctionsInFile = scanner.getIndex().search(new QueryByParent(squidFile), new QueryByType(SourceFunction.class));
-    RangeDistributionBuilder complexityDistribution = new RangeDistributionBuilder(CoreMetrics.FUNCTION_COMPLEXITY_DISTRIBUTION, FUNCTIONS_DISTRIB_BOTTOM_LIMITS);
-    double complexityInFunction = 0;
-    for (SourceCode squidFunction : squidFunctionsInFile) {
-      double functionComplexity = squidFunction.getDouble(EcmaScriptMetric.COMPLEXITY);
-      complexityDistribution.add(functionComplexity);
-      complexityInFunction += functionComplexity;
-    }
-    context.saveMeasure(sonarFile, complexityDistribution.build().setPersistenceMode(PersistenceMode.MEMORY));
-    context.saveMeasure(sonarFile, CoreMetrics.COMPLEXITY_IN_FUNCTIONS, complexityInFunction);
-  }
-
-  private void saveFilesComplexityDistribution(File sonarFile, SourceFile squidFile) {
-    RangeDistributionBuilder complexityDistribution = new RangeDistributionBuilder(CoreMetrics.FILE_COMPLEXITY_DISTRIBUTION, FILES_DISTRIB_BOTTOM_LIMITS);
-    complexityDistribution.add(squidFile.getDouble(EcmaScriptMetric.COMPLEXITY));
-    context.saveMeasure(sonarFile, complexityDistribution.build().setPersistenceMode(PersistenceMode.MEMORY));
-  }
-
-  private void saveIssues(File sonarFile, SourceFile squidFile) {
-    Collection<CheckMessage> messages = squidFile.getCheckMessages();
-    if (messages != null) {
-
-      for (CheckMessage message : messages) {
-        RuleKey ruleKey = checks.ruleKeyFor((CodeVisitor) message.getCheck());
-        Issuable issuable = resourcePerspectives.as(Issuable.class, sonarFile);
-
-        if (issuable != null && ruleKey != null) {
-          Issue issue = issuable.newIssueBuilder()
-            .ruleKey(ruleKey)
-            .line(message.getLine())
-            .message(message.getText(Locale.ENGLISH))
-            .build();
-          issuable.addIssue(issue);
-        }
-      }
-    }
   }
 
   @Override

@@ -21,7 +21,6 @@ package org.sonar.javascript.checks;
 
 import org.junit.Test;
 import org.sonar.javascript.checks.utils.TreeCheckTest;
-import org.sonar.squidbridge.api.SourceFile;
 import org.sonar.squidbridge.checks.CheckMessagesVerifier;
 
 public class DuplicatePropertyNameCheckTest extends TreeCheckTest {
@@ -30,8 +29,7 @@ public class DuplicatePropertyNameCheckTest extends TreeCheckTest {
   public void test() {
     DuplicatePropertyNameCheck check = new DuplicatePropertyNameCheck();
 
-    SourceFile file = scanFile("src/test/resources/checks/duplicatePropertyName.js", check);
-    CheckMessagesVerifier.verify(file.getCheckMessages())
+    CheckMessagesVerifier.verify(getIssues("src/test/resources/checks/duplicatePropertyName.js", check))
         .next().atLine(5).withMessage("Rename or remove duplicate property name 'key'.")
         .next().atLine(6).withMessage("Rename or remove duplicate property name 'key'.")
         .next().atLine(7).withMessage("Rename or remove duplicate property name 'key'.")

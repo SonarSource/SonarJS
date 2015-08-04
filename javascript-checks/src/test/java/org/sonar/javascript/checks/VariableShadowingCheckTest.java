@@ -21,7 +21,6 @@ package org.sonar.javascript.checks;
 
 import org.junit.Test;
 import org.sonar.javascript.checks.utils.TreeCheckTest;
-import org.sonar.squidbridge.api.SourceFile;
 import org.sonar.squidbridge.checks.CheckMessagesVerifier;
 
 public class VariableShadowingCheckTest extends TreeCheckTest {
@@ -30,8 +29,7 @@ public class VariableShadowingCheckTest extends TreeCheckTest {
   public void test() {
     VariableShadowingCheck check = new VariableShadowingCheck();
 
-    SourceFile file = scanFile("src/test/resources/checks/variableShadowing.js", check);
-    CheckMessagesVerifier.verify(file.getCheckMessages())
+    CheckMessagesVerifier.verify(getIssues("src/test/resources/checks/variableShadowing.js", check))
         .next().atLine(2).withMessage("\"x\" hides or potentially hides a variable declared in an outer scope at line 4.")
         .next().atLine(8)
         .next().atLine(11)

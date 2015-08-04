@@ -22,7 +22,6 @@ package org.sonar.javascript.checks;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.javascript.checks.utils.TreeCheckTest;
-import org.sonar.squidbridge.api.SourceFile;
 import org.sonar.squidbridge.checks.CheckMessagesVerifierRule;
 
 public class NullDereferenceInConditionalCheckTest extends TreeCheckTest {
@@ -32,8 +31,7 @@ public class NullDereferenceInConditionalCheckTest extends TreeCheckTest {
 
   @Test
   public void test() {
-    SourceFile file = scanFile("src/test/resources/checks/nullDereferenceInConditional.js", new NullDereferenceInConditionalCheck());
-    checkMessagesVerifier.verify(file.getCheckMessages())
+    checkMessagesVerifier.verify(getIssues("src/test/resources/checks/nullDereferenceInConditional.js", new NullDereferenceInConditionalCheck()))
       .next().atLine(3).withMessage("Either reverse the equality operator in the \"str\" null test, or reverse the logical operator that follows it.")
       .next().atLine(4)
       .next().atLine(8)

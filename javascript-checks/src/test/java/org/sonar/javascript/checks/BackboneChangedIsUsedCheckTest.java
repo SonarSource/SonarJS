@@ -21,7 +21,6 @@ package org.sonar.javascript.checks;
 
 import org.junit.Test;
 import org.sonar.javascript.checks.utils.TreeCheckTest;
-import org.sonar.squidbridge.api.SourceFile;
 import org.sonar.squidbridge.checks.CheckMessagesVerifier;
 
 public class BackboneChangedIsUsedCheckTest extends TreeCheckTest {
@@ -30,8 +29,7 @@ public class BackboneChangedIsUsedCheckTest extends TreeCheckTest {
   public void test() {
     BackboneChangedIsUsedCheck check = new BackboneChangedIsUsedCheck();
 
-    SourceFile file = scanFile("src/test/resources/checks/BackboneChangedIsUsed.js", check);
-    CheckMessagesVerifier.verify(file.getCheckMessages())
+    CheckMessagesVerifier.verify(getIssues("src/test/resources/checks/BackboneChangedIsUsed.js", check))
         .next().atLine(10)
         .next().atLine(11)
         .next().atLine(12)

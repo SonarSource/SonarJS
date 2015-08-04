@@ -21,7 +21,6 @@ package org.sonar.javascript.checks;
 
 import org.junit.Test;
 import org.sonar.javascript.checks.utils.TreeCheckTest;
-import org.sonar.squidbridge.api.SourceFile;
 import org.sonar.squidbridge.checks.CheckMessagesVerifier;
 
 public class IdChildrenSelectorCheckTest extends TreeCheckTest {
@@ -30,8 +29,7 @@ public class IdChildrenSelectorCheckTest extends TreeCheckTest {
 
   @Test
   public void test() {
-    SourceFile file = scanFile("src/test/resources/checks/IdChildrenSelector.js", check);
-    CheckMessagesVerifier.verify(file.getCheckMessages())
+    CheckMessagesVerifier.verify(getIssues("src/test/resources/checks/IdChildrenSelector.js", check))
     .next().atLine(1).withMessage("Move \"div.className\" into \"find\" method.")
     .next().atLine(3).withMessage("Move \".className[attr='value']\" into \"find\" method.")
     .next().atLine(7).withMessage("Move \"div.id\" into \"find\" method.")

@@ -19,13 +19,23 @@
  */
 package org.sonar.javascript.checks;
 
+import com.google.common.base.Strings;
+import com.google.common.collect.ImmutableList;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
+import org.sonar.javascript.checks.utils.SubscriptionBaseVisitor;
+import org.sonar.plugins.javascript.api.tree.Tree;
+import org.sonar.plugins.javascript.api.tree.Tree.Kind;
+import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
+import org.sonar.plugins.javascript.api.tree.lexical.SyntaxTrivia;
 import org.sonar.squidbridge.annotations.NoSqale;
 import org.sonar.squidbridge.annotations.RuleTemplate;
-import org.sonar.squidbridge.checks.AbstractCommentRegularExpressionCheck;
-import org.sonar.sslr.parser.LexerlessGrammar;
+
+import java.util.List;
+import java.util.regex.Pattern;
+
+import static com.google.common.base.Preconditions.checkNotNull;
 
 @Rule(
   key = "CommentRegularExpression",
@@ -33,7 +43,7 @@ import org.sonar.sslr.parser.LexerlessGrammar;
   priority = Priority.MAJOR)
 @RuleTemplate
 @NoSqale
-public class CommentRegularExpressionCheck extends AbstractCommentRegularExpressionCheck<LexerlessGrammar> {
+public class CommentRegularExpressionCheck extends SubscriptionBaseVisitor {
 
   private static final String DEFAULT_REGULAR_EXPRESSION = "";
   private static final String DEFAULT_MESSAGE = "The regular expression matches this comment.";
@@ -42,22 +52,51 @@ public class CommentRegularExpressionCheck extends AbstractCommentRegularExpress
     key = "regularExpression",
     description = "The regular expression",
     defaultValue = "" + DEFAULT_REGULAR_EXPRESSION)
-  public String regularExpression = DEFAULT_REGULAR_EXPRESSION;
+  private String regularExpression = DEFAULT_REGULAR_EXPRESSION;
 
   @RuleProperty(
     key = "message",
     description = "The issue message",
     defaultValue = "" + DEFAULT_MESSAGE)
-  public String message = DEFAULT_MESSAGE;
+  private String message = DEFAULT_MESSAGE;
 
-  @Override
-  public String getRegularExpression() {
-    return regularExpression;
+  private Pattern pattern = null;
+
+  public void init() {
+    checkNotNull(regularExpression, "getRegularExpression() should not return null");
+
+    if (!Strings.isNullOrEmpty(regularExpression)) {
+      try {
+        pattern = Pattern.compile(regularExpression, Pattern.DOTALL);
+      } catch (RuntimeException e) {
+        throw new IllegalStateException("Unable to compile regular expression: " + regularExpression, e);
+      }
+    }
+  }
+
+  public void setMessage(String message) {
+    this.message = message;
+  }
+
+  public void setRegularExpression(String regularExpression) {
+    this.regularExpression = regularExpression;
+    init();
   }
 
   @Override
-  public String getMessage() {
-    return message;
+  public void visitNode(Tree tree) {
+    if (pattern != null) {
+      SyntaxToken token = (SyntaxToken) tree;
+      for (SyntaxTrivia trivia : token.trivias()) {
+        if (pattern.matcher(trivia.comment()).matches()) {
+          getContext().addIssue(this, trivia.startLine(), message);
+        }
+      }
+    }
   }
 
+  @Override
+  public List<Kind> nodesToVisit() {
+    return ImmutableList.of(Kind.TOKEN);
+  }
 }

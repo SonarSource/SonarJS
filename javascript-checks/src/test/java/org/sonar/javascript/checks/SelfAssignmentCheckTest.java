@@ -22,7 +22,6 @@ package org.sonar.javascript.checks;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.javascript.checks.utils.TreeCheckTest;
-import org.sonar.squidbridge.api.SourceFile;
 import org.sonar.squidbridge.checks.CheckMessagesVerifierRule;
 
 public class SelfAssignmentCheckTest extends TreeCheckTest {
@@ -32,8 +31,7 @@ public class SelfAssignmentCheckTest extends TreeCheckTest {
 
   @Test
   public void test() {
-    SourceFile file = scanFile("src/test/resources/checks/selfAssignment.js", new SelfAssignmentCheck());
-    checkMessagesVerifier.verify(file.getCheckMessages())
+    checkMessagesVerifier.verify(getIssues("src/test/resources/checks/selfAssignment.js", new SelfAssignmentCheck()))
       .next().atLine(3).withMessage("Remove or correct this useless self-assignment.")
       .next().atLine(5);
   }

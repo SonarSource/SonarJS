@@ -22,7 +22,6 @@ package org.sonar.javascript.checks;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.javascript.checks.utils.TreeCheckTest;
-import org.sonar.squidbridge.api.SourceFile;
 import org.sonar.squidbridge.checks.CheckMessagesVerifierRule;
 
 public class ForLoopIncrementSignCheckTest extends TreeCheckTest {
@@ -32,8 +31,7 @@ public class ForLoopIncrementSignCheckTest extends TreeCheckTest {
 
   @Test
   public void test() {
-    SourceFile file = scanFile("src/test/resources/checks/forLoopIncrementSign.js", new ForLoopIncrementSignCheck());
-    checkMessagesVerifier.verify(file.getCheckMessages())
+    checkMessagesVerifier.verify(getIssues("src/test/resources/checks/forLoopIncrementSign.js", new ForLoopIncrementSignCheck()))
       .next().atLine(4).withMessage("\"i\" is incremented and will never reach \"stop condition\".")
       .next().atLine(5)
       .next().atLine(7).withMessage("\"i\" is decremented and will never reach \"stop condition\".")

@@ -21,7 +21,6 @@ package org.sonar.javascript.checks;
 
 import org.junit.Test;
 import org.sonar.javascript.checks.utils.TreeCheckTest;
-import org.sonar.squidbridge.api.SourceFile;
 import org.sonar.squidbridge.checks.CheckMessagesVerifier;
 
 public class NotStoredSelectionCheckTest extends TreeCheckTest {
@@ -31,8 +30,7 @@ public class NotStoredSelectionCheckTest extends TreeCheckTest {
   @Test
   public void test() {
     check.threshold = 1;
-    SourceFile file = scanFile("src/test/resources/checks/NotStoredSelection.js", check);
-    CheckMessagesVerifier.verify(file.getCheckMessages())
+    CheckMessagesVerifier.verify(getIssues("src/test/resources/checks/NotStoredSelection.js", check))
     .next().atLine(2).withMessage("Selection \"$( \"p\" )\" is made 2 times. It should be stored in a variable and reused.")
     .next().atLine(7).withMessage("Selection \"$( \"p\" )\" is made 3 times. It should be stored in a variable and reused.")
     .next().atLine(13)

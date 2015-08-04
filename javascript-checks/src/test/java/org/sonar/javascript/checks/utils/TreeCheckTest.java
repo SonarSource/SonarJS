@@ -21,15 +21,27 @@ package org.sonar.javascript.checks.utils;
 
 import org.sonar.api.config.Settings;
 import org.sonar.javascript.ast.resolve.type.JQuery;
-import org.sonar.plugins.javascript.api.CheckTest;
+import org.sonar.plugins.javascript.api.JavaScriptCheck;
+import org.sonar.squidbridge.api.CheckMessage;
 
+import java.io.File;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
-public class TreeCheckTest extends CheckTest {
+public class TreeCheckTest {
 
-  @Override
-  public Settings settings() {
+  protected TestCheckContext getContext(File file) {
+    return new TestCheckContext(file, settings());
+  }
+
+  public Collection<CheckMessage> getIssues(String relativePath, JavaScriptCheck check) {
+    TestCheckContext context = getContext(new File(relativePath));
+    check.scanFile(context);
+    return context.getIssues();
+  }
+
+  protected Settings settings() {
     Settings settings = new Settings();
 
     Map<String, String> properties = new HashMap<>();

@@ -21,7 +21,6 @@ package org.sonar.javascript.checks;
 
 import org.junit.Test;
 import org.sonar.javascript.checks.utils.TreeCheckTest;
-import org.sonar.squidbridge.api.SourceFile;
 import org.sonar.squidbridge.checks.CheckMessagesVerifier;
 
 public class FutureReservedWordsCheckTest extends TreeCheckTest {
@@ -30,8 +29,7 @@ public class FutureReservedWordsCheckTest extends TreeCheckTest {
   public void test_es5() {
     FutureReservedWordsCheck check = new FutureReservedWordsCheck();
 
-    SourceFile file = scanFile("src/test/resources/checks/futureReservedWords.js", check);
-    CheckMessagesVerifier.verify(file.getCheckMessages())
+    CheckMessagesVerifier.verify(getIssues("src/test/resources/checks/futureReservedWords.js", check))
         .next().atLine(1).withMessage("Rename \"implements\" identifier to prevent potential conflicts with future evolutions of the JavaScript language.")
         .next().atLine(2)
         .next().atLine(3)

@@ -17,7 +17,7 @@
  * License along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.plugins.javascript;
+package org.sonar.javascript.checks.utils;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
@@ -25,7 +25,7 @@ import org.sonar.api.batch.rule.CheckFactory;
 import org.sonar.api.batch.rule.Checks;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.plugins.javascript.api.CustomJavaScriptRulesDefinition;
-import org.sonar.squidbridge.api.CodeVisitor;
+import org.sonar.plugins.javascript.api.JavaScriptCheck;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -37,7 +37,7 @@ import java.util.Set;
 public class JavaScriptChecks {
 
   private final CheckFactory checkFactory;
-  private Set<Checks<CodeVisitor>> checksByRepository = Sets.newHashSet();
+  private Set<Checks<JavaScriptCheck>> checksByRepository = Sets.newHashSet();
 
   private JavaScriptChecks(CheckFactory checkFactory) {
     this.checkFactory = checkFactory;
@@ -49,7 +49,7 @@ public class JavaScriptChecks {
 
   public JavaScriptChecks addChecks(String repositoryKey, List<Class> checkClass) {
     checksByRepository.add(checkFactory
-      .<CodeVisitor>create(repositoryKey)
+      .<JavaScriptCheck>create(repositoryKey)
       .addAnnotatedChecks(checkClass));
 
     return this;
@@ -66,10 +66,10 @@ public class JavaScriptChecks {
     return this;
   }
 
-  public List<CodeVisitor> all() {
-    List<CodeVisitor> allVisitors = Lists.newArrayList();
+  public List<JavaScriptCheck> all() {
+    List<JavaScriptCheck> allVisitors = Lists.newArrayList();
 
-    for (Checks<CodeVisitor> checks : checksByRepository) {
+    for (Checks<JavaScriptCheck> checks : checksByRepository) {
       allVisitors.addAll(checks.all());
     }
 
@@ -77,10 +77,10 @@ public class JavaScriptChecks {
   }
 
   @Nullable
-  public RuleKey ruleKeyFor(CodeVisitor check) {
+  public RuleKey ruleKeyFor(JavaScriptCheck check) {
     RuleKey ruleKey;
 
-    for (Checks<CodeVisitor> checks : checksByRepository) {
+    for (Checks<JavaScriptCheck> checks : checksByRepository) {
       ruleKey = checks.ruleKey(check);
 
       if (ruleKey != null) {

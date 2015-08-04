@@ -19,9 +19,9 @@
  */
 package org.sonar.javascript.checks;
 
-import java.util.List;
-
 import com.google.common.collect.ImmutableList;
+
+import java.util.List;
 
 public final class CheckList {
 

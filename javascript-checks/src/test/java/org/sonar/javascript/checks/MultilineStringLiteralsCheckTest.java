@@ -21,7 +21,6 @@ package org.sonar.javascript.checks;
 
 import org.junit.Test;
 import org.sonar.javascript.checks.utils.TreeCheckTest;
-import org.sonar.squidbridge.api.SourceFile;
 import org.sonar.squidbridge.checks.CheckMessagesVerifier;
 
 public class MultilineStringLiteralsCheckTest extends TreeCheckTest {
@@ -30,8 +29,7 @@ public class MultilineStringLiteralsCheckTest extends TreeCheckTest {
   public void test() {
     MultilineStringLiteralsCheck check = new MultilineStringLiteralsCheck();
 
-    SourceFile file = scanFile("src/test/resources/checks/multilineStringLiteral.js", check);
-    CheckMessagesVerifier.verify(file.getCheckMessages())
+    CheckMessagesVerifier.verify(getIssues("src/test/resources/checks/multilineStringLiteral.js", check))
         .next().atLine(2).withMessage("Use string concatenation rather than line continuation.")
         .noMore();
   }

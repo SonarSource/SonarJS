@@ -21,16 +21,13 @@ package org.sonar.javascript.checks;
 
 import org.junit.Test;
 import org.sonar.javascript.checks.utils.TreeCheckTest;
-import org.sonar.squidbridge.api.SourceFile;
 import org.sonar.squidbridge.checks.CheckMessagesVerifier;
 
 public class EmptyBlockCheckTest extends TreeCheckTest {
 
   @Test
   public void test() {
-    SourceFile file = scanFile("src/test/resources/checks/emptyBlock.js", new EmptyBlockCheck());
-
-    CheckMessagesVerifier.verify(file.getCheckMessages())
+    CheckMessagesVerifier.verify(getIssues("src/test/resources/checks/emptyBlock.js", new EmptyBlockCheck()))
         .next().atLine(2).withMessage("Either remove or fill this block of code.")
         .next().atLine(16).withMessage("Either remove or fill this block of code.")
         .noMore();

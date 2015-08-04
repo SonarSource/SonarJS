@@ -21,7 +21,6 @@ package org.sonar.javascript.checks;
 
 import org.junit.Test;
 import org.sonar.javascript.checks.utils.TreeCheckTest;
-import org.sonar.squidbridge.api.SourceFile;
 import org.sonar.squidbridge.checks.CheckMessagesVerifier;
 
 public class LineLengthCheckTest extends TreeCheckTest {
@@ -31,8 +30,7 @@ public class LineLengthCheckTest extends TreeCheckTest {
     LineLengthCheck check = new LineLengthCheck();
     check.maximumLineLength = 30;
 
-    SourceFile file = scanFile("src/test/resources/checks/lineLength.js", check);
-    CheckMessagesVerifier.verify(file.getCheckMessages())
+    CheckMessagesVerifier.verify(getIssues("src/test/resources/checks/lineLength.js", check))
         .next().atLine(2).withMessage("The line contains 44 characters which is greater than 30 authorized.")
         .next().atLine(5)
         .noMore();

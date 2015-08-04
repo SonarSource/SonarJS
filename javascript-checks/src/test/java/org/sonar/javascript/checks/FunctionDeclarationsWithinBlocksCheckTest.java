@@ -21,16 +21,13 @@ package org.sonar.javascript.checks;
 
 import org.junit.Test;
 import org.sonar.javascript.checks.utils.TreeCheckTest;
-import org.sonar.squidbridge.api.SourceFile;
 import org.sonar.squidbridge.checks.CheckMessagesVerifier;
 
 public class FunctionDeclarationsWithinBlocksCheckTest extends TreeCheckTest {
 
   @Test
   public void test() {
-    SourceFile file = scanFile("src/test/resources/checks/functionDeclarationsWithinBlocks.js", new FunctionDeclarationsWithinBlocksCheck());
-
-    CheckMessagesVerifier.verify(file.getCheckMessages())
+    CheckMessagesVerifier.verify(getIssues("src/test/resources/checks/functionDeclarationsWithinBlocks.js", new FunctionDeclarationsWithinBlocksCheck()))
         .next().atLine(3).withMessage("Do not use function declarations within blocks.")
         .noMore();
   }

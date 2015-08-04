@@ -21,7 +21,6 @@ package org.sonar.javascript.checks;
 
 import org.junit.Test;
 import org.sonar.javascript.checks.utils.TreeCheckTest;
-import org.sonar.squidbridge.api.SourceFile;
 import org.sonar.squidbridge.checks.CheckMessagesVerifier;
 
 public class ComparisonWithNaNCheckTest extends TreeCheckTest {
@@ -30,9 +29,7 @@ public class ComparisonWithNaNCheckTest extends TreeCheckTest {
 
   @Test
   public void test() {
-    SourceFile file = scanFile("src/test/resources/checks/comparisonWithNaN.js", check);
-
-    CheckMessagesVerifier.verify(file.getCheckMessages())
+    CheckMessagesVerifier.verify(getIssues("src/test/resources/checks/comparisonWithNaN.js", check))
       .next().atLine(1).withMessage("Use a test of the format \"a == a\" instead.")
       .next().atLine(2).withMessage("Use a test of the format \"a != a\" instead.")
       .next().atLine(3).withMessage("Use a test of the format \"a === a\" instead.")
