@@ -21,7 +21,6 @@ package org.sonar.javascript.checks;
 
 import org.junit.Test;
 import org.sonar.javascript.checks.utils.TreeCheckTest;
-import org.sonar.squidbridge.api.SourceFile;
 import org.sonar.squidbridge.checks.CheckMessagesVerifier;
 
 public class IndexOfCompareToPositiveNumberCheckTest extends TreeCheckTest {
@@ -30,9 +29,7 @@ public class IndexOfCompareToPositiveNumberCheckTest extends TreeCheckTest {
 
   @Test
   public void test() {
-    SourceFile file = scanFile("src/test/resources/checks/indexOfCompareToPositiveNumber.js", check);
-
-    CheckMessagesVerifier.verify(file.getCheckMessages())
+    CheckMessagesVerifier.verify(getIssues("src/test/resources/checks/indexOfCompareToPositiveNumber.js", check))
       .next().atLine(1).withMessage("0 is a valid index, but is ignored by this check.")
       .next().atLine(2)
       .noMore();

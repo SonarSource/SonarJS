@@ -26,6 +26,7 @@ import com.sonar.sslr.api.Token;
 import com.sonar.sslr.impl.Parser;
 import org.sonar.javascript.EcmaScriptConfiguration;
 import org.sonar.javascript.ast.visitors.SubscriptionAstTreeVisitor;
+import org.sonar.javascript.parser.EcmaScriptParser;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
@@ -33,8 +34,6 @@ import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import java.util.List;
 
 import static org.fest.assertions.Assertions.assertThat;
-
-import org.sonar.javascript.parser.EcmaScriptParser;
 
 public abstract class JavaScriptTreeModelTest {
 

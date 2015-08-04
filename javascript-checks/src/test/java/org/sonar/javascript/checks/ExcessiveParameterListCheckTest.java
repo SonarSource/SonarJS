@@ -19,10 +19,9 @@
  */
 package org.sonar.javascript.checks;
 
+import org.junit.Test;
 import org.sonar.javascript.checks.utils.TreeCheckTest;
 import org.sonar.squidbridge.checks.CheckMessagesVerifier;
-import org.junit.Test;
-import org.sonar.squidbridge.api.SourceFile;
 
 public class ExcessiveParameterListCheckTest extends TreeCheckTest {
 
@@ -30,8 +29,7 @@ public class ExcessiveParameterListCheckTest extends TreeCheckTest {
 
   @Test
   public void defaults() {
-    SourceFile file = scanFile("src/test/resources/checks/excessiveParameterList.js", check);
-    CheckMessagesVerifier.verify(file.getCheckMessages())
+    CheckMessagesVerifier.verify(getIssues("src/test/resources/checks/excessiveParameterList.js", check))
         .next().atLine(4).withMessage("Function has 8 parameters which is greater than 7 authorized.")
         .next().atLine(7)
         .noMore();
@@ -40,8 +38,7 @@ public class ExcessiveParameterListCheckTest extends TreeCheckTest {
   @Test
   public void test() {
     check.setMaximumFunctionParameters(8);
-    SourceFile file = scanFile("src/test/resources/checks/excessiveParameterList.js", check);
-    CheckMessagesVerifier.verify(file.getCheckMessages())
+    CheckMessagesVerifier.verify(getIssues("src/test/resources/checks/excessiveParameterList.js", check))
         .noMore();
   }
 

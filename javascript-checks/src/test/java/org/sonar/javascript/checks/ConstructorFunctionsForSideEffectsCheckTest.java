@@ -21,15 +21,13 @@ package org.sonar.javascript.checks;
 
 import org.junit.Test;
 import org.sonar.javascript.checks.utils.TreeCheckTest;
-import org.sonar.squidbridge.api.SourceFile;
 import org.sonar.squidbridge.checks.CheckMessagesVerifier;
 
 public class ConstructorFunctionsForSideEffectsCheckTest extends TreeCheckTest {
 
   @Test
   public void test() {
-    SourceFile file = scanFile("src/test/resources/checks/constructorFunctionsForSideEffects.js", new ConstructorFunctionsForSideEffectsCheck());
-    CheckMessagesVerifier.verify(file.getCheckMessages())
+    CheckMessagesVerifier.verify(getIssues("src/test/resources/checks/constructorFunctionsForSideEffects.js", new ConstructorFunctionsForSideEffectsCheck()))
       .next().atLine(3).withMessage("Replace by a standard call to the function.")
       .noMore();
   }

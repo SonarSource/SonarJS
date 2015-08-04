@@ -22,7 +22,6 @@ package org.sonar.javascript.checks;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.javascript.checks.utils.TreeCheckTest;
-import org.sonar.squidbridge.api.SourceFile;
 import org.sonar.squidbridge.checks.CheckMessagesVerifierRule;
 
 public class SpaceInModelPropertyNameCheckTest extends TreeCheckTest {
@@ -32,8 +31,7 @@ public class SpaceInModelPropertyNameCheckTest extends TreeCheckTest {
 
   @Test
   public void test() {
-    SourceFile file = scanFile("src/test/resources/checks/spaceInModelPropertyName.js", new SpaceInModelPropertyNameCheck());
-    checkMessagesVerifier.verify(file.getCheckMessages())
+    checkMessagesVerifier.verify(getIssues("src/test/resources/checks/spaceInModelPropertyName.js", new SpaceInModelPropertyNameCheck()))
       .next().atLine(3).withMessage("Rename this property to remove the spaces.")
       .next().atLine(4)
       .next().atLine(21)

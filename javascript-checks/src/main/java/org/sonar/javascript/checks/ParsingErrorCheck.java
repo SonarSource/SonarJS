@@ -19,19 +19,12 @@
  */
 package org.sonar.javascript.checks;
 
-import java.io.PrintWriter;
-import java.io.StringWriter;
-
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
-import org.sonar.squidbridge.AstScannerExceptionHandler;
+import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
-import org.sonar.squidbridge.checks.SquidCheck;
-import org.sonar.sslr.parser.LexerlessGrammar;
-
-import com.sonar.sslr.api.RecognitionException;
 
 @Rule(
   key = "ParsingError",
@@ -39,18 +32,5 @@ import com.sonar.sslr.api.RecognitionException;
   priority = Priority.MAJOR)
 @SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.INSTRUCTION_RELIABILITY)
 @SqaleConstantRemediation("30min")
-public class ParsingErrorCheck extends SquidCheck<LexerlessGrammar> implements AstScannerExceptionHandler {
-
-  @Override
-  public void processException(Exception e) {
-    StringWriter exception = new StringWriter();
-    e.printStackTrace(new PrintWriter(exception));
-    getContext().createFileViolation(this, exception.toString());
-  }
-
-  @Override
-  public void processRecognitionException(RecognitionException e) {
-    getContext().createLineViolation(this, e.getMessage(), e.getLine());
-  }
-
+public class ParsingErrorCheck extends BaseTreeVisitor  {
 }

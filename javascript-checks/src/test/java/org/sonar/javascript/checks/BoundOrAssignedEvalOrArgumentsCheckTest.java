@@ -21,7 +21,6 @@ package org.sonar.javascript.checks;
 
 import org.junit.Test;
 import org.sonar.javascript.checks.utils.TreeCheckTest;
-import org.sonar.squidbridge.api.SourceFile;
 import org.sonar.squidbridge.checks.CheckMessagesVerifier;
 
 public class BoundOrAssignedEvalOrArgumentsCheckTest extends TreeCheckTest {
@@ -30,8 +29,7 @@ public class BoundOrAssignedEvalOrArgumentsCheckTest extends TreeCheckTest {
   public void test() {
     BoundOrAssignedEvalOrArgumentsCheck check = new BoundOrAssignedEvalOrArgumentsCheck();
 
-    SourceFile file = scanFile("src/test/resources/checks/boundOrAssignedEvalOrArguments.js", check);
-    CheckMessagesVerifier.verify(file.getCheckMessages())
+    CheckMessagesVerifier.verify(getIssues("src/test/resources/checks/boundOrAssignedEvalOrArguments.js", check))
         .next().atLine(1).withMessage("Remove the modification of \"eval\".")
         .next().atLine(2).withMessage("Remove the modification of \"arguments\".")
         .next().atLine(3).withMessage("Remove the modification of \"eval\".")

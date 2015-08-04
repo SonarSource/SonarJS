@@ -17,28 +17,5 @@
  * License along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.javascript.checks;
-
-import org.junit.Test;
-import org.sonar.javascript.checks.utils.TreeCheckTest;
-import org.sonar.squidbridge.checks.CheckMessagesVerifier;
-
-public class AlwaysUseCurlyBracesCheckTest extends TreeCheckTest {
-
-  @Test
-  public void test() {
-    AlwaysUseCurlyBracesCheck check = new AlwaysUseCurlyBracesCheck();
-
-    CheckMessagesVerifier.verify(getIssues("src/test/resources/checks/alwaysUseCurlyBraces.js", check))
-        .next().atLine(3).withMessage("Missing curly brace.")
-        .next().atLine(5)
-        .next().atLine(7)
-        .next().atLine(9)
-        .next().atLine(15)
-        .next().atLine(21)
-        .next().atLine(35)
-        .noMore();
-  }
-
-
-}
+@javax.annotation.ParametersAreNonnullByDefault
+package org.sonar.plugins.javascript.api.visitors;

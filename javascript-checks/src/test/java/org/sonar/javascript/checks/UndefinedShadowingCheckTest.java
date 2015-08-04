@@ -21,7 +21,6 @@ package org.sonar.javascript.checks;
 
 import org.junit.Test;
 import org.sonar.javascript.checks.utils.TreeCheckTest;
-import org.sonar.squidbridge.api.SourceFile;
 import org.sonar.squidbridge.checks.CheckMessagesVerifier;
 
 public class UndefinedShadowingCheckTest extends TreeCheckTest {
@@ -30,9 +29,8 @@ public class UndefinedShadowingCheckTest extends TreeCheckTest {
 
   @Test
   public void test() {
-    SourceFile file = scanFile("src/test/resources/checks/undefinedShadowing.js", check);
 
-    CheckMessagesVerifier.verify(file.getCheckMessages())
+    CheckMessagesVerifier.verify(getIssues("src/test/resources/checks/undefinedShadowing.js", check))
       .next().atLine(2).withMessage("Rename this variable.")
       .next().atLine(3).withMessage("Rename this variable.")
       .noMore();

@@ -21,7 +21,6 @@ package org.sonar.javascript.checks;
 
 import org.junit.Test;
 import org.sonar.javascript.checks.utils.TreeCheckTest;
-import org.sonar.squidbridge.api.SourceFile;
 import org.sonar.squidbridge.checks.CheckMessagesVerifier;
 
 public class WithStatementCheckTest extends TreeCheckTest {
@@ -30,8 +29,7 @@ public class WithStatementCheckTest extends TreeCheckTest {
   public void test() {
     WithStatementCheck check = new WithStatementCheck();
 
-    SourceFile file = scanFile("src/test/resources/checks/withStatement.js", check);
-    CheckMessagesVerifier.verify(file.getCheckMessages())
+    CheckMessagesVerifier.verify(getIssues("src/test/resources/checks/withStatement.js", check))
         .next().atLine(2).withMessage("Remove this use of \"with\".")
         .noMore();
   }

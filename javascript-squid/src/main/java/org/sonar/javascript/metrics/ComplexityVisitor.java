@@ -19,67 +19,104 @@
  */
 package org.sonar.javascript.metrics;
 
-import com.sonar.sslr.api.AstNode;
-import org.sonar.javascript.api.EcmaScriptMetric;
-import org.sonar.javascript.api.EcmaScriptPunctuator;
+import com.google.common.collect.ImmutableList;
+import org.sonar.javascript.ast.resolve.type.FunctionTree;
+import org.sonar.javascript.ast.visitors.SubscriptionAstTreeVisitor;
+import org.sonar.javascript.model.internal.JavaScriptTree;
+import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
-import org.sonar.squidbridge.SquidAstVisitor;
-import org.sonar.sslr.parser.LexerlessGrammar;
+import org.sonar.plugins.javascript.api.tree.declaration.MethodDeclarationTree;
+import org.sonar.plugins.javascript.api.tree.statement.StatementTree;
 
-public class ComplexityVisitor extends SquidAstVisitor<LexerlessGrammar> {
+import java.util.List;
 
-  @Override
-  public void init() {
-    subscribeTo(
-      // Functions
-      Kind.FUNCTION_DECLARATION,
-      Kind.FUNCTION_EXPRESSION,
-      Kind.METHOD,
-      Kind.GENERATOR_METHOD,
-      Kind.GENERATOR_FUNCTION_EXPRESSION,
-      Kind.GENERATOR_DECLARATION,
-      // Branching nodes
-      Kind.IF_STATEMENT,
-      Kind.DO_WHILE_STATEMENT,
-      Kind.WHILE_STATEMENT,
-      Kind.FOR_IN_STATEMENT,
-      Kind.FOR_OF_STATEMENT,
-      Kind.FOR_STATEMENT,
-      Kind.CASE_CLAUSE,
-      Kind.CATCH_BLOCK,
-      Kind.RETURN_STATEMENT,
-      Kind.THROW_STATEMENT,
-      // Expressions
-      EcmaScriptPunctuator.QUERY,
-      EcmaScriptPunctuator.ANDAND,
-      EcmaScriptPunctuator.OROR);
-  }
+public class ComplexityVisitor extends SubscriptionAstTreeVisitor {
+
+  private int complexity;
 
   @Override
-  public void visitNode(AstNode astNode) {
-
-    if (astNode.is(Kind.RETURN_STATEMENT) && isLastReturnStatement(astNode)) {
-      return;
-    }
-    getContext().peekSourceCode().add(EcmaScriptMetric.COMPLEXITY, 1);
-  }
-
-  private static boolean isLastReturnStatement(AstNode returnNode) {
-    AstNode nextNode = returnNode.getNextAstNode();
-    return nextNode.is(EcmaScriptPunctuator.RCURLYBRACE) && isNotNested(returnNode);
-  }
-
-  private static boolean isNotNested(AstNode returnNode) {
-    return returnNode.getParent().is(Kind.BLOCK) &&
-      returnNode.getParent().getParent().is(
-        Kind.SET_METHOD,
-        Kind.GET_METHOD,
+  public List<Kind> nodesToVisit() {
+    return ImmutableList.of(
+        // Functions
+        Kind.FUNCTION_DECLARATION,
+        Kind.FUNCTION_EXPRESSION,
         Kind.METHOD,
         Kind.GENERATOR_METHOD,
         Kind.GENERATOR_FUNCTION_EXPRESSION,
-        Kind.FUNCTION_EXPRESSION,
-        Kind.FUNCTION_DECLARATION,
-        Kind.GENERATOR_DECLARATION);
+        Kind.GENERATOR_DECLARATION,
+        // Branching nodes
+        Kind.IF_STATEMENT,
+        Kind.DO_WHILE_STATEMENT,
+        Kind.WHILE_STATEMENT,
+        Kind.FOR_IN_STATEMENT,
+        Kind.FOR_OF_STATEMENT,
+        Kind.FOR_STATEMENT,
+        Kind.CASE_CLAUSE,
+        Kind.CATCH_BLOCK,
+        Kind.RETURN_STATEMENT,
+        Kind.THROW_STATEMENT,
+        // Expressions
+        Kind.CONDITIONAL_EXPRESSION,
+        Kind.CONDITIONAL_AND,
+        Kind.CONDITIONAL_OR,
+
+        // FOR EXCLUDING LAST RETURN
+        Kind.SET_METHOD,
+        Kind.GET_METHOD
+    );
+  }
+
+  public int getComplexity(Tree tree) {
+    this.complexity = 0;
+    scanTree(tree);
+    return complexity;
+  }
+
+  @Override
+  public void visitNode(Tree tree) {
+    if (isStatementWithLastReturn(tree)) {
+      complexity--;
+    }
+
+    if (!tree.is(Kind.SET_METHOD, Kind.GET_METHOD)) {
+      complexity++;
+    }
+  }
+
+  /**
+   * @param tree  some kind of function declaration (which can contain return as its last statement)
+   * @return      <b>true</b> if last statement of <b>tree</b> body is return statement.
+   */
+  private static boolean isStatementWithLastReturn(Tree tree) {
+    Kind kind = (Kind) ((JavaScriptTree) tree).getKind();
+    boolean result = false;
+
+    switch (kind) {
+      case GET_METHOD:
+      case SET_METHOD:
+      case METHOD:
+      case GENERATOR_METHOD:
+        result = isLastReturn(((MethodDeclarationTree)tree).body().statements());
+        break;
+      case GENERATOR_FUNCTION_EXPRESSION:
+      case FUNCTION_EXPRESSION:
+      case FUNCTION_DECLARATION:
+      case GENERATOR_DECLARATION:
+        result = isLastReturn(((FunctionTree)tree).body().statements());
+        break;
+      default:
+        break;
+    }
+
+    return result;
+  }
+
+  private static boolean isLastReturn(List<StatementTree> statements) {
+    if (statements.isEmpty()) {
+      return false;
+    }
+    StatementTree tree = statements.get(statements.size() - 1);
+    return tree.is(Kind.RETURN_STATEMENT);
   }
 
 }

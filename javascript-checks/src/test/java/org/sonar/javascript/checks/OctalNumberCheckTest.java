@@ -21,7 +21,6 @@ package org.sonar.javascript.checks;
 
 import org.junit.Test;
 import org.sonar.javascript.checks.utils.TreeCheckTest;
-import org.sonar.squidbridge.api.SourceFile;
 import org.sonar.squidbridge.checks.CheckMessagesVerifier;
 
 public class OctalNumberCheckTest extends TreeCheckTest {
@@ -30,8 +29,7 @@ public class OctalNumberCheckTest extends TreeCheckTest {
   public void test() {
     OctalNumberCheck check = new OctalNumberCheck();
 
-    SourceFile file = scanFile("src/test/resources/checks/octalNumber.js", check);
-    CheckMessagesVerifier.verify(file.getCheckMessages())
+    CheckMessagesVerifier.verify(getIssues("src/test/resources/checks/octalNumber.js", check))
         .next().atLine(3).withMessage("Replace the value of the octal number (0644) by its decimal equivalent (420).")
         .noMore();
   }

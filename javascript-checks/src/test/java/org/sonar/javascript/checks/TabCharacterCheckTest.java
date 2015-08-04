@@ -19,30 +19,31 @@
  */
 package org.sonar.javascript.checks;
 
+import com.google.common.base.Charsets;
+import org.junit.Before;
+import org.junit.Test;
 import org.sonar.javascript.checks.utils.TreeCheckTest;
 import org.sonar.squidbridge.checks.CheckMessagesVerifier;
-import org.junit.Test;
-import org.sonar.javascript.JavaScriptAstScanner;
-import org.sonar.squidbridge.api.SourceFile;
-
-import java.io.File;
 
 public class TabCharacterCheckTest extends TreeCheckTest {
 
   TabCharacterCheck check = new TabCharacterCheck();
 
+  @Before
+  public void setUp(){
+    check.setCharset(Charsets.UTF_8);
+  }
+
   @Test
   public void test() {
-    SourceFile file = scanFile("src/test/resources/checks/tabCharacter.js", check);
-    CheckMessagesVerifier.verify(file.getCheckMessages())
+    CheckMessagesVerifier.verify(getIssues("src/test/resources/checks/tabCharacter.js", check))
         .next().atLine(1).withMessage("Replace all tab characters in this file by sequences of white-spaces.")
         .noMore();
   }
 
   @Test
   public void test2() {
-    SourceFile file = scanFile("src/test/resources/checks/newlineAtEndOfFile.js", check);
-    CheckMessagesVerifier.verify(file.getCheckMessages())
+    CheckMessagesVerifier.verify(getIssues("src/test/resources/checks/newlineAtEndOfFile.js", check))
         .noMore();
   }
 

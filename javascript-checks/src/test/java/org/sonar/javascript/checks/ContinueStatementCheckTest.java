@@ -19,18 +19,15 @@
  */
 package org.sonar.javascript.checks;
 
+import org.junit.Test;
 import org.sonar.javascript.checks.utils.TreeCheckTest;
 import org.sonar.squidbridge.checks.CheckMessagesVerifier;
-import org.junit.Test;
-import org.sonar.squidbridge.api.SourceFile;
 
 public class ContinueStatementCheckTest extends TreeCheckTest{
 
   @Test
   public void test() {
-    SourceFile file = scanFile("src/test/resources/checks/continueStatement.js", new ContinueStatementCheck());
-
-    CheckMessagesVerifier.verify(file.getCheckMessages())
+    CheckMessagesVerifier.verify(getIssues("src/test/resources/checks/continueStatement.js", new ContinueStatementCheck()))
         .next().atLine(6).withMessage("Avoid using continue statement.")
         .noMore();
   }

@@ -22,7 +22,6 @@ package org.sonar.javascript.checks;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.javascript.checks.utils.TreeCheckTest;
-import org.sonar.squidbridge.api.SourceFile;
 import org.sonar.squidbridge.checks.CheckMessagesVerifierRule;
 
 public class ModelDefaultsWithArrayOrObjectCheckTest extends TreeCheckTest {
@@ -32,8 +31,7 @@ public class ModelDefaultsWithArrayOrObjectCheckTest extends TreeCheckTest {
 
    @Test
    public void test() {
-     SourceFile file = scanFile("src/test/resources/checks/modelDefaultsWithArrayOrObject.js", new ModelDefaultsWithArrayOrObjectCheck());
-     checkMessagesVerifier.verify(file.getCheckMessages())
+     checkMessagesVerifier.verify(getIssues("src/test/resources/checks/modelDefaultsWithArrayOrObject.js", new ModelDefaultsWithArrayOrObjectCheck()))
        .next().atLine(2).withMessage("Make \"defaults\" a function.")
        .next().atLine(9);
    }

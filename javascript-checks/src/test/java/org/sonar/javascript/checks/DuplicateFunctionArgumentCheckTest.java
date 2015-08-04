@@ -21,7 +21,6 @@ package org.sonar.javascript.checks;
 
 import org.junit.Test;
 import org.sonar.javascript.checks.utils.TreeCheckTest;
-import org.sonar.squidbridge.api.SourceFile;
 import org.sonar.squidbridge.checks.CheckMessagesVerifier;
 
 public class DuplicateFunctionArgumentCheckTest extends TreeCheckTest {
@@ -29,9 +28,7 @@ public class DuplicateFunctionArgumentCheckTest extends TreeCheckTest {
   @Test
   public void test() {
     DuplicateFunctionArgumentCheck check = new DuplicateFunctionArgumentCheck();
-
-    SourceFile file = scanFile("src/test/resources/checks/duplicateFunctionArgument.js", check);
-    CheckMessagesVerifier.verify(file.getCheckMessages())
+    CheckMessagesVerifier.verify(getIssues("src/test/resources/checks/duplicateFunctionArgument.js", check))
         .next().atLine(3).withMessage("Rename or remove duplicate function argument 'a'.")
         .next().atLine(4).withMessage("Rename or remove duplicate function argument '\\u0061'.")
         .next().atLine(7).withMessage("Rename or remove duplicate function argument 'c'.")

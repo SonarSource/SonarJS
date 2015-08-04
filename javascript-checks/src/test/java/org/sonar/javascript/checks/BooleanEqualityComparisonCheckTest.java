@@ -21,7 +21,6 @@ package org.sonar.javascript.checks;
 
 import org.junit.Test;
 import org.sonar.javascript.checks.utils.TreeCheckTest;
-import org.sonar.squidbridge.api.SourceFile;
 import org.sonar.squidbridge.checks.CheckMessagesVerifier;
 
 public class BooleanEqualityComparisonCheckTest extends TreeCheckTest {
@@ -30,8 +29,7 @@ public class BooleanEqualityComparisonCheckTest extends TreeCheckTest {
 
   @Test
   public void test() {
-    SourceFile file = scanFile("src/test/resources/checks/booleanEqualityComparison.js", check);
-    CheckMessagesVerifier.verify(file.getCheckMessages())
+    CheckMessagesVerifier.verify(getIssues("src/test/resources/checks/booleanEqualityComparison.js", check))
       .next().atLine(1).withMessage("Remove the literal \"true\" boolean value.")
       .next().atLine(2)
       .next().atLine(3).withMessage("Remove the literal \"false\" boolean value.")

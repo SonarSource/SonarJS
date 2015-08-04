@@ -21,7 +21,6 @@ package org.sonar.javascript.checks;
 
 import org.junit.Test;
 import org.sonar.javascript.checks.utils.TreeCheckTest;
-import org.sonar.squidbridge.api.SourceFile;
 import org.sonar.squidbridge.checks.CheckMessagesVerifier;
 
 public class SelectionTestedWithoutLengthCheckTest extends TreeCheckTest {
@@ -30,8 +29,7 @@ public class SelectionTestedWithoutLengthCheckTest extends TreeCheckTest {
 
   @Test
   public void test() {
-    SourceFile file = scanFile("src/test/resources/checks/SelectionTestedWithoutLength.js", check);
-    CheckMessagesVerifier.verify(file.getCheckMessages())
+    CheckMessagesVerifier.verify(getIssues("src/test/resources/checks/SelectionTestedWithoutLength.js", check))
     .next().atLine(1)
     .next().atLine(13)
     .next().atLine(17)
