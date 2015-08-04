@@ -55,34 +55,43 @@ public class JsTestDriverSensorTest {
   private JsTestDriverSensor sensor;
   private SensorContext context;
   private Settings settings;
-  private DefaultFileSystem fileSystem = new DefaultFileSystem();
+  private DefaultFileSystem fileSystem;
   private final Project project = new Project("project");
 
   @Before
   public void init() {
+    fileSystem = new DefaultFileSystem();
+    fileSystem.setBaseDir(PROJECT_BASE_DIR);
+    fileSystem.add(newTestInputFile("test/AnotherPersonTest.js", "org/sonar/plugins/javascript/unittest/jstestdriver/sensortests/test/AnotherPersonTest.js"));
+    fileSystem.add(newTestInputFile("test/PersonTest.js", "org/sonar/plugins/javascript/unittest/jstestdriver/sensortests/test/PersonTest.js"));
+
     settings = new Settings();
     sensor = new JsTestDriverSensor(fileSystem, settings);
     context = mock(SensorContext.class);
+
   }
 
   @Test
   public void test_shouldExecuteOnProject() {
+    DefaultFileSystem localFS = new DefaultFileSystem();
+    JsTestDriverSensor localSensor = sensor = new JsTestDriverSensor(localFS, settings);
+    context = mock(SensorContext.class);
+
     // Not a JavaScript project
-    assertThat(sensor.shouldExecuteOnProject(project)).isFalse();
+    assertThat(localSensor.shouldExecuteOnProject(project)).isFalse();
 
     // No report path provided
-    assertThat(sensor.shouldExecuteOnProject(project)).isFalse();
+    assertThat(localSensor.shouldExecuteOnProject(project)).isFalse();
 
     settings.setProperty(JavaScriptPlugin.JSTESTDRIVER_REPORTS_PATH, "jstestdriver");
-    fileSystem.add(new DefaultInputFile("File.jsp").setLanguage(JavaScript.KEY).setType(InputFile.Type.MAIN));
+    localFS.add(new DefaultInputFile("File.jsp").setLanguage(JavaScript.KEY).setType(InputFile.Type.MAIN));
     assertThat(sensor.shouldExecuteOnProject(project)).isTrue();
   }
 
   @Test
   public void testAnalyseUnitTests() {
     settings.setProperty(JavaScriptPlugin.JSTESTDRIVER_REPORTS_PATH, "reports/jstestdriver");
-    initFilesystem();
-    when(context.getResource(any(InputFile.class))).thenReturn(org.sonar.api.resources.File.create("PersonTest.js"));
+    when(context.getResource(any(InputFile.class))).thenReturn(org.sonar.api.resources.File.create("test/PersonTest.js"));
 
     sensor.analyse(project, context);
 
@@ -97,7 +106,6 @@ public class JsTestDriverSensorTest {
   @Test
   public void wrong_file_name_in_report() {
     settings.setProperty(JavaScriptPlugin.JSTESTDRIVER_REPORTS_PATH, "reports/wrong-jstestdriver-report");
-    initFilesystem();
 
     sensor.analyse(project, context);
 
@@ -114,24 +122,13 @@ public class JsTestDriverSensorTest {
 
   @Test
   public void get_testfile_with_common_suffix_filename() {
-    initFilesystem();
-
     InputFile inputFile1 = sensor.getTestFileRelativePathToBaseDir("PersonTest.js");
     assertNotNull(inputFile1);
-    assertEquals("PersonTest.js", inputFile1.relativePath());
-  }
+    assertEquals("test/PersonTest.js", inputFile1.relativePath());
 
-  @Test
-  public void get_testfile_with_directory() {
-    initFilesystem();
-
-    InputFile inputFile1 = sensor.getTestFileRelativePathToBaseDir("AnotherPersonTest.js");
-    assertNotNull(inputFile1);
-    assertEquals("AnotherPersonTest.js", inputFile1.relativePath());
-
-    InputFile inputFile2 = sensor.getTestFileRelativePathToBaseDir("awesome/AnotherPersonTest.js");
+    InputFile inputFile2 = sensor.getTestFileRelativePathToBaseDir("AnotherPersonTest.js");
     assertNotNull(inputFile2);
-    assertEquals("awesome/AnotherPersonTest.js", inputFile2.relativePath());
+    assertEquals("test/AnotherPersonTest.js", inputFile2.relativePath());
   }
 
   @Test
@@ -139,18 +136,12 @@ public class JsTestDriverSensorTest {
     assertThat(sensor.toString()).isEqualTo("JsTestDriverSensor");
   }
 
-  public DefaultInputFile newTestInputFile(String name, String path) {
-    return new DefaultInputFile(name)
-      .setAbsolutePath(TestUtils.getResource(path).getAbsolutePath())
+  public DefaultInputFile newTestInputFile(String projectRelativePath, String pathFromTestsResourceDir) {
+    return new DefaultInputFile(projectRelativePath)
+      .setAbsolutePath(TestUtils.getResource(pathFromTestsResourceDir).getAbsolutePath())
       .setType(InputFile.Type.TEST)
       .setLanguage(JavaScript.KEY);
   }
 
-  private void initFilesystem() {
-    fileSystem.setBaseDir(PROJECT_BASE_DIR);
-    fileSystem.add(newTestInputFile("awesome/AnotherPersonTest.js", "org/sonar/plugins/javascript/unittest/jstestdriver/sensortests/test/awesome/AnotherPersonTest.js"));
-    fileSystem.add(newTestInputFile("AnotherPersonTest.js", "org/sonar/plugins/javascript/unittest/jstestdriver/sensortests/test/AnotherPersonTest.js"));
-    fileSystem.add(newTestInputFile("PersonTest.js", "org/sonar/plugins/javascript/unittest/jstestdriver/sensortests/test/PersonTest.js"));
-  }
 
 }

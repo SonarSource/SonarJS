@@ -1,1 +1,0 @@
-This is content for awesome AnotherPersonTest.js JavaScript file used in unit tests.
