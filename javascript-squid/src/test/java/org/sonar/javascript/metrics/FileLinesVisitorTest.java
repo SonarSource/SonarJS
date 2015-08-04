@@ -19,17 +19,6 @@
  */
 package org.sonar.javascript.metrics;
 
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.anyInt;
-import static org.mockito.Mockito.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
-import java.io.File;
-import java.net.URISyntaxException;
-
 import org.junit.Test;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
@@ -42,6 +31,17 @@ import org.sonar.api.resources.Resource;
 import org.sonar.api.scan.filesystem.PathResolver;
 import org.sonar.javascript.JavaScriptAstScanner;
 import org.sonar.javascript.TestUtils;
+
+import java.io.File;
+import java.net.URISyntaxException;
+
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.anyInt;
+import static org.mockito.Mockito.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class FileLinesVisitorTest {
 

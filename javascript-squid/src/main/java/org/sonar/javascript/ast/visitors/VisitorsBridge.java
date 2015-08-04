@@ -30,6 +30,7 @@ import org.sonar.api.source.Symbolizable;
 import org.sonar.javascript.CharsetAwareVisitor;
 import org.sonar.javascript.ast.resolve.SymbolModelImpl;
 import org.sonar.javascript.highlighter.SourceFileOffsets;
+import org.sonar.javascript.metrics.ComplexityVisitor;
 import org.sonar.plugins.javascript.api.JavaScriptCheck;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
 import org.sonar.squidbridge.SquidAstVisitor;
@@ -72,7 +73,8 @@ public class VisitorsBridge extends SquidAstVisitor<LexerlessGrammar> {
           (SourceFile) getContext().peekSourceCode(),
           file,
           symbolModel,
-          settings
+          settings,
+          new ComplexityVisitor()
         ));
 
       }

@@ -20,25 +20,16 @@
 package org.sonar.javascript;
 
 import com.google.common.base.Charsets;
-import com.sonar.sslr.api.AstNode;
 import com.sonar.sslr.impl.Parser;
 import org.sonar.javascript.api.EcmaScriptMetric;
-import org.sonar.javascript.api.EcmaScriptTokenType;
-import org.sonar.javascript.metrics.ComplexityVisitor;
-import org.sonar.javascript.metrics.LinesOfCodeVisitor;
-import org.sonar.plugins.javascript.api.tree.Tree.Kind;
-import org.sonar.javascript.parser.EcmaScriptGrammar;
 import org.sonar.javascript.parser.EcmaScriptParser;
+import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.squidbridge.AstScanner;
 import org.sonar.squidbridge.ProgressAstScanner;
-import org.sonar.squidbridge.SourceCodeBuilderCallback;
-import org.sonar.squidbridge.SourceCodeBuilderVisitor;
 import org.sonar.squidbridge.SquidAstVisitor;
 import org.sonar.squidbridge.SquidAstVisitorContextImpl;
-import org.sonar.squidbridge.api.SourceClass;
 import org.sonar.squidbridge.api.SourceCode;
 import org.sonar.squidbridge.api.SourceFile;
-import org.sonar.squidbridge.api.SourceFunction;
 import org.sonar.squidbridge.api.SourceProject;
 import org.sonar.squidbridge.indexer.QueryByType;
 import org.sonar.squidbridge.metrics.CommentsVisitor;
@@ -58,7 +49,8 @@ public final class JavaScriptAstScanner {
     Kind.METHOD,
     Kind.GENERATOR_METHOD,
     Kind.GENERATOR_FUNCTION_EXPRESSION,
-    Kind.GENERATOR_DECLARATION};
+    Kind.GENERATOR_DECLARATION
+  };
 
   private JavaScriptAstScanner() {
   }
@@ -66,7 +58,9 @@ public final class JavaScriptAstScanner {
   /**
    * Helper method for testing checks without having to deploy them on a Sonar instance.
    */
-  public static SourceFile scanSingleFile(File file, SquidAstVisitor<LexerlessGrammar>... visitors) {
+  public static SourceFile scanSingleFile(
+      File file,
+      SquidAstVisitor<LexerlessGrammar>... visitors) {
     if (!file.isFile()) {
       throw new IllegalArgumentException("File '" + file + "' not found.");
     }
@@ -79,7 +73,9 @@ public final class JavaScriptAstScanner {
     return (SourceFile) sources.iterator().next();
   }
 
-  public static AstScanner<LexerlessGrammar> create(EcmaScriptConfiguration conf, SquidAstVisitor<LexerlessGrammar>... visitors) {
+  public static AstScanner<LexerlessGrammar> create(
+      EcmaScriptConfiguration conf,
+      SquidAstVisitor<LexerlessGrammar>... visitors) {
     final SquidAstVisitorContextImpl<LexerlessGrammar> context = new SquidAstVisitorContextImpl<LexerlessGrammar>(new SourceProject("JavaScript Project"));
     final Parser<LexerlessGrammar> parser = EcmaScriptParser.create(conf);
 
@@ -94,19 +90,6 @@ public final class JavaScriptAstScanner {
     /* Files */
     builder.setFilesMetric(EcmaScriptMetric.FILES);
 
-    /* Classes */
-    builder.withSquidAstVisitor(new SourceCodeBuilderVisitor<LexerlessGrammar>(new SourceCodeBuilderCallback() {
-      private int seq = 0;
-
-      @Override
-      public SourceCode createSourceCode(SourceCode parentSourceCode, AstNode astNode) {
-        seq++;
-        SourceClass cls = new SourceClass("class:" + seq);
-        cls.setStartAtLine(astNode.getTokenLine());
-        return cls;
-      }
-    }, Kind.CLASS_DECLARATION, Kind.CLASS_EXPRESSION));
-
     builder.withSquidAstVisitor(CounterVisitor.<LexerlessGrammar>builder().setMetricDef(EcmaScriptMetric.CLASSES)
       .subscribeTo(Kind.CLASS_DECLARATION, Kind.CLASS_EXPRESSION)
       .build());
@@ -117,21 +100,8 @@ public final class JavaScriptAstScanner {
         .subscribeTo(FUNCTION_NODES)
         .build());
 
-    builder.withSquidAstVisitor(new SourceCodeBuilderVisitor<LexerlessGrammar>(new SourceCodeBuilderCallback() {
-      @Override
-      public SourceCode createSourceCode(SourceCode parentSourceCode, AstNode astNode) {
-        AstNode identifier = astNode.getFirstChild(EcmaScriptTokenType.IDENTIFIER, EcmaScriptGrammar.PROPERTY_NAME, Kind.IDENTIFIER);
-        final String functionName = identifier == null ? "anonymous" : identifier.getTokenValue();
-        final String fileKey = parentSourceCode.isType(SourceFile.class) ? parentSourceCode.getKey() : parentSourceCode.getParent(SourceFile.class).getKey();
-        SourceFunction function = new SourceFunction(fileKey + ":" + functionName + ":" + astNode.getToken().getLine() + ":" + astNode.getToken().getColumn());
-        function.setStartAtLine(astNode.getTokenLine());
-        return function;
-      }
-    }, FUNCTION_NODES));
-
     /* Metrics */
     builder.withSquidAstVisitor(new LinesVisitor<LexerlessGrammar>(EcmaScriptMetric.LINES));
-    builder.withSquidAstVisitor(new LinesOfCodeVisitor(EcmaScriptMetric.LINES_OF_CODE));
     builder.withSquidAstVisitor(CommentsVisitor.<LexerlessGrammar> builder().withCommentMetric(EcmaScriptMetric.COMMENT_LINES)
         .withNoSonar(true)
         .withIgnoreHeaderComment(conf.getIgnoreHeaderComments())
@@ -164,8 +134,6 @@ public final class JavaScriptAstScanner {
         Kind.GET_METHOD,
         Kind.SET_METHOD)
       .build());
-
-    builder.withSquidAstVisitor(new ComplexityVisitor());
 
     for (SquidAstVisitor<LexerlessGrammar> visitor : visitors) {
       if (visitor instanceof CharsetAwareVisitor) {

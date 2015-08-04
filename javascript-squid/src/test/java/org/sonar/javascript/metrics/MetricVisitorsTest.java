@@ -17,25 +17,29 @@
  * License along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.javascript.checks;
+package org.sonar.javascript.metrics;
 
 import org.junit.Test;
-import org.sonar.javascript.JavaScriptAstScanner;
-import org.sonar.squidbridge.api.SourceFile;
-import org.sonar.squidbridge.checks.CheckMessagesVerifier;
+import org.sonar.javascript.model.JavaScriptTreeModelTest;
+import org.sonar.plugins.javascript.api.tree.Tree;
 
 import java.io.File;
 
-import static org.hamcrest.Matchers.containsString;
+import static org.fest.assertions.Assertions.assertThat;
 
-public class ParsingErrorCheckTest {
+public class MetricVisitorsTest extends JavaScriptTreeModelTest {
 
   @Test
-  public void test() {
-    SourceFile file = JavaScriptAstScanner.scanSingleFile(new File("src/test/resources/checks/parsingError.js"), new ParsingErrorCheck());
-    CheckMessagesVerifier.verify(file.getCheckMessages())
-        .next().atLine(3).withMessageThat(containsString("Parse error"))
-        .noMore();
+  public void complexity() {
+    String path = "src/test/resources/metrics/complexity.js";
+    Tree tree = (Tree) p.parse(new File(path));
+    assertThat(new ComplexityVisitor().getComplexity(tree)).isEqualTo(20);
   }
 
+  @Test
+  public void lines_of_code() {
+    String path = "src/test/resources/metrics/lines_of_code.js";
+    Tree tree = (Tree) p.parse(new File(path));
+    assertThat(new LinesOfCodeVisitor().getLinesOfCodeNumber(tree)).isEqualTo(3);
+  }
 }

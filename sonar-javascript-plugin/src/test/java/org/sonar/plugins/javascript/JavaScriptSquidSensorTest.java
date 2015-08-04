@@ -19,13 +19,6 @@
  */
 package org.sonar.plugins.javascript;
 
-import static org.fest.assertions.Assertions.assertThat;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.batch.SensorContext;
@@ -51,6 +44,13 @@ import org.sonar.plugins.javascript.api.CustomJavaScriptRulesDefinition;
 import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
 import org.sonar.plugins.javascript.core.JavaScript;
 import org.sonar.test.TestUtils;
+
+import static org.fest.assertions.Assertions.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class JavaScriptSquidSensorTest {
 
@@ -123,14 +123,15 @@ public class JavaScriptSquidSensorTest {
 
     sensor.analyse(project, context);
 
-    verify(context).saveMeasure(any(Resource.class), eq(CoreMetrics.LINES), eq(32.0));
-    verify(context).saveMeasure(any(Resource.class), eq(CoreMetrics.NCLOC), eq(18.0));
+    verify(context).saveMeasure(any(Resource.class), eq(CoreMetrics.LINES), eq(33.0));
+    verify(context).saveMeasure(any(InputFile.class), eq(CoreMetrics.NCLOC), eq(19.0));
     verify(context).saveMeasure(any(Resource.class), eq(CoreMetrics.CLASSES), eq(1.0));
-    verify(context).saveMeasure(any(Resource.class), eq(CoreMetrics.FUNCTIONS), eq(2.0));
+    verify(context).saveMeasure(any(Resource.class), eq(CoreMetrics.FUNCTIONS), eq(3.0));
     verify(context).saveMeasure(any(Resource.class), eq(CoreMetrics.ACCESSORS), eq(2.0));
     verify(context).saveMeasure(any(Resource.class), eq(CoreMetrics.STATEMENTS), eq(8.0));
-    verify(context).saveMeasure(any(Resource.class), eq(CoreMetrics.COMPLEXITY), eq(3.0));
-    verify(context).saveMeasure(any(Resource.class), eq(CoreMetrics.COMPLEXITY_IN_CLASSES), eq(0.0));
+    verify(context).saveMeasure(any(InputFile.class), eq(CoreMetrics.COMPLEXITY), eq(4.0));
+    verify(context).saveMeasure(any(InputFile.class), eq(CoreMetrics.COMPLEXITY_IN_CLASSES), eq(1.0));
+    verify(context).saveMeasure(any(InputFile.class), eq(CoreMetrics.COMPLEXITY_IN_FUNCTIONS), eq(4.0));
     verify(context).saveMeasure(any(Resource.class), eq(CoreMetrics.COMMENT_LINES), eq(2.0));
   }
 

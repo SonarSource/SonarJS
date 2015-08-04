@@ -28,4 +28,5 @@ Person.prototype = {
 };
 
 class Utils {
+    foo() {}
 }

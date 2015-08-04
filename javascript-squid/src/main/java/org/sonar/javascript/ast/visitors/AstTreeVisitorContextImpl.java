@@ -21,6 +21,7 @@ package org.sonar.javascript.ast.visitors;
 
 import com.google.common.base.Preconditions;
 import org.sonar.api.config.Settings;
+import org.sonar.javascript.metrics.ComplexityVisitor;
 import org.sonar.javascript.model.internal.JavaScriptTree;
 import org.sonar.plugins.javascript.api.AstTreeVisitorContext;
 import org.sonar.plugins.javascript.api.JavaScriptCheck;
@@ -28,6 +29,7 @@ import org.sonar.plugins.javascript.api.symbols.SymbolModel;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.squidbridge.api.CheckMessage;
+import org.sonar.squidbridge.api.SourceCode;
 import org.sonar.squidbridge.api.SourceFile;
 
 import java.io.File;
@@ -38,13 +40,15 @@ public class AstTreeVisitorContextImpl implements AstTreeVisitorContext {
   private final File file;
   private final SymbolModel symbolModel;
   private final Settings settings;
+  private final ComplexityVisitor complexity;
 
-  public AstTreeVisitorContextImpl(ScriptTree tree, SourceFile sourceFile, File file, SymbolModel symbolModel, Settings settings) {
+  public AstTreeVisitorContextImpl(ScriptTree tree, SourceFile sourceFile, File file, SymbolModel symbolModel, Settings settings, ComplexityVisitor complexityVisitor) {
     this.tree = tree;
     this.sourceFile = sourceFile;
     this.file = file;
     this.symbolModel = symbolModel;
     this.settings = settings;
+    this.complexity = complexityVisitor;
   }
 
   @Override
@@ -119,4 +123,11 @@ public class AstTreeVisitorContextImpl implements AstTreeVisitorContext {
   public String[] getPropertyValues(String name){
     return settings.getStringArray(name);
   }
+
+  @Override
+  public int getComplexity(Tree tree) {
+    return complexity.getComplexity(tree);
+  }
+
+
 }

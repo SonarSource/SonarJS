@@ -58,12 +58,6 @@ public class JavaScriptAstScannerTest {
   }
 
   @Test
-  public void lines_of_code() {
-    SourceFile file = JavaScriptAstScanner.scanSingleFile(new File("src/test/resources/metrics/lines_of_code.js"));
-    assertThat(file.getInt(EcmaScriptMetric.LINES_OF_CODE)).isEqualTo(3);
-  }
-
-  @Test
   public void statements() {
     SourceFile file = JavaScriptAstScanner.scanSingleFile(new File("src/test/resources/metrics/statements.js"));
     assertThat(file.getInt(EcmaScriptMetric.STATEMENTS)).isEqualTo(16);
@@ -87,12 +81,6 @@ public class JavaScriptAstScannerTest {
   public void accessors() {
     SourceFile file = JavaScriptAstScanner.scanSingleFile(new File("src/test/resources/metrics/accessors.js"));
     assertThat(file.getInt(EcmaScriptMetric.ACCESSORS)).isEqualTo(4);
-  }
-
-  @Test
-  public void complexity() {
-    SourceFile file = JavaScriptAstScanner.scanSingleFile(new File("src/test/resources/metrics/complexity.js"));
-    assertThat(file.getInt(EcmaScriptMetric.COMPLEXITY)).isEqualTo(20);
   }
 
 }
