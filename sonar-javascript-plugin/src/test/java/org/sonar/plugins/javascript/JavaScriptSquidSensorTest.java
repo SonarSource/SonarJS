@@ -27,7 +27,7 @@ import org.sonar.api.batch.fs.internal.DefaultFileSystem;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.rule.ActiveRules;
 import org.sonar.api.batch.rule.CheckFactory;
-import org.sonar.api.checks.NoSonarFilter;
+import org.sonar.api.issue.NoSonarFilter;
 import org.sonar.api.component.ResourcePerspectives;
 import org.sonar.api.config.Settings;
 import org.sonar.api.measures.CoreMetrics;
@@ -88,8 +88,7 @@ public class JavaScriptSquidSensorTest {
   @Test
   public void should_execute_if_js_files() {
     DefaultFileSystem localFS = new DefaultFileSystem();
-    JavaScriptSquidSensor sensor = new JavaScriptSquidSensor(checkFactory, fileLinesContextFactory, mock(ResourcePerspectives.class), localFS, new NoSonarFilter(
-      mock(SensorContext.class)), new PathResolver(), new Settings(), CUSTOM_RULES);
+    JavaScriptSquidSensor sensor = new JavaScriptSquidSensor(checkFactory, fileLinesContextFactory, mock(ResourcePerspectives.class), localFS, new NoSonarFilter(), new PathResolver(), new Settings(), CUSTOM_RULES);
 
     // no JS files -> do not execute
     assertThat(sensor.shouldExecuteOnProject(project)).isFalse();
@@ -118,8 +117,11 @@ public class JavaScriptSquidSensorTest {
     when(context.getResource(any(Resource.class))).thenReturn(File.create((new PathResolver()).relativePath(FS.baseDir(), TestUtils.getResource("/cpd/Person.js"))));
 
     when(context.getResource(any(Resource.class))).thenReturn(File.create((new PathResolver()).relativePath(FS.baseDir(), TestUtils.getResource("/cpd/Person.js"))));
-    JavaScriptSquidSensor sensor = new JavaScriptSquidSensor(checkFactory, fileLinesContextFactory, mock(ResourcePerspectives.class), FS, new NoSonarFilter(
-      mock(SensorContext.class)), new PathResolver(), new Settings(), CUSTOM_RULES);
+    JavaScriptSquidSensor sensor = new JavaScriptSquidSensor(checkFactory, fileLinesContextFactory, mock(ResourcePerspectives.class), FS, new NoSonarFilter(), new PathResolver(), new Settings(), CUSTOM_RULES);
+
+    Resource resource = mock(Resource.class);
+    when(context.getResource(inputFile)).thenReturn(resource);
+    when(resource.getEffectiveKey()).thenReturn("someKey");
 
     sensor.analyse(project, context);
 
@@ -132,7 +134,7 @@ public class JavaScriptSquidSensorTest {
     verify(context).saveMeasure(any(InputFile.class), eq(CoreMetrics.COMPLEXITY), eq(4.0));
     verify(context).saveMeasure(any(InputFile.class), eq(CoreMetrics.COMPLEXITY_IN_CLASSES), eq(1.0));
     verify(context).saveMeasure(any(InputFile.class), eq(CoreMetrics.COMPLEXITY_IN_FUNCTIONS), eq(4.0));
-    verify(context).saveMeasure(any(Resource.class), eq(CoreMetrics.COMMENT_LINES), eq(2.0));
+    verify(context).saveMeasure(any(InputFile.class), eq(CoreMetrics.COMMENT_LINES), eq(2.0));
   }
 
   @Test
@@ -141,7 +143,7 @@ public class JavaScriptSquidSensorTest {
       checkFactory,
       fileLinesContextFactory,
       mock(ResourcePerspectives.class),
-      new DefaultFileSystem(), new NoSonarFilter(mock(SensorContext.class)), new PathResolver(),
+      new DefaultFileSystem(), new NoSonarFilter(), new PathResolver(),
       new Settings(), CUSTOM_RULES);
 
     assertThat(sensor.toString()).isNotNull();

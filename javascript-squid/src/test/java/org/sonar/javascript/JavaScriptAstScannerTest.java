@@ -24,7 +24,6 @@ import com.google.common.collect.ImmutableList;
 import org.junit.Test;
 import org.sonar.javascript.api.EcmaScriptMetric;
 import org.sonar.squidbridge.AstScanner;
-import org.sonar.squidbridge.api.SourceFile;
 import org.sonar.squidbridge.api.SourceProject;
 import org.sonar.squidbridge.indexer.QueryByType;
 import org.sonar.sslr.parser.LexerlessGrammar;
@@ -41,14 +40,6 @@ public class JavaScriptAstScannerTest {
     scanner.scanFiles(ImmutableList.of(new File("src/test/resources/metrics/lines.js"), new File("src/test/resources/metrics/lines_of_code.js")));
     SourceProject project = (SourceProject) scanner.getIndex().search(new QueryByType(SourceProject.class)).iterator().next();
     assertThat(project.getInt(EcmaScriptMetric.FILES)).isEqualTo(2);
-  }
-
-  @Test
-  public void comments() {
-    SourceFile file = JavaScriptAstScanner.scanSingleFile(new File("src/test/resources/metrics/comments.js"));
-    assertThat(file.getInt(EcmaScriptMetric.COMMENT_LINES)).isEqualTo(3);
-    assertThat(file.getNoSonarTagLines()).contains(10);
-    assertThat(file.getNoSonarTagLines().size()).isEqualTo(1);
   }
 
 }

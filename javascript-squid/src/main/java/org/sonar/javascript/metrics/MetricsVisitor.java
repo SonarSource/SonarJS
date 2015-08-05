@@ -22,10 +22,12 @@ package org.sonar.javascript.metrics;
 import org.sonar.api.batch.SensorContext;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.issue.NoSonarFilter;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.measures.PersistenceMode;
 import org.sonar.api.measures.RangeDistributionBuilder;
+import org.sonar.javascript.EcmaScriptConfiguration;
 import org.sonar.javascript.ast.visitors.SubscriptionAstTreeVisitor;
 import org.sonar.plugins.javascript.api.AstTreeVisitorContext;
 import org.sonar.plugins.javascript.api.tree.Tree;
@@ -57,15 +59,19 @@ public class MetricsVisitor extends SubscriptionAstTreeVisitor {
   private final FileSystem fs;
   private final SensorContext sensorContext;
   private InputFile inputFile;
+  private NoSonarFilter noSonarFilter;
+  private EcmaScriptConfiguration configuration;
 
   private int classComplexity;
   private int functionComplexity;
   private RangeDistributionBuilder functionComplexityDistribution;
   private RangeDistributionBuilder fileComplexityDistribution = new RangeDistributionBuilder(CoreMetrics.FILE_COMPLEXITY_DISTRIBUTION, FILES_DISTRIB_BOTTOM_LIMITS);
 
-  public MetricsVisitor(FileSystem fs, SensorContext context) {
+  public MetricsVisitor(FileSystem fs, SensorContext context, NoSonarFilter noSonarFilter, EcmaScriptConfiguration configuration) {
     this.fs = fs;
     this.sensorContext = context;
+    this.noSonarFilter = noSonarFilter;
+    this.configuration = configuration;
   }
 
   @Override
@@ -118,6 +124,10 @@ public class MetricsVisitor extends SubscriptionAstTreeVisitor {
     LineVisitor lineVisitor = new LineVisitor(context.getTopTree());
     saveMetricOnFile(CoreMetrics.NCLOC, lineVisitor.getLinesOfCodeNumber());
     saveMetricOnFile(CoreMetrics.LINES, lineVisitor.getLinesNumber());
+
+    CommentLineVisitor commentVisitor = new CommentLineVisitor(context.getTopTree(), configuration.getIgnoreHeaderComments());
+    saveMetricOnFile(CoreMetrics.COMMENT_LINES, commentVisitor.getCommentLineNumber());
+    noSonarFilter.addComponent(sensorContext.getResource(inputFile).getEffectiveKey(), commentVisitor.noSonarLines());
   }
 
   @Override

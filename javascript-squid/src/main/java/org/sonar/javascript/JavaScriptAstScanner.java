@@ -23,7 +23,6 @@ import com.google.common.base.Charsets;
 import com.sonar.sslr.impl.Parser;
 import org.sonar.javascript.api.EcmaScriptMetric;
 import org.sonar.javascript.parser.EcmaScriptParser;
-import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.squidbridge.AstScanner;
 import org.sonar.squidbridge.ProgressAstScanner;
 import org.sonar.squidbridge.SquidAstVisitor;
@@ -32,23 +31,12 @@ import org.sonar.squidbridge.api.SourceCode;
 import org.sonar.squidbridge.api.SourceFile;
 import org.sonar.squidbridge.api.SourceProject;
 import org.sonar.squidbridge.indexer.QueryByType;
-import org.sonar.squidbridge.metrics.CommentsVisitor;
-import org.sonar.sslr.grammar.GrammarRuleKey;
 import org.sonar.sslr.parser.LexerlessGrammar;
 
 import java.io.File;
 import java.util.Collection;
 
 public final class JavaScriptAstScanner {
-
-  private static final GrammarRuleKey[] FUNCTION_NODES = {
-    Kind.FUNCTION_DECLARATION,
-    Kind.FUNCTION_EXPRESSION,
-    Kind.METHOD,
-    Kind.GENERATOR_METHOD,
-    Kind.GENERATOR_FUNCTION_EXPRESSION,
-    Kind.GENERATOR_DECLARATION
-  };
 
   private JavaScriptAstScanner() {
   }
@@ -82,17 +70,8 @@ public final class JavaScriptAstScanner {
     /* Metrics */
     builder.withMetrics(EcmaScriptMetric.values());
 
-    /* Comments */
-    builder.setCommentAnalyser(new EcmaScriptCommentAnalyser());
-
     /* Files */
     builder.setFilesMetric(EcmaScriptMetric.FILES);
-
-    /* Metrics */
-    builder.withSquidAstVisitor(CommentsVisitor.<LexerlessGrammar> builder().withCommentMetric(EcmaScriptMetric.COMMENT_LINES)
-        .withNoSonar(true)
-        .withIgnoreHeaderComment(conf.getIgnoreHeaderComments())
-        .build());
 
     for (SquidAstVisitor<LexerlessGrammar> visitor : visitors) {
       if (visitor instanceof CharsetAwareVisitor) {

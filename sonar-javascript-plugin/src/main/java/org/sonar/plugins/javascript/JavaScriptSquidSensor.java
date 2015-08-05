@@ -30,7 +30,7 @@ import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.rule.CheckFactory;
-import org.sonar.api.checks.NoSonarFilter;
+import org.sonar.api.issue.NoSonarFilter;
 import org.sonar.api.component.ResourcePerspectives;
 import org.sonar.api.config.Settings;
 import org.sonar.api.issue.Issuable;
@@ -45,7 +45,6 @@ import org.sonar.api.scan.filesystem.PathResolver;
 import org.sonar.api.source.Highlightable;
 import org.sonar.javascript.EcmaScriptConfiguration;
 import org.sonar.javascript.JavaScriptAstScanner;
-import org.sonar.javascript.api.EcmaScriptMetric;
 import org.sonar.javascript.ast.visitors.VisitorsBridge;
 import org.sonar.javascript.checks.CheckList;
 import org.sonar.javascript.highlighter.JavaScriptHighlighter;
@@ -128,11 +127,13 @@ public class JavaScriptSquidSensor implements Sensor {
       }
     }
 
-    treeVisitors.add(new MetricsVisitor(fileSystem, context));
+    EcmaScriptConfiguration configuration = createConfiguration();
+
+    treeVisitors.add(new MetricsVisitor(fileSystem, context, noSonarFilter, configuration));
     astNodeVisitors.add(new VisitorsBridge(treeVisitors, resourcePerspectives, fileSystem, settings));
     astNodeVisitors.add(new FileLinesVisitor(fileLinesContextFactory, fileSystem, pathResolver));
 
-    scanner = JavaScriptAstScanner.create(createConfiguration(), astNodeVisitors.toArray(new SquidAstVisitor[astNodeVisitors.size()]));
+    scanner = JavaScriptAstScanner.create(configuration, astNodeVisitors.toArray(new SquidAstVisitor[astNodeVisitors.size()]));
     scanner.scanFiles(Lists.newArrayList(fileSystem.files(mainFilePredicate)));
 
     Collection<SourceCode> squidSourceFiles = scanner.getIndex().search(new QueryByType(SourceFile.class));
@@ -167,18 +168,11 @@ public class JavaScriptSquidSensor implements Sensor {
       File sonarFile = context.getResource(File.create(pathResolver.relativePath(fileSystem.baseDir(), new java.io.File(squidFile.getKey()))));
 
       if (sonarFile != null) {
-        noSonarFilter.addResource(sonarFile, squidFile.getNoSonarTagLines());
-        saveMeasures(sonarFile, squidFile);
         saveIssues(sonarFile, squidFile);
-
       } else {
         LOG.warn("Cannot save analysis information for file {}. Unable to retrieve the associated sonar resource.", squidFile.getKey());
       }
     }
-  }
-
-  private void saveMeasures(File sonarFile, SourceFile squidFile) {
-    context.saveMeasure(sonarFile, CoreMetrics.COMMENT_LINES, squidFile.getDouble(EcmaScriptMetric.COMMENT_LINES));
   }
 
   private void saveIssues(File sonarFile, SourceFile squidFile) {
