@@ -47,7 +47,9 @@ public class MetricVisitorsTest extends JavaScriptTreeModelTest {
   public void lines() {
     String path = "src/test/resources/metrics/lines.js";
     Tree tree = (Tree) p.parse(new File(path));
-    assertThat(new LineVisitor(tree).getLinesNumber()).isEqualTo(5);
+    LineVisitor lineVisitor = new LineVisitor(tree);
+    assertThat(lineVisitor.getLinesNumber()).isEqualTo(5);
+    assertThat(lineVisitor.getLinesOfCode()).containsOnly(2, 3, 4);
   }
 
   @Test
@@ -89,6 +91,7 @@ public class MetricVisitorsTest extends JavaScriptTreeModelTest {
     CommentLineVisitor commentLineVisitor = new CommentLineVisitor(tree, true);
     assertThat(commentLineVisitor.getCommentLineNumber()).isEqualTo(3);
     assertThat(commentLineVisitor.noSonarLines()).containsOnly(10);
+    assertThat(commentLineVisitor.getCommentLines()).containsOnly(5, 8, 10);
 
     commentLineVisitor = new CommentLineVisitor(tree, false);
     assertThat(commentLineVisitor.getCommentLineNumber()).isEqualTo(4);

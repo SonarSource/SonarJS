@@ -83,6 +83,10 @@ public class CommentLineVisitor extends SubscriptionAstTreeVisitor {
     return noSonarLines;
   }
 
+  public Set<Integer> getCommentLines() {
+    return comments;
+  }
+
   public int getCommentLineNumber() {
     return comments.size();
   }

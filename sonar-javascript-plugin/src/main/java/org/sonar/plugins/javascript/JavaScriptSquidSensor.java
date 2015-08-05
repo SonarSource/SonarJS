@@ -48,7 +48,6 @@ import org.sonar.javascript.JavaScriptAstScanner;
 import org.sonar.javascript.ast.visitors.VisitorsBridge;
 import org.sonar.javascript.checks.CheckList;
 import org.sonar.javascript.highlighter.JavaScriptHighlighter;
-import org.sonar.javascript.metrics.FileLinesVisitor;
 import org.sonar.javascript.metrics.MetricsVisitor;
 import org.sonar.plugins.javascript.api.CustomJavaScriptRulesDefinition;
 import org.sonar.plugins.javascript.api.JavaScriptCheck;
@@ -129,9 +128,8 @@ public class JavaScriptSquidSensor implements Sensor {
 
     EcmaScriptConfiguration configuration = createConfiguration();
 
-    treeVisitors.add(new MetricsVisitor(fileSystem, context, noSonarFilter, configuration));
+    treeVisitors.add(new MetricsVisitor(fileSystem, context, noSonarFilter, configuration, fileLinesContextFactory));
     astNodeVisitors.add(new VisitorsBridge(treeVisitors, resourcePerspectives, fileSystem, settings));
-    astNodeVisitors.add(new FileLinesVisitor(fileLinesContextFactory, fileSystem, pathResolver));
 
     scanner = JavaScriptAstScanner.create(configuration, astNodeVisitors.toArray(new SquidAstVisitor[astNodeVisitors.size()]));
     scanner.scanFiles(Lists.newArrayList(fileSystem.files(mainFilePredicate)));

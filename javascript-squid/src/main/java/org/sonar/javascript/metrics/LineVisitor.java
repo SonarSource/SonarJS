@@ -62,6 +62,10 @@ public class LineVisitor extends SubscriptionAstTreeVisitor {
     return lines.size();
   }
 
+  public Set<Integer> getLinesOfCode() {
+    return lines;
+  }
+
   public int getLinesNumber() {
     return lastLine;
   }

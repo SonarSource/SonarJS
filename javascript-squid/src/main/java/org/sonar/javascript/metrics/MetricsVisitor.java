@@ -24,6 +24,8 @@ import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.issue.NoSonarFilter;
 import org.sonar.api.measures.CoreMetrics;
+import org.sonar.api.measures.FileLinesContext;
+import org.sonar.api.measures.FileLinesContextFactory;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.measures.PersistenceMode;
 import org.sonar.api.measures.RangeDistributionBuilder;
@@ -36,6 +38,7 @@ import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 
 public class MetricsVisitor extends SubscriptionAstTreeVisitor {
 
@@ -61,17 +64,19 @@ public class MetricsVisitor extends SubscriptionAstTreeVisitor {
   private InputFile inputFile;
   private NoSonarFilter noSonarFilter;
   private EcmaScriptConfiguration configuration;
+  private FileLinesContextFactory fileLinesContextFactory;
 
   private int classComplexity;
   private int functionComplexity;
   private RangeDistributionBuilder functionComplexityDistribution;
   private RangeDistributionBuilder fileComplexityDistribution = new RangeDistributionBuilder(CoreMetrics.FILE_COMPLEXITY_DISTRIBUTION, FILES_DISTRIB_BOTTOM_LIMITS);
 
-  public MetricsVisitor(FileSystem fs, SensorContext context, NoSonarFilter noSonarFilter, EcmaScriptConfiguration configuration) {
+  public MetricsVisitor(FileSystem fs, SensorContext context, NoSonarFilter noSonarFilter, EcmaScriptConfiguration configuration, FileLinesContextFactory fileLinesContextFactory) {
     this.fs = fs;
     this.sensorContext = context;
     this.noSonarFilter = noSonarFilter;
     this.configuration = configuration;
+    this.fileLinesContextFactory = fileLinesContextFactory;
   }
 
   @Override
@@ -79,6 +84,18 @@ public class MetricsVisitor extends SubscriptionAstTreeVisitor {
     List<Kind> result = new ArrayList<>(Arrays.asList(FUNCTION_NODES));
     result.addAll(Arrays.asList(CLASS_NODES));
     return result;
+  }
+
+  @Override
+  public void visitNode(Tree tree) {
+    if (tree.is(CLASS_NODES)) {
+      classComplexity += getContext().getComplexity(tree);
+
+    } else if (tree.is(FUNCTION_NODES)) {
+      int functionComplexity = getContext().getComplexity(tree);
+      this.functionComplexity += functionComplexity;
+      functionComplexityDistribution.add(functionComplexity);
+    }
   }
 
   @Override
@@ -122,24 +139,24 @@ public class MetricsVisitor extends SubscriptionAstTreeVisitor {
 
   private void saveLineMetrics(AstTreeVisitorContext context) {
     LineVisitor lineVisitor = new LineVisitor(context.getTopTree());
+    int linesNumber = lineVisitor.getLinesNumber();
+    Set<Integer> linesOfCode = lineVisitor.getLinesOfCode();
+
     saveMetricOnFile(CoreMetrics.NCLOC, lineVisitor.getLinesOfCodeNumber());
-    saveMetricOnFile(CoreMetrics.LINES, lineVisitor.getLinesNumber());
+    saveMetricOnFile(CoreMetrics.LINES, linesNumber);
 
     CommentLineVisitor commentVisitor = new CommentLineVisitor(context.getTopTree(), configuration.getIgnoreHeaderComments());
+    Set<Integer> commentLines = commentVisitor.getCommentLines();
+
     saveMetricOnFile(CoreMetrics.COMMENT_LINES, commentVisitor.getCommentLineNumber());
     noSonarFilter.addComponent(sensorContext.getResource(inputFile).getEffectiveKey(), commentVisitor.noSonarLines());
-  }
 
-  @Override
-  public void visitNode(Tree tree) {
-    if (tree.is(CLASS_NODES)) {
-      classComplexity += getContext().getComplexity(tree);
-
-    } else if (tree.is(FUNCTION_NODES)) {
-      int functionComplexity = getContext().getComplexity(tree);
-      this.functionComplexity += functionComplexity;
-      functionComplexityDistribution.add(functionComplexity);
+    FileLinesContext fileLinesContext = fileLinesContextFactory.createFor(inputFile);
+    for (int line = 1; line <= linesNumber; line++) {
+      fileLinesContext.setIntValue(CoreMetrics.NCLOC_DATA_KEY, line, linesOfCode.contains(line) ? 1 : 0);
+      fileLinesContext.setIntValue(CoreMetrics.COMMENT_LINES_DATA_KEY, line, commentLines.contains(line) ? 1 : 0);
     }
+    fileLinesContext.save();
   }
 
   private void saveMetricOnFile(Metric metric, double value) {
