@@ -33,9 +33,14 @@ import java.util.Set;
 /**
  * Visitor that computes the number of lines of code of a file.
  */
-public class LinesOfCodeVisitor extends SubscriptionAstTreeVisitor {
+public class LineVisitor extends SubscriptionAstTreeVisitor {
 
   private Set<Integer> lines = Sets.newHashSet();
+  private int lastLine = 0;
+
+  public LineVisitor(Tree tree) {
+    scanTree(tree);
+  }
 
   @Override
   public List<Kind> nodesToVisit() {
@@ -47,12 +52,17 @@ public class LinesOfCodeVisitor extends SubscriptionAstTreeVisitor {
     SyntaxToken token = (SyntaxToken) tree;
     if (!((InternalSyntaxToken) token).isEOF()) {
       lines.add(token.line());
+
+    } else {
+      lastLine = token.line();
     }
   }
 
-  public int getLinesOfCodeNumber(Tree tree) {
-    lines.clear();
-    scanTree(tree);
+  public int getLinesOfCodeNumber() {
     return lines.size();
+  }
+
+  public int getLinesNumber() {
+    return lastLine;
   }
 }

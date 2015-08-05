@@ -84,6 +84,7 @@ public class MetricsVisitor extends SubscriptionAstTreeVisitor {
 
     saveComplexityMetrics(context);
     saveCounterMetrics(context);
+    saveLineMetrics(context);
   }
 
   private void init() {
@@ -103,7 +104,6 @@ public class MetricsVisitor extends SubscriptionAstTreeVisitor {
   private void saveComplexityMetrics(AstTreeVisitorContext context) {
     int fileComplexity = context.getComplexity(context.getTopTree());
 
-    saveMetricOnFile(CoreMetrics.NCLOC, new LinesOfCodeVisitor().getLinesOfCodeNumber(context.getTopTree()));
     saveMetricOnFile(CoreMetrics.COMPLEXITY, fileComplexity);
     saveMetricOnFile(CoreMetrics.COMPLEXITY_IN_CLASSES, classComplexity);
     saveMetricOnFile(CoreMetrics.COMPLEXITY_IN_FUNCTIONS, functionComplexity);
@@ -112,6 +112,12 @@ public class MetricsVisitor extends SubscriptionAstTreeVisitor {
 
     fileComplexityDistribution.add(fileComplexity);
     sensorContext.saveMeasure(inputFile, fileComplexityDistribution.build().setPersistenceMode(PersistenceMode.MEMORY));
+  }
+
+  private void saveLineMetrics(AstTreeVisitorContext context) {
+    LineVisitor lineVisitor = new LineVisitor(context.getTopTree());
+    saveMetricOnFile(CoreMetrics.NCLOC, lineVisitor.getLinesOfCodeNumber());
+    saveMetricOnFile(CoreMetrics.LINES, lineVisitor.getLinesNumber());
   }
 
   @Override

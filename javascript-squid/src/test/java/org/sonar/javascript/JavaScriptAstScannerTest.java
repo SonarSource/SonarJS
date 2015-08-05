@@ -51,10 +51,4 @@ public class JavaScriptAstScannerTest {
     assertThat(file.getNoSonarTagLines().size()).isEqualTo(1);
   }
 
-  @Test
-  public void lines() {
-    SourceFile file = JavaScriptAstScanner.scanSingleFile(new File("src/test/resources/metrics/lines.js"));
-    assertThat(file.getInt(EcmaScriptMetric.LINES)).isEqualTo(5);
-  }
-
 }

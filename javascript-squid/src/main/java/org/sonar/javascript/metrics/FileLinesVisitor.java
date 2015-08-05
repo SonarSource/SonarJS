@@ -19,9 +19,12 @@
  */
 package org.sonar.javascript.metrics;
 
-import java.util.List;
-import java.util.Set;
-
+import com.google.common.collect.Sets;
+import com.sonar.sslr.api.AstAndTokenVisitor;
+import com.sonar.sslr.api.AstNode;
+import com.sonar.sslr.api.GenericTokenType;
+import com.sonar.sslr.api.Token;
+import com.sonar.sslr.api.Trivia;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.fs.FileSystem;
@@ -34,12 +37,8 @@ import org.sonar.javascript.api.EcmaScriptMetric;
 import org.sonar.squidbridge.SquidAstVisitor;
 import org.sonar.sslr.parser.LexerlessGrammar;
 
-import com.google.common.collect.Sets;
-import com.sonar.sslr.api.AstAndTokenVisitor;
-import com.sonar.sslr.api.AstNode;
-import com.sonar.sslr.api.GenericTokenType;
-import com.sonar.sslr.api.Token;
-import com.sonar.sslr.api.Trivia;
+import java.util.List;
+import java.util.Set;
 
 /**
  * Visitor that computes {@link CoreMetrics#NCLOC_DATA_KEY} and {@link CoreMetrics#COMMENT_LINES_DATA_KEY} metrics used by the DevCockpit.
@@ -82,6 +81,7 @@ public class FileLinesVisitor extends SquidAstVisitor<LexerlessGrammar> implemen
 
     if (fileLinesContext != null) {
 
+      // todo
       int fileLength = getContext().peekSourceCode().getInt(EcmaScriptMetric.LINES);
       for (int line = 1; line <= fileLength; line++) {
         fileLinesContext.setIntValue(CoreMetrics.NCLOC_DATA_KEY, line, linesOfCode.contains(line) ? 1 : 0);

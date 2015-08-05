@@ -123,7 +123,7 @@ public class JavaScriptSquidSensorTest {
 
     sensor.analyse(project, context);
 
-    verify(context).saveMeasure(any(Resource.class), eq(CoreMetrics.LINES), eq(33.0));
+    verify(context).saveMeasure(any(InputFile.class), eq(CoreMetrics.LINES), eq(33.0));
     verify(context).saveMeasure(any(InputFile.class), eq(CoreMetrics.NCLOC), eq(19.0));
     verify(context).saveMeasure(any(InputFile.class), eq(CoreMetrics.CLASSES), eq(1.0));
     verify(context).saveMeasure(any(InputFile.class), eq(CoreMetrics.FUNCTIONS), eq(3.0));

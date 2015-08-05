@@ -40,7 +40,14 @@ public class MetricVisitorsTest extends JavaScriptTreeModelTest {
   public void lines_of_code() {
     String path = "src/test/resources/metrics/lines_of_code.js";
     Tree tree = (Tree) p.parse(new File(path));
-    assertThat(new LinesOfCodeVisitor().getLinesOfCodeNumber(tree)).isEqualTo(3);
+    assertThat(new LineVisitor(tree).getLinesOfCodeNumber()).isEqualTo(3);
+  }
+
+  @Test
+  public void lines() {
+    String path = "src/test/resources/metrics/lines.js";
+    Tree tree = (Tree) p.parse(new File(path));
+    assertThat(new LineVisitor(tree).getLinesNumber()).isEqualTo(5);
   }
 
   @Test
