@@ -42,4 +42,37 @@ public class MetricVisitorsTest extends JavaScriptTreeModelTest {
     Tree tree = (Tree) p.parse(new File(path));
     assertThat(new LinesOfCodeVisitor().getLinesOfCodeNumber(tree)).isEqualTo(3);
   }
+
+  @Test
+  public void functions() {
+    String path = "src/test/resources/metrics/functions.js";
+    Tree tree = (Tree) p.parse(new File(path));
+    assertThat(new CounterVisitor(tree).getFunctionNumber()).isEqualTo(8);
+  }
+
+  @Test
+  public void statements() {
+    String path = "src/test/resources/metrics/functions.js";
+    Tree tree = (Tree) p.parse(new File(path));
+    assertThat(new CounterVisitor(tree).getStatementsNumber()).isEqualTo(10);
+
+    path = "src/test/resources/metrics/statements.js";
+    tree = (Tree) p.parse(new File(path));
+    assertThat(new CounterVisitor(tree).getStatementsNumber()).isEqualTo(16);
+  }
+
+  @Test
+  public void accessors() {
+    String path = "src/test/resources/metrics/accessors.js";
+    Tree tree = (Tree) p.parse(new File(path));
+    assertThat(new CounterVisitor(tree).getAccessorsNumber()).isEqualTo(4);
+  }
+
+  @Test
+  public void classes() {
+    String path = "src/test/resources/metrics/classes.js";
+    Tree tree = (Tree) p.parse(new File(path));
+    assertThat(new CounterVisitor(tree).getClassNumber()).isEqualTo(3);
+  }
+
 }

@@ -40,7 +40,7 @@ public class MetricsVisitor extends SubscriptionAstTreeVisitor {
   private static final Number[] LIMITS_COMPLEXITY_FUNCTIONS = {1, 2, 4, 6, 8, 10, 12, 20, 30};
   private static final Number[] FILES_DISTRIB_BOTTOM_LIMITS = {0, 5, 10, 20, 30, 60, 90};
 
-  private static final Kind[] FUNCTION_NODES = {
+  public static final Kind[] FUNCTION_NODES = {
       Kind.FUNCTION_DECLARATION,
       Kind.FUNCTION_EXPRESSION,
       Kind.METHOD,
@@ -49,7 +49,7 @@ public class MetricsVisitor extends SubscriptionAstTreeVisitor {
       Kind.GENERATOR_DECLARATION
   };
 
-  private static final Kind[] CLASS_NODES = {
+  public static final Kind[] CLASS_NODES = {
       Kind.CLASS_DECLARATION,
       Kind.CLASS_EXPRESSION
   };
@@ -72,20 +72,35 @@ public class MetricsVisitor extends SubscriptionAstTreeVisitor {
   public List<Kind> nodesToVisit() {
     List<Kind> result = new ArrayList<>(Arrays.asList(FUNCTION_NODES));
     result.addAll(Arrays.asList(CLASS_NODES));
-
     return result;
   }
 
   @Override
   public void scanFile(AstTreeVisitorContext context) {
     this.inputFile = fs.inputFile(fs.predicates().is(context.getFile()));
-
-    classComplexity = 0;
-    functionComplexity = 0;
-    functionComplexityDistribution = new RangeDistributionBuilder(CoreMetrics.FUNCTION_COMPLEXITY_DISTRIBUTION, LIMITS_COMPLEXITY_FUNCTIONS);
+    init();
 
     super.scanFile(context);
 
+    saveComplexityMetrics(context);
+    saveCounterMetrics(context);
+  }
+
+  private void init() {
+    classComplexity = 0;
+    functionComplexity = 0;
+    functionComplexityDistribution = new RangeDistributionBuilder(CoreMetrics.FUNCTION_COMPLEXITY_DISTRIBUTION, LIMITS_COMPLEXITY_FUNCTIONS);
+  }
+
+  private void saveCounterMetrics(AstTreeVisitorContext context) {
+    CounterVisitor counter = new CounterVisitor(context.getTopTree());
+    saveMetricOnFile(CoreMetrics.FUNCTIONS, counter.getFunctionNumber());
+    saveMetricOnFile(CoreMetrics.STATEMENTS, counter.getStatementsNumber());
+    saveMetricOnFile(CoreMetrics.ACCESSORS, counter.getAccessorsNumber());
+    saveMetricOnFile(CoreMetrics.CLASSES, counter.getClassNumber());
+  }
+
+  private void saveComplexityMetrics(AstTreeVisitorContext context) {
     int fileComplexity = context.getComplexity(context.getTopTree());
 
     saveMetricOnFile(CoreMetrics.NCLOC, new LinesOfCodeVisitor().getLinesOfCodeNumber(context.getTopTree()));
@@ -111,11 +126,8 @@ public class MetricsVisitor extends SubscriptionAstTreeVisitor {
     }
   }
 
-
   private void saveMetricOnFile(Metric metric, double value) {
     sensorContext.saveMeasure(inputFile, metric, value);
   }
-
-
 
 }

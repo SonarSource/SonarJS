@@ -33,7 +33,6 @@ import org.sonar.squidbridge.api.SourceFile;
 import org.sonar.squidbridge.api.SourceProject;
 import org.sonar.squidbridge.indexer.QueryByType;
 import org.sonar.squidbridge.metrics.CommentsVisitor;
-import org.sonar.squidbridge.metrics.CounterVisitor;
 import org.sonar.squidbridge.metrics.LinesVisitor;
 import org.sonar.sslr.grammar.GrammarRuleKey;
 import org.sonar.sslr.parser.LexerlessGrammar;
@@ -90,50 +89,12 @@ public final class JavaScriptAstScanner {
     /* Files */
     builder.setFilesMetric(EcmaScriptMetric.FILES);
 
-    builder.withSquidAstVisitor(CounterVisitor.<LexerlessGrammar>builder().setMetricDef(EcmaScriptMetric.CLASSES)
-      .subscribeTo(Kind.CLASS_DECLARATION, Kind.CLASS_EXPRESSION)
-      .build());
-
-    /* Functions */
-    builder.withSquidAstVisitor(CounterVisitor.<LexerlessGrammar> builder()
-        .setMetricDef(EcmaScriptMetric.FUNCTIONS)
-        .subscribeTo(FUNCTION_NODES)
-        .build());
-
     /* Metrics */
     builder.withSquidAstVisitor(new LinesVisitor<LexerlessGrammar>(EcmaScriptMetric.LINES));
     builder.withSquidAstVisitor(CommentsVisitor.<LexerlessGrammar> builder().withCommentMetric(EcmaScriptMetric.COMMENT_LINES)
         .withNoSonar(true)
         .withIgnoreHeaderComment(conf.getIgnoreHeaderComments())
         .build());
-    builder.withSquidAstVisitor(CounterVisitor.<LexerlessGrammar> builder()
-        .setMetricDef(EcmaScriptMetric.STATEMENTS)
-        .subscribeTo(
-            Kind.VARIABLE_STATEMENT,
-            Kind.EMPTY_STATEMENT,
-            Kind.EXPRESSION_STATEMENT,
-            Kind.IF_STATEMENT,
-            Kind.DO_WHILE_STATEMENT,
-            Kind.WHILE_STATEMENT,
-            Kind.FOR_IN_STATEMENT,
-            Kind.FOR_OF_STATEMENT,
-            Kind.FOR_STATEMENT,
-            Kind.CONTINUE_STATEMENT,
-            Kind.BREAK_STATEMENT,
-            Kind.RETURN_STATEMENT,
-            Kind.WITH_STATEMENT,
-            Kind.SWITCH_STATEMENT,
-            Kind.THROW_STATEMENT,
-            Kind.TRY_STATEMENT,
-            Kind.DEBUGGER_STATEMENT)
-        .build());
-
-    builder.withSquidAstVisitor(CounterVisitor.<LexerlessGrammar>builder()
-      .setMetricDef(EcmaScriptMetric.ACCESSORS)
-      .subscribeTo(
-        Kind.GET_METHOD,
-        Kind.SET_METHOD)
-      .build());
 
     for (SquidAstVisitor<LexerlessGrammar> visitor : visitors) {
       if (visitor instanceof CharsetAwareVisitor) {

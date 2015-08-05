@@ -57,30 +57,4 @@ public class JavaScriptAstScannerTest {
     assertThat(file.getInt(EcmaScriptMetric.LINES)).isEqualTo(5);
   }
 
-  @Test
-  public void statements() {
-    SourceFile file = JavaScriptAstScanner.scanSingleFile(new File("src/test/resources/metrics/statements.js"));
-    assertThat(file.getInt(EcmaScriptMetric.STATEMENTS)).isEqualTo(16);
-  }
-
-  @Test
-  public void classes() {
-    SourceFile file = JavaScriptAstScanner.scanSingleFile(new File("src/test/resources/metrics/classes.js"));
-    assertThat(file.getInt(EcmaScriptMetric.CLASSES)).isEqualTo(3);
-  }
-
-  @Test
-  public void functions() {
-
-    SourceFile file = JavaScriptAstScanner.scanSingleFile(new File("src/test/resources/metrics/functions.js"));
-    assertThat(file.getInt(EcmaScriptMetric.FUNCTIONS)).isEqualTo(8);
-    assertThat(file.getInt(EcmaScriptMetric.STATEMENTS)).isEqualTo(10);
-  }
-
-  @Test
-  public void accessors() {
-    SourceFile file = JavaScriptAstScanner.scanSingleFile(new File("src/test/resources/metrics/accessors.js"));
-    assertThat(file.getInt(EcmaScriptMetric.ACCESSORS)).isEqualTo(4);
-  }
-
 }
