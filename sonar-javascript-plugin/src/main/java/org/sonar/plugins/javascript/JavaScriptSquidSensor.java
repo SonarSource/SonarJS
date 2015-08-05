@@ -248,6 +248,7 @@ public class JavaScriptSquidSensor implements Sensor {
             .ruleKey(ruleKey)
             .line(message.getLine())
             .message(message.getText(Locale.ENGLISH))
+            .effortToFix(message.getCost())
             .build();
           issuable.addIssue(issue);
         }
