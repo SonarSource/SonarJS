@@ -20,20 +20,16 @@
 package org.sonar.javascript.checks;
 
 import org.junit.Test;
-import org.sonar.javascript.JavaScriptAstScanner;
-import org.sonar.squidbridge.api.SourceFile;
+import org.sonar.javascript.checks.utils.TreeCheckTest;
 import org.sonar.squidbridge.checks.CheckMessagesVerifier;
-
-import java.io.File;
 
 import static org.hamcrest.Matchers.containsString;
 
-public class ParsingErrorCheckTest {
+public class ParsingErrorCheckTest extends TreeCheckTest {
 
   @Test
   public void test() {
-    SourceFile file = JavaScriptAstScanner.scanSingleFile(new File("src/test/resources/checks/parsingError.js"), new ParsingErrorCheck());
-    CheckMessagesVerifier.verify(file.getCheckMessages())
+    CheckMessagesVerifier.verify(getIssues("src/test/resources/checks/parsingError.js", new ParsingErrorCheck()))
         .next().atLine(3).withMessageThat(containsString("Parse error"))
         .noMore();
   }

@@ -20,10 +20,12 @@
 package org.sonar.javascript.checks.utils;
 
 import com.google.common.base.Charsets;
+import com.sonar.sslr.api.RecognitionException;
 import com.sonar.sslr.impl.Parser;
 import org.sonar.api.config.Settings;
 import org.sonar.javascript.EcmaScriptConfiguration;
 import org.sonar.javascript.ast.resolve.SymbolModelImpl;
+import org.sonar.javascript.checks.ParsingErrorCheck;
 import org.sonar.javascript.metrics.ComplexityVisitor;
 import org.sonar.javascript.model.internal.JavaScriptTree;
 import org.sonar.javascript.parser.EcmaScriptParser;
@@ -39,21 +41,30 @@ import java.util.LinkedList;
 import java.util.List;
 
 public class TestCheckContext implements AstTreeVisitorContext {
-  private final ScriptTree tree;
-  private final File file;
-  private final SymbolModel symbolModel;
-  private final ComplexityVisitor complexity;
-  private final Settings settings;
+  private ScriptTree tree = null;
+  private File file;
+  private SymbolModel symbolModel = null;
+  private ComplexityVisitor complexity;
+  private Settings settings;
   protected static final Parser p = EcmaScriptParser.create(new EcmaScriptConfiguration(Charsets.UTF_8));
 
   List<CheckMessage> issues = new LinkedList<>();
 
   public TestCheckContext(File file, Settings settings) {
-    this.tree = (ScriptTree) p.parse(file);
+    RecognitionException parseException = null;
     this.file = file;
-    this.symbolModel = SymbolModelImpl.create(tree, null, null, null);
     this.complexity = new ComplexityVisitor();
     this.settings = settings;
+    try {
+      this.tree = (ScriptTree) p.parse(file);
+      this.symbolModel = SymbolModelImpl.create(tree, null, null, null);
+    } catch (RecognitionException e) {
+      parseException = e;
+    }
+
+    if (parseException != null) {
+      this.addIssue(new ParsingErrorCheck(), parseException.getLine(), parseException.getMessage());
+    }
   }
 
   @Override
@@ -77,12 +88,12 @@ public class TestCheckContext implements AstTreeVisitorContext {
   }
 
   @Override
-  public void addIssue(JavaScriptCheck check, Tree tree, String message, double cost){
+  public void addIssue(JavaScriptCheck check, Tree tree, String message, double cost) {
     commonAddIssue(check, getLine(tree), message, cost);
   }
 
   @Override
-  public void addIssue(JavaScriptCheck check, int line, String message, double cost){
+  public void addIssue(JavaScriptCheck check, int line, String message, double cost) {
     commonAddIssue(check, line, message, cost);
   }
 
@@ -91,7 +102,7 @@ public class TestCheckContext implements AstTreeVisitorContext {
     return file;
   }
 
-  private void commonAddIssue(JavaScriptCheck check, int line, String message, double cost){
+  private void commonAddIssue(JavaScriptCheck check, int line, String message, double cost) {
     CheckMessage issue = new CheckMessage(check, message);
     if (cost > 0) {
       issue.setCost(cost);
@@ -103,7 +114,7 @@ public class TestCheckContext implements AstTreeVisitorContext {
   }
 
   private int getLine(Tree tree) {
-    return ((JavaScriptTree)tree).getLine();
+    return ((JavaScriptTree) tree).getLine();
   }
 
   @Override
@@ -112,7 +123,7 @@ public class TestCheckContext implements AstTreeVisitorContext {
   }
 
   @Override
-  public String[] getPropertyValues(String name){
+  public String[] getPropertyValues(String name) {
     return settings.getStringArray(name);
   }
 

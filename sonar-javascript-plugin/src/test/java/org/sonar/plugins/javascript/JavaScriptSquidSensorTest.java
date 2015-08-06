@@ -28,20 +28,24 @@ import org.sonar.api.batch.fs.internal.DefaultFileSystem;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.rule.ActiveRules;
 import org.sonar.api.batch.rule.CheckFactory;
+import org.sonar.api.batch.rule.internal.ActiveRulesBuilder;
 import org.sonar.api.component.ResourcePerspectives;
 import org.sonar.api.config.Settings;
 import org.sonar.api.issue.Issuable;
+import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.NoSonarFilter;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.FileLinesContext;
 import org.sonar.api.measures.FileLinesContextFactory;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
+import org.sonar.api.rule.RuleKey;
 import org.sonar.api.source.Highlightable;
 import org.sonar.api.source.Symbolizable;
 import org.sonar.api.source.Symbolizable.SymbolTableBuilder;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
+import org.sonar.javascript.checks.CheckList;
 import org.sonar.plugins.javascript.api.CustomJavaScriptRulesDefinition;
 import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
 import org.sonar.plugins.javascript.core.JavaScript;
@@ -55,7 +59,6 @@ import static org.mockito.Mockito.when;
 
 public class JavaScriptSquidSensorTest {
 
-  private final DefaultFileSystem FS = new DefaultFileSystem();
   private FileLinesContextFactory fileLinesContextFactory;
   private final Project project = new Project("project");
   private CheckFactory checkFactory = new CheckFactory(mock(ActiveRules.class));
@@ -72,8 +75,7 @@ public class JavaScriptSquidSensorTest {
 
     @Override
     public Class[] checkClasses() {
-      Class[] checks = {MyCustomRule.class};
-      return checks;
+      return new Class[]{MyCustomRule.class};
     }
   }};
 
@@ -81,15 +83,22 @@ public class JavaScriptSquidSensorTest {
   public void setUp() {
     fileLinesContextFactory = mock(FileLinesContextFactory.class);
     FileLinesContext fileLinesContext = mock(FileLinesContext.class);
-
     when(fileLinesContextFactory.createFor(any(InputFile.class))).thenReturn(fileLinesContext);
-
   }
 
   @Test
   public void should_execute_if_js_files() {
     DefaultFileSystem localFS = new DefaultFileSystem();
-    JavaScriptSquidSensor sensor = new JavaScriptSquidSensor(checkFactory, fileLinesContextFactory, mock(ResourcePerspectives.class), localFS, new NoSonarFilter(), new Settings(), CUSTOM_RULES);
+
+    JavaScriptSquidSensor sensor = new JavaScriptSquidSensor(
+        checkFactory,
+        fileLinesContextFactory,
+        mock(ResourcePerspectives.class),
+        localFS,
+        new NoSonarFilter(),
+        new Settings(),
+        CUSTOM_RULES
+    );
 
     // no JS files -> do not execute
     assertThat(sensor.shouldExecuteOnProject(project)).isFalse();
@@ -101,32 +110,32 @@ public class JavaScriptSquidSensorTest {
 
   @Test
   public void should_analyse() {
+    DefaultFileSystem fileSystem = new DefaultFileSystem();
+
     DefaultInputFile inputFile = new DefaultInputFile("src/test/resources/cpd/Person.js")
+        .setAbsolutePath((new java.io.File("src/test/resources/cpd/Person.js")).getAbsolutePath())
         .setLanguage(JavaScript.KEY)
-        .setType(Type.MAIN)
-        .setAbsolutePath((new java.io.File("src/test/resources/cpd/Person.js")).getAbsolutePath());
-    FS.add(inputFile);
+        .setType(Type.MAIN);
+
+    fileSystem.add(inputFile);
 
     SensorContext context = mock(SensorContext.class);
     ResourcePerspectives perspectives = mock(ResourcePerspectives.class);
     Highlightable highlightable = mock(Highlightable.class);
     Highlightable.HighlightingBuilder builder = mock(Highlightable.HighlightingBuilder.class);
-    when(perspectives.as(Highlightable.class, inputFile)).thenReturn(highlightable);
-    when(highlightable.newHighlighting()).thenReturn(builder);
-
     Symbolizable symbolizable = mock(Symbolizable.class);
-    when(perspectives.as(Symbolizable.class, inputFile)).thenReturn(symbolizable);
-    when(symbolizable.newSymbolTableBuilder()).thenReturn(mock(SymbolTableBuilder.class));
-
-    JavaScriptSquidSensor sensor = new JavaScriptSquidSensor(checkFactory, fileLinesContextFactory, perspectives, FS, new NoSonarFilter(), new Settings(), CUSTOM_RULES);
-
     Resource resource = mock(Resource.class);
+    Issuable issuable = mock(Issuable.class);
+
+    when(perspectives.as(Highlightable.class, inputFile)).thenReturn(highlightable);
+    when(perspectives.as(Symbolizable.class, inputFile)).thenReturn(symbolizable);
+    when(perspectives.as(Issuable.class, inputFile)).thenReturn(issuable);
+    when(highlightable.newHighlighting()).thenReturn(builder);
+    when(symbolizable.newSymbolTableBuilder()).thenReturn(mock(SymbolTableBuilder.class));
     when(resource.getEffectiveKey()).thenReturn("someKey");
     when(context.getResource(inputFile)).thenReturn(resource);
 
-    Issuable issuable = mock(Issuable.class);
-    when(perspectives.as(Issuable.class, inputFile)).thenReturn(issuable);
-
+    JavaScriptSquidSensor sensor = new JavaScriptSquidSensor(checkFactory, fileLinesContextFactory, perspectives, fileSystem, new NoSonarFilter(), new Settings(), CUSTOM_RULES);
     sensor.analyse(project, context);
 
     verify(context).saveMeasure(any(InputFile.class), eq(CoreMetrics.LINES), eq(33.0));
@@ -139,6 +148,59 @@ public class JavaScriptSquidSensorTest {
     verify(context).saveMeasure(any(InputFile.class), eq(CoreMetrics.COMPLEXITY_IN_CLASSES), eq(1.0));
     verify(context).saveMeasure(any(InputFile.class), eq(CoreMetrics.COMPLEXITY_IN_FUNCTIONS), eq(4.0));
     verify(context).saveMeasure(any(InputFile.class), eq(CoreMetrics.COMMENT_LINES), eq(2.0));
+  }
+
+  @Test
+  public void parsing_error() {
+    DefaultFileSystem fileSystem = new DefaultFileSystem();
+
+    DefaultInputFile inputFile = new DefaultInputFile("src/test/resources/cpd/parsingError.js")
+        .setAbsolutePath((new java.io.File("src/test/resources/cpd/parsingError.js")).getAbsolutePath())
+        .setLanguage(JavaScript.KEY)
+        .setType(Type.MAIN);
+
+    fileSystem.add(inputFile);
+
+    SensorContext context = mock(SensorContext.class);
+    ResourcePerspectives perspectives = mock(ResourcePerspectives.class);
+    Highlightable highlightable = mock(Highlightable.class);
+    Highlightable.HighlightingBuilder builder = mock(Highlightable.HighlightingBuilder.class);
+    when(perspectives.as(Highlightable.class, inputFile)).thenReturn(highlightable);
+    when(highlightable.newHighlighting()).thenReturn(builder);
+
+
+    String parsingErrorCheckKey = "ParsingError";
+
+    ActiveRules activeRules = (new ActiveRulesBuilder())
+        .create(RuleKey.of(CheckList.REPOSITORY_KEY, parsingErrorCheckKey))
+        .setName("ParsingError")
+        .activate()
+        .build();
+
+    checkFactory = new CheckFactory(activeRules);
+
+    Symbolizable symbolizable = mock(Symbolizable.class);
+    Resource resource = mock(Resource.class);
+    Issuable.IssueBuilder issueBuilder = mock(Issuable.IssueBuilder.class);
+    Issue issue = mock(Issue.class);
+    Issuable issuable = mock(Issuable.class);
+
+    when(perspectives.as(Symbolizable.class, inputFile)).thenReturn(symbolizable);
+    when(symbolizable.newSymbolTableBuilder()).thenReturn(mock(SymbolTableBuilder.class));
+    when(resource.getEffectiveKey()).thenReturn("someKey");
+    when(context.getResource(inputFile)).thenReturn(resource);
+    when(perspectives.as(Issuable.class, inputFile)).thenReturn(issuable);
+    when(issuable.newIssueBuilder()).thenReturn(issueBuilder);
+    when(issueBuilder.ruleKey(any(RuleKey.class))).thenReturn(issueBuilder);
+    when(issueBuilder.line(3)).thenReturn(issueBuilder);
+    when(issueBuilder.message(any(String.class))).thenReturn(issueBuilder);
+    when(issueBuilder.build()).thenReturn(issue);
+    when(issuable.addIssue(issue)).thenReturn(true);
+
+    JavaScriptSquidSensor sensor = new JavaScriptSquidSensor(checkFactory, fileLinesContextFactory, perspectives, fileSystem, new NoSonarFilter(), new Settings(), CUSTOM_RULES);
+    sensor.analyse(project, context);
+
+    verify(issuable).addIssue(any(Issue.class));
   }
 
   @Test

@@ -69,7 +69,7 @@ public class MetricsVisitor extends SubscriptionAstTreeVisitor {
   private int classComplexity;
   private int functionComplexity;
   private RangeDistributionBuilder functionComplexityDistribution;
-  private RangeDistributionBuilder fileComplexityDistribution = new RangeDistributionBuilder(CoreMetrics.FILE_COMPLEXITY_DISTRIBUTION, FILES_DISTRIB_BOTTOM_LIMITS);
+  private RangeDistributionBuilder fileComplexityDistribution;
 
   public MetricsVisitor(FileSystem fs, SensorContext context, NoSonarFilter noSonarFilter, EcmaScriptConfiguration configuration, FileLinesContextFactory fileLinesContextFactory) {
     this.fs = fs;
@@ -114,6 +114,7 @@ public class MetricsVisitor extends SubscriptionAstTreeVisitor {
     classComplexity = 0;
     functionComplexity = 0;
     functionComplexityDistribution = new RangeDistributionBuilder(CoreMetrics.FUNCTION_COMPLEXITY_DISTRIBUTION, LIMITS_COMPLEXITY_FUNCTIONS);
+    fileComplexityDistribution = new RangeDistributionBuilder(CoreMetrics.FILE_COMPLEXITY_DISTRIBUTION, FILES_DISTRIB_BOTTOM_LIMITS);
   }
 
   private void saveCounterMetrics(AstTreeVisitorContext context) {

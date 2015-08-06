@@ -103,9 +103,11 @@ public class JavaScriptCheckContext implements AstTreeVisitorContext {
     IssueBuilder issueBuilder = issuable
         .newIssueBuilder()
         .ruleKey(ruleKey)
-        .message(message)
-        .line(line);
+        .message(message);
 
+    if (line > 0) {
+      issueBuilder.line(line);
+    }
     if (cost > 0) {
       issueBuilder.effortToFix(cost);
     }

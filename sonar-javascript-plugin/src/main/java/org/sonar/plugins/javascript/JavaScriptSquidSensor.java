@@ -21,6 +21,7 @@ package org.sonar.plugins.javascript;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
+import com.sonar.sslr.api.RecognitionException;
 import com.sonar.sslr.impl.Parser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,12 +41,14 @@ import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.FileLinesContextFactory;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.resources.Project;
+import org.sonar.api.rule.RuleKey;
 import org.sonar.api.source.Highlightable;
 import org.sonar.api.source.Symbolizable;
 import org.sonar.javascript.CharsetAwareVisitor;
 import org.sonar.javascript.EcmaScriptConfiguration;
 import org.sonar.javascript.ast.resolve.SymbolModelImpl;
 import org.sonar.javascript.checks.CheckList;
+import org.sonar.javascript.checks.ParsingErrorCheck;
 import org.sonar.javascript.checks.utils.JavaScriptCheckContext;
 import org.sonar.javascript.checks.utils.JavaScriptChecks;
 import org.sonar.javascript.highlighter.JavaScriptHighlighter;
@@ -57,10 +60,13 @@ import org.sonar.plugins.javascript.api.CustomJavaScriptRulesDefinition;
 import org.sonar.plugins.javascript.api.JavaScriptCheck;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
 import org.sonar.plugins.javascript.core.JavaScript;
+import org.sonar.squidbridge.ProgressReport;
+import org.sonar.squidbridge.api.AnalysisException;
 
 import javax.annotation.Nullable;
 import java.util.Collection;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 public class JavaScriptSquidSensor implements Sensor {
 
@@ -80,21 +86,27 @@ public class JavaScriptSquidSensor implements Sensor {
   private final FilePredicate mainFilePredicate;
   private final Settings settings;
   private final Parser parser;
+  private RuleKey parsingErrorRuleKey = null;
+
+  public JavaScriptSquidSensor(CheckFactory checkFactory, FileLinesContextFactory fileLinesContextFactory,
+                               ResourcePerspectives resourcePerspectives, FileSystem fileSystem, NoSonarFilter noSonarFilter, Settings settings) {
+    this(checkFactory, fileLinesContextFactory, resourcePerspectives, fileSystem, noSonarFilter, settings, null);
+  }
 
   public JavaScriptSquidSensor(CheckFactory checkFactory, FileLinesContextFactory fileLinesContextFactory,
                                ResourcePerspectives resourcePerspectives, FileSystem fileSystem, NoSonarFilter noSonarFilter,
                                Settings settings, @Nullable CustomJavaScriptRulesDefinition[] customRulesDefinition) {
 
     this.checks = JavaScriptChecks.createJavaScriptCheck(checkFactory)
-      .addChecks(CheckList.REPOSITORY_KEY, CheckList.getChecks())
-      .addCustomChecks(customRulesDefinition);
+        .addChecks(CheckList.REPOSITORY_KEY, CheckList.getChecks())
+        .addCustomChecks(customRulesDefinition);
     this.fileLinesContextFactory = fileLinesContextFactory;
     this.resourcePerspectives = resourcePerspectives;
     this.fileSystem = fileSystem;
     this.noSonarFilter = noSonarFilter;
     this.mainFilePredicate = fileSystem.predicates().and(
-      fileSystem.predicates().hasType(InputFile.Type.MAIN),
-      fileSystem.predicates().hasLanguage(JavaScript.KEY));
+        fileSystem.predicates().hasType(InputFile.Type.MAIN),
+        fileSystem.predicates().hasLanguage(JavaScript.KEY));
     this.settings = settings;
     this.parser = EcmaScriptParser.create(new EcmaScriptConfiguration(fileSystem.encoding()));
   }
@@ -111,19 +123,60 @@ public class JavaScriptSquidSensor implements Sensor {
     EcmaScriptConfiguration configuration = createConfiguration();
 
     treeVisitors.add(new MetricsVisitor(fileSystem, context, noSonarFilter, configuration, fileLinesContextFactory));
+    treeVisitors.addAll(checks.all());
+
+    for (JavaScriptCheck check : treeVisitors) {
+      if (check instanceof ParsingErrorCheck) {
+        parsingErrorRuleKey = checks.ruleKeyFor(check);
+        break;
+      }
+    }
+
+    ProgressReport progressReport = new ProgressReport("Report about progress of Javascript analyzer", TimeUnit.SECONDS.toMillis(10));
+    progressReport.start(Lists.newArrayList(fileSystem.files(mainFilePredicate)));
 
     for (InputFile inputFile : fileSystem.inputFiles(mainFilePredicate)) {
       analyse(inputFile, treeVisitors);
+      progressReport.nextFile();
     }
+
+    progressReport.stop();
 
     highlight();
   }
 
   private void analyse(InputFile inputFile, List<JavaScriptCheck> visitors) {
     Issuable issuable = perspective(Issuable.class, inputFile);
+    ScriptTree scriptTree;
+    RecognitionException parseException = null;
+    try {
+      scriptTree = (ScriptTree) parser.parse(new java.io.File(inputFile.absolutePath()));
+      scanFile(inputFile, visitors, issuable, scriptTree);
+    } catch (RecognitionException e) {
+      parseException = e;
+      LOG.error("Unable to parse file: " + inputFile.absolutePath());
+      LOG.error(e.getMessage());
+    } catch (Throwable e) {
+      throw new AnalysisException("Unable to parse file: " + inputFile.absolutePath(), e);
+    }
 
-    ScriptTree scriptTree = (ScriptTree) parser.parse(new java.io.File(inputFile.absolutePath()));
+    if (parseException != null) {
+      processRecognitionException(parseException, issuable);
+    }
+  }
 
+  private void processRecognitionException(RecognitionException e, Issuable issuable) {
+    if (parsingErrorRuleKey != null) {
+      issuable.addIssue(issuable.newIssueBuilder()
+              .ruleKey(parsingErrorRuleKey)
+              .line(e.getLine())
+              .message(e.getMessage())
+              .build()
+      );
+    }
+  }
+
+  private void scanFile(InputFile inputFile, List<JavaScriptCheck> visitors, Issuable issuable, ScriptTree scriptTree) {
     SymbolModelImpl symbolModel = SymbolModelImpl.create(scriptTree, perspective(Symbolizable.class, inputFile), new SourceFileOffsets(inputFile.file(), fileSystem.encoding()), settings);
 
     for (JavaScriptCheck visitor : visitors) {
@@ -154,7 +207,6 @@ public class JavaScriptSquidSensor implements Sensor {
     }
     return result;
   }
-
 
 
   private void highlight() {
