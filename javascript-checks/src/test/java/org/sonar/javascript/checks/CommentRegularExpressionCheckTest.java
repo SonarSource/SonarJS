@@ -20,23 +20,19 @@
 package org.sonar.javascript.checks;
 
 import org.junit.Test;
-import org.sonar.javascript.JavaScriptAstScanner;
-import org.sonar.squidbridge.api.SourceFile;
+import org.sonar.javascript.checks.utils.TreeCheckTest;
 import org.sonar.squidbridge.checks.CheckMessagesVerifier;
 
-import java.io.File;
-
-public class CommentRegularExpressionCheckTest {
+public class CommentRegularExpressionCheckTest extends TreeCheckTest {
 
   @Test
   public void test() {
     CommentRegularExpressionCheck check = new CommentRegularExpressionCheck();
 
-    check.regularExpression = "(?i).*TODO.*";
-    check.message = "Avoid TODO";
+    check.setRegularExpression("(?i).*TODO.*");
+    check.setMessage("Avoid TODO");
 
-    SourceFile file = JavaScriptAstScanner.scanSingleFile(new File("src/test/resources/checks/commentRegularExpression.js"), check);
-    CheckMessagesVerifier.verify(file.getCheckMessages())
+    CheckMessagesVerifier.verify(getIssues("src/test/resources/checks/commentRegularExpression.js", check))
         .next().atLine(2).withMessage("Avoid TODO")
         .noMore();
   }

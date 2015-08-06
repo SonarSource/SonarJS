@@ -42,7 +42,7 @@ public final class CheckList {
         DebuggerStatementCheck.class,
         WithStatementCheck.class,
         EqEqEqCheck.class,
-//        CommentRegularExpressionCheck.class,
+        CommentRegularExpressionCheck.class,
         EvalCheck.class,
         OneStatementPerLineCheck.class,
         SemicolonCheck.class,
