@@ -19,9 +19,9 @@
  */
 package org.sonar.javascript.checks;
 
-import java.util.List;
-
 import com.google.common.collect.ImmutableList;
+
+import java.util.List;
 
 public final class CheckList {
 
@@ -36,13 +36,13 @@ public final class CheckList {
 
   public static List<Class> getChecks() {
     return ImmutableList.<Class>of(
-        ParsingErrorCheck.class,
+//        ParsingErrorCheck.class,
         CommentedCodeCheck.class,
         FunctionComplexityCheck.class,
         DebuggerStatementCheck.class,
         WithStatementCheck.class,
         EqEqEqCheck.class,
-        CommentRegularExpressionCheck.class,
+//        CommentRegularExpressionCheck.class,
         EvalCheck.class,
         OneStatementPerLineCheck.class,
         SemicolonCheck.class,

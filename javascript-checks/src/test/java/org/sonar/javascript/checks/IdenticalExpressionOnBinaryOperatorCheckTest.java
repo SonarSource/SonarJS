@@ -21,7 +21,6 @@ package org.sonar.javascript.checks;
 
 import org.junit.Test;
 import org.sonar.javascript.checks.utils.TreeCheckTest;
-import org.sonar.squidbridge.api.SourceFile;
 import org.sonar.squidbridge.checks.CheckMessagesVerifier;
 
 public class IdenticalExpressionOnBinaryOperatorCheckTest extends TreeCheckTest {
@@ -30,8 +29,7 @@ public class IdenticalExpressionOnBinaryOperatorCheckTest extends TreeCheckTest 
 
   @Test
   public void test() {
-    SourceFile file = scanFile("src/test/resources/checks/identicalExpressionOnBinaryOperator.js", check);
-    CheckMessagesVerifier.verify(file.getCheckMessages())
+    CheckMessagesVerifier.verify(getIssues("src/test/resources/checks/identicalExpressionOnBinaryOperator.js", check))
       .next().atLine(4).withMessage("Identical sub-expressions on both sides of operator \"==\"")
       .next().atLine(6).withMessage("Identical sub-expressions on both sides of operator \"!=\"")
       .next().atLine(8).withMessage("Identical sub-expressions on both sides of operator \"&&\"")

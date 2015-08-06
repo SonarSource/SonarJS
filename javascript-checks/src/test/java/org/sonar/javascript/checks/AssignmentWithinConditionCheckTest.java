@@ -21,7 +21,6 @@ package org.sonar.javascript.checks;
 
 import org.junit.Test;
 import org.sonar.javascript.checks.utils.TreeCheckTest;
-import org.sonar.squidbridge.api.SourceFile;
 import org.sonar.squidbridge.checks.CheckMessagesVerifier;
 
 public class AssignmentWithinConditionCheckTest extends TreeCheckTest {
@@ -30,8 +29,7 @@ public class AssignmentWithinConditionCheckTest extends TreeCheckTest {
   public void test() {
     AssignmentWithinConditionCheck check = new AssignmentWithinConditionCheck();
 
-    SourceFile file = scanFile("src/test/resources/checks/assignmentWithinCondition.js", check);
-    CheckMessagesVerifier.verify(file.getCheckMessages())
+    CheckMessagesVerifier.verify(getIssues("src/test/resources/checks/assignmentWithinCondition.js", check))
       .next().atLine(1).withMessage("Extract the assignment out of this expression.")
       .next().atLine(4)
       .next().atLine(28)

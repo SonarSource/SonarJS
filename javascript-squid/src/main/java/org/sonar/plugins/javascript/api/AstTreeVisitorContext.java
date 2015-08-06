@@ -81,11 +81,6 @@ public interface AstTreeVisitorContext {
   void addFileIssue(JavaScriptCheck check, String message);
 
   /**
-   * @return the current SonarQube file key
-   */
-  String getFileKey();
-
-  /**
    * @return the current file
    */
   File getFile();

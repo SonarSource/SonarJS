@@ -19,9 +19,9 @@
  */
 package org.sonar.javascript.checks;
 
+import com.google.common.base.Charsets;
 import org.junit.Test;
 import org.sonar.javascript.checks.utils.TreeCheckTest;
-import org.sonar.squidbridge.api.SourceFile;
 import org.sonar.squidbridge.checks.CheckMessagesVerifier;
 
 public class FileHeaderCheckTest extends TreeCheckTest {
@@ -29,73 +29,55 @@ public class FileHeaderCheckTest extends TreeCheckTest {
   @Test
   public void test() {
     FileHeaderCheck check = new FileHeaderCheck();
+    check.setCharset(Charsets.UTF_8);
     check.headerFormat = "// copyright 2005";
 
-    SourceFile file = scanFile("src/test/resources/checks/FileHeaderCheck/file1.js", check);
-    CheckMessagesVerifier.verify(file.getCheckMessages())
+    CheckMessagesVerifier.verify(getIssues("src/test/resources/checks/FileHeaderCheck/file1.js", check))
       .noMore();
 
-    check = new FileHeaderCheck();
     check.headerFormat = "// copyright 20\\d\\d";
 
-    file = scanFile("src/test/resources/checks/FileHeaderCheck/file1.js", check);
-    CheckMessagesVerifier.verify(file.getCheckMessages())
+    CheckMessagesVerifier.verify(getIssues("src/test/resources/checks/FileHeaderCheck/file1.js", check))
       .next().atLine(null);
 
-    check = new FileHeaderCheck();
     check.headerFormat = "// copyright 2005";
 
-    file = scanFile("src/test/resources/checks/FileHeaderCheck/file2.js", check);
-    CheckMessagesVerifier.verify(file.getCheckMessages())
+    CheckMessagesVerifier.verify(getIssues("src/test/resources/checks/FileHeaderCheck/file2.js", check))
       .next().atLine(null).withMessage("Add or update the header of this file.");
 
-    check = new FileHeaderCheck();
     check.headerFormat = "// copyright 2012";
 
-    file = scanFile("src/test/resources/checks/FileHeaderCheck/file2.js", check);
-    CheckMessagesVerifier.verify(file.getCheckMessages())
+    CheckMessagesVerifier.verify(getIssues("src/test/resources/checks/FileHeaderCheck/file2.js", check))
       .noMore();
 
-    check = new FileHeaderCheck();
     check.headerFormat = "// copyright 2012\n// foo";
 
-    file = scanFile("src/test/resources/checks/FileHeaderCheck/file2.js", check);
-    CheckMessagesVerifier.verify(file.getCheckMessages())
+    CheckMessagesVerifier.verify(getIssues("src/test/resources/checks/FileHeaderCheck/file2.js", check))
       .noMore();
 
-    check = new FileHeaderCheck();
     check.headerFormat = "// copyright 2012\r\n// foo";
 
-    file = scanFile("src/test/resources/checks/FileHeaderCheck/file2.js", check);
-    CheckMessagesVerifier.verify(file.getCheckMessages())
+    CheckMessagesVerifier.verify(getIssues("src/test/resources/checks/FileHeaderCheck/file2.js", check))
       .noMore();
 
-    check = new FileHeaderCheck();
     check.headerFormat = "// copyright 2012\r// foo";
 
-    file = scanFile("src/test/resources/checks/FileHeaderCheck/file2.js", check);
-    CheckMessagesVerifier.verify(file.getCheckMessages())
+    CheckMessagesVerifier.verify(getIssues("src/test/resources/checks/FileHeaderCheck/file2.js", check))
       .noMore();
 
-    check = new FileHeaderCheck();
     check.headerFormat = "// copyright 2012\r\r// foo";
 
-    file = scanFile("src/test/resources/checks/FileHeaderCheck/file2.js", check);
-    CheckMessagesVerifier.verify(file.getCheckMessages())
+    CheckMessagesVerifier.verify(getIssues("src/test/resources/checks/FileHeaderCheck/file2.js", check))
       .next().atLine(null);
 
-    check = new FileHeaderCheck();
     check.headerFormat = "// copyright 2012\n// foo\n\n\n\n\n\n\n\n\n\ngfoo";
 
-    file = scanFile("src/test/resources/checks/FileHeaderCheck/file2.js", check);
-    CheckMessagesVerifier.verify(file.getCheckMessages())
+    CheckMessagesVerifier.verify(getIssues("src/test/resources/checks/FileHeaderCheck/file2.js", check))
       .next().atLine(null);
 
-    check = new FileHeaderCheck();
     check.headerFormat = "/*foo http://www.example.org*/";
 
-    file = scanFile("src/test/resources/checks/FileHeaderCheck/file3.js", check);
-    CheckMessagesVerifier.verify(file.getCheckMessages())
+    CheckMessagesVerifier.verify(getIssues("src/test/resources/checks/FileHeaderCheck/file3.js", check))
       .noMore();
   }
 

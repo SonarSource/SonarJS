@@ -21,6 +21,7 @@ package org.sonar.plugins.javascript;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
+import com.sonar.sslr.impl.Parser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.DependedUpon;
@@ -30,41 +31,36 @@ import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.rule.CheckFactory;
-import org.sonar.api.issue.NoSonarFilter;
+import org.sonar.api.component.Perspective;
 import org.sonar.api.component.ResourcePerspectives;
 import org.sonar.api.config.Settings;
 import org.sonar.api.issue.Issuable;
-import org.sonar.api.issue.Issue;
+import org.sonar.api.issue.NoSonarFilter;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.FileLinesContextFactory;
 import org.sonar.api.measures.Metric;
-import org.sonar.api.resources.File;
 import org.sonar.api.resources.Project;
-import org.sonar.api.rule.RuleKey;
-import org.sonar.api.scan.filesystem.PathResolver;
 import org.sonar.api.source.Highlightable;
+import org.sonar.api.source.Symbolizable;
+import org.sonar.javascript.CharsetAwareVisitor;
 import org.sonar.javascript.EcmaScriptConfiguration;
-import org.sonar.javascript.JavaScriptAstScanner;
-import org.sonar.javascript.ast.visitors.VisitorsBridge;
+import org.sonar.javascript.ast.resolve.SymbolModelImpl;
 import org.sonar.javascript.checks.CheckList;
+import org.sonar.javascript.checks.utils.JavaScriptCheckContext;
+import org.sonar.javascript.checks.utils.JavaScriptChecks;
 import org.sonar.javascript.highlighter.JavaScriptHighlighter;
+import org.sonar.javascript.highlighter.SourceFileOffsets;
+import org.sonar.javascript.metrics.ComplexityVisitor;
 import org.sonar.javascript.metrics.MetricsVisitor;
+import org.sonar.javascript.parser.EcmaScriptParser;
 import org.sonar.plugins.javascript.api.CustomJavaScriptRulesDefinition;
 import org.sonar.plugins.javascript.api.JavaScriptCheck;
+import org.sonar.plugins.javascript.api.tree.ScriptTree;
 import org.sonar.plugins.javascript.core.JavaScript;
-import org.sonar.squidbridge.AstScanner;
-import org.sonar.squidbridge.SquidAstVisitor;
-import org.sonar.squidbridge.api.CheckMessage;
-import org.sonar.squidbridge.api.CodeVisitor;
-import org.sonar.squidbridge.api.SourceCode;
-import org.sonar.squidbridge.api.SourceFile;
-import org.sonar.squidbridge.indexer.QueryByType;
-import org.sonar.sslr.parser.LexerlessGrammar;
 
 import javax.annotation.Nullable;
 import java.util.Collection;
 import java.util.List;
-import java.util.Locale;
 
 public class JavaScriptSquidSensor implements Sensor {
 
@@ -82,15 +78,12 @@ public class JavaScriptSquidSensor implements Sensor {
   private final FileSystem fileSystem;
   private final NoSonarFilter noSonarFilter;
   private final FilePredicate mainFilePredicate;
-  private final PathResolver pathResolver;
   private final Settings settings;
-
-  private SensorContext context;
-  private AstScanner<LexerlessGrammar> scanner;
+  private final Parser parser;
 
   public JavaScriptSquidSensor(CheckFactory checkFactory, FileLinesContextFactory fileLinesContextFactory,
                                ResourcePerspectives resourcePerspectives, FileSystem fileSystem, NoSonarFilter noSonarFilter,
-                               PathResolver pathResolver, Settings settings, @Nullable CustomJavaScriptRulesDefinition[] customRulesDefinition) {
+                               Settings settings, @Nullable CustomJavaScriptRulesDefinition[] customRulesDefinition) {
 
     this.checks = JavaScriptChecks.createJavaScriptCheck(checkFactory)
       .addChecks(CheckList.REPOSITORY_KEY, CheckList.getChecks())
@@ -99,11 +92,11 @@ public class JavaScriptSquidSensor implements Sensor {
     this.resourcePerspectives = resourcePerspectives;
     this.fileSystem = fileSystem;
     this.noSonarFilter = noSonarFilter;
-    this.pathResolver = pathResolver;
     this.mainFilePredicate = fileSystem.predicates().and(
       fileSystem.predicates().hasType(InputFile.Type.MAIN),
       fileSystem.predicates().hasLanguage(JavaScript.KEY));
     this.settings = settings;
+    this.parser = EcmaScriptParser.create(new EcmaScriptConfiguration(fileSystem.encoding()));
   }
 
   @Override
@@ -113,32 +106,56 @@ public class JavaScriptSquidSensor implements Sensor {
 
   @Override
   public void analyse(Project project, SensorContext context) {
-    this.context = context;
-
-    List<CodeVisitor> astNodeVisitors = Lists.newArrayList();
     List<JavaScriptCheck> treeVisitors = Lists.newArrayList();
-
-    for (CodeVisitor visitor : checks.all()) {
-      if (visitor instanceof JavaScriptCheck) {
-        treeVisitors.add((JavaScriptCheck) visitor);
-      } else {
-        astNodeVisitors.add(visitor);
-      }
-    }
 
     EcmaScriptConfiguration configuration = createConfiguration();
 
     treeVisitors.add(new MetricsVisitor(fileSystem, context, noSonarFilter, configuration, fileLinesContextFactory));
-    astNodeVisitors.add(new VisitorsBridge(treeVisitors, resourcePerspectives, fileSystem, settings));
 
-    scanner = JavaScriptAstScanner.create(configuration, astNodeVisitors.toArray(new SquidAstVisitor[astNodeVisitors.size()]));
-    scanner.scanFiles(Lists.newArrayList(fileSystem.files(mainFilePredicate)));
-
-    Collection<SourceCode> squidSourceFiles = scanner.getIndex().search(new QueryByType(SourceFile.class));
-    save(squidSourceFiles);
+    for (InputFile inputFile : fileSystem.inputFiles(mainFilePredicate)) {
+      analyse(inputFile, treeVisitors);
+    }
 
     highlight();
   }
+
+  private void analyse(InputFile inputFile, List<JavaScriptCheck> visitors) {
+    Issuable issuable = perspective(Issuable.class, inputFile);
+
+    ScriptTree scriptTree = (ScriptTree) parser.parse(new java.io.File(inputFile.absolutePath()));
+
+    SymbolModelImpl symbolModel = SymbolModelImpl.create(scriptTree, perspective(Symbolizable.class, inputFile), new SourceFileOffsets(inputFile.file(), fileSystem.encoding()), settings);
+
+    for (JavaScriptCheck visitor : visitors) {
+      if (visitor instanceof CharsetAwareVisitor) {
+        ((CharsetAwareVisitor) visitor).setCharset(fileSystem.encoding());
+      }
+
+      visitor.scanFile(new JavaScriptCheckContext(
+          scriptTree,
+          issuable,
+          inputFile.file(),
+          symbolModel,
+          settings,
+          checks,
+          new ComplexityVisitor()
+      ));
+
+    }
+  }
+
+  <P extends Perspective<?>> P perspective(Class<P> clazz, @Nullable InputFile file) {
+    if (file == null) {
+      throw new IllegalArgumentException("Cannot get " + clazz.getCanonicalName() + "for a null file");
+    }
+    P result = resourcePerspectives.as(clazz, file);
+    if (result == null) {
+      throw new IllegalStateException("Could not get " + clazz.getCanonicalName() + " for " + file);
+    }
+    return result;
+  }
+
+
 
   private void highlight() {
     JavaScriptHighlighter highlighter = new JavaScriptHighlighter(createConfiguration());
@@ -157,40 +174,6 @@ public class JavaScriptSquidSensor implements Sensor {
 
   private EcmaScriptConfiguration createConfiguration() {
     return new EcmaScriptConfiguration(fileSystem.encoding());
-  }
-
-  private void save(Collection<SourceCode> squidSourceFiles) {
-    for (SourceCode squidSourceFile : squidSourceFiles) {
-      SourceFile squidFile = (SourceFile) squidSourceFile;
-
-      File sonarFile = context.getResource(File.create(pathResolver.relativePath(fileSystem.baseDir(), new java.io.File(squidFile.getKey()))));
-
-      if (sonarFile != null) {
-        saveIssues(sonarFile, squidFile);
-      } else {
-        LOG.warn("Cannot save analysis information for file {}. Unable to retrieve the associated sonar resource.", squidFile.getKey());
-      }
-    }
-  }
-
-  private void saveIssues(File sonarFile, SourceFile squidFile) {
-    Collection<CheckMessage> messages = squidFile.getCheckMessages();
-    if (messages != null) {
-
-      for (CheckMessage message : messages) {
-        RuleKey ruleKey = checks.ruleKeyFor((CodeVisitor) message.getCheck());
-        Issuable issuable = resourcePerspectives.as(Issuable.class, sonarFile);
-
-        if (issuable != null && ruleKey != null) {
-          Issue issue = issuable.newIssueBuilder()
-            .ruleKey(ruleKey)
-            .line(message.getLine())
-            .message(message.getText(Locale.ENGLISH))
-            .build();
-          issuable.addIssue(issue);
-        }
-      }
-    }
   }
 
   @Override

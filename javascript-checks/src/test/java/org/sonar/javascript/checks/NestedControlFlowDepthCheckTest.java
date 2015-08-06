@@ -19,16 +19,9 @@
  */
 package org.sonar.javascript.checks;
 
+import org.junit.Test;
 import org.sonar.javascript.checks.utils.TreeCheckTest;
 import org.sonar.squidbridge.checks.CheckMessagesVerifier;
-import org.junit.Test;
-import org.sonar.check.BelongsToProfile;
-import org.sonar.check.Priority;
-import org.sonar.check.Rule;
-import org.sonar.javascript.JavaScriptAstScanner;
-import org.sonar.squidbridge.api.SourceFile;
-
-import java.io.File;
 
 public class NestedControlFlowDepthCheckTest extends TreeCheckTest {
 
@@ -36,8 +29,7 @@ public class NestedControlFlowDepthCheckTest extends TreeCheckTest {
 
   @Test
   public void testDefault() {
-    SourceFile file = scanFile("src/test/resources/checks/nestedControlFlowDepth.js", check);
-    CheckMessagesVerifier.verify(file.getCheckMessages())
+    CheckMessagesVerifier.verify(getIssues("src/test/resources/checks/nestedControlFlowDepth.js", check))
       .next().atLine(9).withMessage("Refactor this code to not nest more than 3 if/for/while/switch/try statements.")
       .next().atLine(17)
       .next().atLine(20)
@@ -51,8 +43,7 @@ public class NestedControlFlowDepthCheckTest extends TreeCheckTest {
   public void testCustomDepth() {
     check.maximumNestingLevel = 4;
 
-    SourceFile file = scanFile("src/test/resources/checks/nestedControlFlowDepth.js", check);
-    CheckMessagesVerifier.verify(file.getCheckMessages())
+    CheckMessagesVerifier.verify(getIssues("src/test/resources/checks/nestedControlFlowDepth.js", check))
       .next().atLine(31).withMessage("Refactor this code to not nest more than 4 if/for/while/switch/try statements.")
       .noMore();
   }

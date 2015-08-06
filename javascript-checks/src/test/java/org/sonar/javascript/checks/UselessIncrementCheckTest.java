@@ -22,7 +22,6 @@ package org.sonar.javascript.checks;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.javascript.checks.utils.TreeCheckTest;
-import org.sonar.squidbridge.api.SourceFile;
 import org.sonar.squidbridge.checks.CheckMessagesVerifierRule;
 
 public class UselessIncrementCheckTest extends TreeCheckTest {
@@ -32,8 +31,7 @@ public class UselessIncrementCheckTest extends TreeCheckTest {
 
   @Test
   public void test() {
-    SourceFile file = scanFile("src/test/resources/checks/uselessIncrement.js", new UselessIncrementCheck());
-    checkMessagesVerifier.verify(file.getCheckMessages())
+    checkMessagesVerifier.verify(getIssues("src/test/resources/checks/uselessIncrement.js", new UselessIncrementCheck()))
       .next().atLine(2).withMessage("Remove this increment or correct the code not to waste it.")
       .next().atLine(6).withMessage("Remove this decrement or correct the code not to waste it.");
   }

@@ -21,7 +21,6 @@ package org.sonar.javascript.checks;
 
 import org.junit.Test;
 import org.sonar.javascript.checks.utils.TreeCheckTest;
-import org.sonar.squidbridge.api.SourceFile;
 import org.sonar.squidbridge.checks.CheckMessagesVerifier;
 
 public class BitwiseOperatorsCheckTest extends TreeCheckTest {
@@ -30,8 +29,7 @@ public class BitwiseOperatorsCheckTest extends TreeCheckTest {
   public void test() {
     BitwiseOperatorsCheck check = new BitwiseOperatorsCheck();
 
-    SourceFile file = scanFile("src/test/resources/checks/bitwiseOperators.js", check);
-    CheckMessagesVerifier.verify(file.getCheckMessages())
+    CheckMessagesVerifier.verify(getIssues("src/test/resources/checks/bitwiseOperators.js", check))
         .next().atLine(2).withMessage("Remove the use of \"~\" operator.")
         .next().atLine(3)
         .next().atLine(4)

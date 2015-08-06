@@ -21,7 +21,6 @@ package org.sonar.javascript.checks;
 
 import org.junit.Test;
 import org.sonar.javascript.checks.utils.TreeCheckTest;
-import org.sonar.squidbridge.api.SourceFile;
 import org.sonar.squidbridge.checks.CheckMessagesVerifier;
 
 public class ParenthesesCheckTest extends TreeCheckTest {
@@ -30,8 +29,7 @@ public class ParenthesesCheckTest extends TreeCheckTest {
   public void test() {
     ParenthesesCheck check = new ParenthesesCheck();
 
-    SourceFile file = scanFile("src/test/resources/checks/parentheses.js", check);
-    CheckMessagesVerifier.verify(file.getCheckMessages())
+    CheckMessagesVerifier.verify(getIssues("src/test/resources/checks/parentheses.js", check))
         .next().atLine(2).withMessage("The parentheses around \"37\" are useless.")
         .next().atLine(8).withMessage("The parentheses around \"a\" are useless.")
         .next().atLine(12).withMessage("The parentheses around \"1\" are useless.")

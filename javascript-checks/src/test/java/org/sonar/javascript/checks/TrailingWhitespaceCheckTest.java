@@ -19,18 +19,18 @@
  */
 package org.sonar.javascript.checks;
 
+import com.google.common.base.Charsets;
 import org.junit.Test;
 import org.sonar.javascript.checks.utils.TreeCheckTest;
-import org.sonar.squidbridge.api.SourceFile;
 import org.sonar.squidbridge.checks.CheckMessagesVerifier;
 
 public class TrailingWhitespaceCheckTest extends TreeCheckTest {
 
   @Test
   public void test() {
-    SourceFile file = scanFile("src/test/resources/checks/trailingWhitespace.js", new TrailingWhitespaceCheck());
-
-    CheckMessagesVerifier.verify(file.getCheckMessages())
+    TrailingWhitespaceCheck check = new TrailingWhitespaceCheck();
+    check.setCharset(Charsets.UTF_8);
+    CheckMessagesVerifier.verify(getIssues("src/test/resources/checks/trailingWhitespace.js", check))
         .next().atLine(3).withMessage("Remove the useless trailing whitespaces at the end of this line.")
         .noMore();
   }

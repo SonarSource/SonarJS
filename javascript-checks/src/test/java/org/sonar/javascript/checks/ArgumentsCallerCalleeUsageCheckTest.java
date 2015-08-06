@@ -21,16 +21,13 @@ package org.sonar.javascript.checks;
 
 import org.junit.Test;
 import org.sonar.javascript.checks.utils.TreeCheckTest;
-import org.sonar.squidbridge.api.SourceFile;
 import org.sonar.squidbridge.checks.CheckMessagesVerifier;
 
 public class ArgumentsCallerCalleeUsageCheckTest extends TreeCheckTest {
 
   @Test
   public void test() {
-    SourceFile file = scanFile("src/test/resources/checks/argumentsCallerCalleeUsage.js", new ArgumentsCallerCalleeUsageCheck());
-
-    CheckMessagesVerifier.verify(file.getCheckMessages())
+    CheckMessagesVerifier.verify(getIssues("src/test/resources/checks/argumentsCallerCalleeUsage.js", new ArgumentsCallerCalleeUsageCheck()))
       .next().atLine(2).withMessage("Name the enclosing function instead of using the deprecated property \"arguments.callee\".")
       .next().atLine(3).withMessage("Remove this use of \"arguments.caller\".")
       .next().atLine(6).withMessage("Remove this use of \"f.caller\".")

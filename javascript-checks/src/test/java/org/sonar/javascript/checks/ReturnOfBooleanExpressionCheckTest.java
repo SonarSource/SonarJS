@@ -21,15 +21,13 @@ package org.sonar.javascript.checks;
 
 import org.junit.Test;
 import org.sonar.javascript.checks.utils.TreeCheckTest;
-import org.sonar.squidbridge.api.SourceFile;
 import org.sonar.squidbridge.checks.CheckMessagesVerifier;
 
 public class ReturnOfBooleanExpressionCheckTest extends TreeCheckTest {
 
   @Test
   public void test() {
-    SourceFile file = scanFile("src/test/resources/checks/returnOfBooleanExpression.js", new ReturnOfBooleanExpressionCheck());
-    CheckMessagesVerifier.verify(file.getCheckMessages())
+    CheckMessagesVerifier.verify(getIssues("src/test/resources/checks/returnOfBooleanExpression.js", new ReturnOfBooleanExpressionCheck()))
       .next().atLine(3).withMessage("Replace this if-then-else statement by a single return statement.")
       .next().atLine(9)
       .next().atLine(15)

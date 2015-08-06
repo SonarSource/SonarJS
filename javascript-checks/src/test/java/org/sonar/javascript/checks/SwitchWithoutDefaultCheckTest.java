@@ -21,7 +21,6 @@ package org.sonar.javascript.checks;
 
 import org.junit.Test;
 import org.sonar.javascript.checks.utils.TreeCheckTest;
-import org.sonar.squidbridge.api.SourceFile;
 import org.sonar.squidbridge.checks.CheckMessagesVerifier;
 
 public class SwitchWithoutDefaultCheckTest extends TreeCheckTest {
@@ -30,8 +29,7 @@ public class SwitchWithoutDefaultCheckTest extends TreeCheckTest {
   public void test() {
     SwitchWithoutDefaultCheck check = new SwitchWithoutDefaultCheck();
 
-    SourceFile file = scanFile("src/test/resources/checks/switchWithoutDefault.js", check);
-    CheckMessagesVerifier.verify(file.getCheckMessages())
+    CheckMessagesVerifier.verify(getIssues("src/test/resources/checks/switchWithoutDefault.js", check))
         .next().atLine(8).withMessage("Avoid switch statement without a \"default\" clause.")
         .next().atLine(13).withMessage("\"default\" clause should be the last one.")
         .noMore();

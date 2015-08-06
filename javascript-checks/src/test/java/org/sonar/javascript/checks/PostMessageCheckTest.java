@@ -21,16 +21,13 @@ package org.sonar.javascript.checks;
 
 import org.junit.Test;
 import org.sonar.javascript.checks.utils.TreeCheckTest;
-import org.sonar.squidbridge.api.SourceFile;
 import org.sonar.squidbridge.checks.CheckMessagesVerifier;
 
 public class PostMessageCheckTest extends TreeCheckTest {
 
   @Test
   public void test() {
-    SourceFile file = scanFile("src/test/resources/checks/PostMessage.js", new PostMessageCheck());
-
-    CheckMessagesVerifier.verify(file.getCheckMessages())
+    CheckMessagesVerifier.verify(getIssues("src/test/resources/checks/PostMessage.js", new PostMessageCheck()))
       .next().atLine(2).withMessage("Make sure this cross-domain message is being sent to the intended domain.")
       .next().atLine(5)
       .next().atLine(8)

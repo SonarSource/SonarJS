@@ -21,7 +21,6 @@ package org.sonar.javascript.checks;
 
 import org.junit.Test;
 import org.sonar.javascript.checks.utils.TreeCheckTest;
-import org.sonar.squidbridge.api.SourceFile;
 import org.sonar.squidbridge.checks.CheckMessagesVerifier;
 
 public class HtmlCommentsCheckTest extends TreeCheckTest {
@@ -30,8 +29,7 @@ public class HtmlCommentsCheckTest extends TreeCheckTest {
   public void test() {
     HtmlCommentsCheck check = new HtmlCommentsCheck();
 
-    SourceFile file = scanFile("src/test/resources/checks/htmlComments.js", check);
-    CheckMessagesVerifier.verify(file.getCheckMessages())
+    CheckMessagesVerifier.verify(getIssues("src/test/resources/checks/htmlComments.js", check))
         .next().atLine(1).withMessage("Replace this HTML-style comment by a standard comment")
         .noMore();
   }

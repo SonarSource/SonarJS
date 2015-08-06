@@ -21,7 +21,6 @@ package org.sonar.javascript.checks;
 
 import org.junit.Test;
 import org.sonar.javascript.checks.utils.TreeCheckTest;
-import org.sonar.squidbridge.api.SourceFile;
 import org.sonar.squidbridge.checks.CheckMessagesVerifier;
 
 public class VariableDeclarationWithoutVarCheckTest extends TreeCheckTest {
@@ -30,8 +29,7 @@ public class VariableDeclarationWithoutVarCheckTest extends TreeCheckTest {
 
   @Test
   public void test() {
-    SourceFile file = scanFile("src/test/resources/checks/variableDeclarationWithoutVar.js", check);
-    CheckMessagesVerifier.verify(file.getCheckMessages())
+    CheckMessagesVerifier.verify(getIssues("src/test/resources/checks/variableDeclarationWithoutVar.js", check))
     .next().atLine(2).withMessage("Add the \"var\" keyword to this declaration of \"x\".")
     .next().atLine(7)
     .next().atLine(9)

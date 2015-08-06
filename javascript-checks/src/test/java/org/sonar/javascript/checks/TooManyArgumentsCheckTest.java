@@ -21,16 +21,14 @@ package org.sonar.javascript.checks;
 
 import org.junit.Test;
 import org.sonar.javascript.checks.utils.TreeCheckTest;
-import org.sonar.squidbridge.api.SourceFile;
 import org.sonar.squidbridge.checks.CheckMessagesVerifier;
 
 public class TooManyArgumentsCheckTest extends TreeCheckTest {
 
   @Test
   public void test() {
-    SourceFile file = scanFile("src/test/resources/checks/TooManyArguments.js", new TooManyArgumentsCheck());
 
-    CheckMessagesVerifier.verify(file.getCheckMessages())
+    CheckMessagesVerifier.verify(getIssues("src/test/resources/checks/TooManyArguments.js", new TooManyArgumentsCheck()))
       .next().atLine(3).withMessage("\"foo1\" expects \"2\" arguments, but \"3\" were provided.")
       .next().atLine(6).withMessage("\"foo1\" expects \"2\" arguments, but \"4\" were provided.")
       .next().atLine(12).withMessage("\"foo3\" expects \"0\" arguments, but \"1\" were provided.")
