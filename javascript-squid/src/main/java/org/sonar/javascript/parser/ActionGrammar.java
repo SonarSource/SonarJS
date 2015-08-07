@@ -468,7 +468,7 @@ public class ActionGrammar {
 
   public EndOfStatementTreeImpl END_OF_STATEMENT_NO_LB() {
     return b.<EndOfStatementTreeImpl>nonterminal()
-      .is(f.endOfStatement(b.token(EcmaScriptGrammar.EOS_NO_LB)));
+      .is(f.endOfStatement1(b.token(EcmaScriptGrammar.EOS_NO_LB)));
   }
 
   /**

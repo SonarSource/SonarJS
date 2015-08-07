@@ -23,8 +23,7 @@ import com.google.common.base.Charsets;
 import com.google.common.collect.ImmutableList;
 import com.sonar.sslr.api.AstNode;
 import com.sonar.sslr.api.Token;
-import com.sonar.sslr.impl.Parser;
-import org.sonar.javascript.EcmaScriptConfiguration;
+import com.sonar.sslr.api.typed.ActionParser;
 import org.sonar.javascript.ast.visitors.SubscriptionAstTreeVisitor;
 import org.sonar.javascript.parser.EcmaScriptParser;
 import org.sonar.plugins.javascript.api.tree.Tree;
@@ -37,7 +36,7 @@ import static org.fest.assertions.Assertions.assertThat;
 
 public abstract class JavaScriptTreeModelTest {
 
-  protected static final Parser p = EcmaScriptParser.create(new EcmaScriptConfiguration(Charsets.UTF_8));
+  protected final ActionParser<Tree> p = EcmaScriptParser.createParser(Charsets.UTF_8);
 
   /**
    * Parse the given string and return the first descendant of the given kind.
@@ -48,9 +47,9 @@ public abstract class JavaScriptTreeModelTest {
    * @return the node found for the given kind, null if not found.
    */
   protected <T extends Tree> T parse(String s, Kind descendantToReturn) throws Exception {
-    AstNode node = p.parse(s);
-    checkFullFidelity((Tree) node, s);
-    return (T) (node.is(descendantToReturn) ? node : node.getFirstDescendant(descendantToReturn));
+    Tree node = p.parse(s);
+    checkFullFidelity(node, s);
+    return (T) (node);
   }
 
   /**

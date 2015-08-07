@@ -22,7 +22,7 @@ package org.sonar.plugins.javascript;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.sonar.sslr.api.RecognitionException;
-import com.sonar.sslr.impl.Parser;
+import com.sonar.sslr.api.typed.ActionParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.DependedUpon;
@@ -59,6 +59,7 @@ import org.sonar.javascript.parser.EcmaScriptParser;
 import org.sonar.plugins.javascript.api.CustomJavaScriptRulesDefinition;
 import org.sonar.plugins.javascript.api.JavaScriptCheck;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
+import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.core.JavaScript;
 import org.sonar.squidbridge.ProgressReport;
 import org.sonar.squidbridge.api.AnalysisException;
@@ -85,7 +86,7 @@ public class JavaScriptSquidSensor implements Sensor {
   private final NoSonarFilter noSonarFilter;
   private final FilePredicate mainFilePredicate;
   private final Settings settings;
-  private final Parser parser;
+  private final ActionParser<Tree> parser;
   private RuleKey parsingErrorRuleKey = null;
 
   public JavaScriptSquidSensor(CheckFactory checkFactory, FileLinesContextFactory fileLinesContextFactory,
@@ -108,7 +109,7 @@ public class JavaScriptSquidSensor implements Sensor {
         fileSystem.predicates().hasType(InputFile.Type.MAIN),
         fileSystem.predicates().hasLanguage(JavaScript.KEY));
     this.settings = settings;
-    this.parser = EcmaScriptParser.create(new EcmaScriptConfiguration(fileSystem.encoding()));
+    this.parser = EcmaScriptParser.createParser(fileSystem.encoding());
   }
 
   @Override

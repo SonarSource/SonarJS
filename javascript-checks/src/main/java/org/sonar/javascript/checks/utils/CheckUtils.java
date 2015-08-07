@@ -26,8 +26,9 @@ import com.sonar.sslr.api.Token;
 import org.sonar.javascript.model.internal.JavaScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
+import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 
-import java.util.List;
+import java.util.Iterator;
 
 public class CheckUtils {
 
@@ -160,17 +161,32 @@ public class CheckUtils {
   }
 
   public static String asString(Tree tree) {
-    List<Token> tokens = ((JavaScriptTree) tree).getTokens();
-    StringBuilder sb = new StringBuilder();
-    Token prevToken = null;
-    for (Token token : tokens) {
-      if (prevToken != null && !areAdjacent(prevToken, token)) {
-        sb.append(" ");
+
+    if (tree.is(Kind.TOKEN)){
+      return ((SyntaxToken) tree).text();
+    } else {
+      StringBuilder sb = new StringBuilder();
+      Iterator<Tree> treeIterator = ((JavaScriptTree) tree).childrenIterator();
+      while (treeIterator.hasNext()) {
+        Tree child = treeIterator.next();
+        if (child != null) {
+          sb.append(asString(child));
+        }
       }
-      sb.append(token.getOriginalValue());
-      prevToken = token;
+      return sb.toString();
     }
-    return sb.toString();
+//
+//    List<Token> tokens = ((JavaScriptTree) tree).getTokens();
+//
+//    Token prevToken = null;
+//    for (Token token : tokens) {
+//      if (prevToken != null && !areAdjacent(prevToken, token)) {
+//        sb.append(" ");
+//      }
+//      sb.append(token.getOriginalValue());
+//      prevToken = token;
+//    }
+
   }
 
   private static boolean areAdjacent(Token prevToken, Token token) {

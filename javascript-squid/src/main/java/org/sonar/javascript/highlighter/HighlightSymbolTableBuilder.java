@@ -57,12 +57,12 @@ public class HighlightSymbolTableBuilder {
   }
 
   private static org.sonar.api.source.Symbol getHighlightedSymbol(SourceFileOffsets sourceFileOffsets, Symbolizable.SymbolTableBuilder builder, InternalSyntaxToken token) {
-    int startOffset = sourceFileOffsets.startOffset(token.getToken());
-    int endOffset = sourceFileOffsets.endOffset(token.getToken());
+    int startOffset = sourceFileOffsets.startOffset(token);
+    int endOffset = sourceFileOffsets.endOffset(token);
     return builder.newSymbol(startOffset, endOffset);
   }
 
-  private static Token getToken(IdentifierTree identifierTree) {
-    return ((InternalSyntaxToken) (identifierTree).identifierToken()).getToken();
+  private static InternalSyntaxToken getToken(IdentifierTree identifierTree) {
+    return (InternalSyntaxToken) (identifierTree).identifierToken();
   }
 }

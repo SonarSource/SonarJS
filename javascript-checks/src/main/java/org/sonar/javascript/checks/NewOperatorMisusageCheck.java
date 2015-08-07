@@ -37,7 +37,6 @@ package org.sonar.javascript.checks;
  * License along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-import com.sonar.sslr.api.Trivia;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
@@ -49,6 +48,7 @@ import org.sonar.javascript.model.internal.JavaScriptTree;
 import org.sonar.plugins.javascript.api.symbols.Type;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.NewExpressionTree;
+import org.sonar.plugins.javascript.api.tree.lexical.SyntaxTrivia;
 import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
 import org.sonar.squidbridge.annotations.ActivatedByDefault;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
@@ -102,7 +102,7 @@ public class NewOperatorMisusageCheck extends BaseTreeVisitor {
   }
 
   private static boolean hasJSDocAnnotation(FunctionTree funcDec) {
-    for (Trivia trivia : ((JavaScriptTree) funcDec).getToken().getTrivia()) {
+    for (SyntaxTrivia trivia : ((JavaScriptTree) funcDec).getFirstToken().trivias()) {
       if (trivia.toString().contains("@constructor") || trivia.toString().contains("@class")) {
         return true;
       }

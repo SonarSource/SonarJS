@@ -61,7 +61,7 @@ public class UnusedFunctionArgumentCheck extends BaseTreeVisitor {
     }
 
     private int getColumn(Symbol symbol){
-      return ((JavaScriptTree)getDeclarationUsage(symbol).identifierTree()).getToken().getColumn();
+      return ((JavaScriptTree)getDeclarationUsage(symbol).identifierTree()).getFirstToken().column();
     }
 
     @Override

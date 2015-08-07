@@ -20,38 +20,25 @@
 package org.sonar.javascript.parser;
 
 import com.sonar.sslr.api.typed.ActionParser;
-import org.sonar.javascript.EcmaScriptConfiguration;
 import org.sonar.javascript.ast.parser.JavaScriptNodeBuilder;
 import org.sonar.javascript.ast.parser.TreeFactory;
 import org.sonar.plugins.javascript.api.tree.Tree;
 
-import java.io.File;
+import java.nio.charset.Charset;
 
 public final class EcmaScriptParser {
 
-  private final ActionParser<Tree> actionParser;
-
-  private EcmaScriptParser(ActionParser<Tree> actionParser) {
-    this.actionParser = actionParser;
+  private EcmaScriptParser(){
   }
 
-  public static EcmaScriptParser create(EcmaScriptConfiguration conf) {
-    ActionParser<Tree> actionParser = new ActionParser<Tree>(
-      conf.getCharset(),
+  public static ActionParser<Tree> createParser(Charset charset) {
+    return new ActionParser<>(
+      charset,
       EcmaScriptGrammar.createGrammarBuilder(),
       ActionGrammar.class,
       new TreeFactory(),
       new JavaScriptNodeBuilder(),
       EcmaScriptGrammar.SCRIPT);
-    return new EcmaScriptParser(actionParser);
-  }
-
-  public Tree parse(File file) {
-    return actionParser.parse(file);
-  }
-
-  public Tree parse(String source) {
-    return actionParser.parse(source);
   }
 
 }

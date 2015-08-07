@@ -234,6 +234,9 @@ public class TreeFactory {
   public EndOfStatementTreeImpl endOfStatement(InternalSyntaxToken eos) {
     return new EndOfStatementTreeImpl(eos);
   }
+  public EndOfStatementTreeImpl endOfStatement1(InternalSyntaxToken eos) {
+    return new EndOfStatementTreeImpl(eos);
+  }
 
   public VariableStatementTreeImpl variableStatement(VariableDeclarationTreeImpl declaration, EndOfStatementTreeImpl eosToken) {
     return new VariableStatementTreeImpl(declaration, eosToken);

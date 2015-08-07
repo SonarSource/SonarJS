@@ -33,7 +33,6 @@ import org.sonar.colorizer.StringTokenizer;
 import org.sonar.colorizer.Tokenizer;
 import org.sonar.javascript.EcmaScriptConfiguration;
 import org.sonar.javascript.api.EcmaScriptKeyword;
-import org.sonar.javascript.parser.EcmaScriptParser;
 import org.sonar.sslr.toolkit.AbstractConfigurationModel;
 import org.sonar.sslr.toolkit.ConfigurationProperty;
 import org.sonar.sslr.toolkit.Validators;
@@ -64,7 +63,9 @@ public class JavaScriptConfigurationModel extends AbstractConfigurationModel {
 
   @Override
   public Parser<? extends Grammar> doGetParser() {
-    return EcmaScriptParser.create(getConfiguration());
+    // FIXME
+    //return EcmaScriptParser.createParser(getConfiguration().getCharset());
+    return null;
   }
 
   @Override

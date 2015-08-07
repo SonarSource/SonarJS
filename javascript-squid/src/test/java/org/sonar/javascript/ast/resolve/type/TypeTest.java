@@ -19,17 +19,16 @@
  */
 package org.sonar.javascript.ast.resolve.type;
 
-import com.sonar.sslr.api.AstNode;
-import org.sonar.plugins.javascript.api.symbols.Symbol;
 import org.sonar.javascript.ast.resolve.SymbolModelImpl;
 import org.sonar.javascript.model.JavaScriptTreeModelTest;
+import org.sonar.plugins.javascript.api.symbols.Symbol;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
 
 import java.io.File;
 
 
 public abstract class TypeTest extends JavaScriptTreeModelTest {
-  protected AstNode ROOT_NODE;
+  protected ScriptTree ROOT_NODE;
   protected SymbolModelImpl SYMBOL_MODEL;
 
   protected Symbol getSymbol(String name) {
@@ -37,7 +36,7 @@ public abstract class TypeTest extends JavaScriptTreeModelTest {
   }
 
   protected void setUp(String filename) throws Exception {
-    ROOT_NODE = p.parse(new File("src/test/resources/ast/resolve/type/", filename));
-    SYMBOL_MODEL = SymbolModelImpl.create((ScriptTree) ROOT_NODE, null, null, null);
+    ROOT_NODE = (ScriptTree) p.parse(new File("src/test/resources/ast/resolve/type/", filename));
+    SYMBOL_MODEL = SymbolModelImpl.create(ROOT_NODE, null, null, null);
   }
 }
