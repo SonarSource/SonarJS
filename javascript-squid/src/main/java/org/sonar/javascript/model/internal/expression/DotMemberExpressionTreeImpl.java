@@ -20,11 +20,10 @@
 package org.sonar.javascript.model.internal.expression;
 
 import com.google.common.collect.Iterators;
-import com.sonar.sslr.api.AstNode;
-import org.sonar.plugins.javascript.api.symbols.Type;
-import org.sonar.plugins.javascript.api.symbols.TypeSet;
 import org.sonar.javascript.model.internal.JavaScriptTree;
 import org.sonar.javascript.model.internal.lexical.InternalSyntaxToken;
+import org.sonar.plugins.javascript.api.symbols.Type;
+import org.sonar.plugins.javascript.api.symbols.TypeSet;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.expression.DotMemberExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
@@ -42,17 +41,14 @@ public class DotMemberExpressionTreeImpl extends JavaScriptTree implements DotMe
   private TypeSet types = TypeSet.emptyTypeSet();
 
   public DotMemberExpressionTreeImpl(InternalSyntaxToken dot, IdentifierTree property) {
-    super(Kind.DOT_MEMBER_EXPRESSION);
     this.dot = dot;
     this.property = property;
 
-    addChildren(dot, (AstNode) property);
   }
 
   public DotMemberExpressionTreeImpl complete(ExpressionTree object) {
     this.object = object;
 
-    prependChildren((AstNode) object);
     return this;
   }
 

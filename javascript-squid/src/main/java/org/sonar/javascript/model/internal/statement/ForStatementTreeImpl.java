@@ -20,9 +20,7 @@
 package org.sonar.javascript.model.internal.statement;
 
 import com.google.common.collect.Iterators;
-import com.sonar.sslr.api.AstNode;
 import com.sonar.sslr.api.AstNodeType;
-import org.sonar.plugins.javascript.api.visitors.TreeVisitor;
 import org.sonar.javascript.model.internal.JavaScriptTree;
 import org.sonar.javascript.model.internal.lexical.InternalSyntaxToken;
 import org.sonar.plugins.javascript.api.tree.Tree;
@@ -30,11 +28,10 @@ import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.javascript.api.tree.statement.ForStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.StatementTree;
+import org.sonar.plugins.javascript.api.visitors.TreeVisitor;
 
 import javax.annotation.Nullable;
-
 import java.util.Iterator;
-import java.util.List;
 
 public class ForStatementTreeImpl extends JavaScriptTree implements ForStatementTree {
 
@@ -55,10 +52,8 @@ public class ForStatementTreeImpl extends JavaScriptTree implements ForStatement
     InternalSyntaxToken firstSemicolon,
     @Nullable ExpressionTree condition, InternalSyntaxToken secondSemicolon,
     @Nullable ExpressionTree update, InternalSyntaxToken closeParenthesis,
-    StatementTree statement,
-    List<AstNode> children) {
+    StatementTree statement) {
 
-    super(Kind.FOR_STATEMENT);
     this.forKeyword = forKeyword;
     this.openParenthesis = openParenthesis;
     this.init = init;
@@ -68,8 +63,6 @@ public class ForStatementTreeImpl extends JavaScriptTree implements ForStatement
     this.update = update;
     this.closeParenthesis = closeParenthesis;
     this.statement = statement;
-
-    addChildren(children.toArray(new AstNode[children.size()]));
   }
 
   @Override

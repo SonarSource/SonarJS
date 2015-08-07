@@ -40,13 +40,11 @@ public class NameSpaceExportDeclarationTreeImpl extends JavaScriptTree implement
   private final EndOfStatementTree eos;
 
   public NameSpaceExportDeclarationTreeImpl(InternalSyntaxToken exportToken, InternalSyntaxToken starToken, FromClauseTreeImpl fromClause, EndOfStatementTreeImpl eos) {
-    super(Kind.NAMESPACE_EXPORT_DECLARATION);
     this.exportToken = exportToken;
     this.starToken = starToken;
     this.fromClause = fromClause;
     this.eos = eos;
 
-    addChildren(exportToken, starToken, fromClause, eos);
   }
 
   @Override

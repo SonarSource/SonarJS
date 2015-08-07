@@ -33,7 +33,8 @@ public class JavaScriptNodeBuilder implements NodeBuilder {
         lineColumnValue.value,
         createTrivias(trivias),
         startIndex,
-        isEof
+        isEof,
+        type
     );
   }
 

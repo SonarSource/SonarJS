@@ -20,15 +20,14 @@
 package org.sonar.javascript.model.internal.expression;
 
 import com.google.common.collect.Iterators;
-import com.sonar.sslr.api.AstNode;
-import org.sonar.plugins.javascript.api.symbols.TypeSet;
-import org.sonar.plugins.javascript.api.visitors.TreeVisitor;
 import org.sonar.javascript.model.internal.JavaScriptTree;
 import org.sonar.javascript.model.internal.lexical.InternalSyntaxToken;
+import org.sonar.plugins.javascript.api.symbols.TypeSet;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.PairPropertyTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
+import org.sonar.plugins.javascript.api.visitors.TreeVisitor;
 
 import javax.annotation.Nullable;
 import java.util.Iterator;
@@ -40,12 +39,10 @@ public class PairPropertyTreeImpl extends JavaScriptTree implements PairProperty
   private final ExpressionTree value;
 
   public PairPropertyTreeImpl(ExpressionTree key, InternalSyntaxToken operator, ExpressionTree value) {
-    super(Kind.PAIR_PROPERTY);
     this.key = key;
     this.operator = operator;
     this.value = value;
 
-    addChildren((AstNode) key, operator, (AstNode) value);
   }
 
   @Override

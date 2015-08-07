@@ -20,9 +20,7 @@
 package org.sonar.javascript.model.internal.statement;
 
 import com.google.common.collect.Iterators;
-import com.sonar.sslr.api.AstNode;
 import com.sonar.sslr.api.AstNodeType;
-import org.sonar.plugins.javascript.api.visitors.TreeVisitor;
 import org.sonar.javascript.model.internal.JavaScriptTree;
 import org.sonar.javascript.model.internal.lexical.InternalSyntaxToken;
 import org.sonar.plugins.javascript.api.tree.Tree;
@@ -30,6 +28,7 @@ import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.javascript.api.tree.statement.SwitchClauseTree;
 import org.sonar.plugins.javascript.api.tree.statement.SwitchStatementTree;
+import org.sonar.plugins.javascript.api.visitors.TreeVisitor;
 
 import java.util.Iterator;
 import java.util.List;
@@ -47,16 +46,10 @@ public class SwitchStatementTreeImpl extends JavaScriptTree implements SwitchSta
   private final SyntaxToken closeCurlyBrace;
 
   public SwitchStatementTreeImpl(InternalSyntaxToken openCurlyBrace, List<SwitchClauseTree> cases, InternalSyntaxToken closeCurlyBrace) {
-    super(Kind.SWITCH_STATEMENT);
     this.openCurlyBrace = openCurlyBrace;
     this.cases = cases;
     this.closeCurlyBrace = closeCurlyBrace;
 
-    addChild(openCurlyBrace);
-    for (SwitchClauseTree c : cases) {
-      addChild((AstNode) c);
-    }
-    addChild(closeCurlyBrace);
   }
 
   public SwitchStatementTreeImpl complete(InternalSyntaxToken switchKeyword, InternalSyntaxToken openParenthesis, ExpressionTree expression, InternalSyntaxToken closeParenthesis) {
@@ -65,7 +58,6 @@ public class SwitchStatementTreeImpl extends JavaScriptTree implements SwitchSta
     this.expression = expression;
     this.closeParenthesis = closeParenthesis;
 
-    prependChildren(switchKeyword, openParenthesis, (AstNode) expression, closeParenthesis);
     return this;
   }
 

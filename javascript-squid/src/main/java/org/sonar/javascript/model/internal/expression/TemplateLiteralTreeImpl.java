@@ -22,10 +22,9 @@ package org.sonar.javascript.model.internal.expression;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Iterators;
-import com.sonar.sslr.api.AstNode;
-import org.sonar.plugins.javascript.api.symbols.TypeSet;
 import org.sonar.javascript.model.internal.JavaScriptTree;
 import org.sonar.javascript.model.internal.lexical.InternalSyntaxToken;
+import org.sonar.plugins.javascript.api.symbols.TypeSet;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.expression.TemplateCharactersTree;
 import org.sonar.plugins.javascript.api.tree.expression.TemplateExpressionTree;
@@ -43,30 +42,12 @@ public class TemplateLiteralTreeImpl extends JavaScriptTree implements TemplateL
   private final List<Tree> elements;
   private final SyntaxToken closeBacktick;
 
-  public TemplateLiteralTreeImpl(InternalSyntaxToken openBacktick, List<Tree> elements,
-    InternalSyntaxToken closeBacktick, List<AstNode> children) {
-
-    super(Kind.TEMPLATE_LITERAL);
-    this.openBacktick = openBacktick;
-    this.elements = elements;
-    this.closeBacktick = closeBacktick;
-
-    for (AstNode child : children) {
-      addChild(child);
-    }
-  }
-
   public TemplateLiteralTreeImpl(InternalSyntaxToken openBacktick, List<TemplateCharactersTree> strings,
     InternalSyntaxToken closeBacktick) {
 
-    super(Kind.TEMPLATE_LITERAL);
     this.openBacktick = openBacktick;
     this.elements = Collections.<Tree>unmodifiableList(strings);
     this.closeBacktick = closeBacktick;
-
-    addChild(openBacktick);
-    addChildren(strings.toArray(new AstNode[strings.size()]));
-    addChild(closeBacktick);
   }
 
   @Override

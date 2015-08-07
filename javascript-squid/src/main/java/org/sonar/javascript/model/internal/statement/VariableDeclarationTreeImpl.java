@@ -22,8 +22,6 @@ package org.sonar.javascript.model.internal.statement;
 import com.google.common.base.Functions;
 import com.google.common.collect.Iterators;
 import com.google.common.collect.Lists;
-import com.sonar.sslr.api.AstNode;
-import org.sonar.plugins.javascript.api.visitors.TreeVisitor;
 import org.sonar.javascript.model.internal.JavaScriptTree;
 import org.sonar.javascript.model.internal.SeparatedList;
 import org.sonar.javascript.model.internal.declaration.ArrayBindingPatternTreeImpl;
@@ -35,6 +33,7 @@ import org.sonar.plugins.javascript.api.tree.declaration.BindingElementTree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.javascript.api.tree.statement.VariableDeclarationTree;
+import org.sonar.plugins.javascript.api.visitors.TreeVisitor;
 
 import java.util.Iterator;
 import java.util.List;
@@ -45,17 +44,12 @@ public class VariableDeclarationTreeImpl extends JavaScriptTree implements Varia
   private final InternalSyntaxToken token;
   private final SeparatedList<BindingElementTree> variables;
 
-  public VariableDeclarationTreeImpl(Kind kind, InternalSyntaxToken token, SeparatedList<BindingElementTree> variables, List<AstNode> children) {
-    super(kind);
+  public VariableDeclarationTreeImpl(Kind kind, InternalSyntaxToken token, SeparatedList<BindingElementTree> variables) {
 
     this.kind = kind;
     this.token = token;
     this.variables = variables;
 
-    addChild(token);
-    for (AstNode child : children) {
-      addChild(child);
-    }
   }
 
   @Override

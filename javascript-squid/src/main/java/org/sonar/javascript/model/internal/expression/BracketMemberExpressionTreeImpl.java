@@ -20,11 +20,10 @@
 package org.sonar.javascript.model.internal.expression;
 
 import com.google.common.collect.Iterators;
-import com.sonar.sslr.api.AstNode;
-import org.sonar.plugins.javascript.api.symbols.Type;
-import org.sonar.plugins.javascript.api.symbols.TypeSet;
 import org.sonar.javascript.model.internal.JavaScriptTree;
 import org.sonar.javascript.model.internal.lexical.InternalSyntaxToken;
+import org.sonar.plugins.javascript.api.symbols.Type;
+import org.sonar.plugins.javascript.api.symbols.TypeSet;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.expression.BracketMemberExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
@@ -42,18 +41,14 @@ public class BracketMemberExpressionTreeImpl extends JavaScriptTree implements B
   private TypeSet types = TypeSet.emptyTypeSet();
 
   public BracketMemberExpressionTreeImpl(InternalSyntaxToken openBracket, ExpressionTree property, InternalSyntaxToken closeBracket) {
-    super(Kind.BRACKET_MEMBER_EXPRESSION);
     this.openBracket = openBracket;
     this.property = property;
     this.closeBracket = closeBracket;
-
-    addChildren(openBracket, (AstNode) property, closeBracket);
   }
 
   public BracketMemberExpressionTreeImpl complete(ExpressionTree object) {
     this.object = object;
 
-    prependChildren((AstNode) object);
     return this;
   }
 

@@ -20,8 +20,6 @@
 package org.sonar.javascript.model.internal.declaration;
 
 import com.google.common.collect.Iterators;
-import com.sonar.sslr.api.AstNode;
-import org.sonar.plugins.javascript.api.visitors.TreeVisitor;
 import org.sonar.javascript.model.internal.JavaScriptTree;
 import org.sonar.javascript.model.internal.lexical.InternalSyntaxToken;
 import org.sonar.plugins.javascript.api.tree.Tree;
@@ -29,6 +27,7 @@ import org.sonar.plugins.javascript.api.tree.declaration.DeclarationTree;
 import org.sonar.plugins.javascript.api.tree.declaration.ImportClauseTree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
+import org.sonar.plugins.javascript.api.visitors.TreeVisitor;
 
 import javax.annotation.Nullable;
 import java.util.Iterator;
@@ -40,26 +39,20 @@ public class ImportClauseTreeImpl extends JavaScriptTree implements ImportClause
   private DeclarationTree namedImport;
 
   public ImportClauseTreeImpl(IdentifierTree defaultImport) {
-    super(Kind.IMPORT_CLAUSE);
     this.defaultImport = defaultImport;
 
-    addChildren((AstNode) defaultImport);
   }
 
   public ImportClauseTreeImpl(DeclarationTree namedImport) {
-    super(Kind.IMPORT_CLAUSE);
     this.namedImport = namedImport;
 
-    addChildren((AstNode) namedImport);
   }
 
   public ImportClauseTreeImpl(IdentifierTree defaultImport, InternalSyntaxToken commaToken, DeclarationTree namedImport) {
-    super(Kind.IMPORT_CLAUSE);
     this.defaultImport = defaultImport;
     this.commaToken = commaToken;
     this.namedImport = namedImport;
 
-    addChildren((AstNode) defaultImport, commaToken, (AstNode) namedImport);
   }
 
   @Nullable

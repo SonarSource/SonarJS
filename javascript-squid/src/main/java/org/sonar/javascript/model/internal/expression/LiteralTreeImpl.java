@@ -38,11 +38,8 @@ public class LiteralTreeImpl extends JavaScriptTree implements LiteralTree {
   private TypeSet types = TypeSet.emptyTypeSet();
 
   public LiteralTreeImpl(Kind kind, InternalSyntaxToken token) {
-    super(kind, token.getToken());
     this.kind = Preconditions.checkNotNull(kind);
     this.token = token;
-
-    addChild(token);
   }
 
   @Override

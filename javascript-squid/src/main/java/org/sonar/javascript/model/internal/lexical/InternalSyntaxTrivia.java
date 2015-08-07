@@ -19,11 +19,10 @@
  */
 package org.sonar.javascript.model.internal.lexical;
 
-import com.sonar.sslr.api.AstNode;
-import org.sonar.plugins.javascript.api.visitors.TreeVisitor;
 import org.sonar.javascript.model.internal.JavaScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxTrivia;
+import org.sonar.plugins.javascript.api.visitors.TreeVisitor;
 
 import java.util.Iterator;
 
@@ -33,7 +32,6 @@ public class InternalSyntaxTrivia extends JavaScriptTree implements SyntaxTrivia
   private int startLine;
 
   public InternalSyntaxTrivia(String comment, int startLine) {
-    super((AstNode) null);
     this.comment = comment;
     this.startLine = startLine;
   }

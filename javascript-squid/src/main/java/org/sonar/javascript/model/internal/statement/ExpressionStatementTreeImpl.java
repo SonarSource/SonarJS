@@ -20,14 +20,13 @@
 package org.sonar.javascript.model.internal.statement;
 
 import com.google.common.collect.Iterators;
-import com.sonar.sslr.api.AstNode;
 import com.sonar.sslr.api.AstNodeType;
-import org.sonar.plugins.javascript.api.tree.statement.EndOfStatementTree;
-import org.sonar.plugins.javascript.api.visitors.TreeVisitor;
 import org.sonar.javascript.model.internal.JavaScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
+import org.sonar.plugins.javascript.api.tree.statement.EndOfStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.ExpressionStatementTree;
+import org.sonar.plugins.javascript.api.visitors.TreeVisitor;
 
 import java.util.Iterator;
 
@@ -37,12 +36,9 @@ public class ExpressionStatementTreeImpl extends JavaScriptTree implements Expre
   private final EndOfStatementTree eos;
 
   public ExpressionStatementTreeImpl(ExpressionTree expression, EndOfStatementTreeImpl eos) {
-    super(Kind.EXPRESSION_STATEMENT);
 
     this.expression = expression;
     this.eos = eos;
-
-    addChildren((AstNode) expression, eos);
   }
 
   @Override

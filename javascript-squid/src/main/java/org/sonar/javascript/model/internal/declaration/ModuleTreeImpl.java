@@ -19,27 +19,22 @@
  */
 package org.sonar.javascript.model.internal.declaration;
 
-import java.util.Iterator;
-import java.util.List;
-
-import com.sonar.sslr.api.AstNode;
-import org.sonar.plugins.javascript.api.visitors.TreeVisitor;
 import org.sonar.javascript.model.internal.JavaScriptTree;
 import org.sonar.plugins.javascript.api.tree.ModuleTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
+import org.sonar.plugins.javascript.api.visitors.TreeVisitor;
+
+import java.util.Iterator;
+import java.util.List;
 
 public class ModuleTreeImpl extends JavaScriptTree implements ModuleTree {
 
   private final List<Tree> items;
 
   public ModuleTreeImpl(List<Tree> items) {
-    super(Kind.MODULE);
 
     this.items = items;
 
-    for (Tree item : items) {
-      addChild((AstNode) item);
-    }
   }
 
   @Override

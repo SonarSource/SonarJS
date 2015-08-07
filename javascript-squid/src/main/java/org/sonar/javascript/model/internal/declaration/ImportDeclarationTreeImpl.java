@@ -42,13 +42,11 @@ public class ImportDeclarationTreeImpl extends JavaScriptTree implements ImportD
   private final EndOfStatementTree eos;
 
   public ImportDeclarationTreeImpl(InternalSyntaxToken importToken, ImportClauseTreeImpl importClause, FromClauseTreeImpl fromClause, EndOfStatementTreeImpl eos) {
-    super(Kind.IMPORT_DECLARATION);
     this.importToken = importToken;
     this.importClause = importClause;
     this.fromClause = fromClause;
     this.eos = eos;
 
-    addChildren(importToken, importClause, fromClause, eos);
   }
 
   @Override

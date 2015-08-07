@@ -19,6 +19,7 @@
  */
 package org.sonar.javascript.model.internal.lexical;
 
+import com.sonar.sslr.api.TokenType;
 import org.sonar.javascript.model.internal.JavaScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
@@ -36,14 +37,16 @@ public class InternalSyntaxToken extends JavaScriptTree implements SyntaxToken {
   private final int column;
   private final String value;
   private final boolean isEOF;
+  private final TokenType tokenType;
 
-  public InternalSyntaxToken(int line, int column, String value, List<SyntaxTrivia> trivias, int startIndex, boolean isEOF) {
+  public InternalSyntaxToken(int line, int column, String value, List<SyntaxTrivia> trivias, int startIndex, boolean isEOF, TokenType type) {
     this.value = value;
     this.line = line;
     this.column = column;
     this.trivias = trivias;
     this.startIndex = startIndex;
     this.isEOF = isEOF;
+    this.tokenType = type;
   }
 
   // TODO use it instead of SourceFileOffsets
@@ -104,4 +107,11 @@ public class InternalSyntaxToken extends JavaScriptTree implements SyntaxToken {
     // FIXME do nothing at the moment
   }
 
+  public boolean is(TokenType type) {
+    return this.text().equals(type.getValue());
+  }
+
+  public TokenType getTokenType() {
+    return tokenType;
+  }
 }

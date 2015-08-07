@@ -54,11 +54,6 @@ public class SeparatedList<T> implements List<T> {
     this.separators = separators;
   }
 
-  public SeparatedList(List<T> list, List<InternalSyntaxToken> separators, List<AstNode> children) {
-    this(list, separators);
-    this.children = children;
-  }
-
   public InternalSyntaxToken getSeparator(int i) {
     return separators.get(i);
   }

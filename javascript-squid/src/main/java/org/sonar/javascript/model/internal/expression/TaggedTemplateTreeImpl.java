@@ -20,9 +20,8 @@
 package org.sonar.javascript.model.internal.expression;
 
 import com.google.common.collect.Iterators;
-import com.sonar.sslr.api.AstNode;
-import org.sonar.plugins.javascript.api.symbols.TypeSet;
 import org.sonar.javascript.model.internal.JavaScriptTree;
+import org.sonar.plugins.javascript.api.symbols.TypeSet;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.TaggedTemplateTree;
@@ -36,17 +35,13 @@ public class TaggedTemplateTreeImpl extends JavaScriptTree implements TaggedTemp
   private ExpressionTree callee;
   private final TemplateLiteralTree template;
 
-  public TaggedTemplateTreeImpl(TemplateLiteralTreeImpl template) {
-    super(Kind.TAGGED_TEMPLATE);
+  public TaggedTemplateTreeImpl(TemplateLiteralTree template) {
     this.template = template;
-
-    addChildren(template);
   }
 
   public TaggedTemplateTreeImpl complete(ExpressionTree callee) {
     this.callee = callee;
 
-    prependChildren((AstNode) callee);
     return this;
   }
 

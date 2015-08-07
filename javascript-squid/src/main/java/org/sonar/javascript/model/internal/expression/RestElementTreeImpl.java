@@ -20,10 +20,9 @@
 package org.sonar.javascript.model.internal.expression;
 
 import com.google.common.collect.Iterators;
-import com.sonar.sslr.api.AstNode;
-import org.sonar.plugins.javascript.api.symbols.TypeSet;
 import org.sonar.javascript.model.internal.JavaScriptTree;
 import org.sonar.javascript.model.internal.lexical.InternalSyntaxToken;
+import org.sonar.plugins.javascript.api.symbols.TypeSet;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.declaration.BindingElementTree;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
@@ -39,11 +38,9 @@ public class RestElementTreeImpl extends JavaScriptTree implements RestElementTr
   private final ExpressionTree element;
 
   public RestElementTreeImpl(InternalSyntaxToken ellispis, ExpressionTree element) {
-    super(Kind.REST_ELEMENT);
     this.ellispis = ellispis;
     this.element = element;
 
-    addChildren(ellispis, (AstNode) element);
   }
 
   @Override

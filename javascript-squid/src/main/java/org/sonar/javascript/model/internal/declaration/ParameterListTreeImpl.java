@@ -23,12 +23,11 @@ import com.google.common.base.Functions;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Iterators;
 import com.google.common.collect.Lists;
-import com.sonar.sslr.api.AstNode;
 import org.apache.commons.collections.ListUtils;
-import org.sonar.plugins.javascript.api.symbols.TypeSet;
 import org.sonar.javascript.model.internal.JavaScriptTree;
 import org.sonar.javascript.model.internal.SeparatedList;
 import org.sonar.javascript.model.internal.lexical.InternalSyntaxToken;
+import org.sonar.plugins.javascript.api.symbols.TypeSet;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.declaration.ParameterListTree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
@@ -47,34 +46,23 @@ public class ParameterListTreeImpl extends JavaScriptTree implements ParameterLi
   private final Kind kind;
 
   public ParameterListTreeImpl(Kind kind, SeparatedList<Tree> parameters) {
-    super(kind);
     Preconditions.checkArgument(parameters.size() == parameters.getSeparators().size() + 1);
     this.kind = kind;
     this.parameters = parameters;
 
-    for (AstNode child : parameters.getChildren()) {
-      addChild(child);
-    }
-    parameters.clearChildren();
   }
 
   public ParameterListTreeImpl(Kind kind, InternalSyntaxToken openParenthesis, InternalSyntaxToken closeParenthesis) {
-    super(kind);
     this.kind = kind;
     this.openParenthesis = openParenthesis;
     this.parameters = new SeparatedList<Tree>(ListUtils.EMPTY_LIST, ListUtils.EMPTY_LIST);
     this.closeParenthesis = closeParenthesis;
-
-    prependChildren(openParenthesis);
-    addChild(closeParenthesis);
   }
 
   public ParameterListTreeImpl complete(InternalSyntaxToken openParenthesis, InternalSyntaxToken closeParenthesis) {
     this.openParenthesis = openParenthesis;
     this.closeParenthesis = closeParenthesis;
 
-    prependChildren(openParenthesis);
-    addChild(closeParenthesis);
     return this;
   }
 

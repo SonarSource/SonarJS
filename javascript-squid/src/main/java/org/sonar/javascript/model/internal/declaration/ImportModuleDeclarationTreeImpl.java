@@ -40,12 +40,10 @@ public class ImportModuleDeclarationTreeImpl extends JavaScriptTree implements I
   private final EndOfStatementTree eos;
 
   public ImportModuleDeclarationTreeImpl(InternalSyntaxToken importToken, LiteralTreeImpl moduleName, EndOfStatementTreeImpl eos) {
-    super(Kind.IMPORT_MODULE_DECLARATION);
     this.importToken = importToken;
     this.moduleName = moduleName;
     this.eos = eos;
 
-    addChildren(importToken, moduleName, eos);
   }
 
   @Override

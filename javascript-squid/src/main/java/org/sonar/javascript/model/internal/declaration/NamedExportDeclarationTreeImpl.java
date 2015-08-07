@@ -20,13 +20,12 @@
 package org.sonar.javascript.model.internal.declaration;
 
 import com.google.common.collect.Iterators;
-import com.sonar.sslr.api.AstNode;
-import org.sonar.plugins.javascript.api.visitors.TreeVisitor;
 import org.sonar.javascript.model.internal.JavaScriptTree;
 import org.sonar.javascript.model.internal.lexical.InternalSyntaxToken;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.declaration.NamedExportDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
+import org.sonar.plugins.javascript.api.visitors.TreeVisitor;
 
 import java.util.Iterator;
 
@@ -36,11 +35,9 @@ public class NamedExportDeclarationTreeImpl extends JavaScriptTree implements Na
   private final Tree object;
 
   public NamedExportDeclarationTreeImpl(InternalSyntaxToken exportToken, Tree object) {
-    super(Kind.NAMED_EXPORT_DECLARATION);
     this.exportToken = exportToken;
     this.object = object;
 
-    addChildren(exportToken, (AstNode) object);
   }
 
   @Override

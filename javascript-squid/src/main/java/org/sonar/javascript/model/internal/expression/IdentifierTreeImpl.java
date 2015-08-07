@@ -41,11 +41,8 @@ public class IdentifierTreeImpl extends JavaScriptTree implements IdentifierTree
   private TypeSet types = TypeSet.emptyTypeSet();
 
   public IdentifierTreeImpl(Kind kind, InternalSyntaxToken nameToken) {
-    super(kind, nameToken.getToken());
     this.kind = kind;
     this.nameToken = Preconditions.checkNotNull(nameToken);
-
-    addChild(nameToken);
   }
 
   @Override

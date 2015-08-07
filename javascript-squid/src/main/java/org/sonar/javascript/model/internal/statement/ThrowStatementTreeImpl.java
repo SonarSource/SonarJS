@@ -20,7 +20,6 @@
 package org.sonar.javascript.model.internal.statement;
 
 import com.google.common.collect.Iterators;
-import com.sonar.sslr.api.AstNode;
 import org.sonar.javascript.model.internal.JavaScriptTree;
 import org.sonar.javascript.model.internal.lexical.InternalSyntaxToken;
 import org.sonar.plugins.javascript.api.tree.Tree;
@@ -40,15 +39,11 @@ public class ThrowStatementTreeImpl extends JavaScriptTree implements ThrowState
   private final EndOfStatementTree eos;
 
   public ThrowStatementTreeImpl(InternalSyntaxToken throwKeyword, ExpressionTree expression, EndOfStatementTreeImpl eos) {
-    super(Kind.THROW_STATEMENT);
 
     this.throwKeyword = throwKeyword;
     this.expression = expression;
     this.eos = eos;
 
-    addChild(throwKeyword);
-    addChild((AstNode) expression);
-    addChild(eos);
   }
 
   @Override

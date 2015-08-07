@@ -22,9 +22,7 @@ package org.sonar.javascript.model.internal.declaration;
 import com.google.common.base.Functions;
 import com.google.common.collect.Iterators;
 import com.google.common.collect.Lists;
-import com.sonar.sslr.api.AstNode;
 import org.apache.commons.collections.ListUtils;
-import org.sonar.plugins.javascript.api.visitors.TreeVisitor;
 import org.sonar.javascript.model.internal.JavaScriptTree;
 import org.sonar.javascript.model.internal.SeparatedList;
 import org.sonar.javascript.model.internal.lexical.InternalSyntaxToken;
@@ -35,6 +33,7 @@ import org.sonar.plugins.javascript.api.tree.declaration.InitializedBindingEleme
 import org.sonar.plugins.javascript.api.tree.declaration.ObjectBindingPatternTree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
+import org.sonar.plugins.javascript.api.visitors.TreeVisitor;
 
 import java.util.Iterator;
 import java.util.List;
@@ -46,30 +45,22 @@ public class ObjectBindingPatternTreeImpl extends JavaScriptTree implements Obje
   private SyntaxToken closeCurlyBrace;
 
   public ObjectBindingPatternTreeImpl(SeparatedList<Tree> bindingElements) {
-    super(Kind.OBJECT_BINDING_PATTERN);
     this.bindingElements = bindingElements;
 
-    for (AstNode child: bindingElements.getChildren()) {
-      addChild(child);
-    }
     bindingElements.clearChildren();
   }
 
   public ObjectBindingPatternTreeImpl(InternalSyntaxToken openCurlyBrace, InternalSyntaxToken closeCurlyBrace) {
-    super(Kind.OBJECT_BINDING_PATTERN);
     this.openCurlyBrace = openCurlyBrace;
     this.bindingElements = new SeparatedList<Tree>(ListUtils.EMPTY_LIST, ListUtils.EMPTY_LIST);
     this.closeCurlyBrace = closeCurlyBrace;
 
-    addChildren(openCurlyBrace, closeCurlyBrace);
   }
 
   public ObjectBindingPatternTreeImpl complete(InternalSyntaxToken openCurlyBrace, InternalSyntaxToken closeCurlyBrace) {
     this.openCurlyBrace = openCurlyBrace;
     this.closeCurlyBrace = closeCurlyBrace;
 
-    prependChildren(openCurlyBrace);
-    addChild(closeCurlyBrace);
     return this;
   }
 

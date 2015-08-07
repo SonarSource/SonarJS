@@ -46,25 +46,20 @@ public class TryStatementTreeImpl extends JavaScriptTree implements TryStatement
 
 
   public TryStatementTreeImpl(CatchBlockTreeImpl catchBlock) {
-    super(Kind.TRY_STATEMENT);
     this.catchBlock = catchBlock;
 
-    addChildren(catchBlock);
   }
 
   public TryStatementTreeImpl(InternalSyntaxToken finallyKeyword, BlockTreeImpl finallyBlock) {
-    super(Kind.TRY_STATEMENT);
     this.finallyKeyword = finallyKeyword;
     this.finallyBlock = finallyBlock;
 
-    addChildren(finallyKeyword, finallyBlock);
   }
 
   public TryStatementTreeImpl complete(CatchBlockTreeImpl catchBlock) {
     Preconditions.checkState(this.catchBlock == null, "Catch block already completed");
     this.catchBlock = catchBlock;
 
-    prependChildren(catchBlock);
     return this;
   }
 
@@ -73,7 +68,6 @@ public class TryStatementTreeImpl extends JavaScriptTree implements TryStatement
     this.tryKeyword = tryKeyword;
     this.block = block;
 
-    prependChildren(tryKeyword, block);
     return this;
   }
 

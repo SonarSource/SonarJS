@@ -20,10 +20,9 @@
 package org.sonar.javascript.model.internal.expression;
 
 import com.google.common.collect.Iterators;
-import com.sonar.sslr.api.AstNode;
-import org.sonar.plugins.javascript.api.symbols.TypeSet;
 import org.sonar.javascript.model.internal.JavaScriptTree;
 import org.sonar.javascript.model.internal.lexical.InternalSyntaxToken;
+import org.sonar.plugins.javascript.api.symbols.TypeSet;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.ParenthesisedExpressionTree;
@@ -40,12 +39,10 @@ public class ParenthesisedExpressionTreeImpl extends JavaScriptTree implements P
   private TypeSet types = TypeSet.emptyTypeSet();
 
   public ParenthesisedExpressionTreeImpl(InternalSyntaxToken openParenthesis, ExpressionTree expression, InternalSyntaxToken closeParenthesis) {
-    super(Kind.PARENTHESISED_EXPRESSION);
     this.openParenthesis = openParenthesis;
     this.expression = expression;
     this.closeParenthesis = closeParenthesis;
 
-    addChildren(openParenthesis, (AstNode) expression, closeParenthesis);
   }
 
   @Override

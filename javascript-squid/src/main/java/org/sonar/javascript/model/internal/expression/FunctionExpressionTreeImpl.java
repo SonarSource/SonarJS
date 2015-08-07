@@ -19,17 +19,15 @@
  */
 package org.sonar.javascript.model.internal.expression;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterators;
-import com.sonar.sslr.api.AstNode;
 import com.sonar.sslr.api.AstNodeType;
 import org.sonar.javascript.ast.resolve.type.FunctionType;
-import org.sonar.plugins.javascript.api.symbols.TypeSet;
 import org.sonar.javascript.model.internal.JavaScriptTree;
 import org.sonar.javascript.model.internal.declaration.ParameterListTreeImpl;
 import org.sonar.javascript.model.internal.lexical.InternalSyntaxToken;
 import org.sonar.javascript.model.internal.statement.BlockTreeImpl;
 import org.sonar.plugins.javascript.api.symbols.Type;
+import org.sonar.plugins.javascript.api.symbols.TypeSet;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.declaration.ParameterListTree;
 import org.sonar.plugins.javascript.api.tree.expression.FunctionExpressionTree;
@@ -39,7 +37,6 @@ import org.sonar.plugins.javascript.api.visitors.TreeVisitor;
 
 import javax.annotation.Nullable;
 import java.util.Iterator;
-import java.util.List;
 
 public class FunctionExpressionTreeImpl extends JavaScriptTree implements FunctionExpressionTree {
 
@@ -57,10 +54,8 @@ public class FunctionExpressionTreeImpl extends JavaScriptTree implements Functi
    * Constructor for named generator expression and  generator declaration
    */
   public FunctionExpressionTreeImpl(Kind kind, InternalSyntaxToken functionKeyword, InternalSyntaxToken star, IdentifierTreeImpl name,
-    ParameterListTreeImpl parameters, BlockTreeImpl body,
-    List<AstNode> children) {
+    ParameterListTreeImpl parameters, BlockTreeImpl body) {
 
-    super(kind);
     this.functionKeyword = functionKeyword;
     this.star = star;
     this.name = name;
@@ -68,10 +63,6 @@ public class FunctionExpressionTreeImpl extends JavaScriptTree implements Functi
     this.body = body;
 
     this.kind = kind;
-
-    for (AstNode child : children) {
-      addChild(child);
-    }
 
     this.functionType = FunctionType.create(this);
   }
@@ -80,10 +71,8 @@ public class FunctionExpressionTreeImpl extends JavaScriptTree implements Functi
    * Constructor for NOT named generator expression
    */
   public FunctionExpressionTreeImpl(Kind kind, InternalSyntaxToken functionKeyword, InternalSyntaxToken star,
-    ParameterListTreeImpl parameters, BlockTreeImpl body,
-    ImmutableList<AstNode> children) {
+    ParameterListTreeImpl parameters, BlockTreeImpl body) {
 
-    super(kind);
     this.functionKeyword = functionKeyword;
     this.star = star;
     this.name = null;
@@ -92,9 +81,6 @@ public class FunctionExpressionTreeImpl extends JavaScriptTree implements Functi
 
     this.kind = kind;
 
-    for (AstNode child : children) {
-      addChild(child);
-    }
 
     this.functionType = FunctionType.create(this);
   }
@@ -103,10 +89,8 @@ public class FunctionExpressionTreeImpl extends JavaScriptTree implements Functi
    * Constructor for named function expression and function declaration
    */
   public FunctionExpressionTreeImpl(Kind kind, InternalSyntaxToken functionKeyword, IdentifierTreeImpl name,
-    ParameterListTreeImpl parameters, BlockTreeImpl body,
-    ImmutableList<AstNode> children) {
+    ParameterListTreeImpl parameters, BlockTreeImpl body) {
 
-    super(kind);
     this.functionKeyword = functionKeyword;
     this.star = null;
     this.name = name;
@@ -115,10 +99,6 @@ public class FunctionExpressionTreeImpl extends JavaScriptTree implements Functi
 
     this.kind = kind;
 
-    for (AstNode child : children) {
-      addChild(child);
-    }
-
     this.functionType = FunctionType.create(this);
   }
 
@@ -126,9 +106,8 @@ public class FunctionExpressionTreeImpl extends JavaScriptTree implements Functi
    * Constructor for NOT named function expression
    */
   public FunctionExpressionTreeImpl(Kind kind, InternalSyntaxToken functionKeyword, ParameterListTreeImpl parameters,
-    BlockTreeImpl body, ImmutableList<AstNode> children) {
+    BlockTreeImpl body) {
 
-    super(kind);
     this.functionKeyword = functionKeyword;
     this.star = null;
     this.name = null;
@@ -136,10 +115,6 @@ public class FunctionExpressionTreeImpl extends JavaScriptTree implements Functi
     this.body = body;
 
     this.kind = kind;
-
-    for (AstNode child : children) {
-      addChild(child);
-    }
 
     this.functionType = FunctionType.create(this);
   }

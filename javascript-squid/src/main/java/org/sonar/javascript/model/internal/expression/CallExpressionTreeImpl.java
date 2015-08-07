@@ -20,7 +20,6 @@
 package org.sonar.javascript.model.internal.expression;
 
 import com.google.common.collect.Iterators;
-import com.sonar.sslr.api.AstNode;
 import org.sonar.javascript.model.internal.JavaScriptTree;
 import org.sonar.plugins.javascript.api.symbols.Type;
 import org.sonar.plugins.javascript.api.symbols.TypeSet;
@@ -39,11 +38,9 @@ public class CallExpressionTreeImpl extends JavaScriptTree implements CallExpres
   private TypeSet types = TypeSet.emptyTypeSet();
 
   public CallExpressionTreeImpl(ExpressionTree callee, ParameterListTree arguments) {
-    super(Kind.CALL_EXPRESSION);
     this.callee = callee;
     this.arguments = arguments;
 
-    addChildren((AstNode) callee, (AstNode) arguments);
   }
 
   @Override

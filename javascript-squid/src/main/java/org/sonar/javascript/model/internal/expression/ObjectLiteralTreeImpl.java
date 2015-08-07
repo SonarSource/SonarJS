@@ -21,13 +21,12 @@ package org.sonar.javascript.model.internal.expression;
 
 import com.google.common.base.Functions;
 import com.google.common.collect.Iterators;
-import com.sonar.sslr.api.AstNode;
 import org.apache.commons.collections.ListUtils;
-import org.sonar.plugins.javascript.api.symbols.TypeSet;
 import org.sonar.javascript.model.internal.JavaScriptTree;
 import org.sonar.javascript.model.internal.SeparatedList;
 import org.sonar.javascript.model.internal.lexical.InternalSyntaxToken;
 import org.sonar.plugins.javascript.api.symbols.Type;
+import org.sonar.plugins.javascript.api.symbols.TypeSet;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.expression.ObjectLiteralTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
@@ -43,21 +42,15 @@ public class ObjectLiteralTreeImpl extends JavaScriptTree implements ObjectLiter
   private TypeSet types = TypeSet.emptyTypeSet();
 
   public ObjectLiteralTreeImpl(InternalSyntaxToken openCurlyBrace, InternalSyntaxToken closeCurlyBrace) {
-    super(Kind.OBJECT_LITERAL);
     this.openCurlyBrace = openCurlyBrace;
     this.closeCurlyBrace = closeCurlyBrace;
     this.properties = new SeparatedList<Tree>(ListUtils.EMPTY_LIST, ListUtils.EMPTY_LIST);
 
-    addChildren(openCurlyBrace, closeCurlyBrace);
   }
 
   public ObjectLiteralTreeImpl(SeparatedList<Tree> properties) {
-    super(Kind.OBJECT_LITERAL);
     this.properties = properties;
 
-    for (AstNode child : properties.getChildren()) {
-      addChild(child);
-    }
     properties.clearChildren();
   }
 
@@ -65,8 +58,6 @@ public class ObjectLiteralTreeImpl extends JavaScriptTree implements ObjectLiter
     this.openCurlyBrace = openCurlyBrace;
     this.closeCurlyBrace = closeCurlyBrace;
 
-    prependChildren(openCurlyBrace);
-    addChild(closeCurlyBrace);
     return this;
   }
 

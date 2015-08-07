@@ -19,11 +19,9 @@
  */
 package org.sonar.javascript.model.internal.declaration;
 
-import java.util.Iterator;
-
-import javax.annotation.Nullable;
-
-import org.sonar.plugins.javascript.api.visitors.TreeVisitor;
+import com.google.common.base.Preconditions;
+import com.google.common.collect.Iterators;
+import com.sonar.sslr.api.AstNode;
 import org.sonar.javascript.model.internal.JavaScriptTree;
 import org.sonar.javascript.model.internal.lexical.InternalSyntaxToken;
 import org.sonar.javascript.model.internal.statement.BlockTreeImpl;
@@ -35,10 +33,10 @@ import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 import org.sonar.plugins.javascript.api.tree.expression.LiteralTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
+import org.sonar.plugins.javascript.api.visitors.TreeVisitor;
 
-import com.google.common.base.Preconditions;
-import com.google.common.collect.Iterators;
-import com.sonar.sslr.api.AstNode;
+import javax.annotation.Nullable;
+import java.util.Iterator;
 
 public class MethodDeclarationTreeImpl extends JavaScriptTree implements GeneratorMethodDeclarationTree, AccessorMethodDeclarationTree {
 
@@ -60,23 +58,12 @@ public class MethodDeclarationTreeImpl extends JavaScriptTree implements Generat
     ParameterListTreeImpl parameters,
     BlockTreeImpl body) {
 
-    super(kind);
     this.kind = kind;
     this.starToken = starToken;
     this.accessorToken = accessorToken;
     this.name = name;
     this.parameters = parameters;
     this.body = body;
-
-    if (starToken != null) {
-      addChild(starToken);
-    }
-    if (accessorToken != null) {
-      addChild(accessorToken);
-    }
-    addChild((AstNode) name);
-    addChild(parameters);
-    addChild(body);
   }
 
   public static MethodDeclarationTreeImpl newMethodOrGenerator(@Nullable InternalSyntaxToken starToken, ExpressionTree name, ParameterListTreeImpl parameters, BlockTreeImpl body) {
@@ -89,8 +76,6 @@ public class MethodDeclarationTreeImpl extends JavaScriptTree implements Generat
 
   public MethodDeclarationTreeImpl completeWithStaticToken(InternalSyntaxToken staticToken) {
     this.staticToken = staticToken;
-
-    prependChildren(staticToken);
 
     return this;
   }

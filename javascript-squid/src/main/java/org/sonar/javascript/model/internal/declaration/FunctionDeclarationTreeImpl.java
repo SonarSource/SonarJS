@@ -47,7 +47,6 @@ public class FunctionDeclarationTreeImpl extends JavaScriptTree implements Funct
   public FunctionDeclarationTreeImpl(InternalSyntaxToken functionKeyword, InternalSyntaxToken starToken,
     IdentifierTreeImpl name, ParameterListTreeImpl parameters, BlockTreeImpl body) {
 
-    super(Kind.GENERATOR_DECLARATION);
     this.functionKeyword = functionKeyword;
     this.starToken = starToken;
     this.name = name;
@@ -55,13 +54,11 @@ public class FunctionDeclarationTreeImpl extends JavaScriptTree implements Funct
     this.body = body;
     this.kind = Kind.GENERATOR_DECLARATION;
 
-    addChildren(functionKeyword, starToken, name, parameters, body);
   }
 
   public FunctionDeclarationTreeImpl(InternalSyntaxToken functionKeyword, IdentifierTreeImpl name,
     ParameterListTreeImpl parameters, BlockTreeImpl body) {
 
-    super(Kind.FUNCTION_DECLARATION);
     this.functionKeyword = functionKeyword;
     this.starToken = null;
     this.name = name;
@@ -69,7 +66,6 @@ public class FunctionDeclarationTreeImpl extends JavaScriptTree implements Funct
     this.body = body;
     this.kind = Kind.FUNCTION_DECLARATION;
 
-    addChildren(functionKeyword, name, parameters, body);
   }
 
   @Override

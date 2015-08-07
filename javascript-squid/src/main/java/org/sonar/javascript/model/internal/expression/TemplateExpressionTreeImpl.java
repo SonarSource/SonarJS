@@ -20,10 +20,9 @@
 package org.sonar.javascript.model.internal.expression;
 
 import com.google.common.collect.Iterators;
-import com.sonar.sslr.api.AstNode;
-import org.sonar.plugins.javascript.api.symbols.TypeSet;
 import org.sonar.javascript.model.internal.JavaScriptTree;
 import org.sonar.javascript.model.internal.lexical.InternalSyntaxToken;
+import org.sonar.plugins.javascript.api.symbols.TypeSet;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.TemplateExpressionTree;
@@ -39,20 +38,11 @@ public class TemplateExpressionTreeImpl extends JavaScriptTree implements Templa
   private InternalSyntaxToken closeCurlyBrace;
   private final ExpressionTree expression;
 
-  public TemplateExpressionTreeImpl(InternalSyntaxToken dollar, InternalSyntaxToken openCurlyBrace, ExpressionTree expression) {
-    super(Kind.TEMPLATE_EXPRESSION);
+  public TemplateExpressionTreeImpl(InternalSyntaxToken dollar, InternalSyntaxToken openCurlyBrace, ExpressionTree expression, InternalSyntaxToken closeCurlyBrace) {
     this.dollar = dollar;
     this.openCurlyBrace = openCurlyBrace;
     this.expression = expression;
-
-    addChildren(dollar, openCurlyBrace, (AstNode) expression);
-  }
-
-  public TemplateExpressionTreeImpl complete(InternalSyntaxToken closeCurlyBrace) {
     this.closeCurlyBrace = closeCurlyBrace;
-
-    addChild(closeCurlyBrace);
-    return this;
   }
 
   @Override

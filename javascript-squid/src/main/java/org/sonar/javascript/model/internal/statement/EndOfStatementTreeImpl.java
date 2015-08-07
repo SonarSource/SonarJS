@@ -36,13 +36,10 @@ public class EndOfStatementTreeImpl extends JavaScriptTree implements EndOfState
   private final SyntaxToken semicolonToken;
 
   public EndOfStatementTreeImpl(InternalSyntaxToken semicolonToken) {
-    super(Kind.END_OF_STATEMENT);
     this.semicolonToken = semicolonToken;
-    addChild(semicolonToken);
   }
 
   public EndOfStatementTreeImpl() {
-    super(Kind.END_OF_STATEMENT);
     this.semicolonToken = null;
   }
 
