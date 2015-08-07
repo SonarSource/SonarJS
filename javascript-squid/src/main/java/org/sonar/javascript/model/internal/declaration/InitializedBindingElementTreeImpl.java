@@ -19,10 +19,9 @@
  */
 package org.sonar.javascript.model.internal.declaration;
 
-import java.util.Iterator;
-import java.util.List;
-
-import org.sonar.plugins.javascript.api.visitors.TreeVisitor;
+import com.google.common.collect.Iterators;
+import com.google.common.collect.Lists;
+import com.sonar.sslr.api.AstNodeType;
 import org.sonar.javascript.model.internal.JavaScriptTree;
 import org.sonar.javascript.model.internal.lexical.InternalSyntaxToken;
 import org.sonar.plugins.javascript.api.tree.Tree;
@@ -31,11 +30,10 @@ import org.sonar.plugins.javascript.api.tree.declaration.InitializedBindingEleme
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
+import org.sonar.plugins.javascript.api.visitors.TreeVisitor;
 
-import com.google.common.collect.Iterators;
-import com.google.common.collect.Lists;
-import com.sonar.sslr.api.AstNode;
-import com.sonar.sslr.api.AstNodeType;
+import java.util.Iterator;
+import java.util.List;
 
 public class InitializedBindingElementTreeImpl extends JavaScriptTree implements InitializedBindingElementTree {
 
@@ -44,18 +42,13 @@ public class InitializedBindingElementTreeImpl extends JavaScriptTree implements
   private final ExpressionTree right;
 
   public InitializedBindingElementTreeImpl(InternalSyntaxToken equalToken, ExpressionTree right) {
-    super(Kind.INITIALIZED_BINDING_ELEMENT);
-
     this.equalToken = equalToken;
     this.right = right;
-
-    addChildren(equalToken, (AstNode) right);
   }
 
   public InitializedBindingElementTreeImpl completeWithLeft(BindingElementTree left) {
     this.left = left;
 
-    prependChildren((AstNode) left);
     return this;
   }
 

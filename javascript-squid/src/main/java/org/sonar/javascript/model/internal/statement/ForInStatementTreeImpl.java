@@ -20,8 +20,6 @@
 package org.sonar.javascript.model.internal.statement;
 
 import com.google.common.collect.Iterators;
-import com.sonar.sslr.api.AstNode;
-import org.sonar.plugins.javascript.api.visitors.TreeVisitor;
 import org.sonar.javascript.model.internal.JavaScriptTree;
 import org.sonar.javascript.model.internal.lexical.InternalSyntaxToken;
 import org.sonar.plugins.javascript.api.tree.Tree;
@@ -29,6 +27,7 @@ import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.javascript.api.tree.statement.ForInStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.StatementTree;
+import org.sonar.plugins.javascript.api.visitors.TreeVisitor;
 
 import java.util.Iterator;
 
@@ -45,7 +44,6 @@ public class ForInStatementTreeImpl extends JavaScriptTree implements ForInState
   public ForInStatementTreeImpl(InternalSyntaxToken forKeyword, InternalSyntaxToken openParenthesis, Tree variableOrExpression,
     InternalSyntaxToken inKeyword, ExpressionTree expression, InternalSyntaxToken closeParenthesis, StatementTree statement) {
 
-    super(Kind.FOR_IN_STATEMENT);
     this.forKeyword = forKeyword;
     this.openParenthesis = openParenthesis;
     this.variableOrExpression = variableOrExpression;
@@ -54,7 +52,6 @@ public class ForInStatementTreeImpl extends JavaScriptTree implements ForInState
     this.closeParenthesis = closeParenthesis;
     this.statement = statement;
 
-    addChildren(forKeyword, openParenthesis, (AstNode) variableOrExpression, inKeyword, (AstNode) expression, closeParenthesis, (AstNode) statement);
   }
 
   @Override

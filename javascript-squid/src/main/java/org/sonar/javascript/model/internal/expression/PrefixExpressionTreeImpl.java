@@ -21,10 +21,9 @@ package org.sonar.javascript.model.internal.expression;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Iterators;
-import com.sonar.sslr.api.AstNode;
-import org.sonar.plugins.javascript.api.symbols.TypeSet;
 import org.sonar.javascript.model.internal.JavaScriptTree;
 import org.sonar.javascript.model.internal.lexical.InternalSyntaxToken;
+import org.sonar.plugins.javascript.api.symbols.TypeSet;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.UnaryExpressionTree;
@@ -40,12 +39,10 @@ public class PrefixExpressionTreeImpl extends JavaScriptTree implements UnaryExp
   private final ExpressionTree expression;
 
   public PrefixExpressionTreeImpl(Kind kind, InternalSyntaxToken operator, ExpressionTree expression) {
-    super(kind);
     this.kind = Preconditions.checkNotNull(kind);
     this.operator = operator;
     this.expression = Preconditions.checkNotNull(expression);
 
-    addChildren(operator, (AstNode) expression);
   }
 
   @Override

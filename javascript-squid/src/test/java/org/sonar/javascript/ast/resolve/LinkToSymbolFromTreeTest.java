@@ -19,7 +19,6 @@
  */
 package org.sonar.javascript.ast.resolve;
 
-import com.sonar.sslr.api.AstNode;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.javascript.model.JavaScriptTreeModelTest;
@@ -47,9 +46,9 @@ public class LinkToSymbolFromTreeTest extends JavaScriptTreeModelTest {
 
   @Before
   public void setUp() throws Exception {
-    AstNode ROOT_NODE = p.parse(new File("src/test/resources/ast/resolve/symbols.js"));
-    SymbolModelImpl.create((ScriptTree) ROOT_NODE, null, null, null);
-    MODULE_ITEMS = ((ScriptTree) ROOT_NODE).items().items();
+    ScriptTree ROOT_NODE = (ScriptTree) p.parse(new File("src/test/resources/ast/resolve/symbols.js"));
+    SymbolModelImpl.create( ROOT_NODE, null, null, null);
+    MODULE_ITEMS = (ROOT_NODE).items().items();
   }
 
   @Test

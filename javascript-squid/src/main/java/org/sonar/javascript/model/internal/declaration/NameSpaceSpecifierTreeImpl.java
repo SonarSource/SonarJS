@@ -39,12 +39,10 @@ public class NameSpaceSpecifierTreeImpl extends JavaScriptTree implements Specif
   private final IdentifierTree localName;
 
   public NameSpaceSpecifierTreeImpl(InternalSyntaxToken starToken, InternalSyntaxToken asToken, IdentifierTreeImpl localName) {
-    super(Kind.NAMESPACE_IMPORT_SPECIFIER);
     this.starToken = starToken;
     this.asToken = asToken;
     this.localName = localName;
 
-    addChildren(asToken, localName);
   }
 
   @Override

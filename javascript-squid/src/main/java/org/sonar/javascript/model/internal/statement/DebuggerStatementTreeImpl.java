@@ -36,12 +36,9 @@ public class DebuggerStatementTreeImpl extends JavaScriptTree implements Debugge
   private final EndOfStatementTree eos;
 
   public DebuggerStatementTreeImpl(InternalSyntaxToken debuggerKeyword, EndOfStatementTreeImpl eos) {
-    super(Kind.DEBUGGER_STATEMENT);
     this.debuggerKeyword = debuggerKeyword;
     this.eos = eos;
 
-    addChild(debuggerKeyword);
-    addChild(eos);
   }
 
   @Override

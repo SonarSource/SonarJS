@@ -20,9 +20,7 @@
 package org.sonar.javascript.model.internal.statement;
 
 import com.google.common.collect.Iterators;
-import com.sonar.sslr.api.AstNode;
 import com.sonar.sslr.api.AstNodeType;
-import org.sonar.plugins.javascript.api.visitors.TreeVisitor;
 import org.sonar.javascript.model.internal.JavaScriptTree;
 import org.sonar.javascript.model.internal.lexical.InternalSyntaxToken;
 import org.sonar.plugins.javascript.api.tree.Tree;
@@ -30,6 +28,7 @@ import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.javascript.api.tree.statement.StatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.WhileStatementTree;
+import org.sonar.plugins.javascript.api.visitors.TreeVisitor;
 
 import java.util.Iterator;
 
@@ -43,14 +42,12 @@ public class WhileStatementTreeImpl extends JavaScriptTree implements WhileState
 
   public WhileStatementTreeImpl(InternalSyntaxToken whileKeyword, InternalSyntaxToken openingParenthesis, ExpressionTree condition, InternalSyntaxToken closingParenthesis,
     StatementTree statement) {
-    super(Kind.WHILE_STATEMENT);
     this.whileKeyword = whileKeyword;
     this.openingParenthesis = openingParenthesis;
     this.condition = condition;
     this.closingParenthesis = closingParenthesis;
     this.statement = statement;
 
-    addChildren(whileKeyword, openingParenthesis, (AstNode) condition, closingParenthesis, (AstNode) statement);
   }
 
   @Override

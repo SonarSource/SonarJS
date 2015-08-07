@@ -34,10 +34,7 @@ public class ThisTreeImpl extends JavaScriptTree implements ThisTree {
   private final InternalSyntaxToken token;
 
   public ThisTreeImpl(InternalSyntaxToken token) {
-    super(Kind.THIS, token.getToken());
     this.token = token;
-
-    addChild(token);
   }
 
   @Override

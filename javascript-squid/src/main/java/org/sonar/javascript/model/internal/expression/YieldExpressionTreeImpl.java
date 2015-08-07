@@ -20,11 +20,10 @@
 package org.sonar.javascript.model.internal.expression;
 
 import com.google.common.collect.Iterators;
-import com.sonar.sslr.api.AstNode;
 import com.sonar.sslr.api.AstNodeType;
-import org.sonar.plugins.javascript.api.symbols.TypeSet;
 import org.sonar.javascript.model.internal.JavaScriptTree;
 import org.sonar.javascript.model.internal.lexical.InternalSyntaxToken;
+import org.sonar.plugins.javascript.api.symbols.TypeSet;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.YieldExpressionTree;
@@ -42,34 +41,27 @@ public class YieldExpressionTreeImpl extends JavaScriptTree implements YieldExpr
   private final ExpressionTree argument;
 
   public YieldExpressionTreeImpl(InternalSyntaxToken yieldKeyword) {
-    super(Kind.YIELD_EXPRESSION);
     this.yieldKeyword = yieldKeyword;
     this.star = null;
     this.argument = null;
 
-    addChildren(yieldKeyword);
   }
 
   public YieldExpressionTreeImpl(InternalSyntaxToken star, ExpressionTree argument) {
-    super(Kind.YIELD_EXPRESSION);
     this.star = star;
     this.argument = argument;
 
-    addChildren(star, (AstNode) argument);
   }
 
   public YieldExpressionTreeImpl(ExpressionTree argument) {
-    super(Kind.YIELD_EXPRESSION);
     this.star = null;
     this.argument = argument;
 
-    addChildren((AstNode) argument);
   }
 
   public YieldExpressionTreeImpl complete(InternalSyntaxToken yieldKeyword) {
     this.yieldKeyword = yieldKeyword;
 
-    prependChildren(yieldKeyword);
     return this;
   }
 

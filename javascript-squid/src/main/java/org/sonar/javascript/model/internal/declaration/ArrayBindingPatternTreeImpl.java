@@ -22,8 +22,7 @@ package org.sonar.javascript.model.internal.declaration;
 import com.google.common.base.Function;
 import com.google.common.collect.Iterators;
 import com.google.common.collect.Lists;
-import com.sonar.sslr.api.AstNode;
-import org.sonar.plugins.javascript.api.visitors.TreeVisitor;
+import com.sonar.sslr.api.typed.Optional;
 import org.sonar.javascript.model.internal.JavaScriptTree;
 import org.sonar.javascript.model.internal.SeparatedList;
 import org.sonar.javascript.model.internal.lexical.InternalSyntaxToken;
@@ -32,7 +31,7 @@ import org.sonar.plugins.javascript.api.tree.declaration.ArrayBindingPatternTree
 import org.sonar.plugins.javascript.api.tree.declaration.BindingElementTree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 import org.sonar.plugins.javascript.api.tree.expression.RestElementTree;
-import com.sonar.sslr.api.typed.Optional;
+import org.sonar.plugins.javascript.api.visitors.TreeVisitor;
 
 import java.util.Iterator;
 import java.util.List;
@@ -46,20 +45,11 @@ public class ArrayBindingPatternTreeImpl extends JavaScriptTree implements Array
   public ArrayBindingPatternTreeImpl(
     InternalSyntaxToken openBracketToken,
     SeparatedList<Optional<BindingElementTree>> elements,
-    List<AstNode> children,
     InternalSyntaxToken closeBracketToken) {
-
-    super(Kind.ARRAY_BINDING_PATTERN);
 
     this.openBracketToken = openBracketToken;
     this.elements = elements;
     this.closeBracketToken = closeBracketToken;
-
-    addChild(openBracketToken);
-    for (AstNode child : children) {
-      addChild(child);
-    }
-    addChild(closeBracketToken);
   }
 
   @Override

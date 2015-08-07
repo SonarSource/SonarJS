@@ -20,8 +20,6 @@
 package org.sonar.javascript.model.internal.statement;
 
 import com.google.common.collect.Iterators;
-import com.sonar.sslr.api.AstNode;
-import org.sonar.plugins.javascript.api.visitors.TreeVisitor;
 import org.sonar.javascript.model.internal.JavaScriptTree;
 import org.sonar.javascript.model.internal.lexical.InternalSyntaxToken;
 import org.sonar.plugins.javascript.api.tree.Tree;
@@ -29,6 +27,7 @@ import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.javascript.api.tree.statement.StatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.WithStatementTree;
+import org.sonar.plugins.javascript.api.visitors.TreeVisitor;
 
 import java.util.Iterator;
 
@@ -42,18 +41,12 @@ public class WithStatementTreeImpl extends JavaScriptTree implements WithStateme
 
   public WithStatementTreeImpl(InternalSyntaxToken withKeyword, InternalSyntaxToken openingParenthesis, ExpressionTree expression, InternalSyntaxToken closingParenthesis,
     StatementTree statement) {
-    super(Kind.WITH_STATEMENT);
     this.withKeyword = withKeyword;
     this.openingParenthesis = openingParenthesis;
     this.expression = expression;
     this.closingParenthesis = closingParenthesis;
     this.statement = statement;
 
-    addChild(withKeyword);
-    addChild(openingParenthesis);
-    addChild((AstNode) expression);
-    addChild(closingParenthesis);
-    addChild((AstNode) statement);
   }
 
   @Override

@@ -21,18 +21,16 @@ package org.sonar.javascript.model.internal.statement;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Iterators;
-import com.sonar.sslr.api.AstNode;
-import org.sonar.plugins.javascript.api.tree.statement.EndOfStatementTree;
-import org.sonar.plugins.javascript.api.visitors.TreeVisitor;
 import org.sonar.javascript.model.internal.JavaScriptTree;
 import org.sonar.javascript.model.internal.lexical.InternalSyntaxToken;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
+import org.sonar.plugins.javascript.api.tree.statement.EndOfStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.ReturnStatementTree;
+import org.sonar.plugins.javascript.api.visitors.TreeVisitor;
 
 import javax.annotation.Nullable;
-
 import java.util.Iterator;
 
 public class ReturnStatementTreeImpl extends JavaScriptTree implements ReturnStatementTree {
@@ -42,27 +40,18 @@ public class ReturnStatementTreeImpl extends JavaScriptTree implements ReturnSta
   private final EndOfStatementTree eos;
 
   public ReturnStatementTreeImpl(EndOfStatementTreeImpl eos) {
-    super(Kind.RETURN_STATEMENT);
     this.eos = eos;
-
-    addChild(eos);
   }
 
   public ReturnStatementTreeImpl(ExpressionTree expression, EndOfStatementTreeImpl eos) {
-    super(Kind.RETURN_STATEMENT);
-
     this.expression = expression;
     this.eos = eos;
-
-    addChild((AstNode) expression);
-    addChild(eos);
   }
 
   public ReturnStatementTreeImpl complete(InternalSyntaxToken returnKeyword) {
     Preconditions.checkState(this.returnKeyword == null, "Already completed");
     this.returnKeyword = returnKeyword;
 
-    prependChildren(returnKeyword);
     return this;
   }
 

@@ -20,10 +20,9 @@
 package org.sonar.javascript.model.internal.expression;
 
 import com.google.common.collect.Iterators;
-import com.sonar.sslr.api.AstNode;
-import org.sonar.plugins.javascript.api.symbols.TypeSet;
 import org.sonar.javascript.model.internal.JavaScriptTree;
 import org.sonar.javascript.model.internal.lexical.InternalSyntaxToken;
+import org.sonar.plugins.javascript.api.symbols.TypeSet;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.expression.ConditionalExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
@@ -41,19 +40,16 @@ public class ConditionalExpressionTreeImpl extends JavaScriptTree implements Con
   private final ExpressionTree falseExpression;
 
   public ConditionalExpressionTreeImpl(InternalSyntaxToken query, ExpressionTree trueExpression, InternalSyntaxToken colon, ExpressionTree falseExpression) {
-    super(Kind.CONDITIONAL_EXPRESSION);
     this.query = query;
     this.trueExpression = trueExpression;
     this.colon = colon;
     this.falseExpression = falseExpression;
 
-    addChildren(query, (AstNode) trueExpression, colon, (AstNode) falseExpression);
   }
 
   public ConditionalExpressionTreeImpl complete(ExpressionTree condition) {
     this.condition = condition;
 
-    prependChildren((AstNode) condition);
     return this;
   }
 

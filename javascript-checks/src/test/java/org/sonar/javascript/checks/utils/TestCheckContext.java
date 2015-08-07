@@ -21,9 +21,8 @@ package org.sonar.javascript.checks.utils;
 
 import com.google.common.base.Charsets;
 import com.sonar.sslr.api.RecognitionException;
-import com.sonar.sslr.impl.Parser;
+import com.sonar.sslr.api.typed.ActionParser;
 import org.sonar.api.config.Settings;
-import org.sonar.javascript.EcmaScriptConfiguration;
 import org.sonar.javascript.ast.resolve.SymbolModelImpl;
 import org.sonar.javascript.checks.ParsingErrorCheck;
 import org.sonar.javascript.metrics.ComplexityVisitor;
@@ -46,7 +45,7 @@ public class TestCheckContext implements AstTreeVisitorContext {
   private SymbolModel symbolModel = null;
   private ComplexityVisitor complexity;
   private Settings settings;
-  protected static final Parser p = EcmaScriptParser.create(new EcmaScriptConfiguration(Charsets.UTF_8));
+  protected static final ActionParser<Tree> p = EcmaScriptParser.createParser(Charsets.UTF_8);
 
   List<CheckMessage> issues = new LinkedList<>();
 

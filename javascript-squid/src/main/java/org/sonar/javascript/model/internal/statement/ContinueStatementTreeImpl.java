@@ -21,7 +21,6 @@ package org.sonar.javascript.model.internal.statement;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Iterators;
-import com.sonar.sslr.api.AstNode;
 import org.sonar.javascript.model.internal.JavaScriptTree;
 import org.sonar.javascript.model.internal.lexical.InternalSyntaxToken;
 import org.sonar.plugins.javascript.api.tree.Tree;
@@ -42,27 +41,20 @@ public class ContinueStatementTreeImpl extends JavaScriptTree implements Continu
   private final EndOfStatementTree eos;
 
   public ContinueStatementTreeImpl(EndOfStatementTreeImpl eos) {
-    super(Kind.CONTINUE_STATEMENT);
     this.label = null;
     this.eos = eos;
-
-    addChild(eos);
   }
 
   public ContinueStatementTreeImpl(IdentifierTree label, EndOfStatementTreeImpl eos) {
-    super(Kind.CONTINUE_STATEMENT);
     this.label = label;
     this.eos = eos;
 
-    addChild((AstNode) label);
-    addChild(eos);
   }
 
   public ContinueStatementTreeImpl complete(InternalSyntaxToken continueKeyword) {
     Preconditions.checkState(this.continueKeyword == null, "Already completed");
     this.continueKeyword = continueKeyword;
 
-    prependChildren(continueKeyword);
     return this;
   }
 

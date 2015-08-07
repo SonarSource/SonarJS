@@ -34,10 +34,8 @@ public class EmptyStatementTreeImpl extends JavaScriptTree implements EmptyState
   private final SyntaxToken semicolon;
 
   public EmptyStatementTreeImpl(InternalSyntaxToken semicolon) {
-    super(Kind.EMPTY_STATEMENT);
     this.semicolon = semicolon;
 
-    addChild(semicolon);
   }
 
   @Override

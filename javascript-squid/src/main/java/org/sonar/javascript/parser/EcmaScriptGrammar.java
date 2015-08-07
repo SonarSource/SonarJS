@@ -126,7 +126,6 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
   DOLLAR_SIGN,
   /** ECMAScript 6 **/
   BACKSLASH,
-  IDENTIFIER_NO_LB,
 
   KEYWORD,
   LETTER_OR_DIGIT,
@@ -302,7 +301,6 @@ public enum EcmaScriptGrammar implements GrammarRuleKey {
       SPACING,
       b.nextNot(KEYWORD),
       b.regexp(EcmaScriptLexer.IDENTIFIER));
-    b.rule(IDENTIFIER_NO_LB).is(SPACING_NO_LB, NEXT_NOT_LB, Kind.LABEL_IDENTIFIER).skip();
     b.rule(NUMERIC_LITERAL).is(
       SPACING,
       b.regexp(EcmaScriptLexer.NUMERIC_LITERAL));

@@ -20,8 +20,6 @@
 package org.sonar.javascript.model.internal.statement;
 
 import com.google.common.collect.Iterators;
-import com.sonar.sslr.api.AstNode;
-import org.sonar.plugins.javascript.api.visitors.TreeVisitor;
 import org.sonar.javascript.model.internal.JavaScriptTree;
 import org.sonar.javascript.model.internal.lexical.InternalSyntaxToken;
 import org.sonar.plugins.javascript.api.tree.Tree;
@@ -29,6 +27,7 @@ import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.javascript.api.tree.statement.LabelledStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.StatementTree;
+import org.sonar.plugins.javascript.api.visitors.TreeVisitor;
 
 import java.util.Iterator;
 
@@ -39,14 +38,9 @@ public class LabelledStatementTreeImpl extends JavaScriptTree implements Labelle
   private final StatementTree statement;
 
   public LabelledStatementTreeImpl(IdentifierTree label, InternalSyntaxToken colon, StatementTree statement) {
-    super(Kind.LABELLED_STATEMENT);
     this.label = label;
     this.colon = colon;
     this.statement = statement;
-
-    addChild((AstNode) label);
-    addChild(colon);
-    addChild((AstNode) statement);
   }
 
   @Override

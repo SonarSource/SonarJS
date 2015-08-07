@@ -19,7 +19,6 @@
  */
 package org.sonar.javascript.ast.resolve;
 
-import com.sonar.sslr.api.AstNode;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.javascript.model.JavaScriptTreeModelTest;
@@ -34,7 +33,7 @@ import static org.junit.Assert.assertNotNull;
 
 public class ScopeTest extends JavaScriptTreeModelTest {
 
-  private AstNode ROOT_NODE;
+  private ScriptTree ROOT_NODE;
   private SymbolModelImpl SYMBOL_MODEL;
 
   private Scope getScopeFor(Tree.Kind kind){
@@ -48,8 +47,8 @@ public class ScopeTest extends JavaScriptTreeModelTest {
 
   @Before
   public void setUp() throws Exception {
-    ROOT_NODE = p.parse(new File("src/test/resources/ast/resolve/scope.js"));
-    SYMBOL_MODEL = SymbolModelImpl.create((ScriptTree) ROOT_NODE, null, null, null);
+    ROOT_NODE = (ScriptTree) p.parse(new File("src/test/resources/ast/resolve/scope.js"));
+    SYMBOL_MODEL = SymbolModelImpl.create(ROOT_NODE, null, null, null);
   }
 
   @Test

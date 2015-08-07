@@ -20,7 +20,6 @@
 package org.sonar.javascript.model.internal.statement;
 
 import com.google.common.collect.Iterators;
-import com.sonar.sslr.api.AstNode;
 import org.sonar.plugins.javascript.api.visitors.TreeVisitor;
 import org.sonar.javascript.model.internal.JavaScriptTree;
 import org.sonar.javascript.model.internal.lexical.InternalSyntaxToken;
@@ -44,7 +43,6 @@ public class ForOfStatementTreeImpl extends JavaScriptTree implements ForOfState
 
   public ForOfStatementTreeImpl(InternalSyntaxToken forKeyword, InternalSyntaxToken openParenthesis, Tree variableOrExpression,
                                 InternalSyntaxToken ofKeyword, ExpressionTree expression, InternalSyntaxToken closeParenthesis, StatementTree statement) {
-    super(Kind.FOR_OF_STATEMENT);
     this.forKeyword = forKeyword;
     this.openParenthesis = openParenthesis;
     this.variableOrExpression = variableOrExpression;
@@ -53,7 +51,6 @@ public class ForOfStatementTreeImpl extends JavaScriptTree implements ForOfState
     this.closeParenthesis = closeParenthesis;
     this.statement = statement;
 
-    addChildren(forKeyword, openParenthesis, (AstNode) variableOrExpression, ofKeyword, (AstNode) expression, closeParenthesis, (AstNode) statement);
   }
 
   @Override

@@ -20,10 +20,9 @@
 package org.sonar.javascript.model.internal.expression;
 
 import com.google.common.collect.Iterators;
-import com.sonar.sslr.api.AstNode;
-import org.sonar.plugins.javascript.api.symbols.TypeSet;
 import org.sonar.javascript.model.internal.JavaScriptTree;
 import org.sonar.javascript.model.internal.lexical.InternalSyntaxToken;
+import org.sonar.plugins.javascript.api.symbols.TypeSet;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.expression.AssignmentExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
@@ -40,13 +39,11 @@ public class AssignmentExpressionTreeImpl extends JavaScriptTree implements Assi
   private final Kind kind;
 
   public AssignmentExpressionTreeImpl(Kind kind, ExpressionTree variable, InternalSyntaxToken operator, ExpressionTree expression) {
-    super(kind);
     this.variable = variable;
     this.operator = operator;
     this.expression = expression;
     this.kind = kind;
 
-    addChildren((AstNode) variable, operator, (AstNode) expression);
   }
 
   @Override

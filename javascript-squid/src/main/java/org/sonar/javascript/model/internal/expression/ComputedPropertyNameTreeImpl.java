@@ -20,10 +20,9 @@
 package org.sonar.javascript.model.internal.expression;
 
 import com.google.common.collect.Iterators;
-import com.sonar.sslr.api.AstNode;
-import org.sonar.plugins.javascript.api.symbols.TypeSet;
 import org.sonar.javascript.model.internal.JavaScriptTree;
 import org.sonar.javascript.model.internal.lexical.InternalSyntaxToken;
+import org.sonar.plugins.javascript.api.symbols.TypeSet;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.expression.ComputedPropertyNameTree;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
@@ -39,12 +38,10 @@ public class ComputedPropertyNameTreeImpl extends JavaScriptTree implements Comp
   private final SyntaxToken closeBracket;
 
   public ComputedPropertyNameTreeImpl(InternalSyntaxToken openBracket, ExpressionTree expression, InternalSyntaxToken closeBracket) {
-    super(Kind.COMPUTED_PROPERTY_NAME);
     this.openBracket = openBracket;
     this.expression = expression;
     this.closeBracket = closeBracket;
 
-    addChildren(openBracket, (AstNode) expression, closeBracket);
   }
 
   @Override

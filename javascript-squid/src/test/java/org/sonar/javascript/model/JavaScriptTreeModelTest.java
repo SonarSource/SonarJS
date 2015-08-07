@@ -20,24 +20,19 @@
 package org.sonar.javascript.model;
 
 import com.google.common.base.Charsets;
-import com.google.common.collect.ImmutableList;
-import com.sonar.sslr.api.AstNode;
-import com.sonar.sslr.api.Token;
-import com.sonar.sslr.impl.Parser;
-import org.sonar.javascript.EcmaScriptConfiguration;
-import org.sonar.javascript.ast.visitors.SubscriptionAstTreeVisitor;
+import com.sonar.sslr.api.typed.ActionParser;
+import org.sonar.javascript.model.internal.JavaScriptTree;
 import org.sonar.javascript.parser.EcmaScriptParser;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
-import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 
-import java.util.List;
+import java.util.Iterator;
 
 import static org.fest.assertions.Assertions.assertThat;
 
 public abstract class JavaScriptTreeModelTest {
 
-  protected static final Parser p = EcmaScriptParser.create(new EcmaScriptConfiguration(Charsets.UTF_8));
+  protected final ActionParser<Tree> p = EcmaScriptParser.createParser(Charsets.UTF_8);
 
   /**
    * Parse the given string and return the first descendant of the given kind.
@@ -48,65 +43,39 @@ public abstract class JavaScriptTreeModelTest {
    * @return the node found for the given kind, null if not found.
    */
   protected <T extends Tree> T parse(String s, Kind descendantToReturn) throws Exception {
-    AstNode node = p.parse(s);
-    checkFullFidelity((Tree) node, s);
-    return (T) (node.is(descendantToReturn) ? node : node.getFirstDescendant(descendantToReturn));
+    Tree node = p.parse(s);
+    checkFullFidelity(node, s);
+    return (T) getFirstDescendant((JavaScriptTree) node, descendantToReturn);
+  }
+
+  private Tree getFirstDescendant(JavaScriptTree node, Kind descendantToReturn) {
+    if (node.is(descendantToReturn)) {
+      return node;
+    }
+    if (node.isLeaf()) {
+      return null;
+    }
+    Iterator<Tree> childrenIterator = node.childrenIterator();
+    while (childrenIterator.hasNext()) {
+      Tree child = childrenIterator.next();
+      if (child != null) {
+        Tree childDescendant = getFirstDescendant((JavaScriptTree) child, descendantToReturn);
+        if (childDescendant != null) {
+          return childDescendant;
+        }
+      }
+    }
+    return null;
   }
 
   /**
-   * Return the concatenation of all the given node tokens value, with a space between each token.
+   * Return the concatenation of all the given node tokens value.
    */
   protected String expressionToString(Tree node) {
-    StringBuilder builder = new StringBuilder();
-    for (Token t : ((AstNode) node).getTokens()) {
-      builder.append(t.getValue() + " ");
-    }
-    return builder.toString().trim();
+    return SourceBuilder.build(node).trim();
   }
 
-  private void checkFullFidelity(Tree tree, String s) {
+  private static void checkFullFidelity(Tree tree, String s) {
     assertThat(SourceBuilder.build(tree)).isEqualTo(s);
-  }
-
-  private static class SourceBuilder extends SubscriptionAstTreeVisitor {
-
-    private final StringBuilder stringBuilder = new StringBuilder();
-    private int line = 1;
-    private int column = 0;
-
-    public static String build(Tree tree) {
-      SourceBuilder writer = new SourceBuilder();
-      writer.scanTree(tree);
-      return writer.stringBuilder.toString();
-    }
-
-    @Override
-    public List<Kind> nodesToVisit() {
-      return ImmutableList.of(Tree.Kind.TOKEN);
-    }
-
-    @Override
-    public void visitNode(Tree tree) {
-      SyntaxToken token = (SyntaxToken) tree;
-      int linesToInsert = token.line() - line;
-      if (linesToInsert < 0) {
-        throw new IllegalStateException("Illegal token line for " + token);
-      } else if (linesToInsert > 0) {
-        for (int i = 0; i < linesToInsert; i++) {
-          stringBuilder.append("\n");
-          line++;
-        }
-        column = 0;
-      }
-      int spacesToInsert = token.column() - column;
-      for (int i = 0; i < spacesToInsert; i++) {
-        stringBuilder.append(' ');
-        column++;
-      }
-      String text = token.text();
-      stringBuilder.append(text);
-      column += text.length();
-    }
-
   }
 }

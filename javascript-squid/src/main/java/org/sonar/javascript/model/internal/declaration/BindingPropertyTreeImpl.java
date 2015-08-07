@@ -20,8 +20,6 @@
 package org.sonar.javascript.model.internal.declaration;
 
 import com.google.common.collect.Iterators;
-import com.sonar.sslr.api.AstNode;
-import org.sonar.plugins.javascript.api.visitors.TreeVisitor;
 import org.sonar.javascript.model.internal.JavaScriptTree;
 import org.sonar.javascript.model.internal.lexical.InternalSyntaxToken;
 import org.sonar.plugins.javascript.api.tree.Tree;
@@ -29,6 +27,7 @@ import org.sonar.plugins.javascript.api.tree.declaration.BindingElementTree;
 import org.sonar.plugins.javascript.api.tree.declaration.BindingPropertyTree;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
+import org.sonar.plugins.javascript.api.visitors.TreeVisitor;
 
 import java.util.Iterator;
 
@@ -39,12 +38,9 @@ public class BindingPropertyTreeImpl extends JavaScriptTree implements BindingPr
   private final BindingElementTree value;
 
   public BindingPropertyTreeImpl(ExpressionTree name, InternalSyntaxToken colonToken, BindingElementTree value) {
-    super(Kind.BINDING_PROPERTY);
     this.name = name;
     this.colonToken = colonToken;
     this.value = value;
-
-    addChildren((AstNode) name, colonToken, (AstNode) value);
   }
 
   @Override

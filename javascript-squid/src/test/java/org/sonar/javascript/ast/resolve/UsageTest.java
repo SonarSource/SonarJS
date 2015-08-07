@@ -19,14 +19,13 @@
  */
 package org.sonar.javascript.ast.resolve;
 
-import com.sonar.sslr.api.AstNode;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.javascript.model.JavaScriptTreeModelTest;
 import org.sonar.plugins.javascript.api.symbols.Symbol;
 import org.sonar.plugins.javascript.api.symbols.Usage;
-import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
+import org.sonar.plugins.javascript.api.tree.Tree;
 
 import java.io.File;
 import java.util.Collection;
@@ -36,13 +35,13 @@ import static org.fest.assertions.Assertions.assertThat;
 
 public class UsageTest extends JavaScriptTreeModelTest {
 
-  private AstNode ROOT_NODE;
+  private ScriptTree ROOT_NODE;
   private SymbolModelImpl SYMBOL_MODEL;
 
   @Before
   public void setUp() throws Exception {
-    ROOT_NODE = p.parse(new File("src/test/resources/ast/resolve/usage.js"));
-    SYMBOL_MODEL = SymbolModelImpl.create((ScriptTree) ROOT_NODE, null, null, null);
+    ROOT_NODE = (ScriptTree) p.parse(new File("src/test/resources/ast/resolve/usage.js"));
+    SYMBOL_MODEL = SymbolModelImpl.create(ROOT_NODE, null, null, null);
   }
 
   @Test

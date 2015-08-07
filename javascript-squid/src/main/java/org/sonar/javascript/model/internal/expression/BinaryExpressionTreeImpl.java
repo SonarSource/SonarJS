@@ -21,10 +21,9 @@ package org.sonar.javascript.model.internal.expression;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Iterators;
-import com.sonar.sslr.api.AstNode;
-import org.sonar.plugins.javascript.api.symbols.TypeSet;
 import org.sonar.javascript.model.internal.JavaScriptTree;
 import org.sonar.javascript.model.internal.lexical.InternalSyntaxToken;
+import org.sonar.plugins.javascript.api.symbols.TypeSet;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.expression.BinaryExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
@@ -41,13 +40,11 @@ public class BinaryExpressionTreeImpl extends JavaScriptTree implements BinaryEx
   private final Kind kind;
 
   public BinaryExpressionTreeImpl(Kind kind, ExpressionTree leftOperand, InternalSyntaxToken operand, ExpressionTree rightOperand) {
-    super(kind);
     this.leftOperand = Preconditions.checkNotNull(leftOperand);
     this.operand = operand;
     this.rightOperand = Preconditions.checkNotNull(rightOperand);
     this.kind = Preconditions.checkNotNull(kind);
 
-    addChildren((AstNode) leftOperand, operand, (AstNode) rightOperand);
   }
 
   @Override

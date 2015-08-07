@@ -21,15 +21,14 @@ package org.sonar.javascript.model.internal.statement;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Iterators;
-import com.sonar.sslr.api.AstNode;
-import org.sonar.plugins.javascript.api.tree.statement.EndOfStatementTree;
-import org.sonar.plugins.javascript.api.visitors.TreeVisitor;
 import org.sonar.javascript.model.internal.JavaScriptTree;
 import org.sonar.javascript.model.internal.lexical.InternalSyntaxToken;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.javascript.api.tree.statement.BreakStatementTree;
+import org.sonar.plugins.javascript.api.tree.statement.EndOfStatementTree;
+import org.sonar.plugins.javascript.api.visitors.TreeVisitor;
 
 import javax.annotation.Nullable;
 import java.util.Iterator;
@@ -42,27 +41,19 @@ public class BreakStatementTreeImpl extends JavaScriptTree implements BreakState
   private final EndOfStatementTree eos;
 
   public BreakStatementTreeImpl(EndOfStatementTreeImpl eos) {
-    super(Kind.BREAK_STATEMENT);
     this.label = null;
     this.eos = eos;
-
-    addChild(eos);
   }
 
   public BreakStatementTreeImpl(IdentifierTree label, EndOfStatementTreeImpl eos) {
-    super(Kind.BREAK_STATEMENT);
     this.label = label;
     this.eos = eos;
-
-    addChild((AstNode) label);
-    addChild(eos);
   }
 
   public BreakStatementTreeImpl complete(InternalSyntaxToken breakKeyword) {
     Preconditions.checkState(this.breakKeyword == null, "Already completed");
     this.breakKeyword = breakKeyword;
 
-    prependChildren(breakKeyword);
     return this;
   }
 

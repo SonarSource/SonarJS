@@ -20,15 +20,14 @@
 package org.sonar.javascript.model.internal.statement;
 
 import com.google.common.collect.Iterators;
-import com.sonar.sslr.api.AstNode;
 import com.sonar.sslr.api.AstNodeType;
-import org.sonar.plugins.javascript.api.visitors.TreeVisitor;
 import org.sonar.javascript.model.internal.JavaScriptTree;
 import org.sonar.javascript.model.internal.lexical.InternalSyntaxToken;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.javascript.api.tree.statement.ElseClauseTree;
 import org.sonar.plugins.javascript.api.tree.statement.StatementTree;
+import org.sonar.plugins.javascript.api.visitors.TreeVisitor;
 
 import javax.annotation.Nullable;
 import java.util.Iterator;
@@ -39,11 +38,9 @@ public class ElseClauseTreeImpl extends JavaScriptTree implements ElseClauseTree
   private final StatementTree statement;
 
   public ElseClauseTreeImpl(InternalSyntaxToken elseKeyword, StatementTree statement) {
-    super(Kind.ELSE_CLAUSE);
     this.elseKeyword = elseKeyword;
     this.statement = statement;
 
-    addChildren(elseKeyword, (AstNode) statement);
   }
 
   @Override

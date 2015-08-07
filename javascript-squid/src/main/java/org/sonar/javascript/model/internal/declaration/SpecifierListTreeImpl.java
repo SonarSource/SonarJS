@@ -21,8 +21,6 @@ package org.sonar.javascript.model.internal.declaration;
 
 import com.google.common.base.Functions;
 import com.google.common.collect.Iterators;
-import com.sonar.sslr.api.AstNode;
-import org.sonar.plugins.javascript.api.visitors.TreeVisitor;
 import org.sonar.javascript.model.internal.JavaScriptTree;
 import org.sonar.javascript.model.internal.SeparatedList;
 import org.sonar.javascript.model.internal.lexical.InternalSyntaxToken;
@@ -30,9 +28,9 @@ import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.declaration.SpecifierListTree;
 import org.sonar.plugins.javascript.api.tree.declaration.SpecifierTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
+import org.sonar.plugins.javascript.api.visitors.TreeVisitor;
 
 import java.util.Iterator;
-import java.util.List;
 
 public class SpecifierListTreeImpl extends JavaScriptTree implements SpecifierListTree {
 
@@ -42,32 +40,22 @@ public class SpecifierListTreeImpl extends JavaScriptTree implements SpecifierLi
   private final Kind kind;
 
   public SpecifierListTreeImpl(Kind kind, InternalSyntaxToken openCurlyBraceToken, InternalSyntaxToken closeCurlyBraceToken) {
-    super(kind);
     this.kind = kind;
     this.openCurlyBraceToken = openCurlyBraceToken;
     this.specifiers = null;
     this.closeCurlyBraceToken = closeCurlyBraceToken;
 
-    addChildren(openCurlyBraceToken, closeCurlyBraceToken);
   }
 
-  public SpecifierListTreeImpl(Kind kind, SeparatedList<SpecifierTree> specifiers, List<AstNode> children) {
-    super(kind);
+  public SpecifierListTreeImpl(Kind kind, SeparatedList<SpecifierTree> specifiers) {
     this.kind = kind;
     this.specifiers = specifiers;
-
-    for (AstNode child : children) {
-      addChild(child);
-    }
 
   }
 
   public SpecifierListTreeImpl complete(InternalSyntaxToken openCurlyBraceToken, InternalSyntaxToken closeCurlyBraceToken) {
     this.openCurlyBraceToken = openCurlyBraceToken;
     this.closeCurlyBraceToken = closeCurlyBraceToken;
-
-    prependChildren(openCurlyBraceToken);
-    addChild(closeCurlyBraceToken);
     return this;
   }
 

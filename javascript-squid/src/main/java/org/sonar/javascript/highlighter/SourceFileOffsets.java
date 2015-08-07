@@ -19,14 +19,15 @@
  */
 package org.sonar.javascript.highlighter;
 
+import com.google.common.collect.Lists;
+import com.google.common.io.Files;
+import com.sonar.sslr.api.Token;
+import org.sonar.javascript.model.internal.lexical.InternalSyntaxToken;
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.List;
-
-import com.google.common.collect.Lists;
-import com.google.common.io.Files;
-import com.sonar.sslr.api.Token;
 
 public class SourceFileOffsets {
   private final int length;
@@ -73,7 +74,17 @@ public class SourceFileOffsets {
     return lineStartOffset + column;
   }
 
+  public int startOffset(InternalSyntaxToken token) {
+    int lineStartOffset = lineStartOffsets.get(token.line() - 1);
+    int column = token.column();
+    return lineStartOffset + column;
+  }
+
   public int endOffset(Token token) {
     return startOffset(token) + token.getValue().length();
+  }
+
+  public int endOffset(InternalSyntaxToken token) {
+    return startOffset(token) + token.text().length();
   }
 }

@@ -19,15 +19,17 @@
  */
 package org.sonar.javascript.ast.parser;
 
-import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Iterators;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.sonar.sslr.api.AstNode;
 import com.sonar.sslr.api.AstNodeType;
+import com.sonar.sslr.api.typed.Optional;
 import org.apache.commons.collections.ListUtils;
 import org.sonar.javascript.api.EcmaScriptKeyword;
 import org.sonar.javascript.api.EcmaScriptPunctuator;
+import org.sonar.javascript.model.internal.JavaScriptTree;
 import org.sonar.javascript.model.internal.SeparatedList;
 import org.sonar.javascript.model.internal.declaration.ArrayBindingPatternTreeImpl;
 import org.sonar.javascript.model.internal.declaration.BindingPropertyTreeImpl;
@@ -117,129 +119,110 @@ import org.sonar.plugins.javascript.api.tree.declaration.SpecifierTree;
 import org.sonar.plugins.javascript.api.tree.expression.BracketMemberExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.MemberExpressionTree;
+import org.sonar.plugins.javascript.api.tree.expression.TemplateCharactersTree;
+import org.sonar.plugins.javascript.api.tree.expression.TemplateExpressionTree;
+import org.sonar.plugins.javascript.api.tree.expression.TemplateLiteralTree;
 import org.sonar.plugins.javascript.api.tree.statement.StatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.SwitchClauseTree;
-import com.sonar.sslr.api.typed.Optional;
+import org.sonar.plugins.javascript.api.visitors.TreeVisitor;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
 public class TreeFactory {
 
-  private static final Map<EcmaScriptPunctuator, Kind> EXPRESSION_KIND_BY_PUNCTUATORS = Maps.newEnumMap(EcmaScriptPunctuator.class);
+  private static final Map<String, Kind> EXPRESSION_KIND_BY_VALUE = new HashMap<>();
 
   static {
-    EXPRESSION_KIND_BY_PUNCTUATORS.put(EcmaScriptPunctuator.OROR, Kind.CONDITIONAL_OR);
-    EXPRESSION_KIND_BY_PUNCTUATORS.put(EcmaScriptPunctuator.ANDAND, Kind.CONDITIONAL_AND);
-    EXPRESSION_KIND_BY_PUNCTUATORS.put(EcmaScriptPunctuator.OR, Kind.BITWISE_OR);
-    EXPRESSION_KIND_BY_PUNCTUATORS.put(EcmaScriptPunctuator.XOR, Kind.BITWISE_XOR);
-    EXPRESSION_KIND_BY_PUNCTUATORS.put(EcmaScriptPunctuator.AND, Kind.BITWISE_AND);
-    EXPRESSION_KIND_BY_PUNCTUATORS.put(EcmaScriptPunctuator.EQUAL, Kind.EQUAL_TO);
-    EXPRESSION_KIND_BY_PUNCTUATORS.put(EcmaScriptPunctuator.NOTEQUAL, Kind.NOT_EQUAL_TO);
-    EXPRESSION_KIND_BY_PUNCTUATORS.put(EcmaScriptPunctuator.EQUAL2, Kind.STRICT_EQUAL_TO);
-    EXPRESSION_KIND_BY_PUNCTUATORS.put(EcmaScriptPunctuator.NOTEQUAL2, Kind.STRICT_NOT_EQUAL_TO);
-    EXPRESSION_KIND_BY_PUNCTUATORS.put(EcmaScriptPunctuator.LT, Kind.LESS_THAN);
-    EXPRESSION_KIND_BY_PUNCTUATORS.put(EcmaScriptPunctuator.GT, Kind.GREATER_THAN);
-    EXPRESSION_KIND_BY_PUNCTUATORS.put(EcmaScriptPunctuator.LE, Kind.LESS_THAN_OR_EQUAL_TO);
-    EXPRESSION_KIND_BY_PUNCTUATORS.put(EcmaScriptPunctuator.GE, Kind.GREATER_THAN_OR_EQUAL_TO);
-    EXPRESSION_KIND_BY_PUNCTUATORS.put(EcmaScriptPunctuator.SL, Kind.LEFT_SHIFT);
-    EXPRESSION_KIND_BY_PUNCTUATORS.put(EcmaScriptPunctuator.SR, Kind.RIGHT_SHIFT);
-    EXPRESSION_KIND_BY_PUNCTUATORS.put(EcmaScriptPunctuator.SR2, Kind.UNSIGNED_RIGHT_SHIFT);
-    EXPRESSION_KIND_BY_PUNCTUATORS.put(EcmaScriptPunctuator.PLUS, Kind.PLUS);
-    EXPRESSION_KIND_BY_PUNCTUATORS.put(EcmaScriptPunctuator.MINUS, Kind.MINUS);
-    EXPRESSION_KIND_BY_PUNCTUATORS.put(EcmaScriptPunctuator.STAR, Kind.MULTIPLY);
-    EXPRESSION_KIND_BY_PUNCTUATORS.put(EcmaScriptPunctuator.DIV, Kind.DIVIDE);
-    EXPRESSION_KIND_BY_PUNCTUATORS.put(EcmaScriptPunctuator.MOD, Kind.REMAINDER);
-    EXPRESSION_KIND_BY_PUNCTUATORS.put(EcmaScriptPunctuator.EQU, Kind.ASSIGNMENT);
-    EXPRESSION_KIND_BY_PUNCTUATORS.put(EcmaScriptPunctuator.STAR_EQU, Kind.MULTIPLY_ASSIGNMENT);
-    EXPRESSION_KIND_BY_PUNCTUATORS.put(EcmaScriptPunctuator.DIV_EQU, Kind.DIVIDE_ASSIGNMENT);
-    EXPRESSION_KIND_BY_PUNCTUATORS.put(EcmaScriptPunctuator.MOD_EQU, Kind.REMAINDER_ASSIGNMENT);
-    EXPRESSION_KIND_BY_PUNCTUATORS.put(EcmaScriptPunctuator.PLUS_EQU, Kind.PLUS_ASSIGNMENT);
-    EXPRESSION_KIND_BY_PUNCTUATORS.put(EcmaScriptPunctuator.MINUS_EQU, Kind.MINUS_ASSIGNMENT);
-    EXPRESSION_KIND_BY_PUNCTUATORS.put(EcmaScriptPunctuator.SL_EQU, Kind.LEFT_SHIFT_ASSIGNMENT);
-    EXPRESSION_KIND_BY_PUNCTUATORS.put(EcmaScriptPunctuator.SR_EQU, Kind.RIGHT_SHIFT_ASSIGNMENT);
-    EXPRESSION_KIND_BY_PUNCTUATORS.put(EcmaScriptPunctuator.SR_EQU2, Kind.UNSIGNED_RIGHT_SHIFT_ASSIGNMENT);
-    EXPRESSION_KIND_BY_PUNCTUATORS.put(EcmaScriptPunctuator.AND_EQU, Kind.AND_ASSIGNMENT);
-    EXPRESSION_KIND_BY_PUNCTUATORS.put(EcmaScriptPunctuator.XOR_EQU, Kind.XOR_ASSIGNMENT);
-    EXPRESSION_KIND_BY_PUNCTUATORS.put(EcmaScriptPunctuator.OR_EQU, Kind.OR_ASSIGNMENT);
-    EXPRESSION_KIND_BY_PUNCTUATORS.put(EcmaScriptPunctuator.COMMA, Kind.COMMA_OPERATOR);
+    EXPRESSION_KIND_BY_VALUE.put(EcmaScriptPunctuator.OROR.getValue(), Kind.CONDITIONAL_OR);
+    EXPRESSION_KIND_BY_VALUE.put(EcmaScriptPunctuator.ANDAND.getValue(), Kind.CONDITIONAL_AND);
+    EXPRESSION_KIND_BY_VALUE.put(EcmaScriptPunctuator.OR.getValue(), Kind.BITWISE_OR);
+    EXPRESSION_KIND_BY_VALUE.put(EcmaScriptPunctuator.XOR.getValue(), Kind.BITWISE_XOR);
+    EXPRESSION_KIND_BY_VALUE.put(EcmaScriptPunctuator.AND.getValue(), Kind.BITWISE_AND);
+    EXPRESSION_KIND_BY_VALUE.put(EcmaScriptPunctuator.EQUAL.getValue(), Kind.EQUAL_TO);
+    EXPRESSION_KIND_BY_VALUE.put(EcmaScriptPunctuator.NOTEQUAL.getValue(), Kind.NOT_EQUAL_TO);
+    EXPRESSION_KIND_BY_VALUE.put(EcmaScriptPunctuator.EQUAL2.getValue(), Kind.STRICT_EQUAL_TO);
+    EXPRESSION_KIND_BY_VALUE.put(EcmaScriptPunctuator.NOTEQUAL2.getValue(), Kind.STRICT_NOT_EQUAL_TO);
+    EXPRESSION_KIND_BY_VALUE.put(EcmaScriptPunctuator.LT.getValue(), Kind.LESS_THAN);
+    EXPRESSION_KIND_BY_VALUE.put(EcmaScriptPunctuator.GT.getValue(), Kind.GREATER_THAN);
+    EXPRESSION_KIND_BY_VALUE.put(EcmaScriptPunctuator.LE.getValue(), Kind.LESS_THAN_OR_EQUAL_TO);
+    EXPRESSION_KIND_BY_VALUE.put(EcmaScriptPunctuator.GE.getValue(), Kind.GREATER_THAN_OR_EQUAL_TO);
+    EXPRESSION_KIND_BY_VALUE.put(EcmaScriptPunctuator.SL.getValue(), Kind.LEFT_SHIFT);
+    EXPRESSION_KIND_BY_VALUE.put(EcmaScriptPunctuator.SR.getValue(), Kind.RIGHT_SHIFT);
+    EXPRESSION_KIND_BY_VALUE.put(EcmaScriptPunctuator.SR2.getValue(), Kind.UNSIGNED_RIGHT_SHIFT);
+    EXPRESSION_KIND_BY_VALUE.put(EcmaScriptPunctuator.PLUS.getValue(), Kind.PLUS);
+    EXPRESSION_KIND_BY_VALUE.put(EcmaScriptPunctuator.MINUS.getValue(), Kind.MINUS);
+    EXPRESSION_KIND_BY_VALUE.put(EcmaScriptPunctuator.STAR.getValue(), Kind.MULTIPLY);
+    EXPRESSION_KIND_BY_VALUE.put(EcmaScriptPunctuator.DIV.getValue(), Kind.DIVIDE);
+    EXPRESSION_KIND_BY_VALUE.put(EcmaScriptPunctuator.MOD.getValue(), Kind.REMAINDER);
+    EXPRESSION_KIND_BY_VALUE.put(EcmaScriptPunctuator.EQU.getValue(), Kind.ASSIGNMENT);
+    EXPRESSION_KIND_BY_VALUE.put(EcmaScriptPunctuator.STAR_EQU.getValue(), Kind.MULTIPLY_ASSIGNMENT);
+    EXPRESSION_KIND_BY_VALUE.put(EcmaScriptPunctuator.DIV_EQU.getValue(), Kind.DIVIDE_ASSIGNMENT);
+    EXPRESSION_KIND_BY_VALUE.put(EcmaScriptPunctuator.MOD_EQU.getValue(), Kind.REMAINDER_ASSIGNMENT);
+    EXPRESSION_KIND_BY_VALUE.put(EcmaScriptPunctuator.PLUS_EQU.getValue(), Kind.PLUS_ASSIGNMENT);
+    EXPRESSION_KIND_BY_VALUE.put(EcmaScriptPunctuator.MINUS_EQU.getValue(), Kind.MINUS_ASSIGNMENT);
+    EXPRESSION_KIND_BY_VALUE.put(EcmaScriptPunctuator.SL_EQU.getValue(), Kind.LEFT_SHIFT_ASSIGNMENT);
+    EXPRESSION_KIND_BY_VALUE.put(EcmaScriptPunctuator.SR_EQU.getValue(), Kind.RIGHT_SHIFT_ASSIGNMENT);
+    EXPRESSION_KIND_BY_VALUE.put(EcmaScriptPunctuator.SR_EQU2.getValue(), Kind.UNSIGNED_RIGHT_SHIFT_ASSIGNMENT);
+    EXPRESSION_KIND_BY_VALUE.put(EcmaScriptPunctuator.AND_EQU.getValue(), Kind.AND_ASSIGNMENT);
+    EXPRESSION_KIND_BY_VALUE.put(EcmaScriptPunctuator.XOR_EQU.getValue(), Kind.XOR_ASSIGNMENT);
+    EXPRESSION_KIND_BY_VALUE.put(EcmaScriptPunctuator.OR_EQU.getValue(), Kind.OR_ASSIGNMENT);
+    EXPRESSION_KIND_BY_VALUE.put(EcmaScriptPunctuator.COMMA.getValue(), Kind.COMMA_OPERATOR);
+    EXPRESSION_KIND_BY_VALUE.put(EcmaScriptKeyword.INSTANCEOF.getValue(), Kind.INSTANCE_OF);
+    EXPRESSION_KIND_BY_VALUE.put(EcmaScriptKeyword.IN.getValue(), Kind.RELATIONAL_IN);
   }
 
-  private static final Map<EcmaScriptKeyword, Kind> EXPRESSION_KIND_BY_KEYWORDS = Maps.newEnumMap(EcmaScriptKeyword.class);
+  private static final Map<String, Kind> PREFIX_KIND_BY_VALUE = ImmutableMap.<String, Tree.Kind>builder()
+    .put(EcmaScriptPunctuator.INC.getValue(), Kind.PREFIX_INCREMENT)
+    .put(EcmaScriptPunctuator.DEC.getValue(), Kind.PREFIX_DECREMENT)
+    .put(EcmaScriptPunctuator.PLUS.getValue(), Kind.UNARY_PLUS)
+    .put(EcmaScriptPunctuator.MINUS.getValue(), Kind.UNARY_MINUS)
+    .put(EcmaScriptPunctuator.TILDA.getValue(), Kind.BITWISE_COMPLEMENT)
+    .put(EcmaScriptPunctuator.BANG.getValue(), Kind.LOGICAL_COMPLEMENT)
+    .put(EcmaScriptKeyword.DELETE.getValue(), Kind.DELETE)
+    .put(EcmaScriptKeyword.VOID.getValue(), Kind.VOID)
+    .put(EcmaScriptKeyword.TYPEOF.getValue(), Kind.TYPEOF)
+    .build();
 
-  static {
-    EXPRESSION_KIND_BY_KEYWORDS.put(EcmaScriptKeyword.INSTANCEOF, Kind.INSTANCE_OF);
-    EXPRESSION_KIND_BY_KEYWORDS.put(EcmaScriptKeyword.IN, Kind.RELATIONAL_IN);
-  }
-
-  private static final Map<EcmaScriptPunctuator, Kind> PREFIX_KIND_BY_PUNCTUATORS = Maps.newEnumMap(EcmaScriptPunctuator.class);
-
-  static {
-    PREFIX_KIND_BY_PUNCTUATORS.put(EcmaScriptPunctuator.INC, Kind.PREFIX_INCREMENT);
-    PREFIX_KIND_BY_PUNCTUATORS.put(EcmaScriptPunctuator.DEC, Kind.PREFIX_DECREMENT);
-    PREFIX_KIND_BY_PUNCTUATORS.put(EcmaScriptPunctuator.PLUS, Kind.UNARY_PLUS);
-    PREFIX_KIND_BY_PUNCTUATORS.put(EcmaScriptPunctuator.MINUS, Kind.UNARY_MINUS);
-    PREFIX_KIND_BY_PUNCTUATORS.put(EcmaScriptPunctuator.TILDA, Kind.BITWISE_COMPLEMENT);
-    PREFIX_KIND_BY_PUNCTUATORS.put(EcmaScriptPunctuator.BANG, Kind.LOGICAL_COMPLEMENT);
-  }
-
-  private static final Map<EcmaScriptKeyword, Kind> PREFIX_KIND_BY_KEYWORDS = Maps.newEnumMap(EcmaScriptKeyword.class);
-
-  static {
-    PREFIX_KIND_BY_KEYWORDS.put(EcmaScriptKeyword.DELETE, Kind.DELETE);
-    PREFIX_KIND_BY_KEYWORDS.put(EcmaScriptKeyword.VOID, Kind.VOID);
-    PREFIX_KIND_BY_KEYWORDS.put(EcmaScriptKeyword.TYPEOF, Kind.TYPEOF);
-  }
-
-  private Kind getBinaryOperator(AstNodeType punctuator) {
-    Kind kind = EXPRESSION_KIND_BY_PUNCTUATORS.get(punctuator);
+  private Kind getBinaryOperator(InternalSyntaxToken token) {
+    Kind kind = EXPRESSION_KIND_BY_VALUE.get(token.text());
     if (kind == null) {
-      kind = EXPRESSION_KIND_BY_KEYWORDS.get(punctuator);
-      if (kind == null) {
-        throw new IllegalArgumentException("Mapping not found for binary operator " + punctuator);
-      }
+      throw new IllegalArgumentException("Mapping not found for binary operator " + token.text());
     }
     return kind;
   }
 
-  private Kind getPrefixOperator(AstNodeType punctuator) {
-    Kind kind = PREFIX_KIND_BY_PUNCTUATORS.get(punctuator);
+  private Kind getPrefixOperator(InternalSyntaxToken token) {
+    Kind kind = PREFIX_KIND_BY_VALUE.get(token.text());
     if (kind == null) {
-      kind = PREFIX_KIND_BY_KEYWORDS.get(punctuator);
-      if (kind == null) {
-        throw new IllegalArgumentException("Mapping not found for unary operator " + punctuator);
-      }
+      throw new IllegalArgumentException("Mapping not found for unary operator " + token.text());
     }
     return kind;
   }
 
   // Statements
 
-  public EmptyStatementTreeImpl emptyStatement(AstNode semicolon) {
-    return new EmptyStatementTreeImpl(InternalSyntaxToken.create(semicolon));
+  public EmptyStatementTreeImpl emptyStatement(InternalSyntaxToken semicolon) {
+    return new EmptyStatementTreeImpl(semicolon);
   }
 
-  public DebuggerStatementTreeImpl debuggerStatement(AstNode debuggerWord, EndOfStatementTreeImpl eos) {
-    return new DebuggerStatementTreeImpl(InternalSyntaxToken.create(debuggerWord), eos);
+  public DebuggerStatementTreeImpl debuggerStatement(InternalSyntaxToken debuggerWord, EndOfStatementTreeImpl eos) {
+    return new DebuggerStatementTreeImpl(debuggerWord, eos);
   }
 
-  public EndOfStatementTreeImpl endOfStatement(AstNode eos) {
-    AstNode semicolon = eos.getFirstChild(EcmaScriptPunctuator.SEMI);
-
-    if (semicolon != null) {
-      return new EndOfStatementTreeImpl(InternalSyntaxToken.create(semicolon));
-    } else {
-      return new EndOfStatementTreeImpl();
+  // fixme
+  public EndOfStatementTreeImpl endOfStatement(Tree eos) {
+    if (eos instanceof InternalSyntaxToken) {
+      return new EndOfStatementTreeImpl((InternalSyntaxToken) eos);
     }
+    return new EndOfStatementTreeImpl();
   }
 
-  public EndOfStatementTreeImpl endOfStatement1(AstNode eos) {
-    return endOfStatement(eos);
-  }
-
-  public EndOfStatementTreeImpl endOfStatement2(AstNode eos) {
+  public EndOfStatementTreeImpl endOfStatement1(Tree eos) {
     return endOfStatement(eos);
   }
 
@@ -247,89 +230,89 @@ public class TreeFactory {
     return new VariableStatementTreeImpl(declaration, eosToken);
   }
 
-  private VariableDeclarationTreeImpl variableDeclaration(AstNode token, SeparatedList<BindingElementTree> variables) {
+  private VariableDeclarationTreeImpl variableDeclaration(InternalSyntaxToken token, SeparatedList<BindingElementTree> variables) {
     Kind kind;
     if (token.is(EcmaScriptKeyword.VAR)) {
       kind = Kind.VAR_DECLARATION;
-    } else if (token.is(EcmaScriptGrammar.LET)) {
+
+    // FIXME
+    } else if (token.text().equals("let")) {
       kind = Kind.LET_DECLARATION;
+
     } else if (token.is(EcmaScriptKeyword.CONST)) {
       kind = Kind.CONST_DECLARATION;
+
     } else {
-      throw new UnsupportedOperationException("Unsupported type: " + token.getType() + ", " + token);
+      throw new UnsupportedOperationException("Unsupported token, " + token.text());
     }
-    return new VariableDeclarationTreeImpl(kind, InternalSyntaxToken.create(token), variables, variables.getChildren());
+    return new VariableDeclarationTreeImpl(kind, token, variables);
   }
 
-  public VariableDeclarationTreeImpl variableDeclaration1(AstNode token, SeparatedList<BindingElementTree> variables) {
+  public VariableDeclarationTreeImpl variableDeclaration1(InternalSyntaxToken token, SeparatedList<BindingElementTree> variables) {
     return variableDeclaration(token, variables);
   }
 
-  public VariableDeclarationTreeImpl variableDeclaration2(AstNode token, SeparatedList<BindingElementTree> variables) {
+  public VariableDeclarationTreeImpl variableDeclaration2(InternalSyntaxToken token, SeparatedList<BindingElementTree> variables) {
     return variableDeclaration(token, variables);
   }
 
-  private SeparatedList<BindingElementTree> bindingElementList(BindingElementTree element, Optional<List<Tuple<AstNode, BindingElementTree>>> rest) {
-    List<AstNode> children = Lists.newArrayList();
+  private SeparatedList<BindingElementTree> bindingElementList(BindingElementTree element, Optional<List<Tuple<InternalSyntaxToken, BindingElementTree>>> rest) {
 
     ImmutableList.Builder<BindingElementTree> elements = ImmutableList.builder();
     ImmutableList.Builder<InternalSyntaxToken> commas = ImmutableList.builder();
 
-    children.add((AstNode) element);
     elements.add(element);
 
     if (rest.isPresent()) {
-      for (Tuple<AstNode, BindingElementTree> pair : rest.get()) {
-        InternalSyntaxToken commaToken = InternalSyntaxToken.create(pair.first());
-        children.add(commaToken);
-        children.add((AstNode) pair.second());
+      for (Tuple<InternalSyntaxToken, BindingElementTree> pair : rest.get()) {
+        InternalSyntaxToken commaToken = pair.first();
 
         commas.add(commaToken);
         elements.add(pair.second());
       }
     }
 
-    return new SeparatedList<BindingElementTree>(elements.build(), commas.build(), children);
+    return new SeparatedList<>(elements.build(), commas.build());
   }
 
-  public SeparatedList<BindingElementTree> bindingElementList1(BindingElementTree element, Optional<List<Tuple<AstNode, BindingElementTree>>> rest) {
+  public SeparatedList<BindingElementTree> bindingElementList1(BindingElementTree element, Optional<List<Tuple<InternalSyntaxToken, BindingElementTree>>> rest) {
     return bindingElementList(element, rest);
   }
 
-  public SeparatedList<BindingElementTree> bindingElementList2(BindingElementTree element, Optional<List<Tuple<AstNode, BindingElementTree>>> rest) {
+  public SeparatedList<BindingElementTree> bindingElementList2(BindingElementTree element, Optional<List<Tuple<InternalSyntaxToken, BindingElementTree>>> rest) {
     return bindingElementList(element, rest);
   }
 
-  public LabelledStatementTreeImpl labelledStatement(IdentifierTreeImpl identifier, AstNode colon, StatementTree statement) {
-    return new LabelledStatementTreeImpl(identifier, InternalSyntaxToken.create(colon), statement);
+  public LabelledStatementTreeImpl labelledStatement(IdentifierTreeImpl identifier, InternalSyntaxToken colon, StatementTree statement) {
+    return new LabelledStatementTreeImpl(identifier, colon, statement);
   }
 
-  public ContinueStatementTreeImpl completeContinueStatement(AstNode continueToken, ContinueStatementTreeImpl labelOrEndOfStatement) {
-    return labelOrEndOfStatement.complete(InternalSyntaxToken.create(continueToken));
+  public ContinueStatementTreeImpl completeContinueStatement(InternalSyntaxToken continueToken, ContinueStatementTreeImpl labelOrEndOfStatement) {
+    return labelOrEndOfStatement.complete(continueToken);
   }
 
-  public ContinueStatementTreeImpl newContinueWithLabel(AstNode identifier, EndOfStatementTreeImpl eos) {
-    return new ContinueStatementTreeImpl((IdentifierTreeImpl) identifier, eos);
+  public ContinueStatementTreeImpl newContinueWithLabel(IdentifierTreeImpl identifier, EndOfStatementTreeImpl eos) {
+    return new ContinueStatementTreeImpl(identifier, eos);
   }
 
   public ContinueStatementTreeImpl newContinueWithoutLabel(EndOfStatementTreeImpl eos) {
     return new ContinueStatementTreeImpl(eos);
   }
 
-  public BreakStatementTreeImpl completeBreakStatement(AstNode breakToken, BreakStatementTreeImpl labelOrEndOfStatement) {
-    return labelOrEndOfStatement.complete(InternalSyntaxToken.create(breakToken));
+  public BreakStatementTreeImpl completeBreakStatement(InternalSyntaxToken breakToken, BreakStatementTreeImpl labelOrEndOfStatement) {
+    return labelOrEndOfStatement.complete(breakToken);
   }
 
-  public BreakStatementTreeImpl newBreakWithLabel(AstNode identifier, EndOfStatementTreeImpl eos) {
-    return new BreakStatementTreeImpl((IdentifierTreeImpl) identifier, eos);
+  public BreakStatementTreeImpl newBreakWithLabel(IdentifierTreeImpl identifier, EndOfStatementTreeImpl eos) {
+    return new BreakStatementTreeImpl(identifier, eos);
   }
 
   public BreakStatementTreeImpl newBreakWithoutLabel(EndOfStatementTreeImpl eos) {
     return new BreakStatementTreeImpl(eos);
   }
 
-  public ReturnStatementTreeImpl completeReturnStatement(AstNode returnToken, ReturnStatementTreeImpl expressionOrEndOfStatement) {
-    return expressionOrEndOfStatement.complete(InternalSyntaxToken.create(returnToken));
+  public ReturnStatementTreeImpl completeReturnStatement(InternalSyntaxToken returnToken, ReturnStatementTreeImpl expressionOrEndOfStatement) {
+    return expressionOrEndOfStatement.complete(returnToken);
   }
 
   public ReturnStatementTreeImpl newReturnWithExpression(ExpressionTree expression, EndOfStatementTreeImpl eos) {
@@ -340,20 +323,19 @@ public class TreeFactory {
     return new ReturnStatementTreeImpl(eos);
   }
 
-  public ThrowStatementTreeImpl newThrowStatement(AstNode throwToken, ExpressionTree expression, EndOfStatementTreeImpl eos) {
-    return new ThrowStatementTreeImpl(InternalSyntaxToken.create(throwToken), expression, eos);
+  public ThrowStatementTreeImpl newThrowStatement(InternalSyntaxToken throwToken, ExpressionTree expression, EndOfStatementTreeImpl eos) {
+    return new ThrowStatementTreeImpl(throwToken, expression, eos);
   }
 
-  public WithStatementTreeImpl newWithStatement(AstNode withToken, AstNode openingParen, ExpressionTree expression, AstNode closingParen, StatementTree statement) {
-    return new WithStatementTreeImpl(InternalSyntaxToken.create(withToken), InternalSyntaxToken.create(openingParen), expression, InternalSyntaxToken.create(closingParen),
-      statement);
+  public WithStatementTreeImpl newWithStatement(InternalSyntaxToken withToken, InternalSyntaxToken openingParen, ExpressionTree expression, InternalSyntaxToken closingParen, StatementTree statement) {
+    return new WithStatementTreeImpl(withToken, openingParen, expression, closingParen, statement);
   }
 
-  public BlockTreeImpl newBlock(AstNode openingCurlyBrace, Optional<List<StatementTree>> statements, AstNode closingCurlyBrace) {
+  public BlockTreeImpl newBlock(InternalSyntaxToken openingCurlyBrace, Optional<List<StatementTree>> statements, InternalSyntaxToken closingCurlyBrace) {
     if (statements.isPresent()) {
-      return new BlockTreeImpl(InternalSyntaxToken.create(openingCurlyBrace), statements.get(), InternalSyntaxToken.create(closingCurlyBrace));
+      return new BlockTreeImpl(openingCurlyBrace, statements.get(), closingCurlyBrace);
     }
-    return new BlockTreeImpl(InternalSyntaxToken.create(openingCurlyBrace), InternalSyntaxToken.create(closingCurlyBrace));
+    return new BlockTreeImpl(openingCurlyBrace, closingCurlyBrace);
   }
 
   public TryStatementTreeImpl newTryStatementWithCatch(CatchBlockTreeImpl catchBlock, Optional<TryStatementTreeImpl> partial) {
@@ -363,25 +345,25 @@ public class TreeFactory {
     return new TryStatementTreeImpl(catchBlock);
   }
 
-  public TryStatementTreeImpl newTryStatementWithFinally(AstNode finallyKeyword, BlockTreeImpl block) {
-    return new TryStatementTreeImpl(InternalSyntaxToken.create(finallyKeyword), block);
+  public TryStatementTreeImpl newTryStatementWithFinally(InternalSyntaxToken finallyKeyword, BlockTreeImpl block) {
+    return new TryStatementTreeImpl(finallyKeyword, block);
   }
 
-  public TryStatementTreeImpl completeTryStatement(AstNode tryToken, BlockTreeImpl block, TryStatementTreeImpl catchFinallyBlock) {
-    return catchFinallyBlock.complete(InternalSyntaxToken.create(tryToken), block);
+  public TryStatementTreeImpl completeTryStatement(InternalSyntaxToken tryToken, BlockTreeImpl block, TryStatementTreeImpl catchFinallyBlock) {
+    return catchFinallyBlock.complete(tryToken, block);
   }
 
-  public CatchBlockTreeImpl newCatchBlock(AstNode catchToken, AstNode lparenToken, BindingElementTree catchParameter, AstNode rparenToken, BlockTreeImpl block) {
+  public CatchBlockTreeImpl newCatchBlock(InternalSyntaxToken catchToken, InternalSyntaxToken lparenToken, BindingElementTree catchParameter, InternalSyntaxToken rparenToken, BlockTreeImpl block) {
     return new CatchBlockTreeImpl(
-      InternalSyntaxToken.create(catchToken),
-      InternalSyntaxToken.create(lparenToken),
+      catchToken,
+      lparenToken,
       catchParameter,
-      InternalSyntaxToken.create(rparenToken),
+      rparenToken,
       block);
   }
 
-  public SwitchStatementTreeImpl newSwitchStatement(AstNode openCurlyBrace, Optional<List<CaseClauseTreeImpl>> caseClauseList,
-    Optional<Tuple<DefaultClauseTreeImpl, Optional<List<CaseClauseTreeImpl>>>> defaultAndRestCases, AstNode closeCurlyBrace) {
+  public SwitchStatementTreeImpl newSwitchStatement(InternalSyntaxToken openCurlyBrace, Optional<List<CaseClauseTreeImpl>> caseClauseList,
+    Optional<Tuple<DefaultClauseTreeImpl, Optional<List<CaseClauseTreeImpl>>>> defaultAndRestCases, InternalSyntaxToken closeCurlyBrace) {
     List<SwitchClauseTree> cases = Lists.newArrayList();
 
     // First case list
@@ -399,144 +381,121 @@ public class TreeFactory {
       }
     }
 
-    return new SwitchStatementTreeImpl(InternalSyntaxToken.create(openCurlyBrace), cases, InternalSyntaxToken.create(closeCurlyBrace));
+    return new SwitchStatementTreeImpl(openCurlyBrace, cases, closeCurlyBrace);
   }
 
-  public SwitchStatementTreeImpl completeSwitchStatement(AstNode switchToken, AstNode openParenthesis, ExpressionTree expression, AstNode closeParenthesis,
+  public SwitchStatementTreeImpl completeSwitchStatement(InternalSyntaxToken switchToken, InternalSyntaxToken openParenthesis, ExpressionTree expression, InternalSyntaxToken closeParenthesis,
     SwitchStatementTreeImpl caseBlock) {
 
     return caseBlock.complete(
-      InternalSyntaxToken.create(switchToken),
-      InternalSyntaxToken.create(openParenthesis),
+      switchToken,
+      openParenthesis,
       expression,
-      InternalSyntaxToken.create(closeParenthesis));
+      closeParenthesis);
   }
 
-  public DefaultClauseTreeImpl defaultClause(AstNode defaultToken, AstNode colonToken, Optional<List<StatementTree>> statements) {
+  public DefaultClauseTreeImpl defaultClause(InternalSyntaxToken defaultToken, InternalSyntaxToken colonToken, Optional<List<StatementTree>> statements) {
     if (statements.isPresent()) {
-      return new DefaultClauseTreeImpl(InternalSyntaxToken.create(defaultToken), InternalSyntaxToken.create(colonToken), statements.get());
+      return new DefaultClauseTreeImpl(defaultToken, colonToken, statements.get());
     }
-    return new DefaultClauseTreeImpl(InternalSyntaxToken.create(defaultToken), InternalSyntaxToken.create(colonToken));
+    return new DefaultClauseTreeImpl(defaultToken, colonToken);
   }
 
-  public CaseClauseTreeImpl caseClause(AstNode caseToken, ExpressionTree expression, AstNode colonToken, Optional<List<StatementTree>> statements) {
+  public CaseClauseTreeImpl caseClause(InternalSyntaxToken caseToken, ExpressionTree expression, InternalSyntaxToken colonToken, Optional<List<StatementTree>> statements) {
     if (statements.isPresent()) {
-      return new CaseClauseTreeImpl(InternalSyntaxToken.create(caseToken), expression, InternalSyntaxToken.create(colonToken), statements.get());
+      return new CaseClauseTreeImpl(caseToken, expression, colonToken, statements.get());
     }
-    return new CaseClauseTreeImpl(InternalSyntaxToken.create(caseToken), expression, InternalSyntaxToken.create(colonToken));
+    return new CaseClauseTreeImpl(caseToken, expression, colonToken);
   }
 
-  public ElseClauseTreeImpl elseClause(AstNode elseToken, StatementTree statement) {
-    return new ElseClauseTreeImpl(InternalSyntaxToken.create(elseToken), statement);
+  public ElseClauseTreeImpl elseClause(InternalSyntaxToken elseToken, StatementTree statement) {
+    return new ElseClauseTreeImpl(elseToken, statement);
   }
 
-  public IfStatementTreeImpl ifStatement(AstNode ifToken, AstNode openParenToken, ExpressionTree condition, AstNode closeParenToken, StatementTree statement,
+  public IfStatementTreeImpl ifStatement(InternalSyntaxToken ifToken, InternalSyntaxToken openParenToken, ExpressionTree condition, InternalSyntaxToken closeParenToken, StatementTree statement,
     Optional<ElseClauseTreeImpl> elseClause) {
     if (elseClause.isPresent()) {
       return new IfStatementTreeImpl(
-        InternalSyntaxToken.create(ifToken),
-        InternalSyntaxToken.create(openParenToken),
+        ifToken,
+        openParenToken,
         condition,
-        InternalSyntaxToken.create(closeParenToken),
+        closeParenToken,
         statement,
         elseClause.get());
     }
     return new IfStatementTreeImpl(
-      InternalSyntaxToken.create(ifToken),
-      InternalSyntaxToken.create(openParenToken),
+      ifToken,
+      openParenToken,
       condition,
-      InternalSyntaxToken.create(closeParenToken),
+      closeParenToken,
       statement);
   }
 
-  public WhileStatementTreeImpl whileStatement(AstNode whileToken, AstNode openParenthesis, ExpressionTree condition, AstNode closeParenthesis, StatementTree statetment) {
+  public WhileStatementTreeImpl whileStatement(InternalSyntaxToken whileToken, InternalSyntaxToken openParenthesis, ExpressionTree condition, InternalSyntaxToken closeParenthesis, StatementTree statetment) {
     return new WhileStatementTreeImpl(
-      InternalSyntaxToken.create(whileToken),
-      InternalSyntaxToken.create(openParenthesis),
+      whileToken,
+      openParenthesis,
       condition,
-      InternalSyntaxToken.create(closeParenthesis),
+      closeParenthesis,
       statetment);
   }
 
-  public DoWhileStatementTreeImpl doWhileStatement(AstNode doToken, StatementTree statement, AstNode whileToken, AstNode openParenthesis, ExpressionTree condition,
-    AstNode closeParenthesis, EndOfStatementTreeImpl eos) {
+  public DoWhileStatementTreeImpl doWhileStatement(InternalSyntaxToken doToken, StatementTree statement, InternalSyntaxToken whileToken, InternalSyntaxToken openParenthesis, ExpressionTree condition, InternalSyntaxToken closeParenthesis, EndOfStatementTreeImpl eos) {
     return new DoWhileStatementTreeImpl(
-      InternalSyntaxToken.create(doToken),
+      doToken,
       statement,
-      InternalSyntaxToken.create(whileToken),
-      InternalSyntaxToken.create(openParenthesis),
+      whileToken,
+      openParenthesis,
       condition,
-      InternalSyntaxToken.create(closeParenthesis),
+      closeParenthesis,
       eos);
   }
 
-  public ExpressionStatementTreeImpl expressionStatement(AstNode lookahead, ExpressionTree expression, EndOfStatementTreeImpl eos) {
+  public ExpressionStatementTreeImpl expressionStatement(Tree lookahead, ExpressionTree expression, EndOfStatementTreeImpl eos) {
     return new ExpressionStatementTreeImpl(expression, eos);
   }
 
-  public ForOfStatementTreeImpl forOfStatement(AstNode forToken, AstNode openParenthesis, Tree variableOrExpression, AstNode ofToken, ExpressionTree expression,
-    AstNode closeParenthesis, StatementTree statement) {
+  public ForOfStatementTreeImpl forOfStatement(InternalSyntaxToken forToken, InternalSyntaxToken openParenthesis, Tree variableOrExpression, InternalSyntaxToken ofToken, ExpressionTree expression, InternalSyntaxToken closeParenthesis, StatementTree statement) {
     return new ForOfStatementTreeImpl(
-      InternalSyntaxToken.create(forToken),
-      InternalSyntaxToken.create(openParenthesis),
+      forToken,
+      openParenthesis,
       variableOrExpression,
-      InternalSyntaxToken.create(ofToken),
-      expression, InternalSyntaxToken.create(closeParenthesis),
+      ofToken,
+      expression, closeParenthesis,
       statement);
   }
 
-  public ForInStatementTreeImpl forInStatement(AstNode forToken, AstNode openParenthesis, Tree variableOrExpression, AstNode inToken, ExpressionTree expression,
-    AstNode closeParenthesis, StatementTree statement) {
+  public ForInStatementTreeImpl forInStatement(InternalSyntaxToken forToken, InternalSyntaxToken openParenthesis, Tree variableOrExpression, InternalSyntaxToken inToken, ExpressionTree expression, InternalSyntaxToken closeParenthesis, StatementTree statement) {
 
     return new ForInStatementTreeImpl(
-      InternalSyntaxToken.create(forToken),
-      InternalSyntaxToken.create(openParenthesis),
+      forToken,
+      openParenthesis,
       variableOrExpression,
-      InternalSyntaxToken.create(inToken),
-      expression, InternalSyntaxToken.create(closeParenthesis),
+      inToken,
+      expression, closeParenthesis,
       statement);
   }
 
-  public ForStatementTreeImpl forStatement(AstNode forToken, AstNode openParenthesis, Optional<Tree> init, AstNode firstSemiToken, Optional<ExpressionTree> condition,
-    AstNode secondSemiToken, Optional<ExpressionTree> update, AstNode closeParenthesis, StatementTree statement) {
-    List<AstNode> children = Lists.newArrayList();
-
-    children.add(forToken);
-    children.add(openParenthesis);
-    if (init.isPresent()) {
-      children.add((AstNode) init.get());
-    }
-    children.add(firstSemiToken);
-    if (condition.isPresent()) {
-      children.add((AstNode) condition.get());
-    }
-    children.add(secondSemiToken);
-    if (update.isPresent()) {
-      children.add((AstNode) update.get());
-    }
-    children.add(closeParenthesis);
-    children.add((AstNode) statement);
-
+  public ForStatementTreeImpl forStatement(InternalSyntaxToken forToken, InternalSyntaxToken openParenthesis, Optional<Tree> init, InternalSyntaxToken firstSemiToken, Optional<ExpressionTree> condition, InternalSyntaxToken secondSemiToken, Optional<ExpressionTree> update, InternalSyntaxToken closeParenthesis, StatementTree statement) {
     return new ForStatementTreeImpl(
-      InternalSyntaxToken.create(forToken),
-      InternalSyntaxToken.create(openParenthesis),
+      forToken,
+      openParenthesis,
       init.orNull(),
-      InternalSyntaxToken.create(firstSemiToken),
+      firstSemiToken,
       condition.orNull(),
-      InternalSyntaxToken.create(secondSemiToken),
+      secondSemiToken,
       update.orNull(),
-      InternalSyntaxToken.create(closeParenthesis),
-      statement,
-      children);
+      closeParenthesis,
+      statement);
   }
 
   // End of statements
 
   // Expressions
 
-  public ExpressionTree arrayInitialiserElement(Optional<AstNode> spreadOperatorToken, ExpressionTree expression) {
+  public ExpressionTree arrayInitialiserElement(Optional<InternalSyntaxToken> spreadOperatorToken, ExpressionTree expression) {
     if (spreadOperatorToken.isPresent()) {
-      return new RestElementTreeImpl(InternalSyntaxToken.create(spreadOperatorToken.get()), expression);
+      return new RestElementTreeImpl(spreadOperatorToken.get(), expression);
     }
     return expression;
   }
@@ -552,46 +511,41 @@ public class TreeFactory {
    * index of subsequent elements.
    * </blockquote>
    */
-  public ArrayLiteralTreeImpl newArrayLiteralWithElements(Optional<List<AstNode>> commaTokens, ExpressionTree element, Optional<List<Tuple<AstNode, ExpressionTree>>> restElements,
-    Optional<List<AstNode>> restCommas) {
-    List<AstNode> children = Lists.newArrayList();
+  public ArrayLiteralTreeImpl newArrayLiteralWithElements(Optional<List<InternalSyntaxToken>> commaTokens, ExpressionTree element, Optional<List<Tuple<List<InternalSyntaxToken>, ExpressionTree>>> restElements,
+    Optional<List<InternalSyntaxToken>> restCommas) {
     List<ExpressionTree> elements = Lists.newArrayList();
     List<InternalSyntaxToken> commas = Lists.newArrayList();
 
     // Elided array element at the beginning, e.g [ ,a]
     if (commaTokens.isPresent()) {
-      for (AstNode comma : commaTokens.get()) {
+      for (InternalSyntaxToken comma : commaTokens.get()) {
         elements.add(new UndefinedTreeImpl());
-        commas.add(InternalSyntaxToken.create(comma));
-        children.add(comma);
+        commas.add(comma);
       }
     }
 
     // First element
     elements.add(element);
-    children.add((AstNode) element);
 
     // Other elements
     if (restElements.isPresent()) {
-      for (Tuple<AstNode, ExpressionTree> t : restElements.get()) {
+      for (Tuple<List<InternalSyntaxToken>, ExpressionTree> t : restElements.get()) {
 
         // First comma
-        commas.add(InternalSyntaxToken.create(t.first().getFirstChild()));
-        children.add(t.first().getFirstChild());
+        commas.add(t.first().get(0));
 
         // Elided array element in the middle, e.g [ a , , a ]
-        int nbCommas = t.first().getNumberOfChildren();
+        int nbCommas = t.first().size();
 
-        if (nbCommas > 1) {
-          for (AstNode comma : t.first().getChildren().subList(1, nbCommas)) {
-            elements.add(new UndefinedTreeImpl());
-            commas.add(InternalSyntaxToken.create(comma));
-            children.add(comma);
-          }
+        t.first().remove(0);
+
+        for (InternalSyntaxToken comma : t.first()) {
+          elements.add(new UndefinedTreeImpl());
+          commas.add(comma);
         }
+
         // Add element
         elements.add(t.second());
-        children.add((AstNode) t.second());
       }
     }
 
@@ -600,41 +554,37 @@ public class TreeFactory {
       int nbEndingComma = restCommas.get().size();
 
       // Trailing comma after the last element
-      commas.add(InternalSyntaxToken.create(restCommas.get().get(0)));
-      children.add(restCommas.get().get(0));
+      commas.add(restCommas.get().get(0));
 
       // Elided array element at the end
       if (nbEndingComma > 1) {
-        for (AstNode comma : restCommas.get().subList(1, nbEndingComma)) {
+        for (InternalSyntaxToken comma : restCommas.get().subList(1, nbEndingComma)) {
           elements.add(new UndefinedTreeImpl());
-          commas.add(InternalSyntaxToken.create(comma));
-          children.add(comma);
+          commas.add(comma);
         }
 
       }
     }
-    return new ArrayLiteralTreeImpl(elements, commas, children);
+    return new ArrayLiteralTreeImpl(elements, commas);
   }
 
-  public ArrayLiteralTreeImpl completeArrayLiteral(AstNode openBracketToken, Optional<ArrayLiteralTreeImpl> elements, AstNode closeBracket) {
+  public ArrayLiteralTreeImpl completeArrayLiteral(InternalSyntaxToken openBracketToken, Optional<ArrayLiteralTreeImpl> elements, InternalSyntaxToken closeBracket) {
     if (elements.isPresent()) {
-      return elements.get().complete(InternalSyntaxToken.create(openBracketToken), InternalSyntaxToken.create(closeBracket));
+      return elements.get().complete(openBracketToken, closeBracket);
     }
-    return new ArrayLiteralTreeImpl(InternalSyntaxToken.create(openBracketToken), InternalSyntaxToken.create(closeBracket));
+    return new ArrayLiteralTreeImpl(openBracketToken, closeBracket);
   }
 
-  public ArrayLiteralTreeImpl newArrayLiteralWithElidedElements(List<AstNode> commaTokens) {
-    List<AstNode> children = Lists.newArrayList();
+  public ArrayLiteralTreeImpl newArrayLiteralWithElidedElements(List<InternalSyntaxToken> commaTokens) {
     List<ExpressionTree> elements = Lists.newArrayList();
     List<InternalSyntaxToken> commas = Lists.newArrayList();
 
-    for (AstNode comma : commaTokens) {
+    for (InternalSyntaxToken comma : commaTokens) {
       elements.add(new UndefinedTreeImpl());
-      commas.add(InternalSyntaxToken.create(comma));
-      children.add(comma);
+      commas.add(comma);
     }
 
-    return new ArrayLiteralTreeImpl(elements, commas, children);
+    return new ArrayLiteralTreeImpl(elements, commas);
   }
 
   // End of expressions
@@ -648,132 +598,99 @@ public class TreeFactory {
     }
   };
 
-  public AstNode newWrapperAstNode(List<AstNode> e1) {
-    AstNode astNode = new AstNode(WRAPPER_AST_NODE, WRAPPER_AST_NODE.toString(), null);
-    for (AstNode child : e1) {
-      astNode.addChild(child);
-    }
-    return astNode;
-  }
-
-  public AstNode newWrapperAstNode2(AstNode e1, Optional<TemplateCharactersTreeImpl> e2, TemplateExpressionTreeImpl e3) {
-    AstNode astNode = new AstNode(WRAPPER_AST_NODE, WRAPPER_AST_NODE.toString(), null);
-    astNode.addChild(e1);
-    if (e2.isPresent()) {
-      astNode.addChild(e2.get());
-    }
-    astNode.addChild(e3);
-
-    return astNode;
-  }
-
-  public FunctionExpressionTreeImpl generatorExpression(AstNode functionKeyword, AstNode starOperator, Optional<IdentifierTreeImpl> functionName, ParameterListTreeImpl parameters,
+  public FunctionExpressionTreeImpl generatorExpression(InternalSyntaxToken functionKeyword, InternalSyntaxToken starOperator, Optional<IdentifierTreeImpl> functionName, ParameterListTreeImpl parameters,
     BlockTreeImpl body) {
 
-    ImmutableList.Builder<AstNode> children = ImmutableList.builder();
-    InternalSyntaxToken functionToken = InternalSyntaxToken.create(functionKeyword);
-    InternalSyntaxToken starToken = InternalSyntaxToken.create(starOperator);
+    InternalSyntaxToken functionToken = functionKeyword;
+    InternalSyntaxToken starToken = starOperator;
 
     if (functionName.isPresent()) {
-      children.add(functionToken, starToken, functionName.get(), parameters, body);
 
       return new FunctionExpressionTreeImpl(Kind.GENERATOR_FUNCTION_EXPRESSION,
-        functionToken, starToken, functionName.get(), parameters, body, children.build());
+        functionToken, starToken, functionName.get(), parameters, body);
     }
 
-    children.add(functionToken, starToken, parameters, body);
 
     return new FunctionExpressionTreeImpl(Kind.GENERATOR_FUNCTION_EXPRESSION,
-      functionToken, starToken, parameters, body, children.build());
+      functionToken, starToken, parameters, body);
   }
 
-  public LiteralTreeImpl nullLiteral(AstNode nullToken) {
-    return new LiteralTreeImpl(Kind.NULL_LITERAL, InternalSyntaxToken.create(nullToken));
+  public LiteralTreeImpl nullLiteral(InternalSyntaxToken nullToken) {
+    return new LiteralTreeImpl(Kind.NULL_LITERAL, nullToken);
   }
 
-  public LiteralTreeImpl booleanLiteral(AstNode trueFalseToken) {
-    return new LiteralTreeImpl(Kind.BOOLEAN_LITERAL, InternalSyntaxToken.create(trueFalseToken));
+  public LiteralTreeImpl booleanLiteral(InternalSyntaxToken trueFalseToken) {
+    return new LiteralTreeImpl(Kind.BOOLEAN_LITERAL, trueFalseToken);
   }
 
-  public LiteralTreeImpl numericLiteral(AstNode numericToken) {
-    return new LiteralTreeImpl(Kind.NUMERIC_LITERAL, InternalSyntaxToken.create(numericToken));
+  public LiteralTreeImpl numericLiteral(InternalSyntaxToken numericToken) {
+    return new LiteralTreeImpl(Kind.NUMERIC_LITERAL, numericToken);
   }
 
-  public LiteralTreeImpl stringLiteral(AstNode stringToken) {
-    return new LiteralTreeImpl(Kind.STRING_LITERAL, InternalSyntaxToken.create(stringToken));
+  public LiteralTreeImpl stringLiteral(InternalSyntaxToken stringToken) {
+    return new LiteralTreeImpl(Kind.STRING_LITERAL, stringToken);
   }
 
-  public LiteralTreeImpl regexpLiteral(AstNode regexpToken) {
-    return new LiteralTreeImpl(Kind.REGULAR_EXPRESSION_LITERAL, InternalSyntaxToken.create(regexpToken));
+  public LiteralTreeImpl regexpLiteral(InternalSyntaxToken regexpToken) {
+    return new LiteralTreeImpl(Kind.REGULAR_EXPRESSION_LITERAL, regexpToken);
   }
 
-  public FunctionExpressionTreeImpl functionExpression(AstNode functionKeyword, Optional<AstNode> functionName, ParameterListTreeImpl parameters, BlockTreeImpl body) {
-    ImmutableList.Builder<AstNode> children = ImmutableList.builder();
-    InternalSyntaxToken functionToken = InternalSyntaxToken.create(functionKeyword);
+  public FunctionExpressionTreeImpl functionExpression(InternalSyntaxToken functionKeyword, Optional<InternalSyntaxToken> functionName, ParameterListTreeImpl parameters, BlockTreeImpl body) {
 
     if (functionName.isPresent()) {
-      IdentifierTreeImpl name = new IdentifierTreeImpl(Kind.BINDING_IDENTIFIER, InternalSyntaxToken.create(functionName.get()));
-      children.add(functionToken, name, parameters, body);
+      IdentifierTreeImpl name = new IdentifierTreeImpl(Kind.BINDING_IDENTIFIER, functionName.get());
 
-      return new FunctionExpressionTreeImpl(Kind.FUNCTION_EXPRESSION, functionToken, name, parameters, body, children.build());
+      return new FunctionExpressionTreeImpl(Kind.FUNCTION_EXPRESSION, functionKeyword, name, parameters, body);
     }
 
-    children.add(functionToken, parameters, body);
-
-    return new FunctionExpressionTreeImpl(Kind.FUNCTION_EXPRESSION, functionToken, parameters, body, children.build());
+    return new FunctionExpressionTreeImpl(Kind.FUNCTION_EXPRESSION, functionKeyword, parameters, body);
   }
 
   public ParameterListTreeImpl newFormalRestParameterList(RestElementTreeImpl restParameter) {
     return new ParameterListTreeImpl(
       Kind.FORMAL_PARAMETER_LIST,
-      new SeparatedList<Tree>(Lists.newArrayList((Tree) restParameter), ListUtils.EMPTY_LIST, ImmutableList.of((AstNode) restParameter)));
+      new SeparatedList<>(Lists.newArrayList((Tree) restParameter), ListUtils.EMPTY_LIST));
   }
 
-  public ParameterListTreeImpl newFormalParameterList(BindingElementTree formalParameter, Optional<List<Tuple<AstNode, BindingElementTree>>> formalParameters,
-    Optional<Tuple<AstNode, RestElementTreeImpl>> restElement) {
-    List<AstNode> children = Lists.newArrayList();
+  public ParameterListTreeImpl newFormalParameterList(BindingElementTree formalParameter, Optional<List<Tuple<InternalSyntaxToken, BindingElementTree>>> formalParameters,
+    Optional<Tuple<InternalSyntaxToken, RestElementTreeImpl>> restElement) {
     List<Tree> parameters = Lists.newArrayList();
     List<InternalSyntaxToken> commas = Lists.newArrayList();
 
     parameters.add(formalParameter);
-    children.add((AstNode) formalParameter);
 
     if (formalParameters.isPresent()) {
-      for (Tuple<AstNode, BindingElementTree> t : formalParameters.get()) {
-        commas.add(InternalSyntaxToken.create(t.first()));
-        children.add(t.first());
+      for (Tuple<InternalSyntaxToken, BindingElementTree> t : formalParameters.get()) {
+        commas.add(t.first());
         parameters.add(t.second());
-        children.add((AstNode) t.second());
       }
     }
 
     if (restElement.isPresent()) {
-      commas.add(InternalSyntaxToken.create(restElement.get().first()));
-      children.add(restElement.get().first());
+      commas.add(restElement.get().first());
       parameters.add(restElement.get().second());
-      children.add(restElement.get().second());
     }
 
-    return new ParameterListTreeImpl(Kind.FORMAL_PARAMETER_LIST, new SeparatedList<Tree>(parameters, commas, children));
+    return new ParameterListTreeImpl(Kind.FORMAL_PARAMETER_LIST, new SeparatedList<>(parameters, commas));
   }
 
-  public RestElementTreeImpl bindingRestElement(AstNode ellipsis, IdentifierTreeImpl identifier) {
-    return new RestElementTreeImpl(InternalSyntaxToken.create(ellipsis), identifier);
+  public RestElementTreeImpl bindingRestElement(InternalSyntaxToken ellipsis, IdentifierTreeImpl identifier) {
+    return new RestElementTreeImpl(ellipsis, identifier);
   }
 
-  public ParameterListTreeImpl completeFormalParameterList(AstNode openParenthesis, Optional<ParameterListTreeImpl> parameters, AstNode closeParenthesis) {
+  public ParameterListTreeImpl completeFormalParameterList(InternalSyntaxToken openParenthesis, Optional<ParameterListTreeImpl> parameters, InternalSyntaxToken closeParenthesis) {
     if (parameters.isPresent()) {
-      return parameters.get().complete(InternalSyntaxToken.create(openParenthesis), InternalSyntaxToken.create(closeParenthesis));
+      return parameters.get().complete(openParenthesis, closeParenthesis);
     }
-    return new ParameterListTreeImpl(Kind.FORMAL_PARAMETER_LIST, InternalSyntaxToken.create(openParenthesis), InternalSyntaxToken.create(closeParenthesis));
+    return new ParameterListTreeImpl(Kind.FORMAL_PARAMETER_LIST, openParenthesis, closeParenthesis);
   }
 
-  public ConditionalExpressionTreeImpl newConditionalExpression(AstNode queryToken, ExpressionTree trueExpression, AstNode colonToken, ExpressionTree falseExpression) {
-    return new ConditionalExpressionTreeImpl(InternalSyntaxToken.create(queryToken), trueExpression, InternalSyntaxToken.create(colonToken), falseExpression);
+  public ConditionalExpressionTreeImpl newConditionalExpression(InternalSyntaxToken queryToken, ExpressionTree trueExpression, InternalSyntaxToken colonToken, ExpressionTree falseExpression) {
+    return new ConditionalExpressionTreeImpl(queryToken, trueExpression, colonToken, falseExpression);
   }
 
-  public ConditionalExpressionTreeImpl newConditionalExpressionNoIn(AstNode queryToken, ExpressionTree trueExpression, AstNode colonToken, ExpressionTree falseExpression) {
-    return new ConditionalExpressionTreeImpl(InternalSyntaxToken.create(queryToken), trueExpression, InternalSyntaxToken.create(colonToken), falseExpression);
+  public ConditionalExpressionTreeImpl newConditionalExpressionNoIn(InternalSyntaxToken queryToken, ExpressionTree trueExpression, InternalSyntaxToken colonToken, ExpressionTree falseExpression) {
+    return new ConditionalExpressionTreeImpl(queryToken, trueExpression, colonToken, falseExpression);
   }
 
   public ExpressionTree completeConditionalExpression(ExpressionTree expression, Optional<ConditionalExpressionTreeImpl> partial) {
@@ -784,157 +701,157 @@ public class TreeFactory {
     return partial.isPresent() ? partial.get().complete(expression) : expression;
   }
 
-  public ExpressionTree newConditionalOr(ExpressionTree expression, Optional<List<Tuple<AstNode, ExpressionTree>>> operatorAndOperands) {
+  public ExpressionTree newConditionalOr(ExpressionTree expression, Optional<List<Tuple<InternalSyntaxToken, ExpressionTree>>> operatorAndOperands) {
     return buildBinaryExpression(expression, operatorAndOperands);
   }
 
-  public ExpressionTree newConditionalOrNoIn(ExpressionTree expression, Optional<List<Tuple<AstNode, ExpressionTree>>> operatorAndOperands) {
+  public ExpressionTree newConditionalOrNoIn(ExpressionTree expression, Optional<List<Tuple<InternalSyntaxToken, ExpressionTree>>> operatorAndOperands) {
     return buildBinaryExpression(expression, operatorAndOperands);
   }
 
-  public ExpressionTree newConditionalAnd(ExpressionTree expression, Optional<List<Tuple<AstNode, ExpressionTree>>> operatorAndOperands) {
+  public ExpressionTree newConditionalAnd(ExpressionTree expression, Optional<List<Tuple<InternalSyntaxToken, ExpressionTree>>> operatorAndOperands) {
     return buildBinaryExpression(expression, operatorAndOperands);
   }
 
-  public ExpressionTree newConditionalAndNoIn(ExpressionTree expression, Optional<List<Tuple<AstNode, ExpressionTree>>> operatorAndOperands) {
+  public ExpressionTree newConditionalAndNoIn(ExpressionTree expression, Optional<List<Tuple<InternalSyntaxToken, ExpressionTree>>> operatorAndOperands) {
     return buildBinaryExpression(expression, operatorAndOperands);
   }
 
-  public ExpressionTree newBitwiseOr(ExpressionTree expression, Optional<List<Tuple<AstNode, ExpressionTree>>> operatorAndOperands) {
+  public ExpressionTree newBitwiseOr(ExpressionTree expression, Optional<List<Tuple<InternalSyntaxToken, ExpressionTree>>> operatorAndOperands) {
     return buildBinaryExpression(expression, operatorAndOperands);
   }
 
-  public ExpressionTree newBitwiseOrNoIn(ExpressionTree expression, Optional<List<Tuple<AstNode, ExpressionTree>>> operatorAndOperands) {
+  public ExpressionTree newBitwiseOrNoIn(ExpressionTree expression, Optional<List<Tuple<InternalSyntaxToken, ExpressionTree>>> operatorAndOperands) {
     return buildBinaryExpression(expression, operatorAndOperands);
   }
 
-  public ExpressionTree newBitwiseXor(ExpressionTree expression, Optional<List<Tuple<AstNode, ExpressionTree>>> operatorAndOperands) {
+  public ExpressionTree newBitwiseXor(ExpressionTree expression, Optional<List<Tuple<InternalSyntaxToken, ExpressionTree>>> operatorAndOperands) {
     return buildBinaryExpression(expression, operatorAndOperands);
   }
 
-  public ExpressionTree newBitwiseXorNoIn(ExpressionTree expression, Optional<List<Tuple<AstNode, ExpressionTree>>> operatorAndOperands) {
+  public ExpressionTree newBitwiseXorNoIn(ExpressionTree expression, Optional<List<Tuple<InternalSyntaxToken, ExpressionTree>>> operatorAndOperands) {
     return buildBinaryExpression(expression, operatorAndOperands);
   }
 
-  public ExpressionTree newBitwiseAnd(ExpressionTree expression, Optional<List<Tuple<AstNode, ExpressionTree>>> operatorAndOperands) {
+  public ExpressionTree newBitwiseAnd(ExpressionTree expression, Optional<List<Tuple<InternalSyntaxToken, ExpressionTree>>> operatorAndOperands) {
     return buildBinaryExpression(expression, operatorAndOperands);
   }
 
-  public ExpressionTree newBitwiseAndNoIn(ExpressionTree expression, Optional<List<Tuple<AstNode, ExpressionTree>>> operatorAndOperands) {
+  public ExpressionTree newBitwiseAndNoIn(ExpressionTree expression, Optional<List<Tuple<InternalSyntaxToken, ExpressionTree>>> operatorAndOperands) {
     return buildBinaryExpression(expression, operatorAndOperands);
   }
 
-  public ExpressionTree newEquality(ExpressionTree expression, Optional<List<Tuple<AstNode, ExpressionTree>>> operatorAndOperands) {
+  public ExpressionTree newEquality(ExpressionTree expression, Optional<List<Tuple<InternalSyntaxToken, ExpressionTree>>> operatorAndOperands) {
     return buildBinaryExpression(expression, operatorAndOperands);
   }
 
-  public ExpressionTree newEqualityNoIn(ExpressionTree expression, Optional<List<Tuple<AstNode, ExpressionTree>>> operatorAndOperands) {
+  public ExpressionTree newEqualityNoIn(ExpressionTree expression, Optional<List<Tuple<InternalSyntaxToken, ExpressionTree>>> operatorAndOperands) {
     return buildBinaryExpression(expression, operatorAndOperands);
   }
 
-  public ExpressionTree newRelational(ExpressionTree expression, Optional<List<Tuple<AstNode, ExpressionTree>>> operatorAndOperands) {
+  public ExpressionTree newRelational(ExpressionTree expression, Optional<List<Tuple<InternalSyntaxToken, ExpressionTree>>> operatorAndOperands) {
     return buildBinaryExpression(expression, operatorAndOperands);
   }
 
-  public ExpressionTree newRelationalNoIn(ExpressionTree expression, Optional<List<Tuple<AstNode, ExpressionTree>>> operatorAndOperands) {
+  public ExpressionTree newRelationalNoIn(ExpressionTree expression, Optional<List<Tuple<InternalSyntaxToken, ExpressionTree>>> operatorAndOperands) {
     return buildBinaryExpression(expression, operatorAndOperands);
   }
 
-  public ExpressionTree newShift(ExpressionTree expression, Optional<List<Tuple<AstNode, ExpressionTree>>> operatorAndOperands) {
+  public ExpressionTree newShift(ExpressionTree expression, Optional<List<Tuple<InternalSyntaxToken, ExpressionTree>>> operatorAndOperands) {
     return buildBinaryExpression(expression, operatorAndOperands);
   }
 
-  public ExpressionTree newAdditive(ExpressionTree expression, Optional<List<Tuple<AstNode, ExpressionTree>>> operatorAndOperands) {
+  public ExpressionTree newAdditive(ExpressionTree expression, Optional<List<Tuple<InternalSyntaxToken, ExpressionTree>>> operatorAndOperands) {
     return buildBinaryExpression(expression, operatorAndOperands);
   }
 
-  public ExpressionTree newMultiplicative(ExpressionTree expression, Optional<List<Tuple<AstNode, ExpressionTree>>> operatorAndOperands) {
+  public ExpressionTree newMultiplicative(ExpressionTree expression, Optional<List<Tuple<InternalSyntaxToken, ExpressionTree>>> operatorAndOperands) {
     return buildBinaryExpression(expression, operatorAndOperands);
   }
 
-  private ExpressionTree buildBinaryExpression(ExpressionTree expression, Optional<List<Tuple<AstNode, ExpressionTree>>> operatorAndOperands) {
+  private ExpressionTree buildBinaryExpression(ExpressionTree expression, Optional<List<Tuple<InternalSyntaxToken, ExpressionTree>>> operatorAndOperands) {
     if (!operatorAndOperands.isPresent()) {
       return expression;
     }
 
     ExpressionTree result = expression;
 
-    for (Tuple<AstNode, ExpressionTree> t : operatorAndOperands.get()) {
+    for (Tuple<InternalSyntaxToken, ExpressionTree> t : operatorAndOperands.get()) {
       result = new BinaryExpressionTreeImpl(
-        getBinaryOperator(t.first().getType()),
+        getBinaryOperator(t.first()),
         result,
-        InternalSyntaxToken.create(t.first()),
+        t.first(),
         t.second());
     }
     return result;
   }
 
-  public ExpressionTree prefixExpression(AstNode operator, ExpressionTree expression) {
-    return new PrefixExpressionTreeImpl(getPrefixOperator(operator.getType()), InternalSyntaxToken.create(operator), expression);
+  public ExpressionTree prefixExpression(InternalSyntaxToken operator, ExpressionTree expression) {
+    return new PrefixExpressionTreeImpl(getPrefixOperator(operator), operator, expression);
   }
 
-  public ExpressionTree postfixExpression(ExpressionTree expression, Optional<Tuple<AstNode, AstNode>> operatorNoLB) {
+  public ExpressionTree postfixExpression(ExpressionTree expression, Optional<Tuple<InternalSyntaxToken, InternalSyntaxToken>> operatorNoLB) {
     if (!operatorNoLB.isPresent()) {
       return expression;
     }
     Kind kind = operatorNoLB.get().second().is(EcmaScriptPunctuator.INC) ? Kind.POSTFIX_INCREMENT : Kind.POSTFIX_DECREMENT;
-    return new PostfixExpressionTreeImpl(kind, expression, InternalSyntaxToken.create(operatorNoLB.get().second()));
+    return new PostfixExpressionTreeImpl(kind, expression, operatorNoLB.get().second());
   }
 
-  public YieldExpressionTreeImpl completeYieldExpression(AstNode yieldToken, Optional<YieldExpressionTreeImpl> partial) {
+  public YieldExpressionTreeImpl completeYieldExpression(InternalSyntaxToken yieldToken, Optional<YieldExpressionTreeImpl> partial) {
     if (partial.isPresent()) {
-      return partial.get().complete(InternalSyntaxToken.create(yieldToken));
+      return partial.get().complete(yieldToken);
     }
-    return new YieldExpressionTreeImpl(InternalSyntaxToken.create(yieldToken));
+    return new YieldExpressionTreeImpl(yieldToken);
   }
 
-  public YieldExpressionTreeImpl completeYieldExpressionNoIn(AstNode yieldToken, Optional<YieldExpressionTreeImpl> partial) {
+  public YieldExpressionTreeImpl completeYieldExpressionNoIn(InternalSyntaxToken yieldToken, Optional<YieldExpressionTreeImpl> partial) {
     if (partial.isPresent()) {
-      return partial.get().complete(InternalSyntaxToken.create(yieldToken));
+      return partial.get().complete(yieldToken);
     }
-    return new YieldExpressionTreeImpl(InternalSyntaxToken.create(yieldToken));
+    return new YieldExpressionTreeImpl(yieldToken);
   }
 
-  public YieldExpressionTreeImpl newYieldExpression(AstNode spacingNoLB, Optional<AstNode> starToken, ExpressionTree expression) {
+  public YieldExpressionTreeImpl newYieldExpression(Tree spacingNoLB, Optional<InternalSyntaxToken> starToken, ExpressionTree expression) {
     if (starToken.isPresent()) {
-      return new YieldExpressionTreeImpl(InternalSyntaxToken.create(starToken.get()), expression);
+      return new YieldExpressionTreeImpl(starToken.get(), expression);
     }
     return new YieldExpressionTreeImpl(expression);
   }
 
-  public YieldExpressionTreeImpl newYieldExpressionNoIn(AstNode spacingNoLB, Optional<AstNode> starToken, ExpressionTree expression) {
+  public YieldExpressionTreeImpl newYieldExpressionNoIn(Tree spacingNoLB, Optional<InternalSyntaxToken> starToken, ExpressionTree expression) {
     if (starToken.isPresent()) {
-      return new YieldExpressionTreeImpl(InternalSyntaxToken.create(starToken.get()), expression);
+      return new YieldExpressionTreeImpl(starToken.get(), expression);
     }
     return new YieldExpressionTreeImpl(expression);
   }
 
-  public IdentifierTreeImpl identifierReference(AstNode identifier) {
-    return new IdentifierTreeImpl(Kind.IDENTIFIER_REFERENCE, InternalSyntaxToken.create(identifier));
+  public IdentifierTreeImpl identifierReference(InternalSyntaxToken identifier) {
+    return new IdentifierTreeImpl(Kind.IDENTIFIER_REFERENCE, identifier);
   }
 
-  public IdentifierTreeImpl bindingIdentifier(AstNode identifier) {
-    return new IdentifierTreeImpl(Kind.BINDING_IDENTIFIER, InternalSyntaxToken.create(identifier));
+  public IdentifierTreeImpl bindingIdentifier(InternalSyntaxToken identifier) {
+    return new IdentifierTreeImpl(Kind.BINDING_IDENTIFIER, identifier);
   }
 
-  public ArrowFunctionTreeImpl arrowFunction(Tree parameters, AstNode spacingNoLB, AstNode doubleArrow, Tree body) {
-    return new ArrowFunctionTreeImpl(parameters, InternalSyntaxToken.create(doubleArrow), body);
+  public ArrowFunctionTreeImpl arrowFunction(Tree parameters, Tree spacingNoLB, InternalSyntaxToken doubleArrow, Tree body) {
+    return new ArrowFunctionTreeImpl(parameters, doubleArrow, body);
   }
 
-  public ArrowFunctionTreeImpl arrowFunctionNoIn(Tree parameters, AstNode spacingNoLB, AstNode doubleArrow, Tree body) {
-    return new ArrowFunctionTreeImpl(parameters, InternalSyntaxToken.create(doubleArrow), body);
+  public ArrowFunctionTreeImpl arrowFunctionNoIn(Tree parameters, Tree spacingNoLB, InternalSyntaxToken doubleArrow, Tree body) {
+    return new ArrowFunctionTreeImpl(parameters, doubleArrow, body);
   }
 
-  public IdentifierTreeImpl identifierName(AstNode identifier) {
-    return new IdentifierTreeImpl(Kind.IDENTIFIER_NAME, InternalSyntaxToken.create(identifier));
+  public IdentifierTreeImpl identifierName(InternalSyntaxToken identifier) {
+    return new IdentifierTreeImpl(Kind.IDENTIFIER_NAME, identifier);
   }
 
-  public DotMemberExpressionTreeImpl newDotMemberExpression(AstNode dotToken, IdentifierTreeImpl identifier) {
-    return new DotMemberExpressionTreeImpl(InternalSyntaxToken.create(dotToken), identifier);
+  public DotMemberExpressionTreeImpl newDotMemberExpression(InternalSyntaxToken dotToken, IdentifierTreeImpl identifier) {
+    return new DotMemberExpressionTreeImpl(dotToken, identifier);
   }
 
-  public BracketMemberExpressionTreeImpl newBracketMemberExpression(AstNode openBracket, ExpressionTree expression, AstNode closeBracket) {
-    return new BracketMemberExpressionTreeImpl(InternalSyntaxToken.create(openBracket), expression, InternalSyntaxToken.create(closeBracket));
+  public BracketMemberExpressionTreeImpl newBracketMemberExpression(InternalSyntaxToken openBracket, ExpressionTree expression, InternalSyntaxToken closeBracket) {
+    return new BracketMemberExpressionTreeImpl(openBracket, expression, closeBracket);
   }
 
   public MemberExpressionTree completeSuperMemberExpression(SuperTreeImpl superExpression, MemberExpressionTree partial) {
@@ -944,11 +861,11 @@ public class TreeFactory {
     return ((BracketMemberExpressionTreeImpl) partial).complete(superExpression);
   }
 
-  public SuperTreeImpl superExpression(AstNode superToken) {
-    return new SuperTreeImpl(InternalSyntaxToken.create(superToken));
+  public SuperTreeImpl superExpression(InternalSyntaxToken superToken) {
+    return new SuperTreeImpl(superToken);
   }
 
-  public TaggedTemplateTreeImpl newTaggedTemplate(TemplateLiteralTreeImpl template) {
+  public TaggedTemplateTreeImpl newTaggedTemplate(TemplateLiteralTree template) {
     return new TaggedTemplateTreeImpl(template);
   }
 
@@ -972,36 +889,33 @@ public class TreeFactory {
     return result;
   }
 
-  public ExpressionTree argument(Optional<AstNode> ellipsisToken, ExpressionTree expression) {
+  public ExpressionTree argument(Optional<InternalSyntaxToken> ellipsisToken, ExpressionTree expression) {
     return ellipsisToken.isPresent() ?
-      new RestElementTreeImpl(InternalSyntaxToken.create(ellipsisToken.get()), expression) : expression;
+      new RestElementTreeImpl(ellipsisToken.get(), expression)
+      : expression;
   }
 
-  public ParameterListTreeImpl newArgumentList(ExpressionTree argument, Optional<List<Tuple<AstNode, ExpressionTree>>> restArguments) {
-    List<AstNode> children = Lists.newArrayList();
+  public ParameterListTreeImpl newArgumentList(ExpressionTree argument, Optional<List<Tuple<InternalSyntaxToken, ExpressionTree>>> restArguments) {
     List<Tree> arguments = Lists.newArrayList();
     List<InternalSyntaxToken> commas = Lists.newArrayList();
 
     arguments.add(argument);
-    children.add((AstNode) argument);
 
     if (restArguments.isPresent()) {
-      for (Tuple<AstNode, ExpressionTree> t : restArguments.get()) {
-        commas.add(InternalSyntaxToken.create(t.first()));
-        children.add(t.first());
+      for (Tuple<InternalSyntaxToken, ExpressionTree> t : restArguments.get()) {
+        commas.add(t.first());
         arguments.add(t.second());
-        children.add((AstNode) t.second());
       }
     }
 
-    return new ParameterListTreeImpl(Kind.ARGUMENTS, new SeparatedList<Tree>(arguments, commas, children));
+    return new ParameterListTreeImpl(Kind.ARGUMENTS, new SeparatedList<>(arguments, commas));
   }
 
-  public ParameterListTreeImpl completeArguments(AstNode openParenToken, Optional<ParameterListTreeImpl> arguments, AstNode closeParenToken) {
+  public ParameterListTreeImpl completeArguments(InternalSyntaxToken openParenToken, Optional<ParameterListTreeImpl> arguments, InternalSyntaxToken closeParenToken) {
     if (arguments.isPresent()) {
-      return arguments.get().complete(InternalSyntaxToken.create(openParenToken), InternalSyntaxToken.create(closeParenToken));
+      return arguments.get().complete(openParenToken, closeParenToken);
     }
-    return new ParameterListTreeImpl(Kind.ARGUMENTS, InternalSyntaxToken.create(openParenToken), InternalSyntaxToken.create(closeParenToken));
+    return new ParameterListTreeImpl(Kind.ARGUMENTS, openParenToken, closeParenToken);
   }
 
   public CallExpressionTreeImpl simpleCallExpression(ExpressionTree expression, ParameterListTree arguments) {
@@ -1030,224 +944,188 @@ public class TreeFactory {
     return callee;
   }
 
-  public ParenthesisedExpressionTreeImpl parenthesisedExpression(AstNode openParenToken, ExpressionTree expression, AstNode closeParenToken) {
-    return new ParenthesisedExpressionTreeImpl(InternalSyntaxToken.create(openParenToken), expression, InternalSyntaxToken.create(closeParenToken));
+  public ParenthesisedExpressionTreeImpl parenthesisedExpression(InternalSyntaxToken openParenToken, ExpressionTree expression, InternalSyntaxToken closeParenToken) {
+    return new ParenthesisedExpressionTreeImpl(openParenToken, expression, closeParenToken);
   }
 
-  public ClassTreeImpl classExpression(AstNode classToken, Optional<IdentifierTreeImpl> name, Optional<Tuple<AstNode, ExpressionTree>> extendsClause,
-    AstNode openCurlyBraceToken, Optional<List<AstNode>> members, AstNode closeCurlyBraceToken) {
+  public ClassTreeImpl classExpression(InternalSyntaxToken classToken, Optional<IdentifierTreeImpl> name, Optional<Tuple<InternalSyntaxToken, ExpressionTree>> extendsClause,
+    InternalSyntaxToken openCurlyBraceToken, Optional<List<JavaScriptTree>> members, InternalSyntaxToken closeCurlyBraceToken) {
 
     List<Tree> elements = Lists.newArrayList();
-    List<AstNode> children = Lists.newArrayList();
 
     if (members.isPresent()) {
-      for (AstNode member : members.get()) {
+      for (JavaScriptTree member : members.get()) {
         if (member instanceof MethodDeclarationTree) {
-          elements.add((MethodDeclarationTree) member);
+          elements.add(member);
         } else {
-          elements.add(InternalSyntaxToken.create(member));
+          elements.add(member);
         }
-        children.add(member);
       }
     }
 
     if (extendsClause.isPresent()) {
       return ClassTreeImpl.newClassExpression(
-        InternalSyntaxToken.create(classToken), name.orNull(),
-        InternalSyntaxToken.create(extendsClause.get().first()), extendsClause.get().second(),
-        InternalSyntaxToken.create(openCurlyBraceToken),
+        classToken, name.orNull(),
+        extendsClause.get().first(), extendsClause.get().second(),
+        openCurlyBraceToken,
         elements,
-        InternalSyntaxToken.create(closeCurlyBraceToken), children);
+        closeCurlyBraceToken);
     }
 
     return ClassTreeImpl.newClassExpression(
-      InternalSyntaxToken.create(classToken), name.orNull(),
+      classToken, name.orNull(),
       null, null,
-      InternalSyntaxToken.create(openCurlyBraceToken),
+      openCurlyBraceToken,
       elements,
-      InternalSyntaxToken.create(closeCurlyBraceToken), children);
+      closeCurlyBraceToken);
   }
 
-  public ComputedPropertyNameTreeImpl computedPropertyName(AstNode openBracketToken, ExpressionTree expression, AstNode closeBracketToken) {
-    return new ComputedPropertyNameTreeImpl(InternalSyntaxToken.create(openBracketToken), expression, InternalSyntaxToken.create(closeBracketToken));
+  public ComputedPropertyNameTreeImpl computedPropertyName(InternalSyntaxToken openBracketToken, ExpressionTree expression, InternalSyntaxToken closeBracketToken) {
+    return new ComputedPropertyNameTreeImpl(openBracketToken, expression, closeBracketToken);
   }
 
-  public PairPropertyTreeImpl pairProperty(ExpressionTree name, AstNode colonToken, ExpressionTree value) {
-    return new PairPropertyTreeImpl(name, InternalSyntaxToken.create(colonToken), value);
+  public PairPropertyTreeImpl pairProperty(ExpressionTree name, InternalSyntaxToken colonToken, ExpressionTree value) {
+    return new PairPropertyTreeImpl(name, colonToken, value);
   }
 
-  public ObjectLiteralTreeImpl newObjectLiteral(Tree property, Optional<List<Tuple<AstNode, Tree>>> restProperties, Optional<AstNode> trailingComma) {
-    List<AstNode> children = Lists.newArrayList();
+  public ObjectLiteralTreeImpl newObjectLiteral(Tree property, Optional<List<Tuple<InternalSyntaxToken, Tree>>> restProperties, Optional<InternalSyntaxToken> trailingComma) {
     List<InternalSyntaxToken> commas = Lists.newArrayList();
     List<Tree> properties = Lists.newArrayList();
 
-    children.add((AstNode) property);
     properties.add(property);
 
     if (restProperties.isPresent()) {
-      for (Tuple<AstNode, Tree> t : restProperties.get()) {
-        commas.add(InternalSyntaxToken.create(t.first()));
-        children.add(t.first());
+      for (Tuple<InternalSyntaxToken, Tree> t : restProperties.get()) {
+        commas.add(t.first());
 
         properties.add(t.second());
-        children.add((AstNode) t.second());
       }
     }
 
     if (trailingComma.isPresent()) {
-      commas.add(InternalSyntaxToken.create(trailingComma.get()));
-      children.add(trailingComma.get());
+      commas.add(trailingComma.get());
     }
 
-    return new ObjectLiteralTreeImpl(new SeparatedList<Tree>(properties, commas, children));
+    return new ObjectLiteralTreeImpl(new SeparatedList<>(properties, commas));
   }
 
-  public ObjectLiteralTreeImpl completeObjectLiteral(AstNode openCurlyToken, Optional<ObjectLiteralTreeImpl> partial, AstNode closeCurlyToken) {
+  public ObjectLiteralTreeImpl completeObjectLiteral(InternalSyntaxToken openCurlyToken, Optional<ObjectLiteralTreeImpl> partial, InternalSyntaxToken closeCurlyToken) {
     if (partial.isPresent()) {
-      return partial.get().complete(InternalSyntaxToken.create(openCurlyToken), InternalSyntaxToken.create(closeCurlyToken));
+      return partial.get().complete(openCurlyToken, closeCurlyToken);
     }
-    return new ObjectLiteralTreeImpl(InternalSyntaxToken.create(openCurlyToken), InternalSyntaxToken.create(closeCurlyToken));
+    return new ObjectLiteralTreeImpl(openCurlyToken, closeCurlyToken);
   }
 
-  public NewExpressionTreeImpl newExpressionWithArgument(AstNode newToken, ExpressionTree expression, ParameterListTreeImpl arguments) {
+  public NewExpressionTreeImpl newExpressionWithArgument(InternalSyntaxToken newToken, ExpressionTree expression, ParameterListTreeImpl arguments) {
     return new NewExpressionTreeImpl(
       expression.is(Kind.SUPER) ? Kind.NEW_SUPER : Kind.NEW_EXPRESSION,
-      InternalSyntaxToken.create(newToken),
+      newToken,
       expression,
       arguments);
   }
 
-  public ExpressionTree newExpression(AstNode newToken, ExpressionTree expression) {
+  public ExpressionTree newExpression(InternalSyntaxToken newToken, ExpressionTree expression) {
     return new NewExpressionTreeImpl(
       expression.is(Kind.SUPER) ? Kind.NEW_SUPER : Kind.NEW_EXPRESSION,
-      InternalSyntaxToken.create(newToken),
+      newToken,
       expression);
   }
 
-  public TemplateLiteralTreeImpl noSubstitutionTemplate(AstNode openBacktickToken, Optional<TemplateCharactersTreeImpl> templateCharacters, AstNode closeBacktickToken) {
+  public TemplateLiteralTree noSubstitutionTemplate(InternalSyntaxToken openBacktickToken, Optional<TemplateCharactersTree> templateCharacters, InternalSyntaxToken closeBacktickToken) {
     return new TemplateLiteralTreeImpl(
-      InternalSyntaxToken.create(openBacktickToken),
+      openBacktickToken,
       templateCharacters.isPresent() ? Lists.newArrayList(templateCharacters.get()) : ListUtils.EMPTY_LIST,
-      InternalSyntaxToken.create(closeBacktickToken));
+      closeBacktickToken);
   }
 
-  public TemplateExpressionTreeImpl newTemplateExpressionHead(AstNode dollar, AstNode openCurlyBrace, ExpressionTree expression) {
-    return new TemplateExpressionTreeImpl(InternalSyntaxToken.create(dollar), InternalSyntaxToken.create(openCurlyBrace), expression);
+  public TemplateExpressionTreeImpl templateExpression(InternalSyntaxToken dollar, InternalSyntaxToken openCurlyBrace, ExpressionTree expression, InternalSyntaxToken closeCurlyBrace) {
+    return new TemplateExpressionTreeImpl(dollar, openCurlyBrace, expression, closeCurlyBrace);
   }
 
-  public TemplateLiteralTreeImpl substitutionTemplate(AstNode openBacktick, Optional<TemplateCharactersTreeImpl> headCharacters,
-    TemplateExpressionTreeImpl firstTemplateExpressionHead, Optional<List<AstNode>> middleTemplateExpression, AstNode tailCloseCurlyBrace,
-    Optional<TemplateCharactersTreeImpl> tailCharacters, AstNode closeBacktick) {
-    List<AstNode> children = Lists.newArrayList();
+  public TemplateLiteralTree substitutionTemplate(InternalSyntaxToken openBacktick, Optional<TemplateCharactersTree> firstCharacters, Optional<List<Tuple<TemplateExpressionTree, Optional<TemplateCharactersTree>>>> list, InternalSyntaxToken closeBacktick) {
     List<Tree> elements = new ArrayList<>();
 
-    // TEMPLATE HEAD
-    children.add(openBacktick);
-    if (headCharacters.isPresent()) {
-      elements.add(headCharacters.get());
-      children.add(headCharacters.get());
+    if (firstCharacters.isPresent()) {
+      elements.add(firstCharacters.get());
     }
 
-    TemplateExpressionTreeImpl expressionHead = firstTemplateExpressionHead;
-
-    // TEMPLATE MIDDLE
-    if (middleTemplateExpression.isPresent()) {
-
-      for (AstNode middle : middleTemplateExpression.get()) {
-        for (AstNode node : middle.getChildren()) {
-
-          if (node.is(EcmaScriptPunctuator.RCURLYBRACE)) {
-            expressionHead.complete(InternalSyntaxToken.create(node));
-            elements.add(expressionHead);
-            children.add(expressionHead);
-
-          } else if (node instanceof TemplateExpressionTreeImpl) {
-            expressionHead = (TemplateExpressionTreeImpl) node;
-
-          } else {
-            // Template characters
-            elements.add((Tree) node);
-            children.add(node);
-          }
+    if (list.isPresent()) {
+      for (Tuple<TemplateExpressionTree, Optional<TemplateCharactersTree>> tuple : list.get()) {
+        elements.add(tuple.first());
+        if (tuple.second().isPresent()) {
+          elements.add(tuple.second().get());
         }
       }
     }
 
-    // TEMPLATE TAIL
-    expressionHead.complete(InternalSyntaxToken.create(tailCloseCurlyBrace));
-    elements.add(expressionHead);
-    children.add(expressionHead);
-    if (tailCharacters.isPresent()) {
-      elements.add(tailCharacters.get());
-      children.add(tailCharacters.get());
-    }
-
-    children.add(closeBacktick);
-
-    return new TemplateLiteralTreeImpl(InternalSyntaxToken.create(openBacktick), elements, InternalSyntaxToken.create(closeBacktick), children);
+    return new TemplateLiteralTreeImpl(openBacktick, elements, closeBacktick);
   }
 
-  public TemplateCharactersTreeImpl templateCharacters(List<AstNode> characters) {
+  public TemplateCharactersTreeImpl templateCharacters(List<InternalSyntaxToken> characters) {
     List<InternalSyntaxToken> characterTokens = new ArrayList<>();
-    for (AstNode character : characters) {
-      characterTokens.add(InternalSyntaxToken.create(character));
+    for (InternalSyntaxToken character : characters) {
+      characterTokens.add(character);
     }
     return new TemplateCharactersTreeImpl(characterTokens);
   }
 
-  public ThisTreeImpl thisExpression(AstNode thisKeyword) {
-    return new ThisTreeImpl(InternalSyntaxToken.create(thisKeyword));
+  public ThisTreeImpl thisExpression(InternalSyntaxToken thisKeyword) {
+    return new ThisTreeImpl(thisKeyword);
   }
 
-  public IdentifierTreeImpl labelIdentifier(AstNode identifier) {
-    return new IdentifierTreeImpl(Kind.LABEL_IDENTIFIER, InternalSyntaxToken.create(identifier));
+  public IdentifierTreeImpl identifierNoLb(Tree spacing, InternalSyntaxToken identifier) {
+    return new IdentifierTreeImpl(Kind.IDENTIFIER_NO_LB, identifier);
   }
 
-  public IdentifierTreeImpl identifierReferenceWithoutYield(AstNode identifier) {
-    return new IdentifierTreeImpl(Kind.IDENTIFIER_REFERENCE, InternalSyntaxToken.create(identifier));
+  public IdentifierTreeImpl labelIdentifier(InternalSyntaxToken identifier) {
+    return new IdentifierTreeImpl(Kind.LABEL_IDENTIFIER, identifier);
   }
 
-  public ExpressionTree assignmentExpression(ExpressionTree variable, AstNode operator, ExpressionTree expression) {
-    return new AssignmentExpressionTreeImpl(EXPRESSION_KIND_BY_PUNCTUATORS.get(operator.getType()), variable, InternalSyntaxToken.create(operator), expression);
+  public IdentifierTreeImpl identifierReferenceWithoutYield(InternalSyntaxToken identifier) {
+    return new IdentifierTreeImpl(Kind.IDENTIFIER_REFERENCE, identifier);
   }
 
-  public ExpressionTree assignmentExpressionNoIn(ExpressionTree variable, AstNode operator, ExpressionTree expression) {
-    return new AssignmentExpressionTreeImpl(EXPRESSION_KIND_BY_PUNCTUATORS.get(operator.getType()), variable, InternalSyntaxToken.create(operator), expression);
+  public ExpressionTree assignmentExpression(ExpressionTree variable, InternalSyntaxToken operator, ExpressionTree expression) {
+    return new AssignmentExpressionTreeImpl(EXPRESSION_KIND_BY_VALUE.get(operator.text()), variable, operator, expression);
   }
 
-  public ExpressionTree expression(ExpressionTree expression, Optional<List<Tuple<AstNode, ExpressionTree>>> operatorAndOperands) {
+  public ExpressionTree assignmentExpressionNoIn(ExpressionTree variable, InternalSyntaxToken operator, ExpressionTree expression) {
+    return new AssignmentExpressionTreeImpl(EXPRESSION_KIND_BY_VALUE.get(operator.text()), variable, operator, expression);
+  }
+
+  public ExpressionTree expression(ExpressionTree expression, Optional<List<Tuple<InternalSyntaxToken, ExpressionTree>>> operatorAndOperands) {
     return buildBinaryExpression(expression, operatorAndOperands);
   }
 
-  public ExpressionTree expressionNoIn(ExpressionTree expression, Optional<List<Tuple<AstNode, ExpressionTree>>> operatorAndOperands) {
+  public ExpressionTree expressionNoIn(ExpressionTree expression, Optional<List<Tuple<InternalSyntaxToken, ExpressionTree>>> operatorAndOperands) {
     return buildBinaryExpression(expression, operatorAndOperands);
   }
 
-  public ExpressionTree expressionNoLineBreak(AstNode spacingNoLineBreak, ExpressionTree expression) {
+  public ExpressionTree expressionNoLineBreak(Tree spacingNoLineBreak, ExpressionTree expression) {
     return expression;
   }
 
-  public FromClauseTreeImpl fromClause(AstNode fromToken, LiteralTreeImpl module) {
-    return new FromClauseTreeImpl(InternalSyntaxToken.create(fromToken), module);
+  public FromClauseTreeImpl fromClause(InternalSyntaxToken fromToken, LiteralTreeImpl module) {
+    return new FromClauseTreeImpl(fromToken, module);
   }
 
-  public DefaultExportDeclarationTreeImpl defaultExportDeclaration(AstNode exportToken, AstNode defaultToken, Tree declaration) {
+  public DefaultExportDeclarationTreeImpl defaultExportDeclaration(InternalSyntaxToken exportToken, InternalSyntaxToken defaultToken, Tree declaration) {
     return new DefaultExportDeclarationTreeImpl(
-      InternalSyntaxToken.create(exportToken),
-      InternalSyntaxToken.create(defaultToken),
+      exportToken,
+      defaultToken,
       declaration);
   }
 
-  public ExpressionStatementTreeImpl exportedExpressionStatement(AstNode lookahead, ExpressionTree expression, EndOfStatementTreeImpl eos) {
+  public ExpressionStatementTreeImpl exportedExpressionStatement(Tree lookahead, ExpressionTree expression, EndOfStatementTreeImpl eos) {
     return new ExpressionStatementTreeImpl(expression, eos);
   }
 
-  public NamedExportDeclarationTreeImpl namedExportDeclaration(AstNode exportToken, Tree object) {
-    return new NamedExportDeclarationTreeImpl(InternalSyntaxToken.create(exportToken), object);
+  public NamedExportDeclarationTreeImpl namedExportDeclaration(InternalSyntaxToken exportToken, Tree object) {
+    return new NamedExportDeclarationTreeImpl(exportToken, object);
   }
 
-  public SpecifierTreeImpl newExportSpecifier(AstNode asToken, IdentifierTreeImpl identifier) {
-    return new SpecifierTreeImpl(Kind.EXPORT_SPECIFIER, InternalSyntaxToken.create(asToken), identifier);
+  public SpecifierTreeImpl newExportSpecifier(InternalSyntaxToken asToken, IdentifierTreeImpl identifier) {
+    return new SpecifierTreeImpl(Kind.EXPORT_SPECIFIER, asToken, identifier);
   }
 
   public SpecifierTreeImpl completeExportSpecifier(IdentifierTreeImpl name, Optional<SpecifierTreeImpl> localName) {
@@ -1257,41 +1135,36 @@ public class TreeFactory {
     return new SpecifierTreeImpl(Kind.EXPORT_SPECIFIER, name);
   }
 
-  public SpecifierListTreeImpl newExportSpecifierList(SpecifierTreeImpl specifier, Optional<List<Tuple<AstNode, SpecifierTreeImpl>>> restSpecifier,
-    Optional<AstNode> trailingComma) {
+  public SpecifierListTreeImpl newExportSpecifierList(SpecifierTreeImpl specifier, Optional<List<Tuple<InternalSyntaxToken, SpecifierTreeImpl>>> restSpecifier,
+    Optional<InternalSyntaxToken> trailingComma) {
     List<InternalSyntaxToken> commas = Lists.newArrayList();
     List<SpecifierTree> specifiers = Lists.newArrayList();
-    List<AstNode> children = Lists.newArrayList();
 
     specifiers.add(specifier);
-    children.add(specifier);
 
     if (restSpecifier.isPresent()) {
-      for (Tuple<AstNode, SpecifierTreeImpl> t : restSpecifier.get()) {
-        commas.add(InternalSyntaxToken.create(t.first()));
+      for (Tuple<InternalSyntaxToken, SpecifierTreeImpl> t : restSpecifier.get()) {
+        commas.add(t.first());
         specifiers.add(t.second());
-        children.add(t.first());
-        children.add(t.second());
       }
     }
 
     if (trailingComma.isPresent()) {
-      commas.add(InternalSyntaxToken.create(trailingComma.get()));
-      children.add(trailingComma.get());
+      commas.add(trailingComma.get());
     }
 
-    return new SpecifierListTreeImpl(Kind.EXPORT_LIST, new SeparatedList<SpecifierTree>(specifiers, commas), children);
+    return new SpecifierListTreeImpl(Kind.EXPORT_LIST, new SeparatedList<>(specifiers, commas));
   }
 
-  public SpecifierListTreeImpl exportList(AstNode openCurlyBraceToken, Optional<SpecifierListTreeImpl> specifierList, AstNode closeCurlyBraceToken) {
+  public SpecifierListTreeImpl exportList(InternalSyntaxToken openCurlyBraceToken, Optional<SpecifierListTreeImpl> specifierList, InternalSyntaxToken closeCurlyBraceToken) {
     if (specifierList.isPresent()) {
-      return specifierList.get().complete(InternalSyntaxToken.create(openCurlyBraceToken), InternalSyntaxToken.create(closeCurlyBraceToken));
+      return specifierList.get().complete(openCurlyBraceToken, closeCurlyBraceToken);
     }
-    return new SpecifierListTreeImpl(Kind.EXPORT_LIST, InternalSyntaxToken.create(openCurlyBraceToken), InternalSyntaxToken.create(closeCurlyBraceToken));
+    return new SpecifierListTreeImpl(Kind.EXPORT_LIST, openCurlyBraceToken, closeCurlyBraceToken);
   }
 
-  public NameSpaceExportDeclarationTree namespaceExportDeclaration(AstNode exportToken, AstNode starToken, FromClauseTreeImpl fromClause, EndOfStatementTreeImpl eos) {
-    return new NameSpaceExportDeclarationTreeImpl(InternalSyntaxToken.create(exportToken), InternalSyntaxToken.create(starToken), fromClause, eos);
+  public NameSpaceExportDeclarationTree namespaceExportDeclaration(InternalSyntaxToken exportToken, InternalSyntaxToken starToken, FromClauseTreeImpl fromClause, EndOfStatementTreeImpl eos) {
+    return new NameSpaceExportDeclarationTreeImpl(exportToken, starToken, fromClause, eos);
   }
 
   public ExportClauseTreeImpl exportClause(SpecifierListTreeImpl exportList, Optional<FromClauseTreeImpl> fromClause, EndOfStatementTreeImpl eos) {
@@ -1301,12 +1174,12 @@ public class TreeFactory {
     return new ExportClauseTreeImpl(exportList, eos);
   }
 
-  public ImportModuleDeclarationTree importModuleDeclaration(AstNode importToken, LiteralTreeImpl moduleName, EndOfStatementTreeImpl eos) {
-    return new ImportModuleDeclarationTreeImpl(InternalSyntaxToken.create(importToken), moduleName, eos);
+  public ImportModuleDeclarationTree importModuleDeclaration(InternalSyntaxToken importToken, LiteralTreeImpl moduleName, EndOfStatementTreeImpl eos) {
+    return new ImportModuleDeclarationTreeImpl(importToken, moduleName, eos);
   }
 
-  public SpecifierTreeImpl newImportSpecifier(AstNode asToken, IdentifierTreeImpl identifier) {
-    return new SpecifierTreeImpl(Kind.IMPORT_SPECIFIER, InternalSyntaxToken.create(asToken), identifier);
+  public SpecifierTreeImpl newImportSpecifier(InternalSyntaxToken asToken, IdentifierTreeImpl identifier) {
+    return new SpecifierTreeImpl(Kind.IMPORT_SPECIFIER, asToken, identifier);
   }
 
   public SpecifierTreeImpl completeImportSpecifier(IdentifierTreeImpl name, Optional<SpecifierTreeImpl> localName) {
@@ -1316,46 +1189,41 @@ public class TreeFactory {
     return new SpecifierTreeImpl(Kind.IMPORT_SPECIFIER, name);
   }
 
-  public SpecifierListTreeImpl newImportSpecifierList(SpecifierTreeImpl specifier, Optional<List<Tuple<AstNode, SpecifierTreeImpl>>> restSpecifier,
-                                                      Optional<AstNode> trailingComma) {
+  public SpecifierListTreeImpl newImportSpecifierList(SpecifierTreeImpl specifier, Optional<List<Tuple<InternalSyntaxToken, SpecifierTreeImpl>>> restSpecifier,
+                                                      Optional<InternalSyntaxToken> trailingComma) {
     List<InternalSyntaxToken> commas = Lists.newArrayList();
     List<SpecifierTree> specifiers = Lists.newArrayList();
-    List<AstNode> children = Lists.newArrayList();
 
     specifiers.add(specifier);
-    children.add(specifier);
 
     if (restSpecifier.isPresent()) {
-      for (Tuple<AstNode, SpecifierTreeImpl> t : restSpecifier.get()) {
-        commas.add(InternalSyntaxToken.create(t.first()));
+      for (Tuple<InternalSyntaxToken, SpecifierTreeImpl> t : restSpecifier.get()) {
+        commas.add(t.first());
         specifiers.add(t.second());
-        children.add(t.first());
-        children.add(t.second());
       }
     }
 
     if (trailingComma.isPresent()) {
-      commas.add(InternalSyntaxToken.create(trailingComma.get()));
-      children.add(trailingComma.get());
+      commas.add(trailingComma.get());
     }
 
-    return new SpecifierListTreeImpl(Kind.IMPORT_LIST, new SeparatedList<SpecifierTree>(specifiers, commas), children);
+    return new SpecifierListTreeImpl(Kind.IMPORT_LIST, new SeparatedList<>(specifiers, commas));
   }
 
-  public SpecifierListTreeImpl importList(AstNode openCurlyBraceToken, Optional<SpecifierListTreeImpl> specifierList, AstNode closeCurlyBraceToken) {
+  public SpecifierListTreeImpl importList(InternalSyntaxToken openCurlyBraceToken, Optional<SpecifierListTreeImpl> specifierList, InternalSyntaxToken closeCurlyBraceToken) {
     if (specifierList.isPresent()) {
-      return specifierList.get().complete(InternalSyntaxToken.create(openCurlyBraceToken), InternalSyntaxToken.create(closeCurlyBraceToken));
+      return specifierList.get().complete(openCurlyBraceToken, closeCurlyBraceToken);
     }
-    return new SpecifierListTreeImpl(Kind.IMPORT_LIST, InternalSyntaxToken.create(openCurlyBraceToken), InternalSyntaxToken.create(closeCurlyBraceToken));
+    return new SpecifierListTreeImpl(Kind.IMPORT_LIST, openCurlyBraceToken, closeCurlyBraceToken);
   }
 
-  public NameSpaceSpecifierTreeImpl nameSpaceImport(AstNode starToken, AstNode asToken, IdentifierTreeImpl localName) {
-    return new NameSpaceSpecifierTreeImpl(InternalSyntaxToken.create(starToken), InternalSyntaxToken.create(asToken), localName);
+  public NameSpaceSpecifierTreeImpl nameSpaceImport(InternalSyntaxToken starToken, InternalSyntaxToken asToken, IdentifierTreeImpl localName) {
+    return new NameSpaceSpecifierTreeImpl(starToken, asToken, localName);
   }
 
-  public ImportClauseTreeImpl defaultImport(IdentifierTreeImpl identifierTree, Optional<Tuple<AstNode, DeclarationTree>> namedImport) {
+  public ImportClauseTreeImpl defaultImport(IdentifierTreeImpl identifierTree, Optional<Tuple<InternalSyntaxToken, DeclarationTree>> namedImport) {
     if (namedImport.isPresent()) {
-      return new ImportClauseTreeImpl(identifierTree, InternalSyntaxToken.create(namedImport.get().first()), namedImport.get().second());
+      return new ImportClauseTreeImpl(identifierTree, namedImport.get().first(), namedImport.get().second());
     }
     return new ImportClauseTreeImpl(identifierTree);
   }
@@ -1367,8 +1235,8 @@ public class TreeFactory {
     return new ImportClauseTreeImpl(importTree);
   }
 
-  public ImportDeclarationTreeImpl importDeclaration(AstNode importToken, ImportClauseTreeImpl importClause, FromClauseTreeImpl fromClause, EndOfStatementTreeImpl eos) {
-    return new ImportDeclarationTreeImpl(InternalSyntaxToken.create(importToken), importClause, fromClause, eos);
+  public ImportDeclarationTreeImpl importDeclaration(InternalSyntaxToken importToken, ImportClauseTreeImpl importClause, FromClauseTreeImpl fromClause, EndOfStatementTreeImpl eos) {
+    return new ImportDeclarationTreeImpl(importToken, importClause, fromClause, eos);
   }
 
   public ModuleTreeImpl module(List<Tree> items) {
@@ -1377,77 +1245,75 @@ public class TreeFactory {
 
   // [START] Classes, methods, functions & generators
 
-  public ClassTreeImpl classDeclaration(AstNode classToken, IdentifierTreeImpl name,
-    Optional<Tuple<AstNode, ExpressionTree>> extendsClause,
-    AstNode openCurlyBraceToken, Optional<List<AstNode>> members, AstNode closeCurlyBraceToken) {
+  public ClassTreeImpl classDeclaration(InternalSyntaxToken classToken, IdentifierTreeImpl name,
+    Optional<Tuple<InternalSyntaxToken, ExpressionTree>> extendsClause,
+    InternalSyntaxToken openCurlyBraceToken, Optional<List<JavaScriptTree>> members, InternalSyntaxToken closeCurlyBraceToken) {
 
     List<Tree> elements = Lists.newArrayList();
-    List<AstNode> children = Lists.newArrayList();
 
     if (members.isPresent()) {
-      for (AstNode member : members.get()) {
+      for (JavaScriptTree member : members.get()) {
         if (member instanceof MethodDeclarationTree) {
-          elements.add((MethodDeclarationTree) member);
+          elements.add(member);
         } else {
-          elements.add(InternalSyntaxToken.create(member));
+          elements.add(member);
         }
-        children.add(member);
       }
     }
 
     if (extendsClause.isPresent()) {
       return ClassTreeImpl.newClassDeclaration(
-        InternalSyntaxToken.create(classToken), name,
-        InternalSyntaxToken.create(extendsClause.get().first()), extendsClause.get().second(),
-        InternalSyntaxToken.create(openCurlyBraceToken),
+        classToken, name,
+        extendsClause.get().first(), extendsClause.get().second(),
+        openCurlyBraceToken,
         elements,
-        InternalSyntaxToken.create(closeCurlyBraceToken), children);
+        closeCurlyBraceToken);
     }
 
     return ClassTreeImpl.newClassDeclaration(
-      InternalSyntaxToken.create(classToken), name,
+      classToken, name,
       null, null,
-      InternalSyntaxToken.create(openCurlyBraceToken),
+      openCurlyBraceToken,
       elements,
-      InternalSyntaxToken.create(closeCurlyBraceToken), children);
+      closeCurlyBraceToken);
   }
 
-  public MethodDeclarationTreeImpl completeStaticMethod(AstNode staticToken, MethodDeclarationTreeImpl method) {
-    return method.completeWithStaticToken(InternalSyntaxToken.create(staticToken));
+  public MethodDeclarationTreeImpl completeStaticMethod(InternalSyntaxToken staticToken, MethodDeclarationTreeImpl method) {
+    return method.completeWithStaticToken(staticToken);
   }
 
   public MethodDeclarationTreeImpl methodOrGenerator(
-    Optional<AstNode> starToken,
+    Optional<InternalSyntaxToken> starToken,
     ExpressionTree name, ParameterListTreeImpl parameters,
     BlockTreeImpl body) {
 
-    return MethodDeclarationTreeImpl.newMethodOrGenerator(starToken.isPresent() ? InternalSyntaxToken.create(starToken.get()) : null, name, parameters, body);
+    return MethodDeclarationTreeImpl.newMethodOrGenerator(starToken.isPresent() ? starToken.get() : null, name, parameters, body);
   }
 
   public MethodDeclarationTreeImpl accessor(
-    AstNode accessorToken, ExpressionTree name,
+    InternalSyntaxToken accessorToken, ExpressionTree name,
     ParameterListTreeImpl parameters,
     BlockTreeImpl body) {
 
-    return MethodDeclarationTreeImpl.newAccessor(InternalSyntaxToken.create(accessorToken), name, parameters, body);
+    return MethodDeclarationTreeImpl.newAccessor(accessorToken, name, parameters, body);
   }
 
   public FunctionDeclarationTreeImpl functionAndGeneratorDeclaration(
-    AstNode functionToken, Optional<AstNode> starToken, IdentifierTreeImpl name, ParameterListTreeImpl parameters, BlockTreeImpl body) {
+    InternalSyntaxToken functionToken, Optional<InternalSyntaxToken> starToken, IdentifierTreeImpl name, ParameterListTreeImpl parameters, BlockTreeImpl body) {
 
     return starToken.isPresent() ?
-      new FunctionDeclarationTreeImpl(InternalSyntaxToken.create(functionToken), InternalSyntaxToken.create(starToken.get()), name, parameters, body) :
-      new FunctionDeclarationTreeImpl(InternalSyntaxToken.create(functionToken), name, parameters, body);
+      new FunctionDeclarationTreeImpl(functionToken, starToken.get(), name, parameters, body) :
+      new FunctionDeclarationTreeImpl(functionToken, name, parameters, body);
   }
 
   // [START] Destructuring pattern
 
-  public InitializedBindingElementTreeImpl newInitializedBindingElement1(AstNode equalToken, ExpressionTree expression) {
-    return new InitializedBindingElementTreeImpl(InternalSyntaxToken.create(equalToken), expression);
+  public InitializedBindingElementTreeImpl newInitializedBindingElement1(InternalSyntaxToken equalToken, ExpressionTree expression) {
+    return new InitializedBindingElementTreeImpl(equalToken, expression);
   }
 
-  public InitializedBindingElementTreeImpl newInitializedBindingElement2(AstNode equalToken, ExpressionTree expression) {
-    return new InitializedBindingElementTreeImpl(InternalSyntaxToken.create(equalToken), expression);
+  public InitializedBindingElementTreeImpl newInitializedBindingElement2(InternalSyntaxToken equalToken, ExpressionTree expression) {
+    return new InitializedBindingElementTreeImpl(equalToken, expression);
   }
 
   private BindingElementTree completeBindingElement(BindingElementTree left, Optional<InitializedBindingElementTreeImpl> initializer) {
@@ -1465,75 +1331,66 @@ public class TreeFactory {
     return completeBindingElement(left, initializer);
   }
 
-  public BindingPropertyTreeImpl bindingProperty(ExpressionTree propertyName, AstNode colonToken, BindingElementTree bindingElement) {
-    return new BindingPropertyTreeImpl(propertyName, InternalSyntaxToken.create(colonToken), bindingElement);
+  public BindingPropertyTreeImpl bindingProperty(ExpressionTree propertyName, InternalSyntaxToken colonToken, BindingElementTree bindingElement) {
+    return new BindingPropertyTreeImpl(propertyName, colonToken, bindingElement);
   }
 
-  public ObjectBindingPatternTreeImpl newObjectBindingPattern(Tree bindingProperty, Optional<List<Tuple<AstNode, BindingElementTree>>> restProperties,
-    Optional<AstNode> trailingComma) {
+  public ObjectBindingPatternTreeImpl newObjectBindingPattern(Tree bindingProperty, Optional<List<Tuple<InternalSyntaxToken, BindingElementTree>>> restProperties,
+    Optional<InternalSyntaxToken> trailingComma) {
 
     List<Tree> properties = Lists.newArrayList();
     List<InternalSyntaxToken> commas = Lists.newArrayList();
-    List<AstNode> children = Lists.newArrayList();
 
     properties.add(bindingProperty);
-    children.add((AstNode) bindingProperty);
 
     if (restProperties.isPresent()) {
-      for (Tuple<AstNode, BindingElementTree> t : restProperties.get()) {
+      for (Tuple<InternalSyntaxToken, BindingElementTree> tuple : restProperties.get()) {
         // Comma
-        commas.add(InternalSyntaxToken.create(t.first()));
-        children.add(t.first());
+        commas.add(tuple.first());
 
         // Property
-        properties.add(t.second());
-        children.add((AstNode) t.second());
+        properties.add(tuple.second());
       }
     }
 
     if (trailingComma.isPresent()) {
-      commas.add(InternalSyntaxToken.create(trailingComma.get()));
-      children.add(trailingComma.get());
+      commas.add(trailingComma.get());
     }
 
-    return new ObjectBindingPatternTreeImpl(new SeparatedList<Tree>(properties, commas, children));
+    return new ObjectBindingPatternTreeImpl(new SeparatedList<>(properties, commas));
   }
 
-  public ObjectBindingPatternTreeImpl completeObjectBindingPattern(AstNode openCurlyBraceToken, Optional<ObjectBindingPatternTreeImpl> partial, AstNode closeCurlyBraceToken) {
+  public ObjectBindingPatternTreeImpl completeObjectBindingPattern(InternalSyntaxToken openCurlyBraceToken, Optional<ObjectBindingPatternTreeImpl> partial, InternalSyntaxToken closeCurlyBraceToken) {
     if (partial.isPresent()) {
-      return partial.get().complete(InternalSyntaxToken.create(openCurlyBraceToken), InternalSyntaxToken.create(closeCurlyBraceToken));
+      return partial.get().complete(openCurlyBraceToken, closeCurlyBraceToken);
     }
-    return new ObjectBindingPatternTreeImpl(InternalSyntaxToken.create(openCurlyBraceToken), InternalSyntaxToken.create(closeCurlyBraceToken));
+    return new ObjectBindingPatternTreeImpl(openCurlyBraceToken, closeCurlyBraceToken);
   }
 
   public ArrayBindingPatternTreeImpl arrayBindingPattern(
-    AstNode openBracketToken, Optional<BindingElementTree> firstElement, Optional<List<Tuple<AstNode, Optional<BindingElementTree>>>> rest, AstNode closeBracketToken) {
+    InternalSyntaxToken openBracketToken, Optional<BindingElementTree> firstElement, Optional<List<Tuple<InternalSyntaxToken, Optional<BindingElementTree>>>> rest, InternalSyntaxToken closeBracketToken) {
 
-    List<AstNode> children = Lists.newArrayList();
     ImmutableList.Builder<Optional<BindingElementTree>> elements = ImmutableList.builder();
     ImmutableList.Builder<InternalSyntaxToken> separators = ImmutableList.builder();
 
     boolean skipComma = false;
 
     if (firstElement.isPresent()) {
-      children.add((AstNode) firstElement.get());
       elements.add(firstElement);
       skipComma = true;
     }
 
     if (rest.isPresent()) {
-      List<Tuple<AstNode, Optional<BindingElementTree>>> list = rest.get();
-      for (Tuple<AstNode, Optional<BindingElementTree>> pair : list) {
+      List<Tuple<InternalSyntaxToken, Optional<BindingElementTree>>> list = rest.get();
+      for (Tuple<InternalSyntaxToken, Optional<BindingElementTree>> pair : list) {
         if (!skipComma) {
           elements.add(Optional.<BindingElementTree>absent());
         }
 
-        InternalSyntaxToken commaToken = InternalSyntaxToken.create(pair.first());
-        children.add(commaToken);
+        InternalSyntaxToken commaToken = pair.first();
         separators.add(commaToken);
 
         if (pair.second().isPresent()) {
-          children.add((AstNode) pair.second().get());
           elements.add(pair.second());
           skipComma = true;
         } else {
@@ -1543,32 +1400,32 @@ public class TreeFactory {
     }
 
     return new ArrayBindingPatternTreeImpl(
-      InternalSyntaxToken.create(openBracketToken),
-      new SeparatedList<Optional<BindingElementTree>>(elements.build(), separators.build()), children,
-      InternalSyntaxToken.create(closeBracketToken));
+      openBracketToken,
+      new SeparatedList<>(elements.build(), separators.build()),
+      closeBracketToken);
   }
 
-  public ExpressionTree assignmentNoCurly(AstNode lookahead, ExpressionTree expression) {
+  public ExpressionTree assignmentNoCurly(Tree lookahead, ExpressionTree expression) {
     return expression;
   }
 
-  public ExpressionTree assignmentNoCurlyNoIn(AstNode lookahead, ExpressionTree expressionNoIn) {
+  public ExpressionTree assignmentNoCurlyNoIn(Tree lookahead, ExpressionTree expressionNoIn) {
     return expressionNoIn;
   }
 
-  public ExpressionTree skipLookahead1(AstNode lookahead, ExpressionTree expression) {
+  public ExpressionTree skipLookahead1(Tree lookahead, ExpressionTree expression) {
     return expression;
   }
 
-  public ExpressionTree skipLookahead2(AstNode lookahead, ExpressionTree expression) {
+  public ExpressionTree skipLookahead2(Tree lookahead, ExpressionTree expression) {
     return expression;
   }
 
-  public ExpressionTree skipLookahead3(AstNode lookahead, ExpressionTree expression) {
+  public ExpressionTree skipLookahead3(Tree lookahead, ExpressionTree expression) {
     return expression;
   }
 
-  public ExpressionTree skipLookahead4(ExpressionTree expression, AstNode lookahead) {
+  public ExpressionTree skipLookahead4(ExpressionTree expression, Tree lookahead) {
     return expression;
   }
 
@@ -1576,28 +1433,23 @@ public class TreeFactory {
 
   // [END] Classes, methods, functions & generators
 
-  public ScriptTreeImpl script(Optional<AstNode> shebangToken, Optional<ModuleTreeImpl> items, AstNode spacing, AstNode eof) {
+  public ScriptTreeImpl script(Optional<InternalSyntaxToken> shebangToken, Optional<ModuleTreeImpl> items, Tree spacing, InternalSyntaxToken eof) {
     return new ScriptTreeImpl(
-      shebangToken.isPresent() ? InternalSyntaxToken.create(shebangToken.get()) : null,
+      shebangToken.isPresent() ? shebangToken.get() : null,
       items.isPresent() ? items.get() : new ModuleTreeImpl(Collections.<Tree>emptyList()),
-      spacing,
-      InternalSyntaxToken.create(eof));
+      eof);
   }
 
-  public static class Tuple<T, U> extends AstNode {
+  public static class Tuple<T, U > extends JavaScriptTree {
 
     private final T first;
     private final U second;
 
     public Tuple(T first, U second) {
-      super(WRAPPER_AST_NODE, WRAPPER_AST_NODE
-        .toString(), null);
+      super();
 
       this.first = first;
       this.second = second;
-
-      add(first);
-      add(second);
     }
 
     public T first() {
@@ -1608,29 +1460,21 @@ public class TreeFactory {
       return second;
     }
 
-    private void add(Object o) {
-      if (o instanceof AstNode) {
-        addChild((AstNode) o);
-      } else if (o instanceof Optional) {
-        Optional opt = (Optional) o;
-        if (opt.isPresent()) {
-          Object o2 = opt.get();
-          if (o2 instanceof AstNode) {
-            addChild((AstNode) o2);
-          } else if (o2 instanceof List) {
-            for (Object o3 : (List) o2) {
-              Preconditions.checkArgument(o3 instanceof AstNode, "Unsupported type: " + o3.getClass().getSimpleName());
-              addChild((AstNode) o3);
-            }
-          } else {
-            throw new IllegalArgumentException("Unsupported type: " + o2.getClass().getSimpleName());
-          }
-        }
-      } else {
-        throw new IllegalStateException("Unsupported argument type: " + o.getClass().getSimpleName());
-      }
+    @Override
+    public AstNodeType getKind() {
+      // fixme
+      return WRAPPER_AST_NODE;
     }
 
+    @Override
+    public Iterator<Tree> childrenIterator() {
+      return Iterators.emptyIterator();
+    }
+
+    @Override
+    public void accept(TreeVisitor visitor) {
+      // do nothing
+    }
   }
 
   private <T, U> Tuple<T, U> newTuple(T first, U second) {
@@ -1774,6 +1618,10 @@ public class TreeFactory {
   }
 
   public <T, U> Tuple<T, U> newTuple54(T first, U second) {
+    return newTuple(first, second);
+  }
+
+  public <T, U> Tuple<T, U> newTuple55(T first, U second) {
     return newTuple(first, second);
   }
 

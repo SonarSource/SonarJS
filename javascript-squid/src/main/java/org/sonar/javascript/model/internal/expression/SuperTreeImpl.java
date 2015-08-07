@@ -34,10 +34,7 @@ public class SuperTreeImpl extends JavaScriptTree implements LiteralTree {
   private final InternalSyntaxToken token;
 
   public SuperTreeImpl(InternalSyntaxToken token) {
-    super(Kind.SUPER, token.getToken());
     this.token = token;
-
-    addChild(token);
   }
 
   @Override

@@ -37,12 +37,10 @@ public class FromClauseTreeImpl extends JavaScriptTree implements FromClauseTree
   private final LiteralTree module;
 
   public FromClauseTreeImpl(InternalSyntaxToken fromToken, LiteralTreeImpl module) {
-    super(Kind.FROM_CLAUSE);
 
     this.fromToken = fromToken;
     this.module = module;
 
-    addChildren(fromToken, module);
   }
 
   @Override

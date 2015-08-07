@@ -21,13 +21,12 @@ package org.sonar.javascript.model.internal.expression;
 
 import com.google.common.base.Functions;
 import com.google.common.collect.Iterators;
-import com.sonar.sslr.api.AstNode;
 import org.apache.commons.collections.ListUtils;
-import org.sonar.plugins.javascript.api.symbols.TypeSet;
 import org.sonar.javascript.model.internal.JavaScriptTree;
 import org.sonar.javascript.model.internal.SeparatedList;
 import org.sonar.javascript.model.internal.lexical.InternalSyntaxToken;
 import org.sonar.plugins.javascript.api.symbols.Type;
+import org.sonar.plugins.javascript.api.symbols.TypeSet;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.expression.ArrayLiteralTree;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
@@ -45,29 +44,18 @@ public class ArrayLiteralTreeImpl extends JavaScriptTree implements ArrayLiteral
   private TypeSet types = TypeSet.emptyTypeSet();
 
   public ArrayLiteralTreeImpl(InternalSyntaxToken openBracket, InternalSyntaxToken closeBracket) {
-    super(Kind.ARRAY_LITERAL);
     this.openBracket = openBracket;
-    this.elements = new SeparatedList<ExpressionTree>(ListUtils.EMPTY_LIST, ListUtils.EMPTY_LIST);
+    this.elements = new SeparatedList<>(ListUtils.EMPTY_LIST, ListUtils.EMPTY_LIST);
     this.closeBracket = closeBracket;
-
-    addChildren(openBracket, closeBracket);
   }
 
-  public ArrayLiteralTreeImpl(List<ExpressionTree> elements, List<InternalSyntaxToken> commas, List<AstNode> children) {
-    super(Kind.ARRAY_LITERAL);
-    this.elements = new SeparatedList<ExpressionTree>(elements, commas);
-
-    for (AstNode child : children) {
-      addChild(child);
-    }
+  public ArrayLiteralTreeImpl(List<ExpressionTree> elements, List<InternalSyntaxToken> commas) {
+    this.elements = new SeparatedList<>(elements, commas);
   }
 
   public ArrayLiteralTreeImpl complete(InternalSyntaxToken openBracket, InternalSyntaxToken closeBracket) {
     this.openBracket = openBracket;
     this.closeBracket = closeBracket;
-
-    prependChildren(openBracket);
-    addChild(closeBracket);
     return this;
   }
 

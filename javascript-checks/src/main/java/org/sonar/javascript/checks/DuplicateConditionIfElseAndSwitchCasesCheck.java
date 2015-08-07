@@ -24,8 +24,8 @@ import javax.annotation.Nullable;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
-import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
 import org.sonar.javascript.ast.visitors.SyntacticEquivalence;
+import org.sonar.javascript.model.internal.JavaScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
@@ -34,11 +34,10 @@ import org.sonar.plugins.javascript.api.tree.statement.ElseClauseTree;
 import org.sonar.plugins.javascript.api.tree.statement.IfStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.SwitchClauseTree;
 import org.sonar.plugins.javascript.api.tree.statement.SwitchStatementTree;
+import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
 import org.sonar.squidbridge.annotations.ActivatedByDefault;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
-
-import com.sonar.sslr.api.AstNode;
 
 @Rule(
   key = "S1862",
@@ -61,7 +60,7 @@ public class DuplicateConditionIfElseAndSwitchCasesCheck extends BaseTreeVisitor
       if (SyntacticEquivalence.areEquivalent(condition, ifStatement.condition())) {
         getContext().addIssue(this,
           ifStatement.condition(),
-          "This branch duplicates the one on line " + ((AstNode) condition).getTokenLine() + ".");
+          "This branch duplicates the one on line " + ((JavaScriptTree) condition).getLine() + ".");
       }
       elseClause = ifStatement.elseClause();
     }
@@ -79,7 +78,7 @@ public class DuplicateConditionIfElseAndSwitchCasesCheck extends BaseTreeVisitor
         if (SyntacticEquivalence.areEquivalent(condition, conditionToCompare)) {
           getContext().addIssue(this,
             conditionToCompare,
-            "This case duplicates the one on line " + ((AstNode) condition).getTokenLine() + ".");
+            "This case duplicates the one on line " + ((JavaScriptTree) condition).getLine() + ".");
         }
       }
     }

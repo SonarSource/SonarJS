@@ -19,62 +19,26 @@
  */
 package org.sonar.javascript.parser;
 
-import com.sonar.sslr.api.AstNode;
-import com.sonar.sslr.api.Rule;
-import com.sonar.sslr.impl.Parser;
-import com.sonar.sslr.impl.matcher.RuleDefinition;
-import org.sonar.javascript.EcmaScriptConfiguration;
-import org.sonar.javascript.ast.parser.TreeFactory;
 import com.sonar.sslr.api.typed.ActionParser;
-import com.sonar.sslr.api.typed.AstNodeBuilder;
-import org.sonar.sslr.parser.LexerlessGrammar;
+import org.sonar.javascript.ast.parser.JavaScriptNodeBuilder;
+import org.sonar.javascript.ast.parser.TreeFactory;
+import org.sonar.plugins.javascript.api.tree.Tree;
 
-import java.io.File;
-import java.util.List;
+import java.nio.charset.Charset;
 
-public final class EcmaScriptParser extends Parser<LexerlessGrammar> {
+public final class EcmaScriptParser {
 
-  private final ActionParser<AstNode> actionParser;
-
-  private EcmaScriptParser(ActionParser<AstNode> actionParser) {
-    super(null);
-    this.actionParser = actionParser;
+  private EcmaScriptParser(){
   }
 
-  public static Parser<LexerlessGrammar> create(EcmaScriptConfiguration conf) {
-    ActionParser<AstNode> actionParser = new ActionParser<AstNode>(
-      conf.getCharset(),
+  public static ActionParser<Tree> createParser(Charset charset) {
+    return new ActionParser<>(
+      charset,
       EcmaScriptGrammar.createGrammarBuilder(),
       ActionGrammar.class,
       new TreeFactory(),
-      new AstNodeBuilder(),
+      new JavaScriptNodeBuilder(),
       EcmaScriptGrammar.SCRIPT);
-    return new EcmaScriptParser(actionParser);
-  }
-
-  @Override
-  public AstNode parse(List tokens) {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
-  public AstNode parse(File file) {
-    return actionParser.parse(file);
-  }
-
-  @Override
-  public AstNode parse(String source) {
-    return actionParser.parse(source);
-  }
-
-  @Override
-  public void setRootRule(Rule rootRule) {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
-  public RuleDefinition getRootRule() {
-    throw new UnsupportedOperationException();
   }
 
 }

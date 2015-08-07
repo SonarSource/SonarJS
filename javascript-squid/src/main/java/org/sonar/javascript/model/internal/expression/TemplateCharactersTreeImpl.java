@@ -36,14 +36,12 @@ public class TemplateCharactersTreeImpl extends JavaScriptTree implements Templa
   private final List<InternalSyntaxToken> characters;
 
   public TemplateCharactersTreeImpl(List<InternalSyntaxToken> characters) {
-    super(Kind.TEMPLATE_CHARACTERS);
 
     this.characters = characters;
 
     StringBuilder builder = new StringBuilder();
     for (InternalSyntaxToken character : characters) {
       builder.append(character.text());
-      addChild(character);
     }
 
     this.value = builder.toString();

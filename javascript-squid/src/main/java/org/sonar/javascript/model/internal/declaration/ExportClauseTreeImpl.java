@@ -38,23 +38,18 @@ public class ExportClauseTreeImpl extends JavaScriptTree implements ExportClause
   private final EndOfStatementTree eos;
 
   public ExportClauseTreeImpl(SpecifierListTreeImpl exports, EndOfStatementTreeImpl eos) {
-    super(Kind.EXPORT_CLAUSE);
 
     this.exports = exports;
     this.fromClause = null;
     this.eos = eos;
-
-    addChildren(exports, eos);
   }
 
   public ExportClauseTreeImpl(SpecifierListTreeImpl exports, FromClauseTreeImpl fromClause, EndOfStatementTreeImpl eos) {
-    super(Kind.EXPORT_CLAUSE);
 
     this.exports = exports;
     this.fromClause = fromClause;
     this.eos = eos;
 
-    addChildren(exports, fromClause, eos);
   }
 
   @Override

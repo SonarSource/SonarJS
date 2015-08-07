@@ -20,14 +20,13 @@
 package org.sonar.javascript.checks.utils;
 
 import com.google.common.collect.ImmutableSet;
-import com.sonar.sslr.api.AstNode;
-import com.sonar.sslr.api.AstNodeType;
 import com.sonar.sslr.api.Token;
 import org.sonar.javascript.model.internal.JavaScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
+import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 
-import java.util.List;
+import java.util.Iterator;
 
 public class CheckUtils {
 
@@ -95,82 +94,41 @@ public class CheckUtils {
     Kind.GENERATOR_FUNCTION_EXPRESSION,
     Kind.ARROW_FUNCTION);
 
-  public static Kind[] assignmentExpressionArray() {
-    return ASSIGNMENT_EXPRESSION.toArray(new Kind[ASSIGNMENT_EXPRESSION.size()]);
-  }
-
-  public static boolean isAssignmentExpression(AstNode astNode) {
-    return ASSIGNMENT_EXPRESSION.contains(astNode.getType());
-  }
-
-  public static Kind[] postfixExpressionArray() {
-    return POSTFIX_EXPRESSION.toArray(new Kind[POSTFIX_EXPRESSION.size()]);
-  }
-
-  public static boolean isPostfixExpression(AstNodeType type) {
-    return POSTFIX_EXPRESSION.contains(type);
-  }
-
-  public static boolean isPostfixExpression(AstNode astNodeType) {
-    return POSTFIX_EXPRESSION.contains(astNodeType.getType());
-  }
-
-  public static Kind[] relationalExpressionArray() {
-    return RELATIONAL_EXPRESSION.toArray(new Kind[RELATIONAL_EXPRESSION.size()]);
-  }
-
-  public static boolean isRelationalExpression(AstNodeType type) {
-    return RELATIONAL_EXPRESSION.contains(type);
-  }
-
-  public static Kind[] prefixExpressionArray() {
-    return PREFIX_EXPRESSION.toArray(new Kind[PREFIX_EXPRESSION.size()]);
-  }
-
-  public static boolean isPrefixExpression(AstNode astNode) {
-    return PREFIX_EXPRESSION.contains(astNode.getType());
-  }
-
-  public static Kind[] equalityExpressionArray() {
-    return EQUALITY_EXPRESSION.toArray(new Kind[EQUALITY_EXPRESSION.size()]);
-  }
-
-  public static boolean isEqualityExpression(AstNode astNode) {
-    return EQUALITY_EXPRESSION.contains(astNode.getType());
-  }
-
-  public static boolean isEqualityExpression(AstNodeType type) {
-    return EQUALITY_EXPRESSION.contains(type);
-  }
-
   public static Kind[] functionNodesArray() {
     return FUNCTION_NODES.toArray(new Kind[FUNCTION_NODES.size()]);
-  }
-
-  public static boolean isFunction(AstNode astNode) {
-    return FUNCTION_NODES.contains(astNode.getType());
   }
 
   public static Kind[] iterationStatementsArray() {
     return ITERATION_STATEMENTS.toArray(new Kind[ITERATION_STATEMENTS.size()]);
   }
 
-  public static boolean isIterationStatement(AstNode astNode) {
-    return ITERATION_STATEMENTS.contains(astNode.getType());
-  }
-
   public static String asString(Tree tree) {
-    List<Token> tokens = ((JavaScriptTree) tree).getTokens();
-    StringBuilder sb = new StringBuilder();
-    Token prevToken = null;
-    for (Token token : tokens) {
-      if (prevToken != null && !areAdjacent(prevToken, token)) {
-        sb.append(" ");
+
+    if (tree.is(Kind.TOKEN)){
+      return ((SyntaxToken) tree).text();
+    } else {
+      StringBuilder sb = new StringBuilder();
+      Iterator<Tree> treeIterator = ((JavaScriptTree) tree).childrenIterator();
+      while (treeIterator.hasNext()) {
+        Tree child = treeIterator.next();
+        if (child != null) {
+          sb.append(asString(child));
+        }
       }
-      sb.append(token.getOriginalValue());
-      prevToken = token;
+      return sb.toString();
     }
-    return sb.toString();
+//
+//    List<Token> tokens = ((JavaScriptTree) tree).getTokens();
+//
+//    Token prevToken = null;
+//    for (Token token : tokens) {
+//      if (prevToken != null && !areAdjacent(prevToken, token)) {
+//        sb.append(" ");
+//      }
+//      sb.append(token.getOriginalValue());
+//      prevToken = token;
+//    }
+
   }
 
   private static boolean areAdjacent(Token prevToken, Token token) {

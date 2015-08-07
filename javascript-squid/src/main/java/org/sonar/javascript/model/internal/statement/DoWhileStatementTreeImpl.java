@@ -20,17 +20,16 @@
 package org.sonar.javascript.model.internal.statement;
 
 import com.google.common.collect.Iterators;
-import com.sonar.sslr.api.AstNode;
 import com.sonar.sslr.api.AstNodeType;
-import org.sonar.plugins.javascript.api.tree.statement.EndOfStatementTree;
-import org.sonar.plugins.javascript.api.visitors.TreeVisitor;
 import org.sonar.javascript.model.internal.JavaScriptTree;
 import org.sonar.javascript.model.internal.lexical.InternalSyntaxToken;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.javascript.api.tree.statement.DoWhileStatementTree;
+import org.sonar.plugins.javascript.api.tree.statement.EndOfStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.StatementTree;
+import org.sonar.plugins.javascript.api.visitors.TreeVisitor;
 
 import java.util.Iterator;
 
@@ -46,7 +45,6 @@ public class DoWhileStatementTreeImpl extends JavaScriptTree implements DoWhileS
 
   public DoWhileStatementTreeImpl(InternalSyntaxToken doKeyword, StatementTree statement, InternalSyntaxToken whileKeyword, InternalSyntaxToken openingParenthesis,
     ExpressionTree condition, InternalSyntaxToken closingParenthesis, EndOfStatementTreeImpl eos) {
-    super(Kind.DO_WHILE_STATEMENT);
     this.doKeyword = doKeyword;
     this.statement = statement;
     this.whileKeyword = whileKeyword;
@@ -55,7 +53,6 @@ public class DoWhileStatementTreeImpl extends JavaScriptTree implements DoWhileS
     this.closingParenthesis = closingParenthesis;
     this.eos = eos;
 
-    addChildren(doKeyword, (AstNode) statement, whileKeyword, openingParenthesis, (AstNode) condition, closingParenthesis, eos);
   }
 
   @Override

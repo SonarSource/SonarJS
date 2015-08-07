@@ -22,8 +22,6 @@ package org.sonar.javascript.model.internal;
 import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.UnmodifiableIterator;
-import com.sonar.sslr.api.AstNode;
-import org.apache.commons.collections.ListUtils;
 import org.sonar.javascript.model.internal.lexical.InternalSyntaxToken;
 import org.sonar.plugins.javascript.api.tree.Tree;
 
@@ -43,7 +41,6 @@ public class SeparatedList<T> implements List<T> {
    * +   * and/or not up to date.
    * +
    */
-  private List<AstNode> children = ListUtils.EMPTY_LIST;
 
   public SeparatedList(List<T> list, List<InternalSyntaxToken> separators) {
     Preconditions.checkArgument(
@@ -54,11 +51,6 @@ public class SeparatedList<T> implements List<T> {
     this.separators = separators;
   }
 
-  public SeparatedList(List<T> list, List<InternalSyntaxToken> separators, List<AstNode> children) {
-    this(list, separators);
-    this.children = children;
-  }
-
   public InternalSyntaxToken getSeparator(int i) {
     return separators.get(i);
   }
@@ -67,17 +59,7 @@ public class SeparatedList<T> implements List<T> {
     return separators;
   }
 
-  public void addChild(AstNode child) {
-    children.add(child);
-  }
 
-  public List<AstNode> getChildren() {
-    return children;
-  }
-
-  public void clearChildren() {
-    children = ListUtils.EMPTY_LIST;
-  }
 
   @Override
   public int size() {

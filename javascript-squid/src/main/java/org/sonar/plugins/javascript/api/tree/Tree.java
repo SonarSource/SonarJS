@@ -265,6 +265,11 @@ public interface Tree {
     /**
      * {@link IdentifierTree}
      */
+    IDENTIFIER_NO_LB(IdentifierTree.class),
+
+    /**
+     * {@link IdentifierTree}
+     */
     LABEL_IDENTIFIER(IdentifierTree.class),
 
     /**

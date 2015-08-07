@@ -20,17 +20,15 @@
 package org.sonar.javascript.model.internal.declaration;
 
 import com.google.common.collect.Iterators;
-import com.sonar.sslr.api.AstNode;
 import com.sonar.sslr.api.AstNodeType;
-import org.sonar.plugins.javascript.api.visitors.TreeVisitor;
 import org.sonar.javascript.model.internal.JavaScriptTree;
 import org.sonar.javascript.model.internal.lexical.InternalSyntaxToken;
-import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
+import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
+import org.sonar.plugins.javascript.api.visitors.TreeVisitor;
 
 import javax.annotation.Nullable;
-
 import java.util.Iterator;
 
 public class ScriptTreeImpl extends JavaScriptTree implements ScriptTree {
@@ -39,19 +37,11 @@ public class ScriptTreeImpl extends JavaScriptTree implements ScriptTree {
   private final ModuleTreeImpl items;
   private final InternalSyntaxToken eof;
 
-  public ScriptTreeImpl(@Nullable InternalSyntaxToken shebangToken, ModuleTreeImpl items, AstNode spacing, InternalSyntaxToken eof) {
-    super(Kind.SCRIPT);
-
+  public ScriptTreeImpl(@Nullable InternalSyntaxToken shebangToken, ModuleTreeImpl items, InternalSyntaxToken eof) {
     this.shebangToken = shebangToken;
     this.items = items;
     this.eof = eof;
 
-    if (shebangToken != null) {
-      addChild(shebangToken);
-    }
-    addChild(items);
-    addChild(spacing);
-    addChild(eof);
   }
 
   @Override

@@ -34,13 +34,8 @@ public class VariableStatementTreeImpl extends JavaScriptTree implements Variabl
   private final EndOfStatementTreeImpl eos;
 
   public VariableStatementTreeImpl(VariableDeclarationTreeImpl declaration, EndOfStatementTreeImpl eos) {
-    super(Kind.VARIABLE_STATEMENT);
-
     this.declaration = declaration;
     this.eos = eos;
-
-    addChild(declaration);
-    addChild(eos);
   }
 
   @Override
