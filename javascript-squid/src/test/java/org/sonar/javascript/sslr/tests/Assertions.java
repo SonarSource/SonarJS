@@ -21,16 +21,18 @@ package org.sonar.javascript.sslr.tests;
 
 import com.google.common.base.Charsets;
 import com.google.common.base.Preconditions;
-import com.sonar.sslr.api.AstNode;
 import com.sonar.sslr.api.RecognitionException;
 import com.sonar.sslr.api.Rule;
-import com.sonar.sslr.api.Token;
 import com.sonar.sslr.api.typed.ActionParser;
-import com.sonar.sslr.api.typed.AstNodeBuilder;
 import org.fest.assertions.GenericAssert;
+import org.sonar.javascript.ast.parser.JavaScriptNodeBuilder;
 import org.sonar.javascript.ast.parser.TreeFactory;
+import org.sonar.javascript.model.internal.JavaScriptTree;
+import org.sonar.javascript.model.internal.lexical.InternalSyntaxToken;
 import org.sonar.javascript.parser.ActionGrammar;
 import org.sonar.javascript.parser.EcmaScriptGrammar;
+import org.sonar.plugins.javascript.api.tree.Tree;
+import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import org.sonar.sslr.grammar.GrammarRuleKey;
 import org.sonar.sslr.grammar.LexerlessGrammarBuilder;
 import org.sonar.sslr.tests.ParsingResultComparisonFailure;
@@ -47,27 +49,28 @@ public class Assertions {
   }
 
   public static ParserAssert assertThat(LexerlessGrammarBuilder b, GrammarRuleKey rule) {
-    return new ParserAssert(new ActionParser<AstNode>(
+    return new ParserAssert(new ActionParser<Tree>(
       Charsets.UTF_8,
       b,
       ActionGrammar.class,
       new TreeFactory(),
-      new AstNodeBuilder(),
+      new JavaScriptNodeBuilder(),
       rule));
   }
 
-  public static class ParserAssert extends GenericAssert<ParserAssert, ActionParser<AstNode>> {
+  public static class ParserAssert extends GenericAssert<ParserAssert, ActionParser<Tree>> {
 
-    public ParserAssert(ActionParser<AstNode> actual) {
+    public ParserAssert(ActionParser<Tree> actual) {
       super(ParserAssert.class, actual);
     }
 
     private void parseTillEof(String input) {
-      AstNode astNode = actual.parse(input);
+      JavaScriptTree tree = (JavaScriptTree)actual.parse(input);
+      InternalSyntaxToken lastToken = (InternalSyntaxToken) tree.getLastToken();
 
-      if (astNode.getToIndex() != input.length()) {
+      if (!lastToken.isEOF() && (lastToken.column() + lastToken.text().length() != input.length()) ){
         throw new RecognitionException(
-          0, "Did not match till EOF, but till line " + astNode.getLastToken().getLine() + ": token \"" + astNode.getLastToken().getValue() + "\"");
+            0, "Did not match till EOF, but till line " + lastToken.line() + ": token \"" + lastToken.text() + "\"");
       }
     }
 
@@ -109,27 +112,18 @@ public class Assertions {
     public ParserAssert matchesPrefix(String prefixToBeMatched, String remainingInput) {
       isNotNull();
       try {
-        AstNode astNode = actual.parse(prefixToBeMatched + remainingInput);
-        String parsedString = astNodeToString(astNode);
+        JavaScriptTree tree = (JavaScriptTree)actual.parse(prefixToBeMatched + remainingInput);
+        SyntaxToken lastToken = tree.getLastToken();
 
-        if (prefixToBeMatched.length() != astNode.getToIndex()) {
+        if (prefixToBeMatched.length() != lastToken.column() + lastToken.text().length()) {
           throw new RecognitionException(0,
-            "Rule '" + getRuleName() + "' should match:\n" + prefixToBeMatched + "\nwhen followed by:\n" + remainingInput + "\nbut matched:\n" + parsedString);
+            "Rule '" + getRuleName() + "' should match:\n" + prefixToBeMatched + "\nwhen followed by:\n" + remainingInput);
         }
       } catch (RecognitionException e) {
         throw new RecognitionException(0, e.getMessage()  + "\n" +
           "Rule '" + getRuleName() + "' should match:\n" + prefixToBeMatched + "\nwhen followed by:\n" + remainingInput);
       }
       return this;
-    }
-
-    private static String astNodeToString(AstNode node) {
-      StringBuilder builder = new StringBuilder();
-
-      for (Token t : node.getTokens()) {
-        builder.append(t.getValue());
-      }
-      return builder.toString();
     }
 
     private String getRuleName() {

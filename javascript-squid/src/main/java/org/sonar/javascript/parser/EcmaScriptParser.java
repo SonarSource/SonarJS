@@ -19,62 +19,39 @@
  */
 package org.sonar.javascript.parser;
 
-import com.sonar.sslr.api.AstNode;
-import com.sonar.sslr.api.Rule;
-import com.sonar.sslr.impl.Parser;
-import com.sonar.sslr.impl.matcher.RuleDefinition;
-import org.sonar.javascript.EcmaScriptConfiguration;
-import org.sonar.javascript.ast.parser.TreeFactory;
 import com.sonar.sslr.api.typed.ActionParser;
-import com.sonar.sslr.api.typed.AstNodeBuilder;
-import org.sonar.sslr.parser.LexerlessGrammar;
+import org.sonar.javascript.EcmaScriptConfiguration;
+import org.sonar.javascript.ast.parser.JavaScriptNodeBuilder;
+import org.sonar.javascript.ast.parser.TreeFactory;
+import org.sonar.plugins.javascript.api.tree.Tree;
 
 import java.io.File;
-import java.util.List;
 
-public final class EcmaScriptParser extends Parser<LexerlessGrammar> {
+public final class EcmaScriptParser {
 
-  private final ActionParser<AstNode> actionParser;
+  private final ActionParser<Tree> actionParser;
 
-  private EcmaScriptParser(ActionParser<AstNode> actionParser) {
-    super(null);
+  private EcmaScriptParser(ActionParser<Tree> actionParser) {
     this.actionParser = actionParser;
   }
 
-  public static Parser<LexerlessGrammar> create(EcmaScriptConfiguration conf) {
-    ActionParser<AstNode> actionParser = new ActionParser<AstNode>(
+  public static EcmaScriptParser create(EcmaScriptConfiguration conf) {
+    ActionParser<Tree> actionParser = new ActionParser<Tree>(
       conf.getCharset(),
       EcmaScriptGrammar.createGrammarBuilder(),
       ActionGrammar.class,
       new TreeFactory(),
-      new AstNodeBuilder(),
+      new JavaScriptNodeBuilder(),
       EcmaScriptGrammar.SCRIPT);
     return new EcmaScriptParser(actionParser);
   }
 
-  @Override
-  public AstNode parse(List tokens) {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
-  public AstNode parse(File file) {
+  public Tree parse(File file) {
     return actionParser.parse(file);
   }
 
-  @Override
-  public AstNode parse(String source) {
+  public Tree parse(String source) {
     return actionParser.parse(source);
-  }
-
-  @Override
-  public void setRootRule(Rule rootRule) {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
-  public RuleDefinition getRootRule() {
-    throw new UnsupportedOperationException();
   }
 
 }

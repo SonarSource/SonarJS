@@ -19,100 +19,16 @@
  */
 package org.sonar.javascript.model.internal;
 
-import com.google.common.base.Preconditions;
-import com.sonar.sslr.api.AstNode;
 import com.sonar.sslr.api.AstNodeType;
-import com.sonar.sslr.api.Token;
-import com.sonar.sslr.impl.typed.AstNodeReflector;
 import org.sonar.plugins.javascript.api.tree.Tree;
+import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 
-import javax.annotation.Nullable;
 import java.util.Iterator;
-import java.util.List;
 
-public abstract class JavaScriptTree extends AstNode implements Tree {
-
-  private static final AstNodeType NULL_NODE = new AstNodeType() {
-
-    @Override
-    public String toString() {
-      return "[null]";
-    }
-
-  };
-
-  private final AstNode astNode;
-
-  public JavaScriptTree(AstNodeType type) {
-    super(type, type.toString(), null);
-    this.astNode = this;
-  }
-
-  public JavaScriptTree(AstNodeType type, Token token) {
-    super(type, type.toString(), token);
-    this.astNode = this;
-  }
-
-  public JavaScriptTree(@Nullable AstNode astNode) {
-    super(
-      astNode == null ? NULL_NODE : astNode.getType(),
-      astNode == null ? NULL_NODE.toString() : astNode.getType().toString(),
-      astNode == null ? null : astNode.getToken());
-    this.astNode = astNode;
-  }
-
-  public boolean isLegacy() {
-    return astNode != this;
-  }
-
-  private void prependChild(AstNode astNode) {
-    Preconditions.checkState(getAstNode() == this, "Legacy strongly typed node");
-
-    List<AstNode> children = getChildren();
-    if (children.isEmpty()) {
-      // addChild() will take care of everything
-      addChild(astNode);
-    } else {
-      AstNodeReflector.setParent(astNode, this);
-      children.add(0, astNode);
-
-      // Reset the childIndex field of all children
-      for (int i = 0; i < children.size(); i++) {
-        AstNodeReflector.setChildIndex(children.get(i), i);
-      }
-    }
-  }
-
-  public void prependChildren(AstNode... astNodes) {
-    for (int i = astNodes.length - 1; i >= 0; i--) {
-      prependChild(astNodes[i]);
-    }
-  }
-
-  public void prependChildren(List<? extends AstNode> astNodes) {
-    prependChildren(astNodes.toArray(new AstNode[astNodes.size()]));
-  }
-
-  @Override
-  public void addChild(AstNode child) {
-    Preconditions.checkState(!isLegacy(), "Children should not be added to legacy nodes");
-    super.addChild(child);
-  }
-
-  public void addChildren(AstNode... children) {
-    Preconditions.checkState(!isLegacy(), "Children should not be added to legacy nodes");
-
-    for (AstNode child: children) {
-      super.addChild(child);
-    }
-  }
-
-  public AstNode getAstNode() {
-    return astNode;
-  }
+public abstract class JavaScriptTree implements Tree {
 
   public int getLine() {
-    return astNode.getTokenLine();
+    return getFirstToken().line();
   }
 
   @Override
@@ -139,5 +55,34 @@ public abstract class JavaScriptTree extends AstNode implements Tree {
 
   public boolean isLeaf() {
     return false;
+  }
+
+  public SyntaxToken getLastToken() {
+    JavaScriptTree current = this;
+    while (!current.is(Kind.TOKEN)) {
+      current = current.getLastChild();
+    }
+    return (SyntaxToken) current;
+  }
+
+  public JavaScriptTree getLastChild() {
+    Iterator<Tree> childrenIterator = childrenIterator();
+    Tree lastChild = null, child;
+    do {
+      child = childrenIterator.next();
+      if (child != null){
+        lastChild = child;
+      }
+    } while (childrenIterator.hasNext());
+    return (JavaScriptTree) lastChild;
+  }
+
+  public SyntaxToken getFirstToken() {
+    Iterator<Tree> childrenIterator = childrenIterator();
+    Tree child;
+    do {
+      child = childrenIterator.next();
+    } while (child == null);
+    return ((JavaScriptTree) child).getFirstToken();
   }
 }
