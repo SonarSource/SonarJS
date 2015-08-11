@@ -138,11 +138,21 @@ public class MetricsTest {
   @Test
   public void should_be_compatible_with_DevCockpit() {
     // TODO probably bug in Sonar: order might depend on JVM
+
+    // 1 empty comment line
+    // 2 comment line
+    // 4 empty line
+    // 5 code line
+
     assertThat(getFileMeasure("ncloc_data").getData())
       .contains("1=0")
+      .contains("2=0")
+      .contains("4=0")
       .contains("5=1");
     assertThat(getFileMeasure("comment_lines_data").getData())
-      .contains("1=1")
+      .contains("1=0")
+      .contains("2=1")
+      .contains("4=1")
       .contains("5=0");
   }
 

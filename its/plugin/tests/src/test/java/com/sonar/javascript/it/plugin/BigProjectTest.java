@@ -73,7 +73,7 @@ public class BigProjectTest {
     assertThat(getProjectMeasure("function_complexity").getValue()).isEqualTo(7.0);
     assertThat(getProjectMeasure("file_complexity").getValue()).isEqualTo(39.6);
     assertThat(getProjectMeasure("file_complexity_distribution").getData())
-      .isEqualTo("0=2228;5=304;10=457;20=372;30=500;60=271;90=403");
+      .isEqualTo("0=2227;5=304;10=457;20=372;30=500;60=271;90=403");
 
     // Duplication
     // SONAR-3752
