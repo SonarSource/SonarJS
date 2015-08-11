@@ -86,6 +86,8 @@ public class JavaScriptSquidSensor implements Sensor {
   private final FilePredicate mainFilePredicate;
   private final Settings settings;
   private final Parser parser;
+
+  // parsingErrorRuleKey equals null if ParsingErrorCheck is not activated
   private RuleKey parsingErrorRuleKey = null;
 
   public JavaScriptSquidSensor(CheckFactory checkFactory, FileLinesContextFactory fileLinesContextFactory,
@@ -120,7 +122,8 @@ public class JavaScriptSquidSensor implements Sensor {
   public void analyse(Project project, SensorContext context) {
     List<JavaScriptCheck> treeVisitors = Lists.newArrayList();
 
-    EcmaScriptConfiguration configuration = createConfiguration();
+    EcmaScriptConfiguration configuration = new EcmaScriptConfiguration(fileSystem.encoding());
+    JavaScriptHighlighter highlighter = new JavaScriptHighlighter(configuration);
 
     treeVisitors.add(new MetricsVisitor(fileSystem, context, noSonarFilter, configuration, fileLinesContextFactory));
     treeVisitors.addAll(checks.all());
@@ -137,33 +140,30 @@ public class JavaScriptSquidSensor implements Sensor {
 
     for (InputFile inputFile : fileSystem.inputFiles(mainFilePredicate)) {
       analyse(inputFile, treeVisitors);
+      highlight(inputFile, highlighter);
       progressReport.nextFile();
     }
 
     progressReport.stop();
-
-    highlight();
   }
 
-  // FIXME Lena: extract this logic to another class?
   private void analyse(InputFile inputFile, List<JavaScriptCheck> visitors) {
     Issuable issuable = perspective(Issuable.class, inputFile);
     ScriptTree scriptTree;
-    RecognitionException parseException = null;
+
     try {
       scriptTree = (ScriptTree) parser.parse(new java.io.File(inputFile.absolutePath()));
       scanFile(inputFile, visitors, issuable, scriptTree);
+
     } catch (RecognitionException e) {
-      parseException = e;
       LOG.error("Unable to parse file: " + inputFile.absolutePath());
       LOG.error(e.getMessage());
+      processRecognitionException(e, issuable);
+
     } catch (Exception e) {
       throw new AnalysisException("Unable to parse file: " + inputFile.absolutePath(), e);
     }
 
-    if (parseException != null) {
-      processRecognitionException(parseException, issuable);
-    }
   }
 
   private void processRecognitionException(RecognitionException e, Issuable issuable) {
@@ -214,23 +214,15 @@ public class JavaScriptSquidSensor implements Sensor {
   }
 
 
-  private void highlight() {
-    JavaScriptHighlighter highlighter = new JavaScriptHighlighter(createConfiguration());
+  private void highlight(InputFile inputFile, JavaScriptHighlighter highlighter) {
+    Highlightable perspective = resourcePerspectives.as(Highlightable.class, inputFile);
 
-    for (InputFile inputFile : fileSystem.inputFiles(mainFilePredicate)) {
-      Highlightable perspective = resourcePerspectives.as(Highlightable.class, inputFile);
+    if (perspective != null) {
+      highlighter.highlight(perspective, inputFile.file());
 
-      if (perspective != null) {
-        highlighter.highlight(perspective, inputFile.file());
-
-      } else {
-        LOG.warn("Could not get " + Highlightable.class.getCanonicalName() + " for " + inputFile.file());
-      }
+    } else {
+      LOG.warn("Could not get " + Highlightable.class.getCanonicalName() + " for " + inputFile.file());
     }
-  }
-
-  private EcmaScriptConfiguration createConfiguration() {
-    return new EcmaScriptConfiguration(fileSystem.encoding());
   }
 
   @Override
