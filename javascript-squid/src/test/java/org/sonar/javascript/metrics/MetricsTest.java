@@ -27,7 +27,7 @@ import java.io.File;
 
 import static org.fest.assertions.Assertions.assertThat;
 
-public class MetricVisitorsTest extends JavaScriptTreeModelTest {
+public class MetricsTest extends JavaScriptTreeModelTest {
 
   @Test
   public void complexity() {

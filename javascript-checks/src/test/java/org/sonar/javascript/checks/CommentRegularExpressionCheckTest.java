@@ -23,6 +23,8 @@ import org.junit.Test;
 import org.sonar.javascript.checks.utils.TreeCheckTest;
 import org.sonar.squidbridge.checks.CheckMessagesVerifier;
 
+import static org.fest.assertions.Assertions.assertThat;
+
 public class CommentRegularExpressionCheckTest extends TreeCheckTest {
 
   @Test
@@ -35,6 +37,16 @@ public class CommentRegularExpressionCheckTest extends TreeCheckTest {
     CheckMessagesVerifier.verify(getIssues("src/test/resources/checks/commentRegularExpression.js", check))
         .next().atLine(2).withMessage("Avoid TODO")
         .noMore();
+
+    check.setRegularExpression("");
+    CheckMessagesVerifier.verify(getIssues("src/test/resources/checks/commentRegularExpression.js", check))
+        .noMore();
+
+    try {
+      check.setRegularExpression("[abc");
+    } catch (IllegalStateException e) {
+      assertThat(e.getMessage()).isEqualTo("Unable to compile regular expression: [abc");
+    }
   }
 
 }

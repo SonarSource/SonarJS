@@ -49,8 +49,6 @@ import org.sonar.javascript.EcmaScriptConfiguration;
 import org.sonar.javascript.ast.resolve.SymbolModelImpl;
 import org.sonar.javascript.checks.CheckList;
 import org.sonar.javascript.checks.ParsingErrorCheck;
-import org.sonar.javascript.checks.utils.JavaScriptCheckContext;
-import org.sonar.javascript.checks.utils.JavaScriptChecks;
 import org.sonar.javascript.highlighter.JavaScriptHighlighter;
 import org.sonar.javascript.highlighter.SourceFileOffsets;
 import org.sonar.javascript.metrics.ComplexityVisitor;

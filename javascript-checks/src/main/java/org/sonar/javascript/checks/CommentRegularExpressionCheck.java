@@ -71,6 +71,9 @@ public class CommentRegularExpressionCheck extends SubscriptionBaseVisitor {
       } catch (RuntimeException e) {
         throw new IllegalStateException("Unable to compile regular expression: " + regularExpression, e);
       }
+
+    } else {
+      pattern = null;
     }
   }
 
