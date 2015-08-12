@@ -1,0 +1,3 @@
+[submodule "its/sources"]
+	path = its/sources
+	url = https://github.com/SonarCommunity/javascript-test-sources.git
