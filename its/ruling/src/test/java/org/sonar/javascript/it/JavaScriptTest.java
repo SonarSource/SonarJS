@@ -19,17 +19,18 @@
  */
 package org.sonar.javascript.it;
 
+import com.google.common.io.Files;
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.SonarRunner;
 import com.sonar.orchestrator.locator.FileLocation;
 import com.sonar.orchestrator.locator.MavenLocation;
 import org.junit.ClassRule;
 import org.junit.Test;
-import org.sonar.wsclient.issue.Issue;
-import org.sonar.wsclient.issue.IssueQuery;
 
-import java.util.List;
+import java.io.File;
+import java.nio.charset.StandardCharsets;
 
+import static junit.framework.TestCase.assertTrue;
 import static org.fest.assertions.Assertions.assertThat;
 
 public class JavaScriptTest {
@@ -45,6 +46,10 @@ public class JavaScriptTest {
 
   @Test
   public void test() throws Exception {
+    assertTrue(
+      "SonarQube 5.1 is the minimum version to generate the issues report, change your orchestrator.properties",
+      orchestrator.getConfiguration().getSonarVersion().isGreaterThanOrEquals("5.1"));
+    File litsDifferencesFile = FileLocation.of("target/differences").getFile();
     SonarRunner build = SonarRunner.create(orchestrator.getFileLocationOfShared("src").getFile())
       .setProjectKey("project")
       .setProjectName("project")
@@ -53,19 +58,16 @@ public class JavaScriptTest {
       .setSourceDirs("./")
       .setSourceEncoding("utf-8")
       .setProfile("rules")
+      .setProperty("sonar.analysis.mode", "preview")
+      .setProperty("sonar.issuesReport.html.enable", "true")
       .setProperty("dump.old", FileLocation.of("src/test/expected").getFile().getAbsolutePath())
       .setProperty("dump.new", FileLocation.of("target/actual").getFile().getAbsolutePath())
+      .setProperty("lits.differences", litsDifferencesFile.getAbsolutePath())
       .setProperty("sonar.cpd.skip", "true")
-      .setProperty("sonar.analysis.mode", "preview")
       .setEnvironmentVariable("SONAR_RUNNER_OPTS", "-Xmx1024m");
     orchestrator.executeBuild(build);
 
-    assertThatNoDifferences();
-  }
-
-  private void assertThatNoDifferences() {
-    List<Issue> issues = orchestrator.getServer().wsClient().issueClient().find(IssueQuery.create().componentRoots("project").severities("BLOCKER", "INFO")).list();
-    assertThat(issues.size()).as("differences").isEqualTo(0);
+    assertThat(Files.toString(litsDifferencesFile, StandardCharsets.UTF_8)).isEmpty();
   }
 
 }
