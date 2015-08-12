@@ -46,7 +46,6 @@ public class MetricsTest {
     assertThat(getProjectMeasure("classes").getIntValue()).isEqualTo(1);
     assertThat(getProjectMeasure("functions").getIntValue()).isEqualTo(3);
     assertThat(getProjectMeasure("statements").getIntValue()).isEqualTo(8);
-    assertThat(getFileMeasure("accessors").getIntValue()).isEqualTo(2);
     assertThat(getProjectMeasure("files").getIntValue()).isEqualTo(1);
     assertThat(getProjectMeasure("directories").getIntValue()).isEqualTo(1);
 
@@ -82,17 +81,12 @@ public class MetricsTest {
     assertThat(getDirectoryMeasure("classes").getIntValue()).isEqualTo(1);
     assertThat(getDirectoryMeasure("functions").getIntValue()).isEqualTo(3);
     assertThat(getDirectoryMeasure("statements").getIntValue()).isEqualTo(8);
-    assertThat(getFileMeasure("accessors").getIntValue()).isEqualTo(2);
     assertThat(getDirectoryMeasure("files").getIntValue()).isEqualTo(1);
     // Documentation
     assertThat(getDirectoryMeasure("comment_lines").getIntValue()).isEqualTo(2);
     assertThat(getDirectoryMeasure("commented_out_code_lines")).isNull();
     assertThat(getDirectoryMeasure("comment_lines_density").getValue()).isEqualTo(9.1);
     // Complexity
-    assertThat(getProjectMeasure("complexity").getValue()).isEqualTo(4.0);
-    assertThat(getProjectMeasure("function_complexity").getValue()).isEqualTo(1.3);
-    assertThat(getProjectMeasure("function_complexity_distribution").getData()).isEqualTo("1=2;2=1;4=0;6=0;8=0;10=0;12=0;20=0;30=0");
-    assertThat(getProjectMeasure("file_complexity").getValue()).isEqualTo(4.0);
     assertThat(getDirectoryMeasure("file_complexity_distribution").getData()).isEqualTo("0=1;5=0;10=0;20=0;30=0;60=0;90=0");
     // Duplication
     assertThat(getDirectoryMeasure("duplicated_lines").getValue()).isEqualTo(0.0);
@@ -106,11 +100,6 @@ public class MetricsTest {
   @Test
   public void file_level() {
     // Size
-    assertThat(getDirectoryMeasure("ncloc").getIntValue()).isEqualTo(20);
-    assertThat(getDirectoryMeasure("lines").getIntValue()).isEqualTo(34);
-    assertThat(getDirectoryMeasure("classes").getIntValue()).isEqualTo(1);
-    assertThat(getDirectoryMeasure("functions").getIntValue()).isEqualTo(3);
-    assertThat(getDirectoryMeasure("statements").getIntValue()).isEqualTo(8);
     assertThat(getFileMeasure("accessors").getIntValue()).isEqualTo(2);
     assertThat(getFileMeasure("files").getIntValue()).isEqualTo(1);
     // Documentation
@@ -118,10 +107,6 @@ public class MetricsTest {
     assertThat(getFileMeasure("commented_out_code_lines")).isNull();
     assertThat(getFileMeasure("comment_lines_density").getValue()).isEqualTo(9.1);
     // Complexity
-    assertThat(getProjectMeasure("complexity").getValue()).isEqualTo(4.0);
-    assertThat(getProjectMeasure("function_complexity").getValue()).isEqualTo(1.3);
-    assertThat(getProjectMeasure("function_complexity_distribution").getData()).isEqualTo("1=2;2=1;4=0;6=0;8=0;10=0;12=0;20=0;30=0");
-    assertThat(getProjectMeasure("file_complexity").getValue()).isEqualTo(4.0);
     assertThat(getFileMeasure("file_complexity_distribution")).isNull();
     // Duplication
     assertThat(getFileMeasure("duplicated_lines")).isNull();
