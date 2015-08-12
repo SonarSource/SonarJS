@@ -20,12 +20,12 @@
 package org.sonar.javascript.checks.utils;
 
 import com.google.common.collect.ImmutableSet;
-import com.sonar.sslr.api.Token;
 import org.sonar.javascript.model.internal.JavaScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 
+import javax.annotation.Nullable;
 import java.util.Iterator;
 
 public class CheckUtils {
@@ -103,36 +103,38 @@ public class CheckUtils {
   }
 
   public static String asString(Tree tree) {
-
     if (tree.is(Kind.TOKEN)){
       return ((SyntaxToken) tree).text();
+
     } else {
       StringBuilder sb = new StringBuilder();
       Iterator<Tree> treeIterator = ((JavaScriptTree) tree).childrenIterator();
+      SyntaxToken prevToken = null;
+
       while (treeIterator.hasNext()) {
         Tree child = treeIterator.next();
+
         if (child != null) {
-          sb.append(asString(child));
+          appendChild(sb, prevToken, child);
+          prevToken = ((JavaScriptTree) child).getLastToken();
         }
       }
       return sb.toString();
     }
-//
-//    List<Token> tokens = ((JavaScriptTree) tree).getTokens();
-//
-//    Token prevToken = null;
-//    for (Token token : tokens) {
-//      if (prevToken != null && !areAdjacent(prevToken, token)) {
-//        sb.append(" ");
-//      }
-//      sb.append(token.getOriginalValue());
-//      prevToken = token;
-//    }
-
   }
 
-  private static boolean areAdjacent(Token prevToken, Token token) {
-    return prevToken.getColumn() + prevToken.getOriginalValue().length() == token.getColumn();
+  private static void appendChild(StringBuilder sb, @Nullable SyntaxToken prevToken, Tree child) {
+    if (prevToken != null){
+      SyntaxToken firstToken = ((JavaScriptTree) child).getFirstToken();
+      if (isSpaceRequired(prevToken, firstToken)) {
+        sb.append(" ");
+      }
+    }
+    sb.append(asString(child));
+  }
+
+  private static boolean isSpaceRequired(SyntaxToken prevToken, SyntaxToken token) {
+    return (token.line() > prevToken.line()) || (prevToken.column() + prevToken.text().length() < token.column());
   }
 
 
