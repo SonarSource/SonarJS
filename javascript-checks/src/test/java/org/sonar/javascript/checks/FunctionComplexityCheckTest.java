@@ -34,10 +34,11 @@ public class FunctionComplexityCheckTest extends TreeCheckTest {
         .next().atLine(11).withMessage("Function has a complexity of 3 which is greater than 2 authorized.")
         .next().atLine(18)
         .next().atLine(24)
+        .next().atLine(31)
         .next().atLine(40)
         .next().atLine(51)
         .next().atLine(67)
-        .next().atLine(78)
+        .next().atLine(78).withMessage("Function has a complexity of 4 which is greater than 2 authorized.")
         .noMore();
   }
 
