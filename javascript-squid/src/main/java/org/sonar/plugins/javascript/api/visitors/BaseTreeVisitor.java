@@ -364,6 +364,7 @@ public class BaseTreeVisitor implements TreeVisitor, JavaScriptCheck {
 
   @Override
   public void visitDebugger(DebuggerStatementTree tree) {
+    // no sub-tree
   }
 
   @Override

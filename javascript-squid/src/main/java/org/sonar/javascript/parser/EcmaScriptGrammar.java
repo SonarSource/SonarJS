@@ -24,7 +24,6 @@ import org.sonar.javascript.api.EcmaScriptKeyword;
 import org.sonar.javascript.api.EcmaScriptPunctuator;
 import org.sonar.javascript.lexer.EcmaScriptLexer;
 import org.sonar.javascript.lexer.EcmaScriptRegexpChannel;
-import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.sslr.grammar.GrammarRuleKey;
 import org.sonar.sslr.grammar.LexerlessGrammarBuilder;
 import org.sonar.sslr.parser.LexerlessGrammar;

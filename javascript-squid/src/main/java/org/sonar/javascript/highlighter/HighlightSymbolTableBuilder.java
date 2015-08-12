@@ -19,7 +19,6 @@
  */
 package org.sonar.javascript.highlighter;
 
-import com.sonar.sslr.api.Token;
 import org.sonar.api.source.Symbolizable;
 import org.sonar.plugins.javascript.api.symbols.Symbol;
 import org.sonar.plugins.javascript.api.symbols.Usage;
