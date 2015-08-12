@@ -22,16 +22,15 @@ package org.sonar.javascript.model.internal.declaration;
 import com.google.common.collect.Iterators;
 import org.sonar.javascript.model.internal.JavaScriptTree;
 import org.sonar.javascript.model.internal.lexical.InternalSyntaxToken;
-import org.sonar.javascript.model.internal.statement.EndOfStatementTreeImpl;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.declaration.DeclarationTree;
 import org.sonar.plugins.javascript.api.tree.declaration.FromClauseTree;
 import org.sonar.plugins.javascript.api.tree.declaration.ImportClauseTree;
 import org.sonar.plugins.javascript.api.tree.declaration.ImportDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
-import org.sonar.plugins.javascript.api.tree.statement.EndOfStatementTree;
 import org.sonar.plugins.javascript.api.visitors.TreeVisitor;
 
+import javax.annotation.Nullable;
 import java.util.Iterator;
 
 public class ImportDeclarationTreeImpl extends JavaScriptTree implements ImportDeclarationTree {
@@ -39,13 +38,13 @@ public class ImportDeclarationTreeImpl extends JavaScriptTree implements ImportD
   private SyntaxToken importToken;
   private ImportClauseTree importClause;
   private FromClauseTree fromClause;
-  private final EndOfStatementTree eos;
+  private final SyntaxToken semicolonToken;
 
-  public ImportDeclarationTreeImpl(InternalSyntaxToken importToken, ImportClauseTreeImpl importClause, FromClauseTreeImpl fromClause, EndOfStatementTreeImpl eos) {
+  public ImportDeclarationTreeImpl(InternalSyntaxToken importToken, ImportClauseTreeImpl importClause, FromClauseTreeImpl fromClause, @Nullable SyntaxToken semicolonToken) {
     this.importToken = importToken;
     this.importClause = importClause;
     this.fromClause = fromClause;
-    this.eos = eos;
+    this.semicolonToken = semicolonToken;
 
   }
 
@@ -64,9 +63,10 @@ public class ImportDeclarationTreeImpl extends JavaScriptTree implements ImportD
     return fromClause;
   }
 
+  @Nullable
   @Override
-  public EndOfStatementTree endOfStatement() {
-    return eos;
+  public SyntaxToken semicolonToken() {
+    return semicolonToken;
   }
 
   @Override
@@ -76,7 +76,7 @@ public class ImportDeclarationTreeImpl extends JavaScriptTree implements ImportD
 
   @Override
   public Iterator<Tree> childrenIterator() {
-    return Iterators.forArray(importToken, importClause, fromClause, eos);
+    return Iterators.forArray(importToken, importClause, fromClause, semicolonToken);
   }
 
   @Override

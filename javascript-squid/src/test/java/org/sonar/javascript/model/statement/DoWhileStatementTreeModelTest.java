@@ -41,7 +41,7 @@ public class DoWhileStatementTreeModelTest extends JavaScriptTreeModelTest {
     assertThat(tree.openParenthesis().text()).isEqualTo(EcmaScriptPunctuator.LPARENTHESIS.getValue());
     assertThat(tree.condition()).isNotNull();
     assertThat(tree.closeParenthesis().text()).isEqualTo(EcmaScriptPunctuator.RPARENTHESIS.getValue());
-    assertThat(tree.endOfStatement().hasSemicolon()).isTrue();
+    assertThat(tree.semicolonToken()).isNotNull();
   }
 
 }

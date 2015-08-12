@@ -23,27 +23,25 @@ import com.google.common.collect.Iterators;
 import org.sonar.javascript.model.internal.JavaScriptTree;
 import org.sonar.javascript.model.internal.expression.LiteralTreeImpl;
 import org.sonar.javascript.model.internal.lexical.InternalSyntaxToken;
-import org.sonar.javascript.model.internal.statement.EndOfStatementTreeImpl;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.declaration.ImportModuleDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.expression.LiteralTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
-import org.sonar.plugins.javascript.api.tree.statement.EndOfStatementTree;
 import org.sonar.plugins.javascript.api.visitors.TreeVisitor;
 
+import javax.annotation.Nullable;
 import java.util.Iterator;
 
 public class ImportModuleDeclarationTreeImpl extends JavaScriptTree implements ImportModuleDeclarationTree {
 
   private SyntaxToken importToken;
   private LiteralTree moduleName;
-  private final EndOfStatementTree eos;
+  private final SyntaxToken semicolonToken;
 
-  public ImportModuleDeclarationTreeImpl(InternalSyntaxToken importToken, LiteralTreeImpl moduleName, EndOfStatementTreeImpl eos) {
+  public ImportModuleDeclarationTreeImpl(InternalSyntaxToken importToken, LiteralTreeImpl moduleName, @Nullable SyntaxToken semicolonToken) {
     this.importToken = importToken;
     this.moduleName = moduleName;
-    this.eos = eos;
-
+    this.semicolonToken = semicolonToken;
   }
 
   @Override
@@ -56,9 +54,10 @@ public class ImportModuleDeclarationTreeImpl extends JavaScriptTree implements I
     return moduleName;
   }
 
+  @Nullable
   @Override
-  public EndOfStatementTree endOfStatement() {
-    return eos;
+  public SyntaxToken semicolonToken() {
+    return semicolonToken;
   }
 
   @Override
@@ -68,11 +67,11 @@ public class ImportModuleDeclarationTreeImpl extends JavaScriptTree implements I
 
   @Override
   public Iterator<Tree> childrenIterator() {
-    return Iterators.forArray(importToken, moduleName, eos);
+    return Iterators.forArray(importToken, moduleName, semicolonToken);
   }
 
   @Override
   public void accept(TreeVisitor visitor) {
-    visitor.visitImportModuletDeclaration(this);
+    visitor.visitImportModuleDeclaration(this);
   }
 }

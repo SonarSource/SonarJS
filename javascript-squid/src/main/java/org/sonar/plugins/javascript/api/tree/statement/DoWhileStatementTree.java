@@ -23,6 +23,8 @@ import com.google.common.annotations.Beta;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 
+import javax.annotation.Nullable;
+
 /**
  * <a href="http://www.ecma-international.org/ecma-262/5.1/#sec-12.6.1">do-while Statement</a>.
  * <pre>
@@ -45,6 +47,6 @@ public interface DoWhileStatementTree extends IterationStatementTree {
 
   SyntaxToken closeParenthesis();
 
-  EndOfStatementTree endOfStatement();
-
+  @Nullable
+  SyntaxToken semicolonToken();
 }

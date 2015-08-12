@@ -24,21 +24,22 @@ import com.sonar.sslr.api.AstNodeType;
 import org.sonar.javascript.model.internal.JavaScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
-import org.sonar.plugins.javascript.api.tree.statement.EndOfStatementTree;
+import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.javascript.api.tree.statement.ExpressionStatementTree;
 import org.sonar.plugins.javascript.api.visitors.TreeVisitor;
 
+import javax.annotation.Nullable;
 import java.util.Iterator;
 
 public class ExpressionStatementTreeImpl extends JavaScriptTree implements ExpressionStatementTree {
 
   private final ExpressionTree expression;
-  private final EndOfStatementTree eos;
+  private final SyntaxToken semicolonToken;
 
-  public ExpressionStatementTreeImpl(ExpressionTree expression, EndOfStatementTreeImpl eos) {
+  public ExpressionStatementTreeImpl(ExpressionTree expression, SyntaxToken semicolonToken) {
 
     this.expression = expression;
-    this.eos = eos;
+    this.semicolonToken = semicolonToken;
   }
 
   @Override
@@ -46,9 +47,10 @@ public class ExpressionStatementTreeImpl extends JavaScriptTree implements Expre
     return expression;
   }
 
+  @Nullable
   @Override
-  public EndOfStatementTree endOfStatement() {
-    return eos;
+  public SyntaxToken semicolonToken() {
+    return semicolonToken;
   }
 
   @Override
@@ -58,7 +60,7 @@ public class ExpressionStatementTreeImpl extends JavaScriptTree implements Expre
 
   @Override
   public Iterator<Tree> childrenIterator() {
-    return Iterators.forArray(expression, eos);
+    return Iterators.forArray(expression, semicolonToken);
   }
 
   @Override

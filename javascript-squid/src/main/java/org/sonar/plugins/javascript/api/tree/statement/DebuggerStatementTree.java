@@ -22,6 +22,8 @@ package org.sonar.plugins.javascript.api.tree.statement;
 import com.google.common.annotations.Beta;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 
+import javax.annotation.Nullable;
+
 /**
  * <a href="http://www.ecma-international.org/ecma-262/5.1/#sec-12.15">debugger Statement</a>.
  * <pre>
@@ -33,5 +35,6 @@ public interface DebuggerStatementTree extends StatementTree {
 
   SyntaxToken debuggerKeyword();
 
-  EndOfStatementTree endOfStatement();
+  @Nullable
+  SyntaxToken semicolonToken();
 }

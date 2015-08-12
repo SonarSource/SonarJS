@@ -19,21 +19,22 @@
  */
 package org.sonar.javascript.model.declaration;
 
-import static org.fest.assertions.Assertions.assertThat;
 import org.junit.Test;
 import org.sonar.javascript.model.JavaScriptTreeModelTest;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 
+import static org.fest.assertions.Assertions.assertThat;
+
 public class ScriptTreeModelTest extends JavaScriptTreeModelTest {
 
   @Test
-  public void without_statment() throws Exception {
+  public void without_statement() throws Exception {
     ScriptTree tree = parse("", Kind.SCRIPT);
 
     assertThat(tree.is(Kind.SCRIPT)).isTrue();
     assertThat(tree.shebangToken()).isNull();
-    assertThat(tree.items().items()).isEmpty();
+    assertThat(tree.items()).isNull();
     assertThat(tree.EOFToken()).isNotNull();
 
   }

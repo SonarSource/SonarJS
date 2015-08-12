@@ -30,6 +30,7 @@ public interface ScriptTree extends Tree {
   @Nullable
   SyntaxToken shebangToken();
 
+  @Nullable
   ModuleTree items();
 
   SyntaxToken EOFToken();

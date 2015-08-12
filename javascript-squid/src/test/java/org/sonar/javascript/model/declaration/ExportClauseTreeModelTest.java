@@ -19,11 +19,12 @@
  */
 package org.sonar.javascript.model.declaration;
 
-import static org.fest.assertions.Assertions.assertThat;
 import org.junit.Test;
 import org.sonar.javascript.model.JavaScriptTreeModelTest;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.declaration.ExportClauseTree;
+
+import static org.fest.assertions.Assertions.assertThat;
 
 public class ExportClauseTreeModelTest extends JavaScriptTreeModelTest {
 
@@ -36,7 +37,7 @@ public class ExportClauseTreeModelTest extends JavaScriptTreeModelTest {
     assertThat(expressionToString(tree.exports())).isEqualTo("{ }");
     assertThat(tree.fromClause()).isNotNull();
     assertThat(expressionToString(tree.fromClause())).isEqualTo("from \"mod\"");
-    assertThat(tree.eos().hasSemicolon()).isTrue();
+    assertThat(tree.semicolonToken()).isNotNull();
   }
 
 
@@ -48,7 +49,7 @@ public class ExportClauseTreeModelTest extends JavaScriptTreeModelTest {
     assertThat(tree.exports()).isNotNull();
     assertThat(expressionToString(tree.exports())).isEqualTo("{ }");
     assertThat(tree.fromClause()).isNull();
-    assertThat(tree.eos().hasSemicolon()).isTrue();
+    assertThat(tree.semicolonToken()).isNotNull();
   }
 
 }

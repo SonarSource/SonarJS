@@ -17,22 +17,30 @@
  * License along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.plugins.javascript.api.tree.statement;
+package org.sonar.javascript.model.statement;
 
-import com.google.common.annotations.Beta;
-import org.sonar.plugins.javascript.api.tree.Tree;
-import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
+import org.junit.Test;
+import org.sonar.javascript.model.JavaScriptTreeModelTest;
+import org.sonar.plugins.javascript.api.tree.Tree.Kind;
+import org.sonar.plugins.javascript.api.tree.statement.ExpressionStatementTree;
 
-import javax.annotation.Nullable;
+import static org.fest.assertions.Assertions.assertThat;
 
-/**
- * <a href="http://www.ecma-international.org/ecma-262/5.1/#sec-7.9">End of statement</a>.
- */
-@Beta
-public interface EndOfStatementTree extends Tree {
+public class SemicolonTest extends JavaScriptTreeModelTest {
 
-  @Nullable
-  SyntaxToken semicolonToken();
+  @Test
+  public void with_semicolon() throws Exception {
+    ExpressionStatementTree tree = parse("a = 1;", Kind.EXPRESSION_STATEMENT);
 
-  boolean hasSemicolon();
+    assertThat(tree.semicolonToken()).isNotNull();
+    assertThat(tree.semicolonToken().text()).isEqualTo(";");
+  }
+
+  @Test
+  public void without_semicolon() throws Exception {
+    ExpressionStatementTree tree = parse("a = 1", Kind.EXPRESSION_STATEMENT);
+
+    assertThat(tree.semicolonToken()).isNull();
+  }
+
 }

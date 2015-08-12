@@ -79,7 +79,6 @@ import org.sonar.plugins.javascript.api.tree.statement.DefaultClauseTree;
 import org.sonar.plugins.javascript.api.tree.statement.DoWhileStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.ElseClauseTree;
 import org.sonar.plugins.javascript.api.tree.statement.EmptyStatementTree;
-import org.sonar.plugins.javascript.api.tree.statement.EndOfStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.ExpressionStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.ForInStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.ForOfStatementTree;
@@ -156,13 +155,11 @@ public class BaseTreeVisitor implements TreeVisitor, JavaScriptCheck {
   public void visitImportDeclaration(ImportDeclarationTree tree) {
     scan(tree.importClause());
     scan(tree.fromClause());
-    scan(tree.endOfStatement());
   }
 
   @Override
-  public void visitImportModuletDeclaration(ImportModuleDeclarationTree tree) {
+  public void visitImportModuleDeclaration(ImportModuleDeclarationTree tree) {
     scan(tree.moduleName());
-    scan(tree.endOfStatement());
   }
 
   @Override
@@ -204,7 +201,6 @@ public class BaseTreeVisitor implements TreeVisitor, JavaScriptCheck {
   @Override
   public void visitVariableStatement(VariableStatementTree tree) {
     scan(tree.declaration());
-    scan(tree.endOfStatement());
   }
 
   @Override
@@ -257,7 +253,6 @@ public class BaseTreeVisitor implements TreeVisitor, JavaScriptCheck {
   @Override
   public void visitExpressionStatement(ExpressionStatementTree tree) {
     scan(tree.expression());
-    scan(tree.endOfStatement());
   }
 
   @Override
@@ -304,13 +299,11 @@ public class BaseTreeVisitor implements TreeVisitor, JavaScriptCheck {
   public void visitDoWhileStatement(DoWhileStatementTree tree) {
     scan(tree.statement());
     scan(tree.condition());
-    scan(tree.endOfStatement());
   }
 
   @Override
   public void visitContinueStatement(ContinueStatementTree tree) {
     scan(tree.label());
-    scan(tree.endOfStatement());
   }
 
   @Override
@@ -321,13 +314,11 @@ public class BaseTreeVisitor implements TreeVisitor, JavaScriptCheck {
   @Override
   public void visitBreakStatement(BreakStatementTree tree) {
     scan(tree.label());
-    scan(tree.endOfStatement());
   }
 
   @Override
   public void visitReturnStatement(ReturnStatementTree tree) {
     scan(tree.expression());
-    scan(tree.endOfStatement());
   }
 
   @Override
@@ -356,7 +347,6 @@ public class BaseTreeVisitor implements TreeVisitor, JavaScriptCheck {
   @Override
   public void visitThrowStatement(ThrowStatementTree tree) {
     scan(tree.expression());
-    scan(tree.endOfStatement());
   }
 
   @Override
@@ -374,7 +364,6 @@ public class BaseTreeVisitor implements TreeVisitor, JavaScriptCheck {
 
   @Override
   public void visitDebugger(DebuggerStatementTree tree) {
-    scan(tree.endOfStatement());
   }
 
   @Override
@@ -531,11 +520,6 @@ public class BaseTreeVisitor implements TreeVisitor, JavaScriptCheck {
   public void visitExportClause(ExportClauseTree tree) {
     scan(tree.exports());
     scan(tree.fromClause());
-  }
-
-  @Override
-  public void visitEndOfStatement(EndOfStatementTree tree) {
-    // no sub-tree
   }
 
 }

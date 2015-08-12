@@ -40,6 +40,7 @@ public interface ContinueStatementTree extends StatementTree {
   @Nullable
   IdentifierTree label();
 
-  EndOfStatementTree endOfStatement();
+  @Nullable
+  SyntaxToken semicolonToken();
 
 }

@@ -21,6 +21,9 @@ package org.sonar.plugins.javascript.api.tree.statement;
 
 import com.google.common.annotations.Beta;
 import org.sonar.plugins.javascript.api.tree.Tree;
+import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
+
+import javax.annotation.Nullable;
 
 /**
  * <a href="http://www.ecma-international.org/ecma-262/5.1/#sec-12.4">Expression Statement</a>.
@@ -33,6 +36,6 @@ public interface ExpressionStatementTree extends StatementTree {
 
   Tree expression();
 
-  EndOfStatementTree endOfStatement();
-
+  @Nullable
+  SyntaxToken semicolonToken();
 }

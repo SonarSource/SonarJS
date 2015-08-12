@@ -19,11 +19,12 @@
  */
 package org.sonar.javascript.model.declaration;
 
-import static org.fest.assertions.Assertions.assertThat;
 import org.junit.Test;
 import org.sonar.javascript.model.JavaScriptTreeModelTest;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.declaration.NameSpaceExportDeclarationTree;
+
+import static org.fest.assertions.Assertions.assertThat;
 
 public class NameSpaceExportDeclarationTreeModelTest extends JavaScriptTreeModelTest {
 
@@ -37,7 +38,7 @@ public class NameSpaceExportDeclarationTreeModelTest extends JavaScriptTreeModel
     assertThat(tree.starToken().text()).isEqualTo("*");
     assertThat(tree.fromClause()).isNotNull();
     assertThat(expressionToString(tree.fromClause())).isEqualTo("from \"mod\"");
-    assertThat(tree.endOfStatement().hasSemicolon()).isTrue();
+    assertThat(tree.semicolonToken()).isNotNull();
   }
 
 }

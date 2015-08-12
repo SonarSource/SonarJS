@@ -21,8 +21,6 @@ package org.sonar.plugins.javascript.api.tree;
 
 import com.google.common.annotations.Beta;
 import com.sonar.sslr.api.AstNodeType;
-import org.sonar.plugins.javascript.api.tree.statement.EndOfStatementTree;
-import org.sonar.plugins.javascript.api.visitors.TreeVisitor;
 import org.sonar.javascript.model.internal.declaration.SpecifierListTreeImpl;
 import org.sonar.plugins.javascript.api.tree.declaration.AccessorMethodDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.declaration.ArrayBindingPatternTree;
@@ -93,6 +91,7 @@ import org.sonar.plugins.javascript.api.tree.statement.VariableDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.statement.VariableStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.WhileStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.WithStatementTree;
+import org.sonar.plugins.javascript.api.visitors.TreeVisitor;
 import org.sonar.sslr.grammar.GrammarRuleKey;
 
 /**
@@ -850,11 +849,6 @@ public interface Tree {
     IMPORT_CLAUSE(ImportClauseTree.class),
 
     TYPEOF(UnaryExpressionTree.class),
-
-    /**
-     * {@link EndOfStatementTree}
-     */
-    END_OF_STATEMENT(EndOfStatementTree.class),
 
     TOKEN(SyntaxToken.class),
 

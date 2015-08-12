@@ -74,7 +74,6 @@ import org.sonar.plugins.javascript.api.tree.statement.DefaultClauseTree;
 import org.sonar.plugins.javascript.api.tree.statement.DoWhileStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.ElseClauseTree;
 import org.sonar.plugins.javascript.api.tree.statement.EmptyStatementTree;
-import org.sonar.plugins.javascript.api.tree.statement.EndOfStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.ExpressionStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.ForInStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.ForOfStatementTree;
@@ -99,7 +98,7 @@ public interface TreeVisitor {
 
   void visitImportDeclaration(ImportDeclarationTree tree);
 
-  void visitImportModuletDeclaration(ImportModuleDeclarationTree tree);
+  void visitImportModuleDeclaration(ImportModuleDeclarationTree tree);
 
   void visitImportClause(ImportClauseTree tree);
 
@@ -228,6 +227,4 @@ public interface TreeVisitor {
   void visitObjectBindingPattern(ObjectBindingPatternTree tree);
 
   void visitExportClause(ExportClauseTree tree);
-
-  void visitEndOfStatement(EndOfStatementTree tree);
 }

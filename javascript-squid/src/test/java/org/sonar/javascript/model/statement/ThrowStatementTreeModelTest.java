@@ -36,7 +36,7 @@ public class ThrowStatementTreeModelTest extends JavaScriptTreeModelTest {
     assertThat(tree.is(Kind.THROW_STATEMENT)).isTrue();
     assertThat(tree.throwKeyword().text()).isEqualTo(EcmaScriptKeyword.THROW.getValue());
     assertThat(tree.expression()).isNotNull();
-    assertThat(tree.endOfStatement().hasSemicolon()).isTrue();
+    assertThat(tree.semicolonToken()).isNotNull();
   }
 
 }

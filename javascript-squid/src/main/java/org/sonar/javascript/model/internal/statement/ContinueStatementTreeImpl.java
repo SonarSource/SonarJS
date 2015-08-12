@@ -27,7 +27,6 @@ import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.javascript.api.tree.statement.ContinueStatementTree;
-import org.sonar.plugins.javascript.api.tree.statement.EndOfStatementTree;
 import org.sonar.plugins.javascript.api.visitors.TreeVisitor;
 
 import javax.annotation.Nullable;
@@ -36,18 +35,17 @@ import java.util.Iterator;
 public class ContinueStatementTreeImpl extends JavaScriptTree implements ContinueStatementTree {
 
   private SyntaxToken continueKeyword;
-  @Nullable
   private final IdentifierTree label;
-  private final EndOfStatementTree eos;
+  private final SyntaxToken semicolonToken;
 
-  public ContinueStatementTreeImpl(EndOfStatementTreeImpl eos) {
+  public ContinueStatementTreeImpl(SyntaxToken semicolonToken) {
     this.label = null;
-    this.eos = eos;
+    this.semicolonToken = semicolonToken;
   }
 
-  public ContinueStatementTreeImpl(IdentifierTree label, EndOfStatementTreeImpl eos) {
+  public ContinueStatementTreeImpl(IdentifierTree label, SyntaxToken semicolonToken) {
     this.label = label;
-    this.eos = eos;
+    this.semicolonToken = semicolonToken;
 
   }
 
@@ -75,13 +73,8 @@ public class ContinueStatementTreeImpl extends JavaScriptTree implements Continu
   }
 
   @Override
-  public EndOfStatementTree endOfStatement() {
-    return eos;
-  }
-
-  @Override
   public Iterator<Tree> childrenIterator() {
-    return Iterators.forArray(continueKeyword, label, eos);
+    return Iterators.forArray(continueKeyword, label, semicolonToken);
   }
 
   @Override
@@ -89,4 +82,9 @@ public class ContinueStatementTreeImpl extends JavaScriptTree implements Continu
     visitor.visitContinueStatement(this);
   }
 
+  @Nullable
+  @Override
+  public SyntaxToken semicolonToken() {
+    return semicolonToken;
+  }
 }

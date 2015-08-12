@@ -21,34 +21,34 @@ package org.sonar.javascript.model.internal.declaration;
 
 import com.google.common.collect.Iterators;
 import org.sonar.javascript.model.internal.JavaScriptTree;
-import org.sonar.javascript.model.internal.statement.EndOfStatementTreeImpl;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.declaration.ExportClauseTree;
 import org.sonar.plugins.javascript.api.tree.declaration.FromClauseTree;
 import org.sonar.plugins.javascript.api.tree.declaration.SpecifierListTree;
-import org.sonar.plugins.javascript.api.tree.statement.EndOfStatementTree;
+import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.javascript.api.visitors.TreeVisitor;
 
+import javax.annotation.Nullable;
 import java.util.Iterator;
 
 public class ExportClauseTreeImpl extends JavaScriptTree implements ExportClauseTree {
 
   private final SpecifierListTree exports;
   private final FromClauseTree fromClause;
-  private final EndOfStatementTree eos;
+  private final SyntaxToken semicolonToken;
 
-  public ExportClauseTreeImpl(SpecifierListTreeImpl exports, EndOfStatementTreeImpl eos) {
+  public ExportClauseTreeImpl(SpecifierListTreeImpl exports, @Nullable SyntaxToken semicolonToken) {
 
     this.exports = exports;
     this.fromClause = null;
-    this.eos = eos;
+    this.semicolonToken = semicolonToken;
   }
 
-  public ExportClauseTreeImpl(SpecifierListTreeImpl exports, FromClauseTreeImpl fromClause, EndOfStatementTreeImpl eos) {
+  public ExportClauseTreeImpl(SpecifierListTreeImpl exports, FromClauseTreeImpl fromClause, @Nullable SyntaxToken semicolonToken) {
 
     this.exports = exports;
     this.fromClause = fromClause;
-    this.eos = eos;
+    this.semicolonToken = semicolonToken;
 
   }
 
@@ -62,9 +62,10 @@ public class ExportClauseTreeImpl extends JavaScriptTree implements ExportClause
     return fromClause;
   }
 
+  @Nullable
   @Override
-  public EndOfStatementTree eos() {
-    return eos;
+  public SyntaxToken semicolonToken() {
+    return semicolonToken;
   }
 
   @Override
@@ -74,7 +75,7 @@ public class ExportClauseTreeImpl extends JavaScriptTree implements ExportClause
 
   @Override
   public Iterator<Tree> childrenIterator() {
-    return Iterators.forArray(exports, fromClause, eos);
+    return Iterators.forArray(exports, fromClause, semicolonToken);
   }
 
   @Override

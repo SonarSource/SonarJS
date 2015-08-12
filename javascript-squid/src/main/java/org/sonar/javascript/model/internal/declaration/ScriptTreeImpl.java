@@ -37,7 +37,7 @@ public class ScriptTreeImpl extends JavaScriptTree implements ScriptTree {
   private final ModuleTreeImpl items;
   private final InternalSyntaxToken eof;
 
-  public ScriptTreeImpl(@Nullable InternalSyntaxToken shebangToken, ModuleTreeImpl items, InternalSyntaxToken eof) {
+  public ScriptTreeImpl(@Nullable InternalSyntaxToken shebangToken, @Nullable ModuleTreeImpl items, InternalSyntaxToken eof) {
     this.shebangToken = shebangToken;
     this.items = items;
     this.eof = eof;

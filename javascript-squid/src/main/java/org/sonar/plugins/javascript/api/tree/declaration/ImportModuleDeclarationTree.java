@@ -22,7 +22,8 @@ package org.sonar.plugins.javascript.api.tree.declaration;
 import com.google.common.annotations.Beta;
 import org.sonar.plugins.javascript.api.tree.expression.LiteralTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
-import org.sonar.plugins.javascript.api.tree.statement.EndOfStatementTree;
+
+import javax.annotation.Nullable;
 
 /**
  * <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-imports">Import Module</a>.
@@ -37,6 +38,7 @@ public interface ImportModuleDeclarationTree extends DeclarationTree {
 
   LiteralTree moduleName();
 
-  EndOfStatementTree endOfStatement();
+  @Nullable
+  SyntaxToken semicolonToken();
 
 }

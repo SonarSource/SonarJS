@@ -19,12 +19,13 @@
  */
 package org.sonar.javascript.model.statement;
 
-import static org.fest.assertions.Assertions.assertThat;
 import org.junit.Test;
 import org.sonar.javascript.api.EcmaScriptKeyword;
 import org.sonar.javascript.model.JavaScriptTreeModelTest;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.statement.DebuggerStatementTree;
+
+import static org.fest.assertions.Assertions.assertThat;
 
 public class DebuggerStatementTreeModelTest extends JavaScriptTreeModelTest {
 
@@ -34,7 +35,7 @@ public class DebuggerStatementTreeModelTest extends JavaScriptTreeModelTest {
 
     assertThat(tree.is(Kind.DEBUGGER_STATEMENT)).isTrue();
     assertThat(tree.debuggerKeyword().text()).isEqualTo(EcmaScriptKeyword.DEBUGGER.getValue());
-    assertThat(tree.endOfStatement().hasSemicolon()).isTrue();
+    assertThat(tree.semicolonToken()).isNotNull();
   }
 
 }

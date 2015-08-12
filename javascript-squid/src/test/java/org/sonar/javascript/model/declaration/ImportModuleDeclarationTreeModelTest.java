@@ -19,7 +19,6 @@
  */
 package org.sonar.javascript.model.declaration;
 
-import static org.fest.assertions.Assertions.assertThat;
 import org.junit.Test;
 import org.sonar.javascript.model.JavaScriptTreeModelTest;
 import org.sonar.plugins.javascript.api.tree.Tree;
@@ -29,6 +28,8 @@ import org.sonar.plugins.javascript.api.tree.declaration.ImportDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.declaration.ImportModuleDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.declaration.SpecifierListTree;
 import org.sonar.plugins.javascript.api.tree.declaration.SpecifierTree;
+
+import static org.fest.assertions.Assertions.assertThat;
 
 public class ImportModuleDeclarationTreeModelTest extends JavaScriptTreeModelTest {
 
@@ -42,7 +43,7 @@ public class ImportModuleDeclarationTreeModelTest extends JavaScriptTreeModelTes
     assertThat(expressionToString(tree.importClause())).isEqualTo("a");
     assertThat(tree.fromClause()).isNotNull();
     assertThat(expressionToString(tree.fromClause())).isEqualTo("from \"mod\"");
-    assertThat(tree.endOfStatement().hasSemicolon()).isTrue();
+    assertThat(tree.semicolonToken()).isNotNull();
   }
 
   @Test
@@ -69,7 +70,7 @@ public class ImportModuleDeclarationTreeModelTest extends JavaScriptTreeModelTes
     assertThat(tree.is(Kind.IMPORT_MODULE_DECLARATION)).isTrue();
     assertThat(tree.importToken().text()).isEqualTo("import");
     assertThat(tree.moduleName().value()).isEqualTo("\"mod\"");
-    assertThat(tree.endOfStatement().hasSemicolon()).isTrue();
+    assertThat(tree.semicolonToken()).isNotNull();
   }
 
   private void assertSpecifierTree(SpecifierTree tree, String expectedName, String expectedAsToken, String expectedLocalName) {

@@ -25,19 +25,19 @@ import org.sonar.javascript.model.internal.lexical.InternalSyntaxToken;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.javascript.api.tree.statement.DebuggerStatementTree;
-import org.sonar.plugins.javascript.api.tree.statement.EndOfStatementTree;
 import org.sonar.plugins.javascript.api.visitors.TreeVisitor;
 
+import javax.annotation.Nullable;
 import java.util.Iterator;
 
 public class DebuggerStatementTreeImpl extends JavaScriptTree implements DebuggerStatementTree {
 
   private final SyntaxToken debuggerKeyword;
-  private final EndOfStatementTree eos;
+  private final SyntaxToken semicolonToken;
 
-  public DebuggerStatementTreeImpl(InternalSyntaxToken debuggerKeyword, EndOfStatementTreeImpl eos) {
+  public DebuggerStatementTreeImpl(InternalSyntaxToken debuggerKeyword, SyntaxToken semicolonToken) {
     this.debuggerKeyword = debuggerKeyword;
-    this.eos = eos;
+    this.semicolonToken = semicolonToken;
 
   }
 
@@ -51,14 +51,15 @@ public class DebuggerStatementTreeImpl extends JavaScriptTree implements Debugge
     return debuggerKeyword;
   }
 
+  @Nullable
   @Override
-  public EndOfStatementTree endOfStatement() {
-    return eos;
+  public SyntaxToken semicolonToken() {
+    return semicolonToken;
   }
 
   @Override
   public Iterator<Tree> childrenIterator() {
-    return Iterators.forArray(debuggerKeyword, eos);
+    return Iterators.forArray((Tree)debuggerKeyword, semicolonToken);
   }
 
   @Override

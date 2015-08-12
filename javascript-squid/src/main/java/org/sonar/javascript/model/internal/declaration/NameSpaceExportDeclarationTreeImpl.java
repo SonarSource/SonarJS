@@ -22,14 +22,13 @@ package org.sonar.javascript.model.internal.declaration;
 import com.google.common.collect.Iterators;
 import org.sonar.javascript.model.internal.JavaScriptTree;
 import org.sonar.javascript.model.internal.lexical.InternalSyntaxToken;
-import org.sonar.javascript.model.internal.statement.EndOfStatementTreeImpl;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.declaration.FromClauseTree;
 import org.sonar.plugins.javascript.api.tree.declaration.NameSpaceExportDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
-import org.sonar.plugins.javascript.api.tree.statement.EndOfStatementTree;
 import org.sonar.plugins.javascript.api.visitors.TreeVisitor;
 
+import javax.annotation.Nullable;
 import java.util.Iterator;
 
 public class NameSpaceExportDeclarationTreeImpl extends JavaScriptTree implements NameSpaceExportDeclarationTree {
@@ -37,13 +36,13 @@ public class NameSpaceExportDeclarationTreeImpl extends JavaScriptTree implement
   private final SyntaxToken exportToken;
   private final SyntaxToken starToken;
   private final FromClauseTree fromClause;
-  private final EndOfStatementTree eos;
+  private final SyntaxToken semicolonToken;
 
-  public NameSpaceExportDeclarationTreeImpl(InternalSyntaxToken exportToken, InternalSyntaxToken starToken, FromClauseTreeImpl fromClause, EndOfStatementTreeImpl eos) {
+  public NameSpaceExportDeclarationTreeImpl(InternalSyntaxToken exportToken, InternalSyntaxToken starToken, FromClauseTreeImpl fromClause, @Nullable SyntaxToken semicolonToken) {
     this.exportToken = exportToken;
     this.starToken = starToken;
     this.fromClause = fromClause;
-    this.eos = eos;
+    this.semicolonToken = semicolonToken;
 
   }
 
@@ -62,9 +61,10 @@ public class NameSpaceExportDeclarationTreeImpl extends JavaScriptTree implement
     return fromClause;
   }
 
+  @Nullable
   @Override
-  public EndOfStatementTree endOfStatement() {
-    return eos;
+  public SyntaxToken semicolonToken() {
+    return semicolonToken;
   }
 
   @Override
@@ -74,7 +74,7 @@ public class NameSpaceExportDeclarationTreeImpl extends JavaScriptTree implement
 
   @Override
   public Iterator<Tree> childrenIterator() {
-    return Iterators.forArray(exportToken, starToken, fromClause, eos);
+    return Iterators.forArray(exportToken, starToken, fromClause, semicolonToken);
   }
 
   @Override

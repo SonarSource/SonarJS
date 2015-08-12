@@ -25,7 +25,6 @@ import org.sonar.javascript.model.internal.lexical.InternalSyntaxToken;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
-import org.sonar.plugins.javascript.api.tree.statement.EndOfStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.ThrowStatementTree;
 import org.sonar.plugins.javascript.api.visitors.TreeVisitor;
 
@@ -36,13 +35,13 @@ public class ThrowStatementTreeImpl extends JavaScriptTree implements ThrowState
 
   private final SyntaxToken throwKeyword;
   private final ExpressionTree expression;
-  private final EndOfStatementTree eos;
+  private final SyntaxToken semicolonToken;
 
-  public ThrowStatementTreeImpl(InternalSyntaxToken throwKeyword, ExpressionTree expression, EndOfStatementTreeImpl eos) {
+  public ThrowStatementTreeImpl(InternalSyntaxToken throwKeyword, ExpressionTree expression, @Nullable SyntaxToken semicolonToken) {
 
     this.throwKeyword = throwKeyword;
     this.expression = expression;
-    this.eos = eos;
+    this.semicolonToken = semicolonToken;
 
   }
 
@@ -64,13 +63,13 @@ public class ThrowStatementTreeImpl extends JavaScriptTree implements ThrowState
 
   @Nullable
   @Override
-  public EndOfStatementTree endOfStatement() {
-    return eos;
+  public SyntaxToken semicolonToken() {
+    return semicolonToken;
   }
 
   @Override
   public Iterator<Tree> childrenIterator() {
-    return Iterators.forArray(throwKeyword, expression, eos);
+    return Iterators.forArray(throwKeyword, expression, semicolonToken);
   }
 
   @Override

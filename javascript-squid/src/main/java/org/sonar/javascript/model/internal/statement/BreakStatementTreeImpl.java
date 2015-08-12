@@ -27,7 +27,6 @@ import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.javascript.api.tree.statement.BreakStatementTree;
-import org.sonar.plugins.javascript.api.tree.statement.EndOfStatementTree;
 import org.sonar.plugins.javascript.api.visitors.TreeVisitor;
 
 import javax.annotation.Nullable;
@@ -36,18 +35,17 @@ import java.util.Iterator;
 public class BreakStatementTreeImpl extends JavaScriptTree implements BreakStatementTree {
 
   private SyntaxToken breakKeyword;
-  @Nullable
   private final IdentifierTree label;
-  private final EndOfStatementTree eos;
+  private final SyntaxToken semicolonToken;
 
-  public BreakStatementTreeImpl(EndOfStatementTreeImpl eos) {
+  public BreakStatementTreeImpl(SyntaxToken semicolonToken) {
     this.label = null;
-    this.eos = eos;
+    this.semicolonToken = semicolonToken;
   }
 
-  public BreakStatementTreeImpl(IdentifierTree label, EndOfStatementTreeImpl eos) {
+  public BreakStatementTreeImpl(IdentifierTree label, SyntaxToken semicolonToken) {
     this.label = label;
-    this.eos = eos;
+    this.semicolonToken = semicolonToken;
   }
 
   public BreakStatementTreeImpl complete(InternalSyntaxToken breakKeyword) {
@@ -73,14 +71,15 @@ public class BreakStatementTreeImpl extends JavaScriptTree implements BreakState
     return label;
   }
 
+  @Nullable
   @Override
-  public EndOfStatementTree endOfStatement() {
-    return eos;
+  public SyntaxToken semicolonToken() {
+    return semicolonToken;
   }
 
   @Override
   public Iterator<Tree> childrenIterator() {
-    return Iterators.forArray(breakKeyword, label, eos);
+    return Iterators.forArray(breakKeyword, label, semicolonToken);
   }
 
   @Override

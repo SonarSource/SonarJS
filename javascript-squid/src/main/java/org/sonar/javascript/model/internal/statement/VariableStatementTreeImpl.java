@@ -22,20 +22,21 @@ package org.sonar.javascript.model.internal.statement;
 import com.google.common.collect.Iterators;
 import org.sonar.javascript.model.internal.JavaScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
-import org.sonar.plugins.javascript.api.tree.statement.EndOfStatementTree;
+import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.javascript.api.tree.statement.VariableStatementTree;
 import org.sonar.plugins.javascript.api.visitors.TreeVisitor;
 
+import javax.annotation.Nullable;
 import java.util.Iterator;
 
 public class VariableStatementTreeImpl extends JavaScriptTree implements VariableStatementTree {
 
   private final VariableDeclarationTreeImpl declaration;
-  private final EndOfStatementTreeImpl eos;
+  private final SyntaxToken semicolonToken;
 
-  public VariableStatementTreeImpl(VariableDeclarationTreeImpl declaration, EndOfStatementTreeImpl eos) {
+  public VariableStatementTreeImpl(VariableDeclarationTreeImpl declaration, SyntaxToken semicolonToken) {
     this.declaration = declaration;
-    this.eos = eos;
+    this.semicolonToken = semicolonToken;
   }
 
   @Override
@@ -48,14 +49,15 @@ public class VariableStatementTreeImpl extends JavaScriptTree implements Variabl
     return declaration;
   }
 
+  @Nullable
   @Override
-  public EndOfStatementTree endOfStatement() {
-    return eos;
+  public SyntaxToken semicolonToken() {
+    return semicolonToken;
   }
 
   @Override
   public Iterator<Tree> childrenIterator() {
-    return Iterators.<Tree>forArray(declaration, eos);
+    return Iterators.forArray(declaration, semicolonToken);
   }
 
   @Override

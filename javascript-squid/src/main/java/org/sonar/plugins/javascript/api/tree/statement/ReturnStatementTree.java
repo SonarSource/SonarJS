@@ -40,5 +40,5 @@ public interface ReturnStatementTree extends StatementTree {
   @Nullable
   ExpressionTree expression();
 
-  EndOfStatementTree endOfStatement();
+  SyntaxToken semicolonToken();
 }

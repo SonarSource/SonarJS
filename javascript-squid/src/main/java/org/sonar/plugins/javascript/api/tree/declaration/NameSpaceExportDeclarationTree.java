@@ -21,7 +21,8 @@ package org.sonar.plugins.javascript.api.tree.declaration;
 
 import com.google.common.annotations.Beta;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
-import org.sonar.plugins.javascript.api.tree.statement.EndOfStatementTree;
+
+import javax.annotation.Nullable;
 
 /**
  * <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-exports">Namespace Export Declarations</a> (<a href="http://wiki.ecmascript.org/doku.php?id=harmony:specification_drafts">ES6</a>).
@@ -36,6 +37,7 @@ public interface NameSpaceExportDeclarationTree extends ExportDeclarationTree {
 
   FromClauseTree fromClause();
 
-  EndOfStatementTree endOfStatement();
+  @Nullable
+  SyntaxToken semicolonToken();
 
 }

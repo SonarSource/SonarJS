@@ -26,7 +26,6 @@ import org.sonar.javascript.model.internal.lexical.InternalSyntaxToken;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
-import org.sonar.plugins.javascript.api.tree.statement.EndOfStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.ReturnStatementTree;
 import org.sonar.plugins.javascript.api.visitors.TreeVisitor;
 
@@ -37,15 +36,15 @@ public class ReturnStatementTreeImpl extends JavaScriptTree implements ReturnSta
 
   private SyntaxToken returnKeyword;
   private ExpressionTree expression;
-  private final EndOfStatementTree eos;
+  private final SyntaxToken semicolonToken;
 
-  public ReturnStatementTreeImpl(EndOfStatementTreeImpl eos) {
-    this.eos = eos;
+  public ReturnStatementTreeImpl(@Nullable SyntaxToken semicolonToken) {
+    this.semicolonToken = semicolonToken;
   }
 
-  public ReturnStatementTreeImpl(ExpressionTree expression, EndOfStatementTreeImpl eos) {
+  public ReturnStatementTreeImpl(ExpressionTree expression, @Nullable SyntaxToken semicolonToken) {
     this.expression = expression;
-    this.eos = eos;
+    this.semicolonToken = semicolonToken;
   }
 
   public ReturnStatementTreeImpl complete(InternalSyntaxToken returnKeyword) {
@@ -73,13 +72,13 @@ public class ReturnStatementTreeImpl extends JavaScriptTree implements ReturnSta
 
   @Nullable
   @Override
-  public EndOfStatementTree endOfStatement() {
-    return eos;
+  public SyntaxToken semicolonToken() {
+    return semicolonToken;
   }
 
   @Override
   public Iterator<Tree> childrenIterator() {
-    return Iterators.forArray(returnKeyword, expression, eos);
+    return Iterators.forArray(returnKeyword, expression, semicolonToken);
   }
 
   @Override

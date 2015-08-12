@@ -27,10 +27,10 @@ import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.javascript.api.tree.statement.DoWhileStatementTree;
-import org.sonar.plugins.javascript.api.tree.statement.EndOfStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.StatementTree;
 import org.sonar.plugins.javascript.api.visitors.TreeVisitor;
 
+import javax.annotation.Nullable;
 import java.util.Iterator;
 
 public class DoWhileStatementTreeImpl extends JavaScriptTree implements DoWhileStatementTree {
@@ -41,17 +41,17 @@ public class DoWhileStatementTreeImpl extends JavaScriptTree implements DoWhileS
   private final SyntaxToken openingParenthesis;
   private final ExpressionTree condition;
   private final SyntaxToken closingParenthesis;
-  private final EndOfStatementTree eos;
+  private final SyntaxToken semicolonToken;
 
   public DoWhileStatementTreeImpl(InternalSyntaxToken doKeyword, StatementTree statement, InternalSyntaxToken whileKeyword, InternalSyntaxToken openingParenthesis,
-    ExpressionTree condition, InternalSyntaxToken closingParenthesis, EndOfStatementTreeImpl eos) {
+    ExpressionTree condition, InternalSyntaxToken closingParenthesis, SyntaxToken semicolonToken) {
     this.doKeyword = doKeyword;
     this.statement = statement;
     this.whileKeyword = whileKeyword;
     this.openingParenthesis = openingParenthesis;
     this.condition = condition;
     this.closingParenthesis = closingParenthesis;
-    this.eos = eos;
+    this.semicolonToken = semicolonToken;
 
   }
 
@@ -86,9 +86,10 @@ public class DoWhileStatementTreeImpl extends JavaScriptTree implements DoWhileS
     return closingParenthesis;
   }
 
+  @Nullable
   @Override
-  public EndOfStatementTree endOfStatement() {
-    return eos;
+  public SyntaxToken semicolonToken() {
+    return semicolonToken;
   }
 
   @Override
@@ -105,7 +106,7 @@ public class DoWhileStatementTreeImpl extends JavaScriptTree implements DoWhileS
       openingParenthesis,
       condition,
       closingParenthesis,
-      eos
+      semicolonToken
     );
   }
 

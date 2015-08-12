@@ -23,7 +23,6 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterators;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import com.sonar.sslr.api.AstNodeType;
 import com.sonar.sslr.api.typed.Optional;
 import org.apache.commons.collections.ListUtils;
@@ -90,7 +89,6 @@ import org.sonar.javascript.model.internal.statement.DefaultClauseTreeImpl;
 import org.sonar.javascript.model.internal.statement.DoWhileStatementTreeImpl;
 import org.sonar.javascript.model.internal.statement.ElseClauseTreeImpl;
 import org.sonar.javascript.model.internal.statement.EmptyStatementTreeImpl;
-import org.sonar.javascript.model.internal.statement.EndOfStatementTreeImpl;
 import org.sonar.javascript.model.internal.statement.ExpressionStatementTreeImpl;
 import org.sonar.javascript.model.internal.statement.ForInStatementTreeImpl;
 import org.sonar.javascript.model.internal.statement.ForOfStatementTreeImpl;
@@ -105,7 +103,6 @@ import org.sonar.javascript.model.internal.statement.VariableDeclarationTreeImpl
 import org.sonar.javascript.model.internal.statement.VariableStatementTreeImpl;
 import org.sonar.javascript.model.internal.statement.WhileStatementTreeImpl;
 import org.sonar.javascript.model.internal.statement.WithStatementTreeImpl;
-import org.sonar.javascript.parser.EcmaScriptGrammar;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.declaration.BindingElementTree;
@@ -122,12 +119,13 @@ import org.sonar.plugins.javascript.api.tree.expression.MemberExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.TemplateCharactersTree;
 import org.sonar.plugins.javascript.api.tree.expression.TemplateExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.TemplateLiteralTree;
+import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.javascript.api.tree.statement.StatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.SwitchClauseTree;
 import org.sonar.plugins.javascript.api.visitors.TreeVisitor;
 
+import javax.annotation.Nullable;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -210,24 +208,12 @@ public class TreeFactory {
     return new EmptyStatementTreeImpl(semicolon);
   }
 
-  public DebuggerStatementTreeImpl debuggerStatement(InternalSyntaxToken debuggerWord, EndOfStatementTreeImpl eos) {
-    return new DebuggerStatementTreeImpl(debuggerWord, eos);
+  public DebuggerStatementTreeImpl debuggerStatement(InternalSyntaxToken debuggerWord, Tree semicolonToken) {
+    return new DebuggerStatementTreeImpl(debuggerWord, nullableSemicolonToken(semicolonToken));
   }
 
-  // fixme
-  public EndOfStatementTreeImpl endOfStatement(Tree eos) {
-    if (eos instanceof InternalSyntaxToken) {
-      return new EndOfStatementTreeImpl((InternalSyntaxToken) eos);
-    }
-    return new EndOfStatementTreeImpl();
-  }
-
-  public EndOfStatementTreeImpl endOfStatement1(Tree eos) {
-    return endOfStatement(eos);
-  }
-
-  public VariableStatementTreeImpl variableStatement(VariableDeclarationTreeImpl declaration, EndOfStatementTreeImpl eosToken) {
-    return new VariableStatementTreeImpl(declaration, eosToken);
+  public VariableStatementTreeImpl variableStatement(VariableDeclarationTreeImpl declaration, Tree semicolonToken) {
+    return new VariableStatementTreeImpl(declaration, nullableSemicolonToken(semicolonToken));
   }
 
   private VariableDeclarationTreeImpl variableDeclaration(InternalSyntaxToken token, SeparatedList<BindingElementTree> variables) {
@@ -291,40 +277,40 @@ public class TreeFactory {
     return labelOrEndOfStatement.complete(continueToken);
   }
 
-  public ContinueStatementTreeImpl newContinueWithLabel(IdentifierTreeImpl identifier, EndOfStatementTreeImpl eos) {
-    return new ContinueStatementTreeImpl(identifier, eos);
+  public ContinueStatementTreeImpl newContinueWithLabel(IdentifierTreeImpl identifier, Tree semicolonToken) {
+    return new ContinueStatementTreeImpl(identifier, nullableSemicolonToken(semicolonToken));
   }
 
-  public ContinueStatementTreeImpl newContinueWithoutLabel(EndOfStatementTreeImpl eos) {
-    return new ContinueStatementTreeImpl(eos);
+  public ContinueStatementTreeImpl newContinueWithoutLabel(Tree semicolonToken) {
+    return new ContinueStatementTreeImpl(nullableSemicolonToken(semicolonToken));
   }
 
   public BreakStatementTreeImpl completeBreakStatement(InternalSyntaxToken breakToken, BreakStatementTreeImpl labelOrEndOfStatement) {
     return labelOrEndOfStatement.complete(breakToken);
   }
 
-  public BreakStatementTreeImpl newBreakWithLabel(IdentifierTreeImpl identifier, EndOfStatementTreeImpl eos) {
-    return new BreakStatementTreeImpl(identifier, eos);
+  public BreakStatementTreeImpl newBreakWithLabel(IdentifierTreeImpl identifier, Tree semicolonToken) {
+    return new BreakStatementTreeImpl(identifier, nullableSemicolonToken(semicolonToken));
   }
 
-  public BreakStatementTreeImpl newBreakWithoutLabel(EndOfStatementTreeImpl eos) {
-    return new BreakStatementTreeImpl(eos);
+  public BreakStatementTreeImpl newBreakWithoutLabel(Tree semicolonToken) {
+    return new BreakStatementTreeImpl(nullableSemicolonToken(semicolonToken));
   }
 
   public ReturnStatementTreeImpl completeReturnStatement(InternalSyntaxToken returnToken, ReturnStatementTreeImpl expressionOrEndOfStatement) {
     return expressionOrEndOfStatement.complete(returnToken);
   }
 
-  public ReturnStatementTreeImpl newReturnWithExpression(ExpressionTree expression, EndOfStatementTreeImpl eos) {
-    return new ReturnStatementTreeImpl(expression, eos);
+  public ReturnStatementTreeImpl newReturnWithExpression(ExpressionTree expression, Tree semicolonToken) {
+    return new ReturnStatementTreeImpl(expression, nullableSemicolonToken(semicolonToken));
   }
 
-  public ReturnStatementTreeImpl newReturnWithoutExpression(EndOfStatementTreeImpl eos) {
-    return new ReturnStatementTreeImpl(eos);
+  public ReturnStatementTreeImpl newReturnWithoutExpression(Tree semicolonToken) {
+    return new ReturnStatementTreeImpl(nullableSemicolonToken(semicolonToken));
   }
 
-  public ThrowStatementTreeImpl newThrowStatement(InternalSyntaxToken throwToken, ExpressionTree expression, EndOfStatementTreeImpl eos) {
-    return new ThrowStatementTreeImpl(throwToken, expression, eos);
+  public ThrowStatementTreeImpl newThrowStatement(InternalSyntaxToken throwToken, ExpressionTree expression, Tree semicolonToken) {
+    return new ThrowStatementTreeImpl(throwToken, expression, nullableSemicolonToken(semicolonToken));
   }
 
   public WithStatementTreeImpl newWithStatement(InternalSyntaxToken withToken, InternalSyntaxToken openingParen, ExpressionTree expression, InternalSyntaxToken closingParen, StatementTree statement) {
@@ -440,7 +426,7 @@ public class TreeFactory {
       statetment);
   }
 
-  public DoWhileStatementTreeImpl doWhileStatement(InternalSyntaxToken doToken, StatementTree statement, InternalSyntaxToken whileToken, InternalSyntaxToken openParenthesis, ExpressionTree condition, InternalSyntaxToken closeParenthesis, EndOfStatementTreeImpl eos) {
+  public DoWhileStatementTreeImpl doWhileStatement(InternalSyntaxToken doToken, StatementTree statement, InternalSyntaxToken whileToken, InternalSyntaxToken openParenthesis, ExpressionTree condition, InternalSyntaxToken closeParenthesis, Tree semicolonToken) {
     return new DoWhileStatementTreeImpl(
       doToken,
       statement,
@@ -448,11 +434,20 @@ public class TreeFactory {
       openParenthesis,
       condition,
       closeParenthesis,
-      eos);
+      nullableSemicolonToken(semicolonToken));
   }
 
-  public ExpressionStatementTreeImpl expressionStatement(Tree lookahead, ExpressionTree expression, EndOfStatementTreeImpl eos) {
-    return new ExpressionStatementTreeImpl(expression, eos);
+  public ExpressionStatementTreeImpl expressionStatement(Tree lookahead, ExpressionTree expression, Tree semicolonToken) {
+    return new ExpressionStatementTreeImpl(expression, nullableSemicolonToken(semicolonToken));
+  }
+
+  @Nullable
+  private SyntaxToken nullableSemicolonToken(Tree semicolonToken) {
+    if (semicolonToken instanceof SyntaxToken) {
+      return (SyntaxToken) semicolonToken;
+    } else {
+      return null;
+    }
   }
 
   public ForOfStatementTreeImpl forOfStatement(InternalSyntaxToken forToken, InternalSyntaxToken openParenthesis, Tree variableOrExpression, InternalSyntaxToken ofToken, ExpressionTree expression, InternalSyntaxToken closeParenthesis, StatementTree statement) {
@@ -1116,8 +1111,8 @@ public class TreeFactory {
       declaration);
   }
 
-  public ExpressionStatementTreeImpl exportedExpressionStatement(Tree lookahead, ExpressionTree expression, EndOfStatementTreeImpl eos) {
-    return new ExpressionStatementTreeImpl(expression, eos);
+  public ExpressionStatementTreeImpl exportedExpressionStatement(Tree lookahead, ExpressionTree expression, Tree semicolonToken) {
+    return new ExpressionStatementTreeImpl(expression, nullableSemicolonToken(semicolonToken));
   }
 
   public NamedExportDeclarationTreeImpl namedExportDeclaration(InternalSyntaxToken exportToken, Tree object) {
@@ -1163,19 +1158,19 @@ public class TreeFactory {
     return new SpecifierListTreeImpl(Kind.EXPORT_LIST, openCurlyBraceToken, closeCurlyBraceToken);
   }
 
-  public NameSpaceExportDeclarationTree namespaceExportDeclaration(InternalSyntaxToken exportToken, InternalSyntaxToken starToken, FromClauseTreeImpl fromClause, EndOfStatementTreeImpl eos) {
-    return new NameSpaceExportDeclarationTreeImpl(exportToken, starToken, fromClause, eos);
+  public NameSpaceExportDeclarationTree namespaceExportDeclaration(InternalSyntaxToken exportToken, InternalSyntaxToken starToken, FromClauseTreeImpl fromClause, Tree semicolonToken) {
+    return new NameSpaceExportDeclarationTreeImpl(exportToken, starToken, fromClause, nullableSemicolonToken(semicolonToken));
   }
 
-  public ExportClauseTreeImpl exportClause(SpecifierListTreeImpl exportList, Optional<FromClauseTreeImpl> fromClause, EndOfStatementTreeImpl eos) {
+  public ExportClauseTreeImpl exportClause(SpecifierListTreeImpl exportList, Optional<FromClauseTreeImpl> fromClause, Tree semicolonToken) {
     if (fromClause.isPresent()) {
-      return new ExportClauseTreeImpl(exportList, fromClause.get(), eos);
+      return new ExportClauseTreeImpl(exportList, fromClause.get(), nullableSemicolonToken(semicolonToken));
     }
-    return new ExportClauseTreeImpl(exportList, eos);
+    return new ExportClauseTreeImpl(exportList, nullableSemicolonToken(semicolonToken));
   }
 
-  public ImportModuleDeclarationTree importModuleDeclaration(InternalSyntaxToken importToken, LiteralTreeImpl moduleName, EndOfStatementTreeImpl eos) {
-    return new ImportModuleDeclarationTreeImpl(importToken, moduleName, eos);
+  public ImportModuleDeclarationTree importModuleDeclaration(InternalSyntaxToken importToken, LiteralTreeImpl moduleName, Tree semicolonToken) {
+    return new ImportModuleDeclarationTreeImpl(importToken, moduleName, nullableSemicolonToken(semicolonToken));
   }
 
   public SpecifierTreeImpl newImportSpecifier(InternalSyntaxToken asToken, IdentifierTreeImpl identifier) {
@@ -1235,8 +1230,8 @@ public class TreeFactory {
     return new ImportClauseTreeImpl(importTree);
   }
 
-  public ImportDeclarationTreeImpl importDeclaration(InternalSyntaxToken importToken, ImportClauseTreeImpl importClause, FromClauseTreeImpl fromClause, EndOfStatementTreeImpl eos) {
-    return new ImportDeclarationTreeImpl(importToken, importClause, fromClause, eos);
+  public ImportDeclarationTreeImpl importDeclaration(InternalSyntaxToken importToken, ImportClauseTreeImpl importClause, FromClauseTreeImpl fromClause, Tree semicolonToken) {
+    return new ImportDeclarationTreeImpl(importToken, importClause, fromClause, nullableSemicolonToken(semicolonToken));
   }
 
   public ModuleTreeImpl module(List<Tree> items) {
@@ -1436,7 +1431,7 @@ public class TreeFactory {
   public ScriptTreeImpl script(Optional<InternalSyntaxToken> shebangToken, Optional<ModuleTreeImpl> items, Tree spacing, InternalSyntaxToken eof) {
     return new ScriptTreeImpl(
       shebangToken.isPresent() ? shebangToken.get() : null,
-      items.isPresent() ? items.get() : new ModuleTreeImpl(Collections.<Tree>emptyList()),
+      items.isPresent() ? items.get() : null,
       eof);
   }
 

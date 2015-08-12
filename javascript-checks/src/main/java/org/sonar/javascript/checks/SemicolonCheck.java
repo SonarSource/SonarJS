@@ -25,11 +25,11 @@ import org.sonar.check.Rule;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.declaration.ImportDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.declaration.ImportModuleDeclarationTree;
+import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.javascript.api.tree.statement.BreakStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.ContinueStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.DebuggerStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.DoWhileStatementTree;
-import org.sonar.plugins.javascript.api.tree.statement.EndOfStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.ExpressionStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.ReturnStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.ThrowStatementTree;
@@ -38,6 +38,8 @@ import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
 import org.sonar.squidbridge.annotations.ActivatedByDefault;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
+
+import javax.annotation.Nullable;
 
 @Rule(
   key = "Semicolon",
@@ -53,8 +55,8 @@ public class SemicolonCheck extends BaseTreeVisitor {
    * TODO: for this check it would be better to have a link to the parent to be able to log the issue
    * just by subscribing to EndOfStatementTree node.
    */
-  private void checkEOS(Tree tree, EndOfStatementTree eos) {
-    if (!eos.hasSemicolon()) {
+  private void checkEOS(Tree tree, @Nullable SyntaxToken semicolonToken) {
+    if (semicolonToken == null) {
       getContext().addIssue(this, tree, "Add a semicolon at the end of this statement.");
     }
   }
@@ -62,61 +64,61 @@ public class SemicolonCheck extends BaseTreeVisitor {
   @Override
   public void visitImportDeclaration(ImportDeclarationTree tree) {
     super.visitImportDeclaration(tree);
-    checkEOS(tree, tree.endOfStatement());
+    checkEOS(tree, tree.semicolonToken());
   }
 
   @Override
-  public void visitImportModuletDeclaration(ImportModuleDeclarationTree tree) {
-    super.visitImportModuletDeclaration(tree);
-    checkEOS(tree, tree.endOfStatement());
+  public void visitImportModuleDeclaration(ImportModuleDeclarationTree tree) {
+    super.visitImportModuleDeclaration(tree);
+    checkEOS(tree, tree.semicolonToken());
   }
 
   @Override
   public void visitVariableStatement(VariableStatementTree tree) {
     super.visitVariableStatement(tree);
-    checkEOS(tree, tree.endOfStatement());
+    checkEOS(tree, tree.semicolonToken());
   }
 
   @Override
   public void visitExpressionStatement(ExpressionStatementTree tree) {
     super.visitExpressionStatement(tree);
-    checkEOS(tree, tree.endOfStatement());
+    checkEOS(tree, tree.semicolonToken());
   }
 
   @Override
   public void visitDoWhileStatement(DoWhileStatementTree tree) {
     super.visitDoWhileStatement(tree);
-    checkEOS(tree, tree.endOfStatement());
+    checkEOS(tree, tree.semicolonToken());
   }
 
   @Override
   public void visitContinueStatement(ContinueStatementTree tree) {
     super.visitContinueStatement(tree);
-    checkEOS(tree, tree.endOfStatement());
+    checkEOS(tree, tree.semicolonToken());
   }
 
   @Override
   public void visitBreakStatement(BreakStatementTree tree) {
     super.visitBreakStatement(tree);
-    checkEOS(tree, tree.endOfStatement());
+    checkEOS(tree, tree.semicolonToken());
   }
 
   @Override
   public void visitReturnStatement(ReturnStatementTree tree) {
     super.visitReturnStatement(tree);
-    checkEOS(tree, tree.endOfStatement());
+    checkEOS(tree, tree.semicolonToken());
   }
 
   @Override
   public void visitThrowStatement(ThrowStatementTree tree) {
     super.visitThrowStatement(tree);
-    checkEOS(tree, tree.endOfStatement());
+    checkEOS(tree, tree.semicolonToken());
   }
 
   @Override
   public void visitDebugger(DebuggerStatementTree tree) {
     super.visitDebugger(tree);
-    checkEOS(tree, tree.endOfStatement());
+    checkEOS(tree, tree.semicolonToken());
   }
 
 }

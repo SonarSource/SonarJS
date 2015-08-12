@@ -76,7 +76,11 @@ public abstract class JavaScriptTree implements Tree {
     Iterator<Tree> childrenIterator = childrenIterator();
     Tree child;
     do {
-      child = childrenIterator.next();
+      if (childrenIterator.hasNext()) {
+        child = childrenIterator.next();
+      } else {
+        throw new IllegalStateException("Tree has no non-null children " + getKind());
+      }
     } while (child == null);
     return ((JavaScriptTree) child).getFirstToken();
   }
