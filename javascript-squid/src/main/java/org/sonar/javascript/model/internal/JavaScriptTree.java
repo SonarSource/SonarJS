@@ -19,7 +19,6 @@
  */
 package org.sonar.javascript.model.internal;
 
-import com.sonar.sslr.api.AstNodeType;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 
@@ -43,7 +42,7 @@ public abstract class JavaScriptTree implements Tree {
     return false;
   }
 
-  public abstract AstNodeType getKind();
+  public abstract Kind getKind();
 
   /**
    * Creates iterator for children of this node.

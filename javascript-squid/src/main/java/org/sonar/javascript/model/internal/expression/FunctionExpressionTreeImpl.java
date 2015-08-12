@@ -20,7 +20,6 @@
 package org.sonar.javascript.model.internal.expression;
 
 import com.google.common.collect.Iterators;
-import com.sonar.sslr.api.AstNodeType;
 import org.sonar.javascript.ast.resolve.type.FunctionType;
 import org.sonar.javascript.model.internal.JavaScriptTree;
 import org.sonar.javascript.model.internal.declaration.ParameterListTreeImpl;
@@ -142,7 +141,7 @@ public class FunctionExpressionTreeImpl extends JavaScriptTree implements Functi
   }
 
   @Override
-  public AstNodeType getKind() {
+  public Kind getKind() {
     return kind;
   }
 

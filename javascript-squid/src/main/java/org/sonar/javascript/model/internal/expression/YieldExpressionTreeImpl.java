@@ -20,7 +20,6 @@
 package org.sonar.javascript.model.internal.expression;
 
 import com.google.common.collect.Iterators;
-import com.sonar.sslr.api.AstNodeType;
 import org.sonar.javascript.model.internal.JavaScriptTree;
 import org.sonar.javascript.model.internal.lexical.InternalSyntaxToken;
 import org.sonar.plugins.javascript.api.symbols.TypeSet;
@@ -82,7 +81,7 @@ public class YieldExpressionTreeImpl extends JavaScriptTree implements YieldExpr
   }
 
   @Override
-  public AstNodeType getKind() {
+  public Kind getKind() {
     return Kind.YIELD_EXPRESSION;
   }
 

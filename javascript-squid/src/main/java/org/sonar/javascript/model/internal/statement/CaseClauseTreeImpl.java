@@ -20,7 +20,6 @@
 package org.sonar.javascript.model.internal.statement;
 
 import com.google.common.collect.Iterators;
-import com.sonar.sslr.api.AstNodeType;
 import org.apache.commons.collections.ListUtils;
 import org.sonar.javascript.model.internal.JavaScriptTree;
 import org.sonar.javascript.model.internal.lexical.InternalSyntaxToken;
@@ -76,7 +75,7 @@ public class CaseClauseTreeImpl extends JavaScriptTree implements CaseClauseTree
   }
 
   @Override
-  public AstNodeType getKind() {
+  public Kind getKind() {
     return Kind.CASE_CLAUSE;
   }
 

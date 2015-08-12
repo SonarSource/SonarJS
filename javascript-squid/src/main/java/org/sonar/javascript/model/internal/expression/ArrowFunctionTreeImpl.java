@@ -21,7 +21,6 @@ package org.sonar.javascript.model.internal.expression;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterators;
-import com.sonar.sslr.api.AstNodeType;
 import org.sonar.javascript.model.internal.JavaScriptTree;
 import org.sonar.javascript.model.internal.declaration.ParameterListTreeImpl;
 import org.sonar.javascript.model.internal.lexical.InternalSyntaxToken;
@@ -63,7 +62,7 @@ public class ArrowFunctionTreeImpl extends JavaScriptTree implements ArrowFuncti
   }
 
   @Override
-  public AstNodeType getKind() {
+  public Kind getKind() {
     return Kind.ARROW_FUNCTION;
   }
 

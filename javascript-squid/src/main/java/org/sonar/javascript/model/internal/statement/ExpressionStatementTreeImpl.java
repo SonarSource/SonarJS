@@ -20,7 +20,6 @@
 package org.sonar.javascript.model.internal.statement;
 
 import com.google.common.collect.Iterators;
-import com.sonar.sslr.api.AstNodeType;
 import org.sonar.javascript.model.internal.JavaScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
@@ -54,7 +53,7 @@ public class ExpressionStatementTreeImpl extends JavaScriptTree implements Expre
   }
 
   @Override
-  public AstNodeType getKind() {
+  public Kind getKind() {
     return Kind.EXPRESSION_STATEMENT;
   }
 

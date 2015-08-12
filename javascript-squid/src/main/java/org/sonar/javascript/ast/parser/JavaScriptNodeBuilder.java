@@ -20,7 +20,6 @@
 package org.sonar.javascript.ast.parser;
 
 import com.google.common.collect.Lists;
-import com.sonar.sslr.api.AstNodeType;
 import com.sonar.sslr.api.GenericTokenType;
 import com.sonar.sslr.api.Rule;
 import com.sonar.sslr.api.Token;
@@ -85,7 +84,7 @@ public class JavaScriptNodeBuilder implements NodeBuilder {
     final int line;
     final int column;
     final String value;
-  
+
     private LineColumnValue(int line, int column, String value) {
       this.line = line;
       this.column = column;
@@ -94,17 +93,17 @@ public class JavaScriptNodeBuilder implements NodeBuilder {
   }
 
   private static class InternalSyntaxSpacing extends JavaScriptTree {
-  
+
     @Override
     public void accept(TreeVisitor visitor) {
       // nothing to do
     }
-  
+
     @Override
-    public AstNodeType getKind() {
+    public Kind getKind() {
       return Kind.TRIVIA;
     }
-  
+
     @Override
     public Iterator<Tree> childrenIterator() {
       throw new UnsupportedOperationException();
@@ -114,7 +113,7 @@ public class JavaScriptNodeBuilder implements NodeBuilder {
     public boolean isLeaf() {
       return true;
     }
-  
+
   }
 
 }

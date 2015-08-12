@@ -21,7 +21,6 @@ package org.sonar.javascript.model.internal.declaration;
 
 import com.google.common.collect.Iterators;
 import com.google.common.collect.Lists;
-import com.sonar.sslr.api.AstNodeType;
 import org.sonar.javascript.model.internal.JavaScriptTree;
 import org.sonar.javascript.model.internal.lexical.InternalSyntaxToken;
 import org.sonar.plugins.javascript.api.tree.Tree;
@@ -73,7 +72,7 @@ public class InitializedBindingElementTreeImpl extends JavaScriptTree implements
   }
 
   @Override
-  public AstNodeType getKind() {
+  public Kind getKind() {
     return Kind.INITIALIZED_BINDING_ELEMENT;
   }
 
