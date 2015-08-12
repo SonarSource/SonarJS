@@ -1469,7 +1469,7 @@ public class TreeFactory {
       eof);
   }
 
-  public static class Tuple<T, U > extends JavaScriptTree {
+  public static class Tuple<T, U > {
 
     private final T first;
     private final U second;
@@ -1487,22 +1487,6 @@ public class TreeFactory {
 
     public U second() {
       return second;
-    }
-
-    @Override
-    public AstNodeType getKind() {
-      // fixme
-      return WRAPPER_AST_NODE;
-    }
-
-    @Override
-    public Iterator<Tree> childrenIterator() {
-      return Iterators.emptyIterator();
-    }
-
-    @Override
-    public void accept(TreeVisitor visitor) {
-      // do nothing
     }
   }
 
