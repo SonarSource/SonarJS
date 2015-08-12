@@ -594,5 +594,9 @@
       <key>S2611</key>
       <priority>INFO</priority> <!-- Untrusted content should not be included -->
     </rule>
+    <rule>
+      <key>S3271</key>
+      <priority>INFO</priority><!-- Local storage should not be used -->
+    </rule>
   </rules>
 </profile>
