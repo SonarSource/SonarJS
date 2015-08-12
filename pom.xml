@@ -44,7 +44,6 @@
     <module>javascript-squid</module>
     <module>javascript-checks</module>
     <module>sonar-javascript-plugin</module>
-    <module>sslr-javascript-toolkit</module>
   </modules>
 
   <scm>
@@ -95,11 +94,6 @@
       <dependency>
         <groupId>org.sonarsource.sslr</groupId>
         <artifactId>sslr-core</artifactId>
-        <version>${sslr.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.sonarsource.sslr</groupId>
-        <artifactId>sslr-toolkit</artifactId>
         <version>${sslr.version}</version>
       </dependency>
       <dependency>
