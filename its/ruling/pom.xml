@@ -3,15 +3,19 @@
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
-    <groupId>com.sonarsource.parent</groupId>
+    <groupId>org.sonarsource.parent</groupId>
     <artifactId>parent</artifactId>
-    <version>28</version>
+    <version>23</version>
   </parent>
 
   <artifactId>it-javascript-ruling</artifactId>
 
   <name>SonarSource :: JavaScript :: ITs :: Ruling</name>
   <inceptionYear>2012</inceptionYear>
+  <organization>
+    <name>SonarSource</name>
+    <url>http://www.sonarsource.com</url>
+  </organization>
 
   <properties>
     <javascriptVersion>1.3-SNAPSHOT</javascriptVersion>
