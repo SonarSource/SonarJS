@@ -28,11 +28,11 @@ function * ko3() { // +1
   return 1;        // +0
 }
 
-function nesting() {
-  function nested() {
-    if (x) {  // +1
+function nesting() {   // +1 nesting
+  function nested() {  // +1 nesting, nested
+    if (x) {           // +1 nesting, nested
     }
-    return 1; // +0
+    return 1;          // +0
   }
 }
 
