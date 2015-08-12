@@ -23,13 +23,13 @@ import org.junit.Test;
 import org.sonar.javascript.checks.utils.TreeCheckTest;
 import org.sonar.squidbridge.checks.CheckMessagesVerifier;
 
-public class NewOperatorMisusageCheckTest extends TreeCheckTest {
+public class NewOperatorMisuseCheckTest extends TreeCheckTest {
 
-  private NewOperatorMisusageCheck check = new NewOperatorMisusageCheck();
+  private NewOperatorMisuseCheck check = new NewOperatorMisuseCheck();
 
   @Test
   public void default_without_jsdoc() {
-    CheckMessagesVerifier.verify(getIssues("src/test/resources/checks/newOperatorMisusage.js", check))
+    CheckMessagesVerifier.verify(getIssues("src/test/resources/checks/newOperatorMisuse.js", check))
       .next().atLine(36)
       .next().atLine(37)
       .next().atLine(38)
@@ -42,7 +42,7 @@ public class NewOperatorMisusageCheckTest extends TreeCheckTest {
   public void custom_with_jsdoc() {
     check.considerJSDoc = true;
 
-    CheckMessagesVerifier.verify(getIssues("src/test/resources/checks/newOperatorMisusage.js", check))
+    CheckMessagesVerifier.verify(getIssues("src/test/resources/checks/newOperatorMisuse.js", check))
       .next().atLine(36)
       .next().atLine(37)
       .next().atLine(38)

@@ -54,7 +54,7 @@ new MyClass2;  // OK
  * Documented function with tag @constructor
  */
 new MyClassA;  // OK - JSDoc @constructor
-new MyClassB;  // OK - JSDoc but not handle by the check
+new MyClassB;  // OK - JSDoc but not handled by the check
 new MyClassC;  // OK - JSDoc @class
 
 /**

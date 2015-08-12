@@ -64,7 +64,7 @@ import java.util.Set;
 @ActivatedByDefault
 @SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.INSTRUCTION_RELIABILITY)
 @SqaleConstantRemediation("10min")
-public class NewOperatorMisusageCheck extends BaseTreeVisitor {
+public class NewOperatorMisuseCheck extends BaseTreeVisitor {
 
   public static final boolean CONSIDER_JSDOC = false;
 
@@ -103,7 +103,7 @@ public class NewOperatorMisusageCheck extends BaseTreeVisitor {
 
   private static boolean hasJSDocAnnotation(FunctionTree funcDec) {
     for (SyntaxTrivia trivia : ((JavaScriptTree) funcDec).getFirstToken().trivias()) {
-      if (trivia.toString().contains("@constructor") || trivia.toString().contains("@class")) {
+      if (trivia.comment().contains("@constructor") || trivia.comment().contains("@class")) {
         return true;
       }
     }
