@@ -589,5 +589,10 @@
       <key>S2819</key>
       <priority>INFO</priority> <!-- Cross-document messaging domains should be carefully restricted -->
     </rule>
+    <rule>
+      <repositoryKey>javascript</repositoryKey>
+      <key>S2611</key>
+      <priority>INFO</priority> <!-- Untrusted content should not be included -->
+    </rule>
   </rules>
 </profile>

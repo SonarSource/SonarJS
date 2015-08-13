@@ -41,6 +41,7 @@ public class Tags {
   public static final String OWASP_A9 = "owasp-a9";
   public static final String PITFALL = "pitfall";
   public static final String PERFORMANCE = "performance";
+  public static final String SANS_TOP25_RISKY = "sans-top25-risky";
   public static final String SECURITY = "security";
   public static final String UNUSED = "unused";
   public static final String USER_EXPERIENCE = "user-experience";
