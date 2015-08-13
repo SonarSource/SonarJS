@@ -47,11 +47,7 @@ RULING)
 
   build_snapshot "SonarSource/sonar-lits"
 
-  git clone https://github.com/SonarCommunity/javascript-test-sources.git it_sources
-  export SONAR_IT_SOURCES=$(pwd)/it_sources
-
-  cd its/ruling
-  mvn clean install -Dmaven.test.redirectTestOutputToFile=false -DjavascriptVersion="DEV" -Dsonar.runtimeVersion="5.1.1"
+  ./run-ruling-test.sh
   ;;
 
 esac

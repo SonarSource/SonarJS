@@ -10,3 +10,14 @@ http://docs.sonarqube.org/display/PLUG/JavaScript+Plugin
 
 Issue tracking:
 http://jira.sonarsource.com/browse/SONARJS
+
+Run Ruling Test
+---------------
+* Make sure you checked out submodules, if not sure
+
+  git submodule init 
+  git submodule update
+  
+* Launch ruling test
+
+  sh run-ruling-test.sh
