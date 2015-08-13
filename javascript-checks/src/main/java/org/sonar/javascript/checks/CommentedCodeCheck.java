@@ -19,11 +19,8 @@
  */
 package org.sonar.javascript.checks;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Set;
-import java.util.regex.Pattern;
-
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
@@ -44,8 +41,10 @@ import org.sonar.squidbridge.recognizer.EndWithDetector;
 import org.sonar.squidbridge.recognizer.KeywordsDetector;
 import org.sonar.squidbridge.recognizer.LanguageFootprint;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableSet;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Set;
+import java.util.regex.Pattern;
 
 @Rule(
   key = "CommentedCode",
@@ -106,10 +105,10 @@ public class CommentedCodeCheck extends SubscriptionBaseVisitor {
     SyntaxToken token = (SyntaxToken) tree;
     for (SyntaxTrivia trivia : token.trivias()) {
       if (!isJsDoc(trivia)) {
-        String[] lines = regexpToDivideStringByLine.split(COMMENT_ANALYSER.getContents(trivia.comment()));
+        String[] lines = regexpToDivideStringByLine.split(COMMENT_ANALYSER.getContents(trivia.text()));
         for (int lineOffset = 0; lineOffset < lines.length; lineOffset++) {
           if (codeRecognizer.isLineOfCode(lines[lineOffset])) {
-            getContext().addIssue(this, trivia.startLine() + lineOffset, "Sections of code should not be \"commented out\".");
+            getContext().addIssue(this, trivia.line() + lineOffset, "Sections of code should not be \"commented out\".");
             break;
           }
         }
@@ -118,7 +117,7 @@ public class CommentedCodeCheck extends SubscriptionBaseVisitor {
   }
 
   private static boolean isJsDoc(SyntaxTrivia trivia) {
-    return trivia.comment().startsWith("/**");
+    return trivia.text().startsWith("/**");
   }
 
 }

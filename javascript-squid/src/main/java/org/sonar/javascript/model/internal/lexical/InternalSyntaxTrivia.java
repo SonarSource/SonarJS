@@ -24,26 +24,40 @@ import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxTrivia;
 import org.sonar.plugins.javascript.api.visitors.TreeVisitor;
 
+import java.util.Collections;
 import java.util.Iterator;
+import java.util.List;
 
 public class InternalSyntaxTrivia extends JavaScriptTree implements SyntaxTrivia {
 
   private final String comment;
+  private final int column;
   private int startLine;
 
-  public InternalSyntaxTrivia(String comment, int startLine) {
+  public InternalSyntaxTrivia(String comment, int startLine, int column) {
     this.comment = comment;
     this.startLine = startLine;
+    this.column = column;
   }
 
   @Override
-  public String comment() {
+  public String text() {
     return comment;
   }
 
   @Override
-  public int startLine() {
+  public List<SyntaxTrivia> trivias() {
+    return Collections.emptyList();
+  }
+
+  @Override
+  public int line() {
     return startLine;
+  }
+
+  @Override
+  public int column() {
+    return column;
   }
 
   @Override
@@ -61,8 +75,8 @@ public class InternalSyntaxTrivia extends JavaScriptTree implements SyntaxTrivia
     throw new UnsupportedOperationException();
   }
 
-  public static SyntaxTrivia create(String comment, int startLine) {
-    return new InternalSyntaxTrivia(comment, startLine);
+  public static SyntaxTrivia create(String comment, int startLine, int column) {
+    return new InternalSyntaxTrivia(comment, startLine, column);
   }
 
   @Override

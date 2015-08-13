@@ -22,7 +22,7 @@ package org.sonar.javascript.highlighter;
 import com.google.common.collect.Lists;
 import com.google.common.io.Files;
 import com.sonar.sslr.api.Token;
-import org.sonar.javascript.model.internal.lexical.InternalSyntaxToken;
+import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 
 import java.io.File;
 import java.io.IOException;
@@ -74,7 +74,7 @@ public class SourceFileOffsets {
     return lineStartOffset + column;
   }
 
-  public int startOffset(InternalSyntaxToken token) {
+  public int startOffset(SyntaxToken token) {
     int lineStartOffset = lineStartOffsets.get(token.line() - 1);
     int column = token.column();
     return lineStartOffset + column;
@@ -84,7 +84,7 @@ public class SourceFileOffsets {
     return startOffset(token) + token.getValue().length();
   }
 
-  public int endOffset(InternalSyntaxToken token) {
+  public int endOffset(SyntaxToken token) {
     return startOffset(token) + token.text().length();
   }
 }

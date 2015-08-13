@@ -19,9 +19,7 @@
  */
 package org.sonar.javascript.checks;
 
-import java.util.List;
-import java.util.regex.Pattern;
-
+import com.google.common.collect.ImmutableList;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
@@ -34,7 +32,8 @@ import org.sonar.squidbridge.annotations.ActivatedByDefault;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 
-import com.google.common.collect.ImmutableList;
+import java.util.List;
+import java.util.regex.Pattern;
 
 @Rule(
   key = "TrailingComment",
@@ -72,8 +71,8 @@ public class TrailingCommentCheck extends SubscriptionBaseVisitor {
   public void visitNode(Tree tree) {
     SyntaxToken token = (SyntaxToken) tree;
     for (SyntaxTrivia trivia : token.trivias()) {
-      if (trivia.startLine() == previousTokenLine) {
-        String comment = trivia.comment();
+      if (trivia.line() == previousTokenLine) {
+        String comment = trivia.text();
         if (comment.startsWith("//") && !pattern.matcher(comment).matches()) {
           getContext().addIssue(this, previousTokenLine, "Move this trailing comment on the previous empty line.");
         }

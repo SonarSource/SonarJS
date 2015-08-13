@@ -19,8 +19,7 @@
  */
 package org.sonar.javascript.checks;
 
-import java.util.List;
-
+import com.google.common.collect.ImmutableList;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
@@ -32,7 +31,7 @@ import org.sonar.squidbridge.annotations.ActivatedByDefault;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 
-import com.google.common.collect.ImmutableList;
+import java.util.List;
 
 @Rule(
   key = "ConditionalComment",
@@ -53,7 +52,7 @@ public class ConditionalCommentCheck extends SubscriptionBaseVisitor {
   public void visitNode(Tree tree) {
     SyntaxToken token = (SyntaxToken) tree;
     for (SyntaxTrivia trivia : token.trivias()) {
-      String comment = trivia.comment();
+      String comment = trivia.text();
       if (comment.startsWith("/*@cc_on") || comment.startsWith("//@cc_on")) {
         getContext().addIssue(this, trivia, "Refactor your code to avoid using Internet Explorer's conditional comments.");
       }

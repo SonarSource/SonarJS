@@ -20,16 +20,11 @@
 package org.sonar.plugins.javascript.api.tree.lexical;
 
 import com.google.common.annotations.Beta;
-import org.sonar.plugins.javascript.api.tree.Tree;
 
 /**
  * Represents a Trivia in the SyntaxTree.
  */
 @Beta
-public interface SyntaxTrivia extends Tree {
-
-  String comment();
-
-  int startLine();
+public interface SyntaxTrivia extends SyntaxToken {
 
 }

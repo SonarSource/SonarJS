@@ -37,13 +37,13 @@ public class CommentContainsPatternChecker {
 
   public void visitToken(SyntaxToken token) {
     for (SyntaxTrivia trivia : token.trivias()) {
-      String comment = trivia.comment();
+      String comment = trivia.text();
       if (StringUtils.containsIgnoreCase(comment, pattern)) {
         String[] lines = comment.split("\r\n?|\n");
 
         for (int i = 0; i < lines.length; i++) {
           if (StringUtils.containsIgnoreCase(lines[i], pattern) && !isLetterAround(lines[i], pattern)) {
-            check.getContext().addIssue(check, trivia.startLine() + i, message);
+            check.getContext().addIssue(check, trivia.line() + i, message);
           }
         }
       }

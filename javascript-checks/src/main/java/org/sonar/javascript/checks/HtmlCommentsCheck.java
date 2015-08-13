@@ -48,7 +48,7 @@ public class HtmlCommentsCheck extends SubscriptionBaseVisitor {
     SyntaxToken token = (SyntaxToken) tree;
 
     for (SyntaxTrivia trivia : token.trivias()) {
-      if (trivia.comment().startsWith("<!--")) {
+      if (trivia.text().startsWith("<!--")) {
         getContext().addIssue(this, trivia, "Replace this HTML-style comment by a standard comment");
       }
     }

@@ -42,14 +42,13 @@ import org.sonar.api.measures.FileLinesContextFactory;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.resources.Project;
 import org.sonar.api.rule.RuleKey;
-import org.sonar.api.source.Highlightable;
 import org.sonar.api.source.Symbolizable;
 import org.sonar.javascript.CharsetAwareVisitor;
 import org.sonar.javascript.EcmaScriptConfiguration;
 import org.sonar.javascript.ast.resolve.SymbolModelImpl;
 import org.sonar.javascript.checks.CheckList;
 import org.sonar.javascript.checks.ParsingErrorCheck;
-import org.sonar.javascript.highlighter.JavaScriptHighlighter;
+import org.sonar.javascript.highlighter.HighlighterVisitor;
 import org.sonar.javascript.highlighter.SourceFileOffsets;
 import org.sonar.javascript.metrics.ComplexityVisitor;
 import org.sonar.javascript.metrics.MetricsVisitor;
@@ -122,9 +121,9 @@ public class JavaScriptSquidSensor implements Sensor {
     List<JavaScriptCheck> treeVisitors = Lists.newArrayList();
 
     EcmaScriptConfiguration configuration = new EcmaScriptConfiguration(fileSystem.encoding());
-    JavaScriptHighlighter highlighter = new JavaScriptHighlighter(configuration);
 
     treeVisitors.add(new MetricsVisitor(fileSystem, context, noSonarFilter, configuration, fileLinesContextFactory));
+    treeVisitors.add(new HighlighterVisitor(resourcePerspectives, fileSystem));
     treeVisitors.addAll(checks.all());
 
     for (JavaScriptCheck check : treeVisitors) {
@@ -139,7 +138,6 @@ public class JavaScriptSquidSensor implements Sensor {
 
     for (InputFile inputFile : fileSystem.inputFiles(mainFilePredicate)) {
       analyse(inputFile, treeVisitors);
-      highlight(inputFile, highlighter);
       progressReport.nextFile();
     }
 
@@ -210,18 +208,6 @@ public class JavaScriptSquidSensor implements Sensor {
       throw new IllegalStateException("Could not get " + clazz.getCanonicalName() + " for " + file);
     }
     return result;
-  }
-
-
-  private void highlight(InputFile inputFile, JavaScriptHighlighter highlighter) {
-    Highlightable perspective = resourcePerspectives.as(Highlightable.class, inputFile);
-
-    if (perspective != null) {
-      highlighter.highlight(perspective, inputFile.file());
-
-    } else {
-      LOG.warn("Could not get " + Highlightable.class.getCanonicalName() + " for " + inputFile.file());
-    }
   }
 
   @Override

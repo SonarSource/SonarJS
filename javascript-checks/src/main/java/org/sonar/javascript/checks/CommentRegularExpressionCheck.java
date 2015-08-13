@@ -91,8 +91,8 @@ public class CommentRegularExpressionCheck extends SubscriptionBaseVisitor {
     if (pattern != null) {
       SyntaxToken token = (SyntaxToken) tree;
       for (SyntaxTrivia trivia : token.trivias()) {
-        if (pattern.matcher(trivia.comment()).matches()) {
-          getContext().addIssue(this, trivia.startLine(), message);
+        if (pattern.matcher(trivia.text()).matches()) {
+          getContext().addIssue(this, trivia.line(), message);
         }
       }
     }

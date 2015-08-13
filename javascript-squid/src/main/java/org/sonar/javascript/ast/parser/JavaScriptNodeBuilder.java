@@ -60,8 +60,7 @@ public class JavaScriptNodeBuilder implements NodeBuilder {
         lineColumnValue.value,
         createTrivias(trivias),
         startIndex,
-        isEof,
-        type
+        isEof
     );
   }
 
@@ -69,7 +68,7 @@ public class JavaScriptNodeBuilder implements NodeBuilder {
     List<SyntaxTrivia> result = Lists.newArrayList();
     for (Trivia trivia : trivias) {
       Token trivialToken = trivia.getToken();
-      result.add(InternalSyntaxTrivia.create(trivialToken.getValue(), trivialToken.getLine()));
+      result.add(InternalSyntaxTrivia.create(trivialToken.getValue(), trivialToken.getLine(), trivialToken.getColumn()));
     }
     return result;
   }
