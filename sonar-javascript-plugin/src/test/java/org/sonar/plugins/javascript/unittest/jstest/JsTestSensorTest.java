@@ -29,7 +29,7 @@ import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.config.Settings;
 import org.sonar.api.resources.Project;
 import org.sonar.plugins.javascript.JavaScriptPlugin;
-import org.sonar.plugins.javascript.core.JavaScript;
+import org.sonar.plugins.javascript.JavaScriptLanguage;
 
 public class JsTestSensorTest {
 
@@ -51,7 +51,7 @@ public class JsTestSensorTest {
     assertThat(sensor.shouldExecuteOnProject(project)).isFalse();
 
     // No report path provided
-    fileSystem.add(new DefaultInputFile("File.js").setLanguage(JavaScript.KEY).setType(InputFile.Type.MAIN));
+    fileSystem.add(new DefaultInputFile("File.js").setLanguage(JavaScriptLanguage.KEY).setType(InputFile.Type.MAIN));
     assertThat(sensor.shouldExecuteOnProject(project)).isFalse();
 
     settings.setProperty(JavaScriptPlugin.JSTEST_REPORTS_PATH, "jstest");

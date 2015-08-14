@@ -29,7 +29,7 @@ import org.sonar.api.component.ResourcePerspectives;
 import org.sonar.api.source.Highlightable;
 import org.sonar.api.source.Highlightable.HighlightingBuilder;
 import org.sonar.javascript.utils.JavaScriptTreeModelTest;
-import org.sonar.plugins.javascript.api.AstTreeVisitorContext;
+import org.sonar.plugins.javascript.api.visitors.TreeVisitorContext;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
 
@@ -47,7 +47,7 @@ public class HighlighterVisitorTest extends JavaScriptTreeModelTest {
   HighlighterVisitor highlighterVisitor;
 
   private HighlightingBuilder highlightingBuilder;
-  private AstTreeVisitorContext visitorContext;
+  private TreeVisitorContext visitorContext;
   private DefaultFileSystem fileSystem;
 
   @Before
@@ -63,7 +63,7 @@ public class HighlighterVisitorTest extends JavaScriptTreeModelTest {
     ResourcePerspectives resourcePerspectives = mock(ResourcePerspectives.class);
     Highlightable highlightable = mock(Highlightable.class);
     highlightingBuilder = mock(HighlightingBuilder.class);
-    visitorContext = mock(AstTreeVisitorContext.class);
+    visitorContext = mock(TreeVisitorContext.class);
 
     highlighterVisitor = new HighlighterVisitor(resourcePerspectives, fileSystem);
 

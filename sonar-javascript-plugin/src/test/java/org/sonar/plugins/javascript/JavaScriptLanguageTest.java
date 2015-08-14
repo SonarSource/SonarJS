@@ -19,21 +19,33 @@
  */
 package org.sonar.plugins.javascript;
 
+import org.junit.Before;
 import org.junit.Test;
-import org.sonar.api.batch.fs.FileSystem;
-import org.sonar.api.batch.rule.CheckFactory;
-import org.sonar.api.component.ResourcePerspectives;
-import org.sonar.plugins.javascript.core.JavaScript;
+import org.sonar.api.config.Settings;
 
 import static org.fest.assertions.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
 
-public class JavaScriptCommonRulesDecoratorTest {
-  @Test
-  public void test_declaration() throws Exception {
-    JavaScriptCommonRulesDecorator decorator =
-      new JavaScriptCommonRulesDecorator(mock(FileSystem.class), mock(CheckFactory.class), mock(ResourcePerspectives.class));
-    assertThat(decorator.language()).isEqualTo(JavaScript.KEY);
+public class JavaScriptLanguageTest {
 
+  private Settings settings;
+  private JavaScriptLanguage javaScriptLanguage;
+
+  @Before
+  public void setUp() {
+    settings = new Settings();
+    javaScriptLanguage = new JavaScriptLanguage(settings);
   }
+
+  @Test
+  public void defaultSuffixes() {
+    settings.setProperty(JavaScriptPlugin.FILE_SUFFIXES_KEY, "");
+    assertThat(javaScriptLanguage.getFileSuffixes()).containsOnly(".js");
+  }
+
+  @Test
+  public void customSuffixes() {
+    settings.setProperty(JavaScriptPlugin.FILE_SUFFIXES_KEY, "javascript");
+    assertThat(javaScriptLanguage.getFileSuffixes()).containsOnly("javascript");
+  }
+
 }

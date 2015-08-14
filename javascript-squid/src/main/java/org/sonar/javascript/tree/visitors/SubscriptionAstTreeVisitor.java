@@ -20,7 +20,7 @@
 package org.sonar.javascript.tree.visitors;
 
 import org.sonar.javascript.tree.impl.JavaScriptTree;
-import org.sonar.plugins.javascript.api.AstTreeVisitorContext;
+import org.sonar.plugins.javascript.api.visitors.TreeVisitorContext;
 import org.sonar.plugins.javascript.api.JavaScriptCheck;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
@@ -32,13 +32,13 @@ import java.util.List;
 
 public abstract class SubscriptionAstTreeVisitor implements JavaScriptCheck {
 
-  private AstTreeVisitorContext context;
+  private TreeVisitorContext context;
   private Collection<Tree.Kind> nodesToVisit;
 
   public abstract List<Tree.Kind> nodesToVisit();
 
   @Override
-  public AstTreeVisitorContext getContext() {
+  public TreeVisitorContext getContext() {
     return context;
   }
 
@@ -63,7 +63,7 @@ public abstract class SubscriptionAstTreeVisitor implements JavaScriptCheck {
   }
 
   @Override
-  public void scanFile(AstTreeVisitorContext context) {
+  public void scanFile(TreeVisitorContext context) {
     this.context = context;
     visitFile(context.getTopTree());
     scanTree(context.getTopTree());

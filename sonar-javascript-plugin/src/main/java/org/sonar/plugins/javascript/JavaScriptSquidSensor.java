@@ -56,7 +56,6 @@ import org.sonar.plugins.javascript.api.CustomJavaScriptRulesDefinition;
 import org.sonar.plugins.javascript.api.JavaScriptCheck;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
-import org.sonar.plugins.javascript.core.JavaScript;
 import org.sonar.squidbridge.ProgressReport;
 import org.sonar.squidbridge.api.AnalysisException;
 
@@ -105,7 +104,7 @@ public class JavaScriptSquidSensor implements Sensor {
     this.noSonarFilter = noSonarFilter;
     this.mainFilePredicate = fileSystem.predicates().and(
         fileSystem.predicates().hasType(InputFile.Type.MAIN),
-        fileSystem.predicates().hasLanguage(JavaScript.KEY));
+        fileSystem.predicates().hasLanguage(JavaScriptLanguage.KEY));
     this.settings = settings;
     this.parser = JavaScriptParserBuilder.createParser(fileSystem.encoding());
   }

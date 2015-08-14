@@ -45,7 +45,7 @@ import org.sonar.api.measures.Metric;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 import org.sonar.plugins.javascript.JavaScriptPlugin;
-import org.sonar.plugins.javascript.core.JavaScript;
+import org.sonar.plugins.javascript.JavaScriptLanguage;
 import org.sonar.test.TestUtils;
 
 public class JsTestDriverSensorTest {
@@ -84,7 +84,7 @@ public class JsTestDriverSensorTest {
     assertThat(localSensor.shouldExecuteOnProject(project)).isFalse();
 
     settings.setProperty(JavaScriptPlugin.JSTESTDRIVER_REPORTS_PATH, "jstestdriver");
-    localFS.add(new DefaultInputFile("File.jsp").setLanguage(JavaScript.KEY).setType(InputFile.Type.MAIN));
+    localFS.add(new DefaultInputFile("File.jsp").setLanguage(JavaScriptLanguage.KEY).setType(InputFile.Type.MAIN));
     assertThat(sensor.shouldExecuteOnProject(project)).isTrue();
   }
 
@@ -140,7 +140,7 @@ public class JsTestDriverSensorTest {
     return new DefaultInputFile(projectRelativePath)
       .setAbsolutePath(TestUtils.getResource(pathFromTestsResourceDir).getAbsolutePath())
       .setType(InputFile.Type.TEST)
-      .setLanguage(JavaScript.KEY);
+      .setLanguage(JavaScriptLanguage.KEY);
   }
 
 

@@ -25,10 +25,12 @@ import org.sonar.api.SonarPlugin;
 import org.sonar.api.config.PropertyDefinition;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.javascript.tree.symbols.type.JQuery;
-import org.sonar.plugins.javascript.core.JavaScript;
 import org.sonar.plugins.javascript.cpd.JavaScriptCpdMapping;
 import org.sonar.plugins.javascript.lcov.ITCoverageSensor;
 import org.sonar.plugins.javascript.lcov.UTCoverageSensor;
+import org.sonar.plugins.javascript.rules.JavaScriptCommonRulesDecorator;
+import org.sonar.plugins.javascript.rules.JavaScriptCommonRulesEngine;
+import org.sonar.plugins.javascript.rules.JavaScriptRulesDefinition;
 import org.sonar.plugins.javascript.unittest.jstest.JsTestSensor;
 import org.sonar.plugins.javascript.unittest.jstestdriver.JsTestDriverSensor;
 
@@ -71,7 +73,7 @@ public class JavaScriptPlugin extends SonarPlugin {
   @Override
   public List getExtensions() {
     return ImmutableList.of(
-        JavaScript.class,
+        JavaScriptLanguage.class,
         JavaScriptCpdMapping.class,
 
         JavaScriptSquidSensor.class,

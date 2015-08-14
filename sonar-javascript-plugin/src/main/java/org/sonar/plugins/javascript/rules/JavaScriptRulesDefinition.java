@@ -17,11 +17,11 @@
  * License along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.plugins.javascript;
+package org.sonar.plugins.javascript.rules;
 
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.javascript.checks.CheckList;
-import org.sonar.plugins.javascript.core.JavaScript;
+import org.sonar.plugins.javascript.JavaScriptLanguage;
 import org.sonar.squidbridge.annotations.AnnotationBasedRulesDefinition;
 
 public class JavaScriptRulesDefinition implements RulesDefinition {
@@ -29,7 +29,7 @@ public class JavaScriptRulesDefinition implements RulesDefinition {
   @Override
   public void define(Context context) {
     NewRepository repository = context
-      .createRepository(CheckList.REPOSITORY_KEY, JavaScript.KEY)
+      .createRepository(CheckList.REPOSITORY_KEY, JavaScriptLanguage.KEY)
       .setName(CheckList.REPOSITORY_NAME);
 
     AnnotationBasedRulesDefinition.load(repository, "javascript", CheckList.getChecks());

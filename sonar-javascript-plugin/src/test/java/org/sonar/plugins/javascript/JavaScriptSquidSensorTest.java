@@ -48,7 +48,6 @@ import org.sonar.check.RuleProperty;
 import org.sonar.javascript.checks.CheckList;
 import org.sonar.plugins.javascript.api.CustomJavaScriptRulesDefinition;
 import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
-import org.sonar.plugins.javascript.core.JavaScript;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -104,7 +103,7 @@ public class JavaScriptSquidSensorTest {
     assertThat(sensor.shouldExecuteOnProject(project)).isFalse();
 
     // at least one JS file -> do execute
-    localFS.add(new DefaultInputFile("file.js").setType(InputFile.Type.MAIN).setLanguage(JavaScript.KEY));
+    localFS.add(new DefaultInputFile("file.js").setType(InputFile.Type.MAIN).setLanguage(JavaScriptLanguage.KEY));
     assertThat(sensor.shouldExecuteOnProject(project)).isTrue();
   }
 
@@ -114,7 +113,7 @@ public class JavaScriptSquidSensorTest {
 
     DefaultInputFile inputFile = new DefaultInputFile("src/test/resources/cpd/Person.js")
         .setAbsolutePath((new java.io.File("src/test/resources/cpd/Person.js")).getAbsolutePath())
-        .setLanguage(JavaScript.KEY)
+        .setLanguage(JavaScriptLanguage.KEY)
         .setType(Type.MAIN);
 
     fileSystem.add(inputFile);
@@ -156,7 +155,7 @@ public class JavaScriptSquidSensorTest {
 
     DefaultInputFile inputFile = new DefaultInputFile("src/test/resources/cpd/parsingError.js")
         .setAbsolutePath((new java.io.File("src/test/resources/cpd/parsingError.js")).getAbsolutePath())
-        .setLanguage(JavaScript.KEY)
+        .setLanguage(JavaScriptLanguage.KEY)
         .setType(Type.MAIN);
 
     fileSystem.add(inputFile);

@@ -30,7 +30,7 @@ import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.javascript.tree.visitors.CharsetAwareVisitor;
-import org.sonar.plugins.javascript.api.AstTreeVisitorContext;
+import org.sonar.plugins.javascript.api.visitors.TreeVisitorContext;
 import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
 import org.sonar.squidbridge.annotations.ActivatedByDefault;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
@@ -52,7 +52,7 @@ public class TabCharacterCheck extends BaseTreeVisitor implements CharsetAwareVi
   private Charset charset;
 
   @Override
-  public void scanFile(AstTreeVisitorContext context) {
+  public void scanFile(TreeVisitorContext context) {
     super.scanFile(context);
 
     List<String> lines = Collections.emptyList();

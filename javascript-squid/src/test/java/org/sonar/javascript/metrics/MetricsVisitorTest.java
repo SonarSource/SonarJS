@@ -30,7 +30,7 @@ import org.sonar.api.measures.FileLinesContext;
 import org.sonar.api.measures.FileLinesContextFactory;
 import org.sonar.api.resources.Resource;
 import org.sonar.javascript.utils.JavaScriptTreeModelTest;
-import org.sonar.plugins.javascript.api.AstTreeVisitorContext;
+import org.sonar.plugins.javascript.api.visitors.TreeVisitorContext;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
 
 import java.io.File;
@@ -73,7 +73,7 @@ public class MetricsVisitorTest extends JavaScriptTreeModelTest {
         linesContextFactory
     );
 
-    AstTreeVisitorContext treeVisitorContext = mock(AstTreeVisitorContext.class);
+    TreeVisitorContext treeVisitorContext = mock(TreeVisitorContext.class);
     when(treeVisitorContext.getFile()).thenReturn(file);
     when(treeVisitorContext.getTopTree()).thenReturn((ScriptTree) p.parse(file));
 

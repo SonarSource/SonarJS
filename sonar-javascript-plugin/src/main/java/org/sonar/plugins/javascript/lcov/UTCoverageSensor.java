@@ -37,7 +37,7 @@ import org.sonar.api.measures.Metric;
 import org.sonar.api.measures.PropertiesBuilder;
 import org.sonar.api.resources.Project;
 import org.sonar.plugins.javascript.JavaScriptPlugin;
-import org.sonar.plugins.javascript.core.JavaScript;
+import org.sonar.plugins.javascript.JavaScriptLanguage;
 
 import javax.annotation.Nullable;
 import java.io.File;
@@ -72,7 +72,7 @@ public class UTCoverageSensor implements Sensor {
     this.settings = settings;
     this.mainFilePredicate = fileSystem.predicates().and(
         fileSystem.predicates().hasType(InputFile.Type.MAIN),
-        fileSystem.predicates().hasLanguage(JavaScript.KEY));
+        fileSystem.predicates().hasLanguage(JavaScriptLanguage.KEY));
   }
 
   @Override

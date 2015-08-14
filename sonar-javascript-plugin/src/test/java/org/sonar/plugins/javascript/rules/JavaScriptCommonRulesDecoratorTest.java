@@ -17,31 +17,24 @@
  * License along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.plugins.javascript.core;
+package org.sonar.plugins.javascript.rules;
 
-import org.apache.commons.lang.StringUtils;
-import org.sonar.api.config.Settings;
-import org.sonar.api.resources.AbstractLanguage;
-import org.sonar.plugins.javascript.JavaScriptPlugin;
+import org.junit.Test;
+import org.sonar.api.batch.fs.FileSystem;
+import org.sonar.api.batch.rule.CheckFactory;
+import org.sonar.api.component.ResourcePerspectives;
+import org.sonar.plugins.javascript.JavaScriptLanguage;
+import org.sonar.plugins.javascript.rules.JavaScriptCommonRulesDecorator;
 
-public class JavaScript extends AbstractLanguage {
+import static org.fest.assertions.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 
-  public static final String KEY = "js";
+public class JavaScriptCommonRulesDecoratorTest {
+  @Test
+  public void test_declaration() throws Exception {
+    JavaScriptCommonRulesDecorator decorator =
+      new JavaScriptCommonRulesDecorator(mock(FileSystem.class), mock(CheckFactory.class), mock(ResourcePerspectives.class));
+    assertThat(decorator.language()).isEqualTo(JavaScriptLanguage.KEY);
 
-  private Settings settings;
-
-  public JavaScript(Settings configuration) {
-    super(KEY, "JavaScript");
-    this.settings = configuration;
   }
-
-  @Override
-  public String[] getFileSuffixes() {
-    String[] suffixes = settings.getStringArray(JavaScriptPlugin.FILE_SUFFIXES_KEY);
-    if (suffixes == null || suffixes.length == 0) {
-      suffixes = StringUtils.split(JavaScriptPlugin.FILE_SUFFIXES_DEFVALUE, ",");
-    }
-    return suffixes;
-  }
-
 }

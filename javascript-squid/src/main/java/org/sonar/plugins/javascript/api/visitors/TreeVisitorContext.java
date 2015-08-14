@@ -17,9 +17,10 @@
  * License along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.plugins.javascript.api;
+package org.sonar.plugins.javascript.api.visitors;
 
 import com.google.common.annotations.Beta;
+import org.sonar.plugins.javascript.api.JavaScriptCheck;
 import org.sonar.plugins.javascript.api.symbols.SymbolModel;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
@@ -27,7 +28,7 @@ import org.sonar.plugins.javascript.api.tree.Tree;
 import java.io.File;
 
 @Beta
-public interface AstTreeVisitorContext {
+public interface TreeVisitorContext {
 
   /**
    * @return the top tree node of the current file AST representation.

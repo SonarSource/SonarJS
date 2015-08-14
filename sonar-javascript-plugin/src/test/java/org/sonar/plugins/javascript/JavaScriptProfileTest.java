@@ -27,7 +27,6 @@ import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleFinder;
 import org.sonar.api.utils.ValidationMessages;
 import org.sonar.javascript.checks.CheckList;
-import org.sonar.plugins.javascript.core.JavaScript;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Matchers.anyString;
@@ -44,7 +43,7 @@ public class JavaScriptProfileTest {
     JavaScriptProfile definition = new JavaScriptProfile(ruleFinder);
     RulesProfile profile = definition.createProfile(validation);
 
-    assertThat(profile.getLanguage()).isEqualTo(JavaScript.KEY);
+    assertThat(profile.getLanguage()).isEqualTo(JavaScriptLanguage.KEY);
     assertThat(profile.getName()).isEqualTo(CheckList.SONAR_WAY_PROFILE);
     assertThat(profile.getActiveRulesByRepository(CheckList.REPOSITORY_KEY))
         .hasSize(75);

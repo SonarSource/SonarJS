@@ -32,7 +32,7 @@ import org.sonar.javascript.tree.visitors.SubscriptionAstTreeVisitor;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.javascript.tree.impl.expression.LiteralTreeImpl;
 import org.sonar.javascript.tree.impl.lexical.InternalSyntaxToken;
-import org.sonar.plugins.javascript.api.AstTreeVisitorContext;
+import org.sonar.plugins.javascript.api.visitors.TreeVisitorContext;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
@@ -66,7 +66,7 @@ public class HighlighterVisitor extends SubscriptionAstTreeVisitor {
   }
 
   @Override
-  public void scanFile(AstTreeVisitorContext context) {
+  public void scanFile(TreeVisitorContext context) {
     highlighting = initHighlighting(context.getFile());
     if (highlighting != null) {
       super.scanFile(context);

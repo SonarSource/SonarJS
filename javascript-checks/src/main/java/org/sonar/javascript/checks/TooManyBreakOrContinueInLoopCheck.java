@@ -23,7 +23,7 @@ import com.google.common.base.Objects;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
-import org.sonar.plugins.javascript.api.AstTreeVisitorContext;
+import org.sonar.plugins.javascript.api.visitors.TreeVisitorContext;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.declaration.FunctionDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.expression.FunctionExpressionTree;
@@ -76,7 +76,7 @@ public class TooManyBreakOrContinueInLoopCheck extends BaseTreeVisitor {
   private Stack<JumpTarget> jumpTargets = new Stack<>();
 
   @Override
-  public void scanFile(AstTreeVisitorContext context) {
+  public void scanFile(TreeVisitorContext context) {
     jumpTargets.clear();
     super.scanFile(context);
   }

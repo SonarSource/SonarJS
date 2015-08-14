@@ -17,13 +17,14 @@
  * License along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.plugins.javascript;
+package org.sonar.plugins.javascript.rules;
 
 import org.junit.Test;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.api.server.rule.RulesDefinition.Param;
 import org.sonar.api.server.rule.RulesDefinition.Rule;
 import org.sonar.javascript.checks.CheckList;
+import org.sonar.plugins.javascript.rules.JavaScriptRulesDefinition;
 
 import static org.fest.assertions.Assertions.assertThat;
 

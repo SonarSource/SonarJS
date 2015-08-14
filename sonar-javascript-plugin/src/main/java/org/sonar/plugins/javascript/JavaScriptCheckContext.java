@@ -26,7 +26,7 @@ import org.sonar.api.issue.Issuable.IssueBuilder;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.javascript.metrics.ComplexityVisitor;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
-import org.sonar.plugins.javascript.api.AstTreeVisitorContext;
+import org.sonar.plugins.javascript.api.visitors.TreeVisitorContext;
 import org.sonar.plugins.javascript.api.JavaScriptCheck;
 import org.sonar.plugins.javascript.api.symbols.SymbolModel;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
@@ -34,7 +34,7 @@ import org.sonar.plugins.javascript.api.tree.Tree;
 
 import java.io.File;
 
-public class JavaScriptCheckContext implements AstTreeVisitorContext {
+public class JavaScriptCheckContext implements TreeVisitorContext {
   private final ScriptTree tree;
   private final File file;
   private final SymbolModel symbolModel;
@@ -44,8 +44,8 @@ public class JavaScriptCheckContext implements AstTreeVisitorContext {
   private final JavaScriptChecks checks;
 
   public JavaScriptCheckContext(
-      ScriptTree tree, Issuable issuable, File file, SymbolModel symbolModel,
-      Settings settings, JavaScriptChecks checks, ComplexityVisitor complexityVisitor
+    ScriptTree tree, Issuable issuable, File file, SymbolModel symbolModel,
+    Settings settings, JavaScriptChecks checks, ComplexityVisitor complexityVisitor
   ) {
     this.tree = tree;
     this.file = file;

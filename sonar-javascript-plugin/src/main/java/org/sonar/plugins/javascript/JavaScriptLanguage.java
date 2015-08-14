@@ -19,29 +19,29 @@
  */
 package org.sonar.plugins.javascript;
 
-import org.junit.Test;
-import org.sonar.squidbridge.commonrules.api.CommonRulesRepository;
-import org.sonar.squidbridge.commonrules.internal.CommonRulesConstants;
+import org.apache.commons.lang.StringUtils;
+import org.sonar.api.config.Settings;
+import org.sonar.api.resources.AbstractLanguage;
+import org.sonar.plugins.javascript.JavaScriptPlugin;
 
-import static org.fest.assertions.Assertions.assertThat;
+public class JavaScriptLanguage extends AbstractLanguage {
 
-public class JavaScriptCommonRulesEngineTest {
+  public static final String KEY = "js";
 
-  @Test
-  public void provide_extensions() {
-    JavaScriptCommonRulesEngine engine = new JavaScriptCommonRulesEngine();
-    assertThat(engine.provide()).isNotEmpty();
+  private Settings settings;
+
+  public JavaScriptLanguage(Settings configuration) {
+    super(KEY, "JavaScript");
+    this.settings = configuration;
   }
 
-  @Test
-  public void define_rules() {
-    JavaScriptCommonRulesEngine engine = new JavaScriptCommonRulesEngine();
-    CommonRulesRepository repo = engine.newRepository();
-    assertThat(repo.enabledRuleKeys()).containsOnly(
-      CommonRulesConstants.RULE_INSUFFICIENT_COMMENT_DENSITY,
-      CommonRulesConstants.RULE_DUPLICATED_BLOCKS,
-      CommonRulesConstants.RULE_INSUFFICIENT_LINE_COVERAGE,
-      CommonRulesConstants.RULE_INSUFFICIENT_BRANCH_COVERAGE);
+  @Override
+  public String[] getFileSuffixes() {
+    String[] suffixes = settings.getStringArray(JavaScriptPlugin.FILE_SUFFIXES_KEY);
+    if (suffixes == null || suffixes.length == 0) {
+      suffixes = StringUtils.split(JavaScriptPlugin.FILE_SUFFIXES_DEFVALUE, ",");
+    }
+    return suffixes;
   }
 
 }

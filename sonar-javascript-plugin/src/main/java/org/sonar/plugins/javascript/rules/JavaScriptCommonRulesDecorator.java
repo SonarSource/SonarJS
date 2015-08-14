@@ -17,16 +17,16 @@
  * License along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.plugins.javascript;
+package org.sonar.plugins.javascript.rules;
 
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.rule.CheckFactory;
 import org.sonar.api.component.ResourcePerspectives;
-import org.sonar.plugins.javascript.core.JavaScript;
+import org.sonar.plugins.javascript.JavaScriptLanguage;
 import org.sonar.squidbridge.commonrules.api.CommonRulesDecorator;
 
 public class JavaScriptCommonRulesDecorator extends CommonRulesDecorator {
   public JavaScriptCommonRulesDecorator(FileSystem fs, CheckFactory checkFactory, ResourcePerspectives perspectives) {
-    super(JavaScript.KEY, fs, checkFactory, perspectives);
+    super(JavaScriptLanguage.KEY, fs, checkFactory, perspectives);
   }
 }

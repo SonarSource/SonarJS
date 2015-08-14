@@ -26,7 +26,7 @@ import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
 import org.sonar.javascript.tree.visitors.CharsetAwareVisitor;
-import org.sonar.plugins.javascript.api.AstTreeVisitorContext;
+import org.sonar.plugins.javascript.api.visitors.TreeVisitorContext;
 import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
 import org.sonar.squidbridge.annotations.NoSqale;
 
@@ -63,7 +63,7 @@ public class FileHeaderCheck extends BaseTreeVisitor implements CharsetAwareVisi
   }
 
   @Override
-  public void scanFile(AstTreeVisitorContext context) {
+  public void scanFile(TreeVisitorContext context) {
     // TODO martin: should be done in a init method
     expectedLines = headerFormat.split("(?:\r)?\n|\r");
 

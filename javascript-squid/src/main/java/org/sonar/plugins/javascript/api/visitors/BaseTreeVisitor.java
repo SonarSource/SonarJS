@@ -23,7 +23,6 @@ import com.google.common.annotations.Beta;
 import com.google.common.base.Preconditions;
 import com.sonar.sslr.api.typed.Optional;
 import org.sonar.javascript.tree.impl.expression.SuperTreeImpl;
-import org.sonar.plugins.javascript.api.AstTreeVisitorContext;
 import org.sonar.plugins.javascript.api.JavaScriptCheck;
 import org.sonar.plugins.javascript.api.tree.ModuleTree;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
@@ -100,16 +99,16 @@ import java.util.List;
 @Beta
 public class BaseTreeVisitor implements TreeVisitor, JavaScriptCheck {
 
-  private AstTreeVisitorContext context = null;
+  private TreeVisitorContext context = null;
 
   @Override
-  public AstTreeVisitorContext getContext() {
+  public TreeVisitorContext getContext() {
     Preconditions.checkState(context != null, "this#scanFile(context) should be called to initialised the context before accessing it");
     return context;
   }
 
   @Override
-  public void scanFile(AstTreeVisitorContext context) {
+  public void scanFile(TreeVisitorContext context) {
     this.context = context;
     scan(context.getTopTree());
   }

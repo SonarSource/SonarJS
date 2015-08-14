@@ -34,7 +34,7 @@ import org.sonar.api.config.Settings;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 import org.sonar.plugins.javascript.JavaScriptPlugin;
-import org.sonar.plugins.javascript.core.JavaScript;
+import org.sonar.plugins.javascript.JavaScriptLanguage;
 import org.sonar.plugins.javascript.unittest.surefireparser.AbstractSurefireParser;
 
 public class JsTestDriverSensor implements Sensor {
@@ -49,11 +49,11 @@ public class JsTestDriverSensor implements Sensor {
     this.settings = settings;
     this.mainFilePredicate = fileSystem.predicates().and(
       fileSystem.predicates().hasType(InputFile.Type.MAIN),
-      fileSystem.predicates().hasLanguage(JavaScript.KEY));
+      fileSystem.predicates().hasLanguage(JavaScriptLanguage.KEY));
 
     this.testFilePredicate = fileSystem.predicates().and(
       fileSystem.predicates().hasType(InputFile.Type.TEST),
-      fileSystem.predicates().hasLanguage(JavaScript.KEY));
+      fileSystem.predicates().hasLanguage(JavaScriptLanguage.KEY));
   }
 
   private static final Logger LOG = LoggerFactory.getLogger(JsTestDriverSensor.class);

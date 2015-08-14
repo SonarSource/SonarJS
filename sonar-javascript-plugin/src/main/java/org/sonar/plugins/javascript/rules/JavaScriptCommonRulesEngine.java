@@ -17,8 +17,27 @@
  * License along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-@ParametersAreNonnullByDefault
-package org.sonar.plugins.javascript.core;
+package org.sonar.plugins.javascript.rules;
 
-import javax.annotation.ParametersAreNonnullByDefault;
+import org.sonar.plugins.javascript.JavaScriptLanguage;
+import org.sonar.squidbridge.commonrules.api.CommonRulesEngine;
+import org.sonar.squidbridge.commonrules.api.CommonRulesRepository;
 
+public class JavaScriptCommonRulesEngine extends CommonRulesEngine {
+
+  public JavaScriptCommonRulesEngine() {
+    super(JavaScriptLanguage.KEY);
+  }
+
+  @Override
+  protected void doEnableRules(CommonRulesRepository repository) {
+    // null parameters -> use the default values of parameters as
+    // hardcoded in sonar-common-rules
+    repository
+      .enableDuplicatedBlocksRule()
+      .enableInsufficientCommentDensityRule(null)
+      .enableInsufficientLineCoverageRule(null)
+      .enableInsufficientBranchCoverageRule(null);
+  }
+
+}

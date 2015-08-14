@@ -17,36 +17,8 @@
  * License along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.plugins.javascript;
+@ParametersAreNonnullByDefault
+package org.sonar.plugins.javascript.rules;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.sonar.api.config.Settings;
-import org.sonar.plugins.javascript.core.JavaScript;
+import javax.annotation.ParametersAreNonnullByDefault;
 
-import static org.fest.assertions.Assertions.assertThat;
-
-public class JavaScriptTest {
-
-  private Settings settings;
-  private JavaScript javaScript;
-
-  @Before
-  public void setUp() {
-    settings = new Settings();
-    javaScript = new JavaScript(settings);
-  }
-
-  @Test
-  public void defaultSuffixes() {
-    settings.setProperty(JavaScriptPlugin.FILE_SUFFIXES_KEY, "");
-    assertThat(javaScript.getFileSuffixes()).containsOnly(".js");
-  }
-
-  @Test
-  public void customSuffixes() {
-    settings.setProperty(JavaScriptPlugin.FILE_SUFFIXES_KEY, "javascript");
-    assertThat(javaScript.getFileSuffixes()).containsOnly("javascript");
-  }
-
-}

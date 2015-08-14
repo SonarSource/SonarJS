@@ -32,7 +32,7 @@ import org.sonar.api.measures.Metric;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 import org.sonar.plugins.javascript.JavaScriptPlugin;
-import org.sonar.plugins.javascript.core.JavaScript;
+import org.sonar.plugins.javascript.JavaScriptLanguage;
 import org.sonar.test.TestUtils;
 
 import static org.fest.assertions.Assertions.assertThat;
@@ -72,7 +72,7 @@ public class UTCoverageSensorTest {
     assertThat(localSensor.shouldExecuteOnProject(project)).isFalse();
 
     // at least one JS file -> do execute
-    fs.add(new DefaultInputFile("file.js").setType(InputFile.Type.MAIN).setLanguage(JavaScript.KEY));
+    fs.add(new DefaultInputFile("file.js").setType(InputFile.Type.MAIN).setLanguage(JavaScriptLanguage.KEY));
     assertThat(localSensor.shouldExecuteOnProject(project)).isTrue();
 
     // no path to report -> do execute
@@ -142,7 +142,7 @@ public class UTCoverageSensorTest {
     return new DefaultInputFile(relativePath)
       .setAbsolutePath(TestUtils.getResource(path).getAbsolutePath())
       .setType(InputFile.Type.MAIN)
-      .setLanguage(JavaScript.KEY);
+      .setLanguage(JavaScriptLanguage.KEY);
   }
 
   public DefaultFileSystem newFileSystem() {

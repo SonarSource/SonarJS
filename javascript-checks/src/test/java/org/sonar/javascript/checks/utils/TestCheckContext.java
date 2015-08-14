@@ -28,7 +28,7 @@ import org.sonar.javascript.tree.symbols.SymbolModelImpl;
 import org.sonar.javascript.checks.ParsingErrorCheck;
 import org.sonar.javascript.metrics.ComplexityVisitor;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
-import org.sonar.plugins.javascript.api.AstTreeVisitorContext;
+import org.sonar.plugins.javascript.api.visitors.TreeVisitorContext;
 import org.sonar.plugins.javascript.api.JavaScriptCheck;
 import org.sonar.plugins.javascript.api.symbols.SymbolModel;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
@@ -39,7 +39,7 @@ import java.io.File;
 import java.util.LinkedList;
 import java.util.List;
 
-public class TestCheckContext implements AstTreeVisitorContext {
+public class TestCheckContext implements TreeVisitorContext {
   private ScriptTree tree = null;
   private File file;
   private SymbolModel symbolModel = null;

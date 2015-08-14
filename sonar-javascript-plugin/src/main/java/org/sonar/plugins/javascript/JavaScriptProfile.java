@@ -24,7 +24,6 @@ import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.rules.RuleFinder;
 import org.sonar.api.utils.ValidationMessages;
 import org.sonar.javascript.checks.CheckList;
-import org.sonar.plugins.javascript.core.JavaScript;
 import org.sonar.squidbridge.annotations.AnnotationBasedProfileBuilder;
 
 public class JavaScriptProfile extends ProfileDefinition {
@@ -38,7 +37,7 @@ public class JavaScriptProfile extends ProfileDefinition {
   @Override
   public RulesProfile createProfile(ValidationMessages messages) {
     AnnotationBasedProfileBuilder annotationBasedProfileBuilder = new AnnotationBasedProfileBuilder(ruleFinder);
-    return annotationBasedProfileBuilder.build(CheckList.REPOSITORY_KEY, CheckList.SONAR_WAY_PROFILE, JavaScript.KEY, CheckList.getChecks(), messages);
+    return annotationBasedProfileBuilder.build(CheckList.REPOSITORY_KEY, CheckList.SONAR_WAY_PROFILE, JavaScriptLanguage.KEY, CheckList.getChecks(), messages);
   }
 
 }

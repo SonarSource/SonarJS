@@ -30,7 +30,7 @@ import org.sonar.api.measures.Metric;
 import org.sonar.api.measures.PersistenceMode;
 import org.sonar.api.measures.RangeDistributionBuilder;
 import org.sonar.javascript.tree.visitors.SubscriptionAstTreeVisitor;
-import org.sonar.plugins.javascript.api.AstTreeVisitorContext;
+import org.sonar.plugins.javascript.api.visitors.TreeVisitorContext;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 
@@ -98,7 +98,7 @@ public class MetricsVisitor extends SubscriptionAstTreeVisitor {
   }
 
   @Override
-  public void scanFile(AstTreeVisitorContext context) {
+  public void scanFile(TreeVisitorContext context) {
     this.inputFile = fs.inputFile(fs.predicates().is(context.getFile()));
     init();
 
@@ -116,7 +116,7 @@ public class MetricsVisitor extends SubscriptionAstTreeVisitor {
     fileComplexityDistribution = new RangeDistributionBuilder(CoreMetrics.FILE_COMPLEXITY_DISTRIBUTION, FILES_DISTRIB_BOTTOM_LIMITS);
   }
 
-  private void saveCounterMetrics(AstTreeVisitorContext context) {
+  private void saveCounterMetrics(TreeVisitorContext context) {
     CounterVisitor counter = new CounterVisitor(context.getTopTree());
     saveMetricOnFile(CoreMetrics.FUNCTIONS, counter.getFunctionNumber());
     saveMetricOnFile(CoreMetrics.STATEMENTS, counter.getStatementsNumber());
@@ -124,7 +124,7 @@ public class MetricsVisitor extends SubscriptionAstTreeVisitor {
     saveMetricOnFile(CoreMetrics.CLASSES, counter.getClassNumber());
   }
 
-  private void saveComplexityMetrics(AstTreeVisitorContext context) {
+  private void saveComplexityMetrics(TreeVisitorContext context) {
     int fileComplexity = context.getComplexity(context.getTopTree());
 
     saveMetricOnFile(CoreMetrics.COMPLEXITY, fileComplexity);
@@ -137,7 +137,7 @@ public class MetricsVisitor extends SubscriptionAstTreeVisitor {
     sensorContext.saveMeasure(inputFile, fileComplexityDistribution.build().setPersistenceMode(PersistenceMode.MEMORY));
   }
 
-  private void saveLineMetrics(AstTreeVisitorContext context) {
+  private void saveLineMetrics(TreeVisitorContext context) {
     LineVisitor lineVisitor = new LineVisitor(context.getTopTree());
     int linesNumber = lineVisitor.getLinesNumber();
     Set<Integer> linesOfCode = lineVisitor.getLinesOfCode();

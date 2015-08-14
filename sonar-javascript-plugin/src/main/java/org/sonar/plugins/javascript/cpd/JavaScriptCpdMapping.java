@@ -23,16 +23,16 @@ import net.sourceforge.pmd.cpd.Tokenizer;
 import org.sonar.api.batch.AbstractCpdMapping;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.resources.Language;
-import org.sonar.plugins.javascript.core.JavaScript;
+import org.sonar.plugins.javascript.JavaScriptLanguage;
 
 import java.nio.charset.Charset;
 
 public class JavaScriptCpdMapping extends AbstractCpdMapping {
 
-  private final JavaScript language;
+  private final JavaScriptLanguage language;
   private final Charset charset;
 
-  public JavaScriptCpdMapping(JavaScript language, FileSystem fs) {
+  public JavaScriptCpdMapping(JavaScriptLanguage language, FileSystem fs) {
     this.language = language;
     this.charset = fs.encoding();
   }

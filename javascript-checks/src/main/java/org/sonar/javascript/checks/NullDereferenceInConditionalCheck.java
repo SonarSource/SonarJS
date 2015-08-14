@@ -22,7 +22,7 @@ package org.sonar.javascript.checks;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
-import org.sonar.plugins.javascript.api.AstTreeVisitorContext;
+import org.sonar.plugins.javascript.api.visitors.TreeVisitorContext;
 import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
 import org.sonar.javascript.tree.SyntacticEquivalence;
 import org.sonar.javascript.checks.utils.CheckUtils;
@@ -100,9 +100,9 @@ public class NullDereferenceInConditionalCheck extends BaseTreeVisitor {
   private class NullExpressionUsageVisitor extends BaseTreeVisitor {
 
     private ExpressionTree nullExpression;
-    private AstTreeVisitorContext context;
+    private TreeVisitorContext context;
 
-    public NullExpressionUsageVisitor(ExpressionTree nullExpression, AstTreeVisitorContext context) {
+    public NullExpressionUsageVisitor(ExpressionTree nullExpression, TreeVisitorContext context) {
       this.nullExpression = nullExpression;
       this.context = context;
     }

@@ -17,24 +17,32 @@
  * License along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.plugins.javascript.cpd;
+package org.sonar.plugins.javascript.rules;
 
 import org.junit.Test;
-import org.sonar.api.batch.fs.FileSystem;
-import org.sonar.plugins.javascript.JavaScriptLanguage;
+import org.sonar.plugins.javascript.rules.JavaScriptCommonRulesEngine;
+import org.sonar.squidbridge.commonrules.api.CommonRulesRepository;
+import org.sonar.squidbridge.commonrules.internal.CommonRulesConstants;
 
 import static org.fest.assertions.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
 
-public class JavaScriptCpdMappingTest {
+public class JavaScriptCommonRulesEngineTest {
 
   @Test
-  public void test() {
-    JavaScriptLanguage language = mock(JavaScriptLanguage.class);
-    FileSystem fs = mock(FileSystem.class);
-    JavaScriptCpdMapping mapping = new JavaScriptCpdMapping(language, fs);
-    assertThat(mapping.getLanguage()).isSameAs(language);
-    assertThat(mapping.getTokenizer()).isInstanceOf(JavaScriptTokenizer.class);
+  public void provide_extensions() {
+    JavaScriptCommonRulesEngine engine = new JavaScriptCommonRulesEngine();
+    assertThat(engine.provide()).isNotEmpty();
+  }
+
+  @Test
+  public void define_rules() {
+    JavaScriptCommonRulesEngine engine = new JavaScriptCommonRulesEngine();
+    CommonRulesRepository repo = engine.newRepository();
+    assertThat(repo.enabledRuleKeys()).containsOnly(
+      CommonRulesConstants.RULE_INSUFFICIENT_COMMENT_DENSITY,
+      CommonRulesConstants.RULE_DUPLICATED_BLOCKS,
+      CommonRulesConstants.RULE_INSUFFICIENT_LINE_COVERAGE,
+      CommonRulesConstants.RULE_INSUFFICIENT_BRANCH_COVERAGE);
   }
 
 }
