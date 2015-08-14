@@ -18,8 +18,6 @@
   </organization>
 
   <properties>
-    <javascriptVersion>1.3-SNAPSHOT</javascriptVersion>
-
     <surefire.argLine>-server -Xmx512m</surefire.argLine>
   </properties>
 
