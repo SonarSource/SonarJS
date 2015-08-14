@@ -50,4 +50,16 @@ RULING)
   ./run-ruling-test.sh
   ;;
 
+TYPES)
+  installTravisTools
+
+  mvn install -Dsource.skip=true -T2 -Denforcer.skip=true -Danimal.sniffer.skip=true -Dmaven.test.skip=true
+
+  build_snapshot "SonarSource/sonar-lits"
+
+  cd its/type-inference
+  mvn clean install -Dmaven.test.redirectTestOutputToFile=false -DjavascriptVersion="DEV" -Dsonar.runtimeVersion="LATEST_RELEASE"
+
+  ;;
+
 esac

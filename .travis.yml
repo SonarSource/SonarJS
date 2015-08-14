@@ -11,6 +11,7 @@ env:
   - TESTS=IT-DEV
   - TESTS=RULING
   - TESTS=IT-LTS
+  - TESTS=TYPES
 matrix:
   fast_finish: true
 

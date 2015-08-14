@@ -1,0 +1,15 @@
+<div class="bubble-popup-container">
+  <div class="bubble-popup-section">
+    {{scmAuthor}}
+  </div>
+  <div class="bubble-popup-section">
+    {{dt scmDate}}
+  </div>
+  {{#if scmRevision}}
+    <div class="bubble-popup-section">
+      {{scmRevision}}
+    </div>
+  {{/if}}
+</div>
+
+<div class="bubble-popup-arrow"></div>

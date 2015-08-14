@@ -1,0 +1,132 @@
+<div class="panel panel-vertical">
+  <div class="columns">
+    <div class="column-two-thirds" id="quality-profile-rules">
+      <header class="page-header">
+        <h3 class="page-title">{{t 'coding_rules'}}</h3>
+      </header>
+      <p>
+        <a class="big" href="{{link rulesSearchUrl}}">{{formatMeasure activeRuleCount 'INT'}}</a>
+        {{tp 'quality_profile.x_active_rules' ''}}
+      </p>
+      {{#notEmpty rulesSeverities}}
+        <div class="abs-width-400 spacer-top">
+          <div class="columns">
+            <div class="column-half">
+              {{#eachEven rulesSeverities}}
+                <p class="spacer-top">
+                  {{severityIcon val}}
+                  <a href="{{link ../rulesSearchUrl '|active_severities=' val}}">{{formatMeasure count 'INT'}}</a>
+                  <span class="text-lowercase">{{t 'severity' val}}</span>
+                </p>
+              {{/eachEven}}
+            </div>
+            <div class="column-half">
+              {{#eachOdd rulesSeverities}}
+                <p class="spacer-top">
+                  {{severityIcon val}}
+                  <a href="{{link ../rulesSearchUrl '|active_severities=' val}}">{{formatMeasure count 'INT'}}</a>
+                  <span class="text-lowercase">{{t 'severity' val}}</span>
+                </p>
+              {{/eachOdd}}
+            </div>
+          </div>
+        </div>
+      {{/notEmpty}}
+    </div>
+
+    <div class="column-third" id="quality-profile-permalinks">
+      <header class="page-header">
+        <h3 class="page-title">{{t 'permalinks'}}</h3>
+      </header>
+      <ul class="list-inline">
+        <li>
+          <a href="{{exporterUrl this null}}" target="_blank"><i class="icon-detach"></i>&nbsp;{{t 'quality_profiles.export_all_rules'}}</a>
+        </li>
+        {{#each exporters}}
+          <li>
+            <a href="{{exporterUrl ../this key}}" target="_blank"><i class="icon-detach"></i>&nbsp;{{name}}</a>
+          </li>
+        {{/each}}
+      </ul>
+    </div>
+  </div>
+</div>
+
+<div class="panel panel-vertical" id="quality-profile-projects">
+  <header class="page-header">
+    <h3 class="page-title">{{t 'projects'}}</h3>
+  </header>
+  {{#if isDefault}}
+    {{#if canWrite}}
+      <p class="alert alert-info">{{t 'quality_profiles.projects_for_default.edit'}}</p>
+    {{else}}
+      <p class="alert alert-info">{{t 'quality_profiles.projects_for_default'}}</p>
+    {{/if}}
+  {{else}}
+    <div id="quality-profile-projects-list"></div>
+  {{/if}}
+</div>
+
+<div class="panel panel-vertical" id="quality-profile-inheritance">
+  <header class="page-header">
+    <h3 class="page-title">{{t 'quality_profiles.profile_inheritance'}}</h3>
+    {{#if canWrite}}
+      <div class="page-actions">
+        <div class="button-group">
+          <button id="quality-profile-change-parent">{{t 'quality_profiles.change_parent'}}</button>
+        </div>
+      </div>
+    {{/if}}
+  </header>
+  <div class="text-center">
+    {{#notEmpty ancestors}}
+      <ul id="quality-profile-ancestors">
+        {{#eachReverse ancestors}}
+          <li>
+            <div class="alert alert-inline alert-info">
+              <h6><a class="js-profile" data-key="{{key}}" href="{{profileUrl key}}">{{name}}</a></h6>
+              <p class="note">{{tp 'quality_profile.x_active_rules' activeRuleCount}}</p>
+              {{#if overridingRuleCount}}
+                <p class="note">{{tp 'quality_profiles.x_overridden_rules' overridingRuleCount}}</p>
+              {{/if}}
+            </div>
+            <div class="spacer-top spacer-bottom">
+              <i class="icon-move-down"></i>
+            </div>
+          </li>
+        {{/eachReverse}}
+      </ul>
+    {{/notEmpty}}
+
+    <div id="quality-profile-inheritance-current" class="alert alert-inline alert-success">
+      <h6>{{name}}</h6>
+      <p class="note">{{tp 'quality_profile.x_active_rules' activeRuleCount}}</p>
+      {{#if overridingRuleCount}}
+        <p class="note">{{tp 'quality_profiles.x_overridden_rules' overridingRuleCount}}</p>
+      {{/if}}
+    </div>
+
+    {{#notEmpty children}}
+      <div class="spacer-top spacer-bottom">
+        <i class="icon-move-down"></i>
+      </div>
+      <ul id="quality-profile-children" class="list-inline">
+        {{#eachReverse children}}
+          <li>
+            <div class="alert alert-inline alert-info">
+              <h6><a class="js-profile" data-key="{{key}}" href="{{profileUrl key}}">{{name}}</a></h6>
+              <p class="note">{{tp 'quality_profile.x_active_rules' activeRuleCount}}</p>
+              {{#if overridingRuleCount}}
+                <p class="note">{{tp 'quality_profiles.x_overridden_rules' overridingRuleCount}}</p>
+              {{/if}}
+            </div>
+          </li>
+        {{/eachReverse}}
+      </ul>
+    {{/notEmpty}}
+  </div>
+</div>
+
+<div class="panel panel-vertical" id="quality-profile-changelog"></div>
+
+<div class="panel panel-vertical" id="quality-profile-comparison"></div>

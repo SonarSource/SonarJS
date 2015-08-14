@@ -1,0 +1,61 @@
+<table class="coding-rule-table">
+  <tr>
+    {{#if activation}}
+      <td class="coding-rule-table-meta-cell coding-rule-activation">
+        {{severityIcon activation.severity}}
+        {{#eq activation.inherit 'OVERRIDES'}}
+          <i class="icon-inheritance"
+             title="{{tp 'coding_rules.overrides' activation.profile.name activation.parentProfile.name}}"></i>
+        {{/eq}}
+        {{#eq activation.inherit 'INHERITED'}}
+          <i class="icon-inheritance"
+             title="{{tp 'coding_rules.inherits' activation.profile.name activation.parentProfile.name}}"></i>
+        {{/eq}}
+      </td>
+    {{/if}}
+
+    <td>
+      <div class="coding-rule-title">
+        <a class="js-rule link-no-underline">{{name}}</a>
+      </div>
+    </td>
+
+    <td class="coding-rule-table-meta-cell">
+      <div class="coding-rule-meta">
+        {{#notEq status 'READY'}}
+          <span class="text-danger">{{status}}</span>
+          &nbsp;&nbsp;&nbsp;
+        {{/notEq}}
+        <span class="note">{{langName}}</span>
+        {{#notEmpty tags}}
+          &nbsp;&nbsp;&nbsp;
+          <i class="icon-tags"></i>
+          <span class="note">{{join tags ', '}}</span>
+        {{/notEmpty}}
+        <a class="js-rule-filter link-no-underline spacer-left" href="#">
+          <i class="icon-filter icon-half-transparent"></i>&nbsp;<i class="icon-dropdown"></i>
+        </a>
+      </div>
+    </td>
+
+    {{#any activation selectedProfile}}
+      {{#if canWrite}}
+        <td class="coding-rule-table-meta-cell coding-rule-activation-actions">
+          <div class="button-group">
+            {{#if activation}}
+              {{#eq activation.inherit 'NONE'}}
+                <button class="coding-rules-detail-quality-profile-deactivate button-red">
+                  {{t 'coding_rules.deactivate'}}
+                </button>
+              {{/eq}}
+            {{else}}
+              {{#unless isTemplate}}
+                <button class="coding-rules-detail-quality-profile-activate">{{t 'coding_rules.activate'}}</button>
+              {{/unless}}
+            {{/if}}
+          </div>
+        </td>
+      {{/if}}
+    {{/any}}
+  </tr>
+</table>

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<profile>
+  <name>javascript-type-inference</name>
+  <language>js</language>
+  <rules>
+    <rule>
+      <repositoryKey>javascript_type_inference</repositoryKey>
+      <key>type</key>
+      <priority>INFO</priority>
+    </rule>
+    <rule>
+      <repositoryKey>javascript_type_inference</repositoryKey>
+      <key>unknown</key>
+      <priority>INFO</priority>
+    </rule>
+  </rules>
+</profile>

@@ -1,0 +1,40 @@
+<div class="bubble-popup-container">
+  <div class="bubble-popup-title">
+    {{#if row.lineHits}}
+      {{t 'source_viewer' tests 'covered'}}
+      {{#if row.conditions}}
+        ({{default row.coveredConditions 0}} of {{row.conditions}} {{t 'source_viewer.conditions'}})
+      {{/if}}
+    {{else}}
+      {{t 'source_viewer' tests 'not_covered'}}
+      {{#if row.conditions}}
+        ({{row.conditions}} {{t 'source_viewer.conditions'}})
+      {{/if}}
+    {{/if}}
+  </div>
+
+  {{#each testFiles}}
+    {{log this}}
+    <div class="bubble-popup-section">
+      <a class="component-viewer-popup-test-file link-action" data-uuid="{{file.uuid}}" title="{{file.longName}}">
+        <span>{{collapsedDirFromPath file.longName}}</span><span class="component-name-file">{{fileFromPath file.longName}}</span>
+      </a>
+      <ul class="bubble-popup-list">
+        {{#each tests}}
+          <li class="component-viewer-popup-test" title="{{name}}">
+            <i class="component-viewer-popup-test-status {{testStatusIconClass status}}"></i>
+            <span class="component-viewer-popup-test-name">
+              <a class="component-viewer-popup-test-file link-action" title="{{name}}"
+                 data-uuid="{{../file.uuid}}" data-method="{{name}}">
+                {{name}}
+              </a>
+            </span>
+            <span class="component-viewer-popup-test-duration">{{durationInMs}}ms</span>
+          </li>
+        {{/each}}
+      </ul>
+    </div>
+  {{/each}}
+</div>
+
+<div class="bubble-popup-arrow"></div>
