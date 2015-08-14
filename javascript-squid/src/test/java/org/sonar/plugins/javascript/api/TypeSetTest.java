@@ -21,9 +21,9 @@ package org.sonar.plugins.javascript.api;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.sonar.javascript.ast.resolve.type.FunctionType;
-import org.sonar.javascript.ast.resolve.type.ObjectType;
-import org.sonar.javascript.ast.resolve.type.PrimitiveType;
+import org.sonar.javascript.tree.symbols.type.FunctionType;
+import org.sonar.javascript.tree.symbols.type.ObjectType;
+import org.sonar.javascript.tree.symbols.type.PrimitiveType;
 import org.sonar.plugins.javascript.api.symbols.Type;
 import org.sonar.plugins.javascript.api.symbols.TypeSet;
 

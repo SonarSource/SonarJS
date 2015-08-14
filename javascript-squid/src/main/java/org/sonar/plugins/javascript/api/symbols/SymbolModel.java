@@ -20,7 +20,7 @@
 package org.sonar.plugins.javascript.api.symbols;
 
 import com.google.common.annotations.Beta;
-import org.sonar.javascript.ast.resolve.Scope;
+import org.sonar.javascript.tree.symbols.Scope;
 import org.sonar.plugins.javascript.api.tree.Tree;
 
 import javax.annotation.Nullable;

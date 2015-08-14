@@ -27,11 +27,11 @@ import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.component.ResourcePerspectives;
 import org.sonar.api.source.Highlightable;
 import org.sonar.api.source.Highlightable.HighlightingBuilder;
-import org.sonar.javascript.api.EcmaScriptKeyword;
-import org.sonar.javascript.ast.visitors.SubscriptionAstTreeVisitor;
-import org.sonar.javascript.model.internal.JavaScriptTree;
-import org.sonar.javascript.model.internal.expression.LiteralTreeImpl;
-import org.sonar.javascript.model.internal.lexical.InternalSyntaxToken;
+import org.sonar.javascript.lexer.JavaScriptKeyword;
+import org.sonar.javascript.tree.visitors.SubscriptionAstTreeVisitor;
+import org.sonar.javascript.tree.impl.JavaScriptTree;
+import org.sonar.javascript.tree.impl.expression.LiteralTreeImpl;
+import org.sonar.javascript.tree.impl.lexical.InternalSyntaxToken;
 import org.sonar.plugins.javascript.api.AstTreeVisitorContext;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
@@ -142,7 +142,7 @@ public class HighlighterVisitor extends SubscriptionAstTreeVisitor {
   }
 
   private static boolean isKeyword(String text) {
-    for (String keyword : EcmaScriptKeyword.keywordValues()) {
+    for (String keyword : JavaScriptKeyword.keywordValues()) {
       if (keyword.equals(text)) {
         return true;
       }

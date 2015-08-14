@@ -20,7 +20,7 @@
 package org.sonar.plugins.javascript.api.tree.declaration;
 
 import com.google.common.annotations.Beta;
-import org.sonar.javascript.model.internal.SeparatedList;
+import org.sonar.javascript.tree.impl.SeparatedList;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import com.sonar.sslr.api.typed.Optional;
 

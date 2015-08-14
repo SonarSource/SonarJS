@@ -23,8 +23,7 @@ import com.google.common.base.Charsets;
 import com.sonar.sslr.api.Token;
 import com.sonar.sslr.impl.Lexer;
 import org.junit.Test;
-import org.sonar.javascript.EcmaScriptConfiguration;
-import org.sonar.javascript.lexer.EcmaScriptLexer;
+import org.sonar.javascript.lexer.JavaScriptLexer;
 
 
 import java.util.List;
@@ -32,7 +31,7 @@ import java.util.List;
 import static org.fest.assertions.Assertions.assertThat;
 
 public class SourceFileOffsetsTest {
-  private Lexer lexer = EcmaScriptLexer.create(new EcmaScriptConfiguration(Charsets.UTF_8));
+  private Lexer lexer = JavaScriptLexer.create(Charsets.UTF_8);
 
   @Test
   public void first_line(){

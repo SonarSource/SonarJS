@@ -20,7 +20,7 @@
 package org.sonar.plugins.javascript.api.visitors;
 
 import com.google.common.annotations.Beta;
-import org.sonar.javascript.model.internal.expression.SuperTreeImpl;
+import org.sonar.javascript.tree.impl.expression.SuperTreeImpl;
 import org.sonar.plugins.javascript.api.tree.ModuleTree;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
 import org.sonar.plugins.javascript.api.tree.declaration.ArrayBindingPatternTree;

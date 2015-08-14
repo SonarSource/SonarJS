@@ -24,7 +24,7 @@ import org.sonar.api.PropertyType;
 import org.sonar.api.SonarPlugin;
 import org.sonar.api.config.PropertyDefinition;
 import org.sonar.api.resources.Qualifiers;
-import org.sonar.javascript.ast.resolve.type.JQuery;
+import org.sonar.javascript.tree.symbols.type.JQuery;
 import org.sonar.plugins.javascript.core.JavaScript;
 import org.sonar.plugins.javascript.cpd.JavaScriptCpdMapping;
 import org.sonar.plugins.javascript.lcov.ITCoverageSensor;

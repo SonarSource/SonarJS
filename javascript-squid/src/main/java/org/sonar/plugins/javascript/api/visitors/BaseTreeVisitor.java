@@ -22,7 +22,7 @@ package org.sonar.plugins.javascript.api.visitors;
 import com.google.common.annotations.Beta;
 import com.google.common.base.Preconditions;
 import com.sonar.sslr.api.typed.Optional;
-import org.sonar.javascript.model.internal.expression.SuperTreeImpl;
+import org.sonar.javascript.tree.impl.expression.SuperTreeImpl;
 import org.sonar.plugins.javascript.api.AstTreeVisitorContext;
 import org.sonar.plugins.javascript.api.JavaScriptCheck;
 import org.sonar.plugins.javascript.api.tree.ModuleTree;

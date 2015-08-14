@@ -21,7 +21,7 @@ package org.sonar.plugins.javascript.api.tree;
 
 import com.google.common.annotations.Beta;
 import com.sonar.sslr.api.AstNodeType;
-import org.sonar.javascript.model.internal.declaration.SpecifierListTreeImpl;
+import org.sonar.javascript.tree.impl.declaration.SpecifierListTreeImpl;
 import org.sonar.plugins.javascript.api.tree.declaration.AccessorMethodDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.declaration.ArrayBindingPatternTree;
 import org.sonar.plugins.javascript.api.tree.declaration.BindingPropertyTree;

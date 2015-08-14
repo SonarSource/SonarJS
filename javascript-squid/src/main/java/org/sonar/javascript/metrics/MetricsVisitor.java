@@ -29,8 +29,7 @@ import org.sonar.api.measures.FileLinesContextFactory;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.measures.PersistenceMode;
 import org.sonar.api.measures.RangeDistributionBuilder;
-import org.sonar.javascript.EcmaScriptConfiguration;
-import org.sonar.javascript.ast.visitors.SubscriptionAstTreeVisitor;
+import org.sonar.javascript.tree.visitors.SubscriptionAstTreeVisitor;
 import org.sonar.plugins.javascript.api.AstTreeVisitorContext;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
@@ -63,7 +62,7 @@ public class MetricsVisitor extends SubscriptionAstTreeVisitor {
   private final SensorContext sensorContext;
   private InputFile inputFile;
   private NoSonarFilter noSonarFilter;
-  private EcmaScriptConfiguration configuration;
+  private final Boolean ignoreHeaderComments;
   private FileLinesContextFactory fileLinesContextFactory;
 
   private int classComplexity;
@@ -71,11 +70,11 @@ public class MetricsVisitor extends SubscriptionAstTreeVisitor {
   private RangeDistributionBuilder functionComplexityDistribution;
   private RangeDistributionBuilder fileComplexityDistribution;
 
-  public MetricsVisitor(FileSystem fs, SensorContext context, NoSonarFilter noSonarFilter, EcmaScriptConfiguration configuration, FileLinesContextFactory fileLinesContextFactory) {
+  public MetricsVisitor(FileSystem fs, SensorContext context, NoSonarFilter noSonarFilter, Boolean ignoreHeaderComments, FileLinesContextFactory fileLinesContextFactory) {
     this.fs = fs;
     this.sensorContext = context;
     this.noSonarFilter = noSonarFilter;
-    this.configuration = configuration;
+    this.ignoreHeaderComments = ignoreHeaderComments;
     this.fileLinesContextFactory = fileLinesContextFactory;
   }
 
@@ -146,7 +145,7 @@ public class MetricsVisitor extends SubscriptionAstTreeVisitor {
     saveMetricOnFile(CoreMetrics.NCLOC, lineVisitor.getLinesOfCodeNumber());
     saveMetricOnFile(CoreMetrics.LINES, linesNumber);
 
-    CommentLineVisitor commentVisitor = new CommentLineVisitor(context.getTopTree(), configuration.getIgnoreHeaderComments());
+    CommentLineVisitor commentVisitor = new CommentLineVisitor(context.getTopTree(), ignoreHeaderComments);
     Set<Integer> commentLines = commentVisitor.getCommentLines();
 
     saveMetricOnFile(CoreMetrics.COMMENT_LINES, commentVisitor.getCommentLineNumber());

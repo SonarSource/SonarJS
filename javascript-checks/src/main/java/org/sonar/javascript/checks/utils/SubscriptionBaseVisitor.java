@@ -19,7 +19,7 @@
  */
 package org.sonar.javascript.checks.utils;
 
-import org.sonar.javascript.ast.visitors.SubscriptionAstTreeVisitor;
+import org.sonar.javascript.tree.visitors.SubscriptionAstTreeVisitor;
 import org.sonar.plugins.javascript.api.tree.Tree;
 
 public abstract class SubscriptionBaseVisitor extends SubscriptionAstTreeVisitor {

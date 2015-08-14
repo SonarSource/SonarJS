@@ -29,15 +29,12 @@ import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.FileLinesContext;
 import org.sonar.api.measures.FileLinesContextFactory;
 import org.sonar.api.resources.Resource;
-import org.sonar.javascript.EcmaScriptConfiguration;
-import org.sonar.javascript.model.JavaScriptTreeModelTest;
+import org.sonar.javascript.utils.JavaScriptTreeModelTest;
 import org.sonar.plugins.javascript.api.AstTreeVisitorContext;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
 
 import java.io.File;
 
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyObject;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -72,7 +69,7 @@ public class MetricsVisitorTest extends JavaScriptTreeModelTest {
         fileSystem,
         context,
         mock(NoSonarFilter.class),
-        mock(EcmaScriptConfiguration.class),
+        false,
         linesContextFactory
     );
 

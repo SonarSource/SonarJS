@@ -20,7 +20,7 @@
 package org.sonar.javascript.checks.utils;
 
 import com.google.common.collect.ImmutableSet;
-import org.sonar.javascript.model.internal.JavaScriptTree;
+import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;

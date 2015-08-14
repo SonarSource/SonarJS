@@ -26,8 +26,7 @@ import net.sourceforge.pmd.cpd.SourceCode;
 import net.sourceforge.pmd.cpd.TokenEntry;
 import net.sourceforge.pmd.cpd.Tokenizer;
 import net.sourceforge.pmd.cpd.Tokens;
-import org.sonar.javascript.EcmaScriptConfiguration;
-import org.sonar.javascript.lexer.EcmaScriptLexer;
+import org.sonar.javascript.lexer.JavaScriptLexer;
 
 import java.io.File;
 import java.nio.charset.Charset;
@@ -43,7 +42,7 @@ public class JavaScriptTokenizer implements Tokenizer {
 
   @Override
   public final void tokenize(SourceCode source, Tokens cpdTokens) {
-    Lexer lexer = EcmaScriptLexer.create(new EcmaScriptConfiguration(charset));
+    Lexer lexer = JavaScriptLexer.create(charset);
     String fileName = source.getFileName();
     List<Token> tokens = lexer.lex(new File(fileName));
     for (Token token : tokens) {

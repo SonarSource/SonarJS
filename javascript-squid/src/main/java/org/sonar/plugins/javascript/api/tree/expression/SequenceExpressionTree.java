@@ -20,7 +20,7 @@
 package org.sonar.plugins.javascript.api.tree.expression;
 
 import com.google.common.annotations.Beta;
-import org.sonar.javascript.model.internal.SeparatedList;
+import org.sonar.javascript.tree.impl.SeparatedList;
 
 /**
  * <a href="http://www.ecma-international.org/ecma-262/5.1/#sec-11.14">Comma separated expression</a>.

@@ -24,8 +24,8 @@ import com.google.common.io.Files;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.source.Symbolizable;
-import org.sonar.javascript.ast.resolve.SymbolModelImpl;
-import org.sonar.javascript.model.JavaScriptTreeModelTest;
+import org.sonar.javascript.tree.symbols.SymbolModelImpl;
+import org.sonar.javascript.utils.JavaScriptTreeModelTest;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
 
 import java.io.File;

@@ -19,8 +19,8 @@
  */
 package org.sonar.javascript.checks;
 
-import org.sonar.javascript.ast.resolve.type.ObjectType;
-import org.sonar.javascript.model.internal.SeparatedList;
+import org.sonar.javascript.tree.symbols.type.ObjectType;
+import org.sonar.javascript.tree.impl.SeparatedList;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.expression.CallExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.LiteralTree;

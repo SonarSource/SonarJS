@@ -19,7 +19,7 @@
  */
 package org.sonar.javascript.metrics;
 
-import org.sonar.javascript.ast.visitors.SubscriptionAstTreeVisitor;
+import org.sonar.javascript.tree.visitors.SubscriptionAstTreeVisitor;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 

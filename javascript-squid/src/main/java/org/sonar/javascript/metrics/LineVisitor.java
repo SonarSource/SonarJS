@@ -21,8 +21,8 @@ package org.sonar.javascript.metrics;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Sets;
-import org.sonar.javascript.ast.visitors.SubscriptionAstTreeVisitor;
-import org.sonar.javascript.model.internal.lexical.InternalSyntaxToken;
+import org.sonar.javascript.tree.visitors.SubscriptionAstTreeVisitor;
+import org.sonar.javascript.tree.impl.lexical.InternalSyntaxToken;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;

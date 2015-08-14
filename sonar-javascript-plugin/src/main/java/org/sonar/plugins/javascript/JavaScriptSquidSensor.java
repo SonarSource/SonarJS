@@ -43,16 +43,15 @@ import org.sonar.api.measures.Metric;
 import org.sonar.api.resources.Project;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.source.Symbolizable;
-import org.sonar.javascript.CharsetAwareVisitor;
-import org.sonar.javascript.EcmaScriptConfiguration;
-import org.sonar.javascript.ast.resolve.SymbolModelImpl;
+import org.sonar.javascript.parser.JavaScriptParserBuilder;
+import org.sonar.javascript.tree.visitors.CharsetAwareVisitor;
+import org.sonar.javascript.tree.symbols.SymbolModelImpl;
 import org.sonar.javascript.checks.CheckList;
 import org.sonar.javascript.checks.ParsingErrorCheck;
 import org.sonar.javascript.highlighter.HighlighterVisitor;
 import org.sonar.javascript.highlighter.SourceFileOffsets;
 import org.sonar.javascript.metrics.ComplexityVisitor;
 import org.sonar.javascript.metrics.MetricsVisitor;
-import org.sonar.javascript.parser.EcmaScriptParser;
 import org.sonar.plugins.javascript.api.CustomJavaScriptRulesDefinition;
 import org.sonar.plugins.javascript.api.JavaScriptCheck;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
@@ -108,7 +107,7 @@ public class JavaScriptSquidSensor implements Sensor {
         fileSystem.predicates().hasType(InputFile.Type.MAIN),
         fileSystem.predicates().hasLanguage(JavaScript.KEY));
     this.settings = settings;
-    this.parser = EcmaScriptParser.createParser(fileSystem.encoding());
+    this.parser = JavaScriptParserBuilder.createParser(fileSystem.encoding());
   }
 
   @Override
@@ -120,9 +119,8 @@ public class JavaScriptSquidSensor implements Sensor {
   public void analyse(Project project, SensorContext context) {
     List<JavaScriptCheck> treeVisitors = Lists.newArrayList();
 
-    EcmaScriptConfiguration configuration = new EcmaScriptConfiguration(fileSystem.encoding());
-
-    treeVisitors.add(new MetricsVisitor(fileSystem, context, noSonarFilter, configuration, fileLinesContextFactory));
+    treeVisitors.add(new MetricsVisitor(fileSystem, context, noSonarFilter,
+    /* FIXME with SONARJS-203: ignore header comments*/ false, fileLinesContextFactory));
     treeVisitors.add(new HighlighterVisitor(resourcePerspectives, fileSystem));
     treeVisitors.addAll(checks.all());
 

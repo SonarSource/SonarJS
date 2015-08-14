@@ -25,7 +25,7 @@ import org.sonar.api.issue.Issuable;
 import org.sonar.api.issue.Issuable.IssueBuilder;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.javascript.metrics.ComplexityVisitor;
-import org.sonar.javascript.model.internal.JavaScriptTree;
+import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.plugins.javascript.api.AstTreeVisitorContext;
 import org.sonar.plugins.javascript.api.JavaScriptCheck;
 import org.sonar.plugins.javascript.api.symbols.SymbolModel;

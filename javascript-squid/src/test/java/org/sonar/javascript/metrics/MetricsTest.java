@@ -20,7 +20,7 @@
 package org.sonar.javascript.metrics;
 
 import org.junit.Test;
-import org.sonar.javascript.model.JavaScriptTreeModelTest;
+import org.sonar.javascript.utils.JavaScriptTreeModelTest;
 import org.sonar.plugins.javascript.api.tree.Tree;
 
 import java.io.File;

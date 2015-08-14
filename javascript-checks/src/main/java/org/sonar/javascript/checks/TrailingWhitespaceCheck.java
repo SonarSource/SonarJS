@@ -25,9 +25,9 @@ import org.slf4j.LoggerFactory;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
-import org.sonar.javascript.CharsetAwareVisitor;
+import org.sonar.javascript.lexer.JavaScriptLexer;
+import org.sonar.javascript.tree.visitors.CharsetAwareVisitor;
 import org.sonar.javascript.checks.utils.SubscriptionBaseVisitor;
-import org.sonar.javascript.lexer.EcmaScriptLexer;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.squidbridge.annotations.ActivatedByDefault;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
@@ -77,7 +77,7 @@ public class TrailingWhitespaceCheck extends SubscriptionBaseVisitor implements 
     for (int i = 0; i < lines.size(); i++) {
       String line = lines.get(i);
 
-      if (line.length() > 0 && Pattern.matches("[" + EcmaScriptLexer.WHITESPACE + "]", line.subSequence(line.length() - 1, line.length()))) {
+      if (line.length() > 0 && Pattern.matches("[" + JavaScriptLexer.WHITESPACE + "]", line.subSequence(line.length() - 1, line.length()))) {
         getContext().addIssue(this, i + 1, "Remove the useless trailing whitespaces at the end of this line.");
       }
     }

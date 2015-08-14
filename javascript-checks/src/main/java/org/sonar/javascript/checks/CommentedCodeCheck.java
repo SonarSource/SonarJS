@@ -25,8 +25,8 @@ import org.apache.commons.lang.StringUtils;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
-import org.sonar.javascript.EcmaScriptCommentAnalyser;
-import org.sonar.javascript.api.EcmaScriptKeyword;
+import org.sonar.javascript.lexer.JavaScriptKeyword;
+import org.sonar.javascript.tree.JavaScriptCommentAnalyser;
 import org.sonar.javascript.checks.utils.SubscriptionBaseVisitor;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
@@ -56,8 +56,8 @@ import java.util.regex.Pattern;
 @SqaleConstantRemediation("5min")
 public class CommentedCodeCheck extends SubscriptionBaseVisitor {
 
-  private static final EcmaScriptCommentAnalyser COMMENT_ANALYSER = new EcmaScriptCommentAnalyser();
-  
+  private static final JavaScriptCommentAnalyser COMMENT_ANALYSER = new JavaScriptCommentAnalyser();
+
   private static final double THRESHOLD = 0.9;
 
   private final CodeRecognizer codeRecognizer = new CodeRecognizer(THRESHOLD, new JavaScriptRecognizer());
@@ -69,7 +69,7 @@ public class CommentedCodeCheck extends SubscriptionBaseVisitor {
     public Set<Detector> getDetectors() {
       return ImmutableSet.of(
           new EndWithDetector(0.95, '}', ';', '{'),
-          new KeywordsDetector(0.3, EcmaScriptKeyword.keywordValues()),
+          new KeywordsDetector(0.3, JavaScriptKeyword.keywordValues()),
           new ContainsDetectorJS(0.95, "*=", "/=", "%=", "+=", "-=", "<<=", ">>=", ">>>=", "&=", "^=", "|="),
           new ContainsDetectorJS(0.95, "!=", "!=="));
     }

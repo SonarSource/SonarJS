@@ -22,7 +22,7 @@ package org.sonar.javascript.highlighter;
 import org.sonar.api.source.Symbolizable;
 import org.sonar.plugins.javascript.api.symbols.Symbol;
 import org.sonar.plugins.javascript.api.symbols.Usage;
-import org.sonar.javascript.model.internal.lexical.InternalSyntaxToken;
+import org.sonar.javascript.tree.impl.lexical.InternalSyntaxToken;
 import org.sonar.plugins.javascript.api.symbols.SymbolModel;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 

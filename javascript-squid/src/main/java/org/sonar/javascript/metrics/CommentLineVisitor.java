@@ -22,8 +22,8 @@ package org.sonar.javascript.metrics;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Sets;
-import org.sonar.javascript.EcmaScriptCommentAnalyser;
-import org.sonar.javascript.ast.visitors.SubscriptionAstTreeVisitor;
+import org.sonar.javascript.tree.JavaScriptCommentAnalyser;
+import org.sonar.javascript.tree.visitors.SubscriptionAstTreeVisitor;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
@@ -41,7 +41,7 @@ public class CommentLineVisitor extends SubscriptionAstTreeVisitor {
   private boolean seenFirstToken;
 
   private boolean ignoreHeaderComments;
-  private EcmaScriptCommentAnalyser commentAnalyser = new EcmaScriptCommentAnalyser();
+  private JavaScriptCommentAnalyser commentAnalyser = new JavaScriptCommentAnalyser();
 
   @Override
   public List<Kind> nodesToVisit() {

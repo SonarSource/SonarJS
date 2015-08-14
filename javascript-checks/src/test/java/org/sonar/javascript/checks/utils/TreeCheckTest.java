@@ -20,7 +20,7 @@
 package org.sonar.javascript.checks.utils;
 
 import org.sonar.api.config.Settings;
-import org.sonar.javascript.ast.resolve.type.JQuery;
+import org.sonar.javascript.tree.symbols.type.JQuery;
 import org.sonar.plugins.javascript.api.JavaScriptCheck;
 import org.sonar.squidbridge.api.CheckMessage;
 
