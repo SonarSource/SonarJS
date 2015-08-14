@@ -89,7 +89,7 @@ public enum EcmaScriptKeyword implements TokenType, GrammarRuleKey {
 
   @Override
   public boolean hasToBeSkippedFromAst(AstNode node) {
-    return false;
+    throw new IllegalStateException("AST with AstNode should not be constructed");
   }
 
   public static String[] keywordValues() {

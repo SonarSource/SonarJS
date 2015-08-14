@@ -93,7 +93,7 @@ public enum EcmaScriptPunctuator implements TokenType, GrammarRuleKey {
 
   @Override
   public boolean hasToBeSkippedFromAst(AstNode node) {
-    return false;
+    throw new IllegalStateException("AST with AstNode should not be constructed");
   }
 
 }

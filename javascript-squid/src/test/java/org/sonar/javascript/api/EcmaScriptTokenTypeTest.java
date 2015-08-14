@@ -32,8 +32,12 @@ public class EcmaScriptTokenTypeTest {
     for (EcmaScriptTokenType type : EcmaScriptTokenType.values()) {
       assertThat(type.getName()).isEqualTo(type.name());
       assertThat(type.getValue()).isEqualTo(type.name());
-      assertThat(type.hasToBeSkippedFromAst(null)).isFalse();
     }
+  }
+
+  @Test(expected = IllegalStateException.class)
+  public void hasToBeSkippedFromAst() throws Exception {
+    EcmaScriptTokenType.IDENTIFIER.hasToBeSkippedFromAst(null);
   }
 
 }

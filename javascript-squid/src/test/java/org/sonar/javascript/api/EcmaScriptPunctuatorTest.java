@@ -31,8 +31,12 @@ public class EcmaScriptPunctuatorTest {
 
     for (EcmaScriptPunctuator punctuator : EcmaScriptPunctuator.values()) {
       assertThat(punctuator.getName()).isEqualTo(punctuator.name());
-      assertThat(punctuator.hasToBeSkippedFromAst(null)).isFalse();
     }
+  }
+
+  @Test(expected = IllegalStateException.class)
+  public void hasToBeSkippedFromAst() throws Exception {
+    EcmaScriptPunctuator.COMMA.hasToBeSkippedFromAst(null);
   }
 
 }

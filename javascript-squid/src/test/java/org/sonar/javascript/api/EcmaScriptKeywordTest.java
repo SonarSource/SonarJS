@@ -32,8 +32,12 @@ public class EcmaScriptKeywordTest {
 
     for (EcmaScriptKeyword keyword : EcmaScriptKeyword.values()) {
       assertThat(keyword.getName()).isEqualTo(keyword.name());
-      assertThat(keyword.hasToBeSkippedFromAst(null)).isFalse();
     }
+  }
+
+  @Test(expected = IllegalStateException.class)
+  public void hasToBeSkippedFromAst() throws Exception {
+    EcmaScriptKeyword.CLASS.hasToBeSkippedFromAst(null);
   }
 
 }
