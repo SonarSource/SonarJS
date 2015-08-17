@@ -85,3 +85,37 @@ function ko() {  // +1
     }
   };
 }
+
+
+(function () {         // OK - Immediately Invoked Function Expression; complexity = 4
+
+    function f() {     // NOK; complexity = 3
+        var a = true && false && true;
+    }
+
+    function g() {     // OK; complexity = 1
+    }
+
+})();
+
+
+var a = function () {   // OK - Immediately Invoked Function Expression; complexity = 3
+    var a = true && false && true;
+}();
+
+new function(){  // NOK
+    var a = true && false && true;
+};
+
+new (function(){  // OK
+    var a = true && false && true;
+})();
+
+
+define([], function(){  // AMD PATTERN - OK
+    var a = true && false && true;
+});
+
+define([], "module name", function(){  // AMD PATTERN - OK
+    var a = true && false && true;
+});
