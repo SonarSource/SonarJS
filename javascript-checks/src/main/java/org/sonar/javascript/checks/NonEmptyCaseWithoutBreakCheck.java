@@ -51,7 +51,8 @@ public class NonEmptyCaseWithoutBreakCheck extends BaseTreeVisitor {
     cases.remove(cases.size() - 1);
     for (SwitchClauseTree switchClauseTree : cases){
       List<StatementTree> statements = switchClauseTree.statements();
-      if (!statements.isEmpty() && !Iterables.getLast(statements).is(Kind.BREAK_STATEMENT, Kind.RETURN_STATEMENT, Kind.THROW_STATEMENT)) {
+      if (!statements.isEmpty()
+        && !Iterables.getLast(statements).is(Kind.BREAK_STATEMENT, Kind.RETURN_STATEMENT, Kind.THROW_STATEMENT, Kind.CONTINUE_STATEMENT)) {
         getContext().addIssue(this, switchClauseTree, "Last statement in this switch-clause should be an unconditional break.");
       }
     }

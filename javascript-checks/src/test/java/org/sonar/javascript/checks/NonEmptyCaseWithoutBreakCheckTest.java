@@ -31,7 +31,7 @@ public class NonEmptyCaseWithoutBreakCheckTest extends TreeCheckTest {
 
     CheckMessagesVerifier.verify(getIssues("src/test/resources/checks/nonEmptyCaseWithoutBreak.js", check))
         .next().atLine(9).withMessage("Last statement in this switch-clause should be an unconditional break.")
-        .next().atLine(16)
+        .next().atLine(18)
         .noMore();
   }
 

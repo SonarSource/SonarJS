@@ -367,11 +367,7 @@
 395,
 ],
 'project:google-closure-library/editor/plugins/removeformatting.js':[
-635,
-650,
-668,
 671,
-683,
 711,
 ],
 'project:google-closure-library/events/pastehandler.js':[
@@ -412,11 +408,6 @@
 'project:google-closure-library/ui/datepicker.js':[
 880,
 883,
-],
-'project:google-closure-library/ui/keyboardshortcuthandler.js':[
-577,
-580,
-583,
 ],
 'project:jquery-1.7.2.js':[
 4723,

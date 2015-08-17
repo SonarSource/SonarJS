@@ -8,6 +8,8 @@ switch (param) {
     throw new Error();
   case 4: // NOK
     doSomething();
+  case 5: // OK
+    continue;
   default: // OK
     doSomethingElse();
 }
