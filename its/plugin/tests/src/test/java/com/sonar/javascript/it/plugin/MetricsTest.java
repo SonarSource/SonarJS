@@ -64,9 +64,9 @@ public class MetricsTest {
     assertThat(getProjectMeasure("directories").getIntValue()).isEqualTo(1);
 
     // Documentation
-    assertThat(getProjectMeasure("comment_lines").getIntValue()).isEqualTo(2);
+    assertThat(getProjectMeasure("comment_lines").getIntValue()).isEqualTo(1);
     assertThat(getProjectMeasure("commented_out_code_lines")).isNull();
-    assertThat(getProjectMeasure("comment_lines_density").getValue()).isEqualTo(9.1);
+    assertThat(getProjectMeasure("comment_lines_density").getValue()).isEqualTo(4.8);
 
     // Complexity
     assertThat(getProjectMeasure("complexity").getValue()).isEqualTo(4.0);
@@ -97,9 +97,9 @@ public class MetricsTest {
     assertThat(getDirectoryMeasure("statements").getIntValue()).isEqualTo(8);
     assertThat(getDirectoryMeasure("files").getIntValue()).isEqualTo(1);
     // Documentation
-    assertThat(getDirectoryMeasure("comment_lines").getIntValue()).isEqualTo(2);
+    assertThat(getDirectoryMeasure("comment_lines").getIntValue()).isEqualTo(1);
     assertThat(getDirectoryMeasure("commented_out_code_lines")).isNull();
-    assertThat(getDirectoryMeasure("comment_lines_density").getValue()).isEqualTo(9.1);
+    assertThat(getDirectoryMeasure("comment_lines_density").getValue()).isEqualTo(4.8);
     // Complexity
     assertThat(getDirectoryMeasure("file_complexity_distribution").getData()).isEqualTo("0=1;5=0;10=0;20=0;30=0;60=0;90=0");
     // Duplication
@@ -117,9 +117,9 @@ public class MetricsTest {
     assertThat(getFileMeasure("accessors").getIntValue()).isEqualTo(2);
     assertThat(getFileMeasure("files").getIntValue()).isEqualTo(1);
     // Documentation
-    assertThat(getFileMeasure("comment_lines").getIntValue()).isEqualTo(2);
+    assertThat(getFileMeasure("comment_lines").getIntValue()).isEqualTo(1);
     assertThat(getFileMeasure("commented_out_code_lines")).isNull();
-    assertThat(getFileMeasure("comment_lines_density").getValue()).isEqualTo(9.1);
+    assertThat(getFileMeasure("comment_lines_density").getValue()).isEqualTo(4.8);
     // Complexity
     assertThat(getFileMeasure("file_complexity_distribution")).isNull();
     // Duplication
@@ -150,7 +150,7 @@ public class MetricsTest {
       .contains("5=1");
     assertThat(getFileMeasure("comment_lines_data").getData())
       .contains("1=0")
-      .contains("2=1")
+      .contains("2=0")
       .contains("4=1")
       .contains("5=0");
   }

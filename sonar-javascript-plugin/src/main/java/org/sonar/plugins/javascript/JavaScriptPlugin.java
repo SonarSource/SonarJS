@@ -70,6 +70,9 @@ public class JavaScriptPlugin extends SonarPlugin {
   public static final String JQUERY_OBJECT_ALIASES = JQuery.JQUERY_OBJECT_ALIASES;
   public static final String JQUERY_OBJECT_ALIASES_DEFAULT_VALUE = JQuery.JQUERY_OBJECT_ALIASES_DEFAULT_VALUE;
 
+  public static final String  IGNORE_HEADER_COMMENTS = PROPERTY_PREFIX + ".ignoreHeaderComments";
+  public static final Boolean IGNORE_HEADER_COMMENTS_DEFAULT_VALUE = true;
+
   @Override
   public List getExtensions() {
     return ImmutableList.of(
@@ -94,6 +97,15 @@ public class JavaScriptPlugin extends SonarPlugin {
             .description("Comma-separated list of suffixes for files to analyze.")
             .subCategory(GENERAL)
             .build(),
+
+      PropertyDefinition.builder(JavaScriptPlugin.IGNORE_HEADER_COMMENTS)
+        .defaultValue(JavaScriptPlugin.IGNORE_HEADER_COMMENTS_DEFAULT_VALUE.toString())
+        .name("Ignore header comments")
+        .description("True to not count file header comments in comment metrics.")
+        .onQualifiers(Qualifiers.MODULE, Qualifiers.PROJECT)
+        .subCategory(GENERAL)
+        .type(PropertyType.BOOLEAN)
+        .build(),
 
         PropertyDefinition.builder(LCOV_UT_REPORT_PATH)
             .defaultValue(LCOV_UT_REPORT_PATH_DEFAULT_VALUE)

@@ -118,8 +118,7 @@ public class JavaScriptSquidSensor implements Sensor {
   public void analyse(Project project, SensorContext context) {
     List<JavaScriptCheck> treeVisitors = Lists.newArrayList();
 
-    treeVisitors.add(new MetricsVisitor(fileSystem, context, noSonarFilter,
-    /* FIXME with SONARJS-203: ignore header comments*/ false, fileLinesContextFactory));
+    treeVisitors.add(new MetricsVisitor(fileSystem, context, noSonarFilter, settings.getBoolean(JavaScriptPlugin.IGNORE_HEADER_COMMENTS), fileLinesContextFactory));
     treeVisitors.add(new HighlighterVisitor(resourcePerspectives, fileSystem));
     treeVisitors.addAll(checks.all());
 
