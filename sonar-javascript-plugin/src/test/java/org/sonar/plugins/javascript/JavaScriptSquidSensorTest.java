@@ -134,7 +134,10 @@ public class JavaScriptSquidSensorTest {
     when(resource.getEffectiveKey()).thenReturn("someKey");
     when(context.getResource(inputFile)).thenReturn(resource);
 
-    JavaScriptSquidSensor sensor = new JavaScriptSquidSensor(checkFactory, fileLinesContextFactory, perspectives, fileSystem, new NoSonarFilter(), new Settings(), CUSTOM_RULES);
+    Settings settings = new Settings();
+    settings.setProperty(JavaScriptPlugin.IGNORE_HEADER_COMMENTS, true);
+
+    JavaScriptSquidSensor sensor = new JavaScriptSquidSensor(checkFactory, fileLinesContextFactory, perspectives, fileSystem, new NoSonarFilter(), settings, CUSTOM_RULES);
     sensor.analyse(project, context);
 
     verify(context).saveMeasure(any(InputFile.class), eq(CoreMetrics.LINES), eq(33.0));
@@ -146,7 +149,7 @@ public class JavaScriptSquidSensorTest {
     verify(context).saveMeasure(any(InputFile.class), eq(CoreMetrics.COMPLEXITY), eq(4.0));
     verify(context).saveMeasure(any(InputFile.class), eq(CoreMetrics.COMPLEXITY_IN_CLASSES), eq(1.0));
     verify(context).saveMeasure(any(InputFile.class), eq(CoreMetrics.COMPLEXITY_IN_FUNCTIONS), eq(4.0));
-    verify(context).saveMeasure(any(InputFile.class), eq(CoreMetrics.COMMENT_LINES), eq(2.0));
+    verify(context).saveMeasure(any(InputFile.class), eq(CoreMetrics.COMMENT_LINES), eq(1.0));
   }
 
   @Test

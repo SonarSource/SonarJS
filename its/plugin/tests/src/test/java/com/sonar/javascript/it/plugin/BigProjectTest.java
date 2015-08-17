@@ -73,9 +73,9 @@ public class BigProjectTest {
     assertThat(getProjectMeasure("statements").getIntValue()).isEqualTo(328212);
 
     // Documentation
-    assertThat(getProjectMeasure("comment_lines").getIntValue()).isEqualTo(313235);
+    assertThat(getProjectMeasure("comment_lines").getIntValue()).isEqualTo(309246);
     assertThat(getProjectMeasure("commented_out_code_lines")).isNull();
-    assertThat(getProjectMeasure("comment_lines_density").getValue()).isEqualTo(32.1);
+    assertThat(getProjectMeasure("comment_lines_density").getValue()).isEqualTo(31.8);
 
     // Complexity
     // Since ES6 support
