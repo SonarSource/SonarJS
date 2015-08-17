@@ -41,7 +41,7 @@
   </developers>
 
   <modules>
-    <module>javascript-squid</module>
+    <module>javascript-frontend</module>
     <module>javascript-checks</module>
     <module>sonar-javascript-plugin</module>
   </modules>
@@ -72,7 +72,7 @@
     <dependencies>
       <dependency>
         <groupId>${project.groupId}</groupId>
-        <artifactId>javascript-squid</artifactId>
+        <artifactId>javascript-frontend</artifactId>
         <version>${project.version}</version>
       </dependency>
       <dependency>

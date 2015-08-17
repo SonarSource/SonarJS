@@ -8,9 +8,9 @@
     <version>2.8-SNAPSHOT</version>
   </parent>
 
-  <artifactId>javascript-squid</artifactId>
+  <artifactId>javascript-frontend</artifactId>
 
-  <name>JavaScript :: Squid</name>
+  <name>JavaScript :: Frontend</name>
 
   <dependencies>
     <dependency>
