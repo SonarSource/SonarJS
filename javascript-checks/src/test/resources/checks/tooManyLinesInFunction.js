@@ -25,7 +25,7 @@ function * f() {       // NOK
 /**
  * Immediately Invoked Function Expression
  */
-(function () {         // OK - IFFE
+(function () {         // OK - IIFE
 
     function f() {     // NOK
         // comment
@@ -41,7 +41,7 @@ function * f() {       // NOK
 /**
  * Immediately Invoked Function Expression
  */
-var a = function () {   // OK - IFFE
+var a = function () {   // OK - IIFE
     // comment
     var a = 1;
     return a;
