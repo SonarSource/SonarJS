@@ -23,7 +23,6 @@ import com.sonar.sslr.api.typed.GrammarBuilder;
 import org.sonar.javascript.lexer.JavaScriptKeyword;
 import org.sonar.javascript.lexer.JavaScriptPunctuator;
 import org.sonar.javascript.lexer.JavaScriptTokenType;
-import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.javascript.tree.impl.SeparatedList;
 import org.sonar.javascript.tree.impl.declaration.ArrayBindingPatternTreeImpl;
 import org.sonar.javascript.tree.impl.declaration.DefaultExportDeclarationTreeImpl;
@@ -31,7 +30,6 @@ import org.sonar.javascript.tree.impl.declaration.FromClauseTreeImpl;
 import org.sonar.javascript.tree.impl.declaration.FunctionDeclarationTreeImpl;
 import org.sonar.javascript.tree.impl.declaration.ImportClauseTreeImpl;
 import org.sonar.javascript.tree.impl.declaration.InitializedBindingElementTreeImpl;
-import org.sonar.javascript.tree.impl.declaration.MethodDeclarationTreeImpl;
 import org.sonar.javascript.tree.impl.declaration.ModuleTreeImpl;
 import org.sonar.javascript.tree.impl.declaration.NamedExportDeclarationTreeImpl;
 import org.sonar.javascript.tree.impl.declaration.ObjectBindingPatternTreeImpl;
@@ -87,6 +85,7 @@ import org.sonar.plugins.javascript.api.tree.declaration.BindingElementTree;
 import org.sonar.plugins.javascript.api.tree.declaration.DeclarationTree;
 import org.sonar.plugins.javascript.api.tree.declaration.ExportDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.declaration.ImportModuleDeclarationTree;
+import org.sonar.plugins.javascript.api.tree.declaration.MethodDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.declaration.NameSpaceExportDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.declaration.SpecifierListTree;
 import org.sonar.plugins.javascript.api.tree.declaration.SpecifierTree;
@@ -1504,29 +1503,29 @@ public class JavaScriptGrammar {
               b.token(JavaScriptPunctuator.RCURLYBRACE)));
   }
 
-  public JavaScriptTree CLASS_ELEMENT() {
-    return b.<JavaScriptTree>nonterminal(JavaScriptLegacyGrammar.CLASS_ELEMENT)
+  public Tree CLASS_ELEMENT() {
+    return b.<Tree>nonterminal(JavaScriptLegacyGrammar.CLASS_ELEMENT)
       .is(
           b.firstOf(
-              STATIC_METHOD_DEFINITION(),
               METHOD_DEFINITION(),
               b.token(JavaScriptPunctuator.SEMI)));
   }
 
-  public MethodDeclarationTreeImpl STATIC_METHOD_DEFINITION() {
-    return b.<MethodDeclarationTreeImpl>nonterminal()
-      .is(f.completeStaticMethod(b.token(JavaScriptLegacyGrammar.STATIC), METHOD_DEFINITION()));
-  }
-
-  public MethodDeclarationTreeImpl METHOD_DEFINITION() {
-    return b.<MethodDeclarationTreeImpl>nonterminal(JavaScriptLegacyGrammar.METHOD_DEFINITION)
+  public MethodDeclarationTree METHOD_DEFINITION() {
+    return b.<MethodDeclarationTree>nonterminal(JavaScriptLegacyGrammar.METHOD_DEFINITION)
       .is(
           b.firstOf(
-              f.methodOrGenerator(
-                  b.optional(b.token(JavaScriptPunctuator.STAR)),
+              f.generator(
+                  b.optional(b.token(JavaScriptLegacyGrammar.STATIC)),
+                  b.token(JavaScriptPunctuator.STAR),
+                  PROPERTY_NAME(), FORMAL_PARAMETER_LIST(),
+                  BLOCK()),
+              f.method(
+                  b.optional(b.token(JavaScriptLegacyGrammar.STATIC)),
                   PROPERTY_NAME(), FORMAL_PARAMETER_LIST(),
                   BLOCK()),
               f.accessor(
+                  b.optional(b.token(JavaScriptLegacyGrammar.STATIC)),
                   b.firstOf(
                       b.token(JavaScriptLegacyGrammar.GET),
                       b.token(JavaScriptLegacyGrammar.SET)),

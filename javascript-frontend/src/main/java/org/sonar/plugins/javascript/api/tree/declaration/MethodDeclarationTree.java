@@ -44,5 +44,4 @@ public interface MethodDeclarationTree extends DeclarationTree {
   ParameterListTree parameters();
 
   BlockTree body();
-
 }

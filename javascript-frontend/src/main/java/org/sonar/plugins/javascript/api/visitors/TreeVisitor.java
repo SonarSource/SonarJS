@@ -23,12 +23,14 @@ import com.google.common.annotations.Beta;
 import org.sonar.javascript.tree.impl.expression.SuperTreeImpl;
 import org.sonar.plugins.javascript.api.tree.ModuleTree;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
+import org.sonar.plugins.javascript.api.tree.declaration.AccessorMethodDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.declaration.ArrayBindingPatternTree;
 import org.sonar.plugins.javascript.api.tree.declaration.BindingPropertyTree;
 import org.sonar.plugins.javascript.api.tree.declaration.DefaultExportDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.declaration.ExportClauseTree;
 import org.sonar.plugins.javascript.api.tree.declaration.FromClauseTree;
 import org.sonar.plugins.javascript.api.tree.declaration.FunctionDeclarationTree;
+import org.sonar.plugins.javascript.api.tree.declaration.GeneratorMethodDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.declaration.ImportClauseTree;
 import org.sonar.plugins.javascript.api.tree.declaration.ImportDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.declaration.ImportModuleDeclarationTree;
@@ -227,4 +229,8 @@ public interface TreeVisitor {
   void visitObjectBindingPattern(ObjectBindingPatternTree tree);
 
   void visitExportClause(ExportClauseTree tree);
+
+  void visitAccessorMethodDeclaration(AccessorMethodDeclarationTree tree);
+
+  void visitGeneratorMethodDeclaration(GeneratorMethodDeclarationTree tree);
 }

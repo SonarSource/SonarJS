@@ -22,11 +22,11 @@ package org.sonar.javascript.checks;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
+import org.sonar.plugins.javascript.api.tree.Tree;
+import org.sonar.plugins.javascript.api.tree.declaration.AccessorMethodDeclarationTree;
+import org.sonar.plugins.javascript.api.tree.statement.ReturnStatementTree;
 import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
 import org.sonar.plugins.javascript.api.visitors.TreeVisitor;
-import org.sonar.plugins.javascript.api.tree.Tree;
-import org.sonar.plugins.javascript.api.tree.declaration.MethodDeclarationTree;
-import org.sonar.plugins.javascript.api.tree.statement.ReturnStatementTree;
 import org.sonar.squidbridge.annotations.ActivatedByDefault;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
@@ -44,11 +44,11 @@ public class ReturnInSetterCheck extends BaseTreeVisitor {
   private final TreeVisitor forbiddenReturnVisitor = new ForbiddenReturnVisitor();
 
   @Override
-  public void visitMethodDeclaration(MethodDeclarationTree tree) {
+  public void visitAccessorMethodDeclaration(AccessorMethodDeclarationTree tree) {
     if (tree.is(Tree.Kind.SET_METHOD)) {
       tree.body().accept(forbiddenReturnVisitor);
     }
-    super.visitMethodDeclaration(tree);
+    super.visitAccessorMethodDeclaration(tree);
   }
 
   private class ForbiddenReturnVisitor extends BaseTreeVisitor {

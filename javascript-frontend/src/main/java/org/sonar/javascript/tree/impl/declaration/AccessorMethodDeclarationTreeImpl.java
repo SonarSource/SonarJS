@@ -19,12 +19,13 @@
  */
 package org.sonar.javascript.tree.impl.declaration;
 
+import com.google.common.base.Preconditions;
 import com.google.common.collect.Iterators;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.javascript.tree.impl.lexical.InternalSyntaxToken;
 import org.sonar.javascript.tree.impl.statement.BlockTreeImpl;
 import org.sonar.plugins.javascript.api.tree.Tree;
-import org.sonar.plugins.javascript.api.tree.declaration.MethodDeclarationTree;
+import org.sonar.plugins.javascript.api.tree.declaration.AccessorMethodDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.declaration.ParameterListTree;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
@@ -33,23 +34,24 @@ import org.sonar.plugins.javascript.api.visitors.TreeVisitor;
 import javax.annotation.Nullable;
 import java.util.Iterator;
 
-public class MethodDeclarationTreeImpl extends JavaScriptTree implements MethodDeclarationTree {
+public class AccessorMethodDeclarationTreeImpl extends JavaScriptTree implements AccessorMethodDeclarationTree {
 
   private final Kind kind;
   private InternalSyntaxToken staticToken;
-
+  private final InternalSyntaxToken accessorToken;
   private final ExpressionTree name;
   private final ParameterListTreeImpl parameters;
   private final BlockTreeImpl body;
 
-  public MethodDeclarationTreeImpl(
+  public AccessorMethodDeclarationTreeImpl(
       @Nullable InternalSyntaxToken staticToken,
+      InternalSyntaxToken accessorToken,
       ExpressionTree name,
       ParameterListTreeImpl parameters,
       BlockTreeImpl body) {
-
     this.staticToken = staticToken;
-    this.kind = Kind.METHOD;
+    this.kind = "get".equals(accessorToken.text()) ? Kind.GET_METHOD : Kind.SET_METHOD;
+    this.accessorToken = accessorToken;
     this.name = name;
     this.parameters = parameters;
     this.body = body;
@@ -59,6 +61,12 @@ public class MethodDeclarationTreeImpl extends JavaScriptTree implements MethodD
   @Override
   public SyntaxToken staticToken() {
     return staticToken;
+  }
+
+  @Override
+  public InternalSyntaxToken accessorToken() {
+    Preconditions.checkState(this.is(Kind.GET_METHOD) || this.is(Kind.SET_METHOD));
+    return accessorToken;
   }
 
   @Override
@@ -83,11 +91,11 @@ public class MethodDeclarationTreeImpl extends JavaScriptTree implements MethodD
 
   @Override
   public Iterator<Tree> childrenIterator() {
-    return Iterators.forArray(staticToken, name, parameters, body);
+    return Iterators.forArray(staticToken, accessorToken, name, parameters, body);
   }
 
   @Override
   public void accept(TreeVisitor visitor) {
-    visitor.visitMethodDeclaration(this);
+    visitor.visitAccessorMethodDeclaration(this);
   }
 }

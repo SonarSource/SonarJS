@@ -26,6 +26,8 @@ import org.sonar.javascript.lexer.JavaScriptPunctuator;
 import org.sonar.plugins.javascript.api.symbols.Symbol;
 import org.sonar.plugins.javascript.api.symbols.SymbolModel;
 import org.sonar.plugins.javascript.api.symbols.Usage;
+import org.sonar.plugins.javascript.api.tree.declaration.AccessorMethodDeclarationTree;
+import org.sonar.plugins.javascript.api.tree.declaration.GeneratorMethodDeclarationTree;
 import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
 import org.sonar.javascript.highlighter.HighlightSymbolTableBuilder;
 import org.sonar.javascript.highlighter.SourceFileOffsets;
@@ -80,6 +82,20 @@ public class SymbolVisitor extends BaseTreeVisitor {
   public void visitMethodDeclaration(MethodDeclarationTree tree) {
     enterScope(tree);
     super.visitMethodDeclaration(tree);
+    leaveScope();
+  }
+
+  @Override
+  public void visitAccessorMethodDeclaration(AccessorMethodDeclarationTree tree) {
+    enterScope(tree);
+    super.visitAccessorMethodDeclaration(tree);
+    leaveScope();
+  }
+
+  @Override
+  public void visitGeneratorMethodDeclaration(GeneratorMethodDeclarationTree tree) {
+    enterScope(tree);
+    super.visitGeneratorMethodDeclaration(tree);
     leaveScope();
   }
 

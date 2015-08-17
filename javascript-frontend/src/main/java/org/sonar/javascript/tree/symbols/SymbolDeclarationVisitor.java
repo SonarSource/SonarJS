@@ -28,8 +28,10 @@ import org.sonar.plugins.javascript.api.symbols.Symbol;
 import org.sonar.plugins.javascript.api.symbols.Usage;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
+import org.sonar.plugins.javascript.api.tree.declaration.AccessorMethodDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.declaration.BindingElementTree;
 import org.sonar.plugins.javascript.api.tree.declaration.FunctionDeclarationTree;
+import org.sonar.plugins.javascript.api.tree.declaration.GeneratorMethodDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.declaration.MethodDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.expression.ArrowFunctionTree;
 import org.sonar.plugins.javascript.api.tree.expression.FunctionExpressionTree;
@@ -76,6 +78,26 @@ public class SymbolDeclarationVisitor extends BaseTreeVisitor {
     addFunctionBuiltInSymbols();
 
     super.visitMethodDeclaration(tree);
+    leaveScope();
+  }
+
+  @Override
+  public void visitAccessorMethodDeclaration(AccessorMethodDeclarationTree tree) {
+    newScope(tree);
+    declareParameters(((ParameterListTreeImpl) tree.parameters()).parameterIdentifiers());
+    addFunctionBuiltInSymbols();
+
+    super.visitAccessorMethodDeclaration(tree);
+    leaveScope();
+  }
+
+  @Override
+  public void visitGeneratorMethodDeclaration(GeneratorMethodDeclarationTree tree) {
+    newScope(tree);
+    declareParameters(((ParameterListTreeImpl) tree.parameters()).parameterIdentifiers());
+    addFunctionBuiltInSymbols();
+
+    super.visitGeneratorMethodDeclaration(tree);
     leaveScope();
   }
 

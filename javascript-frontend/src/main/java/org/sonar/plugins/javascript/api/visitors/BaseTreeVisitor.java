@@ -27,12 +27,14 @@ import org.sonar.plugins.javascript.api.JavaScriptCheck;
 import org.sonar.plugins.javascript.api.tree.ModuleTree;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
+import org.sonar.plugins.javascript.api.tree.declaration.AccessorMethodDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.declaration.ArrayBindingPatternTree;
 import org.sonar.plugins.javascript.api.tree.declaration.BindingPropertyTree;
 import org.sonar.plugins.javascript.api.tree.declaration.DefaultExportDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.declaration.ExportClauseTree;
 import org.sonar.plugins.javascript.api.tree.declaration.FromClauseTree;
 import org.sonar.plugins.javascript.api.tree.declaration.FunctionDeclarationTree;
+import org.sonar.plugins.javascript.api.tree.declaration.GeneratorMethodDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.declaration.ImportClauseTree;
 import org.sonar.plugins.javascript.api.tree.declaration.ImportDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.declaration.ImportModuleDeclarationTree;
@@ -520,6 +522,20 @@ public class BaseTreeVisitor implements TreeVisitor, JavaScriptCheck {
   public void visitExportClause(ExportClauseTree tree) {
     scan(tree.exports());
     scan(tree.fromClause());
+  }
+
+  @Override
+  public void visitAccessorMethodDeclaration(AccessorMethodDeclarationTree tree) {
+    scan(tree.name());
+    scan(tree.parameters());
+    scan(tree.body());
+  }
+
+  @Override
+  public void visitGeneratorMethodDeclaration(GeneratorMethodDeclarationTree tree) {
+    scan(tree.name());
+    scan(tree.parameters());
+    scan(tree.body());
   }
 
 }

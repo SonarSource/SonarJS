@@ -26,14 +26,15 @@ import com.sonar.sslr.api.typed.Optional;
 import org.apache.commons.collections.ListUtils;
 import org.sonar.javascript.lexer.JavaScriptKeyword;
 import org.sonar.javascript.lexer.JavaScriptPunctuator;
-import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.javascript.tree.impl.SeparatedList;
+import org.sonar.javascript.tree.impl.declaration.AccessorMethodDeclarationTreeImpl;
 import org.sonar.javascript.tree.impl.declaration.ArrayBindingPatternTreeImpl;
 import org.sonar.javascript.tree.impl.declaration.BindingPropertyTreeImpl;
 import org.sonar.javascript.tree.impl.declaration.DefaultExportDeclarationTreeImpl;
 import org.sonar.javascript.tree.impl.declaration.ExportClauseTreeImpl;
 import org.sonar.javascript.tree.impl.declaration.FromClauseTreeImpl;
 import org.sonar.javascript.tree.impl.declaration.FunctionDeclarationTreeImpl;
+import org.sonar.javascript.tree.impl.declaration.GeneratorMethodDeclarationTreeImpl;
 import org.sonar.javascript.tree.impl.declaration.ImportClauseTreeImpl;
 import org.sonar.javascript.tree.impl.declaration.ImportDeclarationTreeImpl;
 import org.sonar.javascript.tree.impl.declaration.ImportModuleDeclarationTreeImpl;
@@ -103,8 +104,10 @@ import org.sonar.javascript.tree.impl.statement.WhileStatementTreeImpl;
 import org.sonar.javascript.tree.impl.statement.WithStatementTreeImpl;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
+import org.sonar.plugins.javascript.api.tree.declaration.AccessorMethodDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.declaration.BindingElementTree;
 import org.sonar.plugins.javascript.api.tree.declaration.DeclarationTree;
+import org.sonar.plugins.javascript.api.tree.declaration.GeneratorMethodDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.declaration.ImportClauseTree;
 import org.sonar.plugins.javascript.api.tree.declaration.ImportModuleDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.declaration.MethodDeclarationTree;
@@ -952,12 +955,12 @@ public class TreeFactory {
   }
 
   public ClassTreeImpl classExpression(InternalSyntaxToken classToken, Optional<IdentifierTreeImpl> name, Optional<Tuple<InternalSyntaxToken, ExpressionTree>> extendsClause,
-    InternalSyntaxToken openCurlyBraceToken, Optional<List<JavaScriptTree>> members, InternalSyntaxToken closeCurlyBraceToken) {
+    InternalSyntaxToken openCurlyBraceToken, Optional<List<Tree>> members, InternalSyntaxToken closeCurlyBraceToken) {
 
     List<Tree> elements = Lists.newArrayList();
 
     if (members.isPresent()) {
-      for (JavaScriptTree member : members.get()) {
+      for (Tree member : members.get()) {
         if (member instanceof MethodDeclarationTree) {
           elements.add(member);
         } else {
@@ -1259,12 +1262,12 @@ public class TreeFactory {
 
   public ClassTreeImpl classDeclaration(InternalSyntaxToken classToken, IdentifierTreeImpl name,
     Optional<Tuple<InternalSyntaxToken, ExpressionTree>> extendsClause,
-    InternalSyntaxToken openCurlyBraceToken, Optional<List<JavaScriptTree>> members, InternalSyntaxToken closeCurlyBraceToken) {
+    InternalSyntaxToken openCurlyBraceToken, Optional<List<Tree>> members, InternalSyntaxToken closeCurlyBraceToken) {
 
     List<Tree> elements = Lists.newArrayList();
 
     if (members.isPresent()) {
-      for (JavaScriptTree member : members.get()) {
+      for (Tree member : members.get()) {
         if (member instanceof MethodDeclarationTree) {
           elements.add(member);
         } else {
@@ -1290,24 +1293,25 @@ public class TreeFactory {
       closeCurlyBraceToken);
   }
 
-  public MethodDeclarationTreeImpl completeStaticMethod(InternalSyntaxToken staticToken, MethodDeclarationTreeImpl method) {
-    return method.completeWithStaticToken(staticToken);
+  public GeneratorMethodDeclarationTree generator(
+      Optional<InternalSyntaxToken> staticToken, InternalSyntaxToken starToken,
+      ExpressionTree name, ParameterListTreeImpl parameters,
+      BlockTreeImpl body) {
+    return new GeneratorMethodDeclarationTreeImpl(staticToken.orNull(), starToken, name, parameters, body);
   }
 
-  public MethodDeclarationTreeImpl methodOrGenerator(
-    Optional<InternalSyntaxToken> starToken,
-    ExpressionTree name, ParameterListTreeImpl parameters,
-    BlockTreeImpl body) {
-
-    return MethodDeclarationTreeImpl.newMethodOrGenerator(starToken.isPresent() ? starToken.get() : null, name, parameters, body);
+  public MethodDeclarationTreeImpl method(
+      Optional<InternalSyntaxToken> staticToken, ExpressionTree name, ParameterListTreeImpl parameters,
+      BlockTreeImpl body) {
+    return new MethodDeclarationTreeImpl(staticToken.orNull(), name, parameters, body);
   }
 
-  public MethodDeclarationTreeImpl accessor(
-    InternalSyntaxToken accessorToken, ExpressionTree name,
-    ParameterListTreeImpl parameters,
-    BlockTreeImpl body) {
+  public AccessorMethodDeclarationTree accessor(
+      Optional<InternalSyntaxToken> staticToken, InternalSyntaxToken accessorToken, ExpressionTree name,
+      ParameterListTreeImpl parameters,
+      BlockTreeImpl body) {
 
-    return MethodDeclarationTreeImpl.newAccessor(accessorToken, name, parameters, body);
+    return new AccessorMethodDeclarationTreeImpl(staticToken.orNull(), accessorToken, name, parameters, body);
   }
 
   public FunctionDeclarationTreeImpl functionAndGeneratorDeclaration(

@@ -22,6 +22,8 @@ package org.sonar.javascript.checks;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
+import org.sonar.plugins.javascript.api.tree.declaration.AccessorMethodDeclarationTree;
+import org.sonar.plugins.javascript.api.tree.declaration.GeneratorMethodDeclarationTree;
 import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
 import org.sonar.plugins.javascript.api.tree.declaration.FunctionDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.declaration.MethodDeclarationTree;
@@ -59,14 +61,6 @@ public class EmptyBlockCheck extends BaseTreeVisitor {
   }
 
   @Override
-  public void visitMethodDeclaration(MethodDeclarationTree tree) {
-    scan(tree.name());
-    scan(tree.parameters());
-    // Ignoring empty function
-    scan(tree.body().statements());
-  }
-
-  @Override
   public void visitFunctionDeclaration(FunctionDeclarationTree tree) {
     scan(tree.name());
     scan(tree.parameters());
@@ -74,6 +68,27 @@ public class EmptyBlockCheck extends BaseTreeVisitor {
     scan(tree.body().statements());
   }
 
+  @Override
+  public void visitMethodDeclaration(MethodDeclarationTree tree) {
+    visitMethodDeclarationTree(tree);
+  }
+
+  @Override
+  public void visitAccessorMethodDeclaration(AccessorMethodDeclarationTree tree) {
+    visitMethodDeclarationTree(tree);
+  }
+
+  @Override
+  public void visitGeneratorMethodDeclaration(GeneratorMethodDeclarationTree tree) {
+    visitMethodDeclarationTree(tree);
+  }
+
+  private void visitMethodDeclarationTree(MethodDeclarationTree tree) {
+    scan(tree.name());
+    scan(tree.parameters());
+    // Ignoring empty function
+    scan(tree.body().statements());
+  }
 
   private static boolean hasComment(SyntaxToken closingBrace) {
     return !closingBrace.trivias().isEmpty();
