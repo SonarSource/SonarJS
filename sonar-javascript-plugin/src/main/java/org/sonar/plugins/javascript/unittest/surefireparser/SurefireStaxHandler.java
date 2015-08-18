@@ -24,15 +24,20 @@ import org.codehaus.staxmate.in.ElementFilter;
 import org.codehaus.staxmate.in.SMEvent;
 import org.codehaus.staxmate.in.SMHierarchicCursor;
 import org.codehaus.staxmate.in.SMInputCursor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.utils.ParsingUtils;
 import org.sonar.api.utils.StaxParser;
 
 import javax.xml.stream.XMLStreamException;
+
 import java.text.ParseException;
 import java.util.Locale;
 
 
 public class SurefireStaxHandler implements StaxParser.XmlStreamHandler {
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(SurefireStaxHandler.class);
 
   private final UnitTestIndex index;
 
@@ -113,13 +118,18 @@ public class SurefireStaxHandler implements StaxParser.XmlStreamHandler {
   }
 
   private long getTimeAttributeInMS(SMInputCursor testCaseCursor) throws XMLStreamException {
-    // hardcoded to Locale.ENGLISH see http://jira.codehaus.org/browse/SONAR-602
-    try {
-      Double time = ParsingUtils.parseNumber(testCaseCursor.getAttrValue("time"), Locale.ENGLISH);
-      return !Double.isNaN(time) ? (long) ParsingUtils.scaleValue(time * 1000, 3) : 0L;
-    } catch (ParseException e) {
-      throw new XMLStreamException(e);
+    String durationAsString = testCaseCursor.getAttrValue("time");
+    if (durationAsString == null) {
+      return 0;
     }
+    Double time = 0.;
+    try {
+      // hardcoded to Locale.ENGLISH see http://jira.codehaus.org/browse/SONAR-602
+      time = ParsingUtils.parseNumber(durationAsString, Locale.ENGLISH);
+    } catch (ParseException e) {
+      LOGGER.info("Unparseable duration for " + getTestCaseName(testCaseCursor) + ": " + durationAsString);
+    }
+    return !Double.isNaN(time) ? (long) ParsingUtils.scaleValue(time * 1000, 3) : 0L;
   }
 
   private String getTestCaseName(SMInputCursor testCaseCursor) throws XMLStreamException {

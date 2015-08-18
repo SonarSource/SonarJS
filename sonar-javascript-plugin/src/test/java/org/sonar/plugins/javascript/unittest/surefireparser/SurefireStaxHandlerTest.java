@@ -20,12 +20,12 @@
 package org.sonar.plugins.javascript.unittest.surefireparser;
 
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.sonar.api.utils.StaxParser;
 import org.sonar.test.TestUtils;
 
 import javax.xml.stream.XMLStreamException;
+
 import java.io.File;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -113,6 +113,15 @@ public class SurefireStaxHandlerTest {
 
     assertThat(index.get("org.sonar.JavaNCSSCollectorTest").getTests(), is(11L));
     assertThat(index.get("org.sonar.SecondTest").getTests(), is(4L));
+  }
+
+  @Test
+  public void shouldIgnoreUnparseableTestDurations() throws Exception {
+    parse("unparseableDuration.xml");
+    UnitTestClassReport report = index.get("org.sonar.Foo");
+    assertThat(report.getResults().get(0).getDurationMilliseconds(), is(13L));
+    assertThat(report.getResults().get(1).getDurationMilliseconds(), is(0L));
+    assertThat(report.getResults().get(2).getDurationMilliseconds(), is(0L));
   }
 
   private void parse(String path) throws XMLStreamException {
