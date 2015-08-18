@@ -21,8 +21,10 @@ package org.sonar.javascript.tree.symbols.type;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.sonar.javascript.tree.symbols.type.ObjectType.BuiltInObjectType;
 import org.sonar.plugins.javascript.api.symbols.Symbol;
 import org.sonar.plugins.javascript.api.symbols.Type;
+import org.sonar.plugins.javascript.api.symbols.Type.Kind;
 
 import static org.fest.assertions.Assertions.assertThat;
 
@@ -42,4 +44,28 @@ public class ExpressionTypeTest extends TypeTest {
     assertThat(par.types()).containsOnly(PrimitiveType.UNKNOWN);
   }
 
+  @Test
+  public void new_expression() {
+    Symbol par = getSymbol("o1");
+    assertThat(par.types().containsOnlyAndUnique(Kind.STRING_OBJECT)).isTrue();
+
+    par = getSymbol("o2");
+    assertThat(par.types()).containsOnly(BuiltInObjectType.BOOLEAN);
+
+    par = getSymbol("o3");
+    assertThat(par.types()).containsOnly(BuiltInObjectType.NUMBER);
+
+    par = getSymbol("o4");
+    assertThat(par.types().containsOnlyAndUnique(Kind.OBJECT)).isTrue();
+
+    par = getSymbol("o5");
+    assertThat(par.types().containsOnlyAndUnique(Kind.OBJECT)).isTrue();
+
+    par = getSymbol("o6");
+    assertThat(par.types().containsOnlyAndUnique(Kind.OBJECT)).isTrue();
+
+    par = getSymbol("o7");
+    assertThat(par.types().containsOnlyAndUnique(Kind.DATE)).isTrue();
+
+  }
 }

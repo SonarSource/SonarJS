@@ -23,39 +23,17 @@ import org.junit.Test;
 import org.sonar.javascript.checks.utils.TreeCheckTest;
 import org.sonar.squidbridge.checks.CheckMessagesVerifier;
 
-public class NewOperatorMisuseCheckTest extends TreeCheckTest {
-
-  private NewOperatorMisuseCheck check = new NewOperatorMisuseCheck();
+public class UnaryPlusMinusWithObjectCheckTest extends TreeCheckTest {
 
   @Test
-  public void default_without_jsdoc() {
-    CheckMessagesVerifier.verify(getIssues("src/test/resources/checks/newOperatorMisuse.js", check))
-      .next().atLine(36)
-      .next().atLine(37)
-      .next().atLine(38)
-      .next().atLine(43)
-      .next().atLine(44)
-    .noMore();
-  }
-
-  @Test
-  public void custom_with_jsdoc() {
-    check.considerJSDoc = true;
-
-    CheckMessagesVerifier.verify(getIssues("src/test/resources/checks/newOperatorMisuse.js", check))
-      .next().atLine(36)
-      .next().atLine(37)
-      .next().atLine(38)
-      .next().atLine(43)
-      .next().atLine(44)
-
-      // Function without JSDoc @constructor tag
-      .next().atLine(49)
-      .next().atLine(50)
-      .next().atLine(57) // False-positive=>SONARJS-454
-      .next().atLine(58)
-      .next().atLine(104)
+  public void test() {
+    CheckMessagesVerifier.verify(getIssues("src/test/resources/checks/UnaryPlusMinusWithObject.js", new UnaryPlusMinusWithObjectCheck()))
+      .next().atLine(2).withMessage("Remove this use of unary \"+\".")
+      .next().atLine(3).withMessage("Remove this use of unary \"-\".")
+      .next().atLine(10)
+      .next().atLine(14)
+      .next().atLine(39)
       .noMore();
-
   }
+
 }

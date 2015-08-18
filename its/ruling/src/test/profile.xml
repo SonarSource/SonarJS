@@ -599,5 +599,10 @@
       <key>S3271</key>
       <priority>INFO</priority><!-- Local storage should not be used -->
     </rule>
+    <rule>
+      <repositoryKey>javascript</repositoryKey>
+      <key>S3002</key>
+      <priority>INFO</priority> <!-- Unary operators "+" and "-" should not be used with objects -->
+    </rule>
   </rules>
 </profile>

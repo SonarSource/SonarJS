@@ -23,16 +23,30 @@ import org.sonar.plugins.javascript.api.symbols.Type;
 
 public class ObjectType implements Type {
 
+
+  private Callability callability;
+
   @Override
   public Kind kind() {
     return Kind.OBJECT;
   }
 
+  @Override
+  public Callability callability() {
+    return callability;
+  }
+
   protected ObjectType(){
+    this.callability = Callability.UNKNOWN;
   }
 
   public static ObjectType create(){
     return new ObjectType();
+  }
+  public static ObjectType create(Callability callability){
+    ObjectType objectType = new ObjectType();
+    objectType.callability = callability;
+    return objectType;
   }
 
   @Override
@@ -46,11 +60,21 @@ public class ObjectType implements Type {
       public Kind kind() {
         return Kind.JQUERY_SELECTOR_OBJECT;
       }
+
+      @Override
+      public Callability callability() {
+        return Callability.NON_CALLABLE;
+      }
     },
     JQUERY_OBJECT {
       @Override
       public Kind kind() {
         return Kind.JQUERY_OBJECT;
+      }
+
+      @Override
+      public Callability callability() {
+        return Callability.CALLABLE;
       }
     },
     BACKBONE_MODEL {
@@ -58,11 +82,68 @@ public class ObjectType implements Type {
       public Kind kind() {
         return Kind.BACKBONE_MODEL;
       }
+
+      @Override
+      public Callability callability() {
+        return Callability.CALLABLE;
+      }
     },
     BACKBONE_MODEL_OBJECT {
       @Override
       public Kind kind() {
         return Kind.BACKBONE_MODEL_OBJECT;
+      }
+
+      @Override
+      public Callability callability() {
+        return Callability.UNKNOWN;
+      }
+    },
+  }
+
+  public enum BuiltInObjectType implements Type {
+    NUMBER {
+      @Override
+      public Kind kind() {
+        return Kind.NUMBER_OBJECT;
+      }
+
+      @Override
+      public Callability callability() {
+        return Callability.NON_CALLABLE;
+      }
+    },
+    STRING {
+      @Override
+      public Kind kind() {
+        return Kind.STRING_OBJECT;
+      }
+
+      @Override
+      public Callability callability() {
+        return Callability.NON_CALLABLE;
+      }
+    },
+    BOOLEAN {
+      @Override
+      public Kind kind() {
+        return Kind.BOOLEAN_OBJECT;
+      }
+
+      @Override
+      public Callability callability() {
+        return Callability.NON_CALLABLE;
+      }
+    },
+    DATE {
+      @Override
+      public Kind kind() {
+        return Kind.DATE;
+      }
+
+      @Override
+      public Callability callability() {
+        return Callability.NON_CALLABLE;
       }
     },
   }
@@ -73,17 +154,32 @@ public class ObjectType implements Type {
       public Kind kind() {
         return Kind.WINDOW;
       }
+
+      @Override
+      public Callability callability() {
+        return Callability.NON_CALLABLE;
+      }
     },
     DOCUMENT {
       @Override
       public Kind kind() {
         return Kind.DOCUMENT;
       }
+
+      @Override
+      public Callability callability() {
+        return Callability.NON_CALLABLE;
+      }
     },
     DOM_ELEMENT {
       @Override
       public Kind kind() {
         return Kind.DOM_ELEMENT;
+      }
+
+      @Override
+      public Callability callability() {
+        return Callability.NON_CALLABLE;
       }
     },
 

@@ -29,6 +29,14 @@ public interface Type {
 
   Kind kind();
 
+  Callability callability();
+
+  enum Callability {
+    CALLABLE,
+    NON_CALLABLE,
+    UNKNOWN
+  }
+
   enum Kind {
     UNKNOWN,
 
@@ -41,6 +49,12 @@ public interface Type {
     OBJECT,
     FUNCTION,
     ARRAY,
+    DATE,
+
+    // OBJECT FOR PRIMITIVE
+    STRING_OBJECT,
+    NUMBER_OBJECT,
+    BOOLEAN_OBJECT,
 
     // JQUERY
     JQUERY_OBJECT,

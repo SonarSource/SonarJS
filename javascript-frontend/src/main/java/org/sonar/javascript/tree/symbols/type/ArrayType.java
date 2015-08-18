@@ -32,6 +32,11 @@ public class ArrayType extends ObjectType {
     return Kind.ARRAY;
   }
 
+  @Override
+  public Callability callability() {
+    return Callability.NON_CALLABLE;
+  }
+
   public static ArrayType create(Type elementType){
     ArrayType type = new ArrayType();
     type.elementType = elementType;

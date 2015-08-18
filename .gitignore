@@ -26,3 +26,6 @@ Icon?
 Thumbs.db
 # Folder config file
 Desktop.ini
+
+# ---- Sonar
+.sonar

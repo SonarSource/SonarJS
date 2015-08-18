@@ -30,8 +30,10 @@ import org.sonar.javascript.tree.impl.expression.LiteralTreeImpl;
 import org.sonar.javascript.tree.impl.expression.NewExpressionTreeImpl;
 import org.sonar.javascript.tree.impl.expression.ObjectLiteralTreeImpl;
 import org.sonar.javascript.tree.impl.expression.ParenthesisedExpressionTreeImpl;
+import org.sonar.javascript.tree.symbols.type.ObjectType.BuiltInObjectType;
 import org.sonar.plugins.javascript.api.symbols.Symbol;
 import org.sonar.plugins.javascript.api.symbols.Type;
+import org.sonar.plugins.javascript.api.symbols.Type.Callability;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.declaration.FunctionDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.declaration.InitializedBindingElementTree;
@@ -96,7 +98,7 @@ public class TypeVisitor extends BaseTreeVisitor {
   @Override
   public void visitObjectLiteral(ObjectLiteralTree tree) {
     super.visitObjectLiteral(tree);
-    ((ObjectLiteralTreeImpl) tree).addType(ObjectType.create());
+    ((ObjectLiteralTreeImpl) tree).addType(ObjectType.create(Callability.NON_CALLABLE));
   }
 
   @Override
@@ -168,7 +170,23 @@ public class TypeVisitor extends BaseTreeVisitor {
 
     if (tree.expression().types().contains(Type.Kind.BACKBONE_MODEL)) {
       ((NewExpressionTreeImpl) tree).addType(ObjectType.FrameworkType.BACKBONE_MODEL_OBJECT);
+
+    } else if (Utils.identifierWithName(tree.expression(), "String")) {
+      ((NewExpressionTreeImpl) tree).addType(BuiltInObjectType.STRING);
+
+    } else if (Utils.identifierWithName(tree.expression(), "Number")) {
+      ((NewExpressionTreeImpl) tree).addType(BuiltInObjectType.NUMBER);
+
+    } else if (Utils.identifierWithName(tree.expression(), "Boolean")) {
+      ((NewExpressionTreeImpl) tree).addType(BuiltInObjectType.BOOLEAN);
+
+    } else if (Utils.identifierWithName(tree.expression(), "Date")) {
+      ((NewExpressionTreeImpl) tree).addType(BuiltInObjectType.DATE);
+
+    } else {
+      ((NewExpressionTreeImpl) tree).addType(ObjectType.create());
     }
+
   }
 
   @Override

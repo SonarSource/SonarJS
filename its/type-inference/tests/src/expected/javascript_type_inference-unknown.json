@@ -20,8 +20,6 @@
 21,
 57,
 99,
-113,
-118,
 ],
 'project:documentcloud/app/downloader.js':[
 11,
@@ -36,7 +34,6 @@
 70,
 ],
 'project:documentcloud/app/preferences.js':[
-6,
 7,
 8,
 15,
@@ -124,7 +121,6 @@
 149,
 175,
 176,
-177,
 178,
 184,
 185,
@@ -302,8 +298,6 @@
 702,
 724,
 738,
-752,
-762,
 773,
 773,
 773,
@@ -423,7 +417,6 @@
 1,
 3,
 5,
-8,
 ],
 'project:documentcloud/lib/inflector.js':[
 9,
@@ -466,7 +459,6 @@
 51,
 77,
 98,
-100,
 101,
 125,
 126,
@@ -628,7 +620,6 @@
 117,
 118,
 119,
-156,
 162,
 ],
 'project:documentcloud/model/upload_documents.js':[
@@ -642,7 +633,6 @@
 'project:documentcloud/ui/accounts/account_dialog.js':[
 62,
 70,
-92,
 103,
 ],
 'project:documentcloud/ui/accounts/account_view.js':[
@@ -653,7 +643,6 @@
 100,
 109,
 129,
-141,
 142,
 156,
 184,
@@ -663,7 +652,6 @@
 14,
 ],
 'project:documentcloud/ui/accounts/organization_manager.js':[
-35,
 65,
 ],
 'project:documentcloud/ui/accounts/share_dialog.js':[
@@ -677,7 +665,6 @@
 225,
 230,
 248,
-278,
 280,
 290,
 291,
@@ -703,7 +690,6 @@
 29,
 36,
 156,
-198,
 ],
 'project:documentcloud/ui/common/menu.js':[
 27,
@@ -763,7 +749,6 @@
 391,
 401,
 408,
-421,
 473,
 474,
 475,
@@ -822,7 +807,6 @@
 53,
 66,
 67,
-102,
 ],
 'project:documentcloud/ui/documents/note.js':[
 25,
@@ -837,7 +821,6 @@
 'project:documentcloud/ui/documents/note_embed_dialog.js':[
 72,
 84,
-89,
 104,
 131,
 132,
@@ -868,7 +851,6 @@
 10,
 44,
 65,
-68,
 76,
 84,
 136,
@@ -918,7 +900,6 @@
 102,
 103,
 104,
-109,
 116,
 117,
 130,
@@ -1057,7 +1038,6 @@
 68,
 69,
 70,
-84,
 ],
 'project:slap/highlight/client.js':[
 1,
@@ -1090,7 +1070,6 @@
 3,
 5,
 8,
-10,
 24,
 ],
 'project:slap/markup.js':[
@@ -1098,19 +1077,16 @@
 4,
 7,
 15,
-17,
 18,
 20,
 21,
 24,
-28,
 33,
 37,
 68,
 73,
 82,
 86,
-87,
 89,
 99,
 100,
@@ -1215,7 +1191,6 @@
 140,
 141,
 143,
-144,
 145,
 145,
 146,
@@ -1277,7 +1252,6 @@
 453,
 492,
 507,
-509,
 516,
 554,
 558,
@@ -1526,7 +1500,6 @@
 56,
 ],
 'project:sonar/apps/api-documentation/app.js':[
-30,
 80,
 81,
 ],
@@ -1538,8 +1511,6 @@
 58,
 64,
 65,
-75,
-76,
 ],
 'project:sonar/apps/api-documentation/item-view.js':[
 53,
@@ -1553,7 +1524,6 @@
 31,
 ],
 'project:sonar/apps/coding-rules/app.js':[
-47,
 111,
 112,
 119,
@@ -1762,7 +1732,6 @@
 ],
 'project:sonar/apps/coding-rules/rule/rule-filter-mixin.js':[
 31,
-32,
 ],
 'project:sonar/apps/coding-rules/rule/rule-issues-view.js':[
 30,
@@ -1783,7 +1752,6 @@
 ],
 'project:sonar/apps/coding-rules/rule/rule-profile-view.js':[
 52,
-53,
 66,
 67,
 88,
@@ -1800,13 +1768,11 @@
 47,
 48,
 63,
-64,
 ],
 'project:sonar/apps/coding-rules/workspace-list-item-view.js':[
 55,
 56,
 57,
-60,
 76,
 77,
 78,
@@ -1815,7 +1781,6 @@
 35,
 ],
 'project:sonar/apps/computation/app.js':[
-11,
 57,
 58,
 ],
@@ -1830,20 +1795,16 @@
 24,
 ],
 'project:sonar/apps/drilldown/app.js':[
-25,
 36,
-37,
 48,
 ],
 'project:sonar/apps/issues/app-context.js':[
-16,
 33,
 34,
 35,
 100,
 ],
 'project:sonar/apps/issues/app-new.js':[
-17,
 77,
 ],
 'project:sonar/apps/issues/component-viewer/main.js':[
@@ -1868,7 +1829,6 @@
 152,
 162,
 163,
-184,
 194,
 195,
 ],
@@ -1880,7 +1840,6 @@
 54,
 83,
 88,
-99,
 105,
 109,
 110,
@@ -2095,15 +2054,7 @@
 87,
 88,
 ],
-'project:sonar/apps/markdown/app.js':[
-22,
-],
-'project:sonar/apps/measures/app.js':[
-35,
-],
 'project:sonar/apps/nav/app.js':[
-29,
-30,
 65,
 67,
 ],
@@ -2149,12 +2100,8 @@
 35,
 43,
 ],
-'project:sonar/apps/provisioning/app.js':[
-10,
-],
 'project:sonar/apps/provisioning/create-view.js':[
 9,
-10,
 ],
 'project:sonar/apps/provisioning/delete-view.js':[
 15,
@@ -2171,7 +2118,6 @@
 29,
 ],
 'project:sonar/apps/quality-gates/app.js':[
-11,
 47,
 62,
 63,
@@ -2185,8 +2131,6 @@
 31,
 32,
 33,
-39,
-45,
 ],
 'project:sonar/apps/quality-gates/copy-view.js':[
 9,
@@ -2203,15 +2147,9 @@
 'project:sonar/apps/quality-gates/delete-view.js':[
 16,
 ],
-'project:sonar/apps/quality-gates/details-view.js':[
-26,
-27,
-38,
-],
 'project:sonar/apps/quality-gates/form-view.js':[
 17,
 18,
-35,
 ],
 'project:sonar/apps/quality-gates/gate-condition-view.js':[
 79,
@@ -2223,7 +2161,6 @@
 ],
 'project:sonar/apps/quality-gates/gate-conditions-view.js':[
 47,
-49,
 54,
 ],
 'project:sonar/apps/quality-gates/gate.js':[
@@ -2251,7 +2188,6 @@
 95,
 ],
 'project:sonar/apps/quality-profiles/app.js':[
-30,
 70,
 73,
 83,
@@ -2276,8 +2212,6 @@
 75,
 76,
 77,
-83,
-89,
 100,
 101,
 102,
@@ -2286,14 +2220,12 @@
 38,
 39,
 40,
-63,
 ],
 'project:sonar/apps/quality-profiles/create-profile-view.js':[
 53,
 54,
 55,
 71,
-83,
 ],
 'project:sonar/apps/quality-profiles/delete-profile-view.js':[
 41,
@@ -2374,7 +2306,6 @@
 ],
 'project:sonar/apps/quality-profiles/restore-profile-view.js':[
 33,
-46,
 48,
 ],
 'project:sonar/apps/quality-profiles/router.js':[
@@ -2382,12 +2313,7 @@
 49,
 ],
 'project:sonar/apps/source-viewer/app.js':[
-29,
-36,
 48,
-],
-'project:sonar/apps/users/app.js':[
-10,
 ],
 'project:sonar/apps/users/change-password-view.js':[
 15,
@@ -2396,7 +2322,6 @@
 ],
 'project:sonar/apps/users/create-view.js':[
 9,
-10,
 ],
 'project:sonar/apps/users/deactivate-view.js':[
 15,
@@ -2433,7 +2358,6 @@
 ],
 'project:sonar/components/common/file-upload.js':[
 25,
-36,
 38,
 39,
 40,
@@ -2537,8 +2461,6 @@
 81,
 82,
 88,
-105,
-106,
 115,
 130,
 131,
@@ -2564,7 +2486,6 @@
 183,
 207,
 229,
-267,
 291,
 292,
 330,
@@ -2591,16 +2512,13 @@
 61,
 62,
 74,
-76,
 117,
 118,
 119,
 131,
 132,
 133,
-179,
 188,
-190,
 220,
 233,
 249,
@@ -2759,8 +2677,6 @@
 25,
 44,
 45,
-59,
-62,
 69,
 76,
 77,
@@ -2774,7 +2690,6 @@
 193,
 213,
 221,
-225,
 250,
 255,
 266,
@@ -2904,7 +2819,6 @@
 'project:sonar/components/source-viewer/header.js':[
 27,
 41,
-68,
 73,
 82,
 ],
@@ -2932,7 +2846,6 @@
 298,
 301,
 307,
-321,
 330,
 331,
 332,
@@ -2946,11 +2859,9 @@
 366,
 376,
 377,
-378,
 389,
 390,
 391,
-398,
 409,
 410,
 418,
@@ -2963,13 +2874,11 @@
 439,
 440,
 441,
-447,
 457,
 458,
 459,
 474,
 475,
-476,
 489,
 490,
 491,
@@ -3060,7 +2969,6 @@
 44,
 45,
 46,
-47,
 ],
 'project:sonar/components/source-viewer/source.js':[
 42,
@@ -3084,9 +2992,6 @@
 47,
 48,
 ],
-'project:sonar/components/workspace/views/base-viewer-view.js':[
-50,
-],
 'project:sonar/components/workspace/views/viewer-header-view.js':[
 80,
 81,
@@ -3097,7 +3002,6 @@
 'project:sonar/components/workspace/views/viewer-view.js':[
 24,
 38,
-39,
 40,
 ],
 'project:sonar/libs/application.js':[

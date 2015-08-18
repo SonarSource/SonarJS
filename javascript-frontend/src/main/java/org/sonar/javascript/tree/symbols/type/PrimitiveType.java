@@ -27,11 +27,21 @@ public enum PrimitiveType implements Type {
     public Kind kind() {
       return Kind.UNKNOWN;
     }
+
+    @Override
+    public Callability callability() {
+      return Callability.UNKNOWN;
+    }
   },
   NUMBER {
     @Override
     public Kind kind() {
       return Kind.NUMBER;
+    }
+
+    @Override
+    public Callability callability() {
+      return Callability.NON_CALLABLE;
     }
   },
   STRING {
@@ -39,11 +49,21 @@ public enum PrimitiveType implements Type {
     public Kind kind() {
       return Kind.STRING;
     }
+
+    @Override
+    public Callability callability() {
+      return Callability.NON_CALLABLE;
+    }
   },
   BOOLEAN {
     @Override
     public Kind kind() {
       return Kind.BOOLEAN;
+    }
+
+    @Override
+    public Callability callability() {
+      return Callability.NON_CALLABLE;
     }
   };
 

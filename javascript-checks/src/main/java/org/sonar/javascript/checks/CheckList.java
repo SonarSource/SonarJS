@@ -142,9 +142,10 @@ public final class CheckList {
         NewOperatorMisuseCheck.class,
         WebSQLDatabaseCheck.class,
         PostMessageCheck.class,
-        BackboneChangedIsUsedCheck.class,
         LocalStorageCheck.class,
-        UntrustedContentCheck.class);
+        UntrustedContentCheck.class,
+        UnaryPlusMinusWithObjectCheck.class,
+        BackboneChangedIsUsedCheck.class);
   }
 
 }

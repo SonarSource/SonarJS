@@ -20,6 +20,7 @@
 package org.sonar.plugins.javascript.api.symbols;
 
 import com.google.common.collect.Sets;
+import org.sonar.plugins.javascript.api.symbols.Type.Kind;
 
 import javax.annotation.Nullable;
 import java.util.Collection;
@@ -138,6 +139,21 @@ public class TypeSet implements Set<Type> {
     } else {
       return iterator().next();
     }
+  }
+
+  /**
+   * Returns Type, which is the only not UNKNOWN element of TypeSet.
+   * Otherwise (if the only element is UNKNOWN or there are more than one element) result is null.
+   */
+  @Nullable
+  public Type getUniqueKnownType() {
+    if (size() == 1) {
+      Type type = iterator().next();
+      if (!type.kind().equals(Kind.UNKNOWN)) {
+        return type;
+      }
+    }
+    return null;
   }
 
   @Override

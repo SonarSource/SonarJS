@@ -38,7 +38,7 @@ new boolean;   // NOK
 new string;    // NOK
 
 /**
- * Non-function object
+ * Non-callable objects
  */
 new object;    // NOK
 new array;     // NOK
@@ -87,3 +87,19 @@ new f;  // OK
  *  Exclude when no type
  */
 new UnknownObject;
+
+
+var NodeList = function(array){}
+
+function queryForEngine(engine, NodeList){
+  return new NodeList([]);
+}
+
+queryForEngine(1, NodeList)
+
+queryForEngine(defaultEngine, function(array){
+});
+
+var A = function() { return function(){}}
+var B = new A();  // OK
+var C = new B();  // OK
