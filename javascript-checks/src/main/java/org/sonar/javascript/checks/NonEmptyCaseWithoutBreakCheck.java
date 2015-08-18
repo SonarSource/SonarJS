@@ -19,11 +19,14 @@
  */
 package org.sonar.javascript.checks;
 
-import com.google.common.collect.Iterables;
+import java.util.LinkedList;
+import java.util.List;
+
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
+import org.sonar.plugins.javascript.api.tree.statement.BlockTree;
 import org.sonar.plugins.javascript.api.tree.statement.StatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.SwitchClauseTree;
 import org.sonar.plugins.javascript.api.tree.statement.SwitchStatementTree;
@@ -32,8 +35,7 @@ import org.sonar.squidbridge.annotations.ActivatedByDefault;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 
-import java.util.LinkedList;
-import java.util.List;
+import com.google.common.collect.Iterables;
 
 @Rule(
     key = "NonEmptyCaseWithoutBreak",
@@ -51,12 +53,22 @@ public class NonEmptyCaseWithoutBreakCheck extends BaseTreeVisitor {
     cases.remove(cases.size() - 1);
     for (SwitchClauseTree switchClauseTree : cases){
       List<StatementTree> statements = switchClauseTree.statements();
-      if (!statements.isEmpty()
-        && !Iterables.getLast(statements).is(Kind.BREAK_STATEMENT, Kind.RETURN_STATEMENT, Kind.THROW_STATEMENT, Kind.CONTINUE_STATEMENT)) {
+      if (!statements.isEmpty() && !endsWithJump(statements)) {
         getContext().addIssue(this, switchClauseTree, "Last statement in this switch-clause should be an unconditional break.");
       }
     }
 
     super.visitSwitchStatement(tree);
+  }
+
+  private boolean endsWithJump(List<StatementTree> statements) {
+    if (statements.isEmpty()) {
+      return false;
+    }
+    if (statements.size() == 1 && statements.get(0).is(Kind.BLOCK)) {
+      BlockTree block = (BlockTree) statements.get(0);
+      return endsWithJump(block.statements());
+    }
+    return Iterables.getLast(statements).is(Kind.BREAK_STATEMENT, Kind.RETURN_STATEMENT, Kind.THROW_STATEMENT, Kind.CONTINUE_STATEMENT);
   }
 }
