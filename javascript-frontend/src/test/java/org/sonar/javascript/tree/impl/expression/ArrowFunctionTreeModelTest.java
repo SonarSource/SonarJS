@@ -19,6 +19,7 @@
  */
 package org.sonar.javascript.tree.impl.expression;
 
+import static org.fest.assertions.Assertions.assertThat;
 import org.junit.Test;
 import org.sonar.javascript.lexer.JavaScriptPunctuator;
 import org.sonar.javascript.utils.JavaScriptTreeModelTest;
@@ -26,7 +27,7 @@ import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.expression.ArrowFunctionTree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 
-import static org.fest.assertions.Assertions.assertThat;
+import java.util.List;
 
 public class ArrowFunctionTreeModelTest extends JavaScriptTreeModelTest {
 
@@ -64,13 +65,28 @@ public class ArrowFunctionTreeModelTest extends JavaScriptTreeModelTest {
 
   @Test
   public void multple_parameters_and_block_body() throws Exception {
-    // TODO: to complete when concise body and parameter list are fully supported
     ArrowFunctionTree tree = parse("(p1, p2) => p;", Kind.ARROW_FUNCTION);
 
     assertThat(tree.is(Kind.ARROW_FUNCTION)).isTrue();
     assertThat(tree.parameters().is(Kind.FORMAL_PARAMETER_LIST)).isTrue();
     assertThat(tree.doubleArrow().text()).isEqualTo(JavaScriptPunctuator.DOUBLEARROW.getValue());
     assertThat(expressionToString(tree.conciseBody())).isEqualTo("p");
+  }
+
+  @Test
+  public void parameterIdentifiers() throws Exception {
+    ArrowFunctionTree tree = parse("(p1, p2) => p;", Kind.ARROW_FUNCTION);
+
+    List<IdentifierTree> parameters = ((ArrowFunctionTreeImpl) tree).parameterIdentifiers();
+    assertThat(parameters.size()).isEqualTo(2);
+    assertThat(parameters.get(0).name()).isEqualTo("p1");
+    assertThat(parameters.get(1).name()).isEqualTo("p2");
+
+    tree = parse("p1 => p;", Kind.ARROW_FUNCTION);
+
+    parameters = ((ArrowFunctionTreeImpl) tree).parameterIdentifiers();
+    assertThat(parameters.size()).isEqualTo(1);
+    assertThat(parameters.get(0).name()).isEqualTo("p1");
   }
 
 }

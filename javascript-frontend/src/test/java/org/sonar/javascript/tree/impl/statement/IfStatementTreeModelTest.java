@@ -19,19 +19,19 @@
  */
 package org.sonar.javascript.tree.impl.statement;
 
+import static org.fest.assertions.Assertions.assertThat;
 import org.junit.Test;
 import org.sonar.javascript.lexer.JavaScriptKeyword;
 import org.sonar.javascript.lexer.JavaScriptPunctuator;
 import org.sonar.javascript.utils.JavaScriptTreeModelTest;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
-
-import static org.fest.assertions.Assertions.assertThat;
+import org.sonar.plugins.javascript.api.tree.statement.IfStatementTree;
 
 public class IfStatementTreeModelTest extends JavaScriptTreeModelTest {
 
   @Test
   public void without_else() throws Exception {
-    IfStatementTreeImpl tree = parse("if (a) {}", Kind.IF_STATEMENT);
+    IfStatementTree tree = parse("if (a) {}", Kind.IF_STATEMENT);
 
     assertThat(tree.is(Kind.IF_STATEMENT)).isTrue();
     assertThat(tree.ifKeyword().text()).isEqualTo(JavaScriptKeyword.IF.getValue());
@@ -43,7 +43,7 @@ public class IfStatementTreeModelTest extends JavaScriptTreeModelTest {
 
   @Test
   public void with_else() throws Exception {
-    IfStatementTreeImpl tree = parse("if (a) {} else {}", Kind.IF_STATEMENT);
+    IfStatementTree tree = parse("if (a) {} else {}", Kind.IF_STATEMENT);
 
     assertThat(tree.is(Kind.IF_STATEMENT)).isTrue();
     assertThat(tree.ifKeyword().text()).isEqualTo(JavaScriptKeyword.IF.getValue());
@@ -54,6 +54,13 @@ public class IfStatementTreeModelTest extends JavaScriptTreeModelTest {
 
     assertThat(tree.elseClause().elseKeyword().text()).isEqualTo(JavaScriptKeyword.ELSE.getValue());
     assertThat(tree.elseClause().statement().is(Kind.BLOCK)).isTrue();
+  }
+
+  @Test
+  public void hasElse() throws Exception {
+    IfStatementTreeImpl tree = parse("if (a) {} else {}", Kind.IF_STATEMENT);
+
+    assertThat(tree.hasElse()).isTrue();
   }
 
 }

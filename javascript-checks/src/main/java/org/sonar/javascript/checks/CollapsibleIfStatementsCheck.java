@@ -53,7 +53,7 @@ public class CollapsibleIfStatementsCheck extends BaseTreeVisitor {
     super.visitIfStatement(tree);
   }
 
-  private boolean isBlockAndContainsOnlyOneIfStatement(StatementTree statement) {
+  private static boolean isBlockAndContainsOnlyOneIfStatement(StatementTree statement) {
     if (!statement.is(Kind.BLOCK)) {
       return false;
     }

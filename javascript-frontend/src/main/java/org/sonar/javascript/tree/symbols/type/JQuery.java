@@ -74,7 +74,7 @@ public class JQuery {
     return false;
   }
 
-  private boolean isJQuerySelectorMethod(IdentifierTree property) {
+  private static boolean isJQuerySelectorMethod(IdentifierTree property) {
     return SELECTOR_METHODS.contains(property.name());
   }
 

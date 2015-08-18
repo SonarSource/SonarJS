@@ -24,6 +24,9 @@ import org.junit.Test;
 import org.sonar.javascript.utils.JavaScriptTreeModelTest;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.declaration.ParameterListTree;
+import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
+
+import java.util.List;
 
 public class FormalParameterListTreeModelTest extends JavaScriptTreeModelTest {
 
@@ -56,6 +59,19 @@ public class FormalParameterListTreeModelTest extends JavaScriptTreeModelTest {
     assertThat(tree.parameters().getSeparators().size()).isEqualTo(0);
 
     assertThat(tree.closeParenthesis().text()).isEqualTo(")");
+  }
+
+  @Test
+  public void parametersIdentifiers() throws Exception {
+    ParameterListTree tree = parse("function f(p1, p2 = 0, { name:p3 }, [,,p4], ...p5) {};", Kind.FORMAL_PARAMETER_LIST);
+
+    List<IdentifierTree> parameters = ((ParameterListTreeImpl) tree).parameterIdentifiers();
+    assertThat(parameters.size()).isEqualTo(5);
+    assertThat(parameters.get(0).name()).isEqualTo("p1");
+    assertThat(parameters.get(1).name()).isEqualTo("p2");
+    assertThat(parameters.get(2).name()).isEqualTo("p3");
+    assertThat(parameters.get(3).name()).isEqualTo("p4");
+    assertThat(parameters.get(4).name()).isEqualTo("p5");
   }
 
 }

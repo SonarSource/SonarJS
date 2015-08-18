@@ -85,9 +85,9 @@ public class ObjectBindingPatternTreeImpl extends JavaScriptTree implements Obje
   @Override
   public Iterator<Tree> childrenIterator() {
     return Iterators.concat(
-        Iterators.singletonIterator(openCurlyBrace),
-        bindingElements.elementsAndSeparators(Functions.<Tree>identity()),
-        Iterators.singletonIterator(closeCurlyBrace)
+      Iterators.singletonIterator(openCurlyBrace),
+      bindingElements.elementsAndSeparators(Functions.<Tree>identity()),
+      Iterators.singletonIterator(closeCurlyBrace)
     );
   }
 
@@ -98,7 +98,7 @@ public class ObjectBindingPatternTreeImpl extends JavaScriptTree implements Obje
 
   /**
    * Return the list of new binding names introduced by this object binding pattern.
-   * <p>
+   * <p/>
    * Example:
    * <pre>
    *   { f:first, l:last, siblings:{ a, b c} } // will return [first, last, a, b, c]
@@ -125,7 +125,7 @@ public class ObjectBindingPatternTreeImpl extends JavaScriptTree implements Obje
   private List<IdentifierTree> identifierFromBindingElement(BindingElementTree bindingEement) {
     List<IdentifierTree> bindingIdentifiers = Lists.newArrayList();
 
-   if (bindingEement.is(Kind.BINDING_IDENTIFIER)) {
+    if (bindingEement.is(Kind.BINDING_IDENTIFIER)) {
       bindingIdentifiers.add((IdentifierTree) bindingEement);
 
     } else if (bindingEement.is(Kind.OBJECT_BINDING_PATTERN)) {

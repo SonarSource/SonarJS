@@ -35,23 +35,23 @@ public class WebAPI {
   private static final String DOCUMENT = "document";
 
   private static final List<String> DOCUMENT_METHODS_TO_GET_ELEMENT = ImmutableList.of(
-      "getElementById",
-      "elementFromPoint",
-      "createElement",
-      "createElementNS"
+    "getElementById",
+    "elementFromPoint",
+    "createElement",
+    "createElementNS"
   );
 
   private static final List<String> DOCUMENT_METHODS_TO_GET_ELEMENTS = ImmutableList.of(
-      "getElementsByClassName",
-      "getElementsByName",
-      "getElementsByTagName",
-      "getElementsByTagNameNS"
+    "getElementsByClassName",
+    "getElementsByName",
+    "getElementsByTagName",
+    "getElementsByTagNameNS"
   );
 
   private static final List<String> DOCUMENT_PROPERTIES_TO_GET_ELEMENT = ImmutableList.of(
-      "activeElement",
-      "documentElement",
-      "pointerLockElement"
+    "activeElement",
+    "documentElement",
+    "pointerLockElement"
   );
 
 
@@ -63,7 +63,7 @@ public class WebAPI {
     // window.open(...)
     if (tree instanceof CallExpressionTree && ((CallExpressionTree) tree).callee().is(Tree.Kind.DOT_MEMBER_EXPRESSION)) {
       DotMemberExpressionTree callee = (DotMemberExpressionTree) ((CallExpressionTree) tree).callee();
-      if (Utils.isPropertyAccess(callee, Type.Kind.WINDOW, "open")){
+      if (Utils.isPropertyAccess(callee, Type.Kind.WINDOW, "open")) {
         return true;
       }
     }
@@ -114,7 +114,7 @@ public class WebAPI {
       DotMemberExpressionTree callee = (DotMemberExpressionTree) ((CallExpressionTree) tree).callee();
 
       if (callee.object().types().contains(Type.Kind.DOCUMENT) && DOCUMENT_METHODS_TO_GET_ELEMENTS.contains(callee.property().name())) {
-          return true;
+        return true;
       }
     }
 

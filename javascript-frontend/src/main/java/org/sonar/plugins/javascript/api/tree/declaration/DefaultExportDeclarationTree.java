@@ -26,7 +26,8 @@ import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import javax.annotation.Nullable;
 
 /**
- * <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-exports">Default Export Declarations</a> (<a href="http://wiki.ecmascript.org/doku.php?id=harmony:specification_drafts">ES6</a>).
+ * <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-exports">Default Export Declarations</a>
+ * (<a href="http://wiki.ecmascript.org/doku.php?id=harmony:specification_drafts">ES6</a>).
  * <pre>
  *    export default {@link #object()}
  *    export default {@link #object()} ;

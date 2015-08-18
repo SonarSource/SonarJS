@@ -88,7 +88,7 @@ public class ParameterListTreeImpl extends JavaScriptTree implements ParameterLi
 
   @Override
   public Iterator<Tree> childrenIterator() {
-    return Iterators.<Tree>concat(
+    return Iterators.concat(
         Iterators.singletonIterator(openParenthesis),
         parameters.elementsAndSeparators(Functions.<Tree>identity()),
         Iterators.singletonIterator(closeParenthesis));

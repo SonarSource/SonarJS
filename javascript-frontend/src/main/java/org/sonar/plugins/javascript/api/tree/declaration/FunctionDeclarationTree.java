@@ -31,7 +31,8 @@ import javax.annotation.Nullable;
 
 /**
  * <a href="http://www.ecma-international.org/ecma-262/5.1/#sec-13">Function declaration</a>,
- * <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-generator-function-definitions">Generator function declaration</a> (<a href="http://wiki.ecmascript.org/doku.php?id=harmony:specification_drafts">ES6</a>).
+ * <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-generator-function-definitions">Generator function declaration</a>
+ * (<a href="http://wiki.ecmascript.org/doku.php?id=harmony:specification_drafts">ES6</a>).
  *
  * <pre>
  *    {@link Tree.Kind#FUNCTION_DECLARATION function} {@link #name()} ( {@link #parameters()} ) {@link #body()}

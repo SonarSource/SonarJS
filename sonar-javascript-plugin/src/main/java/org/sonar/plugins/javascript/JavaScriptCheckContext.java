@@ -26,11 +26,11 @@ import org.sonar.api.issue.Issuable.IssueBuilder;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.javascript.metrics.ComplexityVisitor;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
-import org.sonar.plugins.javascript.api.visitors.TreeVisitorContext;
 import org.sonar.plugins.javascript.api.JavaScriptCheck;
 import org.sonar.plugins.javascript.api.symbols.SymbolModel;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
+import org.sonar.plugins.javascript.api.visitors.TreeVisitorContext;
 
 import java.io.File;
 

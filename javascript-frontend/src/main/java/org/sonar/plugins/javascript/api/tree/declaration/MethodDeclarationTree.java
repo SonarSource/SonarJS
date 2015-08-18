@@ -27,7 +27,8 @@ import org.sonar.plugins.javascript.api.tree.statement.BlockTree;
 import javax.annotation.Nullable;
 
 /**
- * Common interface for all types <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-method-definitions">Method Definitions</a> (<a href="http://wiki.ecmascript.org/doku.php?id=harmony:specification_drafts">ES6</a>).
+ * Common interface for all types <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-method-definitions">Method Definitions</a>
+ * (<a href="http://wiki.ecmascript.org/doku.php?id=harmony:specification_drafts">ES6</a>).
  * <pre>
  *   {@link #name()} {@link #parameters()} {@link #body()}
  *   static {@link #name()} {@link #parameters()} {@link #body()}

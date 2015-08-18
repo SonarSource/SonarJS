@@ -135,7 +135,7 @@ public class TypeVisitor extends BaseTreeVisitor {
     inferParameterType(tree);
   }
 
-  private void inferParameterType(CallExpressionTree tree) {
+  private static void inferParameterType(CallExpressionTree tree) {
     Type functionType = tree.callee().types().getUniqueType(Type.Kind.FUNCTION);
     if (functionType != null) {
 

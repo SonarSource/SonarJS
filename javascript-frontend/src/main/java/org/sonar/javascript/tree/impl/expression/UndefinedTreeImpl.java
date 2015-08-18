@@ -32,9 +32,6 @@ public class UndefinedTreeImpl extends JavaScriptTree implements LiteralTree {
 
   private static final String UNDEFINED_VALUE = "undefined";
 
-  public UndefinedTreeImpl() {
-  }
-
   @Override
   public Kind getKind() {
     return Kind.UNDEFINED;
