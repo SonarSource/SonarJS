@@ -19,18 +19,16 @@
  */
 package org.sonar.javascript.tree;
 
-import java.util.Iterator;
-import java.util.List;
-
-import javax.annotation.Nullable;
-
+import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Objects;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 
-import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Objects;
+import javax.annotation.Nullable;
+import java.util.Iterator;
+import java.util.List;
 
 public final class SyntacticEquivalence {
 

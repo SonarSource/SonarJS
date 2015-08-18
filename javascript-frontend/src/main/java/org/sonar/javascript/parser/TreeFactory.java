@@ -110,7 +110,6 @@ import org.sonar.plugins.javascript.api.tree.declaration.DeclarationTree;
 import org.sonar.plugins.javascript.api.tree.declaration.GeneratorMethodDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.declaration.ImportClauseTree;
 import org.sonar.plugins.javascript.api.tree.declaration.ImportModuleDeclarationTree;
-import org.sonar.plugins.javascript.api.tree.declaration.MethodDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.declaration.NameSpaceExportDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.declaration.ParameterListTree;
 import org.sonar.plugins.javascript.api.tree.declaration.SpecifierTree;
@@ -185,7 +184,7 @@ public class TreeFactory {
     .put(JavaScriptKeyword.TYPEOF.getValue(), Kind.TYPEOF)
     .build();
 
-  private Kind getBinaryOperator(InternalSyntaxToken token) {
+  private static Kind getBinaryOperator(InternalSyntaxToken token) {
     Kind kind = EXPRESSION_KIND_BY_VALUE.get(token.text());
     if (kind == null) {
       throw new IllegalArgumentException("Mapping not found for binary operator " + token.text());
@@ -193,7 +192,7 @@ public class TreeFactory {
     return kind;
   }
 
-  private Kind getPrefixOperator(InternalSyntaxToken token) {
+  private static Kind getPrefixOperator(InternalSyntaxToken token) {
     Kind kind = PREFIX_KIND_BY_VALUE.get(token.text());
     if (kind == null) {
       throw new IllegalArgumentException("Mapping not found for unary operator " + token.text());
@@ -961,11 +960,7 @@ public class TreeFactory {
 
     if (members.isPresent()) {
       for (Tree member : members.get()) {
-        if (member instanceof MethodDeclarationTree) {
-          elements.add(member);
-        } else {
-          elements.add(member);
-        }
+        elements.add(member);
       }
     }
 
@@ -1268,11 +1263,7 @@ public class TreeFactory {
 
     if (members.isPresent()) {
       for (Tree member : members.get()) {
-        if (member instanceof MethodDeclarationTree) {
-          elements.add(member);
-        } else {
-          elements.add(member);
-        }
+        elements.add(member);
       }
     }
 
