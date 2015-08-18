@@ -33,6 +33,7 @@ public class WebSQLDatabaseCheckTest extends TreeCheckTest {
         .next().atLine(1).withMessage("Convert this use of a Web SQL database to another technology")
         .next().atLine(2)
         .next().atLine(3)
+        .next().atLine(8)
         .noMore();
   }
 

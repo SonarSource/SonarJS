@@ -19,17 +19,18 @@
  */
 package org.sonar.javascript.checks;
 
-import com.google.common.collect.ImmutableList;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
-import org.sonar.javascript.checks.utils.CheckUtils;
+import org.sonar.javascript.tree.symbols.type.ObjectType.WebApiType;
+import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.expression.CallExpressionTree;
+import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
+import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
+import org.sonar.plugins.javascript.api.tree.expression.MemberExpressionTree;
 import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
-
-import java.util.List;
 
 @Rule(
   key = "S2817",
@@ -41,20 +42,28 @@ import java.util.List;
 public class WebSQLDatabaseCheck extends BaseTreeVisitor {
 
   private static final String MESSAGE = "Convert this use of a Web SQL database to another technology";
-  private static final List<String> OPEN_DATABASE_METHOD_CALLS = ImmutableList.of(
-      "openDatabase",
-      "window.openDatabase",
-      "this.openDatabase"
-  );
+  private static final String OPEN_DATABASE = "openDatabase";
 
   @Override
   public void visitCallExpression(CallExpressionTree tree) {
-    String callee = CheckUtils.asString(tree.callee());
-    if (OPEN_DATABASE_METHOD_CALLS.contains(callee)){
+    ExpressionTree callee = tree.callee();
+
+    if (isOpenDatabase(callee)) {
       getContext().addIssue(this, tree, MESSAGE);
+
+    } else if (callee.is(Kind.DOT_MEMBER_EXPRESSION)) {
+      MemberExpressionTree memberExpr = (MemberExpressionTree) callee;
+      boolean isWindowObject = memberExpr.object().types().contains(WebApiType.WINDOW) || memberExpr.object().is(Kind.THIS);
+
+      if (isWindowObject && isOpenDatabase(memberExpr.property())) {
+        getContext().addIssue(this, tree, MESSAGE);
+      }
     }
 
     super.visitCallExpression(tree);
   }
 
+  private boolean isOpenDatabase(ExpressionTree callee) {
+    return callee instanceof IdentifierTree && ((IdentifierTree) callee).name().equals(OPEN_DATABASE);
+  }
 }
