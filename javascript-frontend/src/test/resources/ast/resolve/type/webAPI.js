@@ -5,12 +5,6 @@ var newWindow = windowCopy.open("url", "name");
 
 var frames = window.frames  // Returns the window itself
 
-var subFrame1 = frames[1]
-var subFrame2 = window["name"]
-var subFrame3 = window.frames[name]
-
-
-
 // DOM element
 
 var documentCopy = document;

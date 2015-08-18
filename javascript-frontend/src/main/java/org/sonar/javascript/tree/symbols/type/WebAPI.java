@@ -22,7 +22,6 @@ package org.sonar.javascript.tree.symbols.type;
 import com.google.common.collect.ImmutableList;
 import org.sonar.plugins.javascript.api.symbols.Type;
 import org.sonar.plugins.javascript.api.tree.Tree;
-import org.sonar.plugins.javascript.api.tree.expression.BracketMemberExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.CallExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.DotMemberExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
@@ -78,15 +77,11 @@ public class WebAPI {
       }
     }
 
-    // window.frames[1]
-    return isWindowBracketAccess(tree);
+    // also it's possible to have "window" type by calling "window[1]" or "window[frameName]",
+    // but you never know for sure is it indeed window or something else.
 
+    return false;
   }
-
-  private static boolean isWindowBracketAccess(ExpressionTree tree) {
-    return tree.is(Tree.Kind.BRACKET_MEMBER_EXPRESSION) && ((BracketMemberExpressionTree) tree).object().types().contains(Type.Kind.WINDOW);
-  }
-
 
   public static boolean isDocument(IdentifierTree tree) {
     return tree.name().equals(DOCUMENT);

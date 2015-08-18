@@ -46,13 +46,6 @@ public class WebApiTest extends TypeTest {
 
     Symbol frames = getSymbol("frames");
     assertThat(frames.types().containsOnlyAndUnique(Type.Kind.WINDOW)).isTrue();
-
-    Symbol subFrame = getSymbol("subFrame1");
-    assertThat(subFrame.types().containsOnlyAndUnique(Type.Kind.WINDOW)).isTrue();
-    subFrame = getSymbol("subFrame2");
-    assertThat(subFrame.types().containsOnlyAndUnique(Type.Kind.WINDOW)).isTrue();
-    subFrame = getSymbol("subFrame3");
-    assertThat(subFrame.types().containsOnlyAndUnique(Type.Kind.WINDOW)).isTrue();
   }
 
   @Test
