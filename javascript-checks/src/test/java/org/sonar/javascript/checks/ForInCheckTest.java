@@ -31,7 +31,8 @@ public class ForInCheckTest extends TreeCheckTest {
     CheckMessagesVerifier.verify(getIssues("src/test/resources/checks/forIn.js", new ForInCheck()))
       .next().atLine(1).withMessage("Insert an if statement at the beginning of this loop to filter items.")
       .next().atLine(21)
-      .next().atLine(26)
+      .next().atLine(33)
+      .next().atLine(37)
       .noMore();
   }
 

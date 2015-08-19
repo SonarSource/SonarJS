@@ -23,5 +23,19 @@ for (key in arr) { // NOK
   print(arr[key]);
 }
 
-for (key in obj)   // NOK
+for (key in obj)   // OK
     a[key] = b[key];
+
+for (key in obj) {   // OK
+    a[key] = b[key];
+}
+
+for (key in obj) {   // NOK
+    val = b[key];
+}
+
+for (key in obj) {
+  a.b = key;      // NOK
+}
+
+

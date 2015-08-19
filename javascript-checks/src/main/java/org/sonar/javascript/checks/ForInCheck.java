@@ -22,11 +22,14 @@ package org.sonar.javascript.checks;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
-import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
+import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
+import org.sonar.plugins.javascript.api.tree.expression.AssignmentExpressionTree;
 import org.sonar.plugins.javascript.api.tree.statement.BlockTree;
+import org.sonar.plugins.javascript.api.tree.statement.ExpressionStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.ForInStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.StatementTree;
+import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
 import org.sonar.squidbridge.annotations.ActivatedByDefault;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
@@ -50,11 +53,23 @@ public class ForInCheck extends BaseTreeVisitor {
       statementNode = !block.statements().isEmpty() ? block.statements().get(0) : null;
     }
 
-    if (statementNode != null && !statementNode.is(Kind.IF_STATEMENT)) {
+    if (statementNode != null && !statementNode.is(Kind.IF_STATEMENT) && !isAttrCopy(statementNode)) {
       getContext().addIssue(this, tree, "Insert an if statement at the beginning of this loop to filter items.");
     }
 
     super.visitForInStatement(tree);
+  }
+
+  private static boolean isAttrCopy(StatementTree statement) {
+    if (statement.is(Kind.EXPRESSION_STATEMENT)) {
+      Tree expression = ((ExpressionStatementTree) statement).expression();
+      if (expression.is(Kind.ASSIGNMENT)) {
+        AssignmentExpressionTree assignment = (AssignmentExpressionTree) expression;
+        return assignment.variable().is(Kind.BRACKET_MEMBER_EXPRESSION);
+      }
+    }
+
+    return false;
   }
 
 }
