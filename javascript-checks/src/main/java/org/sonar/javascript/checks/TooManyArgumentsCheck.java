@@ -23,7 +23,7 @@ import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.javascript.tree.symbols.Scope;
-import org.sonar.javascript.tree.symbols.type.FunctionTree;
+import org.sonar.plugins.javascript.api.tree.declaration.FunctionTree;
 import org.sonar.javascript.tree.symbols.type.FunctionType;
 import org.sonar.javascript.checks.utils.CheckUtils;
 import org.sonar.javascript.tree.impl.SeparatedList;

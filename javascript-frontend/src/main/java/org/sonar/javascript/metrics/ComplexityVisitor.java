@@ -20,7 +20,7 @@
 package org.sonar.javascript.metrics;
 
 import com.google.common.collect.ImmutableList;
-import org.sonar.javascript.tree.symbols.type.FunctionTree;
+import org.sonar.plugins.javascript.api.tree.declaration.FunctionTree;
 import org.sonar.javascript.tree.visitors.SubscriptionAstTreeVisitor;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree;

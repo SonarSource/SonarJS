@@ -19,6 +19,8 @@
  */
 package org.sonar.javascript.tree.symbols.type;
 
+import org.sonar.plugins.javascript.api.tree.declaration.FunctionTree;
+
 public class FunctionType extends ObjectType {
 
   private FunctionTree functionTree;
