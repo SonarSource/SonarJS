@@ -40,3 +40,8 @@ function sayHello() {
 new A();            // OK
 
 new (a || b);      // OK
+
+if (typeof (key = obj.$$hashKey) == 'function') {}   // OK
+if (typeof (key += obj.$$hashKey) == 'function') {}   // OK
+if (typeof (key + 'str') == 'string') {}   // OK
+if (typeof (x ? y : z) == 'string') {}   // OK
