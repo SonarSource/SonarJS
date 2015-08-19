@@ -37,6 +37,6 @@ public abstract class TypeTest extends JavaScriptTreeModelTest {
 
   protected void setUp(String filename) throws Exception {
     ROOT_NODE = (ScriptTree) p.parse(new File("src/test/resources/ast/resolve/type/", filename));
-    SYMBOL_MODEL = SymbolModelImpl.create(ROOT_NODE, null, null, null);
+    SYMBOL_MODEL = SymbolModelImpl.create(ROOT_NODE, null, null);
   }
 }

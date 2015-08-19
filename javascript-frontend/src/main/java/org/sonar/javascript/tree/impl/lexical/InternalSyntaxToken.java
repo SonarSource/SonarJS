@@ -80,6 +80,10 @@ public class InternalSyntaxToken extends JavaScriptTree implements SyntaxToken {
     return column;
   }
 
+  public int startIndex() {
+    return startIndex;
+  }
+
   @Override
   public Kind getKind() {
     return Kind.TOKEN;

@@ -41,9 +41,9 @@ public class SymbolModelImpl implements SymbolModel, SymbolModelBuilder {
   private Set<Scope> scopes = Sets.newHashSet();
   private Scope globalScope;
 
-  public static SymbolModelImpl create(ScriptTree script, @Nullable Symbolizable symbolizable, @Nullable SourceFileOffsets sourceFileOffsets, @Nullable Settings settings) {
+  public static SymbolModelImpl create(ScriptTree script, @Nullable Symbolizable symbolizable, @Nullable Settings settings) {
     SymbolModelImpl symbolModel = new SymbolModelImpl();
-    new SymbolVisitor(symbolModel, symbolizable, sourceFileOffsets).visitScript(script);
+    new SymbolVisitor(symbolModel, symbolizable).visitScript(script);
     new TypeVisitor(settings).visitScript(script);
     return symbolModel;
   }

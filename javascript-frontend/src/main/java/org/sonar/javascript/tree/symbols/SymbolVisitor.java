@@ -22,19 +22,17 @@ package org.sonar.javascript.tree.symbols;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.source.Symbolizable;
+import org.sonar.javascript.highlighter.HighlightSymbolTableBuilder;
 import org.sonar.javascript.lexer.JavaScriptPunctuator;
 import org.sonar.plugins.javascript.api.symbols.Symbol;
 import org.sonar.plugins.javascript.api.symbols.SymbolModel;
 import org.sonar.plugins.javascript.api.symbols.Usage;
-import org.sonar.plugins.javascript.api.tree.declaration.AccessorMethodDeclarationTree;
-import org.sonar.plugins.javascript.api.tree.declaration.GeneratorMethodDeclarationTree;
-import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
-import org.sonar.javascript.highlighter.HighlightSymbolTableBuilder;
-import org.sonar.javascript.highlighter.SourceFileOffsets;
-import org.sonar.plugins.javascript.api.tree.Tree;
-import org.sonar.plugins.javascript.api.tree.declaration.FunctionDeclarationTree;
-import org.sonar.plugins.javascript.api.tree.declaration.MethodDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
+import org.sonar.plugins.javascript.api.tree.Tree;
+import org.sonar.plugins.javascript.api.tree.declaration.AccessorMethodDeclarationTree;
+import org.sonar.plugins.javascript.api.tree.declaration.FunctionDeclarationTree;
+import org.sonar.plugins.javascript.api.tree.declaration.GeneratorMethodDeclarationTree;
+import org.sonar.plugins.javascript.api.tree.declaration.MethodDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.expression.ArrowFunctionTree;
 import org.sonar.plugins.javascript.api.tree.expression.AssignmentExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.FunctionExpressionTree;
@@ -43,6 +41,7 @@ import org.sonar.plugins.javascript.api.tree.expression.UnaryExpressionTree;
 import org.sonar.plugins.javascript.api.tree.statement.CatchBlockTree;
 import org.sonar.plugins.javascript.api.tree.statement.ForInStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.ForOfStatementTree;
+import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
 
 import javax.annotation.Nullable;
 
@@ -51,18 +50,16 @@ public class SymbolVisitor extends BaseTreeVisitor {
   private static final Logger LOG = LoggerFactory.getLogger(SymbolVisitor.class);
 
   private final Symbolizable symbolizable;
-  private final SourceFileOffsets sourceFileOffsets;
 
   private SymbolModelBuilder symbolModel;
   private Scope currentScope;
 
-  public SymbolVisitor(SymbolModelBuilder symbolModel, @Nullable Symbolizable symbolizable, @Nullable SourceFileOffsets sourceFileOffsets) {
+  public SymbolVisitor(SymbolModelBuilder symbolModel, @Nullable Symbolizable symbolizable) {
     this.symbolModel = symbolModel;
     this.currentScope = null;
 
     // Symbol highlighting
     this.symbolizable = symbolizable;
-    this.sourceFileOffsets = sourceFileOffsets;
   }
 
   @Override
@@ -235,7 +232,7 @@ public class SymbolVisitor extends BaseTreeVisitor {
 
   private void highlightSymbols() {
     if (symbolizable != null) {
-      symbolizable.setSymbolTable(HighlightSymbolTableBuilder.build(symbolizable, (SymbolModel) symbolModel, sourceFileOffsets));
+      symbolizable.setSymbolTable(HighlightSymbolTableBuilder.build(symbolizable, (SymbolModel) symbolModel));
     } else {
       LOG.warn("Symbol in source view will not be highlighted.");
     }

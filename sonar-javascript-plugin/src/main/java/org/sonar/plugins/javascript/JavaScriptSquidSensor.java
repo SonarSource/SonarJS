@@ -43,15 +43,14 @@ import org.sonar.api.measures.Metric;
 import org.sonar.api.resources.Project;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.source.Symbolizable;
-import org.sonar.javascript.parser.JavaScriptParserBuilder;
-import org.sonar.javascript.tree.visitors.CharsetAwareVisitor;
-import org.sonar.javascript.tree.symbols.SymbolModelImpl;
 import org.sonar.javascript.checks.CheckList;
 import org.sonar.javascript.checks.ParsingErrorCheck;
 import org.sonar.javascript.highlighter.HighlighterVisitor;
-import org.sonar.javascript.highlighter.SourceFileOffsets;
 import org.sonar.javascript.metrics.ComplexityVisitor;
 import org.sonar.javascript.metrics.MetricsVisitor;
+import org.sonar.javascript.parser.JavaScriptParserBuilder;
+import org.sonar.javascript.tree.symbols.SymbolModelImpl;
+import org.sonar.javascript.tree.visitors.CharsetAwareVisitor;
 import org.sonar.plugins.javascript.api.CustomJavaScriptRulesDefinition;
 import org.sonar.plugins.javascript.api.JavaScriptCheck;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
@@ -60,7 +59,6 @@ import org.sonar.squidbridge.ProgressReport;
 import org.sonar.squidbridge.api.AnalysisException;
 
 import javax.annotation.Nullable;
-
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -175,7 +173,7 @@ public class JavaScriptSquidSensor implements Sensor {
     SymbolModelImpl symbolModel = SymbolModelImpl.create(
         scriptTree,
         perspective(Symbolizable.class, inputFile),
-        new SourceFileOffsets(inputFile.file(), fileSystem.encoding()), settings
+        settings
     );
 
     for (JavaScriptCheck visitor : visitors) {

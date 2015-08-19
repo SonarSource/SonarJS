@@ -56,7 +56,7 @@ public class TestCheckContext implements TreeVisitorContext {
     this.settings = settings;
     try {
       this.tree = (ScriptTree) p.parse(file);
-      this.symbolModel = SymbolModelImpl.create(tree, null, null, null);
+      this.symbolModel = SymbolModelImpl.create(tree, null, null);
     } catch (RecognitionException e) {
       parseException = e;
     }

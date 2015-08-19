@@ -29,7 +29,6 @@ import org.sonar.javascript.utils.JavaScriptTreeModelTest;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
 
 import java.io.File;
-import java.nio.charset.Charset;
 import java.util.List;
 
 import static org.mockito.Matchers.any;
@@ -58,7 +57,7 @@ public class HighlightSymbolTableBuilderTest extends JavaScriptTreeModelTest {
   public void sonar_symbol_table() throws Exception {
     File file = new File("src/test/resources/highlighter/symbolHighlighting.js");
     lines = Files.readLines(file, Charsets.UTF_8);
-    SymbolModelImpl.create((ScriptTree) p.parse(file), symbolizable, new SourceFileOffsets(file, Charset.defaultCharset()), null);
+    SymbolModelImpl.create((ScriptTree) p.parse(file), symbolizable, null);
 
     // variable
     verify(symbolTableBuilder).newSymbol(offset(1, 5), offset(1, 6));
@@ -90,7 +89,7 @@ public class HighlightSymbolTableBuilderTest extends JavaScriptTreeModelTest {
   @Test
   public void sonar_symbol_table_built_in() throws Exception {
     File file = new File("src/test/resources/highlighter/symbolHighlightingBuiltIn.js");
-    SymbolModelImpl.create((ScriptTree) p.parse(file), symbolizable, new SourceFileOffsets(file, Charset.defaultCharset()), null);
+    SymbolModelImpl.create((ScriptTree) p.parse(file), symbolizable, null);
 
     // no offsets are used as there is uncertainty about the order of usages of built-in symbols (and first usage used for newSymbol)
     verify(symbolTableBuilder, times(3)).newSymbol(anyInt(), anyInt());

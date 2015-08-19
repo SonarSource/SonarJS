@@ -34,18 +34,18 @@ public class HighlightSymbolTableBuilder {
   private HighlightSymbolTableBuilder() {
   }
 
-  public static Symbolizable.SymbolTable build(Symbolizable symbolizable, SymbolModel symbolModel, SourceFileOffsets sourceFileOffsets) {
+  public static Symbolizable.SymbolTable build(Symbolizable symbolizable, SymbolModel symbolModel) {
     Symbolizable.SymbolTableBuilder builder = symbolizable.newSymbolTableBuilder();
 
     for (Symbol symbol : symbolModel.getSymbols()) {
       if (!symbol.usages().isEmpty()){
         List<Usage> usagesList = new LinkedList<>(symbol.usages());
         InternalSyntaxToken token = (InternalSyntaxToken) (usagesList.get(0).identifierTree()).identifierToken();
-        org.sonar.api.source.Symbol reference = getHighlightedSymbol(sourceFileOffsets, builder, token);
+        org.sonar.api.source.Symbol reference = getHighlightedSymbol(builder, token);
         for (int i = 1; i < usagesList.size(); i++){
           builder.newReference(
               reference,
-              sourceFileOffsets.startOffset(getToken(usagesList.get(i).identifierTree()))
+              getToken(usagesList.get(i).identifierTree()).startIndex()
           );
         }
 
@@ -55,9 +55,9 @@ public class HighlightSymbolTableBuilder {
     return builder.build();
   }
 
-  private static org.sonar.api.source.Symbol getHighlightedSymbol(SourceFileOffsets sourceFileOffsets, Symbolizable.SymbolTableBuilder builder, InternalSyntaxToken token) {
-    int startOffset = sourceFileOffsets.startOffset(token);
-    int endOffset = sourceFileOffsets.endOffset(token);
+  private static org.sonar.api.source.Symbol getHighlightedSymbol(Symbolizable.SymbolTableBuilder builder, InternalSyntaxToken token) {
+    int startOffset = token.startIndex();
+    int endOffset = token.toIndex();
     return builder.newSymbol(startOffset, endOffset);
   }
 

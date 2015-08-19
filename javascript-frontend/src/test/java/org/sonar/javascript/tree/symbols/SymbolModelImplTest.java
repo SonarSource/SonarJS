@@ -37,7 +37,7 @@ public class SymbolModelImplTest extends JavaScriptTreeModelTest {
   @Before
   public void setUp() throws Exception {
     ScriptTree root = (ScriptTree) p.parse(new File("src/test/resources/ast/resolve/symbolModel.js"));
-    SYMBOL_MODEL = SymbolModelImpl.create(root, null, null, null);
+    SYMBOL_MODEL = SymbolModelImpl.create(root, null, null);
   }
 
   @Test
