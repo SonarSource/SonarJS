@@ -1,0 +1,13 @@
+<p>An expression statement without side effects, such as a comparison without assigning its result to a variable, is useless, and must have been a mistake on the developer's part.</p>
+
+<h2>Noncompliant code example</h2>
+
+<pre>
+var str = "long string split on multiple lines but" // without concatenation operator, statement implicitly ends at the linebreak
+  " the concatenation operator + is missing";  // Noncompliant
+
+a == 1;   // Noncompliant; was assignment intended?
+</pre>
+
+<h2>See</h2>
+<ul><li><a href="http://cwe.mitre.org/data/definitions/482">MITRE, CWE-482</a> - Comparing instead of Assigning</li></ul>
