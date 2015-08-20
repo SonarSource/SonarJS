@@ -5,7 +5,7 @@
 
 
   <parent>
-    <groupId>com.sonarsource.it.javascript</groupId>
+    <groupId>org.sonarsource.it.javascript</groupId>
     <artifactId>it-javascript-plugin</artifactId>
     <version>1.0-SNAPSHOT</version>
   </parent>
