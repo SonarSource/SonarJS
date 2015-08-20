@@ -152,8 +152,12 @@ public class UTCoverageSensor implements Sensor {
 
   private Measure getZeroCoverageLineHitsDataMetric(org.sonar.api.resources.File resource, SensorContext context) {
     PropertiesBuilder<Integer, Integer> lineHitsData = new PropertiesBuilder<>(coverageLineHitsDataMetric);
-    String nclocData = context.getMeasure(resource, CoreMetrics.NCLOC_DATA).getData();
-    if (nclocData != null) {
+    Measure<String> nclocDataMeasure = context.getMeasure(resource, CoreMetrics.NCLOC_DATA);
+    if (nclocDataMeasure != null) {
+      String nclocData = nclocDataMeasure.getData();
+      if (nclocData == null) {
+        return lineHitsData.build();
+      }
       String[] lines = nclocData.split(";");
       for (String line : lines) {
         String[] info = line.split("=");
