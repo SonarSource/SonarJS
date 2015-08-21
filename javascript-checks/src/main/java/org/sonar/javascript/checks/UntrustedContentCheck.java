@@ -89,7 +89,7 @@ public class UntrustedContentCheck extends SubscriptionBaseVisitor {
           getContext().addIssue(this, tree, MESSAGE);
         }
       } catch (URISyntaxException e) {
-        // nothing to see here
+        // we don't consider uri, which could not be parsed
       }
     }
   }
