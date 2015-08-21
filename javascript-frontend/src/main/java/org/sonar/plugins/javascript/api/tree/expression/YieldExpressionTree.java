@@ -25,7 +25,8 @@ import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import javax.annotation.Nullable;
 
 /**
- * <a href="http://people.mozilla.org/~jorendorff/es6-draft.html#sec-generator-function-definitions">Yield Expression</a> (<a href="http://wiki.ecmascript.org/doku.php?id=harmony:specification_drafts">ES6</a>).
+ * <a href="http://people.mozilla.org/~jorendorff/es6-draft.html#sec-generator-function-definitions">Yield Expression</a>
+ * (<a href="http://wiki.ecmascript.org/doku.php?id=harmony:specification_drafts">ES6</a>).
  * <pre>
  *   yield {@link #argument()}
  *   yield * {@link #argument()}

@@ -29,7 +29,8 @@ import javax.annotation.Nullable;
 import java.util.List;
 
 /**
- * <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-class-definitions">Class expression</a> (<a href="http://wiki.ecmascript.org/doku.php?id=harmony:specification_drafts">ES6</a>).
+ * <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-class-definitions">Class expression</a>
+ * (<a href="http://wiki.ecmascript.org/doku.php?id=harmony:specification_drafts">ES6</a>).
  * <pre>
  *  class { {@link #elements()} }
  *  class {@link #name()} { {@link #elements()} }

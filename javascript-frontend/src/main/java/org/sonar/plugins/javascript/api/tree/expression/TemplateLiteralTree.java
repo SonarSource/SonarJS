@@ -25,7 +25,8 @@ import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import java.util.List;
 
 /**
- * <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-template-literals">Template literal</a> (<a href="http://wiki.ecmascript.org/doku.php?id=harmony:specification_drafts">ES6</a>)
+ * <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-template-literals">Template literal</a>
+ * (<a href="http://wiki.ecmascript.org/doku.php?id=harmony:specification_drafts">ES6</a>)
  * <pre>
  *   ` {@link #strings()} {@link #expressions()} `
  * </pre>

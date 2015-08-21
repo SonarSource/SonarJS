@@ -27,7 +27,8 @@ import org.sonar.plugins.javascript.api.tree.declaration.InitializedBindingEleme
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 
 /**
- * <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-let-and-const-declarations">Let and Const Declarations</a> (<a href="http://wiki.ecmascript.org/doku.php?id=harmony:specification_drafts">ES6</a>).
+ * <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-let-and-const-declarations">Let and Const Declarations</a>
+ * (<a href="http://wiki.ecmascript.org/doku.php?id=harmony:specification_drafts">ES6</a>).
  * <pre>
  *   {@link Tree.Kind#LET_DECLARATION let } {@link #bindingList()}
  *   {@link Tree.Kind#CONST_DECLARATION const } {@link #bindingList()}
