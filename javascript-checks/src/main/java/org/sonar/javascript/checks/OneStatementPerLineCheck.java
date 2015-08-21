@@ -24,7 +24,7 @@ import com.google.common.collect.Maps;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
-import org.sonar.javascript.checks.utils.SubscriptionBaseVisitor;
+import org.sonar.plugins.javascript.api.visitors.SubscriptionBaseTreeVisitor;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
@@ -45,7 +45,7 @@ import java.util.Map;
 @ActivatedByDefault
 @SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.READABILITY)
 @SqaleConstantRemediation("1min")
-public class OneStatementPerLineCheck extends SubscriptionBaseVisitor {
+public class OneStatementPerLineCheck extends SubscriptionBaseTreeVisitor {
 
   private final Map<Integer, Integer> statementsPerLine = Maps.newHashMap();
   private static final String MESSAGE = "At most one statement is allowed per line, but %s statements were found on this line.";

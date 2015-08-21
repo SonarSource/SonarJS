@@ -17,12 +17,14 @@
  * License along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.javascript.checks.utils;
+package org.sonar.plugins.javascript.api.visitors;
 
-import org.sonar.javascript.tree.visitors.SubscriptionAstTreeVisitor;
+import com.google.common.annotations.Beta;
+import org.sonar.javascript.tree.visitors.SubscriptionTreeVisitor;
 import org.sonar.plugins.javascript.api.tree.Tree;
 
-public abstract class SubscriptionBaseVisitor extends SubscriptionAstTreeVisitor {
+@Beta
+public abstract class SubscriptionBaseTreeVisitor extends SubscriptionTreeVisitor {
 
   public void addIssue(Tree tree, String message) {
     getContext().addIssue(this, tree, message);

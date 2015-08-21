@@ -23,7 +23,7 @@ package org.sonar.javascript.metrics;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Sets;
 import org.sonar.javascript.tree.JavaScriptCommentAnalyser;
-import org.sonar.javascript.tree.visitors.SubscriptionAstTreeVisitor;
+import org.sonar.javascript.tree.visitors.SubscriptionTreeVisitor;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
@@ -32,7 +32,7 @@ import org.sonar.plugins.javascript.api.tree.lexical.SyntaxTrivia;
 import java.util.List;
 import java.util.Set;
 
-public class CommentLineVisitor extends SubscriptionAstTreeVisitor {
+public class CommentLineVisitor extends SubscriptionTreeVisitor {
 
   private Set<Integer> comments = Sets.newHashSet();
   private Set<Integer> noSonarLines = Sets.newHashSet();

@@ -21,13 +21,12 @@ package org.sonar.plugins.javascript.api;
 
 import com.google.common.annotations.Beta;
 import org.sonar.plugins.javascript.api.visitors.TreeVisitorContext;
-import org.sonar.squidbridge.api.CodeVisitor;
 
 /**
  * Marker interface for all JavaScript checks.
  */
 @Beta
-public interface JavaScriptCheck extends CodeVisitor {
+public interface JavaScriptCheck {
 
   TreeVisitorContext getContext();
 

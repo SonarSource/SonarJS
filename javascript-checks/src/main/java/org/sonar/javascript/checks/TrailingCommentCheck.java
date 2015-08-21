@@ -24,7 +24,7 @@ import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
-import org.sonar.javascript.checks.utils.SubscriptionBaseVisitor;
+import org.sonar.plugins.javascript.api.visitors.SubscriptionBaseTreeVisitor;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxTrivia;
@@ -43,7 +43,7 @@ import java.util.regex.Pattern;
 @ActivatedByDefault
 @SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.READABILITY)
 @SqaleConstantRemediation("1min")
-public class TrailingCommentCheck extends SubscriptionBaseVisitor {
+public class TrailingCommentCheck extends SubscriptionBaseTreeVisitor {
 
   private static final String DEFAULT_LEGAL_COMMENT_PATTERN = "^//\\s*+[^\\s]++$";
 
@@ -60,7 +60,7 @@ public class TrailingCommentCheck extends SubscriptionBaseVisitor {
   public List<Tree.Kind> nodesToVisit() {
     return ImmutableList.of(Tree.Kind.TOKEN);
   }
-  
+
   @Override
   public void visitFile(Tree tree) {
     previousTokenLine = -1;

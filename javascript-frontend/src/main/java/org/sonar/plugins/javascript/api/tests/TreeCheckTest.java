@@ -17,7 +17,7 @@
  * License along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.javascript.checks.utils;
+package org.sonar.plugins.javascript.api.tests;
 
 import org.sonar.api.config.Settings;
 import org.sonar.javascript.tree.symbols.type.JQuery;
@@ -31,12 +31,12 @@ import java.util.Map;
 
 public class TreeCheckTest {
 
-  protected TestCheckContext getContext(File file) {
-    return new TestCheckContext(file, settings());
+  protected TestCheckContext getContext(File file, JavaScriptCheck check) {
+    return new TestCheckContext(file, settings(), check);
   }
 
   public Collection<CheckMessage> getIssues(String relativePath, JavaScriptCheck check) {
-    TestCheckContext context = getContext(new File(relativePath));
+    TestCheckContext context = getContext(new File(relativePath), check);
     check.scanFile(context);
     return context.getIssues();
   }

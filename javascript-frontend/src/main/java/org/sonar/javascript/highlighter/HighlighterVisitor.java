@@ -28,7 +28,7 @@ import org.sonar.api.component.ResourcePerspectives;
 import org.sonar.api.source.Highlightable;
 import org.sonar.api.source.Highlightable.HighlightingBuilder;
 import org.sonar.javascript.lexer.JavaScriptKeyword;
-import org.sonar.javascript.tree.visitors.SubscriptionAstTreeVisitor;
+import org.sonar.javascript.tree.visitors.SubscriptionTreeVisitor;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.javascript.tree.impl.expression.LiteralTreeImpl;
 import org.sonar.javascript.tree.impl.lexical.InternalSyntaxToken;
@@ -42,7 +42,7 @@ import javax.annotation.Nullable;
 import java.io.File;
 import java.util.List;
 
-public class HighlighterVisitor extends SubscriptionAstTreeVisitor {
+public class HighlighterVisitor extends SubscriptionTreeVisitor {
 
   private final ResourcePerspectives resourcePerspectives;
   private final FileSystem fileSystem;

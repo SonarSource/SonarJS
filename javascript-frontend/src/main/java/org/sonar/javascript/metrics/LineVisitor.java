@@ -21,7 +21,7 @@ package org.sonar.javascript.metrics;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Sets;
-import org.sonar.javascript.tree.visitors.SubscriptionAstTreeVisitor;
+import org.sonar.javascript.tree.visitors.SubscriptionTreeVisitor;
 import org.sonar.javascript.tree.impl.lexical.InternalSyntaxToken;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
@@ -33,7 +33,7 @@ import java.util.Set;
 /**
  * Visitor that computes the number of lines of code of a file.
  */
-public class LineVisitor extends SubscriptionAstTreeVisitor {
+public class LineVisitor extends SubscriptionTreeVisitor {
 
   private Set<Integer> lines = Sets.newHashSet();
   private int lastLine = 0;

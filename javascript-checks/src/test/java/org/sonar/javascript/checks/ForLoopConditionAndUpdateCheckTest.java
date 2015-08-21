@@ -21,7 +21,7 @@ package org.sonar.javascript.checks;
 
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.javascript.checks.utils.TreeCheckTest;
+import org.sonar.plugins.javascript.api.tests.TreeCheckTest;
 import org.sonar.squidbridge.checks.CheckMessagesVerifierRule;
 
 public class ForLoopConditionAndUpdateCheckTest extends TreeCheckTest {
@@ -40,5 +40,5 @@ public class ForLoopConditionAndUpdateCheckTest extends TreeCheckTest {
       .next().atLine(15).withMessage("This loop's stop condition tests \"this.i\" but the incrementer updates \"this.j\".")
       .next().atLine(16).withMessage("This loop's stop condition tests \"i\" but the incrementer updates \"j\".");
   }
-  
+
 }

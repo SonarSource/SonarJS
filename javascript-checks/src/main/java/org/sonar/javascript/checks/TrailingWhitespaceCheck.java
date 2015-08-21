@@ -27,7 +27,7 @@ import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.javascript.lexer.JavaScriptLexer;
 import org.sonar.javascript.tree.visitors.CharsetAwareVisitor;
-import org.sonar.javascript.checks.utils.SubscriptionBaseVisitor;
+import org.sonar.plugins.javascript.api.visitors.SubscriptionBaseTreeVisitor;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.squidbridge.annotations.ActivatedByDefault;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
@@ -47,7 +47,7 @@ import java.util.regex.Pattern;
 @ActivatedByDefault
 @SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.READABILITY)
 @SqaleConstantRemediation("1min")
-public class TrailingWhitespaceCheck extends SubscriptionBaseVisitor implements CharsetAwareVisitor {
+public class TrailingWhitespaceCheck extends SubscriptionBaseTreeVisitor implements CharsetAwareVisitor {
 
   private static final Logger LOG = LoggerFactory.getLogger(TrailingWhitespaceCheck.class);
   private Charset charset;

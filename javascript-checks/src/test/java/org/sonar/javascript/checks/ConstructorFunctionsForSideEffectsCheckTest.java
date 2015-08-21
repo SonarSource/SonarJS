@@ -20,7 +20,7 @@
 package org.sonar.javascript.checks;
 
 import org.junit.Test;
-import org.sonar.javascript.checks.utils.TreeCheckTest;
+import org.sonar.plugins.javascript.api.tests.TreeCheckTest;
 import org.sonar.squidbridge.checks.CheckMessagesVerifier;
 
 public class ConstructorFunctionsForSideEffectsCheckTest extends TreeCheckTest {

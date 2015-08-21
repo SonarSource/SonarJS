@@ -21,7 +21,7 @@ package org.sonar.javascript.checks;
 
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.javascript.checks.utils.TreeCheckTest;
+import org.sonar.plugins.javascript.api.tests.TreeCheckTest;
 import org.sonar.squidbridge.checks.CheckMessagesVerifierRule;
 
 public class ModelDefaultsWithArrayOrObjectCheckTest extends TreeCheckTest {

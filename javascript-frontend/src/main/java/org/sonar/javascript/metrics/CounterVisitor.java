@@ -19,7 +19,7 @@
  */
 package org.sonar.javascript.metrics;
 
-import org.sonar.javascript.tree.visitors.SubscriptionAstTreeVisitor;
+import org.sonar.javascript.tree.visitors.SubscriptionTreeVisitor;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 
@@ -27,7 +27,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class CounterVisitor extends SubscriptionAstTreeVisitor {
+public class CounterVisitor extends SubscriptionTreeVisitor {
 
   private int functionCounter = 0;
   private int statementCounter = 0;

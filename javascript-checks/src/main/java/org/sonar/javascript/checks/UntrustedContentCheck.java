@@ -24,7 +24,7 @@ import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
-import org.sonar.javascript.checks.utils.SubscriptionBaseVisitor;
+import org.sonar.plugins.javascript.api.visitors.SubscriptionBaseTreeVisitor;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.expression.LiteralTree;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
@@ -44,7 +44,7 @@ import java.util.regex.Pattern;
 )
 @SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.SECURITY_FEATURES)
 @SqaleConstantRemediation("15min")
-public class UntrustedContentCheck extends SubscriptionBaseVisitor {
+public class UntrustedContentCheck extends SubscriptionBaseTreeVisitor {
 
   private static final String MESSAGE = "Remove this content from an untrusted source.";
 

@@ -23,7 +23,7 @@ import com.google.common.collect.ImmutableList;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
-import org.sonar.javascript.checks.utils.SubscriptionBaseVisitor;
+import org.sonar.plugins.javascript.api.visitors.SubscriptionBaseTreeVisitor;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.statement.IfStatementTree;
@@ -42,7 +42,7 @@ import java.util.List;
     tags = {Tags.CERT, Tags.CWE, Tags.MISRA, Tags.PITFALL})
 @SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.READABILITY)
 @SqaleConstantRemediation("2min")
-public class AlwaysUseCurlyBracesCheck extends SubscriptionBaseVisitor {
+public class AlwaysUseCurlyBracesCheck extends SubscriptionBaseTreeVisitor {
 
   @Override
   public List<Kind> nodesToVisit() {

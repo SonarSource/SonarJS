@@ -25,7 +25,7 @@ import org.sonar.api.server.rule.RulesDefinition.SubCharacteristics;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.javascript.checks.utils.CheckUtils;
-import org.sonar.javascript.checks.utils.SubscriptionBaseVisitor;
+import org.sonar.plugins.javascript.api.visitors.SubscriptionBaseTreeVisitor;
 import org.sonar.plugins.javascript.api.symbols.Type;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
@@ -45,7 +45,7 @@ import java.util.Set;
 @SqaleSubCharacteristic(SubCharacteristics.DATA_RELIABILITY)
 @SqaleConstantRemediation("15min")
 @ActivatedByDefault
-public class UnaryPlusMinusWithObjectCheck extends SubscriptionBaseVisitor {
+public class UnaryPlusMinusWithObjectCheck extends SubscriptionBaseTreeVisitor {
 
   private static final Set<Type.Kind> ALLOWED_TYPES = ImmutableSet.of(
       Type.Kind.BOOLEAN,

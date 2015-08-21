@@ -20,8 +20,8 @@
 package org.sonar.javascript.metrics;
 
 import com.google.common.collect.ImmutableList;
+import org.sonar.javascript.tree.visitors.SubscriptionTreeVisitor;
 import org.sonar.plugins.javascript.api.tree.declaration.FunctionTree;
-import org.sonar.javascript.tree.visitors.SubscriptionAstTreeVisitor;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
@@ -30,7 +30,7 @@ import org.sonar.plugins.javascript.api.tree.statement.StatementTree;
 
 import java.util.List;
 
-public class ComplexityVisitor extends SubscriptionAstTreeVisitor {
+public class ComplexityVisitor extends SubscriptionTreeVisitor {
 
   private int complexity;
 

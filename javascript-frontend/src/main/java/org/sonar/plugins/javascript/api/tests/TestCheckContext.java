@@ -17,15 +17,16 @@
  * License along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.javascript.checks.utils;
+package org.sonar.plugins.javascript.api.tests;
 
 import com.google.common.base.Charsets;
 import com.sonar.sslr.api.RecognitionException;
 import com.sonar.sslr.api.typed.ActionParser;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.config.Settings;
 import org.sonar.javascript.parser.JavaScriptParserBuilder;
 import org.sonar.javascript.tree.symbols.SymbolModelImpl;
-import org.sonar.javascript.checks.ParsingErrorCheck;
 import org.sonar.javascript.metrics.ComplexityVisitor;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.plugins.javascript.api.visitors.TreeVisitorContext;
@@ -40,30 +41,37 @@ import java.util.LinkedList;
 import java.util.List;
 
 public class TestCheckContext implements TreeVisitorContext {
-  private ScriptTree tree = null;
-  private File file;
-  private SymbolModel symbolModel = null;
-  private ComplexityVisitor complexity;
-  private Settings settings;
+
+  private static final Logger LOG = LoggerFactory.getLogger(TestCheckContext.class);
   protected static final ActionParser<Tree> p = JavaScriptParserBuilder.createParser(Charsets.UTF_8);
+
+  private final File file;
+  private final ComplexityVisitor complexity;
+  private final Settings settings;
+
+  private ScriptTree tree = null;
+  private SymbolModel symbolModel = null;
 
   List<CheckMessage> issues = new LinkedList<>();
 
-  public TestCheckContext(File file, Settings settings) {
-    RecognitionException parseException = null;
+  public TestCheckContext(File file, Settings settings, JavaScriptCheck check) {
     this.file = file;
     this.complexity = new ComplexityVisitor();
     this.settings = settings;
+
     try {
       this.tree = (ScriptTree) p.parse(file);
       this.symbolModel = SymbolModelImpl.create(tree, null, null);
+
     } catch (RecognitionException e) {
-      parseException = e;
+      LOG.error("Unable to parse file: " + file.getAbsolutePath());
+      LOG.error(e.getMessage());
+
+      if ("ParsingErrorCheck".equals(check.getClass().getSimpleName())) {
+        this.addIssue(null, e.getLine(), e.getMessage());
+      }
     }
 
-    if (parseException != null) {
-      this.addIssue(new ParsingErrorCheck(), parseException.getLine(), parseException.getMessage());
-    }
   }
 
   @Override
@@ -82,6 +90,7 @@ public class TestCheckContext implements TreeVisitorContext {
   }
 
   @Override
+
   public void addFileIssue(JavaScriptCheck check, String message) {
     commonAddIssue(check, -1, message, -1);
   }

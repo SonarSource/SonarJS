@@ -24,7 +24,7 @@ import com.google.common.collect.ImmutableList;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
-import org.sonar.javascript.checks.utils.SubscriptionBaseVisitor;
+import org.sonar.plugins.javascript.api.visitors.SubscriptionBaseTreeVisitor;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
@@ -43,7 +43,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
   priority = Priority.MAJOR)
 @RuleTemplate
 @NoSqale
-public class CommentRegularExpressionCheck extends SubscriptionBaseVisitor {
+public class CommentRegularExpressionCheck extends SubscriptionBaseTreeVisitor {
 
   private static final String DEFAULT_REGULAR_EXPRESSION = "";
   private static final String DEFAULT_MESSAGE = "The regular expression matches this comment.";

@@ -22,7 +22,7 @@ package org.sonar.javascript.checks;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
-import org.sonar.javascript.checks.utils.SubscriptionBaseVisitor;
+import org.sonar.plugins.javascript.api.visitors.SubscriptionBaseTreeVisitor;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.squidbridge.annotations.ActivatedByDefault;
@@ -41,7 +41,7 @@ import java.util.List;
   tags = {Tags.BRAIN_OVERLOAD})
 @ActivatedByDefault
 @NoSqale
-public class ExpressionComplexityCheck extends SubscriptionBaseVisitor {
+public class ExpressionComplexityCheck extends SubscriptionBaseTreeVisitor {
 
   private static final int DEFAULT = 3;
 

@@ -19,31 +19,32 @@
  */
 package com.sonar.javascript.it.plugin;
 
-import com.sonar.orchestrator.Orchestrator;
-import com.sonar.orchestrator.build.SonarRunner;
+import static org.fest.assertions.Assertions.assertThat;
+
+import java.util.List;
+
+import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.sonar.wsclient.issue.Issue;
 import org.sonar.wsclient.issue.IssueClient;
 import org.sonar.wsclient.issue.IssueQuery;
 
-import java.util.List;
-
-import static org.fest.assertions.Assertions.assertThat;
-import static org.junit.Assume.assumeTrue;
+import com.sonar.orchestrator.Orchestrator;
+import com.sonar.orchestrator.build.SonarRunner;
 
 public class CustomRulesTests {
 
   @ClassRule
   public static Orchestrator orchestrator = Tests.ORCHESTRATOR;
 
-  @Test
-  public void test() throws InterruptedException {
-    assumeTrue(Tests.is_strictly_after_plugin("2.5"));
+  private static IssueClient issueClient;
 
+  @BeforeClass
+  public static void prepare() throws InterruptedException {
     orchestrator.resetData();
     SonarRunner build = Tests.createSonarRunnerBuild()
-      .setProjectDir(TestUtils.projectDir("metrics"))
+      .setProjectDir(TestUtils.projectDir("custom_rules"))
       .setProjectKey("custom-rules")
       .setProjectName("Custom Rules")
       .setProjectVersion("1.0")
@@ -52,15 +53,31 @@ public class CustomRulesTests {
     orchestrator.getServer().associateProjectToQualityProfile("custom-rules", "js", "javascript-custom-rules-profile");
     orchestrator.executeBuild(build);
 
-    IssueClient issueClient = orchestrator.getServer().wsClient().issueClient();
-
-    List<Issue> issues = issueClient.find(IssueQuery.create().rules("javascript-custom-rules:example")).list();
-
-    // We found issues so the extension rule was properly set.
-    assertThat(issues).hasSize(2);
-    // technical debt is properly set for the issue so SQALE model definition has been well define
-    if (Tests.is_strictly_after_plugin("2.6")) {
-      assertThat(issues.get(0).debt()).isEqualTo("5min");
-    }
+    issueClient = orchestrator.getServer().wsClient().issueClient();
   }
+
+  @Test
+  public void base_tree_visitor_check() {
+    List<Issue> issues = issueClient.find(IssueQuery.create().rules("javascript-custom-rules:base")).list();
+
+    assertThat(issues).hasSize(1);
+
+    Issue issue = issues.get(0);
+    assertThat(issue.line()).isEqualTo(2);
+    assertThat(issue.message()).isEqualTo("Function expression.");
+    assertThat(issue.debt()).isEqualTo("5min");
+  }
+
+  @Test
+  public void subscription_base_visitor_check() {
+    List<Issue> issues = issueClient.find(IssueQuery.create().rules("javascript-custom-rules:subscription")).list();
+
+    assertThat(issues).hasSize(1);
+
+    Issue issue = issues.get(0);
+    assertThat(issue.line()).isEqualTo(11);
+    assertThat(issue.message()).isEqualTo("For in statement.");
+    assertThat(issue.debt()).isEqualTo("10min");
+  }
+
 }

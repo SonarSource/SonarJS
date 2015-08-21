@@ -14,13 +14,13 @@ import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 
 @Rule(
-  key = "example",
+  key = "base",
   priority = Priority.MINOR,
-  name = "Example",
+  name = "Base tree visitor check",
   description = "desc")
 @SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.SECURITY_FEATURES)
 @SqaleConstantRemediation("5min")
-public class ExampleCheck extends BaseTreeVisitor {
+public class BaseTreeVisitorCheck extends BaseTreeVisitor {
 
   @Override
   public void visitFunctionExpression(FunctionExpressionTree tree) {
