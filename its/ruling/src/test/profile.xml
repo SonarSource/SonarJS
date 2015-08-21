@@ -609,5 +609,10 @@
       <key>S3002</key>
       <priority>INFO</priority> <!-- Unary operators "+" and "-" should not be used with objects -->
     </rule>
+    <rule>
+      <repositoryKey>javascript</repositoryKey>  
+      <key>S1154</key>
+      <priority>INFO</priority><!-- Results of operations on strings should not be ignored -->
+    </rule>
   </rules>
 </profile>
