@@ -21,7 +21,6 @@ package com.sonar.javascript.it.plugin;
 
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.SonarRunner;
-import static org.fest.assertions.Assertions.assertThat;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
@@ -29,6 +28,8 @@ import org.sonar.wsclient.Sonar;
 import org.sonar.wsclient.services.Measure;
 import org.sonar.wsclient.services.Resource;
 import org.sonar.wsclient.services.ResourceQuery;
+
+import static org.fest.assertions.Assertions.assertThat;
 
 public class MetricsTest {
 
@@ -138,21 +139,25 @@ public class MetricsTest {
   public void should_be_compatible_with_DevCockpit() {
     // TODO probably bug in Sonar: order might depend on JVM
 
-    // 1 empty comment line
-    // 2 comment line
+    // 2 header comment line
     // 4 empty line
     // 5 code line
+    // 14 comment line
+    // 15 empty comment line
 
     assertThat(getFileMeasure("ncloc_data").getData())
-      .contains("1=0")
-      .contains("2=0")
-      .contains("4=0")
-      .contains("5=1");
+      .contains(";2=0;")
+      .contains(";4=0;")
+      .contains(";5=1;")
+      .contains(";14=0;")
+      .contains(";15=0;");
+
     assertThat(getFileMeasure("comment_lines_data").getData())
-      .contains("1=0")
-      .contains("2=0")
-      .contains("4=1")
-      .contains("5=0");
+      .contains(";2=0;")
+      .contains(";4=0;")
+      .contains(";5=0;")
+      .contains(";14=1;")
+      .contains(";15=0;");
   }
 
   /* Helper methods */
