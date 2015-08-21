@@ -294,6 +294,8 @@
 8241,
 8497,
 9808,
+10427,
+12984,
 16251,
 18314,
 19748,
@@ -369,6 +371,9 @@
 ],
 'project:dojo-1.8.1/dojox/data/ServiceStore.js.uncompressed.js':[
 280,
+],
+'project:dojo-1.8.1/dojox/data/WikipediaStore.js.uncompressed.js':[
+100,
 ],
 'project:dojo-1.8.1/dojox/data/XmlStore.js.uncompressed.js':[
 264,
@@ -531,6 +536,12 @@
 'project:dojo-1.8.1/dojox/geo/openlayers/JsonImport.js.uncompressed.js':[
 82,
 ],
+'project:dojo-1.8.1/dojox/gfx.js.uncompressed.js':[
+81,
+],
+'project:dojo-1.8.1/dojox/gfx/_base.js.uncompressed.js':[
+79,
+],
 'project:dojo-1.8.1/dojox/gfx/canvasWithEvents.js.uncompressed.js':[
 352,
 ],
@@ -545,6 +556,7 @@
 5291,
 6181,
 7899,
+7961,
 10389,
 ],
 'project:dojo-1.8.1/dojox/grid/LazyTreeGrid.js.uncompressed.js':[
@@ -604,6 +616,9 @@
 ],
 'project:dojo-1.8.1/dojox/html/_base.js.uncompressed.js':[
 237,
+],
+'project:dojo-1.8.1/dojox/html/metrics.js.uncompressed.js':[
+39,
 ],
 'project:dojo-1.8.1/dojox/io/proxy/xip.js.uncompressed.js':[
 170,
