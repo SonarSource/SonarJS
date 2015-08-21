@@ -1,0 +1,14 @@
+<p>Doing an operation on a string without using the result of the operation is useless and is certainly due to a misunderstanding. </p>
+<h2>Noncompliant Code Example</h2>
+
+<pre>
+var str = "..."
+str.toUpperCase(); // Noncompliant
+</pre>
+<h2>Compliant Solution</h2>
+
+<pre>
+var str = "..."
+str = str.toUpperCase();
+</pre>
+
