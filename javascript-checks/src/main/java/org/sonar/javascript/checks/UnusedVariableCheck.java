@@ -65,7 +65,7 @@ public class UnusedVariableCheck extends BaseTreeVisitor {
     }
   }
 
-  private boolean noUsages(Collection<Usage> usages) {
+  private static boolean noUsages(Collection<Usage> usages) {
     return usages.isEmpty() || usagesAreInitializations(usages);
   }
 

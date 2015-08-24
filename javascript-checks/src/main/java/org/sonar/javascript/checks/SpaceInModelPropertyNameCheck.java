@@ -87,7 +87,7 @@ public class SpaceInModelPropertyNameCheck extends BaseTreeVisitor {
     }
   }
 
-  private boolean isBackboneSetMethod(DotMemberExpressionTree dotExpr) {
+  private static boolean isBackboneSetMethod(DotMemberExpressionTree dotExpr) {
     return CheckUtils.asString(dotExpr.property()).equals(SET) && dotExpr.object().types().contains(Type.Kind.BACKBONE_MODEL_OBJECT);
   }
 

@@ -22,6 +22,7 @@ package org.sonar.javascript.checks;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
+import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.declaration.BindingElementTree;
@@ -36,6 +37,8 @@ import org.sonar.squidbridge.annotations.ActivatedByDefault;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 
+import javax.annotation.Nullable;
+
 @Rule(
     key = "S888",
     name = "Relational operators should be used in \"for\" loop termination conditions",
@@ -45,6 +48,15 @@ import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 @SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.LOGIC_RELIABILITY)
 @SqaleConstantRemediation("2min")
 public class EqualInForLoopTerminationCheck extends BaseTreeVisitor {
+
+  private static final Kind[] INCREMENT_KINDS = {
+      Tree.Kind.POSTFIX_INCREMENT,
+      Tree.Kind.PREFIX_INCREMENT,
+      Tree.Kind.PLUS_ASSIGNMENT,
+      Tree.Kind.POSTFIX_DECREMENT,
+      Tree.Kind.PREFIX_DECREMENT,
+      Tree.Kind.MINUS_ASSIGNMENT
+  };
 
   @Override
   public void visitForStatement(ForStatementTree tree) {
@@ -70,11 +82,11 @@ public class EqualInForLoopTerminationCheck extends BaseTreeVisitor {
     return condition.is(Tree.Kind.EQUAL_TO, Tree.Kind.NOT_EQUAL_TO);
   }
 
-  private boolean isException(ForStatementTree forStatement) {
+  private static boolean isException(ForStatementTree forStatement) {
     return isNullConditionException(forStatement) || isTrivialIteratorException(forStatement);
   }
 
-  private boolean isTrivialIteratorException(ForStatementTree forStatement) {
+  private static boolean isTrivialIteratorException(ForStatementTree forStatement) {
     // todo(Lena): SONARJS-383 consider usage of counter inside the loop. Do it with symbol table.
     ExpressionTree condition = forStatement.condition();
     if (condition != null && condition.is(Tree.Kind.NOT_EQUAL_TO)) {
@@ -87,7 +99,7 @@ public class EqualInForLoopTerminationCheck extends BaseTreeVisitor {
     return false;
   }
 
-  private boolean checkForTrivialIteratorException(Tree init, ExpressionTree condition, ExpressionTree update) {
+  private static boolean checkForTrivialIteratorException(Tree init, ExpressionTree condition, ExpressionTree update) {
     int updateByOne = checkForUpdateByOne(update);
     if (updateByOne != 0) {
       Integer endValue = getValue(condition);
@@ -104,7 +116,8 @@ public class EqualInForLoopTerminationCheck extends BaseTreeVisitor {
     return condition != null && condition.is(Tree.Kind.NOT_EQUAL_TO) && ((BinaryExpressionTree) condition).rightOperand().is(Tree.Kind.NULL_LITERAL);
   }
 
-  private Integer getValue(Tree tree) {
+  @Nullable
+  private static Integer getValue(Tree tree) {
     Integer result = null;
     if (tree.is(Tree.Kind.NOT_EQUAL_TO)) {
       result = getInteger(((BinaryExpressionTree) tree).rightOperand());
@@ -137,7 +150,7 @@ public class EqualInForLoopTerminationCheck extends BaseTreeVisitor {
     return null;
   }
 
-  private int checkForUpdateByOne(ExpressionTree update) {
+  private static int checkForUpdateByOne(ExpressionTree update) {
     if (update.is(Tree.Kind.POSTFIX_INCREMENT, Tree.Kind.PREFIX_INCREMENT) || (update.is(Tree.Kind.PLUS_ASSIGNMENT) && isUpdateOnOneWithAssign(update))) {
       return +1;
     }
@@ -147,16 +160,16 @@ public class EqualInForLoopTerminationCheck extends BaseTreeVisitor {
     return 0;
   }
 
-  private boolean isUpdateIncDec(ExpressionTree update) {
+  private static boolean isUpdateIncDec(ExpressionTree update) {
     boolean result = false;
     if (update.is(Tree.Kind.COMMA_OPERATOR)) {
       BinaryExpressionTree commaExpressions = (BinaryExpressionTree) update;
       result = isUpdateIncDec(commaExpressions.leftOperand()) && isUpdateIncDec(commaExpressions.rightOperand());
-    } else if (update.is(Tree.Kind.POSTFIX_INCREMENT, Tree.Kind.PREFIX_INCREMENT) || update.is(Tree.Kind.PLUS_ASSIGNMENT)) {
-      result = true;
-    } else if (update.is(Tree.Kind.POSTFIX_DECREMENT, Tree.Kind.PREFIX_DECREMENT) || update.is(Tree.Kind.MINUS_ASSIGNMENT)) {
+
+    } else if (update.is(INCREMENT_KINDS)) {
       result = true;
     }
+
     return result;
   }
 

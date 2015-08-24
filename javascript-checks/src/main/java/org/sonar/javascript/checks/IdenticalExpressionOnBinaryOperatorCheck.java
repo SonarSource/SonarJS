@@ -55,7 +55,7 @@ public class IdenticalExpressionOnBinaryOperatorCheck extends BaseTreeVisitor {
     super.visitBinaryExpression(tree);
   }
 
-  private boolean isExcluded(BinaryExpressionTree tree) {
+  private static boolean isExcluded(BinaryExpressionTree tree) {
     return !isOneOntoOneShifting(tree) && !isPotentialNanComparison(tree);
   }
 

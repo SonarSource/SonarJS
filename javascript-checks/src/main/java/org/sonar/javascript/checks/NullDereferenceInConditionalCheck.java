@@ -59,31 +59,31 @@ public class NullDereferenceInConditionalCheck extends BaseTreeVisitor {
     super.visitBinaryExpression(tree);
   }
 
-  private ExpressionTree removeParenthesis(ExpressionTree expressionTree) {
+  private static ExpressionTree removeParenthesis(ExpressionTree expressionTree) {
     if (expressionTree.is(Tree.Kind.PARENTHESISED_EXPRESSION)) {
       return removeParenthesis(((ParenthesisedExpressionTree) expressionTree).expression());
     }
     return expressionTree;
   }
 
-  private ExpressionTree getNonNullLiteralOperand(BinaryExpressionTree binaryExpressionTree) {
+  private static ExpressionTree getNonNullLiteralOperand(BinaryExpressionTree binaryExpressionTree) {
     if (isNullOrUndefined(binaryExpressionTree.leftOperand())) {
       return binaryExpressionTree.rightOperand();
     }
     return binaryExpressionTree.leftOperand();
   }
 
-  private boolean isAndWithEqualToNull(BinaryExpressionTree tree) {
+  private static boolean isAndWithEqualToNull(BinaryExpressionTree tree) {
     return tree.is(Tree.Kind.CONDITIONAL_AND)
       && isNullComparison(tree.leftOperand(), Tree.Kind.EQUAL_TO, Tree.Kind.STRICT_EQUAL_TO);
   }
 
-  private boolean isOrWithNonEqualToNull(BinaryExpressionTree tree) {
+  private static boolean isOrWithNonEqualToNull(BinaryExpressionTree tree) {
     return tree.is(Tree.Kind.CONDITIONAL_OR)
       && isNullComparison(tree.leftOperand(), Tree.Kind.NOT_EQUAL_TO, Tree.Kind.STRICT_NOT_EQUAL_TO);
   }
 
-  private boolean isNullComparison(ExpressionTree expression, Tree.Kind kind1, Tree.Kind kind2) {
+  private static boolean isNullComparison(ExpressionTree expression, Tree.Kind kind1, Tree.Kind kind2) {
     ExpressionTree tree = removeParenthesis(expression);
     if (tree.is(kind1, kind2)) {
       BinaryExpressionTree binaryExp = (BinaryExpressionTree) tree;

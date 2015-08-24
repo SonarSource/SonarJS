@@ -78,7 +78,7 @@ public class UnaryPlusMinusWithObjectCheck extends SubscriptionBaseVisitor {
     }
   }
 
-  private boolean isDateException(Tree tree, Type type) {
+  private static boolean isDateException(Tree tree, Type type) {
     if (tree.is(Kind.UNARY_PLUS)) {
       String exprString = CheckUtils.asString(((UnaryExpressionTree) tree).expression());
       boolean isDateName = exprString.contains("Date") || exprString.contains("date");

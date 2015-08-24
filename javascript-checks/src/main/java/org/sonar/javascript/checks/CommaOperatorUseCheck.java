@@ -87,7 +87,7 @@ public class CommaOperatorUseCheck extends BaseTreeVisitor {
     }
   }
 
-  private List<ExpressionTree> getAllSubExpressions(BinaryExpressionTree tree) {
+  private static List<ExpressionTree> getAllSubExpressions(BinaryExpressionTree tree) {
     List<ExpressionTree> result = new LinkedList<>();
     result.add(tree.rightOperand());
     ExpressionTree currentExpression = tree.leftOperand();
@@ -99,7 +99,7 @@ public class CommaOperatorUseCheck extends BaseTreeVisitor {
     return result;
   }
 
-  private SyntaxToken getFirstComma(BinaryExpressionTree tree) {
+  private static SyntaxToken getFirstComma(BinaryExpressionTree tree) {
     SyntaxToken result = tree.operator();
     ExpressionTree currentExpression = tree.leftOperand();
     while (currentExpression.is(Kind.COMMA_OPERATOR)) {

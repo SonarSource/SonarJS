@@ -88,7 +88,7 @@ public class ComplexityVisitor extends SubscriptionAstTreeVisitor {
    * @return      <b>true</b> if last statement of <b>tree</b> body is return statement.
    */
   private static boolean isStatementWithLastReturn(Tree tree) {
-    Kind kind = (Kind) ((JavaScriptTree) tree).getKind();
+    Kind kind = ((JavaScriptTree) tree).getKind();
     boolean result = false;
 
     switch (kind) {

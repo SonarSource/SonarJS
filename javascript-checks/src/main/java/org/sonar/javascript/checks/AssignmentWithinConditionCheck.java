@@ -161,15 +161,18 @@ public class AssignmentWithinConditionCheck extends BaseTreeVisitor {
   }
 
   private static boolean isRelationalExpression(Tree tree) {
-    return tree.is(Kind.EQUAL_TO) ||
-      tree.is(Kind.STRICT_EQUAL_TO) ||
-      tree.is(Kind.NOT_EQUAL_TO) ||
-      tree.is(Kind.STRICT_NOT_EQUAL_TO) ||
-      tree.is(Kind.LESS_THAN) ||
-      tree.is(Kind.LESS_THAN_OR_EQUAL_TO) ||
-      tree.is(Kind.GREATER_THAN) ||
-      tree.is(Kind.GREATER_THAN_OR_EQUAL_TO) ||
-      tree.is(Kind.RELATIONAL_IN);
+    return tree.is(
+      Kind.EQUAL_TO,
+      Kind.STRICT_EQUAL_TO,
+      Kind.NOT_EQUAL_TO,
+      Kind.STRICT_NOT_EQUAL_TO,
+      Kind.LESS_THAN,
+      Kind.LESS_THAN_OR_EQUAL_TO,
+      Kind.GREATER_THAN,
+      Kind.GREATER_THAN_OR_EQUAL_TO,
+      Kind.RELATIONAL_IN
+        // TODO (Lena): Is Kind.INSTANCE_OF required here?
+    );
   }
 
   @Override

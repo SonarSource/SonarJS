@@ -63,7 +63,7 @@ public class WebSQLDatabaseCheck extends BaseTreeVisitor {
     super.visitCallExpression(tree);
   }
 
-  private boolean isOpenDatabase(ExpressionTree callee) {
+  private static boolean isOpenDatabase(ExpressionTree callee) {
     return callee instanceof IdentifierTree && ((IdentifierTree) callee).name().equals(OPEN_DATABASE);
   }
 }

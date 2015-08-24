@@ -167,7 +167,7 @@ public class SymbolVisitor extends BaseTreeVisitor {
     }
   }
 
-  private boolean isIncDec(UnaryExpressionTree tree) {
+  private static boolean isIncDec(UnaryExpressionTree tree) {
     return tree.is(
         Tree.Kind.PREFIX_INCREMENT,
         Tree.Kind.PREFIX_DECREMENT,

@@ -24,7 +24,6 @@ import com.google.common.collect.Sets;
 import org.sonar.api.config.Settings;
 import org.sonar.api.source.Symbolizable;
 import org.sonar.javascript.tree.symbols.type.TypeVisitor;
-import org.sonar.javascript.highlighter.SourceFileOffsets;
 import org.sonar.plugins.javascript.api.symbols.Symbol;
 import org.sonar.plugins.javascript.api.symbols.SymbolModel;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;

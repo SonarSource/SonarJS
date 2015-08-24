@@ -26,7 +26,12 @@ import java.util.List;
 
 public class UnitTestClassReport {
 
-  private long errors = 0L, failures = 0L, skipped = 0L, tests = 0L, durationMilliseconds = 0L;
+  private long errors = 0L;
+  private long failures = 0L;
+  private long skipped = 0L;
+  private long tests = 0L;
+  private long durationMilliseconds = 0L;
+
   private List<UnitTestResult> results = null;
 
   public UnitTestClassReport add(UnitTestClassReport other) {

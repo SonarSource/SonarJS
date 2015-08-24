@@ -72,7 +72,7 @@ public class TooManyArgumentsCheck extends BaseTreeVisitor {
     super.visitCallExpression(tree);
   }
 
-  private String getMessage(CallExpressionTree tree, int parametersNumber, int argumentsNumber) {
+  private static String getMessage(CallExpressionTree tree, int parametersNumber, int argumentsNumber) {
     String callee;
     if (isParenthesisedFunctionExpr(tree.callee())){
       callee = "This function";
@@ -82,7 +82,7 @@ public class TooManyArgumentsCheck extends BaseTreeVisitor {
     return String.format(MESSAGE, callee, parametersNumber, argumentsNumber);
   }
 
-  private boolean isParenthesisedFunctionExpr(ExpressionTree tree) {
+  private static boolean isParenthesisedFunctionExpr(ExpressionTree tree) {
     return tree.is(Tree.Kind.PARENTHESISED_EXPRESSION) && ((ParenthesisedExpressionTree) tree).expression().is(Tree.Kind.FUNCTION_EXPRESSION);
   }
 

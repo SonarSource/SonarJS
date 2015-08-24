@@ -52,7 +52,7 @@ public class JavaScriptTokenizer implements Tokenizer {
     cpdTokens.add(TokenEntry.getEOF());
   }
 
-  private String getTokenImage(Token token) {
+  private static String getTokenImage(Token token) {
     if (token.getType() == GenericTokenType.LITERAL) {
       return GenericTokenType.LITERAL.getValue();
     }

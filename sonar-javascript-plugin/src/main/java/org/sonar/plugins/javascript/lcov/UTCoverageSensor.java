@@ -217,7 +217,7 @@ public class UTCoverageSensor implements Sensor {
     return itMeasure;
   }
 
-  private void checkDataIsNotNull(@Nullable String data) {
+  private static void checkDataIsNotNull(@Nullable String data) {
     if (data == null) {
       throw new IllegalStateException("Measure data is null but it shouldn't be");
     }

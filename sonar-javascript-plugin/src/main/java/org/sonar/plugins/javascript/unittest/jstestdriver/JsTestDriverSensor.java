@@ -19,9 +19,6 @@
  */
 package org.sonar.plugins.javascript.unittest.jstestdriver;
 
-import java.io.File;
-import java.util.Iterator;
-
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,9 +30,12 @@ import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.config.Settings;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
-import org.sonar.plugins.javascript.JavaScriptPlugin;
 import org.sonar.plugins.javascript.JavaScriptLanguage;
+import org.sonar.plugins.javascript.JavaScriptPlugin;
 import org.sonar.plugins.javascript.unittest.surefireparser.AbstractSurefireParser;
+
+import java.io.File;
+import java.util.Iterator;
 
 public class JsTestDriverSensor implements Sensor {
 
@@ -99,7 +99,7 @@ public class JsTestDriverSensor implements Sensor {
     return fileName;
   }
 
-  private String getUnitTestClassName(String classNameFromReport) {
+  private static String getUnitTestClassName(String classNameFromReport) {
     return classNameFromReport.substring(classNameFromReport.indexOf('.') + 1);
   }
 

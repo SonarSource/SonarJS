@@ -151,7 +151,7 @@ public class NotStoredSelectionCheck extends BaseTreeVisitor {
     super.visitCallExpression(tree);
   }
 
-  private LiteralTree getSelectorParameter(CallExpressionTree tree) {
+  private static LiteralTree getSelectorParameter(CallExpressionTree tree) {
     SeparatedList<Tree> parameters = tree.arguments().parameters();
     if (parameters.size() == 1 && parameters.get(0).is(Tree.Kind.STRING_LITERAL) && !isElementCreation((LiteralTree) parameters.get(0))) {
       return (LiteralTree) parameters.get(0);
