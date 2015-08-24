@@ -142,6 +142,7 @@ public final class CheckList {
         NewOperatorMisuseCheck.class,
         WebSQLDatabaseCheck.class,
         PostMessageCheck.class,
+        UselessStringOperationCheck.class,
         LocalStorageCheck.class,
         UnaryPlusMinusWithObjectCheck.class,
         BackboneChangedIsUsedCheck.class,
