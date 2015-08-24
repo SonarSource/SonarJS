@@ -21,8 +21,6 @@ package com.sonar.javascript.it.plugin;
 
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.SonarRunner;
-import static org.fest.assertions.Assertions.assertThat;
-import static org.junit.Assume.assumeTrue;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.sonar.wsclient.issue.Issue;
@@ -30,6 +28,9 @@ import org.sonar.wsclient.issue.IssueClient;
 import org.sonar.wsclient.issue.IssueQuery;
 
 import java.util.List;
+
+import static org.fest.assertions.Assertions.assertThat;
+import static org.junit.Assume.assumeTrue;
 
 public class CustomRulesTests {
 
@@ -46,8 +47,9 @@ public class CustomRulesTests {
       .setProjectKey("custom-rules")
       .setProjectName("Custom Rules")
       .setProjectVersion("1.0")
-      .setSourceDirs("src")
-      .setProfile("javascript-custom-rules-profile");
+      .setSourceDirs("src");
+    orchestrator.getServer().provisionProject("custom-rules", "Custom Rules");
+    orchestrator.getServer().associateProjectToQualityProfile("custom-rules", "js", "javascript-custom-rules-profile");
     orchestrator.executeBuild(build);
 
     IssueClient issueClient = orchestrator.getServer().wsClient().issueClient();

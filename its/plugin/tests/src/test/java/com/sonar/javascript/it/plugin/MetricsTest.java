@@ -44,10 +44,11 @@ public class MetricsTest {
 
     SonarRunner build = Tests.createSonarRunnerBuild()
       .setProjectDir(TestUtils.projectDir("metrics"))
-      .setProjectKey("project")
-      .setProjectName("project")
+      .setProjectKey(Tests.PROJECT_KEY)
+      .setProjectName(Tests.PROJECT_KEY)
       .setProjectVersion("1.0")
       .setSourceDirs("src");
+    Tests.setEmptyProfile(Tests.PROJECT_KEY, Tests.PROJECT_KEY);
     orchestrator.executeBuild(build);
 
     wsClient = orchestrator.getServer().getWsClient();

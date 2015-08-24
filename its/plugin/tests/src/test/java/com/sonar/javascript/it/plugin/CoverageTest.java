@@ -22,7 +22,6 @@ package com.sonar.javascript.it.plugin;
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.BuildResult;
 import com.sonar.orchestrator.build.SonarRunner;
-import static org.fest.assertions.Assertions.assertThat;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
@@ -31,6 +30,8 @@ import org.sonar.wsclient.services.Resource;
 import org.sonar.wsclient.services.ResourceQuery;
 
 import java.util.regex.Pattern;
+
+import static org.fest.assertions.Assertions.assertThat;
 
 public class CoverageTest {
 
@@ -46,11 +47,12 @@ public class CoverageTest {
   public void LCOV_path_can_be_relative() throws Exception {
     SonarRunner build = Tests.createSonarRunnerBuild()
       .setProjectDir(TestUtils.projectDir("lcov"))
-      .setProjectKey("project")
-      .setProjectName("project")
+      .setProjectKey(Tests.PROJECT_KEY)
+      .setProjectName(Tests.PROJECT_KEY)
       .setProjectVersion("1.0")
       .setSourceDirs(".")
       .setProperty("sonar.javascript.lcov.reportPath", "coverage.lcov");
+    Tests.setEmptyProfile(Tests.PROJECT_KEY, Tests.PROJECT_KEY);
     orchestrator.executeBuild(build);
 
     assertThat(getProjectMeasure("lines_to_cover").getValue()).isEqualTo(4);
@@ -63,11 +65,12 @@ public class CoverageTest {
   public void LCOV_path_can_be_absolute() {
     SonarRunner build = Tests.createSonarRunnerBuild()
       .setProjectDir(TestUtils.projectDir("lcov"))
-      .setProjectKey("project")
-      .setProjectName("project")
+      .setProjectKey(Tests.PROJECT_KEY)
+      .setProjectName(Tests.PROJECT_KEY)
       .setProjectVersion("1.0")
       .setSourceDirs(".")
       .setProperty("sonar.javascript.lcov.reportPath", TestUtils.file("projects/lcov/coverage.lcov").getAbsolutePath());
+    Tests.setEmptyProfile(Tests.PROJECT_KEY, Tests.PROJECT_KEY);
     orchestrator.executeBuild(build);
 
     assertThat(getProjectMeasure("lines_to_cover").getValue()).isEqualTo(4);
@@ -81,11 +84,12 @@ public class CoverageTest {
     if (Tests.is_strictly_after_plugin("2.5")) {
       SonarRunner build = Tests.createSonarRunnerBuild()
         .setProjectDir(TestUtils.projectDir("lcov"))
-          .setProjectKey("project")
-          .setProjectName("project")
+          .setProjectKey(Tests.PROJECT_KEY)
+          .setProjectName(Tests.PROJECT_KEY)
           .setProjectVersion("1.0")
           .setSourceDirs(".")
           .setProperty("sonar.javascript.lcov.itReportPath", TestUtils.file("projects/lcov/coverage.lcov").getAbsolutePath());
+      Tests.setEmptyProfile(Tests.PROJECT_KEY, Tests.PROJECT_KEY);
       orchestrator.executeBuild(build);
 
       assertThat(getProjectMeasure("it_lines_to_cover").getValue()).isEqualTo(4);
@@ -99,12 +103,13 @@ public class CoverageTest {
   public void force_zero_coverage() {
     SonarRunner build = Tests.createSonarRunnerBuild()
       .setProjectDir(TestUtils.projectDir("lcov"))
-      .setProjectKey("project")
-      .setProjectKey("project")
-      .setProjectName("project")
+      .setProjectKey(Tests.PROJECT_KEY)
+      .setProjectName(Tests.PROJECT_KEY)
       .setProjectVersion("1.0")
       .setSourceDirs(".")
       .setProperty("sonar.javascript.forceZeroCoverage", "true");
+
+    Tests.setEmptyProfile(Tests.PROJECT_KEY, Tests.PROJECT_KEY);
     orchestrator.executeBuild(build);
 
     assertThat(getProjectMeasure("lines_to_cover").getValue()).isEqualTo(4);
@@ -120,10 +125,11 @@ public class CoverageTest {
   public void no_coverage_information_saved() {
     SonarRunner build = Tests.createSonarRunnerBuild()
       .setProjectDir(TestUtils.projectDir("lcov"))
-      .setProjectKey("project")
-      .setProjectName("project")
+      .setProjectKey(Tests.PROJECT_KEY)
+      .setProjectName(Tests.PROJECT_KEY)
       .setProjectVersion("1.0")
       .setSourceDirs(".");
+    Tests.setEmptyProfile(Tests.PROJECT_KEY, Tests.PROJECT_KEY);
     orchestrator.executeBuild(build);
 
     assertThat(getProjectMeasure("lines_to_cover")).isNull();
@@ -137,12 +143,13 @@ public class CoverageTest {
   public void print_log_for_not_found_resource() throws InterruptedException {
     SonarRunner build = Tests.createSonarRunnerBuild()
       .setProjectDir(TestUtils.projectDir("lcov"))
-      .setProjectKey("project")
-      .setProjectName("project")
+      .setProjectKey(Tests.PROJECT_KEY)
+      .setProjectName(Tests.PROJECT_KEY)
       .setProjectVersion("1.0")
       .setSourceDirs(".")
       .setProperty("sonar.javascript.lcov.reportPath", TestUtils.file("projects/lcov/coverage-wrong-file-name.lcov").getAbsolutePath())
       .setDebugLogs(true);
+    Tests.setEmptyProfile(Tests.PROJECT_KEY, Tests.PROJECT_KEY);
     BuildResult result = orchestrator.executeBuild(build);
 
     // Check that a log is printed
@@ -162,9 +169,4 @@ public class CoverageTest {
     Resource resource = orchestrator.getServer().getWsClient().find(ResourceQuery.createForMetrics("project:file.js", metricKey));
     return resource == null ? null : resource.getMeasure(metricKey);
   }
-
-  private static String keyFor(String s) {
-    return "project:" + (orchestrator.getConfiguration().getSonarVersion().isGreaterThanOrEquals("4.2") ? "src/" : "") + s;
-  }
-
 }

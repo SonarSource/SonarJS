@@ -44,12 +44,14 @@ public class BigProjectTest {
 
     SonarRunner build = Tests.createSonarRunnerBuild()
       .setProjectDir(orchestrator.getFileLocationOfShared("src").getFile())
-      .setProjectKey("project")
-      .setProjectName("project")
+      .setProjectKey(Tests.PROJECT_KEY)
+      .setProjectName(Tests.PROJECT_KEY)
       .setProjectVersion("1.0")
       .setSourceDirs(".")
       // FIXME after full migration of the grammar: was 424m before migration (and with Java 6)
       .setEnvironmentVariable("SONAR_RUNNER_OPTS", "-Xmx2500m");
+
+    Tests.setEmptyProfile(Tests.PROJECT_KEY, Tests.PROJECT_KEY);
     orchestrator.executeBuild(build);
 
     wsClient = orchestrator.getServer().getWsClient();

@@ -22,7 +22,6 @@ package com.sonar.javascript.it.plugin;
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.BuildResult;
 import com.sonar.orchestrator.build.SonarRunner;
-import static org.fest.assertions.Assertions.assertThat;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
@@ -33,6 +32,8 @@ import org.sonar.wsclient.services.ResourceQuery;
 
 import java.util.regex.Pattern;
 
+import static org.fest.assertions.Assertions.assertThat;
+
 public class UnitTestTest {
 
   @ClassRule
@@ -42,6 +43,7 @@ public class UnitTestTest {
   @Before
   public void clean() {
     orchestrator.resetData();
+    orchestrator.getServer().provisionProject(Tests.PROJECT_KEY, Tests.PROJECT_KEY);
   }
 
   @Test
@@ -119,12 +121,14 @@ public class UnitTestTest {
   private static SonarRunner createBuildWithReport(String reportPath) {
     SonarRunner build = Tests.createSonarRunnerBuild()
       .setProjectDir(TestUtils.projectDir("unittest"))
-      .setProjectKey("project")
-      .setProjectName("project")
+      .setProjectKey(Tests.PROJECT_KEY)
+      .setProjectName(Tests.PROJECT_KEY)
       .setProjectVersion("1.0")
       .setSourceDirs("main")
       .setTestDirs("test")
       .setProperty("sonar.javascript.jstestdriver.reportsPath", reportPath).setDebugLogs(true);
+
+    orchestrator.getServer().associateProjectToQualityProfile(Tests.PROJECT_KEY, "js", "empty-profile");
 
     if (!Tests.is_strictly_after_plugin("2.7")) {
       build.setProperty("sonar.test.exclusions", "**/Another-PersonTest.js");

@@ -40,6 +40,7 @@ public final class Tests {
 
   private static final String PLUGIN_KEY = "javascript";
   private static final String CUSTOM_RULES_ARTIFACT_ID = "javascript-custom-rules-plugin";
+  public static final String PROJECT_KEY = "project";
 
   @ClassRule
   public static final Orchestrator ORCHESTRATOR;
@@ -55,6 +56,7 @@ public final class Tests {
         .addPlugin(FileLocation.of(TestUtils.pluginJar(CUSTOM_RULES_ARTIFACT_ID)));
     }
 
+    orchestratorBuilder.restoreProfileAtStartup(FileLocation.ofClasspath("/empty-profile.xml"));
     ORCHESTRATOR = orchestratorBuilder.build();
   }
 
@@ -73,8 +75,13 @@ public final class Tests {
     SonarRunner build = SonarRunner.create();
     build.setProperty("sonar.exclusions", "**/ecmascript6/**, **/file-for-rules/**, **/frameworks/**");
     build.setSourceEncoding("UTF-8");
+
     return build;
   }
 
 
+  public static void setEmptyProfile(String projectKey, String projectName) {
+    ORCHESTRATOR.getServer().provisionProject(projectKey, projectName);
+    ORCHESTRATOR.getServer().associateProjectToQualityProfile(projectKey, "js", "empty-profile");
+  }
 }
