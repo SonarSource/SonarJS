@@ -19,8 +19,7 @@ IT-DEV)
 
   mvn install -T2 -Dsource.skip=true -Denforcer.skip=true -Danimal.sniffer.skip=true -Dmaven.test.skip=true
 
-  git clone https://github.com/SonarCommunity/javascript-test-sources.git it_sources
-  export SONAR_IT_SOURCES=$(pwd)/it_sources
+  export SONAR_IT_SOURCES=$(pwd)/its/sources
 
   build_snapshot "SonarSource/sonarqube"
 
@@ -33,8 +32,7 @@ IT-LTS)
 
   mvn install -T2 -Dsource.skip=true -Denforcer.skip=true -Danimal.sniffer.skip=true -Dmaven.test.skip=true
 
-  git clone https://github.com/SonarCommunity/javascript-test-sources.git it_sources
-  export SONAR_IT_SOURCES=$(pwd)/it_sources
+  export SONAR_IT_SOURCES=$(pwd)/its/sources
 
   cd its/plugin
   mvn -DjavascriptVersion="DEV" -Dsonar.runtimeVersion="LTS_OR_OLDEST_COMPATIBLE" -Dmaven.test.redirectTestOutputToFile=false install
