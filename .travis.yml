@@ -7,11 +7,15 @@ jdk:
 install: true
 script: ./travis.sh
 env:
-  - TESTS=CI
-  - TESTS=IT-DEV
-  - TESTS=RULING
-  - TESTS=IT-LTS
-  - TESTS=TYPES
+  - TEST=ci
+  - TEST=ruling
+    SQ_VERSION=LATEST_RELEASE
+  - TEST=plugin
+    SQ_VERSION=DEV
+  - TEST=plugin
+    SQ_VERSION=LTS
+  - TEST=type-inference
+    SQ_VERSION=LTS
 matrix:
   fast_finish: true
 

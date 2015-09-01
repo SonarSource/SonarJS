@@ -23,7 +23,6 @@ import com.google.common.io.Files;
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.SonarRunner;
 import com.sonar.orchestrator.locator.FileLocation;
-import com.sonar.orchestrator.locator.MavenLocation;
 import org.junit.ClassRule;
 import org.junit.Test;
 
@@ -40,7 +39,8 @@ public class JavaScriptTest {
   public static Orchestrator orchestrator = Orchestrator.builderEnv()
     .addPlugin(PLUGIN_KEY)
     .setMainPluginKey(PLUGIN_KEY)
-    .addPlugin(MavenLocation.create("org.sonarsource.sonar-lits-plugin", "sonar-lits-plugin", "0.5-SNAPSHOT"))
+    .setOrchestratorProperty("litsVersion", "0.5")
+    .addPlugin("lits")
     .restoreProfileAtStartup(FileLocation.of("src/test/profile.xml"))
     .build();
 
@@ -50,7 +50,7 @@ public class JavaScriptTest {
       "SonarQube 5.1 is the minimum version to generate the issues report, change your orchestrator.properties",
       orchestrator.getConfiguration().getSonarVersion().isGreaterThanOrEquals("5.1"));
     File litsDifferencesFile = FileLocation.of("target/differences").getFile();
-    SonarRunner build = SonarRunner.create(orchestrator.getFileLocationOfShared("src").getFile())
+    SonarRunner build = SonarRunner.create(FileLocation.of("../sources/src").getFile())
       .setProjectKey("project")
       .setProjectName("project")
       .setProjectVersion("1")

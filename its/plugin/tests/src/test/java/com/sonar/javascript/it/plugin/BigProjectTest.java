@@ -21,6 +21,7 @@ package com.sonar.javascript.it.plugin;
 
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.SonarRunner;
+import com.sonar.orchestrator.locator.FileLocation;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
@@ -43,7 +44,7 @@ public class BigProjectTest {
     orchestrator.resetData();
 
     SonarRunner build = Tests.createSonarRunnerBuild()
-      .setProjectDir(orchestrator.getFileLocationOfShared("src").getFile())
+      .setProjectDir(FileLocation.of("../../sources/src").getFile())
       .setProjectKey(Tests.PROJECT_KEY)
       .setProjectName(Tests.PROJECT_KEY)
       .setProjectVersion("1.0")

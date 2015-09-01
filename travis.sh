@@ -8,56 +8,28 @@ function installTravisTools {
   source ~/.local/bin/install
 }
 
-case "$TESTS" in
+case "$TEST" in
 
-CI)
+ci)
   mvn verify -B -e -V
   ;;
 
-IT-DEV)
+plugin|ruling|type-inference)
   installTravisTools
 
-  mvn install -T2 -Dsource.skip=true -Denforcer.skip=true -Danimal.sniffer.skip=true -Dmaven.test.skip=true
+  mvn package -Dsource.skip=true -Denforcer.skip=true -Danimal.sniffer.skip=true -Dmaven.test.skip=true
 
-  export SONAR_IT_SOURCES=$(pwd)/its/sources
+  if [ "$SQ_VERSION" = "DEV" ] ; then
+    build_snapshot "SonarSource/sonarqube"
+  fi
 
-  build_snapshot "SonarSource/sonarqube"
-
-  cd its/plugin
-  mvn -DjavascriptVersion="DEV" -Dsonar.runtimeVersion="DEV" -Dmaven.test.redirectTestOutputToFile=false install
+  cd its/$TEST
+  mvn -DjavascriptVersion="DEV" -Dsonar.runtimeVersion="$SQ_VERSION" -Dmaven.test.redirectTestOutputToFile=false install
   ;;
 
-IT-LTS)
-  installTravisTools
-
-  mvn install -T2 -Dsource.skip=true -Denforcer.skip=true -Danimal.sniffer.skip=true -Dmaven.test.skip=true
-
-  export SONAR_IT_SOURCES=$(pwd)/its/sources
-
-  cd its/plugin
-  mvn -DjavascriptVersion="DEV" -Dsonar.runtimeVersion="LTS_OR_OLDEST_COMPATIBLE" -Dmaven.test.redirectTestOutputToFile=false install
-  ;;
-
-RULING)
-  installTravisTools
-
-  mvn install -Dsource.skip=true -T2 -Denforcer.skip=true -Danimal.sniffer.skip=true -Dmaven.test.skip=true
-
-  build_snapshot "SonarSource/sonar-lits"
-
-  ./run-ruling-test.sh
-  ;;
-
-TYPES)
-  installTravisTools
-
-  mvn install -Dsource.skip=true -T2 -Denforcer.skip=true -Danimal.sniffer.skip=true -Dmaven.test.skip=true
-
-  build_snapshot "SonarSource/sonar-lits"
-
-  cd its/type-inference
-  mvn clean install -Dmaven.test.redirectTestOutputToFile=false -DjavascriptVersion="DEV" -Dsonar.runtimeVersion="LATEST_RELEASE"
-
+*)
+  echo "Unexpected TEST mode: $TEST"
+  exit 1
   ;;
 
 esac
