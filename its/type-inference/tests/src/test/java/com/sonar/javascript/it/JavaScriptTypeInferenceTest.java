@@ -23,23 +23,20 @@ import com.google.common.io.Files;
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.SonarRunner;
 import com.sonar.orchestrator.locator.FileLocation;
-import com.sonar.orchestrator.locator.MavenLocation;
+import static org.fest.assertions.Assertions.assertThat;
 import org.junit.ClassRule;
 import org.junit.Test;
 
 import java.io.File;
 import java.nio.charset.StandardCharsets;
 
-import static org.fest.assertions.Assertions.assertThat;
-
 public class JavaScriptTypeInferenceTest {
 
-  private static final String PLUGIN_KEY = "javascript";
   @ClassRule
   public static Orchestrator orchestrator = Orchestrator.builderEnv()
-    .addPlugin(PLUGIN_KEY)
-    .setMainPluginKey(PLUGIN_KEY)
-    .addPlugin(MavenLocation.create("org.sonarsource.sonar-lits-plugin", "sonar-lits-plugin", "0.5-SNAPSHOT"))
+    .addPlugin(FileLocation.of(new File(TestUtils.homeDir(), "../../sonar-javascript-plugin/target/sonar-javascript-plugin.jar")))
+    .setOrchestratorProperty("litsVersion", "0.5")
+    .addPlugin("lits")
     .addPlugin(FileLocation.of(TestUtils.pluginJar("javascript-type-inference-plugin")))
     .restoreProfileAtStartup(FileLocation.ofClasspath("/profile.xml"))
     .build();

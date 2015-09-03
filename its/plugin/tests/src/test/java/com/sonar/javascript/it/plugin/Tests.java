@@ -20,13 +20,13 @@
 package com.sonar.javascript.it.plugin;
 
 import com.sonar.orchestrator.Orchestrator;
-import com.sonar.orchestrator.OrchestratorBuilder;
 import com.sonar.orchestrator.build.SonarRunner;
 import com.sonar.orchestrator.locator.FileLocation;
-import com.sonar.orchestrator.version.Version;
 import org.junit.ClassRule;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
+
+import java.io.File;
 
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
@@ -43,22 +43,12 @@ public final class Tests {
   public static final String PROJECT_KEY = "project";
 
   @ClassRule
-  public static final Orchestrator ORCHESTRATOR;
-  static {
-   OrchestratorBuilder orchestratorBuilder = Orchestrator.builderEnv()
-      .addPlugin(PLUGIN_KEY)
-      .setMainPluginKey(PLUGIN_KEY);
-
-    // Add plugin & profile for custom rules
-    if (Version.create(Orchestrator.builderEnv().getPluginVersion(PLUGIN_KEY)).isGreaterThan("2.5")) {
-      orchestratorBuilder
-        .restoreProfileAtStartup(FileLocation.ofClasspath("/profile-javascript-custom-rules.xml"))
-        .addPlugin(FileLocation.of(TestUtils.pluginJar(CUSTOM_RULES_ARTIFACT_ID)));
-    }
-
-    orchestratorBuilder.restoreProfileAtStartup(FileLocation.ofClasspath("/empty-profile.xml"));
-    ORCHESTRATOR = orchestratorBuilder.build();
-  }
+  public static final Orchestrator ORCHESTRATOR = Orchestrator.builderEnv()
+    .addPlugin(FileLocation.of(new File(TestUtils.homeDir(), "../../sonar-javascript-plugin/target/sonar-javascript-plugin.jar")))
+    .restoreProfileAtStartup(FileLocation.ofClasspath("/empty-profile.xml"))
+    .addPlugin(FileLocation.of(TestUtils.pluginJar(CUSTOM_RULES_ARTIFACT_ID)))
+    .restoreProfileAtStartup(FileLocation.ofClasspath("/profile-javascript-custom-rules.xml"))
+    .build();
 
   private Tests() {
   }

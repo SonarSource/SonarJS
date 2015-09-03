@@ -23,22 +23,19 @@ import com.google.common.io.Files;
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.SonarRunner;
 import com.sonar.orchestrator.locator.FileLocation;
+import static junit.framework.TestCase.assertTrue;
+import static org.fest.assertions.Assertions.assertThat;
 import org.junit.ClassRule;
 import org.junit.Test;
 
 import java.io.File;
 import java.nio.charset.StandardCharsets;
 
-import static junit.framework.TestCase.assertTrue;
-import static org.fest.assertions.Assertions.assertThat;
-
 public class JavaScriptTest {
 
-  private static final String PLUGIN_KEY = "javascript";
   @ClassRule
   public static Orchestrator orchestrator = Orchestrator.builderEnv()
-    .addPlugin(PLUGIN_KEY)
-    .setMainPluginKey(PLUGIN_KEY)
+    .addPlugin(FileLocation.of("../../sonar-javascript-plugin/target/sonar-javascript-plugin.jar"))
     .setOrchestratorProperty("litsVersion", "0.5")
     .addPlugin("lits")
     .restoreProfileAtStartup(FileLocation.of("src/test/profile.xml"))

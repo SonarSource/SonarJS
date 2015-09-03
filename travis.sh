@@ -24,7 +24,9 @@ plugin|ruling|type-inference)
   fi
 
   cd its/$TEST
-  mvn -DjavascriptVersion="DEV" -Dsonar.runtimeVersion="$SQ_VERSION" -Dmaven.test.redirectTestOutputToFile=false install
+  # "mvn package" and not "test" only because the test requires a custom plugin which is build in submodule "plugins"
+  # bfore the tests execution.
+  mvn -Dsonar.runtimeVersion="$SQ_VERSION" -Dmaven.test.redirectTestOutputToFile=false package
   ;;
 
 *)
