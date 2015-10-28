@@ -23,7 +23,7 @@
 
   <dependencies>
     <dependency>
-      <groupId>com.sonarsource.orchestrator</groupId>
+      <groupId>org.sonarsource.orchestrator</groupId>
       <artifactId>sonar-orchestrator</artifactId>
       <version>3.5</version>
       <scope>test</scope>
