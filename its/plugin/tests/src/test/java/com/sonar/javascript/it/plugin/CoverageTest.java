@@ -156,7 +156,7 @@ public class CoverageTest {
     String logs = result.getLogs();
     assertThat(Pattern.compile("Analysing .*coverage-wrong-file-name\\.lcov").matcher(logs).find()).isTrue();
     assertThat(Pattern.compile("Default value of zero will be saved for file: .*file\\.js").matcher(logs).find()).isTrue();
-    assertThat(Pattern.compile("INFO.*Could not resolve 1 file paths in coverage-wrong-file-name\\.lcov, "
+    assertThat(Pattern.compile("WARN.*Could not resolve 1 file paths in coverage-wrong-file-name\\.lcov, "
       + "first unresolved path: \\./wrong/fileName\\.js").matcher(logs).find()).isTrue();
   }
 
