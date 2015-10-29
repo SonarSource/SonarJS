@@ -2,6 +2,10 @@
 
 set -euo pipefail
 
+function cleanJavaScriptInMavenRepository {
+  rm -rf ~/.m2/repository/org/sonarsource/javascript
+}
+
 function installTravisTools {
   mkdir ~/.local
   curl -sSL https://github.com/SonarSource/travis-utils/tarball/v16 | tar zx --strip-components 1 -C ~/.local
@@ -17,7 +21,8 @@ ci)
 plugin|ruling|type-inference)
   installTravisTools
 
-  mvn package -Dsource.skip=true -Denforcer.skip=true -Danimal.sniffer.skip=true -Dmaven.test.skip=true
+  cleanJavaScriptInMavenRepository # make sure we don't use an old version from the travis cache
+  mvn install -Dsource.skip=true -Denforcer.skip=true -Danimal.sniffer.skip=true -Dmaven.test.skip=true
 
   if [ "$SQ_VERSION" = "DEV" ] ; then
     build_snapshot "SonarSource/sonarqube"
@@ -27,6 +32,7 @@ plugin|ruling|type-inference)
   # "mvn package" and not "test" only because the test requires a custom plugin which is build in submodule "plugins"
   # bfore the tests execution.
   mvn -Dsonar.runtimeVersion="$SQ_VERSION" -Dmaven.test.redirectTestOutputToFile=false package
+  cleanJavaScriptInMavenRepository # avoid adding snapshot to the travis cache
   ;;
 
 *)
