@@ -23,13 +23,14 @@ import com.google.common.io.Files;
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.SonarRunner;
 import com.sonar.orchestrator.locator.FileLocation;
-import static junit.framework.TestCase.assertTrue;
-import static org.fest.assertions.Assertions.assertThat;
 import org.junit.ClassRule;
 import org.junit.Test;
 
 import java.io.File;
 import java.nio.charset.StandardCharsets;
+
+import static junit.framework.TestCase.assertTrue;
+import static org.fest.assertions.Assertions.assertThat;
 
 public class JavaScriptTest {
 
@@ -47,6 +48,8 @@ public class JavaScriptTest {
       "SonarQube 5.1 is the minimum version to generate the issues report, change your orchestrator.properties",
       orchestrator.getConfiguration().getSonarVersion().isGreaterThanOrEquals("5.1"));
     File litsDifferencesFile = FileLocation.of("target/differences").getFile();
+    orchestrator.getServer().provisionProject("project", "project");
+    orchestrator.getServer().associateProjectToQualityProfile("project", "js", "rules");
     SonarRunner build = SonarRunner.create(FileLocation.of("../sources/src").getFile())
       .setProjectKey("project")
       .setProjectName("project")
@@ -54,7 +57,6 @@ public class JavaScriptTest {
       .setLanguage("js")
       .setSourceDirs("./")
       .setSourceEncoding("utf-8")
-      .setProfile("rules")
       .setProperty("sonar.analysis.mode", "preview")
       .setProperty("sonar.issuesReport.html.enable", "true")
       .setProperty("dump.old", FileLocation.of("src/test/expected").getFile().getAbsolutePath())
