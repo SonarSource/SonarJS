@@ -104,7 +104,7 @@ public class CommentedCodeCheck extends SubscriptionBaseTreeVisitor {
   public void visitNode(Tree tree) {
     SyntaxToken token = (SyntaxToken) tree;
     for (SyntaxTrivia trivia : token.trivias()) {
-      if (!isJsDoc(trivia) && !isJsDoc(trivia) && !isJsLint(trivia)  && !isJsHint(trivia) && !isGlobals(trivia)) {
+      if (!isJsDoc(trivia) && !isJsLint(trivia)  && !isJsHint(trivia) && !isGlobals(trivia)) {
         String[] lines = regexpToDivideStringByLine.split(COMMENT_ANALYSER.getContents(trivia.text()));
         for (int lineOffset = 0; lineOffset < lines.length; lineOffset++) {
           if (codeRecognizer.isLineOfCode(lines[lineOffset])) {
@@ -120,15 +120,15 @@ public class CommentedCodeCheck extends SubscriptionBaseTreeVisitor {
     return trivia.text().startsWith("/**");
   }
 
-  private boolean isJsLint(SyntaxTrivia trivia) {
+  private static boolean isJsLint(SyntaxTrivia trivia) {
     return trivia.text().startsWith("/*jslint");
   }
 
-  private boolean isJsHint(SyntaxTrivia trivia) {
+  private static boolean isJsHint(SyntaxTrivia trivia) {
     return trivia.text().startsWith("/*jshint");
   }
 
-  private boolean isGlobals(SyntaxTrivia trivia) {
+  private static boolean isGlobals(SyntaxTrivia trivia) {
     return trivia.text().startsWith("/*global");
   }
 
