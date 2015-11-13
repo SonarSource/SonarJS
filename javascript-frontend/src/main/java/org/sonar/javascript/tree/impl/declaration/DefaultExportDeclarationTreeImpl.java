@@ -35,12 +35,13 @@ public class DefaultExportDeclarationTreeImpl extends JavaScriptTree implements 
   private final SyntaxToken exportToken;
   private final SyntaxToken defaultToken;
   private final Tree object;
+  private final InternalSyntaxToken eos;
 
-  public DefaultExportDeclarationTreeImpl(InternalSyntaxToken exportToken, InternalSyntaxToken defaultToken, Tree object) {
+  public DefaultExportDeclarationTreeImpl(InternalSyntaxToken exportToken, InternalSyntaxToken defaultToken, Tree object, @Nullable InternalSyntaxToken semicolon) {
     this.exportToken = exportToken;
     this.defaultToken = defaultToken;
     this.object = object;
-
+    this.eos = semicolon;
   }
 
   @Override
@@ -60,8 +61,8 @@ public class DefaultExportDeclarationTreeImpl extends JavaScriptTree implements 
 
   @Nullable
   @Override
-  public Tree eos() {
-    throw new UnsupportedOperationException("Not supported yet in the strongly typed AST.");
+  public InternalSyntaxToken eos() {
+    return eos;
   }
 
   @Override
@@ -71,7 +72,7 @@ public class DefaultExportDeclarationTreeImpl extends JavaScriptTree implements 
 
   @Override
   public Iterator<Tree> childrenIterator() {
-    return Iterators.forArray(exportToken, defaultToken, object);
+    return Iterators.forArray(exportToken, defaultToken, object, eos);
   }
 
   @Override

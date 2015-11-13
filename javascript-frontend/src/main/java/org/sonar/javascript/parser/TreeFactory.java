@@ -1117,15 +1117,21 @@ public class TreeFactory {
     return new FromClauseTreeImpl(fromToken, module);
   }
 
-  public DefaultExportDeclarationTreeImpl defaultExportDeclaration(InternalSyntaxToken exportToken, InternalSyntaxToken defaultToken, Tree declaration) {
+  public DefaultExportDeclarationTreeImpl defaultExportDeclaration(InternalSyntaxToken exportToken, InternalSyntaxToken defaultToken, Object declaration) {
+    Tree deducedDeclaration;
+    InternalSyntaxToken eos = null;
+    if (declaration instanceof Tuple) {
+      deducedDeclaration = (Tree) ((Tuple) declaration).first();
+      eos = (InternalSyntaxToken) ((Tuple) declaration).second();
+    } else {
+      deducedDeclaration = (Tree) declaration;
+    }
+
     return new DefaultExportDeclarationTreeImpl(
       exportToken,
       defaultToken,
-      declaration);
-  }
-
-  public ExpressionStatementTreeImpl exportedExpressionStatement(Tree lookahead, ExpressionTree expression, Tree semicolonToken) {
-    return new ExpressionStatementTreeImpl(expression, nullableSemicolonToken(semicolonToken));
+      deducedDeclaration,
+      eos);
   }
 
   public NamedExportDeclarationTreeImpl namedExportDeclaration(InternalSyntaxToken exportToken, Tree object) {
@@ -1451,6 +1457,10 @@ public class TreeFactory {
       eof);
   }
 
+  public ExpressionTree defaultExportExpression(Tree lookahead, ExpressionTree expression) {
+    return expression;
+  }
+
   public static class Tuple<T, U > {
 
     private final T first;
@@ -1617,6 +1627,10 @@ public class TreeFactory {
   }
 
   public <T, U> Tuple<T, U> newTuple55(T first, U second) {
+    return newTuple(first, second);
+  }
+
+  public <T, U> Tuple<T, U> newTuple56(T first, U second) {
     return newTuple(first, second);
   }
 

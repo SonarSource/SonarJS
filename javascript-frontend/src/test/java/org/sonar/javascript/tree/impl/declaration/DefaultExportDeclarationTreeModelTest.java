@@ -19,11 +19,12 @@
  */
 package org.sonar.javascript.tree.impl.declaration;
 
-import static org.fest.assertions.Assertions.assertThat;
 import org.junit.Test;
 import org.sonar.javascript.utils.JavaScriptTreeModelTest;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.declaration.DefaultExportDeclarationTree;
+
+import static org.fest.assertions.Assertions.assertThat;
 
 public class DefaultExportDeclarationTreeModelTest extends JavaScriptTreeModelTest {
 
@@ -35,8 +36,8 @@ public class DefaultExportDeclarationTreeModelTest extends JavaScriptTreeModelTe
     assertThat(tree.is(Kind.DEFAULT_EXPORT_DECLARATION)).isTrue();
     assertThat(tree.exportToken().text()).isEqualTo("export");
     assertThat(tree.defaultToken().text()).isEqualTo("default");
-    assertThat(expressionToString(tree.object())).isEqualTo("a ;");
-    // TODO: add eos
+    assertThat(expressionToString(tree.object())).isEqualTo("a");
+    assertThat(tree.eos().text()).isEqualTo(";");
   }
 
   @Test
@@ -47,7 +48,7 @@ public class DefaultExportDeclarationTreeModelTest extends JavaScriptTreeModelTe
     assertThat(tree.exportToken().text()).isEqualTo("export");
     assertThat(tree.defaultToken().text()).isEqualTo("default");
     assertThat(expressionToString(tree.object())).isEqualTo("function * f ( ) { }");
-    // TODO: add eos
+    assertThat(tree.eos()).isNull();
   }
 
   @Test
@@ -58,7 +59,7 @@ public class DefaultExportDeclarationTreeModelTest extends JavaScriptTreeModelTe
     assertThat(tree.exportToken().text()).isEqualTo("export");
     assertThat(tree.defaultToken().text()).isEqualTo("default");
     assertThat(expressionToString(tree.object())).isEqualTo("function f ( ) { }");
-    // TODO: add eos
+    assertThat(tree.eos()).isNull();
   }
 
 }

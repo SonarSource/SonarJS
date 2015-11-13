@@ -76,6 +76,6 @@ public abstract class JavaScriptTreeModelTest {
   }
 
   private static void checkFullFidelity(Tree tree, String s) {
-    assertThat(SourceBuilder.build(tree)).isEqualTo(s);
+     assertThat(SourceBuilder.build(tree)).isEqualTo(s);
   }
 }

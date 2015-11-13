@@ -103,6 +103,7 @@ public enum JavaScriptLegacyGrammar implements GrammarRuleKey {
    * End of statement.
    */
   EOS,
+  // no line break
   EOS_NO_LB,
 
   IDENTIFIER_NAME,

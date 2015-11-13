@@ -1,3 +1,4 @@
+export default new MyConstructor();  // OK
 var something = new MyConstructor(); // OK
 something = new MyConstructor();     // OK
 new MyConstructor();                 // NOK

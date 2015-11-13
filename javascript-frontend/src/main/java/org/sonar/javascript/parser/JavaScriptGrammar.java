@@ -1267,7 +1267,8 @@ public class JavaScriptGrammar {
           b.firstOf(
               FUNCTION_AND_GENERATOR_DECLARATION(),
               CLASS_DECLARATION(),
-              f.exportedExpressionStatement(b.token(JavaScriptLegacyGrammar.NEXT_NOT_FUNCTION_AND_CLASS), ASSIGNMENT_EXPRESSION(), b.token(JavaScriptLegacyGrammar.EOS)))
+              f.newTuple56(
+                f.defaultExportExpression(b.token(JavaScriptLegacyGrammar.NEXT_NOT_FUNCTION_AND_CLASS), ASSIGNMENT_EXPRESSION()), b.token(JavaScriptLegacyGrammar.EOS)))
       ));
   }
 

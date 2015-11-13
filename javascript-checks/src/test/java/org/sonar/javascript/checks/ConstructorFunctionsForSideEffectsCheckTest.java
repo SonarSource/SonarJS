@@ -28,7 +28,7 @@ public class ConstructorFunctionsForSideEffectsCheckTest extends TreeCheckTest {
   @Test
   public void test() {
     CheckMessagesVerifier.verify(getIssues("src/test/resources/checks/constructorFunctionsForSideEffects.js", new ConstructorFunctionsForSideEffectsCheck()))
-      .next().atLine(3).withMessage("Replace by a standard call to the function.")
+      .next().atLine(4).withMessage("Replace by a standard call to the function.")
       .noMore();
   }
 }
