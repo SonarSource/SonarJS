@@ -88,13 +88,13 @@ public class MetricsTest extends JavaScriptTreeModelTest {
   public void comments() {
     String path = "src/test/resources/metrics/comments.js";
     Tree tree = p.parse(new File(path));
-    CommentLineVisitor commentLineVisitor = new CommentLineVisitor(tree, true);
-    assertThat(commentLineVisitor.getCommentLineNumber()).isEqualTo(3);
+    CommentLineVisitor commentLineVisitor = new CommentLineVisitor(tree,  true);
+    assertThat(commentLineVisitor.getCommentLineNumber()).isEqualTo(2);
     assertThat(commentLineVisitor.noSonarLines()).containsOnly(10);
-    assertThat(commentLineVisitor.getCommentLines()).containsOnly(5, 8, 10);
+    assertThat(commentLineVisitor.getCommentLines()).containsOnly(5, 8);
 
     commentLineVisitor = new CommentLineVisitor(tree, false);
-    assertThat(commentLineVisitor.getCommentLineNumber()).isEqualTo(4);
+    assertThat(commentLineVisitor.getCommentLineNumber()).isEqualTo(3);
     assertThat(commentLineVisitor.noSonarLines()).containsOnly(10);
   }
 

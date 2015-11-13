@@ -63,15 +63,14 @@ public class CommentLineVisitor extends SubscriptionTreeVisitor {
       if ((ignoreHeaderComments && seenFirstToken) || !ignoreHeaderComments) {
         String[] commentLines = commentAnalyser.getContents(trivia.text())
             .split("(\r)?\n|\r", -1);
-        int line = trivia.line();
+        int lineNumber = trivia.line();
         for (String commentLine : commentLines) {
           if (commentLine.contains("NOSONAR")) {
-            noSonarLines.add(line);
+            noSonarLines.add(lineNumber);
+          } else if (!commentAnalyser.isBlank(commentLine)) {
+            comments.add(lineNumber);
           }
-          if (!commentAnalyser.isBlank(commentLine)) {
-            comments.add(line);
-          }
-          line++;
+          lineNumber++;
         }
       } else {
         seenFirstToken = true;
