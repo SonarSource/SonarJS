@@ -30,10 +30,10 @@ public class ExpressionComplexityCheckTest extends TreeCheckTest {
   @Test
   public void test() {
     CheckMessagesVerifier.verify(getIssues("src/test/resources/checks/expressionComplexity.js", check))
-      .next().atLine(1).withMessage("Reduce the number of conditional operators (4) used in the expression (maximum allowed " + check.max + ").")
+      .next().atLine(1).withMessage("Reduce the number of conditional operators (4) used in the expression (maximum allowed 3).").withCost(1.)
       .next().atLine(3)
       .next().atLine(5)
-      .next().atLine(8).withMessage("Reduce the number of conditional operators (6) used in the expression (maximum allowed " + check.max + ").")
+      .next().atLine(8).withMessage("Reduce the number of conditional operators (6) used in the expression (maximum allowed 3).").withCost(3.)
       .next().atLine(28)
       .next().atLine(30)
       .next().atLine(38)

@@ -22,13 +22,16 @@ package org.sonar.javascript.checks;
 import com.google.common.io.Files;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
 import org.sonar.javascript.tree.visitors.CharsetAwareVisitor;
-import org.sonar.plugins.javascript.api.visitors.TreeVisitorContext;
 import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
+import org.sonar.plugins.javascript.api.visitors.TreeVisitorContext;
 import org.sonar.squidbridge.annotations.NoSqale;
+import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
+import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
@@ -40,8 +43,8 @@ import java.util.List;
   key = "S1451",
   name = "Copyright and license headers should be defined",
   priority = Priority.BLOCKER)
-//@ActivatedByDefault
-@NoSqale
+@SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.SECURITY_FEATURES)
+@SqaleConstantRemediation("5min")
 public class FileHeaderCheck extends BaseTreeVisitor implements CharsetAwareVisitor {
 
   private static final Logger LOG = LoggerFactory.getLogger(FileHeaderCheck.class);

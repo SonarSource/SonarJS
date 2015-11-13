@@ -19,18 +19,19 @@
  */
 package org.sonar.javascript.checks;
 
-import org.sonar.check.Priority;
-import org.sonar.check.Rule;
-import org.sonar.check.RuleProperty;
-import org.sonar.plugins.javascript.api.visitors.SubscriptionBaseTreeVisitor;
-import org.sonar.plugins.javascript.api.tree.Tree;
-import org.sonar.plugins.javascript.api.tree.Tree.Kind;
-import org.sonar.squidbridge.annotations.ActivatedByDefault;
-import org.sonar.squidbridge.annotations.NoSqale;
-
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
+import org.sonar.api.server.rule.RulesDefinition;
+import org.sonar.check.Priority;
+import org.sonar.check.Rule;
+import org.sonar.check.RuleProperty;
+import org.sonar.plugins.javascript.api.tree.Tree;
+import org.sonar.plugins.javascript.api.tree.Tree.Kind;
+import org.sonar.plugins.javascript.api.visitors.SubscriptionBaseTreeVisitor;
+import org.sonar.squidbridge.annotations.ActivatedByDefault;
+import org.sonar.squidbridge.annotations.SqaleLinearWithOffsetRemediation;
+import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 
 import java.util.List;
 
@@ -39,11 +40,16 @@ import java.util.List;
   name = "Expressions should not be too complex",
   priority = Priority.MAJOR,
   tags = {Tags.BRAIN_OVERLOAD})
+@SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.UNIT_TESTABILITY)
+@SqaleLinearWithOffsetRemediation(
+  coeff = "1min",
+  offset = "5min",
+  effortToFixDescription = "per complexity point above the threshold")
 @ActivatedByDefault
-@NoSqale
 public class ExpressionComplexityCheck extends SubscriptionBaseTreeVisitor {
 
   private static final int DEFAULT = 3;
+  private static final String MESSAGE = "Reduce the number of conditional operators (%s) used in the expression (maximum allowed %s).";
 
   @RuleProperty(defaultValue = "" + DEFAULT, description = "Maximum number of allowed conditional operators in an expression")
   public int max = DEFAULT;
@@ -120,10 +126,10 @@ public class ExpressionComplexityCheck extends SubscriptionBaseTreeVisitor {
       currentExpression.decrementNestedExprLevel();
 
       if (currentExpression.isOnFirstExprLevel()) {
-        if (currentExpression.getExprNumberOfOperator() > max) {
-          addIssue(
-            tree,
-            "Reduce the number of conditional operators (" + currentExpression.getExprNumberOfOperator() + ") used in the expression (maximum allowed " + max + ").");
+        int complexity = currentExpression.getExprNumberOfOperator();
+        if (complexity > max) {
+          String message = String.format(MESSAGE, complexity, max);
+          getContext().addIssue(this, tree, message, (double) (complexity - max));
         }
         currentExpression.resetExprOperatorCounter();
       }
