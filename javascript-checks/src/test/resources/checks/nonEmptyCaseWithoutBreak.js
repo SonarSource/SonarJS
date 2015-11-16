@@ -35,3 +35,6 @@ switch (param) {
   default: // OK
     doSomethingElse();
 }
+
+switch (param) {
+}

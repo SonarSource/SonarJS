@@ -19,9 +19,8 @@
  */
 package org.sonar.javascript.checks;
 
-import java.util.LinkedList;
+import com.google.common.collect.Iterables;
 import java.util.List;
-
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
@@ -35,13 +34,11 @@ import org.sonar.squidbridge.annotations.ActivatedByDefault;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 
-import com.google.common.collect.Iterables;
-
 @Rule(
-    key = "NonEmptyCaseWithoutBreak",
-    name = "Switch cases should end with an unconditional \"break\" statement",
-    priority = Priority.CRITICAL,
-    tags = {Tags.CERT, Tags.CWE, Tags.MISRA, Tags.PITFALL})
+  key = "NonEmptyCaseWithoutBreak",
+  name = "Switch cases should end with an unconditional \"break\" statement",
+  priority = Priority.CRITICAL,
+  tags = {Tags.CERT, Tags.CWE, Tags.MISRA, Tags.PITFALL})
 @ActivatedByDefault
 @SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.LOGIC_RELIABILITY)
 @SqaleConstantRemediation("10min")
@@ -49,9 +46,9 @@ public class NonEmptyCaseWithoutBreakCheck extends BaseTreeVisitor {
 
   @Override
   public void visitSwitchStatement(SwitchStatementTree tree) {
-    List<SwitchClauseTree> cases = new LinkedList<>(tree.cases());
-    cases.remove(cases.size() - 1);
-    for (SwitchClauseTree switchClauseTree : cases){
+    List<SwitchClauseTree> cases = tree.cases();
+    for (int i = 0; i < cases.size() - 1; i++) {
+      SwitchClauseTree switchClauseTree = cases.get(i);
       List<StatementTree> statements = switchClauseTree.statements();
       if (!statements.isEmpty() && !endsWithJump(statements)) {
         getContext().addIssue(this, switchClauseTree, "Last statement in this switch-clause should be an unconditional break.");
