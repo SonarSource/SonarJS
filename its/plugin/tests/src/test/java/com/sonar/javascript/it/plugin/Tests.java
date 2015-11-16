@@ -57,6 +57,10 @@ public final class Tests {
     return ORCHESTRATOR.getConfiguration().getSonarVersion().isGreaterThanOrEquals("5.1");
   }
 
+  public static boolean is_after_sonar_5_3() {
+    return ORCHESTRATOR.getConfiguration().getSonarVersion().isGreaterThanOrEquals("5.3");
+  }
+
   public static boolean is_strictly_after_plugin(String version) {
     return ORCHESTRATOR.getConfiguration().getPluginVersion(PLUGIN_KEY).isGreaterThan(version);
   }
