@@ -89,6 +89,7 @@ public final class JavaScriptLexer {
    * LF, CR, LS, PS
    */
   public static final String LINE_TERMINATOR = "\\n\\r\\u2028\\u2029";
+  public static final String LINE_TERMINATOR_SEQUENCE = "(?:\\n|\\r\\n|\\r|\\u2028|\\u2029)";
 
   /**
    * Tab, Vertical Tab, Form Feed, Space, No-break space, Byte Order Mark, Any other Unicode "space separator"

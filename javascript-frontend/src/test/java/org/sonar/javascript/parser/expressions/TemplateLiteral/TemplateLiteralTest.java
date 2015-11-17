@@ -26,13 +26,14 @@ import static org.sonar.javascript.utils.Assertions.assertThat;
 
 public class TemplateLiteralTest {
 
-
   @Test
   public void ok() {
     assertThat(Kind.TEMPLATE_LITERAL)
       // No substitution
       .matches("` `")
       .matches("` characters `")
+
+      .matches("` line1 \n line2`")
 
       // With substitution
       .matches("` ${ expression } `")

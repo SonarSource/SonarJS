@@ -21,8 +21,8 @@ package org.sonar.javascript.parser;
 
 import com.sonar.sslr.api.GenericTokenType;
 import org.sonar.javascript.lexer.JavaScriptKeyword;
-import org.sonar.javascript.lexer.JavaScriptPunctuator;
 import org.sonar.javascript.lexer.JavaScriptLexer;
+import org.sonar.javascript.lexer.JavaScriptPunctuator;
 import org.sonar.javascript.lexer.JavaScriptRegexpChannel;
 import org.sonar.sslr.grammar.GrammarRuleKey;
 import org.sonar.sslr.grammar.LexerlessGrammarBuilder;
@@ -282,7 +282,7 @@ public enum JavaScriptLegacyGrammar implements GrammarRuleKey {
           b.commentTrivia(b.regexp("(?:" + JavaScriptLexer.SINGLE_LINE_COMMENT + "|" + JavaScriptLexer.MULTI_LINE_COMMENT_NO_LB + ")"))))).skip();
     b.rule(NEXT_NOT_LB).is(b.nextNot(b.regexp("(?:" + JavaScriptLexer.MULTI_LINE_COMMENT + "|[" + JavaScriptLexer.LINE_TERMINATOR + "])"))).skip();
 
-    b.rule(LINE_TERMINATOR_SEQUENCE).is(b.skippedTrivia(b.regexp("(?:\\n|\\r\\n|\\r|\\u2028|\\u2029)"))).skip();
+    b.rule(LINE_TERMINATOR_SEQUENCE).is(b.skippedTrivia(b.regexp(JavaScriptLexer.LINE_TERMINATOR_SEQUENCE))).skip();
 
     b.rule(EOS).is(b.firstOf(
       b.sequence(SPACING, SEMI),
@@ -315,7 +315,7 @@ public enum JavaScriptLegacyGrammar implements GrammarRuleKey {
       b.sequence(DOLLAR_SIGN, b.nextNot(LCURLYBRACE)),
       b.sequence(BACKSLASH, JavaScriptLexer.WHITESPACE),
       LINE_CONTINUATION,
-      LINE_TERMINATOR_SEQUENCE,
+      b.regexp(JavaScriptLexer.LINE_TERMINATOR_SEQUENCE),
       b.regexp("[^`\\$" + JavaScriptLexer.LINE_TERMINATOR + "]")));
     b.rule(LINE_CONTINUATION).is(BACKSLASH, LINE_TERMINATOR_SEQUENCE);
     b.rule(BACKSLASH).is(character(b, "\\"));
