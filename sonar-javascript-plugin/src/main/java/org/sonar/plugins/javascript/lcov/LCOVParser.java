@@ -22,17 +22,17 @@ package org.sonar.plugins.javascript.lcov;
 import com.google.common.base.Objects;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import org.apache.commons.io.FileUtils;
-import org.sonar.api.batch.fs.FileSystem;
-import org.sonar.api.batch.fs.InputFile;
-import org.sonar.api.measures.CoverageMeasuresBuilder;
-
-import javax.annotation.CheckForNull;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+import javax.annotation.CheckForNull;
+import org.apache.commons.io.FileUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.sonar.api.batch.fs.FileSystem;
+import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.measures.CoverageMeasuresBuilder;
 
 /**
  * http://ltp.sourceforge.net/coverage/lcov/geninfo.1.php
@@ -46,6 +46,8 @@ public final class LCOVParser {
   private final Map<InputFile, CoverageMeasuresBuilder> coverageByFile;
   private final FileSystem fs;
   private final List<String> unresolvedPaths = Lists.newArrayList();
+
+  private static final Logger LOG = LoggerFactory.getLogger(LCOVParser.class);
 
   private LCOVParser(FileSystem fs, List<String> lines) {
     this.fs = fs;
@@ -89,7 +91,11 @@ public final class LCOVParser {
           String executionCount = execution.substring(execution.indexOf(',') + 1);
           String lineNumber = execution.substring(0, execution.indexOf(','));
 
-          fileData.addLine(Integer.valueOf(lineNumber), Integer.valueOf(executionCount));
+          try {
+            fileData.addLine(Integer.valueOf(lineNumber), Integer.valueOf(executionCount));
+          } catch (IllegalArgumentException e) {
+            LOG.warn("Can't save DA data. Cause: " + e.getMessage(), e);
+          }
         } else if (line.startsWith(BRDA)) {
           // BRDA:<line number>,<block number>,<branch number>,<taken>
           String[] tokens = line.substring(BRDA.length()).trim().split(",");
@@ -97,9 +103,14 @@ public final class LCOVParser {
           String branchNumber = tokens[1] + tokens[2];
           String taken = tokens[3];
 
-          fileData.addBranch(Integer.valueOf(lineNumber), branchNumber, "-".equals(taken) ? 0 : Integer.valueOf(taken));
+          try {
+            fileData.addBranch(Integer.valueOf(lineNumber), branchNumber, "-".equals(taken) ? 0 : Integer.valueOf(taken));
+          } catch (IllegalArgumentException e) {
+            LOG.warn("Can't save BRDA data. Cause: " + e.getMessage(), e);
+          }
         }
       }
+
     }
 
     Map<InputFile, CoverageMeasuresBuilder> coveredFiles = Maps.newHashMap();
@@ -118,7 +129,7 @@ public final class LCOVParser {
     if (inputFile != null) {
       fileData = files.get(inputFile);
       if (fileData == null) {
-        fileData = new FileData();
+        fileData = new FileData(inputFile);
         files.put(inputFile, fileData);
       }
     } else {
@@ -138,7 +149,23 @@ public final class LCOVParser {
      */
     private Map<Integer, Integer> hits = Maps.newHashMap();
 
+    /**
+     * Number of lines in the file
+     * Required to check if line exist in a file, see {@link #checkLine(Integer)}
+     */
+    private final int linesInFile;
+
+    private final String filename;
+    private static final String WRONG_LINE_EXCEPTION_MESSAGE = "Line with number %s doesn't belong to file %s";
+
+    public FileData(InputFile inputFile) {
+      linesInFile = inputFile.lines();
+      filename = inputFile.relativePath();
+    }
+
     public void addBranch(Integer lineNumber, String branchNumber, Integer taken) {
+      checkLine(lineNumber);
+
       Map<String, Integer> branchesForLine = branches.get(lineNumber);
       if (branchesForLine == null) {
         branchesForLine = Maps.newHashMap();
@@ -149,6 +176,8 @@ public final class LCOVParser {
     }
 
     public void addLine(Integer lineNumber, Integer executionCount) {
+      checkLine(lineNumber);
+
       Integer currentValue = hits.get(lineNumber);
       hits.put(lineNumber, Objects.firstNonNull(currentValue, 0) + executionCount);
     }
@@ -170,6 +199,13 @@ public final class LCOVParser {
       }
       return result;
     }
+
+    private void checkLine(Integer lineNumber) {
+      if (lineNumber < 1 || lineNumber > linesInFile) {
+        throw new IllegalArgumentException(String.format(WRONG_LINE_EXCEPTION_MESSAGE, lineNumber, filename));
+      }
+    }
+
   }
 
 }

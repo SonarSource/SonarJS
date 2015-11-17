@@ -21,6 +21,7 @@ package org.sonar.plugins.javascript.lcov;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 import org.sonar.api.batch.SensorContext;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultFileSystem;
@@ -31,8 +32,8 @@ import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
-import org.sonar.plugins.javascript.JavaScriptPlugin;
 import org.sonar.plugins.javascript.JavaScriptLanguage;
+import org.sonar.plugins.javascript.JavaScriptPlugin;
 import org.sonar.test.TestUtils;
 
 import static org.fest.assertions.Assertions.assertThat;
@@ -65,7 +66,6 @@ public class UTCoverageSensorTest {
   public void test_should_execute() {
     DefaultFileSystem fs = new DefaultFileSystem();
     Settings localSettings = new Settings();
-    localSettings.setProperty(JavaScriptPlugin.LCOV_UT_REPORT_PATH, "jsTestDriver.conf-coverage.dat");
     UTCoverageSensor localSensor = newSensor(fs, localSettings);
 
     // no JS files -> do not execute
@@ -101,6 +101,28 @@ public class UTCoverageSensorTest {
     newSensor(fs, settings).analyse(project, context);
 
     verify(context, atLeast(3)).saveMeasure(any(Resource.class), (Measure) anyObject());
+  }
+
+  @Test
+  public void test_wrong_lines_in_file() {
+    settings.setProperty(JavaScriptPlugin.LCOV_UT_REPORT_PATH, "wrong_line_lcov.info");
+    DefaultFileSystem fs = newFileSystem();
+    DefaultInputFile inputFile = newSourceInputFile("sensortests/main/Person.js", "org/sonar/plugins/javascript/unittest/jstestdriver/sensortests/main/Person.js");
+    fs.add(inputFile.setLines(13));
+    newSensor(fs, settings).analyse(project, context);
+
+    ArgumentCaptor<Measure> measures = ArgumentCaptor.forClass(Measure.class);
+
+    verify(context, times(7)).saveMeasure((Resource) anyObject(), measures.capture());
+
+    for (Measure measure : measures.getAllValues()) {
+      if (measure.getMetricKey() == CoreMetrics.COVERAGE_LINE_HITS_DATA_KEY) {
+        assertThat(measure.getData()).isEqualTo("5=1");
+
+      } else if (measure.getMetricKey() == CoreMetrics.CONDITIONS_BY_LINE_KEY) {
+        assertThat(measure.getData()).isEqualTo("7=3");
+      }
+    }
   }
 
   @Test
@@ -142,6 +164,7 @@ public class UTCoverageSensorTest {
     return new DefaultInputFile(relativePath)
       .setAbsolutePath(TestUtils.getResource(path).getAbsolutePath())
       .setType(InputFile.Type.MAIN)
+      .setLines(11)
       .setLanguage(JavaScriptLanguage.KEY);
   }
 
