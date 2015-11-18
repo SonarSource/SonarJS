@@ -1323,7 +1323,7 @@ public class JavaScriptGrammar {
               FUNCTION_AND_GENERATOR_DECLARATION(),
               CLASS_DECLARATION(),
               f.newTuple56(
-                f.defaultExportExpression(b.token(JavaScriptLegacyGrammar.NEXT_NOT_FUNCTION_AND_CLASS), ASSIGNMENT_EXPRESSION()), b.token(JavaScriptLegacyGrammar.EOS)))
+                f.defaultExportExpression(b.token(JavaScriptLegacyGrammar.NEXT_NOT_FUNCTION_AND_CLASS), ASSIGNMENT_EXPRESSION()), b.optional(b.token(JavaScriptPunctuator.SEMI))))
       ));
   }
 
