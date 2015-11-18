@@ -66,7 +66,7 @@ public class JavaScriptTest {
       .setEnvironmentVariable("SONAR_RUNNER_OPTS", "-Xmx1024m");
     orchestrator.executeBuild(build);
 
-    assertThat(Files.toString(litsDifferencesFile, StandardCharsets.UTF_8)).isEmpty();
+    assertThat(Files.toString(litsDifferencesFile, StandardCharsets.UTF_8)).isEqualTo("Issues differences: 533");
   }
 
 }
