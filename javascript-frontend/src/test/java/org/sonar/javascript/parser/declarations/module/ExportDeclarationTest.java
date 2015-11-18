@@ -42,6 +42,7 @@ public class ExportDeclarationTest {
       .matches("export default function f() {}")
       .matches("export default function * f() {}")
       .matches("export default class C {}")
+      .matches("export default {}")
       .matches("export default expression ;");
   }
 
