@@ -17,24 +17,18 @@
  * License along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.javascript.parser.declarations;
+package org.sonar.plugins.javascript.api.tree.typescript;
 
-import org.junit.Test;
-import org.sonar.plugins.javascript.api.tree.Tree.Kind;
+import org.sonar.javascript.tree.impl.SeparatedList;
+import org.sonar.plugins.javascript.api.tree.Tree;
+import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 
-import static org.sonar.javascript.utils.Assertions.assertThat;
+public interface TSTypeParametersTree extends Tree {
 
-public class ClassDeclarationTest {
+  SyntaxToken openAngleBracketToken();
 
+  SeparatedList<TSTypeParameterTree> typeParameterList();
 
-  @Test
-  public void ok() {
-    assertThat(Kind.CLASS_DECLARATION)
-      .matches("class C {}")
-      .matches("class {}")
-      .matches("class C extends S {}")
-      .matches("class C { ; }")
-      .matches("class C extends S { ; }");
-  }
+  SyntaxToken closeAngleBracketToken();
 
 }

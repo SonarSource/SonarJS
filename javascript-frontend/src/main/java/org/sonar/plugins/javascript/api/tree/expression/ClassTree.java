@@ -20,6 +20,7 @@
 package org.sonar.plugins.javascript.api.tree.expression;
 
 import com.google.common.annotations.Beta;
+import org.sonar.javascript.tree.impl.SeparatedList;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.declaration.MethodDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
@@ -27,6 +28,8 @@ import org.sonar.plugins.javascript.api.tree.statement.StatementTree;
 
 import javax.annotation.Nullable;
 import java.util.List;
+import org.sonar.plugins.javascript.api.tree.typescript.TSTypeParametersTree;
+import org.sonar.plugins.javascript.api.tree.typescript.TSTypeReferenceTree;
 
 /**
  * <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-class-definitions">Class expression</a>
@@ -46,10 +49,20 @@ public interface ClassTree extends ExpressionTree, StatementTree {
   IdentifierTree name();
 
   @Nullable
+  TSTypeParametersTree typeParameters();
+
+  @Nullable
   SyntaxToken extendsToken();
 
   @Nullable
-  ExpressionTree superClass();
+  TSTypeReferenceTree superClass();
+
+
+  @Nullable
+  SyntaxToken implementsToken();
+
+  SeparatedList<TSTypeReferenceTree> implementedTypes();
+
 
   SyntaxToken openCurlyBraceToken();
 

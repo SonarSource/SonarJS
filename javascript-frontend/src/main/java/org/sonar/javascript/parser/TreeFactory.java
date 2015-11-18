@@ -23,6 +23,12 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.sonar.sslr.api.typed.Optional;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import javax.annotation.Nullable;
 import org.apache.commons.collections.ListUtils;
 import org.sonar.javascript.lexer.JavaScriptKeyword;
 import org.sonar.javascript.lexer.JavaScriptPunctuator;
@@ -56,6 +62,7 @@ import org.sonar.javascript.tree.impl.expression.BinaryExpressionTreeImpl;
 import org.sonar.javascript.tree.impl.expression.BracketMemberExpressionTreeImpl;
 import org.sonar.javascript.tree.impl.expression.CallExpressionTreeImpl;
 import org.sonar.javascript.tree.impl.expression.ClassTreeImpl;
+import org.sonar.javascript.tree.impl.expression.ClassTreeImpl.ClassTail;
 import org.sonar.javascript.tree.impl.expression.ComputedPropertyNameTreeImpl;
 import org.sonar.javascript.tree.impl.expression.ConditionalExpressionTreeImpl;
 import org.sonar.javascript.tree.impl.expression.DotMemberExpressionTreeImpl;
@@ -102,6 +109,9 @@ import org.sonar.javascript.tree.impl.statement.VariableDeclarationTreeImpl;
 import org.sonar.javascript.tree.impl.statement.VariableStatementTreeImpl;
 import org.sonar.javascript.tree.impl.statement.WhileStatementTreeImpl;
 import org.sonar.javascript.tree.impl.statement.WithStatementTreeImpl;
+import org.sonar.javascript.tree.impl.typescript.TSTypeParameterTreeImpl;
+import org.sonar.javascript.tree.impl.typescript.TSTypeParametersTreeImpl;
+import org.sonar.javascript.tree.impl.typescript.TSTypeReferenceTreeImpl;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.declaration.AccessorMethodDeclarationTree;
@@ -115,6 +125,7 @@ import org.sonar.plugins.javascript.api.tree.declaration.ParameterListTree;
 import org.sonar.plugins.javascript.api.tree.declaration.SpecifierTree;
 import org.sonar.plugins.javascript.api.tree.expression.BracketMemberExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
+import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 import org.sonar.plugins.javascript.api.tree.expression.MemberExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.TemplateCharactersTree;
 import org.sonar.plugins.javascript.api.tree.expression.TemplateExpressionTree;
@@ -122,12 +133,9 @@ import org.sonar.plugins.javascript.api.tree.expression.TemplateLiteralTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.javascript.api.tree.statement.StatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.SwitchClauseTree;
-
-import javax.annotation.Nullable;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import org.sonar.plugins.javascript.api.tree.typescript.TSTypeParameterTree;
+import org.sonar.plugins.javascript.api.tree.typescript.TSTypeParametersTree;
+import org.sonar.plugins.javascript.api.tree.typescript.TSTypeReferenceTree;
 
 public class TreeFactory {
 
@@ -953,34 +961,6 @@ public class TreeFactory {
     return new ParenthesisedExpressionTreeImpl(openParenToken, expression, closeParenToken);
   }
 
-  public ClassTreeImpl classExpression(InternalSyntaxToken classToken, Optional<IdentifierTreeImpl> name, Optional<Tuple<InternalSyntaxToken, ExpressionTree>> extendsClause,
-    InternalSyntaxToken openCurlyBraceToken, Optional<List<Tree>> members, InternalSyntaxToken closeCurlyBraceToken) {
-
-    List<Tree> elements = Lists.newArrayList();
-
-    if (members.isPresent()) {
-      for (Tree member : members.get()) {
-        elements.add(member);
-      }
-    }
-
-    if (extendsClause.isPresent()) {
-      return ClassTreeImpl.newClassExpression(
-        classToken, name.orNull(),
-        extendsClause.get().first(), extendsClause.get().second(),
-        openCurlyBraceToken,
-        elements,
-        closeCurlyBraceToken);
-    }
-
-    return ClassTreeImpl.newClassExpression(
-      classToken, name.orNull(),
-      null, null,
-      openCurlyBraceToken,
-      elements,
-      closeCurlyBraceToken);
-  }
-
   public ComputedPropertyNameTreeImpl computedPropertyName(InternalSyntaxToken openBracketToken, ExpressionTree expression, InternalSyntaxToken closeBracketToken) {
     return new ComputedPropertyNameTreeImpl(openBracketToken, expression, closeBracketToken);
   }
@@ -1261,35 +1241,6 @@ public class TreeFactory {
 
   // [START] Classes, methods, functions & generators
 
-  public ClassTreeImpl classDeclaration(InternalSyntaxToken classToken, IdentifierTreeImpl name,
-    Optional<Tuple<InternalSyntaxToken, ExpressionTree>> extendsClause,
-    InternalSyntaxToken openCurlyBraceToken, Optional<List<Tree>> members, InternalSyntaxToken closeCurlyBraceToken) {
-
-    List<Tree> elements = Lists.newArrayList();
-
-    if (members.isPresent()) {
-      for (Tree member : members.get()) {
-        elements.add(member);
-      }
-    }
-
-    if (extendsClause.isPresent()) {
-      return ClassTreeImpl.newClassDeclaration(
-        classToken, name,
-        extendsClause.get().first(), extendsClause.get().second(),
-        openCurlyBraceToken,
-        elements,
-        closeCurlyBraceToken);
-    }
-
-    return ClassTreeImpl.newClassDeclaration(
-      classToken, name,
-      null, null,
-      openCurlyBraceToken,
-      elements,
-      closeCurlyBraceToken);
-  }
-
   public GeneratorMethodDeclarationTree generator(
       Optional<InternalSyntaxToken> staticToken, InternalSyntaxToken starToken,
       ExpressionTree name, ParameterListTreeImpl parameters,
@@ -1461,6 +1412,91 @@ public class TreeFactory {
     return expression;
   }
 
+  public TSTypeParameterTree tsTypeParameter(IdentifierTree bindingIdentifier) {
+    return new TSTypeParameterTreeImpl(bindingIdentifier);
+  }
+
+  public TSTypeParametersTree tsTypeParameters(
+    InternalSyntaxToken openAngleBracketToken,
+    TSTypeParameterTree firstParameter, Optional<List<Tuple<InternalSyntaxToken, TSTypeParameterTree>>> restParameters,
+    InternalSyntaxToken closeAngleBracketToken
+  ) {
+    return new TSTypeParametersTreeImpl(openAngleBracketToken, buildSeparatedList(firstParameter, restParameters), closeAngleBracketToken);
+  }
+
+
+  // todo Refactor other methonds in this class with help of this method
+  private static <T> SeparatedList<T> buildSeparatedList(T first, Optional<List<Tuple<InternalSyntaxToken, T>>> rest) {
+    List<T> elements = Lists.newArrayList();
+    List<InternalSyntaxToken> commas = Lists.newArrayList();
+
+    elements.add(first);
+
+    if (rest.isPresent()) {
+      for (Tuple<InternalSyntaxToken, T> t : rest.get()) {
+        commas.add(t.first());
+        elements.add(t.second());
+      }
+    }
+
+    return new SeparatedList<>(elements, commas);
+  }
+
+  // todo Refactor other methonds in this class with help of this method
+  private static <T> List<T> optionalList(Optional<List<T>> list) {
+    if (list.isPresent()) {
+      return list.get();
+    } else {
+      return Collections.emptyList();
+    }
+  }
+
+  public TSTypeReferenceTree tsTypeReference(IdentifierTree identifierReference) {
+    return new TSTypeReferenceTreeImpl(identifierReference);
+  }
+
+  public Tuple<InternalSyntaxToken, TSTypeReferenceTree> tsClassExtendsClause(InternalSyntaxToken extendsToken, TSTypeReferenceTree typeReference) {
+    return new Tuple<>(extendsToken, typeReference);
+  }
+
+  public SeparatedList<TSTypeReferenceTree> tsClassOrInterfaceTypeList(TSTypeReferenceTree first, Optional<List<Tuple<InternalSyntaxToken, TSTypeReferenceTree>>> rest) {
+    return buildSeparatedList(first, rest);
+  }
+
+  public Tuple<InternalSyntaxToken, SeparatedList<TSTypeReferenceTree>> tsImplementsClause(InternalSyntaxToken implementsToken, SeparatedList<TSTypeReferenceTree> classOrInterfaceTypeList) {
+    return new Tuple<>(implementsToken, classOrInterfaceTypeList);
+  }
+
+  public ClassTail classTail(
+    Optional<TSTypeParametersTree> typeParametersTree,
+    Optional<Tuple<InternalSyntaxToken, TSTypeReferenceTree>> extendsClause,
+    Optional<Tuple<InternalSyntaxToken, SeparatedList<TSTypeReferenceTree>>> implementsClause,
+    InternalSyntaxToken openCurlyBraceToken, Optional<List<Tree>> classBody, InternalSyntaxToken closeCurlyBraceToken
+  ) {
+    return new ClassTail(
+      typeParametersTree.orNull(),
+      extendsClause.orNull(),
+      implementsClause.orNull(),
+      openCurlyBraceToken,
+      optionalList(classBody),
+      closeCurlyBraceToken);
+  }
+
+  public ClassTreeImpl classDeclaration(InternalSyntaxToken classToken, Optional<IdentifierTreeImpl> className, ClassTail classTail) {
+    return ClassTreeImpl.newClassDeclaration(classToken, className.orNull(), classTail);
+  }
+
+  public ClassTreeImpl classExpression(InternalSyntaxToken classToken, Optional<IdentifierTreeImpl> className, ClassTail classTail) {
+    return ClassTreeImpl.newClassExpression(classToken, className.orNull(), classTail);
+  }
+
+  public InternalSyntaxToken tsImplementsToken(InternalSyntaxToken token) {
+    if ("implements".equals(token.text())) {
+      return token;
+    }
+    return null;
+  }
+
   public static class Tuple<T, U > {
 
     private final T first;
@@ -1603,6 +1639,18 @@ public class TreeFactory {
   }
 
   public <T, U> Tuple<T, U> newTuple30(T first, U second) {
+    return newTuple(first, second);
+  }
+
+  public <T, U> Tuple<T, U> newTuple31(T first, U second) {
+    return newTuple(first, second);
+  }
+
+  public <T, U> Tuple<T, U> newTuple32(T first, U second) {
+    return newTuple(first, second);
+  }
+
+  public <T, U> Tuple<T, U> newTuple33(T first, U second) {
     return newTuple(first, second);
   }
 

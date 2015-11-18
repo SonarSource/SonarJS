@@ -22,6 +22,7 @@ package org.sonar.javascript.tree.impl;
 import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.UnmodifiableIterator;
+import java.util.Collections;
 import org.sonar.javascript.tree.impl.lexical.InternalSyntaxToken;
 import org.sonar.plugins.javascript.api.tree.Tree;
 
@@ -34,6 +35,10 @@ public class SeparatedList<T> implements List<T> {
 
   private final List<T> list;
   private final List<InternalSyntaxToken> separators;
+
+  public static <T> SeparatedList<T> emptyList() {
+    return new SeparatedList<>(Collections.<T>emptyList(), Collections.<InternalSyntaxToken>emptyList());
+  }
 
   public SeparatedList(List<T> list, List<InternalSyntaxToken> separators) {
     Preconditions.checkArgument(

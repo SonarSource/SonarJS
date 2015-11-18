@@ -23,6 +23,7 @@ import com.sonar.sslr.api.typed.GrammarBuilder;
 import org.sonar.javascript.lexer.JavaScriptKeyword;
 import org.sonar.javascript.lexer.JavaScriptPunctuator;
 import org.sonar.javascript.lexer.JavaScriptTokenType;
+import org.sonar.javascript.parser.TreeFactory.Tuple;
 import org.sonar.javascript.tree.impl.SeparatedList;
 import org.sonar.javascript.tree.impl.declaration.ArrayBindingPatternTreeImpl;
 import org.sonar.javascript.tree.impl.declaration.DefaultExportDeclarationTreeImpl;
@@ -41,6 +42,7 @@ import org.sonar.javascript.tree.impl.expression.ArrayLiteralTreeImpl;
 import org.sonar.javascript.tree.impl.expression.ArrowFunctionTreeImpl;
 import org.sonar.javascript.tree.impl.expression.BracketMemberExpressionTreeImpl;
 import org.sonar.javascript.tree.impl.expression.ClassTreeImpl;
+import org.sonar.javascript.tree.impl.expression.ClassTreeImpl.ClassTail;
 import org.sonar.javascript.tree.impl.expression.ComputedPropertyNameTreeImpl;
 import org.sonar.javascript.tree.impl.expression.DotMemberExpressionTreeImpl;
 import org.sonar.javascript.tree.impl.expression.FunctionExpressionTreeImpl;
@@ -96,6 +98,9 @@ import org.sonar.plugins.javascript.api.tree.expression.TemplateExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.TemplateLiteralTree;
 import org.sonar.plugins.javascript.api.tree.statement.DebuggerStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.StatementTree;
+import org.sonar.plugins.javascript.api.tree.typescript.TSTypeParameterTree;
+import org.sonar.plugins.javascript.api.tree.typescript.TSTypeParametersTree;
+import org.sonar.plugins.javascript.api.tree.typescript.TSTypeReferenceTree;
 
 public class JavaScriptGrammar {
 
@@ -1035,16 +1040,66 @@ public class JavaScriptGrammar {
   }
 
   public ClassTreeImpl CLASS_EXPRESSION() {
-    return b.<ClassTreeImpl>nonterminal(Kind.CLASS_EXPRESSION)
-      .is(
-          f.classExpression(
-              b.token(JavaScriptKeyword.CLASS),
-              b.optional(BINDING_IDENTIFIER()),
-              // TODO Factor the duplication with CLASS_DECLARATION() into CLASS_TRAIT() ?
-              b.optional(f.newTuple28(b.token(JavaScriptKeyword.EXTENDS), LEFT_HAND_SIDE_EXPRESSION())),
-              b.token(JavaScriptPunctuator.LCURLYBRACE),
-              b.zeroOrMore(CLASS_ELEMENT()),
-              b.token(JavaScriptPunctuator.RCURLYBRACE)));
+    return b.<ClassTreeImpl>nonterminal(Kind.CLASS_EXPRESSION).is(
+      f.classExpression(
+        b.token(JavaScriptKeyword.CLASS),
+        b.optional(BINDING_IDENTIFIER()),
+        CLASS_TAIL()));
+  }
+
+  public ClassTail CLASS_TAIL() {
+    return b.<ClassTail>nonterminal().is(
+      f.classTail(
+        b.optional(TS_TYPE_PARAMETERS()),
+        b.optional(TS_CLASS_EXTENDS_CLAUSE()),
+        b.optional(TS_IMPLEMENTS_CLAUSE()),
+        b.token(JavaScriptPunctuator.LCURLYBRACE),
+        b.zeroOrMore(CLASS_ELEMENT()),
+        b.token(JavaScriptPunctuator.RCURLYBRACE)));
+  }
+
+  public Tuple<InternalSyntaxToken, TSTypeReferenceTree> TS_CLASS_EXTENDS_CLAUSE() {
+    return b.<Tuple<InternalSyntaxToken, TSTypeReferenceTree>>nonterminal().is(
+      f.tsClassExtendsClause(b.token(JavaScriptKeyword.EXTENDS), TS_TYPE_REFERENCE()));
+  }
+
+  public Tuple<InternalSyntaxToken, SeparatedList<TSTypeReferenceTree>> TS_IMPLEMENTS_CLAUSE() {
+    return b.<Tuple<InternalSyntaxToken, SeparatedList<TSTypeReferenceTree>>>nonterminal().is(
+      f.tsImplementsClause(TS_IMPLEMENTS_TOKEN(), TS_CLASS_OR_INTERFACE_TYPE_LIST()));
+  }
+
+  /**
+   * In TypeScript <code>implements</code> could be both keyword and identifier
+   */
+  public InternalSyntaxToken TS_IMPLEMENTS_TOKEN() {
+    return b.<InternalSyntaxToken>nonterminal().is(f.tsImplementsToken(b.token(JavaScriptTokenType.IDENTIFIER)));
+  }
+
+  public SeparatedList<TSTypeReferenceTree> TS_CLASS_OR_INTERFACE_TYPE_LIST() {
+    return b.<SeparatedList<TSTypeReferenceTree>>nonterminal().is(
+      f.tsClassOrInterfaceTypeList(
+        TS_TYPE_REFERENCE(),
+        b.zeroOrMore(f.newTuple32(b.token(JavaScriptPunctuator.COMMA), TS_TYPE_REFERENCE()))));
+  }
+
+
+  public TSTypeReferenceTree TS_TYPE_REFERENCE() {
+    return b.<TSTypeReferenceTree>nonterminal(Kind.TS_TYPE_REFERENCE).is(
+      f.tsTypeReference(IDENTIFIER_REFERENCE()));
+  }
+
+  public TSTypeParametersTree TS_TYPE_PARAMETERS() {
+    return b.<TSTypeParametersTree>nonterminal(Kind.TS_TYPE_PARAMETERS).is(
+      f.tsTypeParameters(
+        b.token(JavaScriptPunctuator.LT),
+        TS_TYPE_PARAMETER(),
+        b.zeroOrMore(f.newTuple31(b.token(JavaScriptPunctuator.COMMA), TS_TYPE_PARAMETER())),
+        b.token(JavaScriptPunctuator.GT)));
+  }
+
+  public TSTypeParameterTree TS_TYPE_PARAMETER() {
+    return b.<TSTypeParameterTree>nonterminal(Kind.TS_TYPE_PARAMETER).is(
+      f.tsTypeParameter(BINDING_IDENTIFIER()));
   }
 
   public ComputedPropertyNameTreeImpl COMPUTED_PROPERTY_NAME() {
@@ -1493,15 +1548,11 @@ public class JavaScriptGrammar {
   // [START] Classes, methods, functions & generators
 
   public ClassTreeImpl CLASS_DECLARATION() {
-    return b.<ClassTreeImpl>nonterminal(Kind.CLASS_DECLARATION)
-      .is(
+    return b.<ClassTreeImpl>nonterminal(Kind.CLASS_DECLARATION).is(
           f.classDeclaration(
-              b.token(JavaScriptKeyword.CLASS), BINDING_IDENTIFIER(),
-              // TODO Factor the duplication with CLASS_EXPRESSION() into CLASS_TRAIT() ?
-              b.optional(f.newTuple27(b.token(JavaScriptKeyword.EXTENDS), LEFT_HAND_SIDE_EXPRESSION())),
-              b.token(JavaScriptPunctuator.LCURLYBRACE),
-              b.zeroOrMore(CLASS_ELEMENT()),
-              b.token(JavaScriptPunctuator.RCURLYBRACE)));
+            b.token(JavaScriptKeyword.CLASS),
+            b.optional(BINDING_IDENTIFIER()),
+            CLASS_TAIL()));
   }
 
   public Tree CLASS_ELEMENT() {

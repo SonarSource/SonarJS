@@ -17,24 +17,20 @@
  * License along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.javascript.parser.declarations;
+package org.sonar.javascript.parser.typescript;
 
 import org.junit.Test;
+import org.sonar.javascript.utils.LegacyParserTest;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 
 import static org.sonar.javascript.utils.Assertions.assertThat;
 
-public class ClassDeclarationTest {
-
+public class TSTypeParameterTest extends LegacyParserTest {
 
   @Test
-  public void ok() {
-    assertThat(Kind.CLASS_DECLARATION)
-      .matches("class C {}")
-      .matches("class {}")
-      .matches("class C extends S {}")
-      .matches("class C { ; }")
-      .matches("class C extends S { ; }");
+  public void test() {
+    assertThat(g.rule(Kind.TS_TYPE_PARAMETER))
+        .matches("T");
   }
 
 }
