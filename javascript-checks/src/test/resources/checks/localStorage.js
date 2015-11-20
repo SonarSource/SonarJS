@@ -4,7 +4,7 @@ sessionStorage.setItem("sessionId", sessionId); // NOK
 
 // access via Window object
 Window.localStorage.getItem("login"); // NOK
-Window.sessionStorage.setItem("sessionId"); // NOK
+Window.localStorage.setItem("sessionId"); // NOK
 
 // indirect access via var
 var lStorage = Window.localStorage;
@@ -32,5 +32,5 @@ Window.localStorage.key(1);  // NOK
 // direct array access
 var foo = localStorage.getItem("foo");  // NOK
 var bar = localStorage[0];  // NOK
-Window.sessionStorage['login'] = "bubba";  // NOK
+Window.localStorage['login'] = "bubba";  // NOK
 

@@ -112,7 +112,7 @@ public class TestCheckContext implements TreeVisitorContext {
 
   private void commonAddIssue(JavaScriptCheck check, int line, String message, double cost) {
     CheckMessage issue = new CheckMessage(check, message);
-    if (cost > 0) {
+    if (cost >= 0) {
       issue.setCost(cost);
     }
     if (line > 0) {

@@ -112,11 +112,9 @@ public class LocalStorageCheck extends BaseTreeVisitor{
 
   private void checkForIssues() {
     for (Map.Entry<String, StorageType> entry : storageTypes.entrySet()) {
-      int cost = entry.getValue().count-1;
+      int cost = entry.getValue().count - 1;
 
-      String message = String.format("Remove all use of \"%s\"; " +
-              "use cookies or store the data on the server instead."
-              , entry.getKey());
+      String message = String.format("Remove all use of \"%s\"; use cookies or store the data on the server instead.", entry.getKey());
       getContext().addIssue(this, entry.getValue().tree, message, (double) cost);
     }
   }
