@@ -34,3 +34,4 @@ var foo = localStorage.getItem("foo");  // NOK
 var bar = localStorage[0];  // NOK
 Window.localStorage['login'] = "bubba";  // NOK
 
+obj.foo(function(){ window.localStorage.getItem("item"); }).bar();

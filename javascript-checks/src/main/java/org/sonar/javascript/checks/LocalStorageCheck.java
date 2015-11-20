@@ -89,6 +89,8 @@ public class LocalStorageCheck extends BaseTreeVisitor{
         saveDebtLocation(tree, obj);
       }
     }
+
+    super.visitMemberExpression(tree);
   }
 
   private void saveDebtLocation(MemberExpressionTree tree, String obj) {
