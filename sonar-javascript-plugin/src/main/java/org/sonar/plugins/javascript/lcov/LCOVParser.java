@@ -77,8 +77,6 @@ public final class LCOVParser {
   }
 
   private Map<InputFile, CoverageMeasuresBuilder> parse(List<String> lines) {
-    final String errorMessage = "Problem during processing LCOV report: can't save %s data for line %s.";
-
     final Map<InputFile, FileData> files = Maps.newHashMap();
     FileData fileData = null;
 
@@ -96,7 +94,7 @@ public final class LCOVParser {
           try {
             fileData.addLine(Integer.valueOf(lineNumber), Integer.valueOf(executionCount));
           } catch (IllegalArgumentException e) {
-            LOG.warn(String.format(errorMessage, "DA", lineNumber), e);
+            logWrongDataWarning("DA", lineNumber, e);
           }
         } else if (line.startsWith(BRDA)) {
           // BRDA:<line number>,<block number>,<branch number>,<taken>
@@ -108,7 +106,7 @@ public final class LCOVParser {
           try {
             fileData.addBranch(Integer.valueOf(lineNumber), branchNumber, "-".equals(taken) ? 0 : Integer.valueOf(taken));
           } catch (IllegalArgumentException e) {
-            LOG.warn(String.format(errorMessage, "BRDA", lineNumber), e);
+            logWrongDataWarning("BRDA", lineNumber, e);
           }
         }
       }
@@ -120,6 +118,10 @@ public final class LCOVParser {
       coveredFiles.put(e.getKey(), e.getValue().convert());
     }
     return coveredFiles;
+  }
+
+  private void logWrongDataWarning(String dataType, String lineNumber, IllegalArgumentException e) {
+    LOG.warn(String.format("Problem during processing LCOV report: can't save %s data for line %s.", dataType, lineNumber), e);
   }
 
   @CheckForNull
