@@ -55,10 +55,10 @@ public class CoverageTest {
     Tests.setEmptyProfile(Tests.PROJECT_KEY, Tests.PROJECT_KEY);
     orchestrator.executeBuild(build);
 
-    assertThat(getProjectMeasure("lines_to_cover").getValue()).isEqualTo(4);
+    assertThat(getProjectMeasure("lines_to_cover").getValue()).isEqualTo(7);
     assertThat(getProjectMeasure("uncovered_lines").getValue()).isEqualTo(1);
     assertThat(getProjectMeasure("conditions_to_cover").getValue()).isEqualTo(4);
-    assertThat(getProjectMeasure("uncovered_conditions").getValue()).isEqualTo(2);
+    assertThat(getProjectMeasure("uncovered_conditions").getValue()).isEqualTo(1);
   }
 
   @Test
@@ -73,10 +73,10 @@ public class CoverageTest {
     Tests.setEmptyProfile(Tests.PROJECT_KEY, Tests.PROJECT_KEY);
     orchestrator.executeBuild(build);
 
-    assertThat(getProjectMeasure("lines_to_cover").getValue()).isEqualTo(4);
+    assertThat(getProjectMeasure("lines_to_cover").getValue()).isEqualTo(7);
     assertThat(getProjectMeasure("uncovered_lines").getValue()).isEqualTo(1);
     assertThat(getProjectMeasure("conditions_to_cover").getValue()).isEqualTo(4);
-    assertThat(getProjectMeasure("uncovered_conditions").getValue()).isEqualTo(2);
+    assertThat(getProjectMeasure("uncovered_conditions").getValue()).isEqualTo(1);
   }
 
   @Test
@@ -92,10 +92,10 @@ public class CoverageTest {
       Tests.setEmptyProfile(Tests.PROJECT_KEY, Tests.PROJECT_KEY);
       orchestrator.executeBuild(build);
 
-      assertThat(getProjectMeasure("it_lines_to_cover").getValue()).isEqualTo(4);
+      assertThat(getProjectMeasure("it_lines_to_cover").getValue()).isEqualTo(7);
       assertThat(getProjectMeasure("it_uncovered_lines").getValue()).isEqualTo(1);
       assertThat(getProjectMeasure("it_conditions_to_cover").getValue()).isEqualTo(4);
-      assertThat(getProjectMeasure("it_uncovered_conditions").getValue()).isEqualTo(2);
+      assertThat(getProjectMeasure("it_uncovered_conditions").getValue()).isEqualTo(1);
     }
   }
 
@@ -112,10 +112,12 @@ public class CoverageTest {
     Tests.setEmptyProfile(Tests.PROJECT_KEY, Tests.PROJECT_KEY);
     orchestrator.executeBuild(build);
 
-    assertThat(getProjectMeasure("lines_to_cover").getValue()).isEqualTo(4);
-    assertThat(getProjectMeasure("uncovered_lines").getValue()).isEqualTo(4);
+    // NOTE that lines_to_cover is 10 here (instead of 7 in other tests) because this value is equal to NCLOC metric (computed on plugin side)
+    // which counts every line containing code even if it's not executable (e.g. containing just "}").
+    assertThat(getProjectMeasure("lines_to_cover").getValue()).isEqualTo(10);
+    assertThat(getProjectMeasure("uncovered_lines").getValue()).isEqualTo(10);
     if (Tests.is_strictly_after_plugin("2.4")) {
-      assertThat(getFileMeasure("coverage_line_hits_data").getData()).isEqualTo("3=0;4=0;5=0;7=0");
+      assertThat(getFileMeasure("coverage_line_hits_data").getData()).startsWith("1=0;2=0;3=0;5=0");
     }
     assertThat(getProjectMeasure("conditions_to_cover")).isNull();
     assertThat(getProjectMeasure("uncovered_conditions")).isNull();
