@@ -56,7 +56,7 @@ public class UTCoverageSensorTest {
   @Before
   public void init() {
     settings = new Settings();
-    settings.setProperty(JavaScriptPlugin.LCOV_UT_REPORT_PATH, "jsTestDriver.conf-coverage.dat");
+    settings.setProperty(JavaScriptPlugin.LCOV_UT_REPORT_PATH, "test_lcov_report.dat");
     context = mock(SensorContext.class);
     project = new Project("project");
 
@@ -72,7 +72,7 @@ public class UTCoverageSensorTest {
     assertThat(localSensor.shouldExecuteOnProject(project)).isFalse();
 
     // at least one JS file -> do execute
-    fs.add(new DefaultInputFile("file.js").setType(InputFile.Type.MAIN).setLanguage(JavaScriptLanguage.KEY));
+    fs.add(new DefaultInputFile("fake_file.js").setType(InputFile.Type.MAIN).setLanguage(JavaScriptLanguage.KEY));
     assertThat(localSensor.shouldExecuteOnProject(project)).isTrue();
 
     // no path to report -> do execute
@@ -86,7 +86,7 @@ public class UTCoverageSensorTest {
 
     // Setting with bad report path
     Settings localSettings = new Settings();
-    localSettings.setProperty(JavaScriptPlugin.LCOV_UT_REPORT_PATH, "/fake/path/jsTestDriver.conf-coverage.dat");
+    localSettings.setProperty(JavaScriptPlugin.LCOV_UT_REPORT_PATH, "/fake/path/lcov_report.dat");
 
     newSensor(fs, localSettings).analyse(project, context);
 
@@ -96,46 +96,52 @@ public class UTCoverageSensorTest {
   @Test
   public void test_file_in_coverage_report() {
     DefaultFileSystem fs = newFileSystem();
-    fs.add(newSourceInputFile("sensortests/main/Another.js", "org/sonar/plugins/javascript/unittest/jstestdriver/sensortests/main/Another.js"));
-    fs.add(newSourceInputFile("sensortests/main/Person.js", "org/sonar/plugins/javascript/unittest/jstestdriver/sensortests/main/Person.js"));
+    fs.add(newSourceInputFile("fake_file1.js"));
+    fs.add(newSourceInputFile("fake_file2.js"));
     newSensor(fs, settings).analyse(project, context);
 
-    verify(context, atLeast(3)).saveMeasure(any(Resource.class), (Measure) anyObject());
+    // 3 line coverage metrics for two files, 4 condition coverage metrics for 1 file
+    verify(context, times(10)).saveMeasure(any(Resource.class), (Measure) anyObject());
   }
 
   @Test
   public void test_wrong_lines_in_file() {
     settings.setProperty(JavaScriptPlugin.LCOV_UT_REPORT_PATH, "wrong_line_lcov.info");
     DefaultFileSystem fs = newFileSystem();
-    DefaultInputFile inputFile = newSourceInputFile("sensortests/main/Person.js", "org/sonar/plugins/javascript/unittest/jstestdriver/sensortests/main/Person.js");
-    fs.add(inputFile.setLines(13));
+    fs.add(newSourceInputFile("fake_file.js"));
     newSensor(fs, settings).analyse(project, context);
 
     ArgumentCaptor<Measure> measures = ArgumentCaptor.forClass(Measure.class);
 
-    verify(context, times(7)).saveMeasure((Resource) anyObject(), measures.capture());
+    verify(context, atLeast(2)).saveMeasure((Resource) anyObject(), measures.capture());
+
+    boolean lineCoverageMetric = false;
+    boolean conditionCoverageMetric = false;
 
     for (Measure measure : measures.getAllValues()) {
-      if (measure.getMetricKey() == CoreMetrics.COVERAGE_LINE_HITS_DATA_KEY) {
+      if (measure.getMetricKey().equals(CoreMetrics.COVERAGE_LINE_HITS_DATA_KEY)) {
         assertThat(measure.getData()).isEqualTo("5=1");
+        lineCoverageMetric = true;
 
-      } else if (measure.getMetricKey() == CoreMetrics.CONDITIONS_BY_LINE_KEY) {
+      } else if (measure.getMetricKey().equals(CoreMetrics.CONDITIONS_BY_LINE_KEY)) {
         assertThat(measure.getData()).isEqualTo("7=3");
+        conditionCoverageMetric = true;
       }
     }
+
+    assertThat(lineCoverageMetric).isTrue();
+    assertThat(conditionCoverageMetric).isTrue();
   }
 
   @Test
   public void test_file_not_in_coverage_report() {
     DefaultFileSystem fs = newFileSystem();
-    fs.add(newSourceInputFile("sensortests/main/Another.js", "org/sonar/plugins/javascript/unittest/jstestdriver/sensortests/main/Another.js"));
+    fs.add(newSourceInputFile("not_in_report.js"));
 
     when(context.getMeasure(any(org.sonar.api.resources.File.class), eq(CoreMetrics.NCLOC)))
-      .thenReturn(
-        new Measure(CoreMetrics.NCLOC, (double) 2));
+      .thenReturn(new Measure(CoreMetrics.NCLOC, (double) 2));
     when(context.getMeasure(any(org.sonar.api.resources.File.class), eq(CoreMetrics.NCLOC_DATA)))
-      .thenReturn(
-        new Measure(CoreMetrics.NCLOC_DATA, "1=0;2=1;3=1;4=0"));
+      .thenReturn(new Measure(CoreMetrics.NCLOC_DATA, "1=0;2=1;3=1;4=0"));
 
     newSensor(fs, settings).analyse(project, context);
 
@@ -144,27 +150,26 @@ public class UTCoverageSensorTest {
   }
 
   @Test
-  public void test_save_zero_value_for_all_files() throws Exception {
+  public void test_save_zero_value_for_all_files_no_report() throws Exception {
     DefaultFileSystem fs = newFileSystem();
-    fs.add(newSourceInputFile("sensortests/main/Person.js", "org/sonar/plugins/javascript/unittest/jstestdriver/sensortests/main/Person.js"));
+    fs.add(newSourceInputFile("fake_file.js"));
 
     settings.setProperty(JavaScriptPlugin.FORCE_ZERO_COVERAGE_KEY, "true");
     settings.setProperty(JavaScriptPlugin.LCOV_UT_REPORT_PATH, "");
     when(context.getMeasure(any(Resource.class), any(Metric.class))).thenReturn(new Measure().setValue(1d));
     when(context.getMeasure(any(org.sonar.api.resources.File.class), eq(CoreMetrics.NCLOC_DATA)))
-        .thenReturn(
-            new Measure(CoreMetrics.NCLOC_DATA, "1=0;2=1;3=1;4=0"));
+        .thenReturn(new Measure(CoreMetrics.NCLOC_DATA, "1=0;2=1;3=1;4=0"));
     newSensor(fs, settings).analyse(project, context);
 
     verify(context, times(1)).saveMeasure((Resource) anyObject(), eq(CoreMetrics.LINES_TO_COVER), eq(1d));
     verify(context, times(1)).saveMeasure((Resource) anyObject(), eq(CoreMetrics.UNCOVERED_LINES), eq(1d));
   }
 
-  public DefaultInputFile newSourceInputFile(String relativePath, String path) {
-    return new DefaultInputFile(relativePath)
-      .setAbsolutePath(TestUtils.getResource(path).getAbsolutePath())
+  public DefaultInputFile newSourceInputFile(String name) {
+    return new DefaultInputFile("relative/path/" + name)
+      .setAbsolutePath("absolute/path/" + name)
       .setType(InputFile.Type.MAIN)
-      .setLines(11)
+      .setLines(42)
       .setLanguage(JavaScriptLanguage.KEY);
   }
 

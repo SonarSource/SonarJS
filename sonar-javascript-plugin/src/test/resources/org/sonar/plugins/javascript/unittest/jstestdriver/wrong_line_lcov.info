@@ -1,9 +1,9 @@
 TN:
-SF:sensortests/main/Person.js
+SF:relative/path/fake_file.js
 DA:0,1
 DA:5,1
 BRDA:7,1,0,0
 BRDA:7,1,1,1
 BRDA:7,2,0,1
-BRDA:25,2,1,1
+BRDA:43,2,1,1
 end_of_record

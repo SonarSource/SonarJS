@@ -19,6 +19,22 @@
  */
 package org.sonar.plugins.javascript.unittest.jstestdriver;
 
+import java.io.File;
+import org.junit.Before;
+import org.junit.Test;
+import org.sonar.api.batch.SensorContext;
+import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.fs.internal.DefaultFileSystem;
+import org.sonar.api.batch.fs.internal.DefaultInputFile;
+import org.sonar.api.config.Settings;
+import org.sonar.api.measures.CoreMetrics;
+import org.sonar.api.measures.Metric;
+import org.sonar.api.resources.Project;
+import org.sonar.api.resources.Resource;
+import org.sonar.plugins.javascript.JavaScriptLanguage;
+import org.sonar.plugins.javascript.JavaScriptPlugin;
+import org.sonar.test.TestUtils;
+
 import static org.fest.assertions.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -31,23 +47,6 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.io.File;
-
-import org.junit.Before;
-import org.junit.Test;
-import org.sonar.api.batch.SensorContext;
-import org.sonar.api.batch.fs.InputFile;
-import org.sonar.api.batch.fs.internal.DefaultFileSystem;
-import org.sonar.api.batch.fs.internal.DefaultInputFile;
-import org.sonar.api.config.Settings;
-import org.sonar.api.measures.CoreMetrics;
-import org.sonar.api.measures.Metric;
-import org.sonar.api.resources.Project;
-import org.sonar.api.resources.Resource;
-import org.sonar.plugins.javascript.JavaScriptPlugin;
-import org.sonar.plugins.javascript.JavaScriptLanguage;
-import org.sonar.test.TestUtils;
-
 public class JsTestDriverSensorTest {
 
   private static final File PROJECT_BASE_DIR = TestUtils.getResource("org/sonar/plugins/javascript/unittest/jstestdriver/sensortests");
@@ -55,15 +54,14 @@ public class JsTestDriverSensorTest {
   private JsTestDriverSensor sensor;
   private SensorContext context;
   private Settings settings;
-  private DefaultFileSystem fileSystem;
   private final Project project = new Project("project");
 
   @Before
   public void init() {
-    fileSystem = new DefaultFileSystem();
+    DefaultFileSystem fileSystem = new DefaultFileSystem();
     fileSystem.setBaseDir(PROJECT_BASE_DIR);
-    fileSystem.add(newTestInputFile("test/AnotherPersonTest.js", "org/sonar/plugins/javascript/unittest/jstestdriver/sensortests/test/AnotherPersonTest.js"));
-    fileSystem.add(newTestInputFile("test/PersonTest.js", "org/sonar/plugins/javascript/unittest/jstestdriver/sensortests/test/PersonTest.js"));
+    fileSystem.add(newTestInputFile("test/AnotherPersonTest.js"));
+    fileSystem.add(newTestInputFile("test/PersonTest.js"));
 
     settings = new Settings();
     sensor = new JsTestDriverSensor(fileSystem, settings);
@@ -136,9 +134,9 @@ public class JsTestDriverSensorTest {
     assertThat(sensor.toString()).isEqualTo("JsTestDriverSensor");
   }
 
-  public DefaultInputFile newTestInputFile(String projectRelativePath, String pathFromTestsResourceDir) {
-    return new DefaultInputFile(projectRelativePath)
-      .setAbsolutePath(TestUtils.getResource(pathFromTestsResourceDir).getAbsolutePath())
+  public DefaultInputFile newTestInputFile(String relativePath) {
+    return new DefaultInputFile(relativePath)
+      .setAbsolutePath("absolute/path/" + relativePath)
       .setType(InputFile.Type.TEST)
       .setLanguage(JavaScriptLanguage.KEY);
   }
