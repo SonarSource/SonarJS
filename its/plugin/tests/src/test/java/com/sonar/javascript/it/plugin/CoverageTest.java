@@ -162,6 +162,30 @@ public class CoverageTest {
       + "first unresolved path: \\./wrong/fileName\\.js").matcher(logs).find()).isTrue();
   }
 
+  @Test
+  // SONARJS-547
+  public void wrong_line_in_report() throws InterruptedException {
+    SonarRunner build = Tests.createSonarRunnerBuild()
+      .setProjectDir(TestUtils.projectDir("lcov"))
+      .setProjectKey(Tests.PROJECT_KEY)
+      .setProjectName(Tests.PROJECT_KEY)
+      .setProjectVersion("1.0")
+      .setSourceDirs(".")
+      .setProperty("sonar.javascript.lcov.reportPath", TestUtils.file("projects/lcov/coverage-wrong-line.lcov").getAbsolutePath());
+    Tests.setEmptyProfile(Tests.PROJECT_KEY, Tests.PROJECT_KEY);
+    BuildResult result = orchestrator.executeBuild(build);
+
+    // Check that a log is printed
+    String logs = result.getLogs();
+    assertThat(Pattern.compile("WARN  - Problem during processing LCOV report: can't save DA data for line 999.").matcher(logs).find()).isTrue();
+    assertThat(Pattern.compile("WARN  - Problem during processing LCOV report: can't save BRDA data for line 0.").matcher(logs).find()).isTrue();
+
+    assertThat(getProjectMeasure("lines_to_cover").getValue()).isEqualTo(6);
+    assertThat(getProjectMeasure("uncovered_lines").getValue()).isEqualTo(1);
+    assertThat(getProjectMeasure("conditions_to_cover").getValue()).isEqualTo(3);
+    assertThat(getProjectMeasure("uncovered_conditions").getValue()).isEqualTo(0);
+  }
+
   private Measure getProjectMeasure(String metricKey) {
     Resource resource = orchestrator.getServer().getWsClient().find(ResourceQuery.createForMetrics("project", metricKey));
     return resource == null ? null : resource.getMeasure(metricKey);
