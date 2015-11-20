@@ -19,9 +19,12 @@
  */
 package org.sonar.javascript.checks;
 
-import com.google.common.io.Files;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.io.IOException;
+import java.nio.charset.Charset;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
+
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
@@ -32,11 +35,7 @@ import org.sonar.plugins.javascript.api.visitors.TreeVisitorContext;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 
-import java.io.IOException;
-import java.nio.charset.Charset;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
+import com.google.common.io.Files;
 
 @Rule(
   key = "S1451",
@@ -46,7 +45,6 @@ import java.util.List;
 @SqaleConstantRemediation("5min")
 public class FileHeaderCheck extends BaseTreeVisitor implements CharsetAwareVisitor {
 
-  private static final Logger LOG = LoggerFactory.getLogger(FileHeaderCheck.class);
   private static final String DEFAULT_HEADER_FORMAT = "";
 
   @RuleProperty(
@@ -75,8 +73,8 @@ public class FileHeaderCheck extends BaseTreeVisitor implements CharsetAwareVisi
       lines = Files.readLines(context.getFile(), charset);
 
     } catch (IOException e) {
-      LOG.error("Unable to execute rule \"TabCharacter\" for file {} because of error: {}",
-        context.getFile().getName(), e);
+      String fileName = context.getFile().getName();
+      throw new IllegalStateException("Unable to execute rule \"S1451\" for file " + fileName, e);
     }
 
     if (!matches(expectedLines, lines)) {

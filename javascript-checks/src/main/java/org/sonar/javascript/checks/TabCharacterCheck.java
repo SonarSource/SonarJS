@@ -24,14 +24,12 @@ import java.nio.charset.Charset;
 import java.util.Collections;
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.javascript.tree.visitors.CharsetAwareVisitor;
-import org.sonar.plugins.javascript.api.visitors.TreeVisitorContext;
 import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
+import org.sonar.plugins.javascript.api.visitors.TreeVisitorContext;
 import org.sonar.squidbridge.annotations.ActivatedByDefault;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
@@ -48,7 +46,6 @@ import com.google.common.io.Files;
 @SqaleConstantRemediation("2min")
 public class TabCharacterCheck extends BaseTreeVisitor implements CharsetAwareVisitor {
 
-  private static final Logger LOG = LoggerFactory.getLogger(TabCharacterCheck.class);
   private Charset charset;
 
   @Override
@@ -61,8 +58,8 @@ public class TabCharacterCheck extends BaseTreeVisitor implements CharsetAwareVi
       lines = Files.readLines(getContext().getFile(), charset);
 
     } catch (IOException e) {
-      LOG.error("Unable to execute rule \"TabCharacter\" for file {} because of error: {}",
-        getContext().getFile().getName(), e);
+      String fileName = getContext().getFile().getName();
+      throw new IllegalStateException("Unable to execute rule \"TabCharacter\" for file " + fileName, e);
     }
 
     for (int i = 0; i < lines.size(); i++) {

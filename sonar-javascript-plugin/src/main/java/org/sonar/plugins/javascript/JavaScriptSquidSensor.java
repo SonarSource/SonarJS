@@ -19,10 +19,17 @@
  */
 package org.sonar.plugins.javascript;
 
+import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Throwables;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.sonar.sslr.api.RecognitionException;
 import com.sonar.sslr.api.typed.ActionParser;
+import java.io.InterruptedIOException;
+import java.util.Collection;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
+import javax.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.DependedUpon;
@@ -58,13 +65,7 @@ import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.squidbridge.ProgressReport;
 import org.sonar.squidbridge.api.AnalysisException;
 
-import javax.annotation.Nullable;
-import java.util.Collection;
-import java.util.List;
-import java.util.concurrent.TimeUnit;
-
 public class JavaScriptSquidSensor implements Sensor {
-
 
   @DependedUpon
   public Collection<Metric> generatesNCLOCMetric() {
@@ -130,12 +131,29 @@ public class JavaScriptSquidSensor implements Sensor {
     ProgressReport progressReport = new ProgressReport("Report about progress of Javascript analyzer", TimeUnit.SECONDS.toMillis(10));
     progressReport.start(Lists.newArrayList(fileSystem.files(mainFilePredicate)));
 
-    for (InputFile inputFile : fileSystem.inputFiles(mainFilePredicate)) {
-      analyse(inputFile, treeVisitors);
-      progressReport.nextFile();
-    }
+    analyseFiles(treeVisitors, fileSystem.inputFiles(mainFilePredicate), progressReport);
+  }
 
-    progressReport.stop();
+  @VisibleForTesting
+  protected void analyseFiles(List<JavaScriptCheck> treeVisitors, Iterable<InputFile> inputFiles, ProgressReport progressReport) {
+    boolean success = false;
+    try {
+      for (InputFile inputFile : inputFiles) {
+        analyse(inputFile, treeVisitors);
+        progressReport.nextFile();
+      }
+      success = true;
+    } finally {
+      stopProgressReport(progressReport, success);
+    }
+  }
+
+  private static void stopProgressReport(ProgressReport progressReport, boolean success) {
+    if (success) {
+      progressReport.stop();
+    } else {
+      progressReport.cancel();
+    }
   }
 
   private void analyse(InputFile inputFile, List<JavaScriptCheck> visitors) {
@@ -147,14 +165,23 @@ public class JavaScriptSquidSensor implements Sensor {
       scanFile(inputFile, visitors, issuable, scriptTree);
 
     } catch (RecognitionException e) {
+      checkInterrupted(e);
       LOG.error("Unable to parse file: " + inputFile.absolutePath());
       LOG.error(e.getMessage());
       processRecognitionException(e, issuable);
 
     } catch (Exception e) {
+      checkInterrupted(e);
       throw new AnalysisException("Unable to parse file: " + inputFile.absolutePath(), e);
     }
 
+  }
+
+  private static void checkInterrupted(Exception e) {
+    Throwable cause = Throwables.getRootCause(e);
+    if (cause instanceof InterruptedException || cause instanceof InterruptedIOException) {
+      throw new AnalysisException("Analysis cancelled", e);
+    }
   }
 
   private void processRecognitionException(RecognitionException e, Issuable issuable) {

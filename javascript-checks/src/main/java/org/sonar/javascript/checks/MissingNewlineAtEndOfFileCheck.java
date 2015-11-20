@@ -19,18 +19,16 @@
  */
 package org.sonar.javascript.checks;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.io.IOException;
+import java.io.RandomAccessFile;
+
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
-import org.sonar.plugins.javascript.api.visitors.TreeVisitorContext;
 import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
+import org.sonar.plugins.javascript.api.visitors.TreeVisitorContext;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
-
-import java.io.IOException;
-import java.io.RandomAccessFile;
 
 @Rule(
   key = "MissingNewlineAtEndOfFile",
@@ -40,8 +38,6 @@ import java.io.RandomAccessFile;
 @SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.READABILITY)
 @SqaleConstantRemediation("1min")
 public class MissingNewlineAtEndOfFileCheck extends BaseTreeVisitor {
-
-  private static final Logger LOG = LoggerFactory.getLogger(MissingNewlineAtEndOfFileCheck.class);
 
   @Override
   public void scanFile(TreeVisitorContext context) {
@@ -54,8 +50,8 @@ public class MissingNewlineAtEndOfFileCheck extends BaseTreeVisitor {
       }
 
     } catch (IOException e) {
-      LOG.error("Unable to execute rule \"MissingNewlineAtEndOfFile\" for file {} because of error: {}",
-        getContext().getFile().getName(), e);
+      String fileName = getContext().getFile().getName();
+      throw new IllegalStateException("Unable to execute rule \"MissingNewlineAtEndOfFile\" for file " + fileName, e);
     }
   }
 

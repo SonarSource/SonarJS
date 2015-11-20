@@ -19,25 +19,24 @@
  */
 package org.sonar.javascript.checks;
 
-import com.google.common.io.Files;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.sonar.api.server.rule.RulesDefinition;
-import org.sonar.check.Priority;
-import org.sonar.check.Rule;
-import org.sonar.javascript.lexer.JavaScriptLexer;
-import org.sonar.javascript.tree.visitors.CharsetAwareVisitor;
-import org.sonar.plugins.javascript.api.visitors.SubscriptionBaseTreeVisitor;
-import org.sonar.plugins.javascript.api.tree.Tree;
-import org.sonar.squidbridge.annotations.ActivatedByDefault;
-import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
-import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
-
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.Collections;
 import java.util.List;
 import java.util.regex.Pattern;
+
+import org.sonar.api.server.rule.RulesDefinition;
+import org.sonar.check.Priority;
+import org.sonar.check.Rule;
+import org.sonar.javascript.lexer.JavaScriptLexer;
+import org.sonar.javascript.tree.visitors.CharsetAwareVisitor;
+import org.sonar.plugins.javascript.api.tree.Tree;
+import org.sonar.plugins.javascript.api.visitors.SubscriptionBaseTreeVisitor;
+import org.sonar.squidbridge.annotations.ActivatedByDefault;
+import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
+import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
+
+import com.google.common.io.Files;
 
 @Rule(
   key = "TrailingWhitespace",
@@ -49,7 +48,6 @@ import java.util.regex.Pattern;
 @SqaleConstantRemediation("1min")
 public class TrailingWhitespaceCheck extends SubscriptionBaseTreeVisitor implements CharsetAwareVisitor {
 
-  private static final Logger LOG = LoggerFactory.getLogger(TrailingWhitespaceCheck.class);
   private Charset charset;
 
   @Override
@@ -70,8 +68,8 @@ public class TrailingWhitespaceCheck extends SubscriptionBaseTreeVisitor impleme
       lines = Files.readLines(getContext().getFile(), charset);
 
     } catch (IOException e) {
-      LOG.error("Unable to execute rule \"TrailingWhitespace\" for file {} because of error: {}",
-        getContext().getFile().getName(), e);
+      String fileName = getContext().getFile().getName();
+      throw new IllegalStateException("Unable to execute rule \"TrailingWhitespace\" for file " + fileName, e);
     }
 
     for (int i = 0; i < lines.size(); i++) {
