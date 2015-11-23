@@ -22,23 +22,23 @@ package org.sonar.plugins.javascript.api.tests;
 import com.google.common.base.Charsets;
 import com.sonar.sslr.api.RecognitionException;
 import com.sonar.sslr.api.typed.ActionParser;
+import java.io.File;
+import java.util.LinkedList;
+import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.config.Settings;
-import org.sonar.javascript.parser.JavaScriptParserBuilder;
-import org.sonar.javascript.tree.symbols.SymbolModelImpl;
 import org.sonar.javascript.metrics.ComplexityVisitor;
+import org.sonar.javascript.parser.JavaScriptParserBuilder;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
-import org.sonar.plugins.javascript.api.visitors.TreeVisitorContext;
+import org.sonar.javascript.tree.symbols.SymbolModelImpl;
 import org.sonar.plugins.javascript.api.JavaScriptCheck;
 import org.sonar.plugins.javascript.api.symbols.SymbolModel;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
+import org.sonar.plugins.javascript.api.visitors.IssueLocation;
+import org.sonar.plugins.javascript.api.visitors.TreeVisitorContext;
 import org.sonar.squidbridge.api.CheckMessage;
-
-import java.io.File;
-import java.util.LinkedList;
-import java.util.List;
 
 public class TestCheckContext implements TreeVisitorContext {
 
@@ -103,6 +103,11 @@ public class TestCheckContext implements TreeVisitorContext {
   @Override
   public void addIssue(JavaScriptCheck check, int line, String message, double cost) {
     commonAddIssue(check, line, message, cost);
+  }
+
+  @Override
+  public void addIssue(JavaScriptCheck check, IssueLocation location, List<IssueLocation> secondaryLocations, Double cost) {
+    throw new UnsupportedOperationException();
   }
 
   @Override

@@ -19,12 +19,11 @@
  */
 package org.sonar.plugins.javascript;
 
-import static org.fest.assertions.Assertions.assertThat;
+import java.util.Collections;
 import org.junit.Before;
 import org.junit.Test;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import org.sonar.api.batch.SensorContext;
+import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.config.Settings;
 import org.sonar.api.issue.Issuable;
 import org.sonar.api.issue.Issue;
@@ -36,8 +35,10 @@ import org.sonar.plugins.javascript.api.JavaScriptCheck;
 import org.sonar.plugins.javascript.api.symbols.SymbolModel;
 import org.sonar.plugins.javascript.utils.IssuableMock;
 
-import java.io.File;
-import java.util.Collections;
+import static org.fest.assertions.Assertions.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class JavaScriptCheckContextTest {
 
@@ -57,9 +58,10 @@ public class JavaScriptCheckContextTest {
     issuable = new IssuableMock();
     tree = new InternalSyntaxToken(2, 3, "token", Collections.EMPTY_LIST, 3, false);
     context = new JavaScriptCheckContext(
+      mock(SensorContext.class),
       new ScriptTreeImpl(null, null, null),
       issuable,
-      new File(""),
+      new DefaultInputFile(""),
       mock(SymbolModel.class),
       new Settings(),
       javaScriptCheck,

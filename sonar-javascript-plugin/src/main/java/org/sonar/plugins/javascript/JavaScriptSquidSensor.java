@@ -131,15 +131,15 @@ public class JavaScriptSquidSensor implements Sensor {
     ProgressReport progressReport = new ProgressReport("Report about progress of Javascript analyzer", TimeUnit.SECONDS.toMillis(10));
     progressReport.start(Lists.newArrayList(fileSystem.files(mainFilePredicate)));
 
-    analyseFiles(treeVisitors, fileSystem.inputFiles(mainFilePredicate), progressReport);
+    analyseFiles(context, treeVisitors, fileSystem.inputFiles(mainFilePredicate), progressReport);
   }
 
   @VisibleForTesting
-  protected void analyseFiles(List<JavaScriptCheck> treeVisitors, Iterable<InputFile> inputFiles, ProgressReport progressReport) {
+  protected void analyseFiles(SensorContext context, List<JavaScriptCheck> treeVisitors, Iterable<InputFile> inputFiles, ProgressReport progressReport) {
     boolean success = false;
     try {
       for (InputFile inputFile : inputFiles) {
-        analyse(inputFile, treeVisitors);
+        analyse(context, inputFile, treeVisitors);
         progressReport.nextFile();
       }
       success = true;
@@ -156,13 +156,13 @@ public class JavaScriptSquidSensor implements Sensor {
     }
   }
 
-  private void analyse(InputFile inputFile, List<JavaScriptCheck> visitors) {
+  private void analyse(SensorContext sensorContext, InputFile inputFile, List<JavaScriptCheck> visitors) {
     Issuable issuable = perspective(Issuable.class, inputFile);
     ScriptTree scriptTree;
 
     try {
       scriptTree = (ScriptTree) parser.parse(new java.io.File(inputFile.absolutePath()));
-      scanFile(inputFile, visitors, issuable, scriptTree);
+      scanFile(sensorContext, inputFile, visitors, issuable, scriptTree);
 
     } catch (RecognitionException e) {
       checkInterrupted(e);
@@ -195,7 +195,7 @@ public class JavaScriptSquidSensor implements Sensor {
     }
   }
 
-  private void scanFile(InputFile inputFile, List<JavaScriptCheck> visitors, Issuable issuable, ScriptTree scriptTree) {
+  private void scanFile(SensorContext sensorContext, InputFile inputFile, List<JavaScriptCheck> visitors, Issuable issuable, ScriptTree scriptTree) {
     SymbolModelImpl symbolModel = SymbolModelImpl.create(
         scriptTree,
         perspective(Symbolizable.class, inputFile),
@@ -208,9 +208,10 @@ public class JavaScriptSquidSensor implements Sensor {
       }
 
       visitor.scanFile(new JavaScriptCheckContext(
+          sensorContext,
           scriptTree,
           issuable,
-          inputFile.file(),
+          inputFile,
           symbolModel,
           settings,
           checks,

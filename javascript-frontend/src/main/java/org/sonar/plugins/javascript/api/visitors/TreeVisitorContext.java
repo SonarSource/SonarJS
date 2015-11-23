@@ -20,12 +20,12 @@
 package org.sonar.plugins.javascript.api.visitors;
 
 import com.google.common.annotations.Beta;
+import java.io.File;
+import java.util.List;
 import org.sonar.plugins.javascript.api.JavaScriptCheck;
 import org.sonar.plugins.javascript.api.symbols.SymbolModel;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
-
-import java.io.File;
 
 @Beta
 public interface TreeVisitorContext {
@@ -72,6 +72,8 @@ public interface TreeVisitorContext {
    * @param cost specific remediation cost for the issue, used to compute the technical debt
    */
   void addIssue(JavaScriptCheck check, int line, String message, double cost);
+
+  void addIssue(JavaScriptCheck check, IssueLocation location, List<IssueLocation> secondaryLocations, Double cost);
 
   /**
    * Creates an issue at a file level.

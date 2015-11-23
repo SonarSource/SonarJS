@@ -43,6 +43,7 @@
   <modules>
     <module>javascript-frontend</module>
     <module>javascript-checks</module>
+    <module>sonar-compat</module>
     <module>sonar-javascript-plugin</module>
   </modules>
 

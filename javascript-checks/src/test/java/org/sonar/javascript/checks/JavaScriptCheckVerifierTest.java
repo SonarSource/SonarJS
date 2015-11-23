@@ -28,6 +28,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
+import org.sonar.javascript.checks.JavaScriptCheckVerifier.Issue;
 import org.sonar.plugins.javascript.api.JavaScriptCheck;
 import org.sonar.plugins.javascript.api.visitors.TreeVisitorContext;
 
@@ -41,6 +42,12 @@ public class JavaScriptCheckVerifierTest {
   @Rule
   public ExpectedException thrown = ExpectedException.none();
 
+  @Test
+  public void parsing_error() throws Exception {
+    thrown.expectMessage("Unable to parse");
+    check("foo(");
+  }
+  
   @Test
   public void no_issue() throws Exception {
     check("foo; // OK");
@@ -133,7 +140,60 @@ public class JavaScriptCheckVerifierTest {
       "foo(); // Noncompliant [[zzz]] {{msg1}}", 
       Issue.create("msg1", 1));
   }
+
+  @Test
+  public void right_precise_issue_location() throws Exception {
+    check(
+      "foo(); // Noncompliant [[sc=1;ec=4]]", 
+      Issue.create("msg1", 1).columns(1, 4));
+  }
+
+  @Test
+  public void wrong_start_column() throws Exception {
+    expect("Bad start column at line 1");
+    check(
+      "foo(); // Noncompliant [[sc=1;ec=4]]", 
+      Issue.create("msg1", 1).columns(2, 4));
+  }
+
+  @Test
+  public void wrong_end_column() throws Exception {
+    expect("Bad end column at line 1");
+    check(
+      "foo(); // Noncompliant [[sc=1;ec=4]]", 
+      Issue.create("msg1", 1).columns(1, 5));
+  }
   
+  @Test
+  public void right_end_line() throws Exception {
+    check(
+      "foo(); // Noncompliant [[el=+1]]\n\n", 
+      Issue.create("msg1", 1).endLine(2));
+  }
+
+  @Test
+  public void wrong_end_line() throws Exception {
+    expect("Bad end line at line 1");
+    check(
+      "foo(); // Noncompliant [[el=+2]]\n\n", 
+      Issue.create("msg1", 1).endLine(2));
+  }
+  
+  @Test
+  public void right_secondary_locations() throws Exception {
+    check(
+      "foo(); // Noncompliant [[secondary=2,3]]", 
+      Issue.create("msg1", 1).secondary(2,3));    
+  }
+  
+  @Test
+  public void wrong_secondary_locations() throws Exception {
+    expect("Bad secondary locations at line 1");
+    check(
+      "foo(); // Noncompliant [[secondary=2,3]]", 
+      Issue.create("msg1", 1).secondary(2,4));    
+  }
+
   private void expect(String exceptionMessage) {
     thrown.expect(AssertionError.class);
     thrown.expectMessage(exceptionMessage);
@@ -163,36 +223,6 @@ public class JavaScriptCheckVerifierTest {
     public void scanFile(TreeVisitorContext context) {
       for (Issue issue : issues) {
         issue.log(context, this);
-      }
-    }
-
-  }
-
-  private static class Issue {
-
-    private final String message;
-    private final int lineNumber;
-    private Integer effortToFix;
-
-    public Issue(String message, int lineNumber) {
-      this.message = message;
-      this.lineNumber = lineNumber;
-    }
-
-    public Issue effortToFix(int effortToFix) {
-      this.effortToFix = effortToFix;
-      return this;
-    }
-
-    public static Issue create(String message, int lineNumber) {
-      return new Issue(message, lineNumber);
-    }
-
-    public void log(TreeVisitorContext context, JavaScriptCheck check) {
-      if (effortToFix == null) {
-        context.addIssue(check, lineNumber, message);
-      } else {
-        context.addIssue(check, lineNumber, message, effortToFix);
       }
     }
 

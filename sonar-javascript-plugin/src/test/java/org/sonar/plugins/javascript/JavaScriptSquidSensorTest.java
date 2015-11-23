@@ -93,6 +93,7 @@ public class JavaScriptSquidSensorTest {
   private final DefaultFileSystem fileSystem = new DefaultFileSystem();
   private final Settings settings = new Settings();
   private final ProgressReport progressReport = mock(ProgressReport.class);
+  private final SensorContext context = mock(SensorContext.class);
 
   private JavaScriptSquidSensor createSensor() {
     return new JavaScriptSquidSensor(checkFactory, fileLinesContextFactory, perspectives, fileSystem, new NoSonarFilter(), settings, CUSTOM_RULES);
@@ -155,7 +156,6 @@ public class JavaScriptSquidSensorTest {
     InputFile inputFile = inputFile("cpd/parsingError.js");
     fileSystem.add(inputFile);
 
-    SensorContext context = mock(SensorContext.class);
     Highlightable highlightable = mock(Highlightable.class);
     Highlightable.HighlightingBuilder builder = mock(Highlightable.HighlightingBuilder.class);
     when(perspectives.as(Highlightable.class, inputFile)).thenReturn(highlightable);
@@ -195,13 +195,13 @@ public class JavaScriptSquidSensorTest {
   public void progress_report_should_be_stopped() throws Exception {
     InputFile inputFile = inputFile("cpd/Person.js");
     mockPerspectives(inputFile, mock(Issuable.class));
-    createSensor().analyseFiles(ImmutableList.<JavaScriptCheck>of(), ImmutableList.of(inputFile), progressReport);
+    createSensor().analyseFiles(context, ImmutableList.<JavaScriptCheck>of(), ImmutableList.of(inputFile), progressReport);
     verify(progressReport).stop();
   }
 
   @Test
   public void progress_report_should_be_stopped_without_files() throws Exception {
-    createSensor().analyseFiles(ImmutableList.<JavaScriptCheck>of(), ImmutableList.<InputFile>of(), progressReport);
+    createSensor().analyseFiles(context, ImmutableList.<JavaScriptCheck>of(), ImmutableList.<InputFile>of(), progressReport);
     verify(progressReport).stop();
   }
 
@@ -229,7 +229,7 @@ public class JavaScriptSquidSensorTest {
     thrown.expect(AnalysisException.class);
     thrown.expectMessage(expectedMessageSubstring);
     try {
-      sensor.analyseFiles(ImmutableList.of(check), ImmutableList.of(inputFile), progressReport);
+      sensor.analyseFiles(context, ImmutableList.of(check), ImmutableList.of(inputFile), progressReport);
     } finally {
       verify(progressReport).cancel();
     }

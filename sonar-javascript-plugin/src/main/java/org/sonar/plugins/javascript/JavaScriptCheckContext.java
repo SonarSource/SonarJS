@@ -20,23 +20,32 @@
 package org.sonar.plugins.javascript;
 
 import com.google.common.base.Preconditions;
+import java.io.File;
+import java.lang.reflect.Method;
+import java.util.List;
+import org.sonar.api.batch.SensorContext;
+import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.config.Settings;
 import org.sonar.api.issue.Issuable;
 import org.sonar.api.issue.Issuable.IssueBuilder;
 import org.sonar.api.rule.RuleKey;
+import org.sonar.javascript.issues.PreciseIssue;
 import org.sonar.javascript.metrics.ComplexityVisitor;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.plugins.javascript.api.JavaScriptCheck;
 import org.sonar.plugins.javascript.api.symbols.SymbolModel;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
+import org.sonar.plugins.javascript.api.visitors.IssueLocation;
 import org.sonar.plugins.javascript.api.visitors.TreeVisitorContext;
 
-import java.io.File;
-
 public class JavaScriptCheckContext implements TreeVisitorContext {
+
+  private static final boolean IS_SONARQUBE_52_OR_LATER = isSonarQube52OrLater();
+
+  private final SensorContext sensorContext;
   private final ScriptTree tree;
-  private final File file;
+  private final InputFile inputFile;
   private final SymbolModel symbolModel;
   private final Settings settings;
   private final ComplexityVisitor complexity;
@@ -44,11 +53,12 @@ public class JavaScriptCheckContext implements TreeVisitorContext {
   private final JavaScriptChecks checks;
 
   public JavaScriptCheckContext(
-    ScriptTree tree, Issuable issuable, File file, SymbolModel symbolModel,
+    SensorContext sensorContext, ScriptTree tree, Issuable issuable, InputFile inputFile, SymbolModel symbolModel,
     Settings settings, JavaScriptChecks checks, ComplexityVisitor complexityVisitor
   ) {
+    this.sensorContext = sensorContext;
     this.tree = tree;
-    this.file = file;
+    this.inputFile = inputFile;
     this.symbolModel = symbolModel;
     this.settings = settings;
     this.complexity = complexityVisitor;
@@ -87,21 +97,27 @@ public class JavaScriptCheckContext implements TreeVisitorContext {
   }
 
   @Override
+  public void addIssue(JavaScriptCheck check, IssueLocation location, List<IssueLocation> secondaryLocations, Double cost) {
+    if (IS_SONARQUBE_52_OR_LATER) {
+      RuleKey ruleKey = ruleKey(check);
+      PreciseIssue.save(sensorContext, inputFile, ruleKey, location, secondaryLocations, cost);
+    } else {
+      commonAddIssue(check, getLine(location.tree()), location.message(), cost == null ? -1 : cost);
+    }
+  }
+
+  @Override
   public File getFile() {
-    return file;
+    return inputFile.file();
   }
 
   /**
    * Cost is set if <code>cost<code/> is more than zero.
    * */
   private void commonAddIssue(JavaScriptCheck check, int line, String message, double cost){
-    Preconditions.checkNotNull(check);
     Preconditions.checkNotNull(message);
 
-    RuleKey ruleKey = checks.ruleKeyFor(check);
-    if (ruleKey == null) {
-      throw new IllegalStateException("No rule key found for a rule");
-    }
+    RuleKey ruleKey = ruleKey(check);
 
     IssueBuilder issueBuilder = issuable
         .newIssueBuilder()
@@ -116,6 +132,15 @@ public class JavaScriptCheckContext implements TreeVisitorContext {
     }
 
     issuable.addIssue(issueBuilder.build());
+  }
+
+  private RuleKey ruleKey(JavaScriptCheck check) {
+    Preconditions.checkNotNull(check);
+    RuleKey ruleKey = checks.ruleKeyFor(check);
+    if (ruleKey == null) {
+      throw new IllegalStateException("No rule key found for a rule");
+    }
+    return ruleKey;
   }
 
   private static int getLine(Tree tree) {
@@ -135,6 +160,15 @@ public class JavaScriptCheckContext implements TreeVisitorContext {
   @Override
   public int getComplexity(Tree tree) {
     return complexity.getComplexity(tree);
+  }
+
+  private static boolean isSonarQube52OrLater() {
+    for (Method method : Issuable.IssueBuilder.class.getMethods()) {
+      if ("newLocation".equals(method.getName())) {
+        return true;
+      }
+    }
+    return false;
   }
 
 }
