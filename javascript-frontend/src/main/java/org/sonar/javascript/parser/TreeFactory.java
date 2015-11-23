@@ -1122,7 +1122,7 @@ public class TreeFactory {
     InternalSyntaxToken eos = null;
     if (declaration instanceof Tuple) {
       deducedDeclaration = (Tree) ((Tuple) declaration).first();
-      eos = (InternalSyntaxToken) ((Tuple) declaration).second();
+      eos = ((Optional<InternalSyntaxToken>) ((Tuple) declaration).second()).orNull();
     } else {
       deducedDeclaration = (Tree) declaration;
     }

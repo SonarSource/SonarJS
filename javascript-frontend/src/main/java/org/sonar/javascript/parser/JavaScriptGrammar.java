@@ -1268,7 +1268,8 @@ public class JavaScriptGrammar {
               FUNCTION_AND_GENERATOR_DECLARATION(),
               CLASS_DECLARATION(),
               f.newTuple56(
-                f.defaultExportExpression(b.token(JavaScriptLegacyGrammar.NEXT_NOT_FUNCTION_AND_CLASS), ASSIGNMENT_EXPRESSION()), b.token(JavaScriptLegacyGrammar.EOS)))
+                // in ES6 grammar semicolon is not optional, but compilers don't fail if there is no semicolon
+                f.defaultExportExpression(b.token(JavaScriptLegacyGrammar.NEXT_NOT_FUNCTION_AND_CLASS), ASSIGNMENT_EXPRESSION()), b.optional(b.token(JavaScriptPunctuator.SEMI))))
       ));
   }
 
