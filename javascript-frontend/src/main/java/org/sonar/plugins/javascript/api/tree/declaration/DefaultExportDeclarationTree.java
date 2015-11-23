@@ -20,11 +20,9 @@
 package org.sonar.plugins.javascript.api.tree.declaration;
 
 import com.google.common.annotations.Beta;
-import org.sonar.javascript.tree.impl.lexical.InternalSyntaxToken;
+import javax.annotation.Nullable;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
-
-import javax.annotation.Nullable;
 
 /**
  * <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-exports">Default Export Declarations</a>
@@ -42,6 +40,6 @@ public interface DefaultExportDeclarationTree extends ExportDeclarationTree {
   Tree object();
 
   @Nullable
-  InternalSyntaxToken eos();
+  SyntaxToken semicolonToken();
 
 }

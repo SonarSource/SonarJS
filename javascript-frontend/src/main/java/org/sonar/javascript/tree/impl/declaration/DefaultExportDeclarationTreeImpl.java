@@ -61,7 +61,7 @@ public class DefaultExportDeclarationTreeImpl extends JavaScriptTree implements 
 
   @Nullable
   @Override
-  public InternalSyntaxToken eos() {
+  public InternalSyntaxToken semicolonToken() {
     return eos;
   }
 

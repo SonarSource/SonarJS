@@ -23,6 +23,11 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.sonar.sslr.api.typed.Optional;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import javax.annotation.Nullable;
 import org.apache.commons.collections.ListUtils;
 import org.sonar.javascript.lexer.JavaScriptKeyword;
 import org.sonar.javascript.lexer.JavaScriptPunctuator;
@@ -119,15 +124,8 @@ import org.sonar.plugins.javascript.api.tree.expression.MemberExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.TemplateCharactersTree;
 import org.sonar.plugins.javascript.api.tree.expression.TemplateExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.TemplateLiteralTree;
-import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.javascript.api.tree.statement.StatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.SwitchClauseTree;
-
-import javax.annotation.Nullable;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 public class TreeFactory {
 
@@ -449,9 +447,9 @@ public class TreeFactory {
   }
 
   @Nullable
-  private static SyntaxToken nullableSemicolonToken(Tree semicolonToken) {
-    if (semicolonToken instanceof SyntaxToken) {
-      return (SyntaxToken) semicolonToken;
+  private static InternalSyntaxToken nullableSemicolonToken(Tree semicolonToken) {
+    if (semicolonToken instanceof InternalSyntaxToken) {
+      return (InternalSyntaxToken) semicolonToken;
     } else {
       return null;
     }
@@ -1122,7 +1120,7 @@ public class TreeFactory {
     InternalSyntaxToken eos = null;
     if (declaration instanceof Tuple) {
       deducedDeclaration = (Tree) ((Tuple) declaration).first();
-      eos = (InternalSyntaxToken) ((Tuple) declaration).second();
+      eos = nullableSemicolonToken((Tree) ((Tuple) declaration).second());
     } else {
       deducedDeclaration = (Tree) declaration;
     }

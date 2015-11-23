@@ -37,7 +37,15 @@ public class DefaultExportDeclarationTreeModelTest extends JavaScriptTreeModelTe
     assertThat(tree.exportToken().text()).isEqualTo("export");
     assertThat(tree.defaultToken().text()).isEqualTo("default");
     assertThat(expressionToString(tree.object())).isEqualTo("a");
-    assertThat(tree.eos().text()).isEqualTo(";");
+    assertThat(tree.semicolonToken().text()).isEqualTo(";");
+  }
+
+  @Test
+  public void expression_no_semicolon() throws Exception {
+    DefaultExportDeclarationTree tree = parse("export default a ", Kind.DEFAULT_EXPORT_DECLARATION);
+
+    assertThat(tree.is(Kind.DEFAULT_EXPORT_DECLARATION)).isTrue();
+    assertThat(tree.semicolonToken()).isNull();
   }
 
   @Test
@@ -48,7 +56,7 @@ public class DefaultExportDeclarationTreeModelTest extends JavaScriptTreeModelTe
     assertThat(tree.exportToken().text()).isEqualTo("export");
     assertThat(tree.defaultToken().text()).isEqualTo("default");
     assertThat(expressionToString(tree.object())).isEqualTo("function * f ( ) { }");
-    assertThat(tree.eos()).isNull();
+    assertThat(tree.semicolonToken()).isNull();
   }
 
   @Test
@@ -59,7 +67,7 @@ public class DefaultExportDeclarationTreeModelTest extends JavaScriptTreeModelTe
     assertThat(tree.exportToken().text()).isEqualTo("export");
     assertThat(tree.defaultToken().text()).isEqualTo("default");
     assertThat(expressionToString(tree.object())).isEqualTo("function f ( ) { }");
-    assertThat(tree.eos()).isNull();
+    assertThat(tree.semicolonToken()).isNull();
   }
 
 }
