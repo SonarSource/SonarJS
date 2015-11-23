@@ -19,12 +19,17 @@
  */
 package org.sonar.javascript.checks;
 
+import javax.annotation.Nullable;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.plugins.javascript.api.tree.Tree;
+import org.sonar.plugins.javascript.api.tree.Tree.Kind;
+import org.sonar.plugins.javascript.api.tree.declaration.DefaultExportDeclarationTree;
+import org.sonar.plugins.javascript.api.tree.declaration.ExportClauseTree;
 import org.sonar.plugins.javascript.api.tree.declaration.ImportDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.declaration.ImportModuleDeclarationTree;
+import org.sonar.plugins.javascript.api.tree.declaration.NameSpaceExportDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.javascript.api.tree.statement.BreakStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.ContinueStatementTree;
@@ -39,8 +44,6 @@ import org.sonar.squidbridge.annotations.ActivatedByDefault;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 
-import javax.annotation.Nullable;
-
 @Rule(
   key = "Semicolon",
   name = "Each statement should end with a semicolon",
@@ -51,14 +54,38 @@ import javax.annotation.Nullable;
 @SqaleConstantRemediation("1min")
 public class SemicolonCheck extends BaseTreeVisitor {
 
-  /**
-   * TODO: for this check it would be better to have a link to the parent to be able to log the issue
-   * just by subscribing to EndOfStatementTree node.
-   */
   private void checkEOS(Tree tree, @Nullable SyntaxToken semicolonToken) {
     if (semicolonToken == null) {
       getContext().addIssue(this, tree, "Add a semicolon at the end of this statement.");
     }
+  }
+
+  @Override
+  public void visitDefaultExportDeclaration(DefaultExportDeclarationTree tree) {
+    super.visitDefaultExportDeclaration(tree);
+    boolean exportedObjectIsClassOrFunctionDeclaration = tree.object().is(
+      Kind.FUNCTION_DECLARATION,
+      Kind.FUNCTION_EXPRESSION,
+      Kind.CLASS_DECLARATION,
+      Kind.CLASS_EXPRESSION,
+      Kind.GENERATOR_DECLARATION,
+      Kind.GENERATOR_FUNCTION_EXPRESSION
+    );
+    if (!exportedObjectIsClassOrFunctionDeclaration) {
+      checkEOS(tree, tree.semicolonToken());
+    }
+  }
+
+  @Override
+  public void visitNameSpaceExportDeclaration(NameSpaceExportDeclarationTree tree) {
+    super.visitNameSpaceExportDeclaration(tree);
+    checkEOS(tree, tree.semicolonToken());
+  }
+
+  @Override
+  public void visitExportClause(ExportClauseTree tree) {
+    super.visitExportClause(tree);
+    checkEOS(tree, tree.semicolonToken());
   }
 
   @Override

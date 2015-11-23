@@ -39,18 +39,34 @@ function f() {
   }
 }
 
-export var NodeContainer = assert.define('NodeContainer', function(obj) {
-  assert(obj).is(assert.structure({
-    childNodes: ArrayLikeOfNodes,
-    nodeType: assert.number
-  }));
-});
 
-export class _LinkedListItem {
-  static _initialize(item) {
-    // TODO: Traceur assertions
-    // assert(typeof item._previous === "undefined");
-    // assert(typeof item._next === "undefined");
-    item._next = item._previous = null;
-  }
-}
+export * from "moduleName"   // NOK
+export {a, b} from "moduleName"  // NOK
+export {a, b}  // NOK
+export var a = 1 // NOK
+export let a = 1 // NOK
+export const a = 1 // NOK
+export var a = function() {} // NOK
+export var a = function foo() {} // NOK
+export var a // NOK
+
+export class C { }  // OK
+export function foo() {}  // OK
+export function * foo() {} // OK
+
+export default class C { }  // OK
+export default function foo() {}  // OK
+export default function * foo() {} // OK
+export default class { }  // OK
+export default function () {}  // OK
+export default function * () {} // OK
+
+export default a // NOK
+export default new C()  // NOK
+function f () {}
+export default f  // NOK
+
+export default {prop: value} // NOK
+
+export * from "moduleName";   // OK
+export default new C();       // OK
