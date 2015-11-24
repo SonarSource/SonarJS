@@ -49,7 +49,8 @@ public class PreciseIssueTest {
   private RuleKey ruleKey = RuleKey.of("repo1", "key1");
   private SensorStorage storage = mock(SensorStorage.class);
   private IssueLocation primary = new IssueLocation(createToken(3, 2, "token1"), "msg1");
-  private IssueLocation secondary = new IssueLocation(createToken(2, 1, "token2"), "msg2");
+  private IssueLocation secondary1 = new IssueLocation(createToken(2, 1, "token2"), "msg2");
+  private IssueLocation secondary2 = new IssueLocation(createToken(3, 1, "token3"));
 
   @Test
   public void no_secondary_location() throws Exception {
@@ -71,15 +72,16 @@ public class PreciseIssueTest {
   public void secondaryLocation() throws Exception {
     DefaultIssue newIssue = new DefaultIssue(storage);
     when(sensorContext.newIssue()).thenReturn(newIssue);
-    PreciseIssue.save(sensorContext, inputFile, ruleKey, primary, ImmutableList.of(secondary), 3.);
+    PreciseIssue.save(sensorContext, inputFile, ruleKey, primary, ImmutableList.of(secondary1, secondary2), 3.);
 
-    assertThat(newIssue.flows()).hasSize(1);
+    assertThat(newIssue.flows()).hasSize(2);
     Flow flow = newIssue.flows().get(0);
     assertThat(flow.locations()).hasSize(1);
     assertThat(flow.locations().get(0).message()).isEqualTo("msg2");
     assertThat(flow.locations().get(0).inputComponent()).isEqualTo(inputFile);
     assertThat(flow.locations().get(0).textRange().start()).isEqualTo(new DefaultTextPointer(2, 1));
     assertThat(flow.locations().get(0).textRange().end()).isEqualTo(new DefaultTextPointer(2, 7));
+    assertThat(newIssue.flows().get(1).locations().get(0).message()).isNull();
     verify(storage).store(newIssue);
   }
 

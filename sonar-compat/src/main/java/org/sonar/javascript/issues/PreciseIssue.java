@@ -72,10 +72,13 @@ public class PreciseIssue {
   private NewIssueLocation newLocation(NewIssue issue, IssueLocation location) {
     TextRange range = inputFile.newRange(
       location.startLine(), location.startLineOffset(), location.endLine(), location.endLineOffset());
-    return issue.newLocation()
+    NewIssueLocation newLocation = issue.newLocation()
       .on(inputFile)
-      .at(range)
-      .message(location.message());
+      .at(range);
+    if (location.message() != null) {
+      newLocation.message(location.message());
+    }
+    return newLocation;
   }
 
 }
