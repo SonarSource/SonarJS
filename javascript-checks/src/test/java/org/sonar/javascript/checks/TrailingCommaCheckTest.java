@@ -19,21 +19,17 @@
  */
 package org.sonar.javascript.checks;
 
-import org.junit.Test;
-import org.sonar.plugins.javascript.api.tests.TreeCheckTest;
-import org.sonar.squidbridge.checks.CheckMessagesVerifier;
+import java.io.File;
 
-public class TrailingCommaCheckTest extends TreeCheckTest {
+import org.junit.Test;
+
+public class TrailingCommaCheckTest {
 
   @Test
   public void test() {
-    TrailingCommaCheck check = new TrailingCommaCheck();
-
-    CheckMessagesVerifier.verify(getIssues("src/test/resources/checks/trailingComma.js", check))
-        .next().atLine(1).withMessage("Avoid trailing comma in array and object literals.")
-        .next().atLine(4).withMessage("Avoid trailing comma in array and object literals.")
-        .next().atLine(12)
-        .noMore();
+    JavaScriptCheckVerifier.verify(
+      new TrailingCommaCheck(),
+      new File("src/test/resources/checks/trailingComma.js"));
   }
 
 }

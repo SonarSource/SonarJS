@@ -27,9 +27,12 @@ import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.expression.ArrayLiteralTree;
 import org.sonar.plugins.javascript.api.tree.expression.ObjectLiteralTree;
 import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
+import org.sonar.plugins.javascript.api.visitors.IssueLocation;
 import org.sonar.squidbridge.annotations.ActivatedByDefault;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
+
+import com.google.common.collect.ImmutableList;
 
 /**
  * http://stackoverflow.com/questions/7246618/trailing-commas-in-javascript
@@ -44,22 +47,25 @@ import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 @SqaleConstantRemediation("1min")
 public class TrailingCommaCheck extends BaseTreeVisitor {
 
+  private static final String MESSAGE = "Avoid trailing comma in array and object literals.";
+
   @Override
   public void visitObjectLiteral(ObjectLiteralTree tree) {
-    check(tree, tree.properties());
+    check(tree.properties());
     super.visitObjectLiteral(tree);
   }
 
   @Override
   public void visitArrayLiteral(ArrayLiteralTree tree) {
-    check(tree, tree.elements());
+    check(tree.elements());
     super.visitArrayLiteral(tree);
   }
 
-  private void check(Tree tree, SeparatedList<?> separatedList) {
+  private void check(SeparatedList<?> separatedList) {
     int listSize = separatedList.size();
     if (listSize > 0 && listSize == separatedList.getSeparators().size()) {
-      getContext().addIssue(this, tree, "Avoid trailing comma in array and object literals.");
+      Tree comma = separatedList.getSeparator(listSize - 1);
+      getContext().addIssue(this, new IssueLocation(comma, MESSAGE), ImmutableList.<IssueLocation>of(), null);
     }
   }
 
