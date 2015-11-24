@@ -19,12 +19,18 @@
  */
 package org.sonar.javascript.checks;
 
+import javax.annotation.Nullable;
+
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.plugins.javascript.api.tree.Tree;
+import org.sonar.plugins.javascript.api.tree.declaration.DefaultExportDeclarationTree;
+import org.sonar.plugins.javascript.api.tree.declaration.ExportClauseTree;
+import org.sonar.plugins.javascript.api.tree.declaration.FunctionDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.declaration.ImportDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.declaration.ImportModuleDeclarationTree;
+import org.sonar.plugins.javascript.api.tree.expression.ClassTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.javascript.api.tree.statement.BreakStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.ContinueStatementTree;
@@ -38,8 +44,6 @@ import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
 import org.sonar.squidbridge.annotations.ActivatedByDefault;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
-
-import javax.annotation.Nullable;
 
 @Rule(
   key = "Semicolon",
@@ -119,6 +123,21 @@ public class SemicolonCheck extends BaseTreeVisitor {
   public void visitDebugger(DebuggerStatementTree tree) {
     super.visitDebugger(tree);
     checkEOS(tree, tree.semicolonToken());
+  }
+
+  @Override
+  public void visitExportClause(ExportClauseTree tree) {
+    super.visitExportClause(tree);
+    checkEOS(tree, tree.semicolonToken());
+  }
+
+  @Override
+  public void visitDefaultExportDeclaration(DefaultExportDeclarationTree tree) {
+    super.visitDefaultExportDeclaration(tree);
+    Tree exported = tree.object();
+    if (!(exported instanceof ClassTree) && !(exported instanceof FunctionDeclarationTree)) {
+      checkEOS(tree, tree.eos());
+    }
   }
 
 }

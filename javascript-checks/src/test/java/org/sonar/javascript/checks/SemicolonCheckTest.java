@@ -38,6 +38,10 @@ public class SemicolonCheckTest extends TreeCheckTest {
         .next().atLine(32)
         .next().atLine(34)
         .next().atLine(37)
+        .next().atLine(43)
+        .next().atLine(45)
+        .next().atLine(47)
+        .next().atLine(50)
         .noMore();
   }
 
