@@ -54,7 +54,7 @@
   </scm>
   <issueManagement>
     <system>JIRA</system>
-    <url>https://jira.codehaus.org/browse/SONARJS</url>
+    <url>https://jira.sonarsource.com/browse/SONARJS</url>
   </issueManagement>
   <ciManagement>
     <system>Travis</system>
