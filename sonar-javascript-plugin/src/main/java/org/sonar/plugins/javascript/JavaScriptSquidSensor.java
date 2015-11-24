@@ -172,7 +172,7 @@ public class JavaScriptSquidSensor implements Sensor {
 
     } catch (Exception e) {
       checkInterrupted(e);
-      throw new AnalysisException("Unable to parse file: " + inputFile.absolutePath(), e);
+      throw new AnalysisException("Unable to analyse file: " + inputFile.absolutePath(), e);
     }
 
   }
