@@ -17,33 +17,18 @@
  * License along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.javascript.parser.declarations.module;
+package org.sonar.plugins.javascript.api.tree.typescript;
 
-import org.junit.Test;
-import org.sonar.javascript.parser.JavaScriptLegacyGrammar;
+import org.sonar.javascript.tree.impl.SeparatedList;
+import org.sonar.plugins.javascript.api.tree.Tree;
+import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 
-import static org.sonar.javascript.utils.Assertions.assertThat;
+public interface TSTypeParametersTree extends Tree {
 
-public class ExportDeclarationTest {
+  SyntaxToken openAngleBracketToken();
 
+  SeparatedList<TSTypeParameterTree> typeParameterList();
 
-  @Test
-  public void ok() {
-    assertThat(JavaScriptLegacyGrammar.EXPORT_DECLARATION)
-      // Namespace export
-      .matches("export * from \"f\" ;")
-
-      // Named export
-      .matches("export { } ;")
-      .matches("export var a;")
-      .matches("export class C {}")
-
-      // Default export
-      .matches("export default function f() {}")
-      .matches("export default function * f() {}")
-      .matches("export default class C {}")
-      .matches("export default {}")
-      .matches("export default expression ;");
-  }
+  SyntaxToken closeAngleBracketToken();
 
 }

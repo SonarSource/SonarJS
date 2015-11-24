@@ -31,6 +31,7 @@ public class ClassDeclarationTest {
   public void ok() {
     assertThat(Kind.CLASS_DECLARATION)
       .matches("class C {}")
+      .matches("class {}")
       .matches("class C extends S {}")
       .matches("class C { ; }")
       .matches("class C extends S { ; }");

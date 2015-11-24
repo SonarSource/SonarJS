@@ -17,33 +17,29 @@
  * License along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.javascript.parser.declarations.module;
+package org.sonar.javascript.parser.typescript;
 
 import org.junit.Test;
-import org.sonar.javascript.parser.JavaScriptLegacyGrammar;
+import org.sonar.javascript.utils.LegacyParserTest;
+import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 
 import static org.sonar.javascript.utils.Assertions.assertThat;
 
-public class ExportDeclarationTest {
-
+public class TSClassTest extends LegacyParserTest {
 
   @Test
-  public void ok() {
-    assertThat(JavaScriptLegacyGrammar.EXPORT_DECLARATION)
-      // Namespace export
-      .matches("export * from \"f\" ;")
-
-      // Named export
-      .matches("export { } ;")
-      .matches("export var a;")
-      .matches("export class C {}")
-
-      // Default export
-      .matches("export default function f() {}")
-      .matches("export default function * f() {}")
-      .matches("export default class C {}")
-      .matches("export default {}")
-      .matches("export default expression ;");
+  public void class_declaration() {
+    assertThat(g.rule(Kind.CLASS_DECLARATION))
+      .matches("class C <T> extends A implements I {}")
+      .matches("class C implements I1, I2 {}")
+      .matches("class <T> {}");
   }
 
+  @Test
+  public void class_expression() {
+    assertThat(g.rule(Kind.CLASS_EXPRESSION))
+      .matches("class C <T> extends A implements I {}")
+      .matches("class C implements I1, I2 {}")
+      .matches("class <T> {}");
+  }
 }

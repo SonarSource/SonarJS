@@ -90,6 +90,9 @@ import org.sonar.plugins.javascript.api.tree.statement.VariableDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.statement.VariableStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.WhileStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.WithStatementTree;
+import org.sonar.plugins.javascript.api.tree.typescript.TSTypeParameterTree;
+import org.sonar.plugins.javascript.api.tree.typescript.TSTypeParametersTree;
+import org.sonar.plugins.javascript.api.tree.typescript.TSTypeReferenceTree;
 
 @Beta
 public interface TreeVisitor {
@@ -233,4 +236,12 @@ public interface TreeVisitor {
   void visitAccessorMethodDeclaration(AccessorMethodDeclarationTree tree);
 
   void visitGeneratorMethodDeclaration(GeneratorMethodDeclarationTree tree);
+
+
+
+  void visitTSTypeParameters(TSTypeParametersTree tree);
+
+  void visitTSTypeParameter(TSTypeParameterTree tree);
+
+  void visitTSTypeReference(TSTypeReferenceTree tree);
 }

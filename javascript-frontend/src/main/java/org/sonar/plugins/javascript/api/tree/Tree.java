@@ -91,6 +91,9 @@ import org.sonar.plugins.javascript.api.tree.statement.VariableDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.statement.VariableStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.WhileStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.WithStatementTree;
+import org.sonar.plugins.javascript.api.tree.typescript.TSTypeParameterTree;
+import org.sonar.plugins.javascript.api.tree.typescript.TSTypeParametersTree;
+import org.sonar.plugins.javascript.api.tree.typescript.TSTypeReferenceTree;
 import org.sonar.plugins.javascript.api.visitors.TreeVisitor;
 import org.sonar.sslr.grammar.GrammarRuleKey;
 
@@ -852,7 +855,29 @@ public interface Tree {
 
     TOKEN(SyntaxToken.class),
 
-    TRIVIA(SyntaxTrivia.class);
+    TRIVIA(SyntaxTrivia.class),
+
+
+
+
+    /**
+     *  TypeScript kinds
+     */
+
+    /**
+     * {@link TSTypeParametersTree}
+     */
+    TS_TYPE_PARAMETERS(TSTypeParametersTree.class),
+
+    /**
+     * {@link TSTypeParameterTree}
+     */
+    TS_TYPE_PARAMETER(TSTypeParameterTree.class),
+
+    /**
+     * {@link TSTypeReferenceTree}
+     */
+    TS_TYPE_REFERENCE(TSTypeReferenceTree.class);
 
     final Class<? extends Tree> associatedInterface;
 

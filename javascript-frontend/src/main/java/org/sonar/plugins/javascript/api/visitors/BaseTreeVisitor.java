@@ -97,6 +97,9 @@ import org.sonar.plugins.javascript.api.tree.statement.WithStatementTree;
 
 import javax.annotation.Nullable;
 import java.util.List;
+import org.sonar.plugins.javascript.api.tree.typescript.TSTypeParameterTree;
+import org.sonar.plugins.javascript.api.tree.typescript.TSTypeParametersTree;
+import org.sonar.plugins.javascript.api.tree.typescript.TSTypeReferenceTree;
 
 @Beta
 public class BaseTreeVisitor implements TreeVisitor, JavaScriptCheck {
@@ -536,6 +539,25 @@ public class BaseTreeVisitor implements TreeVisitor, JavaScriptCheck {
     scan(tree.name());
     scan(tree.parameters());
     scan(tree.body());
+  }
+
+
+
+  @Override
+  public void visitTSTypeParameters(TSTypeParametersTree tree) {
+    scan(tree.openAngleBracketToken());
+    scan(tree.typeParameterList());
+    scan(tree.closeAngleBracketToken());
+  }
+
+  @Override
+  public void visitTSTypeParameter(TSTypeParameterTree tree) {
+    scan(tree.bindingIdentifier());
+  }
+
+  @Override
+  public void visitTSTypeReference(TSTypeReferenceTree tree) {
+    scan(tree.identifierReference());
   }
 
 }

@@ -17,33 +17,5 @@
  * License along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.javascript.parser.declarations.module;
-
-import org.junit.Test;
-import org.sonar.javascript.parser.JavaScriptLegacyGrammar;
-
-import static org.sonar.javascript.utils.Assertions.assertThat;
-
-public class ExportDeclarationTest {
-
-
-  @Test
-  public void ok() {
-    assertThat(JavaScriptLegacyGrammar.EXPORT_DECLARATION)
-      // Namespace export
-      .matches("export * from \"f\" ;")
-
-      // Named export
-      .matches("export { } ;")
-      .matches("export var a;")
-      .matches("export class C {}")
-
-      // Default export
-      .matches("export default function f() {}")
-      .matches("export default function * f() {}")
-      .matches("export default class C {}")
-      .matches("export default {}")
-      .matches("export default expression ;");
-  }
-
-}
+@javax.annotation.ParametersAreNonnullByDefault
+package org.sonar.javascript.tree.impl.typescript;
