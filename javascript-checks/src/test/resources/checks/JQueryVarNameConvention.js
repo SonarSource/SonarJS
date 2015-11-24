@@ -1,4 +1,4 @@
-var name1 = $("#id"); // NOK
+var name1 = $("#id"); // Noncompliant {{Rename variable "name1" to match the regular expression ^\$[a-z][a-zA-Z0-9]*$.}}
 
 var $name1 = $("#id"); // OK
 
@@ -14,4 +14,4 @@ function foo(name4){
 
 value = jQuery( option ).val();  // OK
 
-name5 = $("#id");    // NOK
+name5 = $("#id");    // Noncompliant [[sc=1;ec=6]]

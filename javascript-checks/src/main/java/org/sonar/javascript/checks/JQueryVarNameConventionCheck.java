@@ -19,7 +19,8 @@
  */
 package org.sonar.javascript.checks;
 
-import com.google.common.base.Preconditions;
+import java.util.regex.Pattern;
+
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
@@ -30,11 +31,14 @@ import org.sonar.plugins.javascript.api.symbols.SymbolModel;
 import org.sonar.plugins.javascript.api.symbols.Type;
 import org.sonar.plugins.javascript.api.symbols.Usage;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
+import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
+import org.sonar.plugins.javascript.api.visitors.IssueLocation;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 
-import java.util.regex.Pattern;
+import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableList;
 
 @Rule(
     key = "S2713",
@@ -77,15 +81,19 @@ public class JQueryVarNameConventionCheck extends BaseTreeVisitor {
     boolean issueRaised = false;
     for (Usage usage : symbol.usages()){
       if (usage.isDeclaration()){
-        getContext().addIssue(check, usage.identifierTree(), message);
+        addIssue(check, message, usage.identifierTree());
         issueRaised = true;
       }
     }
 
     if (!issueRaised){
-      getContext().addIssue(check, symbol.usages().iterator().next().identifierTree(), message);
+      addIssue(check, message, symbol.usages().iterator().next().identifierTree());
     }
 
+  }
+
+  private void addIssue(JavaScriptCheck check, String message, IdentifierTree identifier) {
+    getContext().addIssue(check, new IssueLocation(identifier, message), ImmutableList.<IssueLocation>of(), null);
   }
 
 }

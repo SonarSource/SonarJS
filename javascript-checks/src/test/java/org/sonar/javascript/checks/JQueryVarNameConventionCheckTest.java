@@ -19,22 +19,17 @@
  */
 package org.sonar.javascript.checks;
 
-import org.junit.Test;
-import org.sonar.plugins.javascript.api.tests.TreeCheckTest;
-import org.sonar.squidbridge.checks.CheckMessagesVerifier;
+import java.io.File;
 
-public class JQueryVarNameConventionCheckTest extends TreeCheckTest {
+import org.junit.Test;
+
+public class JQueryVarNameConventionCheckTest {
 
   @Test
   public void test() {
-    JQueryVarNameConventionCheck check = new JQueryVarNameConventionCheck();
-
-    CheckMessagesVerifier.verify(getIssues("src/test/resources/checks/JQueryVarNameConvention.js", check))
-        .next().atLine(1).withMessage("Rename variable \"name1\" to match the regular expression ^\\$[a-z][a-zA-Z0-9]*$.")
-//        .next().atLine(7)
-//        .next().atLine(9)
-        .next().atLine(17)
-        .noMore();
+    JavaScriptCheckVerifier.verify(
+      new JQueryVarNameConventionCheck(), 
+      new File("src/test/resources/checks/JQueryVarNameConvention.js"));
   }
 
 
