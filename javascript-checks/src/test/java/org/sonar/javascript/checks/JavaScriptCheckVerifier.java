@@ -42,8 +42,10 @@ import org.sonar.plugins.javascript.api.visitors.SubscriptionBaseTreeVisitor;
 import org.sonar.plugins.javascript.api.visitors.TreeVisitorContext;
 
 import com.google.common.base.Charsets;
+import com.google.common.base.Function;
 import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Ordering;
 import com.google.common.primitives.Ints;
 import com.sonar.sslr.api.RecognitionException;
 import com.sonar.sslr.api.typed.ActionParser;
@@ -65,7 +67,8 @@ public class JavaScriptCheckVerifier extends SubscriptionBaseTreeVisitor {
 
   private void verify(VerifierContext context) {
     scanTree(context.getTopTree());
-    Iterator<Issue> actualIssues = context.getIssues().iterator();
+    List<Issue> sortedIssues = Ordering.natural().onResultOf(new IssueToLine()).sortedCopy(context.getIssues());
+    Iterator<Issue> actualIssues = sortedIssues.iterator();
     for (Issue expected : expectedIssues) {
       if (actualIssues.hasNext()) {
         Issue actual = actualIssues.next();
@@ -371,6 +374,13 @@ public class JavaScriptCheckVerifier extends SubscriptionBaseTreeVisitor {
       throw new UnsupportedOperationException();
     }
 
+  }
+
+  private static class IssueToLine implements Function<Issue,Integer> {
+    @Override
+    public Integer apply(Issue issue) {
+      return issue.line;
+    }
   }
 
 }

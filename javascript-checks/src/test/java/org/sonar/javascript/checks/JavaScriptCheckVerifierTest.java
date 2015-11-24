@@ -193,6 +193,14 @@ public class JavaScriptCheckVerifierTest {
       "foo(); // Noncompliant [[secondary=2,3]]", 
       Issue.create("msg1", 1).secondary(2,4));    
   }
+  
+  @Test
+  public void unordered_issues() throws Exception {
+    check(
+      "foo(); // Noncompliant\n" + 
+      "bar(); // Noncompliant", 
+      Issue.create("msg1", 2), Issue.create("msg1", 1));
+  }
 
   private void expect(String exceptionMessage) {
     thrown.expect(AssertionError.class);
