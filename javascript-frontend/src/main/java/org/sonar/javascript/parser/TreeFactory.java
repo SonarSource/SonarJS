@@ -1119,10 +1119,10 @@ public class TreeFactory {
 
   public DefaultExportDeclarationTreeImpl defaultExportDeclaration(InternalSyntaxToken exportToken, InternalSyntaxToken defaultToken, Object declaration) {
     Tree deducedDeclaration;
-    InternalSyntaxToken eos = null;
+    SyntaxToken eos = null;
     if (declaration instanceof Tuple) {
       deducedDeclaration = (Tree) ((Tuple) declaration).first();
-      eos = (InternalSyntaxToken) ((Tuple) declaration).second();
+      eos = nullableSemicolonToken((Tree) ((Tuple) declaration).second());
     } else {
       deducedDeclaration = (Tree) declaration;
     }

@@ -35,9 +35,9 @@ public class DefaultExportDeclarationTreeImpl extends JavaScriptTree implements 
   private final SyntaxToken exportToken;
   private final SyntaxToken defaultToken;
   private final Tree object;
-  private final InternalSyntaxToken eos;
+  private final SyntaxToken eos;
 
-  public DefaultExportDeclarationTreeImpl(InternalSyntaxToken exportToken, InternalSyntaxToken defaultToken, Tree object, @Nullable InternalSyntaxToken semicolon) {
+  public DefaultExportDeclarationTreeImpl(InternalSyntaxToken exportToken, InternalSyntaxToken defaultToken, Tree object, @Nullable SyntaxToken semicolon) {
     this.exportToken = exportToken;
     this.defaultToken = defaultToken;
     this.object = object;
@@ -61,7 +61,7 @@ public class DefaultExportDeclarationTreeImpl extends JavaScriptTree implements 
 
   @Nullable
   @Override
-  public InternalSyntaxToken eos() {
+  public SyntaxToken eos() {
     return eos;
   }
 
