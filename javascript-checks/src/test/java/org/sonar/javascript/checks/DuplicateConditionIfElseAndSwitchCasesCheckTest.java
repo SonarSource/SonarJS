@@ -19,9 +19,10 @@
  */
 package org.sonar.javascript.checks;
 
+import java.io.File;
+
 import org.junit.Test;
 import org.sonar.plugins.javascript.api.tests.TreeCheckTest;
-import org.sonar.squidbridge.checks.CheckMessagesVerifier;
 
 public class DuplicateConditionIfElseAndSwitchCasesCheckTest extends TreeCheckTest {
 
@@ -29,13 +30,6 @@ public class DuplicateConditionIfElseAndSwitchCasesCheckTest extends TreeCheckTe
 
   @Test
   public void test() {
-    CheckMessagesVerifier.verify(getIssues("src/test/resources/checks/duplicateConditionIfElseAndSwitchCases.js", check))
-      .next().atLine(2).withMessage("This branch duplicates the one on line 1.")
-      .next().atLine(7)
-      .next().atLine(12)
-      .next().atLine(17).withMessage("This case duplicates the one on line 16.")
-      .next().atLine(23)
-      .next().atLine(31)
-      .noMore();
+    JavaScriptCheckVerifier.verify(check, new File("src/test/resources/checks/duplicateConditionIfElseAndSwitchCases.js"));
   }
 }

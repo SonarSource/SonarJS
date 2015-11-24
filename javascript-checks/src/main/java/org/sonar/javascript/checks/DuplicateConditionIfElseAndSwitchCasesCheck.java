@@ -25,7 +25,6 @@ import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.javascript.tree.SyntacticEquivalence;
-import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
@@ -35,9 +34,12 @@ import org.sonar.plugins.javascript.api.tree.statement.IfStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.SwitchClauseTree;
 import org.sonar.plugins.javascript.api.tree.statement.SwitchStatementTree;
 import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
+import org.sonar.plugins.javascript.api.visitors.IssueLocation;
 import org.sonar.squidbridge.annotations.ActivatedByDefault;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
+
+import com.google.common.collect.ImmutableList;
 
 @Rule(
   key = "S1862",
@@ -58,9 +60,7 @@ public class DuplicateConditionIfElseAndSwitchCasesCheck extends BaseTreeVisitor
       IfStatementTree ifStatement = (IfStatementTree) elseClause.statement();
 
       if (SyntacticEquivalence.areEquivalent(condition, ifStatement.condition())) {
-        getContext().addIssue(this,
-          ifStatement.condition(),
-          "This branch duplicates the one on line " + ((JavaScriptTree) condition).getLine() + ".");
+        addIssue(condition, ifStatement.condition(), "branch");
       }
       elseClause = ifStatement.elseClause();
     }
@@ -76,12 +76,17 @@ public class DuplicateConditionIfElseAndSwitchCasesCheck extends BaseTreeVisitor
         ExpressionTree conditionToCompare = getCondition(tree.cases().get(j));
 
         if (SyntacticEquivalence.areEquivalent(condition, conditionToCompare)) {
-          getContext().addIssue(this,
-            conditionToCompare,
-            "This case duplicates the one on line " + ((JavaScriptTree) condition).getLine() + ".");
+          addIssue(condition, conditionToCompare, "case");
         }
       }
     }
+  }
+
+  private void addIssue(Tree original, Tree duplicate, String type) {
+    IssueLocation secondaryLocation = new IssueLocation(original, "Original");
+    String message = "This " + type + " duplicates the one on line " + secondaryLocation.startLine() + ".";
+    IssueLocation primaryLocation = new IssueLocation(duplicate, message);
+    getContext().addIssue(this, primaryLocation, ImmutableList.of(secondaryLocation), null);
   }
 
   /**
