@@ -80,7 +80,6 @@ import org.sonar.javascript.tree.impl.expression.TemplateCharactersTreeImpl;
 import org.sonar.javascript.tree.impl.expression.TemplateExpressionTreeImpl;
 import org.sonar.javascript.tree.impl.expression.TemplateLiteralTreeImpl;
 import org.sonar.javascript.tree.impl.expression.ThisTreeImpl;
-import org.sonar.javascript.tree.impl.expression.UndefinedTreeImpl;
 import org.sonar.javascript.tree.impl.expression.YieldExpressionTreeImpl;
 import org.sonar.javascript.tree.impl.lexical.InternalSyntaxToken;
 import org.sonar.javascript.tree.impl.statement.BlockTreeImpl;
@@ -522,55 +521,30 @@ public class TreeFactory {
                                                           Optional<List<Tuple<List<InternalSyntaxToken>, ExpressionTree>>> restElements,
                                                           Optional<List<InternalSyntaxToken>> restCommas
   ) {
-    List<ExpressionTree> elements = Lists.newArrayList();
-    List<InternalSyntaxToken> commas = Lists.newArrayList();
+    List<Tree> elementsAndCommas = Lists.newArrayList();
 
     // Elided array element at the beginning, e.g [ ,a]
     if (commaTokens.isPresent()) {
-      for (InternalSyntaxToken comma : commaTokens.get()) {
-        elements.add(new UndefinedTreeImpl());
-        commas.add(comma);
-      }
+      elementsAndCommas.addAll(commaTokens.get());
     }
 
     // First element
-    elements.add(element);
+    elementsAndCommas.add(element);
 
     // Other elements
     if (restElements.isPresent()) {
       for (Tuple<List<InternalSyntaxToken>, ExpressionTree> t : restElements.get()) {
-
-        // First comma
-        commas.add(t.first().get(0));
-        t.first().remove(0);
-
-        for (InternalSyntaxToken comma : t.first()) {
-          elements.add(new UndefinedTreeImpl());
-          commas.add(comma);
-        }
-
-        // Add element
-        elements.add(t.second());
+        elementsAndCommas.addAll(t.first());
+        elementsAndCommas.add(t.second());
       }
     }
 
     // Trailing comma and/or elided array element at the end, e.g resp [ a ,] / [ a , ,]
     if (restCommas.isPresent()) {
-      int nbEndingComma = restCommas.get().size();
-
-      // Trailing comma after the last element
-      commas.add(restCommas.get().get(0));
-
-      // Elided array element at the end
-      if (nbEndingComma > 1) {
-        for (InternalSyntaxToken comma : restCommas.get().subList(1, nbEndingComma)) {
-          elements.add(new UndefinedTreeImpl());
-          commas.add(comma);
-        }
-
-      }
+      elementsAndCommas.addAll(restCommas.get());
     }
-    return new ArrayLiteralTreeImpl(elements, commas);
+
+    return new ArrayLiteralTreeImpl(elementsAndCommas);
   }
 
   public ArrayLiteralTreeImpl completeArrayLiteral(InternalSyntaxToken openBracketToken, Optional<ArrayLiteralTreeImpl> elements, InternalSyntaxToken closeBracket) {
@@ -581,15 +555,7 @@ public class TreeFactory {
   }
 
   public ArrayLiteralTreeImpl newArrayLiteralWithElidedElements(List<InternalSyntaxToken> commaTokens) {
-    List<ExpressionTree> elements = Lists.newArrayList();
-    List<InternalSyntaxToken> commas = Lists.newArrayList();
-
-    for (InternalSyntaxToken comma : commaTokens) {
-      elements.add(new UndefinedTreeImpl());
-      commas.add(comma);
-    }
-
-    return new ArrayLiteralTreeImpl(elements, commas);
+    return new ArrayLiteralTreeImpl(new ArrayList<Tree>(commaTokens));
   }
 
   // End of expressions

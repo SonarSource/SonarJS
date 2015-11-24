@@ -19,11 +19,14 @@
  */
 package org.sonar.javascript.checks;
 
+import java.util.List;
+
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.javascript.tree.impl.SeparatedList;
 import org.sonar.plugins.javascript.api.tree.Tree;
+import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.expression.ArrayLiteralTree;
 import org.sonar.plugins.javascript.api.tree.expression.ObjectLiteralTree;
 import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
@@ -51,22 +54,29 @@ public class TrailingCommaCheck extends BaseTreeVisitor {
 
   @Override
   public void visitObjectLiteral(ObjectLiteralTree tree) {
-    check(tree.properties());
+    SeparatedList<Tree> separatedList = tree.properties();
+    int listSize = separatedList.size();
+    if (listSize > 0 && listSize == separatedList.getSeparators().size()) {
+      Tree trailingComma = separatedList.getSeparator(listSize - 1);
+      raiseIssue(trailingComma);
+    }
     super.visitObjectLiteral(tree);
   }
 
   @Override
   public void visitArrayLiteral(ArrayLiteralTree tree) {
-    check(tree.elements());
+    List<Tree> elementsAndCommas = tree.elementsAndCommas();
+    if (!elementsAndCommas.isEmpty()) {
+      Tree last = elementsAndCommas.get(elementsAndCommas.size() - 1);
+      if (last.is(Kind.TOKEN)) {
+        raiseIssue(last);
+      }
+    }
     super.visitArrayLiteral(tree);
   }
 
-  private void check(SeparatedList<?> separatedList) {
-    int listSize = separatedList.size();
-    if (listSize > 0 && listSize == separatedList.getSeparators().size()) {
-      Tree comma = separatedList.getSeparator(listSize - 1);
-      getContext().addIssue(this, new IssueLocation(comma, MESSAGE), ImmutableList.<IssueLocation>of(), null);
-    }
+  private void raiseIssue(Tree trailingComma) {
+    getContext().addIssue(this, new IssueLocation(trailingComma, MESSAGE), ImmutableList.<IssueLocation>of(), null);
   }
 
 }

@@ -19,7 +19,6 @@
  */
 package org.sonar.javascript.tree.impl.expression;
 
-import com.google.common.collect.Iterators;
 import org.junit.Test;
 import org.sonar.javascript.utils.JavaScriptTreeModelTest;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
@@ -37,7 +36,7 @@ public class ArrayLiteralTreeModelTest extends JavaScriptTreeModelTest {
     assertThat(tree.openBracket().text()).isEqualTo("[");
 
     assertThat(tree.elements().isEmpty()).isTrue();
-    assertThat(tree.elements().getSeparators().isEmpty()).isTrue();
+    assertThat(tree.elementsAndCommas().isEmpty()).isTrue();
 
     assertThat(tree.closeBracket().text()).isEqualTo("]");
   }
@@ -49,10 +48,9 @@ public class ArrayLiteralTreeModelTest extends JavaScriptTreeModelTest {
     assertThat(tree.openBracket().text()).isEqualTo("[");
 
     assertThat(tree.elements().size()).isEqualTo(2);
-    assertThat(Iterators.getLast(tree.elements().iterator()).is(Kind.UNDEFINED)).isFalse();
     assertThat(expressionToString(tree.elements().get(0))).isEqualTo("a");
     assertThat(expressionToString(tree.elements().get(1))).isEqualTo("a");
-    assertThat(tree.elements().getSeparators().size()).isEqualTo(2);
+    assertThat(tree.elementsAndCommas().size()).isEqualTo(4);
 
     assertThat(tree.closeBracket().text()).isEqualTo("]");
 
@@ -65,10 +63,9 @@ public class ArrayLiteralTreeModelTest extends JavaScriptTreeModelTest {
 
     assertThat(tree1.openBracket().text()).isEqualTo("[");
 
-    assertThat(tree1.elements().size()).isEqualTo(3);
-    assertThat(tree1.elements().get(0).is(Kind.UNDEFINED)).isTrue();
-    assertThat(expressionToString(tree1.elements().get(1))).isEqualTo("a");
-    assertThat(tree1.elements().getSeparators().size()).isEqualTo(3);
+    assertThat(tree1.elements().size()).isEqualTo(1);
+    assertThat(expressionToString(tree1.elements().get(0))).isEqualTo("a");
+    assertThat(tree1.elementsAndCommas().size()).isEqualTo(4);
 
     assertThat(tree1.closeBracket().text()).isEqualTo("]");
 
@@ -77,10 +74,9 @@ public class ArrayLiteralTreeModelTest extends JavaScriptTreeModelTest {
 
     assertThat(tree1.openBracket().text()).isEqualTo("[");
 
-    assertThat(tree2.elements().size()).isEqualTo(4);
-    assertThat(tree2.elements().get(0).is(Kind.UNDEFINED)).isTrue();
-    assertThat(expressionToString(tree1.elements().get(1))).isEqualTo("a");
-    assertThat(tree2.elements().getSeparators().size()).isEqualTo(4);
+    assertThat(tree2.elements().size()).isEqualTo(1);
+    assertThat(expressionToString(tree1.elements().get(0))).isEqualTo("a");
+    assertThat(tree2.elementsAndCommas().size()).isEqualTo(5);
 
     assertThat(tree1.closeBracket().text()).isEqualTo("]");
   }
@@ -92,11 +88,10 @@ public class ArrayLiteralTreeModelTest extends JavaScriptTreeModelTest {
 
     assertThat(tree1.openBracket().text()).isEqualTo("[");
 
-    assertThat(tree1.elements().size()).isEqualTo(3);
-    assertThat(tree1.elements().get(1).is(Kind.UNDEFINED)).isTrue();
+    assertThat(tree1.elements().size()).isEqualTo(2);
     assertThat(expressionToString(tree1.elements().get(0))).isEqualTo("a");
-    assertThat(expressionToString(tree1.elements().get(2))).isEqualTo("a");
-    assertThat(tree1.elements().getSeparators().size()).isEqualTo(2);
+    assertThat(expressionToString(tree1.elements().get(1))).isEqualTo("a");
+    assertThat(tree1.elementsAndCommas().size()).isEqualTo(4);
 
     assertThat(tree1.closeBracket().text()).isEqualTo("]");
 
@@ -105,12 +100,10 @@ public class ArrayLiteralTreeModelTest extends JavaScriptTreeModelTest {
 
     assertThat(tree1.openBracket().text()).isEqualTo("[");
 
-    assertThat(tree2.elements().size()).isEqualTo(4);
+    assertThat(tree2.elements().size()).isEqualTo(2);
     assertThat(expressionToString(tree2.elements().get(0))).isEqualTo("a");
-    assertThat(tree2.elements().get(1).is(Kind.UNDEFINED)).isTrue();
-    assertThat(tree2.elements().get(2).is(Kind.UNDEFINED)).isTrue();
-    assertThat(expressionToString(tree2.elements().get(3))).isEqualTo("a");
-    assertThat(tree2.elements().getSeparators().size()).isEqualTo(3);
+    assertThat(expressionToString(tree2.elements().get(1))).isEqualTo("a");
+    assertThat(tree2.elementsAndCommas().size()).isEqualTo(5);
 
     assertThat(tree2.closeBracket().text()).isEqualTo("]");
   }

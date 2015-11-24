@@ -49,7 +49,6 @@ import org.sonar.plugins.javascript.api.tree.expression.CallExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.ClassTree;
 import org.sonar.plugins.javascript.api.tree.expression.ComputedPropertyNameTree;
 import org.sonar.plugins.javascript.api.tree.expression.ConditionalExpressionTree;
-import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.FunctionExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 import org.sonar.plugins.javascript.api.tree.expression.LiteralTree;
@@ -305,12 +304,6 @@ public interface Tree {
      * {@link ArrayLiteralTree}
      */
     ARRAY_LITERAL(ArrayLiteralTree.class),
-
-    /**
-     * {@link ExpressionTree}
-     * {@code undefined}
-     */
-    UNDEFINED(ExpressionTree.class),
 
     /**
      * {@link ObjectLiteralTree}

@@ -19,11 +19,13 @@
  */
 package org.sonar.javascript.tree.impl.expression;
 
-import com.google.common.base.Functions;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Iterators;
-import org.apache.commons.collections.ListUtils;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
-import org.sonar.javascript.tree.impl.SeparatedList;
 import org.sonar.javascript.tree.impl.lexical.InternalSyntaxToken;
 import org.sonar.plugins.javascript.api.symbols.Type;
 import org.sonar.plugins.javascript.api.symbols.TypeSet;
@@ -33,24 +35,24 @@ import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.javascript.api.visitors.TreeVisitor;
 
-import java.util.Iterator;
-import java.util.List;
-
 public class ArrayLiteralTreeImpl extends JavaScriptTree implements ArrayLiteralTree {
 
   private SyntaxToken openBracket;
-  private final SeparatedList<ExpressionTree> elements;
+  private final List<ExpressionTree> elements;
+  private final List<Tree> elementsAndCommas;
   private SyntaxToken closeBracket;
   private TypeSet types = TypeSet.emptyTypeSet();
 
   public ArrayLiteralTreeImpl(InternalSyntaxToken openBracket, InternalSyntaxToken closeBracket) {
     this.openBracket = openBracket;
-    this.elements = new SeparatedList<>(ListUtils.EMPTY_LIST, ListUtils.EMPTY_LIST);
+    this.elements = Collections.emptyList();
+    this.elementsAndCommas = Collections.emptyList();
     this.closeBracket = closeBracket;
   }
 
-  public ArrayLiteralTreeImpl(List<ExpressionTree> elements, List<InternalSyntaxToken> commas) {
-    this.elements = new SeparatedList<>(elements, commas);
+  public ArrayLiteralTreeImpl(List<Tree> elementsAndCommas) {
+    this.elementsAndCommas = elementsAndCommas;
+    this.elements = ImmutableList.copyOf(Iterables.filter(elementsAndCommas, ExpressionTree.class));
   }
 
   public ArrayLiteralTreeImpl complete(InternalSyntaxToken openBracket, InternalSyntaxToken closeBracket) {
@@ -65,8 +67,13 @@ public class ArrayLiteralTreeImpl extends JavaScriptTree implements ArrayLiteral
   }
 
   @Override
-  public SeparatedList<ExpressionTree> elements() {
+  public List<ExpressionTree> elements() {
     return elements;
+  }
+
+  @Override
+  public List<Tree> elementsAndCommas() {
+    return elementsAndCommas;
   }
 
   @Override
@@ -90,9 +97,9 @@ public class ArrayLiteralTreeImpl extends JavaScriptTree implements ArrayLiteral
 
   @Override
   public Iterator<Tree> childrenIterator() {
-    return Iterators.<Tree>concat(
+    return Iterators.concat(
         Iterators.singletonIterator(openBracket),
-        elements.elementsAndSeparators(Functions.<ExpressionTree>identity()),
+        elementsAndCommas.iterator(),
         Iterators.singletonIterator(closeBracket)
     );
   }

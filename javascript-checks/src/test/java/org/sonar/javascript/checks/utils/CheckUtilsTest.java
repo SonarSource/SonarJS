@@ -17,30 +17,23 @@
  * License along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.plugins.javascript.api.tree.expression;
+package org.sonar.javascript.checks.utils;
 
-import com.google.common.annotations.Beta;
-import java.util.List;
+import com.google.common.base.Charsets;
+import com.sonar.sslr.api.typed.ActionParser;
+import org.junit.Test;
+import org.sonar.javascript.parser.JavaScriptParserBuilder;
 import org.sonar.plugins.javascript.api.tree.Tree;
-import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 
-/**
- * <a href="http://www.ecma-international.org/ecma-262/5.1/#sec-11.1.4">Array Initialiser</a>.
- *
- * <pre>
- *   [ ]
- *   [  {@link #elements()} ]
- * </pre>
- */
-@Beta
-public interface ArrayLiteralTree extends ExpressionTree {
+import static org.fest.assertions.Assertions.assertThat;
 
-  SyntaxToken openBracket();
+public class CheckUtilsTest {
 
-  List<ExpressionTree> elements();
+  protected final ActionParser<Tree> p = JavaScriptParserBuilder.createParser(Charsets.UTF_8);
 
-  List<Tree> elementsAndCommas();
-
-  SyntaxToken closeBracket();
-
+  @Test
+  public void testAsString() throws Exception {
+    Tree tree = p.parse("[, a, , ]");
+    assertThat(CheckUtils.asString(tree)).isEqualTo("[, a, , ]");
+  }
 }

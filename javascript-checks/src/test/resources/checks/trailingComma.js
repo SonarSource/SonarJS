@@ -9,4 +9,4 @@ var a = { // OK
 var b = [ 1 ]; // OK
 var b = []; // OK
 
-var b = [ 1,, ]; // Noncompliant
+var b = [ 1,, ]; // Noncompliant [[sc=13;ec=14]]

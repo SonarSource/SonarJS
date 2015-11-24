@@ -20,13 +20,12 @@
 package org.sonar.javascript.checks.utils;
 
 import com.google.common.collect.ImmutableSet;
+import java.util.Iterator;
+import javax.annotation.Nullable;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
-
-import javax.annotation.Nullable;
-import java.util.Iterator;
 
 public class CheckUtils {
 
@@ -103,7 +102,7 @@ public class CheckUtils {
   }
 
   public static String asString(Tree tree) {
-    if (tree.is(Kind.TOKEN)){
+    if (tree.is(Kind.TOKEN)) {
       return ((SyntaxToken) tree).text();
 
     } else {
@@ -124,7 +123,7 @@ public class CheckUtils {
   }
 
   private static void appendChild(StringBuilder sb, @Nullable SyntaxToken prevToken, Tree child) {
-    if (prevToken != null){
+    if (prevToken != null) {
       SyntaxToken firstToken = ((JavaScriptTree) child).getFirstToken();
       if (isSpaceRequired(prevToken, firstToken)) {
         sb.append(" ");
@@ -136,7 +135,6 @@ public class CheckUtils {
   private static boolean isSpaceRequired(SyntaxToken prevToken, SyntaxToken token) {
     return (token.line() > prevToken.line()) || (prevToken.column() + prevToken.text().length() < token.column());
   }
-
 
 
 }
