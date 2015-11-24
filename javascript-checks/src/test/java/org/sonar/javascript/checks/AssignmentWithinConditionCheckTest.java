@@ -19,24 +19,17 @@
  */
 package org.sonar.javascript.checks;
 
-import org.junit.Test;
-import org.sonar.plugins.javascript.api.tests.TreeCheckTest;
-import org.sonar.squidbridge.checks.CheckMessagesVerifier;
+import java.io.File;
 
-public class AssignmentWithinConditionCheckTest extends TreeCheckTest {
+import org.junit.Test;
+
+public class AssignmentWithinConditionCheckTest {
 
   @Test
   public void test() {
-    AssignmentWithinConditionCheck check = new AssignmentWithinConditionCheck();
-
-    CheckMessagesVerifier.verify(getIssues("src/test/resources/checks/assignmentWithinCondition.js", check))
-      .next().atLine(1).withMessage("Extract the assignment out of this expression.")
-      .next().atLine(4)
-      .next().atLine(28)
-      .next().atLine(47)
-      .next().atLine(56)
-      .next().atLine(60)
-      .noMore();
+    JavaScriptCheckVerifier.verify(
+      new AssignmentWithinConditionCheck(), 
+      new File("src/test/resources/checks/assignmentWithinCondition.js"));
   }
 
 }

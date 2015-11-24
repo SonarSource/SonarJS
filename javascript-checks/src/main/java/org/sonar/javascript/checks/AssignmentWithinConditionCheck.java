@@ -19,10 +19,11 @@
  */
 package org.sonar.javascript.checks;
 
+import javax.annotation.Nullable;
+
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
-import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.declaration.InitializedBindingElementTree;
@@ -35,10 +36,12 @@ import org.sonar.plugins.javascript.api.tree.statement.DoWhileStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.ExpressionStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.ForStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.WhileStatementTree;
+import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
+import org.sonar.plugins.javascript.api.visitors.IssueLocation;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 
-import javax.annotation.Nullable;
+import com.google.common.collect.ImmutableList;
 
 @Rule(
   key = "AssignmentWithinCondition",
@@ -179,6 +182,7 @@ public class AssignmentWithinConditionCheck extends BaseTreeVisitor {
   public void visitAssignmentExpression(AssignmentExpressionTree tree) {
     super.visitAssignmentExpression(tree);
 
-    getContext().addIssue(this, tree, "Extract the assignment out of this expression.");
+    String message = "Extract the assignment out of this expression.";
+    getContext().addIssue(this, new IssueLocation(tree.operator(), message), ImmutableList.<IssueLocation>of(), null);
   }
 }
