@@ -33,6 +33,10 @@ public class IssueLocation {
     this.message = message;
   }
 
+  public IssueLocation(Tree tree) {
+    this(tree, null);
+  }
+
   public Tree tree() {
     return tree;
   }

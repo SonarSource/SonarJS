@@ -22,15 +22,18 @@ package org.sonar.javascript.checks;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
-import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
 import org.sonar.javascript.tree.SyntacticEquivalence;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.expression.BinaryExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.LiteralTree;
 import org.sonar.plugins.javascript.api.tree.expression.UnaryExpressionTree;
+import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
+import org.sonar.plugins.javascript.api.visitors.IssueLocation;
 import org.sonar.squidbridge.annotations.ActivatedByDefault;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
+
+import com.google.common.collect.ImmutableList;
 
 @Rule(
   key = "S1764",
@@ -47,9 +50,10 @@ public class IdenticalExpressionOnBinaryOperatorCheck extends BaseTreeVisitor {
     if (!tree.is(Kind.MULTIPLY, Kind.PLUS, Kind.ASSIGNMENT)
       && SyntacticEquivalence.areEquivalent(tree.leftOperand(), tree.rightOperand()) && isExcluded(tree)) {
 
-      getContext().addIssue(this,
-          tree,
-          "Identical sub-expressions on both sides of operator \"" + tree.operator().text() + "\"");
+      String message = "Identical sub-expressions on both sides of operator \"" + tree.operator().text() + "\"";
+      IssueLocation primary = new IssueLocation(tree.rightOperand(), message);
+      IssueLocation secondary = new IssueLocation(tree.leftOperand());
+      getContext().addIssue(this, primary, ImmutableList.of(secondary), null);
     }
 
     super.visitBinaryExpression(tree);

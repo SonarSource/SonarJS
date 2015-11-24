@@ -19,24 +19,16 @@
  */
 package org.sonar.javascript.checks;
 
+import java.io.File;
+
 import org.junit.Test;
-import org.sonar.plugins.javascript.api.tests.TreeCheckTest;
-import org.sonar.squidbridge.checks.CheckMessagesVerifier;
 
-public class IdenticalExpressionOnBinaryOperatorCheckTest extends TreeCheckTest {
-
-  private IdenticalExpressionOnBinaryOperatorCheck check = new IdenticalExpressionOnBinaryOperatorCheck();
+public class IdenticalExpressionOnBinaryOperatorCheckTest {
 
   @Test
   public void test() {
-    CheckMessagesVerifier.verify(getIssues("src/test/resources/checks/identicalExpressionOnBinaryOperator.js", check))
-      .next().atLine(4).withMessage("Identical sub-expressions on both sides of operator \"==\"")
-      .next().atLine(6).withMessage("Identical sub-expressions on both sides of operator \"!=\"")
-      .next().atLine(8).withMessage("Identical sub-expressions on both sides of operator \"&&\"")
-      .next().atLine(10).withMessage("Identical sub-expressions on both sides of operator \"||\"")
-      .next().atLine(12).withMessage("Identical sub-expressions on both sides of operator \"/\"")
-      .next().atLine(14).withMessage("Identical sub-expressions on both sides of operator \"-\"")
-      .next().atLine(16).withMessage("Identical sub-expressions on both sides of operator \"<<\"")
-      .noMore();
+    JavaScriptCheckVerifier.verify(
+      new IdenticalExpressionOnBinaryOperatorCheck(), 
+      new File("src/test/resources/checks/identicalExpressionOnBinaryOperator.js"));
   }
 }

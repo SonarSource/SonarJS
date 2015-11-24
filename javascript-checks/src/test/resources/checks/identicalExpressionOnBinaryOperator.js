@@ -1,19 +1,19 @@
 /**
  * NOK
  */
-a == a;
+a == a; // Noncompliant {{Identical sub-expressions on both sides of operator "=="}}
 
-a != a;
+a != a; // Noncompliant {{Identical sub-expressions on both sides of operator "!="}}
 
-a == b && a == b
+a == b && a == b // Noncompliant [[sc=11;ec=17;secondary=+0]]
 
-a == b || a == b
+a == b || a == b // Noncompliant
 
-5 / 5;
+5 / 5; // Noncompliant
 
-5 - 5;
+5 - 5; // Noncompliant
 
-a << a;
+a << a; // Noncompliant
 
 /**
  * OK
