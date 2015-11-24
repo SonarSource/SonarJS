@@ -39,6 +39,16 @@ function f() {
   }
 }
 
+export const a = 1;
+export const a = 1 // Noncompliant
+export {};
+export {}          // Noncompliant
+export default x;
+export default x   // Noncompliant
+export default class A {}
+export default function f() {}
+export default function () {} // Noncompliant
+
 export var NodeContainer = assert.define('NodeContainer', function(obj) {
   assert(obj).is(assert.structure({
     childNodes: ArrayLikeOfNodes,

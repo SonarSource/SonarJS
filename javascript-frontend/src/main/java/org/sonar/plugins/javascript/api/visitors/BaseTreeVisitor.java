@@ -122,16 +122,18 @@ public class BaseTreeVisitor implements TreeVisitor, JavaScriptCheck {
   }
 
   protected <T> void scan(List<T> trees) {
-    for (T tree : trees) {
+    if (trees != null) {
+      for (T tree : trees) {
 
-      if (tree instanceof Optional) {
-        scan((Optional) tree);
+        if (tree instanceof Optional) {
+          scan((Optional) tree);
 
-      } else if (tree instanceof Tree) {
-        scan((Tree) tree);
+        } else if (tree instanceof Tree) {
+          scan((Tree) tree);
 
-      } else {
-        throw new IllegalArgumentException("List element type should be of type Optional or Tree.");
+        } else {
+          throw new IllegalArgumentException("List element type should be of type Optional or Tree.");
+        }
       }
     }
   }
