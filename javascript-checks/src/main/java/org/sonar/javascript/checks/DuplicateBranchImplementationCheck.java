@@ -19,25 +19,27 @@
  */
 package org.sonar.javascript.checks;
 
+import java.util.List;
+
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
-import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
 import org.sonar.javascript.tree.SyntacticEquivalence;
-import org.sonar.javascript.tree.impl.JavaScriptTree;
+import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.statement.ElseClauseTree;
 import org.sonar.plugins.javascript.api.tree.statement.IfStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.StatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.SwitchClauseTree;
 import org.sonar.plugins.javascript.api.tree.statement.SwitchStatementTree;
+import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
+import org.sonar.plugins.javascript.api.visitors.IssueLocation;
 import org.sonar.squidbridge.annotations.ActivatedByDefault;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
-
-import java.util.List;
 
 @Rule(
   key = "S1871",
@@ -58,9 +60,7 @@ public class DuplicateBranchImplementationCheck extends BaseTreeVisitor {
       StatementTree implementationToCompare = getImplementationFromElseClause(elseClause);
 
       if (SyntacticEquivalence.areEquivalent(implementation, implementationToCompare)) {
-        getContext().addIssue(this,
-          implementationToCompare,
-          "Either merge this branch with the identical one on line \"" + ((JavaScriptTree) implementation).getLine() + "\" or change one of the implementations.");
+        addIssue(implementation, implementationToCompare, "branch");
         break;
       }
       elseClause = getNextElse(elseClause);
@@ -96,13 +96,18 @@ public class DuplicateBranchImplementationCheck extends BaseTreeVisitor {
       List<StatementTree> caseStatements = caseTreeToCompare.is(Kind.DEFAULT_CLAUSE) ? caseTree.statements().subList(0, caseTree.statements().size() - 1) : caseTree.statements();
 
       if (SyntacticEquivalence.areEquivalent(caseStatements, caseTreeToCompare.statements())) {
-        getContext().addIssue(this,
-          caseTreeToCompare,
-          "Either merge this case with the identical one on line \"" + ((JavaScriptTree) caseTree).getLine() + "\" or change one of the implementations.");
+        addIssue(caseTree, caseTreeToCompare, "case");
         // break the inner loop
         break;
       }
     }
+  }
+  
+  private void addIssue(Tree original, Tree duplicate, String type) {
+    IssueLocation secondary = new IssueLocation(original, "Original");
+    String message = "Either merge this " + type + " with the identical one on line \""
+      + secondary.startLine() + "\" or change one of the implementations.";
+    getContext().addIssue(this, new IssueLocation(duplicate, message), ImmutableList.of(secondary), null);
   }
 
   private boolean isCaseEndingWithoutJumpStmt(SwitchClauseTree caseTree) {

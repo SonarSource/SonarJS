@@ -19,26 +19,16 @@
  */
 package org.sonar.javascript.checks;
 
-import org.junit.Test;
-import org.sonar.plugins.javascript.api.tests.TreeCheckTest;
-import org.sonar.squidbridge.checks.CheckMessagesVerifier;
+import java.io.File;
 
-public class DuplicateBranchImplementationCheckTest extends TreeCheckTest {
+import org.junit.Test;
+
+public class DuplicateBranchImplementationCheckTest {
 
   private DuplicateBranchImplementationCheck check = new DuplicateBranchImplementationCheck();
 
   @Test
   public void test() {
-    CheckMessagesVerifier.verify(getIssues("src/test/resources/checks/duplicateBranchImplementation.js", check))
-      .next().atLine(3).withMessage("Either merge this branch with the identical one on line \"1\" or change one of the implementations.")
-      .next().atLine(9)
-      .next().atLine(17)
-      .next().atLine(23)
-      .next().atLine(33).withMessage("Either merge this case with the identical one on line \"30\" or change one of the implementations.")
-      .next().atLine(41)
-      .next().atLine(54)
-      .next().atLine(62)
-      .next().atLine(78)
-      .noMore();
+    JavaScriptCheckVerifier.verify(check, new File("src/test/resources/checks/duplicateBranchImplementation.js"));
   }
 }
