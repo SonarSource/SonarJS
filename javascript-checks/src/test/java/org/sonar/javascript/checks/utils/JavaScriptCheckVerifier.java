@@ -24,7 +24,6 @@ import com.google.common.base.Function;
 import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Ordering;
-import com.google.common.primitives.Ints;
 import com.sonar.sslr.api.RecognitionException;
 import com.sonar.sslr.api.typed.ActionParser;
 import java.io.File;
@@ -68,40 +67,40 @@ public class JavaScriptCheckVerifier extends SubscriptionBaseTreeVisitor {
       if (actualIssues.hasNext()) {
         verifyIssue(expected, actualIssues.next());
       } else {
-        throw new AssertionError("Missing issue at line " + expected.line);
+        throw new AssertionError("Missing issue at line " + expected.line());
       }
     }
 
     if (actualIssues.hasNext()) {
       Issue issue = actualIssues.next();
-      throw new AssertionError("Unexpected issue at line " + issue.line + ": \"" + issue.message + "\"");
+      throw new AssertionError("Unexpected issue at line " + issue.line() + ": \"" + issue.message() + "\"");
     }
   }
 
   private void verifyIssue(Issue expected, Issue actual) {
-    if (actual.line > expected.line) {
-      throw new AssertionError("Missing issue at line " + expected.line);
+    if (actual.line() > expected.line()) {
+      throw new AssertionError("Missing issue at line " + expected.line());
     }
-    if (actual.line < expected.line) {
-      throw new AssertionError("Unexpected issue at line " + actual.line + ": \"" + actual.message + "\"");
+    if (actual.line() < expected.line()) {
+      throw new AssertionError("Unexpected issue at line " + actual.line() + ": \"" + actual.message() + "\"");
     }
-    if (expected.message != null) {
-      assertThat(actual.message).as("Bad message at line " + expected.line).isEqualTo(expected.message);
+    if (expected.message() != null) {
+      assertThat(actual.message()).as("Bad message at line " + expected.line()).isEqualTo(expected.message());
     }
-    if (expected.effortToFix != null) {
-      assertThat(actual.effortToFix).as("Bad effortToFix at line " + expected.line).isEqualTo(expected.effortToFix);
+    if (expected.effortToFix() != null) {
+      assertThat(actual.effortToFix()).as("Bad effortToFix at line " + expected.line()).isEqualTo(expected.effortToFix());
     }
-    if (expected.startColumn != null) {
-      assertThat(actual.startColumn).as("Bad start column at line " + expected.line).isEqualTo(expected.startColumn);
+    if (expected.startColumn() != null) {
+      assertThat(actual.startColumn()).as("Bad start column at line " + expected.line()).isEqualTo(expected.startColumn());
     }
-    if (expected.endColumn != null) {
-      assertThat(actual.endColumn).as("Bad end column at line " + expected.line).isEqualTo(expected.endColumn);
+    if (expected.endColumn() != null) {
+      assertThat(actual.endColumn()).as("Bad end column at line " + expected.line()).isEqualTo(expected.endColumn());
     }
-    if (expected.endLine != null) {
-      assertThat(actual.endLine).as("Bad end line at line " + expected.line).isEqualTo(expected.endLine);
+    if (expected.endLine() != null) {
+      assertThat(actual.endLine()).as("Bad end line at line " + expected.line()).isEqualTo(expected.endLine());
     }
-    if (expected.secondaryLines != null) {
-      assertThat(actual.secondaryLines).as("Bad secondary locations at line " + expected.line).isEqualTo(expected.secondaryLines);
+    if (expected.secondaryLines() != null) {
+      assertThat(actual.secondaryLines()).as("Bad secondary locations at line " + expected.line()).isEqualTo(expected.secondaryLines());
     }
   }
 
@@ -158,12 +157,12 @@ public class JavaScriptCheckVerifier extends SubscriptionBaseTreeVisitor {
         issue.endColumn(Integer.valueOf(value));
 
       } else if ("el".equalsIgnoreCase(name)) {
-        issue.endLine(lineValue(issue.line, value));
+        issue.endLine(lineValue(issue.line(), value));
 
       } else if ("secondary".equalsIgnoreCase(name)) {
         List<Integer> secondaryLines = new ArrayList<>();
         for (String secondary : Splitter.on(',').split(value)) {
-          secondaryLines.add(lineValue(issue.line, secondary));
+          secondaryLines.add(lineValue(issue.line(), secondary));
         }
         issue.secondary(secondaryLines);
 
@@ -183,96 +182,8 @@ public class JavaScriptCheckVerifier extends SubscriptionBaseTreeVisitor {
     return Integer.valueOf(shift);
   }
 
-  public static class Issue {
-
-    private String message;
-    private final int line;
-    private Integer effortToFix = null;
-    private Integer startColumn = null;
-    private Integer endColumn = null;
-    private Integer endLine = null;
-    private List<Integer> secondaryLines = null;
-
-    private Issue(@Nullable String message, int line) {
-      this.message = message;
-      this.line = line;
-    }
-
-    public static Issue create(@Nullable String message, int lineNumber) {
-      return new Issue(message, lineNumber);
-    }
-
-    public Issue message(String message) {
-      this.message = message;
-      return this;
-    }
-
-    public Issue columns(int startColumn, int endColumn) {
-      startColumn(startColumn);
-      endColumn(endColumn);
-      return this;
-    }
-    
-    public Issue startColumn(int startColumn) {
-      this.startColumn = startColumn;
-      return this;
-    }
-
-    public Issue endColumn(int endColumn) {
-      this.endColumn = endColumn;
-      return this;
-    }
-    
-    public Issue effortToFix(int effortToFix) {
-      this.effortToFix = effortToFix;
-      return this;
-    }
-    
-    public Issue endLine(int endLine) {
-      this.endLine = endLine;
-      return this;
-    }
-
-    public Issue secondary(int... lines) {
-      return secondary(Ints.asList(lines));
-    }
-    
-    public Issue secondary(List<Integer> secondaryLines) {
-      this.secondaryLines = secondaryLines;
-      return this;
-    }
-
-    public int line() {
-      return line;
-    }
-
-    public Integer startColumn() {
-      return startColumn;
-    }
-
-    public Integer endLine() {
-      return endLine;
-    }
-
-    public Integer endColumn() {
-      return endColumn;
-    }
-
-    public String message() {
-      return message;
-    }
-
-    public Integer effortToFix() {
-      return effortToFix;
-    }
-
-    public List<Integer> secondaryLines() {
-      return secondaryLines;
-    }
-  }
-  
   private static Issue issue(@Nullable String message, int lineNumber) {
-    return new Issue(message, lineNumber);
+    return Issue.create(message, lineNumber);
   }
 
   private static class VerifierContext implements TreeVisitorContext {
@@ -381,7 +292,7 @@ public class JavaScriptCheckVerifier extends SubscriptionBaseTreeVisitor {
   private static class IssueToLine implements Function<Issue,Integer> {
     @Override
     public Integer apply(Issue issue) {
-      return issue.line;
+      return issue.line();
     }
   }
 
