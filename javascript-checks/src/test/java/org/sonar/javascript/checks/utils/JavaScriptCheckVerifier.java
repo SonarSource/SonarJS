@@ -17,18 +17,24 @@
  * License along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.javascript.checks;
+package org.sonar.javascript.checks.utils;
 
+import com.google.common.base.Charsets;
+import com.google.common.base.Function;
+import com.google.common.base.Splitter;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Ordering;
+import com.google.common.primitives.Ints;
+import com.sonar.sslr.api.RecognitionException;
+import com.sonar.sslr.api.typed.ActionParser;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-
-import org.apache.commons.lang.StringUtils;
+import javax.annotation.Nullable;
 import org.sonar.javascript.metrics.ComplexityVisitor;
 import org.sonar.javascript.parser.JavaScriptParserBuilder;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
-import org.sonar.javascript.tree.impl.lexical.InternalSyntaxToken;
 import org.sonar.javascript.tree.symbols.SymbolModelImpl;
 import org.sonar.plugins.javascript.api.JavaScriptCheck;
 import org.sonar.plugins.javascript.api.symbols.SymbolModel;
@@ -41,43 +47,31 @@ import org.sonar.plugins.javascript.api.visitors.IssueLocation;
 import org.sonar.plugins.javascript.api.visitors.SubscriptionBaseTreeVisitor;
 import org.sonar.plugins.javascript.api.visitors.TreeVisitorContext;
 
-import com.google.common.base.Charsets;
-import com.google.common.base.Function;
-import com.google.common.base.Splitter;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Ordering;
-import com.google.common.primitives.Ints;
-import com.sonar.sslr.api.RecognitionException;
-import com.sonar.sslr.api.typed.ActionParser;
-
 import static org.fest.assertions.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 public class JavaScriptCheckVerifier extends SubscriptionBaseTreeVisitor {
 
   private final List<Issue> expectedIssues = new ArrayList<>();
 
   public static void verify(JavaScriptCheck check, File file) {
-    VerifierContext context = new VerifierContext(file, check);
+    VerifierContext context = new VerifierContext(file);
     check.scanFile(context);
-    JavaScriptCheckVerifier verifier = new JavaScriptCheckVerifier();
-    verifier.verify(context);
+    new JavaScriptCheckVerifier().verify(context);
   }
 
   private void verify(VerifierContext context) {
     scanTree(context.getTopTree());
     List<Issue> sortedIssues = Ordering.natural().onResultOf(new IssueToLine()).sortedCopy(context.getIssues());
     Iterator<Issue> actualIssues = sortedIssues.iterator();
+
     for (Issue expected : expectedIssues) {
       if (actualIssues.hasNext()) {
-        Issue actual = actualIssues.next();
-        verifyIssue(expected, actual);
+        verifyIssue(expected, actualIssues.next());
       } else {
-        Issue issue = expected;
-        throw new AssertionError("Missing issue at line " + issue.line);
+        throw new AssertionError("Missing issue at line " + expected.line);
       }
     }
+
     if (actualIssues.hasNext()) {
       Issue issue = actualIssues.next();
       throw new AssertionError("Unexpected issue at line " + issue.line + ": \"" + issue.message + "\"");
@@ -120,21 +114,26 @@ public class JavaScriptCheckVerifier extends SubscriptionBaseTreeVisitor {
   public void visitNode(Tree tree) {
     SyntaxToken token = (SyntaxToken) tree;
     for (SyntaxTrivia trivia : token.trivias()) {
+
       String text = trivia.text().substring(2).trim();
       String marker = "Noncompliant";
+
       if (text.startsWith(marker)) {
         Issue issue = issue(null, trivia.line());
         String paramsAndMessage = text.substring(marker.length()).trim();
+
         if (paramsAndMessage.startsWith("[[")) {
           int endIndex = paramsAndMessage.indexOf("]]");
           addParams(issue, paramsAndMessage.substring(2, endIndex));
           paramsAndMessage = paramsAndMessage.substring(endIndex + 2).trim();
         }
+
         if (paramsAndMessage.startsWith("{{")) {
           int endIndex = paramsAndMessage.indexOf("}}");
           String message = paramsAndMessage.substring(2, endIndex);
           issue.message(message);
         }
+
         expectedIssues.add(issue);
       }
     }
@@ -148,52 +147,58 @@ public class JavaScriptCheckVerifier extends SubscriptionBaseTreeVisitor {
       }
       String name = param.substring(0, equalIndex);
       String value = param.substring(equalIndex + 1);
+
       if ("effortToFix".equalsIgnoreCase(name)) {
         issue.effortToFix(Integer.valueOf(value));
+
       } else if ("sc".equalsIgnoreCase(name)) {
         issue.startColumn(Integer.valueOf(value));
+
       } else if ("ec".equalsIgnoreCase(name)) {
         issue.endColumn(Integer.valueOf(value));
+
       } else if ("el".equalsIgnoreCase(name)) {
         issue.endLine(lineValue(issue.line, value));
+
       } else if ("secondary".equalsIgnoreCase(name)) {
         List<Integer> secondaryLines = new ArrayList<>();
         for (String secondary : Splitter.on(',').split(value)) {
           secondaryLines.add(lineValue(issue.line, secondary));
         }
         issue.secondary(secondaryLines);
+
       } else {
         throw new IllegalStateException("Invalid param at line 1: " + name);
       }
     }
   }
   
-  private int lineValue(int baseLine, String value) {
-    if (value.startsWith("+")) {
-      return baseLine + Integer.valueOf(value.substring(1));
+  private int lineValue(int baseLine, String shift) {
+    if (shift.startsWith("+")) {
+      return baseLine + Integer.valueOf(shift.substring(1));
     }
-    if (value.startsWith("-")) {
-      return baseLine - Integer.valueOf(value.substring(1));
+    if (shift.startsWith("-")) {
+      return baseLine - Integer.valueOf(shift.substring(1));
     }
-    return Integer.valueOf(value);
+    return Integer.valueOf(shift);
   }
 
   public static class Issue {
 
     private String message;
     private final int line;
-    private Integer effortToFix;
-    private Integer startColumn;
-    private Integer endColumn;
-    private Integer endLine;
+    private Integer effortToFix = null;
+    private Integer startColumn = null;
+    private Integer endColumn = null;
+    private Integer endLine = null;
     private List<Integer> secondaryLines = null;
 
-    public Issue(String message, int line) {
+    private Issue(@Nullable String message, int line) {
       this.message = message;
       this.line = line;
     }
 
-    public static Issue create(String message, int lineNumber) {
+    public static Issue create(@Nullable String message, int lineNumber) {
       return new Issue(message, lineNumber);
     }
 
@@ -237,39 +242,36 @@ public class JavaScriptCheckVerifier extends SubscriptionBaseTreeVisitor {
       return this;
     }
 
-    public void log(TreeVisitorContext context, JavaScriptCheck check) {
-      List<IssueLocation> secondaryLocations = new ArrayList<>();
-      if (secondaryLines != null) {
-        for (Integer secondaryLine : secondaryLines) {
-          secondaryLocations.add(new IssueLocation(createTree(secondaryLine, 1, secondaryLine, 1), null));
-        }
-      }
-      if (startColumn != null || endLine != null || secondaryLines != null) {
-        Tree tree = createTree(line, startColumn, endLine, endColumn);
-        context.addIssue(check, new IssueLocation(tree, message), secondaryLocations, null);
-      } else if (effortToFix == null) {
-        context.addIssue(check, line, message);
-      } else {
-        context.addIssue(check, line, message, effortToFix);
-      }
+    public int line() {
+      return line;
     }
 
-    private Tree createTree(int line, Integer startColumn, Integer endLine, Integer endColumn) {
-      JavaScriptTree tree = mock(JavaScriptTree.class);
-      when(tree.getFirstToken()).thenReturn(createToken(line, startColumn, 1));
-      when(tree.getLastToken()).thenReturn(createToken(endLine == null ? line : endLine, endColumn, 0));
-      return tree;
+    public Integer startColumn() {
+      return startColumn;
     }
 
-    private InternalSyntaxToken createToken(int line, Integer column, int length) {
-      String tokenValue = StringUtils.repeat("x", length);
-      int tokenColumn = column == null ? 0 : column - 1;
-      return new InternalSyntaxToken(line, tokenColumn, tokenValue, ImmutableList.<SyntaxTrivia>of(), 0, false);
+    public Integer endLine() {
+      return endLine;
     }
 
+    public Integer endColumn() {
+      return endColumn;
+    }
+
+    public String message() {
+      return message;
+    }
+
+    public Integer effortToFix() {
+      return effortToFix;
+    }
+
+    public List<Integer> secondaryLines() {
+      return secondaryLines;
+    }
   }
   
-  private static Issue issue(String message, int lineNumber) {
+  private static Issue issue(@Nullable String message, int lineNumber) {
     return new Issue(message, lineNumber);
   }
 
@@ -283,7 +285,7 @@ public class JavaScriptCheckVerifier extends SubscriptionBaseTreeVisitor {
     private SymbolModel symbolModel = null;
     private List<Issue> issues = new ArrayList<>();
 
-    public VerifierContext(File file, JavaScriptCheck check) {
+    public VerifierContext(File file) {
       this.file = file;
       this.complexityVisitor = new ComplexityVisitor();
 

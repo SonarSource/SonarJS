@@ -17,22 +17,34 @@
  * License along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package org.sonar.javascript.checks;
+package org.sonar.javascript.checks.utils;
 
+import com.google.common.collect.ImmutableList;
 import java.io.File;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import javax.annotation.Nullable;
+import org.apache.commons.lang.StringUtils;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
-import org.sonar.javascript.checks.JavaScriptCheckVerifier.Issue;
+import org.sonar.javascript.checks.utils.JavaScriptCheckVerifier.Issue;
+import org.sonar.javascript.tree.impl.JavaScriptTree;
+import org.sonar.javascript.tree.impl.lexical.InternalSyntaxToken;
 import org.sonar.plugins.javascript.api.JavaScriptCheck;
+import org.sonar.plugins.javascript.api.tree.Tree;
+import org.sonar.plugins.javascript.api.tree.lexical.SyntaxTrivia;
+import org.sonar.plugins.javascript.api.visitors.IssueLocation;
 import org.sonar.plugins.javascript.api.visitors.TreeVisitorContext;
 
 import com.google.common.io.Files;
+
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class JavaScriptCheckVerifierTest {
 
@@ -230,9 +242,40 @@ public class JavaScriptCheckVerifierTest {
     @Override
     public void scanFile(TreeVisitorContext context) {
       for (Issue issue : issues) {
-        issue.log(context, this);
+        log(issue, context);
       }
     }
+
+    public void log(Issue issue, TreeVisitorContext context) {
+      List<IssueLocation> secondaryLocations = new ArrayList<>();
+      if (issue.secondaryLines() != null) {
+        for (Integer secondaryLine : issue.secondaryLines()) {
+          secondaryLocations.add(new IssueLocation(createTree(secondaryLine, 1, secondaryLine, 1), null));
+        }
+      }
+      if (issue.startColumn() != null || issue.endLine() != null || issue.secondaryLines() != null) {
+        Tree tree = createTree(issue.line(), issue.startColumn(), issue.endLine(), issue.endColumn());
+        context.addIssue(this, new IssueLocation(tree, issue.message()), secondaryLocations, null);
+      } else if (issue.effortToFix() == null) {
+        context.addIssue(this, issue.line(), issue.message());
+      } else {
+        context.addIssue(this, issue.line(), issue.message(), issue.effortToFix());
+      }
+    }
+
+    private Tree createTree(int line, Integer startColumn, Integer endLine, Integer endColumn) {
+      JavaScriptTree tree = mock(JavaScriptTree.class);
+      when(tree.getFirstToken()).thenReturn(createToken(line, startColumn, 1));
+      when(tree.getLastToken()).thenReturn(createToken(endLine == null ? line : endLine, endColumn, 0));
+      return tree;
+    }
+
+    private static InternalSyntaxToken createToken(int line, @Nullable Integer column, int length) {
+      String tokenValue = StringUtils.repeat("x", length);
+      int tokenColumn = column == null ? 0 : column - 1;
+      return new InternalSyntaxToken(line, tokenColumn, tokenValue, ImmutableList.<SyntaxTrivia>of(), 0, false);
+    }
+
 
   }
 
