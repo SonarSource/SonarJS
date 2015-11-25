@@ -107,7 +107,7 @@ public class TestCheckContext implements TreeVisitorContext {
 
   @Override
   public void addIssue(JavaScriptCheck check, IssueLocation location, List<IssueLocation> secondaryLocations, Double cost) {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException("To test rules which provide 'secondary locations' use JavaScriptCheckVerifier#verify()");
   }
 
   @Override
