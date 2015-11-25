@@ -37,11 +37,10 @@ public class PreciseIssue {
   private final List<IssueLocation> secondaryLocations;
   private final Double cost;
 
-
-  public PreciseIssue(
+  private PreciseIssue(
     SensorContext sensorContext, InputFile inputFile, RuleKey ruleKey,
-    IssueLocation location, List<IssueLocation> secondaryLocations, Double cost) {
-
+    IssueLocation location, List<IssueLocation> secondaryLocations, Double cost
+  ) {
     this.sensorContext = sensorContext;
     this.inputFile = inputFile;
     this.ruleKey = ruleKey;
@@ -52,8 +51,8 @@ public class PreciseIssue {
 
   public static void save(
     SensorContext sensorContext, InputFile inputFile, RuleKey ruleKey,
-    IssueLocation location, List<IssueLocation> secondaryLocations, Double cost) {
-
+    IssueLocation location, List<IssueLocation> secondaryLocations, Double cost
+  ) {
     PreciseIssue preciseIssue = new PreciseIssue(sensorContext, inputFile, ruleKey, location, secondaryLocations, cost);
     preciseIssue.save();
   }
