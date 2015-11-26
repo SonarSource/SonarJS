@@ -19,21 +19,14 @@
  */
 package org.sonar.javascript.checks;
 
+import java.io.File;
 import org.junit.Test;
-import org.sonar.plugins.javascript.api.tests.TreeCheckTest;
-import org.sonar.squidbridge.checks.CheckMessagesVerifier;
+import org.sonar.javascript.checks.utils.JavaScriptCheckVerifier;
 
-public class AlertUseCheckTest extends TreeCheckTest {
-
-  private AlertUseCheck check = new AlertUseCheck();
+public class AlertUseCheckTest {
 
   @Test
   public void test() {
-    CheckMessagesVerifier.verify(getIssues("src/test/resources/checks/AlertUse.js", check))
-    .next().atLine(1)
-    .next().atLine(8)
-    .next().atLine(10)
-    .noMore();
-
+    JavaScriptCheckVerifier.verify(new AlertUseCheck(), new File("src/test/resources/checks/AlertUse.js"));
   }
 }

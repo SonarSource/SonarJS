@@ -19,6 +19,7 @@
  */
 package org.sonar.javascript.checks;
 
+import java.util.Collections;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
@@ -27,6 +28,7 @@ import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.expression.CallExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
+import org.sonar.plugins.javascript.api.visitors.IssueLocation;
 import org.sonar.squidbridge.annotations.ActivatedByDefault;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
@@ -45,7 +47,7 @@ public class AlertUseCheck extends BaseTreeVisitor {
   public void visitCallExpression(CallExpressionTree tree) {
     ExpressionTree callee = tree.callee();
     if (callee.is(Kind.IDENTIFIER_REFERENCE) && isAlertCall((IdentifierTree) callee)) {
-      getContext().addIssue(this, tree, "Remove this usage of alert(...).");
+      getContext().addIssue(this, new IssueLocation(tree, "Remove this usage of alert(...)."), Collections.<IssueLocation>emptyList(), null);
     }
 
     super.visitCallExpression(tree);
