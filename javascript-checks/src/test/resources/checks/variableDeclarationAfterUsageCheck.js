@@ -2,27 +2,27 @@ function fun(x) {
   print(x);         // OK
 }
 
-print(x);           // NOK
+print(x);           // Noncompliant {{Variable 'x' referenced before declaration.}}
 var x = 1;
 
 function fun() {
-  print(y);         // NOK
+  print(y);         // Noncompliant [[sc=9;ec=10;el=+0]]
 }
 var y = 1;
 
 function* fun() {
-    print(z);       // NOK
+    print(z);       // Noncompliant [[secondary=+2]]
 }
 var z = 1;
 
-print(a);           // NOK
+print(a);           // Noncompliant
 let a = 1;
 
-print(b);           // NOK
+print(b);           // Noncompliant
 const b = 1;
 
 var f = () => {
-    print(c);       // NOK
+    print(c);       // Noncompliant
 }
 
 var c;
@@ -30,5 +30,5 @@ var c;
 for (var f in es6) {}
 var f;
 
-for (e in es6) {}   // NOK
+for (e in es6) {}   // Noncompliant
 var e;
