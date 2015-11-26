@@ -35,6 +35,7 @@ public class TooManyArgumentsCheckTest extends TreeCheckTest {
 //      .next().atLine(25).withMessage("\"obj.foo1\" expects \"2\" arguments, but \"3\" were provided.")
       .next().atLine(46).withMessage("\"foo7\" expects \"1\" arguments, but \"2\" were provided.")
       .next().atLine(51).withMessage("This function expects \"2\" arguments, but \"3\" were provided.")
+      .next().atLine(55).withMessage("This function expects \"2\" arguments, but \"3\" were provided.")
       .noMore();
   }
 

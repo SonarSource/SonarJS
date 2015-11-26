@@ -103,3 +103,6 @@ queryForEngine(defaultEngine, function(array){
 var A = function() { return function(){}}
 var B = new A();  // OK
 var C = new B();  // OK
+
+new function(){ return 5; };
+new (function(){ return 5; });

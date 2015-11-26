@@ -49,3 +49,7 @@ foo7(1, 2); // NOK
   doSomething1();
   doSomething2();
 })(1, 2, 3);     // NOK
+
+x=function(a,b){
+  return a + b;
+}(1,2,3);

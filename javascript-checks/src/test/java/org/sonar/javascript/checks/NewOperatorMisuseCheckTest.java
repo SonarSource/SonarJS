@@ -55,6 +55,8 @@ public class NewOperatorMisuseCheckTest extends TreeCheckTest {
       .next().atLine(57) // False-positive=>SONARJS-454
       .next().atLine(58)
       .next().atLine(104)
+      .next().atLine(107).withMessage("Replace this function with a constructor function.")
+      .next().atLine(108).withMessage("Replace this function with a constructor function.")
       .noMore();
 
   }

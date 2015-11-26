@@ -27,10 +27,11 @@ import org.sonar.javascript.checks.utils.CheckUtils;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.javascript.tree.symbols.type.FunctionType;
 import org.sonar.plugins.javascript.api.symbols.Type;
-import org.sonar.plugins.javascript.api.tree.declaration.FunctionTree;
 import org.sonar.plugins.javascript.api.symbols.Type.Callability;
 import org.sonar.plugins.javascript.api.symbols.Type.Kind;
 import org.sonar.plugins.javascript.api.symbols.TypeSet;
+import org.sonar.plugins.javascript.api.tree.Tree;
+import org.sonar.plugins.javascript.api.tree.declaration.FunctionTree;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.NewExpressionTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxTrivia;
@@ -62,7 +63,11 @@ public class NewOperatorMisuseCheck extends BaseTreeVisitor {
     ExpressionTree expression = tree.expression();
 
     if (!expression.types().isEmpty() && !isConstructor(expression.types())) {
-      getContext().addIssue(this, expression, String.format("Replace %s with a constructor function.", CheckUtils.asString(expression)));
+      String expressionStr = "this function";
+      if (!CheckUtils.removeParenthesis(expression).is(Tree.Kind.FUNCTION_EXPRESSION)) {
+        expressionStr = CheckUtils.asString(expression);
+      }
+      getContext().addIssue(this, expression, String.format("Replace %s with a constructor function.", expressionStr));
     }
 
     super.visitNewExpression(tree);

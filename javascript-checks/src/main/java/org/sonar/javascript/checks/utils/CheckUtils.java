@@ -25,6 +25,8 @@ import javax.annotation.Nullable;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
+import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
+import org.sonar.plugins.javascript.api.tree.expression.ParenthesisedExpressionTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 
 public class CheckUtils {
@@ -136,6 +138,12 @@ public class CheckUtils {
     return (token.line() > prevToken.line()) || (prevToken.column() + prevToken.text().length() < token.column());
   }
 
+  public static ExpressionTree removeParenthesis(ExpressionTree expressionTree) {
+    if (expressionTree.is(Tree.Kind.PARENTHESISED_EXPRESSION)) {
+      return removeParenthesis(((ParenthesisedExpressionTree) expressionTree).expression());
+    }
+    return expressionTree;
+  }
 
 }
 

@@ -22,16 +22,15 @@ package org.sonar.javascript.checks;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
-import org.sonar.plugins.javascript.api.visitors.TreeVisitorContext;
-import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
-import org.sonar.javascript.tree.SyntacticEquivalence;
 import org.sonar.javascript.checks.utils.CheckUtils;
+import org.sonar.javascript.tree.SyntacticEquivalence;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.expression.BinaryExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 import org.sonar.plugins.javascript.api.tree.expression.MemberExpressionTree;
-import org.sonar.plugins.javascript.api.tree.expression.ParenthesisedExpressionTree;
+import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
+import org.sonar.plugins.javascript.api.visitors.TreeVisitorContext;
 import org.sonar.squidbridge.annotations.ActivatedByDefault;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
@@ -52,18 +51,11 @@ public class NullDereferenceInConditionalCheck extends BaseTreeVisitor {
   @Override
   public void visitBinaryExpression(BinaryExpressionTree tree) {
     if (isAndWithEqualToNull(tree) || isOrWithNonEqualToNull(tree)) {
-      BinaryExpressionTree leftOperand = (BinaryExpressionTree) removeParenthesis(tree.leftOperand());
-      ExpressionTree expression = removeParenthesis(getNonNullLiteralOperand(leftOperand));
+      BinaryExpressionTree leftOperand = (BinaryExpressionTree) CheckUtils.removeParenthesis(tree.leftOperand());
+      ExpressionTree expression = CheckUtils.removeParenthesis(getNonNullLiteralOperand(leftOperand));
       tree.rightOperand().accept(new NullExpressionUsageVisitor(expression, getContext()));
     }
     super.visitBinaryExpression(tree);
-  }
-
-  private static ExpressionTree removeParenthesis(ExpressionTree expressionTree) {
-    if (expressionTree.is(Tree.Kind.PARENTHESISED_EXPRESSION)) {
-      return removeParenthesis(((ParenthesisedExpressionTree) expressionTree).expression());
-    }
-    return expressionTree;
   }
 
   private static ExpressionTree getNonNullLiteralOperand(BinaryExpressionTree binaryExpressionTree) {
@@ -84,7 +76,7 @@ public class NullDereferenceInConditionalCheck extends BaseTreeVisitor {
   }
 
   private static boolean isNullComparison(ExpressionTree expression, Tree.Kind kind1, Tree.Kind kind2) {
-    ExpressionTree tree = removeParenthesis(expression);
+    ExpressionTree tree = CheckUtils.removeParenthesis(expression);
     if (tree.is(kind1, kind2)) {
       BinaryExpressionTree binaryExp = (BinaryExpressionTree) tree;
       return isNullOrUndefined(binaryExp.leftOperand()) || isNullOrUndefined(binaryExp.rightOperand());
