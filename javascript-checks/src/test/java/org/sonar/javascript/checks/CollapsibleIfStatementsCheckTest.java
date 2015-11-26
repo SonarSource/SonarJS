@@ -19,29 +19,15 @@
  */
 package org.sonar.javascript.checks;
 
+import java.io.File;
 import org.junit.Test;
-import org.sonar.plugins.javascript.api.tests.TreeCheckTest;
-import org.sonar.squidbridge.checks.CheckMessagesVerifier;
+import org.sonar.javascript.checks.utils.JavaScriptCheckVerifier;
 
-public class CollapsibleIfStatementsCheckTest extends TreeCheckTest{
+public class CollapsibleIfStatementsCheckTest {
 
   @Test
   public void test() {
-    CollapsibleIfStatementsCheck check = new CollapsibleIfStatementsCheck();
-
-    CheckMessagesVerifier.verify(getIssues("src/test/resources/checks/collapsibleIfStatements.js", check))
-      .next().atLine(15).withMessage("Merge this if statement with the nested one.")
-
-      .next().atLine(27).withMessage("Merge this if statement with the nested one.")
-
-      .next().atLine(32).withMessage("Merge this if statement with the nested one.")
-      .next().atLine(33).withMessage("Merge this if statement with the nested one.")
-
-      .next().atLine(39).withMessage("Merge this if statement with the nested one.")
-
-      .next().atLine(47).withMessage("Merge this if statement with the nested one.")
-
-      .noMore();
+    JavaScriptCheckVerifier.verify(new CollapsibleIfStatementsCheck(), new File("src/test/resources/checks/collapsibleIfStatements.js"));
   }
 
 }

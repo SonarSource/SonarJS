@@ -19,14 +19,17 @@
  */
 package org.sonar.javascript.checks;
 
+import java.util.Collections;
+import javax.annotation.Nullable;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
-import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.statement.BlockTree;
 import org.sonar.plugins.javascript.api.tree.statement.IfStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.StatementTree;
+import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
+import org.sonar.plugins.javascript.api.visitors.IssueLocation;
 import org.sonar.squidbridge.annotations.ActivatedByDefault;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
@@ -44,26 +47,45 @@ public class CollapsibleIfStatementsCheck extends BaseTreeVisitor {
   @Override
   public void visitIfStatement(IfStatementTree tree) {
     if (tree.elseClause() == null) {
-      StatementTree innerStatement = tree.statement();
+      IfStatementTree innerIfStatement = getCollapsibleIfStatement(tree.statement());
 
-      if (isBlockAndContainsOnlyOneIfStatement(innerStatement) || isIfStatementWithoutElse(innerStatement)) {
-        getContext().addIssue(this, tree, "Merge this if statement with the nested one.");
+      if (innerIfStatement != null) {
+        String message = "Merge this if statement with the nested one.";
+        IssueLocation primaryLocation = issueLocation(tree, message);
+        IssueLocation secondaryLocation = issueLocation(innerIfStatement, "Nested \"if\" statement\n");
+        getContext().addIssue(this, primaryLocation, Collections.singletonList(secondaryLocation), null);
       }
     }
+
     super.visitIfStatement(tree);
   }
 
-  private static boolean isBlockAndContainsOnlyOneIfStatement(StatementTree statement) {
-    if (!statement.is(Kind.BLOCK)) {
-      return false;
-    }
-    BlockTree block = (BlockTree) statement;
-
-    return block.statements().size() == 1 && isIfStatementWithoutElse(block.statements().get(0));
+  private static IssueLocation issueLocation(IfStatementTree tree, String message) {
+    return new IssueLocation(tree.ifKeyword(), tree.closeParenthesis(), message);
   }
 
-  private static boolean isIfStatementWithoutElse(StatementTree statement) {
-    return statement.is(Kind.IF_STATEMENT) && ((IfStatementTree)statement).elseClause() == null;
+  @Nullable
+  private static IfStatementTree getCollapsibleIfStatement(StatementTree statement) {
+    if (statement.is(Kind.BLOCK)) {
+      BlockTree block = (BlockTree) statement;
+      if (block.statements().size() == 1) {
+        return getIfStatementWithoutElse(block.statements().get(0));
+      }
+
+    } else {
+      return getIfStatementWithoutElse(statement);
+    }
+
+    return null;
+  }
+
+  @Nullable
+  private static IfStatementTree getIfStatementWithoutElse(StatementTree statement) {
+    if (statement.is(Kind.IF_STATEMENT) && ((IfStatementTree)statement).elseClause() == null) {
+      return (IfStatementTree) statement;
+    } else {
+      return null;
+    }
   }
 
 }

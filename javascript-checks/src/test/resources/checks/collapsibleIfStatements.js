@@ -12,7 +12,7 @@ if (a) {
 }
 
 if (a) {
-} else if (b) { // NOK
+} else if (b) { // Noncompliant {{Merge this if statement with the nested one.}}
   if (c) {
   }
 }
@@ -24,19 +24,19 @@ if (a) {
 } else {
 }
 
-if (a) { // NOK
+if (a) { // Noncompliant [[sc=1;ec=7;el=+0;secondary=+1]]
   if (b) {
   }
 }
 
-if (a) { // NOK
-  if (b) { // NOK
+if (a) { // Noncompliant
+  if (b) { // Noncompliant
     if (c) {
     }
   }
 }
 
-if (a) { // NOK
+if (a) { // Noncompliant
   if (b) {
     if (c) {
     } else {
@@ -44,7 +44,7 @@ if (a) { // NOK
   }
 }
 
-if (a) // NOK
+if (a) // Noncompliant
   if (b) {
   }
 

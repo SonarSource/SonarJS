@@ -25,11 +25,17 @@ import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 
 public class IssueLocation {
 
-  private final Tree tree;
+  private final SyntaxToken firstToken;
+  private final SyntaxToken lastToken;
   private final String message;
 
   public IssueLocation(Tree tree, String message) {
-    this.tree = tree;
+    this(tree, tree, message);
+  }
+
+  public IssueLocation(Tree firstTree, Tree lastTree, String message) {
+    this.firstToken = ((JavaScriptTree) firstTree).getFirstToken();
+    this.lastToken = ((JavaScriptTree) lastTree).getLastToken();
     this.message = message;
   }
 
@@ -37,36 +43,24 @@ public class IssueLocation {
     this(tree, null);
   }
 
-  public Tree tree() {
-    return tree;
-  }
-
   public String message() {
     return message;
   }
 
   public int startLine() {
-    return firstToken().line();
+    return firstToken.line();
   }
 
   public int startLineOffset() {
-    return firstToken().column();
+    return firstToken.column();
   }
 
   public int endLine() {
-    return lastToken().line();
+    return lastToken.line();
   }
 
   public int endLineOffset() {
-    return lastToken().column() + lastToken().text().length();
-  }
-
-  private SyntaxToken firstToken() {
-    return ((JavaScriptTree) tree).getFirstToken();
-  }
-
-  private SyntaxToken lastToken() {
-    return ((JavaScriptTree) tree).getLastToken();
+    return lastToken.column() + lastToken.text().length();
   }
 
 }

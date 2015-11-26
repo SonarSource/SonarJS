@@ -102,7 +102,7 @@ public class JavaScriptCheckContext implements TreeVisitorContext {
       RuleKey ruleKey = ruleKey(check);
       PreciseIssue.save(sensorContext, inputFile, ruleKey, location, secondaryLocations, cost);
     } else {
-      commonAddIssue(check, getLine(location.tree()), location.message(), cost == null ? -1 : cost);
+      commonAddIssue(check, location.startLine(), location.message(), cost == null ? -1 : cost);
     }
   }
 
