@@ -25,14 +25,13 @@ public class FunctionType extends ObjectType {
 
   private FunctionTree functionTree;
 
-  @Override
-  public Kind kind() {
-    return Kind.FUNCTION;
+  protected FunctionType() {
+    super(Callability.CALLABLE);
   }
 
   @Override
-  public Callability callability() {
-    return Callability.CALLABLE;
+  public Kind kind() {
+    return Kind.FUNCTION;
   }
 
   public static FunctionType create(FunctionTree functionTree){

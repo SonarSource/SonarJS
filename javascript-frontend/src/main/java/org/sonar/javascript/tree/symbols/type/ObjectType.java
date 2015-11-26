@@ -23,8 +23,11 @@ import org.sonar.plugins.javascript.api.symbols.Type;
 
 public class ObjectType implements Type {
 
+  protected Callability callability;
 
-  private Callability callability;
+  protected ObjectType(Callability callability) {
+    this.callability = callability;
+  }
 
   @Override
   public Kind kind() {
@@ -36,17 +39,12 @@ public class ObjectType implements Type {
     return callability;
   }
 
-  protected ObjectType(){
-    this.callability = Callability.UNKNOWN;
+  public static ObjectType create(){
+    return create(Callability.UNKNOWN);
   }
 
-  public static ObjectType create(){
-    return new ObjectType();
-  }
   public static ObjectType create(Callability callability){
-    ObjectType objectType = new ObjectType();
-    objectType.callability = callability;
-    return objectType;
+    return new ObjectType(callability);
   }
 
   @Override

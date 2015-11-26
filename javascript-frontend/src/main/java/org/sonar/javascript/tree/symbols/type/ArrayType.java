@@ -19,22 +19,20 @@
  */
 package org.sonar.javascript.tree.symbols.type;
 
-import org.sonar.plugins.javascript.api.symbols.Type;
-
 import javax.annotation.Nullable;
+import org.sonar.plugins.javascript.api.symbols.Type;
 
 public class ArrayType extends ObjectType {
 
   private Type elementType = null;
 
-  @Override
-  public Kind kind() {
-    return Kind.ARRAY;
+  protected ArrayType() {
+    super(Callability.NON_CALLABLE);
   }
 
   @Override
-  public Callability callability() {
-    return Callability.NON_CALLABLE;
+  public Kind kind() {
+    return Kind.ARRAY;
   }
 
   public static ArrayType create(Type elementType){
