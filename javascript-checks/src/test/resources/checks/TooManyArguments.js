@@ -1,15 +1,15 @@
 function foo1(p1, p2){}
 
-foo1(1, 2, 3);  // NOK
+foo1(1, 2, 3);  // Noncompliant [[sc=5;ec=14;el=+0;secondary=-2]] {{"foo1" expects "2" arguments, but "3" were provided.}}
 
 function foo2(){
-  foo1(1, 2, 3, 4);  // NOK
+  foo1(1, 2, 3, 4);  // Noncompliant {{"foo1" expects "2" arguments, but "4" were provided.}}
   foo1(1, 2);
   foo1(1);
 
   var foo3 = function(){}
 
-  foo3(1)  // NOK
+  foo3(1)  // Noncompliant {{"foo3" expects "0" arguments, but "1" were provided.}}
 }
 
 function foo4(){
@@ -43,13 +43,13 @@ function foo7(arguments){
   console.log(arguments)
 }
 
-foo7(1, 2); // NOK
+foo7(1, 2); // Noncompliant {{"foo7" expects "1" arguments, but "2" were provided.}}
 
 (function(p1, p2){
   doSomething1();
   doSomething2();
-})(1, 2, 3);     // NOK
+})(1, 2, 3);     // Noncompliant {{This function expects "2" arguments, but "3" were provided.}}
 
 x=function(a,b){
   return a + b;
-}(1,2,3);
+}(1,2,3);       // Noncompliant

@@ -19,24 +19,15 @@
  */
 package org.sonar.javascript.checks;
 
+import java.io.File;
 import org.junit.Test;
-import org.sonar.plugins.javascript.api.tests.TreeCheckTest;
-import org.sonar.squidbridge.checks.CheckMessagesVerifier;
+import org.sonar.javascript.checks.utils.JavaScriptCheckVerifier;
 
-public class TooManyArgumentsCheckTest extends TreeCheckTest {
+public class TooManyArgumentsCheckTest {
 
   @Test
   public void test() {
-
-    CheckMessagesVerifier.verify(getIssues("src/test/resources/checks/TooManyArguments.js", new TooManyArgumentsCheck()))
-      .next().atLine(3).withMessage("\"foo1\" expects \"2\" arguments, but \"3\" were provided.")
-      .next().atLine(6).withMessage("\"foo1\" expects \"2\" arguments, but \"4\" were provided.")
-      .next().atLine(12).withMessage("\"foo3\" expects \"0\" arguments, but \"1\" were provided.")
-//      .next().atLine(25).withMessage("\"obj.foo1\" expects \"2\" arguments, but \"3\" were provided.")
-      .next().atLine(46).withMessage("\"foo7\" expects \"1\" arguments, but \"2\" were provided.")
-      .next().atLine(51).withMessage("This function expects \"2\" arguments, but \"3\" were provided.")
-      .next().atLine(55).withMessage("This function expects \"2\" arguments, but \"3\" were provided.")
-      .noMore();
+    JavaScriptCheckVerifier.verify(new TooManyArgumentsCheck(), new File("src/test/resources/checks/TooManyArguments.js"));
   }
 
 }

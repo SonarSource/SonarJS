@@ -21,6 +21,7 @@ package org.sonar.javascript.checks;
 
 import java.util.Set;
 import javax.annotation.Nullable;
+import java.util.Collections;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
@@ -35,6 +36,7 @@ import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.declaration.FunctionTree;
 import org.sonar.plugins.javascript.api.tree.expression.CallExpressionTree;
 import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
+import org.sonar.plugins.javascript.api.visitors.IssueLocation;
 import org.sonar.squidbridge.annotations.ActivatedByDefault;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
@@ -62,7 +64,8 @@ public class TooManyArgumentsCheck extends BaseTreeVisitor {
 
       if (!hasRestParameter(functionTree) && !builtInArgumentsUsed(functionTree) && argumentsNumber > parametersNumber) {
         String message = getMessage(tree, parametersNumber, argumentsNumber);
-        getContext().addIssue(this, tree.arguments(), message);
+        IssueLocation secondaryLocation = new IssueLocation(functionTree.parameters(), "Formal parameters");
+        getContext().addIssue(this, new IssueLocation(tree.arguments(), message), Collections.singletonList(secondaryLocation), null);
       }
 
     }
