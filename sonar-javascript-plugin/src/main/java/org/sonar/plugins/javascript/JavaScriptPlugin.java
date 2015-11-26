@@ -96,6 +96,7 @@ public class JavaScriptPlugin extends SonarPlugin {
             .name("File Suffixes")
             .description("Comma-separated list of suffixes for files to analyze.")
             .subCategory(GENERAL)
+            .onQualifiers(Qualifiers.PROJECT)
             .build(),
 
       PropertyDefinition.builder(JavaScriptPlugin.IGNORE_HEADER_COMMENTS)
