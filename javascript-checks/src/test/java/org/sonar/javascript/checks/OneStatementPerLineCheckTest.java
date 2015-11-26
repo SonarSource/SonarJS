@@ -19,21 +19,17 @@
  */
 package org.sonar.javascript.checks;
 
+import java.io.File;
 import org.junit.Test;
-import org.sonar.plugins.javascript.api.tests.TreeCheckTest;
-import org.sonar.squidbridge.checks.CheckMessagesVerifier;
+import org.sonar.javascript.checks.utils.JavaScriptCheckVerifier;
 
-public class OneStatementPerLineCheckTest extends TreeCheckTest {
+public class OneStatementPerLineCheckTest {
 
   @Test
   public void test() {
-    OneStatementPerLineCheck check = new OneStatementPerLineCheck();
-
-    CheckMessagesVerifier.verify(getIssues("src/test/resources/checks/oneStatementPerLine.js", check))
-        .next().atLine(2).withMessage("At most one statement is allowed per line, but 2 statements were found on this line.")
-        .next().atLine(6)
-        .next().atLine(20)
-        .noMore();
+    JavaScriptCheckVerifier.verify(
+      new OneStatementPerLineCheck(),
+      new File("src/test/resources/checks/oneStatementPerLine.js"));
   }
 
 }

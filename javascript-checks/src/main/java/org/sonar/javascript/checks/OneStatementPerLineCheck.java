@@ -19,23 +19,24 @@
  */
 package org.sonar.javascript.checks;
 
+import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Maps;
+import com.google.common.collect.ListMultimap;
+import java.util.ArrayList;
+import java.util.List;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
-import org.sonar.plugins.javascript.api.visitors.SubscriptionBaseTreeVisitor;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.expression.FunctionExpressionTree;
 import org.sonar.plugins.javascript.api.tree.statement.StatementTree;
+import org.sonar.plugins.javascript.api.visitors.IssueLocation;
+import org.sonar.plugins.javascript.api.visitors.SubscriptionBaseTreeVisitor;
 import org.sonar.squidbridge.annotations.ActivatedByDefault;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
-
-import java.util.List;
-import java.util.Map;
 
 @Rule(
   key = "OneStatementPerLine",
@@ -47,8 +48,10 @@ import java.util.Map;
 @SqaleConstantRemediation("1min")
 public class OneStatementPerLineCheck extends SubscriptionBaseTreeVisitor {
 
-  private final Map<Integer, Integer> statementsPerLine = Maps.newHashMap();
   private static final String MESSAGE = "At most one statement is allowed per line, but %s statements were found on this line.";
+
+  private ListMultimap<Integer, StatementTree> statementsPerLine = ArrayListMultimap.create();
+  private List<StatementTree> excludedStatements = new ArrayList<>();
 
   @Override
   public List<Kind> nodesToVisit() {
@@ -80,38 +83,45 @@ public class OneStatementPerLineCheck extends SubscriptionBaseTreeVisitor {
 
   @Override
   public void visitNode(Tree tree) {
-
-    int line = ((JavaScriptTree) tree).getLine();
-
-    // Exception - if function expression has 1 statement in the same line as declaration, ignore this case.
-    if (tree.is(Kind.FUNCTION_EXPRESSION) && isFunctionExpressionException((FunctionExpressionTree)tree)){
-      statementsPerLine.put(line, statementsPerLine.get(line) - 1);
+    if (tree.is(Kind.FUNCTION_EXPRESSION)){
+      checkFunctionExpressionException((FunctionExpressionTree)tree);
     }
 
-    if (tree.is(Kind.SCRIPT, Kind.FUNCTION_EXPRESSION)){
-      return;
+    if (!tree.is(Kind.SCRIPT, Kind.FUNCTION_EXPRESSION) && !excludedStatements.contains(tree)){
+      statementsPerLine.put(((JavaScriptTree) tree).getLine(), (StatementTree) tree);
     }
-
-    if (!statementsPerLine.containsKey(line)) {
-      statementsPerLine.put(line, 0);
-    }
-    statementsPerLine.put(line, statementsPerLine.get(line) + 1);
   }
 
-  private boolean isFunctionExpressionException(FunctionExpressionTree functionExpressionTree){
+  // Exception - if function expression has 1 statement in the same line as declaration, ignore this case.
+  private void checkFunctionExpressionException(FunctionExpressionTree functionExpressionTree){
     int line = ((JavaScriptTree) functionExpressionTree).getLine();
     List<StatementTree> statements = functionExpressionTree.body().statements();
-    return statements.size() == 1 && ((JavaScriptTree)statements.get(0)).getLine() == line && statementsPerLine.containsKey(line);
+    if (statements.size() == 1 && ((JavaScriptTree)statements.get(0)).getLine() == line && statementsPerLine.containsKey(line)) {
+      excludedStatements.add(statements.get(0));
+    }
   }
 
   @Override
   public void leaveNode(Tree tree) {
     if (tree.is(Kind.SCRIPT)){
-      for (Map.Entry<Integer, Integer> statementsAtLine : statementsPerLine.entrySet()) {
-        if (statementsAtLine.getValue() > 1) {
-          getContext().addIssue(this, statementsAtLine.getKey(), String.format(MESSAGE, statementsAtLine.getValue()));
+      for (int line : statementsPerLine.keys().elementSet()) {
+        List<StatementTree> statementsAtLine = statementsPerLine.get(line);
+
+        if (statementsAtLine.size() > 1) {
+          addIssue(statementsAtLine);
         }
       }
     }
+  }
+
+  private void addIssue(List<StatementTree> statementsAtLine) {
+    IssueLocation primaryLocation = new IssueLocation(statementsAtLine.get(1), String.format(MESSAGE, statementsAtLine.size()));
+    List<IssueLocation> secondaryLocations = new ArrayList<>();
+
+    for (int i = 2; i < statementsAtLine.size(); i++) {
+      secondaryLocations.add(new IssueLocation(statementsAtLine.get(i)));
+    }
+
+    getContext().addIssue(this, primaryLocation, secondaryLocations, null);
   }
 }

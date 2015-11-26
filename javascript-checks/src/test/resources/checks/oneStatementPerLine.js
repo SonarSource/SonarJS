@@ -1,9 +1,10 @@
 function sayHello() {
-  alert("Hello World!"); alert("Hello World!"); // NOK
+  alert("Hello World!"); alert("Hello World!"); // Noncompliant [[sc=26;ec=48;el=+0]] {{At most one statement is allowed per line, but 2 statements were found on this line.}}
+  alert("Hello World!"); alert("Hello World!"); alert("Hello World!"); // Noncompliant [[sc=26;ec=48;el=+0;secondary=+0]] {{At most one statement is allowed per line, but 3 statements were found on this line.}}
 
   if (a) {} // OK
 
-  if (a) {} if (b) {} // NOK
+  if (a) {} if (b) {} // Noncompliant [[sc=13;ec=22]]
 
   while (condition); // OK
 
@@ -17,7 +18,7 @@ function sayHello() {
           .on('mouseup', function (e) { that.process(); });         //  OK - exception
       jQuery('x').on('mousedown', function (e) { that.process(e); }); // OK - exception
 
-      jQuery('x').on('mousedown', function (e) { that.process(e);   // NOK
+      jQuery('x').on('mousedown', function (e) { that.process(e);   // Noncompliant [[sc=50;ec=66]]
        foo()
       });
 
