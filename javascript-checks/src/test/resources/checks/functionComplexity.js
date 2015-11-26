@@ -8,27 +8,27 @@ function ok2() { // +1
   return 1; // +0
 }
 
-function ko1() { // +1
+function ko1() { // Noncompliant {{Function has a complexity of 3 which is greater than 2 authorized.}} // +1
   if (x) {       // +1
     return 0;    // +1
   }
   return 1;      // +0
 }
 
-function ko2() { // +1
+function ko2() { // Noncompliant [[sc=10;ec=13;secondary=18,19,20]] // +1
   if (x) {       // +1
   } else if (y) { // +1
   }
 }
 
-function * ko3() { // +1
+function * ko3() { // Noncompliant // +1
   if (x) {         // +1
     return 0;      // +1
   }
   return 1;        // +0
 }
 
-function nesting() {   // +1 nesting
+function nesting() {   // Noncompliant // +1 nesting
   function nested() {  // +1 nesting, nested
     if (x) {           // +1 nesting, nested
     }
@@ -37,7 +37,7 @@ function nesting() {   // +1 nesting
 }
 
 class c {
-  ko() {        // +1
+  ko() {        // Noncompliant [[sc=3;ec=5]] // +1
     if (x) {    // +1
       return 0; // +1
     }
@@ -48,7 +48,7 @@ class c {
     }
     return 1;   // +0
   }
-  ko2() {           // +1
+  ko2() {           // Noncompliant // +1
     if (x) {        // +1
     } else if (y) { // +1
     }
@@ -64,7 +64,7 @@ function ok() {  // +1
   };
 }
 
-function ko() {  // +1
+function ko() {  // Noncompliant // +1
   return {
     get x() {    // +0
       if (x) {   // +1
@@ -75,7 +75,7 @@ function ko() {  // +1
   };
 }
 
-function ko() {  // +1
+function ko() {  // Noncompliant {{Function has a complexity of 4 which is greater than 2 authorized.}} // +1
   return {
     get x() {    // +0
       if (x) {     // +1
@@ -89,7 +89,7 @@ function ko() {  // +1
 
 (function () {         // OK - Immediately Invoked Function Expression; complexity = 4
 
-    function f() {     // NOK; complexity = 3
+    function f() {     //  Noncompliant {{Function has a complexity of 3 which is greater than 2 authorized.}}
         var a = true && false && true;
     }
 
@@ -103,7 +103,7 @@ var a = function () {   // OK - Immediately Invoked Function Expression; complex
     var a = true && false && true;
 }();
 
-new function(){  // NOK
+new function(){  //  Noncompliant
     var a = true && false && true;
 };
 

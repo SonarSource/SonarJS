@@ -19,104 +19,170 @@
  */
 package org.sonar.javascript.metrics;
 
-import com.google.common.collect.ImmutableList;
-import org.sonar.javascript.tree.visitors.SubscriptionTreeVisitor;
-import org.sonar.plugins.javascript.api.tree.declaration.FunctionTree;
-import org.sonar.javascript.tree.impl.JavaScriptTree;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
+import org.sonar.plugins.javascript.api.tree.declaration.AccessorMethodDeclarationTree;
+import org.sonar.plugins.javascript.api.tree.declaration.FunctionDeclarationTree;
+import org.sonar.plugins.javascript.api.tree.declaration.GeneratorMethodDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.declaration.MethodDeclarationTree;
+import org.sonar.plugins.javascript.api.tree.expression.BinaryExpressionTree;
+import org.sonar.plugins.javascript.api.tree.expression.ConditionalExpressionTree;
+import org.sonar.plugins.javascript.api.tree.expression.FunctionExpressionTree;
+import org.sonar.plugins.javascript.api.tree.statement.CaseClauseTree;
+import org.sonar.plugins.javascript.api.tree.statement.CatchBlockTree;
+import org.sonar.plugins.javascript.api.tree.statement.DoWhileStatementTree;
+import org.sonar.plugins.javascript.api.tree.statement.ForInStatementTree;
+import org.sonar.plugins.javascript.api.tree.statement.ForOfStatementTree;
+import org.sonar.plugins.javascript.api.tree.statement.ForStatementTree;
+import org.sonar.plugins.javascript.api.tree.statement.IfStatementTree;
+import org.sonar.plugins.javascript.api.tree.statement.ReturnStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.StatementTree;
+import org.sonar.plugins.javascript.api.tree.statement.ThrowStatementTree;
+import org.sonar.plugins.javascript.api.tree.statement.WhileStatementTree;
+import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
 
-import java.util.List;
+public class ComplexityVisitor extends BaseTreeVisitor {
 
-public class ComplexityVisitor extends SubscriptionTreeVisitor {
-
-  private int complexity;
-
-  @Override
-  public List<Kind> nodesToVisit() {
-    return ImmutableList.of(
-        // Functions
-        Kind.FUNCTION_DECLARATION,
-        Kind.FUNCTION_EXPRESSION,
-        Kind.METHOD,
-        Kind.GENERATOR_METHOD,
-        Kind.GENERATOR_FUNCTION_EXPRESSION,
-        Kind.GENERATOR_DECLARATION,
-        // Branching nodes
-        Kind.IF_STATEMENT,
-        Kind.DO_WHILE_STATEMENT,
-        Kind.WHILE_STATEMENT,
-        Kind.FOR_IN_STATEMENT,
-        Kind.FOR_OF_STATEMENT,
-        Kind.FOR_STATEMENT,
-        Kind.CASE_CLAUSE,
-        Kind.CATCH_BLOCK,
-        Kind.RETURN_STATEMENT,
-        Kind.THROW_STATEMENT,
-        // Expressions
-        Kind.CONDITIONAL_EXPRESSION,
-        Kind.CONDITIONAL_AND,
-        Kind.CONDITIONAL_OR,
-
-        // FOR EXCLUDING LAST RETURN
-        Kind.SET_METHOD,
-        Kind.GET_METHOD
-    );
-  }
+  private List<Tree> complexityTrees;
+  private Set<Tree> excludedReturns;
 
   public int getComplexity(Tree tree) {
-    this.complexity = 0;
-    scanTree(tree);
-    return complexity;
+    return complexityTrees(tree).size();
+  }
+  
+  public List<Tree> complexityTrees(Tree tree) {
+    this.complexityTrees = new ArrayList<>();
+    this.excludedReturns = new HashSet<>();
+    scan(tree);
+    return this.complexityTrees;
   }
 
   @Override
-  public void visitNode(Tree tree) {
-    if (isStatementWithLastReturn(tree)) {
-      complexity--;
-    }
-
-    if (!tree.is(Kind.SET_METHOD, Kind.GET_METHOD)) {
-      complexity++;
-    }
+  public void visitAccessorMethodDeclaration(AccessorMethodDeclarationTree tree) {
+    excludeLastReturn(tree.body().statements());
+    super.visitAccessorMethodDeclaration(tree);
   }
 
-  /**
-   * @param tree  some kind of function declaration (which can contain return as its last statement)
-   * @return      <b>true</b> if last statement of <b>tree</b> body is return statement.
-   */
-  private static boolean isStatementWithLastReturn(Tree tree) {
-    Kind kind = ((JavaScriptTree) tree).getKind();
-    boolean result = false;
-
-    switch (kind) {
-      case GET_METHOD:
-      case SET_METHOD:
-      case METHOD:
-      case GENERATOR_METHOD:
-        result = isLastReturn(((MethodDeclarationTree)tree).body().statements());
-        break;
-      case GENERATOR_FUNCTION_EXPRESSION:
-      case FUNCTION_EXPRESSION:
-      case FUNCTION_DECLARATION:
-      case GENERATOR_DECLARATION:
-        result = isLastReturn(((FunctionTree)tree).body().statements());
-        break;
-      default:
-        break;
-    }
-
-    return result;
+  @Override
+  public void visitMethodDeclaration(MethodDeclarationTree tree) {
+    add(tree.name());
+    excludeLastReturn(tree.body().statements());
+    super.visitMethodDeclaration(tree);
   }
 
-  private static boolean isLastReturn(List<StatementTree> statements) {
+  @Override
+  public void visitFunctionDeclaration(FunctionDeclarationTree tree) {
+    add(tree.functionKeyword());
+    excludeLastReturn(tree.body().statements());
+    super.visitFunctionDeclaration(tree);
+  }
+
+  @Override
+  public void visitFunctionExpression(FunctionExpressionTree tree) {
+    add(tree.functionKeyword());
+    excludeLastReturn(tree.body().statements());
+    super.visitFunctionExpression(tree);
+  }
+
+  @Override
+  public void visitGeneratorMethodDeclaration(GeneratorMethodDeclarationTree tree) {
+    add(tree.name());
+    excludeLastReturn(tree.body().statements());
+    super.visitGeneratorMethodDeclaration(tree);
+  }
+
+  @Override
+  public void visitIfStatement(IfStatementTree tree) {
+    add(tree.ifKeyword());
+    super.visitIfStatement(tree);
+  }
+
+  @Override
+  public void visitWhileStatement(WhileStatementTree tree) {
+    add(tree.whileKeyword());
+    super.visitWhileStatement(tree);
+  }
+
+  @Override
+  public void visitDoWhileStatement(DoWhileStatementTree tree) {
+    add(tree.doKeyword());
+    super.visitDoWhileStatement(tree);
+  }
+
+  @Override
+  public void visitForStatement(ForStatementTree tree) {
+    add(tree.forKeyword());
+    super.visitForStatement(tree);
+  }
+
+  @Override
+  public void visitForInStatement(ForInStatementTree tree) {
+    add(tree.forKeyword());
+    super.visitForInStatement(tree);
+  }
+
+  @Override
+  public void visitForOfStatement(ForOfStatementTree tree) {
+    add(tree.forKeyword());
+    super.visitForOfStatement(tree);
+  }
+
+  @Override
+  public void visitCaseClause(CaseClauseTree tree) {
+    add(tree.keyword());
+    super.visitCaseClause(tree);
+  }
+
+  @Override
+  public void visitCatchBlock(CatchBlockTree tree) {
+    add(tree.catchKeyword());
+    super.visitCatchBlock(tree);
+  }
+
+  @Override
+  public void visitReturnStatement(ReturnStatementTree tree) {
+    if (!excludedReturns.contains(tree)) {
+      add(tree.returnKeyword());
+    }
+    super.visitReturnStatement(tree);
+  }
+
+  @Override
+  public void visitConditionalExpression(ConditionalExpressionTree tree) {
+    add(tree.query());
+    super.visitConditionalExpression(tree);
+  }
+
+  @Override
+  public void visitThrowStatement(ThrowStatementTree tree) {
+    add(tree.throwKeyword());
+    super.visitThrowStatement(tree);
+  }
+
+  @Override
+  public void visitBinaryExpression(BinaryExpressionTree tree) {
+    if (tree.is(Kind.CONDITIONAL_AND, Kind.CONDITIONAL_OR)) {
+      add(tree.operator());
+    }
+    super.visitBinaryExpression(tree);
+  }
+
+  private void excludeLastReturn(List<StatementTree> statements) {
     if (statements.isEmpty()) {
-      return false;
+      return;
     }
     StatementTree tree = statements.get(statements.size() - 1);
-    return tree.is(Kind.RETURN_STATEMENT);
+    if (tree.is(Kind.RETURN_STATEMENT)) {
+      excludedReturns.add(tree);
+    }
+  }
+
+  private void add(Tree tree) {
+    complexityTrees.add(tree);
   }
 
 }

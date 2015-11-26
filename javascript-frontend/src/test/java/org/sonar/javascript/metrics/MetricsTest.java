@@ -19,11 +19,10 @@
  */
 package org.sonar.javascript.metrics;
 
+import java.io.File;
 import org.junit.Test;
 import org.sonar.javascript.utils.JavaScriptTreeModelTest;
 import org.sonar.plugins.javascript.api.tree.Tree;
-
-import java.io.File;
 
 import static org.fest.assertions.Assertions.assertThat;
 
@@ -33,7 +32,7 @@ public class MetricsTest extends JavaScriptTreeModelTest {
   public void complexity() {
     String path = "src/test/resources/metrics/complexity.js";
     Tree tree = p.parse(new File(path));
-    assertThat(new ComplexityVisitor().getComplexity(tree)).isEqualTo(20);
+    assertThat(new ComplexityVisitor().getComplexity(tree)).isEqualTo(23);
   }
 
   @Test

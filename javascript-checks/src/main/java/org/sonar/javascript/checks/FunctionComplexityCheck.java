@@ -19,24 +19,29 @@
  */
 package org.sonar.javascript.checks;
 
-import com.google.common.collect.ImmutableList;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
-import org.sonar.plugins.javascript.api.visitors.SubscriptionBaseTreeVisitor;
+import org.sonar.javascript.metrics.ComplexityVisitor;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
+import org.sonar.plugins.javascript.api.tree.declaration.FunctionDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.expression.CallExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 import org.sonar.plugins.javascript.api.tree.expression.NewExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.ParenthesisedExpressionTree;
+import org.sonar.plugins.javascript.api.visitors.IssueLocation;
+import org.sonar.plugins.javascript.api.visitors.SubscriptionBaseTreeVisitor;
 import org.sonar.squidbridge.annotations.ActivatedByDefault;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 
-import java.util.List;
+import com.google.common.collect.ImmutableList;
 
 @Rule(
     key = "FunctionComplexity",
@@ -47,6 +52,8 @@ import java.util.List;
 @SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.UNIT_TESTABILITY)
 @SqaleConstantRemediation("1h")
 public class FunctionComplexityCheck extends SubscriptionBaseTreeVisitor {
+
+  private static final String MESSAGE = "Function has a complexity of %s which is greater than %s authorized.";
 
   private static final int DEFAULT_MAXIMUM_FUNCTION_COMPLEXITY_THRESHOLD = 10;
 
@@ -92,13 +99,31 @@ public class FunctionComplexityCheck extends SubscriptionBaseTreeVisitor {
   private void visitFunction(Tree tree) {
     if (immediatelyInvokedFunctionExpression || amdPattern) {
       clearCheckState();
+
     } else {
-      int complexity = getContext().getComplexity(tree);
-      if (complexity > maximumFunctionComplexityThreshold) {
-        String message = String.format("Function has a complexity of %s which is greater than %s authorized.", complexity, maximumFunctionComplexityThreshold);
-        addIssue(tree, message);
+      List<Tree> complexityTrees = new ComplexityVisitor().complexityTrees(tree);
+      if (complexityTrees.size() > maximumFunctionComplexityThreshold) {
+        raiseIssue(tree, complexityTrees);
       }
     }
+  }
+
+  private void raiseIssue(Tree tree, List<Tree> complexityTrees) {
+    String message = String.format(MESSAGE, complexityTrees.size(), maximumFunctionComplexityThreshold);
+
+    Tree primaryLocationTree = complexityTrees.get(0);
+    if (tree.is(Kind.FUNCTION_DECLARATION)) {
+      primaryLocationTree = ((FunctionDeclarationTree) tree).name();
+    }
+
+    IssueLocation primary = new IssueLocation(primaryLocationTree, message);
+
+    List<IssueLocation> secondaryLocations = new ArrayList<>();
+    for (Tree complexityTree : complexityTrees) {
+      secondaryLocations.add(new IssueLocation(complexityTree, "+1"));
+    }
+
+    getContext().addIssue(this, primary, secondaryLocations, null);
   }
 
   public void setMaximumFunctionComplexityThreshold(int threshold) {

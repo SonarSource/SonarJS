@@ -8,6 +8,12 @@ function example() // +1 functionDeclaration
   for (i = 0; i < 10; i++) // +1 iterationStatement
   {
   }
+  
+  for (e in x) { // +1 for...in
+  }
+
+  for (e of x) { // +1 for...of
+  }
 
   while (false) // +1 iterationStatement
   {
@@ -35,6 +41,9 @@ function example() // +1 functionDeclaration
       if (true) // +1 ifStatement
           return 1; // +1 return statement (not last)
   };
+  
+  do { // +1 do...while
+  } while(false);
 
   return 1; // +0 last returnStatement
 
