@@ -1,6 +1,6 @@
-f = function fun(){}; // named function expression
-new function fun(){}; // named function expression
-(function fun(){}); // named function expression
+f = function fun(){};  // Noncompliant {{Make this function anonymous by removing its name: 'function() {...}'.}}
+new function fun(){}; // Noncompliant [[sc=14;ec=17]]
+(function fun(){}); // Noncompliant
 
 f = function(){}; // function expression
 new function(){}; // function expression

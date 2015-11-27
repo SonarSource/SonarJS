@@ -19,21 +19,15 @@
  */
 package org.sonar.javascript.checks;
 
+import java.io.File;
 import org.junit.Test;
-import org.sonar.plugins.javascript.api.tests.TreeCheckTest;
-import org.sonar.squidbridge.checks.CheckMessagesVerifier;
+import org.sonar.javascript.checks.utils.JavaScriptCheckVerifier;
 
-public class NamedFunctionExpressionCheckTest extends TreeCheckTest {
+public class NamedFunctionExpressionCheckTest {
 
   @Test
   public void test() {
-    NamedFunctionExpressionCheck check = new NamedFunctionExpressionCheck();
-
-    CheckMessagesVerifier.verify(getIssues("src/test/resources/checks/namedFunctionExpression.js", check))
-        .next().atLine(1).withMessage("Make this function anonymous by removing its name: 'function() {...}'.")
-        .next().atLine(2)
-        .next().atLine(3)
-        .noMore();
+    JavaScriptCheckVerifier.verify(new NamedFunctionExpressionCheck(), new File("src/test/resources/checks/namedFunctionExpression.js"));
   }
 
 }

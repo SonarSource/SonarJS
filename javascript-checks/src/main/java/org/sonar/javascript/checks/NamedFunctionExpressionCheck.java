@@ -19,11 +19,13 @@
  */
 package org.sonar.javascript.checks;
 
+import java.util.Collections;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.plugins.javascript.api.tree.expression.FunctionExpressionTree;
 import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
+import org.sonar.plugins.javascript.api.visitors.IssueLocation;
 import org.sonar.squidbridge.annotations.ActivatedByDefault;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
@@ -38,10 +40,12 @@ import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 @SqaleConstantRemediation("15min")
 public class NamedFunctionExpressionCheck extends BaseTreeVisitor {
 
+  private static final String MESSAGE = "Make this function anonymous by removing its name: 'function() {...}'.";
+
   @Override
   public void visitFunctionExpression(FunctionExpressionTree tree) {
     if (tree.name() != null){
-      getContext().addIssue(this, tree, "Make this function anonymous by removing its name: 'function() {...}'.");
+      getContext().addIssue(this, new IssueLocation(tree.name(), MESSAGE), Collections.<IssueLocation>emptyList(), null);
     }
     super.visitFunctionExpression(tree);
   }
