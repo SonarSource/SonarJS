@@ -19,10 +19,13 @@
  */
 package com.sonar.javascript.it.plugin;
 
+import com.google.common.collect.Iterables;
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.SonarRunner;
 import com.sonar.orchestrator.locator.FileLocation;
 import java.io.File;
+import java.io.FilenameFilter;
+import java.util.Arrays;
 import org.junit.ClassRule;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
@@ -43,7 +46,7 @@ public final class Tests {
 
   @ClassRule
   public static final Orchestrator ORCHESTRATOR = Orchestrator.builderEnv()
-    .addPlugin(FileLocation.of(new File(TestUtils.homeDir(), "../../sonar-javascript-plugin/target/sonar-javascript-plugin.jar")))
+    .addPlugin(localJarPath("../../../sonar-javascript-plugin/target"))
     .restoreProfileAtStartup(FileLocation.ofClasspath("/empty-profile.xml"))
     .addPlugin(FileLocation.of(TestUtils.pluginJar(CUSTOM_RULES_ARTIFACT_ID)))
     .restoreProfileAtStartup(FileLocation.ofClasspath("/profile-javascript-custom-rules.xml"))
@@ -72,9 +75,17 @@ public final class Tests {
     return build;
   }
 
-
   public static void setEmptyProfile(String projectKey, String projectName) {
     ORCHESTRATOR.getServer().provisionProject(projectKey, projectName);
     ORCHESTRATOR.getServer().associateProjectToQualityProfile(projectKey, "js", "empty-profile");
+  }
+
+  private static FileLocation localJarPath(String directory) {
+    return FileLocation.of(Iterables.getOnlyElement(Arrays.asList(new File(directory).listFiles(new FilenameFilter() {
+      @Override
+      public boolean accept(File dir, String name) {
+        return name.endsWith(".jar") && !name.endsWith("-sources.jar");
+      }
+    }))).getAbsolutePath());
   }
 }
