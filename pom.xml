@@ -45,6 +45,7 @@
     <module>javascript-checks</module>
     <module>sonar-compat</module>
     <module>sonar-javascript-plugin</module>
+    <module>its</module>
   </modules>
 
   <scm>
@@ -136,7 +137,7 @@
       <dependency>
         <groupId>ch.qos.logback</groupId>
         <artifactId>logback-classic</artifactId>
-        <version>0.9.15</version>
+        <version>1.0.13</version>
       </dependency>
     </dependencies>
   </dependencyManagement>
