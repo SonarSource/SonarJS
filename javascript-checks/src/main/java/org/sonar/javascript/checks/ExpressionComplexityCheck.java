@@ -19,21 +19,28 @@
  */
 package org.sonar.javascript.checks;
 
+import com.google.common.base.Function;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Ordering;
+import java.util.ArrayList;
+import java.util.List;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
+import org.sonar.javascript.tree.impl.lexical.InternalSyntaxToken;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
+import org.sonar.plugins.javascript.api.tree.expression.BinaryExpressionTree;
+import org.sonar.plugins.javascript.api.tree.expression.ConditionalExpressionTree;
+import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
+import org.sonar.plugins.javascript.api.visitors.IssueLocation;
 import org.sonar.plugins.javascript.api.visitors.SubscriptionBaseTreeVisitor;
 import org.sonar.squidbridge.annotations.ActivatedByDefault;
 import org.sonar.squidbridge.annotations.SqaleLinearWithOffsetRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
-
-import java.util.List;
 
 @Rule(
   key = "S1067",
@@ -75,10 +82,10 @@ public class ExpressionComplexityCheck extends SubscriptionBaseTreeVisitor {
 
   public static class ExpressionComplexity {
     private int nestedLevel = 0;
-    private int counterOperator = 0;
+    private List<SyntaxToken> operators = new ArrayList<>();
 
-    public void increaseOperatorCounter(int nbOperator) {
-      counterOperator += nbOperator;
+    public void addOperator(SyntaxToken operator) {
+      operators.add(operator);
     }
 
     public void incrementNestedExprLevel() {
@@ -93,12 +100,12 @@ public class ExpressionComplexityCheck extends SubscriptionBaseTreeVisitor {
       return nestedLevel == 0;
     }
 
-    public int getExprNumberOfOperator() {
-      return counterOperator;
+    public List<SyntaxToken> getComplexityOperators() {
+      return operators;
     }
 
-    public void resetExprOperatorCounter() {
-      counterOperator = 0;
+    public void resetExpressionComplexityOperators() {
+      operators = new ArrayList<>();
     }
   }
 
@@ -112,11 +119,22 @@ public class ExpressionComplexityCheck extends SubscriptionBaseTreeVisitor {
   public void visitNode(Tree tree) {
     if (tree.is(CONDITIONAL_EXPRS)) {
       Iterables.getLast(statementLevel).incrementNestedExprLevel();
-      Iterables.getLast(statementLevel).increaseOperatorCounter(1);
+      Iterables.getLast(statementLevel).addOperator(getOperatorToken(tree));
 
     } else if (tree.is(SCOPES)) {
       statementLevel.add(new ExpressionComplexity());
     }
+  }
+
+  private static SyntaxToken getOperatorToken(Tree tree) {
+    if (tree.is(Kind.CONDITIONAL_EXPRESSION)) {
+      return ((ConditionalExpressionTree) tree).query();
+
+    } else if (tree.is(Kind.CONDITIONAL_AND, Kind.CONDITIONAL_OR)) {
+      return ((BinaryExpressionTree) tree).operator();
+    }
+
+    throw new IllegalStateException("Cannot get operator for " + tree);
   }
 
   @Override
@@ -126,16 +144,38 @@ public class ExpressionComplexityCheck extends SubscriptionBaseTreeVisitor {
       currentExpression.decrementNestedExprLevel();
 
       if (currentExpression.isOnFirstExprLevel()) {
-        int complexity = currentExpression.getExprNumberOfOperator();
-        if (complexity > max) {
-          String message = String.format(MESSAGE, complexity, max);
-          getContext().addIssue(this, tree, message, (double) (complexity - max));
+        List<SyntaxToken> complexityOperators = currentExpression.getComplexityOperators();
+
+        if (complexityOperators.size() > max) {
+          addIssue(complexityOperators);
         }
-        currentExpression.resetExprOperatorCounter();
+        currentExpression.resetExpressionComplexityOperators();
       }
 
     } else if (tree.is(SCOPES)) {
       statementLevel.remove(statementLevel.size() - 1);
+    }
+  }
+
+  private void addIssue(List<SyntaxToken> complexityOperators) {
+    List<SyntaxToken> sortedOperators = Ordering.natural().onResultOf(new TokenToOffset()).sortedCopy(complexityOperators);
+
+    List<IssueLocation> secondaryLocations = new ArrayList<>();
+    for (SyntaxToken complexityOperator : sortedOperators) {
+      secondaryLocations.add(new IssueLocation(complexityOperator, "+1"));
+    }
+
+    int complexity = sortedOperators.size();
+    String message = String.format(MESSAGE, complexity, max);
+    double cost = (double) (complexity - max);
+
+    getContext().addIssue(this, new IssueLocation(sortedOperators.get(0), message), secondaryLocations, cost);
+  }
+
+  private static class TokenToOffset implements Function<SyntaxToken,Integer> {
+    @Override
+    public Integer apply(SyntaxToken token) {
+      return ((InternalSyntaxToken) token).startIndex();
     }
   }
 

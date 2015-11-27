@@ -19,27 +19,15 @@
  */
 package org.sonar.javascript.checks;
 
+import java.io.File;
 import org.junit.Test;
-import org.sonar.plugins.javascript.api.tests.TreeCheckTest;
-import org.sonar.squidbridge.checks.CheckMessagesVerifier;
+import org.sonar.javascript.checks.utils.JavaScriptCheckVerifier;
 
-public class ExpressionComplexityCheckTest extends TreeCheckTest {
-
-  private ExpressionComplexityCheck check = new ExpressionComplexityCheck();
+public class ExpressionComplexityCheckTest {
 
   @Test
   public void test() {
-    CheckMessagesVerifier.verify(getIssues("src/test/resources/checks/expressionComplexity.js", check))
-      .next().atLine(1).withMessage("Reduce the number of conditional operators (4) used in the expression (maximum allowed 3).").withCost(1.)
-      .next().atLine(3)
-      .next().atLine(5)
-      .next().atLine(8).withMessage("Reduce the number of conditional operators (6) used in the expression (maximum allowed 3).").withCost(3.)
-      .next().atLine(28)
-      .next().atLine(30)
-      .next().atLine(38)
-      .next().atLine(41)
-      .next().atLine(45)
-      .noMore();
+    JavaScriptCheckVerifier.verify(new ExpressionComplexityCheck(), new File("src/test/resources/checks/expressionComplexity.js"));
   }
 
 }

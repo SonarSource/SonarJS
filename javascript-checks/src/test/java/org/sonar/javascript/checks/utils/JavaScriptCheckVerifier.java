@@ -251,6 +251,9 @@ public class JavaScriptCheckVerifier extends SubscriptionBaseTreeVisitor {
         .columns(startColumn, endColumn)
         .endLine(location.endLine())
         .secondary(secondaryLines);
+      if (cost != null) {
+        issue.effortToFix(cost.intValue());
+      }
       add(issue);
     }
     
