@@ -1,6 +1,6 @@
 var b = false ? (true ? (false ? (true ? 1 : 0) : 0) : 0) : 1;      // Noncompliant [[effortToFix=1]] {{Reduce the number of conditional operators (4) used in the expression (maximum allowed 3).}}
 
-var c = true || false || true || false || false;                    // Noncompliant [[sc=14;ec=16;secondary=+0,+0,+0,+0]]
+var c = true || false || true || false || false;                    // Noncompliant [[sc=9;ec=48;secondary=+0,+0,+0,+0]]
 
 var d = true && false && true && false && true && true;             // Noncompliant
 
@@ -42,7 +42,7 @@ for (i = a ? (b ? (c ? (d ? 1 : 1) : 1) : 1) : 1; i < a; i++) {}   // Noncomplia
 
 function a() {
   return (
-    a ||                                                           // Noncompliant [[secondary=+0,+1,+2,+2]]
+    a ||                                                           // Noncompliant [[secondary=+1,+0,+2,+2]]
     b ||
     (c || d || e));
 }

@@ -19,18 +19,15 @@
  */
 package org.sonar.javascript.checks;
 
-import com.google.common.base.Function;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Ordering;
 import java.util.ArrayList;
 import java.util.List;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
-import org.sonar.javascript.tree.impl.lexical.InternalSyntaxToken;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.expression.BinaryExpressionTree;
@@ -147,7 +144,7 @@ public class ExpressionComplexityCheck extends SubscriptionBaseTreeVisitor {
         List<SyntaxToken> complexityOperators = currentExpression.getComplexityOperators();
 
         if (complexityOperators.size() > max) {
-          addIssue(complexityOperators);
+          addIssue(tree, complexityOperators);
         }
         currentExpression.resetExpressionComplexityOperators();
       }
@@ -157,26 +154,17 @@ public class ExpressionComplexityCheck extends SubscriptionBaseTreeVisitor {
     }
   }
 
-  private void addIssue(List<SyntaxToken> complexityOperators) {
-    List<SyntaxToken> sortedOperators = Ordering.natural().onResultOf(new TokenToOffset()).sortedCopy(complexityOperators);
-
+  private void addIssue(Tree expression, List<SyntaxToken> complexityOperators) {
     List<IssueLocation> secondaryLocations = new ArrayList<>();
-    for (SyntaxToken complexityOperator : sortedOperators) {
+    for (SyntaxToken complexityOperator : complexityOperators) {
       secondaryLocations.add(new IssueLocation(complexityOperator, "+1"));
     }
 
-    int complexity = sortedOperators.size();
+    int complexity = complexityOperators.size();
     String message = String.format(MESSAGE, complexity, max);
     double cost = (double) (complexity - max);
 
-    getContext().addIssue(this, new IssueLocation(sortedOperators.get(0), message), secondaryLocations, cost);
-  }
-
-  private static class TokenToOffset implements Function<SyntaxToken,Integer> {
-    @Override
-    public Integer apply(SyntaxToken token) {
-      return ((InternalSyntaxToken) token).startIndex();
-    }
+    getContext().addIssue(this, new IssueLocation(expression, message), secondaryLocations, cost);
   }
 
 }
