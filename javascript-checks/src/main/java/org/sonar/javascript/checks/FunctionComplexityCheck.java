@@ -19,9 +19,9 @@
  */
 package org.sonar.javascript.checks;
 
+import com.google.common.collect.ImmutableList;
 import java.util.ArrayList;
 import java.util.List;
-
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
@@ -38,10 +38,8 @@ import org.sonar.plugins.javascript.api.tree.expression.ParenthesisedExpressionT
 import org.sonar.plugins.javascript.api.visitors.IssueLocation;
 import org.sonar.plugins.javascript.api.visitors.SubscriptionBaseTreeVisitor;
 import org.sonar.squidbridge.annotations.ActivatedByDefault;
-import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
+import org.sonar.squidbridge.annotations.SqaleLinearWithOffsetRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
-
-import com.google.common.collect.ImmutableList;
 
 @Rule(
     key = "FunctionComplexity",
@@ -50,7 +48,10 @@ import com.google.common.collect.ImmutableList;
     tags = {Tags.BRAIN_OVERLOAD})
 @ActivatedByDefault
 @SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.UNIT_TESTABILITY)
-@SqaleConstantRemediation("1h")
+@SqaleLinearWithOffsetRemediation(
+  coeff = "1min",
+  offset = "10min",
+  effortToFixDescription = "per complexity point above the threshold")
 public class FunctionComplexityCheck extends SubscriptionBaseTreeVisitor {
 
   private static final String MESSAGE = "Function has a complexity of %s which is greater than %s authorized.";
@@ -109,7 +110,8 @@ public class FunctionComplexityCheck extends SubscriptionBaseTreeVisitor {
   }
 
   private void raiseIssue(Tree tree, List<Tree> complexityTrees) {
-    String message = String.format(MESSAGE, complexityTrees.size(), maximumFunctionComplexityThreshold);
+    int complexity = complexityTrees.size();
+    String message = String.format(MESSAGE, complexity, maximumFunctionComplexityThreshold);
 
     Tree primaryLocationTree = complexityTrees.get(0);
     if (tree.is(Kind.FUNCTION_DECLARATION)) {
@@ -123,7 +125,8 @@ public class FunctionComplexityCheck extends SubscriptionBaseTreeVisitor {
       secondaryLocations.add(new IssueLocation(complexityTree, "+1"));
     }
 
-    getContext().addIssue(this, primary, secondaryLocations, null);
+    double cost = (double) complexity - maximumFunctionComplexityThreshold;
+    getContext().addIssue(this, primary, secondaryLocations, cost);
   }
 
   public void setMaximumFunctionComplexityThreshold(int threshold) {
