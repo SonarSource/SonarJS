@@ -19,12 +19,12 @@
  */
 package org.sonar.javascript.checks;
 
+import com.google.common.io.Files;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
-
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
@@ -34,8 +34,6 @@ import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
 import org.sonar.plugins.javascript.api.visitors.TreeVisitorContext;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
-
-import com.google.common.io.Files;
 
 @Rule(
   key = "S1451",
@@ -49,9 +47,9 @@ public class FileHeaderCheck extends BaseTreeVisitor implements CharsetAwareVisi
 
   @RuleProperty(
     key = "headerFormat",
-    type = "TEXT",
     description = "Expected copyright and license header (plain text)",
-    defaultValue = DEFAULT_HEADER_FORMAT)
+    defaultValue = DEFAULT_HEADER_FORMAT,
+    type = "TEXT")
   public String headerFormat = DEFAULT_HEADER_FORMAT;
 
   private Charset charset;

@@ -55,7 +55,7 @@ public class ExpressionComplexityCheck extends SubscriptionBaseTreeVisitor {
   private static final int DEFAULT = 3;
   private static final String MESSAGE = "Reduce the number of conditional operators (%s) used in the expression (maximum allowed %s).";
 
-  @RuleProperty(defaultValue = "" + DEFAULT, description = "Maximum number of allowed conditional operators in an expression")
+  @RuleProperty(description = "Maximum number of allowed conditional operators in an expression", defaultValue = "" + DEFAULT)
   public int max = DEFAULT;
 
   private List<ExpressionComplexity> statementLevel = Lists.newArrayList();

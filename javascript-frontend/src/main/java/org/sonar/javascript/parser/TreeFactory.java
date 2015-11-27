@@ -1447,7 +1447,7 @@ public class TreeFactory {
   }
 
   private <T, U> Tuple<T, U> newTuple(T first, U second) {
-    return new Tuple<T, U>(first, second);
+    return new Tuple<>(first, second);
   }
 
   public <T, U> Tuple<T, U> newTuple1(T first, U second) {

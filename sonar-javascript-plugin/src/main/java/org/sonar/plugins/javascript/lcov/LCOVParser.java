@@ -120,7 +120,7 @@ public final class LCOVParser {
     return coveredFiles;
   }
 
-  private void logWrongDataWarning(String dataType, String lineNumber, IllegalArgumentException e) {
+  private static void logWrongDataWarning(String dataType, String lineNumber, IllegalArgumentException e) {
     LOG.warn(String.format("Problem during processing LCOV report: can't save %s data for line %s.", dataType, lineNumber), e);
   }
 
