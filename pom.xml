@@ -48,9 +48,9 @@
   </modules>
 
   <scm>
-    <connection>scm:git:git@github.com:SonarCommunity/sonar-javascript.git</connection>
-    <developerConnection>scm:git:git@github.com:SonarCommunity/sonar-javascript.git</developerConnection>
-    <url>https://github.com/SonarCommunity/sonar-javascript</url>
+    <connection>scm:git:git@github.com:SonarSource/sonar-javascript.git</connection>
+    <developerConnection>scm:git:git@github.com:SonarSource/sonar-javascript.git</developerConnection>
+    <url>https://github.com/SonarSource/sonar-javascript</url>
     <tag>HEAD</tag>
   </scm>
   <issueManagement>
@@ -59,7 +59,7 @@
   </issueManagement>
   <ciManagement>
     <system>Travis</system>
-    <url>https://travis-ci.org/SonarCommunity/sonar-javascript</url>
+    <url>https://travis-ci.org/SonarSource/sonar-javascript</url>
   </ciManagement>
 
   <properties>
