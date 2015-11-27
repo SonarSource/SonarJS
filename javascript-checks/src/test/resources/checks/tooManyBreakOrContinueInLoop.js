@@ -88,3 +88,15 @@ for (i = 0; i < 10; i++) { // OK
     break label2;
   }
 }
+
+for (i = 0; i < 10; i++) { // NOK
+  if (i % 3 == 1) {
+    break;
+  }
+  if (i % 3 == 2) {
+    continue;
+  }
+  if (i % 3 == 0) {
+    continue;
+  }
+}

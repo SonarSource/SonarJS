@@ -20,10 +20,10 @@
 package org.sonar.javascript.checks;
 
 import com.google.common.base.Objects;
+import java.util.Stack;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
-import org.sonar.plugins.javascript.api.visitors.TreeVisitorContext;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.declaration.FunctionDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.expression.FunctionExpressionTree;
@@ -38,11 +38,10 @@ import org.sonar.plugins.javascript.api.tree.statement.LabelledStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.SwitchStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.WhileStatementTree;
 import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
+import org.sonar.plugins.javascript.api.visitors.TreeVisitorContext;
 import org.sonar.squidbridge.annotations.ActivatedByDefault;
-import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
+import org.sonar.squidbridge.annotations.SqaleLinearRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
-
-import java.util.Stack;
 
 @Rule(
   key = "TooManyBreakOrContinueInLoop",
@@ -51,7 +50,10 @@ import java.util.Stack;
   tags = {Tags.BRAIN_OVERLOAD})
 @ActivatedByDefault
 @SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.UNDERSTANDABILITY)
-@SqaleConstantRemediation("20min")
+@SqaleLinearRemediation(
+  coeff = "20min",
+  effortToFixDescription = "per extra \"break\" or \"continue\" statement"
+)
 public class TooManyBreakOrContinueInLoopCheck extends BaseTreeVisitor {
 
   private static class JumpTarget {
@@ -177,8 +179,9 @@ public class TooManyBreakOrContinueInLoopCheck extends BaseTreeVisitor {
   }
 
   private void leaveScopeAndCheckNumberOfJump(Tree tree) {
-    if (jumpTargets.pop().jumps > 1) {
-      getContext().addIssue(this, tree, "Reduce the total number of \"break\" and \"continue\" statements in this loop to use one at most.");
+    int jumpStatementNumber = jumpTargets.pop().jumps;
+    if (jumpStatementNumber > 1) {
+      getContext().addIssue(this, tree, "Reduce the total number of \"break\" and \"continue\" statements in this loop to use one at most.", jumpStatementNumber - 1);
     }
   }
 
