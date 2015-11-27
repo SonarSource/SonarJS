@@ -38,8 +38,8 @@ public interface TreeVisitorContext {
   /**
    * Creates an issue.
    *
-   * @param check instance of the check that creates the issue.
-   * @param tree the tree on which the issue should be raise. Means the issue will be raised on its corresponding line in the source code.
+   * @param check   instance of the check that creates the issue.
+   * @param tree    the tree on which the issue should be raise. Means the issue will be raised on its corresponding line in the source code.
    * @param message the issue message.
    */
   void addIssue(JavaScriptCheck check, Tree tree, String message);
@@ -47,8 +47,8 @@ public interface TreeVisitorContext {
   /**
    * Creates an issue.
    *
-   * @param check instance of the check that create the issue
-   * @param line source line on which the issue should be raised
+   * @param check   instance of the check that create the issue
+   * @param line    source line on which the issue should be raised
    * @param message the issue message
    */
   void addIssue(JavaScriptCheck check, int line, String message);
@@ -56,20 +56,20 @@ public interface TreeVisitorContext {
   /**
    * Creates an issue.
    *
-   * @param check instance of the check that create the issue
-   * @param tree the tree on which the issue should be raise. Means the issue will be raised on its corresponding line in the source code.
+   * @param check   instance of the check that create the issue
+   * @param tree    the tree on which the issue should be raise. Means the issue will be raised on its corresponding line in the source code.
    * @param message the issue message
-   * @param cost specific remediation cost for the issue, used to compute the technical debt
+   * @param cost    specific remediation cost for the issue, used to compute the technical debt
    */
   void addIssue(JavaScriptCheck check, Tree tree, String message, double cost);
 
   /**
    * Creates an issue.
    *
-   * @param check instance of the check that create the issue
-   * @param line source line on which the issue should be raised
+   * @param check   instance of the check that create the issue
+   * @param line    source line on which the issue should be raised
    * @param message the issue message
-   * @param cost specific remediation cost for the issue, used to compute the technical debt
+   * @param cost    specific remediation cost for the issue, used to compute the technical debt
    */
   void addIssue(JavaScriptCheck check, int line, String message, double cost);
 
@@ -78,7 +78,7 @@ public interface TreeVisitorContext {
   /**
    * Creates an issue at a file level.
    *
-   * @param check instance of the check that create the issue
+   * @param check   instance of the check that create the issue
    * @param message the issue message
    */
   void addFileIssue(JavaScriptCheck check, String message);
@@ -97,7 +97,6 @@ public interface TreeVisitorContext {
    * Fetch project property
    *
    * @param name property key
-   *
    * @return the value for the given key
    */
   String[] getPropertyValues(String name);

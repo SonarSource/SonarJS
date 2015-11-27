@@ -30,7 +30,7 @@ public class WithStatementTest extends LegacyParserTest {
   @Test
   public void ok() {
     assertThat(g.rule(Kind.WITH_STATEMENT))
-        .matches("with ( expr ) statement");
+      .matches("with ( expr ) statement");
   }
 
 }

@@ -19,14 +19,13 @@
  */
 package org.sonar.javascript.tree.symbols;
 
+import java.io.File;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.javascript.utils.JavaScriptTreeModelTest;
 import org.sonar.plugins.javascript.api.symbols.Symbol;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
-
-import java.io.File;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.junit.Assert.assertNotNull;
@@ -36,9 +35,9 @@ public class ScopeTest extends JavaScriptTreeModelTest {
   private ScriptTree ROOT_NODE;
   private SymbolModelImpl SYMBOL_MODEL;
 
-  private Scope getScopeFor(Tree.Kind kind){
-    for (Symbol symbol : SYMBOL_MODEL.getSymbols()){
-      if (symbol.scope().tree().is(kind)){
+  private Scope getScopeFor(Tree.Kind kind) {
+    for (Symbol symbol : SYMBOL_MODEL.getSymbols()) {
+      if (symbol.scope().tree().is(kind)) {
         return symbol.scope();
       }
     }

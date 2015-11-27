@@ -22,11 +22,9 @@ package org.sonar.javascript.highlighter;
 import com.google.common.base.Charsets;
 import com.sonar.sslr.api.Token;
 import com.sonar.sslr.impl.Lexer;
+import java.util.List;
 import org.junit.Test;
 import org.sonar.javascript.lexer.JavaScriptLexer;
-
-
-import java.util.List;
 
 import static org.fest.assertions.Assertions.assertThat;
 
@@ -34,7 +32,7 @@ public class SourceFileOffsetsTest {
   private Lexer lexer = JavaScriptLexer.create(Charsets.UTF_8);
 
   @Test
-  public void first_line(){
+  public void first_line() {
     String string = "hello(world)";
     SourceFileOffsets offsets = new SourceFileOffsets(string);
     List<Token> tokens = lexer.lex(string);
@@ -43,7 +41,7 @@ public class SourceFileOffsetsTest {
   }
 
   @Test
-  public void second_line(){
+  public void second_line() {
     String string = "hello\nworld = 1\r\n";
     SourceFileOffsets offsets = new SourceFileOffsets(string);
     List<Token> tokens = lexer.lex(string);

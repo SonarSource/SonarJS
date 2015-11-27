@@ -19,15 +19,14 @@
  */
 package org.sonar.javascript.checks;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.plugins.javascript.api.tree.expression.CallExpressionTree;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
-
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 @Rule(
   key = "S2715",
@@ -44,7 +43,7 @@ public class IdChildrenSelectorCheck extends AbstractJQuerySelectorOptimizationC
   @Override
   protected void visitSelector(String selector, CallExpressionTree tree) {
     Matcher matcher = idChildrenSelectorPattern.matcher(selector);
-    if (matcher.matches()){
+    if (matcher.matches()) {
       getContext().addIssue(this, tree, String.format(MESSAGE, matcher.group(2)));
     }
   }

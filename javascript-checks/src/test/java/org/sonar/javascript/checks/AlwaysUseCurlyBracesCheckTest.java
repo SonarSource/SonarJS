@@ -30,14 +30,14 @@ public class AlwaysUseCurlyBracesCheckTest extends TreeCheckTest {
     AlwaysUseCurlyBracesCheck check = new AlwaysUseCurlyBracesCheck();
 
     CheckMessagesVerifier.verify(getIssues("src/test/resources/checks/alwaysUseCurlyBraces.js", check))
-        .next().atLine(3).withMessage("Missing curly brace.")
-        .next().atLine(5)
-        .next().atLine(7)
-        .next().atLine(9)
-        .next().atLine(15)
-        .next().atLine(21)
-        .next().atLine(35)
-        .noMore();
+      .next().atLine(3).withMessage("Missing curly brace.")
+      .next().atLine(5)
+      .next().atLine(7)
+      .next().atLine(9)
+      .next().atLine(15)
+      .next().atLine(21)
+      .next().atLine(35)
+      .noMore();
   }
 
 

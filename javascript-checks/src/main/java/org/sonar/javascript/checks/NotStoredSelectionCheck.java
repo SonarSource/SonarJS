@@ -20,12 +20,18 @@
 package org.sonar.javascript.checks;
 
 import com.google.common.base.Preconditions;
+import java.util.ArrayDeque;
+import java.util.Deque;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
-import org.sonar.javascript.tree.symbols.type.ObjectType;
 import org.sonar.javascript.tree.impl.SeparatedList;
+import org.sonar.javascript.tree.symbols.type.ObjectType;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.declaration.FunctionDeclarationTree;
@@ -40,31 +46,24 @@ import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
 import org.sonar.squidbridge.annotations.SqaleLinearWithOffsetRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 
-import java.util.ArrayDeque;
-import java.util.Deque;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-
 @Rule(
-    key = "S2762",
-    name = "Selections should be stored",
-    priority = Priority.MAJOR,
-    tags = {Tags.JQUERY, Tags.PERFORMANCE, Tags.USER_EXPERIENCE})
+  key = "S2762",
+  name = "Selections should be stored",
+  priority = Priority.MAJOR,
+  tags = {Tags.JQUERY, Tags.PERFORMANCE, Tags.USER_EXPERIENCE})
 @SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.CPU_EFFICIENCY)
 @SqaleLinearWithOffsetRemediation(
-    coeff = "1min",
-    offset = "2min",
-    effortToFixDescription = "number of times selection is re-made.")
+  coeff = "1min",
+  offset = "2min",
+  effortToFixDescription = "number of times selection is re-made.")
 public class NotStoredSelectionCheck extends BaseTreeVisitor {
 
   private static final int DEFAULT = 2;
 
   @RuleProperty(
-      key = "threshold",
-      description = "Number of allowed repetition before triggering an issue",
-      defaultValue = "" + DEFAULT)
+    key = "threshold",
+    description = "Number of allowed repetition before triggering an issue",
+    defaultValue = "" + DEFAULT)
   public int threshold = DEFAULT;
 
   private Deque<List<LiteralTree>> selectors;
@@ -160,7 +159,6 @@ public class NotStoredSelectionCheck extends BaseTreeVisitor {
   }
 
   /**
-   *
    * @param literalTree string literal argument of jQuery()
    * @return true if argument looks like HTML (e.g. "<div></div>")
    */
@@ -188,7 +186,7 @@ public class NotStoredSelectionCheck extends BaseTreeVisitor {
       CallExpressionTree callExpressionTree = (CallExpressionTree) tree;
       if (callExpressionTree.types().contains(ObjectType.FrameworkType.JQUERY_SELECTOR_OBJECT)) {
         LiteralTree parameter = getSelectorParameter(callExpressionTree);
-        if (parameter != null){
+        if (parameter != null) {
           selectors.peek().remove(parameter);
         }
       }

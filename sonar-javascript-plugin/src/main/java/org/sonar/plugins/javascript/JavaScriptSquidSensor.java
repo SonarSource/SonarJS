@@ -85,25 +85,29 @@ public class JavaScriptSquidSensor implements Sensor {
   // parsingErrorRuleKey equals null if ParsingErrorCheck is not activated
   private RuleKey parsingErrorRuleKey = null;
 
-  public JavaScriptSquidSensor(CheckFactory checkFactory, FileLinesContextFactory fileLinesContextFactory,
-                               ResourcePerspectives resourcePerspectives, FileSystem fileSystem, NoSonarFilter noSonarFilter, Settings settings) {
+  public JavaScriptSquidSensor(
+    CheckFactory checkFactory, FileLinesContextFactory fileLinesContextFactory,
+    ResourcePerspectives resourcePerspectives, FileSystem fileSystem, NoSonarFilter noSonarFilter, Settings settings
+  ) {
     this(checkFactory, fileLinesContextFactory, resourcePerspectives, fileSystem, noSonarFilter, settings, null);
   }
 
-  public JavaScriptSquidSensor(CheckFactory checkFactory, FileLinesContextFactory fileLinesContextFactory,
-                               ResourcePerspectives resourcePerspectives, FileSystem fileSystem, NoSonarFilter noSonarFilter,
-                               Settings settings, @Nullable CustomJavaScriptRulesDefinition[] customRulesDefinition) {
+  public JavaScriptSquidSensor(
+    CheckFactory checkFactory, FileLinesContextFactory fileLinesContextFactory,
+    ResourcePerspectives resourcePerspectives, FileSystem fileSystem, NoSonarFilter noSonarFilter,
+    Settings settings, @Nullable CustomJavaScriptRulesDefinition[] customRulesDefinition
+  ) {
 
     this.checks = JavaScriptChecks.createJavaScriptCheck(checkFactory)
-        .addChecks(CheckList.REPOSITORY_KEY, CheckList.getChecks())
-        .addCustomChecks(customRulesDefinition);
+      .addChecks(CheckList.REPOSITORY_KEY, CheckList.getChecks())
+      .addCustomChecks(customRulesDefinition);
     this.fileLinesContextFactory = fileLinesContextFactory;
     this.resourcePerspectives = resourcePerspectives;
     this.fileSystem = fileSystem;
     this.noSonarFilter = noSonarFilter;
     this.mainFilePredicate = fileSystem.predicates().and(
-        fileSystem.predicates().hasType(InputFile.Type.MAIN),
-        fileSystem.predicates().hasLanguage(JavaScriptLanguage.KEY));
+      fileSystem.predicates().hasType(InputFile.Type.MAIN),
+      fileSystem.predicates().hasLanguage(JavaScriptLanguage.KEY));
     this.settings = settings;
     this.parser = JavaScriptParserBuilder.createParser(fileSystem.encoding());
   }
@@ -187,19 +191,19 @@ public class JavaScriptSquidSensor implements Sensor {
   private void processRecognitionException(RecognitionException e, Issuable issuable) {
     if (parsingErrorRuleKey != null) {
       issuable.addIssue(issuable.newIssueBuilder()
-              .ruleKey(parsingErrorRuleKey)
-              .line(e.getLine())
-              .message(e.getMessage())
-              .build()
+        .ruleKey(parsingErrorRuleKey)
+        .line(e.getLine())
+        .message(e.getMessage())
+        .build()
       );
     }
   }
 
   private void scanFile(SensorContext sensorContext, InputFile inputFile, List<JavaScriptCheck> visitors, Issuable issuable, ScriptTree scriptTree) {
     SymbolModelImpl symbolModel = SymbolModelImpl.create(
-        scriptTree,
-        perspective(Symbolizable.class, inputFile),
-        settings
+      scriptTree,
+      perspective(Symbolizable.class, inputFile),
+      settings
     );
 
     for (JavaScriptCheck visitor : visitors) {
@@ -208,14 +212,14 @@ public class JavaScriptSquidSensor implements Sensor {
       }
 
       visitor.scanFile(new JavaScriptCheckContext(
-          sensorContext,
-          scriptTree,
-          issuable,
-          inputFile,
-          symbolModel,
-          settings,
-          checks,
-          new ComplexityVisitor()
+        sensorContext,
+        scriptTree,
+        issuable,
+        inputFile,
+        symbolModel,
+        settings,
+        checks,
+        new ComplexityVisitor()
       ));
 
     }

@@ -29,7 +29,7 @@ public class EmptyStatementTest {
   @Test
   public void ok() {
     assertThat(Kind.EMPTY_STATEMENT)
-        .matches(";");
+      .matches(";");
   }
 
 }

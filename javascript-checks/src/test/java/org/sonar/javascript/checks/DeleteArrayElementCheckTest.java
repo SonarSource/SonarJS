@@ -30,10 +30,10 @@ public class DeleteArrayElementCheckTest extends TreeCheckTest {
     DeleteArrayElementCheck check = new DeleteArrayElementCheck();
 
     CheckMessagesVerifier.verify(getIssues("src/test/resources/checks/DeleteArrayElement.js", check))
-        .next().atLine(3).withMessage("Remove this use of \"delete\".")
-        .next().atLine(4)
-        .next().atLine(8)
-        .noMore();
+      .next().atLine(3).withMessage("Remove this use of \"delete\".")
+      .next().atLine(4)
+      .next().atLine(8)
+      .noMore();
   }
 
 }

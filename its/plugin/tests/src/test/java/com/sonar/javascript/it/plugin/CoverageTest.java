@@ -22,14 +22,13 @@ package com.sonar.javascript.it.plugin;
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.BuildResult;
 import com.sonar.orchestrator.build.SonarRunner;
+import java.util.regex.Pattern;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.sonar.wsclient.services.Measure;
 import org.sonar.wsclient.services.Resource;
 import org.sonar.wsclient.services.ResourceQuery;
-
-import java.util.regex.Pattern;
 
 import static org.fest.assertions.Assertions.assertThat;
 
@@ -84,11 +83,11 @@ public class CoverageTest {
     if (Tests.is_strictly_after_plugin("2.5")) {
       SonarRunner build = Tests.createSonarRunnerBuild()
         .setProjectDir(TestUtils.projectDir("lcov"))
-          .setProjectKey(Tests.PROJECT_KEY)
-          .setProjectName(Tests.PROJECT_KEY)
-          .setProjectVersion("1.0")
-          .setSourceDirs(".")
-          .setProperty("sonar.javascript.lcov.itReportPath", TestUtils.file("projects/lcov/coverage.lcov").getAbsolutePath());
+        .setProjectKey(Tests.PROJECT_KEY)
+        .setProjectName(Tests.PROJECT_KEY)
+        .setProjectVersion("1.0")
+        .setSourceDirs(".")
+        .setProperty("sonar.javascript.lcov.itReportPath", TestUtils.file("projects/lcov/coverage.lcov").getAbsolutePath());
       Tests.setEmptyProfile(Tests.PROJECT_KEY, Tests.PROJECT_KEY);
       orchestrator.executeBuild(build);
 

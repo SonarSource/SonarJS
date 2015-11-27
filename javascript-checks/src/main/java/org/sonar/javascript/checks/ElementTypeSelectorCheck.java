@@ -19,15 +19,14 @@
  */
 package org.sonar.javascript.checks;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.plugins.javascript.api.tree.expression.CallExpressionTree;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
-
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 @Rule(
   key = "S2898",
@@ -44,7 +43,7 @@ public class ElementTypeSelectorCheck extends AbstractJQuerySelectorOptimization
   @Override
   protected void visitSelector(String selector, CallExpressionTree tree) {
     Matcher matcher = elementUsedWithClassSelectorPattern.matcher(selector);
-    if (matcher.find()){
+    if (matcher.find()) {
       getContext().addIssue(this, tree, String.format(MESSAGE, matcher.group(1), matcher.group(1)));
     }
   }

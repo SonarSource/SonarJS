@@ -30,12 +30,12 @@ public class UniversalSelectorCheckTest extends TreeCheckTest {
   @Test
   public void test() {
     CheckMessagesVerifier.verify(getIssues("src/test/resources/checks/UniversalSelector.js", check))
-    .next().atLine(1)
-    .next().atLine(3)
-    .next().atLine(5)
-    .next().atLine(7)
-    .next().atLine(13)
-    .noMore();
+      .next().atLine(1)
+      .next().atLine(3)
+      .next().atLine(5)
+      .next().atLine(7)
+      .next().atLine(13)
+      .noMore();
 
   }
 }

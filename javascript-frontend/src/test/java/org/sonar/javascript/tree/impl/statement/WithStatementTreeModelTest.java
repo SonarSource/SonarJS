@@ -32,7 +32,7 @@ public class WithStatementTreeModelTest extends JavaScriptTreeModelTest {
 
   @Test
   public void test() throws Exception {
-   WithStatementTree tree = parse("with ( expr ) statement ;", Kind.WITH_STATEMENT);
+    WithStatementTree tree = parse("with ( expr ) statement ;", Kind.WITH_STATEMENT);
 
     assertThat(tree.is(Kind.WITH_STATEMENT)).isTrue();
     assertThat(tree.withKeyword().text()).isEqualTo(JavaScriptKeyword.WITH.getValue());

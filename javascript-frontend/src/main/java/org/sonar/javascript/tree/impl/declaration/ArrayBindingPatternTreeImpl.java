@@ -23,6 +23,8 @@ import com.google.common.base.Function;
 import com.google.common.collect.Iterators;
 import com.google.common.collect.Lists;
 import com.sonar.sslr.api.typed.Optional;
+import java.util.Iterator;
+import java.util.List;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.javascript.tree.impl.SeparatedList;
 import org.sonar.javascript.tree.impl.lexical.InternalSyntaxToken;
@@ -33,9 +35,6 @@ import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 import org.sonar.plugins.javascript.api.tree.expression.RestElementTree;
 import org.sonar.plugins.javascript.api.visitors.TreeVisitor;
 
-import java.util.Iterator;
-import java.util.List;
-
 public class ArrayBindingPatternTreeImpl extends JavaScriptTree implements ArrayBindingPatternTree {
 
   private final InternalSyntaxToken openBracketToken;
@@ -45,7 +44,8 @@ public class ArrayBindingPatternTreeImpl extends JavaScriptTree implements Array
   public ArrayBindingPatternTreeImpl(
     InternalSyntaxToken openBracketToken,
     SeparatedList<Optional<BindingElementTree>> elements,
-    InternalSyntaxToken closeBracketToken) {
+    InternalSyntaxToken closeBracketToken
+  ) {
 
     this.openBracketToken = openBracketToken;
     this.elements = elements;
@@ -75,9 +75,9 @@ public class ArrayBindingPatternTreeImpl extends JavaScriptTree implements Array
   @Override
   public Iterator<Tree> childrenIterator() {
     return Iterators.concat(
-        Iterators.singletonIterator(openBracketToken),
-        elements.elementsAndSeparators(new ElidedElementFilter()),
-        Iterators.singletonIterator(closeBracketToken)
+      Iterators.singletonIterator(openBracketToken),
+      elements.elementsAndSeparators(new ElidedElementFilter()),
+      Iterators.singletonIterator(closeBracketToken)
     );
   }
 
@@ -88,7 +88,7 @@ public class ArrayBindingPatternTreeImpl extends JavaScriptTree implements Array
 
   /**
    * Return the list of new binding names introduced by this array binding pattern.
-   * <p>
+   * <p/>
    * Example:
    * <pre>
    *   [a, , , b, ...c] // will return [a, b, c]

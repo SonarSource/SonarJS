@@ -30,8 +30,8 @@ public class TrailingCommentCheckTest extends TreeCheckTest {
   @Test
   public void defaults() {
     CheckMessagesVerifier.verify(getIssues("src/test/resources/checks/trailingComment.js", check))
-        .next().atLine(2).withMessage("Move this trailing comment on the previous empty line.")
-        .noMore();
+      .next().atLine(2).withMessage("Move this trailing comment on the previous empty line.")
+      .noMore();
   }
 
   @Test
@@ -39,9 +39,9 @@ public class TrailingCommentCheckTest extends TreeCheckTest {
     check.setLegalCommentPattern("");
 
     CheckMessagesVerifier.verify(getIssues("src/test/resources/checks/trailingComment.js", check))
-        .next().atLine(2).withMessage("Move this trailing comment on the previous empty line.")
-        .next().atLine(8)
-        .noMore();
+      .next().atLine(2).withMessage("Move this trailing comment on the previous empty line.")
+      .next().atLine(8)
+      .noMore();
   }
 
 }

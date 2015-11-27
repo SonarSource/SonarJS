@@ -25,7 +25,6 @@ import com.sonar.sslr.impl.channel.BlackHoleChannel;
 import com.sonar.sslr.impl.channel.IdentifierAndKeywordChannel;
 import com.sonar.sslr.impl.channel.PunctuatorChannel;
 import com.sonar.sslr.impl.channel.UnknownCharacterChannel;
-
 import java.nio.charset.Charset;
 
 import static com.sonar.sslr.impl.channel.RegexpChannelBuilder.commentRegexp;
@@ -40,31 +39,31 @@ public final class JavaScriptLexer {
   private static final String INT_SUFFIX = "[lL]";
 
   public static final String NUMERIC_LITERAL = "(?:"
-      // Decimal
-      + "[0-9]++\\.([0-9]++)?+" + EXP + "?+" + FLOAT_SUFFIX + "?+"
-      // Decimal
-      + "|\\.[0-9]++" + EXP + "?+" + FLOAT_SUFFIX + "?+"
-      // Decimal
-      + "|[0-9]++" + FLOAT_SUFFIX
-      + "|[0-9]++" + EXP + FLOAT_SUFFIX + "?+"
-      // Hexadecimal
-      + "|0[xX][0-9a-fA-F]++\\.[0-9a-fA-F_]*+" + BINARY_EXP + "?+" + FLOAT_SUFFIX + "?+"
-      // Hexadecimal
-      + "|0[xX][0-9a-fA-F]++" + BINARY_EXP + FLOAT_SUFFIX + "?+"
+    // Decimal
+    + "[0-9]++\\.([0-9]++)?+" + EXP + "?+" + FLOAT_SUFFIX + "?+"
+    // Decimal
+    + "|\\.[0-9]++" + EXP + "?+" + FLOAT_SUFFIX + "?+"
+    // Decimal
+    + "|[0-9]++" + FLOAT_SUFFIX
+    + "|[0-9]++" + EXP + FLOAT_SUFFIX + "?+"
+    // Hexadecimal
+    + "|0[xX][0-9a-fA-F]++\\.[0-9a-fA-F_]*+" + BINARY_EXP + "?+" + FLOAT_SUFFIX + "?+"
+    // Hexadecimal
+    + "|0[xX][0-9a-fA-F]++" + BINARY_EXP + FLOAT_SUFFIX + "?+"
 
-      // Integer Literals
-      // Hexadecimal
-      + "|0[xX][0-9a-fA-F]++" + INT_SUFFIX + "?+"
-      // Binary (Java 7)
-      + "|0[bB][01]++" + INT_SUFFIX + "?+"
-      // Decimal and Octal
-      + "|[0-9]++" + INT_SUFFIX + "?+"
-      + ")";
+    // Integer Literals
+    // Hexadecimal
+    + "|0[xX][0-9a-fA-F]++" + INT_SUFFIX + "?+"
+    // Binary (Java 7)
+    + "|0[bB][01]++" + INT_SUFFIX + "?+"
+    // Decimal and Octal
+    + "|[0-9]++" + INT_SUFFIX + "?+"
+    + ")";
 
   public static final String LITERAL = "(?:"
-      + "\"([^\"\\\\]*+(\\\\[\\s\\S])?+)*+\""
-      + "|'([^'\\\\]*+(\\\\[\\s\\S])?+)*+'"
-      + ")";
+    + "\"([^\"\\\\]*+(\\\\[\\s\\S])?+)*+\""
+    + "|'([^'\\\\]*+(\\\\[\\s\\S])?+)*+'"
+    + ")";
 
   public static final String SINGLE_LINE_COMMENT = "//[^\\n\\r]*+|<!--[^\\n\\r]*+";
   public static final String MULTI_LINE_COMMENT = "/\\*[\\s\\S]*?\\*/";
@@ -101,30 +100,30 @@ public final class JavaScriptLexer {
 
   public static Lexer create(Charset charset) {
     return Lexer.builder()
-        .withCharset(charset)
+      .withCharset(charset)
 
-        .withFailIfNoChannelToConsumeOneCharacter(true)
+      .withFailIfNoChannelToConsumeOneCharacter(true)
 
-        // Channels, which consumes more frequently should come first.
-        // Whitespace character occurs more frequently than any other, and thus come first:
-        .withChannel(new BlackHoleChannel("[" + LINE_TERMINATOR + WHITESPACE + "]++"))
+      // Channels, which consumes more frequently should come first.
+      // Whitespace character occurs more frequently than any other, and thus come first:
+      .withChannel(new BlackHoleChannel("[" + LINE_TERMINATOR + WHITESPACE + "]++"))
 
-        // Comments
-        .withChannel(commentRegexp(COMMENT))
+      // Comments
+      .withChannel(commentRegexp(COMMENT))
 
-        // String Literals
-        .withChannel(regexp(GenericTokenType.LITERAL, LITERAL))
+      // String Literals
+      .withChannel(regexp(GenericTokenType.LITERAL, LITERAL))
 
-        // Regular Expression Literals
-        .withChannel(new JavaScriptRegexpChannel())
+      // Regular Expression Literals
+      .withChannel(new JavaScriptRegexpChannel())
 
-        .withChannel(regexp(JavaScriptTokenType.NUMERIC_LITERAL, NUMERIC_LITERAL))
+      .withChannel(regexp(JavaScriptTokenType.NUMERIC_LITERAL, NUMERIC_LITERAL))
 
-        .withChannel(new IdentifierAndKeywordChannel(IDENTIFIER, true, JavaScriptKeyword.values()))
-        .withChannel(new PunctuatorChannel(JavaScriptPunctuator.values()))
+      .withChannel(new IdentifierAndKeywordChannel(IDENTIFIER, true, JavaScriptKeyword.values()))
+      .withChannel(new PunctuatorChannel(JavaScriptPunctuator.values()))
 
-        .withChannel(new UnknownCharacterChannel())
+      .withChannel(new UnknownCharacterChannel())
 
-        .build();
+      .build();
   }
 }

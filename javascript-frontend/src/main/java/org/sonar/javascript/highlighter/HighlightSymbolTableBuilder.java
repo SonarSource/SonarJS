@@ -19,15 +19,14 @@
  */
 package org.sonar.javascript.highlighter;
 
-import org.sonar.api.source.Symbolizable;
-import org.sonar.plugins.javascript.api.symbols.Symbol;
-import org.sonar.plugins.javascript.api.symbols.Usage;
-import org.sonar.javascript.tree.impl.lexical.InternalSyntaxToken;
-import org.sonar.plugins.javascript.api.symbols.SymbolModel;
-import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
-
 import java.util.LinkedList;
 import java.util.List;
+import org.sonar.api.source.Symbolizable;
+import org.sonar.javascript.tree.impl.lexical.InternalSyntaxToken;
+import org.sonar.plugins.javascript.api.symbols.Symbol;
+import org.sonar.plugins.javascript.api.symbols.SymbolModel;
+import org.sonar.plugins.javascript.api.symbols.Usage;
+import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 
 public class HighlightSymbolTableBuilder {
 
@@ -38,14 +37,14 @@ public class HighlightSymbolTableBuilder {
     Symbolizable.SymbolTableBuilder builder = symbolizable.newSymbolTableBuilder();
 
     for (Symbol symbol : symbolModel.getSymbols()) {
-      if (!symbol.usages().isEmpty()){
+      if (!symbol.usages().isEmpty()) {
         List<Usage> usagesList = new LinkedList<>(symbol.usages());
         InternalSyntaxToken token = (InternalSyntaxToken) (usagesList.get(0).identifierTree()).identifierToken();
         org.sonar.api.source.Symbol reference = getHighlightedSymbol(builder, token);
-        for (int i = 1; i < usagesList.size(); i++){
+        for (int i = 1; i < usagesList.size(); i++) {
           builder.newReference(
-              reference,
-              getToken(usagesList.get(i).identifierTree()).startIndex()
+            reference,
+            getToken(usagesList.get(i).identifierTree()).startIndex()
           );
         }
 

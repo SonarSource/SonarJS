@@ -171,7 +171,7 @@ public class JavaScriptCheckVerifier extends SubscriptionBaseTreeVisitor {
       }
     }
   }
-  
+
   private int lineValue(int baseLine, String shift) {
     if (shift.startsWith("+")) {
       return baseLine + Integer.valueOf(shift.substring(1));
@@ -256,7 +256,7 @@ public class JavaScriptCheckVerifier extends SubscriptionBaseTreeVisitor {
       }
       add(issue);
     }
-    
+
     @Override
     public void addFileIssue(JavaScriptCheck check, String message) {
       throw new UnsupportedOperationException();
@@ -292,7 +292,7 @@ public class JavaScriptCheckVerifier extends SubscriptionBaseTreeVisitor {
 
   }
 
-  private static class IssueToLine implements Function<Issue,Integer> {
+  private static class IssueToLine implements Function<Issue, Integer> {
     @Override
     public Integer apply(Issue issue) {
       return issue.line();

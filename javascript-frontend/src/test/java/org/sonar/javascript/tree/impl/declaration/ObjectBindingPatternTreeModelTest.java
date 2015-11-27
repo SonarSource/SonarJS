@@ -19,15 +19,14 @@
  */
 package org.sonar.javascript.tree.impl.declaration;
 
-import static org.fest.assertions.Assertions.assertThat;
-
+import java.util.List;
 import org.junit.Test;
 import org.sonar.javascript.utils.JavaScriptTreeModelTest;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.declaration.ObjectBindingPatternTree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 
-import java.util.List;
+import static org.fest.assertions.Assertions.assertThat;
 
 public class ObjectBindingPatternTreeModelTest extends JavaScriptTreeModelTest {
 

@@ -22,6 +22,9 @@ package org.sonar.javascript.tree.impl.expression;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Iterators;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.javascript.tree.impl.lexical.InternalSyntaxToken;
 import org.sonar.plugins.javascript.api.symbols.TypeSet;
@@ -32,18 +35,16 @@ import org.sonar.plugins.javascript.api.tree.expression.TemplateLiteralTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.javascript.api.visitors.TreeVisitor;
 
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
-
 public class TemplateLiteralTreeImpl extends JavaScriptTree implements TemplateLiteralTree {
 
   private final SyntaxToken openBacktick;
   private final List<Tree> elements;
   private final SyntaxToken closeBacktick;
 
-  public TemplateLiteralTreeImpl(InternalSyntaxToken openBacktick, List<Tree> elements,
-    InternalSyntaxToken closeBacktick) {
+  public TemplateLiteralTreeImpl(
+    InternalSyntaxToken openBacktick, List<Tree> elements,
+    InternalSyntaxToken closeBacktick
+  ) {
 
     this.openBacktick = openBacktick;
     this.elements = Collections.<Tree>unmodifiableList(elements);

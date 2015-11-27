@@ -30,33 +30,33 @@ public class ReturnStatementTest extends LegacyParserTest {
   @Test
   public void ok() {
     assertThat(g.rule(Kind.RETURN_STATEMENT))
-        .as("EOS is line terminator")
-        .matchesPrefix("return \n", "42 ;")
-        .matchesPrefix("return 42 \n", "42 ;")
-        .matchesPrefix("return \n", ";")
+      .as("EOS is line terminator")
+      .matchesPrefix("return \n", "42 ;")
+      .matchesPrefix("return 42 \n", "42 ;")
+      .matchesPrefix("return \n", ";")
 
-        .as("EOS is semicolon")
-        .matchesPrefix("return ;", "42")
-        .matchesPrefix("return 42 \n ;", "42")
-        .matches("return 42 \n + 42 ;")
+      .as("EOS is semicolon")
+      .matchesPrefix("return ;", "42")
+      .matchesPrefix("return 42 \n ;", "42")
+      .matches("return 42 \n + 42 ;")
 
-        .as("EOS is before right curly bracket")
-        .matchesPrefix("return ", "}")
-        .matchesPrefix("return 42", "}")
-        .matchesPrefix("return 42 \n + 42", "}")
+      .as("EOS is before right curly bracket")
+      .matchesPrefix("return ", "}")
+      .matchesPrefix("return 42", "}")
+      .matchesPrefix("return 42 \n + 42", "}")
 
-        .as("EOS is end of input")
-        .matches("return ")
-        .matches("return 42 ")
-        .matches("return 42 \n + 42");
+      .as("EOS is end of input")
+      .matches("return ")
+      .matches("return 42 ")
+      .matches("return 42 \n + 42");
   }
 
   @Test
   public void realLife() {
     assertThat(g.rule(Kind.RETURN_STATEMENT))
-        .matches("return;")
-        .matches("return a + b;")
-        .matches("return this.first + (this.middle ? ' ' + this.middle : '') + ' ' + this.last;");
+      .matches("return;")
+      .matches("return a + b;")
+      .matches("return this.first + (this.middle ? ' ' + this.middle : '') + ' ' + this.last;");
   }
 
 }

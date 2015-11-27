@@ -28,9 +28,9 @@ public class EqEqEqCheckTest extends TreeCheckTest {
   @Test
   public void test() {
     CheckMessagesVerifier.verify(getIssues("src/test/resources/checks/eqEqEq.js", new EqEqEqCheck()))
-        .next().atLine(2).withMessage("Replace \"==\" with \"===\".")
-        .next().atLine(4).withMessage("Replace \"!=\" with \"!==\".")
-        .noMore();
+      .next().atLine(2).withMessage("Replace \"==\" with \"===\".")
+      .next().atLine(4).withMessage("Replace \"!=\" with \"!==\".")
+      .noMore();
   }
 
 }

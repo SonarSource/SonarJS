@@ -31,10 +31,10 @@ import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 
 @Rule(
-    key = "S2549",
-    name = "The \"changed\" property should not be manipulated directly",
-    priority = Priority.CRITICAL,
-    tags = {Tags.BACKBONE, Tags.BUG})
+  key = "S2549",
+  name = "The \"changed\" property should not be manipulated directly",
+  priority = Priority.CRITICAL,
+  tags = {Tags.BACKBONE, Tags.BUG})
 @SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.DATA_RELIABILITY)
 @SqaleConstantRemediation("30min")
 public class BackboneChangedIsUsedCheck extends BaseTreeVisitor {

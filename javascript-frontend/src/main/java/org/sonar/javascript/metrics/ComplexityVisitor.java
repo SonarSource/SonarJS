@@ -53,7 +53,7 @@ public class ComplexityVisitor extends BaseTreeVisitor {
   public int getComplexity(Tree tree) {
     return complexityTrees(tree).size();
   }
-  
+
   public List<Tree> complexityTrees(Tree tree) {
     this.complexityTrees = new ArrayList<>();
     this.excludedReturns = new HashSet<>();

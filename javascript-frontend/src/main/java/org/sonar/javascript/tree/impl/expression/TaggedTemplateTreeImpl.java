@@ -20,6 +20,7 @@
 package org.sonar.javascript.tree.impl.expression;
 
 import com.google.common.collect.Iterators;
+import java.util.Iterator;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.plugins.javascript.api.symbols.TypeSet;
 import org.sonar.plugins.javascript.api.tree.Tree;
@@ -27,8 +28,6 @@ import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.TaggedTemplateTree;
 import org.sonar.plugins.javascript.api.tree.expression.TemplateLiteralTree;
 import org.sonar.plugins.javascript.api.visitors.TreeVisitor;
-
-import java.util.Iterator;
 
 public class TaggedTemplateTreeImpl extends JavaScriptTree implements TaggedTemplateTree {
 

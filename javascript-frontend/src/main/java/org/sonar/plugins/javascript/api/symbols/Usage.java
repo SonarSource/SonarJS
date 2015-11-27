@@ -34,15 +34,15 @@ public class Usage {
     READ,
     READ_WRITE;
   }
+
   private Kind kind;
   private IdentifierTree identifierTree;
 
   /**
-   *
    * @param identifierTree - this tree contains only symbol name identifier (we need it for symbol highlighting)
-   * @param kind - kind of usage
+   * @param kind           - kind of usage
    */
-  private Usage(IdentifierTree identifierTree, Kind kind){
+  private Usage(IdentifierTree identifierTree, Kind kind) {
     this.kind = kind;
     this.identifierTree = identifierTree;
   }
@@ -55,11 +55,11 @@ public class Usage {
     return identifierTree;
   }
 
-  public static Usage create(IdentifierTree symbolTree, Kind kind){
+  public static Usage create(IdentifierTree symbolTree, Kind kind) {
     return new Usage(symbolTree, kind);
   }
 
-  public boolean isDeclaration(){
+  public boolean isDeclaration() {
     return kind == Kind.DECLARATION_WRITE || kind == Kind.DECLARATION;
   }
 

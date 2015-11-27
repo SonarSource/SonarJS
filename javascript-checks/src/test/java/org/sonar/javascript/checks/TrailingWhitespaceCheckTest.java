@@ -31,8 +31,8 @@ public class TrailingWhitespaceCheckTest extends TreeCheckTest {
     TrailingWhitespaceCheck check = new TrailingWhitespaceCheck();
     check.setCharset(Charsets.UTF_8);
     CheckMessagesVerifier.verify(getIssues("src/test/resources/checks/trailingWhitespace.js", check))
-        .next().atLine(3).withMessage("Remove the useless trailing whitespaces at the end of this line.")
-        .noMore();
+      .next().atLine(3).withMessage("Remove the useless trailing whitespaces at the end of this line.")
+      .noMore();
   }
 
 }

@@ -21,6 +21,9 @@ package org.sonar.javascript.tree.impl.expression;
 
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Iterators;
+import java.util.Iterator;
+import java.util.List;
+import javax.annotation.Nullable;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.javascript.tree.impl.lexical.InternalSyntaxToken;
 import org.sonar.plugins.javascript.api.symbols.TypeSet;
@@ -31,10 +34,6 @@ import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.javascript.api.visitors.TreeVisitor;
-
-import javax.annotation.Nullable;
-import java.util.Iterator;
-import java.util.List;
 
 public class ClassTreeImpl extends JavaScriptTree implements ClassTree {
 
@@ -50,9 +49,11 @@ public class ClassTreeImpl extends JavaScriptTree implements ClassTree {
   private InternalSyntaxToken closeCurlyBraceToken;
   private final Kind kind;
 
-  private ClassTreeImpl(Kind kind, InternalSyntaxToken classToken, @Nullable IdentifierTreeImpl name,
+  private ClassTreeImpl(
+    Kind kind, InternalSyntaxToken classToken, @Nullable IdentifierTreeImpl name,
     @Nullable InternalSyntaxToken extendsToken, @Nullable ExpressionTree superClass,
-    InternalSyntaxToken openCurlyBraceToken, List<Tree> elements, InternalSyntaxToken closeCurlyBraceToken) {
+    InternalSyntaxToken openCurlyBraceToken, List<Tree> elements, InternalSyntaxToken closeCurlyBraceToken
+  ) {
 
     this.kind = kind;
 
@@ -65,16 +66,20 @@ public class ClassTreeImpl extends JavaScriptTree implements ClassTree {
     this.closeCurlyBraceToken = closeCurlyBraceToken;
   }
 
-  public static ClassTreeImpl newClassExpression(InternalSyntaxToken classToken, @Nullable IdentifierTreeImpl name,
+  public static ClassTreeImpl newClassExpression(
+    InternalSyntaxToken classToken, @Nullable IdentifierTreeImpl name,
     @Nullable InternalSyntaxToken extendsToken, @Nullable ExpressionTree superClass, InternalSyntaxToken openCurlyBraceToken,
-    List<Tree> elements, InternalSyntaxToken closeCurlyBraceToken) {
+    List<Tree> elements, InternalSyntaxToken closeCurlyBraceToken
+  ) {
 
     return new ClassTreeImpl(Kind.CLASS_EXPRESSION, classToken, name, extendsToken, superClass, openCurlyBraceToken, elements, closeCurlyBraceToken);
   }
 
-  public static ClassTreeImpl newClassDeclaration(InternalSyntaxToken classToken, @Nullable IdentifierTreeImpl name,
+  public static ClassTreeImpl newClassDeclaration(
+    InternalSyntaxToken classToken, @Nullable IdentifierTreeImpl name,
     @Nullable InternalSyntaxToken extendsToken, @Nullable ExpressionTree superClass, InternalSyntaxToken openCurlyBraceToken,
-    List<Tree> elements, InternalSyntaxToken closeCurlyBraceToken) {
+    List<Tree> elements, InternalSyntaxToken closeCurlyBraceToken
+  ) {
 
     return new ClassTreeImpl(Kind.CLASS_DECLARATION, classToken, name, extendsToken, superClass, openCurlyBraceToken, elements, closeCurlyBraceToken);
   }

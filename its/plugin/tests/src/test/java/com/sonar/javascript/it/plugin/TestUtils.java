@@ -19,9 +19,8 @@
  */
 package com.sonar.javascript.it.plugin;
 
-import org.apache.commons.io.FileUtils;
-
 import java.io.File;
+import org.apache.commons.io.FileUtils;
 
 public class TestUtils {
 

@@ -30,22 +30,22 @@ public class MemberExpressionTest {
   @Test
   public void ok() {
     assertThat(JavaScriptLegacyGrammar.MEMBER_EXPRESSION)
-        .matches("primaryExpression")
-        .as("functionExpression").matches("function () {}")
+      .matches("primaryExpression")
+      .as("functionExpression").matches("function () {}")
 
-        .matches("primaryExpression [ expression ]")
-        .matches("primaryExpression . identifierName")
-        .matches("primaryExpression ``")
-        .matches("primaryExpression [ expression ] . identifierName")
-        .matches("primaryExpression [ expression ] . identifierName ``")
+      .matches("primaryExpression [ expression ]")
+      .matches("primaryExpression . identifierName")
+      .matches("primaryExpression ``")
+      .matches("primaryExpression [ expression ] . identifierName")
+      .matches("primaryExpression [ expression ] . identifierName ``")
 
-        .matches("super [ expression ]")
-        .matches("super . identifierName")
-        .matches("super [expression] ``")
+      .matches("super [ expression ]")
+      .matches("super . identifierName")
+      .matches("super [expression] ``")
 
-        .matches("new super ( arguments )")
-        .matches("new primaryExpression ( arguments )")
-        .matches("new super ( arguments ) ``");
+      .matches("new super ( arguments )")
+      .matches("new primaryExpression ( arguments )")
+      .matches("new super ( arguments ) ``");
   }
 
 }

@@ -20,6 +20,9 @@
 package org.sonar.javascript.highlighter;
 
 import com.google.common.collect.ImmutableList;
+import java.io.File;
+import java.util.List;
+import javax.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.fs.FileSystem;
@@ -28,19 +31,15 @@ import org.sonar.api.component.ResourcePerspectives;
 import org.sonar.api.source.Highlightable;
 import org.sonar.api.source.Highlightable.HighlightingBuilder;
 import org.sonar.javascript.lexer.JavaScriptKeyword;
-import org.sonar.javascript.tree.visitors.SubscriptionTreeVisitor;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.javascript.tree.impl.expression.LiteralTreeImpl;
 import org.sonar.javascript.tree.impl.lexical.InternalSyntaxToken;
-import org.sonar.plugins.javascript.api.visitors.TreeVisitorContext;
+import org.sonar.javascript.tree.visitors.SubscriptionTreeVisitor;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxTrivia;
-
-import javax.annotation.Nullable;
-import java.io.File;
-import java.util.List;
+import org.sonar.plugins.javascript.api.visitors.TreeVisitorContext;
 
 public class HighlighterVisitor extends SubscriptionTreeVisitor {
 
@@ -59,9 +58,9 @@ public class HighlighterVisitor extends SubscriptionTreeVisitor {
   @Override
   public List<Kind> nodesToVisit() {
     return ImmutableList.of(
-        Kind.NUMERIC_LITERAL,
-        Kind.STRING_LITERAL,
-        Kind.TOKEN
+      Kind.NUMERIC_LITERAL,
+      Kind.STRING_LITERAL,
+      Kind.TOKEN
     );
   }
 

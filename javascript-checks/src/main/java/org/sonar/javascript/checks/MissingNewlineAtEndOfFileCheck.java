@@ -21,7 +21,6 @@ package org.sonar.javascript.checks;
 
 import java.io.IOException;
 import java.io.RandomAccessFile;
-
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;

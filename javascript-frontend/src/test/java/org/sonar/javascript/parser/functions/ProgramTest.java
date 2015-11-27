@@ -31,12 +31,12 @@ public class ProgramTest {
   @Test
   public void realLife() {
     assertThat(JavaScriptLegacyGrammar.SCRIPT)
-        .matches("{}")
-        .matches("var a;")
-        .matches("if (true) {}")
-        .matches("document.write(\"Hello world\");")
-        .matches("var r = /^\\s+/;")
-        .matches("function func() { doSomething() }");
+      .matches("{}")
+      .matches("var a;")
+      .matches("if (true) {}")
+      .matches("document.write(\"Hello world\");")
+      .matches("var r = /^\\s+/;")
+      .matches("function func() { doSomething() }");
 
     assertThat(JavaScriptLegacyGrammar.SCRIPT).matches(code(
       "#!/usr/bin/env node",

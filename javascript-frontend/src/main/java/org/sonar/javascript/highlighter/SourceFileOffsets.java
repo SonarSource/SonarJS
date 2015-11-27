@@ -22,12 +22,11 @@ package org.sonar.javascript.highlighter;
 import com.google.common.collect.Lists;
 import com.google.common.io.Files;
 import com.sonar.sslr.api.Token;
-import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
-
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.List;
+import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 
 public class SourceFileOffsets {
   private final int length;

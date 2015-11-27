@@ -81,7 +81,7 @@ public class CollapsibleIfStatementsCheck extends BaseTreeVisitor {
 
   @Nullable
   private static IfStatementTree getIfStatementWithoutElse(StatementTree statement) {
-    if (statement.is(Kind.IF_STATEMENT) && ((IfStatementTree)statement).elseClause() == null) {
+    if (statement.is(Kind.IF_STATEMENT) && ((IfStatementTree) statement).elseClause() == null) {
       return (IfStatementTree) statement;
     } else {
       return null;

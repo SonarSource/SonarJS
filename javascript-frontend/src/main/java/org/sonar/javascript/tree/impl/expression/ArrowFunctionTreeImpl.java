@@ -21,6 +21,8 @@ package org.sonar.javascript.tree.impl.expression;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterators;
+import java.util.Iterator;
+import java.util.List;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.javascript.tree.impl.declaration.ParameterListTreeImpl;
 import org.sonar.javascript.tree.impl.lexical.InternalSyntaxToken;
@@ -30,9 +32,6 @@ import org.sonar.plugins.javascript.api.tree.expression.ArrowFunctionTree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.javascript.api.visitors.TreeVisitor;
-
-import java.util.Iterator;
-import java.util.List;
 
 public class ArrowFunctionTreeImpl extends JavaScriptTree implements ArrowFunctionTree {
 

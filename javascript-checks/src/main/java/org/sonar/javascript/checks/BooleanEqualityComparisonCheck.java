@@ -22,14 +22,14 @@ package org.sonar.javascript.checks;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
-import org.sonar.plugins.javascript.api.tree.expression.ConditionalExpressionTree;
-import org.sonar.plugins.javascript.api.tree.expression.ParenthesisedExpressionTree;
-import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.expression.BinaryExpressionTree;
+import org.sonar.plugins.javascript.api.tree.expression.ConditionalExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.LiteralTree;
+import org.sonar.plugins.javascript.api.tree.expression.ParenthesisedExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.UnaryExpressionTree;
+import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
 import org.sonar.squidbridge.annotations.ActivatedByDefault;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
@@ -45,10 +45,10 @@ import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 public class BooleanEqualityComparisonCheck extends BaseTreeVisitor {
 
   private static final Kind[] BINARY_OPERATORS = {
-      Kind.CONDITIONAL_AND,
-      Kind.CONDITIONAL_OR,
-      Kind.EQUAL_TO,
-      Kind.NOT_EQUAL_TO
+    Kind.CONDITIONAL_AND,
+    Kind.CONDITIONAL_OR,
+    Kind.EQUAL_TO,
+    Kind.NOT_EQUAL_TO
   };
 
 
@@ -81,11 +81,11 @@ public class BooleanEqualityComparisonCheck extends BaseTreeVisitor {
 
 
   private void visitExpression(ExpressionTree expression) {
-    if (expression.is(Kind.PARENTHESISED_EXPRESSION)){
-      visitExpression(((ParenthesisedExpressionTree)expression).expression());
+    if (expression.is(Kind.PARENTHESISED_EXPRESSION)) {
+      visitExpression(((ParenthesisedExpressionTree) expression).expression());
     }
 
-    if (expression.is(Kind.BOOLEAN_LITERAL)){
+    if (expression.is(Kind.BOOLEAN_LITERAL)) {
       String message = String.format("Remove the literal \"%s\" boolean value.", ((LiteralTree) expression).value());
       getContext().addIssue(this, expression, message);
     }

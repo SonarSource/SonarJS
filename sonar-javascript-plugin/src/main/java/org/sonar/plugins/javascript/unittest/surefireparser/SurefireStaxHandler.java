@@ -19,6 +19,9 @@
  */
 package org.sonar.plugins.javascript.unittest.surefireparser;
 
+import java.text.ParseException;
+import java.util.Locale;
+import javax.xml.stream.XMLStreamException;
 import org.apache.commons.lang.StringUtils;
 import org.codehaus.staxmate.in.ElementFilter;
 import org.codehaus.staxmate.in.SMEvent;
@@ -28,11 +31,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.utils.ParsingUtils;
 import org.sonar.api.utils.StaxParser;
-
-import javax.xml.stream.XMLStreamException;
-
-import java.text.ParseException;
-import java.util.Locale;
 
 
 public class SurefireStaxHandler implements StaxParser.XmlStreamHandler {

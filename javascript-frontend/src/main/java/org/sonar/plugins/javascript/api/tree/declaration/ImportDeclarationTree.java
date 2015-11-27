@@ -20,9 +20,8 @@
 package org.sonar.plugins.javascript.api.tree.declaration;
 
 import com.google.common.annotations.Beta;
-import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
-
 import javax.annotation.Nullable;
+import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 
 /**
  * Interface for types <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-exports">Named and Default Imports</a>

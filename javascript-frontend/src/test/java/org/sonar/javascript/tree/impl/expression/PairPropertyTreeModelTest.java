@@ -19,12 +19,12 @@
  */
 package org.sonar.javascript.tree.impl.expression;
 
-import static org.fest.assertions.Assertions.assertThat;
-
 import org.junit.Test;
 import org.sonar.javascript.utils.JavaScriptTreeModelTest;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.expression.PairPropertyTree;
+
+import static org.fest.assertions.Assertions.assertThat;
 
 public class PairPropertyTreeModelTest extends JavaScriptTreeModelTest {
 

@@ -31,10 +31,10 @@ import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 
 @Rule(
-    key = "S2703",
-    name = "Variables should always be declared with \"var\"",
-    priority = Priority.MAJOR,
-    tags = {Tags.PITFALL})
+  key = "S2703",
+  name = "Variables should always be declared with \"var\"",
+  priority = Priority.MAJOR,
+  tags = {Tags.PITFALL})
 @ActivatedByDefault
 @SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.LOGIC_RELIABILITY)
 @SqaleConstantRemediation("2min")
@@ -52,8 +52,8 @@ public class VariableDeclarationWithoutVarCheck extends BaseTreeVisitor {
   }
 
   private void visitSymbol(Symbol symbol) {
-    for (Usage usage : symbol.usages()){
-      if (usage.isDeclaration()){
+    for (Usage usage : symbol.usages()) {
+      if (usage.isDeclaration()) {
         return;
       }
     }

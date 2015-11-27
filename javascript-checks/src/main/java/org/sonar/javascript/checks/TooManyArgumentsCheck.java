@@ -19,9 +19,9 @@
  */
 package org.sonar.javascript.checks;
 
+import java.util.Collections;
 import java.util.Set;
 import javax.annotation.Nullable;
-import java.util.Collections;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
@@ -42,10 +42,10 @@ import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 
 @Rule(
-    key = "S930",
-    name = "Function calls should not pass extra arguments",
-    priority = Priority.CRITICAL,
-    tags = {Tags.BUG, Tags.CWE, Tags.MISRA})
+  key = "S930",
+  name = "Function calls should not pass extra arguments",
+  priority = Priority.CRITICAL,
+  tags = {Tags.BUG, Tags.CWE, Tags.MISRA})
 @SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.DATA_RELIABILITY)
 @SqaleConstantRemediation("10min")
 @ActivatedByDefault
@@ -75,7 +75,7 @@ public class TooManyArgumentsCheck extends BaseTreeVisitor {
 
   private static String getMessage(CallExpressionTree tree, int parametersNumber, int argumentsNumber) {
     String callee;
-    if (CheckUtils.removeParenthesis(tree.callee()).is(Kind.FUNCTION_EXPRESSION)){
+    if (CheckUtils.removeParenthesis(tree.callee()).is(Kind.FUNCTION_EXPRESSION)) {
       callee = "This function";
     } else {
       callee = "\"" + CheckUtils.asString(tree.callee()) + "\"";

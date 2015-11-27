@@ -19,12 +19,13 @@
  */
 package org.sonar.javascript.tree.impl.declaration;
 
-import static org.fest.assertions.Assertions.assertThat;
 import org.junit.Test;
 import org.sonar.javascript.utils.JavaScriptTreeModelTest;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.declaration.AccessorMethodDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
+
+import static org.fest.assertions.Assertions.assertThat;
 
 public class AccessorMethodDeclarationTreeModelTest extends JavaScriptTreeModelTest {
 

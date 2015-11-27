@@ -20,11 +20,13 @@
 package org.sonar.javascript.tree.impl.expression;
 
 import com.google.common.collect.Iterators;
-import org.sonar.javascript.tree.symbols.type.FunctionType;
+import java.util.Iterator;
+import javax.annotation.Nullable;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.javascript.tree.impl.declaration.ParameterListTreeImpl;
 import org.sonar.javascript.tree.impl.lexical.InternalSyntaxToken;
 import org.sonar.javascript.tree.impl.statement.BlockTreeImpl;
+import org.sonar.javascript.tree.symbols.type.FunctionType;
 import org.sonar.plugins.javascript.api.symbols.Type;
 import org.sonar.plugins.javascript.api.symbols.TypeSet;
 import org.sonar.plugins.javascript.api.tree.Tree;
@@ -33,9 +35,6 @@ import org.sonar.plugins.javascript.api.tree.expression.FunctionExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.javascript.api.visitors.TreeVisitor;
-
-import javax.annotation.Nullable;
-import java.util.Iterator;
 
 public class FunctionExpressionTreeImpl extends JavaScriptTree implements FunctionExpressionTree {
 
@@ -52,8 +51,10 @@ public class FunctionExpressionTreeImpl extends JavaScriptTree implements Functi
   /**
    * Constructor for named generator expression and  generator declaration
    */
-  public FunctionExpressionTreeImpl(Kind kind, InternalSyntaxToken functionKeyword, InternalSyntaxToken star, IdentifierTreeImpl name,
-    ParameterListTreeImpl parameters, BlockTreeImpl body) {
+  public FunctionExpressionTreeImpl(
+    Kind kind, InternalSyntaxToken functionKeyword, InternalSyntaxToken star, IdentifierTreeImpl name,
+    ParameterListTreeImpl parameters, BlockTreeImpl body
+  ) {
 
     this.functionKeyword = functionKeyword;
     this.star = star;
@@ -69,8 +70,10 @@ public class FunctionExpressionTreeImpl extends JavaScriptTree implements Functi
   /**
    * Constructor for NOT named generator expression
    */
-  public FunctionExpressionTreeImpl(Kind kind, InternalSyntaxToken functionKeyword, InternalSyntaxToken star,
-    ParameterListTreeImpl parameters, BlockTreeImpl body) {
+  public FunctionExpressionTreeImpl(
+    Kind kind, InternalSyntaxToken functionKeyword, InternalSyntaxToken star,
+    ParameterListTreeImpl parameters, BlockTreeImpl body
+  ) {
 
     this.functionKeyword = functionKeyword;
     this.star = star;
@@ -87,8 +90,10 @@ public class FunctionExpressionTreeImpl extends JavaScriptTree implements Functi
   /**
    * Constructor for named function expression and function declaration
    */
-  public FunctionExpressionTreeImpl(Kind kind, InternalSyntaxToken functionKeyword, IdentifierTreeImpl name,
-    ParameterListTreeImpl parameters, BlockTreeImpl body) {
+  public FunctionExpressionTreeImpl(
+    Kind kind, InternalSyntaxToken functionKeyword, IdentifierTreeImpl name,
+    ParameterListTreeImpl parameters, BlockTreeImpl body
+  ) {
 
     this.functionKeyword = functionKeyword;
     this.star = null;
@@ -104,8 +109,10 @@ public class FunctionExpressionTreeImpl extends JavaScriptTree implements Functi
   /**
    * Constructor for NOT named function expression
    */
-  public FunctionExpressionTreeImpl(Kind kind, InternalSyntaxToken functionKeyword, ParameterListTreeImpl parameters,
-    BlockTreeImpl body) {
+  public FunctionExpressionTreeImpl(
+    Kind kind, InternalSyntaxToken functionKeyword, ParameterListTreeImpl parameters,
+    BlockTreeImpl body
+  ) {
 
     this.functionKeyword = functionKeyword;
     this.star = null;

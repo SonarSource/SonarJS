@@ -28,8 +28,8 @@ public class DebuggerStatementCheckTest extends TreeCheckTest {
   @Test
   public void test() {
     CheckMessagesVerifier.verify(getIssues("src/test/resources/checks/debuggerStatement.js", new DebuggerStatementCheck()))
-        .next().atLine(2).withMessage("Remove this debugger statement.")
-        .noMore();
+      .next().atLine(2).withMessage("Remove this debugger statement.")
+      .noMore();
   }
 
 }

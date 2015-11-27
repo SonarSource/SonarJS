@@ -20,11 +20,10 @@
 package org.sonar.plugins.javascript.utils;
 
 import com.google.common.collect.Lists;
+import java.util.List;
 import org.sonar.api.component.Component;
 import org.sonar.api.issue.Issuable;
 import org.sonar.api.issue.Issue;
-
-import java.util.List;
 
 public class IssuableMock implements Issuable {
 

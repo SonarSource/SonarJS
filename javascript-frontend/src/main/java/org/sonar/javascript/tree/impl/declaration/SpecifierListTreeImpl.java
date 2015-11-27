@@ -21,6 +21,7 @@ package org.sonar.javascript.tree.impl.declaration;
 
 import com.google.common.base.Functions;
 import com.google.common.collect.Iterators;
+import java.util.Iterator;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.javascript.tree.impl.SeparatedList;
 import org.sonar.javascript.tree.impl.lexical.InternalSyntaxToken;
@@ -29,8 +30,6 @@ import org.sonar.plugins.javascript.api.tree.declaration.SpecifierListTree;
 import org.sonar.plugins.javascript.api.tree.declaration.SpecifierTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.javascript.api.visitors.TreeVisitor;
-
-import java.util.Iterator;
 
 public class SpecifierListTreeImpl extends JavaScriptTree implements SpecifierListTree {
 
@@ -85,9 +84,9 @@ public class SpecifierListTreeImpl extends JavaScriptTree implements SpecifierLi
       return Iterators.<Tree>forArray(openCurlyBraceToken, closeCurlyBraceToken);
     }
     return Iterators.<Tree>concat(
-        Iterators.singletonIterator(openCurlyBraceToken),
-        specifiers.elementsAndSeparators(Functions.<SpecifierTree>identity()),
-        Iterators.singletonIterator(closeCurlyBraceToken)
+      Iterators.singletonIterator(openCurlyBraceToken),
+      specifiers.elementsAndSeparators(Functions.<SpecifierTree>identity()),
+      Iterators.singletonIterator(closeCurlyBraceToken)
     );
   }
 

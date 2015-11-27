@@ -30,8 +30,8 @@ public class ArrowFunctionTest {
   @Test
   public void ok() {
     assertThat(Kind.ARROW_FUNCTION)
-        .matches("identifier => conditionalExpression")
-        .matches("identifier => { }");
+      .matches("identifier => conditionalExpression")
+      .matches("identifier => { }");
   }
 
 }

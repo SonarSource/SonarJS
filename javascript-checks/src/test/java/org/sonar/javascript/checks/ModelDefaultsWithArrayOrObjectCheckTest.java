@@ -26,14 +26,14 @@ import org.sonar.squidbridge.checks.CheckMessagesVerifierRule;
 
 public class ModelDefaultsWithArrayOrObjectCheckTest extends TreeCheckTest {
 
-   @Rule
-   public CheckMessagesVerifierRule checkMessagesVerifier = new CheckMessagesVerifierRule();
+  @Rule
+  public CheckMessagesVerifierRule checkMessagesVerifier = new CheckMessagesVerifierRule();
 
-   @Test
-   public void test() {
-     checkMessagesVerifier.verify(getIssues("src/test/resources/checks/modelDefaultsWithArrayOrObject.js", new ModelDefaultsWithArrayOrObjectCheck()))
-       .next().atLine(2).withMessage("Make \"defaults\" a function.")
-       .next().atLine(9);
-   }
+  @Test
+  public void test() {
+    checkMessagesVerifier.verify(getIssues("src/test/resources/checks/modelDefaultsWithArrayOrObject.js", new ModelDefaultsWithArrayOrObjectCheck()))
+      .next().atLine(2).withMessage("Make \"defaults\" a function.")
+      .next().atLine(9);
+  }
 
- }
+}

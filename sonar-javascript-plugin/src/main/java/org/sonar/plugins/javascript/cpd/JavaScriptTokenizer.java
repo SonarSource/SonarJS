@@ -22,15 +22,14 @@ package org.sonar.plugins.javascript.cpd;
 import com.sonar.sslr.api.GenericTokenType;
 import com.sonar.sslr.api.Token;
 import com.sonar.sslr.impl.Lexer;
+import java.io.File;
+import java.nio.charset.Charset;
+import java.util.List;
 import net.sourceforge.pmd.cpd.SourceCode;
 import net.sourceforge.pmd.cpd.TokenEntry;
 import net.sourceforge.pmd.cpd.Tokenizer;
 import net.sourceforge.pmd.cpd.Tokens;
 import org.sonar.javascript.lexer.JavaScriptLexer;
-
-import java.io.File;
-import java.nio.charset.Charset;
-import java.util.List;
 
 public class JavaScriptTokenizer implements Tokenizer {
 

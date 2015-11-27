@@ -30,22 +30,22 @@ public class ContinueStatementTest extends LegacyParserTest {
   @Test
   public void ok() {
     assertThat(g.rule(Kind.CONTINUE_STATEMENT))
-        .as("EOS is line terminator")
-        .matchesPrefix("continue \n", "another-statement ;")
-        .matchesPrefix("continue label \n", "another-statement ;")
-        .matchesPrefix("continue \n", ";")
+      .as("EOS is line terminator")
+      .matchesPrefix("continue \n", "another-statement ;")
+      .matchesPrefix("continue label \n", "another-statement ;")
+      .matchesPrefix("continue \n", ";")
 
-        .as("EOS is semicolon")
-        .matchesPrefix("continue ;", "another-statement")
-        .matchesPrefix("continue label \n ;", "another-statement")
+      .as("EOS is semicolon")
+      .matchesPrefix("continue ;", "another-statement")
+      .matchesPrefix("continue label \n ;", "another-statement")
 
-        .as("EOS is before right curly bracket")
-        .matchesPrefix("continue ", "}")
-        .matchesPrefix("continue label ", "}")
+      .as("EOS is before right curly bracket")
+      .matchesPrefix("continue ", "}")
+      .matchesPrefix("continue label ", "}")
 
-        .as("EOS is end of input")
-        .matches("continue ")
-        .matches("continue label ");
+      .as("EOS is end of input")
+      .matches("continue ")
+      .matches("continue label ");
   }
 
 }

@@ -30,16 +30,16 @@ public class ArrayLiteralTest {
   @Test
   public void ok() {
     assertThat(Kind.ARRAY_LITERAL)
-        .matches("[ ]")
-        .matches("[ assignmentExpression ]")
-        .matches("[ assignmentExpression , ]")
-        .matches("[ assignmentExpression , assignmentExpression ]")
-        .matches("[ assignmentExpression , assignmentExpression , ]");
+      .matches("[ ]")
+      .matches("[ assignmentExpression ]")
+      .matches("[ assignmentExpression , ]")
+      .matches("[ assignmentExpression , assignmentExpression ]")
+      .matches("[ assignmentExpression , assignmentExpression , ]");
 
     assertThat(Kind.ARRAY_LITERAL)
-        .matches("[ , , , ]")
-        .matches("[ , assignment ]")
-        .matches("[ assignmentExpression , , , ]");
+      .matches("[ , , , ]")
+      .matches("[ , assignment ]")
+      .matches("[ assignmentExpression , , , ]");
   }
 
 }

@@ -21,14 +21,13 @@ package org.sonar.javascript.tree;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Objects;
+import java.util.Iterator;
+import java.util.List;
+import javax.annotation.Nullable;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
-
-import javax.annotation.Nullable;
-import java.util.Iterator;
-import java.util.List;
 
 public final class SyntacticEquivalence {
 
@@ -54,8 +53,8 @@ public final class SyntacticEquivalence {
   }
 
   /**
-  * @return true, if nodes are syntactically equivalent
-  */
+   * @return true, if nodes are syntactically equivalent
+   */
   public static boolean areEquivalent(@Nullable Tree leftNode, @Nullable Tree rightNode) {
     return areEquivalent((JavaScriptTree) leftNode, (JavaScriptTree) rightNode);
   }

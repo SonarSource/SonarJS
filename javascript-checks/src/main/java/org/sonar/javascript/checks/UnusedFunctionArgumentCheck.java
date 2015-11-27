@@ -20,21 +20,6 @@
 package org.sonar.javascript.checks;
 
 import com.google.common.base.Preconditions;
-import org.sonar.api.server.rule.RulesDefinition;
-import org.sonar.check.Priority;
-import org.sonar.check.Rule;
-import org.sonar.javascript.tree.symbols.Scope;
-import org.sonar.plugins.javascript.api.symbols.Symbol;
-import org.sonar.plugins.javascript.api.symbols.Usage;
-import org.sonar.javascript.tree.impl.JavaScriptTree;
-import org.sonar.plugins.javascript.api.symbols.SymbolModel;
-import org.sonar.plugins.javascript.api.tree.ScriptTree;
-import org.sonar.plugins.javascript.api.tree.Tree;
-import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
-import org.sonar.squidbridge.annotations.ActivatedByDefault;
-import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
-import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
-
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -42,6 +27,20 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
+import org.sonar.api.server.rule.RulesDefinition;
+import org.sonar.check.Priority;
+import org.sonar.check.Rule;
+import org.sonar.javascript.tree.impl.JavaScriptTree;
+import org.sonar.javascript.tree.symbols.Scope;
+import org.sonar.plugins.javascript.api.symbols.Symbol;
+import org.sonar.plugins.javascript.api.symbols.SymbolModel;
+import org.sonar.plugins.javascript.api.symbols.Usage;
+import org.sonar.plugins.javascript.api.tree.ScriptTree;
+import org.sonar.plugins.javascript.api.tree.Tree;
+import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
+import org.sonar.squidbridge.annotations.ActivatedByDefault;
+import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
+import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 
 @Rule(
   key = "UnusedFunctionArgument",
@@ -56,12 +55,12 @@ public class UnusedFunctionArgumentCheck extends BaseTreeVisitor {
 
   private class PositionComparator implements Comparator<Symbol> {
 
-    private int getLine(Symbol symbol){
-      return ((JavaScriptTree)getDeclarationUsage(symbol).identifierTree()).getLine();
+    private int getLine(Symbol symbol) {
+      return ((JavaScriptTree) getDeclarationUsage(symbol).identifierTree()).getLine();
     }
 
-    private int getColumn(Symbol symbol){
-      return ((JavaScriptTree)getDeclarationUsage(symbol).identifierTree()).getFirstToken().column();
+    private int getColumn(Symbol symbol) {
+      return ((JavaScriptTree) getDeclarationUsage(symbol).identifierTree()).getFirstToken().column();
     }
 
     @Override
@@ -74,10 +73,10 @@ public class UnusedFunctionArgumentCheck extends BaseTreeVisitor {
       }
     }
 
-    private Usage getDeclarationUsage(Symbol symbol){
+    private Usage getDeclarationUsage(Symbol symbol) {
       Preconditions.checkArgument(symbol.is(Symbol.Kind.PARAMETER));
-      for (Usage usage : symbol.usages()){
-        if (usage.kind() == Usage.Kind.LEXICAL_DECLARATION){
+      for (Usage usage : symbol.usages()) {
+        if (usage.kind() == Usage.Kind.LEXICAL_DECLARATION) {
           return usage;
         }
       }
@@ -86,10 +85,10 @@ public class UnusedFunctionArgumentCheck extends BaseTreeVisitor {
     }
   }
 
-  public Collection<Scope> getScopes(){
+  public Collection<Scope> getScopes() {
     SymbolModel symbolModel = getContext().getSymbolModel();
     Set<Scope> uniqueScopes = new HashSet<>();
-    for (Symbol symbol : symbolModel.getSymbols()){
+    for (Symbol symbol : symbolModel.getSymbols()) {
       uniqueScopes.add(symbol.scope());
     }
     return uniqueScopes;
@@ -99,13 +98,13 @@ public class UnusedFunctionArgumentCheck extends BaseTreeVisitor {
   public void visitScript(ScriptTree tree) {
     Collection<Scope> scopes = getScopes();
 
-    for (Scope scope : scopes){
+    for (Scope scope : scopes) {
       visitScope(scope);
     }
   }
 
   private void visitScope(Scope scope) {
-    if (builtInArgumentsUsed(scope) || scope.tree().is(Tree.Kind.SET_METHOD)){
+    if (builtInArgumentsUsed(scope) || scope.tree().is(Tree.Kind.SET_METHOD)) {
       return;
     }
 
@@ -118,15 +117,15 @@ public class UnusedFunctionArgumentCheck extends BaseTreeVisitor {
     }
   }
 
-  private List<Symbol> getUnusedArguments(List<Symbol> arguments){
+  private List<Symbol> getUnusedArguments(List<Symbol> arguments) {
     List<Symbol> unusedArguments = new LinkedList<>();
     Collections.sort(arguments, new PositionComparator());
     List<Boolean> usageInfo = getUsageInfo(arguments);
     boolean usedAfter = false;
-    for (int i = arguments.size() - 1; i >= 0; i--){
-      if (usageInfo.get(i)){
+    for (int i = arguments.size() - 1; i >= 0; i--) {
+      if (usageInfo.get(i)) {
         usedAfter = true;
-      } else if (!usedAfter){
+      } else if (!usedAfter) {
         unusedArguments.add(0, arguments.get(i));
       }
     }
@@ -135,7 +134,7 @@ public class UnusedFunctionArgumentCheck extends BaseTreeVisitor {
 
   private static boolean builtInArgumentsUsed(Scope scope) {
     Symbol argumentsBuiltInVariable = scope.lookupSymbol("arguments");
-    if (argumentsBuiltInVariable == null){
+    if (argumentsBuiltInVariable == null) {
       return false;
     }
     boolean isUsed = !argumentsBuiltInVariable.usages().isEmpty();
@@ -144,8 +143,8 @@ public class UnusedFunctionArgumentCheck extends BaseTreeVisitor {
 
   private static List<Boolean> getUsageInfo(List<Symbol> symbols) {
     List<Boolean> result = new LinkedList<>();
-    for (Symbol symbol : symbols){
-      if (symbol.usages().size() == 1){
+    for (Symbol symbol : symbols) {
+      if (symbol.usages().size() == 1) {
         // only declaration
         result.add(false);
       } else {
@@ -157,7 +156,7 @@ public class UnusedFunctionArgumentCheck extends BaseTreeVisitor {
 
   private static String getListOfArguments(List<Symbol> unusedArguments) {
     StringBuilder result = new StringBuilder();
-    for (Symbol symbol : unusedArguments){
+    for (Symbol symbol : unusedArguments) {
       result.append(symbol.name());
       result.append(", ");
     }

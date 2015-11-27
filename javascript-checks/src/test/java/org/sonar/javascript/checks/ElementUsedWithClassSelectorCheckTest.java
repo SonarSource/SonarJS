@@ -30,9 +30,9 @@ public class ElementUsedWithClassSelectorCheckTest extends TreeCheckTest {
   @Test
   public void test() {
     CheckMessagesVerifier.verify(getIssues("src/test/resources/checks/ElementUsedWithClassSelector.js", check))
-    .next().atLine(1).withMessage("Remove \"div\" in this selector.")
-    .next().atLine(11).withMessage("Remove \"p\" in this selector.")
-    .noMore();
+      .next().atLine(1).withMessage("Remove \"div\" in this selector.")
+      .next().atLine(11).withMessage("Remove \"p\" in this selector.")
+      .noMore();
 
   }
 }

@@ -22,11 +22,11 @@ package org.sonar.javascript.checks;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
-import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 import org.sonar.plugins.javascript.api.tree.expression.NewExpressionTree;
+import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
 import org.sonar.squidbridge.annotations.ActivatedByDefault;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
@@ -44,9 +44,9 @@ public class ArrayAndObjectConstructorsCheck extends BaseTreeVisitor {
   @Override
   public void visitNewExpression(NewExpressionTree tree) {
     ExpressionTree expression = tree.expression();
-    if (expression.is(Tree.Kind.IDENTIFIER_REFERENCE)){
-      String next = ((IdentifierTree)expression).name();
-      if ("Array".equals(next) || "Object".equals(next)){
+    if (expression.is(Tree.Kind.IDENTIFIER_REFERENCE)) {
+      String next = ((IdentifierTree) expression).name();
+      if ("Array".equals(next) || "Object".equals(next)) {
         getContext().addIssue(this, tree, String.format("Use a literal instead of the %s constructor.", next));
       }
     }

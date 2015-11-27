@@ -30,21 +30,21 @@ public class TabCharacterCheckTest extends TreeCheckTest {
   TabCharacterCheck check = new TabCharacterCheck();
 
   @Before
-  public void setUp(){
+  public void setUp() {
     check.setCharset(Charsets.UTF_8);
   }
 
   @Test
   public void test() {
     CheckMessagesVerifier.verify(getIssues("src/test/resources/checks/tabCharacter.js", check))
-        .next().atLine(1).withMessage("Replace all tab characters in this file by sequences of white-spaces.")
-        .noMore();
+      .next().atLine(1).withMessage("Replace all tab characters in this file by sequences of white-spaces.")
+      .noMore();
   }
 
   @Test
   public void test2() {
     CheckMessagesVerifier.verify(getIssues("src/test/resources/checks/newlineAtEndOfFile.js", check))
-        .noMore();
+      .noMore();
   }
 
 }

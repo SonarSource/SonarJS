@@ -20,9 +20,8 @@
 package org.sonar.plugins.javascript.api.tree.lexical;
 
 import com.google.common.annotations.Beta;
-import org.sonar.plugins.javascript.api.tree.Tree;
-
 import java.util.List;
+import org.sonar.plugins.javascript.api.tree.Tree;
 
 /**
  * Represents a token in the syntax tree.

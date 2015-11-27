@@ -19,14 +19,13 @@
  */
 package org.sonar.javascript.tree.impl.lexical;
 
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxTrivia;
 import org.sonar.plugins.javascript.api.visitors.TreeVisitor;
-
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
 
 public class InternalSyntaxTrivia extends JavaScriptTree implements SyntaxTrivia {
 

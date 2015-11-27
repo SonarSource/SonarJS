@@ -30,8 +30,8 @@ public class MultilineStringLiteralsCheckTest extends TreeCheckTest {
     MultilineStringLiteralsCheck check = new MultilineStringLiteralsCheck();
 
     CheckMessagesVerifier.verify(getIssues("src/test/resources/checks/multilineStringLiteral.js", check))
-        .next().atLine(2).withMessage("Use string concatenation rather than line continuation.")
-        .noMore();
+      .next().atLine(2).withMessage("Use string concatenation rather than line continuation.")
+      .noMore();
   }
 
 }

@@ -32,7 +32,7 @@ public class DoWhileStatementTreeModelTest extends JavaScriptTreeModelTest {
 
   @Test
   public void test() throws Exception {
-   DoWhileStatementTree tree = parse("do { } while ( a );", Kind.DO_WHILE_STATEMENT);
+    DoWhileStatementTree tree = parse("do { } while ( a );", Kind.DO_WHILE_STATEMENT);
 
     assertThat(tree.is(Kind.DO_WHILE_STATEMENT)).isTrue();
     assertThat(tree.doKeyword().text()).isEqualTo(JavaScriptKeyword.DO.getValue());

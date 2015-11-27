@@ -30,23 +30,23 @@ public class SpacingTest extends LegacyParserTest {
   @Test
   public void ok() {
     assertThat(g.rule(JavaScriptLegacyGrammar.SPACING))
-        // must allow empty matches, otherwise "optional(SPACING)" will be used everywhere in grammar,
-        // which leads to dramatic degradation of performance
-        .matches("")
+      // must allow empty matches, otherwise "optional(SPACING)" will be used everywhere in grammar,
+      // which leads to dramatic degradation of performance
+      .matches("")
 
-        .as("Whitespace")
-        .matches(" ")
-        .matches("\n")
-        .matches("\r")
-        .matches("\r\n")
+      .as("Whitespace")
+      .matches(" ")
+      .matches("\n")
+      .matches("\r")
+      .matches("\r\n")
 
-        .as("SingleLineComment")
-        .matches("// comment")
-        .matches("// comment \n")
+      .as("SingleLineComment")
+      .matches("// comment")
+      .matches("// comment \n")
 
-        .as("MultiLineComment")
-        .matches("/* comment */")
-        .matches("/* comment \n */");
+      .as("MultiLineComment")
+      .matches("/* comment */")
+      .matches("/* comment \n */");
   }
 
 }

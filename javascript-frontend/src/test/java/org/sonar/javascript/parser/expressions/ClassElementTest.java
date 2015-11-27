@@ -30,9 +30,9 @@ public class ClassElementTest {
   @Test
   public void ok() {
     assertThat(JavaScriptLegacyGrammar.CLASS_ELEMENT)
-        .matches("static f() {}")
-        .matches("f () {}")
-        .matches(";");
+      .matches("static f() {}")
+      .matches("f () {}")
+      .matches(";");
   }
 
 }

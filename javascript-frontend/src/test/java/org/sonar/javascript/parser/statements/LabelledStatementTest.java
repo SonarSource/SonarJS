@@ -30,7 +30,7 @@ public class LabelledStatementTest {
   @Test
   public void realLife() {
     assertThat(Kind.LABELLED_STATEMENT)
-        .matches("label: doSomething();");
+      .matches("label: doSomething();");
   }
 
 }

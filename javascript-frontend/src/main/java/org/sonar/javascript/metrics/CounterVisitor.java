@@ -19,13 +19,12 @@
  */
 package org.sonar.javascript.metrics;
 
-import org.sonar.javascript.tree.visitors.SubscriptionTreeVisitor;
-import org.sonar.plugins.javascript.api.tree.Tree;
-import org.sonar.plugins.javascript.api.tree.Tree.Kind;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import org.sonar.javascript.tree.visitors.SubscriptionTreeVisitor;
+import org.sonar.plugins.javascript.api.tree.Tree;
+import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 
 public class CounterVisitor extends SubscriptionTreeVisitor {
 
@@ -35,28 +34,28 @@ public class CounterVisitor extends SubscriptionTreeVisitor {
   private int classCounter = 0;
 
   private static final Kind[] ACCESSOR_NODES = {
-      Kind.GET_METHOD,
-      Kind.SET_METHOD
+    Kind.GET_METHOD,
+    Kind.SET_METHOD
   };
 
   private static final Kind[] STATEMENT_NODES = {
-      Kind.VARIABLE_STATEMENT,
-      Kind.EMPTY_STATEMENT,
-      Kind.EXPRESSION_STATEMENT,
-      Kind.IF_STATEMENT,
-      Kind.DO_WHILE_STATEMENT,
-      Kind.WHILE_STATEMENT,
-      Kind.FOR_IN_STATEMENT,
-      Kind.FOR_OF_STATEMENT,
-      Kind.FOR_STATEMENT,
-      Kind.CONTINUE_STATEMENT,
-      Kind.BREAK_STATEMENT,
-      Kind.RETURN_STATEMENT,
-      Kind.WITH_STATEMENT,
-      Kind.SWITCH_STATEMENT,
-      Kind.THROW_STATEMENT,
-      Kind.TRY_STATEMENT,
-      Kind.DEBUGGER_STATEMENT
+    Kind.VARIABLE_STATEMENT,
+    Kind.EMPTY_STATEMENT,
+    Kind.EXPRESSION_STATEMENT,
+    Kind.IF_STATEMENT,
+    Kind.DO_WHILE_STATEMENT,
+    Kind.WHILE_STATEMENT,
+    Kind.FOR_IN_STATEMENT,
+    Kind.FOR_OF_STATEMENT,
+    Kind.FOR_STATEMENT,
+    Kind.CONTINUE_STATEMENT,
+    Kind.BREAK_STATEMENT,
+    Kind.RETURN_STATEMENT,
+    Kind.WITH_STATEMENT,
+    Kind.SWITCH_STATEMENT,
+    Kind.THROW_STATEMENT,
+    Kind.TRY_STATEMENT,
+    Kind.DEBUGGER_STATEMENT
   };
 
   @Override

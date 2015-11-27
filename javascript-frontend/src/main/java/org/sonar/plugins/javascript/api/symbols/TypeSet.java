@@ -20,13 +20,12 @@
 package org.sonar.plugins.javascript.api.symbols;
 
 import com.google.common.collect.Sets;
-import org.sonar.plugins.javascript.api.symbols.Type.Kind;
-
-import javax.annotation.Nullable;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.Set;
+import javax.annotation.Nullable;
+import org.sonar.plugins.javascript.api.symbols.Type.Kind;
 
 public class TypeSet implements Set<Type> {
   private Set<Type> types;
@@ -128,13 +127,13 @@ public class TypeSet implements Set<Type> {
     return !types.isEmpty();
   }
 
-  public static TypeSet emptyTypeSet(){
+  public static TypeSet emptyTypeSet() {
     return new TypeSet();
   }
 
   @Nullable
   public Type element() {
-    if (isEmpty()){
+    if (isEmpty()) {
       return null;
     } else {
       return iterator().next();
@@ -181,9 +180,9 @@ public class TypeSet implements Set<Type> {
    * @return the instance of type with specified kind. Return null if there are several or none of types of such kind.
    */
   @Nullable
-  public Type getUniqueType(Type.Kind kind){
+  public Type getUniqueType(Type.Kind kind) {
     Type result = null;
-    for (Type type : types){
+    for (Type type : types) {
       if (type.kind().equals(kind)) {
         if (result == null) {
           result = type;

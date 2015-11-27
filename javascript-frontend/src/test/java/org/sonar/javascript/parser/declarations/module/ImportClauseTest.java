@@ -35,7 +35,7 @@ public class ImportClauseTest {
       .matches("identifier")
       .matches("identifier, { }")
       .matches("identifier, * as identifier")
-     ;
+    ;
   }
 
 }

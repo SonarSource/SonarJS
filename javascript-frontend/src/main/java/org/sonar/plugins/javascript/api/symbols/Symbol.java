@@ -20,13 +20,12 @@
 package org.sonar.plugins.javascript.api.symbols;
 
 import com.google.common.annotations.Beta;
-import org.sonar.javascript.tree.symbols.Scope;
-import org.sonar.javascript.tree.impl.expression.IdentifierTreeImpl;
-
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
+import org.sonar.javascript.tree.impl.expression.IdentifierTreeImpl;
+import org.sonar.javascript.tree.symbols.Scope;
 
 @Beta
 public class Symbol {
@@ -42,6 +41,7 @@ public class Symbol {
     }
 
     private final String value;
+
     public String getValue() {
       return value;
     }
@@ -62,16 +62,16 @@ public class Symbol {
     this.types = TypeSet.emptyTypeSet();
   }
 
-  public void addUsage(Usage usage){
+  public void addUsage(Usage usage) {
     usages.add(usage);
-    ((IdentifierTreeImpl)usage.identifierTree()).setSymbol(this);
+    ((IdentifierTreeImpl) usage.identifierTree()).setSymbol(this);
   }
 
-  public Collection<Usage> usages(){
+  public Collection<Usage> usages() {
     return usages;
   }
 
-  public Symbol setBuiltIn(boolean isBuiltIn){
+  public Symbol setBuiltIn(boolean isBuiltIn) {
     this.builtIn = isBuiltIn;
     return this;
   }
@@ -96,15 +96,15 @@ public class Symbol {
     return kind;
   }
 
-  public void addTypes(Set<Type> type){
+  public void addTypes(Set<Type> type) {
     types.addAll(type);
   }
 
-  public void addType(Type type){
+  public void addType(Type type) {
     types.add(type);
   }
 
-  public TypeSet types(){
+  public TypeSet types() {
     return types.immutableCopy();
   }
 

@@ -26,6 +26,7 @@ import org.sonar.squidbridge.checks.CheckMessagesVerifier;
 public class SwitchWithNotEnoughCaseCheckTest extends TreeCheckTest {
 
   private SwitchWithNotEnoughCaseCheck check = new SwitchWithNotEnoughCaseCheck();
+
   @Test
   public void test() {
     CheckMessagesVerifier.verify(getIssues("src/test/resources/checks/switchWithNotEnoughCase.js", check))

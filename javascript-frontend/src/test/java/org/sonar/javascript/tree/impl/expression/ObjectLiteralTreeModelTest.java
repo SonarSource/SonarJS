@@ -30,7 +30,7 @@ public class ObjectLiteralTreeModelTest extends JavaScriptTreeModelTest {
 
   @Test
   public void with_properties() throws Exception {
-   ObjectLiteralTree tree = parse("var a = { key : value , method ( ) { } , identifier , }", Kind.OBJECT_LITERAL);
+    ObjectLiteralTree tree = parse("var a = { key : value , method ( ) { } , identifier , }", Kind.OBJECT_LITERAL);
 
     assertThat(tree.is(Kind.OBJECT_LITERAL)).isTrue();
     assertThat(tree.openCurlyBrace().text()).isEqualTo("{");

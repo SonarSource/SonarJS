@@ -26,12 +26,11 @@ import org.sonar.plugins.javascript.api.tree.Tree;
 /**
  * <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-method-definitions">Accessors Method</a>
  * (<a href="http://wiki.ecmascript.org/doku.php?id=harmony:specification_drafts">ES6</a>).
- *
+ * <p/>
  * <pre>
  *   {@link Tree.Kind#GET_METHOD get} {@link #name()} {@link #parameters()} {@link #body()}
  *   {@link Tree.Kind#SET_METHOD set} {@link #name()} {@link #parameters()} {@link #body()}
  * </pre>
- *
  */
 @Beta
 public interface AccessorMethodDeclarationTree extends MethodDeclarationTree {

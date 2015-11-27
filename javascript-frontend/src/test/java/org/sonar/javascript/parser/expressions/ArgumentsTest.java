@@ -30,13 +30,13 @@ public class ArgumentsTest {
   @Test
   public void ok() {
     assertThat(Kind.ARGUMENTS)
-        .matches("( )")
-        .matches("( assignmentExpression )")
-        .matches("( assignmentExpression , assignmentExpression )");
+      .matches("( )")
+      .matches("( assignmentExpression )")
+      .matches("( assignmentExpression , assignmentExpression )");
 
     assertThat(Kind.ARGUMENTS)
-        .notMatches("( , )")
-        .notMatches("( assignmentExpression , )");
+      .notMatches("( , )")
+      .notMatches("( assignmentExpression , )");
   }
 
 }

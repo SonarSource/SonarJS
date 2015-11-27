@@ -23,12 +23,12 @@ import com.google.common.io.Files;
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.SonarRunner;
 import com.sonar.orchestrator.locator.FileLocation;
-import static org.fest.assertions.Assertions.assertThat;
+import java.io.File;
+import java.nio.charset.StandardCharsets;
 import org.junit.ClassRule;
 import org.junit.Test;
 
-import java.io.File;
-import java.nio.charset.StandardCharsets;
+import static org.fest.assertions.Assertions.assertThat;
 
 public class JavaScriptTypeInferenceTest {
 

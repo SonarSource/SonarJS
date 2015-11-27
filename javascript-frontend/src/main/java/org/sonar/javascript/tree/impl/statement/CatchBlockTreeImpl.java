@@ -21,6 +21,8 @@ package org.sonar.javascript.tree.impl.statement;
 
 import com.google.common.collect.Iterators;
 import com.google.common.collect.Lists;
+import java.util.Iterator;
+import java.util.List;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.javascript.tree.impl.declaration.ArrayBindingPatternTreeImpl;
 import org.sonar.javascript.tree.impl.declaration.ObjectBindingPatternTreeImpl;
@@ -33,9 +35,6 @@ import org.sonar.plugins.javascript.api.tree.statement.BlockTree;
 import org.sonar.plugins.javascript.api.tree.statement.CatchBlockTree;
 import org.sonar.plugins.javascript.api.visitors.TreeVisitor;
 
-import java.util.Iterator;
-import java.util.List;
-
 public class CatchBlockTreeImpl extends JavaScriptTree implements CatchBlockTree {
 
   private final SyntaxToken catchKeyword;
@@ -44,8 +43,10 @@ public class CatchBlockTreeImpl extends JavaScriptTree implements CatchBlockTree
   private final SyntaxToken closeParenthesis;
   private final BlockTree block;
 
-  public CatchBlockTreeImpl(InternalSyntaxToken catchKeyword, InternalSyntaxToken openParenthesis,
-    BindingElementTree parameter, InternalSyntaxToken closeParenthesis, BlockTreeImpl block) {
+  public CatchBlockTreeImpl(
+    InternalSyntaxToken catchKeyword, InternalSyntaxToken openParenthesis,
+    BindingElementTree parameter, InternalSyntaxToken closeParenthesis, BlockTreeImpl block
+  ) {
 
     this.catchKeyword = catchKeyword;
     this.openParenthesis = openParenthesis;

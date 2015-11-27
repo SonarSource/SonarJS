@@ -30,8 +30,8 @@ public class CatchTest {
   @Test
   public void realLife() {
     assertThat(Kind.CATCH_BLOCK)
-        .matches("catch ( identifier ) { }")
-        .matches("catch ( { } ) { }");
+      .matches("catch ( identifier ) { }")
+      .matches("catch ( { } ) { }");
   }
 
 }

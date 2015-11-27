@@ -29,13 +29,13 @@ public class FormalParameterListTest {
   @Test
   public void ok() {
     assertThat(Kind.FORMAL_PARAMETER_LIST)
-        .matches("( )")
-        .matches("( IDENTIFIER )")
-        .matches("( IDENTIFIER = a )")
-        .matches("( IDENTIFIER, IDENTIFIER )")
-        .matches("( ...a )")
-        .matches("( IDENTIFIER, ...a )")
-        .matches("( identifier, identifier, ... a )");
+      .matches("( )")
+      .matches("( IDENTIFIER )")
+      .matches("( IDENTIFIER = a )")
+      .matches("( IDENTIFIER, IDENTIFIER )")
+      .matches("( ...a )")
+      .matches("( IDENTIFIER, ...a )")
+      .matches("( identifier, identifier, ... a )");
   }
 
 }

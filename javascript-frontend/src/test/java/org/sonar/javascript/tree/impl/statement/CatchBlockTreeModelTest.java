@@ -19,13 +19,12 @@
  */
 package org.sonar.javascript.tree.impl.statement;
 
+import java.util.List;
 import org.junit.Test;
 import org.sonar.javascript.utils.JavaScriptTreeModelTest;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 import org.sonar.plugins.javascript.api.tree.statement.CatchBlockTree;
-
-import java.util.List;
 
 import static org.fest.assertions.Assertions.assertThat;
 
@@ -33,7 +32,7 @@ public class CatchBlockTreeModelTest extends JavaScriptTreeModelTest {
 
   @Test
   public void test() throws Exception {
-   CatchBlockTree tree = parse("try { } catch ( e ) { }", Kind.CATCH_BLOCK);
+    CatchBlockTree tree = parse("try { } catch ( e ) { }", Kind.CATCH_BLOCK);
 
     assertThat(tree.is(Kind.CATCH_BLOCK)).isTrue();
     assertThat(tree.catchKeyword().text()).isEqualTo("catch");

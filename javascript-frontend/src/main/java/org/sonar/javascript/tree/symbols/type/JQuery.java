@@ -20,14 +20,13 @@
 package org.sonar.javascript.tree.symbols.type;
 
 import com.google.common.collect.ImmutableList;
+import java.util.Arrays;
+import java.util.List;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.expression.CallExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.DotMemberExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
-
-import java.util.Arrays;
-import java.util.List;
 
 public class JQuery {
 
@@ -35,16 +34,16 @@ public class JQuery {
   public static final String JQUERY_OBJECT_ALIASES_DEFAULT_VALUE = "$, jQuery";
 
   private static final List<String> SELECTOR_METHODS = ImmutableList.of(
-      // TODO (Lena): Here should be 110 jquery API methods, returning jQuery object
+    // TODO (Lena): Here should be 110 jquery API methods, returning jQuery object
   );
 
   private List<String> jQueryAliases = null;
 
-  public JQuery(String[] jQueryAliases){
+  public JQuery(String[] jQueryAliases) {
     this.jQueryAliases = Arrays.asList(jQueryAliases);
   }
 
-  public boolean isJQueryObject(IdentifierTree identifierTree){
+  public boolean isJQueryObject(IdentifierTree identifierTree) {
     // if identifier has symbol, it means this symbol was created by user and it's not jQuery object
     return jQueryAliases.contains(identifierTree.name());
   }
@@ -60,13 +59,13 @@ public class JQuery {
 
 
   protected boolean isSelectorObject(ExpressionTree expressionTree) {
-    if (isDirectJQuerySelectorObject(expressionTree)){
+    if (isDirectJQuerySelectorObject(expressionTree)) {
       return true;
     }
 
-    if (expressionTree.is(Tree.Kind.CALL_EXPRESSION) && ((CallExpressionTree)expressionTree).callee().is(Tree.Kind.DOT_MEMBER_EXPRESSION)){
+    if (expressionTree.is(Tree.Kind.CALL_EXPRESSION) && ((CallExpressionTree) expressionTree).callee().is(Tree.Kind.DOT_MEMBER_EXPRESSION)) {
 
-      DotMemberExpressionTree callee = (DotMemberExpressionTree) ((CallExpressionTree)expressionTree).callee();
+      DotMemberExpressionTree callee = (DotMemberExpressionTree) ((CallExpressionTree) expressionTree).callee();
       return isSelectorObject(callee.object()) && isJQuerySelectorMethod(callee.property());
 
     }

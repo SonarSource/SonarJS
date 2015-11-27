@@ -30,13 +30,13 @@ public class UnreachableCodeCheckTest extends TreeCheckTest {
     UnreachableCodeCheck check = new UnreachableCodeCheck();
 
     CheckMessagesVerifier.verify(getIssues("src/test/resources/checks/unreachableCode.js", check))
-        .next().atLine(3).withMessage("This statement can't be reached and so start a dead code block.")
-        .next().atLine(7)
-        .next().atLine(14)
-        .next().atLine(17)
-        .next().atLine(38)
-        .next().atLine(51)
-        .noMore();
+      .next().atLine(3).withMessage("This statement can't be reached and so start a dead code block.")
+      .next().atLine(7)
+      .next().atLine(14)
+      .next().atLine(17)
+      .next().atLine(38)
+      .next().atLine(51)
+      .noMore();
   }
 
 }

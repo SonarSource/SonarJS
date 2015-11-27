@@ -19,9 +19,8 @@
  */
 package org.sonar.javascript.tree.symbols;
 
-import org.sonar.plugins.javascript.api.symbols.Symbol;
-
 import java.util.Set;
+import org.sonar.plugins.javascript.api.symbols.Symbol;
 
 public interface SymbolModelBuilder {
 

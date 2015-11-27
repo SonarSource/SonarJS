@@ -30,8 +30,8 @@ public class OctalNumberCheckTest extends TreeCheckTest {
     OctalNumberCheck check = new OctalNumberCheck();
 
     CheckMessagesVerifier.verify(getIssues("src/test/resources/checks/octalNumber.js", check))
-        .next().atLine(3).withMessage("Replace the value of the octal number (0644) by its decimal equivalent (420).")
-        .noMore();
+      .next().atLine(3).withMessage("Replace the value of the octal number (0644) by its decimal equivalent (420).")
+      .noMore();
   }
 
 }

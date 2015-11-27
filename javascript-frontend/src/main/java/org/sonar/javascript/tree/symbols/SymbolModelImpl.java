@@ -21,6 +21,10 @@ package org.sonar.javascript.tree.symbols;
 
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+import javax.annotation.Nullable;
 import org.sonar.api.config.Settings;
 import org.sonar.api.source.Symbolizable;
 import org.sonar.javascript.tree.symbols.type.TypeVisitor;
@@ -28,11 +32,6 @@ import org.sonar.plugins.javascript.api.symbols.Symbol;
 import org.sonar.plugins.javascript.api.symbols.SymbolModel;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
-
-import javax.annotation.Nullable;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
 
 public class SymbolModelImpl implements SymbolModel, SymbolModelBuilder {
 
@@ -57,15 +56,15 @@ public class SymbolModelImpl implements SymbolModel, SymbolModelBuilder {
   }
 
   @Override
-  public void addScope(Scope scope){
-    if (scopes.isEmpty()){
+  public void addScope(Scope scope) {
+    if (scopes.isEmpty()) {
       globalScope = scope;
     }
     scopes.add(scope);
   }
 
   @Override
-  public Set<Scope> getScopes(){
+  public Set<Scope> getScopes() {
     return scopes;
   }
 
@@ -101,15 +100,14 @@ public class SymbolModelImpl implements SymbolModel, SymbolModelBuilder {
   }
 
   /**
-   *
    * @param kind kind of symbols to look for
    * @return list of symbols with the given kind
    */
   @Override
   public Set<Symbol> getSymbols(Symbol.Kind kind) {
     Set<Symbol> result = new HashSet<>();
-    for (Symbol symbol : getSymbols()){
-      if (kind.equals(symbol.kind())){
+    for (Symbol symbol : getSymbols()) {
+      if (kind.equals(symbol.kind())) {
         result.add(symbol);
       }
     }
@@ -117,15 +115,14 @@ public class SymbolModelImpl implements SymbolModel, SymbolModelBuilder {
   }
 
   /**
-   *
    * @param name name of symbols to look for
    * @return list of symbols with the given name
    */
   @Override
   public Set<Symbol> getSymbols(String name) {
     Set<Symbol> result = new HashSet<>();
-    for (Symbol symbol : getSymbols()){
-      if (name.equals(symbol.name())){
+    for (Symbol symbol : getSymbols()) {
+      if (name.equals(symbol.name())) {
         result.add(symbol);
       }
     }
@@ -135,8 +132,8 @@ public class SymbolModelImpl implements SymbolModel, SymbolModelBuilder {
   @Nullable
   @Override
   public Scope getScope(Tree tree) {
-    for (Scope scope : getScopes()){
-      if (scope.tree().equals(tree)){
+    for (Scope scope : getScopes()) {
+      if (scope.tree().equals(tree)) {
         return scope;
       }
     }

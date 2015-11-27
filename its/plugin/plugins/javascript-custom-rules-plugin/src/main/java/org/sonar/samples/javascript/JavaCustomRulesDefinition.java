@@ -22,7 +22,7 @@ public class JavaCustomRulesDefinition extends CustomJavaScriptRulesDefinition {
 
   @Override
   public Class[] checkClasses() {
-    return new Class[] {
+    return new Class[]{
       BaseTreeVisitorCheck.class,
       SubscriptionBaseVisitorCheck.class
     };

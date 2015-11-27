@@ -19,11 +19,12 @@
  */
 package org.sonar.javascript.tree.impl.statement;
 
-import static org.fest.assertions.Assertions.assertThat;
 import org.junit.Test;
 import org.sonar.javascript.utils.JavaScriptTreeModelTest;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.statement.CaseClauseTree;
+
+import static org.fest.assertions.Assertions.assertThat;
 
 public class CaseClauseTreeModelTest extends JavaScriptTreeModelTest {
 
@@ -42,7 +43,7 @@ public class CaseClauseTreeModelTest extends JavaScriptTreeModelTest {
 
   @Test
   public void with_statements() throws Exception {
-   CaseClauseTree tree = parse("switch (a) { case 1 : expr ; return ; }", Kind.CASE_CLAUSE);
+    CaseClauseTree tree = parse("switch (a) { case 1 : expr ; return ; }", Kind.CASE_CLAUSE);
 
     assertThat(tree.is(Kind.CASE_CLAUSE)).isTrue();
     assertThat(tree.keyword().text()).isEqualTo("case");

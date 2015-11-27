@@ -19,6 +19,10 @@
  */
 package org.sonar.javascript.metrics;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Set;
 import org.sonar.api.batch.SensorContext;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
@@ -30,14 +34,9 @@ import org.sonar.api.measures.Metric;
 import org.sonar.api.measures.PersistenceMode;
 import org.sonar.api.measures.RangeDistributionBuilder;
 import org.sonar.javascript.tree.visitors.SubscriptionTreeVisitor;
-import org.sonar.plugins.javascript.api.visitors.TreeVisitorContext;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Set;
+import org.sonar.plugins.javascript.api.visitors.TreeVisitorContext;
 
 public class MetricsVisitor extends SubscriptionTreeVisitor {
 
@@ -45,17 +44,17 @@ public class MetricsVisitor extends SubscriptionTreeVisitor {
   private static final Number[] FILES_DISTRIB_BOTTOM_LIMITS = {0, 5, 10, 20, 30, 60, 90};
 
   private static final Kind[] FUNCTION_NODES = {
-      Kind.FUNCTION_DECLARATION,
-      Kind.FUNCTION_EXPRESSION,
-      Kind.METHOD,
-      Kind.GENERATOR_METHOD,
-      Kind.GENERATOR_FUNCTION_EXPRESSION,
-      Kind.GENERATOR_DECLARATION
+    Kind.FUNCTION_DECLARATION,
+    Kind.FUNCTION_EXPRESSION,
+    Kind.METHOD,
+    Kind.GENERATOR_METHOD,
+    Kind.GENERATOR_FUNCTION_EXPRESSION,
+    Kind.GENERATOR_DECLARATION
   };
 
   private static final Kind[] CLASS_NODES = {
-      Kind.CLASS_DECLARATION,
-      Kind.CLASS_EXPRESSION
+    Kind.CLASS_DECLARATION,
+    Kind.CLASS_EXPRESSION
   };
 
   private final FileSystem fs;

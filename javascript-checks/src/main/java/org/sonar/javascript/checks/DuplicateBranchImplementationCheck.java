@@ -19,8 +19,9 @@
  */
 package org.sonar.javascript.checks;
 
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Iterables;
 import java.util.List;
-
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
@@ -37,9 +38,6 @@ import org.sonar.plugins.javascript.api.visitors.IssueLocation;
 import org.sonar.squidbridge.annotations.ActivatedByDefault;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
-
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Iterables;
 
 @Rule(
   key = "S1871",
@@ -102,7 +100,7 @@ public class DuplicateBranchImplementationCheck extends BaseTreeVisitor {
       }
     }
   }
-  
+
   private void addIssue(Tree original, Tree duplicate, String type) {
     IssueLocation secondary = new IssueLocation(original, "Original");
     String message = "Either merge this " + type + " with the identical one on line \""

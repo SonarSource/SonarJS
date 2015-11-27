@@ -28,10 +28,10 @@ public class FunctionDefinitionInsideLoopCheckTest extends TreeCheckTest {
   @Test
   public void test() {
     CheckMessagesVerifier.verify(getIssues("src/test/resources/checks/functionCreationInsideLoop.js", new FunctionDefinitionInsideLoopCheck()))
-        .next().atLine(4).withMessage("Define this function outside of a loop.")
-        .next().atLine(12)
-        .next().atLine(23)
-        .noMore();
+      .next().atLine(4).withMessage("Define this function outside of a loop.")
+      .next().atLine(12)
+      .next().atLine(23)
+      .noMore();
   }
 
 }

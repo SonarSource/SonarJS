@@ -20,17 +20,16 @@
 package org.sonar.javascript.checks;
 
 import com.google.common.collect.ImmutableList;
+import java.util.List;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
-import org.sonar.plugins.javascript.api.visitors.SubscriptionBaseTreeVisitor;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.expression.MemberExpressionTree;
+import org.sonar.plugins.javascript.api.visitors.SubscriptionBaseTreeVisitor;
 import org.sonar.squidbridge.annotations.ActivatedByDefault;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
-
-import java.util.List;
 
 @Rule(
   key = "S2990",
@@ -47,16 +46,16 @@ public class GlobalThisCheck extends SubscriptionBaseTreeVisitor {
   @Override
   public List<Tree.Kind> nodesToVisit() {
     return ImmutableList.of(
-        Tree.Kind.FUNCTION_DECLARATION,
-        Tree.Kind.FUNCTION_EXPRESSION,
-        Tree.Kind.ARROW_FUNCTION,
-        Tree.Kind.METHOD,
-        Tree.Kind.GENERATOR_FUNCTION_EXPRESSION,
-        Tree.Kind.GET_METHOD,
-        Tree.Kind.SET_METHOD,
-        Tree.Kind.GENERATOR_METHOD,
-        Tree.Kind.GENERATOR_DECLARATION,
-        Tree.Kind.DOT_MEMBER_EXPRESSION
+      Tree.Kind.FUNCTION_DECLARATION,
+      Tree.Kind.FUNCTION_EXPRESSION,
+      Tree.Kind.ARROW_FUNCTION,
+      Tree.Kind.METHOD,
+      Tree.Kind.GENERATOR_FUNCTION_EXPRESSION,
+      Tree.Kind.GET_METHOD,
+      Tree.Kind.SET_METHOD,
+      Tree.Kind.GENERATOR_METHOD,
+      Tree.Kind.GENERATOR_DECLARATION,
+      Tree.Kind.DOT_MEMBER_EXPRESSION
     );
   }
 
@@ -74,7 +73,7 @@ public class GlobalThisCheck extends SubscriptionBaseTreeVisitor {
 
   @Override
   public void leaveNode(Tree tree) {
-    if (!tree.is(Tree.Kind.DOT_MEMBER_EXPRESSION)){
+    if (!tree.is(Tree.Kind.DOT_MEMBER_EXPRESSION)) {
       scopeLevel--;
     }
   }

@@ -27,7 +27,7 @@ import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 /**
  * <a href="http://www.ecma-international.org/ecma-262/5.1/#sec-11.13">Assignment Expression</a>
  * <p/>
- *
+ * <p/>
  * <pre>
  *   {@link #variable()} {@link Tree.Kind#ASSIGNMENT =} {@link #expression()}
  *   {@link #variable()} {@link Tree.Kind#MULTIPLY_ASSIGNMENT *=} {@link #expression()}

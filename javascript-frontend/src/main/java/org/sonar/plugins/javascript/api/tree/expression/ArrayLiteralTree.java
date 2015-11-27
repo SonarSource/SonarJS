@@ -26,7 +26,7 @@ import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 
 /**
  * <a href="http://www.ecma-international.org/ecma-262/5.1/#sec-11.1.4">Array Initialiser</a>.
- *
+ * <p/>
  * <pre>
  *   [ ]
  *   [  {@link #elements()} ]

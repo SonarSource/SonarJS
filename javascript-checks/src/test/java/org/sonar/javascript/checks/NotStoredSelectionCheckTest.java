@@ -31,14 +31,14 @@ public class NotStoredSelectionCheckTest extends TreeCheckTest {
   public void test() {
     check.threshold = 1;
     CheckMessagesVerifier.verify(getIssues("src/test/resources/checks/NotStoredSelection.js", check))
-    .next().atLine(2).withMessage("Selection \"$( \"p\" )\" is made 2 times. It should be stored in a variable and reused.")
-    .next().atLine(7).withMessage("Selection \"$( \"p\" )\" is made 3 times. It should be stored in a variable and reused.")
-    .next().atLine(13)
-    .next().atLine(16)
-    .next().atLine(24)
-    .next().atLine(29)
-    .next().atLine(44)
-    .noMore();
+      .next().atLine(2).withMessage("Selection \"$( \"p\" )\" is made 2 times. It should be stored in a variable and reused.")
+      .next().atLine(7).withMessage("Selection \"$( \"p\" )\" is made 3 times. It should be stored in a variable and reused.")
+      .next().atLine(13)
+      .next().atLine(16)
+      .next().atLine(24)
+      .next().atLine(29)
+      .next().atLine(44)
+      .noMore();
 
   }
 }

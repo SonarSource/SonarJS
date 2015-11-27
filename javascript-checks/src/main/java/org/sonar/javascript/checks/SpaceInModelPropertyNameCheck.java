@@ -23,8 +23,8 @@ import org.apache.commons.lang.StringUtils;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
-import org.sonar.javascript.tree.symbols.type.Backbone;
 import org.sonar.javascript.checks.utils.CheckUtils;
+import org.sonar.javascript.tree.symbols.type.Backbone;
 import org.sonar.plugins.javascript.api.symbols.Type;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
@@ -55,7 +55,7 @@ public class SpaceInModelPropertyNameCheck extends BaseTreeVisitor {
       visitDefaults(tree);
     }
 
-    if (tree.callee().is(Kind.DOT_MEMBER_EXPRESSION) && isBackboneSetMethod((DotMemberExpressionTree)tree.callee())){
+    if (tree.callee().is(Kind.DOT_MEMBER_EXPRESSION) && isBackboneSetMethod((DotMemberExpressionTree) tree.callee())) {
       visitSetMethodCall(tree);
     }
 
@@ -65,11 +65,11 @@ public class SpaceInModelPropertyNameCheck extends BaseTreeVisitor {
   private void visitSetMethodCall(CallExpressionTree tree) {
     Tree firstParameter = tree.arguments().parameters().get(0);
 
-    if (firstParameter.is(Kind.OBJECT_LITERAL)){
+    if (firstParameter.is(Kind.OBJECT_LITERAL)) {
       checkForSpaceInPropertyNames((ObjectLiteralTree) firstParameter);
     }
 
-    if (firstParameter.is(Kind.STRING_LITERAL)){
+    if (firstParameter.is(Kind.STRING_LITERAL)) {
       checkString((ExpressionTree) firstParameter);
     }
 

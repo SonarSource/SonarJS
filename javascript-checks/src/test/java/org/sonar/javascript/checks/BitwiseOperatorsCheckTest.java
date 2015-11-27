@@ -30,20 +30,20 @@ public class BitwiseOperatorsCheckTest extends TreeCheckTest {
     BitwiseOperatorsCheck check = new BitwiseOperatorsCheck();
 
     CheckMessagesVerifier.verify(getIssues("src/test/resources/checks/bitwiseOperators.js", check))
-        .next().atLine(2).withMessage("Remove the use of \"~\" operator.")
-        .next().atLine(3)
-        .next().atLine(4)
-        .next().atLine(5)
-        .next().atLine(6)
-        .next().atLine(7)
-        .next().atLine(8)
-        .next().atLine(9)
-        .next().atLine(10)
-        .next().atLine(11)
-        .next().atLine(12)
-        .next().atLine(13)
-        .next().atLine(15)
-        .noMore();
+      .next().atLine(2).withMessage("Remove the use of \"~\" operator.")
+      .next().atLine(3)
+      .next().atLine(4)
+      .next().atLine(5)
+      .next().atLine(6)
+      .next().atLine(7)
+      .next().atLine(8)
+      .next().atLine(9)
+      .next().atLine(10)
+      .next().atLine(11)
+      .next().atLine(12)
+      .next().atLine(13)
+      .next().atLine(15)
+      .noMore();
   }
 
 }

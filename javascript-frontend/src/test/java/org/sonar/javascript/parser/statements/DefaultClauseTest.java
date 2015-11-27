@@ -21,6 +21,7 @@ package org.sonar.javascript.parser.statements;
 
 import org.junit.Test;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
+
 import static org.sonar.javascript.utils.Assertions.assertThat;
 
 public class DefaultClauseTest {
@@ -29,8 +30,8 @@ public class DefaultClauseTest {
   @Test
   public void ok() {
     assertThat(Kind.DEFAULT_CLAUSE)
-        .matches("default:")
-        .matches("default: statement");
+      .matches("default:")
+      .matches("default: statement");
   }
 
 }

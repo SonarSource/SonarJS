@@ -30,31 +30,31 @@ public class EndOfStatementTest extends LegacyParserTest {
   @Test
   public void ok() {
     assertThat(g.rule(JavaScriptLegacyGrammar.EOS))
-        .as("semicolon")
-        .matchesPrefix(";", "another-statement")
-        .matchesPrefix("/* comment */ ;", "another-statement")
-        .matchesPrefix("\n ;", "another-statement")
-        .matchesPrefix("/* comment \n */ ;", "another-statement")
+      .as("semicolon")
+      .matchesPrefix(";", "another-statement")
+      .matchesPrefix("/* comment */ ;", "another-statement")
+      .matchesPrefix("\n ;", "another-statement")
+      .matchesPrefix("/* comment \n */ ;", "another-statement")
 
-        .as("LineTerminatorSequence")
-        .matchesPrefix("\n", "another-statement")
-        .matchesPrefix("\r\n", "another-statement")
-        .matchesPrefix("\r", "another-statement")
-        .matchesPrefix("// comment \n", "another-statement")
-        .matchesPrefix("/* comment */ \n", "another-statement")
-        .notMatches("\n\n")
+      .as("LineTerminatorSequence")
+      .matchesPrefix("\n", "another-statement")
+      .matchesPrefix("\r\n", "another-statement")
+      .matchesPrefix("\r", "another-statement")
+      .matchesPrefix("// comment \n", "another-statement")
+      .matchesPrefix("/* comment */ \n", "another-statement")
+      .notMatches("\n\n")
 
-        .as("right curly bracket")
-        .matchesPrefix(" ", "}")
-        .matchesPrefix("/* comment */ ", "}")
-        .notMatches("/* comment \n */ }")
+      .as("right curly bracket")
+      .matchesPrefix(" ", "}")
+      .matchesPrefix("/* comment */ ", "}")
+      .notMatches("/* comment \n */ }")
 
-        .as("end of input")
-        .matches("")
-        .matches(" ")
-        .matches("/* comment */")
-        .matches("/* comment \n */")
-        .matches("/* comment \n */ \n");
+      .as("end of input")
+      .matches("")
+      .matches(" ")
+      .matches("/* comment */")
+      .matches("/* comment \n */")
+      .matches("/* comment \n */ \n");
   }
 
 }

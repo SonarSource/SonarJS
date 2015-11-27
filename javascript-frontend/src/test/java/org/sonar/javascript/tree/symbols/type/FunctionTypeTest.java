@@ -34,7 +34,7 @@ public class FunctionTypeTest extends TypeTest {
   }
 
   @Test
-  public void function_declaration(){
+  public void function_declaration() {
     Symbol f1 = getSymbol("f1");
     assertThat(f1.types().containsOnlyAndUnique(Type.Kind.FUNCTION)).isTrue();
   }

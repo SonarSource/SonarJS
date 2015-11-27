@@ -19,6 +19,7 @@
  */
 package org.sonar.javascript.tree.symbols.type;
 
+import javax.annotation.Nullable;
 import org.sonar.plugins.javascript.api.symbols.Type;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.expression.CallExpressionTree;
@@ -26,8 +27,6 @@ import org.sonar.plugins.javascript.api.tree.expression.DotMemberExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.ObjectLiteralTree;
 import org.sonar.plugins.javascript.api.tree.expression.PairPropertyTree;
-
-import javax.annotation.Nullable;
 
 public class Backbone {
 
@@ -44,7 +43,7 @@ public class Backbone {
       DotMemberExpressionTree expr = (DotMemberExpressionTree) tree;
 
       if ("extend".equals(expr.property().name())) {
-        if (expr.object().types().contains(Type.Kind.BACKBONE_MODEL)){
+        if (expr.object().types().contains(Type.Kind.BACKBONE_MODEL)) {
           return true;
         }
         if (expr.object().is(Tree.Kind.DOT_MEMBER_EXPRESSION)) {

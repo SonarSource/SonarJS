@@ -30,13 +30,13 @@ public class PostfixExpressionTest {
   @Test
   public void ok() {
     assertThat(JavaScriptLegacyGrammar.POSTFIX_EXPRESSION)
-        .matches("a")
+      .matches("a")
 
-        .matches("a ++")
-        .matches("a --")
+      .matches("a ++")
+      .matches("a --")
 
-        .notMatches("a \n ++")
-        .notMatches("a \n --");
+      .notMatches("a \n ++")
+      .notMatches("a \n --");
   }
 
 }

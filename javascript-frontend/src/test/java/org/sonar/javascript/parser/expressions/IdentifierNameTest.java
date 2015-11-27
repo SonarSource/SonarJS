@@ -30,9 +30,9 @@ public class IdentifierNameTest {
   @Test
   public void ok() {
     assertThat(JavaScriptLegacyGrammar.IDENTIFIER_NAME)
-        .matches("null")
-        .matches("true")
-        .matches("false");
+      .matches("null")
+      .matches("true")
+      .matches("false");
   }
 
 }

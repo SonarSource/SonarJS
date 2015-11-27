@@ -30,10 +30,10 @@ public class BindingElementTest {
   @Test
   public void ok() {
     assertThat(JavaScriptLegacyGrammar.BINDING_ELEMENT)
-        .matches("identifier")
-        .matches("identifier = 1")
-        .matches("[ ]")
-        .matches("[ ] = 1");
+      .matches("identifier")
+      .matches("identifier = 1")
+      .matches("[ ]")
+      .matches("[ ] = 1");
   }
 
 }

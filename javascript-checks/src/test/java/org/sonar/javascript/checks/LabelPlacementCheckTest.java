@@ -28,8 +28,8 @@ public class LabelPlacementCheckTest extends TreeCheckTest {
   @Test
   public void test() {
     CheckMessagesVerifier.verify(getIssues("src/test/resources/checks/labelPlacement.js", new LabelPlacementCheck()))
-        .next().atLine(3).withMessage("Remove this \"label\" label.")
-        .noMore();
+      .next().atLine(3).withMessage("Remove this \"label\" label.")
+      .noMore();
   }
 
 }

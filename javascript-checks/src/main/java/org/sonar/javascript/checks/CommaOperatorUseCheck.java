@@ -19,28 +19,27 @@
  */
 package org.sonar.javascript.checks;
 
+import java.util.LinkedList;
+import java.util.List;
+import javax.annotation.Nullable;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
-import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.expression.BinaryExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.javascript.api.tree.statement.ForStatementTree;
+import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 
-import javax.annotation.Nullable;
-import java.util.LinkedList;
-import java.util.List;
-
 @Rule(
-    key = "S878",
-    name = "Comma operator should not be used",
-    priority = Priority.MAJOR,
-    tags = {Tags.MISRA})
+  key = "S878",
+  name = "Comma operator should not be used",
+  priority = Priority.MAJOR,
+  tags = {Tags.MISRA})
 @SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.UNDERSTANDABILITY)
 @SqaleConstantRemediation("5min")
 public class CommaOperatorUseCheck extends BaseTreeVisitor {
@@ -76,7 +75,7 @@ public class CommaOperatorUseCheck extends BaseTreeVisitor {
     super.scan(tree.statement());
   }
 
-  private void visitPossibleException(@Nullable Tree tree){
+  private void visitPossibleException(@Nullable Tree tree) {
     if (tree != null && tree.is(Kind.COMMA_OPERATOR)) {
       List<ExpressionTree> expressions = getAllSubExpressions((BinaryExpressionTree) tree);
       for (ExpressionTree expression : expressions) {
@@ -103,7 +102,7 @@ public class CommaOperatorUseCheck extends BaseTreeVisitor {
     SyntaxToken result = tree.operator();
     ExpressionTree currentExpression = tree.leftOperand();
     while (currentExpression.is(Kind.COMMA_OPERATOR)) {
-      result = ((BinaryExpressionTree)currentExpression).operator();
+      result = ((BinaryExpressionTree) currentExpression).operator();
       currentExpression = ((BinaryExpressionTree) currentExpression).leftOperand();
     }
     return result;

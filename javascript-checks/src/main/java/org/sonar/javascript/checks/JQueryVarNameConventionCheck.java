@@ -19,8 +19,9 @@
  */
 package org.sonar.javascript.checks;
 
+import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableList;
 import java.util.regex.Pattern;
-
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
@@ -37,14 +38,11 @@ import org.sonar.plugins.javascript.api.visitors.IssueLocation;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 
-import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableList;
-
 @Rule(
-    key = "S2713",
-    name = "JQuery cache variables should comply with a convention name",
-    priority = Priority.MINOR,
-    tags = {Tags.JQUERY, Tags.CONVENTION})
+  key = "S2713",
+  name = "JQuery cache variables should comply with a convention name",
+  priority = Priority.MINOR,
+  tags = {Tags.JQUERY, Tags.CONVENTION})
 @SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.UNDERSTANDABILITY)
 @SqaleConstantRemediation("5min")
 public class JQueryVarNameConventionCheck extends BaseTreeVisitor {
@@ -54,12 +52,12 @@ public class JQueryVarNameConventionCheck extends BaseTreeVisitor {
   private static final String DEFAULT_FORMAT = "^\\$[a-z][a-zA-Z0-9]*$";
 
   @RuleProperty(
-      key = "format",
-      description = "Regular expression used to check the variable names against",
-      defaultValue = "" + DEFAULT_FORMAT)
+    key = "format",
+    description = "Regular expression used to check the variable names against",
+    defaultValue = "" + DEFAULT_FORMAT)
   private String format = DEFAULT_FORMAT;
 
-  public void setFormat(String format){
+  public void setFormat(String format) {
     this.format = format;
   }
 
@@ -67,26 +65,26 @@ public class JQueryVarNameConventionCheck extends BaseTreeVisitor {
   public void visitScript(ScriptTree tree) {
     Pattern pattern = Pattern.compile(format);
     SymbolModel symbolModel = getContext().getSymbolModel();
-    for (Symbol symbol : symbolModel.getSymbols(Symbol.Kind.VARIABLE)){
+    for (Symbol symbol : symbolModel.getSymbols(Symbol.Kind.VARIABLE)) {
       boolean onlyJQuerySelectorType = symbol.types().containsOnly(Type.Kind.JQUERY_SELECTOR_OBJECT);
-      if (!symbol.builtIn() && onlyJQuerySelectorType && !pattern.matcher(symbol.name()).matches()){
+      if (!symbol.builtIn() && onlyJQuerySelectorType && !pattern.matcher(symbol.name()).matches()) {
         raiseIssuesOnDeclarations(this, symbol, String.format(MESSAGE, symbol.name(), format));
       }
     }
   }
 
-  protected void raiseIssuesOnDeclarations(JavaScriptCheck check, Symbol symbol, String message){
+  protected void raiseIssuesOnDeclarations(JavaScriptCheck check, Symbol symbol, String message) {
     Preconditions.checkArgument(!symbol.builtIn());
 
     boolean issueRaised = false;
-    for (Usage usage : symbol.usages()){
-      if (usage.isDeclaration()){
+    for (Usage usage : symbol.usages()) {
+      if (usage.isDeclaration()) {
         addIssue(check, message, usage.identifierTree());
         issueRaised = true;
       }
     }
 
-    if (!issueRaised){
+    if (!issueRaised) {
       addIssue(check, message, symbol.usages().iterator().next().identifierTree());
     }
 

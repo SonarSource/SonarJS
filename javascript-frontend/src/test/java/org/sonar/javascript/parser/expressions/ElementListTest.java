@@ -30,12 +30,12 @@ public class ElementListTest {
   @Test
   public void ok() {
     assertThat(JavaScriptLegacyGrammar.ELEMENT_LIST)
-        .matches("assignmentExpression")
-        .matches(", , , assignmentExpression")
-        .matches("... assignmentExpression")
-        .matches("assignmentExpression , assignmentExpression")
-        .matches("assignmentExpression , , , assignmentExpression")
-        .matches("... assignmentExpression , assignmentExpression");
+      .matches("assignmentExpression")
+      .matches(", , , assignmentExpression")
+      .matches("... assignmentExpression")
+      .matches("assignmentExpression , assignmentExpression")
+      .matches("assignmentExpression , , , assignmentExpression")
+      .matches("... assignmentExpression , assignmentExpression");
   }
 
 }

@@ -22,6 +22,8 @@ package org.sonar.javascript.tree.impl.declaration;
 import com.google.common.base.Functions;
 import com.google.common.collect.Iterators;
 import com.google.common.collect.Lists;
+import java.util.Iterator;
+import java.util.List;
 import org.apache.commons.collections.ListUtils;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.javascript.tree.impl.SeparatedList;
@@ -34,9 +36,6 @@ import org.sonar.plugins.javascript.api.tree.declaration.ObjectBindingPatternTre
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.javascript.api.visitors.TreeVisitor;
-
-import java.util.Iterator;
-import java.util.List;
 
 public class ObjectBindingPatternTreeImpl extends JavaScriptTree implements ObjectBindingPatternTree {
 

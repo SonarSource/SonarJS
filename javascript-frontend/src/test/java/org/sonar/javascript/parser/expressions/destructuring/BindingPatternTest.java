@@ -30,8 +30,8 @@ public class BindingPatternTest {
   @Test
   public void ok() {
     assertThat(JavaScriptLegacyGrammar.BINDING_PATTERN)
-        .matches("[ ]")
-        .matches("{ }");
+      .matches("[ ]")
+      .matches("{ }");
   }
 
 }

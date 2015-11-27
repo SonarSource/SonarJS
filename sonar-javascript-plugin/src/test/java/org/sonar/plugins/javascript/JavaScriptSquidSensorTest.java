@@ -164,10 +164,10 @@ public class JavaScriptSquidSensorTest {
     String parsingErrorCheckKey = "ParsingError";
 
     ActiveRules activeRules = (new ActiveRulesBuilder())
-        .create(RuleKey.of(CheckList.REPOSITORY_KEY, parsingErrorCheckKey))
-        .setName("ParsingError")
-        .activate()
-        .build();
+      .create(RuleKey.of(CheckList.REPOSITORY_KEY, parsingErrorCheckKey))
+      .setName("ParsingError")
+      .activate()
+      .build();
 
     checkFactory = new CheckFactory(activeRules);
 
@@ -256,18 +256,18 @@ public class JavaScriptSquidSensorTest {
   }
 
   private final class ExceptionRaisingCheck implements JavaScriptCheck {
-  
+
     private final RuntimeException exception;
-  
+
     public ExceptionRaisingCheck(RuntimeException exception) {
       this.exception = exception;
     }
-  
+
     @Override
     public TreeVisitorContext getContext() {
       return null;
     }
-  
+
     @Override
     public void scanFile(TreeVisitorContext context) {
       throw exception;

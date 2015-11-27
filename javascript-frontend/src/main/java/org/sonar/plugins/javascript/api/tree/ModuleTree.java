@@ -20,9 +20,8 @@
 package org.sonar.plugins.javascript.api.tree;
 
 import com.google.common.annotations.Beta;
-import org.sonar.plugins.javascript.api.tree.declaration.DeclarationTree;
-
 import java.util.List;
+import org.sonar.plugins.javascript.api.tree.declaration.DeclarationTree;
 
 /**
  * Interface for type <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-modules">Module</a>.

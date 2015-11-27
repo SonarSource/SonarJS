@@ -19,14 +19,12 @@
  */
 package org.sonar.plugins.javascript.unittest.surefireparser;
 
+import java.io.File;
+import javax.xml.stream.XMLStreamException;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.utils.StaxParser;
 import org.sonar.test.TestUtils;
-
-import javax.xml.stream.XMLStreamException;
-
-import java.io.File;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.startsWith;

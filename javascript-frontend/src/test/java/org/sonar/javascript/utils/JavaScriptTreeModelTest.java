@@ -21,12 +21,11 @@ package org.sonar.javascript.utils;
 
 import com.google.common.base.Charsets;
 import com.sonar.sslr.api.typed.ActionParser;
+import java.util.Iterator;
 import org.sonar.javascript.parser.JavaScriptParserBuilder;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
-
-import java.util.Iterator;
 
 import static org.fest.assertions.Assertions.assertThat;
 
@@ -37,9 +36,8 @@ public abstract class JavaScriptTreeModelTest {
   /**
    * Parse the given string and return the first descendant of the given kind.
    *
-   * @param s the string to parse
+   * @param s                  the string to parse
    * @param descendantToReturn the node kind to seek in the generated tree
-   *
    * @return the node found for the given kind, null if not found.
    */
   protected <T extends Tree> T parse(String s, Kind descendantToReturn) throws Exception {
@@ -76,6 +74,6 @@ public abstract class JavaScriptTreeModelTest {
   }
 
   private static void checkFullFidelity(Tree tree, String s) {
-     assertThat(SourceBuilder.build(tree)).isEqualTo(s);
+    assertThat(SourceBuilder.build(tree)).isEqualTo(s);
   }
 }

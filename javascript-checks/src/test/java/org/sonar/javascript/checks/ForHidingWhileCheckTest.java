@@ -23,7 +23,7 @@ import org.junit.Test;
 import org.sonar.plugins.javascript.api.tests.TreeCheckTest;
 import org.sonar.squidbridge.checks.CheckMessagesVerifier;
 
-public class ForHidingWhileCheckTest extends TreeCheckTest{
+public class ForHidingWhileCheckTest extends TreeCheckTest {
 
   @Test
   public void test() {

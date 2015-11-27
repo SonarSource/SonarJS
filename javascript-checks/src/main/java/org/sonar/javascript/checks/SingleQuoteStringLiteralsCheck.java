@@ -39,7 +39,7 @@ public class SingleQuoteStringLiteralsCheck extends BaseTreeVisitor {
 
   @Override
   public void visitLiteral(LiteralTree tree) {
-    if (tree.is(Kind.STRING_LITERAL) && tree.value().startsWith("\"")){
+    if (tree.is(Kind.STRING_LITERAL) && tree.value().startsWith("\"")) {
       getContext().addIssue(this, tree, "Replace double quotes by simple quote");
     }
   }

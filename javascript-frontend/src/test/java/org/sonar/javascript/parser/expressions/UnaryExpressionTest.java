@@ -30,7 +30,7 @@ public class UnaryExpressionTest {
   @Test
   public void ok() {
     assertThat(JavaScriptLegacyGrammar.UNARY_EXPRESSION)
-        .matches("++a++");
+      .matches("++a++");
   }
 
 }

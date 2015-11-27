@@ -30,13 +30,13 @@ public class EqualInForLoopTerminationCheckTest extends TreeCheckTest {
   @Test
   public void test() {
     CheckMessagesVerifier.verify(getIssues("src/test/resources/checks/EqualInForLoopTermination.js", check))
-    .next().atLine(1)
-    .next().atLine(3)
-    .next().atLine(9)
-    .next().atLine(11)
-    .next().atLine(15)
-    .next().atLine(30)
-    .noMore();
+      .next().atLine(1)
+      .next().atLine(3)
+      .next().atLine(9)
+      .next().atLine(11)
+      .next().atLine(15)
+      .next().atLine(30)
+      .noMore();
 
   }
 }

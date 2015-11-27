@@ -20,13 +20,12 @@
 package org.sonar.javascript.checks;
 
 import com.google.common.collect.Lists;
+import java.io.File;
+import java.util.List;
 import org.apache.commons.io.FileUtils;
 import org.junit.Test;
 import org.sonar.api.rules.AnnotationRuleParser;
 import org.sonar.api.rules.Rule;
-
-import java.io.File;
-import java.util.List;
 
 import static org.fest.assertions.Assertions.assertThat;
 
@@ -38,7 +37,7 @@ public class CheckListTest {
   @Test
   public void count() {
     int count = 0;
-    List<File> files = (List<File>) FileUtils.listFiles(new File("src/main/java/org/sonar/javascript/checks/"), new String[] {"java"}, false);
+    List<File> files = (List<File>) FileUtils.listFiles(new File("src/main/java/org/sonar/javascript/checks/"), new String[]{"java"}, false);
     for (File file : files) {
       String name = file.getName();
       if (name.endsWith("Check.java") && !name.startsWith("Abstract")) {
@@ -58,8 +57,8 @@ public class CheckListTest {
     for (Class cls : checks) {
       String testName = '/' + cls.getName().replace('.', '/') + "Test.class";
       assertThat(getClass().getResource(testName))
-          .overridingErrorMessage("No test for " + cls.getSimpleName())
-          .isNotNull();
+        .overridingErrorMessage("No test for " + cls.getSimpleName())
+        .isNotNull();
     }
 
     List<String> keys = Lists.newArrayList();
@@ -67,12 +66,12 @@ public class CheckListTest {
     for (Rule rule : rules) {
       keys.add(rule.getKey());
       assertThat(getClass().getResource("/org/sonar/l10n/javascript/rules/javascript/" + rule.getKey() + ".html"))
-          .overridingErrorMessage("No description for " + rule.getKey())
-          .isNotNull();
+        .overridingErrorMessage("No description for " + rule.getKey())
+        .isNotNull();
 
       assertThat(rule.getDescription())
-          .overridingErrorMessage("Description of " + rule.getKey() + " should be in separate file")
-          .isNull();
+        .overridingErrorMessage("Description of " + rule.getKey() + " should be in separate file")
+        .isNull();
     }
 
     assertThat(keys).doesNotHaveDuplicates();

@@ -21,6 +21,7 @@ package org.sonar.javascript.parser.expressions;
 
 import org.junit.Test;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
+
 import static org.sonar.javascript.utils.Assertions.assertThat;
 
 public class FunctionExpressionTest {

@@ -19,15 +19,14 @@
  */
 package org.sonar.javascript.tree.impl.declaration;
 
+import java.util.Iterator;
+import java.util.List;
 import org.junit.Test;
 import org.sonar.javascript.utils.JavaScriptTreeModelTest;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.declaration.ArrayBindingPatternTree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
-
-import java.util.Iterator;
-import java.util.List;
 
 import static org.fest.assertions.Assertions.assertThat;
 
@@ -109,9 +108,9 @@ public class ArrayBindingPatternTreeModelTest extends JavaScriptTreeModelTest {
     assertThat(size(treeIterator2)).isEqualTo(13);
   }
 
-  private int size(Iterator iterator){
+  private int size(Iterator iterator) {
     int result = 0;
-    while (iterator.hasNext()){
+    while (iterator.hasNext()) {
       iterator.next();
       result++;
     }

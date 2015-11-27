@@ -19,20 +19,19 @@
  */
 package org.sonar.javascript.checks;
 
+import java.util.Collection;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
+import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.javascript.tree.symbols.Scope;
 import org.sonar.plugins.javascript.api.symbols.Symbol;
-import org.sonar.plugins.javascript.api.symbols.Usage;
-import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.plugins.javascript.api.symbols.SymbolModel;
+import org.sonar.plugins.javascript.api.symbols.Usage;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
 import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
-
-import java.util.Collection;
 
 @Rule(
   key = "VariableShadowing",
@@ -47,7 +46,7 @@ public class VariableShadowingCheck extends BaseTreeVisitor {
 
   @Override
   public void visitScript(ScriptTree tree) {
-    for (Symbol symbol : getSymbols()){
+    for (Symbol symbol : getSymbols()) {
       visitSymbol(symbol);
     }
   }
@@ -60,7 +59,7 @@ public class VariableShadowingCheck extends BaseTreeVisitor {
   }
 
   private void visitSymbol(Symbol symbol) {
-    if ("arguments".equals(symbol.name()) && symbol.builtIn()){
+    if ("arguments".equals(symbol.name()) && symbol.builtIn()) {
       return;
     }
     Scope scope = symbol.scope();
@@ -73,17 +72,17 @@ public class VariableShadowingCheck extends BaseTreeVisitor {
     }
   }
 
-  private void raiseIssuesOnDeclarations(Symbol symbol, String message){
-    for (Usage usage : symbol.usages()){
-      if (usage.isDeclaration() || usage.kind() == Usage.Kind.LEXICAL_DECLARATION){
+  private void raiseIssuesOnDeclarations(Symbol symbol, String message) {
+    for (Usage usage : symbol.usages()) {
+      if (usage.isDeclaration() || usage.kind() == Usage.Kind.LEXICAL_DECLARATION) {
         getContext().addIssue(this, usage.identifierTree(), message);
       }
     }
   }
 
-  private static Usage getDeclaration(Symbol symbol){
-    for (Usage usage : symbol.usages()){
-      if (usage.isDeclaration() || usage.kind() == Usage.Kind.LEXICAL_DECLARATION){
+  private static Usage getDeclaration(Symbol symbol) {
+    for (Usage usage : symbol.usages()) {
+      if (usage.isDeclaration() || usage.kind() == Usage.Kind.LEXICAL_DECLARATION) {
         return usage;
       }
     }

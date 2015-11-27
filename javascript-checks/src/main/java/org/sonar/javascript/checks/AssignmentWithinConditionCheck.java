@@ -19,8 +19,8 @@
  */
 package org.sonar.javascript.checks;
 
+import com.google.common.collect.ImmutableList;
 import javax.annotation.Nullable;
-
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
@@ -40,8 +40,6 @@ import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
 import org.sonar.plugins.javascript.api.visitors.IssueLocation;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
-
-import com.google.common.collect.ImmutableList;
 
 @Rule(
   key = "AssignmentWithinCondition",
@@ -174,7 +172,7 @@ public class AssignmentWithinConditionCheck extends BaseTreeVisitor {
       Kind.GREATER_THAN,
       Kind.GREATER_THAN_OR_EQUAL_TO,
       Kind.RELATIONAL_IN
-        // TODO (Lena): Is Kind.INSTANCE_OF required here?
+      // TODO (Lena): Is Kind.INSTANCE_OF required here?
     );
   }
 

@@ -30,9 +30,9 @@ public class ConditionalCommentCheckTest extends TreeCheckTest {
     ConditionalCommentCheck check = new ConditionalCommentCheck();
 
     CheckMessagesVerifier.verify(getIssues("src/test/resources/checks/conditionalComment.js", check))
-        .next().atLine(1).withMessage("Refactor your code to avoid using Internet Explorer's conditional comments.")
-        .next().atLine(7)
-        .noMore();
+      .next().atLine(1).withMessage("Refactor your code to avoid using Internet Explorer's conditional comments.")
+      .next().atLine(7)
+      .noMore();
   }
 
 }

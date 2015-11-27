@@ -21,14 +21,13 @@ package org.sonar.javascript.metrics;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Sets;
-import org.sonar.javascript.tree.visitors.SubscriptionTreeVisitor;
+import java.util.List;
+import java.util.Set;
 import org.sonar.javascript.tree.impl.lexical.InternalSyntaxToken;
+import org.sonar.javascript.tree.visitors.SubscriptionTreeVisitor;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
-
-import java.util.List;
-import java.util.Set;
 
 /**
  * Visitor that computes the number of lines of code of a file.

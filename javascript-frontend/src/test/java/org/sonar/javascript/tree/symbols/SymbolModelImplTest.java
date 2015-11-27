@@ -19,14 +19,13 @@
  */
 package org.sonar.javascript.tree.symbols;
 
+import java.io.File;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.javascript.utils.JavaScriptTreeModelTest;
 import org.sonar.plugins.javascript.api.symbols.Symbol;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
-
-import java.io.File;
 
 import static org.fest.assertions.Assertions.assertThat;
 
@@ -41,7 +40,7 @@ public class SymbolModelImplTest extends JavaScriptTreeModelTest {
   }
 
   @Test
-  public void symbols_filtering(){
+  public void symbols_filtering() {
     assertThat(SYMBOL_MODEL.getSymbols()).hasSize(14);
 
     assertThat(SYMBOL_MODEL.getSymbols(Symbol.Kind.FUNCTION)).hasSize(2); // eval, f
@@ -52,13 +51,12 @@ public class SymbolModelImplTest extends JavaScriptTreeModelTest {
   }
 
   @Test
-  public void symbols_scope(){
-    Symbol f = (Symbol)SYMBOL_MODEL.getSymbols("f").toArray()[0];
-    Symbol e = (Symbol)SYMBOL_MODEL.getSymbols("e").toArray()[0];
+  public void symbols_scope() {
+    Symbol f = (Symbol) SYMBOL_MODEL.getSymbols("f").toArray()[0];
+    Symbol e = (Symbol) SYMBOL_MODEL.getSymbols("e").toArray()[0];
     assertThat(f.scope().tree().is(Tree.Kind.SCRIPT)).isTrue();
     assertThat(e.scope().tree().is(Tree.Kind.CATCH_BLOCK)).isTrue();
   }
-
 
 
 }

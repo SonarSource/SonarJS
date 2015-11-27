@@ -30,8 +30,8 @@ public class ParsingErrorCheckTest extends TreeCheckTest {
   @Test
   public void test() {
     CheckMessagesVerifier.verify(getIssues("src/test/resources/checks/parsingError.js", new ParsingErrorCheck()))
-        .next().atLine(3).withMessageThat(containsString("Parse error"))
-        .noMore();
+      .next().atLine(3).withMessageThat(containsString("Parse error"))
+      .noMore();
   }
 
 }

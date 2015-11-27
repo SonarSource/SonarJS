@@ -39,11 +39,11 @@ public class ObjectType implements Type {
     return callability;
   }
 
-  public static ObjectType create(){
+  public static ObjectType create() {
     return create(Callability.UNKNOWN);
   }
 
-  public static ObjectType create(Callability callability){
+  public static ObjectType create(Callability callability) {
     return new ObjectType(callability);
   }
 

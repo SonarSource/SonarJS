@@ -30,18 +30,18 @@ public class UnusedVariableCheckTest extends TreeCheckTest {
     UnusedVariableCheck check = new UnusedVariableCheck();
 
     CheckMessagesVerifier.verify(getIssues("src/test/resources/checks/unusedVariable.js", check))
-        .next().atLine(4).withMessage("Remove the declaration of the unused 'a' variable.")
-        .next().atLine(17)
-        .next().atLine(24)
-        .next().atLine(25)
-        .next().atLine(31)
-        .next().atLine(38)
-        .next().atLine(43)
-        .next().atLine(44)
-        .next().atLine(48)
-        .next().atLine(62)
-        .next().atLine(63)
-        .noMore();
+      .next().atLine(4).withMessage("Remove the declaration of the unused 'a' variable.")
+      .next().atLine(17)
+      .next().atLine(24)
+      .next().atLine(25)
+      .next().atLine(31)
+      .next().atLine(38)
+      .next().atLine(43)
+      .next().atLine(44)
+      .next().atLine(48)
+      .next().atLine(62)
+      .next().atLine(63)
+      .noMore();
   }
 
 }

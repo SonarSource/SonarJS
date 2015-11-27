@@ -30,12 +30,12 @@ public class FutureReservedWordsCheckTest extends TreeCheckTest {
     FutureReservedWordsCheck check = new FutureReservedWordsCheck();
 
     CheckMessagesVerifier.verify(getIssues("src/test/resources/checks/futureReservedWords.js", check))
-        .next().atLine(1).withMessage("Rename \"implements\" identifier to prevent potential conflicts with future evolutions of the JavaScript language.")
-        .next().atLine(2)
-        .next().atLine(3)
-        .next().atLine(4)
-        .next().atLine(5)
-        .noMore();
+      .next().atLine(1).withMessage("Rename \"implements\" identifier to prevent potential conflicts with future evolutions of the JavaScript language.")
+      .next().atLine(2)
+      .next().atLine(3)
+      .next().atLine(4)
+      .next().atLine(5)
+      .noMore();
   }
 
 

@@ -30,7 +30,7 @@ public class BindingRestElementTest {
   @Test
   public void ok() {
     assertThat(JavaScriptLegacyGrammar.BINDING_REST_ELEMENT)
-        .matches("... a");
+      .matches("... a");
   }
 
 }

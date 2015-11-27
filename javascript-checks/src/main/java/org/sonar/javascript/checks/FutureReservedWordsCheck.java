@@ -20,6 +20,7 @@
 package org.sonar.javascript.checks;
 
 import com.google.common.collect.ImmutableList;
+import java.util.List;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
@@ -27,8 +28,6 @@ import org.sonar.plugins.javascript.api.symbols.Symbol;
 import org.sonar.squidbridge.annotations.ActivatedByDefault;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
-
-import java.util.List;
 
 @Rule(
   key = "FutureReservedWords",
@@ -43,23 +42,23 @@ public class FutureReservedWordsCheck extends AbstractSymbolNameCheck {
   private static final String MESSAGE = "Rename \"%s\" identifier to prevent potential conflicts with future evolutions of the JavaScript language.";
 
   private static final List<String> FUTURE_RESERVED_WORDS = ImmutableList.of(
-      "implements",
-      "interface",
-      "package",
-      "private",
-      "protected",
-      "public",
-      "enum",
-      "class",
-      "const",
-      "export",
-      "extends",
-      "import",
-      "super",
-      "let",
-      "static",
-      "yield",
-      "await"
+    "implements",
+    "interface",
+    "package",
+    "private",
+    "protected",
+    "public",
+    "enum",
+    "class",
+    "const",
+    "export",
+    "extends",
+    "import",
+    "super",
+    "let",
+    "static",
+    "yield",
+    "await"
   );
 
   @Override

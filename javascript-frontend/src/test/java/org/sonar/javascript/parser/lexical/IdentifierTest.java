@@ -30,14 +30,14 @@ public class IdentifierTest {
   @Test
   public void ok() {
     assertThat(JavaScriptTokenType.IDENTIFIER).as("future reserved words")
-        .matches("implements")
-        .matches("interface")
-        .matches("let")
-        .matches("package")
-        .matches("private")
-        .matches("protected")
-        .matches("public")
-        .matches("static");
+      .matches("implements")
+      .matches("interface")
+      .matches("let")
+      .matches("package")
+      .matches("private")
+      .matches("protected")
+      .matches("public")
+      .matches("static");
   }
 
 }

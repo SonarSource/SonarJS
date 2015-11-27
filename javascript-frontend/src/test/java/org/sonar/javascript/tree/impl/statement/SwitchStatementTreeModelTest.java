@@ -29,7 +29,7 @@ public class SwitchStatementTreeModelTest extends JavaScriptTreeModelTest {
 
   @Test
   public void without_case() throws Exception {
-   SwitchStatementTreeImpl tree = parse("switch (a) { }", Kind.SWITCH_STATEMENT);
+    SwitchStatementTreeImpl tree = parse("switch (a) { }", Kind.SWITCH_STATEMENT);
 
     assertThat(tree.is(Kind.SWITCH_STATEMENT)).isTrue();
     assertThat(tree.switchKeyword().text()).isEqualTo("switch");

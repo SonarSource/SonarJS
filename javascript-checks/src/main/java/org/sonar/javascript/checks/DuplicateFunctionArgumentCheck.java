@@ -20,19 +20,18 @@
 package org.sonar.javascript.checks;
 
 import com.google.common.collect.Sets;
+import java.util.Set;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
-import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
 import org.sonar.javascript.tree.impl.declaration.ParameterListTreeImpl;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.declaration.ParameterListTree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
+import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
 import org.sonar.squidbridge.annotations.ActivatedByDefault;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
-
-import java.util.Set;
 
 @Rule(
   key = "DuplicateFunctionArgument",
@@ -48,7 +47,7 @@ public class DuplicateFunctionArgumentCheck extends BaseTreeVisitor {
 
   @Override
   public void visitParameterList(ParameterListTree tree) {
-    if (tree.is(Tree.Kind.FORMAL_PARAMETER_LIST)){
+    if (tree.is(Tree.Kind.FORMAL_PARAMETER_LIST)) {
       Set<String> values = Sets.newHashSet();
 
       for (IdentifierTree identifier : ((ParameterListTreeImpl) tree).parameterIdentifiers()) {

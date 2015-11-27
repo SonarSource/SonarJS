@@ -20,26 +20,25 @@
 package org.sonar.javascript.checks;
 
 import com.google.common.collect.ImmutableList;
-import org.sonar.api.server.rule.RulesDefinition;
-import org.sonar.check.Priority;
-import org.sonar.check.Rule;
-import org.sonar.check.RuleProperty;
-import org.sonar.plugins.javascript.api.visitors.SubscriptionBaseTreeVisitor;
-import org.sonar.plugins.javascript.api.tree.Tree;
-import org.sonar.plugins.javascript.api.tree.expression.LiteralTree;
-import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
-import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
-
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
+import org.sonar.api.server.rule.RulesDefinition;
+import org.sonar.check.Priority;
+import org.sonar.check.Rule;
+import org.sonar.check.RuleProperty;
+import org.sonar.plugins.javascript.api.tree.Tree;
+import org.sonar.plugins.javascript.api.tree.expression.LiteralTree;
+import org.sonar.plugins.javascript.api.visitors.SubscriptionBaseTreeVisitor;
+import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
+import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 
 @Rule(
   key = "S2611",
   name = "Untrusted content should not be included",
-  priority =  Priority.CRITICAL,
+  priority = Priority.CRITICAL,
   tags = {Tags.CWE, Tags.SECURITY, Tags.SANS_TOP25_RISKY}
 )
 @SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.SECURITY_FEATURES)
@@ -48,9 +47,9 @@ public class UntrustedContentCheck extends SubscriptionBaseTreeVisitor {
 
   private static final String MESSAGE = "Remove this content from an untrusted source.";
 
-  @RuleProperty (
-          key = "domainsToIgnore",
-          description = "Comma-delimited list of domains to ignore. Regexes may be used, e.g. (.*\\.)?example.com,foo.org"
+  @RuleProperty(
+    key = "domainsToIgnore",
+    description = "Comma-delimited list of domains to ignore. Regexes may be used, e.g. (.*\\.)?example.com,foo.org"
   )
   public String domainsToIgnore = "";
   private List<Pattern> patterns = null;
@@ -85,7 +84,7 @@ public class UntrustedContentCheck extends SubscriptionBaseTreeVisitor {
     if (value.matches("^http.*")) {
       try {
         URI uri = new URI(value);
-        if ( isBad(uri) ) {
+        if (isBad(uri)) {
           getContext().addIssue(this, tree, MESSAGE);
         }
       } catch (URISyntaxException e) {

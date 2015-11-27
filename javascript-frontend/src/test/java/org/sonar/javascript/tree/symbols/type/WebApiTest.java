@@ -34,7 +34,7 @@ public class WebApiTest extends TypeTest {
   }
 
   @Test
-  public void window(){
+  public void window() {
     Symbol window = getSymbol("window");
     assertThat(window.builtIn()).isTrue();
 
@@ -49,7 +49,7 @@ public class WebApiTest extends TypeTest {
   }
 
   @Test
-  public void dom_elements(){
+  public void dom_elements() {
     Symbol documentCopy = getSymbol("documentCopy");
     assertThat(documentCopy.types().containsOnlyAndUnique(Type.Kind.DOCUMENT)).isTrue();
 

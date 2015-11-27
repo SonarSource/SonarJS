@@ -20,9 +20,8 @@
 package org.sonar.plugins.javascript.api.tree.expression;
 
 import com.google.common.annotations.Beta;
-import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
-
 import java.util.List;
+import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 
 /**
  * <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-template-literals">Template literal</a>

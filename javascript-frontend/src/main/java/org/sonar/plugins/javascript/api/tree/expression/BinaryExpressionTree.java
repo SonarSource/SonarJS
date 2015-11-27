@@ -26,7 +26,7 @@ import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 /**
  * <a href="http://www.ecma-international.org/ecma-262/5.1/#sec-11.4">Binary Operator</a>
  * <p/>
- *
+ * <p/>
  * <a herf="http://www.ecma-international.org/ecma-262/5.1/#sec-11.6>Additive Operators</a>.
  * <a href="http://www.ecma-international.org/ecma-262/5.1/#sec-11.7">Bitwise Shift Operators</a>.
  * <a href="http://www.ecma-international.org/ecma-262/5.1/#sec-11.8">Relational Operators</a>.
@@ -35,7 +35,7 @@ import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
  * <a href="http://www.ecma-international.org/ecma-262/5.1/#sec-11.11">Binary Logical Operators</a>.
  * <a href="http://www.ecma-international.org/ecma-262/5.1/#sec-11.13">Assignment Operators</a>.
  * <p/>
- *
+ * <p/>
  * <pre>
  *   {@link #leftOperand()} {@link Tree.Kind#MULTIPLY *} {@link #rightOperand()}
  *   {@link #leftOperand()} {@link Tree.Kind#DIVIDE /} {@link #rightOperand()}

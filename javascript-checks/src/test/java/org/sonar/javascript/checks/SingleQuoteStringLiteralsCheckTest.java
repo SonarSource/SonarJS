@@ -30,8 +30,8 @@ public class SingleQuoteStringLiteralsCheckTest extends TreeCheckTest {
     SingleQuoteStringLiteralsCheck check = new SingleQuoteStringLiteralsCheck();
 
     CheckMessagesVerifier.verify(getIssues("src/test/resources/checks/singleQuoteStringLiterals.js", check))
-        .next().atLine(2).withMessage("Replace double quotes by simple quote")
-        .noMore();
+      .next().atLine(2).withMessage("Replace double quotes by simple quote")
+      .noMore();
   }
 
 }

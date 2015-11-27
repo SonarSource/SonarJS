@@ -19,15 +19,14 @@
  */
 package org.sonar.plugins.javascript.api.tests;
 
-import org.sonar.api.config.Settings;
-import org.sonar.javascript.tree.symbols.type.JQuery;
-import org.sonar.plugins.javascript.api.JavaScriptCheck;
-import org.sonar.squidbridge.api.CheckMessage;
-
 import java.io.File;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import org.sonar.api.config.Settings;
+import org.sonar.javascript.tree.symbols.type.JQuery;
+import org.sonar.plugins.javascript.api.JavaScriptCheck;
+import org.sonar.squidbridge.api.CheckMessage;
 
 public class TreeCheckTest {
 

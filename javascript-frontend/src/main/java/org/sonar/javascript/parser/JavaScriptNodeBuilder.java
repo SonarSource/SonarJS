@@ -27,6 +27,8 @@ import com.sonar.sslr.api.TokenType;
 import com.sonar.sslr.api.Trivia;
 import com.sonar.sslr.api.typed.Input;
 import com.sonar.sslr.api.typed.NodeBuilder;
+import java.util.Iterator;
+import java.util.List;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.javascript.tree.impl.lexical.InternalSyntaxToken;
 import org.sonar.javascript.tree.impl.lexical.InternalSyntaxTrivia;
@@ -34,9 +36,6 @@ import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxTrivia;
 import org.sonar.plugins.javascript.api.visitors.TreeVisitor;
 import org.sonar.sslr.grammar.GrammarRuleKey;
-
-import java.util.Iterator;
-import java.util.List;
 
 public class JavaScriptNodeBuilder implements NodeBuilder {
 
@@ -55,12 +54,12 @@ public class JavaScriptNodeBuilder implements NodeBuilder {
     boolean isEof = GenericTokenType.EOF.equals(type);
     LineColumnValue lineColumnValue = tokenPosition(input, startIndex, endIndex);
     return new InternalSyntaxToken(
-        lineColumnValue.line,
-        lineColumnValue.column,
-        lineColumnValue.value,
-        createTrivias(trivias),
-        startIndex,
-        isEof
+      lineColumnValue.line,
+      lineColumnValue.column,
+      lineColumnValue.value,
+      createTrivias(trivias),
+      startIndex,
+      isEof
     );
   }
 

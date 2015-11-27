@@ -30,8 +30,8 @@ public class ForStatementTest {
   @Test
   public void ok() {
     assertThat(Kind.FOR_STATEMENT)
-        .matches("for (let a; a < 3; a++) {}")
-        .as("unexpected end of input").notMatches("for (true; true; true)");
+      .matches("for (let a; a < 3; a++) {}")
+      .as("unexpected end of input").notMatches("for (true; true; true)");
   }
 
 }

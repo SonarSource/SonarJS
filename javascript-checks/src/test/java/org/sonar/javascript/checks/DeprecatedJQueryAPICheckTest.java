@@ -30,15 +30,15 @@ public class DeprecatedJQueryAPICheckTest extends TreeCheckTest {
     DeprecatedJQueryAPICheck check = new DeprecatedJQueryAPICheck();
 
     CheckMessagesVerifier.verify(getIssues("src/test/resources/checks/DeprecatedJQueryAPI.js", check))
-        .next().atLine(1).withMessage("Remove this use of \"boxModel\", which is deprecated.")
-        .next().atLine(3).withMessage("Remove this use of \"sub()\", which is deprecated.")
-        .next().atLine(5).withMessage("Remove this use of \"context\", which is deprecated.")
-        .next().atLine(7).withMessage("Remove this use of \"andSelf()\", which is deprecated.")
-        //  todo (Lena) type-inference models is not capable to recognize chained selectors
+      .next().atLine(1).withMessage("Remove this use of \"boxModel\", which is deprecated.")
+      .next().atLine(3).withMessage("Remove this use of \"sub()\", which is deprecated.")
+      .next().atLine(5).withMessage("Remove this use of \"context\", which is deprecated.")
+      .next().atLine(7).withMessage("Remove this use of \"andSelf()\", which is deprecated.")
+      //  todo (Lena) type-inference models is not capable to recognize chained selectors
 //        .next().atLine(9).withMessage("Remove this use of \"andSelf()\", which is deprecated.")
 //        .next().atLine(11).withMessage("Remove this use of \"context\", which is deprecated.")
 //        .next().atLine(17).withMessage("Remove this use of \"andSelf()\", which is deprecated.")
-        .noMore();
+      .noMore();
   }
 
 

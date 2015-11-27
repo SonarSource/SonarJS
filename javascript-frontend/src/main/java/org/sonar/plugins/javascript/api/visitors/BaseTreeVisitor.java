@@ -22,6 +22,8 @@ package org.sonar.plugins.javascript.api.visitors;
 import com.google.common.annotations.Beta;
 import com.google.common.base.Preconditions;
 import com.sonar.sslr.api.typed.Optional;
+import java.util.List;
+import javax.annotation.Nullable;
 import org.sonar.javascript.tree.impl.expression.SuperTreeImpl;
 import org.sonar.plugins.javascript.api.JavaScriptCheck;
 import org.sonar.plugins.javascript.api.tree.ModuleTree;
@@ -94,9 +96,6 @@ import org.sonar.plugins.javascript.api.tree.statement.VariableDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.statement.VariableStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.WhileStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.WithStatementTree;
-
-import javax.annotation.Nullable;
-import java.util.List;
 
 @Beta
 public class BaseTreeVisitor implements TreeVisitor, JavaScriptCheck {

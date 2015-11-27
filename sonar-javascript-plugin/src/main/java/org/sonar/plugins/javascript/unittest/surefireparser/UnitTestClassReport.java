@@ -20,7 +20,6 @@
 package org.sonar.plugins.javascript.unittest.surefireparser;
 
 import com.google.common.collect.Lists;
-
 import java.util.Collections;
 import java.util.List;
 

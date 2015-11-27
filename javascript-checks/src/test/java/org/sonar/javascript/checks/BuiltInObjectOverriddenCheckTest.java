@@ -30,11 +30,11 @@ public class BuiltInObjectOverriddenCheckTest extends TreeCheckTest {
     BuiltInObjectOverriddenCheck check = new BuiltInObjectOverriddenCheck();
 
     CheckMessagesVerifier.verify(getIssues("src/test/resources/checks/builtInObjectOverridden.js", check))
-        .next().atLine(1).withMessage("Remove this override of \"JSON\".")
-        .next().atLine(5)
-        .next().atLine(7)
-        .next().atLine(9)
-        .noMore();
+      .next().atLine(1).withMessage("Remove this override of \"JSON\".")
+      .next().atLine(5)
+      .next().atLine(7)
+      .next().atLine(9)
+      .noMore();
   }
 
 

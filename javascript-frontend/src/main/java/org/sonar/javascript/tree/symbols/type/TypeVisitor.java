@@ -20,6 +20,8 @@
 package org.sonar.javascript.tree.symbols.type;
 
 import com.google.common.base.Preconditions;
+import java.util.Set;
+import javax.annotation.Nullable;
 import org.sonar.api.config.Settings;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.javascript.tree.impl.SeparatedList;
@@ -48,9 +50,6 @@ import org.sonar.plugins.javascript.api.tree.expression.NewExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.ObjectLiteralTree;
 import org.sonar.plugins.javascript.api.tree.expression.ParenthesisedExpressionTree;
 import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
-
-import javax.annotation.Nullable;
-import java.util.Set;
 
 public class TypeVisitor extends BaseTreeVisitor {
 
@@ -104,7 +103,7 @@ public class TypeVisitor extends BaseTreeVisitor {
   @Override
   public void visitFunctionDeclaration(FunctionDeclarationTree tree) {
     Preconditions.checkState(tree.name().symbol() != null,
-        String.format("Symbol has not been created for this function %s declared at line %s", tree.name().name(), ((JavaScriptTree) tree).getLine()));
+      String.format("Symbol has not been created for this function %s declared at line %s", tree.name().name(), ((JavaScriptTree) tree).getLine()));
 
     super.visitFunctionDeclaration(tree);
     tree.name().symbol().addType(FunctionType.create(tree));
@@ -122,15 +121,15 @@ public class TypeVisitor extends BaseTreeVisitor {
       ((CallExpressionTreeImpl) tree).addType(ObjectType.FrameworkType.BACKBONE_MODEL);
     }
 
-    if (WebAPI.isWindow(tree)){
+    if (WebAPI.isWindow(tree)) {
       ((CallExpressionTreeImpl) tree).addType(ObjectType.WebApiType.WINDOW);
     }
 
-    if (WebAPI.isElement(tree)){
+    if (WebAPI.isElement(tree)) {
       ((CallExpressionTreeImpl) tree).addType(ObjectType.WebApiType.DOM_ELEMENT);
     }
 
-    if (WebAPI.isElementList(tree)){
+    if (WebAPI.isElementList(tree)) {
       ((CallExpressionTreeImpl) tree).addType(ArrayType.create(ObjectType.WebApiType.DOM_ELEMENT));
     }
 
@@ -141,7 +140,7 @@ public class TypeVisitor extends BaseTreeVisitor {
     Type functionType = tree.callee().types().getUniqueType(Type.Kind.FUNCTION);
     if (functionType != null) {
 
-      SeparatedList<Tree> parameters = ((FunctionType)functionType).functionTree().parameters().parameters();
+      SeparatedList<Tree> parameters = ((FunctionType) functionType).functionTree().parameters().parameters();
       SeparatedList<Tree> arguments = tree.arguments().parameters();
       int minSize = arguments.size() < parameters.size() ? arguments.size() : parameters.size();
 
@@ -154,9 +153,9 @@ public class TypeVisitor extends BaseTreeVisitor {
             addTypes(symbol, ((ExpressionTree) arguments.get(i)).types());
           } else {
             throw new IllegalStateException(String.format(
-                "Parameter %s has no symbol associated with it (line %s)",
-                ((IdentifierTree) currentParameter).name(),
-                ((JavaScriptTree) currentParameter).getLine()
+              "Parameter %s has no symbol associated with it (line %s)",
+              ((IdentifierTree) currentParameter).name(),
+              ((JavaScriptTree) currentParameter).getLine()
             ));
           }
         }
@@ -195,7 +194,7 @@ public class TypeVisitor extends BaseTreeVisitor {
       ((IdentifierTreeImpl) tree).addType(ObjectType.FrameworkType.JQUERY_OBJECT);
     }
 
-    if (WebAPI.isDocument(tree)){
+    if (WebAPI.isDocument(tree)) {
       ((IdentifierTreeImpl) tree).addType(ObjectType.WebApiType.DOCUMENT);
     }
   }
@@ -214,13 +213,13 @@ public class TypeVisitor extends BaseTreeVisitor {
       tree.addType(ObjectType.WebApiType.WINDOW);
     }
 
-    if (WebAPI.isElement(tree)){
+    if (WebAPI.isElement(tree)) {
       tree.addType(ObjectType.WebApiType.DOM_ELEMENT);
     }
 
-    if (tree.is(Tree.Kind.BRACKET_MEMBER_EXPRESSION)){
+    if (tree.is(Tree.Kind.BRACKET_MEMBER_EXPRESSION)) {
       Type arrayType = tree.object().types().getUniqueType(Type.Kind.ARRAY);
-      if (arrayType != null && ((ArrayType) arrayType).elementType() != null){
+      if (arrayType != null && ((ArrayType) arrayType).elementType() != null) {
         tree.addType(((ArrayType) arrayType).elementType());
       }
     }

@@ -19,6 +19,8 @@
  */
 package org.sonar.javascript.tree.symbols;
 
+import java.io.File;
+import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.javascript.utils.JavaScriptTreeModelTest;
@@ -35,9 +37,6 @@ import org.sonar.plugins.javascript.api.tree.statement.ExpressionStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.StatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.VariableStatementTree;
 
-import java.io.File;
-import java.util.List;
-
 import static org.fest.assertions.Assertions.assertThat;
 
 public class LinkToSymbolFromTreeTest extends JavaScriptTreeModelTest {
@@ -47,7 +46,7 @@ public class LinkToSymbolFromTreeTest extends JavaScriptTreeModelTest {
   @Before
   public void setUp() throws Exception {
     ScriptTree ROOT_NODE = (ScriptTree) p.parse(new File("src/test/resources/ast/resolve/symbols.js"));
-    SymbolModelImpl.create( ROOT_NODE, null, null);
+    SymbolModelImpl.create(ROOT_NODE, null, null);
     MODULE_ITEMS = (ROOT_NODE).items().items();
   }
 
@@ -58,19 +57,19 @@ public class LinkToSymbolFromTreeTest extends JavaScriptTreeModelTest {
     assertThat(symbolX.name()).isEqualTo("x");
 
     BindingElementTree bindingElementTree = ((VariableStatementTree) MODULE_ITEMS.get(1)).declaration().variables().get(0);
-    Symbol symbolY = ((IdentifierTree)((InitializedBindingElementTree) bindingElementTree).left()).symbol();
+    Symbol symbolY = ((IdentifierTree) ((InitializedBindingElementTree) bindingElementTree).left()).symbol();
     assertThat(symbolY).isNotNull();
     assertThat(symbolY.name()).isEqualTo("y");
 
 
-    IdentifierTree variableX = (IdentifierTree) ((AssignmentExpressionTree)((ExpressionStatementTree) MODULE_ITEMS.get(2)).expression()).variable();
+    IdentifierTree variableX = (IdentifierTree) ((AssignmentExpressionTree) ((ExpressionStatementTree) MODULE_ITEMS.get(2)).expression()).variable();
     assertThat(variableX.symbol()).isEqualTo(symbolX);
   }
 
   @Test
-  public void built_ins(){
+  public void built_ins() {
     List<StatementTree> statements = ((FunctionDeclarationTree) MODULE_ITEMS.get(3)).body().statements();
-    IdentifierTree eval = (IdentifierTree) ((CallExpressionTree)((ExpressionStatementTree) statements.get(1)).expression()).callee();
+    IdentifierTree eval = (IdentifierTree) ((CallExpressionTree) ((ExpressionStatementTree) statements.get(1)).expression()).callee();
     assertThat(eval.symbol()).isNotNull();
     assertThat(eval.symbol().builtIn()).isTrue();
 

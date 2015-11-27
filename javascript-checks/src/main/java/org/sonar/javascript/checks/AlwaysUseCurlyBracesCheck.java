@@ -20,26 +20,25 @@
 package org.sonar.javascript.checks;
 
 import com.google.common.collect.ImmutableList;
+import java.util.List;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
-import org.sonar.plugins.javascript.api.visitors.SubscriptionBaseTreeVisitor;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
+import org.sonar.plugins.javascript.api.tree.statement.ElseClauseTree;
 import org.sonar.plugins.javascript.api.tree.statement.IfStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.IterationStatementTree;
-import org.sonar.plugins.javascript.api.tree.statement.ElseClauseTree;
 import org.sonar.plugins.javascript.api.tree.statement.StatementTree;
+import org.sonar.plugins.javascript.api.visitors.SubscriptionBaseTreeVisitor;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 
-import java.util.List;
-
 @Rule(
-    key = "CurlyBraces",
-    name = "Control structures should always use curly braces",
-    priority = Priority.MAJOR,
-    tags = {Tags.CERT, Tags.CWE, Tags.MISRA, Tags.PITFALL})
+  key = "CurlyBraces",
+  name = "Control structures should always use curly braces",
+  priority = Priority.MAJOR,
+  tags = {Tags.CERT, Tags.CWE, Tags.MISRA, Tags.PITFALL})
 @SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.READABILITY)
 @SqaleConstantRemediation("2min")
 public class AlwaysUseCurlyBracesCheck extends SubscriptionBaseTreeVisitor {
@@ -47,13 +46,13 @@ public class AlwaysUseCurlyBracesCheck extends SubscriptionBaseTreeVisitor {
   @Override
   public List<Kind> nodesToVisit() {
     return ImmutableList.<Kind>builder()
-        .add(Kind.IF_STATEMENT)
-        .add(Kind.ELSE_CLAUSE)
-        .add(Kind.FOR_IN_STATEMENT)
-        .add(Kind.FOR_STATEMENT)
-        .add(Kind.WHILE_STATEMENT)
-        .add(Kind.DO_WHILE_STATEMENT)
-        .build();
+      .add(Kind.IF_STATEMENT)
+      .add(Kind.ELSE_CLAUSE)
+      .add(Kind.FOR_IN_STATEMENT)
+      .add(Kind.FOR_STATEMENT)
+      .add(Kind.WHILE_STATEMENT)
+      .add(Kind.DO_WHILE_STATEMENT)
+      .build();
   }
 
   @Override

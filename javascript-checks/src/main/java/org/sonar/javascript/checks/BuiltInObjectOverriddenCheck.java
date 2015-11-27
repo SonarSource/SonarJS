@@ -20,14 +20,13 @@
 package org.sonar.javascript.checks;
 
 import com.google.common.collect.ImmutableList;
+import java.util.List;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.plugins.javascript.api.symbols.Symbol;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
-
-import java.util.List;
 
 @Rule(
   key = "S2424",
@@ -41,48 +40,48 @@ public class BuiltInObjectOverriddenCheck extends AbstractSymbolNameCheck {
   private static final String MESSAGE = "Remove this override of \"%s\".";
 
   private static final List<String> BUILD_IN_OBJECTS = ImmutableList.of(
-      "Object",
-      "Function",
-      "Boolean",
-      "Symbol",
-      "Error",
-      "EvalError",
-      "InternalError",
-      "RangeError",
-      "ReferenceError",
-      "SyntaxError",
-      "TypeError",
-      "URIError",
-      "Number",
-      "Math",
-      "Date",
-      "String",
-      "RegExp",
-      "Array",
-      "Int8Array",
-      "Uint8Array",
-      "Uint8ClampedArray",
-      "Int16Array",
-      "Unit16Array",
-      "Int32Array",
-      "Uint32Array",
-      "Float32Array",
-      "Float64Array",
-      "Map",
-      "Set",
-      "WeakMap",
-      "WeakSet",
-      "ArrayBuffer",
-      "DataView",
-      "JSON",
-      "Promise",
-      "Reflect",
-      "Proxy",
-      "Intl",
-      "Generator",
-      "Iterator",
-      "ParallelArray",
-      "StopIteration"
+    "Object",
+    "Function",
+    "Boolean",
+    "Symbol",
+    "Error",
+    "EvalError",
+    "InternalError",
+    "RangeError",
+    "ReferenceError",
+    "SyntaxError",
+    "TypeError",
+    "URIError",
+    "Number",
+    "Math",
+    "Date",
+    "String",
+    "RegExp",
+    "Array",
+    "Int8Array",
+    "Uint8Array",
+    "Uint8ClampedArray",
+    "Int16Array",
+    "Unit16Array",
+    "Int32Array",
+    "Uint32Array",
+    "Float32Array",
+    "Float64Array",
+    "Map",
+    "Set",
+    "WeakMap",
+    "WeakSet",
+    "ArrayBuffer",
+    "DataView",
+    "JSON",
+    "Promise",
+    "Reflect",
+    "Proxy",
+    "Intl",
+    "Generator",
+    "Iterator",
+    "ParallelArray",
+    "StopIteration"
   );
 
   @Override

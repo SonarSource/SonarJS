@@ -21,7 +21,6 @@ package org.sonar.plugins.javascript.unittest.surefireparser;
 
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-
 import java.util.Map;
 import java.util.Set;
 

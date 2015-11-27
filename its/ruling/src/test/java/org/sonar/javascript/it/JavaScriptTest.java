@@ -23,11 +23,10 @@ import com.google.common.io.Files;
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.SonarRunner;
 import com.sonar.orchestrator.locator.FileLocation;
-import org.junit.ClassRule;
-import org.junit.Test;
-
 import java.io.File;
 import java.nio.charset.StandardCharsets;
+import org.junit.ClassRule;
+import org.junit.Test;
 
 import static junit.framework.TestCase.assertTrue;
 import static org.fest.assertions.Assertions.assertThat;

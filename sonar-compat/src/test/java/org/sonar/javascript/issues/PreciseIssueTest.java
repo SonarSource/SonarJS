@@ -43,7 +43,7 @@ public class PreciseIssueTest {
 
   private InputFile inputFile = new DefaultInputFile("module1", "myPath")
     .setLines(4)
-    .setOriginalLineOffsets(new int[] {0, 10, 20, 30})
+    .setOriginalLineOffsets(new int[]{0, 10, 20, 30})
     .setLastValidOffset(40);
   private SensorContext sensorContext = mock(SensorContext.class);
   private RuleKey ruleKey = RuleKey.of("repo1", "key1");

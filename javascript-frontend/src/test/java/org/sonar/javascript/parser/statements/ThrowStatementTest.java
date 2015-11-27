@@ -30,24 +30,24 @@ public class ThrowStatementTest extends LegacyParserTest {
   @Test
   public void ok() {
     assertThat(g.rule(Kind.THROW_STATEMENT))
-        .as("EOS is line terminator")
-        .notMatches("throw \n 42 ;")
-        .matchesPrefix("throw 42 \n", "42 ;")
+      .as("EOS is line terminator")
+      .notMatches("throw \n 42 ;")
+      .matchesPrefix("throw 42 \n", "42 ;")
 
-        .as("EOS is semicolon")
-        .notMatches("throw ; 42")
-        .matchesPrefix("throw 42 \n ;", "42")
-        .matches("throw 42 \n + 42 ;")
+      .as("EOS is semicolon")
+      .notMatches("throw ; 42")
+      .matchesPrefix("throw 42 \n ;", "42")
+      .matches("throw 42 \n + 42 ;")
 
-        .as("EOS is before right curly bracket")
-        .notMatches("throw }")
-        .matchesPrefix("throw 42", "}")
-        .matchesPrefix("throw 42 \n + 42", "}")
+      .as("EOS is before right curly bracket")
+      .notMatches("throw }")
+      .matchesPrefix("throw 42", "}")
+      .matchesPrefix("throw 42 \n + 42", "}")
 
-        .as("EOS is end of input")
-        .notMatches("throw ")
-        .matches("throw 42 ")
-        .matches("throw 42 \n + 42");
+      .as("EOS is end of input")
+      .notMatches("throw ")
+      .matches("throw 42 ")
+      .matches("throw 42 \n + 42");
   }
 
 }

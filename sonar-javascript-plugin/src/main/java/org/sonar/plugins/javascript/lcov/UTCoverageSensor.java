@@ -20,6 +20,11 @@
 package org.sonar.plugins.javascript.lcov;
 
 import com.google.common.collect.ImmutableList;
+import java.io.File;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,14 +41,8 @@ import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.measures.PropertiesBuilder;
 import org.sonar.api.resources.Project;
-import org.sonar.plugins.javascript.JavaScriptPlugin;
 import org.sonar.plugins.javascript.JavaScriptLanguage;
-
-import javax.annotation.Nullable;
-import java.io.File;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
+import org.sonar.plugins.javascript.JavaScriptPlugin;
 
 public class UTCoverageSensor implements Sensor {
 
@@ -71,8 +70,8 @@ public class UTCoverageSensor implements Sensor {
     this.fileSystem = fileSystem;
     this.settings = settings;
     this.mainFilePredicate = fileSystem.predicates().and(
-        fileSystem.predicates().hasType(InputFile.Type.MAIN),
-        fileSystem.predicates().hasLanguage(JavaScriptLanguage.KEY));
+      fileSystem.predicates().hasType(InputFile.Type.MAIN),
+      fileSystem.predicates().hasLanguage(JavaScriptLanguage.KEY));
   }
 
   @Override
@@ -136,9 +135,9 @@ public class UTCoverageSensor implements Sensor {
     List<String> unresolvedPaths = parser.unresolvedPaths();
     if (!unresolvedPaths.isEmpty()) {
       LOG.warn(
-          String.format(
-              "Could not resolve %d file paths in %s, first unresolved path: %s",
-              unresolvedPaths.size(), lcovFile.getName(), unresolvedPaths.get(0)));
+        String.format(
+          "Could not resolve %d file paths in %s, first unresolved path: %s",
+          unresolvedPaths.size(), lcovFile.getName(), unresolvedPaths.get(0)));
     }
   }
 

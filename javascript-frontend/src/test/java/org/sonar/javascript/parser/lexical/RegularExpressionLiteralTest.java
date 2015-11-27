@@ -30,11 +30,11 @@ public class RegularExpressionLiteralTest {
   @Test
   public void ok() {
     assertThat(JavaScriptTokenType.REGULAR_EXPRESSION_LITERAL)
-        .matches("/[]/")
-        .matches("/[^/]/")
-        .matches("/[^\\\\h;m,.\\-:/\\d]+/gi")
-        .matches("/\\B/")
-        .matches("/[\\B]/");
+      .matches("/[]/")
+      .matches("/[^/]/")
+      .matches("/[^\\\\h;m,.\\-:/\\d]+/gi")
+      .matches("/\\B/")
+      .matches("/[\\B]/");
   }
 
 }

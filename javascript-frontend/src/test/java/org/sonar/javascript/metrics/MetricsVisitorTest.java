@@ -19,6 +19,7 @@
  */
 package org.sonar.javascript.metrics;
 
+import java.io.File;
 import org.junit.Test;
 import org.sonar.api.batch.SensorContext;
 import org.sonar.api.batch.fs.InputFile;
@@ -30,10 +31,8 @@ import org.sonar.api.measures.FileLinesContext;
 import org.sonar.api.measures.FileLinesContextFactory;
 import org.sonar.api.resources.Resource;
 import org.sonar.javascript.utils.JavaScriptTreeModelTest;
-import org.sonar.plugins.javascript.api.visitors.TreeVisitorContext;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
-
-import java.io.File;
+import org.sonar.plugins.javascript.api.visitors.TreeVisitorContext;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -48,9 +47,9 @@ public class MetricsVisitorTest extends JavaScriptTreeModelTest {
     File file = new File("src/test/resources/metrics/lines.js");
 
     DefaultInputFile inputFile = new DefaultInputFile("src/test/resources/metrics/lines.js")
-        .setAbsolutePath(file.getAbsolutePath())
-        .setLanguage("js")
-        .setType(InputFile.Type.MAIN);
+      .setAbsolutePath(file.getAbsolutePath())
+      .setLanguage("js")
+      .setType(InputFile.Type.MAIN);
 
     fileSystem.add(inputFile);
 
@@ -66,11 +65,11 @@ public class MetricsVisitorTest extends JavaScriptTreeModelTest {
     when(linesContextFactory.createFor(inputFile)).thenReturn(linesContext);
 
     MetricsVisitor metricsVisitor = new MetricsVisitor(
-        fileSystem,
-        context,
-        mock(NoSonarFilter.class),
-        false,
-        linesContextFactory
+      fileSystem,
+      context,
+      mock(NoSonarFilter.class),
+      false,
+      linesContextFactory
     );
 
     TreeVisitorContext treeVisitorContext = mock(TreeVisitorContext.class);

@@ -22,13 +22,12 @@ package org.sonar.javascript.tree.impl;
 import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.UnmodifiableIterator;
-import org.sonar.javascript.tree.impl.lexical.InternalSyntaxToken;
-import org.sonar.plugins.javascript.api.tree.Tree;
-
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
+import org.sonar.javascript.tree.impl.lexical.InternalSyntaxToken;
+import org.sonar.plugins.javascript.api.tree.Tree;
 
 public class SeparatedList<T> implements List<T> {
 

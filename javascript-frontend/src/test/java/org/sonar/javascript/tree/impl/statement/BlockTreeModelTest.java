@@ -19,17 +19,18 @@
  */
 package org.sonar.javascript.tree.impl.statement;
 
-import static org.fest.assertions.Assertions.assertThat;
 import org.junit.Test;
 import org.sonar.javascript.utils.JavaScriptTreeModelTest;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.statement.BlockTree;
 
+import static org.fest.assertions.Assertions.assertThat;
+
 public class BlockTreeModelTest extends JavaScriptTreeModelTest {
 
   @Test
   public void without_statements() throws Exception {
-   BlockTree tree = parse("{ }", Kind.BLOCK);
+    BlockTree tree = parse("{ }", Kind.BLOCK);
 
     assertThat(tree.is(Kind.BLOCK)).isTrue();
     assertThat(tree.openCurlyBrace().text()).isEqualTo("{");

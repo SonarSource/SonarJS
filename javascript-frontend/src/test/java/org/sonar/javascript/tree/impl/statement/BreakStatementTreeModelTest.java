@@ -31,7 +31,7 @@ public class BreakStatementTreeModelTest extends JavaScriptTreeModelTest {
 
   @Test
   public void with_label() throws Exception {
-   BreakStatementTree tree = parse("break label ;", Kind.BREAK_STATEMENT);
+    BreakStatementTree tree = parse("break label ;", Kind.BREAK_STATEMENT);
 
     assertThat(tree.is(Kind.BREAK_STATEMENT)).isTrue();
     assertThat(tree.breakKeyword().text()).isEqualTo(JavaScriptKeyword.BREAK.getValue());

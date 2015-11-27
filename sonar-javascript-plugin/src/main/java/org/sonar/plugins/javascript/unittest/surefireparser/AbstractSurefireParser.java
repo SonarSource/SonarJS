@@ -19,6 +19,10 @@
  */
 package org.sonar.plugins.javascript.unittest.surefireparser;
 
+import java.io.File;
+import java.io.FilenameFilter;
+import java.util.Map;
+import javax.xml.stream.XMLStreamException;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,11 +34,6 @@ import org.sonar.api.resources.Resource;
 import org.sonar.api.utils.ParsingUtils;
 import org.sonar.api.utils.SonarException;
 import org.sonar.api.utils.StaxParser;
-
-import javax.xml.stream.XMLStreamException;
-import java.io.File;
-import java.io.FilenameFilter;
-import java.util.Map;
 
 public abstract class AbstractSurefireParser {
 

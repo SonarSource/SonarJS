@@ -20,7 +20,6 @@
 package org.sonar.javascript.checks;
 
 import java.io.File;
-
 import org.junit.Test;
 import org.sonar.javascript.checks.utils.JavaScriptCheckVerifier;
 
@@ -29,7 +28,7 @@ public class AssignmentWithinConditionCheckTest {
   @Test
   public void test() {
     JavaScriptCheckVerifier.verify(
-      new AssignmentWithinConditionCheck(), 
+      new AssignmentWithinConditionCheck(),
       new File("src/test/resources/checks/assignmentWithinCondition.js"));
   }
 

@@ -22,15 +22,14 @@ package org.sonar.javascript.metrics;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Sets;
+import java.util.List;
+import java.util.Set;
 import org.sonar.javascript.tree.JavaScriptCommentAnalyser;
 import org.sonar.javascript.tree.visitors.SubscriptionTreeVisitor;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxTrivia;
-
-import java.util.List;
-import java.util.Set;
 
 public class CommentLineVisitor extends SubscriptionTreeVisitor {
 
@@ -62,7 +61,7 @@ public class CommentLineVisitor extends SubscriptionTreeVisitor {
     for (SyntaxTrivia trivia : ((SyntaxToken) tree).trivias()) {
       if ((ignoreHeaderComments && seenFirstToken) || !ignoreHeaderComments) {
         String[] commentLines = commentAnalyser.getContents(trivia.text())
-            .split("(\r)?\n|\r", -1);
+          .split("(\r)?\n|\r", -1);
         int lineNumber = trivia.line();
         for (String commentLine : commentLines) {
           if (commentLine.contains("NOSONAR")) {

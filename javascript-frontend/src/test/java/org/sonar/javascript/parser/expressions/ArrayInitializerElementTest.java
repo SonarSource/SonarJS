@@ -30,8 +30,8 @@ public class ArrayInitializerElementTest {
   @Test
   public void ok() {
     assertThat(JavaScriptLegacyGrammar.ARRAY_LITERAL_ELEMENT)
-        .matches("assignmentExpression")
-        .matches("... assignmentExpression");
+      .matches("assignmentExpression")
+      .matches("... assignmentExpression");
   }
 
 }

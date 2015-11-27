@@ -30,8 +30,8 @@ public class WithStatementCheckTest extends TreeCheckTest {
     WithStatementCheck check = new WithStatementCheck();
 
     CheckMessagesVerifier.verify(getIssues("src/test/resources/checks/withStatement.js", check))
-        .next().atLine(2).withMessage("Remove this use of \"with\".")
-        .noMore();
+      .next().atLine(2).withMessage("Remove this use of \"with\".")
+      .noMore();
   }
 
 }

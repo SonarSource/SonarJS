@@ -30,10 +30,10 @@ public class ArrayAndObjectConstructorsCheckTest extends TreeCheckTest {
     ArrayAndObjectConstructorsCheck check = new ArrayAndObjectConstructorsCheck();
 
     CheckMessagesVerifier.verify(getIssues("src/test/resources/checks/arrayAndObjectConstructors.js", check))
-        .next().atLine(2).withMessage("Use a literal instead of the Array constructor.")
-        .next().atLine(3).withMessage("Use a literal instead of the Array constructor.")
-        .next().atLine(5).withMessage("Use a literal instead of the Object constructor.")
-        .noMore();
+      .next().atLine(2).withMessage("Use a literal instead of the Array constructor.")
+      .next().atLine(3).withMessage("Use a literal instead of the Array constructor.")
+      .next().atLine(5).withMessage("Use a literal instead of the Object constructor.")
+      .noMore();
   }
 
 }

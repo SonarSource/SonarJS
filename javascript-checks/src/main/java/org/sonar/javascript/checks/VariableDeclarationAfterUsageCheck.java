@@ -19,30 +19,29 @@
  */
 package org.sonar.javascript.checks;
 
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.LinkedList;
+import java.util.List;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
-import org.sonar.plugins.javascript.api.symbols.SymbolModel;
-import org.sonar.plugins.javascript.api.symbols.Symbol;
-import org.sonar.plugins.javascript.api.symbols.Usage;
-import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
+import org.sonar.plugins.javascript.api.symbols.Symbol;
+import org.sonar.plugins.javascript.api.symbols.SymbolModel;
+import org.sonar.plugins.javascript.api.symbols.Usage;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
+import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
 import org.sonar.plugins.javascript.api.visitors.IssueLocation;
 import org.sonar.squidbridge.annotations.ActivatedByDefault;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.LinkedList;
-import java.util.List;
-
 @Rule(
-    key = "VariableDeclarationAfterUsage",
-    name = "Variables should be declared before they are used",
-    priority = Priority.MAJOR,
-    tags = {Tags.PITFALL})
+  key = "VariableDeclarationAfterUsage",
+  name = "Variables should be declared before they are used",
+  priority = Priority.MAJOR,
+  tags = {Tags.PITFALL})
 @ActivatedByDefault
 @SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.LOGIC_RELIABILITY)
 @SqaleConstantRemediation("10min")
@@ -72,12 +71,12 @@ public class VariableDeclarationAfterUsageCheck extends BaseTreeVisitor {
 
       Collections.sort(usages, new LineComparator());
 
-      if (usages.get(0).isDeclaration() || usages.get(0).kind() == Usage.Kind.LEXICAL_DECLARATION){
+      if (usages.get(0).isDeclaration() || usages.get(0).kind() == Usage.Kind.LEXICAL_DECLARATION) {
         return;
       }
 
-      for (int i = 1; i < usages.size(); i++){
-        if (usages.get(i).isDeclaration()){
+      for (int i = 1; i < usages.size(); i++) {
+        if (usages.get(i).isDeclaration()) {
           IssueLocation primaryLocation = new IssueLocation(usages.get(0).identifierTree(), String.format(MESSAGE, symbol.name()));
           IssueLocation secondaryLocation = new IssueLocation(usages.get(i).identifierTree(), "Declaration");
           getContext().addIssue(this, primaryLocation, Collections.singletonList(secondaryLocation), null);

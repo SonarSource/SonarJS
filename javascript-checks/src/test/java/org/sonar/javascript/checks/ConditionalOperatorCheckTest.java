@@ -28,8 +28,8 @@ public class ConditionalOperatorCheckTest extends TreeCheckTest {
   @Test
   public void test() {
     CheckMessagesVerifier.verify(getIssues("src/test/resources/checks/inlineConditional.js", new ConditionalOperatorCheck()))
-        .next().atLine(2).withMessage("Replace this conditional operator by a standard if/else control flow statement.")
-        .noMore();
+      .next().atLine(2).withMessage("Replace this conditional operator by a standard if/else control flow statement.")
+      .noMore();
   }
 
 }

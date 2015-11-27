@@ -59,7 +59,7 @@ public class NewExpressionTreeModelTest extends JavaScriptTreeModelTest {
     assertThat(tree.arguments()).isNotNull();
   }
 
- @Test
+  @Test
   public void new_expression_without_arguments() throws Exception {
     NewExpressionTree tree = parse("new Name", Kind.NEW_EXPRESSION);
 

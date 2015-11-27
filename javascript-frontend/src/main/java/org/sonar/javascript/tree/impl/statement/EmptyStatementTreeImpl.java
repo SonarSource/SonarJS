@@ -20,14 +20,13 @@
 package org.sonar.javascript.tree.impl.statement;
 
 import com.google.common.collect.Iterators;
-import org.sonar.plugins.javascript.api.visitors.TreeVisitor;
+import java.util.Iterator;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.javascript.tree.impl.lexical.InternalSyntaxToken;
 import org.sonar.plugins.javascript.api.tree.Tree;
-import org.sonar.plugins.javascript.api.tree.statement.EmptyStatementTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
-
-import java.util.Iterator;
+import org.sonar.plugins.javascript.api.tree.statement.EmptyStatementTree;
+import org.sonar.plugins.javascript.api.visitors.TreeVisitor;
 
 public class EmptyStatementTreeImpl extends JavaScriptTree implements EmptyStatementTree {
 

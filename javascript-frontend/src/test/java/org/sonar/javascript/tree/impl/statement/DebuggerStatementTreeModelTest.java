@@ -31,7 +31,7 @@ public class DebuggerStatementTreeModelTest extends JavaScriptTreeModelTest {
 
   @Test
   public void test() throws Exception {
-   DebuggerStatementTree tree = parse("debugger;", Kind.DEBUGGER_STATEMENT);
+    DebuggerStatementTree tree = parse("debugger;", Kind.DEBUGGER_STATEMENT);
 
     assertThat(tree.is(Kind.DEBUGGER_STATEMENT)).isTrue();
     assertThat(tree.debuggerKeyword().text()).isEqualTo(JavaScriptKeyword.DEBUGGER.getValue());

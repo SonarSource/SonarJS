@@ -20,6 +20,7 @@
 package org.sonar.javascript.tree.impl.expression;
 
 import com.google.common.collect.Iterators;
+import java.util.Iterator;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.javascript.tree.impl.lexical.InternalSyntaxToken;
 import org.sonar.plugins.javascript.api.symbols.Type;
@@ -29,8 +30,6 @@ import org.sonar.plugins.javascript.api.tree.expression.BracketMemberExpressionT
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.javascript.api.visitors.TreeVisitor;
-
-import java.util.Iterator;
 
 public class BracketMemberExpressionTreeImpl extends JavaScriptTree implements BracketMemberExpressionTree {
 

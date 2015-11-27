@@ -42,10 +42,10 @@ import org.sonar.squidbridge.annotations.SqaleLinearWithOffsetRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 
 @Rule(
-    key = "FunctionComplexity",
-    name = "Functions should not be too complex",
-    priority = Priority.MAJOR,
-    tags = {Tags.BRAIN_OVERLOAD})
+  key = "FunctionComplexity",
+  name = "Functions should not be too complex",
+  priority = Priority.MAJOR,
+  tags = {Tags.BRAIN_OVERLOAD})
 @ActivatedByDefault
 @SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.UNIT_TESTABILITY)
 @SqaleLinearWithOffsetRemediation(
@@ -59,9 +59,9 @@ public class FunctionComplexityCheck extends SubscriptionBaseTreeVisitor {
   private static final int DEFAULT_MAXIMUM_FUNCTION_COMPLEXITY_THRESHOLD = 10;
 
   @RuleProperty(
-      key = "maximumFunctionComplexityThreshold",
-      description = "The maximum authorized complexity in function",
-      defaultValue = "" + DEFAULT_MAXIMUM_FUNCTION_COMPLEXITY_THRESHOLD)
+    key = "maximumFunctionComplexityThreshold",
+    description = "The maximum authorized complexity in function",
+    defaultValue = "" + DEFAULT_MAXIMUM_FUNCTION_COMPLEXITY_THRESHOLD)
   private int maximumFunctionComplexityThreshold = DEFAULT_MAXIMUM_FUNCTION_COMPLEXITY_THRESHOLD;
   private boolean immediatelyInvokedFunctionExpression = false;
   private boolean amdPattern = false;
@@ -69,14 +69,14 @@ public class FunctionComplexityCheck extends SubscriptionBaseTreeVisitor {
   @Override
   public List<Kind> nodesToVisit() {
     return ImmutableList.of(
-        Kind.FUNCTION_DECLARATION,
-        Kind.FUNCTION_EXPRESSION,
-        Kind.GENERATOR_FUNCTION_EXPRESSION,
-        Kind.GENERATOR_DECLARATION,
-        Kind.METHOD,
-        Kind.GENERATOR_METHOD,
-        Kind.CALL_EXPRESSION,
-        Kind.NEW_EXPRESSION
+      Kind.FUNCTION_DECLARATION,
+      Kind.FUNCTION_EXPRESSION,
+      Kind.GENERATOR_FUNCTION_EXPRESSION,
+      Kind.GENERATOR_DECLARATION,
+      Kind.METHOD,
+      Kind.GENERATOR_METHOD,
+      Kind.CALL_EXPRESSION,
+      Kind.NEW_EXPRESSION
     );
   }
 

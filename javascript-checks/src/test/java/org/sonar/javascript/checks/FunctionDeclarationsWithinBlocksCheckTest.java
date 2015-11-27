@@ -28,8 +28,8 @@ public class FunctionDeclarationsWithinBlocksCheckTest extends TreeCheckTest {
   @Test
   public void test() {
     CheckMessagesVerifier.verify(getIssues("src/test/resources/checks/functionDeclarationsWithinBlocks.js", new FunctionDeclarationsWithinBlocksCheck()))
-        .next().atLine(3).withMessage("Do not use function declarations within blocks.")
-        .noMore();
+      .next().atLine(3).withMessage("Do not use function declarations within blocks.")
+      .noMore();
   }
 
 }

@@ -29,8 +29,8 @@ public class DebuggerStatementTest {
   @Test
   public void ok() {
     assertThat(Kind.DEBUGGER_STATEMENT)
-        .matches("debugger")
-        .matches("debugger;");
+      .matches("debugger")
+      .matches("debugger;");
   }
 
 }

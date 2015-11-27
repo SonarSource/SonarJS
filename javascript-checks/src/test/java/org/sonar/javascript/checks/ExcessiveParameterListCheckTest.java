@@ -30,16 +30,16 @@ public class ExcessiveParameterListCheckTest extends TreeCheckTest {
   @Test
   public void defaults() {
     CheckMessagesVerifier.verify(getIssues("src/test/resources/checks/excessiveParameterList.js", check))
-        .next().atLine(4).withMessage("Function has 8 parameters which is greater than 7 authorized.")
-        .next().atLine(7)
-        .noMore();
+      .next().atLine(4).withMessage("Function has 8 parameters which is greater than 7 authorized.")
+      .next().atLine(7)
+      .noMore();
   }
 
   @Test
   public void test() {
     check.setMaximumFunctionParameters(8);
     CheckMessagesVerifier.verify(getIssues("src/test/resources/checks/excessiveParameterList.js", check))
-        .noMore();
+      .noMore();
   }
 
 }

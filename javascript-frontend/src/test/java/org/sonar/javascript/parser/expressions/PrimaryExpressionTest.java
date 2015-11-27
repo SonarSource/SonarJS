@@ -30,16 +30,16 @@ public class PrimaryExpressionTest {
   @Test
   public void realLife() {
     assertThat(JavaScriptLegacyGrammar.PRIMARY_EXPRESSION)
-        .matches("this")
-        .matches("identifier")
-        .matches("''")
-        .matches("true")
-        .matches("[]")
-        .matches("{}")
-        .matches("class {}")
-        .matches("function * () {}")
-        .matches("``")
-        .matches("( expression )");
+      .matches("this")
+      .matches("identifier")
+      .matches("''")
+      .matches("true")
+      .matches("[]")
+      .matches("{}")
+      .matches("class {}")
+      .matches("function * () {}")
+      .matches("``")
+      .matches("( expression )");
   }
 
 }

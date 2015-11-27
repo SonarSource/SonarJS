@@ -87,12 +87,12 @@ public class JavaScriptCheckContext implements TreeVisitorContext {
   }
 
   @Override
-  public void addIssue(JavaScriptCheck check, Tree tree, String message, double cost){
+  public void addIssue(JavaScriptCheck check, Tree tree, String message, double cost) {
     commonAddIssue(check, getLine(tree), message, cost);
   }
 
   @Override
-  public void addIssue(JavaScriptCheck check, int line, String message, double cost){
+  public void addIssue(JavaScriptCheck check, int line, String message, double cost) {
     commonAddIssue(check, line, message, cost);
   }
 
@@ -113,16 +113,16 @@ public class JavaScriptCheckContext implements TreeVisitorContext {
 
   /**
    * Cost is set if <code>cost<code/> is more than zero.
-   * */
-  private void commonAddIssue(JavaScriptCheck check, int line, String message, double cost){
+   */
+  private void commonAddIssue(JavaScriptCheck check, int line, String message, double cost) {
     Preconditions.checkNotNull(message);
 
     RuleKey ruleKey = ruleKey(check);
 
     IssueBuilder issueBuilder = issuable
-        .newIssueBuilder()
-        .ruleKey(ruleKey)
-        .message(message);
+      .newIssueBuilder()
+      .ruleKey(ruleKey)
+      .message(message);
 
     if (line > 0) {
       issueBuilder.line(line);
@@ -144,7 +144,7 @@ public class JavaScriptCheckContext implements TreeVisitorContext {
   }
 
   private static int getLine(Tree tree) {
-    return ((JavaScriptTree)tree).getLine();
+    return ((JavaScriptTree) tree).getLine();
   }
 
   @Override
@@ -153,7 +153,7 @@ public class JavaScriptCheckContext implements TreeVisitorContext {
   }
 
   @Override
-  public String[] getPropertyValues(String name){
+  public String[] getPropertyValues(String name) {
     return settings.getStringArray(name);
   }
 

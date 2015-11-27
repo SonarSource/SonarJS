@@ -30,10 +30,10 @@ public class SelectionTestedWithoutLengthCheckTest extends TreeCheckTest {
   @Test
   public void test() {
     CheckMessagesVerifier.verify(getIssues("src/test/resources/checks/SelectionTestedWithoutLength.js", check))
-    .next().atLine(1)
-    .next().atLine(13)
-    .next().atLine(17)
-    .noMore();
+      .next().atLine(1)
+      .next().atLine(13)
+      .next().atLine(17)
+      .noMore();
 
   }
 }

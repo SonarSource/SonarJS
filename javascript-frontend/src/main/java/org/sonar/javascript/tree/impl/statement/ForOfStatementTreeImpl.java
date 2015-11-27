@@ -20,7 +20,7 @@
 package org.sonar.javascript.tree.impl.statement;
 
 import com.google.common.collect.Iterators;
-import org.sonar.plugins.javascript.api.visitors.TreeVisitor;
+import java.util.Iterator;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.javascript.tree.impl.lexical.InternalSyntaxToken;
 import org.sonar.plugins.javascript.api.tree.Tree;
@@ -28,8 +28,7 @@ import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.javascript.api.tree.statement.ForOfStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.StatementTree;
-
-import java.util.Iterator;
+import org.sonar.plugins.javascript.api.visitors.TreeVisitor;
 
 public class ForOfStatementTreeImpl extends JavaScriptTree implements ForOfStatementTree {
 
@@ -41,8 +40,10 @@ public class ForOfStatementTreeImpl extends JavaScriptTree implements ForOfState
   private final SyntaxToken closeParenthesis;
   private final StatementTree statement;
 
-  public ForOfStatementTreeImpl(InternalSyntaxToken forKeyword, InternalSyntaxToken openParenthesis, Tree variableOrExpression,
-                                InternalSyntaxToken ofKeyword, ExpressionTree expression, InternalSyntaxToken closeParenthesis, StatementTree statement) {
+  public ForOfStatementTreeImpl(
+    InternalSyntaxToken forKeyword, InternalSyntaxToken openParenthesis, Tree variableOrExpression,
+    InternalSyntaxToken ofKeyword, ExpressionTree expression, InternalSyntaxToken closeParenthesis, StatementTree statement
+  ) {
     this.forKeyword = forKeyword;
     this.openParenthesis = openParenthesis;
     this.variableOrExpression = variableOrExpression;

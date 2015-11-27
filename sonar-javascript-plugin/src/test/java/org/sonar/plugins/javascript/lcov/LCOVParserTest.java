@@ -19,6 +19,9 @@
  */
 package org.sonar.plugins.javascript.lcov;
 
+import java.io.File;
+import java.util.Arrays;
+import java.util.Map;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -28,10 +31,6 @@ import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultFileSystem;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.measures.CoverageMeasuresBuilder;
-
-import java.io.File;
-import java.util.Arrays;
-import java.util.Map;
 
 import static org.fest.assertions.Assertions.assertThat;
 

@@ -20,6 +20,7 @@
 package org.sonar.plugins.javascript;
 
 import com.google.common.collect.ImmutableList;
+import java.util.List;
 import org.sonar.api.PropertyType;
 import org.sonar.api.SonarPlugin;
 import org.sonar.api.config.PropertyDefinition;
@@ -33,8 +34,6 @@ import org.sonar.plugins.javascript.rules.JavaScriptCommonRulesEngine;
 import org.sonar.plugins.javascript.rules.JavaScriptRulesDefinition;
 import org.sonar.plugins.javascript.unittest.jstest.JsTestSensor;
 import org.sonar.plugins.javascript.unittest.jstestdriver.JsTestDriverSensor;
-
-import java.util.List;
 
 public class JavaScriptPlugin extends SonarPlugin {
 
@@ -70,34 +69,34 @@ public class JavaScriptPlugin extends SonarPlugin {
   public static final String JQUERY_OBJECT_ALIASES = JQuery.JQUERY_OBJECT_ALIASES;
   public static final String JQUERY_OBJECT_ALIASES_DEFAULT_VALUE = JQuery.JQUERY_OBJECT_ALIASES_DEFAULT_VALUE;
 
-  public static final String  IGNORE_HEADER_COMMENTS = PROPERTY_PREFIX + ".ignoreHeaderComments";
+  public static final String IGNORE_HEADER_COMMENTS = PROPERTY_PREFIX + ".ignoreHeaderComments";
   public static final Boolean IGNORE_HEADER_COMMENTS_DEFAULT_VALUE = true;
 
   @Override
   public List getExtensions() {
     return ImmutableList.of(
-        JavaScriptLanguage.class,
-        JavaScriptCpdMapping.class,
+      JavaScriptLanguage.class,
+      JavaScriptCpdMapping.class,
 
-        JavaScriptSquidSensor.class,
-        JavaScriptRulesDefinition.class,
-        JavaScriptProfile.class,
+      JavaScriptSquidSensor.class,
+      JavaScriptRulesDefinition.class,
+      JavaScriptProfile.class,
 
-        JavaScriptCommonRulesEngine.class,
-        JavaScriptCommonRulesDecorator.class,
+      JavaScriptCommonRulesEngine.class,
+      JavaScriptCommonRulesDecorator.class,
 
-        JsTestSensor.class,
-        JsTestDriverSensor.class,
-        UTCoverageSensor.class,
-        ITCoverageSensor.class,
+      JsTestSensor.class,
+      JsTestDriverSensor.class,
+      UTCoverageSensor.class,
+      ITCoverageSensor.class,
 
-        PropertyDefinition.builder(FILE_SUFFIXES_KEY)
-            .defaultValue(FILE_SUFFIXES_DEFVALUE)
-            .name("File Suffixes")
-            .description("Comma-separated list of suffixes for files to analyze.")
-            .subCategory(GENERAL)
-            .onQualifiers(Qualifiers.PROJECT)
-            .build(),
+      PropertyDefinition.builder(FILE_SUFFIXES_KEY)
+        .defaultValue(FILE_SUFFIXES_DEFVALUE)
+        .name("File Suffixes")
+        .description("Comma-separated list of suffixes for files to analyze.")
+        .subCategory(GENERAL)
+        .onQualifiers(Qualifiers.PROJECT)
+        .build(),
 
       PropertyDefinition.builder(JavaScriptPlugin.IGNORE_HEADER_COMMENTS)
         .defaultValue(JavaScriptPlugin.IGNORE_HEADER_COMMENTS_DEFAULT_VALUE.toString())
@@ -108,46 +107,46 @@ public class JavaScriptPlugin extends SonarPlugin {
         .type(PropertyType.BOOLEAN)
         .build(),
 
-        PropertyDefinition.builder(LCOV_UT_REPORT_PATH)
-            .defaultValue(LCOV_UT_REPORT_PATH_DEFAULT_VALUE)
-            .name("Unit Tests LCOV File")
-            .description("Path (absolute or relative) to the file with LCOV data for unit tests.")
-            .onQualifiers(Qualifiers.MODULE, Qualifiers.PROJECT)
-            .subCategory(TEST_AND_COVERAGE)
-            .build(),
+      PropertyDefinition.builder(LCOV_UT_REPORT_PATH)
+        .defaultValue(LCOV_UT_REPORT_PATH_DEFAULT_VALUE)
+        .name("Unit Tests LCOV File")
+        .description("Path (absolute or relative) to the file with LCOV data for unit tests.")
+        .onQualifiers(Qualifiers.MODULE, Qualifiers.PROJECT)
+        .subCategory(TEST_AND_COVERAGE)
+        .build(),
 
-        PropertyDefinition.builder(LCOV_IT_REPORT_PATH)
-            .defaultValue(LCOV_IT_REPORT_PATH_DEFAULT_VALUE)
-            .name("Integration Tests LCOV File")
-            .description("Path (absolute or relative) to the file with LCOV data for integration tests.")
-            .onQualifiers(Qualifiers.MODULE, Qualifiers.PROJECT)
-            .subCategory(TEST_AND_COVERAGE)
-            .build(),
+      PropertyDefinition.builder(LCOV_IT_REPORT_PATH)
+        .defaultValue(LCOV_IT_REPORT_PATH_DEFAULT_VALUE)
+        .name("Integration Tests LCOV File")
+        .description("Path (absolute or relative) to the file with LCOV data for integration tests.")
+        .onQualifiers(Qualifiers.MODULE, Qualifiers.PROJECT)
+        .subCategory(TEST_AND_COVERAGE)
+        .build(),
 
-        PropertyDefinition.builder(FORCE_ZERO_COVERAGE_KEY)
-            .defaultValue(FORCE_ZERO_COVERAGE_DEFAULT_VALUE)
-            .name("Force 0 coverage value")
-            .description("Force coverage to be set to 0 when no report is provided.")
-            .onQualifiers(Qualifiers.MODULE, Qualifiers.PROJECT)
-            .type(PropertyType.BOOLEAN)
-            .subCategory(TEST_AND_COVERAGE)
-            .build(),
+      PropertyDefinition.builder(FORCE_ZERO_COVERAGE_KEY)
+        .defaultValue(FORCE_ZERO_COVERAGE_DEFAULT_VALUE)
+        .name("Force 0 coverage value")
+        .description("Force coverage to be set to 0 when no report is provided.")
+        .onQualifiers(Qualifiers.MODULE, Qualifiers.PROJECT)
+        .type(PropertyType.BOOLEAN)
+        .subCategory(TEST_AND_COVERAGE)
+        .build(),
 
-        PropertyDefinition.builder(JavaScriptPlugin.JSTESTDRIVER_REPORTS_PATH)
-            .defaultValue(JavaScriptPlugin.JSTESTDRIVER_REPORTS_PATH_DEFAULT_VALUE)
-            .name("JSTestDriver output folder")
-            .description("Folder where JsTestDriver unit test reports are located.")
-            .onQualifiers(Qualifiers.MODULE, Qualifiers.PROJECT)
-            .subCategory(TEST_AND_COVERAGE)
-            .build(),
+      PropertyDefinition.builder(JavaScriptPlugin.JSTESTDRIVER_REPORTS_PATH)
+        .defaultValue(JavaScriptPlugin.JSTESTDRIVER_REPORTS_PATH_DEFAULT_VALUE)
+        .name("JSTestDriver output folder")
+        .description("Folder where JsTestDriver unit test reports are located.")
+        .onQualifiers(Qualifiers.MODULE, Qualifiers.PROJECT)
+        .subCategory(TEST_AND_COVERAGE)
+        .build(),
 
-        PropertyDefinition.builder(JavaScriptPlugin.JQUERY_OBJECT_ALIASES)
-            .defaultValue(JavaScriptPlugin.JQUERY_OBJECT_ALIASES_DEFAULT_VALUE)
-            .name("jQuery object aliases")
-            .description("Comma-separated list of names used to address jQuery object.")
-            .onQualifiers(Qualifiers.MODULE, Qualifiers.PROJECT)
-            .subCategory(LIBRARIES)
-            .build()
+      PropertyDefinition.builder(JavaScriptPlugin.JQUERY_OBJECT_ALIASES)
+        .defaultValue(JavaScriptPlugin.JQUERY_OBJECT_ALIASES_DEFAULT_VALUE)
+        .name("jQuery object aliases")
+        .description("Comma-separated list of names used to address jQuery object.")
+        .onQualifiers(Qualifiers.MODULE, Qualifiers.PROJECT)
+        .subCategory(LIBRARIES)
+        .build()
     );
   }
 

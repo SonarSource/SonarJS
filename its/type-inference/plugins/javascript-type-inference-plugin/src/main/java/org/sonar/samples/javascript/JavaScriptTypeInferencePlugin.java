@@ -20,9 +20,8 @@
 package org.sonar.samples.javascript;
 
 import com.google.common.collect.ImmutableList;
-import org.sonar.api.SonarPlugin;
-
 import java.util.List;
+import org.sonar.api.SonarPlugin;
 
 public class JavaScriptTypeInferencePlugin extends SonarPlugin {
 

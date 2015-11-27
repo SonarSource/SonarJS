@@ -35,18 +35,18 @@ public class ArrayType extends ObjectType {
     return Kind.ARRAY;
   }
 
-  public static ArrayType create(Type elementType){
+  public static ArrayType create(Type elementType) {
     ArrayType type = new ArrayType();
     type.elementType = elementType;
     return type;
   }
 
-  public static ArrayType create(){
+  public static ArrayType create() {
     return new ArrayType();
   }
 
   @Nullable
-  public Type elementType(){
+  public Type elementType() {
     return elementType;
   }
 }

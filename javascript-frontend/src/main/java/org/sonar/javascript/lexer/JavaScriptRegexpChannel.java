@@ -23,11 +23,10 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableSet;
 import com.sonar.sslr.api.Token;
 import com.sonar.sslr.impl.Lexer;
-import org.sonar.sslr.channel.Channel;
-import org.sonar.sslr.channel.CodeReader;
-
 import java.util.List;
 import java.util.Set;
+import org.sonar.sslr.channel.Channel;
+import org.sonar.sslr.channel.CodeReader;
 
 import static com.sonar.sslr.impl.channel.RegexpChannelBuilder.regexp;
 import static org.sonar.javascript.lexer.JavaScriptTokenType.REGULAR_EXPRESSION_LITERAL;
@@ -84,35 +83,35 @@ public class JavaScriptRegexpChannel extends Channel<Lexer> {
   }
 
   private static final Set<String> WHOLE_TOKENS = ImmutableSet.of(
-      "break",
-      "case",
-      "continue",
-      "delete",
-      "do",
-      "else",
-      "finally",
-      "in",
-      "instanceof",
-      "return",
-      "throw",
-      "try",
-      "typeof",
-      "void",
-      // Binary operators which cannot be followed by a division operator:
-      // Match + but not ++. += is handled below.
-      "+",
-      // Match - but not --. -= is handled below.
-      "-",
-      // Match . but not a number with a trailing decimal.
-      ".",
-      // Match /, but not a regexp. /= is handled below
-      "/",
-      // Second binary operand cannot start a division.
-      ",",
-      // Ditto binary operand.
-      "*");
+    "break",
+    "case",
+    "continue",
+    "delete",
+    "do",
+    "else",
+    "finally",
+    "in",
+    "instanceof",
+    "return",
+    "throw",
+    "try",
+    "typeof",
+    "void",
+    // Binary operators which cannot be followed by a division operator:
+    // Match + but not ++. += is handled below.
+    "+",
+    // Match - but not --. -= is handled below.
+    "-",
+    // Match . but not a number with a trailing decimal.
+    ".",
+    // Match /, but not a regexp. /= is handled below
+    "/",
+    // Second binary operand cannot start a division.
+    ",",
+    // Ditto binary operand.
+    "*");
 
-  private static final String[] ENDS = new String[] {
+  private static final String[] ENDS = new String[]{
     // ! prefix operator operand cannot start with a division
     "!",
     // % second binary operand cannot start with a division

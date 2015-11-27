@@ -21,39 +21,38 @@ package org.sonar.javascript.checks;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
+import java.util.List;
+import java.util.Set;
 import org.sonar.api.server.rule.RulesDefinition.SubCharacteristics;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.javascript.checks.utils.CheckUtils;
-import org.sonar.plugins.javascript.api.visitors.SubscriptionBaseTreeVisitor;
 import org.sonar.plugins.javascript.api.symbols.Type;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.expression.UnaryExpressionTree;
+import org.sonar.plugins.javascript.api.visitors.SubscriptionBaseTreeVisitor;
 import org.sonar.squidbridge.annotations.ActivatedByDefault;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 
-import java.util.List;
-import java.util.Set;
-
 @Rule(
-    key = "S3002",
-    name = "Unary operators \"+\" and \"-\" should not be used with objects",
-    priority = Priority.CRITICAL,
-    tags = {Tags.BUG})
+  key = "S3002",
+  name = "Unary operators \"+\" and \"-\" should not be used with objects",
+  priority = Priority.CRITICAL,
+  tags = {Tags.BUG})
 @SqaleSubCharacteristic(SubCharacteristics.DATA_RELIABILITY)
 @SqaleConstantRemediation("15min")
 @ActivatedByDefault
 public class UnaryPlusMinusWithObjectCheck extends SubscriptionBaseTreeVisitor {
 
   private static final Set<Type.Kind> ALLOWED_TYPES = ImmutableSet.of(
-      Type.Kind.BOOLEAN,
-      Type.Kind.NUMBER,
-      Type.Kind.STRING,
-      Type.Kind.BOOLEAN_OBJECT,
-      Type.Kind.NUMBER_OBJECT,
-      Type.Kind.STRING_OBJECT
+    Type.Kind.BOOLEAN,
+    Type.Kind.NUMBER,
+    Type.Kind.STRING,
+    Type.Kind.BOOLEAN_OBJECT,
+    Type.Kind.NUMBER_OBJECT,
+    Type.Kind.STRING_OBJECT
   );
 
   private static final String MESSAGE = "Remove this use of unary \"%s\".";
@@ -61,9 +60,9 @@ public class UnaryPlusMinusWithObjectCheck extends SubscriptionBaseTreeVisitor {
   @Override
   public List<Kind> nodesToVisit() {
     return ImmutableList.<Kind>builder()
-        .add(Kind.UNARY_MINUS)
-        .add(Kind.UNARY_PLUS)
-        .build();
+      .add(Kind.UNARY_MINUS)
+      .add(Kind.UNARY_PLUS)
+      .build();
   }
 
   @Override

@@ -20,20 +20,19 @@
 package org.sonar.javascript.checks;
 
 import com.google.common.collect.ImmutableList;
+import java.util.List;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
-import org.sonar.plugins.javascript.api.visitors.SubscriptionBaseTreeVisitor;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.expression.AssignmentExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.BinaryExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.UnaryExpressionTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
+import org.sonar.plugins.javascript.api.visitors.SubscriptionBaseTreeVisitor;
 import org.sonar.squidbridge.annotations.ActivatedByDefault;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
-
-import java.util.List;
 
 @Rule(
   key = "BitwiseOperators",
@@ -48,26 +47,26 @@ public class BitwiseOperatorsCheck extends SubscriptionBaseTreeVisitor {
   @Override
   public List<Tree.Kind> nodesToVisit() {
     return ImmutableList.<Tree.Kind>builder()
-        .add(Tree.Kind.BITWISE_AND)
-        .add(Tree.Kind.BITWISE_OR)
-        .add(Tree.Kind.BITWISE_XOR)
-        .add(Tree.Kind.BITWISE_COMPLEMENT)
-        .add(Tree.Kind.LEFT_SHIFT)
-        .add(Tree.Kind.RIGHT_SHIFT)
-        .add(Tree.Kind.UNSIGNED_RIGHT_SHIFT)
-        .add(Tree.Kind.AND_ASSIGNMENT)
-        .add(Tree.Kind.OR_ASSIGNMENT)
-        .add(Tree.Kind.XOR_ASSIGNMENT)
-        .add(Tree.Kind.LEFT_SHIFT_ASSIGNMENT)
-        .add(Tree.Kind.RIGHT_SHIFT_ASSIGNMENT)
-        .add(Tree.Kind.UNSIGNED_RIGHT_SHIFT_ASSIGNMENT)
-        .build();
+      .add(Tree.Kind.BITWISE_AND)
+      .add(Tree.Kind.BITWISE_OR)
+      .add(Tree.Kind.BITWISE_XOR)
+      .add(Tree.Kind.BITWISE_COMPLEMENT)
+      .add(Tree.Kind.LEFT_SHIFT)
+      .add(Tree.Kind.RIGHT_SHIFT)
+      .add(Tree.Kind.UNSIGNED_RIGHT_SHIFT)
+      .add(Tree.Kind.AND_ASSIGNMENT)
+      .add(Tree.Kind.OR_ASSIGNMENT)
+      .add(Tree.Kind.XOR_ASSIGNMENT)
+      .add(Tree.Kind.LEFT_SHIFT_ASSIGNMENT)
+      .add(Tree.Kind.RIGHT_SHIFT_ASSIGNMENT)
+      .add(Tree.Kind.UNSIGNED_RIGHT_SHIFT_ASSIGNMENT)
+      .build();
   }
 
   @Override
   public void visitNode(Tree tree) {
     SyntaxToken operator;
-    if (tree.is(Tree.Kind.BITWISE_COMPLEMENT)){
+    if (tree.is(Tree.Kind.BITWISE_COMPLEMENT)) {
       operator = ((UnaryExpressionTree) tree).operator();
     } else if (tree instanceof BinaryExpressionTree) {
       operator = ((BinaryExpressionTree) tree).operator();

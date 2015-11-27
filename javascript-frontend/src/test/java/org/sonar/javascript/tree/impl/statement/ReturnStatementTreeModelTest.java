@@ -31,7 +31,7 @@ public class ReturnStatementTreeModelTest extends JavaScriptTreeModelTest {
 
   @Test
   public void with_expression() throws Exception {
-   ReturnStatementTree tree = parse("return expr ;", Kind.RETURN_STATEMENT);
+    ReturnStatementTree tree = parse("return expr ;", Kind.RETURN_STATEMENT);
 
     assertThat(tree.is(Kind.RETURN_STATEMENT)).isTrue();
     assertThat(tree.returnKeyword().text()).isEqualTo(JavaScriptKeyword.RETURN.getValue());

@@ -20,18 +20,18 @@
 package org.sonar.javascript.checks;
 
 import com.google.common.base.Preconditions;
-import org.sonar.plugins.javascript.api.symbols.Symbol;
-import org.sonar.plugins.javascript.api.symbols.Usage;
+import java.util.LinkedList;
+import java.util.List;
 import org.sonar.plugins.javascript.api.JavaScriptCheck;
+import org.sonar.plugins.javascript.api.symbols.Symbol;
 import org.sonar.plugins.javascript.api.symbols.SymbolModel;
+import org.sonar.plugins.javascript.api.symbols.Usage;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
 import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
 
-import java.util.LinkedList;
-import java.util.List;
-
 public abstract class AbstractSymbolNameCheck extends BaseTreeVisitor {
   abstract List<String> illegalNames();
+
   abstract String getMessage(Symbol symbol);
 
   @Override
@@ -44,24 +44,24 @@ public abstract class AbstractSymbolNameCheck extends BaseTreeVisitor {
   protected List<Symbol> getIllegalSymbols() {
     SymbolModel symbolModel = getContext().getSymbolModel();
     List<Symbol> symbols = new LinkedList<>();
-    for (String name : illegalNames()){
+    for (String name : illegalNames()) {
       symbols.addAll(symbolModel.getSymbols(name));
     }
     return symbols;
   }
 
-  protected void raiseIssuesOnDeclarations(JavaScriptCheck check, Symbol symbol, String message){
+  protected void raiseIssuesOnDeclarations(JavaScriptCheck check, Symbol symbol, String message) {
     Preconditions.checkArgument(!symbol.builtIn());
 
     boolean issueRaised = false;
-    for (Usage usage : symbol.usages()){
-      if (usage.isDeclaration()){
+    for (Usage usage : symbol.usages()) {
+      if (usage.isDeclaration()) {
         getContext().addIssue(check, usage.identifierTree(), message);
         issueRaised = true;
       }
     }
 
-    if (!issueRaised){
+    if (!issueRaised) {
       getContext().addIssue(check, symbol.usages().iterator().next().identifierTree(), message);
     }
 

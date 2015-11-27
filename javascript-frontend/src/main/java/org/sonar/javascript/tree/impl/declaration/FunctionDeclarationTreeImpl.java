@@ -20,6 +20,8 @@
 package org.sonar.javascript.tree.impl.declaration;
 
 import com.google.common.collect.Iterators;
+import java.util.Iterator;
+import javax.annotation.Nullable;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.javascript.tree.impl.expression.IdentifierTreeImpl;
 import org.sonar.javascript.tree.impl.lexical.InternalSyntaxToken;
@@ -32,9 +34,6 @@ import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.javascript.api.tree.statement.BlockTree;
 import org.sonar.plugins.javascript.api.visitors.TreeVisitor;
 
-import javax.annotation.Nullable;
-import java.util.Iterator;
-
 public class FunctionDeclarationTreeImpl extends JavaScriptTree implements FunctionDeclarationTree {
 
   private final SyntaxToken functionKeyword;
@@ -44,8 +43,10 @@ public class FunctionDeclarationTreeImpl extends JavaScriptTree implements Funct
   private final BlockTree body;
   private final Kind kind;
 
-  public FunctionDeclarationTreeImpl(InternalSyntaxToken functionKeyword, InternalSyntaxToken starToken,
-    IdentifierTreeImpl name, ParameterListTreeImpl parameters, BlockTreeImpl body) {
+  public FunctionDeclarationTreeImpl(
+    InternalSyntaxToken functionKeyword, InternalSyntaxToken starToken,
+    IdentifierTreeImpl name, ParameterListTreeImpl parameters, BlockTreeImpl body
+  ) {
 
     this.functionKeyword = functionKeyword;
     this.starToken = starToken;
@@ -56,8 +57,10 @@ public class FunctionDeclarationTreeImpl extends JavaScriptTree implements Funct
 
   }
 
-  public FunctionDeclarationTreeImpl(InternalSyntaxToken functionKeyword, IdentifierTreeImpl name,
-    ParameterListTreeImpl parameters, BlockTreeImpl body) {
+  public FunctionDeclarationTreeImpl(
+    InternalSyntaxToken functionKeyword, IdentifierTreeImpl name,
+    ParameterListTreeImpl parameters, BlockTreeImpl body
+  ) {
 
     this.functionKeyword = functionKeyword;
     this.starToken = null;

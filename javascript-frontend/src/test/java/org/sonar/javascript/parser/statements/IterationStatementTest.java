@@ -30,10 +30,10 @@ public class IterationStatementTest {
   @Test
   public void realLife() {
     assertThat(JavaScriptLegacyGrammar.ITERATION_STATEMENT)
-        .matches("do { } while (a < b);")
-        .matches("while (a < b) ;")
-        .matches("for (x in a) ;")
-        .matches("for (n = 0; n < h; n++) ;");
+      .matches("do { } while (a < b);")
+      .matches("while (a < b) ;")
+      .matches("for (x in a) ;")
+      .matches("for (n = 0; n < h; n++) ;");
   }
 
 }

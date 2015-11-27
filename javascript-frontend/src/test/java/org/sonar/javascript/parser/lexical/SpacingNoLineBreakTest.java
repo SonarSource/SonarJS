@@ -30,20 +30,20 @@ public class SpacingNoLineBreakTest extends LegacyParserTest {
   @Test
   public void ok() {
     assertThat(g.rule(JavaScriptLegacyGrammar.SPACING_NO_LB))
-        .matches("")
+      .matches("")
 
-        .as("Whitespace")
-        .matches(" ")
-        .notMatches("\n")
-        .notMatches("\r")
-        .notMatches("\r\n")
+      .as("Whitespace")
+      .matches(" ")
+      .notMatches("\n")
+      .notMatches("\r")
+      .notMatches("\r\n")
 
-        .as("SingleLineComment")
-        .matchesPrefix("// comment", "\n")
+      .as("SingleLineComment")
+      .matchesPrefix("// comment", "\n")
 
-        .as("MultiLineComment no line break")
-        .matches("/* comment */")
-        .notMatches("/* comment \n */");
+      .as("MultiLineComment no line break")
+      .matches("/* comment */")
+      .notMatches("/* comment \n */");
   }
 
 }

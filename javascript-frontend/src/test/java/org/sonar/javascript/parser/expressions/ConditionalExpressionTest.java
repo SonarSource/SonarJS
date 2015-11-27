@@ -30,7 +30,7 @@ public class ConditionalExpressionTest {
   @Test
   public void realLife() {
     assertThat(Kind.CONDITIONAL_EXPRESSION)
-        .matches("a ? b : c");
+      .matches("a ? b : c");
   }
 
 }

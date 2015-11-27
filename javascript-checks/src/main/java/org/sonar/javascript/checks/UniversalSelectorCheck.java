@@ -40,8 +40,8 @@ public class UniversalSelectorCheck extends AbstractJQuerySelectorOptimizationCh
   @Override
   protected void visitSelector(String selector, CallExpressionTree tree) {
     String[] parts = selector.split("[ >]");
-    for (int i = 1; i < parts.length; i++){
-      if ("*".equals(parts[i])){
+    for (int i = 1; i < parts.length; i++) {
+      if ("*".equals(parts[i])) {
         getContext().addIssue(this, tree, MESSAGE);
         return;
       }

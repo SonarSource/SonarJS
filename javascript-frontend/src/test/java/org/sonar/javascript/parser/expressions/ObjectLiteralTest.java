@@ -30,16 +30,16 @@ public class ObjectLiteralTest {
   @Test
   public void ok() {
     assertThat(Kind.OBJECT_LITERAL)
-        .matches("{ }")
-        .matches("{ propertyName , }")
-        .matches("{ propertyName : assignmentExpression , }")
-        .matches("{ propertyName : assignmentExpression , }")
-        .matches("{ propertyName : assignmentExpression , propertyName : assignmentExpression }")
-        .matches("{ propertyName : assignmentExpression , propertyName : assignmentExpression , }");
+      .matches("{ }")
+      .matches("{ propertyName , }")
+      .matches("{ propertyName : assignmentExpression , }")
+      .matches("{ propertyName : assignmentExpression , }")
+      .matches("{ propertyName : assignmentExpression , propertyName : assignmentExpression }")
+      .matches("{ propertyName : assignmentExpression , propertyName : assignmentExpression , }");
 
     assertThat(Kind.OBJECT_LITERAL)
-        .notMatches("{ , }")
-        .notMatches("{ propertyName : assignmentExpression , , }");
+      .notMatches("{ , }")
+      .notMatches("{ propertyName : assignmentExpression , , }");
   }
 
 }

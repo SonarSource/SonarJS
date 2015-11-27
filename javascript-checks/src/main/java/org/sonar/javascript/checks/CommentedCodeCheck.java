@@ -21,6 +21,10 @@ package org.sonar.javascript.checks;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Set;
+import java.util.regex.Pattern;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
@@ -40,11 +44,6 @@ import org.sonar.squidbridge.recognizer.Detector;
 import org.sonar.squidbridge.recognizer.EndWithDetector;
 import org.sonar.squidbridge.recognizer.KeywordsDetector;
 import org.sonar.squidbridge.recognizer.LanguageFootprint;
-
-import java.util.Arrays;
-import java.util.List;
-import java.util.Set;
-import java.util.regex.Pattern;
 
 @Rule(
   key = "CommentedCode",
@@ -68,10 +67,10 @@ public class CommentedCodeCheck extends SubscriptionBaseTreeVisitor {
     @Override
     public Set<Detector> getDetectors() {
       return ImmutableSet.of(
-          new EndWithDetector(0.95, '}', ';', '{'),
-          new KeywordsDetector(0.3, JavaScriptKeyword.keywordValues()),
-          new ContainsDetectorJS(0.95, "*=", "/=", "%=", "+=", "-=", "<<=", ">>=", ">>>=", "&=", "^=", "|="),
-          new ContainsDetectorJS(0.95, "!=", "!=="));
+        new EndWithDetector(0.95, '}', ';', '{'),
+        new KeywordsDetector(0.3, JavaScriptKeyword.keywordValues()),
+        new ContainsDetectorJS(0.95, "*=", "/=", "%=", "+=", "-=", "<<=", ">>=", ">>>=", "&=", "^=", "|="),
+        new ContainsDetectorJS(0.95, "!=", "!=="));
     }
 
   }
@@ -104,7 +103,7 @@ public class CommentedCodeCheck extends SubscriptionBaseTreeVisitor {
   public void visitNode(Tree tree) {
     SyntaxToken token = (SyntaxToken) tree;
     for (SyntaxTrivia trivia : token.trivias()) {
-      if (!isJsDoc(trivia) && !isJsLint(trivia)  && !isJsHint(trivia) && !isGlobals(trivia)) {
+      if (!isJsDoc(trivia) && !isJsLint(trivia) && !isJsHint(trivia) && !isGlobals(trivia)) {
         String[] lines = regexpToDivideStringByLine.split(COMMENT_ANALYSER.getContents(trivia.text()));
         for (int lineOffset = 0; lineOffset < lines.length; lineOffset++) {
           if (codeRecognizer.isLineOfCode(lines[lineOffset])) {

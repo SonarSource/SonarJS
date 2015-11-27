@@ -20,7 +20,6 @@
 package org.sonar.javascript.checks;
 
 import java.io.File;
-
 import org.junit.Test;
 import org.sonar.javascript.checks.utils.JavaScriptCheckVerifier;
 

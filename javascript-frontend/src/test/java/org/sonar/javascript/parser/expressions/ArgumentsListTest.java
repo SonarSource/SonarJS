@@ -30,12 +30,12 @@ public class ArgumentsListTest {
   @Test
   public void ok() {
     assertThat(JavaScriptLegacyGrammar.ARGUMENTS_LIST)
-        .matches("assignmentExpression")
-        .matches("... assignmentExpression")
-        .matches("assignmentExpression , assignmentExpression")
-        .matches("assignmentExpression , ... assignmentExpression")
-        .matches("... assignmentExpression , assignmentExpression")
-        .matches("... assignmentExpression , ... assignmentExpression");
+      .matches("assignmentExpression")
+      .matches("... assignmentExpression")
+      .matches("assignmentExpression , assignmentExpression")
+      .matches("assignmentExpression , ... assignmentExpression")
+      .matches("... assignmentExpression , assignmentExpression")
+      .matches("... assignmentExpression , ... assignmentExpression");
   }
 
 }

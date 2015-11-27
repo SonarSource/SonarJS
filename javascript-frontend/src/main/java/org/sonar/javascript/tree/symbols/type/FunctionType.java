@@ -34,13 +34,13 @@ public class FunctionType extends ObjectType {
     return Kind.FUNCTION;
   }
 
-  public static FunctionType create(FunctionTree functionTree){
+  public static FunctionType create(FunctionTree functionTree) {
     FunctionType type = new FunctionType();
     type.functionTree = functionTree;
     return type;
   }
 
-  public FunctionTree functionTree(){
+  public FunctionTree functionTree() {
     return functionTree;
   }
 }

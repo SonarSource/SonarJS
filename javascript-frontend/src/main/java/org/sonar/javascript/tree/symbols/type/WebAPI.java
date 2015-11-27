@@ -20,14 +20,13 @@
 package org.sonar.javascript.tree.symbols.type;
 
 import com.google.common.collect.ImmutableList;
+import java.util.List;
 import org.sonar.plugins.javascript.api.symbols.Type;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.expression.CallExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.DotMemberExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
-
-import java.util.List;
 
 public class WebAPI {
 

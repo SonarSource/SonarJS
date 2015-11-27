@@ -35,12 +35,12 @@ public class CommentRegularExpressionCheckTest extends TreeCheckTest {
     check.setMessage("Avoid TODO");
 
     CheckMessagesVerifier.verify(getIssues("src/test/resources/checks/commentRegularExpression.js", check))
-        .next().atLine(2).withMessage("Avoid TODO")
-        .noMore();
+      .next().atLine(2).withMessage("Avoid TODO")
+      .noMore();
 
     check.setRegularExpression("");
     CheckMessagesVerifier.verify(getIssues("src/test/resources/checks/commentRegularExpression.js", check))
-        .noMore();
+      .noMore();
 
     try {
       check.setRegularExpression("[abc");

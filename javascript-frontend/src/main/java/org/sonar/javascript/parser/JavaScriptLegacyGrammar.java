@@ -87,10 +87,9 @@ import static org.sonar.javascript.lexer.JavaScriptTokenType.REGULAR_EXPRESSION_
  * Grammar for ECMAScript.
  * Based on <a href="http://www.ecma-international.org/publications/standards/Ecma-262.htm">ECMA-262</a>
  * edition 5.1 (June 2011).
- *
+ * <p/>
  * Update for support of edition 6 (May 2014)
  * Based on draft <a href="http://people.mozilla.org/~jorendorff/es6-draft.html"></a>
- *
  */
 public enum JavaScriptLegacyGrammar implements GrammarRuleKey {
 
@@ -114,17 +113,29 @@ public enum JavaScriptLegacyGrammar implements GrammarRuleKey {
   NULL_LITERAL,
   BOOLEAN_LITERAL,
   STRING_LITERAL,
-  /** ECMAScript 6 **/
+  /**
+   * ECMAScript 6
+   **/
   TEMPLATE_SPANS,
-  /** ECMAScript 6 **/
+  /**
+   * ECMAScript 6
+   **/
   TEMPLATE_CHARACTER,
-  /** ECMAScript 6 **/
+  /**
+   * ECMAScript 6
+   **/
   LINE_CONTINUATION,
-  /** ECMAScript 6 **/
+  /**
+   * ECMAScript 6
+   **/
   BACKTICK,
-  /** ECMAScript 6 **/
+  /**
+   * ECMAScript 6
+   **/
   DOLLAR_SIGN,
-  /** ECMAScript 6 **/
+  /**
+   * ECMAScript 6
+   **/
   BACKSLASH,
 
   KEYWORD,
@@ -147,7 +158,9 @@ public enum JavaScriptLegacyGrammar implements GrammarRuleKey {
   // A.3 Expressions
 
   PRIMARY_EXPRESSION,
-  /** ECMAScript 6 **/
+  /**
+   * ECMAScript 6
+   **/
   PROPERTY_DEFINITION,
   PROPERTY_NAME,
   MEMBER_EXPRESSION,
@@ -171,15 +184,25 @@ public enum JavaScriptLegacyGrammar implements GrammarRuleKey {
   EXPRESSION,
   EXPRESSION_NO_LB,
   EXPRESSION_NO_IN,
-  /** ECMAScript 6 **/
+  /**
+   * ECMAScript 6
+   **/
   ARROW_FUNCTION,
-  /** ECMAScript 6 **/
+  /**
+   * ECMAScript 6
+   **/
   GENERATOR_EXPRESSION,
-  /** ECMAScript 6 **/
+  /**
+   * ECMAScript 6
+   **/
   ARRAY_LITERAL_ELEMENT,
-  /** ECMAScript 6 **/
+  /**
+   * ECMAScript 6
+   **/
   SPREAD_ELEMENT,
-  /** ECMAScript 6 **/
+  /**
+   * ECMAScript 6
+   **/
   ELEMENT_LIST,
   BINDING_REST_ELEMENT,
   SINGLE_NAME_BINDING,
@@ -194,7 +217,9 @@ public enum JavaScriptLegacyGrammar implements GrammarRuleKey {
   VARIABLE_DECLARATION,
   INITIALISER,
   ITERATION_STATEMENT,
-  /** ECMAScrip 6 **/
+  /**
+   * ECMAScrip 6
+   **/
   OF,
   RETURN_STATEMENT,
   WITH_STATEMENT,
@@ -205,28 +230,48 @@ public enum JavaScriptLegacyGrammar implements GrammarRuleKey {
   FUNCTION_DECLARATION,
   FUNCTION_EXPRESSION,
   FORMAL_PARAMETER,
-  /** ECMAScript 6 **/
+  /**
+   * ECMAScript 6
+   **/
   LET,
-  /** ECMAScript 6 **/
+  /**
+   * ECMAScript 6
+   **/
   IDENTIFIER_REFERENCE,
-  /** ECMAScript 6 **/
+  /**
+   * ECMAScript 6
+   **/
   BINDING_IDENTIFIER,
-  /** ECMAScript 6 **/
+  /**
+   * ECMAScript 6
+   **/
   CLASS_ELEMENT,
   METHOD_DEFINITION,
-  /** ECMAScript 6 **/
+  /**
+   * ECMAScript 6
+   **/
   STATIC,
   GET,
   SET,
-  /** ECMAScript 6 **/
+  /**
+   * ECMAScript 6
+   **/
   MODULE_BODY,
-  /** ECMAScript 6 **/
+  /**
+   * ECMAScript 6
+   **/
   IMPORT_DECLARATION,
-  /** ECMAScript 6 **/
+  /**
+   * ECMAScript 6
+   **/
   EXPORT_DECLARATION,
-  /** ECMAScript 6 **/
+  /**
+   * ECMAScript 6
+   **/
   FROM,
-  /** ECMAScript 6 **/
+  /**
+   * ECMAScript 6
+   **/
   AS,
 
   // A.6 Programs

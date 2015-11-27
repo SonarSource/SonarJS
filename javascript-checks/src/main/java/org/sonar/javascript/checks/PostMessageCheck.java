@@ -33,10 +33,10 @@ import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 
 @Rule(
-    key = "S2819",
-    name = "Cross-document messaging domains should be carefully restricted",
-    priority = Priority.CRITICAL,
-    tags = {Tags.HTML5, Tags.SECURITY, Tags.OWASP_A3})
+  key = "S2819",
+  name = "Cross-document messaging domains should be carefully restricted",
+  priority = Priority.CRITICAL,
+  tags = {Tags.HTML5, Tags.SECURITY, Tags.OWASP_A3})
 @SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.SECURITY_FEATURES)
 @SqaleConstantRemediation("10min")
 public class PostMessageCheck extends BaseTreeVisitor {
@@ -46,10 +46,10 @@ public class PostMessageCheck extends BaseTreeVisitor {
 
   @Override
   public void visitCallExpression(CallExpressionTree tree) {
-    if (tree.callee().is(Tree.Kind.DOT_MEMBER_EXPRESSION)){
+    if (tree.callee().is(Tree.Kind.DOT_MEMBER_EXPRESSION)) {
       DotMemberExpressionTree callee = (DotMemberExpressionTree) tree.callee();
       boolean isWindow = callee.object().types().contains(Type.Kind.WINDOW) || hasWindowLikeName(callee.object());
-      if (isWindow && CheckUtils.asString(callee.property()).equals(POST_MESSAGE)){
+      if (isWindow && CheckUtils.asString(callee.property()).equals(POST_MESSAGE)) {
         getContext().addIssue(this, callee.property(), MESSAGE);
       }
     }

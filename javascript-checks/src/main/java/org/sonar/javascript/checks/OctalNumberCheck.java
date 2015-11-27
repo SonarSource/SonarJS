@@ -30,10 +30,10 @@ import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 
 @Rule(
-    key = "OctalNumber",
-    name = "Octal values should not be used",
-    priority = Priority.MAJOR,
-    tags = {Tags.CERT, Tags.MISRA, Tags.PITFALL})
+  key = "OctalNumber",
+  name = "Octal values should not be used",
+  priority = Priority.MAJOR,
+  tags = {Tags.CERT, Tags.MISRA, Tags.PITFALL})
 @ActivatedByDefault
 @SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.DATA_RELIABILITY)
 @SqaleConstantRemediation("5min")

@@ -24,7 +24,6 @@ import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.api.server.rule.RulesDefinition.Param;
 import org.sonar.api.server.rule.RulesDefinition.Rule;
 import org.sonar.javascript.checks.CheckList;
-import org.sonar.plugins.javascript.rules.JavaScriptRulesDefinition;
 
 import static org.fest.assertions.Assertions.assertThat;
 

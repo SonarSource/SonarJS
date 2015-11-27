@@ -20,12 +20,11 @@
 package org.sonar.javascript.utils;
 
 import com.google.common.collect.ImmutableList;
+import java.util.List;
 import org.sonar.javascript.tree.visitors.SubscriptionTreeVisitor;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
-
-import java.util.List;
 
 public class SourceBuilder extends SubscriptionTreeVisitor {
 

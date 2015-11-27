@@ -19,6 +19,7 @@
  */
 package org.sonar.javascript.checks;
 
+import java.util.Iterator;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
@@ -29,8 +30,6 @@ import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
 import org.sonar.squidbridge.annotations.ActivatedByDefault;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
-
-import java.util.Iterator;
 
 @Rule(
   key = "S1472",
@@ -46,17 +45,17 @@ public class FunctionCallArgumentsOnNewLineCheck extends BaseTreeVisitor {
   public void visitCallExpression(CallExpressionTree tree) {
 
     int calleeLastLine = getLastLine(tree.callee());
-    int argumentsLine = ((JavaScriptTree)tree.arguments()).getLine();
+    int argumentsLine = ((JavaScriptTree) tree.arguments()).getLine();
 
-    if (calleeLastLine != argumentsLine){
+    if (calleeLastLine != argumentsLine) {
       getContext().addIssue(this, tree.arguments(), "Make those call arguments start on line " + calleeLastLine);
     }
     super.visitCallExpression(tree);
   }
 
-  private int getLastLine(Tree tree){
-    JavaScriptTree jsTree = (JavaScriptTree)tree;
-    if (jsTree.isLeaf()){
+  private int getLastLine(Tree tree) {
+    JavaScriptTree jsTree = (JavaScriptTree) tree;
+    if (jsTree.isLeaf()) {
       return jsTree.getLine();
     } else {
       return getLastLine(getLastElement(jsTree.childrenIterator()));
@@ -65,8 +64,8 @@ public class FunctionCallArgumentsOnNewLineCheck extends BaseTreeVisitor {
 
   public Tree getLastElement(Iterator<Tree> itr) {
     Tree lastElement = itr.next();
-    while(itr.hasNext()) {
-      lastElement=itr.next();
+    while (itr.hasNext()) {
+      lastElement = itr.next();
     }
     return lastElement;
   }

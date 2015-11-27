@@ -30,22 +30,22 @@ public class BreakStatementTest extends LegacyParserTest {
   @Test
   public void ok() {
     assertThat(g.rule(Kind.BREAK_STATEMENT))
-        .as("EOS is line terminator")
-        .matchesPrefix("break \n", "another-statement ;")
-        .matchesPrefix("break label \n", "another-statement ;")
-        .matchesPrefix("break \n", ";")
+      .as("EOS is line terminator")
+      .matchesPrefix("break \n", "another-statement ;")
+      .matchesPrefix("break label \n", "another-statement ;")
+      .matchesPrefix("break \n", ";")
 
-        .as("EOS is semicolon")
-        .matchesPrefix("break ;", "another-statement")
-        .matchesPrefix("break label \n ;", "another-statement")
+      .as("EOS is semicolon")
+      .matchesPrefix("break ;", "another-statement")
+      .matchesPrefix("break label \n ;", "another-statement")
 
-        .as("EOS is before right curly bracket")
-        .matchesPrefix("break ", "}")
-        .matchesPrefix("break label ", "}")
+      .as("EOS is before right curly bracket")
+      .matchesPrefix("break ", "}")
+      .matchesPrefix("break label ", "}")
 
-        .as("EOS is end of input")
-        .matches("break ")
-        .matches("break label ");
+      .as("EOS is end of input")
+      .matches("break ")
+      .matches("break label ");
   }
 
 }

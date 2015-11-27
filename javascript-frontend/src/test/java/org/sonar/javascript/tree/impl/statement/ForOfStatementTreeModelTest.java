@@ -30,7 +30,7 @@ public class ForOfStatementTreeModelTest extends JavaScriptTreeModelTest {
 
   @Test
   public void test() throws Exception {
-   ForOfStatementTree tree = parse("for ( var a of expression ) { }", Kind.FOR_OF_STATEMENT);
+    ForOfStatementTree tree = parse("for ( var a of expression ) { }", Kind.FOR_OF_STATEMENT);
 
     assertThat(tree.is(Kind.FOR_OF_STATEMENT)).isTrue();
     assertThat(tree.forKeyword().text()).isEqualTo("for");

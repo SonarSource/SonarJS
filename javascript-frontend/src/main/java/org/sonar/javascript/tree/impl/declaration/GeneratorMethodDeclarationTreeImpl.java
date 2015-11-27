@@ -21,6 +21,8 @@ package org.sonar.javascript.tree.impl.declaration;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Iterators;
+import java.util.Iterator;
+import javax.annotation.Nullable;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.javascript.tree.impl.lexical.InternalSyntaxToken;
 import org.sonar.javascript.tree.impl.statement.BlockTreeImpl;
@@ -30,9 +32,6 @@ import org.sonar.plugins.javascript.api.tree.declaration.ParameterListTree;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.javascript.api.visitors.TreeVisitor;
-
-import javax.annotation.Nullable;
-import java.util.Iterator;
 
 public class GeneratorMethodDeclarationTreeImpl extends JavaScriptTree implements GeneratorMethodDeclarationTree {
 
@@ -44,10 +43,11 @@ public class GeneratorMethodDeclarationTreeImpl extends JavaScriptTree implement
   private final BlockTreeImpl body;
 
   public GeneratorMethodDeclarationTreeImpl(
-      @Nullable InternalSyntaxToken staticToken, InternalSyntaxToken starToken,
-      ExpressionTree name,
-      ParameterListTreeImpl parameters,
-      BlockTreeImpl body) {
+    @Nullable InternalSyntaxToken staticToken, InternalSyntaxToken starToken,
+    ExpressionTree name,
+    ParameterListTreeImpl parameters,
+    BlockTreeImpl body
+  ) {
 
     this.staticToken = staticToken;
     this.kind = Kind.GENERATOR_METHOD;

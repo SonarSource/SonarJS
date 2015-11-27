@@ -30,8 +30,8 @@ public class TryStatementTest {
   @Test
   public void realLife() {
     assertThat(Kind.TRY_STATEMENT)
-        .matches("try { doSomethingWrong(); } catch (error) { makeItAllGood(); }")
-        .notMatches("try { }");
+      .matches("try { doSomethingWrong(); } catch (error) { makeItAllGood(); }")
+      .notMatches("try { }");
   }
 
 }

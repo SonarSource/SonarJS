@@ -28,9 +28,9 @@ public class EvalCheckTest extends TreeCheckTest {
   @Test
   public void test() {
     CheckMessagesVerifier.verify(getIssues("src/test/resources/checks/eval.js", new EvalCheck()))
-        .next().atLine(2).withMessage("Remove this use of the \"eval\" function.")
-        .next().atLine(5)
-        .noMore();
+      .next().atLine(2).withMessage("Remove this use of the \"eval\" function.")
+      .next().atLine(5)
+      .noMore();
   }
 
 }

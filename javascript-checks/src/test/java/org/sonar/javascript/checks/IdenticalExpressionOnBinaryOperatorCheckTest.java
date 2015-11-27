@@ -20,7 +20,6 @@
 package org.sonar.javascript.checks;
 
 import java.io.File;
-
 import org.junit.Test;
 import org.sonar.javascript.checks.utils.JavaScriptCheckVerifier;
 
@@ -29,7 +28,7 @@ public class IdenticalExpressionOnBinaryOperatorCheckTest {
   @Test
   public void test() {
     JavaScriptCheckVerifier.verify(
-      new IdenticalExpressionOnBinaryOperatorCheck(), 
+      new IdenticalExpressionOnBinaryOperatorCheck(),
       new File("src/test/resources/checks/identicalExpressionOnBinaryOperator.js"));
   }
 }

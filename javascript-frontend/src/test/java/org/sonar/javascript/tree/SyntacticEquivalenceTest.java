@@ -19,13 +19,13 @@
  */
 package org.sonar.javascript.tree;
 
-import static org.fest.assertions.Assertions.assertThat;
-
 import org.junit.Test;
-import org.sonar.javascript.utils.JavaScriptTreeModelTest;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
+import org.sonar.javascript.utils.JavaScriptTreeModelTest;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.declaration.ParameterListTree;
+
+import static org.fest.assertions.Assertions.assertThat;
 
 public class SyntacticEquivalenceTest extends JavaScriptTreeModelTest {
 
@@ -81,7 +81,7 @@ public class SyntacticEquivalenceTest extends JavaScriptTreeModelTest {
     assertThat(SyntacticEquivalence.areEquivalent(tree1, tree2)).isFalse();
   }
 
-  @Test(expected=IllegalArgumentException.class)
+  @Test(expected = IllegalArgumentException.class)
   public void test_are_leafs_with_other_than_leaf() throws Exception {
     JavaScriptTree tree1 = parse("true;", Tree.Kind.SCRIPT);
     assertThat(SyntacticEquivalence.areLeafsEquivalent(tree1, tree1)).isTrue();

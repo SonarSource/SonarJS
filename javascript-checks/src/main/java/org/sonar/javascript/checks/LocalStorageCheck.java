@@ -20,6 +20,8 @@
 package org.sonar.javascript.checks;
 
 import com.google.common.collect.ImmutableList;
+import java.util.List;
+import java.util.Map;
 import org.apache.commons.collections.map.HashedMap;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
@@ -33,33 +35,30 @@ import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
 import org.sonar.squidbridge.annotations.SqaleLinearWithOffsetRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 
-import java.util.List;
-import java.util.Map;
-
 
 @Rule(key = "S3271",
-      name = "Local storage should not be used",
-      priority = Priority.CRITICAL,
-      tags = {Tags.SECURITY, Tags.OWASP_A6})
+  name = "Local storage should not be used",
+  priority = Priority.CRITICAL,
+  tags = {Tags.SECURITY, Tags.OWASP_A6})
 @SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.SECURITY_FEATURES)
 @SqaleLinearWithOffsetRemediation(
-      coeff = "5min",
-      offset = "1h",
-      effortToFixDescription = "per additional use of the api")
-public class LocalStorageCheck extends BaseTreeVisitor{
+  coeff = "5min",
+  offset = "1h",
+  effortToFixDescription = "per additional use of the api")
+public class LocalStorageCheck extends BaseTreeVisitor {
 
   private static final List<String> API_CALLS = ImmutableList.of(
-         "getItem",
-         "setItem",
-         "removeItem",
-         "clear",
-         "key",
-         "length"
+    "getItem",
+    "setItem",
+    "removeItem",
+    "clear",
+    "key",
+    "length"
   );
 
   private static final List<String> OBJECTS = ImmutableList.of(
-          "localStorage",
-          "sessionStorage"
+    "localStorage",
+    "sessionStorage"
   );
 
   Map<String, StorageType> storageTypes = new HashedMap();
@@ -83,7 +82,7 @@ public class LocalStorageCheck extends BaseTreeVisitor{
       if (OBJECTS.contains(obj) && API_CALLS.contains(method)) {
         saveDebtLocation(tree, obj);
       }
-    } else if (tree.is(Tree.Kind.BRACKET_MEMBER_EXPRESSION)){
+    } else if (tree.is(Tree.Kind.BRACKET_MEMBER_EXPRESSION)) {
       String obj = getObjectName(tree);
       if (OBJECTS.contains(obj)) {
         saveDebtLocation(tree, obj);

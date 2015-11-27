@@ -19,10 +19,9 @@
  */
 package com.sonar.javascript.it.plugin;
 
-import static org.fest.assertions.Assertions.assertThat;
-
+import com.sonar.orchestrator.Orchestrator;
+import com.sonar.orchestrator.build.SonarRunner;
 import java.util.List;
-
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
@@ -30,8 +29,7 @@ import org.sonar.wsclient.issue.Issue;
 import org.sonar.wsclient.issue.IssueClient;
 import org.sonar.wsclient.issue.IssueQuery;
 
-import com.sonar.orchestrator.Orchestrator;
-import com.sonar.orchestrator.build.SonarRunner;
+import static org.fest.assertions.Assertions.assertThat;
 
 public class CustomRulesTests {
 

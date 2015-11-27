@@ -20,6 +20,8 @@
 package org.sonar.javascript.tree.impl.statement;
 
 import com.google.common.collect.Iterators;
+import java.util.Iterator;
+import javax.annotation.Nullable;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.javascript.tree.impl.lexical.InternalSyntaxToken;
 import org.sonar.plugins.javascript.api.tree.Tree;
@@ -28,9 +30,6 @@ import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.javascript.api.tree.statement.ForStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.StatementTree;
 import org.sonar.plugins.javascript.api.visitors.TreeVisitor;
-
-import javax.annotation.Nullable;
-import java.util.Iterator;
 
 public class ForStatementTreeImpl extends JavaScriptTree implements ForStatementTree {
 
@@ -51,7 +50,8 @@ public class ForStatementTreeImpl extends JavaScriptTree implements ForStatement
     InternalSyntaxToken firstSemicolon,
     @Nullable ExpressionTree condition, InternalSyntaxToken secondSemicolon,
     @Nullable ExpressionTree update, InternalSyntaxToken closeParenthesis,
-    StatementTree statement) {
+    StatementTree statement
+  ) {
 
     this.forKeyword = forKeyword;
     this.openParenthesis = openParenthesis;

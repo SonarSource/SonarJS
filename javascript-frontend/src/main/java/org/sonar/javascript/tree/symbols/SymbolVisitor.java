@@ -19,6 +19,7 @@
  */
 package org.sonar.javascript.tree.symbols;
 
+import javax.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.source.Symbolizable;
@@ -42,8 +43,6 @@ import org.sonar.plugins.javascript.api.tree.statement.CatchBlockTree;
 import org.sonar.plugins.javascript.api.tree.statement.ForInStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.ForOfStatementTree;
 import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
-
-import javax.annotation.Nullable;
 
 public class SymbolVisitor extends BaseTreeVisitor {
 
@@ -140,7 +139,7 @@ public class SymbolVisitor extends BaseTreeVisitor {
       if (!addUsageFor(identifier, usageKind)) {
         Symbol symbol = symbolModel.declareSymbol(identifier.name(), Symbol.Kind.VARIABLE, symbolModel.globalScope());
         symbol.addUsage(
-            Usage.create(identifier, usageKind)
+          Usage.create(identifier, usageKind)
         );
       }
       // no need to inferType variable has it has been handle
@@ -169,10 +168,10 @@ public class SymbolVisitor extends BaseTreeVisitor {
 
   private static boolean isIncDec(UnaryExpressionTree tree) {
     return tree.is(
-        Tree.Kind.PREFIX_INCREMENT,
-        Tree.Kind.PREFIX_DECREMENT,
-        Tree.Kind.POSTFIX_INCREMENT,
-        Tree.Kind.POSTFIX_DECREMENT
+      Tree.Kind.PREFIX_INCREMENT,
+      Tree.Kind.PREFIX_DECREMENT,
+      Tree.Kind.POSTFIX_INCREMENT,
+      Tree.Kind.POSTFIX_DECREMENT
     );
   }
 

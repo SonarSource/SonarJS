@@ -20,6 +20,8 @@
 package org.sonar.javascript.tree.impl.statement;
 
 import com.google.common.collect.Iterators;
+import java.util.Iterator;
+import javax.annotation.Nullable;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.javascript.tree.impl.lexical.InternalSyntaxToken;
 import org.sonar.plugins.javascript.api.tree.Tree;
@@ -30,9 +32,6 @@ import org.sonar.plugins.javascript.api.tree.statement.IfStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.StatementTree;
 import org.sonar.plugins.javascript.api.visitors.TreeVisitor;
 
-import javax.annotation.Nullable;
-import java.util.Iterator;
-
 public class IfStatementTreeImpl extends JavaScriptTree implements IfStatementTree {
 
   private final SyntaxToken ifKeyword;
@@ -42,8 +41,10 @@ public class IfStatementTreeImpl extends JavaScriptTree implements IfStatementTr
   private final ElseClauseTree elseClause;
   private final StatementTree statement;
 
-  public IfStatementTreeImpl(InternalSyntaxToken ifKeyword, InternalSyntaxToken openParenthesis, ExpressionTree condition, InternalSyntaxToken closeParenthesis,
-    StatementTree statement) {
+  public IfStatementTreeImpl(
+    InternalSyntaxToken ifKeyword, InternalSyntaxToken openParenthesis, ExpressionTree condition, InternalSyntaxToken closeParenthesis,
+    StatementTree statement
+  ) {
     this.ifKeyword = ifKeyword;
     this.openParenthesis = openParenthesis;
     this.condition = condition;
@@ -53,8 +54,10 @@ public class IfStatementTreeImpl extends JavaScriptTree implements IfStatementTr
 
   }
 
-  public IfStatementTreeImpl(InternalSyntaxToken ifKeyword, InternalSyntaxToken openParenthesis, ExpressionTree condition, InternalSyntaxToken closeParenthesis,
-    StatementTree statement, ElseClauseTreeImpl elseClause) {
+  public IfStatementTreeImpl(
+    InternalSyntaxToken ifKeyword, InternalSyntaxToken openParenthesis, ExpressionTree condition, InternalSyntaxToken closeParenthesis,
+    StatementTree statement, ElseClauseTreeImpl elseClause
+  ) {
     this.ifKeyword = ifKeyword;
     this.openParenthesis = openParenthesis;
     this.condition = condition;

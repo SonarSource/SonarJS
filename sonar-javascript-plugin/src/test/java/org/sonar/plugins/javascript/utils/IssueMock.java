@@ -19,13 +19,12 @@
  */
 package org.sonar.plugins.javascript.utils;
 
-import org.sonar.api.issue.Issue;
-import org.sonar.api.issue.IssueComment;
-import org.sonar.api.rule.RuleKey;
-
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import org.sonar.api.issue.Issue;
+import org.sonar.api.issue.IssueComment;
+import org.sonar.api.rule.RuleKey;
 
 public class IssueMock implements Issue {
 

@@ -20,6 +20,7 @@
 package org.sonar.javascript.checks;
 
 import com.google.common.collect.Sets;
+import java.util.Set;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
@@ -33,8 +34,6 @@ import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
 import org.sonar.squidbridge.annotations.ActivatedByDefault;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
-
-import java.util.Set;
 
 @Rule(
   key = "DuplicatePropertyName",
@@ -50,13 +49,13 @@ public class DuplicatePropertyNameCheck extends BaseTreeVisitor {
   public void visitObjectLiteral(ObjectLiteralTree tree) {
     Set<String> keys = Sets.newHashSet();
 
-    for (Tree property : tree.properties()){
-      if (property.is(Tree.Kind.PAIR_PROPERTY)){
-        visitPairProperty(keys, property, (PairPropertyTree)property);
+    for (Tree property : tree.properties()) {
+      if (property.is(Tree.Kind.PAIR_PROPERTY)) {
+        visitPairProperty(keys, property, (PairPropertyTree) property);
       }
 
-      if (property instanceof IdentifierTree){
-        IdentifierTree identifier = (IdentifierTree)property;
+      if (property instanceof IdentifierTree) {
+        IdentifierTree identifier = (IdentifierTree) property;
         addKey(keys, identifier.name(), property);
       }
     }
@@ -65,23 +64,23 @@ public class DuplicatePropertyNameCheck extends BaseTreeVisitor {
 
   private void visitPairProperty(Set<String> keys, Tree property, PairPropertyTree pairProperty) {
     ExpressionTree key = pairProperty.key();
-    if (key.is(Tree.Kind.STRING_LITERAL)){
-      String value = ((LiteralTree)key).value();
+    if (key.is(Tree.Kind.STRING_LITERAL)) {
+      String value = ((LiteralTree) key).value();
       value = value.substring(1, value.length() - 1);
       addKey(keys, value, property);
     }
 
-    if (key instanceof IdentifierTree){
-      addKey(keys, ((IdentifierTree)key).name(), property);
+    if (key instanceof IdentifierTree) {
+      addKey(keys, ((IdentifierTree) key).name(), property);
     }
 
-    if (key.is(Tree.Kind.NUMERIC_LITERAL)){
-      addKey(keys, ((LiteralTree)key).value(), property);
+    if (key.is(Tree.Kind.NUMERIC_LITERAL)) {
+      addKey(keys, ((LiteralTree) key).value(), property);
     }
   }
 
   private void addKey(Set<String> keys, String key, Tree property) {
-    if (keys.contains(EscapeUtils.unescape(key))){
+    if (keys.contains(EscapeUtils.unescape(key))) {
       getContext().addIssue(this, property, "Rename or remove duplicate property name '" + key + "'.");
     } else {
       keys.add(key);

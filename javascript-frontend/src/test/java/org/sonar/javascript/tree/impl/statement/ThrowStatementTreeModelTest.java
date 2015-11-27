@@ -31,7 +31,7 @@ public class ThrowStatementTreeModelTest extends JavaScriptTreeModelTest {
 
   @Test
   public void test() throws Exception {
-   ThrowStatementTree tree = parse("throw expr ;", Kind.THROW_STATEMENT);
+    ThrowStatementTree tree = parse("throw expr ;", Kind.THROW_STATEMENT);
 
     assertThat(tree.is(Kind.THROW_STATEMENT)).isTrue();
     assertThat(tree.throwKeyword().text()).isEqualTo(JavaScriptKeyword.THROW.getValue());

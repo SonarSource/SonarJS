@@ -30,7 +30,7 @@ public class ShebangTest {
   @Test
   public void ok() {
     assertThat(JavaScriptLegacyGrammar.SHEBANG)
-        .matchesPrefix("#!/usr/bin/env node", "\n");
+      .matchesPrefix("#!/usr/bin/env node", "\n");
   }
 
 }

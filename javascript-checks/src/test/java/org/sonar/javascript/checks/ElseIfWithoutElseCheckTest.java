@@ -28,8 +28,8 @@ public class ElseIfWithoutElseCheckTest extends TreeCheckTest {
   @Test
   public void test() {
     CheckMessagesVerifier.verify(getIssues("src/test/resources/checks/elseIfWithoutElse.js", new ElseIfWithoutElseCheck()))
-        .next().atLine(15).withMessage("Add the missing \"else\" clause.")
-        .noMore();
+      .next().atLine(15).withMessage("Add the missing \"else\" clause.")
+      .noMore();
   }
 
 }

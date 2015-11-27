@@ -23,13 +23,13 @@ import org.junit.Test;
 import org.sonar.plugins.javascript.api.tests.TreeCheckTest;
 import org.sonar.squidbridge.checks.CheckMessagesVerifier;
 
-public class ContinueStatementCheckTest extends TreeCheckTest{
+public class ContinueStatementCheckTest extends TreeCheckTest {
 
   @Test
   public void test() {
     CheckMessagesVerifier.verify(getIssues("src/test/resources/checks/continueStatement.js", new ContinueStatementCheck()))
-        .next().atLine(6).withMessage("Avoid using continue statement.")
-        .noMore();
+      .next().atLine(6).withMessage("Avoid using continue statement.")
+      .noMore();
   }
 
 }

@@ -19,20 +19,19 @@
  */
 package org.sonar.javascript.checks;
 
+import java.util.Collection;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.plugins.javascript.api.symbols.Symbol;
-import org.sonar.plugins.javascript.api.symbols.Usage;
 import org.sonar.plugins.javascript.api.symbols.SymbolModel;
+import org.sonar.plugins.javascript.api.symbols.Usage;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
 import org.sonar.squidbridge.annotations.ActivatedByDefault;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
-
-import java.util.Collection;
 
 @Rule(
   key = "UnusedVariable",
@@ -57,9 +56,9 @@ public class UnusedVariableCheck extends BaseTreeVisitor {
     }
   }
 
-  private void raiseIssuesOnDeclarations(Symbol symbol, String message){
-    for (Usage usage : symbol.usages()){
-      if (usage.isDeclaration()){
+  private void raiseIssuesOnDeclarations(Symbol symbol, String message) {
+    for (Usage usage : symbol.usages()) {
+      if (usage.isDeclaration()) {
         getContext().addIssue(this, usage.identifierTree(), message);
       }
     }

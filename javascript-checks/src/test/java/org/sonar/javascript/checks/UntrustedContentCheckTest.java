@@ -31,12 +31,12 @@ public class UntrustedContentCheckTest extends TreeCheckTest {
     UntrustedContentCheck check = new UntrustedContentCheck();
 
     CheckMessagesVerifier.verify(getIssues("src/test/resources/checks/untrustedContent.js", check))
-            .next().atLine(3)
-            .next().atLine(5)
-            .next().atLine(8)
-            .next().atLine(10)
-            .next().atLine(13)
-            .noMore();
+      .next().atLine(3)
+      .next().atLine(5)
+      .next().atLine(8)
+      .next().atLine(10)
+      .next().atLine(13)
+      .noMore();
   }
 
   @Test
@@ -45,11 +45,11 @@ public class UntrustedContentCheckTest extends TreeCheckTest {
     check.domainsToIgnore = "drevil.org";
 
     CheckMessagesVerifier.verify(getIssues("src/test/resources/checks/untrustedContent.js", check))
-            .next().atLine(3)
-            .next().atLine(5)
-            .next().atLine(8)
-            .next().atLine(10)
-            .noMore();
+      .next().atLine(3)
+      .next().atLine(5)
+      .next().atLine(8)
+      .next().atLine(10)
+      .noMore();
   }
 
   @Test
@@ -58,11 +58,11 @@ public class UntrustedContentCheckTest extends TreeCheckTest {
     check.domainsToIgnore = "(.*\\.)?drevil.org";
 
     CheckMessagesVerifier.verify(getIssues("src/test/resources/checks/untrustedContent.js", check))
-            .next().atLine(3)
-            .next().atLine(5)
-            .next().atLine(8)
-            .next().atLine(10)
-            .noMore();
+      .next().atLine(3)
+      .next().atLine(5)
+      .next().atLine(8)
+      .next().atLine(10)
+      .noMore();
   }
 
   @Test
@@ -71,10 +71,10 @@ public class UntrustedContentCheckTest extends TreeCheckTest {
     check.domainsToIgnore = "(.*\\.)?drevil.org,(.*\\.)?mini.me";
 
     CheckMessagesVerifier.verify(getIssues("src/test/resources/checks/untrustedContent.js", check))
-            .next().atLine(3)
-            .next().atLine(5)
-            .next().atLine(8)
-            .next().atLine(10)
-            .noMore();
+      .next().atLine(3)
+      .next().atLine(5)
+      .next().atLine(8)
+      .next().atLine(10)
+      .noMore();
   }
 }

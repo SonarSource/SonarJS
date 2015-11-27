@@ -19,13 +19,12 @@
  */
 package org.sonar.plugins.javascript.cpd;
 
+import java.nio.charset.Charset;
 import net.sourceforge.pmd.cpd.Tokenizer;
 import org.sonar.api.batch.AbstractCpdMapping;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.resources.Language;
 import org.sonar.plugins.javascript.JavaScriptLanguage;
-
-import java.nio.charset.Charset;
 
 public class JavaScriptCpdMapping extends AbstractCpdMapping {
 

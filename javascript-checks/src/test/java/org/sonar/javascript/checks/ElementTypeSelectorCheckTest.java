@@ -30,16 +30,16 @@ public class ElementTypeSelectorCheckTest extends TreeCheckTest {
   @Test
   public void test() {
     CheckMessagesVerifier.verify(getIssues("src/test/resources/checks/ElementTypeSelector.js", check))
-    .next().atLine(1).withMessage("Use the \"[type='radio']\" selector here instead of \":radio\".")
-    .next().atLine(3).withMessage("Use the \"[type='checkbox']\" selector here instead of \":checkbox\".")
-    .next().atLine(5)
-    .next().atLine(7)
-    .next().atLine(9)
-    .next().atLine(11)
-    .next().atLine(13)
-    .next().atLine(15).withMessage("Use the \"[type='Text']\" selector here instead of \":Text\".")
-    .next().atLine(23)
-    .noMore();
+      .next().atLine(1).withMessage("Use the \"[type='radio']\" selector here instead of \":radio\".")
+      .next().atLine(3).withMessage("Use the \"[type='checkbox']\" selector here instead of \":checkbox\".")
+      .next().atLine(5)
+      .next().atLine(7)
+      .next().atLine(9)
+      .next().atLine(11)
+      .next().atLine(13)
+      .next().atLine(15).withMessage("Use the \"[type='Text']\" selector here instead of \":Text\".")
+      .next().atLine(23)
+      .noMore();
 
   }
 }

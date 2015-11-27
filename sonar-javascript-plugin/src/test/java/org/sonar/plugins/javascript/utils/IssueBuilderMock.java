@@ -19,11 +19,10 @@
  */
 package org.sonar.plugins.javascript.utils;
 
+import javax.annotation.Nullable;
 import org.sonar.api.issue.Issuable;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.rule.RuleKey;
-
-import javax.annotation.Nullable;
 
 public class IssueBuilderMock implements Issuable.IssueBuilder {
 

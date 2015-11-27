@@ -19,10 +19,9 @@
  */
 package org.sonar.javascript.tree.impl;
 
+import java.util.Iterator;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
-
-import java.util.Iterator;
 
 public abstract class JavaScriptTree implements Tree {
 

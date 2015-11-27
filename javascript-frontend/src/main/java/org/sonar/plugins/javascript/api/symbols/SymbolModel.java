@@ -20,11 +20,10 @@
 package org.sonar.plugins.javascript.api.symbols;
 
 import com.google.common.annotations.Beta;
+import java.util.Set;
+import javax.annotation.Nullable;
 import org.sonar.javascript.tree.symbols.Scope;
 import org.sonar.plugins.javascript.api.tree.Tree;
-
-import javax.annotation.Nullable;
-import java.util.Set;
 
 @Beta
 public interface SymbolModel {
@@ -34,21 +33,18 @@ public interface SymbolModel {
   Set<Symbol> getSymbols();
 
   /**
-   *
    * @param kind kind of symbols to look for
    * @return list of symbols with the given kind
    */
   Set<Symbol> getSymbols(Symbol.Kind kind);
 
   /**
-   *
    * @param name name of symbols to look for
    * @return list of symbols with the given name
    */
   Set<Symbol> getSymbols(String name);
 
   /**
-   *
    * @param tree
    * @return scope corresponding to this tree. Returns Null if no scope found
    */

@@ -31,7 +31,7 @@ public class TryStatementTreeModelTest extends JavaScriptTreeModelTest {
 
   @Test
   public void try_catch() throws Exception {
-   TryStatementTree tree = parse("try { } catch (e) { 0}", Kind.TRY_STATEMENT);
+    TryStatementTree tree = parse("try { } catch (e) { 0}", Kind.TRY_STATEMENT);
 
     assertThat(tree.is(Kind.TRY_STATEMENT)).isTrue();
     assertThat(tree.tryKeyword().text()).isEqualTo(JavaScriptKeyword.TRY.getValue());

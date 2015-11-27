@@ -30,11 +30,11 @@ public class IdChildrenSelectorCheckTest extends TreeCheckTest {
   @Test
   public void test() {
     CheckMessagesVerifier.verify(getIssues("src/test/resources/checks/IdChildrenSelector.js", check))
-    .next().atLine(1).withMessage("Move \"div.className\" into \"find\" method.")
-    .next().atLine(3).withMessage("Move \".className[attr='value']\" into \"find\" method.")
-    .next().atLine(7).withMessage("Move \"div.id\" into \"find\" method.")
-    .next().atLine(11).withMessage("Move \"div.id\" into \"find\" method.")
-    .noMore();
+      .next().atLine(1).withMessage("Move \"div.className\" into \"find\" method.")
+      .next().atLine(3).withMessage("Move \".className[attr='value']\" into \"find\" method.")
+      .next().atLine(7).withMessage("Move \"div.id\" into \"find\" method.")
+      .next().atLine(11).withMessage("Move \"div.id\" into \"find\" method.")
+      .noMore();
 
   }
 }

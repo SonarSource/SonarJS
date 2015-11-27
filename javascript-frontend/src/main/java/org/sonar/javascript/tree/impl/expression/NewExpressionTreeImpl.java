@@ -20,6 +20,8 @@
 package org.sonar.javascript.tree.impl.expression;
 
 import com.google.common.collect.Iterators;
+import java.util.Iterator;
+import javax.annotation.Nullable;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.javascript.tree.impl.declaration.ParameterListTreeImpl;
 import org.sonar.javascript.tree.impl.lexical.InternalSyntaxToken;
@@ -32,9 +34,6 @@ import org.sonar.plugins.javascript.api.tree.expression.NewExpressionTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.javascript.api.visitors.TreeVisitor;
 
-import javax.annotation.Nullable;
-import java.util.Iterator;
-
 public class NewExpressionTreeImpl extends JavaScriptTree implements NewExpressionTree {
 
   private final Kind kind;
@@ -46,7 +45,7 @@ public class NewExpressionTreeImpl extends JavaScriptTree implements NewExpressi
   public NewExpressionTreeImpl(Kind kind, InternalSyntaxToken newKeyword, ExpressionTree expression) {
     this.kind = kind;
     this.expression = expression;
-    this.newKeyword =  newKeyword;
+    this.newKeyword = newKeyword;
     this.arguments = null;
 
   }

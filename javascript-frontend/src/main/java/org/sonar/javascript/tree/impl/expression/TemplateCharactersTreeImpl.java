@@ -19,16 +19,15 @@
  */
 package org.sonar.javascript.tree.impl.expression;
 
-import org.sonar.plugins.javascript.api.symbols.TypeSet;
-import org.sonar.javascript.tree.impl.JavaScriptTree;
-import org.sonar.javascript.tree.impl.lexical.InternalSyntaxToken;
-import org.sonar.plugins.javascript.api.tree.Tree;
-import org.sonar.plugins.javascript.api.tree.expression.TemplateCharactersTree;
-import org.sonar.plugins.javascript.api.visitors.TreeVisitor;
-
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import org.sonar.javascript.tree.impl.JavaScriptTree;
+import org.sonar.javascript.tree.impl.lexical.InternalSyntaxToken;
+import org.sonar.plugins.javascript.api.symbols.TypeSet;
+import org.sonar.plugins.javascript.api.tree.Tree;
+import org.sonar.plugins.javascript.api.tree.expression.TemplateCharactersTree;
+import org.sonar.plugins.javascript.api.visitors.TreeVisitor;
 
 public class TemplateCharactersTreeImpl extends JavaScriptTree implements TemplateCharactersTree {
 

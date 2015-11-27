@@ -30,15 +30,15 @@ public class ExpressionStatementTest {
   @Test
   public void ok() {
     assertThat(Kind.EXPRESSION_STATEMENT)
-        .matches("a = b;")
-        .matches("a = b");
+      .matches("a = b;")
+      .matches("a = b");
   }
 
   @Test
   public void ko() {
     assertThat(Kind.EXPRESSION_STATEMENT)
-        .notMatches("function foo() {}")
-        .notMatches("{}");
+      .notMatches("function foo() {}")
+      .notMatches("{}");
   }
 
 }

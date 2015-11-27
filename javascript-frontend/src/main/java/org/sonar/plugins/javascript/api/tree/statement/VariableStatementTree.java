@@ -20,9 +20,8 @@
 package org.sonar.plugins.javascript.api.tree.statement;
 
 import com.google.common.annotations.Beta;
-import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
-
 import javax.annotation.Nullable;
+import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 
 /**
  * <a href="http://people.mozilla.org/~jorendorff/es6-draft.html#sec-variable-statement">Variable Statement</a>.

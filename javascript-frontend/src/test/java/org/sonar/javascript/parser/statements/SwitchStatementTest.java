@@ -30,11 +30,11 @@ public class SwitchStatementTest {
   @Test
   public void ok() {
     assertThat(Kind.SWITCH_STATEMENT)
-        .matches("switch ( expression ) { }")
-        .matches("switch ( expression ) { case expression: break; }")
-        .matches("switch ( expression ) { case expression: break; default: break; }")
-        .matches("switch ( expression ) { case expression: break; case expression: break; case expression: break; }")
-        .notMatches("switch ( expression ) { default : break; default : break; }");
+      .matches("switch ( expression ) { }")
+      .matches("switch ( expression ) { case expression: break; }")
+      .matches("switch ( expression ) { case expression: break; default: break; }")
+      .matches("switch ( expression ) { case expression: break; case expression: break; case expression: break; }")
+      .notMatches("switch ( expression ) { default : break; default : break; }");
   }
 
 }

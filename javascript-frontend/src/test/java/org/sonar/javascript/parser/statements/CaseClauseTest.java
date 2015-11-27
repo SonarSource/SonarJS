@@ -30,8 +30,8 @@ public class CaseClauseTest {
   @Test
   public void ok() {
     assertThat(Kind.CASE_CLAUSE)
-        .matches("case 1:")
-        .matches("case 1: statement");
+      .matches("case 1:")
+      .matches("case 1: statement");
   }
 
 }

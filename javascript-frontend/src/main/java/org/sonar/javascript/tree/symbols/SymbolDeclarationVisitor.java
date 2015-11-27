@@ -19,11 +19,12 @@
  */
 package org.sonar.javascript.tree.symbols;
 
-import org.sonar.javascript.tree.symbols.type.ObjectType;
+import java.util.List;
 import org.sonar.javascript.tree.impl.declaration.InitializedBindingElementTreeImpl;
 import org.sonar.javascript.tree.impl.declaration.ParameterListTreeImpl;
 import org.sonar.javascript.tree.impl.expression.ArrowFunctionTreeImpl;
 import org.sonar.javascript.tree.impl.statement.CatchBlockTreeImpl;
+import org.sonar.javascript.tree.symbols.type.ObjectType;
 import org.sonar.plugins.javascript.api.symbols.Symbol;
 import org.sonar.plugins.javascript.api.symbols.Usage;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
@@ -39,8 +40,6 @@ import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 import org.sonar.plugins.javascript.api.tree.statement.CatchBlockTree;
 import org.sonar.plugins.javascript.api.tree.statement.VariableDeclarationTree;
 import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
-
-import java.util.List;
 
 /**
  * This visitor records all symbol explicitly declared through a declared statement.
@@ -114,7 +113,7 @@ public class SymbolDeclarationVisitor extends BaseTreeVisitor {
 
     for (IdentifierTree identifier : ((CatchBlockTreeImpl) tree).parameterIdentifiers()) {
       symbolModel.declareSymbol(identifier.name(), Symbol.Kind.VARIABLE, currentScope)
-          .addUsage(Usage.create(identifier, Usage.Kind.DECLARATION));
+        .addUsage(Usage.create(identifier, Usage.Kind.DECLARATION));
     }
 
     super.visitCatchBlock(tree);
@@ -124,7 +123,7 @@ public class SymbolDeclarationVisitor extends BaseTreeVisitor {
   @Override
   public void visitFunctionDeclaration(FunctionDeclarationTree tree) {
     symbolModel.declareSymbol(tree.name().name(), Symbol.Kind.FUNCTION, currentScope)
-        .addUsage(Usage.create(tree.name(), Usage.Kind.DECLARATION));
+      .addUsage(Usage.create(tree.name(), Usage.Kind.DECLARATION));
 
     newScope(tree);
     declareParameters(((ParameterListTreeImpl) tree.parameters()).parameterIdentifiers());
@@ -147,9 +146,9 @@ public class SymbolDeclarationVisitor extends BaseTreeVisitor {
   /**
    * Detail about <a href="http://people.mozilla.org/~jorendorff/es6-draft.html#sec-function-definitions-runtime-semantics-evaluation">Function Expression scope</a>
    * <blockquote>
-   *  The BindingIdentifier in a FunctionExpression can be referenced from inside the FunctionExpression's FunctionBody
-   *  to allow the function to call itself recursively. However, unlike in a FunctionDeclaration, the BindingIdentifier
-   *  in a FunctionExpression cannot be referenced from and does not affect the scope enclosing the FunctionExpression.
+   * The BindingIdentifier in a FunctionExpression can be referenced from inside the FunctionExpression's FunctionBody
+   * to allow the function to call itself recursively. However, unlike in a FunctionDeclaration, the BindingIdentifier
+   * in a FunctionExpression cannot be referenced from and does not affect the scope enclosing the FunctionExpression.
    * </blockquote>
    **/
   @Override
@@ -178,12 +177,12 @@ public class SymbolDeclarationVisitor extends BaseTreeVisitor {
     // todo Consider other BindingElementTree types
     for (BindingElementTree bindingElement : tree.variables()) {
       if (bindingElement.is(Tree.Kind.INITIALIZED_BINDING_ELEMENT)) {
-        for (IdentifierTree identifier : ((InitializedBindingElementTreeImpl) bindingElement).bindingIdentifiers()){
+        for (IdentifierTree identifier : ((InitializedBindingElementTreeImpl) bindingElement).bindingIdentifiers()) {
           symbolModel.declareSymbol(identifier.name(), Symbol.Kind.VARIABLE, currentScope)
-              .addUsage(Usage.create(identifier, Usage.Kind.DECLARATION_WRITE));
+            .addUsage(Usage.create(identifier, Usage.Kind.DECLARATION_WRITE));
         }
       }
-      if (bindingElement instanceof IdentifierTree){
+      if (bindingElement instanceof IdentifierTree) {
         IdentifierTree identifierTree = (IdentifierTree) bindingElement;
         symbolModel.declareSymbol(identifierTree.name(), Symbol.Kind.VARIABLE, currentScope).addUsage(Usage.create(identifierTree, Usage.Kind.DECLARATION));
       }
@@ -202,7 +201,7 @@ public class SymbolDeclarationVisitor extends BaseTreeVisitor {
   private void declareParameters(List<IdentifierTree> identifiers) {
     for (IdentifierTree identifier : identifiers) {
       symbolModel.declareSymbol(identifier.name(), Symbol.Kind.PARAMETER, currentScope)
-          .addUsage(Usage.create(identifier, Usage.Kind.LEXICAL_DECLARATION));
+        .addUsage(Usage.create(identifier, Usage.Kind.LEXICAL_DECLARATION));
     }
   }
 

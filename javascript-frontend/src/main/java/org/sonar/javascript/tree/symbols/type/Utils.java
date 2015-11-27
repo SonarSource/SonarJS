@@ -26,10 +26,10 @@ import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 
 public class Utils {
 
-  private Utils(){
+  private Utils() {
   }
 
-  public static boolean isPropertyAccess(DotMemberExpressionTree memberAccess, Type.Kind typeKind, String propertyName){
+  public static boolean isPropertyAccess(DotMemberExpressionTree memberAccess, Type.Kind typeKind, String propertyName) {
     return memberAccess.object().types().contains(typeKind) && identifierWithName(memberAccess.property(), propertyName);
   }
 

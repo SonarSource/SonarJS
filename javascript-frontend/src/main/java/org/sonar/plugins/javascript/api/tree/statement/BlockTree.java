@@ -20,9 +20,8 @@
 package org.sonar.plugins.javascript.api.tree.statement;
 
 import com.google.common.annotations.Beta;
-import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
-
 import java.util.List;
+import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 
 /**
  * <a href="http://www.ecma-international.org/ecma-262/5.1/#sec-12.1">Block</a>.

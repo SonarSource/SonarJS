@@ -30,16 +30,16 @@ public class AssignmentExpressionTest {
   @Test
   public void ok() {
     assertThat(JavaScriptLegacyGrammar.ASSIGNMENT_EXPRESSION)
-        .matches("conditionalExpression")
-        .matches("yield")
-        .matches("leftHandSideExpression = conditionalExpression")
-        .matches("leftHandSideExpression = leftHandSideExpression = conditionalExpression");
+      .matches("conditionalExpression")
+      .matches("yield")
+      .matches("leftHandSideExpression = conditionalExpression")
+      .matches("leftHandSideExpression = leftHandSideExpression = conditionalExpression");
   }
 
   @Test
   public void realLife() {
     assertThat(JavaScriptLegacyGrammar.ASSIGNMENT_EXPRESSION)
-        .matches("this.first = first");
+      .matches("this.first = first");
   }
 
 }

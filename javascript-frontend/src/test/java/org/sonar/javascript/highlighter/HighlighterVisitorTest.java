@@ -19,6 +19,7 @@
  */
 package org.sonar.javascript.highlighter;
 
+import java.io.File;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.batch.fs.InputFile;
@@ -29,11 +30,9 @@ import org.sonar.api.component.ResourcePerspectives;
 import org.sonar.api.source.Highlightable;
 import org.sonar.api.source.Highlightable.HighlightingBuilder;
 import org.sonar.javascript.utils.JavaScriptTreeModelTest;
-import org.sonar.plugins.javascript.api.visitors.TreeVisitorContext;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
-
-import java.io.File;
+import org.sonar.plugins.javascript.api.visitors.TreeVisitorContext;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
@@ -55,9 +54,9 @@ public class HighlighterVisitorTest extends JavaScriptTreeModelTest {
     fileSystem = new DefaultFileSystem();
     File file = new File("src/test/resources/highlighter/symbolHighlighting.js");
     DefaultInputFile inputFile = new DefaultInputFile("src/test/resources/highlighter/symbolHighlighting.js")
-        .setAbsolutePath(file.getAbsolutePath())
-        .setLanguage("js")
-        .setType(Type.MAIN);
+      .setAbsolutePath(file.getAbsolutePath())
+      .setLanguage("js")
+      .setType(Type.MAIN);
     fileSystem.add(inputFile);
 
     ResourcePerspectives resourcePerspectives = mock(ResourcePerspectives.class);
@@ -72,7 +71,7 @@ public class HighlighterVisitorTest extends JavaScriptTreeModelTest {
     when(visitorContext.getFile()).thenReturn(file);
   }
 
-  private void highlight(String string) throws Exception{
+  private void highlight(String string) throws Exception {
     Tree tree = p.parse(string);
     when(visitorContext.getTopTree()).thenReturn((ScriptTree) tree);
     highlighterVisitor.scanFile(visitorContext);

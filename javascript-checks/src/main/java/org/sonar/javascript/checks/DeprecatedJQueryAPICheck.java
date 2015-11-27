@@ -20,6 +20,7 @@
 package org.sonar.javascript.checks;
 
 import com.google.common.collect.ImmutableList;
+import java.util.List;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
@@ -34,13 +35,11 @@ import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 
-import java.util.List;
-
 @Rule(
-    key = "S2770",
-    name = "Deprecated jQuery methods should not be used",
-    priority = Priority.MAJOR,
-    tags = {Tags.JQUERY, Tags.OBSOLETE})
+  key = "S2770",
+  name = "Deprecated jQuery methods should not be used",
+  priority = Priority.MAJOR,
+  tags = {Tags.JQUERY, Tags.OBSOLETE})
 @SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.SOFTWARE_RELATED_PORTABILITY)
 @SqaleConstantRemediation("20min")
 public class DeprecatedJQueryAPICheck extends BaseTreeVisitor {
@@ -49,33 +48,33 @@ public class DeprecatedJQueryAPICheck extends BaseTreeVisitor {
 
   // e.g. $.boxModel
   private static final List<String> JQUERY_PROPERTIES = ImmutableList.of(
-      "boxModel",
-      "browser",
-      "support"
+    "boxModel",
+    "browser",
+    "support"
   );
 
   // e.g. $.sub()
   private static final List<String> JQUERY_METHODS = ImmutableList.of(
-      "sub"
+    "sub"
   );
 
   // e.g. $("p").context
   private static final List<String> SELECTOR_PROPERTIES = ImmutableList.of(
-      "context",
-      "afterSelector"
+    "context",
+    "afterSelector"
   );
 
   // e.g. $("p").andSelf()
   private static final List<String> SELECTOR_METHODS = ImmutableList.of(
-      "andSelf",
-      "die",
-      "error",
-      "live",
-      "load",
-      "size",
+    "andSelf",
+    "die",
+    "error",
+    "live",
+    "load",
+    "size",
 //      todo (Lena) conflicts with http://api.jquery.com/toggle/
 //      "toggle",
-      "unload"
+    "unload"
   );
 
   @Override
@@ -95,12 +94,12 @@ public class DeprecatedJQueryAPICheck extends BaseTreeVisitor {
   }
 
   private void checkJQueryProperty(ExpressionTree expressionTree, List<String> deprecated, String parentheses) {
-    if (expressionTree.is(Tree.Kind.DOT_MEMBER_EXPRESSION)){
+    if (expressionTree.is(Tree.Kind.DOT_MEMBER_EXPRESSION)) {
 
       ExpressionTree object = ((DotMemberExpressionTree) expressionTree).object();
       IdentifierTree property = ((DotMemberExpressionTree) expressionTree).property();
 
-      if (object.types().contains(ObjectType.FrameworkType.JQUERY_OBJECT) && propertyIsDeprecated(property, deprecated)){
+      if (object.types().contains(ObjectType.FrameworkType.JQUERY_OBJECT) && propertyIsDeprecated(property, deprecated)) {
         getContext().addIssue(this, property, String.format(MESSAGE, property.name() + parentheses));
       }
 
@@ -108,12 +107,12 @@ public class DeprecatedJQueryAPICheck extends BaseTreeVisitor {
   }
 
   private void checkSelectorProperty(ExpressionTree expressionTree, List<String> deprecated, String parentheses) {
-    if (expressionTree.is(Tree.Kind.DOT_MEMBER_EXPRESSION)){
+    if (expressionTree.is(Tree.Kind.DOT_MEMBER_EXPRESSION)) {
 
       ExpressionTree object = ((DotMemberExpressionTree) expressionTree).object();
       IdentifierTree property = ((DotMemberExpressionTree) expressionTree).property();
 
-      if (object.types().contains(ObjectType.FrameworkType.JQUERY_SELECTOR_OBJECT) && propertyIsDeprecated(property, deprecated)){
+      if (object.types().contains(ObjectType.FrameworkType.JQUERY_SELECTOR_OBJECT) && propertyIsDeprecated(property, deprecated)) {
         getContext().addIssue(this, property, String.format(MESSAGE, property.name() + parentheses));
       }
 
@@ -121,7 +120,7 @@ public class DeprecatedJQueryAPICheck extends BaseTreeVisitor {
   }
 
   private static boolean propertyIsDeprecated(ExpressionTree property, List<String> deprecated) {
-    if (property.is(Tree.Kind.IDENTIFIER_NAME)){
+    if (property.is(Tree.Kind.IDENTIFIER_NAME)) {
       IdentifierTree identifier = (IdentifierTree) property;
       return deprecated.contains(identifier.name());
     }

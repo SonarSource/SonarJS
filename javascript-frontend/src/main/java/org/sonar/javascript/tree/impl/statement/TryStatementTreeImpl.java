@@ -21,7 +21,8 @@ package org.sonar.javascript.tree.impl.statement;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Iterators;
-import org.sonar.plugins.javascript.api.visitors.TreeVisitor;
+import java.util.Iterator;
+import javax.annotation.Nullable;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.javascript.tree.impl.lexical.InternalSyntaxToken;
 import org.sonar.plugins.javascript.api.tree.Tree;
@@ -29,9 +30,7 @@ import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.javascript.api.tree.statement.BlockTree;
 import org.sonar.plugins.javascript.api.tree.statement.CatchBlockTree;
 import org.sonar.plugins.javascript.api.tree.statement.TryStatementTree;
-
-import javax.annotation.Nullable;
-import java.util.Iterator;
+import org.sonar.plugins.javascript.api.visitors.TreeVisitor;
 
 public class TryStatementTreeImpl extends JavaScriptTree implements TryStatementTree {
 

@@ -30,10 +30,10 @@ public class BackboneChangedIsUsedCheckTest extends TreeCheckTest {
     BackboneChangedIsUsedCheck check = new BackboneChangedIsUsedCheck();
 
     CheckMessagesVerifier.verify(getIssues("src/test/resources/checks/BackboneChangedIsUsed.js", check))
-        .next().atLine(10)
-        .next().atLine(11)
-        .next().atLine(12)
-        .noMore();
+      .next().atLine(10)
+      .next().atLine(11)
+      .next().atLine(12)
+      .noMore();
   }
 
 }

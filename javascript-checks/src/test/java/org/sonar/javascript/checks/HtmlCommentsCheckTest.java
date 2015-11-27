@@ -30,8 +30,8 @@ public class HtmlCommentsCheckTest extends TreeCheckTest {
     HtmlCommentsCheck check = new HtmlCommentsCheck();
 
     CheckMessagesVerifier.verify(getIssues("src/test/resources/checks/htmlComments.js", check))
-        .next().atLine(1).withMessage("Replace this HTML-style comment by a standard comment")
-        .noMore();
+      .next().atLine(1).withMessage("Replace this HTML-style comment by a standard comment")
+      .noMore();
   }
 
 }

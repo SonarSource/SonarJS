@@ -21,15 +21,14 @@ package org.sonar.javascript.highlighter;
 
 import com.google.common.base.Charsets;
 import com.google.common.io.Files;
+import java.io.File;
+import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.source.Symbolizable;
 import org.sonar.javascript.tree.symbols.SymbolModelImpl;
 import org.sonar.javascript.utils.JavaScriptTreeModelTest;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
-
-import java.io.File;
-import java.util.List;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;

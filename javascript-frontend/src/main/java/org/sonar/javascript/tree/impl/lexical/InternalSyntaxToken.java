@@ -20,14 +20,13 @@
 package org.sonar.javascript.tree.impl.lexical;
 
 import com.sonar.sslr.api.TokenType;
-import org.sonar.plugins.javascript.api.visitors.TreeVisitor;
+import java.util.Iterator;
+import java.util.List;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxTrivia;
-
-import java.util.Iterator;
-import java.util.List;
+import org.sonar.plugins.javascript.api.visitors.TreeVisitor;
 
 public class InternalSyntaxToken extends JavaScriptTree implements SyntaxToken {
 
@@ -94,7 +93,7 @@ public class InternalSyntaxToken extends JavaScriptTree implements SyntaxToken {
     return true;
   }
 
-  public boolean isEOF(){
+  public boolean isEOF() {
     return isEOF;
   }
 

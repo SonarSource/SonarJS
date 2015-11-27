@@ -19,11 +19,12 @@
  */
 package org.sonar.javascript.tree.impl.statement;
 
-import static org.fest.assertions.Assertions.assertThat;
 import org.junit.Test;
 import org.sonar.javascript.utils.JavaScriptTreeModelTest;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.statement.DefaultClauseTree;
+
+import static org.fest.assertions.Assertions.assertThat;
 
 public class DefaultClauseTreeModelTest extends JavaScriptTreeModelTest {
 

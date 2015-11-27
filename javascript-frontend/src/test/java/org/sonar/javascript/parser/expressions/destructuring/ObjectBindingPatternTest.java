@@ -30,11 +30,11 @@ public class ObjectBindingPatternTest {
   @Test
   public void ok() {
     assertThat(Kind.OBJECT_BINDING_PATTERN)
-        .matches("{ }")
-        .matches("{ identifier }")
-        .matches("{ identifier : identifier}")
-        .matches("{ identifier , identifier }")
-        .matches("{ identifier , }");
+      .matches("{ }")
+      .matches("{ identifier }")
+      .matches("{ identifier : identifier}")
+      .matches("{ identifier , identifier }")
+      .matches("{ identifier , }");
   }
 
 }

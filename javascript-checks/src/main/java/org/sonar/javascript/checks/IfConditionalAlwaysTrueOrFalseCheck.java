@@ -41,7 +41,7 @@ public class IfConditionalAlwaysTrueOrFalseCheck extends BaseTreeVisitor {
 
   @Override
   public void visitIfStatement(IfStatementTree tree) {
-    if (tree.condition().is(Kind.BOOLEAN_LITERAL)){
+    if (tree.condition().is(Kind.BOOLEAN_LITERAL)) {
       getContext().addIssue(this, tree, "Remove this \"if\" statement.\"");
     }
 

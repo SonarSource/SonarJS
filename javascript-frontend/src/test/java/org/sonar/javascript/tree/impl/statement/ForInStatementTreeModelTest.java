@@ -32,7 +32,7 @@ public class ForInStatementTreeModelTest extends JavaScriptTreeModelTest {
 
   @Test
   public void test() throws Exception {
-   ForInStatementTree tree = parse("for ( var a in expression ) { }", Kind.FOR_IN_STATEMENT);
+    ForInStatementTree tree = parse("for ( var a in expression ) { }", Kind.FOR_IN_STATEMENT);
 
     assertThat(tree.is(Kind.FOR_IN_STATEMENT)).isTrue();
     assertThat(tree.forKeyword().text()).isEqualTo(JavaScriptKeyword.FOR.getValue());

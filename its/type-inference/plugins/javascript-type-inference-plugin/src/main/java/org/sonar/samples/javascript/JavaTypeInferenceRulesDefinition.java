@@ -35,6 +35,6 @@ public class JavaTypeInferenceRulesDefinition extends CustomJavaScriptRulesDefin
 
   @Override
   public Class[] checkClasses() {
-    return new Class[] {TypeCheck.class, UnknownCheck.class};
+    return new Class[]{TypeCheck.class, UnknownCheck.class};
   }
 }

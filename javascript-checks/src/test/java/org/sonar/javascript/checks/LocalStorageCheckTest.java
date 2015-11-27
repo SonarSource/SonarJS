@@ -24,14 +24,14 @@ import org.sonar.plugins.javascript.api.tests.TreeCheckTest;
 import org.sonar.squidbridge.checks.CheckMessagesVerifier;
 
 
-public class LocalStorageCheckTest extends TreeCheckTest{
+public class LocalStorageCheckTest extends TreeCheckTest {
 
   @Test
   public void test() {
 
     CheckMessagesVerifier.verify(getIssues("src/test/resources/checks/localStorage.js", new LocalStorageCheck()))
-      .next().atLine(2).withCost((double)12).withMessage("Remove all use of \"localStorage\"; use cookies or store the data on the server instead.")
-      .next().atLine(3).withCost((double)0).withMessage("Remove all use of \"sessionStorage\"; use cookies or store the data on the server instead.")
+      .next().atLine(2).withCost((double) 12).withMessage("Remove all use of \"localStorage\"; use cookies or store the data on the server instead.")
+      .next().atLine(3).withCost((double) 0).withMessage("Remove all use of \"sessionStorage\"; use cookies or store the data on the server instead.")
       .noMore();
   }
 

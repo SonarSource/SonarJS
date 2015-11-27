@@ -19,14 +19,14 @@
  */
 package org.sonar.plugins.javascript.api;
 
-import static org.fest.assertions.Assertions.assertThat;
-
 import org.junit.Test;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.api.server.rule.RulesDefinition.Param;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
 import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
+
+import static org.fest.assertions.Assertions.assertThat;
 
 public class CustomJavaScriptRulesDefinitionTest {
 
@@ -86,7 +86,7 @@ public class CustomJavaScriptRulesDefinitionTest {
 
     @Override
     public Class[] checkClasses() {
-      return new Class[] {MyCustomRule.class};
+      return new Class[]{MyCustomRule.class};
     }
   }
 

@@ -30,9 +30,9 @@ public class SwitchWithoutDefaultCheckTest extends TreeCheckTest {
     SwitchWithoutDefaultCheck check = new SwitchWithoutDefaultCheck();
 
     CheckMessagesVerifier.verify(getIssues("src/test/resources/checks/switchWithoutDefault.js", check))
-        .next().atLine(8).withMessage("Avoid switch statement without a \"default\" clause.")
-        .next().atLine(13).withMessage("\"default\" clause should be the last one.")
-        .noMore();
+      .next().atLine(8).withMessage("Avoid switch statement without a \"default\" clause.")
+      .next().atLine(13).withMessage("\"default\" clause should be the last one.")
+      .noMore();
   }
 
 }

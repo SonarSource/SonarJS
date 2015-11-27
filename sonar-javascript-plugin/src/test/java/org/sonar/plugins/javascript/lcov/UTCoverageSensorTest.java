@@ -158,7 +158,7 @@ public class UTCoverageSensorTest {
     settings.setProperty(JavaScriptPlugin.LCOV_UT_REPORT_PATH, "");
     when(context.getMeasure(any(Resource.class), any(Metric.class))).thenReturn(new Measure().setValue(1d));
     when(context.getMeasure(any(org.sonar.api.resources.File.class), eq(CoreMetrics.NCLOC_DATA)))
-        .thenReturn(new Measure(CoreMetrics.NCLOC_DATA, "1=0;2=1;3=1;4=0"));
+      .thenReturn(new Measure(CoreMetrics.NCLOC_DATA, "1=0;2=1;3=1;4=0"));
     newSensor(fs, settings).analyse(project, context);
 
     verify(context, times(1)).saveMeasure((Resource) anyObject(), eq(CoreMetrics.LINES_TO_COVER), eq(1d));

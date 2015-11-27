@@ -19,6 +19,9 @@
  */
 package org.sonar.javascript.tree.symbols;
 
+import java.io.File;
+import java.util.Collection;
+import java.util.Iterator;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.javascript.utils.JavaScriptTreeModelTest;
@@ -26,10 +29,6 @@ import org.sonar.plugins.javascript.api.symbols.Symbol;
 import org.sonar.plugins.javascript.api.symbols.Usage;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
-
-import java.io.File;
-import java.util.Collection;
-import java.util.Iterator;
 
 import static org.fest.assertions.Assertions.assertThat;
 
@@ -51,8 +50,8 @@ public class UsageTest extends JavaScriptTreeModelTest {
 
     Collection<Symbol> symbols = SYMBOL_MODEL.getSymbols("b");
     Symbol b = null;
-    for (Symbol symbol : symbols){
-      if (symbol.scope().tree().is(Tree.Kind.SCRIPT)){
+    for (Symbol symbol : symbols) {
+      if (symbol.scope().tree().is(Tree.Kind.SCRIPT)) {
         b = symbol;
       }
     }
@@ -67,8 +66,8 @@ public class UsageTest extends JavaScriptTreeModelTest {
   @Test
   public void arguments_build_in_symbol() throws Exception {
     Collection<Symbol> symbols = SYMBOL_MODEL.getSymbols("arguments");
-    for (Symbol symbol : symbols){
-      if (symbol.scope().tree().is(Tree.Kind.SCRIPT)){
+    for (Symbol symbol : symbols) {
+      if (symbol.scope().tree().is(Tree.Kind.SCRIPT)) {
         assertThat(symbol.builtIn()).isFalse();
       } else {
         assertThat(symbol.builtIn()).isTrue();
@@ -82,8 +81,8 @@ public class UsageTest extends JavaScriptTreeModelTest {
     assertThat(usagesFor("p2")).hasSize(1);
     Collection<Symbol> symbols = SYMBOL_MODEL.getSymbols("b");
     Symbol b = null;
-    for (Symbol symbol : symbols){
-      if (symbol.scope().tree().is(Tree.Kind.FUNCTION_DECLARATION)){
+    for (Symbol symbol : symbols) {
+      if (symbol.scope().tree().is(Tree.Kind.FUNCTION_DECLARATION)) {
         b = symbol;
       }
     }
@@ -108,9 +107,9 @@ public class UsageTest extends JavaScriptTreeModelTest {
     int readCounter = 0;
     int writeCounter = 0;
     int declarationCounter = 0;
-    while (iterator.hasNext()){
+    while (iterator.hasNext()) {
       Usage next = iterator.next();
-      readCounter += next.kind().equals(Usage.Kind.READ)||next.kind().equals(Usage.Kind.READ_WRITE) ? 1 : 0;
+      readCounter += next.kind().equals(Usage.Kind.READ) || next.kind().equals(Usage.Kind.READ_WRITE) ? 1 : 0;
       writeCounter += next.isWrite() ? 1 : 0;
       declarationCounter += next.isDeclaration() ? 1 : 0;
     }

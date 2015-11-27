@@ -28,9 +28,9 @@ public class EmptyBlockCheckTest extends TreeCheckTest {
   @Test
   public void test() {
     CheckMessagesVerifier.verify(getIssues("src/test/resources/checks/emptyBlock.js", new EmptyBlockCheck()))
-        .next().atLine(2).withMessage("Either remove or fill this block of code.")
-        .next().atLine(16).withMessage("Either remove or fill this block of code.")
-        .noMore();
+      .next().atLine(2).withMessage("Either remove or fill this block of code.")
+      .next().atLine(16).withMessage("Either remove or fill this block of code.")
+      .noMore();
   }
 
 }

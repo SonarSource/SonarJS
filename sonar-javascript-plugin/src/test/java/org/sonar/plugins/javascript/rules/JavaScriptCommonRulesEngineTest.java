@@ -20,7 +20,6 @@
 package org.sonar.plugins.javascript.rules;
 
 import org.junit.Test;
-import org.sonar.plugins.javascript.rules.JavaScriptCommonRulesEngine;
 import org.sonar.squidbridge.commonrules.api.CommonRulesRepository;
 import org.sonar.squidbridge.commonrules.internal.CommonRulesConstants;
 

@@ -30,7 +30,7 @@ public class DoWhileStatementTest {
   @Test
   public void realLife() {
     assertThat(Kind.DO_WHILE_STATEMENT)
-        .as("inner statement must end by newline or semicolon").notMatches("do something() while (condition);");
+      .as("inner statement must end by newline or semicolon").notMatches("do something() while (condition);");
   }
 
 }

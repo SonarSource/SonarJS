@@ -21,6 +21,7 @@ package org.sonar.javascript.tree.impl.expression;
 
 import com.google.common.base.Functions;
 import com.google.common.collect.Iterators;
+import java.util.Iterator;
 import org.apache.commons.collections.ListUtils;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.javascript.tree.impl.SeparatedList;
@@ -31,8 +32,6 @@ import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.expression.ObjectLiteralTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.javascript.api.visitors.TreeVisitor;
-
-import java.util.Iterator;
 
 public class ObjectLiteralTreeImpl extends JavaScriptTree implements ObjectLiteralTree {
 
@@ -87,12 +86,13 @@ public class ObjectLiteralTreeImpl extends JavaScriptTree implements ObjectLiter
   public void addType(Type type) {
     this.types.add(type);
   }
+
   @Override
   public Iterator<Tree> childrenIterator() {
     return Iterators.concat(
-        Iterators.singletonIterator(openCurlyBrace),
-        properties.elementsAndSeparators(Functions.<Tree>identity()),
-        Iterators.singletonIterator(closeCurlyBrace)
+      Iterators.singletonIterator(openCurlyBrace),
+      properties.elementsAndSeparators(Functions.<Tree>identity()),
+      Iterators.singletonIterator(closeCurlyBrace)
     );
   }
 

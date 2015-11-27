@@ -32,7 +32,7 @@ public class WhileStatementTreeModelTest extends JavaScriptTreeModelTest {
 
   @Test
   public void test() throws Exception {
-   WhileStatementTree tree = parse("while ( a ) { }", Kind.WHILE_STATEMENT);
+    WhileStatementTree tree = parse("while ( a ) { }", Kind.WHILE_STATEMENT);
 
     assertThat(tree.is(Kind.WHILE_STATEMENT)).isTrue();
     assertThat(tree.whileKeyword().text()).isEqualTo(JavaScriptKeyword.WHILE.getValue());

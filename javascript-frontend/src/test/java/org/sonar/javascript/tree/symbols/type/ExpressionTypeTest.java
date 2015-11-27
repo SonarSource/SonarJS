@@ -36,7 +36,7 @@ public class ExpressionTypeTest extends TypeTest {
   }
 
   @Test
-  public void parenthesised(){
+  public void parenthesised() {
     Symbol par = getSymbol("par1");
     assertThat(par.types().containsOnlyAndUnique(Type.Kind.FUNCTION)).isTrue();
 

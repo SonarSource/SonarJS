@@ -22,7 +22,6 @@ package org.sonar.javascript.tree.visitors;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
-
 import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.plugins.javascript.api.JavaScriptCheck;
 import org.sonar.plugins.javascript.api.tree.Tree;
@@ -93,7 +92,7 @@ public abstract class SubscriptionTreeVisitor implements JavaScriptCheck {
     JavaScriptTree javaTree = (JavaScriptTree) tree;
 
     if (!javaTree.isLeaf()) {
-      for (Iterator<Tree> iter = javaTree.childrenIterator(); iter.hasNext();) {
+      for (Iterator<Tree> iter = javaTree.childrenIterator(); iter.hasNext(); ) {
         Tree next = iter.next();
 
         if (next != null) {

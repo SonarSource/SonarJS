@@ -32,5 +32,5 @@ import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
   priority = Priority.MAJOR)
 @SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.INSTRUCTION_RELIABILITY)
 @SqaleConstantRemediation("30min")
-public class ParsingErrorCheck extends BaseTreeVisitor  {
+public class ParsingErrorCheck extends BaseTreeVisitor {
 }

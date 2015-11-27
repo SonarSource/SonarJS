@@ -20,14 +20,13 @@
 package org.sonar.javascript.tree.impl.expression;
 
 import com.google.common.collect.Iterators;
-import org.sonar.plugins.javascript.api.symbols.TypeSet;
+import java.util.Iterator;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.javascript.tree.impl.lexical.InternalSyntaxToken;
+import org.sonar.plugins.javascript.api.symbols.TypeSet;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.expression.ThisTree;
 import org.sonar.plugins.javascript.api.visitors.TreeVisitor;
-
-import java.util.Iterator;
 
 public class ThisTreeImpl extends JavaScriptTree implements ThisTree {
 

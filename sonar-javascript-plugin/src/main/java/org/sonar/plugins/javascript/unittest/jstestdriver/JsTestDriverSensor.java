@@ -19,6 +19,8 @@
  */
 package org.sonar.plugins.javascript.unittest.jstestdriver;
 
+import java.io.File;
+import java.util.Iterator;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,9 +35,6 @@ import org.sonar.api.resources.Resource;
 import org.sonar.plugins.javascript.JavaScriptLanguage;
 import org.sonar.plugins.javascript.JavaScriptPlugin;
 import org.sonar.plugins.javascript.unittest.surefireparser.AbstractSurefireParser;
-
-import java.io.File;
-import java.util.Iterator;
 
 public class JsTestDriverSensor implements Sensor {
 
@@ -105,8 +104,8 @@ public class JsTestDriverSensor implements Sensor {
 
   protected InputFile getTestFileRelativePathToBaseDir(String fileName) {
     FilePredicate predicate = fileSystem.predicates().and(
-            testFilePredicate,
-            fileSystem.predicates().matchesPathPattern("**" + File.separatorChar + fileName)
+      testFilePredicate,
+      fileSystem.predicates().matchesPathPattern("**" + File.separatorChar + fileName)
     );
 
     Iterator<InputFile> fileIterator = fileSystem.inputFiles(predicate).iterator();

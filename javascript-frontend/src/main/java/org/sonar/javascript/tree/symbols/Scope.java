@@ -20,19 +20,19 @@
 package org.sonar.javascript.tree.symbols;
 
 import com.google.common.collect.Maps;
-import org.sonar.plugins.javascript.api.symbols.Symbol;
-import org.sonar.plugins.javascript.api.tree.Tree;
-
-import javax.annotation.Nullable;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import javax.annotation.Nullable;
+import org.sonar.plugins.javascript.api.symbols.Symbol;
+import org.sonar.plugins.javascript.api.tree.Tree;
 
 public class Scope {
 
   private Scope outer;
   private final Tree tree;
   protected Map<String, Symbol> symbols = Maps.newHashMap();
+
   public Scope(Scope outer, Tree tree) {
     this.outer = outer;
     this.tree = tree;
@@ -48,7 +48,6 @@ public class Scope {
 
   /**
    * @param name of the symbol to look for
-   *
    * @return the symbol corresponding to the given name
    */
   public Symbol lookupSymbol(String name) {
@@ -61,13 +60,12 @@ public class Scope {
 
   /**
    * @param kind of the symbols to look for
-   *
    * @return the symbols corresponding to the given kind
    */
   public List<Symbol> getSymbols(Symbol.Kind kind) {
     List<Symbol> result = new LinkedList<>();
-    for (Symbol symbol : symbols.values()){
-      if (symbol.is(kind)){
+    for (Symbol symbol : symbols.values()) {
+      if (symbol.is(kind)) {
         result.add(symbol);
       }
     }
