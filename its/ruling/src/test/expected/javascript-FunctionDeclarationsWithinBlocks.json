@@ -28,6 +28,10 @@
 'project:ecmascript6/di.js/visualize/lib/d3.v3.js':[
 1076,
 ],
+'project:ecmascript6/reddit-mobile/index.js':[
+128,
+137,
+],
 'project:ecmascript6/router/third_party/brick/brick-1.0.1.byob.js':[
 414,
 443,
@@ -46,6 +50,9 @@
 553,
 560,
 567,
+],
+'project:ecmascript6/snoode/src/endpoints/v1.es6.js':[
+819,
 ],
 'project:google-closure-library/net/crossdomainrpc.js':[
 743,

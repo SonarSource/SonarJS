@@ -129,6 +129,9 @@
 'project:ecmascript6/watchtower.js/src/dirty_checking.js':[
 155,
 ],
+'project:frameworks/wordpress/editor-expand.js':[
+210,
+],
 'project:google-closure-library/cssom/iframe/style.js':[
 485,
 488,
@@ -208,9 +211,6 @@
 'project:qunit-1.8.0.js':[
 491,
 494,
-],
-'project:frameworks/wordpress/editor-expand.js':[
-210,
 ],
 'project:yui-3.7.3/calendar-base/calendar-base.js':[
 269,

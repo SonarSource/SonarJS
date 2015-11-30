@@ -574,6 +574,15 @@
 'project:dojo-1.8.1/dojox/xmpp/sasl.js.uncompressed.js':[
 152,
 ],
+'project:ecmascript6/sonar-web/src/main/js/apps/issues/models/issues.js':[
+52,
+],
+'project:ecmascript6/sonar-web/src/main/js/components/issue/collections/issues.js':[
+52,
+],
+'project:ecmascript6/sonar-web/src/main/js/components/issue/models/issue.js':[
+80,
+],
 'project:mootools-core-1.4.5-full-nocompat.js':[
 1921,
 ],

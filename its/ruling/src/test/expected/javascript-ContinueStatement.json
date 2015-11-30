@@ -521,6 +521,12 @@
 398,
 426,
 ],
+'project:frameworks/wordpress/bookmarklet.js':[
+133,
+],
+'project:frameworks/wordpress/password-strength-meter.js':[
+45,
+],
 'project:google-closure-library/cssom/iframe/style.js':[
 337,
 ],
@@ -733,12 +739,6 @@
 ],
 'project:scriptaculous-1.9.0/dragdrop.js':[
 847,
-],
-'project:frameworks/wordpress/bookmarklet.js':[
-133,
-],
-'project:frameworks/wordpress/password-strength-meter.js':[
-45,
 ],
 'project:yui-3.7.3/array-extras/array-extras.js':[
 106,

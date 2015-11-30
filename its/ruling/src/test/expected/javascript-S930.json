@@ -41,6 +41,10 @@
 'project:ecmascript6/router/third_party/brick/brick-1.0.1.byob.js':[
 596,
 ],
+'project:ecmascript6/sonar-web/src/main/js/widgets/old/pie-chart.js':[
+292,
+303,
+],
 'project:frameworks/wordpress/updates.js':[
 553,
 ],

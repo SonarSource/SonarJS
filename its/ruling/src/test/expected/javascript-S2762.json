@@ -6,10 +6,8 @@
 109,
 112,
 ],
-'project:google-closure-library/dom/dom_test.js':[
-428,
-428,
-983,
+'project:ecmascript6/sonar-web/src/main/js/components/workspace/views/viewer-header-view.js':[
+83,
 ],
 'project:frameworks/wordpress/comment.js':[
 8,
@@ -92,5 +90,10 @@
 ],
 'project:frameworks/wordpress/widgets.js':[
 276,
+],
+'project:google-closure-library/dom/dom_test.js':[
+428,
+428,
+983,
 ],
 }
