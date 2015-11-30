@@ -1,5 +1,5 @@
 /*
- * SonarSource :: JavaScript :: ITs :: Ruling
+ * SonarQube JavaScript Plugin
  * Copyright (C) 2012 SonarSource
  * sonarqube@googlegroups.com
  *

@@ -1,6 +1,6 @@
 /*
- * SonarSource :: JavaScript :: ITs :: TypeInference :: Tests
- * Copyright (C) 2015 ${owner}
+ * SonarQube JavaScript Plugin
+ * Copyright (C) 2015 SonarSource
  * sonarqube@googlegroups.com
  *
  * This program is free software; you can redistribute it and/or
@@ -40,7 +40,7 @@ public class JavaScriptTypeInferenceTest {
     .addPlugin(localJarPath("../../../sonar-javascript-plugin/target"))
     .setOrchestratorProperty("litsVersion", "0.5")
     .addPlugin("lits")
-    .addPlugin(FileLocation.of(TestUtils.pluginJar("javascript-type-inference-plugin")))
+    .addPlugin(localJarPath("../plugins/javascript-type-inference-plugin/target"))
     .restoreProfileAtStartup(FileLocation.ofClasspath("/profile.xml"))
     .build();
 

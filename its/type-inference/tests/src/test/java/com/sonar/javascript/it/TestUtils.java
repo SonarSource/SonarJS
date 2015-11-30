@@ -1,6 +1,6 @@
 /*
- * SonarSource :: JavaScript :: ITs :: TypeInference :: Tests
- * Copyright (C) 2015 ${owner}
+ * SonarQube JavaScript Plugin
+ * Copyright (C) 2015 SonarSource
  * sonarqube@googlegroups.com
  *
  * This program is free software; you can redistribute it and/or
@@ -42,10 +42,6 @@ public class TestUtils {
 
   public static File projectDir(String projectName) {
     return new File(homeDir(), "projects/" + projectName);
-  }
-
-  public static File pluginJar(String artifactId) {
-    return new File(homeDir(), "plugins/" + artifactId + "/target/" + artifactId + "-1.0-SNAPSHOT.jar");
   }
 
   public static File file(String relativePath) {

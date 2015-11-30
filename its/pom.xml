@@ -20,6 +20,24 @@
          <module>performancing</module>
        </modules> 
     </profile>
+    <profile>
+       <id>it-plugin</id>
+       <modules>
+         <module>plugin</module>
+       </modules> 
+    </profile>
+    <profile>
+       <id>it-ruling</id>
+       <modules>
+         <module>ruling</module>
+       </modules> 
+    </profile>
+    <profile>
+       <id>it-type-inference</id>
+       <modules>
+         <module>type-inference</module>
+       </modules> 
+    </profile>
   </profiles>
 
 </project>

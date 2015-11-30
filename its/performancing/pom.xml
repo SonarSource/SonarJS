@@ -9,7 +9,7 @@
     <version>2.9-SNAPSHOT</version>
   </parent>
 
-  <artifactId>it-javascript-performancing</artifactId>
+  <artifactId>javascript-it-performancing</artifactId>
 
   <name>JavaScript :: IT :: Performancing</name>
   <inceptionYear>2013</inceptionYear>

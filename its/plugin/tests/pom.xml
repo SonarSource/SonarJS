@@ -3,15 +3,14 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
-
   <parent>
-    <groupId>org.sonarsource.it.javascript</groupId>
-    <artifactId>it-javascript-plugin</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <groupId>org.sonarsource.javascript</groupId>
+    <artifactId>javascript-it-plugin</artifactId>
+    <version>2.9-SNAPSHOT</version>
   </parent>
 
-  <artifactId>it-javascript-plugin-tests</artifactId>
-  <name>SonarSource :: JavaScript :: ITs :: Plugin :: Tests</name>
+  <artifactId>javascript-it-plugin-tests</artifactId>
+  <name>JavaScript :: IT :: Plugin :: Tests</name>
 
   <properties>
     <surefire.argLine>-server</surefire.argLine>

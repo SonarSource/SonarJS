@@ -4,16 +4,19 @@
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
-    <groupId>org.sonarsource.parent</groupId>
-    <artifactId>parent</artifactId>
-    <version>23</version>
+    <groupId>org.sonarsource.javascript</groupId>
+    <artifactId>javascript-its</artifactId>
+    <version>2.9-SNAPSHOT</version>
   </parent>
 
-  <groupId>org.sonarsource.it.javascript</groupId>
-  <artifactId>it-javascript-type-inference</artifactId>
-  <name>SonarSource :: JavaScript :: ITs :: TypeInference</name>
-  <version>1.0-SNAPSHOT</version>
+  <artifactId>javascript-it-type-inference</artifactId>
+  <name>JavaScript :: IT :: TypeInference</name>
   <packaging>pom</packaging>
+
+  <organization>
+    <name>SonarSource</name>
+    <url>http://www.sonarsource.com</url>
+  </organization>
 
   <inceptionYear>2015</inceptionYear>
 

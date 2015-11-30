@@ -1,5 +1,5 @@
 /*
- * SonarSource :: JavaScript :: ITs :: Plugin :: Tests
+ * SonarQube JavaScript Plugin
  * Copyright (C) 2012 SonarSource
  * sonarqube@googlegroups.com
  *

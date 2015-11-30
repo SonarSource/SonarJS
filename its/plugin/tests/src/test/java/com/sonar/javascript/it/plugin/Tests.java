@@ -1,5 +1,5 @@
 /*
- * SonarSource :: JavaScript :: ITs :: Plugin :: Tests
+ * SonarQube JavaScript Plugin
  * Copyright (C) 2012 SonarSource
  * sonarqube@googlegroups.com
  *
@@ -48,7 +48,7 @@ public final class Tests {
   public static final Orchestrator ORCHESTRATOR = Orchestrator.builderEnv()
     .addPlugin(localJarPath("../../../sonar-javascript-plugin/target"))
     .restoreProfileAtStartup(FileLocation.ofClasspath("/empty-profile.xml"))
-    .addPlugin(FileLocation.of(TestUtils.pluginJar(CUSTOM_RULES_ARTIFACT_ID)))
+    .addPlugin(localJarPath("../plugins/" + CUSTOM_RULES_ARTIFACT_ID + "/target"))
     .restoreProfileAtStartup(FileLocation.ofClasspath("/profile-javascript-custom-rules.xml"))
     .build();
 

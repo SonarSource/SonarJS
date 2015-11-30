@@ -1,6 +1,6 @@
 /*
- * JavaScript Type Inference Plugin
- * Copyright (C) 2015 ${owner}
+ * SonarQube JavaScript Plugin
+ * Copyright (C) 2015 SonarSource
  * sonarqube@googlegroups.com
  *
  * This program is free software; you can redistribute it and/or
