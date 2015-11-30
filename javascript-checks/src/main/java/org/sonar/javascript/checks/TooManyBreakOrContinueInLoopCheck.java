@@ -181,7 +181,7 @@ public class TooManyBreakOrContinueInLoopCheck extends BaseTreeVisitor {
   private void leaveScopeAndCheckNumberOfJump(Tree tree) {
     int jumpStatementNumber = jumpTargets.pop().jumps;
     if (jumpStatementNumber > 1) {
-      getContext().addIssue(this, tree, "Reduce the total number of \"break\" and \"continue\" statements in this loop to use one at most.", jumpStatementNumber - 1);
+      getContext().addIssue(this, tree, "Reduce the total number of \"break\" and \"continue\" statements in this loop to use one at most.", (double)jumpStatementNumber - 1);
     }
   }
 
