@@ -18,19 +18,21 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
 import com.google.common.base.Preconditions;
+import com.google.common.collect.Iterables;
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.SonarRunner;
 import com.sonar.orchestrator.locator.FileLocation;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FilenameFilter;
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.Properties;
+import java.util.concurrent.TimeUnit;
 import org.fest.assertions.Assertions;
 import org.fest.assertions.Delta;
 import org.junit.ClassRule;
 import org.junit.Test;
-
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.util.Properties;
-import java.util.concurrent.TimeUnit;
 
 public class JavaScriptPerformanceTest {
 
@@ -39,7 +41,7 @@ public class JavaScriptPerformanceTest {
   @ClassRule
   public static final Orchestrator ORCHESTRATOR = Orchestrator.builderEnv()
     .restoreProfileAtStartup(FileLocation.of("src/test/profile.xml"))
-    .addPlugin(FileLocation.of("../../sonar-javascript-plugin/target/sonar-javascript-plugin.jar"))
+    .addPlugin(localJarPath("../../sonar-javascript-plugin/target"))
     .build();
 
   @Test
@@ -76,6 +78,15 @@ public class JavaScriptPerformanceTest {
 
   private static double toMilliseconds(String time) {
     return TimeUnit.MILLISECONDS.toSeconds(Integer.parseInt(time));
+  }
+
+  private static FileLocation localJarPath(String directory) {
+    return FileLocation.of(Iterables.getOnlyElement(Arrays.asList(new File(directory).listFiles(new FilenameFilter() {
+      @Override
+      public boolean accept(File dir, String name) {
+        return name.endsWith(".jar") && !name.endsWith("-sources.jar");
+      }
+    }))).getAbsolutePath());
   }
 
 }
