@@ -43,6 +43,7 @@ public class Tags {
   public static final String PERFORMANCE = "performance";
   public static final String SANS_TOP25_RISKY = "sans-top25-risky";
   public static final String SECURITY = "security";
+  public static final String SUSPICIOUS = "suspicious";
   public static final String UNUSED = "unused";
   public static final String USER_EXPERIENCE = "user-experience";
   public static final String HTML5 = "html5";

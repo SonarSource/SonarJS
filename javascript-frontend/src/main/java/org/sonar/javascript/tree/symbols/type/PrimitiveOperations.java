@@ -41,6 +41,7 @@ public class PrimitiveOperations {
     put(Kind.NUMBER, Kind.NUMBER, Tree.Kind.PLUS, PrimitiveType.NUMBER);
     put(Kind.STRING, Kind.NUMBER, Tree.Kind.PLUS, PrimitiveType.STRING);
     put(Kind.NUMBER, Kind.STRING, Tree.Kind.PLUS, PrimitiveType.STRING);
+    put(Kind.STRING, Kind.STRING, Tree.Kind.PLUS, PrimitiveType.STRING);
 
     // &&
     put(Kind.STRING, Kind.STRING, Tree.Kind.CONDITIONAL_AND, PrimitiveType.STRING);

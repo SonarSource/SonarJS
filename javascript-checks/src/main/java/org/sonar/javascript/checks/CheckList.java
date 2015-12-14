@@ -134,6 +134,7 @@ public final class CheckList {
       JQueryVarNameConventionCheck.class,
       ElementUsedWithClassSelectorCheck.class,
       IdChildrenSelectorCheck.class,
+      StringConcatenatedWithNonStringCheck.class,
       UniversalSelectorCheck.class,
       DeleteArrayElementCheck.class,
       ElementTypeSelectorCheck.class,
