@@ -1,0 +1,32 @@
+<p>When the names of arguments in a function call match the names of the function parameters, it contributes to clearer, more readable code. However, when the names match, but are passed in a different order than the function parameters, it indicates a mistake in the parameter order which will likely lead to unexpected results.</p>
+
+<h2>Noncompliant Code Example</h2>
+<pre>
+function divide(var divisor, var dividend) {
+  return divisor/dividend;
+}
+
+function doTheThing() {
+  var divisor = 15;
+  var dividend = 5;
+
+  var result = divide(dividend, divisor);  // Noncompliant; operation succeeds, but result is unexpected
+  //...
+}
+</pre>
+
+<h2>Compliant Solution</h2>
+<pre>
+function divide(var divisor, var dividend) {
+  return divisor/dividend;
+}
+
+public void doTheThing() {
+  var divisor = 15;
+  var dividend = 5;
+
+  var result = divide(divisor, dividend);
+  //...
+}
+</pre>
+

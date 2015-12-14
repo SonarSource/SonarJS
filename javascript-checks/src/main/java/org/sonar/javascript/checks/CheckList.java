@@ -137,6 +137,7 @@ public final class CheckList {
       DeleteArrayElementCheck.class,
       ElementTypeSelectorCheck.class,
       TooManyArgumentsCheck.class,
+      MisorderedParameterListCheck.class,
       GlobalThisCheck.class,
       NewOperatorMisuseCheck.class,
       WebSQLDatabaseCheck.class,
