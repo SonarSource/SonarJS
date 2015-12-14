@@ -24,6 +24,7 @@ import com.google.common.collect.Iterators;
 import java.util.Iterator;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.javascript.tree.impl.lexical.InternalSyntaxToken;
+import org.sonar.plugins.javascript.api.symbols.Type;
 import org.sonar.plugins.javascript.api.symbols.TypeSet;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.expression.BinaryExpressionTree;
@@ -37,6 +38,7 @@ public class BinaryExpressionTreeImpl extends JavaScriptTree implements BinaryEx
   private final SyntaxToken operand;
   private final ExpressionTree rightOperand;
   private final Kind kind;
+  private TypeSet types = TypeSet.emptyTypeSet();
 
   public BinaryExpressionTreeImpl(Kind kind, ExpressionTree leftOperand, InternalSyntaxToken operand, ExpressionTree rightOperand) {
     this.leftOperand = Preconditions.checkNotNull(leftOperand);
@@ -78,6 +80,10 @@ public class BinaryExpressionTreeImpl extends JavaScriptTree implements BinaryEx
 
   @Override
   public TypeSet types() {
-    return TypeSet.emptyTypeSet();
+    return types.immutableCopy();
+  }
+
+  public void addType(Type type) {
+    types.add(type);
   }
 }

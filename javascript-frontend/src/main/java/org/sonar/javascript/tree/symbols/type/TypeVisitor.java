@@ -26,6 +26,7 @@ import org.sonar.api.config.Settings;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.javascript.tree.impl.SeparatedList;
 import org.sonar.javascript.tree.impl.expression.ArrayLiteralTreeImpl;
+import org.sonar.javascript.tree.impl.expression.BinaryExpressionTreeImpl;
 import org.sonar.javascript.tree.impl.expression.CallExpressionTreeImpl;
 import org.sonar.javascript.tree.impl.expression.IdentifierTreeImpl;
 import org.sonar.javascript.tree.impl.expression.LiteralTreeImpl;
@@ -41,6 +42,7 @@ import org.sonar.plugins.javascript.api.tree.declaration.FunctionDeclarationTree
 import org.sonar.plugins.javascript.api.tree.declaration.InitializedBindingElementTree;
 import org.sonar.plugins.javascript.api.tree.expression.ArrayLiteralTree;
 import org.sonar.plugins.javascript.api.tree.expression.AssignmentExpressionTree;
+import org.sonar.plugins.javascript.api.tree.expression.BinaryExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.CallExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
@@ -49,11 +51,14 @@ import org.sonar.plugins.javascript.api.tree.expression.MemberExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.NewExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.ObjectLiteralTree;
 import org.sonar.plugins.javascript.api.tree.expression.ParenthesisedExpressionTree;
+import org.sonar.plugins.javascript.api.tree.statement.ForInStatementTree;
+import org.sonar.plugins.javascript.api.tree.statement.ForOfStatementTree;
 import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
 
 public class TypeVisitor extends BaseTreeVisitor {
 
   private JQuery jQueryHelper;
+  private boolean forLoopVariable = false;
 
   public TypeVisitor(@Nullable Settings settings) {
     if (settings == null) {
@@ -197,6 +202,10 @@ public class TypeVisitor extends BaseTreeVisitor {
     if (WebAPI.isDocument(tree)) {
       ((IdentifierTreeImpl) tree).addType(ObjectType.WebApiType.DOCUMENT);
     }
+
+    if (forLoopVariable) {
+      ((IdentifierTreeImpl) tree).addType(PrimitiveType.UNKNOWN);
+    }
   }
 
   @Override
@@ -223,6 +232,43 @@ public class TypeVisitor extends BaseTreeVisitor {
         tree.addType(((ArrayType) arrayType).elementType());
       }
     }
+  }
+
+  @Override
+  public void visitBinaryExpression(BinaryExpressionTree tree) {
+    super.visitBinaryExpression(tree);
+
+    Type resultType = PrimitiveOperations.getType(
+      tree.leftOperand(),
+      tree.rightOperand(),
+      ((JavaScriptTree) tree).getKind()
+    );
+
+    if (resultType != null) {
+      ((BinaryExpressionTreeImpl) tree).addType(resultType);
+    }
+  }
+
+  @Override
+  public void visitForInStatement(ForInStatementTree tree) {
+    scan(tree.expression());
+
+    this.forLoopVariable = true;
+    scan(tree.variableOrExpression());
+    this.forLoopVariable = false;
+
+    scan(tree.statement());
+  }
+
+  @Override
+  public void visitForOfStatement(ForOfStatementTree tree) {
+    scan(tree.expression());
+
+    this.forLoopVariable = true;
+    scan(tree.variableOrExpression());
+    this.forLoopVariable = false;
+
+    scan(tree.statement());
   }
 
   private void inferType(Tree identifier, ExpressionTree assignedTree) {

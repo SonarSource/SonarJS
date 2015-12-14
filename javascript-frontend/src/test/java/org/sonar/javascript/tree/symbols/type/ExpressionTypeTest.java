@@ -66,6 +66,31 @@ public class ExpressionTypeTest extends TypeTest {
 
     par = getSymbol("o7");
     assertThat(par.types().containsOnlyAndUnique(Kind.DATE)).isTrue();
+  }
 
+  @Test
+  public void test_arithmetic_binary_operations() throws Exception {
+    assertThat(getSymbol("exp1").types()).containsOnly(PrimitiveType.NUMBER);
+    assertThat(getSymbol("exp2").types()).containsOnly(PrimitiveType.STRING);
+    assertThat(getSymbol("exp3").types()).containsOnly(PrimitiveType.NUMBER);
+
+    assertThat(getSymbol("exp5").types()).containsOnly(PrimitiveType.UNKNOWN);
+
+    assertThat(getSymbol("exp6").types()).containsOnly(PrimitiveType.NUMBER);
+  }
+
+  @Test
+  public void test_comparative_binary_operations() throws Exception {
+    assertThat(getSymbol("exp4").types().getUniqueKnownType()).isEqualTo(PrimitiveType.BOOLEAN);
+  }
+
+  @Test
+  public void test_for_in_loop_counter() throws Exception {
+    Symbol counter = getSymbol("counter1");
+    assertThat(counter.types()).hasSize(2);
+    assertThat(counter.types().contains(Kind.UNKNOWN)).isTrue();
+    assertThat(counter.types().contains(Kind.NUMBER)).isTrue();
+
+    assertThat(getSymbol("counter2").types()).containsOnly(PrimitiveType.UNKNOWN);
   }
 }
