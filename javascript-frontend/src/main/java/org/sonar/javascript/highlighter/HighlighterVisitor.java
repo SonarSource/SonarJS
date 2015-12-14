@@ -31,14 +31,15 @@ import org.sonar.api.component.ResourcePerspectives;
 import org.sonar.api.source.Highlightable;
 import org.sonar.api.source.Highlightable.HighlightingBuilder;
 import org.sonar.javascript.lexer.JavaScriptKeyword;
-import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.javascript.tree.impl.expression.LiteralTreeImpl;
 import org.sonar.javascript.tree.impl.lexical.InternalSyntaxToken;
 import org.sonar.javascript.tree.visitors.SubscriptionTreeVisitor;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
+import org.sonar.plugins.javascript.api.tree.declaration.MethodDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxTrivia;
+import org.sonar.plugins.javascript.api.tree.statement.VariableDeclarationTree;
 import org.sonar.plugins.javascript.api.visitors.TreeVisitorContext;
 
 public class HighlighterVisitor extends SubscriptionTreeVisitor {
@@ -47,6 +48,13 @@ public class HighlighterVisitor extends SubscriptionTreeVisitor {
   private final FileSystem fileSystem;
   private HighlightingBuilder highlighting;
   private SourceFileOffsets offsets;
+
+  private static final Kind[] METHODS = {
+    Kind.GENERATOR_METHOD,
+    Kind.METHOD,
+    Kind.GET_METHOD,
+    Kind.SET_METHOD
+  };
 
   private static final Logger LOG = LoggerFactory.getLogger(HighlighterVisitor.class);
 
@@ -57,11 +65,14 @@ public class HighlighterVisitor extends SubscriptionTreeVisitor {
 
   @Override
   public List<Kind> nodesToVisit() {
-    return ImmutableList.of(
-      Kind.NUMERIC_LITERAL,
-      Kind.STRING_LITERAL,
-      Kind.TOKEN
-    );
+    return ImmutableList.<Kind>builder()
+      .add(METHODS)
+      .add(
+        Kind.LET_DECLARATION,
+        Kind.NUMERIC_LITERAL,
+        Kind.STRING_LITERAL,
+        Kind.TOKEN)
+      .build();
   }
 
   @Override
@@ -79,21 +90,30 @@ public class HighlighterVisitor extends SubscriptionTreeVisitor {
 
   @Override
   public void visitNode(Tree tree) {
-    switch (((JavaScriptTree) tree).getKind()) {
-      case TOKEN:
-        highlightToken((InternalSyntaxToken) tree);
-        break;
-      case STRING_LITERAL:
-        SyntaxToken token = ((LiteralTreeImpl) tree).token();
-        highlight(offsets.startOffset(token), offsets.endOffset(token), "s");
-        break;
-      case NUMERIC_LITERAL:
-        token = ((LiteralTreeImpl) tree).token();
-        highlight(offsets.startOffset(token), offsets.endOffset(token), "c");
-        break;
-      default:
-        throw new IllegalStateException("Unexpected tree kind in HighlighterVisitor");
+    SyntaxToken token;
+
+    if (tree.is(METHODS)) {
+      token = ((MethodDeclarationTree) tree).staticToken();
+      if (token != null) {
+        highlight(offsets.startOffset(token), offsets.endOffset(token), "k");
+      }
+
+    } else if (tree.is(Kind.LET_DECLARATION)) {
+      token = ((VariableDeclarationTree) tree).token();
+      highlight(offsets.startOffset(token), offsets.endOffset(token), "k");
+
+    } else if (tree.is(Kind.TOKEN)) {
+      highlightToken((InternalSyntaxToken) tree);
+
+    } else if (tree.is(Kind.STRING_LITERAL)) {
+      token = ((LiteralTreeImpl) tree).token();
+      highlight(offsets.startOffset(token), offsets.endOffset(token), "s");
+
+    } else if (tree.is(Kind.NUMERIC_LITERAL)) {
+      token = ((LiteralTreeImpl) tree).token();
+      highlight(offsets.startOffset(token), offsets.endOffset(token), "c");
     }
+
   }
 
   private void highlightToken(InternalSyntaxToken token) {

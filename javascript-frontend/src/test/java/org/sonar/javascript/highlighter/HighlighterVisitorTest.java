@@ -126,10 +126,10 @@ public class HighlighterVisitorTest extends JavaScriptTreeModelTest {
   }
 
   @Test
-  public void keyword() throws Exception {
-    highlight("var x = 0");
-    verify(highlightingBuilder).highlight(0, 3, "k");
-    verify(highlightingBuilder).highlight(8, 9, "c");
+  public void numbers() throws Exception {
+    highlight("x = 1; y = 1.0");
+    verify(highlightingBuilder).highlight(4, 5, "c");
+    verify(highlightingBuilder).highlight(11, 14, "c");
     verifyNoMoreInteractions(highlightingBuilder);
   }
 
@@ -142,10 +142,48 @@ public class HighlighterVisitorTest extends JavaScriptTreeModelTest {
   }
 
   @Test
-  public void numbers() throws Exception {
-    highlight("x = 1; y = 1.0");
-    verify(highlightingBuilder).highlight(4, 5, "c");
-    verify(highlightingBuilder).highlight(11, 14, "c");
+  public void keyword() throws Exception {
+    highlight("var x = 0");
+    verify(highlightingBuilder).highlight(0, 3, "k");
+    verify(highlightingBuilder).highlight(8, 9, "c");
+    verifyNoMoreInteractions(highlightingBuilder);
+  }
+
+  @Test
+  public void let_keyword() throws Exception {
+    highlight("let x;");
+    verify(highlightingBuilder).highlight(0, 3, "k");
+    verifyNoMoreInteractions(highlightingBuilder);
+  }
+
+  @Test
+  public void static_keyword_method() throws Exception {
+    highlight("class A { static foo(){} }");
+    verify(highlightingBuilder).highlight(0, 5, "k");
+    verify(highlightingBuilder).highlight(10, 16, "k");
+    verifyNoMoreInteractions(highlightingBuilder);
+  }
+
+  @Test
+  public void static_keyword_generator() throws Exception {
+    highlight("class B { static * foo(){} }");
+    verify(highlightingBuilder).highlight(0, 5, "k");
+    verify(highlightingBuilder).highlight(10, 16, "k");
+    verifyNoMoreInteractions(highlightingBuilder);
+  }
+
+  @Test
+  public void static_keyword_getter() throws Exception {
+    highlight("class C { static get prop(){} }");
+    verify(highlightingBuilder).highlight(0, 5, "k");
+    verify(highlightingBuilder).highlight(10, 16, "k");
+    verifyNoMoreInteractions(highlightingBuilder);
+  }
+
+  @Test
+  public void const_keyword() throws Exception {
+    highlight("const x;");
+    verify(highlightingBuilder).highlight(0, 5, "k");
     verifyNoMoreInteractions(highlightingBuilder);
   }
 
