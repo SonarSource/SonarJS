@@ -606,6 +606,11 @@
     </rule>
     <rule>
       <repositoryKey>javascript</repositoryKey>
+      <key>S3403</key>
+      <priority>INFO</priority> <!-- The identity operator ("===") should not be used with dissimilar types -->
+    </rule>
+    <rule>
+      <repositoryKey>javascript</repositoryKey>
       <key>S2611</key>
       <priority>INFO</priority> <!-- Untrusted content should not be included -->
     </rule>
