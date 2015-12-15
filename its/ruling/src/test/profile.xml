@@ -61,6 +61,11 @@
     </rule>
     <rule>
       <repositoryKey>javascript</repositoryKey>
+      <key>S2681</key>
+      <priority>INFO</priority>
+    </rule>
+    <rule>
+      <repositoryKey>javascript</repositoryKey>
       <key>ArrayAndObjectConstructors</key>
       <priority>INFO</priority>
     </rule>

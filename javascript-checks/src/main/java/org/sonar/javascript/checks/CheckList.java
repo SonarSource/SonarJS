@@ -47,6 +47,7 @@ public final class CheckList {
       SemicolonCheck.class,
       AlwaysUseCurlyBracesCheck.class,
       MultilineStringLiteralsCheck.class,
+      MultilineBlockCurlyBraceCheck.class,
       SingleQuoteStringLiteralsCheck.class,
       ArrayAndObjectConstructorsCheck.class,
       BitwiseOperatorsCheck.class,
