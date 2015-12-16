@@ -576,6 +576,11 @@
     </rule>
     <rule>
       <repositoryKey>javascript</repositoryKey>
+      <key>S2310</key>
+      <priority>INFO</priority> <!-- Loop counters should not be assigned to from within the loop body -->
+    </rule>
+    <rule>
+      <repositoryKey>javascript</repositoryKey>
       <key>S2898</key>
       <priority>INFO</priority> <!-- "[type=...]" should be used to select elements by type -->
     </rule>

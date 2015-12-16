@@ -66,6 +66,7 @@ public final class CheckList {
       ContinueStatementCheck.class,
       HtmlCommentsCheck.class,
       EmptyBlockCheck.class,
+      CounterUpdatedInLoopCheck.class,
       ElseIfWithoutElseCheck.class,
       ExcessiveParameterListCheck.class,
       CollapsibleIfStatementsCheck.class,
