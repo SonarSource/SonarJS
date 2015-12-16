@@ -254,6 +254,11 @@
     </rule>
     <rule>
       <repositoryKey>javascript</repositoryKey>
+      <key>S3001</key> <!-- "delete" should be used only with object properties -->
+      <priority>INFO</priority>
+    </rule>
+    <rule>
+      <repositoryKey>javascript</repositoryKey>
       <key>Parentheses</key>
       <priority>INFO</priority>
     </rule>

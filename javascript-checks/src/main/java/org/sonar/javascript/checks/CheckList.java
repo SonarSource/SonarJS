@@ -90,6 +90,7 @@ public final class CheckList {
       VariableShadowingCheck.class,
       FunctionNameCheck.class,
       AlertUseCheck.class,
+      DeleteNonPropertyCheck.class,
       FixmeTagPresenceCheck.class,
       TodoTagPresenceCheck.class,
       TooManyLinesInFileCheck.class,
