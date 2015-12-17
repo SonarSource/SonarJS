@@ -140,6 +140,7 @@ public final class CheckList {
       StringConcatenatedWithNonStringCheck.class,
       UniversalSelectorCheck.class,
       DeleteArrayElementCheck.class,
+      StringsComparisonCheck.class,
       ElementTypeSelectorCheck.class,
       TooManyArgumentsCheck.class,
       MisorderedParameterListCheck.class,

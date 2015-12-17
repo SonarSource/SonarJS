@@ -410,6 +410,11 @@
     </rule>
     <rule>
       <repositoryKey>javascript</repositoryKey>
+      <key>S3003</key>
+      <priority>INFO</priority> <!-- Comparison operators should not be used with strings -->
+    </rule>
+    <rule>
+      <repositoryKey>javascript</repositoryKey>
       <key>S1871</key>
       <priority>INFO</priority> <!-- duplicate branch implementation -->
     </rule>
