@@ -1,0 +1,34 @@
+<p>The use of increment and decrement operators in method calls or in combination with other arithmetic operators is not recommended, because:</p>
+<ul>
+  <li> It can significantly impair the readability of the code.
+  </li><li> It introduces additional side effects into a statement, with the potential for undefined behavior.
+</li><li> It is safer to use these operators in isolation from any other arithmetic operators.
+</li></ul>
+
+<h2>Noncompliant Code Example</h2>
+<pre>
+u8a = ++u8b + u8c--;
+foo = bar++ / 4;
+</pre>
+
+<h2>Compliant Solution</h2>
+<p>The following sequence is clearer and therefore safer:</p>
+<pre>
+++u8b;
+u8a = u8b + u8c;
+u8c--;
+foo = bar / 4;
+bar++;
+</pre>
+
+<h2>See</h2>
+<ul>
+  <li> MISRA C:2004, 12.1 - Limited dependence should be placed on the C operator precedence rules in expressions.
+  </li><li> MISRA C:2004, 12.13 - The increment (++) and decrement (--) operators should not be mixed with other operators in an expression.
+</li><li> MISRA C++:2008, 5-2-10 - The increment (++) and decrement (--) operator should not be mixed with other operators in an expression.
+</li><li> MISRA C:2012, 12.1 - The precedence of operators within expressions should be made explicit
+</li><li> MISRA C:2012, 13.3 - A full expression containing an increment (++) or decrement (--) operator should have no other potential side effects other than that cause by the increment or decrement operator
+</li><li> <a href="https://www.securecoding.cert.org/confluence/x/ZwE">CERT, EXP30-C</a> -      Do not depend on the order of evaluation for side effects
+</li><li> <a href="https://www.securecoding.cert.org/confluence/x/fYAyAQ">CERT, EXP30-CPP</a> - Do not depend on order of evaluation between sequence points
+</li><li> <a href="https://www.securecoding.cert.org/confluence/x/yQC7AQ">CERT, EXP05-J</a> - Do not follow a write by a subsequent write or read of the same object within an expression
+</li></ul>

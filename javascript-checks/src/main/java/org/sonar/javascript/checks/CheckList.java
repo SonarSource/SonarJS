@@ -104,6 +104,7 @@ public final class CheckList {
       TooManyLinesInFunctionCheck.class,
       CommaOperatorUseCheck.class,
       NonCaseLabelInSwitchCheck.class,
+      IncrementDecrementInSubExpressionCheck.class,
       BooleanEqualityComparisonCheck.class,
       ExpressionComplexityCheck.class,
       DuplicateConditionIfElseAndSwitchCasesCheck.class,
