@@ -22,6 +22,7 @@ package org.sonar.plugins.javascript.lcov;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
+import org.mockito.Mockito;
 import org.sonar.api.batch.SensorContext;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultFileSystem;
@@ -42,6 +43,7 @@ import static org.mockito.Matchers.anyObject;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.atLeast;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
@@ -150,7 +152,7 @@ public class UTCoverageSensorTest {
   }
 
   @Test
-  public void test_save_zero_value_for_all_files_no_report() throws Exception {
+  public void save_zero_value_for_all_files_when_no_report() throws Exception {
     DefaultFileSystem fs = newFileSystem();
     fs.add(newSourceInputFile("fake_file.js"));
 
@@ -163,6 +165,18 @@ public class UTCoverageSensorTest {
 
     verify(context, times(1)).saveMeasure((Resource) anyObject(), eq(CoreMetrics.LINES_TO_COVER), eq(1d));
     verify(context, times(1)).saveMeasure((Resource) anyObject(), eq(CoreMetrics.UNCOVERED_LINES), eq(1d));
+  }
+
+  @Test
+  public void save_zero_value_for_all_files_when_no_report_and_no_ncloc() throws Exception {
+    DefaultFileSystem fs = newFileSystem();
+    fs.add(newSourceInputFile("fake_file.js"));
+
+    settings.setProperty(JavaScriptPlugin.FORCE_ZERO_COVERAGE_KEY, "true");
+    settings.setProperty(JavaScriptPlugin.LCOV_UT_REPORT_PATH, "");
+    newSensor(fs, settings).analyse(project, context);
+
+    verify(context, never()).saveMeasure((Resource) anyObject(), eq(CoreMetrics.LINES_TO_COVER), Mockito.anyDouble());
   }
 
   public DefaultInputFile newSourceInputFile(String name) {

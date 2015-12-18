@@ -143,10 +143,13 @@ public class UTCoverageSensor implements Sensor {
 
   private void saveZeroValueForResource(org.sonar.api.resources.File resource, SensorContext context) {
     // use non comment lines of code for coverage calculation
-    double ncloc = context.getMeasure(resource, CoreMetrics.NCLOC).getValue();
-    context.saveMeasure(resource, getZeroCoverageLineHitsDataMetric(resource, context));
-    context.saveMeasure(resource, linesToCoverMetric, ncloc);
-    context.saveMeasure(resource, uncoveredLinesMetric, ncloc);
+    Measure<Integer> nclocMeasure = context.getMeasure(resource, CoreMetrics.NCLOC);
+    if (nclocMeasure != null) {
+      double ncloc = nclocMeasure.getValue();
+      context.saveMeasure(resource, getZeroCoverageLineHitsDataMetric(resource, context));
+      context.saveMeasure(resource, linesToCoverMetric, ncloc);
+      context.saveMeasure(resource, uncoveredLinesMetric, ncloc);
+    }
   }
 
   private Measure getZeroCoverageLineHitsDataMetric(org.sonar.api.resources.File resource, SensorContext context) {
