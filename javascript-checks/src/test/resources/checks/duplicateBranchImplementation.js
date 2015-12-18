@@ -93,3 +93,6 @@ switch (a) {
     break;
   default:
 }
+
+foo(x ? y : z);
+foo(x ? y : y); // Noncompliant [[sc=7;ec=8;secondary=+0,+0]] {{This conditional operation returns the same value whether the condition is "true" or "false".}}

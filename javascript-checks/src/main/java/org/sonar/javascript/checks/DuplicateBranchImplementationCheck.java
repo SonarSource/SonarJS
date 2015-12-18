@@ -28,6 +28,7 @@ import org.sonar.check.Rule;
 import org.sonar.javascript.tree.SyntacticEquivalence;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
+import org.sonar.plugins.javascript.api.tree.expression.ConditionalExpressionTree;
 import org.sonar.plugins.javascript.api.tree.statement.ElseClauseTree;
 import org.sonar.plugins.javascript.api.tree.statement.IfStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.StatementTree;
@@ -126,5 +127,17 @@ public class DuplicateBranchImplementationCheck extends BaseTreeVisitor {
 
   public ElseClauseTree getNextElse(ElseClauseTree elseClause) {
     return elseClause.statement().is(Kind.IF_STATEMENT) ? ((IfStatementTree) elseClause.statement()).elseClause() : null;
+  }
+
+  @Override
+  public void visitConditionalExpression(ConditionalExpressionTree tree) {
+    if (SyntacticEquivalence.areEquivalent(tree.trueExpression(), tree.falseExpression())) {
+      String message = "This conditional operation returns the same value whether the condition is \"true\" or \"false\".";
+      List<IssueLocation> secondaryLocations = ImmutableList.of(
+        new IssueLocation(tree.trueExpression()),
+        new IssueLocation(tree.falseExpression()));
+      getContext().addIssue(this, new IssueLocation(tree.query(), message), secondaryLocations, null);
+    }
+    super.visitConditionalExpression(tree);
   }
 }
