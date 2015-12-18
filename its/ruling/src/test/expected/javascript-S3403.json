@@ -12,6 +12,10 @@
 'project:prototype-1.7.js':[
 2570,
 ],
+'project:yui-3.7.3/datatable-scroll/datatable-scroll.js':[
+750,
+758,
+],
 'project:yui-3.7.3/dd-drag/dd-drag.js':[
 507,
 ],

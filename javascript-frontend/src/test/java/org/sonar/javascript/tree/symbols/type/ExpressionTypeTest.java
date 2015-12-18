@@ -93,4 +93,29 @@ public class ExpressionTypeTest extends TypeTest {
 
     assertThat(getSymbol("counter2").types()).containsOnly(PrimitiveType.UNKNOWN);
   }
+
+  @Test
+  public void test_string_methods() throws Exception {
+
+    assertThat(getSymbol("charAt").types()).containsOnly(PrimitiveType.STRING);
+    assertThat(getSymbol("charCodeAt").types()).containsOnly(PrimitiveType.NUMBER);
+    assertThat(getSymbol("concat").types()).containsOnly(PrimitiveType.STRING);
+    assertThat(getSymbol("indexOf").types()).containsOnly(PrimitiveType.NUMBER);
+    assertThat(getSymbol("lastIndexOf").types()).containsOnly(PrimitiveType.NUMBER);
+    assertThat(getSymbol("localeCompare").types()).containsOnly(PrimitiveType.NUMBER);
+    assertThat(getSymbol("replace").types()).containsOnly(PrimitiveType.STRING);
+    assertThat(getSymbol("search").types()).containsOnly(PrimitiveType.NUMBER);
+    assertThat(getSymbol("slice").types()).containsOnly(PrimitiveType.STRING);
+    assertThat(getSymbol("split").types().getUniqueKnownType().kind()).isEqualTo(Kind.ARRAY);
+    assertThat(getSymbol("substr").types()).containsOnly(PrimitiveType.STRING);
+    assertThat(getSymbol("substring").types()).containsOnly(PrimitiveType.STRING);
+    assertThat(getSymbol("toLocaleLowerCase").types()).containsOnly(PrimitiveType.STRING);
+    assertThat(getSymbol("toLocaleUpperCase").types()).containsOnly(PrimitiveType.STRING);
+    assertThat(getSymbol("toLowerCase").types()).containsOnly(PrimitiveType.STRING);
+    assertThat(getSymbol("toString").types()).containsOnly(PrimitiveType.STRING);
+    assertThat(getSymbol("toUpperCase").types()).containsOnly(PrimitiveType.STRING);
+    assertThat(getSymbol("trim").types()).containsOnly(PrimitiveType.STRING);
+    assertThat(getSymbol("valueOf").types()).containsOnly(PrimitiveType.STRING);
+
+  }
 }

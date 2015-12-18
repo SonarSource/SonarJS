@@ -33,3 +33,24 @@ var obj = {prop1: "value1", prop2: "value2"};
 for (var counter2 of obj) {  // counter UNKNOWN
   foo(counter2);
 }
+
+
+var charAt = str.charAt(1);  // STRING
+var charCodeAt = str.charCodeAt(1);  // NUMBER
+var concat = str.concat("abc");  // STRING
+var indexOf = str.indexOf("abc");  // NUMBER
+var lastIndexOf = str.lastIndexOf("abc");  // NUMBER
+var localeCompare = str.localeCompare("abc");  // NUMBER
+var replace = str.replace("abc", "d");  // STRING
+var search = str.search("abc");  // NUMBER
+var slice = str.slice(1, 3);  // STRING
+var split = str.split(" ");  // ARRAY
+var substr = str.substr(1, 3);  // STRING
+var substring = str.substring(" ");  // STRING
+var toLocaleLowerCase = str.toLocaleLowerCase(" ");  // STRING
+var toLocaleUpperCase = str.toLocaleUpperCase(" ");  // STRING
+var toLowerCase = str.toLowerCase(" ");  // STRING
+var toString = str.toString(" ");  // STRING
+var toUpperCase = str.toUpperCase(" ");  // STRING
+var trim = str.trim(" ");  // STRING
+var valueOf = str.valueOf(" ");  // STRING

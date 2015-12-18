@@ -118,27 +118,32 @@ public class TypeVisitor extends BaseTreeVisitor {
   public void visitCallExpression(CallExpressionTree tree) {
     super.visitCallExpression(tree);
 
-    if (jQueryHelper.isSelectorObject(tree)) {
-      ((CallExpressionTreeImpl) tree).addType(ObjectType.FrameworkType.JQUERY_SELECTOR_OBJECT);
-    }
+    Type type = BuiltInMethods.inferType(tree);
 
-    if (Backbone.isModel(tree)) {
-      ((CallExpressionTreeImpl) tree).addType(ObjectType.FrameworkType.BACKBONE_MODEL);
-    }
+    if (type != null) {
+      addType(tree, type);
 
-    if (WebAPI.isWindow(tree)) {
-      ((CallExpressionTreeImpl) tree).addType(ObjectType.WebApiType.WINDOW);
-    }
+    } else if (jQueryHelper.isSelectorObject(tree)) {
+      addType(tree, ObjectType.FrameworkType.JQUERY_SELECTOR_OBJECT);
 
-    if (WebAPI.isElement(tree)) {
-      ((CallExpressionTreeImpl) tree).addType(ObjectType.WebApiType.DOM_ELEMENT);
-    }
+    } else if (Backbone.isModel(tree)) {
+      addType(tree, ObjectType.FrameworkType.BACKBONE_MODEL);
 
-    if (WebAPI.isElementList(tree)) {
-      ((CallExpressionTreeImpl) tree).addType(ArrayType.create(ObjectType.WebApiType.DOM_ELEMENT));
+    } else if (WebAPI.isWindow(tree)) {
+      addType(tree, ObjectType.WebApiType.WINDOW);
+
+    } else if (WebAPI.isElement(tree)) {
+      addType(tree, ObjectType.WebApiType.DOM_ELEMENT);
+
+    } else if (WebAPI.isElementList(tree)) {
+      addType(tree, ArrayType.create(ObjectType.WebApiType.DOM_ELEMENT));
     }
 
     inferParameterType(tree);
+  }
+
+  private static void addType(CallExpressionTree tree, Type type) {
+    ((CallExpressionTreeImpl) tree).addType(type);
   }
 
   private static void inferParameterType(CallExpressionTree tree) {
