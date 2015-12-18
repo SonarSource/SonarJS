@@ -30,6 +30,7 @@ import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.NewExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.ParenthesisedExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.UnaryExpressionTree;
+import org.sonar.plugins.javascript.api.tree.expression.YieldExpressionTree;
 import org.sonar.plugins.javascript.api.tree.statement.ForInStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.ReturnStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.ThrowStatementTree;
@@ -37,11 +38,6 @@ import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 
-/**
- * http://google-styleguide.googlecode.com/svn/trunk/javascriptguide.xml?showone=Parentheses#Parentheses
- *
- * @author Eriks Nukis
- */
 @Rule(
   key = "Parentheses",
   name = "Useless parentheses around expressions should be removed to prevent any misunderstanding",
@@ -111,6 +107,12 @@ public class ParenthesesCheck extends BaseTreeVisitor {
   public void visitThrowStatement(ThrowStatementTree tree) {
     checkExpression(tree.expression());
     super.visitThrowStatement(tree);
+  }
+
+  @Override
+  public void visitYieldExpression(YieldExpressionTree tree) {
+    checkExpression(tree.argument());
+    super.visitYieldExpression(tree);
   }
 
   @Override

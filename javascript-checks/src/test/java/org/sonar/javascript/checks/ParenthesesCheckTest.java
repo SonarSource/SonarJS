@@ -19,25 +19,16 @@
  */
 package org.sonar.javascript.checks;
 
+import java.io.File;
 import org.junit.Test;
+import org.sonar.javascript.checks.utils.JavaScriptCheckVerifier;
 import org.sonar.plugins.javascript.api.tests.TreeCheckTest;
-import org.sonar.squidbridge.checks.CheckMessagesVerifier;
 
 public class ParenthesesCheckTest extends TreeCheckTest {
 
   @Test
   public void test() {
-    ParenthesesCheck check = new ParenthesesCheck();
-
-    CheckMessagesVerifier.verify(getIssues("src/test/resources/checks/parentheses.js", check))
-      .next().atLine(2).withMessage("The parentheses around \"37\" are useless.")
-      .next().atLine(8).withMessage("The parentheses around \"a\" are useless.")
-      .next().atLine(12).withMessage("The parentheses around \"1\" are useless.")
-      .next().atLine(15).withMessage("The parentheses around \"1\" are useless.")
-      .next().atLine(23).withMessage("The parentheses around \"new Error('myExceptionTwo')\" are useless.")
-      .next().atLine(26).withMessage("The parentheses around \"Error('error')\" are useless.")
-      .next().atLine(30).withMessage("The parentheses around \"object\" are useless.")
-      .noMore();
+    JavaScriptCheckVerifier.verify(new ParenthesesCheck(), new File("src/test/resources/checks/parentheses.js"));
   }
 
 }
