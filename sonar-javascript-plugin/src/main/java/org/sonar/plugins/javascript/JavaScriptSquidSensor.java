@@ -25,6 +25,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.sonar.sslr.api.RecognitionException;
 import com.sonar.sslr.api.typed.ActionParser;
+import java.io.File;
 import java.io.InterruptedIOException;
 import java.util.Collection;
 import java.util.List;
@@ -84,6 +85,7 @@ public class JavaScriptSquidSensor implements Sensor {
   private final ActionParser<Tree> parser;
   // parsingErrorRuleKey equals null if ParsingErrorCheck is not activated
   private RuleKey parsingErrorRuleKey = null;
+  private boolean excludeMinified = JavaScriptPlugin.EXCLUDE_MINIFIED_FILES_DEFAULT_VALUE;
 
   public JavaScriptSquidSensor(
     CheckFactory checkFactory, FileLinesContextFactory fileLinesContextFactory,
@@ -109,6 +111,7 @@ public class JavaScriptSquidSensor implements Sensor {
       fileSystem.predicates().hasType(InputFile.Type.MAIN),
       fileSystem.predicates().hasLanguage(JavaScriptLanguage.KEY));
     this.settings = settings;
+    this.excludeMinified = settings.getBoolean(JavaScriptPlugin.EXCLUDE_MINIFIED_FILES);
     this.parser = JavaScriptParserBuilder.createParser(fileSystem.encoding());
   }
 
@@ -143,7 +146,9 @@ public class JavaScriptSquidSensor implements Sensor {
     boolean success = false;
     try {
       for (InputFile inputFile : inputFiles) {
-        analyse(context, inputFile, treeVisitors);
+        if (!isExcluded(inputFile.file())) {
+          analyse(context, inputFile, treeVisitors);
+        }
         progressReport.nextFile();
       }
       success = true;
@@ -239,6 +244,14 @@ public class JavaScriptSquidSensor implements Sensor {
   @Override
   public String toString() {
     return getClass().getSimpleName();
+  }
+
+  public boolean isExcluded(File file) {
+    return excludeMinified && isMinifiedFile(file.getName());
+  }
+
+  public static boolean isMinifiedFile(String filename) {
+    return filename.endsWith("-min.js") || filename.endsWith(".min.js");
   }
 
 }

@@ -402,15 +402,6 @@
 'project:frameworks/wordpress/inline-edit-post.js':[
 160,
 ],
-'project:frameworks/wordpress/inline-edit-post.min.js':[
-1,
-1,
-],
-'project:frameworks/wordpress/post.min.js':[
-1,
-1,
-1,
-],
 'project:google-closure-library/editor/plugins/linkbubble.js':[
 366,
 ],

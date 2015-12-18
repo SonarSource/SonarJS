@@ -25,6 +25,7 @@ import net.sourceforge.pmd.cpd.SourceCode;
 import net.sourceforge.pmd.cpd.TokenEntry;
 import net.sourceforge.pmd.cpd.Tokens;
 import org.junit.Test;
+import org.sonar.plugins.javascript.JavaScriptPlugin;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -34,7 +35,7 @@ public class JavaScriptTokenizerTest {
 
   @Test
   public void test() {
-    JavaScriptTokenizer tokenizer = new JavaScriptTokenizer(Charset.forName("UTF-8"));
+    JavaScriptTokenizer tokenizer = new JavaScriptTokenizer(Charset.forName("UTF-8"), JavaScriptPlugin.EXCLUDE_MINIFIED_FILES_DEFAULT_VALUE);
     SourceCode source = mock(SourceCode.class);
     when(source.getFileName()).thenReturn(new File("src/test/resources/cpd/Person.js").getAbsolutePath());
     Tokens tokens = new Tokens();

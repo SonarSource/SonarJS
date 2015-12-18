@@ -239,16 +239,9 @@
 'project:frameworks/wordpress/dashboard.js':[
 120,
 ],
-'project:frameworks/wordpress/dashboard.min.js':[
-1,
-],
 'project:frameworks/wordpress/post.js':[
 43,
 43,
-],
-'project:frameworks/wordpress/post.min.js':[
-1,
-1,
 ],
 'project:google-closure-library/dom/dom_test.js':[
 1338,

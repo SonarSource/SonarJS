@@ -8558,9 +8558,6 @@
 'project:frameworks/wordpress/common.js':[
 7,
 ],
-'project:frameworks/wordpress/common.min.js':[
-1,
-],
 'project:frameworks/wordpress/custom-background.js':[
 3,
 ],
@@ -8584,9 +8581,6 @@
 ],
 'project:frameworks/wordpress/editor.js':[
 5,
-],
-'project:frameworks/wordpress/editor.min.js':[
-1,
 ],
 'project:frameworks/wordpress/gallery.js':[
 4,

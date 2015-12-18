@@ -23,22 +23,26 @@ import java.nio.charset.Charset;
 import net.sourceforge.pmd.cpd.Tokenizer;
 import org.sonar.api.batch.AbstractCpdMapping;
 import org.sonar.api.batch.fs.FileSystem;
+import org.sonar.api.config.Settings;
 import org.sonar.api.resources.Language;
 import org.sonar.plugins.javascript.JavaScriptLanguage;
+import org.sonar.plugins.javascript.JavaScriptPlugin;
 
 public class JavaScriptCpdMapping extends AbstractCpdMapping {
 
   private final JavaScriptLanguage language;
   private final Charset charset;
+  private final boolean excludeMinified;
 
-  public JavaScriptCpdMapping(JavaScriptLanguage language, FileSystem fs) {
+  public JavaScriptCpdMapping(JavaScriptLanguage language, FileSystem fs, Settings settings) {
     this.language = language;
     this.charset = fs.encoding();
+    this.excludeMinified = settings.getBoolean(JavaScriptPlugin.EXCLUDE_MINIFIED_FILES);
   }
 
   @Override
   public Tokenizer getTokenizer() {
-    return new JavaScriptTokenizer(charset);
+    return new JavaScriptTokenizer(charset, excludeMinified);
   }
 
   @Override

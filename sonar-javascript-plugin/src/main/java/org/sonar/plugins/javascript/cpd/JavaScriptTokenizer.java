@@ -30,19 +30,27 @@ import net.sourceforge.pmd.cpd.TokenEntry;
 import net.sourceforge.pmd.cpd.Tokenizer;
 import net.sourceforge.pmd.cpd.Tokens;
 import org.sonar.javascript.lexer.JavaScriptLexer;
+import org.sonar.plugins.javascript.JavaScriptSquidSensor;
 
 public class JavaScriptTokenizer implements Tokenizer {
 
   private final Charset charset;
+  private final boolean excludeMinified;
 
-  public JavaScriptTokenizer(Charset charset) {
+  public JavaScriptTokenizer(Charset charset, boolean excludeMinified) {
     this.charset = charset;
+    this.excludeMinified = excludeMinified;
   }
 
   @Override
   public final void tokenize(SourceCode source, Tokens cpdTokens) {
     Lexer lexer = JavaScriptLexer.create(charset);
+
     String fileName = source.getFileName();
+    if (excludeMinified && JavaScriptSquidSensor.isMinifiedFile(fileName)) {
+      return;
+    }
+
     List<Token> tokens = lexer.lex(new File(fileName));
     for (Token token : tokens) {
       TokenEntry cpdToken = new TokenEntry(getTokenImage(token), fileName, token.getLine());

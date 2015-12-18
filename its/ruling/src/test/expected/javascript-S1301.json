@@ -212,17 +212,8 @@
 'project:frameworks/wordpress/customize-controls.js':[
 25,
 ],
-'project:frameworks/wordpress/customize-controls.min.js':[
-1,
-],
-'project:frameworks/wordpress/iris.min.js':[
-4,
-],
 'project:frameworks/wordpress/updates.js':[
 531,
-],
-'project:frameworks/wordpress/updates.min.js':[
-1,
 ],
 'project:google-closure-library/events/keycodes.js':[
 271,

@@ -2088,9 +2088,6 @@
 'project:frameworks/wordpress/editor.js':[
 82,
 ],
-'project:frameworks/wordpress/editor.min.js':[
-1,
-],
 'project:frameworks/wordpress/farbtastic.js':[
 62,
 197,
@@ -2112,9 +2109,6 @@
 15,
 18,
 ],
-'project:frameworks/wordpress/media-upload.min.js':[
-1,
-],
 'project:frameworks/wordpress/nav-menu.js':[
 233,
 261,
@@ -2123,9 +2117,6 @@
 814,
 1057,
 1060,
-],
-'project:frameworks/wordpress/nav-menu.min.js':[
-1,
 ],
 'project:frameworks/wordpress/post.js':[
 52,

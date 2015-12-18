@@ -59,8 +59,10 @@ import org.sonar.squidbridge.api.AnalysisException;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyDouble;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -124,16 +126,7 @@ public class JavaScriptSquidSensorTest {
     fileSystem.add(inputFile);
 
     SensorContext context = mock(SensorContext.class);
-
-    Highlightable highlightable = mock(Highlightable.class);
-    Highlightable.HighlightingBuilder builder = mock(Highlightable.HighlightingBuilder.class);
-    Resource resource = mock(Resource.class);
-
-    mockPerspectives(inputFile, mock(Issuable.class));
-    when(perspectives.as(Highlightable.class, inputFile)).thenReturn(highlightable);
-    when(highlightable.newHighlighting()).thenReturn(builder);
-    when(resource.getEffectiveKey()).thenReturn("someKey");
-    when(context.getResource(inputFile)).thenReturn(resource);
+    mockInputFile(inputFile, context);
 
     settings.setProperty(JavaScriptPlugin.IGNORE_HEADER_COMMENTS, true);
 
@@ -233,6 +226,52 @@ public class JavaScriptSquidSensorTest {
     } finally {
       verify(progressReport).cancel();
     }
+  }
+
+  @Test
+  public void not_analyse_minified_files_default_config() throws Exception {
+    testExcludeMinifiedFileProperty(true);
+
+  }
+
+  @Test
+  public void analyse_minified_files_user_config() throws Exception {
+    testExcludeMinifiedFileProperty(false);
+  }
+
+  private void testExcludeMinifiedFileProperty(boolean excludeMinified) {
+    SensorContext context = mock(SensorContext.class);
+    settings.setProperty(JavaScriptPlugin.EXCLUDE_MINIFIED_FILES, excludeMinified);
+    InputFile inputFile1 = inputFile("test_minified/file.js");
+    InputFile inputFile2 = inputFile("test_minified/file.min.js");
+    InputFile inputFile3 = inputFile("test_minified/file-min.js");
+    fileSystem.add(inputFile1);
+    fileSystem.add(inputFile2);
+    fileSystem.add(inputFile3);
+
+
+    mockInputFile(inputFile1, context);
+    mockInputFile(inputFile2, context);
+    mockInputFile(inputFile3, context);
+
+    createSensor().analyse(project, context);
+
+    int times = 3;
+    if (excludeMinified) {
+      times = 1;
+    }
+    verify(context, times(times)).saveMeasure(any(InputFile.class), eq(CoreMetrics.NCLOC), anyDouble());
+  }
+
+  private void mockInputFile(InputFile inputFile, SensorContext context) {
+    Highlightable highlightable = mock(Highlightable.class);
+    Highlightable.HighlightingBuilder builder = mock(Highlightable.HighlightingBuilder.class);
+    Resource resource = mock(Resource.class);
+    mockPerspectives(inputFile, mock(Issuable.class));
+    when(perspectives.as(Highlightable.class, inputFile)).thenReturn(highlightable);
+    when(highlightable.newHighlighting()).thenReturn(builder);
+    when(resource.getEffectiveKey()).thenReturn("someKey");
+    when(context.getResource(inputFile)).thenReturn(resource);
   }
 
   @Test

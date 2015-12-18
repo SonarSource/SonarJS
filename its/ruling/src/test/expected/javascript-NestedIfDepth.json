@@ -2271,9 +2271,6 @@
 618,
 644,
 ],
-'project:frameworks/wordpress/customize-widgets.min.js':[
-1,
-],
 'project:frameworks/wordpress/editor-expand.js':[
 431,
 454,
@@ -2287,9 +2284,6 @@
 'project:frameworks/wordpress/image-edit.js':[
 620,
 ],
-'project:frameworks/wordpress/iris.min.js':[
-4,
-],
 'project:frameworks/wordpress/nav-menu.js':[
 1099,
 ],
@@ -2301,9 +2295,6 @@
 'project:frameworks/wordpress/press-this.js':[
 302,
 571,
-],
-'project:frameworks/wordpress/press-this.min.js':[
-1,
 ],
 'project:frameworks/wordpress/widgets.js':[
 48,
