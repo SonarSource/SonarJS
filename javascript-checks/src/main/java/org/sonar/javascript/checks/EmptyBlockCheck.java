@@ -44,10 +44,12 @@ import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 @SqaleConstantRemediation("5min")
 public class EmptyBlockCheck extends BaseTreeVisitor {
 
+  private static final String MESSAGE = "Either remove or fill this block of code.";
+
   @Override
   public void visitBlock(BlockTree tree) {
     if (tree.statements().isEmpty() && !hasComment(tree.closeCurlyBrace())) {
-      getContext().addIssue(this, tree, "Either remove or fill this block of code.");
+      getContext().addIssue(this, tree, MESSAGE);
     }
     super.visitBlock(tree);
   }

@@ -47,6 +47,8 @@ import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
   effortToFixDescription = "per additional use of the api")
 public class LocalStorageCheck extends BaseTreeVisitor {
 
+  private static final String MESSAGE = "Remove all use of \"%s\"; use cookies or store the data on the server instead.";
+
   private static final List<String> API_CALLS = ImmutableList.of(
     "getItem",
     "setItem",
@@ -55,7 +57,6 @@ public class LocalStorageCheck extends BaseTreeVisitor {
     "key",
     "length"
   );
-
   private static final List<String> OBJECTS = ImmutableList.of(
     "localStorage",
     "sessionStorage"
@@ -115,7 +116,7 @@ public class LocalStorageCheck extends BaseTreeVisitor {
     for (Map.Entry<String, StorageType> entry : storageTypes.entrySet()) {
       int cost = entry.getValue().count - 1;
 
-      String message = String.format("Remove all use of \"%s\"; use cookies or store the data on the server instead.", entry.getKey());
+      String message = String.format(MESSAGE, entry.getKey());
       getContext().addIssue(this, entry.getValue().tree, message, (double) cost);
     }
   }

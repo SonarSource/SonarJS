@@ -39,10 +39,12 @@ import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 @SqaleConstantRemediation("2min")
 public class IfConditionalAlwaysTrueOrFalseCheck extends BaseTreeVisitor {
 
+  private static final String MESSAGE = "Remove this \"if\" statement.\"";
+
   @Override
   public void visitIfStatement(IfStatementTree tree) {
     if (tree.condition().is(Kind.BOOLEAN_LITERAL)) {
-      getContext().addIssue(this, tree, "Remove this \"if\" statement.\"");
+      getContext().addIssue(this, tree, MESSAGE);
     }
 
     super.visitIfStatement(tree);

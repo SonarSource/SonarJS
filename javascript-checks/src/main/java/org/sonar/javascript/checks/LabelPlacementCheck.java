@@ -39,6 +39,8 @@ import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 @SqaleConstantRemediation("20min")
 public class LabelPlacementCheck extends BaseTreeVisitor {
 
+  private static final String MESSAGE = "Remove this \"%s\" label.";
+
   private static final Kind[] ITERATION_STATEMENTS = {
     Kind.DO_WHILE_STATEMENT,
     Kind.WHILE_STATEMENT,
@@ -50,7 +52,7 @@ public class LabelPlacementCheck extends BaseTreeVisitor {
   @Override
   public void visitLabelledStatement(LabelledStatementTree tree) {
     if (!tree.statement().is(ITERATION_STATEMENTS)) {
-      getContext().addIssue(this, tree, "Remove this \"" + tree.label().name() + "\" label.");
+      getContext().addIssue(this, tree, String.format(MESSAGE, tree.label().name()));
     }
 
     super.visitLabelledStatement(tree);

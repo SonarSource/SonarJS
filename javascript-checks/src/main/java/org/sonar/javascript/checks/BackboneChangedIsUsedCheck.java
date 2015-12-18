@@ -39,12 +39,13 @@ import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 @SqaleConstantRemediation("30min")
 public class BackboneChangedIsUsedCheck extends BaseTreeVisitor {
 
+  private static final String MESSAGE = "Remove this update of the \"changed\" property.";
   private static final String CHANGED = "changed";
 
   @Override
   public void visitAssignmentExpression(AssignmentExpressionTree tree) {
     if (tree.variable().is(Tree.Kind.DOT_MEMBER_EXPRESSION) && isChangedPropertyAccess((DotMemberExpressionTree) tree.variable())) {
-      getContext().addIssue(this, tree, "Remove this update of the \"changed\" property.");
+      getContext().addIssue(this, tree, MESSAGE);
     }
 
     super.visitAssignmentExpression(tree);

@@ -49,6 +49,8 @@ import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 @SqaleConstantRemediation("10min")
 public class DuplicateConditionIfElseAndSwitchCasesCheck extends BaseTreeVisitor {
 
+  private static final String MESSAGE = "This %s duplicates the one on line %s.";
+
   @Override
   public void visitIfStatement(IfStatementTree tree) {
     ExpressionTree condition = tree.condition();
@@ -82,7 +84,7 @@ public class DuplicateConditionIfElseAndSwitchCasesCheck extends BaseTreeVisitor
 
   private void addIssue(Tree original, Tree duplicate, String type) {
     IssueLocation secondaryLocation = new IssueLocation(original, "Original");
-    String message = "This " + type + " duplicates the one on line " + secondaryLocation.startLine() + ".";
+    String message = String.format(MESSAGE, type, secondaryLocation.startLine());
     IssueLocation primaryLocation = new IssueLocation(duplicate, message);
     getContext().addIssue(this, primaryLocation, ImmutableList.of(secondaryLocation), null);
   }

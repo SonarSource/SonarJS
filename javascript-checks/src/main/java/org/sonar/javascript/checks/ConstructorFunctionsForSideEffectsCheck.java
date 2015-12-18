@@ -39,10 +39,12 @@ import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 @SqaleConstantRemediation("5min")
 public class ConstructorFunctionsForSideEffectsCheck extends BaseTreeVisitor {
 
+  private static final String MESSAGE = "Replace by a standard call to the function.";
+
   @Override
   public void visitExpressionStatement(ExpressionStatementTree tree) {
     if (tree.expression().is(Kind.NEW_EXPRESSION)) {
-      getContext().addIssue(this, tree, "Replace by a standard call to the function.");
+      getContext().addIssue(this, tree, MESSAGE);
     }
 
     super.visitExpressionStatement(tree);

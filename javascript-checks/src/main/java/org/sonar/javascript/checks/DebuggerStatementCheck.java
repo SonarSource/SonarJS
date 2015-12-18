@@ -39,9 +39,11 @@ import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 public class DebuggerStatementCheck extends BaseTreeVisitor {
 
 
+  private static final String MESSAGE = "Remove this debugger statement.";
+
   @Override
   public void visitDebugger(DebuggerStatementTree tree) {
-    getContext().addIssue(this, tree, "Remove this debugger statement.");
+    getContext().addIssue(this, tree, MESSAGE);
     // no sub tree
   }
 

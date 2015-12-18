@@ -44,6 +44,8 @@ import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 @SqaleConstantRemediation("5min")
 public class ComparisonWithNaNCheck extends SubscriptionBaseTreeVisitor {
 
+  private static final String MESSAGE = "Use a test of the format \"a %s a\" instead.";
+
   @Override
   public List<Kind> nodesToVisit() {
     return ImmutableList.of(
@@ -58,7 +60,7 @@ public class ComparisonWithNaNCheck extends SubscriptionBaseTreeVisitor {
     BinaryExpressionTree equalityExpr = (BinaryExpressionTree) tree;
 
     if (isNaN(equalityExpr.leftOperand()) || isNaN(equalityExpr.rightOperand())) {
-      addIssue(tree, "Use a test of the format \"a " + equalityExpr.operator().text() + " a\" instead.");
+      addIssue(tree, String.format(MESSAGE, equalityExpr.operator().text()));
     }
   }
 

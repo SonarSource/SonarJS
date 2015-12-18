@@ -38,13 +38,15 @@ import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 @SqaleConstantRemediation("5min")
 public class ElseIfWithoutElseCheck extends BaseTreeVisitor {
 
+  private static final String MESSAGE = "Add the missing \"else\" clause.";
+
   @Override
   public void visitElseClause(ElseClauseTree tree) {
     if (tree.statement().is(Kind.IF_STATEMENT)) {
       IfStatementTreeImpl ifStmt = (IfStatementTreeImpl) tree.statement();
 
       if (!ifStmt.hasElse()) {
-        getContext().addIssue(this, ifStmt, "Add the missing \"else\" clause.");
+        getContext().addIssue(this, ifStmt, MESSAGE);
       }
 
     }

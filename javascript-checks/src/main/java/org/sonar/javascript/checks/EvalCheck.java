@@ -39,10 +39,12 @@ import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 @SqaleConstantRemediation("30min")
 public class EvalCheck extends BaseTreeVisitor {
 
+  private static final String MESSAGE = "Remove this use of the \"eval\" function.";
+
   @Override
   public void visitCallExpression(CallExpressionTree tree) {
     if (tree.callee() instanceof IdentifierTree && "eval".equals(((IdentifierTree) tree.callee()).name())) {
-      getContext().addIssue(this, tree, "Remove this use of the \"eval\" function.");
+      getContext().addIssue(this, tree, MESSAGE);
     }
 
     super.visitCallExpression(tree);

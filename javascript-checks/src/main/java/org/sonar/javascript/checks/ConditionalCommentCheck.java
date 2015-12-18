@@ -42,6 +42,8 @@ import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 @SqaleConstantRemediation("5min")
 public class ConditionalCommentCheck extends SubscriptionBaseTreeVisitor {
 
+  private static final String MESSAGE = "Refactor your code to avoid using Internet Explorer's conditional comments.";
+
   @Override
   public List<Tree.Kind> nodesToVisit() {
     return ImmutableList.of(Tree.Kind.TOKEN);
@@ -53,7 +55,7 @@ public class ConditionalCommentCheck extends SubscriptionBaseTreeVisitor {
     for (SyntaxTrivia trivia : token.trivias()) {
       String comment = trivia.text();
       if (comment.startsWith("/*@cc_on") || comment.startsWith("//@cc_on")) {
-        getContext().addIssue(this, trivia, "Refactor your code to avoid using Internet Explorer's conditional comments.");
+        getContext().addIssue(this, trivia, MESSAGE);
       }
     }
   }

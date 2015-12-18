@@ -44,12 +44,14 @@ import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 @SqaleConstantRemediation("2min")
 public class IdenticalExpressionOnBinaryOperatorCheck extends BaseTreeVisitor {
 
+  private static final String MESSAGE = "Identical sub-expressions on both sides of operator \"%s\"";
+
   @Override
   public void visitBinaryExpression(BinaryExpressionTree tree) {
     if (!tree.is(Kind.MULTIPLY, Kind.PLUS, Kind.ASSIGNMENT)
       && SyntacticEquivalence.areEquivalent(tree.leftOperand(), tree.rightOperand()) && isExcluded(tree)) {
 
-      String message = "Identical sub-expressions on both sides of operator \"" + tree.operator().text() + "\"";
+      String message = String.format(MESSAGE, tree.operator().text());
       IssueLocation primary = new IssueLocation(tree.rightOperand(), message);
       IssueLocation secondary = new IssueLocation(tree.leftOperand());
       getContext().addIssue(this, primary, ImmutableList.of(secondary), null);

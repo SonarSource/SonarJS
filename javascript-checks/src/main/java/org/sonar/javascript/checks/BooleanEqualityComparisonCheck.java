@@ -44,6 +44,8 @@ import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 @SqaleConstantRemediation("2min")
 public class BooleanEqualityComparisonCheck extends BaseTreeVisitor {
 
+  private static final String MESSAGE = "Remove the literal \"%s\" boolean value.";
+
   private static final Kind[] BINARY_OPERATORS = {
     Kind.CONDITIONAL_AND,
     Kind.CONDITIONAL_OR,
@@ -86,7 +88,7 @@ public class BooleanEqualityComparisonCheck extends BaseTreeVisitor {
     }
 
     if (expression.is(Kind.BOOLEAN_LITERAL)) {
-      String message = String.format("Remove the literal \"%s\" boolean value.", ((LiteralTree) expression).value());
+      String message = String.format(MESSAGE, ((LiteralTree) expression).value());
       getContext().addIssue(this, expression, message);
     }
   }

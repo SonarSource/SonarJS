@@ -48,6 +48,8 @@ import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 @SqaleConstantRemediation("2min")
 public class EqualInForLoopTerminationCheck extends BaseTreeVisitor {
 
+  private static final String MESSAGE = "Replace '%s' operator with one of '<=', '>=', '<', or '>' comparison operators.";
+
   private static final Kind[] INCREMENT_KINDS = {
     Tree.Kind.POSTFIX_INCREMENT,
     Tree.Kind.PREFIX_INCREMENT,
@@ -73,7 +75,7 @@ public class EqualInForLoopTerminationCheck extends BaseTreeVisitor {
   }
 
   private void addIssue(ExpressionTree condition) {
-    String message = String.format("Replace '%s' operator with one of '<=', '>=', '<', or '>' comparison operators.", ((BinaryExpressionTree) condition).operator().text());
+    String message = String.format(MESSAGE, ((BinaryExpressionTree) condition).operator().text());
     getContext().addIssue(this, condition, message);
   }
 

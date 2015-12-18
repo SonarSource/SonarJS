@@ -41,6 +41,7 @@ import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 @ActivatedByDefault
 public class GlobalThisCheck extends SubscriptionBaseTreeVisitor {
 
+  private static final String MESSAGE = "Remove the use of \"this\".";
   private int scopeLevel = 0;
 
   @Override
@@ -63,7 +64,7 @@ public class GlobalThisCheck extends SubscriptionBaseTreeVisitor {
   public void visitNode(Tree tree) {
     if (tree.is(Tree.Kind.DOT_MEMBER_EXPRESSION)) {
       if (((MemberExpressionTree) tree).object().is(Tree.Kind.THIS) && scopeLevel == 0) {
-        getContext().addIssue(this, tree, "Remove the use of \"this\".");
+        getContext().addIssue(this, tree, MESSAGE);
       }
       return;
     }

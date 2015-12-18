@@ -38,10 +38,12 @@ import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 @SqaleConstantRemediation("5min")
 public class ForHidingWhileCheck extends BaseTreeVisitor {
 
+  private static final String MESSAGE = "Replace this \"for\" loop with a \"while\" loop";
+
   @Override
   public void visitForStatement(ForStatementTree tree) {
     if (tree.init() == null && tree.update() == null) {
-      getContext().addIssue(this, tree, "Replace this \"for\" loop with a \"while\" loop");
+      getContext().addIssue(this, tree, MESSAGE);
     }
 
     super.visitForStatement(tree);

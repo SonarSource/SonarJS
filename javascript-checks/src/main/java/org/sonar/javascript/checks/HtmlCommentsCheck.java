@@ -42,13 +42,15 @@ import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 @SqaleConstantRemediation("5min")
 public class HtmlCommentsCheck extends SubscriptionBaseTreeVisitor {
 
+  private static final String MESSAGE = "Replace this HTML-style comment by a standard comment";
+
   @Override
   public void visitNode(Tree tree) {
     SyntaxToken token = (SyntaxToken) tree;
 
     for (SyntaxTrivia trivia : token.trivias()) {
       if (trivia.text().startsWith("<!--")) {
-        getContext().addIssue(this, trivia, "Replace this HTML-style comment by a standard comment");
+        getContext().addIssue(this, trivia, MESSAGE);
       }
     }
   }

@@ -44,6 +44,8 @@ import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 @SqaleConstantRemediation("5min")
 public class ForInCheck extends BaseTreeVisitor {
 
+  private static final String MESSAGE = "Insert an if statement at the beginning of this loop to filter items.";
+
   @Override
   public void visitForInStatement(ForInStatementTree tree) {
     StatementTree statementNode = tree.statement();
@@ -54,7 +56,7 @@ public class ForInCheck extends BaseTreeVisitor {
     }
 
     if (statementNode != null && !statementNode.is(Kind.IF_STATEMENT) && !isAttrCopy(statementNode)) {
-      getContext().addIssue(this, tree, "Insert an if statement at the beginning of this loop to filter items.");
+      getContext().addIssue(this, tree, MESSAGE);
     }
 
     super.visitForInStatement(tree);

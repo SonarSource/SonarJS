@@ -44,8 +44,8 @@ import static com.google.common.base.Preconditions.checkNotNull;
 @NoSqale
 public class CommentRegularExpressionCheck extends SubscriptionBaseTreeVisitor {
 
-  private static final String DEFAULT_REGULAR_EXPRESSION = "";
   private static final String DEFAULT_MESSAGE = "The regular expression matches this comment.";
+  private static final String DEFAULT_REGULAR_EXPRESSION = "";
 
   @RuleProperty(
     key = "regularExpression",

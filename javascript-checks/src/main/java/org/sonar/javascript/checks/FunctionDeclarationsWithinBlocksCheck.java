@@ -44,12 +44,14 @@ import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 @SqaleConstantRemediation("5min")
 public class FunctionDeclarationsWithinBlocksCheck extends BaseTreeVisitor {
 
+  private static final String MESSAGE = "Do not use function declarations within blocks.";
+
   @Override
   public void visitBlock(BlockTree tree) {
     for (StatementTree stmt : tree.statements()) {
 
       if (stmt.is(Kind.FUNCTION_DECLARATION)) {
-        getContext().addIssue(this, stmt, "Do not use function declarations within blocks.");
+        getContext().addIssue(this, stmt, MESSAGE);
       }
     }
 

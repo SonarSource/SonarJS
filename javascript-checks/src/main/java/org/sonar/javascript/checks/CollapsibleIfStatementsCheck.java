@@ -44,15 +44,17 @@ import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 @SqaleConstantRemediation("5min")
 public class CollapsibleIfStatementsCheck extends BaseTreeVisitor {
 
+  private static final String MESSAGE = "Merge this if statement with the nested one.";
+  private static final String SECONDARY_MESSAGE = "Nested \"if\" statement";
+
   @Override
   public void visitIfStatement(IfStatementTree tree) {
     if (tree.elseClause() == null) {
       IfStatementTree innerIfStatement = getCollapsibleIfStatement(tree.statement());
 
       if (innerIfStatement != null) {
-        String message = "Merge this if statement with the nested one.";
-        IssueLocation primaryLocation = issueLocation(tree, message);
-        IssueLocation secondaryLocation = issueLocation(innerIfStatement, "Nested \"if\" statement\n");
+        IssueLocation primaryLocation = issueLocation(tree, MESSAGE);
+        IssueLocation secondaryLocation = issueLocation(innerIfStatement, SECONDARY_MESSAGE);
         getContext().addIssue(this, primaryLocation, Collections.singletonList(secondaryLocation), null);
       }
     }

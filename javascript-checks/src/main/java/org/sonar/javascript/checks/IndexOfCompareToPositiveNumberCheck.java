@@ -44,6 +44,8 @@ import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 @SqaleConstantRemediation("2min")
 public class IndexOfCompareToPositiveNumberCheck extends SubscriptionBaseTreeVisitor {
 
+  private static final String MESSAGE = "0 is a valid index, but is ignored by this check.";
+
   @Override
   public List<Kind> nodesToVisit() {
     return ImmutableList.of(Kind.GREATER_THAN);
@@ -54,7 +56,7 @@ public class IndexOfCompareToPositiveNumberCheck extends SubscriptionBaseTreeVis
     BinaryExpressionTree expression = (BinaryExpressionTree) tree;
 
     if (isZero(expression.rightOperand()) && isIndexOfCall(expression.leftOperand())) {
-      addIssue(tree, "0 is a valid index, but is ignored by this check.");
+      addIssue(tree, MESSAGE);
     }
 
   }

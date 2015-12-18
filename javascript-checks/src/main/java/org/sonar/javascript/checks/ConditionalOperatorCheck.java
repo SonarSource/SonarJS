@@ -36,9 +36,11 @@ import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 @SqaleConstantRemediation("5min")
 public class ConditionalOperatorCheck extends BaseTreeVisitor {
 
+  private static final String MESSAGE = "Replace this conditional operator by a standard if/else control flow statement.";
+
   @Override
   public void visitConditionalExpression(ConditionalExpressionTree tree) {
-    getContext().addIssue(this, tree.query(), "Replace this conditional operator by a standard if/else control flow statement.");
+    getContext().addIssue(this, tree.query(), MESSAGE);
     super.visitConditionalExpression(tree);
   }
 

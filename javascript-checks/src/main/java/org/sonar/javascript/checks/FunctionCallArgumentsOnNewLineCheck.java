@@ -41,6 +41,8 @@ import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 @SqaleConstantRemediation("5min")
 public class FunctionCallArgumentsOnNewLineCheck extends BaseTreeVisitor {
 
+  private static final String MESSAGE = "Make those call arguments start on line %s";
+
   @Override
   public void visitCallExpression(CallExpressionTree tree) {
 
@@ -48,7 +50,7 @@ public class FunctionCallArgumentsOnNewLineCheck extends BaseTreeVisitor {
     int argumentsLine = ((JavaScriptTree) tree.arguments()).getLine();
 
     if (calleeLastLine != argumentsLine) {
-      getContext().addIssue(this, tree.arguments(), "Make those call arguments start on line " + calleeLastLine);
+      getContext().addIssue(this, tree.arguments(), String.format(MESSAGE, calleeLastLine));
     }
     super.visitCallExpression(tree);
   }

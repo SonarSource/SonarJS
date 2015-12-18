@@ -53,6 +53,8 @@ import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 @SqaleConstantRemediation("20min")
 public class ForLoopConditionAndUpdateCheck extends BaseTreeVisitor {
 
+  private static final String MESSAGE = "This loop's stop condition tests \"%s\" but the incrementer updates \"%s\".";
+
   @Override
   public void visitForStatement(ForStatementTree forStatement) {
     List<ExpressionTree> updatedExpressions = updatedExpressions(forStatement.update());
@@ -63,7 +65,7 @@ public class ForLoopConditionAndUpdateCheck extends BaseTreeVisitor {
       if (!conditionVisitor.foundUpdatedExpression) {
         String updated = expressionList(updatedExpressions);
         String tested = expressionList(conditionVisitor.testedExpressions);
-        String message = String.format("This loop's stop condition tests \"%s\" but the incrementer updates \"%s\".", tested, updated);
+        String message = String.format(MESSAGE, tested, updated);
         getContext().addIssue(this, forStatement, message);
       }
     }

@@ -44,6 +44,7 @@ import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 @SqaleConstantRemediation("30min")
 public class FunctionDefinitionInsideLoopCheck extends SubscriptionBaseTreeVisitor {
 
+  private static final String MESSAGE = "Define this function outside of a loop.";
   private Deque<Integer> scope = new ArrayDeque<>();
 
   @Override
@@ -70,7 +71,7 @@ public class FunctionDefinitionInsideLoopCheck extends SubscriptionBaseTreeVisit
 
     } else {
       if (isInLoop()) {
-        getContext().addIssue(this, tree, "Define this function outside of a loop.");
+        getContext().addIssue(this, tree, MESSAGE);
       }
       enterScope();
     }

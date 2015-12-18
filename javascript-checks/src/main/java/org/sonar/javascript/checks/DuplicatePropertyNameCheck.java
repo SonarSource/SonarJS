@@ -45,6 +45,8 @@ import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 @SqaleConstantRemediation("5min")
 public class DuplicatePropertyNameCheck extends BaseTreeVisitor {
 
+  private static final String MESSAGE = "Rename or remove duplicate property name '%s'.";
+
   @Override
   public void visitObjectLiteral(ObjectLiteralTree tree) {
     Set<String> keys = Sets.newHashSet();
@@ -81,7 +83,7 @@ public class DuplicatePropertyNameCheck extends BaseTreeVisitor {
 
   private void addKey(Set<String> keys, String key, Tree property) {
     if (keys.contains(EscapeUtils.unescape(key))) {
-      getContext().addIssue(this, property, "Rename or remove duplicate property name '" + key + "'.");
+      getContext().addIssue(this, property, String.format(MESSAGE, key));
     } else {
       keys.add(key);
     }

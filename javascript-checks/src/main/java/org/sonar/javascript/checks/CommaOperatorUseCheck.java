@@ -44,6 +44,9 @@ import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 @SqaleConstantRemediation("5min")
 public class CommaOperatorUseCheck extends BaseTreeVisitor {
 
+  private static final String MESSAGE_ONE_COMMA = "Remove use of this comma operator.";
+  private static final String MESSAGE_MANY_COMMAS = "Remove use of all comma operators in this expression.";
+
   @Override
   public void visitBinaryExpression(BinaryExpressionTree tree) {
 
@@ -54,14 +57,9 @@ public class CommaOperatorUseCheck extends BaseTreeVisitor {
 
     List<ExpressionTree> expressions = getAllSubExpressions(tree);
 
-    String message;
-    if (expressions.size() > 2) {
-      message = "Remove use of all comma operators in this expression.";
-    } else {
-      message = "Remove use of this comma operator.";
-    }
-
+    String message = expressions.size() > 2 ? MESSAGE_MANY_COMMAS : MESSAGE_ONE_COMMA;
     getContext().addIssue(this, getFirstComma(tree), message);
+
     for (ExpressionTree expression : expressions) {
       super.scan(expression);
     }

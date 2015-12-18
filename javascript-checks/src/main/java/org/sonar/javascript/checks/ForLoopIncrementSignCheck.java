@@ -49,6 +49,8 @@ import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 @SqaleConstantRemediation("5min")
 public class ForLoopIncrementSignCheck extends BaseTreeVisitor {
 
+  private static final String MESSAGE = "\"%s\" is %s and will never reach \"stop condition\".";
+
   @Override
   public void visitForStatement(ForStatementTree forStatement) {
     ExpressionTree condition = forStatement.condition();
@@ -92,7 +94,7 @@ public class ForLoopIncrementSignCheck extends BaseTreeVisitor {
 
   private void addIssue(Tree tree, ForLoopIncrement loopIncrement, String adjective) {
     String identifier = loopIncrement.identifier.name();
-    String message = String.format("\"%s\" is %s and will never reach \"stop condition\".", identifier, adjective);
+    String message = String.format(MESSAGE, identifier, adjective);
     getContext().addIssue(this, tree, message);
   }
 

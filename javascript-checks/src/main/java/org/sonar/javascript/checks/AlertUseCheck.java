@@ -43,11 +43,13 @@ import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 @SqaleConstantRemediation("10min")
 public class AlertUseCheck extends BaseTreeVisitor {
 
+  private static final String MESSAGE = "Remove this usage of alert(...).";
+
   @Override
   public void visitCallExpression(CallExpressionTree tree) {
     ExpressionTree callee = tree.callee();
     if (callee.is(Kind.IDENTIFIER_REFERENCE) && isAlertCall((IdentifierTree) callee)) {
-      getContext().addIssue(this, new IssueLocation(tree, "Remove this usage of alert(...)."), Collections.<IssueLocation>emptyList(), null);
+      getContext().addIssue(this, new IssueLocation(tree, MESSAGE), Collections.<IssueLocation>emptyList(), null);
     }
 
     super.visitCallExpression(tree);

@@ -50,6 +50,9 @@ import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 @SqaleConstantRemediation("10min")
 public class DuplicateBranchImplementationCheck extends BaseTreeVisitor {
 
+  private static final String MESSAGE = "Either merge this %s with the identical one on line \"%s\" or change one of the implementations.";
+  private static final String CONDITIONAL_EXPRESSION_MESSAGE = "This conditional operation returns the same value whether the condition is \"true\" or \"false\".";
+
   @Override
   public void visitIfStatement(IfStatementTree tree) {
     StatementTree implementation = tree.statement();
@@ -104,8 +107,7 @@ public class DuplicateBranchImplementationCheck extends BaseTreeVisitor {
 
   private void addIssue(Tree original, Tree duplicate, String type) {
     IssueLocation secondary = new IssueLocation(original, "Original");
-    String message = "Either merge this " + type + " with the identical one on line \""
-      + secondary.startLine() + "\" or change one of the implementations.";
+    String message = String.format(MESSAGE, type, secondary.startLine());
     getContext().addIssue(this, new IssueLocation(duplicate, message), ImmutableList.of(secondary), null);
   }
 
@@ -132,11 +134,10 @@ public class DuplicateBranchImplementationCheck extends BaseTreeVisitor {
   @Override
   public void visitConditionalExpression(ConditionalExpressionTree tree) {
     if (SyntacticEquivalence.areEquivalent(tree.trueExpression(), tree.falseExpression())) {
-      String message = "This conditional operation returns the same value whether the condition is \"true\" or \"false\".";
       List<IssueLocation> secondaryLocations = ImmutableList.of(
         new IssueLocation(tree.trueExpression()),
         new IssueLocation(tree.falseExpression()));
-      getContext().addIssue(this, new IssueLocation(tree.query(), message), secondaryLocations, null);
+      getContext().addIssue(this, new IssueLocation(tree.query(), CONDITIONAL_EXPRESSION_MESSAGE), secondaryLocations, null);
     }
     super.visitConditionalExpression(tree);
   }

@@ -50,6 +50,8 @@ import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 @SqaleConstantRemediation("5min")
 public class AssignmentWithinConditionCheck extends BaseTreeVisitor {
 
+  private static final String MESSAGE = "Extract the assignment out of this expression.";
+
   @Override
   public void visitDoWhileStatement(DoWhileStatementTree tree) {
     // Exception: skip assignment in while statement
@@ -180,7 +182,6 @@ public class AssignmentWithinConditionCheck extends BaseTreeVisitor {
   public void visitAssignmentExpression(AssignmentExpressionTree tree) {
     super.visitAssignmentExpression(tree);
 
-    String message = "Extract the assignment out of this expression.";
-    getContext().addIssue(this, new IssueLocation(tree.operator(), message), ImmutableList.<IssueLocation>of(), null);
+    getContext().addIssue(this, new IssueLocation(tree.operator(), MESSAGE), ImmutableList.<IssueLocation>of(), null);
   }
 }

@@ -55,6 +55,8 @@ import org.sonar.squidbridge.recognizer.LanguageFootprint;
 @SqaleConstantRemediation("5min")
 public class CommentedCodeCheck extends SubscriptionBaseTreeVisitor {
 
+  private static final String MESSAGE = "Sections of code should not be \"commented out\".";
+
   private static final JavaScriptCommentAnalyser COMMENT_ANALYSER = new JavaScriptCommentAnalyser();
 
   private static final double THRESHOLD = 0.9;
@@ -107,7 +109,7 @@ public class CommentedCodeCheck extends SubscriptionBaseTreeVisitor {
         String[] lines = regexpToDivideStringByLine.split(COMMENT_ANALYSER.getContents(trivia.text()));
         for (int lineOffset = 0; lineOffset < lines.length; lineOffset++) {
           if (codeRecognizer.isLineOfCode(lines[lineOffset])) {
-            getContext().addIssue(this, trivia.line() + lineOffset, "Sections of code should not be \"commented out\".");
+            getContext().addIssue(this, trivia.line() + lineOffset, MESSAGE);
             break;
           }
         }

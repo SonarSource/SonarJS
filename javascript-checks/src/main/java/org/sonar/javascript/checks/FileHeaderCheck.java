@@ -43,6 +43,7 @@ import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 @SqaleConstantRemediation("5min")
 public class FileHeaderCheck extends BaseTreeVisitor implements CharsetAwareVisitor {
 
+  private static final String MESSAGE = "Add or update the header of this file.";
   private static final String DEFAULT_HEADER_FORMAT = "";
 
   @RuleProperty(
@@ -76,7 +77,7 @@ public class FileHeaderCheck extends BaseTreeVisitor implements CharsetAwareVisi
     }
 
     if (!matches(expectedLines, lines)) {
-      context.addFileIssue(this, "Add or update the header of this file.");
+      context.addFileIssue(this, MESSAGE);
     }
   }
 

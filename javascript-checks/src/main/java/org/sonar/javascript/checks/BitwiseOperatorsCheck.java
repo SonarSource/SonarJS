@@ -44,6 +44,8 @@ import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 @SqaleConstantRemediation("5min")
 public class BitwiseOperatorsCheck extends SubscriptionBaseTreeVisitor {
 
+  private static final String MESSAGE = "Remove the use of \"%s\" operator.";
+
   @Override
   public List<Tree.Kind> nodesToVisit() {
     return ImmutableList.<Tree.Kind>builder()
@@ -73,7 +75,7 @@ public class BitwiseOperatorsCheck extends SubscriptionBaseTreeVisitor {
     } else {
       operator = ((AssignmentExpressionTree) tree).operator();
     }
-    getContext().addIssue(this, operator, String.format("Remove the use of \"%s\" operator.", operator.text()));
+    getContext().addIssue(this, operator, String.format(MESSAGE, operator.text()));
   }
 
 }

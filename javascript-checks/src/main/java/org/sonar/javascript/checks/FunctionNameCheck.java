@@ -48,6 +48,7 @@ import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 public class FunctionNameCheck extends BaseTreeVisitor {
 
   public static final String DEFAULT = "^[a-z][a-zA-Z0-9]*$";
+  private static final String MESSAGE = "Rename this '%s' function to match the regular expression %s";
   private Pattern pattern = null;
 
   @RuleProperty(
@@ -86,7 +87,7 @@ public class FunctionNameCheck extends BaseTreeVisitor {
       String name = tree instanceof IdentifierTree ? ((IdentifierTree) tree).name() : CheckUtils.asString(tree);
 
       if (!pattern.matcher(name).matches()) {
-        getContext().addIssue(this, tree, "Rename this '" + name + "' function to match the regular expression " + format);
+        getContext().addIssue(this, tree, String.format(MESSAGE, name, format));
       }
     }
   }

@@ -43,6 +43,8 @@ import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 @SqaleConstantRemediation("2min")
 public class AlwaysUseCurlyBracesCheck extends SubscriptionBaseTreeVisitor {
 
+  private static final String MESSAGE = "Missing curly brace.";
+
   @Override
   public List<Kind> nodesToVisit() {
     return ImmutableList.<Kind>builder()
@@ -74,7 +76,7 @@ public class AlwaysUseCurlyBracesCheck extends SubscriptionBaseTreeVisitor {
 
   private void checkAreCurlyBracesUsed(StatementTree statement, Tree tree) {
     if (!statement.is(Kind.BLOCK)) {
-      getContext().addIssue(this, tree, "Missing curly brace.");
+      getContext().addIssue(this, tree, MESSAGE);
     }
   }
 

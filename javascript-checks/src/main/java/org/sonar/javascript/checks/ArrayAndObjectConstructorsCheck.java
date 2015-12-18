@@ -41,13 +41,15 @@ import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 @SqaleConstantRemediation("5min")
 public class ArrayAndObjectConstructorsCheck extends BaseTreeVisitor {
 
+  private static final String MESSAGE = "Use a literal instead of the %s constructor.";
+
   @Override
   public void visitNewExpression(NewExpressionTree tree) {
     ExpressionTree expression = tree.expression();
     if (expression.is(Tree.Kind.IDENTIFIER_REFERENCE)) {
       String next = ((IdentifierTree) expression).name();
       if ("Array".equals(next) || "Object".equals(next)) {
-        getContext().addIssue(this, tree, String.format("Use a literal instead of the %s constructor.", next));
+        getContext().addIssue(this, tree, String.format(MESSAGE, next));
       }
     }
     super.visitNewExpression(tree);

@@ -44,6 +44,8 @@ import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 @SqaleConstantRemediation("5min")
 public class ConsoleLoggingCheck extends SubscriptionBaseTreeVisitor {
 
+  private static final String MESSAGE = "Remove this logging statement.";
+
   @Override
   public List<Kind> nodesToVisit() {
     return ImmutableList.of(Kind.CALL_EXPRESSION);
@@ -57,7 +59,7 @@ public class ConsoleLoggingCheck extends SubscriptionBaseTreeVisitor {
       DotMemberExpressionTree callee = (DotMemberExpressionTree) callExpression.callee();
 
       if (isCalleeConsoleLogging(callee)) {
-        addIssue(tree, "Remove this logging statement.");
+        addIssue(tree, MESSAGE);
       }
     }
 
