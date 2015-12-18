@@ -1,4 +1,4 @@
-for (i = 0; i < 10; i++) { // NOK
+for (i = 0; i < 10; i++) { // Noncompliant [[sc=1;ec=4;secondary=+2,+5;effortToFix=1]] {{Reduce the total number of "break" and "continue" statements in this loop to use one at most.}}
   if (i % 3 == 0) {
     break;
   }
@@ -13,7 +13,7 @@ for (i = 0; i < 10; i++) { // OK
   }
 }
 
-label: for (i = 0; i < 10; i++) { // NOK
+label: for (i = 0; i < 10; i++) { // Noncompliant
   for (j = 0; j < 10; j++) {
     break label;
   }
@@ -33,7 +33,7 @@ for (i = 0; i < 10; i++) { // OK
 }
 
 // but labeled should
-label: for (i = 0; i < 10; i++) { // NOK
+label: for (i = 0; i < 10; i++) { // Noncompliant
   switch (i) {
     case 0:
       break label;
@@ -45,7 +45,7 @@ label: for (i = 0; i < 10; i++) { // NOK
 // break and continue statements can not cross function boundaries
 for (i = 0; i < 10; i++) { // OK
   (function() {
-    for (i = 0; i < 10; i++) { // NOK
+    for (i = 0; i < 10; i++) { // Noncompliant
       if (i % 3 == 0) {
         break;
       }
@@ -62,7 +62,7 @@ for (i = 0; i < 10; i++) { // OK
 // break and continue statements can not cross function boundaries
 for (i = 0; i < 10; i++) { // OK
     (function*() {
-        for (i = 0; i < 10; i++) { // NOK
+        for (i = 0; i < 10; i++) { // Noncompliant
             if (i % 3 == 0) {
                 break;
             }
@@ -89,7 +89,7 @@ for (i = 0; i < 10; i++) { // OK
   }
 }
 
-for (i = 0; i < 10; i++) { // NOK
+for (i = 0; i < 10; i++) { // Noncompliant [[effortToFix=2]]
   if (i % 3 == 1) {
     break;
   }

@@ -20,6 +20,8 @@
 package org.sonar.javascript.checks;
 
 import com.google.common.base.Objects;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Stack;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
@@ -28,6 +30,7 @@ import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.declaration.FunctionDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.expression.FunctionExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
+import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.javascript.api.tree.statement.BreakStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.ContinueStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.DoWhileStatementTree;
@@ -38,6 +41,7 @@ import org.sonar.plugins.javascript.api.tree.statement.LabelledStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.SwitchStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.WhileStatementTree;
 import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
+import org.sonar.plugins.javascript.api.visitors.IssueLocation;
 import org.sonar.plugins.javascript.api.visitors.TreeVisitorContext;
 import org.sonar.squidbridge.annotations.ActivatedByDefault;
 import org.sonar.squidbridge.annotations.SqaleLinearRemediation;
@@ -56,9 +60,11 @@ import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 )
 public class TooManyBreakOrContinueInLoopCheck extends BaseTreeVisitor {
 
+  private static final String MESSAGE = "Reduce the total number of \"break\" and \"continue\" statements in this loop to use one at most.";
+
   private static class JumpTarget {
     private final String label;
-    private int jumps;
+    private List<Tree> jumps = new ArrayList<>();
 
     /**
      * Creates unlabeled target.
@@ -85,13 +91,13 @@ public class TooManyBreakOrContinueInLoopCheck extends BaseTreeVisitor {
 
   @Override
   public void visitBreakStatement(BreakStatementTree tree) {
-    increaseNumberOfJumpInScopes(tree.label());
+    increaseNumberOfJumpInScopes(tree.breakKeyword(), tree.label());
     super.visitBreakStatement(tree);
   }
 
   @Override
   public void visitContinueStatement(ContinueStatementTree tree) {
-    increaseNumberOfJumpInScopes(tree.label());
+    increaseNumberOfJumpInScopes(tree.continueKeyword(), tree.label());
     super.visitContinueStatement(tree);
   }
 
@@ -120,35 +126,35 @@ public class TooManyBreakOrContinueInLoopCheck extends BaseTreeVisitor {
   public void visitForStatement(ForStatementTree tree) {
     enterScope();
     super.visitForStatement(tree);
-    leaveScopeAndCheckNumberOfJump(tree);
+    leaveScopeAndCheckNumberOfJump(tree.forKeyword());
   }
 
   @Override
   public void visitForInStatement(ForInStatementTree tree) {
     enterScope();
     super.visitForInStatement(tree);
-    leaveScopeAndCheckNumberOfJump(tree);
+    leaveScopeAndCheckNumberOfJump(tree.forKeyword());
   }
 
   @Override
   public void visitForOfStatement(ForOfStatementTree tree) {
     enterScope();
     super.visitForOfStatement(tree);
-    leaveScopeAndCheckNumberOfJump(tree);
+    leaveScopeAndCheckNumberOfJump(tree.forKeyword());
   }
 
   @Override
   public void visitWhileStatement(WhileStatementTree tree) {
     enterScope();
     super.visitWhileStatement(tree);
-    leaveScopeAndCheckNumberOfJump(tree);
+    leaveScopeAndCheckNumberOfJump(tree.whileKeyword());
   }
 
   @Override
   public void visitDoWhileStatement(DoWhileStatementTree tree) {
     enterScope();
     super.visitDoWhileStatement(tree);
-    leaveScopeAndCheckNumberOfJump(tree);
+    leaveScopeAndCheckNumberOfJump(tree.doKeyword());
   }
 
   @Override
@@ -166,11 +172,11 @@ public class TooManyBreakOrContinueInLoopCheck extends BaseTreeVisitor {
     jumpTargets.pop();
   }
 
-  private void increaseNumberOfJumpInScopes(IdentifierTree label) {
+  private void increaseNumberOfJumpInScopes(SyntaxToken jump, IdentifierTree label) {
     for (int i = jumpTargets.size() - 1; i >= 0; i--) {
       JumpTarget jumpTarget = jumpTargets.get(i);
       String labelName = label == null ? null : label.name();
-      jumpTarget.jumps++;
+      jumpTarget.jumps.add(jump);
 
       if (Objects.equal(labelName, jumpTarget.label)) {
         break;
@@ -178,10 +184,16 @@ public class TooManyBreakOrContinueInLoopCheck extends BaseTreeVisitor {
     }
   }
 
-  private void leaveScopeAndCheckNumberOfJump(Tree tree) {
-    int jumpStatementNumber = jumpTargets.pop().jumps;
+  private void leaveScopeAndCheckNumberOfJump(SyntaxToken loopKeyword) {
+    List<Tree> jumps = jumpTargets.pop().jumps;
+    int jumpStatementNumber = jumps.size();
     if (jumpStatementNumber > 1) {
-      getContext().addIssue(this, tree, "Reduce the total number of \"break\" and \"continue\" statements in this loop to use one at most.", (double)jumpStatementNumber - 1);
+      IssueLocation primaryLocation = new IssueLocation(loopKeyword, MESSAGE);
+      List<IssueLocation> secondaryLocations = new ArrayList<>();
+      for (Tree jump : jumps) {
+        secondaryLocations.add(new IssueLocation(jump));
+      }
+      getContext().addIssue(this, primaryLocation, secondaryLocations, (double) jumpStatementNumber - 1);
     }
   }
 
