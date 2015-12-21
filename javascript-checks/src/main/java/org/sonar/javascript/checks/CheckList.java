@@ -30,6 +30,8 @@ public final class CheckList {
 
   public static final String SONAR_WAY_PROFILE = "Sonar way";
 
+  public static final String SONAR_SECURITY_WAY_PROFILE = "Sonar Security Way";
+
   private CheckList() {
   }
 

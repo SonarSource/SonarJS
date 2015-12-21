@@ -20,14 +20,27 @@
 package org.sonar.plugins.javascript;
 
 import org.junit.Test;
+import org.sonar.api.profiles.RulesProfile;
+import org.sonar.api.rules.RuleFinder;
+import org.sonar.api.utils.ValidationMessages;
+import org.sonar.javascript.checks.CheckList;
 
 import static org.fest.assertions.Assertions.assertThat;
 
-public class JavaScriptPluginTest {
+public class JavaScriptSecurityProfileTest {
 
   @Test
-  public void get_extensions() throws Exception {
-    assertThat(new JavaScriptPlugin().getExtensions()).hasSize(19);
+  public void should_create_sonar_security_way() throws Exception {
+    ValidationMessages validation = ValidationMessages.create();
+
+    RuleFinder ruleFinder = JavaScriptProfileTest.ruleFinder();
+    JavaScriptSecurityProfile definition = new JavaScriptSecurityProfile(ruleFinder);
+    RulesProfile profile = definition.createProfile(validation);
+
+    assertThat(profile.getLanguage()).isEqualTo(JavaScriptLanguage.KEY);
+    assertThat(profile.getName()).isEqualTo(CheckList.SONAR_SECURITY_WAY_PROFILE);
+    assertThat(profile.getActiveRulesByRepository(CheckList.REPOSITORY_KEY)).hasSize(38);
+    assertThat(validation.hasErrors()).isFalse();
   }
 
 }
