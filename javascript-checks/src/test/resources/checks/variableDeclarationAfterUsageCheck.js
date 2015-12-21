@@ -2,7 +2,7 @@ function fun(x) {
   print(x);         // OK
 }
 
-print(x);           // Noncompliant {{Variable 'x' referenced before declaration.}}
+print(x);           // Noncompliant {{Move the declaration of "x" before this usage.}}
 var x = 1;
 
 function fun() {

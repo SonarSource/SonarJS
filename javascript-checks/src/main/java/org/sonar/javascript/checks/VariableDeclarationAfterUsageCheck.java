@@ -47,7 +47,7 @@ import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 @SqaleConstantRemediation("10min")
 public class VariableDeclarationAfterUsageCheck extends BaseTreeVisitor {
 
-  private static final String MESSAGE = "Variable '%s' referenced before declaration.";
+  private static final String MESSAGE = "Move the declaration of \"%s\" before this usage.";
 
   @Override
   public void visitScript(ScriptTree tree) {
