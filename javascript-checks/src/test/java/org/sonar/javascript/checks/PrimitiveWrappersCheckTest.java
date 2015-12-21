@@ -28,7 +28,7 @@ public class PrimitiveWrappersCheckTest extends TreeCheckTest {
   @Test
   public void test() {
     CheckMessagesVerifier.verify(getIssues("src/test/resources/checks/primitiveWrappers.js", new PrimitiveWrappersCheck()))
-      .next().atLine(2).withMessage("Do not use wrapper objects for primitive types.")
+      .next().atLine(2).withMessage("Use a literal value for this.")
       .next().atLine(12)
       .next().atLine(13)
       .noMore();
