@@ -41,13 +41,16 @@ import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 @SqaleConstantRemediation("5min")
 public class SwitchWithoutDefaultCheck extends BaseTreeVisitor {
 
+  private static final String ADD_DEFAULT_MESSAGE = "Add a \"default\" clause to this \"switch\" statement.";
+  private static final String MOVE_DEFAULT_MESSAGE = "Move this \"default\" clause to the end of this \"switch\" statement.";
+
   @Override
   public void visitSwitchStatement(SwitchStatementTree tree) {
     if (!hasDefaultCase(tree)) {
-      getContext().addIssue(this, tree, "Avoid switch statement without a \"default\" clause.");
+      getContext().addIssue(this, tree, ADD_DEFAULT_MESSAGE);
 
     } else if (!Iterables.getLast(tree.cases()).is(Kind.DEFAULT_CLAUSE)) {
-      getContext().addIssue(this, tree, "\"default\" clause should be the last one.");
+      getContext().addIssue(this, tree, MOVE_DEFAULT_MESSAGE);
     }
     super.visitSwitchStatement(tree);
   }
