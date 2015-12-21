@@ -1,4 +1,4 @@
-if (a = 1) {                              // Noncompliant {{Extract the assignment out of this expression.}}
+if (a = 1) {                              // Noncompliant {{Extract the assignment of "a" from this expression.}}
 }
 
 if (a == 1, b = 2) {                      // Noncompliant [[sc=15;ec=16]]

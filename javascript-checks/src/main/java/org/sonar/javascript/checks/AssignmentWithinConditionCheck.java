@@ -24,6 +24,7 @@ import javax.annotation.Nullable;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
+import org.sonar.javascript.checks.utils.CheckUtils;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.declaration.InitializedBindingElementTree;
@@ -50,7 +51,7 @@ import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 @SqaleConstantRemediation("5min")
 public class AssignmentWithinConditionCheck extends BaseTreeVisitor {
 
-  private static final String MESSAGE = "Extract the assignment out of this expression.";
+  private static final String MESSAGE = "Extract the assignment of \"%s\" from this expression.";
 
   @Override
   public void visitDoWhileStatement(DoWhileStatementTree tree) {
@@ -181,7 +182,7 @@ public class AssignmentWithinConditionCheck extends BaseTreeVisitor {
   @Override
   public void visitAssignmentExpression(AssignmentExpressionTree tree) {
     super.visitAssignmentExpression(tree);
-
-    getContext().addIssue(this, new IssueLocation(tree.operator(), MESSAGE), ImmutableList.<IssueLocation>of(), null);
+    String message = String.format(MESSAGE, CheckUtils.asString(tree.variable()));
+    getContext().addIssue(this, new IssueLocation(tree.operator(), message), ImmutableList.<IssueLocation>of(), null);
   }
 }
