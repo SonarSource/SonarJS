@@ -28,7 +28,7 @@ public class ContinueStatementCheckTest extends TreeCheckTest {
   @Test
   public void test() {
     CheckMessagesVerifier.verify(getIssues("src/test/resources/checks/continueStatement.js", new ContinueStatementCheck()))
-      .next().atLine(6).withMessage("Avoid using continue statement.")
+      .next().atLine(6).withMessage("Remove this \"continue\" statement.")
       .noMore();
   }
 

@@ -36,7 +36,7 @@ import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 @SqaleConstantRemediation("30min")
 public class ContinueStatementCheck extends BaseTreeVisitor {
 
-  private static final String MESSAGE = "Avoid using continue statement.";
+  private static final String MESSAGE = "Remove this \"continue\" statement.";
 
   @Override
   public void visitContinueStatement(ContinueStatementTree tree) {
