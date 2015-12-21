@@ -44,7 +44,7 @@ import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 @SqaleConstantRemediation("10min")
 public class NonEmptyCaseWithoutBreakCheck extends BaseTreeVisitor {
 
-  private static final String MESSAGE = "Last statement in this switch-clause should be an unconditional break.";
+  private static final String MESSAGE = "End this switch case with an unconditional break, continue, return or throw statement.";
 
   @Override
   public void visitSwitchStatement(SwitchStatementTree tree) {
