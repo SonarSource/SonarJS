@@ -55,7 +55,7 @@ import org.sonar.squidbridge.recognizer.LanguageFootprint;
 @SqaleConstantRemediation("5min")
 public class CommentedCodeCheck extends SubscriptionBaseTreeVisitor {
 
-  private static final String MESSAGE = "Sections of code should not be \"commented out\".";
+  private static final String MESSAGE = "Remove this commented out code.";
 
   private static final JavaScriptCommentAnalyser COMMENT_ANALYSER = new JavaScriptCommentAnalyser();
 

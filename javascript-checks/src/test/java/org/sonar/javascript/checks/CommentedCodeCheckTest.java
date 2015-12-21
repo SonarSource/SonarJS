@@ -30,7 +30,7 @@ public class CommentedCodeCheckTest extends TreeCheckTest {
     String relativePath = "src/test/resources/checks/commentedCode.js";
     CommentedCodeCheck check = new CommentedCodeCheck();
     CheckMessagesVerifier.verify(getIssues(relativePath, check))
-      .next().atLine(7).withMessage("Sections of code should not be \"commented out\".")
+      .next().atLine(7).withMessage("Remove this commented out code.")
       .next().atLine(14)
       .noMore();
   }
