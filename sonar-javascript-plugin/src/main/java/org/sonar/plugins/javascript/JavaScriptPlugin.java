@@ -32,7 +32,6 @@ import org.sonar.plugins.javascript.lcov.UTCoverageSensor;
 import org.sonar.plugins.javascript.rules.JavaScriptCommonRulesDecorator;
 import org.sonar.plugins.javascript.rules.JavaScriptCommonRulesEngine;
 import org.sonar.plugins.javascript.rules.JavaScriptRulesDefinition;
-import org.sonar.plugins.javascript.unittest.jstest.JsTestSensor;
 import org.sonar.plugins.javascript.unittest.jstestdriver.JsTestDriverSensor;
 
 public class JavaScriptPlugin extends SonarPlugin {
@@ -63,9 +62,6 @@ public class JavaScriptPlugin extends SonarPlugin {
   public static final String JSTESTDRIVER_REPORTS_PATH = PROPERTY_PREFIX + ".jstestdriver.reportsPath";
   public static final String JSTESTDRIVER_REPORTS_PATH_DEFAULT_VALUE = "";
 
-  // Folder where JsTest unit test reports are located. Feature is not officially supported and not displayed in UI
-  public static final String JSTEST_REPORTS_PATH = PROPERTY_PREFIX + ".jstest.reportsPath";
-
   public static final String JQUERY_OBJECT_ALIASES = JQuery.JQUERY_OBJECT_ALIASES;
   public static final String JQUERY_OBJECT_ALIASES_DEFAULT_VALUE = JQuery.JQUERY_OBJECT_ALIASES_DEFAULT_VALUE;
 
@@ -91,7 +87,6 @@ public class JavaScriptPlugin extends SonarPlugin {
       JavaScriptCommonRulesEngine.class,
       JavaScriptCommonRulesDecorator.class,
 
-      JsTestSensor.class,
       JsTestDriverSensor.class,
       UTCoverageSensor.class,
       ITCoverageSensor.class,
