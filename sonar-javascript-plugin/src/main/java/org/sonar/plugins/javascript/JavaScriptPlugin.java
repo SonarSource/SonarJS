@@ -32,7 +32,6 @@ import org.sonar.plugins.javascript.lcov.UTCoverageSensor;
 import org.sonar.plugins.javascript.rules.JavaScriptCommonRulesDecorator;
 import org.sonar.plugins.javascript.rules.JavaScriptCommonRulesEngine;
 import org.sonar.plugins.javascript.rules.JavaScriptRulesDefinition;
-import org.sonar.plugins.javascript.unittest.jstestdriver.JsTestDriverSensor;
 
 public class JavaScriptPlugin extends SonarPlugin {
 
@@ -59,9 +58,6 @@ public class JavaScriptPlugin extends SonarPlugin {
   public static final String FORCE_ZERO_COVERAGE_KEY = "sonar.javascript.forceZeroCoverage";
   public static final String FORCE_ZERO_COVERAGE_DEFAULT_VALUE = "false";
 
-  public static final String JSTESTDRIVER_REPORTS_PATH = PROPERTY_PREFIX + ".jstestdriver.reportsPath";
-  public static final String JSTESTDRIVER_REPORTS_PATH_DEFAULT_VALUE = "";
-
   public static final String JQUERY_OBJECT_ALIASES = JQuery.JQUERY_OBJECT_ALIASES;
   public static final String JQUERY_OBJECT_ALIASES_DEFAULT_VALUE = JQuery.JQUERY_OBJECT_ALIASES_DEFAULT_VALUE;
 
@@ -87,7 +83,6 @@ public class JavaScriptPlugin extends SonarPlugin {
       JavaScriptCommonRulesEngine.class,
       JavaScriptCommonRulesDecorator.class,
 
-      JsTestDriverSensor.class,
       UTCoverageSensor.class,
       ITCoverageSensor.class,
 
@@ -130,14 +125,6 @@ public class JavaScriptPlugin extends SonarPlugin {
         .description("Force coverage to be set to 0 when no report is provided.")
         .onQualifiers(Qualifiers.MODULE, Qualifiers.PROJECT)
         .type(PropertyType.BOOLEAN)
-        .subCategory(TEST_AND_COVERAGE)
-        .build(),
-
-      PropertyDefinition.builder(JavaScriptPlugin.JSTESTDRIVER_REPORTS_PATH)
-        .defaultValue(JavaScriptPlugin.JSTESTDRIVER_REPORTS_PATH_DEFAULT_VALUE)
-        .name("JSTestDriver output folder")
-        .description("Folder where JsTestDriver unit test reports are located.")
-        .onQualifiers(Qualifiers.MODULE, Qualifiers.PROJECT)
         .subCategory(TEST_AND_COVERAGE)
         .build(),
 
