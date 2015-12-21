@@ -1,9 +1,9 @@
 /**
  * NOK
  */
-a == a; // Noncompliant {{Identical sub-expressions on both sides of operator "=="}}
+a == a; // Noncompliant {{Correct one of the identical sub-expressions on both sides of operator "=="}}
 
-a != a; // Noncompliant {{Identical sub-expressions on both sides of operator "!="}}
+a != a; // Noncompliant {{Correct one of the identical sub-expressions on both sides of operator "!="}}
 
 a == b && a == b // Noncompliant [[sc=11;ec=17;secondary=+0]]
 

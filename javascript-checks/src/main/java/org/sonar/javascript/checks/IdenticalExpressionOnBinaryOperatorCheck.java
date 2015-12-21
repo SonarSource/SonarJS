@@ -44,7 +44,7 @@ import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 @SqaleConstantRemediation("2min")
 public class IdenticalExpressionOnBinaryOperatorCheck extends BaseTreeVisitor {
 
-  private static final String MESSAGE = "Identical sub-expressions on both sides of operator \"%s\"";
+  private static final String MESSAGE = "Correct one of the identical sub-expressions on both sides of operator \"%s\"";
 
   @Override
   public void visitBinaryExpression(BinaryExpressionTree tree) {
