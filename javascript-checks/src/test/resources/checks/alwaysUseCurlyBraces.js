@@ -1,24 +1,24 @@
 function sayHello() {
 
-  if (condition) doSomething(); // NOK
+  if (condition) doSomething(); // Noncompliant {{Add curly braces around the nested statement(s) in this "if" block.}}
 
-  for (i = 0; i < 10; i++) doSomething(); // NOK
+  for (i = 0; i < 10; i++) doSomething(); // Noncompliant {{Add curly braces around the nested statement(s) in this "for" block.}}
 
-  while (condition) doSomething(); // NOK
+  while (condition) doSomething(); // Noncompliant {{Add curly braces around the nested statement(s) in this "while" block.}}
 
-  do something(); while (condition); // NOK
+  do something(); while (condition); // Noncompliant {{Add curly braces around the nested statement(s) in this "do" block.}}
 
   if (condition) { // OK
   }
 
   if (condition) { // OK
-  } else doSomething(); // NOK
+  } else doSomething(); // Noncompliant {{Add curly braces around the nested statement(s) in this "else" block.}}
 
   if (condition) { // OK
   } else if (condition) { // OK
   }
 
-  if (condition) // NOK
+  if (condition) // Noncompliant
     if (condition) {
     }
 
@@ -32,6 +32,6 @@ function sayHello() {
     something();
   } while (condition);
 
-  for(var p in a)  something()
+  for(var p in a)  something()  // Noncompliant
 
 }

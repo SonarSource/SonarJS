@@ -24,6 +24,7 @@ import java.util.List;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
+import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.statement.ElseClauseTree;
@@ -43,7 +44,7 @@ import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 @SqaleConstantRemediation("2min")
 public class AlwaysUseCurlyBracesCheck extends SubscriptionBaseTreeVisitor {
 
-  private static final String MESSAGE = "Missing curly brace.";
+  private static final String MESSAGE = "Add curly braces around the nested statement(s) in this \"%s\" block.";
 
   @Override
   public List<Kind> nodesToVisit() {
@@ -76,7 +77,8 @@ public class AlwaysUseCurlyBracesCheck extends SubscriptionBaseTreeVisitor {
 
   private void checkAreCurlyBracesUsed(StatementTree statement, Tree tree) {
     if (!statement.is(Kind.BLOCK)) {
-      getContext().addIssue(this, tree, MESSAGE);
+      String blockName = ((JavaScriptTree) tree).getFirstToken().text();
+      getContext().addIssue(this, tree, String.format(MESSAGE, blockName));
     }
   }
 
