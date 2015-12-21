@@ -48,7 +48,7 @@ import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 @SqaleConstantRemediation("1min")
 public class ParenthesesCheck extends BaseTreeVisitor {
 
-  private static final String MESSAGE = "The parentheses around \"%s\" are useless.";
+  private static final String MESSAGE = "Remove useless parentheses around \"%s\".";
 
   private static final Kind[] SHOULD_BE_PARENTHESISED_AFTER_TYPEOF = {
     Kind.CONDITIONAL_EXPRESSION,
