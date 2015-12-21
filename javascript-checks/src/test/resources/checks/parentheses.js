@@ -55,3 +55,15 @@ if (typeof (key += obj.$$hashKey) == 'function') {}   // OK
 if (typeof (key + 'str') == 'string') {}   // OK
 if (typeof (x ? y : z) == 'string') {}   // OK
 
+function foo() {
+
+  yield (    // OK
+    a + b)
+
+  return (    // OK
+    a + b)
+
+  throw (    // OK
+    a + b)
+
+}

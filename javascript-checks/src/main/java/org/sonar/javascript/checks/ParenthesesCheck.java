@@ -24,6 +24,7 @@ import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.javascript.checks.utils.CheckUtils;
+import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.expression.BinaryExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
@@ -99,19 +100,19 @@ public class ParenthesesCheck extends BaseTreeVisitor {
 
   @Override
   public void visitReturnStatement(ReturnStatementTree tree) {
-    checkExpression(tree.expression());
+    checkExpression(tree.expression(), true);
     super.visitReturnStatement(tree);
   }
 
   @Override
   public void visitThrowStatement(ThrowStatementTree tree) {
-    checkExpression(tree.expression());
+    checkExpression(tree.expression(), true);
     super.visitThrowStatement(tree);
   }
 
   @Override
   public void visitYieldExpression(YieldExpressionTree tree) {
-    checkExpression(tree.argument());
+    checkExpression(tree.argument(), true);
     super.visitYieldExpression(tree);
   }
 
@@ -133,9 +134,24 @@ public class ParenthesesCheck extends BaseTreeVisitor {
     super.visitForInStatement(tree);
   }
 
+
+
   private void checkExpression(@Nullable ExpressionTree expression) {
+    checkExpression(expression, false);
+  }
+
+  private void checkExpression(@Nullable ExpressionTree expression, boolean checkNewLineException) {
     if (expression != null && expression.is(Kind.PARENTHESISED_EXPRESSION)) {
-      String expressingString = CheckUtils.asString(((ParenthesisedExpressionTree) expression).expression());
+      ParenthesisedExpressionTree parenthesisedExpression = (ParenthesisedExpressionTree) expression;
+      if (checkNewLineException) {
+        int openParenthesisLine = parenthesisedExpression.openParenthesis().line();
+        int bodyLine = ((JavaScriptTree) parenthesisedExpression.expression()).getLine();
+        if (openParenthesisLine < bodyLine) {
+          return;
+        }
+      }
+
+      String expressingString = CheckUtils.asString(parenthesisedExpression.expression());
       getContext().addIssue(this, expression, String.format("The parentheses around \"%s\" are useless.", expressingString));
     }
   }
