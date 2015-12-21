@@ -1,4 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="BROWSER_VERSION.unknown" errors="0" failures="0" tests="2" time="0.7">
-<testcase classname="BROWSER_VERSION.unknown" name="testWhoAreYou" time="0.2"/>
-</testsuite>

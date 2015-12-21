@@ -34,7 +34,6 @@ import org.junit.runners.Suite;
 @Suite.SuiteClasses({
   BigProjectTest.class,
   MetricsTest.class,
-  UnitTestTest.class,
   CustomRulesTests.class,
   CoverageTest.class
 })
