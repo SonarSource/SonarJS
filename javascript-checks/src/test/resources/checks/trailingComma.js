@@ -1,5 +1,5 @@
 var a = {
-  a : 1, // Noncompliant [[sc=8;ec=9]]
+  a : 1, // Noncompliant [[sc=8;ec=9]] {{Remove this trailing comma.}}
 };
 var b = [ 1, ]; // Noncompliant
 

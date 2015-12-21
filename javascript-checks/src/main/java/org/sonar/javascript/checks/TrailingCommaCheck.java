@@ -48,7 +48,7 @@ import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 @SqaleConstantRemediation("1min")
 public class TrailingCommaCheck extends BaseTreeVisitor {
 
-  private static final String MESSAGE = "Avoid trailing comma in array and object literals.";
+  private static final String MESSAGE = "Remove this trailing comma.";
 
   @Override
   public void visitObjectLiteral(ObjectLiteralTree tree) {
