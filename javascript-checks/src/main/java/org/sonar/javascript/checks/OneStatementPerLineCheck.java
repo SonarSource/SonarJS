@@ -48,7 +48,7 @@ import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 @SqaleConstantRemediation("1min")
 public class OneStatementPerLineCheck extends SubscriptionBaseTreeVisitor {
 
-  private static final String MESSAGE = "At most one statement is allowed per line, but %s statements were found on this line.";
+  private static final String MESSAGE = "Reformat the code to have only one statement per line.";
 
   private ListMultimap<Integer, StatementTree> statementsPerLine = ArrayListMultimap.create();
   private List<StatementTree> excludedStatements = new ArrayList<>();
@@ -115,7 +115,7 @@ public class OneStatementPerLineCheck extends SubscriptionBaseTreeVisitor {
   }
 
   private void addIssue(List<StatementTree> statementsAtLine) {
-    IssueLocation primaryLocation = new IssueLocation(statementsAtLine.get(1), String.format(MESSAGE, statementsAtLine.size()));
+    IssueLocation primaryLocation = new IssueLocation(statementsAtLine.get(1), MESSAGE);
     List<IssueLocation> secondaryLocations = new ArrayList<>();
 
     for (int i = 2; i < statementsAtLine.size(); i++) {

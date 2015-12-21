@@ -1,6 +1,6 @@
 function sayHello() {
-  alert("Hello World!"); alert("Hello World!"); // Noncompliant [[sc=26;ec=48;el=+0]] {{At most one statement is allowed per line, but 2 statements were found on this line.}}
-  alert("Hello World!"); alert("Hello World!"); alert("Hello World!"); // Noncompliant [[sc=26;ec=48;el=+0;secondary=+0]] {{At most one statement is allowed per line, but 3 statements were found on this line.}}
+  alert("Hello World!"); alert("Hello World!"); // Noncompliant [[sc=26;ec=48;el=+0]] {{Reformat the code to have only one statement per line.}}
+  alert("Hello World!"); alert("Hello World!"); alert("Hello World!"); // Noncompliant [[sc=26;ec=48;el=+0;secondary=+0]] {{Reformat the code to have only one statement per line.}}
 
   if (a) {} // OK
 
