@@ -41,7 +41,7 @@ import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 @SqaleConstantRemediation("1min")
 public class LineLengthCheck extends SubscriptionBaseTreeVisitor {
 
-  private static final String MESSAGE = "The line contains %d characters which is greater than %d authorized.";
+  private static final String MESSAGE = "Split this %s characters long line (which is greater than %s authorized).";
 
   private SyntaxToken previousToken;
   private static final int DEFAULT_MAXIMUM_LINE_LENHGTH = 80;

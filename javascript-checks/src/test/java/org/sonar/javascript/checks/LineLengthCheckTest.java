@@ -31,7 +31,7 @@ public class LineLengthCheckTest extends TreeCheckTest {
     check.maximumLineLength = 30;
 
     CheckMessagesVerifier.verify(getIssues("src/test/resources/checks/lineLength.js", check))
-      .next().atLine(2).withMessage("The line contains 44 characters which is greater than 30 authorized.")
+      .next().atLine(2).withMessage("Split this 44 characters long line (which is greater than 30 authorized).")
       .next().atLine(5)
       .noMore();
   }
