@@ -38,11 +38,13 @@ import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 @SqaleConstantRemediation("2min")
 public class SelectionTestedWithoutLengthCheck extends BaseTreeVisitor {
 
+  private static final String MESSAGE = "Use the \"length\" property to see whether this selection contains elements.";
+
   @Override
   public void visitIfStatement(IfStatementTree tree) {
     ExpressionTree condition = tree.condition();
     if (condition.types().containsOnly(Type.Kind.JQUERY_SELECTOR_OBJECT)) {
-      getContext().addIssue(this, condition, "Use the \"length\" property to see whether this selection contains elements.");
+      getContext().addIssue(this, condition, MESSAGE);
     }
     super.visitIfStatement(tree);
   }

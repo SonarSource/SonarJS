@@ -41,11 +41,13 @@ import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 @SqaleConstantRemediation("3min")
 public class SelfAssignmentCheck extends BaseTreeVisitor {
 
+  private static final String MESSAGE = "Remove or correct this useless self-assignment.";
+
   @Override
   public void visitAssignmentExpression(AssignmentExpressionTree tree) {
     ExpressionTree variable = tree.variable();
     if (tree.is(Tree.Kind.ASSIGNMENT) && SyntacticEquivalence.areEquivalent(variable, tree.expression())) {
-      getContext().addIssue(this, tree, "Remove or correct this useless self-assignment.");
+      getContext().addIssue(this, tree, MESSAGE);
     }
     super.visitAssignmentExpression(tree);
   }

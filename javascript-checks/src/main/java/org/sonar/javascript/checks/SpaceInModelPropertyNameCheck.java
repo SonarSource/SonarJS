@@ -48,6 +48,7 @@ import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 public class SpaceInModelPropertyNameCheck extends BaseTreeVisitor {
 
   private static final String SET = "set";
+  private static final String MESSAGE = "Rename this property to remove the spaces.";
 
   @Override
   public void visitCallExpression(CallExpressionTree tree) {
@@ -102,7 +103,7 @@ public class SpaceInModelPropertyNameCheck extends BaseTreeVisitor {
 
   private void checkString(ExpressionTree key) {
     if (key.is(Kind.STRING_LITERAL) && StringUtils.contains(((LiteralTree) key).value(), ' ')) {
-      getContext().addIssue(this, key, "Rename this property to remove the spaces.");
+      getContext().addIssue(this, key, MESSAGE);
     }
   }
 

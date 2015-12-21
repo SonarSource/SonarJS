@@ -43,6 +43,7 @@ import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 @SqaleConstantRemediation("1h")
 public class TooManyLinesInFileCheck extends SubscriptionBaseTreeVisitor {
 
+  private static final String MESSAGE = "File \"%s\" has %d lines, which is greater than %d authorized. Split it into smaller files.";
   private static final int DEFAULT = 1000;
 
   @RuleProperty(
@@ -61,8 +62,7 @@ public class TooManyLinesInFileCheck extends SubscriptionBaseTreeVisitor {
     int lines = token.line();
 
     if (lines > maximum) {
-      getContext().addFileIssue(this, String.format("File \"%s\" has %d lines, which is greater than %d authorized. Split it into smaller files.",
-        getContext().getFile().getName(), lines, maximum));
+      getContext().addFileIssue(this, String.format(MESSAGE, getContext().getFile().getName(), lines, maximum));
     }
   }
 

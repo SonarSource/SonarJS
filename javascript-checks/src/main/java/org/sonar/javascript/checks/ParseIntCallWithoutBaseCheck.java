@@ -39,10 +39,12 @@ import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 @SqaleConstantRemediation("2min")
 public class ParseIntCallWithoutBaseCheck extends BaseTreeVisitor {
 
+  private static final String MESSAGE = "Add the base to this \"parseInt\" call.";
+
   @Override
   public void visitCallExpression(CallExpressionTree tree) {
     if (isParseIntCall(tree.callee()) && tree.arguments().parameters().size() == 1) {
-      getContext().addIssue(this, tree, "Add the base to this \"parseInt\" call.");
+      getContext().addIssue(this, tree, MESSAGE);
     }
     super.visitCallExpression(tree);
   }

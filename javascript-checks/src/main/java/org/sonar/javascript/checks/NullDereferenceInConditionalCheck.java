@@ -45,8 +45,7 @@ import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 @SqaleConstantRemediation("2min")
 public class NullDereferenceInConditionalCheck extends BaseTreeVisitor {
 
-  private static final String MESSAGE_FORMAT =
-    "Either reverse the equality operator in the \"%s\" null test, or reverse the logical operator that follows it.";
+  private static final String MESSAGE = "Either reverse the equality operator in the \"%s\" null test, or reverse the logical operator that follows it.";
 
   @Override
   public void visitBinaryExpression(BinaryExpressionTree tree) {
@@ -103,7 +102,7 @@ public class NullDereferenceInConditionalCheck extends BaseTreeVisitor {
     public void visitMemberExpression(MemberExpressionTree tree) {
       if (SyntacticEquivalence.areEquivalent(tree.object(), nullExpression)) {
         context.addIssue(NullDereferenceInConditionalCheck.this, nullExpression,
-          String.format(MESSAGE_FORMAT, CheckUtils.asString(nullExpression)));
+          String.format(MESSAGE, CheckUtils.asString(nullExpression)));
       }
       super.visitMemberExpression(tree);
     }

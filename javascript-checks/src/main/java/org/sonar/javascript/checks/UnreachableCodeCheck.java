@@ -48,6 +48,8 @@ import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 @SqaleConstantRemediation("5 min")
 public class UnreachableCodeCheck extends SubscriptionBaseTreeVisitor {
 
+  private static final String MESSAGE = "This statement can't be reached and so start a dead code block.";
+
   private Deque<Boolean> blockLevel = new ArrayDeque<>();
   private static final Kind[] JUMP_STATEMENTS = {
     Kind.BREAK_STATEMENT,
@@ -92,7 +94,7 @@ public class UnreachableCodeCheck extends SubscriptionBaseTreeVisitor {
       enterBlock();
 
     } else if (!isExcludedExpression(tree) && isPrecededByAJump()) {
-      getContext().addIssue(this, tree, "This statement can't be reached and so start a dead code block.");
+      getContext().addIssue(this, tree, MESSAGE);
       updateStateTo(false);
     }
 

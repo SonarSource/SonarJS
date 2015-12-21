@@ -45,10 +45,12 @@ import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 @SqaleConstantRemediation("2min")
 public class ReturnOfBooleanExpressionCheck extends BaseTreeVisitor {
 
+  private static final String MESSAGE = "Replace this if-then-else statement by a single return statement.";
+
   @Override
   public void visitIfStatement(IfStatementTree tree) {
     if (tree.elseClause() != null && returnsBoolean(tree.elseClause().statement()) && returnsBoolean(tree.statement())) {
-      getContext().addIssue(this, tree, "Replace this if-then-else statement by a single return statement.");
+      getContext().addIssue(this, tree, MESSAGE);
     }
 
     visitIf(tree);

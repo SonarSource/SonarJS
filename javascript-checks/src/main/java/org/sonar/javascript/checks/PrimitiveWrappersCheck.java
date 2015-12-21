@@ -41,12 +41,13 @@ import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 @SqaleConstantRemediation("1min")
 public class PrimitiveWrappersCheck extends BaseTreeVisitor {
 
+  private static final String MESSAGE = "Do not use wrapper objects for primitive types.";
   private static final Set<String> WRAPPERS = ImmutableSet.of("Boolean", "Number", "String");
 
   @Override
   public void visitNewExpression(NewExpressionTree tree) {
     if (WRAPPERS.contains(CheckUtils.asString(tree.expression()))) {
-      getContext().addIssue(this, tree.expression(), "Do not use wrapper objects for primitive types.");
+      getContext().addIssue(this, tree.expression(), MESSAGE);
     }
 
     super.visitNewExpression(tree);

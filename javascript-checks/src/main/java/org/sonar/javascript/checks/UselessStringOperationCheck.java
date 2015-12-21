@@ -47,6 +47,8 @@ import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 @SqaleConstantRemediation("20min")
 public class UselessStringOperationCheck extends SubscriptionBaseTreeVisitor {
 
+  private static final String MESSAGE = "%s is an immutable object; you must either store or return the result of the operation.";
+
   @Override
   public List<Kind> nodesToVisit() {
     return ImmutableList.of(Kind.EXPRESSION_STATEMENT);
@@ -61,7 +63,7 @@ public class UselessStringOperationCheck extends SubscriptionBaseTreeVisitor {
         MemberExpressionTree memberExpression = (MemberExpressionTree) callee;
         if (memberExpression.object().types().containsOnly(Type.Kind.STRING)) {
           String variableName = CheckUtils.asString(memberExpression.object());
-          addIssue(tree, variableName + " is an immutable object; you must either store or return the result of the operation.");
+          addIssue(tree, String.format(MESSAGE, variableName));
         }
       }
     }

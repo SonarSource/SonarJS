@@ -46,6 +46,8 @@ import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 @SqaleConstantRemediation("1min")
 public class TrailingWhitespaceCheck extends SubscriptionBaseTreeVisitor implements CharsetAwareVisitor {
 
+  private static final String MESSAGE = "Remove the useless trailing whitespaces at the end of this line.";
+
   private Charset charset;
 
   @Override
@@ -74,7 +76,7 @@ public class TrailingWhitespaceCheck extends SubscriptionBaseTreeVisitor impleme
       String line = lines.get(i);
 
       if (line.length() > 0 && Pattern.matches("[" + JavaScriptLexer.WHITESPACE + "]", line.subSequence(line.length() - 1, line.length()))) {
-        getContext().addIssue(this, i + 1, "Remove the useless trailing whitespaces at the end of this line.");
+        getContext().addIssue(this, i + 1, MESSAGE);
       }
     }
 

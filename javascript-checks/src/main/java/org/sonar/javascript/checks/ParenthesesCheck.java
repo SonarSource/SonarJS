@@ -48,6 +48,8 @@ import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 @SqaleConstantRemediation("1min")
 public class ParenthesesCheck extends BaseTreeVisitor {
 
+  private static final String MESSAGE = "The parentheses around \"%s\" are useless.";
+
   private static final Kind[] SHOULD_BE_PARENTHESISED_AFTER_TYPEOF = {
     Kind.CONDITIONAL_EXPRESSION,
 
@@ -152,7 +154,7 @@ public class ParenthesesCheck extends BaseTreeVisitor {
       }
 
       String expressingString = CheckUtils.asString(parenthesisedExpression.expression());
-      getContext().addIssue(this, expression, String.format("The parentheses around \"%s\" are useless.", expressingString));
+      getContext().addIssue(this, expression, String.format(MESSAGE, expressingString));
     }
   }
 
@@ -162,7 +164,7 @@ public class ParenthesesCheck extends BaseTreeVisitor {
 
       if (nestedExpr != null && !nestedExpr.is(SHOULD_BE_PARENTHESISED_AFTER_TYPEOF)) {
         String expressingString = CheckUtils.asString(nestedExpr);
-        getContext().addIssue(this, nestedExpr, String.format("The parentheses around \"%s\" are useless.", expressingString));
+        getContext().addIssue(this, nestedExpr, String.format(MESSAGE, expressingString));
       }
     }
   }

@@ -51,6 +51,7 @@ import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 @SqaleConstantRemediation("10min")
 public class NestedControlFlowDepthCheck extends BaseTreeVisitor {
 
+  private static final String MESSAGE = "Refactor this code to not nest more than %s if/for/while/switch/try statements.";
   private static final int DEFAULT_MAXIMUM_NESTING_LEVEL = 3;
   private int nestedLevel;
 
@@ -137,8 +138,7 @@ public class NestedControlFlowDepthCheck extends BaseTreeVisitor {
   private void checkNestedLevel(Tree tree) {
     if (nestedLevel == getMaximumNestingLevel() + 1) {
       getContext().addIssue(this, tree,
-        String.format("Refactor this code to not nest more than %s if/for/while/switch/try statements.",
-          getMaximumNestingLevel()));
+        String.format(MESSAGE, getMaximumNestingLevel()));
     }
   }
 

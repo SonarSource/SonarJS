@@ -51,6 +51,7 @@ import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 @SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.UNDERSTANDABILITY)
 @SqaleConstantRemediation("5min")
 public class UnusedFunctionArgumentCheck extends BaseTreeVisitor {
+
   private static final String MESSAGE = "Remove the unused function parameter%s \"%s\".";
 
   private class PositionComparator implements Comparator<Symbol> {

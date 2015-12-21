@@ -49,6 +49,9 @@ import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 @SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.UNDERSTANDABILITY)
 @SqaleConstantRemediation("20min")
 public class TooManyLinesInFunctionCheck extends SubscriptionBaseTreeVisitor {
+
+  private static final String MESSAGE = "This function has %s lines, which is greater than the %s lines authorized. Split it into smaller functions.";
+
   private static final int DEFAULT = 100;
 
   @RuleProperty(
@@ -89,7 +92,7 @@ public class TooManyLinesInFunctionCheck extends SubscriptionBaseTreeVisitor {
 
     int nbLines = getNumberOfLine(tree);
     if (nbLines > max && !immediatelyInvokedFunctionExpression && !amdPattern) {
-      String message = String.format("This function has %s lines, which is greater than the %s lines authorized. Split it into smaller functions.", nbLines, max);
+      String message = String.format(MESSAGE, nbLines, max);
       getContext().addIssue(this, tree, message);
     }
     clearCheckState();

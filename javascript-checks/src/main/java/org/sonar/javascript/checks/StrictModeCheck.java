@@ -40,13 +40,15 @@ import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 @SqaleConstantRemediation("5min")
 public class StrictModeCheck extends BaseTreeVisitor {
 
+  private static final String MESSAGE = "Use of JavaScript strict mode may result in unexpected behaviour in some browsers.";
+
   @Override
   public void visitExpressionStatement(ExpressionStatementTree tree) {
     if (tree.expression().is(Kind.STRING_LITERAL)) {
       String value = ((LiteralTree) tree.expression()).value();
 
       if ("\"use strict\"".equals(value) || "'use strict'".equals(value)) {
-        getContext().addIssue(this, tree, "Use of JavaScript strict mode may result in unexpected behaviour in some browsers.");
+        getContext().addIssue(this, tree, MESSAGE);
       }
     }
 

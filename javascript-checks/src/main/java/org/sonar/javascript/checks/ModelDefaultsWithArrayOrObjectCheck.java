@@ -42,6 +42,8 @@ import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 @SqaleConstantRemediation("5min")
 public class ModelDefaultsWithArrayOrObjectCheck extends BaseTreeVisitor {
 
+  private static final String MESSAGE = "Make \"defaults\" a function.";
+
   @Override
   public void visitCallExpression(CallExpressionTree tree) {
     if (tree.types().contains(Type.Kind.BACKBONE_MODEL) && !tree.arguments().parameters().isEmpty()) {
@@ -51,7 +53,7 @@ public class ModelDefaultsWithArrayOrObjectCheck extends BaseTreeVisitor {
         PairPropertyTree defaultsProp = Backbone.getModelProperty((ObjectLiteralTree) parameter, "defaults");
 
         if (defaultsProp != null && defaultsProp.value().is(Kind.OBJECT_LITERAL) && hasObjectOrArrayAttribute((ObjectLiteralTree) defaultsProp.value())) {
-          getContext().addIssue(this, defaultsProp, "Make \"defaults\" a function.");
+          getContext().addIssue(this, defaultsProp, MESSAGE);
         }
       }
     }

@@ -38,6 +38,8 @@ import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 @SqaleConstantRemediation("1min")
 public class MissingNewlineAtEndOfFileCheck extends BaseTreeVisitor {
 
+  private static final String MESSAGE = "Add a new line at the end of this file.";
+
   @Override
   public void scanFile(TreeVisitorContext context) {
     super.scanFile(context);
@@ -45,7 +47,7 @@ public class MissingNewlineAtEndOfFileCheck extends BaseTreeVisitor {
     try (RandomAccessFile randomAccessFile = new RandomAccessFile(getContext().getFile(), "r")) {
 
       if (!endsWithNewline(randomAccessFile)) {
-        getContext().addFileIssue(this, "Add a new line at the end of this file.");
+        getContext().addFileIssue(this, MESSAGE);
       }
 
     } catch (IOException e) {

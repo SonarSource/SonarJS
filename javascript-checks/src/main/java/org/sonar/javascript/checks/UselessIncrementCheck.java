@@ -41,13 +41,15 @@ import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 @SqaleConstantRemediation("5min")
 public class UselessIncrementCheck extends BaseTreeVisitor {
 
+  private static final String MESSAGE = "Remove this %s or correct the code not to waste it.";
+
   @Override
   public void visitAssignmentExpression(AssignmentExpressionTree assignment) {
     if (assignment.expression().is(Tree.Kind.POSTFIX_INCREMENT, Tree.Kind.POSTFIX_DECREMENT)) {
       UnaryExpressionTree postfix = (UnaryExpressionTree) assignment.expression();
       if (SyntacticEquivalence.areEquivalent(assignment.variable(), postfix.expression())) {
         String type = postfix.is(Tree.Kind.POSTFIX_INCREMENT) ? "increment" : "decrement";
-        String message = String.format("Remove this %s or correct the code not to waste it.", type);
+        String message = String.format(MESSAGE, type);
         getContext().addIssue(this, postfix, message);
       }
     }

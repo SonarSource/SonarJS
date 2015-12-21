@@ -44,6 +44,8 @@ import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 @SqaleConstantRemediation("2min")
 public class TabCharacterCheck extends BaseTreeVisitor implements CharsetAwareVisitor {
 
+  private static final String MESSAGE = "Replace all tab characters in this file by sequences of white-spaces.";
+
   private Charset charset;
 
   @Override
@@ -62,7 +64,7 @@ public class TabCharacterCheck extends BaseTreeVisitor implements CharsetAwareVi
 
     for (int i = 0; i < lines.size(); i++) {
       if (lines.get(i).contains("\t")) {
-        getContext().addIssue(this, i + 1, "Replace all tab characters in this file by sequences of white-spaces.");
+        getContext().addIssue(this, i + 1, MESSAGE);
         break;
       }
     }

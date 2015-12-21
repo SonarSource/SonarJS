@@ -41,6 +41,8 @@ import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 @SqaleConstantRemediation("2min")
 public class UndefinedAssignmentCheck extends BaseTreeVisitor {
 
+  private static final String MESSAGE = "Use null instead.";
+
   @Override
   public void visitInitializedBindingElement(InitializedBindingElementTree tree) {
     if (isUndefined(tree.right())) {
@@ -64,6 +66,6 @@ public class UndefinedAssignmentCheck extends BaseTreeVisitor {
   }
 
   private void reportIssue(Tree tree) {
-    getContext().addIssue(this, tree, "Use null instead.");
+    getContext().addIssue(this, tree, MESSAGE);
   }
 }

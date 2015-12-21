@@ -41,8 +41,8 @@ import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 @SqaleConstantRemediation("20min")
 public class TodoTagPresenceCheck extends SubscriptionBaseTreeVisitor {
 
-  private static final String PATTERN = "TODO";
   private static final String MESSAGE = "Complete the task associated to this TODO comment.";
+  private static final String PATTERN = "TODO";
 
   private final CommentContainsPatternChecker checker = new CommentContainsPatternChecker(this, PATTERN, MESSAGE);
 

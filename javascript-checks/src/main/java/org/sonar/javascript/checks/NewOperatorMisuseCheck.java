@@ -50,6 +50,7 @@ import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 @SqaleConstantRemediation("10min")
 public class NewOperatorMisuseCheck extends BaseTreeVisitor {
 
+  private static final String MESSAGE = "Replace %s with a constructor function.";
   public static final boolean CONSIDER_JSDOC = false;
 
   @RuleProperty(
@@ -67,7 +68,7 @@ public class NewOperatorMisuseCheck extends BaseTreeVisitor {
       if (!CheckUtils.removeParenthesis(expression).is(Tree.Kind.FUNCTION_EXPRESSION)) {
         expressionStr = CheckUtils.asString(expression);
       }
-      getContext().addIssue(this, expression, String.format("Replace %s with a constructor function.", expressionStr));
+      getContext().addIssue(this, expression, String.format(MESSAGE, expressionStr));
     }
 
     super.visitNewExpression(tree);

@@ -54,9 +54,11 @@ import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 @SqaleConstantRemediation("1min")
 public class SemicolonCheck extends BaseTreeVisitor {
 
+  private static final String MESSAGE = "Add a semicolon at the end of this statement.";
+
   private void checkEOS(Tree tree, @Nullable SyntaxToken semicolonToken) {
     if (semicolonToken == null) {
-      getContext().addIssue(this, tree, "Add a semicolon at the end of this statement.");
+      getContext().addIssue(this, tree, MESSAGE);
     }
   }
 

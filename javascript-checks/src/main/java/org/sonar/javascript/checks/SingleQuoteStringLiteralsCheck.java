@@ -37,10 +37,12 @@ import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 @SqaleConstantRemediation("1min")
 public class SingleQuoteStringLiteralsCheck extends BaseTreeVisitor {
 
+  private static final String MESSAGE = "Replace double quotes by simple quote";
+
   @Override
   public void visitLiteral(LiteralTree tree) {
     if (tree.is(Kind.STRING_LITERAL) && tree.value().startsWith("\"")) {
-      getContext().addIssue(this, tree, "Replace double quotes by simple quote");
+      getContext().addIssue(this, tree, MESSAGE);
     }
   }
 

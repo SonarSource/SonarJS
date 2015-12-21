@@ -44,6 +44,7 @@ import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 @SqaleConstantRemediation("10min")
 public class NonCaseLabelInSwitchCheck extends SubscriptionBaseTreeVisitor {
 
+  private static final String MESSAGE = "Remove this misleading \"%s\" label.";
   private Deque<Integer> stack = new ArrayDeque<>();
 
   @Override
@@ -73,7 +74,7 @@ public class NonCaseLabelInSwitchCheck extends SubscriptionBaseTreeVisitor {
 
       if (inCase()) {
         getContext().addIssue(this, tree,
-          String.format("Remove this misleading \"%s\" label.", ((LabelledStatementTree) tree).label().name()));
+          String.format(MESSAGE, ((LabelledStatementTree) tree).label().name()));
       }
 
     } else {

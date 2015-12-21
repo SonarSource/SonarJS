@@ -43,6 +43,8 @@ import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 @SqaleConstantRemediation("5min")
 public class UnusedVariableCheck extends BaseTreeVisitor {
 
+  private static final String MESSAGE = "Remove the declaration of the unused '%s' variable.";
+
   @Override
   public void visitScript(ScriptTree tree) {
     SymbolModel symbolModel = getContext().getSymbolModel();
@@ -51,7 +53,7 @@ public class UnusedVariableCheck extends BaseTreeVisitor {
 
       Collection<Usage> usages = variable.usages();
       if (noUsages(usages) && !isGlobalOrCatchVariable(variable) && !variable.builtIn()) {
-        raiseIssuesOnDeclarations(variable, "Remove the declaration of the unused '" + variable.name() + "' variable.");
+        raiseIssuesOnDeclarations(variable, String.format(MESSAGE, variable.name()));
       }
     }
   }

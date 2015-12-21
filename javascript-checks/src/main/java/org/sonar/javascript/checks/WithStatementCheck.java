@@ -38,9 +38,11 @@ import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 @SqaleConstantRemediation("30min")
 public class WithStatementCheck extends BaseTreeVisitor {
 
+  private static final String MESSAGE = "Remove this use of \"with\".";
+
   @Override
   public void visitWithStatement(WithStatementTree tree) {
-    getContext().addIssue(this, tree, "Remove this use of \"with\".");
+    getContext().addIssue(this, tree, MESSAGE);
 
     super.visitWithStatement(tree);
   }

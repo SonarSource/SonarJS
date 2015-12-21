@@ -42,6 +42,7 @@ import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 public class WebSQLDatabaseCheck extends BaseTreeVisitor {
 
   private static final String MESSAGE = "Convert this use of a Web SQL database to another technology";
+
   private static final String OPEN_DATABASE = "openDatabase";
 
   @Override

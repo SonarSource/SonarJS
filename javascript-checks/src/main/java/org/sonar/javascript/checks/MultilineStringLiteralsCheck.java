@@ -39,10 +39,12 @@ import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 @SqaleConstantRemediation("5min")
 public class MultilineStringLiteralsCheck extends BaseTreeVisitor {
 
+  private static final String MESSAGE = "Use string concatenation rather than line continuation.";
+
   @Override
   public void visitLiteral(LiteralTree tree) {
     if (tree.is(Kind.STRING_LITERAL) && tree.value().contains("\n")) {
-      getContext().addIssue(this, tree, "Use string concatenation rather than line continuation.");
+      getContext().addIssue(this, tree, MESSAGE);
     }
   }
 

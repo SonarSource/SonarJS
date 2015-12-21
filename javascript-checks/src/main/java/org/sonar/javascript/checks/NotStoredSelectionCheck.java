@@ -58,6 +58,7 @@ import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
   effortToFixDescription = "number of times selection is re-made.")
 public class NotStoredSelectionCheck extends BaseTreeVisitor {
 
+  private static final String MESSAGE = "Selection \"$( %s )\" is made %s times. It should be stored in a variable and reused.";
   private static final int DEFAULT = 2;
 
   @RuleProperty(
@@ -107,7 +108,7 @@ public class NotStoredSelectionCheck extends BaseTreeVisitor {
     }
     for (Entry entry : duplications.values()) {
       if (entry.count > threshold) {
-        String message = String.format("Selection \"$( %s )\" is made %s times. It should be stored in a variable and reused.", entry.literalTree.value(), entry.count);
+        String message = String.format(MESSAGE, entry.literalTree.value(), entry.count);
         getContext().addIssue(this, entry.literalTree, message, (double) entry.count - threshold);
       }
     }

@@ -44,6 +44,8 @@ import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 @SqaleConstantRemediation("1min")
 public class TrailingCommentCheck extends SubscriptionBaseTreeVisitor {
 
+  private static final String MESSAGE = "Move this trailing comment on the previous empty line.";
+
   private static final String DEFAULT_LEGAL_COMMENT_PATTERN = "^//\\s*+[^\\s]++$";
 
   @RuleProperty(
@@ -73,7 +75,7 @@ public class TrailingCommentCheck extends SubscriptionBaseTreeVisitor {
       if (trivia.line() == previousTokenLine) {
         String comment = trivia.text();
         if (comment.startsWith("//") && !pattern.matcher(comment).matches()) {
-          getContext().addIssue(this, previousTokenLine, "Move this trailing comment on the previous empty line.");
+          getContext().addIssue(this, previousTokenLine, MESSAGE);
         }
       }
     }

@@ -38,10 +38,12 @@ import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 @SqaleConstantRemediation("5min")
 public class SwitchWithNotEnoughCaseCheck extends BaseTreeVisitor {
 
+  private static final String MESSAGE = "Replace this \"switch\" statement with \"if\" statements to increase readability.";
+
   @Override
   public void visitSwitchStatement(SwitchStatementTree tree) {
     if (tree.cases().size() < 3) {
-      getContext().addIssue(this, tree, "Replace this \"switch\" statement with \"if\" statements to increase readability.");
+      getContext().addIssue(this, tree, MESSAGE);
     }
 
     super.visitSwitchStatement(tree);

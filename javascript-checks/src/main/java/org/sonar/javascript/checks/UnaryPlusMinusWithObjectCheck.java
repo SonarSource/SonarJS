@@ -46,6 +46,8 @@ import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 @ActivatedByDefault
 public class UnaryPlusMinusWithObjectCheck extends SubscriptionBaseTreeVisitor {
 
+  private static final String MESSAGE = "Remove this use of unary \"%s\".";
+
   private static final Set<Type.Kind> ALLOWED_TYPES = ImmutableSet.of(
     Type.Kind.BOOLEAN,
     Type.Kind.NUMBER,
@@ -54,8 +56,6 @@ public class UnaryPlusMinusWithObjectCheck extends SubscriptionBaseTreeVisitor {
     Type.Kind.NUMBER_OBJECT,
     Type.Kind.STRING_OBJECT
   );
-
-  private static final String MESSAGE = "Remove this use of unary \"%s\".";
 
   @Override
   public List<Kind> nodesToVisit() {

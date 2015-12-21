@@ -41,6 +41,8 @@ import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 @SqaleConstantRemediation("5min")
 public class ReturnInSetterCheck extends BaseTreeVisitor {
 
+  private static final String MESSAGE = "Remove this return statement.";
+
   private final TreeVisitor forbiddenReturnVisitor = new ForbiddenReturnVisitor();
 
   @Override
@@ -57,7 +59,7 @@ public class ReturnInSetterCheck extends BaseTreeVisitor {
     public void visitReturnStatement(ReturnStatementTree tree) {
       if (tree.expression() != null) {
         ReturnInSetterCheck check = ReturnInSetterCheck.this;
-        check.getContext().addIssue(check, tree, "Remove this return statement.");
+        check.getContext().addIssue(check, tree, MESSAGE);
       }
       super.visitReturnStatement(tree);
     }

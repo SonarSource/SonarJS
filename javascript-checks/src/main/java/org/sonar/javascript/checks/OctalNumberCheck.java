@@ -39,6 +39,8 @@ import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 @SqaleConstantRemediation("5min")
 public class OctalNumberCheck extends BaseTreeVisitor {
 
+  private static final String MESSAGE = "Replace the value of the octal number (%s) by its decimal equivalent (%s).";
+
   @Override
   public void visitLiteral(LiteralTree tree) {
     if (tree.is(Tree.Kind.NUMERIC_LITERAL)) {
@@ -51,7 +53,7 @@ public class OctalNumberCheck extends BaseTreeVisitor {
           return;
         }
         if (newValue > 9) {
-          getContext().addIssue(this, tree, "Replace the value of the octal number (" + value + ") by its decimal equivalent (" + newValue + ").");
+          getContext().addIssue(this, tree, String.format(MESSAGE, value, newValue));
         }
       }
     }
