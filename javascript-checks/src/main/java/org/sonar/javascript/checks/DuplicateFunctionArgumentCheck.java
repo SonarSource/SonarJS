@@ -19,7 +19,10 @@
  */
 package org.sonar.javascript.checks;
 
+import com.google.common.base.Joiner;
 import com.google.common.collect.Sets;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
@@ -43,28 +46,43 @@ import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 @SqaleConstantRemediation("5min")
 public class DuplicateFunctionArgumentCheck extends BaseTreeVisitor {
 
-  private static final String MESSAGE = "Rename or remove duplicate function argument '%s'.";
+  private static final String MESSAGE = "Rename the duplicated function parameter%s %s.";
 
   @Override
   public void visitParameterList(ParameterListTree tree) {
     if (tree.is(Tree.Kind.FORMAL_PARAMETER_LIST)) {
+      List<String> duplicatedParameters = new ArrayList<>();
       Set<String> values = Sets.newHashSet();
 
       for (IdentifierTree identifier : ((ParameterListTreeImpl) tree).parameterIdentifiers()) {
-        checkIdentifier(identifier, identifier.name(), values);
+        String value = identifier.name();
+        String unescaped = EscapeUtils.unescape(value);
+
+        if (values.contains(unescaped)) {
+          duplicatedParameters.add(value);
+        } else {
+          values.add(unescaped);
+        }
       }
+
+      checkDuplicatedParameters(tree, duplicatedParameters);
     }
     super.visitParameterList(tree);
   }
 
-  private void checkIdentifier(IdentifierTree identifier, String value, Set<String> values) {
-    String unescaped = EscapeUtils.unescape(value);
-
-    if (values.contains(unescaped)) {
-      getContext().addIssue(this, identifier, String.format(MESSAGE, value));
-    } else {
-      values.add(unescaped);
+  private void checkDuplicatedParameters(ParameterListTree tree, List<String> duplicatedParameters) {
+    if (!duplicatedParameters.isEmpty()) {
+      String message = String.format(
+        MESSAGE,
+        duplicatedParameters.size() > 1 ? "s" : "",
+        parameterListString(duplicatedParameters)
+      );
+      getContext().addIssue(this, tree, message);
     }
+  }
+
+  private static String parameterListString(List<String> duplicatedParameters) {
+    return "\"" + Joiner.on("\", \"").join(duplicatedParameters) + "\"";
   }
 
 }
