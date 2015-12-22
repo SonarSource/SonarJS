@@ -27,6 +27,7 @@ import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.javascript.checks.utils.CheckUtils;
+import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.statement.ElseClauseTree;
@@ -48,15 +49,17 @@ import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 @SqaleConstantRemediation("5 min")
 public class UnreachableCodeCheck extends SubscriptionBaseTreeVisitor {
 
-  private static final String MESSAGE = "This statement can't be reached and so start a dead code block.";
+  private static final String MESSAGE = "Remove this code after the \"%s\" statement.";
 
   private Deque<Boolean> blockLevel = new ArrayDeque<>();
+
   private static final Kind[] JUMP_STATEMENTS = {
     Kind.BREAK_STATEMENT,
     Kind.RETURN_STATEMENT,
     Kind.CONTINUE_STATEMENT,
     Kind.THROW_STATEMENT
   };
+
   private static final Kind[] STATEMENTS = {
     Kind.EXPRESSION_STATEMENT,
     Kind.IF_STATEMENT,
@@ -70,6 +73,8 @@ public class UnreachableCodeCheck extends SubscriptionBaseTreeVisitor {
     Kind.DEBUGGER_STATEMENT,
     Kind.VARIABLE_STATEMENT
   };
+
+  private String jumpName = null;
 
 
   @Override
@@ -94,12 +99,13 @@ public class UnreachableCodeCheck extends SubscriptionBaseTreeVisitor {
       enterBlock();
 
     } else if (!isExcludedExpression(tree) && isPrecededByAJump()) {
-      getContext().addIssue(this, tree, MESSAGE);
+      getContext().addIssue(this, tree, String.format(MESSAGE, jumpName));
       updateStateTo(false);
     }
 
     if (tree.is(JUMP_STATEMENTS)) {
       updateStateTo(true);
+      jumpName = ((JavaScriptTree) tree).getFirstToken().text();
     }
   }
 

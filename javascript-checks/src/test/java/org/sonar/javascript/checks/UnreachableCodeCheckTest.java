@@ -19,24 +19,16 @@
  */
 package org.sonar.javascript.checks;
 
+import java.io.File;
 import org.junit.Test;
+import org.sonar.javascript.checks.utils.JavaScriptCheckVerifier;
 import org.sonar.plugins.javascript.api.tests.TreeCheckTest;
-import org.sonar.squidbridge.checks.CheckMessagesVerifier;
 
 public class UnreachableCodeCheckTest extends TreeCheckTest {
 
   @Test
   public void test() {
-    UnreachableCodeCheck check = new UnreachableCodeCheck();
-
-    CheckMessagesVerifier.verify(getIssues("src/test/resources/checks/unreachableCode.js", check))
-      .next().atLine(3).withMessage("This statement can't be reached and so start a dead code block.")
-      .next().atLine(7)
-      .next().atLine(14)
-      .next().atLine(17)
-      .next().atLine(38)
-      .next().atLine(51)
-      .noMore();
+    JavaScriptCheckVerifier.verify(new UnreachableCodeCheck(), new File("src/test/resources/checks/unreachableCode.js"));
   }
 
 }

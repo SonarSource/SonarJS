@@ -1,20 +1,20 @@
 function sayHello() {
   return;
-  var a; // NOK
+  var a; // Noncompliant {{Remove this code after the "return" statement.}}
 
   if (true) {
     return;
-    var b; // NOK
+    var b; // Noncompliant {{Remove this code after the "return" statement.}}
   } else {
     var c;
   }
 
   while (true) {
     break;
-    var d; // NOK
+    var d; // Noncompliant {{Remove this code after the "break" statement.}}
 
     continue;
-    var e; // NOK
+    var e; // Noncompliant {{Remove this code after the "continue" statement.}}
 
     if (true) {
       break;
@@ -35,7 +35,7 @@ function sayHello() {
   switch (a) {
   case 1: {
     break;
-    var e; // NOK
+    var e; // Noncompliant {{Remove this code after the "break" statement.}}
   }
   case 2:
     break; // OK
@@ -48,7 +48,7 @@ function sayHello() {
   try {
     var h;
     throw ("MyException");
-    var i; // NOK
+    var i; // Noncompliant {{Remove this code after the "throw" statement.}}
   } catch (e) {
     var j;
     throw ("MyException");
