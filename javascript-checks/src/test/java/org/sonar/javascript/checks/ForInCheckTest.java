@@ -19,21 +19,16 @@
  */
 package org.sonar.javascript.checks;
 
+import java.io.File;
 import org.junit.Test;
+import org.sonar.javascript.checks.utils.JavaScriptCheckVerifier;
 import org.sonar.plugins.javascript.api.tests.TreeCheckTest;
-import org.sonar.squidbridge.checks.CheckMessagesVerifier;
 
 public class ForInCheckTest extends TreeCheckTest {
 
   @Test
   public void test() {
-
-    CheckMessagesVerifier.verify(getIssues("src/test/resources/checks/forIn.js", new ForInCheck()))
-      .next().atLine(1).withMessage("Insert an if statement at the beginning of this loop to filter items.")
-      .next().atLine(21)
-      .next().atLine(33)
-      .next().atLine(37)
-      .noMore();
+    JavaScriptCheckVerifier.verify(new ForInCheck(), new File("src/test/resources/checks/forIn.js"));
   }
 
 }

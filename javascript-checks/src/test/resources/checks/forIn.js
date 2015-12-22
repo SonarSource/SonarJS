@@ -1,4 +1,4 @@
-for (key in arr) { // NOK
+for (key in arr) { // Noncompliant {{Restrict what this loop acts on by testing each property.}}
   print(arr[key]);
   print(arr[key]);
 }
@@ -18,7 +18,7 @@ for (name in object) { // OK
   print(object[name]);
 }
 
-for (key in arr) { // NOK
+for (key in arr) { // Noncompliant
   function f() {}
   print(arr[key]);
 }
@@ -30,12 +30,12 @@ for (key in obj) {   // OK
     a[key] = b[key];
 }
 
-for (key in obj) {   // NOK
+for (key in obj) {   // Noncompliant
     val = b[key];
 }
 
-for (key in obj) {
-  a.b = key;      // NOK
+for (key in obj) {      // Noncompliant
+  a.b = key;
 }
 
 
