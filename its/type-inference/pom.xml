@@ -25,4 +25,13 @@
     <module>tests</module>
   </modules>
 
+  <profiles>
+    <profile>
+      <id>it-type-inference</id>
+      <properties>
+        <skipTests>false</skipTests>
+      </properties>
+    </profile>
+  </profiles>
+
 </project>
