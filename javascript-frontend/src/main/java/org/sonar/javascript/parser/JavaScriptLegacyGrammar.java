@@ -359,6 +359,8 @@ public enum JavaScriptLegacyGrammar implements GrammarRuleKey {
     b.rule(TEMPLATE_CHARACTER).is(b.firstOf(
       b.sequence(DOLLAR_SIGN, b.nextNot(LCURLYBRACE)),
       b.sequence(BACKSLASH, JavaScriptLexer.WHITESPACE),
+      b.sequence(BACKSLASH, BACKTICK),
+      b.sequence(BACKSLASH, DOLLAR_SIGN),
       LINE_CONTINUATION,
       b.regexp(JavaScriptLexer.LINE_TERMINATOR_SEQUENCE),
       b.regexp("[^`\\$" + JavaScriptLexer.LINE_TERMINATOR + "]")));

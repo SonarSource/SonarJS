@@ -35,6 +35,10 @@ public class TemplateLiteralTest {
 
       .matches("` line1 \n line2`")
 
+      .matches("`escaped\\`backtick`")
+      .matches("`escaped\\${dollar-curlybrace`")
+      .matches("`not escaped $ dollar`")
+
       // With substitution
       .matches("` ${ expression } `")
       .matches("` characters ${ expression } `")
