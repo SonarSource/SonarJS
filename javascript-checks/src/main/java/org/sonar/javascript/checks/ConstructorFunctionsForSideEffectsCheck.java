@@ -22,7 +22,10 @@ package org.sonar.javascript.checks;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
+import org.sonar.javascript.checks.utils.CheckUtils;
+import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
+import org.sonar.plugins.javascript.api.tree.expression.NewExpressionTree;
 import org.sonar.plugins.javascript.api.tree.statement.ExpressionStatementTree;
 import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
 import org.sonar.squidbridge.annotations.ActivatedByDefault;
@@ -39,12 +42,14 @@ import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 @SqaleConstantRemediation("5min")
 public class ConstructorFunctionsForSideEffectsCheck extends BaseTreeVisitor {
 
-  private static final String MESSAGE = "Replace by a standard call to the function.";
+  private static final String MESSAGE = "Either remove this useless object instantiation of \"%s\" or use it";
 
   @Override
   public void visitExpressionStatement(ExpressionStatementTree tree) {
-    if (tree.expression().is(Kind.NEW_EXPRESSION)) {
-      getContext().addIssue(this, tree, MESSAGE);
+    Tree expression = tree.expression();
+    if (expression.is(Kind.NEW_EXPRESSION)) {
+      String message = String.format(MESSAGE, CheckUtils.asString(((NewExpressionTree) expression).expression()));
+      getContext().addIssue(this, expression, message);
     }
 
     super.visitExpressionStatement(tree);

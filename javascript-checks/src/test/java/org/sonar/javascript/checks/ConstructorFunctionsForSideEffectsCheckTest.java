@@ -19,16 +19,15 @@
  */
 package org.sonar.javascript.checks;
 
+import java.io.File;
 import org.junit.Test;
+import org.sonar.javascript.checks.utils.JavaScriptCheckVerifier;
 import org.sonar.plugins.javascript.api.tests.TreeCheckTest;
-import org.sonar.squidbridge.checks.CheckMessagesVerifier;
 
 public class ConstructorFunctionsForSideEffectsCheckTest extends TreeCheckTest {
 
   @Test
   public void test() {
-    CheckMessagesVerifier.verify(getIssues("src/test/resources/checks/constructorFunctionsForSideEffects.js", new ConstructorFunctionsForSideEffectsCheck()))
-      .next().atLine(4).withMessage("Replace by a standard call to the function.")
-      .noMore();
+    JavaScriptCheckVerifier.verify(new ConstructorFunctionsForSideEffectsCheck(), new File("src/test/resources/checks/constructorFunctionsForSideEffects.js"));
   }
 }
