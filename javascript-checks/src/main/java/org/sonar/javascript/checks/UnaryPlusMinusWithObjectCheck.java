@@ -51,10 +51,7 @@ public class UnaryPlusMinusWithObjectCheck extends SubscriptionBaseTreeVisitor {
   private static final Set<Type.Kind> ALLOWED_TYPES = ImmutableSet.of(
     Type.Kind.BOOLEAN,
     Type.Kind.NUMBER,
-    Type.Kind.STRING,
-    Type.Kind.BOOLEAN_OBJECT,
-    Type.Kind.NUMBER_OBJECT,
-    Type.Kind.STRING_OBJECT
+    Type.Kind.STRING
   );
 
   @Override

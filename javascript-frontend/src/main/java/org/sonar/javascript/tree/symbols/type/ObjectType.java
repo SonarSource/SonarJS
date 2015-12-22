@@ -100,39 +100,6 @@ public class ObjectType implements Type {
   }
 
   public enum BuiltInObjectType implements Type {
-    NUMBER {
-      @Override
-      public Kind kind() {
-        return Kind.NUMBER_OBJECT;
-      }
-
-      @Override
-      public Callability callability() {
-        return Callability.NON_CALLABLE;
-      }
-    },
-    STRING {
-      @Override
-      public Kind kind() {
-        return Kind.STRING_OBJECT;
-      }
-
-      @Override
-      public Callability callability() {
-        return Callability.NON_CALLABLE;
-      }
-    },
-    BOOLEAN {
-      @Override
-      public Kind kind() {
-        return Kind.BOOLEAN_OBJECT;
-      }
-
-      @Override
-      public Callability callability() {
-        return Callability.NON_CALLABLE;
-      }
-    },
     DATE {
       @Override
       public Kind kind() {

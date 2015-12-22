@@ -73,6 +73,6 @@ public class StringsComparisonCheck extends BaseTreeVisitor {
 
   private static boolean isString(ExpressionTree expression) {
     Type type = expression.types().getUniqueKnownType();
-    return type != null && (type.kind() == Type.Kind.STRING || type.kind() == Type.Kind.STRING_OBJECT);
+    return type != null && type.kind() == Type.Kind.STRING;
   }
 }

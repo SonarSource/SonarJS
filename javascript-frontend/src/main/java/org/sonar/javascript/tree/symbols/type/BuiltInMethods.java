@@ -24,7 +24,6 @@ import java.util.Map;
 import javax.annotation.Nullable;
 import org.sonar.plugins.javascript.api.symbols.Type;
 import org.sonar.plugins.javascript.api.symbols.Type.Kind;
-import org.sonar.plugins.javascript.api.symbols.TypeSet;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.expression.CallExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
@@ -76,8 +75,7 @@ public class BuiltInMethods {
 
   @Nullable
   private static Type inferStringMethodReturnType(ExpressionTree object, String methodName) {
-    TypeSet types = object.types();
-    if (types.contains(Kind.STRING) || types.contains(Kind.STRING_OBJECT)) {
+    if (object.types().contains(Kind.STRING)) {
       return STRING_METHOD_RETURN_TYPES.get(methodName);
     }
 

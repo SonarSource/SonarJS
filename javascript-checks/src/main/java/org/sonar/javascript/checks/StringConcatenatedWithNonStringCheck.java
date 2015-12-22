@@ -90,6 +90,6 @@ public class StringConcatenatedWithNonStringCheck extends BaseTreeVisitor {
   }
 
   private static boolean isString(Type type) {
-    return type.kind() == Type.Kind.STRING || type.kind() == Type.Kind.STRING_OBJECT;
+    return type.kind() == Type.Kind.STRING;
   }
 }

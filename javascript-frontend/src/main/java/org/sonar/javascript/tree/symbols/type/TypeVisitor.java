@@ -181,13 +181,13 @@ public class TypeVisitor extends BaseTreeVisitor {
       ((NewExpressionTreeImpl) tree).addType(ObjectType.FrameworkType.BACKBONE_MODEL_OBJECT);
 
     } else if (Utils.identifierWithName(tree.expression(), "String")) {
-      ((NewExpressionTreeImpl) tree).addType(BuiltInObjectType.STRING);
+      ((NewExpressionTreeImpl) tree).addType(PrimitiveType.STRING);
 
     } else if (Utils.identifierWithName(tree.expression(), "Number")) {
-      ((NewExpressionTreeImpl) tree).addType(BuiltInObjectType.NUMBER);
+      ((NewExpressionTreeImpl) tree).addType(PrimitiveType.NUMBER);
 
     } else if (Utils.identifierWithName(tree.expression(), "Boolean")) {
-      ((NewExpressionTreeImpl) tree).addType(BuiltInObjectType.BOOLEAN);
+      ((NewExpressionTreeImpl) tree).addType(PrimitiveType.BOOLEAN);
 
     } else if (Utils.identifierWithName(tree.expression(), "Date")) {
       ((NewExpressionTreeImpl) tree).addType(BuiltInObjectType.DATE);

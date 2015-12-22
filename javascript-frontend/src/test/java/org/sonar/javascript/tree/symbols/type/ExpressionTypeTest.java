@@ -47,13 +47,13 @@ public class ExpressionTypeTest extends TypeTest {
   @Test
   public void new_expression() {
     Symbol par = getSymbol("o1");
-    assertThat(par.types().containsOnlyAndUnique(Kind.STRING_OBJECT)).isTrue();
+    assertThat(par.types().containsOnlyAndUnique(Kind.STRING)).isTrue();
 
     par = getSymbol("o2");
-    assertThat(par.types()).containsOnly(BuiltInObjectType.BOOLEAN);
+    assertThat(par.types()).containsOnly(PrimitiveType.BOOLEAN);
 
     par = getSymbol("o3");
-    assertThat(par.types()).containsOnly(BuiltInObjectType.NUMBER);
+    assertThat(par.types()).containsOnly(PrimitiveType.NUMBER);
 
     par = getSymbol("o4");
     assertThat(par.types().containsOnlyAndUnique(Kind.OBJECT)).isTrue();

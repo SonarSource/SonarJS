@@ -51,11 +51,6 @@ public interface Type {
     ARRAY,
     DATE,
 
-    // OBJECT FOR PRIMITIVE
-    STRING_OBJECT,
-    NUMBER_OBJECT,
-    BOOLEAN_OBJECT,
-
     // JQUERY
     JQUERY_OBJECT,
     JQUERY_SELECTOR_OBJECT,
