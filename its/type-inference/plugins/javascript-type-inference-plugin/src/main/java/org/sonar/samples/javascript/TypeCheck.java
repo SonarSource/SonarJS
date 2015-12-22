@@ -30,9 +30,9 @@ import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
 
 @Rule(
   key = "type",
-  priority = Priority.MAJOR,
   name = "Potential type for symbol",
-  description = "This rule triggers an issue for every possible type found on a symbol")
+  description = "This rule triggers an issue for every possible type found on a symbol",
+  priority = Priority.MAJOR)
 public class TypeCheck extends BaseTreeVisitor {
 
   @Override

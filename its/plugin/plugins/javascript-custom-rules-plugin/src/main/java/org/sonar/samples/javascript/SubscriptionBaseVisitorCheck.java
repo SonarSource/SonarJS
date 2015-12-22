@@ -31,9 +31,9 @@ import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 
 @Rule(
   key = "subscription",
-  priority = Priority.MINOR,
   name = "Subscription base visitor check",
-  description = "desc")
+  description = "desc",
+  priority = Priority.MINOR)
 @SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.SECURITY_FEATURES)
 @SqaleConstantRemediation("10min")
 public class SubscriptionBaseVisitorCheck extends SubscriptionBaseTreeVisitor {

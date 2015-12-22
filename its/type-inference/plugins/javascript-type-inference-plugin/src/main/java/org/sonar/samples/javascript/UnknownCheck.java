@@ -30,9 +30,9 @@ import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
 
 @Rule(
   key = "unknown",
-  priority = Priority.MAJOR,
   name = "Unknown type for symbol",
-  description = "This rule triggers an issue when a symbol has the \"UNKNOWN\" tag type.")
+  description = "This rule triggers an issue when a symbol has the \"UNKNOWN\" tag type.",
+  priority = Priority.MAJOR)
 public class UnknownCheck extends BaseTreeVisitor {
 
   @Override

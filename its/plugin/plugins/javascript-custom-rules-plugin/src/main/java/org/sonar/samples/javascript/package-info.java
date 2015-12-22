@@ -17,29 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+/**
+ * Provides helper classes for coding rules implementation
+ */
+@javax.annotation.ParametersAreNonnullByDefault
 package org.sonar.samples.javascript;
-
-import org.sonar.api.server.rule.RulesDefinition;
-import org.sonar.check.Priority;
-import org.sonar.check.Rule;
-import org.sonar.plugins.javascript.api.tree.expression.FunctionExpressionTree;
-import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
-import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
-import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
-
-@Rule(
-  key = "base",
-  name = "Base tree visitor check",
-  description = "desc",
-  priority = Priority.MINOR)
-@SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.SECURITY_FEATURES)
-@SqaleConstantRemediation("5min")
-public class BaseTreeVisitorCheck extends BaseTreeVisitor {
-
-  @Override
-  public void visitFunctionExpression(FunctionExpressionTree tree) {
-    getContext().addIssue(this, tree, "Function expression.");
-    super.visitFunctionExpression(tree);
-  }
-
-}
