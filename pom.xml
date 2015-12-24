@@ -69,6 +69,7 @@
 
     <sonar.version>4.5.2</sonar.version>
     <sslr.version>1.21</sslr.version>
+    <orchestrator.version>3.8</orchestrator.version>
   </properties>
 
   <dependencyManagement>
