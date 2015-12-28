@@ -20,23 +20,15 @@
 package org.sonar.javascript.tree.symbols.type;
 
 import com.google.common.base.Preconditions;
-import java.util.Set;
 import javax.annotation.Nullable;
 import org.sonar.api.config.Settings;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.javascript.tree.impl.SeparatedList;
-import org.sonar.javascript.tree.impl.expression.ArrayLiteralTreeImpl;
-import org.sonar.javascript.tree.impl.expression.BinaryExpressionTreeImpl;
-import org.sonar.javascript.tree.impl.expression.CallExpressionTreeImpl;
-import org.sonar.javascript.tree.impl.expression.IdentifierTreeImpl;
-import org.sonar.javascript.tree.impl.expression.LiteralTreeImpl;
-import org.sonar.javascript.tree.impl.expression.NewExpressionTreeImpl;
-import org.sonar.javascript.tree.impl.expression.ObjectLiteralTreeImpl;
-import org.sonar.javascript.tree.impl.expression.ParenthesisedExpressionTreeImpl;
 import org.sonar.javascript.tree.symbols.type.ObjectType.BuiltInObjectType;
 import org.sonar.plugins.javascript.api.symbols.Symbol;
 import org.sonar.plugins.javascript.api.symbols.Type;
 import org.sonar.plugins.javascript.api.symbols.Type.Callability;
+import org.sonar.plugins.javascript.api.symbols.TypeSet;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.declaration.FunctionDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.declaration.InitializedBindingElementTree;
@@ -83,26 +75,26 @@ public class TypeVisitor extends BaseTreeVisitor {
   @Override
   public void visitLiteral(LiteralTree tree) {
     if (tree.is(Tree.Kind.NUMERIC_LITERAL)) {
-      ((LiteralTreeImpl) tree).addType(PrimitiveType.NUMBER);
+      addType(tree, PrimitiveType.NUMBER);
 
     } else if (tree.is(Tree.Kind.STRING_LITERAL)) {
-      ((LiteralTreeImpl) tree).addType(PrimitiveType.STRING);
+      addType(tree, PrimitiveType.STRING);
 
     } else if (tree.is(Tree.Kind.BOOLEAN_LITERAL)) {
-      ((LiteralTreeImpl) tree).addType(PrimitiveType.BOOLEAN);
+      addType(tree, PrimitiveType.BOOLEAN);
     }
   }
 
   @Override
   public void visitArrayLiteral(ArrayLiteralTree tree) {
     super.visitArrayLiteral(tree);
-    ((ArrayLiteralTreeImpl) tree).addType(ArrayType.create());
+    addType(tree, ArrayType.create());
   }
 
   @Override
   public void visitObjectLiteral(ObjectLiteralTree tree) {
     super.visitObjectLiteral(tree);
-    ((ObjectLiteralTreeImpl) tree).addType(ObjectType.create(Callability.NON_CALLABLE));
+    addType(tree, ObjectType.create(Callability.NON_CALLABLE));
   }
 
   @Override
@@ -142,8 +134,8 @@ public class TypeVisitor extends BaseTreeVisitor {
     inferParameterType(tree);
   }
 
-  private static void addType(CallExpressionTree tree, Type type) {
-    ((CallExpressionTreeImpl) tree).addType(type);
+  private static void addType(ExpressionTree tree, Type type) {
+    ((TypableTree) tree).add(type);
   }
 
   private static void inferParameterType(CallExpressionTree tree) {
@@ -178,22 +170,22 @@ public class TypeVisitor extends BaseTreeVisitor {
     super.visitNewExpression(tree);
 
     if (tree.expression().types().contains(Type.Kind.BACKBONE_MODEL)) {
-      ((NewExpressionTreeImpl) tree).addType(ObjectType.FrameworkType.BACKBONE_MODEL_OBJECT);
+      addType(tree, ObjectType.FrameworkType.BACKBONE_MODEL_OBJECT);
 
     } else if (Utils.identifierWithName(tree.expression(), "String")) {
-      ((NewExpressionTreeImpl) tree).addType(PrimitiveType.STRING);
+      addType(tree, PrimitiveType.STRING);
 
     } else if (Utils.identifierWithName(tree.expression(), "Number")) {
-      ((NewExpressionTreeImpl) tree).addType(PrimitiveType.NUMBER);
+      addType(tree, PrimitiveType.NUMBER);
 
     } else if (Utils.identifierWithName(tree.expression(), "Boolean")) {
-      ((NewExpressionTreeImpl) tree).addType(PrimitiveType.BOOLEAN);
+      addType(tree, PrimitiveType.BOOLEAN);
 
     } else if (Utils.identifierWithName(tree.expression(), "Date")) {
-      ((NewExpressionTreeImpl) tree).addType(BuiltInObjectType.DATE);
+      addType(tree, BuiltInObjectType.DATE);
 
     } else {
-      ((NewExpressionTreeImpl) tree).addType(ObjectType.create());
+      addType(tree, ObjectType.create());
     }
 
   }
@@ -201,22 +193,22 @@ public class TypeVisitor extends BaseTreeVisitor {
   @Override
   public void visitIdentifier(IdentifierTree tree) {
     if (jQueryHelper.isJQueryObject(tree)) {
-      ((IdentifierTreeImpl) tree).addType(ObjectType.FrameworkType.JQUERY_OBJECT);
+      addType(tree, ObjectType.FrameworkType.JQUERY_OBJECT);
     }
 
     if (WebAPI.isDocument(tree)) {
-      ((IdentifierTreeImpl) tree).addType(ObjectType.WebApiType.DOCUMENT);
+      addType(tree, ObjectType.WebApiType.DOCUMENT);
     }
 
     if (forLoopVariable) {
-      ((IdentifierTreeImpl) tree).addType(PrimitiveType.UNKNOWN);
+      addType(tree, PrimitiveType.UNKNOWN);
     }
   }
 
   @Override
   public void visitParenthesisedExpression(ParenthesisedExpressionTree tree) {
     super.visitParenthesisedExpression(tree);
-    ((ParenthesisedExpressionTreeImpl) tree).addTypes(tree.expression().types());
+    addTypes(tree, tree.expression().types());
   }
 
   @Override
@@ -224,17 +216,17 @@ public class TypeVisitor extends BaseTreeVisitor {
     super.visitMemberExpression(tree);
 
     if (WebAPI.isWindow(tree)) {
-      tree.addType(ObjectType.WebApiType.WINDOW);
+      addType(tree, ObjectType.WebApiType.WINDOW);
     }
 
     if (WebAPI.isElement(tree)) {
-      tree.addType(ObjectType.WebApiType.DOM_ELEMENT);
+      addType(tree, ObjectType.WebApiType.DOM_ELEMENT);
     }
 
     if (tree.is(Tree.Kind.BRACKET_MEMBER_EXPRESSION)) {
       Type arrayType = tree.object().types().getUniqueType(Type.Kind.ARRAY);
       if (arrayType != null && ((ArrayType) arrayType).elementType() != null) {
-        tree.addType(((ArrayType) arrayType).elementType());
+        addType(tree, ((ArrayType) arrayType).elementType());
       }
     }
   }
@@ -250,7 +242,7 @@ public class TypeVisitor extends BaseTreeVisitor {
     );
 
     if (resultType != null) {
-      ((BinaryExpressionTreeImpl) tree).addType(resultType);
+      addType(tree, resultType);
     }
   }
 
@@ -288,11 +280,17 @@ public class TypeVisitor extends BaseTreeVisitor {
     }
   }
 
-  private static void addTypes(Symbol symbol, Set<Type> types) {
+  private static void addTypes(Symbol symbol, TypeSet types) {
     if (types.isEmpty()) {
       symbol.addType(PrimitiveType.UNKNOWN);
     } else {
       symbol.addTypes(types);
+    }
+  }
+
+  private static void addTypes(ExpressionTree tree, TypeSet types) {
+    for (Type type : types) {
+      addType(tree, type);
     }
   }
 

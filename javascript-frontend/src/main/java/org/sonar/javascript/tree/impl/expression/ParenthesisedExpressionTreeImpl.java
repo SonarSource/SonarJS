@@ -23,6 +23,8 @@ import com.google.common.collect.Iterators;
 import java.util.Iterator;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.javascript.tree.impl.lexical.InternalSyntaxToken;
+import org.sonar.javascript.tree.symbols.type.TypableTree;
+import org.sonar.plugins.javascript.api.symbols.Type;
 import org.sonar.plugins.javascript.api.symbols.TypeSet;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
@@ -30,7 +32,7 @@ import org.sonar.plugins.javascript.api.tree.expression.ParenthesisedExpressionT
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.javascript.api.visitors.TreeVisitor;
 
-public class ParenthesisedExpressionTreeImpl extends JavaScriptTree implements ParenthesisedExpressionTree {
+public class ParenthesisedExpressionTreeImpl extends JavaScriptTree implements ParenthesisedExpressionTree, TypableTree {
 
   private final InternalSyntaxToken openParenthesis;
   private final ExpressionTree expression;
@@ -83,7 +85,8 @@ public class ParenthesisedExpressionTreeImpl extends JavaScriptTree implements P
     return types.immutableCopy();
   }
 
-  public void addTypes(TypeSet types) {
-    this.types.addAll(types);
+  @Override
+  public void add(Type type) {
+    this.types.add(type);
   }
 }

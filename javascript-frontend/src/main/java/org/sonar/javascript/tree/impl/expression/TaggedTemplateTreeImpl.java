@@ -22,6 +22,8 @@ package org.sonar.javascript.tree.impl.expression;
 import com.google.common.collect.Iterators;
 import java.util.Iterator;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
+import org.sonar.javascript.tree.symbols.type.TypableTree;
+import org.sonar.plugins.javascript.api.symbols.Type;
 import org.sonar.plugins.javascript.api.symbols.TypeSet;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
@@ -29,7 +31,7 @@ import org.sonar.plugins.javascript.api.tree.expression.TaggedTemplateTree;
 import org.sonar.plugins.javascript.api.tree.expression.TemplateLiteralTree;
 import org.sonar.plugins.javascript.api.visitors.TreeVisitor;
 
-public class TaggedTemplateTreeImpl extends JavaScriptTree implements TaggedTemplateTree {
+public class TaggedTemplateTreeImpl extends JavaScriptTree implements TaggedTemplateTree, TypableTree {
 
   private ExpressionTree callee;
   private final TemplateLiteralTree template;
@@ -74,5 +76,10 @@ public class TaggedTemplateTreeImpl extends JavaScriptTree implements TaggedTemp
   @Override
   public TypeSet types() {
     return TypeSet.emptyTypeSet();
+  }
+
+  @Override
+  public void add(Type type) {
+    throw new UnsupportedOperationException();
   }
 }

@@ -23,12 +23,14 @@ import com.google.common.collect.Iterators;
 import java.util.Iterator;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.javascript.tree.impl.lexical.InternalSyntaxToken;
+import org.sonar.javascript.tree.symbols.type.TypableTree;
+import org.sonar.plugins.javascript.api.symbols.Type;
 import org.sonar.plugins.javascript.api.symbols.TypeSet;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.expression.LiteralTree;
 import org.sonar.plugins.javascript.api.visitors.TreeVisitor;
 
-public class SuperTreeImpl extends JavaScriptTree implements LiteralTree {
+public class SuperTreeImpl extends JavaScriptTree implements LiteralTree, TypableTree {
 
   private final InternalSyntaxToken token;
 
@@ -60,5 +62,10 @@ public class SuperTreeImpl extends JavaScriptTree implements LiteralTree {
   @Override
   public TypeSet types() {
     return TypeSet.emptyTypeSet();
+  }
+
+  @Override
+  public void add(Type type) {
+    throw new UnsupportedOperationException();
   }
 }

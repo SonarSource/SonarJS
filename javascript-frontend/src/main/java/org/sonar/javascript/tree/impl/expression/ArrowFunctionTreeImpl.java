@@ -26,6 +26,8 @@ import java.util.List;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.javascript.tree.impl.declaration.ParameterListTreeImpl;
 import org.sonar.javascript.tree.impl.lexical.InternalSyntaxToken;
+import org.sonar.javascript.tree.symbols.type.TypableTree;
+import org.sonar.plugins.javascript.api.symbols.Type;
 import org.sonar.plugins.javascript.api.symbols.TypeSet;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.expression.ArrowFunctionTree;
@@ -33,7 +35,7 @@ import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.javascript.api.visitors.TreeVisitor;
 
-public class ArrowFunctionTreeImpl extends JavaScriptTree implements ArrowFunctionTree {
+public class ArrowFunctionTreeImpl extends JavaScriptTree implements ArrowFunctionTree, TypableTree {
 
   private final Tree parameters;
   private final SyntaxToken doubleArrow;
@@ -86,5 +88,10 @@ public class ArrowFunctionTreeImpl extends JavaScriptTree implements ArrowFuncti
   @Override
   public TypeSet types() {
     return TypeSet.emptyTypeSet();
+  }
+
+  @Override
+  public void add(Type type) {
+    throw new UnsupportedOperationException();
   }
 }

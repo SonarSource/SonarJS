@@ -17,22 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.javascript.api.tree.expression;
+package org.sonar.javascript.tree.symbols.type;
 
-import com.google.common.annotations.Beta;
+import org.sonar.plugins.javascript.api.symbols.Type;
 
-/**
- * <a href="http://www.ecma-international.org/ecma-262/5.1/#sec-11.2.1">Property Accessors</a>.
- * <pre>
- *   {@link #object()} . {@link #property()}
- *   {@link #object()} [ {@link #property()} ]
- * </pre>
- */
-@Beta
-public interface MemberExpressionTree extends ExpressionTree {
-
-  ExpressionTree object();
-
-  ExpressionTree property();
-
+public interface TypableTree {
+  void add(Type type);
 }

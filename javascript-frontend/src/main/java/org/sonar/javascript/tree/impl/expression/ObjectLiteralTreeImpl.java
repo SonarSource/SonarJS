@@ -26,6 +26,7 @@ import org.apache.commons.collections.ListUtils;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.javascript.tree.impl.SeparatedList;
 import org.sonar.javascript.tree.impl.lexical.InternalSyntaxToken;
+import org.sonar.javascript.tree.symbols.type.TypableTree;
 import org.sonar.plugins.javascript.api.symbols.Type;
 import org.sonar.plugins.javascript.api.symbols.TypeSet;
 import org.sonar.plugins.javascript.api.tree.Tree;
@@ -33,7 +34,7 @@ import org.sonar.plugins.javascript.api.tree.expression.ObjectLiteralTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.javascript.api.visitors.TreeVisitor;
 
-public class ObjectLiteralTreeImpl extends JavaScriptTree implements ObjectLiteralTree {
+public class ObjectLiteralTreeImpl extends JavaScriptTree implements ObjectLiteralTree, TypableTree {
 
   private SyntaxToken openCurlyBrace;
   private final SeparatedList<Tree> properties;
@@ -83,7 +84,8 @@ public class ObjectLiteralTreeImpl extends JavaScriptTree implements ObjectLiter
     return types.immutableCopy();
   }
 
-  public void addType(Type type) {
+  @Override
+  public void add(Type type) {
     this.types.add(type);
   }
 

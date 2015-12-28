@@ -23,6 +23,8 @@ import com.google.common.collect.Iterators;
 import java.util.Iterator;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.javascript.tree.impl.lexical.InternalSyntaxToken;
+import org.sonar.javascript.tree.symbols.type.TypableTree;
+import org.sonar.plugins.javascript.api.symbols.Type;
 import org.sonar.plugins.javascript.api.symbols.TypeSet;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.declaration.BindingElementTree;
@@ -31,7 +33,7 @@ import org.sonar.plugins.javascript.api.tree.expression.RestElementTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.javascript.api.visitors.TreeVisitor;
 
-public class RestElementTreeImpl extends JavaScriptTree implements RestElementTree, BindingElementTree {
+public class RestElementTreeImpl extends JavaScriptTree implements RestElementTree, BindingElementTree, TypableTree {
 
   private final SyntaxToken ellispis;
   private final ExpressionTree element;
@@ -70,5 +72,10 @@ public class RestElementTreeImpl extends JavaScriptTree implements RestElementTr
   @Override
   public TypeSet types() {
     return TypeSet.emptyTypeSet();
+  }
+
+  @Override
+  public void add(Type type) {
+    throw new UnsupportedOperationException();
   }
 }

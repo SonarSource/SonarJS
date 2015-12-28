@@ -23,6 +23,7 @@ import com.google.common.collect.Iterators;
 import java.util.Iterator;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.javascript.tree.impl.lexical.InternalSyntaxToken;
+import org.sonar.javascript.tree.symbols.type.TypableTree;
 import org.sonar.plugins.javascript.api.symbols.Type;
 import org.sonar.plugins.javascript.api.symbols.TypeSet;
 import org.sonar.plugins.javascript.api.tree.Tree;
@@ -31,7 +32,7 @@ import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.javascript.api.visitors.TreeVisitor;
 
-public class BracketMemberExpressionTreeImpl extends JavaScriptTree implements BracketMemberExpressionTree {
+public class BracketMemberExpressionTreeImpl extends JavaScriptTree implements BracketMemberExpressionTree, TypableTree {
 
   private ExpressionTree object;
   private final SyntaxToken openBracket;
@@ -67,7 +68,7 @@ public class BracketMemberExpressionTreeImpl extends JavaScriptTree implements B
   }
 
   @Override
-  public void addType(Type type) {
+  public void add(Type type) {
     types.add(type);
   }
 

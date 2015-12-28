@@ -23,6 +23,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.Iterators;
 import java.util.Iterator;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
+import org.sonar.javascript.tree.symbols.type.TypableTree;
 import org.sonar.plugins.javascript.api.symbols.Type;
 import org.sonar.plugins.javascript.api.symbols.TypeSet;
 import org.sonar.plugins.javascript.api.tree.Tree;
@@ -30,7 +31,7 @@ import org.sonar.plugins.javascript.api.tree.expression.LiteralTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.javascript.api.visitors.TreeVisitor;
 
-public class LiteralTreeImpl extends JavaScriptTree implements LiteralTree {
+public class LiteralTreeImpl extends JavaScriptTree implements LiteralTree, TypableTree {
 
   private final Kind kind;
   private final SyntaxToken token;
@@ -57,7 +58,8 @@ public class LiteralTreeImpl extends JavaScriptTree implements LiteralTree {
     return types.immutableCopy();
   }
 
-  public void addType(Type type) {
+  @Override
+  public void add(Type type) {
     this.types.add(type);
   }
 

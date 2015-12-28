@@ -26,6 +26,8 @@ import java.util.List;
 import javax.annotation.Nullable;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.javascript.tree.impl.lexical.InternalSyntaxToken;
+import org.sonar.javascript.tree.symbols.type.TypableTree;
+import org.sonar.plugins.javascript.api.symbols.Type;
 import org.sonar.plugins.javascript.api.symbols.TypeSet;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.declaration.MethodDeclarationTree;
@@ -35,7 +37,7 @@ import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.javascript.api.visitors.TreeVisitor;
 
-public class ClassTreeImpl extends JavaScriptTree implements ClassTree {
+public class ClassTreeImpl extends JavaScriptTree implements ClassTree, TypableTree {
 
   private InternalSyntaxToken classToken;
   @Nullable
@@ -152,5 +154,10 @@ public class ClassTreeImpl extends JavaScriptTree implements ClassTree {
   @Override
   public TypeSet types() {
     return TypeSet.emptyTypeSet();
+  }
+
+  @Override
+  public void add(Type type) {
+    throw new UnsupportedOperationException();
   }
 }

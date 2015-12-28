@@ -23,6 +23,7 @@ import com.google.common.collect.Iterators;
 import java.util.Iterator;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.javascript.tree.impl.lexical.InternalSyntaxToken;
+import org.sonar.javascript.tree.symbols.type.TypableTree;
 import org.sonar.plugins.javascript.api.symbols.Type;
 import org.sonar.plugins.javascript.api.symbols.TypeSet;
 import org.sonar.plugins.javascript.api.tree.Tree;
@@ -32,7 +33,7 @@ import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.javascript.api.visitors.TreeVisitor;
 
-public class DotMemberExpressionTreeImpl extends JavaScriptTree implements DotMemberExpressionTree {
+public class DotMemberExpressionTreeImpl extends JavaScriptTree implements DotMemberExpressionTree, TypableTree {
 
   private ExpressionTree object;
   private final SyntaxToken dot;
@@ -67,7 +68,7 @@ public class DotMemberExpressionTreeImpl extends JavaScriptTree implements DotMe
   }
 
   @Override
-  public void addType(Type type) {
+  public void add(Type type) {
     types.add(type);
   }
 
@@ -90,4 +91,5 @@ public class DotMemberExpressionTreeImpl extends JavaScriptTree implements DotMe
   public void accept(TreeVisitor visitor) {
     visitor.visitMemberExpression(this);
   }
+
 }

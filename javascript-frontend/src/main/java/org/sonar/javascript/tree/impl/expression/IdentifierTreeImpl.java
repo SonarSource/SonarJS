@@ -24,6 +24,7 @@ import com.google.common.collect.Iterators;
 import java.util.Iterator;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.javascript.tree.impl.lexical.InternalSyntaxToken;
+import org.sonar.javascript.tree.symbols.type.TypableTree;
 import org.sonar.plugins.javascript.api.symbols.Symbol;
 import org.sonar.plugins.javascript.api.symbols.Type;
 import org.sonar.plugins.javascript.api.symbols.TypeSet;
@@ -32,7 +33,7 @@ import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.javascript.api.visitors.TreeVisitor;
 
-public class IdentifierTreeImpl extends JavaScriptTree implements IdentifierTree {
+public class IdentifierTreeImpl extends JavaScriptTree implements IdentifierTree, TypableTree {
 
   private final InternalSyntaxToken nameToken;
   private final Kind kind;
@@ -82,7 +83,8 @@ public class IdentifierTreeImpl extends JavaScriptTree implements IdentifierTree
     }
   }
 
-  public void addType(Type type) {
+  @Override
+  public void add(Type type) {
     if (symbol == null) {
       types.add(type);
     } else {

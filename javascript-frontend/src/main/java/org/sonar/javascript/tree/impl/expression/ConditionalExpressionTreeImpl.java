@@ -23,6 +23,8 @@ import com.google.common.collect.Iterators;
 import java.util.Iterator;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.javascript.tree.impl.lexical.InternalSyntaxToken;
+import org.sonar.javascript.tree.symbols.type.TypableTree;
+import org.sonar.plugins.javascript.api.symbols.Type;
 import org.sonar.plugins.javascript.api.symbols.TypeSet;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.expression.ConditionalExpressionTree;
@@ -30,7 +32,7 @@ import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.javascript.api.visitors.TreeVisitor;
 
-public class ConditionalExpressionTreeImpl extends JavaScriptTree implements ConditionalExpressionTree {
+public class ConditionalExpressionTreeImpl extends JavaScriptTree implements ConditionalExpressionTree, TypableTree {
 
   private ExpressionTree condition;
   private final SyntaxToken query;
@@ -95,5 +97,10 @@ public class ConditionalExpressionTreeImpl extends JavaScriptTree implements Con
   @Override
   public void accept(TreeVisitor visitor) {
     visitor.visitConditionalExpression(this);
+  }
+
+  @Override
+  public void add(Type type) {
+    throw new UnsupportedOperationException();
   }
 }

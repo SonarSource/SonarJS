@@ -27,6 +27,7 @@ import java.util.Iterator;
 import java.util.List;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.javascript.tree.impl.lexical.InternalSyntaxToken;
+import org.sonar.javascript.tree.symbols.type.TypableTree;
 import org.sonar.plugins.javascript.api.symbols.Type;
 import org.sonar.plugins.javascript.api.symbols.TypeSet;
 import org.sonar.plugins.javascript.api.tree.Tree;
@@ -35,7 +36,7 @@ import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.javascript.api.visitors.TreeVisitor;
 
-public class ArrayLiteralTreeImpl extends JavaScriptTree implements ArrayLiteralTree {
+public class ArrayLiteralTreeImpl extends JavaScriptTree implements ArrayLiteralTree, TypableTree {
 
   private SyntaxToken openBracket;
   private final List<ExpressionTree> elements;
@@ -91,7 +92,8 @@ public class ArrayLiteralTreeImpl extends JavaScriptTree implements ArrayLiteral
     return types.immutableCopy();
   }
 
-  public void addType(Type type) {
+  @Override
+  public void add(Type type) {
     this.types.add(type);
   }
 

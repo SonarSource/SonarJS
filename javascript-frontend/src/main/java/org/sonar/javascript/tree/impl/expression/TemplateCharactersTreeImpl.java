@@ -24,12 +24,14 @@ import java.util.Iterator;
 import java.util.List;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.javascript.tree.impl.lexical.InternalSyntaxToken;
+import org.sonar.javascript.tree.symbols.type.TypableTree;
+import org.sonar.plugins.javascript.api.symbols.Type;
 import org.sonar.plugins.javascript.api.symbols.TypeSet;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.expression.TemplateCharactersTree;
 import org.sonar.plugins.javascript.api.visitors.TreeVisitor;
 
-public class TemplateCharactersTreeImpl extends JavaScriptTree implements TemplateCharactersTree {
+public class TemplateCharactersTreeImpl extends JavaScriptTree implements TemplateCharactersTree, TypableTree {
 
   private final String value;
   private final List<InternalSyntaxToken> characters;
@@ -69,5 +71,10 @@ public class TemplateCharactersTreeImpl extends JavaScriptTree implements Templa
   @Override
   public TypeSet types() {
     return TypeSet.emptyTypeSet();
+  }
+
+  @Override
+  public void add(Type type) {
+    throw new UnsupportedOperationException();
   }
 }
