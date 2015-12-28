@@ -21,7 +21,6 @@ package org.sonar.javascript.tree.symbols.type;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.sonar.javascript.tree.symbols.type.ObjectType.BuiltInObjectType;
 import org.sonar.plugins.javascript.api.symbols.Symbol;
 import org.sonar.plugins.javascript.api.symbols.Type;
 import org.sonar.plugins.javascript.api.symbols.Type.Kind;
@@ -117,5 +116,19 @@ public class ExpressionTypeTest extends TypeTest {
     assertThat(getSymbol("trim").types()).containsOnly(PrimitiveType.STRING);
     assertThat(getSymbol("valueOf").types()).containsOnly(PrimitiveType.STRING);
 
+  }
+
+  @Test
+  public void test_unary_expressions() throws Exception {
+    assertThat(getSymbol("prefixInc").types()).containsOnly(PrimitiveType.NUMBER);
+    assertThat(getSymbol("postfixInc").types()).containsOnly(PrimitiveType.NUMBER);
+    assertThat(getSymbol("prefixDec").types()).containsOnly(PrimitiveType.NUMBER);
+    assertThat(getSymbol("postfixDec").types()).containsOnly(PrimitiveType.NUMBER);
+    assertThat(getSymbol("unaryPlus").types()).containsOnly(PrimitiveType.NUMBER);
+    assertThat(getSymbol("unaryMinus").types()).containsOnly(PrimitiveType.NUMBER);
+    assertThat(getSymbol("logicalCompliment").types()).containsOnly(PrimitiveType.BOOLEAN);
+    assertThat(getSymbol("bitwiseCompliment").types()).containsOnly(PrimitiveType.NUMBER);
+    assertThat(getSymbol("typeofExpr").types()).containsOnly(PrimitiveType.STRING);
+    assertThat(getSymbol("deleteExpr").types()).containsOnly(PrimitiveType.BOOLEAN);
   }
 }

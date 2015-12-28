@@ -54,3 +54,15 @@ var toString = str.toString(" ");  // STRING
 var toUpperCase = str.toUpperCase(" ");  // STRING
 var trim = str.trim(" ");  // STRING
 var valueOf = str.valueOf(" ");  // STRING
+
+
+var prefixInc = ++unknown;  // NUMBER
+var postfixInc = unknown++;  // NUMBER
+var prefixDec = --unknown;  // NUMBER
+var postfixDec = unknown--;  // NUMBER
+var unaryPlus = +unknown;  // NUMBER
+var unaryMinus = -unknown;  // NUMBER
+var bitwiseCompliment = ~unknown;  // NUMBER
+var logicalCompliment = !unknown;  // BOOLEAN
+var typeofExpr = typeof unknown; // STRING
+var deleteExpr = delete unknown; // BOOLEAN

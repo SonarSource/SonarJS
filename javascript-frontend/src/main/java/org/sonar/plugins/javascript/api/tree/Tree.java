@@ -414,6 +414,7 @@ public interface Tree {
      * {@link UnaryExpressionTree}
      * {@code typeof}
      */
+    TYPEOF(UnaryExpressionTree.class),
 
     /**
      * {@link BinaryExpressionTree}
@@ -840,8 +841,6 @@ public interface Tree {
      * {@link ImportClauseTree}
      */
     IMPORT_CLAUSE(ImportClauseTree.class),
-
-    TYPEOF(UnaryExpressionTree.class),
 
     TOKEN(SyntaxToken.class),
 

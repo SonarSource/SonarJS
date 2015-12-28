@@ -22,7 +22,6 @@ package org.sonar.javascript.tree.impl.expression;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Iterators;
 import java.util.Iterator;
-import org.apache.commons.lang.NotImplementedException;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.javascript.tree.impl.lexical.InternalSyntaxToken;
 import org.sonar.javascript.tree.symbols.type.TypableTree;
@@ -39,6 +38,7 @@ public class PostfixExpressionTreeImpl extends JavaScriptTree implements UnaryEx
   private final Kind kind;
   private final ExpressionTree expression;
   private final InternalSyntaxToken operator;
+  private TypeSet types = TypeSet.emptyTypeSet();
 
   public PostfixExpressionTreeImpl(Kind kind, ExpressionTree expression, InternalSyntaxToken operator) {
     this.kind = Preconditions.checkNotNull(kind);
@@ -74,11 +74,11 @@ public class PostfixExpressionTreeImpl extends JavaScriptTree implements UnaryEx
 
   @Override
   public TypeSet types() {
-    return TypeSet.emptyTypeSet();
+    return types.immutableCopy();
   }
 
   @Override
   public void add(Type type) {
-    throw new NotImplementedException();
+    this.types.add(type);
   }
 }

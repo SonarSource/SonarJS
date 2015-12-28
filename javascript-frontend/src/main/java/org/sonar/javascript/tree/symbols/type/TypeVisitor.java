@@ -43,6 +43,7 @@ import org.sonar.plugins.javascript.api.tree.expression.MemberExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.NewExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.ObjectLiteralTree;
 import org.sonar.plugins.javascript.api.tree.expression.ParenthesisedExpressionTree;
+import org.sonar.plugins.javascript.api.tree.expression.UnaryExpressionTree;
 import org.sonar.plugins.javascript.api.tree.statement.ForInStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.ForOfStatementTree;
 import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
@@ -241,6 +242,16 @@ public class TypeVisitor extends BaseTreeVisitor {
       ((JavaScriptTree) tree).getKind()
     );
 
+    if (resultType != null) {
+      addType(tree, resultType);
+    }
+  }
+
+  @Override
+  public void visitUnaryExpression(UnaryExpressionTree tree) {
+    super.visitUnaryExpression(tree);
+
+    Type resultType = PrimitiveOperations.getType(tree);
     if (resultType != null) {
       addType(tree, resultType);
     }

@@ -24,15 +24,14 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import javax.annotation.Nullable;
+import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.plugins.javascript.api.symbols.Type;
 import org.sonar.plugins.javascript.api.symbols.Type.Kind;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
+import org.sonar.plugins.javascript.api.tree.expression.UnaryExpressionTree;
 
 public class PrimitiveOperations {
-
-  private PrimitiveOperations() {
-  }
 
   private static Map<OperationKey, Type> binaryOperationsResults = new HashMap<>();
 
@@ -73,10 +72,24 @@ public class PrimitiveOperations {
     Tree.Kind.REMAINDER
   );
 
-  static void put(Type.Kind leftOperandType, Type.Kind rightOperandType, Tree.Kind operation, Type result) {
+  private static final Set<Tree.Kind> NUMBER_UNARY_OPERATORS = ImmutableSet.of(
+    Tree.Kind.PREFIX_DECREMENT,
+    Tree.Kind.PREFIX_INCREMENT,
+    Tree.Kind.POSTFIX_DECREMENT,
+    Tree.Kind.POSTFIX_INCREMENT,
+    Tree.Kind.UNARY_MINUS,
+    Tree.Kind.UNARY_PLUS,
+    Tree.Kind.BITWISE_COMPLEMENT
+  );
+
+  private PrimitiveOperations() {
+  }
+
+  private static void put(Type.Kind leftOperandType, Type.Kind rightOperandType, Tree.Kind operation, Type result) {
     binaryOperationsResults.put(new OperationKey(leftOperandType, rightOperandType, operation), result);
   }
 
+  @Nullable
   static Type getType(ExpressionTree leftOperand, ExpressionTree rightOperand, Tree.Kind operationKind) {
     if (COMPARATIVE_OPERATORS.contains(operationKind)) {
       return PrimitiveType.BOOLEAN;
@@ -90,12 +103,29 @@ public class PrimitiveOperations {
   }
 
   @Nullable
+  static Type getType(UnaryExpressionTree expressionTree) {
+    Tree.Kind kind = ((JavaScriptTree) expressionTree).getKind();
+    if (NUMBER_UNARY_OPERATORS.contains(kind)) {
+      return PrimitiveType.NUMBER;
+
+    } else if (expressionTree.is(Tree.Kind.TYPEOF)) {
+      return PrimitiveType.STRING;
+
+    } else if (expressionTree.is(Tree.Kind.DELETE, Tree.Kind.LOGICAL_COMPLEMENT)) {
+      return PrimitiveType.BOOLEAN;
+    }
+
+    return null;
+  }
+
+  @Nullable
   static Type getType(@Nullable Type leftOperandType, @Nullable Type rightOperandType, Tree.Kind operationKind) {
     if (leftOperandType != null && rightOperandType != null) {
       return binaryOperationsResults.get(new OperationKey(leftOperandType.kind(), rightOperandType.kind(), operationKind));
     }
     return null;
   }
+
 
   private static class OperationKey {
     Type.Kind leftOperandType;

@@ -1,8 +1,17 @@
 {
+'project:angular-1.0.3.js':[
+10189,
+],
 'project:dojo-1.8.1/dojox/string/BidiEngine.js.uncompressed.js':[
 571,
 571,
 577,
 577,
+],
+'project:ecmascript6/di.js/chrome-extension/visualize/lib/angular.js':[
+14752,
+],
+'project:ecmascript6/di.js/visualize/lib/angular.js':[
+14752,
 ],
 }
