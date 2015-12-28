@@ -27,17 +27,22 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import javax.annotation.Nullable;
+import org.apache.commons.lang.NotImplementedException;
 import org.apache.commons.lang.StringUtils;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
+import org.sonar.javascript.checks.tests.TestIssue;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.javascript.tree.impl.lexical.InternalSyntaxToken;
 import org.sonar.plugins.javascript.api.JavaScriptCheck;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxTrivia;
+import org.sonar.plugins.javascript.api.visitors.Issue;
 import org.sonar.plugins.javascript.api.visitors.IssueLocation;
+import org.sonar.plugins.javascript.api.visitors.LineIssue;
+import org.sonar.plugins.javascript.api.visitors.PreciseIssue;
 import org.sonar.plugins.javascript.api.visitors.TreeVisitorContext;
 
 import static org.mockito.Mockito.mock;
@@ -53,7 +58,7 @@ public class JavaScriptCheckVerifierTest {
 
   @Test
   public void parsing_error() throws Exception {
-    thrown.expectMessage("Unable to parse");
+    thrown.expectMessage("Parse error");
     check("foo(");
   }
 
@@ -67,7 +72,7 @@ public class JavaScriptCheckVerifierTest {
     check(
       "foo(); // Noncompliant \n" +
         "bar(); // OK",
-      Issue.create("msg1", 1));
+      TestIssue.create("msg1", 1));
   }
 
   @Test
@@ -76,7 +81,7 @@ public class JavaScriptCheckVerifierTest {
     check(
       "foo(); // Noncompliant \n" +
         "bar(); // OK",
-      Issue.create("msg1", 1), Issue.create("msg1", 2));
+      TestIssue.create("msg1", 1), TestIssue.create("msg1", 2));
   }
 
   @Test
@@ -85,7 +90,7 @@ public class JavaScriptCheckVerifierTest {
     check(
       "foo(); // Noncompliant \n" +
         "bar(); // Noncompliant",
-      Issue.create("msg1", 1));
+      TestIssue.create("msg1", 1));
   }
 
   @Test
@@ -93,7 +98,7 @@ public class JavaScriptCheckVerifierTest {
     expect("Unexpected issue at line 1");
     check(
       "\nfoo(); // Noncompliant",
-      Issue.create("msg1", 1));
+      TestIssue.create("msg1", 1));
   }
 
   @Test
@@ -101,14 +106,14 @@ public class JavaScriptCheckVerifierTest {
     expect("Missing issue at line 1");
     check(
       "foo(); // Noncompliant",
-      Issue.create("msg1", 2));
+      TestIssue.create("msg1", 2));
   }
 
   @Test
   public void right_message() throws Exception {
     check(
       "foo(); // Noncompliant {{msg1}}",
-      Issue.create("msg1", 1));
+      TestIssue.create("msg1", 1));
   }
 
   @Test
@@ -116,14 +121,14 @@ public class JavaScriptCheckVerifierTest {
     expect("Bad message at line 1");
     check(
       "foo(); // Noncompliant {{msg1}}",
-      Issue.create("msg2", 1));
+      TestIssue.create("msg2", 1));
   }
 
   @Test
   public void right_effortToFix() throws Exception {
     check(
       "foo(); // Noncompliant [[effortToFix=42]] {{msg1}}",
-      Issue.create("msg1", 1).effortToFix(42));
+      TestIssue.create("msg1", 1).effortToFix(42));
   }
 
   @Test
@@ -131,7 +136,7 @@ public class JavaScriptCheckVerifierTest {
     expect("Bad effortToFix at line 1");
     check(
       "foo(); // Noncompliant [[effortToFix=42]] {{msg1}}",
-      Issue.create("msg1", 1).effortToFix(77));
+      TestIssue.create("msg1", 1).effortToFix(77));
   }
 
   @Test
@@ -139,7 +144,7 @@ public class JavaScriptCheckVerifierTest {
     thrown.expectMessage("Invalid param at line 1: xxx");
     check(
       "foo(); // Noncompliant [[xxx=1]] {{msg1}}",
-      Issue.create("msg1", 1));
+      TestIssue.create("msg1", 1));
   }
 
   @Test
@@ -147,14 +152,14 @@ public class JavaScriptCheckVerifierTest {
     thrown.expectMessage("Invalid param at line 1: zzz");
     check(
       "foo(); // Noncompliant [[zzz]] {{msg1}}",
-      Issue.create("msg1", 1));
+      TestIssue.create("msg1", 1));
   }
 
   @Test
   public void right_precise_issue_location() throws Exception {
     check(
       "foo(); // Noncompliant [[sc=1;ec=4]]",
-      Issue.create("msg1", 1).columns(1, 4));
+      TestIssue.create("msg1", 1).columns(1, 4));
   }
 
   @Test
@@ -162,7 +167,7 @@ public class JavaScriptCheckVerifierTest {
     expect("Bad start column at line 1");
     check(
       "foo(); // Noncompliant [[sc=1;ec=4]]",
-      Issue.create("msg1", 1).columns(2, 4));
+      TestIssue.create("msg1", 1).columns(2, 4));
   }
 
   @Test
@@ -170,14 +175,14 @@ public class JavaScriptCheckVerifierTest {
     expect("Bad end column at line 1");
     check(
       "foo(); // Noncompliant [[sc=1;ec=4]]",
-      Issue.create("msg1", 1).columns(1, 5));
+      TestIssue.create("msg1", 1).columns(1, 5));
   }
 
   @Test
   public void right_end_line() throws Exception {
     check(
       "foo(); // Noncompliant [[el=+1]]\n\n",
-      Issue.create("msg1", 1).endLine(2));
+      TestIssue.create("msg1", 1).endLine(2));
   }
 
   @Test
@@ -185,14 +190,14 @@ public class JavaScriptCheckVerifierTest {
     expect("Bad end line at line 1");
     check(
       "foo(); // Noncompliant [[el=+2]]\n\n",
-      Issue.create("msg1", 1).endLine(2));
+      TestIssue.create("msg1", 1).endLine(2));
   }
 
   @Test
   public void right_secondary_locations() throws Exception {
     check(
       "foo(); // Noncompliant [[secondary=2,3]]",
-      Issue.create("msg1", 1).secondary(2, 3));
+      TestIssue.create("msg1", 1).secondary(2, 3));
   }
 
   @Test
@@ -200,7 +205,7 @@ public class JavaScriptCheckVerifierTest {
     expect("Bad secondary locations at line 1");
     check(
       "foo(); // Noncompliant [[secondary=2,3]]",
-      Issue.create("msg1", 1).secondary(2, 4));
+      TestIssue.create("msg1", 1).secondary(2, 4));
   }
 
   @Test
@@ -208,7 +213,7 @@ public class JavaScriptCheckVerifierTest {
     check(
       "foo(); // Noncompliant\n" +
         "bar(); // Noncompliant",
-      Issue.create("msg1", 2), Issue.create("msg1", 1));
+      TestIssue.create("msg1", 2), TestIssue.create("msg1", 1));
   }
 
   private void expect(String exceptionMessage) {
@@ -216,7 +221,7 @@ public class JavaScriptCheckVerifierTest {
     thrown.expectMessage(exceptionMessage);
   }
 
-  private void check(String sourceCode, Issue... actualIssues) throws Exception {
+  private void check(String sourceCode, TestIssue... actualIssues) throws Exception {
     JavaScriptCheck check = new CheckStub(Arrays.asList(actualIssues));
     File fakeFile = folder.newFile("fakeFile.txt");
     Files.write(sourceCode, fakeFile, StandardCharsets.UTF_8);
@@ -225,10 +230,11 @@ public class JavaScriptCheckVerifierTest {
 
   private static class CheckStub implements JavaScriptCheck {
 
-    private final List<Issue> issues;
+    private final List<TestIssue> testIssues;
+    private List<Issue> issues;
 
-    public CheckStub(List<Issue> issues) {
-      this.issues = issues;
+    public CheckStub(List<TestIssue> testIssues) {
+      this.testIssues = testIssues;
     }
 
     @Override
@@ -237,26 +243,47 @@ public class JavaScriptCheckVerifierTest {
     }
 
     @Override
-    public void scanFile(TreeVisitorContext context) {
-      for (Issue issue : issues) {
-        log(issue, context);
-      }
+    public void addLineIssue(Tree tree, String message) {
+      throw new NotImplementedException();
     }
 
-    public void log(Issue issue, TreeVisitorContext context) {
-      List<IssueLocation> secondaryLocations = new ArrayList<>();
-      if (issue.secondaryLines() != null) {
-        for (Integer secondaryLine : issue.secondaryLines()) {
-          secondaryLocations.add(new IssueLocation(createTree(secondaryLine, 1, secondaryLine, 1), null));
-        }
+    @Override
+    public PreciseIssue newIssue(Tree tree, String message) {
+      throw new NotImplementedException();
+    }
+
+    @Override
+    public <T extends Issue> T addIssue(T issue) {
+      throw new NotImplementedException();
+    }
+
+    @Override
+    public List<Issue> scanFile(TreeVisitorContext context) {
+      issues = new ArrayList<>();
+      for (TestIssue issue : testIssues) {
+        log(issue);
       }
+      return issues;
+    }
+
+    public void log(TestIssue issue) {
       if (issue.startColumn() != null || issue.endLine() != null || issue.secondaryLines() != null) {
         Tree tree = createTree(issue.line(), issue.startColumn(), issue.endLine(), issue.endColumn());
-        context.addIssue(this, new IssueLocation(tree, issue.message()), secondaryLocations, null);
-      } else if (issue.effortToFix() == null) {
-        context.addIssue(this, issue.line(), issue.message());
+        PreciseIssue preciseIssue = new PreciseIssue(this, new IssueLocation(tree, issue.message()));
+
+        if (issue.secondaryLines() != null) {
+          for (Integer secondaryLine : issue.secondaryLines()) {
+            preciseIssue.secondary(new IssueLocation(createTree(secondaryLine, 1, secondaryLine, 1), null));
+          }
+        }
+        issues.add(preciseIssue);
+
       } else {
-        context.addIssue(this, issue.line(), issue.message(), issue.effortToFix());
+        LineIssue lineIssue = new LineIssue(this, issue.line(), issue.message());
+        if (issue.effortToFix() != null) {
+          lineIssue.cost(issue.effortToFix());
+        }
+        issues.add(lineIssue);
       }
     }
 

@@ -25,13 +25,13 @@ import com.google.common.collect.Sets;
 import java.util.List;
 import java.util.Set;
 import org.sonar.javascript.tree.JavaScriptCommentAnalyser;
-import org.sonar.javascript.tree.visitors.SubscriptionTreeVisitor;
+import org.sonar.plugins.javascript.api.visitors.SubscriptionVisitor;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxTrivia;
 
-public class CommentLineVisitor extends SubscriptionTreeVisitor {
+public class CommentLineVisitor extends SubscriptionVisitor {
 
   private Set<Integer> comments = Sets.newHashSet();
   private Set<Integer> noSonarLines = Sets.newHashSet();

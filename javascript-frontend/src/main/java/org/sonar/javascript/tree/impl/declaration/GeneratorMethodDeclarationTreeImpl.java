@@ -31,7 +31,7 @@ import org.sonar.plugins.javascript.api.tree.declaration.GeneratorMethodDeclarat
 import org.sonar.plugins.javascript.api.tree.declaration.ParameterListTree;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
-import org.sonar.plugins.javascript.api.visitors.TreeVisitor;
+import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitor;
 
 public class GeneratorMethodDeclarationTreeImpl extends JavaScriptTree implements GeneratorMethodDeclarationTree {
 
@@ -95,7 +95,7 @@ public class GeneratorMethodDeclarationTreeImpl extends JavaScriptTree implement
   }
 
   @Override
-  public void accept(TreeVisitor visitor) {
+  public void accept(DoubleDispatchVisitor visitor) {
     visitor.visitGeneratorMethodDeclaration(this);
   }
 }

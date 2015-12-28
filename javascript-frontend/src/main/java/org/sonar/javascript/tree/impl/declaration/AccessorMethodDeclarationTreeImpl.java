@@ -31,7 +31,7 @@ import org.sonar.plugins.javascript.api.tree.declaration.AccessorMethodDeclarati
 import org.sonar.plugins.javascript.api.tree.declaration.ParameterListTree;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
-import org.sonar.plugins.javascript.api.visitors.TreeVisitor;
+import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitor;
 
 public class AccessorMethodDeclarationTreeImpl extends JavaScriptTree implements AccessorMethodDeclarationTree {
 
@@ -95,7 +95,7 @@ public class AccessorMethodDeclarationTreeImpl extends JavaScriptTree implements
   }
 
   @Override
-  public void accept(TreeVisitor visitor) {
+  public void accept(DoubleDispatchVisitor visitor) {
     visitor.visitAccessorMethodDeclaration(this);
   }
 }

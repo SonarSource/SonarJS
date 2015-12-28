@@ -31,7 +31,7 @@ import org.sonar.plugins.javascript.api.tree.expression.DotMemberExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 import org.sonar.plugins.javascript.api.tree.expression.MemberExpressionTree;
-import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
+import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 
@@ -42,7 +42,7 @@ import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
   tags = {Tags.JQUERY, Tags.OBSOLETE})
 @SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.SOFTWARE_RELATED_PORTABILITY)
 @SqaleConstantRemediation("20min")
-public class DeprecatedJQueryAPICheck extends BaseTreeVisitor {
+public class DeprecatedJQueryAPICheck extends DoubleDispatchVisitorCheck {
 
   private static final String MESSAGE = "Remove this use of \"%s\", which is deprecated.";
 
@@ -100,7 +100,7 @@ public class DeprecatedJQueryAPICheck extends BaseTreeVisitor {
       IdentifierTree property = ((DotMemberExpressionTree) expressionTree).property();
 
       if (object.types().contains(ObjectType.FrameworkType.JQUERY_OBJECT) && propertyIsDeprecated(property, deprecated)) {
-        getContext().addIssue(this, property, String.format(MESSAGE, property.name() + parentheses));
+        addLineIssue(property, String.format(MESSAGE, property.name() + parentheses));
       }
 
     }
@@ -113,7 +113,7 @@ public class DeprecatedJQueryAPICheck extends BaseTreeVisitor {
       IdentifierTree property = ((DotMemberExpressionTree) expressionTree).property();
 
       if (object.types().contains(ObjectType.FrameworkType.JQUERY_SELECTOR_OBJECT) && propertyIsDeprecated(property, deprecated)) {
-        getContext().addIssue(this, property, String.format(MESSAGE, property.name() + parentheses));
+        addLineIssue(property, String.format(MESSAGE, property.name() + parentheses));
       }
 
     }

@@ -30,6 +30,7 @@ import org.sonar.api.batch.sensor.issue.Issue.Flow;
 import org.sonar.api.batch.sensor.issue.internal.DefaultIssue;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.javascript.tree.impl.lexical.InternalSyntaxToken;
+import org.sonar.plugins.javascript.api.visitors.PreciseIssue;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxTrivia;
 import org.sonar.plugins.javascript.api.visitors.IssueLocation;
@@ -39,7 +40,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-public class PreciseIssueTest {
+public class PreciseIssueCompatTest {
 
   private InputFile inputFile = new DefaultInputFile("module1", "myPath")
     .setLines(4)
@@ -56,7 +57,7 @@ public class PreciseIssueTest {
   public void no_secondary_location() throws Exception {
     DefaultIssue newIssue = new DefaultIssue(storage);
     when(sensorContext.newIssue()).thenReturn(newIssue);
-    PreciseIssue.save(sensorContext, inputFile, ruleKey, primary, ImmutableList.<IssueLocation>of(), 3.);
+    PreciseIssueCompat.save(sensorContext, inputFile, ruleKey, new PreciseIssue(null, primary).cost(3.));
 
     assertThat(newIssue.ruleKey()).isEqualTo(ruleKey);
     assertThat(newIssue.effortToFix()).isEqualTo(3.);
@@ -72,7 +73,7 @@ public class PreciseIssueTest {
   public void secondaryLocation() throws Exception {
     DefaultIssue newIssue = new DefaultIssue(storage);
     when(sensorContext.newIssue()).thenReturn(newIssue);
-    PreciseIssue.save(sensorContext, inputFile, ruleKey, primary, ImmutableList.of(secondary1, secondary2), 3.);
+    PreciseIssueCompat.save(sensorContext, inputFile, ruleKey, new PreciseIssue(null, primary).secondary(secondary1).secondary(secondary2).cost(3.));
 
     assertThat(newIssue.flows()).hasSize(2);
     Flow flow = newIssue.flows().get(0);

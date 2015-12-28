@@ -27,7 +27,7 @@ import org.sonar.plugins.javascript.api.tree.declaration.FunctionDeclarationTree
 import org.sonar.plugins.javascript.api.tree.declaration.MethodDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.declaration.ParameterListTree;
 import org.sonar.plugins.javascript.api.tree.expression.FunctionExpressionTree;
-import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
+import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
 import org.sonar.squidbridge.annotations.ActivatedByDefault;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
@@ -40,7 +40,7 @@ import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 @ActivatedByDefault
 @SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.UNIT_TESTABILITY)
 @SqaleConstantRemediation("20min")
-public class ExcessiveParameterListCheck extends BaseTreeVisitor {
+public class ExcessiveParameterListCheck extends DoubleDispatchVisitorCheck {
 
   private static final int DEFAULT_MAXIMUM_FUNCTION_PARAMETERS = 7;
 
@@ -72,7 +72,7 @@ public class ExcessiveParameterListCheck extends BaseTreeVisitor {
     Integer numberOfParameters = tree.parameters().size();
 
     if (numberOfParameters > maximumFunctionParameters) {
-      getContext().addIssue(this,
+      addLineIssue(
         // Report issue on the line of the first parameter
         tree.parameters().get(0),
         "Function has " + numberOfParameters + " parameters which is greater than " + maximumFunctionParameters + " authorized.");

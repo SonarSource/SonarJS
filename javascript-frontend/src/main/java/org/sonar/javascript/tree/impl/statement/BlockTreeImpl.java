@@ -29,7 +29,7 @@ import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.javascript.api.tree.statement.BlockTree;
 import org.sonar.plugins.javascript.api.tree.statement.StatementTree;
-import org.sonar.plugins.javascript.api.visitors.TreeVisitor;
+import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitor;
 
 public class BlockTreeImpl extends JavaScriptTree implements BlockTree {
 
@@ -79,7 +79,7 @@ public class BlockTreeImpl extends JavaScriptTree implements BlockTree {
   }
 
   @Override
-  public void accept(TreeVisitor visitor) {
+  public void accept(DoubleDispatchVisitor visitor) {
     visitor.visitBlock(this);
   }
 }

@@ -31,7 +31,7 @@ import org.sonar.plugins.javascript.api.tree.declaration.BindingElementTree;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.RestElementTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
-import org.sonar.plugins.javascript.api.visitors.TreeVisitor;
+import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitor;
 
 public class RestElementTreeImpl extends JavaScriptTree implements RestElementTree, BindingElementTree, TypableTree {
 
@@ -65,7 +65,7 @@ public class RestElementTreeImpl extends JavaScriptTree implements RestElementTr
   }
 
   @Override
-  public void accept(TreeVisitor visitor) {
+  public void accept(DoubleDispatchVisitor visitor) {
     visitor.visitRestElement(this);
   }
 

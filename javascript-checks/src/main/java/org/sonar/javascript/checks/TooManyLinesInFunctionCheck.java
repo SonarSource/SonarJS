@@ -35,7 +35,7 @@ import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 import org.sonar.plugins.javascript.api.tree.expression.NewExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.ParenthesisedExpressionTree;
 import org.sonar.plugins.javascript.api.tree.statement.BlockTree;
-import org.sonar.plugins.javascript.api.visitors.SubscriptionBaseTreeVisitor;
+import org.sonar.plugins.javascript.api.visitors.SubscriptionVisitorCheck;
 import org.sonar.squidbridge.annotations.ActivatedByDefault;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
@@ -48,7 +48,7 @@ import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 @ActivatedByDefault
 @SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.UNDERSTANDABILITY)
 @SqaleConstantRemediation("20min")
-public class TooManyLinesInFunctionCheck extends SubscriptionBaseTreeVisitor {
+public class TooManyLinesInFunctionCheck extends SubscriptionVisitorCheck {
 
   private static final String MESSAGE = "This function has %s lines, which is greater than the %s lines authorized. Split it into smaller functions.";
 
@@ -93,7 +93,7 @@ public class TooManyLinesInFunctionCheck extends SubscriptionBaseTreeVisitor {
     int nbLines = getNumberOfLine(tree);
     if (nbLines > max && !immediatelyInvokedFunctionExpression && !amdPattern) {
       String message = String.format(MESSAGE, nbLines, max);
-      getContext().addIssue(this, tree, message);
+      addLineIssue(tree, message);
     }
     clearCheckState();
   }

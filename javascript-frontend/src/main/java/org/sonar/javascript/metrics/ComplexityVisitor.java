@@ -43,9 +43,9 @@ import org.sonar.plugins.javascript.api.tree.statement.ReturnStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.StatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.ThrowStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.WhileStatementTree;
-import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
+import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitor;
 
-public class ComplexityVisitor extends BaseTreeVisitor {
+public class ComplexityVisitor extends DoubleDispatchVisitor {
 
   private List<Tree> complexityTrees;
   private Set<Tree> excludedReturns;

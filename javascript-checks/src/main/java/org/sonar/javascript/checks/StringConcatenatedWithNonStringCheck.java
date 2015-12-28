@@ -19,8 +19,6 @@
  */
 package org.sonar.javascript.checks;
 
-import com.google.common.collect.ImmutableList;
-import java.util.List;
 import javax.annotation.CheckForNull;
 import org.sonar.api.server.rule.RulesDefinition.SubCharacteristics;
 import org.sonar.check.Priority;
@@ -30,8 +28,7 @@ import org.sonar.plugins.javascript.api.symbols.Type;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.expression.BinaryExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
-import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
-import org.sonar.plugins.javascript.api.visitors.IssueLocation;
+import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
 import org.sonar.squidbridge.annotations.ActivatedByDefault;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
@@ -44,7 +41,7 @@ import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 @ActivatedByDefault
 @SqaleSubCharacteristic(SubCharacteristics.INSTRUCTION_RELIABILITY)
 @SqaleConstantRemediation("15min")
-public class StringConcatenatedWithNonStringCheck extends BaseTreeVisitor {
+public class StringConcatenatedWithNonStringCheck extends DoubleDispatchVisitorCheck {
 
   private static final String MESSAGE = "Either make this concatenation explicit or cast \"%s\" operand to a number.";
 
@@ -80,13 +77,11 @@ public class StringConcatenatedWithNonStringCheck extends BaseTreeVisitor {
   }
 
   private void raiseIssue(BinaryExpressionTree tree, ExpressionTree stringOperand) {
-    List<IssueLocation> secondaryLocations = ImmutableList.of(
-      new IssueLocation(tree.leftOperand()),
-      new IssueLocation(tree.rightOperand())
-    );
-
     String message = String.format(MESSAGE, CheckUtils.asString(stringOperand));
-    getContext().addIssue(this, new IssueLocation(tree.operator(), message), secondaryLocations, null);
+    newIssue(tree.operator(), message)
+      .secondary(tree.leftOperand())
+      .secondary(tree.rightOperand());
+
   }
 
   private static boolean isString(Type type) {

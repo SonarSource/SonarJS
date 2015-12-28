@@ -29,7 +29,7 @@ import org.sonar.check.Rule;
 import org.sonar.javascript.checks.utils.CheckUtils;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
-import org.sonar.plugins.javascript.api.visitors.SubscriptionBaseTreeVisitor;
+import org.sonar.plugins.javascript.api.visitors.SubscriptionVisitorCheck;
 import org.sonar.squidbridge.annotations.ActivatedByDefault;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
@@ -42,7 +42,7 @@ import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 @ActivatedByDefault
 @SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.INSTRUCTION_RELIABILITY)
 @SqaleConstantRemediation("30min")
-public class FunctionDefinitionInsideLoopCheck extends SubscriptionBaseTreeVisitor {
+public class FunctionDefinitionInsideLoopCheck extends SubscriptionVisitorCheck {
 
   private static final String MESSAGE = "Define this function outside of a loop.";
   private Deque<Integer> scope = new ArrayDeque<>();
@@ -71,7 +71,7 @@ public class FunctionDefinitionInsideLoopCheck extends SubscriptionBaseTreeVisit
 
     } else {
       if (isInLoop()) {
-        getContext().addIssue(this, tree, MESSAGE);
+        addLineIssue(tree, MESSAGE);
       }
       enterScope();
     }

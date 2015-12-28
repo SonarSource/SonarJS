@@ -34,7 +34,7 @@ import org.sonar.plugins.javascript.api.tree.statement.ElseClauseTree;
 import org.sonar.plugins.javascript.api.tree.statement.ExpressionStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.IfStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.IterationStatementTree;
-import org.sonar.plugins.javascript.api.visitors.SubscriptionBaseTreeVisitor;
+import org.sonar.plugins.javascript.api.visitors.SubscriptionVisitorCheck;
 import org.sonar.squidbridge.annotations.ActivatedByDefault;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
@@ -47,7 +47,7 @@ import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 @ActivatedByDefault
 @SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.LOGIC_RELIABILITY)
 @SqaleConstantRemediation("5 min")
-public class UnreachableCodeCheck extends SubscriptionBaseTreeVisitor {
+public class UnreachableCodeCheck extends SubscriptionVisitorCheck {
 
   private static final String MESSAGE = "Remove this code after the \"%s\" statement.";
 
@@ -99,7 +99,7 @@ public class UnreachableCodeCheck extends SubscriptionBaseTreeVisitor {
       enterBlock();
 
     } else if (!isExcludedExpression(tree) && isPrecededByAJump()) {
-      getContext().addIssue(this, tree, String.format(MESSAGE, jumpName));
+      addLineIssue(tree, String.format(MESSAGE, jumpName));
       updateStateTo(false);
     }
 

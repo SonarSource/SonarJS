@@ -35,7 +35,8 @@ import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxTrivia;
-import org.sonar.plugins.javascript.api.visitors.SubscriptionBaseTreeVisitor;
+import org.sonar.plugins.javascript.api.visitors.LineIssue;
+import org.sonar.plugins.javascript.api.visitors.SubscriptionVisitorCheck;
 import org.sonar.squidbridge.annotations.ActivatedByDefault;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
@@ -53,7 +54,7 @@ import org.sonar.squidbridge.recognizer.LanguageFootprint;
 @ActivatedByDefault
 @SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.UNDERSTANDABILITY)
 @SqaleConstantRemediation("5min")
-public class CommentedCodeCheck extends SubscriptionBaseTreeVisitor {
+public class CommentedCodeCheck extends SubscriptionVisitorCheck {
 
   private static final String MESSAGE = "Remove this commented out code.";
 
@@ -109,7 +110,7 @@ public class CommentedCodeCheck extends SubscriptionBaseTreeVisitor {
         String[] lines = regexpToDivideStringByLine.split(COMMENT_ANALYSER.getContents(trivia.text()));
         for (int lineOffset = 0; lineOffset < lines.length; lineOffset++) {
           if (codeRecognizer.isLineOfCode(lines[lineOffset])) {
-            getContext().addIssue(this, trivia.line() + lineOffset, MESSAGE);
+            addIssue(new LineIssue(this, trivia.line() + lineOffset, MESSAGE));
             break;
           }
         }

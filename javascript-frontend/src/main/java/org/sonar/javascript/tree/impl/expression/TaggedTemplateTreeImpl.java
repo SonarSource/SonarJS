@@ -29,7 +29,7 @@ import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.TaggedTemplateTree;
 import org.sonar.plugins.javascript.api.tree.expression.TemplateLiteralTree;
-import org.sonar.plugins.javascript.api.visitors.TreeVisitor;
+import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitor;
 
 public class TaggedTemplateTreeImpl extends JavaScriptTree implements TaggedTemplateTree, TypableTree {
 
@@ -69,7 +69,7 @@ public class TaggedTemplateTreeImpl extends JavaScriptTree implements TaggedTemp
   }
 
   @Override
-  public void accept(TreeVisitor visitor) {
+  public void accept(DoubleDispatchVisitor visitor) {
     visitor.visitTaggedTemplate(this);
   }
 

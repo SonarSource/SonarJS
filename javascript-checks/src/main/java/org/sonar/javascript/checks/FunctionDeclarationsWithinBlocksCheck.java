@@ -29,7 +29,7 @@ import org.sonar.plugins.javascript.api.tree.expression.ArrowFunctionTree;
 import org.sonar.plugins.javascript.api.tree.expression.FunctionExpressionTree;
 import org.sonar.plugins.javascript.api.tree.statement.BlockTree;
 import org.sonar.plugins.javascript.api.tree.statement.StatementTree;
-import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
+import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
 import org.sonar.squidbridge.annotations.ActivatedByDefault;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
@@ -42,7 +42,7 @@ import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 @ActivatedByDefault
 @SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.INSTRUCTION_RELIABILITY)
 @SqaleConstantRemediation("5min")
-public class FunctionDeclarationsWithinBlocksCheck extends BaseTreeVisitor {
+public class FunctionDeclarationsWithinBlocksCheck extends DoubleDispatchVisitorCheck {
 
   private static final String MESSAGE = "Do not use function declarations within blocks.";
 
@@ -51,7 +51,7 @@ public class FunctionDeclarationsWithinBlocksCheck extends BaseTreeVisitor {
     for (StatementTree stmt : tree.statements()) {
 
       if (stmt.is(Kind.FUNCTION_DECLARATION)) {
-        getContext().addIssue(this, stmt, MESSAGE);
+        addLineIssue(stmt, MESSAGE);
       }
     }
 

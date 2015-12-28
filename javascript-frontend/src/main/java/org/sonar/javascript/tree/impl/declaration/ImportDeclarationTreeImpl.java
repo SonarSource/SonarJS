@@ -30,7 +30,7 @@ import org.sonar.plugins.javascript.api.tree.declaration.FromClauseTree;
 import org.sonar.plugins.javascript.api.tree.declaration.ImportClauseTree;
 import org.sonar.plugins.javascript.api.tree.declaration.ImportDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
-import org.sonar.plugins.javascript.api.visitors.TreeVisitor;
+import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitor;
 
 public class ImportDeclarationTreeImpl extends JavaScriptTree implements ImportDeclarationTree {
 
@@ -79,7 +79,7 @@ public class ImportDeclarationTreeImpl extends JavaScriptTree implements ImportD
   }
 
   @Override
-  public void accept(TreeVisitor visitor) {
+  public void accept(DoubleDispatchVisitor visitor) {
     visitor.visitImportDeclaration(this);
   }
 }

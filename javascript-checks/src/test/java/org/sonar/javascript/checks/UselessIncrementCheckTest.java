@@ -21,7 +21,7 @@ package org.sonar.javascript.checks;
 
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.plugins.javascript.api.tests.TreeCheckTest;
+import org.sonar.javascript.checks.tests.TreeCheckTest;
 import org.sonar.squidbridge.checks.CheckMessagesVerifierRule;
 
 public class UselessIncrementCheckTest extends TreeCheckTest {

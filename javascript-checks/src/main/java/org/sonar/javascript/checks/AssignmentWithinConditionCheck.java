@@ -19,7 +19,6 @@
  */
 package org.sonar.javascript.checks;
 
-import com.google.common.collect.ImmutableList;
 import javax.annotation.Nullable;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
@@ -37,8 +36,7 @@ import org.sonar.plugins.javascript.api.tree.statement.DoWhileStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.ExpressionStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.ForStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.WhileStatementTree;
-import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
-import org.sonar.plugins.javascript.api.visitors.IssueLocation;
+import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 
@@ -49,7 +47,7 @@ import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
   tags = {Tags.BUG, Tags.CWE, Tags.MISRA})
 @SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.INSTRUCTION_RELIABILITY)
 @SqaleConstantRemediation("5min")
-public class AssignmentWithinConditionCheck extends BaseTreeVisitor {
+public class AssignmentWithinConditionCheck extends DoubleDispatchVisitorCheck {
 
   private static final String MESSAGE = "Extract the assignment of \"%s\" from this expression.";
 
@@ -183,6 +181,6 @@ public class AssignmentWithinConditionCheck extends BaseTreeVisitor {
   public void visitAssignmentExpression(AssignmentExpressionTree tree) {
     super.visitAssignmentExpression(tree);
     String message = String.format(MESSAGE, CheckUtils.asString(tree.variable()));
-    getContext().addIssue(this, new IssueLocation(tree.operator(), message), ImmutableList.<IssueLocation>of(), null);
+    newIssue(tree.operator(), message);
   }
 }

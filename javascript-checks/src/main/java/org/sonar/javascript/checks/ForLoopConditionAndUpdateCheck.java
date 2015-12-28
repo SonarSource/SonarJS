@@ -38,7 +38,7 @@ import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 import org.sonar.plugins.javascript.api.tree.expression.MemberExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.UnaryExpressionTree;
 import org.sonar.plugins.javascript.api.tree.statement.ForStatementTree;
-import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
+import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
 import org.sonar.squidbridge.annotations.ActivatedByDefault;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
@@ -51,7 +51,7 @@ import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 @ActivatedByDefault
 @SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.LOGIC_RELIABILITY)
 @SqaleConstantRemediation("20min")
-public class ForLoopConditionAndUpdateCheck extends BaseTreeVisitor {
+public class ForLoopConditionAndUpdateCheck extends DoubleDispatchVisitorCheck {
 
   private static final String MESSAGE = "This loop's stop condition tests \"%s\" but the incrementer updates \"%s\".";
 
@@ -66,7 +66,7 @@ public class ForLoopConditionAndUpdateCheck extends BaseTreeVisitor {
         String updated = expressionList(updatedExpressions);
         String tested = expressionList(conditionVisitor.testedExpressions);
         String message = String.format(MESSAGE, tested, updated);
-        getContext().addIssue(this, forStatement, message);
+        addLineIssue(forStatement, message);
       }
     }
     super.visitForStatement(forStatement);
@@ -101,7 +101,7 @@ public class ForLoopConditionAndUpdateCheck extends BaseTreeVisitor {
     return visitor.updatedExpressions;
   }
 
-  private static class UpdateVisitor extends BaseTreeVisitor {
+  private static class UpdateVisitor extends DoubleDispatchVisitorCheck {
 
     private final List<ExpressionTree> updatedExpressions = Lists.newArrayList();
 
@@ -130,7 +130,7 @@ public class ForLoopConditionAndUpdateCheck extends BaseTreeVisitor {
 
   }
 
-  private static class ConditionVisitor extends BaseTreeVisitor {
+  private static class ConditionVisitor extends DoubleDispatchVisitorCheck {
 
     private List<ExpressionTree> updatedExpressions;
     private List<ExpressionTree> testedExpressions = Lists.newArrayList();

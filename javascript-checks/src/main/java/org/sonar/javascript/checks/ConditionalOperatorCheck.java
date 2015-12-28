@@ -23,7 +23,7 @@ import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.plugins.javascript.api.tree.expression.ConditionalExpressionTree;
-import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
+import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 
@@ -34,13 +34,13 @@ import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
   tags = {Tags.CONFUSING})
 @SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.UNDERSTANDABILITY)
 @SqaleConstantRemediation("5min")
-public class ConditionalOperatorCheck extends BaseTreeVisitor {
+public class ConditionalOperatorCheck extends DoubleDispatchVisitorCheck {
 
   private static final String MESSAGE = "Replace this conditional operator by a standard if/else control flow statement.";
 
   @Override
   public void visitConditionalExpression(ConditionalExpressionTree tree) {
-    getContext().addIssue(this, tree.query(), MESSAGE);
+    addLineIssue(tree.query(), MESSAGE);
     super.visitConditionalExpression(tree);
   }
 

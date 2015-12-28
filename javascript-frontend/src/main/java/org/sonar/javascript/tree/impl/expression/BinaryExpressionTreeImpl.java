@@ -31,7 +31,7 @@ import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.expression.BinaryExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
-import org.sonar.plugins.javascript.api.visitors.TreeVisitor;
+import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitor;
 
 public class BinaryExpressionTreeImpl extends JavaScriptTree implements BinaryExpressionTree, TypableTree {
 
@@ -75,7 +75,7 @@ public class BinaryExpressionTreeImpl extends JavaScriptTree implements BinaryEx
   }
 
   @Override
-  public void accept(TreeVisitor visitor) {
+  public void accept(DoubleDispatchVisitor visitor) {
     visitor.visitBinaryExpression(this);
   }
 

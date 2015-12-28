@@ -90,7 +90,7 @@ import org.sonar.plugins.javascript.api.tree.statement.VariableDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.statement.VariableStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.WhileStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.WithStatementTree;
-import org.sonar.plugins.javascript.api.visitors.TreeVisitor;
+import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitor;
 import org.sonar.sslr.grammar.GrammarRuleKey;
 
 /**
@@ -101,7 +101,7 @@ public interface Tree {
 
   boolean is(Kind... kind);
 
-  void accept(TreeVisitor visitor);
+  void accept(DoubleDispatchVisitor visitor);
 
   public enum Kind implements AstNodeType, GrammarRuleKey {
 

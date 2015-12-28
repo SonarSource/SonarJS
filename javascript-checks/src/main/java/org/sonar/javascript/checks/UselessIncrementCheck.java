@@ -26,7 +26,7 @@ import org.sonar.javascript.tree.SyntacticEquivalence;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.expression.AssignmentExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.UnaryExpressionTree;
-import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
+import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
 import org.sonar.squidbridge.annotations.ActivatedByDefault;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
@@ -39,7 +39,7 @@ import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 @ActivatedByDefault
 @SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.LOGIC_RELIABILITY)
 @SqaleConstantRemediation("5min")
-public class UselessIncrementCheck extends BaseTreeVisitor {
+public class UselessIncrementCheck extends DoubleDispatchVisitorCheck {
 
   private static final String MESSAGE = "Remove this %s or correct the code not to waste it.";
 
@@ -50,7 +50,7 @@ public class UselessIncrementCheck extends BaseTreeVisitor {
       if (SyntacticEquivalence.areEquivalent(assignment.variable(), postfix.expression())) {
         String type = postfix.is(Tree.Kind.POSTFIX_INCREMENT) ? "increment" : "decrement";
         String message = String.format(MESSAGE, type);
-        getContext().addIssue(this, postfix, message);
+        addLineIssue(postfix, message);
       }
     }
     super.visitAssignmentExpression(assignment);

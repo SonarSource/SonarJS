@@ -22,14 +22,14 @@ package org.sonar.javascript.checks;
 import com.google.common.io.Files;
 import java.io.IOException;
 import java.nio.charset.Charset;
-import java.util.Collections;
 import java.util.List;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.javascript.tree.visitors.CharsetAwareVisitor;
-import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
-import org.sonar.plugins.javascript.api.visitors.TreeVisitorContext;
+import org.sonar.plugins.javascript.api.tree.ScriptTree;
+import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
+import org.sonar.plugins.javascript.api.visitors.LineIssue;
 import org.sonar.squidbridge.annotations.ActivatedByDefault;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
@@ -42,17 +42,15 @@ import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 @ActivatedByDefault
 @SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.READABILITY)
 @SqaleConstantRemediation("2min")
-public class TabCharacterCheck extends BaseTreeVisitor implements CharsetAwareVisitor {
+public class TabCharacterCheck extends DoubleDispatchVisitorCheck implements CharsetAwareVisitor {
 
   private static final String MESSAGE = "Replace all tab characters in this file by sequences of white-spaces.";
 
   private Charset charset;
 
   @Override
-  public void scanFile(TreeVisitorContext context) {
-    super.scanFile(context);
-
-    List<String> lines = Collections.emptyList();
+  public void visitScript(ScriptTree tree) {
+    List<String> lines;
 
     try {
       lines = Files.readLines(getContext().getFile(), charset);
@@ -64,10 +62,11 @@ public class TabCharacterCheck extends BaseTreeVisitor implements CharsetAwareVi
 
     for (int i = 0; i < lines.size(); i++) {
       if (lines.get(i).contains("\t")) {
-        getContext().addIssue(this, i + 1, MESSAGE);
+        addIssue(new LineIssue(this, i + 1, MESSAGE));
         break;
       }
     }
+
   }
 
   @Override

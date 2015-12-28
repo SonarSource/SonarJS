@@ -35,7 +35,7 @@ import org.sonar.plugins.javascript.api.tree.declaration.ParameterListTree;
 import org.sonar.plugins.javascript.api.tree.expression.FunctionExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
-import org.sonar.plugins.javascript.api.visitors.TreeVisitor;
+import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitor;
 
 public class FunctionExpressionTreeImpl extends JavaScriptTree implements FunctionExpressionTree, TypableTree {
 
@@ -164,7 +164,7 @@ public class FunctionExpressionTreeImpl extends JavaScriptTree implements Functi
   }
 
   @Override
-  public void accept(TreeVisitor visitor) {
+  public void accept(DoubleDispatchVisitor visitor) {
     visitor.visitFunctionExpression(this);
   }
 

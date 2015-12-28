@@ -29,7 +29,7 @@ import org.sonar.plugins.javascript.api.tree.expression.AssignmentExpressionTree
 import org.sonar.plugins.javascript.api.tree.expression.BinaryExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.UnaryExpressionTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
-import org.sonar.plugins.javascript.api.visitors.SubscriptionBaseTreeVisitor;
+import org.sonar.plugins.javascript.api.visitors.SubscriptionVisitorCheck;
 import org.sonar.squidbridge.annotations.ActivatedByDefault;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
@@ -42,7 +42,7 @@ import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 @ActivatedByDefault
 @SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.UNDERSTANDABILITY)
 @SqaleConstantRemediation("5min")
-public class BitwiseOperatorsCheck extends SubscriptionBaseTreeVisitor {
+public class BitwiseOperatorsCheck extends SubscriptionVisitorCheck {
 
   private static final String MESSAGE = "Remove the use of \"%s\" operator.";
 
@@ -75,7 +75,7 @@ public class BitwiseOperatorsCheck extends SubscriptionBaseTreeVisitor {
     } else {
       operator = ((AssignmentExpressionTree) tree).operator();
     }
-    getContext().addIssue(this, operator, String.format(MESSAGE, operator.text()));
+    addLineIssue(operator, String.format(MESSAGE, operator.text()));
   }
 
 }

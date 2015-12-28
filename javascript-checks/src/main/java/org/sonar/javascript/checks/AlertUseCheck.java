@@ -19,7 +19,6 @@
  */
 package org.sonar.javascript.checks;
 
-import java.util.Collections;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
@@ -27,8 +26,7 @@ import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.expression.CallExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
-import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
-import org.sonar.plugins.javascript.api.visitors.IssueLocation;
+import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
 import org.sonar.squidbridge.annotations.ActivatedByDefault;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
@@ -41,7 +39,7 @@ import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 @ActivatedByDefault
 @SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.SECURITY_FEATURES)
 @SqaleConstantRemediation("10min")
-public class AlertUseCheck extends BaseTreeVisitor {
+public class AlertUseCheck extends DoubleDispatchVisitorCheck {
 
   private static final String MESSAGE = "Remove this usage of alert(...).";
 
@@ -49,7 +47,7 @@ public class AlertUseCheck extends BaseTreeVisitor {
   public void visitCallExpression(CallExpressionTree tree) {
     ExpressionTree callee = tree.callee();
     if (callee.is(Kind.IDENTIFIER_REFERENCE) && isAlertCall((IdentifierTree) callee)) {
-      getContext().addIssue(this, new IssueLocation(tree, MESSAGE), Collections.<IssueLocation>emptyList(), null);
+      newIssue(tree, MESSAGE);
     }
 
     super.visitCallExpression(tree);

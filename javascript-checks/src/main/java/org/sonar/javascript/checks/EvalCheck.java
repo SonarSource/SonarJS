@@ -24,7 +24,7 @@ import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.plugins.javascript.api.tree.expression.CallExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
-import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
+import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
 import org.sonar.squidbridge.annotations.ActivatedByDefault;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
@@ -37,14 +37,14 @@ import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 @ActivatedByDefault
 @SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.INPUT_VALIDATION_AND_REPRESENTATION)
 @SqaleConstantRemediation("30min")
-public class EvalCheck extends BaseTreeVisitor {
+public class EvalCheck extends DoubleDispatchVisitorCheck {
 
   private static final String MESSAGE = "Remove this use of the \"eval\" function.";
 
   @Override
   public void visitCallExpression(CallExpressionTree tree) {
     if (tree.callee() instanceof IdentifierTree && "eval".equals(((IdentifierTree) tree.callee()).name())) {
-      getContext().addIssue(this, tree, MESSAGE);
+      addLineIssue(tree, MESSAGE);
     }
 
     super.visitCallExpression(tree);

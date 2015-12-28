@@ -19,7 +19,6 @@
  */
 package org.sonar.javascript.checks;
 
-import com.google.common.collect.ImmutableList;
 import javax.annotation.Nullable;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
@@ -33,7 +32,7 @@ import org.sonar.plugins.javascript.api.tree.statement.ElseClauseTree;
 import org.sonar.plugins.javascript.api.tree.statement.IfStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.SwitchClauseTree;
 import org.sonar.plugins.javascript.api.tree.statement.SwitchStatementTree;
-import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
+import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
 import org.sonar.plugins.javascript.api.visitors.IssueLocation;
 import org.sonar.squidbridge.annotations.ActivatedByDefault;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
@@ -47,7 +46,7 @@ import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 @ActivatedByDefault
 @SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.LOGIC_RELIABILITY)
 @SqaleConstantRemediation("10min")
-public class DuplicateConditionIfElseAndSwitchCasesCheck extends BaseTreeVisitor {
+public class DuplicateConditionIfElseAndSwitchCasesCheck extends DoubleDispatchVisitorCheck {
 
   private static final String MESSAGE = "This %s duplicates the one on line %s.";
 
@@ -85,8 +84,8 @@ public class DuplicateConditionIfElseAndSwitchCasesCheck extends BaseTreeVisitor
   private void addIssue(Tree original, Tree duplicate, String type) {
     IssueLocation secondaryLocation = new IssueLocation(original, "Original");
     String message = String.format(MESSAGE, type, secondaryLocation.startLine());
-    IssueLocation primaryLocation = new IssueLocation(duplicate, message);
-    getContext().addIssue(this, primaryLocation, ImmutableList.of(secondaryLocation), null);
+    newIssue(duplicate, message)
+      .secondary(secondaryLocation);
   }
 
   /**

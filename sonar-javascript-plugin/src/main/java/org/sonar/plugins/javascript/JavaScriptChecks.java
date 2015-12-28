@@ -29,6 +29,7 @@ import org.sonar.api.batch.rule.Checks;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.plugins.javascript.api.CustomJavaScriptRulesDefinition;
 import org.sonar.plugins.javascript.api.JavaScriptCheck;
+import org.sonar.plugins.javascript.api.visitors.TreeVisitor;
 
 /**
  * Wrapper around Checks Object to ease the manipulation of the different JavaScript rule repositories.
@@ -36,7 +37,7 @@ import org.sonar.plugins.javascript.api.JavaScriptCheck;
 public class JavaScriptChecks {
 
   private final CheckFactory checkFactory;
-  private Set<Checks<JavaScriptCheck>> checksByRepository = Sets.newHashSet();
+  private Set<Checks<TreeVisitor>> checksByRepository = Sets.newHashSet();
 
   private JavaScriptChecks(CheckFactory checkFactory) {
     this.checkFactory = checkFactory;
@@ -48,7 +49,7 @@ public class JavaScriptChecks {
 
   public JavaScriptChecks addChecks(String repositoryKey, List<Class> checkClass) {
     checksByRepository.add(checkFactory
-      .<JavaScriptCheck>create(repositoryKey)
+      .<TreeVisitor>create(repositoryKey)
       .addAnnotatedChecks(checkClass));
 
     return this;
@@ -65,10 +66,10 @@ public class JavaScriptChecks {
     return this;
   }
 
-  public List<JavaScriptCheck> all() {
-    List<JavaScriptCheck> allVisitors = Lists.newArrayList();
+  public List<TreeVisitor> all() {
+    List<TreeVisitor> allVisitors = Lists.newArrayList();
 
-    for (Checks<JavaScriptCheck> checks : checksByRepository) {
+    for (Checks<TreeVisitor> checks : checksByRepository) {
       allVisitors.addAll(checks.all());
     }
 
@@ -79,8 +80,8 @@ public class JavaScriptChecks {
   public RuleKey ruleKeyFor(JavaScriptCheck check) {
     RuleKey ruleKey;
 
-    for (Checks<JavaScriptCheck> checks : checksByRepository) {
-      ruleKey = checks.ruleKey(check);
+    for (Checks<TreeVisitor> checks : checksByRepository) {
+      ruleKey = checks.ruleKey((TreeVisitor) check);
 
       if (ruleKey != null) {
         return ruleKey;

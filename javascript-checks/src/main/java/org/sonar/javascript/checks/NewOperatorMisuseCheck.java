@@ -35,7 +35,7 @@ import org.sonar.plugins.javascript.api.tree.declaration.FunctionTree;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.NewExpressionTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxTrivia;
-import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
+import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
 import org.sonar.squidbridge.annotations.ActivatedByDefault;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
@@ -48,7 +48,7 @@ import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 @ActivatedByDefault
 @SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.INSTRUCTION_RELIABILITY)
 @SqaleConstantRemediation("10min")
-public class NewOperatorMisuseCheck extends BaseTreeVisitor {
+public class NewOperatorMisuseCheck extends DoubleDispatchVisitorCheck {
 
   private static final String MESSAGE = "Replace %s with a constructor function.";
   public static final boolean CONSIDER_JSDOC = false;
@@ -68,7 +68,7 @@ public class NewOperatorMisuseCheck extends BaseTreeVisitor {
       if (!CheckUtils.removeParenthesis(expression).is(Tree.Kind.FUNCTION_EXPRESSION)) {
         expressionStr = CheckUtils.asString(expression);
       }
-      getContext().addIssue(this, expression, String.format(MESSAGE, expressionStr));
+      addLineIssue(expression, String.format(MESSAGE, expressionStr));
     }
 
     super.visitNewExpression(tree);

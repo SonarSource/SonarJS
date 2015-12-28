@@ -29,7 +29,7 @@ import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.javascript.api.tree.statement.ContinueStatementTree;
-import org.sonar.plugins.javascript.api.visitors.TreeVisitor;
+import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitor;
 
 public class ContinueStatementTreeImpl extends JavaScriptTree implements ContinueStatementTree {
 
@@ -77,7 +77,7 @@ public class ContinueStatementTreeImpl extends JavaScriptTree implements Continu
   }
 
   @Override
-  public void accept(TreeVisitor visitor) {
+  public void accept(DoubleDispatchVisitor visitor) {
     visitor.visitContinueStatement(this);
   }
 

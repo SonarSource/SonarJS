@@ -19,12 +19,10 @@
  */
 package org.sonar.javascript.checks;
 
-import com.google.common.collect.ImmutableList;
 import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import org.sonar.api.server.rule.RulesDefinition.SubCharacteristics;
@@ -43,8 +41,7 @@ import org.sonar.plugins.javascript.api.tree.statement.ForOfStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.ForStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.IterationStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.VariableDeclarationTree;
-import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
-import org.sonar.plugins.javascript.api.visitors.IssueLocation;
+import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
 import org.sonar.squidbridge.annotations.ActivatedByDefault;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
@@ -57,7 +54,7 @@ import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 @ActivatedByDefault
 @SqaleSubCharacteristic(SubCharacteristics.LOGIC_RELIABILITY)
 @SqaleConstantRemediation("5min")
-public class CounterUpdatedInLoopCheck extends BaseTreeVisitor {
+public class CounterUpdatedInLoopCheck extends DoubleDispatchVisitorCheck {
 
   private static final String MESSAGE = "Remove this assignment of \"%s\".";
   private static final String SECONDARY_MESSAGE = "Counter variable update";
@@ -190,10 +187,8 @@ public class CounterUpdatedInLoopCheck extends BaseTreeVisitor {
   }
 
   private void raiseIssue(IdentifierTree writeUsage, IdentifierTree identifierUsedInUpdateClause) {
-    List<IssueLocation> secondaryLocations = ImmutableList.of(
-      new IssueLocation(identifierUsedInUpdateClause, SECONDARY_MESSAGE)
-    );
-
-    getContext().addIssue(this, new IssueLocation(writeUsage, String.format(MESSAGE, writeUsage.name())), secondaryLocations, null);
+    String message = String.format(MESSAGE, writeUsage.name());
+    newIssue(writeUsage, message)
+      .secondary(identifierUsedInUpdateClause, SECONDARY_MESSAGE);
   }
 }

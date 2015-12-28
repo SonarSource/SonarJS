@@ -24,7 +24,7 @@ import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.api.server.rule.RulesDefinition.Param;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
-import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
+import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitor;
 
 import static org.fest.assertions.Assertions.assertThat;
 
@@ -63,7 +63,7 @@ public class CustomJavaScriptRulesDefinitionTest {
     name = RULE_NAME,
     description = "desc",
     tags = {"bug"})
-  public class MyCustomRule extends BaseTreeVisitor {
+  public class MyCustomRule extends DoubleDispatchVisitor {
     @RuleProperty(
       key = "customParam",
       description = "Custome parameter",

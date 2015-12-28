@@ -32,7 +32,7 @@ import org.sonar.plugins.javascript.api.tree.declaration.ParameterListTree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.javascript.api.tree.statement.BlockTree;
-import org.sonar.plugins.javascript.api.visitors.TreeVisitor;
+import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitor;
 
 public class FunctionDeclarationTreeImpl extends JavaScriptTree implements FunctionDeclarationTree {
 
@@ -108,7 +108,7 @@ public class FunctionDeclarationTreeImpl extends JavaScriptTree implements Funct
   }
 
   @Override
-  public void accept(TreeVisitor visitor) {
+  public void accept(DoubleDispatchVisitor visitor) {
     visitor.visitFunctionDeclaration(this);
   }
 }

@@ -88,7 +88,7 @@ public class HighlighterVisitorTest extends JavaScriptTreeModelTest {
     Files.write(string, file, CHARSET);
     Tree tree = p.parse(string);
     when(visitorContext.getTopTree()).thenReturn((ScriptTree) tree);
-    highlighterVisitor.scanFile(visitorContext);
+    highlighterVisitor.scanTree(visitorContext);
     verify(highlightingBuilder).done();
   }
 
@@ -100,7 +100,7 @@ public class HighlighterVisitorTest extends JavaScriptTreeModelTest {
 
     Tree tree = p.parse("var a = 1");
     when(visitorContext.getTopTree()).thenReturn((ScriptTree) tree);
-    failingHighlighterVisitor.scanFile(visitorContext);
+    failingHighlighterVisitor.scanTree(visitorContext);
     verifyNoMoreInteractions(highlightingBuilder);
   }
 

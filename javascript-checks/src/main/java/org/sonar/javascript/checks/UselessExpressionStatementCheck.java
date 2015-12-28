@@ -26,7 +26,7 @@ import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.expression.LiteralTree;
 import org.sonar.plugins.javascript.api.tree.statement.ExpressionStatementTree;
-import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
+import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
 import org.sonar.squidbridge.annotations.ActivatedByDefault;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
@@ -39,7 +39,7 @@ import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 @ActivatedByDefault
 @SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.LOGIC_RELIABILITY)
 @SqaleConstantRemediation("5min")
-public class UselessExpressionStatementCheck extends BaseTreeVisitor {
+public class UselessExpressionStatementCheck extends DoubleDispatchVisitorCheck {
 
   private static final String MESSAGE = "Refactor or remove this statement.";
 
@@ -48,11 +48,11 @@ public class UselessExpressionStatementCheck extends BaseTreeVisitor {
     Tree expression = tree.expression();
 
     if (expression.is(Kind.EQUAL_TO)) {
-      getContext().addIssue(this, tree, MESSAGE);
+      addLineIssue(tree, MESSAGE);
     }
 
     if (expression.is(Kind.STRING_LITERAL) && !isUseStrictDirective((LiteralTree) expression)) {
-      getContext().addIssue(this, tree, MESSAGE);
+      addLineIssue(tree, MESSAGE);
     }
 
     super.visitExpressionStatement(tree);

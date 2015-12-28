@@ -30,7 +30,7 @@ import org.sonar.plugins.javascript.api.tree.declaration.MethodDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.declaration.ParameterListTree;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
-import org.sonar.plugins.javascript.api.visitors.TreeVisitor;
+import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitor;
 
 public class MethodDeclarationTreeImpl extends JavaScriptTree implements MethodDeclarationTree {
 
@@ -87,7 +87,7 @@ public class MethodDeclarationTreeImpl extends JavaScriptTree implements MethodD
   }
 
   @Override
-  public void accept(TreeVisitor visitor) {
+  public void accept(DoubleDispatchVisitor visitor) {
     visitor.visitMethodDeclaration(this);
   }
 }

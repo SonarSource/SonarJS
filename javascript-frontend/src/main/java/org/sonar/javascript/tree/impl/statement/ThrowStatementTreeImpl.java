@@ -28,7 +28,7 @@ import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.javascript.api.tree.statement.ThrowStatementTree;
-import org.sonar.plugins.javascript.api.visitors.TreeVisitor;
+import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitor;
 
 public class ThrowStatementTreeImpl extends JavaScriptTree implements ThrowStatementTree {
 
@@ -72,7 +72,7 @@ public class ThrowStatementTreeImpl extends JavaScriptTree implements ThrowState
   }
 
   @Override
-  public void accept(TreeVisitor visitor) {
+  public void accept(DoubleDispatchVisitor visitor) {
     visitor.visitThrowStatement(this);
   }
 }

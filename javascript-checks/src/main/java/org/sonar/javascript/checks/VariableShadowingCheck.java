@@ -29,7 +29,7 @@ import org.sonar.plugins.javascript.api.symbols.Symbol;
 import org.sonar.plugins.javascript.api.symbols.SymbolModel;
 import org.sonar.plugins.javascript.api.symbols.Usage;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
-import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
+import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 
@@ -40,7 +40,7 @@ import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
   tags = {Tags.PITFALL})
 @SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.UNDERSTANDABILITY)
 @SqaleConstantRemediation("10min")
-public class VariableShadowingCheck extends BaseTreeVisitor {
+public class VariableShadowingCheck extends DoubleDispatchVisitorCheck {
 
   private static final String MESSAGE = "\"%s\" hides or potentially hides a variable declared in an outer scope at line %s.";
 
@@ -75,7 +75,7 @@ public class VariableShadowingCheck extends BaseTreeVisitor {
   private void raiseIssuesOnDeclarations(Symbol symbol, String message) {
     for (Usage usage : symbol.usages()) {
       if (usage.isDeclaration() || usage.kind() == Usage.Kind.LEXICAL_DECLARATION) {
-        getContext().addIssue(this, usage.identifierTree(), message);
+        addLineIssue(usage.identifierTree(), message);
       }
     }
   }

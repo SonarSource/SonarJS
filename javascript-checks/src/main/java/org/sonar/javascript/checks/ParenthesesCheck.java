@@ -35,7 +35,7 @@ import org.sonar.plugins.javascript.api.tree.expression.YieldExpressionTree;
 import org.sonar.plugins.javascript.api.tree.statement.ForInStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.ReturnStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.ThrowStatementTree;
-import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
+import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 
@@ -46,7 +46,7 @@ import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
   tags = {Tags.CONFUSING})
 @SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.READABILITY)
 @SqaleConstantRemediation("1min")
-public class ParenthesesCheck extends BaseTreeVisitor {
+public class ParenthesesCheck extends DoubleDispatchVisitorCheck {
 
   private static final String MESSAGE = "Remove useless parentheses around \"%s\".";
 
@@ -154,7 +154,7 @@ public class ParenthesesCheck extends BaseTreeVisitor {
       }
 
       String expressingString = CheckUtils.asString(parenthesisedExpression.expression());
-      getContext().addIssue(this, expression, String.format(MESSAGE, expressingString));
+      addLineIssue(expression, String.format(MESSAGE, expressingString));
     }
   }
 
@@ -164,7 +164,7 @@ public class ParenthesesCheck extends BaseTreeVisitor {
 
       if (nestedExpr != null && !nestedExpr.is(SHOULD_BE_PARENTHESISED_AFTER_TYPEOF)) {
         String expressingString = CheckUtils.asString(nestedExpr);
-        getContext().addIssue(this, nestedExpr, String.format(MESSAGE, expressingString));
+        addLineIssue(nestedExpr, String.format(MESSAGE, expressingString));
       }
     }
   }

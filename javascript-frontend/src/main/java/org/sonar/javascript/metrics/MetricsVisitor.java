@@ -33,12 +33,12 @@ import org.sonar.api.measures.FileLinesContextFactory;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.measures.PersistenceMode;
 import org.sonar.api.measures.RangeDistributionBuilder;
-import org.sonar.javascript.tree.visitors.SubscriptionTreeVisitor;
+import org.sonar.plugins.javascript.api.visitors.SubscriptionVisitor;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.visitors.TreeVisitorContext;
 
-public class MetricsVisitor extends SubscriptionTreeVisitor {
+public class MetricsVisitor extends SubscriptionVisitor {
 
   private static final Number[] LIMITS_COMPLEXITY_FUNCTIONS = {1, 2, 4, 6, 8, 10, 12, 20, 30};
   private static final Number[] FILES_DISTRIB_BOTTOM_LIMITS = {0, 5, 10, 20, 30, 60, 90};
@@ -69,12 +69,15 @@ public class MetricsVisitor extends SubscriptionTreeVisitor {
   private RangeDistributionBuilder functionComplexityDistribution;
   private RangeDistributionBuilder fileComplexityDistribution;
 
+  private ComplexityVisitor complexityVisitor;
+
   public MetricsVisitor(FileSystem fs, SensorContext context, NoSonarFilter noSonarFilter, Boolean ignoreHeaderComments, FileLinesContextFactory fileLinesContextFactory) {
     this.fs = fs;
     this.sensorContext = context;
     this.noSonarFilter = noSonarFilter;
     this.ignoreHeaderComments = ignoreHeaderComments;
     this.fileLinesContextFactory = fileLinesContextFactory;
+    this.complexityVisitor = new ComplexityVisitor();
   }
 
   @Override
@@ -85,28 +88,33 @@ public class MetricsVisitor extends SubscriptionTreeVisitor {
   }
 
   @Override
+  public void leaveFile(Tree scriptTree) {
+    saveComplexityMetrics(getContext());
+    saveCounterMetrics(getContext());
+    saveLineMetrics(getContext());
+  }
+
+  @Override
   public void visitNode(Tree tree) {
     if (tree.is(CLASS_NODES)) {
-      classComplexity += getContext().getComplexity(tree);
+      classComplexity += complexityVisitor.getComplexity(tree);
 
     } else if (tree.is(FUNCTION_NODES)) {
-      int currentFunctionComplexity = getContext().getComplexity(tree);
+      int currentFunctionComplexity = complexityVisitor.getComplexity(tree);
       this.functionComplexity += currentFunctionComplexity;
       functionComplexityDistribution.add(currentFunctionComplexity);
     }
   }
 
+
+
   @Override
-  public void scanFile(TreeVisitorContext context) {
-    this.inputFile = fs.inputFile(fs.predicates().is(context.getFile()));
+  public void visitFile(Tree scriptTree) {
+    this.inputFile = fs.inputFile(fs.predicates().is(getContext().getFile()));
     init();
-
-    super.scanFile(context);
-
-    saveComplexityMetrics(context);
-    saveCounterMetrics(context);
-    saveLineMetrics(context);
   }
+
+
 
   private void init() {
     classComplexity = 0;
@@ -124,7 +132,7 @@ public class MetricsVisitor extends SubscriptionTreeVisitor {
   }
 
   private void saveComplexityMetrics(TreeVisitorContext context) {
-    int fileComplexity = context.getComplexity(context.getTopTree());
+    int fileComplexity = complexityVisitor.getComplexity(context.getTopTree());
 
     saveMetricOnFile(CoreMetrics.COMPLEXITY, fileComplexity);
     saveMetricOnFile(CoreMetrics.COMPLEXITY_IN_CLASSES, classComplexity);

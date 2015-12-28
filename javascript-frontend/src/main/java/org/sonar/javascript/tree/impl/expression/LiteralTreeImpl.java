@@ -29,7 +29,7 @@ import org.sonar.plugins.javascript.api.symbols.TypeSet;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.expression.LiteralTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
-import org.sonar.plugins.javascript.api.visitors.TreeVisitor;
+import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitor;
 
 public class LiteralTreeImpl extends JavaScriptTree implements LiteralTree, TypableTree {
 
@@ -73,7 +73,7 @@ public class LiteralTreeImpl extends JavaScriptTree implements LiteralTree, Typa
   }
 
   @Override
-  public void accept(TreeVisitor visitor) {
+  public void accept(DoubleDispatchVisitor visitor) {
     visitor.visitLiteral(this);
   }
 }

@@ -27,7 +27,7 @@ import org.sonar.javascript.tree.impl.lexical.InternalSyntaxToken;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.javascript.api.tree.statement.DebuggerStatementTree;
-import org.sonar.plugins.javascript.api.visitors.TreeVisitor;
+import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitor;
 
 public class DebuggerStatementTreeImpl extends JavaScriptTree implements DebuggerStatementTree {
 
@@ -62,7 +62,7 @@ public class DebuggerStatementTreeImpl extends JavaScriptTree implements Debugge
   }
 
   @Override
-  public void accept(TreeVisitor visitor) {
+  public void accept(DoubleDispatchVisitor visitor) {
     visitor.visitDebugger(this);
   }
 }

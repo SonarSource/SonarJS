@@ -26,6 +26,7 @@ import java.util.Stack;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
+import org.sonar.plugins.javascript.api.tree.ScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.declaration.FunctionDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.expression.FunctionExpressionTree;
@@ -40,9 +41,9 @@ import org.sonar.plugins.javascript.api.tree.statement.ForStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.LabelledStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.SwitchStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.WhileStatementTree;
-import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
+import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
 import org.sonar.plugins.javascript.api.visitors.IssueLocation;
-import org.sonar.plugins.javascript.api.visitors.TreeVisitorContext;
+import org.sonar.plugins.javascript.api.visitors.PreciseIssue;
 import org.sonar.squidbridge.annotations.ActivatedByDefault;
 import org.sonar.squidbridge.annotations.SqaleLinearRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
@@ -58,7 +59,7 @@ import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
   coeff = "20min",
   effortToFixDescription = "per extra \"break\" or \"continue\" statement"
 )
-public class TooManyBreakOrContinueInLoopCheck extends BaseTreeVisitor {
+public class TooManyBreakOrContinueInLoopCheck extends DoubleDispatchVisitorCheck {
 
   private static final String MESSAGE = "Reduce the total number of \"break\" and \"continue\" statements in this loop to use one at most.";
 
@@ -84,9 +85,9 @@ public class TooManyBreakOrContinueInLoopCheck extends BaseTreeVisitor {
   private Stack<JumpTarget> jumpTargets = new Stack<>();
 
   @Override
-  public void scanFile(TreeVisitorContext context) {
+  public void visitScript(ScriptTree tree) {
     jumpTargets.clear();
-    super.scanFile(context);
+    super.visitScript(tree);
   }
 
   @Override
@@ -188,12 +189,10 @@ public class TooManyBreakOrContinueInLoopCheck extends BaseTreeVisitor {
     List<Tree> jumps = jumpTargets.pop().jumps;
     int jumpStatementNumber = jumps.size();
     if (jumpStatementNumber > 1) {
-      IssueLocation primaryLocation = new IssueLocation(loopKeyword, MESSAGE);
-      List<IssueLocation> secondaryLocations = new ArrayList<>();
+      PreciseIssue issue = newIssue(loopKeyword, MESSAGE).cost((double) jumpStatementNumber - 1);
       for (Tree jump : jumps) {
-        secondaryLocations.add(new IssueLocation(jump));
+        issue.secondary(new IssueLocation(jump));
       }
-      getContext().addIssue(this, primaryLocation, secondaryLocations, (double) jumpStatementNumber - 1);
     }
   }
 

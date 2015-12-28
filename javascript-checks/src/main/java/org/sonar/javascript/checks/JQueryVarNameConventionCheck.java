@@ -20,21 +20,17 @@
 package org.sonar.javascript.checks;
 
 import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableList;
 import java.util.regex.Pattern;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
-import org.sonar.plugins.javascript.api.JavaScriptCheck;
 import org.sonar.plugins.javascript.api.symbols.Symbol;
 import org.sonar.plugins.javascript.api.symbols.SymbolModel;
 import org.sonar.plugins.javascript.api.symbols.Type;
 import org.sonar.plugins.javascript.api.symbols.Usage;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
-import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
-import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
-import org.sonar.plugins.javascript.api.visitors.IssueLocation;
+import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 
@@ -45,7 +41,7 @@ import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
   tags = {Tags.JQUERY, Tags.CONVENTION})
 @SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.UNDERSTANDABILITY)
 @SqaleConstantRemediation("5min")
-public class JQueryVarNameConventionCheck extends BaseTreeVisitor {
+public class JQueryVarNameConventionCheck extends DoubleDispatchVisitorCheck {
 
   private static final String MESSAGE = "Rename variable \"%s\" to match the regular expression %s.";
 
@@ -68,30 +64,26 @@ public class JQueryVarNameConventionCheck extends BaseTreeVisitor {
     for (Symbol symbol : symbolModel.getSymbols(Symbol.Kind.VARIABLE)) {
       boolean onlyJQuerySelectorType = symbol.types().containsOnly(Type.Kind.JQUERY_SELECTOR_OBJECT);
       if (!symbol.builtIn() && onlyJQuerySelectorType && !pattern.matcher(symbol.name()).matches()) {
-        raiseIssuesOnDeclarations(this, symbol, String.format(MESSAGE, symbol.name(), format));
+        raiseIssuesOnDeclarations(symbol, String.format(MESSAGE, symbol.name(), format));
       }
     }
   }
 
-  protected void raiseIssuesOnDeclarations(JavaScriptCheck check, Symbol symbol, String message) {
+  protected void raiseIssuesOnDeclarations(Symbol symbol, String message) {
     Preconditions.checkArgument(!symbol.builtIn());
 
     boolean issueRaised = false;
     for (Usage usage : symbol.usages()) {
       if (usage.isDeclaration()) {
-        addIssue(check, message, usage.identifierTree());
+        newIssue(usage.identifierTree(), message);
         issueRaised = true;
       }
     }
 
     if (!issueRaised) {
-      addIssue(check, message, symbol.usages().iterator().next().identifierTree());
+      newIssue(symbol.usages().iterator().next().identifierTree(), message);
     }
 
-  }
-
-  private void addIssue(JavaScriptCheck check, String message, IdentifierTree identifier) {
-    getContext().addIssue(check, new IssueLocation(identifier, message), ImmutableList.<IssueLocation>of(), null);
   }
 
 }

@@ -19,61 +19,46 @@
  */
 package org.sonar.javascript.issues;
 
-import java.util.List;
 import org.sonar.api.batch.SensorContext;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.TextRange;
 import org.sonar.api.batch.sensor.issue.NewIssue;
 import org.sonar.api.batch.sensor.issue.NewIssueLocation;
 import org.sonar.api.rule.RuleKey;
+import org.sonar.plugins.javascript.api.visitors.PreciseIssue;
 import org.sonar.plugins.javascript.api.visitors.IssueLocation;
 
-public class PreciseIssue {
+public class PreciseIssueCompat {
 
-  private final SensorContext sensorContext;
-  private final InputFile inputFile;
-  private final RuleKey ruleKey;
-  private final IssueLocation primaryLocation;
-  private final List<IssueLocation> secondaryLocations;
-  private final Double cost;
-
-  private PreciseIssue(
-    SensorContext sensorContext, InputFile inputFile, RuleKey ruleKey,
-    IssueLocation location, List<IssueLocation> secondaryLocations, Double cost
-  ) {
-    this.sensorContext = sensorContext;
-    this.inputFile = inputFile;
-    this.ruleKey = ruleKey;
-    this.primaryLocation = location;
-    this.secondaryLocations = secondaryLocations;
-    this.cost = cost;
+  private PreciseIssueCompat() {
   }
 
-  public static void save(
-    SensorContext sensorContext, InputFile inputFile, RuleKey ruleKey,
-    IssueLocation location, List<IssueLocation> secondaryLocations, Double cost
-  ) {
-    PreciseIssue preciseIssue = new PreciseIssue(sensorContext, inputFile, ruleKey, location, secondaryLocations, cost);
-    preciseIssue.save();
-  }
-
-  private void save() {
+  public static void save(SensorContext sensorContext, InputFile inputFile, RuleKey ruleKey, PreciseIssue issue) {
     NewIssue newIssue = sensorContext.newIssue();
-    newIssue.forRule(ruleKey)
-      .at(newLocation(newIssue, primaryLocation))
-      .effortToFix(cost);
-    for (IssueLocation secondary : secondaryLocations) {
-      newIssue.addLocation(newLocation(newIssue, secondary));
+
+    newIssue
+      .forRule(ruleKey)
+      .at(newLocation(inputFile, newIssue, issue.primaryLocation()));
+
+    if (issue.cost() != null) {
+      newIssue.effortToFix(issue.cost());
+    }
+
+    for (IssueLocation secondary : issue.secondaryLocations()) {
+      newIssue.addLocation(newLocation(inputFile, newIssue, secondary));
     }
     newIssue.save();
   }
 
-  private NewIssueLocation newLocation(NewIssue issue, IssueLocation location) {
+
+  private static NewIssueLocation newLocation(InputFile inputFile, NewIssue issue, IssueLocation location) {
     TextRange range = inputFile.newRange(
       location.startLine(), location.startLineOffset(), location.endLine(), location.endLineOffset());
+
     NewIssueLocation newLocation = issue.newLocation()
       .on(inputFile)
       .at(range);
+
     if (location.message() != null) {
       newLocation.message(location.message());
     }

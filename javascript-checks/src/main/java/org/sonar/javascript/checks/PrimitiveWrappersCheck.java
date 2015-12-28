@@ -26,7 +26,7 @@ import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.javascript.checks.utils.CheckUtils;
 import org.sonar.plugins.javascript.api.tree.expression.NewExpressionTree;
-import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
+import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
 import org.sonar.squidbridge.annotations.ActivatedByDefault;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
@@ -39,7 +39,7 @@ import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 @ActivatedByDefault
 @SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.INSTRUCTION_RELIABILITY)
 @SqaleConstantRemediation("1min")
-public class PrimitiveWrappersCheck extends BaseTreeVisitor {
+public class PrimitiveWrappersCheck extends DoubleDispatchVisitorCheck {
 
   private static final String MESSAGE = "Use a literal value for this.";
   private static final Set<String> WRAPPERS = ImmutableSet.of("Boolean", "Number", "String");
@@ -47,7 +47,7 @@ public class PrimitiveWrappersCheck extends BaseTreeVisitor {
   @Override
   public void visitNewExpression(NewExpressionTree tree) {
     if (WRAPPERS.contains(CheckUtils.asString(tree.expression()))) {
-      getContext().addIssue(this, tree.expression(), MESSAGE);
+      addLineIssue(tree.expression(), MESSAGE);
     }
 
     super.visitNewExpression(tree);

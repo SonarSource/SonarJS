@@ -23,7 +23,7 @@ import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.plugins.javascript.api.tree.statement.WithStatementTree;
-import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
+import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
 import org.sonar.squidbridge.annotations.ActivatedByDefault;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
@@ -36,13 +36,13 @@ import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 @ActivatedByDefault
 @SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.INSTRUCTION_RELIABILITY)
 @SqaleConstantRemediation("30min")
-public class WithStatementCheck extends BaseTreeVisitor {
+public class WithStatementCheck extends DoubleDispatchVisitorCheck {
 
   private static final String MESSAGE = "Remove this use of \"with\".";
 
   @Override
   public void visitWithStatement(WithStatementTree tree) {
-    getContext().addIssue(this, tree, MESSAGE);
+    addLineIssue(tree, MESSAGE);
 
     super.visitWithStatement(tree);
   }

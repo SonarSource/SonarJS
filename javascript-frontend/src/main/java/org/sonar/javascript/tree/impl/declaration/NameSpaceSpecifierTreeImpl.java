@@ -29,7 +29,7 @@ import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.declaration.SpecifierTree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
-import org.sonar.plugins.javascript.api.visitors.TreeVisitor;
+import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitor;
 
 public class NameSpaceSpecifierTreeImpl extends JavaScriptTree implements SpecifierTree {
 
@@ -72,7 +72,7 @@ public class NameSpaceSpecifierTreeImpl extends JavaScriptTree implements Specif
   }
 
   @Override
-  public void accept(TreeVisitor visitor) {
+  public void accept(DoubleDispatchVisitor visitor) {
     visitor.visitSpecifier(this);
   }
 }

@@ -28,7 +28,7 @@ import org.sonar.plugins.javascript.api.symbols.Symbol;
 import org.sonar.plugins.javascript.api.symbols.SymbolModel;
 import org.sonar.plugins.javascript.api.symbols.Usage;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
-import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
+import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
 import org.sonar.squidbridge.annotations.ActivatedByDefault;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
@@ -41,7 +41,7 @@ import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 @ActivatedByDefault
 @SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.LOGIC_RELIABILITY)
 @SqaleConstantRemediation("20min")
-public class RedeclaredSymbolCheck extends BaseTreeVisitor {
+public class RedeclaredSymbolCheck extends DoubleDispatchVisitorCheck {
 
   private static final String MESSAGE = "Rename \"%s\" as this name is already used in declaration at line %s.";
 
@@ -64,7 +64,7 @@ public class RedeclaredSymbolCheck extends BaseTreeVisitor {
           firstDeclaration = usage;
         }
       } else if (usage.isDeclaration()) {
-        getContext().addIssue(this, usage.identifierTree(), String.format(MESSAGE, symbol.name(), ((JavaScriptTree) firstDeclaration.identifierTree()).getLine()));
+        addLineIssue(usage.identifierTree(), String.format(MESSAGE, symbol.name(), ((JavaScriptTree) firstDeclaration.identifierTree()).getLine()));
       }
     }
   }

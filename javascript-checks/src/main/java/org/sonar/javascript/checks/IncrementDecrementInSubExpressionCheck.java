@@ -19,7 +19,6 @@
  */
 package org.sonar.javascript.checks;
 
-import java.util.Collections;
 import javax.annotation.Nullable;
 import org.sonar.api.server.rule.RulesDefinition.SubCharacteristics;
 import org.sonar.check.Priority;
@@ -30,8 +29,7 @@ import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.UnaryExpressionTree;
 import org.sonar.plugins.javascript.api.tree.statement.ExpressionStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.ForStatementTree;
-import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
-import org.sonar.plugins.javascript.api.visitors.IssueLocation;
+import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 
@@ -42,7 +40,7 @@ import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
   tags = {Tags.CERT, Tags.MISRA})
 @SqaleSubCharacteristic(SubCharacteristics.LOGIC_RELIABILITY)
 @SqaleConstantRemediation("5min")
-public class IncrementDecrementInSubExpressionCheck extends BaseTreeVisitor {
+public class IncrementDecrementInSubExpressionCheck extends DoubleDispatchVisitorCheck {
 
   private static final String MESSAGE = "Extract this %s operation into a dedicated statement.";
 
@@ -97,6 +95,6 @@ public class IncrementDecrementInSubExpressionCheck extends BaseTreeVisitor {
 
   private void raiseIssue(UnaryExpressionTree tree) {
     String message = String.format(MESSAGE, "++".equals(tree.operator().text()) ? "increment" : "decrement");
-    getContext().addIssue(this, new IssueLocation(tree.operator(), message), Collections.<IssueLocation>emptyList(), null);
+    newIssue(tree.operator(), message);
   }
 }

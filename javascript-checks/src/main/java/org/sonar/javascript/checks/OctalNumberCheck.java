@@ -24,7 +24,7 @@ import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.expression.LiteralTree;
-import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
+import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
 import org.sonar.squidbridge.annotations.ActivatedByDefault;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
@@ -37,7 +37,7 @@ import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 @ActivatedByDefault
 @SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.DATA_RELIABILITY)
 @SqaleConstantRemediation("5min")
-public class OctalNumberCheck extends BaseTreeVisitor {
+public class OctalNumberCheck extends DoubleDispatchVisitorCheck {
 
   private static final String MESSAGE = "Replace the value of the octal number (%s) by its decimal equivalent (%s).";
 
@@ -53,7 +53,7 @@ public class OctalNumberCheck extends BaseTreeVisitor {
           return;
         }
         if (newValue > 9) {
-          getContext().addIssue(this, tree, String.format(MESSAGE, value, newValue));
+          addLineIssue(tree, String.format(MESSAGE, value, newValue));
         }
       }
     }

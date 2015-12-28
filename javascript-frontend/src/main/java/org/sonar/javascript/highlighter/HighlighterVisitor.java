@@ -33,16 +33,15 @@ import org.sonar.api.source.Highlightable.HighlightingBuilder;
 import org.sonar.javascript.lexer.JavaScriptKeyword;
 import org.sonar.javascript.tree.impl.expression.LiteralTreeImpl;
 import org.sonar.javascript.tree.impl.lexical.InternalSyntaxToken;
-import org.sonar.javascript.tree.visitors.SubscriptionTreeVisitor;
+import org.sonar.plugins.javascript.api.visitors.SubscriptionVisitor;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.declaration.MethodDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxTrivia;
 import org.sonar.plugins.javascript.api.tree.statement.VariableDeclarationTree;
-import org.sonar.plugins.javascript.api.visitors.TreeVisitorContext;
 
-public class HighlighterVisitor extends SubscriptionTreeVisitor {
+public class HighlighterVisitor extends SubscriptionVisitor {
 
   private final ResourcePerspectives resourcePerspectives;
   private final FileSystem fileSystem;
@@ -75,21 +74,28 @@ public class HighlighterVisitor extends SubscriptionTreeVisitor {
       .build();
   }
 
-  @Override
-  public void scanFile(TreeVisitorContext context) {
-    highlighting = initHighlighting(context.getFile());
-    if (highlighting != null) {
-      super.scanFile(context);
-      stopHighlighting();
-    }
-  }
-
   private void stopHighlighting() {
     highlighting.done();
   }
 
   @Override
+  public void visitFile(Tree scriptTree) {
+    highlighting = initHighlighting(getContext().getFile());
+  }
+
+  @Override
+  public void leaveFile(Tree scriptTree) {
+    if (highlighting != null) {
+      stopHighlighting();
+    }
+  }
+
+  @Override
   public void visitNode(Tree tree) {
+    if (highlighting == null) {
+      return;
+    }
+
     SyntaxToken token;
 
     if (tree.is(METHODS)) {

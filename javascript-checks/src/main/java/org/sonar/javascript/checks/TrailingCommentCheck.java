@@ -29,7 +29,8 @@ import org.sonar.check.RuleProperty;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxTrivia;
-import org.sonar.plugins.javascript.api.visitors.SubscriptionBaseTreeVisitor;
+import org.sonar.plugins.javascript.api.visitors.LineIssue;
+import org.sonar.plugins.javascript.api.visitors.SubscriptionVisitorCheck;
 import org.sonar.squidbridge.annotations.ActivatedByDefault;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
@@ -42,7 +43,7 @@ import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 @ActivatedByDefault
 @SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.READABILITY)
 @SqaleConstantRemediation("1min")
-public class TrailingCommentCheck extends SubscriptionBaseTreeVisitor {
+public class TrailingCommentCheck extends SubscriptionVisitorCheck {
 
   private static final String MESSAGE = "Move this trailing comment on the previous empty line.";
 
@@ -75,7 +76,7 @@ public class TrailingCommentCheck extends SubscriptionBaseTreeVisitor {
       if (trivia.line() == previousTokenLine) {
         String comment = trivia.text();
         if (comment.startsWith("//") && !pattern.matcher(comment).matches()) {
-          getContext().addIssue(this, previousTokenLine, MESSAGE);
+          addIssue(new LineIssue(this, previousTokenLine, MESSAGE));
         }
       }
     }

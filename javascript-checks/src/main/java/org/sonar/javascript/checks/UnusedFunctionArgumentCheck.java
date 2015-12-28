@@ -37,7 +37,7 @@ import org.sonar.plugins.javascript.api.symbols.SymbolModel;
 import org.sonar.plugins.javascript.api.symbols.Usage;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
-import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
+import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
 import org.sonar.squidbridge.annotations.ActivatedByDefault;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
@@ -50,7 +50,7 @@ import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 @ActivatedByDefault
 @SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.UNDERSTANDABILITY)
 @SqaleConstantRemediation("5min")
-public class UnusedFunctionArgumentCheck extends BaseTreeVisitor {
+public class UnusedFunctionArgumentCheck extends DoubleDispatchVisitorCheck {
 
   private static final String MESSAGE = "Remove the unused function parameter%s \"%s\".";
 
@@ -114,7 +114,7 @@ public class UnusedFunctionArgumentCheck extends BaseTreeVisitor {
 
     if (!unusedArguments.isEmpty()) {
       String ending = unusedArguments.size() == 1 ? "" : "s";
-      getContext().addIssue(this, scope.tree(), String.format(MESSAGE, ending, getListOfArguments(unusedArguments)));
+      addLineIssue(scope.tree(), String.format(MESSAGE, ending, getListOfArguments(unusedArguments)));
     }
   }
 

@@ -26,7 +26,7 @@ import org.sonar.javascript.tree.SyntacticEquivalence;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.expression.AssignmentExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
-import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
+import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
 import org.sonar.squidbridge.annotations.ActivatedByDefault;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
@@ -39,7 +39,7 @@ import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 @ActivatedByDefault
 @SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.DATA_RELIABILITY)
 @SqaleConstantRemediation("3min")
-public class SelfAssignmentCheck extends BaseTreeVisitor {
+public class SelfAssignmentCheck extends DoubleDispatchVisitorCheck {
 
   private static final String MESSAGE = "Remove or correct this useless self-assignment.";
 
@@ -47,7 +47,7 @@ public class SelfAssignmentCheck extends BaseTreeVisitor {
   public void visitAssignmentExpression(AssignmentExpressionTree tree) {
     ExpressionTree variable = tree.variable();
     if (tree.is(Tree.Kind.ASSIGNMENT) && SyntacticEquivalence.areEquivalent(variable, tree.expression())) {
-      getContext().addIssue(this, tree, MESSAGE);
+      addLineIssue(tree, MESSAGE);
     }
     super.visitAssignmentExpression(tree);
   }

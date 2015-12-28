@@ -31,7 +31,7 @@ import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.expression.LiteralTree;
-import org.sonar.plugins.javascript.api.visitors.SubscriptionBaseTreeVisitor;
+import org.sonar.plugins.javascript.api.visitors.SubscriptionVisitorCheck;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 
@@ -43,7 +43,7 @@ import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 )
 @SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.SECURITY_FEATURES)
 @SqaleConstantRemediation("15min")
-public class UntrustedContentCheck extends SubscriptionBaseTreeVisitor {
+public class UntrustedContentCheck extends SubscriptionVisitorCheck {
 
   private static final String MESSAGE = "Remove this content from an untrusted source.";
 
@@ -85,7 +85,7 @@ public class UntrustedContentCheck extends SubscriptionBaseTreeVisitor {
       try {
         URI uri = new URI(value);
         if (isBad(uri)) {
-          getContext().addIssue(this, tree, MESSAGE);
+          addLineIssue(tree, MESSAGE);
         }
       } catch (URISyntaxException e) {
         // we don't consider uri, which could not be parsed

@@ -34,7 +34,7 @@ import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.LiteralTree;
 import org.sonar.plugins.javascript.api.tree.expression.ObjectLiteralTree;
 import org.sonar.plugins.javascript.api.tree.expression.PairPropertyTree;
-import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
+import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 
@@ -45,7 +45,7 @@ import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
   tags = {Tags.BACKBONE, Tags.BUG})
 @SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.DATA_RELIABILITY)
 @SqaleConstantRemediation("5min")
-public class SpaceInModelPropertyNameCheck extends BaseTreeVisitor {
+public class SpaceInModelPropertyNameCheck extends DoubleDispatchVisitorCheck {
 
   private static final String SET = "set";
   private static final String MESSAGE = "Rename this property to remove the spaces.";
@@ -103,7 +103,7 @@ public class SpaceInModelPropertyNameCheck extends BaseTreeVisitor {
 
   private void checkString(ExpressionTree key) {
     if (key.is(Kind.STRING_LITERAL) && StringUtils.contains(((LiteralTree) key).value(), ' ')) {
-      getContext().addIssue(this, key, MESSAGE);
+      addLineIssue(key, MESSAGE);
     }
   }
 

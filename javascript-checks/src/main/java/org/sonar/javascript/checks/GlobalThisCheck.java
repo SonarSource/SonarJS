@@ -26,7 +26,7 @@ import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.expression.MemberExpressionTree;
-import org.sonar.plugins.javascript.api.visitors.SubscriptionBaseTreeVisitor;
+import org.sonar.plugins.javascript.api.visitors.SubscriptionVisitorCheck;
 import org.sonar.squidbridge.annotations.ActivatedByDefault;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
@@ -39,7 +39,7 @@ import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 @SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.INSTRUCTION_RELIABILITY)
 @SqaleConstantRemediation("5min")
 @ActivatedByDefault
-public class GlobalThisCheck extends SubscriptionBaseTreeVisitor {
+public class GlobalThisCheck extends SubscriptionVisitorCheck {
 
   private static final String MESSAGE = "Remove the use of \"this\".";
   private int scopeLevel = 0;
@@ -64,7 +64,7 @@ public class GlobalThisCheck extends SubscriptionBaseTreeVisitor {
   public void visitNode(Tree tree) {
     if (tree.is(Tree.Kind.DOT_MEMBER_EXPRESSION)) {
       if (((MemberExpressionTree) tree).object().is(Tree.Kind.THIS) && scopeLevel == 0) {
-        getContext().addIssue(this, tree, MESSAGE);
+        addLineIssue(tree, MESSAGE);
       }
       return;
     }

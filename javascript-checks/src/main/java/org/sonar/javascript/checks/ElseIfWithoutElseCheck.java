@@ -25,7 +25,7 @@ import org.sonar.check.Rule;
 import org.sonar.javascript.tree.impl.statement.IfStatementTreeImpl;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.statement.ElseClauseTree;
-import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
+import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 
@@ -36,7 +36,7 @@ import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
   tags = {Tags.CERT, Tags.MISRA})
 @SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.LOGIC_RELIABILITY)
 @SqaleConstantRemediation("5min")
-public class ElseIfWithoutElseCheck extends BaseTreeVisitor {
+public class ElseIfWithoutElseCheck extends DoubleDispatchVisitorCheck {
 
   private static final String MESSAGE = "Add the missing \"else\" clause.";
 
@@ -46,7 +46,7 @@ public class ElseIfWithoutElseCheck extends BaseTreeVisitor {
       IfStatementTreeImpl ifStmt = (IfStatementTreeImpl) tree.statement();
 
       if (!ifStmt.hasElse()) {
-        getContext().addIssue(this, ifStmt, MESSAGE);
+        addLineIssue(ifStmt, MESSAGE);
       }
 
     }

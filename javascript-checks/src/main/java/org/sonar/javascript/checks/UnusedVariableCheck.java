@@ -28,7 +28,7 @@ import org.sonar.plugins.javascript.api.symbols.SymbolModel;
 import org.sonar.plugins.javascript.api.symbols.Usage;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
-import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
+import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
 import org.sonar.squidbridge.annotations.ActivatedByDefault;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
@@ -41,7 +41,7 @@ import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 @ActivatedByDefault
 @SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.UNDERSTANDABILITY)
 @SqaleConstantRemediation("5min")
-public class UnusedVariableCheck extends BaseTreeVisitor {
+public class UnusedVariableCheck extends DoubleDispatchVisitorCheck {
 
   private static final String MESSAGE = "Remove the declaration of the unused '%s' variable.";
 
@@ -61,7 +61,7 @@ public class UnusedVariableCheck extends BaseTreeVisitor {
   private void raiseIssuesOnDeclarations(Symbol symbol, String message) {
     for (Usage usage : symbol.usages()) {
       if (usage.isDeclaration()) {
-        getContext().addIssue(this, usage.identifierTree(), message);
+        addLineIssue(usage.identifierTree(), message);
       }
     }
   }

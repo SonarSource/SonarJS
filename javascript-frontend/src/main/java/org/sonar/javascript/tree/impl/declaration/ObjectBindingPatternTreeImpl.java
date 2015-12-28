@@ -35,7 +35,7 @@ import org.sonar.plugins.javascript.api.tree.declaration.InitializedBindingEleme
 import org.sonar.plugins.javascript.api.tree.declaration.ObjectBindingPatternTree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
-import org.sonar.plugins.javascript.api.visitors.TreeVisitor;
+import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitor;
 
 public class ObjectBindingPatternTreeImpl extends JavaScriptTree implements ObjectBindingPatternTree {
 
@@ -91,7 +91,7 @@ public class ObjectBindingPatternTreeImpl extends JavaScriptTree implements Obje
   }
 
   @Override
-  public void accept(TreeVisitor visitor) {
+  public void accept(DoubleDispatchVisitor visitor) {
     visitor.visitObjectBindingPattern(this);
   }
 

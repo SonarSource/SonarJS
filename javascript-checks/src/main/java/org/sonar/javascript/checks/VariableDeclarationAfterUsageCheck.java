@@ -31,8 +31,7 @@ import org.sonar.plugins.javascript.api.symbols.Symbol;
 import org.sonar.plugins.javascript.api.symbols.SymbolModel;
 import org.sonar.plugins.javascript.api.symbols.Usage;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
-import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
-import org.sonar.plugins.javascript.api.visitors.IssueLocation;
+import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
 import org.sonar.squidbridge.annotations.ActivatedByDefault;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
@@ -45,7 +44,7 @@ import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 @ActivatedByDefault
 @SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.LOGIC_RELIABILITY)
 @SqaleConstantRemediation("10min")
-public class VariableDeclarationAfterUsageCheck extends BaseTreeVisitor {
+public class VariableDeclarationAfterUsageCheck extends DoubleDispatchVisitorCheck {
 
   private static final String MESSAGE = "Move the declaration of \"%s\" before this usage.";
 
@@ -77,9 +76,8 @@ public class VariableDeclarationAfterUsageCheck extends BaseTreeVisitor {
 
       for (int i = 1; i < usages.size(); i++) {
         if (usages.get(i).isDeclaration()) {
-          IssueLocation primaryLocation = new IssueLocation(usages.get(0).identifierTree(), String.format(MESSAGE, symbol.name()));
-          IssueLocation secondaryLocation = new IssueLocation(usages.get(i).identifierTree(), "Declaration");
-          getContext().addIssue(this, primaryLocation, Collections.singletonList(secondaryLocation), null);
+          newIssue(usages.get(0).identifierTree(), String.format(MESSAGE, symbol.name()))
+            .secondary(usages.get(i).identifierTree(), "Declaration");
           return;
         }
       }

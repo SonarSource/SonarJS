@@ -24,13 +24,14 @@ import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.javascript.checks.utils.CheckUtils;
 import org.sonar.javascript.tree.SyntacticEquivalence;
+import org.sonar.plugins.javascript.api.JavaScriptCheck;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.expression.BinaryExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 import org.sonar.plugins.javascript.api.tree.expression.MemberExpressionTree;
-import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
-import org.sonar.plugins.javascript.api.visitors.TreeVisitorContext;
+import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
+import org.sonar.plugins.javascript.api.visitors.LineIssue;
 import org.sonar.squidbridge.annotations.ActivatedByDefault;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
@@ -43,7 +44,7 @@ import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 @ActivatedByDefault
 @SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.LOGIC_RELIABILITY)
 @SqaleConstantRemediation("2min")
-public class NullDereferenceInConditionalCheck extends BaseTreeVisitor {
+public class NullDereferenceInConditionalCheck extends DoubleDispatchVisitorCheck {
 
   private static final String MESSAGE = "Either reverse the equality operator in the \"%s\" null test, or reverse the logical operator that follows it.";
 
@@ -52,7 +53,7 @@ public class NullDereferenceInConditionalCheck extends BaseTreeVisitor {
     if (isAndWithEqualToNull(tree) || isOrWithNonEqualToNull(tree)) {
       BinaryExpressionTree leftOperand = (BinaryExpressionTree) CheckUtils.removeParenthesis(tree.leftOperand());
       ExpressionTree expression = CheckUtils.removeParenthesis(getNonNullLiteralOperand(leftOperand));
-      tree.rightOperand().accept(new NullExpressionUsageVisitor(expression, getContext()));
+      tree.rightOperand().accept(new NullExpressionUsageVisitor(expression, this));
     }
     super.visitBinaryExpression(tree);
   }
@@ -88,21 +89,21 @@ public class NullDereferenceInConditionalCheck extends BaseTreeVisitor {
       || (tree.is(Tree.Kind.IDENTIFIER_REFERENCE) && "undefined".equals(((IdentifierTree) tree).identifierToken().text()));
   }
 
-  private class NullExpressionUsageVisitor extends BaseTreeVisitor {
+  private class NullExpressionUsageVisitor extends DoubleDispatchVisitorCheck {
 
     private ExpressionTree nullExpression;
-    private TreeVisitorContext context;
+    private JavaScriptCheck check;
 
-    public NullExpressionUsageVisitor(ExpressionTree nullExpression, TreeVisitorContext context) {
+    public NullExpressionUsageVisitor(ExpressionTree nullExpression, JavaScriptCheck check) {
       this.nullExpression = nullExpression;
-      this.context = context;
+      this.check = check;
     }
 
     @Override
     public void visitMemberExpression(MemberExpressionTree tree) {
       if (SyntacticEquivalence.areEquivalent(tree.object(), nullExpression)) {
-        context.addIssue(NullDereferenceInConditionalCheck.this, nullExpression,
-          String.format(MESSAGE, CheckUtils.asString(nullExpression)));
+        check.addIssue(new LineIssue(NullDereferenceInConditionalCheck.this, nullExpression,
+          String.format(MESSAGE, CheckUtils.asString(nullExpression))));
       }
       super.visitMemberExpression(tree);
     }

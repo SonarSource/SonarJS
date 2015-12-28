@@ -34,7 +34,7 @@ import org.sonar.javascript.tree.impl.lexical.InternalSyntaxToken;
 import org.sonar.javascript.tree.impl.lexical.InternalSyntaxTrivia;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxTrivia;
-import org.sonar.plugins.javascript.api.visitors.TreeVisitor;
+import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitor;
 import org.sonar.sslr.grammar.GrammarRuleKey;
 
 public class JavaScriptNodeBuilder implements NodeBuilder {
@@ -105,7 +105,7 @@ public class JavaScriptNodeBuilder implements NodeBuilder {
   private static class InternalSyntaxSpacing extends JavaScriptTree {
 
     @Override
-    public void accept(TreeVisitor visitor) {
+    public void accept(DoubleDispatchVisitor visitor) {
       // nothing to do
     }
 

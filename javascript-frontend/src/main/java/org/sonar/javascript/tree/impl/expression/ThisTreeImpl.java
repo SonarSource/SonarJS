@@ -28,7 +28,7 @@ import org.sonar.plugins.javascript.api.symbols.Type;
 import org.sonar.plugins.javascript.api.symbols.TypeSet;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.expression.ThisTree;
-import org.sonar.plugins.javascript.api.visitors.TreeVisitor;
+import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitor;
 
 public class ThisTreeImpl extends JavaScriptTree implements ThisTree, TypableTree {
 
@@ -55,7 +55,7 @@ public class ThisTreeImpl extends JavaScriptTree implements ThisTree, TypableTre
   }
 
   @Override
-  public void accept(TreeVisitor visitor) {
+  public void accept(DoubleDispatchVisitor visitor) {
     visitor.visitThisTree(this);
   }
 

@@ -39,7 +39,7 @@ import org.sonar.plugins.javascript.api.tree.statement.ExpressionStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.ReturnStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.ThrowStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.VariableStatementTree;
-import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
+import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
 import org.sonar.squidbridge.annotations.ActivatedByDefault;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
@@ -52,13 +52,13 @@ import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 @ActivatedByDefault
 @SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.LOGIC_RELIABILITY)
 @SqaleConstantRemediation("1min")
-public class SemicolonCheck extends BaseTreeVisitor {
+public class SemicolonCheck extends DoubleDispatchVisitorCheck {
 
   private static final String MESSAGE = "Add a semicolon at the end of this statement.";
 
   private void checkEOS(Tree tree, @Nullable SyntaxToken semicolonToken) {
     if (semicolonToken == null) {
-      getContext().addIssue(this, tree, MESSAGE);
+      addLineIssue(tree, MESSAGE);
     }
   }
 

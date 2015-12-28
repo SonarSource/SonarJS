@@ -19,7 +19,6 @@
  */
 package org.sonar.javascript.checks;
 
-import com.google.common.collect.ImmutableList;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -38,8 +37,7 @@ import org.sonar.plugins.javascript.api.tree.declaration.InitializedBindingEleme
 import org.sonar.plugins.javascript.api.tree.declaration.ParameterListTree;
 import org.sonar.plugins.javascript.api.tree.expression.CallExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
-import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
-import org.sonar.plugins.javascript.api.visitors.IssueLocation;
+import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
 import org.sonar.squidbridge.annotations.ActivatedByDefault;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
@@ -52,7 +50,7 @@ import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 @ActivatedByDefault
 @SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.LOGIC_RELIABILITY)
 @SqaleConstantRemediation("5min")
-public class MisorderedParameterListCheck extends BaseTreeVisitor {
+public class MisorderedParameterListCheck extends DoubleDispatchVisitorCheck {
 
   private static final String MESSAGE_FORMAT = "Arguments to %s have the same names but not the same order as the function parameters.";
 
@@ -64,9 +62,8 @@ public class MisorderedParameterListCheck extends BaseTreeVisitor {
       if (functionDeclaration != null) {
         List<String> parameterNames = names(functionDeclaration.parameters());
         if (parameterNames != null && haveSameNamesAndDifferentOrders(argumentNames, parameterNames)) {
-          IssueLocation primaryLocation = new IssueLocation(callExpression.arguments(), message(functionDeclaration));
-          List<IssueLocation> secondaryLocations = ImmutableList.of(new IssueLocation(functionDeclaration.parameters()));
-          getContext().addIssue(this, primaryLocation, secondaryLocations, null);
+          newIssue(callExpression.arguments(), message(functionDeclaration))
+            .secondary(functionDeclaration.parameters());
         }
       }
     }

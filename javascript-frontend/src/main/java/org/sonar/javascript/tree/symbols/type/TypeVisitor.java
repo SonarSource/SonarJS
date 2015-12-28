@@ -46,9 +46,9 @@ import org.sonar.plugins.javascript.api.tree.expression.ParenthesisedExpressionT
 import org.sonar.plugins.javascript.api.tree.expression.UnaryExpressionTree;
 import org.sonar.plugins.javascript.api.tree.statement.ForInStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.ForOfStatementTree;
-import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
+import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitor;
 
-public class TypeVisitor extends BaseTreeVisitor {
+public class TypeVisitor extends DoubleDispatchVisitor {
 
   private JQuery jQueryHelper;
   private boolean forLoopVariable = false;

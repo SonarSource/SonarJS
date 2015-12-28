@@ -23,6 +23,7 @@ import org.apache.commons.lang.StringUtils;
 import org.sonar.plugins.javascript.api.JavaScriptCheck;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxTrivia;
+import org.sonar.plugins.javascript.api.visitors.LineIssue;
 
 public class CommentContainsPatternChecker {
   private final JavaScriptCheck check;
@@ -43,7 +44,7 @@ public class CommentContainsPatternChecker {
 
         for (int i = 0; i < lines.length; i++) {
           if (StringUtils.containsIgnoreCase(lines[i], pattern) && !isLetterAround(lines[i], pattern)) {
-            check.getContext().addIssue(check, trivia.line() + i, message);
+            check.addIssue(new LineIssue(check, trivia.line() + i, message));
           }
         }
       }

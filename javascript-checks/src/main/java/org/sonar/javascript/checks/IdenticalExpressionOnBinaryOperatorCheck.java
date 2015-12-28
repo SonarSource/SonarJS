@@ -19,7 +19,6 @@
  */
 package org.sonar.javascript.checks;
 
-import com.google.common.collect.ImmutableList;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
@@ -28,8 +27,7 @@ import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.expression.BinaryExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.LiteralTree;
 import org.sonar.plugins.javascript.api.tree.expression.UnaryExpressionTree;
-import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
-import org.sonar.plugins.javascript.api.visitors.IssueLocation;
+import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
 import org.sonar.squidbridge.annotations.ActivatedByDefault;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
@@ -42,7 +40,7 @@ import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 @ActivatedByDefault
 @SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.LOGIC_RELIABILITY)
 @SqaleConstantRemediation("2min")
-public class IdenticalExpressionOnBinaryOperatorCheck extends BaseTreeVisitor {
+public class IdenticalExpressionOnBinaryOperatorCheck extends DoubleDispatchVisitorCheck {
 
   private static final String MESSAGE = "Correct one of the identical sub-expressions on both sides of operator \"%s\"";
 
@@ -52,9 +50,8 @@ public class IdenticalExpressionOnBinaryOperatorCheck extends BaseTreeVisitor {
       && SyntacticEquivalence.areEquivalent(tree.leftOperand(), tree.rightOperand()) && isExcluded(tree)) {
 
       String message = String.format(MESSAGE, tree.operator().text());
-      IssueLocation primary = new IssueLocation(tree.rightOperand(), message);
-      IssueLocation secondary = new IssueLocation(tree.leftOperand());
-      getContext().addIssue(this, primary, ImmutableList.of(secondary), null);
+      newIssue(tree.rightOperand(), message)
+        .secondary(tree.leftOperand());
     }
 
     super.visitBinaryExpression(tree);

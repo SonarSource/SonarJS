@@ -33,7 +33,7 @@ import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.expression.ArrowFunctionTree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
-import org.sonar.plugins.javascript.api.visitors.TreeVisitor;
+import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitor;
 
 public class ArrowFunctionTreeImpl extends JavaScriptTree implements ArrowFunctionTree, TypableTree {
 
@@ -73,7 +73,7 @@ public class ArrowFunctionTreeImpl extends JavaScriptTree implements ArrowFuncti
   }
 
   @Override
-  public void accept(TreeVisitor visitor) {
+  public void accept(DoubleDispatchVisitor visitor) {
     visitor.visitArrowFunction(this);
   }
 

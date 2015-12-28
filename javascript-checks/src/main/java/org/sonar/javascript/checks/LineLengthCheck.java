@@ -28,7 +28,8 @@ import org.sonar.check.RuleProperty;
 import org.sonar.javascript.tree.impl.lexical.InternalSyntaxToken;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
-import org.sonar.plugins.javascript.api.visitors.SubscriptionBaseTreeVisitor;
+import org.sonar.plugins.javascript.api.visitors.LineIssue;
+import org.sonar.plugins.javascript.api.visitors.SubscriptionVisitorCheck;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 
@@ -39,7 +40,7 @@ import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
   tags = {Tags.CONVENTION})
 @SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.READABILITY)
 @SqaleConstantRemediation("1min")
-public class LineLengthCheck extends SubscriptionBaseTreeVisitor {
+public class LineLengthCheck extends SubscriptionVisitorCheck {
 
   private static final String MESSAGE = "Split this %s characters long line (which is greater than %s authorized).";
 
@@ -75,9 +76,10 @@ public class LineLengthCheck extends SubscriptionBaseTreeVisitor {
       int length = previousToken.column() + previousToken.text().length();
       if (length > getMaximumLineLength()) {
         // Note that method from AbstractLineLengthCheck generates other message - see SONARPLUGINS-1809
-        getContext().addIssue(this,
+        addIssue(new LineIssue(
+          this,
           previousToken.line(),
-          String.format(MESSAGE, length, getMaximumLineLength()));
+          String.format(MESSAGE, length, getMaximumLineLength())));
       }
     }
     previousToken = token;

@@ -22,7 +22,6 @@ package org.sonar.javascript.checks;
 import com.google.common.io.Files;
 import java.io.IOException;
 import java.nio.charset.Charset;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import org.sonar.api.server.rule.RulesDefinition;
@@ -30,8 +29,9 @@ import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
 import org.sonar.javascript.tree.visitors.CharsetAwareVisitor;
-import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
-import org.sonar.plugins.javascript.api.visitors.TreeVisitorContext;
+import org.sonar.plugins.javascript.api.tree.ScriptTree;
+import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
+import org.sonar.plugins.javascript.api.visitors.FileIssue;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 
@@ -41,7 +41,7 @@ import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
   priority = Priority.BLOCKER)
 @SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.SECURITY_FEATURES)
 @SqaleConstantRemediation("5min")
-public class FileHeaderCheck extends BaseTreeVisitor implements CharsetAwareVisitor {
+public class FileHeaderCheck extends DoubleDispatchVisitorCheck implements CharsetAwareVisitor {
 
   private static final String MESSAGE = "Add or update the header of this file.";
   private static final String DEFAULT_HEADER_FORMAT = "";
@@ -61,23 +61,25 @@ public class FileHeaderCheck extends BaseTreeVisitor implements CharsetAwareVisi
     this.charset = charset;
   }
 
+
+
   @Override
-  public void scanFile(TreeVisitorContext context) {
+  public void visitScript(ScriptTree tree) {
     // TODO martin: should be done in a init method
     expectedLines = headerFormat.split("(?:\r)?\n|\r");
 
-    List<String> lines = Collections.emptyList();
+    List<String> lines;
 
     try {
-      lines = Files.readLines(context.getFile(), charset);
+      lines = Files.readLines(getContext().getFile(), charset);
 
     } catch (IOException e) {
-      String fileName = context.getFile().getName();
+      String fileName = getContext().getFile().getName();
       throw new IllegalStateException("Unable to execute rule \"S1451\" for file " + fileName, e);
     }
 
     if (!matches(expectedLines, lines)) {
-      context.addFileIssue(this, MESSAGE);
+      addIssue(new FileIssue(this, MESSAGE));
     }
   }
 

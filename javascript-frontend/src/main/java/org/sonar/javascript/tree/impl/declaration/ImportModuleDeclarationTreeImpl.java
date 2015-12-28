@@ -29,7 +29,7 @@ import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.declaration.ImportModuleDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.expression.LiteralTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
-import org.sonar.plugins.javascript.api.visitors.TreeVisitor;
+import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitor;
 
 public class ImportModuleDeclarationTreeImpl extends JavaScriptTree implements ImportModuleDeclarationTree {
 
@@ -70,7 +70,7 @@ public class ImportModuleDeclarationTreeImpl extends JavaScriptTree implements I
   }
 
   @Override
-  public void accept(TreeVisitor visitor) {
+  public void accept(DoubleDispatchVisitor visitor) {
     visitor.visitImportModuleDeclaration(this);
   }
 }

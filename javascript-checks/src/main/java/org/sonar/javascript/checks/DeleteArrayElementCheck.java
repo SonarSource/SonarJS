@@ -27,7 +27,7 @@ import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.expression.BracketMemberExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.UnaryExpressionTree;
-import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
+import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
 import org.sonar.squidbridge.annotations.ActivatedByDefault;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
@@ -40,14 +40,14 @@ import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 @SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.DATA_RELIABILITY)
 @SqaleConstantRemediation("5min")
 @ActivatedByDefault
-public class DeleteArrayElementCheck extends BaseTreeVisitor {
+public class DeleteArrayElementCheck extends DoubleDispatchVisitorCheck {
 
   private static final String MESSAGE = "Remove this use of \"delete\".";
 
   @Override
   public void visitUnaryExpression(UnaryExpressionTree tree) {
     if (tree.is(Tree.Kind.DELETE) && isArrayElement(tree.expression())) {
-      getContext().addIssue(this, tree, MESSAGE);
+      addLineIssue(tree, MESSAGE);
     }
     super.visitUnaryExpression(tree);
   }

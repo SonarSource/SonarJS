@@ -19,8 +19,6 @@
  */
 package org.sonar.javascript.checks;
 
-import com.google.common.collect.ImmutableList;
-import java.util.List;
 import org.sonar.api.server.rule.RulesDefinition.SubCharacteristics;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
@@ -28,8 +26,7 @@ import org.sonar.plugins.javascript.api.symbols.Type;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.expression.BinaryExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
-import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
-import org.sonar.plugins.javascript.api.visitors.IssueLocation;
+import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
 import org.sonar.squidbridge.annotations.ActivatedByDefault;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
@@ -42,7 +39,7 @@ import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 @ActivatedByDefault
 @SqaleSubCharacteristic(SubCharacteristics.INSTRUCTION_RELIABILITY)
 @SqaleConstantRemediation("5min")
-public class StringsComparisonCheck extends BaseTreeVisitor {
+public class StringsComparisonCheck extends DoubleDispatchVisitorCheck {
 
   private static final String MESSAGE = "Convert operands of this use of \"%s\" to number type.";
 
@@ -64,11 +61,10 @@ public class StringsComparisonCheck extends BaseTreeVisitor {
 
   private void raiseIssue(BinaryExpressionTree tree) {
     String message = String.format(MESSAGE, tree.operator().text());
-    List<IssueLocation> secondaryLocations = ImmutableList.of(
-      new IssueLocation(tree.leftOperand()),
-      new IssueLocation(tree.rightOperand())
-    );
-    getContext().addIssue(this, new IssueLocation(tree.operator(), message), secondaryLocations, null);
+
+    newIssue(tree.operator(), message)
+      .secondary(tree.leftOperand())
+      .secondary(tree.rightOperand());
   }
 
   private static boolean isString(ExpressionTree expression) {

@@ -23,6 +23,7 @@ import com.google.common.collect.ImmutableList;
 import com.sonar.sslr.api.RecognitionException;
 import java.io.File;
 import java.io.InterruptedIOException;
+import org.apache.commons.lang.NotImplementedException;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -52,7 +53,11 @@ import org.sonar.check.RuleProperty;
 import org.sonar.javascript.checks.CheckList;
 import org.sonar.plugins.javascript.api.CustomJavaScriptRulesDefinition;
 import org.sonar.plugins.javascript.api.JavaScriptCheck;
-import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
+import org.sonar.plugins.javascript.api.tree.ScriptTree;
+import org.sonar.plugins.javascript.api.tree.Tree;
+import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitor;
+import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
+import org.sonar.plugins.javascript.api.visitors.TreeVisitor;
 import org.sonar.plugins.javascript.api.visitors.TreeVisitorContext;
 import org.sonar.squidbridge.ProgressReport;
 import org.sonar.squidbridge.api.AnalysisException;
@@ -188,13 +193,13 @@ public class JavaScriptSquidSensorTest {
   public void progress_report_should_be_stopped() throws Exception {
     InputFile inputFile = inputFile("cpd/Person.js");
     mockPerspectives(inputFile, mock(Issuable.class));
-    createSensor().analyseFiles(context, ImmutableList.<JavaScriptCheck>of(), ImmutableList.of(inputFile), progressReport);
+    createSensor().analyseFiles(context, ImmutableList.<TreeVisitor>of(), ImmutableList.of(inputFile), progressReport);
     verify(progressReport).stop();
   }
 
   @Test
   public void progress_report_should_be_stopped_without_files() throws Exception {
-    createSensor().analyseFiles(context, ImmutableList.<JavaScriptCheck>of(), ImmutableList.<InputFile>of(), progressReport);
+    createSensor().analyseFiles(context, ImmutableList.<TreeVisitor>of(), ImmutableList.<InputFile>of(), progressReport);
     verify(progressReport).stop();
   }
 
@@ -222,7 +227,7 @@ public class JavaScriptSquidSensorTest {
     thrown.expect(AnalysisException.class);
     thrown.expectMessage(expectedMessageSubstring);
     try {
-      sensor.analyseFiles(context, ImmutableList.of(check), ImmutableList.of(inputFile), progressReport);
+      sensor.analyseFiles(context, ImmutableList.of((TreeVisitor)check), ImmutableList.of(inputFile), progressReport);
     } finally {
       verify(progressReport).cancel();
     }
@@ -294,7 +299,7 @@ public class JavaScriptSquidSensorTest {
       .setLanguage(JavaScriptLanguage.KEY);
   }
 
-  private final class ExceptionRaisingCheck implements JavaScriptCheck {
+  private final class ExceptionRaisingCheck extends DoubleDispatchVisitorCheck {
 
     private final RuntimeException exception;
 
@@ -308,7 +313,12 @@ public class JavaScriptSquidSensorTest {
     }
 
     @Override
-    public void scanFile(TreeVisitorContext context) {
+    public void addLineIssue(Tree tree, String message) {
+      throw new NotImplementedException();
+    }
+
+    @Override
+    public void visitScript(ScriptTree tree) {
       throw exception;
     }
   }
@@ -318,7 +328,7 @@ public class JavaScriptSquidSensorTest {
     name = "name",
     description = "desc",
     tags = {"bug"})
-  public class MyCustomRule extends BaseTreeVisitor {
+  public class MyCustomRule extends DoubleDispatchVisitor {
     @RuleProperty(
       key = "customParam",
       description = "Custome parameter",

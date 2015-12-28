@@ -35,7 +35,7 @@ import org.sonar.plugins.javascript.api.tree.expression.DotMemberExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.FunctionExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
-import org.sonar.plugins.javascript.api.visitors.SubscriptionBaseTreeVisitor;
+import org.sonar.plugins.javascript.api.visitors.SubscriptionVisitorCheck;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 
@@ -46,7 +46,7 @@ import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
   tags = {Tags.OBSOLETE})
 @SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.INSTRUCTION_RELIABILITY)
 @SqaleConstantRemediation("30min")
-public class ArgumentsCallerCalleeUsageCheck extends SubscriptionBaseTreeVisitor {
+public class ArgumentsCallerCalleeUsageCheck extends SubscriptionVisitorCheck {
 
   private static final String ARGUMENTS = "arguments";
   private static final String CALLER = "caller";
@@ -108,6 +108,10 @@ public class ArgumentsCallerCalleeUsageCheck extends SubscriptionBaseTreeVisitor
     } else if (ARGUMENTS.equals(property)) {
       addIssue(tree, "Remove this use of \"" + object + ".arguments\".");
     }
+  }
+
+  private void addIssue(Tree tree, String message) {
+    addLineIssue(tree, message);
   }
 
   private void checkArgumentsProperty(Tree tree, String property) {

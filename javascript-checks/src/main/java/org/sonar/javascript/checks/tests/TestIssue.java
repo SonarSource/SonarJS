@@ -17,13 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.javascript.checks.utils;
+package org.sonar.javascript.checks.tests;
 
 import com.google.common.primitives.Ints;
 import java.util.List;
 import javax.annotation.Nullable;
 
-public class Issue {
+public class TestIssue {
 
   private String message;
   private final int line;
@@ -33,51 +33,51 @@ public class Issue {
   private Integer endLine = null;
   private List<Integer> secondaryLines = null;
 
-  private Issue(@Nullable String message, int line) {
+  private TestIssue(@Nullable String message, int line) {
     this.message = message;
     this.line = line;
   }
 
-  public static Issue create(@Nullable String message, int lineNumber) {
-    return new Issue(message, lineNumber);
+  public static TestIssue create(@Nullable String message, int lineNumber) {
+    return new TestIssue(message, lineNumber);
   }
 
-  public Issue message(String message) {
+  public TestIssue message(String message) {
     this.message = message;
     return this;
   }
 
-  public Issue columns(int startColumn, int endColumn) {
+  public TestIssue columns(int startColumn, int endColumn) {
     startColumn(startColumn);
     endColumn(endColumn);
     return this;
   }
 
-  public Issue startColumn(int startColumn) {
+  public TestIssue startColumn(int startColumn) {
     this.startColumn = startColumn;
     return this;
   }
 
-  public Issue endColumn(int endColumn) {
+  public TestIssue endColumn(int endColumn) {
     this.endColumn = endColumn;
     return this;
   }
 
-  public Issue effortToFix(int effortToFix) {
+  public TestIssue effortToFix(int effortToFix) {
     this.effortToFix = effortToFix;
     return this;
   }
 
-  public Issue endLine(int endLine) {
+  public TestIssue endLine(int endLine) {
     this.endLine = endLine;
     return this;
   }
 
-  public Issue secondary(int... lines) {
+  public TestIssue secondary(int... lines) {
     return secondary(Ints.asList(lines));
   }
 
-  public Issue secondary(List<Integer> secondaryLines) {
+  public TestIssue secondary(List<Integer> secondaryLines) {
     this.secondaryLines = secondaryLines;
     return this;
   }

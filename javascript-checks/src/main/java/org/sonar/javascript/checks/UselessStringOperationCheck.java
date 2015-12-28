@@ -32,7 +32,7 @@ import org.sonar.plugins.javascript.api.tree.expression.CallExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.MemberExpressionTree;
 import org.sonar.plugins.javascript.api.tree.statement.ExpressionStatementTree;
-import org.sonar.plugins.javascript.api.visitors.SubscriptionBaseTreeVisitor;
+import org.sonar.plugins.javascript.api.visitors.SubscriptionVisitorCheck;
 import org.sonar.squidbridge.annotations.ActivatedByDefault;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
@@ -45,7 +45,7 @@ import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 @ActivatedByDefault
 @SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.INSTRUCTION_RELIABILITY)
 @SqaleConstantRemediation("20min")
-public class UselessStringOperationCheck extends SubscriptionBaseTreeVisitor {
+public class UselessStringOperationCheck extends SubscriptionVisitorCheck {
 
   private static final String MESSAGE = "%s is an immutable object; you must either store or return the result of the operation.";
 
@@ -63,7 +63,7 @@ public class UselessStringOperationCheck extends SubscriptionBaseTreeVisitor {
         MemberExpressionTree memberExpression = (MemberExpressionTree) callee;
         if (memberExpression.object().types().containsOnly(Type.Kind.STRING)) {
           String variableName = CheckUtils.asString(memberExpression.object());
-          addIssue(tree, String.format(MESSAGE, variableName));
+          addLineIssue(tree, String.format(MESSAGE, variableName));
         }
       }
     }

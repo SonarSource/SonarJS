@@ -28,7 +28,8 @@ import org.sonar.check.RuleProperty;
 import org.sonar.javascript.tree.impl.lexical.InternalSyntaxToken;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
-import org.sonar.plugins.javascript.api.visitors.SubscriptionBaseTreeVisitor;
+import org.sonar.plugins.javascript.api.visitors.FileIssue;
+import org.sonar.plugins.javascript.api.visitors.SubscriptionVisitorCheck;
 import org.sonar.squidbridge.annotations.ActivatedByDefault;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
@@ -41,7 +42,7 @@ import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 @ActivatedByDefault
 @SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.READABILITY)
 @SqaleConstantRemediation("1h")
-public class TooManyLinesInFileCheck extends SubscriptionBaseTreeVisitor {
+public class TooManyLinesInFileCheck extends SubscriptionVisitorCheck {
 
   private static final String MESSAGE = "File \"%s\" has %d lines, which is greater than %d authorized. Split it into smaller files.";
   private static final int DEFAULT = 1000;
@@ -62,7 +63,7 @@ public class TooManyLinesInFileCheck extends SubscriptionBaseTreeVisitor {
     int lines = token.line();
 
     if (lines > maximum) {
-      getContext().addFileIssue(this, String.format(MESSAGE, getContext().getFile().getName(), lines, maximum));
+      addIssue(new FileIssue(this, String.format(MESSAGE, getContext().getFile().getName(), lines, maximum)));
     }
   }
 

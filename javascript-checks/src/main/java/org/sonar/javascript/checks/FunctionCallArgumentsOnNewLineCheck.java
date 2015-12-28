@@ -26,7 +26,7 @@ import org.sonar.check.Rule;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.expression.CallExpressionTree;
-import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
+import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
 import org.sonar.squidbridge.annotations.ActivatedByDefault;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
@@ -39,7 +39,7 @@ import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 @ActivatedByDefault
 @SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.INSTRUCTION_RELIABILITY)
 @SqaleConstantRemediation("5min")
-public class FunctionCallArgumentsOnNewLineCheck extends BaseTreeVisitor {
+public class FunctionCallArgumentsOnNewLineCheck extends DoubleDispatchVisitorCheck {
 
   private static final String MESSAGE = "Make those call arguments start on line %s";
 
@@ -50,7 +50,7 @@ public class FunctionCallArgumentsOnNewLineCheck extends BaseTreeVisitor {
     int argumentsLine = ((JavaScriptTree) tree.arguments()).getLine();
 
     if (calleeLastLine != argumentsLine) {
-      getContext().addIssue(this, tree.arguments(), String.format(MESSAGE, calleeLastLine));
+      addLineIssue(tree.arguments(), String.format(MESSAGE, calleeLastLine));
     }
     super.visitCallExpression(tree);
   }

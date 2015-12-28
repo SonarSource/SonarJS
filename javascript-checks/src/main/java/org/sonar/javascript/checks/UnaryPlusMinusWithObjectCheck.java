@@ -31,7 +31,7 @@ import org.sonar.plugins.javascript.api.symbols.Type;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.expression.UnaryExpressionTree;
-import org.sonar.plugins.javascript.api.visitors.SubscriptionBaseTreeVisitor;
+import org.sonar.plugins.javascript.api.visitors.SubscriptionVisitorCheck;
 import org.sonar.squidbridge.annotations.ActivatedByDefault;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
@@ -44,7 +44,7 @@ import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 @SqaleSubCharacteristic(SubCharacteristics.DATA_RELIABILITY)
 @SqaleConstantRemediation("15min")
 @ActivatedByDefault
-public class UnaryPlusMinusWithObjectCheck extends SubscriptionBaseTreeVisitor {
+public class UnaryPlusMinusWithObjectCheck extends SubscriptionVisitorCheck {
 
   private static final String MESSAGE = "Remove this use of unary \"%s\".";
 
@@ -69,7 +69,7 @@ public class UnaryPlusMinusWithObjectCheck extends SubscriptionBaseTreeVisitor {
       boolean isDateException = isDateException(tree, type);
       if (!isDateException && !ALLOWED_TYPES.contains(type.kind())) {
         String operator = ((UnaryExpressionTree) tree).operator().text();
-        addIssue(tree, String.format(MESSAGE, operator));
+        addLineIssue(tree, String.format(MESSAGE, operator));
       }
     }
   }

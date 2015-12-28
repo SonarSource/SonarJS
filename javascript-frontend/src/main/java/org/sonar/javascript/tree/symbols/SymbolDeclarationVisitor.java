@@ -39,13 +39,13 @@ import org.sonar.plugins.javascript.api.tree.expression.FunctionExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 import org.sonar.plugins.javascript.api.tree.statement.CatchBlockTree;
 import org.sonar.plugins.javascript.api.tree.statement.VariableDeclarationTree;
-import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
+import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitor;
 
 /**
  * This visitor records all symbol explicitly declared through a declared statement.
  * i.e: Method Declaration,
  */
-public class SymbolDeclarationVisitor extends BaseTreeVisitor {
+public class SymbolDeclarationVisitor extends DoubleDispatchVisitor {
 
   private SymbolModelBuilder symbolModel;
   private Scope currentScope;

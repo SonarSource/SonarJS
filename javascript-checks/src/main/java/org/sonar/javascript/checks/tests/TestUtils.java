@@ -17,30 +17,37 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.javascript.api.tests;
+package org.sonar.javascript.checks.tests;
 
+import com.google.common.base.Charsets;
+import com.sonar.sslr.api.typed.ActionParser;
 import java.io.File;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import org.sonar.api.config.Settings;
+import org.sonar.javascript.JavaScriptCheckContext;
+import org.sonar.javascript.parser.JavaScriptParserBuilder;
+import org.sonar.javascript.tree.symbols.SymbolModelImpl;
 import org.sonar.javascript.tree.symbols.type.JQuery;
-import org.sonar.plugins.javascript.api.JavaScriptCheck;
-import org.sonar.squidbridge.api.CheckMessage;
+import org.sonar.plugins.javascript.api.symbols.SymbolModel;
+import org.sonar.plugins.javascript.api.tree.ScriptTree;
+import org.sonar.plugins.javascript.api.tree.Tree;
 
-public class TreeCheckTest {
+public class TestUtils {
 
-  protected TestCheckContext getContext(File file, JavaScriptCheck check) {
-    return new TestCheckContext(file, settings(), check);
+  private TestUtils() {
   }
 
-  public Collection<CheckMessage> getIssues(String relativePath, JavaScriptCheck check) {
-    TestCheckContext context = getContext(new File(relativePath), check);
-    check.scanFile(context);
-    return context.getIssues();
+  protected static final ActionParser<Tree> p = JavaScriptParserBuilder.createParser(Charsets.UTF_8);
+
+  public static JavaScriptCheckContext createContext(File file) {
+    ScriptTree scriptTree = (ScriptTree) p.parse(file);
+    SymbolModel symbolModel = SymbolModelImpl.create(scriptTree, null, settings());
+
+    return new JavaScriptCheckContext(scriptTree, file, symbolModel);
   }
 
-  protected Settings settings() {
+  private static Settings settings() {
     Settings settings = new Settings();
 
     Map<String, String> properties = new HashMap<>();
@@ -49,4 +56,5 @@ public class TreeCheckTest {
 
     return settings;
   }
+
 }

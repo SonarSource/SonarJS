@@ -29,7 +29,7 @@ import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.expression.BinaryExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
-import org.sonar.plugins.javascript.api.visitors.SubscriptionBaseTreeVisitor;
+import org.sonar.plugins.javascript.api.visitors.SubscriptionVisitorCheck;
 import org.sonar.squidbridge.annotations.ActivatedByDefault;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
@@ -42,7 +42,7 @@ import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 @ActivatedByDefault
 @SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.LOGIC_RELIABILITY)
 @SqaleConstantRemediation("5min")
-public class ComparisonWithNaNCheck extends SubscriptionBaseTreeVisitor {
+public class ComparisonWithNaNCheck extends SubscriptionVisitorCheck {
 
   private static final String MESSAGE = "Use a test of the format \"a %s a\" instead.";
 
@@ -60,7 +60,7 @@ public class ComparisonWithNaNCheck extends SubscriptionBaseTreeVisitor {
     BinaryExpressionTree equalityExpr = (BinaryExpressionTree) tree;
 
     if (isNaN(equalityExpr.leftOperand()) || isNaN(equalityExpr.rightOperand())) {
-      addIssue(tree, String.format(MESSAGE, equalityExpr.operator().text()));
+      addLineIssue(tree, String.format(MESSAGE, equalityExpr.operator().text()));
     }
   }
 

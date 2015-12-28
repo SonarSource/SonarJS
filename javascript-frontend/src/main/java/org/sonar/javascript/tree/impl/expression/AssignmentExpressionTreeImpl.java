@@ -30,7 +30,7 @@ import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.expression.AssignmentExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
-import org.sonar.plugins.javascript.api.visitors.TreeVisitor;
+import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitor;
 
 public class AssignmentExpressionTreeImpl extends JavaScriptTree implements AssignmentExpressionTree, TypableTree {
 
@@ -73,7 +73,7 @@ public class AssignmentExpressionTreeImpl extends JavaScriptTree implements Assi
   }
 
   @Override
-  public void accept(TreeVisitor visitor) {
+  public void accept(DoubleDispatchVisitor visitor) {
     visitor.visitAssignmentExpression(this);
   }
 

@@ -25,7 +25,7 @@ import org.sonar.check.Rule;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.expression.BinaryExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
-import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
+import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
 import org.sonar.squidbridge.annotations.ActivatedByDefault;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
@@ -38,17 +38,17 @@ import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 @ActivatedByDefault
 @SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.INSTRUCTION_RELIABILITY)
 @SqaleConstantRemediation("5min")
-public class EqEqEqCheck extends BaseTreeVisitor {
+public class EqEqEqCheck extends DoubleDispatchVisitorCheck {
 
   @Override
   public void visitBinaryExpression(BinaryExpressionTree tree) {
     if (!isNullLiteral(tree.leftOperand()) && !isNullLiteral(tree.rightOperand())) {
 
       if (tree.is(Tree.Kind.EQUAL_TO)) {
-        getContext().addIssue(this, tree.operator(), "Replace \"==\" with \"===\".");
+        addLineIssue(tree.operator(), "Replace \"==\" with \"===\".");
 
       } else if (tree.is(Tree.Kind.NOT_EQUAL_TO)) {
-        getContext().addIssue(this, tree.operator(), "Replace \"!=\" with \"!==\".");
+        addLineIssue(tree.operator(), "Replace \"!=\" with \"!==\".");
       }
     }
 

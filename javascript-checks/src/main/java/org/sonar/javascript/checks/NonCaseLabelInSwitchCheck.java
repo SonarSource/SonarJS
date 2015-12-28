@@ -29,7 +29,7 @@ import org.sonar.check.Rule;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.statement.LabelledStatementTree;
-import org.sonar.plugins.javascript.api.visitors.SubscriptionBaseTreeVisitor;
+import org.sonar.plugins.javascript.api.visitors.SubscriptionVisitorCheck;
 import org.sonar.squidbridge.annotations.ActivatedByDefault;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
@@ -42,7 +42,7 @@ import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 @ActivatedByDefault
 @SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.READABILITY)
 @SqaleConstantRemediation("10min")
-public class NonCaseLabelInSwitchCheck extends SubscriptionBaseTreeVisitor {
+public class NonCaseLabelInSwitchCheck extends SubscriptionVisitorCheck {
 
   private static final String MESSAGE = "Remove this misleading \"%s\" label.";
   private Deque<Integer> stack = new ArrayDeque<>();
@@ -73,7 +73,7 @@ public class NonCaseLabelInSwitchCheck extends SubscriptionBaseTreeVisitor {
     } else if (tree.is(Kind.LABELLED_STATEMENT)) {
 
       if (inCase()) {
-        getContext().addIssue(this, tree,
+        addLineIssue(tree,
           String.format(MESSAGE, ((LabelledStatementTree) tree).label().name()));
       }
 

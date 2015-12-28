@@ -25,7 +25,7 @@ import org.sonar.check.Rule;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.expression.LiteralTree;
 import org.sonar.plugins.javascript.api.tree.statement.ExpressionStatementTree;
-import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
+import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
 import org.sonar.squidbridge.annotations.ActivatedByDefault;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
@@ -38,7 +38,7 @@ import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 @ActivatedByDefault
 @SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.ARCHITECTURE_RELIABILITY)
 @SqaleConstantRemediation("5min")
-public class StrictModeCheck extends BaseTreeVisitor {
+public class StrictModeCheck extends DoubleDispatchVisitorCheck {
 
   private static final String MESSAGE = "Use of JavaScript strict mode may result in unexpected behaviour in some browsers.";
 
@@ -48,7 +48,7 @@ public class StrictModeCheck extends BaseTreeVisitor {
       String value = ((LiteralTree) tree.expression()).value();
 
       if ("\"use strict\"".equals(value) || "'use strict'".equals(value)) {
-        getContext().addIssue(this, tree, MESSAGE);
+        addLineIssue(tree, MESSAGE);
       }
     }
 

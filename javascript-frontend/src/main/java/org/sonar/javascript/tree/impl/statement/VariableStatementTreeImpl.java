@@ -26,7 +26,7 @@ import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.javascript.api.tree.statement.VariableStatementTree;
-import org.sonar.plugins.javascript.api.visitors.TreeVisitor;
+import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitor;
 
 public class VariableStatementTreeImpl extends JavaScriptTree implements VariableStatementTree {
 
@@ -60,7 +60,7 @@ public class VariableStatementTreeImpl extends JavaScriptTree implements Variabl
   }
 
   @Override
-  public void accept(TreeVisitor visitor) {
+  public void accept(DoubleDispatchVisitor visitor) {
     visitor.visitVariableStatement(this);
   }
 }

@@ -19,7 +19,6 @@
  */
 package org.sonar.javascript.checks;
 
-import java.util.Collections;
 import java.util.Set;
 import javax.annotation.Nullable;
 import org.sonar.api.server.rule.RulesDefinition;
@@ -35,8 +34,7 @@ import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.declaration.FunctionTree;
 import org.sonar.plugins.javascript.api.tree.expression.CallExpressionTree;
-import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
-import org.sonar.plugins.javascript.api.visitors.IssueLocation;
+import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
 import org.sonar.squidbridge.annotations.ActivatedByDefault;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
@@ -49,7 +47,7 @@ import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 @SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.DATA_RELIABILITY)
 @SqaleConstantRemediation("10min")
 @ActivatedByDefault
-public class TooManyArgumentsCheck extends BaseTreeVisitor {
+public class TooManyArgumentsCheck extends DoubleDispatchVisitorCheck {
 
   private static final String MESSAGE = "%s expects \"%s\" arguments, but \"%s\" were provided.";
 
@@ -64,8 +62,8 @@ public class TooManyArgumentsCheck extends BaseTreeVisitor {
 
       if (!hasRestParameter(functionTree) && !builtInArgumentsUsed(functionTree) && argumentsNumber > parametersNumber) {
         String message = getMessage(tree, parametersNumber, argumentsNumber);
-        IssueLocation secondaryLocation = new IssueLocation(functionTree.parameters(), "Formal parameters");
-        getContext().addIssue(this, new IssueLocation(tree.arguments(), message), Collections.singletonList(secondaryLocation), null);
+        newIssue(tree.arguments(), message)
+          .secondary(functionTree.parameters(), "Formal parameters");
       }
 
     }

@@ -28,7 +28,7 @@ import org.sonar.plugins.javascript.api.symbols.Type;
 import org.sonar.plugins.javascript.api.symbols.TypeSet;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.expression.LiteralTree;
-import org.sonar.plugins.javascript.api.visitors.TreeVisitor;
+import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitor;
 
 public class SuperTreeImpl extends JavaScriptTree implements LiteralTree, TypableTree {
 
@@ -55,7 +55,7 @@ public class SuperTreeImpl extends JavaScriptTree implements LiteralTree, Typabl
   }
 
   @Override
-  public void accept(TreeVisitor visitor) {
+  public void accept(DoubleDispatchVisitor visitor) {
     visitor.visitSuper(this);
   }
 

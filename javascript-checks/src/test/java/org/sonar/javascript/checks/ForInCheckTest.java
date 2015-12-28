@@ -21,8 +21,8 @@ package org.sonar.javascript.checks;
 
 import java.io.File;
 import org.junit.Test;
+import org.sonar.javascript.checks.tests.TreeCheckTest;
 import org.sonar.javascript.checks.utils.JavaScriptCheckVerifier;
-import org.sonar.plugins.javascript.api.tests.TreeCheckTest;
 
 public class ForInCheckTest extends TreeCheckTest {
 

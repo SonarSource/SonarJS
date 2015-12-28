@@ -31,7 +31,7 @@ import org.sonar.javascript.tree.impl.declaration.ParameterListTreeImpl;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.declaration.ParameterListTree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
-import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
+import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
 import org.sonar.squidbridge.annotations.ActivatedByDefault;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
@@ -44,7 +44,7 @@ import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 @ActivatedByDefault
 @SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.UNDERSTANDABILITY)
 @SqaleConstantRemediation("5min")
-public class DuplicateFunctionArgumentCheck extends BaseTreeVisitor {
+public class DuplicateFunctionArgumentCheck extends DoubleDispatchVisitorCheck {
 
   private static final String MESSAGE = "Rename the duplicated function parameter%s %s.";
 
@@ -77,7 +77,7 @@ public class DuplicateFunctionArgumentCheck extends BaseTreeVisitor {
         duplicatedParameters.size() > 1 ? "s" : "",
         parameterListString(duplicatedParameters)
       );
-      getContext().addIssue(this, tree, message);
+      addLineIssue(tree, message);
     }
   }
 

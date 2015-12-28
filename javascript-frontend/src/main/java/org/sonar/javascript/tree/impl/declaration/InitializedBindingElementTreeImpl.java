@@ -31,7 +31,7 @@ import org.sonar.plugins.javascript.api.tree.declaration.InitializedBindingEleme
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
-import org.sonar.plugins.javascript.api.visitors.TreeVisitor;
+import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitor;
 
 public class InitializedBindingElementTreeImpl extends JavaScriptTree implements InitializedBindingElementTree {
 
@@ -76,7 +76,7 @@ public class InitializedBindingElementTreeImpl extends JavaScriptTree implements
   }
 
   @Override
-  public void accept(TreeVisitor visitor) {
+  public void accept(DoubleDispatchVisitor visitor) {
     visitor.visitInitializedBindingElement(this);
   }
 

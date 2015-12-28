@@ -23,7 +23,7 @@ import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.plugins.javascript.api.tree.statement.SwitchStatementTree;
-import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
+import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
 import org.sonar.squidbridge.annotations.ActivatedByDefault;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
@@ -36,14 +36,14 @@ import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 @ActivatedByDefault
 @SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.READABILITY)
 @SqaleConstantRemediation("5min")
-public class SwitchWithNotEnoughCaseCheck extends BaseTreeVisitor {
+public class SwitchWithNotEnoughCaseCheck extends DoubleDispatchVisitorCheck {
 
   private static final String MESSAGE = "Replace this \"switch\" statement with \"if\" statements to increase readability.";
 
   @Override
   public void visitSwitchStatement(SwitchStatementTree tree) {
     if (tree.cases().size() < 3) {
-      getContext().addIssue(this, tree, MESSAGE);
+      addLineIssue(tree, MESSAGE);
     }
 
     super.visitSwitchStatement(tree);

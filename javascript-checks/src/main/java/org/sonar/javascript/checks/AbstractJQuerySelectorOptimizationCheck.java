@@ -24,9 +24,9 @@ import org.sonar.javascript.tree.symbols.type.ObjectType;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.expression.CallExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.LiteralTree;
-import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
+import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
 
-public abstract class AbstractJQuerySelectorOptimizationCheck extends BaseTreeVisitor {
+public abstract class AbstractJQuerySelectorOptimizationCheck extends DoubleDispatchVisitorCheck {
 
   protected abstract void visitSelector(String selector, CallExpressionTree tree);
 

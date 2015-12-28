@@ -29,7 +29,7 @@ import org.sonar.plugins.javascript.api.tree.statement.BlockTree;
 import org.sonar.plugins.javascript.api.tree.statement.StatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.SwitchClauseTree;
 import org.sonar.plugins.javascript.api.tree.statement.SwitchStatementTree;
-import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
+import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
 import org.sonar.squidbridge.annotations.ActivatedByDefault;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
@@ -42,7 +42,7 @@ import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 @ActivatedByDefault
 @SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.LOGIC_RELIABILITY)
 @SqaleConstantRemediation("10min")
-public class NonEmptyCaseWithoutBreakCheck extends BaseTreeVisitor {
+public class NonEmptyCaseWithoutBreakCheck extends DoubleDispatchVisitorCheck {
 
   private static final String MESSAGE = "End this switch case with an unconditional break, continue, return or throw statement.";
 
@@ -53,7 +53,7 @@ public class NonEmptyCaseWithoutBreakCheck extends BaseTreeVisitor {
       SwitchClauseTree switchClauseTree = cases.get(i);
       List<StatementTree> statements = switchClauseTree.statements();
       if (!statements.isEmpty() && !endsWithJump(statements)) {
-        getContext().addIssue(this, switchClauseTree, MESSAGE);
+        addLineIssue(switchClauseTree, MESSAGE);
       }
     }
 

@@ -26,7 +26,7 @@ import org.sonar.check.Rule;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.statement.SwitchClauseTree;
 import org.sonar.plugins.javascript.api.tree.statement.SwitchStatementTree;
-import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
+import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
 import org.sonar.squidbridge.annotations.ActivatedByDefault;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
@@ -39,7 +39,7 @@ import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 @ActivatedByDefault
 @SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.LOGIC_RELIABILITY)
 @SqaleConstantRemediation("5min")
-public class SwitchWithoutDefaultCheck extends BaseTreeVisitor {
+public class SwitchWithoutDefaultCheck extends DoubleDispatchVisitorCheck {
 
   private static final String ADD_DEFAULT_MESSAGE = "Add a \"default\" clause to this \"switch\" statement.";
   private static final String MOVE_DEFAULT_MESSAGE = "Move this \"default\" clause to the end of this \"switch\" statement.";
@@ -47,10 +47,10 @@ public class SwitchWithoutDefaultCheck extends BaseTreeVisitor {
   @Override
   public void visitSwitchStatement(SwitchStatementTree tree) {
     if (!hasDefaultCase(tree)) {
-      getContext().addIssue(this, tree, ADD_DEFAULT_MESSAGE);
+      addLineIssue(tree, ADD_DEFAULT_MESSAGE);
 
     } else if (!Iterables.getLast(tree.cases()).is(Kind.DEFAULT_CLAUSE)) {
-      getContext().addIssue(this, tree, MOVE_DEFAULT_MESSAGE);
+      addLineIssue(tree, MOVE_DEFAULT_MESSAGE);
     }
     super.visitSwitchStatement(tree);
   }

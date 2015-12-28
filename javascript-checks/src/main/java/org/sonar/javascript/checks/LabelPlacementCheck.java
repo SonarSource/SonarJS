@@ -24,7 +24,7 @@ import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.statement.LabelledStatementTree;
-import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
+import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
 import org.sonar.squidbridge.annotations.ActivatedByDefault;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
@@ -37,7 +37,7 @@ import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 @ActivatedByDefault
 @SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.LOGIC_RELIABILITY)
 @SqaleConstantRemediation("20min")
-public class LabelPlacementCheck extends BaseTreeVisitor {
+public class LabelPlacementCheck extends DoubleDispatchVisitorCheck {
 
   private static final String MESSAGE = "Remove this \"%s\" label.";
 
@@ -52,7 +52,7 @@ public class LabelPlacementCheck extends BaseTreeVisitor {
   @Override
   public void visitLabelledStatement(LabelledStatementTree tree) {
     if (!tree.statement().is(ITERATION_STATEMENTS)) {
-      getContext().addIssue(this, tree, String.format(MESSAGE, tree.label().name()));
+      addLineIssue(tree, String.format(MESSAGE, tree.label().name()));
     }
 
     super.visitLabelledStatement(tree);

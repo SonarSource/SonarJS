@@ -24,7 +24,7 @@ import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.statement.IfStatementTree;
-import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
+import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
 import org.sonar.squidbridge.annotations.ActivatedByDefault;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
@@ -37,14 +37,14 @@ import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 @ActivatedByDefault
 @SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.READABILITY)
 @SqaleConstantRemediation("2min")
-public class IfConditionalAlwaysTrueOrFalseCheck extends BaseTreeVisitor {
+public class IfConditionalAlwaysTrueOrFalseCheck extends DoubleDispatchVisitorCheck {
 
   private static final String MESSAGE = "Remove this \"if\" statement.\"";
 
   @Override
   public void visitIfStatement(IfStatementTree tree) {
     if (tree.condition().is(Kind.BOOLEAN_LITERAL)) {
-      getContext().addIssue(this, tree, MESSAGE);
+      addLineIssue(tree, MESSAGE);
     }
 
     super.visitIfStatement(tree);

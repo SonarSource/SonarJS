@@ -29,7 +29,7 @@ import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.LiteralTree;
 import org.sonar.plugins.javascript.api.tree.expression.ParenthesisedExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.UnaryExpressionTree;
-import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
+import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
 import org.sonar.squidbridge.annotations.ActivatedByDefault;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
@@ -42,7 +42,7 @@ import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 @ActivatedByDefault
 @SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.READABILITY)
 @SqaleConstantRemediation("2min")
-public class BooleanEqualityComparisonCheck extends BaseTreeVisitor {
+public class BooleanEqualityComparisonCheck extends DoubleDispatchVisitorCheck {
 
   private static final String MESSAGE = "Remove the literal \"%s\" boolean value.";
 
@@ -89,7 +89,7 @@ public class BooleanEqualityComparisonCheck extends BaseTreeVisitor {
 
     if (expression.is(Kind.BOOLEAN_LITERAL)) {
       String message = String.format(MESSAGE, ((LiteralTree) expression).value());
-      getContext().addIssue(this, expression, message);
+      addLineIssue(expression, message);
     }
   }
 

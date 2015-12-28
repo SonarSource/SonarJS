@@ -42,7 +42,8 @@ import org.sonar.plugins.javascript.api.tree.expression.CallExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.FunctionExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.LiteralTree;
-import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
+import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
+import org.sonar.plugins.javascript.api.visitors.LineIssue;
 import org.sonar.squidbridge.annotations.SqaleLinearWithOffsetRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 
@@ -56,7 +57,7 @@ import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
   coeff = "1min",
   offset = "2min",
   effortToFixDescription = "number of times selection is re-made.")
-public class NotStoredSelectionCheck extends BaseTreeVisitor {
+public class NotStoredSelectionCheck extends DoubleDispatchVisitorCheck {
 
   private static final String MESSAGE = "Selection \"$( %s )\" is made %s times. It should be stored in a variable and reused.";
   private static final int DEFAULT = 2;
@@ -109,7 +110,7 @@ public class NotStoredSelectionCheck extends BaseTreeVisitor {
     for (Entry entry : duplications.values()) {
       if (entry.count > threshold) {
         String message = String.format(MESSAGE, entry.literalTree.value(), entry.count);
-        getContext().addIssue(this, entry.literalTree, message, (double) entry.count - threshold);
+        addIssue(new LineIssue(this, entry.literalTree, message).cost((double) entry.count - threshold));
       }
     }
   }

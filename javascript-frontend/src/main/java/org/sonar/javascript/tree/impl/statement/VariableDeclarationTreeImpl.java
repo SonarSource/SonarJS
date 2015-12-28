@@ -35,7 +35,7 @@ import org.sonar.plugins.javascript.api.tree.declaration.BindingElementTree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.javascript.api.tree.statement.VariableDeclarationTree;
-import org.sonar.plugins.javascript.api.visitors.TreeVisitor;
+import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitor;
 
 public class VariableDeclarationTreeImpl extends JavaScriptTree implements VariableDeclarationTree {
 
@@ -75,7 +75,7 @@ public class VariableDeclarationTreeImpl extends JavaScriptTree implements Varia
   }
 
   @Override
-  public void accept(TreeVisitor visitor) {
+  public void accept(DoubleDispatchVisitor visitor) {
     visitor.visitVariableDeclaration(this);
   }
 

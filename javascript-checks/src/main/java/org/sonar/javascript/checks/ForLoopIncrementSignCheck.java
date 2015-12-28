@@ -34,7 +34,7 @@ import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 import org.sonar.plugins.javascript.api.tree.expression.LiteralTree;
 import org.sonar.plugins.javascript.api.tree.expression.UnaryExpressionTree;
 import org.sonar.plugins.javascript.api.tree.statement.ForStatementTree;
-import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
+import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
 import org.sonar.squidbridge.annotations.ActivatedByDefault;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
@@ -47,7 +47,7 @@ import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 @ActivatedByDefault
 @SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.INSTRUCTION_RELIABILITY)
 @SqaleConstantRemediation("5min")
-public class ForLoopIncrementSignCheck extends BaseTreeVisitor {
+public class ForLoopIncrementSignCheck extends DoubleDispatchVisitorCheck {
 
   private static final String MESSAGE = "\"%s\" is %s and will never reach \"stop condition\".";
 
@@ -95,7 +95,7 @@ public class ForLoopIncrementSignCheck extends BaseTreeVisitor {
   private void addIssue(Tree tree, ForLoopIncrement loopIncrement, String adjective) {
     String identifier = loopIncrement.identifier.name();
     String message = String.format(MESSAGE, identifier, adjective);
-    getContext().addIssue(this, tree, message);
+    addLineIssue(tree, message);
   }
 
   private static class ForLoopIncrement {

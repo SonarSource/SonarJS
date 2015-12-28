@@ -31,7 +31,7 @@ import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.UnaryExpressionTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
-import org.sonar.plugins.javascript.api.visitors.TreeVisitor;
+import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitor;
 
 public class PostfixExpressionTreeImpl extends JavaScriptTree implements UnaryExpressionTree, TypableTree {
 
@@ -68,7 +68,7 @@ public class PostfixExpressionTreeImpl extends JavaScriptTree implements UnaryEx
   }
 
   @Override
-  public void accept(TreeVisitor visitor) {
+  public void accept(DoubleDispatchVisitor visitor) {
     visitor.visitUnaryExpression(this);
   }
 

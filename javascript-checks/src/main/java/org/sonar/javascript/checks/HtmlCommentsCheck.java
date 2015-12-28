@@ -27,7 +27,7 @@ import org.sonar.check.Rule;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxTrivia;
-import org.sonar.plugins.javascript.api.visitors.SubscriptionBaseTreeVisitor;
+import org.sonar.plugins.javascript.api.visitors.SubscriptionVisitorCheck;
 import org.sonar.squidbridge.annotations.ActivatedByDefault;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
@@ -40,7 +40,7 @@ import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 @ActivatedByDefault
 @SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.LANGUAGE_RELATED_PORTABILITY)
 @SqaleConstantRemediation("5min")
-public class HtmlCommentsCheck extends SubscriptionBaseTreeVisitor {
+public class HtmlCommentsCheck extends SubscriptionVisitorCheck {
 
   private static final String MESSAGE = "Replace this HTML-style comment by a standard comment";
 
@@ -50,7 +50,7 @@ public class HtmlCommentsCheck extends SubscriptionBaseTreeVisitor {
 
     for (SyntaxTrivia trivia : token.trivias()) {
       if (trivia.text().startsWith("<!--")) {
-        getContext().addIssue(this, trivia, MESSAGE);
+        addLineIssue(trivia, MESSAGE);
       }
     }
   }

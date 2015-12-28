@@ -30,7 +30,7 @@ import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.expression.ComputedPropertyNameTree;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
-import org.sonar.plugins.javascript.api.visitors.TreeVisitor;
+import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitor;
 
 public class ComputedPropertyNameTreeImpl extends JavaScriptTree implements ComputedPropertyNameTree, TypableTree {
 
@@ -71,7 +71,7 @@ public class ComputedPropertyNameTreeImpl extends JavaScriptTree implements Comp
   }
 
   @Override
-  public void accept(TreeVisitor visitor) {
+  public void accept(DoubleDispatchVisitor visitor) {
     visitor.visitComputedPropertyName(this);
   }
 

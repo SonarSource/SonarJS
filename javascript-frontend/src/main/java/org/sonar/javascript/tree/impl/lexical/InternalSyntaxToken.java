@@ -26,7 +26,7 @@ import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxTrivia;
-import org.sonar.plugins.javascript.api.visitors.TreeVisitor;
+import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitor;
 
 public class InternalSyntaxToken extends JavaScriptTree implements SyntaxToken {
 
@@ -103,7 +103,7 @@ public class InternalSyntaxToken extends JavaScriptTree implements SyntaxToken {
   }
 
   @Override
-  public void accept(TreeVisitor visitor) {
+  public void accept(DoubleDispatchVisitor visitor) {
     // FIXME do nothing at the moment
   }
 

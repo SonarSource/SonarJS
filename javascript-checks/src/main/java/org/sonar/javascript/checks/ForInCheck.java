@@ -29,7 +29,7 @@ import org.sonar.plugins.javascript.api.tree.statement.BlockTree;
 import org.sonar.plugins.javascript.api.tree.statement.ExpressionStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.ForInStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.StatementTree;
-import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
+import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
 import org.sonar.squidbridge.annotations.ActivatedByDefault;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
@@ -42,7 +42,7 @@ import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 @ActivatedByDefault
 @SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.LOGIC_RELIABILITY)
 @SqaleConstantRemediation("5min")
-public class ForInCheck extends BaseTreeVisitor {
+public class ForInCheck extends DoubleDispatchVisitorCheck {
 
   private static final String MESSAGE = "Restrict what this loop acts on by testing each property.";
 
@@ -56,7 +56,7 @@ public class ForInCheck extends BaseTreeVisitor {
     }
 
     if (statementNode != null && !statementNode.is(Kind.IF_STATEMENT) && !isAttrCopy(statementNode)) {
-      getContext().addIssue(this, tree, MESSAGE);
+      addLineIssue(tree, MESSAGE);
     }
 
     super.visitForInStatement(tree);

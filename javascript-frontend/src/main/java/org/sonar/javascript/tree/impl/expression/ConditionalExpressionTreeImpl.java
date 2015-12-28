@@ -30,7 +30,7 @@ import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.expression.ConditionalExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
-import org.sonar.plugins.javascript.api.visitors.TreeVisitor;
+import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitor;
 
 public class ConditionalExpressionTreeImpl extends JavaScriptTree implements ConditionalExpressionTree, TypableTree {
 
@@ -95,7 +95,7 @@ public class ConditionalExpressionTreeImpl extends JavaScriptTree implements Con
   }
 
   @Override
-  public void accept(TreeVisitor visitor) {
+  public void accept(DoubleDispatchVisitor visitor) {
     visitor.visitConditionalExpression(this);
   }
 

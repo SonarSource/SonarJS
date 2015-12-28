@@ -30,7 +30,8 @@ import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxTrivia;
-import org.sonar.plugins.javascript.api.visitors.SubscriptionBaseTreeVisitor;
+import org.sonar.plugins.javascript.api.visitors.LineIssue;
+import org.sonar.plugins.javascript.api.visitors.SubscriptionVisitorCheck;
 import org.sonar.squidbridge.annotations.NoSqale;
 import org.sonar.squidbridge.annotations.RuleTemplate;
 
@@ -42,7 +43,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
   priority = Priority.MAJOR)
 @RuleTemplate
 @NoSqale
-public class CommentRegularExpressionCheck extends SubscriptionBaseTreeVisitor {
+public class CommentRegularExpressionCheck extends SubscriptionVisitorCheck {
 
   private static final String DEFAULT_MESSAGE = "The regular expression matches this comment.";
   private static final String DEFAULT_REGULAR_EXPRESSION = "";
@@ -91,7 +92,7 @@ public class CommentRegularExpressionCheck extends SubscriptionBaseTreeVisitor {
       SyntaxToken token = (SyntaxToken) tree;
       for (SyntaxTrivia trivia : token.trivias()) {
         if (pattern.matcher(trivia.text()).matches()) {
-          getContext().addIssue(this, trivia.line(), message);
+          addIssue(new LineIssue(this, trivia.line(), message));
         }
       }
     }

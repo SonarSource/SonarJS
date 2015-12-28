@@ -29,7 +29,7 @@ import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.javascript.api.tree.statement.DefaultClauseTree;
 import org.sonar.plugins.javascript.api.tree.statement.StatementTree;
-import org.sonar.plugins.javascript.api.visitors.TreeVisitor;
+import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitor;
 
 public class DefaultClauseTreeImpl extends JavaScriptTree implements DefaultClauseTree {
 
@@ -79,7 +79,7 @@ public class DefaultClauseTreeImpl extends JavaScriptTree implements DefaultClau
   }
 
   @Override
-  public void accept(TreeVisitor visitor) {
+  public void accept(DoubleDispatchVisitor visitor) {
     visitor.visitDefaultClause(this);
   }
 }

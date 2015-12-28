@@ -31,7 +31,7 @@ import org.sonar.plugins.javascript.api.tree.statement.ElseClauseTree;
 import org.sonar.plugins.javascript.api.tree.statement.IfStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.IterationStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.StatementTree;
-import org.sonar.plugins.javascript.api.visitors.SubscriptionBaseTreeVisitor;
+import org.sonar.plugins.javascript.api.visitors.SubscriptionVisitorCheck;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 
@@ -42,7 +42,7 @@ import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
   tags = {Tags.CERT, Tags.CWE, Tags.MISRA, Tags.PITFALL})
 @SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.READABILITY)
 @SqaleConstantRemediation("2min")
-public class AlwaysUseCurlyBracesCheck extends SubscriptionBaseTreeVisitor {
+public class AlwaysUseCurlyBracesCheck extends SubscriptionVisitorCheck {
 
   private static final String MESSAGE = "Add curly braces around the nested statement(s) in this \"%s\" block.";
 
@@ -78,7 +78,7 @@ public class AlwaysUseCurlyBracesCheck extends SubscriptionBaseTreeVisitor {
   private void checkAreCurlyBracesUsed(StatementTree statement, Tree tree) {
     if (!statement.is(Kind.BLOCK)) {
       String blockName = ((JavaScriptTree) tree).getFirstToken().text();
-      getContext().addIssue(this, tree, String.format(MESSAGE, blockName));
+      addLineIssue(tree, String.format(MESSAGE, blockName));
     }
   }
 

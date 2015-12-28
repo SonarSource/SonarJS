@@ -17,29 +17,22 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.javascript.tree.visitors;
+package org.sonar.plugins.javascript.api.visitors;
 
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
-import org.sonar.plugins.javascript.api.JavaScriptCheck;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxTrivia;
-import org.sonar.plugins.javascript.api.visitors.TreeVisitorContext;
 
-public abstract class SubscriptionTreeVisitor implements JavaScriptCheck {
+public abstract class SubscriptionVisitor implements TreeVisitor {
 
   private TreeVisitorContext context;
   private Collection<Tree.Kind> nodesToVisit;
 
   public abstract List<Tree.Kind> nodesToVisit();
-
-  @Override
-  public TreeVisitorContext getContext() {
-    return context;
-  }
 
   public void visitNode(Tree tree) {
     // Default behavior : do nothing.
@@ -61,11 +54,21 @@ public abstract class SubscriptionTreeVisitor implements JavaScriptCheck {
     // default behaviour is to do nothing
   }
 
+  public void leaveFile(Tree scriptTree) {
+    // default behaviour is to do nothing
+  }
+
   @Override
-  public void scanFile(TreeVisitorContext context) {
+  public TreeVisitorContext getContext() {
+    return context;
+  }
+
+  @Override
+  public final void scanTree(TreeVisitorContext context) {
     this.context = context;
     visitFile(context.getTopTree());
     scanTree(context.getTopTree());
+    leaveFile(context.getTopTree());
   }
 
   public void scanTree(Tree tree) {

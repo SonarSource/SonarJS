@@ -23,7 +23,7 @@ import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.plugins.javascript.api.tree.statement.DebuggerStatementTree;
-import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
+import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
 import org.sonar.squidbridge.annotations.ActivatedByDefault;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
@@ -36,14 +36,14 @@ import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 @ActivatedByDefault
 @SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.SECURITY_FEATURES)
 @SqaleConstantRemediation("5min")
-public class DebuggerStatementCheck extends BaseTreeVisitor {
+public class DebuggerStatementCheck extends DoubleDispatchVisitorCheck {
 
 
   private static final String MESSAGE = "Remove this debugger statement.";
 
   @Override
   public void visitDebugger(DebuggerStatementTree tree) {
-    getContext().addIssue(this, tree, MESSAGE);
+    addLineIssue(tree, MESSAGE);
     // no sub tree
   }
 

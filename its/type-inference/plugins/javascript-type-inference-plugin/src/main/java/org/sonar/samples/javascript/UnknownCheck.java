@@ -26,14 +26,14 @@ import org.sonar.plugins.javascript.api.symbols.Type;
 import org.sonar.plugins.javascript.api.symbols.Usage;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
-import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
+import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
 
 @Rule(
   key = "unknown",
   name = "Unknown type for symbol",
   description = "This rule triggers an issue when a symbol has the \"UNKNOWN\" tag type.",
   priority = Priority.MAJOR)
-public class UnknownCheck extends BaseTreeVisitor {
+public class UnknownCheck extends DoubleDispatchVisitorCheck {
 
   @Override
   public void visitScript(ScriptTree tree) {
@@ -43,7 +43,7 @@ public class UnknownCheck extends BaseTreeVisitor {
         for (Type type : s.types()) {
 
           if (type.kind() == Type.Kind.UNKNOWN) {
-            getContext().addIssue(this, getSymbolReference(s), String.format("\"%s\"  =>  type %s  -  within %s.", s.name(), type.kind(), s.types().toString()));
+            addLineIssue(getSymbolReference(s), String.format("\"%s\"  =>  type %s  -  within %s.", s.name(), type.kind(), s.types().toString()));
             TypeStatistics.increaseUnknown();
           }
         }

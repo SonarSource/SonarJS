@@ -29,7 +29,7 @@ import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.expression.CallExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.ObjectLiteralTree;
 import org.sonar.plugins.javascript.api.tree.expression.PairPropertyTree;
-import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
+import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 
@@ -40,7 +40,7 @@ import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
   tags = {Tags.BACKBONE, Tags.BUG})
 @SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.DATA_RELIABILITY)
 @SqaleConstantRemediation("5min")
-public class ModelDefaultsWithArrayOrObjectCheck extends BaseTreeVisitor {
+public class ModelDefaultsWithArrayOrObjectCheck extends DoubleDispatchVisitorCheck {
 
   private static final String MESSAGE = "Make \"defaults\" a function.";
 
@@ -53,7 +53,7 @@ public class ModelDefaultsWithArrayOrObjectCheck extends BaseTreeVisitor {
         PairPropertyTree defaultsProp = Backbone.getModelProperty((ObjectLiteralTree) parameter, "defaults");
 
         if (defaultsProp != null && defaultsProp.value().is(Kind.OBJECT_LITERAL) && hasObjectOrArrayAttribute((ObjectLiteralTree) defaultsProp.value())) {
-          getContext().addIssue(this, defaultsProp, MESSAGE);
+          addLineIssue(defaultsProp, MESSAGE);
         }
       }
     }

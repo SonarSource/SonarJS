@@ -19,7 +19,6 @@
  */
 package org.sonar.javascript.checks;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import java.util.List;
 import org.sonar.api.server.rule.RulesDefinition;
@@ -34,7 +33,7 @@ import org.sonar.plugins.javascript.api.tree.statement.IfStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.StatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.SwitchClauseTree;
 import org.sonar.plugins.javascript.api.tree.statement.SwitchStatementTree;
-import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
+import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
 import org.sonar.plugins.javascript.api.visitors.IssueLocation;
 import org.sonar.squidbridge.annotations.ActivatedByDefault;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
@@ -48,7 +47,7 @@ import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 @ActivatedByDefault
 @SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.LOGIC_RELIABILITY)
 @SqaleConstantRemediation("10min")
-public class DuplicateBranchImplementationCheck extends BaseTreeVisitor {
+public class DuplicateBranchImplementationCheck extends DoubleDispatchVisitorCheck {
 
   private static final String MESSAGE = "Either merge this %s with the identical one on line \"%s\" or change one of the implementations.";
   private static final String CONDITIONAL_EXPRESSION_MESSAGE = "This conditional operation returns the same value whether the condition is \"true\" or \"false\".";
@@ -108,7 +107,7 @@ public class DuplicateBranchImplementationCheck extends BaseTreeVisitor {
   private void addIssue(Tree original, Tree duplicate, String type) {
     IssueLocation secondary = new IssueLocation(original, "Original");
     String message = String.format(MESSAGE, type, secondary.startLine());
-    getContext().addIssue(this, new IssueLocation(duplicate, message), ImmutableList.of(secondary), null);
+    newIssue(duplicate, message).secondary(secondary);
   }
 
   private boolean isCaseEndingWithoutJumpStmt(SwitchClauseTree caseTree) {
@@ -134,10 +133,9 @@ public class DuplicateBranchImplementationCheck extends BaseTreeVisitor {
   @Override
   public void visitConditionalExpression(ConditionalExpressionTree tree) {
     if (SyntacticEquivalence.areEquivalent(tree.trueExpression(), tree.falseExpression())) {
-      List<IssueLocation> secondaryLocations = ImmutableList.of(
-        new IssueLocation(tree.trueExpression()),
-        new IssueLocation(tree.falseExpression()));
-      getContext().addIssue(this, new IssueLocation(tree.query(), CONDITIONAL_EXPRESSION_MESSAGE), secondaryLocations, null);
+      newIssue(tree.query(), CONDITIONAL_EXPRESSION_MESSAGE)
+        .secondary(tree.trueExpression())
+        .secondary(tree.falseExpression());
     }
     super.visitConditionalExpression(tree);
   }

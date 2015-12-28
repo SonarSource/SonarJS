@@ -27,7 +27,7 @@ import org.sonar.check.Rule;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxTrivia;
-import org.sonar.plugins.javascript.api.visitors.SubscriptionBaseTreeVisitor;
+import org.sonar.plugins.javascript.api.visitors.SubscriptionVisitorCheck;
 import org.sonar.squidbridge.annotations.ActivatedByDefault;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
@@ -40,7 +40,7 @@ import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 @ActivatedByDefault
 @SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.LOGIC_RELIABILITY)
 @SqaleConstantRemediation("5min")
-public class ConditionalCommentCheck extends SubscriptionBaseTreeVisitor {
+public class ConditionalCommentCheck extends SubscriptionVisitorCheck {
 
   private static final String MESSAGE = "Refactor your code to avoid using Internet Explorer's conditional comments.";
 
@@ -55,7 +55,7 @@ public class ConditionalCommentCheck extends SubscriptionBaseTreeVisitor {
     for (SyntaxTrivia trivia : token.trivias()) {
       String comment = trivia.text();
       if (comment.startsWith("/*@cc_on") || comment.startsWith("//@cc_on")) {
-        getContext().addIssue(this, trivia, MESSAGE);
+        addLineIssue(trivia, MESSAGE);
       }
     }
   }

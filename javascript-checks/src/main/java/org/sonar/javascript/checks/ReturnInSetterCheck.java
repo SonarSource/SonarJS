@@ -25,8 +25,7 @@ import org.sonar.check.Rule;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.declaration.AccessorMethodDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.statement.ReturnStatementTree;
-import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
-import org.sonar.plugins.javascript.api.visitors.TreeVisitor;
+import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
 import org.sonar.squidbridge.annotations.ActivatedByDefault;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
@@ -39,11 +38,11 @@ import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 @ActivatedByDefault
 @SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.INSTRUCTION_RELIABILITY)
 @SqaleConstantRemediation("5min")
-public class ReturnInSetterCheck extends BaseTreeVisitor {
+public class ReturnInSetterCheck extends DoubleDispatchVisitorCheck {
 
   private static final String MESSAGE = "Remove this return statement.";
 
-  private final TreeVisitor forbiddenReturnVisitor = new ForbiddenReturnVisitor();
+  private final DoubleDispatchVisitorCheck forbiddenReturnVisitor = new ForbiddenReturnVisitor();
 
   @Override
   public void visitAccessorMethodDeclaration(AccessorMethodDeclarationTree tree) {
@@ -53,13 +52,13 @@ public class ReturnInSetterCheck extends BaseTreeVisitor {
     super.visitAccessorMethodDeclaration(tree);
   }
 
-  private class ForbiddenReturnVisitor extends BaseTreeVisitor {
+  private class ForbiddenReturnVisitor extends DoubleDispatchVisitorCheck {
 
     @Override
     public void visitReturnStatement(ReturnStatementTree tree) {
       if (tree.expression() != null) {
         ReturnInSetterCheck check = ReturnInSetterCheck.this;
-        check.getContext().addIssue(check, tree, MESSAGE);
+        check.addLineIssue(tree, MESSAGE);
       }
       super.visitReturnStatement(tree);
     }

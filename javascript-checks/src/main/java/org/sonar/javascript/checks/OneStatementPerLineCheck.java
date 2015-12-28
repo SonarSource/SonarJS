@@ -33,7 +33,8 @@ import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.expression.FunctionExpressionTree;
 import org.sonar.plugins.javascript.api.tree.statement.StatementTree;
 import org.sonar.plugins.javascript.api.visitors.IssueLocation;
-import org.sonar.plugins.javascript.api.visitors.SubscriptionBaseTreeVisitor;
+import org.sonar.plugins.javascript.api.visitors.PreciseIssue;
+import org.sonar.plugins.javascript.api.visitors.SubscriptionVisitorCheck;
 import org.sonar.squidbridge.annotations.ActivatedByDefault;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
@@ -46,7 +47,7 @@ import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 @ActivatedByDefault
 @SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.READABILITY)
 @SqaleConstantRemediation("1min")
-public class OneStatementPerLineCheck extends SubscriptionBaseTreeVisitor {
+public class OneStatementPerLineCheck extends SubscriptionVisitorCheck {
 
   private static final String MESSAGE = "Reformat the code to have only one statement per line.";
 
@@ -115,13 +116,10 @@ public class OneStatementPerLineCheck extends SubscriptionBaseTreeVisitor {
   }
 
   private void addIssue(List<StatementTree> statementsAtLine) {
-    IssueLocation primaryLocation = new IssueLocation(statementsAtLine.get(1), MESSAGE);
-    List<IssueLocation> secondaryLocations = new ArrayList<>();
+    PreciseIssue issue = newIssue(statementsAtLine.get(1), MESSAGE);
 
     for (int i = 2; i < statementsAtLine.size(); i++) {
-      secondaryLocations.add(new IssueLocation(statementsAtLine.get(i)));
+      issue.secondary(new IssueLocation(statementsAtLine.get(i)));
     }
-
-    getContext().addIssue(this, primaryLocation, secondaryLocations, null);
   }
 }

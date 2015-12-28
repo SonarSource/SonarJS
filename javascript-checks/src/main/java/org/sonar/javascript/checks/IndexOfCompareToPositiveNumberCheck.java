@@ -31,7 +31,8 @@ import org.sonar.plugins.javascript.api.tree.expression.CallExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.DotMemberExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.LiteralTree;
-import org.sonar.plugins.javascript.api.visitors.SubscriptionBaseTreeVisitor;
+import org.sonar.plugins.javascript.api.visitors.LineIssue;
+import org.sonar.plugins.javascript.api.visitors.SubscriptionVisitorCheck;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 
@@ -42,7 +43,7 @@ import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
   tags = {Tags.BUG})
 @SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.LOGIC_RELIABILITY)
 @SqaleConstantRemediation("2min")
-public class IndexOfCompareToPositiveNumberCheck extends SubscriptionBaseTreeVisitor {
+public class IndexOfCompareToPositiveNumberCheck extends SubscriptionVisitorCheck {
 
   private static final String MESSAGE = "0 is a valid index, but is ignored by this check.";
 
@@ -56,7 +57,7 @@ public class IndexOfCompareToPositiveNumberCheck extends SubscriptionBaseTreeVis
     BinaryExpressionTree expression = (BinaryExpressionTree) tree;
 
     if (isZero(expression.rightOperand()) && isIndexOfCall(expression.leftOperand())) {
-      addIssue(tree, MESSAGE);
+      addIssue(new LineIssue(this, tree, MESSAGE));
     }
 
   }

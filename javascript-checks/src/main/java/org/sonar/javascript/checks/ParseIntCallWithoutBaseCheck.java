@@ -26,7 +26,7 @@ import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.expression.CallExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
-import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
+import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 
@@ -37,14 +37,14 @@ import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
   tags = {Tags.BUG})
 @SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.INSTRUCTION_RELIABILITY)
 @SqaleConstantRemediation("2min")
-public class ParseIntCallWithoutBaseCheck extends BaseTreeVisitor {
+public class ParseIntCallWithoutBaseCheck extends DoubleDispatchVisitorCheck {
 
   private static final String MESSAGE = "Add the base to this \"parseInt\" call.";
 
   @Override
   public void visitCallExpression(CallExpressionTree tree) {
     if (isParseIntCall(tree.callee()) && tree.arguments().parameters().size() == 1) {
-      getContext().addIssue(this, tree, MESSAGE);
+      addLineIssue(tree, MESSAGE);
     }
     super.visitCallExpression(tree);
   }

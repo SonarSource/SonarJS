@@ -28,7 +28,7 @@ import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.expression.CallExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.DotMemberExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
-import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
+import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 
@@ -39,7 +39,7 @@ import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
   tags = {Tags.HTML5, Tags.SECURITY, Tags.OWASP_A3})
 @SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.SECURITY_FEATURES)
 @SqaleConstantRemediation("10min")
-public class PostMessageCheck extends BaseTreeVisitor {
+public class PostMessageCheck extends DoubleDispatchVisitorCheck {
 
   private static final String POST_MESSAGE = "postMessage";
   private static final String MESSAGE = "Make sure this cross-domain message is being sent to the intended domain.";
@@ -50,7 +50,7 @@ public class PostMessageCheck extends BaseTreeVisitor {
       DotMemberExpressionTree callee = (DotMemberExpressionTree) tree.callee();
       boolean isWindow = callee.object().types().contains(Type.Kind.WINDOW) || hasWindowLikeName(callee.object());
       if (isWindow && CheckUtils.asString(callee.property()).equals(POST_MESSAGE)) {
-        getContext().addIssue(this, callee.property(), MESSAGE);
+        addLineIssue(callee.property(), MESSAGE);
       }
     }
 

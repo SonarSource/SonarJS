@@ -27,7 +27,7 @@ import org.sonar.javascript.tree.impl.lexical.InternalSyntaxToken;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.declaration.DefaultExportDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
-import org.sonar.plugins.javascript.api.visitors.TreeVisitor;
+import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitor;
 
 public class DefaultExportDeclarationTreeImpl extends JavaScriptTree implements DefaultExportDeclarationTree {
 
@@ -75,7 +75,7 @@ public class DefaultExportDeclarationTreeImpl extends JavaScriptTree implements 
   }
 
   @Override
-  public void accept(TreeVisitor visitor) {
+  public void accept(DoubleDispatchVisitor visitor) {
     visitor.visitDefaultExportDeclaration(this);
   }
 }

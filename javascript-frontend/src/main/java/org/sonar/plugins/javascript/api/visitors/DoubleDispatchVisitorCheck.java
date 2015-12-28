@@ -19,15 +19,38 @@
  */
 package org.sonar.plugins.javascript.api.visitors;
 
-import com.google.common.annotations.Beta;
-import org.sonar.javascript.tree.visitors.SubscriptionTreeVisitor;
+import java.util.ArrayList;
+import java.util.List;
+import org.sonar.plugins.javascript.api.JavaScriptCheck;
 import org.sonar.plugins.javascript.api.tree.Tree;
 
-@Beta
-public abstract class SubscriptionBaseTreeVisitor extends SubscriptionTreeVisitor {
+public abstract class DoubleDispatchVisitorCheck extends DoubleDispatchVisitor implements JavaScriptCheck {
 
-  public void addIssue(Tree tree, String message) {
-    getContext().addIssue(this, tree, message);
+  private List<Issue> issues;
+
+  @Override
+  public List<Issue> scanFile(TreeVisitorContext context){
+    issues = new ArrayList<>();
+    scanTree(context);
+    return issues;
+  }
+
+  @Override
+  public void addLineIssue(Tree tree, String message) {
+    addIssue(new LineIssue(this, tree, message));
+  }
+
+  @Override
+  public PreciseIssue newIssue(Tree tree, String message) {
+    PreciseIssue preciseIssue = new PreciseIssue(this, new IssueLocation(tree, message));
+    addIssue(preciseIssue);
+    return preciseIssue;
+  }
+
+  @Override
+  public <T extends Issue> T addIssue(T issue) {
+    issues.add(issue);
+    return issue;
   }
 
 }

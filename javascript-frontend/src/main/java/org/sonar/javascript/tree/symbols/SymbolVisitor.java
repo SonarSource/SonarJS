@@ -42,9 +42,9 @@ import org.sonar.plugins.javascript.api.tree.expression.UnaryExpressionTree;
 import org.sonar.plugins.javascript.api.tree.statement.CatchBlockTree;
 import org.sonar.plugins.javascript.api.tree.statement.ForInStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.ForOfStatementTree;
-import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
+import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitor;
 
-public class SymbolVisitor extends BaseTreeVisitor {
+public class SymbolVisitor extends DoubleDispatchVisitor {
 
   private static final Logger LOG = LoggerFactory.getLogger(SymbolVisitor.class);
 

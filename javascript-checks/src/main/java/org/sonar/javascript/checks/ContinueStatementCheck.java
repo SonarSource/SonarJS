@@ -23,7 +23,7 @@ import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.plugins.javascript.api.tree.statement.ContinueStatementTree;
-import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
+import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 
@@ -34,13 +34,13 @@ import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
   tags = {Tags.MISRA})
 @SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.UNIT_TESTABILITY)
 @SqaleConstantRemediation("30min")
-public class ContinueStatementCheck extends BaseTreeVisitor {
+public class ContinueStatementCheck extends DoubleDispatchVisitorCheck {
 
   private static final String MESSAGE = "Remove this \"continue\" statement.";
 
   @Override
   public void visitContinueStatement(ContinueStatementTree tree) {
-    getContext().addIssue(this, tree, MESSAGE);
+    addLineIssue(tree, MESSAGE);
   }
 
 }

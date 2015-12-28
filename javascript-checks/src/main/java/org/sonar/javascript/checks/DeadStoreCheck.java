@@ -29,7 +29,7 @@ import org.sonar.plugins.javascript.api.symbols.Symbol;
 import org.sonar.plugins.javascript.api.symbols.SymbolModel;
 import org.sonar.plugins.javascript.api.symbols.Usage;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
-import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
+import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
 import org.sonar.squidbridge.annotations.ActivatedByDefault;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
@@ -42,7 +42,7 @@ import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 @ActivatedByDefault
 @SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.DATA_RELIABILITY)
 @SqaleConstantRemediation("15min")
-public class DeadStoreCheck extends BaseTreeVisitor {
+public class DeadStoreCheck extends DoubleDispatchVisitorCheck {
 
   private static final String MESSAGE = "Remove this useless assignment to local variable \"%s\"";
 
@@ -63,7 +63,7 @@ public class DeadStoreCheck extends BaseTreeVisitor {
     if (!hasRead(usages)) {
       for (Usage usage : usages) {
         if (!usage.isDeclaration() && usage.kind() != Usage.Kind.LEXICAL_DECLARATION) {
-          getContext().addIssue(this, usage.identifierTree(), String.format(MESSAGE, symbol.name()));
+          addLineIssue(usage.identifierTree(), String.format(MESSAGE, symbol.name()));
         }
       }
     }

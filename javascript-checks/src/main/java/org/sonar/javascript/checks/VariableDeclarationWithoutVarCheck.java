@@ -25,7 +25,7 @@ import org.sonar.check.Rule;
 import org.sonar.plugins.javascript.api.symbols.Symbol;
 import org.sonar.plugins.javascript.api.symbols.Usage;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
-import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
+import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
 import org.sonar.squidbridge.annotations.ActivatedByDefault;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
@@ -38,7 +38,7 @@ import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 @ActivatedByDefault
 @SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.LOGIC_RELIABILITY)
 @SqaleConstantRemediation("2min")
-public class VariableDeclarationWithoutVarCheck extends BaseTreeVisitor {
+public class VariableDeclarationWithoutVarCheck extends DoubleDispatchVisitorCheck {
 
   private static final String MESSAGE = "Add the \"var\" keyword to this declaration of \"%s\".";
 
@@ -58,7 +58,7 @@ public class VariableDeclarationWithoutVarCheck extends BaseTreeVisitor {
       }
     }
     if (!symbol.usages().isEmpty()) {
-      getContext().addIssue(this, symbol.usages().iterator().next().identifierTree(), String.format(MESSAGE, symbol.name()));
+      addLineIssue(symbol.usages().iterator().next().identifierTree(), String.format(MESSAGE, symbol.name()));
     }
   }
 }

@@ -19,7 +19,6 @@
  */
 package org.sonar.javascript.checks;
 
-import java.util.Collections;
 import javax.annotation.Nullable;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
@@ -28,8 +27,9 @@ import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.statement.BlockTree;
 import org.sonar.plugins.javascript.api.tree.statement.IfStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.StatementTree;
-import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
+import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
 import org.sonar.plugins.javascript.api.visitors.IssueLocation;
+import org.sonar.plugins.javascript.api.visitors.PreciseIssue;
 import org.sonar.squidbridge.annotations.ActivatedByDefault;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
@@ -42,7 +42,7 @@ import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 @ActivatedByDefault
 @SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.READABILITY)
 @SqaleConstantRemediation("5min")
-public class CollapsibleIfStatementsCheck extends BaseTreeVisitor {
+public class CollapsibleIfStatementsCheck extends DoubleDispatchVisitorCheck {
 
   private static final String MESSAGE = "Merge this if statement with the nested one.";
   private static final String SECONDARY_MESSAGE = "Nested \"if\" statement";
@@ -55,7 +55,7 @@ public class CollapsibleIfStatementsCheck extends BaseTreeVisitor {
       if (innerIfStatement != null) {
         IssueLocation primaryLocation = issueLocation(tree, MESSAGE);
         IssueLocation secondaryLocation = issueLocation(innerIfStatement, SECONDARY_MESSAGE);
-        getContext().addIssue(this, primaryLocation, Collections.singletonList(secondaryLocation), null);
+        addIssue(new PreciseIssue(this, primaryLocation).secondary(secondaryLocation));
       }
     }
 

@@ -27,9 +27,9 @@ import org.sonar.plugins.javascript.api.symbols.Symbol;
 import org.sonar.plugins.javascript.api.symbols.SymbolModel;
 import org.sonar.plugins.javascript.api.symbols.Usage;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
-import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
+import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
 
-public abstract class AbstractSymbolNameCheck extends BaseTreeVisitor {
+public abstract class AbstractSymbolNameCheck extends DoubleDispatchVisitorCheck {
   abstract List<String> illegalNames();
 
   abstract String getMessage(Symbol symbol);
@@ -56,13 +56,13 @@ public abstract class AbstractSymbolNameCheck extends BaseTreeVisitor {
     boolean issueRaised = false;
     for (Usage usage : symbol.usages()) {
       if (usage.isDeclaration()) {
-        getContext().addIssue(check, usage.identifierTree(), message);
+        addLineIssue(usage.identifierTree(), message);
         issueRaised = true;
       }
     }
 
     if (!issueRaised) {
-      getContext().addIssue(check, symbol.usages().iterator().next().identifierTree(), message);
+      addLineIssue(symbol.usages().iterator().next().identifierTree(), message);
     }
 
   }

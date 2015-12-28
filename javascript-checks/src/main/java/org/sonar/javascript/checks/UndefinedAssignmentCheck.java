@@ -28,7 +28,7 @@ import org.sonar.plugins.javascript.api.tree.declaration.InitializedBindingEleme
 import org.sonar.plugins.javascript.api.tree.expression.AssignmentExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
-import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
+import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 
@@ -39,7 +39,7 @@ import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
   tags = {Tags.PITFALL})
 @SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.LOGIC_RELIABILITY)
 @SqaleConstantRemediation("2min")
-public class UndefinedAssignmentCheck extends BaseTreeVisitor {
+public class UndefinedAssignmentCheck extends DoubleDispatchVisitorCheck {
 
   private static final String MESSAGE = "Use null instead.";
 
@@ -66,6 +66,6 @@ public class UndefinedAssignmentCheck extends BaseTreeVisitor {
   }
 
   private void reportIssue(Tree tree) {
-    getContext().addIssue(this, tree, MESSAGE);
+    addLineIssue(tree, MESSAGE);
   }
 }

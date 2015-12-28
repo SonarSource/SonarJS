@@ -44,7 +44,7 @@ public class IdChildrenSelectorCheck extends AbstractJQuerySelectorOptimizationC
   protected void visitSelector(String selector, CallExpressionTree tree) {
     Matcher matcher = idChildrenSelectorPattern.matcher(selector);
     if (matcher.matches()) {
-      getContext().addIssue(this, tree, String.format(MESSAGE, matcher.group(2)));
+      addLineIssue(tree, String.format(MESSAGE, matcher.group(2)));
     }
   }
 }

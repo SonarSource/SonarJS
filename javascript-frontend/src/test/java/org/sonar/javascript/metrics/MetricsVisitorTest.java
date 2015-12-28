@@ -76,7 +76,7 @@ public class MetricsVisitorTest extends JavaScriptTreeModelTest {
     when(treeVisitorContext.getFile()).thenReturn(file);
     when(treeVisitorContext.getTopTree()).thenReturn((ScriptTree) p.parse(file));
 
-    metricsVisitor.scanFile(treeVisitorContext);
+    metricsVisitor.scanTree(treeVisitorContext);
 
     verify(context).saveMeasure(inputFile, CoreMetrics.FUNCTIONS, 1.0);
     verify(context).saveMeasure(inputFile, CoreMetrics.STATEMENTS, 1.0);

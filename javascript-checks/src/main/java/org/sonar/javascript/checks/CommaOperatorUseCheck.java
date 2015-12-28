@@ -31,7 +31,7 @@ import org.sonar.plugins.javascript.api.tree.expression.BinaryExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.javascript.api.tree.statement.ForStatementTree;
-import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
+import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 
@@ -42,7 +42,7 @@ import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
   tags = {Tags.MISRA})
 @SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.UNDERSTANDABILITY)
 @SqaleConstantRemediation("5min")
-public class CommaOperatorUseCheck extends BaseTreeVisitor {
+public class CommaOperatorUseCheck extends DoubleDispatchVisitorCheck {
 
   private static final String MESSAGE_ONE_COMMA = "Remove use of this comma operator.";
   private static final String MESSAGE_MANY_COMMAS = "Remove use of all comma operators in this expression.";
@@ -58,7 +58,7 @@ public class CommaOperatorUseCheck extends BaseTreeVisitor {
     List<ExpressionTree> expressions = getAllSubExpressions(tree);
 
     String message = expressions.size() > 2 ? MESSAGE_MANY_COMMAS : MESSAGE_ONE_COMMA;
-    getContext().addIssue(this, getFirstComma(tree), message);
+    addLineIssue(getFirstComma(tree), message);
 
     for (ExpressionTree expression : expressions) {
       super.scan(expression);

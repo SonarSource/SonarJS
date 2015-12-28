@@ -33,7 +33,7 @@ import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.javascript.api.tree.statement.BlockTree;
 import org.sonar.plugins.javascript.api.tree.statement.CatchBlockTree;
-import org.sonar.plugins.javascript.api.visitors.TreeVisitor;
+import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitor;
 
 public class CatchBlockTreeImpl extends JavaScriptTree implements CatchBlockTree {
 
@@ -91,7 +91,7 @@ public class CatchBlockTreeImpl extends JavaScriptTree implements CatchBlockTree
   }
 
   @Override
-  public void accept(TreeVisitor visitor) {
+  public void accept(DoubleDispatchVisitor visitor) {
     visitor.visitCatchBlock(this);
   }
 

@@ -29,7 +29,7 @@ import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.javascript.api.tree.statement.DoWhileStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.StatementTree;
-import org.sonar.plugins.javascript.api.visitors.TreeVisitor;
+import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitor;
 
 public class DoWhileStatementTreeImpl extends JavaScriptTree implements DoWhileStatementTree {
 
@@ -111,7 +111,7 @@ public class DoWhileStatementTreeImpl extends JavaScriptTree implements DoWhileS
   }
 
   @Override
-  public void accept(TreeVisitor visitor) {
+  public void accept(DoubleDispatchVisitor visitor) {
     visitor.visitDoWhileStatement(this);
   }
 }

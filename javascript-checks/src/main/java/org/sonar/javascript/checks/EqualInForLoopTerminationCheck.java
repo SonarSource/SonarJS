@@ -33,7 +33,7 @@ import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.LiteralTree;
 import org.sonar.plugins.javascript.api.tree.statement.ForStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.VariableDeclarationTree;
-import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
+import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
 import org.sonar.squidbridge.annotations.ActivatedByDefault;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
@@ -46,7 +46,7 @@ import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 @ActivatedByDefault
 @SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.LOGIC_RELIABILITY)
 @SqaleConstantRemediation("2min")
-public class EqualInForLoopTerminationCheck extends BaseTreeVisitor {
+public class EqualInForLoopTerminationCheck extends DoubleDispatchVisitorCheck {
 
   private static final String MESSAGE = "Replace '%s' operator with one of '<=', '>=', '<', or '>' comparison operators.";
 
@@ -76,7 +76,7 @@ public class EqualInForLoopTerminationCheck extends BaseTreeVisitor {
 
   private void addIssue(ExpressionTree condition) {
     String message = String.format(MESSAGE, ((BinaryExpressionTree) condition).operator().text());
-    getContext().addIssue(this, condition, message);
+    addLineIssue(condition, message);
   }
 
   private static boolean isEquality(ExpressionTree condition) {

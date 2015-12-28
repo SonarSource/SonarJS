@@ -30,7 +30,7 @@ import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 import org.sonar.plugins.javascript.api.tree.expression.LiteralTree;
 import org.sonar.plugins.javascript.api.tree.expression.ObjectLiteralTree;
 import org.sonar.plugins.javascript.api.tree.expression.PairPropertyTree;
-import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
+import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
 import org.sonar.squidbridge.annotations.ActivatedByDefault;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
@@ -43,7 +43,7 @@ import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 @ActivatedByDefault
 @SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.INSTRUCTION_RELIABILITY)
 @SqaleConstantRemediation("5min")
-public class DuplicatePropertyNameCheck extends BaseTreeVisitor {
+public class DuplicatePropertyNameCheck extends DoubleDispatchVisitorCheck {
 
   private static final String MESSAGE = "Rename or remove duplicate property name '%s'.";
 
@@ -83,7 +83,7 @@ public class DuplicatePropertyNameCheck extends BaseTreeVisitor {
 
   private void addKey(Set<String> keys, String key, Tree property) {
     if (keys.contains(EscapeUtils.unescape(key))) {
-      getContext().addIssue(this, property, String.format(MESSAGE, key));
+      addLineIssue(property, String.format(MESSAGE, key));
     } else {
       keys.add(key);
     }

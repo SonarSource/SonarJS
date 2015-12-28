@@ -19,7 +19,6 @@
  */
 package org.sonar.javascript.checks;
 
-import java.util.Collections;
 import org.sonar.api.server.rule.RulesDefinition.SubCharacteristics;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
@@ -31,8 +30,7 @@ import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 import org.sonar.plugins.javascript.api.tree.expression.UnaryExpressionTree;
-import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
-import org.sonar.plugins.javascript.api.visitors.IssueLocation;
+import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
 import org.sonar.squidbridge.annotations.ActivatedByDefault;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
@@ -45,7 +43,7 @@ import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 @ActivatedByDefault
 @SqaleSubCharacteristic(SubCharacteristics.ARCHITECTURE_RELIABILITY)
 @SqaleConstantRemediation("10min")
-public class DeleteNonPropertyCheck extends BaseTreeVisitor {
+public class DeleteNonPropertyCheck extends DoubleDispatchVisitorCheck {
 
   private static final String MESSAGE = "Remove this \"delete\" operator or pass an object property to it.";
 
@@ -53,7 +51,7 @@ public class DeleteNonPropertyCheck extends BaseTreeVisitor {
   public void visitUnaryExpression(UnaryExpressionTree tree) {
     ExpressionTree argument = CheckUtils.removeParenthesis(tree.expression());
     if (tree.is(Tree.Kind.DELETE) && !isMemberAccess(argument) && !isGlobalProperty(argument)) {
-      raiseIssue(tree);
+      newIssue(tree, MESSAGE);
     }
 
     super.visitUnaryExpression(tree);
@@ -83,9 +81,5 @@ public class DeleteNonPropertyCheck extends BaseTreeVisitor {
 
   private static boolean isMemberAccess(ExpressionTree tree) {
     return tree.is(Kind.DOT_MEMBER_EXPRESSION, Kind.BRACKET_MEMBER_EXPRESSION);
-  }
-
-  private void raiseIssue(UnaryExpressionTree tree) {
-    getContext().addIssue(this, new IssueLocation(tree, MESSAGE), Collections.<IssueLocation>emptyList(), null);
   }
 }

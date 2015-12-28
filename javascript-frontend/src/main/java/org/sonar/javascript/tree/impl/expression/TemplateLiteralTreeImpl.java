@@ -35,7 +35,7 @@ import org.sonar.plugins.javascript.api.tree.expression.TemplateCharactersTree;
 import org.sonar.plugins.javascript.api.tree.expression.TemplateExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.TemplateLiteralTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
-import org.sonar.plugins.javascript.api.visitors.TreeVisitor;
+import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitor;
 
 public class TemplateLiteralTreeImpl extends JavaScriptTree implements TemplateLiteralTree, TypableTree {
 
@@ -88,7 +88,7 @@ public class TemplateLiteralTreeImpl extends JavaScriptTree implements TemplateL
   }
 
   @Override
-  public void accept(TreeVisitor visitor) {
+  public void accept(DoubleDispatchVisitor visitor) {
     visitor.visitTemplateLiteral(this);
   }
 

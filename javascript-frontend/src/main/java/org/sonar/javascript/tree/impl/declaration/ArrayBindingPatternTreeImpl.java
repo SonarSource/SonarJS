@@ -33,7 +33,7 @@ import org.sonar.plugins.javascript.api.tree.declaration.ArrayBindingPatternTree
 import org.sonar.plugins.javascript.api.tree.declaration.BindingElementTree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 import org.sonar.plugins.javascript.api.tree.expression.RestElementTree;
-import org.sonar.plugins.javascript.api.visitors.TreeVisitor;
+import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitor;
 
 public class ArrayBindingPatternTreeImpl extends JavaScriptTree implements ArrayBindingPatternTree {
 
@@ -82,7 +82,7 @@ public class ArrayBindingPatternTreeImpl extends JavaScriptTree implements Array
   }
 
   @Override
-  public void accept(TreeVisitor visitor) {
+  public void accept(DoubleDispatchVisitor visitor) {
     visitor.visitArrayBindingPattern(this);
   }
 

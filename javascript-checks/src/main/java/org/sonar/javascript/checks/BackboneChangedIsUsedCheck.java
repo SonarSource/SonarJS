@@ -26,7 +26,7 @@ import org.sonar.plugins.javascript.api.symbols.Type;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.expression.AssignmentExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.DotMemberExpressionTree;
-import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
+import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 
@@ -37,7 +37,7 @@ import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
   tags = {Tags.BACKBONE, Tags.BUG})
 @SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.DATA_RELIABILITY)
 @SqaleConstantRemediation("30min")
-public class BackboneChangedIsUsedCheck extends BaseTreeVisitor {
+public class BackboneChangedIsUsedCheck extends DoubleDispatchVisitorCheck {
 
   private static final String MESSAGE = "Remove this update of the \"changed\" property.";
   private static final String CHANGED = "changed";
@@ -45,7 +45,7 @@ public class BackboneChangedIsUsedCheck extends BaseTreeVisitor {
   @Override
   public void visitAssignmentExpression(AssignmentExpressionTree tree) {
     if (tree.variable().is(Tree.Kind.DOT_MEMBER_EXPRESSION) && isChangedPropertyAccess((DotMemberExpressionTree) tree.variable())) {
-      getContext().addIssue(this, tree, MESSAGE);
+      addLineIssue(tree, MESSAGE);
     }
 
     super.visitAssignmentExpression(tree);

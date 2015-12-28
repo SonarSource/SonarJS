@@ -25,7 +25,7 @@ import org.sonar.check.Rule;
 import org.sonar.plugins.javascript.api.symbols.Type;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.tree.statement.IfStatementTree;
-import org.sonar.plugins.javascript.api.visitors.BaseTreeVisitor;
+import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 
@@ -36,7 +36,7 @@ import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
   tags = {Tags.BUG, Tags.JQUERY})
 @SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.LOGIC_RELIABILITY)
 @SqaleConstantRemediation("2min")
-public class SelectionTestedWithoutLengthCheck extends BaseTreeVisitor {
+public class SelectionTestedWithoutLengthCheck extends DoubleDispatchVisitorCheck {
 
   private static final String MESSAGE = "Use the \"length\" property to see whether this selection contains elements.";
 
@@ -44,7 +44,7 @@ public class SelectionTestedWithoutLengthCheck extends BaseTreeVisitor {
   public void visitIfStatement(IfStatementTree tree) {
     ExpressionTree condition = tree.condition();
     if (condition.types().containsOnly(Type.Kind.JQUERY_SELECTOR_OBJECT)) {
-      getContext().addIssue(this, condition, MESSAGE);
+      addLineIssue(condition, MESSAGE);
     }
     super.visitIfStatement(tree);
   }

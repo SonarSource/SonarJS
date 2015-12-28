@@ -42,7 +42,7 @@ public class UniversalSelectorCheck extends AbstractJQuerySelectorOptimizationCh
     String[] parts = selector.split("[ >]");
     for (int i = 1; i < parts.length; i++) {
       if ("*".equals(parts[i])) {
-        getContext().addIssue(this, tree, MESSAGE);
+        addLineIssue(tree, MESSAGE);
         return;
       }
     }

@@ -29,7 +29,7 @@ import org.sonar.plugins.javascript.api.symbols.Type;
 import org.sonar.plugins.javascript.api.symbols.TypeSet;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.expression.TemplateCharactersTree;
-import org.sonar.plugins.javascript.api.visitors.TreeVisitor;
+import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitor;
 
 public class TemplateCharactersTreeImpl extends JavaScriptTree implements TemplateCharactersTree, TypableTree {
 
@@ -64,7 +64,7 @@ public class TemplateCharactersTreeImpl extends JavaScriptTree implements Templa
   }
 
   @Override
-  public void accept(TreeVisitor visitor) {
+  public void accept(DoubleDispatchVisitor visitor) {
     visitor.visitTemplateCharacters(this);
   }
 
