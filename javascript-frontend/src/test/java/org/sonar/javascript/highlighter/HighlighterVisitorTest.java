@@ -19,9 +19,14 @@
  */
 package org.sonar.javascript.highlighter;
 
+import com.google.common.base.Charsets;
+import com.google.common.io.Files;
 import java.io.File;
+import java.io.IOException;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.InputFile.Type;
 import org.sonar.api.batch.fs.internal.DefaultFileSystem;
@@ -48,12 +53,16 @@ public class HighlighterVisitorTest extends JavaScriptTreeModelTest {
   private HighlightingBuilder highlightingBuilder;
   private TreeVisitorContext visitorContext;
   private DefaultFileSystem fileSystem;
+  private File file;
+
+  @Rule
+  public TemporaryFolder tempFolder = new TemporaryFolder();
 
   @Before
-  public void setUp() {
+  public void setUp() throws IOException {
     fileSystem = new DefaultFileSystem();
-    File file = new File("src/test/resources/highlighter/symbolHighlighting.js");
-    DefaultInputFile inputFile = new DefaultInputFile("src/test/resources/highlighter/symbolHighlighting.js")
+    file = tempFolder.newFile();
+    DefaultInputFile inputFile = new DefaultInputFile("relative-path")
       .setAbsolutePath(file.getAbsolutePath())
       .setLanguage("js")
       .setType(Type.MAIN);
@@ -72,6 +81,7 @@ public class HighlighterVisitorTest extends JavaScriptTreeModelTest {
   }
 
   private void highlight(String string) throws Exception {
+    Files.write(string, file, Charsets.UTF_8);
     Tree tree = p.parse(string);
     when(visitorContext.getTopTree()).thenReturn((ScriptTree) tree);
     highlighterVisitor.scanFile(visitorContext);
@@ -184,6 +194,16 @@ public class HighlighterVisitorTest extends JavaScriptTreeModelTest {
   public void const_keyword() throws Exception {
     highlight("const x;");
     verify(highlightingBuilder).highlight(0, 5, "k");
+    verifyNoMoreInteractions(highlightingBuilder);
+  }
+
+  @Test
+  public void byte_order_mark() throws Exception {
+    highlight("\uFEFFvar x //\nvar y //");
+    verify(highlightingBuilder).highlight(0, 3, "k");
+    verify(highlightingBuilder).highlight(9, 12, "k");
+    verify(highlightingBuilder).highlight(6, 8, "cd");
+    verify(highlightingBuilder).highlight(15, 17, "cd");
     verifyNoMoreInteractions(highlightingBuilder);
   }
 

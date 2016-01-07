@@ -26,9 +26,11 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.List;
+import org.sonar.javascript.parser.JavaScriptNodeBuilder;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 
 public class SourceFileOffsets {
+
   private final int length;
   private final List<Integer> lineStartOffsets = Lists.newArrayList();
 
@@ -52,6 +54,7 @@ public class SourceFileOffsets {
   }
 
   private void initOffsets(String toParse) {
+    boolean hasByteOrderMark = toParse.startsWith(Character.toString(JavaScriptNodeBuilder.BYTE_ORDER_MARK));
     lineStartOffsets.add(0);
     int i = 0;
     while (i < length) {
@@ -61,7 +64,7 @@ public class SourceFileOffsets {
           nextLineStartOffset = i + 2;
           i++;
         }
-        lineStartOffsets.add(nextLineStartOffset);
+        lineStartOffsets.add(nextLineStartOffset - (hasByteOrderMark ? 1 : 0));
       }
       i++;
     }

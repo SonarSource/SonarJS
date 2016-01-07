@@ -30,6 +30,7 @@ import org.sonar.javascript.tree.symbols.SymbolModelImpl;
 import org.sonar.javascript.utils.JavaScriptTreeModelTest;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
 
+import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.eq;
@@ -96,6 +97,14 @@ public class HighlightSymbolTableBuilderTest extends JavaScriptTreeModelTest {
 
     verify(symbolTableBuilder).build();
     verifyNoMoreInteractions(symbolTableBuilder);
+  }
+
+  @Test
+  public void byte_order_mark_should_not_increment_offset() throws Exception {
+    File file = new File("src/test/resources/highlighter/symbolHighlightingBom.js");
+    assertThat(Files.toString(file, Charsets.UTF_8).startsWith("\uFEFF")).isTrue();
+    SymbolModelImpl.create((ScriptTree) p.parse(file), symbolizable, null);
+    verify(symbolTableBuilder).newSymbol(4, 5);
   }
 
   private int offset(int line, int column) {

@@ -67,7 +67,9 @@ public class Assertions {
     private void parseTillEof(String input) {
       JavaScriptTree tree = (JavaScriptTree) actual.parse(input);
       InternalSyntaxToken lastToken = (InternalSyntaxToken) tree.getLastToken();
-      if (lastToken.toIndex() != input.length()) {
+      boolean hasByteOrderMark = input.startsWith(Character.toString(JavaScriptNodeBuilder.BYTE_ORDER_MARK));
+      int eofIndex = input.length() - (hasByteOrderMark ? 1 : 0);
+      if (lastToken.toIndex() != eofIndex) {
         throw new RecognitionException(
           0, "Did not match till EOF, but till line " + lastToken.line() + ": token \"" + lastToken.text() + "\"");
       }
