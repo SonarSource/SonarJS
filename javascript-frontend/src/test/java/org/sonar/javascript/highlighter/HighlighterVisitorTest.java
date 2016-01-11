@@ -23,6 +23,7 @@ import com.google.common.base.Charsets;
 import com.google.common.io.Files;
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.Charset;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -48,7 +49,9 @@ import static org.mockito.Mockito.when;
 
 public class HighlighterVisitorTest extends JavaScriptTreeModelTest {
 
-  HighlighterVisitor highlighterVisitor;
+  private static final Charset CHARSET = Charsets.UTF_8;
+
+  private HighlighterVisitor highlighterVisitor;
 
   private HighlightingBuilder highlightingBuilder;
   private TreeVisitorContext visitorContext;
@@ -61,6 +64,7 @@ public class HighlighterVisitorTest extends JavaScriptTreeModelTest {
   @Before
   public void setUp() throws IOException {
     fileSystem = new DefaultFileSystem();
+    fileSystem.setEncoding(CHARSET);
     file = tempFolder.newFile();
     DefaultInputFile inputFile = new DefaultInputFile("relative-path")
       .setAbsolutePath(file.getAbsolutePath())
@@ -81,7 +85,7 @@ public class HighlighterVisitorTest extends JavaScriptTreeModelTest {
   }
 
   private void highlight(String string) throws Exception {
-    Files.write(string, file, Charsets.UTF_8);
+    Files.write(string, file, CHARSET);
     Tree tree = p.parse(string);
     when(visitorContext.getTopTree()).thenReturn((ScriptTree) tree);
     highlighterVisitor.scanFile(visitorContext);
