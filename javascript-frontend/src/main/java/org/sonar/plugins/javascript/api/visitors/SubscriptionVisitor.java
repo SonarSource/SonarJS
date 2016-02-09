@@ -19,13 +19,12 @@
  */
 package org.sonar.plugins.javascript.api.visitors;
 
+import com.google.common.base.Preconditions;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
-import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
-import org.sonar.plugins.javascript.api.tree.lexical.SyntaxTrivia;
 
 public abstract class SubscriptionVisitor implements TreeVisitor {
 
@@ -42,14 +41,6 @@ public abstract class SubscriptionVisitor implements TreeVisitor {
     // Default behavior : do nothing.
   }
 
-  public void visitToken(SyntaxToken syntaxToken) {
-    // default behaviour is to do nothing
-  }
-
-  public void visitTrivia(SyntaxTrivia syntaxTrivia) {
-    // default behaviour is to do nothing
-  }
-
   public void visitFile(Tree scriptTree) {
     // default behaviour is to do nothing
   }
@@ -60,6 +51,7 @@ public abstract class SubscriptionVisitor implements TreeVisitor {
 
   @Override
   public TreeVisitorContext getContext() {
+    Preconditions.checkState(context != null, "this#scanTree(context) should be called to initialised the context before accessing it");
     return context;
   }
 
