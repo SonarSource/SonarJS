@@ -1271,6 +1271,9 @@
 'project:dojo-1.8.1/dojox/widget/_CalendarView.js.uncompressed.js':[
 48,
 ],
+'project:ecmascript6/Ghost/core/client/app/utils/ghost-paths.js':[
+13,
+],
 'project:ecmascript6/di.js/chrome-extension/visualize/dag/dag.js':[
 6,
 7,

@@ -249,6 +249,9 @@
 'project:dojo-1.8.1/dojox/xmpp/util.js.uncompressed.js':[
 108,
 ],
+'project:ecmascript6/Ghost/core/client/app/components/gh-search-input.js':[
+52,
+],
 'project:ecmascript6/di.js/chrome-extension/visualize/lib/angular.js':[
 1059,
 7869,
@@ -275,6 +278,9 @@
 'project:ecmascript6/di.js/visualize/lib/d3.v3.js':[
 7063,
 7064,
+],
+'project:ecmascript6/react-router/modules/deprecateObjectProperties.js':[
+11,
 ],
 'project:ecmascript6/reddit-mobile/index.js':[
 116,

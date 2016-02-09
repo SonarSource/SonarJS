@@ -38,6 +38,10 @@
 'project:dojo-1.8.1/dojox/widget/DataPresentation.js.uncompressed.js':[
 797,
 ],
+'project:ecmascript6/Ghost/core/server/api/mail.js':[
+74,
+131,
+],
 'project:ecmascript6/router/third_party/brick/brick-1.0.1.byob.js':[
 596,
 ],

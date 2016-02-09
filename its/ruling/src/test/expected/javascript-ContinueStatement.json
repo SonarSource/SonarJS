@@ -447,6 +447,13 @@
 'project:dojo-1.8.1/dojox/xmpp/TransportSession.js.uncompressed.js':[
 365,
 ],
+'project:ecmascript6/Ghost/core/server/utils/downzero.js':[
+79,
+87,
+],
+'project:ecmascript6/Ghost/core/test/utils/api.js':[
+60,
+],
 'project:ecmascript6/di.js/chrome-extension/visualize/lib/angular.js':[
 913,
 6678,
@@ -504,6 +511,9 @@
 4484,
 5871,
 6722,
+],
+'project:ecmascript6/react-router/modules/isActive.js':[
+19,
 ],
 'project:ecmascript6/router/src/navigationPlan.js':[
 86,

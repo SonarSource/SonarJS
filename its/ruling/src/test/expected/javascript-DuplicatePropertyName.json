@@ -47,6 +47,9 @@
 'project:dojo-1.8.1/dojox/widget/FilePicker.js.uncompressed.js':[
 22,
 ],
+'project:ecmascript6/react-router/karma.conf.js':[
+39,
+],
 'project:ecmascript6/reddit-mobile/src/server/console.es6.js':[
 333,
 ],

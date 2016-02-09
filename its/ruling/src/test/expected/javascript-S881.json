@@ -1220,6 +1220,16 @@
 'project:ecmascript6/http/gulpfile.js':[
 62,
 ],
+'project:ecmascript6/react-router/modules/AsyncUtils.js':[
+31,
+70,
+],
+'project:ecmascript6/react-router/modules/PatternUtils.js':[
+178,
+],
+'project:ecmascript6/react-router/modules/__tests__/execSteps.js':[
+9,
+],
 'project:ecmascript6/router/src/activation.js':[
 44,
 ],

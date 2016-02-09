@@ -53,6 +53,9 @@
 'project:dojo-1.8.1/dojo/when.js.uncompressed.js':[
 5,
 ],
+'project:ecmascript6/Ghost/core/shared/ghost-url.js':[
+2,
+],
 'project:ecmascript6/di.js/chrome-extension/visualize/lib/angular.js':[
 6,
 ],
