@@ -61,10 +61,12 @@ public class JQueryVarNameConventionCheck extends DoubleDispatchVisitorCheck {
   public void visitScript(ScriptTree tree) {
     Pattern pattern = Pattern.compile(format);
     SymbolModel symbolModel = getContext().getSymbolModel();
-    for (Symbol symbol : symbolModel.getSymbols(Symbol.Kind.VARIABLE)) {
-      boolean onlyJQuerySelectorType = symbol.types().containsOnly(Type.Kind.JQUERY_SELECTOR_OBJECT);
-      if (!symbol.builtIn() && onlyJQuerySelectorType && !pattern.matcher(symbol.name()).matches()) {
-        raiseIssuesOnDeclarations(symbol, String.format(MESSAGE, symbol.name(), format));
+    for (Symbol symbol : symbolModel.getSymbols()) {
+      if (symbol.isVariable()) {
+        boolean onlyJQuerySelectorType = symbol.types().containsOnly(Type.Kind.JQUERY_SELECTOR_OBJECT);
+        if (!symbol.builtIn() && onlyJQuerySelectorType && !pattern.matcher(symbol.name()).matches()) {
+          raiseIssuesOnDeclarations(symbol, String.format(MESSAGE, symbol.name(), format));
+        }
       }
     }
   }

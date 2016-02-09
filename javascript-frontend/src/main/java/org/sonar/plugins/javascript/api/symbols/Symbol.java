@@ -32,15 +32,17 @@ public class Symbol {
 
   public enum Kind {
     VARIABLE("variable"),
+    LET_VARIABLE("block scope variable"),
+    CONST_VARIABLE("read-only variable"),
     FUNCTION("function"),
     PARAMETER("parameter"),
     CLASS("class");
 
+    private final String value;
+
     Kind(String value) {
       this.value = value;
     }
-
-    private final String value;
 
     public String getValue() {
       return value;
@@ -106,6 +108,13 @@ public class Symbol {
 
   public TypeSet types() {
     return types.immutableCopy();
+  }
+
+  /**
+   * @return true if symbol created with var, let or const keywords or implicitly
+   */
+  public boolean isVariable() {
+    return kind == Kind.LET_VARIABLE || kind == Kind.CONST_VARIABLE || kind == Kind.VARIABLE;
   }
 
 }

@@ -44,8 +44,8 @@ public class VariableDeclarationWithoutVarCheck extends DoubleDispatchVisitorChe
 
   @Override
   public void visitScript(ScriptTree tree) {
-    for (Symbol symbol : getContext().getSymbolModel().getSymbols(Symbol.Kind.VARIABLE)) {
-      if (!symbol.builtIn()) {
+    for (Symbol symbol : getContext().getSymbolModel().getSymbols()) {
+      if (symbol.isVariable() && !symbol.builtIn()) {
         visitSymbol(symbol);
       }
     }

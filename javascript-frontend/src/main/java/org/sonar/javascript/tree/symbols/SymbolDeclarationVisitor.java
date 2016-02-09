@@ -19,6 +19,7 @@
  */
 package org.sonar.javascript.tree.symbols;
 
+import java.util.ArrayList;
 import java.util.List;
 import org.sonar.javascript.tree.impl.declaration.InitializedBindingElementTreeImpl;
 import org.sonar.javascript.tree.impl.declaration.ParameterListTreeImpl;
@@ -29,6 +30,7 @@ import org.sonar.plugins.javascript.api.symbols.Symbol;
 import org.sonar.plugins.javascript.api.symbols.Usage;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
+import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.declaration.AccessorMethodDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.declaration.BindingElementTree;
 import org.sonar.plugins.javascript.api.tree.declaration.FunctionDeclarationTree;
@@ -37,7 +39,12 @@ import org.sonar.plugins.javascript.api.tree.declaration.MethodDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.expression.ArrowFunctionTree;
 import org.sonar.plugins.javascript.api.tree.expression.FunctionExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
+import org.sonar.plugins.javascript.api.tree.statement.BlockTree;
 import org.sonar.plugins.javascript.api.tree.statement.CatchBlockTree;
+import org.sonar.plugins.javascript.api.tree.statement.ForInStatementTree;
+import org.sonar.plugins.javascript.api.tree.statement.ForOfStatementTree;
+import org.sonar.plugins.javascript.api.tree.statement.ForStatementTree;
+import org.sonar.plugins.javascript.api.tree.statement.SwitchStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.VariableDeclarationTree;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitor;
 
@@ -50,16 +57,75 @@ public class SymbolDeclarationVisitor extends DoubleDispatchVisitor {
   private SymbolModelBuilder symbolModel;
   private Scope currentScope;
 
+  // List of block trees for which scope is created for another tree (e.g. function declaration or for statement)
+  private List<BlockTree> skippedBlocks;
+
   public SymbolDeclarationVisitor(SymbolModelBuilder symbolModel) {
     this.symbolModel = symbolModel;
     this.currentScope = null;
+
+    this.skippedBlocks = new ArrayList<>();
   }
 
   @Override
+  public void visitBlock(BlockTree tree) {
+    if (isScopeAlreadyCreated(tree)) {
+      super.visitBlock(tree);
+
+    } else {
+      newBlockScope(tree);
+      super.visitBlock(tree);
+      leaveScope();
+    }
+  }
+
+  @Override
+  public void visitForStatement(ForStatementTree tree) {
+    newBlockScope(tree);
+
+    skipBlock(tree.statement());
+    super.visitForStatement(tree);
+
+    leaveScope();
+  }
+
+  @Override
+  public void visitForInStatement(ForInStatementTree tree) {
+    newBlockScope(tree);
+
+    skipBlock(tree.statement());
+    super.visitForInStatement(tree);
+
+    leaveScope();
+  }
+
+  @Override
+  public void visitForOfStatement(ForOfStatementTree tree) {
+    newBlockScope(tree);
+
+    skipBlock(tree.statement());
+    super.visitForOfStatement(tree);
+
+    leaveScope();
+  }
+
+  @Override
+  public void visitSwitchStatement(SwitchStatementTree tree) {
+    scan(tree.expression());
+
+    newBlockScope(tree);
+    scan(tree.cases());
+    leaveScope();
+  }
+
+
+  @Override
   public void visitScript(ScriptTree tree) {
-    newScope(tree);
+    newFunctionScope(tree);
+
     addGlobalBuiltInSymbols();
     super.visitScript(tree);
+
     leaveScope();
   }
 
@@ -72,31 +138,29 @@ public class SymbolDeclarationVisitor extends DoubleDispatchVisitor {
 
   @Override
   public void visitMethodDeclaration(MethodDeclarationTree tree) {
-    newScope(tree);
-    declareParameters(((ParameterListTreeImpl) tree.parameters()).parameterIdentifiers());
-    addFunctionBuiltInSymbols();
-
-    super.visitMethodDeclaration(tree);
-    leaveScope();
+    visitMethod(tree);
   }
 
   @Override
   public void visitAccessorMethodDeclaration(AccessorMethodDeclarationTree tree) {
-    newScope(tree);
-    declareParameters(((ParameterListTreeImpl) tree.parameters()).parameterIdentifiers());
-    addFunctionBuiltInSymbols();
-
-    super.visitAccessorMethodDeclaration(tree);
-    leaveScope();
+    visitMethod(tree);
   }
 
   @Override
   public void visitGeneratorMethodDeclaration(GeneratorMethodDeclarationTree tree) {
-    newScope(tree);
+    visitMethod(tree);
+  }
+
+  private void visitMethod(MethodDeclarationTree tree) {
+    newFunctionScope(tree);
+
     declareParameters(((ParameterListTreeImpl) tree.parameters()).parameterIdentifiers());
     addFunctionBuiltInSymbols();
 
-    super.visitGeneratorMethodDeclaration(tree);
+    skipBlock(tree.body());
+
+    super.visitMethodDeclaration(tree);
+
     leaveScope();
   }
 
@@ -109,14 +173,16 @@ public class SymbolDeclarationVisitor extends DoubleDispatchVisitor {
 
   @Override
   public void visitCatchBlock(CatchBlockTree tree) {
-    newScope(tree);
+    newFunctionScope(tree);
 
     for (IdentifierTree identifier : ((CatchBlockTreeImpl) tree).parameterIdentifiers()) {
       symbolModel.declareSymbol(identifier.name(), Symbol.Kind.VARIABLE, currentScope)
         .addUsage(Usage.create(identifier, Usage.Kind.DECLARATION));
     }
 
+    skipBlock(tree.block());
     super.visitCatchBlock(tree);
+
     leaveScope();
   }
 
@@ -125,35 +191,34 @@ public class SymbolDeclarationVisitor extends DoubleDispatchVisitor {
     symbolModel.declareSymbol(tree.name().name(), Symbol.Kind.FUNCTION, currentScope)
       .addUsage(Usage.create(tree.name(), Usage.Kind.DECLARATION));
 
-    newScope(tree);
+    newFunctionScope(tree);
+
     declareParameters(((ParameterListTreeImpl) tree.parameters()).parameterIdentifiers());
     addFunctionBuiltInSymbols();
 
+    skipBlock(tree.body());
     super.visitFunctionDeclaration(tree);
+
     leaveScope();
   }
 
   @Override
   public void visitArrowFunction(ArrowFunctionTree tree) {
-    newScope(tree);
+    newFunctionScope(tree);
+
     declareParameters(((ArrowFunctionTreeImpl) tree).parameterIdentifiers());
     addFunctionBuiltInSymbols();
 
+    skipBlock(tree.conciseBody());
     super.visitArrowFunction(tree);
+
     leaveScope();
   }
 
-  /**
-   * Detail about <a href="http://people.mozilla.org/~jorendorff/es6-draft.html#sec-function-definitions-runtime-semantics-evaluation">Function Expression scope</a>
-   * <blockquote>
-   * The BindingIdentifier in a FunctionExpression can be referenced from inside the FunctionExpression's FunctionBody
-   * to allow the function to call itself recursively. However, unlike in a FunctionDeclaration, the BindingIdentifier
-   * in a FunctionExpression cannot be referenced from and does not affect the scope enclosing the FunctionExpression.
-   * </blockquote>
-   **/
   @Override
   public void visitFunctionExpression(FunctionExpressionTree tree) {
-    newScope(tree);
+    newFunctionScope(tree);
+
     IdentifierTree name = tree.name();
     if (name != null) {
       // Not available in enclosing scope
@@ -163,9 +228,13 @@ public class SymbolDeclarationVisitor extends DoubleDispatchVisitor {
     declareParameters(((ParameterListTreeImpl) tree.parameters()).parameterIdentifiers());
     addFunctionBuiltInSymbols();
 
+    skipBlock(tree.body());
     super.visitFunctionExpression(tree);
+
     leaveScope();
   }
+
+
 
   @Override
   public void visitVariableDeclaration(VariableDeclarationTree tree) {
@@ -173,25 +242,31 @@ public class SymbolDeclarationVisitor extends DoubleDispatchVisitor {
     super.visitVariableDeclaration(tree);
   }
 
-  public void addUsages(VariableDeclarationTree tree) {
+  private void addUsages(VariableDeclarationTree tree) {
+    Scope scope = currentScope;
+
+    if (tree.is(Kind.VAR_DECLARATION)) {
+      scope = getFunctionScope();
+    }
+
     // todo Consider other BindingElementTree types
     for (BindingElementTree bindingElement : tree.variables()) {
+      Symbol.Kind variableKind = getVariableKind(tree);
+
       if (bindingElement.is(Tree.Kind.INITIALIZED_BINDING_ELEMENT)) {
         for (IdentifierTree identifier : ((InitializedBindingElementTreeImpl) bindingElement).bindingIdentifiers()) {
-          symbolModel.declareSymbol(identifier.name(), Symbol.Kind.VARIABLE, currentScope)
+          symbolModel.declareSymbol(identifier.name(), variableKind, scope)
             .addUsage(Usage.create(identifier, Usage.Kind.DECLARATION_WRITE));
         }
       }
       if (bindingElement instanceof IdentifierTree) {
         IdentifierTree identifierTree = (IdentifierTree) bindingElement;
-        symbolModel.declareSymbol(identifierTree.name(), Symbol.Kind.VARIABLE, currentScope).addUsage(Usage.create(identifierTree, Usage.Kind.DECLARATION));
+        symbolModel.declareSymbol(identifierTree.name(), variableKind, scope)
+          .addUsage(Usage.create(identifierTree, Usage.Kind.DECLARATION));
       }
     }
   }
 
-  /*
-   * HELPERS
-   */
   private void leaveScope() {
     if (currentScope != null) {
       currentScope = currentScope.outer();
@@ -205,9 +280,43 @@ public class SymbolDeclarationVisitor extends DoubleDispatchVisitor {
     }
   }
 
-  private void newScope(Tree tree) {
-    currentScope = new Scope(currentScope, tree);
+  private void newFunctionScope(Tree tree) {
+    currentScope = new Scope(currentScope, tree, false);
     symbolModel.addScope(currentScope);
   }
 
+  private void newBlockScope(Tree tree) {
+    currentScope = new Scope(currentScope, tree, true);
+    symbolModel.addScope(currentScope);
+  }
+
+  private void skipBlock(Tree tree) {
+    if (tree.is(Kind.BLOCK)) {
+      skippedBlocks.add((BlockTree) tree);
+    }
+  }
+
+  private boolean isScopeAlreadyCreated(BlockTree tree) {
+    return skippedBlocks.contains(tree);
+  }
+
+  private Scope getFunctionScope() {
+    Scope scope = currentScope;
+    while (scope.isBlock()) {
+      scope = scope.outer();
+    }
+    return scope;
+  }
+
+  private Symbol.Kind getVariableKind(VariableDeclarationTree declaration) {
+    if (declaration.is(Kind.LET_DECLARATION)) {
+      return Symbol.Kind.LET_VARIABLE;
+
+    } else if (declaration.is(Kind.CONST_DECLARATION)) {
+      return Symbol.Kind.CONST_VARIABLE;
+
+    } else {
+      return Symbol.Kind.VARIABLE;
+    }
+  }
 }

@@ -51,8 +51,10 @@ public class VariableDeclarationAfterUsageCheck extends DoubleDispatchVisitorChe
   @Override
   public void visitScript(ScriptTree tree) {
     SymbolModel symbolModel = getContext().getSymbolModel();
-    for (Symbol symbol : symbolModel.getSymbols(Symbol.Kind.VARIABLE)) {
-      visitSymbol(symbol);
+    for (Symbol symbol : symbolModel.getSymbols()) {
+      if (symbol.isVariable()) {
+        visitSymbol(symbol);
+      }
     }
   }
 

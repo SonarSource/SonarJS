@@ -22,10 +22,12 @@ package org.sonar.javascript.tree.symbols;
 import java.io.File;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.Set;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.javascript.utils.JavaScriptTreeModelTest;
 import org.sonar.plugins.javascript.api.symbols.Symbol;
+import org.sonar.plugins.javascript.api.symbols.Symbol.Kind;
 import org.sonar.plugins.javascript.api.symbols.Usage;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
@@ -116,6 +118,85 @@ public class UsageTest extends JavaScriptTreeModelTest {
     assertThat(readCounter).isEqualTo(2);
     assertThat(writeCounter).isEqualTo(3);
     assertThat(declarationCounter).isEqualTo(2);
+  }
+
+  @Test
+  public void block_scope_variables() throws Exception {
+    Set<Symbol> symbols = SYMBOL_MODEL.getSymbols("x");
+    assertThat(symbols).hasSize(2);
+
+    Symbol globalSymbol = null;
+    Symbol blockSymbol = null;
+
+    for (Symbol symbol : symbols) {
+      if (symbol.scope().isGlobal()) {
+        globalSymbol = symbol;
+
+      } else {
+        blockSymbol = symbol;
+      }
+    }
+
+    assertThat(globalSymbol.is(Kind.LET_VARIABLE)).isTrue();
+    assertThat(blockSymbol.is(Kind.CONST_VARIABLE)).isTrue();
+    assertThat(blockSymbol.scope().tree().is(Tree.Kind.BLOCK)).isTrue();
+
+    assertThat(globalSymbol.usages()).hasSize(3);
+    assertThat(blockSymbol.usages()).hasSize(1);
+
+  }
+
+  @Test
+  public void let_variable_for_loop() throws Exception {
+    Set<Symbol> symbols = SYMBOL_MODEL.getSymbols("i");
+    assertThat(symbols).hasSize(2);
+
+    Symbol globalSymbol = null;
+    Symbol blockSymbol = null;
+
+    for (Symbol symbol : symbols) {
+      if (symbol.scope().isGlobal()) {
+        globalSymbol = symbol;
+
+      } else {
+        blockSymbol = symbol;
+      }
+    }
+
+    assertThat(globalSymbol.is(Kind.VARIABLE)).isTrue();
+    assertThat(blockSymbol.is(Kind.LET_VARIABLE)).isTrue();
+    assertThat(blockSymbol.scope().tree().is(Tree.Kind.FOR_STATEMENT)).isTrue();
+
+    assertThat(globalSymbol.usages()).hasSize(2);
+    assertThat(blockSymbol.usages()).hasSize(3);
+
+    assertThat(SYMBOL_MODEL.getSymbols("j")).hasSize(1);
+    Symbol symbol = symbol("j");
+    assertThat(symbol.is(Kind.VARIABLE)).isTrue();
+    assertThat(symbol.scope().isGlobal()).isTrue();
+    assertThat(symbol.usages()).hasSize(5);
+  }
+
+  @Test
+  public void let_variable_in_for() throws Exception {
+    Symbol symbol = symbol("y");
+
+    assertThat(symbol.is(Kind.LET_VARIABLE)).isTrue();
+    assertThat(symbol.scope().isBlock()).isTrue();
+    assertThat(symbol.scope().tree().is(Tree.Kind.FOR_OF_STATEMENT)).isTrue();
+    assertThat(symbol.usages()).hasSize(2);
+
+  }
+
+  @Test
+  public void let_variable_in_for_without_block() throws Exception {
+    Symbol symbol = symbol("z");
+
+    assertThat(symbol.is(Kind.LET_VARIABLE)).isTrue();
+    assertThat(symbol.scope().isBlock()).isTrue();
+    assertThat(symbol.scope().tree().is(Tree.Kind.FOR_IN_STATEMENT)).isTrue();
+    assertThat(symbol.usages()).hasSize(2);
+
   }
 
   public Collection<Usage> usagesFor(String name) {

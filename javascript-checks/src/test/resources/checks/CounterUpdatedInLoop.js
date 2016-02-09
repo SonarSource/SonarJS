@@ -66,7 +66,7 @@ function foo_of_loop(obj) {
     prop1 = 1      // Noncompliant
   }
 
-  for (const prop2 of obj) {
+  for (let prop2 of obj) {
     prop2 = 1      // Noncompliant
   }
 

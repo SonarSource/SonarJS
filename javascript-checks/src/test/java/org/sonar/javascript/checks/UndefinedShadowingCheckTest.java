@@ -33,6 +33,8 @@ public class UndefinedShadowingCheckTest extends TreeCheckTest {
     CheckMessagesVerifier.verify(getIssues("src/test/resources/checks/undefinedShadowing.js", check))
       .next().atLine(2).withMessage("Rename this variable.")
       .next().atLine(3).withMessage("Rename this variable.")
+      .next().atLine(4)
+      .next().atLine(14)
       .noMore();
   }
 

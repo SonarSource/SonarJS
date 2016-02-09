@@ -19,14 +19,13 @@
  */
 package org.sonar.javascript.checks;
 
-import java.util.Collection;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.javascript.tree.symbols.Scope;
 import org.sonar.plugins.javascript.api.symbols.Symbol;
-import org.sonar.plugins.javascript.api.symbols.SymbolModel;
+import org.sonar.plugins.javascript.api.symbols.Symbol.Kind;
 import org.sonar.plugins.javascript.api.symbols.Usage;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
@@ -46,16 +45,11 @@ public class VariableShadowingCheck extends DoubleDispatchVisitorCheck {
 
   @Override
   public void visitScript(ScriptTree tree) {
-    for (Symbol symbol : getSymbols()) {
-      visitSymbol(symbol);
+    for (Symbol symbol : getContext().getSymbolModel().getSymbols()) {
+      if (symbol.isVariable() || symbol.is(Kind.PARAMETER)) {
+        visitSymbol(symbol);
+      }
     }
-  }
-
-  private Collection<Symbol> getSymbols() {
-    SymbolModel symbolModel = getContext().getSymbolModel();
-    Collection<Symbol> symbols = symbolModel.getSymbols(Symbol.Kind.VARIABLE);
-    symbols.addAll(symbolModel.getSymbols(Symbol.Kind.PARAMETER));
-    return symbols;
   }
 
   private void visitSymbol(Symbol symbol) {

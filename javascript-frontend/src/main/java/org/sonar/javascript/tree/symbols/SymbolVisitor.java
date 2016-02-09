@@ -39,9 +39,12 @@ import org.sonar.plugins.javascript.api.tree.expression.AssignmentExpressionTree
 import org.sonar.plugins.javascript.api.tree.expression.FunctionExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 import org.sonar.plugins.javascript.api.tree.expression.UnaryExpressionTree;
+import org.sonar.plugins.javascript.api.tree.statement.BlockTree;
 import org.sonar.plugins.javascript.api.tree.statement.CatchBlockTree;
 import org.sonar.plugins.javascript.api.tree.statement.ForInStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.ForOfStatementTree;
+import org.sonar.plugins.javascript.api.tree.statement.ForStatementTree;
+import org.sonar.plugins.javascript.api.tree.statement.SwitchStatementTree;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitor;
 
 public class SymbolVisitor extends DoubleDispatchVisitor {
@@ -60,6 +63,50 @@ public class SymbolVisitor extends DoubleDispatchVisitor {
     // Symbol highlighting
     this.symbolizable = symbolizable;
   }
+
+  @Override
+  public void visitBlock(BlockTree tree) {
+    if (isScopeAlreadyEntered(tree)) {
+      super.visitBlock(tree);
+
+    } else {
+      enterScope(tree);
+      super.visitBlock(tree);
+      leaveScope();
+    }
+  }
+
+  private boolean isScopeAlreadyEntered(BlockTree tree) {
+    for (Scope scope : symbolModel.getScopes()) {
+      if (scope.tree().equals(tree)) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  @Override
+  public void visitForStatement(ForStatementTree tree) {
+    scan(tree.init());
+
+    enterScope(tree);
+
+    scan(tree.condition());
+    scan(tree.update());
+    scan(tree.statement());
+
+    leaveScope();
+  }
+
+  @Override
+  public void visitSwitchStatement(SwitchStatementTree tree) {
+    scan(tree.expression());
+
+    enterScope(tree);
+    scan(tree.cases());
+    leaveScope();
+  }
+
 
   @Override
   public void visitScript(ScriptTree tree) {
@@ -177,6 +224,8 @@ public class SymbolVisitor extends DoubleDispatchVisitor {
 
   @Override
   public void visitForOfStatement(ForOfStatementTree tree) {
+    enterScope(tree);
+
     if (tree.variableOrExpression() instanceof IdentifierTree) {
       IdentifierTree identifier = (IdentifierTree) tree.variableOrExpression();
 
@@ -185,10 +234,14 @@ public class SymbolVisitor extends DoubleDispatchVisitor {
       }
     }
     super.visitForOfStatement(tree);
+
+    leaveScope();
   }
 
   @Override
   public void visitForInStatement(ForInStatementTree tree) {
+    enterScope(tree);
+
     if (tree.variableOrExpression() instanceof IdentifierTree) {
       IdentifierTree identifier = (IdentifierTree) tree.variableOrExpression();
 
@@ -202,6 +255,8 @@ public class SymbolVisitor extends DoubleDispatchVisitor {
     } else {
       super.visitForInStatement(tree);
     }
+
+    leaveScope();
   }
 
   /*

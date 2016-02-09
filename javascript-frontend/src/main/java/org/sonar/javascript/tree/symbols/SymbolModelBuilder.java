@@ -32,6 +32,5 @@ public interface SymbolModelBuilder {
 
   Symbol declareSymbol(String name, Symbol.Kind kind, Scope scope);
 
-  // todo remove declaration argument in future. We can infer declaration tree from scope
   Symbol declareBuiltInSymbol(String name, Symbol.Kind kind, Scope scope);
 }

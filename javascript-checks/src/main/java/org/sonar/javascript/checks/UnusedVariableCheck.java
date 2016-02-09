@@ -49,11 +49,13 @@ public class UnusedVariableCheck extends DoubleDispatchVisitorCheck {
   public void visitScript(ScriptTree tree) {
     SymbolModel symbolModel = getContext().getSymbolModel();
 
-    for (Symbol variable : symbolModel.getSymbols(Symbol.Kind.VARIABLE)) {
+    for (Symbol symbol : symbolModel.getSymbols()) {
 
-      Collection<Usage> usages = variable.usages();
-      if (noUsages(usages) && !isGlobalOrCatchVariable(variable) && !variable.builtIn()) {
-        raiseIssuesOnDeclarations(variable, String.format(MESSAGE, variable.name()));
+      if (symbol.isVariable()) {
+        Collection<Usage> usages = symbol.usages();
+        if (noUsages(usages) && !isGlobalOrCatchVariable(symbol) && !symbol.builtIn()) {
+          raiseIssuesOnDeclarations(symbol, String.format(MESSAGE, symbol.name()));
+        }
       }
     }
   }

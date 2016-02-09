@@ -26,9 +26,11 @@ import org.sonar.javascript.utils.JavaScriptTreeModelTest;
 import org.sonar.plugins.javascript.api.symbols.Symbol;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
+import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 
 public class ScopeTest extends JavaScriptTreeModelTest {
 
@@ -55,12 +57,16 @@ public class ScopeTest extends JavaScriptTreeModelTest {
     Scope globalScope = getScopeFor(Tree.Kind.SCRIPT);
 
     assertThat(globalScope.isGlobal()).isTrue();
-    assertNotNull(globalScope.lookupSymbol("a"));
-    assertNotNull(globalScope.lookupSymbol("f"));
+    assertNotNull(globalScope.getSymbol("a"));
+    assertNotNull(globalScope.getSymbol("f"));
 
     // Implicit global declaration: without the "var" keyword
-    assertNotNull(globalScope.lookupSymbol("b"));
-    assertNotNull(globalScope.lookupSymbol("c"));
+    assertNotNull(globalScope.getSymbol("b"));
+    assertNotNull(globalScope.getSymbol("c"));
+
+    // ES2015
+    assertNotNull(globalScope.getSymbol("const1"));
+    assertNotNull(globalScope.getSymbol("let1"));
   }
 
   @Test
@@ -69,9 +75,40 @@ public class ScopeTest extends JavaScriptTreeModelTest {
 
     assertThat(functionScope.isGlobal()).isFalse();
     assertThat(functionScope.getSymbols(Symbol.Kind.PARAMETER)).hasSize(1);
-    assertNotNull(functionScope.lookupSymbol("p"));
-    assertNotNull(functionScope.lookupSymbol("a"));
-    assertNotNull(functionScope.lookupSymbol("b"));
+    assertNotNull(functionScope.getSymbol("p"));
+    assertNotNull(functionScope.getSymbol("a"));
+    assertNotNull(functionScope.getSymbol("b"));
+
+    assertNotNull(functionScope.lookupSymbol("let1"));
+    assertNull(functionScope.getSymbol("let1"));
+    assertNotNull(functionScope.lookupSymbol("const1"));
+    assertNull(functionScope.getSymbol("const1"));
+  }
+
+  @Test
+  public void block_scopes() throws Exception {
+    assertNotNull(getScopeFor(Kind.BLOCK));
+    assertNotNull(getScopeFor(Kind.FOR_IN_STATEMENT));
+    assertNotNull(getScopeFor(Kind.FOR_OF_STATEMENT));
+    assertNotNull(getScopeFor(Kind.FOR_STATEMENT));
+    assertNotNull(getScopeFor(Kind.SWITCH_STATEMENT));
+  }
+
+  @Test
+  public void block_scope_variables() throws Exception {
+    Scope blockScope = getScopeFor(Kind.FOR_OF_STATEMENT);
+
+    assertNull(blockScope.getSymbol("let1"));
+    assertNotNull(blockScope.lookupSymbol("let1"));
+    assertNotNull(blockScope.getSymbol("let2"));
+
+    assertNotNull(blockScope.getSymbol("const1"));
+    assertNotNull(blockScope.getSymbol("const2"));
+
+    assertNull(blockScope.getSymbol("notBlock"));
+    assertNotNull(blockScope.lookupSymbol("notBlock"));
+
+    assertThat(blockScope.getSymbol("const1")).isNotEqualTo(SYMBOL_MODEL.globalScope().getSymbol("const1"));
   }
 
   @Test

@@ -32,10 +32,18 @@ public class Scope {
   private Scope outer;
   private final Tree tree;
   protected Map<String, Symbol> symbols = Maps.newHashMap();
+  private final boolean isBlock;
 
-  public Scope(Scope outer, Tree tree) {
+  /**
+   *
+   * @param outer parent scope
+   * @param tree syntax tree holding this scope (e.g. ScriptTree or BlockTree)
+   * @param isBlock pass true for block scopes (loops, if, etc.), false for function scopes (script, functions, getter, etc.)
+   */
+  public Scope(Scope outer, Tree tree, boolean isBlock) {
     this.outer = outer;
     this.tree = tree;
+    this.isBlock = isBlock;
   }
 
   public Tree tree() {
@@ -83,5 +91,9 @@ public class Scope {
   @Nullable
   public Symbol getSymbol(String name) {
     return symbols.get(name);
+  }
+
+  public boolean isBlock() {
+    return isBlock;
   }
 }

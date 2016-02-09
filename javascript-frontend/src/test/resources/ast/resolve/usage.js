@@ -47,3 +47,22 @@ foo(var1)
 var1++
 var var1
 
+let x;
+
+if (true) {
+  const x = 2;
+}
+x = 42
+foo(x);
+
+for (let y of obj) {
+  y = 1;
+}
+
+for (let z in obj)
+  foo(z);
+
+var i = 10;
+for(let i = i + 1; i < 20; i++) {}
+var j = 10;
+for (var j = j + 1; j < 20; j++) {}

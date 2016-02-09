@@ -19,10 +19,8 @@
  */
 package org.sonar.javascript.tree.symbols;
 
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
+import com.google.common.collect.ImmutableSet;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 import javax.annotation.Nullable;
 import org.sonar.api.config.Settings;
@@ -35,8 +33,8 @@ import org.sonar.plugins.javascript.api.tree.Tree;
 
 public class SymbolModelImpl implements SymbolModel, SymbolModelBuilder {
 
-  private Map<Symbol, Scope> symbolScope = Maps.newHashMap();
-  private Set<Scope> scopes = Sets.newHashSet();
+  private Set<Symbol> symbols = new HashSet<>();
+  private Set<Scope> scopes = new HashSet<>();
   private Scope globalScope;
 
   public static SymbolModelImpl create(ScriptTree script, @Nullable Symbolizable symbolizable, @Nullable Settings settings) {
@@ -44,10 +42,6 @@ public class SymbolModelImpl implements SymbolModel, SymbolModelBuilder {
     new SymbolVisitor(symbolModel, symbolizable).visitScript(script);
     new TypeVisitor(settings).visitScript(script);
     return symbolModel;
-  }
-
-  private void setScopeForSymbol(Symbol symbol, Scope scope) {
-    symbolScope.put(symbol, scope);
   }
 
   @Override
@@ -74,7 +68,7 @@ public class SymbolModelImpl implements SymbolModel, SymbolModelBuilder {
     if (symbol == null) {
       symbol = new Symbol(name, kind, scope);
       scope.addSymbol(symbol);
-      setScopeForSymbol(symbol, scope);
+      symbols.add(symbol);
     }
     return symbol;
   }
@@ -86,7 +80,7 @@ public class SymbolModelImpl implements SymbolModel, SymbolModelBuilder {
       symbol = new Symbol(name, kind, scope);
       symbol.setBuiltIn(true);
       scope.addSymbol(symbol);
-      setScopeForSymbol(symbol, scope);
+      symbols.add(symbol);
     }
     return symbol;
   }
@@ -96,7 +90,7 @@ public class SymbolModelImpl implements SymbolModel, SymbolModelBuilder {
    */
   @Override
   public Set<Symbol> getSymbols() {
-    return symbolScope.keySet();
+    return ImmutableSet.copyOf(symbols);
   }
 
   /**
@@ -106,7 +100,7 @@ public class SymbolModelImpl implements SymbolModel, SymbolModelBuilder {
   @Override
   public Set<Symbol> getSymbols(Symbol.Kind kind) {
     Set<Symbol> result = new HashSet<>();
-    for (Symbol symbol : getSymbols()) {
+    for (Symbol symbol : symbols) {
       if (kind.equals(symbol.kind())) {
         result.add(symbol);
       }
@@ -121,7 +115,7 @@ public class SymbolModelImpl implements SymbolModel, SymbolModelBuilder {
   @Override
   public Set<Symbol> getSymbols(String name) {
     Set<Symbol> result = new HashSet<>();
-    for (Symbol symbol : getSymbols()) {
+    for (Symbol symbol : symbols) {
       if (name.equals(symbol.name())) {
         result.add(symbol);
       }
