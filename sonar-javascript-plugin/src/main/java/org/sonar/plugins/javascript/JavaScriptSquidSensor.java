@@ -58,6 +58,7 @@ import org.sonar.api.source.Symbolizable;
 import org.sonar.javascript.JavaScriptCheckContext;
 import org.sonar.javascript.checks.CheckList;
 import org.sonar.javascript.checks.ParsingErrorCheck;
+import org.sonar.javascript.highlighter.HighlightSymbolTableBuilder;
 import org.sonar.javascript.highlighter.HighlighterVisitor;
 import org.sonar.javascript.issues.PreciseIssueCompat;
 import org.sonar.javascript.metrics.MetricsVisitor;
@@ -66,6 +67,7 @@ import org.sonar.javascript.tree.symbols.SymbolModelImpl;
 import org.sonar.javascript.tree.visitors.CharsetAwareVisitor;
 import org.sonar.plugins.javascript.api.CustomJavaScriptRulesDefinition;
 import org.sonar.plugins.javascript.api.JavaScriptCheck;
+import org.sonar.plugins.javascript.api.symbols.SymbolModel;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.visitors.FileIssue;
@@ -217,11 +219,10 @@ public class JavaScriptSquidSensor implements Sensor {
   }
 
   private void scanFile(SensorContext sensorContext, InputFile inputFile, List<TreeVisitor> visitors, Issuable issuable, ScriptTree scriptTree) {
-    SymbolModelImpl symbolModel = SymbolModelImpl.create(
-      scriptTree,
-      perspective(Symbolizable.class, inputFile),
-      settings
-    );
+    Symbolizable symbolizable = perspective(Symbolizable.class, inputFile);
+    SymbolModelImpl symbolModel = SymbolModelImpl.create(scriptTree, inputFile.file(), settings);
+
+    highlightSymbols(symbolizable, symbolModel);
 
     List<Issue> fileIssues = new ArrayList<>();
 
@@ -242,6 +243,14 @@ public class JavaScriptSquidSensor implements Sensor {
     }
 
     saveFileIssues(sensorContext, fileIssues, inputFile, issuable);
+  }
+
+  private void highlightSymbols(@Nullable Symbolizable symbolizable, SymbolModel symbolModel) {
+    if (symbolizable != null) {
+      symbolizable.setSymbolTable(HighlightSymbolTableBuilder.build(symbolizable, symbolModel));
+    } else {
+      LOG.warn("Symbol in source view will not be highlighted.");
+    }
   }
 
   private void saveFileIssues(SensorContext sensorContext, List<Issue> fileIssues, InputFile inputFile, Issuable issuable) {

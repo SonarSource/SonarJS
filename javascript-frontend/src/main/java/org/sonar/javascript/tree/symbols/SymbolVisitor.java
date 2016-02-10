@@ -19,14 +19,9 @@
  */
 package org.sonar.javascript.tree.symbols;
 
-import javax.annotation.Nullable;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.sonar.api.source.Symbolizable;
-import org.sonar.javascript.highlighter.HighlightSymbolTableBuilder;
+import java.util.Map;
 import org.sonar.javascript.lexer.JavaScriptPunctuator;
 import org.sonar.plugins.javascript.api.symbols.Symbol;
-import org.sonar.plugins.javascript.api.symbols.SymbolModel;
 import org.sonar.plugins.javascript.api.symbols.Usage;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
@@ -49,19 +44,24 @@ import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitor;
 
 public class SymbolVisitor extends DoubleDispatchVisitor {
 
-  private static final Logger LOG = LoggerFactory.getLogger(SymbolVisitor.class);
-
-  private final Symbolizable symbolizable;
-
   private SymbolModelBuilder symbolModel;
   private Scope currentScope;
+  private Map<Tree, Scope> treeScopeMap;
 
-  public SymbolVisitor(SymbolModelBuilder symbolModel, @Nullable Symbolizable symbolizable) {
-    this.symbolModel = symbolModel;
+  @Override
+  public void visitScript(ScriptTree tree) {
+    this.symbolModel = (SymbolModelBuilder) getContext().getSymbolModel();
     this.currentScope = null;
 
-    // Symbol highlighting
-    this.symbolizable = symbolizable;
+    // First pass to create scopes and record hoisted symbol declarations
+    SymbolDeclarationVisitor symbolDeclarationVisitor = new SymbolDeclarationVisitor();
+    symbolDeclarationVisitor.scanTree(getContext());
+    this.treeScopeMap = symbolDeclarationVisitor.getTreeScopeMap();
+
+    enterScope(tree);
+    // Record usage and implicit symbol declarations
+    super.visitScript(tree);
+    leaveScope();
   }
 
   @Override
@@ -74,15 +74,6 @@ public class SymbolVisitor extends DoubleDispatchVisitor {
       super.visitBlock(tree);
       leaveScope();
     }
-  }
-
-  private boolean isScopeAlreadyEntered(BlockTree tree) {
-    for (Scope scope : symbolModel.getScopes()) {
-      if (scope.tree().equals(tree)) {
-        return false;
-      }
-    }
-    return true;
   }
 
   @Override
@@ -98,6 +89,7 @@ public class SymbolVisitor extends DoubleDispatchVisitor {
     leaveScope();
   }
 
+
   @Override
   public void visitSwitchStatement(SwitchStatementTree tree) {
     scan(tree.expression());
@@ -105,20 +97,6 @@ public class SymbolVisitor extends DoubleDispatchVisitor {
     enterScope(tree);
     scan(tree.cases());
     leaveScope();
-  }
-
-
-  @Override
-  public void visitScript(ScriptTree tree) {
-    // First pass to record symbol declarations
-    new SymbolDeclarationVisitor(symbolModel).visitScript(tree);
-
-    enterScope(tree);
-    // Record usage and implicit symbol declarations
-    super.visitScript(tree);
-    leaveScope();
-
-    highlightSymbols();
   }
 
   @Override
@@ -259,9 +237,6 @@ public class SymbolVisitor extends DoubleDispatchVisitor {
     leaveScope();
   }
 
-  /*
-   * HELPERS
-   */
   private void leaveScope() {
     if (currentScope != null) {
       currentScope = currentScope.outer();
@@ -269,7 +244,10 @@ public class SymbolVisitor extends DoubleDispatchVisitor {
   }
 
   private void enterScope(Tree tree) {
-    currentScope = getScopeFor(tree);
+    currentScope = treeScopeMap.get(tree);
+    if (currentScope == null) {
+      throw new IllegalStateException("No scope found for the tree");
+    }
   }
 
   /**
@@ -284,20 +262,7 @@ public class SymbolVisitor extends DoubleDispatchVisitor {
     return false;
   }
 
-  private void highlightSymbols() {
-    if (symbolizable != null) {
-      symbolizable.setSymbolTable(HighlightSymbolTableBuilder.build(symbolizable, (SymbolModel) symbolModel));
-    } else {
-      LOG.warn("Symbol in source view will not be highlighted.");
-    }
-  }
-
-  private Scope getScopeFor(Tree tree) {
-    for (Scope scope : symbolModel.getScopes()) {
-      if (scope.tree().equals(tree)) {
-        return scope;
-      }
-    }
-    throw new IllegalStateException("No scope found for the tree");
+  private boolean isScopeAlreadyEntered(BlockTree tree) {
+    return !treeScopeMap.containsKey(tree);
   }
 }

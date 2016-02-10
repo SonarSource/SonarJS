@@ -45,8 +45,9 @@ public class LinkToSymbolFromTreeTest extends JavaScriptTreeModelTest {
 
   @Before
   public void setUp() throws Exception {
-    ScriptTree ROOT_NODE = (ScriptTree) p.parse(new File("src/test/resources/ast/resolve/symbols.js"));
-    SymbolModelImpl.create(ROOT_NODE, null, null);
+    File file = new File("src/test/resources/ast/resolve/symbols.js");
+    ScriptTree ROOT_NODE = (ScriptTree) p.parse(file);
+    SymbolModelImpl.create(ROOT_NODE, file, null);
     MODULE_ITEMS = (ROOT_NODE).items().items();
   }
 

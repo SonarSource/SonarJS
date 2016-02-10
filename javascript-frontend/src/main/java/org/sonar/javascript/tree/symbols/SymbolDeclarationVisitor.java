@@ -20,7 +20,9 @@
 package org.sonar.javascript.tree.symbols;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import org.sonar.javascript.tree.impl.declaration.InitializedBindingElementTreeImpl;
 import org.sonar.javascript.tree.impl.declaration.ParameterListTreeImpl;
 import org.sonar.javascript.tree.impl.expression.ArrowFunctionTreeImpl;
@@ -56,15 +58,28 @@ public class SymbolDeclarationVisitor extends DoubleDispatchVisitor {
 
   private SymbolModelBuilder symbolModel;
   private Scope currentScope;
+  private Map<Tree, Scope> treeScopeMap;
 
   // List of block trees for which scope is created for another tree (e.g. function declaration or for statement)
   private List<BlockTree> skippedBlocks;
 
-  public SymbolDeclarationVisitor(SymbolModelBuilder symbolModel) {
-    this.symbolModel = symbolModel;
-    this.currentScope = null;
+  public Map<Tree, Scope> getTreeScopeMap() {
+    return treeScopeMap;
+  }
 
+  @Override
+  public void visitScript(ScriptTree tree) {
+    this.symbolModel = (SymbolModelBuilder) getContext().getSymbolModel();
+    this.currentScope = null;
     this.skippedBlocks = new ArrayList<>();
+    this.treeScopeMap = new HashMap<>();
+
+    newFunctionScope(tree);
+
+    addGlobalBuiltInSymbols();
+    super.visitScript(tree);
+
+    leaveScope();
   }
 
   @Override
@@ -109,23 +124,13 @@ public class SymbolDeclarationVisitor extends DoubleDispatchVisitor {
     leaveScope();
   }
 
+
   @Override
   public void visitSwitchStatement(SwitchStatementTree tree) {
     scan(tree.expression());
 
     newBlockScope(tree);
     scan(tree.cases());
-    leaveScope();
-  }
-
-
-  @Override
-  public void visitScript(ScriptTree tree) {
-    newFunctionScope(tree);
-
-    addGlobalBuiltInSymbols();
-    super.visitScript(tree);
-
     leaveScope();
   }
 
@@ -281,12 +286,16 @@ public class SymbolDeclarationVisitor extends DoubleDispatchVisitor {
   }
 
   private void newFunctionScope(Tree tree) {
-    currentScope = new Scope(currentScope, tree, false);
-    symbolModel.addScope(currentScope);
+    newScope(tree, false);
   }
 
   private void newBlockScope(Tree tree) {
-    currentScope = new Scope(currentScope, tree, true);
+    newScope(tree, true);
+  }
+
+  private void newScope(Tree tree, boolean isBlock) {
+    currentScope = new Scope(currentScope, tree, isBlock);
+    treeScopeMap.put(tree, currentScope);
     symbolModel.addScope(currentScope);
   }
 

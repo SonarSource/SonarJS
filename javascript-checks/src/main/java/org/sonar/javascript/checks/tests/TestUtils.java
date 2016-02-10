@@ -42,7 +42,7 @@ public class TestUtils {
 
   public static JavaScriptCheckContext createContext(File file) {
     ScriptTree scriptTree = (ScriptTree) p.parse(file);
-    SymbolModel symbolModel = SymbolModelImpl.create(scriptTree, null, settings());
+    SymbolModel symbolModel = SymbolModelImpl.create(scriptTree, file, settings());
 
     return new JavaScriptCheckContext(scriptTree, file, symbolModel);
   }

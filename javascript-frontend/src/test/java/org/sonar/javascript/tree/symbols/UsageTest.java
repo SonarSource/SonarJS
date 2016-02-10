@@ -41,8 +41,9 @@ public class UsageTest extends JavaScriptTreeModelTest {
 
   @Before
   public void setUp() throws Exception {
-    ROOT_NODE = (ScriptTree) p.parse(new File("src/test/resources/ast/resolve/usage.js"));
-    SYMBOL_MODEL = SymbolModelImpl.create(ROOT_NODE, null, null);
+    File file = new File("src/test/resources/ast/resolve/usage.js");
+    ROOT_NODE = (ScriptTree) p.parse(file);
+    SYMBOL_MODEL = SymbolModelImpl.create(ROOT_NODE, file, null);
   }
 
   @Test

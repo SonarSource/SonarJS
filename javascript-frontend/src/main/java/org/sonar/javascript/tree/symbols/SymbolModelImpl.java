@@ -20,11 +20,12 @@
 package org.sonar.javascript.tree.symbols;
 
 import com.google.common.collect.ImmutableSet;
+import java.io.File;
 import java.util.HashSet;
 import java.util.Set;
 import javax.annotation.Nullable;
 import org.sonar.api.config.Settings;
-import org.sonar.api.source.Symbolizable;
+import org.sonar.javascript.JavaScriptCheckContext;
 import org.sonar.javascript.tree.symbols.type.TypeVisitor;
 import org.sonar.plugins.javascript.api.symbols.Symbol;
 import org.sonar.plugins.javascript.api.symbols.SymbolModel;
@@ -37,10 +38,11 @@ public class SymbolModelImpl implements SymbolModel, SymbolModelBuilder {
   private Set<Scope> scopes = new HashSet<>();
   private Scope globalScope;
 
-  public static SymbolModelImpl create(ScriptTree script, @Nullable Symbolizable symbolizable, @Nullable Settings settings) {
+  public static SymbolModelImpl create(ScriptTree script, File file, @Nullable Settings settings) {
     SymbolModelImpl symbolModel = new SymbolModelImpl();
-    new SymbolVisitor(symbolModel, symbolizable).visitScript(script);
-    new TypeVisitor(settings).visitScript(script);
+    JavaScriptCheckContext context = new JavaScriptCheckContext(script, file, symbolModel);
+    new SymbolVisitor().scanTree(context);
+    new TypeVisitor(settings).scanTree(context);
     return symbolModel;
   }
 
