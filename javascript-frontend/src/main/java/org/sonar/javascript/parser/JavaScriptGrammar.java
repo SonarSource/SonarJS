@@ -443,6 +443,7 @@ public class JavaScriptGrammar {
           VARIABLE_STATEMENT(),
           EMPTY_STATEMENT(),
           LABELLED_STATEMENT(),
+          CLASS_DECLARATION(),
           EXPRESSION_STATEMENT(),
           IF_STATEMENT(),
           ITERATION_STATEMENT(),
@@ -454,8 +455,7 @@ public class JavaScriptGrammar {
           THROW_STATEMENT(),
           TRY_STATEMENT(),
           DEBUGGER_STATEMENT(),
-          FUNCTION_AND_GENERATOR_DECLARATION(),
-          CLASS_DECLARATION()));
+          FUNCTION_AND_GENERATOR_DECLARATION()));
   }
 
   /**

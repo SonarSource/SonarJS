@@ -148,7 +148,7 @@ public class ClassTreeImpl extends JavaScriptTree implements ClassTree, TypableT
 
   @Override
   public void accept(DoubleDispatchVisitor visitor) {
-    visitor.visitClassDeclaration(this);
+    visitor.visitClass(this);
   }
 
   @Override

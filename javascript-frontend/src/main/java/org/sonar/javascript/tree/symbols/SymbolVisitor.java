@@ -25,12 +25,14 @@ import org.sonar.plugins.javascript.api.symbols.Symbol;
 import org.sonar.plugins.javascript.api.symbols.Usage;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
+import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.declaration.AccessorMethodDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.declaration.FunctionDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.declaration.GeneratorMethodDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.declaration.MethodDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.expression.ArrowFunctionTree;
 import org.sonar.plugins.javascript.api.tree.expression.AssignmentExpressionTree;
+import org.sonar.plugins.javascript.api.tree.expression.ClassTree;
 import org.sonar.plugins.javascript.api.tree.expression.FunctionExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 import org.sonar.plugins.javascript.api.tree.expression.UnaryExpressionTree;
@@ -145,6 +147,29 @@ public class SymbolVisitor extends DoubleDispatchVisitor {
   public void visitArrowFunction(ArrowFunctionTree tree) {
     enterScope(tree);
     super.visitArrowFunction(tree);
+    leaveScope();
+  }
+
+  @Override
+  public void visitClass(ClassTree tree) {
+
+    IdentifierTree classNameIdentifier = tree.name();
+
+    if (classNameIdentifier != null) {
+      if (tree.is(Kind.CLASS_DECLARATION)) {
+        declareClassSymbol(classNameIdentifier, getFunctionScope());
+        enterScope(tree);
+
+      } else {
+        enterScope(tree);
+        declareClassSymbol(classNameIdentifier, currentScope);
+      }
+
+    } else {
+      enterScope(tree);
+    }
+
+    super.visitClass(tree);
     leaveScope();
   }
 
@@ -264,5 +289,18 @@ public class SymbolVisitor extends DoubleDispatchVisitor {
 
   private boolean isScopeAlreadyEntered(BlockTree tree) {
     return !treeScopeMap.containsKey(tree);
+  }
+
+  private Scope getFunctionScope() {
+    Scope scope = currentScope;
+    while (scope.isBlock()) {
+      scope = scope.outer();
+    }
+    return scope;
+  }
+
+  private void declareClassSymbol(IdentifierTree classNameIdentifier, Scope scope) {
+    symbolModel.declareSymbol(classNameIdentifier.name(), Symbol.Kind.CLASS, scope)
+      .addUsage(Usage.create(classNameIdentifier, Usage.Kind.DECLARATION));
   }
 }

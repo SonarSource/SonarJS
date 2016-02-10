@@ -39,6 +39,7 @@ import org.sonar.plugins.javascript.api.tree.declaration.FunctionDeclarationTree
 import org.sonar.plugins.javascript.api.tree.declaration.GeneratorMethodDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.declaration.MethodDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.expression.ArrowFunctionTree;
+import org.sonar.plugins.javascript.api.tree.expression.ClassTree;
 import org.sonar.plugins.javascript.api.tree.expression.FunctionExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 import org.sonar.plugins.javascript.api.tree.statement.BlockTree;
@@ -239,7 +240,12 @@ public class SymbolDeclarationVisitor extends DoubleDispatchVisitor {
     leaveScope();
   }
 
-
+  @Override
+  public void visitClass(ClassTree tree) {
+    newBlockScope(tree);
+    super.visitClass(tree);
+    leaveScope();
+  }
 
   @Override
   public void visitVariableDeclaration(VariableDeclarationTree tree) {

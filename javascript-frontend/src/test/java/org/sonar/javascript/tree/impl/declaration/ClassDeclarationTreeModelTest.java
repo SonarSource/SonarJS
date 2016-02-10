@@ -68,4 +68,11 @@ public class ClassDeclarationTreeModelTest extends JavaScriptTreeModelTest {
     assertThat(tree.superClass()).isNotNull();
   }
 
+  @Test
+  public void not_global_class_should_be_declaration() throws Exception {
+    ClassTree tree = parse("if (true) { class A{} }", Kind.CLASS_DECLARATION);
+
+    assertThat(tree.is(Kind.CLASS_DECLARATION)).isTrue();
+    assertThat(tree.name().name()).isEqualTo("A");
+  }
 }

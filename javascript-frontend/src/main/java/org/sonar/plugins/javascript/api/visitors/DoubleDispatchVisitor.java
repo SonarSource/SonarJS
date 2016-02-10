@@ -208,7 +208,7 @@ public abstract class DoubleDispatchVisitor implements TreeVisitor {
   }
 
 
-  public void visitClassDeclaration(ClassTree tree) {
+  public void visitClass(ClassTree tree) {
     scan(tree.name());
     scan(tree.superClass());
     scan(tree.elements());
