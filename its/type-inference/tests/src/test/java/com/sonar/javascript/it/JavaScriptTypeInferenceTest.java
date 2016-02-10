@@ -46,6 +46,9 @@ public class JavaScriptTypeInferenceTest {
 
   @Test
   public void test() throws Exception {
+    orchestrator.getServer().provisionProject("project", "project");
+    orchestrator.getServer().associateProjectToQualityProfile("project", "js", "javascript-type-inference");
+
     File litsDifferencesFile = FileLocation.of("target/differences").getFile();
 
     SonarRunner build = SonarRunner.create(TestUtils.projectDir(""))
@@ -60,7 +63,6 @@ public class JavaScriptTypeInferenceTest {
       .setProperty("dump.new", TestUtils.file("tests/target/actual").getAbsolutePath())
       .setProperty("lits.differences", litsDifferencesFile.getAbsolutePath())
       .setProperty("sonar.cpd.skip", "true")
-      .setProfile("javascript-type-inference")
       .setEnvironmentVariable("SONAR_RUNNER_OPTS", "-Xmx1024m");
     orchestrator.executeBuild(build);
 
