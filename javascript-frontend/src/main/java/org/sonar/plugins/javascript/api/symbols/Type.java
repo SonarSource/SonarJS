@@ -50,6 +50,7 @@ public interface Type {
     FUNCTION,
     ARRAY,
     DATE,
+    CLASS,
 
     // JQUERY
     JQUERY_OBJECT,

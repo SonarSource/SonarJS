@@ -34,14 +34,16 @@ import org.sonar.plugins.javascript.api.tree.statement.BlockTree;
  * </pre>
  */
 @Beta
-public interface MethodDeclarationTree extends DeclarationTree {
+public interface MethodDeclarationTree extends FunctionTree {
 
   @Nullable
   SyntaxToken staticToken();
 
   ExpressionTree name();
 
+  @Override
   ParameterListTree parameters();
 
+  @Override
   BlockTree body();
 }

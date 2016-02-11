@@ -23,7 +23,7 @@ function main() {
   (function(p1, p2) {})(p2, p1); // Noncompliant {{Arguments to this call have the same names but not the same order as the function parameters.}}
   var a1 = new A();
   a1.method1(p1, p2);
-  a1.method1(p2, p1); // False negative
+  a1.method1(p2, p1); // Noncompliant
   withInitializer(p1, p2);
   withInitializer(p2, p1); // Noncompliant
   arrayBindingPattern(p2, p1);

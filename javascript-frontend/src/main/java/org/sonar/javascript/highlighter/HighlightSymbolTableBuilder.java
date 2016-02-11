@@ -19,12 +19,18 @@
  */
 package org.sonar.javascript.highlighter;
 
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 import org.sonar.api.source.Symbolizable;
+import org.sonar.api.source.Symbolizable.SymbolTableBuilder;
 import org.sonar.javascript.tree.impl.lexical.InternalSyntaxToken;
+import org.sonar.javascript.tree.symbols.type.ClassType;
 import org.sonar.plugins.javascript.api.symbols.Symbol;
 import org.sonar.plugins.javascript.api.symbols.SymbolModel;
+import org.sonar.plugins.javascript.api.symbols.Type;
+import org.sonar.plugins.javascript.api.symbols.Type.Kind;
 import org.sonar.plugins.javascript.api.symbols.Usage;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 
@@ -35,23 +41,41 @@ public class HighlightSymbolTableBuilder {
 
   public static Symbolizable.SymbolTable build(Symbolizable symbolizable, SymbolModel symbolModel) {
     Symbolizable.SymbolTableBuilder builder = symbolizable.newSymbolTableBuilder();
+    Set<ClassType> classTypes = new HashSet<>();
 
     for (Symbol symbol : symbolModel.getSymbols()) {
-      if (!symbol.usages().isEmpty()) {
-        List<Usage> usagesList = new LinkedList<>(symbol.usages());
-        InternalSyntaxToken token = (InternalSyntaxToken) (usagesList.get(0).identifierTree()).identifierToken();
-        org.sonar.api.source.Symbol reference = getHighlightedSymbol(builder, token);
-        for (int i = 1; i < usagesList.size(); i++) {
-          builder.newReference(
-            reference,
-            getToken(usagesList.get(i).identifierTree()).startIndex()
-          );
-        }
+      highlightSymbol(builder, symbol);
 
+      if (symbol.kind() == Symbol.Kind.CLASS) {
+        Type classType = symbol.types().getUniqueType(Kind.CLASS);
+        if (classType != null) {
+          classTypes.add((ClassType) classType);
+        }
+      }
+    }
+
+    for (ClassType classType : classTypes) {
+      for (Symbol symbol : classType.properties()) {
+        highlightSymbol(builder, symbol);
       }
     }
 
     return builder.build();
+  }
+
+  private static void highlightSymbol(SymbolTableBuilder builder, Symbol symbol) {
+    if (!symbol.usages().isEmpty()) {
+      List<Usage> usagesList = new LinkedList<>(symbol.usages());
+      InternalSyntaxToken token = (InternalSyntaxToken) (usagesList.get(0).identifierTree()).identifierToken();
+      org.sonar.api.source.Symbol reference = getHighlightedSymbol(builder, token);
+      for (int i = 1; i < usagesList.size(); i++) {
+        builder.newReference(
+          reference,
+          getToken(usagesList.get(i).identifierTree()).startIndex()
+        );
+      }
+
+    }
   }
 
   private static org.sonar.api.source.Symbol getHighlightedSymbol(Symbolizable.SymbolTableBuilder builder, InternalSyntaxToken token) {

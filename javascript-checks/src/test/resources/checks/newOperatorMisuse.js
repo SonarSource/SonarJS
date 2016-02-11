@@ -106,3 +106,9 @@ var C = new B();  // OK
 
 new function(){ return 5; };
 new (function(){ return 5; });
+
+
+class MyClass {
+}
+
+var myObj = new MyClass();

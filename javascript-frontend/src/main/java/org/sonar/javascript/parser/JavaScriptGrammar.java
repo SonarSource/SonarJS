@@ -52,7 +52,6 @@ import org.sonar.javascript.tree.impl.expression.ParenthesisedExpressionTreeImpl
 import org.sonar.javascript.tree.impl.expression.RestElementTreeImpl;
 import org.sonar.javascript.tree.impl.expression.SuperTreeImpl;
 import org.sonar.javascript.tree.impl.expression.TaggedTemplateTreeImpl;
-import org.sonar.javascript.tree.impl.expression.ThisTreeImpl;
 import org.sonar.javascript.tree.impl.expression.YieldExpressionTreeImpl;
 import org.sonar.javascript.tree.impl.lexical.InternalSyntaxToken;
 import org.sonar.javascript.tree.impl.statement.BlockTreeImpl;
@@ -90,6 +89,7 @@ import org.sonar.plugins.javascript.api.tree.declaration.NameSpaceExportDeclarat
 import org.sonar.plugins.javascript.api.tree.declaration.SpecifierListTree;
 import org.sonar.plugins.javascript.api.tree.declaration.SpecifierTree;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
+import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 import org.sonar.plugins.javascript.api.tree.expression.MemberExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.TemplateCharactersTree;
 import org.sonar.plugins.javascript.api.tree.expression.TemplateExpressionTree;
@@ -1145,8 +1145,8 @@ public class JavaScriptGrammar {
       .is(f.templateCharacters(b.oneOrMore(b.token(JavaScriptLegacyGrammar.TEMPLATE_CHARACTER))));
   }
 
-  public ThisTreeImpl THIS() {
-    return b.<ThisTreeImpl>nonterminal(Kind.THIS)
+  public IdentifierTree THIS() {
+    return b.<IdentifierTree>nonterminal(Kind.THIS)
       .is(f.thisExpression(b.token(JavaScriptKeyword.THIS)));
 
   }

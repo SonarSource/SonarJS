@@ -202,7 +202,7 @@ public class SymbolVisitor extends DoubleDispatchVisitor {
 
   @Override
   public void visitIdentifier(IdentifierTree tree) {
-    if (tree.is(Tree.Kind.IDENTIFIER_REFERENCE)) {
+    if (tree.is(Tree.Kind.IDENTIFIER_REFERENCE, Kind.THIS)) {
       addUsageFor(tree, Usage.Kind.READ);
     }
   }

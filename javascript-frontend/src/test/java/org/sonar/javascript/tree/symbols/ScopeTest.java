@@ -271,4 +271,29 @@ public class ScopeTest extends JavaScriptTreeModelTest {
 
   }
 
+
+
+  @Test
+  public void test_this_symbol() throws Exception {
+    final String THIS = "this";
+
+    Symbol globalThis = SYMBOL_MODEL.globalScope().getSymbol(THIS);
+    assertThat(globalThis).isNotNull();
+
+    Symbol functionThis = scopeAtLine(10).getSymbol(THIS);
+    assertThat(functionThis).isNotNull();
+    assertThat(functionThis).isNotEqualTo(globalThis);
+
+    Symbol nestedFunctionThis = scopeAtLine(14).getSymbol(THIS);
+    assertThat(nestedFunctionThis).isNotNull();
+    assertThat(nestedFunctionThis).isNotEqualTo(functionThis);
+
+    Symbol classThis = scopeAtLine(86).getSymbol(THIS);
+    assertThat(classThis).isNotNull();
+    assertThat(scopeAtLine(87).lookupSymbol(THIS)).isEqualTo(classThis);
+
+    Symbol arrowFunctionThis = scopeAtLine(100).lookupSymbol(THIS);
+    assertThat(scopeAtLine(100).getSymbol(THIS)).isNull();
+    assertThat(arrowFunctionThis).isEqualTo(globalThis);
+  }
 }

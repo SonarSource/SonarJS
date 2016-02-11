@@ -77,10 +77,9 @@ public class NewOperatorMisuseCheck extends DoubleDispatchVisitorCheck {
   private boolean isConstructor(TypeSet types) {
     boolean isConstructor = true;
 
-
     Type type = types.getUniqueKnownType();
 
-    if (type != null) {
+    if (type != null && type.kind() != Kind.CLASS) {
       if (type.callability().equals(Callability.NON_CALLABLE)) {
         isConstructor = false;
       } else if (considerJSDoc && type.kind().equals(Kind.FUNCTION)) {

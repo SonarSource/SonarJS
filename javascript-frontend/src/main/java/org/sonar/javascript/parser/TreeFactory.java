@@ -79,7 +79,6 @@ import org.sonar.javascript.tree.impl.expression.TaggedTemplateTreeImpl;
 import org.sonar.javascript.tree.impl.expression.TemplateCharactersTreeImpl;
 import org.sonar.javascript.tree.impl.expression.TemplateExpressionTreeImpl;
 import org.sonar.javascript.tree.impl.expression.TemplateLiteralTreeImpl;
-import org.sonar.javascript.tree.impl.expression.ThisTreeImpl;
 import org.sonar.javascript.tree.impl.expression.YieldExpressionTreeImpl;
 import org.sonar.javascript.tree.impl.lexical.InternalSyntaxToken;
 import org.sonar.javascript.tree.impl.statement.BlockTreeImpl;
@@ -119,6 +118,7 @@ import org.sonar.plugins.javascript.api.tree.declaration.ParameterListTree;
 import org.sonar.plugins.javascript.api.tree.declaration.SpecifierTree;
 import org.sonar.plugins.javascript.api.tree.expression.BracketMemberExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
+import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 import org.sonar.plugins.javascript.api.tree.expression.MemberExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.TemplateCharactersTree;
 import org.sonar.plugins.javascript.api.tree.expression.TemplateExpressionTree;
@@ -1064,8 +1064,8 @@ public class TreeFactory {
     return new TemplateCharactersTreeImpl(characterTokens);
   }
 
-  public ThisTreeImpl thisExpression(InternalSyntaxToken thisKeyword) {
-    return new ThisTreeImpl(thisKeyword);
+  public IdentifierTree thisExpression(InternalSyntaxToken thisKeyword) {
+    return new IdentifierTreeImpl(Kind.THIS, thisKeyword);
   }
 
   public IdentifierTreeImpl identifierNoLb(Tree spacing, InternalSyntaxToken identifier) {

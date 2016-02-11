@@ -68,7 +68,6 @@ import org.sonar.plugins.javascript.api.tree.expression.TaggedTemplateTree;
 import org.sonar.plugins.javascript.api.tree.expression.TemplateCharactersTree;
 import org.sonar.plugins.javascript.api.tree.expression.TemplateExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.TemplateLiteralTree;
-import org.sonar.plugins.javascript.api.tree.expression.ThisTree;
 import org.sonar.plugins.javascript.api.tree.expression.UnaryExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.YieldExpressionTree;
 import org.sonar.plugins.javascript.api.tree.statement.BlockTree;
@@ -492,11 +491,6 @@ public abstract class DoubleDispatchVisitor implements TreeVisitor {
   public void visitNewExpression(NewExpressionTree tree) {
     scan(tree.expression());
     scan(tree.arguments());
-  }
-
-
-  public void visitThisTree(ThisTree tree) {
-    // no sub-tree
   }
 
 

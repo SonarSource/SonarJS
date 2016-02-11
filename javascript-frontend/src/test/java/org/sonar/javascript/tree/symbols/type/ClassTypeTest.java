@@ -23,6 +23,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.sonar.plugins.javascript.api.symbols.Symbol;
 import org.sonar.plugins.javascript.api.symbols.Symbol.Kind;
+import org.sonar.plugins.javascript.api.symbols.Type;
+import org.sonar.plugins.javascript.api.symbols.Type.Callability;
 import org.sonar.plugins.javascript.api.tree.Tree;
 
 import static org.fest.assertions.Assertions.assertThat;
@@ -61,4 +63,31 @@ public class ClassTypeTest extends TypeTest {
 
   }
 
+  @Test
+  public void test_class_type() throws Exception {
+    Symbol A = getSymbol("A");
+    assertThat(A.types().containsOnlyAndUnique(Type.Kind.CLASS)).isTrue();
+
+    Symbol B = getSymbol("B");
+    assertThat(B.types().containsOnlyAndUnique(Type.Kind.CLASS)).isTrue();
+    assertThat(B.types().getUniqueKnownType()).isEqualTo(getSymbol("B1").types().getUniqueKnownType());
+  }
+
+  @Test
+  public void test_object_type() throws Exception {
+    Symbol z = getSymbol("z");
+    assertThat(z.types().containsOnlyAndUnique(Type.Kind.OBJECT)).isTrue();
+
+    ObjectType type = (ObjectType) z.types().getUniqueKnownType();
+
+    assertThat(type.callability()).isEqualTo(Callability.NON_CALLABLE);
+    assertThat(type.classType()).isNotNull();
+    assertThat(type.classType().properties()).isNotEmpty();
+
+  }
+
+  @Test
+  public void test_this_access() throws Exception {
+    assertThat(getSymbol("p").types().containsOnlyAndUnique(Type.Kind.NUMBER)).isTrue();
+  }
 }

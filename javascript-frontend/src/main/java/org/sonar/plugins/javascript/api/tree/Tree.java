@@ -339,10 +339,10 @@ public interface Tree {
     PARENTHESISED_EXPRESSION(ParenthesisedExpressionTree.class),
 
     /**
-     * {@link LiteralTree}
+     * {@link IdentifierTree}
      * {@code this}
      */
-    THIS(LiteralTree.class),
+    THIS(IdentifierTree.class),
 
     /**
      * {@link LiteralTree}

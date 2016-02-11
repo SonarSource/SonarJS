@@ -24,18 +24,23 @@ import javax.annotation.Nullable;
 import org.sonar.api.config.Settings;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.javascript.tree.impl.SeparatedList;
+import org.sonar.javascript.tree.impl.expression.ClassTreeImpl;
 import org.sonar.javascript.tree.symbols.type.ObjectType.BuiltInObjectType;
 import org.sonar.plugins.javascript.api.symbols.Symbol;
 import org.sonar.plugins.javascript.api.symbols.Type;
 import org.sonar.plugins.javascript.api.symbols.Type.Callability;
+import org.sonar.plugins.javascript.api.symbols.Type.Kind;
 import org.sonar.plugins.javascript.api.symbols.TypeSet;
+import org.sonar.plugins.javascript.api.symbols.Usage;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.declaration.FunctionDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.declaration.InitializedBindingElementTree;
+import org.sonar.plugins.javascript.api.tree.declaration.MethodDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.expression.ArrayLiteralTree;
 import org.sonar.plugins.javascript.api.tree.expression.AssignmentExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.BinaryExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.CallExpressionTree;
+import org.sonar.plugins.javascript.api.tree.expression.ClassTree;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 import org.sonar.plugins.javascript.api.tree.expression.LiteralTree;
@@ -108,6 +113,23 @@ public class TypeVisitor extends DoubleDispatchVisitor {
   }
 
   @Override
+  public void visitClass(ClassTree tree) {
+    ClassType classType = ((ClassTreeImpl) tree).classType();
+    if (tree.name() != null) {
+      tree.name().symbol().addType(classType);
+    }
+
+    for (MethodDeclarationTree methodDeclarationTree : tree.methods()) {
+      ExpressionTree name = methodDeclarationTree.name();
+      if (name.is(Tree.Kind.IDENTIFIER_NAME)) {
+        classType.addMethod((IdentifierTree) name, FunctionType.create(methodDeclarationTree));
+      }
+    }
+
+    super.visitClass(tree);
+  }
+
+  @Override
   public void visitCallExpression(CallExpressionTree tree) {
     super.visitCallExpression(tree);
 
@@ -170,7 +192,15 @@ public class TypeVisitor extends DoubleDispatchVisitor {
   public void visitNewExpression(NewExpressionTree tree) {
     super.visitNewExpression(tree);
 
-    if (tree.expression().types().contains(Type.Kind.BACKBONE_MODEL)) {
+    TypeSet types = tree.expression().types();
+
+    if (types.contains(Kind.CLASS)) {
+      Type classType = types.getUniqueType(Kind.CLASS);
+      if (classType != null) {
+        addType(tree, ((ClassType) classType).createObject());
+      }
+
+    } else if (types.contains(Type.Kind.BACKBONE_MODEL)) {
       addType(tree, ObjectType.FrameworkType.BACKBONE_MODEL_OBJECT);
 
     } else if (Utils.identifierWithName(tree.expression(), "String")) {
@@ -228,6 +258,22 @@ public class TypeVisitor extends DoubleDispatchVisitor {
       Type arrayType = tree.object().types().getUniqueType(Type.Kind.ARRAY);
       if (arrayType != null && ((ArrayType) arrayType).elementType() != null) {
         addType(tree, ((ArrayType) arrayType).elementType());
+      }
+
+    } else {
+      resolveObjectPropertyAccess(tree);
+    }
+  }
+
+  private void resolveObjectPropertyAccess(MemberExpressionTree tree) {
+    ObjectType objectType = (ObjectType) tree.object().types().getUniqueType(Kind.OBJECT);
+    if (objectType != null && tree.property() instanceof IdentifierTree) {
+      String property = ((IdentifierTree) tree.property()).name();
+      Symbol propertySymbol = objectType.property(property);
+      if (propertySymbol != null) {
+        addTypes(tree, propertySymbol.types());
+        // fixme might be write usage
+        propertySymbol.addUsage(Usage.create((IdentifierTree) tree.property(), Usage.Kind.READ));
       }
     }
   }

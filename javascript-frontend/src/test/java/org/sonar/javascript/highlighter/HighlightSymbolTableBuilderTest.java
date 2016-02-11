@@ -90,8 +90,8 @@ public class HighlightSymbolTableBuilderTest extends JavaScriptTreeModelTest {
     HighlightSymbolTableBuilder.build(symbolizable, symbolModel(file));
 
     // no offsets are used as there is uncertainty about the order of usages of built-in symbols (and first usage used for newSymbol)
-    verify(symbolTableBuilder, times(3)).newSymbol(anyInt(), anyInt());
-    verify(symbolTableBuilder, times(3)).newReference(any(org.sonar.api.source.Symbol.class), anyInt());
+    verify(symbolTableBuilder, times(4)).newSymbol(anyInt(), anyInt());
+    verify(symbolTableBuilder, times(4)).newReference(any(org.sonar.api.source.Symbol.class), anyInt());
 
     verify(symbolTableBuilder).build();
     verifyNoMoreInteractions(symbolTableBuilder);
@@ -103,6 +103,36 @@ public class HighlightSymbolTableBuilderTest extends JavaScriptTreeModelTest {
     assertThat(Files.toString(file, Charsets.UTF_8).startsWith("\uFEFF")).isTrue();
     HighlightSymbolTableBuilder.build(symbolizable, symbolModel(file));
     verify(symbolTableBuilder).newSymbol(4, 5);
+  }
+
+  @Test
+  public void test_properties() throws Exception {
+    File file = new File("src/test/resources/highlighter/symbolHighlightingProperties.js");
+    lines = Files.readLines(file, Charsets.UTF_8);
+    HighlightSymbolTableBuilder.build(symbolizable, symbolModel(file));
+
+    // class
+    verify(symbolTableBuilder).newSymbol(offset(1, 7), offset(1, 8));
+    verify(symbolTableBuilder).newReference(any(org.sonar.api.source.Symbol.class), eq(offset(7, 17)));
+
+    // "foo" method
+    verify(symbolTableBuilder).newSymbol(offset(2, 3), offset(2, 6));
+    verify(symbolTableBuilder).newReference(any(org.sonar.api.source.Symbol.class), eq(offset(8, 7)));
+
+    // "bar" method
+    verify(symbolTableBuilder).newSymbol(offset(6, 3), offset(6, 6));
+    verify(symbolTableBuilder).newReference(any(org.sonar.api.source.Symbol.class), eq(offset(3, 10)));
+
+    // "a" variable
+    verify(symbolTableBuilder).newSymbol(offset(7, 9), offset(7, 10));
+    verify(symbolTableBuilder).newReference(any(org.sonar.api.source.Symbol.class), eq(offset(8, 5)));
+
+    // "this"
+    verify(symbolTableBuilder).newSymbol(offset(3, 5), offset(3, 9));
+
+    verify(symbolTableBuilder).build();
+    verifyNoMoreInteractions(symbolTableBuilder);
+
   }
 
   private int offset(int line, int column) {

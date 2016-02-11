@@ -26,6 +26,7 @@ import java.util.List;
 import javax.annotation.Nullable;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.javascript.tree.impl.lexical.InternalSyntaxToken;
+import org.sonar.javascript.tree.symbols.type.ClassType;
 import org.sonar.javascript.tree.symbols.type.TypableTree;
 import org.sonar.plugins.javascript.api.symbols.Type;
 import org.sonar.plugins.javascript.api.symbols.TypeSet;
@@ -50,6 +51,7 @@ public class ClassTreeImpl extends JavaScriptTree implements ClassTree, TypableT
   private final List<Tree> elements;
   private InternalSyntaxToken closeCurlyBraceToken;
   private final Kind kind;
+  private ClassType classType;
 
   private ClassTreeImpl(
     Kind kind, InternalSyntaxToken classToken, @Nullable IdentifierTreeImpl name,
@@ -66,6 +68,8 @@ public class ClassTreeImpl extends JavaScriptTree implements ClassTree, TypableT
     this.openCurlyBraceToken = openCurlyBraceToken;
     this.elements = elements;
     this.closeCurlyBraceToken = closeCurlyBraceToken;
+
+    this.classType = ClassType.create();
   }
 
   public static ClassTreeImpl newClassExpression(
@@ -153,11 +157,17 @@ public class ClassTreeImpl extends JavaScriptTree implements ClassTree, TypableT
 
   @Override
   public TypeSet types() {
-    return TypeSet.emptyTypeSet();
+    TypeSet set = TypeSet.emptyTypeSet();
+    set.add(classType);
+    return set;
   }
 
   @Override
   public void add(Type type) {
     throw new UnsupportedOperationException();
+  }
+
+  public ClassType classType() {
+    return classType;
   }
 }

@@ -19,14 +19,22 @@
  */
 package org.sonar.javascript.tree.symbols.type;
 
+import javax.annotation.Nullable;
+import org.sonar.plugins.javascript.api.symbols.Symbol;
 import org.sonar.plugins.javascript.api.symbols.Type;
 
 public class ObjectType implements Type {
 
   protected Callability callability;
 
+  protected ClassType classType = null;
+
   protected ObjectType(Callability callability) {
     this.callability = callability;
+  }
+
+  public void classType(ClassType classType) {
+    this.classType = classType;
   }
 
   @Override
@@ -39,12 +47,25 @@ public class ObjectType implements Type {
     return callability;
   }
 
+  @Nullable
+  public ClassType classType() {
+    return classType;
+  }
+
   public static ObjectType create() {
     return create(Callability.UNKNOWN);
   }
 
   public static ObjectType create(Callability callability) {
     return new ObjectType(callability);
+  }
+
+  @Nullable
+  public Symbol property(String name) {
+    if (classType != null) {
+      return classType.property(name);
+    }
+    return null;
   }
 
   @Override

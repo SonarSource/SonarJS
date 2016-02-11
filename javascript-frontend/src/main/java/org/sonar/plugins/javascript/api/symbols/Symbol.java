@@ -35,6 +35,7 @@ public class Symbol {
     LET_VARIABLE("block scope variable"),
     CONST_VARIABLE("read-only variable"),
     FUNCTION("function"),
+    METHOD("method"),
     PARAMETER("parameter"),
     CLASS("class");
 

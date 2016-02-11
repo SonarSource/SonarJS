@@ -26,6 +26,7 @@ import java.util.Map;
 import org.sonar.javascript.tree.impl.declaration.InitializedBindingElementTreeImpl;
 import org.sonar.javascript.tree.impl.declaration.ParameterListTreeImpl;
 import org.sonar.javascript.tree.impl.expression.ArrowFunctionTreeImpl;
+import org.sonar.javascript.tree.impl.expression.ClassTreeImpl;
 import org.sonar.javascript.tree.impl.statement.CatchBlockTreeImpl;
 import org.sonar.javascript.tree.symbols.type.ObjectType;
 import org.sonar.plugins.javascript.api.symbols.Symbol;
@@ -138,8 +139,10 @@ public class SymbolDeclarationVisitor extends DoubleDispatchVisitor {
   private void addGlobalBuiltInSymbols() {
     symbolModel.declareBuiltInSymbol("eval", Symbol.Kind.FUNCTION, currentScope);
 
-    Symbol symbol = symbolModel.declareBuiltInSymbol("window", Symbol.Kind.VARIABLE, currentScope);
-    symbol.addType(ObjectType.WebApiType.WINDOW);
+    Symbol windowSymbol = symbolModel.declareBuiltInSymbol("window", Symbol.Kind.VARIABLE, currentScope);
+    windowSymbol.addType(ObjectType.WebApiType.WINDOW);
+
+    addThisSymbol();
   }
 
   @Override
@@ -177,6 +180,16 @@ public class SymbolDeclarationVisitor extends DoubleDispatchVisitor {
     }
   }
 
+  private void addThisSymbol() {
+    Symbol thisSymbol = symbolModel.declareBuiltInSymbol("this", Symbol.Kind.VARIABLE, currentScope);
+    thisSymbol.addType(ObjectType.create());
+  }
+
+  private void addThisSymbol(ClassTree tree) {
+    Symbol thisSymbol = symbolModel.declareBuiltInSymbol("this", Symbol.Kind.VARIABLE, currentScope);
+    thisSymbol.addType(((ClassTreeImpl) tree).classType().createObject());
+  }
+
   @Override
   public void visitCatchBlock(CatchBlockTree tree) {
     newBlockScope(tree);
@@ -201,6 +214,7 @@ public class SymbolDeclarationVisitor extends DoubleDispatchVisitor {
 
     declareParameters(((ParameterListTreeImpl) tree.parameters()).parameterIdentifiers());
     addFunctionBuiltInSymbols();
+    addThisSymbol();
 
     skipBlock(tree.body());
     super.visitFunctionDeclaration(tree);
@@ -233,6 +247,7 @@ public class SymbolDeclarationVisitor extends DoubleDispatchVisitor {
     }
     declareParameters(((ParameterListTreeImpl) tree.parameters()).parameterIdentifiers());
     addFunctionBuiltInSymbols();
+    addThisSymbol();
 
     skipBlock(tree.body());
     super.visitFunctionExpression(tree);
@@ -243,7 +258,10 @@ public class SymbolDeclarationVisitor extends DoubleDispatchVisitor {
   @Override
   public void visitClass(ClassTree tree) {
     newBlockScope(tree);
+
+    addThisSymbol(tree);
     super.visitClass(tree);
+
     leaveScope();
   }
 
