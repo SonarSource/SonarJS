@@ -25,7 +25,7 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 import org.sonar.api.config.Settings;
-import org.sonar.javascript.JavaScriptCheckContext;
+import org.sonar.javascript.JavaScriptVisitorContext;
 import org.sonar.javascript.parser.JavaScriptParserBuilder;
 import org.sonar.javascript.tree.symbols.SymbolModelImpl;
 import org.sonar.javascript.tree.symbols.type.JQuery;
@@ -40,11 +40,11 @@ public class TestUtils {
 
   protected static final ActionParser<Tree> p = JavaScriptParserBuilder.createParser(Charsets.UTF_8);
 
-  public static JavaScriptCheckContext createContext(File file) {
+  public static JavaScriptVisitorContext createContext(File file) {
     ScriptTree scriptTree = (ScriptTree) p.parse(file);
     SymbolModel symbolModel = SymbolModelImpl.create(scriptTree, file, settings());
 
-    return new JavaScriptCheckContext(scriptTree, file, symbolModel);
+    return new JavaScriptVisitorContext(scriptTree, file, symbolModel);
   }
 
   private static Settings settings() {

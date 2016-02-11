@@ -24,13 +24,13 @@ import org.sonar.plugins.javascript.api.symbols.SymbolModel;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
 import org.sonar.plugins.javascript.api.visitors.TreeVisitorContext;
 
-public class JavaScriptCheckContext implements TreeVisitorContext {
+public class JavaScriptVisitorContext implements TreeVisitorContext {
 
   private final ScriptTree tree;
   private final File file;
   private final SymbolModel symbolModel;
 
-  public JavaScriptCheckContext(ScriptTree tree, File file, SymbolModel symbolModel) {
+  public JavaScriptVisitorContext(ScriptTree tree, File file, SymbolModel symbolModel) {
     this.tree = tree;
     this.file = file;
     this.symbolModel = symbolModel;

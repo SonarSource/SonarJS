@@ -55,7 +55,7 @@ import org.sonar.api.measures.Metric;
 import org.sonar.api.resources.Project;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.source.Symbolizable;
-import org.sonar.javascript.JavaScriptCheckContext;
+import org.sonar.javascript.JavaScriptVisitorContext;
 import org.sonar.javascript.checks.CheckList;
 import org.sonar.javascript.checks.ParsingErrorCheck;
 import org.sonar.javascript.highlighter.HighlightSymbolTableBuilder;
@@ -231,7 +231,7 @@ public class JavaScriptSquidSensor implements Sensor {
         ((CharsetAwareVisitor) visitor).setCharset(fileSystem.encoding());
       }
 
-      JavaScriptCheckContext context = new JavaScriptCheckContext(scriptTree, inputFile.file(), symbolModel);
+      JavaScriptVisitorContext context = new JavaScriptVisitorContext(scriptTree, inputFile.file(), symbolModel);
 
       if (visitor instanceof JavaScriptCheck) {
         fileIssues.addAll(((JavaScriptCheck) visitor).scanFile(context));

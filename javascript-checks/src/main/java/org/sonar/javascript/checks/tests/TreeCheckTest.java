@@ -24,7 +24,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import org.sonar.javascript.JavaScriptCheckContext;
+import org.sonar.javascript.JavaScriptVisitorContext;
 import org.sonar.javascript.checks.ParsingErrorCheck;
 import org.sonar.plugins.javascript.api.JavaScriptCheck;
 import org.sonar.plugins.javascript.api.visitors.FileIssue;
@@ -39,7 +39,7 @@ public class TreeCheckTest {
     List<Issue> issues = new ArrayList<>();
 
     try {
-      JavaScriptCheckContext context = TestUtils.createContext(file);
+      JavaScriptVisitorContext context = TestUtils.createContext(file);
       issues = check.scanFile(context);
 
     } catch (RecognitionException e) {

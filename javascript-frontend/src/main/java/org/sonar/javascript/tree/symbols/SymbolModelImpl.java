@@ -25,7 +25,7 @@ import java.util.HashSet;
 import java.util.Set;
 import javax.annotation.Nullable;
 import org.sonar.api.config.Settings;
-import org.sonar.javascript.JavaScriptCheckContext;
+import org.sonar.javascript.JavaScriptVisitorContext;
 import org.sonar.javascript.tree.symbols.type.TypeVisitor;
 import org.sonar.plugins.javascript.api.symbols.Symbol;
 import org.sonar.plugins.javascript.api.symbols.SymbolModel;
@@ -40,7 +40,7 @@ public class SymbolModelImpl implements SymbolModel, SymbolModelBuilder {
 
   public static SymbolModelImpl create(ScriptTree script, File file, @Nullable Settings settings) {
     SymbolModelImpl symbolModel = new SymbolModelImpl();
-    JavaScriptCheckContext context = new JavaScriptCheckContext(script, file, symbolModel);
+    JavaScriptVisitorContext context = new JavaScriptVisitorContext(script, file, symbolModel);
     new SymbolVisitor().scanTree(context);
     new TypeVisitor(settings).scanTree(context);
     return symbolModel;

@@ -29,7 +29,7 @@ import java.util.Iterator;
 import java.util.List;
 import javax.annotation.Nullable;
 import org.fest.assertions.Assertions;
-import org.sonar.javascript.JavaScriptCheckContext;
+import org.sonar.javascript.JavaScriptVisitorContext;
 import org.sonar.javascript.checks.tests.TestIssue;
 import org.sonar.javascript.checks.tests.TestUtils;
 import org.sonar.plugins.javascript.api.JavaScriptCheck;
@@ -50,7 +50,7 @@ public class JavaScriptCheckVerifier extends SubscriptionVisitorCheck {
 
   public static void verify(JavaScriptCheck check, File file) {
     JavaScriptCheckVerifier javaScriptCheckVerifier = new JavaScriptCheckVerifier();
-    JavaScriptCheckContext context = TestUtils.createContext(file);
+    JavaScriptVisitorContext context = TestUtils.createContext(file);
     javaScriptCheckVerifier.scanFile(context);
     List<TestIssue> expectedIssues = javaScriptCheckVerifier.expectedIssues;
     Iterator<Issue> actualIssues = getActualIssues(check, context);
@@ -70,7 +70,7 @@ public class JavaScriptCheckVerifier extends SubscriptionVisitorCheck {
     }
   }
 
-  private static Iterator<Issue> getActualIssues(JavaScriptCheck check, JavaScriptCheckContext context) {
+  private static Iterator<Issue> getActualIssues(JavaScriptCheck check, JavaScriptVisitorContext context) {
     List<Issue> issues = check.scanFile(context);
     List<Issue> sortedIssues = Ordering.natural().onResultOf(new IssueToLine()).sortedCopy(issues);
     return sortedIssues.iterator();
