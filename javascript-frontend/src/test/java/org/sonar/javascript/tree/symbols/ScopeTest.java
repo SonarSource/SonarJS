@@ -22,19 +22,17 @@ package org.sonar.javascript.tree.symbols;
 import java.io.File;
 import java.util.HashSet;
 import java.util.Set;
-import org.junit.Before;
 import org.junit.Test;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.javascript.utils.JavaScriptTreeModelTest;
 import org.sonar.plugins.javascript.api.symbols.Symbol;
-import org.sonar.plugins.javascript.api.tree.ScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 
 import static org.fest.assertions.Assertions.assertThat;
 
 public class ScopeTest extends JavaScriptTreeModelTest {
 
-  private SymbolModelImpl SYMBOL_MODEL;
+  private SymbolModelImpl SYMBOL_MODEL = symbolModel(new File("src/test/resources/ast/resolve/scope.js"));
 
   private Scope scopeAtLine(int line) {
     for (Scope scope : SYMBOL_MODEL.getScopes()) {
@@ -53,13 +51,6 @@ public class ScopeTest extends JavaScriptTreeModelTest {
       }
     }
     return result;
-  }
-
-  @Before
-  public void setUp() throws Exception {
-    File file = new File("src/test/resources/ast/resolve/scope.js");
-    ScriptTree root = (ScriptTree) p.parse(file);
-    SYMBOL_MODEL = SymbolModelImpl.create(root, file, null);
   }
 
   @Test

@@ -23,28 +23,18 @@ import java.io.File;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Set;
-import org.junit.Before;
 import org.junit.Test;
 import org.sonar.javascript.utils.JavaScriptTreeModelTest;
 import org.sonar.plugins.javascript.api.symbols.Symbol;
 import org.sonar.plugins.javascript.api.symbols.Symbol.Kind;
 import org.sonar.plugins.javascript.api.symbols.Usage;
-import org.sonar.plugins.javascript.api.tree.ScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
 
 import static org.fest.assertions.Assertions.assertThat;
 
 public class UsageTest extends JavaScriptTreeModelTest {
 
-  private ScriptTree ROOT_NODE;
-  private SymbolModelImpl SYMBOL_MODEL;
-
-  @Before
-  public void setUp() throws Exception {
-    File file = new File("src/test/resources/ast/resolve/usage.js");
-    ROOT_NODE = (ScriptTree) p.parse(file);
-    SYMBOL_MODEL = SymbolModelImpl.create(ROOT_NODE, file, null);
-  }
+  private SymbolModelImpl SYMBOL_MODEL = symbolModel(new File("src/test/resources/ast/resolve/usage.js"));
 
   @Test
   public void global_symbols() throws Exception {

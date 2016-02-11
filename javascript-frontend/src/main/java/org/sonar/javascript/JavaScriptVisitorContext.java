@@ -20,6 +20,8 @@
 package org.sonar.javascript;
 
 import java.io.File;
+import org.sonar.api.config.Settings;
+import org.sonar.javascript.tree.symbols.SymbolModelImpl;
 import org.sonar.plugins.javascript.api.symbols.SymbolModel;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
 import org.sonar.plugins.javascript.api.visitors.TreeVisitorContext;
@@ -30,10 +32,12 @@ public class JavaScriptVisitorContext implements TreeVisitorContext {
   private final File file;
   private final SymbolModel symbolModel;
 
-  public JavaScriptVisitorContext(ScriptTree tree, File file, SymbolModel symbolModel) {
+  public JavaScriptVisitorContext(ScriptTree tree, File file, Settings settings) {
     this.tree = tree;
     this.file = file;
-    this.symbolModel = symbolModel;
+
+    this.symbolModel = new SymbolModelImpl();
+    SymbolModelImpl.build(this, settings);
   }
 
   @Override

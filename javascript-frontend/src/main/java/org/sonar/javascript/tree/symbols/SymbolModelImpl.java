@@ -20,17 +20,15 @@
 package org.sonar.javascript.tree.symbols;
 
 import com.google.common.collect.ImmutableSet;
-import java.io.File;
 import java.util.HashSet;
 import java.util.Set;
 import javax.annotation.Nullable;
 import org.sonar.api.config.Settings;
-import org.sonar.javascript.JavaScriptVisitorContext;
 import org.sonar.javascript.tree.symbols.type.TypeVisitor;
 import org.sonar.plugins.javascript.api.symbols.Symbol;
 import org.sonar.plugins.javascript.api.symbols.SymbolModel;
-import org.sonar.plugins.javascript.api.tree.ScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
+import org.sonar.plugins.javascript.api.visitors.TreeVisitorContext;
 
 public class SymbolModelImpl implements SymbolModel, SymbolModelBuilder {
 
@@ -38,12 +36,9 @@ public class SymbolModelImpl implements SymbolModel, SymbolModelBuilder {
   private Set<Scope> scopes = new HashSet<>();
   private Scope globalScope;
 
-  public static SymbolModelImpl create(ScriptTree script, File file, @Nullable Settings settings) {
-    SymbolModelImpl symbolModel = new SymbolModelImpl();
-    JavaScriptVisitorContext context = new JavaScriptVisitorContext(script, file, symbolModel);
+  public static void build(TreeVisitorContext context, @Nullable Settings settings) {
     new SymbolVisitor().scanTree(context);
     new TypeVisitor(settings).scanTree(context);
-    return symbolModel;
   }
 
   @Override

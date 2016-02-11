@@ -27,9 +27,7 @@ import java.util.Map;
 import org.sonar.api.config.Settings;
 import org.sonar.javascript.JavaScriptVisitorContext;
 import org.sonar.javascript.parser.JavaScriptParserBuilder;
-import org.sonar.javascript.tree.symbols.SymbolModelImpl;
 import org.sonar.javascript.tree.symbols.type.JQuery;
-import org.sonar.plugins.javascript.api.symbols.SymbolModel;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
 
@@ -42,9 +40,7 @@ public class TestUtils {
 
   public static JavaScriptVisitorContext createContext(File file) {
     ScriptTree scriptTree = (ScriptTree) p.parse(file);
-    SymbolModel symbolModel = SymbolModelImpl.create(scriptTree, file, settings());
-
-    return new JavaScriptVisitorContext(scriptTree, file, symbolModel);
+    return new JavaScriptVisitorContext(scriptTree, file, settings());
   }
 
   private static Settings settings() {

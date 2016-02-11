@@ -26,9 +26,7 @@ import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.source.Symbolizable;
-import org.sonar.javascript.tree.symbols.SymbolModelImpl;
 import org.sonar.javascript.utils.JavaScriptTreeModelTest;
-import org.sonar.plugins.javascript.api.tree.ScriptTree;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -57,8 +55,7 @@ public class HighlightSymbolTableBuilderTest extends JavaScriptTreeModelTest {
   public void sonar_symbol_table() throws Exception {
     File file = new File("src/test/resources/highlighter/symbolHighlighting.js");
     lines = Files.readLines(file, Charsets.UTF_8);
-    SymbolModelImpl symbolModel = SymbolModelImpl.create((ScriptTree) p.parse(file), file, null);
-    HighlightSymbolTableBuilder.build(symbolizable, symbolModel);
+    HighlightSymbolTableBuilder.build(symbolizable, symbolModel(file));
 
     // variable
     verify(symbolTableBuilder).newSymbol(offset(1, 5), offset(1, 6));
@@ -90,8 +87,7 @@ public class HighlightSymbolTableBuilderTest extends JavaScriptTreeModelTest {
   @Test
   public void sonar_symbol_table_built_in() throws Exception {
     File file = new File("src/test/resources/highlighter/symbolHighlightingBuiltIn.js");
-    SymbolModelImpl symbolModel = SymbolModelImpl.create((ScriptTree) p.parse(file), file, null);
-    HighlightSymbolTableBuilder.build(symbolizable, symbolModel);
+    HighlightSymbolTableBuilder.build(symbolizable, symbolModel(file));
 
     // no offsets are used as there is uncertainty about the order of usages of built-in symbols (and first usage used for newSymbol)
     verify(symbolTableBuilder, times(3)).newSymbol(anyInt(), anyInt());
@@ -105,8 +101,7 @@ public class HighlightSymbolTableBuilderTest extends JavaScriptTreeModelTest {
   public void byte_order_mark_should_not_increment_offset() throws Exception {
     File file = new File("src/test/resources/highlighter/symbolHighlightingBom.js");
     assertThat(Files.toString(file, Charsets.UTF_8).startsWith("\uFEFF")).isTrue();
-    SymbolModelImpl symbolModel = SymbolModelImpl.create((ScriptTree) p.parse(file), file, null);
-    HighlightSymbolTableBuilder.build(symbolizable, symbolModel);
+    HighlightSymbolTableBuilder.build(symbolizable, symbolModel(file));
     verify(symbolTableBuilder).newSymbol(4, 5);
   }
 

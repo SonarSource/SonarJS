@@ -21,9 +21,13 @@ package org.sonar.javascript.utils;
 
 import com.google.common.base.Charsets;
 import com.sonar.sslr.api.typed.ActionParser;
+import java.io.File;
 import java.util.Iterator;
+import org.sonar.javascript.JavaScriptVisitorContext;
 import org.sonar.javascript.parser.JavaScriptParserBuilder;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
+import org.sonar.javascript.tree.symbols.SymbolModelImpl;
+import org.sonar.plugins.javascript.api.tree.ScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 
@@ -44,6 +48,11 @@ public abstract class JavaScriptTreeModelTest {
     Tree node = p.parse(s);
     checkFullFidelity(node, s);
     return (T) getFirstDescendant((JavaScriptTree) node, descendantToReturn);
+  }
+
+  protected SymbolModelImpl symbolModel(File file) {
+    ScriptTree root = (ScriptTree) p.parse(file);
+    return (SymbolModelImpl) new JavaScriptVisitorContext(root, file, null).getSymbolModel();
   }
 
   private Tree getFirstDescendant(JavaScriptTree node, Kind descendantToReturn) {

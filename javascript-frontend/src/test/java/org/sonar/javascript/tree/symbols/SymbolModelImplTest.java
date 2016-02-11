@@ -20,25 +20,16 @@
 package org.sonar.javascript.tree.symbols;
 
 import java.io.File;
-import org.junit.Before;
 import org.junit.Test;
 import org.sonar.javascript.utils.JavaScriptTreeModelTest;
 import org.sonar.plugins.javascript.api.symbols.Symbol;
-import org.sonar.plugins.javascript.api.tree.ScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
 
 import static org.fest.assertions.Assertions.assertThat;
 
 public class SymbolModelImplTest extends JavaScriptTreeModelTest {
 
-  private SymbolModelImpl SYMBOL_MODEL;
-
-  @Before
-  public void setUp() throws Exception {
-    File file = new File("src/test/resources/ast/resolve/symbolModel.js");
-    ScriptTree root = (ScriptTree) p.parse(file);
-    SYMBOL_MODEL = SymbolModelImpl.create(root, file, null);
-  }
+  private SymbolModelImpl SYMBOL_MODEL = symbolModel(new File("src/test/resources/ast/resolve/symbolModel.js"));
 
   @Test
   public void symbols_filtering() {
