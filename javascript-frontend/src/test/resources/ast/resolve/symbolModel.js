@@ -13,7 +13,7 @@ function f (p1) {
 try {
 
 } catch (e) {
-  var a;
+  let a;
 }
 
 f((p2) => {return a+1}) // implicit "arguments" symbol

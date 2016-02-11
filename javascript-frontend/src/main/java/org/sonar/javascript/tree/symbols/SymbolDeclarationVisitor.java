@@ -178,7 +178,7 @@ public class SymbolDeclarationVisitor extends DoubleDispatchVisitor {
 
   @Override
   public void visitCatchBlock(CatchBlockTree tree) {
-    newFunctionScope(tree);
+    newBlockScope(tree);
 
     for (IdentifierTree identifier : ((CatchBlockTreeImpl) tree).parameterIdentifiers()) {
       symbolModel.declareSymbol(identifier.name(), Symbol.Kind.VARIABLE, currentScope)

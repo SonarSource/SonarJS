@@ -2548,6 +2548,7 @@
 'project:ecmascript6/di.js/src/injector.js':[
 159,
 246,
+251,
 ],
 'project:ecmascript6/di.js/visualize/injectors/app.js':[
 332,
@@ -2959,6 +2960,10 @@
 'project:google-closure-library/base.js':[
 561,
 ],
+'project:google-closure-library/db/objectstore.js':[
+174,
+207,
+],
 'project:google-closure-library/debug/debug.js':[
 112,
 115,
@@ -3029,10 +3034,6 @@
 'project:google-closure-library/ui/paletterenderer.js':[
 214,
 218,
-],
-'project:google-closure-library/useragent/flash.js':[
-91,
-99,
 ],
 'project:jquery-1.7.2.js':[
 25,
