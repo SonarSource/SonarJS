@@ -23,7 +23,7 @@ import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.plugins.javascript.api.tree.Tree;
-import org.sonar.plugins.javascript.api.tree.declaration.AccessorMethodDeclarationTree;
+import org.sonar.plugins.javascript.api.tree.declaration.MethodDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.statement.ReturnStatementTree;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
 import org.sonar.squidbridge.annotations.ActivatedByDefault;
@@ -45,11 +45,11 @@ public class ReturnInSetterCheck extends DoubleDispatchVisitorCheck {
   private final DoubleDispatchVisitorCheck forbiddenReturnVisitor = new ForbiddenReturnVisitor();
 
   @Override
-  public void visitAccessorMethodDeclaration(AccessorMethodDeclarationTree tree) {
+  public void visitMethodDeclaration(MethodDeclarationTree tree) {
     if (tree.is(Tree.Kind.SET_METHOD)) {
       tree.body().accept(forbiddenReturnVisitor);
     }
-    super.visitAccessorMethodDeclaration(tree);
+    super.visitMethodDeclaration(tree);
   }
 
   private class ForbiddenReturnVisitor extends DoubleDispatchVisitorCheck {

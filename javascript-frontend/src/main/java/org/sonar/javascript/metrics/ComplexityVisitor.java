@@ -25,9 +25,7 @@ import java.util.List;
 import java.util.Set;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
-import org.sonar.plugins.javascript.api.tree.declaration.AccessorMethodDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.declaration.FunctionDeclarationTree;
-import org.sonar.plugins.javascript.api.tree.declaration.GeneratorMethodDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.declaration.MethodDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.expression.BinaryExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.ConditionalExpressionTree;
@@ -62,14 +60,10 @@ public class ComplexityVisitor extends DoubleDispatchVisitor {
   }
 
   @Override
-  public void visitAccessorMethodDeclaration(AccessorMethodDeclarationTree tree) {
-    excludeLastReturn(tree.body().statements());
-    super.visitAccessorMethodDeclaration(tree);
-  }
-
-  @Override
   public void visitMethodDeclaration(MethodDeclarationTree tree) {
-    add(tree.name());
+    if (tree.is(Kind.METHOD, Kind.GENERATOR_METHOD)) {
+      add(tree.name());
+    }
     excludeLastReturn(tree.body().statements());
     super.visitMethodDeclaration(tree);
   }
@@ -86,13 +80,6 @@ public class ComplexityVisitor extends DoubleDispatchVisitor {
     add(tree.functionKeyword());
     excludeLastReturn(tree.body().statements());
     super.visitFunctionExpression(tree);
-  }
-
-  @Override
-  public void visitGeneratorMethodDeclaration(GeneratorMethodDeclarationTree tree) {
-    add(tree.name());
-    excludeLastReturn(tree.body().statements());
-    super.visitGeneratorMethodDeclaration(tree);
   }
 
   @Override

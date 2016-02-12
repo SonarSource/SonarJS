@@ -27,8 +27,8 @@ import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
 import org.sonar.javascript.checks.utils.CheckUtils;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
+import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.declaration.FunctionDeclarationTree;
-import org.sonar.plugins.javascript.api.tree.declaration.GeneratorMethodDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.declaration.MethodDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
@@ -65,16 +65,11 @@ public class FunctionNameCheck extends DoubleDispatchVisitorCheck {
 
   @Override
   public void visitMethodDeclaration(MethodDeclarationTree tree) {
-    checkName(tree.name());
+    if (tree.is(Kind.GENERATOR_METHOD, Kind.METHOD)) {
+      checkName(tree.name());
+    }
     super.visitMethodDeclaration(tree);
   }
-
-  @Override
-  public void visitGeneratorMethodDeclaration(GeneratorMethodDeclarationTree tree) {
-    checkName(tree.name());
-    super.visitGeneratorMethodDeclaration(tree);
-  }
-
 
   @Override
   public void visitFunctionDeclaration(FunctionDeclarationTree tree) {

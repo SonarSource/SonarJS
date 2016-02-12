@@ -22,9 +22,7 @@ package org.sonar.javascript.checks;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
-import org.sonar.plugins.javascript.api.tree.declaration.AccessorMethodDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.declaration.FunctionDeclarationTree;
-import org.sonar.plugins.javascript.api.tree.declaration.GeneratorMethodDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.declaration.MethodDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.expression.FunctionExpressionTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
@@ -72,16 +70,6 @@ public class EmptyBlockCheck extends DoubleDispatchVisitorCheck {
 
   @Override
   public void visitMethodDeclaration(MethodDeclarationTree tree) {
-    visitMethodDeclarationTree(tree);
-  }
-
-  @Override
-  public void visitAccessorMethodDeclaration(AccessorMethodDeclarationTree tree) {
-    visitMethodDeclarationTree(tree);
-  }
-
-  @Override
-  public void visitGeneratorMethodDeclaration(GeneratorMethodDeclarationTree tree) {
     visitMethodDeclarationTree(tree);
   }
 

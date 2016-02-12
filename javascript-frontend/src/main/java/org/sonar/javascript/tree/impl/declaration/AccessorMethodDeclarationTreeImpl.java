@@ -96,6 +96,6 @@ public class AccessorMethodDeclarationTreeImpl extends JavaScriptTree implements
 
   @Override
   public void accept(DoubleDispatchVisitor visitor) {
-    visitor.visitAccessorMethodDeclaration(this);
+    visitor.visitMethodDeclaration(this);
   }
 }

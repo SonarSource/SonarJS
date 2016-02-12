@@ -96,6 +96,6 @@ public class GeneratorMethodDeclarationTreeImpl extends JavaScriptTree implement
 
   @Override
   public void accept(DoubleDispatchVisitor visitor) {
-    visitor.visitGeneratorMethodDeclaration(this);
+    visitor.visitMethodDeclaration(this);
   }
 }
