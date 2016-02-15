@@ -1,6 +1,6 @@
 function f1(p1){}
 
-var f2 = function(p2, p3){}
+var f2 = function f2Name(p2, p3){}
 
 f1(2)
 

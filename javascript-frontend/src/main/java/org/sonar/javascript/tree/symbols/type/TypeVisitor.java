@@ -42,6 +42,7 @@ import org.sonar.plugins.javascript.api.tree.expression.BinaryExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.CallExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.ClassTree;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
+import org.sonar.plugins.javascript.api.tree.expression.FunctionExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 import org.sonar.plugins.javascript.api.tree.expression.LiteralTree;
 import org.sonar.plugins.javascript.api.tree.expression.MemberExpressionTree;
@@ -108,8 +109,16 @@ public class TypeVisitor extends DoubleDispatchVisitor {
     Preconditions.checkState(tree.name().symbol() != null,
       String.format("Symbol has not been created for this function %s declared at line %s", tree.name().name(), ((JavaScriptTree) tree).getLine()));
 
-    super.visitFunctionDeclaration(tree);
     tree.name().symbol().addType(FunctionType.create(tree));
+    super.visitFunctionDeclaration(tree);
+  }
+
+  @Override
+  public void visitFunctionExpression(FunctionExpressionTree tree) {
+    if (tree.name() != null) {
+      addTypes(tree.name().symbol(), tree.types());
+    }
+    super.visitFunctionExpression(tree);
   }
 
   @Override
