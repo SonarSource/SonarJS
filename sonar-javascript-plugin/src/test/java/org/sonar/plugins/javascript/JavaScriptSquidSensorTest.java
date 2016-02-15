@@ -154,11 +154,6 @@ public class JavaScriptSquidSensorTest {
     InputFile inputFile = inputFile("cpd/parsingError.js");
     fileSystem.add(inputFile);
 
-    Highlightable highlightable = mock(Highlightable.class);
-    Highlightable.HighlightingBuilder builder = mock(Highlightable.HighlightingBuilder.class);
-    when(perspectives.as(Highlightable.class, inputFile)).thenReturn(highlightable);
-    when(highlightable.newHighlighting()).thenReturn(builder);
-
     String parsingErrorCheckKey = "ParsingError";
 
     ActiveRules activeRules = (new ActiveRulesBuilder())
@@ -187,6 +182,34 @@ public class JavaScriptSquidSensorTest {
     createSensor().analyse(project, context);
 
     verify(issuable).addIssue(any(Issue.class));
+  }
+
+  @Test
+  public void save_issue() throws Exception {
+    InputFile inputFile = inputFile("file.js");
+    fileSystem.add(inputFile);
+
+    ActiveRules activeRules = (new ActiveRulesBuilder())
+      .create(RuleKey.of(CheckList.REPOSITORY_KEY, "MissingNewlineAtEndOfFile"))
+      .activate()
+      .create(RuleKey.of(CheckList.REPOSITORY_KEY, "VariableDeclarationAfterUsage"))
+      .activate()
+      .build();
+
+    checkFactory = new CheckFactory(activeRules);
+    Resource resource = mock(Resource.class);
+    Issuable.IssueBuilder issueBuilder = mock(Issuable.IssueBuilder.class);
+    Issuable issuable = mock(Issuable.class);
+
+    mockPerspectives(inputFile, issuable);
+    when(context.getResource(inputFile)).thenReturn(resource);
+    when(issuable.newIssueBuilder()).thenReturn(issueBuilder);
+    when(issueBuilder.ruleKey(any(RuleKey.class))).thenReturn(issueBuilder);
+    when(issueBuilder.message(any(String.class))).thenReturn(issueBuilder);
+
+    createSensor().analyse(project, context);
+
+    verify(issuable, times(2)).addIssue(any(Issue.class));
   }
 
   @Test
