@@ -42,27 +42,30 @@ import org.sonar.plugins.javascript.api.tree.statement.ForStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.SwitchStatementTree;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitor;
 
+/**
+ * This visitor creates new symbols for not hoisted variables (like class name) and implicitly declared variables (declared without keyword).
+ * Also it creates usages for all known symbols.
+ */
 public class SymbolVisitor extends DoubleDispatchVisitor {
 
   private SymbolModelBuilder symbolModel;
   private Scope currentScope;
   private Map<Tree, Scope> treeScopeMap;
 
+  public SymbolVisitor(Map<Tree, Scope> treeScopeMap) {
+    this.treeScopeMap = treeScopeMap;
+  }
+
   @Override
   public void visitScript(ScriptTree tree) {
     this.symbolModel = (SymbolModelBuilder) getContext().getSymbolModel();
     this.currentScope = null;
 
-    // First pass to create scopes and record hoisted symbol declarations
-    SymbolDeclarationVisitor symbolDeclarationVisitor = new SymbolDeclarationVisitor();
-    symbolDeclarationVisitor.scanTree(getContext());
-    this.treeScopeMap = symbolDeclarationVisitor.getTreeScopeMap();
-
     enterScope(tree);
-    // Record usage and implicit symbol declarations
     super.visitScript(tree);
     leaveScope();
   }
+
 
   @Override
   public void visitBlock(BlockTree tree) {

@@ -21,6 +21,7 @@ package org.sonar.javascript.tree.symbols;
 
 import com.google.common.collect.ImmutableSet;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 import javax.annotation.Nullable;
 import org.sonar.api.config.Settings;
@@ -37,8 +38,17 @@ public class SymbolModelImpl implements SymbolModel, SymbolModelBuilder {
   private Scope globalScope;
 
   public static void build(TreeVisitorContext context, @Nullable Settings settings) {
-    new SymbolVisitor().scanTree(context);
+    Map<Tree, Scope> treeScopeMap = getScopes(context);
+
+    new HoistedSymbolVisitor(treeScopeMap).scanTree(context);
+    new SymbolVisitor(treeScopeMap).scanTree(context);
     new TypeVisitor(settings).scanTree(context);
+  }
+
+  private static Map<Tree, Scope> getScopes(TreeVisitorContext context) {
+    ScopeVisitor scopeVisitor = new ScopeVisitor();
+    scopeVisitor.scanTree(context);
+    return scopeVisitor.getTreeScopeMap();
   }
 
   @Override
