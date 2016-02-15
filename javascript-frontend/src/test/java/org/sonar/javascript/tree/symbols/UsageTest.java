@@ -190,6 +190,26 @@ public class UsageTest extends JavaScriptTreeModelTest {
 
   }
 
+  @Test
+  public void imported_symbols() throws Exception {
+    assertImported("DefaultMember", true);
+    assertImported("AllMembers", false);
+    assertImported("member1", true);
+    assertImported("member2", false);
+    assertImported("member3Alias", false);
+    assertImported("member4", false);
+    assertImported("DefaultMember1", false);
+
+    assertThat(SYMBOL_MODEL.getSymbols("member3")).isEmpty();
+  }
+
+  private void assertImported(String name, boolean isUsed) {
+    Symbol symbol = symbol(name);
+    assertThat(symbol.scope().isGlobal()).isTrue();
+    assertThat(symbol.usages()).hasSize(isUsed ? 2 : 1);
+    assertThat(symbol.is(Kind.IMPORT)).isTrue();
+  }
+
   public Collection<Usage> usagesFor(String name) {
     return symbol(name).usages();
   }

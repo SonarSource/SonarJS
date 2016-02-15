@@ -66,3 +66,12 @@ var i = 10;
 for(let i = i + 1; i < 20; i++) {}
 var j = 10;
 for (var j = j + 1; j < 20; j++) {}
+
+import DefaultMember from "module-name";
+import * as AllMembers from "module-name";
+import {member1} from "module-name";
+import {member2, member3 as member3Alias} from "module-name";
+import DefaultMember1, {member4} from "module-name";
+
+member1();
+new DefaultMember();

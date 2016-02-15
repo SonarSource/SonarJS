@@ -34,7 +34,9 @@ import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.declaration.BindingElementTree;
 import org.sonar.plugins.javascript.api.tree.declaration.FunctionDeclarationTree;
+import org.sonar.plugins.javascript.api.tree.declaration.ImportClauseTree;
 import org.sonar.plugins.javascript.api.tree.declaration.MethodDeclarationTree;
+import org.sonar.plugins.javascript.api.tree.declaration.SpecifierTree;
 import org.sonar.plugins.javascript.api.tree.expression.ArrowFunctionTree;
 import org.sonar.plugins.javascript.api.tree.expression.ClassTree;
 import org.sonar.plugins.javascript.api.tree.expression.FunctionExpressionTree;
@@ -53,6 +55,7 @@ import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitor;
  *  - explicitly declared symbols (function declaration, local variable with var/let/const)
  *  - built-in symbols (this, arguments)
  *  - parameters
+ *  - imported symbols
  */
 public class HoistedSymbolVisitor extends DoubleDispatchVisitor {
 
@@ -117,6 +120,35 @@ public class HoistedSymbolVisitor extends DoubleDispatchVisitor {
     enterScope(tree);
     scan(tree.cases());
     leaveScope();
+  }
+
+  @Override
+  public void visitSpecifier(SpecifierTree tree) {
+    if (tree.is(Kind.IMPORT_SPECIFIER, Kind.NAMESPACE_IMPORT_SPECIFIER)) {
+      IdentifierTree localName;
+      if (tree.localName() != null) {
+        localName = tree.localName();
+
+      } else {
+        localName = (IdentifierTree) tree.name();
+      }
+
+      declareImportedSymbol(localName);
+    }
+    super.visitSpecifier(tree);
+  }
+
+  @Override
+  public void visitImportClause(ImportClauseTree tree) {
+    if (tree.defaultImport() != null) {
+      declareImportedSymbol(tree.defaultImport());
+    }
+    super.visitImportClause(tree);
+  }
+
+  private void declareImportedSymbol(IdentifierTree identifierTree) {
+    symbolModel.declareSymbol(identifierTree.name(), Symbol.Kind.IMPORT, symbolModel.globalScope())
+      .addUsage(Usage.create(identifierTree, Usage.Kind.DECLARATION));
   }
 
   private void addGlobalBuiltInSymbols() {

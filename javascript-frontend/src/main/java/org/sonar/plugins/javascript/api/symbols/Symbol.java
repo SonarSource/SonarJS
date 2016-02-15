@@ -37,6 +37,7 @@ public class Symbol {
     FUNCTION("function"),
     METHOD("method"),
     PARAMETER("parameter"),
+    IMPORT("imported symbol"),
     CLASS("class");
 
     private final String value;
