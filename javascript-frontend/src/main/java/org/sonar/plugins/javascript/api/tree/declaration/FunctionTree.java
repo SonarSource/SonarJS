@@ -20,11 +20,13 @@
 package org.sonar.plugins.javascript.api.tree.declaration;
 
 
+import java.util.List;
 import org.sonar.plugins.javascript.api.tree.Tree;
-import org.sonar.plugins.javascript.api.tree.statement.BlockTree;
 
 public interface FunctionTree extends Tree {
-  ParameterListTree parameters();
+  Tree parameterClause();
 
-  BlockTree body();
+  Tree body();
+
+  List<Tree> parameterList();
 }

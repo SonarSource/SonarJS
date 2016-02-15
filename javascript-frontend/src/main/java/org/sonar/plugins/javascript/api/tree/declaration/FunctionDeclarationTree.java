@@ -33,8 +33,8 @@ import org.sonar.plugins.javascript.api.tree.statement.StatementTree;
  * (<a href="http://wiki.ecmascript.org/doku.php?id=harmony:specification_drafts">ES6</a>).
  * <p/>
  * <pre>
- *    {@link Tree.Kind#FUNCTION_DECLARATION function} {@link #name()} ( {@link #parameters()} ) {@link #body()}
- *    {@link Tree.Kind#GENERATOR_DECLARATION function} * {@link #name()} ( {@link #parameters()} ) {@link #body()}
+ *    {@link Tree.Kind#FUNCTION_DECLARATION function} {@link #name()} ( {@link #parameterClause()} ) {@link #body()}
+ *    {@link Tree.Kind#GENERATOR_DECLARATION function} * {@link #name()} ( {@link #parameterClause()} ) {@link #body()}
  * </pre>
  */
 @Beta
@@ -48,7 +48,7 @@ public interface FunctionDeclarationTree extends StatementTree, FunctionTree {
   IdentifierTree name();
 
   @Override
-  ParameterListTree parameters();
+  ParameterListTree parameterClause();
 
   @Override
   BlockTree body();

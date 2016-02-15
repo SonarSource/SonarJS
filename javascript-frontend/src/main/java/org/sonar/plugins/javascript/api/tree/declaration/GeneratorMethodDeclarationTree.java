@@ -27,7 +27,7 @@ import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
  * <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-generator-function-definitions">Generator Method</a>
  * (<a href="http://wiki.ecmascript.org/doku.php?id=harmony:specification_drafts">ES6</a>)
  * <pre>
- *   {@link Tree.Kind#GENERATOR_METHOD *} {@link #name()} {@link #parameters()} {@link #body()}
+ *   {@link Tree.Kind#GENERATOR_METHOD *} {@link #name()} {@link #parameterClause()} {@link #body()}
  * </pre>
  */
 @Beta

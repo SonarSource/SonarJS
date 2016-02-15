@@ -37,7 +37,7 @@ public class GeneratorMethodDeclarationTreeModelTest extends JavaScriptTreeModel
     assertThat(tree.staticToken()).isNull();
     assertThat(tree.starToken().text()).isEqualTo("*");
     assertThat(((IdentifierTree) tree.name()).name()).isEqualTo("method");
-    assertThat(tree.parameters()).isNotNull();
+    assertThat(tree.parameterClause()).isNotNull();
     assertThat(tree.body()).isNotNull();
   }
 
@@ -50,7 +50,7 @@ public class GeneratorMethodDeclarationTreeModelTest extends JavaScriptTreeModel
     assertThat(tree.staticToken()).isNotNull();
     assertThat(tree.starToken().text()).isEqualTo("*");
     assertThat(((IdentifierTree) tree.name()).name()).isEqualTo("method");
-    assertThat(tree.parameters()).isNotNull();
+    assertThat(tree.parameterClause()).isNotNull();
     assertThat(tree.body()).isNotNull();
   }
 

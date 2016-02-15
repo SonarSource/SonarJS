@@ -55,7 +55,7 @@ public class EmptyBlockCheck extends DoubleDispatchVisitorCheck {
   @Override
   public void visitFunctionExpression(FunctionExpressionTree tree) {
     scan(tree.name());
-    scan(tree.parameters());
+    scan(tree.parameterClause());
     // Ignoring empty function
     scan(tree.body().statements());
   }
@@ -63,7 +63,7 @@ public class EmptyBlockCheck extends DoubleDispatchVisitorCheck {
   @Override
   public void visitFunctionDeclaration(FunctionDeclarationTree tree) {
     scan(tree.name());
-    scan(tree.parameters());
+    scan(tree.parameterClause());
     // Ignoring empty function
     scan(tree.body().statements());
   }
@@ -75,7 +75,7 @@ public class EmptyBlockCheck extends DoubleDispatchVisitorCheck {
 
   private void visitMethodDeclarationTree(MethodDeclarationTree tree) {
     scan(tree.name());
-    scan(tree.parameters());
+    scan(tree.parameterClause());
     // Ignoring empty function
     scan(tree.body().statements());
   }

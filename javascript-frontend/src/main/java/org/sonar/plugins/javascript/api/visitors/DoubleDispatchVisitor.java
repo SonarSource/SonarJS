@@ -214,7 +214,7 @@ public abstract class DoubleDispatchVisitor implements TreeVisitor {
 
   public void visitMethodDeclaration(MethodDeclarationTree tree) {
     scan(tree.name());
-    scan(tree.parameters());
+    scan(tree.parameterClause());
     scan(tree.body());
   }
 
@@ -226,7 +226,7 @@ public abstract class DoubleDispatchVisitor implements TreeVisitor {
 
   public void visitFunctionDeclaration(FunctionDeclarationTree tree) {
     scan(tree.name());
-    scan(tree.parameters());
+    scan(tree.parameterClause());
     scan(tree.body());
   }
 
@@ -415,8 +415,8 @@ public abstract class DoubleDispatchVisitor implements TreeVisitor {
 
 
   public void visitArrowFunction(ArrowFunctionTree tree) {
-    scan(tree.parameters());
-    scan(tree.conciseBody());
+    scan(tree.parameterClause());
+    scan(tree.body());
   }
 
 
@@ -494,7 +494,7 @@ public abstract class DoubleDispatchVisitor implements TreeVisitor {
 
   public void visitFunctionExpression(FunctionExpressionTree tree) {
     scan(tree.name());
-    scan(tree.parameters());
+    scan(tree.parameterClause());
     scan(tree.body());
   }
 

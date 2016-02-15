@@ -65,8 +65,8 @@ public class FunctionDeclarationsWithinBlocksCheck extends DoubleDispatchVisitor
 
   @Override
   public void visitArrowFunction(ArrowFunctionTree tree) {
-    if (tree.conciseBody().is(Kind.BLOCK)) {
-      scan(((BlockTree) tree.conciseBody()).statements());
+    if (tree.body().is(Kind.BLOCK)) {
+      scan(((BlockTree) tree.body()).statements());
 
     } else {
       super.visitArrowFunction(tree);

@@ -19,6 +19,7 @@
  */
 package org.sonar.javascript.checks;
 
+import com.google.common.collect.ImmutableList;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -56,18 +57,27 @@ public class MisorderedParameterListCheck extends DoubleDispatchVisitorCheck {
 
   @Override
   public void visitCallExpression(CallExpressionTree callExpression) {
-    List<String> argumentNames = names(callExpression.arguments());
+    List<String> argumentNames = names(callExpression.arguments().parameters());
     if (argumentNames != null) {
       FunctionTree functionDeclaration = functionDeclaration(callExpression);
       if (functionDeclaration != null) {
-        List<String> parameterNames = names(functionDeclaration.parameters());
+        List<String> parameterNames = names(parameters(functionDeclaration));
         if (parameterNames != null && haveSameNamesAndDifferentOrders(argumentNames, parameterNames)) {
           newIssue(callExpression.arguments(), message(functionDeclaration))
-            .secondary(functionDeclaration.parameters());
+            .secondary(functionDeclaration.parameterClause());
         }
       }
     }
     super.visitCallExpression(callExpression);
+  }
+
+  private static List<Tree> parameters(FunctionTree functionTree) {
+    if (functionTree.parameterClause().is(Tree.Kind.FORMAL_PARAMETER_LIST)) {
+      return ((ParameterListTree) functionTree.parameterClause()).parameters();
+
+    } else {
+      return ImmutableList.of(functionTree.parameterClause());
+    }
   }
 
   @CheckForNull
@@ -82,9 +92,9 @@ public class MisorderedParameterListCheck extends DoubleDispatchVisitorCheck {
   }
 
   @CheckForNull
-  private static List<String> names(ParameterListTree list) {
+  private static List<String> names(List<Tree> list) {
     List<String> names = new ArrayList<>();
-    for (Tree param : list.parameters()) {
+    for (Tree param : list) {
       Tree paramId = param;
       if (param.is(Kind.INITIALIZED_BINDING_ELEMENT)) {
         InitializedBindingElementTree initialized = (InitializedBindingElementTree) param;

@@ -52,19 +52,19 @@ public class ExcessiveParameterListCheck extends DoubleDispatchVisitorCheck {
 
   @Override
   public void visitMethodDeclaration(MethodDeclarationTree tree) {
-    checkNumberOfParameters(tree.parameters());
+    checkNumberOfParameters(tree.parameterClause());
     super.visitMethodDeclaration(tree);
   }
 
   @Override
   public void visitFunctionDeclaration(FunctionDeclarationTree tree) {
-    checkNumberOfParameters(tree.parameters());
+    checkNumberOfParameters(tree.parameterClause());
     super.visitFunctionDeclaration(tree);
   }
 
   @Override
   public void visitFunctionExpression(FunctionExpressionTree tree) {
-    checkNumberOfParameters(tree.parameters());
+    checkNumberOfParameters(tree.parameterClause());
     super.visitFunctionExpression(tree);
   }
 

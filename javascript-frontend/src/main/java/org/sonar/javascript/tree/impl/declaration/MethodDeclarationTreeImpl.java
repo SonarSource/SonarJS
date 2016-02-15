@@ -21,6 +21,7 @@ package org.sonar.javascript.tree.impl.declaration;
 
 import com.google.common.collect.Iterators;
 import java.util.Iterator;
+import java.util.List;
 import javax.annotation.Nullable;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.javascript.tree.impl.lexical.InternalSyntaxToken;
@@ -67,7 +68,7 @@ public class MethodDeclarationTreeImpl extends JavaScriptTree implements MethodD
   }
 
   @Override
-  public ParameterListTree parameters() {
+  public ParameterListTree parameterClause() {
     return parameters;
   }
 
@@ -89,5 +90,10 @@ public class MethodDeclarationTreeImpl extends JavaScriptTree implements MethodD
   @Override
   public void accept(DoubleDispatchVisitor visitor) {
     visitor.visitMethodDeclaration(this);
+  }
+
+  @Override
+  public List<Tree> parameterList() {
+    return parameters.parameters();
   }
 }

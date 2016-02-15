@@ -90,7 +90,7 @@ public class AssignmentWithinConditionCheck extends DoubleDispatchVisitorCheck {
   @Override
   public void visitArrowFunction(ArrowFunctionTree lambdaExpressionTree) {
     // skip arrow function if body is an assignement
-    if (!(lambdaExpressionTree.conciseBody() instanceof AssignmentExpressionTree)) {
+    if (!(lambdaExpressionTree.body() instanceof AssignmentExpressionTree)) {
       super.visitArrowFunction(lambdaExpressionTree);
     }
   }

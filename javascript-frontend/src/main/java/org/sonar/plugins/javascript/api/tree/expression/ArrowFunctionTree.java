@@ -21,6 +21,7 @@ package org.sonar.plugins.javascript.api.tree.expression;
 
 import com.google.common.annotations.Beta;
 import org.sonar.plugins.javascript.api.tree.Tree;
+import org.sonar.plugins.javascript.api.tree.declaration.FunctionTree;
 import org.sonar.plugins.javascript.api.tree.declaration.ParameterListTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.javascript.api.tree.statement.BlockTree;
@@ -31,24 +32,26 @@ import org.sonar.plugins.javascript.api.tree.statement.BlockTree;
  * <p/>
  * <p/>
  * <pre>
- *   {@link #parameters()} => {@link #conciseBody()}
+ *   {@link #parameterClause()} => {@link #body()}
  * </pre>
  * <p/>
  * <p>This interface is not intended to be implemented by clients.</p>
  */
 @Beta
-public interface ArrowFunctionTree extends ExpressionTree {
+public interface ArrowFunctionTree extends ExpressionTree, FunctionTree {
 
   /**
    * Either {@link IdentifierTree} or {@link ParameterListTree} ({@link Tree.Kind#FORMAL_PARAMETER_LIST})
    */
-  Tree parameters();
+  @Override
+  Tree parameterClause();
 
   SyntaxToken doubleArrow();
 
   /**
    * Either {@link BlockTree} or {@link ExpressionTree}
    */
-  Tree conciseBody();
+  @Override
+  Tree body();
 
 }

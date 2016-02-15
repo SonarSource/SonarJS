@@ -87,7 +87,7 @@ public class LinkToSymbolFromTreeTest extends JavaScriptTreeModelTest {
     assertThat(fooDeclaration.symbol()).isNotNull();
     assertThat(fooDeclaration.symbol().is(Symbol.Kind.FUNCTION)).isTrue();
 
-    IdentifierTree parameterDeclaration = (IdentifierTree) function.parameters().parameters().get(0);
+    IdentifierTree parameterDeclaration = (IdentifierTree) function.parameterClause().parameters().get(0);
     assertThat(parameterDeclaration.symbol()).isNotNull();
     assertThat(parameterDeclaration.symbol()).isNotNull();
     assertThat(parameterDeclaration.symbol().is(Symbol.Kind.PARAMETER)).isTrue();

@@ -35,7 +35,7 @@ public class FunctionDeclarationTreeModelTest extends JavaScriptTreeModelTest {
     assertThat(tree.is(Kind.FUNCTION_DECLARATION)).isTrue();
     assertThat(tree.functionKeyword().text()).isEqualTo("function");
     assertThat(tree.starToken()).isNull();
-    assertThat(tree.parameters()).isNotNull();
+    assertThat(tree.parameterClause()).isNotNull();
     assertThat(tree.body()).isNotNull();
   }
 
@@ -47,7 +47,7 @@ public class FunctionDeclarationTreeModelTest extends JavaScriptTreeModelTest {
     assertThat(tree.is(Kind.GENERATOR_DECLARATION)).isTrue();
     assertThat(tree.functionKeyword().text()).isEqualTo("function");
     assertThat(tree.starToken()).isNotNull();
-    assertThat(tree.parameters()).isNotNull();
+    assertThat(tree.parameterClause()).isNotNull();
     assertThat(tree.body()).isNotNull();
   }
 

@@ -21,6 +21,7 @@ package org.sonar.javascript.tree.impl.declaration;
 
 import com.google.common.collect.Iterators;
 import java.util.Iterator;
+import java.util.List;
 import javax.annotation.Nullable;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.javascript.tree.impl.expression.IdentifierTreeImpl;
@@ -88,13 +89,18 @@ public class FunctionDeclarationTreeImpl extends JavaScriptTree implements Funct
   }
 
   @Override
-  public ParameterListTree parameters() {
+  public ParameterListTree parameterClause() {
     return parameters;
   }
 
   @Override
   public BlockTree body() {
     return body;
+  }
+
+  @Override
+  public List<Tree> parameterList() {
+    return parameters.parameters();
   }
 
   @Override

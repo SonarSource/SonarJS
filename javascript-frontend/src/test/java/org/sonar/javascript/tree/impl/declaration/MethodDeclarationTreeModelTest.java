@@ -36,7 +36,7 @@ public class MethodDeclarationTreeModelTest extends JavaScriptTreeModelTest {
     assertThat(tree.is(Kind.METHOD)).isTrue();
     assertThat(tree.staticToken()).isNull();
     assertThat(((IdentifierTree) tree.name()).name()).isEqualTo("method");
-    assertThat(tree.parameters()).isNotNull();
+    assertThat(tree.parameterClause()).isNotNull();
     assertThat(tree.body()).isNotNull();
   }
 
@@ -48,7 +48,7 @@ public class MethodDeclarationTreeModelTest extends JavaScriptTreeModelTest {
     assertThat(tree.is(Kind.METHOD)).isTrue();
     assertThat(tree.staticToken()).isNotNull();
     assertThat(((IdentifierTree) tree.name()).name()).isEqualTo("method");
-    assertThat(tree.parameters()).isNotNull();
+    assertThat(tree.parameterClause()).isNotNull();
     assertThat(tree.body()).isNotNull();
   }
 

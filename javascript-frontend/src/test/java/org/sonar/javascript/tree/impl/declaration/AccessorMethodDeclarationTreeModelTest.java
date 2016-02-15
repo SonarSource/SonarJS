@@ -37,7 +37,7 @@ public class AccessorMethodDeclarationTreeModelTest extends JavaScriptTreeModelT
     assertThat(tree.staticToken()).isNull();
     assertThat(tree.accessorToken().text()).isEqualTo("get");
     assertThat(((IdentifierTree) tree.name()).name()).isEqualTo("method");
-    assertThat(tree.parameters()).isNotNull();
+    assertThat(tree.parameterClause()).isNotNull();
     assertThat(tree.body()).isNotNull();
   }
 
@@ -50,7 +50,7 @@ public class AccessorMethodDeclarationTreeModelTest extends JavaScriptTreeModelT
     assertThat(tree.staticToken()).isNull();
     assertThat(tree.accessorToken().text()).isEqualTo("set");
     assertThat(((IdentifierTree) tree.name()).name()).isEqualTo("method");
-    assertThat(tree.parameters()).isNotNull();
+    assertThat(tree.parameterClause()).isNotNull();
     assertThat(tree.body()).isNotNull();
   }
 
@@ -62,7 +62,7 @@ public class AccessorMethodDeclarationTreeModelTest extends JavaScriptTreeModelT
     assertThat(tree.staticToken()).isNotNull();
     assertThat(tree.accessorToken().text()).isEqualTo("set");
     assertThat(((IdentifierTree) tree.name()).name()).isEqualTo("method");
-    assertThat(tree.parameters()).isNotNull();
+    assertThat(tree.parameterClause()).isNotNull();
     assertThat(tree.body()).isNotNull();
   }
 }

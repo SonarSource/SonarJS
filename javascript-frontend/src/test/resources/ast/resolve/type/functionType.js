@@ -11,3 +11,7 @@ f2(true, true, true)
 f3 = function({name:n, age:a}, msg){}
 
 f3(obj, "str")
+
+var f4 = (arrowP1, arrowP2) => { foo(arrowP1 + arrowP2); };
+f4(1, 2);
+foo(f4);

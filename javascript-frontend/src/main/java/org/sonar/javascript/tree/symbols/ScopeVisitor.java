@@ -153,7 +153,7 @@ public class ScopeVisitor extends DoubleDispatchVisitor {
   public void visitArrowFunction(ArrowFunctionTree tree) {
     newFunctionScope(tree);
 
-    skipBlock(tree.conciseBody());
+    skipBlock(tree.body());
     super.visitArrowFunction(tree);
 
     leaveScope();

@@ -43,7 +43,7 @@ public interface FunctionExpressionTree extends ExpressionTree, FunctionTree {
   IdentifierTree name();
 
   @Override
-  ParameterListTree parameters();
+  ParameterListTree parameterClause();
 
   @Override
   BlockTree body();

@@ -28,8 +28,8 @@ import org.sonar.plugins.javascript.api.tree.Tree;
  * (<a href="http://wiki.ecmascript.org/doku.php?id=harmony:specification_drafts">ES6</a>).
  * <p/>
  * <pre>
- *   {@link Tree.Kind#GET_METHOD get} {@link #name()} {@link #parameters()} {@link #body()}
- *   {@link Tree.Kind#SET_METHOD set} {@link #name()} {@link #parameters()} {@link #body()}
+ *   {@link Tree.Kind#GET_METHOD get} {@link #name()} {@link #parameterClause()} {@link #body()}
+ *   {@link Tree.Kind#SET_METHOD set} {@link #name()} {@link #parameterClause()} {@link #body()}
  * </pre>
  */
 @Beta

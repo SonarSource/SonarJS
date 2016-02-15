@@ -26,10 +26,12 @@ import java.util.List;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.javascript.tree.impl.declaration.ParameterListTreeImpl;
 import org.sonar.javascript.tree.impl.lexical.InternalSyntaxToken;
+import org.sonar.javascript.tree.symbols.type.FunctionType;
 import org.sonar.javascript.tree.symbols.type.TypableTree;
 import org.sonar.plugins.javascript.api.symbols.Type;
 import org.sonar.plugins.javascript.api.symbols.TypeSet;
 import org.sonar.plugins.javascript.api.tree.Tree;
+import org.sonar.plugins.javascript.api.tree.declaration.ParameterListTree;
 import org.sonar.plugins.javascript.api.tree.expression.ArrowFunctionTree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
@@ -40,15 +42,18 @@ public class ArrowFunctionTreeImpl extends JavaScriptTree implements ArrowFuncti
   private final Tree parameters;
   private final SyntaxToken doubleArrow;
   private Tree body;
+  private Type functionType;
 
   public ArrowFunctionTreeImpl(Tree parameters, InternalSyntaxToken doubleArrow, Tree body) {
     this.parameters = parameters;
     this.doubleArrow = doubleArrow;
     this.body = body;
+
+    this.functionType = FunctionType.create(this);
   }
 
   @Override
-  public Tree parameters() {
+  public Tree parameterClause() {
     return parameters;
   }
 
@@ -58,8 +63,18 @@ public class ArrowFunctionTreeImpl extends JavaScriptTree implements ArrowFuncti
   }
 
   @Override
-  public Tree conciseBody() {
+  public Tree body() {
     return body;
+  }
+
+  @Override
+  public List<Tree> parameterList() {
+    if (this.parameters.is(Tree.Kind.FORMAL_PARAMETER_LIST)) {
+      return ((ParameterListTree) this.parameters).parameters();
+
+    } else {
+      return ImmutableList.of(this.parameterClause());
+    }
   }
 
   @Override
@@ -87,7 +102,9 @@ public class ArrowFunctionTreeImpl extends JavaScriptTree implements ArrowFuncti
 
   @Override
   public TypeSet types() {
-    return TypeSet.emptyTypeSet();
+    TypeSet set = TypeSet.emptyTypeSet();
+    set.add(functionType);
+    return set;
   }
 
   @Override

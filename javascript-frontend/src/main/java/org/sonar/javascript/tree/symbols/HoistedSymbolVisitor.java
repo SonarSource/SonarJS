@@ -136,7 +136,7 @@ public class HoistedSymbolVisitor extends DoubleDispatchVisitor {
   private void visitMethod(MethodDeclarationTree tree) {
     enterScope(tree);
 
-    declareParameters(((ParameterListTreeImpl) tree.parameters()).parameterIdentifiers());
+    declareParameters(((ParameterListTreeImpl) tree.parameterClause()).parameterIdentifiers());
     addFunctionBuiltInSymbols();
 
     super.visitMethodDeclaration(tree);
@@ -182,7 +182,7 @@ public class HoistedSymbolVisitor extends DoubleDispatchVisitor {
 
     enterScope(tree);
 
-    declareParameters(((ParameterListTreeImpl) tree.parameters()).parameterIdentifiers());
+    declareParameters(((ParameterListTreeImpl) tree.parameterClause()).parameterIdentifiers());
     addFunctionBuiltInSymbols();
     addThisSymbol();
 
@@ -213,7 +213,7 @@ public class HoistedSymbolVisitor extends DoubleDispatchVisitor {
       symbolModel.declareSymbol(name.name(), Symbol.Kind.FUNCTION, currentScope).addUsage(Usage.create(name, Usage.Kind.DECLARATION));
 
     }
-    declareParameters(((ParameterListTreeImpl) tree.parameters()).parameterIdentifiers());
+    declareParameters(((ParameterListTreeImpl) tree.parameterClause()).parameterIdentifiers());
     addFunctionBuiltInSymbols();
     addThisSymbol();
 

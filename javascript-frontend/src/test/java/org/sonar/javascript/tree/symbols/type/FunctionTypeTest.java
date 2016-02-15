@@ -23,6 +23,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.sonar.plugins.javascript.api.symbols.Symbol;
 import org.sonar.plugins.javascript.api.symbols.Type;
+import org.sonar.plugins.javascript.api.symbols.Type.Kind;
 
 import static org.fest.assertions.Assertions.assertThat;
 
@@ -79,4 +80,11 @@ public class FunctionTypeTest extends TypeTest {
 
   }
 
+  @Test
+  public void arrow_function() throws Exception {
+    Symbol f4 = getSymbol("f4");
+    assertThat(f4.types().containsOnlyAndUnique(Kind.FUNCTION)).isTrue();
+
+    assertThat(getSymbol("arrowP1").types().containsOnlyAndUnique(Kind.NUMBER)).isTrue();
+  }
 }

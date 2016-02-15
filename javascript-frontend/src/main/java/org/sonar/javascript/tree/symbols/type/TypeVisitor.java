@@ -20,10 +20,10 @@
 package org.sonar.javascript.tree.symbols.type;
 
 import com.google.common.base.Preconditions;
+import java.util.List;
 import javax.annotation.Nullable;
 import org.sonar.api.config.Settings;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
-import org.sonar.javascript.tree.impl.SeparatedList;
 import org.sonar.javascript.tree.impl.expression.ClassTreeImpl;
 import org.sonar.javascript.tree.symbols.type.ObjectType.BuiltInObjectType;
 import org.sonar.plugins.javascript.api.symbols.Symbol;
@@ -174,8 +174,8 @@ public class TypeVisitor extends DoubleDispatchVisitor {
     Type functionType = tree.callee().types().getUniqueType(Type.Kind.FUNCTION);
     if (functionType != null) {
 
-      SeparatedList<Tree> parameters = ((FunctionType) functionType).functionTree().parameters().parameters();
-      SeparatedList<Tree> arguments = tree.arguments().parameters();
+      List<Tree> parameters = ((FunctionType) functionType).functionTree().parameterList();
+      List<Tree> arguments = tree.arguments().parameters();
       int minSize = arguments.size() < parameters.size() ? arguments.size() : parameters.size();
 
       for (int i = 0; i < minSize; i++) {

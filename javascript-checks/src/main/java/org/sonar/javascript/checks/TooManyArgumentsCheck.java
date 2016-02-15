@@ -19,13 +19,13 @@
  */
 package org.sonar.javascript.checks;
 
+import java.util.List;
 import java.util.Set;
 import javax.annotation.Nullable;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.javascript.checks.utils.CheckUtils;
-import org.sonar.javascript.tree.impl.SeparatedList;
 import org.sonar.javascript.tree.symbols.Scope;
 import org.sonar.javascript.tree.symbols.type.FunctionType;
 import org.sonar.plugins.javascript.api.symbols.Symbol;
@@ -57,13 +57,13 @@ public class TooManyArgumentsCheck extends DoubleDispatchVisitorCheck {
 
     if (functionTree != null) {
 
-      int parametersNumber = functionTree.parameters().parameters().size();
+      int parametersNumber = functionTree.parameterList().size();
       int argumentsNumber = tree.arguments().parameters().size();
 
       if (!hasRestParameter(functionTree) && !builtInArgumentsUsed(functionTree) && argumentsNumber > parametersNumber) {
         String message = getMessage(tree, parametersNumber, argumentsNumber);
         newIssue(tree.arguments(), message)
-          .secondary(functionTree.parameters(), "Formal parameters");
+          .secondary(functionTree.parameterClause(), "Formal parameters");
       }
 
     }
@@ -85,7 +85,7 @@ public class TooManyArgumentsCheck extends DoubleDispatchVisitorCheck {
    * @return true if function's last parameter has "... p" format and stands for all rest parameters
    */
   private static boolean hasRestParameter(FunctionTree functionTree) {
-    SeparatedList<Tree> parameters = functionTree.parameters().parameters();
+    List<Tree> parameters = functionTree.parameterList();
     return !parameters.isEmpty() && (parameters.get(parameters.size() - 1).is(Tree.Kind.REST_ELEMENT));
   }
 
