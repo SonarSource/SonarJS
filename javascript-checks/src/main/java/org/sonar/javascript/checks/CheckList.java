@@ -151,6 +151,7 @@ public final class CheckList {
       UntrustedContentCheck.class,
       UnusedFunctionArgumentCheck.class,
       UnusedVariableCheck.class,
+      UpdatedConstVariableCheck.class,
       UselessExpressionStatementCheck.class,
       UselessIncrementCheck.class,
       UselessStringOperationCheck.class,
