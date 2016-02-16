@@ -19,14 +19,18 @@
  */
 package org.sonar.javascript.tree.symbols;
 
+import com.google.common.collect.ImmutableMap;
 import java.io.File;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 import org.junit.Test;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.javascript.utils.JavaScriptTreeModelTest;
 import org.sonar.plugins.javascript.api.symbols.Symbol;
+import org.sonar.plugins.javascript.api.symbols.Usage;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
+import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 
 import static org.fest.assertions.Assertions.assertThat;
 
@@ -55,7 +59,7 @@ public class ScopeTest extends JavaScriptTreeModelTest {
 
   @Test
   public void scopes_number() throws Exception {
-    assertThat(SYMBOL_MODEL.getScopes()).hasSize(21);
+    assertThat(SYMBOL_MODEL.getScopes()).hasSize(23);
   }
 
   @Test
@@ -65,7 +69,7 @@ public class ScopeTest extends JavaScriptTreeModelTest {
     assertThat(scope.isGlobal()).isTrue();
     assertThat(scope.isBlock()).isFalse();
     assertThat(scopeAtLine(1)).isEqualTo(scope);
-    assertThat(symbols(scope)).containsOnly("a", "b", "f", "const1", "let1", "c", "A", "notBlock", "gen", "catch1", "try2");
+    assertThat(symbols(scope)).containsOnly("a", "b", "f", "const1", "let1", "c", "A", "notBlock", "gen", "catch1", "try2", "identifier", "foobar");
   }
 
   @Test
@@ -295,5 +299,21 @@ public class ScopeTest extends JavaScriptTreeModelTest {
     Symbol arrowFunctionThis = scopeAtLine(100).lookupSymbol(THIS);
     assertThat(scopeAtLine(100).getSymbol(THIS)).isNull();
     assertThat(arrowFunctionThis).isEqualTo(globalThis);
+  }
+
+  @Test
+  public void test_identifier_scope() throws Exception {
+    Map<Integer, Scope> usageScopes = ImmutableMap.of(
+      106, SYMBOL_MODEL.globalScope(),
+      108, scopeAtLine(107),
+      112, scopeAtLine(111)
+    );
+    Symbol symbol = (Symbol) SYMBOL_MODEL.getSymbols("identifier").toArray()[0];
+    assertThat(symbol.usages()).hasSize(3);
+
+    for (Usage usage : symbol.usages()) {
+      IdentifierTree identifier = usage.identifierTree();
+      assertThat(identifier.scope()).isEqualTo(usageScopes.get(identifier.identifierToken().line()));
+    }
   }
 }

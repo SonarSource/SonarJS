@@ -24,6 +24,7 @@ import com.google.common.collect.Iterators;
 import java.util.Iterator;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.javascript.tree.impl.lexical.InternalSyntaxToken;
+import org.sonar.javascript.tree.symbols.Scope;
 import org.sonar.javascript.tree.symbols.type.TypableTree;
 import org.sonar.plugins.javascript.api.symbols.Symbol;
 import org.sonar.plugins.javascript.api.symbols.Type;
@@ -39,6 +40,7 @@ public class IdentifierTreeImpl extends JavaScriptTree implements IdentifierTree
   private final Kind kind;
   private Symbol symbol = null;
   private TypeSet types = TypeSet.emptyTypeSet();
+  private Scope scope;
 
   public IdentifierTreeImpl(Kind kind, InternalSyntaxToken nameToken) {
     this.kind = kind;
@@ -100,5 +102,14 @@ public class IdentifierTreeImpl extends JavaScriptTree implements IdentifierTree
   @Override
   public void accept(DoubleDispatchVisitor visitor) {
     visitor.visitIdentifier(this);
+  }
+
+  @Override
+  public Scope scope(){
+    return scope;
+  }
+
+  public void scope(Scope scope) {
+    this.scope = scope;
   }
 }

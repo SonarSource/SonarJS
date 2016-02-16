@@ -1,4 +1,4 @@
-var a;    // +1 scope [a, b, f, const1, let1, c, A, notBlock, gen, catch1, try2]
+var a;    // +1 scope [a, b, f, const1, let1, c, A, notBlock, gen, catch1, try2, identifier, foobar]
 b = 1;    // implicit declaration - global scope
 const const1 = 1;
 let let1 = 1;
@@ -101,3 +101,13 @@ class A {    // +1 scope []
   var x = 1;
   return x;
 };
+
+
+var identifier = 1;
+if (true) {
+  identifier = 10;
+}
+
+function foobar() {
+  console.log(identifier);
+}
