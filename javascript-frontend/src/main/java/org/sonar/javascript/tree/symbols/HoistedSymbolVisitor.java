@@ -62,6 +62,7 @@ public class HoistedSymbolVisitor extends DoubleDispatchVisitor {
   private SymbolModelBuilder symbolModel;
   private Scope currentScope;
   private Map<Tree, Scope> treeScopeMap;
+  private boolean insideForLoopVariable = false;
 
   public HoistedSymbolVisitor(Map<Tree, Scope> treeScopeMap) {
     this.treeScopeMap = treeScopeMap;
@@ -101,14 +102,22 @@ public class HoistedSymbolVisitor extends DoubleDispatchVisitor {
   @Override
   public void visitForInStatement(ForInStatementTree tree) {
     enterScope(tree);
-    super.visitForInStatement(tree);
+    insideForLoopVariable = true;
+    scan(tree.variableOrExpression());
+    insideForLoopVariable = false;
+    scan(tree.expression());
+    scan(tree.statement());
     leaveScope();
   }
 
   @Override
   public void visitForOfStatement(ForOfStatementTree tree) {
     enterScope(tree);
-    super.visitForOfStatement(tree);
+    insideForLoopVariable = true;
+    scan(tree.variableOrExpression());
+    insideForLoopVariable = false;
+    scan(tree.expression());
+    scan(tree.statement());
     leaveScope();
   }
 
@@ -290,7 +299,7 @@ public class HoistedSymbolVisitor extends DoubleDispatchVisitor {
       if (bindingElement instanceof IdentifierTree) {
         IdentifierTree identifierTree = (IdentifierTree) bindingElement;
         symbolModel.declareSymbol(identifierTree.name(), variableKind, scope)
-          .addUsage(Usage.create(identifierTree, Usage.Kind.DECLARATION));
+          .addUsage(Usage.create(identifierTree, insideForLoopVariable ? Usage.Kind.DECLARATION_WRITE : Usage.Kind.DECLARATION));
       }
     }
   }

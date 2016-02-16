@@ -176,7 +176,15 @@ public class UsageTest extends JavaScriptTreeModelTest {
     assertThat(symbol.scope().isBlock()).isTrue();
     assertThat(symbol.scope().tree().is(Tree.Kind.FOR_OF_STATEMENT)).isTrue();
     assertThat(symbol.usages()).hasSize(2);
+    assertDeclarationIsWrite(symbol);
+  }
 
+  private void assertDeclarationIsWrite(Symbol symbol) {
+    for (Usage usage : symbol.usages()) {
+      if (usage.isDeclaration()) {
+        assertThat(usage.isWrite()).isTrue();
+      }
+    }
   }
 
   @Test
@@ -187,6 +195,7 @@ public class UsageTest extends JavaScriptTreeModelTest {
     assertThat(symbol.scope().isBlock()).isTrue();
     assertThat(symbol.scope().tree().is(Tree.Kind.FOR_IN_STATEMENT)).isTrue();
     assertThat(symbol.usages()).hasSize(2);
+    assertDeclarationIsWrite(symbol);
 
   }
 
