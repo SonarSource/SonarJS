@@ -42,7 +42,7 @@ for (i = a ? (b ? (c ? (d ? 1 : 1) : 1) : 1) : 1; i < a; i++) {}   // Noncomplia
 
 function a() {
   return (
-    a ||                                                           // Noncompliant [[secondary=+1,+0,+2,+2]]
+    a ||                                                           // Noncompliant [[secondary=+0,+1,+2,+2]]
     b ||
     (c || d || e));
 }

@@ -216,7 +216,7 @@ public class JavaScriptCheckVerifier extends SubscriptionVisitorCheck {
         result.add(issueLocation.startLine());
       }
     }
-    return result;
+    return Ordering.natural().sortedCopy(result);
   }
 
 
