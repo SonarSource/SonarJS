@@ -206,6 +206,15 @@ public class ControlFlowGraphTest {
   }
 
   @Test
+  public void break_block() throws Exception {
+    ControlFlowGraph g = build("outer: { if(b0) { b1(); break outer; } b2(); } b3();", 4);
+    assertBlock(g, 0).hasSuccessors(1, 2);
+    assertBlock(g, 1).hasSuccessors(3);
+    assertBlock(g, 2).hasSuccessors(3);
+    assertBlock(g, 3).hasSuccessors(END);
+  }
+
+  @Test
   public void break_with_invalid_label() throws Exception {
     thrown.expect(IllegalStateException.class);
     thrown.expectMessage("label xxx");
@@ -243,6 +252,22 @@ public class ControlFlowGraphTest {
     assertBlock(g, 0).hasSuccessors(2);
     assertBlock(g, 1).hasSuccessors(2);
     assertBlock(g, 2).hasSuccessors(1);
+  }
+
+  @Test
+  public void infinite_for() throws Exception {
+    ControlFlowGraph g = build("b0(); for(;;) { b1(); } b2();", 3);
+    assertBlock(g, 0).hasSuccessors(1);
+    assertBlock(g, 1).hasSuccessors(1);
+    assertBlock(g, 2).hasSuccessors(END);
+  }
+
+  @Test
+  public void empty_infinite_for() throws Exception {
+    ControlFlowGraph g = build("b0(); for(;;) { } b2();", 3);
+    assertBlock(g, 0).hasSuccessors(1);
+    assertBlock(g, 1).hasSuccessors(1).hasElements("for");
+    assertBlock(g, 2).hasSuccessors(END);
   }
 
   @Test
@@ -300,17 +325,19 @@ public class ControlFlowGraphTest {
 
   @Test
   public void try_catch() throws Exception {
-    ControlFlowGraph g = build("try { b0(); } catch(e) { foo(); } ", 3);
-    assertBlock(g, 0).hasSuccessors(1).hasElements("b0()");
-    assertBlock(g, 1).hasSuccessors(2, END).hasElements("e");
-    assertBlock(g, 2).hasSuccessors(END).hasElements("foo()");
+    ControlFlowGraph g = build("try { b1(); } catch(e) { foo(); } ", 4);
+    assertBlock(g, 0).hasSuccessors(1, 2).hasElements("try");
+    assertBlock(g, 1).hasSuccessors(2).hasElements("b1()");
+    assertBlock(g, 2).hasSuccessors(3, END).hasElements("e");
+    assertBlock(g, 3).hasSuccessors(END).hasElements("foo()");
   }
 
   @Test
   public void try_finally() throws Exception {
-    ControlFlowGraph g = build("try { b0(); } finally { bar(); } ", 2);
-    assertBlock(g, 0).hasSuccessors(1).hasElements("b0()");
-    assertBlock(g, 1).hasSuccessors(END).hasElements("bar()");
+    ControlFlowGraph g = build("try { b0(); } finally { bar(); } ", 3);
+    assertBlock(g, 0).hasSuccessors(1, 2).hasElements("try");
+    assertBlock(g, 1).hasSuccessors(2).hasElements("b0()");
+    assertBlock(g, 2).hasSuccessors(END).hasElements("bar()");
   }
 
   @Test
@@ -323,32 +350,35 @@ public class ControlFlowGraphTest {
 
   @Test
   public void throw_in_try() throws Exception {
-    ControlFlowGraph g = build("try { if (b0) { throw b1; } b2(); } catch(b3) { b4(); } ", 5);
-    assertBlock(g, 0).hasSuccessors(1, 2);
-    assertBlock(g, 1).hasSuccessors(3);
-    assertBlock(g, 2).hasSuccessors(3);
-    assertBlock(g, 3).hasSuccessors(4, END);
-    assertBlock(g, 4).hasSuccessors(END);
-  }
-
-  @Test
-  public void throw_in_catch() throws Exception {
-    ControlFlowGraph g = build("try { b0(); } catch(b1) { if (b2) { throw b3; } b4(); } finally { b5()}", 6);
-    assertBlock(g, 0).hasSuccessors(1);
-    assertBlock(g, 1).hasSuccessors(2, 5);
-    assertBlock(g, 2).hasSuccessors(3, 4);
-    assertBlock(g, 3).hasSuccessors(5);
-    assertBlock(g, 4).hasSuccessors(5);
+    ControlFlowGraph g = build("try { if (b1) { throw b2; } b3(); } catch(b4) { b5(); } ", 6);
+    assertBlock(g, 0).hasSuccessors(1, 4);
+    assertBlock(g, 1).hasSuccessors(2, 3);
+    assertBlock(g, 2).hasSuccessors(4);
+    assertBlock(g, 3).hasSuccessors(4);
+    assertBlock(g, 4).hasSuccessors(5, END);
     assertBlock(g, 5).hasSuccessors(END);
   }
 
   @Test
+  public void throw_in_catch() throws Exception {
+    ControlFlowGraph g = build("try { b1(); } catch(b2) { if (b3) { throw b4; } b5(); } finally { b6()}", 7);
+    assertBlock(g, 0).hasSuccessors(1, 2);
+    assertBlock(g, 1).hasSuccessors(2);
+    assertBlock(g, 2).hasSuccessors(3, 6);
+    assertBlock(g, 3).hasSuccessors(4, 5);
+    assertBlock(g, 4).hasSuccessors(6);
+    assertBlock(g, 5).hasSuccessors(6);
+    assertBlock(g, 6).hasSuccessors(END);
+  }
+
+  @Test
   public void return_in_catch() throws Exception {
-    ControlFlowGraph g = build("try { b0(); } catch(b1) { return b2; } finally { b3()}", 4);
-    assertBlock(g, 0).hasSuccessors(1);
-    assertBlock(g, 1).hasSuccessors(2, 3);
-    assertBlock(g, 2).hasSuccessors(END);
+    ControlFlowGraph g = build("try { b1(); } catch(b2) { return b3; } finally { b4()}", 5);
+    assertBlock(g, 0).hasSuccessors(1, 2);
+    assertBlock(g, 1).hasSuccessors(2);
+    assertBlock(g, 2).hasSuccessors(3, 4);
     assertBlock(g, 3).hasSuccessors(END);
+    assertBlock(g, 4).hasSuccessors(END);
   }
 
   @Test
@@ -359,41 +389,64 @@ public class ControlFlowGraphTest {
 
   @Test
   public void switch_with_no_break() throws Exception {
-    ControlFlowGraph g = build("b0(); switch(b0b) { case b0c: b1(); case b2: b3(); default: b4(); }", 5);
-    assertBlock(g, 0).hasSuccessors(1, 2).hasElements("b0()", "b0b", "b0c");
-    assertBlock(g, 1).hasSuccessors(2).hasElements("b1()");
-    assertBlock(g, 2).hasSuccessors(3, 4).hasElements("b2");
-    assertBlock(g, 3).hasSuccessors(4).hasElements("b3()");
-    assertBlock(g, 4).hasSuccessors(END).hasElements("b4()");
+    ControlFlowGraph g = build("b0(); switch(b0b) { case b1: b2(); case b3: b4(); default: b5(); }", 6);
+    assertBlock(g, 0).hasSuccessors(1).hasElements("b0()", "b0b");
+    assertBlock(g, 1).hasSuccessors(2, 3).hasElements("b1");
+    assertBlock(g, 2).hasSuccessors(4).hasElements("b2()");
+    assertBlock(g, 3).hasSuccessors(4, 5).hasElements("b3");
+    assertBlock(g, 4).hasSuccessors(5).hasElements("b4()");
+    assertBlock(g, 5).hasSuccessors(END).hasElements("b5()");
   }
 
   @Test
   public void switch_with_break() throws Exception {
-    ControlFlowGraph g = build("b0(); switch(b0b) { case b0c: b1(); break; case b2: b3(); default: b4(); }", 5);
-    assertBlock(g, 0).hasSuccessors(1, 2).hasElements("b0()", "b0b", "b0c");
-    assertBlock(g, 1).hasSuccessors(END).hasElements("b1()", "break;");
-    assertBlock(g, 2).hasSuccessors(3, 4).hasElements("b2");
-    assertBlock(g, 3).hasSuccessors(4).hasElements("b3()");
-    assertBlock(g, 4).hasSuccessors(END).hasElements("b4()");
+    ControlFlowGraph g = build("b0(); switch(b0b) { case b1: b2(); break; case b3: b4(); default: b5(); }", 6);
+    assertBlock(g, 0).hasSuccessors(1).hasElements("b0()", "b0b");
+    assertBlock(g, 1).hasSuccessors(2, 3).hasElements("b1");
+    assertBlock(g, 2).hasSuccessors(END).hasElements("b2()", "break;");
+    assertBlock(g, 3).hasSuccessors(4, 5).hasElements("b3");
+    assertBlock(g, 4).hasSuccessors(5).hasElements("b4()");
+    assertBlock(g, 5).hasSuccessors(END).hasElements("b5()");
   }
 
   @Test
   public void switch_with_adjacent_cases() throws Exception {
-    ControlFlowGraph g = build("b0(); switch(b0b) { case b0c: b1(); case b2: case b3: b4(); }", 5);
-    assertBlock(g, 0).hasSuccessors(1, 2).hasElements("b0()", "b0b", "b0c");
-    assertBlock(g, 1).hasSuccessors(2).hasElements("b1()");
-    assertBlock(g, 2).hasSuccessors(3, 4).hasElements("b2");
-    assertBlock(g, 3).hasSuccessors(4, END).hasElements("b3");
-    assertBlock(g, 4).hasSuccessors(END).hasElements("b4()");
+    ControlFlowGraph g = build("switch(b0) { case b1: b2(); case b3: case b4: b5(); }", 6);
+    assertBlock(g, 0).hasSuccessors(1).hasElements("b0");
+    assertBlock(g, 1).hasSuccessors(2, 3).hasElements("b1");
+    assertBlock(g, 2).hasSuccessors(5).hasElements("b2()");
+    assertBlock(g, 3).hasSuccessors(4, 5).hasElements("b3");
+    assertBlock(g, 4).hasSuccessors(5, END).hasElements("b4");
+    assertBlock(g, 5).hasSuccessors(END).hasElements("b5()");
+  }
+
+  @Test
+  public void switch_with_case_after_default() throws Exception {
+    ControlFlowGraph g = build("switch(b0) { default: b1(); break; case b2: b3(); }", 4);
+    assertBlock(g, 0).hasSuccessors(2);
+    assertBlock(g, 1).hasSuccessors(END);
+    assertBlock(g, 2).hasSuccessors(1, 3);
+    assertBlock(g, 3).hasSuccessors(END);
+  }
+
+  @Test
+  public void switch_with_case_using_same_block_as_default() throws Exception {
+    ControlFlowGraph g = build("switch(b0) { case b1: default: b2(); break; case b3: b4(); }", 5);
+    assertBlock(g, 0).hasElements("b0").hasSuccessors(1);
+    assertBlock(g, 1).hasElements("b1").hasSuccessors(2, 3);
+    assertBlock(g, 2).hasElements("b2()", "break;").hasSuccessors(END);
+    assertBlock(g, 3).hasElements("b3").hasSuccessors(4, 2);
+    assertBlock(g, 4).hasElements("b4()").hasSuccessors(END);
   }
 
   @Test
   public void continue_in_switch_in_loop() throws Exception {
-    ControlFlowGraph g = build("while(b0) { switch (b1) { case b1b: b2(); continue; } b3(); } ", 4);
+    ControlFlowGraph g = build("while(b0) { switch (b1) { case b2: b3(); continue; } b4(); } ", 5);
     assertBlock(g, 0).hasSuccessors(1, END).hasElements("b0");
-    assertBlock(g, 1).hasSuccessors(2, 3);
-    assertBlock(g, 2).hasSuccessors(0);
+    assertBlock(g, 1).hasSuccessors(2);
+    assertBlock(g, 2).hasSuccessors(3, 4);
     assertBlock(g, 3).hasSuccessors(0);
+    assertBlock(g, 4).hasSuccessors(0);
   }
 
   @Test
@@ -424,6 +477,19 @@ public class ControlFlowGraphTest {
   public void debugger() throws Exception {
     ControlFlowGraph g = build("debugger;", 1);
     assertBlock(g, 0).hasSuccessors(END);
+  }
+
+  @Test
+  public void import_statement() throws Exception {
+    assertBlock(build("import x from 'other.js';", 1), 0).hasSuccessors(END);
+    assertBlock(build("import \"other.js\" ;", 1), 0).hasSuccessors(END);
+  }
+
+  @Test
+  public void export_statement() throws Exception {
+    assertBlock(build("export { } ;", 1), 0).hasSuccessors(END);
+    assertBlock(build("export default x;", 1), 0).hasSuccessors(END);
+    assertBlock(build("export * from \"mod\";", 1), 0).hasSuccessors(END);
   }
 
   @Test

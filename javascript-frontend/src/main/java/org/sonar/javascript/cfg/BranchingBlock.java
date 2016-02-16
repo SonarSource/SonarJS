@@ -25,6 +25,10 @@ import java.util.Map;
 import java.util.Set;
 import org.sonar.plugins.javascript.api.tree.Tree;
 
+/**
+ * A {@link MutableBlock} with 2 successors: represents a block ending
+ * with a condition which determines which successor is executed next.
+ */
 class BranchingBlock extends MutableBlock {
 
   private MutableBlock successor1 = null;

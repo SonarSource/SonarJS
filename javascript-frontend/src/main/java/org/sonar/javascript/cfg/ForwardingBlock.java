@@ -19,29 +19,34 @@
  */
 package org.sonar.javascript.cfg;
 
-import com.google.common.collect.ImmutableSet;
 import java.util.Map;
-import java.util.Set;
 import org.sonar.plugins.javascript.api.tree.Tree;
 
 /**
- * The end node of a {@link ControlFlowGraph} being built.
+ * A {@link MutableBlock} which has exactly one successor and which has no element.
+ * This is used only to build some special flows, e.g. an infinite {@code for} loop.
  */
-class EndBlock extends MutableBlock {
+class ForwardingBlock extends SingleSuccessorBlock {
+
+  private MutableBlock successor;
 
   @Override
-  public void addElement(Tree element) {
-    throw new UnsupportedOperationException("Cannot add element to end node");
-  }
-
-  @Override
-  public Set<MutableBlock> successors() {
-    return ImmutableSet.of();
+  public MutableBlock successor() {
+    return successor;
   }
 
   @Override
   public void replaceSuccessors(Map<MutableBlock, MutableBlock> replacements) {
-    // Nothing to replace
+    this.successor = replacement(this.successor, replacements);
+  }
+
+  public void setSuccessor(MutableBlock successor) {
+    this.successor = successor;
+  }
+
+  @Override
+  public void addElement(Tree element) {
+    throw new UnsupportedOperationException("Cannot add an element to a forwarding block");
   }
 
 }

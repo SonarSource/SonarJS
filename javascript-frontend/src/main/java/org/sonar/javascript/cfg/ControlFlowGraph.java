@@ -32,6 +32,22 @@ import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.javascript.api.tree.statement.BlockTree;
 
+/**
+ * The <a href="https://en.wikipedia.org/wiki/Control_flow_graph">Control Flow Graph</a>
+ * for a JavaScript script or for the body of a function.
+ *
+ * <p>Each node of the graph represents a list of elements which are executed one after the other.
+ * Each node has:
+ * <ul>
+ * <li>one ore more successor blocks,</li>
+ * <li>zero or more predecessor blocks.</li>
+ * </ul>
+ * </p>
+ *
+ * A Control Flow Graph has a single start node and a single end node.
+ * The end node has no successor and no element.
+ *
+ */
 public class ControlFlowGraph {
 
   private final ControlFlowNode start;

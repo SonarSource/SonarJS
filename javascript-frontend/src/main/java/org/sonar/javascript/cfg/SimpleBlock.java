@@ -20,11 +20,12 @@
 package org.sonar.javascript.cfg;
 
 import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableSet;
 import java.util.Map;
-import java.util.Set;
 
-class SimpleBlock extends MutableBlock {
+/**
+ * A {@link MutableBlock} with exactly one successor and which can have elements.
+ */
+class SimpleBlock extends SingleSuccessorBlock {
 
   private MutableBlock successor;
 
@@ -34,26 +35,13 @@ class SimpleBlock extends MutableBlock {
   }
 
   @Override
-  public Set<MutableBlock> successors() {
-    return ImmutableSet.of(successor);
-  }
-
-  public MutableBlock firstNonEmptySuccessor() {
-    MutableBlock block = this;
-    while (block instanceof SimpleBlock && block.isEmpty()) {
-      block = ((SimpleBlock) block).successor;
-    }
-    return block;
+  public MutableBlock successor() {
+    return successor;
   }
 
   @Override
   public void replaceSuccessors(Map<MutableBlock, MutableBlock> replacements) {
     this.successor = replacement(this.successor, replacements);
-  }
-
-  // Should only be used in "for" loops which have no condition
-  public void forceSuccessor(MutableBlock successor) {
-    this.successor = successor;
   }
 
 }

@@ -19,29 +19,31 @@
  */
 package org.sonar.javascript.cfg;
 
+import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableSet;
-import java.util.Map;
 import java.util.Set;
-import org.sonar.plugins.javascript.api.tree.Tree;
 
 /**
- * The end node of a {@link ControlFlowGraph} being built.
+ * A {@link MutableBlock} with exactly one successor.
+ * SingleSuccessorBlocks which are empty (have no element) are removed from the graph
+ * at the end of the construction of the graph.
  */
-class EndBlock extends MutableBlock {
+abstract class SingleSuccessorBlock extends MutableBlock {
 
-  @Override
-  public void addElement(Tree element) {
-    throw new UnsupportedOperationException("Cannot add element to end node");
-  }
+  public abstract MutableBlock successor();
 
   @Override
   public Set<MutableBlock> successors() {
-    return ImmutableSet.of();
+    Preconditions.checkState(successor() != null, "No successor was set on " + this);
+    return ImmutableSet.of(successor());
   }
 
-  @Override
-  public void replaceSuccessors(Map<MutableBlock, MutableBlock> replacements) {
-    // Nothing to replace
+  public MutableBlock firstNonEmptySuccessor() {
+    MutableBlock block = this;
+    while (block instanceof SingleSuccessorBlock && block.isEmpty()) {
+      block = ((SingleSuccessorBlock) block).successor();
+    }
+    return block;
   }
 
 }

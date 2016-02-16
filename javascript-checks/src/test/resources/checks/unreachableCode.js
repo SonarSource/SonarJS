@@ -45,6 +45,14 @@ function sayHello() {
     var g;
   }
   
+  switch (a) {
+  default:
+    foo();
+    break;
+  case 1:  // OK
+    bar();
+  }
+  
 }
 
 function tryCatchFinally() {
@@ -58,6 +66,12 @@ function tryCatchFinally() {
     throw ("MyException");
   } finally {
     var k;
+  }
+
+  try {
+    return foo();
+  } catch (e) {
+    bar(); // OK
   }
 
   try {

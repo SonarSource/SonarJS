@@ -29,6 +29,10 @@ import java.util.Set;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 
+/**
+ * Mutable block used when building a {@link ControlFlowGraph}.
+ * It has successors (except if it's the end node) but has no reference to predecessors.
+ */
 abstract class MutableBlock {
   
   private final List<Tree> elements = new ArrayList<>();
@@ -56,6 +60,9 @@ abstract class MutableBlock {
     return newSuccessor == null ? successor : newSuccessor;
   }
 
+  /**
+   * Jump keywords (return, throw, break continue) which disconnect normal execution flow coming to this block.
+   */
   public Set<SyntaxToken> disconnectingJumps() {
     return disconnectingJumps;
   }

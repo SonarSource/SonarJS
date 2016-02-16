@@ -22,6 +22,10 @@ package org.sonar.javascript.cfg;
 import java.util.List;
 import org.sonar.plugins.javascript.api.tree.Tree;
 
+/**
+ * A {@link ControlFlowNode} which has a list of elements.
+ * Elements are instances of {@link Tree} which are evaluated one after the other.
+ */
 public interface ControlFlowBlock extends ControlFlowNode {
 
   List<Tree> elements();
