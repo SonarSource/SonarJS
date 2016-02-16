@@ -23,11 +23,13 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ImmutableSetMultimap;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
+import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.javascript.api.tree.statement.BlockTree;
 
 public class ControlFlowGraph {
@@ -37,6 +39,7 @@ public class ControlFlowGraph {
   private final ImmutableSet<ControlFlowBlock> blocks;
   private final ImmutableSetMultimap<ControlFlowNode, ControlFlowNode> predecessors;
   private final ImmutableSetMultimap<ControlFlowNode, ControlFlowNode> successors;
+  private final ImmutableSetMultimap<ControlFlowNode, SyntaxToken> disconnectingJumps;
 
   ControlFlowGraph(Set<MutableBlock> blocks, MutableBlock start, MutableBlock end) {
 
@@ -51,6 +54,7 @@ public class ControlFlowGraph {
     
     ImmutableSetMultimap.Builder<ControlFlowNode, ControlFlowNode> successorBuilder = ImmutableSetMultimap.builder();
     ImmutableSetMultimap.Builder<ControlFlowNode, ControlFlowNode> predecessorBuilder = ImmutableSetMultimap.builder();
+    ImmutableSetMultimap.Builder<ControlFlowNode, SyntaxToken> jumpBuilder = ImmutableSetMultimap.builder();
     for (MutableBlock mutableBlock : blocks) {
       ControlFlowNode immutableBlock = immutableBlockByMutable.get(mutableBlock);
       for (MutableBlock mutableBlockSuccessor : mutableBlock.successors()) {
@@ -58,12 +62,14 @@ public class ControlFlowGraph {
         predecessorBuilder.put(immutableBlockSuccessor, immutableBlock);
         successorBuilder.put(immutableBlock, immutableBlockSuccessor);
       }
+      jumpBuilder.putAll(immutableBlock, mutableBlock.disconnectingJumps());
     }
     
     this.start = blocks.isEmpty() ? this.end : immutableBlockByMutable.get(start);
     this.blocks = immutableBlockSetBuilder.build();
     this.predecessors = predecessorBuilder.build();
     this.successors = successorBuilder.build();
+    this.disconnectingJumps = jumpBuilder.build();
   }
 
   public static ControlFlowGraph build(ScriptTree tree) {
@@ -84,6 +90,20 @@ public class ControlFlowGraph {
 
   public Set<ControlFlowBlock> blocks() {
     return blocks;
+  }
+
+  public Set<ControlFlowBlock> unreachableBlocks() {
+    Set<ControlFlowBlock> unreachable = new HashSet<>();
+    for (ControlFlowBlock block : blocks) {
+      if (!block.equals(start) && block.predecessors().isEmpty()) {
+        unreachable.add(block);
+      }
+    }
+    return unreachable;
+  }
+
+  public Set<SyntaxToken> disconnectingJumps(ControlFlowBlock block) {
+    return disconnectingJumps.get(block);
   }
 
   private class ImmutableBlock implements ControlFlowBlock {
@@ -130,5 +150,5 @@ public class ControlFlowGraph {
     }
     
   }
-  
+
 }

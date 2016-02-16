@@ -20,20 +20,20 @@
 package org.sonar.javascript.checks;
 
 import com.google.common.collect.ImmutableList;
-import java.util.ArrayDeque;
-import java.util.Deque;
 import java.util.List;
+import java.util.Set;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
-import org.sonar.javascript.checks.utils.CheckUtils;
-import org.sonar.javascript.tree.impl.JavaScriptTree;
+import org.sonar.javascript.cfg.ControlFlowBlock;
+import org.sonar.javascript.cfg.ControlFlowGraph;
+import org.sonar.plugins.javascript.api.tree.ScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
-import org.sonar.plugins.javascript.api.tree.statement.ElseClauseTree;
-import org.sonar.plugins.javascript.api.tree.statement.ExpressionStatementTree;
-import org.sonar.plugins.javascript.api.tree.statement.IfStatementTree;
-import org.sonar.plugins.javascript.api.tree.statement.IterationStatementTree;
+import org.sonar.plugins.javascript.api.tree.declaration.FunctionTree;
+import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
+import org.sonar.plugins.javascript.api.tree.statement.BlockTree;
+import org.sonar.plugins.javascript.api.visitors.PreciseIssue;
 import org.sonar.plugins.javascript.api.visitors.SubscriptionVisitorCheck;
 import org.sonar.squidbridge.annotations.ActivatedByDefault;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
@@ -50,107 +50,58 @@ import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 public class UnreachableCodeCheck extends SubscriptionVisitorCheck {
 
   private static final String MESSAGE = "Remove this code after the \"%s\" statement.";
-
-  private Deque<Boolean> blockLevel = new ArrayDeque<>();
-
-  private static final Kind[] JUMP_STATEMENTS = {
-    Kind.BREAK_STATEMENT,
-    Kind.RETURN_STATEMENT,
-    Kind.CONTINUE_STATEMENT,
-    Kind.THROW_STATEMENT
-  };
-
-  private static final Kind[] STATEMENTS = {
-    Kind.EXPRESSION_STATEMENT,
-    Kind.IF_STATEMENT,
-    Kind.FOR_STATEMENT,
-    Kind.FOR_IN_STATEMENT,
-    Kind.FOR_OF_STATEMENT,
-    Kind.WITH_STATEMENT,
-    Kind.SWITCH_STATEMENT,
-    Kind.THROW_STATEMENT,
-    Kind.TRY_STATEMENT,
-    Kind.DEBUGGER_STATEMENT,
-    Kind.VARIABLE_STATEMENT
-  };
-
-  private String jumpName = null;
-
+  private static final String MESSAGE_WITHOUT_KEYWORD = "Remove this unreachable code.";
 
   @Override
   public List<Kind> nodesToVisit() {
-    return ImmutableList.<Kind>builder()
-      .add(JUMP_STATEMENTS)
-      .add(STATEMENTS)
-      .add(Kind.BLOCK, Kind.CASE_CLAUSE, Kind.DEFAULT_CLAUSE, Kind.ELSE_CLAUSE)
-      .build();
+    return ImmutableList.of(
+      Kind.SCRIPT,
+      Kind.FUNCTION_DECLARATION,
+      Kind.FUNCTION_EXPRESSION,
+      Kind.GENERATOR_FUNCTION_EXPRESSION,
+      Kind.GENERATOR_DECLARATION,
+      Kind.METHOD,
+      Kind.GENERATOR_METHOD,
+      Kind.ARROW_FUNCTION);
   }
-
-  @Override
-  public void visitFile(Tree scriptTree) {
-    blockLevel.clear();
-    enterBlock();
-  }
-
 
   @Override
   public void visitNode(Tree tree) {
-    if (tree.is(Kind.BLOCK) || isScopeWithoutBlock(tree)) {
-      enterBlock();
-
-    } else if (!isExcludedExpression(tree) && isPrecededByAJump()) {
-      addLineIssue(tree, String.format(MESSAGE, jumpName));
-      updateStateTo(false);
-    }
-
-    if (tree.is(JUMP_STATEMENTS)) {
-      updateStateTo(true);
-      jumpName = ((JavaScriptTree) tree).getFirstToken().text();
-    }
-  }
-
-  private static boolean isScopeWithoutBlock(Tree tree) {
-    if (tree.is(CheckUtils.iterationStatementsArray())) {
-      return !((IterationStatementTree) tree).statement().is(Kind.BLOCK);
-
-    } else if (tree.is(Kind.IF_STATEMENT)) {
-      return !((IfStatementTree) tree).statement().is(Kind.BLOCK);
-
-    } else if (tree.is(Kind.ELSE_CLAUSE)) {
-      return !((ElseClauseTree) tree).statement().is(Kind.BLOCK);
-
+    if (tree.is(Kind.SCRIPT)) {
+      check(ControlFlowGraph.build((ScriptTree) tree));
     } else {
-      return tree.is(Kind.CASE_CLAUSE, Kind.DEFAULT_CLAUSE);
+      FunctionTree functionTree = (FunctionTree) tree;
+      if (functionTree.body().is(Kind.BLOCK)) {
+        check(ControlFlowGraph.build((BlockTree) functionTree.body()));
+      }
     }
   }
 
-  private static boolean isExcludedExpression(Tree tree) {
-    return tree.is(Kind.ELSE_CLAUSE) ||
-      (tree.is(Kind.EXPRESSION_STATEMENT) && ((ExpressionStatementTree) tree).expression().is(Kind.CLASS_EXPRESSION));
-  }
-
-  private void updateStateTo(Boolean state) {
-    blockLevel.pop();
-    blockLevel.push(state);
-  }
-
-  private Boolean isPrecededByAJump() {
-    return blockLevel.peek();
-  }
-
-  @Override
-  public void leaveNode(Tree tree) {
-    if (tree.is(Kind.BLOCK) || isScopeWithoutBlock(tree)) {
-      exitBlock();
+  private void check(ControlFlowGraph cfg) {
+    for (ControlFlowBlock unreachable : cfg.unreachableBlocks()) {
+      Tree element = unreachableTree(unreachable.elements());
+      if (element != null) {
+        Set<SyntaxToken> disconnectingJumps = cfg.disconnectingJumps(unreachable);
+        String message = MESSAGE_WITHOUT_KEYWORD;
+        if (disconnectingJumps.size() == 1) {
+          SyntaxToken keyword = disconnectingJumps.iterator().next();
+          message = String.format(MESSAGE, keyword.text());
+        }
+        PreciseIssue issue = newIssue(element, message);
+        for (SyntaxToken jump : disconnectingJumps) {
+          issue.secondary(jump);
+        }
+      }
     }
   }
 
-  private void enterBlock() {
-    blockLevel.push(false);
-  }
-
-  private void exitBlock() {
-    blockLevel.pop();
+  private Tree unreachableTree(List<Tree> elements) {
+    for (Tree element : elements) {
+      if (!element.is(Kind.FUNCTION_DECLARATION, Kind.GENERATOR_DECLARATION, Kind.CLASS_DECLARATION)) {
+        return element;
+      }
+    }
+    return null;
   }
 
 }

@@ -27,8 +27,8 @@ import org.sonar.plugins.javascript.api.tree.Tree;
 
 class BranchingBlock extends MutableBlock {
 
-  private MutableBlock successor1;
-  private MutableBlock successor2;
+  private MutableBlock successor1 = null;
+  private MutableBlock successor2 = null;
 
   public BranchingBlock(Tree element) {
     addElement(element);

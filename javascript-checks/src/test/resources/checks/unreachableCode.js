@@ -1,6 +1,6 @@
 function sayHello() {
   return;
-  var a; // Noncompliant {{Remove this code after the "return" statement.}}
+  var a; // Noncompliant [[secondary=-1]] {{Remove this code after the "return" statement.}}
 
   if (true) {
     return;
@@ -44,6 +44,10 @@ function sayHello() {
   default:
     var g;
   }
+  
+}
+
+function tryCatchFinally() {
 
   try {
     var h;
@@ -59,24 +63,42 @@ function sayHello() {
   try {
     throw ("MyException");
   } catch (e) {
-    var m;
+    var m; // OK
   }
-
-  if (true)
-    return; // OK
-  else if (false)
-    return; // OK
-  else {
+  
+  try {
+    doSomething();
+  } catch (e) {
     return;
   }
+  doSomethingElse(); // OK
+  
+}
 
-  var n; // TODO: NOK - both if branches returns, so this is also unreachable
+function f1() {
+
+  if (a) {
+    if (true)
+      return; // OK
+    else if (false)
+      return; // OK
+    else {
+      return;
+    }
+    var n; // Noncompliant [[secondary=-6,-4,-2]] {{Remove this unreachable code.}}
+  }
 
   return;
 
   function f(){ // OK
   }
 
+}
+
+function infiniteLoop() {
+  for(;;) {
+  }
+  unreachable(); // Noncompliant
 }
 
 function a() {

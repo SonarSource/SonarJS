@@ -33,6 +33,7 @@ import java.util.Set;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
+import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.javascript.api.tree.statement.BlockTree;
 import org.sonar.plugins.javascript.api.tree.statement.BreakStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.CaseClauseTree;
@@ -44,6 +45,7 @@ import org.sonar.plugins.javascript.api.tree.statement.ForOfStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.ForStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.IfStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.LabelledStatementTree;
+import org.sonar.plugins.javascript.api.tree.statement.ReturnStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.StatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.SwitchClauseTree;
 import org.sonar.plugins.javascript.api.tree.statement.SwitchStatementTree;
@@ -87,7 +89,11 @@ class ControlFlowGraphBuilder {
     Map<MutableBlock, MutableBlock> emptyBlockReplacements = new HashMap<>();
     for (SimpleBlock block : Iterables.filter(blocks, SimpleBlock.class)) {
       if (block.isEmpty()) {
-        emptyBlockReplacements.put(block, block.firstNonEmptySuccessor());
+        MutableBlock firstNonEmptySuccessor = block.firstNonEmptySuccessor();
+        emptyBlockReplacements.put(block, firstNonEmptySuccessor);
+        for (SyntaxToken jump : block.disconnectingJumps()) {
+          firstNonEmptySuccessor.addDisconnectingJump(jump);
+        }
       }
     }
 
@@ -130,7 +136,7 @@ class ControlFlowGraphBuilder {
     } else if (tree.is(Kind.BREAK_STATEMENT)) {
       visitBreakStatement((BreakStatementTree) tree);
     } else if (tree.is(Kind.RETURN_STATEMENT)) {
-      visitReturnStatement(tree);
+      visitReturnStatement((ReturnStatementTree) tree);
     } else if (tree.is(Kind.BLOCK)) {
       build(((BlockTree) tree).statements());
     } else if (tree.is(Kind.LABELLED_STATEMENT)) {
@@ -154,7 +160,8 @@ class ControlFlowGraphBuilder {
     }
   }
 
-  private void visitReturnStatement(Tree tree) {
+  private void visitReturnStatement(ReturnStatementTree tree) {
+    currentBlock.addDisconnectingJump(tree.returnKeyword());
     currentBlock = createSimpleBlock(tree, end);
   }
 
@@ -168,6 +175,7 @@ class ControlFlowGraphBuilder {
       }
     }
     Preconditions.checkState(target != null, "No continue target can be found for label " + label);
+    currentBlock.addDisconnectingJump(tree.continueKeyword());
     currentBlock = createSimpleBlock(tree, target);
   }
 
@@ -181,6 +189,7 @@ class ControlFlowGraphBuilder {
       }
     }
     Preconditions.checkState(target != null, "No break target can be found for label " + label);
+    currentBlock.addDisconnectingJump(tree.breakKeyword());
     currentBlock = createSimpleBlock(tree, target);
   }
 
@@ -197,14 +206,44 @@ class ControlFlowGraphBuilder {
   }
 
   private void visitForStatement(ForStatementTree tree) {
-    MutableBlock successor = currentBlock;
-    BranchingBlock conditionBlock = createBranchingBlock(tree.condition());
-    SimpleBlock updateBlock = createSimpleBlock(tree.update(), conditionBlock);
+    MutableBlock forStatementSuccessor = currentBlock;
 
-    MutableBlock loopBodyBlock = buildLoopBody(tree.statement(), updateBlock);
+    BranchingBlock realConditionBlock;
+    SimpleBlock fakeConditionBlock;
+    MutableBlock conditionBlock;
 
-    conditionBlock.setSuccessors(loopBodyBlock, successor);
-    currentBlock = createSimpleBlock(tree.init(), conditionBlock);
+    if (tree.condition() == null) {
+      realConditionBlock = null;
+      fakeConditionBlock = createSimpleBlock(currentBlock);
+      conditionBlock = fakeConditionBlock;
+    } else {
+      realConditionBlock = createBranchingBlock(tree.condition());
+      fakeConditionBlock = null;
+      conditionBlock = realConditionBlock;
+    }
+
+    MutableBlock bodySuccessor;
+    if (tree.update() != null) {
+      bodySuccessor = createSimpleBlock(tree.update(), conditionBlock);
+    } else {
+      bodySuccessor = conditionBlock;
+    }
+
+    MutableBlock loopBodyBlock = buildLoopBody(tree.statement(), bodySuccessor);
+
+    if (realConditionBlock != null) {
+      realConditionBlock.setSuccessors(loopBodyBlock, forStatementSuccessor);
+    }
+
+    if (fakeConditionBlock != null) {
+      fakeConditionBlock.forceSuccessor(loopBodyBlock);
+    }
+
+    if (tree.init() == null) {
+      currentBlock = conditionBlock;
+    } else {
+      currentBlock = createSimpleBlock(tree.init(), conditionBlock);
+    }
   }
 
   private void visitForInStatement(ForInStatementTree tree) {
@@ -254,12 +293,19 @@ class ControlFlowGraphBuilder {
     if (tree.finallyBlock() != null) {
       currentBlock = createSimpleBlock(currentBlock);
       build(tree.finallyBlock());
+      throwTargets.push(currentBlock);
     }
 
     if (tree.catchBlock() != null) {
-      currentBlock = createSimpleBlock(currentBlock);
-      build(tree.catchBlock().block());
-      currentBlock.addElement(tree.catchBlock().parameter());
+      MutableBlock catchSuccessor = currentBlock;
+      currentBlock = buildSubFlow(tree.catchBlock().block(), currentBlock);
+      BranchingBlock catchBlock = createBranchingBlock(tree.catchBlock().parameter());
+      catchBlock.setSuccessors(currentBlock, catchSuccessor);
+      currentBlock = catchBlock;
+    }
+
+    if (tree.finallyBlock() != null) {
+      throwTargets.pop();
     }
 
     throwTargets.push(currentBlock);
@@ -269,6 +315,7 @@ class ControlFlowGraphBuilder {
   }
 
   private void visitThrowStatement(ThrowStatementTree tree) {
+    currentBlock.addDisconnectingJump(tree.throwKeyword());
     currentBlock = createSimpleBlock(tree.expression(), throwTargets.peek());
   }
 

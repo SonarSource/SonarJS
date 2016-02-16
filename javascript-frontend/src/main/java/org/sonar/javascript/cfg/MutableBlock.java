@@ -22,14 +22,17 @@ package org.sonar.javascript.cfg;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import org.sonar.plugins.javascript.api.tree.Tree;
+import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 
 abstract class MutableBlock {
   
   private final List<Tree> elements = new ArrayList<>();
+  private final Set<SyntaxToken> disconnectingJumps = new HashSet<>();
 
   public abstract Set<MutableBlock> successors();
   
@@ -51,6 +54,14 @@ abstract class MutableBlock {
   static MutableBlock replacement(MutableBlock successor, Map<MutableBlock, MutableBlock> replacements) {
     MutableBlock newSuccessor = replacements.get(successor);
     return newSuccessor == null ? successor : newSuccessor;
+  }
+
+  public Set<SyntaxToken> disconnectingJumps() {
+    return disconnectingJumps;
+  }
+
+  public void addDisconnectingJump(SyntaxToken jumpToken) {
+    disconnectingJumps.add(jumpToken);
   }
 
 }

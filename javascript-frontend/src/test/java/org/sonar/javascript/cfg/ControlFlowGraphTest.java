@@ -28,6 +28,7 @@ import com.google.common.primitives.Ints;
 import com.sonar.sslr.api.typed.ActionParser;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
@@ -43,6 +44,7 @@ import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.declaration.FunctionDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.declaration.FunctionTree;
+import org.sonar.plugins.javascript.api.tree.statement.BlockTree;
 
 import static org.fest.assertions.Assertions.assertThat;
 
@@ -220,6 +222,30 @@ public class ControlFlowGraphTest {
   }
 
   @Test
+  public void for_with_no_init() throws Exception {
+    ControlFlowGraph g = build("for(; b0<10; b1++) { b2(); }", 3);
+    assertBlock(g, 0).hasSuccessors(2, END);
+    assertBlock(g, 1).hasSuccessors(0);
+    assertBlock(g, 2).hasSuccessors(1);
+  }
+
+  @Test
+  public void for_with_no_update() throws Exception {
+    ControlFlowGraph g = build("for(b0 = 0; b1<10; ) { b2(); }", 3);
+    assertBlock(g, 0).hasSuccessors(1);
+    assertBlock(g, 1).hasSuccessors(2, END);
+    assertBlock(g, 2).hasSuccessors(1);
+  }
+
+  @Test
+  public void for_with_no_condition() throws Exception {
+    ControlFlowGraph g = build("for(b0 = 0; ; b1()) { b2(); }", 3);
+    assertBlock(g, 0).hasSuccessors(2);
+    assertBlock(g, 1).hasSuccessors(2);
+    assertBlock(g, 2).hasSuccessors(1);
+  }
+
+  @Test
   public void continue_in_for() throws Exception {
     ControlFlowGraph g = build("for(i=0; i<10; i++) { if (a) continue; f1(); } ", 6);
     assertBlock(g, 0).hasSuccessors(1);
@@ -274,9 +300,10 @@ public class ControlFlowGraphTest {
 
   @Test
   public void try_catch() throws Exception {
-    ControlFlowGraph g = build("try { b0(); } catch(e) { foo(); } ", 2);
+    ControlFlowGraph g = build("try { b0(); } catch(e) { foo(); } ", 3);
     assertBlock(g, 0).hasSuccessors(1).hasElements("b0()");
-    assertBlock(g, 1).hasSuccessors(END).hasElements("e", "foo()");
+    assertBlock(g, 1).hasSuccessors(2, END).hasElements("e");
+    assertBlock(g, 2).hasSuccessors(END).hasElements("foo()");
   }
 
   @Test
@@ -296,10 +323,31 @@ public class ControlFlowGraphTest {
 
   @Test
   public void throw_in_try() throws Exception {
-    ControlFlowGraph g = build("try { if (b0) { throw b1; } b2(); } catch(b3) { foo(); } ", 4);
+    ControlFlowGraph g = build("try { if (b0) { throw b1; } b2(); } catch(b3) { b4(); } ", 5);
     assertBlock(g, 0).hasSuccessors(1, 2);
     assertBlock(g, 1).hasSuccessors(3);
     assertBlock(g, 2).hasSuccessors(3);
+    assertBlock(g, 3).hasSuccessors(4, END);
+    assertBlock(g, 4).hasSuccessors(END);
+  }
+
+  @Test
+  public void throw_in_catch() throws Exception {
+    ControlFlowGraph g = build("try { b0(); } catch(b1) { if (b2) { throw b3; } b4(); } finally { b5()}", 6);
+    assertBlock(g, 0).hasSuccessors(1);
+    assertBlock(g, 1).hasSuccessors(2, 5);
+    assertBlock(g, 2).hasSuccessors(3, 4);
+    assertBlock(g, 3).hasSuccessors(5);
+    assertBlock(g, 4).hasSuccessors(5);
+    assertBlock(g, 5).hasSuccessors(END);
+  }
+
+  @Test
+  public void return_in_catch() throws Exception {
+    ControlFlowGraph g = build("try { b0(); } catch(b1) { return b2; } finally { b3()}", 4);
+    assertBlock(g, 0).hasSuccessors(1);
+    assertBlock(g, 1).hasSuccessors(2, 3);
+    assertBlock(g, 2).hasSuccessors(END);
     assertBlock(g, 3).hasSuccessors(END);
   }
 
@@ -379,11 +427,31 @@ public class ControlFlowGraphTest {
   }
 
   @Test
+  public void unreachable_blocks() throws Exception {
+    ControlFlowGraph g = build("if (b0) { b1(); return; b2(); } b3(); ", 4);
+    assertBlock(g, 0).hasSuccessors(1, 3);
+    assertBlock(g, 1).hasSuccessors(END);
+    assertBlock(g, 2).hasSuccessors(3).hasElements("b2()").hasDisconnectingJumps("return");
+    assertBlock(g, 3).hasSuccessors(END);
+    ControlFlowBlock block2 = new TestedCfg(g).block(2);
+    assertThat(g.unreachableBlocks()).containsOnly(block2);
+  }
+
+  @Test
+  public void multiple_disconnecting_jumps() throws Exception {
+    // ControlFlowGraph g = build("return b0; do {} while(b1)", 2);
+    // assertThat(g.unreachableBlocks()).containsOnly(new TestedCfg(g).block(1));
+    ControlFlowGraph g = build("if (b0) { throw b1; } else if(b2) { return; } else { return; } b5();", 6);
+    assertThat(g.unreachableBlocks()).containsOnly(new TestedCfg(g).block(5));
+    assertBlock(g, 5).hasElements("b5()").hasDisconnectingJumps("throw", "return", "return");
+  }
+
+  @Test
   public void function_cfg() throws Exception {
     String sourceCode = "function f() { foo(); }";
     ScriptTree tree = (ScriptTree) parser.parse(sourceCode);
     FunctionTree functionTree = (FunctionDeclarationTree) tree.items().items().get(0);
-    ControlFlowGraph cfg = ControlFlowGraph.build(functionTree.body());
+    ControlFlowGraph cfg = ControlFlowGraph.build((BlockTree) functionTree.body());
     assertThat(cfg.blocks()).hasSize(1);
     assertBlock(cfg, 0).hasElements("foo()");
   }
@@ -421,18 +489,18 @@ public class ControlFlowGraphTest {
 
     private final ControlFlowGraph cfg;
     private final int blockIndex;
-    private final List<ControlFlowBlock> blocks;
+    private final TestedCfg testedCfg;
 
     public BlockAssert(ControlFlowGraph cfg, int blockIndex) {
       this.cfg = cfg;
       this.blockIndex = blockIndex;
-      this.blocks = sortBlocks(cfg.blocks());
+      this.testedCfg = new TestedCfg(cfg);
     }
 
     public BlockAssert hasSuccessors(int... expectedSuccessorIndexes) {
       Set<String> actual = new TreeSet<>();
-      for (ControlFlowNode successor : blocks.get(blockIndex).successors()) {
-        actual.add(successor == cfg.end() ? "END" : Integer.toString(blocks.indexOf(successor)));
+      for (ControlFlowNode successor : testedCfg.block(blockIndex).successors()) {
+        actual.add(successor == cfg.end() ? "END" : Integer.toString(testedCfg.blocks.indexOf(successor)));
       }
 
       Set<String> expected = new TreeSet<>();
@@ -445,14 +513,38 @@ public class ControlFlowGraphTest {
       return this;
     }
 
-    public BlockAssert hasElements(String... elementSources) {
+    public BlockAssert hasElements(String... treeSources) {
       List<String> actual = new ArrayList<>();
-      for (Tree element : blocks.get(blockIndex).elements()) {
-        actual.add(SourceBuilder.build(element).trim());
+      for (Tree tree : testedCfg.block(blockIndex).elements()) {
+        actual.add(SourceBuilder.build(tree).trim());
       }
-      assertThat(actual).isEqualTo(ImmutableList.copyOf(elementSources));
+      assertThat(actual).isEqualTo(ImmutableList.copyOf(treeSources));
 
       return this;
+    }
+    
+    public BlockAssert hasDisconnectingJumps(String... treeSources) {
+      Set<String> actual = new HashSet<>();
+      for (Tree tree : cfg.disconnectingJumps(testedCfg.block(blockIndex))) {
+        actual.add(SourceBuilder.build(tree).trim());
+      }
+      assertThat(actual).isEqualTo(ImmutableSet.copyOf(treeSources));
+
+      return this;
+    }
+
+  }
+
+  public static class TestedCfg {
+
+    private final List<ControlFlowBlock> blocks;
+
+    public TestedCfg(ControlFlowGraph cfg) {
+      this.blocks = sortBlocks(cfg.blocks());
+    }
+
+    public ControlFlowBlock block(int index) {
+      return blocks.get(index);
     }
 
   }
@@ -477,5 +569,6 @@ public class ControlFlowGraphTest {
     }
 
   }
+
 
 }

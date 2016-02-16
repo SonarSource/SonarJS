@@ -51,4 +51,9 @@ class SimpleBlock extends MutableBlock {
     this.successor = replacement(this.successor, replacements);
   }
 
+  // Should only be used in "for" loops which have no condition
+  public void forceSuccessor(MutableBlock successor) {
+    this.successor = successor;
+  }
+
 }
