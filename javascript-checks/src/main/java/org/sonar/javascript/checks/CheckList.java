@@ -159,7 +159,8 @@ public final class CheckList {
       VariableDeclarationWithoutVarCheck.class,
       VariableShadowingCheck.class,
       WebSQLDatabaseCheck.class,
-      WithStatementCheck.class);
+      WithStatementCheck.class,
+      WrongScopeDeclarationCheck.class);
   }
 
 }
