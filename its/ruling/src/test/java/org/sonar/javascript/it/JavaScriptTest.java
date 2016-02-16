@@ -28,6 +28,7 @@ import java.io.File;
 import java.io.FilenameFilter;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
+import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
 
@@ -41,8 +42,12 @@ public class JavaScriptTest {
     .addPlugin(localJarPath("../../sonar-javascript-plugin/target"))
     .setOrchestratorProperty("litsVersion", "0.5")
     .addPlugin("lits")
-    .restoreProfileAtStartup(FileLocation.of("src/test/profile.xml"))
     .build();
+
+  @Before
+  public void setUp() throws Exception {
+    ProfileGenerator.generateProfile(orchestrator);
+  }
 
   @Test
   public void test() throws Exception {
