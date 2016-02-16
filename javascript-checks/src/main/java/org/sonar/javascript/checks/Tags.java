@@ -31,6 +31,7 @@ public class Tags {
   public static final String CONVENTION = "convention";
   public static final String CROSS_BROWSER = "cross-browser";
   public static final String CWE = "cwe";
+  public static final String ES2015 = "es2015";
   public static final String INJECTION = "injection";
   public static final String JQUERY = "jquery";
   public static final String LOCK_IN = "lock-in";
