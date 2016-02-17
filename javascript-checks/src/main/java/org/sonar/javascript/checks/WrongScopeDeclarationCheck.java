@@ -23,6 +23,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import javax.annotation.CheckForNull;
 import org.sonar.api.server.rule.RulesDefinition.SubCharacteristics;
@@ -45,7 +46,7 @@ import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
   tags = {Tags.PITFALL})
 @ActivatedByDefault
 @SqaleSubCharacteristic(SubCharacteristics.UNDERSTANDABILITY)
-@SqaleConstantRemediation("10min")
+@SqaleConstantRemediation("2min")
 public class WrongScopeDeclarationCheck extends DoubleDispatchVisitorCheck {
 
   private static final String MESSAGE = "Move the declaration of \"%s\" to line %s.";
@@ -93,7 +94,7 @@ public class WrongScopeDeclarationCheck extends DoubleDispatchVisitorCheck {
    * </pre>
    *
    */
-  private boolean isFunctionException(Scope deepestCommonScope, Scope declarationScope) {
+  private static boolean isFunctionException(Scope deepestCommonScope, Scope declarationScope) {
     return !deepestCommonScope.isBlock() && getScopeDepth(deepestCommonScope) > getScopeDepth(declarationScope);
   }
 
@@ -102,7 +103,7 @@ public class WrongScopeDeclarationCheck extends DoubleDispatchVisitorCheck {
    * Returns null if symbol has no declaration or has several.
    */
   @CheckForNull
-  private Usage getOnlyDeclaration(Symbol symbol) {
+  private static Usage getOnlyDeclaration(Symbol symbol) {
     Usage declaration = null;
     for (Usage usage : symbol.usages()) {
       if (usage.isDeclaration()) {
@@ -120,7 +121,7 @@ public class WrongScopeDeclarationCheck extends DoubleDispatchVisitorCheck {
   /**
    * Returns the depth of scope in tree of all scopes (where root is global scope and has 0 depth).
    */
-  private int getScopeDepth(Scope scope) {
+  private static int getScopeDepth(Scope scope) {
     int depth = 0;
     Scope currentScope = scope;
     while (!currentScope.isGlobal()) {
@@ -131,7 +132,7 @@ public class WrongScopeDeclarationCheck extends DoubleDispatchVisitorCheck {
     return depth;
   }
 
-  private Scope getDeepestCommonScope(Symbol symbol, Usage declaration) {
+  private static Scope getDeepestCommonScope(Symbol symbol, Usage declaration) {
     Set<Usage> usages = new HashSet<>(symbol.usages());
     if (!declaration.isWrite()) {
       usages.remove(declaration);
@@ -145,21 +146,19 @@ public class WrongScopeDeclarationCheck extends DoubleDispatchVisitorCheck {
 
     int minDepth = Collections.min(scopeDepthMap.values());
 
-    Set<Scope> scopes = new HashSet<>();
-    for (Scope scope : scopeDepthMap.keySet()) {
-      int depth = scopeDepthMap.get(scope);
-      scopes.add(raisedScope(scope, depth - minDepth));
+    Set<Scope> sameDepthScopes = new HashSet<>();
+    for (Entry<Scope, Integer> entry : scopeDepthMap.entrySet()) {
+      sameDepthScopes.add(getAncestorScope(entry.getKey(), entry.getValue() - minDepth));
     }
 
-    while (scopes.size() != 1) {
-      scopes = allScopesRaiseOneLevel(scopes);
+    while (sameDepthScopes.size() != 1) {
+      sameDepthScopes = outerScopes(sameDepthScopes);
     }
 
-    return (Scope) scopes.toArray()[0];
+    return sameDepthScopes.iterator().next();
   }
 
-
-  private Scope raisedScope(Scope scope, int levelsUp) {
+  private static Scope getAncestorScope(Scope scope, int levelsUp) {
     Scope currentScope = scope;
     for (int i = 0; i < levelsUp; i++) {
       currentScope = currentScope.outer();
@@ -168,7 +167,7 @@ public class WrongScopeDeclarationCheck extends DoubleDispatchVisitorCheck {
     return currentScope;
   }
 
-  private Set<Scope> allScopesRaiseOneLevel(Set<Scope> scopes) {
+  private static Set<Scope> outerScopes(Set<Scope> scopes) {
     Set<Scope> result = new HashSet<>();
     for (Scope scope : scopes) {
       result.add(scope.outer());
