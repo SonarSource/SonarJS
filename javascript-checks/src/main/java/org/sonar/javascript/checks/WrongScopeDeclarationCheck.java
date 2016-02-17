@@ -61,14 +61,40 @@ public class WrongScopeDeclarationCheck extends DoubleDispatchVisitorCheck {
 
   private void visitSymbol(Symbol symbol) {
     Usage declaration = getOnlyDeclaration(symbol);
-    if (declaration != null && symbol.usages().size() > 1) {
-      Scope deepestCommonScope = getDeepestCommonScope(symbol, declaration);
 
-      if (!deepestCommonScope.equals(declaration.identifierTree().scope())) {
+    if (declaration != null && symbol.usages().size() > 1) {
+
+      Scope deepestCommonScope = getDeepestCommonScope(symbol, declaration);
+      Scope declarationScope = declaration.identifierTree().scope();
+
+      if (!deepestCommonScope.equals(declarationScope) && !isFunctionException(deepestCommonScope, declarationScope)) {
         String message = String.format(MESSAGE, symbol.name(), ((JavaScriptTree) deepestCommonScope.tree()).getLine());
         newIssue(declaration.identifierTree(), message);
       }
     }
+
+  }
+
+  /**
+   * True for variable which deepest common scope (right declaration scope) is function which is nested into declaration scope
+   * E.g.
+   * <pre>
+   *  var y;   // should be OK
+   *  function foo(p) {
+   *    if (y) {
+   *      bar(y);
+   *    }
+   *    y = p;
+   *  }
+   *
+   *  for (var j = 1; j < 10; j++) {
+   *    foo(j)
+   *  }
+   * </pre>
+   *
+   */
+  private boolean isFunctionException(Scope deepestCommonScope, Scope declarationScope) {
+    return !deepestCommonScope.isBlock() && getScopeDepth(deepestCommonScope) > getScopeDepth(declarationScope);
   }
 
   /**
@@ -93,7 +119,6 @@ public class WrongScopeDeclarationCheck extends DoubleDispatchVisitorCheck {
 
   /**
    * Returns the depth of scope in tree of all scopes (where root is global scope and has 0 depth).
-   *
    */
   private int getScopeDepth(Scope scope) {
     int depth = 0;

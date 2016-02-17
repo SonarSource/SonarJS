@@ -30,5 +30,4 @@ public class WrongScopeDeclarationCheckTest {
     JavaScriptCheckVerifier.verify(new WrongScopeDeclarationCheck(), new File("src/test/resources/checks/WrongScopeDeclaration.js"));
   }
 
-
 }

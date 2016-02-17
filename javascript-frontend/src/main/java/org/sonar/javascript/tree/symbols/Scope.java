@@ -93,6 +93,9 @@ public class Scope {
     return symbols.get(name);
   }
 
+  /**
+   * Returns true for block scopes (loops, if, etc.), false for function scopes (script, functions, getter, etc.)
+   */
   public boolean isBlock() {
     return isBlock;
   }

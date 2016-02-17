@@ -1,15 +1,7 @@
-<p>Global variables that are only used by a single function should be declared in that function, thus limiting both their scope and other code's ability to modify the variable unexpectedly.</p>
-<p>Similarly, a variable that is declared at function scope, but only used inside a single block should be declared in that block, and variables that are declared inside a block but used outside of it (which is possible with a <code>var</code>-style declaration) should be declared outside the block.</p>
+<p>A variable that is declared at function scope, but only used inside a single block should be declared in that block, and variables that are declared inside a block but used outside of it (which is possible with a <code>var</code>-style declaration) should be declared outside the block.</p>
 
 <h2>Noncompliant Code Example</h2>
 <pre>
-var count;  // Noncompliant; only used in increment;
-
-function increment(p) {
-  count = p;
-  return count + 1;
-}
-
 function doSomething(a, b) {
   var i;  // Noncompliant; should be declared in if-block
   if (a &gt; b) {
@@ -28,11 +20,6 @@ function doSomething(a, b) {
 
 <h2>Compliant Solution</h2>
 <pre>
-function increment(p) {
-  var count = p;
-  return count + 1;
-}
-
 function doSomething(a, b) {
   var x = a - b;
 

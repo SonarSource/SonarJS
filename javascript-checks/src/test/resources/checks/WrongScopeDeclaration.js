@@ -1,4 +1,4 @@
-var count;           // Noncompliant {{Move the declaration of "count" to line 3.}}
+var count;           // OK, function "increment" could be called several times
 
 function increment(p) {
   count = p;
@@ -26,4 +26,17 @@ for (var prop in obj) {
   if (true) {
     console.log(prop);
   }
+}
+
+var y;   // OK
+
+function foo(p) {
+  if (y) {
+    bar(y);
+  }
+  y = p;
+}
+
+for (var j = 1; j < 10; j++) {
+  foo(j)
 }
