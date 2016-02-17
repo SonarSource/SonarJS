@@ -85,7 +85,7 @@ public class ArrayBindingPatternTreeModelTest extends JavaScriptTreeModelTest {
 
   @Test
   public void bindingIdentifiers() throws Exception {
-    ArrayBindingPatternTreeImpl tree = parse("var [a, , b, ...c, { d }, [ i ]] = obj", Kind.ARRAY_BINDING_PATTERN);
+    ArrayBindingPatternTreeImpl tree = parse("var [a, , b = 1, ...c, { d }, [ i ]] = obj", Kind.ARRAY_BINDING_PATTERN);
 
     List<IdentifierTree> bindingName = tree.bindingIdentifiers();
     assertThat(bindingName).hasSize(5);
