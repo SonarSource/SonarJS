@@ -111,6 +111,18 @@ public class JavaScriptLexerTest {
   }
 
   @Test
+  public void binaryIntegerLiteral() throws Exception {
+    assertThat(lexer.lex("0b101"), hasToken("0b101", JavaScriptTokenType.NUMERIC_LITERAL));
+    assertThat(lexer.lex("0B101"), hasToken("0B101", JavaScriptTokenType.NUMERIC_LITERAL));
+  }
+
+  @Test
+  public void octalIntegerLiteral() throws Exception {
+    assertThat(lexer.lex("0o77"), hasToken("0o77", JavaScriptTokenType.NUMERIC_LITERAL));
+    assertThat(lexer.lex("0O77"), hasToken("0O77", JavaScriptTokenType.NUMERIC_LITERAL));
+  }
+
+  @Test
   public void stringLiteral() {
     assertThat("empty", lexer.lex("''"), hasToken("''", GenericTokenType.LITERAL));
     assertThat("empty", lexer.lex("\"\""), hasToken("\"\"", GenericTokenType.LITERAL));

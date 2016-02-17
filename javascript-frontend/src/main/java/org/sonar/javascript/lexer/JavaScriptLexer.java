@@ -56,7 +56,9 @@ public final class JavaScriptLexer {
     + "|0[xX][0-9a-fA-F]++" + INT_SUFFIX + "?+"
     // Binary (Java 7)
     + "|0[bB][01]++" + INT_SUFFIX + "?+"
-    // Decimal and Octal
+    // Octal
+    + "|0[oO][0-7]++" + INT_SUFFIX + "?+"
+    // Decimal and octal
     + "|[0-9]++" + INT_SUFFIX + "?+"
     + ")";
 
