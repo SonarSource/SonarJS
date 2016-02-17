@@ -70,3 +70,8 @@ export default {prop: value} // NOK
 
 export * from "moduleName";   // OK
 export default new C();       // OK
+
+function foo() {
+  class A {    // OK
+  }
+}
