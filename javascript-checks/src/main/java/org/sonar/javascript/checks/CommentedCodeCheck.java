@@ -20,31 +20,30 @@
 package org.sonar.javascript.checks;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableSet;
-import java.util.Arrays;
+import com.sonar.sslr.api.RecognitionException;
+import com.sonar.sslr.api.typed.ActionParser;
+import java.nio.charset.Charset;
 import java.util.List;
-import java.util.Set;
-import java.util.regex.Pattern;
-import org.apache.commons.lang.StringUtils;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
-import org.sonar.javascript.lexer.JavaScriptKeyword;
+import org.sonar.javascript.parser.JavaScriptParserBuilder;
 import org.sonar.javascript.tree.JavaScriptCommentAnalyser;
+import org.sonar.javascript.tree.impl.JavaScriptTree;
+import org.sonar.javascript.tree.visitors.CharsetAwareVisitor;
+import org.sonar.plugins.javascript.api.tree.ScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
+import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxTrivia;
-import org.sonar.plugins.javascript.api.visitors.LineIssue;
+import org.sonar.plugins.javascript.api.tree.statement.ExpressionStatementTree;
+import org.sonar.plugins.javascript.api.tree.statement.ReturnStatementTree;
+import org.sonar.plugins.javascript.api.tree.statement.ThrowStatementTree;
 import org.sonar.plugins.javascript.api.visitors.SubscriptionVisitorCheck;
 import org.sonar.squidbridge.annotations.ActivatedByDefault;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
-import org.sonar.squidbridge.recognizer.CodeRecognizer;
-import org.sonar.squidbridge.recognizer.Detector;
-import org.sonar.squidbridge.recognizer.EndWithDetector;
-import org.sonar.squidbridge.recognizer.KeywordsDetector;
-import org.sonar.squidbridge.recognizer.LanguageFootprint;
 
 @Rule(
   key = "CommentedCode",
@@ -54,48 +53,11 @@ import org.sonar.squidbridge.recognizer.LanguageFootprint;
 @ActivatedByDefault
 @SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.UNDERSTANDABILITY)
 @SqaleConstantRemediation("5min")
-public class CommentedCodeCheck extends SubscriptionVisitorCheck {
+public class CommentedCodeCheck extends SubscriptionVisitorCheck implements CharsetAwareVisitor {
 
   private static final String MESSAGE = "Remove this commented out code.";
-
   private static final JavaScriptCommentAnalyser COMMENT_ANALYSER = new JavaScriptCommentAnalyser();
-
-  private static final double THRESHOLD = 0.9;
-
-  private final CodeRecognizer codeRecognizer = new CodeRecognizer(THRESHOLD, new JavaScriptRecognizer());
-  private final Pattern regexpToDivideStringByLine = Pattern.compile("(\r?\n)|(\r)");
-
-  private static class JavaScriptRecognizer implements LanguageFootprint {
-
-    @Override
-    public Set<Detector> getDetectors() {
-      return ImmutableSet.of(
-        new EndWithDetector(0.95, '}', ';', '{'),
-        new KeywordsDetector(0.3, JavaScriptKeyword.keywordValues()),
-        new ContainsDetectorJS(0.95, "*=", "/=", "%=", "+=", "-=", "<<=", ">>=", ">>>=", "&=", "^=", "|="),
-        new ContainsDetectorJS(0.95, "!=", "!=="));
-    }
-
-  }
-
-  private static class ContainsDetectorJS extends Detector {
-
-    private final List<String> strs;
-
-    public ContainsDetectorJS(double probability, String... strs) {
-      super(probability);
-      this.strs = Arrays.asList(strs);
-    }
-
-    @Override
-    public int scan(String line) {
-      int matchers = 0;
-      for (String str : strs) {
-        matchers += StringUtils.countMatches(line, str);
-      }
-      return matchers;
-    }
-  }
+  private ActionParser<Tree> parser;
 
   @Override
   public List<Kind> nodesToVisit() {
@@ -107,15 +69,78 @@ public class CommentedCodeCheck extends SubscriptionVisitorCheck {
     SyntaxToken token = (SyntaxToken) tree;
     for (SyntaxTrivia trivia : token.trivias()) {
       if (!isJsDoc(trivia) && !isJsLint(trivia) && !isJsHint(trivia) && !isGlobals(trivia)) {
-        String[] lines = regexpToDivideStringByLine.split(COMMENT_ANALYSER.getContents(trivia.text()));
-        for (int lineOffset = 0; lineOffset < lines.length; lineOffset++) {
-          if (codeRecognizer.isLineOfCode(lines[lineOffset])) {
-            addIssue(new LineIssue(this, trivia.line() + lineOffset, MESSAGE));
-            break;
-          }
-        }
+        checkCommentText(trivia);
       }
     }
+  }
+
+  private void checkCommentText(SyntaxTrivia trivia) {
+    String content = COMMENT_ANALYSER.getContents(trivia.text());
+
+    if (content.endsWith("{")) {
+      content += "}";
+    }
+
+    try {
+      ScriptTree parsed = (ScriptTree)parser.parse(content);
+      if (!isExclusion(parsed)) {
+        addLineIssue(trivia, MESSAGE);
+      }
+    } catch (RecognitionException e) {
+      // do nothing, it's just a comment
+    }
+  }
+
+  private static boolean isExclusion(ScriptTree parsed) {
+    if (isEmptyScriptTree(parsed)) {
+      return true;
+    }
+
+    if (parsed.items().items().size() == 1) {
+      Tree item = parsed.items().items().get(0);
+
+      if (item.is(Kind.LABELLED_STATEMENT) || isExpressionExclusion(item) || isReturnThrowExclusion(item) || isBreakContinueExclusion(item)) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  private static boolean isEmptyScriptTree(ScriptTree parsed) {
+    return parsed.items() == null || parsed.items().items().isEmpty();
+  }
+
+  private static boolean isReturnThrowExclusion(Tree item) {
+    ExpressionTree expression = null;
+
+    if (item.is(Kind.RETURN_STATEMENT)) {
+      expression = ((ReturnStatementTree)item).expression();
+
+    } else if (item.is(Kind.THROW_STATEMENT)) {
+      expression = ((ThrowStatementTree) item).expression();
+    }
+
+    return expression != null && expression.is(Kind.IDENTIFIER_REFERENCE);
+  }
+
+  private static boolean isExpressionExclusion(Tree item) {
+    if (item.is(Kind.EXPRESSION_STATEMENT)) {
+      ExpressionStatementTree expressionStatement = (ExpressionStatementTree) item;
+
+      if (expressionStatement.semicolonToken() == null || expressionStatement.expression().is(Kind.COMMA_OPERATOR)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  private static boolean isBreakContinueExclusion(Tree item) {
+    return item.is(Kind.BREAK_STATEMENT, Kind.CONTINUE_STATEMENT) && !endsWithSemicolon((JavaScriptTree) item);
+  }
+
+  private static boolean endsWithSemicolon(JavaScriptTree item) {
+    return ";".equals(item.getLastToken().text());
   }
 
   private static boolean isJsDoc(SyntaxTrivia trivia) {
@@ -134,4 +159,8 @@ public class CommentedCodeCheck extends SubscriptionVisitorCheck {
     return trivia.text().startsWith("/*global");
   }
 
+  @Override
+  public void setCharset(Charset charset) {
+    this.parser = JavaScriptParserBuilder.createParser(charset);
+  }
 }

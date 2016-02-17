@@ -19,6 +19,7 @@
  */
 package org.sonar.javascript.checks;
 
+import com.google.common.base.Charsets;
 import org.junit.Test;
 import org.sonar.javascript.checks.tests.TreeCheckTest;
 import org.sonar.squidbridge.checks.CheckMessagesVerifier;
@@ -29,9 +30,13 @@ public class CommentedCodeCheckTest extends TreeCheckTest {
   public void test() {
     String relativePath = "src/test/resources/checks/commentedCode.js";
     CommentedCodeCheck check = new CommentedCodeCheck();
+    check.setCharset(Charsets.UTF_8);
     CheckMessagesVerifier.verify(getIssues(relativePath, check))
       .next().atLine(7).withMessage("Remove this commented out code.")
-      .next().atLine(14)
+      .next().atLine(26)
+      .next().atLine(42)
+      .next().atLine(43)
+      .next().atLine(44)
       .noMore();
   }
 
