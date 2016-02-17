@@ -126,6 +126,7 @@ public final class CheckList {
       SelectionTestedWithoutLengthCheck.class,
       SelfAssignmentCheck.class,
       SemicolonCheck.class,
+      ShorthandPropertiesNotGroupedCheck.class,
       SingleQuoteStringLiteralsCheck.class,
       SpaceInModelPropertyNameCheck.class,
       StrictModeCheck.class,

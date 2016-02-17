@@ -1,0 +1,33 @@
+<p>Grouping all the shorthand declarations together in an object makes the declaration as a whole more readable. This rule accepts shorthand declarations grouped at either the beginning or end of an object.</p>
+
+<h2>Noncompliant Code Example</h2>
+<pre>
+let obj1 = {
+  foo,
+  a: 1,
+  color,  // Noncompliant
+  b: 2,
+  judyGarland  // Noncompliant
+}
+</pre>
+
+<h2>Compliant Solution</h2>
+<pre>
+let obj1 = {
+  foo,
+  color,
+  judyGarland,
+  a: 1,
+  b: 2
+}
+</pre>
+<p>or </p>
+<pre>
+let obj1 = {
+  a: 1,
+  b: 2,
+  foo,
+  color,
+  judyGarland
+}
+</pre>
