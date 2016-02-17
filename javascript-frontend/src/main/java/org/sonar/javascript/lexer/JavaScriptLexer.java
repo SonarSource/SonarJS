@@ -35,31 +35,27 @@ public final class JavaScriptLexer {
   private static final String EXP = "([Ee][+-]?+[0-9_]++)";
   private static final String BINARY_EXP = "([Pp][+-]?+[0-9_]++)";
 
-  private static final String FLOAT_SUFFIX = "[fFdD]";
-  private static final String INT_SUFFIX = "[lL]";
-
   public static final String NUMERIC_LITERAL = "(?:"
     // Decimal
-    + "[0-9]++\\.([0-9]++)?+" + EXP + "?+" + FLOAT_SUFFIX + "?+"
+    + "[0-9]++\\.([0-9]++)?+" + EXP + "?+"
     // Decimal
-    + "|\\.[0-9]++" + EXP + "?+" + FLOAT_SUFFIX + "?+"
+    + "|\\.[0-9]++" + EXP + "?+"
     // Decimal
-    + "|[0-9]++" + FLOAT_SUFFIX
-    + "|[0-9]++" + EXP + FLOAT_SUFFIX + "?+"
+    + "|[0-9]++" + EXP
     // Hexadecimal
-    + "|0[xX][0-9a-fA-F]++\\.[0-9a-fA-F_]*+" + BINARY_EXP + "?+" + FLOAT_SUFFIX + "?+"
+    + "|0[xX][0-9a-fA-F]++\\.[0-9a-fA-F_]*+" + BINARY_EXP + "?+"
     // Hexadecimal
-    + "|0[xX][0-9a-fA-F]++" + BINARY_EXP + FLOAT_SUFFIX + "?+"
+    + "|0[xX][0-9a-fA-F]++" + BINARY_EXP
 
     // Integer Literals
     // Hexadecimal
-    + "|0[xX][0-9a-fA-F]++" + INT_SUFFIX + "?+"
+    + "|0[xX][0-9a-fA-F]++"
     // Binary (Java 7)
-    + "|0[bB][01]++" + INT_SUFFIX + "?+"
+    + "|0[bB][01]++"
     // Octal
-    + "|0[oO][0-7]++" + INT_SUFFIX + "?+"
+    + "|0[oO][0-7]++"
     // Decimal and octal
-    + "|[0-9]++" + INT_SUFFIX + "?+"
+    + "|[0-9]++"
     + ")";
 
   public static final String LITERAL = "(?:"
