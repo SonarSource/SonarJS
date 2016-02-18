@@ -10,3 +10,10 @@ var BackboneObject = new BackboneClass();
 ChildBackboneClass = BackboneClass.extend();
 
 childBackboneObject = new ChildBackboneClass;
+
+var moduleA = angular.module("name");
+
+var moduleB = moduleA.controller();
+
+var unknown1 = angular.unknown();
+var unknown2 = moduleA.unknown();

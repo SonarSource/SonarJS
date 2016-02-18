@@ -118,6 +118,17 @@ public class ObjectType implements Type {
         return Callability.UNKNOWN;
       }
     },
+    ANGULAR_MODULE {
+      @Override
+      public Kind kind() {
+        return Kind.ANGULAR_MODULE;
+      }
+
+      @Override
+      public Callability callability() {
+        return Callability.NON_CALLABLE;
+      }
+    }
   }
 
   public enum BuiltInObjectType implements Type {

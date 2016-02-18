@@ -21,7 +21,9 @@ package org.sonar.javascript.tree.symbols.type;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.sonar.javascript.tree.symbols.type.ObjectType.FrameworkType;
 import org.sonar.plugins.javascript.api.symbols.Symbol;
+import org.sonar.plugins.javascript.api.symbols.Type.Kind;
 
 import static org.fest.assertions.Assertions.assertThat;
 
@@ -65,4 +67,15 @@ public class FrameworkTest extends TypeTest {
     assertThat(backboneObject.types()).containsOnly(ObjectType.FrameworkType.BACKBONE_MODEL_OBJECT);
   }
 
+  @Test
+  public void angular_model() throws Exception {
+    Symbol angularModule = getSymbol("moduleA");
+    assertThat(angularModule.types()).containsOnly(FrameworkType.ANGULAR_MODULE);
+
+    angularModule = getSymbol("moduleB");
+    assertThat(angularModule.types()).containsOnly(FrameworkType.ANGULAR_MODULE);
+
+    assertThat(getSymbol("unknown1").types().containsOnly(Kind.UNKNOWN)).isTrue();
+    assertThat(getSymbol("unknown2").types().containsOnly(Kind.UNKNOWN)).isTrue();
+  }
 }

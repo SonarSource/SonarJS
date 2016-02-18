@@ -161,6 +161,9 @@ public class TypeVisitor extends DoubleDispatchVisitor {
 
     } else if (WebAPI.isElementList(tree)) {
       addType(tree, ArrayType.create(ObjectType.WebApiType.DOM_ELEMENT));
+
+    } else if (AngularJS.isModule(tree)) {
+      addType(tree, ObjectType.FrameworkType.ANGULAR_MODULE);
     }
 
     inferParameterType(tree);

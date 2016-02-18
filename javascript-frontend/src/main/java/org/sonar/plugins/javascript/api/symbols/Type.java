@@ -64,6 +64,9 @@ public interface Type {
     WINDOW,
     DOCUMENT,
     DOM_ELEMENT,
+
+    // ANGULAR JS
+    ANGULAR_MODULE
   }
 
 
