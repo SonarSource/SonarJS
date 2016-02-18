@@ -19,7 +19,6 @@
  */
 package org.sonar.javascript.checks;
 
-import com.google.common.collect.ImmutableList;
 import java.util.List;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
@@ -29,13 +28,7 @@ import org.sonar.javascript.metrics.ComplexityVisitor;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.declaration.FunctionDeclarationTree;
-import org.sonar.plugins.javascript.api.tree.expression.CallExpressionTree;
-import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
-import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
-import org.sonar.plugins.javascript.api.tree.expression.NewExpressionTree;
-import org.sonar.plugins.javascript.api.tree.expression.ParenthesisedExpressionTree;
 import org.sonar.plugins.javascript.api.visitors.PreciseIssue;
-import org.sonar.plugins.javascript.api.visitors.SubscriptionVisitorCheck;
 import org.sonar.squidbridge.annotations.ActivatedByDefault;
 import org.sonar.squidbridge.annotations.SqaleLinearWithOffsetRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
@@ -51,7 +44,7 @@ import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
   coeff = "1min",
   offset = "10min",
   effortToFixDescription = "per complexity point above the threshold")
-public class FunctionComplexityCheck extends SubscriptionVisitorCheck {
+public class FunctionComplexityCheck extends AbstractFunctionSizeCheck {
 
   private static final String MESSAGE = "Function has a complexity of %s which is greater than %s authorized.";
 
@@ -62,49 +55,12 @@ public class FunctionComplexityCheck extends SubscriptionVisitorCheck {
     description = "The maximum authorized complexity in function",
     defaultValue = "" + DEFAULT_MAXIMUM_FUNCTION_COMPLEXITY_THRESHOLD)
   private int maximumFunctionComplexityThreshold = DEFAULT_MAXIMUM_FUNCTION_COMPLEXITY_THRESHOLD;
-  private boolean immediatelyInvokedFunctionExpression = false;
-  private boolean amdPattern = false;
 
   @Override
-  public List<Kind> nodesToVisit() {
-    return ImmutableList.of(
-      Kind.FUNCTION_DECLARATION,
-      Kind.FUNCTION_EXPRESSION,
-      Kind.GENERATOR_FUNCTION_EXPRESSION,
-      Kind.GENERATOR_DECLARATION,
-      Kind.METHOD,
-      Kind.GENERATOR_METHOD,
-      Kind.CALL_EXPRESSION,
-      Kind.NEW_EXPRESSION
-    );
-  }
-
-  @Override
-  public void visitNode(Tree tree) {
-    if (tree.is(Kind.CALL_EXPRESSION)) {
-      checkForImmediatelyInvokedFunction(((CallExpressionTree) tree).callee());
-      checkForAMDPattern((CallExpressionTree) tree);
-
-    } else if (tree.is(Kind.NEW_EXPRESSION)) {
-      if (((NewExpressionTree) tree).arguments() != null) {
-        checkForImmediatelyInvokedFunction(((NewExpressionTree) tree).expression());
-      }
-
-    } else {
-      visitFunction(tree);
-    }
-
-  }
-
-  private void visitFunction(Tree tree) {
-    if (immediatelyInvokedFunctionExpression || amdPattern) {
-      clearCheckState();
-
-    } else {
-      List<Tree> complexityTrees = new ComplexityVisitor().complexityTrees(tree);
-      if (complexityTrees.size() > maximumFunctionComplexityThreshold) {
-        raiseIssue(tree, complexityTrees);
-      }
+  void checkFunction(Tree functionTree) {
+    List<Tree> complexityTrees = new ComplexityVisitor().complexityTrees(functionTree);
+    if (complexityTrees.size() > maximumFunctionComplexityThreshold) {
+      raiseIssue(functionTree, complexityTrees);
     }
   }
 
@@ -128,30 +84,6 @@ public class FunctionComplexityCheck extends SubscriptionVisitorCheck {
 
   public void setMaximumFunctionComplexityThreshold(int threshold) {
     this.maximumFunctionComplexityThreshold = threshold;
-  }
-
-  private void checkForImmediatelyInvokedFunction(ExpressionTree callee) {
-    Kind[] funcExprKinds = {Kind.FUNCTION_EXPRESSION, Kind.GENERATOR_FUNCTION_EXPRESSION};
-    boolean directFunctionCallee = callee.is(funcExprKinds);
-    boolean parenthesisedFunctionCallee = callee.is(Kind.PARENTHESISED_EXPRESSION) && ((ParenthesisedExpressionTree) callee).expression().is(funcExprKinds);
-    if (directFunctionCallee || parenthesisedFunctionCallee) {
-      immediatelyInvokedFunctionExpression = true;
-    }
-  }
-
-  private void checkForAMDPattern(CallExpressionTree tree) {
-    if (tree.callee().is(Kind.IDENTIFIER_REFERENCE) && "define".equals(((IdentifierTree) tree.callee()).name())) {
-      for (Tree parameter : tree.arguments().parameters()) {
-        if (parameter.is(Kind.FUNCTION_EXPRESSION)) {
-          amdPattern = true;
-        }
-      }
-    }
-  }
-
-  private void clearCheckState() {
-    immediatelyInvokedFunctionExpression = false;
-    amdPattern = false;
   }
 
 }

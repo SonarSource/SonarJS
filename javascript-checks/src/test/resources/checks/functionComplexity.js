@@ -119,3 +119,21 @@ define([], function(){  // AMD PATTERN - OK
 define([], "module name", function(){  // AMD PATTERN - OK
     var a = true && false && true;
 });
+
+
+// ANGULAR JS Exceptions
+
+var moduleX = angular.module("moduleX");
+
+moduleX
+  .controller("Name", function() {   // OK
+    var a = true && false && true;
+  })
+  .service("Name", ['$scope', function($scope) {   // OK
+    var a = true && false && true;
+  }]);
+
+
+moduleX.config(function() {   // OK
+    var a = true && false && true;
+});
