@@ -20,6 +20,7 @@
 package org.sonar.javascript.checks;
 
 import com.google.common.collect.ImmutableList;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import org.sonar.api.server.rule.RulesDefinition;
@@ -27,9 +28,14 @@ import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
+import org.sonar.javascript.tree.impl.SeparatedList;
+import org.sonar.javascript.tree.symbols.type.FunctionType;
+import org.sonar.plugins.javascript.api.symbols.Type;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
+import org.sonar.plugins.javascript.api.tree.expression.ArrayLiteralTree;
 import org.sonar.plugins.javascript.api.tree.expression.CallExpressionTree;
+import org.sonar.plugins.javascript.api.tree.expression.DotMemberExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 import org.sonar.plugins.javascript.api.tree.expression.NewExpressionTree;
@@ -61,6 +67,7 @@ public class TooManyLinesInFunctionCheck extends SubscriptionVisitorCheck {
   public int max = DEFAULT;
   private boolean immediatelyInvokedFunctionExpression = false;
   private boolean amdPattern = false;
+  private List<Tree> angularExclusions;
 
   @Override
   public List<Kind> nodesToVisit() {
@@ -71,15 +78,23 @@ public class TooManyLinesInFunctionCheck extends SubscriptionVisitorCheck {
       Kind.GENERATOR_FUNCTION_EXPRESSION,
       Kind.FUNCTION_DECLARATION,
       Kind.FUNCTION_EXPRESSION,
+
       Kind.CALL_EXPRESSION,
       Kind.NEW_EXPRESSION);
   }
 
   @Override
+  public void visitFile(Tree scriptTree) {
+    angularExclusions = new ArrayList<>();
+  }
+
+  @Override
   public void visitNode(Tree tree) {
     if (tree.is(Kind.CALL_EXPRESSION)) {
-      checkForImmediatelyInvokedFunction(((CallExpressionTree) tree).callee());
-      checkForAMDPattern((CallExpressionTree) tree);
+      CallExpressionTree callExpressionTree = (CallExpressionTree) tree;
+      checkForImmediatelyInvokedFunction(callExpressionTree.callee());
+      checkForAMDPattern(callExpressionTree);
+      checkAngularModuleMethodCall(callExpressionTree);
       return;
     }
 
@@ -91,7 +106,7 @@ public class TooManyLinesInFunctionCheck extends SubscriptionVisitorCheck {
     }
 
     int nbLines = getNumberOfLine(tree);
-    if (nbLines > max && !immediatelyInvokedFunctionExpression && !amdPattern) {
+    if (nbLines > max && !immediatelyInvokedFunctionExpression && !amdPattern && !angularExclusions.contains(tree)) {
       String message = String.format(MESSAGE, nbLines, max);
       addLineIssue(tree, message);
     }
@@ -99,15 +114,15 @@ public class TooManyLinesInFunctionCheck extends SubscriptionVisitorCheck {
   }
 
   private void clearCheckState() {
-    this.immediatelyInvokedFunctionExpression = false;
-    this.amdPattern = false;
+    immediatelyInvokedFunctionExpression = false;
+    amdPattern = false;
   }
 
   private void checkForAMDPattern(CallExpressionTree tree) {
     if (tree.callee().is(Kind.IDENTIFIER_REFERENCE) && "define".equals(((IdentifierTree) tree.callee()).name())) {
       for (Tree parameter : tree.arguments().parameters()) {
         if (parameter.is(Kind.FUNCTION_EXPRESSION)) {
-          this.amdPattern = true;
+          amdPattern = true;
         }
       }
     }
@@ -118,7 +133,40 @@ public class TooManyLinesInFunctionCheck extends SubscriptionVisitorCheck {
     boolean directFunctionCallee = callee.is(funcExprKinds);
     boolean parenthesisedFunctionCallee = callee.is(Kind.PARENTHESISED_EXPRESSION) && ((ParenthesisedExpressionTree) callee).expression().is(funcExprKinds);
     if (directFunctionCallee || parenthesisedFunctionCallee) {
-      this.immediatelyInvokedFunctionExpression = true;
+      immediatelyInvokedFunctionExpression = true;
+    }
+  }
+
+  private void checkAngularModuleMethodCall(CallExpressionTree tree) {
+    if (tree.callee().is(Kind.DOT_MEMBER_EXPRESSION)) {
+      DotMemberExpressionTree callee = (DotMemberExpressionTree) tree.callee();
+
+      if (callee.object().types().contains(Type.Kind.ANGULAR_MODULE)) {
+        SeparatedList<Tree> parameters = tree.arguments().parameters();
+
+        if (!parameters.isEmpty()) {
+          Tree lastArgument = parameters.get(parameters.size() - 1);
+
+          checkArrayLiteral(lastArgument);
+          checkSimpleArgument(lastArgument);
+        }
+      }
+    }
+  }
+
+  private void checkArrayLiteral(Tree secondParameter) {
+    if (secondParameter.is(Kind.ARRAY_LITERAL)) {
+      List<ExpressionTree> elements = ((ArrayLiteralTree) secondParameter).elements();
+      checkSimpleArgument(elements.get(elements.size() - 1));
+    }
+  }
+
+  private void checkSimpleArgument(Tree argument) {
+    if (argument instanceof ExpressionTree) {
+      Type functionType = ((ExpressionTree) argument).types().getUniqueType(Type.Kind.FUNCTION);
+      if (functionType != null) {
+        angularExclusions.add(((FunctionType) functionType).functionTree());
+      }
     }
   }
 

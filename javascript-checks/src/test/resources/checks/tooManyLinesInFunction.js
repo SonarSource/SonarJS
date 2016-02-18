@@ -84,3 +84,44 @@ define([], "module name", function(){  // AMD PATTERN - OK
     // comment
     return 1;
 });
+
+
+
+// ANGULAR JS Exceptions
+
+var moduleX = angular.module("moduleX");
+
+moduleX
+  .controller("Name", function() {   // OK
+
+
+  })
+  .service("Name", ['$scope', function($scope) {   // OK
+
+
+  }]);
+
+
+moduleX.config(function() {   // OK
+
+
+});
+
+moduleX.config(['a', 'b', function(a, b) {   // OK
+
+
+}]);
+
+moduleX.directive("name", directiveFactory);
+
+function directiveFactory(){       // OK
+
+
+}
+
+moduleX.constant("name", {});
+
+function foo() {  // NOK
+
+
+}

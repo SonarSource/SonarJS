@@ -44,6 +44,7 @@ public class TooManyLinesInFunctionCheckTest extends TreeCheckTest {
       .next().atLine(20)
       .next().atLine(30)
       .next().atLine(73)
+      .next().atLine(124)
       .noMore();
   }
 
