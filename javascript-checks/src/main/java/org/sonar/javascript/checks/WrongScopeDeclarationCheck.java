@@ -35,16 +35,14 @@ import org.sonar.plugins.javascript.api.symbols.Symbol;
 import org.sonar.plugins.javascript.api.symbols.Usage;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
-import org.sonar.squidbridge.annotations.ActivatedByDefault;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 
 @Rule(
-  key = "S1899",
+  key = "S2392",
   name = "Variable declarations should be placed appropriately for their scope",
   priority = Priority.MAJOR,
   tags = {Tags.PITFALL})
-@ActivatedByDefault
 @SqaleSubCharacteristic(SubCharacteristics.UNDERSTANDABILITY)
 @SqaleConstantRemediation("2min")
 public class WrongScopeDeclarationCheck extends DoubleDispatchVisitorCheck {
