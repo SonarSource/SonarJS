@@ -134,6 +134,7 @@ public final class CheckList {
       SpaceInModelPropertyNameCheck.class,
       StrictModeCheck.class,
       StringConcatenatedWithNonStringCheck.class,
+      StringConcatenationCheck.class,
       StringsComparisonCheck.class,
       SwitchWithNotEnoughCaseCheck.class,
       SwitchWithoutDefaultCheck.class,
