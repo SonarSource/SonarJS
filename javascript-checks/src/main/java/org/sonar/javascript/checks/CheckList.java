@@ -40,6 +40,7 @@ public final class CheckList {
       AlertUseCheck.class,
       AlwaysUseCurlyBracesCheck.class,
       ArgumentsCallerCalleeUsageCheck.class,
+      ArgumentsUsageCheck.class,
       ArrayAndObjectConstructorsCheck.class,
       AssignmentWithinConditionCheck.class,
       BackboneChangedIsUsedCheck.class,

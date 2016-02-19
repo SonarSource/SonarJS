@@ -21,6 +21,7 @@ package org.sonar.javascript.checks;
 
 public class Tags {
 
+  public static final String API_DESIGN = "api-design";
   public static final String BACKBONE = "backbone";
   public static final String BAD_PRACTICE = "bad-practice";
   public static final String BRAIN_OVERLOAD = "brain-overload";
