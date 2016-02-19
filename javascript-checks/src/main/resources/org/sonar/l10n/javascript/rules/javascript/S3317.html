@@ -1,0 +1,19 @@
+<p>By convention, a file that exports only one class should be named for that class. Anything else may confuse maintainers.</p>
+
+<h2>Noncompliant Code Example</h2>
+<pre>
+// file path: myclass.js  -- Noncompliant
+class MyClass {
+  // ...
+}
+export default MyClass;
+</pre>
+
+<h2>Compliant Solution</h2>
+<pre>
+// file path: MyClass.js
+class MyClass {
+  // ...
+}
+export default MyClass;
+</pre>

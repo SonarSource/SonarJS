@@ -79,6 +79,7 @@ public final class CheckList {
       ExcessiveParameterListCheck.class,
       ExpressionComplexityCheck.class,
       FileHeaderCheck.class,
+      FileNameDiffersFromClassCheck.class,
       FixmeTagPresenceCheck.class,
       ForHidingWhileCheck.class,
       ForInCheck.class,

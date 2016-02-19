@@ -35,6 +35,9 @@ import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 @Beta
 public interface DefaultExportDeclarationTree extends ExportDeclarationTree {
 
+  @Override
+  SyntaxToken exportToken();
+
   SyntaxToken defaultToken();
 
   Tree object();
