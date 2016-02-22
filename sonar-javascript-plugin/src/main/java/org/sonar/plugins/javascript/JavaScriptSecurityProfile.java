@@ -36,6 +36,7 @@ import org.sonar.javascript.checks.ComparisonWithNaNCheck;
 import org.sonar.javascript.checks.ConsoleLoggingCheck;
 import org.sonar.javascript.checks.DeadStoreCheck;
 import org.sonar.javascript.checks.DebuggerStatementCheck;
+import org.sonar.javascript.checks.DefaultParametersNotLastCheck;
 import org.sonar.javascript.checks.DeleteArrayElementCheck;
 import org.sonar.javascript.checks.DeleteNonPropertyCheck;
 import org.sonar.javascript.checks.DifferentTypesComparisonCheck;
@@ -97,6 +98,7 @@ public class JavaScriptSecurityProfile extends ProfileDefinition {
       ConsoleLoggingCheck.class,
       DeadStoreCheck.class,
       DebuggerStatementCheck.class,
+      DefaultParametersNotLastCheck.class,
       DeleteArrayElementCheck.class,
       DeleteNonPropertyCheck.class,
       DifferentTypesComparisonCheck.class,

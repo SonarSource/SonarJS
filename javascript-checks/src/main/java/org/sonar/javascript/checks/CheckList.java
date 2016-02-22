@@ -61,6 +61,7 @@ public final class CheckList {
       CounterUpdatedInLoopCheck.class,
       DeadStoreCheck.class,
       DebuggerStatementCheck.class,
+      DefaultParametersNotLastCheck.class,
       DeleteArrayElementCheck.class,
       DeleteNonPropertyCheck.class,
       DeprecatedJQueryAPICheck.class,
