@@ -32,7 +32,7 @@ import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 
 @Rule(
   key = "S2703",
-  name = "Variables should always be declared with \"var\"",
+  name = "Variables should be declared explicitly",
   priority = Priority.MAJOR,
   tags = {Tags.PITFALL})
 @ActivatedByDefault
@@ -40,7 +40,7 @@ import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 @SqaleConstantRemediation("2min")
 public class VariableDeclarationWithoutVarCheck extends DoubleDispatchVisitorCheck {
 
-  private static final String MESSAGE = "Add the \"var\" keyword to this declaration of \"%s\".";
+  private static final String MESSAGE = "Add the \"let\", \"const\" or \"var\" keyword to this declaration of \"%s\" to make it explicit.";
 
   @Override
   public void visitScript(ScriptTree tree) {

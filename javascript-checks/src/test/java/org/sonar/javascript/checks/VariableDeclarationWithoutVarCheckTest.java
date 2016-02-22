@@ -30,11 +30,11 @@ public class VariableDeclarationWithoutVarCheckTest extends TreeCheckTest {
   @Test
   public void test() {
     CheckMessagesVerifier.verify(getIssues("src/test/resources/checks/variableDeclarationWithoutVar.js", check))
-      .next().atLine(2).withMessage("Add the \"var\" keyword to this declaration of \"x\".")
+      .next().atLine(2).withMessage("Add the \"let\", \"const\" or \"var\" keyword to this declaration of \"x\" to make it explicit.")
       .next().atLine(7)
       .next().atLine(9)
       .next().atLine(11)
-      .next().atLine(16).withMessage("Add the \"var\" keyword to this declaration of \"var2\".")
+      .next().atLine(16).withMessage("Add the \"let\", \"const\" or \"var\" keyword to this declaration of \"var2\" to make it explicit.")
       .noMore();
 
   }
