@@ -69,6 +69,9 @@ public class StringConcatenationCheck extends DoubleDispatchVisitorCheck {
         operandListBuilder.add(tree.leftOperand());
         scan(tree.leftOperand());
       }
+
+    } else {
+      scan(tree.leftOperand());
     }
   }
 

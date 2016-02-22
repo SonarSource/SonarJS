@@ -11,3 +11,6 @@ var str = "str";
 var x = str + str + str; // Ok, no string literal
 
 var x = `Template literal ${foo}` + name + name; // Noncompliant
+
+var x = y == "a" + b + "c"; // Noncompliant
+var x = "a" + b + "c" == y; // Noncompliant
