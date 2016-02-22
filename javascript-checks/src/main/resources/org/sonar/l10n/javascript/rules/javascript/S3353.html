@@ -1,0 +1,28 @@
+<p>Marking a variable that is unchanged after initialization <code>const</code> is an indication to future maintainers that "no this isn't updated, and it's not supposed to be".
+  <code>const</code> should be used in these situations in the interests of code clarity.</p>
+
+<h2>Noncompliant Code Example</h2>
+<pre>
+function seek(input) {
+  let target = 32;  // Noncompliant
+  for (let i of input) {
+    if (i == target) {
+      return true;
+    }
+  }
+  return false;
+}
+</pre>
+
+<h2>Compliant Solution</h2>
+<pre>
+function seek(input) {
+  const target = 32;
+  for (let i of input) {
+    if (i == target) {
+      return true;
+    }
+  }
+  return false;
+}
+</pre>

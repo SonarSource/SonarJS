@@ -145,6 +145,7 @@ public final class CheckList {
       TrailingCommentCheck.class,
       TrailingWhitespaceCheck.class,
       UnaryPlusMinusWithObjectCheck.class,
+      UnchangedLetVariableCheck.class,
       UndefinedAssignmentCheck.class,
       UndefinedShadowingCheck.class,
       UniversalSelectorCheck.class,
