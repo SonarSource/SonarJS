@@ -46,7 +46,7 @@ class BranchingBlock extends MutableBlock {
 
   public void setSuccessors(MutableBlock successor1, MutableBlock successor2) {
     Preconditions.checkArgument(successor1 != null && successor2 != null, "Successor cannot be null");
-    Preconditions.checkArgument(successor1 != this && successor2 != this, "Cannot add itself as successor");
+    Preconditions.checkArgument(!this.equals(successor1) && !this.equals(successor2), "Cannot add itself as successor");
     this.successor1 = successor1;
     this.successor2 = successor2;
   }

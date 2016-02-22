@@ -95,7 +95,7 @@ public class UnreachableCodeCheck extends SubscriptionVisitorCheck {
     }
   }
 
-  private Tree unreachableTree(List<Tree> elements) {
+  private static Tree unreachableTree(List<Tree> elements) {
     for (Tree element : elements) {
       if (!element.is(Kind.FUNCTION_DECLARATION, Kind.GENERATOR_DECLARATION, Kind.CLASS_DECLARATION)) {
         return element;

@@ -93,7 +93,7 @@ class ControlFlowGraphBuilder {
     Map<MutableBlock, MutableBlock> emptyBlockReplacements = new HashMap<>();
     for (SingleSuccessorBlock block : Iterables.filter(blocks, SingleSuccessorBlock.class)) {
       if (block.isEmpty()) {
-        MutableBlock firstNonEmptySuccessor = block.firstNonEmptySuccessor();
+        MutableBlock firstNonEmptySuccessor = block.skipEmptyBlocks();
         emptyBlockReplacements.put(block, firstNonEmptySuccessor);
         for (SyntaxToken jump : block.disconnectingJumps()) {
           firstNonEmptySuccessor.addDisconnectingJump(jump);

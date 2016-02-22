@@ -83,11 +83,11 @@ public class MutableBlockTest {
   public void non_empty_successor() throws Exception {
     SimpleBlock simpleNonEmpty = new SimpleBlock(end);
     simpleNonEmpty.addElement(tree1);
-    assertThat(simpleNonEmpty.firstNonEmptySuccessor()).isEqualTo(simpleNonEmpty);
-    assertThat(new SimpleBlock(simpleNonEmpty).firstNonEmptySuccessor()).isEqualTo(simpleNonEmpty);
-    assertThat(new SimpleBlock(branching1).firstNonEmptySuccessor()).isEqualTo(branching1);
-    assertThat(new SimpleBlock(end).firstNonEmptySuccessor()).isEqualTo(end);
-    assertThat(new SimpleBlock(new SimpleBlock(end)).firstNonEmptySuccessor()).isEqualTo(end);
+    assertThat(simpleNonEmpty.skipEmptyBlocks()).isEqualTo(simpleNonEmpty);
+    assertThat(new SimpleBlock(simpleNonEmpty).skipEmptyBlocks()).isEqualTo(simpleNonEmpty);
+    assertThat(new SimpleBlock(branching1).skipEmptyBlocks()).isEqualTo(branching1);
+    assertThat(new SimpleBlock(end).skipEmptyBlocks()).isEqualTo(end);
+    assertThat(new SimpleBlock(new SimpleBlock(end)).skipEmptyBlocks()).isEqualTo(end);
   }
 
   @Test

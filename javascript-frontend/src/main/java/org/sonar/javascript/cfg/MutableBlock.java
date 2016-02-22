@@ -40,6 +40,11 @@ abstract class MutableBlock {
 
   public abstract Set<MutableBlock> successors();
   
+  /**
+   * Replace successors based on a replacement map.
+   * This method is used when we remove empty blocks:
+   * we have to replace empty successors in the remaining blocks by non-empty successors.
+   */
   public abstract void replaceSuccessors(Map<MutableBlock, MutableBlock> replacements);
 
   public List<Tree> elements() {
