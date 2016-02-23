@@ -24,13 +24,9 @@ import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
-import org.sonar.plugins.javascript.api.tree.expression.FunctionExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 import org.sonar.plugins.javascript.api.tree.expression.PairPropertyTree;
-import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
-import org.sonar.plugins.javascript.api.visitors.IssueLocation;
-import org.sonar.plugins.javascript.api.visitors.PreciseIssue;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 
@@ -51,20 +47,19 @@ public class ObjectLiteralShorthandCheck extends DoubleDispatchVisitorCheck {
       String keyName = ((IdentifierTree) tree.key()).name();
 
       if (tree.value() instanceof IdentifierTree && ((IdentifierTree) tree.value()).name().equals(keyName)) {
-        raiseIssue("property", keyName, tree.colonToken(), tree.value());
+        raiseIssue("property", keyName, tree.key());
       }
 
       if (tree.value().is(Kind.FUNCTION_EXPRESSION)) {
-        SyntaxToken functionKeyword = ((FunctionExpressionTree) tree.value()).functionKeyword();
-        raiseIssue("method", keyName, tree.colonToken(), functionKeyword);
+        raiseIssue("method", keyName, tree.key());
       }
     }
 
     super.visitPairProperty(tree);
   }
 
-  private void raiseIssue(String kind, String keyName, SyntaxToken colon, Tree highlighted) {
+  private void raiseIssue(String kind, String keyName, Tree highlighted) {
     String message = String.format(MESSAGE, kind, keyName);
-    addIssue(new PreciseIssue(this, new IssueLocation(colon, highlighted, message)));
+    newIssue(highlighted, message);
   }
 }
