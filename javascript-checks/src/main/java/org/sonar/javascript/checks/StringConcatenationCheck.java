@@ -29,8 +29,6 @@ import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.expression.BinaryExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
-import org.sonar.plugins.javascript.api.visitors.IssueLocation;
-import org.sonar.plugins.javascript.api.visitors.PreciseIssue;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 
@@ -52,7 +50,7 @@ public class StringConcatenationCheck extends DoubleDispatchVisitorCheck {
     List<ExpressionTree> operandList = operandListBuilder.build().reverse();
 
     if (operandList.size() > 2 && atLeastOneLiteral(operandList)) {
-      addIssue(operandList);
+      newIssue(tree, MESSAGE);
     }
   }
 
@@ -73,14 +71,6 @@ public class StringConcatenationCheck extends DoubleDispatchVisitorCheck {
     } else {
       scan(tree.leftOperand());
     }
-  }
-
-  private void addIssue(List<ExpressionTree> operandList) {
-    PreciseIssue preciseIssue = new PreciseIssue(this, new IssueLocation(operandList.get(0), operandList.get(1), MESSAGE));
-    for (int i = 2; i < operandList.size(); i++) {
-      preciseIssue.secondary(operandList.get(i));
-    }
-    addIssue(preciseIssue);
   }
 
   private static boolean atLeastOneLiteral(List<ExpressionTree> operandList) {
