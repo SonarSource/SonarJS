@@ -31,7 +31,7 @@ public class ImportSpecifierTest {
   public void ok() {
     assertThat(Kind.IMPORT_SPECIFIER)
       .matches("identifier")
-      .matches("identifier as identifier");
+      .matches("a as b");
   }
 
 }

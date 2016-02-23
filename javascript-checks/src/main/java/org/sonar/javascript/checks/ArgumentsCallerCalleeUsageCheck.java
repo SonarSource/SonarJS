@@ -135,7 +135,7 @@ public class ArgumentsCallerCalleeUsageCheck extends SubscriptionVisitorCheck {
 
     } else {
       ExpressionTree name = ((MethodDeclarationTree) tree).name();
-      return name instanceof IdentifierTree ? (IdentifierTree) name : null;
+      return name.is(Kind.IDENTIFIER_NAME) ? (IdentifierTree) name : null;
     }
   }
 }

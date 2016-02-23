@@ -126,7 +126,7 @@ public class CounterUpdatedInLoopCheck extends DoubleDispatchVisitorCheck {
   }
 
   private void addCurrentLoopCounter(Tree tree) {
-    if (tree instanceof IdentifierTree) {
+    if (tree.is(Kind.IDENTIFIER_REFERENCE, Kind.BINDING_IDENTIFIER)) {
       currentLoopCounters.add((IdentifierTree) tree);
     }
   }

@@ -99,6 +99,10 @@ public class ParameterListTreeImpl extends JavaScriptTree implements ParameterLi
   }
 
   public List<IdentifierTree> parameterIdentifiers() {
+    if (kind != Kind.FORMAL_PARAMETER_LIST) {
+      throw new IllegalStateException("ParameterListTreeImpl#parameterIdentifiers() can be called for Tree.Kind.FORMAL_PARAMETER_LIST only.");
+    }
+
     List<IdentifierTree> identifiers = Lists.newArrayList();
 
     for (Tree parameter : parameters) {

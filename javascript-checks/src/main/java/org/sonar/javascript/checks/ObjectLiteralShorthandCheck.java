@@ -46,7 +46,7 @@ public class ObjectLiteralShorthandCheck extends DoubleDispatchVisitorCheck {
     if (tree.key().is(Kind.IDENTIFIER_NAME)) {
       String keyName = ((IdentifierTree) tree.key()).name();
 
-      if (tree.value() instanceof IdentifierTree && ((IdentifierTree) tree.value()).name().equals(keyName)) {
+      if (tree.value().is(Kind.IDENTIFIER_REFERENCE) && ((IdentifierTree) tree.value()).name().equals(keyName)) {
         raiseIssue("property", keyName, tree.key());
       }
 

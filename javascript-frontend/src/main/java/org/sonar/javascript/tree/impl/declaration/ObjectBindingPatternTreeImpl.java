@@ -121,17 +121,17 @@ public class ObjectBindingPatternTreeImpl extends JavaScriptTree implements Obje
     return bindingIdentifiers;
   }
 
-  private List<IdentifierTree> identifierFromBindingElement(BindingElementTree bindingEement) {
+  private List<IdentifierTree> identifierFromBindingElement(BindingElementTree bindingElement) {
     List<IdentifierTree> bindingIdentifiers = Lists.newArrayList();
 
-    if (bindingEement.is(Kind.BINDING_IDENTIFIER)) {
-      bindingIdentifiers.add((IdentifierTree) bindingEement);
+    if (bindingElement.is(Kind.BINDING_IDENTIFIER)) {
+      bindingIdentifiers.add((IdentifierTree) bindingElement);
 
-    } else if (bindingEement.is(Kind.OBJECT_BINDING_PATTERN)) {
-      bindingIdentifiers.addAll(((ObjectBindingPatternTreeImpl) bindingEement).bindingIdentifiers());
+    } else if (bindingElement.is(Kind.OBJECT_BINDING_PATTERN)) {
+      bindingIdentifiers.addAll(((ObjectBindingPatternTreeImpl) bindingElement).bindingIdentifiers());
 
     } else {
-      bindingIdentifiers.addAll(((ArrayBindingPatternTreeImpl) bindingEement).bindingIdentifiers());
+      bindingIdentifiers.addAll(((ArrayBindingPatternTreeImpl) bindingElement).bindingIdentifiers());
     }
 
     return bindingIdentifiers;

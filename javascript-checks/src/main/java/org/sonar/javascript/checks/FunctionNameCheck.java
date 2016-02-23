@@ -77,7 +77,7 @@ public class FunctionNameCheck extends DoubleDispatchVisitorCheck {
 
   private void checkName(@Nullable ExpressionTree tree) {
     if (tree != null) {
-      String name = tree instanceof IdentifierTree ? ((IdentifierTree) tree).name() : CheckUtils.asString(tree);
+      String name = tree.is(Kind.IDENTIFIER_NAME) ? ((IdentifierTree) tree).name() : CheckUtils.asString(tree);
 
       if (!pattern.matcher(name).matches()) {
         addLineIssue(tree, String.format(MESSAGE, name, format));

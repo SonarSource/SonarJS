@@ -25,6 +25,7 @@ import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.plugins.javascript.api.tree.Tree;
+import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 import org.sonar.plugins.javascript.api.tree.expression.LiteralTree;
@@ -56,7 +57,7 @@ public class DuplicatePropertyNameCheck extends DoubleDispatchVisitorCheck {
         visitPairProperty(keys, property, (PairPropertyTree) property);
       }
 
-      if (property instanceof IdentifierTree) {
+      if (property.is(Kind.IDENTIFIER_REFERENCE)) {
         IdentifierTree identifier = (IdentifierTree) property;
         addKey(keys, identifier.name(), property);
       }
@@ -72,7 +73,7 @@ public class DuplicatePropertyNameCheck extends DoubleDispatchVisitorCheck {
       addKey(keys, value, property);
     }
 
-    if (key instanceof IdentifierTree) {
+    if (key.is(Kind.IDENTIFIER_NAME)) {
       addKey(keys, ((IdentifierTree) key).name(), property);
     }
 

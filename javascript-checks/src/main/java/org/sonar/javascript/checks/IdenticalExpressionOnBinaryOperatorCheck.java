@@ -65,7 +65,6 @@ public class IdenticalExpressionOnBinaryOperatorCheck extends DoubleDispatchVisi
     return tree.is(Kind.STRICT_NOT_EQUAL_TO, Kind.STRICT_EQUAL_TO)
       && (tree.leftOperand().is(
       Kind.IDENTIFIER_REFERENCE,
-      Kind.IDENTIFIER,
       Kind.BRACKET_MEMBER_EXPRESSION,
       Kind.DOT_MEMBER_EXPRESSION) || tree.leftOperand() instanceof UnaryExpressionTree);
 

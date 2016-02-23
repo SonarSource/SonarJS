@@ -283,7 +283,7 @@ public class HoistedSymbolVisitor extends DoubleDispatchVisitor {
             .addUsage(Usage.create(identifier, Usage.Kind.DECLARATION_WRITE));
         }
       }
-      if (bindingElement instanceof IdentifierTree) {
+      if (bindingElement.is(Kind.BINDING_IDENTIFIER)) {
         IdentifierTree identifierTree = (IdentifierTree) bindingElement;
         symbolModel.declareSymbol(identifierTree.name(), variableKind, scope)
           .addUsage(Usage.create(identifierTree, insideForLoopVariable ? Usage.Kind.DECLARATION_WRITE : Usage.Kind.DECLARATION));

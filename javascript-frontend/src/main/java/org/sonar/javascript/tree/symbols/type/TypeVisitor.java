@@ -183,7 +183,7 @@ public class TypeVisitor extends DoubleDispatchVisitor {
       for (int i = 0; i < minSize; i++) {
         Preconditions.checkState(arguments.get(i) instanceof ExpressionTree);
         Tree currentParameter = parameters.get(i);
-        if (currentParameter instanceof IdentifierTree) {
+        if (currentParameter.is(Tree.Kind.BINDING_IDENTIFIER)) {
           Symbol symbol = ((IdentifierTree) currentParameter).symbol();
           if (symbol != null) {
             addTypes(symbol, ((ExpressionTree) arguments.get(i)).types());
@@ -278,7 +278,7 @@ public class TypeVisitor extends DoubleDispatchVisitor {
 
   private static void resolveObjectPropertyAccess(MemberExpressionTree tree) {
     ObjectType objectType = (ObjectType) tree.object().types().getUniqueType(Kind.OBJECT);
-    if (objectType != null && tree.property() instanceof IdentifierTree) {
+    if (objectType != null && tree.property().is(Tree.Kind.IDENTIFIER_NAME)) {
       String property = ((IdentifierTree) tree.property()).name();
       Symbol propertySymbol = objectType.property(property);
       if (propertySymbol != null) {

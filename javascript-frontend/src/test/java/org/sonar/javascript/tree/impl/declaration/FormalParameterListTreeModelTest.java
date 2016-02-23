@@ -74,4 +74,9 @@ public class FormalParameterListTreeModelTest extends JavaScriptTreeModelTest {
     assertThat(parameters.get(4).name()).isEqualTo("p5");
   }
 
+  @Test(expected = IllegalStateException.class)
+  public void actual_parameters_identifiers() throws Exception {
+    ParameterListTree tree = parse("foo(p1, 1 + 1)", Kind.ARGUMENTS);
+    ((ParameterListTreeImpl) tree).parameterIdentifiers();
+  }
 }

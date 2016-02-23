@@ -165,7 +165,7 @@ public class SymbolVisitor extends DoubleDispatchVisitor {
    */
   @Override
   public void visitAssignmentExpression(AssignmentExpressionTree tree) {
-    if (tree.variable() instanceof IdentifierTree) {
+    if (tree.variable().is(Kind.IDENTIFIER_REFERENCE)) {
       IdentifierTree identifier = (IdentifierTree) tree.variable();
       Usage.Kind usageKind = Usage.Kind.WRITE;
       if (!tree.operator().text().equals(JavaScriptPunctuator.EQU.getValue())) {
@@ -215,7 +215,7 @@ public class SymbolVisitor extends DoubleDispatchVisitor {
   public void visitForObjectStatement(ForObjectStatementTree tree) {
     enterScope(tree);
 
-    if (tree.variableOrExpression() instanceof IdentifierTree) {
+    if (tree.variableOrExpression().is(Kind.IDENTIFIER_REFERENCE)) {
       IdentifierTree identifier = (IdentifierTree) tree.variableOrExpression();
 
       if (!addUsageFor(identifier, Usage.Kind.WRITE)) {

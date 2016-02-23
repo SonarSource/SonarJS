@@ -46,8 +46,9 @@ public class SpecifierTreeImpl extends JavaScriptTree implements SpecifierTree {
 
   }
 
-  public SpecifierTreeImpl(Kind kind, InternalSyntaxToken asToken, IdentifierTreeImpl localName) {
+  public SpecifierTreeImpl(Kind kind, IdentifierTreeImpl name, InternalSyntaxToken asToken, IdentifierTreeImpl localName) {
     this.kind = kind;
+    this.name = name;
     this.asToken = asToken;
     this.localName = localName;
 

@@ -241,31 +241,25 @@ public interface Tree {
 
     /**
      * {@link IdentifierTree}
-     */
-    IDENTIFIER(IdentifierTree.class),
-
-    /**
-     * {@link IdentifierTree}
+     * Used for identifiers referencing some symbol (variable, function, class, exported object)
      */
     IDENTIFIER_REFERENCE(IdentifierTree.class),
 
     /**
      * {@link IdentifierTree}
+     * Used for identifiers which don't exist in any scope (e.g. object properties, exported and imported names)
      */
     IDENTIFIER_NAME(IdentifierTree.class),
 
     /**
      * {@link IdentifierTree}
+     * Used for identifiers which create new variable existing in some scope (e.g. class/function names, exported names, variable declaration)
      */
     BINDING_IDENTIFIER(IdentifierTree.class),
 
     /**
      * {@link IdentifierTree}
-     */
-    IDENTIFIER_NO_LB(IdentifierTree.class),
-
-    /**
-     * {@link IdentifierTree}
+     * Used in label statement and break/continue statements with label
      */
     LABEL_IDENTIFIER(IdentifierTree.class),
 

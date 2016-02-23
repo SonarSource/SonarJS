@@ -175,7 +175,7 @@ public class JavaScriptGrammar {
   public ContinueStatementTreeImpl CONTINUE_WITH_LABEL() {
     return b.<ContinueStatementTreeImpl>nonterminal()
       .is(f.newContinueWithLabel(
-        IDENTIFIER_NO_LB(),
+        LABEL_IDENTIFIER_NO_LB(),
         b.token(JavaScriptLegacyGrammar.EOS)));
   }
 
@@ -197,7 +197,7 @@ public class JavaScriptGrammar {
   public BreakStatementTreeImpl BREAK_WITH_LABEL() {
     return b.<BreakStatementTreeImpl>nonterminal()
       .is(f.newBreakWithLabel(
-        IDENTIFIER_NO_LB(),
+        LABEL_IDENTIFIER_NO_LB(),
         b.token(JavaScriptLegacyGrammar.EOS)));
   }
 
@@ -890,15 +890,15 @@ public class JavaScriptGrammar {
       );
   }
 
-  public IdentifierTreeImpl IDENTIFIER_NO_LB() {
-    return b.<IdentifierTreeImpl>nonterminal(Kind.IDENTIFIER_NO_LB)
-      .is(f.identifierNoLb(
+  public IdentifierTreeImpl LABEL_IDENTIFIER_NO_LB() {
+    return b.<IdentifierTreeImpl>nonterminal()
+      .is(f.labelIdentifier(
         b.token(JavaScriptLegacyGrammar.SPACING_NO_LINE_BREAK_NOT_FOLLOWED_BY_LINE_BREAK),
         b.token(JavaScriptTokenType.IDENTIFIER)));
   }
 
   public IdentifierTreeImpl LABEL_IDENTIFIER() {
-    return b.<IdentifierTreeImpl>nonterminal(Kind.LABEL_IDENTIFIER)
+    return b.<IdentifierTreeImpl>nonterminal()
       .is(f.labelIdentifier(b.token(JavaScriptTokenType.IDENTIFIER)));
   }
 
@@ -1296,9 +1296,9 @@ public class JavaScriptGrammar {
 
   public SpecifierTreeImpl EXPORT_SPECIFIER() {
     return b.<SpecifierTreeImpl>nonterminal(Kind.EXPORT_SPECIFIER)
-      .is(f.completeExportSpecifier(
-        IDENTIFIER_NAME(),
-        b.optional(f.newExportSpecifier(b.token(JavaScriptLegacyGrammar.AS), IDENTIFIER_NAME()))
+      .is(b.firstOf(
+        f.exportSpecifier(IDENTIFIER_NAME(), b.token(JavaScriptLegacyGrammar.AS), IDENTIFIER_NAME()),
+        f.exportSpecifier(IDENTIFIER_NAME())
       ));
   }
 
@@ -1343,11 +1343,9 @@ public class JavaScriptGrammar {
 
   public SpecifierTreeImpl IMPORT_SPECIFIER() {
     return b.<SpecifierTreeImpl>nonterminal(Kind.IMPORT_SPECIFIER)
-      .is(f.completeImportSpecifier(
-        b.firstOf(
-          BINDING_IDENTIFIER(),
-          IDENTIFIER_NAME()),
-        b.optional(f.newImportSpecifier(b.token(JavaScriptLegacyGrammar.AS), BINDING_IDENTIFIER()))
+      .is(b.firstOf(
+        f.newImportSpecifier(IDENTIFIER_NAME(), b.token(JavaScriptLegacyGrammar.AS), BINDING_IDENTIFIER()),
+        f.importSpecifier(BINDING_IDENTIFIER())
       ));
   }
 

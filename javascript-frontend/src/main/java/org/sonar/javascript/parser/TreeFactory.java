@@ -1067,8 +1067,8 @@ public class TreeFactory {
     return new IdentifierTreeImpl(Kind.THIS, thisKeyword);
   }
 
-  public IdentifierTreeImpl identifierNoLb(Tree spacing, InternalSyntaxToken identifier) {
-    return new IdentifierTreeImpl(Kind.IDENTIFIER_NO_LB, identifier);
+  public IdentifierTreeImpl labelIdentifier(Tree spacing, InternalSyntaxToken identifier) {
+    return new IdentifierTreeImpl(Kind.LABEL_IDENTIFIER, identifier);
   }
 
   public IdentifierTreeImpl labelIdentifier(InternalSyntaxToken identifier) {
@@ -1124,8 +1124,12 @@ public class TreeFactory {
     return new NamedExportDeclarationTreeImpl(exportToken, object);
   }
 
-  public SpecifierTreeImpl newExportSpecifier(InternalSyntaxToken asToken, IdentifierTreeImpl identifier) {
-    return new SpecifierTreeImpl(Kind.EXPORT_SPECIFIER, asToken, identifier);
+  public SpecifierTreeImpl exportSpecifier(IdentifierTreeImpl name1, InternalSyntaxToken asToken, IdentifierTreeImpl name2) {
+    return new SpecifierTreeImpl(Kind.EXPORT_SPECIFIER, name1, asToken, name2);
+  }
+
+  public SpecifierTreeImpl exportSpecifier(IdentifierTreeImpl name) {
+    return new SpecifierTreeImpl(Kind.EXPORT_SPECIFIER, name);
   }
 
   public SpecifierTreeImpl completeExportSpecifier(IdentifierTreeImpl name, Optional<SpecifierTreeImpl> localName) {
@@ -1183,14 +1187,11 @@ public class TreeFactory {
     return new ImportModuleDeclarationTreeImpl(importToken, moduleName, nullableSemicolonToken(semicolonToken));
   }
 
-  public SpecifierTreeImpl newImportSpecifier(InternalSyntaxToken asToken, IdentifierTreeImpl identifier) {
-    return new SpecifierTreeImpl(Kind.IMPORT_SPECIFIER, asToken, identifier);
+  public SpecifierTreeImpl newImportSpecifier(IdentifierTreeImpl name, InternalSyntaxToken asToken, IdentifierTreeImpl identifier) {
+    return new SpecifierTreeImpl(Kind.IMPORT_SPECIFIER, name, asToken, identifier);
   }
 
-  public SpecifierTreeImpl completeImportSpecifier(IdentifierTreeImpl name, Optional<SpecifierTreeImpl> localName) {
-    if (localName.isPresent()) {
-      return localName.get().complete(name);
-    }
+  public SpecifierTreeImpl importSpecifier(IdentifierTreeImpl name) {
     return new SpecifierTreeImpl(Kind.IMPORT_SPECIFIER, name);
   }
 

@@ -61,7 +61,7 @@ public class DeleteNonPropertyCheck extends DoubleDispatchVisitorCheck {
    * Return true for variables declared without var
    */
   private static boolean isGlobalProperty(ExpressionTree expression) {
-    if (expression instanceof IdentifierTree) {
+    if (expression.is(Kind.IDENTIFIER_REFERENCE)) {
 
       Symbol symbol = ((IdentifierTree) expression).symbol();
       if (symbol != null) {
