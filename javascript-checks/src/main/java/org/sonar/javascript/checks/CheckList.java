@@ -92,6 +92,7 @@ public final class CheckList {
       FunctionDefinitionInsideLoopCheck.class,
       FunctionNameCheck.class,
       FutureReservedWordsCheck.class,
+      GeneratorWithoutYieldCheck.class,
       GlobalThisCheck.class,
       HtmlCommentsCheck.class,
       IdChildrenSelectorCheck.class,
