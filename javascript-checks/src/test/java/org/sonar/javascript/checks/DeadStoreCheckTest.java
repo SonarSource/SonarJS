@@ -19,9 +19,10 @@
  */
 package org.sonar.javascript.checks;
 
+import java.io.File;
 import org.junit.Test;
 import org.sonar.javascript.checks.tests.TreeCheckTest;
-import org.sonar.squidbridge.checks.CheckMessagesVerifier;
+import org.sonar.javascript.checks.utils.JavaScriptCheckVerifier;
 
 public class DeadStoreCheckTest extends TreeCheckTest {
 
@@ -29,10 +30,6 @@ public class DeadStoreCheckTest extends TreeCheckTest {
 
   @Test
   public void test() {
-    CheckMessagesVerifier.verify(getIssues("src/test/resources/checks/DeadStore.js", check))
-      .next().atLine(9).withMessage("Remove this useless assignment to local variable \"y\"")
-      .next().atLine(10).withMessage("Remove this useless assignment to local variable \"y\"")
-      .noMore();
-
+    JavaScriptCheckVerifier.verify(check, new File("src/test/resources/checks/DeadStore.js"));
   }
 }

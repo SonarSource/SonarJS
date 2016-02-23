@@ -83,7 +83,7 @@ public class ControlFlowGraphTest {
     ControlFlowGraph g = build("foo(); var a; a = 2;", 1);
     assertBlock(g, 0).hasSuccessors(END);
     ControlFlowBlock block = g.blocks().iterator().next();
-    assertThat(block.elements()).hasSize(3);
+    assertThat(block.elements()).hasSize(4);
     assertThat(block.elements().get(0).is(Kind.CALL_EXPRESSION)).isTrue();
   }
 
@@ -128,9 +128,10 @@ public class ControlFlowGraphTest {
 
   @Test
   public void while_loop() throws Exception {
-    ControlFlowGraph g = build("while (a) { f1(); }", 2);
-    assertBlock(g, 0).hasSuccessors(1, END);
-    assertBlock(g, 1).hasSuccessors(0);
+    ControlFlowGraph g = build("b0(); while (b1()) { b2(); }", 3);
+    assertBlock(g, 0).hasSuccessors(1);
+    assertBlock(g, 1).hasSuccessors(2, END);
+    assertBlock(g, 2).hasSuccessors(1);
   }
 
   @Test
@@ -490,6 +491,21 @@ public class ControlFlowGraphTest {
     assertBlock(build("export { } ;", 1), 0).hasSuccessors(END);
     assertBlock(build("export default x;", 1), 0).hasSuccessors(END);
     assertBlock(build("export * from \"mod\";", 1), 0).hasSuccessors(END);
+  }
+
+  @Test
+  public void comma_operator() throws Exception {
+    assertBlock(build("a(), b();", 1), 0).hasElements("a()", "b()");
+  }
+
+  @Test
+  public void variable_declaration() throws Exception {
+    assertBlock(build("var a = 1, b = 2;", 1), 0).hasElements("1", "a", "2", "b");
+  }
+
+  @Test
+  public void assignment() throws Exception {
+    assertBlock(build("a = b;", 1), 0).hasElements("b", "a");
   }
 
   @Test
