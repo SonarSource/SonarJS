@@ -25,14 +25,13 @@ import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 
 /**
- * <a href="http://people.mozilla.org/~jorendorff/es6-draft.html#sec-for-in-and-for-of-statements">for of Statement</a>
- * (<a href="http://wiki.ecmascript.org/doku.php?id=harmony:specification_drafts">ES6</a>).
  * <pre>
  *   for ( {@link #variableOrExpression()} of {@link #expression()} {@link #statement()}
+ *   for ( {@link #variableOrExpression()} in {@link #expression()} {@link #statement()}
  * </pre>
  */
 @Beta
-public interface ForOfStatementTree extends IterationStatementTree {
+public interface ForObjectStatementTree extends IterationStatementTree {
 
   SyntaxToken forKeyword();
 
@@ -40,7 +39,7 @@ public interface ForOfStatementTree extends IterationStatementTree {
 
   Tree variableOrExpression();
 
-  SyntaxToken ofKeyword();
+  SyntaxToken ofOrInKeyword();
 
   ExpressionTree expression();
 

@@ -36,8 +36,7 @@ import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.expression.AssignmentExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 import org.sonar.plugins.javascript.api.tree.expression.UnaryExpressionTree;
-import org.sonar.plugins.javascript.api.tree.statement.ForInStatementTree;
-import org.sonar.plugins.javascript.api.tree.statement.ForOfStatementTree;
+import org.sonar.plugins.javascript.api.tree.statement.ForObjectStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.ForStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.IterationStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.VariableDeclarationTree;
@@ -90,14 +89,7 @@ public class CounterUpdatedInLoopCheck extends DoubleDispatchVisitorCheck {
   }
 
   @Override
-  public void visitForInStatement(ForInStatementTree tree) {
-    scan(tree.variableOrExpression());
-    scan(tree.expression());
-    visitObjectIterationStatement(tree, tree.variableOrExpression());
-  }
-
-  @Override
-  public void visitForOfStatement(ForOfStatementTree tree) {
+  public void visitForObjectStatement(ForObjectStatementTree tree) {
     scan(tree.variableOrExpression());
     scan(tree.expression());
     visitObjectIterationStatement(tree, tree.variableOrExpression());

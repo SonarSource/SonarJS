@@ -51,5 +51,9 @@ public class SymbolModelImplTest extends JavaScriptTreeModelTest {
     assertThat(e.scope().tree().is(Tree.Kind.CATCH_BLOCK)).isTrue();
   }
 
-
+  @Test
+  public void for_object_loops() throws Exception {
+    Symbol i = (Symbol) SYMBOL_MODEL.getSymbols("i").toArray()[0];
+    assertThat(i.usages()).hasSize(2);
+  }
 }

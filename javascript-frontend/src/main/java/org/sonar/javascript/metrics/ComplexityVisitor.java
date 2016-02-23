@@ -33,8 +33,7 @@ import org.sonar.plugins.javascript.api.tree.expression.FunctionExpressionTree;
 import org.sonar.plugins.javascript.api.tree.statement.CaseClauseTree;
 import org.sonar.plugins.javascript.api.tree.statement.CatchBlockTree;
 import org.sonar.plugins.javascript.api.tree.statement.DoWhileStatementTree;
-import org.sonar.plugins.javascript.api.tree.statement.ForInStatementTree;
-import org.sonar.plugins.javascript.api.tree.statement.ForOfStatementTree;
+import org.sonar.plugins.javascript.api.tree.statement.ForObjectStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.ForStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.IfStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.ReturnStatementTree;
@@ -107,15 +106,9 @@ public class ComplexityVisitor extends DoubleDispatchVisitor {
   }
 
   @Override
-  public void visitForInStatement(ForInStatementTree tree) {
+  public void visitForObjectStatement(ForObjectStatementTree tree) {
     add(tree.forKeyword());
-    super.visitForInStatement(tree);
-  }
-
-  @Override
-  public void visitForOfStatement(ForOfStatementTree tree) {
-    add(tree.forKeyword());
-    super.visitForOfStatement(tree);
+    super.visitForObjectStatement(tree);
   }
 
   @Override

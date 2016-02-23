@@ -40,8 +40,7 @@ import org.sonar.plugins.javascript.api.tree.statement.CaseClauseTree;
 import org.sonar.plugins.javascript.api.tree.statement.ContinueStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.DoWhileStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.ExpressionStatementTree;
-import org.sonar.plugins.javascript.api.tree.statement.ForInStatementTree;
-import org.sonar.plugins.javascript.api.tree.statement.ForOfStatementTree;
+import org.sonar.plugins.javascript.api.tree.statement.ForObjectStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.ForStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.IfStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.LabelledStatementTree;
@@ -127,10 +126,8 @@ class ControlFlowGraphBuilder {
       visitIfStatement((IfStatementTree) tree);
     } else if (tree.is(Kind.FOR_STATEMENT)) {
       visitForStatement((ForStatementTree) tree);
-    } else if (tree.is(Kind.FOR_IN_STATEMENT)) {
-      visitForInStatement((ForInStatementTree) tree);
-    } else if (tree.is(Kind.FOR_OF_STATEMENT)) {
-      visitForOfStatement((ForOfStatementTree) tree);
+    } else if (tree.is(Kind.FOR_IN_STATEMENT, Kind.FOR_OF_STATEMENT)) {
+      visitForObjectStatement((ForObjectStatementTree) tree);
     } else if (tree.is(Kind.WHILE_STATEMENT)) {
       visitWhileStatement((WhileStatementTree) tree);
     } else if (tree.is(Kind.DO_WHILE_STATEMENT)) {
@@ -290,17 +287,7 @@ class ControlFlowGraphBuilder {
     }
   }
 
-  private void visitForInStatement(ForInStatementTree tree) {
-    MutableBlock successor = currentBlock;
-    BranchingBlock assignmentBlock = createBranchingBlock(tree.variableOrExpression());
-
-    MutableBlock loopBodyBlock = buildLoopBody(tree.statement(), assignmentBlock);
-
-    assignmentBlock.setSuccessors(loopBodyBlock, successor);
-    currentBlock = createSimpleBlock(tree.expression(), assignmentBlock);
-  }
-
-  private void visitForOfStatement(ForOfStatementTree tree) {
+  private void visitForObjectStatement(ForObjectStatementTree tree) {
     MutableBlock successor = currentBlock;
     BranchingBlock assignmentBlock = createBranchingBlock(tree.variableOrExpression());
 

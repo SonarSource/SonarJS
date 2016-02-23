@@ -20,25 +20,39 @@
 package org.sonar.javascript.tree.impl.statement;
 
 import org.junit.Test;
+import org.sonar.javascript.lexer.JavaScriptKeyword;
+import org.sonar.javascript.lexer.JavaScriptPunctuator;
 import org.sonar.javascript.utils.JavaScriptTreeModelTest;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
-import org.sonar.plugins.javascript.api.tree.statement.ForOfStatementTree;
+import org.sonar.plugins.javascript.api.tree.statement.ForObjectStatementTree;
 
 import static org.fest.assertions.Assertions.assertThat;
 
-public class ForOfStatementTreeModelTest extends JavaScriptTreeModelTest {
+public class ForObjectStatementTreeModelTest extends JavaScriptTreeModelTest {
 
   @Test
-  public void test() throws Exception {
-    ForOfStatementTree tree = parse("for ( var a of expression ) { }", Kind.FOR_OF_STATEMENT);
+  public void for_in() throws Exception {
+    ForObjectStatementTree tree = parse("for ( var a in expression ) { }", Kind.FOR_IN_STATEMENT);
+
+    assertThat(tree.is(Kind.FOR_IN_STATEMENT)).isTrue();
+    assertThat(tree.forKeyword().text()).isEqualTo(JavaScriptKeyword.FOR.getValue());
+    assertThat(tree.openParenthesis().text()).isEqualTo(JavaScriptPunctuator.LPARENTHESIS.getValue());
+    assertThat(tree.ofOrInKeyword().text()).isEqualTo(JavaScriptKeyword.IN.getValue());
+    assertThat(tree.expression()).isNotNull();
+    assertThat(tree.closeParenthesis().text()).isEqualTo(JavaScriptPunctuator.RPARENTHESIS.getValue());
+    assertThat(tree.statement().is(Kind.BLOCK)).isTrue();
+  }
+
+  @Test
+  public void for_of() throws Exception {
+    ForObjectStatementTree tree = parse("for ( var a of expression ) { }", Kind.FOR_OF_STATEMENT);
 
     assertThat(tree.is(Kind.FOR_OF_STATEMENT)).isTrue();
     assertThat(tree.forKeyword().text()).isEqualTo("for");
     assertThat(tree.openParenthesis().text()).isEqualTo("(");
-    assertThat(tree.ofKeyword().text()).isEqualTo("of");
+    assertThat(tree.ofOrInKeyword().text()).isEqualTo("of");
     assertThat(expressionToString(tree.expression())).isEqualTo("expression");
     assertThat(tree.closeParenthesis().text()).isEqualTo(")");
     assertThat(tree.statement().is(Kind.BLOCK)).isTrue();
   }
-
 }

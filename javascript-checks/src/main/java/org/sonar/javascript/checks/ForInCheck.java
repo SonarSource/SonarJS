@@ -27,7 +27,7 @@ import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.expression.AssignmentExpressionTree;
 import org.sonar.plugins.javascript.api.tree.statement.BlockTree;
 import org.sonar.plugins.javascript.api.tree.statement.ExpressionStatementTree;
-import org.sonar.plugins.javascript.api.tree.statement.ForInStatementTree;
+import org.sonar.plugins.javascript.api.tree.statement.ForObjectStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.StatementTree;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
 import org.sonar.squidbridge.annotations.ActivatedByDefault;
@@ -47,19 +47,21 @@ public class ForInCheck extends DoubleDispatchVisitorCheck {
   private static final String MESSAGE = "Restrict what this loop acts on by testing each property.";
 
   @Override
-  public void visitForInStatement(ForInStatementTree tree) {
-    StatementTree statementNode = tree.statement();
+  public void visitForObjectStatement(ForObjectStatementTree tree) {
+    if (tree.is(Kind.FOR_IN_STATEMENT)) {
+      StatementTree statementNode = tree.statement();
 
-    if (statementNode.is(Kind.BLOCK)) {
-      BlockTree block = (BlockTree) statementNode;
-      statementNode = !block.statements().isEmpty() ? block.statements().get(0) : null;
+      if (statementNode.is(Kind.BLOCK)) {
+        BlockTree block = (BlockTree) statementNode;
+        statementNode = !block.statements().isEmpty() ? block.statements().get(0) : null;
+      }
+
+      if (statementNode != null && !statementNode.is(Kind.IF_STATEMENT) && !isAttrCopy(statementNode)) {
+        addLineIssue(tree, MESSAGE);
+      }
     }
 
-    if (statementNode != null && !statementNode.is(Kind.IF_STATEMENT) && !isAttrCopy(statementNode)) {
-      addLineIssue(tree, MESSAGE);
-    }
-
-    super.visitForInStatement(tree);
+    super.visitForObjectStatement(tree);
   }
 
   private static boolean isAttrCopy(StatementTree statement) {

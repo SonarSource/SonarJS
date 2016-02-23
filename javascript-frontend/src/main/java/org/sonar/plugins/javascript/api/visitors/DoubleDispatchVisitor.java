@@ -79,8 +79,7 @@ import org.sonar.plugins.javascript.api.tree.statement.DoWhileStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.ElseClauseTree;
 import org.sonar.plugins.javascript.api.tree.statement.EmptyStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.ExpressionStatementTree;
-import org.sonar.plugins.javascript.api.tree.statement.ForInStatementTree;
-import org.sonar.plugins.javascript.api.tree.statement.ForOfStatementTree;
+import org.sonar.plugins.javascript.api.tree.statement.ForObjectStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.ForStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.IfStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.LabelledStatementTree;
@@ -268,20 +267,6 @@ public abstract class DoubleDispatchVisitor implements TreeVisitor {
     scan(tree.init());
     scan(tree.condition());
     scan(tree.update());
-    scan(tree.statement());
-  }
-
-
-  public void visitForInStatement(ForInStatementTree tree) {
-    scan(tree.variableOrExpression());
-    scan(tree.expression());
-    scan(tree.statement());
-  }
-
-
-  public void visitForOfStatement(ForOfStatementTree tree) {
-    scan(tree.variableOrExpression());
-    scan(tree.expression());
     scan(tree.statement());
   }
 
@@ -514,4 +499,10 @@ public abstract class DoubleDispatchVisitor implements TreeVisitor {
     scan(tree.fromClause());
   }
 
+
+  public void visitForObjectStatement(ForObjectStatementTree tree) {
+    scan(tree.variableOrExpression());
+    scan(tree.expression());
+    scan(tree.statement());
+  }
 }

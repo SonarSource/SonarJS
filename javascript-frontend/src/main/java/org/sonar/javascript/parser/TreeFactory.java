@@ -92,8 +92,7 @@ import org.sonar.javascript.tree.impl.statement.DoWhileStatementTreeImpl;
 import org.sonar.javascript.tree.impl.statement.ElseClauseTreeImpl;
 import org.sonar.javascript.tree.impl.statement.EmptyStatementTreeImpl;
 import org.sonar.javascript.tree.impl.statement.ExpressionStatementTreeImpl;
-import org.sonar.javascript.tree.impl.statement.ForInStatementTreeImpl;
-import org.sonar.javascript.tree.impl.statement.ForOfStatementTreeImpl;
+import org.sonar.javascript.tree.impl.statement.ForObjectStatementTreeImpl;
 import org.sonar.javascript.tree.impl.statement.ForStatementTreeImpl;
 import org.sonar.javascript.tree.impl.statement.IfStatementTreeImpl;
 import org.sonar.javascript.tree.impl.statement.LabelledStatementTreeImpl;
@@ -462,11 +461,11 @@ public class TreeFactory {
     }
   }
 
-  public ForOfStatementTreeImpl forOfStatement(
+  public ForObjectStatementTreeImpl forOfStatement(
     InternalSyntaxToken forToken, InternalSyntaxToken openParenthesis, Tree variableOrExpression, InternalSyntaxToken ofToken,
     ExpressionTree expression, InternalSyntaxToken closeParenthesis, StatementTree statement
   ) {
-    return new ForOfStatementTreeImpl(
+    return new ForObjectStatementTreeImpl(
       forToken,
       openParenthesis,
       variableOrExpression,
@@ -475,12 +474,12 @@ public class TreeFactory {
       statement);
   }
 
-  public ForInStatementTreeImpl forInStatement(
+  public ForObjectStatementTreeImpl forInStatement(
     InternalSyntaxToken forToken, InternalSyntaxToken openParenthesis, Tree variableOrExpression, InternalSyntaxToken inToken,
     ExpressionTree expression, InternalSyntaxToken closeParenthesis, StatementTree statement
   ) {
 
-    return new ForInStatementTreeImpl(
+    return new ForObjectStatementTreeImpl(
       forToken,
       openParenthesis,
       variableOrExpression,

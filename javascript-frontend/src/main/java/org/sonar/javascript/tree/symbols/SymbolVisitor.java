@@ -36,8 +36,7 @@ import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 import org.sonar.plugins.javascript.api.tree.expression.UnaryExpressionTree;
 import org.sonar.plugins.javascript.api.tree.statement.BlockTree;
 import org.sonar.plugins.javascript.api.tree.statement.CatchBlockTree;
-import org.sonar.plugins.javascript.api.tree.statement.ForInStatementTree;
-import org.sonar.plugins.javascript.api.tree.statement.ForOfStatementTree;
+import org.sonar.plugins.javascript.api.tree.statement.ForObjectStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.ForStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.SwitchStatementTree;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitor;
@@ -213,23 +212,7 @@ public class SymbolVisitor extends DoubleDispatchVisitor {
   }
 
   @Override
-  public void visitForOfStatement(ForOfStatementTree tree) {
-    enterScope(tree);
-
-    if (tree.variableOrExpression() instanceof IdentifierTree) {
-      IdentifierTree identifier = (IdentifierTree) tree.variableOrExpression();
-
-      if (!addUsageFor(identifier, Usage.Kind.WRITE)) {
-        symbolModel.declareSymbol(identifier.name(), Symbol.Kind.VARIABLE, symbolModel.globalScope()).addUsage(Usage.create(identifier, Usage.Kind.WRITE));
-      }
-    }
-    super.visitForOfStatement(tree);
-
-    leaveScope();
-  }
-
-  @Override
-  public void visitForInStatement(ForInStatementTree tree) {
+  public void visitForObjectStatement(ForObjectStatementTree tree) {
     enterScope(tree);
 
     if (tree.variableOrExpression() instanceof IdentifierTree) {
@@ -243,7 +226,7 @@ public class SymbolVisitor extends DoubleDispatchVisitor {
       scan(tree.statement());
 
     } else {
-      super.visitForInStatement(tree);
+      super.visitForObjectStatement(tree);
     }
 
     leaveScope();

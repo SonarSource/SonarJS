@@ -29,8 +29,7 @@ import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.statement.DoWhileStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.ElseClauseTree;
-import org.sonar.plugins.javascript.api.tree.statement.ForInStatementTree;
-import org.sonar.plugins.javascript.api.tree.statement.ForOfStatementTree;
+import org.sonar.plugins.javascript.api.tree.statement.ForObjectStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.ForStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.IfStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.SwitchStatementTree;
@@ -88,18 +87,10 @@ public class NestedControlFlowDepthCheck extends DoubleDispatchVisitorCheck {
   }
 
   @Override
-  public void visitForInStatement(ForInStatementTree tree) {
+  public void visitForObjectStatement(ForObjectStatementTree tree) {
     nestedLevel++;
     checkNestedLevel(tree);
-    super.visitForInStatement(tree);
-    nestedLevel--;
-  }
-
-  @Override
-  public void visitForOfStatement(ForOfStatementTree tree) {
-    nestedLevel++;
-    checkNestedLevel(tree);
-    super.visitForOfStatement(tree);
+    super.visitForObjectStatement(tree);
     nestedLevel--;
   }
 

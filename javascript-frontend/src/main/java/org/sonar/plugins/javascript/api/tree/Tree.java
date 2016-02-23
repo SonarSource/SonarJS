@@ -77,8 +77,7 @@ import org.sonar.plugins.javascript.api.tree.statement.DoWhileStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.ElseClauseTree;
 import org.sonar.plugins.javascript.api.tree.statement.EmptyStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.ExpressionStatementTree;
-import org.sonar.plugins.javascript.api.tree.statement.ForInStatementTree;
-import org.sonar.plugins.javascript.api.tree.statement.ForOfStatementTree;
+import org.sonar.plugins.javascript.api.tree.statement.ForObjectStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.ForStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.IfStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.LabelledStatementTree;
@@ -226,9 +225,9 @@ public interface Tree {
     EXPRESSION_STATEMENT(ExpressionStatementTree.class),
 
     /**
-     * {@link ForOfStatementTree}
+     * {@link ForObjectStatementTree}
      */
-    FOR_OF_STATEMENT(ForOfStatementTree.class),
+    FOR_OF_STATEMENT(ForObjectStatementTree.class),
 
     /**
      * {@link ForStatementTree}
@@ -236,9 +235,9 @@ public interface Tree {
     FOR_STATEMENT(ForStatementTree.class),
 
     /**
-     * {@link ForInStatementTree}
+     * {@link ForObjectStatementTree}
      */
-    FOR_IN_STATEMENT(ForInStatementTree.class),
+    FOR_IN_STATEMENT(ForObjectStatementTree.class),
 
     /**
      * {@link IdentifierTree}

@@ -26,32 +26,38 @@ import org.sonar.javascript.tree.impl.lexical.InternalSyntaxToken;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
-import org.sonar.plugins.javascript.api.tree.statement.ForInStatementTree;
+import org.sonar.plugins.javascript.api.tree.statement.ForObjectStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.StatementTree;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitor;
 
-public class ForInStatementTreeImpl extends JavaScriptTree implements ForInStatementTree {
+public class ForObjectStatementTreeImpl extends JavaScriptTree implements ForObjectStatementTree {
 
   private final SyntaxToken forKeyword;
   private final SyntaxToken openParenthesis;
   private final Tree variableOrExpression;
-  private final SyntaxToken inKeyword;
+  private final SyntaxToken ofOrInKeyword;
   private final ExpressionTree expression;
   private final SyntaxToken closeParenthesis;
   private final StatementTree statement;
+  private final Kind kind;
 
-  public ForInStatementTreeImpl(
+  public ForObjectStatementTreeImpl(
     InternalSyntaxToken forKeyword, InternalSyntaxToken openParenthesis, Tree variableOrExpression,
-    InternalSyntaxToken inKeyword, ExpressionTree expression, InternalSyntaxToken closeParenthesis, StatementTree statement
+    InternalSyntaxToken ofOrInKeyword, ExpressionTree expression, InternalSyntaxToken closeParenthesis, StatementTree statement
   ) {
-
     this.forKeyword = forKeyword;
     this.openParenthesis = openParenthesis;
     this.variableOrExpression = variableOrExpression;
-    this.inKeyword = inKeyword;
+    this.ofOrInKeyword = ofOrInKeyword;
     this.expression = expression;
     this.closeParenthesis = closeParenthesis;
     this.statement = statement;
+
+    if ("in".equals(ofOrInKeyword.text())) {
+      this.kind = Kind.FOR_IN_STATEMENT;
+    } else {
+      this.kind = Kind.FOR_OF_STATEMENT;
+    }
 
   }
 
@@ -71,8 +77,8 @@ public class ForInStatementTreeImpl extends JavaScriptTree implements ForInState
   }
 
   @Override
-  public SyntaxToken inKeyword() {
-    return inKeyword;
+  public SyntaxToken ofOrInKeyword() {
+    return ofOrInKeyword;
   }
 
   @Override
@@ -92,16 +98,16 @@ public class ForInStatementTreeImpl extends JavaScriptTree implements ForInState
 
   @Override
   public Kind getKind() {
-    return Kind.FOR_IN_STATEMENT;
+    return kind;
   }
 
   @Override
   public Iterator<Tree> childrenIterator() {
-    return Iterators.forArray(forKeyword, openParenthesis, variableOrExpression, inKeyword, expression, closeParenthesis, statement);
+    return Iterators.forArray(forKeyword, openParenthesis, variableOrExpression, ofOrInKeyword, expression, closeParenthesis, statement);
   }
 
   @Override
   public void accept(DoubleDispatchVisitor visitor) {
-    visitor.visitForInStatement(this);
+    visitor.visitForObjectStatement(this);
   }
 }

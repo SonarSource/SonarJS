@@ -32,7 +32,7 @@ import org.sonar.plugins.javascript.api.tree.expression.NewExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.ParenthesisedExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.UnaryExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.YieldExpressionTree;
-import org.sonar.plugins.javascript.api.tree.statement.ForInStatementTree;
+import org.sonar.plugins.javascript.api.tree.statement.ForObjectStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.ReturnStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.ThrowStatementTree;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
@@ -131,9 +131,12 @@ public class ParenthesesCheck extends DoubleDispatchVisitorCheck {
   }
 
   @Override
-  public void visitForInStatement(ForInStatementTree tree) {
-    checkExpression(tree.expression());
-    super.visitForInStatement(tree);
+  public void visitForObjectStatement(ForObjectStatementTree tree) {
+    if (tree.is(Kind.FOR_IN_STATEMENT)) {
+      checkExpression(tree.expression());
+    }
+
+    super.visitForObjectStatement(tree);
   }
 
 

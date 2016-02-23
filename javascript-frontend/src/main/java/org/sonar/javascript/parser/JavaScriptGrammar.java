@@ -65,8 +65,7 @@ import org.sonar.javascript.tree.impl.statement.DoWhileStatementTreeImpl;
 import org.sonar.javascript.tree.impl.statement.ElseClauseTreeImpl;
 import org.sonar.javascript.tree.impl.statement.EmptyStatementTreeImpl;
 import org.sonar.javascript.tree.impl.statement.ExpressionStatementTreeImpl;
-import org.sonar.javascript.tree.impl.statement.ForInStatementTreeImpl;
-import org.sonar.javascript.tree.impl.statement.ForOfStatementTreeImpl;
+import org.sonar.javascript.tree.impl.statement.ForObjectStatementTreeImpl;
 import org.sonar.javascript.tree.impl.statement.ForStatementTreeImpl;
 import org.sonar.javascript.tree.impl.statement.IfStatementTreeImpl;
 import org.sonar.javascript.tree.impl.statement.LabelledStatementTreeImpl;
@@ -374,8 +373,8 @@ public class JavaScriptGrammar {
   /**
    * ECMAScript 6
    */
-  public ForOfStatementTreeImpl FOR_OF_STATEMENT() {
-    return b.<ForOfStatementTreeImpl>nonterminal(Kind.FOR_OF_STATEMENT)
+  public ForObjectStatementTreeImpl FOR_OF_STATEMENT() {
+    return b.<ForObjectStatementTreeImpl>nonterminal(Kind.FOR_OF_STATEMENT)
       .is(f.forOfStatement(
         b.token(JavaScriptKeyword.FOR),
         b.token(JavaScriptPunctuator.LPARENTHESIS),
@@ -388,8 +387,8 @@ public class JavaScriptGrammar {
         STATEMENT()));
   }
 
-  public ForInStatementTreeImpl FOR_IN_STATEMENT() {
-    return b.<ForInStatementTreeImpl>nonterminal(Kind.FOR_IN_STATEMENT)
+  public ForObjectStatementTreeImpl FOR_IN_STATEMENT() {
+    return b.<ForObjectStatementTreeImpl>nonterminal(Kind.FOR_IN_STATEMENT)
       .is(
         f.forInStatement(
           b.token(JavaScriptKeyword.FOR),

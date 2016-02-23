@@ -50,8 +50,7 @@ import org.sonar.plugins.javascript.api.tree.expression.NewExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.ObjectLiteralTree;
 import org.sonar.plugins.javascript.api.tree.expression.ParenthesisedExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.UnaryExpressionTree;
-import org.sonar.plugins.javascript.api.tree.statement.ForInStatementTree;
-import org.sonar.plugins.javascript.api.tree.statement.ForOfStatementTree;
+import org.sonar.plugins.javascript.api.tree.statement.ForObjectStatementTree;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitor;
 
 public class TypeVisitor extends DoubleDispatchVisitor {
@@ -316,18 +315,7 @@ public class TypeVisitor extends DoubleDispatchVisitor {
   }
 
   @Override
-  public void visitForInStatement(ForInStatementTree tree) {
-    scan(tree.expression());
-
-    this.forLoopVariable = true;
-    scan(tree.variableOrExpression());
-    this.forLoopVariable = false;
-
-    scan(tree.statement());
-  }
-
-  @Override
-  public void visitForOfStatement(ForOfStatementTree tree) {
+  public void visitForObjectStatement(ForObjectStatementTree tree) {
     scan(tree.expression());
 
     this.forLoopVariable = true;

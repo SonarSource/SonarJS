@@ -35,8 +35,7 @@ import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.javascript.api.tree.statement.BreakStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.ContinueStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.DoWhileStatementTree;
-import org.sonar.plugins.javascript.api.tree.statement.ForInStatementTree;
-import org.sonar.plugins.javascript.api.tree.statement.ForOfStatementTree;
+import org.sonar.plugins.javascript.api.tree.statement.ForObjectStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.ForStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.LabelledStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.SwitchStatementTree;
@@ -131,16 +130,9 @@ public class TooManyBreakOrContinueInLoopCheck extends DoubleDispatchVisitorChec
   }
 
   @Override
-  public void visitForInStatement(ForInStatementTree tree) {
+  public void visitForObjectStatement(ForObjectStatementTree tree) {
     enterScope();
-    super.visitForInStatement(tree);
-    leaveScopeAndCheckNumberOfJump(tree.forKeyword());
-  }
-
-  @Override
-  public void visitForOfStatement(ForOfStatementTree tree) {
-    enterScope();
-    super.visitForOfStatement(tree);
+    super.visitForObjectStatement(tree);
     leaveScopeAndCheckNumberOfJump(tree.forKeyword());
   }
 
