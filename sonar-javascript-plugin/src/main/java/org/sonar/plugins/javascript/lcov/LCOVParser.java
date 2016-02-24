@@ -58,12 +58,14 @@ public final class LCOVParser {
     return new LCOVParser(fs, lines).coverageByFile();
   }
 
-  public static LCOVParser create(FileSystem fs, File file) {
-    final List<String> lines;
-    try {
-      lines = FileUtils.readLines(file);
-    } catch (IOException e) {
-      throw new IllegalArgumentException("Could not read content from file: " + file, e);
+  public static LCOVParser create(FileSystem fs, File... files) {
+    final List<String> lines=new LinkedList<>();
+    for(File file: files) {
+      try {
+        lines.addAll(FileUtils.readLines(file));
+      } catch (IOException e) {
+        throw new IllegalArgumentException("Could not read content from file: " + file, e);
+      }
     }
     return new LCOVParser(fs, lines);
   }
