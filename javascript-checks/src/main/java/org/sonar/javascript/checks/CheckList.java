@@ -67,6 +67,7 @@ public final class CheckList {
       DeleteArrayElementCheck.class,
       DeleteNonPropertyCheck.class,
       DeprecatedJQueryAPICheck.class,
+      DestructuringAssignmentSyntaxCheck.class,
       DifferentTypesComparisonCheck.class,
       DuplicateBranchImplementationCheck.class,
       DuplicateConditionIfElseAndSwitchCasesCheck.class,
