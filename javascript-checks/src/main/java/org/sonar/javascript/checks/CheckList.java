@@ -42,6 +42,7 @@ public final class CheckList {
       ArgumentsCallerCalleeUsageCheck.class,
       ArgumentsUsageCheck.class,
       ArrayAndObjectConstructorsCheck.class,
+      ArrowFunctionConventionCheck.class,
       AssignmentWithinConditionCheck.class,
       BackboneChangedIsUsedCheck.class,
       BitwiseOperatorsCheck.class,
