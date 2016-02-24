@@ -30,6 +30,7 @@ import org.sonar.plugins.javascript.api.JavaScriptCheck;
 import org.sonar.plugins.javascript.api.visitors.FileIssue;
 import org.sonar.plugins.javascript.api.visitors.Issue;
 import org.sonar.plugins.javascript.api.visitors.LineIssue;
+import org.sonar.plugins.javascript.api.visitors.PreciseIssue;
 import org.sonar.squidbridge.api.CheckMessage;
 
 public class TreeCheckTest {
@@ -65,7 +66,9 @@ public class TreeCheckTest {
         checkMessage.setLine(lineIssue.line());
 
       } else {
-        throw new IllegalStateException("To test rules which provide precise issue locations use JavaScriptCheckVerifier#verify()");
+        PreciseIssue preciseIssue = (PreciseIssue) issue;
+        checkMessage = new CheckMessage(preciseIssue.check(), preciseIssue.primaryLocation().message());
+        checkMessage.setLine(preciseIssue.primaryLocation().startLine());
       }
 
       if (issue.cost() != null) {
