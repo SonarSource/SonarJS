@@ -1,0 +1,33 @@
+<p>Before ECMAScript 2015, module management had to be ad-hoc or provided by 3rd-party libraries such as Node.js, Webpack, or RequireJS. Fortunately, ES2015, provides language-standard mechanisms for module management, <code>import</code> and <code>export</code>, and older usages should be converted.</p>
+
+<h2>Noncompliant Code Example</h2>
+<pre>
+// circle.js
+exports.area = function (r) {
+  return PI * r * r;
+};
+
+// foo.js
+define(["./cart", "./horse"], function(cart, horse) {  // Noncompliant
+  // ...
+});
+
+// bar.js
+const circle = require('./circle.js');  // Noncompliant
+</pre>
+
+<h2>Compliant Solution</h2>
+<pre>
+// circle.js
+let area = function (r) {
+  return PI * r * r;
+}
+export default area;
+
+// foo.js
+import cart from "./cart.js";
+import horse from "./horse.js";
+
+// bar.js
+import circle from "./circle.js"
+</pre>

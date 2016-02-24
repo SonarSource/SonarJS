@@ -114,6 +114,7 @@ public final class CheckList {
       NewOperatorMisuseCheck.class,
       NonCaseLabelInSwitchCheck.class,
       NonEmptyCaseWithoutBreakCheck.class,
+      NonStandardImportCheck.class,
       NotStoredSelectionCheck.class,
       NullDereferenceInConditionalCheck.class,
       ObjectLiteralShorthandCheck.class,
