@@ -68,7 +68,7 @@ public class WrongScopeDeclarationCheck extends DoubleDispatchVisitorCheck {
 
       if (!deepestCommonScope.equals(declarationScope) && !isFunctionException(deepestCommonScope, declarationScope)) {
         String message = String.format(MESSAGE, symbol.name(), ((JavaScriptTree) deepestCommonScope.tree()).getLine() + 1);
-        newIssue(declaration.identifierTree(), message);
+        addIssue(declaration.identifierTree(), message);
       }
     }
 

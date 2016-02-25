@@ -243,12 +243,12 @@ public class JavaScriptCheckVerifierTest {
     }
 
     @Override
-    public void addLineIssue(Tree tree, String message) {
+    public LineIssue addLineIssue(Tree tree, String message) {
       throw new NotImplementedException();
     }
 
     @Override
-    public PreciseIssue newIssue(Tree tree, String message) {
+    public PreciseIssue addIssue(Tree tree, String message) {
       throw new NotImplementedException();
     }
 

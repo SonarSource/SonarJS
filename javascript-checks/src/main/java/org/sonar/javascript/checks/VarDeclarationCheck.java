@@ -49,7 +49,7 @@ public class VarDeclarationCheck extends SubscriptionVisitorCheck {
 
   @Override
   public void visitNode(Tree tree) {
-    newIssue(((VariableDeclarationTree) tree).token(), MESSAGE);
+    addIssue(((VariableDeclarationTree) tree).token(), MESSAGE);
   }
 
 }

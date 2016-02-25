@@ -38,9 +38,9 @@ public interface JavaScriptCheck {
 
   /**
    *  This method should be deprecated, as soon as this plugin will be migrated on 5.X LTS (with support of precise issue locations). <p>
-   *  Instead please use {@link JavaScriptCheck#newIssue(Tree, String)}
+   *  Instead please use {@link JavaScriptCheck#addIssue(Tree, String)}
    */
-  void addLineIssue(Tree tree, String message);
+  LineIssue addLineIssue(Tree tree, String message);
 
   /**
    *
@@ -68,7 +68,7 @@ public interface JavaScriptCheck {
    * @return new issue
    *
    */
-  PreciseIssue newIssue(Tree tree, String message);
+  PreciseIssue addIssue(Tree tree, String message);
 
   /**
    * Use this method only to add specific kind of issue (when listed below methods don't meet your needs).
@@ -76,7 +76,7 @@ public interface JavaScriptCheck {
    * or precise issue with sophisticated primary location.<p>
    * Otherwise please use:
    * <ul>
-   * <li>{@link org.sonar.plugins.javascript.api.JavaScriptCheck#newIssue(Tree, String)} for precise issue (see {@link PreciseIssue})</li>
+   * <li>{@link org.sonar.plugins.javascript.api.JavaScriptCheck#addIssue(Tree, String)} for precise issue (see {@link PreciseIssue})</li>
    * <li>{@link org.sonar.plugins.javascript.api.JavaScriptCheck#addLineIssue(Tree, String)} for line issue (see {@link LineIssue})</li>
    * </ul>
    */

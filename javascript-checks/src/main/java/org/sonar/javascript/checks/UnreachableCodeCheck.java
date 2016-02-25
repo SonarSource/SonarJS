@@ -87,7 +87,7 @@ public class UnreachableCodeCheck extends SubscriptionVisitorCheck {
           SyntaxToken keyword = disconnectingJumps.iterator().next();
           message = String.format(MESSAGE, keyword.text());
         }
-        PreciseIssue issue = newIssue(element, message);
+        PreciseIssue issue = addIssue(element, message);
         for (SyntaxToken jump : disconnectingJumps) {
           issue.secondary(jump);
         }

@@ -48,7 +48,7 @@ public class ArgumentsUsageCheck extends DoubleDispatchVisitorCheck {
       if (argumentsSymbol.builtIn() && !argumentsSymbol.usages().isEmpty()) {
 
         Iterator<Usage> usageIterator = argumentsSymbol.usages().iterator();
-        PreciseIssue preciseIssue = newIssue(usageIterator.next().identifierTree(), MESSAGE);
+        PreciseIssue preciseIssue = addIssue(usageIterator.next().identifierTree(), MESSAGE);
 
         while (usageIterator.hasNext()) {
           preciseIssue.secondary(usageIterator.next().identifierTree());

@@ -63,7 +63,7 @@ public class UpdatedConstVariableCheck extends DoubleDispatchVisitorCheck {
 
       if (declaration != null) {
         for (Usage writeUsage : writeUsages) {
-          PreciseIssue preciseIssue = newIssue(writeUsage.identifierTree(), String.format(MESSAGE, constSymbol.name()));
+          PreciseIssue preciseIssue = addIssue(writeUsage.identifierTree(), String.format(MESSAGE, constSymbol.name()));
           preciseIssue.secondary(declaration.identifierTree(), "Const declaration");
         }
       }

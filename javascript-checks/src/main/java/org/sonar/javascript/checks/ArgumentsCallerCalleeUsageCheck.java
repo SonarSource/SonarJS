@@ -103,23 +103,19 @@ public class ArgumentsCallerCalleeUsageCheck extends SubscriptionVisitorCheck {
 
   private void checkFunctionsProperty(Tree tree, String object, String property) {
     if (CALLER.equals(property)) {
-      addIssue(tree, "Remove this use of \"" + object + ".caller\".");
+      addLineIssue(tree, "Remove this use of \"" + object + ".caller\".");
 
     } else if (ARGUMENTS.equals(property)) {
-      addIssue(tree, "Remove this use of \"" + object + ".arguments\".");
+      addLineIssue(tree, "Remove this use of \"" + object + ".arguments\".");
     }
-  }
-
-  private void addIssue(Tree tree, String message) {
-    addLineIssue(tree, message);
   }
 
   private void checkArgumentsProperty(Tree tree, String property) {
     if (CALLER.equals(property)) {
-      addIssue(tree, "Remove this use of \"arguments.caller\".");
+      addLineIssue(tree, "Remove this use of \"arguments.caller\".");
 
     } else if (CALLEE.equals(property)) {
-      addIssue(tree, "Name the enclosing function instead of using the deprecated property \"arguments.callee\".");
+      addLineIssue(tree, "Name the enclosing function instead of using the deprecated property \"arguments.callee\".");
     }
   }
 

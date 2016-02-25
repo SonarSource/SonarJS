@@ -59,7 +59,7 @@ public class NonStandardImportCheck extends DoubleDispatchVisitorCheck {
         SeparatedList<Tree> parameters = tree.arguments().parameters();
 
         if (isAmdImport(name, parameters) || isCommonJsImport(name, parameters)) {
-          newIssue(tree.callee(), String.format(MESSAGE, name));
+          addIssue(tree.callee(), String.format(MESSAGE, name));
         }
       }
     }

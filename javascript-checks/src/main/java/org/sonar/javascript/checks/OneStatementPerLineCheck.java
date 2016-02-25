@@ -116,7 +116,7 @@ public class OneStatementPerLineCheck extends SubscriptionVisitorCheck {
   }
 
   private void addIssue(List<StatementTree> statementsAtLine) {
-    PreciseIssue issue = newIssue(statementsAtLine.get(1), MESSAGE);
+    PreciseIssue issue = addIssue(statementsAtLine.get(1), MESSAGE);
 
     for (int i = 2; i < statementsAtLine.size(); i++) {
       issue.secondary(new IssueLocation(statementsAtLine.get(i)));

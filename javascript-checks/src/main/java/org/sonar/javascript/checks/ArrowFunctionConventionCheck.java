@@ -84,7 +84,7 @@ public class ArrowFunctionConventionCheck extends DoubleDispatchVisitorCheck {
     boolean hasBodyBraces = tree.body().is(Kind.BLOCK);
 
     if (bodyBraces && !hasBodyBraces) {
-      newIssue(tree.body(), MESSAGE_ADD_BODY);
+      addIssue(tree.body(), MESSAGE_ADD_BODY);
     }
 
     if (!bodyBraces && hasBodyBraces) {
@@ -94,7 +94,7 @@ public class ArrowFunctionConventionCheck extends DoubleDispatchVisitorCheck {
         if (statement.is(Kind.RETURN_STATEMENT)
           && ((ReturnStatementTree) statement).expression() != null
           && !((ReturnStatementTree) statement).expression().is(Kind.OBJECT_LITERAL)) {
-          newIssue(tree.body(), MESSAGE_REMOVE_BODY);
+          addIssue(tree.body(), MESSAGE_REMOVE_BODY);
         }
       }
     }
@@ -104,13 +104,13 @@ public class ArrowFunctionConventionCheck extends DoubleDispatchVisitorCheck {
     boolean hasParameterParens = tree.parameterClause().is(Kind.FORMAL_PARAMETER_LIST);
 
     if (parameterParens && !hasParameterParens) {
-      newIssue(tree.parameterClause(), MESSAGE_ADD_PARAMETER);
+      addIssue(tree.parameterClause(), MESSAGE_ADD_PARAMETER);
     }
 
     if (!parameterParens && hasParameterParens) {
       SeparatedList<Tree> parameters = ((ParameterListTree) tree.parameterClause()).parameters();
       if (parameters.size() == 1 && parameters.get(0).is(Kind.BINDING_IDENTIFIER)) {
-        newIssue(tree.parameterClause(), MESSAGE_REMOVE_PARAMETER);
+        addIssue(tree.parameterClause(), MESSAGE_REMOVE_PARAMETER);
       }
     }
   }

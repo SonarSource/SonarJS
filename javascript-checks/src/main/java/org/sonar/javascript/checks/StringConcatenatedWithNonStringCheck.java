@@ -78,7 +78,7 @@ public class StringConcatenatedWithNonStringCheck extends DoubleDispatchVisitorC
 
   private void raiseIssue(BinaryExpressionTree tree, ExpressionTree stringOperand) {
     String message = String.format(MESSAGE, CheckUtils.asString(stringOperand));
-    newIssue(tree.operator(), message)
+    addIssue(tree.operator(), message)
       .secondary(tree.leftOperand())
       .secondary(tree.rightOperand());
 

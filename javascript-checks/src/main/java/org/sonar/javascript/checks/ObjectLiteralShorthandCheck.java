@@ -60,6 +60,6 @@ public class ObjectLiteralShorthandCheck extends DoubleDispatchVisitorCheck {
 
   private void raiseIssue(String kind, String keyName, Tree highlighted) {
     String message = String.format(MESSAGE, kind, keyName);
-    newIssue(highlighted, message);
+    addIssue(highlighted, message);
   }
 }

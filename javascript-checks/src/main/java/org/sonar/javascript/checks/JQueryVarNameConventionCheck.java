@@ -77,13 +77,13 @@ public class JQueryVarNameConventionCheck extends DoubleDispatchVisitorCheck {
     boolean issueRaised = false;
     for (Usage usage : symbol.usages()) {
       if (usage.isDeclaration()) {
-        newIssue(usage.identifierTree(), message);
+        addIssue(usage.identifierTree(), message);
         issueRaised = true;
       }
     }
 
     if (!issueRaised) {
-      newIssue(symbol.usages().iterator().next().identifierTree(), message);
+      addIssue(symbol.usages().iterator().next().identifierTree(), message);
     }
 
   }

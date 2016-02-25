@@ -107,7 +107,7 @@ public class DuplicateBranchImplementationCheck extends DoubleDispatchVisitorChe
   private void addIssue(Tree original, Tree duplicate, String type) {
     IssueLocation secondary = new IssueLocation(original, "Original");
     String message = String.format(MESSAGE, type, secondary.startLine());
-    newIssue(duplicate, message).secondary(secondary);
+    addIssue(duplicate, message).secondary(secondary);
   }
 
   private boolean isCaseEndingWithoutJumpStmt(SwitchClauseTree caseTree) {
@@ -133,7 +133,7 @@ public class DuplicateBranchImplementationCheck extends DoubleDispatchVisitorChe
   @Override
   public void visitConditionalExpression(ConditionalExpressionTree tree) {
     if (SyntacticEquivalence.areEquivalent(tree.trueExpression(), tree.falseExpression())) {
-      newIssue(tree.query(), CONDITIONAL_EXPRESSION_MESSAGE)
+      addIssue(tree.query(), CONDITIONAL_EXPRESSION_MESSAGE)
         .secondary(tree.trueExpression())
         .secondary(tree.falseExpression());
     }

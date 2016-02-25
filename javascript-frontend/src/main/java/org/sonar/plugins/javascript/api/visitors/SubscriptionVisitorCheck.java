@@ -38,12 +38,12 @@ public abstract class SubscriptionVisitorCheck extends SubscriptionVisitor imple
   }
 
   @Override
-  public void addLineIssue(Tree tree, String message) {
-    addIssue(new LineIssue(this, tree, message));
+  public LineIssue addLineIssue(Tree tree, String message) {
+    return addIssue(new LineIssue(this, tree, message));
   }
 
   @Override
-  public PreciseIssue newIssue(Tree tree, String message) {
+  public PreciseIssue addIssue(Tree tree, String message) {
     PreciseIssue preciseIssue = new PreciseIssue(this, new IssueLocation(tree, message));
     addIssue(preciseIssue);
     return preciseIssue;

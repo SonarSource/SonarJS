@@ -78,7 +78,7 @@ public class VariableDeclarationAfterUsageCheck extends DoubleDispatchVisitorChe
 
       for (int i = 1; i < usages.size(); i++) {
         if (usages.get(i).isDeclaration()) {
-          newIssue(usages.get(0).identifierTree(), String.format(MESSAGE, symbol.name()))
+          addIssue(usages.get(0).identifierTree(), String.format(MESSAGE, symbol.name()))
             .secondary(usages.get(i).identifierTree(), "Declaration");
           return;
         }

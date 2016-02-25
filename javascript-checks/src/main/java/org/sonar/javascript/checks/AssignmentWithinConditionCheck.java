@@ -181,6 +181,6 @@ public class AssignmentWithinConditionCheck extends DoubleDispatchVisitorCheck {
   public void visitAssignmentExpression(AssignmentExpressionTree tree) {
     super.visitAssignmentExpression(tree);
     String message = String.format(MESSAGE, CheckUtils.asString(tree.variable()));
-    newIssue(tree.operator(), message);
+    addIssue(tree.operator(), message);
   }
 }

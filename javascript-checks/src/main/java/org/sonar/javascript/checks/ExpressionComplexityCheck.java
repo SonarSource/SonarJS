@@ -160,7 +160,7 @@ public class ExpressionComplexityCheck extends SubscriptionVisitorCheck {
     int complexity = complexityOperators.size();
     String message = String.format(MESSAGE, complexity, max);
 
-    PreciseIssue issue = newIssue(expression, message);
+    PreciseIssue issue = addIssue(expression, message);
     for (SyntaxToken complexityOperator : complexityOperators) {
       issue.secondary(complexityOperator, "+1");
     }

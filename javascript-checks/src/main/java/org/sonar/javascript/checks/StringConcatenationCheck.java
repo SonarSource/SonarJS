@@ -50,7 +50,7 @@ public class StringConcatenationCheck extends DoubleDispatchVisitorCheck {
     List<ExpressionTree> operandList = operandListBuilder.build().reverse();
 
     if (operandList.size() > 2 && atLeastOneLiteral(operandList)) {
-      newIssue(tree, MESSAGE);
+      addIssue(tree, MESSAGE);
     }
   }
 

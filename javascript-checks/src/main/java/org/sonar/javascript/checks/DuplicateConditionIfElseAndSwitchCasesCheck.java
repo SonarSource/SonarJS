@@ -84,7 +84,7 @@ public class DuplicateConditionIfElseAndSwitchCasesCheck extends DoubleDispatchV
   private void addIssue(Tree original, Tree duplicate, String type) {
     IssueLocation secondaryLocation = new IssueLocation(original, "Original");
     String message = String.format(MESSAGE, type, secondaryLocation.startLine());
-    newIssue(duplicate, message)
+    addIssue(duplicate, message)
       .secondary(secondaryLocation);
   }
 

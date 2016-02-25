@@ -62,7 +62,7 @@ public class StringsComparisonCheck extends DoubleDispatchVisitorCheck {
   private void raiseIssue(BinaryExpressionTree tree) {
     String message = String.format(MESSAGE, tree.operator().text());
 
-    newIssue(tree.operator(), message)
+    addIssue(tree.operator(), message)
       .secondary(tree.leftOperand())
       .secondary(tree.rightOperand());
   }

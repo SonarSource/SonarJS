@@ -63,7 +63,7 @@ public class MisorderedParameterListCheck extends DoubleDispatchVisitorCheck {
       if (functionDeclaration != null) {
         List<String> parameterNames = names(parameters(functionDeclaration));
         if (parameterNames != null && haveSameNamesAndDifferentOrders(argumentNames, parameterNames)) {
-          newIssue(callExpression.arguments(), message(functionDeclaration))
+          addIssue(callExpression.arguments(), message(functionDeclaration))
             .secondary(functionDeclaration.parameterClause());
         }
       }

@@ -180,7 +180,7 @@ public class CounterUpdatedInLoopCheck extends DoubleDispatchVisitorCheck {
 
   private void raiseIssue(IdentifierTree writeUsage, IdentifierTree identifierUsedInUpdateClause) {
     String message = String.format(MESSAGE, writeUsage.name());
-    newIssue(writeUsage, message)
+    addIssue(writeUsage, message)
       .secondary(identifierUsedInUpdateClause, SECONDARY_MESSAGE);
   }
 }

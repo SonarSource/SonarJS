@@ -181,7 +181,7 @@ public class TooManyBreakOrContinueInLoopCheck extends DoubleDispatchVisitorChec
     List<Tree> jumps = jumpTargets.pop().jumps;
     int jumpStatementNumber = jumps.size();
     if (jumpStatementNumber > 1) {
-      PreciseIssue issue = newIssue(loopKeyword, MESSAGE).cost((double) jumpStatementNumber - 1);
+      PreciseIssue issue = addIssue(loopKeyword, MESSAGE).cost((double) jumpStatementNumber - 1);
       for (Tree jump : jumps) {
         issue.secondary(new IssueLocation(jump));
       }

@@ -152,7 +152,7 @@ public class DestructuringAssignmentSyntaxCheck extends DoubleDispatchVisitorChe
       List<Declaration> declarations = declarationsByObject.get(objectName);
 
       if (declarations.size() > 1 && sameDeclarationKind(declarations)) {
-        PreciseIssue preciseIssue = newIssue(declarations.get(0).tree, String.format(MESSAGE, objectName));
+        PreciseIssue preciseIssue = addIssue(declarations.get(0).tree, String.format(MESSAGE, objectName));
 
         for (int i = 1; i < declarations.size(); i++) {
           preciseIssue.secondary(declarations.get(i).tree);

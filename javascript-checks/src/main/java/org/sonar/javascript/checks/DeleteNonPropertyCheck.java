@@ -51,7 +51,7 @@ public class DeleteNonPropertyCheck extends DoubleDispatchVisitorCheck {
   public void visitUnaryExpression(UnaryExpressionTree tree) {
     ExpressionTree argument = CheckUtils.removeParenthesis(tree.expression());
     if (tree.is(Tree.Kind.DELETE) && !isMemberAccess(argument) && !isGlobalProperty(argument)) {
-      newIssue(tree, MESSAGE);
+      addIssue(tree, MESSAGE);
     }
 
     super.visitUnaryExpression(tree);

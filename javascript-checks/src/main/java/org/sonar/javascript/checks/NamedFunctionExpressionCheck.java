@@ -43,7 +43,7 @@ public class NamedFunctionExpressionCheck extends DoubleDispatchVisitorCheck {
   @Override
   public void visitFunctionExpression(FunctionExpressionTree tree) {
     if (tree.name() != null){
-      newIssue(tree.name(), MESSAGE);
+      addIssue(tree.name(), MESSAGE);
     }
     super.visitFunctionExpression(tree);
   }

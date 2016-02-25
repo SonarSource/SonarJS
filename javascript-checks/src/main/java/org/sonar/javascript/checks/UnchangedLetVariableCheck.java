@@ -59,7 +59,7 @@ public class UnchangedLetVariableCheck extends DoubleDispatchVisitorCheck {
       }
 
       if (declarationWithInit != null && !isWritten && letVariableSymbol.usages().size() > 1) {
-        newIssue(declarationWithInit.identifierTree(), String.format(MESSAGE, letVariableSymbol.name()));
+        addIssue(declarationWithInit.identifierTree(), String.format(MESSAGE, letVariableSymbol.name()));
       }
     }
   }

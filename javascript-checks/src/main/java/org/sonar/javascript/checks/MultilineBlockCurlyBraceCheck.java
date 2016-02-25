@@ -121,7 +121,7 @@ public class MultilineBlockCurlyBraceCheck extends DoubleDispatchVisitorCheck {
     }
 
     int nbLines = line(lastStatementInPseudoBlock) - line(firstStatementInPseudoBlock) + 1;
-    PreciseIssue issue = newIssue(statement, String.format(primaryMessage, nbLines));
+    PreciseIssue issue = addIssue(statement, String.format(primaryMessage, nbLines));
 
     for (IssueLocation secondaryLocation : secondaryLocations) {
       issue.secondary(secondaryLocation);

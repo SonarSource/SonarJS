@@ -68,7 +68,7 @@ public class DifferentTypesComparisonCheck extends DoubleDispatchVisitorCheck {
     String operator = tree.operator().text();
     String message = String.format(MESSAGE, operator, operator.substring(0, operator.length() - 1));
 
-    newIssue(tree.operator(), message)
+    addIssue(tree.operator(), message)
       .secondary(tree.leftOperand())
       .secondary(tree.rightOperand());
   }

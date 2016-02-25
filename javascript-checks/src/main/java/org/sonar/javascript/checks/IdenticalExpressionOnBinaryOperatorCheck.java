@@ -50,7 +50,7 @@ public class IdenticalExpressionOnBinaryOperatorCheck extends DoubleDispatchVisi
       && SyntacticEquivalence.areEquivalent(tree.leftOperand(), tree.rightOperand()) && isExcluded(tree)) {
 
       String message = String.format(MESSAGE, tree.operator().text());
-      newIssue(tree.rightOperand(), message)
+      addIssue(tree.rightOperand(), message)
         .secondary(tree.leftOperand());
     }
 

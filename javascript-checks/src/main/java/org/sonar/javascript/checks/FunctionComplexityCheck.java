@@ -73,7 +73,7 @@ public class FunctionComplexityCheck extends AbstractFunctionSizeCheck {
       primaryLocationTree = ((FunctionDeclarationTree) tree).name();
     }
 
-    PreciseIssue issue = newIssue(primaryLocationTree, message);
+    PreciseIssue issue = addIssue(primaryLocationTree, message);
 
     for (Tree complexityTree : complexityTrees) {
       issue.secondary(complexityTree, "+1");

@@ -72,7 +72,7 @@ public class TrailingCommaCheck extends DoubleDispatchVisitorCheck {
   }
 
   private void raiseIssue(Tree trailingComma) {
-    newIssue(trailingComma, MESSAGE);
+    addIssue(trailingComma, MESSAGE);
   }
 
 }

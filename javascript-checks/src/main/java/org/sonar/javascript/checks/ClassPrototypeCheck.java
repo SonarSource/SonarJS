@@ -51,7 +51,7 @@ public class ClassPrototypeCheck extends DoubleDispatchVisitorCheck {
         DotMemberExpressionTree prototype = (DotMemberExpressionTree) lhs.object();
 
         if ("prototype".equals(prototype.property().name()) && prototype.object().is(Kind.IDENTIFIER_REFERENCE) && prototype.object().types().contains(Type.Kind.FUNCTION)) {
-          newIssue(lhs, String.format(MESSAGE, ((IdentifierTree) prototype.object()).name(), lhs.property().name()));
+          addIssue(lhs, String.format(MESSAGE, ((IdentifierTree) prototype.object()).name(), lhs.property().name()));
         }
       }
     }

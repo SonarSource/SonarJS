@@ -62,7 +62,7 @@ public class TooManyArgumentsCheck extends DoubleDispatchVisitorCheck {
 
       if (!hasRestParameter(functionTree) && !builtInArgumentsUsed(functionTree) && argumentsNumber > parametersNumber) {
         String message = getMessage(tree, parametersNumber, argumentsNumber);
-        newIssue(tree.arguments(), message)
+        addIssue(tree.arguments(), message)
           .secondary(functionTree.parameterClause(), "Formal parameters");
       }
 

@@ -57,6 +57,7 @@ import org.sonar.plugins.javascript.api.tree.ScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitor;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
+import org.sonar.plugins.javascript.api.visitors.LineIssue;
 import org.sonar.plugins.javascript.api.visitors.TreeVisitor;
 import org.sonar.plugins.javascript.api.visitors.TreeVisitorContext;
 import org.sonar.squidbridge.ProgressReport;
@@ -336,7 +337,7 @@ public class JavaScriptSquidSensorTest {
     }
 
     @Override
-    public void addLineIssue(Tree tree, String message) {
+    public LineIssue addLineIssue(Tree tree, String message) {
       throw new NotImplementedException();
     }
 

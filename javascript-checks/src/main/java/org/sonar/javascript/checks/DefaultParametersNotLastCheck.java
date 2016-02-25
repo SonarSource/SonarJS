@@ -94,7 +94,7 @@ public class DefaultParametersNotLastCheck extends SubscriptionVisitorCheck {
 
     String plural = parametersWithDefault.size() == 1 ? "" : "s";
 
-    PreciseIssue preciseIssue = newIssue(parametersWithDefault.get(0).left(), String.format(MESSAGE, plural, parameters));
+    PreciseIssue preciseIssue = addIssue(parametersWithDefault.get(0).left(), String.format(MESSAGE, plural, parameters));
 
     for (int i = 1; i < parametersWithDefault.size(); i++) {
       preciseIssue.secondary(parametersWithDefault.get(i).left());

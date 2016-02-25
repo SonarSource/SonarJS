@@ -47,7 +47,7 @@ public class AlertUseCheck extends DoubleDispatchVisitorCheck {
   public void visitCallExpression(CallExpressionTree tree) {
     ExpressionTree callee = tree.callee();
     if (callee.is(Kind.IDENTIFIER_REFERENCE) && isAlertCall((IdentifierTree) callee)) {
-      newIssue(tree, MESSAGE);
+      addIssue(tree, MESSAGE);
     }
 
     super.visitCallExpression(tree);
