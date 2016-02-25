@@ -63,6 +63,7 @@ public final class CheckList {
       CounterUpdatedInLoopCheck.class,
       DeadStoreCheck.class,
       DebuggerStatementCheck.class,
+      DefaultParameterSideEffectCheck.class,
       DefaultParametersNotLastCheck.class,
       DeleteArrayElementCheck.class,
       DeleteNonPropertyCheck.class,
