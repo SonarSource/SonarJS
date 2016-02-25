@@ -19,6 +19,8 @@
  */
 package org.sonar.javascript.checks;
 
+import com.google.common.collect.ImmutableSet;
+import java.util.Set;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
@@ -42,10 +44,12 @@ public class VariableDeclarationWithoutVarCheck extends DoubleDispatchVisitorChe
 
   private static final String MESSAGE = "Add the \"let\", \"const\" or \"var\" keyword to this declaration of \"%s\" to make it explicit.";
 
+  private static final Set<String> EXCLUDED_NAMES = ImmutableSet.of("exports", "module");
+
   @Override
   public void visitScript(ScriptTree tree) {
     for (Symbol symbol : getContext().getSymbolModel().getSymbols()) {
-      if (symbol.isVariable() && !symbol.builtIn()) {
+      if (symbol.isVariable() && !symbol.builtIn() && !EXCLUDED_NAMES.contains(symbol.name())) {
         visitSymbol(symbol);
       }
     }

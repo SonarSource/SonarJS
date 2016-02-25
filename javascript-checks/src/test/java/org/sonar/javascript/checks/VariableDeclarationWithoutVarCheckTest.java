@@ -19,23 +19,14 @@
  */
 package org.sonar.javascript.checks;
 
+import java.io.File;
 import org.junit.Test;
-import org.sonar.javascript.checks.tests.TreeCheckTest;
-import org.sonar.squidbridge.checks.CheckMessagesVerifier;
+import org.sonar.javascript.checks.utils.JavaScriptCheckVerifier;
 
-public class VariableDeclarationWithoutVarCheckTest extends TreeCheckTest {
-
-  private VariableDeclarationWithoutVarCheck check = new VariableDeclarationWithoutVarCheck();
+public class VariableDeclarationWithoutVarCheckTest {
 
   @Test
   public void test() {
-    CheckMessagesVerifier.verify(getIssues("src/test/resources/checks/variableDeclarationWithoutVar.js", check))
-      .next().atLine(2).withMessage("Add the \"let\", \"const\" or \"var\" keyword to this declaration of \"x\" to make it explicit.")
-      .next().atLine(7)
-      .next().atLine(9)
-      .next().atLine(11)
-      .next().atLine(16).withMessage("Add the \"let\", \"const\" or \"var\" keyword to this declaration of \"var2\" to make it explicit.")
-      .noMore();
-
+    JavaScriptCheckVerifier.verify(new VariableDeclarationWithoutVarCheck(), new File("src/test/resources/checks/variableDeclarationWithoutVar.js"));
   }
 }
