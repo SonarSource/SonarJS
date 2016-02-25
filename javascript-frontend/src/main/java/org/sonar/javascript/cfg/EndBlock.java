@@ -44,4 +44,14 @@ class EndBlock extends MutableBlock {
     // Nothing to replace
   }
 
+  @Override
+  public MutableBlock trueSuccessor() {
+    throw new UnsupportedOperationException("End node has no successor");
+  }
+
+  @Override
+  public MutableBlock falseSuccessor() {
+    throw new UnsupportedOperationException("End node has no successor");
+  }
+
 }

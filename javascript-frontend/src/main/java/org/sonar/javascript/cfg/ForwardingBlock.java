@@ -22,6 +22,8 @@ package org.sonar.javascript.cfg;
 import java.util.Map;
 import org.sonar.plugins.javascript.api.tree.Tree;
 
+import com.google.common.base.Preconditions;
+
 /**
  * A {@link MutableBlock} which has exactly one successor and which has no element.
  * This is used only to build some special flows, e.g. an infinite {@code for} loop.
@@ -32,6 +34,7 @@ class ForwardingBlock extends SingleSuccessorBlock {
 
   @Override
   public MutableBlock successor() {
+    Preconditions.checkState(successor != null, "No successor was set on " + this);
     return successor;
   }
 

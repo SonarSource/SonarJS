@@ -509,6 +509,33 @@ public class ControlFlowGraphTest {
   }
 
   @Test
+  public void and_condition() throws Exception {
+    ControlFlowGraph g = build("if (b0 && b1) { b2(); } b3();", 4);
+    assertBlock(g, 0).hasElements("b0").hasSuccessors(1, 3);
+    assertBlock(g, 1).hasElements("b1").hasSuccessors(2, 3);
+    assertBlock(g, 2).hasElements("b2()").hasSuccessors(3);
+    assertBlock(g, 3).hasElements("b3()").hasSuccessors(END);
+  }
+
+  @Test
+  public void or_condition() throws Exception {
+    ControlFlowGraph g = build("if (b0 || b1) { b2(); } b3();", 4);
+    assertBlock(g, 0).hasElements("b0").hasSuccessors(1, 2);
+    assertBlock(g, 1).hasElements("b1").hasSuccessors(2, 3);
+    assertBlock(g, 2).hasElements("b2()").hasSuccessors(3);
+    assertBlock(g, 3).hasElements("b3()").hasSuccessors(END);
+  }
+
+  @Test
+  public void ternary() throws Exception {
+    ControlFlowGraph g = build("var a = b ? c : d; e();", 4, 1);
+    assertBlock(g, 0).hasElements("a", "e()").hasSuccessors(END);
+    assertBlock(g, 1).hasElements("b").hasSuccessors(2, 3);
+    assertBlock(g, 2).hasElements("c").hasSuccessors(0);
+    assertBlock(g, 3).hasElements("d").hasSuccessors(0);
+  }
+
+  @Test
   public void unreachable_blocks() throws Exception {
     ControlFlowGraph g = build("if (b0) { b1(); return; b2(); } b3(); ", 4);
     assertBlock(g, 0).hasSuccessors(1, 3);
@@ -562,7 +589,6 @@ public class ControlFlowGraphTest {
     return cfg;
   }
 
-
   public static BlockAssert assertBlock(ControlFlowGraph cfg, int blockIndex) {
     return new BlockAssert(cfg, blockIndex);
   }
@@ -604,7 +630,7 @@ public class ControlFlowGraphTest {
 
       return this;
     }
-    
+
     public BlockAssert hasDisconnectingJumps(String... treeSources) {
       Set<String> actual = new HashSet<>();
       for (Tree tree : cfg.disconnectingJumps(testedCfg.block(blockIndex))) {
@@ -651,6 +677,5 @@ public class ControlFlowGraphTest {
     }
 
   }
-
 
 }

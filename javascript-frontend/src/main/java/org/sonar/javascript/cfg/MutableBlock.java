@@ -47,6 +47,10 @@ abstract class MutableBlock {
    */
   public abstract void replaceSuccessors(Map<MutableBlock, MutableBlock> replacements);
 
+  public abstract MutableBlock trueSuccessor();
+
+  public abstract MutableBlock falseSuccessor();
+
   public List<Tree> elements() {
     return Lists.reverse(elements);
   }

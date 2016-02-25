@@ -37,6 +37,7 @@ import org.sonar.plugins.javascript.api.tree.declaration.BindingElementTree;
 import org.sonar.plugins.javascript.api.tree.declaration.InitializedBindingElementTree;
 import org.sonar.plugins.javascript.api.tree.expression.AssignmentExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.BinaryExpressionTree;
+import org.sonar.plugins.javascript.api.tree.expression.ConditionalExpressionTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.javascript.api.tree.statement.BlockTree;
 import org.sonar.plugins.javascript.api.tree.statement.BreakStatementTree;
@@ -193,6 +194,27 @@ class ControlFlowGraphBuilder {
       BinaryExpressionTree binary = (BinaryExpressionTree) tree;
       buildExpression(binary.rightOperand());
       buildExpression(binary.leftOperand());
+    } else if (tree.is(Kind.CONDITIONAL_AND)) {
+      BinaryExpressionTree binary = (BinaryExpressionTree) tree;
+      buildExpression(binary.rightOperand());
+      currentBlock = createBranchingBlock(currentBlock, currentBlock.falseSuccessor());
+      buildExpression(binary.leftOperand());
+    } else if (tree.is(Kind.CONDITIONAL_OR)) {
+      BinaryExpressionTree binary = (BinaryExpressionTree) tree;
+      buildExpression(binary.rightOperand());
+      currentBlock = createBranchingBlock(currentBlock, currentBlock.trueSuccessor());
+      buildExpression(binary.leftOperand());
+    } else if (tree.is(Kind.CONDITIONAL_EXPRESSION)) {
+      ConditionalExpressionTree conditionalExpression = (ConditionalExpressionTree) tree;
+      MutableBlock successor = currentBlock;
+      currentBlock = createSimpleBlock(successor);
+      buildExpression(conditionalExpression.falseExpression());
+      MutableBlock falseBlock = currentBlock;
+      currentBlock = createSimpleBlock(successor);
+      buildExpression(conditionalExpression.trueExpression());
+      MutableBlock trueBlock = currentBlock;
+      currentBlock = createBranchingBlock(trueBlock, falseBlock);
+      buildExpression(conditionalExpression.condition());
     } else {
       currentBlock.addElement(tree);
     }
@@ -266,9 +288,9 @@ class ControlFlowGraphBuilder {
     MutableBlock elseBlock = currentBlock;
     buildSubFlow(tree.statement(), successor);
     MutableBlock thenBlock = currentBlock;
-    BranchingBlock branchingBlock = createBranchingBlock(tree.condition());
-    branchingBlock.setSuccessors(thenBlock, elseBlock);
+    BranchingBlock branchingBlock = createBranchingBlock(thenBlock, elseBlock);
     currentBlock = branchingBlock;
+    buildExpression(tree.condition());
   }
 
   private void visitForStatement(ForStatementTree tree) {
@@ -444,6 +466,13 @@ class ControlFlowGraphBuilder {
   
   private BranchingBlock createBranchingBlock(Tree element) {
     BranchingBlock block = new BranchingBlock(element);
+    blocks.add(block);
+    return block;
+  }
+
+  private BranchingBlock createBranchingBlock(MutableBlock trueSuccessor, MutableBlock falseSuccessor) {
+    BranchingBlock block = new BranchingBlock();
+    block.setSuccessors(trueSuccessor, falseSuccessor);
     blocks.add(block);
     return block;
   }

@@ -31,30 +31,44 @@ import org.sonar.plugins.javascript.api.tree.Tree;
  */
 class BranchingBlock extends MutableBlock {
 
-  private MutableBlock successor1 = null;
-  private MutableBlock successor2 = null;
+  private MutableBlock trueSuccessor = null;
+  private MutableBlock falseSuccessor = null;
 
   public BranchingBlock(Tree element) {
     addElement(element);
   }
 
-  @Override
-  public Set<MutableBlock> successors() {
-    Preconditions.checkState(successor1 != null, "Successors were not set on " + this);
-    return ImmutableSet.of(successor1, successor2);
+  public BranchingBlock() {
+    // no element
   }
 
-  public void setSuccessors(MutableBlock successor1, MutableBlock successor2) {
-    Preconditions.checkArgument(successor1 != null && successor2 != null, "Successor cannot be null");
-    Preconditions.checkArgument(!this.equals(successor1) && !this.equals(successor2), "Cannot add itself as successor");
-    this.successor1 = successor1;
-    this.successor2 = successor2;
+  @Override
+  public Set<MutableBlock> successors() {
+    Preconditions.checkState(trueSuccessor != null, "Successors were not set on " + this);
+    return ImmutableSet.of(trueSuccessor, falseSuccessor);
+  }
+
+  public void setSuccessors(MutableBlock trueSuccessor, MutableBlock falseSuccessor) {
+    Preconditions.checkArgument(trueSuccessor != null && falseSuccessor != null, "Successor cannot be null");
+    Preconditions.checkArgument(!this.equals(trueSuccessor) && !this.equals(falseSuccessor), "Cannot add itself as successor");
+    this.trueSuccessor = trueSuccessor;
+    this.falseSuccessor = falseSuccessor;
   }
 
   @Override
   public void replaceSuccessors(Map<MutableBlock, MutableBlock> replacements) {
-    this.successor1 = replacement(this.successor1, replacements);
-    this.successor2 = replacement(this.successor2, replacements);
+    this.trueSuccessor = replacement(this.trueSuccessor, replacements);
+    this.falseSuccessor = replacement(this.falseSuccessor, replacements);
+  }
+
+  @Override
+  public MutableBlock trueSuccessor() {
+    return trueSuccessor;
+  }
+
+  @Override
+  public MutableBlock falseSuccessor() {
+    return falseSuccessor;
   }
 
 }

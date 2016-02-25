@@ -33,6 +33,16 @@ abstract class SingleSuccessorBlock extends MutableBlock {
   public abstract MutableBlock successor();
 
   @Override
+  public MutableBlock trueSuccessor() {
+    return successor();
+  }
+
+  @Override
+  public MutableBlock falseSuccessor() {
+    return successor();
+  }
+
+  @Override
   public Set<MutableBlock> successors() {
     Preconditions.checkState(successor() != null, "No successor was set on " + this);
     return ImmutableSet.of(successor());
