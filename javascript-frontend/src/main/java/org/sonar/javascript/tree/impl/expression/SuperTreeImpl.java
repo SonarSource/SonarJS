@@ -28,6 +28,7 @@ import org.sonar.plugins.javascript.api.symbols.Type;
 import org.sonar.plugins.javascript.api.symbols.TypeSet;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.expression.LiteralTree;
+import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitor;
 
 public class SuperTreeImpl extends JavaScriptTree implements LiteralTree, TypableTree {
@@ -41,6 +42,11 @@ public class SuperTreeImpl extends JavaScriptTree implements LiteralTree, Typabl
   @Override
   public Kind getKind() {
     return Kind.SUPER;
+  }
+
+  @Override
+  public SyntaxToken token() {
+    return token;
   }
 
   @Override

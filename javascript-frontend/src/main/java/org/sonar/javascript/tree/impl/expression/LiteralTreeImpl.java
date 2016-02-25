@@ -63,6 +63,7 @@ public class LiteralTreeImpl extends JavaScriptTree implements LiteralTree, Typa
     this.types.add(type);
   }
 
+  @Override
   public SyntaxToken token() {
     return token;
   }
