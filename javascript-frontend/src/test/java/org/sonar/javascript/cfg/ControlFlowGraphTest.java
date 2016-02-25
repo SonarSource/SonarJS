@@ -20,14 +20,14 @@
 package org.sonar.javascript.cfg;
 
 import com.google.common.base.Charsets;
+import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Ordering;
-import com.google.common.primitives.Ints;
 import com.sonar.sslr.api.typed.ActionParser;
 import java.util.ArrayList;
-import java.util.Comparator;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -41,7 +41,6 @@ import org.sonar.javascript.tree.impl.lexical.InternalSyntaxToken;
 import org.sonar.javascript.utils.SourceBuilder;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
-import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.declaration.FunctionDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.declaration.FunctionTree;
 import org.sonar.plugins.javascript.api.tree.statement.BlockTree;
@@ -52,7 +51,7 @@ public class ControlFlowGraphTest {
 
   private static final int END = -1;
 
-  private static final Ordering<ControlFlowBlock> BLOCK_ORDERING = Ordering.from(new BlockTokenIndexComparator());
+  private static final Ordering<ControlFlowBlock> BLOCK_ORDERING = blockOrdering();
 
   @Rule
   public ExpectedException thrown = ExpectedException.none();
@@ -82,9 +81,6 @@ public class ControlFlowGraphTest {
   public void simple_statements() throws Exception {
     ControlFlowGraph g = build("foo(); var a; a = 2;", 1);
     assertBlock(g, 0).hasSuccessors(END);
-    ControlFlowBlock block = g.blocks().iterator().next();
-    assertThat(block.elements()).hasSize(4);
-    assertThat(block.elements().get(0).is(Kind.CALL_EXPRESSION)).isTrue();
   }
 
   @Test
@@ -124,6 +120,11 @@ public class ControlFlowGraphTest {
     assertBlock(g, 1).hasSuccessors(3);
     assertBlock(g, 2).hasSuccessors(END);
     assertBlock(g, 3).hasSuccessors(END);
+  }
+
+  @Test
+  public void return_statement_with_expression() throws Exception {
+    assertBlock(build("return a;", 1), 0).hasElements("a", "return a;");
   }
 
   @Test
@@ -295,10 +296,9 @@ public class ControlFlowGraphTest {
 
   @Test
   public void for_in() throws Exception {
-    ControlFlowGraph g = build("for(var i in obj) { f2(); } ", 3, 1);
-    assertBlock(g, 0).hasSuccessors(2, END);
+    ControlFlowGraph g = build("for(var i in obj) { f2(); } ", 2);
+    assertBlock(g, 0).hasSuccessors(1, END);
     assertBlock(g, 1).hasSuccessors(0);
-    assertBlock(g, 2).hasSuccessors(0);
 
     g = build("f1(); for(var i in obj) { f2(); } ", 3);
     assertBlock(g, 0).hasSuccessors(1);
@@ -308,50 +308,48 @@ public class ControlFlowGraphTest {
 
   @Test
   public void continue_in_for_in() throws Exception {
-    ControlFlowGraph g = build("for(var b0 in b1) { if (b2) { b3(); continue; } b4(); } ", 5, 1);
-    assertBlock(g, 0).hasSuccessors(2, END);
-    assertBlock(g, 1).hasSuccessors(0);
-    assertBlock(g, 2).hasSuccessors(3, 4);
+    ControlFlowGraph g = build("for(var b0 in b1) { if (b2) { b3(); continue; } b4(); } ", 4);
+    assertBlock(g, 0).hasSuccessors(1, END);
+    assertBlock(g, 1).hasSuccessors(2, 3);
+    assertBlock(g, 2).hasSuccessors(0);
     assertBlock(g, 3).hasSuccessors(0);
-    assertBlock(g, 4).hasSuccessors(0);
   }
 
   @Test
   public void for_of() throws Exception {
-    ControlFlowGraph g = build("for(let b0 of b1) { b2(); } ", 3, 1);
-    assertBlock(g, 0).hasSuccessors(2, END);
+    ControlFlowGraph g = build("for(let b0 of b1) { b2(); } ", 2);
+    assertBlock(g, 0).hasSuccessors(1, END);
     assertBlock(g, 1).hasSuccessors(0);
-    assertBlock(g, 2).hasSuccessors(0);
   }
 
   @Test
   public void try_catch() throws Exception {
-    ControlFlowGraph g = build("try { b1(); } catch(e) { foo(); } ", 4);
+    ControlFlowGraph g = build("try { b1; } catch(e) { foo; } ", 4);
     assertBlock(g, 0).hasSuccessors(1, 2).hasElements("try");
-    assertBlock(g, 1).hasSuccessors(2).hasElements("b1()");
+    assertBlock(g, 1).hasSuccessors(2).hasElements("b1");
     assertBlock(g, 2).hasSuccessors(3, END).hasElements("e");
-    assertBlock(g, 3).hasSuccessors(END).hasElements("foo()");
+    assertBlock(g, 3).hasSuccessors(END).hasElements("foo");
   }
 
   @Test
   public void try_finally() throws Exception {
-    ControlFlowGraph g = build("try { b0(); } finally { bar(); } ", 3);
+    ControlFlowGraph g = build("try { b0; } finally { bar; } ", 3);
     assertBlock(g, 0).hasSuccessors(1, 2).hasElements("try");
-    assertBlock(g, 1).hasSuccessors(2).hasElements("b0()");
-    assertBlock(g, 2).hasSuccessors(END).hasElements("bar()");
+    assertBlock(g, 1).hasSuccessors(2).hasElements("b0");
+    assertBlock(g, 2).hasSuccessors(END).hasElements("bar");
   }
 
   @Test
   public void throw_without_try() throws Exception {
-    ControlFlowGraph g = build("if (b0) { throw b1; } b2(); ", 3);
+    ControlFlowGraph g = build("if (b0) { throw b1; } b2; ", 3);
     assertBlock(g, 0).hasSuccessors(1, 2);
-    assertBlock(g, 1).hasSuccessors(END);
+    assertBlock(g, 1).hasSuccessors(END).hasElements("b1");
     assertBlock(g, 2).hasSuccessors(END);
   }
 
   @Test
   public void throw_in_try() throws Exception {
-    ControlFlowGraph g = build("try { if (b1) { throw b2; } b3(); } catch(b4) { b5(); } ", 6);
+    ControlFlowGraph g = build("try { if (b1) { throw b2; } b3; } catch(b4) { b5; } ", 6);
     assertBlock(g, 0).hasSuccessors(1, 4);
     assertBlock(g, 1).hasSuccessors(2, 3);
     assertBlock(g, 2).hasSuccessors(4);
@@ -390,40 +388,40 @@ public class ControlFlowGraphTest {
 
   @Test
   public void switch_with_no_break() throws Exception {
-    ControlFlowGraph g = build("b0(); switch(b0b) { case b1: b2(); case b3: b4(); default: b5(); }", 6);
-    assertBlock(g, 0).hasSuccessors(1).hasElements("b0()", "b0b");
+    ControlFlowGraph g = build("b0; switch(b0b) { case b1: b2; case b3: b4; default: b5; }", 6);
+    assertBlock(g, 0).hasSuccessors(1).hasElements("b0", "b0b");
     assertBlock(g, 1).hasSuccessors(2, 3).hasElements("b1");
-    assertBlock(g, 2).hasSuccessors(4).hasElements("b2()");
+    assertBlock(g, 2).hasSuccessors(4).hasElements("b2");
     assertBlock(g, 3).hasSuccessors(4, 5).hasElements("b3");
-    assertBlock(g, 4).hasSuccessors(5).hasElements("b4()");
-    assertBlock(g, 5).hasSuccessors(END).hasElements("b5()");
+    assertBlock(g, 4).hasSuccessors(5).hasElements("b4");
+    assertBlock(g, 5).hasSuccessors(END).hasElements("b5");
   }
 
   @Test
   public void switch_with_break() throws Exception {
-    ControlFlowGraph g = build("b0(); switch(b0b) { case b1: b2(); break; case b3: b4(); default: b5(); }", 6);
-    assertBlock(g, 0).hasSuccessors(1).hasElements("b0()", "b0b");
+    ControlFlowGraph g = build("b0; switch(b0b) { case b1: b2; break; case b3: b4; default: b5; }", 6);
+    assertBlock(g, 0).hasSuccessors(1).hasElements("b0", "b0b");
     assertBlock(g, 1).hasSuccessors(2, 3).hasElements("b1");
-    assertBlock(g, 2).hasSuccessors(END).hasElements("b2()", "break;");
+    assertBlock(g, 2).hasSuccessors(END).hasElements("b2", "break;");
     assertBlock(g, 3).hasSuccessors(4, 5).hasElements("b3");
-    assertBlock(g, 4).hasSuccessors(5).hasElements("b4()");
-    assertBlock(g, 5).hasSuccessors(END).hasElements("b5()");
+    assertBlock(g, 4).hasSuccessors(5).hasElements("b4");
+    assertBlock(g, 5).hasSuccessors(END).hasElements("b5");
   }
 
   @Test
   public void switch_with_adjacent_cases() throws Exception {
-    ControlFlowGraph g = build("switch(b0) { case b1: b2(); case b3: case b4: b5(); }", 6);
+    ControlFlowGraph g = build("switch(b0) { case b1: b2; case b3: case b4: b5; }", 6);
     assertBlock(g, 0).hasSuccessors(1).hasElements("b0");
     assertBlock(g, 1).hasSuccessors(2, 3).hasElements("b1");
-    assertBlock(g, 2).hasSuccessors(5).hasElements("b2()");
+    assertBlock(g, 2).hasSuccessors(5).hasElements("b2");
     assertBlock(g, 3).hasSuccessors(4, 5).hasElements("b3");
     assertBlock(g, 4).hasSuccessors(5, END).hasElements("b4");
-    assertBlock(g, 5).hasSuccessors(END).hasElements("b5()");
+    assertBlock(g, 5).hasSuccessors(END).hasElements("b5");
   }
 
   @Test
   public void switch_with_case_after_default() throws Exception {
-    ControlFlowGraph g = build("switch(b0) { default: b1(); break; case b2: b3(); }", 4);
+    ControlFlowGraph g = build("switch(b0) { default: b1; break; case b2: b3; }", 4);
     assertBlock(g, 0).hasSuccessors(2);
     assertBlock(g, 1).hasSuccessors(END);
     assertBlock(g, 2).hasSuccessors(1, 3);
@@ -432,12 +430,12 @@ public class ControlFlowGraphTest {
 
   @Test
   public void switch_with_case_using_same_block_as_default() throws Exception {
-    ControlFlowGraph g = build("switch(b0) { case b1: default: b2(); break; case b3: b4(); }", 5);
+    ControlFlowGraph g = build("switch(b0) { case b1: default: b2; break; case b3: b4; }", 5);
     assertBlock(g, 0).hasElements("b0").hasSuccessors(1);
     assertBlock(g, 1).hasElements("b1").hasSuccessors(2, 3);
-    assertBlock(g, 2).hasElements("b2()", "break;").hasSuccessors(END);
+    assertBlock(g, 2).hasElements("b2", "break;").hasSuccessors(END);
     assertBlock(g, 3).hasElements("b3").hasSuccessors(4, 2);
-    assertBlock(g, 4).hasElements("b4()").hasSuccessors(END);
+    assertBlock(g, 4).hasElements("b4").hasSuccessors(END);
   }
 
   @Test
@@ -452,8 +450,8 @@ public class ControlFlowGraphTest {
 
   @Test
   public void with() throws Exception {
-    ControlFlowGraph g = build("with(b0) { x(); y(); }", 1);
-    assertBlock(g, 0).hasSuccessors(END).hasElements("b0", "x()", "y()");
+    ControlFlowGraph g = build("with(b0) { x; y; }", 1);
+    assertBlock(g, 0).hasSuccessors(END).hasElements("b0", "x", "y");
   }
 
   @Test
@@ -494,53 +492,70 @@ public class ControlFlowGraphTest {
   }
 
   @Test
-  public void comma_operator() throws Exception {
-    assertBlock(build("a(), b();", 1), 0).hasElements("a()", "b()");
-  }
-
-  @Test
-  public void variable_declaration() throws Exception {
-    assertBlock(build("var a = 1, b = 2;", 1), 0).hasElements("1", "a", "2", "b");
-  }
-
-  @Test
-  public void assignment() throws Exception {
-    assertBlock(build("a = b;", 1), 0).hasElements("b", "a");
-  }
-
-  @Test
   public void and_condition() throws Exception {
-    ControlFlowGraph g = build("if (b0 && b1) { b2(); } b3();", 4);
+    ControlFlowGraph g = build("if (b0 && b1) { b2; } b3;", 4);
     assertBlock(g, 0).hasElements("b0").hasSuccessors(1, 3);
-    assertBlock(g, 1).hasElements("b1").hasSuccessors(2, 3);
-    assertBlock(g, 2).hasElements("b2()").hasSuccessors(3);
-    assertBlock(g, 3).hasElements("b3()").hasSuccessors(END);
+    assertBlock(g, 1).hasElements("b1", "b0 && b1").hasSuccessors(2, 3);
+    assertBlock(g, 2).hasElements("b2").hasSuccessors(3);
+    assertBlock(g, 3).hasElements("b3").hasSuccessors(END);
   }
 
   @Test
   public void or_condition() throws Exception {
-    ControlFlowGraph g = build("if (b0 || b1) { b2(); } b3();", 4);
+    ControlFlowGraph g = build("if (b0 || b1) { b2; } b3;", 4);
     assertBlock(g, 0).hasElements("b0").hasSuccessors(1, 2);
-    assertBlock(g, 1).hasElements("b1").hasSuccessors(2, 3);
-    assertBlock(g, 2).hasElements("b2()").hasSuccessors(3);
-    assertBlock(g, 3).hasElements("b3()").hasSuccessors(END);
+    assertBlock(g, 1).hasElements("b1", "b0 || b1").hasSuccessors(2, 3);
+    assertBlock(g, 2).hasElements("b2").hasSuccessors(3);
+    assertBlock(g, 3).hasElements("b3").hasSuccessors(END);
   }
 
   @Test
   public void ternary() throws Exception {
-    ControlFlowGraph g = build("var a = b ? c : d; e();", 4, 1);
-    assertBlock(g, 0).hasElements("a", "e()").hasSuccessors(END);
-    assertBlock(g, 1).hasElements("b").hasSuccessors(2, 3);
-    assertBlock(g, 2).hasElements("c").hasSuccessors(0);
-    assertBlock(g, 3).hasElements("d").hasSuccessors(0);
+    ControlFlowGraph g = build("var a = b ? c : d; e();", 4);
+    assertBlock(g, 0).hasElements("b").hasSuccessors(2, 3);
+    assertBlock(g, 1).hasSuccessors(END);
+    assertBlock(g, 2).hasElements("c").hasSuccessors(1);
+    assertBlock(g, 3).hasElements("d").hasSuccessors(1);
+  }
+
+  @Test
+  public void variable_declaration() throws Exception {
+    assertExpressionElements("var a = 1", "1", "a", "a = 1");
+  }
+
+  @Test
+  public void expressions() throws Exception {
+    assertExpressionElements("(a)", "a");
+    assertExpressionElements("a, b", "a", "b");
+    assertExpressionElements("a = b", "b", "a");
+    assertExpressionElements("a + b", "a", "b");
+    assertExpressionElements("+a", "a");
+    assertExpressionElements("[a, b]", "a", "b");
+    assertExpressionElements("a.b.c", "a", "a.b");
+    assertExpressionElements("a[b]", "a", "b");
+    assertExpressionElements("a(b, c)", "a", "b", "c");
+    assertExpressionElements("[a, ...b]", "a", "b", "...b");
+    assertExpressionElements("new a(b)", "a", "b");
+    assertExpressionElements("new a", "a");
+    assertExpressionElements("yield a", "a");
+    assertExpressionElements("`x${a}`", "a", "${a}");
+    assertExpressionElements("tag `x${a}`", "tag", "a", "${a}", "`x${a}`");
+    assertExpressionElements("a = { [ 1 ] : b }", "1", "[ 1 ]", "b", "[ 1 ] : b", "{ [ 1 ] : b }", "a");
+  }
+
+  private void assertExpressionElements(String source, String... expectedElements) {
+    ControlFlowGraph cfg = build(source, 1);
+    List<String> allExpectedElements = new ArrayList<>(Arrays.asList(expectedElements));
+    allExpectedElements.add(source);
+    assertBlock(cfg, 0).hasElements(allExpectedElements.toArray(new String[] {}));
   }
 
   @Test
   public void unreachable_blocks() throws Exception {
-    ControlFlowGraph g = build("if (b0) { b1(); return; b2(); } b3(); ", 4);
+    ControlFlowGraph g = build("if (b0) { b1; return; b2; } b3; ", 4);
     assertBlock(g, 0).hasSuccessors(1, 3);
     assertBlock(g, 1).hasSuccessors(END);
-    assertBlock(g, 2).hasSuccessors(3).hasElements("b2()").hasDisconnectingJumps("return");
+    assertBlock(g, 2).hasSuccessors(3).hasElements("b2").hasDisconnectingJumps("return");
     assertBlock(g, 3).hasSuccessors(END);
     ControlFlowBlock block2 = new TestedCfg(g).block(2);
     assertThat(g.unreachableBlocks()).containsOnly(block2);
@@ -548,21 +563,19 @@ public class ControlFlowGraphTest {
 
   @Test
   public void multiple_disconnecting_jumps() throws Exception {
-    // ControlFlowGraph g = build("return b0; do {} while(b1)", 2);
-    // assertThat(g.unreachableBlocks()).containsOnly(new TestedCfg(g).block(1));
-    ControlFlowGraph g = build("if (b0) { throw b1; } else if(b2) { return; } else { return; } b5();", 6);
+    ControlFlowGraph g = build("if (b0) { throw b1; } else if(b2) { return; } else { return; } b5;", 6);
     assertThat(g.unreachableBlocks()).containsOnly(new TestedCfg(g).block(5));
-    assertBlock(g, 5).hasElements("b5()").hasDisconnectingJumps("throw", "return", "return");
+    assertBlock(g, 5).hasElements("b5").hasDisconnectingJumps("throw", "return", "return");
   }
 
   @Test
   public void function_cfg() throws Exception {
-    String sourceCode = "function f() { foo(); }";
+    String sourceCode = "function f() { foo; }";
     ScriptTree tree = (ScriptTree) parser.parse(sourceCode);
     FunctionTree functionTree = (FunctionDeclarationTree) tree.items().items().get(0);
     ControlFlowGraph cfg = ControlFlowGraph.build((BlockTree) functionTree.body());
     assertThat(cfg.blocks()).hasSize(1);
-    assertBlock(cfg, 0).hasElements("foo()");
+    assertBlock(cfg, 0).hasElements("foo");
   }
 
   @Test
@@ -661,19 +674,37 @@ public class ControlFlowGraphTest {
     return BLOCK_ORDERING.sortedCopy(blocks);
   }
 
-  private static class BlockTokenIndexComparator implements Comparator<ControlFlowBlock> {
+  private static Ordering<ControlFlowBlock> blockOrdering() {
+    Ordering<Tree> bySourceLength = Ordering.natural().onResultOf(new TreeSourceLength());
+    Ordering<Tree> byTokenIndex = Ordering.natural().onResultOf(new TreeTokenIndex());
+    return byTokenIndex.compound(bySourceLength).onResultOf(new BlockFirstTree());
+  }
+
+  private static class BlockFirstTree implements Function<ControlFlowBlock, Tree> {
 
     @Override
-    public int compare(ControlFlowBlock b1, ControlFlowBlock b2) {
-
-      return Ints.compare(tokenIndex(b1), tokenIndex(b2));
+    public Tree apply(ControlFlowBlock block) {
+      Preconditions.checkArgument(!block.elements().isEmpty(), "Cannot sort empty block");
+      return block.elements().iterator().next();
     }
 
-    private static int tokenIndex(ControlFlowBlock block) {
-      Preconditions.checkArgument(!block.elements().isEmpty(), "Cannot sort empty block");
-      JavaScriptTree tree = (JavaScriptTree) block.elements().get(0);
-      InternalSyntaxToken token = (InternalSyntaxToken) tree.getFirstToken();
-      return token.startIndex();
+  }
+
+  private static class TreeTokenIndex implements Function<Tree, Integer> {
+
+    @Override
+    public Integer apply(Tree tree) {
+      InternalSyntaxToken firstToken = (InternalSyntaxToken) ((JavaScriptTree) tree).getFirstToken();
+      return firstToken.startIndex();
+    }
+
+  }
+
+  private static class TreeSourceLength implements Function<Tree, Integer> {
+
+    @Override
+    public Integer apply(Tree tree) {
+      return SourceBuilder.build(tree).length();
     }
 
   }

@@ -33,11 +33,24 @@ import java.util.Set;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
-import org.sonar.plugins.javascript.api.tree.declaration.BindingElementTree;
 import org.sonar.plugins.javascript.api.tree.declaration.InitializedBindingElementTree;
+import org.sonar.plugins.javascript.api.tree.expression.ArrayLiteralTree;
 import org.sonar.plugins.javascript.api.tree.expression.AssignmentExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.BinaryExpressionTree;
+import org.sonar.plugins.javascript.api.tree.expression.CallExpressionTree;
+import org.sonar.plugins.javascript.api.tree.expression.ComputedPropertyNameTree;
 import org.sonar.plugins.javascript.api.tree.expression.ConditionalExpressionTree;
+import org.sonar.plugins.javascript.api.tree.expression.MemberExpressionTree;
+import org.sonar.plugins.javascript.api.tree.expression.NewExpressionTree;
+import org.sonar.plugins.javascript.api.tree.expression.ObjectLiteralTree;
+import org.sonar.plugins.javascript.api.tree.expression.PairPropertyTree;
+import org.sonar.plugins.javascript.api.tree.expression.ParenthesisedExpressionTree;
+import org.sonar.plugins.javascript.api.tree.expression.RestElementTree;
+import org.sonar.plugins.javascript.api.tree.expression.TaggedTemplateTree;
+import org.sonar.plugins.javascript.api.tree.expression.TemplateExpressionTree;
+import org.sonar.plugins.javascript.api.tree.expression.TemplateLiteralTree;
+import org.sonar.plugins.javascript.api.tree.expression.UnaryExpressionTree;
+import org.sonar.plugins.javascript.api.tree.expression.YieldExpressionTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.javascript.api.tree.statement.BlockTree;
 import org.sonar.plugins.javascript.api.tree.statement.BreakStatementTree;
@@ -176,16 +189,89 @@ class ControlFlowGraphBuilder {
     }
   }
 
+  private void buildExpressions(List<? extends Tree> expressions) {
+    for (Tree expression : Lists.reverse(expressions)) {
+      buildExpression(expression);
+    }
+  }
+
   private void buildExpression(Tree tree) {
-    if (tree.is(Kind.ASSIGNMENT)) {
+    currentBlock.addElement(tree);
+    if (tree.is(
+      Kind.MULTIPLY,
+      Kind.DIVIDE,
+      Kind.REMAINDER,
+      Kind.PLUS,
+      Kind.MINUS,
+      Kind.LEFT_SHIFT,
+      Kind.RIGHT_SHIFT,
+      Kind.UNSIGNED_RIGHT_SHIFT,
+      Kind.RELATIONAL_IN,
+      Kind.INSTANCE_OF,
+      Kind.LESS_THAN,
+      Kind.GREATER_THAN,
+      Kind.LESS_THAN_OR_EQUAL_TO,
+      Kind.GREATER_THAN_OR_EQUAL_TO,
+      Kind.EQUAL_TO,
+      Kind.STRICT_EQUAL_TO,
+      Kind.NOT_EQUAL_TO,
+      Kind.STRICT_NOT_EQUAL_TO,
+      Kind.BITWISE_AND,
+      Kind.BITWISE_XOR,
+      Kind.BITWISE_OR)) {
+      BinaryExpressionTree binary = (BinaryExpressionTree) tree;
+      buildExpression(binary.rightOperand());
+      buildExpression(binary.leftOperand());
+    } else if (tree.is(
+      Kind.ASSIGNMENT,
+      Kind.MULTIPLY_ASSIGNMENT,
+      Kind.DIVIDE_ASSIGNMENT,
+      Kind.REMAINDER_ASSIGNMENT,
+      Kind.PLUS_ASSIGNMENT,
+      Kind.MINUS_ASSIGNMENT,
+      Kind.LEFT_SHIFT_ASSIGNMENT,
+      Kind.RIGHT_SHIFT_ASSIGNMENT,
+      Kind.UNSIGNED_RIGHT_SHIFT_ASSIGNMENT,
+      Kind.AND_ASSIGNMENT,
+      Kind.XOR_ASSIGNMENT,
+      Kind.OR_ASSIGNMENT)) {
       AssignmentExpressionTree assignment = (AssignmentExpressionTree) tree;
       buildExpression(assignment.variable());
       buildExpression(assignment.expression());
-    } else if (tree.is(Kind.VAR_DECLARATION)) {
+    } else if (tree.is(
+      Kind.POSTFIX_INCREMENT,
+      Kind.POSTFIX_DECREMENT,
+      Kind.PREFIX_INCREMENT,
+      Kind.PREFIX_DECREMENT,
+      Kind.DELETE,
+      Kind.VOID,
+      Kind.TYPEOF,
+      Kind.UNARY_PLUS,
+      Kind.UNARY_MINUS,
+      Kind.BITWISE_COMPLEMENT,
+      Kind.LOGICAL_COMPLEMENT)) {
+      UnaryExpressionTree unary = (UnaryExpressionTree) tree;
+      buildExpression(unary.expression());
+    } else if (tree.is(Kind.ARRAY_LITERAL)) {
+      ArrayLiteralTree arrayLiteral = (ArrayLiteralTree) tree;
+      buildExpressions(arrayLiteral.elements());
+    } else if (tree.is(Kind.OBJECT_LITERAL)) {
+      ObjectLiteralTree objectLiteral = (ObjectLiteralTree) tree;
+      buildExpressions(objectLiteral.properties());
+    } else if (tree.is(Kind.DOT_MEMBER_EXPRESSION)) {
+      MemberExpressionTree memberExpression = (MemberExpressionTree) tree;
+      buildExpression(memberExpression.object());
+    } else if (tree.is(Kind.BRACKET_MEMBER_EXPRESSION)) {
+      MemberExpressionTree memberExpression = (MemberExpressionTree) tree;
+      buildExpression(memberExpression.property());
+      buildExpression(memberExpression.object());
+    } else if (tree.is(Kind.CALL_EXPRESSION)) {
+      CallExpressionTree callExpression = (CallExpressionTree) tree;
+      buildExpressions(callExpression.arguments().parameters());
+      buildExpression(callExpression.callee());
+    } else if (tree.is(Kind.VAR_DECLARATION, Kind.LET_DECLARATION, Kind.CONST_DECLARATION)) {
       VariableDeclarationTree declaration = (VariableDeclarationTree) tree;
-      for (BindingElementTree bindingElementTree : Lists.reverse(declaration.variables())) {
-        buildExpression(bindingElementTree);
-      }
+      buildExpressions(declaration.variables());
     } else if (tree.is(Kind.INITIALIZED_BINDING_ELEMENT)) {
       InitializedBindingElementTree initializedBindingElementTree = (InitializedBindingElementTree) tree;
       buildExpression(initializedBindingElementTree.left());
@@ -194,6 +280,19 @@ class ControlFlowGraphBuilder {
       BinaryExpressionTree binary = (BinaryExpressionTree) tree;
       buildExpression(binary.rightOperand());
       buildExpression(binary.leftOperand());
+    } else if (tree.is(Kind.PAIR_PROPERTY)) {
+      PairPropertyTree pairProperty = (PairPropertyTree) tree;
+      buildExpression(pairProperty.value());
+      buildExpression(pairProperty.key());
+    } else if (tree.is(Kind.COMPUTED_PROPERTY_NAME)) {
+      ComputedPropertyNameTree computedPropertyName = (ComputedPropertyNameTree) tree;
+      buildExpression(computedPropertyName.expression());
+    } else if (tree.is(Kind.NEW_EXPRESSION)) {
+      NewExpressionTree newExpression = (NewExpressionTree) tree;
+      if (newExpression.arguments() != null) {
+        buildExpressions(newExpression.arguments().parameters());
+      }
+      buildExpression(newExpression.expression());
     } else if (tree.is(Kind.CONDITIONAL_AND)) {
       BinaryExpressionTree binary = (BinaryExpressionTree) tree;
       buildExpression(binary.rightOperand());
@@ -215,15 +314,32 @@ class ControlFlowGraphBuilder {
       MutableBlock trueBlock = currentBlock;
       currentBlock = createBranchingBlock(trueBlock, falseBlock);
       buildExpression(conditionalExpression.condition());
-    } else {
-      currentBlock.addElement(tree);
+    } else if (tree.is(Kind.REST_ELEMENT)) {
+      RestElementTree restElement = (RestElementTree) tree;
+      buildExpression(restElement.element());
+    } else if (tree.is(Kind.PARENTHESISED_EXPRESSION)) {
+      ParenthesisedExpressionTree parenthesisedExpression = (ParenthesisedExpressionTree) tree;
+      buildExpression(parenthesisedExpression.expression());
+    } else if (tree.is(Kind.TEMPLATE_LITERAL)) {
+      TemplateLiteralTree templateLiteral = (TemplateLiteralTree) tree;
+      buildExpressions(templateLiteral.expressions());
+    } else if (tree.is(Kind.TEMPLATE_EXPRESSION)) {
+      TemplateExpressionTree templateExpression = (TemplateExpressionTree) tree;
+      buildExpression(templateExpression.expression());
+    } else if (tree.is(Kind.TAGGED_TEMPLATE)) {
+      TaggedTemplateTree taggedTemplate = (TaggedTemplateTree) tree;
+      buildExpression(taggedTemplate.template());
+      buildExpression(taggedTemplate.callee());
+    } else if (tree.is(Kind.YIELD_EXPRESSION)) {
+      YieldExpressionTree yieldExpression = (YieldExpressionTree) tree;
+      buildExpression(yieldExpression.argument());
     }
   }
 
   private void visitBlock(BlockTree block) {
     boolean hasLabel = currentLabel != null;
     if (hasLabel) {
-      addBreakable(null);
+      addBreakable(currentBlock, null);
       currentBlock = createSimpleBlock(currentBlock);
     }
 
@@ -234,13 +350,13 @@ class ControlFlowGraphBuilder {
     }
   }
 
-  private void addBreakable(MutableBlock continueTarget) {
+  private void addBreakable(MutableBlock breakTarget, MutableBlock continueTarget) {
     String label = null;
     if (currentLabel != null) {
       label = currentLabel;
       currentLabel = null;
     }
-    breakables.addFirst(new Breakable(continueTarget, currentBlock, label));
+    breakables.addFirst(new Breakable(continueTarget, breakTarget, label));
   }
 
   private void removeBreakable() {
@@ -250,6 +366,9 @@ class ControlFlowGraphBuilder {
   private void visitReturnStatement(ReturnStatementTree tree) {
     currentBlock.addDisconnectingJump(tree.returnKeyword());
     currentBlock = createSimpleBlock(tree, end);
+    if (tree.expression() != null) {
+      buildExpression(tree.expression());
+    }
   }
 
   private void visitContinueStatement(ContinueStatementTree tree) {
@@ -295,73 +414,64 @@ class ControlFlowGraphBuilder {
 
   private void visitForStatement(ForStatementTree tree) {
     MutableBlock forStatementSuccessor = currentBlock;
+    ForwardingBlock linkToCondition = createForwardingBlock();
+    ForwardingBlock linkToUpdate = createForwardingBlock();
 
-    BranchingBlock realConditionBlock;
-    ForwardingBlock fakeConditionBlock;
-    MutableBlock conditionBlock;
+    MutableBlock loopBodyBlock = buildLoopBody(tree.statement(), linkToUpdate, currentBlock);
 
-    if (tree.condition() == null) {
-      realConditionBlock = null;
-      fakeConditionBlock = createForwardingBlock();
-      conditionBlock = fakeConditionBlock;
-    } else {
-      realConditionBlock = createBranchingBlock(tree.condition());
-      fakeConditionBlock = null;
-      conditionBlock = realConditionBlock;
-    }
-
-    MutableBlock bodySuccessor;
     if (tree.update() != null) {
-      bodySuccessor = createSimpleBlock(tree.update(), conditionBlock);
+      currentBlock = createSimpleBlock(linkToCondition);
+      buildExpression(tree.update());
+      linkToUpdate.setSuccessor(currentBlock);
     } else {
-      bodySuccessor = conditionBlock;
+      linkToUpdate.setSuccessor(linkToCondition);
     }
 
-    MutableBlock loopBodyBlock = buildLoopBody(tree.statement(), bodySuccessor);
-
-    if (realConditionBlock != null) {
-      realConditionBlock.setSuccessors(loopBodyBlock, forStatementSuccessor);
-    }
-
-    if (fakeConditionBlock != null) {
-      fakeConditionBlock.setSuccessor(loopBodyBlock);
-    }
-
-    if (tree.init() == null) {
-      currentBlock = createSimpleBlock(conditionBlock);
-      if (tree.condition() == null && loopBodyBlock.isEmpty()) {
-        loopBodyBlock.addElement(tree.forKeyword());
-      }
+    if (tree.condition() != null) {
+      currentBlock = createBranchingBlock(loopBodyBlock, forStatementSuccessor);
+      buildExpression(tree.condition());
+      linkToCondition.setSuccessor(currentBlock);
     } else {
-      currentBlock = createSimpleBlock(tree.init(), conditionBlock);
+      linkToCondition.setSuccessor(loopBodyBlock);
+    }
+
+    currentBlock = createSimpleBlock(linkToCondition);
+    if (tree.init() != null) {
+      buildExpression(tree.init());
+    } else if (tree.condition() == null && loopBodyBlock.isEmpty()) {
+      loopBodyBlock.addElement(tree.forKeyword());
     }
   }
 
   private void visitForObjectStatement(ForObjectStatementTree tree) {
     MutableBlock successor = currentBlock;
-    BranchingBlock assignmentBlock = createBranchingBlock(tree.variableOrExpression());
-
-    MutableBlock loopBodyBlock = buildLoopBody(tree.statement(), assignmentBlock);
-
-    assignmentBlock.setSuccessors(loopBodyBlock, successor);
-    currentBlock = createSimpleBlock(tree.expression(), assignmentBlock);
+    ForwardingBlock linkToAssignment = createForwardingBlock();
+    MutableBlock loopBodyBlock = buildLoopBody(tree.statement(), linkToAssignment, currentBlock);
+    BranchingBlock assignmentBlock = createBranchingBlock(loopBodyBlock, successor);
+    currentBlock = assignmentBlock;
+    buildExpression(tree.variableOrExpression());
+    buildExpression(tree.expression());
+    linkToAssignment.setSuccessor(currentBlock);
+    currentBlock = createSimpleBlock(currentBlock);
   }
 
   private void visitWhileStatement(WhileStatementTree tree) {
     MutableBlock successor = currentBlock;
-    BranchingBlock conditionBlock = createBranchingBlock(tree.condition());
-
-    MutableBlock loopBodyBlock = buildLoopBody(tree.statement(), conditionBlock);
-
-    conditionBlock.setSuccessors(loopBodyBlock, successor);
-    currentBlock = createSimpleBlock(conditionBlock);
+    ForwardingBlock linkToCondition = createForwardingBlock();
+    MutableBlock loopBodyBlock = buildLoopBody(tree.statement(), linkToCondition, successor);
+    currentBlock = createBranchingBlock(loopBodyBlock, successor);
+    buildExpression(tree.condition());
+    linkToCondition.setSuccessor(currentBlock);
+    currentBlock = createSimpleBlock(currentBlock);
   }
 
   private void visitDoWhileStatement(DoWhileStatementTree tree) {
     MutableBlock successor = currentBlock;
-    BranchingBlock conditionBlock = createBranchingBlock(tree.condition());
-    MutableBlock loopBodyBlock = buildLoopBody(tree.statement(), conditionBlock);
-    conditionBlock.setSuccessors(loopBodyBlock, successor);
+    ForwardingBlock linkToBody = createForwardingBlock();
+    currentBlock = createBranchingBlock(linkToBody, successor);
+    buildExpression(tree.condition());
+    MutableBlock loopBodyBlock = buildLoopBody(tree.statement(), currentBlock, successor);
+    linkToBody.setSuccessor(loopBodyBlock);
     currentBlock = createSimpleBlock(loopBodyBlock);
   }
 
@@ -383,8 +493,9 @@ class ControlFlowGraphBuilder {
     if (tree.catchBlock() != null) {
       MutableBlock catchSuccessor = currentBlock;
       buildSubFlow(tree.catchBlock().block(), currentBlock);
-      BranchingBlock catchBlock = createBranchingBlock(tree.catchBlock().parameter());
-      catchBlock.setSuccessors(currentBlock, catchSuccessor);
+      BranchingBlock catchBlock = createBranchingBlock(currentBlock, catchSuccessor);
+      currentBlock = catchBlock;
+      buildExpression(tree.catchBlock().parameter());
       catchOrFinallyBlock = catchBlock;
       currentBlock = catchBlock;
     }
@@ -399,19 +510,19 @@ class ControlFlowGraphBuilder {
     throwTargets.pop();
 
     if (catchOrFinallyBlock != null) {
-      BranchingBlock branching = createBranchingBlock(tree.tryKeyword());
-      branching.setSuccessors(currentBlock, catchOrFinallyBlock);
-      currentBlock = branching;
+      currentBlock = createBranchingBlock(currentBlock, catchOrFinallyBlock);
+      currentBlock.addElement(tree.tryKeyword());
     }
   }
 
   private void visitThrowStatement(ThrowStatementTree tree) {
     currentBlock.addDisconnectingJump(tree.throwKeyword());
-    currentBlock = createSimpleBlock(tree.expression(), throwTargets.peek());
+    currentBlock = createSimpleBlock(throwTargets.peek());
+    buildExpression(tree.expression());
   }
 
   private void visitSwitchStatement(SwitchStatementTree tree) {
-    addBreakable(null);
+    addBreakable(currentBlock, null);
     MutableBlock switchNextBlock = currentBlock;
     MutableBlock nextStatementBlock = currentBlock;
     ForwardingBlock defaultForwardingBlock = createForwardingBlock();
@@ -428,9 +539,9 @@ class ControlFlowGraphBuilder {
         }
 
         CaseClauseTree caseClause = (CaseClauseTree) switchCaseClause;
-        BranchingBlock caseBlock = createBranchingBlock(caseClause.expression());
-        caseBlock.setSuccessors(nextStatementBlock, nextCase);
-        nextCase = caseBlock;
+        currentBlock = createBranchingBlock(nextStatementBlock, nextCase);
+        buildExpression(caseClause.expression());
+        nextCase = currentBlock;
 
       } else {
 
@@ -447,11 +558,11 @@ class ControlFlowGraphBuilder {
 
     removeBreakable();
     currentBlock = createSimpleBlock(nextCase);
-    currentBlock.addElement(tree.expression());
+    buildExpression(tree.expression());
   }
 
-  private MutableBlock buildLoopBody(StatementTree body, MutableBlock conditionBlock) {
-    addBreakable(conditionBlock);
+  private MutableBlock buildLoopBody(StatementTree body, MutableBlock conditionBlock, MutableBlock breakTarget) {
+    addBreakable(breakTarget, conditionBlock);
     currentLabel = null;
     buildSubFlow(body, conditionBlock);
     MutableBlock loopBodyBlock = currentBlock;
@@ -464,12 +575,6 @@ class ControlFlowGraphBuilder {
     build(subFlowTree);
   }
   
-  private BranchingBlock createBranchingBlock(Tree element) {
-    BranchingBlock block = new BranchingBlock(element);
-    blocks.add(block);
-    return block;
-  }
-
   private BranchingBlock createBranchingBlock(MutableBlock trueSuccessor, MutableBlock falseSuccessor) {
     BranchingBlock block = new BranchingBlock();
     block.setSuccessors(trueSuccessor, falseSuccessor);

@@ -29,8 +29,8 @@ import java.util.Deque;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
+import javax.annotation.CheckForNull;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
@@ -92,26 +92,32 @@ public class DeadStoreCheck extends DoubleDispatchVisitorCheck {
 
   private void checkFunction(FunctionTree functionTree) {
     if (functionTree.body().is(Kind.BLOCK)) {
-      checkCFG(ControlFlowGraph.build((BlockTree) functionTree.body()), functionTree);
+      Usages usages = new Usages(functionTree);
+      Set<Symbol> neverReadSymbols = usages.neverReadSymbols();
+      for (Symbol symbol : neverReadSymbols) {
+        for (Usage usage : usages.writesOfNeverReadSymbols.get(symbol)) {
+          addIssue(usage.identifierTree(), symbol);
+        }
+      }
+      checkCFG(ControlFlowGraph.build((BlockTree) functionTree.body()), usages);
     }
   }
 
-  private void checkCFG(ControlFlowGraph cfg, FunctionTree function) {
-    UsageVisitor usages = new UsageVisitor(localVariableUsages(function));
+  private void checkCFG(ControlFlowGraph cfg, Usages usages) {
     Map<ControlFlowNode, BlockLiveness> livenessPerNode = livenessPerNode(cfg, usages);
     for (BlockLiveness blockLiveness : livenessPerNode.values()) {
       checkBlock(blockLiveness, usages);
     }
   }
 
-  private void checkBlock(BlockLiveness blockLiveness, UsageVisitor usages) {
+  private void checkBlock(BlockLiveness blockLiveness, Usages usages) {
     Set<Symbol> live = blockLiveness.liveOut;
     for (Tree element : Lists.reverse(blockLiveness.block.elements())) {
       Set<Symbol> writes = blockLiveness.writesByElement.get(element);
       Set<Symbol> reads = blockLiveness.readsByElement.get(element);
       for (Symbol symbol : Sets.difference(writes, live)) {
-        if (!usages.usedInNestedFunction.contains(symbol) || isNeverRead(symbol)) {
-          addIssue(element, symbol, usages);
+        if (usages.foundAllUsages(symbol) && !usages.isNeverRead(symbol)) {
+          addIssue(element, symbol);
         }
       }
       live.removeAll(writes);
@@ -119,37 +125,11 @@ public class DeadStoreCheck extends DoubleDispatchVisitorCheck {
     }
   }
 
-  private boolean isNeverRead(Symbol symbol) {
-    for (Usage usage : symbol.usages()) {
-      if (isRead(usage.kind())) {
-        return false;
-      }
-    }
-    return true;
+  private void addIssue(Tree element, Symbol symbol) {
+    addIssue(element, String.format(MESSAGE, symbol.name()));
   }
 
-  private void addIssue(Tree element, Symbol symbol, UsageVisitor usages) {
-    for (Usage usage : usages.findUsages(element).get(symbol)) {
-      if (isWrite(usage.kind())) {
-        newIssue(usage.identifierTree(), String.format(MESSAGE, symbol.name()));
-        break;
-      }
-    }
-  }
-
-  private Map<IdentifierTree, Usage> localVariableUsages(FunctionTree function) {
-    Map<IdentifierTree, Usage> map = new HashMap<>();
-    Scope scope = getContext().getSymbolModel().getScope(function);
-    // TODO other kinds of symbols?
-    for (Symbol symbol : scope.getSymbols(Symbol.Kind.VARIABLE)) {
-      for (Usage usage : symbol.usages()) {
-        map.put(usage.identifierTree(), usage);
-      }
-    }
-    return map;
-  }
-
-  private Map<ControlFlowNode, BlockLiveness> livenessPerNode(ControlFlowGraph cfg, UsageVisitor usages) {
+  private Map<ControlFlowNode, BlockLiveness> livenessPerNode(ControlFlowGraph cfg, Usages usages) {
     Map<ControlFlowNode, BlockLiveness> livenessPerBlock = new HashMap<>();
     for (ControlFlowBlock block : cfg.blocks()) {
       livenessPerBlock.put(block, new BlockLiveness(block, usages, livenessPerBlock));
@@ -187,25 +167,28 @@ public class DeadStoreCheck extends DoubleDispatchVisitorCheck {
     private Set<Symbol> liveIn = new HashSet<>();
   
     public BlockLiveness(
-      ControlFlowBlock block, UsageVisitor usages, Map<ControlFlowNode, BlockLiveness> livenessPerBlock) {
+      ControlFlowBlock block, Usages usages, Map<ControlFlowNode, BlockLiveness> livenessPerBlock) {
   
       this.block = block;
       this.livenessPerBlock = livenessPerBlock;
   
       for (Tree element : Lists.reverse(block.elements())) {
-        for (Entry<Symbol, Usage> usageEntry : usages.findUsages(element).entries()) {
-          Symbol symbol = usageEntry.getKey();
-          Usage usage = usageEntry.getValue();
-          Usage.Kind kind = usage.kind();
-          if (isRead(kind)) {
-            readsByElement.put(element, symbol);
-          } else if (isWrite(kind)) {
-            writesByElement.put(element, symbol);
+        if (element instanceof IdentifierTree) {
+          IdentifierTree identifier = (IdentifierTree) element;
+          Usage usage = usages.getUsage(identifier);
+          if (usage != null) {
+            Symbol symbol = identifier.symbol();
+            Usage.Kind kind = usage.kind();
+            if (isRead(kind)) {
+              readsByElement.put(element, symbol);
+            } else if (isWrite(kind)) {
+              writesByElement.put(element, symbol);
+            }
           }
         }
       }
     }
-  
+
     public boolean update() {
       liveOut.clear();
       for (ControlFlowBlock successor : Iterables.filter(block.successors(), ControlFlowBlock.class)) {
@@ -221,64 +204,52 @@ public class DeadStoreCheck extends DoubleDispatchVisitorCheck {
     }
   }
 
-  private static class UsageVisitor extends DoubleDispatchVisitorCheck {
+  private class Usages {
 
-    private final Map<IdentifierTree, Usage> localVariableUsages;
-    private final Set<Symbol> usedInNestedFunction = new HashSet<>();
-
-    private Deque<FunctionTree> functionStack = new ArrayDeque<>();
+    private final Map<IdentifierTree, Usage> localVariableUsages = new HashMap<>();
+    private final Map<Symbol,Set<Usage>> writesOfNeverReadSymbols = new HashMap<>();
     private SetMultimap<Symbol, Usage> foundUsages = HashMultimap.create();
 
-    public UsageVisitor(Map<IdentifierTree, Usage> localVariableUsages) {
-      this.localVariableUsages = localVariableUsages;
+    public Usages(FunctionTree function) {
+      Scope scope = getContext().getSymbolModel().getScope(function);
+      // TODO other kinds of symbols?
+      for (Symbol symbol : scope.getSymbols(Symbol.Kind.VARIABLE)) {
+        boolean readAtLeastOnce = false;
+        Set<Usage> writes = new HashSet<>();
+        for (Usage usage : symbol.usages()) {
+          this.localVariableUsages.put(usage.identifierTree(), usage);
+          if(isRead(usage.kind())) {
+            readAtLeastOnce = true;
+          } else if(isWrite(usage.kind())) {
+            writes.add(usage);
+          }
+        }
+        if (!readAtLeastOnce) {
+          writesOfNeverReadSymbols.put(symbol, writes);
+        }
+      }
     }
 
-    public SetMultimap<Symbol, Usage> findUsages(Tree tree) {
-      foundUsages.clear();
-      scan(tree);
-      return foundUsages;
+    public boolean foundAllUsages(Symbol symbol) {
+      return foundUsages.get(symbol).size() == symbol.usages().size();
     }
 
-    @Override
-    public void visitIdentifier(IdentifierTree identifier) {
+    @CheckForNull
+    public Usage getUsage(IdentifierTree identifier) {
       Usage usage = localVariableUsages.get(identifier);
       if (usage != null) {
         foundUsages.put(identifier.symbol(), usage);
-        if (!functionStack.isEmpty()) {
-          usedInNestedFunction.add(identifier.symbol());
-        }
       }
-      super.visitIdentifier(identifier);
+      return usage;
     }
 
-    @Override
-    public void visitMethodDeclaration(MethodDeclarationTree tree) {
-      functionStack.push(tree);
-      super.visitMethodDeclaration(tree);
-      functionStack.pop();
+    public Set<Symbol> neverReadSymbols() {
+      return writesOfNeverReadSymbols.keySet();
     }
 
-    @Override
-    public void visitFunctionDeclaration(FunctionDeclarationTree tree) {
-      functionStack.push(tree);
-      super.visitFunctionDeclaration(tree);
-      functionStack.pop();
+    public boolean isNeverRead(Symbol symbol) {
+      return writesOfNeverReadSymbols.containsKey(symbol);
     }
-
-    @Override
-    public void visitArrowFunction(ArrowFunctionTree tree) {
-      functionStack.push(tree);
-      super.visitArrowFunction(tree);
-      functionStack.pop();
-    }
-
-    @Override
-    public void visitFunctionExpression(FunctionExpressionTree tree) {
-      functionStack.push(tree);
-      super.visitFunctionExpression(tree);
-      functionStack.pop();
-    }
-
   }
 
 }
