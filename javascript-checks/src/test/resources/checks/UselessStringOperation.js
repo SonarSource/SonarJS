@@ -16,3 +16,5 @@ function foo(){}
 str.replace("oldsubstr", foo);
 str.replace("oldsubstr", unknown);
 str.replace("oldsubstr", function() {});
+
+"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam".toUpperCase();  // Noncompliant {{String is an immutable object; you must either store or return the result of the operation.}}

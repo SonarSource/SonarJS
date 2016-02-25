@@ -33,6 +33,7 @@ import org.sonar.plugins.javascript.api.tree.expression.CallExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.DotMemberExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
+import org.sonar.plugins.javascript.api.tree.expression.MemberExpressionTree;
 import org.sonar.plugins.javascript.api.tree.statement.ExpressionStatementTree;
 import org.sonar.plugins.javascript.api.visitors.SubscriptionVisitorCheck;
 import org.sonar.squidbridge.annotations.ActivatedByDefault;
@@ -68,9 +69,7 @@ public class UselessStringOperationCheck extends SubscriptionVisitorCheck {
 
         if (memberExpression.object().types().containsOnly(Type.Kind.STRING)
           && !isReplaceExclusion(memberExpression.property(), ((CallExpressionTree) expression).arguments())) {
-
-          String variableName = CheckUtils.asString(memberExpression.object());
-          addLineIssue(tree, String.format(MESSAGE, variableName));
+          addLineIssue(tree, String.format(MESSAGE, getVariable(memberExpression)));
         }
       }
     }
@@ -85,5 +84,12 @@ public class UselessStringOperationCheck extends SubscriptionVisitorCheck {
     return false;
   }
 
+  private static String getVariable(MemberExpressionTree memberExpression) {
+    String variableName = CheckUtils.asString(memberExpression.object());
+    if (variableName.length() > 30) {
+      variableName = "String";
+    }
+    return variableName;
+  }
 
 }
