@@ -21,11 +21,8 @@ package org.sonar.javascript.checks;
 
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Multimap;
-import java.util.ArrayList;
-import java.util.Collection;
+import com.google.common.collect.ListMultimap;
 import java.util.List;
-import java.util.Map.Entry;
 import java.util.Set;
 import org.sonar.api.server.rule.RulesDefinition.SubCharacteristics;
 import org.sonar.check.Priority;
@@ -90,7 +87,7 @@ public class DestructuringAssignmentSyntaxCheck extends DoubleDispatchVisitorChe
   }
 
   private void visitStatements(List<? extends Tree> statements) {
-    Multimap<String, Declaration> declarationsByObject = ArrayListMultimap.create();
+    ListMultimap<String, Declaration> declarationsByObject = ArrayListMultimap.create();
 
     for (Tree statement : statements) {
       if (statement.is(Kind.VARIABLE_STATEMENT)) {
@@ -107,7 +104,7 @@ public class DestructuringAssignmentSyntaxCheck extends DoubleDispatchVisitorChe
     checkDeclarationsBlock(declarationsByObject);
   }
 
-  private static void checkVariableDeclaration(Multimap<String, Declaration> declarationsByObject, VariableDeclarationTree declaration) {
+  private static void checkVariableDeclaration(ListMultimap<String, Declaration> declarationsByObject, VariableDeclarationTree declaration) {
     for (BindingElementTree bindingElement : declaration.variables()) {
       if (bindingElement.is(Kind.INITIALIZED_BINDING_ELEMENT)) {
         InitializedBindingElementTree initializedDeclaration = (InitializedBindingElementTree) bindingElement;
@@ -117,7 +114,7 @@ public class DestructuringAssignmentSyntaxCheck extends DoubleDispatchVisitorChe
   }
 
   private static void checkInitializedDeclaration(
-    Multimap<String, Declaration> declarationsByObject,
+    ListMultimap<String, Declaration> declarationsByObject,
     VariableDeclarationTree declaration,
     InitializedBindingElementTree initializedDeclaration
   ) {
@@ -142,7 +139,7 @@ public class DestructuringAssignmentSyntaxCheck extends DoubleDispatchVisitorChe
   }
 
   private static void addDeclaration(
-    Multimap<String, Declaration> declarationsByObject,
+    ListMultimap<String, Declaration> declarationsByObject,
     MemberExpressionTree memberExpression,
     VariableDeclarationTree declaration,
     InitializedBindingElementTree initializedBindingElement
@@ -150,12 +147,12 @@ public class DestructuringAssignmentSyntaxCheck extends DoubleDispatchVisitorChe
     declarationsByObject.put(CheckUtils.asString(memberExpression.object()), new Declaration(((JavaScriptTree) declaration).getKind(), initializedBindingElement));
   }
 
-  private void checkDeclarationsBlock(Multimap<String, Declaration> map) {
-    for (Entry<String, Collection<Declaration>> entry : map.asMap().entrySet()) {
-      List<Declaration> declarations = new ArrayList<>(entry.getValue());
+  private void checkDeclarationsBlock(ListMultimap<String, Declaration> declarationsByObject) {
+    for (String objectName : declarationsByObject.keySet()) {
+      List<Declaration> declarations = declarationsByObject.get(objectName);
 
       if (declarations.size() > 1 && sameDeclarationKind(declarations)) {
-        PreciseIssue preciseIssue = newIssue(declarations.get(0).tree, String.format(MESSAGE, entry.getKey()));
+        PreciseIssue preciseIssue = newIssue(declarations.get(0).tree, String.format(MESSAGE, objectName));
 
         for (int i = 1; i < declarations.size(); i++) {
           preciseIssue.secondary(declarations.get(i).tree);

@@ -10,6 +10,10 @@ foo();
 
 var e = obj1.e;     // OK, different objects
 var d = obj2.d;
+foo();
+
+var ee = obj1.e;     // OK, different names
+var dd = obj1.d;
 
 foo();
 
@@ -36,6 +40,10 @@ let one = arr1[0], two = arr1[1];  // Noncompliant
 foo();
 
 let one4 = arr1[0], two4 = arr1[100];  // OK
+
+foo();
+
+let one5 = arr1[x], two5 = arr1['prop'];  // OK
 
 foo();
 
