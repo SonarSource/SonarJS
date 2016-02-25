@@ -19,36 +19,15 @@
  */
 package org.sonar.javascript.checks;
 
+import java.io.File;
 import org.junit.Test;
-import org.sonar.javascript.checks.tests.TreeCheckTest;
-import org.sonar.squidbridge.checks.CheckMessagesVerifier;
+import org.sonar.javascript.checks.utils.JavaScriptCheckVerifier;
 
-public class BoundOrAssignedEvalOrArgumentsCheckTest extends TreeCheckTest {
+public class BoundOrAssignedEvalOrArgumentsCheckTest {
 
   @Test
   public void test() {
-    BoundOrAssignedEvalOrArgumentsCheck check = new BoundOrAssignedEvalOrArgumentsCheck();
-
-    CheckMessagesVerifier.verify(getIssues("src/test/resources/checks/boundOrAssignedEvalOrArguments.js", check))
-      .next().atLine(1).withMessage("Remove the modification of \"eval\".")
-      .next().atLine(2).withMessage("Remove the modification of \"arguments\".")
-      .next().atLine(3).withMessage("Remove the modification of \"eval\".")
-      .next().atLine(4).withMessage("Do not use \"arguments\" to declare a parameter - use another name.")
-      .next().atLine(6).withMessage("Do not use \"eval\" to declare a variable - use another name.")
-      .next().atLine(7).withMessage("Do not use \"arguments\" to declare a variable - use another name.")
-      .next().atLine(8).withMessage("Do not use \"eval\" to declare a parameter - use another name.")
-      .next().atLine(9).withMessage("Do not use \"arguments\" to declare a function - use another name.")
-      .next().atLine(10).withMessage("Do not use \"eval\" to declare a function - use another name.")
-      .next().atLine(22).withMessage("Remove the modification of \"arguments\".")
-      .next().atLine(25).withMessage("Do not use \"eval\" to declare a parameter - use another name.")
-      .next().atLine(28).withMessage("Do not use \"arguments\" to declare a parameter - use another name.")
-      .next().atLine(31).withMessage("Do not use \"eval\" to declare a parameter - use another name.")
-      .next().atLine(43).withMessage("Do not use \"eval\" to declare a parameter - use another name.")
-      .next().atLine(44).withMessage("Remove the modification of \"arguments\".")
-      .next().atLine(50)
-      .next().atLine(54)
-      .next().atLine(55)
-      .noMore();
+    JavaScriptCheckVerifier.verify(new BoundOrAssignedEvalOrArgumentsCheck(), new File("src/test/resources/checks/boundOrAssignedEvalOrArguments.js"));
   }
 
 }

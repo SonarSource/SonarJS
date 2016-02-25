@@ -1,12 +1,12 @@
-var JSON = 5;  // NOK
+var JSON = 5;  // Noncompliant {{Remove this override of "JSON".}}
 
 new Promise(); // OK
 
-Set = "str";   // NOK
+Set = "str";   // Noncompliant
 
-for (Math in arr){};   // NOK
+for (Math in arr){};   // Noncompliant [[sc=6;ec=10]]
 
-function fun(Reflect){};  // NOK
+function fun(Reflect){};  // Noncompliant
 
 var obj = new Object();
 

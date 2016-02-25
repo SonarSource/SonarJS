@@ -56,7 +56,7 @@ public class UndefinedShadowingCheck extends AbstractSymbolNameCheck {
   public void visitScript(ScriptTree tree) {
     for (Symbol symbol : getIllegalSymbols()) {
       if (!symbol.scope().isGlobal() && symbol.isVariable()) {
-        raiseIssuesOnDeclarations(this, symbol, MESSAGE);
+        raiseIssuesOnDeclarations(symbol, MESSAGE);
       }
     }
   }

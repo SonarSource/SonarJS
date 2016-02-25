@@ -19,23 +19,15 @@
  */
 package org.sonar.javascript.checks;
 
+import java.io.File;
 import org.junit.Test;
-import org.sonar.javascript.checks.tests.TreeCheckTest;
-import org.sonar.squidbridge.checks.CheckMessagesVerifier;
+import org.sonar.javascript.checks.utils.JavaScriptCheckVerifier;
 
-public class UndefinedShadowingCheckTest extends TreeCheckTest {
-
-  private UndefinedShadowingCheck check = new UndefinedShadowingCheck();
+public class UndefinedShadowingCheckTest {
 
   @Test
   public void test() {
-
-    CheckMessagesVerifier.verify(getIssues("src/test/resources/checks/undefinedShadowing.js", check))
-      .next().atLine(2).withMessage("Rename this variable.")
-      .next().atLine(3).withMessage("Rename this variable.")
-      .next().atLine(4)
-      .next().atLine(14)
-      .noMore();
+    JavaScriptCheckVerifier.verify(new UndefinedShadowingCheck(), new File("src/test/resources/checks/undefinedShadowing.js"));
   }
 
 }

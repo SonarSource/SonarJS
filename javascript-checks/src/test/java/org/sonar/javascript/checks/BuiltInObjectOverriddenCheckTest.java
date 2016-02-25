@@ -19,23 +19,15 @@
  */
 package org.sonar.javascript.checks;
 
+import java.io.File;
 import org.junit.Test;
-import org.sonar.javascript.checks.tests.TreeCheckTest;
-import org.sonar.squidbridge.checks.CheckMessagesVerifier;
+import org.sonar.javascript.checks.utils.JavaScriptCheckVerifier;
 
-public class BuiltInObjectOverriddenCheckTest extends TreeCheckTest {
+public class BuiltInObjectOverriddenCheckTest {
 
   @Test
   public void test() {
-    BuiltInObjectOverriddenCheck check = new BuiltInObjectOverriddenCheck();
-
-    CheckMessagesVerifier.verify(getIssues("src/test/resources/checks/builtInObjectOverridden.js", check))
-      .next().atLine(1).withMessage("Remove this override of \"JSON\".")
-      .next().atLine(5)
-      .next().atLine(7)
-      .next().atLine(9)
-      .noMore();
+    JavaScriptCheckVerifier.verify(new BuiltInObjectOverriddenCheck(), new File("src/test/resources/checks/builtInObjectOverridden.js"));
   }
-
 
 }

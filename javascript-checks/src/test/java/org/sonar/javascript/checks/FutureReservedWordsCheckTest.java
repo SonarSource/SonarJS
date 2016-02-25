@@ -19,24 +19,15 @@
  */
 package org.sonar.javascript.checks;
 
+import java.io.File;
 import org.junit.Test;
-import org.sonar.javascript.checks.tests.TreeCheckTest;
-import org.sonar.squidbridge.checks.CheckMessagesVerifier;
+import org.sonar.javascript.checks.utils.JavaScriptCheckVerifier;
 
-public class FutureReservedWordsCheckTest extends TreeCheckTest {
+public class FutureReservedWordsCheckTest {
 
   @Test
   public void test_es5() {
-    FutureReservedWordsCheck check = new FutureReservedWordsCheck();
-
-    CheckMessagesVerifier.verify(getIssues("src/test/resources/checks/futureReservedWords.js", check))
-      .next().atLine(1).withMessage("Rename \"implements\" identifier to prevent potential conflicts with future evolutions of the JavaScript language.")
-      .next().atLine(2)
-      .next().atLine(3)
-      .next().atLine(4)
-      .next().atLine(5)
-      .noMore();
+    JavaScriptCheckVerifier.verify(new FutureReservedWordsCheck(), new File("src/test/resources/checks/futureReservedWords.js"));
   }
-
 
 }
