@@ -28,9 +28,11 @@ import org.sonar.javascript.checks.utils.CheckUtils;
 import org.sonar.plugins.javascript.api.symbols.Type;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
+import org.sonar.plugins.javascript.api.tree.declaration.ParameterListTree;
 import org.sonar.plugins.javascript.api.tree.expression.CallExpressionTree;
+import org.sonar.plugins.javascript.api.tree.expression.DotMemberExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
-import org.sonar.plugins.javascript.api.tree.expression.MemberExpressionTree;
+import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 import org.sonar.plugins.javascript.api.tree.statement.ExpressionStatementTree;
 import org.sonar.plugins.javascript.api.visitors.SubscriptionVisitorCheck;
 import org.sonar.squidbridge.annotations.ActivatedByDefault;
@@ -57,16 +59,31 @@ public class UselessStringOperationCheck extends SubscriptionVisitorCheck {
   @Override
   public void visitNode(Tree tree) {
     Tree expression = ((ExpressionStatementTree) tree).expression();
+
     if (expression.is(Kind.CALL_EXPRESSION)) {
       ExpressionTree callee = ((CallExpressionTree) expression).callee();
+
       if (callee.is(Kind.DOT_MEMBER_EXPRESSION)) {
-        MemberExpressionTree memberExpression = (MemberExpressionTree) callee;
-        if (memberExpression.object().types().containsOnly(Type.Kind.STRING)) {
+        DotMemberExpressionTree memberExpression = (DotMemberExpressionTree) callee;
+
+        if (memberExpression.object().types().containsOnly(Type.Kind.STRING)
+          && !isReplaceExclusion(memberExpression.property(), ((CallExpressionTree) expression).arguments())) {
+
           String variableName = CheckUtils.asString(memberExpression.object());
           addLineIssue(tree, String.format(MESSAGE, variableName));
         }
       }
     }
   }
+
+  private static boolean isReplaceExclusion(IdentifierTree property, ParameterListTree arguments) {
+    if ("replace".equals(property.name()) && arguments.parameters().size() == 2) {
+      Tree secondArgument = arguments.parameters().get(1);
+      return secondArgument instanceof ExpressionTree && !((ExpressionTree) secondArgument).types().containsOnly(Type.Kind.STRING);
+    }
+
+    return false;
+  }
+
 
 }

@@ -19,20 +19,16 @@
  */
 package org.sonar.javascript.checks;
 
+import java.io.File;
 import org.junit.Test;
 import org.sonar.javascript.checks.tests.TreeCheckTest;
-import org.sonar.squidbridge.checks.CheckMessagesVerifier;
+import org.sonar.javascript.checks.utils.JavaScriptCheckVerifier;
 
 public class UselessStringOperationCheckTest extends TreeCheckTest {
 
   @Test
   public void test() {
-    UselessStringOperationCheck check = new UselessStringOperationCheck();
-    CheckMessagesVerifier.verify(getIssues("src/test/resources/checks/UselessStringOperation.js", check))
-      .next().atLine(4).withMessage("str is an immutable object; you must either store or return the result of the operation.")
-      .next().atLine(5).withMessage("\"abc\" is an immutable object; you must either store or return the result of the operation.")
-      .next().atLine(6)
-      .noMore();
+    JavaScriptCheckVerifier.verify(new UselessStringOperationCheck(), new File("src/test/resources/checks/UselessStringOperation.js"));
   }
 
 }
