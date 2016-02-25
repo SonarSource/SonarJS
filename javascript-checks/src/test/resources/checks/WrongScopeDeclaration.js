@@ -6,11 +6,11 @@ function increment(p) {
 }
 
 function doSomething(a, b) {
-  var i;              // Noncompliant {{Move the declaration of "i" to line 10.}}
+  var i;              // Noncompliant {{Move the declaration of "i" to line 11.}}
   if (a > b) {
     i = a;
     console.log(i);
-    var x = a - b;    // Noncompliant {{Move the declaration of "x" to line 8.}}
+    var x = a - b;    // Noncompliant {{Move the declaration of "x" to line 9.}}
   }
 
   if (a > 4) {
@@ -39,4 +39,11 @@ function foo(p) {
 
 for (var j = 1; j < 10; j++) {
   foo(j)
+}
+
+var k;    // Noncompliant {{Move the declaration of "k" to line 47.}}
+var kk;    // Noncompliant {{Move the declaration of "kk" to line 47.}}
+for (k = 1; k < 10; k++) {
+  kk = 1;
+  foo(kk);
 }
