@@ -33,7 +33,6 @@ import org.sonar.javascript.tree.visitors.CharsetAwareVisitor;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.visitors.LineIssue;
 import org.sonar.plugins.javascript.api.visitors.SubscriptionVisitorCheck;
-import org.sonar.squidbridge.annotations.ActivatedByDefault;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 
@@ -42,7 +41,6 @@ import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
   name = "Lines should not end with trailing whitespaces",
   priority = Priority.MINOR,
   tags = {Tags.CONVENTION})
-@ActivatedByDefault
 @SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.READABILITY)
 @SqaleConstantRemediation("1min")
 public class TrailingWhitespaceCheck extends SubscriptionVisitorCheck implements CharsetAwareVisitor {

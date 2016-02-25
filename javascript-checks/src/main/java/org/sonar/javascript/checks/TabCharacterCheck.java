@@ -30,7 +30,6 @@ import org.sonar.javascript.tree.visitors.CharsetAwareVisitor;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
 import org.sonar.plugins.javascript.api.visitors.LineIssue;
-import org.sonar.squidbridge.annotations.ActivatedByDefault;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 
@@ -39,7 +38,6 @@ import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
   name = "Tabulation characters should not be used",
   priority = Priority.MINOR,
   tags = {Tags.CONVENTION})
-@ActivatedByDefault
 @SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.READABILITY)
 @SqaleConstantRemediation("2min")
 public class TabCharacterCheck extends DoubleDispatchVisitorCheck implements CharsetAwareVisitor {
