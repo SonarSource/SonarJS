@@ -92,7 +92,7 @@ public class DestructuringAssignmentSyntaxCheck extends DoubleDispatchVisitorChe
     for (Tree statement : statements) {
       if (statement.is(Kind.VARIABLE_STATEMENT)) {
         VariableDeclarationTree declaration = ((VariableStatementTree) statement).declaration();
-        checkVariableDeclaration(declarationsByObject, declaration);
+        visitVariableDeclaration(declarationsByObject, declaration);
 
       } else {
         checkDeclarationsBlock(declarationsByObject);
@@ -104,16 +104,16 @@ public class DestructuringAssignmentSyntaxCheck extends DoubleDispatchVisitorChe
     checkDeclarationsBlock(declarationsByObject);
   }
 
-  private static void checkVariableDeclaration(ListMultimap<String, Declaration> declarationsByObject, VariableDeclarationTree declaration) {
+  private static void visitVariableDeclaration(ListMultimap<String, Declaration> declarationsByObject, VariableDeclarationTree declaration) {
     for (BindingElementTree bindingElement : declaration.variables()) {
       if (bindingElement.is(Kind.INITIALIZED_BINDING_ELEMENT)) {
         InitializedBindingElementTree initializedDeclaration = (InitializedBindingElementTree) bindingElement;
-        checkInitializedDeclaration(declarationsByObject, declaration, initializedDeclaration);
+        visitInitializedDeclaration(declarationsByObject, declaration, initializedDeclaration);
       }
     }
   }
 
-  private static void checkInitializedDeclaration(
+  private static void visitInitializedDeclaration(
     ListMultimap<String, Declaration> declarationsByObject,
     VariableDeclarationTree declaration,
     InitializedBindingElementTree initializedDeclaration
