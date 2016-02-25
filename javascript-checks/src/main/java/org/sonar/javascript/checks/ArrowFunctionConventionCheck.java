@@ -91,8 +91,11 @@ public class ArrowFunctionConventionCheck extends DoubleDispatchVisitorCheck {
       List<StatementTree> statements = ((BlockTree) tree.body()).statements();
       if (statements.size() == 1) {
         StatementTree statement = statements.get(0);
-        if (statement.is(Kind.RETURN_STATEMENT) && ((ReturnStatementTree) statement).expression() != null && !((ReturnStatementTree) statement).expression().is(Kind.OBJECT_LITERAL))
-        newIssue(tree.body(), MESSAGE_REMOVE_BODY);
+        if (statement.is(Kind.RETURN_STATEMENT)
+          && ((ReturnStatementTree) statement).expression() != null
+          && !((ReturnStatementTree) statement).expression().is(Kind.OBJECT_LITERAL)) {
+          newIssue(tree.body(), MESSAGE_REMOVE_BODY);
+        }
       }
     }
   }
