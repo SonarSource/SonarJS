@@ -24,6 +24,7 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.SetMultimap;
 import java.util.ArrayDeque;
+import java.util.Collection;
 import java.util.Deque;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -95,21 +96,22 @@ public class DeadStoreCheck extends DoubleDispatchVisitorCheck {
     }
 
     Usages usages = new Usages(functionTree);
+    checkCFG(ControlFlowGraph.build((BlockTree) functionTree.body()), usages);
+  }
+
+  private void checkCFG(ControlFlowGraph cfg, Usages usages) {
+    Collection<BlockLiveness> livenesses = buildUsagesAndLivenesses(cfg, usages);
+
+    for (BlockLiveness blockLiveness : livenesses) {
+      checkBlock(blockLiveness, usages);
+    }
+
     for (Symbol symbol : usages.neverReadSymbols()) {
       for (Usage usage : symbol.usages()) {
         if (isWrite(usage)) {
           addIssue(usage.identifierTree(), symbol);
         }
       }
-    }
-
-    checkCFG(ControlFlowGraph.build((BlockTree) functionTree.body()), usages);
-  }
-
-  private void checkCFG(ControlFlowGraph cfg, Usages usages) {
-    Map<ControlFlowNode, BlockLiveness> livenessPerNode = livenessPerNode(cfg, usages);
-    for (BlockLiveness blockLiveness : livenessPerNode.values()) {
-      checkBlock(blockLiveness, usages);
     }
   }
 
@@ -122,7 +124,7 @@ public class DeadStoreCheck extends DoubleDispatchVisitorCheck {
       if (isWrite(usage)) {
 
         Symbol symbol = symbol(usage);
-        if (!live.contains(symbol) && usages.foundAllUsages(symbol) && !usages.isNeverRead(symbol)) {
+        if (!live.contains(symbol) && !usages.hasUsagesInNestedFunctions(symbol) && !usages.isNeverRead(symbol)) {
           addIssue(element, symbol);
         }
         live.remove(symbol);
@@ -137,17 +139,17 @@ public class DeadStoreCheck extends DoubleDispatchVisitorCheck {
     addIssue(element, String.format(MESSAGE, symbol.name()));
   }
 
-  private Map<ControlFlowNode, BlockLiveness> livenessPerNode(ControlFlowGraph cfg, Usages usages) {
+  private Collection<BlockLiveness> buildUsagesAndLivenesses(ControlFlowGraph cfg, Usages usages) {
     Map<ControlFlowNode, BlockLiveness> livenessPerBlock = new HashMap<>();
     for (ControlFlowBlock block : cfg.blocks()) {
-      livenessPerBlock.put(block, new BlockLiveness(block, usages, livenessPerBlock));
+      livenessPerBlock.put(block, new BlockLiveness(block, usages));
     }
 
     Deque<ControlFlowNode> queue = new ArrayDeque<ControlFlowNode>(cfg.blocks());
     while (!queue.isEmpty()) {
       ControlFlowNode block = queue.pop();
       BlockLiveness blockLiveness = livenessPerBlock.get(block);
-      boolean changed = blockLiveness.update();
+      boolean changed = blockLiveness.updateLiveInAndOut(livenessPerBlock);
       if (changed) {
         for (ControlFlowNode predecessor : block.predecessors()) {
           queue.push(predecessor);
@@ -155,7 +157,7 @@ public class DeadStoreCheck extends DoubleDispatchVisitorCheck {
       }
     }
 
-    return livenessPerBlock;
+    return livenessPerBlock.values();
   }
 
   @CheckForNull
@@ -180,22 +182,19 @@ public class DeadStoreCheck extends DoubleDispatchVisitorCheck {
   private static class BlockLiveness {
   
     private final ControlFlowBlock block;
-    private final Map<ControlFlowNode, BlockLiveness> livenessPerBlock;
     private final Map<Tree, Usage> usageByElement = new HashMap<>();
     private final Set<Symbol> liveOut = new HashSet<>();
     private Set<Symbol> liveIn = new HashSet<>();
 
   
-    public BlockLiveness(
-      ControlFlowBlock block, Usages usages, Map<ControlFlowNode, BlockLiveness> livenessPerBlock) {
+    public BlockLiveness(ControlFlowBlock block, Usages usages) {
   
       this.block = block;
-      this.livenessPerBlock = livenessPerBlock;
   
       for (Tree element : Lists.reverse(block.elements())) {
         if (element instanceof IdentifierTree) {
           IdentifierTree identifier = (IdentifierTree) element;
-          Usage usage = usages.getUsage(identifier);
+          Usage usage = usages.add(identifier);
           if (usage != null) {
             usageByElement.put(element, usage);
           }
@@ -203,7 +202,7 @@ public class DeadStoreCheck extends DoubleDispatchVisitorCheck {
       }
     }
 
-    public boolean update() {
+    public boolean updateLiveInAndOut(Map<ControlFlowNode, BlockLiveness> livenessPerBlock) {
       liveOut.clear();
       for (ControlFlowBlock successor : Iterables.filter(block.successors(), ControlFlowBlock.class)) {
         liveOut.addAll(livenessPerBlock.get(successor).liveIn);
@@ -227,17 +226,41 @@ public class DeadStoreCheck extends DoubleDispatchVisitorCheck {
 
   private class Usages {
 
+    private final Scope functionScope;
+    private final Set<Symbol> symbols = new HashSet<>();
     private final Map<IdentifierTree, Usage> localVariableUsages = new HashMap<>();
     private final Set<Symbol> neverReadSymbols = new HashSet<>();
-    private SetMultimap<Symbol, Usage> foundUsages = HashMultimap.create();
+    private final SetMultimap<Symbol, Usage> usagesInCFG = HashMultimap.create();
 
     public Usages(FunctionTree function) {
-      Scope scope = getContext().getSymbolModel().getScope(function);
-      // TODO other kinds of symbols?
-      for (Symbol symbol : scope.getSymbols(Symbol.Kind.VARIABLE)) {
+      this.functionScope = getContext().getSymbolModel().getScope(function);
+    }
+
+    public boolean hasUsagesInNestedFunctions(Symbol symbol) {
+      return usagesInCFG.get(symbol).size() != symbol.usages().size();
+    }
+
+    @CheckForNull
+    public Usage add(IdentifierTree identifier) {
+      addSymbol(identifier.symbol());
+      Usage usage = localVariableUsages.get(identifier);
+      if (usage != null) {
+        usagesInCFG.put(identifier.symbol(), usage);
+      }
+      return usage;
+    }
+
+    private void addSymbol(Symbol symbol) {
+      if (symbol == null || symbols.contains(symbol)) {
+        return;
+      }
+
+      symbols.add(symbol);
+
+      if (isLocalVariable(symbol)) {
         boolean readAtLeastOnce = false;
         for (Usage usage : symbol.usages()) {
-          this.localVariableUsages.put(usage.identifierTree(), usage);
+          localVariableUsages.put(usage.identifierTree(), usage);
           if (isRead(usage)) {
             readAtLeastOnce = true;
           }
@@ -248,17 +271,15 @@ public class DeadStoreCheck extends DoubleDispatchVisitorCheck {
       }
     }
 
-    public boolean foundAllUsages(Symbol symbol) {
-      return foundUsages.get(symbol).size() == symbol.usages().size();
-    }
-
-    @CheckForNull
-    public Usage getUsage(IdentifierTree identifier) {
-      Usage usage = localVariableUsages.get(identifier);
-      if (usage != null) {
-        foundUsages.put(identifier.symbol(), usage);
+    private boolean isLocalVariable(Symbol symbol) {
+      Scope scope = symbol.scope();
+      while (!scope.isGlobal()) {
+        if (scope.equals(functionScope)) {
+          return true;
+        }
+        scope = scope.outer();
       }
-      return usage;
+      return false;
     }
 
     public Set<Symbol> neverReadSymbols() {

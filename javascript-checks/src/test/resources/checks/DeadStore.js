@@ -107,3 +107,9 @@ class A {
     return y;
   }
 }
+
+function let_variable() {
+  if (condition()) {
+    let x = 1; // Noncompliant
+  }
+}
