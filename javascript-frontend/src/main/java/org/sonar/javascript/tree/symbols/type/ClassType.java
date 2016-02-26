@@ -64,6 +64,7 @@ public class ClassType extends ObjectType {
     return properties.values();
   }
 
+  @Override
   @Nullable
   public Symbol property(String name) {
     return properties.get(name);

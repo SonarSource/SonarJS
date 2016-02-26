@@ -306,7 +306,7 @@ public class HoistedSymbolVisitor extends DoubleDispatchVisitor {
     return scope;
   }
 
-  private Symbol.Kind getVariableKind(VariableDeclarationTree declaration) {
+  private static Symbol.Kind getVariableKind(VariableDeclarationTree declaration) {
     if (declaration.is(Kind.LET_DECLARATION)) {
       return Symbol.Kind.LET_VARIABLE;
 

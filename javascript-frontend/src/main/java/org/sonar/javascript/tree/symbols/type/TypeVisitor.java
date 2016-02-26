@@ -276,7 +276,7 @@ public class TypeVisitor extends DoubleDispatchVisitor {
     }
   }
 
-  private void resolveObjectPropertyAccess(MemberExpressionTree tree) {
+  private static void resolveObjectPropertyAccess(MemberExpressionTree tree) {
     ObjectType objectType = (ObjectType) tree.object().types().getUniqueType(Kind.OBJECT);
     if (objectType != null && tree.property() instanceof IdentifierTree) {
       String property = ((IdentifierTree) tree.property()).name();

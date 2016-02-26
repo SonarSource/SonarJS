@@ -242,7 +242,7 @@ public class JavaScriptSquidSensor implements Sensor {
     saveFileIssues(sensorContext, fileIssues, inputFile, issuable);
   }
 
-  private void highlightSymbols(@Nullable Symbolizable symbolizable, SymbolModel symbolModel) {
+  private static void highlightSymbols(@Nullable Symbolizable symbolizable, SymbolModel symbolModel) {
     if (symbolizable != null) {
       symbolizable.setSymbolTable(HighlightSymbolTableBuilder.build(symbolizable, symbolModel));
     } else {
