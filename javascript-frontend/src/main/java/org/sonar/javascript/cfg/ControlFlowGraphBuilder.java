@@ -218,7 +218,8 @@ class ControlFlowGraphBuilder {
       Kind.STRICT_NOT_EQUAL_TO,
       Kind.BITWISE_AND,
       Kind.BITWISE_XOR,
-      Kind.BITWISE_OR)) {
+      Kind.BITWISE_OR,
+      Kind.COMMA_OPERATOR)) {
       BinaryExpressionTree binary = (BinaryExpressionTree) tree;
       buildExpression(binary.rightOperand());
       buildExpression(binary.leftOperand());
@@ -276,10 +277,6 @@ class ControlFlowGraphBuilder {
       InitializedBindingElementTree initializedBindingElementTree = (InitializedBindingElementTree) tree;
       buildExpression(initializedBindingElementTree.left());
       buildExpression(initializedBindingElementTree.right());
-    } else if (tree.is(Kind.COMMA_OPERATOR)) {
-      BinaryExpressionTree binary = (BinaryExpressionTree) tree;
-      buildExpression(binary.rightOperand());
-      buildExpression(binary.leftOperand());
     } else if (tree.is(Kind.PAIR_PROPERTY)) {
       PairPropertyTree pairProperty = (PairPropertyTree) tree;
       buildExpression(pairProperty.value());
