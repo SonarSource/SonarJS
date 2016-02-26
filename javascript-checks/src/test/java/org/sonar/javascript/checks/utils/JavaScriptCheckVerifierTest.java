@@ -211,7 +211,7 @@ public class JavaScriptCheckVerifierTest {
   @Test
   public void no_secondary_locations() throws Exception {
     check(
-      "foo(); // Noncompliant [[secondary=g]]",
+      "foo(); // Noncompliant [[secondary=]]",
       TestIssue.create("msg1", 1).secondary());
   }
 
