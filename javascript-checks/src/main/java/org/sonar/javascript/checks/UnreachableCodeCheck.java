@@ -27,6 +27,8 @@ import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.javascript.cfg.ControlFlowBlock;
 import org.sonar.javascript.cfg.ControlFlowGraph;
+import org.sonar.javascript.tree.impl.JavaScriptTree;
+import org.sonar.javascript.tree.impl.lexical.InternalSyntaxToken;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
@@ -96,12 +98,40 @@ public class UnreachableCodeCheck extends SubscriptionVisitorCheck {
   }
 
   private static Tree unreachableTree(List<Tree> elements) {
-    for (Tree element : elements) {
-      if (!element.is(Kind.FUNCTION_DECLARATION, Kind.GENERATOR_DECLARATION, Kind.CLASS_DECLARATION)) {
-        return element;
+    List<Tree> unreachableElements = skipDeclarations(elements);
+    if (unreachableElements.isEmpty()) {
+      return null;
+    }
+
+    Tree biggestUnreachableElement = unreachableElements.get(0);
+    for (Tree element : unreachableElements) {
+      if (startIndex(element) <= startIndex(biggestUnreachableElement)
+        && endIndex(element) >= endIndex(biggestUnreachableElement)) {
+        biggestUnreachableElement = element;
       }
     }
-    return null;
+    return biggestUnreachableElement;
+  }
+
+  private static List<Tree> skipDeclarations(List<Tree> elements) {
+    int i = 0;
+    for (Tree element : elements) {
+      if (!element.is(Kind.FUNCTION_DECLARATION, Kind.GENERATOR_DECLARATION, Kind.CLASS_DECLARATION)) {
+        return elements.subList(i, elements.size());
+      }
+      i++;
+    }
+    return ImmutableList.of();
+  }
+
+  private static int startIndex(Tree element) {
+    InternalSyntaxToken firstToken = (InternalSyntaxToken) ((JavaScriptTree) element).getFirstToken();
+    return firstToken.startIndex();
+  }
+
+  private static int endIndex(Tree element) {
+    InternalSyntaxToken lastToken = (InternalSyntaxToken) ((JavaScriptTree) element).getLastToken();
+    return lastToken.toIndex();
   }
 
 }

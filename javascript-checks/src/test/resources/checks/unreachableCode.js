@@ -1,6 +1,6 @@
 function sayHello() {
   return;
-  var a; // Noncompliant [[secondary=-1]] {{Remove this code after the "return" statement.}}
+  var a; // Noncompliant [[sc=3;ec=8]] [[secondary=-1]] {{Remove this code after the "return" statement.}}
 
   if (true) {
     return;
