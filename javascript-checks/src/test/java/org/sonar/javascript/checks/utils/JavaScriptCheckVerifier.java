@@ -160,8 +160,10 @@ public class JavaScriptCheckVerifier extends SubscriptionVisitorCheck {
 
       } else if ("secondary".equalsIgnoreCase(name)) {
         List<Integer> secondaryLines = new ArrayList<>();
-        for (String secondary : Splitter.on(',').split(value)) {
-          secondaryLines.add(lineValue(issue.line(), secondary));
+        if (!value.equals("")) {
+          for (String secondary : Splitter.on(',').split(value)) {
+            secondaryLines.add(lineValue(issue.line(), secondary));
+          }
         }
         issue.secondary(secondaryLines);
 

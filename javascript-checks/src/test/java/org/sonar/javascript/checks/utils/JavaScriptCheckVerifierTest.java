@@ -209,6 +209,21 @@ public class JavaScriptCheckVerifierTest {
   }
 
   @Test
+  public void no_secondary_locations() throws Exception {
+    check(
+      "foo(); // Noncompliant [[secondary=g]]",
+      TestIssue.create("msg1", 1).secondary());
+  }
+
+  @Test
+  public void no_secondary_locations_fails() throws Exception {
+    expect("Bad secondary locations at line 1");
+    check(
+      "foo(); // Noncompliant [[secondary=]]",
+      TestIssue.create("msg1", 1).secondary(1));
+  }
+
+  @Test
   public void unordered_issues() throws Exception {
     check(
       "foo(); // Noncompliant\n" +
