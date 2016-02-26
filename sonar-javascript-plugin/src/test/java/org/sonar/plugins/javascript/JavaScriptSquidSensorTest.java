@@ -258,19 +258,8 @@ public class JavaScriptSquidSensorTest {
   }
 
   @Test
-  public void not_analyse_minified_files_default_config() throws Exception {
-    testExcludeMinifiedFileProperty(true);
-
-  }
-
-  @Test
-  public void analyse_minified_files_user_config() throws Exception {
-    testExcludeMinifiedFileProperty(false);
-  }
-
-  private void testExcludeMinifiedFileProperty(boolean excludeMinified) {
+  public void test_exclude_minified_files() {
     SensorContext context = mock(SensorContext.class);
-    settings.setProperty(JavaScriptPlugin.EXCLUDE_MINIFIED_FILES, excludeMinified);
     InputFile inputFile1 = inputFile("test_minified/file.js");
     InputFile inputFile2 = inputFile("test_minified/file.min.js");
     InputFile inputFile3 = inputFile("test_minified/file-min.js");
@@ -285,11 +274,7 @@ public class JavaScriptSquidSensorTest {
 
     createSensor().analyse(project, context);
 
-    int times = 3;
-    if (excludeMinified) {
-      times = 1;
-    }
-    verify(context, times(times)).saveMeasure(any(InputFile.class), eq(CoreMetrics.NCLOC), anyDouble());
+    verify(context, times(1)).saveMeasure(any(InputFile.class), eq(CoreMetrics.NCLOC), anyDouble());
   }
 
   private void mockInputFile(InputFile inputFile, SensorContext context) {

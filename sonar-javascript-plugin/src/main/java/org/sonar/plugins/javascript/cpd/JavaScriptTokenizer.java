@@ -35,11 +35,9 @@ import org.sonar.plugins.javascript.JavaScriptSquidSensor;
 public class JavaScriptTokenizer implements Tokenizer {
 
   private final Charset charset;
-  private final boolean excludeMinified;
 
-  public JavaScriptTokenizer(Charset charset, boolean excludeMinified) {
+  public JavaScriptTokenizer(Charset charset) {
     this.charset = charset;
-    this.excludeMinified = excludeMinified;
   }
 
   @Override
@@ -47,7 +45,7 @@ public class JavaScriptTokenizer implements Tokenizer {
     Lexer lexer = JavaScriptLexer.create(charset);
 
     String fileName = source.getFileName();
-    if (excludeMinified && JavaScriptSquidSensor.isMinifiedFile(fileName)) {
+    if (JavaScriptSquidSensor.isMinifiedFile(fileName)) {
       return;
     }
 

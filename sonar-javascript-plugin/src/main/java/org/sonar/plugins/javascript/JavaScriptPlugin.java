@@ -64,11 +64,6 @@ public class JavaScriptPlugin extends SonarPlugin {
   public static final String IGNORE_HEADER_COMMENTS = PROPERTY_PREFIX + ".ignoreHeaderComments";
   public static final Boolean IGNORE_HEADER_COMMENTS_DEFAULT_VALUE = true;
 
-  public static final String EXCLUDE_MINIFIED_FILES = PROPERTY_PREFIX + ".exclude.minifiedFiles";
-  public static final Boolean EXCLUDE_MINIFIED_FILES_DEFAULT_VALUE = true;
-
-
-
   @Override
   public List getExtensions() {
     return ImmutableList.of(
@@ -134,15 +129,6 @@ public class JavaScriptPlugin extends SonarPlugin {
         .description("Comma-separated list of names used to address jQuery object.")
         .onQualifiers(Qualifiers.MODULE, Qualifiers.PROJECT)
         .subCategory(LIBRARIES)
-        .build(),
-
-      PropertyDefinition.builder(JavaScriptPlugin.EXCLUDE_MINIFIED_FILES)
-        .defaultValue(JavaScriptPlugin.EXCLUDE_MINIFIED_FILES_DEFAULT_VALUE.toString())
-        .name("Exclude minified files")
-        .description("Exclude minified files from the analysis.")
-        .onQualifiers(Qualifiers.PROJECT)
-        .subCategory(GENERAL)
-        .type(PropertyType.BOOLEAN)
         .build()
     );
   }

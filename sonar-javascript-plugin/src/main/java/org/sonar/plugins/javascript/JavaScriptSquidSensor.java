@@ -98,7 +98,6 @@ public class JavaScriptSquidSensor implements Sensor {
   private final ActionParser<Tree> parser;
   // parsingErrorRuleKey equals null if ParsingErrorCheck is not activated
   private RuleKey parsingErrorRuleKey = null;
-  private boolean excludeMinified = JavaScriptPlugin.EXCLUDE_MINIFIED_FILES_DEFAULT_VALUE;
 
   public JavaScriptSquidSensor(
     CheckFactory checkFactory, FileLinesContextFactory fileLinesContextFactory,
@@ -124,7 +123,6 @@ public class JavaScriptSquidSensor implements Sensor {
       fileSystem.predicates().hasType(InputFile.Type.MAIN),
       fileSystem.predicates().hasLanguage(JavaScriptLanguage.KEY));
     this.settings = settings;
-    this.excludeMinified = settings.getBoolean(JavaScriptPlugin.EXCLUDE_MINIFIED_FILES);
     this.parser = JavaScriptParserBuilder.createParser(fileSystem.encoding());
   }
 
@@ -325,7 +323,7 @@ public class JavaScriptSquidSensor implements Sensor {
   }
 
   public boolean isExcluded(File file) {
-    return excludeMinified && isMinifiedFile(file.getName());
+    return isMinifiedFile(file.getName());
   }
 
   public static boolean isMinifiedFile(String filename) {
