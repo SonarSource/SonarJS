@@ -20,12 +20,24 @@
 package org.sonar.javascript.checks;
 
 import com.google.common.collect.Iterables;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
+import org.sonar.javascript.cfg.ControlFlowBlock;
+import org.sonar.javascript.cfg.ControlFlowGraph;
+import org.sonar.javascript.tree.impl.JavaScriptTree;
+import org.sonar.javascript.tree.impl.lexical.InternalSyntaxToken;
+import org.sonar.javascript.tree.symbols.Scope;
+import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
+import org.sonar.plugins.javascript.api.tree.declaration.FunctionTree;
+import org.sonar.plugins.javascript.api.tree.expression.BinaryExpressionTree;
+import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.tree.statement.BlockTree;
+import org.sonar.plugins.javascript.api.tree.statement.CaseClauseTree;
 import org.sonar.plugins.javascript.api.tree.statement.StatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.SwitchClauseTree;
 import org.sonar.plugins.javascript.api.tree.statement.SwitchStatementTree;
@@ -48,26 +60,96 @@ public class NonEmptyCaseWithoutBreakCheck extends DoubleDispatchVisitorCheck {
 
   @Override
   public void visitSwitchStatement(SwitchStatementTree tree) {
-    List<SwitchClauseTree> cases = tree.cases();
-    for (int i = 0; i < cases.size() - 1; i++) {
-      SwitchClauseTree switchClauseTree = cases.get(i);
-      List<StatementTree> statements = switchClauseTree.statements();
-      if (!statements.isEmpty() && !endsWithJump(statements)) {
-        addLineIssue(switchClauseTree, MESSAGE);
-      }
+    Set<Tree> caseExpressions = new HashSet<>();
+    for (CaseClauseTree caseClause : Iterables.filter(tree.cases(), CaseClauseTree.class)) {
+      addCaseExpression(caseExpressions, caseClause.expression());
     }
 
+    ControlFlowGraph cfg = getControlFlowGraph(tree);
+    SwitchClauseTree previousClauseWithStatement = null;
+
+    for (SwitchClauseTree switchClause : tree.cases()) {
+
+      if (previousClauseWithStatement != null
+        && (canBeFallenInto(switchClause, cfg, caseExpressions) || hasOnlyEmptyStatements(previousClauseWithStatement))) {
+
+        addIssue(previousClauseWithStatement.keyword(), MESSAGE);
+      }
+
+      if (!switchClause.statements().isEmpty()) {
+        previousClauseWithStatement = switchClause;
+      }
+
+    }
     super.visitSwitchStatement(tree);
   }
 
-  private boolean endsWithJump(List<StatementTree> statements) {
-    if (statements.isEmpty()) {
+  private static void addCaseExpression(Set<Tree> caseExpressions, ExpressionTree expression) {
+    caseExpressions.add(expression);
+    if (expression.is(Kind.CONDITIONAL_OR)) {
+      BinaryExpressionTree binary = (BinaryExpressionTree) expression;
+      // The left operand of a "||" is a valid predecessor for switch clause statements
+      addCaseExpression(caseExpressions, binary.leftOperand());
+    }
+  }
+
+  private static boolean hasOnlyEmptyStatements(SwitchClauseTree switchClause) {
+    return firstNonEmptyStatement(switchClause.statements()) == null;
+  }
+
+  private static boolean canBeFallenInto(SwitchClauseTree switchClause, ControlFlowGraph cfg, Set<Tree> caseExpressions) {
+    StatementTree firstNonEmptyStatement = firstNonEmptyStatement(switchClause.statements());
+    if (firstNonEmptyStatement == null) {
       return false;
     }
-    if (statements.size() == 1 && statements.get(0).is(Kind.BLOCK)) {
-      BlockTree block = (BlockTree) statements.get(0);
-      return endsWithJump(block.statements());
+
+    ControlFlowBlock block = cfg.getStartingBlock(firstNonEmptyStatement);
+    for (ControlFlowBlock predecessor : Iterables.filter(block.predecessors(), ControlFlowBlock.class)) {
+      List<Tree> predecessorElements = predecessor.elements();
+      Tree predecessorLastElement = predecessorElements.get(predecessorElements.size() - 1);
+      if (!caseExpressions.contains(predecessorLastElement)) {
+        // We have to make sure that the predecessor is "before" in the source code
+        // to avoid false positives on switch clause statements starting with a loop.
+        int statementIndex = tokenIndex(firstNonEmptyStatement);
+        int predecessorIndex = tokenIndex(predecessorElements.get(0));
+        if (statementIndex > predecessorIndex) {
+          return true;
+        }
+      }
     }
-    return Iterables.getLast(statements).is(Kind.BREAK_STATEMENT, Kind.RETURN_STATEMENT, Kind.THROW_STATEMENT, Kind.CONTINUE_STATEMENT);
+    return false;
   }
+
+  private static int tokenIndex(Tree tree) {
+    JavaScriptTree jsTree = (JavaScriptTree) tree;
+    InternalSyntaxToken firstToken = (InternalSyntaxToken) jsTree.getFirstToken();
+    return firstToken.startIndex();
+  }
+
+  private static StatementTree firstNonEmptyStatement(List<StatementTree> statements) {
+    for (StatementTree statement : statements) {
+      if (statement.is(Kind.BLOCK)) {
+        StatementTree nestedFirstStatement = firstNonEmptyStatement(((BlockTree) statement).statements());
+        if (nestedFirstStatement != null) {
+          return nestedFirstStatement;
+        }
+      } else if (!statement.is(Kind.EMPTY_STATEMENT)) {
+        return statement;
+      }
+    }
+    return null;
+  }
+
+  private ControlFlowGraph getControlFlowGraph(SwitchStatementTree tree) {
+    Scope scope = getContext().getSymbolModel().getScope(tree);
+    while (scope.isBlock()) {
+      scope = scope.outer();
+    }
+    if (scope.isGlobal()) {
+      return ControlFlowGraph.build(getContext().getTopTree());
+    } else {
+      return ControlFlowGraph.build((BlockTree) ((FunctionTree) scope.tree()).body());
+    }
+  }
+
 }

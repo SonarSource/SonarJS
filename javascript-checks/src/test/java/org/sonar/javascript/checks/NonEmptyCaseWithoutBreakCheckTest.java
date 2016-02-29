@@ -19,22 +19,16 @@
  */
 package org.sonar.javascript.checks;
 
+import java.io.File;
 import org.junit.Test;
-import org.sonar.javascript.checks.tests.TreeCheckTest;
-import org.sonar.squidbridge.checks.CheckMessagesVerifier;
+import org.sonar.javascript.checks.utils.JavaScriptCheckVerifier;
 
-public class NonEmptyCaseWithoutBreakCheckTest extends TreeCheckTest {
+public class NonEmptyCaseWithoutBreakCheckTest {
 
   @Test
   public void test() {
     NonEmptyCaseWithoutBreakCheck check = new NonEmptyCaseWithoutBreakCheck();
-
-    CheckMessagesVerifier.verify(getIssues("src/test/resources/checks/nonEmptyCaseWithoutBreak.js", check))
-      .next().atLine(9).withMessage("End this switch case with an unconditional break, continue, return or throw statement.")
-      .next().atLine(18)
-      .next().atLine(29)
-      .next().atLine(31)
-      .noMore();
+    JavaScriptCheckVerifier.verify(check, new File("src/test/resources/checks/nonEmptyCaseWithoutBreak.js"));
   }
 
 }

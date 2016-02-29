@@ -1,21 +1,23 @@
-switch (param) {
-  case 0: // OK
-  case 1: // OK
-    break;
-  case 2: // OK
-    return;
-  case 3: // OK
-    throw new Error();
-  case 4: // NOK
-    doSomething();
-  case 5: // OK
-    continue;
-  default: // OK
-    doSomethingElse();
+while(condition) {
+  switch (param) {
+    case 0: // OK
+    case 1: // OK
+      break;
+    case 2: // OK
+      return;
+    case 3: // OK
+      throw new Error();
+    case 4: // Noncompliant {{End this switch case with an unconditional break, continue, return or throw statement.}}
+      doSomething();
+    case 5: // OK
+      continue;
+    default: // OK
+      doSomethingElse();
+  }
 }
 
 switch (param) {
-  default: // NOK
+  default: // Noncompliant
     doSomething();
   case 0: // OK
     doSomethingElse();
@@ -26,15 +28,58 @@ switch (param) {
     doSomething(); break;
   case 1: // OK
     { break; }
-  case 2: // NOK
+  case 2: // Noncompliant [[sc=3;ec=7]]
     {  }
-  case 3: // NOK
+  case 3: // Noncompliant
     {  doSomething(); }
   case 4: // OK
     { { return; } }
+  case 5: // OK
+    ;
+    break;
   default: // OK
     doSomethingElse();
 }
 
 switch (param) {
+}
+
+
+switch (param) {
+  case a:
+    break;
+  case c:
+    while(d) { doSomething(); }
+    break;
+  case g:
+    break;
+  case h || i:
+    break;
+  case j && k:
+    break;
+  case l ? m : n:
+    break;
+  case x: // Noncompliant
+    if (f) {
+      break;
+    }
+  case y: // OK
+    if (condition) {
+      return 0;
+    } else {
+      return 1;
+    }
+  default:
+    doSomething();
+}
+
+function inside_function() {
+  switch (param) {
+    case 0: // Noncompliant
+      doSomethingElse();
+    case 1:
+      break;
+    default:
+      doSomething();
+  }
 }

@@ -23,6 +23,7 @@ import com.google.common.base.Charsets;
 import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Ordering;
 import com.sonar.sslr.api.typed.ActionParser;
@@ -41,9 +42,12 @@ import org.sonar.javascript.tree.impl.lexical.InternalSyntaxToken;
 import org.sonar.javascript.utils.SourceBuilder;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
+import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.declaration.FunctionDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.declaration.FunctionTree;
 import org.sonar.plugins.javascript.api.tree.statement.BlockTree;
+import org.sonar.plugins.javascript.api.tree.statement.IterationStatementTree;
+import org.sonar.plugins.javascript.api.tree.statement.StatementTree;
 
 import static org.fest.assertions.Assertions.assertThat;
 
@@ -426,6 +430,12 @@ public class ControlFlowGraphTest {
     assertBlock(g, 1).hasSuccessors(END);
     assertBlock(g, 2).hasSuccessors(1, 3);
     assertBlock(g, 3).hasSuccessors(END);
+
+    g = build("switch(b0) { default: b1; case b2: b3; }", 4);
+    assertBlock(g, 0).hasSuccessors(2);
+    assertBlock(g, 1).hasSuccessors(3);
+    assertBlock(g, 2).hasSuccessors(1, 3);
+    assertBlock(g, 3).hasSuccessors(END);
   }
 
   @Test
@@ -584,7 +594,62 @@ public class ControlFlowGraphTest {
     MutableBlock block = new SimpleBlock(end);
     thrown.expect(IllegalArgumentException.class);
     thrown.expectMessage("Cannot build block");
-    new ControlFlowGraph(ImmutableSet.of(block), block, end);
+    new ControlFlowGraph(ImmutableSet.of(block), block, end, ImmutableMap.<StatementTree, MutableBlock>of());
+  }
+
+  @Test
+  public void statement_starting_block() throws Exception {
+    assertStartingBlock("dummy; if (a) {}", Kind.IF_STATEMENT, 0);
+    assertStartingBlock("dummy; var a;", Kind.VARIABLE_STATEMENT, 0);
+    assertStartingBlock("dummy; for(;foo();){}", Kind.FOR_STATEMENT, 1);
+    assertStartingBlock("dummy; for(;;){}", Kind.FOR_STATEMENT, 1);
+    assertStartingBlock("dummy; for(var i in obj){}", Kind.FOR_IN_STATEMENT, 1);
+    assertStartingBlock("dummy; while(condition){x;}", Kind.WHILE_STATEMENT, 1);
+    assertStartingBlock("dummy; do {x;} while(condition)", Kind.DO_WHILE_STATEMENT, 1);
+    assertStartingBlock("while(condition) { continue; }", Kind.CONTINUE_STATEMENT, 1);
+    assertStartingBlock("while(condition) { break; }", Kind.BREAK_STATEMENT, 1);
+    assertStartingBlock("dummy; return;", Kind.RETURN_STATEMENT, 0);
+    assertStartingBlock("dummy; label1: {}", Kind.LABELLED_STATEMENT, 0);
+    assertStartingBlock("dummy; label1: { return }", Kind.LABELLED_STATEMENT, 0);
+    assertStartingBlock("dummy; label1: while(c) {}", Kind.LABELLED_STATEMENT, 1);
+    assertStartingBlock("dummy; try { x } finally {}", Kind.TRY_STATEMENT, 0);
+    assertStartingBlock("dummy; throw e;", Kind.THROW_STATEMENT, 0);
+    assertStartingBlock("dummy; switch(e) {};", Kind.SWITCH_STATEMENT, 0);
+    assertStartingBlock("dummy; with(o) {};", Kind.WITH_STATEMENT, 0);
+    assertStartingBlock("dummy; debugger;", Kind.DEBUGGER_STATEMENT, 0);
+    assertStartingBlock("with(dummy); x = 1;", Kind.EXPRESSION_STATEMENT, 0);
+  }
+
+  private void assertStartingBlock(String source, Kind statementKind, int expectedStartingBlock) {
+    Tree tree = parser.parse(source);
+    ScriptTree scriptTree = (ScriptTree) tree;
+    ControlFlowGraph cfg = ControlFlowGraph.build(scriptTree);
+    List<Tree> statements = scriptTree.items().items();
+    StatementTree statement = findStatement(statements, statementKind);
+    if (statement == null) {
+      throw new IllegalArgumentException("Could not find statement with kind " + statementKind);
+    }
+    ControlFlowBlock actualStartingBlock = cfg.getStartingBlock((StatementTree) statement);
+    List<ControlFlowBlock> sortedBlocks = sortBlocks(cfg.blocks());
+    assertThat(sortedBlocks.indexOf(actualStartingBlock))
+      .describedAs("Starting block for " + statementKind)
+      .isEqualTo(expectedStartingBlock);
+  }
+
+  private StatementTree findStatement(List<? extends Tree> statements, Kind statementKind) {
+    for (Tree statement : statements) {
+      if (statement.is(statementKind)) {
+        return (StatementTree) statement;
+      }
+      if (statement instanceof IterationStatementTree) {
+        IterationStatementTree iterationStatementTree = (IterationStatementTree) statement;
+        if (iterationStatementTree.statement().is(Kind.BLOCK)) {
+          BlockTree block = (BlockTree) iterationStatementTree.statement();
+          return findStatement(block.statements(), statementKind);
+        }
+      }
+    }
+    return null;
   }
 
   private ControlFlowGraph build(String sourceCode, int expectedNumberOfBlocks) {

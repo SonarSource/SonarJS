@@ -56,6 +56,7 @@ import org.sonar.plugins.javascript.api.tree.statement.BlockTree;
 import org.sonar.plugins.javascript.api.tree.statement.BreakStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.CaseClauseTree;
 import org.sonar.plugins.javascript.api.tree.statement.ContinueStatementTree;
+import org.sonar.plugins.javascript.api.tree.statement.DebuggerStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.DoWhileStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.ExpressionStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.ForObjectStatementTree;
@@ -83,6 +84,7 @@ class ControlFlowGraphBuilder {
   private final EndBlock end = new EndBlock();
   private MutableBlock currentBlock = createSimpleBlock(end);
   private MutableBlock start;
+  private final Map<StatementTree, MutableBlock> startingBlockByStatement = new HashMap<>();
   private final Deque<Breakable> breakables = new ArrayDeque<>();
   private final Deque<MutableBlock> throwTargets = new ArrayDeque<>();
   private String currentLabel = null;
@@ -158,7 +160,7 @@ class ControlFlowGraphBuilder {
     build(items);
     start = currentBlock;
     removeEmptyBlocks();
-    return new ControlFlowGraph(blocks, start, end);
+    return new ControlFlowGraph(blocks, start, end, startingBlockByStatement);
   }
 
   private void removeEmptyBlocks() {
@@ -193,8 +195,10 @@ class ControlFlowGraphBuilder {
   private void build(Tree tree) {
     if (tree.is(Kind.EXPRESSION_STATEMENT)) {
       buildExpression(((ExpressionStatementTree) tree).expression());
+      markStatementStartingBlock((StatementTree) tree);
     } else if (tree.is(Kind.VARIABLE_STATEMENT)) {
       buildExpression(((VariableStatementTree) tree).declaration());
+      markStatementStartingBlock((StatementTree) tree);
     } else if (tree.is(Kind.IF_STATEMENT)) {
       visitIfStatement((IfStatementTree) tree);
     } else if (tree.is(Kind.FOR_STATEMENT)) {
@@ -225,6 +229,10 @@ class ControlFlowGraphBuilder {
       WithStatementTree with = (WithStatementTree) tree;
       build(with.statement());
       currentBlock.addElement(with.expression());
+      markStatementStartingBlock(with);
+    } else if (tree.is(Kind.DEBUGGER_STATEMENT)) {
+      currentBlock.addElement(tree);
+      markStatementStartingBlock((DebuggerStatementTree) tree);
     } else if (tree.is(
       Kind.FUNCTION_DECLARATION,
       Kind.GENERATOR_DECLARATION,
@@ -233,14 +241,17 @@ class ControlFlowGraphBuilder {
       Kind.IMPORT_MODULE_DECLARATION,
       Kind.DEFAULT_EXPORT_DECLARATION,
       Kind.NAMED_EXPORT_DECLARATION,
-      Kind.NAMESPACE_EXPORT_DECLARATION,
-      Kind.DEBUGGER_STATEMENT)) {
+      Kind.NAMESPACE_EXPORT_DECLARATION)) {
       currentBlock.addElement(tree);
     } else if (tree.is(Kind.EMPTY_STATEMENT)) {
       // Nothing to do
     } else {
       throw new IllegalArgumentException("Cannot build CFG for " + tree);
     }
+  }
+
+  private void markStatementStartingBlock(StatementTree tree) {
+    startingBlockByStatement.put((StatementTree) tree, currentBlock);
   }
 
   private void buildExpressions(List<? extends Tree> expressions) {
@@ -397,6 +408,7 @@ class ControlFlowGraphBuilder {
     if (tree.expression() != null) {
       buildExpression(tree.expression());
     }
+    markStatementStartingBlock(tree);
   }
 
   private void visitContinueStatement(ContinueStatementTree tree) {
@@ -411,6 +423,7 @@ class ControlFlowGraphBuilder {
     Preconditions.checkState(target != null, "No continue target can be found for label " + label);
     currentBlock.addDisconnectingJump(tree.continueKeyword());
     currentBlock = createSimpleBlock(tree, target);
+    markStatementStartingBlock(tree);
   }
 
   private void visitBreakStatement(BreakStatementTree tree) {
@@ -425,6 +438,7 @@ class ControlFlowGraphBuilder {
     Preconditions.checkState(target != null, "No break target can be found for label " + label);
     currentBlock.addDisconnectingJump(tree.breakKeyword());
     currentBlock = createSimpleBlock(tree, target);
+    markStatementStartingBlock(tree);
   }
 
   private void visitIfStatement(IfStatementTree tree) {
@@ -438,6 +452,7 @@ class ControlFlowGraphBuilder {
     BranchingBlock branchingBlock = createBranchingBlock(thenBlock, elseBlock);
     currentBlock = branchingBlock;
     buildExpression(tree.condition());
+    markStatementStartingBlock(tree);
   }
 
   private void visitForStatement(ForStatementTree tree) {
@@ -463,6 +478,7 @@ class ControlFlowGraphBuilder {
       linkToCondition.setSuccessor(loopBodyBlock);
     }
 
+    markStatementStartingBlock(tree);
     currentBlock = createSimpleBlock(linkToCondition);
     if (tree.init() != null) {
       buildExpression(tree.init());
@@ -480,6 +496,7 @@ class ControlFlowGraphBuilder {
     buildExpression(tree.variableOrExpression());
     buildExpression(tree.expression());
     linkToAssignment.setSuccessor(currentBlock);
+    markStatementStartingBlock(tree);
     currentBlock = createSimpleBlock(currentBlock);
   }
 
@@ -490,6 +507,7 @@ class ControlFlowGraphBuilder {
     currentBlock = createBranchingBlock(loopBodyBlock, successor);
     buildExpression(tree.condition());
     linkToCondition.setSuccessor(currentBlock);
+    markStatementStartingBlock(tree);
     currentBlock = createSimpleBlock(currentBlock);
   }
 
@@ -500,12 +518,24 @@ class ControlFlowGraphBuilder {
     buildExpression(tree.condition());
     MutableBlock loopBodyBlock = buildLoopBody(tree.statement(), currentBlock, successor);
     linkToBody.setSuccessor(loopBodyBlock);
+    markStatementStartingBlock(tree);
     currentBlock = createSimpleBlock(loopBodyBlock);
   }
 
   private void visitLabelledStatement(LabelledStatementTree tree) {
     currentLabel = tree.label().name();
     build(tree.statement());
+
+    StatementTree firstStatement = tree.statement();
+    if (firstStatement.is(Kind.BLOCK)) {
+      BlockTree block = (BlockTree) firstStatement;
+      if (block.statements().isEmpty()) {
+        markStatementStartingBlock(tree);
+        return;
+      }
+      firstStatement = block.statements().get(0);
+    }
+    startingBlockByStatement.put(tree, startingBlockByStatement.get(firstStatement));
   }
 
   private void visitTryStatement(TryStatementTree tree) {
@@ -537,21 +567,20 @@ class ControlFlowGraphBuilder {
     build(tree.block());
     throwTargets.pop();
 
-    if (catchOrFinallyBlock != null) {
-      currentBlock = createBranchingBlock(currentBlock, catchOrFinallyBlock);
-      currentBlock.addElement(tree.tryKeyword());
-    }
+    currentBlock = createBranchingBlock(currentBlock, catchOrFinallyBlock);
+    currentBlock.addElement(tree.tryKeyword());
+    markStatementStartingBlock(tree);
   }
 
   private void visitThrowStatement(ThrowStatementTree tree) {
     currentBlock.addDisconnectingJump(tree.throwKeyword());
     currentBlock = createSimpleBlock(throwTargets.peek());
     buildExpression(tree.expression());
+    markStatementStartingBlock(tree);
   }
 
   private void visitSwitchStatement(SwitchStatementTree tree) {
     addBreakable(currentBlock, null);
-    MutableBlock switchNextBlock = currentBlock;
     MutableBlock nextStatementBlock = currentBlock;
     ForwardingBlock defaultForwardingBlock = createForwardingBlock();
     defaultForwardingBlock.setSuccessor(currentBlock);
@@ -573,7 +602,7 @@ class ControlFlowGraphBuilder {
 
       } else {
 
-        currentBlock = createSimpleBlock(switchNextBlock);
+        currentBlock = createSimpleBlock(nextStatementBlock);
         build(switchCaseClause.statements());
         defaultForwardingBlock.setSuccessor(currentBlock);
 
@@ -587,6 +616,7 @@ class ControlFlowGraphBuilder {
     removeBreakable();
     currentBlock = createSimpleBlock(nextCase);
     buildExpression(tree.expression());
+    markStatementStartingBlock(tree);
   }
 
   private MutableBlock buildLoopBody(StatementTree body, MutableBlock conditionBlock, MutableBlock breakTarget) {
