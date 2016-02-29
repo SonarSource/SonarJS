@@ -28,6 +28,7 @@ import org.sonar.check.Rule;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.expression.BinaryExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
+import org.sonar.plugins.javascript.api.tree.expression.LiteralTree;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
@@ -43,15 +44,44 @@ public class StringConcatenationCheck extends DoubleDispatchVisitorCheck {
 
   private static final String MESSAGE = "Convert this concatenation to the use of a template.";
 
+  // with quote symbols
+  private static final int MIN_LITERAL_LENGTH = 6;
+
   @Override
   public void visitBinaryExpression(BinaryExpressionTree tree) {
     Builder<ExpressionTree> operandListBuilder = ImmutableList.builder();
     checkBinaryExpression(tree, operandListBuilder);
     List<ExpressionTree> operandList = operandListBuilder.build().reverse();
 
-    if (operandList.size() > 2 && atLeastOneLiteral(operandList)) {
+    if (meetConditions(operandList)) {
       addIssue(tree, MESSAGE);
     }
+  }
+
+  /**
+   * 1. More than 2 operands in concatenation expression.
+   * 2. At least one string literal.
+   * 3. At least half of the string literals are long.
+   */
+  private static boolean meetConditions(List<ExpressionTree> operandList) {
+    if (operandList.size() > 2) {
+      int literalsNum = 0;
+      int shortLiteralsNum = 0;
+
+      for (ExpressionTree operand : operandList) {
+        if (operand.is(Kind.TEMPLATE_LITERAL, Kind.STRING_LITERAL)) {
+          literalsNum++;
+        }
+
+        if (operand.is(Kind.STRING_LITERAL) && ((LiteralTree) operand).value().length() < MIN_LITERAL_LENGTH) {
+          shortLiteralsNum++;
+        }
+      }
+
+      return literalsNum > 0 && shortLiteralsNum <= literalsNum / 2.;
+    }
+
+    return false;
   }
 
   private void checkBinaryExpression(BinaryExpressionTree tree, Builder<ExpressionTree> operandListBuilder) {
@@ -71,14 +101,5 @@ public class StringConcatenationCheck extends DoubleDispatchVisitorCheck {
     } else {
       scan(tree.leftOperand());
     }
-  }
-
-  private static boolean atLeastOneLiteral(List<ExpressionTree> operandList) {
-    for (ExpressionTree operand : operandList) {
-      if (operand.is(Kind.STRING_LITERAL, Kind.TEMPLATE_LITERAL)) {
-        return true;
-      }
-    }
-    return false;
   }
 }
