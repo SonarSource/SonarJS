@@ -41,7 +41,7 @@ function functionParameter(p) { // OK
 
 function read_write() {
   var i = 0;
-  var j = i++;
+  var j = i++; // false negative: we don't handle ++ and -- for the moment
   doSomething(j);
 }
 

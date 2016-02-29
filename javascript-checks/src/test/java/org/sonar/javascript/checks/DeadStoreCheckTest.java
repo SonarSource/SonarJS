@@ -21,10 +21,9 @@ package org.sonar.javascript.checks;
 
 import java.io.File;
 import org.junit.Test;
-import org.sonar.javascript.checks.tests.TreeCheckTest;
 import org.sonar.javascript.checks.utils.JavaScriptCheckVerifier;
 
-public class DeadStoreCheckTest extends TreeCheckTest {
+public class DeadStoreCheckTest {
 
   private DeadStoreCheck check = new DeadStoreCheck();
 

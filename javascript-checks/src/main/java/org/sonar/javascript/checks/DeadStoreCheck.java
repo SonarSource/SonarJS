@@ -24,13 +24,13 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.SetMultimap;
 import java.util.ArrayDeque;
-import java.util.Collection;
 import java.util.Deque;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
@@ -95,12 +95,15 @@ public class DeadStoreCheck extends DoubleDispatchVisitorCheck {
       return;
     }
 
-    Usages usages = new Usages(functionTree);
-    checkCFG(ControlFlowGraph.build((BlockTree) functionTree.body()), usages);
+    checkCFG(ControlFlowGraph.build((BlockTree) functionTree.body()), functionTree);
   }
 
-  private void checkCFG(ControlFlowGraph cfg, Usages usages) {
-    Collection<BlockLiveness> livenesses = buildUsagesAndLivenesses(cfg, usages);
+  // Identifying dead stores is basically "live variable analysis".
+  // See https://en.wikipedia.org/wiki/Live_variable_analysis
+  private void checkCFG(ControlFlowGraph cfg, FunctionTree functionTree) {
+    Usages usages = new Usages(functionTree);
+    Set<BlockLiveness> livenesses = new HashSet<>();
+    buildUsagesAndLivenesses(cfg, usages, livenesses);
 
     for (BlockLiveness blockLiveness : livenesses) {
       checkBlock(blockLiveness, usages);
@@ -139,12 +142,19 @@ public class DeadStoreCheck extends DoubleDispatchVisitorCheck {
     addIssue(element, String.format(MESSAGE, symbol.name()));
   }
 
-  private Collection<BlockLiveness> buildUsagesAndLivenesses(ControlFlowGraph cfg, Usages usages) {
+  private void buildUsagesAndLivenesses(ControlFlowGraph cfg, Usages usages, Set<BlockLiveness> livenesses) {
     Map<ControlFlowNode, BlockLiveness> livenessPerBlock = new HashMap<>();
     for (ControlFlowBlock block : cfg.blocks()) {
-      livenessPerBlock.put(block, new BlockLiveness(block, usages));
+      BlockLiveness blockLiveness = new BlockLiveness(block, usages);
+      livenessPerBlock.put(block, blockLiveness);
+      livenesses.add(blockLiveness);
     }
 
+    // To compute the set of variables which are live OUT of a block, we need to have the
+    // set of variables which are live IN its successors.
+    // As the CFG may contain cycles between blocks (that's the case for loops), we use a queue
+    // to keep track of blocks which may need to be updated.
+    // See "worklist algorithm" in http://www.cs.cornell.edu/courses/cs4120/2013fa/lectures/lec26-fa13.pdf
     Deque<ControlFlowNode> queue = new ArrayDeque<ControlFlowNode>(cfg.blocks());
     while (!queue.isEmpty()) {
       ControlFlowNode block = queue.pop();
@@ -156,8 +166,6 @@ public class DeadStoreCheck extends DoubleDispatchVisitorCheck {
         }
       }
     }
-
-    return livenessPerBlock.values();
   }
 
   @CheckForNull
@@ -250,7 +258,7 @@ public class DeadStoreCheck extends DoubleDispatchVisitorCheck {
       return usage;
     }
 
-    private void addSymbol(Symbol symbol) {
+    private void addSymbol(@Nullable Symbol symbol) {
       if (symbol == null || symbols.contains(symbol)) {
         return;
       }

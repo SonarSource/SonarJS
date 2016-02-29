@@ -87,6 +87,60 @@ class ControlFlowGraphBuilder {
   private final Deque<MutableBlock> throwTargets = new ArrayDeque<>();
   private String currentLabel = null;
 
+  private static final Kind[] SIMPLE_BINARY_KINDS = {
+    Kind.MULTIPLY,
+    Kind.DIVIDE,
+    Kind.REMAINDER,
+    Kind.PLUS,
+    Kind.MINUS,
+    Kind.LEFT_SHIFT,
+    Kind.RIGHT_SHIFT,
+    Kind.UNSIGNED_RIGHT_SHIFT,
+    Kind.RELATIONAL_IN,
+    Kind.INSTANCE_OF,
+    Kind.LESS_THAN,
+    Kind.GREATER_THAN,
+    Kind.LESS_THAN_OR_EQUAL_TO,
+    Kind.GREATER_THAN_OR_EQUAL_TO,
+    Kind.EQUAL_TO,
+    Kind.STRICT_EQUAL_TO,
+    Kind.NOT_EQUAL_TO,
+    Kind.STRICT_NOT_EQUAL_TO,
+    Kind.BITWISE_AND,
+    Kind.BITWISE_XOR,
+    Kind.BITWISE_OR,
+    Kind.COMMA_OPERATOR
+  };
+
+  private static final Kind[] ASSIGNMENT_KINDS = {
+    Kind.ASSIGNMENT,
+    Kind.MULTIPLY_ASSIGNMENT,
+    Kind.DIVIDE_ASSIGNMENT,
+    Kind.REMAINDER_ASSIGNMENT,
+    Kind.PLUS_ASSIGNMENT,
+    Kind.MINUS_ASSIGNMENT,
+    Kind.LEFT_SHIFT_ASSIGNMENT,
+    Kind.RIGHT_SHIFT_ASSIGNMENT,
+    Kind.UNSIGNED_RIGHT_SHIFT_ASSIGNMENT,
+    Kind.AND_ASSIGNMENT,
+    Kind.XOR_ASSIGNMENT,
+    Kind.OR_ASSIGNMENT
+  };
+
+  private static final Kind[] UNARY_KINDS = {
+    Kind.POSTFIX_INCREMENT,
+    Kind.POSTFIX_DECREMENT,
+    Kind.PREFIX_INCREMENT,
+    Kind.PREFIX_DECREMENT,
+    Kind.DELETE,
+    Kind.VOID,
+    Kind.TYPEOF,
+    Kind.UNARY_PLUS,
+    Kind.UNARY_MINUS,
+    Kind.BITWISE_COMPLEMENT,
+    Kind.LOGICAL_COMPLEMENT
+  };
+
   public ControlFlowGraph createGraph(ScriptTree tree) {
     List<Tree> items = ImmutableList.of();
     if (tree.items() != null) {
@@ -197,109 +251,80 @@ class ControlFlowGraphBuilder {
 
   private void buildExpression(Tree tree) {
     currentBlock.addElement(tree);
-    if (tree.is(
-      Kind.MULTIPLY,
-      Kind.DIVIDE,
-      Kind.REMAINDER,
-      Kind.PLUS,
-      Kind.MINUS,
-      Kind.LEFT_SHIFT,
-      Kind.RIGHT_SHIFT,
-      Kind.UNSIGNED_RIGHT_SHIFT,
-      Kind.RELATIONAL_IN,
-      Kind.INSTANCE_OF,
-      Kind.LESS_THAN,
-      Kind.GREATER_THAN,
-      Kind.LESS_THAN_OR_EQUAL_TO,
-      Kind.GREATER_THAN_OR_EQUAL_TO,
-      Kind.EQUAL_TO,
-      Kind.STRICT_EQUAL_TO,
-      Kind.NOT_EQUAL_TO,
-      Kind.STRICT_NOT_EQUAL_TO,
-      Kind.BITWISE_AND,
-      Kind.BITWISE_XOR,
-      Kind.BITWISE_OR,
-      Kind.COMMA_OPERATOR)) {
+
+    if (tree.is(SIMPLE_BINARY_KINDS)) {
       BinaryExpressionTree binary = (BinaryExpressionTree) tree;
       buildExpression(binary.rightOperand());
       buildExpression(binary.leftOperand());
-    } else if (tree.is(
-      Kind.ASSIGNMENT,
-      Kind.MULTIPLY_ASSIGNMENT,
-      Kind.DIVIDE_ASSIGNMENT,
-      Kind.REMAINDER_ASSIGNMENT,
-      Kind.PLUS_ASSIGNMENT,
-      Kind.MINUS_ASSIGNMENT,
-      Kind.LEFT_SHIFT_ASSIGNMENT,
-      Kind.RIGHT_SHIFT_ASSIGNMENT,
-      Kind.UNSIGNED_RIGHT_SHIFT_ASSIGNMENT,
-      Kind.AND_ASSIGNMENT,
-      Kind.XOR_ASSIGNMENT,
-      Kind.OR_ASSIGNMENT)) {
+
+    } else if (tree.is(ASSIGNMENT_KINDS)) {
       AssignmentExpressionTree assignment = (AssignmentExpressionTree) tree;
       buildExpression(assignment.variable());
       buildExpression(assignment.expression());
-    } else if (tree.is(
-      Kind.POSTFIX_INCREMENT,
-      Kind.POSTFIX_DECREMENT,
-      Kind.PREFIX_INCREMENT,
-      Kind.PREFIX_DECREMENT,
-      Kind.DELETE,
-      Kind.VOID,
-      Kind.TYPEOF,
-      Kind.UNARY_PLUS,
-      Kind.UNARY_MINUS,
-      Kind.BITWISE_COMPLEMENT,
-      Kind.LOGICAL_COMPLEMENT)) {
+
+    } else if (tree.is(UNARY_KINDS)) {
       UnaryExpressionTree unary = (UnaryExpressionTree) tree;
       buildExpression(unary.expression());
+
     } else if (tree.is(Kind.ARRAY_LITERAL)) {
       ArrayLiteralTree arrayLiteral = (ArrayLiteralTree) tree;
       buildExpressions(arrayLiteral.elements());
+
     } else if (tree.is(Kind.OBJECT_LITERAL)) {
       ObjectLiteralTree objectLiteral = (ObjectLiteralTree) tree;
       buildExpressions(objectLiteral.properties());
+
     } else if (tree.is(Kind.DOT_MEMBER_EXPRESSION)) {
       MemberExpressionTree memberExpression = (MemberExpressionTree) tree;
       buildExpression(memberExpression.object());
+
     } else if (tree.is(Kind.BRACKET_MEMBER_EXPRESSION)) {
       MemberExpressionTree memberExpression = (MemberExpressionTree) tree;
       buildExpression(memberExpression.property());
       buildExpression(memberExpression.object());
+
     } else if (tree.is(Kind.CALL_EXPRESSION)) {
       CallExpressionTree callExpression = (CallExpressionTree) tree;
       buildExpressions(callExpression.arguments().parameters());
       buildExpression(callExpression.callee());
+
     } else if (tree.is(Kind.VAR_DECLARATION, Kind.LET_DECLARATION, Kind.CONST_DECLARATION)) {
       VariableDeclarationTree declaration = (VariableDeclarationTree) tree;
       buildExpressions(declaration.variables());
+
     } else if (tree.is(Kind.INITIALIZED_BINDING_ELEMENT)) {
       InitializedBindingElementTree initializedBindingElementTree = (InitializedBindingElementTree) tree;
       buildExpression(initializedBindingElementTree.left());
       buildExpression(initializedBindingElementTree.right());
+
     } else if (tree.is(Kind.PAIR_PROPERTY)) {
       PairPropertyTree pairProperty = (PairPropertyTree) tree;
       buildExpression(pairProperty.value());
       buildExpression(pairProperty.key());
+
     } else if (tree.is(Kind.COMPUTED_PROPERTY_NAME)) {
       ComputedPropertyNameTree computedPropertyName = (ComputedPropertyNameTree) tree;
       buildExpression(computedPropertyName.expression());
+
     } else if (tree.is(Kind.NEW_EXPRESSION)) {
       NewExpressionTree newExpression = (NewExpressionTree) tree;
       if (newExpression.arguments() != null) {
         buildExpressions(newExpression.arguments().parameters());
       }
       buildExpression(newExpression.expression());
+
     } else if (tree.is(Kind.CONDITIONAL_AND)) {
       BinaryExpressionTree binary = (BinaryExpressionTree) tree;
       buildExpression(binary.rightOperand());
       currentBlock = createBranchingBlock(currentBlock, currentBlock.falseSuccessor());
       buildExpression(binary.leftOperand());
+
     } else if (tree.is(Kind.CONDITIONAL_OR)) {
       BinaryExpressionTree binary = (BinaryExpressionTree) tree;
       buildExpression(binary.rightOperand());
       currentBlock = createBranchingBlock(currentBlock, currentBlock.trueSuccessor());
       buildExpression(binary.leftOperand());
+
     } else if (tree.is(Kind.CONDITIONAL_EXPRESSION)) {
       ConditionalExpressionTree conditionalExpression = (ConditionalExpressionTree) tree;
       MutableBlock successor = currentBlock;
@@ -311,22 +336,28 @@ class ControlFlowGraphBuilder {
       MutableBlock trueBlock = currentBlock;
       currentBlock = createBranchingBlock(trueBlock, falseBlock);
       buildExpression(conditionalExpression.condition());
+
     } else if (tree.is(Kind.REST_ELEMENT)) {
       RestElementTree restElement = (RestElementTree) tree;
       buildExpression(restElement.element());
+
     } else if (tree.is(Kind.PARENTHESISED_EXPRESSION)) {
       ParenthesisedExpressionTree parenthesisedExpression = (ParenthesisedExpressionTree) tree;
       buildExpression(parenthesisedExpression.expression());
+
     } else if (tree.is(Kind.TEMPLATE_LITERAL)) {
       TemplateLiteralTree templateLiteral = (TemplateLiteralTree) tree;
       buildExpressions(templateLiteral.expressions());
+
     } else if (tree.is(Kind.TEMPLATE_EXPRESSION)) {
       TemplateExpressionTree templateExpression = (TemplateExpressionTree) tree;
       buildExpression(templateExpression.expression());
+
     } else if (tree.is(Kind.TAGGED_TEMPLATE)) {
       TaggedTemplateTree taggedTemplate = (TaggedTemplateTree) tree;
       buildExpression(taggedTemplate.template());
       buildExpression(taggedTemplate.callee());
+
     } else if (tree.is(Kind.YIELD_EXPRESSION)) {
       YieldExpressionTree yieldExpression = (YieldExpressionTree) tree;
       buildExpression(yieldExpression.argument());
