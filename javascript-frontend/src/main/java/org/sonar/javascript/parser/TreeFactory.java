@@ -235,7 +235,7 @@ public class TreeFactory {
     return variableDeclaration(token, variables);
   }
 
-  private SeparatedList<BindingElementTree> bindingElementList(BindingElementTree element, Optional<List<Tuple<InternalSyntaxToken, BindingElementTree>>> rest) {
+  private static SeparatedList<BindingElementTree> bindingElementList(BindingElementTree element, Optional<List<Tuple<InternalSyntaxToken, BindingElementTree>>> rest) {
 
     ImmutableList.Builder<BindingElementTree> elements = ImmutableList.builder();
     ImmutableList.Builder<InternalSyntaxToken> commas = ImmutableList.builder();
@@ -755,7 +755,7 @@ public class TreeFactory {
     return buildBinaryExpression(expression, operatorAndOperands);
   }
 
-  private ExpressionTree buildBinaryExpression(ExpressionTree expression, Optional<List<Tuple<InternalSyntaxToken, ExpressionTree>>> operatorAndOperands) {
+  private static ExpressionTree buildBinaryExpression(ExpressionTree expression, Optional<List<Tuple<InternalSyntaxToken, ExpressionTree>>> operatorAndOperands) {
     if (!operatorAndOperands.isPresent()) {
       return expression;
     }
@@ -1484,7 +1484,7 @@ public class TreeFactory {
     }
   }
 
-  private <T, U> Tuple<T, U> newTuple(T first, U second) {
+  private static <T, U> Tuple<T, U> newTuple(T first, U second) {
     return new Tuple<>(first, second);
   }
 

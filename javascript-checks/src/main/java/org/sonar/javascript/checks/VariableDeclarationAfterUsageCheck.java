@@ -58,10 +58,15 @@ public class VariableDeclarationAfterUsageCheck extends DoubleDispatchVisitorChe
     }
   }
 
-  private class LineComparator implements Comparator<Usage> {
+  private static class LineComparator implements Comparator<Usage> {
+
     @Override
     public int compare(Usage usage1, Usage usage2) {
       return Integer.compare(getLine(usage1), getLine(usage2));
+    }
+
+    private static int getLine(Usage usage) {
+      return ((JavaScriptTree) usage.identifierTree()).getLine();
     }
   }
 
@@ -85,10 +90,6 @@ public class VariableDeclarationAfterUsageCheck extends DoubleDispatchVisitorChe
       }
 
     }
-  }
-
-  private static int getLine(Usage usage) {
-    return ((JavaScriptTree) usage.identifierTree()).getLine();
   }
 
 }

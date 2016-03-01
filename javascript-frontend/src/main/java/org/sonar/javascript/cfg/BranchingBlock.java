@@ -23,7 +23,6 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableSet;
 import java.util.Map;
 import java.util.Set;
-import org.sonar.plugins.javascript.api.tree.Tree;
 
 /**
  * A {@link MutableBlock} with 2 successors: represents a block ending
@@ -33,14 +32,6 @@ class BranchingBlock extends MutableBlock {
 
   private MutableBlock trueSuccessor = null;
   private MutableBlock falseSuccessor = null;
-
-  public BranchingBlock(Tree element) {
-    addElement(element);
-  }
-
-  public BranchingBlock() {
-    // no element
-  }
 
   @Override
   public Set<MutableBlock> successors() {

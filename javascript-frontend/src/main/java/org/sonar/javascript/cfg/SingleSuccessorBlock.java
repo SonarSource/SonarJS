@@ -50,7 +50,6 @@ abstract class SingleSuccessorBlock extends MutableBlock {
 
   public MutableBlock skipEmptyBlocks() {
     MutableBlock block = this;
-    // BranchingBlock cannot be empty, EndBlock cannot be skipped.
     while (block instanceof SingleSuccessorBlock && block.isEmpty()) {
       block = ((SingleSuccessorBlock) block).successor();
     }

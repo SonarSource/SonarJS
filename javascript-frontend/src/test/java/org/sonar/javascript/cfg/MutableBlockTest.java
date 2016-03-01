@@ -36,7 +36,8 @@ public class MutableBlockTest {
   private final EndBlock end = new EndBlock();
   private final SimpleBlock simple1 = new SimpleBlock(end);
   private final SimpleBlock simple2 = new SimpleBlock(end);
-  private final BranchingBlock branching1 = new BranchingBlock(tree1);
+  private final BranchingBlock branching1 = new BranchingBlock();
+  private final ForwardingBlock forwarding = new ForwardingBlock();
 
   @Test(expected = IllegalStateException.class)
   public void unset_branch_successors() throws Exception {
@@ -47,6 +48,8 @@ public class MutableBlockTest {
   public void branch_successors() throws Exception {
     branching1.setSuccessors(simple1, simple2);
     assertThat(branching1.successors()).containsOnly(simple1, simple2);
+    assertThat(branching1.trueSuccessor()).isEqualTo(simple1);
+    assertThat(branching1.falseSuccessor()).isEqualTo(simple2);
   }
 
   @Test(expected = IllegalArgumentException.class)
@@ -71,7 +74,10 @@ public class MutableBlockTest {
 
   @Test
   public void simple_successor() throws Exception {
-    assertThat(new SimpleBlock(simple1).successors()).containsOnly(simple1);
+    SimpleBlock simpleBlock = new SimpleBlock(simple1);
+    assertThat(simpleBlock.successors()).containsOnly(simple1);
+    assertThat(simpleBlock.trueSuccessor()).isEqualTo(simple1);
+    assertThat(simpleBlock.falseSuccessor()).isEqualTo(simple1);
   }
 
   @Test(expected = IllegalArgumentException.class)
@@ -103,6 +109,26 @@ public class MutableBlockTest {
   @Test(expected = IllegalArgumentException.class)
   public void cannot_add_null_element() throws Exception {
     simple1.addElement(null);
+  }
+
+  @Test(expected = IllegalStateException.class)
+  public void forwarding_with_no_successor() throws Exception {
+    forwarding.successor();
+  }
+
+  @Test(expected = UnsupportedOperationException.class)
+  public void cannot_add_element_to_forwarding() throws Exception {
+    forwarding.addElement(tree1);
+  }
+
+  @Test(expected = UnsupportedOperationException.class)
+  public void true_successor_is_not_supported_by_end() throws Exception {
+    end.trueSuccessor();
+  }
+
+  @Test(expected = UnsupportedOperationException.class)
+  public void false_successor_is_not_supported_by_end() throws Exception {
+    end.falseSuccessor();
   }
 
 }

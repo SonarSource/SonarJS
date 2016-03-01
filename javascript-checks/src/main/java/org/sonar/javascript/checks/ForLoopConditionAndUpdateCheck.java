@@ -91,7 +91,7 @@ public class ForLoopConditionAndUpdateCheck extends DoubleDispatchVisitorCheck {
     return null;
   }
 
-  private List<ExpressionTree> updatedExpressions(ExpressionTree expression) {
+  private static List<ExpressionTree> updatedExpressions(ExpressionTree expression) {
     if (expression == null) {
       return ImmutableList.<ExpressionTree>of();
     }
