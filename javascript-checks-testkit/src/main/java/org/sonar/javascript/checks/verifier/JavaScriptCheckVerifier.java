@@ -43,6 +43,8 @@ import org.sonar.squidbridge.checks.CheckMessagesVerifier;
 
 import static org.fest.assertions.Assertions.assertThat;
 
+import static org.junit.Assert.fail;
+
 public class JavaScriptCheckVerifier extends SubscriptionVisitorCheck {
 
   private final List<TestIssue> expectedIssues = new ArrayList<>();
@@ -116,10 +118,10 @@ public class JavaScriptCheckVerifier extends SubscriptionVisitorCheck {
 
   private static void verifyIssue(TestIssue expected, Issue actual) {
     if (line(actual) > expected.line()) {
-      throw new AssertionError("Missing issue at line " + expected.line());
+      fail("Missing issue at line " + expected.line());
     }
     if (line(actual) < expected.line()) {
-      throw new AssertionError("Unexpected issue at line " + line(actual) + ": \"" + message(actual) + "\"");
+      fail("Unexpected issue at line " + line(actual) + ": \"" + message(actual) + "\"");
     }
     if (expected.message() != null) {
       assertThat(message(actual)).as("Bad message at line " + expected.line()).isEqualTo(expected.message());
