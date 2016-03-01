@@ -47,6 +47,7 @@
     <module>sonar-compat</module>
     <module>sonar-javascript-plugin</module>
     <module>its</module>
+    <module>javascript-checks-testkit</module>
   </modules>
 
   <scm>
@@ -79,6 +80,12 @@
         <artifactId>javascript-frontend</artifactId>
         <version>${project.version}</version>
       </dependency>
+      <dependency>
+        <groupId>${project.groupId}</groupId>
+        <artifactId>javascript-checks-testkit</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+
       <dependency>
         <groupId>org.codehaus.sonar</groupId>
         <artifactId>sonar-plugin-api</artifactId>

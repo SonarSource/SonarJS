@@ -19,18 +19,18 @@
  */
 package org.sonar.javascript.checks;
 
+import java.io.File;
 import org.junit.Test;
-import org.sonar.javascript.checks.tests.TreeCheckTest;
-import org.sonar.squidbridge.checks.CheckMessagesVerifier;
+import org.sonar.javascript.checks.verifier.JavaScriptCheckVerifier;
 
-public class LineLengthCheckTest extends TreeCheckTest {
+public class LineLengthCheckTest {
 
   @Test
   public void test() {
     LineLengthCheck check = new LineLengthCheck();
     check.maximumLineLength = 30;
 
-    CheckMessagesVerifier.verify(getIssues("src/test/resources/checks/lineLength.js", check))
+    JavaScriptCheckVerifier.issues(check, new File("src/test/resources/checks/lineLength.js"))
       .next().atLine(2).withMessage("Split this 44 characters long line (which is greater than 30 authorized).")
       .next().atLine(5)
       .noMore();

@@ -19,15 +19,15 @@
  */
 package org.sonar.javascript.checks;
 
+import java.io.File;
 import org.junit.Test;
-import org.sonar.javascript.checks.tests.TreeCheckTest;
-import org.sonar.squidbridge.checks.CheckMessagesVerifier;
+import org.sonar.javascript.checks.verifier.JavaScriptCheckVerifier;
 
-public class UselessExpressionStatementCheckTest extends TreeCheckTest {
+public class UselessExpressionStatementCheckTest {
 
   @Test
   public void test() {
-    CheckMessagesVerifier.verify(getIssues("src/test/resources/checks/UselessExpressionStatement.js", new UselessExpressionStatementCheck()))
+    JavaScriptCheckVerifier.issues(new UselessExpressionStatementCheck(), new File("src/test/resources/checks/UselessExpressionStatement.js"))
       .next().atLine(12).withMessage("Refactor or remove this statement.")
       .next().atLine(13)
       .next().atLine(15)

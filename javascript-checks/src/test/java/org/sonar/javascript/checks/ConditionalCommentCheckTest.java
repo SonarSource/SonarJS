@@ -19,17 +19,17 @@
  */
 package org.sonar.javascript.checks;
 
+import java.io.File;
 import org.junit.Test;
-import org.sonar.javascript.checks.tests.TreeCheckTest;
-import org.sonar.squidbridge.checks.CheckMessagesVerifier;
+import org.sonar.javascript.checks.verifier.JavaScriptCheckVerifier;
 
-public class ConditionalCommentCheckTest extends TreeCheckTest {
+public class ConditionalCommentCheckTest {
 
   @Test
   public void test() {
     ConditionalCommentCheck check = new ConditionalCommentCheck();
 
-    CheckMessagesVerifier.verify(getIssues("src/test/resources/checks/conditionalComment.js", check))
+    JavaScriptCheckVerifier.issues(check, new File("src/test/resources/checks/conditionalComment.js"))
       .next().atLine(1).withMessage("Refactor your code to avoid using Internet Explorer's conditional comments.")
       .next().atLine(7)
       .noMore();

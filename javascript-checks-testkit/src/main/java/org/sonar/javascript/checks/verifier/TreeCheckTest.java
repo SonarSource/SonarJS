@@ -17,15 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.javascript.checks.tests;
+package org.sonar.javascript.checks.verifier;
 
-import com.sonar.sslr.api.RecognitionException;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import org.sonar.javascript.visitors.JavaScriptVisitorContext;
-import org.sonar.javascript.checks.ParsingErrorCheck;
 import org.sonar.plugins.javascript.api.JavaScriptCheck;
 import org.sonar.plugins.javascript.api.visitors.FileIssue;
 import org.sonar.plugins.javascript.api.visitors.Issue;
@@ -33,21 +31,16 @@ import org.sonar.plugins.javascript.api.visitors.LineIssue;
 import org.sonar.plugins.javascript.api.visitors.PreciseIssue;
 import org.sonar.squidbridge.api.CheckMessage;
 
-public class TreeCheckTest {
+class TreeCheckTest {
 
-  public Collection<CheckMessage> getIssues(String relativePath, JavaScriptCheck check) {
+  private TreeCheckTest() {
+  }
+
+  public static Collection<CheckMessage> getIssues(String relativePath, JavaScriptCheck check) {
     File file = new File(relativePath);
-    List<Issue> issues = new ArrayList<>();
 
-    try {
-      JavaScriptVisitorContext context = TestUtils.createContext(file);
-      issues = check.scanFile(context);
-
-    } catch (RecognitionException e) {
-      if (check instanceof ParsingErrorCheck) {
-        issues.add(new LineIssue(check, e.getLine(), e.getMessage()));
-      }
-    }
+    JavaScriptVisitorContext context = TestUtils.createContext(file);
+    List<Issue> issues = check.scanFile(context);
 
     return getCheckMessages(issues);
   }

@@ -19,17 +19,17 @@
  */
 package org.sonar.javascript.checks;
 
+import java.io.File;
 import org.junit.Test;
-import org.sonar.javascript.checks.tests.TreeCheckTest;
-import org.sonar.squidbridge.checks.CheckMessagesVerifier;
+import org.sonar.javascript.checks.verifier.JavaScriptCheckVerifier;
 
-public class SwitchWithNotEnoughCaseCheckTest extends TreeCheckTest {
+public class SwitchWithNotEnoughCaseCheckTest {
 
   private SwitchWithNotEnoughCaseCheck check = new SwitchWithNotEnoughCaseCheck();
 
   @Test
   public void test() {
-    CheckMessagesVerifier.verify(getIssues("src/test/resources/checks/switchWithNotEnoughCase.js", check))
+    JavaScriptCheckVerifier.issues(check, new File("src/test/resources/checks/switchWithNotEnoughCase.js"))
       .next().atLine(1)
       .next().atLine(9)
       .noMore();

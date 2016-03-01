@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.javascript.checks.utils;
+package org.sonar.javascript.checks.verifier;
 
 import com.google.common.base.Function;
 import com.google.common.base.Splitter;
@@ -28,10 +28,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import javax.annotation.Nullable;
-import org.fest.assertions.Assertions;
 import org.sonar.javascript.visitors.JavaScriptVisitorContext;
-import org.sonar.javascript.checks.tests.TestIssue;
-import org.sonar.javascript.checks.tests.TestUtils;
 import org.sonar.plugins.javascript.api.JavaScriptCheck;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
@@ -42,12 +39,53 @@ import org.sonar.plugins.javascript.api.visitors.IssueLocation;
 import org.sonar.plugins.javascript.api.visitors.LineIssue;
 import org.sonar.plugins.javascript.api.visitors.PreciseIssue;
 import org.sonar.plugins.javascript.api.visitors.SubscriptionVisitorCheck;
+import org.sonar.squidbridge.checks.CheckMessagesVerifier;
+
+import static org.fest.assertions.Assertions.assertThat;
 
 public class JavaScriptCheckVerifier extends SubscriptionVisitorCheck {
 
   private final List<TestIssue> expectedIssues = new ArrayList<>();
 
+  /**
+   * Example:
+   * <pre>
+   * JavaScriptCheckVerifier.issues(new MyCheck(), myFile))
+   *    .next().atLine(2).withMessage("This is message for line 2.")
+   *    .next().atLine(3).withMessage("This is message for line 3.").withCost(2.)
+   *    .next().atLine(8)
+   *    .noMore();
+   * </pre>
+   */
+  public static CheckMessagesVerifier issues(JavaScriptCheck check, File file) {
+    return CheckMessagesVerifier.verify(TreeCheckTest.getIssues(file.getAbsolutePath(), check));
+  }
 
+  /**
+   * To use this message you should provide a comment on each line of the source file where you expect an issue.
+   * For example:
+   * <pre>
+   * var x = 1; // Noncompliant {{A message for this line.}}
+   *
+   * function foo() {  // Noncompliant [[effortToFix=2]] [[secondary=+0,+1]] [[sc=5;ec=6;el=+0]]
+   * }
+   * </pre>
+   * How to write these comments:
+   * <ul>
+   * <li>Put a comment starting with "Noncompliant" if you expect an issue on this line.</li>
+   * <li>In double curly braces <code>{{MESSAGE}}</code> provide expected message.</li>
+   * <li>In double brackets provide expected effort to fix (cost) with <code>effortToFix</code> keyword.</li>
+   * <li>In double brackets provide precise location description with <code>sc, ec, el</code> keywords respectively for start column, end column and end line.</li>
+   * <li>In double brackets provide secondary locations with <code>secondary</code> keyword.</li>
+   * <li>To specify the line you can use relative location by putting <code>+</code> or <code>-</code>.</li>
+   * <li>All listed elements are optional (except "Noncompliant").</li>
+   * </ul>
+   *
+   * Example of call:
+   * <pre>
+   * JavaScriptCheckVerifier.verify(new MyCheck(), myFile));
+   * </pre>
+   */
   public static void verify(JavaScriptCheck check, File file) {
     JavaScriptCheckVerifier javaScriptCheckVerifier = new JavaScriptCheckVerifier();
     JavaScriptVisitorContext context = TestUtils.createContext(file);
@@ -84,22 +122,22 @@ public class JavaScriptCheckVerifier extends SubscriptionVisitorCheck {
       throw new AssertionError("Unexpected issue at line " + line(actual) + ": \"" + message(actual) + "\"");
     }
     if (expected.message() != null) {
-      Assertions.assertThat(message(actual)).as("Bad message at line " + expected.line()).isEqualTo(expected.message());
+      assertThat(message(actual)).as("Bad message at line " + expected.line()).isEqualTo(expected.message());
     }
     if (expected.effortToFix() != null) {
-      Assertions.assertThat(actual.cost()).as("Bad effortToFix at line " + expected.line()).isEqualTo(expected.effortToFix());
+      assertThat(actual.cost()).as("Bad effortToFix at line " + expected.line()).isEqualTo(expected.effortToFix());
     }
     if (expected.startColumn() != null) {
-      Assertions.assertThat(((PreciseIssue) actual).primaryLocation().startLineOffset() + 1).as("Bad start column at line " + expected.line()).isEqualTo(expected.startColumn());
+      assertThat(((PreciseIssue) actual).primaryLocation().startLineOffset() + 1).as("Bad start column at line " + expected.line()).isEqualTo(expected.startColumn());
     }
     if (expected.endColumn() != null) {
-      Assertions.assertThat(((PreciseIssue) actual).primaryLocation().endLineOffset() + 1).as("Bad end column at line " + expected.line()).isEqualTo(expected.endColumn());
+      assertThat(((PreciseIssue) actual).primaryLocation().endLineOffset() + 1).as("Bad end column at line " + expected.line()).isEqualTo(expected.endColumn());
     }
     if (expected.endLine() != null) {
-      Assertions.assertThat(((PreciseIssue) actual).primaryLocation().endLine()).as("Bad end line at line " + expected.line()).isEqualTo(expected.endLine());
+      assertThat(((PreciseIssue) actual).primaryLocation().endLine()).as("Bad end line at line " + expected.line()).isEqualTo(expected.endLine());
     }
     if (expected.secondaryLines() != null) {
-      Assertions.assertThat(secondary(actual)).as("Bad secondary locations at line " + expected.line()).isEqualTo(expected.secondaryLines());
+      assertThat(secondary(actual)).as("Bad secondary locations at line " + expected.line()).isEqualTo(expected.secondaryLines());
     }
   }
 
@@ -137,7 +175,7 @@ public class JavaScriptCheckVerifier extends SubscriptionVisitorCheck {
     }
   }
 
-  private void addParams(TestIssue issue, String params) {
+  private static void addParams(TestIssue issue, String params) {
     for (String param : Splitter.on(';').split(params)) {
       int equalIndex = param.indexOf("=");
       if (equalIndex == -1) {
@@ -159,13 +197,7 @@ public class JavaScriptCheckVerifier extends SubscriptionVisitorCheck {
         issue.endLine(lineValue(issue.line(), value));
 
       } else if ("secondary".equalsIgnoreCase(name)) {
-        List<Integer> secondaryLines = new ArrayList<>();
-        if (!value.equals("")) {
-          for (String secondary : Splitter.on(',').split(value)) {
-            secondaryLines.add(lineValue(issue.line(), secondary));
-          }
-        }
-        issue.secondary(secondaryLines);
+        addSecondaryLines(issue, value);
 
       } else {
         throw new IllegalStateException("Invalid param at line 1: " + name);
@@ -173,7 +205,17 @@ public class JavaScriptCheckVerifier extends SubscriptionVisitorCheck {
     }
   }
 
-  private int lineValue(int baseLine, String shift) {
+  private static void addSecondaryLines(TestIssue issue, String value) {
+    List<Integer> secondaryLines = new ArrayList<>();
+    if (!"".equals(value)) {
+      for (String secondary : Splitter.on(',').split(value)) {
+        secondaryLines.add(lineValue(issue.line(), secondary));
+      }
+    }
+    issue.secondary(secondaryLines);
+  }
+
+  private static int lineValue(int baseLine, String shift) {
     if (shift.startsWith("+")) {
       return baseLine + Integer.valueOf(shift.substring(1));
     }

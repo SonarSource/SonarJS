@@ -17,21 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.javascript.checks;
-
-import org.junit.Test;
-import org.sonar.javascript.checks.tests.TreeCheckTest;
-import org.sonar.squidbridge.checks.CheckMessagesVerifier;
-
-import static org.hamcrest.Matchers.containsString;
-
-public class ParsingErrorCheckTest extends TreeCheckTest {
-
-  @Test
-  public void test() {
-    CheckMessagesVerifier.verify(getIssues("src/test/resources/checks/parsingError.js", new ParsingErrorCheck()))
-      .next().atLine(3).withMessageThat(containsString("Parse error"))
-      .noMore();
-  }
-
-}
+/**
+ * Provides helper classes for coding rules implementation
+ */
+@javax.annotation.ParametersAreNonnullByDefault
+package org.sonar.javascript.checks.verifier;

@@ -19,17 +19,17 @@
  */
 package org.sonar.javascript.checks;
 
+import java.io.File;
 import org.junit.Test;
-import org.sonar.javascript.checks.tests.TreeCheckTest;
-import org.sonar.squidbridge.checks.CheckMessagesVerifier;
+import org.sonar.javascript.checks.verifier.JavaScriptCheckVerifier;
 
-public class EqualInForLoopTerminationCheckTest extends TreeCheckTest {
+public class EqualInForLoopTerminationCheckTest {
 
   private EqualInForLoopTerminationCheck check = new EqualInForLoopTerminationCheck();
 
   @Test
   public void test() {
-    CheckMessagesVerifier.verify(getIssues("src/test/resources/checks/EqualInForLoopTermination.js", check))
+    JavaScriptCheckVerifier.issues(check, new File("src/test/resources/checks/EqualInForLoopTermination.js"))
       .next().atLine(1)
       .next().atLine(3)
       .next().atLine(9)

@@ -19,17 +19,17 @@
  */
 package org.sonar.javascript.checks;
 
+import java.io.File;
 import org.junit.Test;
-import org.sonar.javascript.checks.tests.TreeCheckTest;
-import org.sonar.squidbridge.checks.CheckMessagesVerifier;
+import org.sonar.javascript.checks.verifier.JavaScriptCheckVerifier;
 
-public class ConsoleLoggingCheckTest extends TreeCheckTest {
+public class ConsoleLoggingCheckTest {
 
   private ConsoleLoggingCheck check = new ConsoleLoggingCheck();
 
   @Test
   public void test() {
-    CheckMessagesVerifier.verify(getIssues("src/test/resources/checks/consoleLogging.js", check))
+    JavaScriptCheckVerifier.issues(check, new File("src/test/resources/checks/consoleLogging.js"))
       .next().atLine(1).withMessage("Remove this logging statement.")
       .noMore();
   }

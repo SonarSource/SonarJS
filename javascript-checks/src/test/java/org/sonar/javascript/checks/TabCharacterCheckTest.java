@@ -20,12 +20,12 @@
 package org.sonar.javascript.checks;
 
 import com.google.common.base.Charsets;
+import java.io.File;
 import org.junit.Before;
 import org.junit.Test;
-import org.sonar.javascript.checks.tests.TreeCheckTest;
-import org.sonar.squidbridge.checks.CheckMessagesVerifier;
+import org.sonar.javascript.checks.verifier.JavaScriptCheckVerifier;
 
-public class TabCharacterCheckTest extends TreeCheckTest {
+public class TabCharacterCheckTest {
 
   TabCharacterCheck check = new TabCharacterCheck();
 
@@ -36,14 +36,14 @@ public class TabCharacterCheckTest extends TreeCheckTest {
 
   @Test
   public void test() {
-    CheckMessagesVerifier.verify(getIssues("src/test/resources/checks/tabCharacter.js", check))
+    JavaScriptCheckVerifier.issues(check, new File("src/test/resources/checks/tabCharacter.js"))
       .next().atLine(1).withMessage("Replace all tab characters in this file by sequences of white-spaces.")
       .noMore();
   }
 
   @Test
   public void test2() {
-    CheckMessagesVerifier.verify(getIssues("src/test/resources/checks/newlineAtEndOfFile.js", check))
+    JavaScriptCheckVerifier.issues(check, new File("src/test/resources/checks/newlineAtEndOfFile.js"))
       .noMore();
   }
 

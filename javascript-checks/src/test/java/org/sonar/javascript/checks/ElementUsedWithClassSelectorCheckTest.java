@@ -19,17 +19,17 @@
  */
 package org.sonar.javascript.checks;
 
+import java.io.File;
 import org.junit.Test;
-import org.sonar.javascript.checks.tests.TreeCheckTest;
-import org.sonar.squidbridge.checks.CheckMessagesVerifier;
+import org.sonar.javascript.checks.verifier.JavaScriptCheckVerifier;
 
-public class ElementUsedWithClassSelectorCheckTest extends TreeCheckTest {
+public class ElementUsedWithClassSelectorCheckTest {
 
   private ElementUsedWithClassSelectorCheck check = new ElementUsedWithClassSelectorCheck();
 
   @Test
   public void test() {
-    CheckMessagesVerifier.verify(getIssues("src/test/resources/checks/ElementUsedWithClassSelector.js", check))
+    JavaScriptCheckVerifier.issues(check, new File("src/test/resources/checks/ElementUsedWithClassSelector.js"))
       .next().atLine(1).withMessage("Remove \"div\" in this selector.")
       .next().atLine(11).withMessage("Remove \"p\" in this selector.")
       .noMore();

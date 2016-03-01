@@ -19,17 +19,17 @@
  */
 package org.sonar.javascript.checks;
 
+import java.io.File;
 import org.junit.Test;
-import org.sonar.javascript.checks.tests.TreeCheckTest;
-import org.sonar.squidbridge.checks.CheckMessagesVerifier;
+import org.sonar.javascript.checks.verifier.JavaScriptCheckVerifier;
 
-public class UndefinedAssignmentCheckTest extends TreeCheckTest {
+public class UndefinedAssignmentCheckTest {
 
   private UndefinedAssignmentCheck check = new UndefinedAssignmentCheck();
 
   @Test
   public void test() {
-    CheckMessagesVerifier.verify(getIssues("src/test/resources/checks/undefinedAssignment.js", check))
+    JavaScriptCheckVerifier.issues(check, new File("src/test/resources/checks/undefinedAssignment.js"))
       .next().atLine(1).withMessage("Use null instead.")
       .next().atLine(2)
       .noMore();

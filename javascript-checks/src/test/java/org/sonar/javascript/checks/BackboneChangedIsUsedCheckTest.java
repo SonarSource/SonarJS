@@ -19,17 +19,17 @@
  */
 package org.sonar.javascript.checks;
 
+import java.io.File;
 import org.junit.Test;
-import org.sonar.javascript.checks.tests.TreeCheckTest;
-import org.sonar.squidbridge.checks.CheckMessagesVerifier;
+import org.sonar.javascript.checks.verifier.JavaScriptCheckVerifier;
 
-public class BackboneChangedIsUsedCheckTest extends TreeCheckTest {
+public class BackboneChangedIsUsedCheckTest {
 
   @Test
   public void test() {
     BackboneChangedIsUsedCheck check = new BackboneChangedIsUsedCheck();
 
-    CheckMessagesVerifier.verify(getIssues("src/test/resources/checks/BackboneChangedIsUsed.js", check))
+    JavaScriptCheckVerifier.issues(check, new File("src/test/resources/checks/BackboneChangedIsUsed.js"))
       .next().atLine(10)
       .next().atLine(11)
       .next().atLine(12)

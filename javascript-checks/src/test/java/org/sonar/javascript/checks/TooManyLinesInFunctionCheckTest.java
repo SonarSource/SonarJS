@@ -19,24 +19,24 @@
  */
 package org.sonar.javascript.checks;
 
+import java.io.File;
 import org.junit.Test;
-import org.sonar.javascript.checks.tests.TreeCheckTest;
-import org.sonar.squidbridge.checks.CheckMessagesVerifier;
+import org.sonar.javascript.checks.verifier.JavaScriptCheckVerifier;
 
-public class TooManyLinesInFunctionCheckTest extends TreeCheckTest {
+public class TooManyLinesInFunctionCheckTest {
 
   private final TooManyLinesInFunctionCheck check = new TooManyLinesInFunctionCheck();
 
   @Test
   public void testDefault() {
-    CheckMessagesVerifier.verify(getIssues("src/test/resources/checks/tooManyLinesInFunction.js", check))
+    JavaScriptCheckVerifier.issues(check, new File("src/test/resources/checks/tooManyLinesInFunction.js"))
       .noMore();
   }
 
   @Test
   public void testCustom() {
     check.max = 3;
-    CheckMessagesVerifier.verify(getIssues("src/test/resources/checks/tooManyLinesInFunction.js", check))
+    JavaScriptCheckVerifier.issues(check, new File("src/test/resources/checks/tooManyLinesInFunction.js"))
       .next().atLine(1).withMessage("This function has 6 lines, which is greater than the " + check.max + " lines authorized. Split it into smaller functions.")
       .next().atLine(2).withMessage("This function has 4 lines, which is greater than the " + check.max + " lines authorized. Split it into smaller functions.")
       .next().atLine(8)

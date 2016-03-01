@@ -19,15 +19,15 @@
  */
 package org.sonar.javascript.checks;
 
+import java.io.File;
 import org.junit.Test;
-import org.sonar.javascript.checks.tests.TreeCheckTest;
-import org.sonar.squidbridge.checks.CheckMessagesVerifier;
+import org.sonar.javascript.checks.verifier.JavaScriptCheckVerifier;
 
-public class LabelPlacementCheckTest extends TreeCheckTest {
+public class LabelPlacementCheckTest {
 
   @Test
   public void test() {
-    CheckMessagesVerifier.verify(getIssues("src/test/resources/checks/labelPlacement.js", new LabelPlacementCheck()))
+    JavaScriptCheckVerifier.issues(new LabelPlacementCheck(), new File("src/test/resources/checks/labelPlacement.js"))
       .next().atLine(3).withMessage("Remove this \"label\" label.")
       .noMore();
   }

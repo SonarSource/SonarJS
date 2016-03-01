@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.javascript.checks.utils;
+package org.sonar.javascript.checks.verifier;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.io.Files;
@@ -33,7 +33,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
-import org.sonar.javascript.checks.tests.TestIssue;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.javascript.tree.impl.lexical.InternalSyntaxToken;
 import org.sonar.plugins.javascript.api.JavaScriptCheck;
@@ -314,8 +313,6 @@ public class JavaScriptCheckVerifierTest {
       int tokenColumn = column == null ? 0 : column - 1;
       return new InternalSyntaxToken(line, tokenColumn, tokenValue, ImmutableList.<SyntaxTrivia>of(), 0, false);
     }
-
-
   }
 
 }

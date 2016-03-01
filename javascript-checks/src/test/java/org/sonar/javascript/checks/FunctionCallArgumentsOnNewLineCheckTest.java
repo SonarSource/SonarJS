@@ -19,17 +19,17 @@
  */
 package org.sonar.javascript.checks;
 
+import java.io.File;
 import org.junit.Test;
-import org.sonar.javascript.checks.tests.TreeCheckTest;
-import org.sonar.squidbridge.checks.CheckMessagesVerifier;
+import org.sonar.javascript.checks.verifier.JavaScriptCheckVerifier;
 
-public class FunctionCallArgumentsOnNewLineCheckTest extends TreeCheckTest {
+public class FunctionCallArgumentsOnNewLineCheckTest {
 
   private FunctionCallArgumentsOnNewLineCheck check = new FunctionCallArgumentsOnNewLineCheck();
 
   @Test
   public void test() {
-    CheckMessagesVerifier.verify(getIssues("src/test/resources/checks/functionCallArgumentsOnNewLine.js", check))
+    JavaScriptCheckVerifier.issues(check, new File("src/test/resources/checks/functionCallArgumentsOnNewLine.js"))
       .next().atLine(4).withMessage("Make those call arguments start on line 2")
       .next().atLine(9).withMessage("Make those call arguments start on line 8")
       .next().atLine(25).withMessage("Make those call arguments start on line 24")

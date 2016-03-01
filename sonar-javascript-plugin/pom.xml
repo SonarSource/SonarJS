@@ -54,7 +54,7 @@
       <artifactId>sonar-compat</artifactId>
       <version>${project.version}</version>
     </dependency>
-    
+
     <dependency>
       <groupId>org.codehaus.sonar</groupId>
       <artifactId>sonar-testing-harness</artifactId>

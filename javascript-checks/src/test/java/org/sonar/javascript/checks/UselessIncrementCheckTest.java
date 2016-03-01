@@ -19,19 +19,20 @@
  */
 package org.sonar.javascript.checks;
 
+import java.io.File;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.javascript.checks.tests.TreeCheckTest;
+import org.sonar.javascript.checks.verifier.JavaScriptCheckVerifier;
 import org.sonar.squidbridge.checks.CheckMessagesVerifierRule;
 
-public class UselessIncrementCheckTest extends TreeCheckTest {
+public class UselessIncrementCheckTest {
 
   @Rule
   public CheckMessagesVerifierRule checkMessagesVerifier = new CheckMessagesVerifierRule();
 
   @Test
   public void test() {
-    checkMessagesVerifier.verify(getIssues("src/test/resources/checks/uselessIncrement.js", new UselessIncrementCheck()))
+    JavaScriptCheckVerifier.issues(new UselessIncrementCheck(), new File("src/test/resources/checks/uselessIncrement.js"))
       .next().atLine(2).withMessage("Remove this increment or correct the code not to waste it.")
       .next().atLine(6).withMessage("Remove this decrement or correct the code not to waste it.");
   }

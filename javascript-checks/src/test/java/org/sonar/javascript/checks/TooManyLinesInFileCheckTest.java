@@ -19,24 +19,24 @@
  */
 package org.sonar.javascript.checks;
 
+import java.io.File;
 import org.junit.Test;
-import org.sonar.javascript.checks.tests.TreeCheckTest;
-import org.sonar.squidbridge.checks.CheckMessagesVerifier;
+import org.sonar.javascript.checks.verifier.JavaScriptCheckVerifier;
 
-public class TooManyLinesInFileCheckTest extends TreeCheckTest {
+public class TooManyLinesInFileCheckTest {
 
   private TooManyLinesInFileCheck check = new TooManyLinesInFileCheck();
 
   @Test
   public void testDefault() {
-    CheckMessagesVerifier.verify(getIssues("src/test/resources/checks/tooManyLinesInFile.js", check))
+    JavaScriptCheckVerifier.issues(check, new File("src/test/resources/checks/tooManyLinesInFile.js"))
       .noMore();
   }
 
   @Test
   public void testCustom() {
     check.maximum = 1;
-    CheckMessagesVerifier.verify(getIssues("src/test/resources/checks/tooManyLinesInFile.js", check))
+    JavaScriptCheckVerifier.issues(check, new File("src/test/resources/checks/tooManyLinesInFile.js"))
       .next().withMessage("File \"tooManyLinesInFile.js\" has 7 lines, which is greater than 1 authorized. Split it into smaller files.")
       .noMore();
   }

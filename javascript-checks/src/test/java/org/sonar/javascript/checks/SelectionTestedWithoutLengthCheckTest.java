@@ -19,17 +19,17 @@
  */
 package org.sonar.javascript.checks;
 
+import java.io.File;
 import org.junit.Test;
-import org.sonar.javascript.checks.tests.TreeCheckTest;
-import org.sonar.squidbridge.checks.CheckMessagesVerifier;
+import org.sonar.javascript.checks.verifier.JavaScriptCheckVerifier;
 
-public class SelectionTestedWithoutLengthCheckTest extends TreeCheckTest {
+public class SelectionTestedWithoutLengthCheckTest {
 
   private SelectionTestedWithoutLengthCheck check = new SelectionTestedWithoutLengthCheck();
 
   @Test
   public void test() {
-    CheckMessagesVerifier.verify(getIssues("src/test/resources/checks/SelectionTestedWithoutLength.js", check))
+    JavaScriptCheckVerifier.issues(check, new File("src/test/resources/checks/SelectionTestedWithoutLength.js"))
       .next().atLine(1)
       .next().atLine(13)
       .next().atLine(17)

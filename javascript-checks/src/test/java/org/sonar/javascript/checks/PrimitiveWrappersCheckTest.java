@@ -19,15 +19,15 @@
  */
 package org.sonar.javascript.checks;
 
+import java.io.File;
 import org.junit.Test;
-import org.sonar.javascript.checks.tests.TreeCheckTest;
-import org.sonar.squidbridge.checks.CheckMessagesVerifier;
+import org.sonar.javascript.checks.verifier.JavaScriptCheckVerifier;
 
-public class PrimitiveWrappersCheckTest extends TreeCheckTest {
+public class PrimitiveWrappersCheckTest {
 
   @Test
   public void test() {
-    CheckMessagesVerifier.verify(getIssues("src/test/resources/checks/primitiveWrappers.js", new PrimitiveWrappersCheck()))
+    JavaScriptCheckVerifier.issues(new PrimitiveWrappersCheck(), new File("src/test/resources/checks/primitiveWrappers.js"))
       .next().atLine(2).withMessage("Use a literal value for this.")
       .next().atLine(12)
       .next().atLine(13)

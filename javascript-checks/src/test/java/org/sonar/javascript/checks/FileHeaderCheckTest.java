@@ -20,11 +20,11 @@
 package org.sonar.javascript.checks;
 
 import com.google.common.base.Charsets;
+import java.io.File;
 import org.junit.Test;
-import org.sonar.javascript.checks.tests.TreeCheckTest;
-import org.sonar.squidbridge.checks.CheckMessagesVerifier;
+import org.sonar.javascript.checks.verifier.JavaScriptCheckVerifier;
 
-public class FileHeaderCheckTest extends TreeCheckTest {
+public class FileHeaderCheckTest {
 
   @Test
   public void test() {
@@ -32,52 +32,52 @@ public class FileHeaderCheckTest extends TreeCheckTest {
     check.setCharset(Charsets.UTF_8);
     check.headerFormat = "// copyright 2005";
 
-    CheckMessagesVerifier.verify(getIssues("src/test/resources/checks/FileHeaderCheck/file1.js", check))
+    JavaScriptCheckVerifier.issues(check, new File("src/test/resources/checks/FileHeaderCheck/file1.js"))
       .noMore();
 
     check.headerFormat = "// copyright 20\\d\\d";
 
-    CheckMessagesVerifier.verify(getIssues("src/test/resources/checks/FileHeaderCheck/file1.js", check))
+    JavaScriptCheckVerifier.issues(check, new File("src/test/resources/checks/FileHeaderCheck/file1.js"))
       .next().atLine(null);
 
     check.headerFormat = "// copyright 2005";
 
-    CheckMessagesVerifier.verify(getIssues("src/test/resources/checks/FileHeaderCheck/file2.js", check))
+    JavaScriptCheckVerifier.issues(check, new File("src/test/resources/checks/FileHeaderCheck/file2.js"))
       .next().atLine(null).withMessage("Add or update the header of this file.");
 
     check.headerFormat = "// copyright 2012";
 
-    CheckMessagesVerifier.verify(getIssues("src/test/resources/checks/FileHeaderCheck/file2.js", check))
+    JavaScriptCheckVerifier.issues(check, new File("src/test/resources/checks/FileHeaderCheck/file2.js"))
       .noMore();
 
     check.headerFormat = "// copyright 2012\n// foo";
 
-    CheckMessagesVerifier.verify(getIssues("src/test/resources/checks/FileHeaderCheck/file2.js", check))
+    JavaScriptCheckVerifier.issues(check, new File("src/test/resources/checks/FileHeaderCheck/file2.js"))
       .noMore();
 
     check.headerFormat = "// copyright 2012\r\n// foo";
 
-    CheckMessagesVerifier.verify(getIssues("src/test/resources/checks/FileHeaderCheck/file2.js", check))
+    JavaScriptCheckVerifier.issues(check, new File("src/test/resources/checks/FileHeaderCheck/file2.js"))
       .noMore();
 
     check.headerFormat = "// copyright 2012\r// foo";
 
-    CheckMessagesVerifier.verify(getIssues("src/test/resources/checks/FileHeaderCheck/file2.js", check))
+    JavaScriptCheckVerifier.issues(check, new File("src/test/resources/checks/FileHeaderCheck/file2.js"))
       .noMore();
 
     check.headerFormat = "// copyright 2012\r\r// foo";
 
-    CheckMessagesVerifier.verify(getIssues("src/test/resources/checks/FileHeaderCheck/file2.js", check))
+    JavaScriptCheckVerifier.issues(check, new File("src/test/resources/checks/FileHeaderCheck/file2.js"))
       .next().atLine(null);
 
     check.headerFormat = "// copyright 2012\n// foo\n\n\n\n\n\n\n\n\n\ngfoo";
 
-    CheckMessagesVerifier.verify(getIssues("src/test/resources/checks/FileHeaderCheck/file2.js", check))
+    JavaScriptCheckVerifier.issues(check, new File("src/test/resources/checks/FileHeaderCheck/file2.js"))
       .next().atLine(null);
 
     check.headerFormat = "/*foo http://www.example.org*/";
 
-    CheckMessagesVerifier.verify(getIssues("src/test/resources/checks/FileHeaderCheck/file3.js", check))
+    JavaScriptCheckVerifier.issues(check, new File("src/test/resources/checks/FileHeaderCheck/file3.js"))
       .noMore();
   }
 

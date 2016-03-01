@@ -19,17 +19,17 @@
  */
 package org.sonar.javascript.checks;
 
+import java.io.File;
 import org.junit.Test;
-import org.sonar.javascript.checks.tests.TreeCheckTest;
-import org.sonar.squidbridge.checks.CheckMessagesVerifier;
+import org.sonar.javascript.checks.verifier.JavaScriptCheckVerifier;
 
-public class MultilineStringLiteralsCheckTest extends TreeCheckTest {
+public class MultilineStringLiteralsCheckTest {
 
   @Test
   public void test() {
     MultilineStringLiteralsCheck check = new MultilineStringLiteralsCheck();
 
-    CheckMessagesVerifier.verify(getIssues("src/test/resources/checks/multilineStringLiteral.js", check))
+    JavaScriptCheckVerifier.issues(check, new File("src/test/resources/checks/multilineStringLiteral.js"))
       .next().atLine(2).withMessage("Use string concatenation rather than line continuation.")
       .noMore();
   }

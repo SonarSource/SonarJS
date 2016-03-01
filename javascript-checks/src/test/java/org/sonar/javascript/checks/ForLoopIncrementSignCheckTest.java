@@ -19,19 +19,20 @@
  */
 package org.sonar.javascript.checks;
 
+import java.io.File;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.javascript.checks.tests.TreeCheckTest;
+import org.sonar.javascript.checks.verifier.JavaScriptCheckVerifier;
 import org.sonar.squidbridge.checks.CheckMessagesVerifierRule;
 
-public class ForLoopIncrementSignCheckTest extends TreeCheckTest {
+public class ForLoopIncrementSignCheckTest {
 
   @Rule
   public CheckMessagesVerifierRule checkMessagesVerifier = new CheckMessagesVerifierRule();
 
   @Test
   public void test() {
-    checkMessagesVerifier.verify(getIssues("src/test/resources/checks/forLoopIncrementSign.js", new ForLoopIncrementSignCheck()))
+    JavaScriptCheckVerifier.issues(new ForLoopIncrementSignCheck(), new File("src/test/resources/checks/forLoopIncrementSign.js"))
       .next().atLine(4).withMessage("\"i\" is incremented and will never reach \"stop condition\".")
       .next().atLine(5)
       .next().atLine(7).withMessage("\"i\" is decremented and will never reach \"stop condition\".")

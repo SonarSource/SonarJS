@@ -19,15 +19,15 @@
  */
 package org.sonar.javascript.checks;
 
+import java.io.File;
 import org.junit.Test;
-import org.sonar.javascript.checks.tests.TreeCheckTest;
-import org.sonar.squidbridge.checks.CheckMessagesVerifier;
+import org.sonar.javascript.checks.verifier.JavaScriptCheckVerifier;
 
-public class DebuggerStatementCheckTest extends TreeCheckTest {
+public class DebuggerStatementCheckTest {
 
   @Test
   public void test() {
-    CheckMessagesVerifier.verify(getIssues("src/test/resources/checks/debuggerStatement.js", new DebuggerStatementCheck()))
+    JavaScriptCheckVerifier.issues(new DebuggerStatementCheck(), new File("src/test/resources/checks/debuggerStatement.js"))
       .next().atLine(2).withMessage("Remove this debugger statement.")
       .noMore();
   }

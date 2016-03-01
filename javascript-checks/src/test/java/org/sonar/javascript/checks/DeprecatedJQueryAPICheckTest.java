@@ -19,17 +19,17 @@
  */
 package org.sonar.javascript.checks;
 
+import java.io.File;
 import org.junit.Test;
-import org.sonar.javascript.checks.tests.TreeCheckTest;
-import org.sonar.squidbridge.checks.CheckMessagesVerifier;
+import org.sonar.javascript.checks.verifier.JavaScriptCheckVerifier;
 
-public class DeprecatedJQueryAPICheckTest extends TreeCheckTest {
+public class DeprecatedJQueryAPICheckTest {
 
   @Test
   public void test() {
     DeprecatedJQueryAPICheck check = new DeprecatedJQueryAPICheck();
 
-    CheckMessagesVerifier.verify(getIssues("src/test/resources/checks/DeprecatedJQueryAPI.js", check))
+    JavaScriptCheckVerifier.issues(check, new File("src/test/resources/checks/DeprecatedJQueryAPI.js"))
       .next().atLine(1).withMessage("Remove this use of \"boxModel\", which is deprecated.")
       .next().atLine(3).withMessage("Remove this use of \"sub()\", which is deprecated.")
       .next().atLine(5).withMessage("Remove this use of \"context\", which is deprecated.")

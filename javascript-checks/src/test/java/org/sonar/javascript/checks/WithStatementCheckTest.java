@@ -19,17 +19,17 @@
  */
 package org.sonar.javascript.checks;
 
+import java.io.File;
 import org.junit.Test;
-import org.sonar.javascript.checks.tests.TreeCheckTest;
-import org.sonar.squidbridge.checks.CheckMessagesVerifier;
+import org.sonar.javascript.checks.verifier.JavaScriptCheckVerifier;
 
-public class WithStatementCheckTest extends TreeCheckTest {
+public class WithStatementCheckTest {
 
   @Test
   public void test() {
     WithStatementCheck check = new WithStatementCheck();
 
-    CheckMessagesVerifier.verify(getIssues("src/test/resources/checks/withStatement.js", check))
+    JavaScriptCheckVerifier.issues(check, new File("src/test/resources/checks/withStatement.js"))
       .next().atLine(2).withMessage("Remove this use of \"with\".")
       .noMore();
   }

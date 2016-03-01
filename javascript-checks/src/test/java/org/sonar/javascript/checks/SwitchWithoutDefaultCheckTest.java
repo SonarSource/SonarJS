@@ -19,17 +19,17 @@
  */
 package org.sonar.javascript.checks;
 
+import java.io.File;
 import org.junit.Test;
-import org.sonar.javascript.checks.tests.TreeCheckTest;
-import org.sonar.squidbridge.checks.CheckMessagesVerifier;
+import org.sonar.javascript.checks.verifier.JavaScriptCheckVerifier;
 
-public class SwitchWithoutDefaultCheckTest extends TreeCheckTest {
+public class SwitchWithoutDefaultCheckTest {
 
   @Test
   public void test() {
     SwitchWithoutDefaultCheck check = new SwitchWithoutDefaultCheck();
 
-    CheckMessagesVerifier.verify(getIssues("src/test/resources/checks/switchWithoutDefault.js", check))
+    JavaScriptCheckVerifier.issues(check, new File("src/test/resources/checks/switchWithoutDefault.js"))
       .next().atLine(8).withMessage("Add a \"default\" clause to this \"switch\" statement.")
       .next().atLine(13).withMessage("Move this \"default\" clause to the end of this \"switch\" statement.")
       .noMore();

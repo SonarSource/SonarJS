@@ -19,17 +19,17 @@
  */
 package org.sonar.javascript.checks;
 
+import java.io.File;
 import org.junit.Test;
-import org.sonar.javascript.checks.tests.TreeCheckTest;
-import org.sonar.squidbridge.checks.CheckMessagesVerifier;
+import org.sonar.javascript.checks.verifier.JavaScriptCheckVerifier;
 
-public class RedeclaredSymbolCheckTest extends TreeCheckTest {
+public class RedeclaredSymbolCheckTest {
 
   private RedeclaredSymbolCheck check = new RedeclaredSymbolCheck();
 
   @Test
   public void test() {
-    CheckMessagesVerifier.verify(getIssues("src/test/resources/checks/redeclaredSymbol.js", check))
+    JavaScriptCheckVerifier.issues(check, new File("src/test/resources/checks/redeclaredSymbol.js"))
       .next().atLine(3).withMessage("Rename \"fun\" as this name is already used in declaration at line 1.")
       .next().atLine(10).withMessage("Rename \"inner\" as this name is already used in declaration at line 8.")
       .next().atLine(13).withMessage("Rename \"f\" as this name is already used in declaration at line 5.")

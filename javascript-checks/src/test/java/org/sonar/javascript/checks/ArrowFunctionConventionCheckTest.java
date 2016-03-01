@@ -21,25 +21,23 @@ package org.sonar.javascript.checks;
 
 import java.io.File;
 import org.junit.Test;
-import org.sonar.javascript.checks.tests.TreeCheckTest;
-import org.sonar.javascript.checks.utils.JavaScriptCheckVerifier;
-import org.sonar.squidbridge.checks.CheckMessagesVerifier;
+import org.sonar.javascript.checks.verifier.JavaScriptCheckVerifier;
 
-public class ArrowFunctionConventionCheckTest extends TreeCheckTest {
+public class ArrowFunctionConventionCheckTest {
 
   private final ArrowFunctionConventionCheck check = new ArrowFunctionConventionCheck();
-  private final String filepath = "src/test/resources/checks/ArrowFunctionConvention.js";
+  private final File file = new File("src/test/resources/checks/ArrowFunctionConvention.js");
 
   @Test
   public void test_default() {
-    JavaScriptCheckVerifier.verify(check, new File(filepath));
+    JavaScriptCheckVerifier.verify(check, file);
   }
 
   @Test
   public void test_always_parentheses() throws Exception {
     check.setParameterParens(true);
 
-    CheckMessagesVerifier.verify(getIssues(filepath, check))
+    JavaScriptCheckVerifier.issues(check, file)
       .next().atLine(7).withMessage("Add parentheses around the parameter of this arrow function.")
       .next().atLine(14).withMessage("Remove curly braces and \"return\" from this arrow function body.")
       .noMore();
@@ -49,7 +47,7 @@ public class ArrowFunctionConventionCheckTest extends TreeCheckTest {
   public void test_always_curly_braces() throws Exception {
     check.setBodyBraces(true);
 
-    CheckMessagesVerifier.verify(getIssues(filepath, check))
+    JavaScriptCheckVerifier.issues(check, file)
       .next().atLine(5).withMessage("Remove parentheses around the parameter of this arrow function.")
       .next().atLine(16).withMessage("Add curly braces and \"return\" to this arrow function body.")
       .next().atLine(17)

@@ -19,18 +19,18 @@
  */
 package org.sonar.javascript.checks;
 
+import java.io.File;
 import org.junit.Test;
-import org.sonar.javascript.checks.tests.TreeCheckTest;
-import org.sonar.squidbridge.checks.CheckMessagesVerifier;
+import org.sonar.javascript.checks.verifier.JavaScriptCheckVerifier;
 
 
-public class UntrustedContentCheckTest extends TreeCheckTest {
+public class UntrustedContentCheckTest {
 
   @Test
   public void test() {
     UntrustedContentCheck check = new UntrustedContentCheck();
 
-    CheckMessagesVerifier.verify(getIssues("src/test/resources/checks/untrustedContent.js", check))
+    JavaScriptCheckVerifier.issues(check, new File("src/test/resources/checks/untrustedContent.js"))
       .next().atLine(3)
       .next().atLine(5)
       .next().atLine(8)
@@ -44,7 +44,7 @@ public class UntrustedContentCheckTest extends TreeCheckTest {
     UntrustedContentCheck check = new UntrustedContentCheck();
     check.domainsToIgnore = "drevil.org";
 
-    CheckMessagesVerifier.verify(getIssues("src/test/resources/checks/untrustedContent.js", check))
+    JavaScriptCheckVerifier.issues(check, new File("src/test/resources/checks/untrustedContent.js"))
       .next().atLine(3)
       .next().atLine(5)
       .next().atLine(8)
@@ -57,7 +57,7 @@ public class UntrustedContentCheckTest extends TreeCheckTest {
     UntrustedContentCheck check = new UntrustedContentCheck();
     check.domainsToIgnore = "(.*\\.)?drevil.org";
 
-    CheckMessagesVerifier.verify(getIssues("src/test/resources/checks/untrustedContent.js", check))
+    JavaScriptCheckVerifier.issues(check, new File("src/test/resources/checks/untrustedContent.js"))
       .next().atLine(3)
       .next().atLine(5)
       .next().atLine(8)
@@ -70,7 +70,7 @@ public class UntrustedContentCheckTest extends TreeCheckTest {
     UntrustedContentCheck check = new UntrustedContentCheck();
     check.domainsToIgnore = "(.*\\.)?drevil.org,(.*\\.)?mini.me";
 
-    CheckMessagesVerifier.verify(getIssues("src/test/resources/checks/untrustedContent.js", check))
+    JavaScriptCheckVerifier.issues(check, new File("src/test/resources/checks/untrustedContent.js"))
       .next().atLine(3)
       .next().atLine(5)
       .next().atLine(8)

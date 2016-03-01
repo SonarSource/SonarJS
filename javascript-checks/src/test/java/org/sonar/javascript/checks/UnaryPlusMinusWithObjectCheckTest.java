@@ -19,15 +19,15 @@
  */
 package org.sonar.javascript.checks;
 
+import java.io.File;
 import org.junit.Test;
-import org.sonar.javascript.checks.tests.TreeCheckTest;
-import org.sonar.squidbridge.checks.CheckMessagesVerifier;
+import org.sonar.javascript.checks.verifier.JavaScriptCheckVerifier;
 
-public class UnaryPlusMinusWithObjectCheckTest extends TreeCheckTest {
+public class UnaryPlusMinusWithObjectCheckTest {
 
   @Test
   public void test() {
-    CheckMessagesVerifier.verify(getIssues("src/test/resources/checks/UnaryPlusMinusWithObject.js", new UnaryPlusMinusWithObjectCheck()))
+    JavaScriptCheckVerifier.issues(new UnaryPlusMinusWithObjectCheck(), new File("src/test/resources/checks/UnaryPlusMinusWithObject.js"))
       .next().atLine(2).withMessage("Remove this use of unary \"+\".")
       .next().atLine(3).withMessage("Remove this use of unary \"-\".")
       .next().atLine(10)

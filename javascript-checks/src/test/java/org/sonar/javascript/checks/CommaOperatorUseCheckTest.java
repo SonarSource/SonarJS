@@ -19,17 +19,17 @@
  */
 package org.sonar.javascript.checks;
 
+import java.io.File;
 import org.junit.Test;
-import org.sonar.javascript.checks.tests.TreeCheckTest;
-import org.sonar.squidbridge.checks.CheckMessagesVerifier;
+import org.sonar.javascript.checks.verifier.JavaScriptCheckVerifier;
 
-public class CommaOperatorUseCheckTest extends TreeCheckTest {
+public class CommaOperatorUseCheckTest {
 
   private final CommaOperatorUseCheck check = new CommaOperatorUseCheck();
 
   @Test
   public void test() {
-    CheckMessagesVerifier.verify(getIssues("src/test/resources/checks/commaOperatorUse.js", check))
+    JavaScriptCheckVerifier.issues(check, new File("src/test/resources/checks/commaOperatorUse.js"))
       .next().atLine(1).withMessage("Remove use of this comma operator.")
       .next().atLine(3)
       .next().atLine(6)

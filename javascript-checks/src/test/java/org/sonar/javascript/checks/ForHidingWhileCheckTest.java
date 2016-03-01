@@ -19,15 +19,15 @@
  */
 package org.sonar.javascript.checks;
 
+import java.io.File;
 import org.junit.Test;
-import org.sonar.javascript.checks.tests.TreeCheckTest;
-import org.sonar.squidbridge.checks.CheckMessagesVerifier;
+import org.sonar.javascript.checks.verifier.JavaScriptCheckVerifier;
 
-public class ForHidingWhileCheckTest extends TreeCheckTest {
+public class ForHidingWhileCheckTest {
 
   @Test
   public void test() {
-    CheckMessagesVerifier.verify(getIssues("src/test/resources/checks/forHidingWhile.js", new ForHidingWhileCheck()))
+    JavaScriptCheckVerifier.issues(new ForHidingWhileCheck(), new File("src/test/resources/checks/forHidingWhile.js"))
       .next().atLine(1)
       .next().atLine(4)
       .noMore();

@@ -19,17 +19,17 @@
  */
 package org.sonar.javascript.checks;
 
+import java.io.File;
 import org.junit.Test;
-import org.sonar.javascript.checks.tests.TreeCheckTest;
-import org.sonar.squidbridge.checks.CheckMessagesVerifier;
+import org.sonar.javascript.checks.verifier.JavaScriptCheckVerifier;
 
-public class ArrayAndObjectConstructorsCheckTest extends TreeCheckTest {
+public class ArrayAndObjectConstructorsCheckTest {
 
   @Test
   public void test() {
     ArrayAndObjectConstructorsCheck check = new ArrayAndObjectConstructorsCheck();
 
-    CheckMessagesVerifier.verify(getIssues("src/test/resources/checks/arrayAndObjectConstructors.js", check))
+    JavaScriptCheckVerifier.issues(check, new File("src/test/resources/checks/arrayAndObjectConstructors.js"))
       .next().atLine(2).withMessage("Use a literal instead of the Array constructor.")
       .next().atLine(3).withMessage("Use a literal instead of the Array constructor.")
       .next().atLine(5).withMessage("Use a literal instead of the Object constructor.")

@@ -20,18 +20,18 @@
 package org.sonar.javascript.checks;
 
 import com.google.common.base.Charsets;
+import java.io.File;
 import org.junit.Test;
-import org.sonar.javascript.checks.tests.TreeCheckTest;
-import org.sonar.squidbridge.checks.CheckMessagesVerifier;
+import org.sonar.javascript.checks.verifier.JavaScriptCheckVerifier;
 
-public class CommentedCodeCheckTest extends TreeCheckTest {
+public class CommentedCodeCheckTest {
 
   @Test
   public void test() {
     String relativePath = "src/test/resources/checks/commentedCode.js";
     CommentedCodeCheck check = new CommentedCodeCheck();
     check.setCharset(Charsets.UTF_8);
-    CheckMessagesVerifier.verify(getIssues(relativePath, check))
+    JavaScriptCheckVerifier.issues(check, new File(relativePath))
       .next().atLine(7).withMessage("Remove this commented out code.")
       .next().atLine(26)
       .next().atLine(42)

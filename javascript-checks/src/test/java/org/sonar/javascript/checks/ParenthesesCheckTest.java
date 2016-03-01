@@ -21,10 +21,9 @@ package org.sonar.javascript.checks;
 
 import java.io.File;
 import org.junit.Test;
-import org.sonar.javascript.checks.tests.TreeCheckTest;
-import org.sonar.javascript.checks.utils.JavaScriptCheckVerifier;
+import org.sonar.javascript.checks.verifier.JavaScriptCheckVerifier;
 
-public class ParenthesesCheckTest extends TreeCheckTest {
+public class ParenthesesCheckTest {
 
   @Test
   public void test() {

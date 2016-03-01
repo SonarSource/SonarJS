@@ -19,19 +19,20 @@
  */
 package org.sonar.javascript.checks;
 
+import java.io.File;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.javascript.checks.tests.TreeCheckTest;
+import org.sonar.javascript.checks.verifier.JavaScriptCheckVerifier;
 import org.sonar.squidbridge.checks.CheckMessagesVerifierRule;
 
-public class ModelDefaultsWithArrayOrObjectCheckTest extends TreeCheckTest {
+public class ModelDefaultsWithArrayOrObjectCheckTest {
 
   @Rule
   public CheckMessagesVerifierRule checkMessagesVerifier = new CheckMessagesVerifierRule();
 
   @Test
   public void test() {
-    checkMessagesVerifier.verify(getIssues("src/test/resources/checks/modelDefaultsWithArrayOrObject.js", new ModelDefaultsWithArrayOrObjectCheck()))
+    JavaScriptCheckVerifier.issues(new ModelDefaultsWithArrayOrObjectCheck(), new File("src/test/resources/checks/modelDefaultsWithArrayOrObject.js"))
       .next().atLine(2).withMessage("Make \"defaults\" a function.")
       .next().atLine(9);
   }

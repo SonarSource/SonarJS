@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.javascript.checks.tests;
+package org.sonar.javascript.checks.verifier;
 
 import com.google.common.base.Charsets;
 import com.sonar.sslr.api.typed.ActionParser;
@@ -31,7 +31,7 @@ import org.sonar.javascript.tree.symbols.type.JQuery;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
 
-public class TestUtils {
+class TestUtils {
 
   private TestUtils() {
   }

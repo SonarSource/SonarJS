@@ -19,15 +19,15 @@
  */
 package org.sonar.javascript.checks;
 
+import java.io.File;
 import org.junit.Test;
-import org.sonar.javascript.checks.tests.TreeCheckTest;
-import org.sonar.squidbridge.checks.CheckMessagesVerifier;
+import org.sonar.javascript.checks.verifier.JavaScriptCheckVerifier;
 
-public class FixmeTagPresenceCheckTest extends TreeCheckTest {
+public class FixmeTagPresenceCheckTest {
 
   @Test
   public void test() {
-    CheckMessagesVerifier.verify(getIssues("src/test/resources/checks/fixmeTagPresence.js", new FixmeTagPresenceCheck()))
+    JavaScriptCheckVerifier.issues(new FixmeTagPresenceCheck(), new File("src/test/resources/checks/fixmeTagPresence.js"))
       .next().atLine(3).withMessage("Take the required action to fix the issue indicated by this comment.")
       .next().atLine(7)
       .next().atLine(8)

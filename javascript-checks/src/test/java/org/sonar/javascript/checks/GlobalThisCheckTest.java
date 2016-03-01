@@ -19,15 +19,15 @@
  */
 package org.sonar.javascript.checks;
 
+import java.io.File;
 import org.junit.Test;
-import org.sonar.javascript.checks.tests.TreeCheckTest;
-import org.sonar.squidbridge.checks.CheckMessagesVerifier;
+import org.sonar.javascript.checks.verifier.JavaScriptCheckVerifier;
 
-public class GlobalThisCheckTest extends TreeCheckTest {
+public class GlobalThisCheckTest {
 
   @Test
   public void test() {
-    CheckMessagesVerifier.verify(getIssues("src/test/resources/checks/GlobalThis.js", new GlobalThisCheck()))
+    JavaScriptCheckVerifier.issues(new GlobalThisCheck(), new File("src/test/resources/checks/GlobalThis.js"))
       .next().atLine(3)
       .next().atLine(5)
       .next().atLine(7)

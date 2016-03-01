@@ -1,3 +1,4 @@
+
 /*
  * SonarQube JavaScript Plugin
  * Copyright (C) 2011-2016 SonarSource SA
@@ -19,15 +20,15 @@
  */
 package org.sonar.javascript.checks;
 
+import java.io.File;
 import org.junit.Test;
-import org.sonar.javascript.checks.tests.TreeCheckTest;
-import org.sonar.squidbridge.checks.CheckMessagesVerifier;
+import org.sonar.javascript.checks.verifier.JavaScriptCheckVerifier;
 
-public class PostMessageCheckTest extends TreeCheckTest {
+public class PostMessageCheckTest {
 
   @Test
   public void test() {
-    CheckMessagesVerifier.verify(getIssues("src/test/resources/checks/PostMessage.js", new PostMessageCheck()))
+    JavaScriptCheckVerifier.issues(new PostMessageCheck(), new File("src/test/resources/checks/PostMessage.js"))
       .next().atLine(2).withMessage("Make sure this cross-domain message is being sent to the intended domain.")
       .next().atLine(5)
       .next().atLine(8)

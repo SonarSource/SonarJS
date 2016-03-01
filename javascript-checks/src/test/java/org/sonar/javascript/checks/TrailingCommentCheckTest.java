@@ -19,17 +19,17 @@
  */
 package org.sonar.javascript.checks;
 
+import java.io.File;
 import org.junit.Test;
-import org.sonar.javascript.checks.tests.TreeCheckTest;
-import org.sonar.squidbridge.checks.CheckMessagesVerifier;
+import org.sonar.javascript.checks.verifier.JavaScriptCheckVerifier;
 
-public class TrailingCommentCheckTest extends TreeCheckTest {
+public class TrailingCommentCheckTest {
 
   TrailingCommentCheck check = new TrailingCommentCheck();
 
   @Test
   public void defaults() {
-    CheckMessagesVerifier.verify(getIssues("src/test/resources/checks/trailingComment.js", check))
+    JavaScriptCheckVerifier.issues(check, new File("src/test/resources/checks/trailingComment.js"))
       .next().atLine(2).withMessage("Move this trailing comment on the previous empty line.")
       .noMore();
   }
@@ -38,7 +38,7 @@ public class TrailingCommentCheckTest extends TreeCheckTest {
   public void test() {
     check.setLegalCommentPattern("");
 
-    CheckMessagesVerifier.verify(getIssues("src/test/resources/checks/trailingComment.js", check))
+    JavaScriptCheckVerifier.issues(check, new File("src/test/resources/checks/trailingComment.js"))
       .next().atLine(2).withMessage("Move this trailing comment on the previous empty line.")
       .next().atLine(8)
       .noMore();

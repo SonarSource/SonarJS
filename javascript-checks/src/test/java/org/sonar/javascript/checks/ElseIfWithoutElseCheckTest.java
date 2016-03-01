@@ -19,15 +19,15 @@
  */
 package org.sonar.javascript.checks;
 
+import java.io.File;
 import org.junit.Test;
-import org.sonar.javascript.checks.tests.TreeCheckTest;
-import org.sonar.squidbridge.checks.CheckMessagesVerifier;
+import org.sonar.javascript.checks.verifier.JavaScriptCheckVerifier;
 
-public class ElseIfWithoutElseCheckTest extends TreeCheckTest {
+public class ElseIfWithoutElseCheckTest {
 
   @Test
   public void test() {
-    CheckMessagesVerifier.verify(getIssues("src/test/resources/checks/elseIfWithoutElse.js", new ElseIfWithoutElseCheck()))
+    JavaScriptCheckVerifier.issues(new ElseIfWithoutElseCheck(), new File("src/test/resources/checks/elseIfWithoutElse.js"))
       .next().atLine(15).withMessage("Add the missing \"else\" clause.")
       .noMore();
   }

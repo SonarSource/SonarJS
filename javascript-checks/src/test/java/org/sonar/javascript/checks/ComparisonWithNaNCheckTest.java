@@ -19,17 +19,17 @@
  */
 package org.sonar.javascript.checks;
 
+import java.io.File;
 import org.junit.Test;
-import org.sonar.javascript.checks.tests.TreeCheckTest;
-import org.sonar.squidbridge.checks.CheckMessagesVerifier;
+import org.sonar.javascript.checks.verifier.JavaScriptCheckVerifier;
 
-public class ComparisonWithNaNCheckTest extends TreeCheckTest {
+public class ComparisonWithNaNCheckTest {
 
   private ComparisonWithNaNCheck check = new ComparisonWithNaNCheck();
 
   @Test
   public void test() {
-    CheckMessagesVerifier.verify(getIssues("src/test/resources/checks/comparisonWithNaN.js", check))
+    JavaScriptCheckVerifier.issues(check, new File("src/test/resources/checks/comparisonWithNaN.js"))
       .next().atLine(1).withMessage("Use a test of the format \"a == a\" instead.")
       .next().atLine(2).withMessage("Use a test of the format \"a != a\" instead.")
       .next().atLine(3).withMessage("Use a test of the format \"a === a\" instead.")

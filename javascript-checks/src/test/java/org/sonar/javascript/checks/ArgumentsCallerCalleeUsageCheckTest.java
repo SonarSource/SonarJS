@@ -19,15 +19,15 @@
  */
 package org.sonar.javascript.checks;
 
+import java.io.File;
 import org.junit.Test;
-import org.sonar.javascript.checks.tests.TreeCheckTest;
-import org.sonar.squidbridge.checks.CheckMessagesVerifier;
+import org.sonar.javascript.checks.verifier.JavaScriptCheckVerifier;
 
-public class ArgumentsCallerCalleeUsageCheckTest extends TreeCheckTest {
+public class ArgumentsCallerCalleeUsageCheckTest {
 
   @Test
   public void test() {
-    CheckMessagesVerifier.verify(getIssues("src/test/resources/checks/argumentsCallerCalleeUsage.js", new ArgumentsCallerCalleeUsageCheck()))
+    JavaScriptCheckVerifier.issues(new ArgumentsCallerCalleeUsageCheck(), new File("src/test/resources/checks/argumentsCallerCalleeUsage.js"))
       .next().atLine(2).withMessage("Name the enclosing function instead of using the deprecated property \"arguments.callee\".")
       .next().atLine(3).withMessage("Remove this use of \"arguments.caller\".")
       .next().atLine(6).withMessage("Remove this use of \"f.caller\".")

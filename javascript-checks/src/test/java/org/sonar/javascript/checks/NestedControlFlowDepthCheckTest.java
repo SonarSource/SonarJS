@@ -19,17 +19,17 @@
  */
 package org.sonar.javascript.checks;
 
+import java.io.File;
 import org.junit.Test;
-import org.sonar.javascript.checks.tests.TreeCheckTest;
-import org.sonar.squidbridge.checks.CheckMessagesVerifier;
+import org.sonar.javascript.checks.verifier.JavaScriptCheckVerifier;
 
-public class NestedControlFlowDepthCheckTest extends TreeCheckTest {
+public class NestedControlFlowDepthCheckTest {
 
   private NestedControlFlowDepthCheck check = new NestedControlFlowDepthCheck();
 
   @Test
   public void testDefault() {
-    CheckMessagesVerifier.verify(getIssues("src/test/resources/checks/nestedControlFlowDepth.js", check))
+    JavaScriptCheckVerifier.issues(check, new File("src/test/resources/checks/nestedControlFlowDepth.js"))
       .next().atLine(9).withMessage("Refactor this code to not nest more than 3 if/for/while/switch/try statements.")
       .next().atLine(17)
       .next().atLine(20)
@@ -43,7 +43,7 @@ public class NestedControlFlowDepthCheckTest extends TreeCheckTest {
   public void testCustomDepth() {
     check.maximumNestingLevel = 4;
 
-    CheckMessagesVerifier.verify(getIssues("src/test/resources/checks/nestedControlFlowDepth.js", check))
+    JavaScriptCheckVerifier.issues(check, new File("src/test/resources/checks/nestedControlFlowDepth.js"))
       .next().atLine(31).withMessage("Refactor this code to not nest more than 4 if/for/while/switch/try statements.")
       .noMore();
   }

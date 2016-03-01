@@ -19,15 +19,15 @@
  */
 package org.sonar.javascript.checks;
 
+import java.io.File;
 import org.junit.Test;
-import org.sonar.javascript.checks.tests.TreeCheckTest;
-import org.sonar.squidbridge.checks.CheckMessagesVerifier;
+import org.sonar.javascript.checks.verifier.JavaScriptCheckVerifier;
 
-public class EvalCheckTest extends TreeCheckTest {
+public class EvalCheckTest {
 
   @Test
   public void test() {
-    CheckMessagesVerifier.verify(getIssues("src/test/resources/checks/eval.js", new EvalCheck()))
+    JavaScriptCheckVerifier.issues(new EvalCheck(), new File("src/test/resources/checks/eval.js"))
       .next().atLine(2).withMessage("Remove this use of the \"eval\" function.")
       .next().atLine(5)
       .noMore();

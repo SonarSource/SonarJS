@@ -19,19 +19,20 @@
  */
 package org.sonar.javascript.checks;
 
+import java.io.File;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.javascript.checks.tests.TreeCheckTest;
+import org.sonar.javascript.checks.verifier.JavaScriptCheckVerifier;
 import org.sonar.squidbridge.checks.CheckMessagesVerifierRule;
 
-public class ForLoopConditionAndUpdateCheckTest extends TreeCheckTest {
+public class ForLoopConditionAndUpdateCheckTest {
 
   @Rule
   public CheckMessagesVerifierRule checkMessagesVerifier = new CheckMessagesVerifierRule();
 
   @Test
   public void test() {
-    checkMessagesVerifier.verify(getIssues("src/test/resources/checks/forLoopConditionAndUpdate.js", new ForLoopConditionAndUpdateCheck()))
+    JavaScriptCheckVerifier.issues(new ForLoopConditionAndUpdateCheck(), new File("src/test/resources/checks/forLoopConditionAndUpdate.js"))
       .next().atLine(3).withMessage("This loop's stop condition tests \"i\" but the incrementer updates \"j\".")
       .next().atLine(5).withMessage("This loop's stop condition tests \"i\" but the incrementer updates \"j\".")
       .next().atLine(7).withMessage("This loop's stop condition tests \"i, j\" but the incrementer updates \"k\".")

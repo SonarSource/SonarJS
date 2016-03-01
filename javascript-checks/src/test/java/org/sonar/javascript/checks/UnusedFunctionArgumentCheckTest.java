@@ -19,17 +19,17 @@
  */
 package org.sonar.javascript.checks;
 
+import java.io.File;
 import org.junit.Test;
-import org.sonar.javascript.checks.tests.TreeCheckTest;
-import org.sonar.squidbridge.checks.CheckMessagesVerifier;
+import org.sonar.javascript.checks.verifier.JavaScriptCheckVerifier;
 
-public class UnusedFunctionArgumentCheckTest extends TreeCheckTest {
+public class UnusedFunctionArgumentCheckTest {
 
   @Test
   public void test() {
     UnusedFunctionArgumentCheck check = new UnusedFunctionArgumentCheck();
 
-    CheckMessagesVerifier.verify(getIssues("src/test/resources/checks/unusedFunctionArgument.js", check))
+    JavaScriptCheckVerifier.issues(check, new File("src/test/resources/checks/unusedFunctionArgument.js"))
       .next().atLine(1).withMessage("Remove the unused function parameter \"b\".")
       .next().atLine(5).withMessage("Remove the unused function parameters \"b, c\".")
       .next().atLine(9).withMessage("Remove the unused function parameter \"p1\".")

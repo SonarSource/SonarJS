@@ -19,19 +19,20 @@
  */
 package org.sonar.javascript.checks;
 
+import java.io.File;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.javascript.checks.tests.TreeCheckTest;
+import org.sonar.javascript.checks.verifier.JavaScriptCheckVerifier;
 import org.sonar.squidbridge.checks.CheckMessagesVerifierRule;
 
-public class NullDereferenceInConditionalCheckTest extends TreeCheckTest {
+public class NullDereferenceInConditionalCheckTest {
 
   @Rule
   public CheckMessagesVerifierRule checkMessagesVerifier = new CheckMessagesVerifierRule();
 
   @Test
   public void test() {
-    checkMessagesVerifier.verify(getIssues("src/test/resources/checks/nullDereferenceInConditional.js", new NullDereferenceInConditionalCheck()))
+    JavaScriptCheckVerifier.issues(new NullDereferenceInConditionalCheck(), new File("src/test/resources/checks/nullDereferenceInConditional.js"))
       .next().atLine(3).withMessage("Either reverse the equality operator in the \"str\" null test, or reverse the logical operator that follows it.")
       .next().atLine(4)
       .next().atLine(8)

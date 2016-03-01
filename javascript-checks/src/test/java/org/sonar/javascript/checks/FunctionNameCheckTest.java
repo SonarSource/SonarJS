@@ -19,17 +19,17 @@
  */
 package org.sonar.javascript.checks;
 
+import java.io.File;
 import org.junit.Test;
-import org.sonar.javascript.checks.tests.TreeCheckTest;
-import org.sonar.squidbridge.checks.CheckMessagesVerifier;
+import org.sonar.javascript.checks.verifier.JavaScriptCheckVerifier;
 
-public class FunctionNameCheckTest extends TreeCheckTest {
+public class FunctionNameCheckTest {
 
   private FunctionNameCheck check = new FunctionNameCheck();
 
   @Test
   public void testDefault() {
-    CheckMessagesVerifier.verify(getIssues("src/test/resources/checks/FunctionName.js", check))
+    JavaScriptCheckVerifier.issues(check, new File("src/test/resources/checks/FunctionName.js"))
       .next().atLine(4).withMessage("Rename this 'DoSomething' function to match the regular expression " + check.DEFAULT)
       .next().atLine(10)
       .next().atLine(17)
@@ -41,7 +41,7 @@ public class FunctionNameCheckTest extends TreeCheckTest {
   public void testCustom() {
     check.format = "^[A-Z][a-zA-Z0-9]*$";
 
-    CheckMessagesVerifier.verify(getIssues("src/test/resources/checks/FunctionName.js", check))
+    JavaScriptCheckVerifier.issues(check, new File("src/test/resources/checks/FunctionName.js"))
       .next().atLine(1).withMessage("Rename this 'doSomething' function to match the regular expression " + check.format)
       .next().atLine(7)
       .next().atLine(14)

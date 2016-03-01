@@ -19,15 +19,15 @@
  */
 package org.sonar.javascript.checks;
 
+import java.io.File;
 import org.junit.Test;
-import org.sonar.javascript.checks.tests.TreeCheckTest;
-import org.sonar.squidbridge.checks.CheckMessagesVerifier;
+import org.sonar.javascript.checks.verifier.JavaScriptCheckVerifier;
 
-public class FunctionDefinitionInsideLoopCheckTest extends TreeCheckTest {
+public class FunctionDefinitionInsideLoopCheckTest {
 
   @Test
   public void test() {
-    CheckMessagesVerifier.verify(getIssues("src/test/resources/checks/functionCreationInsideLoop.js", new FunctionDefinitionInsideLoopCheck()))
+    JavaScriptCheckVerifier.issues(new FunctionDefinitionInsideLoopCheck(), new File("src/test/resources/checks/functionCreationInsideLoop.js"))
       .next().atLine(4).withMessage("Define this function outside of a loop.")
       .next().atLine(12)
       .next().atLine(23)

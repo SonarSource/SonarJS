@@ -19,17 +19,17 @@
  */
 package org.sonar.javascript.checks;
 
+import java.io.File;
 import org.junit.Test;
-import org.sonar.javascript.checks.tests.TreeCheckTest;
-import org.sonar.squidbridge.checks.CheckMessagesVerifier;
+import org.sonar.javascript.checks.verifier.JavaScriptCheckVerifier;
 
-public class ElementTypeSelectorCheckTest extends TreeCheckTest {
+public class ElementTypeSelectorCheckTest {
 
   private ElementTypeSelectorCheck check = new ElementTypeSelectorCheck();
 
   @Test
   public void test() {
-    CheckMessagesVerifier.verify(getIssues("src/test/resources/checks/ElementTypeSelector.js", check))
+    JavaScriptCheckVerifier.issues(check, new File("src/test/resources/checks/ElementTypeSelector.js"))
       .next().atLine(1).withMessage("Use the \"[type='radio']\" selector here instead of \":radio\".")
       .next().atLine(3).withMessage("Use the \"[type='checkbox']\" selector here instead of \":checkbox\".")
       .next().atLine(5)

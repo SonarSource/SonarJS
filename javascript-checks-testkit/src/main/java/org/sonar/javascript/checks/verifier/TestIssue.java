@@ -17,13 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.javascript.checks.tests;
+package org.sonar.javascript.checks.verifier;
 
 import com.google.common.primitives.Ints;
 import java.util.List;
 import javax.annotation.Nullable;
 
-public class TestIssue {
+class TestIssue {
 
   private String message;
   private final int line;

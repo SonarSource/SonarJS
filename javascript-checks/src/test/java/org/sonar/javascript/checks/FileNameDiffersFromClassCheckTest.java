@@ -19,45 +19,45 @@
  */
 package org.sonar.javascript.checks;
 
+import java.io.File;
 import org.junit.Test;
-import org.sonar.javascript.checks.tests.TreeCheckTest;
-import org.sonar.squidbridge.checks.CheckMessagesVerifier;
+import org.sonar.javascript.checks.verifier.JavaScriptCheckVerifier;
 
-public class FileNameDiffersFromClassCheckTest extends TreeCheckTest {
+public class FileNameDiffersFromClassCheckTest {
 
   private final FileNameDiffersFromClassCheck check = new FileNameDiffersFromClassCheck();
   private final String directory = "src/test/resources/checks/FileNameDiffersFromClassCheck/";
 
   @Test
   public void ok() {
-    CheckMessagesVerifier.verify(getIssues(directory + "MyClass.js", check)).noMore();
+    JavaScriptCheckVerifier.issues(check, new File(directory + "MyClass.js")).noMore();
   }
 
   @Test
   public void ok_several_exports() {
-    CheckMessagesVerifier.verify(getIssues(directory + "ok_several_exports.js", check)).noMore();
+    JavaScriptCheckVerifier.issues(check, new File(directory + "ok_several_exports.js")).noMore();
   }
 
   @Test
   public void ok_anonymous_class() {
-    CheckMessagesVerifier.verify(getIssues(directory + "ok_anonymous_class.js", check)).noMore();
+    JavaScriptCheckVerifier.issues(check, new File(directory + "ok_anonymous_class.js")).noMore();
   }
 
   @Test
   public void ok_function_export() {
-    CheckMessagesVerifier.verify(getIssues(directory + "ok_function_export.js", check)).noMore();
+    JavaScriptCheckVerifier.issues(check, new File(directory + "ok_function_export.js")).noMore();
   }
 
   @Test
   public void nok_identifier() {
-    CheckMessagesVerifier.verify(getIssues(directory + "nok_identifier.js", check))
+    JavaScriptCheckVerifier.issues(check, new File(directory + "nok_identifier.js"))
       .next().withMessage("Rename this file to \"MyClass\".")
       .noMore();
   }
 
   @Test
   public void nok_class_declaration() {
-    CheckMessagesVerifier.verify(getIssues(directory + "nok_class_declaration.js", check))
+    JavaScriptCheckVerifier.issues(check, new File(directory + "nok_class_declaration.js"))
       .next().withMessage("Rename this file to \"MyClass\".")
       .noMore();
   }

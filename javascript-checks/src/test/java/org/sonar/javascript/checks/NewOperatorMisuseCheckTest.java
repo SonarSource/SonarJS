@@ -19,17 +19,17 @@
  */
 package org.sonar.javascript.checks;
 
+import java.io.File;
 import org.junit.Test;
-import org.sonar.javascript.checks.tests.TreeCheckTest;
-import org.sonar.squidbridge.checks.CheckMessagesVerifier;
+import org.sonar.javascript.checks.verifier.JavaScriptCheckVerifier;
 
-public class NewOperatorMisuseCheckTest extends TreeCheckTest {
+public class NewOperatorMisuseCheckTest {
 
   private NewOperatorMisuseCheck check = new NewOperatorMisuseCheck();
 
   @Test
   public void default_without_jsdoc() {
-    CheckMessagesVerifier.verify(getIssues("src/test/resources/checks/newOperatorMisuse.js", check))
+    JavaScriptCheckVerifier.issues(check, new File("src/test/resources/checks/newOperatorMisuse.js"))
       .next().atLine(36)
       .next().atLine(37)
       .next().atLine(38)
@@ -42,7 +42,7 @@ public class NewOperatorMisuseCheckTest extends TreeCheckTest {
   public void custom_with_jsdoc() {
     check.considerJSDoc = true;
 
-    CheckMessagesVerifier.verify(getIssues("src/test/resources/checks/newOperatorMisuse.js", check))
+    JavaScriptCheckVerifier.issues(check, new File("src/test/resources/checks/newOperatorMisuse.js"))
       .next().atLine(36)
       .next().atLine(37)
       .next().atLine(38)

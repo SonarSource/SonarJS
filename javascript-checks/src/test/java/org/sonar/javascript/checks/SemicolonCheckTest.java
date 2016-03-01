@@ -19,17 +19,17 @@
  */
 package org.sonar.javascript.checks;
 
+import java.io.File;
 import org.junit.Test;
-import org.sonar.javascript.checks.tests.TreeCheckTest;
-import org.sonar.squidbridge.checks.CheckMessagesVerifier;
+import org.sonar.javascript.checks.verifier.JavaScriptCheckVerifier;
 
-public class SemicolonCheckTest extends TreeCheckTest {
+public class SemicolonCheckTest {
 
   @Test
   public void test() {
     SemicolonCheck check = new SemicolonCheck();
 
-    CheckMessagesVerifier.verify(getIssues("src/test/resources/checks/semicolon.js", check))
+    JavaScriptCheckVerifier.issues(check, new File("src/test/resources/checks/semicolon.js"))
       .next().atLine(2).withMessage("Add a semicolon at the end of this statement.")
       .next().atLine(7)
       .next().atLine(22)

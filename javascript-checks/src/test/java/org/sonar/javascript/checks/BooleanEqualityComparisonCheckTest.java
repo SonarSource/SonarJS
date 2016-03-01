@@ -19,17 +19,17 @@
  */
 package org.sonar.javascript.checks;
 
+import java.io.File;
 import org.junit.Test;
-import org.sonar.javascript.checks.tests.TreeCheckTest;
-import org.sonar.squidbridge.checks.CheckMessagesVerifier;
+import org.sonar.javascript.checks.verifier.JavaScriptCheckVerifier;
 
-public class BooleanEqualityComparisonCheckTest extends TreeCheckTest {
+public class BooleanEqualityComparisonCheckTest {
 
   private BooleanEqualityComparisonCheck check = new BooleanEqualityComparisonCheck();
 
   @Test
   public void test() {
-    CheckMessagesVerifier.verify(getIssues("src/test/resources/checks/booleanEqualityComparison.js", check))
+    JavaScriptCheckVerifier.issues(check, new File("src/test/resources/checks/booleanEqualityComparison.js"))
       .next().atLine(1).withMessage("Remove the literal \"true\" boolean value.")
       .next().atLine(2)
       .next().atLine(3).withMessage("Remove the literal \"false\" boolean value.")

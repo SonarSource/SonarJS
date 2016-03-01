@@ -19,15 +19,15 @@
  */
 package org.sonar.javascript.checks;
 
+import java.io.File;
 import org.junit.Test;
-import org.sonar.javascript.checks.tests.TreeCheckTest;
-import org.sonar.squidbridge.checks.CheckMessagesVerifier;
+import org.sonar.javascript.checks.verifier.JavaScriptCheckVerifier;
 
-public class StrictModeCheckTest extends TreeCheckTest {
+public class StrictModeCheckTest {
 
   @Test
   public void test() {
-    CheckMessagesVerifier.verify(getIssues("src/test/resources/checks/strictMode.js", new StrictModeCheck()))
+    JavaScriptCheckVerifier.issues(new StrictModeCheck(), new File("src/test/resources/checks/strictMode.js"))
       .next().atLine(1).withMessage("Use of JavaScript strict mode may result in unexpected behaviour in some browsers.")
       .next().atLine(2)
       .noMore();

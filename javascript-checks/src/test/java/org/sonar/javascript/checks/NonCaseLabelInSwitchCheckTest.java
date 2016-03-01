@@ -19,15 +19,15 @@
  */
 package org.sonar.javascript.checks;
 
+import java.io.File;
 import org.junit.Test;
-import org.sonar.javascript.checks.tests.TreeCheckTest;
-import org.sonar.squidbridge.checks.CheckMessagesVerifier;
+import org.sonar.javascript.checks.verifier.JavaScriptCheckVerifier;
 
-public class NonCaseLabelInSwitchCheckTest extends TreeCheckTest {
+public class NonCaseLabelInSwitchCheckTest {
 
   @Test
   public void test() {
-    CheckMessagesVerifier.verify(getIssues("src/test/resources/checks/nonCaseLabelInSwitch.js", new NonCaseLabelInSwitchCheck()))
+    JavaScriptCheckVerifier.issues(new NonCaseLabelInSwitchCheck(), new File("src/test/resources/checks/nonCaseLabelInSwitch.js"))
       .next().atLine(4).withMessage("Remove this misleading \"case2\" label.")
       .next().atLine(13)
       .next().atLine(23)

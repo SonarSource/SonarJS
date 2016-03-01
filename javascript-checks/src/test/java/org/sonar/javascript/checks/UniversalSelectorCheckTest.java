@@ -19,17 +19,17 @@
  */
 package org.sonar.javascript.checks;
 
+import java.io.File;
 import org.junit.Test;
-import org.sonar.javascript.checks.tests.TreeCheckTest;
-import org.sonar.squidbridge.checks.CheckMessagesVerifier;
+import org.sonar.javascript.checks.verifier.JavaScriptCheckVerifier;
 
-public class UniversalSelectorCheckTest extends TreeCheckTest {
+public class UniversalSelectorCheckTest {
 
   private UniversalSelectorCheck check = new UniversalSelectorCheck();
 
   @Test
   public void test() {
-    CheckMessagesVerifier.verify(getIssues("src/test/resources/checks/UniversalSelector.js", check))
+    JavaScriptCheckVerifier.issues(check, new File("src/test/resources/checks/UniversalSelector.js"))
       .next().atLine(1)
       .next().atLine(3)
       .next().atLine(5)

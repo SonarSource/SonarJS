@@ -19,15 +19,15 @@
  */
 package org.sonar.javascript.checks;
 
+import java.io.File;
 import org.junit.Test;
-import org.sonar.javascript.checks.tests.TreeCheckTest;
-import org.sonar.squidbridge.checks.CheckMessagesVerifier;
+import org.sonar.javascript.checks.verifier.JavaScriptCheckVerifier;
 
-public class ParseIntCallWithoutBaseCheckTest extends TreeCheckTest {
+public class ParseIntCallWithoutBaseCheckTest {
 
   @Test
   public void test() {
-    CheckMessagesVerifier.verify(getIssues("src/test/resources/checks/parseIntCallWithoutBase.js", new ParseIntCallWithoutBaseCheck()))
+    JavaScriptCheckVerifier.issues(new ParseIntCallWithoutBaseCheck(), new File("src/test/resources/checks/parseIntCallWithoutBase.js"))
       .next().atLine(1).withMessage("Add the base to this \"parseInt\" call.")
       .noMore();
   }

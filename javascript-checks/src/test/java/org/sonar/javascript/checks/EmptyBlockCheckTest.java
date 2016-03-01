@@ -19,15 +19,15 @@
  */
 package org.sonar.javascript.checks;
 
+import java.io.File;
 import org.junit.Test;
-import org.sonar.javascript.checks.tests.TreeCheckTest;
-import org.sonar.squidbridge.checks.CheckMessagesVerifier;
+import org.sonar.javascript.checks.verifier.JavaScriptCheckVerifier;
 
-public class EmptyBlockCheckTest extends TreeCheckTest {
+public class EmptyBlockCheckTest {
 
   @Test
   public void test() {
-    CheckMessagesVerifier.verify(getIssues("src/test/resources/checks/emptyBlock.js", new EmptyBlockCheck()))
+    JavaScriptCheckVerifier.issues(new EmptyBlockCheck(), new File("src/test/resources/checks/emptyBlock.js"))
       .next().atLine(2).withMessage("Either remove or fill this block of code.")
       .next().atLine(16).withMessage("Either remove or fill this block of code.")
       .noMore();

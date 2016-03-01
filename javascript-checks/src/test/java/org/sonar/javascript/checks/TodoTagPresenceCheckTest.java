@@ -19,15 +19,15 @@
  */
 package org.sonar.javascript.checks;
 
+import java.io.File;
 import org.junit.Test;
-import org.sonar.javascript.checks.tests.TreeCheckTest;
-import org.sonar.squidbridge.checks.CheckMessagesVerifier;
+import org.sonar.javascript.checks.verifier.JavaScriptCheckVerifier;
 
-public class TodoTagPresenceCheckTest extends TreeCheckTest {
+public class TodoTagPresenceCheckTest {
 
   @Test
   public void test() {
-    CheckMessagesVerifier.verify(getIssues("src/test/resources/checks/todoTagPresence.js", new TodoTagPresenceCheck()))
+    JavaScriptCheckVerifier.issues(new TodoTagPresenceCheck(), new File("src/test/resources/checks/todoTagPresence.js"))
       .next().atLine(3).withMessage("Complete the task associated to this TODO comment.")
       .next().atLine(7)
       .next().atLine(8)

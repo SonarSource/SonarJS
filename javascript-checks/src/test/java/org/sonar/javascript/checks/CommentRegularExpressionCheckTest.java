@@ -19,13 +19,13 @@
  */
 package org.sonar.javascript.checks;
 
+import java.io.File;
 import org.junit.Test;
-import org.sonar.javascript.checks.tests.TreeCheckTest;
-import org.sonar.squidbridge.checks.CheckMessagesVerifier;
+import org.sonar.javascript.checks.verifier.JavaScriptCheckVerifier;
 
 import static org.fest.assertions.Assertions.assertThat;
 
-public class CommentRegularExpressionCheckTest extends TreeCheckTest {
+public class CommentRegularExpressionCheckTest {
 
   @Test
   public void test() {
@@ -34,12 +34,12 @@ public class CommentRegularExpressionCheckTest extends TreeCheckTest {
     check.setRegularExpression("(?i).*TODO.*");
     check.setMessage("Avoid TODO");
 
-    CheckMessagesVerifier.verify(getIssues("src/test/resources/checks/commentRegularExpression.js", check))
+    JavaScriptCheckVerifier.issues(check, new File("src/test/resources/checks/commentRegularExpression.js"))
       .next().atLine(2).withMessage("Avoid TODO")
       .noMore();
 
     check.setRegularExpression("");
-    CheckMessagesVerifier.verify(getIssues("src/test/resources/checks/commentRegularExpression.js", check))
+    JavaScriptCheckVerifier.issues(check, new File("src/test/resources/checks/commentRegularExpression.js"))
       .noMore();
 
     try {

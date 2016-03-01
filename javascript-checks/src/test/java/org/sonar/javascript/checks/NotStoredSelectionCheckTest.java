@@ -19,18 +19,18 @@
  */
 package org.sonar.javascript.checks;
 
+import java.io.File;
 import org.junit.Test;
-import org.sonar.javascript.checks.tests.TreeCheckTest;
-import org.sonar.squidbridge.checks.CheckMessagesVerifier;
+import org.sonar.javascript.checks.verifier.JavaScriptCheckVerifier;
 
-public class NotStoredSelectionCheckTest extends TreeCheckTest {
+public class NotStoredSelectionCheckTest {
 
   private NotStoredSelectionCheck check = new NotStoredSelectionCheck();
 
   @Test
   public void test() {
     check.threshold = 1;
-    CheckMessagesVerifier.verify(getIssues("src/test/resources/checks/NotStoredSelection.js", check))
+    JavaScriptCheckVerifier.issues(check, new File("src/test/resources/checks/NotStoredSelection.js"))
       .next().atLine(2).withMessage("Selection \"$( \"p\" )\" is made 2 times. It should be stored in a variable and reused.")
       .next().atLine(7).withMessage("Selection \"$( \"p\" )\" is made 3 times. It should be stored in a variable and reused.")
       .next().atLine(13)
