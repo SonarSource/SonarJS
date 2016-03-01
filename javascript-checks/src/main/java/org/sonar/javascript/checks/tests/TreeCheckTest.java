@@ -24,7 +24,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import org.sonar.javascript.JavaScriptVisitorContext;
+import org.sonar.javascript.visitors.JavaScriptVisitorContext;
 import org.sonar.javascript.checks.ParsingErrorCheck;
 import org.sonar.plugins.javascript.api.JavaScriptCheck;
 import org.sonar.plugins.javascript.api.visitors.FileIssue;

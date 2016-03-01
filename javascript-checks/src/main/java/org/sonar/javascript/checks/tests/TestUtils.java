@@ -25,7 +25,7 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 import org.sonar.api.config.Settings;
-import org.sonar.javascript.JavaScriptVisitorContext;
+import org.sonar.javascript.visitors.JavaScriptVisitorContext;
 import org.sonar.javascript.parser.JavaScriptParserBuilder;
 import org.sonar.javascript.tree.symbols.type.JQuery;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;

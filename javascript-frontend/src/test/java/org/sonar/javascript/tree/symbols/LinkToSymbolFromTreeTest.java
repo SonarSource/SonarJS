@@ -23,7 +23,7 @@ import java.io.File;
 import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
-import org.sonar.javascript.JavaScriptVisitorContext;
+import org.sonar.javascript.visitors.JavaScriptVisitorContext;
 import org.sonar.javascript.utils.JavaScriptTreeModelTest;
 import org.sonar.plugins.javascript.api.symbols.Symbol;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;

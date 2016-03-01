@@ -55,7 +55,7 @@ import org.sonar.api.measures.Metric;
 import org.sonar.api.resources.Project;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.source.Symbolizable;
-import org.sonar.javascript.JavaScriptVisitorContext;
+import org.sonar.javascript.visitors.JavaScriptVisitorContext;
 import org.sonar.javascript.checks.CheckList;
 import org.sonar.javascript.checks.ParsingErrorCheck;
 import org.sonar.javascript.highlighter.HighlightSymbolTableBuilder;

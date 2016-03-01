@@ -23,7 +23,7 @@ import com.google.common.base.Charsets;
 import com.sonar.sslr.api.typed.ActionParser;
 import java.io.File;
 import java.util.Iterator;
-import org.sonar.javascript.JavaScriptVisitorContext;
+import org.sonar.javascript.visitors.JavaScriptVisitorContext;
 import org.sonar.javascript.parser.JavaScriptParserBuilder;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.javascript.tree.symbols.SymbolModelImpl;

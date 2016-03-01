@@ -29,7 +29,7 @@ import java.util.Iterator;
 import java.util.List;
 import javax.annotation.Nullable;
 import org.fest.assertions.Assertions;
-import org.sonar.javascript.JavaScriptVisitorContext;
+import org.sonar.javascript.visitors.JavaScriptVisitorContext;
 import org.sonar.javascript.checks.tests.TestIssue;
 import org.sonar.javascript.checks.tests.TestUtils;
 import org.sonar.plugins.javascript.api.JavaScriptCheck;

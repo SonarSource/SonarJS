@@ -20,7 +20,7 @@
 package org.sonar.javascript.tree.symbols.type;
 
 import java.io.File;
-import org.sonar.javascript.JavaScriptVisitorContext;
+import org.sonar.javascript.visitors.JavaScriptVisitorContext;
 import org.sonar.javascript.utils.JavaScriptTreeModelTest;
 import org.sonar.plugins.javascript.api.symbols.Symbol;
 import org.sonar.plugins.javascript.api.symbols.SymbolModel;
