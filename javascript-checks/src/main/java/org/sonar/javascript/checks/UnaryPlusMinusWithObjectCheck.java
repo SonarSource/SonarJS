@@ -20,9 +20,8 @@
 package org.sonar.javascript.checks;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableSet;
+import java.util.EnumSet;
 import java.util.List;
-import java.util.Set;
 import org.sonar.api.server.rule.RulesDefinition.SubCharacteristics;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
@@ -48,7 +47,7 @@ public class UnaryPlusMinusWithObjectCheck extends SubscriptionVisitorCheck {
 
   private static final String MESSAGE = "Remove this use of unary \"%s\".";
 
-  private static final Set<Type.Kind> ALLOWED_TYPES = ImmutableSet.of(
+  private static final EnumSet<Type.Kind> ALLOWED_TYPES = EnumSet.of(
     Type.Kind.BOOLEAN,
     Type.Kind.NUMBER,
     Type.Kind.STRING

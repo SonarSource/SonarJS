@@ -26,7 +26,6 @@ import java.util.List;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
-import org.sonar.javascript.checks.utils.CheckUtils;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.declaration.FunctionDeclarationTree;
@@ -72,7 +71,7 @@ public class ArgumentsCallerCalleeUsageCheck extends SubscriptionVisitorCheck {
 
   @Override
   public void visitNode(Tree tree) {
-    if (tree.is(CheckUtils.functionNodesArray())) {
+    if (tree.is(FUNCTION_NODES)) {
       IdentifierTree name = getFunctionName(tree);
 
       if (name != null) {

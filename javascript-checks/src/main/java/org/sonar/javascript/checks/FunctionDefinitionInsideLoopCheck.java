@@ -26,7 +26,6 @@ import java.util.List;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
-import org.sonar.javascript.checks.utils.CheckUtils;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.visitors.SubscriptionVisitorCheck;
@@ -47,10 +46,17 @@ public class FunctionDefinitionInsideLoopCheck extends SubscriptionVisitorCheck 
   private static final String MESSAGE = "Define this function outside of a loop.";
   private Deque<Integer> scope = new ArrayDeque<>();
 
+  private static final Kind[] ITERATION_STATEMENTS = {
+    Kind.DO_WHILE_STATEMENT,
+    Kind.WHILE_STATEMENT,
+    Kind.FOR_IN_STATEMENT,
+    Kind.FOR_OF_STATEMENT,
+    Kind.FOR_STATEMENT};
+
   @Override
   public List<Kind> nodesToVisit() {
     return ImmutableList.<Kind>builder()
-      .add(CheckUtils.iterationStatementsArray())
+      .add(ITERATION_STATEMENTS)
       .add(Kind.FUNCTION_EXPRESSION,
         Kind.FUNCTION_DECLARATION,
         Kind.GENERATOR_FUNCTION_EXPRESSION,
@@ -66,7 +72,7 @@ public class FunctionDefinitionInsideLoopCheck extends SubscriptionVisitorCheck 
 
   @Override
   public void visitNode(Tree tree) {
-    if (tree.is(CheckUtils.iterationStatementsArray())) {
+    if (tree.is(ITERATION_STATEMENTS)) {
       incrementLoopLevelinScope();
 
     } else {
@@ -79,7 +85,7 @@ public class FunctionDefinitionInsideLoopCheck extends SubscriptionVisitorCheck 
 
   @Override
   public void leaveNode(Tree tree) {
-    if (tree.is(CheckUtils.iterationStatementsArray())) {
+    if (tree.is(ITERATION_STATEMENTS)) {
       decrementLoopLevelinScope();
 
     } else {

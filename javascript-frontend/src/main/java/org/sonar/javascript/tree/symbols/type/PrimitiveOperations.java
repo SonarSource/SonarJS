@@ -19,10 +19,9 @@
  */
 package org.sonar.javascript.tree.symbols.type;
 
-import com.google.common.collect.ImmutableSet;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 import javax.annotation.Nullable;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.plugins.javascript.api.symbols.Type;
@@ -54,7 +53,7 @@ public class PrimitiveOperations {
 
   }
 
-  private static final Set<Tree.Kind> COMPARATIVE_OPERATORS = ImmutableSet.of(
+  private static final EnumSet<Tree.Kind> COMPARATIVE_OPERATORS = EnumSet.of(
     Tree.Kind.LESS_THAN,
     Tree.Kind.GREATER_THAN,
     Tree.Kind.LESS_THAN_OR_EQUAL_TO,
@@ -65,14 +64,14 @@ public class PrimitiveOperations {
     Tree.Kind.STRICT_NOT_EQUAL_TO
   );
 
-  private static final Set<Tree.Kind> ARITHMETIC_OPERATORS = ImmutableSet.of(
+  private static final EnumSet<Tree.Kind> ARITHMETIC_OPERATORS = EnumSet.of(
     Tree.Kind.MINUS,
     Tree.Kind.MULTIPLY,
     Tree.Kind.DIVIDE,
     Tree.Kind.REMAINDER
   );
 
-  private static final Set<Tree.Kind> NUMBER_UNARY_OPERATORS = ImmutableSet.of(
+  private static final EnumSet<Tree.Kind> NUMBER_UNARY_OPERATORS = EnumSet.of(
     Tree.Kind.PREFIX_DECREMENT,
     Tree.Kind.PREFIX_INCREMENT,
     Tree.Kind.POSTFIX_DECREMENT,
