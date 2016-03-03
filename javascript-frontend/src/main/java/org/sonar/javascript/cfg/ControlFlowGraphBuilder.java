@@ -29,6 +29,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
@@ -183,6 +184,13 @@ class ControlFlowGraphBuilder {
 
     if (emptyBlockReplacements.containsKey(start)) {
       start = emptyBlockReplacements.get(start);
+    }
+
+    for (Entry<StatementTree, MutableBlock> entry : startingBlockByStatement.entrySet()) {
+      MutableBlock block = entry.getValue();
+      if (emptyBlockReplacements.containsKey(block)) {
+        startingBlockByStatement.put(entry.getKey(), emptyBlockReplacements.get(block));
+      }
     }
   }
 

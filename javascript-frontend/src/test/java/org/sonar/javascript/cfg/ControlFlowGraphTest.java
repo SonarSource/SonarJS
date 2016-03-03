@@ -606,6 +606,7 @@ public class ControlFlowGraphTest {
     assertStartingBlock("dummy; for(var i in obj){}", Kind.FOR_IN_STATEMENT, 1);
     assertStartingBlock("dummy; while(condition){x;}", Kind.WHILE_STATEMENT, 1);
     assertStartingBlock("dummy; do {x;} while(condition)", Kind.DO_WHILE_STATEMENT, 1);
+    assertStartingBlock("dummy; do { while(x) { y; } } while(condition)", Kind.DO_WHILE_STATEMENT, 1);
     assertStartingBlock("while(condition) { continue; }", Kind.CONTINUE_STATEMENT, 1);
     assertStartingBlock("while(condition) { break; }", Kind.BREAK_STATEMENT, 1);
     assertStartingBlock("dummy; return;", Kind.RETURN_STATEMENT, 0);
