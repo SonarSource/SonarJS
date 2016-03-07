@@ -18,12 +18,12 @@ ci)
   ;;
 
 plugin|ruling|type-inference)  
+  echo "$TEST done in QA"
+#  if [ "$SQ_VERSION" = "DEV" ] ; then
+#    build_snapshot "SonarSource/sonarqube"
+#  fi
 
-  if [ "$SQ_VERSION" = "DEV" ] ; then
-    build_snapshot "SonarSource/sonarqube"
-  fi
-
-  mvn -Dsonar.runtimeVersion="$SQ_VERSION" -Dmaven.test.redirectTestOutputToFile=false -Pit-$TEST package
+#  mvn -Dsonar.runtimeVersion="$SQ_VERSION" -Dmaven.test.redirectTestOutputToFile=false -Pit-$TEST package
   ;;
 
 *)
