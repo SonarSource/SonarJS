@@ -1,0 +1,19 @@
+# Definition of QA pipeline at SonarSource
+#
+# Possible values for SLAVE: "performance" (for perf tests) and "linux" (for linux machines connected to DB services)
+
+TEST:
+  - plugin
+  - ruling
+  - type-inference
+
+SQ_VERSION: 
+  - DEV
+  - LATEST_RELEASE
+  - LTS
+
+
+exclude:
+
+
+
