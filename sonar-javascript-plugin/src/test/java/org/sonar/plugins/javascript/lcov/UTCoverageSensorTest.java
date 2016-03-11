@@ -68,7 +68,7 @@ public class UTCoverageSensorTest {
   public void test_should_execute() {
     DefaultFileSystem fs = new DefaultFileSystem();
     Settings localSettings = new Settings();
-    UTCoverageSensor localSensor = newSensor(fs, localSettings);
+    LCOVCoverageSensor localSensor = newSensor(fs, localSettings);
 
     // no JS files -> do not execute
     assertThat(localSensor.shouldExecuteOnProject(project)).isFalse();
@@ -194,7 +194,7 @@ public class UTCoverageSensorTest {
     return fs;
   }
 
-  public UTCoverageSensor newSensor(DefaultFileSystem fs, Settings settings) {
+  public LCOVCoverageSensor newSensor(DefaultFileSystem fs, Settings settings) {
     return new UTCoverageSensor(fs, settings);
   }
 

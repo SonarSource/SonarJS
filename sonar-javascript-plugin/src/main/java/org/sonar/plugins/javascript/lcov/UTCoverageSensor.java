@@ -35,7 +35,7 @@ public class UTCoverageSensor extends LCOVCoverageSensor {
     conditionsByLineMetric = CoreMetrics.CONDITIONS_BY_LINE;
     uncoveredConditionsMetric = CoreMetrics.UNCOVERED_CONDITIONS;
     conditionsToCoverMetric = CoreMetrics.CONDITIONS_TO_COVER;
-    reportPath = JavaScriptPlugin.LCOV_UT_REPORT_PATH;
+    reportPaths = new String[]{ JavaScriptPlugin.LCOV_UT_REPORT_PATH };
   }
 
 }
