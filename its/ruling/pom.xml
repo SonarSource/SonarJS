@@ -48,13 +48,4 @@
     </dependency>
   </dependencies>
 
-  <profiles>
-    <profile>
-      <id>it-ruling</id>
-      <properties>
-        <skipTests>false</skipTests>
-      </properties>
-    </profile>
-  </profiles>
-
 </project>

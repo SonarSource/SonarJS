@@ -40,13 +40,4 @@
     </dependency>
   </dependencies>
 
-  <profiles>
-    <profile>
-      <id>it-performancing</id>
-      <properties>
-        <skipTests>false</skipTests>
-      </properties>
-    </profile>
-  </profiles>
-
 </project>

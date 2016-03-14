@@ -46,7 +46,6 @@
     <module>javascript-checks</module>
     <module>sonar-compat</module>
     <module>sonar-javascript-plugin</module>
-    <module>its</module>
     <module>javascript-checks-testkit</module>
   </modules>
 
@@ -151,5 +150,14 @@
       </dependency>
     </dependencies>
   </dependencyManagement>
+
+  <profiles>
+    <profile>
+      <id>its</id>
+      <modules>
+        <module>its</module>
+      </modules>
+    </profile>
+  </profiles>
 
 </project>

@@ -17,7 +17,9 @@ ci)
 
 ruling)
 
-  mvn -B -e -Dsonar.runtimeVersion="LATEST_RELEASE" -Dmaven.test.redirectTestOutputToFile=false -Pit-$TEST package
+  mvn -B -e -Dsource.skip=true -Denforcer.skip=true -Danimal.sniffer.skip=true -Dmaven.test.skip=true package
+  cd its/ruling
+  mvn -B -e -Dsonar.runtimeVersion="LATEST_RELEASE" -Dmaven.test.redirectTestOutputToFile=false package
   ;;
 
 *)

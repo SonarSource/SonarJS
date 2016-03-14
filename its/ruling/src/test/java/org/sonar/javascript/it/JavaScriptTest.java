@@ -19,15 +19,12 @@
  */
 package org.sonar.javascript.it;
 
-import com.google.common.collect.Iterables;
 import com.google.common.io.Files;
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.SonarRunner;
 import com.sonar.orchestrator.locator.FileLocation;
 import java.io.File;
-import java.io.FilenameFilter;
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
@@ -39,7 +36,8 @@ public class JavaScriptTest {
 
   @ClassRule
   public static Orchestrator orchestrator = Orchestrator.builderEnv()
-    .addPlugin(localJarPath("../../sonar-javascript-plugin/target"))
+    .addPlugin(FileLocation.byWildcardMavenFilename(
+      new File("../../sonar-javascript-plugin/target"), "sonar-javascript-plugin-*.jar"))
     .setOrchestratorProperty("litsVersion", "0.5")
     .addPlugin("lits")
     .build();
@@ -74,15 +72,6 @@ public class JavaScriptTest {
     orchestrator.executeBuild(build);
 
     assertThat(Files.toString(litsDifferencesFile, StandardCharsets.UTF_8)).isEmpty();
-  }
-
-  private static FileLocation localJarPath(String directory) {
-    return FileLocation.of(Iterables.getOnlyElement(Arrays.asList(new File(directory).listFiles(new FilenameFilter() {
-      @Override
-      public boolean accept(File dir, String name) {
-        return name.endsWith(".jar") && !name.endsWith("-sources.jar");
-      }
-    }))).getAbsolutePath());
   }
 
 }

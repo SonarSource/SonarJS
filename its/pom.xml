@@ -19,8 +19,4 @@
     <module>type-inference</module>
   </modules>
 
-  <properties>
-    <skipTests>true</skipTests>
-  </properties>
-
 </project>
