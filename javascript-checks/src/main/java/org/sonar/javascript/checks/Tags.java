@@ -38,6 +38,8 @@ public class Tags {
   public static final String LOCK_IN = "lock-in";
   public static final String MISRA = "misra";
   public static final String OBSOLETE = "obsolete";
+  public static final String OWASP_A1 = "owasp-a1";
+  public static final String OWASP_A2 = "owasp-a2";
   public static final String OWASP_A3 = "owasp-a3";
   public static final String OWASP_A6 = "owasp-a6";
   public static final String OWASP_A9 = "owasp-a9";

@@ -28,6 +28,7 @@ import org.sonar.api.rules.RuleFinder;
 import org.sonar.api.utils.AnnotationUtils;
 import org.sonar.api.utils.ValidationMessages;
 import org.sonar.javascript.checks.AlertUseCheck;
+import org.sonar.javascript.checks.AlwaysTrueOrFalseConditionCheck;
 import org.sonar.javascript.checks.ArrayAndObjectConstructorsCheck;
 import org.sonar.javascript.checks.AssignmentWithinConditionCheck;
 import org.sonar.javascript.checks.BoundOrAssignedEvalOrArgumentsCheck;
@@ -91,6 +92,7 @@ public class JavaScriptSecurityProfile extends ProfileDefinition {
   public static List<Class<?>> getChecks() {
     return ImmutableList.<Class<?>>of(
       AlertUseCheck.class,
+      AlwaysTrueOrFalseConditionCheck.class,
       ArrayAndObjectConstructorsCheck.class,
       AssignmentWithinConditionCheck.class,
       BoundOrAssignedEvalOrArgumentsCheck.class,

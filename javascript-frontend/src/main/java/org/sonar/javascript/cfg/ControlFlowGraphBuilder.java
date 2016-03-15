@@ -29,6 +29,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import org.sonar.javascript.tree.TreeKinds;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
@@ -110,22 +111,6 @@ class ControlFlowGraphBuilder {
     Kind.BITWISE_XOR,
     Kind.BITWISE_OR,
     Kind.COMMA_OPERATOR
-  };
-
-  private static final Kind[] ASSIGNMENT_KINDS = {
-    Kind.ASSIGNMENT,
-    Kind.EXPONENT_ASSIGNMENT,
-    Kind.MULTIPLY_ASSIGNMENT,
-    Kind.DIVIDE_ASSIGNMENT,
-    Kind.REMAINDER_ASSIGNMENT,
-    Kind.PLUS_ASSIGNMENT,
-    Kind.MINUS_ASSIGNMENT,
-    Kind.LEFT_SHIFT_ASSIGNMENT,
-    Kind.RIGHT_SHIFT_ASSIGNMENT,
-    Kind.UNSIGNED_RIGHT_SHIFT_ASSIGNMENT,
-    Kind.AND_ASSIGNMENT,
-    Kind.XOR_ASSIGNMENT,
-    Kind.OR_ASSIGNMENT
   };
 
   private static final Kind[] UNARY_KINDS = {
@@ -262,7 +247,7 @@ class ControlFlowGraphBuilder {
       buildExpression(binary.rightOperand());
       buildExpression(binary.leftOperand());
 
-    } else if (tree.is(ASSIGNMENT_KINDS)) {
+    } else if (TreeKinds.isAssignment(tree)) {
       AssignmentExpressionTree assignment = (AssignmentExpressionTree) tree;
       buildExpression(assignment.variable());
       buildExpression(assignment.expression());
