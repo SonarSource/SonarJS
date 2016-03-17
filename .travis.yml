@@ -8,7 +8,6 @@ install: true
 script: ./travis.sh
 env:
   - TEST=ci
-  - TEST=ruling
 matrix:
   fast_finish: true
 
