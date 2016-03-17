@@ -17,21 +17,5 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.javascript;
-
-import org.junit.Test;
-import org.sonar.api.Plugin.Context;
-import org.sonar.api.utils.Version;
-
-import static org.fest.assertions.Assertions.assertThat;
-
-public class JavaScriptPluginTest {
-
-  @Test
-  public void get_extensions() throws Exception {
-    Context context = new Context(Version.create(5, 6));
-    new JavaScriptPlugin().define(context);
-    assertThat(context.getExtensions()).hasSize(13);
-  }
-
-}
+@javax.annotation.ParametersAreNonnullByDefault
+package org.sonar.javascript.cpd;
