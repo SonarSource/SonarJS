@@ -19,6 +19,14 @@ function foo(){
   doSomething(b);
 
   global2 = 1 // OK - global
+
+  x = 1; // Noncompliant
+  if (condition) {
+    x = 2;
+  } else {
+    x = a || b;
+  }
+  foo(x);
 }
 
 function loops() {

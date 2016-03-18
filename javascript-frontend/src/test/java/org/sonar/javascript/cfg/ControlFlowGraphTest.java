@@ -502,7 +502,7 @@ public class ControlFlowGraphTest {
   public void and_condition() throws Exception {
     ControlFlowGraph g = build("if (b0 && b1) { b2; } b3;", 4);
     assertBlock(g, 0).hasElements("b0").hasSuccessors(1, 3);
-    assertBlock(g, 1).hasElements("b1", "b0 && b1").hasSuccessors(2, 3);
+    assertBlock(g, 1).hasElements("b1").hasSuccessors(2, 3);
     assertBlock(g, 2).hasElements("b2").hasSuccessors(3);
     assertBlock(g, 3).hasElements("b3").hasSuccessors(END);
   }
@@ -510,10 +510,28 @@ public class ControlFlowGraphTest {
   @Test
   public void or_condition() throws Exception {
     ControlFlowGraph g = build("if (b0 || b1) { b2; } b3;", 4);
-    assertBlock(g, 0).hasElements("b0").hasSuccessors(1, 2);
-    assertBlock(g, 1).hasElements("b1", "b0 || b1").hasSuccessors(2, 3);
+    assertBlock(g, 0).hasElements("b0").hasSuccessors(2, 1);
+    assertBlock(g, 1).hasElements("b1").hasSuccessors(2, 3);
     assertBlock(g, 2).hasElements("b2").hasSuccessors(3);
     assertBlock(g, 3).hasElements("b3").hasSuccessors(END);
+  }
+
+  @Test
+  public void assignment_with_and() throws Exception {
+    ControlFlowGraph g = build("x = b0 && b1 && b2;", 4, 1);
+    assertBlock(g, 0).hasElements("x", "x = b0 && b1 && b2").hasSuccessors(END);
+    assertBlock(g, 1).hasElements("b0").hasSuccessors(2, 0);
+    assertBlock(g, 2).hasElements("b1").hasSuccessors(3, 0);
+    assertBlock(g, 3).hasElements("b2").hasSuccessors(0);
+  }
+  
+  @Test
+  public void assignment_with_or() throws Exception {
+    ControlFlowGraph g = build("x = b0 || b1 || b2;", 4, 1);
+    assertBlock(g, 0).hasElements("x", "x = b0 || b1 || b2").hasSuccessors(END);
+    assertBlock(g, 1).hasElements("b0").hasSuccessors(0, 2);
+    assertBlock(g, 2).hasElements("b1").hasSuccessors(0, 3);
+    assertBlock(g, 3).hasElements("b2").hasSuccessors(0);
   }
 
   @Test
