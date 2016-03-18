@@ -55,6 +55,8 @@ switch (param) {
     break;
   case h || i:
     break;
+  case g2:
+    break;
   case j && k:
     break;
   case l ? m : n:
