@@ -20,6 +20,7 @@
 package org.sonar.javascript.cfg;
 
 import java.util.List;
+import javax.annotation.CheckForNull;
 import org.sonar.plugins.javascript.api.tree.Tree;
 
 /**
@@ -29,6 +30,14 @@ import org.sonar.plugins.javascript.api.tree.Tree;
 public interface ControlFlowBlock extends ControlFlowNode {
 
   List<Tree> elements();
+
+  ControlFlowNode trueSuccessor();
+
+  ControlFlowNode falseSuccessor();
+
+  @CheckForNull
+  Tree branchingTree();
+
 
 }
 

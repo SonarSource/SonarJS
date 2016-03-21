@@ -23,6 +23,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableSet;
 import java.util.Map;
 import java.util.Set;
+import org.sonar.plugins.javascript.api.tree.Tree;
 
 /**
  * A {@link MutableBlock} with 2 successors: represents a block ending
@@ -30,20 +31,22 @@ import java.util.Set;
  */
 class BranchingBlock extends MutableBlock {
 
-  private MutableBlock trueSuccessor = null;
-  private MutableBlock falseSuccessor = null;
+  private final Tree branchingTree;
+  private MutableBlock trueSuccessor;
+  private MutableBlock falseSuccessor;
+
+  public BranchingBlock(Tree branchingTree, MutableBlock trueSuccessor, MutableBlock falseSuccessor) {
+    super();
+    Preconditions.checkArgument(branchingTree != null, "Branching tree cannot be null");
+    Preconditions.checkArgument(trueSuccessor != null && falseSuccessor != null, "Successor cannot be null");
+    this.branchingTree = branchingTree;
+    this.trueSuccessor = trueSuccessor;
+    this.falseSuccessor = falseSuccessor;
+  }
 
   @Override
   public Set<MutableBlock> successors() {
-    Preconditions.checkState(trueSuccessor != null, "Successors were not set on " + this);
     return ImmutableSet.of(trueSuccessor, falseSuccessor);
-  }
-
-  public void setSuccessors(MutableBlock trueSuccessor, MutableBlock falseSuccessor) {
-    Preconditions.checkArgument(trueSuccessor != null && falseSuccessor != null, "Successor cannot be null");
-    Preconditions.checkArgument(!this.equals(trueSuccessor) && !this.equals(falseSuccessor), "Cannot add itself as successor");
-    this.trueSuccessor = trueSuccessor;
-    this.falseSuccessor = falseSuccessor;
   }
 
   @Override
@@ -60,6 +63,10 @@ class BranchingBlock extends MutableBlock {
   @Override
   public MutableBlock falseSuccessor() {
     return falseSuccessor;
+  }
+
+  public Tree branchingTree() {
+    return branchingTree;
   }
 
 }

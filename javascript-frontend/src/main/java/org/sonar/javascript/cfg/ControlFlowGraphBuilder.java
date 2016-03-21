@@ -335,13 +335,13 @@ class ControlFlowGraphBuilder {
     } else if (tree.is(Kind.CONDITIONAL_AND)) {
       BinaryExpressionTree binary = (BinaryExpressionTree) tree;
       buildExpression(binary.rightOperand());
-      currentBlock = createBranchingBlock(currentBlock, currentBlock.falseSuccessor());
+      currentBlock = createBranchingBlock(tree, currentBlock, currentBlock.falseSuccessor());
       buildExpression(binary.leftOperand());
 
     } else if (tree.is(Kind.CONDITIONAL_OR)) {
       BinaryExpressionTree binary = (BinaryExpressionTree) tree;
       buildExpression(binary.rightOperand());
-      currentBlock = createBranchingBlock(currentBlock, currentBlock.trueSuccessor());
+      currentBlock = createBranchingBlock(tree, currentBlock, currentBlock.trueSuccessor());
       buildExpression(binary.leftOperand());
 
     } else if (tree.is(Kind.CONDITIONAL_EXPRESSION)) {
@@ -353,7 +353,7 @@ class ControlFlowGraphBuilder {
       currentBlock = createSimpleBlock(successor);
       buildExpression(conditionalExpression.trueExpression());
       MutableBlock trueBlock = currentBlock;
-      currentBlock = createBranchingBlock(trueBlock, falseBlock);
+      currentBlock = createBranchingBlock(tree, trueBlock, falseBlock);
       buildExpression(conditionalExpression.condition());
 
     } else if (tree.is(Kind.REST_ELEMENT)) {
@@ -457,7 +457,7 @@ class ControlFlowGraphBuilder {
     MutableBlock elseBlock = currentBlock;
     buildSubFlow(tree.statement(), successor);
     MutableBlock thenBlock = currentBlock;
-    BranchingBlock branchingBlock = createBranchingBlock(thenBlock, elseBlock);
+    BranchingBlock branchingBlock = createBranchingBlock(tree, thenBlock, elseBlock);
     currentBlock = branchingBlock;
     buildExpression(tree.condition());
     markStatementStartingBlock(tree);
@@ -479,7 +479,7 @@ class ControlFlowGraphBuilder {
     }
 
     if (tree.condition() != null) {
-      currentBlock = createBranchingBlock(loopBodyBlock, forStatementSuccessor);
+      currentBlock = createBranchingBlock(tree, loopBodyBlock, forStatementSuccessor);
       buildExpression(tree.condition());
       linkToCondition.setSuccessor(currentBlock);
     } else {
@@ -499,7 +499,7 @@ class ControlFlowGraphBuilder {
     MutableBlock successor = currentBlock;
     ForwardingBlock linkToAssignment = createForwardingBlock();
     MutableBlock loopBodyBlock = buildLoopBody(tree.statement(), linkToAssignment, currentBlock);
-    BranchingBlock assignmentBlock = createBranchingBlock(loopBodyBlock, successor);
+    BranchingBlock assignmentBlock = createBranchingBlock(tree, loopBodyBlock, successor);
     currentBlock = assignmentBlock;
     buildExpression(tree.variableOrExpression());
     buildExpression(tree.expression());
@@ -512,7 +512,7 @@ class ControlFlowGraphBuilder {
     MutableBlock successor = currentBlock;
     ForwardingBlock linkToCondition = createForwardingBlock();
     MutableBlock loopBodyBlock = buildLoopBody(tree.statement(), linkToCondition, successor);
-    currentBlock = createBranchingBlock(loopBodyBlock, successor);
+    currentBlock = createBranchingBlock(tree, loopBodyBlock, successor);
     buildExpression(tree.condition());
     linkToCondition.setSuccessor(currentBlock);
     markStatementStartingBlock(tree);
@@ -522,7 +522,7 @@ class ControlFlowGraphBuilder {
   private void visitDoWhileStatement(DoWhileStatementTree tree) {
     MutableBlock successor = currentBlock;
     ForwardingBlock linkToBody = createForwardingBlock();
-    currentBlock = createBranchingBlock(linkToBody, successor);
+    currentBlock = createBranchingBlock(tree, linkToBody, successor);
     buildExpression(tree.condition());
     MutableBlock loopBodyBlock = buildLoopBody(tree.statement(), currentBlock, successor);
     linkToBody.setSuccessor(loopBodyBlock);
@@ -559,7 +559,7 @@ class ControlFlowGraphBuilder {
     if (tree.catchBlock() != null) {
       MutableBlock catchSuccessor = currentBlock;
       buildSubFlow(tree.catchBlock().block(), currentBlock);
-      BranchingBlock catchBlock = createBranchingBlock(currentBlock, catchSuccessor);
+      BranchingBlock catchBlock = createBranchingBlock(tree.catchBlock(), currentBlock, catchSuccessor);
       currentBlock = catchBlock;
       buildExpression(tree.catchBlock().parameter());
       catchOrFinallyBlock = catchBlock;
@@ -575,7 +575,7 @@ class ControlFlowGraphBuilder {
     build(tree.block());
     throwTargets.pop();
 
-    currentBlock = createBranchingBlock(currentBlock, catchOrFinallyBlock);
+    currentBlock = createBranchingBlock(tree, currentBlock, catchOrFinallyBlock);
     currentBlock.addElement(tree.tryKeyword());
     markStatementStartingBlock(tree);
   }
@@ -604,7 +604,7 @@ class ControlFlowGraphBuilder {
         }
 
         CaseClauseTree caseClause = (CaseClauseTree) switchCaseClause;
-        currentBlock = createBranchingBlock(nextStatementBlock, nextCase);
+        currentBlock = createBranchingBlock(caseClause, nextStatementBlock, nextCase);
         buildExpression(caseClause.expression());
         nextCase = currentBlock;
 
@@ -641,9 +641,8 @@ class ControlFlowGraphBuilder {
     build(subFlowTree);
   }
   
-  private BranchingBlock createBranchingBlock(MutableBlock trueSuccessor, MutableBlock falseSuccessor) {
-    BranchingBlock block = new BranchingBlock();
-    block.setSuccessors(trueSuccessor, falseSuccessor);
+  private BranchingBlock createBranchingBlock(Tree branchingTree, MutableBlock trueSuccessor, MutableBlock falseSuccessor) {
+    BranchingBlock block = new BranchingBlock(branchingTree, trueSuccessor, falseSuccessor);
     blocks.add(block);
     return block;
   }
