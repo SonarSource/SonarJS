@@ -66,7 +66,8 @@ The "Ruling Test" is a special integration test which launches the analysis of a
 ```  
 * Launch ruling test 
 ```
-mvn clean install -Pit-ruling
+cd its/ruling
+mvn clean install
 ```  
 
 This test gives you the opportunity to examine the issues created by each rule and make sure they're what you expect. You can inspect new/lost issues checking web-pages mentioned in the logs at the end of analysis:
