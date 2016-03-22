@@ -20,14 +20,17 @@
 package org.sonar.javascript.checks;
 
 import com.google.common.collect.Iterables;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.javascript.cfg.ControlFlowBlock;
 import org.sonar.javascript.cfg.ControlFlowGraph;
+import org.sonar.javascript.cfg.ControlFlowNode;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.javascript.tree.impl.lexical.InternalSyntaxToken;
 import org.sonar.javascript.tree.symbols.Scope;
@@ -61,19 +64,29 @@ public class NonEmptyCaseWithoutBreakCheck extends DoubleDispatchVisitorCheck {
   @Override
   public void visitSwitchStatement(SwitchStatementTree tree) {
     Set<Tree> caseExpressions = new HashSet<>();
+    CaseClauseTree lastCaseClause = null;
     for (CaseClauseTree caseClause : Iterables.filter(tree.cases(), CaseClauseTree.class)) {
       addCaseExpression(caseExpressions, caseClause.expression());
+      lastCaseClause = caseClause;
     }
 
-    ControlFlowGraph cfg = getControlFlowGraph(tree);
+    Map<Tree, ControlFlowBlock> caseClauseBlocksByTree = caseClauseBlocksByTree(tree);
     SwitchClauseTree previousClauseWithStatement = null;
 
     for (SwitchClauseTree switchClause : tree.cases()) {
 
-      if (previousClauseWithStatement != null
-        && (canBeFallenInto(switchClause, cfg, caseExpressions) || hasOnlyEmptyStatements(previousClauseWithStatement))) {
+      if (previousClauseWithStatement != null) {
 
-        addIssue(previousClauseWithStatement.keyword(), MESSAGE);
+        ControlFlowNode caseBlock;
+        if (switchClause.is(Kind.CASE_CLAUSE)) {
+          caseBlock = caseClauseBlocksByTree.get(switchClause).trueSuccessor();
+        } else {
+          caseBlock = caseClauseBlocksByTree.get(lastCaseClause).falseSuccessor();
+        }
+
+        if (canBeFallenInto(switchClause, caseBlock, caseExpressions) || hasOnlyEmptyStatements(previousClauseWithStatement)) {
+          addIssue(previousClauseWithStatement.keyword(), MESSAGE);
+        }
       }
 
       if (!switchClause.statements().isEmpty()) {
@@ -84,12 +97,26 @@ public class NonEmptyCaseWithoutBreakCheck extends DoubleDispatchVisitorCheck {
     super.visitSwitchStatement(tree);
   }
 
+  private Map<Tree, ControlFlowBlock> caseClauseBlocksByTree(SwitchStatementTree switchTree) {
+    ControlFlowGraph cfg = getControlFlowGraph(switchTree);
+    Map<Tree, ControlFlowBlock> map = new HashMap<>();
+    for (ControlFlowBlock block : cfg.blocks()) {
+      Tree branchingTree = block.branchingTree();
+      if (branchingTree != null && branchingTree.is(Kind.CASE_CLAUSE)) {
+        map.put(branchingTree, block);
+      }
+    }
+    return map;
+  }
+
   private static void addCaseExpression(Set<Tree> caseExpressions, ExpressionTree expression) {
-    caseExpressions.add(expression);
-    if (expression.is(Kind.CONDITIONAL_OR)) {
+    if (expression.is(Kind.CONDITIONAL_OR, Kind.CONDITIONAL_AND)) {
       BinaryExpressionTree binary = (BinaryExpressionTree) expression;
-      // The left operand of a "||" is a valid predecessor for switch clause statements
+      // The operands of a "||" or "&&" are valid predecessors for switch clause statements
       addCaseExpression(caseExpressions, binary.leftOperand());
+      addCaseExpression(caseExpressions, binary.rightOperand());
+    } else {
+      caseExpressions.add(expression);
     }
   }
 
@@ -97,14 +124,13 @@ public class NonEmptyCaseWithoutBreakCheck extends DoubleDispatchVisitorCheck {
     return firstNonEmptyStatement(switchClause.statements()) == null;
   }
 
-  private static boolean canBeFallenInto(SwitchClauseTree switchClause, ControlFlowGraph cfg, Set<Tree> caseExpressions) {
+  private static boolean canBeFallenInto(SwitchClauseTree switchClause, ControlFlowNode caseBlock, Set<Tree> caseExpressions) {
     StatementTree firstNonEmptyStatement = firstNonEmptyStatement(switchClause.statements());
     if (firstNonEmptyStatement == null) {
       return false;
     }
 
-    ControlFlowBlock block = cfg.getStartingBlock(firstNonEmptyStatement);
-    for (ControlFlowBlock predecessor : Iterables.filter(block.predecessors(), ControlFlowBlock.class)) {
+    for (ControlFlowBlock predecessor : Iterables.filter(caseBlock.predecessors(), ControlFlowBlock.class)) {
       List<Tree> predecessorElements = predecessor.elements();
       Tree predecessorLastElement = predecessorElements.get(predecessorElements.size() - 1);
       if (!caseExpressions.contains(predecessorLastElement)) {

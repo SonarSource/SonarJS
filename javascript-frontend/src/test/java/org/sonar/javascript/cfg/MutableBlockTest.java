@@ -36,40 +36,24 @@ public class MutableBlockTest {
   private final EndBlock end = new EndBlock();
   private final SimpleBlock simple1 = new SimpleBlock(end);
   private final SimpleBlock simple2 = new SimpleBlock(end);
-  private final BranchingBlock branching1 = new BranchingBlock();
   private final ForwardingBlock forwarding = new ForwardingBlock();
-
-  @Test(expected = IllegalStateException.class)
-  public void unset_branch_successors() throws Exception {
-    branching1.successors();
-  }
 
   @Test
   public void branch_successors() throws Exception {
-    branching1.setSuccessors(simple1, simple2);
-    assertThat(branching1.successors()).containsOnly(simple1, simple2);
-    assertThat(branching1.trueSuccessor()).isEqualTo(simple1);
-    assertThat(branching1.falseSuccessor()).isEqualTo(simple2);
-  }
-
-  @Test(expected = IllegalArgumentException.class)
-  public void cannot_add_itself_as_successor1() throws Exception {
-    branching1.setSuccessors(branching1, simple1);
-  }
-
-  @Test(expected = IllegalArgumentException.class)
-  public void cannot_add_itself_as_successor2() throws Exception {
-    branching1.setSuccessors(simple1, branching1);
+    BranchingBlock branching = new BranchingBlock(tree1, simple1, simple2);
+    assertThat(branching.successors()).containsOnly(simple1, simple2);
+    assertThat(branching.trueSuccessor()).isEqualTo(simple1);
+    assertThat(branching.falseSuccessor()).isEqualTo(simple2);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void cannot_set_null_successor1() throws Exception {
-    branching1.setSuccessors(simple1, null);
+    new BranchingBlock(tree1, simple1, null);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void cannot_set_null_successor2() throws Exception {
-    branching1.setSuccessors(null, simple1);
+    new BranchingBlock(tree1, null, simple1);
   }
 
   @Test
@@ -87,11 +71,12 @@ public class MutableBlockTest {
 
   @Test
   public void non_empty_successor() throws Exception {
+    BranchingBlock branching = new BranchingBlock(tree1, simple1, simple2);
     SimpleBlock simpleNonEmpty = new SimpleBlock(end);
     simpleNonEmpty.addElement(tree1);
     assertThat(simpleNonEmpty.skipEmptyBlocks()).isEqualTo(simpleNonEmpty);
     assertThat(new SimpleBlock(simpleNonEmpty).skipEmptyBlocks()).isEqualTo(simpleNonEmpty);
-    assertThat(new SimpleBlock(branching1).skipEmptyBlocks()).isEqualTo(branching1);
+    assertThat(new SimpleBlock(branching).skipEmptyBlocks()).isEqualTo(branching);
     assertThat(new SimpleBlock(end).skipEmptyBlocks()).isEqualTo(end);
     assertThat(new SimpleBlock(new SimpleBlock(end)).skipEmptyBlocks()).isEqualTo(end);
   }
@@ -129,6 +114,11 @@ public class MutableBlockTest {
   @Test(expected = UnsupportedOperationException.class)
   public void false_successor_is_not_supported_by_end() throws Exception {
     end.falseSuccessor();
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void canoot_set_null_branching_tree() throws Exception {
+    new BranchingBlock(null, simple1, simple2);
   }
 
 }

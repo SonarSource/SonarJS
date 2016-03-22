@@ -27,13 +27,11 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.javascript.api.tree.statement.BlockTree;
-import org.sonar.plugins.javascript.api.tree.statement.StatementTree;
 
 /**
  * The <a href="https://en.wikipedia.org/wiki/Control_flow_graph">Control Flow Graph</a>
@@ -57,46 +55,41 @@ public class ControlFlowGraph {
   private final ControlFlowNode end = new EndNode();
   private final ImmutableSet<ControlFlowBlock> blocks;
   private final ImmutableSetMultimap<ControlFlowNode, ControlFlowNode> predecessors;
-  private final ImmutableSetMultimap<ControlFlowNode, ControlFlowNode> successors;
+  private final ImmutableMap<ControlFlowNode, BlockSuccessors> successors;
   private final ImmutableSetMultimap<ControlFlowNode, SyntaxToken> disconnectingJumps;
-  private final ImmutableMap<StatementTree, ControlFlowBlock> startingBlocks;
 
-  ControlFlowGraph(Set<MutableBlock> blocks, MutableBlock start, MutableBlock end, Map<StatementTree, MutableBlock> startingBlocks) {
+  ControlFlowGraph(Set<MutableBlock> blocks, MutableBlock start, MutableBlock end) {
 
     Map<MutableBlock, ControlFlowNode> immutableBlockByMutable = new HashMap<>();
     ImmutableSet.Builder<ControlFlowBlock> immutableBlockSetBuilder = ImmutableSet.builder();
     for (MutableBlock mutableBlock : blocks) {
-      ImmutableBlock immutableBlock = new ImmutableBlock(mutableBlock.elements());
+      Tree branchingTree = null;
+      if (mutableBlock instanceof BranchingBlock) {
+        branchingTree = ((BranchingBlock) mutableBlock).branchingTree();
+      }
+      ImmutableBlock immutableBlock = new ImmutableBlock(mutableBlock.elements(), branchingTree);
       immutableBlockByMutable.put(mutableBlock, immutableBlock);
       immutableBlockSetBuilder.add(immutableBlock);
     }
     immutableBlockByMutable.put(end, this.end);
     
-    ImmutableSetMultimap.Builder<ControlFlowNode, ControlFlowNode> successorBuilder = ImmutableSetMultimap.builder();
+    ImmutableMap.Builder<ControlFlowNode, BlockSuccessors> successorBuilder = ImmutableMap.builder();
     ImmutableSetMultimap.Builder<ControlFlowNode, ControlFlowNode> predecessorBuilder = ImmutableSetMultimap.builder();
     ImmutableSetMultimap.Builder<ControlFlowNode, SyntaxToken> jumpBuilder = ImmutableSetMultimap.builder();
     for (MutableBlock mutableBlock : blocks) {
       ControlFlowNode immutableBlock = immutableBlockByMutable.get(mutableBlock);
       for (MutableBlock mutableBlockSuccessor : mutableBlock.successors()) {
-        ControlFlowNode immutableBlockSuccessor = immutableBlockByMutable.get(mutableBlockSuccessor);
-        predecessorBuilder.put(immutableBlockSuccessor, immutableBlock);
-        successorBuilder.put(immutableBlock, immutableBlockSuccessor);
+        predecessorBuilder.put(immutableBlockByMutable.get(mutableBlockSuccessor), immutableBlock);
       }
+      successorBuilder.put(immutableBlock, new BlockSuccessors(mutableBlock, immutableBlockByMutable));
       jumpBuilder.putAll(immutableBlock, mutableBlock.disconnectingJumps());
     }
     
-    ImmutableMap.Builder<StatementTree, ControlFlowBlock> startingBlockBuilder = ImmutableMap.builder();
-    for (Entry<StatementTree, MutableBlock> entry : startingBlocks.entrySet()) {
-      ControlFlowBlock block = (ControlFlowBlock) immutableBlockByMutable.get(entry.getValue());
-      startingBlockBuilder.put(entry.getKey(), block);
-    }
-
     this.start = blocks.isEmpty() ? this.end : immutableBlockByMutable.get(start);
     this.blocks = immutableBlockSetBuilder.build();
     this.predecessors = predecessorBuilder.build();
     this.successors = successorBuilder.build();
     this.disconnectingJumps = jumpBuilder.build();
-    this.startingBlocks = startingBlockBuilder.build();
   }
 
   public static ControlFlowGraph build(ScriptTree tree) {
@@ -133,17 +126,15 @@ public class ControlFlowGraph {
     return disconnectingJumps.get(block);
   }
 
-  public ControlFlowBlock getStartingBlock(StatementTree nonEmptyStatementTree) {
-    return startingBlocks.get(nonEmptyStatementTree);
-  }
-
   private class ImmutableBlock implements ControlFlowBlock {
     
     private final List<Tree> elements;
+    private final Tree branchingTree;
     
-    public ImmutableBlock(List<Tree> elements) {
+    public ImmutableBlock(List<Tree> elements, Tree branchingTree) {
       Preconditions.checkArgument(!elements.isEmpty(), "Cannot build block without any element");
       this.elements = elements;
+      this.branchingTree = branchingTree;
     }
 
     @Override
@@ -153,12 +144,27 @@ public class ControlFlowGraph {
 
     @Override
     public Set<ControlFlowNode> successors() {
-      return successors.get(this);
+      return successors.get(this).all;
     }
 
     @Override
     public List<Tree> elements() {
       return elements;
+    }
+
+    @Override
+    public ControlFlowNode trueSuccessor() {
+      return successors.get(this).trueSuccessor;
+    }
+
+    @Override
+    public ControlFlowNode falseSuccessor() {
+      return successors.get(this).falseSuccessor;
+    }
+
+    @Override
+    public Tree branchingTree() {
+      return branchingTree;
     }
 
   }
@@ -180,6 +186,24 @@ public class ControlFlowGraph {
       return "End";
     }
     
+  }
+
+  private static class BlockSuccessors {
+
+    private final Set<ControlFlowNode> all;
+    private final ControlFlowNode trueSuccessor;
+    private final ControlFlowNode falseSuccessor;
+
+    public BlockSuccessors(MutableBlock mutableBlock, Map<MutableBlock, ControlFlowNode> immutableBlockByMutable) {
+      ImmutableSet.Builder<ControlFlowNode> allBuilder = ImmutableSet.builder();
+      for (MutableBlock mutableBlockSuccessor : mutableBlock.successors()) {
+        allBuilder.add(immutableBlockByMutable.get(mutableBlockSuccessor));
+      }
+      this.all = allBuilder.build();
+      this.trueSuccessor = immutableBlockByMutable.get(mutableBlock.trueSuccessor());
+      this.falseSuccessor = immutableBlockByMutable.get(mutableBlock.falseSuccessor());
+    }
+
   }
 
 }
