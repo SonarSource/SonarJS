@@ -39,14 +39,25 @@ import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 public class AssociativeArraysCheck extends DoubleDispatchVisitorCheck {
 	private static final String MESSAGE = "Only use a numeric index for Arrays";
 
-	@Override
+		@Override
 	public void visitAssignmentExpression(AssignmentExpressionTree tree) {
 		if (tree.variable() instanceof BracketMemberExpressionTreeImpl) {
 			if (((BracketMemberExpressionTreeImpl) tree.variable()).object().types().contains(Kind.ARRAY)) {
+				if (((BracketMemberExpressionTreeImpl) tree.variable()).property() instanceof LiteralTreeImpl)
+				{
+
 				LiteralTreeImpl al = (LiteralTreeImpl) ((BracketMemberExpressionTreeImpl) tree.variable()).property();
 
 				if (!NumberUtils.isNumber(al.token().text())) {
 					addLineIssue(tree, MESSAGE);
+				}
+			}
+				else if (((BracketMemberExpressionTreeImpl) tree.variable()).property() instanceof IdentifierTreeImpl)
+				{
+					IdentifierTreeImpl idt= (IdentifierTreeImpl)((BracketMemberExpressionTreeImpl) tree.variable()).property();
+					if (!NumberUtils.isNumber(idt.name())) {
+						addLineIssue(tree, MESSAGE);
+					}
 				}
 			}
 
