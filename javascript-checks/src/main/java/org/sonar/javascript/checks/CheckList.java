@@ -174,8 +174,7 @@ public final class CheckList {
       WildcardImportCheck.class,
       WithStatementCheck.class,
       WrongScopeDeclarationCheck.class,
-	  AssociativeArraysCheck.class
-	  );
+	  AssociativeArraysCheck.class);
   }
 
 }
