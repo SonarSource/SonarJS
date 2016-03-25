@@ -37,7 +37,7 @@ import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 @SqaleConstantRemediation("10min")
 
 public class AssociativeArraysCheck extends DoubleDispatchVisitorCheck {
-	private static final String MESSAGE = "Only use numeric a numeric index for Arrays";
+	private static final String MESSAGE = "Only use a numeric index for Arrays";
 
 	@Override
 	public void visitAssignmentExpression(AssignmentExpressionTree tree) {
