@@ -24,6 +24,7 @@ import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.javascript.tree.impl.expression.BracketMemberExpressionTreeImpl;
+import org.sonar.javascript.tree.impl.expression.IdentifierTreeImpl;
 import org.sonar.javascript.tree.impl.expression.LiteralTreeImpl;
 import org.sonar.plugins.javascript.api.symbols.Type.Kind;
 import org.sonar.plugins.javascript.api.tree.expression.AssignmentExpressionTree;
@@ -39,7 +40,7 @@ import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 public class AssociativeArraysCheck extends DoubleDispatchVisitorCheck {
 	private static final String MESSAGE = "Only use a numeric index for Arrays";
 
-		@Override
+	@Override
 	public void visitAssignmentExpression(AssignmentExpressionTree tree) {
 		if (tree.variable() instanceof BracketMemberExpressionTreeImpl) {
 			if (((BracketMemberExpressionTreeImpl) tree.variable()).object().types().contains(Kind.ARRAY)) {
