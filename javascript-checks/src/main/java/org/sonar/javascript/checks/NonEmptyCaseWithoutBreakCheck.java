@@ -63,28 +63,31 @@ public class NonEmptyCaseWithoutBreakCheck extends DoubleDispatchVisitorCheck {
 
   @Override
   public void visitSwitchStatement(SwitchStatementTree tree) {
+
     Set<Tree> caseExpressions = new HashSet<>();
     CaseClauseTree lastCaseClause = null;
+
     for (CaseClauseTree caseClause : Iterables.filter(tree.cases(), CaseClauseTree.class)) {
       addCaseExpression(caseExpressions, caseClause.expression());
       lastCaseClause = caseClause;
     }
 
-    Map<Tree, CfgBlock> caseClauseBlocksByTree = caseClauseBlocksByTree(tree);
+    Map<CaseClauseTree, CfgBlock> caseClauseBlocksByTree = caseClauseBlocksByTree(tree);
     SwitchClauseTree previousClauseWithStatement = null;
 
     for (SwitchClauseTree switchClause : tree.cases()) {
 
       if (previousClauseWithStatement != null) {
 
-        CfgBlock caseBlock;
+        CfgBlock firstBlockInClauseBody;
         if (switchClause.is(Kind.CASE_CLAUSE)) {
-          caseBlock = ControlFlowGraph.trueSuccessorFor(caseClauseBlocksByTree.get(switchClause));
+          firstBlockInClauseBody = ControlFlowGraph.trueSuccessorFor(caseClauseBlocksByTree.get(switchClause));
         } else {
-          caseBlock = ControlFlowGraph.falseSuccessorFor(caseClauseBlocksByTree.get(lastCaseClause));
+          // consider default clause
+          firstBlockInClauseBody = ControlFlowGraph.falseSuccessorFor(caseClauseBlocksByTree.get(lastCaseClause));
         }
 
-        if (canBeFallenInto(switchClause, caseBlock, caseExpressions) || hasOnlyEmptyStatements(previousClauseWithStatement)) {
+        if (canBeFallenInto(switchClause, firstBlockInClauseBody, caseExpressions) || hasOnlyEmptyStatements(previousClauseWithStatement)) {
           addIssue(previousClauseWithStatement.keyword(), MESSAGE);
         }
       }
@@ -97,14 +100,14 @@ public class NonEmptyCaseWithoutBreakCheck extends DoubleDispatchVisitorCheck {
     super.visitSwitchStatement(tree);
   }
 
-  private Map<Tree, CfgBlock> caseClauseBlocksByTree(SwitchStatementTree switchTree) {
+  private Map<CaseClauseTree, CfgBlock> caseClauseBlocksByTree(SwitchStatementTree switchTree) {
     ControlFlowGraph cfg = getControlFlowGraph(switchTree);
-    Map<Tree, CfgBlock> map = new HashMap<>();
+    Map<CaseClauseTree, CfgBlock> map = new HashMap<>();
     for (CfgBlock block : cfg.blocks()) {
       if (block instanceof CfgBranchingBlock) {
         Tree branchingTree = ((CfgBranchingBlock) block).branchingTree();
         if (branchingTree.is(Kind.CASE_CLAUSE)) {
-          map.put(branchingTree, block);
+          map.put((CaseClauseTree) branchingTree, block);
         }
       }
     }

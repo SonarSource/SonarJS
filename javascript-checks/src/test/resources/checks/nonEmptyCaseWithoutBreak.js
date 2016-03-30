@@ -83,3 +83,17 @@ function inside_function() {
       doSomething();
   }
 }
+
+// with not executable clause
+switch(x) {
+  case a:
+    break;
+  case a:
+    function f () {}
+}
+
+// with 0 case clauses
+switch(x) {
+  default:
+    foo();
+}
