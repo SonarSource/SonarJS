@@ -17,20 +17,41 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.javascript.api.tree.expression;
+package org.sonar.javascript.tree.impl.expression.jsx;
 
-import com.google.common.annotations.Beta;
-import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxAttributeValueTree;
+import com.google.common.collect.Iterators;
+import java.util.Iterator;
+import org.sonar.javascript.tree.impl.JavaScriptTree;
+import org.sonar.plugins.javascript.api.tree.Tree;
+import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxTextTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
+import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitor;
 
-/**
- * Common interface for all types of <a href="http://www.ecma-international.org/ecma-262/5.1/#sec-7.8">literals</a>.
- */
-@Beta
-public interface LiteralTree extends ExpressionTree, JsxAttributeValueTree {
+public class JsxTextTreeImpl extends JavaScriptTree implements JsxTextTree {
 
-  SyntaxToken token();
+  private final SyntaxToken token;
 
-  String value();
+  public JsxTextTreeImpl(SyntaxToken token) {
+    this.token = token;
+  }
 
+  @Override
+  public Kind getKind() {
+    return Kind.JSX_TEXT;
+  }
+
+  @Override
+  public Iterator<Tree> childrenIterator() {
+    return Iterators.<Tree>singletonIterator(token);
+  }
+
+  @Override
+  public SyntaxToken token() {
+    return token;
+  }
+
+  @Override
+  public void accept(DoubleDispatchVisitor visitor) {
+    visitor.visitJsxText(this);
+  }
 }

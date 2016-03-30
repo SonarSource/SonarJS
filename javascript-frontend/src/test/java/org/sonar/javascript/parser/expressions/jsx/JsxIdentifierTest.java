@@ -17,24 +17,30 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.javascript.api.tree.expression;
+package org.sonar.javascript.parser.expressions.jsx;
 
-import com.google.common.annotations.Beta;
-import org.sonar.plugins.javascript.api.symbols.TypeSet;
-import org.sonar.plugins.javascript.api.tree.Tree;
-import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxElementNameTree;
+import org.junit.Test;
+import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 
-/**
- * Common interface for all types of <a href="http://www.ecma-international.org/ecma-262/5.1/#sec-11">expressions</a>.
- */
-@Beta
-public interface ExpressionTree extends Tree, JsxElementNameTree {
+import static org.sonar.javascript.utils.Assertions.assertThat;
 
-  /**
-   * Returns an unmodifiable set of the possible types for the expression.
-   * Attempts to modify the returned set, whether direct or via its iterator, will result in an UnsupportedOperationException.
-   */
+public class JsxIdentifierTest {
 
-  TypeSet types();
+  @Test
+  public void test() {
+    assertThat(Kind.JSX_IDENTIFIER)
+      .matches("foo")
+      .matches("foo-")
+      .matches("foo-bar")
+      .matches("foo--bar")
+      .matches("foo-bar-foobar")
+      .matches("this")
+      .matches("this-foo")
+      .matches("this-for")
+      .matches("attr1")
+
+      .notMatches("foo bar")
+      .notMatches("foo+bar");
+  }
 
 }

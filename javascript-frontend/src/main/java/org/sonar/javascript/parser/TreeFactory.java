@@ -24,6 +24,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.sonar.sslr.api.typed.Optional;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -80,6 +81,15 @@ import org.sonar.javascript.tree.impl.expression.TemplateCharactersTreeImpl;
 import org.sonar.javascript.tree.impl.expression.TemplateExpressionTreeImpl;
 import org.sonar.javascript.tree.impl.expression.TemplateLiteralTreeImpl;
 import org.sonar.javascript.tree.impl.expression.YieldExpressionTreeImpl;
+import org.sonar.javascript.tree.impl.expression.jsx.JsxClosingElementTreeImpl;
+import org.sonar.javascript.tree.impl.expression.jsx.JsxIdentifierTreeImpl;
+import org.sonar.javascript.tree.impl.expression.jsx.JsxJavaScriptExpressionTreeImpl;
+import org.sonar.javascript.tree.impl.expression.jsx.JsxOpeningElementTreeImpl;
+import org.sonar.javascript.tree.impl.expression.jsx.JsxSelfClosingElementTreeImpl;
+import org.sonar.javascript.tree.impl.expression.jsx.JsxSpreadAttributeTreeImpl;
+import org.sonar.javascript.tree.impl.expression.jsx.JsxStandardAttributeTreeImpl;
+import org.sonar.javascript.tree.impl.expression.jsx.JsxStandardElementTreeImpl;
+import org.sonar.javascript.tree.impl.expression.jsx.JsxTextTreeImpl;
 import org.sonar.javascript.tree.impl.lexical.InternalSyntaxToken;
 import org.sonar.javascript.tree.impl.statement.BlockTreeImpl;
 import org.sonar.javascript.tree.impl.statement.BreakStatementTreeImpl;
@@ -122,6 +132,19 @@ import org.sonar.plugins.javascript.api.tree.expression.MemberExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.TemplateCharactersTree;
 import org.sonar.plugins.javascript.api.tree.expression.TemplateExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.TemplateLiteralTree;
+import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxAttributeTree;
+import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxAttributeValueTree;
+import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxChildTree;
+import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxClosingElementTree;
+import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxElementNameTree;
+import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxIdentifierTree;
+import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxJavaScriptExpressionTree;
+import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxOpeningElementTree;
+import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxSelfClosingElementTree;
+import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxSpreadAttributeTree;
+import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxStandardAttributeTree;
+import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxStandardElementTree;
+import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxTextTree;
 import org.sonar.plugins.javascript.api.tree.statement.StatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.SwitchClauseTree;
 
@@ -1483,6 +1506,91 @@ public class TreeFactory {
     return expression;
   }
 
+  // [START] JSX
+
+  public JsxSelfClosingElementTree jsxSelfClosingElement(
+    InternalSyntaxToken ltToken,
+    JsxElementNameTree jsxElementNameTree,
+    Optional<List<JsxAttributeTree>> attributes,
+    InternalSyntaxToken divToken, InternalSyntaxToken gtToken
+  ) {
+    return new JsxSelfClosingElementTreeImpl(ltToken, jsxElementNameTree, optionalList(attributes), divToken, gtToken);
+  }
+
+  public JsxStandardElementTree jsxStandardElement(
+    JsxOpeningElementTree jsxOpeningElementTree,
+    Optional<List<JsxChildTree>> children,
+    JsxClosingElementTree jsxClosingElementTree
+  ) {
+    return new JsxStandardElementTreeImpl(jsxOpeningElementTree, optionalList(children), jsxClosingElementTree);
+  }
+
+  public JsxOpeningElementTree jsxOpeningElement(
+    InternalSyntaxToken ltToken,
+    JsxElementNameTree jsxElementNameTree,
+    Optional<List<JsxAttributeTree>> attributes,
+    InternalSyntaxToken gtToken
+  ) {
+    return new JsxOpeningElementTreeImpl(
+      ltToken,
+      jsxElementNameTree,
+      optionalList(attributes),
+      gtToken);
+  }
+
+  public JsxClosingElementTree jsxClosingElement(InternalSyntaxToken ltToken, InternalSyntaxToken divToken, JsxElementNameTree jsxElementNameTree, InternalSyntaxToken gtToken) {
+    return new JsxClosingElementTreeImpl(ltToken, divToken, jsxElementNameTree, gtToken);
+  }
+
+  public JsxJavaScriptExpressionTree jsxJavaScriptExpression(InternalSyntaxToken lCurlyBraceToken, Optional<ExpressionTree> expression, InternalSyntaxToken rCurlyBraceToken) {
+    return new JsxJavaScriptExpressionTreeImpl(lCurlyBraceToken, expression.orNull(), rCurlyBraceToken);
+  }
+
+  public JsxJavaScriptExpressionTree jsxJavaScriptExpression(InternalSyntaxToken lCurlyBraceToken, ExpressionTree expression, InternalSyntaxToken rCurlyBraceToken) {
+    return new JsxJavaScriptExpressionTreeImpl(lCurlyBraceToken, expression, rCurlyBraceToken);
+  }
+
+  public JsxStandardAttributeTree jsxStandardAttribute(JsxIdentifierTree name, InternalSyntaxToken equalToken, JsxAttributeValueTree jsxAttributeValueTree) {
+    return new JsxStandardAttributeTreeImpl(name, equalToken, jsxAttributeValueTree);
+  }
+
+  public JsxSpreadAttributeTree jsxSpreadAttribute(
+    InternalSyntaxToken lCurlyBraceToken,
+    InternalSyntaxToken ellipsisToken,
+    ExpressionTree expressionTree,
+    InternalSyntaxToken rCurlyBraceToken
+  ) {
+    return new JsxSpreadAttributeTreeImpl(lCurlyBraceToken, ellipsisToken, expressionTree, rCurlyBraceToken);
+  }
+
+  public JsxTextTree jsxTextTree(InternalSyntaxToken token) {
+    return new JsxTextTreeImpl(token);
+  }
+
+  public JsxIdentifierTree jsxIdentifier(InternalSyntaxToken identifierToken) {
+    return new JsxIdentifierTreeImpl(identifierToken);
+  }
+
+  public JsxIdentifierTree jsxHtmlTag(InternalSyntaxToken htmlTagToken) {
+    return new JsxIdentifierTreeImpl(htmlTagToken);
+  }
+
+  public ExpressionTree jsxMemberExpression(IdentifierTree identifierTree, Optional<List<Tuple<InternalSyntaxToken, IdentifierTreeImpl>>> rest) {
+    if (rest.isPresent()) {
+      ExpressionTree currentObject = identifierTree;
+      for (Tuple<InternalSyntaxToken, IdentifierTreeImpl> tuple : rest.get()) {
+        DotMemberExpressionTreeImpl newMemberExpression = new DotMemberExpressionTreeImpl(tuple.first, tuple.second);
+        newMemberExpression.complete(currentObject);
+        currentObject = newMemberExpression;
+      }
+
+      return currentObject;
+
+    } else {
+      return identifierTree;
+    }
+  }
+
   public static class Tuple<T, U> {
 
     private final T first;
@@ -1501,6 +1609,14 @@ public class TreeFactory {
 
     public U second() {
       return second;
+    }
+  }
+
+  private static <T> List<T> optionalList(Optional<List<T>> list) {
+    if (list.isPresent()) {
+      return list.get();
+    } else {
+      return Collections.emptyList();
     }
   }
 
@@ -1657,6 +1773,10 @@ public class TreeFactory {
   }
 
   public <T, U> Tuple<T, U> newTuple56(T first, U second) {
+    return newTuple(first, second);
+  }
+
+  public <T, U> Tuple<T, U> newTuple57(T first, U second) {
     return newTuple(first, second);
   }
 

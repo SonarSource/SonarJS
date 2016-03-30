@@ -20,6 +20,7 @@
 package org.sonar.javascript.parser;
 
 import com.sonar.sslr.api.typed.GrammarBuilder;
+import java.util.List;
 import org.sonar.javascript.lexer.JavaScriptKeyword;
 import org.sonar.javascript.lexer.JavaScriptPunctuator;
 import org.sonar.javascript.lexer.JavaScriptTokenType;
@@ -93,6 +94,17 @@ import org.sonar.plugins.javascript.api.tree.expression.MemberExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.TemplateCharactersTree;
 import org.sonar.plugins.javascript.api.tree.expression.TemplateExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.TemplateLiteralTree;
+import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxAttributeTree;
+import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxAttributeValueTree;
+import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxChildTree;
+import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxClosingElementTree;
+import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxElementNameTree;
+import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxElementTree;
+import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxIdentifierTree;
+import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxOpeningElementTree;
+import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxSelfClosingElementTree;
+import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxSpreadAttributeTree;
+import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxStandardAttributeTree;
 import org.sonar.plugins.javascript.api.tree.statement.DebuggerStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.StatementTree;
 
@@ -1174,7 +1186,8 @@ public class JavaScriptGrammar {
           PARENTHESISED_EXPRESSION(),
           CLASS_EXPRESSION(),
           GENERATOR_EXPRESSION(),
-          TEMPLATE_LITERAL()
+          TEMPLATE_LITERAL(),
+          JSX_ELEMENT()
         ));
   }
 
@@ -1556,6 +1569,117 @@ public class JavaScriptGrammar {
   /**
    * A.5 [END] Declaration
    */
+
+  // [START] JSX
+
+  public JsxElementTree JSX_ELEMENT() {
+    return b.<JsxElementTree>nonterminal(JavaScriptLegacyGrammar.JSX_ELEMENT)
+      .is(b.firstOf(
+        JSX_SELF_CLOSING_ELEMENT(),
+        f.jsxStandardElement(JSX_OPENING_ELEMENT(), b.zeroOrMore(JSX_CHILD()), JSX_CLOSING_ELEMENT())
+      ));
+  }
+
+  public JsxSelfClosingElementTree JSX_SELF_CLOSING_ELEMENT() {
+    return b.<JsxSelfClosingElementTree>nonterminal(Kind.JSX_SELF_CLOSING_ELEMENT)
+      .is(f.jsxSelfClosingElement(
+        b.token(JavaScriptPunctuator.LT),
+        JSX_ELEMENT_NAME(),
+        b.optional(JSX_ATTRIBUTES()),
+        b.token(JavaScriptPunctuator.DIV),
+        b.token(JavaScriptPunctuator.GT)));
+  }
+
+  public JsxOpeningElementTree JSX_OPENING_ELEMENT() {
+    return b.<JsxOpeningElementTree>nonterminal(Kind.JSX_OPENING_ELEMENT)
+      .is(f.jsxOpeningElement(
+        b.token(JavaScriptPunctuator.LT),
+        JSX_ELEMENT_NAME(),
+        b.optional(JSX_ATTRIBUTES()),
+        b.token(JavaScriptPunctuator.GT)));
+  }
+
+  public JsxClosingElementTree JSX_CLOSING_ELEMENT() {
+    return b.<JsxClosingElementTree>nonterminal(Kind.JSX_CLOSING_ELEMENT)
+      .is(f.jsxClosingElement(
+        b.token(JavaScriptPunctuator.LT),
+        b.token(JavaScriptPunctuator.DIV),
+        JSX_ELEMENT_NAME(),
+        b.token(JavaScriptPunctuator.GT)));
+  }
+
+  public JsxElementNameTree JSX_ELEMENT_NAME() {
+    return b.<JsxElementNameTree>nonterminal()
+      .is(b.firstOf(
+        f.jsxHtmlTag(b.token(JavaScriptLegacyGrammar.JSX_HTML_TAG)),
+        JSX_MEMBER_EXPRESSION()
+      ));
+  }
+
+  public ExpressionTree JSX_MEMBER_EXPRESSION() {
+    return b.<ExpressionTree>nonterminal()
+      .is(f.jsxMemberExpression(
+        b.firstOf(THIS(), IDENTIFIER_REFERENCE()),
+        b.zeroOrMore(f.newTuple57(b.token(JavaScriptPunctuator.DOT), IDENTIFIER_REFERENCE()))));
+  }
+
+  public JsxIdentifierTree JSX_IDENTIFIER() {
+    return b.<JsxIdentifierTree>nonterminal(Kind.JSX_IDENTIFIER)
+      .is(f.jsxIdentifier(b.token(JavaScriptLegacyGrammar.JSX_IDENTIFIER)));
+  }
+
+  public List<JsxAttributeTree> JSX_ATTRIBUTES() {
+    return b.<List<JsxAttributeTree>>nonterminal()
+      .is(b.oneOrMore(b.firstOf(
+        JSX_STANDARD_ATTRIBUTE(),
+        JSX_SPREAD_ATTRIBUTE(),
+        JSX_IDENTIFIER())));
+  }
+
+  public JsxSpreadAttributeTree JSX_SPREAD_ATTRIBUTE() {
+    return b.<JsxSpreadAttributeTree>nonterminal(Kind.JSX_SPREAD_ATTRIBUTE)
+      .is(f.jsxSpreadAttribute(
+        b.token(JavaScriptPunctuator.LCURLYBRACE),
+        b.token(JavaScriptPunctuator.ELLIPSIS),
+        ASSIGNMENT_EXPRESSION(),
+        b.token(JavaScriptPunctuator.RCURLYBRACE)
+      ));
+  }
+
+  public JsxAttributeTree JSX_STANDARD_ATTRIBUTE() {
+    return b.<JsxStandardAttributeTree>nonterminal(Kind.JSX_STANDARD_ATTRIBUTE)
+      .is(
+        f.jsxStandardAttribute(
+          JSX_IDENTIFIER(),
+          b.token(JavaScriptPunctuator.EQU),
+          JSX_ATTRIBUTE_VALUE())
+      );
+  }
+
+  public JsxAttributeValueTree JSX_ATTRIBUTE_VALUE() {
+    return b.<JsxAttributeValueTree>nonterminal()
+      .is(b.firstOf(
+        STRING_LITERAL(),
+        f.jsxJavaScriptExpression(
+          b.token(JavaScriptPunctuator.LCURLYBRACE),
+          ASSIGNMENT_EXPRESSION(),
+          b.token(JavaScriptPunctuator.RCURLYBRACE)),
+        JSX_ELEMENT()));
+  }
+
+  public JsxChildTree JSX_CHILD() {
+    return b.<JsxChildTree>nonterminal()
+      .is(b.firstOf(
+        f.jsxTextTree(b.token(JavaScriptLegacyGrammar.JSX_TEXT)),
+        JSX_ELEMENT(),
+        f.jsxJavaScriptExpression(
+          b.token(JavaScriptPunctuator.LCURLYBRACE),
+          b.optional(ASSIGNMENT_EXPRESSION()),
+          b.token(JavaScriptPunctuator.RCURLYBRACE))));
+  }
+
+  // [END] JSX
+
 
   public ScriptTreeImpl SCRIPT() {
     return b.<ScriptTreeImpl>nonterminal(JavaScriptLegacyGrammar.SCRIPT)

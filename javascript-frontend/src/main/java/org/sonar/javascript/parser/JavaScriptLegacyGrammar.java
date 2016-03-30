@@ -282,6 +282,12 @@ public enum JavaScriptLegacyGrammar implements GrammarRuleKey {
 
   SHEBANG,
 
+  // JSX
+  JSX_TEXT,
+  JSX_IDENTIFIER,
+  JSX_HTML_TAG,
+  JSX_ELEMENT,
+
   // Temporary rules for migration
   NEXT_NOT_LET,
   NEXT_NOT_LCURLY_AND_FUNCTION,
@@ -369,6 +375,16 @@ public enum JavaScriptLegacyGrammar implements GrammarRuleKey {
     b.rule(BACKSLASH).is(character(b, "\\"));
     b.rule(BACKTICK).is(character(b, "`"));
     b.rule(DOLLAR_SIGN).is(character(b, "$"));
+
+    // despite that grammar says "SourceCharacter but not one of {, <, > or }",
+    // real life examples show that ">" and "}" are valid
+    b.rule(JSX_TEXT).is(b.regexp("[^<{]+"));
+
+    b.rule(JSX_IDENTIFIER).is(SPACING, b.regexp("[-\\w]+"));
+
+    // JSX looks at first letter: capital - JS identifier, small - html tag
+    // "this" is the exception of this rule
+    b.rule(JSX_HTML_TAG).is(SPACING, b.regexp("^(?!this)[a-z][\\w]*"));
 
     // Keywords
     b.rule(OF).is(word(b, "of"));

@@ -17,24 +17,15 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.javascript.api.tree.expression;
+package org.sonar.plugins.javascript.api.tree.expression.jsx;
 
-import com.google.common.annotations.Beta;
-import org.sonar.plugins.javascript.api.symbols.TypeSet;
-import org.sonar.plugins.javascript.api.tree.Tree;
-import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxElementNameTree;
+import java.util.List;
 
-/**
- * Common interface for all types of <a href="http://www.ecma-international.org/ecma-262/5.1/#sec-11">expressions</a>.
- */
-@Beta
-public interface ExpressionTree extends Tree, JsxElementNameTree {
+public interface JsxStandardElementTree extends JsxElementTree {
 
-  /**
-   * Returns an unmodifiable set of the possible types for the expression.
-   * Attempts to modify the returned set, whether direct or via its iterator, will result in an UnsupportedOperationException.
-   */
+  JsxOpeningElementTree openingElement();
 
-  TypeSet types();
+  List<JsxChildTree> children();
 
+  JsxClosingElementTree closingElement();
 }

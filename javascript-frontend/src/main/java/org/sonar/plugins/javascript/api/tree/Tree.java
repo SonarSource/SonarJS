@@ -64,6 +64,15 @@ import org.sonar.plugins.javascript.api.tree.expression.TemplateExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.TemplateLiteralTree;
 import org.sonar.plugins.javascript.api.tree.expression.UnaryExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.YieldExpressionTree;
+import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxClosingElementTree;
+import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxIdentifierTree;
+import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxJavaScriptExpressionTree;
+import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxOpeningElementTree;
+import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxSelfClosingElementTree;
+import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxSpreadAttributeTree;
+import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxStandardAttributeTree;
+import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxStandardElementTree;
+import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxTextTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxTrivia;
 import org.sonar.plugins.javascript.api.tree.statement.BlockTree;
@@ -846,6 +855,52 @@ public interface Tree {
      * {@link ImportClauseTree}
      */
     IMPORT_CLAUSE(ImportClauseTree.class),
+
+    /**
+     * {@link JsxIdentifierTree}
+     */
+    JSX_IDENTIFIER(JsxIdentifierTree.class),
+
+    /**
+     * {@link JsxTextTree}
+     */
+    JSX_TEXT(JsxTextTree.class),
+
+    /**
+     * {@link JsxSpreadAttributeTree}
+     */
+    JSX_SPREAD_ATTRIBUTE(JsxSpreadAttributeTree.class),
+
+    /**
+     * {@link JsxStandardAttributeTree}
+     */
+    JSX_STANDARD_ATTRIBUTE(JsxStandardAttributeTree.class),
+
+    /**
+     * {@link JsxJavaScriptExpressionTree}
+     */
+    JSX_JAVASCRIPT_EXPRESSION(JsxJavaScriptExpressionTree.class),
+
+    /**
+     * {@link JsxOpeningElementTree}
+     */
+    JSX_OPENING_ELEMENT(JsxOpeningElementTree.class),
+
+    /**
+     * {@link JsxClosingElementTree}
+     */
+    JSX_CLOSING_ELEMENT(JsxClosingElementTree.class),
+
+    /**
+     * {@link JsxStandardElementTree}
+     */
+    JSX_STANDARD_ELEMENT(JsxStandardElementTree.class),
+
+    /**
+     * {@link JsxSelfClosingElementTree}
+     */
+    JSX_SELF_CLOSING_ELEMENT(JsxSelfClosingElementTree.class),
+
 
     TOKEN(SyntaxToken.class),
 

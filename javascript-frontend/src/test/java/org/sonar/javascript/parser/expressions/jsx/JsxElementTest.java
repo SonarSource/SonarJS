@@ -17,24 +17,37 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.javascript.api.tree.expression;
+package org.sonar.javascript.parser.expressions.jsx;
 
-import com.google.common.annotations.Beta;
-import org.sonar.plugins.javascript.api.symbols.TypeSet;
-import org.sonar.plugins.javascript.api.tree.Tree;
-import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxElementNameTree;
+import org.junit.Test;
+import org.sonar.javascript.parser.JavaScriptLegacyGrammar;
+import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 
-/**
- * Common interface for all types of <a href="http://www.ecma-international.org/ecma-262/5.1/#sec-11">expressions</a>.
- */
-@Beta
-public interface ExpressionTree extends Tree, JsxElementNameTree {
+import static org.sonar.javascript.utils.Assertions.assertThat;
 
-  /**
-   * Returns an unmodifiable set of the possible types for the expression.
-   * Attempts to modify the returned set, whether direct or via its iterator, will result in an UnsupportedOperationException.
-   */
+public class JsxElementTest {
 
-  TypeSet types();
+  @Test
+  public void standard() {
+    assertThat(JavaScriptLegacyGrammar.JSX_ELEMENT)
+      .matches("<c><a><b></b></a></c>")
+      .matches("<foo></foo>")
+      .matches("<foo><bar></bar></foo>")
+      .matches("<foo>hello world!</foo>")
+      .matches("<foo>{foo()}</foo>")
+
+      .notMatches("<foo></bar></foo>")
+      ;
+  }
+
+  @Test
+  public void self_closing() {
+    assertThat(Kind.JSX_SELF_CLOSING_ELEMENT)
+      .matches("<foo/>")
+      .matches("<foo attr1='value'/>")
+      .matches("<this.bar/>")
+      .matches("<Foo.bar.foobar/>")
+    ;
+  }
 
 }
