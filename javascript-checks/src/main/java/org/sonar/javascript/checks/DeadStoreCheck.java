@@ -20,7 +20,6 @@
 package org.sonar.javascript.checks;
 
 import com.google.common.collect.HashMultimap;
-import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.SetMultimap;
 import java.util.ArrayDeque;
@@ -34,9 +33,8 @@ import javax.annotation.Nullable;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
-import org.sonar.javascript.cfg.ControlFlowBlock;
+import org.sonar.javascript.cfg.CfgBlock;
 import org.sonar.javascript.cfg.ControlFlowGraph;
-import org.sonar.javascript.cfg.ControlFlowNode;
 import org.sonar.javascript.tree.symbols.Scope;
 import org.sonar.plugins.javascript.api.symbols.Symbol;
 import org.sonar.plugins.javascript.api.symbols.Usage;
@@ -143,8 +141,8 @@ public class DeadStoreCheck extends DoubleDispatchVisitorCheck {
   }
 
   private void buildUsagesAndLivenesses(ControlFlowGraph cfg, Usages usages, Set<BlockLiveness> livenesses) {
-    Map<ControlFlowNode, BlockLiveness> livenessPerBlock = new HashMap<>();
-    for (ControlFlowBlock block : cfg.blocks()) {
+    Map<CfgBlock, BlockLiveness> livenessPerBlock = new HashMap<>();
+    for (CfgBlock block : cfg.blocks()) {
       BlockLiveness blockLiveness = new BlockLiveness(block, usages);
       livenessPerBlock.put(block, blockLiveness);
       livenesses.add(blockLiveness);
@@ -155,13 +153,13 @@ public class DeadStoreCheck extends DoubleDispatchVisitorCheck {
     // As the CFG may contain cycles between blocks (that's the case for loops), we use a queue
     // to keep track of blocks which may need to be updated.
     // See "worklist algorithm" in http://www.cs.cornell.edu/courses/cs4120/2013fa/lectures/lec26-fa13.pdf
-    Deque<ControlFlowNode> queue = new ArrayDeque<ControlFlowNode>(cfg.blocks());
+    Deque<CfgBlock> queue = new ArrayDeque(cfg.blocks());
     while (!queue.isEmpty()) {
-      ControlFlowNode block = queue.pop();
+      CfgBlock block = queue.pop();
       BlockLiveness blockLiveness = livenessPerBlock.get(block);
-      boolean changed = blockLiveness.updateLiveInAndOut(livenessPerBlock);
+      boolean changed = blockLiveness.updateLiveInAndOut(cfg, livenessPerBlock);
       if (changed) {
-        for (ControlFlowNode predecessor : block.predecessors()) {
+        for (CfgBlock predecessor : block.predecessors()) {
           queue.push(predecessor);
         }
       }
@@ -189,13 +187,13 @@ public class DeadStoreCheck extends DoubleDispatchVisitorCheck {
 
   private static class BlockLiveness {
   
-    private final ControlFlowBlock block;
+    private final CfgBlock block;
     private final Map<Tree, Usage> usageByElement = new HashMap<>();
     private final Set<Symbol> liveOut = new HashSet<>();
     private Set<Symbol> liveIn = new HashSet<>();
 
   
-    public BlockLiveness(ControlFlowBlock block, Usages usages) {
+    public BlockLiveness(CfgBlock block, Usages usages) {
   
       this.block = block;
   
@@ -210,10 +208,12 @@ public class DeadStoreCheck extends DoubleDispatchVisitorCheck {
       }
     }
 
-    public boolean updateLiveInAndOut(Map<ControlFlowNode, BlockLiveness> livenessPerBlock) {
+    public boolean updateLiveInAndOut(ControlFlowGraph cfg, Map<CfgBlock, BlockLiveness> livenessPerBlock) {
       liveOut.clear();
-      for (ControlFlowBlock successor : Iterables.filter(block.successors(), ControlFlowBlock.class)) {
-        liveOut.addAll(livenessPerBlock.get(successor).liveIn);
+      for (CfgBlock successor : block.successors()) {
+        if (successor != cfg.end()) {
+          liveOut.addAll(livenessPerBlock.get(successor).liveIn);
+        }
       }
 
       Set<Symbol> oldIn = liveIn;

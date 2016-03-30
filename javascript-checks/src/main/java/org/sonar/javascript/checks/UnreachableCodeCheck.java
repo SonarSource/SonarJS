@@ -25,7 +25,7 @@ import java.util.Set;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
-import org.sonar.javascript.cfg.ControlFlowBlock;
+import org.sonar.javascript.cfg.CfgBlock;
 import org.sonar.javascript.cfg.ControlFlowGraph;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.javascript.tree.impl.lexical.InternalSyntaxToken;
@@ -80,7 +80,7 @@ public class UnreachableCodeCheck extends SubscriptionVisitorCheck {
   }
 
   private void check(ControlFlowGraph cfg) {
-    for (ControlFlowBlock unreachable : cfg.unreachableBlocks()) {
+    for (CfgBlock unreachable : cfg.unreachableBlocks()) {
       Tree element = unreachableTree(unreachable.elements());
       if (element != null) {
         Set<SyntaxToken> disconnectingJumps = cfg.disconnectingJumps(unreachable);

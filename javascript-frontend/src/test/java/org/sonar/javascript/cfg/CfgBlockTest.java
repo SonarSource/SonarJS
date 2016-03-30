@@ -27,20 +27,20 @@ import org.sonar.plugins.javascript.api.tree.Tree;
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
-public class MutableBlockTest {
+public class CfgBlockTest {
 
   @Rule
   public ExpectedException thrown = ExpectedException.none();
 
   private final Tree tree1 = mock(Tree.class);
-  private final EndBlock end = new EndBlock();
-  private final SimpleBlock simple1 = new SimpleBlock(end);
-  private final SimpleBlock simple2 = new SimpleBlock(end);
-  private final ForwardingBlock forwarding = new ForwardingBlock();
+  private final JsCfgEndBlock end = new JsCfgEndBlock();
+  private final JsCfgBlock simple1 = new JsCfgBlock(end);
+  private final JsCfgBlock simple2 = new JsCfgBlock(end);
+  private final JsCfgForwardingBlock forwarding = new JsCfgForwardingBlock();
 
   @Test
   public void branch_successors() throws Exception {
-    BranchingBlock branching = new BranchingBlock(tree1, simple1, simple2);
+    JsCfgBranchingBlock branching = new JsCfgBranchingBlock(tree1, simple1, simple2);
     assertThat(branching.successors()).containsOnly(simple1, simple2);
     assertThat(branching.trueSuccessor()).isEqualTo(simple1);
     assertThat(branching.falseSuccessor()).isEqualTo(simple2);
@@ -48,37 +48,35 @@ public class MutableBlockTest {
 
   @Test(expected = IllegalArgumentException.class)
   public void cannot_set_null_successor1() throws Exception {
-    new BranchingBlock(tree1, simple1, null);
+    new JsCfgBranchingBlock(tree1, simple1, null);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void cannot_set_null_successor2() throws Exception {
-    new BranchingBlock(tree1, null, simple1);
+    new JsCfgBranchingBlock(tree1, null, simple1);
   }
 
   @Test
   public void simple_successor() throws Exception {
-    SimpleBlock simpleBlock = new SimpleBlock(simple1);
+    JsCfgBlock simpleBlock = new JsCfgBlock(simple1);
     assertThat(simpleBlock.successors()).containsOnly(simple1);
-    assertThat(simpleBlock.trueSuccessor()).isEqualTo(simple1);
-    assertThat(simpleBlock.falseSuccessor()).isEqualTo(simple1);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void cannot_add_null_as_successor() throws Exception {
-    new SimpleBlock(null);
+    new JsCfgBlock(null);
   }
 
   @Test
   public void non_empty_successor() throws Exception {
-    BranchingBlock branching = new BranchingBlock(tree1, simple1, simple2);
-    SimpleBlock simpleNonEmpty = new SimpleBlock(end);
+    JsCfgBranchingBlock branching = new JsCfgBranchingBlock(tree1, simple1, simple2);
+    JsCfgBlock simpleNonEmpty = new JsCfgBlock(end);
     simpleNonEmpty.addElement(tree1);
     assertThat(simpleNonEmpty.skipEmptyBlocks()).isEqualTo(simpleNonEmpty);
-    assertThat(new SimpleBlock(simpleNonEmpty).skipEmptyBlocks()).isEqualTo(simpleNonEmpty);
-    assertThat(new SimpleBlock(branching).skipEmptyBlocks()).isEqualTo(branching);
-    assertThat(new SimpleBlock(end).skipEmptyBlocks()).isEqualTo(end);
-    assertThat(new SimpleBlock(new SimpleBlock(end)).skipEmptyBlocks()).isEqualTo(end);
+    assertThat(new JsCfgBlock(simpleNonEmpty).skipEmptyBlocks()).isEqualTo(simpleNonEmpty);
+    assertThat(new JsCfgBlock(branching).skipEmptyBlocks()).isEqualTo(branching);
+    assertThat(new JsCfgBlock(end).skipEmptyBlocks()).isEqualTo(end);
+    assertThat(new JsCfgBlock(new JsCfgBlock(end)).skipEmptyBlocks()).isEqualTo(end);
   }
 
   @Test
@@ -98,7 +96,7 @@ public class MutableBlockTest {
 
   @Test(expected = IllegalStateException.class)
   public void forwarding_with_no_successor() throws Exception {
-    forwarding.successor();
+    forwarding.successors();
   }
 
   @Test(expected = UnsupportedOperationException.class)
@@ -106,19 +104,9 @@ public class MutableBlockTest {
     forwarding.addElement(tree1);
   }
 
-  @Test(expected = UnsupportedOperationException.class)
-  public void true_successor_is_not_supported_by_end() throws Exception {
-    end.trueSuccessor();
-  }
-
-  @Test(expected = UnsupportedOperationException.class)
-  public void false_successor_is_not_supported_by_end() throws Exception {
-    end.falseSuccessor();
-  }
-
   @Test(expected = IllegalArgumentException.class)
-  public void canoot_set_null_branching_tree() throws Exception {
-    new BranchingBlock(null, simple1, simple2);
+  public void cannot_set_null_branching_tree() throws Exception {
+    new JsCfgBranchingBlock(null, simple1, simple2);
   }
 
 }

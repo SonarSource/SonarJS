@@ -21,7 +21,6 @@ package org.sonar.javascript.cfg;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import java.util.ArrayDeque;
 import java.util.Deque;
@@ -79,12 +78,12 @@ import org.sonar.plugins.javascript.api.tree.statement.WithStatementTree;
  */
 class ControlFlowGraphBuilder {
 
-  private final Set<MutableBlock> blocks = new HashSet<>();
-  private final EndBlock end = new EndBlock();
-  private MutableBlock currentBlock = createSimpleBlock(end);
-  private MutableBlock start;
+  private final Set<JsCfgBlock> blocks = new HashSet<>();
+  private final JsCfgEndBlock end = new JsCfgEndBlock();
+  private JsCfgBlock currentBlock = createSimpleBlock(end);
+  private JsCfgBlock start;
   private final Deque<Breakable> breakables = new ArrayDeque<>();
-  private final Deque<MutableBlock> throwTargets = new ArrayDeque<>();
+  private final Deque<JsCfgBlock> throwTargets = new ArrayDeque<>();
   private String currentLabel = null;
 
   private static final Kind[] SIMPLE_BINARY_KINDS = {
@@ -162,10 +161,10 @@ class ControlFlowGraphBuilder {
   }
 
   private void removeEmptyBlocks() {
-    Map<MutableBlock, MutableBlock> emptyBlockReplacements = new HashMap<>();
-    for (SingleSuccessorBlock block : Iterables.filter(blocks, SingleSuccessorBlock.class)) {
-      if (block.isEmpty()) {
-        MutableBlock firstNonEmptySuccessor = block.skipEmptyBlocks();
+    Map<JsCfgBlock, JsCfgBlock> emptyBlockReplacements = new HashMap<>();
+    for (JsCfgBlock block : blocks) {
+      if (block.elements().isEmpty()) {
+        JsCfgBlock firstNonEmptySuccessor = block.skipEmptyBlocks();
         emptyBlockReplacements.put(block, firstNonEmptySuccessor);
         for (SyntaxToken jump : block.disconnectingJumps()) {
           firstNonEmptySuccessor.addDisconnectingJump(jump);
@@ -175,7 +174,7 @@ class ControlFlowGraphBuilder {
 
     blocks.removeAll(emptyBlockReplacements.keySet());
 
-    for (MutableBlock block : blocks) {
+    for (JsCfgBlock block : blocks) {
       block.replaceSuccessors(emptyBlockReplacements);
     }
 
@@ -317,24 +316,24 @@ class ControlFlowGraphBuilder {
     } else if (tree.is(Kind.CONDITIONAL_AND)) {
       BinaryExpressionTree binary = (BinaryExpressionTree) tree;
       buildExpression(binary.rightOperand());
-      currentBlock = createBranchingBlock(tree, currentBlock, currentBlock.falseSuccessor());
+      currentBlock = createBranchingBlock(tree, currentBlock, (JsCfgBlock) ControlFlowGraph.falseSuccessorFor(currentBlock));
       buildExpression(binary.leftOperand());
 
     } else if (tree.is(Kind.CONDITIONAL_OR)) {
       BinaryExpressionTree binary = (BinaryExpressionTree) tree;
       buildExpression(binary.rightOperand());
-      currentBlock = createBranchingBlock(tree, currentBlock, currentBlock.trueSuccessor());
+      currentBlock = createBranchingBlock(tree, currentBlock, (JsCfgBlock) ControlFlowGraph.trueSuccessorFor(currentBlock));
       buildExpression(binary.leftOperand());
 
     } else if (tree.is(Kind.CONDITIONAL_EXPRESSION)) {
       ConditionalExpressionTree conditionalExpression = (ConditionalExpressionTree) tree;
-      MutableBlock successor = currentBlock;
+      JsCfgBlock successor = currentBlock;
       currentBlock = createSimpleBlock(successor);
       buildExpression(conditionalExpression.falseExpression());
-      MutableBlock falseBlock = currentBlock;
+      JsCfgBlock falseBlock = currentBlock;
       currentBlock = createSimpleBlock(successor);
       buildExpression(conditionalExpression.trueExpression());
-      MutableBlock trueBlock = currentBlock;
+      JsCfgBlock trueBlock = currentBlock;
       currentBlock = createBranchingBlock(tree, trueBlock, falseBlock);
       buildExpression(conditionalExpression.condition());
 
@@ -379,7 +378,7 @@ class ControlFlowGraphBuilder {
     }
   }
 
-  private void addBreakable(MutableBlock breakTarget, MutableBlock continueTarget) {
+  private void addBreakable(JsCfgBlock breakTarget, JsCfgBlock continueTarget) {
     String label = null;
     if (currentLabel != null) {
       label = currentLabel;
@@ -401,7 +400,7 @@ class ControlFlowGraphBuilder {
   }
 
   private void visitContinueStatement(ContinueStatementTree tree) {
-    MutableBlock target = null;
+    JsCfgBlock target = null;
     String label = tree.label() == null ? null : tree.label().name();
     for (Breakable breakable : breakables) {
       if (breakable.continueTarget != null && (label == null || label.equals(breakable.label))) {
@@ -415,7 +414,7 @@ class ControlFlowGraphBuilder {
   }
 
   private void visitBreakStatement(BreakStatementTree tree) {
-    MutableBlock target = null;
+    JsCfgBlock target = null;
     String label = tree.label() == null ? null : tree.label().name();
     for (Breakable breakable : breakables) {
       if (label == null || label.equals(breakable.label)) {
@@ -429,24 +428,24 @@ class ControlFlowGraphBuilder {
   }
 
   private void visitIfStatement(IfStatementTree tree) {
-    MutableBlock successor = currentBlock;
+    JsCfgBlock successor = currentBlock;
     if (tree.elseClause() != null) {
       buildSubFlow(tree.elseClause().statement(), successor);
     }
-    MutableBlock elseBlock = currentBlock;
+    JsCfgBlock elseBlock = currentBlock;
     buildSubFlow(tree.statement(), successor);
-    MutableBlock thenBlock = currentBlock;
-    BranchingBlock branchingBlock = createBranchingBlock(tree, thenBlock, elseBlock);
+    JsCfgBlock thenBlock = currentBlock;
+    JsCfgBranchingBlock branchingBlock = createBranchingBlock(tree, thenBlock, elseBlock);
     currentBlock = branchingBlock;
     buildExpression(tree.condition());
   }
 
   private void visitForStatement(ForStatementTree tree) {
-    MutableBlock forStatementSuccessor = currentBlock;
-    ForwardingBlock linkToCondition = createForwardingBlock();
-    ForwardingBlock linkToUpdate = createForwardingBlock();
+    JsCfgBlock forStatementSuccessor = currentBlock;
+    JsCfgForwardingBlock linkToCondition = createForwardingBlock();
+    JsCfgForwardingBlock linkToUpdate = createForwardingBlock();
 
-    MutableBlock loopBodyBlock = buildLoopBody(tree.statement(), linkToUpdate, currentBlock);
+    JsCfgBlock loopBodyBlock = buildLoopBody(tree.statement(), linkToUpdate, currentBlock);
 
     if (tree.update() != null) {
       currentBlock = createSimpleBlock(linkToCondition);
@@ -467,16 +466,16 @@ class ControlFlowGraphBuilder {
     currentBlock = createSimpleBlock(linkToCondition);
     if (tree.init() != null) {
       buildExpression(tree.init());
-    } else if (tree.condition() == null && loopBodyBlock.isEmpty()) {
+    } else if (tree.condition() == null && loopBodyBlock.elements().isEmpty()) {
       loopBodyBlock.addElement(tree.forKeyword());
     }
   }
 
   private void visitForObjectStatement(ForObjectStatementTree tree) {
-    MutableBlock successor = currentBlock;
-    ForwardingBlock linkToAssignment = createForwardingBlock();
-    MutableBlock loopBodyBlock = buildLoopBody(tree.statement(), linkToAssignment, currentBlock);
-    BranchingBlock assignmentBlock = createBranchingBlock(tree, loopBodyBlock, successor);
+    JsCfgBlock successor = currentBlock;
+    JsCfgForwardingBlock linkToAssignment = createForwardingBlock();
+    JsCfgBlock loopBodyBlock = buildLoopBody(tree.statement(), linkToAssignment, currentBlock);
+    JsCfgBranchingBlock assignmentBlock = createBranchingBlock(tree, loopBodyBlock, successor);
     currentBlock = assignmentBlock;
     buildExpression(tree.variableOrExpression());
     buildExpression(tree.expression());
@@ -485,9 +484,9 @@ class ControlFlowGraphBuilder {
   }
 
   private void visitWhileStatement(WhileStatementTree tree) {
-    MutableBlock successor = currentBlock;
-    ForwardingBlock linkToCondition = createForwardingBlock();
-    MutableBlock loopBodyBlock = buildLoopBody(tree.statement(), linkToCondition, successor);
+    JsCfgBlock successor = currentBlock;
+    JsCfgForwardingBlock linkToCondition = createForwardingBlock();
+    JsCfgBlock loopBodyBlock = buildLoopBody(tree.statement(), linkToCondition, successor);
     currentBlock = createBranchingBlock(tree, loopBodyBlock, successor);
     buildExpression(tree.condition());
     linkToCondition.setSuccessor(currentBlock);
@@ -495,11 +494,11 @@ class ControlFlowGraphBuilder {
   }
 
   private void visitDoWhileStatement(DoWhileStatementTree tree) {
-    MutableBlock successor = currentBlock;
-    ForwardingBlock linkToBody = createForwardingBlock();
+    JsCfgBlock successor = currentBlock;
+    JsCfgForwardingBlock linkToBody = createForwardingBlock();
     currentBlock = createBranchingBlock(tree, linkToBody, successor);
     buildExpression(tree.condition());
-    MutableBlock loopBodyBlock = buildLoopBody(tree.statement(), currentBlock, successor);
+    JsCfgBlock loopBodyBlock = buildLoopBody(tree.statement(), currentBlock, successor);
     linkToBody.setSuccessor(loopBodyBlock);
     currentBlock = createSimpleBlock(loopBodyBlock);
   }
@@ -510,7 +509,7 @@ class ControlFlowGraphBuilder {
   }
 
   private void visitTryStatement(TryStatementTree tree) {
-    MutableBlock catchOrFinallyBlock = null;
+    JsCfgBlock catchOrFinallyBlock = null;
 
     if (tree.finallyBlock() != null) {
       currentBlock = createSimpleBlock(currentBlock);
@@ -520,9 +519,9 @@ class ControlFlowGraphBuilder {
     }
 
     if (tree.catchBlock() != null) {
-      MutableBlock catchSuccessor = currentBlock;
+      JsCfgBlock catchSuccessor = currentBlock;
       buildSubFlow(tree.catchBlock().block(), currentBlock);
-      BranchingBlock catchBlock = createBranchingBlock(tree.catchBlock(), currentBlock, catchSuccessor);
+      JsCfgBranchingBlock catchBlock = createBranchingBlock(tree.catchBlock(), currentBlock, catchSuccessor);
       currentBlock = catchBlock;
       buildExpression(tree.catchBlock().parameter());
       catchOrFinallyBlock = catchBlock;
@@ -550,10 +549,10 @@ class ControlFlowGraphBuilder {
 
   private void visitSwitchStatement(SwitchStatementTree tree) {
     addBreakable(currentBlock, null);
-    MutableBlock nextStatementBlock = currentBlock;
-    ForwardingBlock defaultForwardingBlock = createForwardingBlock();
+    JsCfgBlock nextStatementBlock = currentBlock;
+    JsCfgForwardingBlock defaultForwardingBlock = createForwardingBlock();
     defaultForwardingBlock.setSuccessor(currentBlock);
-    MutableBlock nextCase = defaultForwardingBlock;
+    JsCfgBlock nextCase = defaultForwardingBlock;
 
     for (SwitchClauseTree switchCaseClause : Lists.reverse(tree.cases())) {
       if (switchCaseClause.is(Kind.CASE_CLAUSE)) {
@@ -587,51 +586,51 @@ class ControlFlowGraphBuilder {
     buildExpression(tree.expression());
   }
 
-  private MutableBlock buildLoopBody(StatementTree body, MutableBlock conditionBlock, MutableBlock breakTarget) {
+  private JsCfgBlock buildLoopBody(StatementTree body, JsCfgBlock conditionBlock, JsCfgBlock breakTarget) {
     addBreakable(breakTarget, conditionBlock);
     currentLabel = null;
     buildSubFlow(body, conditionBlock);
-    MutableBlock loopBodyBlock = currentBlock;
+    JsCfgBlock loopBodyBlock = currentBlock;
     removeBreakable();
     return loopBodyBlock;
   }
 
-  private void buildSubFlow(StatementTree subFlowTree, MutableBlock successor) {
+  private void buildSubFlow(StatementTree subFlowTree, JsCfgBlock successor) {
     currentBlock = createSimpleBlock(successor);
     build(subFlowTree);
   }
-  
-  private BranchingBlock createBranchingBlock(Tree branchingTree, MutableBlock trueSuccessor, MutableBlock falseSuccessor) {
-    BranchingBlock block = new BranchingBlock(branchingTree, trueSuccessor, falseSuccessor);
+
+  private JsCfgBranchingBlock createBranchingBlock(Tree branchingTree, JsCfgBlock trueSuccessor, JsCfgBlock falseSuccessor) {
+    JsCfgBranchingBlock block = new JsCfgBranchingBlock(branchingTree, trueSuccessor, falseSuccessor);
     blocks.add(block);
     return block;
   }
 
-  private SimpleBlock createSimpleBlock(Tree element, MutableBlock successor) {
-    SimpleBlock block = createSimpleBlock(successor);
+  private JsCfgBlock createSimpleBlock(Tree element, JsCfgBlock successor) {
+    JsCfgBlock block = createSimpleBlock(successor);
     block.addElement(element);
     return block;
   }
 
-  private SimpleBlock createSimpleBlock(MutableBlock successor) {
-    SimpleBlock block = new SimpleBlock(successor);
+  private JsCfgBlock createSimpleBlock(JsCfgBlock successor) {
+    JsCfgBlock block = new JsCfgBlock(successor);
     blocks.add(block);
     return block;
   }
 
-  private ForwardingBlock createForwardingBlock() {
-    ForwardingBlock block = new ForwardingBlock();
+  private JsCfgForwardingBlock createForwardingBlock() {
+    JsCfgForwardingBlock block = new JsCfgForwardingBlock();
     blocks.add(block);
     return block;
   }
 
   private static class Breakable {
 
-    final MutableBlock continueTarget;
-    final MutableBlock breakTarget;
+    final JsCfgBlock continueTarget;
+    final JsCfgBlock breakTarget;
     final String label;
 
-    public Breakable(MutableBlock continueTarget, MutableBlock breakTarget, String label) {
+    public Breakable(JsCfgBlock continueTarget, JsCfgBlock breakTarget, String label) {
       this.continueTarget = continueTarget;
       this.breakTarget = breakTarget;
       this.label = label;

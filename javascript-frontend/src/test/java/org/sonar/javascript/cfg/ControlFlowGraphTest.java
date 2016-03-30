@@ -52,7 +52,7 @@ public class ControlFlowGraphTest {
 
   private static final int END = -1;
 
-  private static final Ordering<ControlFlowBlock> BLOCK_ORDERING = blockOrdering();
+  private static final Ordering<CfgBlock> BLOCK_ORDERING = blockOrdering();
 
   @Rule
   public ExpectedException thrown = ExpectedException.none();
@@ -564,7 +564,7 @@ public class ControlFlowGraphTest {
     assertBlock(g, 1).hasSuccessors(END);
     assertBlock(g, 2).hasSuccessors(3).hasElements("b2").hasDisconnectingJumps("return");
     assertBlock(g, 3).hasSuccessors(END);
-    ControlFlowBlock block2 = new TestedCfg(g).block(2);
+    CfgBlock block2 = new TestedCfg(g).block(2);
     assertThat(g.unreachableBlocks()).containsOnly(block2);
   }
 
@@ -583,15 +583,6 @@ public class ControlFlowGraphTest {
     ControlFlowGraph cfg = ControlFlowGraph.build((BlockTree) functionTree.body());
     assertThat(cfg.blocks()).hasSize(1);
     assertBlock(cfg, 0).hasElements("foo");
-  }
-
-  @Test
-  public void invalid_empty_block() throws Exception {
-    EndBlock end = new EndBlock();
-    MutableBlock block = new SimpleBlock(end);
-    thrown.expect(IllegalArgumentException.class);
-    thrown.expectMessage("Cannot build block");
-    new ControlFlowGraph(ImmutableSet.of(block), block, end);
   }
 
   private ControlFlowGraph build(String sourceCode, int expectedNumberOfBlocks) {
@@ -626,14 +617,15 @@ public class ControlFlowGraphTest {
     }
 
     public BlockAssert hasBranchingTree(Kind expectedKind) {
-      ControlFlowBlock block = testedCfg.block(blockIndex);
-      assertThat(block.branchingTree().is(expectedKind)).isTrue();
+      CfgBlock block = testedCfg.block(blockIndex);
+      assertThat(block).isInstanceOf(CfgBranchingBlock.class);
+      assertThat(((CfgBranchingBlock) block).branchingTree().is(expectedKind)).isTrue();
       return this;
     }
 
     public BlockAssert hasSuccessors(int... expectedSuccessorIndexes) {
       Set<String> actual = new TreeSet<>();
-      for (ControlFlowNode successor : testedCfg.block(blockIndex).successors()) {
+      for (CfgBlock successor : testedCfg.block(blockIndex).successors()) {
         actual.add(actualBlockId(successor));
       }
 
@@ -645,9 +637,9 @@ public class ControlFlowGraphTest {
       assertThat(actual).as("Successors of block " + blockIndex).isEqualTo(expected);
 
       if (expectedSuccessorIndexes.length == 2) {
-        assertThat(actualBlockId(testedCfg.block(blockIndex).trueSuccessor())).describedAs("TrueSuccessor")
+        assertThat(actualBlockId(ControlFlowGraph.trueSuccessorFor(testedCfg.block(blockIndex)))).describedAs("TrueSuccessor")
           .isEqualTo(expectedBlockId(expectedSuccessorIndexes[0]));
-        assertThat(actualBlockId(testedCfg.block(blockIndex).falseSuccessor())).describedAs("FalseSuccessor")
+        assertThat(actualBlockId(ControlFlowGraph.falseSuccessorFor(testedCfg.block(blockIndex)))).describedAs("FalseSuccessor")
           .isEqualTo(expectedBlockId(expectedSuccessorIndexes[1]));
       }
 
@@ -658,7 +650,7 @@ public class ControlFlowGraphTest {
       return expectedSuccessorIndex == END ? "END" : Integer.toString(expectedSuccessorIndex);
     }
 
-    private String actualBlockId(ControlFlowNode successor) {
+    private String actualBlockId(CfgBlock successor) {
       return successor == cfg.end() ? "END" : Integer.toString(testedCfg.blocks.indexOf(successor));
     }
 
@@ -686,32 +678,32 @@ public class ControlFlowGraphTest {
 
   public static class TestedCfg {
 
-    private final List<ControlFlowBlock> blocks;
+    private final List<CfgBlock> blocks;
 
     public TestedCfg(ControlFlowGraph cfg) {
       this.blocks = sortBlocks(cfg.blocks());
     }
 
-    public ControlFlowBlock block(int index) {
+    public CfgBlock block(int index) {
       return blocks.get(index);
     }
 
   }
 
-  private static List<ControlFlowBlock> sortBlocks(Iterable<ControlFlowBlock> blocks) {
+  private static List<CfgBlock> sortBlocks(Iterable<CfgBlock> blocks) {
     return BLOCK_ORDERING.sortedCopy(blocks);
   }
 
-  private static Ordering<ControlFlowBlock> blockOrdering() {
+  private static Ordering<CfgBlock> blockOrdering() {
     Ordering<Tree> bySourceLength = Ordering.natural().onResultOf(new TreeSourceLength());
     Ordering<Tree> byTokenIndex = Ordering.natural().onResultOf(new TreeTokenIndex());
     return byTokenIndex.compound(bySourceLength).onResultOf(new BlockFirstTree());
   }
 
-  private static class BlockFirstTree implements Function<ControlFlowBlock, Tree> {
+  private static class BlockFirstTree implements Function<CfgBlock, Tree> {
 
     @Override
-    public Tree apply(ControlFlowBlock block) {
+    public Tree apply(CfgBlock block) {
       Preconditions.checkArgument(!block.elements().isEmpty(), "Cannot sort empty block");
       return block.elements().iterator().next();
     }
