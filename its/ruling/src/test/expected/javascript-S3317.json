@@ -5,6 +5,12 @@
 'project:ecmascript6/reddit-mobile/src/server/console.es6.js':[
 0,
 ],
+'project:ecmascript6/redux/examples/real-world/containers/Root.dev.js':[
+0,
+],
+'project:ecmascript6/redux/examples/real-world/containers/Root.prod.js':[
+0,
+],
 'project:ecmascript6/snoode/src/endpoints/v1.es6.js':[
 0,
 ],
@@ -51,6 +57,12 @@
 0,
 ],
 'project:ecmascript6/snoode/src/models/vote.es6.js':[
+0,
+],
+'project:ecmascript6/sonar-web/src/main/js/components/shared/assignee-helper.js':[
+0,
+],
+'project:ecmascript6/sonar-web/src/main/js/main/nav/app.js':[
 0,
 ],
 'project:ecmascript6/sonar-web/src/main/js/main/nav/component/recent-history.js':[

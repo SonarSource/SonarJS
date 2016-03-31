@@ -1490,6 +1490,10 @@
 'project:ecmascript6/redux/examples/real-world/reducers/paginate.js':[
 46,
 ],
+'project:ecmascript6/redux/examples/todomvc/test/components/Footer.spec.js':[
+30,
+62,
+],
 'project:ecmascript6/redux/src/createStore.js':[
 64,
 ],

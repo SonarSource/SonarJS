@@ -642,6 +642,10 @@
 'project:ecmascript6/router/third_party/route-recognizer.js':[
 287,
 ],
+'project:ecmascript6/sonar-web/src/main/js/components/charts/bubble-chart.js':[
+95,
+110,
+],
 'project:ecmascript6/templating/src/lib/di/ce_di.js':[
 60,
 ],

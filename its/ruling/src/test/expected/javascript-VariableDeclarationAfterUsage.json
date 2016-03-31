@@ -850,6 +850,10 @@
 'project:ecmascript6/expressionist.js/test/parser.spec.js':[
 286,
 ],
+'project:ecmascript6/react-router/modules/__tests__/RouteComponent-test.js':[
+21,
+22,
+],
 'project:ecmascript6/reddit-mobile/src/server/oauth.es6.js':[
 80,
 ],

@@ -2185,6 +2185,12 @@
 'project:ecmascript6/sonar-web/src/main/js/apps/maintenance/main-view.js':[
 18,
 ],
+'project:ecmascript6/sonar-web/src/main/js/apps/overview/components/issue-measure.js':[
+217,
+],
+'project:ecmascript6/sonar-web/src/main/js/apps/overview/main/components.js':[
+45,
+],
 'project:ecmascript6/sonar-web/src/main/js/apps/permission-templates/groups-view.js':[
 7,
 ],

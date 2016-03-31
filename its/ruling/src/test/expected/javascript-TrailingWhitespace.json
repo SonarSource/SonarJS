@@ -12568,6 +12568,9 @@
 'project:ecmascript6/redux/examples/todomvc/reducers/todos.js':[
 19,
 ],
+'project:ecmascript6/redux/examples/todomvc/test/components/MainSection.spec.js':[
+107,
+],
 'project:ecmascript6/redux/test/createStore.spec.js':[
 93,
 143,
