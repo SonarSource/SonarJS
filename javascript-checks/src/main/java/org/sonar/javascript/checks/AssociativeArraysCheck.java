@@ -19,50 +19,45 @@
  */
 package org.sonar.javascript.checks;
 
-import org.apache.commons.lang.math.NumberUtils;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.javascript.tree.impl.expression.BracketMemberExpressionTreeImpl;
-import org.sonar.javascript.tree.impl.expression.IdentifierTreeImpl;
-import org.sonar.javascript.tree.impl.expression.LiteralTreeImpl;
 import org.sonar.plugins.javascript.api.symbols.Type.Kind;
+import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.expression.AssignmentExpressionTree;
+import org.sonar.plugins.javascript.api.tree.expression.BracketMemberExpressionTree;
+import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
+import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
+import org.sonar.squidbridge.annotations.ActivatedByDefault;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 
-@Rule(key = "AssociativeArrays", priority = Priority.MAJOR, name = "Associative arrays should not be used.", tags = {
-		"suspicious" })
-@SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.DATA_RELIABILITY)
+@Rule(
+  key = "S3579",
+  priority = Priority.MAJOR,
+  name = "Array indexes should be numeric",
+  tags = {"suspicious"})
+@ActivatedByDefault
+@SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.UNDERSTANDABILITY)
 @SqaleConstantRemediation("10min")
-
 public class AssociativeArraysCheck extends DoubleDispatchVisitorCheck {
-	private static final String MESSAGE = "Only use a numeric index for Arrays";
+  private static final String MESSAGE = "Make \"%s\" an object if it must have named properties; otherwise, use a numeric index here.";
 
-	@Override
-	public void visitAssignmentExpression(AssignmentExpressionTree tree) {
-		if (tree.variable() instanceof BracketMemberExpressionTreeImpl) {
-			if (((BracketMemberExpressionTreeImpl) tree.variable()).object().types().contains(Kind.ARRAY)) {
-				if (((BracketMemberExpressionTreeImpl) tree.variable()).property() instanceof LiteralTreeImpl)
-				{
-
-				LiteralTreeImpl al = (LiteralTreeImpl) ((BracketMemberExpressionTreeImpl) tree.variable()).property();
-
-				if (!NumberUtils.isNumber(al.token().text())) {
-					addLineIssue(tree, MESSAGE);
-				}
-			}
-				else if (((BracketMemberExpressionTreeImpl) tree.variable()).property() instanceof IdentifierTreeImpl)
-				{
-					IdentifierTreeImpl idt= (IdentifierTreeImpl)((BracketMemberExpressionTreeImpl) tree.variable()).property();
-					if (!NumberUtils.isNumber(idt.name())) {
-						addLineIssue(tree, MESSAGE);
-					}
-				}
-			}
-
-		}
-		super.visitAssignmentExpression(tree);
-	}
+  @Override
+  public void visitAssignmentExpression(AssignmentExpressionTree tree) {
+    if (tree.variable().is(Tree.Kind.BRACKET_MEMBER_EXPRESSION)) {
+      BracketMemberExpressionTree arrayObject = (BracketMemberExpressionTree) tree.variable();
+      if (arrayObject.object().types().containsOnly(Kind.ARRAY)) {
+        ExpressionTree arrayIndex = ((BracketMemberExpressionTreeImpl) tree.variable()).property();
+        if (arrayIndex.is(Tree.Kind.STRING_LITERAL)) {
+          addIssue(tree, String.format(MESSAGE, arrayObject.object().toString()));
+        } else if (arrayIndex instanceof IdentifierTree) {
+          addIssue(tree, String.format(MESSAGE, arrayObject.object().toString()));
+        }
+      }
+    }
+    super.visitAssignmentExpression(tree);
+  }
 }
