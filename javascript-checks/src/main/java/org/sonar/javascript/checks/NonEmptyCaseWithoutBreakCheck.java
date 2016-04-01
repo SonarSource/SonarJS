@@ -72,7 +72,7 @@ public class NonEmptyCaseWithoutBreakCheck extends DoubleDispatchVisitorCheck {
       lastCaseClause = caseClause;
     }
 
-    Map<CaseClauseTree, CfgBlock> caseClauseBlocksByTree = caseClauseBlocksByTree(tree);
+    Map<CaseClauseTree, CfgBranchingBlock> caseClauseBlocksByTree = caseClauseBlocksByTree(tree);
     SwitchClauseTree previousClauseWithStatement = null;
 
     for (SwitchClauseTree switchClause : tree.cases()) {
@@ -81,10 +81,10 @@ public class NonEmptyCaseWithoutBreakCheck extends DoubleDispatchVisitorCheck {
 
         CfgBlock firstBlockInClauseBody;
         if (switchClause.is(Kind.CASE_CLAUSE)) {
-          firstBlockInClauseBody = ControlFlowGraph.trueSuccessorFor(caseClauseBlocksByTree.get(switchClause));
+          firstBlockInClauseBody = caseClauseBlocksByTree.get(switchClause).trueSuccessor();
         } else {
           // consider default clause
-          firstBlockInClauseBody = ControlFlowGraph.falseSuccessorFor(caseClauseBlocksByTree.get(lastCaseClause));
+          firstBlockInClauseBody = caseClauseBlocksByTree.get(lastCaseClause).falseSuccessor();
         }
 
         if (canBeFallenInto(switchClause, firstBlockInClauseBody, caseExpressions) || hasOnlyEmptyStatements(previousClauseWithStatement)) {
@@ -100,14 +100,15 @@ public class NonEmptyCaseWithoutBreakCheck extends DoubleDispatchVisitorCheck {
     super.visitSwitchStatement(tree);
   }
 
-  private Map<CaseClauseTree, CfgBlock> caseClauseBlocksByTree(SwitchStatementTree switchTree) {
+  private Map<CaseClauseTree, CfgBranchingBlock> caseClauseBlocksByTree(SwitchStatementTree switchTree) {
     ControlFlowGraph cfg = getControlFlowGraph(switchTree);
-    Map<CaseClauseTree, CfgBlock> map = new HashMap<>();
+    Map<CaseClauseTree, CfgBranchingBlock> map = new HashMap<>();
     for (CfgBlock block : cfg.blocks()) {
       if (block instanceof CfgBranchingBlock) {
-        Tree branchingTree = ((CfgBranchingBlock) block).branchingTree();
+        CfgBranchingBlock branchingBlock = (CfgBranchingBlock) block;
+        Tree branchingTree = branchingBlock.branchingTree();
         if (branchingTree.is(Kind.CASE_CLAUSE)) {
-          map.put((CaseClauseTree) branchingTree, block);
+          map.put((CaseClauseTree) branchingTree, branchingBlock);
         }
       }
     }

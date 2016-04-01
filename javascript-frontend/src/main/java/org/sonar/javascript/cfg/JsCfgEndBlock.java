@@ -19,7 +19,6 @@
  */
 package org.sonar.javascript.cfg;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import java.util.Map;
 import org.sonar.plugins.javascript.api.tree.Tree;
@@ -29,11 +28,6 @@ import org.sonar.plugins.javascript.api.tree.Tree;
  * The end node of a {@link ControlFlowGraph}.
  */
 class JsCfgEndBlock extends JsCfgBlock {
-
-  @Override
-  public ImmutableList<Tree> elements() {
-    return ImmutableList.of();
-  }
 
   @Override
   public ImmutableSet<CfgBlock> successors() {

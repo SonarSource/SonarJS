@@ -140,7 +140,7 @@ class ControlFlowGraphBuilder {
     Kind.LOGICAL_COMPLEMENT
   };
 
-  public ControlFlowGraph createGraph(ScriptTree tree) {
+  ControlFlowGraph createGraph(ScriptTree tree) {
     List<Tree> items = ImmutableList.of();
     if (tree.items() != null) {
       items = tree.items().items();
@@ -148,7 +148,7 @@ class ControlFlowGraphBuilder {
     return createGraph(items);
   }
 
-  public ControlFlowGraph createGraph(BlockTree body) {
+  ControlFlowGraph createGraph(BlockTree body) {
     return createGraph(body.statements());
   }
 
@@ -630,7 +630,7 @@ class ControlFlowGraphBuilder {
     final JsCfgBlock breakTarget;
     final String label;
 
-    public Breakable(JsCfgBlock continueTarget, JsCfgBlock breakTarget, String label) {
+    Breakable(JsCfgBlock continueTarget, JsCfgBlock breakTarget, String label) {
       this.continueTarget = continueTarget;
       this.breakTarget = breakTarget;
       this.label = label;

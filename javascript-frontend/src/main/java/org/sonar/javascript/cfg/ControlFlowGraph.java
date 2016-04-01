@@ -19,7 +19,7 @@
  */
 package org.sonar.javascript.cfg;
 
-import com.google.common.collect.ImmutableSet;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
@@ -77,7 +77,7 @@ public class ControlFlowGraph {
   }
 
   public Set<CfgBlock> blocks() {
-    return ImmutableSet.<CfgBlock>copyOf(blocks);
+    return Collections.<CfgBlock>unmodifiableSet(blocks);
   }
 
   public Set<CfgBlock> unreachableBlocks() {
@@ -94,7 +94,7 @@ public class ControlFlowGraph {
     return ((JsCfgBlock) block).disconnectingJumps();
   }
 
-  public static CfgBlock trueSuccessorFor(CfgBlock block) {
+  static CfgBlock trueSuccessorFor(CfgBlock block) {
     if (block instanceof CfgBranchingBlock) {
       return ((JsCfgBranchingBlock) block).trueSuccessor();
     } else {
@@ -102,7 +102,7 @@ public class ControlFlowGraph {
     }
   }
 
-  public static CfgBlock falseSuccessorFor(CfgBlock block) {
+  static CfgBlock falseSuccessorFor(CfgBlock block) {
     if (block instanceof CfgBranchingBlock) {
       return ((JsCfgBranchingBlock) block).falseSuccessor();
     } else {

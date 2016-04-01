@@ -32,7 +32,7 @@ public interface CfgBranchingBlock extends CfgBlock {
   CfgBlock falseSuccessor();
 
   /**
-   * Syntax tree causing branching: e.g. loop tree, switch case clause tree, if statement tree
+   * Syntax tree causing branching: e.g. loop tree, switch case clause tree, if statement tree, "&&" expression, "||" expression
    */
   Tree branchingTree();
 

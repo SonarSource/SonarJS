@@ -20,11 +20,10 @@
 package org.sonar.javascript.cfg;
 
 import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Lists;
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -36,39 +35,39 @@ class JsCfgBlock implements CfgBlock {
   private Set<JsCfgBlock> predecessors = new HashSet<>();
   private JsCfgBlock successor;
 
-  private List<Tree> elements = new ArrayList<>();
+  private LinkedList<Tree> elements = new LinkedList<>();
 
   private final Set<SyntaxToken> disconnectingJumps = new HashSet<>();
 
-  public JsCfgBlock(JsCfgBlock successor) {
+  JsCfgBlock(JsCfgBlock successor) {
     Preconditions.checkArgument(successor != null, "Successor cannot be null");
     this.successor = successor;
   }
 
-  protected JsCfgBlock() {
+  JsCfgBlock() {
   }
 
   @Override
-  public ImmutableSet<CfgBlock> predecessors() {
-    return ImmutableSet.<CfgBlock>copyOf(predecessors);
+  public Set<CfgBlock> predecessors() {
+    return Collections.<CfgBlock>unmodifiableSet(predecessors);
   }
 
   @Override
-  public ImmutableSet<CfgBlock> successors() {
+  public Set<CfgBlock> successors() {
     return ImmutableSet.<CfgBlock>of(successor);
   }
 
   @Override
-  public ImmutableList<Tree> elements() {
-    return ImmutableList.copyOf(Lists.reverse(elements));
+  public List<Tree> elements() {
+    return Collections.unmodifiableList(elements);
   }
 
   public void addElement(Tree element) {
     Preconditions.checkArgument(element != null, "Cannot add a null element to a block");
-    elements.add(element);
+    elements.addFirst(element);
   }
 
-  public void addPredecessor(JsCfgBlock predecessor) {
+  void addPredecessor(JsCfgBlock predecessor) {
     this.predecessors.add(predecessor);
   }
 
@@ -89,15 +88,15 @@ class JsCfgBlock implements CfgBlock {
   /**
    * Jump keywords (return, throw, break continue) which disconnect normal execution flow coming to this block.
    */
-  public Set<SyntaxToken> disconnectingJumps() {
+  Set<SyntaxToken> disconnectingJumps() {
     return disconnectingJumps;
   }
 
-  public void addDisconnectingJump(SyntaxToken jumpToken) {
+  void addDisconnectingJump(SyntaxToken jumpToken) {
     disconnectingJumps.add(jumpToken);
   }
 
-  public JsCfgBlock skipEmptyBlocks() {
+  JsCfgBlock skipEmptyBlocks() {
     JsCfgBlock block = this;
     while (block.successors().size() == 1 && block.elements().isEmpty()) {
       block = (JsCfgBlock) block.successors().iterator().next();

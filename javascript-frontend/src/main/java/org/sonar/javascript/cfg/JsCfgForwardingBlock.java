@@ -43,7 +43,7 @@ class JsCfgForwardingBlock extends JsCfgBlock {
     throw new UnsupportedOperationException("Cannot add an element to a forwarding block");
   }
 
-  public void setSuccessor(JsCfgBlock successor) {
+  void setSuccessor(JsCfgBlock successor) {
     this.successor = successor;
   }
 
