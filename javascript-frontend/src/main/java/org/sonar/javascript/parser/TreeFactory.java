@@ -668,7 +668,7 @@ public class TreeFactory {
   }
 
 
-  public ParameterListTreeImpl formalParameterList1(
+  public ParameterListTreeImpl formalParameterClause1(
     InternalSyntaxToken lParenthesis,
     SeparatedList<Tree> parameters,
     Optional<InternalSyntaxToken> trailingComma,
@@ -681,7 +681,7 @@ public class TreeFactory {
   }
 
 
-  public ParameterListTreeImpl formalParameterList2(
+  public ParameterListTreeImpl formalParameterClause2(
     InternalSyntaxToken lParenthesis,
     SeparatedList<Tree> parameters,
     InternalSyntaxToken comma,
@@ -694,7 +694,7 @@ public class TreeFactory {
     return new ParameterListTreeImpl(Kind.FORMAL_PARAMETER_LIST, lParenthesis, parameters, rParenthesis);
   }
 
-  public ParameterListTreeImpl formalParameterList3(InternalSyntaxToken lParenthesis, Optional<RestElementTreeImpl> restElementTree, InternalSyntaxToken rParenthesis) {
+  public ParameterListTreeImpl formalParameterClause3(InternalSyntaxToken lParenthesis, Optional<RestElementTreeImpl> restElementTree, InternalSyntaxToken rParenthesis) {
     SeparatedList<Tree> parameters = new SeparatedList<>(new ArrayList<Tree>(), ListUtils.EMPTY_LIST);
     if (restElementTree.isPresent()) {
       parameters.add(restElementTree.get());
@@ -964,7 +964,7 @@ public class TreeFactory {
     return new SeparatedList<>(arguments, commas);
   }
 
-  public ParameterListTreeImpl arguments(InternalSyntaxToken openParenToken, Optional<SeparatedList<Tree>> arguments, InternalSyntaxToken closeParenToken) {
+  public ParameterListTreeImpl argumentClause(InternalSyntaxToken openParenToken, Optional<SeparatedList<Tree>> arguments, InternalSyntaxToken closeParenToken) {
     return new ParameterListTreeImpl(
       Kind.ARGUMENTS,
       openParenToken,

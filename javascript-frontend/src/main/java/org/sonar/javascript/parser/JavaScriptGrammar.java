@@ -513,28 +513,28 @@ public class JavaScriptGrammar {
       ));
   }
 
-  public ParameterListTreeImpl FORMAL_PARAMETER_LIST() {
+  public ParameterListTreeImpl FORMAL_PARAMETER_CLAUSE() {
     return b.<ParameterListTreeImpl>nonterminal(Kind.FORMAL_PARAMETER_LIST)
       .is(b.firstOf(
-        f.formalParameterList1(
+        f.formalParameterClause1(
           b.token(JavaScriptPunctuator.LPARENTHESIS),
-          FORMAL_PARAMETERS(),
+          FORMAL_PARAMETER_LIST(),
           b.optional(b.token(JavaScriptPunctuator.COMMA)),
           b.token(JavaScriptPunctuator.RPARENTHESIS)),
-        f.formalParameterList2(
+        f.formalParameterClause2(
           b.token(JavaScriptPunctuator.LPARENTHESIS),
-          FORMAL_PARAMETERS(),
+          FORMAL_PARAMETER_LIST(),
           b.token(JavaScriptPunctuator.COMMA),
           BINDING_REST_ELEMENT(),
           b.token(JavaScriptPunctuator.RPARENTHESIS)),
-        f.formalParameterList3(
+        f.formalParameterClause3(
           b.token(JavaScriptPunctuator.LPARENTHESIS),
           b.optional(BINDING_REST_ELEMENT()),
           b.token(JavaScriptPunctuator.RPARENTHESIS))
       ));
   }
 
-  public SeparatedList<Tree> FORMAL_PARAMETERS() {
+  public SeparatedList<Tree> FORMAL_PARAMETER_LIST() {
     return b.<SeparatedList<Tree>>nonterminal()
       .is(f.formalParameters(
         BINDING_ELEMENT(),
@@ -570,7 +570,7 @@ public class JavaScriptGrammar {
           b.token(JavaScriptKeyword.FUNCTION),
           b.token(JavaScriptPunctuator.STAR),
           b.optional(BINDING_IDENTIFIER()),
-          FORMAL_PARAMETER_LIST(),
+          FORMAL_PARAMETER_CLAUSE(),
           BLOCK()));
   }
 
@@ -580,7 +580,7 @@ public class JavaScriptGrammar {
         f.functionExpression(
           b.token(JavaScriptKeyword.FUNCTION),
           b.optional(b.token(JavaScriptTokenType.IDENTIFIER)),
-          FORMAL_PARAMETER_LIST(),
+          FORMAL_PARAMETER_CLAUSE(),
           BLOCK()));
   }
 
@@ -947,7 +947,7 @@ public class JavaScriptGrammar {
       .is(f.arrowFunction(
         b.firstOf(
           BINDING_IDENTIFIER(),
-          FORMAL_PARAMETER_LIST()),
+          FORMAL_PARAMETER_CLAUSE()),
         b.token(JavaScriptLegacyGrammar.SPACING_NO_LINE_BREAK_NOT_FOLLOWED_BY_LINE_BREAK),
         b.token(JavaScriptPunctuator.DOUBLEARROW),
         b.firstOf(
@@ -961,7 +961,7 @@ public class JavaScriptGrammar {
       .is(f.arrowFunctionNoIn(
         b.firstOf(
           BINDING_IDENTIFIER(),
-          FORMAL_PARAMETER_LIST()),
+          FORMAL_PARAMETER_CLAUSE()),
         b.token(JavaScriptLegacyGrammar.SPACING_NO_LINE_BREAK_NOT_FOLLOWED_BY_LINE_BREAK),
         b.token(JavaScriptPunctuator.DOUBLEARROW),
         b.firstOf(
@@ -975,7 +975,7 @@ public class JavaScriptGrammar {
       .is(f.completeMemberExpression(
         b.firstOf(
           ES6(SUPER_PROPERTY()),
-          f.newExpressionWithArgument(b.token(JavaScriptKeyword.NEW), b.firstOf(ES6(SUPER()), MEMBER_EXPRESSION()), ARGUMENTS()),
+          f.newExpressionWithArgument(b.token(JavaScriptKeyword.NEW), b.firstOf(ES6(SUPER()), MEMBER_EXPRESSION()), ARGUMENT_CLAUSE()),
           PRIMARY_EXPRESSION()),
         b.zeroOrMore(
           b.firstOf(
@@ -1022,9 +1022,9 @@ public class JavaScriptGrammar {
 
   }
 
-  public ParameterListTreeImpl ARGUMENTS() {
+  public ParameterListTreeImpl ARGUMENT_CLAUSE() {
     return b.<ParameterListTreeImpl>nonterminal(Kind.ARGUMENTS)
-      .is(f.arguments(
+      .is(f.argumentClause(
         b.token(JavaScriptPunctuator.LPARENTHESIS),
         b.optional(ARGUMENT_LIST()),
         b.token(JavaScriptPunctuator.RPARENTHESIS)));
@@ -1050,9 +1050,9 @@ public class JavaScriptGrammar {
   public ExpressionTree CALL_EXPRESSION() {
     return b.<ExpressionTree>nonterminal(Kind.CALL_EXPRESSION)
       .is(f.callExpression(
-        f.simpleCallExpression(b.firstOf(MEMBER_EXPRESSION(), SUPER()), ARGUMENTS()),
+        f.simpleCallExpression(b.firstOf(MEMBER_EXPRESSION(), SUPER()), ARGUMENT_CLAUSE()),
         b.zeroOrMore(b.firstOf(
-          ARGUMENTS(),
+          ARGUMENT_CLAUSE(),
           BRACKET_EXPRESSION(),
           OBJECT_PROPERTY_ACCESS(),
           ES6(TAGGED_TEMPLATE())
@@ -1553,11 +1553,11 @@ public class JavaScriptGrammar {
           f.generator(
             b.optional(b.token(JavaScriptLegacyGrammar.STATIC)),
             b.token(JavaScriptPunctuator.STAR),
-            PROPERTY_NAME(), FORMAL_PARAMETER_LIST(),
+            PROPERTY_NAME(), FORMAL_PARAMETER_CLAUSE(),
             BLOCK()),
           f.method(
             b.optional(b.token(JavaScriptLegacyGrammar.STATIC)),
-            PROPERTY_NAME(), FORMAL_PARAMETER_LIST(),
+            PROPERTY_NAME(), FORMAL_PARAMETER_CLAUSE(),
             BLOCK()),
           f.accessor(
             b.optional(b.token(JavaScriptLegacyGrammar.STATIC)),
@@ -1565,7 +1565,7 @@ public class JavaScriptGrammar {
               b.token(JavaScriptLegacyGrammar.GET),
               b.token(JavaScriptLegacyGrammar.SET)),
             PROPERTY_NAME(),
-            FORMAL_PARAMETER_LIST(),
+            FORMAL_PARAMETER_CLAUSE(),
             BLOCK())));
   }
 
@@ -1573,7 +1573,7 @@ public class JavaScriptGrammar {
     return b.<FunctionDeclarationTreeImpl>nonterminal(JavaScriptLegacyGrammar.FUNCTION_DECLARATION)
       .is(
         f.functionAndGeneratorDeclaration(
-          b.token(JavaScriptKeyword.FUNCTION), b.optional(b.token(JavaScriptPunctuator.STAR)), BINDING_IDENTIFIER(), FORMAL_PARAMETER_LIST(),
+          b.token(JavaScriptKeyword.FUNCTION), b.optional(b.token(JavaScriptPunctuator.STAR)), BINDING_IDENTIFIER(), FORMAL_PARAMETER_CLAUSE(),
           BLOCK()));
   }
 
