@@ -116,11 +116,13 @@ public class NonEmptyCaseWithoutBreakCheck extends DoubleDispatchVisitorCheck {
   }
 
   private static void addCaseExpression(Set<Tree> caseExpressions, ExpressionTree expression) {
-    caseExpressions.add(expression);
-    if (expression.is(Kind.CONDITIONAL_OR)) {
+    if (expression.is(Kind.CONDITIONAL_OR, Kind.CONDITIONAL_AND)) {
       BinaryExpressionTree binary = (BinaryExpressionTree) expression;
-      // The left operand of a "||" is a valid predecessor for switch clause statements
+      // The operands of a "||" or "&&" are valid predecessors for switch clause statements
       addCaseExpression(caseExpressions, binary.leftOperand());
+      addCaseExpression(caseExpressions, binary.rightOperand());
+    } else {
+      caseExpressions.add(expression);
     }
   }
 
