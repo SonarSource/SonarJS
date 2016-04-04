@@ -157,6 +157,7 @@ class ControlFlowGraphBuilder {
     build(items);
     start = currentBlock;
     removeEmptyBlocks();
+    blocks.add(end);
     return new ControlFlowGraph(blocks, start, end);
   }
 

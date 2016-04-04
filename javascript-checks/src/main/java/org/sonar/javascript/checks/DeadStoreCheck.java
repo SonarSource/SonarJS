@@ -211,9 +211,7 @@ public class DeadStoreCheck extends DoubleDispatchVisitorCheck {
     public boolean updateLiveInAndOut(ControlFlowGraph cfg, Map<CfgBlock, BlockLiveness> livenessPerBlock) {
       liveOut.clear();
       for (CfgBlock successor : block.successors()) {
-        if (successor != cfg.end()) {
-          liveOut.addAll(livenessPerBlock.get(successor).liveIn);
-        }
+        liveOut.addAll(livenessPerBlock.get(successor).liveIn);
       }
 
       Set<Symbol> oldIn = liveIn;

@@ -68,8 +68,11 @@ public class ControlFlowGraphTest {
   @Test
   public void single_basic_block() throws Exception {
     ControlFlowGraph g = build("foo();", 1);
-    assertThat(g.start()).isEqualTo(g.blocks().iterator().next());
+
+    assertThat(g.blocks()).containsOnly(g.start(), g.end());
+    assertThat(g.start()).isNotEqualTo(g.end());
     assertThat(g.start().predecessors()).isEmpty();
+
     assertBlock(g, 0).hasSuccessors(END);
   }
 
@@ -581,7 +584,7 @@ public class ControlFlowGraphTest {
     ScriptTree tree = (ScriptTree) parser.parse(sourceCode);
     FunctionTree functionTree = (FunctionDeclarationTree) tree.items().items().get(0);
     ControlFlowGraph cfg = ControlFlowGraph.build((BlockTree) functionTree.body());
-    assertThat(cfg.blocks()).hasSize(1);
+    assertThat(cfg.blocks()).hasSize(2);
     assertBlock(cfg, 0).hasElements("foo");
   }
 
@@ -592,10 +595,11 @@ public class ControlFlowGraphTest {
   private ControlFlowGraph build(String sourceCode, int expectedNumberOfBlocks, int expectedStartIndex) {
     Tree tree = parser.parse(sourceCode);
     ControlFlowGraph cfg = ControlFlowGraph.build((ScriptTree) tree);
-    assertThat(cfg.blocks()).hasSize(expectedNumberOfBlocks);
+    assertThat(cfg.blocks()).hasSize(expectedNumberOfBlocks + 1); // +1 for end block
     assertThat(cfg.end().successors()).isEmpty();
-    if (!cfg.blocks().isEmpty()) {
-      assertThat(sortBlocks(cfg.blocks()).get(expectedStartIndex)).as("Start block").isEqualTo(cfg.start());
+    assertThat(cfg.end().elements()).isEmpty();
+    if (cfg.blocks().size() > 1) {
+      assertThat(sortBlocks(cfg).get(expectedStartIndex)).as("Start block").isEqualTo(cfg.start());
     }
     return cfg;
   }
@@ -681,7 +685,7 @@ public class ControlFlowGraphTest {
     private final List<CfgBlock> blocks;
 
     public TestedCfg(ControlFlowGraph cfg) {
-      this.blocks = sortBlocks(cfg.blocks());
+      this.blocks = sortBlocks(cfg);
     }
 
     public CfgBlock block(int index) {
@@ -690,8 +694,10 @@ public class ControlFlowGraphTest {
 
   }
 
-  private static List<CfgBlock> sortBlocks(Iterable<CfgBlock> blocks) {
-    return BLOCK_ORDERING.sortedCopy(blocks);
+  private static List<CfgBlock> sortBlocks(ControlFlowGraph cfg) {
+    Set<CfgBlock> allBlocksExceptEnd = new HashSet<>(cfg.blocks());
+    allBlocksExceptEnd.remove(cfg.end());
+    return BLOCK_ORDERING.sortedCopy(allBlocksExceptEnd);
   }
 
   private static Ordering<CfgBlock> blockOrdering() {
