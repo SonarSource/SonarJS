@@ -149,10 +149,12 @@ public class TreeFactory {
     EXPRESSION_KIND_BY_VALUE.put(JavaScriptPunctuator.PLUS.getValue(), Kind.PLUS);
     EXPRESSION_KIND_BY_VALUE.put(JavaScriptPunctuator.MINUS.getValue(), Kind.MINUS);
     EXPRESSION_KIND_BY_VALUE.put(JavaScriptPunctuator.STAR.getValue(), Kind.MULTIPLY);
+    EXPRESSION_KIND_BY_VALUE.put(JavaScriptPunctuator.EXP.getValue(), Kind.EXPONENT);
     EXPRESSION_KIND_BY_VALUE.put(JavaScriptPunctuator.DIV.getValue(), Kind.DIVIDE);
     EXPRESSION_KIND_BY_VALUE.put(JavaScriptPunctuator.MOD.getValue(), Kind.REMAINDER);
     EXPRESSION_KIND_BY_VALUE.put(JavaScriptPunctuator.EQU.getValue(), Kind.ASSIGNMENT);
     EXPRESSION_KIND_BY_VALUE.put(JavaScriptPunctuator.STAR_EQU.getValue(), Kind.MULTIPLY_ASSIGNMENT);
+    EXPRESSION_KIND_BY_VALUE.put(JavaScriptPunctuator.EXP_EQU.getValue(), Kind.EXPONENT_ASSIGNMENT);
     EXPRESSION_KIND_BY_VALUE.put(JavaScriptPunctuator.DIV_EQU.getValue(), Kind.DIVIDE_ASSIGNMENT);
     EXPRESSION_KIND_BY_VALUE.put(JavaScriptPunctuator.MOD_EQU.getValue(), Kind.REMAINDER_ASSIGNMENT);
     EXPRESSION_KIND_BY_VALUE.put(JavaScriptPunctuator.PLUS_EQU.getValue(), Kind.PLUS_ASSIGNMENT);
@@ -753,6 +755,24 @@ public class TreeFactory {
 
   public ExpressionTree newMultiplicative(ExpressionTree expression, Optional<List<Tuple<InternalSyntaxToken, ExpressionTree>>> operatorAndOperands) {
     return buildBinaryExpression(expression, operatorAndOperands);
+  }
+
+  public ExpressionTree newExponentiation(Optional<List<Tuple<ExpressionTree, InternalSyntaxToken>>> operatorAndOperands, ExpressionTree expression) {
+    if (!operatorAndOperands.isPresent()) {
+      return expression;
+    }
+
+    ExpressionTree result = expression;
+
+    for (Tuple<ExpressionTree, InternalSyntaxToken> t : Lists.reverse(operatorAndOperands.get())) {
+      result = new BinaryExpressionTreeImpl(
+        getBinaryOperator(t.second),
+        t.first,
+        t.second(),
+        result);
+    }
+
+    return result;
   }
 
   private static ExpressionTree buildBinaryExpression(ExpressionTree expression, Optional<List<Tuple<InternalSyntaxToken, ExpressionTree>>> operatorAndOperands) {
@@ -1605,6 +1625,10 @@ public class TreeFactory {
   }
 
   public <T, U> Tuple<T, U> newTuple30(T first, U second) {
+    return newTuple(first, second);
+  }
+
+  public <T, U> Tuple<T, U> newTuple31(T first, U second) {
     return newTuple(first, second);
   }
 

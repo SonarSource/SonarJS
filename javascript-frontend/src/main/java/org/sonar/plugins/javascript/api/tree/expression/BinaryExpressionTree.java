@@ -38,6 +38,7 @@ import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
  * <p/>
  * <pre>
  *   {@link #leftOperand()} {@link Tree.Kind#MULTIPLY *} {@link #rightOperand()}
+ *   {@link #leftOperand()} {@link Tree.Kind#EXPONENT **} {@link #rightOperand()}
  *   {@link #leftOperand()} {@link Tree.Kind#DIVIDE /} {@link #rightOperand()}
  *   {@link #leftOperand()} {@link Tree.Kind#REMAINDER %} {@link #rightOperand()}
  *   {@link #leftOperand()} {@link Tree.Kind#PLUS +} {@link #rightOperand()}

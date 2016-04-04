@@ -88,6 +88,7 @@ class ControlFlowGraphBuilder {
 
   private static final Kind[] SIMPLE_BINARY_KINDS = {
     Kind.MULTIPLY,
+    Kind.EXPONENT,
     Kind.DIVIDE,
     Kind.REMAINDER,
     Kind.PLUS,
@@ -113,6 +114,7 @@ class ControlFlowGraphBuilder {
 
   private static final Kind[] ASSIGNMENT_KINDS = {
     Kind.ASSIGNMENT,
+    Kind.EXPONENT_ASSIGNMENT,
     Kind.MULTIPLY_ASSIGNMENT,
     Kind.DIVIDE_ASSIGNMENT,
     Kind.REMAINDER_ASSIGNMENT,

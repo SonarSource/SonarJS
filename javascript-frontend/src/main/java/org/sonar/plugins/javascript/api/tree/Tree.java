@@ -417,6 +417,12 @@ public interface Tree {
 
     /**
      * {@link BinaryExpressionTree}
+     * {@code **}
+     */
+    EXPONENT(BinaryExpressionTree.class),
+
+    /**
+     * {@link BinaryExpressionTree}
      * {@code /}
      */
     DIVIDE(BinaryExpressionTree.class),
@@ -567,6 +573,12 @@ public interface Tree {
      * {@code *=}
      */
     MULTIPLY_ASSIGNMENT(AssignmentExpressionTree.class),
+
+    /**
+     * {@link AssignmentExpressionTree}
+     * {@code **=}
+     */
+    EXPONENT_ASSIGNMENT(AssignmentExpressionTree.class),
 
     /**
      * {@link AssignmentExpressionTree}

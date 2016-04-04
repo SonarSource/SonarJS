@@ -31,6 +31,7 @@ import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
  * <pre>
  *   {@link #variable()} {@link Tree.Kind#ASSIGNMENT =} {@link #expression()}
  *   {@link #variable()} {@link Tree.Kind#MULTIPLY_ASSIGNMENT *=} {@link #expression()}
+ *   {@link #variable()} {@link Tree.Kind#EXPONENT_ASSIGNMENT **=} {@link #expression()}
  *   {@link #variable()} {@link Tree.Kind#DIVIDE_ASSIGNMENT /=} {@link #expression()}
  *   {@link #variable()} {@link Tree.Kind#REMAINDER_ASSIGNMENT %=} {@link #expression()}
  *   {@link #variable()} {@link Tree.Kind#PLUS_ASSIGNMENT +=} {@link #expression()}

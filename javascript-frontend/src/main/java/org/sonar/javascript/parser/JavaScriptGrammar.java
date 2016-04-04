@@ -797,16 +797,26 @@ public class JavaScriptGrammar {
   public ExpressionTree MULTIPLICATIVE_EXPRESSION() {
     return b.<ExpressionTree>nonterminal(JavaScriptLegacyGrammar.MULTIPLICATIVE_EXPRESSION)
       .is(f.newMultiplicative(
-        UNARY_EXPRESSION(),
+        EXPONENTIATION_EXPRESSION(),
         b.zeroOrMore(f.newTuple15(
           b.firstOf(
             b.token(JavaScriptPunctuator.STAR),
             b.token(JavaScriptPunctuator.DIV),
             b.token(JavaScriptPunctuator.MOD)),
-          UNARY_EXPRESSION()
+          EXPONENTIATION_EXPRESSION()
         ))
         )
       );
+  }
+
+  public ExpressionTree EXPONENTIATION_EXPRESSION() {
+    return b.<ExpressionTree>nonterminal()
+      .is(f.newExponentiation(
+        b.zeroOrMore(
+          f.newTuple31(
+            UNARY_EXPRESSION(),
+            b.token(JavaScriptPunctuator.EXP))),
+        UNARY_EXPRESSION()));
   }
 
   public ExpressionTree UNARY_EXPRESSION() {
@@ -1187,6 +1197,7 @@ public class JavaScriptGrammar {
             b.firstOf(
               b.token(JavaScriptPunctuator.EQU),
               b.token(JavaScriptPunctuator.STAR_EQU),
+              b.token(JavaScriptPunctuator.EXP_EQU),
               b.token(JavaScriptPunctuator.DIV_EQU),
               b.token(JavaScriptPunctuator.MOD_EQU),
               b.token(JavaScriptPunctuator.PLUS_EQU),
@@ -1212,6 +1223,7 @@ public class JavaScriptGrammar {
             b.firstOf(
               b.token(JavaScriptPunctuator.EQU),
               b.token(JavaScriptPunctuator.STAR_EQU),
+              b.token(JavaScriptPunctuator.EXP_EQU),
               b.token(JavaScriptPunctuator.DIV_EQU),
               b.token(JavaScriptPunctuator.MOD_EQU),
               b.token(JavaScriptPunctuator.PLUS_EQU),

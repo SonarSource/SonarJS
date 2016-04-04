@@ -44,6 +44,7 @@ import static org.sonar.javascript.lexer.JavaScriptPunctuator.ELLIPSIS;
 import static org.sonar.javascript.lexer.JavaScriptPunctuator.EQU;
 import static org.sonar.javascript.lexer.JavaScriptPunctuator.EQUAL;
 import static org.sonar.javascript.lexer.JavaScriptPunctuator.EQUAL2;
+import static org.sonar.javascript.lexer.JavaScriptPunctuator.EXP_EQU;
 import static org.sonar.javascript.lexer.JavaScriptPunctuator.GE;
 import static org.sonar.javascript.lexer.JavaScriptPunctuator.GT;
 import static org.sonar.javascript.lexer.JavaScriptPunctuator.INC;
@@ -418,6 +419,7 @@ public enum JavaScriptLegacyGrammar implements GrammarRuleKey {
     punctuator(b, PLUS, "+", b.nextNot(b.firstOf("+", "=")));
     punctuator(b, MINUS, "-", b.nextNot(b.firstOf("-", "=")));
     punctuator(b, STAR, "*", b.nextNot("="));
+    punctuator(b, STAR, "**", b.nextNot("="));
     punctuator(b, MOD, "%", b.nextNot("="));
     punctuator(b, DIV, "/", b.nextNot("="));
     punctuator(b, INC, "++");
@@ -439,6 +441,7 @@ public enum JavaScriptLegacyGrammar implements GrammarRuleKey {
     punctuator(b, MINUS_EQU, "-=");
     punctuator(b, DIV_EQU, "/=");
     punctuator(b, STAR_EQU, "*=");
+    punctuator(b, EXP_EQU, "**=");
     punctuator(b, MOD_EQU, "%=");
     punctuator(b, SL_EQU, "<<=");
     punctuator(b, SR_EQU, ">>=");
