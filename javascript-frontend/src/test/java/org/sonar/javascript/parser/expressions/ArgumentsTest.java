@@ -28,15 +28,17 @@ public class ArgumentsTest {
 
 
   @Test
-  public void ok() {
+  public void test() {
     assertThat(Kind.ARGUMENTS)
       .matches("( )")
       .matches("( assignmentExpression )")
-      .matches("( assignmentExpression , assignmentExpression )");
+      .matches("( ... assignmentExpression )")
+      .matches("( assignmentExpression , )")
+      .matches("( assignmentExpression , assignmentExpression )")
+      .matches("( assignmentExpression , ... assignmentExpression )")
 
-    assertThat(Kind.ARGUMENTS)
       .notMatches("( , )")
-      .notMatches("( assignmentExpression , )");
+    ;
   }
 
 }

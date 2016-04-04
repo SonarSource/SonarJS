@@ -649,15 +649,8 @@ public class TreeFactory {
     return new FunctionExpressionTreeImpl(Kind.FUNCTION_EXPRESSION, functionKeyword, parameters, body);
   }
 
-  public ParameterListTreeImpl newFormalRestParameterList(RestElementTreeImpl restParameter) {
-    return new ParameterListTreeImpl(
-      Kind.FORMAL_PARAMETER_LIST,
-      new SeparatedList<>(Lists.newArrayList((Tree) restParameter), ListUtils.EMPTY_LIST));
-  }
-
-  public ParameterListTreeImpl newFormalParameterList(
-    BindingElementTree formalParameter, Optional<List<Tuple<InternalSyntaxToken, BindingElementTree>>> formalParameters,
-    Optional<Tuple<InternalSyntaxToken, RestElementTreeImpl>> restElement
+  public SeparatedList<Tree> formalParameters(
+    BindingElementTree formalParameter, Optional<List<Tuple<InternalSyntaxToken, BindingElementTree>>> formalParameters
   ) {
     List<Tree> parameters = Lists.newArrayList();
     List<InternalSyntaxToken> commas = Lists.newArrayList();
@@ -671,23 +664,46 @@ public class TreeFactory {
       }
     }
 
-    if (restElement.isPresent()) {
-      commas.add(restElement.get().first());
-      parameters.add(restElement.get().second());
-    }
+    return new SeparatedList<>(parameters, commas);
+  }
 
-    return new ParameterListTreeImpl(Kind.FORMAL_PARAMETER_LIST, new SeparatedList<>(parameters, commas));
+
+  public ParameterListTreeImpl formalParameterList1(
+    InternalSyntaxToken lParenthesis,
+    SeparatedList<Tree> parameters,
+    Optional<InternalSyntaxToken> trailingComma,
+    InternalSyntaxToken rParenthesis
+  ) {
+    if (trailingComma.isPresent()) {
+      parameters.getSeparators().add(trailingComma.get());
+    }
+    return new ParameterListTreeImpl(Kind.FORMAL_PARAMETER_LIST, lParenthesis, parameters, rParenthesis);
+  }
+
+
+  public ParameterListTreeImpl formalParameterList2(
+    InternalSyntaxToken lParenthesis,
+    SeparatedList<Tree> parameters,
+    InternalSyntaxToken comma,
+    RestElementTreeImpl restElementTree,
+    InternalSyntaxToken rParenthesis
+  ) {
+    parameters.getSeparators().add(comma);
+    parameters.add(restElementTree);
+
+    return new ParameterListTreeImpl(Kind.FORMAL_PARAMETER_LIST, lParenthesis, parameters, rParenthesis);
+  }
+
+  public ParameterListTreeImpl formalParameterList3(InternalSyntaxToken lParenthesis, Optional<RestElementTreeImpl> restElementTree, InternalSyntaxToken rParenthesis) {
+    SeparatedList<Tree> parameters = new SeparatedList<>(new ArrayList<Tree>(), ListUtils.EMPTY_LIST);
+    if (restElementTree.isPresent()) {
+      parameters.add(restElementTree.get());
+    }
+    return new ParameterListTreeImpl(Kind.FORMAL_PARAMETER_LIST, lParenthesis, parameters, rParenthesis);
   }
 
   public RestElementTreeImpl bindingRestElement(InternalSyntaxToken ellipsis, IdentifierTreeImpl identifier) {
     return new RestElementTreeImpl(ellipsis, identifier);
-  }
-
-  public ParameterListTreeImpl completeFormalParameterList(InternalSyntaxToken openParenthesis, Optional<ParameterListTreeImpl> parameters, InternalSyntaxToken closeParenthesis) {
-    if (parameters.isPresent()) {
-      return parameters.get().complete(openParenthesis, closeParenthesis);
-    }
-    return new ParameterListTreeImpl(Kind.FORMAL_PARAMETER_LIST, openParenthesis, closeParenthesis);
   }
 
   public ConditionalExpressionTreeImpl newConditionalExpression(
@@ -924,7 +940,11 @@ public class TreeFactory {
       : expression;
   }
 
-  public ParameterListTreeImpl newArgumentList(ExpressionTree argument, Optional<List<Tuple<InternalSyntaxToken, ExpressionTree>>> restArguments) {
+  public SeparatedList<Tree> argumentList(
+    ExpressionTree argument,
+    Optional<List<Tuple<InternalSyntaxToken, ExpressionTree>>> restArguments,
+    Optional<InternalSyntaxToken> trailingComma
+  ) {
     List<Tree> arguments = Lists.newArrayList();
     List<InternalSyntaxToken> commas = Lists.newArrayList();
 
@@ -937,14 +957,19 @@ public class TreeFactory {
       }
     }
 
-    return new ParameterListTreeImpl(Kind.ARGUMENTS, new SeparatedList<>(arguments, commas));
+    if (trailingComma.isPresent()) {
+      commas.add(trailingComma.get());
+    }
+
+    return new SeparatedList<>(arguments, commas);
   }
 
-  public ParameterListTreeImpl completeArguments(InternalSyntaxToken openParenToken, Optional<ParameterListTreeImpl> arguments, InternalSyntaxToken closeParenToken) {
-    if (arguments.isPresent()) {
-      return arguments.get().complete(openParenToken, closeParenToken);
-    }
-    return new ParameterListTreeImpl(Kind.ARGUMENTS, openParenToken, closeParenToken);
+  public ParameterListTreeImpl arguments(InternalSyntaxToken openParenToken, Optional<SeparatedList<Tree>> arguments, InternalSyntaxToken closeParenToken) {
+    return new ParameterListTreeImpl(
+      Kind.ARGUMENTS,
+      openParenToken,
+      arguments.isPresent() ? arguments.get() : new SeparatedList<Tree>(ListUtils.EMPTY_LIST, ListUtils.EMPTY_LIST),
+      closeParenToken);
   }
 
   public CallExpressionTreeImpl simpleCallExpression(ExpressionTree expression, ParameterListTree arguments) {

@@ -515,17 +515,30 @@ public class JavaScriptGrammar {
 
   public ParameterListTreeImpl FORMAL_PARAMETER_LIST() {
     return b.<ParameterListTreeImpl>nonterminal(Kind.FORMAL_PARAMETER_LIST)
-      .is(f.completeFormalParameterList(
-        b.token(JavaScriptPunctuator.LPARENTHESIS),
-        b.optional(b.firstOf(
-          f.newFormalParameterList(
-            BINDING_ELEMENT(),
-            b.zeroOrMore(f.newTuple4(b.token(JavaScriptPunctuator.COMMA), BINDING_ELEMENT())),
-            b.optional(ES6(f.newTuple5(b.token(JavaScriptPunctuator.COMMA), BINDING_REST_ELEMENT())))),
-          ES6(f.newFormalRestParameterList(BINDING_REST_ELEMENT()))
-        )),
-        b.token(JavaScriptPunctuator.RPARENTHESIS)
+      .is(b.firstOf(
+        f.formalParameterList1(
+          b.token(JavaScriptPunctuator.LPARENTHESIS),
+          FORMAL_PARAMETERS(),
+          b.optional(b.token(JavaScriptPunctuator.COMMA)),
+          b.token(JavaScriptPunctuator.RPARENTHESIS)),
+        f.formalParameterList2(
+          b.token(JavaScriptPunctuator.LPARENTHESIS),
+          FORMAL_PARAMETERS(),
+          b.token(JavaScriptPunctuator.COMMA),
+          BINDING_REST_ELEMENT(),
+          b.token(JavaScriptPunctuator.RPARENTHESIS)),
+        f.formalParameterList3(
+          b.token(JavaScriptPunctuator.LPARENTHESIS),
+          b.optional(BINDING_REST_ELEMENT()),
+          b.token(JavaScriptPunctuator.RPARENTHESIS))
       ));
+  }
+
+  public SeparatedList<Tree> FORMAL_PARAMETERS() {
+    return b.<SeparatedList<Tree>>nonterminal()
+      .is(f.formalParameters(
+        BINDING_ELEMENT(),
+        b.zeroOrMore(f.newTuple4(b.token(JavaScriptPunctuator.COMMA), BINDING_ELEMENT()))));
   }
 
   /**
@@ -1011,20 +1024,20 @@ public class JavaScriptGrammar {
 
   public ParameterListTreeImpl ARGUMENTS() {
     return b.<ParameterListTreeImpl>nonterminal(Kind.ARGUMENTS)
-      .is(f.completeArguments(
+      .is(f.arguments(
         b.token(JavaScriptPunctuator.LPARENTHESIS),
         b.optional(ARGUMENT_LIST()),
-        b.token(JavaScriptPunctuator.RPARENTHESIS)
-
-      ));
+        b.token(JavaScriptPunctuator.RPARENTHESIS)));
   }
 
-  public ParameterListTreeImpl ARGUMENT_LIST() {
-    return b.<ParameterListTreeImpl>nonterminal(JavaScriptLegacyGrammar.ARGUMENTS_LIST)
-      .is(f.newArgumentList(
+  public SeparatedList<Tree> ARGUMENT_LIST() {
+    return b.<SeparatedList<Tree>>nonterminal()
+      .is(f.argumentList(
         ARGUMENT(),
-        b.zeroOrMore(f.newTuple17(b.token(JavaScriptPunctuator.COMMA), ARGUMENT())))
-      );
+        b.zeroOrMore(f.newTuple17(
+          b.token(JavaScriptPunctuator.COMMA),
+          ARGUMENT())),
+        b.optional(b.token(JavaScriptPunctuator.COMMA))));
   }
 
   public ExpressionTree ARGUMENT() {
