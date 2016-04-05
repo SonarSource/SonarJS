@@ -19,13 +19,20 @@
  */
 package org.sonar.javascript.checks;
 
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import org.sonar.api.server.rule.RulesDefinition.SubCharacteristics;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
+import org.sonar.javascript.tree.impl.statement.VariableDeclarationTreeImpl;
 import org.sonar.plugins.javascript.api.symbols.Symbol;
 import org.sonar.plugins.javascript.api.symbols.Symbol.Kind;
 import org.sonar.plugins.javascript.api.symbols.Usage;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
+import org.sonar.plugins.javascript.api.tree.Tree;
+import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
+import org.sonar.plugins.javascript.api.tree.statement.ForStatementTree;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
 import org.sonar.squidbridge.annotations.ActivatedByDefault;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
@@ -43,24 +50,49 @@ public class UnchangedLetVariableCheck extends DoubleDispatchVisitorCheck {
 
   private static final String MESSAGE = "Make \"%s\" \"const\".";
 
+  private Set<Symbol> createdInForInit;
+
   @Override
   public void visitScript(ScriptTree tree) {
+    createdInForInit = new HashSet<>();
+
+    super.visitScript(tree);
+
     for (Symbol letVariableSymbol : getContext().getSymbolModel().getSymbols(Kind.LET_VARIABLE)) {
-      boolean isWritten = false;
-      Usage declarationWithInit = null;
+      if (!createdInForInit.contains(letVariableSymbol)) {
+        boolean isWritten = false;
+        Usage declarationWithInit = null;
 
-      for (Usage usage : letVariableSymbol.usages()) {
-        if (usage.kind() == Usage.Kind.DECLARATION_WRITE) {
-          declarationWithInit = usage;
+        for (Usage usage : letVariableSymbol.usages()) {
+          if (usage.kind() == Usage.Kind.DECLARATION_WRITE) {
+            declarationWithInit = usage;
 
-        } else if (usage.isWrite()) {
-          isWritten = true;
+          } else if (usage.isWrite()) {
+            isWritten = true;
+          }
+        }
+
+        if (declarationWithInit != null && !isWritten && letVariableSymbol.usages().size() > 1) {
+          addIssue(declarationWithInit.identifierTree(), String.format(MESSAGE, letVariableSymbol.name()));
         }
       }
+    }
+  }
 
-      if (declarationWithInit != null && !isWritten && letVariableSymbol.usages().size() > 1) {
-        addIssue(declarationWithInit.identifierTree(), String.format(MESSAGE, letVariableSymbol.name()));
+  @Override
+  public void visitForStatement(ForStatementTree tree) {
+    Tree init = tree.init();
+
+    if (init != null && init.is(Tree.Kind.LET_DECLARATION)) {
+      List<IdentifierTree> identifiers = ((VariableDeclarationTreeImpl) init).variableIdentifiers();
+
+      if (identifiers.size() > 1) {
+        for (IdentifierTree identifier : identifiers) {
+          createdInForInit.add(identifier.symbol());
+        }
       }
     }
+
+    super.visitForStatement(tree);
   }
 }

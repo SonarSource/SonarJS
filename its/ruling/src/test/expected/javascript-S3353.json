@@ -1214,7 +1214,6 @@
 16,
 93,
 93,
-174,
 ],
 'project:ecmascript6/react-router/modules/Redirect.js':[
 35,
@@ -1225,15 +1224,10 @@
 40,
 85,
 ],
-'project:ecmascript6/react-router/modules/TransitionUtils.js':[
-77,
-],
 'project:ecmascript6/react-router/modules/__tests__/matchRoutes-test.js':[
 15,
 ],
 'project:ecmascript6/react-router/modules/createTransitionManager.js':[
-133,
-151,
 203,
 206,
 ],
@@ -1242,7 +1236,6 @@
 ],
 'project:ecmascript6/react-router/modules/isActive.js':[
 17,
-49,
 ],
 'project:ecmascript6/react-router/modules/matchRoutes.js':[
 82,
