@@ -1516,21 +1516,14 @@ public class JavaScriptGrammar {
 
   public ArrayBindingPatternTreeImpl ARRAY_BINDING_PATTERN() {
     return b.<ArrayBindingPatternTreeImpl>nonterminal(JavaScriptLegacyGrammar.ARRAY_BINDING_PATTERN)
-      .is(
-        f.arrayBindingPattern(
-          b.token(JavaScriptPunctuator.LBRACKET),
-          b.optional(
-            b.firstOf(
-              BINDING_ELEMENT(),
-              BINDING_REST_ELEMENT())),
-          b.zeroOrMore(
-            f.newTuple29(
-              b.token(JavaScriptPunctuator.COMMA),
-              b.optional(
-                b.firstOf(
-                  BINDING_ELEMENT(),
-                  BINDING_REST_ELEMENT())))),
-          b.token(JavaScriptPunctuator.RBRACKET)));
+      .is(f.arrayBindingPattern(
+        b.token(JavaScriptPunctuator.LBRACKET),
+        b.optional(BINDING_ELEMENT()),
+        b.zeroOrMore(f.newTuple29(
+            b.token(JavaScriptPunctuator.COMMA),
+            b.optional(BINDING_ELEMENT()))),
+        b.optional(BINDING_REST_ELEMENT()),
+        b.token(JavaScriptPunctuator.RBRACKET)));
   }
 
   // [END] Destructuring pattern

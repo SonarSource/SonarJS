@@ -1476,8 +1476,11 @@ public class TreeFactory {
   }
 
   public ArrayBindingPatternTreeImpl arrayBindingPattern(
-    InternalSyntaxToken openBracketToken, Optional<BindingElementTree> firstElement,
-    Optional<List<Tuple<InternalSyntaxToken, Optional<BindingElementTree>>>> rest, InternalSyntaxToken closeBracketToken
+    InternalSyntaxToken openBracketToken,
+    Optional<BindingElementTree> firstElement,
+    Optional<List<Tuple<InternalSyntaxToken, Optional<BindingElementTree>>>> optionalElements,
+    Optional<RestElementTreeImpl> restElement,
+    InternalSyntaxToken closeBracketToken
   ) {
 
     ImmutableList.Builder<Optional<BindingElementTree>> elements = ImmutableList.builder();
@@ -1490,8 +1493,8 @@ public class TreeFactory {
       skipComma = true;
     }
 
-    if (rest.isPresent()) {
-      List<Tuple<InternalSyntaxToken, Optional<BindingElementTree>>> list = rest.get();
+    if (optionalElements.isPresent()) {
+      List<Tuple<InternalSyntaxToken, Optional<BindingElementTree>>> list = optionalElements.get();
       for (Tuple<InternalSyntaxToken, Optional<BindingElementTree>> pair : list) {
         if (!skipComma) {
           elements.add(Optional.<BindingElementTree>absent());
@@ -1507,6 +1510,10 @@ public class TreeFactory {
           skipComma = false;
         }
       }
+    }
+
+    if (restElement.isPresent()) {
+      elements.add(Optional.<BindingElementTree>of(restElement.get()));
     }
 
     return new ArrayBindingPatternTreeImpl(

@@ -85,21 +85,21 @@ public class ArrayBindingPatternTreeModelTest extends JavaScriptTreeModelTest {
 
   @Test
   public void bindingIdentifiers() throws Exception {
-    ArrayBindingPatternTreeImpl tree = parse("var [a, , b = 1, ...c, { d }, [ i ]] = obj", Kind.ARRAY_BINDING_PATTERN);
+    ArrayBindingPatternTreeImpl tree = parse("var [a, , b = 1, { d }, [ i ], ...c] = obj", Kind.ARRAY_BINDING_PATTERN);
 
     List<IdentifierTree> bindingName = tree.bindingIdentifiers();
     assertThat(bindingName).hasSize(5);
     assertThat(bindingName.get(0).name()).isEqualTo("a");
     assertThat(bindingName.get(1).name()).isEqualTo("b");
-    assertThat(bindingName.get(2).name()).isEqualTo("c");
-    assertThat(bindingName.get(3).name()).isEqualTo("d");
-    assertThat(bindingName.get(4).name()).isEqualTo("i");
+    assertThat(bindingName.get(2).name()).isEqualTo("d");
+    assertThat(bindingName.get(3).name()).isEqualTo("i");
+    assertThat(bindingName.get(4).name()).isEqualTo("c");
   }
 
   @Test
   public void childrenIterator() throws Exception {
     ArrayBindingPatternTreeImpl tree1 = parse("var [ ] = obj", Kind.ARRAY_BINDING_PATTERN);
-    ArrayBindingPatternTreeImpl tree2 = parse("var [a, , b, ...c, { d }, [ i ]] = obj", Kind.ARRAY_BINDING_PATTERN);
+    ArrayBindingPatternTreeImpl tree2 = parse("var [a, , b, { d }, [ i ], ...c] = obj", Kind.ARRAY_BINDING_PATTERN);
 
     Iterator<Tree> treeIterator1 = tree1.childrenIterator();
     assertThat(size(treeIterator1)).isEqualTo(2);
