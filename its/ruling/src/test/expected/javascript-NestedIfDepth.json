@@ -2236,6 +2236,14 @@
 8579,
 8580,
 ],
+'project:ecmascript6/react-router/modules/Link.js':[
+120,
+123,
+],
+'project:ecmascript6/react-router/modules/RouterContext.js':[
+86,
+94,
+],
 'project:ecmascript6/react-router/modules/isActive.js':[
 23,
 ],

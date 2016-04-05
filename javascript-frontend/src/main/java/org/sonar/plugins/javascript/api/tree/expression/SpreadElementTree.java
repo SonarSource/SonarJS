@@ -17,29 +17,24 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.javascript.parser.expressions;
+package org.sonar.plugins.javascript.api.tree.expression;
 
-import org.junit.Test;
-import org.sonar.plugins.javascript.api.tree.Tree.Kind;
+import com.google.common.annotations.Beta;
+import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 
-import static org.sonar.javascript.utils.Assertions.assertThat;
+/**
+ * Common interface for all types of Spread Element
+ * <pre>
+ *  ... {@link #element()}
+ * </pre>
+ *
+ * SpreadElementTree can appear in object or array literal or as function call argument.
+ */
+@Beta
+public interface SpreadElementTree extends ExpressionTree {
 
-public class ArrayLiteralTest {
+  SyntaxToken ellipsis();
 
-
-  @Test
-  public void test() {
-    assertThat(Kind.ARRAY_LITERAL)
-      .matches("[ ]")
-      .matches("[ assignmentExpression ]")
-      .matches("[ assignmentExpression , ]")
-      .matches("[ assignmentExpression , assignmentExpression ]")
-      .matches("[ ... assignmentExpression , assignmentExpression ]")
-      .matches("[ ... assignmentExpression , ... assignmentExpression ]")
-      .matches("[ assignmentExpression , assignmentExpression , ]")
-      .matches("[ , , , ]")
-      .matches("[ , assignment ]")
-      .matches("[ assignmentExpression , , , ]");
-  }
+  ExpressionTree element();
 
 }

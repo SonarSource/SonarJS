@@ -28,13 +28,22 @@ public class ObjectBindingPatternTest {
 
 
   @Test
-  public void ok() {
+  public void test() {
     assertThat(Kind.OBJECT_BINDING_PATTERN)
       .matches("{ }")
       .matches("{ identifier }")
       .matches("{ identifier : identifier}")
       .matches("{ identifier , identifier }")
-      .matches("{ identifier , }");
+      .matches("{ identifier , }")
+      .matches("{ identifier , ... restId }")
+      .matches("{ identifier1 , identifier2, ... restId }")
+      .matches("{ ... restId }")
+
+      .notMatches("{ identifier , ... restId , }")
+      .notMatches("{ identifier , , identifier }")
+      .notMatches("{ identifier , identifier , , }")
+      .notMatches("{ identifier1 , ... restId , identifier2 }")
+    ;
   }
 
 }

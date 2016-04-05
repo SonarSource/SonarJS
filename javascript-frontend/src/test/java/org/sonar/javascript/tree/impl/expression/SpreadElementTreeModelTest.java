@@ -17,29 +17,25 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.javascript.parser.expressions;
+package org.sonar.javascript.tree.impl.expression;
 
 import org.junit.Test;
+import org.sonar.javascript.lexer.JavaScriptPunctuator;
+import org.sonar.javascript.utils.JavaScriptTreeModelTest;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
+import org.sonar.plugins.javascript.api.tree.expression.SpreadElementTree;
 
-import static org.sonar.javascript.utils.Assertions.assertThat;
+import static org.fest.assertions.Assertions.assertThat;
 
-public class ArrayLiteralTest {
-
+public class SpreadElementTreeModelTest extends JavaScriptTreeModelTest {
 
   @Test
-  public void test() {
-    assertThat(Kind.ARRAY_LITERAL)
-      .matches("[ ]")
-      .matches("[ assignmentExpression ]")
-      .matches("[ assignmentExpression , ]")
-      .matches("[ assignmentExpression , assignmentExpression ]")
-      .matches("[ ... assignmentExpression , assignmentExpression ]")
-      .matches("[ ... assignmentExpression , ... assignmentExpression ]")
-      .matches("[ assignmentExpression , assignmentExpression , ]")
-      .matches("[ , , , ]")
-      .matches("[ , assignment ]")
-      .matches("[ assignmentExpression , , , ]");
+  public void spread_element() throws Exception {
+    SpreadElementTree tree = parse("var x = [1, ... expression];", Kind.SPREAD_ELEMENT);
+
+    assertThat(tree.is(Kind.SPREAD_ELEMENT)).isTrue();
+    assertThat(tree.ellipsis().text()).isEqualTo(JavaScriptPunctuator.ELLIPSIS.getValue());
+    assertThat(tree.element().is(Kind.IDENTIFIER_REFERENCE)).isTrue();
   }
 
 }

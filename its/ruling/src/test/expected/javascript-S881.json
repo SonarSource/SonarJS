@@ -1230,6 +1230,9 @@
 'project:ecmascript6/react-router/modules/__tests__/execSteps.js':[
 9,
 ],
+'project:ecmascript6/react-router/modules/createTransitionManager.js':[
+102,
+],
 'project:ecmascript6/router/src/activation.js':[
 44,
 ],

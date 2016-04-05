@@ -1605,6 +1605,9 @@
 'project:ecmascript6/redux/examples/todomvc/test/components/TodoTextInput.spec.js':[
 21,
 ],
+'project:ecmascript6/redux/src/utils/applyMiddleware.js':[
+23,
+],
 'project:ecmascript6/redux/test/createStore.spec.js':[
 229,
 ],

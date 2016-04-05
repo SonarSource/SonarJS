@@ -58,6 +58,7 @@ import org.sonar.plugins.javascript.api.tree.expression.ObjectLiteralTree;
 import org.sonar.plugins.javascript.api.tree.expression.PairPropertyTree;
 import org.sonar.plugins.javascript.api.tree.expression.ParenthesisedExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.RestElementTree;
+import org.sonar.plugins.javascript.api.tree.expression.SpreadElementTree;
 import org.sonar.plugins.javascript.api.tree.expression.TaggedTemplateTree;
 import org.sonar.plugins.javascript.api.tree.expression.TemplateCharactersTree;
 import org.sonar.plugins.javascript.api.tree.expression.TemplateExpressionTree;
@@ -687,6 +688,11 @@ public interface Tree {
     REST_ELEMENT(RestElementTree.class),
 
     /**
+     * {@link SpreadElementTree}
+     */
+    SPREAD_ELEMENT(SpreadElementTree.class),
+
+    /**
      * {@link FunctionDeclarationTree}
      */
     FUNCTION_DECLARATION(FunctionDeclarationTree.class),
@@ -777,7 +783,7 @@ public interface Tree {
     BINDING_PROPERTY(BindingPropertyTree.class),
 
     /**
-     * {@link ObjectBindingPatternTree}
+     * {@link ArrayBindingPatternTree}
      */
     ARRAY_BINDING_PATTERN(ArrayBindingPatternTree.class),
 

@@ -6989,6 +6989,14 @@
 'project:ecmascript6/react-router/modules/Redirect.js':[
 71,
 ],
+'project:ecmascript6/react-router/modules/Router.js':[
+28,
+60,
+148,
+],
+'project:ecmascript6/react-router/modules/RouterContext.js':[
+69,
+],
 'project:ecmascript6/react-router/modules/TransitionUtils.js':[
 65,
 ],

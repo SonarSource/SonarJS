@@ -37846,6 +37846,12 @@
 62,
 70,
 ],
+'project:ecmascript6/redux/src/utils/applyMiddleware.js':[
+21,
+22,
+23,
+25,
+],
 'project:ecmascript6/redux/src/utils/combineReducers.js':[
 9,
 10,

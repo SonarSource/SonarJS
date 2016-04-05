@@ -44,7 +44,7 @@ import org.sonar.plugins.javascript.api.tree.expression.NewExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.ObjectLiteralTree;
 import org.sonar.plugins.javascript.api.tree.expression.PairPropertyTree;
 import org.sonar.plugins.javascript.api.tree.expression.ParenthesisedExpressionTree;
-import org.sonar.plugins.javascript.api.tree.expression.RestElementTree;
+import org.sonar.plugins.javascript.api.tree.expression.SpreadElementTree;
 import org.sonar.plugins.javascript.api.tree.expression.TaggedTemplateTree;
 import org.sonar.plugins.javascript.api.tree.expression.TemplateExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.TemplateLiteralTree;
@@ -352,9 +352,9 @@ class ControlFlowGraphBuilder {
       currentBlock = createBranchingBlock(tree, trueBlock, falseBlock);
       buildExpression(conditionalExpression.condition());
 
-    } else if (tree.is(Kind.REST_ELEMENT)) {
-      RestElementTree restElement = (RestElementTree) tree;
-      buildExpression(restElement.element());
+    } else if (tree.is(Kind.SPREAD_ELEMENT)) {
+      SpreadElementTree spreadElement = (SpreadElementTree) tree;
+      buildExpression(spreadElement.element());
 
     } else if (tree.is(Kind.PARENTHESISED_EXPRESSION)) {
       ParenthesisedExpressionTree parenthesisedExpression = (ParenthesisedExpressionTree) tree;

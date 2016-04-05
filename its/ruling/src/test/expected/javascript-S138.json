@@ -663,6 +663,9 @@
 'project:ecmascript6/react-router/modules/__tests__/transitionHooks-test.js':[
 9,
 ],
+'project:ecmascript6/react-router/modules/createTransitionManager.js':[
+17,
+],
 'project:ecmascript6/reddit-mobile/assets/js/client.es6.js':[
 223,
 ],

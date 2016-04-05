@@ -486,6 +486,10 @@
 'project:ecmascript6/redux/examples/universal/server/server.js':[
 77,
 ],
+'project:ecmascript6/redux/src/utils/applyMiddleware.js':[
+20,
+27,
+],
 'project:ecmascript6/redux/src/utils/combineReducers.js':[
 100,
 ],

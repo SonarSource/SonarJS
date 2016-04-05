@@ -2099,6 +2099,12 @@
 'project:ecmascript6/react-router/modules/PatternUtils.js':[
 34,
 ],
+'project:ecmascript6/react-router/modules/RouteUtils.js':[
+93,
+],
+'project:ecmascript6/react-router/modules/RouterContext.js':[
+84,
+],
 'project:ecmascript6/react-router/modules/isActive.js':[
 28,
 87,

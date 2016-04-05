@@ -2064,6 +2064,9 @@
 'project:ecmascript6/react-router/examples/server.js':[
 22,
 ],
+'project:ecmascript6/react-router/modules/Router.js':[
+112,
+],
 'project:ecmascript6/react-router/npm-scripts/postinstall.js':[
 6,
 19,

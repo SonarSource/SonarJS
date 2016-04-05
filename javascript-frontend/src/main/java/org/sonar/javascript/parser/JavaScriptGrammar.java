@@ -91,6 +91,8 @@ import org.sonar.plugins.javascript.api.tree.declaration.SpecifierTree;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 import org.sonar.plugins.javascript.api.tree.expression.MemberExpressionTree;
+import org.sonar.plugins.javascript.api.tree.expression.SpreadElementTree;
+import org.sonar.plugins.javascript.api.tree.expression.RestElementTree;
 import org.sonar.plugins.javascript.api.tree.expression.TemplateCharactersTree;
 import org.sonar.plugins.javascript.api.tree.expression.TemplateExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.TemplateLiteralTree;
@@ -499,7 +501,7 @@ public class JavaScriptGrammar {
 
   public ExpressionTree ARRAY_LITERAL_ELEMENT() {
     return b.<ExpressionTree>nonterminal(JavaScriptLegacyGrammar.ARRAY_LITERAL_ELEMENT)
-      .is(f.arrayInitialiserElement(b.optional(b.token(JavaScriptPunctuator.ELLIPSIS)), ASSIGNMENT_EXPRESSION()));
+      .is(b.firstOf(SPREAD_ELEMENT(), ASSIGNMENT_EXPRESSION()));
   }
 
   public ArrayLiteralTreeImpl ARRAY_ELEMENT_LIST() {
@@ -1042,9 +1044,7 @@ public class JavaScriptGrammar {
 
   public ExpressionTree ARGUMENT() {
     return b.<ExpressionTree>nonterminal()
-      .is(f.argument(
-        b.optional(b.token(JavaScriptPunctuator.ELLIPSIS)),
-        ASSIGNMENT_EXPRESSION()));
+      .is(b.firstOf(SPREAD_ELEMENT(), ASSIGNMENT_EXPRESSION()));
   }
 
   public ExpressionTree CALL_EXPRESSION() {
@@ -1119,10 +1119,16 @@ public class JavaScriptGrammar {
   public Tree PROPERTY_DEFINITION() {
     return b.<Tree>nonterminal(JavaScriptLegacyGrammar.PROPERTY_DEFINITION)
       .is(b.firstOf(
+        SPREAD_ELEMENT(),
         PAIR_PROPERTY(),
         METHOD_DEFINITION(),
         IDENTIFIER_REFERENCE())
       );
+  }
+
+  public SpreadElementTree SPREAD_ELEMENT() {
+    return b.<SpreadElementTree>nonterminal(Kind.SPREAD_ELEMENT)
+      .is(f.spreadElement(b.token(JavaScriptPunctuator.ELLIPSIS), ASSIGNMENT_EXPRESSION()));
   }
 
   public ObjectLiteralTreeImpl OBJECT_LITERAL() {
@@ -1132,8 +1138,7 @@ public class JavaScriptGrammar {
         b.optional(f.newObjectLiteral(
           PROPERTY_DEFINITION(),
           b.zeroOrMore(f.newTuple18(b.token(JavaScriptPunctuator.COMMA), PROPERTY_DEFINITION())),
-          b.optional(b.token(JavaScriptPunctuator.COMMA))
-        )),
+          b.optional(b.token(JavaScriptPunctuator.COMMA)))),
         b.token(JavaScriptPunctuator.RCURLYBRACE)
       ));
   }
@@ -1441,8 +1446,7 @@ public class JavaScriptGrammar {
 
   public BindingElementTree BINDING_PATTERN() {
     return b.<BindingElementTree>nonterminal(JavaScriptLegacyGrammar.BINDING_PATTERN)
-      .is(
-        b.firstOf(
+      .is(b.firstOf(
           OBJECT_BINDING_PATTERN(),
           ARRAY_BINDING_PATTERN()));
   }
@@ -1459,26 +1463,33 @@ public class JavaScriptGrammar {
 
   public ObjectBindingPatternTreeImpl OBJECT_BINDING_PATTERN() {
     return b.<ObjectBindingPatternTreeImpl>nonterminal(Kind.OBJECT_BINDING_PATTERN)
-      .is(
-        f.completeObjectBindingPattern(
+      .is(b.firstOf(
+        f.objectBindingPattern(
           b.token(JavaScriptPunctuator.LCURLYBRACE),
           b.optional(BINDING_PROPERTY_LIST()),
-          b.token(JavaScriptPunctuator.RCURLYBRACE)));
+          b.optional(f.newTuple32(b.token(JavaScriptPunctuator.COMMA), b.optional(REST_OBJECT_BINDING_ELEMENT()))),
+          b.token(JavaScriptPunctuator.RCURLYBRACE)),
+        f.objectBindingPattern2(
+          b.token(JavaScriptPunctuator.LCURLYBRACE),
+          REST_OBJECT_BINDING_ELEMENT(),
+          b.token(JavaScriptPunctuator.RCURLYBRACE))));
   }
 
-  public ObjectBindingPatternTreeImpl BINDING_PROPERTY_LIST() {
-    return b.<ObjectBindingPatternTreeImpl>nonterminal()
-      .is(
-        f.newObjectBindingPattern(
-          BINDING_PROPERTY(),
-          b.zeroOrMore(f.newTuple53(b.token(JavaScriptPunctuator.COMMA), BINDING_PROPERTY())),
-          b.optional(b.token(JavaScriptPunctuator.COMMA))));
+  public RestElementTree REST_OBJECT_BINDING_ELEMENT() {
+    return b.<RestElementTree>nonterminal()
+      .is(f.restObjectBindingElement(b.token(JavaScriptPunctuator.ELLIPSIS), b.firstOf(BINDING_IDENTIFIER(), BINDING_PATTERN())));
+  }
+
+  public SeparatedList<Tree> BINDING_PROPERTY_LIST() {
+    return b.<SeparatedList<Tree>>nonterminal()
+      .is(f.bindingPropertyList(
+        BINDING_PROPERTY(),
+        b.zeroOrMore(f.newTuple53(b.token(JavaScriptPunctuator.COMMA), BINDING_PROPERTY()))));
   }
 
   public BindingElementTree BINDING_PROPERTY() {
     return b.<BindingElementTree>nonterminal()
-      .is(
-        b.firstOf(
+      .is(b.firstOf(
           f.bindingProperty(PROPERTY_NAME(), b.token(JavaScriptPunctuator.COLON), BINDING_ELEMENT()),
           BINDING_ELEMENT()));
   }

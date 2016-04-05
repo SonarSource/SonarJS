@@ -23,18 +23,21 @@ import com.google.common.collect.Iterators;
 import java.util.Iterator;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.javascript.tree.impl.lexical.InternalSyntaxToken;
+import org.sonar.javascript.tree.symbols.type.TypableTree;
+import org.sonar.plugins.javascript.api.symbols.Type;
+import org.sonar.plugins.javascript.api.symbols.TypeSet;
 import org.sonar.plugins.javascript.api.tree.Tree;
-import org.sonar.plugins.javascript.api.tree.declaration.BindingElementTree;
-import org.sonar.plugins.javascript.api.tree.expression.RestElementTree;
+import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
+import org.sonar.plugins.javascript.api.tree.expression.SpreadElementTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitor;
 
-public class RestElementTreeImpl extends JavaScriptTree implements RestElementTree {
+public class SpreadElementTreeImpl extends JavaScriptTree implements SpreadElementTree, TypableTree {
 
   private final SyntaxToken ellipsis;
-  private final BindingElementTree element;
+  private final ExpressionTree element;
 
-  public RestElementTreeImpl(InternalSyntaxToken ellipsis, BindingElementTree element) {
+  public SpreadElementTreeImpl(InternalSyntaxToken ellipsis, ExpressionTree element) {
     this.ellipsis = ellipsis;
     this.element = element;
 
@@ -46,13 +49,13 @@ public class RestElementTreeImpl extends JavaScriptTree implements RestElementTr
   }
 
   @Override
-  public BindingElementTree element() {
+  public ExpressionTree element() {
     return element;
   }
 
   @Override
   public Kind getKind() {
-    return Kind.REST_ELEMENT;
+    return Kind.SPREAD_ELEMENT;
   }
 
   @Override
@@ -62,6 +65,16 @@ public class RestElementTreeImpl extends JavaScriptTree implements RestElementTr
 
   @Override
   public void accept(DoubleDispatchVisitor visitor) {
-    visitor.visitRestElement(this);
+    visitor.visitSpreadElement(this);
+  }
+
+  @Override
+  public TypeSet types() {
+    return TypeSet.emptyTypeSet();
+  }
+
+  @Override
+  public void add(Type type) {
+    throw new UnsupportedOperationException();
   }
 }

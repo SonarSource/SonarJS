@@ -5248,8 +5248,14 @@
 1,
 16,
 ],
+'project:ecmascript6/react-router/modules/Link.js':[
+104,
+],
 'project:ecmascript6/react-router/modules/PatternUtils.js':[
 167,
+],
+'project:ecmascript6/react-router/modules/RouterContext.js':[
+62,
 ],
 'project:ecmascript6/react-router/modules/__tests__/IndexLink-test.js':[
 11,
@@ -5313,6 +5319,9 @@
 'project:ecmascript6/react-router/modules/__tests__/transitionHooks-test.js':[
 9,
 15,
+],
+'project:ecmascript6/react-router/modules/createTransitionManager.js':[
+17,
 ],
 'project:ecmascript6/react-router/modules/isActive.js':[
 3,

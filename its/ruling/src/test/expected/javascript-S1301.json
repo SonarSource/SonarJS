@@ -194,6 +194,15 @@
 'project:ecmascript6/redux/examples/async/reducers/index.js':[
 8,
 ],
+'project:ecmascript6/redux/examples/shopping-cart/reducers/cart.js':[
+13,
+25,
+],
+'project:ecmascript6/redux/examples/shopping-cart/reducers/products.js':[
+5,
+17,
+39,
+],
 'project:ecmascript6/redux/examples/todos-with-undo/reducers.js':[
 8,
 ],

@@ -42,7 +42,8 @@ public class ArrayBindingPatternTest {
       .matches("[ , ]")
       .matches("[ a ]")
       .matches("[ a, b ]")
-      .matches("[ , , ]");
+      .matches("[ , , ]")
+    ;
   }
 
 }

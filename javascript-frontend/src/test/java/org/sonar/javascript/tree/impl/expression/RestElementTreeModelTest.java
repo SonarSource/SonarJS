@@ -30,14 +30,6 @@ import static org.fest.assertions.Assertions.assertThat;
 public class RestElementTreeModelTest extends JavaScriptTreeModelTest {
 
   @Test
-  public void spread_element() throws Exception {
-    RestElementTree tree = parse("[... expression];", Kind.REST_ELEMENT);
-
-    assertThat(tree.is(Kind.REST_ELEMENT)).isTrue();
-    assertThat(tree.ellipsis().text()).isEqualTo(JavaScriptPunctuator.ELLIPSIS.getValue());
-  }
-
-  @Test
   public void binding_rest_element() throws Exception {
     RestElementTree tree = parse("function f (... a) {}", Kind.REST_ELEMENT);
 
