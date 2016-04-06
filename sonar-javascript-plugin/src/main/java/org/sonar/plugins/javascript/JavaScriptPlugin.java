@@ -28,6 +28,7 @@ import org.sonar.api.resources.Qualifiers;
 import org.sonar.javascript.tree.symbols.type.JQuery;
 import org.sonar.plugins.javascript.cpd.JavaScriptCpdMapping;
 import org.sonar.plugins.javascript.lcov.ITCoverageSensor;
+import org.sonar.plugins.javascript.lcov.OverallCoverageSensor;
 import org.sonar.plugins.javascript.lcov.UTCoverageSensor;
 import org.sonar.plugins.javascript.rules.JavaScriptCommonRulesDecorator;
 import org.sonar.plugins.javascript.rules.JavaScriptCommonRulesEngine;
@@ -80,6 +81,7 @@ public class JavaScriptPlugin extends SonarPlugin {
 
       UTCoverageSensor.class,
       ITCoverageSensor.class,
+      OverallCoverageSensor.class,
 
       PropertyDefinition.builder(FILE_SUFFIXES_KEY)
         .defaultValue(FILE_SUFFIXES_DEFVALUE)

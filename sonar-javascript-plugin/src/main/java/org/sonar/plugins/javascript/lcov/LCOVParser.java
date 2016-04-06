@@ -22,17 +22,19 @@ package org.sonar.plugins.javascript.lcov;
 import com.google.common.base.Objects;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import java.io.File;
-import java.io.IOException;
-import java.util.List;
-import java.util.Map;
-import javax.annotation.CheckForNull;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.measures.CoverageMeasuresBuilder;
+
+import javax.annotation.CheckForNull;
+import java.io.File;
+import java.io.IOException;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 
 /**
  * http://ltp.sourceforge.net/coverage/lcov/geninfo.1.php
@@ -58,12 +60,14 @@ public final class LCOVParser {
     return new LCOVParser(fs, lines).coverageByFile();
   }
 
-  public static LCOVParser create(FileSystem fs, File file) {
-    final List<String> lines;
-    try {
-      lines = FileUtils.readLines(file);
-    } catch (IOException e) {
-      throw new IllegalArgumentException("Could not read content from file: " + file, e);
+  public static LCOVParser create(FileSystem fs, File... files) {
+    final List<String> lines=new LinkedList<>();
+    for(File file: files) {
+      try {
+        lines.addAll(FileUtils.readLines(file));
+      } catch (IOException e) {
+        throw new IllegalArgumentException("Could not read content from file: " + file, e);
+      }
     }
     return new LCOVParser(fs, lines);
   }
