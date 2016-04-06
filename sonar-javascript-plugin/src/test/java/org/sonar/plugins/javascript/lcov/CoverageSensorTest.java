@@ -134,6 +134,20 @@ public class CoverageSensorTest {
   }
 
   @Test
+  public void test_overall_coverage_values() {
+    DefaultFileSystem fs = newFileSystem();
+    fs.add(newSourceInputFile("fake_file1.js"));
+    newOverallSensor(fs, settings).analyse(project, context);
+
+    ArgumentCaptor<Measure> measures = ArgumentCaptor.forClass(Measure.class);
+    verify(context, times(3)).saveMeasure(any(Resource.class), measures.capture());
+
+    assertMetricValue(measures, CoreMetrics.OVERALL_COVERAGE_LINE_HITS_DATA_KEY, "1=1;4=2;5=2;9=2;10=2;11=1;12=0");
+    assertMetricValue(measures, CoreMetrics.OVERALL_LINES_TO_COVER_KEY, "7.0");
+    assertMetricValue(measures, CoreMetrics.OVERALL_UNCOVERED_LINES_KEY, "1.0");
+  }
+
+  @Test
   public void test_wrong_lines_in_file() {
     settings.setProperty(JavaScriptPlugin.LCOV_UT_REPORT_PATH, "wrong_line_lcov.info");
     DefaultFileSystem fs = newFileSystem();
@@ -141,25 +155,10 @@ public class CoverageSensorTest {
     newUTSensor(fs, settings).analyse(project, context);
 
     ArgumentCaptor<Measure> measures = ArgumentCaptor.forClass(Measure.class);
-
     verify(context, atLeast(2)).saveMeasure((Resource) anyObject(), measures.capture());
 
-    boolean lineCoverageMetric = false;
-    boolean conditionCoverageMetric = false;
-
-    for (Measure measure : measures.getAllValues()) {
-      if (measure.getMetricKey().equals(CoreMetrics.COVERAGE_LINE_HITS_DATA_KEY)) {
-        assertThat(measure.getData()).isEqualTo("5=1");
-        lineCoverageMetric = true;
-
-      } else if (measure.getMetricKey().equals(CoreMetrics.CONDITIONS_BY_LINE_KEY)) {
-        assertThat(measure.getData()).isEqualTo("7=3");
-        conditionCoverageMetric = true;
-      }
-    }
-
-    assertThat(lineCoverageMetric).isTrue();
-    assertThat(conditionCoverageMetric).isTrue();
+    assertMetricValue(measures, CoreMetrics.COVERAGE_LINE_HITS_DATA_KEY, "5=1");
+    assertMetricValue(measures, CoreMetrics.CONDITIONS_BY_LINE_KEY, "7=3");
   }
 
   @Test
@@ -231,6 +230,20 @@ public class CoverageSensorTest {
 
   public LCOVCoverageSensor newOverallSensor(DefaultFileSystem fs, Settings settings) {
     return new OverallCoverageSensor(fs, settings);
+  }
+
+  private void assertMetricValue(ArgumentCaptor<Measure> measures, String metricKey, String expectedValue) {
+    boolean metricIsSaved = false;
+
+    for (Measure measure : measures.getAllValues()) {
+      if (measure.getMetricKey().equals(metricKey)) {
+        String actualValue = measure.getData() != null ? measure.getData() : measure.getValue().toString();
+        assertThat(actualValue).isEqualTo(expectedValue);
+        metricIsSaved = true;
+      }
+    }
+
+    assertThat(metricIsSaved).isTrue();
   }
 
 }
