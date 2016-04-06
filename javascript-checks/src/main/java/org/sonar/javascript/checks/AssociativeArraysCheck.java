@@ -49,15 +49,11 @@ public class AssociativeArraysCheck extends DoubleDispatchVisitorCheck {
   @Override
   public void visitAssignmentExpression(AssignmentExpressionTree tree) {
     if (tree.variable().is(Tree.Kind.BRACKET_MEMBER_EXPRESSION)) {
-      BracketMemberExpressionTree arrayObject = (BracketMemberExpressionTree) tree.variable();
-      if (arrayObject.object().types().containsOnly(Kind.ARRAY)) {
-        ExpressionTree arrayIndex = ((BracketMemberExpressionTreeImpl) tree.variable()).property();
-        if (arrayIndex.is(Tree.Kind.STRING_LITERAL)) {
-          addIssue(arrayIndex, String.format(MESSAGE, CheckUtils.asString(arrayObject.object())));
-        } else if (arrayIndex instanceof IdentifierTree) {
-          if (arrayIndex.types().size() > 0 && !arrayIndex.types().contains(Kind.NUMBER)) {
-            addIssue(arrayIndex, String.format(MESSAGE, CheckUtils.asString(arrayObject.object())));
-          }
+      BracketMemberExpressionTree memberExpression = (BracketMemberExpressionTree) tree.variable();
+      if (memberExpression.object().types().containsOnly(Kind.ARRAY)) {
+        ExpressionTree arrayIndex = memberExpression.property();
+        if (arrayIndex.types().containsOnly(Kind.STRING)) {
+          addIssue(arrayIndex, String.format(MESSAGE, CheckUtils.asString(memberExpression.object())));
         }
       }
     }
