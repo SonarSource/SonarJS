@@ -99,6 +99,25 @@ public class CoverageTest {
   }
 
   @Test
+  public void LCOV_overall_coverage() {
+    SonarRunner build = Tests.createSonarRunnerBuild()
+      .setProjectDir(TestUtils.projectDir("lcov"))
+      .setProjectKey(Tests.PROJECT_KEY)
+      .setProjectName(Tests.PROJECT_KEY)
+      .setProjectVersion("1.0")
+      .setSourceDirs(".")
+      .setProperty("sonar.javascript.lcov.reportPath", TestUtils.file("projects/lcov/coverage.lcov").getAbsolutePath())
+      .setProperty("sonar.javascript.lcov.itReportPath", TestUtils.file("projects/lcov/coverage.lcov").getAbsolutePath());
+    Tests.setEmptyProfile(Tests.PROJECT_KEY, Tests.PROJECT_KEY);
+    orchestrator.executeBuild(build);
+
+    assertThat(getProjectMeasure("overall_lines_to_cover").getValue()).isEqualTo(7);
+    assertThat(getProjectMeasure("overall_uncovered_lines").getValue()).isEqualTo(1);
+    assertThat(getProjectMeasure("overall_conditions_to_cover").getValue()).isEqualTo(4);
+    assertThat(getProjectMeasure("overall_uncovered_conditions").getValue()).isEqualTo(1);
+  }
+
+  @Test
   public void force_zero_coverage() {
     SonarRunner build = Tests.createSonarRunnerBuild()
       .setProjectDir(TestUtils.projectDir("lcov"))
@@ -162,7 +181,7 @@ public class CoverageTest {
     String logs = result.getLogs();
     assertThat(Pattern.compile("Analysing .*coverage-wrong-file-name\\.lcov").matcher(logs).find()).isTrue();
     assertThat(Pattern.compile("Default value of zero will be saved for file: .*file\\.js").matcher(logs).find()).isTrue();
-    assertThat(Pattern.compile("WARN.*Could not resolve 1 file paths in coverage-wrong-file-name\\.lcov, "
+    assertThat(Pattern.compile("WARN.*Could not resolve 1 file paths in \\[.*coverage-wrong-file-name\\.lcov\\], "
       + "first unresolved path: \\./wrong/fileName\\.js").matcher(logs).find()).isTrue();
   }
 
