@@ -22,6 +22,7 @@ package org.sonar.javascript.checks;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
+import org.sonar.javascript.checks.utils.CheckUtils;
 import org.sonar.javascript.tree.impl.expression.BracketMemberExpressionTreeImpl;
 import org.sonar.plugins.javascript.api.symbols.Type.Kind;
 import org.sonar.plugins.javascript.api.tree.Tree;
@@ -38,7 +39,7 @@ import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
   key = "S3579",
   priority = Priority.MAJOR,
   name = "Array indexes should be numeric",
-  tags = {"suspicious"})
+  tags = {Tags.SUSPICIOUS})
 @ActivatedByDefault
 @SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.UNDERSTANDABILITY)
 @SqaleConstantRemediation("10min")
@@ -52,9 +53,11 @@ public class AssociativeArraysCheck extends DoubleDispatchVisitorCheck {
       if (arrayObject.object().types().containsOnly(Kind.ARRAY)) {
         ExpressionTree arrayIndex = ((BracketMemberExpressionTreeImpl) tree.variable()).property();
         if (arrayIndex.is(Tree.Kind.STRING_LITERAL)) {
-          addIssue(tree, String.format(MESSAGE, arrayObject.object().toString()));
+          addIssue(arrayIndex, String.format(MESSAGE, CheckUtils.asString(arrayObject.object())));
         } else if (arrayIndex instanceof IdentifierTree) {
-          addIssue(tree, String.format(MESSAGE, arrayObject.object().toString()));
+          if (arrayIndex.types().size() > 0 && !arrayIndex.types().contains(Kind.NUMBER)) {
+            addIssue(arrayIndex, String.format(MESSAGE, CheckUtils.asString(arrayObject.object())));
+          }
         }
       }
     }
