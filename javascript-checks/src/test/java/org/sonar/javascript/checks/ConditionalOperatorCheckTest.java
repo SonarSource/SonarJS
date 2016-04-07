@@ -27,9 +27,7 @@ public class ConditionalOperatorCheckTest {
 
   @Test
   public void test() {
-    JavaScriptCheckVerifier.issues(new ConditionalOperatorCheck(), new File("src/test/resources/checks/inlineConditional.js"))
-      .next().atLine(2).withMessage("Replace this conditional operator by a standard if/else control flow statement.")
-      .noMore();
+    JavaScriptCheckVerifier.verify(new ConditionalOperatorCheck(), new File("src/test/resources/checks/conditionalOperator.js"));
   }
 
 }

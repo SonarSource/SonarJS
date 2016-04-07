@@ -19,7 +19,7 @@
  */
 package org.sonar.javascript.checks;
 
-import org.sonar.api.server.rule.RulesDefinition;
+import org.sonar.api.server.rule.RulesDefinition.SubCharacteristics;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.plugins.javascript.api.tree.expression.ConditionalExpressionTree;
@@ -29,14 +29,14 @@ import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 
 @Rule(
   key = "ConditionalOperator",
-  name = "Avoid use of conditional operator",
-  priority = Priority.MINOR,
-  tags = {Tags.CONFUSING})
-@SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.UNDERSTANDABILITY)
+  name = "The ternary operator should not be used",
+  priority = Priority.MAJOR,
+  tags = {Tags.BRAIN_OVERLOAD})
+@SqaleSubCharacteristic(SubCharacteristics.READABILITY)
 @SqaleConstantRemediation("5min")
 public class ConditionalOperatorCheck extends DoubleDispatchVisitorCheck {
 
-  private static final String MESSAGE = "Replace this conditional operator by a standard if/else control flow statement.";
+  private static final String MESSAGE = "Convert this usage of the ternary operator to an \"if\"/\"else\" structure.";
 
   @Override
   public void visitConditionalExpression(ConditionalExpressionTree tree) {
