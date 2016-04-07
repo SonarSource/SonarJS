@@ -13,7 +13,12 @@ var x = "hello " + name + "!!!!" + "hello " + name + "!!!!"; // Noncompliant [[s
 var str = "str";
 var x = str + str + str; // Ok, no string literal
 
-var x = `Template literal ${foo}` + name + name; // Noncompliant
+var x = name + "fooo" + name; // OK
+var x = `Template literal ${foo}` + name + name; // OK
+var x = `Template literal ${foo}` + name + "fooo"; // Noncompliant
 
 var x = y == "aaaa" + b + "cccc"; // Noncompliant
 var x = "aaaa" + b + "cccc" == y; // Noncompliant
+
+var x = a + b + c + d + e + "aaaa" + "bbbb";
+var x = a + "aaaaa" + b;

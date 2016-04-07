@@ -62,26 +62,48 @@ public class StringConcatenationCheck extends DoubleDispatchVisitorCheck {
    * 1. More than 2 operands in concatenation expression.
    * 2. At least one string literal.
    * 3. At least half of the string literals are long.
+   * 4. Case with 1 literal and 3 operands doesn't meet conditions
+   * 5. Not too many non literal operands
    */
   private static boolean meetConditions(List<ExpressionTree> operandList) {
-    if (operandList.size() > 2) {
-      int literalsNum = 0;
-      int shortLiteralsNum = 0;
+    int operandsNum = operandList.size();
+    int literalsNum = stringLiteralsNumber(operandList);
 
-      for (ExpressionTree operand : operandList) {
-        if (operand.is(Kind.TEMPLATE_LITERAL, Kind.STRING_LITERAL)) {
-          literalsNum++;
-        }
+    if (operandsNum > 2 && literalsNum > 0) {
+      int shortLiteralsNum = smallLiteralsNumber(operandList);
 
-        if (operand.is(Kind.STRING_LITERAL) && ((LiteralTree) operand).value().length() < MIN_LITERAL_LENGTH) {
-          shortLiteralsNum++;
-        }
-      }
+      boolean isOneLiteralThreeOperandsCase = operandsNum == 3 && literalsNum == 1;
+      boolean atLeastHalfLongLiterals = shortLiteralsNum <= literalsNum / 2.;
+      boolean notTooManyNonLiterals = literalsNum - (operandsNum - literalsNum) >= -1;
 
-      return literalsNum > 0 && shortLiteralsNum <= literalsNum / 2.;
+      return !isOneLiteralThreeOperandsCase && atLeastHalfLongLiterals && notTooManyNonLiterals;
     }
 
     return false;
+  }
+
+  private static int stringLiteralsNumber(List<ExpressionTree> operandList) {
+    int literalsNum = 0;
+
+    for (ExpressionTree operand : operandList) {
+      if (operand.is(Kind.TEMPLATE_LITERAL, Kind.STRING_LITERAL)) {
+        literalsNum++;
+      }
+    }
+
+    return literalsNum;
+  }
+
+  private static int smallLiteralsNumber(List<ExpressionTree> operandList) {
+    int shortLiteralsNum = 0;
+
+    for (ExpressionTree operand : operandList) {
+      if (operand.is(Kind.STRING_LITERAL) && ((LiteralTree) operand).value().length() < MIN_LITERAL_LENGTH) {
+        shortLiteralsNum++;
+      }
+    }
+
+    return shortLiteralsNum;
   }
 
   private void checkBinaryExpression(BinaryExpressionTree tree, Builder<ExpressionTree> operandListBuilder) {
