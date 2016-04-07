@@ -837,11 +837,11 @@ public class JavaScriptGrammar {
   public ExpressionTree EXPONENTIATION_EXPRESSION() {
     return b.<ExpressionTree>nonterminal()
       .is(f.newExponentiation(
+        UNARY_EXPRESSION(),
         b.zeroOrMore(
           f.newTuple31(
-            UNARY_EXPRESSION(),
-            b.token(JavaScriptPunctuator.EXP))),
-        UNARY_EXPRESSION()));
+            b.token(JavaScriptPunctuator.EXP),
+            UNARY_EXPRESSION()))));
   }
 
   public ExpressionTree UNARY_EXPRESSION() {

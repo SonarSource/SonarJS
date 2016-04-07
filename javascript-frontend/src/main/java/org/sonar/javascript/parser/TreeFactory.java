@@ -796,22 +796,28 @@ public class TreeFactory {
     return buildBinaryExpression(expression, operatorAndOperands);
   }
 
-  public ExpressionTree newExponentiation(Optional<List<Tuple<ExpressionTree, InternalSyntaxToken>>> operatorAndOperands, ExpressionTree expression) {
+  public ExpressionTree newExponentiation(ExpressionTree expression, Optional<List<Tuple<InternalSyntaxToken, ExpressionTree>>> operatorAndOperands) {
     if (!operatorAndOperands.isPresent()) {
       return expression;
     }
 
-    ExpressionTree result = expression;
 
-    for (Tuple<ExpressionTree, InternalSyntaxToken> t : Lists.reverse(operatorAndOperands.get())) {
+    List<Tuple<InternalSyntaxToken, ExpressionTree>> list = operatorAndOperands.get();
+    ExpressionTree result = list.get(list.size() - 1).second;
+
+    for (int i = list.size() - 1; i > 0; i--) {
       result = new BinaryExpressionTreeImpl(
-        getBinaryOperator(t.second),
-        t.first,
-        t.second(),
+        Kind.EXPONENT,
+        list.get(i - 1).second,
+        list.get(i).first,
         result);
     }
 
-    return result;
+    return new BinaryExpressionTreeImpl(
+      Kind.EXPONENT,
+      expression,
+      list.get(0).first,
+      result);
   }
 
   private static ExpressionTree buildBinaryExpression(ExpressionTree expression, Optional<List<Tuple<InternalSyntaxToken, ExpressionTree>>> operatorAndOperands) {
