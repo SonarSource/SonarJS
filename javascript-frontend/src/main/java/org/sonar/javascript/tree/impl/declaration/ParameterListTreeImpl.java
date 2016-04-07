@@ -20,12 +20,10 @@
 package org.sonar.javascript.tree.impl.declaration;
 
 import com.google.common.base.Functions;
-import com.google.common.base.Preconditions;
 import com.google.common.collect.Iterators;
 import com.google.common.collect.Lists;
 import java.util.Iterator;
 import java.util.List;
-import org.apache.commons.collections.ListUtils;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.javascript.tree.impl.SeparatedList;
 import org.sonar.javascript.tree.impl.lexical.InternalSyntaxToken;
@@ -44,25 +42,11 @@ public class ParameterListTreeImpl extends JavaScriptTree implements ParameterLi
   private InternalSyntaxToken closeParenthesis;
   private final Kind kind;
 
-  public ParameterListTreeImpl(Kind kind, SeparatedList<Tree> parameters) {
-    Preconditions.checkArgument(parameters.size() == parameters.getSeparators().size() + 1);
-    this.kind = kind;
+  public ParameterListTreeImpl(Kind kind, InternalSyntaxToken openParenthesis, SeparatedList<Tree> parameters, InternalSyntaxToken closeParenthesis) {
+    this.openParenthesis = openParenthesis;
     this.parameters = parameters;
-
-  }
-
-  public ParameterListTreeImpl(Kind kind, InternalSyntaxToken openParenthesis, InternalSyntaxToken closeParenthesis) {
+    this.closeParenthesis = closeParenthesis;
     this.kind = kind;
-    this.openParenthesis = openParenthesis;
-    this.parameters = new SeparatedList<>(ListUtils.EMPTY_LIST, ListUtils.EMPTY_LIST);
-    this.closeParenthesis = closeParenthesis;
-  }
-
-  public ParameterListTreeImpl complete(InternalSyntaxToken openParenthesis, InternalSyntaxToken closeParenthesis) {
-    this.openParenthesis = openParenthesis;
-    this.closeParenthesis = closeParenthesis;
-
-    return this;
   }
 
   @Override

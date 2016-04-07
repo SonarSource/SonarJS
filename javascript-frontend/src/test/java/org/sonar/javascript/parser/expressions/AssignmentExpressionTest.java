@@ -32,6 +32,7 @@ public class AssignmentExpressionTest {
     assertThat(JavaScriptLegacyGrammar.ASSIGNMENT_EXPRESSION)
       .matches("conditionalExpression")
       .matches("yield")
+      .matches("leftHandSideExpression **= conditionalExpression")
       .matches("leftHandSideExpression = conditionalExpression")
       .matches("leftHandSideExpression = leftHandSideExpression = conditionalExpression");
   }

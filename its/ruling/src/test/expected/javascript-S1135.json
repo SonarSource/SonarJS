@@ -1797,6 +1797,13 @@
 'project:ecmascript6/http/test/matchers.js':[
 12,
 ],
+'project:ecmascript6/react-router/modules/createTransitionManager.js':[
+83,
+88,
+117,
+199,
+249,
+],
 'project:ecmascript6/router/src/navigationPlan.js':[
 27,
 ],
@@ -1805,6 +1812,9 @@
 ],
 'project:ecmascript6/router/utils/requirejs_module_ce.js':[
 15,
+],
+'project:ecmascript6/sonar-web/src/main/js/apps/overview/components/domain-treemap.js':[
+68,
 ],
 'project:ecmascript6/sonar-web/src/main/js/components/issue/models/issue.js':[
 242,

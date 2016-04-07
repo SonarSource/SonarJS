@@ -15,6 +15,15 @@
 19,
 46,
 ],
+'project:ecmascript6/redux/examples/shopping-cart/reducers/cart.js':[
+12,
+24,
+37,
+],
+'project:ecmascript6/redux/examples/shopping-cart/reducers/products.js':[
+16,
+38,
+],
 'project:ecmascript6/redux/examples/todomvc/reducers/todos.js':[
 11,
 ],

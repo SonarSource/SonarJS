@@ -12559,6 +12559,9 @@
 'project:ecmascript6/react-router/modules/Route.js':[
 18,
 ],
+'project:ecmascript6/react-router/modules/RouteUtils.js':[
+55,
+],
 'project:ecmascript6/reddit-mobile/src/lib/errorLog.es6.js':[
 7,
 ],
@@ -12567,6 +12570,9 @@
 ],
 'project:ecmascript6/redux/examples/todomvc/reducers/todos.js':[
 19,
+],
+'project:ecmascript6/redux/examples/todomvc/test/components/MainSection.spec.js':[
+107,
 ],
 'project:ecmascript6/redux/test/createStore.spec.js':[
 93,

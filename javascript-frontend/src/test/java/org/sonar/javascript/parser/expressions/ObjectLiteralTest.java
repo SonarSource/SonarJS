@@ -28,16 +28,17 @@ public class ObjectLiteralTest {
 
 
   @Test
-  public void ok() {
+  public void test() {
     assertThat(Kind.OBJECT_LITERAL)
       .matches("{ }")
       .matches("{ propertyName , }")
+      .matches("{ ... assignmentExpression }")
+      .matches("{ propertyName : assignmentExpression, ... assignmentExpression }")
       .matches("{ propertyName : assignmentExpression , }")
       .matches("{ propertyName : assignmentExpression , }")
       .matches("{ propertyName : assignmentExpression , propertyName : assignmentExpression }")
-      .matches("{ propertyName : assignmentExpression , propertyName : assignmentExpression , }");
+      .matches("{ propertyName : assignmentExpression , propertyName : assignmentExpression , }")
 
-    assertThat(Kind.OBJECT_LITERAL)
       .notMatches("{ , }")
       .notMatches("{ propertyName : assignmentExpression , , }");
   }

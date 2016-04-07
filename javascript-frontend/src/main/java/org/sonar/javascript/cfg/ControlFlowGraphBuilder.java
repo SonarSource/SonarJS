@@ -29,6 +29,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import org.sonar.javascript.tree.TreeKinds;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
@@ -44,7 +45,7 @@ import org.sonar.plugins.javascript.api.tree.expression.NewExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.ObjectLiteralTree;
 import org.sonar.plugins.javascript.api.tree.expression.PairPropertyTree;
 import org.sonar.plugins.javascript.api.tree.expression.ParenthesisedExpressionTree;
-import org.sonar.plugins.javascript.api.tree.expression.RestElementTree;
+import org.sonar.plugins.javascript.api.tree.expression.SpreadElementTree;
 import org.sonar.plugins.javascript.api.tree.expression.TaggedTemplateTree;
 import org.sonar.plugins.javascript.api.tree.expression.TemplateExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.TemplateLiteralTree;
@@ -88,6 +89,7 @@ class ControlFlowGraphBuilder {
 
   private static final Kind[] SIMPLE_BINARY_KINDS = {
     Kind.MULTIPLY,
+    Kind.EXPONENT,
     Kind.DIVIDE,
     Kind.REMAINDER,
     Kind.PLUS,
@@ -109,21 +111,6 @@ class ControlFlowGraphBuilder {
     Kind.BITWISE_XOR,
     Kind.BITWISE_OR,
     Kind.COMMA_OPERATOR
-  };
-
-  private static final Kind[] ASSIGNMENT_KINDS = {
-    Kind.ASSIGNMENT,
-    Kind.MULTIPLY_ASSIGNMENT,
-    Kind.DIVIDE_ASSIGNMENT,
-    Kind.REMAINDER_ASSIGNMENT,
-    Kind.PLUS_ASSIGNMENT,
-    Kind.MINUS_ASSIGNMENT,
-    Kind.LEFT_SHIFT_ASSIGNMENT,
-    Kind.RIGHT_SHIFT_ASSIGNMENT,
-    Kind.UNSIGNED_RIGHT_SHIFT_ASSIGNMENT,
-    Kind.AND_ASSIGNMENT,
-    Kind.XOR_ASSIGNMENT,
-    Kind.OR_ASSIGNMENT
   };
 
   private static final Kind[] UNARY_KINDS = {
@@ -260,7 +247,7 @@ class ControlFlowGraphBuilder {
       buildExpression(binary.rightOperand());
       buildExpression(binary.leftOperand());
 
-    } else if (tree.is(ASSIGNMENT_KINDS)) {
+    } else if (TreeKinds.isAssignment(tree)) {
       AssignmentExpressionTree assignment = (AssignmentExpressionTree) tree;
       buildExpression(assignment.variable());
       buildExpression(assignment.expression());
@@ -350,9 +337,9 @@ class ControlFlowGraphBuilder {
       currentBlock = createBranchingBlock(tree, trueBlock, falseBlock);
       buildExpression(conditionalExpression.condition());
 
-    } else if (tree.is(Kind.REST_ELEMENT)) {
-      RestElementTree restElement = (RestElementTree) tree;
-      buildExpression(restElement.element());
+    } else if (tree.is(Kind.SPREAD_ELEMENT)) {
+      SpreadElementTree spreadElement = (SpreadElementTree) tree;
+      buildExpression(spreadElement.element());
 
     } else if (tree.is(Kind.PARENTHESISED_EXPRESSION)) {
       ParenthesisedExpressionTree parenthesisedExpression = (ParenthesisedExpressionTree) tree;

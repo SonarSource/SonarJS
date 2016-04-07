@@ -238,9 +238,15 @@
 110,
 111,
 ],
+'project:ecmascript6/react-router/modules/createTransitionManager.js':[
+35,
+],
 'project:ecmascript6/router/third_party/brick/brick-1.0.1.byob.js':[
 1658,
 2137,
+],
+'project:ecmascript6/sonar-web/src/main/js/components/shared/checkbox.js':[
+11,
 ],
 'project:frameworks/wordpress/customize-controls.js':[
 20,

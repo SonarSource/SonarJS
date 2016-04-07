@@ -27,7 +27,7 @@ import static org.sonar.javascript.utils.Assertions.assertThat;
 public class FormalParameterListTest {
 
   @Test
-  public void ok() {
+  public void test() {
     assertThat(Kind.FORMAL_PARAMETER_LIST)
       .matches("( )")
       .matches("( IDENTIFIER )")
@@ -35,7 +35,12 @@ public class FormalParameterListTest {
       .matches("( IDENTIFIER, IDENTIFIER )")
       .matches("( ...a )")
       .matches("( IDENTIFIER, ...a )")
-      .matches("( identifier, identifier, ... a )");
+      .matches("( identifier, identifier, ... a )")
+
+      .matches("( IDENTIFIER , )")
+      .matches("( IDENTIFIER1 , IDENTIFIER2 ,  )")
+      .notMatches("( IDENTIFIER, ...a, )")
+    ;
   }
 
 }

@@ -34,7 +34,7 @@ import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
  * </pre>
  */
 @Beta
-public interface ObjectBindingPatternTree extends DeclarationTree, BindingElementTree {
+public interface ObjectBindingPatternTree extends BindingElementTree {
 
   SyntaxToken openCurlyBrace();
 

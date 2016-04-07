@@ -28,7 +28,7 @@ public class ArrayBindingPatternTest {
 
 
   @Test
-  public void ok() {
+  public void test() {
     assertThat(JavaScriptLegacyGrammar.ARRAY_BINDING_PATTERN)
       .matches("[ ]")
       .matches("[ , ]")
@@ -42,7 +42,9 @@ public class ArrayBindingPatternTest {
       .matches("[ , ]")
       .matches("[ a ]")
       .matches("[ a, b ]")
-      .matches("[ , , ]");
+      .matches("[ , , ]")
+      .notMatches("[ identifier , ...a , identifier]")
+    ;
   }
 
 }

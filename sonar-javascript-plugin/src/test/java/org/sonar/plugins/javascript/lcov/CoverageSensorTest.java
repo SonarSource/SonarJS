@@ -49,7 +49,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
-public class UTCoverageSensorTest {
+public class CoverageSensorTest {
 
   private SensorContext context;
   private Settings settings;
@@ -58,7 +58,8 @@ public class UTCoverageSensorTest {
   @Before
   public void init() {
     settings = new Settings();
-    settings.setProperty(JavaScriptPlugin.LCOV_UT_REPORT_PATH, "test_lcov_report.dat");
+    settings.setProperty(JavaScriptPlugin.LCOV_UT_REPORT_PATH, "test_lcov_report_ut.dat");
+    settings.setProperty(JavaScriptPlugin.LCOV_IT_REPORT_PATH, "test_lcov_report_it.dat");
     context = mock(SensorContext.class);
     project = new Project("project");
 
@@ -68,7 +69,7 @@ public class UTCoverageSensorTest {
   public void test_should_execute() {
     DefaultFileSystem fs = new DefaultFileSystem();
     Settings localSettings = new Settings();
-    UTCoverageSensor localSensor = newSensor(fs, localSettings);
+    LCOVCoverageSensor localSensor = newUTSensor(fs, localSettings);
 
     // no JS files -> do not execute
     assertThat(localSensor.shouldExecuteOnProject(project)).isFalse();
@@ -90,20 +91,60 @@ public class UTCoverageSensorTest {
     Settings localSettings = new Settings();
     localSettings.setProperty(JavaScriptPlugin.LCOV_UT_REPORT_PATH, "/fake/path/lcov_report.dat");
 
-    newSensor(fs, localSettings).analyse(project, context);
+    newUTSensor(fs, localSettings).analyse(project, context);
 
     verifyZeroInteractions(context);
   }
 
   @Test
-  public void test_file_in_coverage_report() {
+  public void test_file_in_ut_coverage_report() {
     DefaultFileSystem fs = newFileSystem();
     fs.add(newSourceInputFile("fake_file1.js"));
     fs.add(newSourceInputFile("fake_file2.js"));
-    newSensor(fs, settings).analyse(project, context);
+    fs.add(newSourceInputFile("fake_file3.js"));
+    newUTSensor(fs, settings).analyse(project, context);
 
     // 3 line coverage metrics for two files, 4 condition coverage metrics for 1 file
     verify(context, times(10)).saveMeasure(any(Resource.class), (Measure) anyObject());
+  }
+
+  @Test
+  public void test_file_in_it_coverage_report() {
+    DefaultFileSystem fs = newFileSystem();
+    fs.add(newSourceInputFile("fake_file1.js"));
+    fs.add(newSourceInputFile("fake_file2.js"));
+    fs.add(newSourceInputFile("fake_file3.js"));
+    newITSensor(fs, settings).analyse(project, context);
+
+    // 3 line coverage metrics for two files, 4 condition coverage metrics for 1 file
+    verify(context, times(10)).saveMeasure(any(Resource.class), (Measure) anyObject());
+  }
+
+  @Test
+  public void test_file_in_overall_coverage_report() {
+    DefaultFileSystem fs = newFileSystem();
+    fs.add(newSourceInputFile("fake_file1.js"));
+    fs.add(newSourceInputFile("fake_file2.js"));
+    fs.add(newSourceInputFile("fake_file3.js"));
+    newOverallSensor(fs, settings).analyse(project, context);
+
+    // 3 line coverage metrics for two files, 4 condition coverage metrics for 1 file for both the it and ut file
+    // minus 3 line coverages, that are in both files and so get merged
+    verify(context, times(17)).saveMeasure(any(Resource.class), (Measure) anyObject());
+  }
+
+  @Test
+  public void test_overall_coverage_values() {
+    DefaultFileSystem fs = newFileSystem();
+    fs.add(newSourceInputFile("fake_file1.js"));
+    newOverallSensor(fs, settings).analyse(project, context);
+
+    ArgumentCaptor<Measure> measures = ArgumentCaptor.forClass(Measure.class);
+    verify(context, times(3)).saveMeasure(any(Resource.class), measures.capture());
+
+    assertMetricValue(measures, CoreMetrics.OVERALL_COVERAGE_LINE_HITS_DATA_KEY, "1=1;4=2;5=2;9=2;10=2;11=1;12=0");
+    assertMetricValue(measures, CoreMetrics.OVERALL_LINES_TO_COVER_KEY, "7.0");
+    assertMetricValue(measures, CoreMetrics.OVERALL_UNCOVERED_LINES_KEY, "1.0");
   }
 
   @Test
@@ -111,28 +152,13 @@ public class UTCoverageSensorTest {
     settings.setProperty(JavaScriptPlugin.LCOV_UT_REPORT_PATH, "wrong_line_lcov.info");
     DefaultFileSystem fs = newFileSystem();
     fs.add(newSourceInputFile("fake_file.js"));
-    newSensor(fs, settings).analyse(project, context);
+    newUTSensor(fs, settings).analyse(project, context);
 
     ArgumentCaptor<Measure> measures = ArgumentCaptor.forClass(Measure.class);
-
     verify(context, atLeast(2)).saveMeasure((Resource) anyObject(), measures.capture());
 
-    boolean lineCoverageMetric = false;
-    boolean conditionCoverageMetric = false;
-
-    for (Measure measure : measures.getAllValues()) {
-      if (measure.getMetricKey().equals(CoreMetrics.COVERAGE_LINE_HITS_DATA_KEY)) {
-        assertThat(measure.getData()).isEqualTo("5=1");
-        lineCoverageMetric = true;
-
-      } else if (measure.getMetricKey().equals(CoreMetrics.CONDITIONS_BY_LINE_KEY)) {
-        assertThat(measure.getData()).isEqualTo("7=3");
-        conditionCoverageMetric = true;
-      }
-    }
-
-    assertThat(lineCoverageMetric).isTrue();
-    assertThat(conditionCoverageMetric).isTrue();
+    assertMetricValue(measures, CoreMetrics.COVERAGE_LINE_HITS_DATA_KEY, "5=1");
+    assertMetricValue(measures, CoreMetrics.CONDITIONS_BY_LINE_KEY, "7=3");
   }
 
   @Test
@@ -145,7 +171,7 @@ public class UTCoverageSensorTest {
     when(context.getMeasure(any(org.sonar.api.resources.File.class), eq(CoreMetrics.NCLOC_DATA)))
       .thenReturn(new Measure(CoreMetrics.NCLOC_DATA, "1=0;2=1;3=1;4=0"));
 
-    newSensor(fs, settings).analyse(project, context);
+    newUTSensor(fs, settings).analyse(project, context);
 
     verify(context).saveMeasure((Resource) anyObject(), eq(CoreMetrics.LINES_TO_COVER), eq(2.0));
     verify(context).saveMeasure((Resource) anyObject(), eq(CoreMetrics.UNCOVERED_LINES), eq(2.0));
@@ -161,7 +187,7 @@ public class UTCoverageSensorTest {
     when(context.getMeasure(any(Resource.class), any(Metric.class))).thenReturn(new Measure().setValue(1d));
     when(context.getMeasure(any(org.sonar.api.resources.File.class), eq(CoreMetrics.NCLOC_DATA)))
       .thenReturn(new Measure(CoreMetrics.NCLOC_DATA, "1=0;2=1;3=1;4=0"));
-    newSensor(fs, settings).analyse(project, context);
+    newUTSensor(fs, settings).analyse(project, context);
 
     verify(context, times(1)).saveMeasure((Resource) anyObject(), eq(CoreMetrics.LINES_TO_COVER), eq(1d));
     verify(context, times(1)).saveMeasure((Resource) anyObject(), eq(CoreMetrics.UNCOVERED_LINES), eq(1d));
@@ -174,7 +200,7 @@ public class UTCoverageSensorTest {
 
     settings.setProperty(JavaScriptPlugin.FORCE_ZERO_COVERAGE_KEY, "true");
     settings.setProperty(JavaScriptPlugin.LCOV_UT_REPORT_PATH, "");
-    newSensor(fs, settings).analyse(project, context);
+    newUTSensor(fs, settings).analyse(project, context);
 
     verify(context, never()).saveMeasure((Resource) anyObject(), eq(CoreMetrics.LINES_TO_COVER), Mockito.anyDouble());
   }
@@ -194,8 +220,30 @@ public class UTCoverageSensorTest {
     return fs;
   }
 
-  public UTCoverageSensor newSensor(DefaultFileSystem fs, Settings settings) {
+  public LCOVCoverageSensor newUTSensor(DefaultFileSystem fs, Settings settings) {
     return new UTCoverageSensor(fs, settings);
+  }
+
+  public LCOVCoverageSensor newITSensor(DefaultFileSystem fs, Settings settings) {
+    return new ITCoverageSensor(fs, settings);
+  }
+
+  public LCOVCoverageSensor newOverallSensor(DefaultFileSystem fs, Settings settings) {
+    return new OverallCoverageSensor(fs, settings);
+  }
+
+  private void assertMetricValue(ArgumentCaptor<Measure> measures, String metricKey, String expectedValue) {
+    boolean metricIsSaved = false;
+
+    for (Measure measure : measures.getAllValues()) {
+      if (measure.getMetricKey().equals(metricKey)) {
+        String actualValue = measure.getData() != null ? measure.getData() : measure.getValue().toString();
+        assertThat(actualValue).isEqualTo(expectedValue);
+        metricIsSaved = true;
+      }
+    }
+
+    assertThat(metricIsSaved).isTrue();
   }
 
 }

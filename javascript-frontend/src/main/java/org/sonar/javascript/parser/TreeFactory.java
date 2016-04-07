@@ -24,6 +24,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.sonar.sslr.api.typed.Optional;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -74,12 +75,22 @@ import org.sonar.javascript.tree.impl.expression.ParenthesisedExpressionTreeImpl
 import org.sonar.javascript.tree.impl.expression.PostfixExpressionTreeImpl;
 import org.sonar.javascript.tree.impl.expression.PrefixExpressionTreeImpl;
 import org.sonar.javascript.tree.impl.expression.RestElementTreeImpl;
+import org.sonar.javascript.tree.impl.expression.SpreadElementTreeImpl;
 import org.sonar.javascript.tree.impl.expression.SuperTreeImpl;
 import org.sonar.javascript.tree.impl.expression.TaggedTemplateTreeImpl;
 import org.sonar.javascript.tree.impl.expression.TemplateCharactersTreeImpl;
 import org.sonar.javascript.tree.impl.expression.TemplateExpressionTreeImpl;
 import org.sonar.javascript.tree.impl.expression.TemplateLiteralTreeImpl;
 import org.sonar.javascript.tree.impl.expression.YieldExpressionTreeImpl;
+import org.sonar.javascript.tree.impl.expression.jsx.JsxClosingElementTreeImpl;
+import org.sonar.javascript.tree.impl.expression.jsx.JsxIdentifierTreeImpl;
+import org.sonar.javascript.tree.impl.expression.jsx.JsxJavaScriptExpressionTreeImpl;
+import org.sonar.javascript.tree.impl.expression.jsx.JsxOpeningElementTreeImpl;
+import org.sonar.javascript.tree.impl.expression.jsx.JsxSelfClosingElementTreeImpl;
+import org.sonar.javascript.tree.impl.expression.jsx.JsxSpreadAttributeTreeImpl;
+import org.sonar.javascript.tree.impl.expression.jsx.JsxStandardAttributeTreeImpl;
+import org.sonar.javascript.tree.impl.expression.jsx.JsxStandardElementTreeImpl;
+import org.sonar.javascript.tree.impl.expression.jsx.JsxTextTreeImpl;
 import org.sonar.javascript.tree.impl.lexical.InternalSyntaxToken;
 import org.sonar.javascript.tree.impl.statement.BlockTreeImpl;
 import org.sonar.javascript.tree.impl.statement.BreakStatementTreeImpl;
@@ -119,9 +130,23 @@ import org.sonar.plugins.javascript.api.tree.expression.BracketMemberExpressionT
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 import org.sonar.plugins.javascript.api.tree.expression.MemberExpressionTree;
+import org.sonar.plugins.javascript.api.tree.expression.RestElementTree;
 import org.sonar.plugins.javascript.api.tree.expression.TemplateCharactersTree;
 import org.sonar.plugins.javascript.api.tree.expression.TemplateExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.TemplateLiteralTree;
+import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxAttributeTree;
+import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxAttributeValueTree;
+import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxChildTree;
+import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxClosingElementTree;
+import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxElementNameTree;
+import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxIdentifierTree;
+import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxJavaScriptExpressionTree;
+import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxOpeningElementTree;
+import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxSelfClosingElementTree;
+import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxSpreadAttributeTree;
+import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxStandardAttributeTree;
+import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxStandardElementTree;
+import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxTextTree;
 import org.sonar.plugins.javascript.api.tree.statement.StatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.SwitchClauseTree;
 
@@ -149,10 +174,12 @@ public class TreeFactory {
     EXPRESSION_KIND_BY_VALUE.put(JavaScriptPunctuator.PLUS.getValue(), Kind.PLUS);
     EXPRESSION_KIND_BY_VALUE.put(JavaScriptPunctuator.MINUS.getValue(), Kind.MINUS);
     EXPRESSION_KIND_BY_VALUE.put(JavaScriptPunctuator.STAR.getValue(), Kind.MULTIPLY);
+    EXPRESSION_KIND_BY_VALUE.put(JavaScriptPunctuator.EXP.getValue(), Kind.EXPONENT);
     EXPRESSION_KIND_BY_VALUE.put(JavaScriptPunctuator.DIV.getValue(), Kind.DIVIDE);
     EXPRESSION_KIND_BY_VALUE.put(JavaScriptPunctuator.MOD.getValue(), Kind.REMAINDER);
     EXPRESSION_KIND_BY_VALUE.put(JavaScriptPunctuator.EQU.getValue(), Kind.ASSIGNMENT);
     EXPRESSION_KIND_BY_VALUE.put(JavaScriptPunctuator.STAR_EQU.getValue(), Kind.MULTIPLY_ASSIGNMENT);
+    EXPRESSION_KIND_BY_VALUE.put(JavaScriptPunctuator.EXP_EQU.getValue(), Kind.EXPONENT_ASSIGNMENT);
     EXPRESSION_KIND_BY_VALUE.put(JavaScriptPunctuator.DIV_EQU.getValue(), Kind.DIVIDE_ASSIGNMENT);
     EXPRESSION_KIND_BY_VALUE.put(JavaScriptPunctuator.MOD_EQU.getValue(), Kind.REMAINDER_ASSIGNMENT);
     EXPRESSION_KIND_BY_VALUE.put(JavaScriptPunctuator.PLUS_EQU.getValue(), Kind.PLUS_ASSIGNMENT);
@@ -509,13 +536,6 @@ public class TreeFactory {
 
   // Expressions
 
-  public ExpressionTree arrayInitialiserElement(Optional<InternalSyntaxToken> spreadOperatorToken, ExpressionTree expression) {
-    if (spreadOperatorToken.isPresent()) {
-      return new RestElementTreeImpl(spreadOperatorToken.get(), expression);
-    }
-    return expression;
-  }
-
   /**
    * Creates a new array literal. Undefined element is added to the array elements list when array element is elided.
    * <p/>
@@ -624,15 +644,8 @@ public class TreeFactory {
     return new FunctionExpressionTreeImpl(Kind.FUNCTION_EXPRESSION, functionKeyword, parameters, body);
   }
 
-  public ParameterListTreeImpl newFormalRestParameterList(RestElementTreeImpl restParameter) {
-    return new ParameterListTreeImpl(
-      Kind.FORMAL_PARAMETER_LIST,
-      new SeparatedList<>(Lists.newArrayList((Tree) restParameter), ListUtils.EMPTY_LIST));
-  }
-
-  public ParameterListTreeImpl newFormalParameterList(
-    BindingElementTree formalParameter, Optional<List<Tuple<InternalSyntaxToken, BindingElementTree>>> formalParameters,
-    Optional<Tuple<InternalSyntaxToken, RestElementTreeImpl>> restElement
+  public SeparatedList<Tree> formalParameters(
+    BindingElementTree formalParameter, Optional<List<Tuple<InternalSyntaxToken, BindingElementTree>>> formalParameters
   ) {
     List<Tree> parameters = Lists.newArrayList();
     List<InternalSyntaxToken> commas = Lists.newArrayList();
@@ -646,23 +659,46 @@ public class TreeFactory {
       }
     }
 
-    if (restElement.isPresent()) {
-      commas.add(restElement.get().first());
-      parameters.add(restElement.get().second());
-    }
+    return new SeparatedList<>(parameters, commas);
+  }
 
-    return new ParameterListTreeImpl(Kind.FORMAL_PARAMETER_LIST, new SeparatedList<>(parameters, commas));
+
+  public ParameterListTreeImpl formalParameterClause1(
+    InternalSyntaxToken lParenthesis,
+    SeparatedList<Tree> parameters,
+    Optional<InternalSyntaxToken> trailingComma,
+    InternalSyntaxToken rParenthesis
+  ) {
+    if (trailingComma.isPresent()) {
+      parameters.getSeparators().add(trailingComma.get());
+    }
+    return new ParameterListTreeImpl(Kind.FORMAL_PARAMETER_LIST, lParenthesis, parameters, rParenthesis);
+  }
+
+
+  public ParameterListTreeImpl formalParameterClause2(
+    InternalSyntaxToken lParenthesis,
+    SeparatedList<Tree> parameters,
+    InternalSyntaxToken comma,
+    RestElementTreeImpl restElementTree,
+    InternalSyntaxToken rParenthesis
+  ) {
+    parameters.getSeparators().add(comma);
+    parameters.add(restElementTree);
+
+    return new ParameterListTreeImpl(Kind.FORMAL_PARAMETER_LIST, lParenthesis, parameters, rParenthesis);
+  }
+
+  public ParameterListTreeImpl formalParameterClause3(InternalSyntaxToken lParenthesis, Optional<RestElementTreeImpl> restElementTree, InternalSyntaxToken rParenthesis) {
+    SeparatedList<Tree> parameters = new SeparatedList<>(new ArrayList<Tree>(), ListUtils.EMPTY_LIST);
+    if (restElementTree.isPresent()) {
+      parameters.add(restElementTree.get());
+    }
+    return new ParameterListTreeImpl(Kind.FORMAL_PARAMETER_LIST, lParenthesis, parameters, rParenthesis);
   }
 
   public RestElementTreeImpl bindingRestElement(InternalSyntaxToken ellipsis, IdentifierTreeImpl identifier) {
     return new RestElementTreeImpl(ellipsis, identifier);
-  }
-
-  public ParameterListTreeImpl completeFormalParameterList(InternalSyntaxToken openParenthesis, Optional<ParameterListTreeImpl> parameters, InternalSyntaxToken closeParenthesis) {
-    if (parameters.isPresent()) {
-      return parameters.get().complete(openParenthesis, closeParenthesis);
-    }
-    return new ParameterListTreeImpl(Kind.FORMAL_PARAMETER_LIST, openParenthesis, closeParenthesis);
   }
 
   public ConditionalExpressionTreeImpl newConditionalExpression(
@@ -753,6 +789,30 @@ public class TreeFactory {
 
   public ExpressionTree newMultiplicative(ExpressionTree expression, Optional<List<Tuple<InternalSyntaxToken, ExpressionTree>>> operatorAndOperands) {
     return buildBinaryExpression(expression, operatorAndOperands);
+  }
+
+  public ExpressionTree newExponentiation(ExpressionTree expression, Optional<List<Tuple<InternalSyntaxToken, ExpressionTree>>> operatorAndOperands) {
+    if (!operatorAndOperands.isPresent()) {
+      return expression;
+    }
+
+
+    List<Tuple<InternalSyntaxToken, ExpressionTree>> list = operatorAndOperands.get();
+    ExpressionTree result = list.get(list.size() - 1).second;
+
+    for (int i = list.size() - 1; i > 0; i--) {
+      result = new BinaryExpressionTreeImpl(
+        Kind.EXPONENT,
+        list.get(i - 1).second,
+        list.get(i).first,
+        result);
+    }
+
+    return new BinaryExpressionTreeImpl(
+      Kind.EXPONENT,
+      expression,
+      list.get(0).first,
+      result);
   }
 
   private static ExpressionTree buildBinaryExpression(ExpressionTree expression, Optional<List<Tuple<InternalSyntaxToken, ExpressionTree>>> operatorAndOperands) {
@@ -875,13 +935,11 @@ public class TreeFactory {
     return result;
   }
 
-  public ExpressionTree argument(Optional<InternalSyntaxToken> ellipsisToken, ExpressionTree expression) {
-    return ellipsisToken.isPresent() ?
-      new RestElementTreeImpl(ellipsisToken.get(), expression)
-      : expression;
-  }
-
-  public ParameterListTreeImpl newArgumentList(ExpressionTree argument, Optional<List<Tuple<InternalSyntaxToken, ExpressionTree>>> restArguments) {
+  public SeparatedList<Tree> argumentList(
+    ExpressionTree argument,
+    Optional<List<Tuple<InternalSyntaxToken, ExpressionTree>>> restArguments,
+    Optional<InternalSyntaxToken> trailingComma
+  ) {
     List<Tree> arguments = Lists.newArrayList();
     List<InternalSyntaxToken> commas = Lists.newArrayList();
 
@@ -894,14 +952,19 @@ public class TreeFactory {
       }
     }
 
-    return new ParameterListTreeImpl(Kind.ARGUMENTS, new SeparatedList<>(arguments, commas));
+    if (trailingComma.isPresent()) {
+      commas.add(trailingComma.get());
+    }
+
+    return new SeparatedList<>(arguments, commas);
   }
 
-  public ParameterListTreeImpl completeArguments(InternalSyntaxToken openParenToken, Optional<ParameterListTreeImpl> arguments, InternalSyntaxToken closeParenToken) {
-    if (arguments.isPresent()) {
-      return arguments.get().complete(openParenToken, closeParenToken);
-    }
-    return new ParameterListTreeImpl(Kind.ARGUMENTS, openParenToken, closeParenToken);
+  public ParameterListTreeImpl argumentClause(InternalSyntaxToken openParenToken, Optional<SeparatedList<Tree>> arguments, InternalSyntaxToken closeParenToken) {
+    return new ParameterListTreeImpl(
+      Kind.ARGUMENTS,
+      openParenToken,
+      arguments.isPresent() ? arguments.get() : new SeparatedList<Tree>(ListUtils.EMPTY_LIST, ListUtils.EMPTY_LIST),
+      closeParenToken);
   }
 
   public CallExpressionTreeImpl simpleCallExpression(ExpressionTree expression, ParameterListTree arguments) {
@@ -970,6 +1033,10 @@ public class TreeFactory {
 
   public PairPropertyTreeImpl pairProperty(ExpressionTree name, InternalSyntaxToken colonToken, ExpressionTree value) {
     return new PairPropertyTreeImpl(name, colonToken, value);
+  }
+
+  public SpreadElementTreeImpl spreadElement(InternalSyntaxToken ellipsis, ExpressionTree expression) {
+    return new SpreadElementTreeImpl(ellipsis, expression);
   }
 
   public ObjectLiteralTreeImpl newObjectLiteral(Tree property, Optional<List<Tuple<InternalSyntaxToken, Tree>>> restProperties, Optional<InternalSyntaxToken> trailingComma) {
@@ -1346,11 +1413,14 @@ public class TreeFactory {
     return new BindingPropertyTreeImpl(propertyName, colonToken, bindingElement);
   }
 
-  public ObjectBindingPatternTreeImpl newObjectBindingPattern(
-    Tree bindingProperty, Optional<List<Tuple<InternalSyntaxToken, BindingElementTree>>> restProperties,
-    Optional<InternalSyntaxToken> trailingComma
-  ) {
+  public RestElementTreeImpl restObjectBindingElement(InternalSyntaxToken ellipsis, BindingElementTree bindingElement) {
+    return new RestElementTreeImpl(ellipsis, bindingElement);
+  }
 
+  public SeparatedList<Tree> bindingPropertyList(
+    Tree bindingProperty,
+    Optional<List<Tuple<InternalSyntaxToken, BindingElementTree>>> restProperties
+  ) {
     List<Tree> properties = Lists.newArrayList();
     List<InternalSyntaxToken> commas = Lists.newArrayList();
 
@@ -1366,27 +1436,51 @@ public class TreeFactory {
       }
     }
 
-    if (trailingComma.isPresent()) {
-      commas.add(trailingComma.get());
-    }
-
-    return new ObjectBindingPatternTreeImpl(new SeparatedList<>(properties, commas));
+    return new SeparatedList<>(properties, commas);
   }
 
-  public ObjectBindingPatternTreeImpl completeObjectBindingPattern(
-    InternalSyntaxToken openCurlyBraceToken,
-    Optional<ObjectBindingPatternTreeImpl> partial,
-    InternalSyntaxToken closeCurlyBraceToken
+  public ObjectBindingPatternTreeImpl objectBindingPattern(
+    InternalSyntaxToken lCurlyBrace,
+    Optional<SeparatedList<Tree>> list,
+    Optional<Tuple<InternalSyntaxToken, Optional<RestElementTree>>> commaAndRest,
+    InternalSyntaxToken rCurlyBrace
   ) {
-    if (partial.isPresent()) {
-      return partial.get().complete(openCurlyBraceToken, closeCurlyBraceToken);
+
+    SeparatedList<Tree> elements;
+
+    if (list.isPresent()) {
+      elements = list.get();
+    } else {
+      elements = new SeparatedList<>(new ArrayList<Tree>(), new ArrayList<InternalSyntaxToken>());
     }
-    return new ObjectBindingPatternTreeImpl(openCurlyBraceToken, closeCurlyBraceToken);
+
+    if (commaAndRest.isPresent()) {
+      elements.getSeparators().add(commaAndRest.get().first);
+
+      if (commaAndRest.get().second.isPresent()) {
+        elements.add(commaAndRest.get().second.get());
+      }
+    }
+
+    return new ObjectBindingPatternTreeImpl(
+      lCurlyBrace,
+      elements,
+      rCurlyBrace);
+  }
+
+  public ObjectBindingPatternTreeImpl objectBindingPattern2(InternalSyntaxToken lCurlyBrace, RestElementTree rest, InternalSyntaxToken rCurlyBrace) {
+    return new ObjectBindingPatternTreeImpl(
+      lCurlyBrace,
+      new SeparatedList<>(ImmutableList.<Tree>of(rest), ImmutableList.<InternalSyntaxToken>of()),
+      rCurlyBrace);
   }
 
   public ArrayBindingPatternTreeImpl arrayBindingPattern(
-    InternalSyntaxToken openBracketToken, Optional<BindingElementTree> firstElement,
-    Optional<List<Tuple<InternalSyntaxToken, Optional<BindingElementTree>>>> rest, InternalSyntaxToken closeBracketToken
+    InternalSyntaxToken openBracketToken,
+    Optional<BindingElementTree> firstElement,
+    Optional<List<Tuple<InternalSyntaxToken, Optional<BindingElementTree>>>> optionalElements,
+    Optional<RestElementTreeImpl> restElement,
+    InternalSyntaxToken closeBracketToken
   ) {
 
     ImmutableList.Builder<Optional<BindingElementTree>> elements = ImmutableList.builder();
@@ -1399,8 +1493,8 @@ public class TreeFactory {
       skipComma = true;
     }
 
-    if (rest.isPresent()) {
-      List<Tuple<InternalSyntaxToken, Optional<BindingElementTree>>> list = rest.get();
+    if (optionalElements.isPresent()) {
+      List<Tuple<InternalSyntaxToken, Optional<BindingElementTree>>> list = optionalElements.get();
       for (Tuple<InternalSyntaxToken, Optional<BindingElementTree>> pair : list) {
         if (!skipComma) {
           elements.add(Optional.<BindingElementTree>absent());
@@ -1416,6 +1510,10 @@ public class TreeFactory {
           skipComma = false;
         }
       }
+    }
+
+    if (restElement.isPresent()) {
+      elements.add(Optional.<BindingElementTree>of(restElement.get()));
     }
 
     return new ArrayBindingPatternTreeImpl(
@@ -1463,6 +1561,91 @@ public class TreeFactory {
     return expression;
   }
 
+  // [START] JSX
+
+  public JsxSelfClosingElementTree jsxSelfClosingElement(
+    InternalSyntaxToken ltToken,
+    JsxElementNameTree jsxElementNameTree,
+    Optional<List<JsxAttributeTree>> attributes,
+    InternalSyntaxToken divToken, InternalSyntaxToken gtToken
+  ) {
+    return new JsxSelfClosingElementTreeImpl(ltToken, jsxElementNameTree, optionalList(attributes), divToken, gtToken);
+  }
+
+  public JsxStandardElementTree jsxStandardElement(
+    JsxOpeningElementTree jsxOpeningElementTree,
+    Optional<List<JsxChildTree>> children,
+    JsxClosingElementTree jsxClosingElementTree
+  ) {
+    return new JsxStandardElementTreeImpl(jsxOpeningElementTree, optionalList(children), jsxClosingElementTree);
+  }
+
+  public JsxOpeningElementTree jsxOpeningElement(
+    InternalSyntaxToken ltToken,
+    JsxElementNameTree jsxElementNameTree,
+    Optional<List<JsxAttributeTree>> attributes,
+    InternalSyntaxToken gtToken
+  ) {
+    return new JsxOpeningElementTreeImpl(
+      ltToken,
+      jsxElementNameTree,
+      optionalList(attributes),
+      gtToken);
+  }
+
+  public JsxClosingElementTree jsxClosingElement(InternalSyntaxToken ltToken, InternalSyntaxToken divToken, JsxElementNameTree jsxElementNameTree, InternalSyntaxToken gtToken) {
+    return new JsxClosingElementTreeImpl(ltToken, divToken, jsxElementNameTree, gtToken);
+  }
+
+  public JsxJavaScriptExpressionTree jsxJavaScriptExpression(InternalSyntaxToken lCurlyBraceToken, Optional<ExpressionTree> expression, InternalSyntaxToken rCurlyBraceToken) {
+    return new JsxJavaScriptExpressionTreeImpl(lCurlyBraceToken, expression.orNull(), rCurlyBraceToken);
+  }
+
+  public JsxJavaScriptExpressionTree jsxJavaScriptExpression(InternalSyntaxToken lCurlyBraceToken, ExpressionTree expression, InternalSyntaxToken rCurlyBraceToken) {
+    return new JsxJavaScriptExpressionTreeImpl(lCurlyBraceToken, expression, rCurlyBraceToken);
+  }
+
+  public JsxStandardAttributeTree jsxStandardAttribute(JsxIdentifierTree name, InternalSyntaxToken equalToken, JsxAttributeValueTree jsxAttributeValueTree) {
+    return new JsxStandardAttributeTreeImpl(name, equalToken, jsxAttributeValueTree);
+  }
+
+  public JsxSpreadAttributeTree jsxSpreadAttribute(
+    InternalSyntaxToken lCurlyBraceToken,
+    InternalSyntaxToken ellipsisToken,
+    ExpressionTree expressionTree,
+    InternalSyntaxToken rCurlyBraceToken
+  ) {
+    return new JsxSpreadAttributeTreeImpl(lCurlyBraceToken, ellipsisToken, expressionTree, rCurlyBraceToken);
+  }
+
+  public JsxTextTree jsxTextTree(InternalSyntaxToken token) {
+    return new JsxTextTreeImpl(token);
+  }
+
+  public JsxIdentifierTree jsxIdentifier(InternalSyntaxToken identifierToken) {
+    return new JsxIdentifierTreeImpl(identifierToken);
+  }
+
+  public JsxIdentifierTree jsxHtmlTag(InternalSyntaxToken htmlTagToken) {
+    return new JsxIdentifierTreeImpl(htmlTagToken);
+  }
+
+  public ExpressionTree jsxMemberExpression(IdentifierTree identifierTree, Optional<List<Tuple<InternalSyntaxToken, IdentifierTreeImpl>>> rest) {
+    if (rest.isPresent()) {
+      ExpressionTree currentObject = identifierTree;
+      for (Tuple<InternalSyntaxToken, IdentifierTreeImpl> tuple : rest.get()) {
+        DotMemberExpressionTreeImpl newMemberExpression = new DotMemberExpressionTreeImpl(tuple.first, tuple.second);
+        newMemberExpression.complete(currentObject);
+        currentObject = newMemberExpression;
+      }
+
+      return currentObject;
+
+    } else {
+      return identifierTree;
+    }
+  }
+
   public static class Tuple<T, U> {
 
     private final T first;
@@ -1481,6 +1664,14 @@ public class TreeFactory {
 
     public U second() {
       return second;
+    }
+  }
+
+  private static <T> List<T> optionalList(Optional<List<T>> list) {
+    if (list.isPresent()) {
+      return list.get();
+    } else {
+      return Collections.emptyList();
     }
   }
 
@@ -1608,6 +1799,14 @@ public class TreeFactory {
     return newTuple(first, second);
   }
 
+  public <T, U> Tuple<T, U> newTuple31(T first, U second) {
+    return newTuple(first, second);
+  }
+
+  public <T, U> Tuple<T, U> newTuple32(T first, U second) {
+    return newTuple(first, second);
+  }
+
   public <T, U> Tuple<T, U> newTuple50(T first, U second) {
     return newTuple(first, second);
   }
@@ -1633,6 +1832,10 @@ public class TreeFactory {
   }
 
   public <T, U> Tuple<T, U> newTuple56(T first, U second) {
+    return newTuple(first, second);
+  }
+
+  public <T, U> Tuple<T, U> newTuple57(T first, U second) {
     return newTuple(first, second);
   }
 

@@ -33,6 +33,7 @@ import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
   key = "S1145",
   name = "Useless \"if(true) {...}\" and \"if(false){...}\" blocks should be removed",
   priority = Priority.MAJOR,
+  status = "DEPRECATED",
   tags = {Tags.BUG, Tags.CWE, Tags.MISRA, Tags.SECURITY})
 @ActivatedByDefault
 @SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.READABILITY)

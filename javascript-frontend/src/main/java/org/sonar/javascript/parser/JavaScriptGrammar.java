@@ -20,6 +20,7 @@
 package org.sonar.javascript.parser;
 
 import com.sonar.sslr.api.typed.GrammarBuilder;
+import java.util.List;
 import org.sonar.javascript.lexer.JavaScriptKeyword;
 import org.sonar.javascript.lexer.JavaScriptPunctuator;
 import org.sonar.javascript.lexer.JavaScriptTokenType;
@@ -90,9 +91,22 @@ import org.sonar.plugins.javascript.api.tree.declaration.SpecifierTree;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 import org.sonar.plugins.javascript.api.tree.expression.MemberExpressionTree;
+import org.sonar.plugins.javascript.api.tree.expression.SpreadElementTree;
+import org.sonar.plugins.javascript.api.tree.expression.RestElementTree;
 import org.sonar.plugins.javascript.api.tree.expression.TemplateCharactersTree;
 import org.sonar.plugins.javascript.api.tree.expression.TemplateExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.TemplateLiteralTree;
+import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxAttributeTree;
+import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxAttributeValueTree;
+import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxChildTree;
+import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxClosingElementTree;
+import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxElementNameTree;
+import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxElementTree;
+import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxIdentifierTree;
+import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxOpeningElementTree;
+import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxSelfClosingElementTree;
+import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxSpreadAttributeTree;
+import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxStandardAttributeTree;
 import org.sonar.plugins.javascript.api.tree.statement.DebuggerStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.StatementTree;
 
@@ -487,7 +501,7 @@ public class JavaScriptGrammar {
 
   public ExpressionTree ARRAY_LITERAL_ELEMENT() {
     return b.<ExpressionTree>nonterminal(JavaScriptLegacyGrammar.ARRAY_LITERAL_ELEMENT)
-      .is(f.arrayInitialiserElement(b.optional(b.token(JavaScriptPunctuator.ELLIPSIS)), ASSIGNMENT_EXPRESSION()));
+      .is(b.firstOf(SPREAD_ELEMENT(), ASSIGNMENT_EXPRESSION()));
   }
 
   public ArrayLiteralTreeImpl ARRAY_ELEMENT_LIST() {
@@ -501,19 +515,32 @@ public class JavaScriptGrammar {
       ));
   }
 
-  public ParameterListTreeImpl FORMAL_PARAMETER_LIST() {
+  public ParameterListTreeImpl FORMAL_PARAMETER_CLAUSE() {
     return b.<ParameterListTreeImpl>nonterminal(Kind.FORMAL_PARAMETER_LIST)
-      .is(f.completeFormalParameterList(
-        b.token(JavaScriptPunctuator.LPARENTHESIS),
-        b.optional(b.firstOf(
-          f.newFormalParameterList(
-            BINDING_ELEMENT(),
-            b.zeroOrMore(f.newTuple4(b.token(JavaScriptPunctuator.COMMA), BINDING_ELEMENT())),
-            b.optional(ES6(f.newTuple5(b.token(JavaScriptPunctuator.COMMA), BINDING_REST_ELEMENT())))),
-          ES6(f.newFormalRestParameterList(BINDING_REST_ELEMENT()))
-        )),
-        b.token(JavaScriptPunctuator.RPARENTHESIS)
+      .is(b.firstOf(
+        f.formalParameterClause1(
+          b.token(JavaScriptPunctuator.LPARENTHESIS),
+          FORMAL_PARAMETER_LIST(),
+          b.optional(b.token(JavaScriptPunctuator.COMMA)),
+          b.token(JavaScriptPunctuator.RPARENTHESIS)),
+        f.formalParameterClause2(
+          b.token(JavaScriptPunctuator.LPARENTHESIS),
+          FORMAL_PARAMETER_LIST(),
+          b.token(JavaScriptPunctuator.COMMA),
+          BINDING_REST_ELEMENT(),
+          b.token(JavaScriptPunctuator.RPARENTHESIS)),
+        f.formalParameterClause3(
+          b.token(JavaScriptPunctuator.LPARENTHESIS),
+          b.optional(BINDING_REST_ELEMENT()),
+          b.token(JavaScriptPunctuator.RPARENTHESIS))
       ));
+  }
+
+  public SeparatedList<Tree> FORMAL_PARAMETER_LIST() {
+    return b.<SeparatedList<Tree>>nonterminal()
+      .is(f.formalParameters(
+        BINDING_ELEMENT(),
+        b.zeroOrMore(f.newTuple4(b.token(JavaScriptPunctuator.COMMA), BINDING_ELEMENT()))));
   }
 
   /**
@@ -545,7 +572,7 @@ public class JavaScriptGrammar {
           b.token(JavaScriptKeyword.FUNCTION),
           b.token(JavaScriptPunctuator.STAR),
           b.optional(BINDING_IDENTIFIER()),
-          FORMAL_PARAMETER_LIST(),
+          FORMAL_PARAMETER_CLAUSE(),
           BLOCK()));
   }
 
@@ -555,7 +582,7 @@ public class JavaScriptGrammar {
         f.functionExpression(
           b.token(JavaScriptKeyword.FUNCTION),
           b.optional(b.token(JavaScriptTokenType.IDENTIFIER)),
-          FORMAL_PARAMETER_LIST(),
+          FORMAL_PARAMETER_CLAUSE(),
           BLOCK()));
   }
 
@@ -797,16 +824,26 @@ public class JavaScriptGrammar {
   public ExpressionTree MULTIPLICATIVE_EXPRESSION() {
     return b.<ExpressionTree>nonterminal(JavaScriptLegacyGrammar.MULTIPLICATIVE_EXPRESSION)
       .is(f.newMultiplicative(
-        UNARY_EXPRESSION(),
+        EXPONENTIATION_EXPRESSION(),
         b.zeroOrMore(f.newTuple15(
           b.firstOf(
             b.token(JavaScriptPunctuator.STAR),
             b.token(JavaScriptPunctuator.DIV),
             b.token(JavaScriptPunctuator.MOD)),
-          UNARY_EXPRESSION()
+          EXPONENTIATION_EXPRESSION()
         ))
         )
       );
+  }
+
+  public ExpressionTree EXPONENTIATION_EXPRESSION() {
+    return b.<ExpressionTree>nonterminal()
+      .is(f.newExponentiation(
+        UNARY_EXPRESSION(),
+        b.zeroOrMore(
+          f.newTuple31(
+            b.token(JavaScriptPunctuator.EXP),
+            UNARY_EXPRESSION()))));
   }
 
   public ExpressionTree UNARY_EXPRESSION() {
@@ -912,7 +949,7 @@ public class JavaScriptGrammar {
       .is(f.arrowFunction(
         b.firstOf(
           BINDING_IDENTIFIER(),
-          FORMAL_PARAMETER_LIST()),
+          FORMAL_PARAMETER_CLAUSE()),
         b.token(JavaScriptLegacyGrammar.SPACING_NO_LINE_BREAK_NOT_FOLLOWED_BY_LINE_BREAK),
         b.token(JavaScriptPunctuator.DOUBLEARROW),
         b.firstOf(
@@ -926,7 +963,7 @@ public class JavaScriptGrammar {
       .is(f.arrowFunctionNoIn(
         b.firstOf(
           BINDING_IDENTIFIER(),
-          FORMAL_PARAMETER_LIST()),
+          FORMAL_PARAMETER_CLAUSE()),
         b.token(JavaScriptLegacyGrammar.SPACING_NO_LINE_BREAK_NOT_FOLLOWED_BY_LINE_BREAK),
         b.token(JavaScriptPunctuator.DOUBLEARROW),
         b.firstOf(
@@ -940,7 +977,7 @@ public class JavaScriptGrammar {
       .is(f.completeMemberExpression(
         b.firstOf(
           ES6(SUPER_PROPERTY()),
-          f.newExpressionWithArgument(b.token(JavaScriptKeyword.NEW), b.firstOf(ES6(SUPER()), MEMBER_EXPRESSION()), ARGUMENTS()),
+          f.newExpressionWithArgument(b.token(JavaScriptKeyword.NEW), b.firstOf(ES6(SUPER()), MEMBER_EXPRESSION()), ARGUMENT_CLAUSE()),
           PRIMARY_EXPRESSION()),
         b.zeroOrMore(
           b.firstOf(
@@ -987,37 +1024,35 @@ public class JavaScriptGrammar {
 
   }
 
-  public ParameterListTreeImpl ARGUMENTS() {
+  public ParameterListTreeImpl ARGUMENT_CLAUSE() {
     return b.<ParameterListTreeImpl>nonterminal(Kind.ARGUMENTS)
-      .is(f.completeArguments(
+      .is(f.argumentClause(
         b.token(JavaScriptPunctuator.LPARENTHESIS),
         b.optional(ARGUMENT_LIST()),
-        b.token(JavaScriptPunctuator.RPARENTHESIS)
-
-      ));
+        b.token(JavaScriptPunctuator.RPARENTHESIS)));
   }
 
-  public ParameterListTreeImpl ARGUMENT_LIST() {
-    return b.<ParameterListTreeImpl>nonterminal(JavaScriptLegacyGrammar.ARGUMENTS_LIST)
-      .is(f.newArgumentList(
+  public SeparatedList<Tree> ARGUMENT_LIST() {
+    return b.<SeparatedList<Tree>>nonterminal()
+      .is(f.argumentList(
         ARGUMENT(),
-        b.zeroOrMore(f.newTuple17(b.token(JavaScriptPunctuator.COMMA), ARGUMENT())))
-      );
+        b.zeroOrMore(f.newTuple17(
+          b.token(JavaScriptPunctuator.COMMA),
+          ARGUMENT())),
+        b.optional(b.token(JavaScriptPunctuator.COMMA))));
   }
 
   public ExpressionTree ARGUMENT() {
     return b.<ExpressionTree>nonterminal()
-      .is(f.argument(
-        b.optional(b.token(JavaScriptPunctuator.ELLIPSIS)),
-        ASSIGNMENT_EXPRESSION()));
+      .is(b.firstOf(SPREAD_ELEMENT(), ASSIGNMENT_EXPRESSION()));
   }
 
   public ExpressionTree CALL_EXPRESSION() {
     return b.<ExpressionTree>nonterminal(Kind.CALL_EXPRESSION)
       .is(f.callExpression(
-        f.simpleCallExpression(b.firstOf(MEMBER_EXPRESSION(), SUPER()), ARGUMENTS()),
+        f.simpleCallExpression(b.firstOf(MEMBER_EXPRESSION(), SUPER()), ARGUMENT_CLAUSE()),
         b.zeroOrMore(b.firstOf(
-          ARGUMENTS(),
+          ARGUMENT_CLAUSE(),
           BRACKET_EXPRESSION(),
           OBJECT_PROPERTY_ACCESS(),
           ES6(TAGGED_TEMPLATE())
@@ -1084,10 +1119,16 @@ public class JavaScriptGrammar {
   public Tree PROPERTY_DEFINITION() {
     return b.<Tree>nonterminal(JavaScriptLegacyGrammar.PROPERTY_DEFINITION)
       .is(b.firstOf(
+        SPREAD_ELEMENT(),
         PAIR_PROPERTY(),
         METHOD_DEFINITION(),
         IDENTIFIER_REFERENCE())
       );
+  }
+
+  public SpreadElementTree SPREAD_ELEMENT() {
+    return b.<SpreadElementTree>nonterminal(Kind.SPREAD_ELEMENT)
+      .is(f.spreadElement(b.token(JavaScriptPunctuator.ELLIPSIS), ASSIGNMENT_EXPRESSION()));
   }
 
   public ObjectLiteralTreeImpl OBJECT_LITERAL() {
@@ -1097,8 +1138,7 @@ public class JavaScriptGrammar {
         b.optional(f.newObjectLiteral(
           PROPERTY_DEFINITION(),
           b.zeroOrMore(f.newTuple18(b.token(JavaScriptPunctuator.COMMA), PROPERTY_DEFINITION())),
-          b.optional(b.token(JavaScriptPunctuator.COMMA))
-        )),
+          b.optional(b.token(JavaScriptPunctuator.COMMA)))),
         b.token(JavaScriptPunctuator.RCURLYBRACE)
       ));
   }
@@ -1164,7 +1204,8 @@ public class JavaScriptGrammar {
           PARENTHESISED_EXPRESSION(),
           CLASS_EXPRESSION(),
           GENERATOR_EXPRESSION(),
-          TEMPLATE_LITERAL()
+          TEMPLATE_LITERAL(),
+          JSX_ELEMENT()
         ));
   }
 
@@ -1187,6 +1228,7 @@ public class JavaScriptGrammar {
             b.firstOf(
               b.token(JavaScriptPunctuator.EQU),
               b.token(JavaScriptPunctuator.STAR_EQU),
+              b.token(JavaScriptPunctuator.EXP_EQU),
               b.token(JavaScriptPunctuator.DIV_EQU),
               b.token(JavaScriptPunctuator.MOD_EQU),
               b.token(JavaScriptPunctuator.PLUS_EQU),
@@ -1212,6 +1254,7 @@ public class JavaScriptGrammar {
             b.firstOf(
               b.token(JavaScriptPunctuator.EQU),
               b.token(JavaScriptPunctuator.STAR_EQU),
+              b.token(JavaScriptPunctuator.EXP_EQU),
               b.token(JavaScriptPunctuator.DIV_EQU),
               b.token(JavaScriptPunctuator.MOD_EQU),
               b.token(JavaScriptPunctuator.PLUS_EQU),
@@ -1403,8 +1446,7 @@ public class JavaScriptGrammar {
 
   public BindingElementTree BINDING_PATTERN() {
     return b.<BindingElementTree>nonterminal(JavaScriptLegacyGrammar.BINDING_PATTERN)
-      .is(
-        b.firstOf(
+      .is(b.firstOf(
           OBJECT_BINDING_PATTERN(),
           ARRAY_BINDING_PATTERN()));
   }
@@ -1421,26 +1463,33 @@ public class JavaScriptGrammar {
 
   public ObjectBindingPatternTreeImpl OBJECT_BINDING_PATTERN() {
     return b.<ObjectBindingPatternTreeImpl>nonterminal(Kind.OBJECT_BINDING_PATTERN)
-      .is(
-        f.completeObjectBindingPattern(
+      .is(b.firstOf(
+        f.objectBindingPattern(
           b.token(JavaScriptPunctuator.LCURLYBRACE),
           b.optional(BINDING_PROPERTY_LIST()),
-          b.token(JavaScriptPunctuator.RCURLYBRACE)));
+          b.optional(f.newTuple32(b.token(JavaScriptPunctuator.COMMA), b.optional(REST_OBJECT_BINDING_ELEMENT()))),
+          b.token(JavaScriptPunctuator.RCURLYBRACE)),
+        f.objectBindingPattern2(
+          b.token(JavaScriptPunctuator.LCURLYBRACE),
+          REST_OBJECT_BINDING_ELEMENT(),
+          b.token(JavaScriptPunctuator.RCURLYBRACE))));
   }
 
-  public ObjectBindingPatternTreeImpl BINDING_PROPERTY_LIST() {
-    return b.<ObjectBindingPatternTreeImpl>nonterminal()
-      .is(
-        f.newObjectBindingPattern(
-          BINDING_PROPERTY(),
-          b.zeroOrMore(f.newTuple53(b.token(JavaScriptPunctuator.COMMA), BINDING_PROPERTY())),
-          b.optional(b.token(JavaScriptPunctuator.COMMA))));
+  public RestElementTree REST_OBJECT_BINDING_ELEMENT() {
+    return b.<RestElementTree>nonterminal()
+      .is(f.restObjectBindingElement(b.token(JavaScriptPunctuator.ELLIPSIS), b.firstOf(BINDING_IDENTIFIER(), BINDING_PATTERN())));
+  }
+
+  public SeparatedList<Tree> BINDING_PROPERTY_LIST() {
+    return b.<SeparatedList<Tree>>nonterminal()
+      .is(f.bindingPropertyList(
+        BINDING_PROPERTY(),
+        b.zeroOrMore(f.newTuple53(b.token(JavaScriptPunctuator.COMMA), BINDING_PROPERTY()))));
   }
 
   public BindingElementTree BINDING_PROPERTY() {
     return b.<BindingElementTree>nonterminal()
-      .is(
-        b.firstOf(
+      .is(b.firstOf(
           f.bindingProperty(PROPERTY_NAME(), b.token(JavaScriptPunctuator.COLON), BINDING_ELEMENT()),
           BINDING_ELEMENT()));
   }
@@ -1467,21 +1516,14 @@ public class JavaScriptGrammar {
 
   public ArrayBindingPatternTreeImpl ARRAY_BINDING_PATTERN() {
     return b.<ArrayBindingPatternTreeImpl>nonterminal(JavaScriptLegacyGrammar.ARRAY_BINDING_PATTERN)
-      .is(
-        f.arrayBindingPattern(
-          b.token(JavaScriptPunctuator.LBRACKET),
-          b.optional(
-            b.firstOf(
-              BINDING_ELEMENT(),
-              BINDING_REST_ELEMENT())),
-          b.zeroOrMore(
-            f.newTuple29(
-              b.token(JavaScriptPunctuator.COMMA),
-              b.optional(
-                b.firstOf(
-                  BINDING_ELEMENT(),
-                  BINDING_REST_ELEMENT())))),
-          b.token(JavaScriptPunctuator.RBRACKET)));
+      .is(f.arrayBindingPattern(
+        b.token(JavaScriptPunctuator.LBRACKET),
+        b.optional(BINDING_ELEMENT()),
+        b.zeroOrMore(f.newTuple29(
+            b.token(JavaScriptPunctuator.COMMA),
+            b.optional(BINDING_ELEMENT()))),
+        b.optional(BINDING_REST_ELEMENT()),
+        b.token(JavaScriptPunctuator.RBRACKET)));
   }
 
   // [END] Destructuring pattern
@@ -1515,11 +1557,11 @@ public class JavaScriptGrammar {
           f.generator(
             b.optional(b.token(JavaScriptLegacyGrammar.STATIC)),
             b.token(JavaScriptPunctuator.STAR),
-            PROPERTY_NAME(), FORMAL_PARAMETER_LIST(),
+            PROPERTY_NAME(), FORMAL_PARAMETER_CLAUSE(),
             BLOCK()),
           f.method(
             b.optional(b.token(JavaScriptLegacyGrammar.STATIC)),
-            PROPERTY_NAME(), FORMAL_PARAMETER_LIST(),
+            PROPERTY_NAME(), FORMAL_PARAMETER_CLAUSE(),
             BLOCK()),
           f.accessor(
             b.optional(b.token(JavaScriptLegacyGrammar.STATIC)),
@@ -1527,7 +1569,7 @@ public class JavaScriptGrammar {
               b.token(JavaScriptLegacyGrammar.GET),
               b.token(JavaScriptLegacyGrammar.SET)),
             PROPERTY_NAME(),
-            FORMAL_PARAMETER_LIST(),
+            FORMAL_PARAMETER_CLAUSE(),
             BLOCK())));
   }
 
@@ -1535,7 +1577,7 @@ public class JavaScriptGrammar {
     return b.<FunctionDeclarationTreeImpl>nonterminal(JavaScriptLegacyGrammar.FUNCTION_DECLARATION)
       .is(
         f.functionAndGeneratorDeclaration(
-          b.token(JavaScriptKeyword.FUNCTION), b.optional(b.token(JavaScriptPunctuator.STAR)), BINDING_IDENTIFIER(), FORMAL_PARAMETER_LIST(),
+          b.token(JavaScriptKeyword.FUNCTION), b.optional(b.token(JavaScriptPunctuator.STAR)), BINDING_IDENTIFIER(), FORMAL_PARAMETER_CLAUSE(),
           BLOCK()));
   }
 
@@ -1544,6 +1586,117 @@ public class JavaScriptGrammar {
   /**
    * A.5 [END] Declaration
    */
+
+  // [START] JSX
+
+  public JsxElementTree JSX_ELEMENT() {
+    return b.<JsxElementTree>nonterminal(JavaScriptLegacyGrammar.JSX_ELEMENT)
+      .is(b.firstOf(
+        JSX_SELF_CLOSING_ELEMENT(),
+        f.jsxStandardElement(JSX_OPENING_ELEMENT(), b.zeroOrMore(JSX_CHILD()), JSX_CLOSING_ELEMENT())
+      ));
+  }
+
+  public JsxSelfClosingElementTree JSX_SELF_CLOSING_ELEMENT() {
+    return b.<JsxSelfClosingElementTree>nonterminal(Kind.JSX_SELF_CLOSING_ELEMENT)
+      .is(f.jsxSelfClosingElement(
+        b.token(JavaScriptPunctuator.LT),
+        JSX_ELEMENT_NAME(),
+        b.optional(JSX_ATTRIBUTES()),
+        b.token(JavaScriptPunctuator.DIV),
+        b.token(JavaScriptPunctuator.GT)));
+  }
+
+  public JsxOpeningElementTree JSX_OPENING_ELEMENT() {
+    return b.<JsxOpeningElementTree>nonterminal(Kind.JSX_OPENING_ELEMENT)
+      .is(f.jsxOpeningElement(
+        b.token(JavaScriptPunctuator.LT),
+        JSX_ELEMENT_NAME(),
+        b.optional(JSX_ATTRIBUTES()),
+        b.token(JavaScriptPunctuator.GT)));
+  }
+
+  public JsxClosingElementTree JSX_CLOSING_ELEMENT() {
+    return b.<JsxClosingElementTree>nonterminal(Kind.JSX_CLOSING_ELEMENT)
+      .is(f.jsxClosingElement(
+        b.token(JavaScriptPunctuator.LT),
+        b.token(JavaScriptPunctuator.DIV),
+        JSX_ELEMENT_NAME(),
+        b.token(JavaScriptPunctuator.GT)));
+  }
+
+  public JsxElementNameTree JSX_ELEMENT_NAME() {
+    return b.<JsxElementNameTree>nonterminal()
+      .is(b.firstOf(
+        f.jsxHtmlTag(b.token(JavaScriptLegacyGrammar.JSX_HTML_TAG)),
+        JSX_MEMBER_EXPRESSION()
+      ));
+  }
+
+  public ExpressionTree JSX_MEMBER_EXPRESSION() {
+    return b.<ExpressionTree>nonterminal()
+      .is(f.jsxMemberExpression(
+        b.firstOf(THIS(), IDENTIFIER_REFERENCE()),
+        b.zeroOrMore(f.newTuple57(b.token(JavaScriptPunctuator.DOT), IDENTIFIER_REFERENCE()))));
+  }
+
+  public JsxIdentifierTree JSX_IDENTIFIER() {
+    return b.<JsxIdentifierTree>nonterminal(Kind.JSX_IDENTIFIER)
+      .is(f.jsxIdentifier(b.token(JavaScriptLegacyGrammar.JSX_IDENTIFIER)));
+  }
+
+  public List<JsxAttributeTree> JSX_ATTRIBUTES() {
+    return b.<List<JsxAttributeTree>>nonterminal()
+      .is(b.oneOrMore(b.firstOf(
+        JSX_STANDARD_ATTRIBUTE(),
+        JSX_SPREAD_ATTRIBUTE(),
+        JSX_IDENTIFIER())));
+  }
+
+  public JsxSpreadAttributeTree JSX_SPREAD_ATTRIBUTE() {
+    return b.<JsxSpreadAttributeTree>nonterminal(Kind.JSX_SPREAD_ATTRIBUTE)
+      .is(f.jsxSpreadAttribute(
+        b.token(JavaScriptPunctuator.LCURLYBRACE),
+        b.token(JavaScriptPunctuator.ELLIPSIS),
+        ASSIGNMENT_EXPRESSION(),
+        b.token(JavaScriptPunctuator.RCURLYBRACE)
+      ));
+  }
+
+  public JsxAttributeTree JSX_STANDARD_ATTRIBUTE() {
+    return b.<JsxStandardAttributeTree>nonterminal(Kind.JSX_STANDARD_ATTRIBUTE)
+      .is(
+        f.jsxStandardAttribute(
+          JSX_IDENTIFIER(),
+          b.token(JavaScriptPunctuator.EQU),
+          JSX_ATTRIBUTE_VALUE())
+      );
+  }
+
+  public JsxAttributeValueTree JSX_ATTRIBUTE_VALUE() {
+    return b.<JsxAttributeValueTree>nonterminal()
+      .is(b.firstOf(
+        STRING_LITERAL(),
+        f.jsxJavaScriptExpression(
+          b.token(JavaScriptPunctuator.LCURLYBRACE),
+          ASSIGNMENT_EXPRESSION(),
+          b.token(JavaScriptPunctuator.RCURLYBRACE)),
+        JSX_ELEMENT()));
+  }
+
+  public JsxChildTree JSX_CHILD() {
+    return b.<JsxChildTree>nonterminal()
+      .is(b.firstOf(
+        f.jsxTextTree(b.token(JavaScriptLegacyGrammar.JSX_TEXT)),
+        JSX_ELEMENT(),
+        f.jsxJavaScriptExpression(
+          b.token(JavaScriptPunctuator.LCURLYBRACE),
+          b.optional(ASSIGNMENT_EXPRESSION()),
+          b.token(JavaScriptPunctuator.RCURLYBRACE))));
+  }
+
+  // [END] JSX
+
 
   public ScriptTreeImpl SCRIPT() {
     return b.<ScriptTreeImpl>nonterminal(JavaScriptLegacyGrammar.SCRIPT)

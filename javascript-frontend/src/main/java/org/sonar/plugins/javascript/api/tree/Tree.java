@@ -58,12 +58,22 @@ import org.sonar.plugins.javascript.api.tree.expression.ObjectLiteralTree;
 import org.sonar.plugins.javascript.api.tree.expression.PairPropertyTree;
 import org.sonar.plugins.javascript.api.tree.expression.ParenthesisedExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.RestElementTree;
+import org.sonar.plugins.javascript.api.tree.expression.SpreadElementTree;
 import org.sonar.plugins.javascript.api.tree.expression.TaggedTemplateTree;
 import org.sonar.plugins.javascript.api.tree.expression.TemplateCharactersTree;
 import org.sonar.plugins.javascript.api.tree.expression.TemplateExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.TemplateLiteralTree;
 import org.sonar.plugins.javascript.api.tree.expression.UnaryExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.YieldExpressionTree;
+import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxClosingElementTree;
+import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxIdentifierTree;
+import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxJavaScriptExpressionTree;
+import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxOpeningElementTree;
+import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxSelfClosingElementTree;
+import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxSpreadAttributeTree;
+import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxStandardAttributeTree;
+import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxStandardElementTree;
+import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxTextTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxTrivia;
 import org.sonar.plugins.javascript.api.tree.statement.BlockTree;
@@ -417,6 +427,12 @@ public interface Tree {
 
     /**
      * {@link BinaryExpressionTree}
+     * {@code **}
+     */
+    EXPONENT(BinaryExpressionTree.class),
+
+    /**
+     * {@link BinaryExpressionTree}
      * {@code /}
      */
     DIVIDE(BinaryExpressionTree.class),
@@ -570,6 +586,12 @@ public interface Tree {
 
     /**
      * {@link AssignmentExpressionTree}
+     * {@code **=}
+     */
+    EXPONENT_ASSIGNMENT(AssignmentExpressionTree.class),
+
+    /**
+     * {@link AssignmentExpressionTree}
      * {@code /=}
      */
     DIVIDE_ASSIGNMENT(AssignmentExpressionTree.class),
@@ -666,6 +688,11 @@ public interface Tree {
     REST_ELEMENT(RestElementTree.class),
 
     /**
+     * {@link SpreadElementTree}
+     */
+    SPREAD_ELEMENT(SpreadElementTree.class),
+
+    /**
      * {@link FunctionDeclarationTree}
      */
     FUNCTION_DECLARATION(FunctionDeclarationTree.class),
@@ -756,7 +783,7 @@ public interface Tree {
     BINDING_PROPERTY(BindingPropertyTree.class),
 
     /**
-     * {@link ObjectBindingPatternTree}
+     * {@link ArrayBindingPatternTree}
      */
     ARRAY_BINDING_PATTERN(ArrayBindingPatternTree.class),
 
@@ -834,6 +861,52 @@ public interface Tree {
      * {@link ImportClauseTree}
      */
     IMPORT_CLAUSE(ImportClauseTree.class),
+
+    /**
+     * {@link JsxIdentifierTree}
+     */
+    JSX_IDENTIFIER(JsxIdentifierTree.class),
+
+    /**
+     * {@link JsxTextTree}
+     */
+    JSX_TEXT(JsxTextTree.class),
+
+    /**
+     * {@link JsxSpreadAttributeTree}
+     */
+    JSX_SPREAD_ATTRIBUTE(JsxSpreadAttributeTree.class),
+
+    /**
+     * {@link JsxStandardAttributeTree}
+     */
+    JSX_STANDARD_ATTRIBUTE(JsxStandardAttributeTree.class),
+
+    /**
+     * {@link JsxJavaScriptExpressionTree}
+     */
+    JSX_JAVASCRIPT_EXPRESSION(JsxJavaScriptExpressionTree.class),
+
+    /**
+     * {@link JsxOpeningElementTree}
+     */
+    JSX_OPENING_ELEMENT(JsxOpeningElementTree.class),
+
+    /**
+     * {@link JsxClosingElementTree}
+     */
+    JSX_CLOSING_ELEMENT(JsxClosingElementTree.class),
+
+    /**
+     * {@link JsxStandardElementTree}
+     */
+    JSX_STANDARD_ELEMENT(JsxStandardElementTree.class),
+
+    /**
+     * {@link JsxSelfClosingElementTree}
+     */
+    JSX_SELF_CLOSING_ELEMENT(JsxSelfClosingElementTree.class),
+
 
     TOKEN(SyntaxToken.class),
 

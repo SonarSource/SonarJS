@@ -20,6 +20,7 @@
 package org.sonar.plugins.javascript.api.tree.expression;
 
 import com.google.common.annotations.Beta;
+import org.sonar.plugins.javascript.api.tree.declaration.BindingElementTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 
 /**
@@ -29,10 +30,10 @@ import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
  * </pre>
  */
 @Beta
-public interface RestElementTree extends ExpressionTree {
+public interface RestElementTree extends BindingElementTree {
 
   SyntaxToken ellipsis();
 
-  ExpressionTree element();
+  BindingElementTree element();
 
 }

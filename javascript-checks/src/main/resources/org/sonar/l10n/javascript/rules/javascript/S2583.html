@@ -1,0 +1,15 @@
+<p>Conditional statements using a condition which cannot be anything but <code>false</code> have the effect of making blocks of code non-functional. If the condition cannot evaluate to anything but <code>true</code>, the conditional statement is completely redundant, and makes the code less readable.</p>
+<p>It is quite likely that the code does not match the programmer's intent.</p>
+<p>Either the condition should be removed or it should be updated so that it does not always evaluate to <code>true</code> or <code>false</code>.</p>
+
+<h2>See</h2>
+<ul>
+<li> MISRA C:2004, 13.7 - Boolean operations whose results are invariant shall not be permitted.
+</li><li> MISRA C:2012, 14.3 - Controlling expressions shall not be invariant
+</li><li> <a href="http://cwe.mitre.org/data/definitions/489">MITRE, CWE-489</a> - Leftover Debug Code
+</li><li> <a href="http://cwe.mitre.org/data/definitions/570">MITRE, CWE-570</a> - Expression is Always False
+</li><li> <a href="http://cwe.mitre.org/data/definitions/571">MITRE, CWE-571</a> - Expression is Always True
+</li><li> <a href="https://www.securecoding.cert.org/confluence/x/NYA5">CERT, MSC12-C.</a> - Detect and remove code that has no effect or is never executed
+</li><li> <a href="https://www.securecoding.cert.org/confluence/x/SIIyAQ">CERT, MSC12-CPP.</a> - Detect and remove code that has no effect
+</li></ul>
+

@@ -17,25 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.javascript.parser.expressions;
+package org.sonar.plugins.javascript.api.tree.expression.jsx;
 
-import org.junit.Test;
-import org.sonar.javascript.parser.JavaScriptLegacyGrammar;
+import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 
-import static org.sonar.javascript.utils.Assertions.assertThat;
+public interface JsxIdentifierTree extends JsxElementNameTree, JsxAttributeTree {
 
-public class ArgumentsListTest {
-
-
-  @Test
-  public void ok() {
-    assertThat(JavaScriptLegacyGrammar.ARGUMENTS_LIST)
-      .matches("assignmentExpression")
-      .matches("... assignmentExpression")
-      .matches("assignmentExpression , assignmentExpression")
-      .matches("assignmentExpression , ... assignmentExpression")
-      .matches("... assignmentExpression , assignmentExpression")
-      .matches("... assignmentExpression , ... assignmentExpression");
-  }
+  SyntaxToken token();
 
 }

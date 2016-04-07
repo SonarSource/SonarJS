@@ -62,12 +62,22 @@ import org.sonar.plugins.javascript.api.tree.expression.ObjectLiteralTree;
 import org.sonar.plugins.javascript.api.tree.expression.PairPropertyTree;
 import org.sonar.plugins.javascript.api.tree.expression.ParenthesisedExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.RestElementTree;
+import org.sonar.plugins.javascript.api.tree.expression.SpreadElementTree;
 import org.sonar.plugins.javascript.api.tree.expression.TaggedTemplateTree;
 import org.sonar.plugins.javascript.api.tree.expression.TemplateCharactersTree;
 import org.sonar.plugins.javascript.api.tree.expression.TemplateExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.TemplateLiteralTree;
 import org.sonar.plugins.javascript.api.tree.expression.UnaryExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.YieldExpressionTree;
+import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxClosingElementTree;
+import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxIdentifierTree;
+import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxJavaScriptExpressionTree;
+import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxOpeningElementTree;
+import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxSelfClosingElementTree;
+import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxSpreadAttributeTree;
+import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxStandardAttributeTree;
+import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxStandardElementTree;
+import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxTextTree;
 import org.sonar.plugins.javascript.api.tree.statement.BlockTree;
 import org.sonar.plugins.javascript.api.tree.statement.BreakStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.CaseClauseTree;
@@ -488,6 +498,10 @@ public abstract class DoubleDispatchVisitor implements TreeVisitor {
     scan(tree.element());
   }
 
+  public void visitSpreadElement(SpreadElementTree tree) {
+    scan(tree.element());
+  }
+
 
   public void visitSuper(SuperTreeImpl tree) {
     // no sub-tree
@@ -504,5 +518,46 @@ public abstract class DoubleDispatchVisitor implements TreeVisitor {
     scan(tree.variableOrExpression());
     scan(tree.expression());
     scan(tree.statement());
+  }
+
+  public void visitJsxIdentifier(JsxIdentifierTree tree) {
+    // no sub-tree
+  }
+
+  public void visitJsxText(JsxTextTree tree){
+    // no sub-tree
+  }
+
+  public void visitJsxSpreadAttribute(JsxSpreadAttributeTree tree) {
+    scan(tree.expressionTree());
+  }
+
+  public void visitJsxStandardAttribute(JsxStandardAttributeTree tree) {
+    scan(tree.name());
+    scan(tree.value());
+  }
+
+  public void visitJsxJavaScriptExpression(JsxJavaScriptExpressionTree tree) {
+    scan(tree.expression());
+  }
+
+  public void visitJsxClosingElement(JsxClosingElementTree tree) {
+    scan(tree.elementName());
+  }
+
+  public void visitJsxOpeningElement(JsxOpeningElementTree tree) {
+    scan(tree.elementName());
+    scan(tree.attributes());
+  }
+
+  public void visitJsxStandardElement(JsxStandardElementTree tree) {
+    scan(tree.openingElement());
+    scan(tree.children());
+    scan(tree.closingElement());
+  }
+
+  public void visitJsxSelfClosingElement(JsxSelfClosingElementTree tree) {
+    scan(tree.elementName());
+    scan(tree.attributes());
   }
 }

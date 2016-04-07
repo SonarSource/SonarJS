@@ -2099,6 +2099,12 @@
 'project:ecmascript6/react-router/modules/PatternUtils.js':[
 34,
 ],
+'project:ecmascript6/react-router/modules/RouteUtils.js':[
+93,
+],
+'project:ecmascript6/react-router/modules/RouterContext.js':[
+84,
+],
 'project:ecmascript6/react-router/modules/isActive.js':[
 28,
 87,
@@ -2167,6 +2173,12 @@
 ],
 'project:ecmascript6/sonar-web/src/main/js/libs/translate.js':[
 82,
+],
+'project:ecmascript6/sonar-web/src/main/js/main/nav/app.js':[
+26,
+],
+'project:ecmascript6/sonar-web/src/main/js/main/nav/component/component-nav-meta.js':[
+29,
 ],
 'project:ecmascript6/sonar-web/src/main/js/main/processes.js':[
 78,

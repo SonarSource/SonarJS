@@ -77,6 +77,7 @@ public class ParenthesesCheck extends DoubleDispatchVisitorCheck {
 
     Kind.ASSIGNMENT,
     Kind.MULTIPLY_ASSIGNMENT,
+    Kind.EXPONENT_ASSIGNMENT,
     Kind.DIVIDE_ASSIGNMENT,
     Kind.REMAINDER_ASSIGNMENT,
     Kind.PLUS_ASSIGNMENT,

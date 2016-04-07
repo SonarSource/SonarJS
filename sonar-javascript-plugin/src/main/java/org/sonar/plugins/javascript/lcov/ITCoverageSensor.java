@@ -24,14 +24,14 @@ import org.sonar.api.config.Settings;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.plugins.javascript.JavaScriptPlugin;
 
-public class ITCoverageSensor extends UTCoverageSensor {
+public class ITCoverageSensor extends LCOVCoverageSensor {
 
   public ITCoverageSensor(FileSystem fileSystem, Settings settings) {
     super(fileSystem, settings);
     linesToCoverMetric = CoreMetrics.IT_LINES_TO_COVER;
     uncoveredLinesMetric = CoreMetrics.IT_UNCOVERED_LINES;
     coverageLineHitsDataMetric = CoreMetrics.IT_COVERAGE_LINE_HITS_DATA;
-    reportPath = JavaScriptPlugin.LCOV_IT_REPORT_PATH;
+    reportPaths = new String[]{ JavaScriptPlugin.LCOV_IT_REPORT_PATH };
     coveredConditionsByLineMetric = CoreMetrics.IT_COVERED_CONDITIONS_BY_LINE;
     conditionsByLineMetric = CoreMetrics.IT_CONDITIONS_BY_LINE;
     uncoveredConditionsMetric = CoreMetrics.IT_UNCOVERED_CONDITIONS;

@@ -134,6 +134,27 @@ public class BinaryExpressionTreeModelTest extends JavaScriptTreeModelTest {
   }
 
   @Test
+  public void exponentiation_expression() throws Exception {
+    String str = "a ** b ** c;";
+    Kind exponentKind = Kind.EXPONENT;
+    String operator = "**";
+
+    BinaryExpressionTree tree = parse(str, exponentKind);
+
+    assertThat(tree.is(exponentKind)).isTrue();
+    assertThat(tree.leftOperand()).isNotNull();
+    assertThat(tree.operator().text()).isEqualTo(operator);
+    assertThat(tree.rightOperand()).isNotNull();
+
+    tree = (BinaryExpressionTree) tree.rightOperand();
+
+    assertThat(tree.is(exponentKind)).isTrue();
+    assertThat(tree.leftOperand()).isNotNull();
+    assertThat(tree.operator().text()).isEqualTo(operator);
+    assertThat(tree.rightOperand()).isNotNull();
+  }
+
+  @Test
   public void multiplicative_divide() throws Exception {
     test_binary_expression("a / b / c;", Kind.DIVIDE, "/");
   }
@@ -163,5 +184,4 @@ public class BinaryExpressionTreeModelTest extends JavaScriptTreeModelTest {
     assertThat(tree.operator().text()).isEqualTo(operator);
     assertThat(tree.rightOperand()).isNotNull();
   }
-
 }

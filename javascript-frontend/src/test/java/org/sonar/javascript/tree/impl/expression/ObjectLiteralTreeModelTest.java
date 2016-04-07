@@ -30,17 +30,21 @@ public class ObjectLiteralTreeModelTest extends JavaScriptTreeModelTest {
 
   @Test
   public void with_properties() throws Exception {
-    ObjectLiteralTree tree = parse("var a = { key : value , method ( ) { } , identifier , }", Kind.OBJECT_LITERAL);
+    ObjectLiteralTree tree = parse("var a = { key : value , method ( ) { } , ... spreadObject, identifier , }", Kind.OBJECT_LITERAL);
 
     assertThat(tree.is(Kind.OBJECT_LITERAL)).isTrue();
     assertThat(tree.openCurlyBrace().text()).isEqualTo("{");
 
-    assertThat(tree.properties()).hasSize(3);
+    assertThat(tree.properties()).hasSize(4);
     assertThat(expressionToString(tree.properties().get(0))).isEqualTo("key : value");
     assertThat(expressionToString(tree.properties().get(1))).isEqualTo("method ( ) { }");
-    assertThat(expressionToString(tree.properties().get(2))).isEqualTo("identifier");
 
-    assertThat(tree.properties().getSeparators()).hasSize(3);
+    assertThat(expressionToString(tree.properties().get(2))).isEqualTo("... spreadObject");
+    assertThat(tree.properties().get(2).is(Kind.SPREAD_ELEMENT)).isTrue();
+
+    assertThat(expressionToString(tree.properties().get(3))).isEqualTo("identifier");
+
+    assertThat(tree.properties().getSeparators()).hasSize(4);
 
     assertThat(tree.closeCurlyBrace().text()).isEqualTo("}");
   }
