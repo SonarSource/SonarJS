@@ -71,7 +71,8 @@ public class HighlightSymbolTableBuilder {
       for (int i = 1; i < usagesList.size(); i++) {
         builder.newReference(
           reference,
-          getToken(usagesList.get(i).identifierTree()).startIndex());
+          getToken(usagesList.get(i).identifierTree()).startIndex()
+        );
       }
 
     }
