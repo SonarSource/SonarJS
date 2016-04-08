@@ -24,6 +24,7 @@ import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.expression.LiteralTree;
+import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxStandardAttributeTree;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
@@ -38,6 +39,13 @@ import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 public class SingleQuoteStringLiteralsCheck extends DoubleDispatchVisitorCheck {
 
   private static final String MESSAGE = "Replace double quotes by simple quote";
+
+  @Override
+  public void visitJsxStandardAttribute(JsxStandardAttributeTree tree) {
+    if (!tree.value().is(Kind.STRING_LITERAL)) {
+      scan(tree.value());
+    }
+  }
 
   @Override
   public void visitLiteral(LiteralTree tree) {
