@@ -174,7 +174,8 @@ public final class CheckList {
       WebSQLDatabaseCheck.class,
       WildcardImportCheck.class,
       WithStatementCheck.class,
-      WrongScopeDeclarationCheck.class);
+      WrongScopeDeclarationCheck.class,
+	  AssociativeArraysCheck.class);
   }
 
 }
