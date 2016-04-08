@@ -2,6 +2,21 @@
 <p>It is quite likely that the code does not match the programmer's intent.</p>
 <p>Either the condition should be removed or it should be updated so that it does not always evaluate to <code>true</code> or <code>false</code>.</p>
 
+<h2>Noncompliant Code Example</h2>
+<pre>
+var foo = 42;
+// ...
+if (foo) { // Noncompliant, always true
+}
+</pre>
+<pre>
+if (foo) {
+  if (!foo) { // Noncompliant, always false
+    // ...
+  }
+} 
+</pre>
+
 <h2>See</h2>
 <ul>
 <li> MISRA C:2004, 13.7 - Boolean operations whose results are invariant shall not be permitted.

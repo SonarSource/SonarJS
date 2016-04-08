@@ -64,7 +64,7 @@ import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 @Rule(
   key = "S2583",
   name = "Conditions should not unconditionally evaluate to \"true\" or to \"false\"",
-  priority = Priority.BLOCKER,
+  priority = Priority.CRITICAL,
   tags = {Tags.BUG, Tags.CERT, Tags.CWE, Tags.MISRA})
 @SqaleSubCharacteristic(SubCharacteristics.LOGIC_RELIABILITY)
 @SqaleConstantRemediation("15min")
