@@ -365,25 +365,10 @@ class ControlFlowGraphBuilder {
   }
 
   private void visitBlock(BlockTree block) {
-    boolean hasLabel = currentLabel != null;
-    if (hasLabel) {
-      addBreakable(currentBlock, null);
-      currentBlock = createSimpleBlock(currentBlock);
-    }
-
     build(block.statements());
-
-    if (hasLabel) {
-      removeBreakable();
-    }
   }
 
-  private void addBreakable(JsCfgBlock breakTarget, JsCfgBlock continueTarget) {
-    String label = null;
-    if (currentLabel != null) {
-      label = currentLabel;
-      currentLabel = null;
-    }
+  private void addBreakable(JsCfgBlock breakTarget, JsCfgBlock continueTarget, String label) {
     breakables.addFirst(new Breakable(continueTarget, breakTarget, label));
   }
 
@@ -504,8 +489,24 @@ class ControlFlowGraphBuilder {
   }
 
   private void visitLabelledStatement(LabelledStatementTree tree) {
-    currentLabel = tree.label().name();
+    String label = tree.label().name();
+
+    boolean isLoopStatement = tree.statement().is(
+      Kind.FOR_STATEMENT, Kind.FOR_IN_STATEMENT, Kind.FOR_OF_STATEMENT, Kind.WHILE_STATEMENT, Kind.DO_WHILE_STATEMENT);
+
+    if (!isLoopStatement) {
+      addBreakable(currentBlock, null, label);
+      currentBlock = createSimpleBlock(currentBlock);
+    } else {
+      // Loop statements manage breakables themselves to set the target for "continue"
+      currentLabel = label;
+    }
+
     build(tree.statement());
+
+    if (!isLoopStatement) {
+      removeBreakable();
+    }
   }
 
   private void visitTryStatement(TryStatementTree tree) {
@@ -548,7 +549,7 @@ class ControlFlowGraphBuilder {
   }
 
   private void visitSwitchStatement(SwitchStatementTree tree) {
-    addBreakable(currentBlock, null);
+    addBreakable(currentBlock, null, null);
     JsCfgBlock nextStatementBlock = currentBlock;
     JsCfgForwardingBlock defaultForwardingBlock = createForwardingBlock();
     defaultForwardingBlock.setSuccessor(currentBlock);
@@ -587,7 +588,7 @@ class ControlFlowGraphBuilder {
   }
 
   private JsCfgBlock buildLoopBody(StatementTree body, JsCfgBlock conditionBlock, JsCfgBlock breakTarget) {
-    addBreakable(breakTarget, conditionBlock);
+    addBreakable(breakTarget, conditionBlock, currentLabel);
     currentLabel = null;
     buildSubFlow(body, conditionBlock);
     JsCfgBlock loopBodyBlock = currentBlock;

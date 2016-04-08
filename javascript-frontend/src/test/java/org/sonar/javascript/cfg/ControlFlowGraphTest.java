@@ -221,6 +221,13 @@ public class ControlFlowGraphTest {
   }
 
   @Test
+  public void break_without_block() throws Exception {
+    ControlFlowGraph g = build("myLabel: if(condition) break myLabel;", 2);
+    assertBlock(g, 0).hasSuccessors(1, END);
+    assertBlock(g, 1).hasSuccessors(END);
+  }
+
+  @Test
   public void break_with_invalid_label() throws Exception {
     thrown.expect(IllegalStateException.class);
     thrown.expectMessage("label xxx");
