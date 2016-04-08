@@ -17,3 +17,7 @@ var foo = (a, b) => a + b;
 var foo = (a, b) => foo(a, b);
 var foo = (a, b) => a;
 var foo = (a, b) => { return {}; }  // OK, can't shorthand object literal
+var foo = (a, b) => {   // OK, ignore multiline return
+  return Foo()
+    .Bar();
+}

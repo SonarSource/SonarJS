@@ -24,11 +24,13 @@ import org.sonar.api.server.rule.RulesDefinition.SubCharacteristics;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
+import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.javascript.tree.impl.SeparatedList;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.declaration.ParameterListTree;
 import org.sonar.plugins.javascript.api.tree.expression.ArrowFunctionTree;
+import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.tree.statement.BlockTree;
 import org.sonar.plugins.javascript.api.tree.statement.ReturnStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.StatementTree;
@@ -89,15 +91,29 @@ public class ArrowFunctionConventionCheck extends DoubleDispatchVisitorCheck {
 
     if (!bodyBraces && hasBodyBraces) {
       List<StatementTree> statements = ((BlockTree) tree.body()).statements();
+
       if (statements.size() == 1) {
         StatementTree statement = statements.get(0);
-        if (statement.is(Kind.RETURN_STATEMENT)
-          && ((ReturnStatementTree) statement).expression() != null
-          && !((ReturnStatementTree) statement).expression().is(Kind.OBJECT_LITERAL)) {
+
+        if (isRemovableReturn(statement)) {
           addIssue(tree.body(), MESSAGE_REMOVE_BODY);
         }
       }
     }
+  }
+
+  private static boolean isRemovableReturn(StatementTree tree) {
+    if (tree.is(Kind.RETURN_STATEMENT)) {
+      ExpressionTree expression = ((ReturnStatementTree) tree).expression();
+
+      if (expression != null && !expression.is(Kind.OBJECT_LITERAL)) {
+        int firstLine = ((JavaScriptTree) expression).getLine();
+        int lastLine = ((JavaScriptTree) expression).getLastToken().line();
+        return firstLine == lastLine;
+      }
+    }
+
+    return false;
   }
 
   private void checkParameterClause(ArrowFunctionTree tree) {
