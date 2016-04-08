@@ -28,10 +28,7 @@ public class SingleQuoteStringLiteralsCheckTest {
   @Test
   public void test() {
     SingleQuoteStringLiteralsCheck check = new SingleQuoteStringLiteralsCheck();
-
-    JavaScriptCheckVerifier.issues(check, new File("src/test/resources/checks/singleQuoteStringLiterals.js"))
-      .next().atLine(2).withMessage("Replace double quotes by simple quote")
-      .noMore();
+    JavaScriptCheckVerifier.verify(check, new File("src/test/resources/checks/singleQuoteStringLiterals.js"));
   }
 
 }
