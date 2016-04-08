@@ -8,23 +8,12 @@ let arr = [];
 arr[0] = 'a';
 arr['name'] = 'bob';  // Noncompliant
 arr[1] = 'foo';
-
-for (let i = 0; i < arr.length; i++) {
-  writeln(arr[i]);  // outputs: a, foo. bob omitted
-}
 </pre>
 
 <h2>Compliant Solution</h2>
 <pre>
 let obj = {
-  0:'a',
-  name:'bob',
-  1:'foo'
+  name: 'bob',
+  arr: ['a', 'foo']
 };
-
-for (var property in obj) {
-    if (obj.hasOwnProperty(property)) {
-        writeln(obj[property]);  // outputs: a, foo, bob
-    }
-}
 </pre>
