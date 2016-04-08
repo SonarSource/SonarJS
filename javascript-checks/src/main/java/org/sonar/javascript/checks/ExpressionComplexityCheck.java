@@ -63,7 +63,8 @@ public class ExpressionComplexityCheck extends SubscriptionVisitorCheck {
     Kind.FUNCTION_EXPRESSION,
     Kind.GENERATOR_FUNCTION_EXPRESSION,
     Kind.OBJECT_LITERAL,
-    Kind.CALL_EXPRESSION
+    Kind.CALL_EXPRESSION,
+    Kind.JSX_JAVASCRIPT_EXPRESSION
   };
 
   private static final Kind[] CONDITIONAL_EXPRS = {
