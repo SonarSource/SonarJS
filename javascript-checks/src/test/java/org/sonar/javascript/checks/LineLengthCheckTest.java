@@ -19,6 +19,7 @@
  */
 package org.sonar.javascript.checks;
 
+import com.google.common.base.Charsets;
 import java.io.File;
 import org.junit.Test;
 import org.sonar.javascript.checks.verifier.JavaScriptCheckVerifier;
@@ -28,11 +29,11 @@ public class LineLengthCheckTest {
   @Test
   public void test() {
     LineLengthCheck check = new LineLengthCheck();
+    check.setCharset(Charsets.UTF_8);
     check.maximumLineLength = 30;
 
     JavaScriptCheckVerifier.issues(check, new File("src/test/resources/checks/lineLength.js"))
       .next().atLine(2).withMessage("Split this 44 characters long line (which is greater than 30 authorized).")
-      .next().atLine(5)
       .noMore();
   }
 

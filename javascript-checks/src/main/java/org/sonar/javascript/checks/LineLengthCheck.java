@@ -19,17 +19,18 @@
  */
 package org.sonar.javascript.checks;
 
-import com.google.common.collect.ImmutableList;
+import com.google.common.io.Files;
+import java.io.IOException;
+import java.nio.charset.Charset;
 import java.util.List;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
-import org.sonar.javascript.tree.impl.lexical.InternalSyntaxToken;
-import org.sonar.plugins.javascript.api.tree.Tree;
-import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
+import org.sonar.javascript.tree.visitors.CharsetAwareVisitor;
+import org.sonar.plugins.javascript.api.tree.ScriptTree;
+import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
 import org.sonar.plugins.javascript.api.visitors.LineIssue;
-import org.sonar.plugins.javascript.api.visitors.SubscriptionVisitorCheck;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 
@@ -40,49 +41,41 @@ import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
   tags = {Tags.CONVENTION})
 @SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.READABILITY)
 @SqaleConstantRemediation("1min")
-public class LineLengthCheck extends SubscriptionVisitorCheck {
+public class LineLengthCheck extends DoubleDispatchVisitorCheck implements CharsetAwareVisitor {
 
   private static final String MESSAGE = "Split this %s characters long line (which is greater than %s authorized).";
-
-  private SyntaxToken previousToken;
-  private static final int DEFAULT_MAXIMUM_LINE_LENHGTH = 80;
+  private static final int DEFAULT_MAXIMUM_LINE_LENGTH = 80;
+  private Charset charset;
 
   @RuleProperty(
     key = "maximumLineLength",
     description = "The maximum authorized line length.",
-    defaultValue = "" + DEFAULT_MAXIMUM_LINE_LENHGTH)
-  public int maximumLineLength = DEFAULT_MAXIMUM_LINE_LENHGTH;
-
-  public int getMaximumLineLength() {
-    return maximumLineLength;
-  }
-
+    defaultValue = "" + DEFAULT_MAXIMUM_LINE_LENGTH)
+  public int maximumLineLength = DEFAULT_MAXIMUM_LINE_LENGTH;
 
   @Override
-  public List<Tree.Kind> nodesToVisit() {
-    return ImmutableList.of(Tree.Kind.TOKEN);
-  }
+  public void visitScript(ScriptTree tree) {
+    List<String> lines;
+    try {
+      lines = Files.readLines(getContext().getFile(), charset);
+    } catch (IOException e) {
+      throw new IllegalStateException(e);
+    }
 
-  @Override
-  public void visitFile(Tree tree) {
-    previousToken = null;
-  }
+    for (int i = 0; i < lines.size(); i++) {
+      int length = lines.get(i).length();
 
-  @Override
-  public void visitNode(Tree tree) {
-    SyntaxToken token = (SyntaxToken) tree;
-
-    if (previousToken != null && (previousToken.line() != token.line() || ((InternalSyntaxToken) token).isEOF())) {
-      int length = previousToken.column() + previousToken.text().length();
-      if (length > getMaximumLineLength()) {
-        // Note that method from AbstractLineLengthCheck generates other message - see SONARPLUGINS-1809
+      if (length > maximumLineLength) {
         addIssue(new LineIssue(
           this,
-          previousToken.line(),
-          String.format(MESSAGE, length, getMaximumLineLength())));
+          i + 1,
+          String.format(MESSAGE, length, maximumLineLength)));
       }
     }
-    previousToken = token;
   }
 
+  @Override
+  public void setCharset(Charset charset) {
+    this.charset = charset;
+  }
 }
