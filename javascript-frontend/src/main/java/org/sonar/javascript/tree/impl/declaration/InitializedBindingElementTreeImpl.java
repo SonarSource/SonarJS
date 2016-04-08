@@ -20,7 +20,6 @@
 package org.sonar.javascript.tree.impl.declaration;
 
 import com.google.common.collect.Iterators;
-import com.google.common.collect.Lists;
 import java.util.Iterator;
 import java.util.List;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
@@ -80,20 +79,9 @@ public class InitializedBindingElementTreeImpl extends JavaScriptTree implements
     visitor.visitInitializedBindingElement(this);
   }
 
+  @Override
   public List<IdentifierTree> bindingIdentifiers() {
-    List<IdentifierTree> bindingIdentifiers = Lists.newArrayList();
-
-    if (left.is(Kind.BINDING_IDENTIFIER)) {
-      return Lists.newArrayList((IdentifierTree) left);
-
-    } else if (left.is(Kind.OBJECT_BINDING_PATTERN)) {
-      bindingIdentifiers.addAll(((ObjectBindingPatternTreeImpl) left).bindingIdentifiers());
-
-    } else {
-      bindingIdentifiers.addAll(((ArrayBindingPatternTreeImpl) left).bindingIdentifiers());
-    }
-
-    return bindingIdentifiers;
+    return left.bindingIdentifiers();
   }
 
 }

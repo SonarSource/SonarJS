@@ -20,7 +20,6 @@
 package org.sonar.javascript.tree.impl.declaration;
 
 import com.google.common.base.Function;
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterators;
 import com.google.common.collect.Lists;
 import com.sonar.sslr.api.typed.Optional;
@@ -32,9 +31,7 @@ import org.sonar.javascript.tree.impl.lexical.InternalSyntaxToken;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.declaration.ArrayBindingPatternTree;
 import org.sonar.plugins.javascript.api.tree.declaration.BindingElementTree;
-import org.sonar.plugins.javascript.api.tree.declaration.InitializedBindingElementTree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
-import org.sonar.plugins.javascript.api.tree.expression.RestElementTree;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitor;
 
 public class ArrayBindingPatternTreeImpl extends JavaScriptTree implements ArrayBindingPatternTree {
@@ -88,25 +85,6 @@ public class ArrayBindingPatternTreeImpl extends JavaScriptTree implements Array
     visitor.visitArrayBindingPattern(this);
   }
 
-  private List<IdentifierTree> bindingIdentifiers(BindingElementTree bindingElementTree) {
-    if (bindingElementTree.is(Kind.BINDING_IDENTIFIER)) {
-      return ImmutableList.of((IdentifierTree) bindingElementTree);
-
-    } else if (bindingElementTree.is(Kind.REST_ELEMENT)) {
-      return ImmutableList.of((IdentifierTree) ((RestElementTree) bindingElementTree).element());
-
-    } else if (bindingElementTree.is(Kind.OBJECT_BINDING_PATTERN)) {
-      return ((ObjectBindingPatternTreeImpl) bindingElementTree).bindingIdentifiers();
-
-    } else if (bindingElementTree.is(Kind.INITIALIZED_BINDING_ELEMENT)) {
-      return bindingIdentifiers(((InitializedBindingElementTree) bindingElementTree).left());
-
-    }
-
-    return ((ArrayBindingPatternTreeImpl) bindingElementTree).bindingIdentifiers();
-  }
-
-
   /**
    * Return the list of new binding names introduced by this array binding pattern.
    * <p/>
@@ -115,12 +93,13 @@ public class ArrayBindingPatternTreeImpl extends JavaScriptTree implements Array
    *   [a, , , b, ...c] // will return [a, b, c]
    * </pre>
    */
+  @Override
   public List<IdentifierTree> bindingIdentifiers() {
     List<IdentifierTree> bindingIdentifiers = Lists.newArrayList();
 
     for (Optional<BindingElementTree> element : elements) {
       if (element.isPresent()) {
-        bindingIdentifiers.addAll(bindingIdentifiers(element.get()));
+        bindingIdentifiers.addAll(element.get().bindingIdentifiers());
       }
     }
 

@@ -21,10 +21,12 @@ package org.sonar.javascript.tree.impl.expression;
 
 import com.google.common.collect.Iterators;
 import java.util.Iterator;
+import java.util.List;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.javascript.tree.impl.lexical.InternalSyntaxToken;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.declaration.BindingElementTree;
+import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 import org.sonar.plugins.javascript.api.tree.expression.RestElementTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitor;
@@ -63,5 +65,10 @@ public class RestElementTreeImpl extends JavaScriptTree implements RestElementTr
   @Override
   public void accept(DoubleDispatchVisitor visitor) {
     visitor.visitRestElement(this);
+  }
+
+  @Override
+  public List<IdentifierTree> bindingIdentifiers() {
+    return element.bindingIdentifiers();
   }
 }

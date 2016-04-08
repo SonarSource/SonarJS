@@ -1417,11 +1417,11 @@ public class TreeFactory {
     return new RestElementTreeImpl(ellipsis, bindingElement);
   }
 
-  public SeparatedList<Tree> bindingPropertyList(
-    Tree bindingProperty,
+  public SeparatedList<BindingElementTree> bindingPropertyList(
+    BindingElementTree bindingProperty,
     Optional<List<Tuple<InternalSyntaxToken, BindingElementTree>>> restProperties
   ) {
-    List<Tree> properties = Lists.newArrayList();
+    List<BindingElementTree> properties = Lists.newArrayList();
     List<InternalSyntaxToken> commas = Lists.newArrayList();
 
     properties.add(bindingProperty);
@@ -1441,17 +1441,17 @@ public class TreeFactory {
 
   public ObjectBindingPatternTreeImpl objectBindingPattern(
     InternalSyntaxToken lCurlyBrace,
-    Optional<SeparatedList<Tree>> list,
+    Optional<SeparatedList<BindingElementTree>> list,
     Optional<Tuple<InternalSyntaxToken, Optional<RestElementTree>>> commaAndRest,
     InternalSyntaxToken rCurlyBrace
   ) {
 
-    SeparatedList<Tree> elements;
+    SeparatedList<BindingElementTree> elements;
 
     if (list.isPresent()) {
       elements = list.get();
     } else {
-      elements = new SeparatedList<>(new ArrayList<Tree>(), new ArrayList<InternalSyntaxToken>());
+      elements = new SeparatedList<>(new ArrayList<BindingElementTree>(), new ArrayList<InternalSyntaxToken>());
     }
 
     if (commaAndRest.isPresent()) {
@@ -1471,7 +1471,7 @@ public class TreeFactory {
   public ObjectBindingPatternTreeImpl objectBindingPattern2(InternalSyntaxToken lCurlyBrace, RestElementTree rest, InternalSyntaxToken rCurlyBrace) {
     return new ObjectBindingPatternTreeImpl(
       lCurlyBrace,
-      new SeparatedList<>(ImmutableList.<Tree>of(rest), ImmutableList.<InternalSyntaxToken>of()),
+      new SeparatedList<>(ImmutableList.<BindingElementTree>of(rest), ImmutableList.<InternalSyntaxToken>of()),
       rCurlyBrace);
   }
 

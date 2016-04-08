@@ -50,16 +50,19 @@ public class ObjectBindingPatternTreeModelTest extends JavaScriptTreeModelTest {
 
   @Test
   public void bindingIdentifiers() throws Exception {
-    ObjectBindingPatternTreeImpl tree = parse("var { a, b = 1, c : z, d : { x, y }, ...f } = obj", Kind.OBJECT_BINDING_PATTERN);
+    ObjectBindingPatternTreeImpl tree = parse("var { a, b = 1, c : z, d : { x, y }, g: h = 1, m : [k, l], ...f} = obj", Kind.OBJECT_BINDING_PATTERN);
 
     List<IdentifierTree> bindingName = tree.bindingIdentifiers();
-    assertThat(bindingName).hasSize(6);
+    assertThat(bindingName).hasSize(9);
     assertThat(bindingName.get(0).name()).isEqualTo("a");
     assertThat(bindingName.get(1).name()).isEqualTo("b");
     assertThat(bindingName.get(2).name()).isEqualTo("z");
     assertThat(bindingName.get(3).name()).isEqualTo("x");
     assertThat(bindingName.get(4).name()).isEqualTo("y");
-    assertThat(bindingName.get(5).name()).isEqualTo("f");
+    assertThat(bindingName.get(5).name()).isEqualTo("h");
+    assertThat(bindingName.get(6).name()).isEqualTo("k");
+    assertThat(bindingName.get(7).name()).isEqualTo("l");
+    assertThat(bindingName.get(8).name()).isEqualTo("f");
   }
 
 }

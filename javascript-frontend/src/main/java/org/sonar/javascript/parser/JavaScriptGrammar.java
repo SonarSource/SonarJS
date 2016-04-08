@@ -1480,8 +1480,8 @@ public class JavaScriptGrammar {
       .is(f.restObjectBindingElement(b.token(JavaScriptPunctuator.ELLIPSIS), b.firstOf(BINDING_IDENTIFIER(), BINDING_PATTERN())));
   }
 
-  public SeparatedList<Tree> BINDING_PROPERTY_LIST() {
-    return b.<SeparatedList<Tree>>nonterminal()
+  public SeparatedList<BindingElementTree> BINDING_PROPERTY_LIST() {
+    return b.<SeparatedList<BindingElementTree>>nonterminal()
       .is(f.bindingPropertyList(
         BINDING_PROPERTY(),
         b.zeroOrMore(f.newTuple53(b.token(JavaScriptPunctuator.COMMA), BINDING_PROPERTY()))));

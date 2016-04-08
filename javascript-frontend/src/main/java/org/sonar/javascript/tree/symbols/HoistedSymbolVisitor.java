@@ -21,7 +21,6 @@ package org.sonar.javascript.tree.symbols;
 
 import java.util.List;
 import java.util.Map;
-import org.sonar.javascript.tree.impl.declaration.InitializedBindingElementTreeImpl;
 import org.sonar.javascript.tree.impl.declaration.ParameterListTreeImpl;
 import org.sonar.javascript.tree.impl.expression.ArrowFunctionTreeImpl;
 import org.sonar.javascript.tree.impl.expression.ClassTreeImpl;
@@ -278,7 +277,7 @@ public class HoistedSymbolVisitor extends DoubleDispatchVisitor {
       Symbol.Kind variableKind = getVariableKind(tree);
 
       if (bindingElement.is(Tree.Kind.INITIALIZED_BINDING_ELEMENT)) {
-        for (IdentifierTree identifier : ((InitializedBindingElementTreeImpl) bindingElement).bindingIdentifiers()) {
+        for (IdentifierTree identifier :  bindingElement.bindingIdentifiers()) {
           symbolModel.declareSymbol(identifier.name(), variableKind, scope)
             .addUsage(Usage.create(identifier, Usage.Kind.DECLARATION_WRITE));
         }

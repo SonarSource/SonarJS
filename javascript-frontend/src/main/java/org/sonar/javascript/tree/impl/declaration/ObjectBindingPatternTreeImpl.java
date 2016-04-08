@@ -28,21 +28,18 @@ import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.javascript.tree.impl.SeparatedList;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.declaration.BindingElementTree;
-import org.sonar.plugins.javascript.api.tree.declaration.BindingPropertyTree;
-import org.sonar.plugins.javascript.api.tree.declaration.InitializedBindingElementTree;
 import org.sonar.plugins.javascript.api.tree.declaration.ObjectBindingPatternTree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
-import org.sonar.plugins.javascript.api.tree.expression.RestElementTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitor;
 
 public class ObjectBindingPatternTreeImpl extends JavaScriptTree implements ObjectBindingPatternTree {
 
   private SyntaxToken openCurlyBrace;
-  private SeparatedList<Tree> bindingElements;
+  private SeparatedList<BindingElementTree> bindingElements;
   private SyntaxToken closeCurlyBrace;
 
-  public ObjectBindingPatternTreeImpl(SyntaxToken openCurlyBrace, SeparatedList<Tree> bindingElements, SyntaxToken closeCurlyBrace) {
+  public ObjectBindingPatternTreeImpl(SyntaxToken openCurlyBrace, SeparatedList<BindingElementTree> bindingElements, SyntaxToken closeCurlyBrace) {
     this.openCurlyBrace = openCurlyBrace;
     this.bindingElements = bindingElements;
     this.closeCurlyBrace = closeCurlyBrace;
@@ -54,7 +51,7 @@ public class ObjectBindingPatternTreeImpl extends JavaScriptTree implements Obje
   }
 
   @Override
-  public SeparatedList<Tree> elements() {
+  public SeparatedList<BindingElementTree> elements() {
     return bindingElements;
   }
 
@@ -72,7 +69,7 @@ public class ObjectBindingPatternTreeImpl extends JavaScriptTree implements Obje
   public Iterator<Tree> childrenIterator() {
     return Iterators.concat(
       Iterators.singletonIterator(openCurlyBrace),
-      bindingElements.elementsAndSeparators(Functions.<Tree>identity()),
+      bindingElements.elementsAndSeparators(Functions.<BindingElementTree>identity()),
       Iterators.singletonIterator(closeCurlyBrace)
     );
   }
@@ -90,41 +87,14 @@ public class ObjectBindingPatternTreeImpl extends JavaScriptTree implements Obje
    *   { f:first, l:last, siblings:{ a, b c} } // will return [first, last, a, b, c]
    * </pre>
    */
+  @Override
   public List<IdentifierTree> bindingIdentifiers() {
     List<IdentifierTree> bindingIdentifiers = Lists.newArrayList();
 
-    for (Tree element : bindingElements) {
-
-      if (element.is(Kind.BINDING_PROPERTY)) {
-        bindingIdentifiers.addAll(identifierFromBindingElement(((BindingPropertyTree) element).value()));
-
-      } else if (element.is(Kind.INITIALIZED_BINDING_ELEMENT)) {
-        bindingIdentifiers.addAll(identifierFromBindingElement(((InitializedBindingElementTree) element).left()));
-
-      } else {
-        bindingIdentifiers.addAll(identifierFromBindingElement((BindingElementTree) element));
-      }
-    }
-    return bindingIdentifiers;
-  }
-
-  private static List<IdentifierTree> identifierFromBindingElement(BindingElementTree bindingElement) {
-    List<IdentifierTree> bindingIdentifiers = Lists.newArrayList();
-
-    if (bindingElement.is(Kind.BINDING_IDENTIFIER)) {
-      bindingIdentifiers.add((IdentifierTree) bindingElement);
-
-    } else if (bindingElement.is(Kind.OBJECT_BINDING_PATTERN)) {
-      bindingIdentifiers.addAll(((ObjectBindingPatternTreeImpl) bindingElement).bindingIdentifiers());
-
-    } else if (bindingElement.is(Kind.REST_ELEMENT)) {
-      bindingIdentifiers.addAll(identifierFromBindingElement(((RestElementTree) bindingElement).element()));
-
-    } else {
-      bindingIdentifiers.addAll(((ArrayBindingPatternTreeImpl) bindingElement).bindingIdentifiers());
+    for (BindingElementTree element : bindingElements) {
+      bindingIdentifiers.addAll(element.bindingIdentifiers());
     }
 
     return bindingIdentifiers;
   }
-
 }
