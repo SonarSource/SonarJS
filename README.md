@@ -27,7 +27,7 @@ If you have a question on how to use plugin (and the [docs](http://docs.sonarqub
 To request a new feature, please create a new thread in [SonarQube Google Group](https://groups.google.com/forum/#!forum/sonarqube). Even if you plan to implement it yourself and submit it back to the community, please start a new thread first to be sure that we can use it.
 
 ### Pull Request (PR)
-To submit a contribution, create a pull request for this repository. Please make sure that all [tests](#testing) are passing (Travis build is created for each PR).
+To submit a contribution, create a pull request for this repository. Please make sure that you follow our [code style](https://github.com/SonarSource/sonar-developer-toolset#code-style) and all [tests](#testing) are passing (Travis build is created for each PR).
 
 ### Custom Rules
 If you have an idea for a rule but you are not sure that everyone needs it you can implement a [custom rule](http://docs.sonarqube.org/display/DEV/Custom+Rules+for+JavaScript) available only for you. 
