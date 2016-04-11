@@ -20,9 +20,10 @@
 package org.sonar.javascript.checks;
 
 import com.google.common.base.Objects;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Deque;
 import java.util.List;
-import java.util.Stack;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
@@ -81,7 +82,7 @@ public class TooManyBreakOrContinueInLoopCheck extends DoubleDispatchVisitorChec
     }
   }
 
-  private Stack<JumpTarget> jumpTargets = new Stack<>();
+  private Deque<JumpTarget> jumpTargets = new ArrayDeque<>();
 
   @Override
   public void visitScript(ScriptTree tree) {
@@ -166,8 +167,7 @@ public class TooManyBreakOrContinueInLoopCheck extends DoubleDispatchVisitorChec
   }
 
   private void increaseNumberOfJumpInScopes(SyntaxToken jump, IdentifierTree label) {
-    for (int i = jumpTargets.size() - 1; i >= 0; i--) {
-      JumpTarget jumpTarget = jumpTargets.get(i);
+    for (JumpTarget jumpTarget : jumpTargets) {
       String labelName = label == null ? null : label.name();
       jumpTarget.jumps.add(jump);
 

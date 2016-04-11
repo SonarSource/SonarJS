@@ -23,6 +23,7 @@ import com.google.common.collect.ImmutableList;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import javax.annotation.CheckForNull;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
@@ -103,7 +104,7 @@ public class MisorderedParameterListCheck extends DoubleDispatchVisitorCheck {
       if (!paramId.is(Kind.IDENTIFIER_REFERENCE, Kind.BINDING_IDENTIFIER)) {
         return null;
       }
-      names.add(((IdentifierTree) paramId).name().toLowerCase());
+      names.add(((IdentifierTree) paramId).name().toLowerCase(Locale.ENGLISH));
     }
     return names;
   }

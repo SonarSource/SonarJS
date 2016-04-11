@@ -54,13 +54,13 @@ public class UnusedFunctionArgumentCheck extends DoubleDispatchVisitorCheck {
 
   private static final String MESSAGE = "Remove the unused function parameter%s \"%s\".";
 
-  private class PositionComparator implements Comparator<Symbol> {
+  private static class PositionComparator implements Comparator<Symbol> {
 
-    private int getLine(Symbol symbol) {
+    private static int getLine(Symbol symbol) {
       return ((JavaScriptTree) getDeclarationUsage(symbol).identifierTree()).getLine();
     }
 
-    private int getColumn(Symbol symbol) {
+    private static int getColumn(Symbol symbol) {
       return ((JavaScriptTree) getDeclarationUsage(symbol).identifierTree()).getFirstToken().column();
     }
 
@@ -74,7 +74,7 @@ public class UnusedFunctionArgumentCheck extends DoubleDispatchVisitorCheck {
       }
     }
 
-    private Usage getDeclarationUsage(Symbol symbol) {
+    private static Usage getDeclarationUsage(Symbol symbol) {
       Preconditions.checkArgument(symbol.is(Symbol.Kind.PARAMETER));
       for (Usage usage : symbol.usages()) {
         if (usage.kind() == Usage.Kind.LEXICAL_DECLARATION) {
@@ -118,7 +118,7 @@ public class UnusedFunctionArgumentCheck extends DoubleDispatchVisitorCheck {
     }
   }
 
-  private List<Symbol> getUnusedArguments(List<Symbol> arguments) {
+  private static List<Symbol> getUnusedArguments(List<Symbol> arguments) {
     List<Symbol> unusedArguments = new LinkedList<>();
     Collections.sort(arguments, new PositionComparator());
     List<Boolean> usageInfo = getUsageInfo(arguments);

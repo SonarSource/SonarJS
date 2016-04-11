@@ -35,8 +35,8 @@ import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 
 @Rule(
   key = "S3579",
-  priority = Priority.MAJOR,
   name = "Array indexes should be numeric",
+  priority = Priority.MAJOR,
   tags = {Tags.BAD_PRACTICE})
 @ActivatedByDefault
 @SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.UNDERSTANDABILITY)

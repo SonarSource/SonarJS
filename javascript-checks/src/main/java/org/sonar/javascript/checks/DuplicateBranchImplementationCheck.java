@@ -89,17 +89,15 @@ public class DuplicateBranchImplementationCheck extends DoubleDispatchVisitorChe
       SwitchClauseTree caseTreeToCompare = tree.cases().get(j);
 
       // FIXME martin: Don't check duplication for case with fall through on the next case.
-      if (caseTreeToCompare.statements().isEmpty() || isCaseEndingWithoutJumpStmt(caseTreeToCompare)) {
-        continue;
-      }
+      if (!caseTreeToCompare.statements().isEmpty() && !isCaseEndingWithoutJumpStmt(caseTreeToCompare)) {
+        // Remove the jump statement if comparing to default case
+        List<StatementTree> caseStatements = caseTreeToCompare.is(Kind.DEFAULT_CLAUSE) ? caseTree.statements().subList(0, caseTree.statements().size() - 1) : caseTree.statements();
 
-      // Remove the jump statement if comparing to default case
-      List<StatementTree> caseStatements = caseTreeToCompare.is(Kind.DEFAULT_CLAUSE) ? caseTree.statements().subList(0, caseTree.statements().size() - 1) : caseTree.statements();
-
-      if (SyntacticEquivalence.areEquivalent(caseStatements, caseTreeToCompare.statements())) {
-        addIssue(caseTree, caseTreeToCompare, "case");
-        // break the inner loop
-        break;
+        if (SyntacticEquivalence.areEquivalent(caseStatements, caseTreeToCompare.statements())) {
+          addIssue(caseTree, caseTreeToCompare, "case");
+          // break the inner loop
+          break;
+        }
       }
     }
   }
@@ -110,7 +108,7 @@ public class DuplicateBranchImplementationCheck extends DoubleDispatchVisitorChe
     addIssue(duplicate, message).secondary(secondary);
   }
 
-  private boolean isCaseEndingWithoutJumpStmt(SwitchClauseTree caseTree) {
+  private static boolean isCaseEndingWithoutJumpStmt(SwitchClauseTree caseTree) {
     return caseTree.is(Kind.CASE_CLAUSE) && !isJumpStatement(Iterables.getLast(caseTree.statements()));
   }
 

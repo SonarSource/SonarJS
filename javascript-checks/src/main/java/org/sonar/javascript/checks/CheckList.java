@@ -45,6 +45,7 @@ public final class CheckList {
       ArrayAndObjectConstructorsCheck.class,
       ArrowFunctionConventionCheck.class,
       AssignmentWithinConditionCheck.class,
+      AssociativeArraysCheck.class,
       BackboneChangedIsUsedCheck.class,
       BitwiseOperatorsCheck.class,
       BooleanEqualityComparisonCheck.class,
@@ -174,8 +175,7 @@ public final class CheckList {
       WebSQLDatabaseCheck.class,
       WildcardImportCheck.class,
       WithStatementCheck.class,
-      WrongScopeDeclarationCheck.class,
-	  AssociativeArraysCheck.class);
+      WrongScopeDeclarationCheck.class);
   }
 
 }

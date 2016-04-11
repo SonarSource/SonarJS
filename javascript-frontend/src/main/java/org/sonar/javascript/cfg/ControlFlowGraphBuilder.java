@@ -212,9 +212,8 @@ class ControlFlowGraphBuilder {
       WithStatementTree with = (WithStatementTree) tree;
       build(with.statement());
       currentBlock.addElement(with.expression());
-    } else if (tree.is(Kind.DEBUGGER_STATEMENT)) {
-      currentBlock.addElement(tree);
     } else if (tree.is(
+      Kind.DEBUGGER_STATEMENT,
       Kind.FUNCTION_DECLARATION,
       Kind.GENERATOR_DECLARATION,
       Kind.CLASS_DECLARATION,

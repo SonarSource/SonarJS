@@ -42,7 +42,6 @@ import org.sonar.plugins.javascript.api.visitors.SubscriptionVisitorCheck;
 import org.sonar.squidbridge.checks.CheckMessagesVerifier;
 
 import static org.fest.assertions.Assertions.assertThat;
-
 import static org.junit.Assert.fail;
 
 public class JavaScriptCheckVerifier extends SubscriptionVisitorCheck {
@@ -179,7 +178,7 @@ public class JavaScriptCheckVerifier extends SubscriptionVisitorCheck {
 
   private static void addParams(TestIssue issue, String params) {
     for (String param : Splitter.on(';').split(params)) {
-      int equalIndex = param.indexOf("=");
+      int equalIndex = param.indexOf('=');
       if (equalIndex == -1) {
         throw new IllegalStateException("Invalid param at line 1: " + param);
       }
