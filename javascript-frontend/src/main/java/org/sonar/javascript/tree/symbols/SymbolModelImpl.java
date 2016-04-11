@@ -19,7 +19,7 @@
  */
 package org.sonar.javascript.tree.symbols;
 
-import com.google.common.collect.ImmutableSet;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -97,7 +97,7 @@ public class SymbolModelImpl implements SymbolModel, SymbolModelBuilder {
    */
   @Override
   public Set<Symbol> getSymbols() {
-    return ImmutableSet.copyOf(symbols);
+    return Collections.unmodifiableSet(symbols);
   }
 
   /**

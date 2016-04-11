@@ -20,8 +20,8 @@
 package org.sonar.plugins.javascript.api.symbols;
 
 import com.google.common.annotations.Beta;
-import com.google.common.collect.ImmutableList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
@@ -73,7 +73,7 @@ public class Symbol {
   }
 
   public Collection<Usage> usages() {
-    return ImmutableList.copyOf(usages);
+    return Collections.unmodifiableList(usages);
   }
 
   public Symbol setBuiltIn(boolean isBuiltIn) {
