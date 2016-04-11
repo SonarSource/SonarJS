@@ -44,16 +44,19 @@ public class JavaScriptPerformanceTest {
 
   @Test
   public void perform() throws IOException {
+    ORCHESTRATOR.getServer().provisionProject("project", "project");
+    ORCHESTRATOR.getServer().associateProjectToQualityProfile("project", "js", "no-rules");
+
     SonarRunner build = SonarRunner.create(FileLocation.of("../sources/src").getFile())
       .setEnvironmentVariable("SONAR_RUNNER_OPTS", "-Xmx1024m")
       .setProperty("sonar.importSources", "false")
       .setProperty("sonar.showProfiling", "true")
       .setProperty("sonar.exclusions", "**/ecmascript6/**,**/frameworks/**")
+      .setProperty("sonar.analysis.mode", "preview")
       .setProjectKey("project")
       .setProjectName("project")
       .setProjectVersion("1")
       .setLanguage("js")
-      .setProfile("no-rules")
       .setSourceEncoding("UTF-8")
       .setSourceDirs(".");
 
