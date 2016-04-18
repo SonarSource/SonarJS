@@ -126,7 +126,9 @@ public abstract class AbstractFunctionSizeCheck extends SubscriptionVisitorCheck
   private void checkArrayLiteral(Tree secondParameter) {
     if (secondParameter.is(Kind.ARRAY_LITERAL)) {
       List<ExpressionTree> elements = ((ArrayLiteralTree) secondParameter).elements();
-      checkSimpleArgument(elements.get(elements.size() - 1));
+      if (!elements.isEmpty()) {
+        checkSimpleArgument(elements.get(elements.size() - 1));
+      }
     }
   }
 
