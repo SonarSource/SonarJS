@@ -10,7 +10,7 @@
 
   <groupId>org.sonarsource.javascript</groupId>
   <artifactId>javascript</artifactId>
-  <version>2.12-SNAPSHOT</version>
+  <version>2.12</version>
   <packaging>pom</packaging>
 
   <name>JavaScript</name>
@@ -53,7 +53,7 @@
     <connection>scm:git:git@github.com:SonarSource/sonar-javascript.git</connection>
     <developerConnection>scm:git:git@github.com:SonarSource/sonar-javascript.git</developerConnection>
     <url>https://github.com/SonarSource/sonar-javascript</url>
-    <tag>HEAD</tag>
+    <tag>2.12</tag>
   </scm>
   <issueManagement>
     <system>JIRA</system>
