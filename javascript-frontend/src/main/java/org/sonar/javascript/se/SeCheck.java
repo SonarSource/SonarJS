@@ -17,44 +17,26 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.javascript.api.visitors;
+package org.sonar.javascript.se;
 
-import com.google.common.annotations.Beta;
 import com.google.common.collect.ImmutableList;
-import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
-import org.sonar.plugins.javascript.api.JavaScriptCheck;
+import java.util.Map;
 import org.sonar.plugins.javascript.api.tree.Tree;
+import org.sonar.plugins.javascript.api.tree.Tree.Kind;
+import org.sonar.plugins.javascript.api.visitors.SubscriptionVisitorCheck;
 
-@Beta
-public abstract class SubscriptionVisitorCheck extends SubscriptionVisitor implements JavaScriptCheck {
-
-  private List<Issue> issues = new ArrayList<>();
-
-  @Override
-  public List<Issue> scanFile(TreeVisitorContext context){
-    scanTree(context);
-    ImmutableList<Issue> result = ImmutableList.copyOf(this.issues);
-    issues = new ArrayList<>();
-    return result;
-  }
+public class SeCheck extends SubscriptionVisitorCheck {
 
   @Override
-  public LineIssue addLineIssue(Tree tree, String message) {
-    return addIssue(new LineIssue(this, tree, message));
+  public List<Kind> nodesToVisit() {
+    return ImmutableList.of();
   }
 
-  @Override
-  public PreciseIssue addIssue(Tree tree, String message) {
-    PreciseIssue preciseIssue = new PreciseIssue(this, new IssueLocation(tree, message));
-    addIssue(preciseIssue);
-    return preciseIssue;
+  public void checkConditions(Map<Tree, Collection<Truthiness>> conditions) {
+    // do nothing by default
   }
 
-  @Override
-  public <T extends Issue> T addIssue(T issue) {
-    issues.add(issue);
-    return issue;
-  }
 
 }
