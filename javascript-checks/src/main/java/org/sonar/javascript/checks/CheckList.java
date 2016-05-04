@@ -120,6 +120,7 @@ public final class CheckList {
       NonEmptyCaseWithoutBreakCheck.class,
       NonStandardImportCheck.class,
       NotStoredSelectionCheck.class,
+      NullDereferenceCheck.class,
       NullDereferenceInConditionalCheck.class,
       ObjectLiteralShorthandCheck.class,
       OctalNumberCheck.class,

@@ -71,6 +71,10 @@ public class SymbolicExecution {
   }
 
   public void visitCfg() {
+    for (SeCheck check : checks) {
+      check.startOfExecution();
+    }
+
     workList.addLast(new BlockExecution(cfgStartBlock, initialState()));
 
     for (int i = 0; i < MAX_BLOCK_EXECUTIONS && !workList.isEmpty(); i++) {
@@ -87,6 +91,7 @@ public class SymbolicExecution {
     if (workList.isEmpty()) {
       for (SeCheck check : checks) {
         check.checkConditions(conditionResults.asMap());
+        check.endOfExecution();
       }
     }
   }
@@ -133,6 +138,7 @@ public class SymbolicExecution {
     ProgramState currentState = blockExecution.state();
 
     for (Tree element : block.elements()) {
+      beforeBlockElement(currentState, element);
       if (element.is(Kind.ASSIGNMENT)) {
         AssignmentExpressionTree assignment = (AssignmentExpressionTree) element;
         currentState = store(currentState, assignment.variable(), assignment.expression());
@@ -158,6 +164,12 @@ public class SymbolicExecution {
     }
 
     handleSuccessors(block, currentState);
+  }
+
+  private void beforeBlockElement(ProgramState currentState, Tree element) {
+    for (SeCheck check : checks) {
+      check.beforeBlockElement(currentState, element);
+    }
   }
 
   private void pushAllSuccessors(CfgBlock block, ProgramState currentState) {

@@ -38,5 +38,18 @@ public class SeCheck extends SubscriptionVisitorCheck {
     // do nothing by default
   }
 
+  public void beforeBlockElement(ProgramState currentState, Tree element) {
+    // do nothing by default
+  }
+
+  /**
+   * Method is called when the execution finished before reaching limit
+   */
+  public void endOfExecution() {
+    // do nothing by default
+  }
+  public void startOfExecution() {
+    // do nothing by default
+  }
 
 }
