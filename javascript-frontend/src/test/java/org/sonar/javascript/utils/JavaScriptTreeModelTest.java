@@ -55,6 +55,11 @@ public abstract class JavaScriptTreeModelTest {
     return (SymbolModelImpl) new JavaScriptVisitorContext(root, file, null).getSymbolModel();
   }
 
+  protected JavaScriptVisitorContext context(File file) {
+    ScriptTree root = (ScriptTree) p.parse(file);
+    return new JavaScriptVisitorContext(root, file, null);
+  }
+
   private Tree getFirstDescendant(JavaScriptTree node, Kind descendantToReturn) {
     if (node.is(descendantToReturn)) {
       return node;

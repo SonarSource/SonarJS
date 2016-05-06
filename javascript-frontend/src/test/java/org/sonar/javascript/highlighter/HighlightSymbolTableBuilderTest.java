@@ -55,7 +55,7 @@ public class HighlightSymbolTableBuilderTest extends JavaScriptTreeModelTest {
   public void sonar_symbol_table() throws Exception {
     File file = new File("src/test/resources/highlighter/symbolHighlighting.js");
     lines = Files.readLines(file, Charsets.UTF_8);
-    HighlightSymbolTableBuilder.build(symbolizable, symbolModel(file));
+    HighlightSymbolTableBuilder.build(symbolizable, context(file));
 
     // variable
     verify(symbolTableBuilder).newSymbol(offset(1, 5), offset(1, 6));
@@ -80,6 +80,13 @@ public class HighlightSymbolTableBuilderTest extends JavaScriptTreeModelTest {
     verify(symbolTableBuilder).newReference(any(org.sonar.api.source.Symbol.class), eq(offset(12, 1)));
     verify(symbolTableBuilder).newReference(any(org.sonar.api.source.Symbol.class), eq(offset(14, 1)));
 
+    // curly braces
+    verify(symbolTableBuilder).newSymbol(offset(3, 14), offset(3, 15));
+    verify(symbolTableBuilder).newReference(any(org.sonar.api.source.Symbol.class), eq(offset(3, 15)));
+    verify(symbolTableBuilder).newSymbol(offset(7, 23), offset(7, 24));
+    verify(symbolTableBuilder).newReference(any(org.sonar.api.source.Symbol.class), eq(offset(9, 1)));
+
+
     verify(symbolTableBuilder).build();
     verifyNoMoreInteractions(symbolTableBuilder);
   }
@@ -87,11 +94,11 @@ public class HighlightSymbolTableBuilderTest extends JavaScriptTreeModelTest {
   @Test
   public void sonar_symbol_table_built_in() throws Exception {
     File file = new File("src/test/resources/highlighter/symbolHighlightingBuiltIn.js");
-    HighlightSymbolTableBuilder.build(symbolizable, symbolModel(file));
+    HighlightSymbolTableBuilder.build(symbolizable, context(file));
 
     // no offsets are used as there is uncertainty about the order of usages of built-in symbols (and first usage used for newSymbol)
-    verify(symbolTableBuilder, times(4)).newSymbol(anyInt(), anyInt());
-    verify(symbolTableBuilder, times(4)).newReference(any(org.sonar.api.source.Symbol.class), anyInt());
+    verify(symbolTableBuilder, times(5)).newSymbol(anyInt(), anyInt());
+    verify(symbolTableBuilder, times(5)).newReference(any(org.sonar.api.source.Symbol.class), anyInt());
 
     verify(symbolTableBuilder).build();
     verifyNoMoreInteractions(symbolTableBuilder);
@@ -101,7 +108,7 @@ public class HighlightSymbolTableBuilderTest extends JavaScriptTreeModelTest {
   public void byte_order_mark_should_not_increment_offset() throws Exception {
     File file = new File("src/test/resources/highlighter/symbolHighlightingBom.js");
     assertThat(Files.toString(file, Charsets.UTF_8).startsWith("\uFEFF")).isTrue();
-    HighlightSymbolTableBuilder.build(symbolizable, symbolModel(file));
+    HighlightSymbolTableBuilder.build(symbolizable, context(file));
     verify(symbolTableBuilder).newSymbol(4, 5);
   }
 
@@ -109,7 +116,7 @@ public class HighlightSymbolTableBuilderTest extends JavaScriptTreeModelTest {
   public void test_properties() throws Exception {
     File file = new File("src/test/resources/highlighter/symbolHighlightingProperties.js");
     lines = Files.readLines(file, Charsets.UTF_8);
-    HighlightSymbolTableBuilder.build(symbolizable, symbolModel(file));
+    HighlightSymbolTableBuilder.build(symbolizable, context(file));
 
     // class
     verify(symbolTableBuilder).newSymbol(offset(1, 7), offset(1, 8));
@@ -129,6 +136,13 @@ public class HighlightSymbolTableBuilderTest extends JavaScriptTreeModelTest {
 
     // "this"
     verify(symbolTableBuilder).newSymbol(offset(3, 5), offset(3, 9));
+
+    // {  }
+    verify(symbolTableBuilder).newSymbol(offset(2, 9), offset(2, 10));
+    verify(symbolTableBuilder).newReference(any(org.sonar.api.source.Symbol.class), eq(offset(4, 3)));
+    verify(symbolTableBuilder).newSymbol(offset(6, 9), offset(6, 10));
+    verify(symbolTableBuilder).newReference(any(org.sonar.api.source.Symbol.class), eq(offset(9, 3)));
+
 
     verify(symbolTableBuilder).build();
     verifyNoMoreInteractions(symbolTableBuilder);

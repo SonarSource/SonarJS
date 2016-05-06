@@ -68,7 +68,6 @@ import org.sonar.javascript.tree.visitors.CharsetAwareVisitor;
 import org.sonar.javascript.visitors.JavaScriptVisitorContext;
 import org.sonar.plugins.javascript.api.CustomJavaScriptRulesDefinition;
 import org.sonar.plugins.javascript.api.JavaScriptCheck;
-import org.sonar.plugins.javascript.api.symbols.SymbolModel;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.visitors.FileIssue;
@@ -221,7 +220,7 @@ public class JavaScriptSquidSensor implements Sensor {
     JavaScriptVisitorContext context = new JavaScriptVisitorContext(scriptTree, inputFile.file(), settings);
 
     Symbolizable symbolizable = perspective(Symbolizable.class, inputFile);
-    highlightSymbols(symbolizable, context.getSymbolModel());
+    highlightSymbols(symbolizable, context);
 
     (new SeChecksDispatcher(getSeChecks(visitors))).scanTree(context);
 
@@ -255,9 +254,9 @@ public class JavaScriptSquidSensor implements Sensor {
     return checks;
   }
 
-  private static void highlightSymbols(@Nullable Symbolizable symbolizable, SymbolModel symbolModel) {
+  private static void highlightSymbols(@Nullable Symbolizable symbolizable, JavaScriptVisitorContext context) {
     if (symbolizable != null) {
-      symbolizable.setSymbolTable(HighlightSymbolTableBuilder.build(symbolizable, symbolModel));
+      symbolizable.setSymbolTable(HighlightSymbolTableBuilder.build(symbolizable, context));
     } else {
       LOG.warn("Symbol in source view will not be highlighted.");
     }
