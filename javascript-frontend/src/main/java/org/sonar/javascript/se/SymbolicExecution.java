@@ -178,6 +178,7 @@ public class SymbolicExecution {
       Tree branchingTree = branchingBlock.branchingTree();
 
       if (branchingTree.is(
+        Kind.CONDITIONAL_EXPRESSION,
         Kind.IF_STATEMENT,
         Kind.WHILE_STATEMENT,
         Kind.FOR_STATEMENT,
