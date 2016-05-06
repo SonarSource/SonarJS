@@ -23,6 +23,7 @@ import java.io.File;
 import org.junit.Test;
 import org.sonar.javascript.utils.JavaScriptTreeModelTest;
 import org.sonar.plugins.javascript.api.symbols.Symbol;
+import org.sonar.plugins.javascript.api.symbols.Symbol.Kind;
 import org.sonar.plugins.javascript.api.tree.Tree;
 
 import static org.fest.assertions.Assertions.assertThat;
@@ -33,14 +34,14 @@ public class SymbolModelImplTest extends JavaScriptTreeModelTest {
 
   @Test
   public void symbols_filtering() {
-    assertThat(SYMBOL_MODEL.getSymbols()).hasSize(16);
+    assertThat(SYMBOL_MODEL.getSymbols()).hasSize(19);
 
-    assertThat(SYMBOL_MODEL.getSymbols(Symbol.Kind.FUNCTION)).hasSize(2); // eval, f
+    assertThat(SYMBOL_MODEL.getSymbols(Symbol.Kind.FUNCTION)).hasSize(3); // eval, f, func
     assertThat(SYMBOL_MODEL.getSymbols(Symbol.Kind.PARAMETER)).hasSize(2); // p1, p2
 
     assertThat(SYMBOL_MODEL.getSymbols("a")).hasSize(3);
-    assertThat(SYMBOL_MODEL.getSymbols("arguments")).hasSize(2);
-    assertThat(SYMBOL_MODEL.getSymbols("this")).hasSize(2);
+    assertThat(SYMBOL_MODEL.getSymbols("arguments")).hasSize(3);
+    assertThat(SYMBOL_MODEL.getSymbols("this")).hasSize(3);
   }
 
   @Test
@@ -55,5 +56,11 @@ public class SymbolModelImplTest extends JavaScriptTreeModelTest {
   public void for_object_loops() throws Exception {
     Symbol i = (Symbol) SYMBOL_MODEL.getSymbols("i").toArray()[0];
     assertThat(i.usages()).hasSize(2);
+  }
+
+  @Test
+  public void override_symbol_kind() throws Exception {
+    Symbol func = (Symbol) SYMBOL_MODEL.getSymbols("func").toArray()[0];
+    assertThat(func.is(Kind.FUNCTION)).isTrue();
   }
 }

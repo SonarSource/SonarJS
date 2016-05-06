@@ -27,6 +27,7 @@ import javax.annotation.Nullable;
 import org.sonar.api.config.Settings;
 import org.sonar.javascript.tree.symbols.type.TypeVisitor;
 import org.sonar.plugins.javascript.api.symbols.Symbol;
+import org.sonar.plugins.javascript.api.symbols.Symbol.Kind;
 import org.sonar.plugins.javascript.api.symbols.SymbolModel;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.visitors.TreeVisitorContext;
@@ -76,6 +77,10 @@ public class SymbolModelImpl implements SymbolModel, SymbolModelBuilder {
       symbol = new Symbol(name, kind, scope);
       scope.addSymbol(symbol);
       symbols.add(symbol);
+
+    } else if (kind.equals(Kind.FUNCTION)) {
+      symbol.setKind(Kind.FUNCTION);
+
     }
     return symbol;
   }

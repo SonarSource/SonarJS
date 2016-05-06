@@ -50,9 +50,10 @@ public class Symbol {
     public String getValue() {
       return value;
     }
-  }
 
+  }
   private final String name;
+
   private Kind kind;
   private boolean builtIn;
   private Scope scope;
@@ -99,6 +100,10 @@ public class Symbol {
 
   public Kind kind() {
     return kind;
+  }
+
+  public void setKind(Kind kind) {
+    this.kind = kind;
   }
 
   public void addTypes(Set<Type> type) {

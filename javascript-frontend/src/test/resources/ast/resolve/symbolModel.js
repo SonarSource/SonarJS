@@ -20,3 +20,11 @@ f((p2) => {return a+1}) // implicit "arguments" symbol
 
 for (i of a){}
 for (i in a){}
+
+var func;
+
+func(); // function declared below is called
+
+function func() {
+  console.log("function call");
+}
