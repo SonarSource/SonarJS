@@ -44,6 +44,10 @@ import org.sonar.plugins.javascript.api.tree.expression.UnaryExpressionTree;
 import org.sonar.plugins.javascript.api.tree.statement.ForObjectStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.VariableDeclarationTree;
 
+import static org.sonar.plugins.javascript.api.symbols.Symbol.Kind.CLASS;
+import static org.sonar.plugins.javascript.api.symbols.Symbol.Kind.FUNCTION;
+import static org.sonar.plugins.javascript.api.symbols.Symbol.Kind.IMPORT;
+
 public class SymbolicExecution {
 
   private static final int MAX_BLOCK_EXECUTIONS = 1000;
@@ -98,7 +102,12 @@ public class SymbolicExecution {
     ProgramState initialState = ProgramState.emptyState();
 
     for (Symbol localVar : trackedVariables) {
-      SymbolicValue initialValue = functionParameters.contains(localVar) ? SymbolicValue.UNKNOWN : SymbolicValue.NULL_OR_UNDEFINED;
+      SymbolicValue initialValue;
+      if (symbolIs(localVar, FUNCTION, IMPORT, CLASS)) {
+        initialValue = SymbolicValue.UNKNOWN;
+      } else {
+        initialValue = functionParameters.contains(localVar) ? SymbolicValue.UNKNOWN : SymbolicValue.NULL_OR_UNDEFINED;
+      }
       initialState = initialState.copyAndAddValue(localVar, initialValue);
     }
 
@@ -107,6 +116,16 @@ public class SymbolicExecution {
     initialState = initialState.constrain(arguments, Truthiness.TRUTHY);
 
     return initialState;
+  }
+
+  private static boolean symbolIs(Symbol symbol, Symbol.Kind ... kinds) {
+    for (Symbol.Kind kind : kinds) {
+      if (symbol.kind().equals(kind)) {
+        return true;
+      }
+    }
+
+    return false;
   }
 
   private void execute(BlockExecution blockExecution) {
