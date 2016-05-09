@@ -60,6 +60,14 @@ public class ProgramState {
     return copyAndAddValue(symbol, value.constrain(truthiness));
   }
 
+  public ProgramState constrain(Symbol symbol, boolean definitelyNullOrUndefined) {
+    SymbolicValue value = get(symbol);
+    if (value == null) {
+      return this;
+    }
+    return copyAndAddValue(symbol, value.constrain(definitelyNullOrUndefined));
+  }
+
   @Override
   public int hashCode() {
     return valuesBySymbol.hashCode();

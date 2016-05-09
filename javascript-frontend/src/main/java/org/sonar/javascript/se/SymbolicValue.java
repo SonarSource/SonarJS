@@ -30,8 +30,8 @@ public class SymbolicValue {
   public static final SymbolicValue NULL_OR_UNDEFINED = new SymbolicValue(true, Truthiness.FALSY);
   public static final SymbolicValue UNKNOWN = new SymbolicValue(false, Truthiness.UNKNOWN);
 
-  private static final SymbolicValue TRUTHY = new SymbolicValue(false, Truthiness.TRUTHY);
-  private static final SymbolicValue FALSY = new SymbolicValue(false, Truthiness.FALSY);
+  public static final SymbolicValue TRUTHY = new SymbolicValue(false, Truthiness.TRUTHY);
+  public static final SymbolicValue FALSY = new SymbolicValue(false, Truthiness.FALSY);
 
   private final boolean definitelyNullOrUndefined;
 
@@ -123,6 +123,10 @@ public class SymbolicValue {
   }
 
   public SymbolicValue constrain(Truthiness truthiness) {
+    return new SymbolicValue(definitelyNullOrUndefined, truthiness);
+  }
+
+  public SymbolicValue constrain(boolean definitelyNullOrUndefined) {
     return new SymbolicValue(definitelyNullOrUndefined, truthiness);
   }
 

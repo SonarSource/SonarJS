@@ -32,14 +32,32 @@ function FP_var_and_function() {
   x.foo = 42;
 }
 
-function FP_not_null() {
-  var x;
-  if (condition) {
-    x = foo();
-  }
+function FP_equal_null() {
+  var x = foo();
 
   if (x != null) {
-  //  x.foo();     // Compliant
+    x.foo();
+  }
+
+  if (null != x) {
+    x.foo();
+  }
+
+  if (x == null) {
+    x.foo();    // Noncompliant
+  }
+
+}
+
+function strict_equal_null() {
+  var x = foo();
+
+  if (x === null) {
+//    x.foo();    // Noncompliant
+  }
+
+  if (x !== null) {
+  //  x.foo();     // ??? x might me undefined here and thus raise as NPE
   }
 }
 
@@ -99,5 +117,40 @@ function loop(arr) {
     } else {
       obj.bar();   // Noncompliant, FP
     }
+  }
+}
+
+function one_condition() {
+  var x = foo();
+
+  if (x == null) {
+    foo();
+  }
+
+  if (x
+      && x.foo != null) {  // Noncompliant, FP
+  }
+}
+
+function one_more() {
+  var x = foo();
+  while (x != null && i < 10) {
+  }
+
+  if (!x) {
+    return;
+  }
+
+  if (x.foo) {  // Noncompliant, FP
+  }
+}
+
+function not_null_if_property_accessed() {
+  var x = foo();
+
+  if (x.foo) {
+    if (x != null) {
+    }
+    x.foo();   // Noncompliant, FP
   }
 }
