@@ -151,6 +151,6 @@ function not_null_if_property_accessed() {
   if (x.foo) {
     if (x != null) {
     }
-    x.foo();   // Noncompliant, FP
+    x.foo();   // Ok
   }
 }

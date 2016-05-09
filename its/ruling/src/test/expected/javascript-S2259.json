@@ -1,10 +1,4 @@
 {
-'project:dojo-1.8.1/dijit/_editor/RichText.js.uncompressed.js':[
-2577,
-],
-'project:dojo-1.8.1/dijit/dijit-all.js.uncompressed.js':[
-14184,
-],
 'project:dojo-1.8.1/dijit/tree/dndSource.js.uncompressed.js':[
 440,
 ],
@@ -206,9 +200,6 @@
 18,
 25,
 ],
-'project:ecmascript6/sonar-web/src/main/js/main/processes.js':[
-143,
-],
 'project:ecmascript6/watchtower.js/src/dirty_checking.js':[
 306,
 ],
@@ -308,7 +299,6 @@
 2072,
 2072,
 2093,
-2093,
 2871,
 2871,
 2879,
@@ -377,7 +367,6 @@
 584,
 603,
 622,
-641,
 ],
 'project:yui-3.7.3/dom-core/dom-core.js':[
 371,

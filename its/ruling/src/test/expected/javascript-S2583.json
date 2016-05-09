@@ -38,6 +38,9 @@
 14477,
 14483,
 ],
+'project:dojo-1.8.1/dojox/collections/BinaryTree.js.uncompressed.js':[
+122,
+],
 'project:dojo-1.8.1/dojox/data/FlickrStore.js.uncompressed.js':[
 279,
 ],
@@ -212,6 +215,9 @@
 'project:ecmascript6/sonar-web/src/main/js/components/source-viewer/main.js':[
 450,
 ],
+'project:ecmascript6/sonar-web/src/main/js/main/processes.js':[
+140,
+],
 'project:ecmascript6/sonar-web/src/main/js/widgets/issue-filter/widget.js':[
 29,
 ],
@@ -283,17 +289,8 @@
 'project:yui-3.7.3/node-menunav/node-menunav.js':[
 1450,
 ],
-'project:yui-3.7.3/selector-css2/selector-css2.js':[
-141,
-181,
-],
 'project:yui-3.7.3/simpleyui/simpleyui.js':[
 1056,
-19351,
-19391,
-],
-'project:yui-3.7.3/stylesheet/stylesheet.js':[
-136,
 ],
 'project:yui-3.7.3/yui-base/yui-base.js':[
 1056,

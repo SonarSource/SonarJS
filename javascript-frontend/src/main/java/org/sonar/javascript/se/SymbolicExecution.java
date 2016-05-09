@@ -41,6 +41,7 @@ import org.sonar.plugins.javascript.api.tree.expression.BinaryExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 import org.sonar.plugins.javascript.api.tree.expression.LiteralTree;
+import org.sonar.plugins.javascript.api.tree.expression.MemberExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.UnaryExpressionTree;
 import org.sonar.plugins.javascript.api.tree.statement.ForObjectStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.VariableDeclarationTree;
@@ -161,6 +162,19 @@ public class SymbolicExecution {
       } else if (element.is(Kind.INITIALIZED_BINDING_ELEMENT)) {
         InitializedBindingElementTree initialized = (InitializedBindingElementTree) element;
         currentState = store(currentState, initialized.left(), initialized.right());
+
+      } else if (element.is(Kind.BRACKET_MEMBER_EXPRESSION, Kind.DOT_MEMBER_EXPRESSION)) {
+        ExpressionTree object = ((MemberExpressionTree) element).object();
+        if (object.is(Kind.IDENTIFIER_REFERENCE)) {
+          Symbol symbol = ((IdentifierTree) object).symbol();
+          if (symbol != null) {
+            SymbolicValue symbolicValue = currentState.get(symbol);
+
+            if (symbolicValue != null && symbolicValue.nullability().equals(Nullability.UNKNOWN)) {
+              currentState = currentState.constrain(symbol, Nullability.NOT_NULL);
+            }
+          }
+        }
       }
     }
 
