@@ -29,6 +29,8 @@ import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.tree.statement.ExpressionStatementTree;
 
 import static org.fest.assertions.Assertions.assertThat;
+import static org.sonar.javascript.se.Nullability.NOT_NULL;
+import static org.sonar.javascript.se.Nullability.NULL;
 import static org.sonar.javascript.se.Truthiness.FALSY;
 import static org.sonar.javascript.se.Truthiness.TRUTHY;
 import static org.sonar.javascript.se.Truthiness.UNKNOWN;
@@ -40,22 +42,22 @@ public class SymbolicValueTest {
   @Test
   public void null_value() throws Exception {
     SymbolicValue value = symbolicValue("null");
-    assertThat(value.isDefinitelyNullOrUndefined()).isTrue();
+    assertThat(value.nullability()).isEqualTo(NULL);
     assertThat(value.truthiness()).isEqualTo(FALSY);
   }
 
   @Test
   public void undefined_value() throws Exception {
     SymbolicValue value = symbolicValue("undefined");
-    assertThat(value.isDefinitelyNullOrUndefined()).isTrue();
+    assertThat(value.nullability()).isEqualTo(NULL);
     assertThat(value.truthiness()).isEqualTo(FALSY);
   }
 
   @Test
   public void literals() throws Exception {
-    assertThat(symbolicValue("42").isDefinitelyNullOrUndefined()).isFalse();
-    assertThat(symbolicValue("'str'").isDefinitelyNullOrUndefined()).isFalse();
-    assertThat(symbolicValue("0").isDefinitelyNullOrUndefined()).isFalse();
+    assertThat(symbolicValue("42").nullability()).isEqualTo(NOT_NULL);
+    assertThat(symbolicValue("'str'").nullability()).isEqualTo(NOT_NULL);
+    assertThat(symbolicValue("0").nullability()).isEqualTo(NOT_NULL);
 
     assertThat(symbolicValue("'ab'").truthiness()).isEqualTo(TRUTHY);
     assertThat(symbolicValue("true").truthiness()).isEqualTo(TRUTHY);
@@ -84,7 +86,7 @@ public class SymbolicValueTest {
   @Test
   public void identifier() throws Exception {
     SymbolicValue value = symbolicValue("x");
-    assertThat(value.isDefinitelyNullOrUndefined()).isFalse();
+    assertThat(value.nullability()).isEqualTo(Nullability.UNKNOWN);
     assertThat(value.truthiness()).isEqualTo(UNKNOWN);
   }
 

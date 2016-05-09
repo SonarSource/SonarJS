@@ -53,6 +53,15 @@ public class ProgramStateTest {
     state = state.copyAndAddValue(symbol1, SymbolicValue.UNKNOWN);
     assertThat(state.constrain(symbol1, Truthiness.FALSY).get(symbol1).truthiness()).isEqualTo(Truthiness.FALSY);
     assertThat(state.constrain(symbol2, Truthiness.FALSY).get(symbol2)).isNull();
+
+    state = state.copyAndAddValue(symbol1, SymbolicValue.NULL_OR_UNDEFINED);
+    assertThat(state.constrain(symbol1, Truthiness.TRUTHY).get(symbol1).nullability()).isEqualTo(Nullability.NOT_NULL);
+
+    state = state.copyAndAddValue(symbol2, SymbolicValue.UNKNOWN);
+    state = state.constrain(symbol2, Truthiness.TRUTHY);
+    assertThat(state.constrain(symbol2, Nullability.NULL).get(symbol2).truthiness()).isEqualTo(Truthiness.FALSY);
+
+
   }
 
   @Test

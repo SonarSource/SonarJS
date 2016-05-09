@@ -60,12 +60,12 @@ public class ProgramState {
     return copyAndAddValue(symbol, value.constrain(truthiness));
   }
 
-  public ProgramState constrain(Symbol symbol, boolean definitelyNullOrUndefined) {
+  public ProgramState constrain(Symbol symbol, Nullability nullability) {
     SymbolicValue value = get(symbol);
     if (value == null) {
       return this;
     }
-    return copyAndAddValue(symbol, value.constrain(definitelyNullOrUndefined));
+    return copyAndAddValue(symbol, value.constrain(nullability));
   }
 
   @Override

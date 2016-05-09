@@ -229,34 +229,41 @@ public class SymbolicExecution {
   private boolean handleConditionEqualNull(CfgBranchingBlock block, ProgramState currentState, Tree lastElement) {
     if (isNullComparison(lastElement)) {
 
-      boolean trueSuccessorIsDefinitelyNullOrUndefined;
-      boolean falseSuccessorIsDefinitelyNullOrUndefined;
+      Nullability trueSuccessorNullability;
+      Nullability falseSuccessorNullability;
 
 
       if (lastElement.is(Kind.EQUAL_TO)) {
         // x == null
-        trueSuccessorIsDefinitelyNullOrUndefined = true;
-        falseSuccessorIsDefinitelyNullOrUndefined = false;
+        trueSuccessorNullability = Nullability.NULL;
+        falseSuccessorNullability = Nullability.NOT_NULL;
 
       } else {
         // x != null
-        trueSuccessorIsDefinitelyNullOrUndefined = false;
-        falseSuccessorIsDefinitelyNullOrUndefined = true;
+        trueSuccessorNullability = Nullability.NOT_NULL;
+        falseSuccessorNullability = Nullability.NULL;
       }
 
       Symbol conditionVariable = trackedOperand((BinaryExpressionTree) lastElement);
 
       if (conditionVariable != null) {
-        boolean currentNullness = currentState.get(conditionVariable).isDefinitelyNullOrUndefined();
-        Truthiness truthinessIfDefinitelyNullOrUndefined = lastElement.is(Kind.EQUAL_TO) ? Truthiness.TRUTHY : Truthiness.FALSY;
-        Truthiness conditionTruthiness = currentNullness ? truthinessIfDefinitelyNullOrUndefined : Truthiness.UNKNOWN;
+        Nullability currentNullability = currentState.get(conditionVariable).nullability();
+        Truthiness truthinessIfVariableNull = lastElement.is(Kind.EQUAL_TO) ? Truthiness.TRUTHY : Truthiness.FALSY;
+        Truthiness conditionTruthiness = Truthiness.UNKNOWN;
+
+        if (currentNullability.equals(Nullability.NULL)) {
+          conditionTruthiness = truthinessIfVariableNull;
+        } else if (currentNullability.equals(Nullability.NOT_NULL)) {
+          conditionTruthiness = truthinessIfVariableNull.not();
+        }
+
         conditionResults.put(lastElement, conditionTruthiness);
 
         if (conditionTruthiness != Truthiness.FALSY) {
-          pushSuccessor(block.trueSuccessor(), currentState.constrain(conditionVariable, trueSuccessorIsDefinitelyNullOrUndefined));
+          pushSuccessor(block.trueSuccessor(), currentState.constrain(conditionVariable, trueSuccessorNullability));
         }
         if (conditionTruthiness != Truthiness.TRUTHY) {
-          pushSuccessor(block.falseSuccessor(), currentState.constrain(conditionVariable, falseSuccessorIsDefinitelyNullOrUndefined));
+          pushSuccessor(block.falseSuccessor(), currentState.constrain(conditionVariable, falseSuccessorNullability));
         }
         return true;
       }

@@ -27,18 +27,17 @@ import org.sonar.plugins.javascript.api.tree.expression.LiteralTree;
 
 public class SymbolicValue {
 
-  public static final SymbolicValue NULL_OR_UNDEFINED = new SymbolicValue(true, Truthiness.FALSY);
-  public static final SymbolicValue UNKNOWN = new SymbolicValue(false, Truthiness.UNKNOWN);
+  public static final SymbolicValue NULL_OR_UNDEFINED = new SymbolicValue(Nullability.NULL, Truthiness.FALSY);
+  public static final SymbolicValue UNKNOWN = new SymbolicValue(Nullability.UNKNOWN, Truthiness.UNKNOWN);
 
-  public static final SymbolicValue TRUTHY = new SymbolicValue(false, Truthiness.TRUTHY);
-  public static final SymbolicValue FALSY = new SymbolicValue(false, Truthiness.FALSY);
+  private static final SymbolicValue TRUTHY_LITERAL = new SymbolicValue(Nullability.NOT_NULL, Truthiness.TRUTHY);
+  private static final SymbolicValue FALSY_LITERAL = new SymbolicValue(Nullability.NOT_NULL, Truthiness.FALSY);
 
-  private final boolean definitelyNullOrUndefined;
-
+  private final Nullability nullability;
   private final Truthiness truthiness;
 
-  private SymbolicValue(boolean alwaysNullOrUndefined, Truthiness truthiness) {
-    this.definitelyNullOrUndefined = alwaysNullOrUndefined;
+  private SymbolicValue(Nullability nullability, Truthiness truthiness) {
+    this.nullability = nullability;
     this.truthiness = truthiness;
   }
 
@@ -108,14 +107,11 @@ public class SymbolicValue {
   }
 
   public static SymbolicValue literal(boolean isTruthy) {
-    return isTruthy ? TRUTHY : FALSY;
+    return isTruthy ? TRUTHY_LITERAL : FALSY_LITERAL;
   }
 
-  /**
-   * @return <code>true</code> if we know that this SymbolicValue is either null or undefined, <code>false</code> otherwise
-   */
-  public boolean isDefinitelyNullOrUndefined() {
-    return definitelyNullOrUndefined;
+  public Nullability nullability() {
+    return nullability;
   }
 
   public Truthiness truthiness() {
@@ -123,16 +119,24 @@ public class SymbolicValue {
   }
 
   public SymbolicValue constrain(Truthiness truthiness) {
-    return new SymbolicValue(definitelyNullOrUndefined, truthiness);
+    Nullability newNullability = nullability;
+    if (truthiness.equals(Truthiness.TRUTHY)) {
+      newNullability = Nullability.NOT_NULL;
+    }
+    return new SymbolicValue(newNullability, truthiness);
   }
 
-  public SymbolicValue constrain(boolean definitelyNullOrUndefined) {
-    return new SymbolicValue(definitelyNullOrUndefined, truthiness);
+  public SymbolicValue constrain(Nullability nullability) {
+    Truthiness newTruthiness = truthiness;
+    if (nullability.equals(Nullability.NULL)) {
+      newTruthiness = Truthiness.FALSY;
+    }
+    return new SymbolicValue(nullability, newTruthiness);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(Boolean.valueOf(definitelyNullOrUndefined), truthiness);
+    return Objects.hash(nullability, truthiness);
   }
 
   @Override
@@ -144,7 +148,7 @@ public class SymbolicValue {
       return false;
     }
     SymbolicValue other = (SymbolicValue) obj;
-    return this.definitelyNullOrUndefined == other.definitelyNullOrUndefined && Objects.equals(this.truthiness, other.truthiness);
+    return Objects.equals(this.nullability, other.nullability) && Objects.equals(this.truthiness, other.truthiness);
   }
 
 }
