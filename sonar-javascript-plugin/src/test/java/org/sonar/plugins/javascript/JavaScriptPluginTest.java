@@ -27,7 +27,7 @@ public class JavaScriptPluginTest {
 
   @Test
   public void get_extensions() throws Exception {
-    assertThat(new JavaScriptPlugin().getExtensions()).hasSize(17);
+    assertThat(new JavaScriptPlugin().getExtensions()).hasSize(16);
   }
 
 }
