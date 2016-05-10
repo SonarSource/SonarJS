@@ -19,13 +19,15 @@
  */
 package org.sonar.javascript.se;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableMap;
 import java.util.Map.Entry;
 import org.sonar.plugins.javascript.api.symbols.Symbol;
 
 public class ProgramState {
 
-  private final ImmutableMap<Symbol, SymbolicValue> valuesBySymbol;
+  @VisibleForTesting
+  protected final ImmutableMap<Symbol, SymbolicValue> valuesBySymbol;
 
   private static final ProgramState EMPTY = new ProgramState(ImmutableMap.<Symbol, SymbolicValue>of());
 

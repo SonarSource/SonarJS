@@ -74,7 +74,7 @@ public class SymbolicExecution {
 
   public void visitCfg() {
     for (SeCheck check : checks) {
-      check.startOfExecution();
+      check.startOfExecution(functionScope);
     }
 
     workList.addLast(new BlockExecution(cfgStartBlock, initialState()));
@@ -93,7 +93,7 @@ public class SymbolicExecution {
     if (workList.isEmpty()) {
       for (SeCheck check : checks) {
         check.checkConditions(conditionResults.asMap());
-        check.endOfExecution();
+        check.endOfExecution(functionScope);
       }
     }
   }

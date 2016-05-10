@@ -19,6 +19,7 @@
  */
 package org.sonar.javascript.se;
 
+import com.google.common.annotations.VisibleForTesting;
 import java.util.Objects;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
@@ -30,8 +31,10 @@ public class SymbolicValue {
   public static final SymbolicValue NULL_OR_UNDEFINED = new SymbolicValue(Nullability.NULL, Truthiness.FALSY);
   public static final SymbolicValue UNKNOWN = new SymbolicValue(Nullability.UNKNOWN, Truthiness.UNKNOWN);
 
-  private static final SymbolicValue TRUTHY_LITERAL = new SymbolicValue(Nullability.NOT_NULL, Truthiness.TRUTHY);
-  private static final SymbolicValue FALSY_LITERAL = new SymbolicValue(Nullability.NOT_NULL, Truthiness.FALSY);
+  @VisibleForTesting
+  protected static final SymbolicValue TRUTHY_LITERAL = new SymbolicValue(Nullability.NOT_NULL, Truthiness.TRUTHY);
+  @VisibleForTesting
+  protected static final SymbolicValue FALSY_LITERAL = new SymbolicValue(Nullability.NOT_NULL, Truthiness.FALSY);
 
   private final Nullability nullability;
   private final Truthiness truthiness;

@@ -23,6 +23,7 @@ import com.google.common.collect.ImmutableList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import org.sonar.javascript.tree.symbols.Scope;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.visitors.SubscriptionVisitorCheck;
@@ -49,10 +50,11 @@ public class SeCheck extends SubscriptionVisitorCheck {
   /**
    * Method is called when the execution finished before reaching limit
    */
-  public void endOfExecution() {
+  public void endOfExecution(Scope functionScope) {
     // do nothing by default
   }
-  public void startOfExecution() {
+
+  public void startOfExecution(Scope functionScope) {
     // do nothing by default
   }
 
