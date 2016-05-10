@@ -176,6 +176,8 @@ public class SymbolicExecution {
           }
         }
       }
+
+      afterBlockElement(currentState, element);
     }
 
     handleSuccessors(block, currentState);
@@ -184,6 +186,12 @@ public class SymbolicExecution {
   private void beforeBlockElement(ProgramState currentState, Tree element) {
     for (SeCheck check : checks) {
       check.beforeBlockElement(currentState, element);
+    }
+  }
+
+  private void afterBlockElement(ProgramState currentState, Tree element) {
+    for (SeCheck check : checks) {
+      check.afterBlockElement(currentState, element);
     }
   }
 
