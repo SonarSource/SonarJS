@@ -151,4 +151,22 @@ public class SymbolicValue {
     return Objects.equals(this.nullability, other.nullability) && Objects.equals(this.truthiness, other.truthiness);
   }
 
+  @Override
+  public String toString() {
+    if (this.equals(NULL_OR_UNDEFINED)) {
+      return "SV_NULL";
+
+    } else if (this.equals(UNKNOWN)) {
+      return "SV_UNKNOWN";
+
+    } else if (this.equals(TRUTHY_LITERAL)) {
+      return "SV_TRUTHY";
+
+    } else if (this.equals(FALSY_LITERAL)) {
+      return "SV_FALSY";
+
+    } else {
+      return "SV_" + nullability + "_" + truthiness;
+    }
+  }
 }

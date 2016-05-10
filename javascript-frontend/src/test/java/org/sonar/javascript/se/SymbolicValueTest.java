@@ -106,6 +106,15 @@ public class SymbolicValueTest {
     assertThat(symbolicValue("42").hashCode()).isEqualTo(symbolicValue("42").hashCode());
   }
 
+  @Test
+  public void test_toString() throws Exception {
+    assertThat(SymbolicValue.NULL_OR_UNDEFINED.toString()).isEqualTo("SV_NULL");
+    assertThat(SymbolicValue.UNKNOWN.toString()).isEqualTo("SV_UNKNOWN");
+    assertThat(SymbolicValue.TRUTHY_LITERAL.toString()).isEqualTo("SV_TRUTHY");
+    assertThat(SymbolicValue.FALSY_LITERAL.toString()).isEqualTo("SV_FALSY");
+    assertThat(symbolicValue("x").constrain(FALSY).toString()).isEqualTo("SV_UNKNOWN_FALSY");
+  }
+
   private SymbolicValue symbolicValue(String expressionSource) {
     ScriptTree script = (ScriptTree) parser.parse(expressionSource);
     ExpressionStatementTree expressionStatement = (ExpressionStatementTree) script.items().items().get(0);
