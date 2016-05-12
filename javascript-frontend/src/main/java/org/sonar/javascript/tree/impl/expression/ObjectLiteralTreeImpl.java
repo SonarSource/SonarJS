@@ -21,8 +21,8 @@ package org.sonar.javascript.tree.impl.expression;
 
 import com.google.common.base.Functions;
 import com.google.common.collect.Iterators;
+import java.util.Collections;
 import java.util.Iterator;
-import org.apache.commons.collections.ListUtils;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.javascript.tree.impl.SeparatedList;
 import org.sonar.javascript.tree.impl.lexical.InternalSyntaxToken;
@@ -44,7 +44,7 @@ public class ObjectLiteralTreeImpl extends JavaScriptTree implements ObjectLiter
   public ObjectLiteralTreeImpl(InternalSyntaxToken openCurlyBrace, InternalSyntaxToken closeCurlyBrace) {
     this.openCurlyBrace = openCurlyBrace;
     this.closeCurlyBrace = closeCurlyBrace;
-    this.properties = new SeparatedList<>(ListUtils.EMPTY_LIST, ListUtils.EMPTY_LIST);
+    this.properties = new SeparatedList<>(Collections.<Tree>emptyList(), Collections.<InternalSyntaxToken>emptyList());
 
   }
 

@@ -20,9 +20,9 @@
 package org.sonar.javascript.tree.impl.statement;
 
 import com.google.common.collect.Iterators;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
-import org.apache.commons.collections.ListUtils;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.javascript.tree.impl.lexical.InternalSyntaxToken;
 import org.sonar.plugins.javascript.api.tree.Tree;
@@ -45,7 +45,7 @@ public class BlockTreeImpl extends JavaScriptTree implements BlockTree {
 
   public BlockTreeImpl(InternalSyntaxToken openCurlyBrace, InternalSyntaxToken closeCurlyBrace) {
     this.openCurlyBrace = openCurlyBrace;
-    this.statements = ListUtils.EMPTY_LIST;
+    this.statements = Collections.emptyList();
     this.closeCurlyBrace = closeCurlyBrace;
 
   }

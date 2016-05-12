@@ -29,7 +29,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import javax.annotation.Nullable;
-import org.apache.commons.collections.ListUtils;
 import org.sonar.javascript.lexer.JavaScriptKeyword;
 import org.sonar.javascript.lexer.JavaScriptPunctuator;
 import org.sonar.javascript.tree.impl.SeparatedList;
@@ -690,7 +689,7 @@ public class TreeFactory {
   }
 
   public ParameterListTreeImpl formalParameterClause3(InternalSyntaxToken lParenthesis, Optional<RestElementTreeImpl> restElementTree, InternalSyntaxToken rParenthesis) {
-    SeparatedList<Tree> parameters = new SeparatedList<>(new ArrayList<Tree>(), ListUtils.EMPTY_LIST);
+    SeparatedList<Tree> parameters = new SeparatedList<>(Lists.<Tree>newArrayList(), Collections.<InternalSyntaxToken>emptyList());
     if (restElementTree.isPresent()) {
       parameters.add(restElementTree.get());
     }
@@ -963,7 +962,7 @@ public class TreeFactory {
     return new ParameterListTreeImpl(
       Kind.ARGUMENTS,
       openParenToken,
-      arguments.isPresent() ? arguments.get() : new SeparatedList<Tree>(ListUtils.EMPTY_LIST, ListUtils.EMPTY_LIST),
+      arguments.isPresent() ? arguments.get() : new SeparatedList<>(Collections.<Tree>emptyList(), Collections.<InternalSyntaxToken>emptyList()),
       closeParenToken);
   }
 
@@ -1089,7 +1088,7 @@ public class TreeFactory {
   ) {
     return new TemplateLiteralTreeImpl(
       openBacktickToken,
-      templateCharacters.isPresent() ? Lists.newArrayList(templateCharacters.get()) : ListUtils.EMPTY_LIST,
+      templateCharacters.isPresent() ? Collections.<Tree>singletonList(templateCharacters.get()) : Collections.<Tree>emptyList(),
       closeBacktickToken);
   }
 
