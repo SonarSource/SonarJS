@@ -34,8 +34,6 @@ import org.sonar.plugins.javascript.api.visitors.TreeVisitorContext;
 @Beta
 public interface JavaScriptCheck {
 
-  TreeVisitorContext getContext();
-
   /**
    *  This method should be deprecated, as soon as this plugin will be migrated on 5.X LTS (with support of precise issue locations). <p>
    *  Instead please use {@link JavaScriptCheck#addIssue(Tree, String)}

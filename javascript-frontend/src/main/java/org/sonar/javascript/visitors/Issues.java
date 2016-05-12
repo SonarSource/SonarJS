@@ -17,39 +17,47 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.javascript.api.visitors;
+package org.sonar.javascript.visitors;
 
-import com.google.common.annotations.Beta;
+import java.util.ArrayList;
 import java.util.List;
-import org.sonar.javascript.visitors.Issues;
 import org.sonar.plugins.javascript.api.JavaScriptCheck;
 import org.sonar.plugins.javascript.api.tree.Tree;
+import org.sonar.plugins.javascript.api.visitors.Issue;
+import org.sonar.plugins.javascript.api.visitors.IssueLocation;
+import org.sonar.plugins.javascript.api.visitors.LineIssue;
+import org.sonar.plugins.javascript.api.visitors.PreciseIssue;
 
-@Beta
-public abstract class SubscriptionVisitorCheck extends SubscriptionVisitor implements JavaScriptCheck {
+public class Issues {
 
-  private Issues issues = new Issues(this);
+  private List<Issue> issueList;
+  private JavaScriptCheck check;
 
-  @Override
-  public List<Issue> scanFile(TreeVisitorContext context){
-    issues.reset();
-    scanTree(context);
-    return issues.getList();
+  public Issues(JavaScriptCheck check) {
+    this.check = check;
+    this.issueList = new ArrayList<>();
   }
 
-  @Override
   public LineIssue addLineIssue(Tree tree, String message) {
-    return issues.addLineIssue(tree, message);
+    return addIssue(new LineIssue(check, tree, message));
   }
 
-  @Override
   public PreciseIssue addIssue(Tree tree, String message) {
-    return issues.addIssue(tree, message);
+    PreciseIssue preciseIssue = new PreciseIssue(check, new IssueLocation(tree, message));
+    addIssue(preciseIssue);
+    return preciseIssue;
   }
 
-  @Override
   public <T extends Issue> T addIssue(T issue) {
-    return issues.addIssue(issue);
+    issueList.add(issue);
+    return issue;
   }
 
+  public List<Issue> getList() {
+    return issueList;
+  }
+
+  public void reset() {
+    issueList = new ArrayList<>();
+  }
 }

@@ -29,6 +29,7 @@ import org.sonar.javascript.se.Nullability;
 import org.sonar.javascript.se.ProgramState;
 import org.sonar.javascript.se.SeCheck;
 import org.sonar.javascript.se.SymbolicValue;
+import org.sonar.javascript.tree.symbols.Scope;
 import org.sonar.plugins.javascript.api.symbols.Symbol;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
@@ -51,7 +52,12 @@ public class NullDereferenceCheck extends SeCheck {
 
   private static final String MESSAGE = "TypeError can be thrown as \"%s\" might be null or undefined here.";
 
-  private Set<Tree> hasIssue = new HashSet<>();
+  private Set<Tree> hasIssue;
+
+  @Override
+  public void startOfExecution(Scope functionScope) {
+    hasIssue = new HashSet<>();
+  }
 
   @Override
   public void beforeBlockElement(ProgramState currentState, Tree element) {
@@ -67,11 +73,6 @@ public class NullDereferenceCheck extends SeCheck {
       }
     }
 
-  }
-
-  @Override
-  public void leaveFile(Tree scriptTree) {
-    hasIssue = new HashSet<>();
   }
 
   private Symbol getSymbol(@Nullable  ExpressionTree object) {

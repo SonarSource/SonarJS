@@ -19,38 +19,35 @@
  */
 package org.sonar.plugins.javascript.api.visitors;
 
-import java.util.ArrayList;
 import java.util.List;
+import org.sonar.javascript.visitors.Issues;
 import org.sonar.plugins.javascript.api.JavaScriptCheck;
 import org.sonar.plugins.javascript.api.tree.Tree;
 
 public abstract class DoubleDispatchVisitorCheck extends DoubleDispatchVisitor implements JavaScriptCheck {
 
-  private List<Issue> issues;
+  private Issues issues = new Issues(this);
 
   @Override
   public List<Issue> scanFile(TreeVisitorContext context){
-    issues = new ArrayList<>();
+    issues.reset();
     scanTree(context);
-    return issues;
+    return issues.getList();
   }
 
   @Override
   public LineIssue addLineIssue(Tree tree, String message) {
-    return addIssue(new LineIssue(this, tree, message));
+    return issues.addLineIssue(tree, message);
   }
 
   @Override
   public PreciseIssue addIssue(Tree tree, String message) {
-    PreciseIssue preciseIssue = new PreciseIssue(this, new IssueLocation(tree, message));
-    addIssue(preciseIssue);
-    return preciseIssue;
+    return issues.addIssue(tree, message);
   }
 
   @Override
   public <T extends Issue> T addIssue(T issue) {
-    issues.add(issue);
-    return issue;
+    return issues.addIssue(issue);
   }
 
 }

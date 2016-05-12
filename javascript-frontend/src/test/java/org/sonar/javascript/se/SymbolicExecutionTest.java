@@ -42,6 +42,7 @@ import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.declaration.FunctionDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxTrivia;
+import org.sonar.plugins.javascript.api.visitors.SubscriptionVisitor;
 
 import static org.fest.assertions.Assertions.assertThat;
 
@@ -85,7 +86,7 @@ public class SymbolicExecutionTest {
 
   private void runSe(String filename) {
     JavaScriptVisitorContext context = createContext(new File("src/test/resources/se/", filename));
-    check.scanTree(context);
+    check.scanExpectedIssues(context);
     SeChecksDispatcher seChecksDispatcher = new SeChecksDispatcher(ImmutableList.of((SeCheck) check));
     seChecksDispatcher.scanTree(context);
   }
@@ -106,22 +107,16 @@ public class SymbolicExecutionTest {
     );
 
     Map<Integer, ProgramState> expectedProgramStates;
-    SetMultimap<Integer, Symbol> expectedAbsentSymbols;
 
+    SetMultimap<Integer, Symbol> expectedAbsentSymbols;
     private boolean insideFunction = false;
+
     boolean endOfExecution;
     ProgramState previousPS;
     int previousPSLine;
 
-    @Override
-    public void visitFile(Tree scriptTree) {
-      expectedProgramStates = new HashMap<>();
-      expectedAbsentSymbols = HashMultimap.create();
-    }
-
-    @Override
-    public List<Kind> nodesToVisit() {
-      return ImmutableList.of(Kind.TOKEN);
+    void scanExpectedIssues(JavaScriptVisitorContext context) {
+      (new CommentParser()).scanTree(context);
     }
 
     @Override
@@ -133,36 +128,6 @@ public class SymbolicExecutionTest {
       } else {
         insideFunction = false;
       }
-    }
-
-    @Override
-    public void visitNode(Tree tree) {
-      SyntaxToken token = (SyntaxToken) tree;
-
-      for (SyntaxTrivia comment : token.trivias()) {
-        ProgramState ps = ProgramState.emptyState();
-        String text = comment.text().substring(2).trim();
-
-        for (String oneSymbolValue : text.split("&")) {
-          oneSymbolValue = oneSymbolValue.trim();
-          if (!oneSymbolValue.startsWith("!")) {
-            String[] pair = oneSymbolValue.split("=");
-            if (getContext().getSymbolModel().getSymbols(pair[0]).isEmpty()) {
-              System.out.println("");
-            }
-            Symbol symbol = getContext().getSymbolModel().getSymbols(pair[0]).iterator().next();
-            ps = ps.copyAndAddValue(symbol, parseSymbolicValue(pair[1]));
-
-          } else {
-            Symbol symbol = getContext().getSymbolModel().getSymbols(oneSymbolValue.substring(1)).iterator().next();
-            expectedAbsentSymbols.put(comment.line(), symbol);
-
-          }
-        }
-
-        expectedProgramStates.put(comment.line(), ps);
-      }
-
     }
 
     private static SymbolicValue parseSymbolicValue(String value) {
@@ -198,6 +163,52 @@ public class SymbolicExecutionTest {
       if (insideFunction) {
         this.endOfExecution = true;
       }
+    }
+
+    class CommentParser extends SubscriptionVisitor {
+
+      @Override
+      public void visitFile(Tree scriptTree) {
+        expectedProgramStates = new HashMap<>();
+        expectedAbsentSymbols = HashMultimap.create();
+      }
+
+      @Override
+      public List<Kind> nodesToVisit() {
+        return ImmutableList.of(Kind.TOKEN);
+      }
+
+      @Override
+      public void visitNode(Tree tree) {
+        SyntaxToken token = (SyntaxToken) tree;
+
+        for (SyntaxTrivia comment : token.trivias()) {
+          ProgramState ps = ProgramState.emptyState();
+          String text = comment.text().substring(2).trim();
+
+          for (String oneSymbolValue : text.split("&")) {
+            oneSymbolValue = oneSymbolValue.trim();
+            if (!oneSymbolValue.startsWith("!")) {
+              String[] pair = oneSymbolValue.split("=");
+              if (getContext().getSymbolModel().getSymbols(pair[0]).isEmpty()) {
+                System.out.println("");
+              }
+              Symbol symbol = getContext().getSymbolModel().getSymbols(pair[0]).iterator().next();
+              ps = ps.copyAndAddValue(symbol, parseSymbolicValue(pair[1]));
+
+            } else {
+              Symbol symbol = getContext().getSymbolModel().getSymbols(oneSymbolValue.substring(1)).iterator().next();
+              expectedAbsentSymbols.put(comment.line(), symbol);
+
+            }
+          }
+
+          expectedProgramStates.put(comment.line(), ps);
+        }
+
+      }
+
+
     }
   }
 

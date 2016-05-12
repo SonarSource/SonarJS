@@ -21,12 +21,14 @@ package org.sonar.plugins.javascript;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import javax.annotation.Nullable;
 import org.sonar.api.batch.rule.CheckFactory;
 import org.sonar.api.batch.rule.Checks;
 import org.sonar.api.rule.RuleKey;
+import org.sonar.javascript.se.SeCheck;
 import org.sonar.plugins.javascript.api.CustomJavaScriptRulesDefinition;
 import org.sonar.plugins.javascript.api.JavaScriptCheck;
 import org.sonar.plugins.javascript.api.visitors.TreeVisitor;
@@ -37,7 +39,7 @@ import org.sonar.plugins.javascript.api.visitors.TreeVisitor;
 public class JavaScriptChecks {
 
   private final CheckFactory checkFactory;
-  private Set<Checks<TreeVisitor>> checksByRepository = Sets.newHashSet();
+  private Set<Checks<JavaScriptCheck>> checksByRepository = Sets.newHashSet();
 
   private JavaScriptChecks(CheckFactory checkFactory) {
     this.checkFactory = checkFactory;
@@ -49,7 +51,7 @@ public class JavaScriptChecks {
 
   public JavaScriptChecks addChecks(String repositoryKey, List<Class> checkClass) {
     checksByRepository.add(checkFactory
-      .<TreeVisitor>create(repositoryKey)
+      .<JavaScriptCheck>create(repositoryKey)
       .addAnnotatedChecks(checkClass));
 
     return this;
@@ -66,22 +68,44 @@ public class JavaScriptChecks {
     return this;
   }
 
-  public List<TreeVisitor> all() {
-    List<TreeVisitor> allVisitors = Lists.newArrayList();
+  private List<JavaScriptCheck> all() {
+    List<JavaScriptCheck> allVisitors = Lists.newArrayList();
 
-    for (Checks<TreeVisitor> checks : checksByRepository) {
+    for (Checks<JavaScriptCheck> checks : checksByRepository) {
       allVisitors.addAll(checks.all());
     }
 
     return allVisitors;
   }
 
+  public List<SeCheck> seChecks() {
+    List<SeCheck> checks = new ArrayList<>();
+    for (JavaScriptCheck check : all()) {
+      if (check instanceof SeCheck) {
+        checks.add((SeCheck) check);
+      }
+    }
+
+    return checks;
+  }
+
+  public List<TreeVisitor> visitorChecks() {
+    List<TreeVisitor> checks = new ArrayList<>();
+    for (JavaScriptCheck check : all()) {
+      if (check instanceof TreeVisitor) {
+        checks.add((TreeVisitor) check);
+      }
+    }
+
+    return checks;
+  }
+
   @Nullable
   public RuleKey ruleKeyFor(JavaScriptCheck check) {
     RuleKey ruleKey;
 
-    for (Checks<TreeVisitor> checks : checksByRepository) {
-      ruleKey = checks.ruleKey((TreeVisitor) check);
+    for (Checks<JavaScriptCheck> checks : checksByRepository) {
+      ruleKey = checks.ruleKey(check);
 
       if (ruleKey != null) {
         return ruleKey;

@@ -19,16 +19,19 @@
  */
 package org.sonar.javascript.checks;
 
+import com.google.common.collect.ImmutableList;
 import java.io.File;
 import org.junit.Test;
 import org.sonar.javascript.checks.verifier.JavaScriptCheckVerifier;
+import org.sonar.javascript.se.SeCheck;
+import org.sonar.javascript.se.SeChecksDispatcher;
 
 public class NullDereferenceCheckTest {
 
   @Test
   public void test() {
     JavaScriptCheckVerifier.verify(
-      new NullDereferenceCheck(),
+      new SeChecksDispatcher(ImmutableList.<SeCheck>of(new NullDereferenceCheck())),
       new File("src/test/resources/checks/NullDereference.js"));
   }
 

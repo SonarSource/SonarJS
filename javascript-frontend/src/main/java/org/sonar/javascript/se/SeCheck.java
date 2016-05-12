@@ -24,16 +24,17 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import org.sonar.javascript.tree.symbols.Scope;
+import org.sonar.javascript.visitors.Issues;
+import org.sonar.plugins.javascript.api.JavaScriptCheck;
 import org.sonar.plugins.javascript.api.tree.Tree;
-import org.sonar.plugins.javascript.api.tree.Tree.Kind;
-import org.sonar.plugins.javascript.api.visitors.SubscriptionVisitorCheck;
+import org.sonar.plugins.javascript.api.visitors.Issue;
+import org.sonar.plugins.javascript.api.visitors.LineIssue;
+import org.sonar.plugins.javascript.api.visitors.PreciseIssue;
+import org.sonar.plugins.javascript.api.visitors.TreeVisitorContext;
 
-public class SeCheck extends SubscriptionVisitorCheck {
+public class SeCheck implements JavaScriptCheck {
 
-  @Override
-  public List<Kind> nodesToVisit() {
-    return ImmutableList.of();
-  }
+  private Issues issues = new Issues(this);
 
   public void checkConditions(Map<Tree, Collection<Truthiness>> conditions) {
     // do nothing by default
@@ -58,4 +59,26 @@ public class SeCheck extends SubscriptionVisitorCheck {
     // do nothing by default
   }
 
+  @Override
+  public LineIssue addLineIssue(Tree tree, String message) {
+    return issues.addLineIssue(tree, message);
+  }
+
+  @Override
+  public PreciseIssue addIssue(Tree tree, String message) {
+    return issues.addIssue(tree, message);
+  }
+
+  @Override
+  public <T extends Issue> T addIssue(T issue) {
+    return issues.addIssue(issue);
+  }
+
+  @Override
+  public List<Issue> scanFile(TreeVisitorContext context) {
+    List<Issue> result = ImmutableList.copyOf(issues.getList());
+    issues.reset();
+    return result;
+    // we might add method "getIssue" to this class and use it instead of this one in SeCheckDispatcher
+  }
 }

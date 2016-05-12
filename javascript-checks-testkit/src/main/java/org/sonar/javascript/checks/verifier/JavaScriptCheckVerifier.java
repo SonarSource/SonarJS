@@ -28,8 +28,6 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import javax.annotation.Nullable;
-import org.sonar.javascript.se.SeCheck;
-import org.sonar.javascript.se.SeChecksDispatcher;
 import org.sonar.javascript.visitors.JavaScriptVisitorContext;
 import org.sonar.plugins.javascript.api.JavaScriptCheck;
 import org.sonar.plugins.javascript.api.tree.Tree;
@@ -112,11 +110,6 @@ public class JavaScriptCheckVerifier extends SubscriptionVisitorCheck {
   }
 
   private static Iterator<Issue> getActualIssues(JavaScriptCheck check, JavaScriptVisitorContext context) {
-    if (check instanceof SeCheck) {
-      SeChecksDispatcher seChecksDispatcher = new SeChecksDispatcher(ImmutableList.of((SeCheck) check));
-      seChecksDispatcher.scanTree(context);
-    }
-
     List<Issue> issues = check.scanFile(context);
     List<Issue> sortedIssues = Ordering.natural().onResultOf(new IssueToLine()).sortedCopy(issues);
     return sortedIssues.iterator();

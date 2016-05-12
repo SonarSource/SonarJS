@@ -252,11 +252,6 @@ public class JavaScriptCheckVerifierTest {
     }
 
     @Override
-    public TreeVisitorContext getContext() {
-      return null;
-    }
-
-    @Override
     public LineIssue addLineIssue(Tree tree, String message) {
       throw new NotImplementedException();
     }

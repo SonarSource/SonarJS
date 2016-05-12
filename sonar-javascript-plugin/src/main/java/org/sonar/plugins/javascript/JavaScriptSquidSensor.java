@@ -62,7 +62,6 @@ import org.sonar.javascript.highlighter.HighlighterVisitor;
 import org.sonar.javascript.issues.PreciseIssueCompat;
 import org.sonar.javascript.metrics.MetricsVisitor;
 import org.sonar.javascript.parser.JavaScriptParserBuilder;
-import org.sonar.javascript.se.SeCheck;
 import org.sonar.javascript.se.SeChecksDispatcher;
 import org.sonar.javascript.tree.visitors.CharsetAwareVisitor;
 import org.sonar.javascript.visitors.JavaScriptVisitorContext;
@@ -138,7 +137,8 @@ public class JavaScriptSquidSensor implements Sensor {
 
     treeVisitors.add(new MetricsVisitor(fileSystem, context, noSonarFilter, settings.getBoolean(JavaScriptPlugin.IGNORE_HEADER_COMMENTS), fileLinesContextFactory));
     treeVisitors.add(new HighlighterVisitor(resourcePerspectives, fileSystem));
-    treeVisitors.addAll(checks.all());
+    treeVisitors.add(new SeChecksDispatcher(checks.seChecks()));
+    treeVisitors.addAll(checks.visitorChecks());
 
     for (TreeVisitor check : treeVisitors) {
       if (check instanceof ParsingErrorCheck) {
@@ -222,8 +222,6 @@ public class JavaScriptSquidSensor implements Sensor {
     Symbolizable symbolizable = perspective(Symbolizable.class, inputFile);
     highlightSymbols(symbolizable, context);
 
-    (new SeChecksDispatcher(getSeChecks(visitors))).scanTree(context);
-
     List<Issue> fileIssues = new ArrayList<>();
 
     for (TreeVisitor visitor : visitors) {
@@ -241,17 +239,6 @@ public class JavaScriptSquidSensor implements Sensor {
     }
 
     saveFileIssues(sensorContext, fileIssues, inputFile, issuable);
-  }
-
-  private List<SeCheck> getSeChecks(List<TreeVisitor> visitors) {
-    List<SeCheck> checks = new ArrayList<>();
-    for (TreeVisitor visitor : visitors) {
-      if (visitor instanceof SeCheck) {
-        checks.add((SeCheck) visitor);
-      }
-    }
-
-    return checks;
   }
 
   private static void highlightSymbols(@Nullable Symbolizable symbolizable, JavaScriptVisitorContext context) {

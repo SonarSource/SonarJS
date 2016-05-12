@@ -20,6 +20,7 @@
 package org.sonar.javascript.se;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableList.Builder;
 import java.util.List;
 import org.sonar.javascript.cfg.ControlFlowGraph;
 import org.sonar.javascript.tree.symbols.Scope;
@@ -27,9 +28,11 @@ import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.declaration.FunctionTree;
 import org.sonar.plugins.javascript.api.tree.statement.BlockTree;
-import org.sonar.plugins.javascript.api.visitors.SubscriptionVisitor;
+import org.sonar.plugins.javascript.api.visitors.Issue;
+import org.sonar.plugins.javascript.api.visitors.SubscriptionVisitorCheck;
+import org.sonar.plugins.javascript.api.visitors.TreeVisitorContext;
 
-public class SeChecksDispatcher extends SubscriptionVisitor {
+public class SeChecksDispatcher extends SubscriptionVisitorCheck {
 
   private List<SeCheck> checks;
 
@@ -57,5 +60,18 @@ public class SeChecksDispatcher extends SubscriptionVisitor {
       Scope functionScope = getContext().getSymbolModel().getScope(functionTree);
       new SymbolicExecution(functionScope, cfg, checks).visitCfg();
     }
+  }
+
+  @Override
+  public List<Issue> scanFile(TreeVisitorContext context) {
+    super.scanFile(context);
+
+    Builder<Issue> builder = ImmutableList.builder();
+
+    for (SeCheck check : checks) {
+      builder.addAll(check.scanFile(getContext()));
+    }
+
+    return builder.build();
   }
 }
