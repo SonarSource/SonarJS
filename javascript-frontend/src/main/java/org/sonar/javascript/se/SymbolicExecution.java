@@ -138,6 +138,7 @@ public class SymbolicExecution {
   private void execute(BlockExecution blockExecution) {
     CfgBlock block = blockExecution.block();
     ProgramState currentState = blockExecution.state();
+    boolean stopExploring = false;
 
     for (Tree element : block.elements()) {
       beforeBlockElement(currentState, element);
@@ -172,6 +173,10 @@ public class SymbolicExecution {
 
             if (symbolicValue != null && symbolicValue.nullability().equals(Nullability.UNKNOWN)) {
               currentState = currentState.constrain(symbol, Nullability.NOT_NULL);
+
+            } else if (symbolicValue != null && symbolicValue.nullability().equals(Nullability.NULL)) {
+              stopExploring = true;
+              break;
             }
           }
         }
@@ -180,7 +185,9 @@ public class SymbolicExecution {
       afterBlockElement(currentState, element);
     }
 
-    handleSuccessors(block, currentState);
+    if (!stopExploring) {
+      handleSuccessors(block, currentState);
+    }
   }
 
   private void beforeBlockElement(ProgramState currentState, Tree element) {

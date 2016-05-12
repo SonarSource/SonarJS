@@ -1,4 +1,4 @@
-function basic() {
+function property() {
   var x;
   x.foo;   // Noncompliant {{TypeError can be thrown as "x" might be null or undefined here.}}
 }
@@ -6,12 +6,16 @@ function basic() {
 function element() {
   var x;
   x[1];    // Noncompliant
+}
 
+function unknown() {
   var y;
   foo(y);
   y = foo();
   y.foo;
+}
 
+function branch() {
   var z;
   if (cond) {
     z = foo();
@@ -83,7 +87,7 @@ function duplicated_condition() {
 function stop_after_NPE() {
   var x;
   if (x.foo &&  // Noncompliant
-      x.bar     // Noncompliant, FP! as we can't reach this point after previous issue
+      x.bar     // OK as we can't reach this point after previous issue
   ) {
   }
 }

@@ -78,6 +78,11 @@ public class SymbolicExecutionTest {
     runSe("assignment.js");
   }
 
+  @Test
+  public void stop_after_npe() throws Exception {
+    runSe("stop_after_npe.js");
+  }
+
   private void runSe(String filename) {
     JavaScriptVisitorContext context = createContext(new File("src/test/resources/se/", filename));
     check.scanTree(context);
@@ -94,6 +99,7 @@ public class SymbolicExecutionTest {
 
     private static Map<String, SymbolicValue> SYMBOLIC_VALUE_KEYS = ImmutableMap.of(
       "NULL", SymbolicValue.NULL_OR_UNDEFINED,
+      "NOT_NULL", SymbolicValue.UNKNOWN.constrain(Nullability.NOT_NULL),
       "TRUTHY", SymbolicValue.TRUTHY_LITERAL,
       "FALSY", SymbolicValue.FALSY_LITERAL,
       "UNKNOWN", SymbolicValue.UNKNOWN
