@@ -167,15 +167,6 @@ function not_null_if_property_accessed() {
   }
 }
 
-function inline_assignment() {
-  var x;
-
-  while(condition) {
-    (x)|| (x = []);
-    x.foo();   // Noncompliant, FP
-  }
-}
-
 function tested_copy() {
   var x;
 

@@ -83,6 +83,11 @@ public class SymbolicExecutionTest {
   public void stop_after_npe() throws Exception {
     runSe("stop_after_npe.js");
   }
+  
+  @Test
+  public void conditions() throws Exception {
+    runSe("conditions.js");
+  }
 
   private void runSe(String filename) {
     JavaScriptVisitorContext context = createContext(new File("src/test/resources/se/", filename));

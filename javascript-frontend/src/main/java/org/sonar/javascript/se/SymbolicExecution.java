@@ -42,6 +42,7 @@ import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 import org.sonar.plugins.javascript.api.tree.expression.LiteralTree;
 import org.sonar.plugins.javascript.api.tree.expression.MemberExpressionTree;
+import org.sonar.plugins.javascript.api.tree.expression.ParenthesisedExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.UnaryExpressionTree;
 import org.sonar.plugins.javascript.api.tree.statement.ForObjectStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.VariableDeclarationTree;
@@ -376,6 +377,9 @@ public class SymbolicExecution {
 
   @CheckForNull
   private Symbol trackedVariable(Tree tree) {
+    if (tree.is(Kind.PARENTHESISED_EXPRESSION)) {
+      return trackedVariable(((ParenthesisedExpressionTree) tree).expression());
+    }
     if (tree.is(Kind.IDENTIFIER_REFERENCE, Kind.BINDING_IDENTIFIER)) {
       IdentifierTree identifier = (IdentifierTree) tree;
       Symbol symbol = identifier.symbol();
