@@ -20,9 +20,13 @@
 package org.sonar.plugins.javascript.lcov;
 
 import com.google.common.collect.ImmutableList;
+import java.io.File;
+import java.util.Collection;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.DependsUpon;
 import org.sonar.api.batch.Sensor;
 import org.sonar.api.batch.SensorContext;
@@ -36,18 +40,13 @@ import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.measures.PropertiesBuilder;
 import org.sonar.api.resources.Project;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
 import org.sonar.plugins.javascript.JavaScriptLanguage;
 import org.sonar.plugins.javascript.JavaScriptPlugin;
 
-import javax.annotation.Nullable;
-import java.io.File;
-import java.util.Collection;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-
 public abstract class LCOVCoverageSensor implements Sensor {
-  private static final Logger LOG = LoggerFactory.getLogger(UTCoverageSensor.class);
+  private static final Logger LOG = Loggers.get(UTCoverageSensor.class);
   protected final FileSystem fileSystem;
   protected final Settings settings;
   protected final FilePredicate mainFilePredicate;

@@ -19,9 +19,9 @@
  */
 package org.sonar.plugins.javascript.api.symbols;
 
-import com.google.common.collect.Sets;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 import javax.annotation.Nullable;
@@ -31,7 +31,7 @@ public class TypeSet implements Set<Type> {
   private Set<Type> types;
 
   public TypeSet() {
-    types = Sets.newHashSet();
+    types = new HashSet<>();
   }
 
   @Override

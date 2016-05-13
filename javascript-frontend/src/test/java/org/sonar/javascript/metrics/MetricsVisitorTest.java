@@ -42,12 +42,12 @@ public class MetricsVisitorTest extends JavaScriptTreeModelTest {
 
   @Test
   public void test() {
-    DefaultFileSystem fileSystem = new DefaultFileSystem();
+    DefaultFileSystem fileSystem = new DefaultFileSystem(new File(""));
 
     File file = new File("src/test/resources/metrics/lines.js");
 
-    DefaultInputFile inputFile = new DefaultInputFile("src/test/resources/metrics/lines.js")
-      .setAbsolutePath(file.getAbsolutePath())
+    DefaultInputFile inputFile = new DefaultInputFile("", "src/test/resources/metrics/lines.js")
+//      .setAbsolutePath(file.getAbsolutePath())
       .setLanguage("js")
       .setType(InputFile.Type.MAIN);
 

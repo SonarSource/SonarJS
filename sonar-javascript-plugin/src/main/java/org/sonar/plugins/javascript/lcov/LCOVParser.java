@@ -22,19 +22,19 @@ package org.sonar.plugins.javascript.lcov;
 import com.google.common.base.Objects;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import org.apache.commons.io.FileUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.sonar.api.batch.fs.FileSystem;
-import org.sonar.api.batch.fs.InputFile;
-import org.sonar.api.measures.CoverageMeasuresBuilder;
-
-import javax.annotation.CheckForNull;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+import javax.annotation.CheckForNull;
+import org.sonar.api.batch.fs.FileSystem;
+import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.measures.CoverageMeasuresBuilder;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
 
 /**
  * http://ltp.sourceforge.net/coverage/lcov/geninfo.1.php
@@ -49,7 +49,7 @@ public final class LCOVParser {
   private final FileSystem fs;
   private final List<String> unresolvedPaths = Lists.newArrayList();
 
-  private static final Logger LOG = LoggerFactory.getLogger(LCOVParser.class);
+  private static final Logger LOG = Loggers.get(LCOVParser.class);
 
   private LCOVParser(FileSystem fs, List<String> lines) {
     this.fs = fs;
@@ -64,7 +64,7 @@ public final class LCOVParser {
     final List<String> lines=new LinkedList<>();
     for(File file: files) {
       try {
-        lines.addAll(FileUtils.readLines(file));
+        lines.addAll(Files.lines(file.toPath()).collect(Collectors.toList()));
       } catch (IOException e) {
         throw new IllegalArgumentException("Could not read content from file: " + file, e);
       }

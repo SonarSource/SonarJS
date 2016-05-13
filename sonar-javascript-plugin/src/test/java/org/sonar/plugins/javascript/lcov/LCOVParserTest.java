@@ -48,14 +48,14 @@ public class LCOVParserTest {
   @Before
   public void prepare() throws Exception {
     baseDir = temp.newFolder();
-    fs = new DefaultFileSystem();
+    fs = new DefaultFileSystem(new File(""));
   }
 
   @Test
   public void testSeveralFiles() {
-    DefaultInputFile file1 = new DefaultInputFile("file1.js").setFile(new File(baseDir, "file1.js")).setLines(1);
+    DefaultInputFile file1 = new DefaultInputFile("", "file1.js").setModuleBaseDir(baseDir.toPath()).setLines(1);
     fs.add(file1);
-    DefaultInputFile file2 = new DefaultInputFile("file2.js").setFile(new File(baseDir, "file2.js")).setLines(11);
+    DefaultInputFile file2 = new DefaultInputFile("", "file2.js").setModuleBaseDir(baseDir.toPath()).setLines(11);
     fs.add(file2);
 
     Map<InputFile, CoverageMeasuresBuilder> result = LCOVParser.parse(fs, Arrays.asList(
@@ -89,10 +89,10 @@ public class LCOVParserTest {
 
   @Test
   public void testNotIndexedFiles() {
-    DefaultInputFile file1 = new DefaultInputFile("file1.js").setFile(new File(baseDir, "file1.js")).setLines(1);
+    DefaultInputFile file1 = new DefaultInputFile("", "file1.js").setModuleBaseDir(baseDir.toPath()).setLines(1);
     fs.add(file1);
     // File 2 is not indexed
-    DefaultInputFile file2 = new DefaultInputFile("file2.js").setFile(new File(baseDir, "file2.js")).setLines(11);
+    DefaultInputFile file2 = new DefaultInputFile("", "file2.js").setModuleBaseDir(baseDir.toPath()).setLines(11);
 
     Map<InputFile, CoverageMeasuresBuilder> result = LCOVParser.parse(fs, Arrays.asList(
       "SF:file1.js",
@@ -121,7 +121,7 @@ public class LCOVParserTest {
 
   @Test
   public void merge() {
-    DefaultInputFile file = new DefaultInputFile("file.js").setFile(new File(baseDir, "file.js")).setLines(3);
+    DefaultInputFile file = new DefaultInputFile("", "file.js").setModuleBaseDir(baseDir.toPath()).setLines(3);
     fs.add(file);
 
     Map<InputFile, CoverageMeasuresBuilder> result = LCOVParser.parse(fs, Arrays.asList(

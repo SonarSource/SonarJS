@@ -29,11 +29,14 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.batch.SensorContext;
 import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.fs.TextRange;
 import org.sonar.api.batch.fs.internal.DefaultFileSystem;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.rule.ActiveRules;
 import org.sonar.api.batch.rule.CheckFactory;
 import org.sonar.api.batch.rule.internal.ActiveRulesBuilder;
+import org.sonar.api.batch.sensor.issue.NewIssue;
+import org.sonar.api.batch.sensor.issue.NewIssueLocation;
 import org.sonar.api.component.ResourcePerspectives;
 import org.sonar.api.config.Settings;
 import org.sonar.api.issue.Issuable;
@@ -98,7 +101,7 @@ public class JavaScriptSquidSensorTest {
   }};
 
   private final ResourcePerspectives perspectives = mock(ResourcePerspectives.class);
-  private final DefaultFileSystem fileSystem = new DefaultFileSystem();
+  private final DefaultFileSystem fileSystem = new DefaultFileSystem(new File("src/test/resources"));
   private final Settings settings = new Settings();
   private final ProgressReport progressReport = mock(ProgressReport.class);
   private final SensorContext context = mock(SensorContext.class);
@@ -122,13 +125,13 @@ public class JavaScriptSquidSensorTest {
     assertThat(sensor.shouldExecuteOnProject(project)).isFalse();
 
     // at least one JS file -> do execute
-    fileSystem.add(new DefaultInputFile("file.js").setType(InputFile.Type.MAIN).setLanguage(JavaScriptLanguage.KEY));
+    fileSystem.add(new DefaultInputFile("", "file.js").setType(InputFile.Type.MAIN).setLanguage(JavaScriptLanguage.KEY));
     assertThat(sensor.shouldExecuteOnProject(project)).isTrue();
   }
 
   @Test
   public void should_analyse() {
-    InputFile inputFile = inputFile("cpd/Person.js");
+    DefaultInputFile inputFile = inputFile("cpd/Person.js");
     fileSystem.add(inputFile);
 
     SensorContext context = mock(SensorContext.class);
@@ -152,7 +155,7 @@ public class JavaScriptSquidSensorTest {
 
   @Test
   public void parsing_error() {
-    InputFile inputFile = inputFile("cpd/parsingError.js");
+    DefaultInputFile inputFile = inputFile("cpd/parsingError.js");
     fileSystem.add(inputFile);
 
     String parsingErrorCheckKey = "ParsingError";
@@ -187,7 +190,12 @@ public class JavaScriptSquidSensorTest {
 
   @Test
   public void save_issue() throws Exception {
-    InputFile inputFile = inputFile("file.js");
+    DefaultInputFile inputFile = inputFile("file.js");
+    inputFile
+      .setLines(2)
+      .setOriginalLineOffsets(new int[]{0, 9})
+      .setLastValidOffset(20);
+
     fileSystem.add(inputFile);
 
     ActiveRules activeRules = (new ActiveRulesBuilder())
@@ -208,9 +216,17 @@ public class JavaScriptSquidSensorTest {
     when(issueBuilder.ruleKey(any(RuleKey.class))).thenReturn(issueBuilder);
     when(issueBuilder.message(any(String.class))).thenReturn(issueBuilder);
 
+    NewIssue newIssue = mock(NewIssue.class);
+    NewIssueLocation newIssueLocation = mock(NewIssueLocation.class);
+    when(context.newIssue()).thenReturn(newIssue);
+    when(newIssue.forRule(any(RuleKey.class))).thenReturn(newIssue);
+    when(newIssue.newLocation()).thenReturn(newIssueLocation);
+    when(newIssueLocation.on(inputFile)).thenReturn(newIssueLocation);
+    when(newIssueLocation.at(any(TextRange.class))).thenReturn(newIssueLocation);
     createSensor().analyse(project, context);
 
-    verify(issuable, times(2)).addIssue(any(Issue.class));
+    verify(issuable, times(1)).addIssue(any(Issue.class));
+    verify(newIssue, times(1)).save();
   }
 
   @Test
@@ -260,9 +276,9 @@ public class JavaScriptSquidSensorTest {
   @Test
   public void test_exclude_minified_files() {
     SensorContext context = mock(SensorContext.class);
-    InputFile inputFile1 = inputFile("test_minified/file.js");
-    InputFile inputFile2 = inputFile("test_minified/file.min.js");
-    InputFile inputFile3 = inputFile("test_minified/file-min.js");
+    DefaultInputFile inputFile1 = inputFile("test_minified/file.js");
+    DefaultInputFile inputFile2 = inputFile("test_minified/file.min.js");
+    DefaultInputFile inputFile3 = inputFile("test_minified/file-min.js");
     fileSystem.add(inputFile1);
     fileSystem.add(inputFile2);
     fileSystem.add(inputFile3);
@@ -300,10 +316,9 @@ public class JavaScriptSquidSensorTest {
     when(perspectives.as(Symbolizable.class, inputFile)).thenReturn(symbolizable);
   }
 
-  private InputFile inputFile(String fileName) {
-    String relativePath = "src/test/resources/" + fileName;
-    return new DefaultInputFile(relativePath)
-      .setAbsolutePath(new File(relativePath).getAbsolutePath())
+  private DefaultInputFile inputFile(String relativePath) {
+    return new DefaultInputFile("", relativePath)
+      .setModuleBaseDir((new File("src/test/resources/")).toPath())
       .setType(InputFile.Type.MAIN)
       .setLanguage(JavaScriptLanguage.KEY);
   }

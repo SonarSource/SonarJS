@@ -34,8 +34,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import javax.annotation.Nullable;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.DependedUpon;
 import org.sonar.api.batch.Sensor;
 import org.sonar.api.batch.SensorContext;
@@ -55,6 +53,8 @@ import org.sonar.api.measures.Metric;
 import org.sonar.api.resources.Project;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.source.Symbolizable;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
 import org.sonar.javascript.checks.CheckList;
 import org.sonar.javascript.checks.ParsingErrorCheck;
 import org.sonar.javascript.highlighter.HighlightSymbolTableBuilder;
@@ -86,7 +86,7 @@ public class JavaScriptSquidSensor implements Sensor {
     return ImmutableList.<Metric>of(CoreMetrics.NCLOC, CoreMetrics.NCLOC_DATA);
   }
 
-  private static final Logger LOG = LoggerFactory.getLogger(JavaScriptSquidSensor.class);
+  private static final Logger LOG = Loggers.get(JavaScriptSquidSensor.class);
 
   private final JavaScriptChecks checks;
   private final FileLinesContextFactory fileLinesContextFactory;
@@ -307,7 +307,7 @@ public class JavaScriptSquidSensor implements Sensor {
     return false;
   }
 
-  <P extends Perspective<?>> P perspective(Class<P> clazz, @Nullable InputFile file) {
+  <P extends Perspective> P perspective(Class<P> clazz, @Nullable InputFile file) {
     if (file == null) {
       throw new IllegalArgumentException("Cannot get " + clazz.getCanonicalName() + "for a null file");
     }

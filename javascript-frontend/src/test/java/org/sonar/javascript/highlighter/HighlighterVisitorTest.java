@@ -63,11 +63,10 @@ public class HighlighterVisitorTest extends JavaScriptTreeModelTest {
 
   @Before
   public void setUp() throws IOException {
-    fileSystem = new DefaultFileSystem();
+    fileSystem = new DefaultFileSystem(tempFolder.getRoot());
     fileSystem.setEncoding(CHARSET);
     file = tempFolder.newFile();
-    DefaultInputFile inputFile = new DefaultInputFile("relative-path")
-      .setAbsolutePath(file.getAbsolutePath())
+    DefaultInputFile inputFile = new DefaultInputFile("",  file.getName())
       .setLanguage("js")
       .setType(Type.MAIN);
     fileSystem.add(inputFile);

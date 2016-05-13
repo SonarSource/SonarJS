@@ -23,23 +23,23 @@ import com.google.common.collect.ImmutableList;
 import java.io.File;
 import java.util.List;
 import javax.annotation.Nullable;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.component.ResourcePerspectives;
 import org.sonar.api.source.Highlightable;
 import org.sonar.api.source.Highlightable.HighlightingBuilder;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
 import org.sonar.javascript.lexer.JavaScriptKeyword;
 import org.sonar.javascript.tree.impl.expression.LiteralTreeImpl;
 import org.sonar.javascript.tree.impl.lexical.InternalSyntaxToken;
-import org.sonar.plugins.javascript.api.visitors.SubscriptionVisitor;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.declaration.MethodDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxTrivia;
 import org.sonar.plugins.javascript.api.tree.statement.VariableDeclarationTree;
+import org.sonar.plugins.javascript.api.visitors.SubscriptionVisitor;
 
 public class HighlighterVisitor extends SubscriptionVisitor {
 
@@ -55,7 +55,7 @@ public class HighlighterVisitor extends SubscriptionVisitor {
     Kind.SET_METHOD
   };
 
-  private static final Logger LOG = LoggerFactory.getLogger(HighlighterVisitor.class);
+  private static final Logger LOG = Loggers.get(HighlighterVisitor.class);
 
   public HighlighterVisitor(ResourcePerspectives resourcePerspectives, FileSystem fileSystem) {
     this.resourcePerspectives = resourcePerspectives;

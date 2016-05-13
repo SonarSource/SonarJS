@@ -19,6 +19,7 @@
  */
 package org.sonar.plugins.javascript.lcov;
 
+import java.io.File;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -35,7 +36,6 @@ import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 import org.sonar.plugins.javascript.JavaScriptLanguage;
 import org.sonar.plugins.javascript.JavaScriptPlugin;
-import org.sonar.test.TestUtils;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -67,7 +67,7 @@ public class CoverageSensorTest {
 
   @Test
   public void test_should_execute() {
-    DefaultFileSystem fs = new DefaultFileSystem();
+    DefaultFileSystem fs = new DefaultFileSystem(new File(""));
     Settings localSettings = new Settings();
     LCOVCoverageSensor localSensor = newUTSensor(fs, localSettings);
 
@@ -75,7 +75,7 @@ public class CoverageSensorTest {
     assertThat(localSensor.shouldExecuteOnProject(project)).isFalse();
 
     // at least one JS file -> do execute
-    fs.add(new DefaultInputFile("fake_file.js").setType(InputFile.Type.MAIN).setLanguage(JavaScriptLanguage.KEY));
+    fs.add(new DefaultInputFile("", "fake_file.js").setType(InputFile.Type.MAIN).setLanguage(JavaScriptLanguage.KEY));
     assertThat(localSensor.shouldExecuteOnProject(project)).isTrue();
 
     // no path to report -> do execute
@@ -206,16 +206,14 @@ public class CoverageSensorTest {
   }
 
   public DefaultInputFile newSourceInputFile(String name) {
-    return new DefaultInputFile("relative/path/" + name)
-      .setAbsolutePath("absolute/path/" + name)
+    return new DefaultInputFile("", "relative/path/" + name)
       .setType(InputFile.Type.MAIN)
       .setLines(42)
       .setLanguage(JavaScriptLanguage.KEY);
   }
 
   public DefaultFileSystem newFileSystem() {
-    DefaultFileSystem fs = new DefaultFileSystem();
-    fs.setBaseDir(TestUtils.getResource("org/sonar/plugins/javascript/unittest/jstestdriver/"));
+    DefaultFileSystem fs = new DefaultFileSystem(new File("src/test/resources/org/sonar/plugins/javascript/unittest/jstestdriver/"));
 
     return fs;
   }

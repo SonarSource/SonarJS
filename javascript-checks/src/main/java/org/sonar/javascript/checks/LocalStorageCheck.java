@@ -20,9 +20,9 @@
 package org.sonar.javascript.checks;
 
 import com.google.common.collect.ImmutableList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.apache.commons.collections.map.HashedMap;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
@@ -62,7 +62,7 @@ public class LocalStorageCheck extends DoubleDispatchVisitorCheck {
     "sessionStorage"
   );
 
-  Map<String, StorageType> storageTypes = new HashedMap();
+  Map<String, StorageType> storageTypes = new HashMap<>();
 
   @Override
   public void visitScript(ScriptTree tree) {
