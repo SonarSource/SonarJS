@@ -22,44 +22,37 @@ package org.sonar.plugins.javascript;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Throwables;
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.sonar.sslr.api.RecognitionException;
 import com.sonar.sslr.api.typed.ActionParser;
 import java.io.File;
 import java.io.InterruptedIOException;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import javax.annotation.Nullable;
-import org.sonar.api.batch.DependedUpon;
-import org.sonar.api.batch.Sensor;
-import org.sonar.api.batch.SensorContext;
 import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.fs.InputFile.Type;
+import org.sonar.api.batch.fs.TextRange;
 import org.sonar.api.batch.rule.CheckFactory;
-import org.sonar.api.component.Perspective;
-import org.sonar.api.component.ResourcePerspectives;
+import org.sonar.api.batch.sensor.Sensor;
+import org.sonar.api.batch.sensor.SensorContext;
+import org.sonar.api.batch.sensor.SensorDescriptor;
+import org.sonar.api.batch.sensor.issue.NewIssue;
+import org.sonar.api.batch.sensor.issue.NewIssueLocation;
+import org.sonar.api.batch.sensor.symbol.NewSymbolTable;
 import org.sonar.api.config.Settings;
-import org.sonar.api.issue.Issuable;
-import org.sonar.api.issue.Issuable.IssueBuilder;
 import org.sonar.api.issue.NoSonarFilter;
-import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.FileLinesContextFactory;
-import org.sonar.api.measures.Metric;
-import org.sonar.api.resources.Project;
 import org.sonar.api.rule.RuleKey;
-import org.sonar.api.source.Symbolizable;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.javascript.checks.CheckList;
 import org.sonar.javascript.checks.ParsingErrorCheck;
 import org.sonar.javascript.highlighter.HighlightSymbolTableBuilder;
 import org.sonar.javascript.highlighter.HighlighterVisitor;
-import org.sonar.javascript.issues.PreciseIssueCompat;
 import org.sonar.javascript.metrics.MetricsVisitor;
 import org.sonar.javascript.parser.JavaScriptParserBuilder;
 import org.sonar.javascript.se.SeChecksDispatcher;
@@ -71,26 +64,20 @@ import org.sonar.plugins.javascript.api.tree.ScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.visitors.FileIssue;
 import org.sonar.plugins.javascript.api.visitors.Issue;
+import org.sonar.plugins.javascript.api.visitors.IssueLocation;
 import org.sonar.plugins.javascript.api.visitors.LineIssue;
 import org.sonar.plugins.javascript.api.visitors.PreciseIssue;
 import org.sonar.plugins.javascript.api.visitors.TreeVisitor;
+import org.sonar.plugins.javascript.api.visitors.TreeVisitorContext;
 import org.sonar.squidbridge.ProgressReport;
 import org.sonar.squidbridge.api.AnalysisException;
 
 public class JavaScriptSquidSensor implements Sensor {
 
-  private static final boolean IS_SONARQUBE_52_OR_LATER = isSonarQube52OrLater();
-
-  @DependedUpon
-  public Collection<Metric> generatesNCLOCMetric() {
-    return ImmutableList.<Metric>of(CoreMetrics.NCLOC, CoreMetrics.NCLOC_DATA);
-  }
-
   private static final Logger LOG = Loggers.get(JavaScriptSquidSensor.class);
 
   private final JavaScriptChecks checks;
   private final FileLinesContextFactory fileLinesContextFactory;
-  private final ResourcePerspectives resourcePerspectives;
   private final FileSystem fileSystem;
   private final NoSonarFilter noSonarFilter;
   private final FilePredicate mainFilePredicate;
@@ -100,15 +87,12 @@ public class JavaScriptSquidSensor implements Sensor {
   private RuleKey parsingErrorRuleKey = null;
 
   public JavaScriptSquidSensor(
-    CheckFactory checkFactory, FileLinesContextFactory fileLinesContextFactory,
-    ResourcePerspectives resourcePerspectives, FileSystem fileSystem, NoSonarFilter noSonarFilter, Settings settings
-  ) {
-    this(checkFactory, fileLinesContextFactory, resourcePerspectives, fileSystem, noSonarFilter, settings, null);
+    CheckFactory checkFactory, FileLinesContextFactory fileLinesContextFactory, FileSystem fileSystem, NoSonarFilter noSonarFilter, Settings settings) {
+    this(checkFactory, fileLinesContextFactory, fileSystem, noSonarFilter, settings, null);
   }
 
   public JavaScriptSquidSensor(
-    CheckFactory checkFactory, FileLinesContextFactory fileLinesContextFactory,
-    ResourcePerspectives resourcePerspectives, FileSystem fileSystem, NoSonarFilter noSonarFilter,
+    CheckFactory checkFactory, FileLinesContextFactory fileLinesContextFactory, FileSystem fileSystem, NoSonarFilter noSonarFilter,
     Settings settings, @Nullable CustomJavaScriptRulesDefinition[] customRulesDefinition
   ) {
 
@@ -116,7 +100,6 @@ public class JavaScriptSquidSensor implements Sensor {
       .addChecks(CheckList.REPOSITORY_KEY, CheckList.getChecks())
       .addCustomChecks(customRulesDefinition);
     this.fileLinesContextFactory = fileLinesContextFactory;
-    this.resourcePerspectives = resourcePerspectives;
     this.fileSystem = fileSystem;
     this.noSonarFilter = noSonarFilter;
     this.mainFilePredicate = fileSystem.predicates().and(
@@ -124,33 +107,6 @@ public class JavaScriptSquidSensor implements Sensor {
       fileSystem.predicates().hasLanguage(JavaScriptLanguage.KEY));
     this.settings = settings;
     this.parser = JavaScriptParserBuilder.createParser(fileSystem.encoding());
-  }
-
-  @Override
-  public boolean shouldExecuteOnProject(Project project) {
-    return fileSystem.hasFiles(mainFilePredicate);
-  }
-
-  @Override
-  public void analyse(Project project, SensorContext context) {
-    List<TreeVisitor> treeVisitors = Lists.newArrayList();
-
-    treeVisitors.add(new MetricsVisitor(fileSystem, context, noSonarFilter, settings.getBoolean(JavaScriptPlugin.IGNORE_HEADER_COMMENTS), fileLinesContextFactory));
-    treeVisitors.add(new HighlighterVisitor(resourcePerspectives, fileSystem));
-    treeVisitors.add(new SeChecksDispatcher(checks.seChecks()));
-    treeVisitors.addAll(checks.visitorChecks());
-
-    for (TreeVisitor check : treeVisitors) {
-      if (check instanceof ParsingErrorCheck) {
-        parsingErrorRuleKey = checks.ruleKeyFor((JavaScriptCheck) check);
-        break;
-      }
-    }
-
-    ProgressReport progressReport = new ProgressReport("Report about progress of Javascript analyzer", TimeUnit.SECONDS.toMillis(10));
-    progressReport.start(Lists.newArrayList(fileSystem.files(mainFilePredicate)));
-
-    analyseFiles(context, treeVisitors, fileSystem.inputFiles(mainFilePredicate), progressReport);
   }
 
   @VisibleForTesting
@@ -178,18 +134,17 @@ public class JavaScriptSquidSensor implements Sensor {
   }
 
   private void analyse(SensorContext sensorContext, InputFile inputFile, List<TreeVisitor> visitors) {
-    Issuable issuable = perspective(Issuable.class, inputFile);
     ScriptTree scriptTree;
 
     try {
       scriptTree = (ScriptTree) parser.parse(new java.io.File(inputFile.absolutePath()));
-      scanFile(sensorContext, inputFile, visitors, issuable, scriptTree);
+      scanFile(sensorContext, inputFile, visitors, scriptTree);
 
     } catch (RecognitionException e) {
       checkInterrupted(e);
       LOG.error("Unable to parse file: " + inputFile.absolutePath());
       LOG.error(e.getMessage());
-      processRecognitionException(e, issuable);
+      processRecognitionException(e, sensorContext, inputFile);
 
     } catch (Exception e) {
       checkInterrupted(e);
@@ -205,22 +160,27 @@ public class JavaScriptSquidSensor implements Sensor {
     }
   }
 
-  private void processRecognitionException(RecognitionException e, Issuable issuable) {
+  private void processRecognitionException(RecognitionException e, SensorContext sensorContext, InputFile inputFile) {
     if (parsingErrorRuleKey != null) {
-      issuable.addIssue(issuable.newIssueBuilder()
-        .ruleKey(parsingErrorRuleKey)
-        .line(e.getLine())
+      NewIssue newIssue = sensorContext.newIssue();
+
+      NewIssueLocation primaryLocation = newIssue.newLocation()
         .message(e.getMessage())
-        .build()
-      );
+        .on(inputFile)
+        .at(inputFile.selectLine(e.getLine()));
+
+      newIssue
+        .forRule(parsingErrorRuleKey)
+        .at(primaryLocation)
+        .save();
     }
   }
 
-  private void scanFile(SensorContext sensorContext, InputFile inputFile, List<TreeVisitor> visitors, Issuable issuable, ScriptTree scriptTree) {
+  private void scanFile(SensorContext sensorContext, InputFile inputFile, List<TreeVisitor> visitors, ScriptTree scriptTree) {
     JavaScriptVisitorContext context = new JavaScriptVisitorContext(scriptTree, inputFile.file(), settings);
 
-    Symbolizable symbolizable = perspective(Symbolizable.class, inputFile);
-    highlightSymbols(symbolizable, context);
+    highlightSymbols(sensorContext.newSymbolTable().onFile(inputFile), context);
+    sensorContext.newSymbolTable();
 
     List<Issue> fileIssues = new ArrayList<>();
 
@@ -238,54 +198,59 @@ public class JavaScriptSquidSensor implements Sensor {
 
     }
 
-    saveFileIssues(sensorContext, fileIssues, inputFile, issuable);
+    saveFileIssues(sensorContext, fileIssues, inputFile);
   }
 
-  private static void highlightSymbols(@Nullable Symbolizable symbolizable, JavaScriptVisitorContext context) {
-    if (symbolizable != null) {
-      symbolizable.setSymbolTable(HighlightSymbolTableBuilder.build(symbolizable, context));
-    } else {
-      LOG.warn("Symbol in source view will not be highlighted.");
-    }
+
+  private static void highlightSymbols(NewSymbolTable newSymbolTable, TreeVisitorContext context) {
+    HighlightSymbolTableBuilder.build(newSymbolTable, context);
   }
 
-  private void saveFileIssues(SensorContext sensorContext, List<Issue> fileIssues, InputFile inputFile, Issuable issuable) {
+  private void saveFileIssues(SensorContext sensorContext, List<Issue> fileIssues, InputFile inputFile) {
     for (Issue issue : fileIssues) {
+      RuleKey ruleKey = ruleKey(issue.check());
       if (issue instanceof FileIssue) {
-        saveIssue(issuable, issue.check(), null, ((FileIssue) issue).message(), issue.cost());
+        saveFileIssue(sensorContext, inputFile, ruleKey, (FileIssue) issue);
 
       } else if (issue instanceof LineIssue) {
-        saveIssue(issuable, issue.check(), ((LineIssue)issue).line(), ((LineIssue) issue).message(), issue.cost());
+        saveLineIssue(sensorContext, inputFile, ruleKey, (LineIssue) issue);
 
       } else {
-        PreciseIssue preciseIssue = (PreciseIssue)issue;
-        if (IS_SONARQUBE_52_OR_LATER) {
-          RuleKey ruleKey = ruleKey(issue.check());
-          PreciseIssueCompat.save(sensorContext, inputFile, ruleKey, preciseIssue);
-        } else {
-          saveIssue(issuable, issue.check(), preciseIssue.primaryLocation().startLine(), preciseIssue.primaryLocation().message(), issue.cost());
-        }
+        savePreciseIssue(sensorContext, inputFile, ruleKey, (PreciseIssue)issue);
       }
     }
   }
 
-  private void saveIssue(Issuable issuable, JavaScriptCheck check, @Nullable Integer line, String message, @Nullable Double cost) {
-    RuleKey ruleKey = ruleKey(check);
+  private static void savePreciseIssue(SensorContext sensorContext, InputFile inputFile, RuleKey ruleKey, PreciseIssue issue) {
+    NewIssue newIssue = sensorContext.newIssue();
 
-    IssueBuilder issueBuilder = issuable
-      .newIssueBuilder()
-      .ruleKey(ruleKey)
-      .message(message);
+    newIssue
+      .forRule(ruleKey)
+      .at(newLocation(inputFile, newIssue, issue.primaryLocation()));
 
-    if (line != null) {
-      issueBuilder.line(line);
+    if (issue.cost() != null) {
+      newIssue.gap(issue.cost());
     }
 
-    if (cost != null) {
-      issueBuilder.effortToFix(cost);
+    for (IssueLocation secondary : issue.secondaryLocations()) {
+      newIssue.addLocation(newLocation(inputFile, newIssue, secondary));
     }
+    newIssue.save();
+  }
 
-    issuable.addIssue(issueBuilder.build());
+
+  private static NewIssueLocation newLocation(InputFile inputFile, NewIssue issue, IssueLocation location) {
+    TextRange range = inputFile.newRange(
+      location.startLine(), location.startLineOffset(), location.endLine(), location.endLineOffset());
+
+    NewIssueLocation newLocation = issue.newLocation()
+      .on(inputFile)
+      .at(range);
+
+    if (location.message() != null) {
+      newLocation.message(location.message());
+    }
+    return newLocation;
   }
 
 
@@ -298,37 +263,75 @@ public class JavaScriptSquidSensor implements Sensor {
     return ruleKey;
   }
 
-  private static boolean isSonarQube52OrLater() {
-    for (Method method : Issuable.IssueBuilder.class.getMethods()) {
-      if ("newLocation".equals(method.getName())) {
-        return true;
-      }
-    }
-    return false;
-  }
-
-  <P extends Perspective> P perspective(Class<P> clazz, @Nullable InputFile file) {
-    if (file == null) {
-      throw new IllegalArgumentException("Cannot get " + clazz.getCanonicalName() + "for a null file");
-    }
-    P result = resourcePerspectives.as(clazz, file);
-    if (result == null) {
-      throw new IllegalStateException("Could not get " + clazz.getCanonicalName() + " for " + file);
-    }
-    return result;
-  }
-
-  @Override
-  public String toString() {
-    return getClass().getSimpleName();
-  }
-
   public boolean isExcluded(File file) {
     return isMinifiedFile(file.getName());
   }
 
   public static boolean isMinifiedFile(String filename) {
     return filename.endsWith("-min.js") || filename.endsWith(".min.js");
+  }
+
+  @Override
+  public void describe(SensorDescriptor descriptor) {
+    descriptor
+      .onlyOnLanguage(JavaScriptLanguage.KEY)
+      .name("JavaScript Squid Sensor")
+      .onlyOnFileType(Type.MAIN);
+  }
+
+  @Override
+  public void execute(SensorContext context) {
+    List<TreeVisitor> treeVisitors = Lists.newArrayList();
+
+    treeVisitors.add(new MetricsVisitor(fileSystem, context, noSonarFilter, settings.getBoolean(JavaScriptPlugin.IGNORE_HEADER_COMMENTS), fileLinesContextFactory));
+    treeVisitors.add(new HighlighterVisitor(context, fileSystem));
+    treeVisitors.add(new SeChecksDispatcher(checks.seChecks()));
+    treeVisitors.addAll(checks.visitorChecks());
+
+    for (TreeVisitor check : treeVisitors) {
+      if (check instanceof ParsingErrorCheck) {
+        parsingErrorRuleKey = checks.ruleKeyFor((JavaScriptCheck) check);
+        break;
+      }
+    }
+
+    ProgressReport progressReport = new ProgressReport("Report about progress of Javascript analyzer", TimeUnit.SECONDS.toMillis(10));
+    progressReport.start(Lists.newArrayList(fileSystem.files(mainFilePredicate)));
+
+    analyseFiles(context, treeVisitors, fileSystem.inputFiles(mainFilePredicate), progressReport);
+  }
+
+  private static void saveLineIssue(SensorContext sensorContext, InputFile inputFile, RuleKey ruleKey, LineIssue issue) {
+    NewIssue newIssue = sensorContext.newIssue();
+
+    NewIssueLocation primaryLocation = newIssue.newLocation()
+      .message(issue.message())
+      .on(inputFile)
+      .at(inputFile.selectLine(issue.line()));
+
+    saveIssue(newIssue, primaryLocation, ruleKey, issue);
+  }
+
+  private static void saveFileIssue(SensorContext sensorContext, InputFile inputFile, RuleKey ruleKey, FileIssue issue) {
+    NewIssue newIssue = sensorContext.newIssue();
+
+    NewIssueLocation primaryLocation = newIssue.newLocation()
+      .message(issue.message())
+      .on(inputFile);
+
+    saveIssue(newIssue, primaryLocation, ruleKey, issue);
+  }
+
+  private static void saveIssue(NewIssue newIssue, NewIssueLocation primaryLocation, RuleKey ruleKey, Issue issue) {
+    newIssue
+      .forRule(ruleKey)
+      .at(primaryLocation);
+
+    if (issue.cost() != null) {
+      newIssue.gap(issue.cost());
+    }
+
+    newIssue.save();
   }
 
 }

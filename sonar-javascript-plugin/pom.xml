@@ -39,10 +39,6 @@
       <groupId>${project.groupId}</groupId>
       <artifactId>javascript-checks</artifactId>
     </dependency>
-    <dependency>
-      <groupId>${project.groupId}</groupId>
-      <artifactId>sonar-compat</artifactId>
-    </dependency>
 
     <dependency>
       <groupId>org.slf4j</groupId>

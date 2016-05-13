@@ -44,7 +44,6 @@
   <modules>
     <module>javascript-frontend</module>
     <module>javascript-checks</module>
-    <module>sonar-compat</module>
     <module>sonar-javascript-plugin</module>
     <module>javascript-checks-testkit</module>
   </modules>
@@ -93,13 +92,6 @@
         <artifactId>javascript-checks</artifactId>
         <version>${project.version}</version>
       </dependency>
-
-      <dependency>
-        <groupId>${project.groupId}</groupId>
-        <artifactId>sonar-compat</artifactId>
-        <version>${project.version}</version>
-      </dependency>
-
 
 
       <dependency>

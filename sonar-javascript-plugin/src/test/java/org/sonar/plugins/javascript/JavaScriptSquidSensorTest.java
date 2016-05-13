@@ -23,42 +23,38 @@ import com.google.common.collect.ImmutableList;
 import com.sonar.sslr.api.RecognitionException;
 import java.io.File;
 import java.io.InterruptedIOException;
+import java.nio.charset.Charset;
+import java.util.Collection;
 import org.apache.commons.lang.NotImplementedException;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.sonar.api.batch.SensorContext;
 import org.sonar.api.batch.fs.InputFile;
-import org.sonar.api.batch.fs.TextRange;
-import org.sonar.api.batch.fs.internal.DefaultFileSystem;
+import org.sonar.api.batch.fs.InputFile.Type;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
+import org.sonar.api.batch.fs.internal.DefaultTextPointer;
+import org.sonar.api.batch.fs.internal.DefaultTextRange;
+import org.sonar.api.batch.fs.internal.FileMetadata;
 import org.sonar.api.batch.rule.ActiveRules;
 import org.sonar.api.batch.rule.CheckFactory;
 import org.sonar.api.batch.rule.internal.ActiveRulesBuilder;
-import org.sonar.api.batch.sensor.issue.NewIssue;
-import org.sonar.api.batch.sensor.issue.NewIssueLocation;
-import org.sonar.api.component.ResourcePerspectives;
+import org.sonar.api.batch.sensor.internal.DefaultSensorDescriptor;
+import org.sonar.api.batch.sensor.internal.SensorContextTester;
+import org.sonar.api.batch.sensor.issue.Issue;
 import org.sonar.api.config.Settings;
-import org.sonar.api.issue.Issuable;
-import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.NoSonarFilter;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.FileLinesContext;
 import org.sonar.api.measures.FileLinesContextFactory;
-import org.sonar.api.resources.Project;
-import org.sonar.api.resources.Resource;
 import org.sonar.api.rule.RuleKey;
-import org.sonar.api.source.Highlightable;
-import org.sonar.api.source.Symbolizable;
-import org.sonar.api.source.Symbolizable.SymbolTableBuilder;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
 import org.sonar.javascript.checks.CheckList;
+import org.sonar.javascript.tree.visitors.CharsetAwareVisitor;
 import org.sonar.plugins.javascript.api.CustomJavaScriptRulesDefinition;
 import org.sonar.plugins.javascript.api.JavaScriptCheck;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
-import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitor;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
 import org.sonar.plugins.javascript.api.visitors.LineIssue;
 import org.sonar.plugins.javascript.api.visitors.TreeVisitor;
@@ -68,10 +64,7 @@ import org.sonar.squidbridge.api.AnalysisException;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyDouble;
-import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -81,7 +74,6 @@ public class JavaScriptSquidSensorTest {
   public final ExpectedException thrown = ExpectedException.none();
 
   private FileLinesContextFactory fileLinesContextFactory;
-  private final Project project = new Project("project");
   private CheckFactory checkFactory = new CheckFactory(mock(ActiveRules.class));
   private final CustomJavaScriptRulesDefinition[] CUSTOM_RULES = {new CustomJavaScriptRulesDefinition() {
     @Override
@@ -100,14 +92,13 @@ public class JavaScriptSquidSensorTest {
     }
   }};
 
-  private final ResourcePerspectives perspectives = mock(ResourcePerspectives.class);
-  private final DefaultFileSystem fileSystem = new DefaultFileSystem(new File("src/test/resources"));
+  private final File baseDir = new File("src/test/resources");
   private final Settings settings = new Settings();
   private final ProgressReport progressReport = mock(ProgressReport.class);
-  private final SensorContext context = mock(SensorContext.class);
+  private final SensorContextTester context = SensorContextTester.create(baseDir);
 
   private JavaScriptSquidSensor createSensor() {
-    return new JavaScriptSquidSensor(checkFactory, fileLinesContextFactory, perspectives, fileSystem, new NoSonarFilter(), settings, CUSTOM_RULES);
+    return new JavaScriptSquidSensor(checkFactory, fileLinesContextFactory, context.fileSystem(), new NoSonarFilter(), settings, CUSTOM_RULES);
   }
 
   @Before
@@ -118,47 +109,44 @@ public class JavaScriptSquidSensorTest {
   }
 
   @Test
-  public void should_execute_if_js_files() {
-    JavaScriptSquidSensor sensor = createSensor();
+  public void sensor_descriptor() {
+    DefaultSensorDescriptor descriptor = new DefaultSensorDescriptor();
 
-    // no JS files -> do not execute
-    assertThat(sensor.shouldExecuteOnProject(project)).isFalse();
-
-    // at least one JS file -> do execute
-    fileSystem.add(new DefaultInputFile("", "file.js").setType(InputFile.Type.MAIN).setLanguage(JavaScriptLanguage.KEY));
-    assertThat(sensor.shouldExecuteOnProject(project)).isTrue();
+    createSensor().describe(descriptor);
+    assertThat(descriptor.name()).isEqualTo("JavaScript Squid Sensor");
+    assertThat(descriptor.languages()).containsOnly("js");
+    assertThat(descriptor.type()).isEqualTo(Type.MAIN);
   }
 
   @Test
   public void should_analyse() {
-    DefaultInputFile inputFile = inputFile("cpd/Person.js");
-    fileSystem.add(inputFile);
-
-    SensorContext context = mock(SensorContext.class);
-    mockInputFile(inputFile, context);
-
+    String relativePath = "cpd/Person.js";
+    inputFile(relativePath);
     settings.setProperty(JavaScriptPlugin.IGNORE_HEADER_COMMENTS, true);
 
-    createSensor().analyse(project, context);
+    createSensor().execute(context);
 
-    verify(context).saveMeasure(any(InputFile.class), eq(CoreMetrics.LINES), eq(33.0));
-    verify(context).saveMeasure(any(InputFile.class), eq(CoreMetrics.NCLOC), eq(19.0));
-    verify(context).saveMeasure(any(InputFile.class), eq(CoreMetrics.CLASSES), eq(1.0));
-    verify(context).saveMeasure(any(InputFile.class), eq(CoreMetrics.FUNCTIONS), eq(3.0));
-    verify(context).saveMeasure(any(InputFile.class), eq(CoreMetrics.ACCESSORS), eq(2.0));
-    verify(context).saveMeasure(any(InputFile.class), eq(CoreMetrics.STATEMENTS), eq(8.0));
-    verify(context).saveMeasure(any(InputFile.class), eq(CoreMetrics.COMPLEXITY), eq(4.0));
-    verify(context).saveMeasure(any(InputFile.class), eq(CoreMetrics.COMPLEXITY_IN_CLASSES), eq(1.0));
-    verify(context).saveMeasure(any(InputFile.class), eq(CoreMetrics.COMPLEXITY_IN_FUNCTIONS), eq(4.0));
-    verify(context).saveMeasure(any(InputFile.class), eq(CoreMetrics.COMMENT_LINES), eq(1.0));
+    String key = "moduleKey:" + relativePath;
+
+    assertThat(context.measure(key, CoreMetrics.LINES).value()).isEqualTo(33);
+    assertThat(context.measure(key, CoreMetrics.NCLOC).value()).isEqualTo(19);
+    assertThat(context.measure(key, CoreMetrics.CLASSES).value()).isEqualTo(1);
+    assertThat(context.measure(key, CoreMetrics.FUNCTIONS).value()).isEqualTo(3);
+    assertThat(context.measure(key, CoreMetrics.ACCESSORS).value()).isEqualTo(2);
+    assertThat(context.measure(key, CoreMetrics.STATEMENTS).value()).isEqualTo(8);
+    assertThat(context.measure(key, CoreMetrics.COMPLEXITY).value()).isEqualTo(4);
+    assertThat(context.measure(key, CoreMetrics.COMPLEXITY_IN_CLASSES).value()).isEqualTo(1);
+    assertThat(context.measure(key, CoreMetrics.COMPLEXITY_IN_FUNCTIONS).value()).isEqualTo(4);
+    assertThat(context.measure(key, CoreMetrics.COMMENT_LINES).value()).isEqualTo(1);
   }
 
   @Test
   public void parsing_error() {
-    DefaultInputFile inputFile = inputFile("cpd/parsingError.js");
-    fileSystem.add(inputFile);
+    String relativePath = "cpd/parsingError.js";
+    inputFile(relativePath);
 
     String parsingErrorCheckKey = "ParsingError";
+
 
     ActiveRules activeRules = (new ActiveRulesBuilder())
       .create(RuleKey.of(CheckList.REPOSITORY_KEY, parsingErrorCheckKey))
@@ -168,35 +156,17 @@ public class JavaScriptSquidSensorTest {
 
     checkFactory = new CheckFactory(activeRules);
 
-    Resource resource = mock(Resource.class);
-    Issuable.IssueBuilder issueBuilder = mock(Issuable.IssueBuilder.class);
-    Issue issue = mock(Issue.class);
-    Issuable issuable = mock(Issuable.class);
-
-    mockPerspectives(inputFile, issuable);
-    when(resource.getEffectiveKey()).thenReturn("someKey");
-    when(context.getResource(inputFile)).thenReturn(resource);
-    when(issuable.newIssueBuilder()).thenReturn(issueBuilder);
-    when(issueBuilder.ruleKey(any(RuleKey.class))).thenReturn(issueBuilder);
-    when(issueBuilder.line(3)).thenReturn(issueBuilder);
-    when(issueBuilder.message(any(String.class))).thenReturn(issueBuilder);
-    when(issueBuilder.build()).thenReturn(issue);
-    when(issuable.addIssue(issue)).thenReturn(true);
-
-    createSensor().analyse(project, context);
-
-    verify(issuable).addIssue(any(Issue.class));
+    context.setActiveRules(activeRules);
+    createSensor().execute(context);
+    Collection<Issue> issues = context.allIssues();
+    assertThat(issues).hasSize(1);
+    Issue issue = issues.iterator().next();
+    assertThat(issue.primaryLocation().textRange().start().line()).isEqualTo(3);
   }
 
   @Test
   public void save_issue() throws Exception {
-    DefaultInputFile inputFile = inputFile("file.js");
-    inputFile
-      .setLines(2)
-      .setOriginalLineOffsets(new int[]{0, 9})
-      .setLastValidOffset(20);
-
-    fileSystem.add(inputFile);
+    inputFile("file.js");
 
     ActiveRules activeRules = (new ActiveRulesBuilder())
       .create(RuleKey.of(CheckList.REPOSITORY_KEY, "MissingNewlineAtEndOfFile"))
@@ -206,33 +176,32 @@ public class JavaScriptSquidSensorTest {
       .build();
 
     checkFactory = new CheckFactory(activeRules);
-    Resource resource = mock(Resource.class);
-    Issuable.IssueBuilder issueBuilder = mock(Issuable.IssueBuilder.class);
-    Issuable issuable = mock(Issuable.class);
+    createSensor().execute(context);
+    Collection<Issue> issues = context.allIssues();
+    assertThat(issues).hasSize(2);
+  }
 
-    mockPerspectives(inputFile, issuable);
-    when(context.getResource(inputFile)).thenReturn(resource);
-    when(issuable.newIssueBuilder()).thenReturn(issueBuilder);
-    when(issueBuilder.ruleKey(any(RuleKey.class))).thenReturn(issueBuilder);
-    when(issueBuilder.message(any(String.class))).thenReturn(issueBuilder);
+  @Test
+  public void custom_rule() throws Exception {
+    inputFile("file.js");
+    ActiveRules activeRules = (new ActiveRulesBuilder())
+      .create(RuleKey.of("customKey", "key"))
+      .activate()
+      .build();
+    checkFactory = new CheckFactory(activeRules);
+    createSensor().execute(context);
 
-    NewIssue newIssue = mock(NewIssue.class);
-    NewIssueLocation newIssueLocation = mock(NewIssueLocation.class);
-    when(context.newIssue()).thenReturn(newIssue);
-    when(newIssue.forRule(any(RuleKey.class))).thenReturn(newIssue);
-    when(newIssue.newLocation()).thenReturn(newIssueLocation);
-    when(newIssueLocation.on(inputFile)).thenReturn(newIssueLocation);
-    when(newIssueLocation.at(any(TextRange.class))).thenReturn(newIssueLocation);
-    createSensor().analyse(project, context);
-
-    verify(issuable, times(1)).addIssue(any(Issue.class));
-    verify(newIssue, times(1)).save();
+    Collection<Issue> issues = context.allIssues();
+    assertThat(issues).hasSize(1);
+    Issue issue = issues.iterator().next();
+    assertThat(issue.gap()).isEqualTo(42);
+    assertThat(issue.primaryLocation().message()).isEqualTo("Message of custom rule");
+    assertThat(issue.primaryLocation().textRange()).isEqualTo(new DefaultTextRange(new DefaultTextPointer(1, 0), new DefaultTextPointer(1, 7)));
   }
 
   @Test
   public void progress_report_should_be_stopped() throws Exception {
     InputFile inputFile = inputFile("cpd/Person.js");
-    mockPerspectives(inputFile, mock(Issuable.class));
     createSensor().analyseFiles(context, ImmutableList.<TreeVisitor>of(), ImmutableList.of(inputFile), progressReport);
     verify(progressReport).stop();
   }
@@ -262,7 +231,6 @@ public class JavaScriptSquidSensorTest {
   }
 
   private void analyseFileWithException(JavaScriptCheck check, InputFile inputFile, String expectedMessageSubstring) {
-    mockPerspectives(inputFile, mock(Issuable.class));
     JavaScriptSquidSensor sensor = createSensor();
     thrown.expect(AnalysisException.class);
     thrown.expectMessage(expectedMessageSubstring);
@@ -275,52 +243,26 @@ public class JavaScriptSquidSensorTest {
 
   @Test
   public void test_exclude_minified_files() {
-    SensorContext context = mock(SensorContext.class);
-    DefaultInputFile inputFile1 = inputFile("test_minified/file.js");
-    DefaultInputFile inputFile2 = inputFile("test_minified/file.min.js");
-    DefaultInputFile inputFile3 = inputFile("test_minified/file-min.js");
-    fileSystem.add(inputFile1);
-    fileSystem.add(inputFile2);
-    fileSystem.add(inputFile3);
+    inputFile("test_minified/file.js");
+    inputFile("test_minified/file.min.js");
+    inputFile("test_minified/file-min.js");
 
+    createSensor().execute(context);
 
-    mockInputFile(inputFile1, context);
-    mockInputFile(inputFile2, context);
-    mockInputFile(inputFile3, context);
-
-    createSensor().analyse(project, context);
-
-    verify(context, times(1)).saveMeasure(any(InputFile.class), eq(CoreMetrics.NCLOC), anyDouble());
-  }
-
-  private void mockInputFile(InputFile inputFile, SensorContext context) {
-    Highlightable highlightable = mock(Highlightable.class);
-    Highlightable.HighlightingBuilder builder = mock(Highlightable.HighlightingBuilder.class);
-    Resource resource = mock(Resource.class);
-    mockPerspectives(inputFile, mock(Issuable.class));
-    when(perspectives.as(Highlightable.class, inputFile)).thenReturn(highlightable);
-    when(highlightable.newHighlighting()).thenReturn(builder);
-    when(resource.getEffectiveKey()).thenReturn("someKey");
-    when(context.getResource(inputFile)).thenReturn(resource);
-  }
-
-  @Test
-  public void test_to_string() {
-    assertThat(createSensor().toString()).isNotNull();
-  }
-
-  private void mockPerspectives(InputFile inputFile, Issuable issuable) {
-    when(perspectives.as(Issuable.class, inputFile)).thenReturn(issuable);
-    Symbolizable symbolizable = mock(Symbolizable.class);
-    when(symbolizable.newSymbolTableBuilder()).thenReturn(mock(SymbolTableBuilder.class));
-    when(perspectives.as(Symbolizable.class, inputFile)).thenReturn(symbolizable);
+    assertThat(context.measure("moduleKey:test_minified/file.js", CoreMetrics.NCLOC)).isNotNull();
+    assertThat(context.measure("moduleKey:test_minified/file.min.js", CoreMetrics.NCLOC)).isNull();
+    assertThat(context.measure("moduleKey:test_minified/file-min.js", CoreMetrics.NCLOC)).isNull();
   }
 
   private DefaultInputFile inputFile(String relativePath) {
-    return new DefaultInputFile("", relativePath)
-      .setModuleBaseDir((new File("src/test/resources/")).toPath())
-      .setType(InputFile.Type.MAIN)
+    DefaultInputFile inputFile = new DefaultInputFile("moduleKey", relativePath)
+      .setModuleBaseDir(baseDir.toPath())
+      .setType(Type.MAIN)
       .setLanguage(JavaScriptLanguage.KEY);
+
+    context.fileSystem().add(inputFile);
+
+    return inputFile.initMetadata(new FileMetadata().readMetadata(inputFile.file(), Charset.defaultCharset()));
   }
 
   private final class ExceptionRaisingCheck extends DoubleDispatchVisitorCheck {
@@ -352,12 +294,24 @@ public class JavaScriptSquidSensorTest {
     name = "name",
     description = "desc",
     tags = {"bug"})
-  public class MyCustomRule extends DoubleDispatchVisitor {
+  public static class MyCustomRule extends DoubleDispatchVisitorCheck implements CharsetAwareVisitor {
     @RuleProperty(
       key = "customParam",
       description = "Custome parameter",
       defaultValue = "value")
     public String customParam = "value";
+
+    Charset charset;
+
+    @Override
+    public void setCharset(Charset charset) {
+      this.charset = charset;
+    }
+
+    @Override
+    public void visitScript(ScriptTree tree) {
+      addIssue(new LineIssue(this, 1, "Message of custom rule")).cost(42);
+    }
   }
 
 }
