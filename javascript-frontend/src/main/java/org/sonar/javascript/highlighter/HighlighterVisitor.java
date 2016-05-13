@@ -20,16 +20,11 @@
 package org.sonar.javascript.highlighter;
 
 import com.google.common.collect.ImmutableList;
-import java.io.File;
 import java.util.List;
-import javax.annotation.Nullable;
 import org.sonar.api.batch.fs.FileSystem;
-import org.sonar.api.batch.fs.InputFile;
-import org.sonar.api.component.ResourcePerspectives;
-import org.sonar.api.source.Highlightable;
-import org.sonar.api.source.Highlightable.HighlightingBuilder;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
+import org.sonar.api.batch.sensor.SensorContext;
+import org.sonar.api.batch.sensor.highlighting.NewHighlighting;
+import org.sonar.api.batch.sensor.highlighting.TypeOfText;
 import org.sonar.javascript.lexer.JavaScriptKeyword;
 import org.sonar.javascript.tree.impl.expression.LiteralTreeImpl;
 import org.sonar.javascript.tree.impl.lexical.InternalSyntaxToken;
@@ -43,10 +38,9 @@ import org.sonar.plugins.javascript.api.visitors.SubscriptionVisitor;
 
 public class HighlighterVisitor extends SubscriptionVisitor {
 
-  private final ResourcePerspectives resourcePerspectives;
+  private final SensorContext sensorContext;
   private final FileSystem fileSystem;
-  private HighlightingBuilder highlighting;
-  private SourceFileOffsets offsets;
+  private NewHighlighting highlighting;
 
   private static final Kind[] METHODS = {
     Kind.GENERATOR_METHOD,
@@ -55,10 +49,8 @@ public class HighlighterVisitor extends SubscriptionVisitor {
     Kind.SET_METHOD
   };
 
-  private static final Logger LOG = Loggers.get(HighlighterVisitor.class);
-
-  public HighlighterVisitor(ResourcePerspectives resourcePerspectives, FileSystem fileSystem) {
-    this.resourcePerspectives = resourcePerspectives;
+  public HighlighterVisitor(SensorContext sensorContext, FileSystem fileSystem) {
+    this.sensorContext = sensorContext;
     this.fileSystem = fileSystem;
   }
 
@@ -74,96 +66,73 @@ public class HighlighterVisitor extends SubscriptionVisitor {
       .build();
   }
 
-  private void stopHighlighting() {
-    highlighting.done();
-  }
-
   @Override
   public void visitFile(Tree scriptTree) {
-    highlighting = initHighlighting(getContext().getFile());
+    highlighting = sensorContext.newHighlighting().onFile(fileSystem.inputFile(fileSystem.predicates().is(getContext().getFile())));
   }
 
   @Override
   public void leaveFile(Tree scriptTree) {
-    if (highlighting != null) {
-      stopHighlighting();
-    }
+    highlighting.save();
   }
 
   @Override
   public void visitNode(Tree tree) {
-    if (highlighting == null) {
-      return;
-    }
-
-    SyntaxToken token;
+    SyntaxToken token = null;
+    TypeOfText code = null;
 
     if (tree.is(METHODS)) {
       token = ((MethodDeclarationTree) tree).staticToken();
-      if (token != null) {
-        highlight(offsets.startOffset(token), offsets.endOffset(token), "k");
-      }
+      code = TypeOfText.KEYWORD;
 
     } else if (tree.is(Kind.LET_DECLARATION)) {
       token = ((VariableDeclarationTree) tree).token();
-      highlight(offsets.startOffset(token), offsets.endOffset(token), "k");
+      code = TypeOfText.KEYWORD;
 
     } else if (tree.is(Kind.TOKEN)) {
       highlightToken((InternalSyntaxToken) tree);
 
     } else if (tree.is(Kind.STRING_LITERAL)) {
       token = ((LiteralTreeImpl) tree).token();
-      highlight(offsets.startOffset(token), offsets.endOffset(token), "s");
+      code = TypeOfText.STRING;
 
     } else if (tree.is(Kind.NUMERIC_LITERAL)) {
       token = ((LiteralTreeImpl) tree).token();
-      highlight(offsets.startOffset(token), offsets.endOffset(token), "c");
+      code = TypeOfText.CONSTANT;
     }
 
+    if (token != null) {
+      highlight(token, code);
+    }
   }
 
   private void highlightToken(InternalSyntaxToken token) {
     if (isKeyword(token.text())) {
-      highlight(offsets.startOffset(token), offsets.endOffset(token), "k");
+      highlight(token, TypeOfText.KEYWORD);
     }
     highlightComments(token);
   }
 
   private void highlightComments(InternalSyntaxToken token) {
-    String code;
-    if (!token.trivias().isEmpty()) {
-      for (SyntaxTrivia trivia : token.trivias()) {
-        if (trivia.text().startsWith("/**")) {
-          code = "j";
-        } else {
-          code = "cd";
-        }
-        highlight(offsets.startOffset(trivia), offsets.endOffset(trivia), code);
+    TypeOfText type;
+    for (SyntaxTrivia trivia : token.trivias()) {
+      if (trivia.text().startsWith("/**")) {
+        type = TypeOfText.STRUCTURED_COMMENT;
+      } else {
+        type = TypeOfText.COMMENT;
       }
+      highlight(trivia, type);
     }
   }
 
-  @Nullable
-  private HighlightingBuilder initHighlighting(File file) {
-    InputFile inputFile = fileSystem.inputFile(fileSystem.predicates().is(file));
-    if (inputFile == null) {
-      throw new IllegalArgumentException("Cannot get " + Highlightable.class.getCanonicalName() + " for a null file");
+  private void highlight(SyntaxToken token, TypeOfText type) {
+    String[] lines = token.text().split("\\r\\n|\\n|\\r");
+    int endLineOffset = token.column() + token.text().length();
+    int endLine = token.line() + lines.length - 1;
+    if (endLine != token.line()) {
+      endLineOffset = lines[lines.length - 1].length();
     }
-    Highlightable highlightable = resourcePerspectives.as(Highlightable.class, inputFile);
-    if (highlightable == null) {
-      LOG.warn("Could not get " + Highlightable.class.getCanonicalName() + " for " + inputFile.file());
-      return null;
-    } else {
-      highlighting = highlightable.newHighlighting();
-      offsets = new SourceFileOffsets(file, fileSystem.encoding());
-      return this.highlighting;
-    }
-  }
-
-  private void highlight(int startOffset, int endOffset, String code) {
-    if (endOffset > startOffset) {
-      highlighting.highlight(startOffset, endOffset, code);
-    }
+    highlighting.highlight(token.line(), token.column(), endLine, endLineOffset, type);
   }
 
   private static boolean isKeyword(String text) {

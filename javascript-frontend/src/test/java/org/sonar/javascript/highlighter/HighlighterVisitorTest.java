@@ -20,32 +20,30 @@
 package org.sonar.javascript.highlighter;
 
 import com.google.common.base.Charsets;
-import com.google.common.io.Files;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
+import java.util.List;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
-import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.InputFile.Type;
 import org.sonar.api.batch.fs.internal.DefaultFileSystem;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
-import org.sonar.api.component.ResourcePerspectives;
-import org.sonar.api.source.Highlightable;
-import org.sonar.api.source.Highlightable.HighlightingBuilder;
+import org.sonar.api.batch.sensor.highlighting.TypeOfText;
+import org.sonar.api.batch.sensor.internal.SensorContextTester;
 import org.sonar.javascript.utils.JavaScriptTreeModelTest;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.visitors.TreeVisitorContext;
 
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
+import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
+import static org.sonar.api.batch.sensor.highlighting.TypeOfText.COMMENT;
+import static org.sonar.api.batch.sensor.highlighting.TypeOfText.KEYWORD;
+import static org.sonar.api.batch.sensor.highlighting.TypeOfText.STRING;
 
 public class HighlighterVisitorTest extends JavaScriptTreeModelTest {
 
@@ -53,10 +51,11 @@ public class HighlighterVisitorTest extends JavaScriptTreeModelTest {
 
   private HighlighterVisitor highlighterVisitor;
 
-  private HighlightingBuilder highlightingBuilder;
   private TreeVisitorContext visitorContext;
   private DefaultFileSystem fileSystem;
+  private SensorContextTester sensorContext;
   private File file;
+  private DefaultInputFile inputFile;
 
   @Rule
   public TemporaryFolder tempFolder = new TemporaryFolder();
@@ -66,148 +65,127 @@ public class HighlighterVisitorTest extends JavaScriptTreeModelTest {
     fileSystem = new DefaultFileSystem(tempFolder.getRoot());
     fileSystem.setEncoding(CHARSET);
     file = tempFolder.newFile();
-    DefaultInputFile inputFile = new DefaultInputFile("",  file.getName())
+    inputFile = new DefaultInputFile("moduleKey",  file.getName())
       .setLanguage("js")
       .setType(Type.MAIN);
     fileSystem.add(inputFile);
 
-    ResourcePerspectives resourcePerspectives = mock(ResourcePerspectives.class);
-    Highlightable highlightable = mock(Highlightable.class);
-    highlightingBuilder = mock(HighlightingBuilder.class);
+    sensorContext = SensorContextTester.create(tempFolder.getRoot());
     visitorContext = mock(TreeVisitorContext.class);
 
-    highlighterVisitor = new HighlighterVisitor(resourcePerspectives, fileSystem);
-
-    when(resourcePerspectives.as(eq(Highlightable.class), any(InputFile.class))).thenReturn(highlightable);
-    when(highlightable.newHighlighting()).thenReturn(highlightingBuilder);
+    highlighterVisitor = new HighlighterVisitor(sensorContext, fileSystem);
     when(visitorContext.getFile()).thenReturn(file);
   }
 
   private void highlight(String string) throws Exception {
-    Files.write(string, file, CHARSET);
+    inputFile.initMetadata(string);
     Tree tree = p.parse(string);
     when(visitorContext.getTopTree()).thenReturn((ScriptTree) tree);
     highlighterVisitor.scanTree(visitorContext);
-    verify(highlightingBuilder).done();
   }
 
-  @Test
-  public void no_highlightable() throws Exception {
-    ResourcePerspectives resourcePerspectives = mock(ResourcePerspectives.class);
-    HighlighterVisitor failingHighlighterVisitor = new HighlighterVisitor(resourcePerspectives, fileSystem);
-    when(resourcePerspectives.as(eq(Highlightable.class), any(InputFile.class))).thenReturn(null);
+  private void assertHighlighting(int column, int length, TypeOfText type) {
+    assertHighlighting(1, column, length, type);
+  }
 
-    Tree tree = p.parse("var a = 1");
-    when(visitorContext.getTopTree()).thenReturn((ScriptTree) tree);
-    failingHighlighterVisitor.scanTree(visitorContext);
-    verifyNoMoreInteractions(highlightingBuilder);
+  private void assertHighlighting(int line, int column, int length, TypeOfText type) {
+    for (int i = column; i < column + length; i++) {
+      List<TypeOfText> typeOfTexts = sensorContext.highlightingTypeAt("moduleKey:" + file.getName(), line, i);
+      assertThat(typeOfTexts).hasSize(1);
+      assertThat(typeOfTexts.get(0)).isEqualTo(type);
+    }
   }
 
   @Test
   public void empty_input() throws Exception {
     highlight("");
-    verifyNoMoreInteractions(highlightingBuilder);
+    assertThat(sensorContext.highlightingTypeAt("moduleKey:" + file.getName(), 1, 0)).isEmpty();
   }
 
   @Test
   public void multiline_comment() throws Exception {
-    highlight("  /*Comment*/ ");
-    verify(highlightingBuilder).highlight(2, 13, "cd");
-    verifyNoMoreInteractions(highlightingBuilder);
+    highlight("/*\nComment\n*/ ");
+    assertHighlighting(1, 0, 2, COMMENT);
+    assertHighlighting(2, 0, 7, COMMENT);
+    assertHighlighting(3, 0, 2, COMMENT);
   }
 
   @Test
   public void single_line_comment() throws Exception {
     highlight("  //Comment ");
-    verify(highlightingBuilder).highlight(2, 12, "cd");
-    verifyNoMoreInteractions(highlightingBuilder);
+    assertHighlighting(2, 10, COMMENT);
   }
 
   @Test
   public void html_comment() throws Exception {
     highlight("  <!--Comment ");
-    verify(highlightingBuilder).highlight(2, 14, "cd");
-    verifyNoMoreInteractions(highlightingBuilder);
+    assertHighlighting(2, 12, COMMENT);
   }
 
 
   @Test
   public void javadoc_comment() throws Exception {
     highlight("  /**Comment*/ ");
-    verify(highlightingBuilder).highlight(2, 14, "j");
-    verifyNoMoreInteractions(highlightingBuilder);
+    assertHighlighting(2, 12, TypeOfText.STRUCTURED_COMMENT);
   }
 
   @Test
   public void numbers() throws Exception {
     highlight("x = 1; y = 1.0");
-    verify(highlightingBuilder).highlight(4, 5, "c");
-    verify(highlightingBuilder).highlight(11, 14, "c");
-    verifyNoMoreInteractions(highlightingBuilder);
+    assertHighlighting(4, 1, TypeOfText.CONSTANT);
+    assertHighlighting(11, 1, TypeOfText.CONSTANT);
   }
 
   @Test
   public void string() throws Exception {
     highlight("var x = \"a\"");
-    verify(highlightingBuilder).highlight(0, 3, "k");
-    verify(highlightingBuilder).highlight(8, 11, "s");
-    verifyNoMoreInteractions(highlightingBuilder);
+    assertHighlighting(8, 3, STRING);
   }
 
   @Test
   public void keyword() throws Exception {
     highlight("var x = 0");
-    verify(highlightingBuilder).highlight(0, 3, "k");
-    verify(highlightingBuilder).highlight(8, 9, "c");
-    verifyNoMoreInteractions(highlightingBuilder);
+    assertHighlighting(0, 3, KEYWORD);
   }
 
   @Test
   public void let_keyword() throws Exception {
     highlight("let x;");
-    verify(highlightingBuilder).highlight(0, 3, "k");
-    verifyNoMoreInteractions(highlightingBuilder);
+    assertHighlighting(0, 3, KEYWORD);
   }
 
   @Test
   public void static_keyword_method() throws Exception {
-    highlight("class A { static foo(){} }");
-    verify(highlightingBuilder).highlight(0, 5, "k");
-    verify(highlightingBuilder).highlight(10, 16, "k");
-    verifyNoMoreInteractions(highlightingBuilder);
+    highlight("class A { \nstatic foo(){} }");
+    assertHighlighting(0, 5, KEYWORD);
+    assertHighlighting(2, 0, 6, KEYWORD);
   }
 
   @Test
   public void static_keyword_generator() throws Exception {
-    highlight("class B { static * foo(){} }");
-    verify(highlightingBuilder).highlight(0, 5, "k");
-    verify(highlightingBuilder).highlight(10, 16, "k");
-    verifyNoMoreInteractions(highlightingBuilder);
+    highlight("class B { \nstatic * foo(){} }");
+    assertHighlighting(0, 5, KEYWORD);
+    assertHighlighting(2, 0, 6, KEYWORD);
   }
 
   @Test
   public void static_keyword_getter() throws Exception {
-    highlight("class C { static get prop(){} }");
-    verify(highlightingBuilder).highlight(0, 5, "k");
-    verify(highlightingBuilder).highlight(10, 16, "k");
-    verifyNoMoreInteractions(highlightingBuilder);
+    highlight("class C { \nstatic get prop(){} }");
+    assertHighlighting(0, 5, KEYWORD);
+    assertHighlighting(2, 0, 6, KEYWORD);
   }
 
   @Test
   public void const_keyword() throws Exception {
     highlight("const x;");
-    verify(highlightingBuilder).highlight(0, 5, "k");
-    verifyNoMoreInteractions(highlightingBuilder);
+    assertHighlighting(0, 5, KEYWORD);
   }
 
   @Test
   public void byte_order_mark() throws Exception {
     highlight("\uFEFFvar x //\nvar y //");
-    verify(highlightingBuilder).highlight(0, 3, "k");
-    verify(highlightingBuilder).highlight(9, 12, "k");
-    verify(highlightingBuilder).highlight(6, 8, "cd");
-    verify(highlightingBuilder).highlight(15, 17, "cd");
-    verifyNoMoreInteractions(highlightingBuilder);
+    assertHighlighting(0, 3, KEYWORD);
+    assertHighlighting(2, 0, 3, KEYWORD);
   }
 
 }
