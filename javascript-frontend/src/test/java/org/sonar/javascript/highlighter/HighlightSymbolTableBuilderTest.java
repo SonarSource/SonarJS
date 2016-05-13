@@ -19,142 +19,117 @@
  */
 package org.sonar.javascript.highlighter;
 
-import com.google.common.base.Charsets;
-import com.google.common.io.Files;
 import java.io.File;
-import java.util.List;
-import org.junit.Before;
+import java.nio.charset.Charset;
+import java.util.Collection;
 import org.junit.Test;
-import org.sonar.api.source.Symbolizable;
+import org.sonar.api.batch.fs.TextRange;
+import org.sonar.api.batch.fs.internal.DefaultInputFile;
+import org.sonar.api.batch.fs.internal.DefaultTextPointer;
+import org.sonar.api.batch.fs.internal.DefaultTextRange;
+import org.sonar.api.batch.fs.internal.FileMetadata;
+import org.sonar.api.batch.sensor.internal.SensorContextTester;
+import org.sonar.api.batch.sensor.symbol.NewSymbolTable;
+import org.sonar.api.internal.google.common.base.Charsets;
+import org.sonar.api.internal.google.common.io.Files;
 import org.sonar.javascript.utils.JavaScriptTreeModelTest;
 
 import static org.fest.assertions.Assertions.assertThat;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyInt;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.when;
-import static org.mockito.internal.verification.VerificationModeFactory.times;
 
 public class HighlightSymbolTableBuilderTest extends JavaScriptTreeModelTest {
 
-  private final Symbolizable symbolizable = mock(Symbolizable.class);
-  private final Symbolizable.SymbolTableBuilder symbolTableBuilder = mock(Symbolizable.SymbolTableBuilder.class);
+  private SensorContextTester sensorContext;
+  private DefaultInputFile inputFile;
 
-  private static final String EOL = "\n";
-  private List<String> lines;
+  private NewSymbolTable newSymbolTable(String filename) {
+    File moduleBaseDir = new File("src/test/resources/highlighter/");
+    sensorContext = SensorContextTester.create(moduleBaseDir);
+    inputFile = new DefaultInputFile("moduleKey", filename)
+      .setModuleBaseDir(moduleBaseDir.toPath());
 
-  @Before
-  public void init() {
-    when(symbolizable.newSymbolTableBuilder()).thenReturn(symbolTableBuilder);
+    inputFile.initMetadata(new FileMetadata().readMetadata(inputFile.file(), Charset.defaultCharset()));
+    return sensorContext.newSymbolTable().onFile(inputFile);
+  }
+
+  private static DefaultTextRange textRange(int line, int startColumn, int endColumn) {
+    return new DefaultTextRange(new DefaultTextPointer(line, startColumn), new DefaultTextPointer(line, endColumn));
+  }
+
+  private Collection<TextRange> references(String key, int line, int column) {
+    return sensorContext.referencesForSymbolAt(key, line, column);
   }
 
   @Test
   public void sonar_symbol_table() throws Exception {
-    File file = new File("src/test/resources/highlighter/symbolHighlighting.js");
-    lines = Files.readLines(file, Charsets.UTF_8);
-    HighlightSymbolTableBuilder.build(symbolizable, context(file));
+    String filename = "symbolHighlighting.js";
+    String key = "moduleKey:" + filename;
+    HighlightSymbolTableBuilder.build(newSymbolTable(filename), context(inputFile.file()));
 
     // variable
-    verify(symbolTableBuilder).newSymbol(offset(1, 5), offset(1, 6));
-    verify(symbolTableBuilder).newReference(any(org.sonar.api.source.Symbol.class), eq(offset(5, 1)));
-    verify(symbolTableBuilder).newReference(any(org.sonar.api.source.Symbol.class), eq(offset(5, 7)));
+    assertThat(references(key, 1, 4)).containsOnly(textRange(5, 0, 1), textRange(5, 6, 7));
 
     // function declaration
-    verify(symbolTableBuilder).newSymbol(offset(3, 10), offset(3, 11));
-    verify(symbolTableBuilder).newReference(any(org.sonar.api.source.Symbol.class), eq(offset(5, 5)));
+    assertThat(references(key, 3, 9)).containsOnly(textRange(5, 4, 5));
 
     // named function expression
-    verify(symbolTableBuilder).newSymbol(offset(7, 10), offset(7, 19));
-    verify(symbolTableBuilder).newReference(any(org.sonar.api.source.Symbol.class), eq(offset(8, 10)));
+    assertThat(references(key, 7, 9)).containsOnly(textRange(8, 9, 18));
 
     // function parameter
-    verify(symbolTableBuilder).newSymbol(offset(7, 20), offset(7, 21));
-    verify(symbolTableBuilder).newReference(any(org.sonar.api.source.Symbol.class), eq(offset(8, 20)));
+    assertThat(references(key, 7, 19)).containsOnly(textRange(8, 19, 20));
 
     // variable with several declarations
-    verify(symbolTableBuilder).newSymbol(offset(11, 5), offset(11, 6));
-    verify(symbolTableBuilder).newReference(any(org.sonar.api.source.Symbol.class), eq(offset(13, 5)));
-    verify(symbolTableBuilder).newReference(any(org.sonar.api.source.Symbol.class), eq(offset(12, 1)));
-    verify(symbolTableBuilder).newReference(any(org.sonar.api.source.Symbol.class), eq(offset(14, 1)));
+    assertThat(references(key, 11, 4)).containsOnly(textRange(13, 4, 5), textRange(12, 0, 1), textRange(14, 0, 1), textRange(16, 23, 24));
 
     // curly braces
-    verify(symbolTableBuilder).newSymbol(offset(3, 14), offset(3, 15));
-    verify(symbolTableBuilder).newReference(any(org.sonar.api.source.Symbol.class), eq(offset(3, 15)));
-    verify(symbolTableBuilder).newSymbol(offset(7, 23), offset(7, 24));
-    verify(symbolTableBuilder).newReference(any(org.sonar.api.source.Symbol.class), eq(offset(9, 1)));
-    verify(symbolTableBuilder).newSymbol(offset(16, 23), offset(16, 24));
-    verify(symbolTableBuilder).newReference(any(org.sonar.api.source.Symbol.class), eq(offset(16, 29)));
-    verify(symbolTableBuilder).newSymbol(offset(18, 5), offset(18, 6));
-    verify(symbolTableBuilder).newReference(any(org.sonar.api.source.Symbol.class), eq(offset(18, 10)));
-
-    verify(symbolTableBuilder).build();
+    assertThat(references(key, 3, 13)).containsOnly(textRange(3, 14, 15));
+    assertThat(references(key, 7, 22)).containsOnly(textRange(9, 0, 1));
+    assertThat(references(key, 16, 22)).containsOnly(textRange(16, 28, 29));
+    assertThat(references(key, 18, 4)).containsOnly(textRange(18, 9, 10));
   }
 
   @Test
   public void sonar_symbol_table_built_in() throws Exception {
-    File file = new File("src/test/resources/highlighter/symbolHighlightingBuiltIn.js");
-    HighlightSymbolTableBuilder.build(symbolizable, context(file));
+    String filename = "symbolHighlightingBuiltIn.js";
+    String key = "moduleKey:" + filename;
+    HighlightSymbolTableBuilder.build(newSymbolTable(filename), context(inputFile.file()));
 
-    // no offsets are used as there is uncertainty about the order of usages of built-in symbols (and first usage used for newSymbol)
-    verify(symbolTableBuilder, times(5)).newSymbol(anyInt(), anyInt());
-    verify(symbolTableBuilder, times(5)).newReference(any(org.sonar.api.source.Symbol.class), anyInt());
+    // arguments
+    assertThat(references(key, 2, 14)).containsOnly(textRange(3, 2, 11), textRange(4, 2, 11));
 
-    verify(symbolTableBuilder).build();
-    verifyNoMoreInteractions(symbolTableBuilder);
+    // eval
+    assertThat(references(key, 11, 4)).containsOnly(textRange(9, 0, 4));
   }
 
   @Test
   public void byte_order_mark_should_not_increment_offset() throws Exception {
-    File file = new File("src/test/resources/highlighter/symbolHighlightingBom.js");
-    assertThat(Files.toString(file, Charsets.UTF_8).startsWith("\uFEFF")).isTrue();
-    HighlightSymbolTableBuilder.build(symbolizable, context(file));
-    verify(symbolTableBuilder).newSymbol(4, 5);
+    String filename = "symbolHighlightingBom.js";
+
+    HighlightSymbolTableBuilder.build(newSymbolTable(filename), context(inputFile.file()));
+    assertThat(Files.toString(inputFile.file(), Charsets.UTF_8).startsWith("\uFEFF")).isTrue();
+    assertThat(references("moduleKey:" + filename, 1, 4)).containsOnly(textRange(3, 0, 1));
   }
 
   @Test
   public void test_properties() throws Exception {
-    File file = new File("src/test/resources/highlighter/symbolHighlightingProperties.js");
-    lines = Files.readLines(file, Charsets.UTF_8);
-    HighlightSymbolTableBuilder.build(symbolizable, context(file));
+    String filename = "symbolHighlightingProperties.js";
+    String key = "moduleKey:" + filename;
+
+    HighlightSymbolTableBuilder.build(newSymbolTable(filename), context(inputFile.file()));
+
 
     // class
-    verify(symbolTableBuilder).newSymbol(offset(1, 7), offset(1, 8));
-    verify(symbolTableBuilder).newReference(any(org.sonar.api.source.Symbol.class), eq(offset(7, 17)));
+    assertThat(references(key, 1, 6)).containsOnly(textRange(7, 16, 17));
 
     // "foo" method
-    verify(symbolTableBuilder).newSymbol(offset(2, 3), offset(2, 6));
-    verify(symbolTableBuilder).newReference(any(org.sonar.api.source.Symbol.class), eq(offset(8, 7)));
+    assertThat(references(key, 2, 2)).containsOnly(textRange(8, 6, 9));
 
     // "bar" method
-    verify(symbolTableBuilder).newSymbol(offset(6, 3), offset(6, 6));
-    verify(symbolTableBuilder).newReference(any(org.sonar.api.source.Symbol.class), eq(offset(3, 10)));
+    assertThat(references(key, 6, 2)).containsOnly(textRange(3, 9, 12));
 
     // "a" variable
-    verify(symbolTableBuilder).newSymbol(offset(7, 9), offset(7, 10));
-    verify(symbolTableBuilder).newReference(any(org.sonar.api.source.Symbol.class), eq(offset(8, 5)));
+    assertThat(references(key, 7, 8)).containsOnly(textRange(8, 4, 5));
 
     // "this"
-    verify(symbolTableBuilder).newSymbol(offset(3, 5), offset(3, 9));
-
-    // {  }
-    verify(symbolTableBuilder).newSymbol(offset(2, 9), offset(2, 10));
-    verify(symbolTableBuilder).newReference(any(org.sonar.api.source.Symbol.class), eq(offset(4, 3)));
-    verify(symbolTableBuilder).newSymbol(offset(6, 9), offset(6, 10));
-    verify(symbolTableBuilder).newReference(any(org.sonar.api.source.Symbol.class), eq(offset(9, 3)));
-
-
-    verify(symbolTableBuilder).build();
-  }
-
-  private int offset(int line, int column) {
-    int result = 0;
-    for (int i = 0; i < line - 1; i++) {
-      result += lines.get(i).length() + EOL.length();
-    }
-    result += column - 1;
-    return result;
+    assertThat(references(key, 3, 4)).isEmpty();
   }
 }

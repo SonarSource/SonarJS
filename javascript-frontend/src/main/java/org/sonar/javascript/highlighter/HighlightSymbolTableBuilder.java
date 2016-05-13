@@ -23,11 +23,10 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
-import org.sonar.api.source.Symbolizable;
-import org.sonar.api.source.Symbolizable.SymbolTableBuilder;
+import org.sonar.api.batch.sensor.symbol.NewSymbol;
+import org.sonar.api.batch.sensor.symbol.NewSymbolTable;
 import org.sonar.javascript.tree.impl.lexical.InternalSyntaxToken;
 import org.sonar.javascript.tree.symbols.type.ClassType;
-import org.sonar.javascript.visitors.JavaScriptVisitorContext;
 import org.sonar.plugins.javascript.api.symbols.Symbol;
 import org.sonar.plugins.javascript.api.symbols.Type;
 import org.sonar.plugins.javascript.api.symbols.Type.Kind;
@@ -44,19 +43,18 @@ import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.javascript.api.tree.statement.BlockTree;
 import org.sonar.plugins.javascript.api.tree.statement.SwitchStatementTree;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitor;
+import org.sonar.plugins.javascript.api.visitors.TreeVisitorContext;
 
 public class HighlightSymbolTableBuilder {
 
   private HighlightSymbolTableBuilder() {
   }
 
-  public static Symbolizable.SymbolTable build(Symbolizable symbolizable, JavaScriptVisitorContext context) {
-    Symbolizable.SymbolTableBuilder builder = symbolizable.newSymbolTableBuilder();
+  public static void build(NewSymbolTable newSymbolTable, TreeVisitorContext context) {
     Set<ClassType> classTypes = new HashSet<>();
 
     for (Symbol symbol : context.getSymbolModel().getSymbols()) {
-      highlightSymbol(builder, symbol);
-
+      highlightSymbol(newSymbolTable, symbol);
       if (symbol.kind() == Symbol.Kind.CLASS) {
         Type classType = symbol.types().getUniqueType(Kind.CLASS);
         if (classType != null) {
@@ -67,34 +65,33 @@ public class HighlightSymbolTableBuilder {
 
     for (ClassType classType : classTypes) {
       for (Symbol symbol : classType.properties()) {
-        highlightSymbol(builder, symbol);
+        highlightSymbol(newSymbolTable, symbol);
       }
     }
 
-    (new BracesVisitor(builder)).scanTree(context);
-
-    return builder.build();
+    (new BracesVisitor(newSymbolTable)).scanTree(context);
+    newSymbolTable.save();
   }
 
-  private static void highlightSymbol(SymbolTableBuilder builder, Symbol symbol) {
+  private static void highlightSymbol(NewSymbolTable newSymbolTable, Symbol symbol) {
     if (!symbol.usages().isEmpty()) {
       List<Usage> usagesList = new LinkedList<>(symbol.usages());
       InternalSyntaxToken token = (InternalSyntaxToken) (usagesList.get(0).identifierTree()).identifierToken();
-      org.sonar.api.source.Symbol reference = getHighlightedSymbol(builder, token);
+      NewSymbol newSymbol = getHighlightedSymbol(newSymbolTable, token);
       for (int i = 1; i < usagesList.size(); i++) {
-        builder.newReference(
-          reference,
-          getToken(usagesList.get(i).identifierTree()).startIndex()
-        );
+        InternalSyntaxToken referenceToken = getToken(usagesList.get(i).identifierTree());
+        addReference(newSymbol, referenceToken);
       }
 
     }
   }
 
-  private static org.sonar.api.source.Symbol getHighlightedSymbol(Symbolizable.SymbolTableBuilder builder, InternalSyntaxToken token) {
-    int startOffset = token.startIndex();
-    int endOffset = token.toIndex();
-    return builder.newSymbol(startOffset, endOffset);
+  private static void addReference(NewSymbol symbol, InternalSyntaxToken referenceToken) {
+    symbol.newReference(referenceToken.line(), referenceToken.column(), referenceToken.line(), referenceToken.column() + referenceToken.text().length());
+  }
+
+  private static NewSymbol getHighlightedSymbol(NewSymbolTable newSymbolTable, InternalSyntaxToken token) {
+    return newSymbolTable.newSymbol(token.line(), token.column(), token.line(), token.column() + token.text().length());
   }
 
   private static InternalSyntaxToken getToken(IdentifierTree identifierTree) {
@@ -103,10 +100,10 @@ public class HighlightSymbolTableBuilder {
 
   private static class BracesVisitor extends DoubleDispatchVisitor {
 
-    private final SymbolTableBuilder builder;
+    private final NewSymbolTable newSymbolTable;
 
-    BracesVisitor(SymbolTableBuilder builder) {
-      this.builder = builder;
+    BracesVisitor(NewSymbolTable newSymbolTable) {
+      this.newSymbolTable = newSymbolTable;
     }
 
     @Override
@@ -164,11 +161,8 @@ public class HighlightSymbolTableBuilder {
     }
 
     private void highlightBraces(SyntaxToken left, SyntaxToken right) {
-      org.sonar.api.source.Symbol symbol = getHighlightedSymbol(builder, (InternalSyntaxToken) left);
-      builder.newReference(
-        symbol,
-        ((InternalSyntaxToken) right).startIndex()
-      );
+      NewSymbol symbol = getHighlightedSymbol(newSymbolTable, (InternalSyntaxToken) left);
+      addReference(symbol, (InternalSyntaxToken) right);
     }
   }
 }
