@@ -21,51 +21,41 @@ package org.sonar.javascript.metrics;
 
 import java.io.File;
 import org.junit.Test;
-import org.sonar.api.batch.SensorContext;
 import org.sonar.api.batch.fs.InputFile;
-import org.sonar.api.batch.fs.internal.DefaultFileSystem;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
+import org.sonar.api.batch.sensor.internal.SensorContextTester;
 import org.sonar.api.issue.NoSonarFilter;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.FileLinesContext;
 import org.sonar.api.measures.FileLinesContextFactory;
-import org.sonar.api.resources.Resource;
 import org.sonar.javascript.utils.JavaScriptTreeModelTest;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
 import org.sonar.plugins.javascript.api.visitors.TreeVisitorContext;
 
+import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class MetricsVisitorTest extends JavaScriptTreeModelTest {
 
   @Test
   public void test() {
-    DefaultFileSystem fileSystem = new DefaultFileSystem(new File(""));
+    File moduleBaseDir = new File("src/test/resources/metrics/");
+    SensorContextTester context = SensorContextTester.create(moduleBaseDir);
 
-    File file = new File("src/test/resources/metrics/lines.js");
-
-    DefaultInputFile inputFile = new DefaultInputFile("", "src/test/resources/metrics/lines.js")
-//      .setAbsolutePath(file.getAbsolutePath())
+    DefaultInputFile inputFile = new DefaultInputFile("moduleKey", "lines.js")
+      .setModuleBaseDir(moduleBaseDir.toPath())
       .setLanguage("js")
       .setType(InputFile.Type.MAIN);
 
-    fileSystem.add(inputFile);
-
-    SensorContext context = mock(SensorContext.class);
-
-    Resource resource = mock(Resource.class);
-
-    when(resource.getEffectiveKey()).thenReturn("someKey");
-    when(context.getResource(inputFile)).thenReturn(resource);
+    context.fileSystem().add(inputFile);
 
     FileLinesContextFactory linesContextFactory = mock(FileLinesContextFactory.class);
     FileLinesContext linesContext = mock(FileLinesContext.class);
     when(linesContextFactory.createFor(inputFile)).thenReturn(linesContext);
 
     MetricsVisitor metricsVisitor = new MetricsVisitor(
-      fileSystem,
+      context.fileSystem(),
       context,
       mock(NoSonarFilter.class),
       false,
@@ -73,15 +63,16 @@ public class MetricsVisitorTest extends JavaScriptTreeModelTest {
     );
 
     TreeVisitorContext treeVisitorContext = mock(TreeVisitorContext.class);
-    when(treeVisitorContext.getFile()).thenReturn(file);
-    when(treeVisitorContext.getTopTree()).thenReturn((ScriptTree) p.parse(file));
+    when(treeVisitorContext.getFile()).thenReturn(inputFile.file());
+    when(treeVisitorContext.getTopTree()).thenReturn((ScriptTree) p.parse(inputFile.file()));
 
     metricsVisitor.scanTree(treeVisitorContext);
 
-    verify(context).saveMeasure(inputFile, CoreMetrics.FUNCTIONS, 1.0);
-    verify(context).saveMeasure(inputFile, CoreMetrics.STATEMENTS, 1.0);
-    verify(context).saveMeasure(inputFile, CoreMetrics.ACCESSORS, 0.0);
-    verify(context).saveMeasure(inputFile, CoreMetrics.CLASSES, 0.0);
+    String componentKey = "moduleKey:lines.js";
+    assertThat(context.measure(componentKey, CoreMetrics.FUNCTIONS).value()).isEqualTo(1);
+    assertThat(context.measure(componentKey, CoreMetrics.STATEMENTS).value()).isEqualTo(1);
+    assertThat(context.measure(componentKey, CoreMetrics.ACCESSORS).value()).isEqualTo(0);
+    assertThat(context.measure(componentKey, CoreMetrics.CLASSES).value()).isEqualTo(0);
 
   }
 }

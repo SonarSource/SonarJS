@@ -19,23 +19,23 @@
  */
 package org.sonar.javascript.metrics;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
-import org.sonar.api.batch.SensorContext;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.sensor.SensorContext;
+import org.sonar.api.ce.measure.RangeDistributionBuilder;
 import org.sonar.api.issue.NoSonarFilter;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.FileLinesContext;
 import org.sonar.api.measures.FileLinesContextFactory;
 import org.sonar.api.measures.Metric;
-import org.sonar.api.measures.PersistenceMode;
-import org.sonar.api.measures.RangeDistributionBuilder;
-import org.sonar.plugins.javascript.api.visitors.SubscriptionVisitor;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
+import org.sonar.plugins.javascript.api.visitors.SubscriptionVisitor;
 import org.sonar.plugins.javascript.api.visitors.TreeVisitorContext;
 
 public class MetricsVisitor extends SubscriptionVisitor {
@@ -119,8 +119,8 @@ public class MetricsVisitor extends SubscriptionVisitor {
   private void init() {
     classComplexity = 0;
     functionComplexity = 0;
-    functionComplexityDistribution = new RangeDistributionBuilder(CoreMetrics.FUNCTION_COMPLEXITY_DISTRIBUTION, LIMITS_COMPLEXITY_FUNCTIONS);
-    fileComplexityDistribution = new RangeDistributionBuilder(CoreMetrics.FILE_COMPLEXITY_DISTRIBUTION, FILES_DISTRIB_BOTTOM_LIMITS);
+    functionComplexityDistribution = new RangeDistributionBuilder(LIMITS_COMPLEXITY_FUNCTIONS);
+    fileComplexityDistribution = new RangeDistributionBuilder(FILES_DISTRIB_BOTTOM_LIMITS);
   }
 
   private void saveCounterMetrics(TreeVisitorContext context) {
@@ -138,10 +138,19 @@ public class MetricsVisitor extends SubscriptionVisitor {
     saveMetricOnFile(CoreMetrics.COMPLEXITY_IN_CLASSES, classComplexity);
     saveMetricOnFile(CoreMetrics.COMPLEXITY_IN_FUNCTIONS, functionComplexity);
 
-    sensorContext.saveMeasure(inputFile, functionComplexityDistribution.build(true).setPersistenceMode(PersistenceMode.MEMORY));
+    sensorContext.<String>newMeasure()
+      .on(inputFile)
+      .forMetric(CoreMetrics.FUNCTION_COMPLEXITY_DISTRIBUTION)
+      .withValue(functionComplexityDistribution.build())
+      .save();
 
     fileComplexityDistribution.add(fileComplexity);
-    sensorContext.saveMeasure(inputFile, fileComplexityDistribution.build().setPersistenceMode(PersistenceMode.MEMORY));
+
+    sensorContext.<String>newMeasure()
+      .on(inputFile)
+      .forMetric(CoreMetrics.FILE_COMPLEXITY_DISTRIBUTION)
+      .withValue(fileComplexityDistribution.build())
+      .save();
   }
 
   private void saveLineMetrics(TreeVisitorContext context) {
@@ -156,7 +165,7 @@ public class MetricsVisitor extends SubscriptionVisitor {
     Set<Integer> commentLines = commentVisitor.getCommentLines();
 
     saveMetricOnFile(CoreMetrics.COMMENT_LINES, commentVisitor.getCommentLineNumber());
-    noSonarFilter.addComponent(sensorContext.getResource(inputFile).getEffectiveKey(), commentVisitor.noSonarLines());
+    noSonarFilter.noSonarInFile(inputFile, commentVisitor.noSonarLines());
 
     FileLinesContext fileLinesContext = fileLinesContextFactory.createFor(inputFile);
     for (int line = 1; line <= linesNumber; line++) {
@@ -166,8 +175,12 @@ public class MetricsVisitor extends SubscriptionVisitor {
     fileLinesContext.save();
   }
 
-  private void saveMetricOnFile(Metric metric, double value) {
-    sensorContext.saveMeasure(inputFile, metric, value);
+  private <T extends Serializable> void saveMetricOnFile(Metric metric, T value) {
+    sensorContext.<T>newMeasure()
+      .withValue(value)
+      .forMetric(metric)
+      .on(inputFile)
+      .save();
   }
 
   public static Kind[] getClassNodes() {
