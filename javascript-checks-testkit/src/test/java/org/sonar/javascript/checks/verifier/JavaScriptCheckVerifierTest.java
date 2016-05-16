@@ -19,14 +19,17 @@
  */
 package org.sonar.javascript.checks.verifier;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.io.Files;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 import java.io.File;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+
 import javax.annotation.Nullable;
+
 import org.apache.commons.lang.NotImplementedException;
 import org.apache.commons.lang.StringUtils;
 import org.junit.Rule;
@@ -44,8 +47,8 @@ import org.sonar.plugins.javascript.api.visitors.LineIssue;
 import org.sonar.plugins.javascript.api.visitors.PreciseIssue;
 import org.sonar.plugins.javascript.api.visitors.TreeVisitorContext;
 
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import com.google.common.collect.ImmutableList;
+import com.google.common.io.Files;
 
 public class JavaScriptCheckVerifierTest {
 
@@ -228,6 +231,49 @@ public class JavaScriptCheckVerifierTest {
       "foo(); // Noncompliant\n" +
         "bar(); // Noncompliant",
       TestIssue.create("msg1", 2), TestIssue.create("msg1", 1));
+  }
+
+  @Test
+  public void right_columns_for_primary_location() throws Exception {
+    check(
+      "foo(); // Noncompliant\n" +
+      "// ^^",
+      TestIssue.create("msg1", 1).columns(4, 6));
+  }
+
+  @Test
+  public void wrong_start_column_for_primary_location() throws Exception {
+    expect("Bad start column at line 1");
+    check(
+      "foo(); // Noncompliant\n" +
+      "//  ^",
+      TestIssue.create("msg1", 1).columns(4, 6));
+  }
+
+  @Test
+  public void wrong_end_column_for_primary_location() throws Exception {
+    expect("Bad end column at line 1");
+    check(
+      "foo(); // Noncompliant\n" +
+        "// ^^^",
+      TestIssue.create("msg1", 1).columns(4, 6));
+  }
+
+  @Test
+  public void precise_location_without_any_issue_assertion() throws Exception {
+    thrown.expectMessage("Invalid test file: a precise location is provided at line 2 but no issue is asserted at line 1");
+    check(
+      "foo();\n" +
+      "// ^^");
+  }
+
+  @Test
+  public void precise_location_with_no_assertion_on_previous_line() throws Exception {
+    thrown.expectMessage("Invalid test file: a precise location is provided at line 3 but no issue is asserted at line 2");
+    check(
+      "foo(); // Noncompliant\n" +
+      "foo();\n" +
+      "// ^^");
   }
 
   private void expect(String exceptionMessage) {
