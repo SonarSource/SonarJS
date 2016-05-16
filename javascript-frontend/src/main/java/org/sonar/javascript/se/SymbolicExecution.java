@@ -357,7 +357,8 @@ public class SymbolicExecution {
   private boolean isNullComparison(Tree lastElement) {
     if (lastElement.is(Kind.NOT_EQUAL_TO, Kind.EQUAL_TO)) {
       BinaryExpressionTree comparison = (BinaryExpressionTree) lastElement;
-      return comparison.leftOperand().is(Kind.NULL_LITERAL) || comparison.rightOperand().is(Kind.NULL_LITERAL);
+      return SymbolicValue.get(comparison.leftOperand()) == SymbolicValue.NULL_OR_UNDEFINED
+        || SymbolicValue.get(comparison.rightOperand()) == SymbolicValue.NULL_OR_UNDEFINED;
     }
     return false;
   }

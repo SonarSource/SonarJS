@@ -50,11 +50,14 @@ function equal_null() {
   if (x == null) {
     x.foo();    // Noncompliant
   }
+}
+
+function equal_undefined() {
+  var x = foo();
 
   if (x == undefined) {
-    x.foo();     // FN, Noncompliant
+    x.foo();     // Noncompliant
   }
-
 }
 
 function strict_equal_null() {
