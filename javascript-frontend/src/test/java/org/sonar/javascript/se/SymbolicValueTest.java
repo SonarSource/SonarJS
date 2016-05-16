@@ -108,11 +108,12 @@ public class SymbolicValueTest {
 
   @Test
   public void test_toString() throws Exception {
-    assertThat(SymbolicValue.NULL_OR_UNDEFINED.toString()).isEqualTo("SV_NULL");
-    assertThat(SymbolicValue.UNKNOWN.toString()).isEqualTo("SV_UNKNOWN");
-    assertThat(SymbolicValue.TRUTHY_LITERAL.toString()).isEqualTo("SV_TRUTHY");
-    assertThat(SymbolicValue.FALSY_LITERAL.toString()).isEqualTo("SV_FALSY");
-    assertThat(symbolicValue("x").constrain(FALSY).toString()).isEqualTo("SV_UNKNOWN_FALSY");
+    assertThat(SymbolicValue.NULL_OR_UNDEFINED.toString()).isEqualTo("NULL");
+    assertThat(SymbolicValue.UNKNOWN.toString()).isEqualTo("UNKNOWN");
+    assertThat(SymbolicValue.TRUTHY_LITERAL.toString()).isEqualTo("TRUTHY");
+    assertThat(SymbolicValue.FALSY_LITERAL.toString()).isEqualTo("FALSY");
+    assertThat(symbolicValue("x").constrain(FALSY).toString()).isEqualTo("UNKNOWN_FALSY");
+    assertThat(symbolicValue("x").constrain(NOT_NULL).toString()).isEqualTo("NOT_NULL");
   }
 
   private SymbolicValue symbolicValue(String expressionSource) {

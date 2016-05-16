@@ -157,19 +157,22 @@ public class SymbolicValue {
   @Override
   public String toString() {
     if (this.equals(NULL_OR_UNDEFINED)) {
-      return "SV_NULL";
+      return "NULL";
 
     } else if (this.equals(UNKNOWN)) {
-      return "SV_UNKNOWN";
+      return "UNKNOWN";
 
     } else if (this.equals(TRUTHY_LITERAL)) {
-      return "SV_TRUTHY";
+      return "TRUTHY";
 
     } else if (this.equals(FALSY_LITERAL)) {
-      return "SV_FALSY";
+      return "FALSY";
+
+    } else if (this.nullability.equals(Nullability.NOT_NULL) && this.truthiness.equals(Truthiness.UNKNOWN)) {
+      return "NOT_NULL";
 
     } else {
-      return "SV_" + nullability + "_" + truthiness;
+      return nullability + "_" + truthiness;
     }
   }
 }

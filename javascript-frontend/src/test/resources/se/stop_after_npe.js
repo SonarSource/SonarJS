@@ -6,7 +6,5 @@ function main() {
     x.foo();
   }
 
-  foo(x); // x=NOT_NULL
-
-  something();
+  foo(x); // PS x=NOT_NULL
 }
