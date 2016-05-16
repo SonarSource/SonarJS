@@ -528,20 +528,20 @@ public class ControlFlowGraphTest {
 
   @Test
   public void assignment_with_and() throws Exception {
-    ControlFlowGraph g = build("x = b0 && b1 && b2;", 4, 1);
-    assertBlock(g, 0).hasElements("x", "x = b0 && b1 && b2").hasSuccessors(END);
-    assertBlock(g, 1).hasElements("b0").hasSuccessors(2, 0);
-    assertBlock(g, 2).hasElements("b1").hasSuccessors(3, 0);
-    assertBlock(g, 3).hasElements("b2").hasSuccessors(0);
+    ControlFlowGraph g = build("x = b0 && b1 && b2;", 4, 0);
+    assertBlock(g, 0).hasElements("x", "b0").hasSuccessors(2, 1);
+    assertBlock(g, 2).hasElements("b1").hasSuccessors(3, 1);
+    assertBlock(g, 3).hasElements("b2").hasSuccessors(1);
+    assertBlock(g, 1).hasElements("x = b0 && b1 && b2").hasSuccessors(END);
   }
 
   @Test
   public void assignment_with_or() throws Exception {
-    ControlFlowGraph g = build("x = b0 || b1 || b2;", 4, 1);
-    assertBlock(g, 0).hasElements("x", "x = b0 || b1 || b2").hasSuccessors(END);
-    assertBlock(g, 1).hasElements("b0").hasSuccessors(0, 2);
-    assertBlock(g, 2).hasElements("b1").hasSuccessors(0, 3);
-    assertBlock(g, 3).hasElements("b2").hasSuccessors(0);
+    ControlFlowGraph g = build("x = b0 || b1 || b2;", 4, 0);
+    assertBlock(g, 0).hasElements("x", "b0").hasSuccessors(1, 2);
+    assertBlock(g, 2).hasElements("b1").hasSuccessors(1, 3);
+    assertBlock(g, 3).hasElements("b2").hasSuccessors(1);
+    assertBlock(g, 1).hasElements("x = b0 || b1 || b2").hasSuccessors(END);
   }
 
   @Test
@@ -562,7 +562,8 @@ public class ControlFlowGraphTest {
   public void expressions() throws Exception {
     assertExpressionElements("(a)", "a");
     assertExpressionElements("a, b", "a", "b");
-    assertExpressionElements("a = b", "b", "a");
+    assertExpressionElements("a = b", "a", "b");
+    assertExpressionElements("a += b", "a", "b");
     assertExpressionElements("a + b", "a", "b");
     assertExpressionElements("+a", "a");
     assertExpressionElements("[a, b]", "a", "b");
@@ -575,7 +576,7 @@ public class ControlFlowGraphTest {
     assertExpressionElements("yield a", "a");
     assertExpressionElements("`x${a}`", "a", "${a}");
     assertExpressionElements("tag `x${a}`", "tag", "a", "${a}", "`x${a}`");
-    assertExpressionElements("a = { [ 1 ] : b }", "1", "[ 1 ]", "b", "[ 1 ] : b", "{ [ 1 ] : b }", "a");
+    assertExpressionElements("a = { [ 1 ] : b }", "a",  "1", "[ 1 ]", "b", "[ 1 ] : b", "{ [ 1 ] : b }");
   }
 
   private void assertExpressionElements(String source, String... expectedElements) {

@@ -209,7 +209,7 @@ function typeof_testing() {
 function assignment_left_first() {
   var x;
 
-  foo[x=foo()] = foo(x.bar);  // Noncompliant, FP, we first evaluate LHS of assignment
+  foo[x=foo()] = foo(x.bar);  // Compliant, we first evaluate LHS of assignment
 }
 
 function logical_expression_ternary() {

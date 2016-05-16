@@ -248,8 +248,8 @@ class ControlFlowGraphBuilder {
 
     } else if (TreeKinds.isAssignment(tree)) {
       AssignmentExpressionTree assignment = (AssignmentExpressionTree) tree;
-      buildExpression(assignment.variable());
       buildExpression(assignment.expression());
+      buildExpression(assignment.variable());
 
     } else if (tree.is(UNARY_KINDS)) {
       UnaryExpressionTree unary = (UnaryExpressionTree) tree;
