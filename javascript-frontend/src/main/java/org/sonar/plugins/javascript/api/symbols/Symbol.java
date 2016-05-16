@@ -125,4 +125,8 @@ public class Symbol {
     return kind == Kind.LET_VARIABLE || kind == Kind.CONST_VARIABLE || kind == Kind.VARIABLE;
   }
 
+  @Override
+  public String toString() {
+    return name();
+  }
 }

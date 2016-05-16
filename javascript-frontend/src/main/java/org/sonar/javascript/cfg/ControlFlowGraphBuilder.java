@@ -237,7 +237,7 @@ class ControlFlowGraphBuilder {
   }
 
   private void buildExpression(Tree tree) {
-    if (!tree.is(Kind.CONDITIONAL_OR, Kind.CONDITIONAL_AND)) {
+    if (!tree.is(Kind.CONDITIONAL_OR, Kind.CONDITIONAL_AND, Kind.PARENTHESISED_EXPRESSION)) {
       currentBlock.addElement(tree);
     }
 

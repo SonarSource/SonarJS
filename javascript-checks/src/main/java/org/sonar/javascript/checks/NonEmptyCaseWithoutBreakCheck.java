@@ -39,6 +39,7 @@ import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.declaration.FunctionTree;
 import org.sonar.plugins.javascript.api.tree.expression.BinaryExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
+import org.sonar.plugins.javascript.api.tree.expression.ParenthesisedExpressionTree;
 import org.sonar.plugins.javascript.api.tree.statement.BlockTree;
 import org.sonar.plugins.javascript.api.tree.statement.CaseClauseTree;
 import org.sonar.plugins.javascript.api.tree.statement.StatementTree;
@@ -121,6 +122,8 @@ public class NonEmptyCaseWithoutBreakCheck extends DoubleDispatchVisitorCheck {
       // The operands of a "||" or "&&" are valid predecessors for switch clause statements
       addCaseExpression(caseExpressions, binary.leftOperand());
       addCaseExpression(caseExpressions, binary.rightOperand());
+    } else if (expression.is(Kind.PARENTHESISED_EXPRESSION)) {
+      addCaseExpression(caseExpressions, ((ParenthesisedExpressionTree) expression).expression());
     } else {
       caseExpressions.add(expression);
     }

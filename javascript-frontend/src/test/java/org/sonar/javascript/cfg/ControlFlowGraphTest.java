@@ -554,13 +554,18 @@ public class ControlFlowGraphTest {
   }
 
   @Test
+  public void parenthesized_expression() throws Exception {
+    ControlFlowGraph g = build("(a)", 1);
+    assertBlock(g, 0).hasElements("a");
+  }
+
+  @Test
   public void variable_declaration() throws Exception {
     assertExpressionElements("var a = 1", "1", "a", "a = 1");
   }
 
   @Test
   public void expressions() throws Exception {
-    assertExpressionElements("(a)", "a");
     assertExpressionElements("a, b", "a", "b");
     assertExpressionElements("a = b", "a", "b");
     assertExpressionElements("a += b", "a", "b");

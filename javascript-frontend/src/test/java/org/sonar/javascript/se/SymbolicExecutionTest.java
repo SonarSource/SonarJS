@@ -22,7 +22,6 @@ package org.sonar.javascript.se;
 import com.google.common.base.Charsets;
 import com.google.common.collect.ImmutableList;
 import java.io.File;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.sonar.api.config.Settings;
 import org.sonar.javascript.parser.JavaScriptParserBuilder;
@@ -74,7 +73,6 @@ public class SymbolicExecutionTest {
     runSe("conditions.js");
   }
 
-  @Ignore
   @Test
   public void ternary() throws Exception {
     runSe("ternary.js");

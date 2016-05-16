@@ -220,20 +220,6 @@ function assignment_left_first() {
   foo[x=foo()] = foo(x.bar);  // Compliant, we first evaluate LHS of assignment
 }
 
-function logical_expression_ternary() {
-  var x = foo(), y = bar();
-
-  var z = (x == null || y == null)
-    ? 1
-    : x.foo;  // Noncompliant, FP
-
-  if (x == null || y == null) {
-    return 1;
-  } else {
-    return x.foo;
-  }
-}
-
 function null_and_not_undefined() {
   var x = null;
 

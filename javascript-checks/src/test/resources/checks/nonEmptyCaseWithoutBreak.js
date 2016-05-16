@@ -99,3 +99,12 @@ switch(x) {
   default:
     foo();
 }
+
+// case with parentheses
+switch(x) {
+  case (a):
+    break;
+  case (b):
+    break;
+}
+
