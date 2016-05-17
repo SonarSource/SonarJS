@@ -7,6 +7,7 @@
 8440,
 8473,
 8484,
+11808,
 ],
 'project:dojo-1.8.1/dojo/i18n.js.uncompressed.js':[
 515,
@@ -15,6 +16,9 @@
 301,
 334,
 345,
+],
+'project:dojo-1.8.1/dojo/text.js.uncompressed.js':[
+118,
 ],
 'project:dojo-1.8.1/dojox/calc/Grapher.js.uncompressed.js':[
 442,
