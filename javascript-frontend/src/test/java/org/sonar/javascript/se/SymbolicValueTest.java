@@ -29,8 +29,9 @@ import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.tree.statement.ExpressionStatementTree;
 
 import static org.fest.assertions.Assertions.assertThat;
-import static org.sonar.javascript.se.Nullability.NOT_NULL;
+import static org.sonar.javascript.se.Nullability.NOT_NULLY;
 import static org.sonar.javascript.se.Nullability.NULL;
+import static org.sonar.javascript.se.Nullability.UNDEFINED;
 import static org.sonar.javascript.se.Truthiness.FALSY;
 import static org.sonar.javascript.se.Truthiness.TRUTHY;
 import static org.sonar.javascript.se.Truthiness.UNKNOWN;
@@ -49,15 +50,15 @@ public class SymbolicValueTest {
   @Test
   public void undefined_value() throws Exception {
     SymbolicValue value = symbolicValue("undefined");
-    assertThat(value.nullability()).isEqualTo(NULL);
+    assertThat(value.nullability()).isEqualTo(UNDEFINED);
     assertThat(value.truthiness()).isEqualTo(FALSY);
   }
 
   @Test
   public void literals() throws Exception {
-    assertThat(symbolicValue("42").nullability()).isEqualTo(NOT_NULL);
-    assertThat(symbolicValue("'str'").nullability()).isEqualTo(NOT_NULL);
-    assertThat(symbolicValue("0").nullability()).isEqualTo(NOT_NULL);
+    assertThat(symbolicValue("42").nullability()).isEqualTo(NOT_NULLY);
+    assertThat(symbolicValue("'str'").nullability()).isEqualTo(NOT_NULLY);
+    assertThat(symbolicValue("0").nullability()).isEqualTo(NOT_NULLY);
 
     assertThat(symbolicValue("'ab'").truthiness()).isEqualTo(TRUTHY);
     assertThat(symbolicValue("true").truthiness()).isEqualTo(TRUTHY);
@@ -108,12 +109,14 @@ public class SymbolicValueTest {
 
   @Test
   public void test_toString() throws Exception {
-    assertThat(SymbolicValue.NULL_OR_UNDEFINED.toString()).isEqualTo("NULL");
+    assertThat(SymbolicValue.NULL_OR_UNDEFINED.toString()).isEqualTo("NULLY");
+    assertThat(SymbolicValue.NULL.toString()).isEqualTo("NULL");
+    assertThat(SymbolicValue.UNDEFINED.toString()).isEqualTo("UNDEFINED");
     assertThat(SymbolicValue.UNKNOWN.toString()).isEqualTo("UNKNOWN");
     assertThat(SymbolicValue.TRUTHY_LITERAL.toString()).isEqualTo("TRUTHY");
     assertThat(SymbolicValue.FALSY_LITERAL.toString()).isEqualTo("FALSY");
     assertThat(symbolicValue("x").constrain(FALSY).toString()).isEqualTo("UNKNOWN_FALSY");
-    assertThat(symbolicValue("x").constrain(NOT_NULL).toString()).isEqualTo("NOT_NULL");
+    assertThat(symbolicValue("x").constrain(NOT_NULLY).toString()).isEqualTo("NOT_NULLY");
   }
 
   private SymbolicValue symbolicValue(String expressionSource) {

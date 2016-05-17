@@ -25,7 +25,7 @@ import javax.annotation.Nullable;
 import org.sonar.api.server.rule.RulesDefinition.SubCharacteristics;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
-import org.sonar.javascript.se.Nullability;
+import org.sonar.javascript.se.Nullability.State;
 import org.sonar.javascript.se.ProgramState;
 import org.sonar.javascript.se.SeCheck;
 import org.sonar.javascript.se.SymbolicValue;
@@ -67,7 +67,7 @@ public class NullDereferenceCheck extends SeCheck {
     if (symbol != null) {
       SymbolicValue symbolicValue = currentState.get(symbol);
 
-      if (symbolicValue != null && symbolicValue.nullability().equals(Nullability.NULL) && !hasIssue.contains(object)) {
+      if (symbolicValue != null && symbolicValue.nullability().isNullOrUndefined().equals(State.YES) && !hasIssue.contains(object)) {
         addIssue(object, String.format(MESSAGE, symbol.name()));
         hasIssue.add(object);
       }

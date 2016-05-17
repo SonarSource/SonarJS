@@ -3,12 +3,12 @@ function main(p) {
   bar();  // PS p=UNKNOWN
 
   if (p.foo) { // as property of "p" is accessed we can be sure it's not null
-    bar(); // PS p=NOT_NULL
+    bar(); // PS p=NOT_NULLY
   } else {
-    bar(); // PS p=NOT_NULL
+    bar(); // PS p=NOT_NULLY
   }
 
-  bar(); // PS p=NOT_NULL
+  bar(); // PS p=NOT_NULLY
 
   if (p.foo.bar) {
     var x;

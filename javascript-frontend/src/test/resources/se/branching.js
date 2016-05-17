@@ -6,7 +6,7 @@ function main() {
     x = 42;
   }
 
-  doSomething();  // PS x=TRUTHY & y=NULL || x=NULL & y=NOT_NULL
+  doSomething();  // PS x=TRUTHY & y=NULLY || x=NULL & y=NOT_NULLY
 
   dummyStatement();
 }

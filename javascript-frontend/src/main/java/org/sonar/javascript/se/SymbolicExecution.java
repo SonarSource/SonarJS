@@ -30,6 +30,7 @@ import javax.annotation.CheckForNull;
 import org.sonar.javascript.cfg.CfgBlock;
 import org.sonar.javascript.cfg.CfgBranchingBlock;
 import org.sonar.javascript.cfg.ControlFlowGraph;
+import org.sonar.javascript.se.Nullability.State;
 import org.sonar.javascript.tree.TreeKinds;
 import org.sonar.javascript.tree.symbols.Scope;
 import org.sonar.plugins.javascript.api.symbols.Symbol;
@@ -114,7 +115,7 @@ public class SymbolicExecution {
       if (symbolIs(localVar, FUNCTION, IMPORT, CLASS)) {
         initialValue = SymbolicValue.UNKNOWN;
       } else {
-        initialValue = functionParameters.contains(localVar) ? SymbolicValue.UNKNOWN : SymbolicValue.NULL_OR_UNDEFINED;
+        initialValue = functionParameters.contains(localVar) ? SymbolicValue.UNKNOWN : SymbolicValue.UNDEFINED;
       }
       initialState = initialState.copyAndAddValue(localVar, initialValue);
     }
@@ -173,9 +174,9 @@ public class SymbolicExecution {
             SymbolicValue symbolicValue = currentState.get(symbol);
 
             if (symbolicValue != null && symbolicValue.nullability().equals(Nullability.UNKNOWN)) {
-              currentState = currentState.constrain(symbol, Nullability.NOT_NULL);
+              currentState = currentState.constrain(symbol, Nullability.NOT_NULLY);
 
-            } else if (symbolicValue != null && symbolicValue.nullability().equals(Nullability.NULL)) {
+            } else if (symbolicValue != null && symbolicValue.nullability().isNullOrUndefined().equals(State.YES)) {
               stopExploring = true;
               break;
             }
@@ -257,7 +258,7 @@ public class SymbolicExecution {
   }
 
   private boolean handleConditionEqualNull(CfgBranchingBlock block, ProgramState currentState, Tree lastElement) {
-    if (isNullComparison(lastElement)) {
+    if (isNullyComparison(lastElement)) {
 
       Nullability trueSuccessorNullability;
       Nullability falseSuccessorNullability;
@@ -265,13 +266,13 @@ public class SymbolicExecution {
 
       if (lastElement.is(Kind.EQUAL_TO)) {
         // x == null
-        trueSuccessorNullability = Nullability.NULL;
-        falseSuccessorNullability = Nullability.NOT_NULL;
+        trueSuccessorNullability = Nullability.NULLY;
+        falseSuccessorNullability = Nullability.NOT_NULLY;
 
       } else {
         // x != null
-        trueSuccessorNullability = Nullability.NOT_NULL;
-        falseSuccessorNullability = Nullability.NULL;
+        trueSuccessorNullability = Nullability.NOT_NULLY;
+        falseSuccessorNullability = Nullability.NULLY;
       }
 
       Symbol conditionVariable = trackedOperand((BinaryExpressionTree) lastElement);
@@ -281,9 +282,9 @@ public class SymbolicExecution {
         Truthiness truthinessIfVariableNull = lastElement.is(Kind.EQUAL_TO) ? Truthiness.TRUTHY : Truthiness.FALSY;
         Truthiness conditionTruthiness = Truthiness.UNKNOWN;
 
-        if (currentNullability.equals(Nullability.NULL)) {
+        if (currentNullability.isNullOrUndefined().equals(State.YES)) {
           conditionTruthiness = truthinessIfVariableNull;
-        } else if (currentNullability.equals(Nullability.NOT_NULL)) {
+        } else if (currentNullability.isNullOrUndefined().equals(State.NO)) {
           conditionTruthiness = truthinessIfVariableNull.not();
         }
 
@@ -354,11 +355,11 @@ public class SymbolicExecution {
     return false;
   }
 
-  private boolean isNullComparison(Tree lastElement) {
+  private boolean isNullyComparison(Tree lastElement) {
     if (lastElement.is(Kind.NOT_EQUAL_TO, Kind.EQUAL_TO)) {
       BinaryExpressionTree comparison = (BinaryExpressionTree) lastElement;
-      return SymbolicValue.get(comparison.leftOperand()) == SymbolicValue.NULL_OR_UNDEFINED
-        || SymbolicValue.get(comparison.rightOperand()) == SymbolicValue.NULL_OR_UNDEFINED;
+      return SymbolicValue.get(comparison.leftOperand()).nullability().isNullOrUndefined().equals(State.YES)
+        || SymbolicValue.get(comparison.rightOperand()).nullability().isNullOrUndefined().equals(State.YES);
     }
     return false;
   }

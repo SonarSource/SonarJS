@@ -2,7 +2,7 @@ function main(par, unused) {
 
   class MyClass { }
 
-  var x;   // PS x=NULL & nested=UNKNOWN & par=UNKNOWN & !unused & MyClass=UNKNOWN
+  var x;   // PS x=UNDEFINED & nested=UNKNOWN & par=UNKNOWN & !unused & MyClass=UNKNOWN
   var y = null;  // PS y=NULL
   var z = foo(y); // PS z=UNKNOWN & y=NULL
 

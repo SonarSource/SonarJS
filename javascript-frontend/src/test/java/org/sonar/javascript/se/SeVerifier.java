@@ -44,13 +44,15 @@ import static org.fest.assertions.Assertions.assertThat;
 
 class SeVerifier extends SeCheck {
 
-  private static Map<String, SymbolicValue> SYMBOLIC_VALUE_KEYS = ImmutableMap.of(
-    "NULL", SymbolicValue.NULL_OR_UNDEFINED,
-    "NOT_NULL", SymbolicValue.UNKNOWN.constrain(Nullability.NOT_NULL),
-    "TRUTHY", SymbolicValue.TRUTHY_LITERAL,
-    "FALSY", SymbolicValue.FALSY_LITERAL,
-    "UNKNOWN", SymbolicValue.UNKNOWN
-  );
+  private static Map<String, SymbolicValue> SYMBOLIC_VALUE_KEYS = ImmutableMap.<String, SymbolicValue>builder()
+    .put("NULLY", SymbolicValue.NULL_OR_UNDEFINED)
+    .put("NOT_NULLY", SymbolicValue.NOT_NULLY)
+    .put("TRUTHY", SymbolicValue.TRUTHY_LITERAL)
+    .put("FALSY", SymbolicValue.FALSY_LITERAL)
+    .put("UNKNOWN", SymbolicValue.UNKNOWN)
+    .put("NULL", SymbolicValue.NULL)
+    .put("UNDEFINED", SymbolicValue.UNDEFINED)
+    .build();
 
   // line - program state - asserted
   private Map<Integer, Map<ProgramState, Boolean>> expectedProgramStates;

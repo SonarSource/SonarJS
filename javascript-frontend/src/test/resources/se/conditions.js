@@ -17,32 +17,32 @@ function main() {
   } else {
     notExecuted = 42;
   }
-  bar(); // PS notExecuted=NULL
+  bar(); // PS notExecuted=UNDEFINED
 
   if (x) {
   } else {
     notExecuted = 42;
   }
-  bar(); // PS notExecuted=NULL
+  bar(); // PS notExecuted=UNDEFINED
 
   if (!x) {
     notExecuted = 42;
   } else {
   }
-  bar(); // PS notExecuted=NULL
+  bar(); // PS notExecuted=UNDEFINED
 
   x = foo3();
   if (x == null) {
-    foo(); // PS x=NULL
+    foo(); // PS x=NULLY
   } else {
-    bar(); // PS x=NOT_NULL
+    bar(); // PS x=NOT_NULLY
   }
 
   x = foo4();
   if (undefined != x) {
-    foo(); // PS x=NOT_NULL
+    foo(); // PS x=NOT_NULLY
   } else {
-    bar(); // PS x=NULL
+    bar(); // PS x=NULLY
   }
 
   x = 42;

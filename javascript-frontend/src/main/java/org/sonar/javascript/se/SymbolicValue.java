@@ -21,6 +21,7 @@ package org.sonar.javascript.se;
 
 import com.google.common.annotations.VisibleForTesting;
 import java.util.Objects;
+import org.sonar.javascript.se.Nullability.State;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
@@ -28,13 +29,16 @@ import org.sonar.plugins.javascript.api.tree.expression.LiteralTree;
 
 public class SymbolicValue {
 
-  public static final SymbolicValue NULL_OR_UNDEFINED = new SymbolicValue(Nullability.NULL, Truthiness.FALSY);
+  public static final SymbolicValue NULL = new SymbolicValue(Nullability.NULL, Truthiness.FALSY);
+  public static final SymbolicValue UNDEFINED = new SymbolicValue(Nullability.UNDEFINED, Truthiness.FALSY);
+  public static final SymbolicValue NULL_OR_UNDEFINED = new SymbolicValue(Nullability.NULLY, Truthiness.FALSY);
   public static final SymbolicValue UNKNOWN = new SymbolicValue(Nullability.UNKNOWN, Truthiness.UNKNOWN);
+  public static final SymbolicValue NOT_NULLY = new SymbolicValue(Nullability.NOT_NULLY, Truthiness.UNKNOWN);
 
   @VisibleForTesting
-  protected static final SymbolicValue TRUTHY_LITERAL = new SymbolicValue(Nullability.NOT_NULL, Truthiness.TRUTHY);
+  protected static final SymbolicValue TRUTHY_LITERAL = new SymbolicValue(Nullability.NOT_NULLY, Truthiness.TRUTHY);
   @VisibleForTesting
-  protected static final SymbolicValue FALSY_LITERAL = new SymbolicValue(Nullability.NOT_NULL, Truthiness.FALSY);
+  protected static final SymbolicValue FALSY_LITERAL = new SymbolicValue(Nullability.NOT_NULLY, Truthiness.FALSY);
 
   private final Nullability nullability;
   private final Truthiness truthiness;
@@ -48,7 +52,7 @@ public class SymbolicValue {
     SymbolicValue value = UNKNOWN;
 
     if (expression.is(Kind.NULL_LITERAL)) {
-      value = NULL_OR_UNDEFINED;
+      value = NULL;
 
     } else if (expression.is(Kind.BOOLEAN_LITERAL)) {
       value = booleanLiteral((LiteralTree) expression);
@@ -63,7 +67,7 @@ public class SymbolicValue {
       IdentifierTree identifier = (IdentifierTree) expression;
       // TODO undefined may be used as an an identifier in a non-global scope
       if ("undefined".equals(identifier.name())) {
-        value = NULL_OR_UNDEFINED;
+        value = UNDEFINED;
       }
 
     }
@@ -124,14 +128,14 @@ public class SymbolicValue {
   public SymbolicValue constrain(Truthiness truthiness) {
     Nullability newNullability = nullability;
     if (truthiness.equals(Truthiness.TRUTHY)) {
-      newNullability = Nullability.NOT_NULL;
+      newNullability = Nullability.NOT_NULLY;
     }
     return new SymbolicValue(newNullability, truthiness);
   }
 
   public SymbolicValue constrain(Nullability nullability) {
     Truthiness newTruthiness = truthiness;
-    if (nullability.equals(Nullability.NULL)) {
+    if (nullability.isNullOrUndefined().equals(State.YES)) {
       newTruthiness = Truthiness.FALSY;
     }
     return new SymbolicValue(nullability, newTruthiness);
@@ -157,7 +161,7 @@ public class SymbolicValue {
   @Override
   public String toString() {
     if (this.equals(NULL_OR_UNDEFINED)) {
-      return "NULL";
+      return "NULLY";
 
     } else if (this.equals(UNKNOWN)) {
       return "UNKNOWN";
@@ -168,8 +172,14 @@ public class SymbolicValue {
     } else if (this.equals(FALSY_LITERAL)) {
       return "FALSY";
 
-    } else if (this.nullability.equals(Nullability.NOT_NULL) && this.truthiness.equals(Truthiness.UNKNOWN)) {
-      return "NOT_NULL";
+    }  else if (this.equals(UNDEFINED)) {
+      return "UNDEFINED";
+
+    }  else if (this.equals(NULL)) {
+      return "NULL";
+
+    } else if (this.nullability.equals(Nullability.NOT_NULLY) && this.truthiness.equals(Truthiness.UNKNOWN)) {
+      return "NOT_NULLY";
 
     } else {
       return nullability + "_" + truthiness;
