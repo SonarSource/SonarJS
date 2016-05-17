@@ -121,3 +121,15 @@ function let_variable() {
     let x = 1; // Noncompliant
   }
 }
+
+function assignment_order() {
+  var x = foo(); // OK
+  x = bar(x);
+  return baz(x);
+}
+
+function assignment_order_with_ternary() {
+  var x = foo(); // OK
+  x = x > 0 ? x : 0;
+  return baz(x);
+}

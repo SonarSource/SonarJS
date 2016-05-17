@@ -44,6 +44,7 @@ import org.sonar.plugins.javascript.api.tree.declaration.FunctionDeclarationTree
 import org.sonar.plugins.javascript.api.tree.declaration.FunctionTree;
 import org.sonar.plugins.javascript.api.tree.declaration.MethodDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.expression.ArrowFunctionTree;
+import org.sonar.plugins.javascript.api.tree.expression.AssignmentExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.FunctionExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 import org.sonar.plugins.javascript.api.tree.statement.BlockTree;
@@ -120,13 +121,13 @@ public class DeadStoreCheck extends DoubleDispatchVisitorCheck {
     Set<Symbol> live = blockLiveness.liveOut;
 
     for (Tree element : Lists.reverse(blockLiveness.block.elements())) {
-      Usage usage = blockLiveness.usageByElement.get(element);
+      Usage usage = usages.getUsage(element);
 
       if (isWrite(usage)) {
 
         Symbol symbol = symbol(usage);
         if (!live.contains(symbol) && !usages.hasUsagesInNestedFunctions(symbol) && !usages.isNeverRead(symbol)) {
-          addIssue(element, symbol);
+          addIssue(usage.identifierTree(), symbol);
         }
         live.remove(symbol);
 
@@ -188,22 +189,20 @@ public class DeadStoreCheck extends DoubleDispatchVisitorCheck {
   private static class BlockLiveness {
   
     private final CfgBlock block;
-    private final Map<Tree, Usage> usageByElement = new HashMap<>();
+    private final Usages usages;
     private final Set<Symbol> liveOut = new HashSet<>();
     private Set<Symbol> liveIn = new HashSet<>();
-
   
     public BlockLiveness(CfgBlock block, Usages usages) {
-  
+      this.usages = usages;
       this.block = block;
   
-      for (Tree element : Lists.reverse(block.elements())) {
+      for (Tree element : block.elements()) {
         if (element instanceof IdentifierTree) {
-          IdentifierTree identifier = (IdentifierTree) element;
-          Usage usage = usages.add(identifier);
-          if (usage != null) {
-            usageByElement.put(element, usage);
-          }
+          usages.add((IdentifierTree) element);
+        }
+        if (element.is(Kind.ASSIGNMENT)) {
+          usages.addAssignment((AssignmentExpressionTree) element);
         }
       }
     }
@@ -218,7 +217,7 @@ public class DeadStoreCheck extends DoubleDispatchVisitorCheck {
       liveIn = new HashSet<>(liveOut);
 
       for (Tree element : Lists.reverse(block.elements())) {
-        Usage usage = usageByElement.get(element);
+        Usage usage = usages.getUsage(element);
         if (isWrite(usage)) {
           liveIn.remove(symbol(usage));
         } else if (isRead(usage)) {
@@ -237,9 +236,20 @@ public class DeadStoreCheck extends DoubleDispatchVisitorCheck {
     private final Map<IdentifierTree, Usage> localVariableUsages = new HashMap<>();
     private final Set<Symbol> neverReadSymbols = new HashSet<>();
     private final SetMultimap<Symbol, Usage> usagesInCFG = HashMultimap.create();
+    private final Set<Tree> assignmentVariables = new HashSet<>();
 
     public Usages(FunctionTree function) {
       this.functionScope = getContext().getSymbolModel().getScope(function);
+    }
+
+    public Usage getUsage(Tree element) {
+      if (assignmentVariables.contains(element)) {
+        return null;
+      }
+      if (element.is(Kind.ASSIGNMENT)) {
+        return localVariableUsages.get(((AssignmentExpressionTree) element).variable());
+      }
+      return localVariableUsages.get(element);
     }
 
     public boolean hasUsagesInNestedFunctions(Symbol symbol) {
@@ -294,6 +304,10 @@ public class DeadStoreCheck extends DoubleDispatchVisitorCheck {
 
     public boolean isNeverRead(Symbol symbol) {
       return neverReadSymbols.contains(symbol);
+    }
+
+    public void addAssignment(AssignmentExpressionTree tree) {
+      assignmentVariables.add(tree.variable());
     }
   }
 
