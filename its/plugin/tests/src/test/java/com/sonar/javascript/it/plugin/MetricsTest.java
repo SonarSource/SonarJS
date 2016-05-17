@@ -138,8 +138,6 @@ public class MetricsTest {
    */
   @Test
   public void should_be_compatible_with_DevCockpit() {
-    // TODO probably bug in Sonar: order might depend on JVM
-
     // 2 header comment line
     // 4 empty line
     // 5 code line
@@ -147,18 +145,18 @@ public class MetricsTest {
     // 15 empty comment line
 
     assertThat(getFileMeasure("ncloc_data").getData())
-      .contains(";2=0;")
-      .contains(";4=0;")
-      .contains(";5=1;")
-      .contains(";14=0;")
-      .contains(";15=0;");
+      .doesNotContain(";2=1;")
+      .doesNotContain(";4=1;")
+      .contains("5=1;")
+      .doesNotContain(";14=1;")
+      .doesNotContain(";15=1;");
 
     assertThat(getFileMeasure("comment_lines_data").getData())
-      .contains(";2=0;")
-      .contains(";4=0;")
-      .contains(";5=0;")
-      .contains(";14=1;")
-      .contains(";15=0;");
+      .doesNotContain("2=1")
+      .doesNotContain(";4=1")
+      .doesNotContain(";5=1")
+      .contains("14=1")
+      .doesNotContain("15=1");
   }
 
   /* Helper methods */
