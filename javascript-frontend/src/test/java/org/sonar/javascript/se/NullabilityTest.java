@@ -35,6 +35,8 @@ public class NullabilityTest {
     assertThat(Nullability.NULLY.toString()).isEqualTo("NULLY");
     assertThat(Nullability.UNKNOWN.toString()).isEqualTo("UNKNOWN");
     assertThat(Nullability.NOT_NULLY.toString()).isEqualTo("NOT_NULLY");
+    assertThat(Nullability.NOT_NULL.toString()).isEqualTo("NOT_NULL");
+    assertThat(Nullability.NOT_UNDEFINED.toString()).isEqualTo("NOT_UNDEFINED");
   }
 
   @Test
@@ -44,6 +46,8 @@ public class NullabilityTest {
     assertThat(Nullability.NULLY.isNullOrUndefined()).isEqualTo(YES);
     assertThat(Nullability.UNKNOWN.isNullOrUndefined()).isEqualTo(UNKNOWN);
     assertThat(Nullability.NOT_NULLY.isNullOrUndefined()).isEqualTo(NO);
+    assertThat(Nullability.NOT_NULL.isNullOrUndefined()).isEqualTo(UNKNOWN);
+    assertThat(Nullability.NOT_UNDEFINED.isNullOrUndefined()).isEqualTo(UNKNOWN);
   }
 
   @Test

@@ -31,9 +31,11 @@ public class SymbolicValue {
 
   public static final SymbolicValue NULL = new SymbolicValue(Nullability.NULL, Truthiness.FALSY);
   public static final SymbolicValue UNDEFINED = new SymbolicValue(Nullability.UNDEFINED, Truthiness.FALSY);
+  public static final SymbolicValue NOT_UNDEFINED = new SymbolicValue(Nullability.NOT_UNDEFINED, Truthiness.UNKNOWN);
   public static final SymbolicValue NULL_OR_UNDEFINED = new SymbolicValue(Nullability.NULLY, Truthiness.FALSY);
   public static final SymbolicValue UNKNOWN = new SymbolicValue(Nullability.UNKNOWN, Truthiness.UNKNOWN);
   public static final SymbolicValue NOT_NULLY = new SymbolicValue(Nullability.NOT_NULLY, Truthiness.UNKNOWN);
+  public static final SymbolicValue NOT_NULL = new SymbolicValue(Nullability.NOT_NULL, Truthiness.UNKNOWN);
 
   @VisibleForTesting
   protected static final SymbolicValue TRUTHY_LITERAL = new SymbolicValue(Nullability.NOT_NULLY, Truthiness.TRUTHY);
@@ -177,6 +179,12 @@ public class SymbolicValue {
 
     }  else if (this.equals(NULL)) {
       return "NULL";
+
+    }  else if (this.equals(NOT_NULL)) {
+      return "NOT_NULL";
+
+    }  else if (this.equals(NOT_UNDEFINED)) {
+      return "NOT_UNDEFINED";
 
     } else if (this.nullability.equals(Nullability.NOT_NULLY) && this.truthiness.equals(Truthiness.UNKNOWN)) {
       return "NOT_NULLY";

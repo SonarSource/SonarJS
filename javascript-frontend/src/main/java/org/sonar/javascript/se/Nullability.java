@@ -28,7 +28,11 @@ public class  Nullability {
 
   public static final Nullability NULL = new Nullability(YES, NO, YES);
 
+  public static final Nullability NOT_NULL = new Nullability(NO, State.UNKNOWN, State.UNKNOWN);
+
   public static final Nullability UNDEFINED = new Nullability(NO, YES, YES);
+
+  public static final Nullability NOT_UNDEFINED = new Nullability(State.UNKNOWN, NO, State.UNKNOWN);
 
   // null or undefined, we are not sure
   public static final Nullability NULLY = new Nullability(State.UNKNOWN, State.UNKNOWN, YES);
@@ -79,6 +83,12 @@ public class  Nullability {
 
     } else if (this.equals(NULL)) {
       return "NULL";
+
+    } else if (this.equals(NOT_NULL)) {
+      return "NOT_NULL";
+
+    } else if (this.equals(NOT_UNDEFINED)) {
+      return "NOT_UNDEFINED";
 
     } else {
       return "NOT_NULLY";

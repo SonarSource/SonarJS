@@ -111,6 +111,8 @@ public class SymbolicValueTest {
   public void test_toString() throws Exception {
     assertThat(SymbolicValue.NULL_OR_UNDEFINED.toString()).isEqualTo("NULLY");
     assertThat(SymbolicValue.NULL.toString()).isEqualTo("NULL");
+    assertThat(SymbolicValue.NOT_NULL.toString()).isEqualTo("NOT_NULL");
+    assertThat(SymbolicValue.NOT_UNDEFINED.toString()).isEqualTo("NOT_UNDEFINED");
     assertThat(SymbolicValue.UNDEFINED.toString()).isEqualTo("UNDEFINED");
     assertThat(SymbolicValue.UNKNOWN.toString()).isEqualTo("UNKNOWN");
     assertThat(SymbolicValue.TRUTHY_LITERAL.toString()).isEqualTo("TRUTHY");

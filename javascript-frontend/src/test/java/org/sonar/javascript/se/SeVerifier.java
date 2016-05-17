@@ -47,11 +47,13 @@ class SeVerifier extends SeCheck {
   private static Map<String, SymbolicValue> SYMBOLIC_VALUE_KEYS = ImmutableMap.<String, SymbolicValue>builder()
     .put("NULLY", SymbolicValue.NULL_OR_UNDEFINED)
     .put("NOT_NULLY", SymbolicValue.NOT_NULLY)
+    .put("NOT_NULL", SymbolicValue.NOT_NULL)
     .put("TRUTHY", SymbolicValue.TRUTHY_LITERAL)
     .put("FALSY", SymbolicValue.FALSY_LITERAL)
     .put("UNKNOWN", SymbolicValue.UNKNOWN)
     .put("NULL", SymbolicValue.NULL)
     .put("UNDEFINED", SymbolicValue.UNDEFINED)
+    .put("NOT_UNDEFINED", SymbolicValue.NOT_UNDEFINED)
     .build();
 
   // line - program state - asserted

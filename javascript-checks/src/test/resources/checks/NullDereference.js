@@ -64,15 +64,20 @@ function strict_equal_null() {
   var x = foo();
 
   if (x === null) {
-    x.foo();    // FN, Noncompliant
+    x.foo();    // Noncompliant
   } else {
     x.foo();
   }
 
+}
+
+function strict_not_equal_null() {
+  var x = foo();
+
   if (x !== null) {
     x.foo();
   } else {
-    x.foo();    // FN, Noncompliant
+    x.foo();   // Noncompliant
   }
 }
 
@@ -236,6 +241,6 @@ function null_and_not_undefined() {
     if (x === null) {
       x = new Obj();
     }
-    x.foo();   // Noncompliant, FP
+    x.foo();
   }
 }

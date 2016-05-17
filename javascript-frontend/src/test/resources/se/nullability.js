@@ -12,9 +12,15 @@ function main() {
     foo(); // PS x=NOT_NULLY
   }
 
-//  if (x === null) {
-//    foo(); // PS x=NULL
-//  } else {
-//    foo(); // PS x=NOT_NULL
-//  }
+  if (x === null) {
+    foo(); // PS x=NULL
+  } else {
+    foo(); // PS x=NOT_NULL
+  }
+
+  if (x === undefined) {
+    foo(); // PS x=UNDEFINED
+  } else {
+    foo(); // PS x=NOT_UNDEFINED
+  }
 }

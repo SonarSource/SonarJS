@@ -121,9 +121,6 @@
 18,
 25,
 ],
-'project:ecmascript6/watchtower.js/src/dirty_checking.js':[
-306,
-],
 'project:frameworks/wordpress/updates.js':[
 158,
 223,
@@ -145,7 +142,6 @@
 1891,
 1896,
 1906,
-2850,
 ],
 'project:mootools-core-1.4.5-full-nocompat.js':[
 3251,
@@ -160,17 +156,11 @@
 319,
 359,
 ],
-'project:open-layers-2.12/OpenLayers/Format/GML.js':[
-569,
-],
 'project:open-layers-2.12/OpenLayers/Format/WMTSCapabilities.js':[
 121,
 ],
 'project:open-layers-2.12/OpenLayers/Geometry/LineString.js':[
 330,
-],
-'project:open-layers-2.12/OpenLayers/Layer/Vector.js':[
-998,
 ],
 'project:open-layers-2.12/OpenLayers/Map.js':[
 1877,
@@ -183,6 +173,7 @@
 5121,
 ],
 'project:paper-0.22.js':[
+146,
 2856,
 7633,
 ],
@@ -219,8 +210,10 @@
 ],
 'project:yui-3.7.3/simpleyui/simpleyui.js':[
 18685,
+18698,
 ],
 'project:yui-3.7.3/transition/transition.js':[
 181,
+194,
 ],
 }

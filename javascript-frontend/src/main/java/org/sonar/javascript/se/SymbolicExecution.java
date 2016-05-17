@@ -252,6 +252,7 @@ public class SymbolicExecution {
 
     if (!handleConditionBooleanLiteral(block, currentState, lastElement)
        && !handleConditionVariableOrUnaryNot(block, currentState, lastElement)
+       && !handleConditionStrictEqual(block, currentState, lastElement)
        && !handleConditionEqualNull(block, currentState, lastElement)) {
       pushAllSuccessors(block, currentState);
     }
@@ -285,6 +286,59 @@ public class SymbolicExecution {
         if (currentNullability.isNullOrUndefined().equals(State.YES)) {
           conditionTruthiness = truthinessIfVariableNull;
         } else if (currentNullability.isNullOrUndefined().equals(State.NO)) {
+          conditionTruthiness = truthinessIfVariableNull.not();
+        }
+
+        conditionResults.put(lastElement, conditionTruthiness);
+
+        if (conditionTruthiness != Truthiness.FALSY) {
+          pushSuccessor(block.trueSuccessor(), currentState.constrain(conditionVariable, trueSuccessorNullability));
+        }
+        if (conditionTruthiness != Truthiness.TRUTHY) {
+          pushSuccessor(block.falseSuccessor(), currentState.constrain(conditionVariable, falseSuccessorNullability));
+        }
+        return true;
+      }
+
+    }
+
+    return false;
+  }
+
+  // x === null
+  // x === undefined
+  private boolean handleConditionStrictEqual(CfgBranchingBlock block, ProgramState currentState, Tree lastElement) {
+    return handleConditionStrictEqual(block, currentState, lastElement, SymbolicValue.NULL, SymbolicValue.NOT_NULL)
+      || handleConditionStrictEqual(block, currentState, lastElement, SymbolicValue.UNDEFINED, SymbolicValue.NOT_UNDEFINED);
+  }
+
+  private boolean handleConditionStrictEqual(CfgBranchingBlock block, ProgramState currentState, Tree lastElement, SymbolicValue value, SymbolicValue valueNot) {
+    if (isStrictComparison(lastElement, value)) {
+
+      Nullability trueSuccessorNullability;
+      Nullability falseSuccessorNullability;
+
+      if (lastElement.is(Kind.STRICT_EQUAL_TO)) {
+        // x == null
+        trueSuccessorNullability = value.nullability();
+        falseSuccessorNullability = valueNot.nullability();
+
+      } else {
+        // x != null
+        trueSuccessorNullability = valueNot.nullability();
+        falseSuccessorNullability = value.nullability();
+      }
+
+      Symbol conditionVariable = trackedOperand((BinaryExpressionTree) lastElement);
+
+      if (conditionVariable != null) {
+        Nullability currentNullability = currentState.get(conditionVariable).nullability();
+        Truthiness truthinessIfVariableNull = lastElement.is(Kind.STRICT_EQUAL_TO) ? Truthiness.TRUTHY : Truthiness.FALSY;
+        Truthiness conditionTruthiness = Truthiness.UNKNOWN;
+
+        if (currentNullability.equals(value.nullability())) {
+          conditionTruthiness = truthinessIfVariableNull;
+        } else if (currentNullability.equals(valueNot.nullability())) {
           conditionTruthiness = truthinessIfVariableNull.not();
         }
 
@@ -360,6 +414,15 @@ public class SymbolicExecution {
       BinaryExpressionTree comparison = (BinaryExpressionTree) lastElement;
       return SymbolicValue.get(comparison.leftOperand()).nullability().isNullOrUndefined().equals(State.YES)
         || SymbolicValue.get(comparison.rightOperand()).nullability().isNullOrUndefined().equals(State.YES);
+    }
+    return false;
+  }
+
+  private boolean isStrictComparison(Tree lastElement, SymbolicValue value) {
+    if (lastElement.is(Kind.STRICT_NOT_EQUAL_TO, Kind.STRICT_EQUAL_TO)) {
+      BinaryExpressionTree comparison = (BinaryExpressionTree) lastElement;
+      return SymbolicValue.get(comparison.leftOperand()).equals(value)
+        || SymbolicValue.get(comparison.rightOperand()).equals(value);
     }
     return false;
   }
