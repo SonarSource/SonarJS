@@ -125,3 +125,5 @@ function foo() {  // NOK
 
 
 }
+
+moduleX.value("name", []);  // OK
