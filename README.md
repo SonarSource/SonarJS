@@ -4,10 +4,10 @@ This is the plugin for the [SonarQube](http://www.sonarqube.org/) platform which
 
 # Features
 * 140+ rules (including 40+ bug detection)
-* ES2015 support
+* ES5/ES2015 support
 * Metrics (complexity, number of lines etc.)
 * Import of [test coverage reports](http://docs.sonarqube.org/display/PLUG/JavaScript+Coverage+Results+Import)
-* [Custom rules](http://docs.sonarqube.org/display/DEV/Custom+Rules+for+JavaScript)
+* [Custom rules](http://docs.sonarqube.org/display/PLUG/Custom+Rules+for+JavaScript)
 
 # Useful links
 
@@ -30,7 +30,7 @@ To request a new feature, please create a new thread in [SonarQube Google Group]
 To submit a contribution, create a pull request for this repository. Please make sure that you follow our [code style](https://github.com/SonarSource/sonar-developer-toolset#code-style) and all [tests](#testing) are passing (Travis build is created for each PR).
 
 ### Custom Rules
-If you have an idea for a rule but you are not sure that everyone needs it you can implement a [custom rule](http://docs.sonarqube.org/display/DEV/Custom+Rules+for+JavaScript) available only for you. 
+If you have an idea for a rule but you are not sure that everyone needs it you can implement a [custom rule](http://docs.sonarqube.org/display/PLUG/Custom+Rules+for+JavaScript) available only for you. 
 
 # <a name="testing"></a>Testing
 To run tests locally follow these instructions
@@ -51,9 +51,9 @@ orchestrator.updateCenterUrl=http://update.sonarsource.org/update-center-dev.pro
 ```
 
 #### Plugin Test
-The "Plugin Test" is an additional integration test which verifies plugin features such as metric calculation, coverage etc. To launch it:
+The "Plugin Test" is an additional integration test which verifies plugin features such as metric calculation, coverage etc. To launch it, execute this command from directory `its/plugin`:
 ```
-mvn clean install -Pit-plugin
+mvn clean install
 ```  
 
 #### Ruling Test
