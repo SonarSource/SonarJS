@@ -22,6 +22,7 @@ package org.sonar.javascript.se;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableMap;
 import java.util.Map.Entry;
+import javax.annotation.Nullable;
 import org.sonar.plugins.javascript.api.symbols.Symbol;
 
 public class ProgramState {
@@ -62,9 +63,9 @@ public class ProgramState {
     return copyAndAddValue(symbol, value.constrain(truthiness));
   }
 
-  public ProgramState constrain(Symbol symbol, Nullability nullability) {
+  public ProgramState constrain(Symbol symbol, @Nullable Nullability nullability) {
     SymbolicValue value = get(symbol);
-    if (value == null) {
+    if (value == null || nullability == null) {
       return this;
     }
     return copyAndAddValue(symbol, value.constrain(nullability));

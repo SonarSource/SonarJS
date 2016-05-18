@@ -199,17 +199,17 @@ function typeof_testing() {
   }
 
   if (typeof x === 'function') {
-    x.call();   // Noncompliant, FP
+    x.call();
   }
 
   if (typeof x === 'object') {
-    x.call();   // Noncompliant, true issue, x might be null
+    x.call();
   }
 
   var y = foo();
 
   if (typeof y === 'undefined') {
-    y.call();  // FN, Noncompliant
+    y.call();  // Noncompliant
   }
 
 }
@@ -228,5 +228,13 @@ function null_and_not_undefined() {
       x = new Obj();
     }
     x.foo();
+  }
+}
+
+function iteration_on_null_or_undefined() {
+  var x = null;
+
+  for (var key in x) {
+    x[key];  // Noncompliant, FP: we shouldn't enter the loop
   }
 }

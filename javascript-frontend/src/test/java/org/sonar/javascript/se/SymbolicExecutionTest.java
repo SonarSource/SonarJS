@@ -98,6 +98,11 @@ public class SymbolicExecutionTest {
     runSe("nullability.js");
   }
 
+  @Test
+  public void typeof() throws Exception {
+    runSe("typeof.js");
+  }
+
   private void runSe(String filename) {
     JavaScriptVisitorContext context = createContext(new File("src/test/resources/se/", filename));
     verifier.scanExpectedIssues(context);

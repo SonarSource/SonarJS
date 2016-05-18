@@ -48,6 +48,8 @@ import org.sonar.plugins.javascript.api.tree.expression.UnaryExpressionTree;
 import org.sonar.plugins.javascript.api.tree.statement.ForObjectStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.VariableDeclarationTree;
 
+import static org.sonar.javascript.se.TypeOf.typeOfEqualNullability;
+import static org.sonar.javascript.se.TypeOf.typeOfNotEqualNullability;
 import static org.sonar.plugins.javascript.api.symbols.Symbol.Kind.CLASS;
 import static org.sonar.plugins.javascript.api.symbols.Symbol.Kind.FUNCTION;
 import static org.sonar.plugins.javascript.api.symbols.Symbol.Kind.IMPORT;
@@ -249,13 +251,89 @@ public class SymbolicExecution {
 
   private void handleConditionSuccessors(CfgBranchingBlock block, ProgramState currentState) {
     Tree lastElement = block.elements().get(block.elements().size() - 1);
-
     if (!handleConditionBooleanLiteral(block, currentState, lastElement)
+       && !handleConditionTypeOf(block, currentState, lastElement)
        && !handleConditionVariableOrUnaryNot(block, currentState, lastElement)
        && !handleConditionStrictEqual(block, currentState, lastElement)
        && !handleConditionEqualNull(block, currentState, lastElement)) {
       pushAllSuccessors(block, currentState);
     }
+  }
+
+  private boolean handleConditionTypeOf(CfgBranchingBlock block, ProgramState currentState, Tree lastElement) {
+    ExpressionTree typeOfOperand = null;
+    LiteralTree literal = null;
+
+    if (lastElement.is(Kind.STRICT_EQUAL_TO, Kind.STRICT_NOT_EQUAL_TO, Kind.EQUAL_TO, Kind.NOT_EQUAL_TO)) {
+      BinaryExpressionTree expression = (BinaryExpressionTree) lastElement;
+      ExpressionTree left = expression.leftOperand();
+      ExpressionTree right = expression.rightOperand();
+      if (left.is(Kind.TYPEOF) && right.is(Kind.STRING_LITERAL)) {
+        typeOfOperand = ((UnaryExpressionTree) left).expression();
+        literal = (LiteralTree) right;
+
+      } else if (right.is(Kind.TYPEOF) && left.is(Kind.STRING_LITERAL)) {
+        typeOfOperand = ((UnaryExpressionTree) right).expression();
+        literal = (LiteralTree) left;
+      }
+    }
+
+    if (typeOfOperand != null) {
+      String value = literal.value().substring(1, literal.value().length() - 1);
+
+      Nullability trueSuccessorNullability = null;
+      Nullability falseSuccessorNullability = null;
+
+      Symbol conditionVariable = trackedVariable(typeOfOperand);
+
+      if (conditionVariable != null) {
+        Truthiness conditionTruthiness = getTypeOfConditionTruthiness(lastElement, value, currentState, conditionVariable);
+        conditionResults.put(lastElement, conditionTruthiness);
+
+        if (conditionTruthiness.equals(Truthiness.UNKNOWN)) {
+          if (lastElement.is(Kind.EQUAL_TO, Kind.STRICT_EQUAL_TO)) {
+            trueSuccessorNullability = typeOfEqualNullability.get(value);
+            falseSuccessorNullability = typeOfNotEqualNullability.get(value);
+
+          } else {
+            trueSuccessorNullability = typeOfNotEqualNullability.get(value);
+            falseSuccessorNullability = typeOfEqualNullability.get(value);
+          }
+        }
+
+        if (conditionTruthiness != Truthiness.FALSY) {
+          pushSuccessor(block.trueSuccessor(), currentState.constrain(conditionVariable, trueSuccessorNullability));
+        }
+        if (conditionTruthiness != Truthiness.TRUTHY) {
+          pushSuccessor(block.falseSuccessor(), currentState.constrain(conditionVariable, falseSuccessorNullability));
+        }
+        return true;
+      }
+
+    }
+
+    return false;
+  }
+
+  private Truthiness getTypeOfConditionTruthiness(Tree expression, String typeValue, ProgramState currentState, Symbol conditionVariable) {
+    Truthiness conditionTruthiness = Truthiness.UNKNOWN;
+
+    Truthiness truthiness = expression.is(Kind.EQUAL_TO, Kind.STRICT_EQUAL_TO)
+      ? Truthiness.TRUTHY
+      : Truthiness.FALSY;
+
+    if (!TypeOf.isValidType(typeValue)) {
+      conditionTruthiness = truthiness.not();
+
+    } else if (currentState.get(conditionVariable) != null){
+      String typeOf = TypeOf.typeOf(currentState.get(conditionVariable));
+
+      if (typeOf != null) {
+        conditionTruthiness = typeValue.equals(typeOf) ? truthiness : truthiness.not();
+      }
+    }
+
+    return conditionTruthiness;
   }
 
   private boolean handleConditionEqualNull(CfgBranchingBlock block, ProgramState currentState, Tree lastElement) {

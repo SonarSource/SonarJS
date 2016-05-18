@@ -2,6 +2,10 @@
 'project:dojo-1.8.1/dijit/tree/dndSource.js.uncompressed.js':[
 440,
 ],
+'project:dojo-1.8.1/dojo/data/ItemFileWriteStore.js.uncompressed.js':[
+92,
+175,
+],
 'project:dojo-1.8.1/dojo/dojo.js.uncompressed.js':[
 3277,
 8440,
@@ -152,7 +156,6 @@
 ],
 'project:open-layers-2.12/OpenLayers/BaseTypes.js':[
 131,
-136,
 ],
 'project:open-layers-2.12/OpenLayers/Control/Graticule.js':[
 319,
@@ -210,11 +213,9 @@
 622,
 ],
 'project:yui-3.7.3/simpleyui/simpleyui.js':[
-18685,
 18698,
 ],
 'project:yui-3.7.3/transition/transition.js':[
-181,
 194,
 ],
 }
