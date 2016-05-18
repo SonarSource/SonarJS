@@ -5,10 +5,15 @@ function main(obj, arr) {
   }
 
   var element = null; // PS element=NULL
-
-  dummyStatement();
-
   for (element in arr) {
    bar(); // PS element=UNKNOWN
   }
+
+  var x = null, y;
+  for (var key in x) {
+    y = 42;
+  }
+  foo(); // PS y=UNDEFINED
+
+  dummyStatement();
 }

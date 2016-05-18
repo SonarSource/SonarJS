@@ -243,6 +243,12 @@ public class SymbolicExecution {
           variable = declaration.variables().get(0);
         }
         currentState = store(currentState, variable, SymbolicValue.UNKNOWN);
+
+        Symbol symbol = trackedVariable(forTree.expression());
+        if (symbol != null && currentState.get(symbol) != null && currentState.get(symbol).nullability().isNullOrUndefined().equals(State.YES)) {
+          pushSuccessor(branchingBlock.falseSuccessor(), currentState);
+          return;
+        }
       }
     }
 

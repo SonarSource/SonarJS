@@ -230,11 +230,3 @@ function null_and_not_undefined() {
     x.foo();
   }
 }
-
-function iteration_on_null_or_undefined() {
-  var x = null;
-
-  for (var key in x) {
-    x[key];  // Noncompliant, FP: we shouldn't enter the loop
-  }
-}
