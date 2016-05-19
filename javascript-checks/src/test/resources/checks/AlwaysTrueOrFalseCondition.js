@@ -175,3 +175,25 @@ function nested_if() {
     }
   }
 }
+
+function tro(x, y) {
+  x = y && true;
+  x = y && false;
+  x = true && y;  // Noncompliant
+  x = false && y;  // Noncompliant
+
+  x = y || true;
+  x = y || false;
+  x = true || y;  // Noncompliant
+  x = false || y;  // Noncompliant
+
+  if (y && true) {} // Noncompliant
+  if (y && false) {} // Noncompliant
+  if (true && y) {} // Noncompliant
+  if (false && y) {} // Noncompliant
+
+  if (y || true) {} // Noncompliant
+  if (y || false) {} // Noncompliant
+  if (true || y) {} // Noncompliant
+  if (false || y) {} // Noncompliant
+}

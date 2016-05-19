@@ -1,42 +1,33 @@
-!true;            // NOK
-!false;           // NOK
-a == false;       // NOK
-a == true;        // NOK
+!true;            // Noncompliant {{Remove the literal "true" boolean value.}}
+!false;           // Noncompliant
+a == false;       // Noncompliant {{Remove the literal "false" boolean value.}}
+a == true;        // Noncompliant
 a === false;      // OK
 a === true;       // OK
-a != false;       // NOK
-a != true;        // NOK
+a != false;       // Noncompliant {{Remove the literal "false" boolean value.}}
+a != true;        // Noncompliant
 a !== false;      // OK
 a !== true;       // OK
-false == a;       // NOK
-true == a;        // NOK
-false != a;       // NOK
-true != a;        // NOK
-false && foo();   // NOK
-foo() || true;    // NOK
+false == a;       // Noncompliant
+true == a;        // Noncompliant
+false != a;       // Noncompliant
+true != a;        // Noncompliant
+false && foo();   // Ok covered by always-true-false-condition rule
 
 a == foo(true);   // OK
 true < 0;         // OK
 ~true;            // OK
 ++ true;          // OK
 !foo;             // OK
-foo() && bar();   // OK
 
-a == true == b    // NOK
-a == b == false    // NOK
-a == (true && b) == b //NOK
+a == true == b    // Noncompliant
+a == b == false    // Noncompliant
+a == (true == b) == b //Noncompliant
 
 
-// NOK
-!(true)
-a == (false)
-foo() || (true)
 
-true ? a : b    // NOK
-false ? a : b    // NOK
-var x = true ? a : b  // NOK
-x = a ? a :
-  true? b : a   // NOK
-x = (true) ? a : b // NOK
+!(true) // Noncompliant
+a == (false) // Noncompliant
 
+true ? a : b     // Ok covered by always-true-false-condition rule
 cond ? "true" : true // OK

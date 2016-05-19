@@ -29,30 +29,6 @@ public class BooleanEqualityComparisonCheckTest {
 
   @Test
   public void test() {
-    JavaScriptCheckVerifier.issues(check, new File("src/test/resources/checks/booleanEqualityComparison.js"))
-      .next().atLine(1).withMessage("Remove the literal \"true\" boolean value.")
-      .next().atLine(2)
-      .next().atLine(3).withMessage("Remove the literal \"false\" boolean value.")
-      .next().atLine(4)
-      .next().atLine(7).withMessage("Remove the literal \"false\" boolean value.")
-      .next().atLine(8)
-      .next().atLine(11)
-      .next().atLine(12)
-      .next().atLine(13)
-      .next().atLine(14)
-      .next().atLine(15).withMessage("Remove the literal \"false\" boolean value.")
-      .next().atLine(16).withMessage("Remove the literal \"true\" boolean value.")
-      .next().atLine(25).withMessage("Remove the literal \"true\" boolean value.")
-      .next().atLine(26).withMessage("Remove the literal \"false\" boolean value.")
-      .next().atLine(27).withMessage("Remove the literal \"true\" boolean value.")
-      .next().atLine(31)
-      .next().atLine(32)
-      .next().atLine(33)
-      .next().atLine(35)
-      .next().atLine(36)
-      .next().atLine(37)
-      .next().atLine(39)
-      .next().atLine(40)
-      .noMore();
+    JavaScriptCheckVerifier.verify(check, new File("src/test/resources/checks/booleanEqualityComparison.js"));
   }
 }
