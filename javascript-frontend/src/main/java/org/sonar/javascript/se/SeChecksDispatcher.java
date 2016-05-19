@@ -21,6 +21,7 @@ package org.sonar.javascript.se;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableList.Builder;
+import java.util.ArrayList;
 import java.util.List;
 import org.sonar.javascript.cfg.ControlFlowGraph;
 import org.sonar.javascript.tree.symbols.Scope;
@@ -64,6 +65,10 @@ public class SeChecksDispatcher extends SubscriptionVisitorCheck {
 
   @Override
   public List<Issue> scanFile(TreeVisitorContext context) {
+    if (checks.isEmpty()) {
+      return new ArrayList<>();
+    }
+
     super.scanFile(context);
 
     Builder<Issue> builder = ImmutableList.builder();
