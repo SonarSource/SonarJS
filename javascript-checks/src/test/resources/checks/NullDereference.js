@@ -230,3 +230,14 @@ function null_and_not_undefined() {
     x.foo();
   }
 }
+
+function one_issue_per_symbol() {
+  var x = foo();
+  if (x == null) {}
+
+  if (condition) {
+    x.foo(); // Noncompliant
+  } else {
+    x.bar(); // no issue here as we already have issue for same symbol
+  }
+}

@@ -51,7 +51,7 @@ public class NullDereferenceCheck extends SeCheck {
 
   private static final String MESSAGE = "TypeError can be thrown as \"%s\" might be null or undefined here.";
 
-  private Set<Tree> hasIssue;
+  private Set<Symbol> hasIssue;
 
   @Override
   public void startOfExecution(Scope functionScope) {
@@ -66,9 +66,9 @@ public class NullDereferenceCheck extends SeCheck {
     if (symbol != null) {
       SymbolicValue symbolicValue = currentState.get(symbol);
 
-      if (symbolicValue != null && symbolicValue.nullability().isNullOrUndefined() && !hasIssue.contains(object)) {
+      if (symbolicValue != null && symbolicValue.nullability().isNullOrUndefined() && !hasIssue.contains(symbol)) {
         addIssue(object, String.format(MESSAGE, symbol.name()));
-        hasIssue.add(object);
+        hasIssue.add(symbol);
       }
     }
 
