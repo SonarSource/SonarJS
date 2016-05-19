@@ -19,30 +19,28 @@
  */
 package org.sonar.javascript.se;
 
-import java.util.Objects;
-
 import static org.sonar.javascript.se.Nullability.State.NO;
 import static org.sonar.javascript.se.Nullability.State.YES;
 
-public class  Nullability {
+public enum Nullability {
 
-  public static final Nullability NULL = new Nullability(YES, NO, YES);
+  NULL(YES, NO, YES),
 
-  public static final Nullability NOT_NULL = new Nullability(NO, State.UNKNOWN, State.UNKNOWN);
+  NOT_NULL(NO, State.UNKNOWN, State.UNKNOWN),
 
-  public static final Nullability UNDEFINED = new Nullability(NO, YES, YES);
+  UNDEFINED(NO, YES, YES),
 
-  public static final Nullability NOT_UNDEFINED = new Nullability(State.UNKNOWN, NO, State.UNKNOWN);
+  NOT_UNDEFINED(State.UNKNOWN, NO, State.UNKNOWN),
 
   // null or undefined, we are not sure
-  public static final Nullability NULLY = new Nullability(State.UNKNOWN, State.UNKNOWN, YES);
+  NULLY(State.UNKNOWN, State.UNKNOWN, YES),
 
-  public static final Nullability UNKNOWN = new Nullability(State.UNKNOWN, State.UNKNOWN, State.UNKNOWN);
+  UNKNOWN(State.UNKNOWN, State.UNKNOWN, State.UNKNOWN),
 
   // nor null or undefined
-  public static final Nullability NOT_NULLY = new Nullability(NO, NO, NO);
+  NOT_NULLY(NO, NO, NO);
 
-  public enum State {
+  enum State {
     YES,
     NO,
     UNKNOWN
@@ -52,66 +50,18 @@ public class  Nullability {
   private State undefinedState;
   private State nullOrUndefined;
 
-  private Nullability(State nullState, State undefinedState, State nullOrUndefined) {
+  Nullability(State nullState, State undefinedState, State nullOrUndefined) {
     this.nullState = nullState;
     this.undefinedState = undefinedState;
     this.nullOrUndefined = nullOrUndefined;
   }
 
-  public State isNullOrUndefined() {
-    if (nullState == YES || undefinedState == YES || nullOrUndefined == YES) {
-      return YES;
-
-    } else if (nullState == NO && undefinedState == NO && nullOrUndefined == NO) {
-      return NO;
-
-    } else {
-      return State.UNKNOWN;
-    }
+  public boolean isNullOrUndefined() {
+    return nullState == YES || undefinedState == YES || nullOrUndefined == YES;
   }
 
-  @Override
-  public String toString() {
-    if (this.equals(UNKNOWN)) {
-      return "UNKNOWN";
-
-    } else if (this.equals(UNDEFINED)) {
-      return "UNDEFINED";
-
-    } else if (this.equals(NULLY)) {
-      return "NULLY";
-
-    } else if (this.equals(NULL)) {
-      return "NULL";
-
-    } else if (this.equals(NOT_NULL)) {
-      return "NOT_NULL";
-
-    } else if (this.equals(NOT_UNDEFINED)) {
-      return "NOT_UNDEFINED";
-
-    } else {
-      return "NOT_NULLY";
-    }
-  }
-
-  @Override
-  public int hashCode() {
-    return Objects.hash(nullState, undefinedState, nullOrUndefined);
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (this == obj) {
-      return true;
-    }
-    if (obj == null || getClass() != obj.getClass()) {
-      return false;
-    }
-    Nullability other = (Nullability) obj;
-    return Objects.equals(this.nullState, other.nullState)
-      && Objects.equals(this.undefinedState, other.undefinedState)
-      && Objects.equals(this.nullOrUndefined, other.nullOrUndefined);
+  public boolean isNeitherNullNorUndefined() {
+    return nullState == NO && undefinedState == NO && nullOrUndefined == NO;
   }
 
 }

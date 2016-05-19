@@ -21,7 +21,6 @@ package org.sonar.javascript.se;
 
 import com.google.common.annotations.VisibleForTesting;
 import java.util.Objects;
-import org.sonar.javascript.se.Nullability.State;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
@@ -137,7 +136,7 @@ public class SymbolicValue {
 
   public SymbolicValue constrain(Nullability nullability) {
     Truthiness newTruthiness = truthiness;
-    if (nullability.isNullOrUndefined().equals(State.YES)) {
+    if (nullability.isNullOrUndefined()) {
       newTruthiness = Truthiness.FALSY;
     }
     return new SymbolicValue(nullability, newTruthiness);

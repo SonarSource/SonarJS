@@ -22,44 +22,30 @@ package org.sonar.javascript.se;
 import org.junit.Test;
 
 import static org.fest.assertions.Assertions.assertThat;
-import static org.sonar.javascript.se.Nullability.State.NO;
-import static org.sonar.javascript.se.Nullability.State.UNKNOWN;
-import static org.sonar.javascript.se.Nullability.State.YES;
 
 public class NullabilityTest {
 
   @Test
-  public void test_toString() throws Exception {
-    assertThat(Nullability.NULL.toString()).isEqualTo("NULL");
-    assertThat(Nullability.UNDEFINED.toString()).isEqualTo("UNDEFINED");
-    assertThat(Nullability.NULLY.toString()).isEqualTo("NULLY");
-    assertThat(Nullability.UNKNOWN.toString()).isEqualTo("UNKNOWN");
-    assertThat(Nullability.NOT_NULLY.toString()).isEqualTo("NOT_NULLY");
-    assertThat(Nullability.NOT_NULL.toString()).isEqualTo("NOT_NULL");
-    assertThat(Nullability.NOT_UNDEFINED.toString()).isEqualTo("NOT_UNDEFINED");
-  }
-
-  @Test
   public void test_isNullOrUndefined() throws Exception {
-    assertThat(Nullability.NULL.isNullOrUndefined()).isEqualTo(YES);
-    assertThat(Nullability.UNDEFINED.isNullOrUndefined()).isEqualTo(YES);
-    assertThat(Nullability.NULLY.isNullOrUndefined()).isEqualTo(YES);
-    assertThat(Nullability.UNKNOWN.isNullOrUndefined()).isEqualTo(UNKNOWN);
-    assertThat(Nullability.NOT_NULLY.isNullOrUndefined()).isEqualTo(NO);
-    assertThat(Nullability.NOT_NULL.isNullOrUndefined()).isEqualTo(UNKNOWN);
-    assertThat(Nullability.NOT_UNDEFINED.isNullOrUndefined()).isEqualTo(UNKNOWN);
+    assertThat(Nullability.NULL.isNullOrUndefined()).isTrue();
+    assertThat(Nullability.UNDEFINED.isNullOrUndefined()).isTrue();
+    assertThat(Nullability.NULLY.isNullOrUndefined()).isTrue();
+    assertThat(Nullability.UNKNOWN.isNullOrUndefined()).isFalse();
+    assertThat(Nullability.NOT_NULLY.isNullOrUndefined()).isFalse();
+    assertThat(Nullability.NOT_NULL.isNullOrUndefined()).isFalse();
+    assertThat(Nullability.NOT_UNDEFINED.isNullOrUndefined()).isFalse();
   }
 
   @Test
-  public void test_hashCode() throws Exception {
-    assertThat(Nullability.NOT_NULLY.hashCode()).isEqualTo(Nullability.NOT_NULLY.hashCode());
+  public void test_isNeitherNullNorUndefined() throws Exception {
+    assertThat(Nullability.NULL.isNeitherNullNorUndefined()).isFalse();
+    assertThat(Nullability.UNDEFINED.isNeitherNullNorUndefined()).isFalse();
+    assertThat(Nullability.NULLY.isNeitherNullNorUndefined()).isFalse();
+    assertThat(Nullability.UNKNOWN.isNeitherNullNorUndefined()).isFalse();
+    assertThat(Nullability.NOT_NULLY.isNeitherNullNorUndefined()).isTrue();
+    assertThat(Nullability.NOT_NULL.isNeitherNullNorUndefined()).isFalse();
+    assertThat(Nullability.NOT_UNDEFINED.isNeitherNullNorUndefined()).isFalse();
   }
 
-  @Test
-  public void test_equals() throws Exception {
-    assertThat(Nullability.NULL).isNotEqualTo(null);
-    assertThat(Nullability.NULL).isNotEqualTo("");
-    assertThat(Nullability.NULL).isEqualTo(Nullability.NULL);
-    assertThat(Nullability.NULL).isNotEqualTo(Nullability.NULLY);
-  }
+
 }
