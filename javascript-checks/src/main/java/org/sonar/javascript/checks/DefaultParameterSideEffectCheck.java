@@ -23,6 +23,7 @@ import org.sonar.api.server.rule.RulesDefinition.SubCharacteristics;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.javascript.checks.utils.CheckUtils;
+import org.sonar.javascript.tree.TreeKinds;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.declaration.InitializedBindingElementTree;
@@ -46,13 +47,6 @@ public class DefaultParameterSideEffectCheck extends DoubleDispatchVisitorCheck 
   private static final String MESSAGE = "Remove the side effects from this default assignment of \"%s\".";
   private InitializedBindingElementTree currentParameterWithDefault = null;
 
-  private static final Kind[] SIDE_EFFECT_KINDS = {
-    Kind.PREFIX_DECREMENT,
-    Kind.POSTFIX_DECREMENT,
-    Kind.PREFIX_INCREMENT,
-    Kind.POSTFIX_INCREMENT
-  };
-
   @Override
   public void visitParameterList(ParameterListTree tree) {
     if (tree.is(Kind.FORMAL_PARAMETER_LIST)) {
@@ -73,7 +67,7 @@ public class DefaultParameterSideEffectCheck extends DoubleDispatchVisitorCheck 
 
   @Override
   public void visitUnaryExpression(UnaryExpressionTree tree) {
-    if (tree.is(SIDE_EFFECT_KINDS) && currentParameterWithDefault != null) {
+    if (TreeKinds.isIncrementOrDecrement(tree) && currentParameterWithDefault != null) {
       addIssue(currentParameterWithDefault, String.format(MESSAGE, CheckUtils.asString(currentParameterWithDefault.left())));
       currentParameterWithDefault = null;
     }

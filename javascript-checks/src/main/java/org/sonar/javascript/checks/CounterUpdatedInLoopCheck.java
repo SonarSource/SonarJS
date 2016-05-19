@@ -28,6 +28,7 @@ import java.util.Set;
 import org.sonar.api.server.rule.RulesDefinition.SubCharacteristics;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
+import org.sonar.javascript.tree.TreeKinds;
 import org.sonar.javascript.tree.impl.statement.VariableDeclarationTreeImpl;
 import org.sonar.plugins.javascript.api.symbols.Symbol;
 import org.sonar.plugins.javascript.api.symbols.Usage;
@@ -66,13 +67,6 @@ public class CounterUpdatedInLoopCheck extends DoubleDispatchVisitorCheck {
   private Set<IdentifierTree> currentLoopCounters = null;
   private boolean inUpdate = false;
 
-  private static final Kind[] INC_DEC_OPERATIONS = {
-    Kind.PREFIX_DECREMENT,
-    Kind.PREFIX_INCREMENT,
-    Kind.POSTFIX_DECREMENT,
-    Kind.POSTFIX_INCREMENT
-  };
-
   @Override
   public void visitForStatement(ForStatementTree tree) {
     scan(tree.init());
@@ -109,7 +103,7 @@ public class CounterUpdatedInLoopCheck extends DoubleDispatchVisitorCheck {
 
   @Override
   public void visitUnaryExpression(UnaryExpressionTree tree) {
-    if (inUpdate && tree.is(INC_DEC_OPERATIONS)) {
+    if (inUpdate && TreeKinds.isIncrementOrDecrement(tree)) {
       addCurrentLoopCounter(tree.expression());
     }
 

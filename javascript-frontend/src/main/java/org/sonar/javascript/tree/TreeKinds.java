@@ -40,12 +40,23 @@ public class TreeKinds {
     Kind.OR_ASSIGNMENT
   };
 
+  private static final Kind[] INC_DEC_KINDS = {
+    Tree.Kind.POSTFIX_INCREMENT,
+    Tree.Kind.PREFIX_INCREMENT,
+    Tree.Kind.POSTFIX_DECREMENT,
+    Tree.Kind.PREFIX_DECREMENT
+  };
+
   private TreeKinds() {
     // This class has only static methods
   }
 
   public static boolean isAssignment(Tree tree) {
     return tree.is(ASSIGNMENT_KINDS);
+  }
+
+  public static boolean isIncrementOrDecrement(Tree tree) {
+    return tree.is(INC_DEC_KINDS);
   }
 
 }
