@@ -19,31 +19,32 @@
  */
 package org.sonar.javascript.se;
 
-import static org.sonar.javascript.se.Nullability.State.NO;
-import static org.sonar.javascript.se.Nullability.State.YES;
-
 public enum Nullability {
 
-  NULL(YES, NO, YES),
+  NULL(State.YES, State.NO, State.YES),
 
-  NOT_NULL(NO, State.UNKNOWN, State.UNKNOWN),
+  NOT_NULL(State.NO, State.UNKNOWN, State.UNKNOWN),
 
-  UNDEFINED(NO, YES, YES),
+  UNDEFINED(State.NO, State.YES, State.YES),
 
-  NOT_UNDEFINED(State.UNKNOWN, NO, State.UNKNOWN),
+  NOT_UNDEFINED(State.UNKNOWN, State.NO, State.UNKNOWN),
 
   // null or undefined, we are not sure
-  NULLY(State.UNKNOWN, State.UNKNOWN, YES),
+  NULLY(State.UNKNOWN, State.UNKNOWN, State.YES),
 
   UNKNOWN(State.UNKNOWN, State.UNKNOWN, State.UNKNOWN),
 
   // nor null or undefined
-  NOT_NULLY(NO, NO, NO);
+  NOT_NULLY(State.NO, State.NO, State.NO);
 
-  enum State {
+  private enum State {
     YES,
     NO,
-    UNKNOWN
+    UNKNOWN;
+
+    boolean opposite(State other) {
+      return (this == YES && other == NO) || (this == NO && other == YES);
+    }
   }
 
   private State nullState;
@@ -57,11 +58,14 @@ public enum Nullability {
   }
 
   public boolean isNullOrUndefined() {
-    return nullState == YES || undefinedState == YES || nullOrUndefined == YES;
+    return nullState == State.YES || undefinedState == State.YES || nullOrUndefined == State.YES;
   }
 
   public boolean isNeitherNullNorUndefined() {
-    return nullState == NO && undefinedState == NO && nullOrUndefined == NO;
+    return nullState == State.NO && undefinedState == State.NO && nullOrUndefined == State.NO;
   }
 
+  public boolean canNotBeEqual(Nullability other) {
+    return nullState.opposite(other.nullState) || undefinedState.opposite(other.undefinedState) || nullOrUndefined.opposite(other.nullOrUndefined);
+  }
 }

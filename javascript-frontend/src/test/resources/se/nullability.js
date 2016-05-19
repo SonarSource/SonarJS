@@ -12,15 +12,31 @@ function main() {
     foo(); // PS x=NOT_NULLY
   }
 
-  if (x === null) {
-    foo(); // PS x=NULL
-  } else {
+  x = foo();
+  if (x !== null) {
     foo(); // PS x=NOT_NULL
+  } else {
+    foo(); // PS x=NULL
   }
 
+  x = foo();
   if (x === undefined) {
     foo(); // PS x=UNDEFINED
   } else {
     foo(); // PS x=NOT_UNDEFINED
   }
+
+  x = null;
+  var y = 42;
+  if (x === null) {
+    y = null;  // always executed
+  }
+  foo(); // PS y=NULL
+
+  x = 42;
+  y = 42;
+  if (x === null) {
+    y = null;  // never executed
+  }
+  foo(); // PS y=TRUTHY
 }

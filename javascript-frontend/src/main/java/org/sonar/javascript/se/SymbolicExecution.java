@@ -402,12 +402,12 @@ public class SymbolicExecution {
       Nullability falseSuccessorNullability;
 
       if (lastElement.is(Kind.STRICT_EQUAL_TO)) {
-        // x == null
+        // x === null
         trueSuccessorNullability = value.nullability();
         falseSuccessorNullability = valueNot.nullability();
 
       } else {
-        // x != null
+        // x !== null
         trueSuccessorNullability = valueNot.nullability();
         falseSuccessorNullability = value.nullability();
       }
@@ -421,7 +421,7 @@ public class SymbolicExecution {
 
         if (currentNullability.equals(value.nullability())) {
           conditionTruthiness = truthinessIfVariableNull;
-        } else if (currentNullability.equals(valueNot.nullability())) {
+        } else if (currentNullability.canNotBeEqual(value.nullability())) {
           conditionTruthiness = truthinessIfVariableNull.not();
         }
 

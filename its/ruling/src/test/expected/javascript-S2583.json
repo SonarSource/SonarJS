@@ -19,6 +19,7 @@
 24,
 ],
 'project:dojo-1.8.1/dojo/_base/lang.js.uncompressed.js':[
+288,
 373,
 375,
 ],
@@ -26,10 +27,17 @@
 441,
 ],
 'project:dojo-1.8.1/dojo/dojo.js.uncompressed.js':[
+12375,
 12460,
 12462,
 13537,
 17360,
+],
+'project:dojo-1.8.1/dojox/atom/widget/FeedEntryEditor.js.uncompressed.js':[
+140,
+],
+'project:dojo-1.8.1/dojox/atom/widget/FeedViewer.js.uncompressed.js':[
+309,
 ],
 'project:dojo-1.8.1/dojox/calendar/MonthColumnView.js.uncompressed.js':[
 1347,
@@ -262,6 +270,7 @@
 ],
 'project:processing-1.3.6.js':[
 1673,
+4160,
 ],
 'project:scriptaculous-1.9.0/dragdrop.js':[
 850,
@@ -270,6 +279,8 @@
 4448,
 4572,
 4657,
+8987,
+9137,
 ],
 'project:yui-3.7.3/dd-ddm-drop/dd-ddm-drop.js':[
 190,
