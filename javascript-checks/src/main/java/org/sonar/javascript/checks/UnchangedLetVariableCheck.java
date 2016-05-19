@@ -32,7 +32,9 @@ import org.sonar.plugins.javascript.api.symbols.Usage;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
+import org.sonar.plugins.javascript.api.tree.statement.ForObjectStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.ForStatementTree;
+import org.sonar.plugins.javascript.api.tree.statement.VariableDeclarationTree;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
 import org.sonar.squidbridge.annotations.ActivatedByDefault;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
@@ -94,5 +96,14 @@ public class UnchangedLetVariableCheck extends DoubleDispatchVisitorCheck {
     }
 
     super.visitForStatement(tree);
+  }
+
+  @Override
+  public void visitForObjectStatement(ForObjectStatementTree tree) {
+    Tree variableOrExpression = tree.variableOrExpression();
+    if (variableOrExpression.is(Tree.Kind.LET_DECLARATION)) {
+      IdentifierTree identifier = ((VariableDeclarationTree) variableOrExpression).variables().get(0).bindingIdentifiers().get(0);
+      createdInForInit.add(identifier.symbol());
+    }
   }
 }

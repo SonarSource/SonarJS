@@ -838,7 +838,6 @@
 'project:ecmascript6/Ghost/core/client/tests/acceptance/settings/tags-test.js':[
 28,
 29,
-33,
 39,
 40,
 67,
@@ -854,8 +853,6 @@
 'project:ecmascript6/Ghost/core/client/tests/acceptance/team-test.js':[
 115,
 133,
-136,
-145,
 ],
 'project:ecmascript6/Ghost/core/client/tests/helpers/resolver.js':[
 4,
@@ -1207,9 +1204,6 @@
 8,
 9,
 ],
-'project:ecmascript6/react-router/modules/Link.js':[
-15,
-],
 'project:ecmascript6/react-router/modules/PatternUtils.js':[
 16,
 93,
@@ -1222,7 +1216,6 @@
 ],
 'project:ecmascript6/react-router/modules/RouterContext.js':[
 40,
-85,
 ],
 'project:ecmascript6/react-router/modules/__tests__/matchRoutes-test.js':[
 15,
@@ -1230,12 +1223,6 @@
 'project:ecmascript6/react-router/modules/createTransitionManager.js':[
 203,
 206,
-],
-'project:ecmascript6/react-router/modules/deprecateObjectProperties.js':[
-21,
-],
-'project:ecmascript6/react-router/modules/isActive.js':[
-17,
 ],
 'project:ecmascript6/react-router/modules/matchRoutes.js':[
 82,
@@ -1264,7 +1251,6 @@
 146,
 167,
 169,
-203,
 223,
 243,
 ],

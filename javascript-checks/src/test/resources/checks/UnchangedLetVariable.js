@@ -23,3 +23,12 @@ for (let n=arr.length; i<n; i++) {  // Noncompliant {{Make "n" "const".}}
 }
 
 for (;;) {}
+
+for (let prop1 in obj) {
+  foo(prop1)
+}
+
+let prop2;
+for (prop2 in obj) {
+  foo(prop)
+}
