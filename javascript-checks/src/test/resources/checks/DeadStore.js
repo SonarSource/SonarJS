@@ -133,3 +133,8 @@ function assignment_order_with_ternary() {
   x = x > 0 ? x : 0;
   return baz(x);
 }
+
+function assignment_in_lhs() {
+  var i;
+  x[i = foo()] = bar(i);  // OK
+}
