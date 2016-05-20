@@ -74,7 +74,7 @@ public class NullDereferenceCheck extends SeCheck {
 
   }
 
-  private Symbol getSymbol(@Nullable  ExpressionTree object) {
+  private static Symbol getSymbol(@Nullable ExpressionTree object) {
     if (object != null && object.is(Kind.IDENTIFIER_REFERENCE)) {
       return ((IdentifierTree) object).symbol();
     }
@@ -82,7 +82,7 @@ public class NullDereferenceCheck extends SeCheck {
   }
 
   @Nullable
-  private ExpressionTree getObject(Tree element) {
+  private static ExpressionTree getObject(Tree element) {
     if (element.is(Kind.BRACKET_MEMBER_EXPRESSION, Kind.DOT_MEMBER_EXPRESSION)) {
       return ((MemberExpressionTree) element).object();
     }

@@ -101,7 +101,7 @@ public class SymbolicExecution {
     }
   }
 
-  private boolean hasTryBranchingTree(CfgBlock block) {
+  private static boolean hasTryBranchingTree(CfgBlock block) {
     if (block instanceof CfgBranchingBlock) {
       return ((CfgBranchingBlock) block).branchingTree().is(Kind.TRY_STATEMENT);
     }
@@ -320,7 +320,7 @@ public class SymbolicExecution {
     return false;
   }
 
-  private Truthiness getTypeOfConditionTruthiness(Tree expression, String typeValue, ProgramState currentState, Symbol conditionVariable) {
+  private static Truthiness getTypeOfConditionTruthiness(Tree expression, String typeValue, ProgramState currentState, Symbol conditionVariable) {
     Truthiness conditionTruthiness = Truthiness.UNKNOWN;
 
     Truthiness truthiness = expression.is(Kind.EQUAL_TO, Kind.STRICT_EQUAL_TO)
@@ -492,7 +492,7 @@ public class SymbolicExecution {
     return false;
   }
 
-  private boolean isNullyComparison(Tree lastElement) {
+  private static boolean isNullyComparison(Tree lastElement) {
     if (lastElement.is(Kind.NOT_EQUAL_TO, Kind.EQUAL_TO)) {
       BinaryExpressionTree comparison = (BinaryExpressionTree) lastElement;
       return SymbolicValue.get(comparison.leftOperand()).nullability().isNullOrUndefined()
@@ -501,7 +501,7 @@ public class SymbolicExecution {
     return false;
   }
 
-  private boolean isStrictComparison(Tree lastElement, SymbolicValue value) {
+  private static boolean isStrictComparison(Tree lastElement, SymbolicValue value) {
     if (lastElement.is(Kind.STRICT_NOT_EQUAL_TO, Kind.STRICT_EQUAL_TO)) {
       BinaryExpressionTree comparison = (BinaryExpressionTree) lastElement;
       return SymbolicValue.get(comparison.leftOperand()).equals(value)
