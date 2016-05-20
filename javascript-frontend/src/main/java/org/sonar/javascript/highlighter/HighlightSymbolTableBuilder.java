@@ -19,7 +19,6 @@
  */
 package org.sonar.javascript.highlighter;
 
-import com.google.common.collect.ImmutableList;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -33,12 +32,18 @@ import org.sonar.plugins.javascript.api.symbols.Symbol;
 import org.sonar.plugins.javascript.api.symbols.Type;
 import org.sonar.plugins.javascript.api.symbols.Type.Kind;
 import org.sonar.plugins.javascript.api.symbols.Usage;
-import org.sonar.plugins.javascript.api.tree.Tree;
+import org.sonar.plugins.javascript.api.tree.declaration.ObjectBindingPatternTree;
+import org.sonar.plugins.javascript.api.tree.declaration.SpecifierListTree;
+import org.sonar.plugins.javascript.api.tree.expression.ClassTree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 import org.sonar.plugins.javascript.api.tree.expression.ObjectLiteralTree;
+import org.sonar.plugins.javascript.api.tree.expression.TemplateExpressionTree;
+import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxJavaScriptExpressionTree;
+import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxSpreadAttributeTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.javascript.api.tree.statement.BlockTree;
-import org.sonar.plugins.javascript.api.visitors.SubscriptionVisitor;
+import org.sonar.plugins.javascript.api.tree.statement.SwitchStatementTree;
+import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitor;
 
 public class HighlightSymbolTableBuilder {
 
@@ -96,8 +101,7 @@ public class HighlightSymbolTableBuilder {
     return (InternalSyntaxToken) (identifierTree).identifierToken();
   }
 
-  private static class BracesVisitor extends SubscriptionVisitor {
-
+  private static class BracesVisitor extends DoubleDispatchVisitor {
 
     private final SymbolTableBuilder builder;
 
@@ -106,21 +110,57 @@ public class HighlightSymbolTableBuilder {
     }
 
     @Override
-    public List<Tree.Kind> nodesToVisit() {
-      return ImmutableList.of(Tree.Kind.BLOCK, Tree.Kind.OBJECT_LITERAL);
+    public void visitBlock(BlockTree tree) {
+      highlightBraces(tree.openCurlyBrace(), tree.closeCurlyBrace());
+      super.visitBlock(tree);
     }
 
     @Override
-    public void visitNode(Tree tree) {
-      if (tree.is(Tree.Kind.BLOCK)) {
-        BlockTree blockTree = (BlockTree) tree;
-        highlightBraces(blockTree.openCurlyBrace(), blockTree.closeCurlyBrace());
+    public void visitObjectLiteral(ObjectLiteralTree tree) {
+      highlightBraces(tree.openCurlyBrace(), tree.closeCurlyBrace());
+      super.visitObjectLiteral(tree);
+    }
 
-      } else {
-        ObjectLiteralTree objectLiteralTree = (ObjectLiteralTree) tree;
-        highlightBraces(objectLiteralTree.openCurlyBrace(), objectLiteralTree.closeCurlyBrace());
+    @Override
+    public void visitClass(ClassTree tree) {
+      highlightBraces(tree.openCurlyBraceToken(), tree.closeCurlyBraceToken());
+      super.visitClass(tree);
+    }
 
-      }
+    @Override
+    public void visitTemplateExpression(TemplateExpressionTree tree) {
+      highlightBraces(tree.openCurlyBrace(), tree.closeCurlyBrace());
+      super.visitTemplateExpression(tree);
+    }
+
+    @Override
+    public void visitSpecifierList(SpecifierListTree tree) {
+      highlightBraces(tree.openCurlyBraceToken(), tree.closeCurlyBraceToken());
+      super.visitSpecifierList(tree);
+    }
+
+    @Override
+    public void visitObjectBindingPattern(ObjectBindingPatternTree tree) {
+      highlightBraces(tree.openCurlyBrace(), tree.closeCurlyBrace());
+      super.visitObjectBindingPattern(tree);
+    }
+
+    @Override
+    public void visitJsxSpreadAttribute(JsxSpreadAttributeTree tree) {
+      highlightBraces(tree.lCurlyBraceToken(), tree.rCurlyBraceToken());
+      super.visitJsxSpreadAttribute(tree);
+    }
+
+    @Override
+    public void visitJsxJavaScriptExpression(JsxJavaScriptExpressionTree tree) {
+      highlightBraces(tree.lCurlyBraceToken(), tree.rCurlyBraceToken());
+      super.visitJsxJavaScriptExpression(tree);
+    }
+
+    @Override
+    public void visitSwitchStatement(SwitchStatementTree tree) {
+      highlightBraces(tree.openCurlyBrace(), tree.closeCurlyBrace());
+      super.visitSwitchStatement(tree);
     }
 
     private void highlightBraces(SyntaxToken left, SyntaxToken right) {

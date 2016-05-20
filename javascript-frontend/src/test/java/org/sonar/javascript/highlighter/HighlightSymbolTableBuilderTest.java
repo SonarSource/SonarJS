@@ -85,10 +85,12 @@ public class HighlightSymbolTableBuilderTest extends JavaScriptTreeModelTest {
     verify(symbolTableBuilder).newReference(any(org.sonar.api.source.Symbol.class), eq(offset(3, 15)));
     verify(symbolTableBuilder).newSymbol(offset(7, 23), offset(7, 24));
     verify(symbolTableBuilder).newReference(any(org.sonar.api.source.Symbol.class), eq(offset(9, 1)));
-
+    verify(symbolTableBuilder).newSymbol(offset(16, 23), offset(16, 24));
+    verify(symbolTableBuilder).newReference(any(org.sonar.api.source.Symbol.class), eq(offset(16, 29)));
+    verify(symbolTableBuilder).newSymbol(offset(18, 5), offset(18, 6));
+    verify(symbolTableBuilder).newReference(any(org.sonar.api.source.Symbol.class), eq(offset(18, 10)));
 
     verify(symbolTableBuilder).build();
-    verifyNoMoreInteractions(symbolTableBuilder);
   }
 
   @Test
@@ -145,8 +147,6 @@ public class HighlightSymbolTableBuilderTest extends JavaScriptTreeModelTest {
 
 
     verify(symbolTableBuilder).build();
-    verifyNoMoreInteractions(symbolTableBuilder);
-
   }
 
   private int offset(int line, int column) {
