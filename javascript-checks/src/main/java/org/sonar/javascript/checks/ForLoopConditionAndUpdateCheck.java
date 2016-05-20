@@ -30,6 +30,7 @@ import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.javascript.checks.utils.CheckUtils;
 import org.sonar.javascript.tree.SyntacticEquivalence;
+import org.sonar.javascript.tree.TreeKinds;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.expression.AssignmentExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.CallExpressionTree;
@@ -113,7 +114,7 @@ public class ForLoopConditionAndUpdateCheck extends DoubleDispatchVisitorCheck {
 
     @Override
     public void visitUnaryExpression(UnaryExpressionTree tree) {
-      if (tree.is(Tree.Kind.POSTFIX_INCREMENT, Tree.Kind.POSTFIX_DECREMENT, Tree.Kind.PREFIX_INCREMENT, Tree.Kind.PREFIX_DECREMENT)) {
+      if (TreeKinds.isIncrementOrDecrement(tree)) {
         updatedExpressions.add(tree.expression());
       }
       super.visitUnaryExpression(tree);

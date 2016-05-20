@@ -29,14 +29,7 @@ public class EqualInForLoopTerminationCheckTest {
 
   @Test
   public void test() {
-    JavaScriptCheckVerifier.issues(check, new File("src/test/resources/checks/EqualInForLoopTermination.js"))
-      .next().atLine(1)
-      .next().atLine(3)
-      .next().atLine(9)
-      .next().atLine(11)
-      .next().atLine(15)
-      .next().atLine(30)
-      .noMore();
+    JavaScriptCheckVerifier.verify(check, new File("src/test/resources/checks/EqualInForLoopTermination.js"));
 
   }
 }

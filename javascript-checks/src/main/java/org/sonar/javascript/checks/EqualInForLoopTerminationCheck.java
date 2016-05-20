@@ -19,10 +19,13 @@
  */
 package org.sonar.javascript.checks;
 
+import java.util.HashSet;
+import java.util.Set;
 import javax.annotation.Nullable;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
+import org.sonar.javascript.tree.TreeKinds;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.declaration.BindingElementTree;
@@ -30,7 +33,9 @@ import org.sonar.plugins.javascript.api.tree.declaration.InitializedBindingEleme
 import org.sonar.plugins.javascript.api.tree.expression.AssignmentExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.BinaryExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
+import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 import org.sonar.plugins.javascript.api.tree.expression.LiteralTree;
+import org.sonar.plugins.javascript.api.tree.expression.UnaryExpressionTree;
 import org.sonar.plugins.javascript.api.tree.statement.ForStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.VariableDeclarationTree;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
@@ -50,12 +55,8 @@ public class EqualInForLoopTerminationCheck extends DoubleDispatchVisitorCheck {
 
   private static final String MESSAGE = "Replace '%s' operator with one of '<=', '>=', '<', or '>' comparison operators.";
 
-  private static final Kind[] INCREMENT_KINDS = {
-    Tree.Kind.POSTFIX_INCREMENT,
-    Tree.Kind.PREFIX_INCREMENT,
+  private static final Kind[] INCREMENT_ASSIGNMENT = {
     Tree.Kind.PLUS_ASSIGNMENT,
-    Tree.Kind.POSTFIX_DECREMENT,
-    Tree.Kind.PREFIX_DECREMENT,
     Tree.Kind.MINUS_ASSIGNMENT
   };
 
@@ -67,11 +68,30 @@ public class EqualInForLoopTerminationCheck extends DoubleDispatchVisitorCheck {
     boolean conditionCondition = condition != null && isEquality(condition);
     boolean updateCondition = update != null && isUpdateIncDec(update);
 
-    if (conditionCondition && updateCondition && (condition.is(Tree.Kind.EQUAL_TO) || !isException(tree))) {
+    if (conditionCondition && updateCondition && !isException(tree)) {
       addIssue(condition);
     }
 
     super.visitForStatement(tree);
+  }
+
+  private static void counters(ExpressionTree update, Set<String> counters) {
+    ExpressionTree counter = null;
+    if (update.is(Tree.Kind.COMMA_OPERATOR)) {
+      BinaryExpressionTree commaExpressions = (BinaryExpressionTree) update;
+      counters(commaExpressions.leftOperand(), counters);
+      counters(commaExpressions.rightOperand(), counters);
+
+    } else if (TreeKinds.isIncrementOrDecrement(update)) {
+      counter = ((UnaryExpressionTree) update).expression();
+
+    } else if (update.is(Kind.PLUS_ASSIGNMENT, Kind.MINUS_ASSIGNMENT)) {
+      counter = ((AssignmentExpressionTree) update).variable();
+    }
+
+    if (counter != null && counter.is(Kind.IDENTIFIER_REFERENCE)) {
+      counters.add(((IdentifierTree) counter).name());
+    }
   }
 
   private void addIssue(ExpressionTree condition) {
@@ -84,7 +104,7 @@ public class EqualInForLoopTerminationCheck extends DoubleDispatchVisitorCheck {
   }
 
   private static boolean isException(ForStatementTree forStatement) {
-    return isNullConditionException(forStatement) || isTrivialIteratorException(forStatement);
+    return isNontrivialConditionException(forStatement) || isTrivialIteratorException(forStatement);
   }
 
   private static boolean isTrivialIteratorException(ForStatementTree forStatement) {
@@ -112,9 +132,17 @@ public class EqualInForLoopTerminationCheck extends DoubleDispatchVisitorCheck {
     return false;
   }
 
-  private static boolean isNullConditionException(ForStatementTree forStatement) {
+  // returns true is condition in forStatement is not just comparing counter with something
+  private static boolean isNontrivialConditionException(ForStatementTree forStatement) {
     ExpressionTree condition = forStatement.condition();
-    return condition != null && condition.is(Tree.Kind.NOT_EQUAL_TO) && ((BinaryExpressionTree) condition).rightOperand().is(Tree.Kind.NULL_LITERAL);
+    ExpressionTree update = forStatement.update();
+    if (update != null && condition != null && condition.is(Kind.EQUAL_TO, Kind.NOT_EQUAL_TO, Kind.STRICT_EQUAL_TO, Kind.STRICT_NOT_EQUAL_TO)) {
+      Set<String> counters = new HashSet<>();
+      counters(update, counters);
+      ExpressionTree leftOperand = ((BinaryExpressionTree) condition).leftOperand();
+      return !leftOperand.is(Kind.IDENTIFIER_REFERENCE) || !counters.contains(((IdentifierTree) leftOperand).name());
+    }
+    return false;
   }
 
   @Nullable
@@ -167,7 +195,7 @@ public class EqualInForLoopTerminationCheck extends DoubleDispatchVisitorCheck {
       BinaryExpressionTree commaExpressions = (BinaryExpressionTree) update;
       result = isUpdateIncDec(commaExpressions.leftOperand()) && isUpdateIncDec(commaExpressions.rightOperand());
 
-    } else if (update.is(INCREMENT_KINDS)) {
+    } else if (TreeKinds.isIncrementOrDecrement(update) || update.is(INCREMENT_ASSIGNMENT)) {
       result = true;
     }
 

@@ -23,6 +23,7 @@ import javax.annotation.Nullable;
 import org.sonar.api.server.rule.RulesDefinition.SubCharacteristics;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
+import org.sonar.javascript.tree.TreeKinds;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.expression.BinaryExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
@@ -44,16 +45,9 @@ public class IncrementDecrementInSubExpressionCheck extends DoubleDispatchVisito
 
   private static final String MESSAGE = "Extract this %s operation into a dedicated statement.";
 
-  private static final Kind[] INC_DEC_EXPRESSIONS = {
-    Kind.PREFIX_DECREMENT,
-    Kind.PREFIX_INCREMENT,
-    Kind.POSTFIX_INCREMENT,
-    Kind.POSTFIX_DECREMENT
-  };
-
   @Override
   public void visitExpressionStatement(ExpressionStatementTree tree) {
-    if (tree.expression().is(INC_DEC_EXPRESSIONS)) {
+    if (TreeKinds.isIncrementOrDecrement(tree.expression())) {
       scan(((UnaryExpressionTree) tree.expression()).expression());
     } else {
       scan(tree.expression());
@@ -62,7 +56,7 @@ public class IncrementDecrementInSubExpressionCheck extends DoubleDispatchVisito
 
   @Override
   public void visitUnaryExpression(UnaryExpressionTree tree) {
-    if (tree.is(INC_DEC_EXPRESSIONS)) {
+    if (TreeKinds.isIncrementOrDecrement(tree)) {
       raiseIssue(tree);
     }
 
@@ -79,7 +73,7 @@ public class IncrementDecrementInSubExpressionCheck extends DoubleDispatchVisito
 
   private void scanUpdateClause(@Nullable ExpressionTree tree) {
     if (tree != null) {
-      if (tree.is(INC_DEC_EXPRESSIONS)) {
+      if (TreeKinds.isIncrementOrDecrement(tree)) {
         scan(((UnaryExpressionTree) tree).expression());
 
       } else if (tree.is(Kind.COMMA_OPERATOR)) {
