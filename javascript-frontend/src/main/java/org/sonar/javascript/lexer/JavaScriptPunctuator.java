@@ -79,7 +79,7 @@ public enum JavaScriptPunctuator implements TokenType, GrammarRuleKey {
 
   private final String value;
 
-  private JavaScriptPunctuator(String word) {
+  JavaScriptPunctuator(String word) {
     this.value = word;
   }
 

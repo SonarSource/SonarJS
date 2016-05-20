@@ -512,7 +512,7 @@ public enum JavaScriptLegacyGrammar implements GrammarRuleKey {
 
   private final String internalName;
 
-  private JavaScriptLegacyGrammar() {
+  JavaScriptLegacyGrammar() {
     String name = name();
     StringBuilder sb = new StringBuilder();
     int i = 0;

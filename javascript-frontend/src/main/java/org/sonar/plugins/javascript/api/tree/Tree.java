@@ -913,7 +913,7 @@ public interface Tree {
 
     final Class<? extends Tree> associatedInterface;
 
-    private Kind(Class<? extends Tree> associatedInterface) {
+    Kind(Class<? extends Tree> associatedInterface) {
       this.associatedInterface = associatedInterface;
     }
 

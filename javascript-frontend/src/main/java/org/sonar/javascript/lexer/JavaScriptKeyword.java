@@ -73,7 +73,7 @@ public enum JavaScriptKeyword implements TokenType, GrammarRuleKey {
 
   private final String value;
 
-  private JavaScriptKeyword(String value) {
+  JavaScriptKeyword(String value) {
     this.value = value;
   }
 
