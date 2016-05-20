@@ -20,6 +20,8 @@
 package org.sonar.javascript.se;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.collect.ImmutableMap;
+import java.util.Map;
 import java.util.Objects;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
@@ -40,6 +42,17 @@ public class SymbolicValue {
   protected static final SymbolicValue TRUTHY_LITERAL = new SymbolicValue(Nullability.NOT_NULLY, Truthiness.TRUTHY);
   @VisibleForTesting
   protected static final SymbolicValue FALSY_LITERAL = new SymbolicValue(Nullability.NOT_NULLY, Truthiness.FALSY);
+
+  private static final Map<SymbolicValue, String> NAMES = new ImmutableMap.Builder<SymbolicValue, String>()
+    .put(NULL, "NULL")
+    .put(UNDEFINED, "UNDEFINED")
+    .put(NOT_UNDEFINED, "NOT_UNDEFINED")
+    .put(NULL_OR_UNDEFINED, "NULLY")
+    .put(UNKNOWN, "UNKNOWN")
+    .put(NOT_NULL, "NOT_NULL")
+    .put(TRUTHY_LITERAL, "TRUTHY")
+    .put(FALSY_LITERAL, "FALSY")
+    .build();
 
   private final Nullability nullability;
   private final Truthiness truthiness;
@@ -161,29 +174,8 @@ public class SymbolicValue {
 
   @Override
   public String toString() {
-    if (this.equals(NULL_OR_UNDEFINED)) {
-      return "NULLY";
-
-    } else if (this.equals(UNKNOWN)) {
-      return "UNKNOWN";
-
-    } else if (this.equals(TRUTHY_LITERAL)) {
-      return "TRUTHY";
-
-    } else if (this.equals(FALSY_LITERAL)) {
-      return "FALSY";
-
-    }  else if (this.equals(UNDEFINED)) {
-      return "UNDEFINED";
-
-    }  else if (this.equals(NULL)) {
-      return "NULL";
-
-    }  else if (this.equals(NOT_NULL)) {
-      return "NOT_NULL";
-
-    }  else if (this.equals(NOT_UNDEFINED)) {
-      return "NOT_UNDEFINED";
+    if (NAMES.containsKey(this)) {
+      return NAMES.get(this);
 
     } else if (this.nullability.equals(Nullability.NOT_NULLY) && this.truthiness.equals(Truthiness.UNKNOWN)) {
       return "NOT_NULLY";
