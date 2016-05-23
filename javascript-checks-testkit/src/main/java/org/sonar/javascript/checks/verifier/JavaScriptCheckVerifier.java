@@ -19,16 +19,15 @@
  */
 package org.sonar.javascript.checks.verifier;
 
-import static org.fest.assertions.Assertions.assertThat;
-import static org.junit.Assert.fail;
-
+import com.google.common.base.Function;
+import com.google.common.base.Splitter;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Ordering;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-
 import javax.annotation.Nullable;
-
 import org.sonar.javascript.visitors.JavaScriptVisitorContext;
 import org.sonar.plugins.javascript.api.JavaScriptCheck;
 import org.sonar.plugins.javascript.api.tree.Tree;
@@ -42,10 +41,8 @@ import org.sonar.plugins.javascript.api.visitors.PreciseIssue;
 import org.sonar.plugins.javascript.api.visitors.SubscriptionVisitorCheck;
 import org.sonar.squidbridge.checks.CheckMessagesVerifier;
 
-import com.google.common.base.Function;
-import com.google.common.base.Splitter;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Ordering;
+import static org.fest.assertions.Assertions.assertThat;
+import static org.junit.Assert.fail;
 
 public class JavaScriptCheckVerifier extends SubscriptionVisitorCheck {
 
@@ -183,7 +180,6 @@ public class JavaScriptCheckVerifier extends SubscriptionVisitorCheck {
   }
 
   private void addPreciseLocation(int line, String text) {
-    System.out.println(line + "::" + text);
     String missingAssertionMessage = String.format("Invalid test file: a precise location is provided at line %s but no issue is asserted at line %s", line, line - 1);
     if (expectedIssues.isEmpty()) {
       throw new IllegalStateException(missingAssertionMessage);
@@ -193,8 +189,8 @@ public class JavaScriptCheckVerifier extends SubscriptionVisitorCheck {
       throw new IllegalStateException(missingAssertionMessage);
     }
     issue.endLine(issue.line());
-    issue.startColumn(text.indexOf("^") + 1);
-    issue.endColumn(text.lastIndexOf("^") + 2);
+    issue.startColumn(text.indexOf('^') + 1);
+    issue.endColumn(text.lastIndexOf('^') + 2);
   }
 
   private static void addParams(TestIssue issue, String params) {
