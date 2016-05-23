@@ -230,6 +230,57 @@ public class JavaScriptCheckVerifierTest {
       TestIssue.create("msg1", 2), TestIssue.create("msg1", 1));
   }
 
+  @Test
+  public void right_columns_for_primary_location() throws Exception {
+    check(
+      "foo(); // Noncompliant\n" +
+      "// ^^",
+      TestIssue.create("msg1", 1).columns(4, 6));
+  }
+
+  @Test
+  public void wrong_start_column_for_primary_location() throws Exception {
+    expect("Bad start column at line 1");
+    check(
+      "foo(); // Noncompliant\n" +
+      "//  ^",
+      TestIssue.create("msg1", 1).columns(4, 6));
+  }
+
+  @Test
+  public void wrong_end_column_for_primary_location() throws Exception {
+    expect("Bad end column at line 1");
+    check(
+      "foo(); // Noncompliant\n" +
+        "// ^^^",
+      TestIssue.create("msg1", 1).columns(4, 6));
+  }
+
+  @Test
+  public void precise_location_without_any_issue_assertion() throws Exception {
+    thrown.expectMessage("Invalid test file: a precise location is provided at line 2 but no issue is asserted at line 1");
+    check(
+      "foo();\n" +
+      "// ^^");
+  }
+
+  @Test
+  public void precise_location_with_no_assertion_on_previous_line() throws Exception {
+    thrown.expectMessage("Invalid test file: a precise location is provided at line 3 but no issue is asserted at line 2");
+    check(
+      "foo(); // Noncompliant\n" +
+      "foo();\n" +
+      "// ^^");
+  }
+
+  @Test
+  public void precise_location_with_comment_starting_after_column_1() throws Exception {
+    thrown.expectMessage("Line 2: comments asserting a precise location should start at column 1");
+    check(
+      "foobar(); // Noncompliant\n" +
+      "   // ^^");
+  }
+
   private void expect(String exceptionMessage) {
     thrown.expect(AssertionError.class);
     thrown.expectMessage(exceptionMessage);

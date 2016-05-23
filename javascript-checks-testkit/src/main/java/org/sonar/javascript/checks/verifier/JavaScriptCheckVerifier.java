@@ -172,8 +172,30 @@ public class JavaScriptCheckVerifier extends SubscriptionVisitorCheck {
         }
 
         expectedIssues.add(issue);
+
+      } else if (text.startsWith("^")) {
+        addPreciseLocation(trivia);
       }
     }
+  }
+
+  private void addPreciseLocation(SyntaxTrivia trivia) {
+    int line = trivia.line();
+    String text = trivia.text();
+    if (trivia.column() > 1) {
+      throw new IllegalStateException("Line " + line + ": comments asserting a precise location should start at column 1");
+    }
+    String missingAssertionMessage = String.format("Invalid test file: a precise location is provided at line %s but no issue is asserted at line %s", line, line - 1);
+    if (expectedIssues.isEmpty()) {
+      throw new IllegalStateException(missingAssertionMessage);
+    }
+    TestIssue issue = expectedIssues.get(expectedIssues.size() - 1);
+    if (issue.line() != line - 1) {
+      throw new IllegalStateException(missingAssertionMessage);
+    }
+    issue.endLine(issue.line());
+    issue.startColumn(text.indexOf('^') + 1);
+    issue.endColumn(text.lastIndexOf('^') + 2);
   }
 
   private static void addParams(TestIssue issue, String params) {
