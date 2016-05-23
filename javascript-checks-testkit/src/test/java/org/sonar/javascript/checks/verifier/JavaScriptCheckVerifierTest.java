@@ -273,6 +273,14 @@ public class JavaScriptCheckVerifierTest {
       "// ^^");
   }
 
+  @Test
+  public void precise_location_with_comment_starting_after_column_1() throws Exception {
+    thrown.expectMessage("Line 2: comments asserting a precise location should start at column 1");
+    check(
+      "foobar(); // Noncompliant\n" +
+      "   // ^^");
+  }
+
   private void expect(String exceptionMessage) {
     thrown.expect(AssertionError.class);
     thrown.expectMessage(exceptionMessage);
