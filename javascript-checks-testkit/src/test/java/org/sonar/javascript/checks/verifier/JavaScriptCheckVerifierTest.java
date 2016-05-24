@@ -281,6 +281,25 @@ public class JavaScriptCheckVerifierTest {
       "   // ^^");
   }
 
+  @Test
+  public void start_line() throws Exception {
+    check(
+      "// Noncompliant@+1{{msg1}}\n" +
+      "foobar();", TestIssue.create("msg1", 2));
+
+    check(
+      "// Noncompliant@+1[[]]\n" +
+      "foobar();", TestIssue.create("msg1", 2));
+
+    check(
+      "// Noncompliant@+1 {{msg1}}\n" +
+      "foobar();", TestIssue.create("msg1", 2));
+
+    check(
+      "// Noncompliant@+2\n\n" +
+      "foobar();", TestIssue.create("msg1", 3));
+  }
+
   private void expect(String exceptionMessage) {
     thrown.expect(AssertionError.class);
     thrown.expectMessage(exceptionMessage);
