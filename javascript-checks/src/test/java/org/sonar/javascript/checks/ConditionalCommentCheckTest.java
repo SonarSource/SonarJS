@@ -27,12 +27,7 @@ public class ConditionalCommentCheckTest {
 
   @Test
   public void test() {
-    ConditionalCommentCheck check = new ConditionalCommentCheck();
-
-    JavaScriptCheckVerifier.issues(check, new File("src/test/resources/checks/conditionalComment.js"))
-      .next().atLine(1).withMessage("Refactor your code to avoid using Internet Explorer's conditional comments.")
-      .next().atLine(7)
-      .noMore();
+    JavaScriptCheckVerifier.verify(new ConditionalCommentCheck(), new File("src/test/resources/checks/conditionalComment.js"));
   }
 
 }
