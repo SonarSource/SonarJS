@@ -77,6 +77,12 @@ public class JavaScriptCheckVerifier extends SubscriptionVisitorCheck {
    * <li>In double curly braces <code>{{MESSAGE}}</code> provide expected message.</li>
    * <li>In double brackets provide expected effort to fix (cost) with <code>effortToFix</code> keyword.</li>
    * <li>In double brackets provide precise location description with <code>sc, ec, el</code> keywords respectively for start column, end column and end line.</li>
+   * <li>Since version 2.13 to specify precise location you can provide separate comment on next line which contains
+   *     symbol <code>^</code> under each character of issue location.</li>
+   * <pre>
+   * x = a && a;  // Noncompliant
+   * //    ^^
+   * </pre>
    * <li>In double brackets provide secondary locations with <code>secondary</code> keyword.</li>
    * <li>To specify the line you can use relative location by putting <code>+</code> or <code>-</code>.</li>
    * <li>All listed elements are optional (except "Noncompliant").</li>
