@@ -3,8 +3,9 @@
  */
 function sayHello() {
 
-  // NOK
+  // Noncompliant@+1 {{Remove this commented out code.}}
   // if (something) {
+//^^^^^^^^^^^^^^^^^^^
 
   // OK
   // ====
@@ -22,7 +23,7 @@ function sayHello() {
   // OK
   // some text with semicolon at the end;
 
-  // NOK
+  // Noncompliant@+1
   // var object = {};
 
   // OK
@@ -38,9 +39,11 @@ function sayHello() {
   // throw exception;
   // labelName : id;
 
-  // NOK
+  // Noncompliant@+1
   // return foo().bar();
+  // Noncompliant@+1
   // return foo().bar()
+  // Noncompliant@+1
   // throw foo().bar()
 
   // OK empty comment

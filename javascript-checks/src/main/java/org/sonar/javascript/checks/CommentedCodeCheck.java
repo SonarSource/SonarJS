@@ -84,7 +84,7 @@ public class CommentedCodeCheck extends SubscriptionVisitorCheck implements Char
     try {
       ScriptTree parsed = (ScriptTree)parser.parse(content);
       if (!isExclusion(parsed)) {
-        addLineIssue(trivia, MESSAGE);
+        addIssue(trivia, MESSAGE);
       }
     } catch (RecognitionException e) {
       // do nothing, it's just a comment
