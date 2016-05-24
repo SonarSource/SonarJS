@@ -27,11 +27,7 @@ public class HtmlCommentsCheckTest {
 
   @Test
   public void test() {
-    HtmlCommentsCheck check = new HtmlCommentsCheck();
-
-    JavaScriptCheckVerifier.issues(check, new File("src/test/resources/checks/htmlComments.js"))
-      .next().atLine(1).withMessage("Replace this HTML-style comment by a standard comment")
-      .noMore();
+    JavaScriptCheckVerifier.verify(new HtmlCommentsCheck(), new File("src/test/resources/checks/htmlComments.js"));
   }
 
 }
