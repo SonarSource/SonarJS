@@ -24,6 +24,7 @@ import java.util.Iterator;
 import java.util.List;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
+import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxTrivia;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitor;
 
@@ -86,5 +87,15 @@ public class InternalSyntaxTrivia extends JavaScriptTree implements SyntaxTrivia
   @Override
   public void accept(DoubleDispatchVisitor visitor) {
     //FIXME do nothing
+  }
+
+  @Override
+  public SyntaxToken getFirstToken() {
+    return this;
+  }
+
+  @Override
+  public SyntaxToken getLastToken() {
+    return this;
   }
 }
