@@ -1,12 +1,13 @@
 var fn = function () {
 }
 
-(function () {            // NOK
+(function () {            // Noncompliant {{Make those call arguments start on line 2}}
 
 })();
 
 doSomething()[a]
-    (b);                  // NOK
+    (b);                  // Noncompliant {{Make those call arguments start on line 8}}
+//  ^^^
 
 var fn = function () {
 
@@ -22,6 +23,6 @@ var fn = function () {
     );
 
 `characters` ()
-()                         // NOK
+()                         // Noncompliant {{Make those call arguments start on line 25}}
 
 a()()();
