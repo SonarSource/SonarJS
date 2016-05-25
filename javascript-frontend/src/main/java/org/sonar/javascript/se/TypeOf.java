@@ -23,8 +23,8 @@ import com.google.common.collect.ImmutableMap;
 import java.util.Map;
 import javax.annotation.CheckForNull;
 
-import static org.sonar.javascript.se.SymbolicValue.NULL;
-import static org.sonar.javascript.se.SymbolicValue.UNDEFINED;
+import static org.sonar.javascript.se.Constraint.NULL;
+import static org.sonar.javascript.se.Constraint.UNDEFINED;
 
 class TypeOf {
 
@@ -47,10 +47,10 @@ class TypeOf {
   }
 
   @CheckForNull
-  static String typeOf(SymbolicValue symbolicValue) {
-    if (symbolicValue.equals(NULL)) {
+  static String typeOf(Constraint constraint) {
+    if (constraint.equals(NULL)) {
       return "object";
-    } else if (symbolicValue.equals(UNDEFINED)) {
+    } else if (constraint.equals(UNDEFINED)) {
       return "undefined";
 
     } else {

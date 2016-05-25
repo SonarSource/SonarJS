@@ -19,6 +19,8 @@
  */
 package org.sonar.javascript.se;
 
+import javax.annotation.Nullable;
+
 public enum Nullability {
 
   NULL(State.YES, State.NO, State.YES),
@@ -37,16 +39,6 @@ public enum Nullability {
   // nor null or undefined
   NOT_NULLY(State.NO, State.NO, State.NO);
 
-  private enum State {
-    YES,
-    NO,
-    UNKNOWN;
-
-    boolean opposite(State other) {
-      return (this == YES && other == NO) || (this == NO && other == YES);
-    }
-  }
-
   private State nullState;
   private State undefinedState;
   private State nullOrUndefined;
@@ -55,6 +47,69 @@ public enum Nullability {
     this.nullState = nullState;
     this.undefinedState = undefinedState;
     this.nullOrUndefined = nullOrUndefined;
+  }
+
+  public static Nullability merge(Nullability nullability1, Nullability nullability2) {
+    State nullState = nullability1.nullState.merge(nullability2.nullState);
+    State undefinedState = nullability1.undefinedState.merge(nullability2.undefinedState);
+    State nullOrUndefined = nullability1.nullOrUndefined.merge(nullability2.nullOrUndefined);
+
+    if (nullState == null || undefinedState == null || nullOrUndefined == null) {
+      return null;
+    } else {
+      return create(nullState, undefinedState, nullOrUndefined);
+    }
+  }
+
+  private static Nullability create(State nullState, State undefinedState, State nullOrUndefined) {
+    if ((nullState == State.YES || nullState == State.UNKNOWN) && undefinedState == State.NO && nullOrUndefined == State.YES) {
+      return NULL;
+    }
+
+    if (nullState == State.NO && undefinedState == State.UNKNOWN && nullOrUndefined == State.UNKNOWN) {
+      return NOT_NULL;
+    }
+
+    if (nullState == State.NO && (undefinedState == State.YES || undefinedState == State.UNKNOWN) && nullOrUndefined == State.YES) {
+      return UNDEFINED;
+    }
+
+    if (nullState == State.UNKNOWN && undefinedState == State.NO && nullOrUndefined == State.UNKNOWN) {
+      return NOT_UNDEFINED;
+    }
+
+    if (nullState == State.UNKNOWN && undefinedState == State.UNKNOWN && nullOrUndefined == State.YES) {
+      return NULLY;
+    }
+
+    if (nullState == State.UNKNOWN && undefinedState == State.UNKNOWN && nullOrUndefined == State.UNKNOWN) {
+      return UNKNOWN;
+    }
+
+    if (nullState == State.NO && undefinedState == State.NO && (nullOrUndefined == State.NO || nullOrUndefined == State.UNKNOWN)) {
+      return NOT_NULLY;
+    }
+
+    throw new IllegalStateException("Can't create Nullability for this combination: " + nullState + " " + undefinedState + " " + nullOrUndefined);
+  }
+
+  private enum State {
+    YES,
+    NO,
+    UNKNOWN;
+
+    boolean opposite(State other) {
+      return (this == YES && other == NO) || (this == NO && other == YES);
+    }
+    @Nullable
+    State merge(State other) {
+      if (this.opposite(other)) {
+        return null;
+      } else {
+        return this == UNKNOWN ? other : this;
+      }
+    }
+
   }
 
   public boolean isNullOrUndefined() {
@@ -66,6 +121,6 @@ public enum Nullability {
   }
 
   public boolean canNotBeEqual(Nullability other) {
-    return nullState.opposite(other.nullState) || undefinedState.opposite(other.undefinedState) || nullOrUndefined.opposite(other.nullOrUndefined);
+    return Nullability.merge(this, other) == null;
   }
 }

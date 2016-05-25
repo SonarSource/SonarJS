@@ -44,16 +44,15 @@ import static org.fest.assertions.Assertions.assertThat;
 
 class SeVerifier extends SeCheck {
 
-  private static Map<String, SymbolicValue> SYMBOLIC_VALUE_KEYS = ImmutableMap.<String, SymbolicValue>builder()
-    .put("NULLY", SymbolicValue.NULL_OR_UNDEFINED)
-    .put("NOT_NULLY", SymbolicValue.NOT_NULLY)
-    .put("NOT_NULL", SymbolicValue.NOT_NULL)
-    .put("TRUTHY", SymbolicValue.TRUTHY_LITERAL)
-    .put("FALSY", SymbolicValue.FALSY_LITERAL)
-    .put("UNKNOWN", SymbolicValue.UNKNOWN)
-    .put("NULL", SymbolicValue.NULL)
-    .put("UNDEFINED", SymbolicValue.UNDEFINED)
-    .put("NOT_UNDEFINED", SymbolicValue.NOT_UNDEFINED)
+  private static Map<String, Constraint> SYMBOLIC_VALUE_KEYS = ImmutableMap.<String, Constraint>builder()
+    .put("NULLY", Constraint.NULLY)
+    .put("NOT_NULLY", Constraint.NOT_NULLY)
+    .put("NOT_NULL", Constraint.NOT_NULL)
+    .put("TRUTHY", Constraint.TRUTHY)
+    .put("FALSY", Constraint.FALSY_LITERAL)
+    .put("NULL", Constraint.NULL)
+    .put("UNDEFINED", Constraint.UNDEFINED)
+    .put("NOT_UNDEFINED", Constraint.NOT_UNDEFINED)
     .build();
 
   // line - program state - asserted
@@ -70,6 +69,10 @@ class SeVerifier extends SeCheck {
   private int previousPSLine;
 
   void verify() {
+    assertThat(endOfExecution)
+      .overridingErrorMessage("Symbolic Execution wasn't finished.")
+      .isTrue();
+
     for (Entry<Integer, Collection<ProgramState>> actualPsEntry : actualProgramStates.asMap().entrySet()) {
       if (expectedProgramStates.containsKey(actualPsEntry.getKey())) {
         for (ProgramState actualPs : actualPsEntry.getValue()) {
@@ -82,7 +85,7 @@ class SeVerifier extends SeCheck {
 
       for (Symbol expectedAbsentSymbol : expectedAbsentSymbols.get(actualPsEntry.getKey())) {
         for (ProgramState actualProgramState : actualPsEntry.getValue()) {
-          assertThat(actualProgramState.get(expectedAbsentSymbol))
+          assertThat(actualProgramState.getConstraint(expectedAbsentSymbol))
             .overridingErrorMessage(getAbsentSymbolMessage(actualProgramState, expectedAbsentSymbol, actualPsEntry.getKey()))
             .isNull();
         }
@@ -113,10 +116,10 @@ class SeVerifier extends SeCheck {
 
   private String programState(ProgramState ps) {
     StringBuilder sb = new StringBuilder();
-    for (Entry<Symbol, SymbolicValue> symbolicValueEntry : ps.valuesBySymbol.entrySet()) {
-      sb.append(symbolicValueEntry.getKey());
+    for (Entry<Symbol, Constraint> entry : ps.constraintsBySymbol().entrySet()) {
+      sb.append(entry.getKey());
       sb.append(" - ");
-      sb.append(symbolicValueEntry.getValue());
+      sb.append(entry.getValue());
       sb.append("\n");
     }
     return sb.toString();
@@ -127,8 +130,8 @@ class SeVerifier extends SeCheck {
 
       // fixme(Lena) : do we want to check here only ones that are not checked before?
       boolean allExpectedSymbolsMatched = true;
-      for (Entry<Symbol, SymbolicValue> expectedSymbolEntry : expectedPsEntry.getKey().valuesBySymbol.entrySet()) {
-        SymbolicValue actualSymbolicValue = actualPs.get(expectedSymbolEntry.getKey());
+      for (Entry<Symbol, Constraint> expectedSymbolEntry : expectedPsEntry.getKey().constraintsBySymbol().entrySet()) {
+        Constraint actualSymbolicValue = actualPs.getConstraint(expectedSymbolEntry.getKey());
         if (actualSymbolicValue == null || !actualSymbolicValue.equals(expectedSymbolEntry.getValue())) {
           allExpectedSymbolsMatched = false;
           break;
@@ -158,8 +161,15 @@ class SeVerifier extends SeCheck {
     }
   }
 
-  private static SymbolicValue parseSymbolicValue(String value) {
-    return SYMBOLIC_VALUE_KEYS.get(value);
+  private static Constraint parseSymbolicValue(String value) {
+    if (value.equals("UNKNOWN")) {
+      return null;
+    }
+    Constraint constraint = SYMBOLIC_VALUE_KEYS.get(value);
+    if (constraint == null) {
+      throw new IllegalStateException("Constraint for string \"" + value + "\" is not found");
+    }
+    return constraint;
   }
 
   @Override
@@ -218,7 +228,7 @@ class SeVerifier extends SeCheck {
             if (!oneSymbolValue.startsWith("!")) {
               String[] pair = oneSymbolValue.split("=");
               Symbol symbol = getContext().getSymbolModel().getSymbols(pair[0]).iterator().next();
-              ps = ps.copyAndAddValue(symbol, parseSymbolicValue(pair[1]));
+              ps = ps.newSymbolicValue(symbol, parseSymbolicValue(pair[1]));
 
             } else {
               Symbol symbol = getContext().getSymbolModel().getSymbols(oneSymbolValue.substring(1)).iterator().next();

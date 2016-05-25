@@ -55,52 +55,52 @@ public class SymbolicExecutionTest {
 
   @Test
   public void initial_value() throws Exception {
-    runSe("initial_value.js");
+    verifySE("initial_value.js");
   }
 
   @Test
   public void assignment() throws Exception {
-    runSe("assignment.js");
+    verifySE("assignment.js");
   }
 
   @Test
   public void stop_after_npe() throws Exception {
-    runSe("stop_after_npe.js");
+    verifySE("stop_after_npe.js");
   }
   
   @Test
   public void conditions() throws Exception {
-    runSe("conditions.js");
+    verifySE("conditions.js");
   }
 
   @Test
   public void ternary() throws Exception {
-    runSe("ternary.js");
+    verifySE("ternary.js");
   }
 
   @Test
   public void branching() throws Exception {
-    runSe("branching.js");
+    verifySE("branching.js");
   }
 
   @Test
   public void properties() throws Exception {
-    runSe("properties.js");
+    verifySE("properties.js");
   }
 
   @Test
   public void loops() throws Exception {
-    runSe("loops.js");
+    verifySE("loops.js");
   }
 
   @Test
   public void nullability() throws Exception {
-    runSe("nullability.js");
+    verifySE("nullability.js");
   }
 
   @Test
   public void typeof() throws Exception {
-    runSe("typeof.js");
+    verifySE("typeof.js");
   }
 
   private void runSe(String filename) {
@@ -108,6 +108,10 @@ public class SymbolicExecutionTest {
     verifier.scanExpectedIssues(context);
     SeChecksDispatcher seChecksDispatcher = new SeChecksDispatcher(ImmutableList.of((SeCheck) verifier));
     seChecksDispatcher.scanTree(context);
+  }
+
+  private void verifySE(String filename) {
+    runSe(filename);
     verifier.verify();
   }
 
