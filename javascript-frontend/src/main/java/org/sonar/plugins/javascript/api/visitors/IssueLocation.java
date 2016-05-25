@@ -37,6 +37,10 @@ public class IssueLocation {
     this(tree, tree, message);
   }
 
+  public IssueLocation(Tree tree) {
+    this(tree, null);
+  }
+
   public IssueLocation(Tree firstTree, Tree lastTree, @Nullable String message) {
     this.firstToken = ((JavaScriptTree) firstTree).getFirstToken();
     this.lastToken = ((JavaScriptTree) lastTree).getLastToken();
@@ -47,15 +51,11 @@ public class IssueLocation {
 
   private void calculateLastTokenLines() {
     String text = lastToken.text();
-    if (text.startsWith("\"") || text.startsWith("'") || text.startsWith("`")) {
+    if (text.startsWith("\"") || text.startsWith("'") || text.startsWith("`") || text.startsWith("/*")) {
       String[] split = text.split("\n");
       lastTokenLinesNumber = split.length;
       lastTokenLastLineLength = split[split.length - 1].length();
     }
-  }
-
-  public IssueLocation(Tree tree) {
-    this(tree, null);
   }
 
   @Nullable
