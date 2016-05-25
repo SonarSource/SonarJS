@@ -27,6 +27,7 @@ import org.sonar.check.Rule;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
+import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.javascript.api.tree.statement.ElseClauseTree;
 import org.sonar.plugins.javascript.api.tree.statement.IfStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.IterationStatementTree;
@@ -77,8 +78,8 @@ public class AlwaysUseCurlyBracesCheck extends SubscriptionVisitorCheck {
 
   private void checkAreCurlyBracesUsed(StatementTree statement, Tree tree) {
     if (!statement.is(Kind.BLOCK)) {
-      String blockName = ((JavaScriptTree) tree).getFirstToken().text();
-      addLineIssue(tree, String.format(MESSAGE, blockName));
+      SyntaxToken firstToken = ((JavaScriptTree) tree).getFirstToken();
+      addIssue(firstToken, String.format(MESSAGE, firstToken.text()));
     }
   }
 
