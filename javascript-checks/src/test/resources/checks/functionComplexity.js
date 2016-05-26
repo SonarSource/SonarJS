@@ -15,7 +15,8 @@ function ko1() { // Noncompliant [[effortToFix=1]] {{Function has a complexity o
   return 1;      // +0
 }
 
-function ko2() { // Noncompliant [[effortToFix=1;sc=10;ec=13;secondary=18,19,20]] // +1
+  function ko2() { // Noncompliant [[effortToFix=1;secondary=+0,+2,+3]] // +1
+//^^^^^^^^^^^^^^
   if (x) {       // +1
   } else if (y) { // +1
   }
@@ -37,7 +38,8 @@ function nesting() {   // Noncompliant // +1 nesting
 }
 
 class c {
-  ko() {        // Noncompliant [[sc=3;ec=5]] // +1
+  ko() {        // Noncompliant // +1
+//^^^^
     if (x) {    // +1
       return 0; // +1
     }
@@ -104,6 +106,7 @@ var a = function () {   // OK - Immediately Invoked Function Expression; complex
 }();
 
 new function(){  //  Noncompliant
+//  ^^^^^^^^^^
     var a = true && false && true;
 };
 
