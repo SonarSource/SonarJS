@@ -28,6 +28,7 @@ import org.sonar.javascript.metrics.ComplexityVisitor;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.declaration.FunctionDeclarationTree;
+import org.sonar.plugins.javascript.api.tree.declaration.FunctionTree;
 import org.sonar.plugins.javascript.api.visitors.PreciseIssue;
 import org.sonar.squidbridge.annotations.ActivatedByDefault;
 import org.sonar.squidbridge.annotations.SqaleLinearWithOffsetRemediation;
@@ -57,7 +58,7 @@ public class FunctionComplexityCheck extends AbstractFunctionSizeCheck {
   private int maximumFunctionComplexityThreshold = DEFAULT_MAXIMUM_FUNCTION_COMPLEXITY_THRESHOLD;
 
   @Override
-  void checkFunction(Tree functionTree) {
+  void checkFunction(FunctionTree functionTree) {
     List<Tree> complexityTrees = new ComplexityVisitor().complexityTrees(functionTree);
     if (complexityTrees.size() > maximumFunctionComplexityThreshold) {
       raiseIssue(functionTree, complexityTrees);

@@ -1,23 +1,26 @@
-function f() {         // NOK
-  function f() {       // NOK
+// max = 3
+
+function f() {         // Noncompliant {{This function has 7 lines, which is greater than the 3 lines authorized. Split it into smaller functions.}}
+  function f() {       // Noncompliant {{This function has 5 lines, which is greater than the 3 lines authorized. Split it into smaller functions.}}
+//^^^^^^^^^^^^
     // comment
     return 1;
   }
 }
 
-var f = function () {  // NOK
+var f = function () {  // Noncompliant
   // comment
   return 1;
 }
 
-function f() {         // NOK
+function f() {         // Noncompliant
   // comment
   return 1;
   function f() {       // OK
   }
 }
 
-function * f() {       // NOK
+function * f() {       // Noncompliant
   // comment
   return 1;
 }
@@ -27,7 +30,7 @@ function * f() {       // NOK
  */
 (function () {         // OK - IIFE
 
-    function f() {     // NOK
+    function f() {     // Noncompliant
         // comment
         var a = 1;
         return 1;
@@ -70,7 +73,7 @@ new (function(){  // OK
     var a = 1;
 })();
 
-new function(){  // NOK
+new function(){  // Noncompliant
     // comment
     var a = 1;
 };
@@ -121,7 +124,7 @@ function directiveFactory(){       // OK
 
 moduleX.constant("name", {});
 
-function foo() {  // NOK
+function foo() {  // Noncompliant
 
 
 }
