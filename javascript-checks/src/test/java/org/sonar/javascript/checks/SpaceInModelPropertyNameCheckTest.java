@@ -20,22 +20,13 @@
 package org.sonar.javascript.checks;
 
 import java.io.File;
-import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.javascript.checks.verifier.JavaScriptCheckVerifier;
-import org.sonar.squidbridge.checks.CheckMessagesVerifierRule;
 
 public class SpaceInModelPropertyNameCheckTest {
 
-  @Rule
-  public CheckMessagesVerifierRule checkMessagesVerifier = new CheckMessagesVerifierRule();
-
   @Test
   public void test() {
-    JavaScriptCheckVerifier.issues(new SpaceInModelPropertyNameCheck(), new File("src/test/resources/checks/spaceInModelPropertyName.js"))
-      .next().atLine(3).withMessage("Rename this property to remove the spaces.")
-      .next().atLine(4)
-      .next().atLine(21)
-      .next().atLine(24);
+    JavaScriptCheckVerifier.verify(new SpaceInModelPropertyNameCheck(), new File("src/test/resources/checks/spaceInModelPropertyName.js"));
   }
 }

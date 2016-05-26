@@ -1,7 +1,8 @@
 MyModel1 = Backbone.Model.extend({
   defaults: {
-    'spaced name 1': x,   // NOK
-    "spaced name 2": x,   // NOK
+    'spaced name 1': x,   // Noncompliant {{Rename this property to remove the spaces.}}
+//  ^^^^^^^^^^^^^^^
+    "spaced name 2": x,   // Noncompliant
     'nonSpacedName': x    // OK
   }
 });
@@ -18,9 +19,9 @@ MyModel5 = Backbone.Model.extend();
 
 var myObject = new MyModel1();
 
-myObject.set("my property", value)  // NOK
+myObject.set("my property", value)  // Noncompliant
 
 myObject.set({
-  'my prop' : 1,    // NOK
+  'my prop' : 1,    // Noncompliant
   'my_prop' : 2     // OK
 })
