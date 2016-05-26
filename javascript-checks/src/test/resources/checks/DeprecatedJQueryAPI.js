@@ -1,17 +1,19 @@
-$.boxModel  // NOK
+$.boxModel  // Noncompliant {{Remove this use of "boxModel", which is deprecated.}}
 
-jQuery.sub()  // NOK
+jQuery.sub()  // Noncompliant {{Remove this use of "sub()", which is deprecated.}}
+//     ^^^
 
-$("p").context  // NOK
+$("p").context  // Noncompliant {{Remove this use of "context", which is deprecated.}}
+//     ^^^^^^^
 
-$("p").andSelf()  // NOK
+$("p").andSelf()  // Noncompliant {{Remove this use of "andSelf()", which is deprecated.}}
 
-$("p").prev(arg).andSelf()  // NOK
+$("p").prev(arg).andSelf()  // FN Noncompliant
 
-$("p").next().context  // NOK
+$("p").next().context  // FN Noncompliant
 
 someObj.sub() // OK
 
 $(this)
   .toggleClass('collapsed')
-  .andSelf()
+  .andSelf();          // FN Noncompliant
