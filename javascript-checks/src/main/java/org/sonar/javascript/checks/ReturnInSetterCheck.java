@@ -58,7 +58,7 @@ public class ReturnInSetterCheck extends DoubleDispatchVisitorCheck {
     public void visitReturnStatement(ReturnStatementTree tree) {
       if (tree.expression() != null) {
         ReturnInSetterCheck check = ReturnInSetterCheck.this;
-        check.addLineIssue(tree, MESSAGE);
+        check.addIssue(tree, MESSAGE);
       }
       super.visitReturnStatement(tree);
     }

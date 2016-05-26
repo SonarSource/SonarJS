@@ -1,7 +1,8 @@
 var person = {
   set name(name) {
     this.name = name;
-    return 42;  // Noncompliant
+    return 42;  // Noncompliant {{Remove this return statement.}}
+//  ^^^^^^^^^^
   },
   set other(other) {
     this.other = other;
