@@ -1,18 +1,20 @@
-$(":radio");  // NOK
+$(":radio");  // Noncompliant {{Use the "[type='radio']" selector here instead of ":radio".}}
 
-$("input:checkbox");  // NOK
+$("input:checkbox");  // Noncompliant {{Use the "[type='checkbox']" selector here instead of ":checkbox".}}
 
-var x = $("form input:file") // NOK
+var x = $("form input:file") // Noncompliant
+//      ^^^^^^^^^^^^^^^^^^^^
 
-$("div.className :image div.className");  // NOK
+$("div.className :image div.className");  // Noncompliant
 
-$("input:password"); // NOK
+$("input:password"); // Noncompliant
 
-var $s = jQuery("div :reset")  // NOK
+var $s = jQuery("div :reset")  // Noncompliant
+//       ^^^^^^^^^^^^^^^^^^^^
 
-$("input:text"); // NOK
+$("input:text"); // Noncompliant
 
-$("input:Text"); // NOK
+$("input:Text"); // Noncompliant {{Use the "[type='Text']" selector here instead of ":Text".}}
 
 foo("input:text"); // OK
 
@@ -20,7 +22,7 @@ jQuery("[type=text]"); // OK
 
 $("input[type='radio']");  // OK
 
-$("input:text", context); // NOK
+$("input:text", context); // Noncompliant
 
 $()   // OK
 $(str)  // OK

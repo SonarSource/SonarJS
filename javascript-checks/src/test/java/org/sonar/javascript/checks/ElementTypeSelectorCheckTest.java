@@ -25,21 +25,8 @@ import org.sonar.javascript.checks.verifier.JavaScriptCheckVerifier;
 
 public class ElementTypeSelectorCheckTest {
 
-  private ElementTypeSelectorCheck check = new ElementTypeSelectorCheck();
-
   @Test
   public void test() {
-    JavaScriptCheckVerifier.issues(check, new File("src/test/resources/checks/ElementTypeSelector.js"))
-      .next().atLine(1).withMessage("Use the \"[type='radio']\" selector here instead of \":radio\".")
-      .next().atLine(3).withMessage("Use the \"[type='checkbox']\" selector here instead of \":checkbox\".")
-      .next().atLine(5)
-      .next().atLine(7)
-      .next().atLine(9)
-      .next().atLine(11)
-      .next().atLine(13)
-      .next().atLine(15).withMessage("Use the \"[type='Text']\" selector here instead of \":Text\".")
-      .next().atLine(23)
-      .noMore();
-
+    JavaScriptCheckVerifier.verify(new ElementTypeSelectorCheck(), new File("src/test/resources/checks/ElementTypeSelector.js"));
   }
 }
