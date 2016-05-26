@@ -49,50 +49,6 @@ public enum Nullability {
     this.nullOrUndefined = nullOrUndefined;
   }
 
-  public static Nullability merge(Nullability nullability1, Nullability nullability2) {
-    State nullState = nullability1.nullState.merge(nullability2.nullState);
-    State undefinedState = nullability1.undefinedState.merge(nullability2.undefinedState);
-    State nullOrUndefined = nullability1.nullOrUndefined.merge(nullability2.nullOrUndefined);
-
-    if (nullState == null || undefinedState == null || nullOrUndefined == null) {
-      return null;
-    } else {
-      return create(nullState, undefinedState, nullOrUndefined);
-    }
-  }
-
-  private static Nullability create(State nullState, State undefinedState, State nullOrUndefined) {
-    if ((nullState == State.YES || nullState == State.UNKNOWN) && undefinedState == State.NO && nullOrUndefined == State.YES) {
-      return NULL;
-    }
-
-    if (nullState == State.NO && undefinedState == State.UNKNOWN && nullOrUndefined == State.UNKNOWN) {
-      return NOT_NULL;
-    }
-
-    if (nullState == State.NO && (undefinedState == State.YES || undefinedState == State.UNKNOWN) && nullOrUndefined == State.YES) {
-      return UNDEFINED;
-    }
-
-    if (nullState == State.UNKNOWN && undefinedState == State.NO && nullOrUndefined == State.UNKNOWN) {
-      return NOT_UNDEFINED;
-    }
-
-    if (nullState == State.UNKNOWN && undefinedState == State.UNKNOWN && nullOrUndefined == State.YES) {
-      return NULLY;
-    }
-
-    if (nullState == State.UNKNOWN && undefinedState == State.UNKNOWN && nullOrUndefined == State.UNKNOWN) {
-      return UNKNOWN;
-    }
-
-    if (nullState == State.NO && undefinedState == State.NO && (nullOrUndefined == State.NO || nullOrUndefined == State.UNKNOWN)) {
-      return NOT_NULLY;
-    }
-
-    throw new IllegalStateException("Can't create Nullability for this combination: " + nullState + " " + undefinedState + " " + nullOrUndefined);
-  }
-
   private enum State {
     YES,
     NO,
@@ -121,6 +77,6 @@ public enum Nullability {
   }
 
   public boolean canNotBeEqual(Nullability other) {
-    return Nullability.merge(this, other) == null;
+    return nullState.opposite(other.nullState) || undefinedState.opposite(other.undefinedState) || nullOrUndefined.opposite(other.nullOrUndefined);
   }
 }

@@ -19,78 +19,177 @@
  */
 package org.sonar.javascript.se;
 
-import java.util.Objects;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableMap.Builder;
+import java.util.HashMap;
+import java.util.Map;
 import javax.annotation.Nullable;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 import org.sonar.plugins.javascript.api.tree.expression.LiteralTree;
 
-import static org.sonar.javascript.se.Truthiness.FALSY;
-import static org.sonar.javascript.se.Truthiness.UNKNOWN;
 
+public enum Constraint {
 
-public class Constraint {
+  UNKNOWN(Nullability.UNKNOWN, Truthiness.UNKNOWN),
 
-  public static final Constraint UNDEFINED = new Constraint(Nullability.UNDEFINED, FALSY);
-  public static final Constraint NOT_UNDEFINED = new Constraint(Nullability.NOT_UNDEFINED, Truthiness.UNKNOWN);
+  NOT_UNDEFINED(Nullability.NOT_UNDEFINED, Truthiness.UNKNOWN),
 
-  public static final Constraint NULL = new Constraint(Nullability.NULL, FALSY);
-  public static final Constraint NOT_NULL = new Constraint(Nullability.NOT_NULL, Truthiness.UNKNOWN);
+  NOT_NULL(Nullability.NOT_NULL, Truthiness.UNKNOWN),
 
-  public static final Constraint NULLY = new Constraint(Nullability.NULLY, Truthiness.FALSY);
-  public static final Constraint NOT_NULLY = new Constraint(Nullability.NOT_NULLY, Truthiness.UNKNOWN);
+  NOT_NULLY(Nullability.NOT_NULLY, Truthiness.UNKNOWN),
 
+  FALSY(Nullability.UNKNOWN, Truthiness.FALSY),
 
-  public static final Constraint TRUTHY = new Constraint(Nullability.NOT_NULLY, Truthiness.TRUTHY);
-  public static final Constraint FALSY_LITERAL = new Constraint(Nullability.NOT_NULLY, FALSY);
+  FALSY_NOT_UNDEFINED(Nullability.NOT_UNDEFINED, Truthiness.FALSY),
+
+  FALSY_NOT_NULL(Nullability.NOT_NULL, Truthiness.FALSY),
+
+  FALSY_NOT_NULLY(Nullability.NOT_NULLY, Truthiness.FALSY),
+
+  UNDEFINED(Nullability.UNDEFINED, Truthiness.FALSY),
+
+  NULL(Nullability.NULL, Truthiness.FALSY),
+
+  NULLY(Nullability.NULLY, Truthiness.FALSY),
+
+  TRUTHY(Nullability.NOT_NULLY, Truthiness.TRUTHY);
 
   private Nullability nullability;
   private Truthiness truthiness;
 
-  private Constraint(Nullability nullability, Truthiness truthiness) {
+  private static Map<Constraint, Map<Truthiness, Constraint>> truthinessMap;
+  private static Map<Constraint, Map<Nullability, Constraint>> nullabilityMap;
+
+  static {
+    Builder<Constraint, Map<Truthiness, Constraint>> builder = ImmutableMap.builder();
+    builder.put(UNKNOWN, ImmutableMap.of(
+      Truthiness.TRUTHY, TRUTHY, Truthiness.FALSY, FALSY));
+
+    builder.put(NOT_UNDEFINED, ImmutableMap.of(
+      Truthiness.TRUTHY, TRUTHY, Truthiness.FALSY, FALSY_NOT_UNDEFINED));
+
+    builder.put(NOT_NULL, ImmutableMap.of(
+      Truthiness.TRUTHY, TRUTHY, Truthiness.FALSY, FALSY_NOT_NULL));
+
+    builder.put(NOT_NULLY, ImmutableMap.of(
+      Truthiness.TRUTHY, TRUTHY, Truthiness.FALSY, FALSY_NOT_NULLY));
+
+    builder.put(FALSY, ImmutableMap.of(
+      Truthiness.FALSY, FALSY));
+
+    builder.put(FALSY_NOT_UNDEFINED, ImmutableMap.of(
+      Truthiness.FALSY, FALSY_NOT_UNDEFINED));
+
+    builder.put(FALSY_NOT_NULL, ImmutableMap.of(
+      Truthiness.FALSY, FALSY_NOT_NULL));
+
+    builder.put(FALSY_NOT_NULLY, ImmutableMap.of(
+      Truthiness.FALSY, FALSY_NOT_NULLY));
+
+    builder.put(UNDEFINED, ImmutableMap.of(
+      Truthiness.FALSY, UNDEFINED));
+
+    builder.put(NULL, ImmutableMap.of(
+      Truthiness.FALSY, NULL));
+
+    builder.put(NULLY, ImmutableMap.of(
+      Truthiness.FALSY, NULLY));
+
+    builder.put(TRUTHY, ImmutableMap.of(
+      Truthiness.TRUTHY, TRUTHY));
+
+    truthinessMap = builder.build();
+  }
+
+  static {
+    Builder<Constraint, Map<Nullability, Constraint>> builder = ImmutableMap.builder();
+
+    Map<Nullability, Constraint> unknown = new HashMap<>();
+    for (Nullability nullability : Nullability.values()) {
+      unknown.put(nullability, Constraint.valueOf(nullability.toString()));
+    }
+    builder.put(UNKNOWN, unknown);
+
+    builder.put(NOT_UNDEFINED, ImmutableMap.of(
+      Nullability.NULL, NULL,
+      Nullability.NOT_NULL, NOT_NULLY,
+      Nullability.NOT_UNDEFINED, NOT_UNDEFINED,
+      Nullability.NULLY, NULL,
+      Nullability.NOT_NULLY, NOT_NULLY));
+
+    builder.put(NOT_NULL, ImmutableMap.of(
+      Nullability.NOT_NULL, NOT_NULL,
+      Nullability.UNDEFINED, UNDEFINED,
+      Nullability.NOT_UNDEFINED, NOT_NULLY,
+      Nullability.NULLY, UNDEFINED,
+      Nullability.NOT_NULLY, NOT_NULLY));
+
+    builder.put(NOT_NULLY, ImmutableMap.of(
+      Nullability.NOT_NULL, NOT_NULLY,
+      Nullability.NOT_UNDEFINED, NOT_NULLY,
+      Nullability.NOT_NULLY, NOT_NULLY));
+
+    builder.put(FALSY, ImmutableMap.<Nullability, Constraint>builder()
+      .put(Nullability.NULL, NULL)
+      .put(Nullability.NOT_NULL, FALSY_NOT_NULL)
+      .put(Nullability.UNDEFINED, UNDEFINED)
+      .put(Nullability.NOT_UNDEFINED, FALSY_NOT_UNDEFINED)
+      .put(Nullability.NULLY, NULLY)
+      .put(Nullability.NOT_NULLY, FALSY_NOT_NULLY).build());
+
+    builder.put(FALSY_NOT_UNDEFINED, ImmutableMap.of(
+      Nullability.NULL, NULL,
+      Nullability.NOT_NULL, FALSY_NOT_NULLY,
+      Nullability.NOT_UNDEFINED, FALSY_NOT_UNDEFINED,
+      Nullability.NULLY, NULL,
+      Nullability.NOT_NULLY, FALSY_NOT_NULLY));
+
+    builder.put(FALSY_NOT_NULL, ImmutableMap.of(
+      Nullability.NOT_NULL, FALSY_NOT_NULL,
+      Nullability.UNDEFINED, UNDEFINED,
+      Nullability.NOT_UNDEFINED, FALSY_NOT_NULLY,
+      Nullability.NULLY, UNDEFINED,
+      Nullability.NOT_NULLY, FALSY_NOT_NULLY));
+
+    builder.put(FALSY_NOT_NULLY, ImmutableMap.of(
+      Nullability.NOT_NULL, FALSY_NOT_NULLY,
+      Nullability.NOT_UNDEFINED, FALSY_NOT_NULLY,
+      Nullability.NOT_NULLY, FALSY_NOT_NULLY));
+
+    builder.put(UNDEFINED, ImmutableMap.of(
+      Nullability.NOT_NULL, UNDEFINED,
+      Nullability.UNDEFINED, UNDEFINED,
+      Nullability.NULLY, UNDEFINED));
+
+    builder.put(NULL, ImmutableMap.of(
+      Nullability.NULL, NULL,
+      Nullability.NOT_UNDEFINED, NULL,
+      Nullability.NULLY, NULL));
+
+    builder.put(NULLY, ImmutableMap.of(
+      Nullability.NULL, NULL,
+      Nullability.NOT_NULL, UNDEFINED,
+      Nullability.UNDEFINED, UNDEFINED,
+      Nullability.NOT_UNDEFINED, NULL,
+      Nullability.NULLY, NULLY));
+
+    builder.put(TRUTHY, ImmutableMap.of(
+      Nullability.NOT_NULL, TRUTHY,
+      Nullability.NOT_UNDEFINED, TRUTHY,
+      Nullability.NOT_NULLY, TRUTHY));
+
+    nullabilityMap = builder.build();
+  }
+
+  Constraint(Nullability nullability, Truthiness truthiness) {
     this.truthiness = truthiness;
     this.nullability = nullability;
   }
 
-  private Constraint(Truthiness truthiness) {
-    this.truthiness = truthiness;
-    switch (truthiness) {
-      case TRUTHY:
-        this.nullability = Nullability.NOT_NULLY;
-        break;
-      case FALSY:
-        this.nullability = Nullability.UNKNOWN;
-        break;
-      default:
-        throw new IllegalStateException();
-    }
-  }
-
-  private Constraint(Nullability nullability) {
-    this.nullability = nullability;
-    switch (nullability) {
-      case NULL:
-        this.truthiness = FALSY;
-        break;
-      case NOT_NULL:
-        this.truthiness = UNKNOWN;
-        break;
-      case UNDEFINED:
-        this.truthiness = FALSY;
-        break;
-      case NOT_UNDEFINED:
-        this.truthiness = UNKNOWN;
-        break;
-      case NULLY:
-        this.truthiness = FALSY;
-        break;
-      case NOT_NULLY:
-        this.truthiness = UNKNOWN;
-        break;
-      default:
-        throw new IllegalStateException();
-    }
+  private static <T> Constraint get(T subConstraint) {
+    return Constraint.valueOf(subConstraint.toString());
   }
 
   public Nullability nullability() {
@@ -102,39 +201,34 @@ public class Constraint {
   }
 
   @Nullable
+  // returns null if this constraining is conflicting
   static Constraint constrain(@Nullable Constraint currentConstraint, Truthiness truthiness) {
     if (truthiness == Truthiness.UNKNOWN) {
       throw new IllegalStateException();
     }
 
-    Constraint newConstraint = null;
     if (currentConstraint == null) {
-      newConstraint = new Constraint(truthiness);
-    } else if (currentConstraint.truthiness == Truthiness.UNKNOWN) {
-      newConstraint = new Constraint(currentConstraint.nullability, truthiness);
-    } else if (currentConstraint.truthiness == truthiness) {
-      newConstraint = currentConstraint;
-    }
+      return Constraint.get(truthiness);
 
-    return newConstraint;
+    } else {
+      return truthinessMap.get(currentConstraint).get(truthiness);
+    }
   }
 
+
   @Nullable
+  // returns null if this constraining is conflicting
   static Constraint constrain(@Nullable Constraint currentConstraint, Nullability nullability) {
     if (nullability == Nullability.UNKNOWN) {
       throw new IllegalStateException();
     }
 
-    Constraint newConstraint = null;
     if (currentConstraint == null) {
-      newConstraint = new Constraint(nullability);
+      return Constraint.get(nullability);
+
     } else {
-      Nullability mergedNullability = Nullability.merge(currentConstraint.nullability, nullability);
-      if (mergedNullability != null) {
-        newConstraint = new Constraint(mergedNullability, currentConstraint.truthiness);
-      }
+      return nullabilityMap.get(currentConstraint).get(nullability);
     }
-    return newConstraint;
   }
 
   @Nullable
@@ -204,7 +298,7 @@ public class Constraint {
   }
 
   public static Constraint literal(boolean isTruthy) {
-    return isTruthy ? TRUTHY : FALSY_LITERAL;
+    return isTruthy ? TRUTHY : FALSY_NOT_NULLY;
   }
 
   @Override
@@ -213,23 +307,6 @@ public class Constraint {
       "nullability = " + nullability +
       ", truthiness = " + truthiness +
       " }";
-  }
-
-  @Override
-  public int hashCode() {
-    return Objects.hash(nullability, truthiness);
-  }
-
-  @Override
-  public boolean equals(@Nullable Object obj) {
-    if (this == obj) {
-      return true;
-    }
-    if (obj == null || getClass() != obj.getClass()) {
-      return false;
-    }
-    Constraint other = (Constraint) obj;
-    return Objects.equals(this.nullability, other.nullability) && Objects.equals(this.truthiness, other.truthiness);
   }
 
 }

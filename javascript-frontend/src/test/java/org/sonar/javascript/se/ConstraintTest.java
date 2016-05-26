@@ -112,7 +112,7 @@ public class ConstraintTest {
     assertThat(Constraint.NOT_UNDEFINED.toString()).isEqualTo("{ nullability = NOT_UNDEFINED, truthiness = UNKNOWN }");
     assertThat(Constraint.UNDEFINED.toString()).isEqualTo("{ nullability = UNDEFINED, truthiness = FALSY }");
     assertThat(Constraint.TRUTHY.toString()).isEqualTo("{ nullability = NOT_NULLY, truthiness = TRUTHY }");
-    assertThat(Constraint.FALSY_LITERAL.toString()).isEqualTo("{ nullability = NOT_NULLY, truthiness = FALSY }");
+    assertThat(Constraint.FALSY_NOT_NULLY.toString()).isEqualTo("{ nullability = NOT_NULLY, truthiness = FALSY }");
     assertThat(Constraint.constrain(constraint("x"), FALSY).toString()).isEqualTo("{ nullability = UNKNOWN, truthiness = FALSY }");
     assertThat(Constraint.constrain(constraint("x"), NOT_NULLY).toString()).isEqualTo("{ nullability = NOT_NULLY, truthiness = UNKNOWN }");
   }

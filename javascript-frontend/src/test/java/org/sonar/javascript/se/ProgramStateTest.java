@@ -24,7 +24,6 @@ import org.sonar.plugins.javascript.api.symbols.Symbol;
 import org.sonar.plugins.javascript.api.symbols.Symbol.Kind;
 
 import static org.fest.assertions.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
 
 public class ProgramStateTest {
 
@@ -34,9 +33,9 @@ public class ProgramStateTest {
 
   @Test
   public void addValue() throws Exception {
-    Constraint constraint1 = mock(Constraint.class);
-    Constraint constraint2 = mock(Constraint.class);
-    Constraint constraint3 = mock(Constraint.class);
+    Constraint constraint1 = Constraint.NULL;
+    Constraint constraint2 = Constraint.NOT_NULL;
+    Constraint constraint3 = Constraint.FALSY;
     ProgramState state1 = state.newSymbolicValue(symbol1, constraint1);
     ProgramState state2 = state1
       .newSymbolicValue(symbol1, constraint2)
@@ -67,19 +66,16 @@ public class ProgramStateTest {
 
   @Test
   public void test_equals() throws Exception {
-    Constraint constraint1 = mock(Constraint.class);
-    Constraint constraint2 = mock(Constraint.class);
-    assertThat(state.newSymbolicValue(symbol1, constraint1)).isEqualTo(state.newSymbolicValue(symbol1, constraint1));
-    assertThat(state.newSymbolicValue(symbol1, constraint1)).isNotEqualTo(state.newSymbolicValue(symbol1, constraint2));
-    assertThat(state.newSymbolicValue(symbol1, constraint1)).isNotEqualTo(null);
-    assertThat(state.newSymbolicValue(symbol1, constraint1)).isNotEqualTo("");
+    assertThat(state.newSymbolicValue(symbol1, Constraint.NULL)).isEqualTo(state.newSymbolicValue(symbol1, Constraint.NULL));
+    assertThat(state.newSymbolicValue(symbol1, Constraint.NULL)).isNotEqualTo(state.newSymbolicValue(symbol1, Constraint.NOT_UNDEFINED));
+    assertThat(state.newSymbolicValue(symbol1, Constraint.NULL)).isNotEqualTo(null);
+    assertThat(state.newSymbolicValue(symbol1, Constraint.NULL)).isNotEqualTo("");
   }
 
   @Test
   public void test_hashCode() throws Exception {
-    Constraint constraint = mock(Constraint.class);
-    assertThat(state.newSymbolicValue(symbol1, constraint).hashCode())
-      .isEqualTo(state.newSymbolicValue(symbol1, constraint).hashCode());
+    assertThat(state.newSymbolicValue(symbol1, Constraint.NULL).hashCode())
+      .isEqualTo(state.newSymbolicValue(symbol1, Constraint.NULL).hashCode());
   }
 
 }
