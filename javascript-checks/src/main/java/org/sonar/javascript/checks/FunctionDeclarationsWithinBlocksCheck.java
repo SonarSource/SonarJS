@@ -51,7 +51,7 @@ public class FunctionDeclarationsWithinBlocksCheck extends DoubleDispatchVisitor
     for (StatementTree stmt : tree.statements()) {
 
       if (stmt.is(Kind.FUNCTION_DECLARATION)) {
-        addLineIssue(stmt, MESSAGE);
+        addIssue(((FunctionDeclarationTree) stmt).functionKeyword(), MESSAGE);
       }
     }
 

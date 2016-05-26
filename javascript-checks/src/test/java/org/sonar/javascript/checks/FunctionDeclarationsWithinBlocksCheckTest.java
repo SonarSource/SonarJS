@@ -27,9 +27,7 @@ public class FunctionDeclarationsWithinBlocksCheckTest {
 
   @Test
   public void test() {
-    JavaScriptCheckVerifier.issues(new FunctionDeclarationsWithinBlocksCheck(), new File("src/test/resources/checks/functionDeclarationsWithinBlocks.js"))
-      .next().atLine(3).withMessage("Do not use function declarations within blocks.")
-      .noMore();
+    JavaScriptCheckVerifier.verify(new FunctionDeclarationsWithinBlocksCheck(), new File("src/test/resources/checks/functionDeclarationsWithinBlocks.js"));
   }
 
 }
