@@ -27,11 +27,7 @@ public class FunctionDefinitionInsideLoopCheckTest {
 
   @Test
   public void test() {
-    JavaScriptCheckVerifier.issues(new FunctionDefinitionInsideLoopCheck(), new File("src/test/resources/checks/functionCreationInsideLoop.js"))
-      .next().atLine(4).withMessage("Define this function outside of a loop.")
-      .next().atLine(12)
-      .next().atLine(23)
-      .noMore();
+    JavaScriptCheckVerifier.verify(new FunctionDefinitionInsideLoopCheck(), new File("src/test/resources/checks/FunctionDefinitionInsideLoop.js"));
   }
 
 }

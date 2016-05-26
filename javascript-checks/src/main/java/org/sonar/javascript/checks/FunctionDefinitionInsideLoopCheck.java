@@ -26,6 +26,7 @@ import java.util.List;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
+import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.visitors.SubscriptionVisitorCheck;
@@ -77,7 +78,7 @@ public class FunctionDefinitionInsideLoopCheck extends SubscriptionVisitorCheck 
 
     } else {
       if (isInLoop()) {
-        addLineIssue(tree, MESSAGE);
+        addIssue(((JavaScriptTree) tree).getFirstToken(), MESSAGE);
       }
       enterScope();
     }
