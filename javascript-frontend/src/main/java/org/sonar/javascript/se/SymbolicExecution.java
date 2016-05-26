@@ -86,10 +86,6 @@ public class SymbolicExecution {
     for (int i = 0; i < MAX_BLOCK_EXECUTIONS && !workList.isEmpty(); i++) {
       BlockExecution blockExecution = workList.removeFirst();
 
-      if (blockExecution.state() == null) {
-        continue;
-      }
-
       if (!alreadyProcessed.contains(blockExecution)) {
         if (hasTryBranchingTree(blockExecution.block())) {
           return;
@@ -209,8 +205,10 @@ public class SymbolicExecution {
     }
   }
 
-  private void pushSuccessor(CfgBlock successor, ProgramState currentState) {
-    workList.addLast(new BlockExecution(successor, currentState));
+  private void pushSuccessor(CfgBlock successor, @Nullable ProgramState currentState) {
+    if (currentState != null) {
+      workList.addLast(new BlockExecution(successor, currentState));
+    }
   }
 
   private void handleSuccessors(CfgBlock block, ProgramState incomingState) {
