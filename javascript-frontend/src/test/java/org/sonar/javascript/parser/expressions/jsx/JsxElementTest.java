@@ -50,4 +50,14 @@ public class JsxElementTest {
     ;
   }
 
+  @Test
+  public void element_name() throws Exception {
+    assertThat(Kind.JSX_SELF_CLOSING_ELEMENT)
+      .matches("<Foo />")
+      .matches("<foo />")
+      .matches("<this />")
+      .matches("<foo.bar />")
+      .matches("<foo.Bar />")
+    ;
+  }
 }
