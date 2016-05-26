@@ -29,10 +29,7 @@ public class ExcessiveParameterListCheckTest {
 
   @Test
   public void defaults() {
-    JavaScriptCheckVerifier.issues(check, new File("src/test/resources/checks/excessiveParameterList.js"))
-      .next().atLine(4).withMessage("Function has 8 parameters which is greater than 7 authorized.")
-      .next().atLine(7)
-      .noMore();
+    JavaScriptCheckVerifier.verify(check, new File("src/test/resources/checks/excessiveParameterList.js"));
   }
 
   @Test

@@ -38,9 +38,9 @@ public class FunctionNameCheckTest {
 
     JavaScriptCheckVerifier.issues(check, new File("src/test/resources/checks/FunctionName.js"))
       .next().atLine(1).withMessage("Rename this 'doSomething' function to match the regular expression " + check.format)
-      .next().atLine(7)
-      .next().atLine(14)
-      .next().atLine(20)
+      .next().atLine(8)
+      .next().atLine(15)
+      .next().atLine(22)
       .noMore();
   }
 }
