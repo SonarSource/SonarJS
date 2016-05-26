@@ -1,30 +1,32 @@
 function doSomething(){                     // OK
 }
 
-function DoSomething(){                     // NOK
+function DoSomething(){                     // Noncompliant {{Rename this 'DoSomething' function to match the regular expression ^[a-z][a-zA-Z0-9]*$}}
+//       ^^^^^^^^^^^
 }
 
 function* doSomething(){                    // OK
 }
 
-function* DoSomething(){                    // NOK
+function* DoSomething(){                    // Noncompliant
 }
 
 class C {
     doSomething(){                          // OK
     }
 
-    DoSomething(){                          // NOK
+    DoSomething(){                          // Noncompliant
+//  ^^^^^^^^^^^
     }
 
     * doSomething (){                       // OK
     }
 
-    * DoSomething (){                       // NOK
+    * DoSomething (){                       // Noncompliant
     }
 }
 
-var MyObj = function Object () {            // OK - not handle by the check
+var MyObj = function Object () {            // OK - not handled by the check
     this.a = 1;
 };
 

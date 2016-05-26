@@ -29,12 +29,7 @@ public class FunctionNameCheckTest {
 
   @Test
   public void testDefault() {
-    JavaScriptCheckVerifier.issues(check, new File("src/test/resources/checks/FunctionName.js"))
-      .next().atLine(4).withMessage("Rename this 'DoSomething' function to match the regular expression " + check.DEFAULT)
-      .next().atLine(10)
-      .next().atLine(17)
-      .next().atLine(23)
-      .noMore();
+    JavaScriptCheckVerifier.verify(check, new File("src/test/resources/checks/FunctionName.js"));
   }
 
   @Test
