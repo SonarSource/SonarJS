@@ -53,7 +53,7 @@ public class ModelDefaultsWithArrayOrObjectCheck extends DoubleDispatchVisitorCh
         PairPropertyTree defaultsProp = Backbone.getModelProperty((ObjectLiteralTree) parameter, "defaults");
 
         if (defaultsProp != null && defaultsProp.value().is(Kind.OBJECT_LITERAL) && hasObjectOrArrayAttribute((ObjectLiteralTree) defaultsProp.value())) {
-          addLineIssue(defaultsProp, MESSAGE);
+          addIssue(defaultsProp.key(), MESSAGE);
         }
       }
     }

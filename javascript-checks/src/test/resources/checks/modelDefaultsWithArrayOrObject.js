@@ -1,12 +1,13 @@
 MyModel = Backbone.Model.extend({
-  defaults: {                     // NOK
+  defaults: {                     // Noncompliant {{Make "defaults" a function.}}
+//^^^^^^^^
     a: {},
     b: 1
   }
 });
 
 MyModel = Backbone.Model.extend({
-  defaults: {                     // NOK
+  defaults: {                     // Noncompliant
     a: []
   }
 });
