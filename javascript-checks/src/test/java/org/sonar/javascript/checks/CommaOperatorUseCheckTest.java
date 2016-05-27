@@ -25,31 +25,9 @@ import org.sonar.javascript.checks.verifier.JavaScriptCheckVerifier;
 
 public class CommaOperatorUseCheckTest {
 
-  private final CommaOperatorUseCheck check = new CommaOperatorUseCheck();
-
   @Test
   public void test() {
-    JavaScriptCheckVerifier.issues(check, new File("src/test/resources/checks/commaOperatorUse.js"))
-      .next().atLine(1).withMessage("Remove use of this comma operator.")
-      .next().atLine(3)
-      .next().atLine(6)
-      .next().atLine(8)
-      .next().atLine(9)
-      .next().atLine(13)
-      .next().atLine(16)
-      .next().atLine(19)
-      .next().atLine(21)
-      .next().atLine(22)
-      .next().atLine(23)
-      .next().atLine(25)
-      .next().atLine(27)
-      .next().atLine(29).withMessage("Remove use of all comma operators in this expression.")
-      .next().atLine(33)
-      .next().atLine(51)
-      .next().atLine(56)
-      .next().atLine(56)
-      .next().atLine(59)
-      .noMore();
+    JavaScriptCheckVerifier.verify(new CommaOperatorUseCheck(), new File("src/test/resources/checks/commaOperatorUse.js"));
   }
 
 }

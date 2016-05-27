@@ -19,6 +19,8 @@
  */
 package org.sonar.javascript.checks;
 
+import com.google.common.collect.Lists;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import javax.annotation.Nullable;
@@ -32,6 +34,7 @@ import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.javascript.api.tree.statement.ForStatementTree;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
+import org.sonar.plugins.javascript.api.visitors.PreciseIssue;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 
@@ -55,14 +58,16 @@ public class CommaOperatorUseCheck extends DoubleDispatchVisitorCheck {
       return;
     }
 
-    List<ExpressionTree> expressions = getAllSubExpressions(tree);
+    raiseIssue(tree);
 
-    String message = expressions.size() > 2 ? MESSAGE_MANY_COMMAS : MESSAGE_ONE_COMMA;
-    addLineIssue(getFirstComma(tree), message);
+    getAllSubExpressions(tree).forEach(expression -> super.scan(expression));
+  }
 
-    for (ExpressionTree expression : expressions) {
-      super.scan(expression);
-    }
+  private void raiseIssue(BinaryExpressionTree tree) {
+    List<SyntaxToken> commas = getCommas(tree);
+    String message = commas.size() > 1 ? MESSAGE_MANY_COMMAS : MESSAGE_ONE_COMMA;
+    PreciseIssue issue = addIssue(commas.get(0), message);
+    commas.subList(1, commas.size()).forEach(issue::secondary);
   }
 
   @Override
@@ -96,14 +101,15 @@ public class CommaOperatorUseCheck extends DoubleDispatchVisitorCheck {
     return result;
   }
 
-  private static SyntaxToken getFirstComma(BinaryExpressionTree tree) {
-    SyntaxToken result = tree.operator();
+  private static List<SyntaxToken> getCommas(BinaryExpressionTree tree) {
+    List<SyntaxToken> commas = new ArrayList<>();
+    commas.add(tree.operator());
     ExpressionTree currentExpression = tree.leftOperand();
     while (currentExpression.is(Kind.COMMA_OPERATOR)) {
-      result = ((BinaryExpressionTree) currentExpression).operator();
+      commas.add(((BinaryExpressionTree) currentExpression).operator());
       currentExpression = ((BinaryExpressionTree) currentExpression).leftOperand();
     }
-    return result;
+    return Lists.reverse(commas);
   }
 
 }
