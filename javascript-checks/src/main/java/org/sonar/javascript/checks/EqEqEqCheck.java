@@ -45,10 +45,10 @@ public class EqEqEqCheck extends DoubleDispatchVisitorCheck {
     if (!isNullLiteral(tree.leftOperand()) && !isNullLiteral(tree.rightOperand())) {
 
       if (tree.is(Tree.Kind.EQUAL_TO)) {
-        addLineIssue(tree.operator(), "Replace \"==\" with \"===\".");
+        addIssue(tree.operator(), "Replace \"==\" with \"===\".");
 
       } else if (tree.is(Tree.Kind.NOT_EQUAL_TO)) {
-        addLineIssue(tree.operator(), "Replace \"!=\" with \"!==\".");
+        addIssue(tree.operator(), "Replace \"!=\" with \"!==\".");
       }
     }
 
