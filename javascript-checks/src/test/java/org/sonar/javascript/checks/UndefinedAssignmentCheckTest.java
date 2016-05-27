@@ -25,14 +25,9 @@ import org.sonar.javascript.checks.verifier.JavaScriptCheckVerifier;
 
 public class UndefinedAssignmentCheckTest {
 
-  private UndefinedAssignmentCheck check = new UndefinedAssignmentCheck();
-
   @Test
   public void test() {
-    JavaScriptCheckVerifier.issues(check, new File("src/test/resources/checks/undefinedAssignment.js"))
-      .next().atLine(1).withMessage("Use null instead.")
-      .next().atLine(2)
-      .noMore();
+    JavaScriptCheckVerifier.verify(new UndefinedAssignmentCheck(), new File("src/test/resources/checks/undefinedAssignment.js"));
   }
 
 }

@@ -22,7 +22,6 @@ package org.sonar.javascript.checks;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
-import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.declaration.InitializedBindingElementTree;
 import org.sonar.plugins.javascript.api.tree.expression.AssignmentExpressionTree;
@@ -46,7 +45,7 @@ public class UndefinedAssignmentCheck extends DoubleDispatchVisitorCheck {
   @Override
   public void visitInitializedBindingElement(InitializedBindingElementTree tree) {
     if (isUndefined(tree.right())) {
-      reportIssue(tree);
+      addIssue(tree.right(), MESSAGE);
     }
 
     super.visitInitializedBindingElement(tree);
@@ -55,7 +54,7 @@ public class UndefinedAssignmentCheck extends DoubleDispatchVisitorCheck {
   @Override
   public void visitAssignmentExpression(AssignmentExpressionTree tree) {
     if (tree.is(Kind.ASSIGNMENT) && isUndefined(tree.expression())) {
-      reportIssue(tree);
+      addIssue(tree.expression(), MESSAGE);
     }
 
     super.visitAssignmentExpression(tree);
@@ -63,9 +62,5 @@ public class UndefinedAssignmentCheck extends DoubleDispatchVisitorCheck {
 
   private static boolean isUndefined(ExpressionTree expression) {
     return expression.is(Kind.IDENTIFIER_REFERENCE) && "undefined".equals(((IdentifierTree) expression).name());
-  }
-
-  private void reportIssue(Tree tree) {
-    addLineIssue(tree, MESSAGE);
   }
 }
