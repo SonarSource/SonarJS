@@ -33,29 +33,30 @@ var array = [1, 2, 3];
 /**
  * Primitives
  */
-new numeric;   // NOK
-new boolean;   // NOK
-new string;    // NOK
+new numeric;   // Noncompliant [[secondary=+0]] {{Replace numeric with a constructor function.}}
+//  ^^^^^^^
+new boolean;   // Noncompliant
+new string;    // Noncompliant
 
 /**
  * Non-callable objects
  */
-new object;    // NOK
-new array;     // NOK
+new object;    // Noncompliant
+new array;     // Noncompliant
 
 /**
  * Non-documented function
  */
-new MyClass1;  // OK
-new MyClass2;  // OK
+new MyClass1;  // Noncompliant
+new MyClass2;  // Noncompliant
 
 
 /**
  * Documented function with tag @constructor
  */
 new MyClassA;  // OK - JSDoc @constructor
-new MyClassB;  // OK - JSDoc but not handled by the check
-new MyClassC;  // OK - JSDoc @class
+new MyClassB;  // Noncompliant FP - JSDoc but not handled by the check
+new MyClassC;  // Noncompliant - JSDoc @class
 
 /**
  * Exclude when has UNKNOWN type
@@ -101,12 +102,13 @@ queryForEngine(defaultEngine, function(array){
 });
 
 var A = function() { return function(){}}
-var B = new A();  // OK
+var B = new A();  // Noncompliant
 var C = new B();  // OK
 
-new function(){ return 5; };
-new (function(){ return 5; });
-
+new function(){ return 5; }; // Noncompliant [[secondary=+0]] {{Replace this function with a constructor function.}}
+//  ^^^^^^^^
+new (function(){ return 5; }); // Noncompliant {{Replace this function with a constructor function.}}
+//   ^^^^^^^^
 
 class MyClass {
 }
