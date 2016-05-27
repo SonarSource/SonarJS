@@ -40,7 +40,7 @@ public class ConditionalOperatorCheck extends DoubleDispatchVisitorCheck {
 
   @Override
   public void visitConditionalExpression(ConditionalExpressionTree tree) {
-    addLineIssue(tree.query(), MESSAGE);
+    addIssue(tree.query(), MESSAGE);
     super.visitConditionalExpression(tree);
   }
 
