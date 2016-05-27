@@ -72,9 +72,8 @@ public class ExcessiveParameterListCheck extends DoubleDispatchVisitorCheck {
     Integer numberOfParameters = tree.parameters().size();
 
     if (numberOfParameters > maximumFunctionParameters) {
-      addLineIssue(
-        // Report issue on the line of the first parameter
-        tree.parameters().get(0),
+      addIssue(
+        tree,
         "Function has " + numberOfParameters + " parameters which is greater than " + maximumFunctionParameters + " authorized.");
     }
   }

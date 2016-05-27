@@ -80,7 +80,7 @@ public class FunctionNameCheck extends DoubleDispatchVisitorCheck {
       String name = tree.is(Kind.IDENTIFIER_NAME) ? ((IdentifierTree) tree).name() : CheckUtils.asString(tree);
 
       if (!pattern.matcher(name).matches()) {
-        addLineIssue(tree, String.format(MESSAGE, name, format));
+        addIssue(tree, String.format(MESSAGE, name, format));
       }
     }
   }

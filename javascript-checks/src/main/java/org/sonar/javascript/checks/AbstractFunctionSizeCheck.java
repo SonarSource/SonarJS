@@ -27,6 +27,7 @@ import org.sonar.javascript.tree.symbols.type.FunctionType;
 import org.sonar.plugins.javascript.api.symbols.Type;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
+import org.sonar.plugins.javascript.api.tree.declaration.FunctionTree;
 import org.sonar.plugins.javascript.api.tree.expression.ArrayLiteralTree;
 import org.sonar.plugins.javascript.api.tree.expression.CallExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.DotMemberExpressionTree;
@@ -42,7 +43,7 @@ public abstract class AbstractFunctionSizeCheck extends SubscriptionVisitorCheck
   private boolean amdPattern = false;
   private List<Tree> angularExclusions;
 
-  abstract void checkFunction(Tree functionTree);
+  abstract void checkFunction(FunctionTree functionTree);
 
   @Override
   public List<Kind> nodesToVisit() {
@@ -81,7 +82,7 @@ public abstract class AbstractFunctionSizeCheck extends SubscriptionVisitorCheck
     }
 
     if (!immediatelyInvokedFunctionExpression && !amdPattern && !angularExclusions.contains(tree)) {
-      checkFunction(tree);
+      checkFunction((FunctionTree) tree);
     }
 
     clearCheckState();

@@ -25,9 +25,10 @@ import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
 import org.sonar.javascript.metrics.ComplexityVisitor;
+import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
-import org.sonar.plugins.javascript.api.tree.Tree.Kind;
-import org.sonar.plugins.javascript.api.tree.declaration.FunctionDeclarationTree;
+import org.sonar.plugins.javascript.api.tree.declaration.FunctionTree;
+import org.sonar.plugins.javascript.api.visitors.IssueLocation;
 import org.sonar.plugins.javascript.api.visitors.PreciseIssue;
 import org.sonar.squidbridge.annotations.ActivatedByDefault;
 import org.sonar.squidbridge.annotations.SqaleLinearWithOffsetRemediation;
@@ -57,23 +58,20 @@ public class FunctionComplexityCheck extends AbstractFunctionSizeCheck {
   private int maximumFunctionComplexityThreshold = DEFAULT_MAXIMUM_FUNCTION_COMPLEXITY_THRESHOLD;
 
   @Override
-  void checkFunction(Tree functionTree) {
+  void checkFunction(FunctionTree functionTree) {
     List<Tree> complexityTrees = new ComplexityVisitor().complexityTrees(functionTree);
     if (complexityTrees.size() > maximumFunctionComplexityThreshold) {
       raiseIssue(functionTree, complexityTrees);
     }
   }
 
-  private void raiseIssue(Tree tree, List<Tree> complexityTrees) {
+  private void raiseIssue(FunctionTree tree, List<Tree> complexityTrees) {
     int complexity = complexityTrees.size();
     String message = String.format(MESSAGE, complexity, maximumFunctionComplexityThreshold);
 
-    Tree primaryLocationTree = complexityTrees.get(0);
-    if (tree.is(Kind.FUNCTION_DECLARATION)) {
-      primaryLocationTree = ((FunctionDeclarationTree) tree).name();
-    }
+    IssueLocation primaryIssueLocation = new IssueLocation(((JavaScriptTree) tree).getFirstToken(), tree.parameterClause(), message);
 
-    PreciseIssue issue = addIssue(primaryLocationTree, message);
+    PreciseIssue issue = addIssue(new PreciseIssue(this, primaryIssueLocation));
 
     for (Tree complexityTree : complexityTrees) {
       issue.secondary(complexityTree, "+1");

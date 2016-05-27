@@ -27,7 +27,10 @@ import org.sonar.check.RuleProperty;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
+import org.sonar.plugins.javascript.api.tree.declaration.FunctionTree;
 import org.sonar.plugins.javascript.api.tree.statement.BlockTree;
+import org.sonar.plugins.javascript.api.visitors.IssueLocation;
+import org.sonar.plugins.javascript.api.visitors.PreciseIssue;
 import org.sonar.squidbridge.annotations.ActivatedByDefault;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
@@ -68,11 +71,12 @@ public class TooManyLinesInFunctionCheck extends AbstractFunctionSizeCheck {
   }
 
   @Override
-  void checkFunction(Tree functionTree) {
+  void checkFunction(FunctionTree functionTree) {
     int nbLines = getNumberOfLine(functionTree);
     if (nbLines > max) {
       String message = String.format(MESSAGE, nbLines, max);
-      addLineIssue(functionTree, message);
+      IssueLocation primaryLocation = new IssueLocation(((JavaScriptTree) functionTree).getFirstToken(), functionTree.parameterClause(), message);
+      addIssue(new PreciseIssue(this, primaryLocation));
     }
   }
 }

@@ -1,6 +1,7 @@
 function sayHello() {
   if (x) {
-    function foo() {}        // NOK
+    function foo() {}        // Noncompliant {{Do not use function declarations within blocks.}}
+//  ^^^^^^^^
   }
 
   if (x) {

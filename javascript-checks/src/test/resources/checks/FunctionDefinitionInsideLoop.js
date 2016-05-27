@@ -1,7 +1,8 @@
 var funs = [];
 
 for (var i = 0; i < 13; i++) {
-  funs[i] = function() {              // NOK
+  funs[i] = function() {              // Noncompliant {{Define this function outside of a loop.}}
+//          ^^^^^^^^
     return i;
   };
 }
@@ -9,7 +10,7 @@ for (var i = 0; i < 13; i++) {
 print(funs[0]()); // 13 instead of 0
 
 for (var i = 0; i < 10; i++) {
-  funs[i] = (function(i) {            // NOK
+  funs[i] = (function(i) {            // Noncompliant
     return function() {               // OK
       return i;
     };
@@ -20,7 +21,7 @@ print(funs[0]());
 
 
 for (var i = 0; i < 10; i++) {
-    funs[i] = (function * (i) {       // NOK
+    funs[i] = (function * (i) {       // Noncompliant
         return function() {           // OK
             return i;
         };
