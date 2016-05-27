@@ -19,216 +19,89 @@
  */
 package org.sonar.javascript.se;
 
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableMap.Builder;
-import java.util.HashMap;
-import java.util.Map;
 import javax.annotation.Nullable;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 import org.sonar.plugins.javascript.api.tree.expression.LiteralTree;
 
-
 public enum Constraint {
 
-  UNKNOWN(Nullability.UNKNOWN, Truthiness.UNKNOWN),
+  NO_POSSIBLE_VALUE(0b0000),
+  NULL(0b0001),
+  UNDEFINED(0b0010),
+  NULL_OR_UNDEFINED(0b0011),
+  FALSY_NOT_NULLY(0b0100),
+  FALSY_NOT_UNDEFINED(0b0101),
+  FALSY_NOT_NULL(0b0110),
+  FALSY(0b0111),
+  TRUTHY(0b1000),
+  TRUTHY_OR_NULL(0b1001),
+  TRUTHY_OR_UNDEFINED(0b1010),
+  TRUTHY_OR_NULLY(0b1011),
+  NOT_NULLY(0b1100),
+  NOT_UNDEFINED(0b1101),
+  NOT_NULL(0b1110),
+  ANY_VALUE(0b1111);
 
-  NOT_UNDEFINED(Nullability.NOT_UNDEFINED, Truthiness.UNKNOWN),
+  private static final Constraint[] CONSTRAINTS = initConstraints();
 
-  NOT_NULL(Nullability.NOT_NULL, Truthiness.UNKNOWN),
+  private int bitSet;
 
-  NOT_NULLY(Nullability.NOT_NULLY, Truthiness.UNKNOWN),
-
-  FALSY(Nullability.UNKNOWN, Truthiness.FALSY),
-
-  FALSY_NOT_UNDEFINED(Nullability.NOT_UNDEFINED, Truthiness.FALSY),
-
-  FALSY_NOT_NULL(Nullability.NOT_NULL, Truthiness.FALSY),
-
-  FALSY_NOT_NULLY(Nullability.NOT_NULLY, Truthiness.FALSY),
-
-  UNDEFINED(Nullability.UNDEFINED, Truthiness.FALSY),
-
-  NULL(Nullability.NULL, Truthiness.FALSY),
-
-  NULLY(Nullability.NULLY, Truthiness.FALSY),
-
-  TRUTHY(Nullability.NOT_NULLY, Truthiness.TRUTHY);
-
-  private Nullability nullability;
-  private Truthiness truthiness;
-
-  private static Map<Constraint, Map<Truthiness, Constraint>> truthinessMap;
-  private static Map<Constraint, Map<Nullability, Constraint>> nullabilityMap;
-
-  static {
-    Builder<Constraint, Map<Truthiness, Constraint>> builder = ImmutableMap.builder();
-    builder.put(UNKNOWN, ImmutableMap.of(
-      Truthiness.TRUTHY, TRUTHY, Truthiness.FALSY, FALSY));
-
-    builder.put(NOT_UNDEFINED, ImmutableMap.of(
-      Truthiness.TRUTHY, TRUTHY, Truthiness.FALSY, FALSY_NOT_UNDEFINED));
-
-    builder.put(NOT_NULL, ImmutableMap.of(
-      Truthiness.TRUTHY, TRUTHY, Truthiness.FALSY, FALSY_NOT_NULL));
-
-    builder.put(NOT_NULLY, ImmutableMap.of(
-      Truthiness.TRUTHY, TRUTHY, Truthiness.FALSY, FALSY_NOT_NULLY));
-
-    builder.put(FALSY, ImmutableMap.of(
-      Truthiness.FALSY, FALSY));
-
-    builder.put(FALSY_NOT_UNDEFINED, ImmutableMap.of(
-      Truthiness.FALSY, FALSY_NOT_UNDEFINED));
-
-    builder.put(FALSY_NOT_NULL, ImmutableMap.of(
-      Truthiness.FALSY, FALSY_NOT_NULL));
-
-    builder.put(FALSY_NOT_NULLY, ImmutableMap.of(
-      Truthiness.FALSY, FALSY_NOT_NULLY));
-
-    builder.put(UNDEFINED, ImmutableMap.of(
-      Truthiness.FALSY, UNDEFINED));
-
-    builder.put(NULL, ImmutableMap.of(
-      Truthiness.FALSY, NULL));
-
-    builder.put(NULLY, ImmutableMap.of(
-      Truthiness.FALSY, NULLY));
-
-    builder.put(TRUTHY, ImmutableMap.of(
-      Truthiness.TRUTHY, TRUTHY));
-
-    truthinessMap = builder.build();
+  private Constraint(int bitSet) {
+    this.bitSet = bitSet;
   }
 
-  static {
-    Builder<Constraint, Map<Nullability, Constraint>> builder = ImmutableMap.builder();
-
-    Map<Nullability, Constraint> unknown = new HashMap<>();
-    for (Nullability nullability : Nullability.values()) {
-      unknown.put(nullability, Constraint.valueOf(nullability.toString()));
+  private static Constraint[] initConstraints() {
+    Constraint[] constraints = new Constraint[values().length];
+    for (Constraint constraint : values()) {
+      constraints[constraint.bitSet] = constraint;
     }
-    builder.put(UNKNOWN, unknown);
-
-    builder.put(NOT_UNDEFINED, ImmutableMap.of(
-      Nullability.NULL, NULL,
-      Nullability.NOT_NULL, NOT_NULLY,
-      Nullability.NOT_UNDEFINED, NOT_UNDEFINED,
-      Nullability.NULLY, NULL,
-      Nullability.NOT_NULLY, NOT_NULLY));
-
-    builder.put(NOT_NULL, ImmutableMap.of(
-      Nullability.NOT_NULL, NOT_NULL,
-      Nullability.UNDEFINED, UNDEFINED,
-      Nullability.NOT_UNDEFINED, NOT_NULLY,
-      Nullability.NULLY, UNDEFINED,
-      Nullability.NOT_NULLY, NOT_NULLY));
-
-    builder.put(NOT_NULLY, ImmutableMap.of(
-      Nullability.NOT_NULL, NOT_NULLY,
-      Nullability.NOT_UNDEFINED, NOT_NULLY,
-      Nullability.NOT_NULLY, NOT_NULLY));
-
-    builder.put(FALSY, ImmutableMap.<Nullability, Constraint>builder()
-      .put(Nullability.NULL, NULL)
-      .put(Nullability.NOT_NULL, FALSY_NOT_NULL)
-      .put(Nullability.UNDEFINED, UNDEFINED)
-      .put(Nullability.NOT_UNDEFINED, FALSY_NOT_UNDEFINED)
-      .put(Nullability.NULLY, NULLY)
-      .put(Nullability.NOT_NULLY, FALSY_NOT_NULLY).build());
-
-    builder.put(FALSY_NOT_UNDEFINED, ImmutableMap.of(
-      Nullability.NULL, NULL,
-      Nullability.NOT_NULL, FALSY_NOT_NULLY,
-      Nullability.NOT_UNDEFINED, FALSY_NOT_UNDEFINED,
-      Nullability.NULLY, NULL,
-      Nullability.NOT_NULLY, FALSY_NOT_NULLY));
-
-    builder.put(FALSY_NOT_NULL, ImmutableMap.of(
-      Nullability.NOT_NULL, FALSY_NOT_NULL,
-      Nullability.UNDEFINED, UNDEFINED,
-      Nullability.NOT_UNDEFINED, FALSY_NOT_NULLY,
-      Nullability.NULLY, UNDEFINED,
-      Nullability.NOT_NULLY, FALSY_NOT_NULLY));
-
-    builder.put(FALSY_NOT_NULLY, ImmutableMap.of(
-      Nullability.NOT_NULL, FALSY_NOT_NULLY,
-      Nullability.NOT_UNDEFINED, FALSY_NOT_NULLY,
-      Nullability.NOT_NULLY, FALSY_NOT_NULLY));
-
-    builder.put(UNDEFINED, ImmutableMap.of(
-      Nullability.NOT_NULL, UNDEFINED,
-      Nullability.UNDEFINED, UNDEFINED,
-      Nullability.NULLY, UNDEFINED));
-
-    builder.put(NULL, ImmutableMap.of(
-      Nullability.NULL, NULL,
-      Nullability.NOT_UNDEFINED, NULL,
-      Nullability.NULLY, NULL));
-
-    builder.put(NULLY, ImmutableMap.of(
-      Nullability.NULL, NULL,
-      Nullability.NOT_NULL, UNDEFINED,
-      Nullability.UNDEFINED, UNDEFINED,
-      Nullability.NOT_UNDEFINED, NULL,
-      Nullability.NULLY, NULLY));
-
-    builder.put(TRUTHY, ImmutableMap.of(
-      Nullability.NOT_NULL, TRUTHY,
-      Nullability.NOT_UNDEFINED, TRUTHY,
-      Nullability.NOT_NULLY, TRUTHY));
-
-    nullabilityMap = builder.build();
+    return constraints;
   }
 
-  Constraint(Nullability nullability, Truthiness truthiness) {
-    this.truthiness = truthiness;
-    this.nullability = nullability;
+  private static Constraint get(int bitSet) {
+    return CONSTRAINTS[bitSet];
   }
 
-  private static <T> Constraint get(T subConstraint) {
-    return Constraint.valueOf(subConstraint.toString());
+  public Constraint and(Constraint other) {
+    return get(this.bitSet & other.bitSet);
   }
 
-  public Nullability nullability() {
-    return nullability;
+  public Constraint not() {
+    return get(~this.bitSet & ANY_VALUE.bitSet);
   }
 
   public Truthiness truthiness() {
-    return truthiness;
+    if (this.equals(Constraint.TRUTHY)) {
+      return Truthiness.TRUTHY;
+    } else if (this.and(TRUTHY).equals(NO_POSSIBLE_VALUE)) {
+      return Truthiness.FALSY;
+    }
+    return Truthiness.UNKNOWN;
   }
 
-  @Nullable
-  // returns null if this constraining is conflicting
-  static Constraint constrain(@Nullable Constraint currentConstraint, Truthiness truthiness) {
-    if (truthiness == Truthiness.UNKNOWN) {
-      throw new IllegalStateException();
+  public Nullability nullability() {
+    Nullability nullability;
+    switch (bitSet) {
+      case 0b0001:
+        nullability = Nullability.NULL;
+        break;
+      case 0b0010:
+        nullability = Nullability.UNDEFINED;
+        break;
+      case 0b0011:
+        nullability = Nullability.NULLY;
+        break;
+      case 0b0100:
+      case 0b1000:
+      case 0b1100:
+        nullability = Nullability.NOT_NULLY;
+        break;
+      default:
+        nullability = Nullability.UNKNOWN;
     }
-
-    if (currentConstraint == null) {
-      return Constraint.get(truthiness);
-
-    } else {
-      return truthinessMap.get(currentConstraint).get(truthiness);
-    }
-  }
-
-
-  @Nullable
-  // returns null if this constraining is conflicting
-  static Constraint constrain(@Nullable Constraint currentConstraint, Nullability nullability) {
-    if (nullability == Nullability.UNKNOWN) {
-      throw new IllegalStateException();
-    }
-
-    if (currentConstraint == null) {
-      return Constraint.get(nullability);
-
-    } else {
-      return nullabilityMap.get(currentConstraint).get(nullability);
-    }
+    return nullability;
   }
 
   @Nullable
@@ -299,14 +172,6 @@ public enum Constraint {
 
   public static Constraint literal(boolean isTruthy) {
     return isTruthy ? TRUTHY : FALSY_NOT_NULLY;
-  }
-
-  @Override
-  public String toString() {
-    return "{ " +
-      "nullability = " + nullability +
-      ", truthiness = " + truthiness +
-      " }";
   }
 
 }

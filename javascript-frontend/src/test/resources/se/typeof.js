@@ -24,14 +24,14 @@ function main() {
 
   x = foo();
   if (typeof x === "function") {
-    foo(); // PS x=NOT_NULLY
+    foo(); // PS x=TRUTHY
   } else {
     foo(); // PS x=UNKNOWN
   }
 
   x = foo();
   if (typeof x === "object") {
-    foo(); // PS x=NOT_UNDEFINED
+    foo(); // PS x=TRUTHY_OR_NULL
   } else {
     foo(); // PS x=NOT_NULL
   }

@@ -28,19 +28,19 @@ import static org.sonar.javascript.se.Constraint.UNDEFINED;
 
 class TypeOf {
 
-  static final Map<String, Nullability> typeOfEqualNullability = ImmutableMap.<String, Nullability>builder()
-    .put("undefined", Nullability.UNDEFINED)
-    .put("function", Nullability.NOT_NULLY)
-    .put("object", Nullability.NOT_UNDEFINED)
-    .put("number", Nullability.NOT_NULLY)
-    .put("string", Nullability.NOT_NULLY)
-    .put("boolean", Nullability.NOT_NULLY)
-    .put("symbol", Nullability.NOT_NULLY)
+  static final Map<String, Constraint> typeOfEqualNullability = ImmutableMap.<String, Constraint>builder()
+    .put("undefined", Constraint.UNDEFINED)
+    .put("function", Constraint.TRUTHY)
+    .put("object", Constraint.TRUTHY_OR_NULL)
+    .put("number", Constraint.NULL_OR_UNDEFINED.not())
+    .put("string", Constraint.NULL_OR_UNDEFINED.not())
+    .put("boolean", Constraint.NULL_OR_UNDEFINED.not())
+    .put("symbol", Constraint.NULL_OR_UNDEFINED.not())
     .build();
 
-  static final Map<String, Nullability> typeOfNotEqualNullability = ImmutableMap.<String, Nullability>builder()
-    .put("undefined", Nullability.NOT_UNDEFINED)
-    .put("object", Nullability.NOT_NULL)
+  static final Map<String, Constraint> typeOfNotEqualNullability = ImmutableMap.<String, Constraint>builder()
+    .put("undefined", Constraint.UNDEFINED.not())
+    .put("object", Constraint.NULL.not())
     .build();
 
   private TypeOf() {

@@ -83,24 +83,12 @@ public class ProgramState {
     return newProgramState;
   }
 
-  public ProgramState constrain(@Nullable SymbolicValue value, @Nullable Truthiness truthiness) {
-    if (value == null || truthiness == null) {
+  public ProgramState constrain(@Nullable SymbolicValue value, @Nullable Constraint constraint) {
+    if (value == null || constraint == null) {
       return this;
     }
-    Constraint newConstraint = Constraint.constrain(constraints.get(value), truthiness);
-    if (newConstraint == null) {
-      return null;
-    } else {
-      return new ProgramState(ImmutableMap.copyOf(values), replaceConstraint(value, newConstraint), counter);
-    }
-  }
-
-  public ProgramState constrain(@Nullable SymbolicValue value, @Nullable Nullability nullability) {
-    if (value == null || nullability == null) {
-      return this;
-    }
-    Constraint newConstraint = Constraint.constrain(constraints.get(value), nullability);
-    if (newConstraint == null) {
+    Constraint newConstraint = getConstraint(value).and(constraint);
+    if (Constraint.NO_POSSIBLE_VALUE.equals(newConstraint)) {
       return null;
     } else {
       return new ProgramState(ImmutableMap.copyOf(values), replaceConstraint(value, newConstraint), counter);
@@ -132,7 +120,11 @@ public class ProgramState {
 
   @Nullable
   public Constraint getConstraint(@Nullable SymbolicValue value) {
-    return constraints.get(value);
+    Constraint constraint = constraints.get(value);
+    if (constraint == null) {
+      return Constraint.ANY_VALUE;
+    }
+    return constraint;
   }
 
   @Nullable
@@ -141,13 +133,7 @@ public class ProgramState {
   }
 
   public Truthiness getTruthiness(@Nullable SymbolicValue value) {
-    Truthiness truthiness = Truthiness.UNKNOWN;
-    Constraint constraint = getConstraint(value);
-    if (constraint != null) {
-      truthiness = constraint.truthiness();
-    }
-
-    return truthiness;
+    return getConstraint(value).truthiness();
   }
 
   public Nullability getNullability(@Nullable SymbolicValue value) {

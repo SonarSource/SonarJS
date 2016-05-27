@@ -45,14 +45,15 @@ import static org.fest.assertions.Assertions.assertThat;
 class SeVerifier extends SeCheck {
 
   private static Map<String, Constraint> SYMBOLIC_VALUE_KEYS = ImmutableMap.<String, Constraint>builder()
-    .put("NULLY", Constraint.NULLY)
-    .put("NOT_NULLY", Constraint.NOT_NULLY)
-    .put("NOT_NULL", Constraint.NOT_NULL)
+    .put("NULLY", Constraint.NULL_OR_UNDEFINED)
+    .put("NOT_NULLY", Constraint.NULL_OR_UNDEFINED.not())
+    .put("NOT_NULL", Constraint.NULL.not())
     .put("TRUTHY", Constraint.TRUTHY)
     .put("FALSY", Constraint.FALSY_NOT_NULLY)
     .put("NULL", Constraint.NULL)
     .put("UNDEFINED", Constraint.UNDEFINED)
-    .put("NOT_UNDEFINED", Constraint.NOT_UNDEFINED)
+    .put("NOT_UNDEFINED", Constraint.UNDEFINED.not())
+    .put("TRUTHY_OR_NULL", Constraint.TRUTHY_OR_NULL)
     .build();
 
   // line - program state - asserted
@@ -85,7 +86,7 @@ class SeVerifier extends SeCheck {
 
       for (Symbol expectedAbsentSymbol : expectedAbsentSymbols.get(actualPsEntry.getKey())) {
         for (ProgramState actualProgramState : actualPsEntry.getValue()) {
-          assertThat(actualProgramState.getConstraint(expectedAbsentSymbol))
+          assertThat(actualProgramState.getSymbolicValue(expectedAbsentSymbol))
             .overridingErrorMessage(getAbsentSymbolMessage(actualProgramState, expectedAbsentSymbol, actualPsEntry.getKey()))
             .isNull();
         }

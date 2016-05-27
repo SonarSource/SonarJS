@@ -29,58 +29,93 @@ import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.tree.statement.ExpressionStatementTree;
 
 import static org.fest.assertions.Assertions.assertThat;
-import static org.sonar.javascript.se.Nullability.NOT_NULLY;
-import static org.sonar.javascript.se.Nullability.NULL;
-import static org.sonar.javascript.se.Nullability.UNDEFINED;
-import static org.sonar.javascript.se.Truthiness.FALSY;
-import static org.sonar.javascript.se.Truthiness.TRUTHY;
+import static org.sonar.javascript.se.Constraint.ANY_VALUE;
+import static org.sonar.javascript.se.Constraint.FALSY;
+import static org.sonar.javascript.se.Constraint.FALSY_NOT_NULLY;
+import static org.sonar.javascript.se.Constraint.NO_POSSIBLE_VALUE;
+import static org.sonar.javascript.se.Constraint.NULL;
+import static org.sonar.javascript.se.Constraint.NULL_OR_UNDEFINED;
+import static org.sonar.javascript.se.Constraint.TRUTHY;
+import static org.sonar.javascript.se.Constraint.UNDEFINED;
 
 public class ConstraintTest {
 
   private ActionParser<Tree> parser = JavaScriptParserBuilder.createParser(Charsets.UTF_8);
 
   @Test
+  public void any_value() throws Exception {
+    assertThat(ANY_VALUE.not()).isEqualTo(NO_POSSIBLE_VALUE);
+    assertThat(ANY_VALUE.and(NULL)).isEqualTo(NULL);
+    assertThat(ANY_VALUE.and(FALSY)).isEqualTo(FALSY);
+    assertThat(ANY_VALUE.and(NO_POSSIBLE_VALUE)).isEqualTo(NO_POSSIBLE_VALUE);
+  }
+
+  @Test
+  public void no_possible_value() throws Exception {
+    assertThat(NO_POSSIBLE_VALUE.not()).isEqualTo(ANY_VALUE);
+    assertThat(NO_POSSIBLE_VALUE.and(NULL)).isEqualTo(NO_POSSIBLE_VALUE);
+    assertThat(NO_POSSIBLE_VALUE.and(FALSY)).isEqualTo(NO_POSSIBLE_VALUE);
+    assertThat(NO_POSSIBLE_VALUE.and(ANY_VALUE)).isEqualTo(NO_POSSIBLE_VALUE);
+  }
+
+  @Test
+  public void truthiness() throws Exception {
+    assertThat(ANY_VALUE.truthiness()).isEqualTo(Truthiness.UNKNOWN);
+    assertThat(NULL.truthiness()).isEqualTo(Truthiness.FALSY);
+    assertThat(UNDEFINED.truthiness()).isEqualTo(Truthiness.FALSY);
+    assertThat(NULL_OR_UNDEFINED.truthiness()).isEqualTo(Truthiness.FALSY);
+    assertThat(FALSY.truthiness()).isEqualTo(Truthiness.FALSY);
+    assertThat(TRUTHY.truthiness()).isEqualTo(Truthiness.TRUTHY);
+  }
+
+  @Test
+  public void nullability() throws Exception {
+    assertThat(ANY_VALUE.nullability()).isEqualTo(Nullability.UNKNOWN);
+    assertThat(NULL.nullability()).isEqualTo(Nullability.NULL);
+    assertThat(UNDEFINED.nullability()).isEqualTo(Nullability.UNDEFINED);
+    assertThat(NULL_OR_UNDEFINED.nullability()).isEqualTo(Nullability.NULLY);
+    assertThat(FALSY.nullability()).isEqualTo(Nullability.UNKNOWN);
+    assertThat(TRUTHY.nullability()).isEqualTo(Nullability.NOT_NULLY);
+  }
+
+  @Test
   public void null_constraint() throws Exception {
-    Constraint constraint = constraint("null");
-    assertThat(constraint.nullability()).isEqualTo(NULL);
-    assertThat(constraint.truthiness()).isEqualTo(FALSY);
+    assertThat(constraint("null")).isEqualTo(NULL);
   }
 
   @Test
   public void undefined_constraint() throws Exception {
-    Constraint constraint = constraint("undefined");
-    assertThat(constraint.nullability()).isEqualTo(UNDEFINED);
-    assertThat(constraint.truthiness()).isEqualTo(FALSY);
+    assertThat(constraint("undefined")).isEqualTo(UNDEFINED);
   }
 
   @Test
   public void literals() throws Exception {
-    assertThat(constraint("42").nullability()).isEqualTo(NOT_NULLY);
-    assertThat(constraint("'str'").nullability()).isEqualTo(NOT_NULLY);
-    assertThat(constraint("0").nullability()).isEqualTo(NOT_NULLY);
+    assertThat(constraint("42").nullability()).isEqualTo(Nullability.NOT_NULLY);
+    assertThat(constraint("'str'").nullability()).isEqualTo(Nullability.NOT_NULLY);
+    assertThat(constraint("0").nullability()).isEqualTo(Nullability.NOT_NULLY);
 
-    assertThat(constraint("'ab'").truthiness()).isEqualTo(TRUTHY);
-    assertThat(constraint("true").truthiness()).isEqualTo(TRUTHY);
-    assertThat(constraint("42").truthiness()).isEqualTo(TRUTHY);
-    assertThat(constraint("42.").truthiness()).isEqualTo(TRUTHY);
-    assertThat(constraint("42e2").truthiness()).isEqualTo(TRUTHY);
-    assertThat(constraint("0b01").truthiness()).isEqualTo(TRUTHY);
-    assertThat(constraint("0x42").truthiness()).isEqualTo(TRUTHY);
-    assertThat(constraint("0o42").truthiness()).isEqualTo(TRUTHY);
-    assertThat(constraint("0O42").truthiness()).isEqualTo(TRUTHY);
-    assertThat(constraint("042").truthiness()).isEqualTo(TRUTHY);
+    assertThat(constraint("'ab'")).isEqualTo(TRUTHY);
+    assertThat(constraint("true")).isEqualTo(TRUTHY);
+    assertThat(constraint("42")).isEqualTo(TRUTHY);
+    assertThat(constraint("42.")).isEqualTo(TRUTHY);
+    assertThat(constraint("42e2")).isEqualTo(TRUTHY);
+    assertThat(constraint("0b01")).isEqualTo(TRUTHY);
+    assertThat(constraint("0x42")).isEqualTo(TRUTHY);
+    assertThat(constraint("0o42")).isEqualTo(TRUTHY);
+    assertThat(constraint("0O42")).isEqualTo(TRUTHY);
+    assertThat(constraint("042")).isEqualTo(TRUTHY);
 
-    assertThat(constraint("''").truthiness()).isEqualTo(FALSY);
-    assertThat(constraint("\"\"").truthiness()).isEqualTo(FALSY);
-    assertThat(constraint("false").truthiness()).isEqualTo(FALSY);
-    assertThat(constraint("0").truthiness()).isEqualTo(FALSY);
-    assertThat(constraint("0.0").truthiness()).isEqualTo(FALSY);
-    assertThat(constraint("0.e2").truthiness()).isEqualTo(FALSY);
-    assertThat(constraint("0b0").truthiness()).isEqualTo(FALSY);
-    assertThat(constraint("0x0").truthiness()).isEqualTo(FALSY);
-    assertThat(constraint("0o0").truthiness()).isEqualTo(FALSY);
-    assertThat(constraint("0O0").truthiness()).isEqualTo(FALSY);
-    assertThat(constraint("00").truthiness()).isEqualTo(FALSY);
+    assertThat(constraint("''")).isEqualTo(FALSY_NOT_NULLY);
+    assertThat(constraint("\"\"")).isEqualTo(FALSY_NOT_NULLY);
+    assertThat(constraint("false")).isEqualTo(FALSY_NOT_NULLY);
+    assertThat(constraint("0")).isEqualTo(FALSY_NOT_NULLY);
+    assertThat(constraint("0.0")).isEqualTo(FALSY_NOT_NULLY);
+    assertThat(constraint("0.e2")).isEqualTo(FALSY_NOT_NULLY);
+    assertThat(constraint("0b0")).isEqualTo(FALSY_NOT_NULLY);
+    assertThat(constraint("0x0")).isEqualTo(FALSY_NOT_NULLY);
+    assertThat(constraint("0o0")).isEqualTo(FALSY_NOT_NULLY);
+    assertThat(constraint("0O0")).isEqualTo(FALSY_NOT_NULLY);
+    assertThat(constraint("00")).isEqualTo(FALSY_NOT_NULLY);
   }
 
   @Test
@@ -95,26 +130,11 @@ public class ConstraintTest {
     assertThat(constraint("42")).isEqualTo(constraint("42"));
     assertThat(constraint("42")).isEqualTo(constraint("45"));
     assertThat(constraint("42")).isNotEqualTo(constraint("null"));
-    assertThat(constraint("x")).isNotEqualTo(Constraint.constrain(constraint("x"), FALSY));
-    assertThat(Constraint.constrain(constraint("x"), FALSY)).isEqualTo(Constraint.constrain(constraint("x"), FALSY));
   }
 
   @Test
   public void test_hashCode() throws Exception {
     assertThat(constraint("42").hashCode()).isEqualTo(constraint("42").hashCode());
-  }
-
-  @Test
-  public void test_toString() throws Exception {
-    assertThat(Constraint.NULLY.toString()).isEqualTo("{ nullability = NULLY, truthiness = FALSY }");
-    assertThat(Constraint.NULL.toString()).isEqualTo("{ nullability = NULL, truthiness = FALSY }");
-    assertThat(Constraint.NOT_NULL.toString()).isEqualTo("{ nullability = NOT_NULL, truthiness = UNKNOWN }");
-    assertThat(Constraint.NOT_UNDEFINED.toString()).isEqualTo("{ nullability = NOT_UNDEFINED, truthiness = UNKNOWN }");
-    assertThat(Constraint.UNDEFINED.toString()).isEqualTo("{ nullability = UNDEFINED, truthiness = FALSY }");
-    assertThat(Constraint.TRUTHY.toString()).isEqualTo("{ nullability = NOT_NULLY, truthiness = TRUTHY }");
-    assertThat(Constraint.FALSY_NOT_NULLY.toString()).isEqualTo("{ nullability = NOT_NULLY, truthiness = FALSY }");
-    assertThat(Constraint.constrain(constraint("x"), FALSY).toString()).isEqualTo("{ nullability = UNKNOWN, truthiness = FALSY }");
-    assertThat(Constraint.constrain(constraint("x"), NOT_NULLY).toString()).isEqualTo("{ nullability = NOT_NULLY, truthiness = UNKNOWN }");
   }
 
   private Constraint constraint(String expressionSource) {

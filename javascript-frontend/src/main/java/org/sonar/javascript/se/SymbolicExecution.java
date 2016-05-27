@@ -171,7 +171,7 @@ public class SymbolicExecution {
           SymbolicValue symbolicValue = currentState.getSymbolicValue(((IdentifierTree) object).symbol());
           Nullability nullability = currentState.getNullability(symbolicValue);
           if (nullability == Nullability.UNKNOWN) {
-            currentState = currentState.constrain(symbolicValue, Nullability.NOT_NULLY);
+            currentState = currentState.constrain(symbolicValue, Constraint.NULL_OR_UNDEFINED.not());
           } else if (nullability.isNullOrUndefined()) {
             stopExploring = true;
             break;
@@ -282,8 +282,8 @@ public class SymbolicExecution {
     if (typeOfOperand != null) {
       String value = literal.value().substring(1, literal.value().length() - 1);
 
-      Nullability trueSuccessorNullability = null;
-      Nullability falseSuccessorNullability = null;
+      Constraint trueSuccessorNullability = null;
+      Constraint falseSuccessorNullability = null;
 
       SymbolicValue conditionVariableSymbolicValue = currentState.getSymbolicValue(trackedVariable(typeOfOperand));
 
@@ -340,19 +340,19 @@ public class SymbolicExecution {
   private boolean handleConditionEqualNull(CfgBranchingBlock block, ProgramState currentState, Tree lastElement) {
     if (isNullyComparison(lastElement)) {
 
-      Nullability trueSuccessorNullability;
-      Nullability falseSuccessorNullability;
+      Constraint trueSuccessorNullability;
+      Constraint falseSuccessorNullability;
 
 
       if (lastElement.is(Kind.EQUAL_TO)) {
         // x == null
-        trueSuccessorNullability = Nullability.NULLY;
-        falseSuccessorNullability = Nullability.NOT_NULLY;
+        trueSuccessorNullability = Constraint.NULL_OR_UNDEFINED;
+        falseSuccessorNullability = Constraint.NULL_OR_UNDEFINED.not();
 
       } else {
         // x != null
-        trueSuccessorNullability = Nullability.NOT_NULLY;
-        falseSuccessorNullability = Nullability.NULLY;
+        trueSuccessorNullability = Constraint.NULL_OR_UNDEFINED.not();
+        falseSuccessorNullability = Constraint.NULL_OR_UNDEFINED;
       }
 
       SymbolicValue conditionVariableSymbolicValue = currentState.getSymbolicValue(trackedOperand((BinaryExpressionTree) lastElement));
@@ -387,25 +387,25 @@ public class SymbolicExecution {
   // x === null
   // x === undefined
   private boolean handleConditionStrictEqual(CfgBranchingBlock block, ProgramState currentState, Tree lastElement) {
-    return handleConditionStrictEqual(block, currentState, lastElement, Constraint.NULL, Constraint.NOT_NULL)
-      || handleConditionStrictEqual(block, currentState, lastElement, Constraint.UNDEFINED, Constraint.NOT_UNDEFINED);
+    return handleConditionStrictEqual(block, currentState, lastElement, Constraint.NULL)
+      || handleConditionStrictEqual(block, currentState, lastElement, Constraint.UNDEFINED);
   }
 
-  private boolean handleConditionStrictEqual(CfgBranchingBlock block, ProgramState currentState, Tree lastElement, Constraint constraint, Constraint constraintNot) {
+  private boolean handleConditionStrictEqual(CfgBranchingBlock block, ProgramState currentState, Tree lastElement, Constraint constraint) {
     if (isStrictComparison(lastElement, constraint)) {
 
-      Nullability trueSuccessorNullability;
-      Nullability falseSuccessorNullability;
+      Constraint trueSuccessorNullability;
+      Constraint falseSuccessorNullability;
 
       if (lastElement.is(Kind.STRICT_EQUAL_TO)) {
         // x === null
-        trueSuccessorNullability = constraint.nullability();
-        falseSuccessorNullability = constraintNot.nullability();
+        trueSuccessorNullability = constraint;
+        falseSuccessorNullability = constraint.not();
 
       } else {
         // x !== null
-        trueSuccessorNullability = constraintNot.nullability();
-        falseSuccessorNullability = constraint.nullability();
+        trueSuccessorNullability = constraint.not();
+        falseSuccessorNullability = constraint;
       }
 
       SymbolicValue conditionVariableSymbolicValue = currentState.getSymbolicValue(trackedOperand((BinaryExpressionTree) lastElement));
@@ -440,32 +440,33 @@ public class SymbolicExecution {
   private boolean handleConditionVariableOrUnaryNot(CfgBranchingBlock block, ProgramState currentState, Tree lastElement) {
     Symbol conditionVariable;
     // Truthiness of the conditionVariable in the true successor of the condition block
-    Truthiness trueSuccessorTruthiness;
+    Constraint trueSuccessorTruthiness;
     // Truthiness of the conditionVariable in the false successor of the condition block
-    Truthiness falseSuccessorTruthiness;
+    Constraint falseSuccessorTruthiness;
 
     boolean isUnaryNot = lastElement.is(Kind.LOGICAL_COMPLEMENT);
     if (isUnaryNot) {
       UnaryExpressionTree unary = (UnaryExpressionTree) lastElement;
       conditionVariable = trackedVariable(unary.expression());
-      trueSuccessorTruthiness = Truthiness.FALSY;
-      falseSuccessorTruthiness = Truthiness.TRUTHY;
+      trueSuccessorTruthiness = Constraint.FALSY;
+      falseSuccessorTruthiness = Constraint.TRUTHY;
     } else {
       conditionVariable = trackedVariable(lastElement);
-      trueSuccessorTruthiness = Truthiness.TRUTHY;
-      falseSuccessorTruthiness = Truthiness.FALSY;
+      trueSuccessorTruthiness = Constraint.TRUTHY;
+      falseSuccessorTruthiness = Constraint.FALSY;
     }
 
     SymbolicValue conditionVariableSymbolicValue = currentState.getSymbolicValue(conditionVariable);
 
     if (conditionVariableSymbolicValue != null) {
-      Truthiness currentTruthiness = currentState.getTruthiness(conditionVariableSymbolicValue);
+      Constraint currentConstraint = currentState.getConstraint(conditionVariableSymbolicValue);
+      Truthiness currentTruthiness = currentConstraint.truthiness();
       Truthiness conditionTruthiness = isUnaryNot ? currentTruthiness.not() : currentTruthiness;
       conditionResults.put(lastElement, conditionTruthiness);
-      if (currentTruthiness != falseSuccessorTruthiness) {
+      if (!currentConstraint.equals(falseSuccessorTruthiness)) {
         pushSuccessor(block.trueSuccessor(), currentState.constrain(conditionVariableSymbolicValue, trueSuccessorTruthiness));
       }
-      if (currentTruthiness != trueSuccessorTruthiness) {
+      if (!currentConstraint.equals(trueSuccessorTruthiness)) {
         pushSuccessor(block.falseSuccessor(), currentState.constrain(conditionVariableSymbolicValue, falseSuccessorTruthiness));
       }
       return true;

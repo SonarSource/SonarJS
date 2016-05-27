@@ -34,14 +34,14 @@ public class ProgramStateTest {
   @Test
   public void addValue() throws Exception {
     Constraint constraint1 = Constraint.NULL;
-    Constraint constraint2 = Constraint.NOT_NULL;
+    Constraint constraint2 = Constraint.NULL.not();
     Constraint constraint3 = Constraint.FALSY;
     ProgramState state1 = state.newSymbolicValue(symbol1, constraint1);
     ProgramState state2 = state1
       .newSymbolicValue(symbol1, constraint2)
       .newSymbolicValue(symbol2, constraint3);
 
-    assertThat(state.getConstraint(symbol1)).isNull();
+    assertThat(state.getConstraint(symbol1)).isEqualTo(Constraint.ANY_VALUE);
     assertThat(state1.getConstraint(symbol1)).isEqualTo(constraint1);
     assertThat(state2.getConstraint(symbol1)).isEqualTo(constraint2);
     assertThat(state2.getConstraint(symbol2)).isEqualTo(constraint3);
@@ -52,22 +52,22 @@ public class ProgramStateTest {
     state = state.newSymbolicValue(symbol1, null);
     SymbolicValue sv1 = state.getSymbolicValue(symbol1);
     SymbolicValue sv2 = state.getSymbolicValue(symbol2);
-    assertThat(state.constrain(sv1, Truthiness.FALSY).getConstraint(symbol1).truthiness()).isEqualTo(Truthiness.FALSY);
+    assertThat(state.constrain(sv1, Constraint.FALSY).getConstraint(symbol1).truthiness()).isEqualTo(Truthiness.FALSY);
     assertThat(sv2).isNull();
-    assertThat(state.constrain(sv2, Truthiness.FALSY).getConstraint(symbol2)).isNull();
+    assertThat(state.constrain(sv2, Constraint.FALSY).getConstraint(symbol2)).isEqualTo(Constraint.ANY_VALUE);
 
-    state = state.newSymbolicValue(symbol1, Constraint.NULLY);
-    assertThat(state.constrain(state.getSymbolicValue(symbol1), Truthiness.TRUTHY)).isNull();
+    state = state.newSymbolicValue(symbol1, Constraint.NULL_OR_UNDEFINED);
+    assertThat(state.constrain(state.getSymbolicValue(symbol1), Constraint.TRUTHY)).isNull();
 
     state = state.newSymbolicValue(symbol2, null);
-    state = state.constrain(state.getSymbolicValue(symbol2), Truthiness.TRUTHY);
-    assertThat(state.constrain(state.getSymbolicValue(symbol2), Nullability.NULL)).isNull();
+    state = state.constrain(state.getSymbolicValue(symbol2), Constraint.TRUTHY);
+    assertThat(state.constrain(state.getSymbolicValue(symbol2), Constraint.NULL)).isNull();
   }
 
   @Test
   public void test_equals() throws Exception {
     assertThat(state.newSymbolicValue(symbol1, Constraint.NULL)).isEqualTo(state.newSymbolicValue(symbol1, Constraint.NULL));
-    assertThat(state.newSymbolicValue(symbol1, Constraint.NULL)).isNotEqualTo(state.newSymbolicValue(symbol1, Constraint.NOT_UNDEFINED));
+    assertThat(state.newSymbolicValue(symbol1, Constraint.NULL)).isNotEqualTo(state.newSymbolicValue(symbol1, Constraint.UNDEFINED.not()));
     assertThat(state.newSymbolicValue(symbol1, Constraint.NULL)).isNotEqualTo(null);
     assertThat(state.newSymbolicValue(symbol1, Constraint.NULL)).isNotEqualTo("");
   }
