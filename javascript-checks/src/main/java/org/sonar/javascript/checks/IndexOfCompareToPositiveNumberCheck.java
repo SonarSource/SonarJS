@@ -31,7 +31,6 @@ import org.sonar.plugins.javascript.api.tree.expression.CallExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.DotMemberExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.LiteralTree;
-import org.sonar.plugins.javascript.api.visitors.LineIssue;
 import org.sonar.plugins.javascript.api.visitors.SubscriptionVisitorCheck;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
@@ -57,7 +56,7 @@ public class IndexOfCompareToPositiveNumberCheck extends SubscriptionVisitorChec
     BinaryExpressionTree expression = (BinaryExpressionTree) tree;
 
     if (isZero(expression.rightOperand()) && isIndexOfCall(expression.leftOperand())) {
-      addIssue(new LineIssue(this, tree, MESSAGE));
+      addIssue(tree, MESSAGE);
     }
 
   }
