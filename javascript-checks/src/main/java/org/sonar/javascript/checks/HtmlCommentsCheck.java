@@ -50,7 +50,7 @@ public class HtmlCommentsCheck extends SubscriptionVisitorCheck {
 
     for (SyntaxTrivia trivia : token.trivias()) {
       if (trivia.text().startsWith("<!--")) {
-        addLineIssue(trivia, MESSAGE);
+        addIssue(trivia, MESSAGE);
       }
     }
   }

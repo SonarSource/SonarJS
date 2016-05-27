@@ -28,16 +28,9 @@ public class CommentedCodeCheckTest {
 
   @Test
   public void test() {
-    String relativePath = "src/test/resources/checks/commentedCode.js";
     CommentedCodeCheck check = new CommentedCodeCheck();
     check.setCharset(Charsets.UTF_8);
-    JavaScriptCheckVerifier.issues(check, new File(relativePath))
-      .next().atLine(7).withMessage("Remove this commented out code.")
-      .next().atLine(26)
-      .next().atLine(42)
-      .next().atLine(43)
-      .next().atLine(44)
-      .noMore();
+    JavaScriptCheckVerifier.verify(check, new File("src/test/resources/checks/commentedCode.js"));
   }
 
 }

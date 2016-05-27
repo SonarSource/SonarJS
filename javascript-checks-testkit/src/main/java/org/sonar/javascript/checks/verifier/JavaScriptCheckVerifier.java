@@ -74,6 +74,7 @@ public class JavaScriptCheckVerifier extends SubscriptionVisitorCheck {
    * How to write these comments:
    * <ul>
    * <li>Put a comment starting with "Noncompliant" if you expect an issue on this line.</li>
+   * <li>If for some reason you can't put comment on a line with issue, put "@+N" just after "Noncompliant" for issue located  N lines after the one with comment </li>
    * <li>In double curly braces <code>{{MESSAGE}}</code> provide expected message.</li>
    * <li>In double brackets provide expected effort to fix (cost) with <code>effortToFix</code> keyword.</li>
    * <li>In double brackets provide precise location description with <code>sc, ec, el</code> keywords respectively for start column, end column and end line.</li>
@@ -162,8 +163,16 @@ public class JavaScriptCheckVerifier extends SubscriptionVisitorCheck {
       String marker = "Noncompliant";
 
       if (text.startsWith(marker)) {
-        TestIssue issue = issue(null, trivia.line());
+        int issueLine = trivia.line();
         String paramsAndMessage = text.substring(marker.length()).trim();
+
+        if (paramsAndMessage.startsWith("@+")) {
+          String[] spaceSplit = paramsAndMessage.split("[\\s\\[{]", 2);
+          issueLine += Integer.valueOf(spaceSplit[0].substring(2));
+          paramsAndMessage = spaceSplit.length > 1 ? spaceSplit[1] : "";
+        }
+
+        TestIssue issue = issue(null, issueLine);
 
         if (paramsAndMessage.startsWith("[[")) {
           int endIndex = paramsAndMessage.indexOf("]]");
