@@ -44,7 +44,7 @@ public class ParseIntCallWithoutBaseCheck extends DoubleDispatchVisitorCheck {
   @Override
   public void visitCallExpression(CallExpressionTree tree) {
     if (isParseIntCall(tree.callee()) && tree.arguments().parameters().size() == 1) {
-      addLineIssue(tree, MESSAGE);
+      addIssue(tree.callee(), MESSAGE);
     }
     super.visitCallExpression(tree);
   }

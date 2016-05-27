@@ -27,9 +27,7 @@ public class ParseIntCallWithoutBaseCheckTest {
 
   @Test
   public void test() {
-    JavaScriptCheckVerifier.issues(new ParseIntCallWithoutBaseCheck(), new File("src/test/resources/checks/parseIntCallWithoutBase.js"))
-      .next().atLine(1).withMessage("Add the base to this \"parseInt\" call.")
-      .noMore();
+    JavaScriptCheckVerifier.verify(new ParseIntCallWithoutBaseCheck(), new File("src/test/resources/checks/parseIntCallWithoutBase.js"));
   }
 
 }
