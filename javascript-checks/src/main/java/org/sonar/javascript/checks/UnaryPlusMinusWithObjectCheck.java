@@ -30,6 +30,7 @@ import org.sonar.plugins.javascript.api.symbols.Type;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.expression.UnaryExpressionTree;
+import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.javascript.api.visitors.SubscriptionVisitorCheck;
 import org.sonar.squidbridge.annotations.ActivatedByDefault;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
@@ -63,12 +64,13 @@ public class UnaryPlusMinusWithObjectCheck extends SubscriptionVisitorCheck {
 
   @Override
   public void visitNode(Tree tree) {
-    Type type = ((UnaryExpressionTree) tree).expression().types().getUniqueKnownType();
+    UnaryExpressionTree unaryExpression = (UnaryExpressionTree) tree;
+    Type type = unaryExpression.expression().types().getUniqueKnownType();
     if (type != null) {
       boolean isDateException = isDateException(tree, type);
       if (!isDateException && !ALLOWED_TYPES.contains(type.kind())) {
-        String operator = ((UnaryExpressionTree) tree).operator().text();
-        addLineIssue(tree, String.format(MESSAGE, operator));
+        SyntaxToken operator = unaryExpression.operator();
+        addIssue(operator, String.format(MESSAGE, operator.text()));
       }
     }
   }

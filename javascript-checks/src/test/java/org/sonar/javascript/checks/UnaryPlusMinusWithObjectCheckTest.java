@@ -27,13 +27,7 @@ public class UnaryPlusMinusWithObjectCheckTest {
 
   @Test
   public void test() {
-    JavaScriptCheckVerifier.issues(new UnaryPlusMinusWithObjectCheck(), new File("src/test/resources/checks/UnaryPlusMinusWithObject.js"))
-      .next().atLine(2).withMessage("Remove this use of unary \"+\".")
-      .next().atLine(3).withMessage("Remove this use of unary \"-\".")
-      .next().atLine(10)
-      .next().atLine(14)
-      .next().atLine(39)
-      .noMore();
+    JavaScriptCheckVerifier.verify(new UnaryPlusMinusWithObjectCheck(), new File("src/test/resources/checks/UnaryPlusMinusWithObject.js"));
   }
 
 }
