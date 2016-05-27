@@ -72,10 +72,10 @@ public class ConstraintTest {
   public void nullability() throws Exception {
     assertThat(ANY_VALUE.nullability()).isEqualTo(Nullability.UNKNOWN);
     assertThat(NULL.nullability()).isEqualTo(Nullability.NULL);
-    assertThat(UNDEFINED.nullability()).isEqualTo(Nullability.UNDEFINED);
-    assertThat(NULL_OR_UNDEFINED.nullability()).isEqualTo(Nullability.NULLY);
+    assertThat(UNDEFINED.nullability()).isEqualTo(Nullability.NULL);
+    assertThat(NULL_OR_UNDEFINED.nullability()).isEqualTo(Nullability.NULL);
     assertThat(FALSY.nullability()).isEqualTo(Nullability.UNKNOWN);
-    assertThat(TRUTHY.nullability()).isEqualTo(Nullability.NOT_NULLY);
+    assertThat(TRUTHY.nullability()).isEqualTo(Nullability.NOT_NULL);
   }
 
   @Test
@@ -90,9 +90,9 @@ public class ConstraintTest {
 
   @Test
   public void literals() throws Exception {
-    assertThat(constraint("42").nullability()).isEqualTo(Nullability.NOT_NULLY);
-    assertThat(constraint("'str'").nullability()).isEqualTo(Nullability.NOT_NULLY);
-    assertThat(constraint("0").nullability()).isEqualTo(Nullability.NOT_NULLY);
+    assertThat(constraint("42").nullability()).isEqualTo(Nullability.NOT_NULL);
+    assertThat(constraint("'str'").nullability()).isEqualTo(Nullability.NOT_NULL);
+    assertThat(constraint("0").nullability()).isEqualTo(Nullability.NOT_NULL);
 
     assertThat(constraint("'ab'")).isEqualTo(TRUTHY);
     assertThat(constraint("true")).isEqualTo(TRUTHY);

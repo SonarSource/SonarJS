@@ -82,26 +82,12 @@ public enum Constraint {
   }
 
   public Nullability nullability() {
-    Nullability nullability;
-    switch (bitSet) {
-      case 0b0001:
-        nullability = Nullability.NULL;
-        break;
-      case 0b0010:
-        nullability = Nullability.UNDEFINED;
-        break;
-      case 0b0011:
-        nullability = Nullability.NULLY;
-        break;
-      case 0b0100:
-      case 0b1000:
-      case 0b1100:
-        nullability = Nullability.NOT_NULLY;
-        break;
-      default:
-        nullability = Nullability.UNKNOWN;
+    if (this.and(NULL_OR_UNDEFINED).equals(this)) {
+      return Nullability.NULL;
+    } else if (this.and(Constraint.NOT_NULLY).equals(this)) {
+      return Nullability.NOT_NULL;
     }
-    return nullability;
+    return Nullability.UNKNOWN;
   }
 
   @Nullable

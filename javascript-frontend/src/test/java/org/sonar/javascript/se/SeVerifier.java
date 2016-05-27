@@ -46,13 +46,13 @@ class SeVerifier extends SeCheck {
 
   private static Map<String, Constraint> SYMBOLIC_VALUE_KEYS = ImmutableMap.<String, Constraint>builder()
     .put("NULLY", Constraint.NULL_OR_UNDEFINED)
-    .put("NOT_NULLY", Constraint.NULL_OR_UNDEFINED.not())
-    .put("NOT_NULL", Constraint.NULL.not())
+    .put("NOT_NULLY", Constraint.NOT_NULLY)
+    .put("NOT_NULL", Constraint.NOT_NULL)
     .put("TRUTHY", Constraint.TRUTHY)
     .put("FALSY", Constraint.FALSY_NOT_NULLY)
     .put("NULL", Constraint.NULL)
     .put("UNDEFINED", Constraint.UNDEFINED)
-    .put("NOT_UNDEFINED", Constraint.UNDEFINED.not())
+    .put("NOT_UNDEFINED", Constraint.NOT_UNDEFINED)
     .put("TRUTHY_OR_NULL", Constraint.TRUTHY_OR_NULL)
     .build();
 

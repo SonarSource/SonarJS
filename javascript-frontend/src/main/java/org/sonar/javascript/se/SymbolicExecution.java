@@ -172,7 +172,7 @@ public class SymbolicExecution {
           Nullability nullability = currentState.getNullability(symbolicValue);
           if (nullability == Nullability.UNKNOWN) {
             currentState = currentState.constrain(symbolicValue, Constraint.NULL_OR_UNDEFINED.not());
-          } else if (nullability.isNullOrUndefined()) {
+          } else if (nullability == Nullability.NULL) {
             stopExploring = true;
             break;
           }
@@ -240,7 +240,7 @@ public class SymbolicExecution {
         currentState = storeConstraint(currentState, variable, null);
 
         Symbol symbol = trackedVariable(forTree.expression());
-        if (currentState.getNullability(currentState.getSymbolicValue(symbol)).isNullOrUndefined()) {
+        if (currentState.getNullability(currentState.getSymbolicValue(symbol)) == Nullability.NULL) {
           pushSuccessor(branchingBlock.falseSuccessor(), currentState);
           return;
         }
@@ -362,9 +362,9 @@ public class SymbolicExecution {
         Truthiness truthinessIfVariableNull = lastElement.is(Kind.EQUAL_TO) ? Truthiness.TRUTHY : Truthiness.FALSY;
         Truthiness conditionTruthiness = Truthiness.UNKNOWN;
 
-        if (currentNullability.isNullOrUndefined()) {
+        if (currentNullability == Nullability.NULL) {
           conditionTruthiness = truthinessIfVariableNull;
-        } else if (currentNullability.isNeitherNullNorUndefined()) {
+        } else if (currentNullability == Nullability.NOT_NULL) {
           conditionTruthiness = truthinessIfVariableNull.not();
         }
 
@@ -411,13 +411,13 @@ public class SymbolicExecution {
       SymbolicValue conditionVariableSymbolicValue = currentState.getSymbolicValue(trackedOperand((BinaryExpressionTree) lastElement));
 
       if (conditionVariableSymbolicValue != null) {
-        Nullability currentNullability = currentState.getNullability(conditionVariableSymbolicValue);
+        Constraint currentConstraint = currentState.getConstraint(conditionVariableSymbolicValue);
         Truthiness truthinessIfVariableNull = lastElement.is(Kind.STRICT_EQUAL_TO) ? Truthiness.TRUTHY : Truthiness.FALSY;
         Truthiness conditionTruthiness = Truthiness.UNKNOWN;
 
-        if (currentNullability.equals(constraint.nullability())) {
+        if (currentConstraint.and(constraint).equals(currentConstraint)) {
           conditionTruthiness = truthinessIfVariableNull;
-        } else if (currentNullability.canNotBeEqual(constraint.nullability())) {
+        } else if (currentConstraint.and(constraint).equals(Constraint.NO_POSSIBLE_VALUE)) {
           conditionTruthiness = truthinessIfVariableNull.not();
         }
 
@@ -492,8 +492,8 @@ public class SymbolicExecution {
   private static boolean isNullyComparison(Tree lastElement) {
     if (lastElement.is(Kind.NOT_EQUAL_TO, Kind.EQUAL_TO)) {
       BinaryExpressionTree comparison = (BinaryExpressionTree) lastElement;
-      return (Constraint.get(comparison.leftOperand()) != null && Constraint.get(comparison.leftOperand()).nullability().isNullOrUndefined())
-        || (Constraint.get(comparison.rightOperand()) != null && Constraint.get(comparison.rightOperand()).nullability().isNullOrUndefined());
+      return (Constraint.get(comparison.leftOperand()) != null && Constraint.get(comparison.leftOperand()).nullability() == Nullability.NULL)
+        || (Constraint.get(comparison.rightOperand()) != null && Constraint.get(comparison.rightOperand()).nullability() == Nullability.NULL);
     }
     return false;
   }
