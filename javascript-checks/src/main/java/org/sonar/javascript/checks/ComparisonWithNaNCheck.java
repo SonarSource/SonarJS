@@ -21,6 +21,7 @@ package org.sonar.javascript.checks;
 
 import com.google.common.collect.ImmutableList;
 import java.util.List;
+import javax.annotation.Nullable;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
@@ -57,15 +58,28 @@ public class ComparisonWithNaNCheck extends SubscriptionVisitorCheck {
 
   @Override
   public void visitNode(Tree tree) {
-    BinaryExpressionTree equalityExpr = (BinaryExpressionTree) tree;
+    BinaryExpressionTree expression = (BinaryExpressionTree) tree;
+    ExpressionTree nan = getNaN(expression);
 
-    if (isNaN(equalityExpr.leftOperand()) || isNaN(equalityExpr.rightOperand())) {
-      addLineIssue(tree, String.format(MESSAGE, equalityExpr.operator().text()));
+    if (nan != null) {
+      addIssue(nan, String.format(MESSAGE, expression.operator().text()))
+        .secondary(expression.operator());
     }
   }
 
   private static boolean isNaN(ExpressionTree expression) {
     return expression.is(Kind.IDENTIFIER_REFERENCE) && "NaN".equals(((IdentifierTree) expression).name());
+  }
+
+  @Nullable
+  private static ExpressionTree getNaN(BinaryExpressionTree expression) {
+    if (isNaN(expression.leftOperand())) {
+      return expression.leftOperand();
+    } else if (isNaN(expression.rightOperand())) {
+      return expression.rightOperand();
+    }
+
+    return null;
   }
 
 }
