@@ -1,11 +1,12 @@
 var arr = ['a', 'b', 'c', 'd'];
 var i = 1;
-delete arr[1]; // NOK
-delete arr[i]; // NOK
+  delete arr[1]; // Noncompliant {{Remove this use of "delete".}}
+//^^^^^^
+delete arr[i]; // Noncompliant
 delete arr // OK
 
 if (condition) {
-  delete arr[1] // NOK
+  delete arr[1] // Noncompliant
 }
 
 function foo(arr) {
