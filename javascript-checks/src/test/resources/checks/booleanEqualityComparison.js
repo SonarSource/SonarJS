@@ -1,6 +1,7 @@
 !true;            // Noncompliant {{Remove the literal "true" boolean value.}}
 !false;           // Noncompliant
 a == false;       // Noncompliant {{Remove the literal "false" boolean value.}}
+//   ^^^^^
 a == true;        // Noncompliant
 a === false;      // OK
 a === true;       // OK

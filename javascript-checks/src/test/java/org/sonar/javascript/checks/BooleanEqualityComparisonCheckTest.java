@@ -25,10 +25,8 @@ import org.sonar.javascript.checks.verifier.JavaScriptCheckVerifier;
 
 public class BooleanEqualityComparisonCheckTest {
 
-  private BooleanEqualityComparisonCheck check = new BooleanEqualityComparisonCheck();
-
   @Test
   public void test() {
-    JavaScriptCheckVerifier.verify(check, new File("src/test/resources/checks/booleanEqualityComparison.js"));
+    JavaScriptCheckVerifier.verify(new BooleanEqualityComparisonCheck(), new File("src/test/resources/checks/booleanEqualityComparison.js"));
   }
 }

@@ -72,7 +72,7 @@ public class BooleanEqualityComparisonCheck extends DoubleDispatchVisitorCheck {
 
     if (expression.is(Kind.BOOLEAN_LITERAL)) {
       String message = String.format(MESSAGE, ((LiteralTree) expression).value());
-      addLineIssue(expression, message);
+      addIssue(expression, message);
     }
   }
 
