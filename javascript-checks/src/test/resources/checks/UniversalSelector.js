@@ -1,13 +1,14 @@
-$("#id *");  // NOK
+$("#id *");  // Noncompliant {{Remove the use of this universal selector.}}
 
-$("#id  > * ");  // NOK
+$("#id  > * ");  // Noncompliant
 
-$("#id>*");  // NOK
+$("#id>*");  // Noncompliant
 
-var x = $("div#id .className > *") // NOK
+var x = $("div#id .className > *") // Noncompliant
+//      ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 var $productIds = $("#products *:radio"); // OK
 
 $productIds = $("*"); // OK
 
-$("#id  > * ").length();  // NOK
+$("#id  > * ").length();  // Noncompliant

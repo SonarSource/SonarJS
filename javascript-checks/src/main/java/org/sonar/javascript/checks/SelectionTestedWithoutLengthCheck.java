@@ -44,7 +44,7 @@ public class SelectionTestedWithoutLengthCheck extends DoubleDispatchVisitorChec
   public void visitIfStatement(IfStatementTree tree) {
     ExpressionTree condition = tree.condition();
     if (condition.types().containsOnly(Type.Kind.JQUERY_SELECTOR_OBJECT)) {
-      addLineIssue(condition, MESSAGE);
+      addIssue(condition, MESSAGE);
     }
     super.visitIfStatement(tree);
   }

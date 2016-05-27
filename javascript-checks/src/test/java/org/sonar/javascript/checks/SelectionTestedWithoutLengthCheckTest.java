@@ -25,15 +25,8 @@ import org.sonar.javascript.checks.verifier.JavaScriptCheckVerifier;
 
 public class SelectionTestedWithoutLengthCheckTest {
 
-  private SelectionTestedWithoutLengthCheck check = new SelectionTestedWithoutLengthCheck();
-
   @Test
   public void test() {
-    JavaScriptCheckVerifier.issues(check, new File("src/test/resources/checks/SelectionTestedWithoutLength.js"))
-      .next().atLine(1)
-      .next().atLine(13)
-      .next().atLine(17)
-      .noMore();
-
+    JavaScriptCheckVerifier.verify(new SelectionTestedWithoutLengthCheck(), new File("src/test/resources/checks/SelectionTestedWithoutLength.js"));
   }
 }

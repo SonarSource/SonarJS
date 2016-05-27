@@ -20,21 +20,14 @@
 package org.sonar.javascript.checks;
 
 import java.io.File;
-import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.javascript.checks.verifier.JavaScriptCheckVerifier;
-import org.sonar.squidbridge.checks.CheckMessagesVerifierRule;
 
 public class ModelDefaultsWithArrayOrObjectCheckTest {
 
-  @Rule
-  public CheckMessagesVerifierRule checkMessagesVerifier = new CheckMessagesVerifierRule();
-
   @Test
   public void test() {
-    JavaScriptCheckVerifier.issues(new ModelDefaultsWithArrayOrObjectCheck(), new File("src/test/resources/checks/modelDefaultsWithArrayOrObject.js"))
-      .next().atLine(2).withMessage("Make \"defaults\" a function.")
-      .next().atLine(9);
+    JavaScriptCheckVerifier.verify(new ModelDefaultsWithArrayOrObjectCheck(), new File("src/test/resources/checks/modelDefaultsWithArrayOrObject.js"));
   }
 
 }

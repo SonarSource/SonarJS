@@ -103,7 +103,7 @@ public class SpaceInModelPropertyNameCheck extends DoubleDispatchVisitorCheck {
 
   private void checkString(ExpressionTree key) {
     if (key.is(Kind.STRING_LITERAL) && StringUtils.contains(((LiteralTree) key).value(), ' ')) {
-      addLineIssue(key, MESSAGE);
+      addIssue(key, MESSAGE);
     }
   }
 

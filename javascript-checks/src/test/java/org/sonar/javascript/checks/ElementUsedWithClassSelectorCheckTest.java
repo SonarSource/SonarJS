@@ -25,14 +25,8 @@ import org.sonar.javascript.checks.verifier.JavaScriptCheckVerifier;
 
 public class ElementUsedWithClassSelectorCheckTest {
 
-  private ElementUsedWithClassSelectorCheck check = new ElementUsedWithClassSelectorCheck();
-
   @Test
   public void test() {
-    JavaScriptCheckVerifier.issues(check, new File("src/test/resources/checks/ElementUsedWithClassSelector.js"))
-      .next().atLine(1).withMessage("Remove \"div\" in this selector.")
-      .next().atLine(11).withMessage("Remove \"p\" in this selector.")
-      .noMore();
-
+    JavaScriptCheckVerifier.verify(new ElementUsedWithClassSelectorCheck(), new File("src/test/resources/checks/ElementUsedWithClassSelector.js"));
   }
 }

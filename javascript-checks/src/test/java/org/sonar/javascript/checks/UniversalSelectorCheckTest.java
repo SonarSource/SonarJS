@@ -25,17 +25,8 @@ import org.sonar.javascript.checks.verifier.JavaScriptCheckVerifier;
 
 public class UniversalSelectorCheckTest {
 
-  private UniversalSelectorCheck check = new UniversalSelectorCheck();
-
   @Test
   public void test() {
-    JavaScriptCheckVerifier.issues(check, new File("src/test/resources/checks/UniversalSelector.js"))
-      .next().atLine(1)
-      .next().atLine(3)
-      .next().atLine(5)
-      .next().atLine(7)
-      .next().atLine(13)
-      .noMore();
-
+    JavaScriptCheckVerifier.verify(new UniversalSelectorCheck(), new File("src/test/resources/checks/UniversalSelector.js"));
   }
 }

@@ -100,7 +100,7 @@ public class DeprecatedJQueryAPICheck extends DoubleDispatchVisitorCheck {
       IdentifierTree property = ((DotMemberExpressionTree) expressionTree).property();
 
       if (object.types().contains(ObjectType.FrameworkType.JQUERY_OBJECT) && propertyIsDeprecated(property, deprecated)) {
-        addLineIssue(property, String.format(MESSAGE, property.name() + parentheses));
+        addIssue(property, String.format(MESSAGE, property.name() + parentheses));
       }
 
     }
@@ -113,7 +113,7 @@ public class DeprecatedJQueryAPICheck extends DoubleDispatchVisitorCheck {
       IdentifierTree property = ((DotMemberExpressionTree) expressionTree).property();
 
       if (object.types().contains(ObjectType.FrameworkType.JQUERY_SELECTOR_OBJECT) && propertyIsDeprecated(property, deprecated)) {
-        addLineIssue(property, String.format(MESSAGE, property.name() + parentheses));
+        addIssue(property, String.format(MESSAGE, property.name() + parentheses));
       }
 
     }

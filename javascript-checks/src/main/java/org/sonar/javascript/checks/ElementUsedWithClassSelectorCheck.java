@@ -45,7 +45,7 @@ public class ElementUsedWithClassSelectorCheck extends AbstractJQuerySelectorOpt
     Matcher matcher = elementUsedWithClassSelectorPattern.matcher(selector);
     // ignore 2 parameters to not consider such cases: $("div.className", someContext)
     if (tree.arguments().parameters().size() == 1 && matcher.matches()) {
-      addLineIssue(tree, String.format(MESSAGE, matcher.group(1)));
+      addIssue(tree, String.format(MESSAGE, matcher.group(1)));
     }
   }
 }

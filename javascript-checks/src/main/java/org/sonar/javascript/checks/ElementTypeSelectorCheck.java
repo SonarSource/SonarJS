@@ -44,7 +44,7 @@ public class ElementTypeSelectorCheck extends AbstractJQuerySelectorOptimization
   protected void visitSelector(String selector, CallExpressionTree tree) {
     Matcher matcher = elementUsedWithClassSelectorPattern.matcher(selector);
     if (matcher.find()) {
-      addLineIssue(tree, String.format(MESSAGE, matcher.group(1), matcher.group(1)));
+      addIssue(tree, String.format(MESSAGE, matcher.group(1), matcher.group(1)));
     }
   }
 }
