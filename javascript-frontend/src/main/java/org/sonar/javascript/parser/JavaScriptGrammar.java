@@ -1628,8 +1628,10 @@ public class JavaScriptGrammar {
   public JsxElementNameTree JSX_ELEMENT_NAME() {
     return b.<JsxElementNameTree>nonterminal()
       .is(b.firstOf(
+        JSX_MEMBER_EXPRESSION(),
         f.jsxHtmlTag(b.token(JavaScriptLegacyGrammar.JSX_HTML_TAG)),
-        JSX_MEMBER_EXPRESSION()
+        THIS(),
+        IDENTIFIER_REFERENCE()
       ));
   }
 
@@ -1637,7 +1639,7 @@ public class JavaScriptGrammar {
     return b.<ExpressionTree>nonterminal()
       .is(f.jsxMemberExpression(
         b.firstOf(THIS(), IDENTIFIER_REFERENCE()),
-        b.zeroOrMore(f.newTuple57(b.token(JavaScriptPunctuator.DOT), IDENTIFIER_REFERENCE()))));
+        b.oneOrMore(f.newTuple57(b.token(JavaScriptPunctuator.DOT), IDENTIFIER_REFERENCE()))));
   }
 
   public JsxIdentifierTree JSX_IDENTIFIER() {

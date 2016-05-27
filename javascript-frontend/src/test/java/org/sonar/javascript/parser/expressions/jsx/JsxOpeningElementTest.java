@@ -33,7 +33,6 @@ public class JsxOpeningElementTest {
       .matches("<foo attr1='value1' attr2={value2}>")
       .matches("<Foo.bar>")
 
-      .notMatches("<foo.bar>")
       .notMatches("<foo/>")
       .notMatches("</foo>");
   }

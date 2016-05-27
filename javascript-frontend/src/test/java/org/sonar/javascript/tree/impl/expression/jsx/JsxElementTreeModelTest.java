@@ -96,5 +96,22 @@ public class JsxElementTreeModelTest extends JavaScriptTreeModelTest {
     assertThat(expressionToString(tree.children().get(2))).isEqualTo("!");
   }
 
+  @Test
+  public void element_name() throws Exception {
+    JsxSelfClosingElementTree tree = parse("<foo/>", Kind.JSX_SELF_CLOSING_ELEMENT);
+    assertThat(tree.elementName().is(Kind.JSX_IDENTIFIER)).isTrue();
 
+    tree = parse("<Foo/>", Kind.JSX_SELF_CLOSING_ELEMENT);
+    assertThat(tree.elementName().is(Kind.IDENTIFIER_REFERENCE)).isTrue();
+
+    tree = parse("<this/>", Kind.JSX_SELF_CLOSING_ELEMENT);
+    assertThat(tree.elementName().is(Kind.THIS)).isTrue();
+
+    tree = parse("<foo.bar />", Kind.JSX_SELF_CLOSING_ELEMENT);
+    assertThat(tree.elementName().is(Kind.DOT_MEMBER_EXPRESSION)).isTrue();
+
+    tree = parse("<Foo.bar />", Kind.JSX_SELF_CLOSING_ELEMENT);
+    assertThat(tree.elementName().is(Kind.DOT_MEMBER_EXPRESSION)).isTrue();
+
+  }
 }

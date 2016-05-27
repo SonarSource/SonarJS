@@ -1630,20 +1630,15 @@ public class TreeFactory {
     return new JsxIdentifierTreeImpl(htmlTagToken);
   }
 
-  public ExpressionTree jsxMemberExpression(IdentifierTree identifierTree, Optional<List<Tuple<InternalSyntaxToken, IdentifierTreeImpl>>> rest) {
-    if (rest.isPresent()) {
-      ExpressionTree currentObject = identifierTree;
-      for (Tuple<InternalSyntaxToken, IdentifierTreeImpl> tuple : rest.get()) {
-        DotMemberExpressionTreeImpl newMemberExpression = new DotMemberExpressionTreeImpl(tuple.first, tuple.second);
-        newMemberExpression.complete(currentObject);
-        currentObject = newMemberExpression;
-      }
-
-      return currentObject;
-
-    } else {
-      return identifierTree;
+  public ExpressionTree jsxMemberExpression(IdentifierTree identifierTree, List<Tuple<InternalSyntaxToken, IdentifierTreeImpl>> rest) {
+    ExpressionTree currentObject = identifierTree;
+    for (Tuple<InternalSyntaxToken, IdentifierTreeImpl> tuple : rest) {
+      DotMemberExpressionTreeImpl newMemberExpression = new DotMemberExpressionTreeImpl(tuple.first, tuple.second);
+      newMemberExpression.complete(currentObject);
+      currentObject = newMemberExpression;
     }
+
+    return currentObject;
   }
 
   public static class Tuple<T, U> {
