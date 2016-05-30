@@ -92,18 +92,20 @@ public class ForLoopIncrementSignCheck extends DoubleDispatchVisitorCheck {
     }
   }
 
-  private void addIssue(Tree tree, ForLoopIncrement loopIncrement, String adjective) {
-    String identifier = loopIncrement.identifier.name();
-    String message = String.format(MESSAGE, identifier, adjective);
-    addLineIssue(tree, message);
+  private void addIssue(Tree condition, ForLoopIncrement loopIncrement, String adjective) {
+    String message = String.format(MESSAGE, loopIncrement.identifier.name(), adjective);
+    addIssue(loopIncrement.incrementTree, message)
+      .secondary(condition);
   }
 
   private static class ForLoopIncrement {
 
     private final IdentifierTree identifier;
     private final Double value;
+    private final ExpressionTree incrementTree;
 
-    public ForLoopIncrement(IdentifierTree identifier, @Nullable Double value) {
+    public ForLoopIncrement(ExpressionTree incrementTree, IdentifierTree identifier, @Nullable Double value) {
+      this.incrementTree = incrementTree;
       this.identifier = identifier;
       this.value = value;
     }
@@ -128,16 +130,16 @@ public class ForLoopIncrementSignCheck extends DoubleDispatchVisitorCheck {
       if (expression != null) {
         if (expression.is(Tree.Kind.POSTFIX_INCREMENT, Tree.Kind.PREFIX_INCREMENT)) {
           UnaryExpressionTree unaryExp = (UnaryExpressionTree) expression;
-          result = increment(unaryExp.expression(), 1.);
+          result = increment(expression, unaryExp.expression(), 1.);
         } else if (expression.is(Tree.Kind.POSTFIX_DECREMENT, Tree.Kind.PREFIX_DECREMENT)) {
           UnaryExpressionTree unaryExp = (UnaryExpressionTree) expression;
-          result = increment(unaryExp.expression(), -1.);
+          result = increment(expression, unaryExp.expression(), -1.);
         } else if (expression.is(Tree.Kind.PLUS_ASSIGNMENT)) {
           AssignmentExpressionTree assignmentExp = (AssignmentExpressionTree) expression;
-          result = increment(assignmentExp.variable(), numericValue(assignmentExp.expression()));
+          result = increment(expression, assignmentExp.variable(), numericValue(assignmentExp.expression()));
         } else if (expression.is(Tree.Kind.MINUS_ASSIGNMENT)) {
           AssignmentExpressionTree assignmentExp = (AssignmentExpressionTree) expression;
-          result = increment(assignmentExp.variable(), minus(numericValue(assignmentExp.expression())));
+          result = increment(expression, assignmentExp.variable(), minus(numericValue(assignmentExp.expression())));
         } else if (expression.is(Tree.Kind.ASSIGNMENT)) {
           AssignmentExpressionTree assignment = (AssignmentExpressionTree) expression;
           result = assignmentIncrement(assignment);
@@ -147,9 +149,9 @@ public class ForLoopIncrementSignCheck extends DoubleDispatchVisitorCheck {
     }
 
     @CheckForNull
-    private static ForLoopIncrement increment(ExpressionTree expression, Double value) {
+    private static ForLoopIncrement increment(ExpressionTree incrementTree, ExpressionTree expression, Double value) {
       if (expression.is(Tree.Kind.IDENTIFIER_REFERENCE)) {
-        return new ForLoopIncrement((IdentifierTree) expression, value);
+        return new ForLoopIncrement(incrementTree, (IdentifierTree) expression, value);
       }
       return null;
     }
@@ -162,9 +164,9 @@ public class ForLoopIncrementSignCheck extends DoubleDispatchVisitorCheck {
         Double increment = numericValue(binaryExp.rightOperand());
         if (increment != null && SyntacticEquivalence.areEquivalent(variable, binaryExp.leftOperand())) {
           increment = expression.is(Tree.Kind.MINUS) ? minus(increment) : increment;
-          return increment(variable, increment);
+          return increment(assignmentExpression, variable, increment);
         }
-        return new ForLoopIncrement((IdentifierTree) variable, null);
+        return new ForLoopIncrement(assignmentExpression, (IdentifierTree) variable, null);
       }
       return null;
     }
