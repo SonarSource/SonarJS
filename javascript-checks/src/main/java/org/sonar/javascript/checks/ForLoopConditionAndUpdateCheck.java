@@ -67,7 +67,7 @@ public class ForLoopConditionAndUpdateCheck extends DoubleDispatchVisitorCheck {
         String updated = expressionList(updatedExpressions);
         String tested = expressionList(conditionVisitor.testedExpressions);
         String message = String.format(MESSAGE, tested, updated);
-        addLineIssue(forStatement, message);
+        addIssue(forStatement.forKeyword(), message);
       }
     }
     super.visitForStatement(forStatement);

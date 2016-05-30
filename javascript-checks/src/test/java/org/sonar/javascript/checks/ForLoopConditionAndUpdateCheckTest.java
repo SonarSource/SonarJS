@@ -20,26 +20,14 @@
 package org.sonar.javascript.checks;
 
 import java.io.File;
-import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.javascript.checks.verifier.JavaScriptCheckVerifier;
-import org.sonar.squidbridge.checks.CheckMessagesVerifierRule;
 
 public class ForLoopConditionAndUpdateCheckTest {
 
-  @Rule
-  public CheckMessagesVerifierRule checkMessagesVerifier = new CheckMessagesVerifierRule();
-
   @Test
   public void test() {
-    JavaScriptCheckVerifier.issues(new ForLoopConditionAndUpdateCheck(), new File("src/test/resources/checks/forLoopConditionAndUpdate.js"))
-      .next().atLine(3).withMessage("This loop's stop condition tests \"i\" but the incrementer updates \"j\".")
-      .next().atLine(5).withMessage("This loop's stop condition tests \"i\" but the incrementer updates \"j\".")
-      .next().atLine(7).withMessage("This loop's stop condition tests \"i, j\" but the incrementer updates \"k\".")
-      .next().atLine(10).withMessage("This loop's stop condition tests \"condition\" but the incrementer updates \"i\".")
-      .next().atLine(13).withMessage("This loop's stop condition tests \"x\" but the incrementer updates \"z\".")
-      .next().atLine(15).withMessage("This loop's stop condition tests \"this.i\" but the incrementer updates \"this.j\".")
-      .next().atLine(16).withMessage("This loop's stop condition tests \"i\" but the incrementer updates \"j\".");
+    JavaScriptCheckVerifier.verify(new ForLoopConditionAndUpdateCheck(), new File("src/test/resources/checks/forLoopConditionAndUpdate.js"));
   }
 
 }
