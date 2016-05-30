@@ -1,11 +1,13 @@
 function sayHello() {
   var a = typeof (37); // Noncompliant {{Remove useless parentheses around "37".}}
+//               ^^^^
   var b = typeof 38;
 
   var c = {};
   c.a = a;
   c.b = b;
   delete (a);  // Noncompliant {{Remove useless parentheses around "a".}}
+//       ^^^
   delete b;
 
   void 0;
