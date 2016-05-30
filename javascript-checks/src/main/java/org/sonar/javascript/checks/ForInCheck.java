@@ -57,7 +57,7 @@ public class ForInCheck extends DoubleDispatchVisitorCheck {
       }
 
       if (statementNode != null && !statementNode.is(Kind.IF_STATEMENT) && !isAttrCopy(statementNode)) {
-        addLineIssue(tree, MESSAGE);
+        addIssue(tree.forKeyword(), MESSAGE);
       }
     }
 

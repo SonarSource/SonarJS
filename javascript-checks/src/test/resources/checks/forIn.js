@@ -1,4 +1,5 @@
-for (key in arr) { // Noncompliant {{Restrict what this loop acts on by testing each property.}}
+  for (key in arr) { // Noncompliant {{Restrict what this loop acts on by testing each property.}}
+//^^^
   print(arr[key]);
   print(arr[key]);
 }
