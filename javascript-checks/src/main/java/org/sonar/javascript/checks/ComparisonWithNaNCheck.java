@@ -21,7 +21,7 @@ package org.sonar.javascript.checks;
 
 import com.google.common.collect.ImmutableList;
 import java.util.List;
-import javax.annotation.Nullable;
+import javax.annotation.CheckForNull;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
@@ -71,7 +71,7 @@ public class ComparisonWithNaNCheck extends SubscriptionVisitorCheck {
     return expression.is(Kind.IDENTIFIER_REFERENCE) && "NaN".equals(((IdentifierTree) expression).name());
   }
 
-  @Nullable
+  @CheckForNull
   private static ExpressionTree getNaN(BinaryExpressionTree expression) {
     if (isNaN(expression.leftOperand())) {
       return expression.leftOperand();
