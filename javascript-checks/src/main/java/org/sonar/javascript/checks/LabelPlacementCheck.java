@@ -52,7 +52,7 @@ public class LabelPlacementCheck extends DoubleDispatchVisitorCheck {
   @Override
   public void visitLabelledStatement(LabelledStatementTree tree) {
     if (!tree.statement().is(ITERATION_STATEMENTS)) {
-      addLineIssue(tree, String.format(MESSAGE, tree.label().name()));
+      addIssue(tree.label(), String.format(MESSAGE, tree.label().name()));
     }
 
     super.visitLabelledStatement(tree);

@@ -1,6 +1,7 @@
 var i = 12;
 
-label: // NOK
+  label: // Noncompliant {{Remove this "label" label.}}
+//^^^^^
 if (i % 2 == 0) {
   if (i == 12) {
     print("12");

@@ -27,9 +27,7 @@ public class LabelPlacementCheckTest {
 
   @Test
   public void test() {
-    JavaScriptCheckVerifier.issues(new LabelPlacementCheck(), new File("src/test/resources/checks/labelPlacement.js"))
-      .next().atLine(3).withMessage("Remove this \"label\" label.")
-      .noMore();
+    JavaScriptCheckVerifier.verify(new LabelPlacementCheck(), new File("src/test/resources/checks/labelPlacement.js"));
   }
 
 }
