@@ -1,7 +1,8 @@
-for(;condition;) {                // NOK
+  for(;condition;) {                // Noncompliant {{Replace this "for" loop with a "while" loop}}
+//^^^
 }
 
-for(;;) {                         // NOK
+for(;;) {                         // Noncompliant
 }
 
 for(var i = 0; condition;) {      // OK

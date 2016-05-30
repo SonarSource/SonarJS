@@ -27,10 +27,7 @@ public class ForHidingWhileCheckTest {
 
   @Test
   public void test() {
-    JavaScriptCheckVerifier.issues(new ForHidingWhileCheck(), new File("src/test/resources/checks/forHidingWhile.js"))
-      .next().atLine(1)
-      .next().atLine(4)
-      .noMore();
+    JavaScriptCheckVerifier.verify(new ForHidingWhileCheck(), new File("src/test/resources/checks/forHidingWhile.js"));
   }
 
 }
