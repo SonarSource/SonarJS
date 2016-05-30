@@ -28,30 +28,7 @@ public class SemicolonCheckTest {
   @Test
   public void test() {
     SemicolonCheck check = new SemicolonCheck();
-
-    JavaScriptCheckVerifier.issues(check, new File("src/test/resources/checks/semicolon.js"))
-      .next().atLine(2).withMessage("Add a semicolon at the end of this statement.")
-      .next().atLine(7)
-      .next().atLine(22)
-      .next().atLine(24)
-      .next().atLine(28)
-      .next().atLine(32)
-      .next().atLine(34)
-      .next().atLine(37)
-      .next().atLine(43)
-      .next().atLine(44)
-      .next().atLine(45)
-      .next().atLine(46)
-      .next().atLine(47)
-      .next().atLine(48)
-      .next().atLine(49)
-      .next().atLine(50)
-      .next().atLine(51)
-      .next().atLine(64)
-      .next().atLine(65)
-      .next().atLine(67)
-      .next().atLine(69)
-      .noMore();
+    JavaScriptCheckVerifier.verify(check, new File("src/test/resources/checks/semicolon.js"));
   }
 
 }
