@@ -1,7 +1,8 @@
 var a = 0;                // OK
 
 function fun() {
-  var a = 0;              // NOK
+  var a = 0;              // Noncompliant {{Remove the declaration of the unused 'a' variable.}}
+//    ^
   var b = 1;              // OK
   return b;
 }
@@ -14,38 +15,38 @@ function fun() {
 }
 
 function fun() {
-  var a = 0;              // NOK
+  var a = 0;              // Noncompliant
   function nested(a) {
     a =  1;
   }
 }
 
 function fun() {
-    let a = 0;              // NOK
-    const b = 1;            // OK
-    let c                   // NOK
+    let a = 0;              // Noncompliant
+    const b = 1;            // Noncompliant
+    let c                   // OK
     return c;
 }
 
 function* fun() {
-    var a = 0;              // NOK
+    var a = 0;              // Noncompliant
     var b = 1;              // OK
     return b;
 }
 
 class C {
     f() {
-        var a;              // NOK
+        var a;              // Noncompliant
     }
 }
 
 var f = (p) => {
-    var x;                  // NOK
-    var y = p.y;            // NOK
+    var x;                  // Noncompliant
+    var y = p.y;            // Noncompliant
 }
 
 var f = p => {
-  var x;                    // NOK
+  var x;                    // Noncompliant
 }
 
 try {
@@ -59,6 +60,6 @@ foo(y1)
 }
 
 function foo(){
-  var x = 1;               // NOK
-  var x = 2;              // NOK
+  var x = 1;               // Noncompliant
+  var x = 2;              // Noncompliant
 }
