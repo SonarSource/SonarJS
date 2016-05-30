@@ -29,10 +29,7 @@ public class IfConditionalAlwaysTrueOrFalseCheckTest {
 
   @Test
   public void test() {
-    JavaScriptCheckVerifier.issues(check, new File("src/test/resources/checks/ifConditionalAlwaysTrueOrFalse.js"))
-      .next().atLine(9)
-      .next().atLine(13)
-      .noMore();
+    JavaScriptCheckVerifier.verify(check, new File("src/test/resources/checks/ifConditionalAlwaysTrueOrFalse.js"));
   }
 
 }
