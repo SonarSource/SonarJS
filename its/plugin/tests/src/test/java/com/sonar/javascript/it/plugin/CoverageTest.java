@@ -136,10 +136,8 @@ public class CoverageTest {
     assertThat(getProjectMeasure("uncovered_lines").getValue()).isEqualTo(10);
     assertThat(getProjectMeasure("it_lines_to_cover").getValue()).isEqualTo(10);
     assertThat(getProjectMeasure("it_uncovered_lines").getValue()).isEqualTo(10);
-    if (Tests.is_strictly_after_plugin("2.4")) {
-      assertThat(getFileMeasure("coverage_line_hits_data").getData()).startsWith("1=0;2=0;3=0;5=0");
-      assertThat(getFileMeasure("it_coverage_line_hits_data").getData()).startsWith("1=0;2=0;3=0;5=0");
-    }
+    assertThat(getFileMeasure("coverage_line_hits_data").getData()).startsWith("1=0;2=0;3=0;5=0");
+    assertThat(getFileMeasure("it_coverage_line_hits_data").getData()).startsWith("1=0;2=0;3=0;5=0");
     assertThat(getProjectMeasure("conditions_to_cover")).isNull();
     assertThat(getProjectMeasure("it_conditions_to_cover")).isNull();
     assertThat(getProjectMeasure("uncovered_conditions")).isNull();

@@ -19,229 +19,188 @@
  */
 package org.sonar.plugins.javascript.lcov;
 
+import com.google.common.collect.ImmutableSet;
 import java.io.File;
+import java.nio.charset.Charset;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Mockito;
-import org.sonar.api.batch.SensorContext;
 import org.sonar.api.batch.fs.InputFile;
-import org.sonar.api.batch.fs.internal.DefaultFileSystem;
+import org.sonar.api.batch.fs.InputFile.Type;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
+import org.sonar.api.batch.fs.internal.FileMetadata;
+import org.sonar.api.batch.sensor.coverage.CoverageType;
+import org.sonar.api.batch.sensor.internal.SensorContextTester;
 import org.sonar.api.config.Settings;
-import org.sonar.api.measures.CoreMetrics;
-import org.sonar.api.measures.Measure;
-import org.sonar.api.measures.Metric;
-import org.sonar.api.resources.Project;
-import org.sonar.api.resources.Resource;
-import org.sonar.plugins.javascript.JavaScriptLanguage;
 import org.sonar.plugins.javascript.JavaScriptPlugin;
 
 import static org.fest.assertions.Assertions.assertThat;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyObject;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.atLeast;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
-import static org.mockito.Mockito.when;
 
 public class CoverageSensorTest {
 
-  private SensorContext context;
+  private SensorContextTester context;
   private Settings settings;
-  private Project project;
+  private Map<InputFile, Set<Integer>> linesOfCode;
+
+  private UTCoverageSensor utCoverageSensor = new UTCoverageSensor();
+  private ITCoverageSensor itCoverageSensor = new ITCoverageSensor();
+  private OverallCoverageSensor overallCoverageSensor = new OverallCoverageSensor();
+  private File moduleBaseDir = new File("src/test/resources/coverage/");
 
   @Before
   public void init() {
     settings = new Settings();
-    settings.setProperty(JavaScriptPlugin.LCOV_UT_REPORT_PATH, "test_lcov_report_ut.dat");
-    settings.setProperty(JavaScriptPlugin.LCOV_IT_REPORT_PATH, "test_lcov_report_it.dat");
-    context = mock(SensorContext.class);
-    project = new Project("project");
+    settings.setProperty(JavaScriptPlugin.LCOV_UT_REPORT_PATH, "reports/report_ut.lcov");
+    settings.setProperty(JavaScriptPlugin.LCOV_IT_REPORT_PATH, "reports/report_it.lcov");
+    context = SensorContextTester.create(moduleBaseDir);
+    context.setSettings(settings);
 
+    InputFile inputFile1 = inputFile("file1.js", Type.MAIN);
+    InputFile inputFile2 = inputFile("file2.js", Type.MAIN);
+    inputFile("tests/file1.js", Type.TEST);
+
+    linesOfCode = new HashMap<>();
+    linesOfCode.put(inputFile1, ImmutableSet.of(1, 2, 3, 4));
+    linesOfCode.put(inputFile2, ImmutableSet.of(1, 2, 3));
   }
 
-  @Test
-  public void test_should_execute() {
-    DefaultFileSystem fs = new DefaultFileSystem(new File(""));
-    Settings localSettings = new Settings();
-    LCOVCoverageSensor localSensor = newUTSensor(fs, localSettings);
+  private InputFile inputFile(String relativePath, Type type) {
+    DefaultInputFile inputFile = new DefaultInputFile("moduleKey", relativePath)
+      .setModuleBaseDir(moduleBaseDir.toPath())
+      .setLanguage("js")
+      .setType(type);
 
-    // no JS files -> do not execute
-    assertThat(localSensor.shouldExecuteOnProject(project)).isFalse();
+    inputFile.initMetadata(new FileMetadata().readMetadata(inputFile.file(), Charset.defaultCharset()));
+    context.fileSystem().add(inputFile);
 
-    // at least one JS file -> do execute
-    fs.add(new DefaultInputFile("", "fake_file.js").setType(InputFile.Type.MAIN).setLanguage(JavaScriptLanguage.KEY));
-    assertThat(localSensor.shouldExecuteOnProject(project)).isTrue();
-
-    // no path to report -> do execute
-    localSettings.setProperty(JavaScriptPlugin.LCOV_UT_REPORT_PATH, "");
-    assertThat(localSensor.shouldExecuteOnProject(project)).isTrue();
+    return inputFile;
   }
 
   @Test
   public void report_not_found() throws Exception {
-    DefaultFileSystem fs = newFileSystem();
+    settings.setProperty(JavaScriptPlugin.LCOV_UT_REPORT_PATH, "/fake/path/lcov_report.dat");
 
-    // Setting with bad report path
-    Settings localSettings = new Settings();
-    localSettings.setProperty(JavaScriptPlugin.LCOV_UT_REPORT_PATH, "/fake/path/lcov_report.dat");
+    utCoverageSensor.execute(context, linesOfCode);
 
-    newUTSensor(fs, localSettings).analyse(project, context);
-
-    verifyZeroInteractions(context);
+    // expected logged text: "No coverage information will be saved because all LCOV files cannot be found."
+    assertThat(context.lineHits("moduleKey:file1.js", CoverageType.UNIT, 1)).isNull();
   }
 
   @Test
-  public void test_file_in_ut_coverage_report() {
-    DefaultFileSystem fs = newFileSystem();
-    fs.add(newSourceInputFile("fake_file1.js"));
-    fs.add(newSourceInputFile("fake_file2.js"));
-    fs.add(newSourceInputFile("fake_file3.js"));
-    newUTSensor(fs, settings).analyse(project, context);
+  public void test_ut_coverage() {
+    utCoverageSensor.execute(context, linesOfCode);
+    Integer[] file1Expected = {2, 2, 1, null};
+    Integer[] file2Expected = {5, 5, null, null};
 
-    // 3 line coverage metrics for two files, 4 condition coverage metrics for 1 file
-    verify(context, times(10)).saveMeasure(any(Resource.class), (Measure) anyObject());
-  }
+    for (int line = 1; line <= 4; line++) {
+      assertThat(context.lineHits("moduleKey:file1.js", CoverageType.UNIT, line)).isEqualTo(file1Expected[line - 1]);
+      assertThat(context.lineHits("moduleKey:file1.js", CoverageType.IT, line)).isNull();
+      assertThat(context.lineHits("moduleKey:file1.js", CoverageType.OVERALL, line)).isNull();
 
-  @Test
-  public void test_file_in_it_coverage_report() {
-    DefaultFileSystem fs = newFileSystem();
-    fs.add(newSourceInputFile("fake_file1.js"));
-    fs.add(newSourceInputFile("fake_file2.js"));
-    fs.add(newSourceInputFile("fake_file3.js"));
-    newITSensor(fs, settings).analyse(project, context);
-
-    // 3 line coverage metrics for two files, 4 condition coverage metrics for 1 file
-    verify(context, times(10)).saveMeasure(any(Resource.class), (Measure) anyObject());
-  }
-
-  @Test
-  public void test_file_in_overall_coverage_report() {
-    DefaultFileSystem fs = newFileSystem();
-    fs.add(newSourceInputFile("fake_file1.js"));
-    fs.add(newSourceInputFile("fake_file2.js"));
-    fs.add(newSourceInputFile("fake_file3.js"));
-    newOverallSensor(fs, settings).analyse(project, context);
-
-    // 3 line coverage metrics for two files, 4 condition coverage metrics for 1 file for both the it and ut file
-    // minus 3 line coverages, that are in both files and so get merged
-    verify(context, times(17)).saveMeasure(any(Resource.class), (Measure) anyObject());
-  }
-
-  @Test
-  public void test_overall_coverage_values() {
-    DefaultFileSystem fs = newFileSystem();
-    fs.add(newSourceInputFile("fake_file1.js"));
-    newOverallSensor(fs, settings).analyse(project, context);
-
-    ArgumentCaptor<Measure> measures = ArgumentCaptor.forClass(Measure.class);
-    verify(context, times(3)).saveMeasure(any(Resource.class), measures.capture());
-
-    assertMetricValue(measures, CoreMetrics.OVERALL_COVERAGE_LINE_HITS_DATA_KEY, "1=1;4=2;5=2;9=2;10=2;11=1;12=0");
-    assertMetricValue(measures, CoreMetrics.OVERALL_LINES_TO_COVER_KEY, "7.0");
-    assertMetricValue(measures, CoreMetrics.OVERALL_UNCOVERED_LINES_KEY, "1.0");
-  }
-
-  @Test
-  public void test_wrong_lines_in_file() {
-    settings.setProperty(JavaScriptPlugin.LCOV_UT_REPORT_PATH, "wrong_line_lcov.info");
-    DefaultFileSystem fs = newFileSystem();
-    fs.add(newSourceInputFile("fake_file.js"));
-    newUTSensor(fs, settings).analyse(project, context);
-
-    ArgumentCaptor<Measure> measures = ArgumentCaptor.forClass(Measure.class);
-    verify(context, atLeast(2)).saveMeasure((Resource) anyObject(), measures.capture());
-
-    assertMetricValue(measures, CoreMetrics.COVERAGE_LINE_HITS_DATA_KEY, "5=1");
-    assertMetricValue(measures, CoreMetrics.CONDITIONS_BY_LINE_KEY, "7=3");
-  }
-
-  @Test
-  public void test_file_not_in_coverage_report() {
-    DefaultFileSystem fs = newFileSystem();
-    fs.add(newSourceInputFile("not_in_report.js"));
-
-    when(context.getMeasure(any(org.sonar.api.resources.File.class), eq(CoreMetrics.NCLOC)))
-      .thenReturn(new Measure(CoreMetrics.NCLOC, (double) 2));
-    when(context.getMeasure(any(org.sonar.api.resources.File.class), eq(CoreMetrics.NCLOC_DATA)))
-      .thenReturn(new Measure(CoreMetrics.NCLOC_DATA, "1=0;2=1;3=1;4=0"));
-
-    newUTSensor(fs, settings).analyse(project, context);
-
-    verify(context).saveMeasure((Resource) anyObject(), eq(CoreMetrics.LINES_TO_COVER), eq(2.0));
-    verify(context).saveMeasure((Resource) anyObject(), eq(CoreMetrics.UNCOVERED_LINES), eq(2.0));
-  }
-
-  @Test
-  public void save_zero_value_for_all_files_when_no_report() throws Exception {
-    DefaultFileSystem fs = newFileSystem();
-    fs.add(newSourceInputFile("fake_file.js"));
-
-    settings.setProperty(JavaScriptPlugin.FORCE_ZERO_COVERAGE_KEY, "true");
-    settings.setProperty(JavaScriptPlugin.LCOV_UT_REPORT_PATH, "");
-    when(context.getMeasure(any(Resource.class), any(Metric.class))).thenReturn(new Measure().setValue(1d));
-    when(context.getMeasure(any(org.sonar.api.resources.File.class), eq(CoreMetrics.NCLOC_DATA)))
-      .thenReturn(new Measure(CoreMetrics.NCLOC_DATA, "1=0;2=1;3=1;4=0"));
-    newUTSensor(fs, settings).analyse(project, context);
-
-    verify(context, times(1)).saveMeasure((Resource) anyObject(), eq(CoreMetrics.LINES_TO_COVER), eq(1d));
-    verify(context, times(1)).saveMeasure((Resource) anyObject(), eq(CoreMetrics.UNCOVERED_LINES), eq(1d));
-  }
-
-  @Test
-  public void save_zero_value_for_all_files_when_no_report_and_no_ncloc() throws Exception {
-    DefaultFileSystem fs = newFileSystem();
-    fs.add(newSourceInputFile("fake_file.js"));
-
-    settings.setProperty(JavaScriptPlugin.FORCE_ZERO_COVERAGE_KEY, "true");
-    settings.setProperty(JavaScriptPlugin.LCOV_UT_REPORT_PATH, "");
-    newUTSensor(fs, settings).analyse(project, context);
-
-    verify(context, never()).saveMeasure((Resource) anyObject(), eq(CoreMetrics.LINES_TO_COVER), Mockito.anyDouble());
-  }
-
-  public DefaultInputFile newSourceInputFile(String name) {
-    return new DefaultInputFile("", "relative/path/" + name)
-      .setType(InputFile.Type.MAIN)
-      .setLines(42)
-      .setLanguage(JavaScriptLanguage.KEY);
-  }
-
-  public DefaultFileSystem newFileSystem() {
-    DefaultFileSystem fs = new DefaultFileSystem(new File("src/test/resources/org/sonar/plugins/javascript/unittest/jstestdriver/"));
-
-    return fs;
-  }
-
-  public LCOVCoverageSensor newUTSensor(DefaultFileSystem fs, Settings settings) {
-    return new UTCoverageSensor(fs, settings);
-  }
-
-  public LCOVCoverageSensor newITSensor(DefaultFileSystem fs, Settings settings) {
-    return new ITCoverageSensor(fs, settings);
-  }
-
-  public LCOVCoverageSensor newOverallSensor(DefaultFileSystem fs, Settings settings) {
-    return new OverallCoverageSensor(fs, settings);
-  }
-
-  private void assertMetricValue(ArgumentCaptor<Measure> measures, String metricKey, String expectedValue) {
-    boolean metricIsSaved = false;
-
-    for (Measure measure : measures.getAllValues()) {
-      if (measure.getMetricKey().equals(metricKey)) {
-        String actualValue = measure.getData() != null ? measure.getData() : measure.getValue().toString();
-        assertThat(actualValue).isEqualTo(expectedValue);
-        metricIsSaved = true;
-      }
+      assertThat(context.lineHits("moduleKey:file2.js", CoverageType.UNIT, line)).isEqualTo(file2Expected[line - 1]);
+      assertThat(context.lineHits("moduleKey:file3.js", CoverageType.UNIT, line)).isNull();
+      assertThat(context.lineHits("moduleKey:tests/file1.js", CoverageType.UNIT, line)).isNull();;
     }
 
-    assertThat(metricIsSaved).isTrue();
+    assertThat(context.conditions("moduleKey:file1.js", CoverageType.UNIT, 1)).isNull();
+    assertThat(context.conditions("moduleKey:file1.js", CoverageType.UNIT, 2)).isEqualTo(4);
+    assertThat(context.coveredConditions("moduleKey:file1.js", CoverageType.UNIT, 2)).isEqualTo(2);
   }
 
+
+  @Test
+  public void test_it_coverage() {
+    itCoverageSensor.execute(context, linesOfCode);
+
+    Integer[] file1Expected = {1, 1, 0, null};
+    Integer[] file2Expected = {0, 0, 0, null};
+
+    for (int line = 1; line <= 4; line++) {
+      assertThat(context.lineHits("moduleKey:file1.js", CoverageType.IT, line)).isEqualTo(file1Expected[line - 1]);
+      assertThat(context.lineHits("moduleKey:file1.js", CoverageType.UNIT, line)).isNull();
+
+      assertThat(context.lineHits("moduleKey:file2.js", CoverageType.IT, line)).isEqualTo(file2Expected[line - 1]);
+    }
+
+    assertThat(context.conditions("moduleKey:file1.js", CoverageType.IT, 1)).isNull();
+    assertThat(context.conditions("moduleKey:file1.js", CoverageType.IT, 2)).isEqualTo(4);
+    assertThat(context.coveredConditions("moduleKey:file1.js", CoverageType.IT, 2)).isEqualTo(1);
+  }
+
+  @Test
+  public void test_overall_coverage() {
+    overallCoverageSensor.execute(context, linesOfCode);
+
+    Integer[] file1Expected = {3, 3, 1, null};
+    Integer[] file2Expected = {5, 5, null, null};
+
+    for (int line = 1; line <= 4; line++) {
+      assertThat(context.lineHits("moduleKey:file1.js", CoverageType.OVERALL, line)).isEqualTo(file1Expected[line - 1]);
+      assertThat(context.lineHits("moduleKey:file1.js", CoverageType.IT, line)).isNull();
+      assertThat(context.lineHits("moduleKey:file1.js", CoverageType.UNIT, line)).isNull();
+
+      assertThat(context.lineHits("moduleKey:file2.js", CoverageType.OVERALL, line)).isEqualTo(file2Expected[line - 1]);
+      assertThat(context.lineHits("moduleKey:file3.js", CoverageType.OVERALL, line)).isNull();
+      assertThat(context.lineHits("moduleKey:tests/file1.js", CoverageType.OVERALL, line)).isNull();
+    }
+
+    assertThat(context.conditions("moduleKey:file1.js", CoverageType.OVERALL, 1)).isNull();
+    assertThat(context.conditions("moduleKey:file1.js", CoverageType.OVERALL, 2)).isEqualTo(4);
+    assertThat(context.coveredConditions("moduleKey:file1.js", CoverageType.OVERALL, 2)).isEqualTo(3);
+  }
+
+  @Test
+  public void test_invalid_line() {
+    settings.setProperty(JavaScriptPlugin.LCOV_UT_REPORT_PATH, "reports/wrong_line_report.lcov");
+    utCoverageSensor.execute(context, linesOfCode);
+
+    assertThat(context.lineHits("moduleKey:file1.js", CoverageType.UNIT, 0)).isNull();
+    assertThat(context.lineHits("moduleKey:file1.js", CoverageType.UNIT, 2)).isEqualTo(1);
+
+    assertThat(context.conditions("moduleKey:file1.js", CoverageType.UNIT, 102)).isNull();
+    assertThat(context.conditions("moduleKey:file1.js", CoverageType.UNIT, 2)).isEqualTo(3);
+    assertThat(context.coveredConditions("moduleKey:file1.js", CoverageType.UNIT, 2)).isEqualTo(1);
+  }
+
+  @Test
+  public void test_unresolved_path() {
+    settings.setProperty(JavaScriptPlugin.LCOV_UT_REPORT_PATH, "reports/report_with_unresolved_path.lcov");
+    utCoverageSensor.execute(context, linesOfCode);
+
+    // expected logged text: "Could not resolve 1 file paths in [...], first unresolved path: unresolved/file1.js"
+    assertThat(context.lineHits("moduleKey:file1.js", CoverageType.UNIT, 1)).isEqualTo(0);
+  }
+
+  @Test
+  public void test_no_report_path_no_force_zero() {
+    context.setSettings(new Settings());
+    utCoverageSensor.execute(context, linesOfCode);
+    assertThat(context.lineHits("moduleKey:file1.js", CoverageType.UNIT, 1)).isNull();
+
+    context.setSettings(new Settings().setProperty(JavaScriptPlugin.LCOV_UT_REPORT_PATH, "reports/report_ut.lcov"));
+    itCoverageSensor.execute(context, linesOfCode);
+    assertThat(context.lineHits("moduleKey:file1.js", CoverageType.UNIT, 1)).isNull();
+    overallCoverageSensor.execute(context, linesOfCode);
+    assertThat(context.lineHits("moduleKey:file1.js", CoverageType.UNIT, 1)).isNull();
+
+    context.setSettings(settings);
+    utCoverageSensor.execute(context, linesOfCode);
+    assertThat(context.lineHits("moduleKey:file1.js", CoverageType.UNIT, 1)).isEqualTo(2);
+  }
+
+  @Test
+  public void test_force_zero_coverage_no_report() {
+    Settings newSettings = new Settings().setProperty(JavaScriptPlugin.FORCE_ZERO_COVERAGE_KEY, "true");
+    context.setSettings(newSettings);
+    utCoverageSensor.execute(context, linesOfCode);
+    assertThat(context.lineHits("moduleKey:file1.js", CoverageType.UNIT, 1)).isEqualTo(0);
+
+    context.setSettings(newSettings.setProperty(JavaScriptPlugin.LCOV_UT_REPORT_PATH, "reports/report_ut.lcov"));
+    itCoverageSensor.execute(context, linesOfCode);
+    assertThat(context.lineHits("moduleKey:file1.js", CoverageType.UNIT, 1)).isEqualTo(0);
+    overallCoverageSensor.execute(context, linesOfCode);
+    assertThat(context.lineHits("moduleKey:file1.js", CoverageType.UNIT, 1)).isEqualTo(0);
+  }
 }

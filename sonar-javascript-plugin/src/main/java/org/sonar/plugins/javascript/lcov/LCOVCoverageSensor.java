@@ -19,114 +19,67 @@
  */
 package org.sonar.plugins.javascript.lcov;
 
-import com.google.common.collect.ImmutableList;
 import java.io.File;
-import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import javax.annotation.Nullable;
+import java.util.Set;
 import org.apache.commons.lang.StringUtils;
-import org.sonar.api.batch.DependsUpon;
-import org.sonar.api.batch.Sensor;
-import org.sonar.api.batch.SensorContext;
 import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
-import org.sonar.api.config.Settings;
-import org.sonar.api.measures.CoreMetrics;
-import org.sonar.api.measures.CoverageMeasuresBuilder;
-import org.sonar.api.measures.Measure;
-import org.sonar.api.measures.Metric;
-import org.sonar.api.measures.PropertiesBuilder;
-import org.sonar.api.resources.Project;
+import org.sonar.api.batch.fs.InputFile.Type;
+import org.sonar.api.batch.sensor.SensorContext;
+import org.sonar.api.batch.sensor.coverage.CoverageType;
+import org.sonar.api.batch.sensor.coverage.NewCoverage;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.plugins.javascript.JavaScriptLanguage;
 import org.sonar.plugins.javascript.JavaScriptPlugin;
 
-public abstract class LCOVCoverageSensor implements Sensor {
+abstract class LCOVCoverageSensor {
   private static final Logger LOG = Loggers.get(UTCoverageSensor.class);
-  protected final FileSystem fileSystem;
-  protected final Settings settings;
-  protected final FilePredicate mainFilePredicate;
-  protected Metric linesToCoverMetric;
-  protected Metric uncoveredLinesMetric;
-  protected Metric coverageLineHitsDataMetric;
-  protected Metric coveredConditionsByLineMetric;
-  protected Metric conditionsByLineMetric;
-  protected Metric uncoveredConditionsMetric;
-  protected Metric conditionsToCoverMetric;
-  protected String[] reportPaths;
 
-  public LCOVCoverageSensor(FileSystem fileSystem, Settings settings) {
-    this.mainFilePredicate = fileSystem.predicates().and(
+
+  protected abstract String[] reportPathProperties();
+  protected abstract CoverageType getCoverageType();
+
+  private FilePredicate mainFilePredicate(FileSystem fileSystem) {
+    return fileSystem.predicates().and(
       fileSystem.predicates().hasType(InputFile.Type.MAIN),
       fileSystem.predicates().hasLanguage(JavaScriptLanguage.KEY));
-    this.fileSystem = fileSystem;
-    this.settings = settings;
   }
 
-  /**
-   * Returns a java.io.File for the given path.
-   * If path is not absolute, returns a File with module base directory as parent path.
-   */
-  public static File getIOFile(File baseDir, String path) {
-    File file = new File(path);
-    if (!file.isAbsolute()) {
-      file = new File(baseDir, path);
-    }
-
-    return file;
-  }
-
-  private static void checkDataIsNotNull(@Nullable String data) {
-    if (data == null) {
-      throw new IllegalStateException("Measure data is null but it shouldn't be");
+  public void execute(SensorContext context, Map<InputFile, Set<Integer>> linesOfCode) {
+    if (isLCOVReportProvided(context)) {
+      saveMeasureFromLCOVFile(context, linesOfCode);
+    } else if (isForceZeroCoverageActivated(context)) {
+      saveZeroValueForAllFiles(context, linesOfCode);
     }
   }
 
-  @DependsUpon
-  public Collection<Metric> dependsUponMetrics() {
-    return ImmutableList.<Metric>of(CoreMetrics.NCLOC, CoreMetrics.NCLOC_DATA);
-  }
-
-  @Override
-  public boolean shouldExecuteOnProject(Project project) {
-    return fileSystem.hasFiles(mainFilePredicate);
-  }
-
-  @Override
-  public void analyse(Project module, SensorContext context) {
-    if (isLCOVReportProvided()) {
-      saveMeasureFromLCOVFile(context);
-
-    } else if (isForceZeroCoverageActivated()) {
-      saveZeroValueForAllFiles(context);
+  private boolean isLCOVReportProvided(SensorContext context) {
+    for(String reportPathProperty: reportPathProperties()){
+      if (StringUtils.isNotBlank(context.settings().getString(reportPathProperty))){
+        return true;
+      }
     }
-
-    // Else, nothing to do, there will be no coverage information for JavaScript files.
+    return false;
   }
 
-  protected void saveZeroValueForAllFiles(SensorContext context) {
-    for (InputFile inputFile : fileSystem.inputFiles(mainFilePredicate)) {
-      saveZeroValueForResource(org.sonar.api.resources.File.create(inputFile.relativePath()), context);
-    }
-  }
-
-  protected void saveMeasureFromLCOVFile(SensorContext context) {
+  private void saveMeasureFromLCOVFile(SensorContext context, Map<InputFile, Set<Integer>> linesOfCode) {
     LinkedList<File> lcovFiles=new LinkedList<>();
-    for(String reportPath: reportPaths) {
-      String providedPath = settings.getString(reportPath);
+    for(String reportPathProperty: reportPathProperties()) {
+      String providedPath = context.settings().getString(reportPathProperty);
       if (StringUtils.isBlank(providedPath)){
         continue;
       }
-      File lcovFile = getIOFile(fileSystem.baseDir(), providedPath);
+      File lcovFile = getIOFile(context.fileSystem().baseDir(), providedPath);
 
       if (lcovFile.isFile()) {
         lcovFiles.add(lcovFile);
       } else {
-        LOG.warn("No coverage information will be saved because LCOV file cannot be found. Provided LCOV file path: {}", providedPath);
+        LOG.warn("No coverage information will be saved because LCOV file cannot be found.");
         LOG.warn("Provided LCOV file path: {}. Seek file with path: {}", providedPath, lcovFile.getAbsolutePath());
       }
     }
@@ -136,29 +89,29 @@ public abstract class LCOVCoverageSensor implements Sensor {
       return;
     }
 
-
     LOG.info("Analysing {}", lcovFiles);
 
-    LCOVParser parser = LCOVParser.create(fileSystem, lcovFiles.toArray(new File[lcovFiles.size()]));
-    Map<InputFile, CoverageMeasuresBuilder> coveredFiles = parser.coverageByFile();
+    LCOVParser parser = LCOVParser.create(context, lcovFiles.toArray(new File[lcovFiles.size()]));
+    Map<InputFile, NewCoverage> coveredFiles = parser.coverageByFile();
+
+    FileSystem fileSystem = context.fileSystem();
+    FilePredicate mainFilePredicate = fileSystem.predicates().and(
+      fileSystem.predicates().hasType(Type.MAIN),
+      fileSystem.predicates().hasLanguage(JavaScriptLanguage.KEY));
 
     for (InputFile inputFile : fileSystem.inputFiles(mainFilePredicate)) {
-      try {
-        CoverageMeasuresBuilder fileCoverage = coveredFiles.get(inputFile);
-        org.sonar.api.resources.File resource = org.sonar.api.resources.File.create(inputFile.relativePath());
+      NewCoverage fileCoverage = coveredFiles.get(inputFile);
 
-        if (fileCoverage != null) {
-          for (Measure measure : fileCoverage.createMeasures()) {
-            context.saveMeasure(resource, convertMeasure(measure));
-          }
-        } else {
-          // colour all lines as not executed
-          LOG.debug("Default value of zero will be saved for file: {}", resource.getPath());
-          LOG.debug("Because: either was not present in LCOV report either was not able to retrieve associated SonarQube resource");
-          saveZeroValueForResource(resource, context);
-        }
-      } catch (Exception e) {
-        LOG.error("Problem while calculating coverage for " + inputFile.absolutePath(), e);
+      if (fileCoverage != null) {
+        fileCoverage
+          .ofType(getCoverageType())
+          .save();
+
+      } else {
+        // colour all lines as not executed
+        LOG.debug("Default value of zero will be saved for file: {}", inputFile.relativePath());
+        LOG.debug("Because was not present in LCOV report.");
+        saveZeroValue(inputFile, context, linesOfCode.get(inputFile));
       }
     }
 
@@ -171,73 +124,35 @@ public abstract class LCOVCoverageSensor implements Sensor {
     }
   }
 
-  private void saveZeroValueForResource(org.sonar.api.resources.File resource, SensorContext context) {
-    // use non comment lines of code for coverage calculation
-    Measure<Integer> nclocMeasure = context.getMeasure(resource, CoreMetrics.NCLOC);
-    if (nclocMeasure != null) {
-      double ncloc = nclocMeasure.getValue();
-      context.saveMeasure(resource, getZeroCoverageLineHitsDataMetric(resource, context));
-      context.saveMeasure(resource, linesToCoverMetric, ncloc);
-      context.saveMeasure(resource, uncoveredLinesMetric, ncloc);
+  private void saveZeroValueForAllFiles(SensorContext context, Map<InputFile, Set<Integer>> linesOfCode) {
+    for (InputFile inputFile : context.fileSystem().inputFiles(mainFilePredicate(context.fileSystem()))) {
+      saveZeroValue(inputFile, context, linesOfCode.get(inputFile));
     }
   }
 
-  private Measure getZeroCoverageLineHitsDataMetric(org.sonar.api.resources.File resource, SensorContext context) {
-    PropertiesBuilder<Integer, Integer> lineHitsData = new PropertiesBuilder<>(coverageLineHitsDataMetric);
-    Measure<String> nclocDataMeasure = context.getMeasure(resource, CoreMetrics.NCLOC_DATA);
-    if (nclocDataMeasure != null) {
-      String nclocData = nclocDataMeasure.getData();
-      if (nclocData == null) {
-        return lineHitsData.build();
-      }
-      String[] lines = nclocData.split(";");
-      for (String line : lines) {
-        String[] info = line.split("=");
-        if (info.length == 2 && "1".equals(info[1])) {
-          int lineNumber = Integer.parseInt(info[0]);
-          lineHitsData.add(lineNumber, 0);
-        }
-      }
-    }
-    return lineHitsData.build();
+  private void saveZeroValue(InputFile inputFile, SensorContext context, Set<Integer> linesOfCode) {
+    NewCoverage newCoverage = context.newCoverage()
+      .onFile(inputFile)
+      .ofType(getCoverageType());
+
+    linesOfCode.forEach((Integer line) -> newCoverage.lineHits(line, 0));
+    newCoverage.save();
   }
 
-  private boolean isForceZeroCoverageActivated() {
-    return settings.getBoolean(JavaScriptPlugin.FORCE_ZERO_COVERAGE_KEY);
+  private static boolean isForceZeroCoverageActivated(SensorContext context) {
+    return context.settings().getBoolean(JavaScriptPlugin.FORCE_ZERO_COVERAGE_KEY);
   }
 
-  private boolean isLCOVReportProvided() {
-    for(String reportPath:reportPaths){
-      if (StringUtils.isNotBlank(settings.getString(reportPath))){
-        return true;
-      }
+  /**
+   * Returns a java.io.File for the given path.
+   * If path is not absolute, returns a File with module base directory as parent path.
+   */
+  private static File getIOFile(File baseDir, String path) {
+    File file = new File(path);
+    if (!file.isAbsolute()) {
+      file = new File(baseDir, path);
     }
-    return false;
-  }
 
-  private Measure convertMeasure(Measure measure) {
-    Measure itMeasure = null;
-    Metric metric = measure.getMetric();
-    Double value = measure.getValue();
-    String data = measure.getData();
-    if (CoreMetrics.LINES_TO_COVER.equals(metric)) {
-      itMeasure = new Measure(linesToCoverMetric, value);
-    } else if (CoreMetrics.UNCOVERED_LINES.equals(metric)) {
-      itMeasure = new Measure(uncoveredLinesMetric, value);
-    } else if (CoreMetrics.COVERAGE_LINE_HITS_DATA.equals(metric)) {
-      checkDataIsNotNull(data);
-      itMeasure = new Measure(coverageLineHitsDataMetric, data);
-    } else if (CoreMetrics.CONDITIONS_TO_COVER.equals(metric)) {
-      itMeasure = new Measure(conditionsToCoverMetric, value);
-    } else if (CoreMetrics.UNCOVERED_CONDITIONS.equals(metric)) {
-      itMeasure = new Measure(uncoveredConditionsMetric, value);
-    } else if (CoreMetrics.COVERED_CONDITIONS_BY_LINE.equals(metric)) {
-      checkDataIsNotNull(data);
-      itMeasure = new Measure(coveredConditionsByLineMetric, data);
-    } else if (CoreMetrics.CONDITIONS_BY_LINE.equals(metric)) {
-      checkDataIsNotNull(data);
-      itMeasure = new Measure(conditionsByLineMetric, data);
-    }
-    return itMeasure;
+    return file;
   }
 }

@@ -19,23 +19,18 @@
  */
 package org.sonar.plugins.javascript.lcov;
 
-import org.sonar.api.batch.fs.FileSystem;
-import org.sonar.api.config.Settings;
-import org.sonar.api.measures.CoreMetrics;
+import org.sonar.api.batch.sensor.coverage.CoverageType;
 import org.sonar.plugins.javascript.JavaScriptPlugin;
 
 public class OverallCoverageSensor extends LCOVCoverageSensor {
 
-  public OverallCoverageSensor(FileSystem fileSystem, Settings settings) {
-    super(fileSystem, settings);
-    linesToCoverMetric = CoreMetrics.OVERALL_LINES_TO_COVER;
-    uncoveredLinesMetric = CoreMetrics.OVERALL_UNCOVERED_LINES;
-    coverageLineHitsDataMetric = CoreMetrics.OVERALL_COVERAGE_LINE_HITS_DATA;
-    reportPaths = new String[]{ JavaScriptPlugin.LCOV_UT_REPORT_PATH, JavaScriptPlugin.LCOV_IT_REPORT_PATH };
-    coveredConditionsByLineMetric = CoreMetrics.OVERALL_COVERED_CONDITIONS_BY_LINE;
-    conditionsByLineMetric = CoreMetrics.OVERALL_CONDITIONS_BY_LINE;
-    uncoveredConditionsMetric = CoreMetrics.OVERALL_UNCOVERED_CONDITIONS;
-    conditionsToCoverMetric = CoreMetrics.OVERALL_CONDITIONS_TO_COVER;
+  @Override
+  protected String[] reportPathProperties(){
+    return new String[]{ JavaScriptPlugin.LCOV_UT_REPORT_PATH, JavaScriptPlugin.LCOV_IT_REPORT_PATH };
   }
 
+  @Override
+  protected CoverageType getCoverageType() {
+    return CoverageType.OVERALL;
+  }
 }

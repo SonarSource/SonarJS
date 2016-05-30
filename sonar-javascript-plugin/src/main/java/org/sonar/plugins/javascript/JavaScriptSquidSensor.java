@@ -28,7 +28,10 @@ import com.sonar.sslr.api.typed.ActionParser;
 import java.io.File;
 import java.io.InterruptedIOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import javax.annotation.Nullable;
 import org.sonar.api.batch.fs.FilePredicate;
@@ -69,6 +72,9 @@ import org.sonar.plugins.javascript.api.visitors.LineIssue;
 import org.sonar.plugins.javascript.api.visitors.PreciseIssue;
 import org.sonar.plugins.javascript.api.visitors.TreeVisitor;
 import org.sonar.plugins.javascript.api.visitors.TreeVisitorContext;
+import org.sonar.plugins.javascript.lcov.ITCoverageSensor;
+import org.sonar.plugins.javascript.lcov.OverallCoverageSensor;
+import org.sonar.plugins.javascript.lcov.UTCoverageSensor;
 import org.sonar.squidbridge.ProgressReport;
 import org.sonar.squidbridge.api.AnalysisException;
 
@@ -282,8 +288,9 @@ public class JavaScriptSquidSensor implements Sensor {
   @Override
   public void execute(SensorContext context) {
     List<TreeVisitor> treeVisitors = Lists.newArrayList();
+    Map<InputFile, Set<Integer>> linesOfCode = new HashMap<>();
 
-    treeVisitors.add(new MetricsVisitor(fileSystem, context, noSonarFilter, settings.getBoolean(JavaScriptPlugin.IGNORE_HEADER_COMMENTS), fileLinesContextFactory));
+    treeVisitors.add(new MetricsVisitor(fileSystem, context, noSonarFilter, settings.getBoolean(JavaScriptPlugin.IGNORE_HEADER_COMMENTS), fileLinesContextFactory, linesOfCode));
     treeVisitors.add(new HighlighterVisitor(context, fileSystem));
     treeVisitors.add(new SeChecksDispatcher(checks.seChecks()));
     treeVisitors.addAll(checks.visitorChecks());
@@ -299,6 +306,17 @@ public class JavaScriptSquidSensor implements Sensor {
     progressReport.start(Lists.newArrayList(fileSystem.files(mainFilePredicate)));
 
     analyseFiles(context, treeVisitors, fileSystem.inputFiles(mainFilePredicate), progressReport);
+
+    executeCoverageSensors(context, linesOfCode);
+  }
+
+  private static void executeCoverageSensors(SensorContext context, Map<InputFile, Set<Integer>> linesOfCode) {
+    LOG.info("Unit Test Coverage Sensor is started");
+    (new UTCoverageSensor()).execute(context, linesOfCode);
+    LOG.info("Integration Test Coverage Sensor is started");
+    (new ITCoverageSensor()).execute(context, linesOfCode);
+    LOG.info("Overall Coverage Sensor is started");
+    (new OverallCoverageSensor()).execute(context, linesOfCode);
   }
 
   private static void saveLineIssue(SensorContext sensorContext, InputFile inputFile, RuleKey ruleKey, LineIssue issue) {

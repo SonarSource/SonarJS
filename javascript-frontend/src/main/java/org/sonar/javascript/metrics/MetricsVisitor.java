@@ -23,6 +23,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
@@ -63,6 +64,7 @@ public class MetricsVisitor extends SubscriptionVisitor {
   private NoSonarFilter noSonarFilter;
   private final Boolean ignoreHeaderComments;
   private FileLinesContextFactory fileLinesContextFactory;
+  private Map<InputFile, Set<Integer>> projectLinesOfCode;
 
   private int classComplexity;
   private int functionComplexity;
@@ -71,13 +73,17 @@ public class MetricsVisitor extends SubscriptionVisitor {
 
   private ComplexityVisitor complexityVisitor;
 
-  public MetricsVisitor(FileSystem fs, SensorContext context, NoSonarFilter noSonarFilter, Boolean ignoreHeaderComments, FileLinesContextFactory fileLinesContextFactory) {
+  public MetricsVisitor(
+    FileSystem fs, SensorContext context, NoSonarFilter noSonarFilter, Boolean ignoreHeaderComments,
+    FileLinesContextFactory fileLinesContextFactory, Map<InputFile, Set<Integer>> projectLinesOfCode
+  ) {
     this.fs = fs;
     this.sensorContext = context;
     this.noSonarFilter = noSonarFilter;
     this.ignoreHeaderComments = ignoreHeaderComments;
     this.fileLinesContextFactory = fileLinesContextFactory;
     this.complexityVisitor = new ComplexityVisitor();
+    this.projectLinesOfCode = projectLinesOfCode;
   }
 
   @Override
@@ -106,15 +112,11 @@ public class MetricsVisitor extends SubscriptionVisitor {
     }
   }
 
-
-
   @Override
   public void visitFile(Tree scriptTree) {
     this.inputFile = fs.inputFile(fs.predicates().is(getContext().getFile()));
     init();
   }
-
-
 
   private void init() {
     classComplexity = 0;
@@ -157,6 +159,7 @@ public class MetricsVisitor extends SubscriptionVisitor {
     LineVisitor lineVisitor = new LineVisitor(context.getTopTree());
     int linesNumber = lineVisitor.getLinesNumber();
     Set<Integer> linesOfCode = lineVisitor.getLinesOfCode();
+    projectLinesOfCode.put(inputFile, linesOfCode);
 
     saveMetricOnFile(CoreMetrics.NCLOC, lineVisitor.getLinesOfCodeNumber());
     saveMetricOnFile(CoreMetrics.LINES, linesNumber);
@@ -165,9 +168,9 @@ public class MetricsVisitor extends SubscriptionVisitor {
     Set<Integer> commentLines = commentVisitor.getCommentLines();
 
     saveMetricOnFile(CoreMetrics.COMMENT_LINES, commentVisitor.getCommentLineNumber());
-    noSonarFilter.noSonarInFile(inputFile, commentVisitor.noSonarLines());
+    noSonarFilter.noSonarInFile(this.inputFile, commentVisitor.noSonarLines());
 
-    FileLinesContext fileLinesContext = fileLinesContextFactory.createFor(inputFile);
+    FileLinesContext fileLinesContext = fileLinesContextFactory.createFor(this.inputFile);
     for (int line = 1; line <= linesNumber; line++) {
       fileLinesContext.setIntValue(CoreMetrics.NCLOC_DATA_KEY, line, linesOfCode.contains(line) ? 1 : 0);
       fileLinesContext.setIntValue(CoreMetrics.COMMENT_LINES_DATA_KEY, line, commentLines.contains(line) ? 1 : 0);

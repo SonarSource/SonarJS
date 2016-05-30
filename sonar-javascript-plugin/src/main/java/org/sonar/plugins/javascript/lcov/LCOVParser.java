@@ -30,9 +30,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
-import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
-import org.sonar.api.measures.CoverageMeasuresBuilder;
+import org.sonar.api.batch.sensor.SensorContext;
+import org.sonar.api.batch.sensor.coverage.NewCoverage;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 
@@ -45,22 +45,18 @@ public final class LCOVParser {
   private static final String DA = "DA:";
   private static final String BRDA = "BRDA:";
 
-  private final Map<InputFile, CoverageMeasuresBuilder> coverageByFile;
-  private final FileSystem fs;
+  private final Map<InputFile, NewCoverage> coverageByFile;
+  private final SensorContext context;
   private final List<String> unresolvedPaths = Lists.newArrayList();
 
   private static final Logger LOG = Loggers.get(LCOVParser.class);
 
-  private LCOVParser(FileSystem fs, List<String> lines) {
-    this.fs = fs;
+  private LCOVParser(List<String> lines, SensorContext context) {
+    this.context = context;
     this.coverageByFile = parse(lines);
   }
 
-  public static Map<InputFile, CoverageMeasuresBuilder> parse(FileSystem fs, List<String> lines) {
-    return new LCOVParser(fs, lines).coverageByFile();
-  }
-
-  public static LCOVParser create(FileSystem fs, File... files) {
+  static LCOVParser create(SensorContext context, File... files) {
     final List<String> lines=new LinkedList<>();
     for(File file: files) {
       try {
@@ -69,18 +65,18 @@ public final class LCOVParser {
         throw new IllegalArgumentException("Could not read content from file: " + file, e);
       }
     }
-    return new LCOVParser(fs, lines);
+    return new LCOVParser(lines, context);
   }
 
-  public Map<InputFile, CoverageMeasuresBuilder> coverageByFile() {
+  Map<InputFile, NewCoverage> coverageByFile() {
     return coverageByFile;
   }
 
-  public List<String> unresolvedPaths() {
+  List<String> unresolvedPaths() {
     return unresolvedPaths;
   }
 
-  private Map<InputFile, CoverageMeasuresBuilder> parse(List<String> lines) {
+  private Map<InputFile, NewCoverage> parse(List<String> lines) {
     final Map<InputFile, FileData> files = Maps.newHashMap();
     FileData fileData = null;
 
@@ -117,15 +113,17 @@ public final class LCOVParser {
 
     }
 
-    Map<InputFile, CoverageMeasuresBuilder> coveredFiles = Maps.newHashMap();
+    Map<InputFile, NewCoverage> coveredFiles = Maps.newHashMap();
     for (Map.Entry<InputFile, FileData> e : files.entrySet()) {
-      coveredFiles.put(e.getKey(), e.getValue().convert());
+      NewCoverage newCoverage = context.newCoverage().onFile(e.getKey());
+      e.getValue().save(newCoverage);
+      coveredFiles.put(e.getKey(), newCoverage);
     }
     return coveredFiles;
   }
 
   private static void logWrongDataWarning(String dataType, String lineNumber, IllegalArgumentException e) {
-    LOG.warn(String.format("Problem during processing LCOV report: can't save %s data for line %s.", dataType, lineNumber), e);
+    LOG.warn(String.format("Problem during processing LCOV report: can't save %s data for line %s (%s).", dataType, lineNumber, e.getMessage()));
   }
 
   @CheckForNull
@@ -133,7 +131,7 @@ public final class LCOVParser {
     String filePath = line.substring(SF.length());
     FileData fileData = null;
     // some tools (like Istanbul, Karma) provide relative paths, so let's consider them relative to project directory
-    InputFile inputFile = fs.inputFile(fs.predicates().hasPath(filePath));
+    InputFile inputFile = context.fileSystem().inputFile(context.fileSystem().predicates().hasPath(filePath));
     if (inputFile != null) {
       fileData = files.get(inputFile);
       if (fileData == null) {
@@ -166,12 +164,12 @@ public final class LCOVParser {
     private final String filename;
     private static final String WRONG_LINE_EXCEPTION_MESSAGE = "Line with number %s doesn't belong to file %s";
 
-    public FileData(InputFile inputFile) {
+    FileData(InputFile inputFile) {
       linesInFile = inputFile.lines();
       filename = inputFile.relativePath();
     }
 
-    public void addBranch(Integer lineNumber, String branchNumber, Integer taken) {
+    void addBranch(Integer lineNumber, String branchNumber, Integer taken) {
       checkLine(lineNumber);
 
       Map<String, Integer> branchesForLine = branches.get(lineNumber);
@@ -183,17 +181,16 @@ public final class LCOVParser {
       branchesForLine.put(branchNumber, Objects.firstNonNull(currentValue, 0) + taken);
     }
 
-    public void addLine(Integer lineNumber, Integer executionCount) {
+    void addLine(Integer lineNumber, Integer executionCount) {
       checkLine(lineNumber);
 
       Integer currentValue = hits.get(lineNumber);
       hits.put(lineNumber, Objects.firstNonNull(currentValue, 0) + executionCount);
     }
 
-    public CoverageMeasuresBuilder convert() {
-      CoverageMeasuresBuilder result = CoverageMeasuresBuilder.create();
+    void save(NewCoverage newCoverage) {
       for (Map.Entry<Integer, Integer> e : hits.entrySet()) {
-        result.setHits(e.getKey(), e.getValue());
+        newCoverage.lineHits(e.getKey(), e.getValue());
       }
       for (Map.Entry<Integer, Map<String, Integer>> e : branches.entrySet()) {
         int conditions = e.getValue().size();
@@ -203,9 +200,9 @@ public final class LCOVParser {
             covered++;
           }
         }
-        result.setConditions(e.getKey(), conditions, covered);
+
+        newCoverage.conditions(e.getKey(), conditions, covered);
       }
-      return result;
     }
 
     private void checkLine(Integer lineNumber) {

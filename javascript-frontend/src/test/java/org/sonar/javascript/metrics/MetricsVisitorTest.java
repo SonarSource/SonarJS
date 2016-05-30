@@ -20,6 +20,8 @@
 package org.sonar.javascript.metrics;
 
 import java.io.File;
+import java.util.HashMap;
+import java.util.Set;
 import org.junit.Test;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
@@ -54,13 +56,15 @@ public class MetricsVisitorTest extends JavaScriptTreeModelTest {
     FileLinesContext linesContext = mock(FileLinesContext.class);
     when(linesContextFactory.createFor(inputFile)).thenReturn(linesContext);
 
+    HashMap<InputFile, Set<Integer>> projectLinesOfCode = new HashMap<>();
+
     MetricsVisitor metricsVisitor = new MetricsVisitor(
       context.fileSystem(),
       context,
       mock(NoSonarFilter.class),
       false,
-      linesContextFactory
-    );
+      linesContextFactory,
+      projectLinesOfCode);
 
     TreeVisitorContext treeVisitorContext = mock(TreeVisitorContext.class);
     when(treeVisitorContext.getFile()).thenReturn(inputFile.file());
@@ -74,5 +78,8 @@ public class MetricsVisitorTest extends JavaScriptTreeModelTest {
     assertThat(context.measure(componentKey, CoreMetrics.ACCESSORS).value()).isEqualTo(0);
     assertThat(context.measure(componentKey, CoreMetrics.CLASSES).value()).isEqualTo(0);
 
+    assertThat(projectLinesOfCode).hasSize(1);
+    Set<Integer> linesOfCode = projectLinesOfCode.get(inputFile);
+    assertThat(linesOfCode).containsOnly(2, 3, 4);
   }
 }

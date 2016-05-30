@@ -19,23 +19,18 @@
  */
 package org.sonar.plugins.javascript.lcov;
 
-import org.sonar.api.batch.fs.FileSystem;
-import org.sonar.api.config.Settings;
-import org.sonar.api.measures.CoreMetrics;
+import org.sonar.api.batch.sensor.coverage.CoverageType;
 import org.sonar.plugins.javascript.JavaScriptPlugin;
 
 public class UTCoverageSensor extends LCOVCoverageSensor {
 
-  public UTCoverageSensor(FileSystem fileSystem, Settings settings) {
-    super(fileSystem, settings);
-    linesToCoverMetric = CoreMetrics.LINES_TO_COVER;
-    uncoveredLinesMetric = CoreMetrics.UNCOVERED_LINES;
-    coverageLineHitsDataMetric = CoreMetrics.COVERAGE_LINE_HITS_DATA;
-    coveredConditionsByLineMetric = CoreMetrics.COVERED_CONDITIONS_BY_LINE;
-    conditionsByLineMetric = CoreMetrics.CONDITIONS_BY_LINE;
-    uncoveredConditionsMetric = CoreMetrics.UNCOVERED_CONDITIONS;
-    conditionsToCoverMetric = CoreMetrics.CONDITIONS_TO_COVER;
-    reportPaths = new String[]{ JavaScriptPlugin.LCOV_UT_REPORT_PATH };
+  @Override
+  protected String[] reportPathProperties(){
+    return new String[]{ JavaScriptPlugin.LCOV_UT_REPORT_PATH };
   }
 
+  @Override
+  protected CoverageType getCoverageType() {
+    return CoverageType.UNIT;
+  }
 }
