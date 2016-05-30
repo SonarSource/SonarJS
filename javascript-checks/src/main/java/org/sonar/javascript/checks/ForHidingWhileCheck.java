@@ -43,7 +43,7 @@ public class ForHidingWhileCheck extends DoubleDispatchVisitorCheck {
   @Override
   public void visitForStatement(ForStatementTree tree) {
     if (tree.init() == null && tree.update() == null) {
-      addLineIssue(tree, MESSAGE);
+      addIssue(tree.forKeyword(), MESSAGE);
     }
 
     super.visitForStatement(tree);

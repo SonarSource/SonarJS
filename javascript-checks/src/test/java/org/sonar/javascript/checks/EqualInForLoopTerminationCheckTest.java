@@ -25,11 +25,8 @@ import org.sonar.javascript.checks.verifier.JavaScriptCheckVerifier;
 
 public class EqualInForLoopTerminationCheckTest {
 
-  private EqualInForLoopTerminationCheck check = new EqualInForLoopTerminationCheck();
-
   @Test
   public void test() {
-    JavaScriptCheckVerifier.verify(check, new File("src/test/resources/checks/EqualInForLoopTermination.js"));
-
+    JavaScriptCheckVerifier.verify(new EqualInForLoopTerminationCheck(), new File("src/test/resources/checks/EqualInForLoopTermination.js"));
   }
 }

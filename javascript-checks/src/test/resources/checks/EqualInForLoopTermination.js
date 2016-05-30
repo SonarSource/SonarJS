@@ -1,4 +1,5 @@
-for (var i=0; i!=2; i+=2){ } // Noncompliant
+for (var i=0; i!=2; i+=2){ } // Noncompliant {{Replace '!=' operator with one of '<=', '>=', '<', or '>' comparison operators.}}
+//             ^^
 
 for (i=0; i==2; i+=2){ } // Noncompliant
 

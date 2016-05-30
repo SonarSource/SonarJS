@@ -69,7 +69,7 @@ public class EqualInForLoopTerminationCheck extends DoubleDispatchVisitorCheck {
     boolean updateCondition = update != null && isUpdateIncDec(update);
 
     if (conditionCondition && updateCondition && !isException(tree)) {
-      addIssue(condition);
+      addIssue((BinaryExpressionTree) condition);
     }
 
     super.visitForStatement(tree);
@@ -94,9 +94,9 @@ public class EqualInForLoopTerminationCheck extends DoubleDispatchVisitorCheck {
     }
   }
 
-  private void addIssue(ExpressionTree condition) {
-    String message = String.format(MESSAGE, ((BinaryExpressionTree) condition).operator().text());
-    addLineIssue(condition, message);
+  private void addIssue(BinaryExpressionTree condition) {
+    String message = String.format(MESSAGE, condition.operator().text());
+    addIssue(condition.operator(), message);
   }
 
   private static boolean isEquality(ExpressionTree condition) {
