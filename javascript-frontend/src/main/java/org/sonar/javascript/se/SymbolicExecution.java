@@ -438,42 +438,40 @@ public class SymbolicExecution {
   }
 
   private boolean handleConditionVariableOrUnaryNot(CfgBranchingBlock block, ProgramState currentState, Tree lastElement) {
-    Symbol conditionVariable;
-    // Truthiness of the conditionVariable in the true successor of the condition block
-    Constraint trueSuccessorTruthiness;
-    // Truthiness of the conditionVariable in the false successor of the condition block
-    Constraint falseSuccessorTruthiness;
+    SymbolicValue symbolicValue = null;
 
-    boolean isUnaryNot = lastElement.is(Kind.LOGICAL_COMPLEMENT);
-    if (isUnaryNot) {
+    if (lastElement.is(Kind.LOGICAL_COMPLEMENT)) {
       UnaryExpressionTree unary = (UnaryExpressionTree) lastElement;
-      conditionVariable = trackedVariable(unary.expression());
-      trueSuccessorTruthiness = Constraint.FALSY;
-      falseSuccessorTruthiness = Constraint.TRUTHY;
+      Symbol conditionVariable = trackedVariable(unary.expression());
+      SymbolicValue negatedValue = currentState.getSymbolicValue(conditionVariable);
+      if (negatedValue != null) {
+        symbolicValue = new LogicalNotSymbolicValue(negatedValue);
+      }
     } else {
-      conditionVariable = trackedVariable(lastElement);
-      trueSuccessorTruthiness = Constraint.TRUTHY;
-      falseSuccessorTruthiness = Constraint.FALSY;
+      Symbol conditionVariable = trackedVariable(lastElement);
+      symbolicValue = currentState.getSymbolicValue(conditionVariable);
     }
 
-    SymbolicValue conditionVariableSymbolicValue = currentState.getSymbolicValue(conditionVariable);
-
-    if (conditionVariableSymbolicValue != null) {
-      Constraint currentConstraint = currentState.getConstraint(conditionVariableSymbolicValue);
-      Truthiness currentTruthiness = currentConstraint.truthiness();
-      Truthiness conditionTruthiness = isUnaryNot ? currentTruthiness.not() : currentTruthiness;
-      conditionResults.put(lastElement, conditionTruthiness);
-      if (!currentConstraint.equals(falseSuccessorTruthiness)) {
-        pushSuccessor(block.trueSuccessor(), currentState.constrain(conditionVariableSymbolicValue, trueSuccessorTruthiness));
-      }
-      if (!currentConstraint.equals(trueSuccessorTruthiness)) {
-        pushSuccessor(block.falseSuccessor(), currentState.constrain(conditionVariableSymbolicValue, falseSuccessorTruthiness));
-      }
+    if (symbolicValue != null) {
+      pushConditionSuccessors(block, currentState, symbolicValue);
       return true;
-
     }
 
     return false;
+  }
+
+  private void pushConditionSuccessors(CfgBranchingBlock block, ProgramState currentState, SymbolicValue symbolicValue) {
+    Tree lastElement = block.elements().get(block.elements().size() - 1);
+    Truthiness conditionTruthiness = null;
+    for (ProgramState newState : symbolicValue.constrain(currentState, Constraint.TRUTHY)) {
+      pushSuccessor(block.trueSuccessor(), newState);
+      conditionTruthiness = Truthiness.TRUTHY;
+    }
+    for (ProgramState newState : symbolicValue.constrain(currentState, Constraint.FALSY)) {
+      pushSuccessor(block.falseSuccessor(), newState);
+      conditionTruthiness = conditionTruthiness == Truthiness.TRUTHY ? Truthiness.UNKNOWN : Truthiness.FALSY;
+    }
+    conditionResults.put(lastElement, conditionTruthiness);
   }
 
   private boolean handleConditionBooleanLiteral(CfgBranchingBlock block, ProgramState currentState, Tree lastElement) {

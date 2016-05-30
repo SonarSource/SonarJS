@@ -108,7 +108,7 @@ public class ProgramState {
   }
 
   private SymbolicValue newSymbolicValue() {
-    SymbolicValue value = new SymbolicValue(counter);
+    SymbolicValue value = new SimpleSymbolicValue(counter);
     counter++;
     return value;
   }
@@ -130,10 +130,6 @@ public class ProgramState {
   @Nullable
   public Constraint getConstraint(@Nullable Symbol symbol) {
     return getConstraint(getSymbolicValue(symbol));
-  }
-
-  public Truthiness getTruthiness(@Nullable SymbolicValue value) {
-    return getConstraint(value).truthiness();
   }
 
   public Nullability getNullability(@Nullable SymbolicValue value) {

@@ -19,17 +19,10 @@
  */
 package org.sonar.javascript.se;
 
-class SymbolicValue {
+import java.util.List;
 
-  private final int id;
+interface SymbolicValue {
 
-  SymbolicValue(int id) {
-    this.id = id;
-  }
-
-  @Override
-  public String toString() {
-    return "SV_" + id;
-  }
+  List<ProgramState> constrain(ProgramState state, Constraint constraint);
 
 }
