@@ -5,7 +5,8 @@ switch (param) {
     break;
 }
 
-switch (param) { // NOK
+  switch (param) { // Noncompliant {{Add a "default" clause to this "switch" statement.}}
+//^^^^^^
   case 1:
     break;
 }
@@ -13,7 +14,8 @@ switch (param) { // NOK
 switch (param) {
   case 0:
     break;
-  default: // NOK
+  default: // Noncompliant {{Move this "default" clause to the end of this "switch" statement.}}
+//^^^^^^^
     break;
   case 1:
     break;

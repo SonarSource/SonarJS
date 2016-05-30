@@ -7,7 +7,7 @@
 39,
 ],
 'project:dojo-1.8.1/dijit/Editor.js.uncompressed.js':[
-675,
+695,
 ],
 'project:dojo-1.8.1/dijit/MenuBar.js.uncompressed.js':[
 70,
@@ -26,9 +26,9 @@
 11111,
 11146,
 11168,
-14898,
+14899,
 15647,
-17947,
+17967,
 19313,
 25485,
 25697,
@@ -79,7 +79,7 @@
 358,
 ],
 'project:dojo-1.8.1/dojo/store/util/SimpleQueryEngine.js.uncompressed.js':[
-51,
+52,
 ],
 'project:dojo-1.8.1/dojox/analytics/plugins/gestureEvents.js.uncompressed.js':[
 65,
@@ -339,7 +339,7 @@
 11806,
 ],
 'project:dojo-1.8.1/dojox/grid/enhanced/_FocusManager.js.uncompressed.js':[
-292,
+302,
 534,
 599,
 713,
@@ -423,7 +423,7 @@
 136,
 ],
 'project:dojo-1.8.1/dojox/secure/fromJson.js.uncompressed.js':[
-135,
+136,
 ],
 'project:dojo-1.8.1/dojox/sketch/Figure.js.uncompressed.js':[
 410,
@@ -550,7 +550,7 @@
 181,
 ],
 'project:ecmascript6/redux/examples/todos-with-undo/containers/App.js':[
-47,
+48,
 ],
 'project:ecmascript6/router/third_party/brick/brick-1.0.1.byob.js':[
 329,

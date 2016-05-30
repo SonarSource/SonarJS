@@ -24,6 +24,7 @@ import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
+import org.sonar.plugins.javascript.api.tree.statement.DefaultClauseTree;
 import org.sonar.plugins.javascript.api.tree.statement.SwitchClauseTree;
 import org.sonar.plugins.javascript.api.tree.statement.SwitchStatementTree;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
@@ -46,23 +47,24 @@ public class SwitchWithoutDefaultCheck extends DoubleDispatchVisitorCheck {
 
   @Override
   public void visitSwitchStatement(SwitchStatementTree tree) {
-    if (!hasDefaultCase(tree)) {
-      addLineIssue(tree, ADD_DEFAULT_MESSAGE);
+    DefaultClauseTree defaultClause = getDefaultClause(tree);
+    if (defaultClause == null) {
+      addIssue(tree.switchKeyword(), ADD_DEFAULT_MESSAGE);
 
     } else if (!Iterables.getLast(tree.cases()).is(Kind.DEFAULT_CLAUSE)) {
-      addLineIssue(tree, MOVE_DEFAULT_MESSAGE);
+      addIssue(defaultClause.keyword(), MOVE_DEFAULT_MESSAGE);
     }
     super.visitSwitchStatement(tree);
   }
 
-  private static boolean hasDefaultCase(SwitchStatementTree switchStmt) {
+  private static DefaultClauseTree getDefaultClause(SwitchStatementTree switchStmt) {
     for (SwitchClauseTree clause : switchStmt.cases()) {
 
       if (clause.is(Kind.DEFAULT_CLAUSE)) {
-        return true;
+        return (DefaultClauseTree) clause;
       }
     }
-    return false;
+    return null;
   }
 
 }
