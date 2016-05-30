@@ -31,33 +31,16 @@ public class NewOperatorMisuseCheckTest {
   public void default_without_jsdoc() {
     JavaScriptCheckVerifier.issues(check, new File("src/test/resources/checks/newOperatorMisuse.js"))
       .next().atLine(36)
-      .next().atLine(37)
       .next().atLine(38)
-      .next().atLine(43)
+      .next().atLine(39)
       .next().atLine(44)
+      .next().atLine(45)
       .noMore();
   }
 
   @Test
   public void custom_with_jsdoc() {
     check.considerJSDoc = true;
-
-    JavaScriptCheckVerifier.issues(check, new File("src/test/resources/checks/newOperatorMisuse.js"))
-      .next().atLine(36)
-      .next().atLine(37)
-      .next().atLine(38)
-      .next().atLine(43)
-      .next().atLine(44)
-
-      // Function without JSDoc @constructor tag
-      .next().atLine(49)
-      .next().atLine(50)
-      .next().atLine(57) // False-positive=>SONARJS-454
-      .next().atLine(58)
-      .next().atLine(104)
-      .next().atLine(107).withMessage("Replace this function with a constructor function.")
-      .next().atLine(108).withMessage("Replace this function with a constructor function.")
-      .noMore();
-
+    JavaScriptCheckVerifier.verify(check, new File("src/test/resources/checks/newOperatorMisuse.js"));
   }
 }

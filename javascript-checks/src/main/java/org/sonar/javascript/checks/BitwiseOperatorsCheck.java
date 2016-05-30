@@ -75,7 +75,7 @@ public class BitwiseOperatorsCheck extends SubscriptionVisitorCheck {
     } else {
       operator = ((AssignmentExpressionTree) tree).operator();
     }
-    addLineIssue(operator, String.format(MESSAGE, operator.text()));
+    addIssue(operator, String.format(MESSAGE, operator.text()));
   }
 
 }

@@ -1,7 +1,8 @@
 function sayHello() {
-  if (a == b) {     // NOK
+  if (a == b) {     // Noncompliant {{Replace "==" with "===".}}
+//      ^^
   }
-  if (a != b) {     // NOK
+  if (a != b) {     // Noncompliant {{Replace "!=" with "!==".}}
   }
   if (a === b) {    // OK
   }

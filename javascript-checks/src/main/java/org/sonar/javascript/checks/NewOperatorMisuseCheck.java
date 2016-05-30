@@ -33,6 +33,7 @@ import org.sonar.plugins.javascript.api.symbols.TypeSet;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.declaration.FunctionTree;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
+import org.sonar.plugins.javascript.api.tree.expression.FunctionExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.NewExpressionTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxTrivia;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
@@ -64,11 +65,15 @@ public class NewOperatorMisuseCheck extends DoubleDispatchVisitorCheck {
     ExpressionTree expression = tree.expression();
 
     if (!expression.types().isEmpty() && !isConstructor(expression.types())) {
-      String expressionStr = "this function";
-      if (!CheckUtils.removeParenthesis(expression).is(Tree.Kind.FUNCTION_EXPRESSION)) {
-        expressionStr = CheckUtils.asString(expression);
+      Tree primaryLocationTree = expression;
+      String expressionStr = CheckUtils.asString(expression);
+      ExpressionTree unwrapped = CheckUtils.removeParenthesis(expression);
+      if (unwrapped.is(Tree.Kind.FUNCTION_EXPRESSION)) {
+        primaryLocationTree = ((FunctionExpressionTree) unwrapped).functionKeyword();
+        expressionStr = "this function";
       }
-      addLineIssue(expression, String.format(MESSAGE, expressionStr));
+      addIssue(primaryLocationTree, String.format(MESSAGE, expressionStr))
+        .secondary(tree.newKeyword());
     }
 
     super.visitNewExpression(tree);

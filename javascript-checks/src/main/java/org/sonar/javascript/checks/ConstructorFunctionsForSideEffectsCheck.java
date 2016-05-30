@@ -49,7 +49,7 @@ public class ConstructorFunctionsForSideEffectsCheck extends DoubleDispatchVisit
     Tree expression = tree.expression();
     if (expression.is(Kind.NEW_EXPRESSION)) {
       String message = String.format(MESSAGE, CheckUtils.asString(((NewExpressionTree) expression).expression()));
-      addLineIssue(expression, message);
+      addIssue(expression, message);
     }
 
     super.visitExpressionStatement(tree);

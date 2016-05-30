@@ -25,20 +25,9 @@ import org.sonar.javascript.checks.verifier.JavaScriptCheckVerifier;
 
 public class ComparisonWithNaNCheckTest {
 
-  private ComparisonWithNaNCheck check = new ComparisonWithNaNCheck();
-
   @Test
   public void test() {
-    JavaScriptCheckVerifier.issues(check, new File("src/test/resources/checks/comparisonWithNaN.js"))
-      .next().atLine(1).withMessage("Use a test of the format \"a == a\" instead.")
-      .next().atLine(2).withMessage("Use a test of the format \"a != a\" instead.")
-      .next().atLine(3).withMessage("Use a test of the format \"a === a\" instead.")
-      .next().atLine(4).withMessage("Use a test of the format \"a !== a\" instead.")
-      .next().atLine(6)
-      .next().atLine(7)
-      .next().atLine(8)
-      .next().atLine(9)
-      .noMore();
+    JavaScriptCheckVerifier.verify(new ComparisonWithNaNCheck(), new File("src/test/resources/checks/comparisonWithNaN.js"));
   }
 
 }

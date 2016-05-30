@@ -25,14 +25,9 @@ import org.sonar.javascript.checks.verifier.JavaScriptCheckVerifier;
 
 public class IndexOfCompareToPositiveNumberCheckTest {
 
-  private IndexOfCompareToPositiveNumberCheck check = new IndexOfCompareToPositiveNumberCheck();
-
   @Test
   public void test() {
-    JavaScriptCheckVerifier.issues(check, new File("src/test/resources/checks/indexOfCompareToPositiveNumber.js"))
-      .next().atLine(1).withMessage("0 is a valid index, but is ignored by this check.")
-      .next().atLine(2)
-      .noMore();
+    JavaScriptCheckVerifier.verify(new IndexOfCompareToPositiveNumberCheck(), new File("src/test/resources/checks/indexOfCompareToPositiveNumber.js"));
   }
 
 }

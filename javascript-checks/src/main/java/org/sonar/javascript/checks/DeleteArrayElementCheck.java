@@ -47,7 +47,7 @@ public class DeleteArrayElementCheck extends DoubleDispatchVisitorCheck {
   @Override
   public void visitUnaryExpression(UnaryExpressionTree tree) {
     if (tree.is(Tree.Kind.DELETE) && isArrayElement(tree.expression())) {
-      addLineIssue(tree, MESSAGE);
+      addIssue(tree.operator(), MESSAGE);
     }
     super.visitUnaryExpression(tree);
   }

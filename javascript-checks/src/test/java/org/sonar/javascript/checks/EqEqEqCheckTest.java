@@ -27,10 +27,7 @@ public class EqEqEqCheckTest {
 
   @Test
   public void test() {
-    JavaScriptCheckVerifier.issues(new EqEqEqCheck(), new File("src/test/resources/checks/eqEqEq.js"))
-      .next().atLine(2).withMessage("Replace \"==\" with \"===\".")
-      .next().atLine(4).withMessage("Replace \"!=\" with \"!==\".")
-      .noMore();
+    JavaScriptCheckVerifier.verify(new EqEqEqCheck(), new File("src/test/resources/checks/eqEqEq.js"));
   }
 
 }

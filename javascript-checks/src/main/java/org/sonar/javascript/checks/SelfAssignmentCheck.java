@@ -47,7 +47,7 @@ public class SelfAssignmentCheck extends DoubleDispatchVisitorCheck {
   public void visitAssignmentExpression(AssignmentExpressionTree tree) {
     ExpressionTree variable = tree.variable();
     if (tree.is(Tree.Kind.ASSIGNMENT) && SyntacticEquivalence.areEquivalent(variable, tree.expression())) {
-      addLineIssue(tree, MESSAGE);
+      addIssue(tree, MESSAGE);
     }
     super.visitAssignmentExpression(tree);
   }

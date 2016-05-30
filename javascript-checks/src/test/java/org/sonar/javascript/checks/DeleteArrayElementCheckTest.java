@@ -27,13 +27,7 @@ public class DeleteArrayElementCheckTest {
 
   @Test
   public void test() {
-    DeleteArrayElementCheck check = new DeleteArrayElementCheck();
-
-    JavaScriptCheckVerifier.issues(check, new File("src/test/resources/checks/DeleteArrayElement.js"))
-      .next().atLine(3).withMessage("Remove this use of \"delete\".")
-      .next().atLine(4)
-      .next().atLine(8)
-      .noMore();
+    JavaScriptCheckVerifier.verify(new DeleteArrayElementCheck(), new File("src/test/resources/checks/DeleteArrayElement.js"));
   }
 
 }
