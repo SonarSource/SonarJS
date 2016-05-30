@@ -26,6 +26,8 @@ import org.sonar.javascript.tree.impl.statement.IfStatementTreeImpl;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.statement.ElseClauseTree;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
+import org.sonar.plugins.javascript.api.visitors.IssueLocation;
+import org.sonar.plugins.javascript.api.visitors.PreciseIssue;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 
@@ -46,7 +48,7 @@ public class ElseIfWithoutElseCheck extends DoubleDispatchVisitorCheck {
       IfStatementTreeImpl ifStmt = (IfStatementTreeImpl) tree.statement();
 
       if (!ifStmt.hasElse()) {
-        addLineIssue(ifStmt, MESSAGE);
+        addIssue(new PreciseIssue(this, new IssueLocation(tree.elseKeyword(), ifStmt.ifKeyword(), MESSAGE)));
       }
 
     }

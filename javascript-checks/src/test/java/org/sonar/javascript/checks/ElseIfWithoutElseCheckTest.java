@@ -27,9 +27,7 @@ public class ElseIfWithoutElseCheckTest {
 
   @Test
   public void test() {
-    JavaScriptCheckVerifier.issues(new ElseIfWithoutElseCheck(), new File("src/test/resources/checks/elseIfWithoutElse.js"))
-      .next().atLine(15).withMessage("Add the missing \"else\" clause.")
-      .noMore();
+    JavaScriptCheckVerifier.verify(new ElseIfWithoutElseCheck(), new File("src/test/resources/checks/elseIfWithoutElse.js"));
   }
 
 }
