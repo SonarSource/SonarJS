@@ -27,11 +27,7 @@ public class OctalNumberCheckTest {
 
   @Test
   public void test() {
-    OctalNumberCheck check = new OctalNumberCheck();
-
-    JavaScriptCheckVerifier.issues(check, new File("src/test/resources/checks/octalNumber.js"))
-      .next().atLine(3).withMessage("Replace the value of the octal number (0644) by its decimal equivalent (420).")
-      .noMore();
+    JavaScriptCheckVerifier.verify(new OctalNumberCheck(), new File("src/test/resources/checks/octalNumber.js"));
   }
 
 }
