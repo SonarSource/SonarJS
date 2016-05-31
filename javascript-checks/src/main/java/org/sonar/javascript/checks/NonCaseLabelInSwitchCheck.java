@@ -73,7 +73,7 @@ public class NonCaseLabelInSwitchCheck extends SubscriptionVisitorCheck {
     } else if (tree.is(Kind.LABELLED_STATEMENT)) {
 
       if (inCase()) {
-        addLineIssue(tree,
+        addIssue(((LabelledStatementTree) tree).label(),
           String.format(MESSAGE, ((LabelledStatementTree) tree).label().name()));
       }
 

@@ -27,10 +27,6 @@ public class NonCaseLabelInSwitchCheckTest {
 
   @Test
   public void test() {
-    JavaScriptCheckVerifier.issues(new NonCaseLabelInSwitchCheck(), new File("src/test/resources/checks/nonCaseLabelInSwitch.js"))
-      .next().atLine(4).withMessage("Remove this misleading \"case2\" label.")
-      .next().atLine(13)
-      .next().atLine(23)
-      .noMore();
+    JavaScriptCheckVerifier.verify(new NonCaseLabelInSwitchCheck(), new File("src/test/resources/checks/nonCaseLabelInSwitch.js"));
   }
 }
