@@ -29,7 +29,6 @@ import static org.sonar.javascript.se.Constraint.TRUTHY;
 
 public class LogicalNotSymbolicValueTest {
 
-  private static final ProgramState EMPTY_STATE = ProgramState.emptyState();
   private Symbol symbol = mock(Symbol.class);
 
   @Test(expected = IllegalArgumentException.class)
@@ -39,7 +38,7 @@ public class LogicalNotSymbolicValueTest {
 
   @Test
   public void constrain() throws Exception {
-    ProgramState state1 = EMPTY_STATE.newSymbolicValue(symbol, null);
+    ProgramState state1 = ProgramState.emptyState().newSymbolicValue(symbol, null);
     SymbolicValue sv1 = state1.getSymbolicValue(symbol);
     SymbolicValue not = new LogicalNotSymbolicValue(sv1);
     assertThat(not.constrain(state1, TRUTHY)).containsExactly(state1.constrain(sv1, FALSY));
@@ -47,10 +46,10 @@ public class LogicalNotSymbolicValueTest {
 
   @Test
   public void to_string() throws Exception {
-    ProgramState state1 = EMPTY_STATE.newSymbolicValue(symbol, null);
+    ProgramState state1 = ProgramState.emptyState().newSymbolicValue(symbol, null);
     SymbolicValue sv1 = state1.getSymbolicValue(symbol);
     SymbolicValue not = new LogicalNotSymbolicValue(sv1);
-    assertThat(not.toString()).isEqualTo("!SV_1");
+    assertThat(not.toString()).isEqualTo("!SV_0");
   }
 
 }
