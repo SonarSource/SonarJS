@@ -28,11 +28,7 @@ public class SwitchWithoutDefaultCheckTest {
   @Test
   public void test() {
     SwitchWithoutDefaultCheck check = new SwitchWithoutDefaultCheck();
-
-    JavaScriptCheckVerifier.issues(check, new File("src/test/resources/checks/switchWithoutDefault.js"))
-      .next().atLine(8).withMessage("Add a \"default\" clause to this \"switch\" statement.")
-      .next().atLine(13).withMessage("Move this \"default\" clause to the end of this \"switch\" statement.")
-      .noMore();
+    JavaScriptCheckVerifier.verify(check, new File("src/test/resources/checks/switchWithoutDefault.js"));
   }
 
 }

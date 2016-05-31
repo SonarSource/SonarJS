@@ -1,4 +1,5 @@
-switch (a) {         // NOK
+  switch (a) {         // Noncompliant {{Replace this "switch" statement with "if" statements to increase readability.}}
+//^^^^^^
   case 1:
     doSomething();
     break;
@@ -6,7 +7,7 @@ switch (a) {         // NOK
     doSomething();
 }
 
-switch (a) {         // NOK
+switch (a) {         // Noncompliant
 
 }
 

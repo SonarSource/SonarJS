@@ -1,10 +1,11 @@
 function sayHello() {
-  var a = { // NOK
+  var a = { // Noncompliant {{Add a semicolon at the end of this statement.}}
     'i': 1,
     'j': 2
   }
 
-  return 1 // NOK
+  return 1 // Noncompliant
+//^^^^^^^^
 
   if (condition) { // OK
   }
@@ -19,36 +20,36 @@ function sayHello() {
   return 1; // OK
 }
 
-import x from 'mod'  // KO
+import x from 'mod'  // Noncompliant
 import x from 'mod'; // OK
-import 'mod'  // KO
+import 'mod'  // Noncompliant
 import 'mod'; // OK
 
 function f() {
-  do {} 
-  while (false) // KO
+  do {}  // Noncompliant
+  while (false)
   do {} 
   while (false); // OK
-  throw x  // KO
+  throw x  // Noncompliant
   throw x; // OK
-  debugger  // KO
+  debugger  // Noncompliant
   debugger; // OK
   while(false) {
-    continue  // KO
+    continue  // Noncompliant
     continue; // OK
   }
 }
 
 
-export * from "moduleName"   // NOK
-export {a, b} from "moduleName"  // NOK
-export {a, b}  // NOK
-export var a = 1 // NOK
-export let a = 1 // NOK
-export const a = 1 // NOK
-export var a = function() {} // NOK
-export var a = function foo() {} // NOK
-export var a // NOK
+export * from "moduleName"   // Noncompliant
+export {a, b} from "moduleName"  // Noncompliant
+export {a, b}  // Noncompliant
+export var a = 1 // Noncompliant
+export let a = 1 // Noncompliant
+export const a = 1 // Noncompliant
+export var a = function() {} // Noncompliant
+export var a = function foo() {} // Noncompliant
+export var a // Noncompliant
 
 export class C { }  // OK
 export function foo() {}  // OK
@@ -61,12 +62,12 @@ export default class { }  // OK
 export default function () {}  // OK
 export default function * () {} // OK
 
-export default a // NOK
-export default new C()  // NOK
+export default a // Noncompliant
+export default new C()  // Noncompliant
 function f () {}
-export default f  // NOK
+export default f  // Noncompliant
 
-export default {prop: value} // NOK
+export default {prop: value} // Noncompliant
 
 export * from "moduleName";   // OK
 export default new C();       // OK

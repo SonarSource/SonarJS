@@ -40,12 +40,12 @@ import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 @SqaleConstantRemediation("2min")
 public class IfConditionalAlwaysTrueOrFalseCheck extends DoubleDispatchVisitorCheck {
 
-  private static final String MESSAGE = "Remove this \"if\" statement.\"";
+  private static final String MESSAGE = "Remove this \"if\" statement.";
 
   @Override
   public void visitIfStatement(IfStatementTree tree) {
     if (tree.condition().is(Kind.BOOLEAN_LITERAL)) {
-      addLineIssue(tree, MESSAGE);
+      addIssue(tree.condition(), MESSAGE);
     }
 
     super.visitIfStatement(tree);

@@ -19,14 +19,16 @@
  */
 package org.sonar.javascript.checks;
 
+import java.util.ArrayDeque;
+import java.util.Deque;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
 import org.sonar.javascript.tree.impl.statement.IfStatementTreeImpl;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
-import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
+import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.javascript.api.tree.statement.DoWhileStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.ElseClauseTree;
 import org.sonar.plugins.javascript.api.tree.statement.ForObjectStatementTree;
@@ -36,6 +38,7 @@ import org.sonar.plugins.javascript.api.tree.statement.SwitchStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.TryStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.WhileStatementTree;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
+import org.sonar.plugins.javascript.api.visitors.PreciseIssue;
 import org.sonar.squidbridge.annotations.ActivatedByDefault;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
@@ -52,7 +55,7 @@ public class NestedControlFlowDepthCheck extends DoubleDispatchVisitorCheck {
 
   private static final String MESSAGE = "Refactor this code to not nest more than %s if/for/while/switch/try statements.";
   private static final int DEFAULT_MAXIMUM_NESTING_LEVEL = 3;
-  private int nestedLevel;
+  private Deque<SyntaxToken> stack = new ArrayDeque<>();
 
   @RuleProperty(
     key = "maximumNestingLevel",
@@ -66,70 +69,69 @@ public class NestedControlFlowDepthCheck extends DoubleDispatchVisitorCheck {
 
   @Override
   public void visitScript(ScriptTree tree) {
-    nestedLevel = 0;
+    stack.clear();
     super.visitScript(tree);
   }
 
   @Override
   public void visitIfStatement(IfStatementTree tree) {
-    nestedLevel++;
-    checkNestedLevel(tree);
+    increaseAndCheckNestedLevel(tree.ifKeyword());
     visitIf(tree);
-    nestedLevel--;
+    decreaseNestedLevel();
   }
 
   @Override
   public void visitForStatement(ForStatementTree tree) {
-    nestedLevel++;
-    checkNestedLevel(tree);
+    increaseAndCheckNestedLevel(tree.forKeyword());
     super.visitForStatement(tree);
-    nestedLevel--;
+    decreaseNestedLevel();
   }
 
   @Override
   public void visitForObjectStatement(ForObjectStatementTree tree) {
-    nestedLevel++;
-    checkNestedLevel(tree);
+    increaseAndCheckNestedLevel(tree.forKeyword());
     super.visitForObjectStatement(tree);
-    nestedLevel--;
+    decreaseNestedLevel();
   }
 
   @Override
   public void visitWhileStatement(WhileStatementTree tree) {
-    nestedLevel++;
-    checkNestedLevel(tree);
+    increaseAndCheckNestedLevel(tree.whileKeyword());
     super.visitWhileStatement(tree);
-    nestedLevel--;
+    decreaseNestedLevel();
   }
 
   @Override
   public void visitDoWhileStatement(DoWhileStatementTree tree) {
-    nestedLevel++;
-    checkNestedLevel(tree);
+    increaseAndCheckNestedLevel(tree.doKeyword());
     super.visitDoWhileStatement(tree);
-    nestedLevel--;
+    decreaseNestedLevel();
   }
 
   @Override
   public void visitSwitchStatement(SwitchStatementTree tree) {
-    nestedLevel++;
-    checkNestedLevel(tree);
+    increaseAndCheckNestedLevel(tree.switchKeyword());
     super.visitSwitchStatement(tree);
-    nestedLevel--;
+    decreaseNestedLevel();
   }
 
   @Override
   public void visitTryStatement(TryStatementTree tree) {
-    nestedLevel++;
-    checkNestedLevel(tree);
+    increaseAndCheckNestedLevel(tree.tryKeyword());
     super.visitTryStatement(tree);
-    nestedLevel--;
+    decreaseNestedLevel();
   }
 
-  private void checkNestedLevel(Tree tree) {
-    if (nestedLevel == getMaximumNestingLevel() + 1) {
-      addLineIssue(tree, String.format(MESSAGE, getMaximumNestingLevel()));
+  private void increaseAndCheckNestedLevel(SyntaxToken token) {
+    if (stack.size() == getMaximumNestingLevel()) {
+      PreciseIssue issue = addIssue(token, String.format(MESSAGE, getMaximumNestingLevel()));
+      stack.forEach(t -> issue.secondary(t, "Nesting +1"));
     }
+    stack.push(token);
+  }
+
+  private void decreaseNestedLevel() {
+    stack.pop();
   }
 
   private void visitIf(IfStatementTree tree) {

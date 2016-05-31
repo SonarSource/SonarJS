@@ -6,7 +6,8 @@ function sayHello() {
       if (true) { // level 2
       } else      // level 2
           for (; ;)  // level 3
-              if (true) {  //level 4
+              if (true) {  // Noncompliant {{Refactor this code to not nest more than 3 if/for/while/switch/try statements.}}
+//            ^^
               }
   }
 
@@ -14,19 +15,19 @@ function sayHello() {
     for (bar in MyArray) {     // level 2
       while (false) {               // level 3
 
-        for (foo in MyArray) {         // level 4
+        for (foo in MyArray) {         // Noncompliant [[secondary=-4,-3,-2]]
         }
 
-        while (false) {                // level 4
+        while (false) {                // Noncompliant
         }
 
-        do {                           // level 4
+        do {                           // Noncompliant
         } while (false);
 
-        switch (foo) {                 // level 4
+        switch (foo) {                 // Noncompliant
         }
 
-        try {                          // level 4
+        try {                          // Noncompliant
         } catch (err) {                // level 4
           if (a) {                        // level 5
 

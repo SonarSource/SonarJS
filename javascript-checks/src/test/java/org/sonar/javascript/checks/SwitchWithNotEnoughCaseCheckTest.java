@@ -29,10 +29,6 @@ public class SwitchWithNotEnoughCaseCheckTest {
 
   @Test
   public void test() {
-    JavaScriptCheckVerifier.issues(check, new File("src/test/resources/checks/switchWithNotEnoughCase.js"))
-      .next().atLine(1)
-      .next().atLine(9)
-      .noMore();
-
+    JavaScriptCheckVerifier.verify(check, new File("src/test/resources/checks/switchWithNotEnoughCase.js"));
   }
 }

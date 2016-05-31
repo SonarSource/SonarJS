@@ -56,7 +56,7 @@ public class SemicolonCheck extends DoubleDispatchVisitorCheck {
 
   private void checkEOS(Tree tree, @Nullable SyntaxToken semicolonToken) {
     if (semicolonToken == null) {
-      addLineIssue(tree, MESSAGE);
+      addIssue(tree, MESSAGE);
     }
   }
 

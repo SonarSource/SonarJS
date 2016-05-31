@@ -43,7 +43,7 @@ public class SwitchWithNotEnoughCaseCheck extends DoubleDispatchVisitorCheck {
   @Override
   public void visitSwitchStatement(SwitchStatementTree tree) {
     if (tree.cases().size() < 3) {
-      addLineIssue(tree, MESSAGE);
+      addIssue(tree.switchKeyword(), MESSAGE);
     }
 
     super.visitSwitchStatement(tree);

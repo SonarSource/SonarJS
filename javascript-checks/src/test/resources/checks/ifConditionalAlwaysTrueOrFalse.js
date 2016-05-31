@@ -6,10 +6,11 @@ if (true === b) { // OK
   doSomething();
 }
 
-if (true) {
-  doSomething();  // NOK
+if (true) {       // Noncompliant {{Remove this "if" statement.}}
+//  ^^^^
+  doSomething();
 }
 
-if (false) {
-  doSomething();  // NOK
+if (false) {      // Noncompliant
+  doSomething();
 }

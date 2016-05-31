@@ -62,7 +62,7 @@ public class VariableDeclarationWithoutVarCheck extends DoubleDispatchVisitorChe
       }
     }
     if (!symbol.usages().isEmpty()) {
-      addLineIssue(symbol.usages().iterator().next().identifierTree(), String.format(MESSAGE, symbol.name()));
+      addIssue(symbol.usages().iterator().next().identifierTree(), String.format(MESSAGE, symbol.name()));
     }
   }
 }

@@ -27,10 +27,7 @@ public class EmptyBlockCheckTest {
 
   @Test
   public void test() {
-    JavaScriptCheckVerifier.issues(new EmptyBlockCheck(), new File("src/test/resources/checks/emptyBlock.js"))
-      .next().atLine(2).withMessage("Either remove or fill this block of code.")
-      .next().atLine(16).withMessage("Either remove or fill this block of code.")
-      .noMore();
+    JavaScriptCheckVerifier.verify(new EmptyBlockCheck(), new File("src/test/resources/checks/emptyBlock.js"));
   }
 
 }

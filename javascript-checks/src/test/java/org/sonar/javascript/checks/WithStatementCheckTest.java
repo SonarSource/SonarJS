@@ -28,10 +28,7 @@ public class WithStatementCheckTest {
   @Test
   public void test() {
     WithStatementCheck check = new WithStatementCheck();
-
-    JavaScriptCheckVerifier.issues(check, new File("src/test/resources/checks/withStatement.js"))
-      .next().atLine(2).withMessage("Remove this use of \"with\".")
-      .noMore();
+    JavaScriptCheckVerifier.verify(check, new File("src/test/resources/checks/withStatement.js"));
   }
 
 }
