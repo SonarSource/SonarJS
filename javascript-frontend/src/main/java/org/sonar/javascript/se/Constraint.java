@@ -85,19 +85,27 @@ public enum Constraint {
   public Truthiness truthiness() {
     if (this.equals(TRUTHY)) {
       return Truthiness.TRUTHY;
-    } else if (this.and(TRUTHY).equals(NO_POSSIBLE_VALUE)) {
+    } else if (isIncompatibleWith(TRUTHY)) {
       return Truthiness.FALSY;
     }
     return Truthiness.UNKNOWN;
   }
 
   public Nullability nullability() {
-    if (this.and(NULL_OR_UNDEFINED).equals(this)) {
+    if (isStricterOrEqualTo(NULL_OR_UNDEFINED)) {
       return Nullability.NULL;
-    } else if (this.and(Constraint.NOT_NULLY).equals(this)) {
+    } else if (isStricterOrEqualTo(NOT_NULLY)) {
       return Nullability.NOT_NULL;
     }
     return Nullability.UNKNOWN;
+  }
+
+  public boolean isStricterOrEqualTo(Constraint other) {
+    return and(other).equals(this);
+  }
+
+  public boolean isIncompatibleWith(Constraint other) {
+    return and(other).equals(NO_POSSIBLE_VALUE);
   }
 
   @Nullable

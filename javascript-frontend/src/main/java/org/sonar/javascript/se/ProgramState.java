@@ -88,10 +88,10 @@ public class ProgramState {
     if (value == null || constraint == null) {
       return this;
     }
-    Constraint newConstraint = getConstraint(value).and(constraint);
-    if (Constraint.NO_POSSIBLE_VALUE.equals(newConstraint)) {
+    if (getConstraint(value).isIncompatibleWith(constraint)) {
       return null;
     } else {
+      Constraint newConstraint = getConstraint(value).and(constraint);
       return new ProgramState(ImmutableMap.copyOf(values), replaceConstraint(value, newConstraint), counter);
     }
   }

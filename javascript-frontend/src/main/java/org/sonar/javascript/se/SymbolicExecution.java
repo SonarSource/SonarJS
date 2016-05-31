@@ -414,9 +414,9 @@ public class SymbolicExecution {
         Truthiness truthinessIfVariableNull = lastElement.is(Kind.STRICT_EQUAL_TO) ? Truthiness.TRUTHY : Truthiness.FALSY;
         Truthiness conditionTruthiness = Truthiness.UNKNOWN;
 
-        if (currentConstraint.and(constraint).equals(currentConstraint)) {
+        if (currentConstraint.isStricterOrEqualTo(constraint)) {
           conditionTruthiness = truthinessIfVariableNull;
-        } else if (currentConstraint.and(constraint).equals(Constraint.NO_POSSIBLE_VALUE)) {
+        } else if (currentConstraint.isIncompatibleWith(constraint)) {
           conditionTruthiness = truthinessIfVariableNull.not();
         }
 
