@@ -6,8 +6,12 @@ function f() {
     return false;
   }
 
-  if (something) { return false; } else { return true; } // Noncompliant
-//^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  if (something) {   // Noncompliant
+//^^
+    return false;
+  } else {
+    return true;
+  }
 
   if (something)     // Noncompliant
     return true;

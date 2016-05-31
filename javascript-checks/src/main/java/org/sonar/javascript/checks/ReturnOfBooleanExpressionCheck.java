@@ -50,7 +50,7 @@ public class ReturnOfBooleanExpressionCheck extends DoubleDispatchVisitorCheck {
   @Override
   public void visitIfStatement(IfStatementTree tree) {
     if (tree.elseClause() != null && returnsBoolean(tree.elseClause().statement()) && returnsBoolean(tree.statement())) {
-      addIssue(tree, MESSAGE);
+      addIssue(tree.ifKeyword(), MESSAGE);
     }
 
     visitIf(tree);
