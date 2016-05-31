@@ -27,11 +27,7 @@ public class ReturnOfBooleanExpressionCheckTest {
 
   @Test
   public void test() {
-    JavaScriptCheckVerifier.issues(new ReturnOfBooleanExpressionCheck(), new File("src/test/resources/checks/returnOfBooleanExpression.js"))
-      .next().atLine(3).withMessage("Replace this if-then-else statement by a single return statement.")
-      .next().atLine(9)
-      .next().atLine(15)
-      .noMore();
+    JavaScriptCheckVerifier.verify(new ReturnOfBooleanExpressionCheck(), new File("src/test/resources/checks/returnOfBooleanExpression.js"));
   }
 
 }

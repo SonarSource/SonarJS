@@ -1,18 +1,15 @@
 function f() {
 
-  if (something) {   // NOK
+  if (something) {   // Noncompliant {{Replace this if-then-else statement by a single return statement.}}
     return true;
   } else {
     return false;
   }
 
-  if (something) {   // NOK
-    return false;
-  } else {
-    return true;
-  }
+  if (something) { return false; } else { return true; } // Noncompliant
+//^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-  if (something)     // NOK
+  if (something)     // Noncompliant
     return true;
   else
     return false;
