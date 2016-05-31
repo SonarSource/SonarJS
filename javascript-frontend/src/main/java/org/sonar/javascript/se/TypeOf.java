@@ -28,17 +28,17 @@ import static org.sonar.javascript.se.Constraint.UNDEFINED;
 
 class TypeOf {
 
-  static final Map<String, Constraint> typeOfEqualNullability = ImmutableMap.<String, Constraint>builder()
+  static final Map<String, Constraint> TYPEOF_EQUAL_CONSTRAINTS = ImmutableMap.<String, Constraint>builder()
     .put("undefined", Constraint.UNDEFINED)
     .put("function", Constraint.TRUTHY)
     .put("object", Constraint.TRUTHY_OR_NULL)
-    .put("number", Constraint.NULL_OR_UNDEFINED.not())
-    .put("string", Constraint.NULL_OR_UNDEFINED.not())
-    .put("boolean", Constraint.NULL_OR_UNDEFINED.not())
-    .put("symbol", Constraint.NULL_OR_UNDEFINED.not())
+    .put("number", Constraint.NOT_NULLY)
+    .put("string", Constraint.NOT_NULLY)
+    .put("boolean", Constraint.NOT_NULLY)
+    .put("symbol", Constraint.NOT_NULLY)
     .build();
 
-  static final Map<String, Constraint> typeOfNotEqualNullability = ImmutableMap.<String, Constraint>builder()
+  static final Map<String, Constraint> TYPEOF_NOT_EQUAL_CONSTRAINTS = ImmutableMap.<String, Constraint>builder()
     .put("undefined", Constraint.UNDEFINED.not())
     .put("object", Constraint.NULL.not())
     .build();
@@ -59,6 +59,6 @@ class TypeOf {
   }
 
   static boolean isValidType(String type) {
-    return typeOfEqualNullability.containsKey(type);
+    return TYPEOF_EQUAL_CONSTRAINTS.containsKey(type);
   }
 }

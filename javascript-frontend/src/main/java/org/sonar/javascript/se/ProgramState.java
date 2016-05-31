@@ -23,6 +23,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableMap.Builder;
 import java.util.Map;
 import java.util.Map.Entry;
+import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.plugins.javascript.api.symbols.Symbol;
 
@@ -113,12 +114,11 @@ public class ProgramState {
     return value;
   }
 
-  @Nullable
+  @CheckForNull
   public SymbolicValue getSymbolicValue(@Nullable Symbol symbol) {
     return values.get(symbol);
   }
 
-  @Nullable
   public Constraint getConstraint(@Nullable SymbolicValue value) {
     Constraint constraint = constraints.get(value);
     if (constraint == null) {
@@ -127,19 +127,12 @@ public class ProgramState {
     return constraint;
   }
 
-  @Nullable
   public Constraint getConstraint(@Nullable Symbol symbol) {
     return getConstraint(getSymbolicValue(symbol));
   }
 
   public Nullability getNullability(@Nullable SymbolicValue value) {
-    Nullability nullability = Nullability.UNKNOWN;
-    Constraint constraint = getConstraint(value);
-    if (constraint != null) {
-      nullability = constraint.nullability();
-    }
-
-    return nullability;
+    return getConstraint(value).nullability();
   }
 
   public Map<Symbol, Constraint> constraintsBySymbol() {

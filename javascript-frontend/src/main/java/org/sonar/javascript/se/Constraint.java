@@ -25,7 +25,25 @@ import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 import org.sonar.plugins.javascript.api.tree.expression.LiteralTree;
 
+/**
+ * This class represents a constraint which is met by a {@link SymbolicValue} in a given {@link ProgramState}.
+ * Possible constraints are NULL, UNDEFINED, TRUTHY, FALSY and any possible combination of them.
+ */
 public enum Constraint {
+
+  /*
+   * Internally, we represent each constraint with 4 bits.
+   * Each bit is related to a subset of all possible values.
+   * We assign each bit from left to right to the 4 following subsets:
+   * - truthy
+   * - any falsy value except null and undefined
+   * - undefined
+   * - null
+   *
+   * We therefore have 16 possible constraints.
+   *
+   * Example: NULL is represented by "0001" and NOT_NULL is represented by "1110".
+   */
 
   NO_POSSIBLE_VALUE(0b0000),
   NULL(0b0001),
@@ -48,7 +66,7 @@ public enum Constraint {
 
   private int bitSet;
 
-  private Constraint(int bitSet) {
+  Constraint(int bitSet) {
     this.bitSet = bitSet;
   }
 
@@ -65,7 +83,7 @@ public enum Constraint {
   }
 
   public Truthiness truthiness() {
-    if (this.equals(Constraint.TRUTHY)) {
+    if (this.equals(TRUTHY)) {
       return Truthiness.TRUTHY;
     } else if (this.and(TRUTHY).equals(NO_POSSIBLE_VALUE)) {
       return Truthiness.FALSY;
