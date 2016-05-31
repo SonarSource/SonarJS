@@ -28,6 +28,7 @@ import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
+import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 import org.sonar.plugins.javascript.api.tree.statement.LabelledStatementTree;
 import org.sonar.plugins.javascript.api.visitors.SubscriptionVisitorCheck;
 import org.sonar.squidbridge.annotations.ActivatedByDefault;
@@ -73,8 +74,8 @@ public class NonCaseLabelInSwitchCheck extends SubscriptionVisitorCheck {
     } else if (tree.is(Kind.LABELLED_STATEMENT)) {
 
       if (inCase()) {
-        addIssue(((LabelledStatementTree) tree).label(),
-          String.format(MESSAGE, ((LabelledStatementTree) tree).label().name()));
+        IdentifierTree label = ((LabelledStatementTree) tree).label();
+        addIssue(label, String.format(MESSAGE, label.name()));
       }
 
     } else {
