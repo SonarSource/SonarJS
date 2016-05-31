@@ -1,30 +1,15 @@
-// NOK
-if (something) {
-}
+if (something) {} // Noncompliant {{Either remove or fill this block of code.}}
+//             ^^
 
-// OK
-if (something) {
-  // empty
-}
+if (something) { /* empty */ }
 
-// OK
-if (something) {
-  doSomething();
-}
+if (something) { doSomething(); }
 
-// NOK
-for (var i = 0; i < length; i++) {
-}
+for (var i = 0; i < length; i++) {} // Noncompliant
 
-// OK
-for (var i = 0; i < length; i++) {
-  // empty
-}
+for (var i = 0; i < length; i++) { /* empty */ }
 
-// OK
-for (var i = 0; i < length; i++) {
-  doSomething();
-}
+for (var i = 0; i < length; i++) { doSomething(); }
 
 class Foo {
   foo() {}

@@ -47,7 +47,7 @@ public class EmptyBlockCheck extends DoubleDispatchVisitorCheck {
   @Override
   public void visitBlock(BlockTree tree) {
     if (tree.statements().isEmpty() && !hasComment(tree.closeCurlyBrace())) {
-      addLineIssue(tree, MESSAGE);
+      addIssue(tree, MESSAGE);
     }
     super.visitBlock(tree);
   }
