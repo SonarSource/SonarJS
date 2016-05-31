@@ -1,5 +1,6 @@
 function fun() {
   x = 1; // Noncompliant {{Add the "let", "const" or "var" keyword to this declaration of "x" to make it explicit.}}
+//^
   x = 2;
   var y = 3; // OK
 }
