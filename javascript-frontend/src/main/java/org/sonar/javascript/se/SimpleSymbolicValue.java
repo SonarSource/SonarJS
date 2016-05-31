@@ -35,6 +35,7 @@ public class SimpleSymbolicValue implements SymbolicValue {
     return "SV_" + id;
   }
 
+  @Override
   public List<ProgramState> constrain(ProgramState state, Constraint constraint) {
     ProgramState newState = state.constrain(this, constraint);
     if (newState == null) {
@@ -42,6 +43,5 @@ public class SimpleSymbolicValue implements SymbolicValue {
     }
     return ImmutableList.of(newState);
   }
-
 
 }
