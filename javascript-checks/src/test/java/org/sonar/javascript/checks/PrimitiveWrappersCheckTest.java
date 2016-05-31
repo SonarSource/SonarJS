@@ -27,11 +27,7 @@ public class PrimitiveWrappersCheckTest {
 
   @Test
   public void test() {
-    JavaScriptCheckVerifier.issues(new PrimitiveWrappersCheck(), new File("src/test/resources/checks/primitiveWrappers.js"))
-      .next().atLine(2).withMessage("Use a literal value for this.")
-      .next().atLine(12)
-      .next().atLine(13)
-      .noMore();
+    JavaScriptCheckVerifier.verify(new PrimitiveWrappersCheck(), new File("src/test/resources/checks/primitiveWrappers.js"));
   }
 
 }

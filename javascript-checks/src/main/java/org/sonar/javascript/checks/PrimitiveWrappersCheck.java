@@ -47,7 +47,7 @@ public class PrimitiveWrappersCheck extends DoubleDispatchVisitorCheck {
   @Override
   public void visitNewExpression(NewExpressionTree tree) {
     if (WRAPPERS.contains(CheckUtils.asString(tree.expression()))) {
-      addLineIssue(tree.expression(), MESSAGE);
+      addIssue(tree, MESSAGE);
     }
 
     super.visitNewExpression(tree);
