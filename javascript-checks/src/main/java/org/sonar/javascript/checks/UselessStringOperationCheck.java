@@ -69,7 +69,7 @@ public class UselessStringOperationCheck extends SubscriptionVisitorCheck {
 
         if (memberExpression.object().types().containsOnly(Type.Kind.STRING)
           && !isReplaceExclusion(memberExpression.property(), ((CallExpressionTree) expression).arguments())) {
-          addLineIssue(tree, String.format(MESSAGE, getVariable(memberExpression)));
+          addIssue(memberExpression.property(), String.format(MESSAGE, getVariable(memberExpression)));
         }
       }
     }

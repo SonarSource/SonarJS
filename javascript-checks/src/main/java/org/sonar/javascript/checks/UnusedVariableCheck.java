@@ -63,7 +63,7 @@ public class UnusedVariableCheck extends DoubleDispatchVisitorCheck {
   private void raiseIssuesOnDeclarations(Symbol symbol, String message) {
     for (Usage usage : symbol.usages()) {
       if (usage.isDeclaration()) {
-        addLineIssue(usage.identifierTree(), message);
+        addIssue(usage.identifierTree(), message);
       }
     }
   }

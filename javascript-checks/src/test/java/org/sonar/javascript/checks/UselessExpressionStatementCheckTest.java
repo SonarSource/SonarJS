@@ -27,13 +27,6 @@ public class UselessExpressionStatementCheckTest {
 
   @Test
   public void test() {
-    JavaScriptCheckVerifier.issues(new UselessExpressionStatementCheck(), new File("src/test/resources/checks/UselessExpressionStatement.js"))
-      .next().atLine(12).withMessage("Refactor or remove this statement.")
-      .next().atLine(13)
-      .next().atLine(15)
-
-      .next().atLine(25)
-      .next().atLine(26)
-      .noMore();
+    JavaScriptCheckVerifier.verify(new UselessExpressionStatementCheck(), new File("src/test/resources/checks/UselessExpressionStatement.js"));
   }
 }

@@ -158,7 +158,7 @@ public class ParenthesesCheck extends DoubleDispatchVisitorCheck {
       }
 
       String expressingString = CheckUtils.asString(parenthesisedExpression.expression());
-      addLineIssue(expression, String.format(MESSAGE, expressingString));
+      addIssue(expression, String.format(MESSAGE, expressingString));
     }
   }
 
@@ -168,7 +168,7 @@ public class ParenthesesCheck extends DoubleDispatchVisitorCheck {
 
       if (nestedExpr != null && !nestedExpr.is(SHOULD_BE_PARENTHESISED_AFTER_TYPEOF)) {
         String expressingString = CheckUtils.asString(nestedExpr);
-        addLineIssue(nestedExpr, String.format(MESSAGE, expressingString));
+        addIssue(expression, String.format(MESSAGE, expressingString));
       }
     }
   }

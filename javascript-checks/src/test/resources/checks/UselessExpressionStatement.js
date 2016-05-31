@@ -9,10 +9,11 @@ x = "first part" +
 "second part"
 
 // nok
-"str";            // NOK
-"str"             // NOK
+"str";            // Noncompliant {{Refactor or remove this statement.}}
+"str"             // Noncompliant
 x = "first part"
-"second part"       // NOK
+  "second part";       // Noncompliant
+//^^^^^^^^^^^^^^
 
 // COMPARISONS
 
@@ -22,8 +23,9 @@ var a = x == y;
 foo(x == y)
 
 // nok
-x == y    // NOK
-x == y;    // NOK
+  x == y;   // Noncompliant
+//^^^^^^^
+x == y;    // Noncompliant
 
 
 

@@ -32,9 +32,7 @@ public class UselessIncrementCheckTest {
 
   @Test
   public void test() {
-    JavaScriptCheckVerifier.issues(new UselessIncrementCheck(), new File("src/test/resources/checks/uselessIncrement.js"))
-      .next().atLine(2).withMessage("Remove this increment or correct the code not to waste it.")
-      .next().atLine(6).withMessage("Remove this decrement or correct the code not to waste it.");
+    JavaScriptCheckVerifier.verify(new UselessIncrementCheck(), new File("src/test/resources/checks/uselessIncrement.js"));
   }
 
 }

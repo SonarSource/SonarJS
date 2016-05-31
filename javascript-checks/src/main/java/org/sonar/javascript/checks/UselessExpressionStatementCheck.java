@@ -48,11 +48,11 @@ public class UselessExpressionStatementCheck extends DoubleDispatchVisitorCheck 
     Tree expression = tree.expression();
 
     if (expression.is(Kind.EQUAL_TO)) {
-      addLineIssue(tree, MESSAGE);
+      addIssue(tree, MESSAGE);
     }
 
     if (expression.is(Kind.STRING_LITERAL) && !isUseStrictDirective((LiteralTree) expression)) {
-      addLineIssue(tree, MESSAGE);
+      addIssue(tree, MESSAGE);
     }
 
     super.visitExpressionStatement(tree);
