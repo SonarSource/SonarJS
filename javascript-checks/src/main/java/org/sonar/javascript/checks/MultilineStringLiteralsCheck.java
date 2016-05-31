@@ -44,7 +44,7 @@ public class MultilineStringLiteralsCheck extends DoubleDispatchVisitorCheck {
   @Override
   public void visitLiteral(LiteralTree tree) {
     if (tree.is(Kind.STRING_LITERAL) && tree.value().contains("\n")) {
-      addLineIssue(tree, MESSAGE);
+      addIssue(tree, MESSAGE);
     }
   }
 
