@@ -460,18 +460,16 @@ public class SymbolicExecution {
     return false;
   }
 
-  private void pushConditionSuccessors(CfgBranchingBlock block, ProgramState currentState, SymbolicValue symbolicValue) {
+  private void pushConditionSuccessors(CfgBranchingBlock block, ProgramState currentState, SymbolicValue conditionSymbolicValue) {
     Tree lastElement = block.elements().get(block.elements().size() - 1);
-    Truthiness conditionTruthiness = null;
-    for (ProgramState newState : symbolicValue.constrain(currentState, Constraint.TRUTHY)) {
+    for (ProgramState newState : conditionSymbolicValue.constrain(currentState, Constraint.TRUTHY)) {
       pushSuccessor(block.trueSuccessor(), newState);
-      conditionTruthiness = Truthiness.TRUTHY;
+      conditionResults.put(lastElement, Truthiness.TRUTHY);
     }
-    for (ProgramState newState : symbolicValue.constrain(currentState, Constraint.FALSY)) {
+    for (ProgramState newState : conditionSymbolicValue.constrain(currentState, Constraint.FALSY)) {
       pushSuccessor(block.falseSuccessor(), newState);
-      conditionTruthiness = conditionTruthiness == Truthiness.TRUTHY ? Truthiness.UNKNOWN : Truthiness.FALSY;
+      conditionResults.put(lastElement, Truthiness.FALSY);
     }
-    conditionResults.put(lastElement, conditionTruthiness);
   }
 
   private boolean handleConditionBooleanLiteral(CfgBranchingBlock block, ProgramState currentState, Tree lastElement) {
