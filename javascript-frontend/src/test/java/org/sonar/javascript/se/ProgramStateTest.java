@@ -24,7 +24,6 @@ import org.sonar.plugins.javascript.api.symbols.Symbol;
 import org.sonar.plugins.javascript.api.symbols.Symbol.Kind;
 
 import static org.fest.assertions.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
 
 public class ProgramStateTest {
 
@@ -34,51 +33,49 @@ public class ProgramStateTest {
 
   @Test
   public void addValue() throws Exception {
-    SymbolicValue value1 = mock(SymbolicValue.class);
-    SymbolicValue value2 = mock(SymbolicValue.class);
-    SymbolicValue value3 = mock(SymbolicValue.class);
-    ProgramState state1 = state.copyAndAddValue(symbol1, value1);
+    Constraint constraint1 = Constraint.NULL;
+    Constraint constraint2 = Constraint.NULL.not();
+    Constraint constraint3 = Constraint.FALSY;
+    ProgramState state1 = state.newSymbolicValue(symbol1, constraint1);
     ProgramState state2 = state1
-      .copyAndAddValue(symbol1, value2)
-      .copyAndAddValue(symbol2, value3);
+      .newSymbolicValue(symbol1, constraint2)
+      .newSymbolicValue(symbol2, constraint3);
 
-    assertThat(state.get(symbol1)).isNull();
-    assertThat(state1.get(symbol1)).isEqualTo(value1);
-    assertThat(state2.get(symbol1)).isEqualTo(value2);
-    assertThat(state2.get(symbol2)).isEqualTo(value3);
+    assertThat(state.getConstraint(symbol1)).isEqualTo(Constraint.ANY_VALUE);
+    assertThat(state1.getConstraint(symbol1)).isEqualTo(constraint1);
+    assertThat(state2.getConstraint(symbol1)).isEqualTo(constraint2);
+    assertThat(state2.getConstraint(symbol2)).isEqualTo(constraint3);
   }
 
   @Test
   public void constrain() throws Exception {
-    state = state.copyAndAddValue(symbol1, SymbolicValue.UNKNOWN);
-    assertThat(state.constrain(symbol1, Truthiness.FALSY).get(symbol1).truthiness()).isEqualTo(Truthiness.FALSY);
-    assertThat(state.constrain(symbol2, Truthiness.FALSY).get(symbol2)).isNull();
+    state = state.newSymbolicValue(symbol1, null);
+    SymbolicValue sv1 = state.getSymbolicValue(symbol1);
+    SymbolicValue sv2 = state.getSymbolicValue(symbol2);
+    assertThat(state.constrain(sv1, Constraint.FALSY).getConstraint(symbol1).truthiness()).isEqualTo(Truthiness.FALSY);
+    assertThat(sv2).isNull();
+    assertThat(state.constrain(sv2, Constraint.FALSY).getConstraint(symbol2)).isEqualTo(Constraint.ANY_VALUE);
 
-    state = state.copyAndAddValue(symbol1, SymbolicValue.NULL_OR_UNDEFINED);
-    assertThat(state.constrain(symbol1, Truthiness.TRUTHY).get(symbol1).nullability()).isEqualTo(Nullability.NOT_NULLY);
+    state = state.newSymbolicValue(symbol1, Constraint.NULL_OR_UNDEFINED);
+    assertThat(state.constrain(state.getSymbolicValue(symbol1), Constraint.TRUTHY)).isNull();
 
-    state = state.copyAndAddValue(symbol2, SymbolicValue.UNKNOWN);
-    state = state.constrain(symbol2, Truthiness.TRUTHY);
-    assertThat(state.constrain(symbol2, Nullability.NULL).get(symbol2).truthiness()).isEqualTo(Truthiness.FALSY);
-
-
+    state = state.newSymbolicValue(symbol2, null);
+    state = state.constrain(state.getSymbolicValue(symbol2), Constraint.TRUTHY);
+    assertThat(state.constrain(state.getSymbolicValue(symbol2), Constraint.NULL)).isNull();
   }
 
   @Test
   public void test_equals() throws Exception {
-    SymbolicValue value1 = mock(SymbolicValue.class);
-    SymbolicValue value2 = mock(SymbolicValue.class);
-    assertThat(state.copyAndAddValue(symbol1, value1)).isEqualTo(state.copyAndAddValue(symbol1, value1));
-    assertThat(state.copyAndAddValue(symbol1, value1)).isNotEqualTo(state.copyAndAddValue(symbol1, value2));
-    assertThat(state.copyAndAddValue(symbol1, value1)).isNotEqualTo(null);
-    assertThat(state.copyAndAddValue(symbol1, value1)).isNotEqualTo("");
+    assertThat(state.newSymbolicValue(symbol1, Constraint.NULL)).isEqualTo(state.newSymbolicValue(symbol1, Constraint.NULL));
+    assertThat(state.newSymbolicValue(symbol1, Constraint.NULL)).isNotEqualTo(state.newSymbolicValue(symbol1, Constraint.UNDEFINED.not()));
+    assertThat(state.newSymbolicValue(symbol1, Constraint.NULL)).isNotEqualTo(null);
+    assertThat(state.newSymbolicValue(symbol1, Constraint.NULL)).isNotEqualTo("");
   }
 
   @Test
   public void test_hashCode() throws Exception {
-    SymbolicValue value1 = mock(SymbolicValue.class);
-    assertThat(state.copyAndAddValue(symbol1, value1).hashCode())
-      .isEqualTo(state.copyAndAddValue(symbol1, value1).hashCode());
+    assertThat(state.newSymbolicValue(symbol1, Constraint.NULL).hashCode())
+      .isEqualTo(state.newSymbolicValue(symbol1, Constraint.NULL).hashCode());
   }
 
 }

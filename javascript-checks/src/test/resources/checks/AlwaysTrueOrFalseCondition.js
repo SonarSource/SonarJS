@@ -5,6 +5,7 @@ functionWithoutBlock = x => 1;
 function global_variables_should_not_be_tracked() {
   global1 = null;
   if (global1) {} // global1 may have been updated since the assignment at the previous line
+  if (!global1) {}
 }
 
 function unknown_value() {

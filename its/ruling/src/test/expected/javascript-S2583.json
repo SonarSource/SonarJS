@@ -65,6 +65,9 @@
 279,
 299,
 ],
+'project:dojo-1.8.1/dojox/drawing/defaults.js.uncompressed.js':[
+256,
+],
 'project:dojo-1.8.1/dojox/drawing/plugins/tools/Pan.js.uncompressed.js':[
 193,
 206,
@@ -216,6 +219,9 @@
 'project:ecmascript6/http/test/mocks/Xhr.js':[
 82,
 ],
+'project:ecmascript6/redux/src/utils/bindActionCreators.js':[
+33,
+],
 'project:ecmascript6/sonar-web/src/main/js/apps/custom-measures/form-view.js':[
 46,
 ],
@@ -249,6 +255,7 @@
 8729,
 ],
 'project:knockout-2.1.0.debug.js':[
+1295,
 3045,
 ],
 'project:mootools-core-1.4.5-full-nocompat.js':[

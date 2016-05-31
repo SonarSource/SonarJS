@@ -23,34 +23,34 @@ import com.google.common.collect.ImmutableMap;
 import java.util.Map;
 import javax.annotation.CheckForNull;
 
-import static org.sonar.javascript.se.SymbolicValue.NULL;
-import static org.sonar.javascript.se.SymbolicValue.UNDEFINED;
+import static org.sonar.javascript.se.Constraint.NULL;
+import static org.sonar.javascript.se.Constraint.UNDEFINED;
 
 class TypeOf {
 
-  static final Map<String, Nullability> typeOfEqualNullability = ImmutableMap.<String, Nullability>builder()
-    .put("undefined", Nullability.UNDEFINED)
-    .put("function", Nullability.NOT_NULLY)
-    .put("object", Nullability.NOT_UNDEFINED)
-    .put("number", Nullability.NOT_NULLY)
-    .put("string", Nullability.NOT_NULLY)
-    .put("boolean", Nullability.NOT_NULLY)
-    .put("symbol", Nullability.NOT_NULLY)
+  static final Map<String, Constraint> TYPEOF_EQUAL_CONSTRAINTS = ImmutableMap.<String, Constraint>builder()
+    .put("undefined", Constraint.UNDEFINED)
+    .put("function", Constraint.TRUTHY)
+    .put("object", Constraint.TRUTHY_OR_NULL)
+    .put("number", Constraint.NOT_NULLY)
+    .put("string", Constraint.NOT_NULLY)
+    .put("boolean", Constraint.NOT_NULLY)
+    .put("symbol", Constraint.NOT_NULLY)
     .build();
 
-  static final Map<String, Nullability> typeOfNotEqualNullability = ImmutableMap.<String, Nullability>builder()
-    .put("undefined", Nullability.NOT_UNDEFINED)
-    .put("object", Nullability.NOT_NULL)
+  static final Map<String, Constraint> TYPEOF_NOT_EQUAL_CONSTRAINTS = ImmutableMap.<String, Constraint>builder()
+    .put("undefined", Constraint.UNDEFINED.not())
+    .put("object", Constraint.NULL.not())
     .build();
 
   private TypeOf() {
   }
 
   @CheckForNull
-  static String typeOf(SymbolicValue symbolicValue) {
-    if (symbolicValue.equals(NULL)) {
+  static String typeOf(Constraint constraint) {
+    if (constraint.equals(NULL)) {
       return "object";
-    } else if (symbolicValue.equals(UNDEFINED)) {
+    } else if (constraint.equals(UNDEFINED)) {
       return "undefined";
 
     } else {
@@ -59,6 +59,6 @@ class TypeOf {
   }
 
   static boolean isValidType(String type) {
-    return typeOfEqualNullability.containsKey(type);
+    return TYPEOF_EQUAL_CONSTRAINTS.containsKey(type);
   }
 }

@@ -19,70 +19,149 @@
  */
 package org.sonar.javascript.se;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableMap.Builder;
+import java.util.Map;
 import java.util.Map.Entry;
+import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.plugins.javascript.api.symbols.Symbol;
 
 public class ProgramState {
 
-  @VisibleForTesting
-  protected final ImmutableMap<Symbol, SymbolicValue> valuesBySymbol;
+  private final ImmutableMap<Symbol, SymbolicValue> values;
+  private final ImmutableMap<SymbolicValue, Constraint> constraints;
 
-  private static final ProgramState EMPTY = new ProgramState(ImmutableMap.<Symbol, SymbolicValue>of());
+  private int counter;
 
-  public static ProgramState emptyState() {
-    return EMPTY;
-  }
-
-  private ProgramState(ImmutableMap<Symbol, SymbolicValue> valuesBySymbol) {
-    this.valuesBySymbol = valuesBySymbol;
-  }
-
-  public ProgramState copyAndAddValue(Symbol symbol, SymbolicValue value) {
-    ImmutableMap.Builder<Symbol, SymbolicValue> builder = ImmutableMap.<Symbol, SymbolicValue>builder();
-    for (Entry<Symbol, SymbolicValue> entry : valuesBySymbol.entrySet()) {
-      if (!entry.getKey().equals(symbol)) {
-        builder.put(entry.getKey(), entry.getValue());
+  private ProgramState(ImmutableMap<Symbol, SymbolicValue> values, ImmutableMap<SymbolicValue, Constraint> constraints, int counter) {
+    ImmutableMap.Builder<SymbolicValue, Constraint> constraintsBuilder = ImmutableMap.builder();
+    for (Entry<SymbolicValue, Constraint> entry : constraints.entrySet()) {
+      if (values.containsValue(entry.getKey())) {
+        constraintsBuilder.put(entry.getKey(), entry.getValue());
       }
     }
-    builder.put(symbol, value);
-    return new ProgramState(builder.build());
+
+    this.values = values;
+    this.constraints = constraintsBuilder.build();
+    this.counter = counter;
   }
 
-  public SymbolicValue get(Symbol symbol) {
-    return valuesBySymbol.get(symbol);
+  public static ProgramState emptyState() {
+    return new ProgramState(ImmutableMap.<Symbol, SymbolicValue>of(), ImmutableMap.<SymbolicValue, Constraint>of(), 0);
   }
 
-  public ProgramState constrain(Symbol symbol, Truthiness truthiness) {
-    SymbolicValue value = get(symbol);
-    if (value == null) {
+  // returns new PS with this constraint added to PS for this value. If constraint for this value exists IllegalStateException
+  private ProgramState addConstraint(SymbolicValue value, Constraint constraint) {
+    if (constraints.containsKey(value)) {
+      throw new IllegalStateException();
+    }
+
+    ImmutableMap.Builder<SymbolicValue, Constraint> constraintsBuilder = ImmutableMap.builder();
+    constraintsBuilder.putAll(constraints);
+    constraintsBuilder.put(value, constraint);
+
+    return new ProgramState(ImmutableMap.copyOf(values), constraintsBuilder.build(), counter);
+  }
+
+
+  ProgramState newSymbolicValue(Symbol symbol, @Nullable Constraint constraint) {
+    SymbolicValue value = newSymbolicValue();
+
+    ImmutableMap.Builder<Symbol, SymbolicValue> valuesBuilder = ImmutableMap.builder();
+    for (Entry<Symbol, SymbolicValue> entry : values.entrySet()) {
+      if (!entry.getKey().equals(symbol)) {
+        valuesBuilder.put(entry.getKey(), entry.getValue());
+      }
+    }
+    valuesBuilder.put(symbol, value);
+
+    ProgramState newProgramState = new ProgramState(valuesBuilder.build(), ImmutableMap.copyOf(constraints), counter);
+    if (constraint != null) {
+      newProgramState = newProgramState.addConstraint(value, constraint);
+    }
+
+    return newProgramState;
+  }
+
+  public ProgramState constrain(@Nullable SymbolicValue value, @Nullable Constraint constraint) {
+    if (value == null || constraint == null) {
       return this;
     }
-    return copyAndAddValue(symbol, value.constrain(truthiness));
+    if (getConstraint(value).isIncompatibleWith(constraint)) {
+      return null;
+    } else {
+      Constraint newConstraint = getConstraint(value).and(constraint);
+      return new ProgramState(ImmutableMap.copyOf(values), replaceConstraint(value, newConstraint), counter);
+    }
   }
 
-  public ProgramState constrain(Symbol symbol, @Nullable Nullability nullability) {
-    SymbolicValue value = get(symbol);
-    if (value == null || nullability == null) {
-      return this;
+  private ImmutableMap<SymbolicValue, Constraint> replaceConstraint(SymbolicValue value, Constraint newConstraint) {
+    ImmutableMap.Builder<SymbolicValue, Constraint> constraintsBuilder = ImmutableMap.builder();
+    for (Entry<SymbolicValue, Constraint> entry : constraints.entrySet()) {
+      if (!entry.getKey().equals(value)) {
+        constraintsBuilder.put(entry.getKey(), entry.getValue());
+      }
     }
-    return copyAndAddValue(symbol, value.constrain(nullability));
+
+    constraintsBuilder.put(value, newConstraint);
+    return constraintsBuilder.build();
+  }
+
+  private SymbolicValue newSymbolicValue() {
+    SymbolicValue value = new SimpleSymbolicValue(counter);
+    counter++;
+    return value;
+  }
+
+  @CheckForNull
+  public SymbolicValue getSymbolicValue(@Nullable Symbol symbol) {
+    return values.get(symbol);
+  }
+
+  public Constraint getConstraint(@Nullable SymbolicValue value) {
+    Constraint constraint = constraints.get(value);
+    if (constraint == null) {
+      return Constraint.ANY_VALUE;
+    }
+    return constraint;
+  }
+
+  public Constraint getConstraint(@Nullable Symbol symbol) {
+    return getConstraint(getSymbolicValue(symbol));
+  }
+
+  public Nullability getNullability(@Nullable SymbolicValue value) {
+    return getConstraint(value).nullability();
+  }
+
+  public Map<Symbol, Constraint> constraintsBySymbol() {
+    ImmutableMap.Builder<Symbol, Constraint> builder = new Builder<>();
+    for (Entry<Symbol, SymbolicValue> entry : values.entrySet()) {
+      if (constraints.get(entry.getValue()) != null) {
+        builder.put(entry.getKey(), constraints.get(entry.getValue()));
+      }
+    }
+
+    return builder.build();
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+
+    ProgramState that = (ProgramState) o;
+
+    return constraintsBySymbol().equals(that.constraintsBySymbol());
   }
 
   @Override
   public int hashCode() {
-    return valuesBySymbol.hashCode();
+    return constraintsBySymbol().hashCode();
   }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == null || getClass() != obj.getClass()) {
-      return false;
-    }
-    ProgramState other = (ProgramState) obj;
-    return this.valuesBySymbol.equals(other.valuesBySymbol);
-  }
-
 }
