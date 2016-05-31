@@ -29,14 +29,7 @@ public class NestedControlFlowDepthCheckTest {
 
   @Test
   public void testDefault() {
-    JavaScriptCheckVerifier.issues(check, new File("src/test/resources/checks/nestedControlFlowDepth.js"))
-      .next().atLine(9).withMessage("Refactor this code to not nest more than 3 if/for/while/switch/try statements.")
-      .next().atLine(17)
-      .next().atLine(20)
-      .next().atLine(23)
-      .next().atLine(26)
-      .next().atLine(29)
-      .noMore();
+    JavaScriptCheckVerifier.verify(check, new File("src/test/resources/checks/nestedControlFlowDepth.js"));
   }
 
   @Test
@@ -44,7 +37,7 @@ public class NestedControlFlowDepthCheckTest {
     check.maximumNestingLevel = 4;
 
     JavaScriptCheckVerifier.issues(check, new File("src/test/resources/checks/nestedControlFlowDepth.js"))
-      .next().atLine(31).withMessage("Refactor this code to not nest more than 4 if/for/while/switch/try statements.")
+      .next().atLine(32).withMessage("Refactor this code to not nest more than 4 if/for/while/switch/try statements.")
       .noMore();
   }
 
