@@ -42,7 +42,7 @@ public class WithStatementCheck extends DoubleDispatchVisitorCheck {
 
   @Override
   public void visitWithStatement(WithStatementTree tree) {
-    addLineIssue(tree, MESSAGE);
+    addIssue(tree.withKeyword(), MESSAGE);
 
     super.visitWithStatement(tree);
   }
