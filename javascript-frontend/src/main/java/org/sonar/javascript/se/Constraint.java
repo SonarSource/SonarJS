@@ -44,20 +44,12 @@ public enum Constraint {
   NOT_NULL(0b1110),
   ANY_VALUE(0b1111);
 
-  private static final Constraint[] CONSTRAINTS = initConstraints();
+  private static final Constraint[] CONSTRAINTS = values();
 
   private int bitSet;
 
   private Constraint(int bitSet) {
     this.bitSet = bitSet;
-  }
-
-  private static Constraint[] initConstraints() {
-    Constraint[] constraints = new Constraint[values().length];
-    for (Constraint constraint : values()) {
-      constraints[constraint.bitSet] = constraint;
-    }
-    return constraints;
   }
 
   private static Constraint get(int bitSet) {
