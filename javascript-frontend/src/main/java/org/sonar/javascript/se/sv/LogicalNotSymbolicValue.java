@@ -17,10 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.javascript.se;
+package org.sonar.javascript.se.sv;
 
 import com.google.common.base.Preconditions;
 import java.util.List;
+import org.sonar.javascript.se.Constraint;
+import org.sonar.javascript.se.ProgramState;
 
 public class LogicalNotSymbolicValue implements SymbolicValue {
 
