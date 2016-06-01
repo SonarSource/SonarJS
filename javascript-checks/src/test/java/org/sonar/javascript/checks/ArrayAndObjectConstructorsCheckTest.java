@@ -27,13 +27,7 @@ public class ArrayAndObjectConstructorsCheckTest {
 
   @Test
   public void test() {
-    ArrayAndObjectConstructorsCheck check = new ArrayAndObjectConstructorsCheck();
-
-    JavaScriptCheckVerifier.issues(check, new File("src/test/resources/checks/arrayAndObjectConstructors.js"))
-      .next().atLine(2).withMessage("Use a literal instead of the Array constructor.")
-      .next().atLine(3).withMessage("Use a literal instead of the Array constructor.")
-      .next().atLine(5).withMessage("Use a literal instead of the Object constructor.")
-      .noMore();
+    JavaScriptCheckVerifier.verify(new ArrayAndObjectConstructorsCheck(), new File("src/test/resources/checks/arrayAndObjectConstructors.js"));
   }
 
 }

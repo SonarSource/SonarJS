@@ -49,7 +49,7 @@ public class ArrayAndObjectConstructorsCheck extends DoubleDispatchVisitorCheck 
     if (expression.is(Tree.Kind.IDENTIFIER_REFERENCE)) {
       String next = ((IdentifierTree) expression).name();
       if ("Array".equals(next) || "Object".equals(next)) {
-        addLineIssue(tree, String.format(MESSAGE, next));
+        addIssue(tree, String.format(MESSAGE, next));
       }
     }
     super.visitNewExpression(tree);
