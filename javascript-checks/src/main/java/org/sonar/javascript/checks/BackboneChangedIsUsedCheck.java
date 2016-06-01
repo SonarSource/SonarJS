@@ -26,6 +26,7 @@ import org.sonar.plugins.javascript.api.symbols.Type;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.expression.AssignmentExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.DotMemberExpressionTree;
+import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
@@ -44,8 +45,9 @@ public class BackboneChangedIsUsedCheck extends DoubleDispatchVisitorCheck {
 
   @Override
   public void visitAssignmentExpression(AssignmentExpressionTree tree) {
-    if (tree.variable().is(Tree.Kind.DOT_MEMBER_EXPRESSION) && isChangedPropertyAccess((DotMemberExpressionTree) tree.variable())) {
-      addLineIssue(tree, MESSAGE);
+    ExpressionTree variable = tree.variable();
+    if (variable.is(Tree.Kind.DOT_MEMBER_EXPRESSION) && isChangedPropertyAccess((DotMemberExpressionTree) variable)) {
+      addIssue(((DotMemberExpressionTree) variable).property(), MESSAGE);
     }
 
     super.visitAssignmentExpression(tree);

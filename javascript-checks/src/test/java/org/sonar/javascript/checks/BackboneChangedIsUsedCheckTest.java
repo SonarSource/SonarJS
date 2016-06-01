@@ -27,13 +27,7 @@ public class BackboneChangedIsUsedCheckTest {
 
   @Test
   public void test() {
-    BackboneChangedIsUsedCheck check = new BackboneChangedIsUsedCheck();
-
-    JavaScriptCheckVerifier.issues(check, new File("src/test/resources/checks/BackboneChangedIsUsed.js"))
-      .next().atLine(10)
-      .next().atLine(11)
-      .next().atLine(12)
-      .noMore();
+    JavaScriptCheckVerifier.verify(new BackboneChangedIsUsedCheck(), new File("src/test/resources/checks/BackboneChangedIsUsed.js"));
   }
 
 }
