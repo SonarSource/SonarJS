@@ -17,33 +17,45 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.javascript.se;
+package org.sonar.javascript.se.sv;
 
 import org.junit.Test;
-import org.sonar.javascript.se.sv.SymbolicValue;
+import org.sonar.javascript.se.ProgramState;
 import org.sonar.plugins.javascript.api.symbols.Symbol;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
+import static org.sonar.javascript.se.Constraint.FALSY;
+import static org.sonar.javascript.se.Constraint.NOT_NULL;
+import static org.sonar.javascript.se.Constraint.NULL;
+import static org.sonar.javascript.se.Constraint.NULL_OR_UNDEFINED;
 import static org.sonar.javascript.se.Constraint.TRUTHY;
 
-public class SymbolicValueTest {
+public class EqualToSymbolicValueTest {
 
-  private static final ProgramState EMPTY_STATE = ProgramState.emptyState();
   private Symbol symbol = mock(Symbol.class);
+
+  @Test(expected = IllegalArgumentException.class)
+  public void should_throw_on_null_operand() throws Exception {
+    new EqualToSymbolicValue(null, NULL_OR_UNDEFINED);
+  }
 
   @Test
   public void constrain() throws Exception {
-    ProgramState state1 = EMPTY_STATE.newSymbolicValue(symbol, null);
+    ProgramState state1 = ProgramState.emptyState().newSymbolicValue(symbol, null);
     SymbolicValue sv1 = state1.getSymbolicValue(symbol);
-    assertThat(sv1.constrain(state1, TRUTHY)).containsExactly(state1.constrain(sv1, TRUTHY));
+    SymbolicValue equalTo = new EqualToSymbolicValue(sv1, NULL);
+    assertThat(equalTo.constrain(state1, TRUTHY)).containsExactly(state1.constrain(sv1, NULL));
+    assertThat(equalTo.constrain(state1, FALSY)).containsExactly(state1.constrain(sv1, NOT_NULL));
+    assertThat(equalTo.constrain(state1, NULL)).isEmpty();
   }
-  
+
   @Test
-  public void constrain_with_unreachable_constraint() throws Exception {
-    ProgramState state1 = EMPTY_STATE.newSymbolicValue(symbol, Constraint.FALSY);
+  public void to_string() throws Exception {
+    ProgramState state1 = ProgramState.emptyState().newSymbolicValue(symbol, null);
     SymbolicValue sv1 = state1.getSymbolicValue(symbol);
-    assertThat(sv1.constrain(state1, TRUTHY)).isEmpty();
+    SymbolicValue equalTo = new EqualToSymbolicValue(sv1, NULL);
+    assertThat(equalTo.toString()).isEqualTo("SV_0 === NULL");
   }
 
 }

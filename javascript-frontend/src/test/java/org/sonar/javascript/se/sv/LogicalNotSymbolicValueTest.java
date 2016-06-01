@@ -17,11 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.javascript.se;
+package org.sonar.javascript.se.sv;
 
 import org.junit.Test;
-import org.sonar.javascript.se.sv.LogicalNotSymbolicValue;
-import org.sonar.javascript.se.sv.SymbolicValue;
+import org.sonar.javascript.se.ProgramState;
 import org.sonar.plugins.javascript.api.symbols.Symbol;
 
 import static org.fest.assertions.Assertions.assertThat;
