@@ -25,6 +25,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+import org.sonar.javascript.se.sv.SimpleSymbolicValue;
+import org.sonar.javascript.se.sv.SymbolicValue;
 import org.sonar.plugins.javascript.api.symbols.Symbol;
 
 public class ProgramState {

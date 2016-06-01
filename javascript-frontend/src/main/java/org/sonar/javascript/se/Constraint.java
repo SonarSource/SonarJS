@@ -20,6 +20,7 @@
 package org.sonar.javascript.se;
 
 import javax.annotation.Nullable;
+import org.sonar.javascript.se.sv.SymbolicValue;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;

@@ -20,6 +20,8 @@
 package org.sonar.javascript.se;
 
 import org.junit.Test;
+import org.sonar.javascript.se.sv.LogicalNotSymbolicValue;
+import org.sonar.javascript.se.sv.SymbolicValue;
 import org.sonar.plugins.javascript.api.symbols.Symbol;
 
 import static org.fest.assertions.Assertions.assertThat;

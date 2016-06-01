@@ -17,31 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.javascript.se;
+package org.sonar.javascript.se.sv;
 
-import com.google.common.collect.ImmutableList;
 import java.util.List;
+import org.sonar.javascript.se.Constraint;
+import org.sonar.javascript.se.ProgramState;
 
-public class SimpleSymbolicValue implements SymbolicValue {
+public interface SymbolicValue {
 
-  private final int id;
-
-  SimpleSymbolicValue(int id) {
-    this.id = id;
-  }
-
-  @Override
-  public String toString() {
-    return "SV_" + id;
-  }
-
-  @Override
-  public List<ProgramState> constrain(ProgramState state, Constraint constraint) {
-    ProgramState newState = state.constrain(this, constraint);
-    if (newState == null) {
-      return ImmutableList.of();
-    }
-    return ImmutableList.of(newState);
-  }
+  List<ProgramState> constrain(ProgramState state, Constraint constraint);
 
 }
