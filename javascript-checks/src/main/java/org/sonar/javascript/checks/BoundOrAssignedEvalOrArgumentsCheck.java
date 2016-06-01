@@ -68,7 +68,7 @@ public class BoundOrAssignedEvalOrArgumentsCheck extends AbstractSymbolNameCheck
   private void raiseIssuesOnWriteUsages(Symbol symbol) {
     for (Usage usage : symbol.usages()) {
       if (!usage.kind().equals(Usage.Kind.READ)) {
-        addLineIssue(usage.identifierTree(), String.format(MODIFICATION_MESSAGE, symbol.name()));
+        addIssue(usage.identifierTree(), String.format(MODIFICATION_MESSAGE, symbol.name()));
       }
     }
   }

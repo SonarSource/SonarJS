@@ -1,5 +1,7 @@
-eval = 42;              // Noncompliant {{Remove the modification of "eval".}}
+  eval = 42;              // Noncompliant {{Remove the modification of "eval".}}
+//^^^^
 function fun(){arguments++}        // Noncompliant {{Remove the modification of "arguments".}}
+//             ^^^^^^^^^
 ++eval;          // Noncompliant {{Remove the modification of "eval".}}
 var obj = { set p(arguments) { } };     // Noncompliant {{Do not use "arguments" to declare a parameter - use another name.}}
 var obj = { set p(arg) { } };       // OK
