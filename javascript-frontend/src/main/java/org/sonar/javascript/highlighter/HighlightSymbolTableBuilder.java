@@ -25,7 +25,6 @@ import java.util.List;
 import java.util.Set;
 import org.sonar.api.batch.sensor.symbol.NewSymbol;
 import org.sonar.api.batch.sensor.symbol.NewSymbolTable;
-import org.sonar.javascript.tree.impl.lexical.InternalSyntaxToken;
 import org.sonar.javascript.tree.symbols.type.ClassType;
 import org.sonar.plugins.javascript.api.symbols.Symbol;
 import org.sonar.plugins.javascript.api.symbols.Type;
@@ -76,26 +75,26 @@ public class HighlightSymbolTableBuilder {
   private static void highlightSymbol(NewSymbolTable newSymbolTable, Symbol symbol) {
     if (!symbol.usages().isEmpty()) {
       List<Usage> usagesList = new LinkedList<>(symbol.usages());
-      InternalSyntaxToken token = (InternalSyntaxToken) (usagesList.get(0).identifierTree()).identifierToken();
+      SyntaxToken token = (usagesList.get(0).identifierTree()).identifierToken();
       NewSymbol newSymbol = getHighlightedSymbol(newSymbolTable, token);
       for (int i = 1; i < usagesList.size(); i++) {
-        InternalSyntaxToken referenceToken = getToken(usagesList.get(i).identifierTree());
+        SyntaxToken referenceToken = getToken(usagesList.get(i).identifierTree());
         addReference(newSymbol, referenceToken);
       }
 
     }
   }
 
-  private static void addReference(NewSymbol symbol, InternalSyntaxToken referenceToken) {
+  private static void addReference(NewSymbol symbol, SyntaxToken referenceToken) {
     symbol.newReference(referenceToken.line(), referenceToken.column(), referenceToken.line(), referenceToken.column() + referenceToken.text().length());
   }
 
-  private static NewSymbol getHighlightedSymbol(NewSymbolTable newSymbolTable, InternalSyntaxToken token) {
+  private static NewSymbol getHighlightedSymbol(NewSymbolTable newSymbolTable, SyntaxToken token) {
     return newSymbolTable.newSymbol(token.line(), token.column(), token.line(), token.column() + token.text().length());
   }
 
-  private static InternalSyntaxToken getToken(IdentifierTree identifierTree) {
-    return (InternalSyntaxToken) (identifierTree).identifierToken();
+  private static SyntaxToken getToken(IdentifierTree identifierTree) {
+    return (identifierTree).identifierToken();
   }
 
   private static class BracesVisitor extends DoubleDispatchVisitor {
@@ -161,8 +160,8 @@ public class HighlightSymbolTableBuilder {
     }
 
     private void highlightBraces(SyntaxToken left, SyntaxToken right) {
-      NewSymbol symbol = getHighlightedSymbol(newSymbolTable, (InternalSyntaxToken) left);
-      addReference(symbol, (InternalSyntaxToken) right);
+      NewSymbol symbol = getHighlightedSymbol(newSymbolTable, left);
+      addReference(symbol, right);
     }
   }
 }

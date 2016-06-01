@@ -186,7 +186,6 @@ public class JavaScriptSquidSensor implements Sensor {
     JavaScriptVisitorContext context = new JavaScriptVisitorContext(scriptTree, inputFile.file(), settings);
 
     highlightSymbols(sensorContext.newSymbolTable().onFile(inputFile), context);
-    sensorContext.newSymbolTable();
 
     List<Issue> fileIssues = new ArrayList<>();
 

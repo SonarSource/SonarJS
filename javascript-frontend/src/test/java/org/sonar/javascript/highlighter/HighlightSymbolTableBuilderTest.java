@@ -20,7 +20,6 @@
 package org.sonar.javascript.highlighter;
 
 import java.io.File;
-import java.nio.charset.Charset;
 import java.util.Collection;
 import org.junit.Test;
 import org.sonar.api.batch.fs.TextRange;
@@ -47,7 +46,7 @@ public class HighlightSymbolTableBuilderTest extends JavaScriptTreeModelTest {
     inputFile = new DefaultInputFile("moduleKey", filename)
       .setModuleBaseDir(moduleBaseDir.toPath());
 
-    inputFile.initMetadata(new FileMetadata().readMetadata(inputFile.file(), Charset.defaultCharset()));
+    inputFile.initMetadata(new FileMetadata().readMetadata(inputFile.file(), Charsets.UTF_8));
     return sensorContext.newSymbolTable().onFile(inputFile);
   }
 
