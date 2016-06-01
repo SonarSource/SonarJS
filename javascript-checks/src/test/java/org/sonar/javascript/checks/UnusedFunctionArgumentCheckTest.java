@@ -27,21 +27,7 @@ public class UnusedFunctionArgumentCheckTest {
 
   @Test
   public void test() {
-    UnusedFunctionArgumentCheck check = new UnusedFunctionArgumentCheck();
-
-    JavaScriptCheckVerifier.issues(check, new File("src/test/resources/checks/unusedFunctionArgument.js"))
-      .next().atLine(1).withMessage("Remove the unused function parameter \"b\".")
-      .next().atLine(5).withMessage("Remove the unused function parameters \"b, c\".")
-      .next().atLine(9).withMessage("Remove the unused function parameter \"p1\".")
-      .next().atLine(12).withMessage("Remove the unused function parameter \"c\".")
-      .next().atLine(16)
-      .next().atLine(33)
-      .next().atLine(53).withMessage("Remove the unused function parameter \"b\".")
-      .next().atLine(57)
-      .next().atLine(73)
-      .next().atLine(78)
-      .next().atLine(87)
-      .noMore();
+    JavaScriptCheckVerifier.verify(new UnusedFunctionArgumentCheck(), new File("src/test/resources/checks/unusedFunctionArgument.js"));
   }
 
 }
