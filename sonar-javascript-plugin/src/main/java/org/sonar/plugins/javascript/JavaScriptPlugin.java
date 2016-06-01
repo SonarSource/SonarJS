@@ -30,8 +30,6 @@ import org.sonar.plugins.javascript.cpd.JavaScriptCpdMapping;
 import org.sonar.plugins.javascript.lcov.ITCoverageSensor;
 import org.sonar.plugins.javascript.lcov.OverallCoverageSensor;
 import org.sonar.plugins.javascript.lcov.UTCoverageSensor;
-import org.sonar.plugins.javascript.rules.JavaScriptCommonRulesDecorator;
-import org.sonar.plugins.javascript.rules.JavaScriptCommonRulesEngine;
 import org.sonar.plugins.javascript.rules.JavaScriptRulesDefinition;
 
 public class JavaScriptPlugin extends SonarPlugin {
@@ -74,9 +72,6 @@ public class JavaScriptPlugin extends SonarPlugin {
       JavaScriptSquidSensor.class,
       JavaScriptRulesDefinition.class,
       JavaScriptProfile.class,
-
-      JavaScriptCommonRulesEngine.class,
-      JavaScriptCommonRulesDecorator.class,
 
       UTCoverageSensor.class,
       ITCoverageSensor.class,
