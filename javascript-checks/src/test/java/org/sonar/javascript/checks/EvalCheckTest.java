@@ -27,10 +27,7 @@ public class EvalCheckTest {
 
   @Test
   public void test() {
-    JavaScriptCheckVerifier.issues(new EvalCheck(), new File("src/test/resources/checks/eval.js"))
-      .next().atLine(2).withMessage("Remove this use of the \"eval\" function.")
-      .next().atLine(5)
-      .noMore();
+    JavaScriptCheckVerifier.verify(new EvalCheck(), new File("src/test/resources/checks/eval.js"));
   }
 
 }
