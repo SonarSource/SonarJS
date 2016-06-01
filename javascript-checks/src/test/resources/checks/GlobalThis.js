@@ -1,10 +1,11 @@
 console.log(this); // OK
 
-console.log(this.prop); // NOK
+console.log(this.prop); // Noncompliant {{Remove the use of "this".}}
+//          ^^^^
 
-this.a = function(){}  // NOK
+this.a = function(){}  // Noncompliant
 
-var x = this.a()   // NOK
+var x = this.a()   // Noncompliant
 
 
 function foo(){
