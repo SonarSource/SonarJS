@@ -12,6 +12,12 @@ function main() {
     foo(); // PS x=NOT_NULLY
   }
 
+  if (x != null) {
+    foo(); // PS x=NOT_NULLY
+  } else {
+    foo(); // PS x=NULLY
+  }
+
   x = foo();
   if (x !== null) {
     foo(); // PS x=NOT_NULL
