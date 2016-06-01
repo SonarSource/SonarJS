@@ -25,13 +25,9 @@ import org.sonar.javascript.checks.verifier.JavaScriptCheckVerifier;
 
 public class ConsoleLoggingCheckTest {
 
-  private ConsoleLoggingCheck check = new ConsoleLoggingCheck();
-
   @Test
   public void test() {
-    JavaScriptCheckVerifier.issues(check, new File("src/test/resources/checks/consoleLogging.js"))
-      .next().atLine(1).withMessage("Remove this logging statement.")
-      .noMore();
+    JavaScriptCheckVerifier.verify(new ConsoleLoggingCheck(), new File("src/test/resources/checks/consoleLogging.js"));
   }
 
 }
