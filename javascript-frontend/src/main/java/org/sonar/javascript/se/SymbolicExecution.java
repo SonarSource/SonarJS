@@ -20,6 +20,7 @@
 package org.sonar.javascript.se;
 
 import com.google.common.collect.HashMultimap;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.SetMultimap;
 import java.util.ArrayDeque;
 import java.util.Deque;
@@ -59,6 +60,12 @@ import static org.sonar.plugins.javascript.api.symbols.Symbol.Kind.IMPORT;
 public class SymbolicExecution {
 
   private static final int MAX_BLOCK_EXECUTIONS = 1000;
+
+  private final List<CheckPattern> PATTERN_CHECKERS = ImmutableList.of(
+    this::typeOfPatternChecker,
+    this::variableOrUnaryNotPatternChecker,
+    this::strictEqualNullPatternChecker,
+    this::equalNullPatternChecker);
 
   private final CfgBlock cfgStartBlock;
   private final Set<Symbol> trackedVariables;
@@ -253,51 +260,45 @@ public class SymbolicExecution {
 
   private void handleConditionSuccessors(CfgBranchingBlock block, ProgramState currentState) {
     Tree lastElement = block.elements().get(block.elements().size() - 1);
-    if (!handleConditionBooleanLiteral(block, currentState, lastElement)
-       && !handleConditionTypeOf(block, currentState, lastElement)
-       && !handleConditionVariableOrUnaryNot(block, currentState, lastElement)
-       && !handleConditionStrictEqual(block, currentState, lastElement)
-       && !handleConditionEqualNull(block, currentState, lastElement)) {
-      pushAllSuccessors(block, currentState);
+
+    if (handleConditionBooleanLiteral(block, currentState, lastElement)) {
+      return;
     }
+
+    for (CheckPattern patternChecker : PATTERN_CHECKERS) {
+      SymbolicValue symbolicValue = patternChecker.getSymbolicValue(currentState, lastElement);
+      if (symbolicValue != null) {
+        pushConditionSuccessors(block, currentState, symbolicValue);
+        return;
+      }
+    }
+
+    pushAllSuccessors(block, currentState);
   }
 
-  private boolean handleConditionTypeOf(CfgBranchingBlock block, ProgramState currentState, Tree lastElement) {
+  private SymbolicValue typeOfPatternChecker(ProgramState currentState, Tree lastElement) {
     SymbolicValue symbolicValue = null;
 
     if (lastElement.is(Kind.STRICT_EQUAL_TO, Kind.STRICT_NOT_EQUAL_TO, Kind.EQUAL_TO, Kind.NOT_EQUAL_TO)) {
-      ExpressionTree operandOfTypeOf = null;
-      LiteralTree literal = null;
-      BinaryExpressionTree expression = (BinaryExpressionTree) lastElement;
-      ExpressionTree left = expression.leftOperand();
-      ExpressionTree right = expression.rightOperand();
-      if (left.is(Kind.TYPEOF) && right.is(Kind.STRING_LITERAL)) {
-        operandOfTypeOf = ((UnaryExpressionTree) left).expression();
-        literal = (LiteralTree) right;
 
-      } else if (right.is(Kind.TYPEOF) && left.is(Kind.STRING_LITERAL)) {
-        operandOfTypeOf = ((UnaryExpressionTree) right).expression();
-        literal = (LiteralTree) left;
-      }
+      BinaryExpression.TypeOfPattern typeOfPattern = BinaryExpression.getTypeOfPattern((BinaryExpressionTree) lastElement);
+      if (typeOfPattern != null) {
+        SymbolicValue operandValue = getSymbolicValue(typeOfPattern.operand, currentState);
 
-      SymbolicValue operandValue = getSymbolicValue(operandOfTypeOf, currentState);
-      if (operandValue != null) {
-        symbolicValue = new TypeOfComparisonSymbolicValue(operandValue, literal.value().substring(1, literal.value().length() - 1));
-        if (lastElement.is(Kind.STRICT_NOT_EQUAL_TO, Kind.NOT_EQUAL_TO)) {
-          symbolicValue = new LogicalNotSymbolicValue(symbolicValue);
+        if (operandValue != null) {
+          String value = typeOfPattern.stringLiteral.value();
+          symbolicValue = new TypeOfComparisonSymbolicValue(operandValue, value.substring(1, value.length() - 1));
+          if (lastElement.is(Kind.STRICT_NOT_EQUAL_TO, Kind.NOT_EQUAL_TO)) {
+            symbolicValue = new LogicalNotSymbolicValue(symbolicValue);
+          }
         }
       }
     }
 
-    if (symbolicValue != null) {
-      pushConditionSuccessors(block, currentState, symbolicValue);
-      return true;
-    }
-
-    return false;
+    return symbolicValue;
   }
 
-  private boolean handleConditionEqualNull(CfgBranchingBlock block, ProgramState currentState, Tree lastElement) {
+  private SymbolicValue equalNullPatternChecker(ProgramState currentState, Tree lastElement) {
     SymbolicValue symbolicValue = null;
 
     if (lastElement.is(Kind.EQUAL_TO, Kind.NOT_EQUAL_TO)) {
@@ -312,12 +313,7 @@ public class SymbolicExecution {
       }
     }
 
-    if (symbolicValue != null) {
-      pushConditionSuccessors(block, currentState, symbolicValue);
-      return true;
-    }
-
-    return false;
+    return symbolicValue;
   }
 
   @CheckForNull
@@ -336,29 +332,26 @@ public class SymbolicExecution {
 
   // x === null
   // x === undefined
-  private boolean handleConditionStrictEqual(CfgBranchingBlock block, ProgramState currentState, Tree lastElement) {
+  private SymbolicValue strictEqualNullPatternChecker(ProgramState currentState, Tree lastElement) {
     SymbolicValue symbolicValue = null;
 
     if (lastElement.is(Kind.STRICT_EQUAL_TO, Kind.STRICT_NOT_EQUAL_TO)) {
-      BinaryExpression binaryExpression = new BinaryExpression((BinaryExpressionTree) lastElement);
-      SymbolicValue operandValue = getSymbolicValue(binaryExpression.operand, currentState);
-      if (binaryExpression.constraint != null && operandValue != null) {
-        symbolicValue = new EqualToSymbolicValue(operandValue, binaryExpression.constraint);
-        if (lastElement.is(Kind.STRICT_NOT_EQUAL_TO)) {
-          symbolicValue = new LogicalNotSymbolicValue(symbolicValue);
+      BinaryExpression.StrictEqualNullPattern pattern = BinaryExpression.getStrictEqualNullPattern((BinaryExpressionTree) lastElement);
+      if (pattern != null) {
+        SymbolicValue operandValue = getSymbolicValue(pattern.operand, currentState);
+        if (operandValue != null) {
+          symbolicValue = new EqualToSymbolicValue(operandValue, pattern.constraint);
+          if (lastElement.is(Kind.STRICT_NOT_EQUAL_TO)) {
+            symbolicValue = new LogicalNotSymbolicValue(symbolicValue);
+          }
         }
       }
     }
 
-    if (symbolicValue != null) {
-      pushConditionSuccessors(block, currentState, symbolicValue);
-      return true;
-    }
-
-    return false;
+    return symbolicValue;
   }
 
-  private boolean handleConditionVariableOrUnaryNot(CfgBranchingBlock block, ProgramState currentState, Tree lastElement) {
+  private SymbolicValue variableOrUnaryNotPatternChecker(ProgramState currentState, Tree lastElement) {
     SymbolicValue symbolicValue = null;
 
     if (lastElement.is(Kind.LOGICAL_COMPLEMENT)) {
@@ -371,12 +364,7 @@ public class SymbolicExecution {
       symbolicValue = getSymbolicValue(lastElement, currentState);
     }
 
-    if (symbolicValue != null) {
-      pushConditionSuccessors(block, currentState, symbolicValue);
-      return true;
-    }
-
-    return false;
+    return symbolicValue;
   }
 
   private void pushConditionSuccessors(CfgBranchingBlock block, ProgramState currentState, SymbolicValue conditionSymbolicValue) {
@@ -400,24 +388,6 @@ public class SymbolicExecution {
       CfgBlock successor = conditionTruthiness == Truthiness.TRUTHY ? block.trueSuccessor() : block.falseSuccessor();
       pushSuccessor(successor, currentState);
       return true;
-    }
-    return false;
-  }
-
-  private static boolean isNullyComparison(Tree lastElement) {
-    if (lastElement.is(Kind.NOT_EQUAL_TO, Kind.EQUAL_TO)) {
-      BinaryExpressionTree comparison = (BinaryExpressionTree) lastElement;
-      return (Constraint.get(comparison.leftOperand()) != null && Constraint.get(comparison.leftOperand()).nullability() == Nullability.NULL)
-        || (Constraint.get(comparison.rightOperand()) != null && Constraint.get(comparison.rightOperand()).nullability() == Nullability.NULL);
-    }
-    return false;
-  }
-
-  private static boolean isStrictComparison(Tree lastElement, Constraint constraint) {
-    if (lastElement.is(Kind.STRICT_NOT_EQUAL_TO, Kind.STRICT_EQUAL_TO)) {
-      BinaryExpressionTree comparison = (BinaryExpressionTree) lastElement;
-      return constraint.equals(Constraint.get(comparison.leftOperand()))
-        || constraint.equals(Constraint.get(comparison.rightOperand()));
     }
     return false;
   }
@@ -459,32 +429,66 @@ public class SymbolicExecution {
     return null;
   }
 
-  @CheckForNull
-  private Symbol trackedOperand(BinaryExpressionTree tree) {
-    Symbol left = trackedVariable(tree.leftOperand());
-    if (left != null) {
-      return left;
-    } else {
-      return trackedVariable(tree.rightOperand());
-    }
-  }
-
   private static class BinaryExpression {
 
-    ExpressionTree operand = null;
-    Constraint constraint = null;
+    private BinaryExpression() {
+    }
 
-    BinaryExpression(BinaryExpressionTree tree) {
-      constraint = Constraint.get(tree.leftOperand());
-      if (constraint != null && constraint.isStricterOrEqualTo(Constraint.NULL_OR_UNDEFINED)) {
-        operand = tree.rightOperand();
-      } else {
-        constraint = Constraint.get(tree.rightOperand());
-        if (constraint != null && constraint.isStricterOrEqualTo(Constraint.NULL_OR_UNDEFINED)) {
-          operand = tree.leftOperand();
-        }
+    static class StrictEqualNullPattern {
+      ExpressionTree operand = null;
+      Constraint constraint = null;
+
+      StrictEqualNullPattern(ExpressionTree operand, Constraint constraint) {
+        this.operand = operand;
+        this.constraint = constraint;
       }
     }
+
+    static class TypeOfPattern {
+      ExpressionTree operand = null;
+      LiteralTree stringLiteral = null;
+
+      TypeOfPattern(ExpressionTree operand, LiteralTree stringLiteral) {
+        this.operand = operand;
+        this.stringLiteral = stringLiteral;
+      }
+    }
+
+    @CheckForNull
+    static StrictEqualNullPattern getStrictEqualNullPattern(BinaryExpressionTree tree) {
+      Constraint nullOrUndefinedConstraint = Constraint.get(tree.leftOperand());
+      if (nullOrUndefinedConstraint != null && nullOrUndefinedConstraint.isStricterOrEqualTo(Constraint.NULL_OR_UNDEFINED)) {
+        return new StrictEqualNullPattern(tree.rightOperand(), nullOrUndefinedConstraint);
+      } else {
+        nullOrUndefinedConstraint = Constraint.get(tree.rightOperand());
+        if (nullOrUndefinedConstraint != null && nullOrUndefinedConstraint.isStricterOrEqualTo(Constraint.NULL_OR_UNDEFINED)) {
+          return new StrictEqualNullPattern(tree.leftOperand(), nullOrUndefinedConstraint);
+        }
+      }
+      return null;
+    }
+
+    @CheckForNull
+    static TypeOfPattern getTypeOfPattern(BinaryExpressionTree tree) {
+      ExpressionTree left = tree.leftOperand();
+      ExpressionTree right = tree.rightOperand();
+
+      if (left.is(Kind.TYPEOF) && right.is(Kind.STRING_LITERAL)) {
+        return new TypeOfPattern(((UnaryExpressionTree) left).expression(), (LiteralTree) right);
+
+      } else if (right.is(Kind.TYPEOF) && left.is(Kind.STRING_LITERAL)) {
+        return new TypeOfPattern(((UnaryExpressionTree) right).expression(), (LiteralTree) left);
+      }
+
+      return null;
+    }
+
+  }
+
+  @FunctionalInterface
+  private interface CheckPattern {
+    @CheckForNull
+    SymbolicValue getSymbolicValue(ProgramState currentState, Tree lastElement);
   }
 
 }
