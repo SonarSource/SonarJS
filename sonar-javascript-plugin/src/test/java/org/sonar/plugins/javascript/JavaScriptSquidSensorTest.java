@@ -42,6 +42,7 @@ import org.sonar.api.batch.sensor.internal.DefaultSensorDescriptor;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
 import org.sonar.api.batch.sensor.issue.Issue;
 import org.sonar.api.config.Settings;
+import org.sonar.api.internal.google.common.base.Charsets;
 import org.sonar.api.issue.NoSonarFilter;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.FileLinesContext;
@@ -262,7 +263,7 @@ public class JavaScriptSquidSensorTest {
 
     context.fileSystem().add(inputFile);
 
-    return inputFile.initMetadata(new FileMetadata().readMetadata(inputFile.file(), Charset.defaultCharset()));
+    return inputFile.initMetadata(new FileMetadata().readMetadata(inputFile.file(), Charsets.UTF_8));
   }
 
   private final class ExceptionRaisingCheck extends DoubleDispatchVisitorCheck {
