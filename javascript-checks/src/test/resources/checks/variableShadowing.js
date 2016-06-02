@@ -1,40 +1,41 @@
 function fun() {
-  var x;               // NOK
+  var x;               // Noncompliant [[secondary=+3]] {{"x" hides or potentially hides a variable declared in an outer scope at line 5.}}
+//    ^
 }
 var x;                 // <--  global x
 
 var [y, z] = [1, 2];   // <--  global y, z
 
-function fun(x) {      // NOK
+function fun(x) {      // Noncompliant
 }
 
-function fun(y) {      // NOK
+function fun(y) {      // Noncompliant
 }
 
-function fun(...x){    // NOK
+function fun(...x){    // Noncompliant
 }
 
 function fun() {
-    let x;             // NOK
-    const y;           // NOK
+    let x;             // Noncompliant
+    const y;           // Noncompliant
 }
 
-function* fun(x) {     // NOK
+function* fun(x) {     // Noncompliant
 }
 
 class C {
 
-    f(x) {             // NOK
-      var y;           // NOK
+    f(x) {             // Noncompliant
+      var y;           // Noncompliant
     }
 
-    *g (x){            // NOK
-       var y           // NOK
+    *g (x){            // Noncompliant
+       var y           // Noncompliant
     }
 }
 
 var a = () => {
-    var x;             // NOK
+    var x;             // Noncompliant
 };
 
 var obj = {
@@ -54,7 +55,7 @@ function fun1(){
 }
 
 function fun3(g){
-  var s;
+  var s; // Noncompliant [[secondary=+3]] {{"s" hides or potentially hides a variable declared in an outer scope at line 61.}}
 }
 function fun4(g){
   s = 1

@@ -27,23 +27,7 @@ public class VariableShadowingCheckTest {
 
   @Test
   public void test() {
-    VariableShadowingCheck check = new VariableShadowingCheck();
-
-    JavaScriptCheckVerifier.issues(check, new File("src/test/resources/checks/variableShadowing.js"))
-      .next().atLine(2).withMessage("\"x\" hides or potentially hides a variable declared in an outer scope at line 4.")
-      .next().atLine(8)
-      .next().atLine(11)
-      .next().atLine(14)
-      .next().atLine(18)
-      .next().atLine(19)
-      .next().atLine(22)
-      .next().atLine(27)
-      .next().atLine(28)
-      .next().atLine(31)
-      .next().atLine(32)
-      .next().atLine(37)
-      .next().atLine(57).withMessage("\"s\" hides or potentially hides a variable declared in an outer scope at line 60.")
-      .noMore();
+    JavaScriptCheckVerifier.verify(new VariableShadowingCheck(), new File("src/test/resources/checks/variableShadowing.js"));
   }
 
 }
