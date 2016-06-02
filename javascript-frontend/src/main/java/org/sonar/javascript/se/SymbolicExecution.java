@@ -31,9 +31,10 @@ import javax.annotation.Nullable;
 import org.sonar.javascript.cfg.CfgBlock;
 import org.sonar.javascript.cfg.CfgBranchingBlock;
 import org.sonar.javascript.cfg.ControlFlowGraph;
-import org.sonar.javascript.se.sv.LogicalNotSymbolicValue;
 import org.sonar.javascript.se.sv.EqualToSymbolicValue;
+import org.sonar.javascript.se.sv.LogicalNotSymbolicValue;
 import org.sonar.javascript.se.sv.SymbolicValue;
+import org.sonar.javascript.se.sv.TypeOfComparisonSymbolicValue;
 import org.sonar.javascript.tree.TreeKinds;
 import org.sonar.javascript.tree.symbols.Scope;
 import org.sonar.plugins.javascript.api.symbols.Symbol;
@@ -51,8 +52,6 @@ import org.sonar.plugins.javascript.api.tree.expression.UnaryExpressionTree;
 import org.sonar.plugins.javascript.api.tree.statement.ForObjectStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.VariableDeclarationTree;
 
-import static org.sonar.javascript.se.TypeOf.TYPEOF_EQUAL_CONSTRAINTS;
-import static org.sonar.javascript.se.TypeOf.TYPEOF_NOT_EQUAL_CONSTRAINTS;
 import static org.sonar.plugins.javascript.api.symbols.Symbol.Kind.CLASS;
 import static org.sonar.plugins.javascript.api.symbols.Symbol.Kind.FUNCTION;
 import static org.sonar.plugins.javascript.api.symbols.Symbol.Kind.IMPORT;
@@ -264,79 +263,38 @@ public class SymbolicExecution {
   }
 
   private boolean handleConditionTypeOf(CfgBranchingBlock block, ProgramState currentState, Tree lastElement) {
-    ExpressionTree typeOfOperand = null;
-    LiteralTree literal = null;
+    SymbolicValue symbolicValue = null;
 
     if (lastElement.is(Kind.STRICT_EQUAL_TO, Kind.STRICT_NOT_EQUAL_TO, Kind.EQUAL_TO, Kind.NOT_EQUAL_TO)) {
+      ExpressionTree operandOfTypeOf = null;
+      LiteralTree literal = null;
       BinaryExpressionTree expression = (BinaryExpressionTree) lastElement;
       ExpressionTree left = expression.leftOperand();
       ExpressionTree right = expression.rightOperand();
       if (left.is(Kind.TYPEOF) && right.is(Kind.STRING_LITERAL)) {
-        typeOfOperand = ((UnaryExpressionTree) left).expression();
+        operandOfTypeOf = ((UnaryExpressionTree) left).expression();
         literal = (LiteralTree) right;
 
       } else if (right.is(Kind.TYPEOF) && left.is(Kind.STRING_LITERAL)) {
-        typeOfOperand = ((UnaryExpressionTree) right).expression();
+        operandOfTypeOf = ((UnaryExpressionTree) right).expression();
         literal = (LiteralTree) left;
+      }
+
+      SymbolicValue operandValue = getSymbolicValue(operandOfTypeOf, currentState);
+      if (operandValue != null) {
+        symbolicValue = new TypeOfComparisonSymbolicValue(operandValue, literal.value().substring(1, literal.value().length() - 1));
+        if (lastElement.is(Kind.STRICT_NOT_EQUAL_TO, Kind.NOT_EQUAL_TO)) {
+          symbolicValue = new LogicalNotSymbolicValue(symbolicValue);
+        }
       }
     }
 
-    if (typeOfOperand != null) {
-      String value = literal.value().substring(1, literal.value().length() - 1);
-
-      Constraint trueSuccessorConstraint = null;
-      Constraint falseSuccessorConstraint = null;
-
-      SymbolicValue conditionVariableSymbolicValue = getSymbolicValue(typeOfOperand, currentState);
-
-      if (conditionVariableSymbolicValue != null) {
-        Truthiness conditionTruthiness = getTypeOfConditionTruthiness(lastElement, value, currentState, conditionVariableSymbolicValue);
-        conditionResults.put(lastElement, conditionTruthiness);
-
-        if (conditionTruthiness.equals(Truthiness.UNKNOWN)) {
-          if (lastElement.is(Kind.EQUAL_TO, Kind.STRICT_EQUAL_TO)) {
-            trueSuccessorConstraint = TYPEOF_EQUAL_CONSTRAINTS.get(value);
-            falseSuccessorConstraint = TYPEOF_NOT_EQUAL_CONSTRAINTS.get(value);
-
-          } else {
-            trueSuccessorConstraint = TYPEOF_NOT_EQUAL_CONSTRAINTS.get(value);
-            falseSuccessorConstraint = TYPEOF_EQUAL_CONSTRAINTS.get(value);
-          }
-        }
-
-        if (conditionTruthiness != Truthiness.FALSY) {
-          pushSuccessor(block.trueSuccessor(), currentState.constrain(conditionVariableSymbolicValue, trueSuccessorConstraint));
-        }
-        if (conditionTruthiness != Truthiness.TRUTHY) {
-          pushSuccessor(block.falseSuccessor(), currentState.constrain(conditionVariableSymbolicValue, falseSuccessorConstraint));
-        }
-        return true;
-      }
-
+    if (symbolicValue != null) {
+      pushConditionSuccessors(block, currentState, symbolicValue);
+      return true;
     }
 
     return false;
-  }
-
-  private static Truthiness getTypeOfConditionTruthiness(Tree expression, String typeValue, ProgramState currentState, SymbolicValue symbolicValue) {
-    Truthiness conditionTruthiness = Truthiness.UNKNOWN;
-
-    Truthiness truthiness = expression.is(Kind.EQUAL_TO, Kind.STRICT_EQUAL_TO)
-      ? Truthiness.TRUTHY
-      : Truthiness.FALSY;
-
-    if (!TypeOf.isValidType(typeValue)) {
-      conditionTruthiness = truthiness.not();
-
-    } else if (currentState.getConstraint(symbolicValue) != null){
-      String typeOf = TypeOf.typeOf(currentState.getConstraint(symbolicValue));
-
-      if (typeOf != null) {
-        conditionTruthiness = typeValue.equals(typeOf) ? truthiness : truthiness.not();
-      }
-    }
-
-    return conditionTruthiness;
   }
 
   private boolean handleConditionEqualNull(CfgBranchingBlock block, ProgramState currentState, Tree lastElement) {
