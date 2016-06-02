@@ -1,19 +1,20 @@
 function fun1(){
-  $( "p" ).hide(); // NOK
+  $( "p" ).hide(); // Noncompliant [[secondary=+2]] {{Selection "$( "p" )" is made 2 times. It should be stored in a variable and reused.}}
+//^^^^^^^^
   $( "p" ).show();
 }
 
 function fun2(){
-  $( "p" ).hide(); // NOK
+  $( "p" ).hide(); // Noncompliant [[secondary=+1,+2]] {{Selection "$( "p" )" is made 3 times. It should be stored in a variable and reused.}}
   $( "p" ).show();
   $( "p" ).show();
 }
 
 function fun3(){
-  $( "p" ).hide(); // NOK
+  $( "p" ).hide(); // Noncompliant
 
   function fun4(){
-    $( "p" ).hide(); // NOK
+    $( "p" ).hide(); // Noncompliant
     $( "p" ).show();
   }
 
@@ -21,12 +22,12 @@ function fun3(){
 
 }
 
-$( "p" ).hide(); // NOK
+$( "p" ).hide(); // Noncompliant
 $( "p" ).show();
 
 
 var fun5 = function(){
-  $( "p" ).hide(); // NOK
+  $( "p" ).hide(); // Noncompliant
   $( "p" ).show();
 }
 
@@ -41,7 +42,7 @@ var fun7 = function(){
 }
 
 fun8(function(){
-  jQuery( "p" ).hide(); // NOK
+  jQuery( "p" ).hide(); // Noncompliant
   jQuery( "p" ).show();
 })
 

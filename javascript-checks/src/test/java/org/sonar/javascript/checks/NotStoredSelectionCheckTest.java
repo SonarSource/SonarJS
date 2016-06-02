@@ -25,20 +25,11 @@ import org.sonar.javascript.checks.verifier.JavaScriptCheckVerifier;
 
 public class NotStoredSelectionCheckTest {
 
-  private NotStoredSelectionCheck check = new NotStoredSelectionCheck();
-
   @Test
   public void test() {
+    NotStoredSelectionCheck check = new NotStoredSelectionCheck();
     check.threshold = 1;
-    JavaScriptCheckVerifier.issues(check, new File("src/test/resources/checks/NotStoredSelection.js"))
-      .next().atLine(2).withMessage("Selection \"$( \"p\" )\" is made 2 times. It should be stored in a variable and reused.")
-      .next().atLine(7).withMessage("Selection \"$( \"p\" )\" is made 3 times. It should be stored in a variable and reused.")
-      .next().atLine(13)
-      .next().atLine(16)
-      .next().atLine(24)
-      .next().atLine(29)
-      .next().atLine(44)
-      .noMore();
+    JavaScriptCheckVerifier.verify(check, new File("src/test/resources/checks/NotStoredSelection.js"));
 
   }
 }
