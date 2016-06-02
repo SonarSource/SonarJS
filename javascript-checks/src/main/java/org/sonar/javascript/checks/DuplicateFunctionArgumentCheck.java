@@ -19,11 +19,10 @@
  */
 package org.sonar.javascript.checks;
 
-import com.google.common.base.Joiner;
-import com.google.common.collect.Sets;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
-import java.util.Set;
+import java.util.Map;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
@@ -46,43 +45,34 @@ import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 @SqaleConstantRemediation("5min")
 public class DuplicateFunctionArgumentCheck extends DoubleDispatchVisitorCheck {
 
-  private static final String MESSAGE = "Rename the duplicated function parameter%s %s.";
+  private static final String MESSAGE = "Rename the duplicated function parameter \"%s\".";
 
   @Override
   public void visitParameterList(ParameterListTree tree) {
     if (tree.is(Tree.Kind.FORMAL_PARAMETER_LIST)) {
-      List<String> duplicatedParameters = new ArrayList<>();
-      Set<String> values = Sets.newHashSet();
+      Map<String, List<IdentifierTree>> duplicatedParameters = new HashMap<>();
 
       for (IdentifierTree identifier : ((ParameterListTreeImpl) tree).parameterIdentifiers()) {
         String value = identifier.name();
         String unescaped = EscapeUtils.unescape(value);
 
-        if (values.contains(unescaped)) {
-          duplicatedParameters.add(value);
-        } else {
-          values.add(unescaped);
+        if (!duplicatedParameters.containsKey(unescaped)) {
+          duplicatedParameters.put(unescaped, new ArrayList<>());
         }
+
+        duplicatedParameters.get(unescaped).add(identifier);
       }
 
-      checkDuplicatedParameters(tree, duplicatedParameters);
+      for (List<IdentifierTree> sameNameParameters : duplicatedParameters.values()) {
+        if (sameNameParameters.size() > 1) {
+          for (IdentifierTree duplicatingParameter : sameNameParameters.subList(1, sameNameParameters.size())) {
+            String message = String.format(MESSAGE, duplicatingParameter.name());
+            addIssue(duplicatingParameter, message).secondary(sameNameParameters.get(0));
+          }
+        }
+      }
     }
     super.visitParameterList(tree);
-  }
-
-  private void checkDuplicatedParameters(ParameterListTree tree, List<String> duplicatedParameters) {
-    if (!duplicatedParameters.isEmpty()) {
-      String message = String.format(
-        MESSAGE,
-        duplicatedParameters.size() > 1 ? "s" : "",
-        parameterListString(duplicatedParameters)
-      );
-      addLineIssue(tree, message);
-    }
-  }
-
-  private static String parameterListString(List<String> duplicatedParameters) {
-    return "\"" + Joiner.on("\", \"").join(duplicatedParameters) + "\"";
   }
 
 }
