@@ -359,7 +359,9 @@ class ControlFlowGraphBuilder {
 
     } else if (tree.is(Kind.YIELD_EXPRESSION)) {
       YieldExpressionTree yieldExpression = (YieldExpressionTree) tree;
-      buildExpression(yieldExpression.argument());
+      if (yieldExpression.argument() != null) {
+        buildExpression(yieldExpression.argument());
+      }
     }
   }
 

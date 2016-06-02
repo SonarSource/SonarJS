@@ -579,6 +579,7 @@ public class ControlFlowGraphTest {
     assertExpressionElements("new a(b)", "a", "b");
     assertExpressionElements("new a", "a");
     assertExpressionElements("yield a", "a");
+    assertExpressionElements("yield");
     assertExpressionElements("`x${a}`", "a", "${a}");
     assertExpressionElements("tag `x${a}`", "tag", "a", "${a}", "`x${a}`");
     assertExpressionElements("a = { [ 1 ] : b }", "a",  "1", "[ 1 ]", "b", "[ 1 ] : b", "{ [ 1 ] : b }");
