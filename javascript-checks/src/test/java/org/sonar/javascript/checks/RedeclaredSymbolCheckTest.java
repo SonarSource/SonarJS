@@ -25,36 +25,8 @@ import org.sonar.javascript.checks.verifier.JavaScriptCheckVerifier;
 
 public class RedeclaredSymbolCheckTest {
 
-  private RedeclaredSymbolCheck check = new RedeclaredSymbolCheck();
-
   @Test
   public void test() {
-    JavaScriptCheckVerifier.issues(check, new File("src/test/resources/checks/redeclaredSymbol.js"))
-      .next().atLine(3).withMessage("Rename \"fun\" as this name is already used in declaration at line 1.")
-      .next().atLine(10).withMessage("Rename \"inner\" as this name is already used in declaration at line 8.")
-      .next().atLine(13).withMessage("Rename \"f\" as this name is already used in declaration at line 5.")
-
-      .next().atLine(18).withMessage("Rename \"a\" as this name is already used in declaration at line 17.")
-      .next().atLine(22).withMessage("Rename \"a\" as this name is already used in declaration at line 21.")
-      .next().atLine(27).withMessage("Rename \"i\" as this name is already used in declaration at line 26.")
-      .next().atLine(34).withMessage("Rename \"b\" as this name is already used in declaration at line 32.")
-      .next().atLine(38).withMessage("Rename \"a\" as this name is already used in declaration at line 37.")
-      .next().atLine(42)
-      .next().atLine(43)
-      .next().atLine(48)
-      .next().atLine(52)
-      .next().atLine(58)
-
-      .next().atLine(73)
-      .next().atLine(78)
-      .next().atLine(81)
-      .next().atLine(85)
-      .next().atLine(90)
-      .next().atLine(97)
-      .next().atLine(101)
-      .next().atLine(105)
-      .next().atLine(106)
-      .noMore();
-
+    JavaScriptCheckVerifier.verify(new RedeclaredSymbolCheck(), new File("src/test/resources/checks/redeclaredSymbol.js"));
   }
 }

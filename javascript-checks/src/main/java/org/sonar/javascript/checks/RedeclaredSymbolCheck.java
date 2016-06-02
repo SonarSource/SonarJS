@@ -64,7 +64,8 @@ public class RedeclaredSymbolCheck extends DoubleDispatchVisitorCheck {
           firstDeclaration = usage;
         }
       } else if (usage.isDeclaration()) {
-        addLineIssue(usage.identifierTree(), String.format(MESSAGE, symbol.name(), ((JavaScriptTree) firstDeclaration.identifierTree()).getLine()));
+        String message = String.format(MESSAGE, symbol.name(), ((JavaScriptTree) firstDeclaration.identifierTree()).getLine());
+        addIssue(usage.identifierTree(), message).secondary(firstDeclaration.identifierTree());
       }
     }
   }
