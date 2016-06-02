@@ -28,11 +28,7 @@ public class LocalStorageCheckTest {
 
   @Test
   public void test() {
-
-    JavaScriptCheckVerifier.issues(new LocalStorageCheck(), new File("src/test/resources/checks/localStorage.js"))
-      .next().atLine(2).withCost((double) 12).withMessage("Remove all use of \"localStorage\"; use cookies or store the data on the server instead.")
-      .next().atLine(3).withCost((double) 0).withMessage("Remove all use of \"sessionStorage\"; use cookies or store the data on the server instead.")
-      .noMore();
+    JavaScriptCheckVerifier.verify(new LocalStorageCheck(), new File("src/test/resources/checks/localStorage.js"));
   }
 
 }
