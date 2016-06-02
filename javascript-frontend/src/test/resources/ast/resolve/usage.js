@@ -75,3 +75,11 @@ import DefaultMember1, {member4} from "module-name";
 
 member1();
 new DefaultMember();
+
+function useClass() {
+  return new MyClass();
+}
+
+var obj = new MyClass();
+
+class MyClass {}

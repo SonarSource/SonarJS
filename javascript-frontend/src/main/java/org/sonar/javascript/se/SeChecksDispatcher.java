@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.List;
 import org.sonar.javascript.cfg.ControlFlowGraph;
 import org.sonar.javascript.tree.symbols.Scope;
+import org.sonar.plugins.javascript.api.tree.ScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.declaration.FunctionTree;
@@ -47,6 +48,7 @@ public class SeChecksDispatcher extends SubscriptionVisitorCheck {
   @Override
   public List<Kind> nodesToVisit() {
     return ImmutableList.of(
+      Kind.SCRIPT,
       Kind.FUNCTION_DECLARATION,
       Kind.GENERATOR_DECLARATION,
       Kind.FUNCTION_EXPRESSION,
@@ -58,6 +60,13 @@ public class SeChecksDispatcher extends SubscriptionVisitorCheck {
 
   @Override
   public void visitNode(Tree tree) {
+    if (tree.is(Kind.SCRIPT)) {
+      ControlFlowGraph cfg = ControlFlowGraph.build((ScriptTree) tree);
+      Scope globalScope = getContext().getSymbolModel().getScope(tree);
+      new SymbolicExecution(globalScope, cfg, checks).visitCfg();
+      return;
+    }
+
     FunctionTree functionTree = (FunctionTree) tree;
     if (functionTree.body().is(Kind.BLOCK)) {
       ControlFlowGraph cfg = ControlFlowGraph.build((BlockTree) functionTree.body());

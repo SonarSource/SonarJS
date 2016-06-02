@@ -73,7 +73,7 @@ public class SeCheck implements JavaScriptCheck {
    * Note this method is not called if the execution limit was reached.
    * @param functionScope scope corresponding to the function which was executed
    */
-  public void endOfExecution(Scope functionScope) {
+  public void endOfExecution(Scope scope) {
     // do nothing by default
   }
 
@@ -83,7 +83,7 @@ public class SeCheck implements JavaScriptCheck {
    * Note this method is called even if the execution limit was reached later.
    * @param functionScope scope corresponding to the function which will be executed
    */
-  public void startOfExecution(Scope functionScope) {
+  public void startOfExecution(Scope scope) {
     // do nothing by default
   }
 

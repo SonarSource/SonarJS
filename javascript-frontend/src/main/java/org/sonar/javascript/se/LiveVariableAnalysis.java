@@ -143,15 +143,15 @@ public class LiveVariableAnalysis {
 
   public static class Usages {
 
-    private final Scope functionScope;
+    private final Scope scope;
     private final Set<Symbol> symbols = new HashSet<>();
     private final Map<IdentifierTree, Usage> localVariableUsages = new HashMap<>();
     private final Set<Symbol> neverReadSymbols = new HashSet<>();
     private final SetMultimap<Symbol, Usage> usagesInCFG = HashMultimap.create();
     private final Set<Tree> assignmentVariables = new HashSet<>();
 
-    private Usages(Scope functionScope) {
-      this.functionScope = functionScope;
+    private Usages(Scope scope) {
+      this.scope = scope;
     }
 
     public Usage getUsage(Tree element) {
@@ -200,14 +200,14 @@ public class LiveVariableAnalysis {
     }
 
     private boolean isLocalVariable(Symbol symbol) {
-      Scope scope = symbol.scope();
-      while (!scope.isGlobal()) {
-        if (scope.equals(functionScope)) {
+      Scope symbolScope = symbol.scope();
+      while (!symbolScope.isGlobal()) {
+        if (symbolScope.equals(scope)) {
           return true;
         }
-        scope = scope.outer();
+        symbolScope = symbolScope.outer();
       }
-      return false;
+      return scope.isGlobal();
     }
 
     public Set<Symbol> neverReadSymbols() {

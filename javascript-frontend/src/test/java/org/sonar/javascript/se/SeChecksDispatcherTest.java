@@ -41,26 +41,30 @@ public class SeChecksDispatcherTest {
   public void test() throws Exception {
     SeChecksDispatcher seChecksDispatcher = new SeChecksDispatcher(ImmutableList.<SeCheck>of(new TestSeCheck()));
     List<Issue> issues = seChecksDispatcher.scanFile(createContext(new File("src/test/resources/se/se_dispatcher_test.js")));
-    assertThat(issues).hasSize(6);
+    assertThat(issues).hasSize(10);
     assertThat(((PreciseIssue) issues.get(0)).primaryLocation().message()).isEqualTo("Start of execution");
     assertThat(((PreciseIssue) issues.get(1)).primaryLocation().message()).isEqualTo("before element");
     assertThat(((PreciseIssue) issues.get(2)).primaryLocation().message()).isEqualTo("after element");
-    assertThat(((PreciseIssue) issues.get(3)).primaryLocation().message()).isEqualTo("before element");
-    assertThat(((PreciseIssue) issues.get(4)).primaryLocation().message()).isEqualTo("after element");
-    assertThat(((PreciseIssue) issues.get(5)).primaryLocation().message()).isEqualTo("End of execution");
+    assertThat(((PreciseIssue) issues.get(3)).primaryLocation().message()).isEqualTo("End of execution");
+    assertThat(((PreciseIssue) issues.get(4)).primaryLocation().message()).isEqualTo("Start of execution");
+    assertThat(((PreciseIssue) issues.get(5)).primaryLocation().message()).isEqualTo("before element");
+    assertThat(((PreciseIssue) issues.get(6)).primaryLocation().message()).isEqualTo("after element");
+    assertThat(((PreciseIssue) issues.get(7)).primaryLocation().message()).isEqualTo("before element");
+    assertThat(((PreciseIssue) issues.get(8)).primaryLocation().message()).isEqualTo("after element");
+    assertThat(((PreciseIssue) issues.get(9)).primaryLocation().message()).isEqualTo("End of execution");
   }
 
   private class TestSeCheck extends SeCheck {
     @Override
-    public void startOfExecution(Scope functionScope) {
-      super.startOfExecution(functionScope);
-      addIssue(functionScope.tree(), "Start of execution");
+    public void startOfExecution(Scope scope) {
+      super.startOfExecution(scope);
+      addIssue(scope.tree(), "Start of execution");
     }
 
     @Override
-    public void endOfExecution(Scope functionScope) {
-      super.endOfExecution(functionScope);
-      addIssue(functionScope.tree(), "End of execution");
+    public void endOfExecution(Scope scope) {
+      super.endOfExecution(scope);
+      addIssue(scope.tree(), "End of execution");
     }
 
     @Override

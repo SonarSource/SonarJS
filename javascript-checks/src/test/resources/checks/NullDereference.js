@@ -1,3 +1,8 @@
+window.foo;
+
+var x = null;
+x.foo; // Noncompliant
+
 function property() {
   var x;
   x.foo;   // Noncompliant {{TypeError can be thrown as "x" might be null or undefined here.}}

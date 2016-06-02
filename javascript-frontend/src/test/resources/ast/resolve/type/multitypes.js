@@ -10,4 +10,10 @@ if (condition) {
 
 d = b;
 
+foo(someGlobal);
+
+if (condition) {
+  someGlobal = [];
+}
+
 

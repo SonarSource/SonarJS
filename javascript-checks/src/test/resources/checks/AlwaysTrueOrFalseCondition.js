@@ -8,6 +8,10 @@ function global_variables_should_not_be_tracked() {
   if (!global1) {}
 }
 
+var global2 = null;
+if (global2) { // Noncompliant
+}
+
 function unknown_value() {
   var a = random();
   if (a) {}

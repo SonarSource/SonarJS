@@ -32,3 +32,10 @@ var f;
 
 for (e in es6) {}   // Noncompliant
 var e;
+
+function foo(){
+  new SomeClass(); // OK
+}
+
+class SomeClass {
+}

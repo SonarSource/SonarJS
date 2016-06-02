@@ -60,26 +60,26 @@ public class SymbolicExecution {
   private final CfgBlock cfgStartBlock;
   private final Set<Symbol> trackedVariables;
   private final Set<Symbol> functionParameters;
-  private final Scope functionScope;
+  private final Scope scope;
   private final Deque<BlockExecution> workList = new ArrayDeque<>();
   private final SetMultimap<Tree, Truthiness> conditionResults = HashMultimap.create();
   private final Set<BlockExecution> alreadyProcessed = new HashSet<>();
   private final List<SeCheck> checks;
   private final LiveVariableAnalysis liveVariableAnalysis;
 
-  public SymbolicExecution(Scope functionScope, ControlFlowGraph cfg, List<SeCheck> checks) {
+  public SymbolicExecution(Scope scope, ControlFlowGraph cfg, List<SeCheck> checks) {
     cfgStartBlock = cfg.start();
-    LocalVariables localVariables = new LocalVariables(functionScope, cfg);
+    LocalVariables localVariables = new LocalVariables(scope, cfg);
     this.trackedVariables = localVariables.trackableVariables();
     this.functionParameters = localVariables.functionParameters();
-    this.liveVariableAnalysis = LiveVariableAnalysis.create(cfg, functionScope);
-    this.functionScope = functionScope;
+    this.liveVariableAnalysis = LiveVariableAnalysis.create(cfg, scope);
+    this.scope = scope;
     this.checks = checks;
   }
 
   public void visitCfg() {
     for (SeCheck check : checks) {
-      check.startOfExecution(functionScope);
+      check.startOfExecution(scope);
     }
 
     workList.addLast(new BlockExecution(cfgStartBlock, initialState()));
@@ -99,7 +99,7 @@ public class SymbolicExecution {
     if (workList.isEmpty()) {
       for (SeCheck check : checks) {
         check.checkConditions(conditionResults.asMap());
-        check.endOfExecution(functionScope);
+        check.endOfExecution(scope);
       }
     }
   }
@@ -114,19 +114,22 @@ public class SymbolicExecution {
   private ProgramState initialState() {
     ProgramState initialState = ProgramState.emptyState();
 
-    for (Symbol localVar : trackedVariables) {
-      Constraint initialConstraint = null;
-      if (!symbolIs(localVar, FUNCTION, IMPORT, CLASS) && !functionParameters.contains(localVar)) {
-        initialConstraint = Constraint.UNDEFINED;
+    if (!scope.isGlobal()) {
+
+      for (Symbol localVar : trackedVariables) {
+        Constraint initialConstraint = null;
+        if (!symbolIs(localVar, FUNCTION, IMPORT, CLASS) && !functionParameters.contains(localVar)) {
+          initialConstraint = Constraint.UNDEFINED;
+        }
+        initialState = initialState.newSymbolicValue(localVar, initialConstraint);
       }
-      initialState = initialState.newSymbolicValue(localVar, initialConstraint);
+
+      Symbol arguments = scope.getSymbol("arguments");
+      if (arguments != null && arguments.builtIn()) {
+        initialState = initialState.newSymbolicValue(arguments, Constraint.TRUTHY);
+      }
     }
 
-    Symbol arguments = functionScope.getSymbol("arguments");
-    if (arguments != null) {
-      // there is no arguments for arrow function scope
-      initialState = initialState.newSymbolicValue(arguments, Constraint.TRUTHY);
-    }
     return initialState;
   }
 

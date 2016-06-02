@@ -61,4 +61,12 @@ public class MultiTypesTest extends TypeTest {
     assertThat(a.types()).isEqualTo(c.types());
   }
 
+  @Test
+  public void global_should_be_unknown() {
+    Symbol someGlobal = getSymbol("someGlobal");
+
+    assertThat(someGlobal.types()).hasSize(2);
+    assertThat(someGlobal.types()).contains(PrimitiveType.UNKNOWN);
+  }
+
 }
