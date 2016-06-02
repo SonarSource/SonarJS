@@ -27,10 +27,7 @@ public class StrictModeCheckTest {
 
   @Test
   public void test() {
-    JavaScriptCheckVerifier.issues(new StrictModeCheck(), new File("src/test/resources/checks/strictMode.js"))
-      .next().atLine(1).withMessage("Use of JavaScript strict mode may result in unexpected behaviour in some browsers.")
-      .next().atLine(2)
-      .noMore();
+    JavaScriptCheckVerifier.verify(new StrictModeCheck(), new File("src/test/resources/checks/strictMode.js"));
   }
 
 }
