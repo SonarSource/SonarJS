@@ -25,6 +25,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Ordering;
+import com.sonar.sslr.api.RecognitionException;
 import com.sonar.sslr.api.typed.ActionParser;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -188,9 +189,16 @@ public class ControlFlowGraphTest {
 
   @Test
   public void continue_with_invalid_label() throws Exception {
-    thrown.expect(IllegalStateException.class);
-    thrown.expectMessage("label xxx");
+    thrown.expect(RecognitionException.class);
+    thrown.expectMessage("No 'continue' target can be found at line 1 (label 'xxx')");
     build("outer: while (b0) { inner: while (b1) { b2(); continue xxx; } b3(); }", 0);
+  }
+
+  @Test
+  public void continue_outside_loop() throws Exception {
+    thrown.expect(RecognitionException.class);
+    thrown.expectMessage("No 'continue' target can be found at line 1");
+    build("continue; while (b0) { }", 0);
   }
 
   @Test
@@ -229,8 +237,8 @@ public class ControlFlowGraphTest {
 
   @Test
   public void break_with_invalid_label() throws Exception {
-    thrown.expect(IllegalStateException.class);
-    thrown.expectMessage("label xxx");
+    thrown.expect(RecognitionException.class);
+    thrown.expectMessage("No 'break' target can be found at line 1 (label 'xxx')");
     build("outer: while (b0) { inner: while (b1) { b2(); break xxx; } b3(); }", 0);
   }
 
