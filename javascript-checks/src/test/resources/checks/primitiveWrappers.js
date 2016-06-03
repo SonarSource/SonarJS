@@ -1,5 +1,6 @@
 function sayHello() {
-  var x = new Boolean(false); // NOK
+  var x = new Boolean(false); // Noncompliant {{Use a literal value for this.}}
+//        ^^^^^^^^^^^^^^^^^^
   if (x) {
     alert('hi');  // Shows 'hi'.
   }
@@ -9,8 +10,8 @@ function sayHello() {
     alert('hi');  // This will never be alerted.
   }
 
-  new Number(1); // NOK
-  new String('2'); // NOK
+  new Number(1); // Noncompliant
+  new String('2'); // Noncompliant
 
   new MyObject(); // OK
 }

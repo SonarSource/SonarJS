@@ -1,4 +1,5 @@
 function sayHello() {
+// Noncompliant@+1 {{Use string concatenation rather than line continuation.}}
   nok = 'A rather long string of English text, an error message \
          actually that just keeps going and going -- an error \
          message to make the Energizer bunny blush (right through \

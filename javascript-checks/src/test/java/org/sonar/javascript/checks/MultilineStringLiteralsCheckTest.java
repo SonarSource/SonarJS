@@ -27,11 +27,7 @@ public class MultilineStringLiteralsCheckTest {
 
   @Test
   public void test() {
-    MultilineStringLiteralsCheck check = new MultilineStringLiteralsCheck();
-
-    JavaScriptCheckVerifier.issues(check, new File("src/test/resources/checks/multilineStringLiteral.js"))
-      .next().atLine(2).withMessage("Use string concatenation rather than line continuation.")
-      .noMore();
+    JavaScriptCheckVerifier.verify(new MultilineStringLiteralsCheck(), new File("src/test/resources/checks/multilineStringLiterals.js"));
   }
 
 }

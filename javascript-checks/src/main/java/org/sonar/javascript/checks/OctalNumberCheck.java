@@ -53,7 +53,7 @@ public class OctalNumberCheck extends DoubleDispatchVisitorCheck {
           return;
         }
         if (newValue > 9) {
-          addLineIssue(tree, String.format(MESSAGE, value, newValue));
+          addIssue(tree, String.format(MESSAGE, value, newValue));
         }
       }
     }

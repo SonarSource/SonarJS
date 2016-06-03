@@ -27,8 +27,7 @@ public class SingleQuoteStringLiteralsCheckTest {
 
   @Test
   public void test() {
-    SingleQuoteStringLiteralsCheck check = new SingleQuoteStringLiteralsCheck();
-    JavaScriptCheckVerifier.verify(check, new File("src/test/resources/checks/singleQuoteStringLiterals.js"));
+    JavaScriptCheckVerifier.verify(new SingleQuoteStringLiteralsCheck(), new File("src/test/resources/checks/singleQuoteStringLiterals.js"));
   }
 
 }
