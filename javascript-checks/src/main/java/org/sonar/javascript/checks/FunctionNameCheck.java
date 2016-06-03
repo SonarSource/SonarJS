@@ -21,7 +21,6 @@ package org.sonar.javascript.checks;
 
 import java.util.regex.Pattern;
 import javax.annotation.Nullable;
-import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
@@ -34,14 +33,12 @@ import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
-import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 
 @Rule(
   key = "S100",
   name = "Function names should comply with a naming convention",
   priority = Priority.MINOR,
   tags = {Tags.CONVENTION})
-@SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.READABILITY)
 @SqaleConstantRemediation("5min")
 public class FunctionNameCheck extends DoubleDispatchVisitorCheck {
 

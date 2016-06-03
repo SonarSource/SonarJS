@@ -22,7 +22,6 @@ package org.sonar.javascript.checks;
 import com.google.common.collect.ImmutableList;
 import java.util.List;
 import java.util.Set;
-import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.javascript.cfg.CfgBlock;
@@ -39,7 +38,6 @@ import org.sonar.plugins.javascript.api.visitors.PreciseIssue;
 import org.sonar.plugins.javascript.api.visitors.SubscriptionVisitorCheck;
 import org.sonar.squidbridge.annotations.ActivatedByDefault;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
-import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 
 @Rule(
   key = "UnreachableCode",
@@ -47,7 +45,6 @@ import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
   priority = Priority.MAJOR,
   tags = {Tags.CERT, Tags.CWE, Tags.MISRA, Tags.UNUSED})
 @ActivatedByDefault
-@SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.LOGIC_RELIABILITY)
 @SqaleConstantRemediation("5 min")
 public class UnreachableCodeCheck extends SubscriptionVisitorCheck {
 

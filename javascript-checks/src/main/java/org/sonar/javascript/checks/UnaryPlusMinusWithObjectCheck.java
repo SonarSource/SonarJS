@@ -22,7 +22,6 @@ package org.sonar.javascript.checks;
 import com.google.common.collect.ImmutableList;
 import java.util.EnumSet;
 import java.util.List;
-import org.sonar.api.server.rule.RulesDefinition.SubCharacteristics;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.javascript.checks.utils.CheckUtils;
@@ -34,14 +33,12 @@ import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.javascript.api.visitors.SubscriptionVisitorCheck;
 import org.sonar.squidbridge.annotations.ActivatedByDefault;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
-import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 
 @Rule(
   key = "S3002",
   name = "Unary operators \"+\" and \"-\" should not be used with objects",
   priority = Priority.CRITICAL,
   tags = {Tags.BUG})
-@SqaleSubCharacteristic(SubCharacteristics.DATA_RELIABILITY)
 @SqaleConstantRemediation("15min")
 @ActivatedByDefault
 public class UnaryPlusMinusWithObjectCheck extends SubscriptionVisitorCheck {

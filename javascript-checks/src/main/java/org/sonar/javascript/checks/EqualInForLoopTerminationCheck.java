@@ -22,7 +22,6 @@ package org.sonar.javascript.checks;
 import java.util.HashSet;
 import java.util.Set;
 import javax.annotation.Nullable;
-import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.javascript.tree.TreeKinds;
@@ -41,7 +40,6 @@ import org.sonar.plugins.javascript.api.tree.statement.VariableDeclarationTree;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
 import org.sonar.squidbridge.annotations.ActivatedByDefault;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
-import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 
 @Rule(
   key = "S888",
@@ -49,7 +47,6 @@ import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
   priority = Priority.CRITICAL,
   tags = {Tags.BUG, Tags.CERT, Tags.CWE, Tags.MISRA})
 @ActivatedByDefault
-@SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.LOGIC_RELIABILITY)
 @SqaleConstantRemediation("2min")
 public class EqualInForLoopTerminationCheck extends DoubleDispatchVisitorCheck {
 

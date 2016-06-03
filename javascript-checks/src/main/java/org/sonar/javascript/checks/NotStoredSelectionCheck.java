@@ -25,7 +25,6 @@ import com.google.common.collect.ListMultimap;
 import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.List;
-import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
@@ -44,14 +43,12 @@ import org.sonar.plugins.javascript.api.tree.expression.LiteralTree;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
 import org.sonar.plugins.javascript.api.visitors.PreciseIssue;
 import org.sonar.squidbridge.annotations.SqaleLinearWithOffsetRemediation;
-import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 
 @Rule(
   key = "S2762",
   name = "Selections should be stored",
   priority = Priority.MAJOR,
   tags = {Tags.JQUERY, Tags.PERFORMANCE, Tags.USER_EXPERIENCE})
-@SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.CPU_EFFICIENCY)
 @SqaleLinearWithOffsetRemediation(
   coeff = "1min",
   offset = "2min",

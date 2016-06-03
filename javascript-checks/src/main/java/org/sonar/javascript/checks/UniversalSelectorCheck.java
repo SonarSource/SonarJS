@@ -19,19 +19,16 @@
  */
 package org.sonar.javascript.checks;
 
-import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.plugins.javascript.api.tree.expression.CallExpressionTree;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
-import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 
 @Rule(
   key = "S2716",
   name = "Universal selectors should not be used",
   priority = Priority.MAJOR,
   tags = {Tags.JQUERY, Tags.PERFORMANCE, Tags.USER_EXPERIENCE})
-@SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.CPU_EFFICIENCY)
 @SqaleConstantRemediation("10min")
 public class UniversalSelectorCheck extends AbstractJQuerySelectorOptimizationCheck {
 

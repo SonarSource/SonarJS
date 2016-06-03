@@ -20,7 +20,6 @@
 package org.sonar.javascript.checks;
 
 import java.util.List;
-import org.sonar.api.server.rule.RulesDefinition.SubCharacteristics;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
@@ -36,14 +35,12 @@ import org.sonar.plugins.javascript.api.tree.statement.ReturnStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.StatementTree;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
-import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 
 @Rule(
   key = "S3524",
   name = "Braces and parentheses should be used consistently with arrow functions",
   priority = Priority.INFO,
   tags = {Tags.ES2015, Tags.CONVENTION})
-@SqaleSubCharacteristic(SubCharacteristics.READABILITY)
 @SqaleConstantRemediation("2min")
 public class ArrowFunctionConventionCheck extends DoubleDispatchVisitorCheck {
 

@@ -20,7 +20,6 @@
 package org.sonar.javascript.checks;
 
 import javax.annotation.Nullable;
-import org.sonar.api.server.rule.RulesDefinition.SubCharacteristics;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.javascript.tree.TreeKinds;
@@ -32,14 +31,12 @@ import org.sonar.plugins.javascript.api.tree.statement.ExpressionStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.ForStatementTree;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
-import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 
 @Rule(
   key = "S881",
   name = "Increment (++) and decrement (--) operators should not be used in a method call or mixed with other operators in an expression",
   priority = Priority.MAJOR,
   tags = {Tags.CERT, Tags.MISRA})
-@SqaleSubCharacteristic(SubCharacteristics.LOGIC_RELIABILITY)
 @SqaleConstantRemediation("5min")
 public class IncrementDecrementInSubExpressionCheck extends DoubleDispatchVisitorCheck {
 
