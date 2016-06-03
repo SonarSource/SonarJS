@@ -38,6 +38,7 @@ var fun6 = function(){
 
 var fun7 = function(){
   var p = $( "p" ); // ok
+  $( "p" ).show(); // Noncompliant [[secondary=+1]]
   $( "p" ).show();
 }
 

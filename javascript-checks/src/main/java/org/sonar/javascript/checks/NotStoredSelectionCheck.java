@@ -20,13 +20,11 @@
 package org.sonar.javascript.checks;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.ListMultimap;
 import java.util.ArrayDeque;
-import java.util.ArrayList;
 import java.util.Deque;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
@@ -69,8 +67,7 @@ public class NotStoredSelectionCheck extends DoubleDispatchVisitorCheck {
     defaultValue = "" + DEFAULT)
   public int threshold = DEFAULT;
 
-  private Deque<Map<String, List<CallExpressionTree>>> selectors;
-
+  private Deque<ListMultimap<String, CallExpressionTree>> selectors;
 
   @Override
   public void visitScript(ScriptTree tree) {
@@ -84,13 +81,13 @@ public class NotStoredSelectionCheck extends DoubleDispatchVisitorCheck {
     checkForDuplications(selectors.pop());
   }
 
-  private void checkForDuplications(Map<String, List<CallExpressionTree>> selectors) {
-    for (Entry<String, List<CallExpressionTree>> entry : selectors.entrySet()) {
-      List<CallExpressionTree> references = entry.getValue();
+  private void checkForDuplications(ListMultimap<String, CallExpressionTree> selectors) {
+    for (String selectorText : selectors.keySet()) {
+      List<CallExpressionTree> references = selectors.get(selectorText);
       int numberOfDuplications = references.size();
 
       if (numberOfDuplications > threshold) {
-        String message = String.format(MESSAGE, entry.getKey(), numberOfDuplications);
+        String message = String.format(MESSAGE, selectorText, numberOfDuplications);
         PreciseIssue issue = addIssue(references.get(0), message)
           .cost((double) numberOfDuplications - threshold);
         references.subList(1, references.size()).forEach(issue::secondary);
@@ -120,7 +117,7 @@ public class NotStoredSelectionCheck extends DoubleDispatchVisitorCheck {
   }
 
   private void startScopeBlock() {
-    selectors.push(new HashMap<>());
+    selectors.push(ArrayListMultimap.create());
   }
 
   @Override
@@ -128,12 +125,8 @@ public class NotStoredSelectionCheck extends DoubleDispatchVisitorCheck {
     if (tree.types().contains(ObjectType.FrameworkType.JQUERY_SELECTOR_OBJECT)) {
       LiteralTree parameter = getSelectorParameter(tree);
       if (parameter != null) {
-        Map<String, List<CallExpressionTree>> currentSelectors = selectors.peek();
         String value = parameter.value();
-        if (!currentSelectors.containsKey(value)) {
-          currentSelectors.put(value, new ArrayList<>());
-        }
-        currentSelectors.get(value).add(tree);
+        selectors.peek().put(value, tree);
       }
     }
     super.visitCallExpression(tree);
@@ -176,17 +169,8 @@ public class NotStoredSelectionCheck extends DoubleDispatchVisitorCheck {
       if (callExpressionTree.types().contains(ObjectType.FrameworkType.JQUERY_SELECTOR_OBJECT)) {
         LiteralTree parameter = getSelectorParameter(callExpressionTree);
         if (parameter != null) {
-          remove((CallExpressionTree)tree);
+          selectors.peek().remove(parameter.value(), tree);
         }
-      }
-    }
-  }
-
-  private void remove(CallExpressionTree tree) {
-    for (List<CallExpressionTree> callExpressionTrees : selectors.peek().values()) {
-      if (callExpressionTrees.contains(tree)) {
-        callExpressionTrees.remove(tree);
-        return;
       }
     }
   }
