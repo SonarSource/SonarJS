@@ -27,18 +27,7 @@ public class DuplicatePropertyNameCheckTest {
 
   @Test
   public void test() {
-    DuplicatePropertyNameCheck check = new DuplicatePropertyNameCheck();
-
-    JavaScriptCheckVerifier.issues(check, new File("src/test/resources/checks/duplicatePropertyName.js"))
-      .next().atLine(5).withMessage("Rename or remove duplicate property name 'key'.")
-      .next().atLine(6).withMessage("Rename or remove duplicate property name 'key'.")
-      .next().atLine(7).withMessage("Rename or remove duplicate property name 'key'.")
-      .next().atLine(8).withMessage("Rename or remove duplicate property name '\\u006bey'.")
-      .next().atLine(9).withMessage("Rename or remove duplicate property name '\\u006bey'.")
-      .next().atLine(10).withMessage("Rename or remove duplicate property name '\\x6bey'.")
-      .next().atLine(11).withMessage("Rename or remove duplicate property name '1'.")
-      .next().atLine(12)
-      .noMore();
+    JavaScriptCheckVerifier.verify(new DuplicatePropertyNameCheck(), new File("src/test/resources/checks/duplicatePropertyName.js"));
   }
 
 }

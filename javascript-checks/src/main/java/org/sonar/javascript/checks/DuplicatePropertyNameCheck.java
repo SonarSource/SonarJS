@@ -19,8 +19,8 @@
  */
 package org.sonar.javascript.checks;
 
-import com.google.common.collect.Sets;
-import java.util.Set;
+import java.util.HashMap;
+import java.util.Map;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
@@ -50,43 +50,44 @@ public class DuplicatePropertyNameCheck extends DoubleDispatchVisitorCheck {
 
   @Override
   public void visitObjectLiteral(ObjectLiteralTree tree) {
-    Set<String> keys = Sets.newHashSet();
+    Map<String, Tree> keys = new HashMap<>();
 
     for (Tree property : tree.properties()) {
       if (property.is(Tree.Kind.PAIR_PROPERTY)) {
-        visitPairProperty(keys, property, (PairPropertyTree) property);
+        visitPairProperty(keys, (PairPropertyTree) property);
       }
 
       if (property.is(Kind.IDENTIFIER_REFERENCE)) {
         IdentifierTree identifier = (IdentifierTree) property;
-        addKey(keys, identifier.name(), property);
+        addKey(keys, identifier.name(), (IdentifierTree)property);
       }
     }
     super.visitObjectLiteral(tree);
   }
 
-  private void visitPairProperty(Set<String> keys, Tree property, PairPropertyTree pairProperty) {
+  private void visitPairProperty(Map<String, Tree> keys, PairPropertyTree pairProperty) {
     ExpressionTree key = pairProperty.key();
     if (key.is(Tree.Kind.STRING_LITERAL)) {
       String value = ((LiteralTree) key).value();
       value = value.substring(1, value.length() - 1);
-      addKey(keys, value, property);
+      addKey(keys, value, pairProperty.key());
     }
 
     if (key.is(Kind.IDENTIFIER_NAME)) {
-      addKey(keys, ((IdentifierTree) key).name(), property);
+      addKey(keys, ((IdentifierTree) key).name(), pairProperty.key());
     }
 
     if (key.is(Tree.Kind.NUMERIC_LITERAL)) {
-      addKey(keys, ((LiteralTree) key).value(), property);
+      addKey(keys, ((LiteralTree) key).value(), pairProperty.key());
     }
   }
 
-  private void addKey(Set<String> keys, String key, Tree property) {
-    if (keys.contains(EscapeUtils.unescape(key))) {
-      addLineIssue(property, String.format(MESSAGE, key));
+  private void addKey(Map<String, Tree> keys, String key, ExpressionTree keyTree) {
+    Tree duplicated = keys.get(EscapeUtils.unescape(key));
+    if (duplicated != null) {
+      addIssue(keyTree, String.format(MESSAGE, key)).secondary(duplicated);
     } else {
-      keys.add(key);
+      keys.put(key, keyTree);
     }
   }
 

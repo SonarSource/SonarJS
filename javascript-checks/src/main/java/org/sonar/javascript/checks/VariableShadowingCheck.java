@@ -28,6 +28,7 @@ import org.sonar.plugins.javascript.api.symbols.Symbol;
 import org.sonar.plugins.javascript.api.symbols.Symbol.Kind;
 import org.sonar.plugins.javascript.api.symbols.Usage;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
+import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
@@ -60,16 +61,17 @@ public class VariableShadowingCheck extends DoubleDispatchVisitorCheck {
     if (scope.outer() != null) {
       Symbol outerSymbol = scope.outer().lookupSymbol(symbol.name());
       if (outerSymbol != null && !outerSymbol.builtIn()) {
-        String message = String.format(MESSAGE, symbol.name(), ((JavaScriptTree) getDeclaration(outerSymbol).identifierTree()).getLine());
-        raiseIssuesOnDeclarations(symbol, message);
+        IdentifierTree shadowedDeclaration = getDeclaration(outerSymbol).identifierTree();
+        String message = String.format(MESSAGE, symbol.name(), ((JavaScriptTree) shadowedDeclaration).getLine());
+        raiseIssuesOnDeclarations(symbol, message, shadowedDeclaration);
       }
     }
   }
 
-  private void raiseIssuesOnDeclarations(Symbol symbol, String message) {
+  private void raiseIssuesOnDeclarations(Symbol symbol, String message, IdentifierTree shadowedDeclaration) {
     for (Usage usage : symbol.usages()) {
       if (usage.isDeclaration() || usage.kind() == Usage.Kind.LEXICAL_DECLARATION) {
-        addLineIssue(usage.identifierTree(), message);
+        addIssue(usage.identifierTree(), message).secondary(shadowedDeclaration);
       }
     }
   }

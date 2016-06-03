@@ -77,6 +77,11 @@ public class LiteralTreeImpl extends JavaScriptTree implements LiteralTree, Typa
   public void accept(DoubleDispatchVisitor visitor) {
     visitor.visitLiteral(this);
   }
+
+  @Override
+  public String toString() {
+    return token.text();
+  }
 }
 
 

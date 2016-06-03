@@ -20,12 +20,11 @@
 package org.sonar.javascript.checks;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.ListMultimap;
 import java.util.ArrayDeque;
 import java.util.Deque;
-import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
@@ -43,7 +42,7 @@ import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.FunctionExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.LiteralTree;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
-import org.sonar.plugins.javascript.api.visitors.LineIssue;
+import org.sonar.plugins.javascript.api.visitors.PreciseIssue;
 import org.sonar.squidbridge.annotations.SqaleLinearWithOffsetRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 
@@ -68,8 +67,7 @@ public class NotStoredSelectionCheck extends DoubleDispatchVisitorCheck {
     defaultValue = "" + DEFAULT)
   public int threshold = DEFAULT;
 
-  private Deque<List<LiteralTree>> selectors;
-
+  private Deque<ListMultimap<String, CallExpressionTree>> selectors;
 
   @Override
   public void visitScript(ScriptTree tree) {
@@ -83,34 +81,16 @@ public class NotStoredSelectionCheck extends DoubleDispatchVisitorCheck {
     checkForDuplications(selectors.pop());
   }
 
-  private void checkForDuplications(List<LiteralTree> selectors) {
-    class Entry {
-      private Integer count;
-      private LiteralTree literalTree;
+  private void checkForDuplications(ListMultimap<String, CallExpressionTree> selectors) {
+    for (String selectorText : selectors.keySet()) {
+      List<CallExpressionTree> references = selectors.get(selectorText);
+      int numberOfDuplications = references.size();
 
-      Entry(LiteralTree literalTree) {
-        this.literalTree = literalTree;
-        this.count = 1;
-      }
-
-      void inc() {
-        this.count++;
-      }
-    }
-    Map<String, Entry> duplications = new HashMap<>();
-    for (LiteralTree literal : selectors) {
-      String value = literal.value();
-      Entry entry = duplications.get(value);
-      if (entry != null) {
-        entry.inc();
-      } else {
-        duplications.put(value, new Entry(literal));
-      }
-    }
-    for (Entry entry : duplications.values()) {
-      if (entry.count > threshold) {
-        String message = String.format(MESSAGE, entry.literalTree.value(), entry.count);
-        addIssue(new LineIssue(this, entry.literalTree, message).cost((double) entry.count - threshold));
+      if (numberOfDuplications > threshold) {
+        String message = String.format(MESSAGE, selectorText, numberOfDuplications);
+        PreciseIssue issue = addIssue(references.get(0), message)
+          .cost((double) numberOfDuplications - threshold);
+        references.subList(1, references.size()).forEach(issue::secondary);
       }
     }
   }
@@ -137,7 +117,7 @@ public class NotStoredSelectionCheck extends DoubleDispatchVisitorCheck {
   }
 
   private void startScopeBlock() {
-    selectors.push(new LinkedList<LiteralTree>());
+    selectors.push(ArrayListMultimap.create());
   }
 
   @Override
@@ -145,8 +125,8 @@ public class NotStoredSelectionCheck extends DoubleDispatchVisitorCheck {
     if (tree.types().contains(ObjectType.FrameworkType.JQUERY_SELECTOR_OBJECT)) {
       LiteralTree parameter = getSelectorParameter(tree);
       if (parameter != null) {
-        List<LiteralTree> currentSelectors = selectors.peek();
-        currentSelectors.add(parameter);
+        String value = parameter.value();
+        selectors.peek().put(value, tree);
       }
     }
     super.visitCallExpression(tree);
@@ -189,11 +169,10 @@ public class NotStoredSelectionCheck extends DoubleDispatchVisitorCheck {
       if (callExpressionTree.types().contains(ObjectType.FrameworkType.JQUERY_SELECTOR_OBJECT)) {
         LiteralTree parameter = getSelectorParameter(callExpressionTree);
         if (parameter != null) {
-          selectors.peek().remove(parameter);
+          selectors.peek().remove(parameter.value(), tree);
         }
       }
     }
   }
-
 
 }
