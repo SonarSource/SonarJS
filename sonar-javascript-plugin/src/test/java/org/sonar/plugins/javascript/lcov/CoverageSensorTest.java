@@ -203,4 +203,12 @@ public class CoverageSensorTest {
     overallCoverageSensor.execute(context, linesOfCode);
     assertThat(context.lineHits("moduleKey:file1.js", CoverageType.UNIT, 1)).isEqualTo(0);
   }
+
+  @Test
+  public void test_force_zero_coverage_no_lines_of_code() throws Exception {
+    Settings newSettings = new Settings().setProperty(JavaScriptPlugin.FORCE_ZERO_COVERAGE_KEY, "true");
+    context.setSettings(newSettings);
+    utCoverageSensor.execute(context, new HashMap<>());
+    assertThat(context.lineHits("moduleKey:file1.js", CoverageType.UNIT, 1)).isNull();
+  }
 }

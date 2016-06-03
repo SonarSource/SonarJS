@@ -24,6 +24,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.FileSystem;
@@ -130,13 +131,16 @@ abstract class LCOVCoverageSensor {
     }
   }
 
-  private void saveZeroValue(InputFile inputFile, SensorContext context, Set<Integer> linesOfCode) {
-    NewCoverage newCoverage = context.newCoverage()
-      .onFile(inputFile)
-      .ofType(getCoverageType());
+  private void saveZeroValue(InputFile inputFile, SensorContext context, @Nullable Set<Integer> linesOfCode) {
+    // linesOfCode is null if file was not parsed (e.g. parsing error or minified file)
+    if (linesOfCode != null) {
+      NewCoverage newCoverage = context.newCoverage()
+        .onFile(inputFile)
+        .ofType(getCoverageType());
 
-    linesOfCode.forEach((Integer line) -> newCoverage.lineHits(line, 0));
-    newCoverage.save();
+      linesOfCode.forEach((Integer line) -> newCoverage.lineHits(line, 0));
+      newCoverage.save();
+    }
   }
 
   private static boolean isForceZeroCoverageActivated(SensorContext context) {
