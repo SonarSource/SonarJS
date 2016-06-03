@@ -20,6 +20,7 @@
 package org.sonar.javascript.checks;
 
 import java.util.HashMap;
+import java.util.Map;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
@@ -49,7 +50,7 @@ public class DuplicatePropertyNameCheck extends DoubleDispatchVisitorCheck {
 
   @Override
   public void visitObjectLiteral(ObjectLiteralTree tree) {
-    HashMap<String, Tree> keys = new HashMap<>();
+    Map<String, Tree> keys = new HashMap<>();
 
     for (Tree property : tree.properties()) {
       if (property.is(Tree.Kind.PAIR_PROPERTY)) {
@@ -64,7 +65,7 @@ public class DuplicatePropertyNameCheck extends DoubleDispatchVisitorCheck {
     super.visitObjectLiteral(tree);
   }
 
-  private void visitPairProperty(HashMap<String, Tree> keys, PairPropertyTree pairProperty) {
+  private void visitPairProperty(Map<String, Tree> keys, PairPropertyTree pairProperty) {
     ExpressionTree key = pairProperty.key();
     if (key.is(Tree.Kind.STRING_LITERAL)) {
       String value = ((LiteralTree) key).value();
@@ -81,7 +82,7 @@ public class DuplicatePropertyNameCheck extends DoubleDispatchVisitorCheck {
     }
   }
 
-  private void addKey(HashMap<String, Tree> keys, String key, ExpressionTree keyTree) {
+  private void addKey(Map<String, Tree> keys, String key, ExpressionTree keyTree) {
     Tree duplicated = keys.get(EscapeUtils.unescape(key));
     if (duplicated != null) {
       addIssue(keyTree, String.format(MESSAGE, key)).secondary(duplicated);
