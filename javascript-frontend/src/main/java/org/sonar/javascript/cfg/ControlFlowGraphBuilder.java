@@ -19,9 +19,9 @@
  */
 package org.sonar.javascript.cfg;
 
-import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
+import com.sonar.sslr.api.RecognitionException;
 import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.HashMap;
@@ -29,7 +29,10 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 import org.sonar.javascript.tree.TreeKinds;
+import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
@@ -369,7 +372,7 @@ class ControlFlowGraphBuilder {
     build(block.statements());
   }
 
-  private void addBreakable(JsCfgBlock breakTarget, JsCfgBlock continueTarget, String label) {
+  private void addBreakable(JsCfgBlock breakTarget, @Nullable JsCfgBlock continueTarget, @Nullable String label) {
     breakables.addFirst(new Breakable(continueTarget, breakTarget, label));
   }
 
@@ -394,7 +397,9 @@ class ControlFlowGraphBuilder {
         break;
       }
     }
-    Preconditions.checkState(target != null, "No continue target can be found for label " + label);
+    if (target == null) {
+      raiseRecognitionException(tree, "continue", label);
+    }
     currentBlock.addDisconnectingJump(tree.continueKeyword());
     currentBlock = createSimpleBlock(tree, target);
   }
@@ -408,9 +413,20 @@ class ControlFlowGraphBuilder {
         break;
       }
     }
-    Preconditions.checkState(target != null, "No break target can be found for label " + label);
+    if (target == null) {
+      raiseRecognitionException(tree, "break", label);
+    }
     currentBlock.addDisconnectingJump(tree.breakKeyword());
     currentBlock = createSimpleBlock(tree, target);
+  }
+
+  private static void raiseRecognitionException(Tree tree, String type, @Nullable String label) {
+    int line = ((JavaScriptTree) tree).getLine();
+    String message = "No \'" + type + "\' target can be found at line " + line;
+    if (label != null) {
+      message += " (label '" + label + "')";
+    }
+    throw new RecognitionException(line, message);
   }
 
   private void visitIfStatement(IfStatementTree tree) {
@@ -628,11 +644,15 @@ class ControlFlowGraphBuilder {
 
   private static class Breakable {
 
+    @CheckForNull
     final JsCfgBlock continueTarget;
+
     final JsCfgBlock breakTarget;
+
+    @CheckForNull
     final String label;
 
-    Breakable(JsCfgBlock continueTarget, JsCfgBlock breakTarget, String label) {
+    Breakable(@Nullable JsCfgBlock continueTarget, JsCfgBlock breakTarget, @Nullable String label) {
       this.continueTarget = continueTarget;
       this.breakTarget = breakTarget;
       this.label = label;
