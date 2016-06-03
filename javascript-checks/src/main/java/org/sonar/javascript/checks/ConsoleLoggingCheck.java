@@ -19,17 +19,14 @@
  */
 package org.sonar.javascript.checks;
 
-import com.google.common.collect.ImmutableList;
-import java.util.List;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
-import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.expression.CallExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.DotMemberExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
-import org.sonar.plugins.javascript.api.visitors.SubscriptionVisitorCheck;
+import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
 import org.sonar.squidbridge.annotations.ActivatedByDefault;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
@@ -42,27 +39,21 @@ import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 @ActivatedByDefault
 @SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.SECURITY_FEATURES)
 @SqaleConstantRemediation("5min")
-public class ConsoleLoggingCheck extends SubscriptionVisitorCheck {
+public class ConsoleLoggingCheck extends DoubleDispatchVisitorCheck {
 
   private static final String MESSAGE = "Remove this logging statement.";
 
   @Override
-  public List<Kind> nodesToVisit() {
-    return ImmutableList.of(Kind.CALL_EXPRESSION);
-  }
-
-  @Override
-  public void visitNode(Tree tree) {
-    CallExpressionTree callExpression = (CallExpressionTree) tree;
-
-    if (callExpression.callee().is(Kind.DOT_MEMBER_EXPRESSION)) {
-      DotMemberExpressionTree callee = (DotMemberExpressionTree) callExpression.callee();
+  public void visitCallExpression(CallExpressionTree tree) {
+    if (tree.callee().is(Kind.DOT_MEMBER_EXPRESSION)) {
+      DotMemberExpressionTree callee = (DotMemberExpressionTree) tree.callee();
 
       if (isCalleeConsoleLogging(callee)) {
-        addIssue(((CallExpressionTree) tree).callee(), MESSAGE);
+        addIssue(callee, MESSAGE);
       }
     }
 
+    super.visitCallExpression(tree);
   }
 
   private static boolean isCalleeConsoleLogging(DotMemberExpressionTree callee) {
