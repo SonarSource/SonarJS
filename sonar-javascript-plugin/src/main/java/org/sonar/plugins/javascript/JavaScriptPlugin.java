@@ -19,10 +19,8 @@
  */
 package org.sonar.plugins.javascript;
 
-import com.google.common.collect.ImmutableList;
-import java.util.List;
+import org.sonar.api.Plugin;
 import org.sonar.api.PropertyType;
-import org.sonar.api.SonarPlugin;
 import org.sonar.api.config.PropertyDefinition;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.javascript.tree.symbols.type.JQuery;
@@ -32,7 +30,7 @@ import org.sonar.plugins.javascript.lcov.OverallCoverageSensor;
 import org.sonar.plugins.javascript.lcov.UTCoverageSensor;
 import org.sonar.plugins.javascript.rules.JavaScriptRulesDefinition;
 
-public class JavaScriptPlugin extends SonarPlugin {
+public class JavaScriptPlugin implements Plugin {
 
   // Subcategories
 
@@ -64,8 +62,8 @@ public class JavaScriptPlugin extends SonarPlugin {
   public static final Boolean IGNORE_HEADER_COMMENTS_DEFAULT_VALUE = true;
 
   @Override
-  public List getExtensions() {
-    return ImmutableList.of(
+  public void define(Context context) {
+    context.addExtensions(
       JavaScriptLanguage.class,
       JavaScriptCpdMapping.class,
 
@@ -128,5 +126,4 @@ public class JavaScriptPlugin extends SonarPlugin {
         .build()
     );
   }
-
 }

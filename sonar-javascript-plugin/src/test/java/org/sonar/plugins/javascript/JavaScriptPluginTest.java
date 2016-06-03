@@ -20,6 +20,8 @@
 package org.sonar.plugins.javascript;
 
 import org.junit.Test;
+import org.sonar.api.Plugin.Context;
+import org.sonar.api.utils.Version;
 
 import static org.fest.assertions.Assertions.assertThat;
 
@@ -27,7 +29,9 @@ public class JavaScriptPluginTest {
 
   @Test
   public void get_extensions() throws Exception {
-    assertThat(new JavaScriptPlugin().getExtensions()).hasSize(14);
+    Context context = new Context(Version.create(5, 6));
+    new JavaScriptPlugin().define(context);
+    assertThat(context.getExtensions()).hasSize(14);
   }
 
 }
