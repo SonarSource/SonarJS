@@ -43,6 +43,7 @@
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-api</artifactId>
+      <scope>provided</scope>
     </dependency>
 
     <dependency>
@@ -112,7 +113,7 @@
               <rules>
                 <requireFilesSize>
                   <maxsize>2350000</maxsize>
-                  <minsize>2300000</minsize>
+                  <minsize>2250000</minsize>
                   <files>
                     <file>${project.build.directory}/${project.build.finalName}.jar</file>
                   </files>
