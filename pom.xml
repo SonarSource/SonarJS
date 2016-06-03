@@ -66,7 +66,7 @@
   <properties>
     <license.title>SonarQube JavaScript Plugin</license.title>
 
-    <sonar.version>5.6-RC2</sonar.version>
+    <sonar.version>5.6</sonar.version>
     <sslr.version>1.21</sslr.version>
     <orchestrator.version>3.10.1</orchestrator.version>
     <gitRepositoryName>sonar-javascript</gitRepositoryName>
