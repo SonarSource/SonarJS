@@ -32,8 +32,7 @@ public class JavaScriptRulesDefinition implements RulesDefinition {
       .createRepository(CheckList.REPOSITORY_KEY, JavaScriptLanguage.KEY)
       .setName(CheckList.REPOSITORY_NAME);
 
-    AnnotationBasedRulesDefinition.load(repository, "javascript", CheckList.getChecks());
-
+    new AnnotationBasedRulesDefinition(repository, "javascript").addRuleClasses(false, CheckList.getChecks());
     repository.done();
   }
 
