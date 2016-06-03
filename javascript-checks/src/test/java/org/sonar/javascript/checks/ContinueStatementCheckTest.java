@@ -27,9 +27,7 @@ public class ContinueStatementCheckTest {
 
   @Test
   public void test() {
-    JavaScriptCheckVerifier.issues(new ContinueStatementCheck(), new File("src/test/resources/checks/continueStatement.js"))
-      .next().atLine(6).withMessage("Remove this \"continue\" statement.")
-      .noMore();
+    JavaScriptCheckVerifier.verify(new ContinueStatementCheck(), new File("src/test/resources/checks/continueStatement.js"));
   }
 
 }

@@ -1,3 +1,4 @@
 function sayHello() {
-  debugger;
+  debugger; // Noncompliant {{Remove this debugger statement.}}
+//^^^^^^^^^
 }

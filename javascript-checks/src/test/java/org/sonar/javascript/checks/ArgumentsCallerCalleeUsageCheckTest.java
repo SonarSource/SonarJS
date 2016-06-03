@@ -27,15 +27,7 @@ public class ArgumentsCallerCalleeUsageCheckTest {
 
   @Test
   public void test() {
-    JavaScriptCheckVerifier.issues(new ArgumentsCallerCalleeUsageCheck(), new File("src/test/resources/checks/argumentsCallerCalleeUsage.js"))
-      .next().atLine(2).withMessage("Name the enclosing function instead of using the deprecated property \"arguments.callee\".")
-      .next().atLine(3).withMessage("Remove this use of \"arguments.caller\".")
-      .next().atLine(6).withMessage("Remove this use of \"f.caller\".")
-      .next().atLine(7).withMessage("Remove this use of \"f.arguments\".")
-      .next().atLine(11)
-      .next().atLine(13)
-      .next().atLine(22)
-      .noMore();
+    JavaScriptCheckVerifier.verify(new ArgumentsCallerCalleeUsageCheck(), new File("src/test/resources/checks/argumentsCallerCalleeUsage.js"));
   }
 
 }

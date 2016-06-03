@@ -25,6 +25,7 @@ import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.plugins.javascript.api.tree.Tree;
+import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.MemberExpressionTree;
 import org.sonar.plugins.javascript.api.visitors.SubscriptionVisitorCheck;
 import org.sonar.squidbridge.annotations.ActivatedByDefault;
@@ -63,8 +64,9 @@ public class GlobalThisCheck extends SubscriptionVisitorCheck {
   @Override
   public void visitNode(Tree tree) {
     if (tree.is(Tree.Kind.DOT_MEMBER_EXPRESSION)) {
-      if (((MemberExpressionTree) tree).object().is(Tree.Kind.THIS) && scopeLevel == 0) {
-        addLineIssue(tree, MESSAGE);
+      ExpressionTree object = ((MemberExpressionTree) tree).object();
+      if (object.is(Tree.Kind.THIS) && scopeLevel == 0) {
+        addIssue(object, MESSAGE);
       }
       return;
     }

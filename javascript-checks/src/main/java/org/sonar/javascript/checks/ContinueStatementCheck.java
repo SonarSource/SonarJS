@@ -40,7 +40,7 @@ public class ContinueStatementCheck extends DoubleDispatchVisitorCheck {
 
   @Override
   public void visitContinueStatement(ContinueStatementTree tree) {
-    addLineIssue(tree, MESSAGE);
+    addIssue(tree, MESSAGE);
   }
 
 }

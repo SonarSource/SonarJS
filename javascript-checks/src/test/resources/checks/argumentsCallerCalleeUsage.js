@@ -1,16 +1,18 @@
 function global() {
-  arguments.callee;             // NOK
-  arguments.caller;             // NOK
+  arguments.callee;             // Noncompliant {{Name the enclosing function instead of using the deprecated property "arguments.callee".}}
+//^^^^^^^^^^^^^^^^
+  arguments.caller;             // Noncompliant {{Remove this use of "arguments.caller".}}
 
   function f() {
-    f.caller;                   // NOK
-    f.arguments;                // NOK
+    f.caller;                   // Noncompliant {{Remove this use of "f.caller".}}
+//  ^^^^^^^^
+    f.arguments;                // Noncompliant {{Remove this use of "f.arguments".}}
   }
 
   var g = function g() {
-    g.caller;                   // NOK
+    g.caller;                   // Noncompliant
     var h = function () {
-      g.arguments;              // NOK
+      g.arguments;              // Noncompliant
     }
   }
 
@@ -19,7 +21,7 @@ class
   {
     i()
     {
-      i.caller                  // NOK
+      i.caller                  // Noncompliant
       h.arguments;              // OK - out of scope
     }
   }

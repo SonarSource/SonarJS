@@ -1,8 +1,9 @@
 function sayHello() {
-  eval("2+2");            // NOK
+  eval("2+2");            // Noncompliant
+//^^^^
   anotherFunction("2+2"); // OK
   `eval` ();              // OK
-  `${eval()}`;            // NOK
+  `${eval()}`;            // Noncompliant {{Remove this use of the "eval" function.}}
 }
 
 class C {

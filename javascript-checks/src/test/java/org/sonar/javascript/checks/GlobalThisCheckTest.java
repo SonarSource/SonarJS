@@ -27,11 +27,7 @@ public class GlobalThisCheckTest {
 
   @Test
   public void test() {
-    JavaScriptCheckVerifier.issues(new GlobalThisCheck(), new File("src/test/resources/checks/GlobalThis.js"))
-      .next().atLine(3)
-      .next().atLine(5)
-      .next().atLine(7)
-      .noMore();
+    JavaScriptCheckVerifier.verify(new GlobalThisCheck(), new File("src/test/resources/checks/GlobalThis.js"));
   }
 
 }

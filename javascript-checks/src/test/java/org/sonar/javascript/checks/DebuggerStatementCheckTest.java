@@ -27,9 +27,7 @@ public class DebuggerStatementCheckTest {
 
   @Test
   public void test() {
-    JavaScriptCheckVerifier.issues(new DebuggerStatementCheck(), new File("src/test/resources/checks/debuggerStatement.js"))
-      .next().atLine(2).withMessage("Remove this debugger statement.")
-      .noMore();
+    JavaScriptCheckVerifier.verify(new DebuggerStatementCheck(), new File("src/test/resources/checks/debuggerStatement.js"));
   }
 
 }

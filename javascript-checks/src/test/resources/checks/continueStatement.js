@@ -3,7 +3,8 @@ function sayHello() {
     for (j = 0; j < 3; j++) {
       doSomething();
       if (checkSomething()) {
-        continue label;
+        continue label; // Noncompliant {{Remove this "continue" statement.}}
+//      ^^^^^^^^^^^^^^^
       }
     }
   }

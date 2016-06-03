@@ -43,7 +43,7 @@ public class DebuggerStatementCheck extends DoubleDispatchVisitorCheck {
 
   @Override
   public void visitDebugger(DebuggerStatementTree tree) {
-    addLineIssue(tree, MESSAGE);
+    addIssue(tree, MESSAGE);
     // no sub tree
   }
 
