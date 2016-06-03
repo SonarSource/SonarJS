@@ -50,14 +50,14 @@ public class WebSQLDatabaseCheck extends DoubleDispatchVisitorCheck {
     ExpressionTree callee = tree.callee();
 
     if (isOpenDatabase(callee)) {
-      addLineIssue(tree, MESSAGE);
+      addIssue(tree.callee(), MESSAGE);
 
     } else if (callee.is(Kind.DOT_MEMBER_EXPRESSION)) {
       MemberExpressionTree memberExpr = (MemberExpressionTree) callee;
       boolean isWindowObject = memberExpr.object().types().contains(WebApiType.WINDOW) || memberExpr.object().is(Kind.THIS);
 
       if (isWindowObject && isOpenDatabase(memberExpr.property())) {
-        addLineIssue(tree, MESSAGE);
+        addIssue(memberExpr.property(), MESSAGE);
       }
     }
 

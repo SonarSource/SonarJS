@@ -27,14 +27,7 @@ public class WebSQLDatabaseCheckTest {
 
   @Test
   public void test() {
-    WebSQLDatabaseCheck check = new WebSQLDatabaseCheck();
-
-    JavaScriptCheckVerifier.issues(check, new File("src/test/resources/checks/WebSQLDatabase.js"))
-      .next().atLine(1).withMessage("Convert this use of a Web SQL database to another technology")
-      .next().atLine(2)
-      .next().atLine(3)
-      .next().atLine(8)
-      .noMore();
+    JavaScriptCheckVerifier.verify(new WebSQLDatabaseCheck(), new File("src/test/resources/checks/WebSQLDatabase.js"));
   }
 
 

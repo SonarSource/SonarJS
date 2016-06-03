@@ -48,7 +48,7 @@ public class StrictModeCheck extends DoubleDispatchVisitorCheck {
       String value = ((LiteralTree) tree.expression()).value();
 
       if ("\"use strict\"".equals(value) || "'use strict'".equals(value)) {
-        addLineIssue(tree, MESSAGE);
+        addIssue(tree, MESSAGE);
       }
     }
 

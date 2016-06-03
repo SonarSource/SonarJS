@@ -54,11 +54,6 @@ public class UntrustedContentCheck extends SubscriptionVisitorCheck {
   public String domainsToIgnore = "";
   private List<Pattern> patterns = null;
 
-  public String getDomainsToIgnore() {
-    return domainsToIgnore;
-  }
-
-
   @Override
   public List<Tree.Kind> nodesToVisit() {
     return ImmutableList.of(Tree.Kind.STRING_LITERAL);
@@ -85,7 +80,7 @@ public class UntrustedContentCheck extends SubscriptionVisitorCheck {
       try {
         URI uri = new URI(value);
         if (isBad(uri)) {
-          addLineIssue(tree, MESSAGE);
+          addIssue(tree, MESSAGE);
         }
       } catch (URISyntaxException e) {
         // we don't consider uri, which could not be parsed

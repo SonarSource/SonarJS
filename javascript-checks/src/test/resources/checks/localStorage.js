@@ -1,7 +1,7 @@
 // basic set
-localStorage.setItem("login", login); // NOK
-sessionStorage.setItem("sessionId", sessionId); // NOK
-
+localStorage.setItem("login", login); // Noncompliant [[effortToFix=12]] {{Remove all use of "localStorage"; use cookies or store the data on the server instead.}}
+  sessionStorage.setItem("sessionId", sessionId); // Noncompliant [[effortToFix=0]] {{Remove all use of "sessionStorage"; use cookies or store the data on the server instead.}}
+//^^^^^^^^^^^^^^
 // access via Window object
 Window.localStorage.getItem("login"); // NOK
 Window.localStorage.setItem("sessionId"); // NOK

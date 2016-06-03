@@ -26,10 +26,10 @@ import org.sonar.javascript.checks.verifier.JavaScriptCheckVerifier;
 
 public class UntrustedContentCheckTest {
 
+  private UntrustedContentCheck check = new UntrustedContentCheck();
+
   @Test
   public void test() {
-    UntrustedContentCheck check = new UntrustedContentCheck();
-
     JavaScriptCheckVerifier.issues(check, new File("src/test/resources/checks/untrustedContent.js"))
       .next().atLine(3)
       .next().atLine(5)
@@ -41,40 +41,19 @@ public class UntrustedContentCheckTest {
 
   @Test
   public void testWithParam() {
-    UntrustedContentCheck check = new UntrustedContentCheck();
     check.domainsToIgnore = "drevil.org";
-
-    JavaScriptCheckVerifier.issues(check, new File("src/test/resources/checks/untrustedContent.js"))
-      .next().atLine(3)
-      .next().atLine(5)
-      .next().atLine(8)
-      .next().atLine(10)
-      .noMore();
+    JavaScriptCheckVerifier.verify(check, new File("src/test/resources/checks/untrustedContent.js"));
   }
 
   @Test
   public void testWithRegexParam() {
-    UntrustedContentCheck check = new UntrustedContentCheck();
     check.domainsToIgnore = "(.*\\.)?drevil.org";
-
-    JavaScriptCheckVerifier.issues(check, new File("src/test/resources/checks/untrustedContent.js"))
-      .next().atLine(3)
-      .next().atLine(5)
-      .next().atLine(8)
-      .next().atLine(10)
-      .noMore();
+    JavaScriptCheckVerifier.verify(check, new File("src/test/resources/checks/untrustedContent.js"));
   }
 
   @Test
   public void testWithRegexParamList() {
-    UntrustedContentCheck check = new UntrustedContentCheck();
     check.domainsToIgnore = "(.*\\.)?drevil.org,(.*\\.)?mini.me";
-
-    JavaScriptCheckVerifier.issues(check, new File("src/test/resources/checks/untrustedContent.js"))
-      .next().atLine(3)
-      .next().atLine(5)
-      .next().atLine(8)
-      .next().atLine(10)
-      .noMore();
+    JavaScriptCheckVerifier.verify(check, new File("src/test/resources/checks/untrustedContent.js"));
   }
 }

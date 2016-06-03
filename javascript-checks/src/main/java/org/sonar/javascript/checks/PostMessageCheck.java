@@ -50,7 +50,7 @@ public class PostMessageCheck extends DoubleDispatchVisitorCheck {
       DotMemberExpressionTree callee = (DotMemberExpressionTree) tree.callee();
       boolean isWindow = callee.object().types().contains(Type.Kind.WINDOW) || hasWindowLikeName(callee.object());
       if (isWindow && CheckUtils.asString(callee.property()).equals(POST_MESSAGE)) {
-        addLineIssue(callee.property(), MESSAGE);
+        addIssue(callee.property(), MESSAGE);
       }
     }
 

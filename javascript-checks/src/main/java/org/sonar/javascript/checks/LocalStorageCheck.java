@@ -32,7 +32,6 @@ import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.expression.DotMemberExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.MemberExpressionTree;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
-import org.sonar.plugins.javascript.api.visitors.LineIssue;
 import org.sonar.squidbridge.annotations.SqaleLinearWithOffsetRemediation;
 import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 
@@ -118,7 +117,7 @@ public class LocalStorageCheck extends DoubleDispatchVisitorCheck {
       int cost = entry.getValue().count - 1;
 
       String message = String.format(MESSAGE, entry.getKey());
-      addIssue(new LineIssue(this, entry.getValue().tree, message).cost((double) cost));
+      addIssue(entry.getValue().tree.object(), message).cost((double) cost);
     }
   }
 
