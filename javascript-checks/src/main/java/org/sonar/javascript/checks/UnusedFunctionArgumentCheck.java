@@ -37,6 +37,7 @@ import org.sonar.plugins.javascript.api.symbols.SymbolModel;
 import org.sonar.plugins.javascript.api.symbols.Usage;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
+import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
 import org.sonar.squidbridge.annotations.ActivatedByDefault;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
@@ -52,7 +53,7 @@ import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 @SqaleConstantRemediation("5min")
 public class UnusedFunctionArgumentCheck extends DoubleDispatchVisitorCheck {
 
-  private static final String MESSAGE = "Remove the unused function parameter%s \"%s\".";
+  private static final String MESSAGE = "Remove the unused function parameter \"%s\".";
 
   private static class PositionComparator implements Comparator<Symbol> {
 
@@ -112,9 +113,9 @@ public class UnusedFunctionArgumentCheck extends DoubleDispatchVisitorCheck {
     List<Symbol> arguments = scope.getSymbols(Symbol.Kind.PARAMETER);
     List<Symbol> unusedArguments = getUnusedArguments(arguments);
 
-    if (!unusedArguments.isEmpty()) {
-      String ending = unusedArguments.size() == 1 ? "" : "s";
-      addLineIssue(scope.tree(), String.format(MESSAGE, ending, getListOfArguments(unusedArguments)));
+    for (Symbol unusedArgument : unusedArguments) {
+      IdentifierTree parameterIdentifier = PositionComparator.getDeclarationUsage(unusedArgument).identifierTree();
+      addIssue(parameterIdentifier, String.format(MESSAGE, parameterIdentifier.name()));
     }
   }
 
@@ -153,15 +154,6 @@ public class UnusedFunctionArgumentCheck extends DoubleDispatchVisitorCheck {
       }
     }
     return result;
-  }
-
-  private static String getListOfArguments(List<Symbol> unusedArguments) {
-    StringBuilder result = new StringBuilder();
-    for (Symbol symbol : unusedArguments) {
-      result.append(symbol.name());
-      result.append(", ");
-    }
-    return result.toString().replaceFirst(", $", "");
   }
 
 }

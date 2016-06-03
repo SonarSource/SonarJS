@@ -1,19 +1,22 @@
-each(function fun(a, b) {    // NOK
+each(function fun(a, b) {    // Noncompliant {{Remove the unused function parameter "b".}}
+//                   ^
   a = 1;
 });
 
-each(function fun(a, b, c) { // NOK
+// Noncompliant@+2 {{Remove the unused function parameter "b".}}
+// Noncompliant@+1 {{Remove the unused function parameter "c".}}
+each(function fun(a, b, c) {
   a = 1;
 });
 
-each(function fun(p1) {      // NOK
+each(function fun(p1) {      // Noncompliant {{Remove the unused function parameter "p1".}}
 });
 
-each(function fun(a, b, c) { // NOK
+each(function fun(a, b, c) { // Noncompliant {{Remove the unused function parameter "c".}}
   b = 1;
 });
 
-each(function* fun(a, b) {   // NOK
+each(function* fun(a, b) {   // Noncompliant
     a = 1;
 });
 
@@ -30,7 +33,7 @@ each(function fun(a) {       // OK
 });
 
 
-function fun(a, b) {         // NOK
+function fun(a, b) {         // Noncompliant
     a = 1;
 }
 
@@ -50,11 +53,11 @@ function fun(a) {            // OK
   }
 }
 
-function fun(a, ...b) {     // NOK
+function fun(a, ...b) {     // Noncompliant {{Remove the unused function parameter "b".}}
   return a;
 }
 
-function* fun(a, b) {       // NOK
+function* fun(a, b) {       // Noncompliant
     return a;
 }
 
@@ -70,21 +73,21 @@ function fun(a) {           // OK
 
 function fun() {
   return {
-    fun(a) {               // NOK
+    fun(a) {               // Noncompliant
       }
   }
 }
 
-var fun = function(         // NOK - issue on this line
+var fun = function(
       par1,
-      par2,
-      par3
+      par2,         // Noncompliant
+      par3          // Noncompliant
 ){
     console.log(par1);
 }
 
 
-watch('!a', (value, previous) => logger.log(value)); // NOK
+watch('!a', (value, previous) => logger.log(value)); // Noncompliant
 
 var a = {
     set p(v){      // OK
