@@ -33,7 +33,7 @@ import org.junit.Test;
 
 public class JavaScriptPerformanceTest {
 
-  private static final String SENSOR = "JavaScriptSquidSensor";
+  private static final String SENSOR = "JavaScript Squid Sensor";
 
   @ClassRule
   public static final Orchestrator ORCHESTRATOR = Orchestrator.builderEnv()
