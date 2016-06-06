@@ -52,35 +52,44 @@ public class ShorthandPropertiesNotGroupedCheck extends DoubleDispatchVisitorChe
     // list keeps true for shorthand property
     List<Boolean> isShorthandPropertyList = new ArrayList<>();
     int shorthandPropertiesNumber = 0;
+    boolean containsSpreadProperty = false;
 
     for (Tree propertyTree : tree.properties()) {
-      boolean isShorthandProperty = isShorthand(propertyTree);
-      isShorthandPropertyList.add(isShorthandProperty);
-      shorthandPropertiesNumber += isShorthandProperty ? 1 : 0;
+      if (propertyTree.is(Kind.SPREAD_ELEMENT)) {
+        containsSpreadProperty = true;
+        break;
+      } else {
+        boolean isShorthandProperty = isShorthand(propertyTree);
+        isShorthandPropertyList.add(isShorthandProperty);
+        shorthandPropertiesNumber += isShorthandProperty ? 1 : 0;
+      }
     }
 
-    if (shorthandPropertiesNumber > 0) {
-      int numberOfShorthandAtBeginning = getNumberOfTrueAtBeginning(isShorthandPropertyList);
-      int numberOfShorthandAtEnd = getNumberOfTrueAtBeginning(Lists.reverse(isShorthandPropertyList));
-
-      boolean allAtBeginning = numberOfShorthandAtBeginning == shorthandPropertiesNumber;
-      boolean allAtEnd = numberOfShorthandAtEnd == shorthandPropertiesNumber;
-
-      int propertiesNumber = tree.properties().size();
-
-      if (!allAtBeginning && numberOfShorthandAtBeginning > numberOfShorthandAtEnd) {
-        raiseIssuePattern(tree, numberOfShorthandAtBeginning, propertiesNumber, "beginning");
-
-      } else if (!allAtEnd && numberOfShorthandAtEnd > numberOfShorthandAtBeginning) {
-        raiseIssuePattern(tree, 0, propertiesNumber - numberOfShorthandAtEnd, "end");
-
-      } else if (!allAtBeginning && !allAtEnd) {
-        raiseIssue(tree, 0, propertiesNumber, MESSAGE, SECONDARY_MESSAGE);
-      }
-
+    if (!containsSpreadProperty && shorthandPropertiesNumber > 0) {
+      analyseShorthandPropertiesPosition(tree, isShorthandPropertyList, shorthandPropertiesNumber);
     }
 
     super.visitObjectLiteral(tree);
+  }
+
+  private void analyseShorthandPropertiesPosition(ObjectLiteralTree tree, List<Boolean> isShorthandPropertyList, int shorthandPropertiesNumber) {
+    int numberOfShorthandAtBeginning = getNumberOfTrueAtBeginning(isShorthandPropertyList);
+    int numberOfShorthandAtEnd = getNumberOfTrueAtBeginning(Lists.reverse(isShorthandPropertyList));
+
+    boolean allAtBeginning = numberOfShorthandAtBeginning == shorthandPropertiesNumber;
+    boolean allAtEnd = numberOfShorthandAtEnd == shorthandPropertiesNumber;
+
+    int propertiesNumber = tree.properties().size();
+
+    if (!allAtBeginning && numberOfShorthandAtBeginning > numberOfShorthandAtEnd) {
+      raiseIssuePattern(tree, numberOfShorthandAtBeginning, propertiesNumber, "beginning");
+
+    } else if (!allAtEnd && numberOfShorthandAtEnd > numberOfShorthandAtBeginning) {
+      raiseIssuePattern(tree, 0, propertiesNumber - numberOfShorthandAtEnd, "end");
+
+    } else if (!allAtBeginning && !allAtEnd) {
+      raiseIssue(tree, 0, propertiesNumber, MESSAGE, SECONDARY_MESSAGE);
+    }
   }
 
   private void raiseIssuePattern(ObjectLiteralTree tree, int begin, int end, String place) {

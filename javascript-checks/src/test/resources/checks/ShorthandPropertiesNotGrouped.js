@@ -49,3 +49,10 @@ let obj4 = {
   color,
   judyGarland
 }
+
+var obj = {
+  ...otherObj,
+  prop1,    // we can't move shorthand properties as they might overwrite values in "otherObj"
+  prop2,
+  prop3 : value3
+}
