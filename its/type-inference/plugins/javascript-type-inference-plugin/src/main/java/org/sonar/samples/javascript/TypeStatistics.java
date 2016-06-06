@@ -19,15 +19,15 @@
  */
 package org.sonar.samples.javascript;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.PostJob;
 import org.sonar.api.batch.SensorContext;
 import org.sonar.api.resources.Project;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
 
 public class TypeStatistics implements PostJob {
 
-  private static final Logger LOG = LoggerFactory.getLogger(TypeStatistics.class);
+  private static final Logger LOG = Loggers.get(TypeStatistics.class);
   private static int totalSymbol = 0;
   private static int totalTypes = 0;
   private static int totalUnknownType = 0;
