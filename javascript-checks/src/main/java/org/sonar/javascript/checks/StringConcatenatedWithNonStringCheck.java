@@ -20,7 +20,6 @@
 package org.sonar.javascript.checks;
 
 import javax.annotation.CheckForNull;
-import org.sonar.api.server.rule.RulesDefinition.SubCharacteristics;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.javascript.checks.utils.CheckUtils;
@@ -31,7 +30,6 @@ import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
 import org.sonar.squidbridge.annotations.ActivatedByDefault;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
-import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 
 @Rule(
   key = "S3402",
@@ -39,7 +37,6 @@ import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
   priority = Priority.MAJOR,
   tags = Tags.SUSPICIOUS)
 @ActivatedByDefault
-@SqaleSubCharacteristic(SubCharacteristics.INSTRUCTION_RELIABILITY)
 @SqaleConstantRemediation("15min")
 public class StringConcatenatedWithNonStringCheck extends DoubleDispatchVisitorCheck {
 

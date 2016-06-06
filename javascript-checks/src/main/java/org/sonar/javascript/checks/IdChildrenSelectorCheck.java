@@ -21,19 +21,16 @@ package org.sonar.javascript.checks;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.plugins.javascript.api.tree.expression.CallExpressionTree;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
-import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 
 @Rule(
   key = "S2715",
   name = "\"find\" should be used to select the children of an element known by id",
   priority = Priority.MAJOR,
   tags = {Tags.JQUERY, Tags.PERFORMANCE, Tags.USER_EXPERIENCE})
-@SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.CPU_EFFICIENCY)
 @SqaleConstantRemediation("5min")
 public class IdChildrenSelectorCheck extends AbstractJQuerySelectorOptimizationCheck {
 

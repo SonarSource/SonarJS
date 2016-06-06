@@ -19,7 +19,6 @@
  */
 package org.sonar.javascript.checks;
 
-import org.sonar.api.server.rule.RulesDefinition.SubCharacteristics;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.plugins.javascript.api.symbols.Type;
@@ -29,14 +28,12 @@ import org.sonar.plugins.javascript.api.tree.expression.DotMemberExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
-import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 
 @Rule(
   key = "S3525",
   name = "Class methods should be used instead of \"prototype\" assignments",
   priority = Priority.MAJOR,
   tags = {Tags.ES2015})
-@SqaleSubCharacteristic(SubCharacteristics.UNDERSTANDABILITY)
 @SqaleConstantRemediation("5min")
 public class ClassPrototypeCheck extends DoubleDispatchVisitorCheck {
 

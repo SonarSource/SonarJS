@@ -20,7 +20,6 @@
 package org.sonar.javascript.checks;
 
 import java.util.List;
-import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.javascript.tree.impl.SeparatedList;
@@ -30,7 +29,6 @@ import org.sonar.plugins.javascript.api.tree.expression.ArrayLiteralTree;
 import org.sonar.plugins.javascript.api.tree.expression.ObjectLiteralTree;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
-import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 
 /**
  * http://stackoverflow.com/questions/7246618/trailing-commas-in-javascript
@@ -40,7 +38,6 @@ import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
   name = "Trailing commas should not be used",
   priority = Priority.BLOCKER,
   tags = {Tags.CROSS_BROWSER})
-@SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.INSTRUCTION_RELIABILITY)
 @SqaleConstantRemediation("1min")
 public class TrailingCommaCheck extends DoubleDispatchVisitorCheck {
 

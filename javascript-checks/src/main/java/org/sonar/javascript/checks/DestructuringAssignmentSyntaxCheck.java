@@ -24,7 +24,6 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ListMultimap;
 import java.util.List;
 import java.util.Set;
-import org.sonar.api.server.rule.RulesDefinition.SubCharacteristics;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.javascript.checks.utils.CheckUtils;
@@ -47,14 +46,12 @@ import org.sonar.plugins.javascript.api.tree.statement.VariableStatementTree;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
 import org.sonar.plugins.javascript.api.visitors.PreciseIssue;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
-import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 
 @Rule(
   key = "S3514",
   name = "Destructuring syntax should be used for assignments",
   priority = Priority.MAJOR,
   tags = {Tags.ES2015, Tags.CLUMSY})
-@SqaleSubCharacteristic(SubCharacteristics.READABILITY)
 @SqaleConstantRemediation("5min")
 public class DestructuringAssignmentSyntaxCheck extends DoubleDispatchVisitorCheck {
 

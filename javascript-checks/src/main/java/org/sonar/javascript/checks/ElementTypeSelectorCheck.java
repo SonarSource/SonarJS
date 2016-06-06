@@ -21,19 +21,16 @@ package org.sonar.javascript.checks;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.plugins.javascript.api.tree.expression.CallExpressionTree;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
-import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 
 @Rule(
   key = "S2898",
   name = "\"[type=...]\" should be used to select elements by type",
   priority = Priority.MAJOR,
   tags = {Tags.JQUERY, Tags.PERFORMANCE})
-@SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.CPU_EFFICIENCY)
 @SqaleConstantRemediation("2min")
 public class ElementTypeSelectorCheck extends AbstractJQuerySelectorOptimizationCheck {
 

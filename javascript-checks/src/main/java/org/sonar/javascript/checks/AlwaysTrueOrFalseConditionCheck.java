@@ -22,7 +22,6 @@ package org.sonar.javascript.checks;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Map.Entry;
-import org.sonar.api.server.rule.RulesDefinition.SubCharacteristics;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.javascript.se.SeCheck;
@@ -30,14 +29,12 @@ import org.sonar.javascript.se.Truthiness;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.squidbridge.annotations.ActivatedByDefault;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
-import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 
 @Rule(
   key = "S2583",
   name = "Conditions should not unconditionally evaluate to \"true\" or to \"false\"",
   priority = Priority.CRITICAL,
   tags = {Tags.BUG, Tags.CERT, Tags.CWE, Tags.MISRA})
-@SqaleSubCharacteristic(SubCharacteristics.LOGIC_RELIABILITY)
 @SqaleConstantRemediation("15min")
 @ActivatedByDefault
 public class AlwaysTrueOrFalseConditionCheck extends SeCheck {
