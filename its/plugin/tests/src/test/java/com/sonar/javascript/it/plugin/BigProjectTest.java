@@ -63,13 +63,7 @@ public class BigProjectTest {
     // Size
     assertThat(getProjectMeasure("ncloc").getIntValue()).isEqualTo(663658);
     // SONAR-5077: computation of line is done on SQ side
-    if (Tests.is_after_sonar_5_1()) {
-      assertThat(getProjectMeasure("lines").getIntValue()).isEqualTo(1178445);
-    } else {
-      // Metric computed by the JavaScript plugin:
-      // different because does not compute lines metric when there is parse errors in a file.
-      assertThat(getProjectMeasure("lines").getIntValue()).isEqualTo(1177778);
-    }
+    assertThat(getProjectMeasure("lines").getIntValue()).isEqualTo(1178445);
     assertThat(getProjectMeasure("files").getIntValue()).isEqualTo(4535);
     assertThat(getProjectMeasure("directories").getIntValue()).isEqualTo(977);
     assertThat(getProjectMeasure("functions").getIntValue()).isEqualTo(54183);

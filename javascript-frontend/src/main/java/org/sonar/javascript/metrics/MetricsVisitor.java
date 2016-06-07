@@ -162,7 +162,6 @@ public class MetricsVisitor extends SubscriptionVisitor {
     projectLinesOfCode.put(inputFile, linesOfCode);
 
     saveMetricOnFile(CoreMetrics.NCLOC, lineVisitor.getLinesOfCodeNumber());
-    saveMetricOnFile(CoreMetrics.LINES, linesNumber);
 
     CommentLineVisitor commentVisitor = new CommentLineVisitor(context.getTopTree(), ignoreHeaderComments);
     Set<Integer> commentLines = commentVisitor.getCommentLines();

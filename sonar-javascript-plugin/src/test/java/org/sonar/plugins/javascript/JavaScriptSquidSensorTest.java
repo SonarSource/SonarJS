@@ -129,7 +129,6 @@ public class JavaScriptSquidSensorTest {
 
     String key = "moduleKey:" + relativePath;
 
-    assertThat(context.measure(key, CoreMetrics.LINES).value()).isEqualTo(33);
     assertThat(context.measure(key, CoreMetrics.NCLOC).value()).isEqualTo(19);
     assertThat(context.measure(key, CoreMetrics.CLASSES).value()).isEqualTo(1);
     assertThat(context.measure(key, CoreMetrics.FUNCTIONS).value()).isEqualTo(3);
