@@ -336,7 +336,7 @@ public class SymbolicExecution {
     SymbolicValue symbolicValue = null;
 
     if (lastElement.is(Kind.STRICT_EQUAL_TO, Kind.STRICT_NOT_EQUAL_TO)) {
-      BinaryExpression.StringEqualNullPattern pattern = BinaryExpression.getStringEqualNullPattern((BinaryExpressionTree) lastElement);
+      BinaryExpression.StrictEqualNullPattern pattern = BinaryExpression.getStrictEqualNullPattern((BinaryExpressionTree) lastElement);
       if (pattern != null) {
         SymbolicValue operandValue = getSymbolicValue(pattern.operand, currentState);
         if (operandValue != null) {
@@ -434,11 +434,11 @@ public class SymbolicExecution {
     private BinaryExpression() {
     }
 
-    static class StringEqualNullPattern {
+    static class StrictEqualNullPattern {
       ExpressionTree operand = null;
       Constraint constraint = null;
 
-      StringEqualNullPattern(ExpressionTree operand, Constraint constraint) {
+      StrictEqualNullPattern(ExpressionTree operand, Constraint constraint) {
         this.operand = operand;
         this.constraint = constraint;
       }
@@ -455,14 +455,14 @@ public class SymbolicExecution {
     }
 
     @CheckForNull
-    static StringEqualNullPattern getStringEqualNullPattern(BinaryExpressionTree tree) {
+    static StrictEqualNullPattern getStrictEqualNullPattern(BinaryExpressionTree tree) {
       Constraint nullOrUndefinedConstraint = Constraint.get(tree.leftOperand());
       if (nullOrUndefinedConstraint != null && nullOrUndefinedConstraint.isStricterOrEqualTo(Constraint.NULL_OR_UNDEFINED)) {
-        return new StringEqualNullPattern(tree.rightOperand(), nullOrUndefinedConstraint);
+        return new StrictEqualNullPattern(tree.rightOperand(), nullOrUndefinedConstraint);
       } else {
         nullOrUndefinedConstraint = Constraint.get(tree.rightOperand());
         if (nullOrUndefinedConstraint != null && nullOrUndefinedConstraint.isStricterOrEqualTo(Constraint.NULL_OR_UNDEFINED)) {
-          return new StringEqualNullPattern(tree.leftOperand(), nullOrUndefinedConstraint);
+          return new StrictEqualNullPattern(tree.leftOperand(), nullOrUndefinedConstraint);
         }
       }
       return null;
