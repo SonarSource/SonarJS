@@ -22,6 +22,7 @@ package org.sonar.javascript.se;
 import java.util.Deque;
 import java.util.LinkedList;
 import java.util.Objects;
+import javax.annotation.Nullable;
 import org.sonar.javascript.se.sv.EqualToSymbolicValue;
 import org.sonar.javascript.se.sv.LiteralSymbolicValue;
 import org.sonar.javascript.se.sv.LogicalNotSymbolicValue;
@@ -52,9 +53,13 @@ class ExpressionStack {
     this.stack = stack;
   }
 
-  public ExpressionStack push(SymbolicValue newValue) {
+  public ExpressionStack push(@Nullable SymbolicValue newValue) {
+    SymbolicValue pushedValue = newValue;
+    if (pushedValue == null) {
+      pushedValue = UnknownSymbolicValue.UNKNOWN;
+    }
     LinkedList<SymbolicValue> newStack = copy();
-    newStack.push(newValue);
+    newStack.push(pushedValue);
     return new ExpressionStack(newStack);
   }
 
@@ -62,6 +67,9 @@ class ExpressionStack {
     Deque<SymbolicValue> newStack = copy();
     Kind kind = ((JavaScriptTree) expression).getKind();
     switch (kind) {
+      case IDENTIFIER_REFERENCE:
+      case BINDING_IDENTIFIER:
+        throw new IllegalArgumentException("Unexpected kind of expression to execute: " + kind);
       case NULL_LITERAL:
         newStack.push(SpecialSymbolicValue.NULL);
         break;
@@ -106,7 +114,7 @@ class ExpressionStack {
         newStack.push(result);
         break;
       default:
-        throw new IllegalArgumentException("Unexpected kind of expression to execute: " + kind);
+        newStack.push(UnknownSymbolicValue.UNKNOWN);
     }
     return new ExpressionStack(newStack);
   }
