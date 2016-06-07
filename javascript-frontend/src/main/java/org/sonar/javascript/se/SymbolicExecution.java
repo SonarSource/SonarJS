@@ -20,9 +20,9 @@
 package org.sonar.javascript.se;
 
 import com.google.common.collect.HashMultimap;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.SetMultimap;
 import java.util.ArrayDeque;
-import java.util.ArrayList;
 import java.util.Deque;
 import java.util.HashSet;
 import java.util.List;
@@ -60,6 +60,12 @@ import static org.sonar.plugins.javascript.api.symbols.Symbol.Kind.IMPORT;
 public class SymbolicExecution {
 
   private static final int MAX_BLOCK_EXECUTIONS = 1000;
+
+  private final List<CheckPattern> PATTERN_CHECKERS = ImmutableList.of(
+    this::typeOfPatternChecker,
+    this::variableOrUnaryNotPatternChecker,
+    this::strictEqualNullPatternChecker,
+    this::equalNullPatternChecker);
 
   private final CfgBlock cfgStartBlock;
   private final Set<Symbol> trackedVariables;
@@ -259,15 +265,8 @@ public class SymbolicExecution {
       return;
     }
 
-    List<CheckPattern> patternCheckers = new ArrayList<>();
-
-    patternCheckers.add(this::typeOfPatternChecker);
-    patternCheckers.add(this::variableOrUnaryNotPatternChecker);
-    patternCheckers.add(this::strictEqualNullPatternChecker);
-    patternCheckers.add(this::equalNullPatternChecker);
-
-    for (CheckPattern patternChecker : patternCheckers) {
-      SymbolicValue symbolicValue = patternChecker.getSymbolicValue(block, currentState, lastElement);
+    for (CheckPattern patternChecker : PATTERN_CHECKERS) {
+      SymbolicValue symbolicValue = patternChecker.getSymbolicValue(currentState, lastElement);
       if (symbolicValue != null) {
         pushConditionSuccessors(block, currentState, symbolicValue);
         return;
@@ -277,7 +276,7 @@ public class SymbolicExecution {
     pushAllSuccessors(block, currentState);
   }
 
-  private SymbolicValue typeOfPatternChecker(CfgBranchingBlock block, ProgramState currentState, Tree lastElement) {
+  private SymbolicValue typeOfPatternChecker(ProgramState currentState, Tree lastElement) {
     SymbolicValue symbolicValue = null;
 
     if (lastElement.is(Kind.STRICT_EQUAL_TO, Kind.STRICT_NOT_EQUAL_TO, Kind.EQUAL_TO, Kind.NOT_EQUAL_TO)) {
@@ -299,7 +298,7 @@ public class SymbolicExecution {
     return symbolicValue;
   }
 
-  private SymbolicValue equalNullPatternChecker(CfgBranchingBlock block, ProgramState currentState, Tree lastElement) {
+  private SymbolicValue equalNullPatternChecker(ProgramState currentState, Tree lastElement) {
     SymbolicValue symbolicValue = null;
 
     if (lastElement.is(Kind.EQUAL_TO, Kind.NOT_EQUAL_TO)) {
@@ -333,7 +332,7 @@ public class SymbolicExecution {
 
   // x === null
   // x === undefined
-  private SymbolicValue strictEqualNullPatternChecker(CfgBranchingBlock block, ProgramState currentState, Tree lastElement) {
+  private SymbolicValue strictEqualNullPatternChecker(ProgramState currentState, Tree lastElement) {
     SymbolicValue symbolicValue = null;
 
     if (lastElement.is(Kind.STRICT_EQUAL_TO, Kind.STRICT_NOT_EQUAL_TO)) {
@@ -352,7 +351,7 @@ public class SymbolicExecution {
     return symbolicValue;
   }
 
-  private SymbolicValue variableOrUnaryNotPatternChecker(CfgBranchingBlock block, ProgramState currentState, Tree lastElement) {
+  private SymbolicValue variableOrUnaryNotPatternChecker(ProgramState currentState, Tree lastElement) {
     SymbolicValue symbolicValue = null;
 
     if (lastElement.is(Kind.LOGICAL_COMPLEMENT)) {
@@ -487,9 +486,9 @@ public class SymbolicExecution {
   }
 
   @FunctionalInterface
-  interface CheckPattern {
+  private interface CheckPattern {
     @CheckForNull
-    SymbolicValue getSymbolicValue(CfgBranchingBlock block, ProgramState currentState, Tree lastElement);
+    SymbolicValue getSymbolicValue(ProgramState currentState, Tree lastElement);
   }
 
 }
