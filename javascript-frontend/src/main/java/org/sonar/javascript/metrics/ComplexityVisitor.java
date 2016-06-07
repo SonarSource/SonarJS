@@ -60,9 +60,7 @@ public class ComplexityVisitor extends DoubleDispatchVisitor {
 
   @Override
   public void visitMethodDeclaration(MethodDeclarationTree tree) {
-    if (tree.is(Kind.METHOD, Kind.GENERATOR_METHOD)) {
-      add(tree.name());
-    }
+    add(tree.name());
     excludeLastReturn(tree.body().statements());
     super.visitMethodDeclaration(tree);
   }

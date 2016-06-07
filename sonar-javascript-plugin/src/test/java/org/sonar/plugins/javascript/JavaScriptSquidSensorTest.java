@@ -132,12 +132,11 @@ public class JavaScriptSquidSensorTest {
     assertThat(context.measure(key, CoreMetrics.LINES).value()).isEqualTo(33);
     assertThat(context.measure(key, CoreMetrics.NCLOC).value()).isEqualTo(19);
     assertThat(context.measure(key, CoreMetrics.CLASSES).value()).isEqualTo(1);
-    assertThat(context.measure(key, CoreMetrics.FUNCTIONS).value()).isEqualTo(3);
-    assertThat(context.measure(key, CoreMetrics.ACCESSORS).value()).isEqualTo(2);
+    assertThat(context.measure(key, CoreMetrics.FUNCTIONS).value()).isEqualTo(5);
     assertThat(context.measure(key, CoreMetrics.STATEMENTS).value()).isEqualTo(8);
-    assertThat(context.measure(key, CoreMetrics.COMPLEXITY).value()).isEqualTo(4);
+    assertThat(context.measure(key, CoreMetrics.COMPLEXITY).value()).isEqualTo(6);
     assertThat(context.measure(key, CoreMetrics.COMPLEXITY_IN_CLASSES).value()).isEqualTo(1);
-    assertThat(context.measure(key, CoreMetrics.COMPLEXITY_IN_FUNCTIONS).value()).isEqualTo(4);
+    assertThat(context.measure(key, CoreMetrics.COMPLEXITY_IN_FUNCTIONS).value()).isEqualTo(6);
     assertThat(context.measure(key, CoreMetrics.COMMENT_LINES).value()).isEqualTo(1);
   }
 

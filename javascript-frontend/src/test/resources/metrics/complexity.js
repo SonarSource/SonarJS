@@ -68,11 +68,13 @@ Person.prototype = {
     return this.first + ' ' + this.last; // +0
   },
 
-  set first(first) { // +0
+  set first(first) { // +1
     this.first = first;
   },
 
-  get first() { // +0
+  get first() { // +1
+    if (cond) { // +1
+    }
     return this.first; // +0
   }
 };

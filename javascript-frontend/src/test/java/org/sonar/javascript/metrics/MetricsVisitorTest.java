@@ -75,7 +75,6 @@ public class MetricsVisitorTest extends JavaScriptTreeModelTest {
     String componentKey = "moduleKey:lines.js";
     assertThat(context.measure(componentKey, CoreMetrics.FUNCTIONS).value()).isEqualTo(1);
     assertThat(context.measure(componentKey, CoreMetrics.STATEMENTS).value()).isEqualTo(1);
-    assertThat(context.measure(componentKey, CoreMetrics.ACCESSORS).value()).isEqualTo(0);
     assertThat(context.measure(componentKey, CoreMetrics.CLASSES).value()).isEqualTo(0);
 
     assertThat(projectLinesOfCode).hasSize(1);

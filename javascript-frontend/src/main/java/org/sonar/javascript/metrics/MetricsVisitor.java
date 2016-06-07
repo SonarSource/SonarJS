@@ -50,7 +50,9 @@ public class MetricsVisitor extends SubscriptionVisitor {
     Kind.METHOD,
     Kind.GENERATOR_METHOD,
     Kind.GENERATOR_FUNCTION_EXPRESSION,
-    Kind.GENERATOR_DECLARATION
+    Kind.GENERATOR_DECLARATION,
+    Kind.GET_METHOD,
+    Kind.SET_METHOD
   };
 
   private static final Kind[] CLASS_NODES = {
@@ -129,7 +131,6 @@ public class MetricsVisitor extends SubscriptionVisitor {
     CounterVisitor counter = new CounterVisitor(context.getTopTree());
     saveMetricOnFile(CoreMetrics.FUNCTIONS, counter.getFunctionNumber());
     saveMetricOnFile(CoreMetrics.STATEMENTS, counter.getStatementsNumber());
-    saveMetricOnFile(CoreMetrics.ACCESSORS, counter.getAccessorsNumber());
     saveMetricOnFile(CoreMetrics.CLASSES, counter.getClassNumber());
   }
 

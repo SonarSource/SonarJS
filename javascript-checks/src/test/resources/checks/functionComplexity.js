@@ -57,9 +57,9 @@ class c {
   }
 }
 
-function ok() {  // +1
+function ok() {  // Noncompliant // +1
   return { 
-    get x() {    // +0
+    get x() {    // +1
       if (x) {}  // +1
       return 0;  // +1
     }
@@ -77,9 +77,9 @@ function ko() {  // Noncompliant // +1
   };
 }
 
-function ko() {  // Noncompliant [[effortToFix=2]] {{Function has a complexity of 4 which is greater than 2 authorized.}} // +1
+function ko() {  // Noncompliant [[effortToFix=3]] {{Function has a complexity of 5 which is greater than 2 authorized.}} // +1
   return {
-    get x() {    // +0
+    get x() {    // +1
       if (x) {     // +1
         return 0;  // +1
       } else if (y) { // +1

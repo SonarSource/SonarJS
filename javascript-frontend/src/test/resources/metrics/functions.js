@@ -20,3 +20,22 @@ var generator = function * () { doSomething(); };
 var obj = {
      * generator () {}
 }
+
+var obj = {
+    set key(key) { this.key = key; },
+    get key() { return this.key; }
+}
+
+class c {
+
+    constructor () {
+        key = "value"
+    }
+    set key(key) {
+        this.key = key;
+    }
+
+    get key() {
+        return this.key;
+    }
+}

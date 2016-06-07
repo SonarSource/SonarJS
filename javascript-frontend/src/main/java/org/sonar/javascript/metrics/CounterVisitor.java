@@ -30,13 +30,7 @@ public class CounterVisitor extends SubscriptionVisitor {
 
   private int functionCounter = 0;
   private int statementCounter = 0;
-  private int accessorCounter = 0;
   private int classCounter = 0;
-
-  private static final Kind[] ACCESSOR_NODES = {
-    Kind.GET_METHOD,
-    Kind.SET_METHOD
-  };
 
   private static final Kind[] STATEMENT_NODES = {
     Kind.VARIABLE_STATEMENT,
@@ -62,7 +56,6 @@ public class CounterVisitor extends SubscriptionVisitor {
   public List<Kind> nodesToVisit() {
     List<Kind> result = new ArrayList<>(Arrays.asList(MetricsVisitor.getFunctionNodes()));
     result.addAll(Arrays.asList(STATEMENT_NODES));
-    result.addAll(Arrays.asList(ACCESSOR_NODES));
     result.addAll(Arrays.asList(MetricsVisitor.getClassNodes()));
     return result;
   }
@@ -79,10 +72,6 @@ public class CounterVisitor extends SubscriptionVisitor {
     return statementCounter;
   }
 
-  public int getAccessorsNumber() {
-    return accessorCounter;
-  }
-
   public int getClassNumber() {
     return classCounter;
   }
@@ -94,9 +83,6 @@ public class CounterVisitor extends SubscriptionVisitor {
 
     } else if (tree.is(STATEMENT_NODES)) {
       statementCounter++;
-
-    } else if (tree.is(ACCESSOR_NODES)) {
-      accessorCounter++;
 
     } else if (tree.is(MetricsVisitor.getClassNodes())) {
       classCounter++;
