@@ -67,7 +67,7 @@ public class ProgramState {
   }
 
 
-  ProgramState newSymbolicValue(Symbol symbol, @Nullable Constraint constraint) {
+  public ProgramState newSymbolicValue(Symbol symbol, @Nullable Constraint constraint) {
     SymbolicValue value = newSymbolicValue();
 
     ImmutableMap.Builder<Symbol, SymbolicValue> valuesBuilder = ImmutableMap.builder();

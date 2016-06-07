@@ -38,15 +38,15 @@ public class EqualToSymbolicValue implements SymbolicValue {
 
   @Override
   public List<ProgramState> constrain(ProgramState state, Constraint constraint) {
-    if (constraint.isStricterOrEqualTo(Constraint.TRUTHY)) {
+    if (constraint.equals(Constraint.TRUTHY)) {
       return firstOperandValue.constrain(state, secondOperandConstraint);
 
-    } else if (constraint.isStricterOrEqualTo(Constraint.FALSY)) {
+    } else if (constraint.equals(Constraint.FALSY)) {
       return firstOperandValue.constrain(state, secondOperandConstraint.not());
 
     }
 
-    return ImmutableList.of(state);
+    return ImmutableList.of();
   }
 
   @Override
