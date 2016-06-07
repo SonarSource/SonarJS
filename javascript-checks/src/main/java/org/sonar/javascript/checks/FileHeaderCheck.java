@@ -24,6 +24,8 @@ import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.Iterator;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
@@ -45,37 +47,70 @@ public class FileHeaderCheck extends DoubleDispatchVisitorCheck implements Chars
 
   @RuleProperty(
     key = "headerFormat",
-    description = "Expected copyright and license header (plain text)",
+    description = "Expected copyright and license header",
     defaultValue = DEFAULT_HEADER_FORMAT,
     type = "TEXT")
   public String headerFormat = DEFAULT_HEADER_FORMAT;
 
+  @RuleProperty(
+    key = "isRegularExpression",
+    description = "Whether the headerFormat is a regular expression",
+    defaultValue = "false")
+  public boolean isRegularExpression = false;
+
   private Charset charset;
-  private String[] expectedLines;
+  private String[] expectedLines = null;
+  private Pattern searchPattern = null;
 
   @Override
   public void setCharset(Charset charset) {
     this.charset = charset;
   }
 
-
-
   @Override
   public void visitScript(ScriptTree tree) {
-    // TODO martin: should be done in a init method
-    expectedLines = headerFormat.split("(?:\r)?\n|\r");
+    if (isRegularExpression) {
+      checkRegularExpression();
 
+    } else {
+      checkPlainText();
+    }
+  }
+
+  private void checkPlainText() {
+    if (expectedLines == null) {
+      expectedLines = headerFormat.split("(?:\r)?\n|\r");
+    }
     List<String> lines;
-
     try {
       lines = Files.readLines(getContext().getFile(), charset);
+    } catch (IOException e) {
+      String fileName = getContext().getFile().getName();
+      throw new IllegalStateException("Unable to execute rule \"S1451\" for file " + fileName, e);
+    }
+    if (!matches(expectedLines, lines)) {
+      addIssue(new FileIssue(this, MESSAGE));
+    }
+  }
 
+  private void checkRegularExpression() {
+    if (searchPattern == null) {
+      try {
+        searchPattern = Pattern.compile(headerFormat, Pattern.DOTALL);
+      } catch (IllegalArgumentException e) {
+        throw new IllegalArgumentException("[" + getClass().getSimpleName() + "] Unable to compile the regular expression: " + headerFormat, e);
+      }
+    }
+    String fileContent;
+    try {
+      fileContent = Files.toString(getContext().getFile(), charset);
     } catch (IOException e) {
       String fileName = getContext().getFile().getName();
       throw new IllegalStateException("Unable to execute rule \"S1451\" for file " + fileName, e);
     }
 
-    if (!matches(expectedLines, lines)) {
+    Matcher matcher = searchPattern.matcher(fileContent);
+    if (!matcher.find() || matcher.start() != 0) {
       addIssue(new FileIssue(this, MESSAGE));
     }
   }
@@ -87,9 +122,9 @@ public class FileHeaderCheck extends DoubleDispatchVisitorCheck implements Chars
       result = true;
 
       Iterator<String> it = lines.iterator();
-      for (int i = 0; i < expectedLines.length; i++) {
+      for (String expectedLine : expectedLines) {
         String line = it.next();
-        if (!line.equals(expectedLines[i])) {
+        if (!line.equals(expectedLine)) {
           result = false;
           break;
         }

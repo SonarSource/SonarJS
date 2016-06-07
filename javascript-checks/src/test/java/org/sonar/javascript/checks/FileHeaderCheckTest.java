@@ -21,64 +21,98 @@ package org.sonar.javascript.checks;
 
 import com.google.common.base.Charsets;
 import java.io.File;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.sonar.javascript.checks.verifier.JavaScriptCheckVerifier;
+import org.sonar.plugins.javascript.api.JavaScriptCheck;
 
 public class FileHeaderCheckTest {
 
-  @Test
-  public void test() {
-    FileHeaderCheck check = new FileHeaderCheck();
-    check.setCharset(Charsets.UTF_8);
-    check.headerFormat = "// copyright 2005";
+  @Rule
+  public ExpectedException thrown = ExpectedException.none();
 
-    JavaScriptCheckVerifier.issues(check, new File("src/test/resources/checks/FileHeaderCheck/file1.js"))
+  @Test
+  public void test_plain() {
+    JavaScriptCheckVerifier.issues(checkPlainText("// copyright 2005"), new File("src/test/resources/checks/FileHeaderCheck/file1.js"))
       .noMore();
 
-    check.headerFormat = "// copyright 20\\d\\d";
-
-    JavaScriptCheckVerifier.issues(check, new File("src/test/resources/checks/FileHeaderCheck/file1.js"))
+    JavaScriptCheckVerifier.issues(checkPlainText("// copyright 20\\d\\d"), new File("src/test/resources/checks/FileHeaderCheck/file1.js"))
       .next().atLine(null);
 
-    check.headerFormat = "// copyright 2005";
-
-    JavaScriptCheckVerifier.issues(check, new File("src/test/resources/checks/FileHeaderCheck/file2.js"))
+    JavaScriptCheckVerifier.issues(checkPlainText("// copyright 2005"), new File("src/test/resources/checks/FileHeaderCheck/file2.js"))
       .next().atLine(null).withMessage("Add or update the header of this file.");
 
-    check.headerFormat = "// copyright 2012";
-
-    JavaScriptCheckVerifier.issues(check, new File("src/test/resources/checks/FileHeaderCheck/file2.js"))
+    JavaScriptCheckVerifier.issues(checkPlainText("// copyright 2012"), new File("src/test/resources/checks/FileHeaderCheck/file2.js"))
       .noMore();
 
-    check.headerFormat = "// copyright 2012\n// foo";
-
-    JavaScriptCheckVerifier.issues(check, new File("src/test/resources/checks/FileHeaderCheck/file2.js"))
+    JavaScriptCheckVerifier.issues(checkPlainText("// copyright 2012\n// foo"), new File("src/test/resources/checks/FileHeaderCheck/file2.js"))
       .noMore();
 
-    check.headerFormat = "// copyright 2012\r\n// foo";
-
-    JavaScriptCheckVerifier.issues(check, new File("src/test/resources/checks/FileHeaderCheck/file2.js"))
+    JavaScriptCheckVerifier.issues(checkPlainText("// copyright 2012\r\n// foo"), new File("src/test/resources/checks/FileHeaderCheck/file2.js"))
       .noMore();
 
-    check.headerFormat = "// copyright 2012\r// foo";
-
-    JavaScriptCheckVerifier.issues(check, new File("src/test/resources/checks/FileHeaderCheck/file2.js"))
+    JavaScriptCheckVerifier.issues(checkPlainText("// copyright 2012\r// foo"), new File("src/test/resources/checks/FileHeaderCheck/file2.js"))
       .noMore();
 
-    check.headerFormat = "// copyright 2012\r\r// foo";
-
-    JavaScriptCheckVerifier.issues(check, new File("src/test/resources/checks/FileHeaderCheck/file2.js"))
+    JavaScriptCheckVerifier.issues(checkPlainText("// copyright 2012\r\r// foo"), new File("src/test/resources/checks/FileHeaderCheck/file2.js"))
       .next().atLine(null);
 
-    check.headerFormat = "// copyright 2012\n// foo\n\n\n\n\n\n\n\n\n\ngfoo";
-
-    JavaScriptCheckVerifier.issues(check, new File("src/test/resources/checks/FileHeaderCheck/file2.js"))
+    JavaScriptCheckVerifier.issues(checkPlainText("// copyright 2012\n// foo\n\n\n\n\n\n\n\n\n\ngfoo"), new File("src/test/resources/checks/FileHeaderCheck/file2.js"))
       .next().atLine(null);
 
-    check.headerFormat = "/*foo http://www.example.org*/";
-
-    JavaScriptCheckVerifier.issues(check, new File("src/test/resources/checks/FileHeaderCheck/file3.js"))
+    JavaScriptCheckVerifier.issues(checkPlainText("/*foo http://www.example.org*/"), new File("src/test/resources/checks/FileHeaderCheck/file3.js"))
       .noMore();
   }
 
+  @Test
+  public void test_regular_expression() {
+    JavaScriptCheckVerifier.issues(checkWithRegex("// copyright 2005"), new File("src/test/resources/checks/FileHeaderCheck/file1.js"))
+      .noMore();
+
+    JavaScriptCheckVerifier.issues(checkWithRegex("// copyright 20\\d\\d"), new File("src/test/resources/checks/FileHeaderCheck/file1.js"))
+      .noMore();
+
+    JavaScriptCheckVerifier.issues(checkWithRegex("// copyright 20\\d\\d"), new File("src/test/resources/checks/FileHeaderCheck/file2.js"))
+      .noMore();
+
+    JavaScriptCheckVerifier.issues(checkWithRegex("// copyright 20\\d\\d\\n// foo"), new File("src/test/resources/checks/FileHeaderCheck/file2.js"))
+      .noMore();
+
+    JavaScriptCheckVerifier.issues(checkWithRegex("// copyright 20\\d{3}\\n// foo"), new File("src/test/resources/checks/FileHeaderCheck/file2.js"))
+      .next().atLine(null);
+
+    JavaScriptCheckVerifier.issues(checkWithRegex("// copyright 20\\d{2}\\r?\\n// foo"), new File("src/test/resources/checks/FileHeaderCheck/file2.js"))
+      .noMore();
+
+    JavaScriptCheckVerifier.issues(checkWithRegex("// copyright 20\\d\\d\\r// foo"), new File("src/test/resources/checks/FileHeaderCheck/file2.js"))
+      .next().atLine(null);
+  }
+
+  @Test
+  public void should_fail_with_bad_regular_expression() {
+    thrown.expect(IllegalArgumentException.class);
+    thrown.expectMessage("[" + FileHeaderCheck.class.getSimpleName() + "] Unable to compile the regular expression: *");
+
+    FileHeaderCheck check = new FileHeaderCheck();
+    check.headerFormat = "*";
+    check.isRegularExpression = true;
+    JavaScriptCheckVerifier.issues(checkWithRegex("*"), new File("src/test/resources/checks/FileHeaderCheck/file1.js"));
+  }
+
+  private static JavaScriptCheck checkWithRegex(String pattern) {
+    FileHeaderCheck check = new FileHeaderCheck();
+    check.isRegularExpression = true;
+    check.setCharset(Charsets.UTF_8);
+    check.headerFormat = pattern;
+    return check;
+  }
+
+  private static JavaScriptCheck checkPlainText(String format) {
+    FileHeaderCheck check = new FileHeaderCheck();
+    check.isRegularExpression = false;
+    check.setCharset(Charsets.UTF_8);
+    check.headerFormat = format;
+    return check;
+  }
 }
