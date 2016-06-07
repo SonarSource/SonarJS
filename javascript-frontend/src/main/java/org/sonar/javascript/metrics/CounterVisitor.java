@@ -22,6 +22,7 @@ package org.sonar.javascript.metrics;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import org.sonar.javascript.tree.TreeKinds;
 import org.sonar.plugins.javascript.api.visitors.SubscriptionVisitor;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
@@ -54,7 +55,7 @@ public class CounterVisitor extends SubscriptionVisitor {
 
   @Override
   public List<Kind> nodesToVisit() {
-    List<Kind> result = new ArrayList<>(Arrays.asList(MetricsVisitor.getFunctionNodes()));
+    List<Kind> result = new ArrayList<>(TreeKinds.functionKinds());
     result.addAll(Arrays.asList(STATEMENT_NODES));
     result.addAll(Arrays.asList(MetricsVisitor.getClassNodes()));
     return result;
@@ -78,7 +79,7 @@ public class CounterVisitor extends SubscriptionVisitor {
 
   @Override
   public void visitNode(Tree tree) {
-    if (tree.is(MetricsVisitor.getFunctionNodes())) {
+    if (TreeKinds.isFunction(tree)) {
       functionCounter++;
 
     } else if (tree.is(STATEMENT_NODES)) {

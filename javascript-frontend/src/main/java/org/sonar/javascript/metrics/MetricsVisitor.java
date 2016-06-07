@@ -34,6 +34,7 @@ import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.FileLinesContext;
 import org.sonar.api.measures.FileLinesContextFactory;
 import org.sonar.api.measures.Metric;
+import org.sonar.javascript.tree.TreeKinds;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.visitors.SubscriptionVisitor;
@@ -43,17 +44,6 @@ public class MetricsVisitor extends SubscriptionVisitor {
 
   private static final Number[] LIMITS_COMPLEXITY_FUNCTIONS = {1, 2, 4, 6, 8, 10, 12, 20, 30};
   private static final Number[] FILES_DISTRIB_BOTTOM_LIMITS = {0, 5, 10, 20, 30, 60, 90};
-
-  private static final Kind[] FUNCTION_NODES = {
-    Kind.FUNCTION_DECLARATION,
-    Kind.FUNCTION_EXPRESSION,
-    Kind.METHOD,
-    Kind.GENERATOR_METHOD,
-    Kind.GENERATOR_FUNCTION_EXPRESSION,
-    Kind.GENERATOR_DECLARATION,
-    Kind.GET_METHOD,
-    Kind.SET_METHOD
-  };
 
   private static final Kind[] CLASS_NODES = {
     Kind.CLASS_DECLARATION,
@@ -90,7 +80,7 @@ public class MetricsVisitor extends SubscriptionVisitor {
 
   @Override
   public List<Kind> nodesToVisit() {
-    List<Kind> result = new ArrayList<>(Arrays.asList(FUNCTION_NODES));
+    List<Kind> result = new ArrayList<>(TreeKinds.functionKinds());
     result.addAll(Arrays.asList(CLASS_NODES));
     return result;
   }
@@ -107,7 +97,7 @@ public class MetricsVisitor extends SubscriptionVisitor {
     if (tree.is(CLASS_NODES)) {
       classComplexity += complexityVisitor.getComplexity(tree);
 
-    } else if (tree.is(FUNCTION_NODES)) {
+    } else if (TreeKinds.isFunction(tree)) {
       int currentFunctionComplexity = complexityVisitor.getComplexity(tree);
       this.functionComplexity += currentFunctionComplexity;
       functionComplexityDistribution.add(currentFunctionComplexity);
@@ -189,10 +179,6 @@ public class MetricsVisitor extends SubscriptionVisitor {
 
   public static Kind[] getClassNodes() {
     return CLASS_NODES;
-  }
-
-  public static Kind[] getFunctionNodes() {
-    return FUNCTION_NODES;
   }
 
 }
