@@ -51,6 +51,7 @@ import org.sonar.plugins.javascript.api.tree.expression.MemberExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.ParenthesisedExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.UnaryExpressionTree;
 import org.sonar.plugins.javascript.api.tree.statement.ForObjectStatementTree;
+import org.sonar.plugins.javascript.api.tree.statement.StatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.VariableDeclarationTree;
 
 import static org.sonar.plugins.javascript.api.symbols.Symbol.Kind.CLASS;
@@ -233,10 +234,17 @@ public class SymbolicExecution {
 
   private void handleSuccessors(CfgBlock block, ProgramState incomingState) {
     ProgramState currentState = incomingState;
+    boolean shouldPushAllSuccessors = true;
 
     if (block instanceof CfgBranchingBlock) {
       CfgBranchingBlock branchingBlock = (CfgBranchingBlock) block;
       Tree branchingTree = branchingBlock.branchingTree();
+
+      SymbolicValue conditionSymbolicValue = currentState.peekStack();
+
+      if (branchingTree instanceof StatementTree) {
+        currentState = currentState.clearStack();
+      }
 
       if (branchingTree.is(
         Kind.CONDITIONAL_EXPRESSION,
@@ -247,8 +255,8 @@ public class SymbolicExecution {
         Kind.CONDITIONAL_AND,
         Kind.CONDITIONAL_OR)) {
 
-        handleConditionSuccessors(branchingBlock, currentState);
-        return;
+        handleConditionSuccessors(branchingBlock, currentState, conditionSymbolicValue);
+        shouldPushAllSuccessors = false;
 
       } else if (branchingTree.is(Kind.FOR_IN_STATEMENT, Kind.FOR_OF_STATEMENT)) {
         ForObjectStatementTree forTree = (ForObjectStatementTree) branchingTree;
@@ -261,15 +269,19 @@ public class SymbolicExecution {
 
         if (currentState.getNullability(getSymbolicValue(forTree.expression(), currentState)) == Nullability.NULL) {
           pushSuccessor(branchingBlock.falseSuccessor(), currentState);
-          return;
+          shouldPushAllSuccessors = false;
         }
       }
+
+
     }
 
-    pushAllSuccessors(block, currentState);
+    if (shouldPushAllSuccessors) {
+      pushAllSuccessors(block, currentState);
+    }
   }
 
-  private void handleConditionSuccessors(CfgBranchingBlock block, ProgramState currentState) {
+  private void handleConditionSuccessors(CfgBranchingBlock block, ProgramState currentState, SymbolicValue conditionSymbolicValue) {
     Tree lastElement = block.elements().get(block.elements().size() - 1);
 
     if (handleConditionBooleanLiteral(block, currentState, lastElement)) {

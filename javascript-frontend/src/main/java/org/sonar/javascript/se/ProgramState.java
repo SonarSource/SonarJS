@@ -189,4 +189,7 @@ public class ProgramState {
     return Objects.hash(constraintsBySymbol(), stack);
   }
 
+  public SymbolicValue peekStack() {
+    return stack.peek();
+  }
 }
