@@ -30,9 +30,6 @@ public class IssueLocation {
   private final SyntaxToken lastToken;
   private final String message;
 
-  private int lastTokenLinesNumber = 1;
-  private int lastTokenLastLineLength = 0;
-
   public IssueLocation(Tree tree, @Nullable String message) {
     this(tree, tree, message);
   }
@@ -45,17 +42,6 @@ public class IssueLocation {
     this.firstToken = ((JavaScriptTree) firstTree).getFirstToken();
     this.lastToken = ((JavaScriptTree) lastTree).getLastToken();
     this.message = message;
-
-    calculateLastTokenLines();
-  }
-
-  private void calculateLastTokenLines() {
-    String text = lastToken.text();
-    if (text.startsWith("\"") || text.startsWith("'") || text.startsWith("`") || text.startsWith("/*")) {
-      String[] split = text.split("\n");
-      lastTokenLinesNumber = split.length;
-      lastTokenLastLineLength = split[split.length - 1].length();
-    }
   }
 
   @Nullable
@@ -72,16 +58,11 @@ public class IssueLocation {
   }
 
   public int endLine() {
-    return lastToken.line() + lastTokenLinesNumber - 1;
+    return lastToken.endLine();
   }
 
   public int endLineOffset() {
-    if (lastTokenLinesNumber == 1) {
-      return lastToken.column() + lastToken.text().length();
-
-    } else {
-      return lastTokenLastLineLength;
-    }
+    return lastToken.endColumn();
   }
 
 }

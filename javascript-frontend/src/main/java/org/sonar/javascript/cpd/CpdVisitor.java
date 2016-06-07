@@ -66,24 +66,13 @@ public class CpdVisitor extends SubscriptionVisitor {
   @Override
   public void visitNode(Tree tree) {
     SyntaxToken token = (SyntaxToken) tree;
-    int startLine = token.line();
-    int startLineOffset = token.column();
-
     String text = token.text();
-    int endLine = token.line();
-    int endLineOffset = startLineOffset + token.text().length();
 
     if (text.startsWith("\"") || text.startsWith("'") || text.startsWith("`")) {
-      String[] split = text.split("\n");
-      int numberOfLines = split.length;
-      if (numberOfLines > 1) {
-        endLine = endLine + numberOfLines - 1;
-        endLineOffset = split[split.length - 1].length();
-      }
       text = "LITERAL";
     }
 
-    TextRange range = inputFile.newRange(startLine, startLineOffset, endLine, endLineOffset);
+    TextRange range = inputFile.newRange(token.line(), token.column(), token.endLine(), token.endColumn());
     cpdTokens.addToken(range, text);
   }
 

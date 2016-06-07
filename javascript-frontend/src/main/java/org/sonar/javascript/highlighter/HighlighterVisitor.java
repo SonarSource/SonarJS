@@ -126,13 +126,7 @@ public class HighlighterVisitor extends SubscriptionVisitor {
   }
 
   private void highlight(SyntaxToken token, TypeOfText type) {
-    String[] lines = token.text().split("\\r\\n|\\n|\\r");
-    int endLineOffset = token.column() + token.text().length();
-    int endLine = token.line() + lines.length - 1;
-    if (endLine != token.line()) {
-      endLineOffset = lines[lines.length - 1].length();
-    }
-    highlighting.highlight(token.line(), token.column(), endLine, endLineOffset, type);
+    highlighting.highlight(token.line(), token.column(), token.endLine(), token.endColumn(), type);
   }
 
   private static boolean isKeyword(String text) {
