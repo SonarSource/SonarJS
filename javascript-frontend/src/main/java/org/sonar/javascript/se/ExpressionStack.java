@@ -100,6 +100,11 @@ class ExpressionStack {
         }
         newStack.push(UnknownSymbolicValue.UNKNOWN);
         break;
+      case CONDITIONAL_EXPRESSION:
+        SymbolicValue result = newStack.pop();
+        newStack.pop();
+        newStack.push(result);
+        break;
       case CLASS_DECLARATION:
         // do nothing
         break;

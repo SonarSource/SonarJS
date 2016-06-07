@@ -557,11 +557,11 @@ public class ControlFlowGraphTest {
 
   @Test
   public void ternary() throws Exception {
-    ControlFlowGraph g = build("var a = b ? c : d; e();", 4, 1);
-    assertBlock(g, 0).hasSuccessors(END);
-    assertBlock(g, 1).hasElements("b").hasSuccessors(2, 3);
-    assertBlock(g, 2).hasElements("c").hasSuccessors(0);
-    assertBlock(g, 3).hasElements("d").hasSuccessors(0);
+    ControlFlowGraph g = build("var a = b ? c : d; e();", 4);
+    assertBlock(g, 0).hasElements("b").hasSuccessors(2, 3);
+    assertBlock(g, 1).hasSuccessors(END);
+    assertBlock(g, 2).hasElements("c").hasSuccessors(1);
+    assertBlock(g, 3).hasElements("d").hasSuccessors(1);
   }
 
   @Test
