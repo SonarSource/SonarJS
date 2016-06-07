@@ -195,7 +195,7 @@ public class SymbolicExecution {
         SymbolicValue symbolicValue = currentState.getSymbolicValue(((IdentifierTree) element).symbol());
         currentState = currentState.pushToStack(symbolicValue);
 
-      } else if (element instanceof ExpressionTree) {
+      } else if (element instanceof ExpressionTree && !element.is(Kind.CLASS_DECLARATION)) {
         currentState = currentState.execute((ExpressionTree) element);
       }
 

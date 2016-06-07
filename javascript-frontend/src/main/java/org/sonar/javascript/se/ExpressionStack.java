@@ -105,9 +105,6 @@ class ExpressionStack {
         newStack.pop();
         newStack.push(result);
         break;
-      case CLASS_DECLARATION:
-        // do nothing
-        break;
       default:
         throw new IllegalArgumentException("Unexpected kind of expression to execute: " + kind);
     }

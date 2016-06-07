@@ -135,12 +135,6 @@ public class ExpressionStackTest {
   }
 
   @Test
-  public void class_declaration() throws Exception {
-    execute("class a {}");
-    assertThat(stack.size()).isEqualTo(0);
-  }
-
-  @Test
   public void equals() throws Exception {
     assertThat(emptyStack().push(simple1)).isEqualTo(emptyStack().push(simple1));
     assertThat(emptyStack().push(simple1)).isNotEqualTo(emptyStack().push(simple2));
