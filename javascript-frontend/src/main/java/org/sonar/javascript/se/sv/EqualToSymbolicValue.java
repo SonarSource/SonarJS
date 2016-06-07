@@ -21,11 +21,30 @@ package org.sonar.javascript.se.sv;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import org.sonar.javascript.se.Constraint;
 import org.sonar.javascript.se.ProgramState;
 
 public class EqualToSymbolicValue implements SymbolicValue {
+
+  private static final Map<SpecialSymbolicValue, Constraint> EQUAL_CONSTRAINTS = ImmutableMap.of(
+    SpecialSymbolicValue.NULL, Constraint.NULL_OR_UNDEFINED,
+    SpecialSymbolicValue.UNDEFINED, Constraint.NULL_OR_UNDEFINED);
+
+  private static final Map<SpecialSymbolicValue, Constraint> NOT_EQUAL_CONSTRAINTS = ImmutableMap.of(
+    SpecialSymbolicValue.NULL, Constraint.NOT_NULLY,
+    SpecialSymbolicValue.UNDEFINED, Constraint.NOT_NULLY);
+
+  private static final Map<SpecialSymbolicValue, Constraint> STRICT_EQUAL_CONSTRAINTS = ImmutableMap.of(
+    SpecialSymbolicValue.NULL, Constraint.NULL,
+    SpecialSymbolicValue.UNDEFINED, Constraint.UNDEFINED);
+
+  private static final Map<SpecialSymbolicValue, Constraint> STRICT_NOT_EQUAL_CONSTRAINTS = ImmutableMap.of(
+    SpecialSymbolicValue.NULL, Constraint.NOT_NULL,
+    SpecialSymbolicValue.UNDEFINED, Constraint.NOT_UNDEFINED);
 
   private final SymbolicValue firstOperandValue;
   private final Constraint secondOperandConstraint;
@@ -34,6 +53,34 @@ public class EqualToSymbolicValue implements SymbolicValue {
     Preconditions.checkArgument(firstOperandValue != null, "operandValue should not be null");
     this.firstOperandValue = firstOperandValue;
     this.secondOperandConstraint = constraint;
+  }
+
+  public static SymbolicValue equal(SymbolicValue operand1, SymbolicValue operand2) {
+    return create(EQUAL_CONSTRAINTS, operand1, operand2);
+  }
+
+  public static SymbolicValue notEqual(SymbolicValue operand1, SymbolicValue operand2) {
+    return create(NOT_EQUAL_CONSTRAINTS, operand1, operand2);
+  }
+
+  public static SymbolicValue strictEqual(SymbolicValue operand1, SymbolicValue operand2) {
+    return create(STRICT_EQUAL_CONSTRAINTS, operand1, operand2);
+  }
+
+  public static SymbolicValue strictNotEqual(SymbolicValue operand1, SymbolicValue operand2) {
+    return create(STRICT_NOT_EQUAL_CONSTRAINTS, operand1, operand2);
+  }
+
+  private static SymbolicValue create(Map<SpecialSymbolicValue, Constraint> map, SymbolicValue operand1, SymbolicValue operand2) {
+    Constraint constraint = map.get(operand1);
+    if (constraint != null && operand2 != null) {
+      return new EqualToSymbolicValue(operand2, constraint);
+    }
+    constraint = map.get(operand2);
+    if (constraint != null && operand1 != null) {
+      return new EqualToSymbolicValue(operand1, constraint);
+    }
+    return UnknownSymbolicValue.UNKNOWN;
   }
 
   @Override
@@ -52,6 +99,21 @@ public class EqualToSymbolicValue implements SymbolicValue {
   @Override
   public String toString() {
     return firstOperandValue + " === " + secondOperandConstraint;
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(firstOperandValue, secondOperandConstraint);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj instanceof EqualToSymbolicValue) {
+      EqualToSymbolicValue other = (EqualToSymbolicValue) obj;
+      return Objects.equals(this.firstOperandValue, other.firstOperandValue)
+        && Objects.equals(this.secondOperandConstraint, other.secondOperandConstraint);
+    }
+    return false;
   }
 
 }

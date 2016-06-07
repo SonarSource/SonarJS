@@ -182,6 +182,7 @@ class ControlFlowGraphBuilder {
 
   private void build(Tree tree) {
     if (tree.is(Kind.EXPRESSION_STATEMENT)) {
+      currentBlock.addElement(tree);
       buildExpression(((ExpressionStatementTree) tree).expression());
     } else if (tree.is(Kind.VARIABLE_STATEMENT)) {
       buildExpression(((VariableStatementTree) tree).declaration());

@@ -51,6 +51,7 @@ import org.sonar.plugins.javascript.api.tree.expression.MemberExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.ParenthesisedExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.UnaryExpressionTree;
 import org.sonar.plugins.javascript.api.tree.statement.ForObjectStatementTree;
+import org.sonar.plugins.javascript.api.tree.statement.StatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.VariableDeclarationTree;
 
 import static org.sonar.plugins.javascript.api.symbols.Symbol.Kind.CLASS;
@@ -173,6 +174,7 @@ public class SymbolicExecution {
       } else if (element.is(Kind.INITIALIZED_BINDING_ELEMENT)) {
         InitializedBindingElementTree initialized = (InitializedBindingElementTree) element;
         currentState = store(currentState, initialized.left(), initialized.right());
+        currentState = currentState.clearStack();
 
       } else if (element.is(Kind.BRACKET_MEMBER_EXPRESSION, Kind.DOT_MEMBER_EXPRESSION)) {
         ExpressionTree object = ((MemberExpressionTree) element).object();
@@ -185,7 +187,20 @@ public class SymbolicExecution {
             stopExploring = true;
             break;
           }
+
         }
+
+      }
+
+      if (element.is(Kind.EXPRESSION_STATEMENT)) {
+        currentState = currentState.clearStack();
+
+      } else if (element.is(Kind.IDENTIFIER_REFERENCE, Kind.BINDING_IDENTIFIER) && !isUndefined((IdentifierTree)element)) {
+        SymbolicValue symbolicValue = currentState.getSymbolicValue(((IdentifierTree) element).symbol());
+        currentState = currentState.pushToStack(symbolicValue);
+
+      } else if (element instanceof ExpressionTree && !element.is(Kind.CLASS_DECLARATION)) {
+        currentState = currentState.execute((ExpressionTree) element);
       }
 
       afterBlockElement(currentState, element);
@@ -194,6 +209,10 @@ public class SymbolicExecution {
     if (!stopExploring) {
       handleSuccessors(block, currentState);
     }
+  }
+
+  public static boolean isUndefined(IdentifierTree tree) {
+    return "undefined".equals(tree.name());
   }
 
   private void beforeBlockElement(ProgramState currentState, Tree element) {
@@ -222,10 +241,17 @@ public class SymbolicExecution {
 
   private void handleSuccessors(CfgBlock block, ProgramState incomingState) {
     ProgramState currentState = incomingState;
+    boolean shouldPushAllSuccessors = true;
 
     if (block instanceof CfgBranchingBlock) {
       CfgBranchingBlock branchingBlock = (CfgBranchingBlock) block;
       Tree branchingTree = branchingBlock.branchingTree();
+
+      SymbolicValue conditionSymbolicValue = currentState.peekStack();
+
+      if (branchingTree instanceof StatementTree) {
+        currentState = currentState.clearStack();
+      }
 
       if (branchingTree.is(
         Kind.CONDITIONAL_EXPRESSION,
@@ -236,8 +262,8 @@ public class SymbolicExecution {
         Kind.CONDITIONAL_AND,
         Kind.CONDITIONAL_OR)) {
 
-        handleConditionSuccessors(branchingBlock, currentState);
-        return;
+        handleConditionSuccessors(branchingBlock, currentState, conditionSymbolicValue);
+        shouldPushAllSuccessors = false;
 
       } else if (branchingTree.is(Kind.FOR_IN_STATEMENT, Kind.FOR_OF_STATEMENT)) {
         ForObjectStatementTree forTree = (ForObjectStatementTree) branchingTree;
@@ -250,15 +276,19 @@ public class SymbolicExecution {
 
         if (currentState.getNullability(getSymbolicValue(forTree.expression(), currentState)) == Nullability.NULL) {
           pushSuccessor(branchingBlock.falseSuccessor(), currentState);
-          return;
+          shouldPushAllSuccessors = false;
         }
       }
+
+
     }
 
-    pushAllSuccessors(block, currentState);
+    if (shouldPushAllSuccessors) {
+      pushAllSuccessors(block, currentState);
+    }
   }
 
-  private void handleConditionSuccessors(CfgBranchingBlock block, ProgramState currentState) {
+  private void handleConditionSuccessors(CfgBranchingBlock block, ProgramState currentState, SymbolicValue conditionSymbolicValue) {
     Tree lastElement = block.elements().get(block.elements().size() - 1);
 
     if (handleConditionBooleanLiteral(block, currentState, lastElement)) {
