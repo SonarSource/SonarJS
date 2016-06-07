@@ -478,8 +478,8 @@ public class ControlFlowGraphTest {
 
   @Test
   public void with() throws Exception {
-    ControlFlowGraph g = build("with(b0) { x; y; }", 1);
-    assertBlock(g, 0).hasSuccessors(END).hasElements("b0", "x", "y");
+    ControlFlowGraph g = build("with(b0()) { x; y; }", 1);
+    assertBlock(g, 0).hasSuccessors(END).hasElements("b0", "b0()", "x", "y");
   }
 
   @Test
