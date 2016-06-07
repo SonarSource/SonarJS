@@ -32,7 +32,7 @@ public class MetricsTest extends JavaScriptTreeModelTest {
   public void complexity() {
     String path = "src/test/resources/metrics/complexity.js";
     Tree tree = p.parse(new File(path));
-    assertThat(new ComplexityVisitor().getComplexity(tree)).isEqualTo(23);
+    assertThat(new ComplexityVisitor().getComplexity(tree)).isEqualTo(26);
   }
 
   @Test
@@ -55,25 +55,18 @@ public class MetricsTest extends JavaScriptTreeModelTest {
   public void functions() {
     String path = "src/test/resources/metrics/functions.js";
     Tree tree = p.parse(new File(path));
-    assertThat(new CounterVisitor(tree).getFunctionNumber()).isEqualTo(8);
+    assertThat(new CounterVisitor(tree).getFunctionNumber()).isEqualTo(13);
   }
 
   @Test
   public void statements() {
     String path = "src/test/resources/metrics/functions.js";
     Tree tree = p.parse(new File(path));
-    assertThat(new CounterVisitor(tree).getStatementsNumber()).isEqualTo(10);
+    assertThat(new CounterVisitor(tree).getStatementsNumber()).isEqualTo(16);
 
     path = "src/test/resources/metrics/statements.js";
     tree = p.parse(new File(path));
     assertThat(new CounterVisitor(tree).getStatementsNumber()).isEqualTo(16);
-  }
-
-  @Test
-  public void accessors() {
-    String path = "src/test/resources/metrics/accessors.js";
-    Tree tree = p.parse(new File(path));
-    assertThat(new CounterVisitor(tree).getAccessorsNumber()).isEqualTo(4);
   }
 
   @Test

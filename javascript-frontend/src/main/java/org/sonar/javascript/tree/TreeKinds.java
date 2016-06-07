@@ -19,6 +19,8 @@
  */
 package org.sonar.javascript.tree;
 
+import com.google.common.collect.ImmutableList;
+import java.util.List;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 
@@ -47,6 +49,17 @@ public class TreeKinds {
     Tree.Kind.PREFIX_DECREMENT
   };
 
+  private static final Kind[] FUNCTION_KINDS = {
+    Kind.FUNCTION_DECLARATION,
+    Kind.FUNCTION_EXPRESSION,
+    Kind.METHOD,
+    Kind.GENERATOR_METHOD,
+    Kind.GENERATOR_FUNCTION_EXPRESSION,
+    Kind.GENERATOR_DECLARATION,
+    Kind.GET_METHOD,
+    Kind.SET_METHOD
+  };
+
   private TreeKinds() {
     // This class has only static methods
   }
@@ -57,6 +70,14 @@ public class TreeKinds {
 
   public static boolean isIncrementOrDecrement(Tree tree) {
     return tree.is(INC_DEC_KINDS);
+  }
+
+  public static boolean isFunction(Tree tree) {
+    return tree.is(FUNCTION_KINDS);
+  }
+
+  public static List<Kind> functionKinds() {
+    return ImmutableList.copyOf(FUNCTION_KINDS);
   }
 
 }

@@ -25,6 +25,7 @@ import java.util.List;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.javascript.checks.utils.CheckUtils;
+import org.sonar.javascript.tree.TreeKinds;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.declaration.FunctionTree;
@@ -47,15 +48,10 @@ public class DefaultParametersNotLastCheck extends SubscriptionVisitorCheck {
 
   @Override
   public List<Kind> nodesToVisit() {
-    return ImmutableList.of(
-      Kind.FUNCTION_DECLARATION,
-      Kind.GENERATOR_METHOD,
-      Kind.GENERATOR_DECLARATION,
-      Kind.GENERATOR_FUNCTION_EXPRESSION,
-      Kind.FUNCTION_EXPRESSION,
-      Kind.ARROW_FUNCTION,
-      Kind.METHOD
-    );
+    return ImmutableList.<Kind>builder()
+      .addAll(TreeKinds.functionKinds())
+      .add(Kind.ARROW_FUNCTION)
+      .build();
   }
 
   @Override

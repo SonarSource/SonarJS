@@ -25,6 +25,7 @@ import java.util.LinkedList;
 import java.util.List;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
+import org.sonar.javascript.tree.TreeKinds;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.declaration.FunctionDeclarationTree;
@@ -49,26 +50,18 @@ public class ArgumentsCallerCalleeUsageCheck extends SubscriptionVisitorCheck {
   private static final String CALLEE = "callee";
 
   LinkedList<String> scope = Lists.newLinkedList();
-  private static final Kind[] FUNCTION_NODES = {
-    Kind.FUNCTION_EXPRESSION,
-    Kind.FUNCTION_DECLARATION,
-    Kind.GENERATOR_METHOD,
-    Kind.METHOD,
-    Kind.GENERATOR_DECLARATION,
-    Kind.GENERATOR_FUNCTION_EXPRESSION
-  };
 
   @Override
   public List<Kind> nodesToVisit() {
     return ImmutableList.<Kind>builder()
       .add(Kind.DOT_MEMBER_EXPRESSION)
-      .add(FUNCTION_NODES)
+      .addAll(TreeKinds.functionKinds())
       .build();
   }
 
   @Override
   public void visitNode(Tree tree) {
-    if (tree.is(FUNCTION_NODES)) {
+    if (TreeKinds.isFunction(tree)) {
       IdentifierTree name = getFunctionName(tree);
 
       if (name != null) {
@@ -117,7 +110,7 @@ public class ArgumentsCallerCalleeUsageCheck extends SubscriptionVisitorCheck {
 
   @Override
   public void leaveNode(Tree tree) {
-    if (tree.is(FUNCTION_NODES) && getFunctionName(tree) != null) {
+    if (TreeKinds.isFunction(tree) && getFunctionName(tree) != null) {
       scope.removeLast();
     }
   }

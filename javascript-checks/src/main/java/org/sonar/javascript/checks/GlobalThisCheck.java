@@ -23,7 +23,9 @@ import com.google.common.collect.ImmutableList;
 import java.util.List;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
+import org.sonar.javascript.tree.TreeKinds;
 import org.sonar.plugins.javascript.api.tree.Tree;
+import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.MemberExpressionTree;
 import org.sonar.plugins.javascript.api.visitors.SubscriptionVisitorCheck;
@@ -44,18 +46,12 @@ public class GlobalThisCheck extends SubscriptionVisitorCheck {
 
   @Override
   public List<Tree.Kind> nodesToVisit() {
-    return ImmutableList.of(
-      Tree.Kind.FUNCTION_DECLARATION,
-      Tree.Kind.FUNCTION_EXPRESSION,
-      Tree.Kind.ARROW_FUNCTION,
-      Tree.Kind.METHOD,
-      Tree.Kind.GENERATOR_FUNCTION_EXPRESSION,
-      Tree.Kind.GET_METHOD,
-      Tree.Kind.SET_METHOD,
-      Tree.Kind.GENERATOR_METHOD,
-      Tree.Kind.GENERATOR_DECLARATION,
-      Tree.Kind.DOT_MEMBER_EXPRESSION
-    );
+    return ImmutableList.<Kind>builder()
+      .addAll(TreeKinds.functionKinds())
+      .add(
+        Tree.Kind.ARROW_FUNCTION,
+        Tree.Kind.DOT_MEMBER_EXPRESSION
+      ).build();
   }
 
   @Override

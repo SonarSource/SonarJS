@@ -66,7 +66,7 @@ public class BigProjectTest {
     assertThat(getProjectMeasure("lines").getIntValue()).isEqualTo(1178445);
     assertThat(getProjectMeasure("files").getIntValue()).isEqualTo(4535);
     assertThat(getProjectMeasure("directories").getIntValue()).isEqualTo(977);
-    assertThat(getProjectMeasure("functions").getIntValue()).isEqualTo(54183);
+    assertThat(getProjectMeasure("functions").getIntValue()).isEqualTo(54271);
     assertThat(getProjectMeasure("statements").getIntValue()).isEqualTo(328212);
 
     // Documentation
@@ -76,9 +76,9 @@ public class BigProjectTest {
 
     // Complexity
     // Since ES6 support
-    assertThat(getProjectMeasure("complexity").getValue()).isEqualTo(179426.0);
+    assertThat(getProjectMeasure("complexity").getValue()).isEqualTo(179514.0);
     assertThat(getProjectMeasure("function_complexity_distribution").getData())
-      .isEqualTo("1=21324;2=13942;4=6617;6=3602;8=2065;10=1325;12=2348;20=1053;30=1907");
+      .isEqualTo("1=21387;2=13956;4=6624;6=3602;8=2065;10=1328;12=2349;20=1051;30=1909");
 
     // SONARJS-299
     assertThat(getProjectMeasure("function_complexity").getValue()).isEqualTo(7.0);
