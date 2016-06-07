@@ -182,6 +182,7 @@ class ControlFlowGraphBuilder {
 
   private void build(Tree tree) {
     if (tree.is(Kind.EXPRESSION_STATEMENT)) {
+      currentBlock.addElement(tree);
       buildExpression(((ExpressionStatementTree) tree).expression());
     } else if (tree.is(Kind.VARIABLE_STATEMENT)) {
       buildExpression(((VariableStatementTree) tree).declaration());
@@ -240,7 +241,7 @@ class ControlFlowGraphBuilder {
   }
 
   private void buildExpression(Tree tree) {
-    if (!tree.is(Kind.CONDITIONAL_OR, Kind.CONDITIONAL_AND, Kind.PARENTHESISED_EXPRESSION)) {
+    if (!tree.is(Kind.CONDITIONAL_OR, Kind.CONDITIONAL_AND, Kind.CONDITIONAL_EXPRESSION, Kind.PARENTHESISED_EXPRESSION)) {
       currentBlock.addElement(tree);
     }
 

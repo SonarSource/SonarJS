@@ -185,7 +185,18 @@ public class SymbolicExecution {
             stopExploring = true;
             break;
           }
+
         }
+
+      } else if (element.is(Kind.EXPRESSION_STATEMENT)) {
+        currentState = currentState.clearStack();
+
+      } else if (element.is(Kind.IDENTIFIER_REFERENCE, Kind.BINDING_IDENTIFIER)) {
+        SymbolicValue symbolicValue = currentState.getSymbolicValue(((IdentifierTree) element).symbol());
+        currentState = currentState.pushToStack(symbolicValue);
+
+      } else if (element instanceof ExpressionTree) {
+        currentState = currentState.execute((ExpressionTree) element);
       }
 
       afterBlockElement(currentState, element);
