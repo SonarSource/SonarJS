@@ -40,7 +40,7 @@ import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 
 @Rule(
   key = "S3317",
-  name = "Class names and file names should match",
+  name = "Default export names and file names should match",
   priority = Priority.MAJOR,
   tags = {Tags.ES2015, Tags.CONFUSING})
 @ActivatedByDefault
