@@ -20,11 +20,19 @@
 package org.sonar.plugins.javascript.api.visitors;
 
 import java.util.List;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.javascript.visitors.Issues;
 import org.sonar.plugins.javascript.api.JavaScriptCheck;
 import org.sonar.plugins.javascript.api.tree.Tree;
 
 public abstract class DoubleDispatchVisitorCheck extends DoubleDispatchVisitor implements JavaScriptCheck {
+  
+  /**
+   * Handy logger intended for derived classes. 
+   */
+  protected static final Logger LOGGER = LoggerFactory.getLogger(DoubleDispatchVisitorCheck.class);
 
   private Issues issues = new Issues(this);
 
