@@ -29,6 +29,7 @@ import javax.annotation.Nullable;
 import org.sonar.javascript.se.sv.SimpleSymbolicValue;
 import org.sonar.javascript.se.sv.SymbolicValue;
 import org.sonar.plugins.javascript.api.symbols.Symbol;
+import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 
 public class ProgramState {
@@ -166,8 +167,20 @@ public class ProgramState {
     return new ProgramState(values, constraints, ExpressionStack.emptyStack(), counter);
   }
 
+  @CheckForNull
   public ProgramState execute(ExpressionTree expression) {
-    return new ProgramState(values, constraints, stack.execute(expression), counter);
+    ProgramState newProgramState = this;
+    if (expression.is(Kind.DOT_MEMBER_EXPRESSION, Kind.BRACKET_MEMBER_EXPRESSION)) {
+      SymbolicValue objectSymbolicValue = expression.is(Kind.DOT_MEMBER_EXPRESSION) ? stack.peek() : stack.peek(1);
+      Nullability nullability = this.getNullability(objectSymbolicValue);
+      if (nullability == Nullability.UNKNOWN) {
+        newProgramState = this.constrain(objectSymbolicValue, Constraint.NOT_NULLY);
+      } else if (nullability == Nullability.NULL) {
+        return null;
+      }
+
+    }
+    return new ProgramState(newProgramState.values, newProgramState.constraints, stack.execute(expression), newProgramState.counter);
   }
 
   @Override

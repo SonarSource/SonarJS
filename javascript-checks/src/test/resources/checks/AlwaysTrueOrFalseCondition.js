@@ -61,6 +61,10 @@ function while_true() {
   while (true) { // OK
     foo();
   }
+
+  while (1) { // OK
+    foo();
+  }
 }
 
 function do_while_true() {

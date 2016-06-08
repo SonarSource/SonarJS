@@ -28,11 +28,13 @@ import org.sonar.javascript.se.sv.LiteralSymbolicValue;
 import org.sonar.javascript.se.sv.LogicalNotSymbolicValue;
 import org.sonar.javascript.se.sv.SpecialSymbolicValue;
 import org.sonar.javascript.se.sv.SymbolicValue;
+import org.sonar.javascript.se.sv.TypeOfSymbolicValue;
 import org.sonar.javascript.se.sv.UnknownSymbolicValue;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.expression.CallExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
+import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 import org.sonar.plugins.javascript.api.tree.expression.LiteralTree;
 
 class ExpressionStack {
@@ -69,6 +71,10 @@ class ExpressionStack {
     switch (kind) {
       case IDENTIFIER_REFERENCE:
       case BINDING_IDENTIFIER:
+        if (SymbolicExecution.isUndefined((IdentifierTree) expression)) {
+          newStack.push(SpecialSymbolicValue.UNDEFINED);
+          break;
+        }
         throw new IllegalArgumentException("Unexpected kind of expression to execute: " + kind);
       case NULL_LITERAL:
         newStack.push(SpecialSymbolicValue.NULL);
@@ -95,6 +101,8 @@ class ExpressionStack {
         newStack.push(EqualToSymbolicValue.strictNotEqual(newStack.pop(), newStack.pop()));
         break;
       case TYPEOF:
+        newStack.push(new TypeOfSymbolicValue(newStack.pop()));
+        break;
       case NEW_EXPRESSION:
         newStack.pop();
         newStack.push(UnknownSymbolicValue.UNKNOWN);
@@ -113,6 +121,15 @@ class ExpressionStack {
         newStack.pop();
         newStack.push(result);
         break;
+      case DOT_MEMBER_EXPRESSION:
+        newStack.pop();
+        newStack.push(UnknownSymbolicValue.UNKNOWN);
+        break;
+      case BRACKET_MEMBER_EXPRESSION:
+        newStack.pop();
+        newStack.pop();
+        newStack.push(UnknownSymbolicValue.UNKNOWN);
+        break;
       default:
         newStack.push(UnknownSymbolicValue.UNKNOWN);
     }
@@ -125,6 +142,12 @@ class ExpressionStack {
 
   public SymbolicValue peek() {
     return stack.peek();
+  }
+
+  // peek(0) returns last element
+  // peek(1) returns last but one element etc.
+  public SymbolicValue peek(int n) {
+    return (SymbolicValue) stack.toArray()[stack.size() - n - 1];
   }
 
   public int size() {

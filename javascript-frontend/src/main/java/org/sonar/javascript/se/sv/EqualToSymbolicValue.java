@@ -56,22 +56,22 @@ public class EqualToSymbolicValue implements SymbolicValue {
   }
 
   public static SymbolicValue equal(SymbolicValue operand1, SymbolicValue operand2) {
-    return create(EQUAL_CONSTRAINTS, operand1, operand2);
+    return create(EQUAL_CONSTRAINTS, operand1, operand2, false);
   }
 
   public static SymbolicValue notEqual(SymbolicValue operand1, SymbolicValue operand2) {
-    return create(NOT_EQUAL_CONSTRAINTS, operand1, operand2);
+    return create(NOT_EQUAL_CONSTRAINTS, operand1, operand2, true);
   }
 
   public static SymbolicValue strictEqual(SymbolicValue operand1, SymbolicValue operand2) {
-    return create(STRICT_EQUAL_CONSTRAINTS, operand1, operand2);
+    return create(STRICT_EQUAL_CONSTRAINTS, operand1, operand2, false);
   }
 
   public static SymbolicValue strictNotEqual(SymbolicValue operand1, SymbolicValue operand2) {
-    return create(STRICT_NOT_EQUAL_CONSTRAINTS, operand1, operand2);
+    return create(STRICT_NOT_EQUAL_CONSTRAINTS, operand1, operand2, true);
   }
 
-  private static SymbolicValue create(Map<SpecialSymbolicValue, Constraint> map, SymbolicValue operand1, SymbolicValue operand2) {
+  private static SymbolicValue create(Map<SpecialSymbolicValue, Constraint> map, SymbolicValue operand1, SymbolicValue operand2, boolean isLogicalNot) {
     Constraint constraint = map.get(operand1);
     if (constraint != null && operand2 != null) {
       return new EqualToSymbolicValue(operand2, constraint);
@@ -79,6 +79,13 @@ public class EqualToSymbolicValue implements SymbolicValue {
     constraint = map.get(operand2);
     if (constraint != null && operand1 != null) {
       return new EqualToSymbolicValue(operand1, constraint);
+    }
+    SymbolicValue typeOfComparison = TypeOfComparisonSymbolicValue.create(operand1, operand2);
+    if (typeOfComparison != null) {
+      if (isLogicalNot) {
+        typeOfComparison = new LogicalNotSymbolicValue(typeOfComparison);
+      }
+      return typeOfComparison;
     }
     return UnknownSymbolicValue.UNKNOWN;
   }
