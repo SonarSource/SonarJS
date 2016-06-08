@@ -20,13 +20,12 @@
 package org.sonar.plugins.javascript.api.visitors;
 
 import java.util.List;
-
 import org.sonar.javascript.visitors.Issues;
 import org.sonar.plugins.javascript.api.JavaScriptCheck;
 import org.sonar.plugins.javascript.api.tree.Tree;
 
 public abstract class DoubleDispatchVisitorCheck extends DoubleDispatchVisitor implements JavaScriptCheck {
-  
+
   private Issues issues = new Issues(this);
 
   @Override

@@ -23,11 +23,11 @@ import java.io.File;
 import org.junit.Test;
 import org.sonar.javascript.checks.verifier.JavaScriptCheckVerifier;
 
-public class NoCommaOperatorInSwitchCaseCheckTest {
+public class CommaOperatorInSwitchCaseCheckTest {
 
   @Test
   public void test() {
-    JavaScriptCheckVerifier.verify(new NoCommaOperatorInSwitchCaseCheck(), new File("src/test/resources/checks/noCommaOperatorInSwitchCase.js"));
+    JavaScriptCheckVerifier.verify(new CommaOperatorInSwitchCaseCheck(), new File("src/test/resources/checks/commaOperatorInSwitchCase.js"));
   }
 
 }

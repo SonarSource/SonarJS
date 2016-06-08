@@ -22,6 +22,7 @@ package org.sonar.javascript.checks;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
+import org.sonar.plugins.javascript.api.tree.expression.BinaryExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.tree.statement.CaseClauseTree;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
@@ -30,30 +31,42 @@ import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 
 @Rule(
   key = "S3616",
-  name = "Do not use the comma operator within a switch case",
-  priority = Priority.MAJOR,
+  name = "Comma operators should not be used in switch cases",
+  priority = Priority.CRITICAL,
   tags = {Tags.BUG})
 @ActivatedByDefault
 @SqaleConstantRemediation("5min")
-public class NoCommaOperatorInSwitchCaseCheck extends DoubleDispatchVisitorCheck {
+public class CommaOperatorInSwitchCaseCheck extends DoubleDispatchVisitorCheck {
+  
+  private static final String MESSAGE = "Explicitly specify %d separate cases that fall through; currently this case clause only works for \"%s\".";
   
   @Override
   public void visitCaseClause(CaseClauseTree tree) {
     ExpressionTree expression = tree.expression();
     if (expression.is(Kind.COMMA_OPERATOR)) {
-      addIssue(expression, getMessage());
+      int nbCommas = getNumberOfCommas(expression);
+      String lastCase = ((BinaryExpressionTree)expression).rightOperand().toString();
+      String msg = String.format(MESSAGE, nbCommas + 1, lastCase);
+      addIssue(expression, msg);
     }
     
     super.visitCaseClause(tree);
   }
-
-  /**
-   * Gets the value of property "name" of annotation "@Rule" on this class.
-   * <p>
-   * TODO move this method to superclass
-   */
-  private String getMessage() {
-    return getClass().getAnnotation(Rule.class).name();
-  }
   
+  /**
+   * Gets the number of "," characters in the specified expression.
+   * <p>
+   * Example 1: expression 10 (as in "case 10:") returns 0.
+   * <p>
+   * Example 2: expression 10,11,12,13 (as in "case 10,11,12,13:") returns 3.
+   */
+  private int getNumberOfCommas(ExpressionTree expression) {
+    int ret = 0;
+    if (expression.is(Kind.COMMA_OPERATOR)) {
+      BinaryExpressionTree binaryExpression = (BinaryExpressionTree) expression;
+      ret = getNumberOfCommas(binaryExpression.leftOperand()) + 1;
+    }
+    return ret;
+  }
+
 }
