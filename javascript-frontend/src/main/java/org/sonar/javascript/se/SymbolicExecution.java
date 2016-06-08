@@ -165,7 +165,9 @@ public class SymbolicExecution {
       } else if (element.is(Kind.EXPRESSION_STATEMENT)) {
         currentState = currentState.clearStack();
 
-      } else if (element.is(Kind.IDENTIFIER_REFERENCE, Kind.BINDING_IDENTIFIER) && !isUndefined((IdentifierTree)element)) {
+      }
+
+      if (element.is(Kind.IDENTIFIER_REFERENCE, Kind.BINDING_IDENTIFIER) && !isUndefined((IdentifierTree)element)) {
         SymbolicValue symbolicValue = currentState.getSymbolicValue(((IdentifierTree) element).symbol());
         currentState = currentState.pushToStack(symbolicValue);
 

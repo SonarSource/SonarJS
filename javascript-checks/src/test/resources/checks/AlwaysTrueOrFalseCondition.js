@@ -202,3 +202,11 @@ function tro(x, y) {
   if (true || y) {} // Noncompliant
   if (false || y) {} // Noncompliant
 }
+
+function expression_as_condition(x) {
+  if (x <<= 1) {
+  }
+
+  if (x = true) {
+  }
+}
