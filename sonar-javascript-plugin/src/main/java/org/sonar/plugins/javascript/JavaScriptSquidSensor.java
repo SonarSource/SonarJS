@@ -54,6 +54,7 @@ import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.javascript.checks.CheckList;
 import org.sonar.javascript.checks.ParsingErrorCheck;
+import org.sonar.javascript.cpd.CpdVisitor;
 import org.sonar.javascript.highlighter.HighlightSymbolTableBuilder;
 import org.sonar.javascript.highlighter.HighlighterVisitor;
 import org.sonar.javascript.metrics.MetricsVisitor;
@@ -292,6 +293,7 @@ public class JavaScriptSquidSensor implements Sensor {
     treeVisitors.add(new MetricsVisitor(fileSystem, context, noSonarFilter, settings.getBoolean(JavaScriptPlugin.IGNORE_HEADER_COMMENTS), fileLinesContextFactory, linesOfCode));
     treeVisitors.add(new HighlighterVisitor(context, fileSystem));
     treeVisitors.add(new SeChecksDispatcher(checks.seChecks()));
+    treeVisitors.add(new CpdVisitor(fileSystem, context));
     treeVisitors.addAll(checks.visitorChecks());
 
     for (TreeVisitor check : treeVisitors) {

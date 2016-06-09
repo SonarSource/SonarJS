@@ -17,33 +17,5 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.javascript.cpd;
-
-import java.nio.charset.Charset;
-import net.sourceforge.pmd.cpd.Tokenizer;
-import org.sonar.api.batch.AbstractCpdMapping;
-import org.sonar.api.batch.fs.FileSystem;
-import org.sonar.api.resources.Language;
-import org.sonar.plugins.javascript.JavaScriptLanguage;
-
-public class JavaScriptCpdMapping extends AbstractCpdMapping {
-
-  private final JavaScriptLanguage language;
-  private final Charset charset;
-
-  public JavaScriptCpdMapping(JavaScriptLanguage language, FileSystem fs) {
-    this.language = language;
-    this.charset = fs.encoding();
-  }
-
-  @Override
-  public Tokenizer getTokenizer() {
-    return new JavaScriptTokenizer(charset);
-  }
-
-  @Override
-  public Language getLanguage() {
-    return language;
-  }
-
-}
+@javax.annotation.ParametersAreNonnullByDefault
+package org.sonar.javascript.cpd;

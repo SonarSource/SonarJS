@@ -33,11 +33,35 @@ public class InternalSyntaxTrivia extends JavaScriptTree implements SyntaxTrivia
   private final String comment;
   private final int column;
   private int startLine;
+  private int endLine;
+  private int endColumn;
+
 
   public InternalSyntaxTrivia(String comment, int startLine, int column) {
     this.comment = comment;
     this.startLine = startLine;
     this.column = column;
+    calculateEndOffsets();
+  }
+
+  private void calculateEndOffsets() {
+    String[] lines = comment.split("\r\n|\n|\r", -1);
+    endColumn = column + comment.length();
+    endLine = startLine + lines.length - 1;
+
+    if (endLine != startLine) {
+      endColumn = lines[lines.length - 1].length();
+    }
+  }
+
+  @Override
+  public int endLine() {
+    return endLine;
+  }
+
+  @Override
+  public int endColumn() {
+    return endColumn;
   }
 
   @Override

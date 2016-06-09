@@ -31,7 +31,7 @@ public class JavaScriptPluginTest {
   public void get_extensions() throws Exception {
     Context context = new Context(Version.create(5, 6));
     new JavaScriptPlugin().define(context);
-    assertThat(context.getExtensions()).hasSize(14);
+    assertThat(context.getExtensions()).hasSize(13);
   }
 
 }

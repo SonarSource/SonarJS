@@ -36,6 +36,8 @@ public class InternalSyntaxToken extends JavaScriptTree implements SyntaxToken {
   private final int column;
   private final String value;
   private final boolean isEOF;
+  private int endLine;
+  private int endColumn;
 
   public InternalSyntaxToken(int line, int column, String value, List<SyntaxTrivia> trivias, int startIndex, boolean isEOF) {
     this.value = value;
@@ -44,6 +46,27 @@ public class InternalSyntaxToken extends JavaScriptTree implements SyntaxToken {
     this.trivias = trivias;
     this.startIndex = startIndex;
     this.isEOF = isEOF;
+    calculateEndOffsets();
+  }
+
+  private void calculateEndOffsets() {
+    String[] lines = value.split("\r\n|\n|\r", -1);
+    endColumn = column + value.length();
+    endLine = line + lines.length - 1;
+
+    if (endLine != line) {
+      endColumn = lines[lines.length - 1].length();
+    }
+  }
+
+  @Override
+  public int endLine() {
+    return endLine;
+  }
+
+  @Override
+  public int endColumn() {
+    return endColumn;
   }
 
   public int toIndex() {

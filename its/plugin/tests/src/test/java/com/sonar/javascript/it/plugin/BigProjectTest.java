@@ -87,17 +87,11 @@ public class BigProjectTest {
       .isEqualTo("0=2227;5=304;10=457;20=372;30=500;60=271;90=403");
 
     // Duplication
-    if (Tests.is_after_sonar_5_3()) { // SONAR-7026
-      assertThat(getProjectMeasure("duplicated_lines").getValue()).isEqualTo(341915.0);
-      assertThat(getProjectMeasure("duplicated_blocks").getValue()).isEqualTo(14772.0);
-      assertThat(getProjectMeasure("duplicated_lines_density").getValue()).isEqualTo(29.0);
-    } else {
-      // FIXME Godin: different values on my Mac and in Jenkins:
-      assertThat(getProjectMeasure("duplicated_lines").getValue()).isEqualTo(347639.0);
-      assertThat(getProjectMeasure("duplicated_blocks").getValue()).isEqualTo(42203.0);
-      assertThat(getProjectMeasure("duplicated_lines_density").getValue()).isEqualTo(29.5);
-    }
-    assertThat(getProjectMeasure("duplicated_files").getValue()).isEqualTo(872.0);
+    // SONAR-7026
+    assertThat(getProjectMeasure("duplicated_lines").getValue()).isEqualTo(341610.0);
+    assertThat(getProjectMeasure("duplicated_blocks").getValue()).isEqualTo(14757.0);
+    assertThat(getProjectMeasure("duplicated_lines_density").getValue()).isEqualTo(29.0);
+    assertThat(getProjectMeasure("duplicated_files").getValue()).isEqualTo(866.0);
   }
 
   private Measure getProjectMeasure(String metricKey) {

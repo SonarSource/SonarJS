@@ -19,17 +19,6 @@
  */
 package org.sonar.javascript.lexer;
 
-import com.sonar.sslr.api.GenericTokenType;
-import com.sonar.sslr.impl.Lexer;
-import com.sonar.sslr.impl.channel.BlackHoleChannel;
-import com.sonar.sslr.impl.channel.IdentifierAndKeywordChannel;
-import com.sonar.sslr.impl.channel.PunctuatorChannel;
-import com.sonar.sslr.impl.channel.UnknownCharacterChannel;
-import java.nio.charset.Charset;
-
-import static com.sonar.sslr.impl.channel.RegexpChannelBuilder.commentRegexp;
-import static com.sonar.sslr.impl.channel.RegexpChannelBuilder.regexp;
-
 public final class JavaScriptLexer {
 
   private static final String EXP = "([Ee][+-]?+[0-9_]++)";
@@ -94,34 +83,5 @@ public final class JavaScriptLexer {
   public static final String WHITESPACE = "\\t\\u000B\\f\\u0020\\u00A0\\uFEFF\\p{Zs}";
 
   private JavaScriptLexer() {
-  }
-
-  public static Lexer create(Charset charset) {
-    return Lexer.builder()
-      .withCharset(charset)
-
-      .withFailIfNoChannelToConsumeOneCharacter(true)
-
-      // Channels, which consumes more frequently should come first.
-      // Whitespace character occurs more frequently than any other, and thus come first:
-      .withChannel(new BlackHoleChannel("[" + LINE_TERMINATOR + WHITESPACE + "]++"))
-
-      // Comments
-      .withChannel(commentRegexp(COMMENT))
-
-      // String Literals
-      .withChannel(regexp(GenericTokenType.LITERAL, LITERAL))
-
-      // Regular Expression Literals
-      .withChannel(new JavaScriptRegexpChannel())
-
-      .withChannel(regexp(JavaScriptTokenType.NUMERIC_LITERAL, NUMERIC_LITERAL))
-
-      .withChannel(new IdentifierAndKeywordChannel(IDENTIFIER, true, JavaScriptKeyword.values()))
-      .withChannel(new PunctuatorChannel(JavaScriptPunctuator.values()))
-
-      .withChannel(new UnknownCharacterChannel())
-
-      .build();
   }
 }
