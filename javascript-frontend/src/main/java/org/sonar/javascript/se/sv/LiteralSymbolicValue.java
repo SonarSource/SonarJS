@@ -38,6 +38,10 @@ public class LiteralSymbolicValue implements SymbolicValue {
     return new LiteralSymbolicValue(literal);
   }
 
+  public LiteralTree getLiteral() {
+    return literal;
+  }
+
   @Override
   public List<ProgramState> constrain(ProgramState state, Constraint constraint) {
     if (inherentConstraint().isIncompatibleWith(constraint)) {
@@ -94,4 +98,8 @@ public class LiteralSymbolicValue implements SymbolicValue {
     return false;
   }
 
+  @Override
+  public String toString() {
+    return "LiteralSV " + literal.value();
+  }
 }

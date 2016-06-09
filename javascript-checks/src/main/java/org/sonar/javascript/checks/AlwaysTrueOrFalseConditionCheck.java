@@ -20,13 +20,24 @@
 package org.sonar.javascript.checks;
 
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
+import javax.annotation.Nullable;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.javascript.se.SeCheck;
 import org.sonar.javascript.se.Truthiness;
+import org.sonar.javascript.tree.symbols.Scope;
 import org.sonar.plugins.javascript.api.tree.Tree;
+import org.sonar.plugins.javascript.api.tree.Tree.Kind;
+import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
+import org.sonar.plugins.javascript.api.tree.expression.LiteralTree;
+import org.sonar.plugins.javascript.api.tree.statement.DoWhileStatementTree;
+import org.sonar.plugins.javascript.api.tree.statement.ForStatementTree;
+import org.sonar.plugins.javascript.api.tree.statement.WhileStatementTree;
+import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitor;
 import org.sonar.squidbridge.annotations.ActivatedByDefault;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 
@@ -39,13 +50,51 @@ import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 @ActivatedByDefault
 public class AlwaysTrueOrFalseConditionCheck extends SeCheck {
 
+  private Set<LiteralTree> ignoredLoopConditions;
+
+  @Override
+  public void startOfExecution(Scope functionScope) {
+    ignoredLoopConditions = new HashSet<>();
+    Tree tree = functionScope.tree();
+    tree.accept(new LoopsVisitor());
+  }
+
   @Override
   public void checkConditions(Map<Tree, Collection<Truthiness>> conditions) {
     for (Entry<Tree, Collection<Truthiness>> entry : conditions.entrySet()) {
+      if (ignoredLoopConditions.contains(entry.getKey())) {
+        continue;
+      }
       Collection<Truthiness> results = entry.getValue();
       if (results.size() == 1 && !Truthiness.UNKNOWN.equals(results.iterator().next())) {
         String result = Truthiness.TRUTHY.equals(results.iterator().next()) ? "true" : "false";
         addIssue(entry.getKey(), String.format("Change this condition so that it does not always evaluate to \"%s\".", result));
+      }
+    }
+  }
+
+  private class LoopsVisitor extends DoubleDispatchVisitor {
+    @Override
+    public void visitForStatement(ForStatementTree tree) {
+      checkCondition(tree.condition());
+      super.visitForStatement(tree);
+    }
+
+    @Override
+    public void visitWhileStatement(WhileStatementTree tree) {
+      checkCondition(tree.condition());
+      super.visitWhileStatement(tree);
+    }
+
+    @Override
+    public void visitDoWhileStatement(DoWhileStatementTree tree) {
+      checkCondition(tree.condition());
+      super.visitDoWhileStatement(tree);
+    }
+
+    private void checkCondition(@Nullable ExpressionTree condition) {
+      if (condition != null && condition.is(Kind.BOOLEAN_LITERAL, Kind.NUMERIC_LITERAL)) {
+        ignoredLoopConditions.add((LiteralTree) condition);
       }
     }
   }

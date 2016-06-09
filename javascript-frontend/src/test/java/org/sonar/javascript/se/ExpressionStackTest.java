@@ -29,6 +29,7 @@ import org.sonar.javascript.se.sv.LogicalNotSymbolicValue;
 import org.sonar.javascript.se.sv.SimpleSymbolicValue;
 import org.sonar.javascript.se.sv.SpecialSymbolicValue;
 import org.sonar.javascript.se.sv.SymbolicValue;
+import org.sonar.javascript.se.sv.TypeOfSymbolicValue;
 import org.sonar.javascript.se.sv.UnknownSymbolicValue;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
@@ -117,7 +118,7 @@ public class ExpressionStackTest {
   public void typeof() throws Exception {
     pushValues(simple1);
     execute("typeof a");
-    assertSingleValueInStack(UNKNOWN);
+    assertSingleValueInStack(TypeOfSymbolicValue.class);
   }
 
   @Test

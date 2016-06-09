@@ -28,6 +28,7 @@ import org.sonar.javascript.se.sv.LiteralSymbolicValue;
 import org.sonar.javascript.se.sv.LogicalNotSymbolicValue;
 import org.sonar.javascript.se.sv.SpecialSymbolicValue;
 import org.sonar.javascript.se.sv.SymbolicValue;
+import org.sonar.javascript.se.sv.TypeOfSymbolicValue;
 import org.sonar.javascript.se.sv.UnknownSymbolicValue;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
@@ -104,6 +105,8 @@ class ExpressionStack {
         newStack.push(EqualToSymbolicValue.strictNotEqual(newStack.pop(), newStack.pop()));
         break;
       case TYPEOF:
+        newStack.push(new TypeOfSymbolicValue(newStack.pop()));
+        break;
       case NEW_EXPRESSION:
       case DOT_MEMBER_EXPRESSION:
       case SPREAD_ELEMENT:

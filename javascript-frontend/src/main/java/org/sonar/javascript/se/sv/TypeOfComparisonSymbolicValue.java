@@ -24,15 +24,18 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import java.util.List;
 import java.util.Map;
+import javax.annotation.CheckForNull;
 import org.sonar.javascript.se.Constraint;
 import org.sonar.javascript.se.ProgramState;
+import org.sonar.plugins.javascript.api.tree.Tree.Kind;
+import org.sonar.plugins.javascript.api.tree.expression.LiteralTree;
 
 /**
  * <code>typeof x == "object"</code>
  */
 public class TypeOfComparisonSymbolicValue implements SymbolicValue {
 
-  private final SymbolicValue operandValue;
+  private final TypeOfSymbolicValue typeOfOperand;
   private final String comparedTypeString;
 
   private static final Map<String, Constraint> TYPEOF_EQUAL_CONSTRAINTS = ImmutableMap.<String, Constraint>builder()
@@ -50,10 +53,32 @@ public class TypeOfComparisonSymbolicValue implements SymbolicValue {
     .put("object", Constraint.NULL.not())
     .build();
 
-  public TypeOfComparisonSymbolicValue(SymbolicValue operandValue, String comparedTypeString) {
-    Preconditions.checkArgument(operandValue != null, "operandValue should not be null");
+
+  @CheckForNull
+  public static TypeOfComparisonSymbolicValue create(SymbolicValue operand1, SymbolicValue operand2) {
+    TypeOfComparisonSymbolicValue typeOfComparison = createTypeOfComparison(operand1, operand2);
+    if (typeOfComparison == null) {
+      typeOfComparison = createTypeOfComparison(operand2, operand1);
+    }
+    return typeOfComparison;
+  }
+
+  @CheckForNull
+  private static TypeOfComparisonSymbolicValue createTypeOfComparison(SymbolicValue operand1, SymbolicValue operand2) {
+    if (operand1 instanceof TypeOfSymbolicValue && operand2 instanceof LiteralSymbolicValue) {
+      LiteralTree literal = ((LiteralSymbolicValue) operand2).getLiteral();
+      if (literal.is(Kind.STRING_LITERAL)) {
+        return new TypeOfComparisonSymbolicValue((TypeOfSymbolicValue) operand1, literal.value().substring(1, literal.value().length() - 1));
+      }
+    }
+
+    return null;
+  }
+
+  private TypeOfComparisonSymbolicValue(TypeOfSymbolicValue typeOfOperand, String comparedTypeString) {
+    Preconditions.checkArgument(typeOfOperand != null, "operandValue should not be null");
     Preconditions.checkArgument(comparedTypeString != null, "comparedTypeString should not be null");
-    this.operandValue = operandValue;
+    this.typeOfOperand = typeOfOperand;
     this.comparedTypeString = comparedTypeString;
   }
 
@@ -63,10 +88,10 @@ public class TypeOfComparisonSymbolicValue implements SymbolicValue {
     Constraint falsyConstraint = TYPEOF_NOT_EQUAL_CONSTRAINTS.get(comparedTypeString);
 
     if (constraint.isStricterOrEqualTo(Constraint.TRUTHY)) {
-      return truthyConstraint != null ? operandValue.constrain(state, truthyConstraint) : ImmutableList.of();
+      return truthyConstraint != null ? typeOfOperand.constrain(state, truthyConstraint) : ImmutableList.of();
 
     } else if (constraint.isStricterOrEqualTo(Constraint.FALSY) && falsyConstraint != null) {
-      return operandValue.constrain(state, falsyConstraint);
+      return typeOfOperand.constrain(state, falsyConstraint);
 
     }
 
@@ -75,6 +100,6 @@ public class TypeOfComparisonSymbolicValue implements SymbolicValue {
 
   @Override
   public String toString() {
-    return "typeof " + operandValue + " == '" + comparedTypeString + "'";
+    return typeOfOperand + " == '" + comparedTypeString + "'";
   }
 }
