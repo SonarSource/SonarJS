@@ -116,6 +116,7 @@ public final class CheckList {
       NamedFunctionExpressionCheck.class,
       NestedControlFlowDepthCheck.class,
       NewOperatorMisuseCheck.class,
+      CommaOperatorInSwitchCaseCheck.class,
       NonCaseLabelInSwitchCheck.class,
       NonEmptyCaseWithoutBreakCheck.class,
       NonStandardImportCheck.class,
