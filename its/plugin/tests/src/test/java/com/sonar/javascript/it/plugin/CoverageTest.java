@@ -80,22 +80,20 @@ public class CoverageTest {
 
   @Test
   public void LCOV_it_coverage() {
-    if (Tests.is_strictly_after_plugin("2.5")) {
-      SonarRunner build = Tests.createSonarRunnerBuild()
-        .setProjectDir(TestUtils.projectDir("lcov"))
-        .setProjectKey(Tests.PROJECT_KEY)
-        .setProjectName(Tests.PROJECT_KEY)
-        .setProjectVersion("1.0")
-        .setSourceDirs(".")
-        .setProperty("sonar.javascript.lcov.itReportPath", TestUtils.file("projects/lcov/coverage.lcov").getAbsolutePath());
-      Tests.setEmptyProfile(Tests.PROJECT_KEY, Tests.PROJECT_KEY);
-      orchestrator.executeBuild(build);
+    SonarRunner build = Tests.createSonarRunnerBuild()
+      .setProjectDir(TestUtils.projectDir("lcov"))
+      .setProjectKey(Tests.PROJECT_KEY)
+      .setProjectName(Tests.PROJECT_KEY)
+      .setProjectVersion("1.0")
+      .setSourceDirs(".")
+      .setProperty("sonar.javascript.lcov.itReportPath", TestUtils.file("projects/lcov/coverage.lcov").getAbsolutePath());
+    Tests.setEmptyProfile(Tests.PROJECT_KEY, Tests.PROJECT_KEY);
+    orchestrator.executeBuild(build);
 
-      assertThat(getProjectMeasure("it_lines_to_cover").getValue()).isEqualTo(7);
-      assertThat(getProjectMeasure("it_uncovered_lines").getValue()).isEqualTo(1);
-      assertThat(getProjectMeasure("it_conditions_to_cover").getValue()).isEqualTo(4);
-      assertThat(getProjectMeasure("it_uncovered_conditions").getValue()).isEqualTo(1);
-    }
+    assertThat(getProjectMeasure("it_lines_to_cover").getValue()).isEqualTo(7);
+    assertThat(getProjectMeasure("it_uncovered_lines").getValue()).isEqualTo(1);
+    assertThat(getProjectMeasure("it_conditions_to_cover").getValue()).isEqualTo(4);
+    assertThat(getProjectMeasure("it_uncovered_conditions").getValue()).isEqualTo(1);
   }
 
   @Test

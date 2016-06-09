@@ -36,7 +36,6 @@ import org.junit.runners.Suite;
 })
 public final class Tests {
 
-  private static final String PLUGIN_KEY = "javascript";
   private static final String CUSTOM_RULES_ARTIFACT_ID = "javascript-custom-rules-plugin";
   public static final String PROJECT_KEY = "project";
 
@@ -51,18 +50,6 @@ public final class Tests {
     .build();
 
   private Tests() {
-  }
-
-  public static boolean is_after_sonar_5_1() {
-    return ORCHESTRATOR.getConfiguration().getSonarVersion().isGreaterThanOrEquals("5.1");
-  }
-
-  public static boolean is_after_sonar_5_3() {
-    return ORCHESTRATOR.getConfiguration().getSonarVersion().isGreaterThanOrEquals("5.3");
-  }
-
-  public static boolean is_strictly_after_plugin(String version) {
-    return ORCHESTRATOR.getConfiguration().getPluginVersion(PLUGIN_KEY).isGreaterThan(version);
   }
 
   public static SonarRunner createSonarRunnerBuild() {
