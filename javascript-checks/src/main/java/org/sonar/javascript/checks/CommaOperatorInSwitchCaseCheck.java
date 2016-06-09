@@ -21,6 +21,7 @@ package org.sonar.javascript.checks;
 
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
+import org.sonar.javascript.checks.utils.CheckUtils;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.expression.BinaryExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
@@ -45,7 +46,8 @@ public class CommaOperatorInSwitchCaseCheck extends DoubleDispatchVisitorCheck {
     ExpressionTree expression = tree.expression();
     if (expression.is(Kind.COMMA_OPERATOR)) {
       int nbCommas = getNumberOfCommas(expression);
-      String lastCase = ((BinaryExpressionTree)expression).rightOperand().toString();
+      ExpressionTree rightOperand = ((BinaryExpressionTree)expression).rightOperand();
+      String lastCase = CheckUtils.asString(rightOperand);
       String msg = String.format(MESSAGE, nbCommas + 1, lastCase);
       addIssue(expression, msg);
     }
