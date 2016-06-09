@@ -20,6 +20,7 @@
 package org.sonar.plugins.javascript.api.tree.expression;
 
 import com.google.common.annotations.Beta;
+import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 
 /**
@@ -31,7 +32,7 @@ import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
  * </pre>
  */
 @Beta
-public interface TemplateExpressionTree extends ExpressionTree {
+public interface TemplateExpressionTree extends Tree {
 
   SyntaxToken dollar();
 

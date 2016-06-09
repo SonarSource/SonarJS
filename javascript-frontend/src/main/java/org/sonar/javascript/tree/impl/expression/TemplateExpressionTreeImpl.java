@@ -23,16 +23,13 @@ import com.google.common.collect.Iterators;
 import java.util.Iterator;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.javascript.tree.impl.lexical.InternalSyntaxToken;
-import org.sonar.javascript.tree.symbols.type.TypableTree;
-import org.sonar.plugins.javascript.api.symbols.Type;
-import org.sonar.plugins.javascript.api.symbols.TypeSet;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.TemplateExpressionTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitor;
 
-public class TemplateExpressionTreeImpl extends JavaScriptTree implements TemplateExpressionTree, TypableTree {
+public class TemplateExpressionTreeImpl extends JavaScriptTree implements TemplateExpressionTree {
 
   private final InternalSyntaxToken dollar;
   private final InternalSyntaxToken openCurlyBrace;
@@ -79,15 +76,5 @@ public class TemplateExpressionTreeImpl extends JavaScriptTree implements Templa
   @Override
   public void accept(DoubleDispatchVisitor visitor) {
     visitor.visitTemplateExpression(this);
-  }
-
-  @Override
-  public TypeSet types() {
-    return TypeSet.emptyTypeSet();
-  }
-
-  @Override
-  public void add(Type type) {
-    throw new UnsupportedOperationException();
   }
 }
