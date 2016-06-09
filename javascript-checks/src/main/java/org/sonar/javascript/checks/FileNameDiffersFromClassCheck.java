@@ -20,13 +20,15 @@
 package org.sonar.javascript.checks;
 
 import com.google.common.collect.ImmutableList;
+import java.util.EnumSet;
 import java.util.List;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
-import org.sonar.plugins.javascript.api.symbols.Type;
+import org.sonar.plugins.javascript.api.symbols.Symbol;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.declaration.DefaultExportDeclarationTree;
+import org.sonar.plugins.javascript.api.tree.declaration.FunctionDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.expression.ClassTree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 import org.sonar.plugins.javascript.api.visitors.FileIssue;
@@ -36,7 +38,7 @@ import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 
 @Rule(
   key = "S3317",
-  name = "Class names and file names should match",
+  name = "Default export names and file names should match",
   priority = Priority.MAJOR,
   tags = {Tags.ES2015, Tags.CONFUSING})
 @ActivatedByDefault
@@ -44,9 +46,10 @@ import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 public class FileNameDiffersFromClassCheck extends SubscriptionVisitorCheck {
 
   private static final String MESSAGE = "Rename this file to \"%s\".";
+  private static final EnumSet<Symbol.Kind> CONSIDERED_KINDS = EnumSet.of(Symbol.Kind.CLASS, Symbol.Kind.CONST_VARIABLE, Symbol.Kind.FUNCTION);
 
   private boolean isOnlyExport = true;
-  private String className = null;
+  private String nameOfExported = null;
 
   @Override
   public List<Kind> nodesToVisit() {
@@ -63,14 +66,17 @@ public class FileNameDiffersFromClassCheck extends SubscriptionVisitorCheck {
       Tree exported = ((DefaultExportDeclarationTree) tree).object();
 
       if (exported.is(Kind.IDENTIFIER_REFERENCE)) {
-        IdentifierTree identifierTree = (IdentifierTree) exported;
+        Symbol symbol = ((IdentifierTree) exported).symbol();
 
-        if (identifierTree.types().contains(Type.Kind.CLASS)) {
-          className = identifierTree.name();
+        if (symbol != null && CONSIDERED_KINDS.contains(symbol.kind())) {
+          nameOfExported = symbol.name();
         }
 
       } else if (exported.is(Kind.CLASS_DECLARATION)) {
-        className = ((ClassTree) exported).name().name();
+        nameOfExported = ((ClassTree) exported).name().name();
+
+      } else if (exported.is(Kind.FUNCTION_DECLARATION)) {
+        nameOfExported = ((FunctionDeclarationTree) exported).name().name();
       }
 
     } else {
@@ -80,15 +86,14 @@ public class FileNameDiffersFromClassCheck extends SubscriptionVisitorCheck {
 
   @Override
   public void leaveFile(Tree scriptTree) {
-    if (isOnlyExport && className != null) {
-      String fileName = getContext().getFile().getName();
-
-      if (!fileName.equals(className + ".js")) {
-        addIssue(new FileIssue(this, String.format(MESSAGE, className)));
+    if (isOnlyExport && nameOfExported != null) {
+      String fileName = getContext().getFile().getName().split("\\.")[0];
+      if (!"index".equals(fileName) && !nameOfExported.equals(fileName)) {
+        addIssue(new FileIssue(this, String.format(MESSAGE, nameOfExported)));
       }
     }
 
     isOnlyExport = true;
-    className = null;
+    nameOfExported = null;
   }
 }

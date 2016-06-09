@@ -31,6 +31,8 @@ public class FileNameDiffersFromClassCheckTest {
   @Test
   public void ok() {
     JavaScriptCheckVerifier.issues(check, new File(directory + "MyClass.js")).noMore();
+    JavaScriptCheckVerifier.issues(check, new File(directory + "MyFunction.js")).noMore();
+    JavaScriptCheckVerifier.issues(check, new File(directory + "myConst.js")).noMore();
   }
 
   @Test
@@ -39,13 +41,22 @@ public class FileNameDiffersFromClassCheckTest {
   }
 
   @Test
-  public void ok_anonymous_class() {
+  public void ok_anonymous() {
     JavaScriptCheckVerifier.issues(check, new File(directory + "ok_anonymous_class.js")).noMore();
+    JavaScriptCheckVerifier.issues(check, new File(directory + "ok_anonymous_constant.js")).noMore();
+    JavaScriptCheckVerifier.issues(check, new File(directory + "ok_anonymous_function.js")).noMore();
   }
 
   @Test
-  public void ok_function_export() {
-    JavaScriptCheckVerifier.issues(check, new File(directory + "ok_function_export.js")).noMore();
+  public void nok_function_export() {
+    JavaScriptCheckVerifier.issues(check, new File(directory + "nok_function_export.js"))
+      .next().withMessage("Rename this file to \"myFunc\".")
+      .noMore();
+  }
+
+  @Test
+  public void ok_expression() {
+    JavaScriptCheckVerifier.issues(check, new File(directory + "ok_expression.js")).noMore();
   }
 
   @Test
@@ -59,6 +70,39 @@ public class FileNameDiffersFromClassCheckTest {
   public void nok_class_declaration() {
     JavaScriptCheckVerifier.issues(check, new File(directory + "nok_class_declaration.js"))
       .next().withMessage("Rename this file to \"MyClass\".")
+      .noMore();
+  }
+
+  @Test
+  public void nok_function_declaration() {
+    JavaScriptCheckVerifier.issues(check, new File(directory + "nok_function_declaration.js"))
+      .next().withMessage("Rename this file to \"MyFunction\".")
+      .noMore();
+  }
+
+  @Test
+  public void nok_constant() {
+    JavaScriptCheckVerifier.issues(check, new File(directory + "nok_constant.js"))
+      .next().withMessage("Rename this file to \"myConst\".")
+      .noMore();
+  }
+
+  @Test
+  public void ignore_index_js() {
+    JavaScriptCheckVerifier.issues(check, new File(directory + "index.js"))
+      .noMore();
+  }
+
+  @Test
+  public void ignore_postfix() {
+    JavaScriptCheckVerifier.issues(check, new File(directory + "MyClass.dev.js"))
+      .noMore();
+  }
+
+  @Test
+  public void no_extension() {
+    JavaScriptCheckVerifier.issues(check, new File(directory + "no_extension"))
+      .next().withMessage("Rename this file to \"myConst\".")
       .noMore();
   }
 
