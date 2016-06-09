@@ -25,7 +25,6 @@ import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
-import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 import org.sonar.plugins.javascript.api.tree.expression.LiteralTree;
 import org.sonar.plugins.javascript.api.tree.expression.ObjectLiteralTree;
@@ -63,7 +62,7 @@ public class DuplicatePropertyNameCheck extends DoubleDispatchVisitorCheck {
   }
 
   private void visitPairProperty(Map<String, Tree> keys, PairPropertyTree pairProperty) {
-    ExpressionTree key = pairProperty.key();
+    Tree key = pairProperty.key();
     if (key.is(Tree.Kind.STRING_LITERAL)) {
       String value = ((LiteralTree) key).value();
       value = value.substring(1, value.length() - 1);
@@ -79,7 +78,7 @@ public class DuplicatePropertyNameCheck extends DoubleDispatchVisitorCheck {
     }
   }
 
-  private void addKey(Map<String, Tree> keys, String key, ExpressionTree keyTree) {
+  private void addKey(Map<String, Tree> keys, String key, Tree keyTree) {
     Tree duplicated = keys.get(EscapeUtils.unescape(key));
     if (duplicated != null) {
       addIssue(keyTree, String.format(MESSAGE, key)).secondary(duplicated);

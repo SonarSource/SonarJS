@@ -31,7 +31,6 @@ import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.declaration.FunctionDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.declaration.MethodDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.expression.DotMemberExpressionTree;
-import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.FunctionExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 import org.sonar.plugins.javascript.api.visitors.SubscriptionVisitorCheck;
@@ -123,7 +122,7 @@ public class ArgumentsCallerCalleeUsageCheck extends SubscriptionVisitorCheck {
       return ((FunctionDeclarationTree) tree).name();
 
     } else {
-      ExpressionTree name = ((MethodDeclarationTree) tree).name();
+      Tree name = ((MethodDeclarationTree) tree).name();
       return name.is(Kind.IDENTIFIER_NAME) ? (IdentifierTree) name : null;
     }
   }

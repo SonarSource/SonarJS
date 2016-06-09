@@ -128,7 +128,7 @@ public class TypeVisitor extends DoubleDispatchVisitor {
     }
 
     for (MethodDeclarationTree methodDeclarationTree : tree.methods()) {
-      ExpressionTree name = methodDeclarationTree.name();
+      Tree name = methodDeclarationTree.name();
       if (name.is(Tree.Kind.IDENTIFIER_NAME)) {
         classType.addMethod((IdentifierTree) name, FunctionType.create(methodDeclarationTree));
       }

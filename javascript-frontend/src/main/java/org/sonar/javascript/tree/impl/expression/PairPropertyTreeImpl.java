@@ -24,21 +24,19 @@ import java.util.Iterator;
 import javax.annotation.Nullable;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.javascript.tree.impl.lexical.InternalSyntaxToken;
-import org.sonar.javascript.tree.symbols.type.TypableTree;
-import org.sonar.plugins.javascript.api.symbols.Type;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.PairPropertyTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitor;
 
-public class PairPropertyTreeImpl extends JavaScriptTree implements PairPropertyTree, TypableTree {
+public class PairPropertyTreeImpl extends JavaScriptTree implements PairPropertyTree {
 
-  private final ExpressionTree key;
+  private final Tree key;
   private final SyntaxToken operator;
   private final ExpressionTree value;
 
-  public PairPropertyTreeImpl(ExpressionTree key, InternalSyntaxToken operator, ExpressionTree value) {
+  public PairPropertyTreeImpl(Tree key, InternalSyntaxToken operator, ExpressionTree value) {
     this.key = key;
     this.operator = operator;
     this.value = value;
@@ -46,7 +44,7 @@ public class PairPropertyTreeImpl extends JavaScriptTree implements PairProperty
   }
 
   @Override
-  public ExpressionTree key() {
+  public Tree key() {
     return key;
   }
 
@@ -74,10 +72,5 @@ public class PairPropertyTreeImpl extends JavaScriptTree implements PairProperty
   @Override
   public void accept(DoubleDispatchVisitor visitor) {
     visitor.visitPairProperty(this);
-  }
-
-  @Override
-  public void add(Type type) {
-    throw new UnsupportedOperationException();
   }
 }

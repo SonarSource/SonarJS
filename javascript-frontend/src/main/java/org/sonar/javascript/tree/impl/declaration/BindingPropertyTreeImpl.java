@@ -27,25 +27,24 @@ import org.sonar.javascript.tree.impl.lexical.InternalSyntaxToken;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.declaration.BindingElementTree;
 import org.sonar.plugins.javascript.api.tree.declaration.BindingPropertyTree;
-import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitor;
 
 public class BindingPropertyTreeImpl extends JavaScriptTree implements BindingPropertyTree {
 
-  private final ExpressionTree name;
+  private final Tree name;
   private final SyntaxToken colonToken;
   private final BindingElementTree value;
 
-  public BindingPropertyTreeImpl(ExpressionTree name, InternalSyntaxToken colonToken, BindingElementTree value) {
+  public BindingPropertyTreeImpl(Tree name, InternalSyntaxToken colonToken, BindingElementTree value) {
     this.name = name;
     this.colonToken = colonToken;
     this.value = value;
   }
 
   @Override
-  public ExpressionTree name() {
+  public Tree name() {
     return name;
   }
 

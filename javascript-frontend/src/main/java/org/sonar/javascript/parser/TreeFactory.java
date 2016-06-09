@@ -1030,7 +1030,7 @@ public class TreeFactory {
     return new ComputedPropertyNameTreeImpl(openBracketToken, expression, closeBracketToken);
   }
 
-  public PairPropertyTreeImpl pairProperty(ExpressionTree name, InternalSyntaxToken colonToken, ExpressionTree value) {
+  public PairPropertyTreeImpl pairProperty(Tree name, InternalSyntaxToken colonToken, ExpressionTree value) {
     return new PairPropertyTreeImpl(name, colonToken, value);
   }
 
@@ -1352,21 +1352,21 @@ public class TreeFactory {
 
   public GeneratorMethodDeclarationTree generator(
     Optional<InternalSyntaxToken> staticToken, InternalSyntaxToken starToken,
-    ExpressionTree name, ParameterListTreeImpl parameters,
+    Tree name, ParameterListTreeImpl parameters,
     BlockTreeImpl body
   ) {
     return new GeneratorMethodDeclarationTreeImpl(staticToken.orNull(), starToken, name, parameters, body);
   }
 
   public MethodDeclarationTreeImpl method(
-    Optional<InternalSyntaxToken> staticToken, ExpressionTree name, ParameterListTreeImpl parameters,
+    Optional<InternalSyntaxToken> staticToken, Tree name, ParameterListTreeImpl parameters,
     BlockTreeImpl body
   ) {
     return new MethodDeclarationTreeImpl(staticToken.orNull(), name, parameters, body);
   }
 
   public AccessorMethodDeclarationTree accessor(
-    Optional<InternalSyntaxToken> staticToken, InternalSyntaxToken accessorToken, ExpressionTree name,
+    Optional<InternalSyntaxToken> staticToken, InternalSyntaxToken accessorToken, Tree name,
     ParameterListTreeImpl parameters,
     BlockTreeImpl body
   ) {
@@ -1408,7 +1408,7 @@ public class TreeFactory {
     return completeBindingElement(left, initializer);
   }
 
-  public BindingPropertyTreeImpl bindingProperty(ExpressionTree propertyName, InternalSyntaxToken colonToken, BindingElementTree bindingElement) {
+  public BindingPropertyTreeImpl bindingProperty(Tree propertyName, InternalSyntaxToken colonToken, BindingElementTree bindingElement) {
     return new BindingPropertyTreeImpl(propertyName, colonToken, bindingElement);
   }
 

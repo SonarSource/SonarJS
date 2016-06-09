@@ -20,7 +20,7 @@
 package org.sonar.plugins.javascript.api.tree.declaration;
 
 import com.google.common.annotations.Beta;
-import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
+import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 
 /**
@@ -34,7 +34,7 @@ import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 @Beta
 public interface BindingPropertyTree extends DeclarationTree, BindingElementTree {
 
-  ExpressionTree name();
+  Tree name();
 
   SyntaxToken colonToken();
 

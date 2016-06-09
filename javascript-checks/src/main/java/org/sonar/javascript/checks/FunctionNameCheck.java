@@ -26,10 +26,10 @@ import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
 import org.sonar.javascript.checks.utils.CheckUtils;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
+import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.declaration.FunctionDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.declaration.MethodDeclarationTree;
-import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
@@ -72,7 +72,7 @@ public class FunctionNameCheck extends DoubleDispatchVisitorCheck {
     super.visitFunctionDeclaration(tree);
   }
 
-  private void checkName(@Nullable ExpressionTree tree) {
+  private void checkName(@Nullable Tree tree) {
     if (tree != null) {
       String name = tree.is(Kind.IDENTIFIER_NAME) ? ((IdentifierTree) tree).name() : CheckUtils.asString(tree);
 

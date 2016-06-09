@@ -25,6 +25,7 @@ import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.expression.CallExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.DotMemberExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
+import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 import org.sonar.plugins.javascript.api.tree.expression.ObjectLiteralTree;
 import org.sonar.plugins.javascript.api.tree.expression.PairPropertyTree;
 
@@ -66,7 +67,7 @@ public class Backbone {
       if (property.is(Tree.Kind.PAIR_PROPERTY)) {
         PairPropertyTree pairProperty = (PairPropertyTree) property;
 
-        if (Utils.identifierWithName(pairProperty.key(), propertyName)) {
+        if (pairProperty.key() instanceof IdentifierTree && ((IdentifierTree) pairProperty.key()).name().equals(propertyName)) {
           return pairProperty;
         }
       }

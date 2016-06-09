@@ -21,7 +21,7 @@ package org.sonar.plugins.javascript.api.tree.declaration;
 
 import com.google.common.annotations.Beta;
 import javax.annotation.Nullable;
-import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
+import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.javascript.api.tree.statement.BlockTree;
 
@@ -39,7 +39,7 @@ public interface MethodDeclarationTree extends FunctionTree {
   @Nullable
   SyntaxToken staticToken();
 
-  ExpressionTree name();
+  Tree name();
 
   @Override
   ParameterListTree parameterClause();

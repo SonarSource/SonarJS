@@ -29,7 +29,6 @@ import org.sonar.javascript.tree.impl.statement.BlockTreeImpl;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.declaration.MethodDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.declaration.ParameterListTree;
-import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitor;
 
@@ -38,13 +37,13 @@ public class MethodDeclarationTreeImpl extends JavaScriptTree implements MethodD
   private final Kind kind;
   private InternalSyntaxToken staticToken;
 
-  private final ExpressionTree name;
+  private final Tree name;
   private final ParameterListTreeImpl parameters;
   private final BlockTreeImpl body;
 
   public MethodDeclarationTreeImpl(
     @Nullable InternalSyntaxToken staticToken,
-    ExpressionTree name,
+    Tree name,
     ParameterListTreeImpl parameters,
     BlockTreeImpl body
   ) {
@@ -63,7 +62,7 @@ public class MethodDeclarationTreeImpl extends JavaScriptTree implements MethodD
   }
 
   @Override
-  public ExpressionTree name() {
+  public Tree name() {
     return name;
   }
 

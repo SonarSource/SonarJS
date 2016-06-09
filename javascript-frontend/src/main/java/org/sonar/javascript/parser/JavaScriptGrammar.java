@@ -1099,8 +1099,8 @@ public class JavaScriptGrammar {
       ));
   }
 
-  public ExpressionTree PROPERTY_NAME() {
-    return b.<ExpressionTree>nonterminal(JavaScriptLegacyGrammar.PROPERTY_NAME)
+  public Tree PROPERTY_NAME() {
+    return b.<Tree>nonterminal(JavaScriptLegacyGrammar.PROPERTY_NAME)
       .is(b.firstOf(
         LITERAL_PROPERTY_NAME(),
         ES6(COMPUTED_PROPERTY_NAME())
