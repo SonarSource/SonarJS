@@ -25,44 +25,68 @@ import org.junit.Test;
 import org.sonar.javascript.parser.JavaScriptParserBuilder;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
-import org.sonar.plugins.javascript.api.tree.expression.LiteralTree;
+import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
+import org.sonar.plugins.javascript.api.tree.lexical.SyntaxTrivia;
 
 import static org.fest.assertions.Assertions.assertThat;
 
 public class DoubleDispatchVisitorTest {
 
   @Test
+  public void test_visit_token() throws Exception {
+    assertNumberOfVisitedTokens("[1, 2, , ,]", 9);
+  }
+
+  @Test
+  public void test_visit_comment() throws Exception {
+    assertNumberOfVisitedComments("// comment1 \n var x = 1;// comment2 \n/*comment3*/", 3);
+  }
+
+  @Test
   public void jsx() throws Exception {
-    assertNumberOfVisitedLiterals("<a>Hello {1}</a>", 1);
-    assertNumberOfVisitedLiterals("<a attr={1}><b {...foo(2)}/></a>", 2);
-    assertNumberOfVisitedLiterals("<Foo.Bar/>", 0);
+    assertNumberOfVisitedTokens("<a>Hello {1}</a>", 12);
+    assertNumberOfVisitedTokens("<a attr={1}><b {...foo(2)}/></a>", 24);
+    assertNumberOfVisitedTokens("<Foo.Bar/>", 7);
   }
 
 
   private class TestVisitor extends DoubleDispatchVisitor {
-
-    int literalsCounter;
+    int tokenCounter;
+    int commentCounter;
 
     @Override
     public void visitScript(ScriptTree tree) {
-      literalsCounter = 0;
+      tokenCounter = 0;
+      commentCounter = 0;
       super.visitScript(tree);
     }
 
     @Override
-    public void visitLiteral(LiteralTree tree) {
-      literalsCounter++;
-      super.visitLiteral(tree);
+    public void visitToken(SyntaxToken token) {
+      tokenCounter++;
+      super.visitToken(token);
+    }
+
+    @Override
+    public void visitComment(SyntaxTrivia commentToken) {
+      commentCounter++;
+      super.visitComment(commentToken);
     }
   }
 
-  // todo: We can assert number of tokens after fix of SONARJS-678
-  private void assertNumberOfVisitedLiterals(String code, int expectedLiteralsNumber) {
+  private void assertNumberOfVisitedTokens(String code, int expectedLiteralsNumber) {
+    assertThat(getTestVisitor(code).tokenCounter).isEqualTo(expectedLiteralsNumber);
+  }
+
+  private void assertNumberOfVisitedComments(String code, int expectedLiteralsNumber) {
+    assertThat(getTestVisitor(code).commentCounter).isEqualTo(expectedLiteralsNumber);
+  }
+
+  private TestVisitor getTestVisitor(String code) {
     ActionParser<Tree> p = JavaScriptParserBuilder.createParser(Charsets.UTF_8);
     TestVisitor testVisitor = new TestVisitor();
     testVisitor.visitScript((ScriptTree) p.parse(code));
-
-    assertThat(testVisitor.literalsCounter).isEqualTo(expectedLiteralsNumber);
+    return testVisitor;
   }
 
 }
