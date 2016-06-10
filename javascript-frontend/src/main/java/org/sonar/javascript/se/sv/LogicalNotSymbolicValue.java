@@ -17,12 +17,30 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.javascript.se;
+package org.sonar.javascript.se.sv;
 
+import com.google.common.base.Preconditions;
 import java.util.List;
+import org.sonar.javascript.se.Constraint;
+import org.sonar.javascript.se.ProgramState;
 
-interface SymbolicValue {
+public class LogicalNotSymbolicValue implements SymbolicValue {
 
-  List<ProgramState> constrain(ProgramState state, Constraint constraint);
+  private final SymbolicValue negatedValue;
+
+  public LogicalNotSymbolicValue(SymbolicValue negatedValue) {
+    Preconditions.checkArgument(negatedValue != null, "negatedValue should not be null");
+    this.negatedValue = negatedValue;
+  }
+
+  @Override
+  public List<ProgramState> constrain(ProgramState state, Constraint constraint) {
+    return negatedValue.constrain(state, constraint.not());
+  }
+
+  @Override
+  public String toString() {
+    return "!" + negatedValue;
+  }
 
 }

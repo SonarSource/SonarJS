@@ -23,18 +23,29 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableMap.Builder;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+import org.sonar.javascript.se.sv.SimpleSymbolicValue;
+import org.sonar.javascript.se.sv.SymbolicValue;
 import org.sonar.plugins.javascript.api.symbols.Symbol;
+import org.sonar.plugins.javascript.api.tree.Tree.Kind;
+import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 
 public class ProgramState {
 
   private final ImmutableMap<Symbol, SymbolicValue> values;
   private final ImmutableMap<SymbolicValue, Constraint> constraints;
+  private final ExpressionStack stack;
 
   private int counter;
 
-  private ProgramState(ImmutableMap<Symbol, SymbolicValue> values, ImmutableMap<SymbolicValue, Constraint> constraints, int counter) {
+  private ProgramState(
+    ImmutableMap<Symbol, SymbolicValue> values,
+    ImmutableMap<SymbolicValue, Constraint> constraints,
+    ExpressionStack stack,
+    int counter) {
+
     ImmutableMap.Builder<SymbolicValue, Constraint> constraintsBuilder = ImmutableMap.builder();
     for (Entry<SymbolicValue, Constraint> entry : constraints.entrySet()) {
       if (values.containsValue(entry.getKey())) {
@@ -44,11 +55,13 @@ public class ProgramState {
 
     this.values = values;
     this.constraints = constraintsBuilder.build();
+    this.stack = stack;
     this.counter = counter;
   }
 
   public static ProgramState emptyState() {
-    return new ProgramState(ImmutableMap.<Symbol, SymbolicValue>of(), ImmutableMap.<SymbolicValue, Constraint>of(), 0);
+    return new ProgramState(
+      ImmutableMap.<Symbol, SymbolicValue>of(), ImmutableMap.<SymbolicValue, Constraint>of(), ExpressionStack.emptyStack(), 0);
   }
 
   // returns new PS with this constraint added to PS for this value. If constraint for this value exists IllegalStateException
@@ -61,11 +74,11 @@ public class ProgramState {
     constraintsBuilder.putAll(constraints);
     constraintsBuilder.put(value, constraint);
 
-    return new ProgramState(ImmutableMap.copyOf(values), constraintsBuilder.build(), counter);
+    return new ProgramState(ImmutableMap.copyOf(values), constraintsBuilder.build(), stack, counter);
   }
 
 
-  ProgramState newSymbolicValue(Symbol symbol, @Nullable Constraint constraint) {
+  public ProgramState newSymbolicValue(Symbol symbol, @Nullable Constraint constraint) {
     SymbolicValue value = newSymbolicValue();
 
     ImmutableMap.Builder<Symbol, SymbolicValue> valuesBuilder = ImmutableMap.builder();
@@ -76,7 +89,7 @@ public class ProgramState {
     }
     valuesBuilder.put(symbol, value);
 
-    ProgramState newProgramState = new ProgramState(valuesBuilder.build(), ImmutableMap.copyOf(constraints), counter);
+    ProgramState newProgramState = new ProgramState(valuesBuilder.build(), ImmutableMap.copyOf(constraints), stack, counter);
     if (constraint != null) {
       newProgramState = newProgramState.addConstraint(value, constraint);
     }
@@ -92,7 +105,7 @@ public class ProgramState {
       return null;
     } else {
       Constraint newConstraint = getConstraint(value).and(constraint);
-      return new ProgramState(ImmutableMap.copyOf(values), replaceConstraint(value, newConstraint), counter);
+      return new ProgramState(ImmutableMap.copyOf(values), replaceConstraint(value, newConstraint), stack, counter);
     }
   }
 
@@ -146,6 +159,30 @@ public class ProgramState {
     return builder.build();
   }
 
+  public ProgramState pushToStack(@Nullable SymbolicValue value) {
+    return new ProgramState(values, constraints, stack.push(value), counter);
+  }
+
+  public ProgramState clearStack() {
+    return new ProgramState(values, constraints, ExpressionStack.emptyStack(), counter);
+  }
+
+  @CheckForNull
+  public ProgramState execute(ExpressionTree expression) {
+    ProgramState newProgramState = this;
+    if (expression.is(Kind.DOT_MEMBER_EXPRESSION, Kind.BRACKET_MEMBER_EXPRESSION)) {
+      SymbolicValue objectSymbolicValue = expression.is(Kind.DOT_MEMBER_EXPRESSION) ? stack.peek() : stack.peek(1);
+      Nullability nullability = this.getNullability(objectSymbolicValue);
+      if (nullability == Nullability.UNKNOWN) {
+        newProgramState = this.constrain(objectSymbolicValue, Constraint.NOT_NULLY);
+      } else if (nullability == Nullability.NULL) {
+        return null;
+      }
+
+    }
+    return new ProgramState(newProgramState.values, newProgramState.constraints, stack.execute(expression), newProgramState.counter);
+  }
+
   @Override
   public boolean equals(Object o) {
     if (this == o) {
@@ -157,11 +194,15 @@ public class ProgramState {
 
     ProgramState that = (ProgramState) o;
 
-    return constraintsBySymbol().equals(that.constraintsBySymbol());
+    return Objects.equals(constraintsBySymbol(), that.constraintsBySymbol()) && Objects.equals(stack, that.stack);
   }
 
   @Override
   public int hashCode() {
-    return constraintsBySymbol().hashCode();
+    return Objects.hash(constraintsBySymbol(), stack);
+  }
+
+  public SymbolicValue peekStack() {
+    return stack.peek();
   }
 }

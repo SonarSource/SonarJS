@@ -17,31 +17,38 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.javascript.se;
+package org.sonar.javascript.se.sv;
 
+import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import java.util.List;
+import org.sonar.javascript.se.Constraint;
+import org.sonar.javascript.se.ProgramState;
 
-public class SimpleSymbolicValue implements SymbolicValue {
+/**
+ * <code>typeof x</code>
+ */
+public class TypeOfSymbolicValue implements SymbolicValue {
 
-  private final int id;
+  private final SymbolicValue operandValue;
 
-  SimpleSymbolicValue(int id) {
-    this.id = id;
-  }
-
-  @Override
-  public String toString() {
-    return "SV_" + id;
+  public TypeOfSymbolicValue(SymbolicValue operandValue) {
+    Preconditions.checkArgument(operandValue != null, "operandValue should not be null");
+    this.operandValue = operandValue;
   }
 
   @Override
   public List<ProgramState> constrain(ProgramState state, Constraint constraint) {
-    ProgramState newState = state.constrain(this, constraint);
-    if (newState == null) {
+    ProgramState newProgramState = state.constrain(operandValue, constraint);
+    if (newProgramState == null) {
       return ImmutableList.of();
+    } else {
+      return ImmutableList.of(newProgramState);
     }
-    return ImmutableList.of(newState);
   }
 
+  @Override
+  public String toString() {
+    return "typeof " + operandValue;
+  }
 }

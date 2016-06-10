@@ -22,8 +22,10 @@ package org.sonar.javascript.cfg;
 import com.google.common.base.Charsets;
 import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
+import com.google.common.base.Predicates;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Ordering;
 import com.sonar.sslr.api.RecognitionException;
 import com.sonar.sslr.api.typed.ActionParser;
@@ -46,6 +48,7 @@ import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.declaration.FunctionDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.declaration.FunctionTree;
 import org.sonar.plugins.javascript.api.tree.statement.BlockTree;
+import org.sonar.plugins.javascript.api.tree.statement.ExpressionStatementTree;
 
 import static org.fest.assertions.Assertions.assertThat;
 
@@ -475,8 +478,8 @@ public class ControlFlowGraphTest {
 
   @Test
   public void with() throws Exception {
-    ControlFlowGraph g = build("with(b0) { x; y; }", 1);
-    assertBlock(g, 0).hasSuccessors(END).hasElements("b0", "x", "y");
+    ControlFlowGraph g = build("with(b0()) { x; y; }", 1);
+    assertBlock(g, 0).hasSuccessors(END).hasElements("b0", "b0()", "x", "y");
   }
 
   @Test
@@ -700,7 +703,9 @@ public class ControlFlowGraphTest {
 
     public BlockAssert hasElements(String... treeSources) {
       List<String> actual = new ArrayList<>();
-      for (Tree tree : testedCfg.block(blockIndex).elements()) {
+      Iterable<Tree> elements = testedCfg.block(blockIndex).elements();
+      elements = Iterables.filter(elements, Predicates.not(Predicates.instanceOf(ExpressionStatementTree.class)));
+      for (Tree tree : elements) {
         actual.add(SourceBuilder.build(tree).trim());
       }
       assertThat(actual).isEqualTo(ImmutableList.copyOf(treeSources));

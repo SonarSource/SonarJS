@@ -17,32 +17,40 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.javascript.se;
+package org.sonar.javascript.se.sv;
 
 import org.junit.Test;
+import org.sonar.javascript.se.ProgramState;
 import org.sonar.plugins.javascript.api.symbols.Symbol;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
+import static org.sonar.javascript.se.Constraint.FALSY;
 import static org.sonar.javascript.se.Constraint.TRUTHY;
 
-public class SymbolicValueTest {
+public class LogicalNotSymbolicValueTest {
 
-  private static final ProgramState EMPTY_STATE = ProgramState.emptyState();
   private Symbol symbol = mock(Symbol.class);
+
+  @Test(expected = IllegalArgumentException.class)
+  public void should_throw_on_null_negated_value() throws Exception {
+    new LogicalNotSymbolicValue(null);
+  }
 
   @Test
   public void constrain() throws Exception {
-    ProgramState state1 = EMPTY_STATE.newSymbolicValue(symbol, null);
+    ProgramState state1 = ProgramState.emptyState().newSymbolicValue(symbol, null);
     SymbolicValue sv1 = state1.getSymbolicValue(symbol);
-    assertThat(sv1.constrain(state1, TRUTHY)).containsExactly(state1.constrain(sv1, TRUTHY));
+    SymbolicValue not = new LogicalNotSymbolicValue(sv1);
+    assertThat(not.constrain(state1, TRUTHY)).containsExactly(state1.constrain(sv1, FALSY));
   }
-  
+
   @Test
-  public void constrain_with_unreachable_constraint() throws Exception {
-    ProgramState state1 = EMPTY_STATE.newSymbolicValue(symbol, Constraint.FALSY);
+  public void to_string() throws Exception {
+    ProgramState state1 = ProgramState.emptyState().newSymbolicValue(symbol, null);
     SymbolicValue sv1 = state1.getSymbolicValue(symbol);
-    assertThat(sv1.constrain(state1, TRUTHY)).isEmpty();
+    SymbolicValue not = new LogicalNotSymbolicValue(sv1);
+    assertThat(not.toString()).isEqualTo("!SV_0");
   }
 
 }

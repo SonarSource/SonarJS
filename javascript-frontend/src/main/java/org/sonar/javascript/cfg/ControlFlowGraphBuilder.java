@@ -182,6 +182,7 @@ class ControlFlowGraphBuilder {
 
   private void build(Tree tree) {
     if (tree.is(Kind.EXPRESSION_STATEMENT)) {
+      currentBlock.addElement(tree);
       buildExpression(((ExpressionStatementTree) tree).expression());
     } else if (tree.is(Kind.VARIABLE_STATEMENT)) {
       buildExpression(((VariableStatementTree) tree).declaration());
@@ -214,7 +215,7 @@ class ControlFlowGraphBuilder {
     } else if (tree.is(Kind.WITH_STATEMENT)) {
       WithStatementTree with = (WithStatementTree) tree;
       build(with.statement());
-      currentBlock.addElement(with.expression());
+      buildExpression(with.expression());
     } else if (tree.is(
       Kind.DEBUGGER_STATEMENT,
       Kind.FUNCTION_DECLARATION,

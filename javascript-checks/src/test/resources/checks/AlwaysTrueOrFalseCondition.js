@@ -61,6 +61,10 @@ function while_true() {
   while (true) { // OK
     foo();
   }
+
+  while (1) { // OK
+    foo();
+  }
 }
 
 function do_while_true() {
@@ -197,4 +201,41 @@ function tro(x, y) {
   if (y || false) {} // Noncompliant
   if (true || y) {} // Noncompliant
   if (false || y) {} // Noncompliant
+}
+
+function sfsddf(m) {
+if (!m) {
+} else {
+  if (foo && m) {} // Noncompliant
+}
+
+if (!m || (m && m.ext)) {  // Noncompliant
+}
+}
+
+function expression_as_condition(x) {
+  if (x <<= 1) {
+  }
+
+  if (x = true) {
+  }
+}
+
+function fodfdffdsFDF() {
+  foo(bar(1) && "str" || bar(2)); // Noncompliant FP
+}
+
+function switch_case_with_expression(x) {
+  switch (x) {
+  case "a" || "b":  // Noncompliant FP
+    foo();
+  }
+}
+
+function fgfg(array, f) {
+  var n = array.length, a, m = 0, i = foo(), j = 0;
+  while (cond())
+    if (d3_number(a = f.call(array, array[i], i)))
+      ++j;
+  return j ? m : undefined;  // Noncompliant FP
 }
