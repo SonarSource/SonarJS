@@ -107,7 +107,11 @@ public class TooManyArgumentsCheck extends DoubleDispatchVisitorCheck {
 
     Symbol argumentsBuiltInVariable = scope.lookupSymbol("arguments");
     if (argumentsBuiltInVariable == null) {
-      throw new IllegalStateException("No 'arguments' symbol found for function scope");
+      if (!tree.is(Kind.ARROW_FUNCTION)) {
+        throw new IllegalStateException("No 'arguments' symbol found for function scope");
+      } else {
+        return false;
+      }
     }
 
     boolean isUsed = !argumentsBuiltInVariable.usages().isEmpty();

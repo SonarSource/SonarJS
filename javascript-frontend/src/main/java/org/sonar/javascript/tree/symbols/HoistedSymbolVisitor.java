@@ -223,7 +223,6 @@ public class HoistedSymbolVisitor extends DoubleDispatchVisitor {
     enterScope(tree);
 
     declareParameters(((ArrowFunctionTreeImpl) tree).parameterIdentifiers());
-    addFunctionBuiltInSymbols();
 
     super.visitArrowFunction(tree);
 
