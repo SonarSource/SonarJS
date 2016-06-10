@@ -27,6 +27,7 @@ import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.TextRange;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.cpd.NewCpdTokens;
+import org.sonar.javascript.tree.impl.lexical.InternalSyntaxToken;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
@@ -65,6 +66,10 @@ public class CpdVisitor extends SubscriptionVisitor {
 
   @Override
   public void visitNode(Tree tree) {
+    if (((InternalSyntaxToken) tree).isEOF()) {
+      return;
+    }
+
     SyntaxToken token = (SyntaxToken) tree;
     String text = token.text();
 
