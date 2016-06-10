@@ -89,7 +89,7 @@ public class BigProjectTest {
     // Duplication
     // SONAR-7026
     assertThat(getProjectMeasure("duplicated_lines").getValue()).isEqualTo(341610.0);
-    assertThat(getProjectMeasure("duplicated_blocks").getValue()).isEqualTo(14757.0);
+    assertThat(getProjectMeasure("duplicated_blocks").getValue()).isEqualTo(14755.0);
     assertThat(getProjectMeasure("duplicated_lines_density").getValue()).isEqualTo(29.0);
     assertThat(getProjectMeasure("duplicated_files").getValue()).isEqualTo(866.0);
   }
