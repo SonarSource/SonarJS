@@ -57,22 +57,22 @@ public class CpdVisitorTest {
 
   @Test
   public void test() throws Exception {
-    scan("var x = 'a' + 1 + 'line1\\\nline2';");
+    scan("var x = 'a' + 1 + 'line1';\nvar y = 2;\n");
     List<TokensLine> cpdTokenLines = sensorContext.cpdTokens("moduleKey:" + inputFile.getFile().getName());
     assertThat(cpdTokenLines).hasSize(2);
     TokensLine firstTokensLine = cpdTokenLines.get(0);
-    assertThat(firstTokensLine.getValue()).isEqualTo("varx=LITERAL+1+LITERAL");
+    assertThat(firstTokensLine.getValue()).isEqualTo("varx=LITERAL+1+LITERAL;");
     assertThat(firstTokensLine.getStartLine()).isEqualTo(1);
     assertThat(firstTokensLine.getStartUnit()).isEqualTo(1);
     assertThat(firstTokensLine.getEndLine()).isEqualTo(1);
-    assertThat(firstTokensLine.getEndUnit()).isEqualTo(8);
+    assertThat(firstTokensLine.getEndUnit()).isEqualTo(9);
 
     TokensLine secondTokensLine = cpdTokenLines.get(1);
-    assertThat(secondTokensLine.getValue()).isEqualTo(";");
+    assertThat(secondTokensLine.getValue()).isEqualTo("vary=2;");
     assertThat(secondTokensLine.getStartLine()).isEqualTo(2);
-    assertThat(secondTokensLine.getStartUnit()).isEqualTo(9);
+    assertThat(secondTokensLine.getStartUnit()).isEqualTo(10);
     assertThat(secondTokensLine.getEndLine()).isEqualTo(2);
-    assertThat(secondTokensLine.getEndUnit()).isEqualTo(10);
+    assertThat(secondTokensLine.getEndUnit()).isEqualTo(14);
   }
 
   private void scan(String source) throws IOException {
