@@ -29,36 +29,39 @@ import org.sonar.plugins.javascript.api.JavaScriptCheck;
 
 public class FileHeaderCheckTest {
 
+  private final File file1 = new File("src/test/resources/checks/FileHeaderCheck/file1.js");
+  private final File file2 = new File("src/test/resources/checks/FileHeaderCheck/file2.js");
+
   @Rule
   public ExpectedException thrown = ExpectedException.none();
 
   @Test
   public void test_plain() {
-    JavaScriptCheckVerifier.issues(checkPlainText("// copyright 2005"), new File("src/test/resources/checks/FileHeaderCheck/file1.js"))
+    JavaScriptCheckVerifier.issues(checkPlainText("// copyright 2005"), file1)
       .noMore();
 
-    JavaScriptCheckVerifier.issues(checkPlainText("// copyright 20\\d\\d"), new File("src/test/resources/checks/FileHeaderCheck/file1.js"))
+    JavaScriptCheckVerifier.issues(checkPlainText("// copyright 20\\d\\d"), file1)
       .next().atLine(null);
 
-    JavaScriptCheckVerifier.issues(checkPlainText("// copyright 2005"), new File("src/test/resources/checks/FileHeaderCheck/file2.js"))
+    JavaScriptCheckVerifier.issues(checkPlainText("// copyright 2005"), file2)
       .next().atLine(null).withMessage("Add or update the header of this file.");
 
-    JavaScriptCheckVerifier.issues(checkPlainText("// copyright 2012"), new File("src/test/resources/checks/FileHeaderCheck/file2.js"))
+    JavaScriptCheckVerifier.issues(checkPlainText("// copyright 2012"), file2)
       .noMore();
 
-    JavaScriptCheckVerifier.issues(checkPlainText("// copyright 2012\n// foo"), new File("src/test/resources/checks/FileHeaderCheck/file2.js"))
+    JavaScriptCheckVerifier.issues(checkPlainText("// copyright 2012\n// foo"), file2)
       .noMore();
 
-    JavaScriptCheckVerifier.issues(checkPlainText("// copyright 2012\r\n// foo"), new File("src/test/resources/checks/FileHeaderCheck/file2.js"))
+    JavaScriptCheckVerifier.issues(checkPlainText("// copyright 2012\r\n// foo"), file2)
       .noMore();
 
-    JavaScriptCheckVerifier.issues(checkPlainText("// copyright 2012\r// foo"), new File("src/test/resources/checks/FileHeaderCheck/file2.js"))
+    JavaScriptCheckVerifier.issues(checkPlainText("// copyright 2012\r// foo"), file2)
       .noMore();
 
-    JavaScriptCheckVerifier.issues(checkPlainText("// copyright 2012\r\r// foo"), new File("src/test/resources/checks/FileHeaderCheck/file2.js"))
+    JavaScriptCheckVerifier.issues(checkPlainText("// copyright 2012\r\r// foo"), file2)
       .next().atLine(null);
 
-    JavaScriptCheckVerifier.issues(checkPlainText("// copyright 2012\n// foo\n\n\n\n\n\n\n\n\n\ngfoo"), new File("src/test/resources/checks/FileHeaderCheck/file2.js"))
+    JavaScriptCheckVerifier.issues(checkPlainText("// copyright 2012\n// foo\n\n\n\n\n\n\n\n\n\ngfoo"), file2)
       .next().atLine(null);
 
     JavaScriptCheckVerifier.issues(checkPlainText("/*foo http://www.example.org*/"), new File("src/test/resources/checks/FileHeaderCheck/file3.js"))
@@ -67,25 +70,25 @@ public class FileHeaderCheckTest {
 
   @Test
   public void test_regular_expression() {
-    JavaScriptCheckVerifier.issues(checkWithRegex("// copyright 2005"), new File("src/test/resources/checks/FileHeaderCheck/file1.js"))
+    JavaScriptCheckVerifier.issues(checkWithRegex("// copyright 2005"), file1)
       .noMore();
 
-    JavaScriptCheckVerifier.issues(checkWithRegex("// copyright 20\\d\\d"), new File("src/test/resources/checks/FileHeaderCheck/file1.js"))
+    JavaScriptCheckVerifier.issues(checkWithRegex("// copyright 20\\d\\d"), file1)
       .noMore();
 
-    JavaScriptCheckVerifier.issues(checkWithRegex("// copyright 20\\d\\d"), new File("src/test/resources/checks/FileHeaderCheck/file2.js"))
+    JavaScriptCheckVerifier.issues(checkWithRegex("// copyright 20\\d\\d"), file2)
       .noMore();
 
-    JavaScriptCheckVerifier.issues(checkWithRegex("// copyright 20\\d\\d\\n// foo"), new File("src/test/resources/checks/FileHeaderCheck/file2.js"))
+    JavaScriptCheckVerifier.issues(checkWithRegex("// copyright 20\\d\\d\\n// foo"), file2)
       .noMore();
 
-    JavaScriptCheckVerifier.issues(checkWithRegex("// copyright 20\\d{3}\\n// foo"), new File("src/test/resources/checks/FileHeaderCheck/file2.js"))
+    JavaScriptCheckVerifier.issues(checkWithRegex("// copyright 20\\d{3}\\n// foo"), file2)
       .next().atLine(null);
 
-    JavaScriptCheckVerifier.issues(checkWithRegex("// copyright 20\\d{2}\\r?\\n// foo"), new File("src/test/resources/checks/FileHeaderCheck/file2.js"))
+    JavaScriptCheckVerifier.issues(checkWithRegex("// copyright 20\\d{2}\\r?\\n// foo"), file2)
       .noMore();
 
-    JavaScriptCheckVerifier.issues(checkWithRegex("// copyright 20\\d\\d\\r// foo"), new File("src/test/resources/checks/FileHeaderCheck/file2.js"))
+    JavaScriptCheckVerifier.issues(checkWithRegex("// copyright 20\\d\\d\\r// foo"), file2)
       .next().atLine(null);
   }
 
@@ -97,7 +100,7 @@ public class FileHeaderCheckTest {
     FileHeaderCheck check = new FileHeaderCheck();
     check.headerFormat = "*";
     check.isRegularExpression = true;
-    JavaScriptCheckVerifier.issues(checkWithRegex("*"), new File("src/test/resources/checks/FileHeaderCheck/file1.js"));
+    JavaScriptCheckVerifier.issues(checkWithRegex("*"), file1);
   }
 
   private static JavaScriptCheck checkWithRegex(String pattern) {
