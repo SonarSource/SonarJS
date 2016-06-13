@@ -188,7 +188,7 @@ function tested_copy() {
     return;
   }
 
-  x.foo(); // Noncompliant, FP
+  x.foo();
 }
 
 function typeof_testing() {

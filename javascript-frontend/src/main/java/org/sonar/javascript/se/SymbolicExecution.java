@@ -288,11 +288,6 @@ public class SymbolicExecution {
     }
   }
 
-  private ProgramState store(ProgramState currentState, Tree left, ExpressionTree right) {
-    Constraint constraint = Constraint.get(right);
-    return storeConstraint(currentState, left, constraint);
-  }
-
   private ProgramState storeConstraint(ProgramState currentState, Tree left, @Nullable Constraint constraint) {
     Symbol trackedVariable = trackedVariable(left);
     if (trackedVariable != null) {

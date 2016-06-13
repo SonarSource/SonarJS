@@ -29,6 +29,7 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.javascript.se.sv.SimpleSymbolicValue;
 import org.sonar.javascript.se.sv.SymbolicValue;
+import org.sonar.javascript.se.sv.UnknownSymbolicValue;
 import org.sonar.plugins.javascript.api.symbols.Symbol;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 
@@ -176,12 +177,7 @@ public class ProgramState {
     ExpressionStack newStack = stack;
     newStack = newStack.removeLastValue();
     newStack = newStack.removeLastValue();
-    newStack.push(value);
-    Map<Symbol, SymbolicValue> newValues = new HashMap<>(values);
-    newValues.put(variable, value);
-    ProgramState newState = new ProgramState(ImmutableMap.copyOf(newValues), constraints, stack, counter);
-    newState = newState.constrain(value, value.inherentConstraint());
-    return newState;
+    return assignOrInitialize(variable, newStack, value);
   }
 
   public ProgramState initialization(Symbol variable) {
@@ -189,11 +185,19 @@ public class ProgramState {
     newStack = newStack.removeLastValue();
     SymbolicValue value = newStack.peek();
     newStack = newStack.removeLastValue();
-    newStack.push(value);
+    return assignOrInitialize(variable, newStack, value);
+  }
+
+  private ProgramState assignOrInitialize(Symbol variable, ExpressionStack newStack, SymbolicValue value) {
+    SymbolicValue value2 = value;
+    if (UnknownSymbolicValue.UNKNOWN.equals(value2)) {
+      value2 = newSymbolicValue();
+    }
+    newStack.push(value2);
     Map<Symbol, SymbolicValue> newValues = new HashMap<>(values);
-    newValues.put(variable, value);
+    newValues.put(variable, value2);
     ProgramState newState = new ProgramState(ImmutableMap.copyOf(newValues), constraints, stack, counter);
-    newState = newState.constrain(value, value.inherentConstraint());
+    newState = newState.constrain(value2, value2.inherentConstraint());
     return newState;
   }
 
