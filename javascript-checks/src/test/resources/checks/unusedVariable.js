@@ -9,14 +9,14 @@ function fun() {
 
 function fun() {
   var a = 0;              // OK
-  function nested() {
+  function nested() {     // Noncompliant {{Remove unused function 'nested'.}}
     a =  1;
   }
 }
 
 function fun() {
-  var a = 0;              // Noncompliant
-  function nested(a) {
+  var a = 0;              // Noncompliant {{Remove the declaration of the unused 'a' variable.}}
+  function nested(a) {    // Noncompliant {{Remove unused function 'nested'.}}
     a =  1;
   }
 }
@@ -32,6 +32,19 @@ function* fun() {
     var a = 0;              // Noncompliant
     var b = 1;              // OK
     return b;
+}
+
+function fun() {
+  function f1() { console.log("f1"); }        // OK
+  f1();
+}
+
+function fun() {
+  var f1 = function() { console.log("f1"); }  // Noncompliant {{Remove the declaration of the unused 'f1' variable.}}
+}
+
+function fun() {
+  function f1() { console.log("f1"); }        // Noncompliant {{Remove unused function 'f1'.}}
 }
 
 class C {
@@ -56,10 +69,22 @@ try {
 function foo(){
 var x1 = 1,              // OK
   y1 = -x1;               // OK
-foo(y1)
+  foo(y1)
 }
 
 function foo(){
   var x = 1;               // Noncompliant
   var x = 2;              // Noncompliant
+
+  class A {}      // OK, ignore anything except variables and functions
+}
+
+bar(function unusedFunctionExpression() {});  // OK, ignore function expression
+
+function Person() {
+  this.name = null;
+
+  this.getName = function() {   // OK
+    return name;
+  }
 }
