@@ -172,32 +172,18 @@ public class ProgramState {
     return new ProgramState(values, constraints, stack.execute(expression), counter);
   }
 
-  public ProgramState assignToLastValue(Symbol variable) {
+  public ProgramState assignment(Symbol variable) {
     SymbolicValue value = stack.peek();
     ExpressionStack newStack = stack;
-    newStack = newStack.removeLastValue();
-    newStack = newStack.removeLastValue();
-    return assignOrInitialize(variable, newStack, value);
-  }
-
-  public ProgramState initialization(Symbol variable) {
-    ExpressionStack newStack = stack;
-    newStack = newStack.removeLastValue();
-    SymbolicValue value = newStack.peek();
-    newStack = newStack.removeLastValue();
-    return assignOrInitialize(variable, newStack, value);
-  }
-
-  private ProgramState assignOrInitialize(Symbol variable, ExpressionStack newStack, SymbolicValue value) {
-    SymbolicValue value2 = value;
-    if (UnknownSymbolicValue.UNKNOWN.equals(value2)) {
-      value2 = newSymbolicValue();
+    if (UnknownSymbolicValue.UNKNOWN.equals(value)) {
+      value = newSymbolicValue();
+      newStack = newStack.removeLastValue();
+      newStack = newStack.push(value);
     }
-    newStack.push(value2);
     Map<Symbol, SymbolicValue> newValues = new HashMap<>(values);
-    newValues.put(variable, value2);
-    ProgramState newState = new ProgramState(ImmutableMap.copyOf(newValues), constraints, stack, counter);
-    newState = newState.constrain(value2, value2.inherentConstraint());
+    newValues.put(variable, value);
+    ProgramState newState = new ProgramState(ImmutableMap.copyOf(newValues), constraints, newStack, counter);
+    newState = newState.constrain(value, value.inherentConstraint());
     return newState;
   }
 

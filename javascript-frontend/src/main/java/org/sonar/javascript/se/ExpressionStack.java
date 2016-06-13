@@ -62,7 +62,7 @@ class ExpressionStack {
     if (pushedValue == null) {
       pushedValue = UnknownSymbolicValue.UNKNOWN;
     }
-    LinkedList<SymbolicValue> newStack = copy();
+    Deque<SymbolicValue> newStack = copy();
     newStack.push(pushedValue);
     return new ExpressionStack(newStack);
   }
@@ -72,13 +72,13 @@ class ExpressionStack {
     Kind kind = ((JavaScriptTree) expression).getKind();
     switch (kind) {
       case IDENTIFIER_REFERENCE:
-      case BINDING_IDENTIFIER:
         if (SymbolicExecution.isUndefined((IdentifierTree) expression)) {
           newStack.push(SpecialSymbolicValue.UNDEFINED);
           break;
         }
         throw new IllegalArgumentException("Unexpected kind of expression to execute: " + kind);
       case IDENTIFIER_NAME:
+      case BINDING_IDENTIFIER:
         break;
       case NULL_LITERAL:
         newStack.push(SpecialSymbolicValue.NULL);
@@ -192,6 +192,9 @@ class ExpressionStack {
         newStack.push(commaResult);
         break;
       case ASSIGNMENT:
+        SymbolicValue assignedValue = newStack.pop();
+        newStack.pop();
+        newStack.push(assignedValue);
         break;
       default:
         throw new IllegalArgumentException("Unexpected kind of expression to execute: " + kind);
@@ -199,7 +202,7 @@ class ExpressionStack {
     return new ExpressionStack(newStack);
   }
 
-  private LinkedList<SymbolicValue> copy() {
+  private Deque<SymbolicValue> copy() {
     return new LinkedList<>(stack);
   }
 
