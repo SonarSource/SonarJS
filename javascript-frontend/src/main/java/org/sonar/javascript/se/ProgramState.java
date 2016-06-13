@@ -21,6 +21,7 @@ package org.sonar.javascript.se;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableMap.Builder;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
@@ -168,6 +169,32 @@ public class ProgramState {
 
   public ProgramState execute(ExpressionTree expression) {
     return new ProgramState(values, constraints, stack.execute(expression), counter);
+  }
+
+  public ProgramState assignToLastValue(Symbol variable) {
+    SymbolicValue value = stack.peek();
+    ExpressionStack newStack = stack;
+    newStack = newStack.removeLastValue();
+    newStack = newStack.removeLastValue();
+    newStack.push(value);
+    Map<Symbol, SymbolicValue> newValues = new HashMap<>(values);
+    newValues.put(variable, value);
+    ProgramState newState = new ProgramState(ImmutableMap.copyOf(newValues), constraints, stack, counter);
+    newState = newState.constrain(value, value.inherentConstraint());
+    return newState;
+  }
+
+  public ProgramState initialization(Symbol variable) {
+    ExpressionStack newStack = stack;
+    newStack = newStack.removeLastValue();
+    SymbolicValue value = stack.peek();
+    newStack = newStack.removeLastValue();
+    newStack.push(value);
+    Map<Symbol, SymbolicValue> newValues = new HashMap<>(values);
+    newValues.put(variable, value);
+    ProgramState newState = new ProgramState(ImmutableMap.copyOf(newValues), constraints, stack, counter);
+    newState = newState.constrain(value, value.inherentConstraint());
+    return newState;
   }
 
   @Override

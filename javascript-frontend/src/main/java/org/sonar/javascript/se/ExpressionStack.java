@@ -151,7 +151,6 @@ class ExpressionStack {
         pop(newStack, ((TemplateLiteralTree) expression).expressions().size());
         pushUnknown(newStack);
         break;
-      case ASSIGNMENT:
       case EXPONENT_ASSIGNMENT:
       case MULTIPLY_ASSIGNMENT:
       case DIVIDE_ASSIGNMENT:
@@ -191,6 +190,8 @@ class ExpressionStack {
         SymbolicValue commaResult = newStack.pop();
         newStack.pop();
         newStack.push(commaResult);
+        break;
+      case ASSIGNMENT:
         break;
       default:
         throw new IllegalArgumentException("Unexpected kind of expression to execute: " + kind);
@@ -232,6 +233,12 @@ class ExpressionStack {
 
   private static void pushUnknown(Deque<SymbolicValue> newStack) {
     newStack.push(UnknownSymbolicValue.UNKNOWN);
+  }
+
+  public ExpressionStack removeLastValue() {
+    Deque<SymbolicValue> newStack = copy();
+    newStack.pop();
+    return new ExpressionStack(newStack);
   }
 
 }

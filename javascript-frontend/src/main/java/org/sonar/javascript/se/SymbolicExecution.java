@@ -143,7 +143,7 @@ public class SymbolicExecution {
       beforeBlockElement(currentState, element);
       if (element.is(Kind.ASSIGNMENT)) {
         AssignmentExpressionTree assignment = (AssignmentExpressionTree) element;
-        currentState = store(currentState, assignment.variable(), assignment.expression());
+        currentState = assignment(currentState, assignment.variable());
 
       } else if (TreeKinds.isAssignment(element)) {
 
@@ -161,7 +161,7 @@ public class SymbolicExecution {
 
       } else if (element.is(Kind.INITIALIZED_BINDING_ELEMENT)) {
         InitializedBindingElementTree initialized = (InitializedBindingElementTree) element;
-        currentState = store(currentState, initialized.left(), initialized.right());
+        currentState = initialization(currentState, initialized.left());
         currentState = currentState.clearStack();
 
       } else if (element.is(Kind.BRACKET_MEMBER_EXPRESSION, Kind.DOT_MEMBER_EXPRESSION)) {
@@ -297,6 +297,22 @@ public class SymbolicExecution {
     Symbol trackedVariable = trackedVariable(left);
     if (trackedVariable != null) {
       return currentState.newSymbolicValue(trackedVariable, constraint);
+    }
+    return currentState;
+  }
+
+  private ProgramState assignment(ProgramState currentState, Tree variable) {
+    Symbol trackedVariable = trackedVariable(variable);
+    if (trackedVariable != null) {
+      return currentState.assignToLastValue(trackedVariable);
+    }
+    return currentState;
+  }
+
+  private ProgramState initialization(ProgramState currentState, Tree variable) {
+    Symbol trackedVariable = trackedVariable(variable);
+    if (trackedVariable != null) {
+      return currentState.initialization(trackedVariable);
     }
     return currentState;
   }

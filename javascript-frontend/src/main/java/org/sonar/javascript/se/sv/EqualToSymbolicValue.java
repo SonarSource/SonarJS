@@ -104,6 +104,11 @@ public class EqualToSymbolicValue implements SymbolicValue {
   }
 
   @Override
+  public Constraint inherentConstraint() {
+    return secondOperandConstraint;
+  }
+
+  @Override
   public String toString() {
     return firstOperandValue + " === " + secondOperandConstraint;
   }
