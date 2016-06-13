@@ -27,9 +27,11 @@ import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.declaration.FunctionDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.declaration.MethodDeclarationTree;
+import org.sonar.plugins.javascript.api.tree.expression.ArrowFunctionTree;
 import org.sonar.plugins.javascript.api.tree.expression.BinaryExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.ConditionalExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.FunctionExpressionTree;
+import org.sonar.plugins.javascript.api.tree.statement.BlockTree;
 import org.sonar.plugins.javascript.api.tree.statement.CaseClauseTree;
 import org.sonar.plugins.javascript.api.tree.statement.CatchBlockTree;
 import org.sonar.plugins.javascript.api.tree.statement.DoWhileStatementTree;
@@ -77,6 +79,15 @@ public class ComplexityVisitor extends DoubleDispatchVisitor {
     add(tree.functionKeyword());
     excludeLastReturn(tree.body().statements());
     super.visitFunctionExpression(tree);
+  }
+
+  @Override
+  public void visitArrowFunction(ArrowFunctionTree tree) {
+    add(tree.doubleArrow());
+    if (tree.body().is(Kind.BLOCK)) {
+      excludeLastReturn(((BlockTree) tree.body()).statements());
+    }
+    super.visitArrowFunction(tree);
   }
 
   @Override

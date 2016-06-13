@@ -60,17 +60,18 @@ public class ArgumentsCallerCalleeUsageCheck extends SubscriptionVisitorCheck {
 
   @Override
   public void visitNode(Tree tree) {
-    if (TreeKinds.isFunction(tree)) {
-      IdentifierTree name = getFunctionName(tree);
+    if (!tree.is(Kind.ARROW_FUNCTION)) {
+      if (TreeKinds.isFunction(tree)) {
+        IdentifierTree name = getFunctionName(tree);
 
-      if (name != null) {
-        scope.add(name.name());
+        if (name != null) {
+          scope.add(name.name());
+        }
+
+      } else {
+        checkExpression((DotMemberExpressionTree) tree);
       }
-
-    } else {
-      checkExpression((DotMemberExpressionTree) tree);
     }
-
   }
 
   private void checkExpression(DotMemberExpressionTree expression) {
@@ -109,12 +110,12 @@ public class ArgumentsCallerCalleeUsageCheck extends SubscriptionVisitorCheck {
 
   @Override
   public void leaveNode(Tree tree) {
-    if (TreeKinds.isFunction(tree) && getFunctionName(tree) != null) {
+    if (!tree.is(Kind.ARROW_FUNCTION) && TreeKinds.isFunction(tree) && getFunctionName(tree) != null) {
       scope.removeLast();
     }
   }
 
-  public IdentifierTree getFunctionName(Tree tree) {
+  private static IdentifierTree getFunctionName(Tree tree) {
     if (tree instanceof FunctionExpressionTree) {
       return ((FunctionExpressionTree) tree).name();
 

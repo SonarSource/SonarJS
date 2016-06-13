@@ -1,5 +1,11 @@
 function example() // +1 functionDeclaration
 {
+  var arrow_func = () => { // +1 arrowFunction
+    foo(1 && 2);         // +1 &&
+    return 42;
+  };
+  var arrow_func2 = () => 42; // +1 arrowFunction
+
   if (foo) // +1 ifStatement
   {
     return 0; // +1 returnStatement

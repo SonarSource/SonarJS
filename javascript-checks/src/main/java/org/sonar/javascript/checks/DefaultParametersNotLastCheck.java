@@ -19,7 +19,6 @@
  */
 package org.sonar.javascript.checks;
 
-import com.google.common.collect.ImmutableList;
 import java.util.ArrayList;
 import java.util.List;
 import org.sonar.check.Priority;
@@ -48,10 +47,7 @@ public class DefaultParametersNotLastCheck extends SubscriptionVisitorCheck {
 
   @Override
   public List<Kind> nodesToVisit() {
-    return ImmutableList.<Kind>builder()
-      .addAll(TreeKinds.functionKinds())
-      .add(Kind.ARROW_FUNCTION)
-      .build();
+    return TreeKinds.functionKinds();
   }
 
   @Override

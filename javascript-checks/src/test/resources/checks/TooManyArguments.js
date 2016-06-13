@@ -53,3 +53,6 @@ foo7(1, 2); // Noncompliant {{"foo7" expects "1" arguments, but "2" were provide
 x=function(a,b){
   return a + b;
 }(1,2,3);       // Noncompliant
+
+var arrow_function = (a, b) => {};
+arrow_function(1, 2, 3); // Noncompliant

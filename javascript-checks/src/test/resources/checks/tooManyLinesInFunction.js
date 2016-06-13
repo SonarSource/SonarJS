@@ -130,3 +130,18 @@ function foo() {  // Noncompliant
 }
 
 moduleX.value("name", []);  // OK
+
+var x = () => { // Noncompliant
+
+
+
+};
+
+var y = () => foo( // Noncompliant
+
+
+
+
+);
+
+var z = () => 1; // OK

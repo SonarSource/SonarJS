@@ -48,10 +48,8 @@ public class GlobalThisCheck extends SubscriptionVisitorCheck {
   public List<Tree.Kind> nodesToVisit() {
     return ImmutableList.<Kind>builder()
       .addAll(TreeKinds.functionKinds())
-      .add(
-        Tree.Kind.ARROW_FUNCTION,
-        Tree.Kind.DOT_MEMBER_EXPRESSION
-      ).build();
+      .add(Tree.Kind.DOT_MEMBER_EXPRESSION)
+      .build();
   }
 
   @Override

@@ -29,7 +29,7 @@ var obj = {
 class c {
 
     constructor () {
-        key = "value"
+        key = () => { };
     }
     set key(key) {
         this.key = key;

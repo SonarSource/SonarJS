@@ -57,7 +57,8 @@ public class TreeKinds {
     Kind.GENERATOR_FUNCTION_EXPRESSION,
     Kind.GENERATOR_DECLARATION,
     Kind.GET_METHOD,
-    Kind.SET_METHOD
+    Kind.SET_METHOD,
+    Kind.ARROW_FUNCTION
   };
 
   private TreeKinds() {

@@ -56,9 +56,7 @@ public class UnreachableCodeCheck extends SubscriptionVisitorCheck {
   public List<Kind> nodesToVisit() {
     return ImmutableList.<Kind>builder()
       .addAll(TreeKinds.functionKinds())
-      .add(
-        Kind.SCRIPT,
-        Kind.ARROW_FUNCTION)
+      .add(Kind.SCRIPT)
       .build();
   }
 

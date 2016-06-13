@@ -16,6 +16,13 @@ function global() {
     }
   }
 
+  var h = () => {
+    arguments.callee;             // Noncompliant
+    function e() {
+      e.arguments;              // Noncompliant
+    }
+  }
+
   var c =
 class
   {

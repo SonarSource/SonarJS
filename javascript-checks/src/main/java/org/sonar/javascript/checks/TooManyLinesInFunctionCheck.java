@@ -19,15 +19,11 @@
  */
 package org.sonar.javascript.checks;
 
-import java.util.Iterator;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
-import org.sonar.plugins.javascript.api.tree.Tree;
-import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.declaration.FunctionTree;
-import org.sonar.plugins.javascript.api.tree.statement.BlockTree;
 import org.sonar.plugins.javascript.api.visitors.IssueLocation;
 import org.sonar.plugins.javascript.api.visitors.PreciseIssue;
 import org.sonar.squidbridge.annotations.ActivatedByDefault;
@@ -52,24 +48,13 @@ public class TooManyLinesInFunctionCheck extends AbstractFunctionSizeCheck {
     defaultValue = "" + DEFAULT)
   public int max = DEFAULT;
 
-  public static int getNumberOfLine(Tree tree) {
-    Iterator<Tree> childrenIterator = ((JavaScriptTree) tree).childrenIterator();
-    while (childrenIterator.hasNext()) {
-      Tree child = childrenIterator.next();
-      if (child != null && child.is(Kind.BLOCK)) {
-        int firstLine = ((BlockTree) child).openCurlyBrace().line();
-        int lastLine = ((BlockTree) child).closeCurlyBrace().line();
-
-        return lastLine - firstLine + 1;
-      }
-    }
-    throw new IllegalStateException("No block child found for current tree.");
-
-  }
-
   @Override
   void checkFunction(FunctionTree functionTree) {
-    int nbLines = getNumberOfLine(functionTree);
+    JavaScriptTree body = (JavaScriptTree) functionTree.body();
+    int firstLine = body.getLine();
+    int lastLine = body.getLastToken().endLine();
+
+    int nbLines = lastLine - firstLine + 1;
     if (nbLines > max) {
       String message = String.format(MESSAGE, nbLines, max);
       IssueLocation primaryLocation = new IssueLocation(((JavaScriptTree) functionTree).getFirstToken(), functionTree.parameterClause(), message);
