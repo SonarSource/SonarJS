@@ -187,7 +187,7 @@ public class ProgramState {
   public ProgramState initialization(Symbol variable) {
     ExpressionStack newStack = stack;
     newStack = newStack.removeLastValue();
-    SymbolicValue value = stack.peek();
+    SymbolicValue value = newStack.peek();
     newStack = newStack.removeLastValue();
     newStack.push(value);
     Map<Symbol, SymbolicValue> newValues = new HashMap<>(values);
