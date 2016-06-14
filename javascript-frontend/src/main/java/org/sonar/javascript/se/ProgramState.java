@@ -19,8 +19,10 @@
  */
 package org.sonar.javascript.se;
 
+import com.google.common.base.Predicates;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableMap.Builder;
+import com.google.common.collect.Maps;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -211,13 +213,8 @@ public class ProgramState {
     return stack.peek();
   }
 
-  public ProgramState cleanWithLva(Set<Symbol> liveOutSymbols) {
-    Map<Symbol, SymbolicValue> newValues = new HashMap<>();
-    values.forEach((symbol, value) -> {
-      if (liveOutSymbols.contains(symbol)) {
-        newValues.put(symbol, value);
-      }
-    });
+  public ProgramState removeSymbols(Set<Symbol> symbolsToKeep) {
+    Map<Symbol, SymbolicValue> newValues = Maps.filterKeys(values, Predicates.in(symbolsToKeep));
     return new ProgramState(ImmutableMap.copyOf(newValues), constraints, stack, counter);
   }
 }

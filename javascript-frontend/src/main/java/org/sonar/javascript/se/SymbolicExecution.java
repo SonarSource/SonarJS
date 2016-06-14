@@ -231,7 +231,7 @@ public class SymbolicExecution {
   private void pushSuccessor(CfgBlock successor, @Nullable ProgramState currentState) {
     if (currentState != null) {
       Set<Symbol> liveInSymbols = liveVariableAnalysis.getLiveInSymbols(successor);
-      workList.addLast(new BlockExecution(successor, currentState.cleanWithLva(liveInSymbols)));
+      workList.addLast(new BlockExecution(successor, currentState.removeSymbols(liveInSymbols)));
     }
   }
 

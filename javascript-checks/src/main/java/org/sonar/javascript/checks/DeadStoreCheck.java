@@ -101,22 +101,26 @@ public class DeadStoreCheck extends DoubleDispatchVisitorCheck {
       for (Tree element : Lists.reverse(cfgBlock.elements())) {
         Usage usage = usages.getUsage(element);
         if (usage != null) {
-          Symbol symbol = usage.symbol();
-
-          if (isWrite(usage)) {
-            if (!live.contains(symbol) && !usages.hasUsagesInNestedFunctions(symbol) && !usages.neverReadSymbols().contains(symbol)) {
-              addIssue(usage.identifierTree(), symbol);
-            }
-            live.remove(symbol);
-
-          } else if (isRead(usage)) {
-            live.add(symbol);
-          }
+          checkUsage(usage, live, usages);
         }
       }
     }
 
     raiseIssuesForNeverReadSymbols(usages);
+  }
+
+  private void checkUsage(Usage usage, Set<Symbol> liveSymbols, Usages usages) {
+    Symbol symbol = usage.symbol();
+
+    if (isWrite(usage)) {
+      if (!liveSymbols.contains(symbol) && !usages.hasUsagesInNestedFunctions(symbol) && !usages.neverReadSymbols().contains(symbol)) {
+        addIssue(usage.identifierTree(), symbol);
+      }
+      liveSymbols.remove(symbol);
+
+    } else if (isRead(usage)) {
+      liveSymbols.add(symbol);
+    }
   }
 
   private void raiseIssuesForNeverReadSymbols(Usages usages) {
