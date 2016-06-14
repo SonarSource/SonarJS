@@ -166,6 +166,7 @@ function big_number_of_paths() {
   
   var x;
   if (x) {} // false negative, too many paths to explore
+  makeLive(a, b, c, d, e, f, g, h, i);
 }
 
 function nested_if() {

@@ -65,12 +65,14 @@ public class SymbolicExecution {
   private final SetMultimap<Tree, Truthiness> conditionResults = HashMultimap.create();
   private final Set<BlockExecution> alreadyProcessed = new HashSet<>();
   private final List<SeCheck> checks;
+  private final LiveVariableAnalysis liveVariableAnalysis;
 
   public SymbolicExecution(Scope functionScope, ControlFlowGraph cfg, List<SeCheck> checks) {
     cfgStartBlock = cfg.start();
     LocalVariables localVariables = new LocalVariables(functionScope, cfg);
     this.trackedVariables = localVariables.trackableVariables();
     this.functionParameters = localVariables.functionParameters();
+    this.liveVariableAnalysis = LiveVariableAnalysis.create(cfg, functionScope);
     this.functionScope = functionScope;
     this.checks = checks;
   }
@@ -222,13 +224,14 @@ public class SymbolicExecution {
 
   private void pushAllSuccessors(CfgBlock block, ProgramState currentState) {
     for (CfgBlock successor : block.successors()) {
-      pushSuccessor(successor, currentState);
+      pushSuccessor(block, successor, currentState);
     }
   }
 
-  private void pushSuccessor(CfgBlock successor, @Nullable ProgramState currentState) {
+  private void pushSuccessor(CfgBlock currentBlock, CfgBlock successor, @Nullable ProgramState currentState) {
     if (currentState != null) {
-      workList.addLast(new BlockExecution(successor, currentState));
+      Set<Symbol> liveOutSymbols = liveVariableAnalysis.getLiveOutSymbols(currentBlock);
+      workList.addLast(new BlockExecution(successor, currentState.cleanWithLva(liveOutSymbols)));
     }
   }
 
@@ -268,7 +271,7 @@ public class SymbolicExecution {
         currentState = newSymbolicValue(currentState, variable);
 
         if (currentState.getNullability(getSymbolicValue(forTree.expression(), currentState)) == Nullability.NULL) {
-          pushSuccessor(branchingBlock.falseSuccessor(), currentState);
+          pushSuccessor(block, branchingBlock.falseSuccessor(), currentState);
           shouldPushAllSuccessors = false;
         }
       }
@@ -284,11 +287,11 @@ public class SymbolicExecution {
   private void pushConditionSuccessors(CfgBranchingBlock block, ProgramState currentState, SymbolicValue conditionSymbolicValue) {
     Tree lastElement = block.elements().get(block.elements().size() - 1);
     for (ProgramState newState : conditionSymbolicValue.constrain(currentState, Constraint.TRUTHY)) {
-      pushSuccessor(block.trueSuccessor(), newState);
+      pushSuccessor(block, block.trueSuccessor(), newState);
       conditionResults.put(lastElement, Truthiness.TRUTHY);
     }
     for (ProgramState newState : conditionSymbolicValue.constrain(currentState, Constraint.FALSY)) {
-      pushSuccessor(block.falseSuccessor(), newState);
+      pushSuccessor(block, block.falseSuccessor(), newState);
       conditionResults.put(lastElement, Truthiness.FALSY);
     }
   }

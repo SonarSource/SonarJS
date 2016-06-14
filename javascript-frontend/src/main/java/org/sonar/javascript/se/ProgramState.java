@@ -25,6 +25,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
+import java.util.Set;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.javascript.se.sv.SimpleSymbolicValue;
@@ -208,5 +209,15 @@ public class ProgramState {
 
   public SymbolicValue peekStack() {
     return stack.peek();
+  }
+
+  public ProgramState cleanWithLva(Set<Symbol> liveOutSymbols) {
+    Map<Symbol, SymbolicValue> newValues = new HashMap<>();
+    values.forEach((symbol, value) -> {
+      if (liveOutSymbols.contains(symbol)) {
+        newValues.put(symbol, value);
+      }
+    });
+    return new ProgramState(ImmutableMap.copyOf(newValues), constraints, stack, counter);
   }
 }

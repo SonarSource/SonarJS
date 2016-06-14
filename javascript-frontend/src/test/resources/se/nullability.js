@@ -17,6 +17,7 @@ function main() {
   } else {
     foo(); // PS x=NULLY
   }
+  makeLive(x);
 
   x = foo();
   if (x !== null) {
@@ -24,6 +25,7 @@ function main() {
   } else {
     foo(); // PS x=NULL
   }
+  makeLive(x);
 
   x = foo();
   if (x === undefined) {
@@ -31,6 +33,7 @@ function main() {
   } else {
     foo(); // PS x=NOT_UNDEFINED
   }
+  makeLive(x);
 
   x = null;
   var y = 42;
@@ -38,6 +41,7 @@ function main() {
     y = null;  // always executed
   }
   foo(); // PS y=NULL
+  makeLive(y);
 
   x = 42;
   y = 42;
@@ -45,4 +49,5 @@ function main() {
     y = null;  // never executed
   }
   foo(); // PS y=TRUTHY
+  makeLive(y);
 }

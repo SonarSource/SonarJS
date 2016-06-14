@@ -219,6 +219,9 @@
 'project:dojo-1.8.1/dojox/collections/BinaryTree.js.uncompressed.js':[
 122,
 ],
+'project:dojo-1.8.1/dojox/data/AndOrReadStore.js.uncompressed.js':[
+154,
+],
 'project:dojo-1.8.1/dojox/data/FlickrStore.js.uncompressed.js':[
 279,
 ],
@@ -283,6 +286,12 @@
 ],
 'project:dojo-1.8.1/dojox/fx/split.js.uncompressed.js':[
 520,
+],
+'project:dojo-1.8.1/dojox/gantt/GanttProjectControl.js.uncompressed.js':[
+735,
+750,
+794,
+812,
 ],
 'project:dojo-1.8.1/dojox/gantt/GanttTaskControl.js.uncompressed.js':[
 1254,
@@ -582,6 +591,9 @@
 1056,
 6597,
 12788,
+],
+'project:yui-3.7.3/stylesheet/stylesheet.js':[
+136,
 ],
 'project:yui-3.7.3/widget-modality/widget-modality.js':[
 518,
