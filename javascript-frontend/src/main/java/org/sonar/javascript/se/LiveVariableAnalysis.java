@@ -160,7 +160,7 @@ public class LiveVariableAnalysis {
     }
 
     @CheckForNull
-    public Usage add(IdentifierTree identifier) {
+    private Usage add(IdentifierTree identifier) {
       addSymbol(identifier.symbol());
       Usage usage = localVariableUsages.get(identifier);
       if (usage != null) {
@@ -203,10 +203,6 @@ public class LiveVariableAnalysis {
 
     public Set<Symbol> neverReadSymbols() {
       return neverReadSymbols;
-    }
-
-    public boolean isNeverRead(Symbol symbol) {
-      return neverReadSymbols.contains(symbol);
     }
 
     private void addAssignment(AssignmentExpressionTree tree) {

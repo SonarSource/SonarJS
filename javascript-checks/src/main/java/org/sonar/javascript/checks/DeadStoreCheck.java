@@ -104,7 +104,7 @@ public class DeadStoreCheck extends DoubleDispatchVisitorCheck {
           Symbol symbol = usage.symbol();
 
           if (isWrite(usage)) {
-            if (!live.contains(symbol) && !usages.hasUsagesInNestedFunctions(symbol) && !usages.isNeverRead(symbol)) {
+            if (!live.contains(symbol) && !usages.hasUsagesInNestedFunctions(symbol) && !usages.neverReadSymbols().contains(symbol)) {
               addIssue(usage.identifierTree(), symbol);
             }
             live.remove(symbol);

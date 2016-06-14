@@ -103,6 +103,11 @@ public class SymbolicExecutionTest {
     verifySE("typeof.js");
   }
 
+  @Test
+  public void test_live_variable_analysis() throws Exception {
+    verifySE("lva.js");
+  }
+
   private void runSe(String filename) {
     JavaScriptVisitorContext context = createContext(new File("src/test/resources/se/", filename));
     verifier.scanExpectedIssues(context);

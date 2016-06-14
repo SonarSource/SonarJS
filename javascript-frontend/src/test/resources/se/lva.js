@@ -1,0 +1,14 @@
+function main(p1, p2) {
+  var neverRead = null;
+
+  foo(p1); // PS p1=UNKNOWN & p2=UNKNOWN & neverRead=NULL
+  if (1) {
+    foo(); // PS !p1 & p2=UNKNOWN & !neverRead
+  }
+
+  foo(p2);
+
+  p1 = 42; // PS p1=TRUTHY & p2=UNKNOWN & !neverRead
+
+  dummyStatement();
+}
