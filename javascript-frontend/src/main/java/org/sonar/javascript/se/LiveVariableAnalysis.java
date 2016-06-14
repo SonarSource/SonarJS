@@ -50,6 +50,11 @@ public class LiveVariableAnalysis {
     return blockLiveness.liveOut;
   }
 
+  public Set<Symbol> getLiveInSymbols(CfgBlock block) {
+    BlockLiveness blockLiveness = livenessPerBlock.get(block);
+    return blockLiveness.liveIn;
+  }
+
   private LiveVariableAnalysis(ControlFlowGraph cfg, Scope scope){
     this.usages = new Usages(scope);
     Set<BlockLiveness> livenesses = new HashSet<>();

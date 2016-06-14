@@ -224,14 +224,14 @@ public class SymbolicExecution {
 
   private void pushAllSuccessors(CfgBlock block, ProgramState currentState) {
     for (CfgBlock successor : block.successors()) {
-      pushSuccessor(block, successor, currentState);
+      pushSuccessor(successor, currentState);
     }
   }
 
-  private void pushSuccessor(CfgBlock currentBlock, CfgBlock successor, @Nullable ProgramState currentState) {
+  private void pushSuccessor(CfgBlock successor, @Nullable ProgramState currentState) {
     if (currentState != null) {
-      Set<Symbol> liveOutSymbols = liveVariableAnalysis.getLiveOutSymbols(currentBlock);
-      workList.addLast(new BlockExecution(successor, currentState.cleanWithLva(liveOutSymbols)));
+      Set<Symbol> liveInSymbols = liveVariableAnalysis.getLiveInSymbols(successor);
+      workList.addLast(new BlockExecution(successor, currentState.cleanWithLva(liveInSymbols)));
     }
   }
 
@@ -271,7 +271,7 @@ public class SymbolicExecution {
         currentState = newSymbolicValue(currentState, variable);
 
         if (currentState.getNullability(getSymbolicValue(forTree.expression(), currentState)) == Nullability.NULL) {
-          pushSuccessor(block, branchingBlock.falseSuccessor(), currentState);
+          pushSuccessor(branchingBlock.falseSuccessor(), currentState);
           shouldPushAllSuccessors = false;
         }
       }
@@ -287,11 +287,11 @@ public class SymbolicExecution {
   private void pushConditionSuccessors(CfgBranchingBlock block, ProgramState currentState, SymbolicValue conditionSymbolicValue) {
     Tree lastElement = block.elements().get(block.elements().size() - 1);
     for (ProgramState newState : conditionSymbolicValue.constrain(currentState, Constraint.TRUTHY)) {
-      pushSuccessor(block, block.trueSuccessor(), newState);
+      pushSuccessor(block.trueSuccessor(), newState);
       conditionResults.put(lastElement, Truthiness.TRUTHY);
     }
     for (ProgramState newState : conditionSymbolicValue.constrain(currentState, Constraint.FALSY)) {
-      pushSuccessor(block, block.falseSuccessor(), newState);
+      pushSuccessor(block.falseSuccessor(), newState);
       conditionResults.put(lastElement, Truthiness.FALSY);
     }
   }

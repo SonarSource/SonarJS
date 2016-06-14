@@ -11,4 +11,11 @@ function main(p1, p2) {
   p1 = 42; // PS p1=TRUTHY & p2=UNKNOWN & !neverRead
 
   dummyStatement();
+
+  var x = foo(), y = bar();
+  if (condition()) {
+    foobar(x); // PS x=UNKNOWN & !y
+  } else {
+    foobar(y); // PS y=UNKNOWN & !x
+  }
 }
