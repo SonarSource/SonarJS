@@ -78,4 +78,10 @@ function main() {
   }
 
   dummyStatement(); // PS z=TRUTHY
+
+  x = foo(), y1 = bar();
+  z = x === null && y1;
+  if (z) {
+    dummyStatement(); // PS x=NULL & y1=TRUTHY
+  }
 }
