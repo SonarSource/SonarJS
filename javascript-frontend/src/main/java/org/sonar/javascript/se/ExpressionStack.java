@@ -90,7 +90,7 @@ class ExpressionStack {
         break;
       case LOGICAL_COMPLEMENT:
         SymbolicValue negatedValue = newStack.pop();
-        newStack.push(new LogicalNotSymbolicValue(negatedValue));
+        newStack.push(LogicalNotSymbolicValue.create(negatedValue));
         break;
       case EQUAL_TO:
         newStack.push(EqualToSymbolicValue.equal(newStack.pop(), newStack.pop()));

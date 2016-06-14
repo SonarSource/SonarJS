@@ -28,9 +28,16 @@ public class LogicalNotSymbolicValue implements SymbolicValue {
 
   private final SymbolicValue negatedValue;
 
-  public LogicalNotSymbolicValue(SymbolicValue negatedValue) {
+  private LogicalNotSymbolicValue(SymbolicValue negatedValue) {
     Preconditions.checkArgument(negatedValue != null, "negatedValue should not be null");
     this.negatedValue = negatedValue;
+  }
+
+  public static SymbolicValue create(SymbolicValue negatedValue) {
+    if (UnknownSymbolicValue.UNKNOWN.equals(negatedValue)) {
+      return UnknownSymbolicValue.UNKNOWN;
+    }
+    return new LogicalNotSymbolicValue(negatedValue);
   }
 
   @Override

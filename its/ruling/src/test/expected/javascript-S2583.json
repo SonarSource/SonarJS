@@ -281,6 +281,9 @@
 'project:dojo-1.8.1/dojox/fx/Timeline.js.uncompressed.js':[
 175,
 ],
+'project:dojo-1.8.1/dojox/fx/split.js.uncompressed.js':[
+520,
+],
 'project:dojo-1.8.1/dojox/gantt/GanttTaskControl.js.uncompressed.js':[
 1254,
 ],
@@ -443,6 +446,9 @@
 1704,
 1710,
 ],
+'project:ecmascript6/sonar-web/src/main/js/apps/custom-measures/form-view.js':[
+46,
+],
 'project:ecmascript6/sonar-web/src/main/js/components/source-viewer/main.js':[
 450,
 ],
@@ -475,6 +481,8 @@
 322,
 ],
 'project:jquery-1.7.2.js':[
+2544,
+2552,
 4501,
 4501,
 8729,

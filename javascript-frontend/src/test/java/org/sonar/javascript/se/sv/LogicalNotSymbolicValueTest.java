@@ -27,6 +27,7 @@ import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.sonar.javascript.se.Constraint.FALSY;
 import static org.sonar.javascript.se.Constraint.TRUTHY;
+import static org.sonar.javascript.se.sv.UnknownSymbolicValue.UNKNOWN;
 
 public class LogicalNotSymbolicValueTest {
 
@@ -34,14 +35,14 @@ public class LogicalNotSymbolicValueTest {
 
   @Test(expected = IllegalArgumentException.class)
   public void should_throw_on_null_negated_value() throws Exception {
-    new LogicalNotSymbolicValue(null);
+    LogicalNotSymbolicValue.create(null);
   }
 
   @Test
   public void constrain() throws Exception {
     ProgramState state1 = ProgramState.emptyState().newSymbolicValue(symbol, null);
     SymbolicValue sv1 = state1.getSymbolicValue(symbol);
-    SymbolicValue not = new LogicalNotSymbolicValue(sv1);
+    SymbolicValue not = LogicalNotSymbolicValue.create(sv1);
     assertThat(not.constrain(state1, TRUTHY)).containsExactly(state1.constrain(sv1, FALSY));
   }
 
@@ -49,8 +50,13 @@ public class LogicalNotSymbolicValueTest {
   public void to_string() throws Exception {
     ProgramState state1 = ProgramState.emptyState().newSymbolicValue(symbol, null);
     SymbolicValue sv1 = state1.getSymbolicValue(symbol);
-    SymbolicValue not = new LogicalNotSymbolicValue(sv1);
+    SymbolicValue not = LogicalNotSymbolicValue.create(sv1);
     assertThat(not.toString()).isEqualTo("!SV_0");
+  }
+
+  @Test
+  public void on_unknown_value() throws Exception {
+    assertThat(LogicalNotSymbolicValue.create(UNKNOWN)).isEqualTo(UNKNOWN);
   }
 
 }
