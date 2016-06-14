@@ -55,19 +55,19 @@ public class EqualToSymbolicValue implements SymbolicValue {
     this.secondOperandConstraint = constraint;
   }
 
-  public static SymbolicValue equal(SymbolicValue operand1, SymbolicValue operand2) {
+  public static SymbolicValue createEqual(SymbolicValue operand1, SymbolicValue operand2) {
     return create(EQUAL_CONSTRAINTS, operand1, operand2, false);
   }
 
-  public static SymbolicValue notEqual(SymbolicValue operand1, SymbolicValue operand2) {
+  public static SymbolicValue createNotEqual(SymbolicValue operand1, SymbolicValue operand2) {
     return create(NOT_EQUAL_CONSTRAINTS, operand1, operand2, true);
   }
 
-  public static SymbolicValue strictEqual(SymbolicValue operand1, SymbolicValue operand2) {
+  public static SymbolicValue createStrictEqual(SymbolicValue operand1, SymbolicValue operand2) {
     return create(STRICT_EQUAL_CONSTRAINTS, operand1, operand2, false);
   }
 
-  public static SymbolicValue strictNotEqual(SymbolicValue operand1, SymbolicValue operand2) {
+  public static SymbolicValue createStrictNotEqual(SymbolicValue operand1, SymbolicValue operand2) {
     return create(STRICT_NOT_EQUAL_CONSTRAINTS, operand1, operand2, true);
   }
 

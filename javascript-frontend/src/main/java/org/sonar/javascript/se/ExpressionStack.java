@@ -93,16 +93,16 @@ class ExpressionStack {
         newStack.push(new LogicalNotSymbolicValue(negatedValue));
         break;
       case EQUAL_TO:
-        newStack.push(EqualToSymbolicValue.equal(newStack.pop(), newStack.pop()));
+        newStack.push(EqualToSymbolicValue.createEqual(newStack.pop(), newStack.pop()));
         break;
       case NOT_EQUAL_TO:
-        newStack.push(EqualToSymbolicValue.notEqual(newStack.pop(), newStack.pop()));
+        newStack.push(EqualToSymbolicValue.createNotEqual(newStack.pop(), newStack.pop()));
         break;
       case STRICT_EQUAL_TO:
-        newStack.push(EqualToSymbolicValue.strictEqual(newStack.pop(), newStack.pop()));
+        newStack.push(EqualToSymbolicValue.createStrictEqual(newStack.pop(), newStack.pop()));
         break;
       case STRICT_NOT_EQUAL_TO:
-        newStack.push(EqualToSymbolicValue.strictNotEqual(newStack.pop(), newStack.pop()));
+        newStack.push(EqualToSymbolicValue.createStrictNotEqual(newStack.pop(), newStack.pop()));
         break;
       case TYPEOF:
         newStack.push(new TypeOfSymbolicValue(newStack.pop()));
