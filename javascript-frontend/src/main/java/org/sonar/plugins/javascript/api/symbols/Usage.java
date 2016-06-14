@@ -47,6 +47,10 @@ public class Usage {
     this.identifierTree = identifierTree;
   }
 
+  public Symbol symbol() {
+    return identifierTree.symbol();
+  }
+
   public Kind kind() {
     return kind;
   }
