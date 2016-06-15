@@ -14,6 +14,6 @@ function main() {
   y = foo();
   var z = x && y;
   if (z) {
-    dummyStatement(); // PS x=TRUTHY
+    dummyStatement(); // PS x=TRUTHY & y=TRUTHY
   }
 }

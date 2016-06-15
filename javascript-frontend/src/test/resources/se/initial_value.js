@@ -6,7 +6,7 @@ function main(par, unused) {
   var y = null;  // PS y=NULL
   var z = foo(y); // PS z=UNKNOWN & y=NULL
 
-  let {x1, x2} = foo(); // PS x1=UNKNOWN & x2=UNKNOWN
+  let {x1, x2} = foo(); // PS !x1 & !x2
   dummyStatement();
   
   nested(par, x, y, z);
