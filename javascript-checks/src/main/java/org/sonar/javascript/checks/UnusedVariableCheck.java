@@ -35,7 +35,7 @@ import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 
 @Rule(
   key = "UnusedVariable",
-  name = "Unused local variables should be removed",
+  name = "Unused local variables and functions should be removed",
   priority = Priority.MAJOR,
   tags = {Tags.UNUSED})
 @ActivatedByDefault
