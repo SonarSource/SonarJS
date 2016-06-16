@@ -6,6 +6,9 @@ function main(par, unused) {
   var y = null;  // PS y=NULL
   var z = foo(y); // PS z=UNKNOWN & y=NULL
 
+  let {x1, x2} = foo(); // PS !x1 & !x2
+  dummyStatement();
+  
   nested(par, x, y, z);
   var obj = new MyClass();
 

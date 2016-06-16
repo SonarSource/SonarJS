@@ -83,7 +83,7 @@ public class EqualToSymbolicValue implements SymbolicValue {
     SymbolicValue typeOfComparison = TypeOfComparisonSymbolicValue.create(operand1, operand2);
     if (typeOfComparison != null) {
       if (isLogicalNot) {
-        typeOfComparison = new LogicalNotSymbolicValue(typeOfComparison);
+        typeOfComparison = LogicalNotSymbolicValue.create(typeOfComparison);
       }
       return typeOfComparison;
     }
@@ -101,6 +101,11 @@ public class EqualToSymbolicValue implements SymbolicValue {
     }
 
     return ImmutableList.of();
+  }
+
+  @Override
+  public Constraint inherentConstraint() {
+    return secondOperandConstraint;
   }
 
   @Override

@@ -43,4 +43,9 @@ public enum SpecialSymbolicValue implements SymbolicValue {
     return ImmutableList.of(state);
   }
 
+  @Override
+  public Constraint inherentConstraint() {
+    return constraint;
+  }
+
 }

@@ -21,6 +21,7 @@ package org.sonar.javascript.se;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableMap.Builder;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
@@ -28,6 +29,7 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.javascript.se.sv.SimpleSymbolicValue;
 import org.sonar.javascript.se.sv.SymbolicValue;
+import org.sonar.javascript.se.sv.UnknownSymbolicValue;
 import org.sonar.plugins.javascript.api.symbols.Symbol;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 
@@ -168,6 +170,21 @@ public class ProgramState {
 
   public ProgramState execute(ExpressionTree expression) {
     return new ProgramState(values, constraints, stack.execute(expression), counter);
+  }
+
+  public ProgramState assignment(Symbol variable) {
+    SymbolicValue value = stack.peek();
+    ExpressionStack newStack = stack;
+    if (UnknownSymbolicValue.UNKNOWN.equals(value)) {
+      value = newSymbolicValue();
+      newStack = newStack.removeLastValue();
+      newStack = newStack.push(value);
+    }
+    Map<Symbol, SymbolicValue> newValues = new HashMap<>(values);
+    newValues.put(variable, value);
+    ProgramState newState = new ProgramState(ImmutableMap.copyOf(newValues), constraints, newStack, counter);
+    newState = newState.constrain(value, value.inherentConstraint());
+    return newState;
   }
 
   @Override

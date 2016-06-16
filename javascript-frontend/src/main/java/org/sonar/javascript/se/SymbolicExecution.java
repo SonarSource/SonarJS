@@ -37,6 +37,7 @@ import org.sonar.javascript.tree.symbols.Scope;
 import org.sonar.plugins.javascript.api.symbols.Symbol;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
+import org.sonar.plugins.javascript.api.tree.declaration.BindingElementTree;
 import org.sonar.plugins.javascript.api.tree.declaration.InitializedBindingElementTree;
 import org.sonar.plugins.javascript.api.tree.expression.AssignmentExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
@@ -141,30 +142,8 @@ public class SymbolicExecution {
 
     for (Tree element : block.elements()) {
       beforeBlockElement(currentState, element);
-      if (element.is(Kind.ASSIGNMENT)) {
-        AssignmentExpressionTree assignment = (AssignmentExpressionTree) element;
-        currentState = store(currentState, assignment.variable(), assignment.expression());
 
-      } else if (TreeKinds.isAssignment(element)) {
-
-        AssignmentExpressionTree assignment = (AssignmentExpressionTree) element;
-        currentState = storeConstraint(currentState, assignment.variable(), null);
-
-      } else if (element.is(
-        Kind.POSTFIX_DECREMENT,
-        Kind.POSTFIX_INCREMENT,
-        Kind.PREFIX_DECREMENT,
-        Kind.PREFIX_INCREMENT)) {
-
-        UnaryExpressionTree unary = (UnaryExpressionTree) element;
-        currentState = storeConstraint(currentState, unary.expression(), null);
-
-      } else if (element.is(Kind.INITIALIZED_BINDING_ELEMENT)) {
-        InitializedBindingElementTree initialized = (InitializedBindingElementTree) element;
-        currentState = store(currentState, initialized.left(), initialized.right());
-        currentState = currentState.clearStack();
-
-      } else if (element.is(Kind.BRACKET_MEMBER_EXPRESSION, Kind.DOT_MEMBER_EXPRESSION)) {
+      if (element.is(Kind.BRACKET_MEMBER_EXPRESSION, Kind.DOT_MEMBER_EXPRESSION)) {
         ExpressionTree object = ((MemberExpressionTree) element).object();
         if (object.is(Kind.IDENTIFIER_REFERENCE)) {
           SymbolicValue symbolicValue = currentState.getSymbolicValue(((IdentifierTree) object).symbol());
@@ -177,18 +156,41 @@ public class SymbolicExecution {
           }
 
         }
-
       }
 
       if (element.is(Kind.EXPRESSION_STATEMENT)) {
         currentState = currentState.clearStack();
 
-      } else if (element.is(Kind.IDENTIFIER_REFERENCE, Kind.BINDING_IDENTIFIER) && !isUndefined((IdentifierTree)element)) {
+      } else if (element.is(Kind.IDENTIFIER_REFERENCE) && !isUndefined((IdentifierTree) element)) {
         SymbolicValue symbolicValue = currentState.getSymbolicValue(((IdentifierTree) element).symbol());
         currentState = currentState.pushToStack(symbolicValue);
 
       } else if (element instanceof ExpressionTree && !element.is(Kind.CLASS_DECLARATION)) {
         currentState = currentState.execute((ExpressionTree) element);
+      }
+
+      if (TreeKinds.isAssignment(element)) {
+
+        AssignmentExpressionTree assignment = (AssignmentExpressionTree) element;
+        currentState = assignment(currentState, assignment.variable());
+
+      } else if (element.is(
+        Kind.POSTFIX_DECREMENT,
+        Kind.POSTFIX_INCREMENT,
+        Kind.PREFIX_DECREMENT,
+        Kind.PREFIX_INCREMENT)) {
+
+        UnaryExpressionTree unary = (UnaryExpressionTree) element;
+        currentState = assignment(currentState, unary.expression());
+
+      } else if (element.is(Kind.INITIALIZED_BINDING_ELEMENT)) {
+        InitializedBindingElementTree initialized = (InitializedBindingElementTree) element;
+        BindingElementTree variable = initialized.left();
+        if (variable.is(Kind.BINDING_IDENTIFIER)) {
+          currentState = assignment(currentState, variable);
+        }
+        currentState = currentState.clearStack();
+
       }
 
       afterBlockElement(currentState, element);
@@ -260,7 +262,7 @@ public class SymbolicExecution {
           VariableDeclarationTree declaration = (VariableDeclarationTree) variable;
           variable = declaration.variables().get(0);
         }
-        currentState = storeConstraint(currentState, variable, null);
+        currentState = newSymbolicValue(currentState, variable);
 
         if (currentState.getNullability(getSymbolicValue(forTree.expression(), currentState)) == Nullability.NULL) {
           pushSuccessor(branchingBlock.falseSuccessor(), currentState);
@@ -288,15 +290,18 @@ public class SymbolicExecution {
     }
   }
 
-  private ProgramState store(ProgramState currentState, Tree left, ExpressionTree right) {
-    Constraint constraint = Constraint.get(right);
-    return storeConstraint(currentState, left, constraint);
-  }
-
-  private ProgramState storeConstraint(ProgramState currentState, Tree left, @Nullable Constraint constraint) {
+  private ProgramState newSymbolicValue(ProgramState currentState, Tree left) {
     Symbol trackedVariable = trackedVariable(left);
     if (trackedVariable != null) {
-      return currentState.newSymbolicValue(trackedVariable, constraint);
+      return currentState.newSymbolicValue(trackedVariable, null);
+    }
+    return currentState;
+  }
+
+  private ProgramState assignment(ProgramState currentState, Tree variable) {
+    Symbol trackedVariable = trackedVariable(variable);
+    if (trackedVariable != null) {
+      return currentState.assignment(trackedVariable);
     }
     return currentState;
   }

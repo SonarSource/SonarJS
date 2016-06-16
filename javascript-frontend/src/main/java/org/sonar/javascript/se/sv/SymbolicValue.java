@@ -20,11 +20,17 @@
 package org.sonar.javascript.se.sv;
 
 import java.util.List;
+import javax.annotation.CheckForNull;
 import org.sonar.javascript.se.Constraint;
 import org.sonar.javascript.se.ProgramState;
 
 public interface SymbolicValue {
 
   List<ProgramState> constrain(ProgramState state, Constraint constraint);
+
+  @CheckForNull
+  default Constraint inherentConstraint() {
+    return null;
+  }
 
 }

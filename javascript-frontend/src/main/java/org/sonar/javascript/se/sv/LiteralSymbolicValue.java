@@ -50,6 +50,7 @@ public class LiteralSymbolicValue implements SymbolicValue {
     return ImmutableList.of(state);
   }
 
+  @Override
   public Constraint inherentConstraint() {
     return isTruthy() ? Constraint.TRUTHY : Constraint.FALSY_NOT_NULLY;
   }
