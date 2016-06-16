@@ -262,7 +262,7 @@ public class SymbolicExecution {
           VariableDeclarationTree declaration = (VariableDeclarationTree) variable;
           variable = declaration.variables().get(0);
         }
-        currentState = storeConstraint(currentState, variable);
+        currentState = newSymbolicValue(currentState, variable);
 
         if (currentState.getNullability(getSymbolicValue(forTree.expression(), currentState)) == Nullability.NULL) {
           pushSuccessor(branchingBlock.falseSuccessor(), currentState);
@@ -290,7 +290,7 @@ public class SymbolicExecution {
     }
   }
 
-  private ProgramState storeConstraint(ProgramState currentState, Tree left) {
+  private ProgramState newSymbolicValue(ProgramState currentState, Tree left) {
     Symbol trackedVariable = trackedVariable(left);
     if (trackedVariable != null) {
       return currentState.newSymbolicValue(trackedVariable, null);
