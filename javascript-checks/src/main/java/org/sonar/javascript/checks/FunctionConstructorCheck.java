@@ -19,6 +19,7 @@
  */
 package org.sonar.javascript.checks;
 
+import javax.annotation.Nullable;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.plugins.javascript.api.tree.Tree;
@@ -77,7 +78,7 @@ public class FunctionConstructorCheck extends DoubleDispatchVisitorCheck {
     super.visitCallExpression(tree);
   }
   
-  private static boolean isNonEmptyFunctionConstructor(ExpressionTree tree, ParameterListTree arguments) {
+  private static boolean isNonEmptyFunctionConstructor(ExpressionTree tree, @Nullable ParameterListTree arguments) {
     boolean result = false;
     if (tree.is(Tree.Kind.IDENTIFIER_REFERENCE)) {
       String name = ((IdentifierTree)tree).name();
