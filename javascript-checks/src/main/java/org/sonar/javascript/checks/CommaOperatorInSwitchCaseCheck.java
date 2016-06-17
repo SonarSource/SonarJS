@@ -62,7 +62,7 @@ public class CommaOperatorInSwitchCaseCheck extends DoubleDispatchVisitorCheck {
    * <p>
    * Example 2: expression 10,11,12,13 (as in "case 10,11,12,13:") returns 3.
    */
-  private int getNumberOfCommas(ExpressionTree expression) {
+  private static int getNumberOfCommas(ExpressionTree expression) {
     int nbCommas = 0;
     if (expression.is(Kind.COMMA_OPERATOR)) {
       BinaryExpressionTree binaryExpression = (BinaryExpressionTree) expression;

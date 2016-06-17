@@ -85,7 +85,7 @@ public class NullDereferenceInConditionalCheck extends DoubleDispatchVisitorChec
       || (tree.is(Tree.Kind.IDENTIFIER_REFERENCE) && "undefined".equals(((IdentifierTree) tree).identifierToken().text()));
   }
 
-  private class NullExpressionUsageVisitor extends DoubleDispatchVisitorCheck {
+  private static class NullExpressionUsageVisitor extends DoubleDispatchVisitorCheck {
 
     private ExpressionTree nullExpression;
     private JavaScriptCheck check;

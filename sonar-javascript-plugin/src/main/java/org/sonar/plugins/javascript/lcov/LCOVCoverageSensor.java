@@ -45,7 +45,7 @@ abstract class LCOVCoverageSensor {
   protected abstract String[] reportPathProperties();
   protected abstract CoverageType getCoverageType();
 
-  private FilePredicate mainFilePredicate(FileSystem fileSystem) {
+  private static FilePredicate mainFilePredicate(FileSystem fileSystem) {
     return fileSystem.predicates().and(
       fileSystem.predicates().hasType(InputFile.Type.MAIN),
       fileSystem.predicates().hasLanguage(JavaScriptLanguage.KEY));
