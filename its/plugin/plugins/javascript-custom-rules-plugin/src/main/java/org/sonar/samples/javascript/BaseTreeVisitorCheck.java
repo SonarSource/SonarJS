@@ -19,26 +19,23 @@
  */
 package org.sonar.samples.javascript;
 
-import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.plugins.javascript.api.tree.expression.FunctionExpressionTree;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
-import org.sonar.squidbridge.annotations.SqaleSubCharacteristic;
 
 @Rule(
   key = "base",
   name = "Base tree visitor check",
   description = "desc",
   priority = Priority.MINOR)
-@SqaleSubCharacteristic(RulesDefinition.SubCharacteristics.SECURITY_FEATURES)
 @SqaleConstantRemediation("5min")
 public class BaseTreeVisitorCheck extends DoubleDispatchVisitorCheck {
 
   @Override
   public void visitFunctionExpression(FunctionExpressionTree tree) {
-    addLineIssue(tree, "Function expression.");
+    addIssue(tree, "Function expression.");
     super.visitFunctionExpression(tree);
   }
 
