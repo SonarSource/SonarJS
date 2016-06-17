@@ -22,11 +22,11 @@ package org.sonar.javascript.checks;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.plugins.javascript.api.tree.Tree;
+import org.sonar.plugins.javascript.api.tree.declaration.ParameterListTree;
 import org.sonar.plugins.javascript.api.tree.expression.CallExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 import org.sonar.plugins.javascript.api.tree.expression.NewExpressionTree;
-import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
 import org.sonar.plugins.javascript.api.visitors.IssueLocation;
 import org.sonar.plugins.javascript.api.visitors.PreciseIssue;
@@ -42,7 +42,7 @@ import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 @SqaleConstantRemediation("5min")
 public class FunctionConstructorCheck extends DoubleDispatchVisitorCheck {
 
-  private static final String MESSAGE = "Simply declare this function instead.";
+  private static final String MESSAGE = "Declare this function instead of using the \"Function\" constructor.";
 
   /**
    * Tracks:
@@ -58,12 +58,8 @@ public class FunctionConstructorCheck extends DoubleDispatchVisitorCheck {
    */
   @Override
   public void visitNewExpression(NewExpressionTree tree) {
-    ExpressionTree expression = tree.expression();
-    if (expression.is(Tree.Kind.IDENTIFIER_REFERENCE)) {
-      SyntaxToken token = ((IdentifierTree)expression).identifierToken();
-      if ("Function".equals(token.text()) && tree.arguments() != null && ! tree.arguments().parameters().isEmpty()) {
-        addIssue(new PreciseIssue(this, new IssueLocation(tree.newKeyword(), tree.expression(), MESSAGE)));
-      }
+    if (isNonEmptyFunctionConstructor(tree.expression(), tree.arguments())) {
+      addIssue(new PreciseIssue(this, new IssueLocation(tree.newKeyword(), tree.expression(), MESSAGE)));
     }
 
     super.visitNewExpression(tree);
@@ -74,15 +70,20 @@ public class FunctionConstructorCheck extends DoubleDispatchVisitorCheck {
    */
   @Override
   public void visitCallExpression(CallExpressionTree tree) {
-    ExpressionTree callee = tree.callee();
-    if (callee.is(Tree.Kind.IDENTIFIER_REFERENCE)) {
-      SyntaxToken token = ((IdentifierTree)callee).identifierToken();
-      if ("Function".equals(token.text()) && tree.arguments() != null && ! tree.arguments().parameters().isEmpty()) {
-        addIssue(new PreciseIssue(this, new IssueLocation(callee, callee, MESSAGE)));
-      }
+    if (isNonEmptyFunctionConstructor(tree.callee(), tree.arguments())) {
+      addIssue(tree.callee(), MESSAGE);
     }
     
     super.visitCallExpression(tree);
+  }
+  
+  private static boolean isNonEmptyFunctionConstructor(ExpressionTree tree, ParameterListTree arguments) {
+    boolean result = false;
+    if (tree.is(Tree.Kind.IDENTIFIER_REFERENCE)) {
+      String name = ((IdentifierTree)tree).name();
+      result = "Function".equals(name) && arguments != null && !arguments.parameters().isEmpty();
+    }
+    return result;
   }
   
 }

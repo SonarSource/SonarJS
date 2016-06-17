@@ -6,16 +6,15 @@ function foo1(a) {                                         // OK
 
 var foo2 = new Object();                                   // OK
 
-var foo3 = new FuncTion();                                 // OK
+var foo3 = new FuncTion();                                 // OK (wrong spelling, but anyway has no arguments)
 
-var foo4 = new Function;                                   // OK  (no argument list)
+var foo4 = new FuncTion('a', 'console.log(a);');           // OK (wrong spelling)
 
-var foo5 = new Function();                                 // OK  (empty argument list)
+var foo5 = new Function;                                   // OK  (no argument list)
 
-var bar1 = new Function('a', 'console.log(a);');           // Noncompliant {{Simply declare this function instead.}}
-//         ^^^^^^^^^^^^
+var foo6 = new Function();                                 // OK  (empty argument list)
 
-bar2 = new Function('b', 'console.log(b);');               // Noncompliant
+bar2 = new Function('b', 'console.log(b);');               // Noncompliant {{Declare this function instead of using the "Function" constructor.}}
 //     ^^^^^^^^^^^^
 
 function bar3(a) {
@@ -50,7 +49,7 @@ function baz2() {
 }
 
 function baz3() {
-  return Function('return "hello";');                      // Noncompliant {{Simply declare this function instead.}}
+  return Function('return "hello";');                      // Noncompliant {{Declare this function instead of using the "Function" constructor.}}
 //       ^^^^^^^^
 }
 
