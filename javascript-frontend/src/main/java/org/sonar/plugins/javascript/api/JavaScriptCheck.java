@@ -35,9 +35,10 @@ import org.sonar.plugins.javascript.api.visitors.TreeVisitorContext;
 public interface JavaScriptCheck {
 
   /**
-   *  This method should be deprecated, as soon as this plugin will be migrated on 5.X LTS (with support of precise issue locations). <p>
-   *  Instead please use {@link JavaScriptCheck#addIssue(Tree, String)}
+   * Returns new issue which is located on first line of <code>tree</code>
+   * @deprecated since 2.14 use {@link JavaScriptCheck#addIssue(Issue)}
    */
+  @Deprecated
   LineIssue addLineIssue(Tree tree, String message);
 
   /**
@@ -69,13 +70,9 @@ public interface JavaScriptCheck {
   PreciseIssue addIssue(Tree tree, String message);
 
   /**
-   * Use this method only to add specific kind of issue (when listed below methods don't meet your needs).
-   * E.g. you can use this method to add issue on file level, line issue knowing only line number (i.e. not having tree instance)
-   * or precise issue with sophisticated primary location.<p>
-   * Otherwise please use:
-   * <ul>
-   * <li>{@link org.sonar.plugins.javascript.api.JavaScriptCheck#addIssue(Tree, String)} for precise issue (see {@link PreciseIssue})</li>
-   * <li>{@link org.sonar.plugins.javascript.api.JavaScriptCheck#addLineIssue(Tree, String)} for line issue (see {@link LineIssue})</li>
+   * Use this method only to add specific kind of issue.
+   * E.g. you can use this method to add issue on file level, line issue or precise issue with sophisticated primary location.<p>
+   * Otherwise please use {@link org.sonar.plugins.javascript.api.JavaScriptCheck#addIssue(Tree, String)}</li>
    * </ul>
    */
   <T extends Issue> T addIssue(T issue);

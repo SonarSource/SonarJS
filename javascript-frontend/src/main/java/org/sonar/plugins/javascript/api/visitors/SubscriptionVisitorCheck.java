@@ -37,7 +37,11 @@ public abstract class SubscriptionVisitorCheck extends SubscriptionVisitor imple
     return issues.getList();
   }
 
+  /**
+   * @deprecated see {@link JavaScriptCheck#addLineIssue(Tree, String)}
+   */
   @Override
+  @Deprecated
   public LineIssue addLineIssue(Tree tree, String message) {
     return issues.addLineIssue(tree, message);
   }

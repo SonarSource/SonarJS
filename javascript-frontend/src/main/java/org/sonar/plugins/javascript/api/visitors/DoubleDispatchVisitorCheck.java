@@ -35,7 +35,11 @@ public abstract class DoubleDispatchVisitorCheck extends DoubleDispatchVisitor i
     return issues.getList();
   }
 
+  /**
+   * @deprecated see {@link JavaScriptCheck#addLineIssue(Tree, String)}
+   */
   @Override
+  @Deprecated
   public LineIssue addLineIssue(Tree tree, String message) {
     return issues.addLineIssue(tree, message);
   }
