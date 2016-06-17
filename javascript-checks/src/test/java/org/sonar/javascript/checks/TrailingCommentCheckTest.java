@@ -29,9 +29,7 @@ public class TrailingCommentCheckTest {
 
   @Test
   public void defaults() {
-    JavaScriptCheckVerifier.issues(check, new File("src/test/resources/checks/trailingComment.js"))
-      .next().atLine(2).withMessage("Move this trailing comment on the previous empty line.")
-      .noMore();
+    JavaScriptCheckVerifier.verify(check, new File("src/test/resources/checks/trailingComment.js"));
   }
 
   @Test
@@ -40,7 +38,7 @@ public class TrailingCommentCheckTest {
 
     JavaScriptCheckVerifier.issues(check, new File("src/test/resources/checks/trailingComment.js"))
       .next().atLine(2).withMessage("Move this trailing comment on the previous empty line.")
-      .next().atLine(8)
+      .next().atLine(9)
       .noMore();
   }
 
