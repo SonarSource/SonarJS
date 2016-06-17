@@ -24,6 +24,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableMap.Builder;
 import com.google.common.collect.Maps;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
@@ -50,9 +51,14 @@ public class ProgramState {
     ExpressionStack stack,
     int counter) {
 
+    Set<SymbolicValue> allReferencedValues = new HashSet<>(values.values());
+    if (stack.size() > 0) {
+      allReferencedValues.add(stack.peek());
+    }
+
     ImmutableMap.Builder<SymbolicValue, Constraint> constraintsBuilder = ImmutableMap.builder();
     for (Entry<SymbolicValue, Constraint> entry : constraints.entrySet()) {
-      if (values.containsValue(entry.getKey())) {
+      if (allReferencedValues.contains(entry.getKey())) {
         constraintsBuilder.put(entry.getKey(), entry.getValue());
       }
     }
