@@ -111,3 +111,7 @@ if (true) {
 function foobar() {
   console.log(identifier);
 }
+
+if (condition) {
+  function globalFunction(){}
+}

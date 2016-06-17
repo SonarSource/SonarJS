@@ -59,7 +59,7 @@ public class ScopeTest extends JavaScriptTreeModelTest {
 
   @Test
   public void scopes_number() throws Exception {
-    assertThat(SYMBOL_MODEL.getScopes()).hasSize(23);
+    assertThat(SYMBOL_MODEL.getScopes()).hasSize(25);
   }
 
   @Test
@@ -69,7 +69,7 @@ public class ScopeTest extends JavaScriptTreeModelTest {
     assertThat(scope.isGlobal()).isTrue();
     assertThat(scope.isBlock()).isFalse();
     assertThat(scopeAtLine(1)).isEqualTo(scope);
-    assertThat(symbols(scope)).containsOnly("a", "b", "f", "const1", "let1", "c", "A", "notBlock", "gen", "catch1", "try2", "identifier", "foobar");
+    assertThat(symbols(scope)).containsOnly("a", "b", "f", "const1", "let1", "c", "A", "notBlock", "gen", "catch1", "try2", "identifier", "foobar", "globalFunction");
   }
 
   @Test
@@ -315,5 +315,12 @@ public class ScopeTest extends JavaScriptTreeModelTest {
       IdentifierTree identifier = usage.identifierTree();
       assertThat(identifier.scope()).isEqualTo(usageScopes.get(identifier.identifierToken().line()));
     }
+  }
+
+  @Test
+  public void test_global_function_declaration_in_block() throws Exception {
+    Symbol globalFunction = SYMBOL_MODEL.getSymbols("globalFunction").iterator().next();
+    assertThat(globalFunction.scope().isGlobal()).isTrue();
+
   }
 }
