@@ -19,12 +19,16 @@
  */
 package org.sonar.javascript.se;
 
+import com.google.common.base.Predicates;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableMap.Builder;
+import com.google.common.collect.Maps;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
+import java.util.Set;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.javascript.se.sv.SimpleSymbolicValue;
@@ -47,9 +51,14 @@ public class ProgramState {
     ExpressionStack stack,
     int counter) {
 
+    Set<SymbolicValue> allReferencedValues = new HashSet<>(values.values());
+    if (stack.size() > 0) {
+      allReferencedValues.add(stack.peek());
+    }
+
     ImmutableMap.Builder<SymbolicValue, Constraint> constraintsBuilder = ImmutableMap.builder();
     for (Entry<SymbolicValue, Constraint> entry : constraints.entrySet()) {
-      if (values.containsValue(entry.getKey())) {
+      if (allReferencedValues.contains(entry.getKey())) {
         constraintsBuilder.put(entry.getKey(), entry.getValue());
       }
     }
@@ -208,5 +217,10 @@ public class ProgramState {
 
   public SymbolicValue peekStack() {
     return stack.peek();
+  }
+
+  public ProgramState removeSymbols(Set<Symbol> symbolsToKeep) {
+    Map<Symbol, SymbolicValue> newValues = Maps.filterKeys(values, Predicates.in(symbolsToKeep));
+    return new ProgramState(ImmutableMap.copyOf(newValues), constraints, stack, counter);
   }
 }

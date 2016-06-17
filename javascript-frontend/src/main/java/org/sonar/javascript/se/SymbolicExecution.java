@@ -65,12 +65,14 @@ public class SymbolicExecution {
   private final SetMultimap<Tree, Truthiness> conditionResults = HashMultimap.create();
   private final Set<BlockExecution> alreadyProcessed = new HashSet<>();
   private final List<SeCheck> checks;
+  private final LiveVariableAnalysis liveVariableAnalysis;
 
   public SymbolicExecution(Scope functionScope, ControlFlowGraph cfg, List<SeCheck> checks) {
     cfgStartBlock = cfg.start();
     LocalVariables localVariables = new LocalVariables(functionScope, cfg);
     this.trackedVariables = localVariables.trackableVariables();
     this.functionParameters = localVariables.functionParameters();
+    this.liveVariableAnalysis = LiveVariableAnalysis.create(cfg, functionScope);
     this.functionScope = functionScope;
     this.checks = checks;
   }
@@ -228,7 +230,8 @@ public class SymbolicExecution {
 
   private void pushSuccessor(CfgBlock successor, @Nullable ProgramState currentState) {
     if (currentState != null) {
-      workList.addLast(new BlockExecution(successor, currentState));
+      Set<Symbol> liveInSymbols = liveVariableAnalysis.getLiveInSymbols(successor);
+      workList.addLast(new BlockExecution(successor, currentState.removeSymbols(liveInSymbols)));
     }
   }
 

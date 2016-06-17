@@ -18,4 +18,6 @@ function main() {
   if (g) {}
   if (h) {}
   if (i) {}
+
+  makeLive(a, b, c, d, e, f, g, h, i);
 }

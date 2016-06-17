@@ -8,7 +8,8 @@ function main() {
 
   doSomething();  // PS x=TRUTHY & y=NULLY || x=NULL & y=NOT_NULLY
 
-  dummyStatement();
+
+  makeLive(x, y);
   
   x = foo();
   y = foo();
@@ -16,4 +17,7 @@ function main() {
   if (z) {
     dummyStatement(); // PS x=TRUTHY & y=TRUTHY
   }
+
+  makeLive(x, y);
+
 }

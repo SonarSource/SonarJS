@@ -7,6 +7,7 @@ function main() {
   } else {
     foo(); // PS x=NOT_UNDEFINED
   }
+  makeLive(x);
 
   x = foo();
   if ('undefined' != typeof x) {
@@ -14,6 +15,7 @@ function main() {
   } else {
     foo(); // PS x=UNDEFINED
   }
+  makeLive(x);
 
   x = foo();
   if (typeof x === "undefined") {
@@ -21,6 +23,7 @@ function main() {
   } else {
     foo(); // PS x=NOT_UNDEFINED
   }
+  makeLive(x);
 
   x = foo();
   if (typeof x === "function") {
@@ -28,6 +31,7 @@ function main() {
   } else {
     foo(); // PS x=UNKNOWN
   }
+  makeLive(x);
 
   x = foo();
   if (typeof x === "object") {
@@ -35,6 +39,7 @@ function main() {
   } else {
     foo(); // PS x=NOT_NULL
   }
+  makeLive(x);
 
   x = foo();
   if (typeof x === "number") {
@@ -42,6 +47,7 @@ function main() {
   } else {
     foo(); // PS x=UNKNOWN
   }
+  makeLive(x);
 
   x = foo();
   if (typeof x === "string") {
@@ -49,6 +55,7 @@ function main() {
   } else {
     foo(); // PS x=UNKNOWN
   }
+  makeLive(x);
 
   x = foo();
   if (typeof x === "boolean") {
@@ -56,12 +63,14 @@ function main() {
   } else {
     foo(); // PS x=UNKNOWN
   }
+  makeLive(x);
 
   x = foo();
   if (typeof x === "not_existing_type") {
     x = null;
   }
   foo(); // PS x=UNKNOWN
+  makeLive(x);
 
   x = null;
   if (typeof x == 'number') {
@@ -70,6 +79,7 @@ function main() {
     foo(); // PS x=NULL
   }
   foo(); // PS y=UNDEFINED & x=NULL
+  makeLive(x, y);
 
   x = null;
   if (typeof x !== 'object') {
@@ -79,5 +89,5 @@ function main() {
   }
   foo(); // PS y=UNDEFINED & x=NULL
 
-  dummyStatement();
+  makeLive(x, y);
 }

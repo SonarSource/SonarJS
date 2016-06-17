@@ -15,5 +15,5 @@ function main(obj, arr) {
   }
   foo(); // PS y=UNDEFINED
 
-  dummyStatement();
+  makeLive(y);
 }

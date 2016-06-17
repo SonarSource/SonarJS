@@ -19,7 +19,7 @@ function main(p) {
     }
 
     dummyStatement();  // PS x=NULL || x=TRUTHY
-    dummyStatement();
+    makeLive(x);
   }
 
   if (unknown.foo) {
@@ -31,7 +31,7 @@ function main(p) {
       }
 
       dummyStatement();  // PS y=NULL || y=TRUTHY
-      dummyStatement();
+      makeLive(y);
   }
 
 }
