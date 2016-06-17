@@ -204,7 +204,7 @@ public class HoistedSymbolVisitor extends DoubleDispatchVisitor {
 
   @Override
   public void visitFunctionDeclaration(FunctionDeclarationTree tree) {
-    symbolModel.declareSymbol(tree.name().name(), Symbol.Kind.FUNCTION, currentScope)
+    symbolModel.declareSymbol(tree.name().name(), Symbol.Kind.FUNCTION, getFunctionScope())
       .addUsage(Usage.create(tree.name(), Usage.Kind.DECLARATION));
 
     enterScope(tree);
