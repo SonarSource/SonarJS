@@ -22,9 +22,12 @@ package org.sonar.javascript.checks;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
+import org.sonar.plugins.javascript.api.tree.Tree;
+import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.declaration.FunctionDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.declaration.MethodDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.declaration.ParameterListTree;
+import org.sonar.plugins.javascript.api.tree.expression.ArrowFunctionTree;
 import org.sonar.plugins.javascript.api.tree.expression.FunctionExpressionTree;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
 import org.sonar.squidbridge.annotations.ActivatedByDefault;
@@ -63,6 +66,15 @@ public class ExcessiveParameterListCheck extends DoubleDispatchVisitorCheck {
   public void visitFunctionExpression(FunctionExpressionTree tree) {
     checkNumberOfParameters(tree.parameterClause());
     super.visitFunctionExpression(tree);
+  }
+
+  @Override
+  public void visitArrowFunction(ArrowFunctionTree tree) {
+    Tree parameterClause = tree.parameterClause();
+    if (parameterClause.is(Kind.FORMAL_PARAMETER_LIST)) {
+      checkNumberOfParameters((ParameterListTree) parameterClause);
+    }
+    super.visitArrowFunction(tree);
   }
 
   private void checkNumberOfParameters(ParameterListTree tree) {
