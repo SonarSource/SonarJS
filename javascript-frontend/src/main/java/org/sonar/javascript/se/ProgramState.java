@@ -52,7 +52,7 @@ public class ProgramState {
     int counter) {
 
     Set<SymbolicValue> allReferencedValues = new HashSet<>(values.values());
-    if (stack.size() > 0) {
+    if (!stack.isEmpty()) {
       allReferencedValues.add(stack.peek());
     }
 
@@ -207,12 +207,22 @@ public class ProgramState {
 
     ProgramState that = (ProgramState) o;
 
-    return Objects.equals(constraintsBySymbol(), that.constraintsBySymbol()) && Objects.equals(stack, that.stack);
+    return Objects.equals(constraintsBySymbol(), that.constraintsBySymbol())
+      && Objects.equals(stack, that.stack)
+      && Objects.equals(constraintOnPeek(), that.constraintOnPeek());
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(constraintsBySymbol(), stack);
+    return Objects.hash(constraintsBySymbol(), stack, constraintOnPeek());
+  }
+
+  @CheckForNull
+  private Constraint constraintOnPeek() {
+    if (stack.isEmpty()) {
+      return null;
+    }
+    return constraints.get(peekStack());
   }
 
   public SymbolicValue peekStack() {
@@ -222,5 +232,10 @@ public class ProgramState {
   public ProgramState removeSymbols(Set<Symbol> symbolsToKeep) {
     Map<Symbol, SymbolicValue> newValues = Maps.filterKeys(values, Predicates.in(symbolsToKeep));
     return new ProgramState(ImmutableMap.copyOf(newValues), constraints, stack, counter);
+  }
+
+  @Override
+  public String toString() {
+    return "[" + values + ";" + constraints + ";" + stack + "]";
   }
 }

@@ -214,6 +214,10 @@ class ExpressionStack {
     return stack.size();
   }
 
+  public boolean isEmpty() {
+    return stack.isEmpty();
+  }
+
   @Override
   public int hashCode() {
     return stack.hashCode();
@@ -242,6 +246,11 @@ class ExpressionStack {
     Deque<SymbolicValue> newStack = copy();
     newStack.pop();
     return new ExpressionStack(newStack);
+  }
+
+  @Override
+  public String toString() {
+    return stack.toString();
   }
 
 }
