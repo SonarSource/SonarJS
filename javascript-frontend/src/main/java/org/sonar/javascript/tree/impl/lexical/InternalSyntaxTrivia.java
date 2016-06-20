@@ -110,7 +110,7 @@ public class InternalSyntaxTrivia extends JavaScriptTree implements SyntaxTrivia
 
   @Override
   public void accept(DoubleDispatchVisitor visitor) {
-    visitor.visitComment(this);
+    //FIXME do nothing
   }
 
   @Override
