@@ -20,6 +20,7 @@
 package org.sonar.javascript.se;
 
 import com.google.common.base.Charsets;
+import com.google.common.collect.ImmutableList;
 import com.sonar.sslr.api.typed.ActionParser;
 import org.junit.Test;
 import org.sonar.javascript.parser.JavaScriptParserBuilder;
@@ -163,6 +164,12 @@ public class ExpressionStackTest {
   }
 
   @Test
+  public void isEmpty() throws Exception {
+    assertThat(emptyStack().isEmpty()).isTrue();
+    assertThat(emptyStack().push(simple1).isEmpty()).isFalse();
+  }
+
+  @Test
   public void equals() throws Exception {
     assertThat(emptyStack().push(simple1)).isEqualTo(emptyStack().push(simple1));
     assertThat(emptyStack().push(simple1)).isNotEqualTo(emptyStack().push(simple2));
@@ -172,6 +179,11 @@ public class ExpressionStackTest {
   @Test
   public void hash_code() throws Exception {
     assertThat(emptyStack().push(simple1).hashCode()).isEqualTo(emptyStack().push(simple1).hashCode());
+  }
+
+  @Test
+  public void to_string() throws Exception {
+    assertThat(emptyStack().push(simple1).toString()).isEqualTo(ImmutableList.of(simple1).toString());
   }
 
   private void assertSingleValueInStack(Class<? extends SymbolicValue> expectedClass) {

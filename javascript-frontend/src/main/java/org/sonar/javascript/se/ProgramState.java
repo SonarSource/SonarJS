@@ -52,7 +52,7 @@ public class ProgramState {
     int counter) {
 
     Set<SymbolicValue> allReferencedValues = new HashSet<>(values.values());
-    if (stack.size() > 0) {
+    if (!stack.isEmpty()) {
       allReferencedValues.add(stack.peek());
     }
 
@@ -222,5 +222,10 @@ public class ProgramState {
   public ProgramState removeSymbols(Set<Symbol> symbolsToKeep) {
     Map<Symbol, SymbolicValue> newValues = Maps.filterKeys(values, Predicates.in(symbolsToKeep));
     return new ProgramState(ImmutableMap.copyOf(newValues), constraints, stack, counter);
+  }
+
+  @Override
+  public String toString() {
+    return "[" + values + ";" + constraints + ";" + stack + "]";
   }
 }
