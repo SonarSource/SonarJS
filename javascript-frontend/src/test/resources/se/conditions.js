@@ -96,4 +96,13 @@ function main() {
   }
 
   makeLive(y1, x);
+
+  x = foo();
+  var y = x && x.bar;
+  z = condition1() ? null : x;
+  if (z) {
+    dummyStatement(); // PS z=TRUTHY
+    makeLive(z);
+  }
+
 }

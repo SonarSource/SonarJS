@@ -207,12 +207,22 @@ public class ProgramState {
 
     ProgramState that = (ProgramState) o;
 
-    return Objects.equals(constraintsBySymbol(), that.constraintsBySymbol()) && Objects.equals(stack, that.stack);
+    return Objects.equals(constraintsBySymbol(), that.constraintsBySymbol())
+      && Objects.equals(stack, that.stack)
+      && Objects.equals(constraintOnPeek(), that.constraintOnPeek());
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(constraintsBySymbol(), stack);
+    return Objects.hash(constraintsBySymbol(), stack, constraintOnPeek());
+  }
+
+  @CheckForNull
+  private Constraint constraintOnPeek() {
+    if (stack.isEmpty()) {
+      return null;
+    }
+    return constraints.get(peekStack());
   }
 
   public SymbolicValue peekStack() {
