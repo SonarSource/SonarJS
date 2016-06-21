@@ -38,7 +38,9 @@ import org.sonar.plugins.javascript.api.symbols.Symbol;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 
 /**
- * This class represents the knowledge about the variables values at some program point.
+ * This class represents the knowledge about the variables values.
+ * The same program state may be valid for several program points and at one program point there might be valid several program states (depending on execution path).
+ * This class is immutable.
  */
 public class ProgramState {
 

@@ -42,6 +42,7 @@ import org.sonar.plugins.javascript.api.tree.expression.TemplateLiteralTree;
 /**
  * This class stores the stack of symbolic values corresponding to the order of expression evaluation.
  * Each {@link ProgramState} has corresponding instance of {@link ExpressionStack}.
+ * Note that this class is immutable.
  */
 public class ExpressionStack {
 
@@ -73,6 +74,8 @@ public class ExpressionStack {
 
   /**
    * This method executes expression: it pushes to the stack a new symbolic value based (if required) on popped symbolic values.
+   * Note that as {@link ExpressionStack} is an immutable class,
+   * this method will return new resulting instance of {@link ExpressionStack} while the calling this method instance will not be changed.
    *
    * @param expression to be executed
    * @return resulting {@link ExpressionStack}
