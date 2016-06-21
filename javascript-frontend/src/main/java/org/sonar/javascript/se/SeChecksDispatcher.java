@@ -33,6 +33,9 @@ import org.sonar.plugins.javascript.api.visitors.Issue;
 import org.sonar.plugins.javascript.api.visitors.SubscriptionVisitorCheck;
 import org.sonar.plugins.javascript.api.visitors.TreeVisitorContext;
 
+/**
+ * This class is in charge of initializing of symbolic execution and notifying {@link SeCheck} of the events in symbolic execution (like start, end etc.)
+ */
 public class SeChecksDispatcher extends SubscriptionVisitorCheck {
 
   private List<SeCheck> checks;

@@ -39,7 +39,11 @@ import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 import org.sonar.plugins.javascript.api.tree.expression.LiteralTree;
 import org.sonar.plugins.javascript.api.tree.expression.TemplateLiteralTree;
 
-class ExpressionStack {
+/**
+ * This class stores the stack of symbolic values corresponding to the order of expression evaluation.
+ * Each {@link ProgramState} has corresponding instance of {@link ExpressionStack}.
+ */
+public class ExpressionStack {
 
   private static final ExpressionStack EMPTY = new ExpressionStack();
 
@@ -67,6 +71,12 @@ class ExpressionStack {
     return new ExpressionStack(newStack);
   }
 
+  /**
+   * This method executes expression: it pushes to the stack a new symbolic value based (if required) on popped symbolic values.
+   *
+   * @param expression to be executed
+   * @return resulting {@link ExpressionStack}
+   */
   public ExpressionStack execute(ExpressionTree expression) {
     Deque<SymbolicValue> newStack = copy();
     Kind kind = ((JavaScriptTree) expression).getKind();

@@ -28,6 +28,14 @@ import java.util.Objects;
 import org.sonar.javascript.se.Constraint;
 import org.sonar.javascript.se.ProgramState;
 
+/**
+ * This class represents symbolic value for equality expression.
+ * E.g.
+ * <pre>x == null</pre>
+ * <pre>foo(x) !== undefined</pre>
+ *
+ * Current implementation supports only <code>null</code> and <code>undefined</code> as "constraining" operand. There is no limitation on "constrained" operand.
+ */
 public class EqualToSymbolicValue implements SymbolicValue {
 
   private static final Map<SpecialSymbolicValue, Constraint> EQUAL_CONSTRAINTS = ImmutableMap.of(

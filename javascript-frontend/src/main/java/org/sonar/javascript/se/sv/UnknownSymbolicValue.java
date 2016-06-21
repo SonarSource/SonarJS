@@ -24,6 +24,9 @@ import java.util.List;
 import org.sonar.javascript.se.Constraint;
 import org.sonar.javascript.se.ProgramState;
 
+/**
+ * This enum represents symbolic value for which we have no information.
+ */
 public enum UnknownSymbolicValue implements SymbolicValue {
 
   UNKNOWN;

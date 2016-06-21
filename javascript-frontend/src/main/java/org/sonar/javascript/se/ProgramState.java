@@ -37,6 +37,9 @@ import org.sonar.javascript.se.sv.UnknownSymbolicValue;
 import org.sonar.plugins.javascript.api.symbols.Symbol;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 
+/**
+ * This class represents the knowledge about the variables values at some program point.
+ */
 public class ProgramState {
 
   private final ImmutableMap<Symbol, SymbolicValue> values;

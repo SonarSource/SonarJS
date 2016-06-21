@@ -22,6 +22,9 @@ package org.sonar.javascript.se;
 import java.util.Objects;
 import org.sonar.javascript.cfg.CfgBlock;
 
+/**
+ * This class represents execution of a block on a given path
+ */
 public class BlockExecution {
 
   private final CfgBlock block;
