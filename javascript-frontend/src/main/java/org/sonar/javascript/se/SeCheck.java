@@ -32,29 +32,57 @@ import org.sonar.plugins.javascript.api.visitors.LineIssue;
 import org.sonar.plugins.javascript.api.visitors.PreciseIssue;
 import org.sonar.plugins.javascript.api.visitors.TreeVisitorContext;
 
+/**
+ * Extend this class to implement a new check based on symbolic execution.
+ */
 public class SeCheck implements JavaScriptCheck {
 
   private Issues issues = new Issues(this);
 
+  /**
+   * Override this method to check the truthiness of conditions in current execution (aka function scope).
+   * This method is called after end of execution. Note that it's not called if execution was not finished due reaching the execution limit.
+   */
   public void checkConditions(Map<Tree, Collection<Truthiness>> conditions) {
     // do nothing by default
   }
 
+  /**
+   * Override this method to perform actions before executing <code>element</code>.
+   * This method is called before each element until end of execution or reaching the execution limit.
+   * @param currentState current state at the program point preceding <code>element</code>
+   * @param element syntax tree to be executed next
+   */
   public void beforeBlockElement(ProgramState currentState, Tree element) {
     // do nothing by default
   }
 
+  /**
+   * Override this method to perform actions after executing <code>element</code>.
+   * This method is called after each element until end of execution or reaching the execution limit.
+   * @param currentState current state at the program point following <code>element</code>
+   * @param element last executed syntax tree
+   */
   public void afterBlockElement(ProgramState currentState, Tree element) {
     // do nothing by default
   }
 
   /**
-   * Method is called when the execution finished before reaching limit
+   * Override this method to perform actions when the execution is finished.
+   * This method is called for each execution, i.e. for each function in the file.
+   * Note this method is not called if the execution limit was reached.
+   * @param functionScope scope corresponding to the function which was executed
    */
   public void endOfExecution(Scope functionScope) {
     // do nothing by default
   }
 
+  /**
+   * Override this method to perform actions before the start of execution.
+   * This method is called for each execution, i.e. for each function in the file.
+   * Note this method is called even if the execution limit was reached later.
+   * @param functionScope scope corresponding to the function which will be executed
+   */
   public void startOfExecution(Scope functionScope) {
     // do nothing by default
   }

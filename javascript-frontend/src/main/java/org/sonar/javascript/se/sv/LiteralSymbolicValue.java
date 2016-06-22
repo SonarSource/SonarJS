@@ -26,6 +26,10 @@ import org.sonar.javascript.se.ProgramState;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.expression.LiteralTree;
 
+/**
+ * This class represents symbolic value for literal (string, number and boolean).
+ * Current implementation provides only truthy/falsy constraint for this symbolic value, thus we are not able to process numeric constraints.
+ */
 public class LiteralSymbolicValue implements SymbolicValue {
 
   private final LiteralTree literal;

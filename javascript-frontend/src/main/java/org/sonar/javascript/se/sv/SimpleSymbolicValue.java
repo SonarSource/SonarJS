@@ -24,6 +24,9 @@ import java.util.List;
 import org.sonar.javascript.se.Constraint;
 import org.sonar.javascript.se.ProgramState;
 
+/**
+ * This class represents symbolic value for symbol.
+ */
 public class SimpleSymbolicValue implements SymbolicValue {
 
   private final int id;

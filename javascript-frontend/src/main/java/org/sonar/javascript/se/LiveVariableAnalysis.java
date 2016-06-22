@@ -40,6 +40,10 @@ import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.expression.AssignmentExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 
+/**
+ * This class provides information about symbols which are "live" (which value will be read) at some point of the program.
+ * See https://en.wikipedia.org/wiki/Live_variable_analysis
+ */
 public class LiveVariableAnalysis {
 
   private final Usages usages;

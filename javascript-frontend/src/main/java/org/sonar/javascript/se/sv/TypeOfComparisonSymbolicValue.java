@@ -31,7 +31,10 @@ import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.expression.LiteralTree;
 
 /**
- * <code>typeof x == "object"</code>
+ * This class represents symbolic value for typical comparison of "typeof <some expression>" with string literal.
+ * E.g.
+ * <pre>typeof foo.bar() != "string"</pre>
+ * <pre>typeof x == "object"</pre>
  */
 public class TypeOfComparisonSymbolicValue implements SymbolicValue {
 

@@ -26,7 +26,10 @@ import org.sonar.javascript.se.Constraint;
 import org.sonar.javascript.se.ProgramState;
 
 /**
- * <code>typeof x</code>
+ * This class represents symbolic value for "typeof" expression.
+ * E.g.
+ * <pre>typeof foo.bar()</pre>
+ * <pre>typeof x</pre>
  */
 public class TypeOfSymbolicValue implements SymbolicValue {
 
