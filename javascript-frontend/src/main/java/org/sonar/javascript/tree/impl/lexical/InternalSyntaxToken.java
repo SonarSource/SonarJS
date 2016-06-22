@@ -127,7 +127,7 @@ public class InternalSyntaxToken extends JavaScriptTree implements SyntaxToken {
 
   @Override
   public void accept(DoubleDispatchVisitor visitor) {
-    visitor.visitToken(this);
+    // FIXME do nothing at the moment
   }
 
   public boolean is(TokenType type) {

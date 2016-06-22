@@ -21,10 +21,9 @@ package org.sonar.plugins.javascript.api.visitors;
 
 import com.google.common.annotations.Beta;
 import com.google.common.base.Preconditions;
-import java.util.Iterator;
+import com.sonar.sslr.api.typed.Optional;
 import java.util.List;
 import javax.annotation.Nullable;
-import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.javascript.tree.impl.expression.SuperTreeImpl;
 import org.sonar.plugins.javascript.api.tree.ModuleTree;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
@@ -79,8 +78,6 @@ import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxSpreadAttributeTr
 import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxStandardAttributeTree;
 import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxStandardElementTree;
 import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxTextTree;
-import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
-import org.sonar.plugins.javascript.api.tree.lexical.SyntaxTrivia;
 import org.sonar.plugins.javascript.api.tree.statement.BlockTree;
 import org.sonar.plugins.javascript.api.tree.statement.BreakStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.CaseClauseTree;
@@ -128,399 +125,439 @@ public abstract class DoubleDispatchVisitor implements TreeVisitor {
     }
   }
 
-  protected void scanChildren(Tree tree) {
-    Iterator<Tree> childrenIterator = ((JavaScriptTree) tree).childrenIterator();
+  protected <T> void scan(List<T> trees) {
+    for (T tree : trees) {
 
-    Tree child;
+      if (tree instanceof Optional) {
+        scan((Optional) tree);
 
-    while (childrenIterator.hasNext()) {
-      child = childrenIterator.next();
-      if (child != null) {
-        child.accept(this);
+      } else if (tree instanceof Tree) {
+        scan((Tree) tree);
+
+      } else {
+        throw new IllegalArgumentException("List element type should be of type Optional or Tree.");
       }
     }
   }
 
-  protected <T extends Tree> void scan(List<T> trees) {
-    trees.forEach(this::scan);
+  private void scan(Optional<Tree> tree) {
+    if (tree.isPresent()) {
+      scan(tree.get());
+    }
   }
 
+
   public void visitScript(ScriptTree tree) {
-    scanChildren(tree);
+    scan(tree.items());
   }
 
 
   public void visitModule(ModuleTree tree) {
-    scanChildren(tree);
+    scan(tree.items());
   }
 
 
   public void visitImportDeclaration(ImportDeclarationTree tree) {
-    scanChildren(tree);
+    scan(tree.importClause());
+    scan(tree.fromClause());
   }
 
 
   public void visitImportModuleDeclaration(ImportModuleDeclarationTree tree) {
-    scanChildren(tree);
+    scan(tree.moduleName());
   }
 
 
   public void visitImportClause(ImportClauseTree tree) {
-    scanChildren(tree);
+    scan(tree.namedImport());
   }
 
 
   public void visitSpecifierList(SpecifierListTree tree) {
-    scanChildren(tree);
+    scan(tree.specifiers());
   }
 
 
   public void visitSpecifier(SpecifierTree tree) {
-    scanChildren(tree);
+    scan(tree.name());
+    scan(tree.localName());
   }
 
 
   public void visitFromClause(FromClauseTree tree) {
-    scanChildren(tree);
+    scan(tree.module());
   }
 
 
   public void visitDefaultExportDeclaration(DefaultExportDeclarationTree tree) {
-    scanChildren(tree);
+    scan(tree.object());
   }
 
 
   public void visitNameSpaceExportDeclaration(NameSpaceExportDeclarationTree tree) {
-    scanChildren(tree);
+    scan(tree.fromClause());
   }
 
 
   public void visitNamedExportDeclaration(NamedExportDeclarationTree tree) {
-    scanChildren(tree);
+    scan(tree.object());
   }
 
 
   public void visitVariableStatement(VariableStatementTree tree) {
-    scanChildren(tree);
+    scan(tree.declaration());
   }
 
 
   public void visitVariableDeclaration(VariableDeclarationTree tree) {
-    scanChildren(tree);
+    scan(tree.variables());
   }
 
 
   public void visitClass(ClassTree tree) {
-    scanChildren(tree);
+    scan(tree.name());
+    scan(tree.superClass());
+    scan(tree.elements());
   }
 
 
   public void visitMethodDeclaration(MethodDeclarationTree tree) {
-    scanChildren(tree);
+    scan(tree.name());
+    scan(tree.parameterClause());
+    scan(tree.body());
   }
 
 
   public void visitParameterList(ParameterListTree tree) {
-    scanChildren(tree);
+    scan(tree.parameters());
   }
 
 
   public void visitFunctionDeclaration(FunctionDeclarationTree tree) {
-    scanChildren(tree);
+    scan(tree.name());
+    scan(tree.parameterClause());
+    scan(tree.body());
   }
 
 
   public void visitBlock(BlockTree tree) {
-    scanChildren(tree);
+    scan(tree.statements());
   }
 
 
   public void visitEmptyStatement(EmptyStatementTree tree) {
-    scanChildren(tree);
+    // no subtrees
   }
 
 
   public void visitLabelledStatement(LabelledStatementTree tree) {
-    scanChildren(tree);
+    scan(tree.label());
+    scan(tree.statement());
   }
 
 
   public void visitExpressionStatement(ExpressionStatementTree tree) {
-    scanChildren(tree);
+    scan(tree.expression());
   }
 
 
   public void visitIfStatement(IfStatementTree tree) {
-    scanChildren(tree);
+    scan(tree.condition());
+    scan(tree.statement());
+    scan(tree.elseClause());
   }
 
 
   public void visitElseClause(ElseClauseTree tree) {
-    scanChildren(tree);
+    scan(tree.statement());
   }
 
 
   public void visitForStatement(ForStatementTree tree) {
-    scanChildren(tree);
+    scan(tree.init());
+    scan(tree.condition());
+    scan(tree.update());
+    scan(tree.statement());
   }
 
 
   public void visitWhileStatement(WhileStatementTree tree) {
-    scanChildren(tree);
+    scan(tree.condition());
+    scan(tree.statement());
   }
 
 
   public void visitDoWhileStatement(DoWhileStatementTree tree) {
-    scanChildren(tree);
+    scan(tree.statement());
+    scan(tree.condition());
   }
 
 
   public void visitContinueStatement(ContinueStatementTree tree) {
-    scanChildren(tree);
+    scan(tree.label());
   }
 
 
   public void visitIdentifier(IdentifierTree tree) {
-    scanChildren(tree);
+    // no sub-tree
   }
 
 
   public void visitBreakStatement(BreakStatementTree tree) {
-    scanChildren(tree);
+    scan(tree.label());
   }
 
 
   public void visitReturnStatement(ReturnStatementTree tree) {
-    scanChildren(tree);
+    scan(tree.expression());
   }
 
 
   public void visitWithStatement(WithStatementTree tree) {
-    scanChildren(tree);
+    scan(tree.expression());
+    scan(tree.statement());
   }
 
 
   public void visitSwitchStatement(SwitchStatementTree tree) {
-    scanChildren(tree);
+    scan(tree.expression());
+    scan(tree.cases());
   }
 
 
   public void visitDefaultClause(DefaultClauseTree tree) {
-    scanChildren(tree);
+    scan(tree.statements());
   }
 
 
   public void visitCaseClause(CaseClauseTree tree) {
-    scanChildren(tree);
+    scan(tree.expression());
+    scan(tree.statements());
   }
 
 
   public void visitThrowStatement(ThrowStatementTree tree) {
-    scanChildren(tree);
+    scan(tree.expression());
   }
 
 
   public void visitTryStatement(TryStatementTree tree) {
-    scanChildren(tree);
+    scan(tree.block());
+    scan(tree.catchBlock());
+    scan(tree.finallyBlock());
   }
 
 
   public void visitCatchBlock(CatchBlockTree tree) {
-    scanChildren(tree);
+    scan(tree.parameter());
+    scan(tree.block());
   }
 
 
   public void visitDebugger(DebuggerStatementTree tree) {
-    scanChildren(tree);
+    // no sub-tree
   }
 
 
   public void visitArrayBindingPattern(ArrayBindingPatternTree tree) {
-    scanChildren(tree);
+    scan(tree.elements());
   }
 
 
   public void visitObjectBindingPattern(ObjectBindingPatternTree tree) {
-    scanChildren(tree);
+    scan(tree.elements());
   }
 
 
   public void visitObjectLiteral(ObjectLiteralTree tree) {
-    scanChildren(tree);
+    scan(tree.properties());
   }
 
 
   public void visitBindingProperty(BindingPropertyTree tree) {
-    scanChildren(tree);
+    scan(tree.name());
+    scan(tree.value());
   }
 
 
   public void visitInitializedBindingElement(InitializedBindingElementTree tree) {
-    scanChildren(tree);
+    scan(tree.left());
+    scan(tree.right());
   }
 
 
   public void visitLiteral(LiteralTree tree) {
-    scanChildren(tree);
+    // no sub-tree
   }
 
 
   public void visitArrayLiteral(ArrayLiteralTree tree) {
-    scanChildren(tree);
+    scan(tree.elements());
   }
 
 
   public void visitAssignmentExpression(AssignmentExpressionTree tree) {
-    scanChildren(tree);
+    scan(tree.variable());
+    scan(tree.expression());
   }
 
 
   public void visitConditionalExpression(ConditionalExpressionTree tree) {
-    scanChildren(tree);
+    scan(tree.condition());
+    scan(tree.trueExpression());
+    scan(tree.falseExpression());
   }
 
 
   public void visitArrowFunction(ArrowFunctionTree tree) {
-    scanChildren(tree);
+    scan(tree.parameterClause());
+    scan(tree.body());
   }
 
 
   public void visitYieldExpression(YieldExpressionTree tree) {
-    scanChildren(tree);
+    scan(tree.argument());
   }
 
 
   public void visitBinaryExpression(BinaryExpressionTree tree) {
-    scanChildren(tree);
+    scan(tree.leftOperand());
+    scan(tree.rightOperand());
   }
 
 
   public void visitUnaryExpression(UnaryExpressionTree tree) {
-    scanChildren(tree);
+    scan(tree.expression());
   }
 
 
   public void visitMemberExpression(MemberExpressionTree tree) {
-    scanChildren(tree);
+    scan(tree.object());
+    scan(tree.property());
   }
 
 
   public void visitTaggedTemplate(TaggedTemplateTree tree) {
-    scanChildren(tree);
+    scan(tree.callee());
+    scan(tree.template());
   }
 
 
   public void visitCallExpression(CallExpressionTree tree) {
-    scanChildren(tree);
+    scan(tree.callee());
+    scan(tree.arguments());
   }
 
 
   public void visitTemplateLiteral(TemplateLiteralTree tree) {
-    scanChildren(tree);
+    scan(tree.strings());
+    scan(tree.expressions());
   }
 
 
   public void visitTemplateExpression(TemplateExpressionTree tree) {
-    scanChildren(tree);
+    scan(tree.expression());
   }
 
 
   public void visitTemplateCharacters(TemplateCharactersTree tree) {
-    scanChildren(tree);
+    // no sub-tree
   }
 
 
   public void visitParenthesisedExpression(ParenthesisedExpressionTree tree) {
-    scanChildren(tree);
+    scan(tree.expression());
   }
 
 
   public void visitComputedPropertyName(ComputedPropertyNameTree tree) {
-    scanChildren(tree);
+    scan(tree.expression());
   }
 
 
   public void visitPairProperty(PairPropertyTree tree) {
-    scanChildren(tree);
+    scan(tree.key());
+    scan(tree.value());
   }
 
 
   public void visitNewExpression(NewExpressionTree tree) {
-    scanChildren(tree);
+    scan(tree.expression());
+    scan(tree.arguments());
   }
 
 
   public void visitFunctionExpression(FunctionExpressionTree tree) {
-    scanChildren(tree);
+    scan(tree.name());
+    scan(tree.parameterClause());
+    scan(tree.body());
   }
 
 
   public void visitRestElement(RestElementTree tree) {
-    scanChildren(tree);
+    scan(tree.element());
   }
 
   public void visitSpreadElement(SpreadElementTree tree) {
-    scanChildren(tree);
+    scan(tree.element());
   }
 
 
   public void visitSuper(SuperTreeImpl tree) {
-    scanChildren(tree);
+    // no sub-tree
   }
 
 
   public void visitExportClause(ExportClauseTree tree) {
-    scanChildren(tree);
+    scan(tree.exports());
+    scan(tree.fromClause());
   }
 
 
   public void visitForObjectStatement(ForObjectStatementTree tree) {
-    scanChildren(tree);
+    scan(tree.variableOrExpression());
+    scan(tree.expression());
+    scan(tree.statement());
   }
 
   public void visitJsxIdentifier(JsxIdentifierTree tree) {
-    scanChildren(tree);
+    // no sub-tree
   }
 
   public void visitJsxText(JsxTextTree tree){
-    scanChildren(tree);
+    // no sub-tree
   }
 
   public void visitJsxSpreadAttribute(JsxSpreadAttributeTree tree) {
-    scanChildren(tree);
+    scan(tree.expressionTree());
   }
 
   public void visitJsxStandardAttribute(JsxStandardAttributeTree tree) {
-    scanChildren(tree);
+    scan(tree.name());
+    scan(tree.value());
   }
 
   public void visitJsxJavaScriptExpression(JsxJavaScriptExpressionTree tree) {
-    scanChildren(tree);
+    scan(tree.expression());
   }
 
   public void visitJsxClosingElement(JsxClosingElementTree tree) {
-    scanChildren(tree);
+    scan(tree.elementName());
   }
 
   public void visitJsxOpeningElement(JsxOpeningElementTree tree) {
-    scanChildren(tree);
+    scan(tree.elementName());
+    scan(tree.attributes());
   }
 
   public void visitJsxStandardElement(JsxStandardElementTree tree) {
-    scanChildren(tree);
+    scan(tree.openingElement());
+    scan(tree.children());
+    scan(tree.closingElement());
   }
 
   public void visitJsxSelfClosingElement(JsxSelfClosingElementTree tree) {
-    scanChildren(tree);
-  }
-
-  public void visitToken(SyntaxToken token) {
-    for (SyntaxTrivia syntaxTrivia : token.trivias()) {
-      syntaxTrivia.accept(this);
-    }
-  }
-
-  public void visitComment(SyntaxTrivia commentToken) {
-    // no sub-tree
+    scan(tree.elementName());
+    scan(tree.attributes());
   }
 }
