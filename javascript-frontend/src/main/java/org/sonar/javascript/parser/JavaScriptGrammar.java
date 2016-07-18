@@ -83,6 +83,7 @@ import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.declaration.BindingElementTree;
 import org.sonar.plugins.javascript.api.tree.declaration.DeclarationTree;
 import org.sonar.plugins.javascript.api.tree.declaration.ExportDeclarationTree;
+import org.sonar.plugins.javascript.api.tree.declaration.FieldDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.declaration.ImportModuleDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.declaration.MethodDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.declaration.NameSpaceExportDeclarationTree;
@@ -91,8 +92,8 @@ import org.sonar.plugins.javascript.api.tree.declaration.SpecifierTree;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 import org.sonar.plugins.javascript.api.tree.expression.MemberExpressionTree;
-import org.sonar.plugins.javascript.api.tree.expression.SpreadElementTree;
 import org.sonar.plugins.javascript.api.tree.expression.RestElementTree;
+import org.sonar.plugins.javascript.api.tree.expression.SpreadElementTree;
 import org.sonar.plugins.javascript.api.tree.expression.TemplateCharactersTree;
 import org.sonar.plugins.javascript.api.tree.expression.TemplateExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.TemplateLiteralTree;
@@ -1547,7 +1548,17 @@ public class JavaScriptGrammar {
       .is(
         b.firstOf(
           METHOD_DEFINITION(),
+          CLASS_FIELD_INITIALIZER(),
           b.token(JavaScriptPunctuator.SEMI)));
+  }
+
+  public FieldDeclarationTree CLASS_FIELD_INITIALIZER() {
+    return b.<FieldDeclarationTree>nonterminal()
+      .is(f.fieldDeclaration(
+        b.optional(b.token(JavaScriptLegacyGrammar.STATIC)),
+        PROPERTY_NAME(),
+        b.optional(f.newTuple58(b.token(JavaScriptPunctuator.EQU), ASSIGNMENT_EXPRESSION())),
+        b.token(JavaScriptPunctuator.SEMI)));
   }
 
   public MethodDeclarationTree METHOD_DEFINITION() {

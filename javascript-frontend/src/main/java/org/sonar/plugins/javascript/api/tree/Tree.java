@@ -26,6 +26,7 @@ import org.sonar.plugins.javascript.api.tree.declaration.ArrayBindingPatternTree
 import org.sonar.plugins.javascript.api.tree.declaration.BindingPropertyTree;
 import org.sonar.plugins.javascript.api.tree.declaration.DefaultExportDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.declaration.ExportClauseTree;
+import org.sonar.plugins.javascript.api.tree.declaration.FieldDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.declaration.FromClauseTree;
 import org.sonar.plugins.javascript.api.tree.declaration.FunctionDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.declaration.GeneratorMethodDeclarationTree;
@@ -760,6 +761,11 @@ public interface Tree {
      * {@link MethodDeclarationTree}
      */
     METHOD(MethodDeclarationTree.class),
+
+    /**
+     * {@link FieldDeclarationTree}
+     */
+    FIELD(FieldDeclarationTree.class),
 
     /**
      * {@link ClassTree}

@@ -37,6 +37,7 @@ import org.sonar.javascript.tree.impl.declaration.ArrayBindingPatternTreeImpl;
 import org.sonar.javascript.tree.impl.declaration.BindingPropertyTreeImpl;
 import org.sonar.javascript.tree.impl.declaration.DefaultExportDeclarationTreeImpl;
 import org.sonar.javascript.tree.impl.declaration.ExportClauseTreeImpl;
+import org.sonar.javascript.tree.impl.declaration.FieldDeclarationTreeImpl;
 import org.sonar.javascript.tree.impl.declaration.FromClauseTreeImpl;
 import org.sonar.javascript.tree.impl.declaration.FunctionDeclarationTreeImpl;
 import org.sonar.javascript.tree.impl.declaration.GeneratorMethodDeclarationTreeImpl;
@@ -119,6 +120,7 @@ import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.declaration.AccessorMethodDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.declaration.BindingElementTree;
 import org.sonar.plugins.javascript.api.tree.declaration.DeclarationTree;
+import org.sonar.plugins.javascript.api.tree.declaration.FieldDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.declaration.GeneratorMethodDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.declaration.ImportClauseTree;
 import org.sonar.plugins.javascript.api.tree.declaration.ImportModuleDeclarationTree;
@@ -1640,6 +1642,18 @@ public class TreeFactory {
     return currentObject;
   }
 
+  public FieldDeclarationTree fieldDeclaration(
+    Optional<InternalSyntaxToken> staticToken, Tree propertyName,
+    Optional<Tuple<InternalSyntaxToken, ExpressionTree>> initializer,
+    InternalSyntaxToken semicolonToken
+  ) {
+    if (initializer.isPresent()) {
+      return new FieldDeclarationTreeImpl(staticToken.orNull(), propertyName, initializer.get().first, initializer.get().second, semicolonToken);
+    }
+
+    return new FieldDeclarationTreeImpl(staticToken.orNull(), propertyName, null, null, semicolonToken);
+  }
+
   public static class Tuple<T, U> {
 
     private final T first;
@@ -1830,6 +1844,10 @@ public class TreeFactory {
   }
 
   public <T, U> Tuple<T, U> newTuple57(T first, U second) {
+    return newTuple(first, second);
+  }
+
+  public <T, U> Tuple<T, U> newTuple58(T first, U second) {
     return newTuple(first, second);
   }
 
