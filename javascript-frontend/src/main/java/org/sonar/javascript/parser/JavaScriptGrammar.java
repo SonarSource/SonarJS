@@ -28,7 +28,6 @@ import org.sonar.javascript.tree.impl.SeparatedList;
 import org.sonar.javascript.tree.impl.declaration.ArrayBindingPatternTreeImpl;
 import org.sonar.javascript.tree.impl.declaration.DefaultExportDeclarationTreeImpl;
 import org.sonar.javascript.tree.impl.declaration.FromClauseTreeImpl;
-import org.sonar.javascript.tree.impl.declaration.FunctionDeclarationTreeImpl;
 import org.sonar.javascript.tree.impl.declaration.ImportClauseTreeImpl;
 import org.sonar.javascript.tree.impl.declaration.InitializedBindingElementTreeImpl;
 import org.sonar.javascript.tree.impl.declaration.ModuleTreeImpl;
@@ -44,7 +43,6 @@ import org.sonar.javascript.tree.impl.expression.BracketMemberExpressionTreeImpl
 import org.sonar.javascript.tree.impl.expression.ClassTreeImpl;
 import org.sonar.javascript.tree.impl.expression.ComputedPropertyNameTreeImpl;
 import org.sonar.javascript.tree.impl.expression.DotMemberExpressionTreeImpl;
-import org.sonar.javascript.tree.impl.expression.FunctionExpressionTreeImpl;
 import org.sonar.javascript.tree.impl.expression.IdentifierTreeImpl;
 import org.sonar.javascript.tree.impl.expression.LiteralTreeImpl;
 import org.sonar.javascript.tree.impl.expression.ObjectLiteralTreeImpl;
@@ -84,12 +82,14 @@ import org.sonar.plugins.javascript.api.tree.declaration.BindingElementTree;
 import org.sonar.plugins.javascript.api.tree.declaration.DeclarationTree;
 import org.sonar.plugins.javascript.api.tree.declaration.ExportDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.declaration.FieldDeclarationTree;
+import org.sonar.plugins.javascript.api.tree.declaration.FunctionDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.declaration.ImportModuleDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.declaration.MethodDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.declaration.NameSpaceExportDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.declaration.SpecifierListTree;
 import org.sonar.plugins.javascript.api.tree.declaration.SpecifierTree;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
+import org.sonar.plugins.javascript.api.tree.expression.FunctionExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 import org.sonar.plugins.javascript.api.tree.expression.MemberExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.RestElementTree;
@@ -566,8 +566,8 @@ public class JavaScriptGrammar {
   /**
    * ECMAScript 6
    */
-  public FunctionExpressionTreeImpl GENERATOR_EXPRESSION() {
-    return b.<FunctionExpressionTreeImpl>nonterminal(Kind.GENERATOR_FUNCTION_EXPRESSION)
+  public FunctionExpressionTree GENERATOR_EXPRESSION() {
+    return b.<FunctionExpressionTree>nonterminal(Kind.GENERATOR_FUNCTION_EXPRESSION)
       .is(
         f.generatorExpression(
           b.token(JavaScriptKeyword.FUNCTION),
@@ -577,12 +577,13 @@ public class JavaScriptGrammar {
           BLOCK()));
   }
 
-  public FunctionExpressionTreeImpl FUNCTION_EXPRESSION() {
-    return b.<FunctionExpressionTreeImpl>nonterminal(Kind.FUNCTION_EXPRESSION)
+  public FunctionExpressionTree FUNCTION_EXPRESSION() {
+    return b.<FunctionExpressionTree>nonterminal(Kind.FUNCTION_EXPRESSION)
       .is(
         f.functionExpression(
+          b.optional(b.token(JavaScriptLegacyGrammar.ASYNC)),
           b.token(JavaScriptKeyword.FUNCTION),
-          b.optional(b.token(JavaScriptTokenType.IDENTIFIER)),
+          b.optional(BINDING_IDENTIFIER()),
           FORMAL_PARAMETER_CLAUSE(),
           BLOCK()));
   }
@@ -950,6 +951,7 @@ public class JavaScriptGrammar {
   public ArrowFunctionTreeImpl ARROW_FUNCTION() {
     return b.<ArrowFunctionTreeImpl>nonterminal(Kind.ARROW_FUNCTION)
       .is(f.arrowFunction(
+        b.optional(b.token(JavaScriptLegacyGrammar.ASYNC)),
         b.firstOf(
           BINDING_IDENTIFIER(),
           FORMAL_PARAMETER_CLAUSE()),
@@ -964,6 +966,7 @@ public class JavaScriptGrammar {
   public ArrowFunctionTreeImpl ARROW_FUNCTION_NO_IN() {
     return b.<ArrowFunctionTreeImpl>nonterminal()
       .is(f.arrowFunctionNoIn(
+        b.optional(b.token(JavaScriptLegacyGrammar.ASYNC)),
         b.firstOf(
           BINDING_IDENTIFIER(),
           FORMAL_PARAMETER_CLAUSE()),
@@ -1198,24 +1201,17 @@ public class JavaScriptGrammar {
       .is(
         b.firstOf(
           THIS(),
-          // Not IDENTIFIER_REFERENCE, to avoid conflicts with YIELD_EXPRESSION from ASSIGNMENT_EXPRESSION
-          f.identifierReferenceWithoutYield1(b.token(JavaScriptTokenType.IDENTIFIER)),
+          FUNCTION_EXPRESSION(),
+          IDENTIFIER_REFERENCE(),
           LITERAL(),
           ARRAY_LITERAL(),
           OBJECT_LITERAL(),
-          FUNCTION_EXPRESSION(),
           PARENTHESISED_EXPRESSION(),
           CLASS_EXPRESSION(),
           GENERATOR_EXPRESSION(),
           TEMPLATE_LITERAL(),
-          JSX_ELEMENT(),
-          f.identifierReferenceWithoutYield2(b.firstOf(b.token(JavaScriptKeyword.AWAIT),  b.token(JavaScriptKeyword.YIELD)))
+          JSX_ELEMENT()
         ));
-  }
-
-  public ExpressionTree ES6_ASSIGNMENT_EXPRESSION() {
-    return b.<ExpressionTree>nonterminal()
-      .is(b.firstOf(YIELD_EXPRESSION(), ARROW_FUNCTION()));
   }
 
   public ExpressionTree ES6_ASSIGNMENT_EXPRESSION_NO_IN() {
@@ -1244,8 +1240,9 @@ public class JavaScriptGrammar {
               b.token(JavaScriptPunctuator.XOR_EQU),
               b.token(JavaScriptPunctuator.OR_EQU)),
             ASSIGNMENT_EXPRESSION()),
-          ES6_ASSIGNMENT_EXPRESSION(),
-          CONDITIONAL_EXPRESSION_NOT_ES6_ASSIGNMENT_EXPRESSION()
+          YIELD_EXPRESSION(),
+          CONDITIONAL_EXPRESSION_NOT_ES6_ASSIGNMENT_EXPRESSION(),
+          ARROW_FUNCTION()
         ));
   }
 
@@ -1575,6 +1572,7 @@ public class JavaScriptGrammar {
             BLOCK()),
           f.method(
             b.optional(b.token(JavaScriptLegacyGrammar.STATIC)),
+            b.optional(b.token(JavaScriptLegacyGrammar.ASYNC)),
             PROPERTY_NAME(), FORMAL_PARAMETER_CLAUSE(),
             BLOCK()),
           f.accessor(
@@ -1587,10 +1585,11 @@ public class JavaScriptGrammar {
             BLOCK())));
   }
 
-  public FunctionDeclarationTreeImpl FUNCTION_AND_GENERATOR_DECLARATION() {
-    return b.<FunctionDeclarationTreeImpl>nonterminal(JavaScriptLegacyGrammar.FUNCTION_DECLARATION)
+  public FunctionDeclarationTree FUNCTION_AND_GENERATOR_DECLARATION() {
+    return b.<FunctionDeclarationTree>nonterminal(JavaScriptLegacyGrammar.FUNCTION_DECLARATION)
       .is(
         f.functionAndGeneratorDeclaration(
+          b.optional(b.token(JavaScriptLegacyGrammar.ASYNC)),
           b.token(JavaScriptKeyword.FUNCTION), b.optional(b.token(JavaScriptPunctuator.STAR)), BINDING_IDENTIFIER(), FORMAL_PARAMETER_CLAUSE(),
           BLOCK()));
   }

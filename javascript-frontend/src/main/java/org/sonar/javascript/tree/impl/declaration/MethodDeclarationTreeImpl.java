@@ -35,20 +35,22 @@ import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitor;
 public class MethodDeclarationTreeImpl extends JavaScriptTree implements MethodDeclarationTree {
 
   private final Kind kind;
-  private InternalSyntaxToken staticToken;
 
+  private InternalSyntaxToken staticToken;
+  private final SyntaxToken asyncToken;
   private final Tree name;
   private final ParameterListTreeImpl parameters;
   private final BlockTreeImpl body;
 
   public MethodDeclarationTreeImpl(
     @Nullable InternalSyntaxToken staticToken,
+    @Nullable InternalSyntaxToken asyncToken,
     Tree name,
     ParameterListTreeImpl parameters,
     BlockTreeImpl body
   ) {
-
     this.staticToken = staticToken;
+    this.asyncToken = asyncToken;
     this.kind = Kind.METHOD;
     this.name = name;
     this.parameters = parameters;
@@ -64,6 +66,12 @@ public class MethodDeclarationTreeImpl extends JavaScriptTree implements MethodD
   @Override
   public Tree name() {
     return name;
+  }
+
+  @Nullable
+  @Override
+  public SyntaxToken asyncToken() {
+    return asyncToken;
   }
 
   @Override
@@ -83,7 +91,7 @@ public class MethodDeclarationTreeImpl extends JavaScriptTree implements MethodD
 
   @Override
   public Iterator<Tree> childrenIterator() {
-    return Iterators.forArray(staticToken, name, parameters, body);
+    return Iterators.forArray(staticToken, asyncToken, name, parameters, body);
   }
 
   @Override

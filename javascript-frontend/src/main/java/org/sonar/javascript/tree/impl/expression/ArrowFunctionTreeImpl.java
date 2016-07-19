@@ -23,6 +23,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterators;
 import java.util.Iterator;
 import java.util.List;
+import javax.annotation.Nullable;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.javascript.tree.impl.declaration.ParameterListTreeImpl;
 import org.sonar.javascript.tree.impl.lexical.InternalSyntaxToken;
@@ -39,17 +40,25 @@ import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitor;
 
 public class ArrowFunctionTreeImpl extends JavaScriptTree implements ArrowFunctionTree, TypableTree {
 
+  private final SyntaxToken asyncToken;
   private final Tree parameters;
   private final SyntaxToken doubleArrow;
   private Tree body;
   private Type functionType;
 
-  public ArrowFunctionTreeImpl(Tree parameters, InternalSyntaxToken doubleArrow, Tree body) {
+  public ArrowFunctionTreeImpl(@Nullable SyntaxToken asyncToken, Tree parameters, InternalSyntaxToken doubleArrow, Tree body) {
+    this.asyncToken = asyncToken;
     this.parameters = parameters;
     this.doubleArrow = doubleArrow;
     this.body = body;
 
     this.functionType = FunctionType.create(this);
+  }
+
+  @Nullable
+  @Override
+  public SyntaxToken asyncToken() {
+    return asyncToken;
   }
 
   @Override
@@ -84,7 +93,7 @@ public class ArrowFunctionTreeImpl extends JavaScriptTree implements ArrowFuncti
 
   @Override
   public Iterator<Tree> childrenIterator() {
-    return Iterators.forArray(parameters, doubleArrow, body);
+    return Iterators.forArray(asyncToken, parameters, doubleArrow, body);
   }
 
   @Override

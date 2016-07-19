@@ -74,6 +74,12 @@ public class AccessorMethodDeclarationTreeImpl extends JavaScriptTree implements
     return name;
   }
 
+  @Nullable
+  @Override
+  public SyntaxToken asyncToken() {
+    return null;
+  }
+
   @Override
   public ParameterListTree parameterClause() {
     return parameters;

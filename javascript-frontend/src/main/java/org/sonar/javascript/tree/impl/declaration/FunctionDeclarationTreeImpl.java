@@ -37,6 +37,7 @@ import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitor;
 
 public class FunctionDeclarationTreeImpl extends JavaScriptTree implements FunctionDeclarationTree {
 
+  private final SyntaxToken asyncToken;
   private final SyntaxToken functionKeyword;
   private final SyntaxToken starToken;
   private final IdentifierTree name;
@@ -44,32 +45,33 @@ public class FunctionDeclarationTreeImpl extends JavaScriptTree implements Funct
   private final BlockTree body;
   private final Kind kind;
 
-  public FunctionDeclarationTreeImpl(
-    InternalSyntaxToken functionKeyword, InternalSyntaxToken starToken,
+  private FunctionDeclarationTreeImpl(
+    @Nullable SyntaxToken asyncToken,
+    InternalSyntaxToken functionKeyword, @Nullable InternalSyntaxToken starToken,
     IdentifierTreeImpl name, ParameterListTreeImpl parameters, BlockTreeImpl body
   ) {
 
+    this.asyncToken = asyncToken;
     this.functionKeyword = functionKeyword;
     this.starToken = starToken;
     this.name = name;
     this.parameters = parameters;
     this.body = body;
-    this.kind = Kind.GENERATOR_DECLARATION;
-
+    this.kind = starToken == null ? Kind.FUNCTION_DECLARATION : Kind.GENERATOR_DECLARATION;
   }
 
-  public FunctionDeclarationTreeImpl(
-    InternalSyntaxToken functionKeyword, IdentifierTreeImpl name,
-    ParameterListTreeImpl parameters, BlockTreeImpl body
+  public static FunctionDeclarationTree create(
+    @Nullable SyntaxToken asyncToken, InternalSyntaxToken functionKeyword,
+    IdentifierTreeImpl name, ParameterListTreeImpl parameters, BlockTreeImpl body
   ) {
+    return new FunctionDeclarationTreeImpl(asyncToken, functionKeyword, null, name, parameters, body);
+  }
 
-    this.functionKeyword = functionKeyword;
-    this.starToken = null;
-    this.name = name;
-    this.parameters = parameters;
-    this.body = body;
-    this.kind = Kind.FUNCTION_DECLARATION;
-
+  public static FunctionDeclarationTree createGenerator(
+    InternalSyntaxToken functionKeyword, InternalSyntaxToken starToken,
+    IdentifierTreeImpl name, ParameterListTreeImpl parameters, BlockTreeImpl body
+  ) {
+    return new FunctionDeclarationTreeImpl(null, functionKeyword, starToken, name, parameters, body);
   }
 
   @Override
@@ -86,6 +88,12 @@ public class FunctionDeclarationTreeImpl extends JavaScriptTree implements Funct
   @Override
   public IdentifierTree name() {
     return name;
+  }
+
+  @Nullable
+  @Override
+  public SyntaxToken asyncToken() {
+    return asyncToken;
   }
 
   @Override
@@ -110,7 +118,7 @@ public class FunctionDeclarationTreeImpl extends JavaScriptTree implements Funct
 
   @Override
   public Iterator<Tree> childrenIterator() {
-    return Iterators.forArray(functionKeyword, starToken, name, parameters, body);
+    return Iterators.forArray(asyncToken, functionKeyword, starToken, name, parameters, body);
   }
 
   @Override

@@ -74,6 +74,12 @@ public class GeneratorMethodDeclarationTreeImpl extends JavaScriptTree implement
     return name;
   }
 
+  @Nullable
+  @Override
+  public SyntaxToken asyncToken() {
+    return null;
+  }
+
   @Override
   public ParameterListTree parameterClause() {
     return parameters;

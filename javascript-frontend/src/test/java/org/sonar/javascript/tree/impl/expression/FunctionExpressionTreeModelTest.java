@@ -51,4 +51,14 @@ public class FunctionExpressionTreeModelTest extends JavaScriptTreeModelTest {
     assertThat(tree.body()).isNotNull();
   }
 
+
+  @Test
+  public void async() throws Exception {
+    FunctionExpressionTree tree = parse("a = async function f() {}", Kind.FUNCTION_EXPRESSION);
+    assertThat(tree.asyncToken().text()).isEqualTo("async");
+
+    tree = parse("a = function f() {}", Kind.FUNCTION_EXPRESSION);
+    assertThat(tree.asyncToken()).isNull();
+  }
+
 }

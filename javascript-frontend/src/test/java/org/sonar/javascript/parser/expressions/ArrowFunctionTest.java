@@ -31,7 +31,17 @@ public class ArrowFunctionTest {
   public void ok() {
     assertThat(Kind.ARROW_FUNCTION)
       .matches("identifier => conditionalExpression")
-      .matches("identifier => { }");
+      .matches("identifier => { }")
+      .matches("() => { }")
+    ;
   }
 
+  @Test
+  public void async_function() throws Exception {
+    assertThat(Kind.ARROW_FUNCTION)
+      .matches("async () => { }")
+      .matches("async a => foo(a)")
+    ;
+
+  }
 }

@@ -121,6 +121,7 @@ import org.sonar.plugins.javascript.api.tree.declaration.AccessorMethodDeclarati
 import org.sonar.plugins.javascript.api.tree.declaration.BindingElementTree;
 import org.sonar.plugins.javascript.api.tree.declaration.DeclarationTree;
 import org.sonar.plugins.javascript.api.tree.declaration.FieldDeclarationTree;
+import org.sonar.plugins.javascript.api.tree.declaration.FunctionDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.declaration.GeneratorMethodDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.declaration.ImportClauseTree;
 import org.sonar.plugins.javascript.api.tree.declaration.ImportModuleDeclarationTree;
@@ -129,6 +130,7 @@ import org.sonar.plugins.javascript.api.tree.declaration.ParameterListTree;
 import org.sonar.plugins.javascript.api.tree.declaration.SpecifierTree;
 import org.sonar.plugins.javascript.api.tree.expression.BracketMemberExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
+import org.sonar.plugins.javascript.api.tree.expression.FunctionExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 import org.sonar.plugins.javascript.api.tree.expression.MemberExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.RestElementTree;
@@ -592,23 +594,12 @@ public class TreeFactory {
 
   // End of expressions
 
-  public FunctionExpressionTreeImpl generatorExpression(
+  public FunctionExpressionTree generatorExpression(
     InternalSyntaxToken functionKeyword, InternalSyntaxToken starOperator,
     Optional<IdentifierTreeImpl> functionName, ParameterListTreeImpl parameters, BlockTreeImpl body
   ) {
 
-    InternalSyntaxToken functionToken = functionKeyword;
-    InternalSyntaxToken starToken = starOperator;
-
-    if (functionName.isPresent()) {
-
-      return new FunctionExpressionTreeImpl(Kind.GENERATOR_FUNCTION_EXPRESSION,
-        functionToken, starToken, functionName.get(), parameters, body);
-    }
-
-
-    return new FunctionExpressionTreeImpl(Kind.GENERATOR_FUNCTION_EXPRESSION,
-      functionToken, starToken, parameters, body);
+    return FunctionExpressionTreeImpl.createGenerator(functionKeyword, starOperator, functionName.orNull(), parameters, body);
   }
 
   public LiteralTreeImpl nullLiteral(InternalSyntaxToken nullToken) {
@@ -631,18 +622,11 @@ public class TreeFactory {
     return new LiteralTreeImpl(Kind.REGULAR_EXPRESSION_LITERAL, regexpToken);
   }
 
-  public FunctionExpressionTreeImpl functionExpression(
-    InternalSyntaxToken functionKeyword, Optional<InternalSyntaxToken> functionName,
+  public FunctionExpressionTree functionExpression(
+    Optional<InternalSyntaxToken> asyncToken, InternalSyntaxToken functionKeyword, Optional<IdentifierTree> functionName,
     ParameterListTreeImpl parameters, BlockTreeImpl body
   ) {
-
-    if (functionName.isPresent()) {
-      IdentifierTreeImpl name = new IdentifierTreeImpl(Kind.BINDING_IDENTIFIER, functionName.get());
-
-      return new FunctionExpressionTreeImpl(Kind.FUNCTION_EXPRESSION, functionKeyword, name, parameters, body);
-    }
-
-    return new FunctionExpressionTreeImpl(Kind.FUNCTION_EXPRESSION, functionKeyword, parameters, body);
+    return FunctionExpressionTreeImpl.create(asyncToken.orNull(), functionKeyword, functionName.orNull(), parameters, body);
   }
 
   public SeparatedList<Tree> formalParameters(
@@ -881,12 +865,12 @@ public class TreeFactory {
     return new IdentifierTreeImpl(Kind.BINDING_IDENTIFIER, identifier);
   }
 
-  public ArrowFunctionTreeImpl arrowFunction(Tree parameters, Tree spacingNoLB, InternalSyntaxToken doubleArrow, Tree body) {
-    return new ArrowFunctionTreeImpl(parameters, doubleArrow, body);
+  public ArrowFunctionTreeImpl arrowFunction(Optional<InternalSyntaxToken> asyncToken, Tree parameters, Tree spacingNoLB, InternalSyntaxToken doubleArrow, Tree body) {
+    return new ArrowFunctionTreeImpl(asyncToken.orNull(), parameters, doubleArrow, body);
   }
 
-  public ArrowFunctionTreeImpl arrowFunctionNoIn(Tree parameters, Tree spacingNoLB, InternalSyntaxToken doubleArrow, Tree body) {
-    return new ArrowFunctionTreeImpl(parameters, doubleArrow, body);
+  public ArrowFunctionTreeImpl arrowFunctionNoIn(Optional<InternalSyntaxToken> asyncToken, Tree parameters, Tree spacingNoLB, InternalSyntaxToken doubleArrow, Tree body) {
+    return new ArrowFunctionTreeImpl(asyncToken.orNull(), parameters, doubleArrow, body);
   }
 
   public IdentifierTreeImpl identifierName(InternalSyntaxToken identifier) {
@@ -1143,14 +1127,6 @@ public class TreeFactory {
     return new IdentifierTreeImpl(Kind.LABEL_IDENTIFIER, identifier);
   }
 
-  public IdentifierTreeImpl identifierReferenceWithoutYield1(InternalSyntaxToken identifier) {
-    return new IdentifierTreeImpl(Kind.IDENTIFIER_REFERENCE, identifier);
-  }
-
-  public IdentifierTreeImpl identifierReferenceWithoutYield2(InternalSyntaxToken identifier) {
-    return new IdentifierTreeImpl(Kind.IDENTIFIER_REFERENCE, identifier);
-  }
-
   public ExpressionTree assignmentExpression(ExpressionTree variable, InternalSyntaxToken operator, ExpressionTree expression) {
     return new AssignmentExpressionTreeImpl(EXPRESSION_KIND_BY_VALUE.get(operator.text()), variable, operator, expression);
   }
@@ -1365,10 +1341,10 @@ public class TreeFactory {
   }
 
   public MethodDeclarationTreeImpl method(
-    Optional<InternalSyntaxToken> staticToken, Tree name, ParameterListTreeImpl parameters,
+    Optional<InternalSyntaxToken> staticToken, Optional<InternalSyntaxToken> asyncToken, Tree name, ParameterListTreeImpl parameters,
     BlockTreeImpl body
   ) {
-    return new MethodDeclarationTreeImpl(staticToken.orNull(), name, parameters, body);
+    return new MethodDeclarationTreeImpl(staticToken.orNull(), asyncToken.orNull(), name, parameters, body);
   }
 
   public AccessorMethodDeclarationTree accessor(
@@ -1380,13 +1356,14 @@ public class TreeFactory {
     return new AccessorMethodDeclarationTreeImpl(staticToken.orNull(), accessorToken, name, parameters, body);
   }
 
-  public FunctionDeclarationTreeImpl functionAndGeneratorDeclaration(
-    InternalSyntaxToken functionToken, Optional<InternalSyntaxToken> starToken, IdentifierTreeImpl name, ParameterListTreeImpl parameters, BlockTreeImpl body
+  public FunctionDeclarationTree functionAndGeneratorDeclaration(
+    Optional<InternalSyntaxToken> asyncToken, InternalSyntaxToken functionToken, Optional<InternalSyntaxToken> starToken,
+    IdentifierTreeImpl name, ParameterListTreeImpl parameters, BlockTreeImpl body
   ) {
 
     return starToken.isPresent() ?
-      new FunctionDeclarationTreeImpl(functionToken, starToken.get(), name, parameters, body) :
-      new FunctionDeclarationTreeImpl(functionToken, name, parameters, body);
+      FunctionDeclarationTreeImpl.createGenerator(functionToken, starToken.get(), name, parameters, body) :
+      FunctionDeclarationTreeImpl.create(asyncToken.orNull(), functionToken, name, parameters, body);
   }
 
   // [START] Destructuring pattern

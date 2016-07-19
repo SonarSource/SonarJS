@@ -24,8 +24,6 @@ import java.util.Iterator;
 import java.util.List;
 import javax.annotation.Nullable;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
-import org.sonar.javascript.tree.impl.declaration.ParameterListTreeImpl;
-import org.sonar.javascript.tree.impl.lexical.InternalSyntaxToken;
 import org.sonar.javascript.tree.impl.statement.BlockTreeImpl;
 import org.sonar.javascript.tree.symbols.type.FunctionType;
 import org.sonar.javascript.tree.symbols.type.TypableTree;
@@ -40,91 +38,43 @@ import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitor;
 
 public class FunctionExpressionTreeImpl extends JavaScriptTree implements FunctionExpressionTree, TypableTree {
 
+  private final SyntaxToken asyncToken;
   private final SyntaxToken functionKeyword;
-  @Nullable
   private final SyntaxToken star;
-  @Nullable
   private final IdentifierTree name;
   private final ParameterListTree parameters;
   private final BlockTreeImpl body;
   private final Kind kind;
   private Type functionType;
 
-  /**
-   * Constructor for named generator expression and  generator declaration
-   */
-  public FunctionExpressionTreeImpl(
-    Kind kind, InternalSyntaxToken functionKeyword, InternalSyntaxToken star, IdentifierTreeImpl name,
-    ParameterListTreeImpl parameters, BlockTreeImpl body
-  ) {
-
+  private FunctionExpressionTreeImpl(
+    @Nullable SyntaxToken asyncToken,
+    SyntaxToken functionKeyword,
+    @Nullable SyntaxToken star, IdentifierTree name,
+    ParameterListTree parameters, BlockTreeImpl body) {
+    this.asyncToken = asyncToken;
     this.functionKeyword = functionKeyword;
     this.star = star;
     this.name = name;
     this.parameters = parameters;
     this.body = body;
-
-    this.kind = kind;
-
-    this.functionType = FunctionType.create(this);
-  }
-
-  /**
-   * Constructor for NOT named generator expression
-   */
-  public FunctionExpressionTreeImpl(
-    Kind kind, InternalSyntaxToken functionKeyword, InternalSyntaxToken star,
-    ParameterListTreeImpl parameters, BlockTreeImpl body
-  ) {
-
-    this.functionKeyword = functionKeyword;
-    this.star = star;
-    this.name = null;
-    this.parameters = parameters;
-    this.body = body;
-
-    this.kind = kind;
-
+    this.kind = star == null ? Kind.FUNCTION_EXPRESSION : Kind.GENERATOR_FUNCTION_EXPRESSION;
 
     this.functionType = FunctionType.create(this);
   }
 
-  /**
-   * Constructor for named function expression and function declaration
-   */
-  public FunctionExpressionTreeImpl(
-    Kind kind, InternalSyntaxToken functionKeyword, IdentifierTreeImpl name,
-    ParameterListTreeImpl parameters, BlockTreeImpl body
+  public static FunctionExpressionTree createGenerator(
+    SyntaxToken functionKeyword, SyntaxToken star, @Nullable IdentifierTree name,
+    ParameterListTree parameters, BlockTreeImpl body
   ) {
-
-    this.functionKeyword = functionKeyword;
-    this.star = null;
-    this.name = name;
-    this.parameters = parameters;
-    this.body = body;
-
-    this.kind = kind;
-
-    this.functionType = FunctionType.create(this);
+    return new FunctionExpressionTreeImpl(null, functionKeyword, star, name, parameters, body);
   }
 
-  /**
-   * Constructor for NOT named function expression
-   */
-  public FunctionExpressionTreeImpl(
-    Kind kind, InternalSyntaxToken functionKeyword, ParameterListTreeImpl parameters,
-    BlockTreeImpl body
+  public static FunctionExpressionTree create(
+    @Nullable SyntaxToken asyncToken, SyntaxToken functionToken, @Nullable IdentifierTree name,
+    ParameterListTree parameters, BlockTreeImpl body
   ) {
-
-    this.functionKeyword = functionKeyword;
-    this.star = null;
-    this.name = null;
-    this.parameters = parameters;
-    this.body = body;
-
-    this.kind = kind;
-
-    this.functionType = FunctionType.create(this);
+    return new FunctionExpressionTreeImpl(asyncToken, functionToken, null, name, parameters, body);
   }
 
   @Override
@@ -142,6 +92,12 @@ public class FunctionExpressionTreeImpl extends JavaScriptTree implements Functi
   @Override
   public IdentifierTree name() {
     return name;
+  }
+
+  @Nullable
+  @Override
+  public SyntaxToken asyncToken() {
+    return asyncToken;
   }
 
   @Override
@@ -166,7 +122,7 @@ public class FunctionExpressionTreeImpl extends JavaScriptTree implements Functi
 
   @Override
   public Iterator<Tree> childrenIterator() {
-    return Iterators.forArray(functionKeyword, star, name, parameters, body);
+    return Iterators.forArray(asyncToken, functionKeyword, star, name, parameters, body);
   }
 
   @Override

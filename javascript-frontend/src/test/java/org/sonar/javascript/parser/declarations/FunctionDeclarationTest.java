@@ -24,26 +24,22 @@ import org.sonar.javascript.parser.JavaScriptLegacyGrammar;
 
 import static org.sonar.javascript.utils.Assertions.assertThat;
 
-public class MethodDefinitionTest {
-
+public class FunctionDeclarationTest {
 
   @Test
   public void ok() {
-    assertThat(JavaScriptLegacyGrammar.METHOD_DEFINITION)
-      .matches("f() {}")
-      .matches("static f() {}")
-      .matches("set f(p) {}")
-      .matches("get f() {}")
-      .matches("* f() {}")
+    assertThat(JavaScriptLegacyGrammar.FUNCTION_DECLARATION)
+      .notMatches("function () {}")
+      .matches("function f() {}")
+      .matches("function f (p1, p2) {}")
+      .matches("function *f() {}")
     ;
   }
 
   @Test
-  public void async_method() {
-    assertThat(JavaScriptLegacyGrammar.METHOD_DEFINITION)
-      .matches("async f() {}")
-      .matches("static async f() {}")
+  public void async_function() throws Exception {
+    assertThat(JavaScriptLegacyGrammar.FUNCTION_DECLARATION)
+      .matches("async function foo () {}")
     ;
   }
-
 }

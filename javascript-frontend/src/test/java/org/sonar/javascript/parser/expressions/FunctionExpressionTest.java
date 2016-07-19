@@ -35,4 +35,10 @@ public class FunctionExpressionTest {
       .matches("function f (p1, p2) {}");
   }
 
+  @Test
+  public void async_function() throws Exception {
+    assertThat(Kind.FUNCTION_EXPRESSION)
+      .matches("async function () {}")
+    ;
+  }
 }
