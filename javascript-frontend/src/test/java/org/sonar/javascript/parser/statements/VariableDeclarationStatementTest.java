@@ -33,4 +33,12 @@ public class VariableDeclarationStatementTest {
       .matches("var variableDeclarationList ;");
   }
 
+  @Test
+  public void test_keywords_as_identifiers() throws Exception {
+    assertThat(Kind.VARIABLE_STATEMENT)
+      .matches("var async = 1")
+      .matches("var yield = 1")
+      .matches("var await = 1")
+    ;
+  }
 }

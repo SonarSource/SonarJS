@@ -274,6 +274,13 @@ public enum JavaScriptLegacyGrammar implements GrammarRuleKey {
    **/
   AS,
 
+  /**
+   * ECMAScript 2017 proposal
+   **/
+  ASYNC,
+
+
+
   // A.6 Programs
 
   SCRIPT,
@@ -386,6 +393,7 @@ public enum JavaScriptLegacyGrammar implements GrammarRuleKey {
     b.rule(JSX_HTML_TAG).is(SPACING, b.regexp("^(?!this)[a-z][\\w]*"));
 
     // Keywords
+    b.rule(ASYNC).is(word(b, "async"));
     b.rule(OF).is(word(b, "of"));
     b.rule(FROM).is(word(b, "from"));
     b.rule(AS).is(word(b, "as"));

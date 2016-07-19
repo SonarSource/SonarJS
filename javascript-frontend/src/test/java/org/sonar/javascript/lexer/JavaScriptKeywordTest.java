@@ -27,7 +27,7 @@ public class JavaScriptKeywordTest {
 
   @Test
   public void test() {
-    assertThat(JavaScriptKeyword.values().length).isEqualTo(37);
+    assertThat(JavaScriptKeyword.values().length).isEqualTo(38);
     assertThat(JavaScriptKeyword.keywordValues().length).isEqualTo(JavaScriptKeyword.values().length);
 
     for (JavaScriptKeyword keyword : JavaScriptKeyword.values()) {

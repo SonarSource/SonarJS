@@ -1143,7 +1143,11 @@ public class TreeFactory {
     return new IdentifierTreeImpl(Kind.LABEL_IDENTIFIER, identifier);
   }
 
-  public IdentifierTreeImpl identifierReferenceWithoutYield(InternalSyntaxToken identifier) {
+  public IdentifierTreeImpl identifierReferenceWithoutYield1(InternalSyntaxToken identifier) {
+    return new IdentifierTreeImpl(Kind.IDENTIFIER_REFERENCE, identifier);
+  }
+
+  public IdentifierTreeImpl identifierReferenceWithoutYield2(InternalSyntaxToken identifier) {
     return new IdentifierTreeImpl(Kind.IDENTIFIER_REFERENCE, identifier);
   }
 

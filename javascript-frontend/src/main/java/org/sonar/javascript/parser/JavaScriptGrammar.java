@@ -916,6 +916,7 @@ public class JavaScriptGrammar {
     return b.<IdentifierTreeImpl>nonterminal(JavaScriptLegacyGrammar.IDENTIFIER_REFERENCE)
       .is(f.identifierReference(b.firstOf(
         b.token(JavaScriptKeyword.YIELD),
+        b.token(JavaScriptKeyword.AWAIT),
         b.token(JavaScriptTokenType.IDENTIFIER)))
       );
   }
@@ -924,6 +925,7 @@ public class JavaScriptGrammar {
     return b.<IdentifierTreeImpl>nonterminal(JavaScriptLegacyGrammar.BINDING_IDENTIFIER)
       .is(f.bindingIdentifier(b.firstOf(
         b.token(JavaScriptKeyword.YIELD),
+        b.token(JavaScriptKeyword.AWAIT),
         b.token(JavaScriptTokenType.IDENTIFIER)))
       );
   }
@@ -1197,7 +1199,7 @@ public class JavaScriptGrammar {
         b.firstOf(
           THIS(),
           // Not IDENTIFIER_REFERENCE, to avoid conflicts with YIELD_EXPRESSION from ASSIGNMENT_EXPRESSION
-          f.identifierReferenceWithoutYield(b.token(JavaScriptTokenType.IDENTIFIER)),
+          f.identifierReferenceWithoutYield1(b.token(JavaScriptTokenType.IDENTIFIER)),
           LITERAL(),
           ARRAY_LITERAL(),
           OBJECT_LITERAL(),
@@ -1206,7 +1208,8 @@ public class JavaScriptGrammar {
           CLASS_EXPRESSION(),
           GENERATOR_EXPRESSION(),
           TEMPLATE_LITERAL(),
-          JSX_ELEMENT()
+          JSX_ELEMENT(),
+          f.identifierReferenceWithoutYield2(b.firstOf(b.token(JavaScriptKeyword.AWAIT),  b.token(JavaScriptKeyword.YIELD)))
         ));
   }
 
@@ -1241,8 +1244,8 @@ public class JavaScriptGrammar {
               b.token(JavaScriptPunctuator.XOR_EQU),
               b.token(JavaScriptPunctuator.OR_EQU)),
             ASSIGNMENT_EXPRESSION()),
-          CONDITIONAL_EXPRESSION_NOT_ES6_ASSIGNMENT_EXPRESSION(),
-          ES6_ASSIGNMENT_EXPRESSION()
+          ES6_ASSIGNMENT_EXPRESSION(),
+          CONDITIONAL_EXPRESSION_NOT_ES6_ASSIGNMENT_EXPRESSION()
         ));
   }
 
