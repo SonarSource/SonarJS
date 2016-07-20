@@ -25,7 +25,6 @@ import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.expression.BinaryExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
-import org.sonar.squidbridge.annotations.ActivatedByDefault;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 
 @Rule(
@@ -33,7 +32,6 @@ import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
   name = "\"===\" and \"!==\" should be used instead of \"==\" and \"!=\"",
   priority = Priority.MAJOR,
   tags = {Tags.BUG})
-@ActivatedByDefault
 @SqaleConstantRemediation("5min")
 public class EqEqEqCheck extends DoubleDispatchVisitorCheck {
 
