@@ -24,7 +24,6 @@ import org.sonar.check.Rule;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.statement.IfStatementTree;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
-import org.sonar.squidbridge.annotations.ActivatedByDefault;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 
 @Rule(
@@ -33,7 +32,6 @@ import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
   priority = Priority.MAJOR,
   status = "DEPRECATED",
   tags = {Tags.BUG, Tags.CWE, Tags.MISRA, Tags.SECURITY})
-@ActivatedByDefault
 @SqaleConstantRemediation("2min")
 public class IfConditionalAlwaysTrueOrFalseCheck extends DoubleDispatchVisitorCheck {
 
