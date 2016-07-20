@@ -80,7 +80,11 @@ import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.declaration.BindingElementTree;
 import org.sonar.plugins.javascript.api.tree.declaration.DeclarationTree;
+import org.sonar.plugins.javascript.api.tree.declaration.ExportClauseTree;
 import org.sonar.plugins.javascript.api.tree.declaration.ExportDeclarationTree;
+import org.sonar.plugins.javascript.api.tree.declaration.ExportDefaultBinding;
+import org.sonar.plugins.javascript.api.tree.declaration.ExportDefaultBindingWithExportList;
+import org.sonar.plugins.javascript.api.tree.declaration.ExportDefaultBindingWithNameSpaceExport;
 import org.sonar.plugins.javascript.api.tree.declaration.FieldDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.declaration.FunctionDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.declaration.ImportModuleDeclarationTree;
@@ -1320,10 +1324,51 @@ public class JavaScriptGrammar {
         f.namedExportDeclaration(
           b.token(JavaScriptKeyword.EXPORT),
           b.firstOf(
-            f.exportClause(EXPORT_LIST(), b.optional(FROM_CLAUSE()), b.token(JavaScriptLegacyGrammar.EOS)),
+            EXPORT_CLAUSE(),
+            EXPORT_DEFAULT_BINDING(),
+            EXPORT_DEFAULT_BINDING_WITH_NAMESPACE_EXPORT(),
+            EXPORT_DEFAULT_BINDING_WITH_EXPORT_LIST(),
             VARIABLE_STATEMENT(),
             CLASS_DECLARATION(),
             FUNCTION_AND_GENERATOR_DECLARATION())));
+  }
+
+  public ExportClauseTree EXPORT_CLAUSE() {
+    return b.<ExportClauseTree>nonterminal(Kind.EXPORT_CLAUSE)
+      .is(f.exportClause(
+        EXPORT_LIST(),
+        b.optional(FROM_CLAUSE()),
+        b.token(JavaScriptLegacyGrammar.EOS)));
+  }
+
+  public ExportDefaultBindingWithExportList EXPORT_DEFAULT_BINDING_WITH_EXPORT_LIST() {
+    return b.<ExportDefaultBindingWithExportList>nonterminal()
+      .is(f.exportDefaultBindingWithExportList(
+        IDENTIFIER_NAME(),
+        b.token(JavaScriptPunctuator.COMMA),
+        EXPORT_LIST(),
+        FROM_CLAUSE(),
+        b.token(JavaScriptLegacyGrammar.EOS)));
+  }
+
+  public ExportDefaultBindingWithNameSpaceExport EXPORT_DEFAULT_BINDING_WITH_NAMESPACE_EXPORT() {
+    return b.<ExportDefaultBindingWithNameSpaceExport>nonterminal()
+      .is(f.exportDefaultBindingWithNameSpaceExport(
+        IDENTIFIER_NAME(),
+        b.token(JavaScriptPunctuator.COMMA),
+        b.token(JavaScriptPunctuator.STAR),
+        b.token(JavaScriptLegacyGrammar.AS),
+        IDENTIFIER_NAME(),
+        FROM_CLAUSE(),
+        b.token(JavaScriptLegacyGrammar.EOS)));
+  }
+
+  public ExportDefaultBinding EXPORT_DEFAULT_BINDING() {
+    return b.<ExportDefaultBinding>nonterminal(Kind.EXPORT_DEFAULT_BINDING)
+      .is(f.exportDefaultBinding(
+        IDENTIFIER_NAME(),
+        FROM_CLAUSE(),
+        b.token(JavaScriptLegacyGrammar.EOS)));
   }
 
   public SpecifierListTreeImpl EXPORT_LIST() {
@@ -1351,6 +1396,7 @@ public class JavaScriptGrammar {
       .is(f.namespaceExportDeclaration(
         b.token(JavaScriptKeyword.EXPORT),
         b.token(JavaScriptPunctuator.STAR),
+        b.optional(f.newTuple5(b.token(JavaScriptLegacyGrammar.AS), IDENTIFIER_NAME())),
         FROM_CLAUSE(),
         b.token(JavaScriptLegacyGrammar.EOS)
       ));

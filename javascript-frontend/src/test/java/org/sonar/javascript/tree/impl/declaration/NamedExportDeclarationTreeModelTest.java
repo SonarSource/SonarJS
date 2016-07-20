@@ -22,6 +22,9 @@ package org.sonar.javascript.tree.impl.declaration;
 import org.junit.Test;
 import org.sonar.javascript.utils.JavaScriptTreeModelTest;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
+import org.sonar.plugins.javascript.api.tree.declaration.ExportDefaultBinding;
+import org.sonar.plugins.javascript.api.tree.declaration.ExportDefaultBindingWithExportList;
+import org.sonar.plugins.javascript.api.tree.declaration.ExportDefaultBindingWithNameSpaceExport;
 import org.sonar.plugins.javascript.api.tree.declaration.NamedExportDeclarationTree;
 
 import static org.fest.assertions.Assertions.assertThat;
@@ -58,4 +61,41 @@ public class NamedExportDeclarationTreeModelTest extends JavaScriptTreeModelTest
     // TODO: add eos
   }
 
+  @Test
+  public void export_default_binding() throws Exception {
+    NamedExportDeclarationTree tree = parse("export A from 'mod';", Kind.NAMED_EXPORT_DECLARATION);
+    assertThat(tree.object().is(Kind.EXPORT_DEFAULT_BINDING)).isTrue();
+
+    ExportDefaultBinding exportDefaultBinding = (ExportDefaultBinding) tree.object();
+    assertThat(exportDefaultBinding.exportedDefaultIdentifier().name()).isEqualTo("A");
+    assertThat(expressionToString(exportDefaultBinding.fromClause())).isEqualTo("from 'mod'");
+    assertThat(exportDefaultBinding.semicolonToken().text()).isEqualTo(";");
+  }
+
+  @Test
+  public void export_default_binding_and_star() throws Exception {
+    NamedExportDeclarationTree tree = parse("export A, * as B from 'mod';", Kind.NAMED_EXPORT_DECLARATION);
+    assertThat(tree.object().is(Kind.EXPORT_DEFAULT_BINDING_WITH_NAMESPACE_EXPORT)).isTrue();
+
+    ExportDefaultBindingWithNameSpaceExport exportDefaultBinding = (ExportDefaultBindingWithNameSpaceExport) tree.object();
+    assertThat(exportDefaultBinding.exportedDefaultIdentifier().name()).isEqualTo("A");
+    assertThat(exportDefaultBinding.commaToken().text()).isEqualTo(",");
+    assertThat(exportDefaultBinding.starToken().text()).isEqualTo("*");
+    assertThat(exportDefaultBinding.synonymIdentifier().name()).isEqualTo("B");
+    assertThat(expressionToString(exportDefaultBinding.fromClause())).isEqualTo("from 'mod'");
+    assertThat(exportDefaultBinding.semicolonToken().text()).isEqualTo(";");
+  }
+
+  @Test
+  public void export_default_binding_and_export_list() throws Exception {
+    NamedExportDeclarationTree tree = parse("export A, {B, C, D as DD} from 'mod';", Kind.NAMED_EXPORT_DECLARATION);
+    assertThat(tree.object().is(Kind.EXPORT_DEFAULT_BINDING_WITH_EXPORT_LIST)).isTrue();
+
+    ExportDefaultBindingWithExportList exportDefaultBinding = (ExportDefaultBindingWithExportList) tree.object();
+    assertThat(exportDefaultBinding.exportedDefaultIdentifier().name()).isEqualTo("A");
+    assertThat(exportDefaultBinding.commaToken().text()).isEqualTo(",");
+    assertThat(expressionToString(exportDefaultBinding.exportList())).isEqualTo("{B, C, D as DD}");
+    assertThat(expressionToString(exportDefaultBinding.fromClause())).isEqualTo("from 'mod'");
+    assertThat(exportDefaultBinding.semicolonToken().text()).isEqualTo(";");
+  }
 }

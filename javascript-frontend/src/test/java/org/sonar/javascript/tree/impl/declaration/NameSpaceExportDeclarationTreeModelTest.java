@@ -36,6 +36,22 @@ public class NameSpaceExportDeclarationTreeModelTest extends JavaScriptTreeModel
     assertThat(tree.is(Kind.NAMESPACE_EXPORT_DECLARATION)).isTrue();
     assertThat(tree.exportToken().text()).isEqualTo("export");
     assertThat(tree.starToken().text()).isEqualTo("*");
+    assertThat(tree.asToken()).isNull();
+    assertThat(tree.synonymIdentifier()).isNull();
+    assertThat(tree.fromClause()).isNotNull();
+    assertThat(expressionToString(tree.fromClause())).isEqualTo("from \"mod\"");
+    assertThat(tree.semicolonToken()).isNotNull();
+  }
+
+  @Test
+  public void with_synonym() throws Exception {
+    NameSpaceExportDeclarationTree tree = parse("export * as ExportedName from \"mod\";", Kind.NAMESPACE_EXPORT_DECLARATION);
+
+    assertThat(tree.is(Kind.NAMESPACE_EXPORT_DECLARATION)).isTrue();
+    assertThat(tree.exportToken().text()).isEqualTo("export");
+    assertThat(tree.starToken().text()).isEqualTo("*");
+    assertThat(tree.asToken().text()).isEqualTo("as");
+    assertThat(tree.synonymIdentifier().name()).isEqualTo("ExportedName");
     assertThat(tree.fromClause()).isNotNull();
     assertThat(expressionToString(tree.fromClause())).isEqualTo("from \"mod\"");
     assertThat(tree.semicolonToken()).isNotNull();
