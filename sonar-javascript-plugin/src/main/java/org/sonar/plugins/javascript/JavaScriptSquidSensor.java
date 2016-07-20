@@ -27,6 +27,7 @@ import com.sonar.sslr.api.RecognitionException;
 import com.sonar.sslr.api.typed.ActionParser;
 import java.io.File;
 import java.io.InterruptedIOException;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -76,6 +77,7 @@ import org.sonar.plugins.javascript.api.visitors.TreeVisitorContext;
 import org.sonar.plugins.javascript.lcov.ITCoverageSensor;
 import org.sonar.plugins.javascript.lcov.OverallCoverageSensor;
 import org.sonar.plugins.javascript.lcov.UTCoverageSensor;
+import org.sonar.plugins.javascript.minify.MinificationAssessor;
 import org.sonar.squidbridge.ProgressReport;
 import org.sonar.squidbridge.api.AnalysisException;
 
@@ -113,7 +115,7 @@ public class JavaScriptSquidSensor implements Sensor {
       fileSystem.predicates().hasType(InputFile.Type.MAIN),
       fileSystem.predicates().hasLanguage(JavaScriptLanguage.KEY));
     this.settings = settings;
-    this.parser = JavaScriptParserBuilder.createParser(fileSystem.encoding());
+    this.parser = JavaScriptParserBuilder.createParser(getEncoding());
   }
 
   @VisibleForTesting
@@ -130,6 +132,10 @@ public class JavaScriptSquidSensor implements Sensor {
     } finally {
       stopProgressReport(progressReport, success);
     }
+  }
+  
+  private Charset getEncoding() {
+    return fileSystem.encoding();
   }
 
   private static void stopProgressReport(ProgressReport progressReport, boolean success) {
@@ -270,11 +276,8 @@ public class JavaScriptSquidSensor implements Sensor {
   }
 
   public boolean isExcluded(File file) {
-    return isMinifiedFile(file.getName());
-  }
-
-  public static boolean isMinifiedFile(String filename) {
-    return filename.endsWith("-min.js") || filename.endsWith(".min.js");
+    MinificationAssessor assessor = new MinificationAssessor(getEncoding());
+    return assessor.isMinified(file);
   }
 
   @Override
