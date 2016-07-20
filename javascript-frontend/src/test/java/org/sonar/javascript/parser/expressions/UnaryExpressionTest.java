@@ -33,4 +33,10 @@ public class UnaryExpressionTest {
       .matches("++a++");
   }
 
+  @Test
+  public void await() throws Exception {
+    assertThat(JavaScriptLegacyGrammar.UNARY_EXPRESSION)
+      .matches("await foo()")
+    ;
+  }
 }

@@ -420,6 +420,12 @@ public interface Tree {
     TYPEOF(UnaryExpressionTree.class),
 
     /**
+     * {@link UnaryExpressionTree}
+     * {@code await}
+     */
+    AWAIT(UnaryExpressionTree.class),
+
+    /**
      * {@link BinaryExpressionTree}
      * {@code *}
      */

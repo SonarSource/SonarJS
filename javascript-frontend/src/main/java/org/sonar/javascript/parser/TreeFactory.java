@@ -208,6 +208,7 @@ public class TreeFactory {
     .put(JavaScriptKeyword.DELETE.getValue(), Kind.DELETE)
     .put(JavaScriptKeyword.VOID.getValue(), Kind.VOID)
     .put(JavaScriptKeyword.TYPEOF.getValue(), Kind.TYPEOF)
+    .put(JavaScriptKeyword.AWAIT.getValue(), Kind.AWAIT)
     .build();
 
   private static Kind getBinaryOperator(InternalSyntaxToken token) {

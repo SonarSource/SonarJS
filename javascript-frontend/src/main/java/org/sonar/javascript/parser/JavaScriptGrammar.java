@@ -851,9 +851,9 @@ public class JavaScriptGrammar {
   public ExpressionTree UNARY_EXPRESSION() {
     return b.<ExpressionTree>nonterminal(JavaScriptLegacyGrammar.UNARY_EXPRESSION)
       .is(b.firstOf(
-        POSTFIX_EXPRESSION(),
         f.prefixExpression(
           b.firstOf(
+            b.token(JavaScriptKeyword.AWAIT),
             b.token(JavaScriptKeyword.DELETE),
             b.token(JavaScriptKeyword.VOID),
             b.token(JavaScriptKeyword.TYPEOF),
@@ -863,8 +863,8 @@ public class JavaScriptGrammar {
             b.token(JavaScriptPunctuator.MINUS),
             b.token(JavaScriptPunctuator.TILDA),
             b.token(JavaScriptPunctuator.BANG)),
-          UNARY_EXPRESSION()
-        )
+          UNARY_EXPRESSION()),
+        POSTFIX_EXPRESSION()
       ));
   }
 
