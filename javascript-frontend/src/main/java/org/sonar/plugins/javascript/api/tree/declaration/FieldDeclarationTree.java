@@ -43,5 +43,6 @@ public interface FieldDeclarationTree extends Tree {
   @Nullable
   ExpressionTree initializer();
 
+  @Nullable
   SyntaxToken semicolonToken();
 }

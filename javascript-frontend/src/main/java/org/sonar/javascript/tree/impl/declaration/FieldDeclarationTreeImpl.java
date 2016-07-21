@@ -39,7 +39,7 @@ public class FieldDeclarationTreeImpl extends JavaScriptTree implements FieldDec
 
   public FieldDeclarationTreeImpl(
     @Nullable SyntaxToken staticToken, Tree propertyName,
-    @Nullable SyntaxToken equalToken, @Nullable ExpressionTree initializer, SyntaxToken semicolonToken
+    @Nullable SyntaxToken equalToken, @Nullable ExpressionTree initializer, @Nullable SyntaxToken semicolonToken
   ) {
     this.staticToken = staticToken;
     this.propertyName = propertyName;
@@ -81,6 +81,7 @@ public class FieldDeclarationTreeImpl extends JavaScriptTree implements FieldDec
     return initializer;
   }
 
+  @Nullable
   @Override
   public SyntaxToken semicolonToken() {
     return semicolonToken;

@@ -1558,7 +1558,7 @@ public class JavaScriptGrammar {
         b.optional(b.token(JavaScriptLegacyGrammar.STATIC)),
         PROPERTY_NAME(),
         b.optional(f.newTuple58(b.token(JavaScriptPunctuator.EQU), ASSIGNMENT_EXPRESSION())),
-        b.token(JavaScriptPunctuator.SEMI)));
+        b.token(JavaScriptLegacyGrammar.EOS)));
   }
 
   public MethodDeclarationTree METHOD_DEFINITION() {

@@ -49,10 +49,15 @@ public class ClassElementTest {
 
       .matches("property = 1 ;")
       .matches("property = foo() ;")
+      .matches("property = notProperty = 0 ;")
+      .matches("property = () => {} ;")
+
       .matches("static property ;")
       .matches("static property = 1 ;")
+      .matches("property = 1")
 
-      .notMatches("property = 1")
+      .notMatches("property =;")
+      .notMatches("static;")
     ;
   }
 }
