@@ -54,6 +54,15 @@ public class DoubleDispatchVisitorTest {
     assertNumberOfVisitedTokens("<Foo.Bar/>", 7);
   }
 
+  @Test
+  public void export_declaration() throws Exception {
+    assertNumberOfVisitedTokens("export A from 'mod'", 5);
+    assertNumberOfVisitedTokens("export A, * as B from 'mod'", 9);
+    assertNumberOfVisitedTokens("export A, {B as BB} from 'mod'", 11);
+    assertNumberOfVisitedTokens("export default class A {};", 8);
+    assertNumberOfVisitedTokens("export * from 'mod';", 6);
+  }
+
 
   private class TestVisitor extends DoubleDispatchVisitor {
     int tokenCounter;

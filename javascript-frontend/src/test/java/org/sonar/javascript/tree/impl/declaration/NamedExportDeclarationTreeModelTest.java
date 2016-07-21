@@ -81,6 +81,7 @@ public class NamedExportDeclarationTreeModelTest extends JavaScriptTreeModelTest
     assertThat(exportDefaultBinding.exportedDefaultIdentifier().name()).isEqualTo("A");
     assertThat(exportDefaultBinding.commaToken().text()).isEqualTo(",");
     assertThat(exportDefaultBinding.starToken().text()).isEqualTo("*");
+    assertThat(exportDefaultBinding.asToken().text()).isEqualTo("as");
     assertThat(exportDefaultBinding.synonymIdentifier().name()).isEqualTo("B");
     assertThat(expressionToString(exportDefaultBinding.fromClause())).isEqualTo("from 'mod'");
     assertThat(exportDefaultBinding.semicolonToken().text()).isEqualTo(";");

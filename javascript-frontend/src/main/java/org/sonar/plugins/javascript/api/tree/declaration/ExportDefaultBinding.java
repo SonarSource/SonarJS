@@ -24,6 +24,11 @@ import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 
+/**
+ * This interface stands for the tail of export declaration (proposed for ES2017)
+ * <pre>export A from 'moduleName';</pre>
+ * <pre>export {@link #exportedDefaultIdentifier()} {@link #fromClause()};</pre>
+ */
 public interface ExportDefaultBinding extends Tree {
 
   IdentifierTree exportedDefaultIdentifier();
