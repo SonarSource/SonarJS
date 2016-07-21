@@ -30,6 +30,7 @@ import org.sonar.javascript.tree.impl.expression.LiteralTreeImpl;
 import org.sonar.javascript.tree.impl.lexical.InternalSyntaxToken;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
+import org.sonar.plugins.javascript.api.tree.declaration.FieldDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.declaration.MethodDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxTrivia;
@@ -59,6 +60,7 @@ public class HighlighterVisitor extends SubscriptionVisitor {
     return ImmutableList.<Kind>builder()
       .add(METHODS)
       .add(
+        Kind.FIELD,
         Kind.LET_DECLARATION,
         Kind.NUMERIC_LITERAL,
         Kind.STRING_LITERAL,
@@ -83,6 +85,10 @@ public class HighlighterVisitor extends SubscriptionVisitor {
 
     if (tree.is(METHODS)) {
       token = ((MethodDeclarationTree) tree).staticToken();
+      code = TypeOfText.KEYWORD;
+
+    } else if (tree.is(Kind.FIELD)) {
+      token = ((FieldDeclarationTree) tree).staticToken();
       code = TypeOfText.KEYWORD;
 
     } else if (tree.is(Kind.LET_DECLARATION)) {
