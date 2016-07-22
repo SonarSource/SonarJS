@@ -22,7 +22,9 @@ package org.sonar.javascript.tree.impl.declaration;
 import org.junit.Test;
 import org.sonar.javascript.utils.JavaScriptTreeModelTest;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
+import org.sonar.plugins.javascript.api.tree.declaration.FieldDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.expression.ClassTree;
+import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 
 import static org.fest.assertions.Assertions.assertThat;
 
@@ -74,5 +76,26 @@ public class ClassDeclarationTreeModelTest extends JavaScriptTreeModelTest {
 
     assertThat(tree.is(Kind.CLASS_DECLARATION)).isTrue();
     assertThat(tree.name().name()).isEqualTo("A");
+  }
+
+  @Test
+  public void property() throws Exception {
+    ClassTree tree = parse("class A { static staticProperty = 1; method(){} withoutInitField; }", Kind.CLASS_DECLARATION);
+
+    FieldDeclarationTree staticProperty = (FieldDeclarationTree) tree.elements().get(0);
+    assertThat(staticProperty.staticToken().text()).isEqualTo("static");
+    assertThat(((IdentifierTree) staticProperty.propertyName()).name()).isEqualTo("staticProperty");
+    assertThat(staticProperty.equalToken().text()).isEqualTo("=");
+    assertThat(staticProperty.initializer().is(Kind.NUMERIC_LITERAL)).isTrue();
+    assertThat(staticProperty.semicolonToken().text()).isEqualTo(";");
+
+    FieldDeclarationTree withoutInitField = (FieldDeclarationTree) tree.elements().get(2);
+    assertThat(withoutInitField.staticToken()).isNull();
+    assertThat(((IdentifierTree) withoutInitField.propertyName()).name()).isEqualTo("withoutInitField");
+    assertThat(withoutInitField.equalToken()).isNull();
+    assertThat(withoutInitField.initializer()).isNull();
+    assertThat(withoutInitField.semicolonToken().text()).isEqualTo(";");
+
+
   }
 }

@@ -155,6 +155,12 @@ public class HighlighterVisitorTest extends JavaScriptTreeModelTest {
   }
 
   @Test
+  public void static_property() throws Exception {
+    highlight("class A { \nstatic foo; }");
+    assertHighlighting(2, 0, 6, KEYWORD);
+  }
+
+  @Test
   public void static_keyword_method() throws Exception {
     highlight("class A { \nstatic foo(){} }");
     assertHighlighting(0, 5, KEYWORD);

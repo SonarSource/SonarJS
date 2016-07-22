@@ -35,4 +35,29 @@ public class ClassElementTest {
       .matches(";");
   }
 
+  @Test
+  public void properties() throws Exception {
+    assertThat(JavaScriptLegacyGrammar.CLASS_ELEMENT)
+      // identifier
+      .matches("property ;")
+      // number literal
+      .matches("1 ;")
+      // string literal
+      .matches("'prop_name' ;")
+      // computed property
+      .matches("[21 + 21] ;")
+
+      .matches("property = 1 ;")
+      .matches("property = foo() ;")
+      .matches("property = notProperty = 0 ;")
+      .matches("property = () => {} ;")
+
+      .matches("static property ;")
+      .matches("static property = 1 ;")
+      .matches("property = 1")
+
+      .notMatches("property =;")
+      .notMatches("static;")
+    ;
+  }
 }

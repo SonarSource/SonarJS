@@ -17,32 +17,32 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.javascript.parser.declarations;
+package org.sonar.plugins.javascript.api.tree.declaration;
 
-import org.junit.Test;
-import org.sonar.plugins.javascript.api.tree.Tree.Kind;
+import com.google.common.annotations.Beta;
+import javax.annotation.Nullable;
+import org.sonar.plugins.javascript.api.tree.Tree;
+import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
+import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 
-import static org.sonar.javascript.utils.Assertions.assertThat;
+/**
+ *  Interface for class fields and static properties.
+ *  This syntax is in proposal currently. See https://github.com/jeffmo/es-class-fields-and-static-properties
+ */
+@Beta
+public interface FieldDeclarationTree extends Tree {
 
-public class ClassDeclarationTest {
+  @Nullable
+  SyntaxToken staticToken();
 
+  Tree propertyName();
 
-  @Test
-  public void ok() {
-    assertThat(Kind.CLASS_DECLARATION)
-      .matches("class C {}")
-      .matches("class C extends S {}")
-      .matches("class C { ; }")
-      .matches("class C extends S { ; }");
-  }
+  @Nullable
+  SyntaxToken equalToken();
 
-  @Test
-  public void with_properties() throws Exception {
-    assertThat(Kind.CLASS_DECLARATION)
-      .matches("class C {property; method(){} }")
-      .matches("class C {method(){} property; }")
-      .matches("class C { property; property=42; }")
-    ;
+  @Nullable
+  ExpressionTree initializer();
 
-  }
+  @Nullable
+  SyntaxToken semicolonToken();
 }
