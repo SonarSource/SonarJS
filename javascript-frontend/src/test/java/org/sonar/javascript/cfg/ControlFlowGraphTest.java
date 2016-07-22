@@ -571,6 +571,12 @@ public class ControlFlowGraphTest {
   }
 
   @Test
+  public void await_expression() throws Exception {
+    ControlFlowGraph g = build("await a", 1);
+    assertBlock(g, 0).hasElements("a", "await a");
+  }
+
+  @Test
   public void variable_declaration() throws Exception {
     assertExpressionElements("var a = 1", "1", "a", "a = 1");
   }

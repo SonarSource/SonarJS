@@ -164,6 +164,13 @@ public class ExpressionStackTest {
   }
 
   @Test
+  public void await_expression() throws Exception {
+    pushSimpleValues(1);
+    execute("await foo");
+    assertSingleValueInStack(UNKNOWN);
+  }
+
+  @Test
   public void isEmpty() throws Exception {
     assertThat(emptyStack().isEmpty()).isTrue();
     assertThat(emptyStack().push(simple1).isEmpty()).isFalse();
