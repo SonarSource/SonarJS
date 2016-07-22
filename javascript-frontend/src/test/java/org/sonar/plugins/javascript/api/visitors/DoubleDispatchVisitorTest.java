@@ -43,6 +43,11 @@ public class DoubleDispatchVisitorTest {
   }
 
   @Test
+  public void test_field_property() throws Exception {
+    assertNumberOfVisitedTokens("class A {static prop = 1; }", 10);
+  }
+
+  @Test
   public void jsx() throws Exception {
     assertNumberOfVisitedTokens("<a>Hello {1}</a>", 12);
     assertNumberOfVisitedTokens("<a attr={1}><b {...foo(2)}/></a>", 24);
