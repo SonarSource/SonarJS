@@ -22,6 +22,7 @@ package org.sonar.javascript.se;
 import com.google.common.base.Charsets;
 import com.google.common.collect.ImmutableList;
 import com.sonar.sslr.api.typed.ActionParser;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.sonar.javascript.parser.JavaScriptParserBuilder;
 import org.sonar.javascript.se.sv.EqualToSymbolicValue;
@@ -163,6 +164,7 @@ public class ExpressionStackTest {
     assertSingleValueInStack(UNKNOWN);
   }
 
+  @Ignore
   @Test
   public void await_expression() throws Exception {
     pushSimpleValues(1);

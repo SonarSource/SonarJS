@@ -35,6 +35,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -570,6 +571,7 @@ public class ControlFlowGraphTest {
     assertBlock(g, 0).hasElements("a");
   }
 
+  @Ignore
   @Test
   public void await_expression() throws Exception {
     ControlFlowGraph g = build("await a", 1);
