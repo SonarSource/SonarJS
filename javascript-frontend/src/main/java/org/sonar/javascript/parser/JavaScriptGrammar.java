@@ -1241,8 +1241,8 @@ public class JavaScriptGrammar {
               b.token(JavaScriptPunctuator.OR_EQU)),
             ASSIGNMENT_EXPRESSION()),
           YIELD_EXPRESSION(),
-          CONDITIONAL_EXPRESSION_NOT_ES6_ASSIGNMENT_EXPRESSION(),
-          ARROW_FUNCTION()
+          ARROW_FUNCTION(),
+          CONDITIONAL_EXPRESSION_NOT_ES6_ASSIGNMENT_EXPRESSION()
         ));
   }
 
