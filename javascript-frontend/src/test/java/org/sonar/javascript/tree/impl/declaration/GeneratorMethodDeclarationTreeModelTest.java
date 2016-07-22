@@ -35,6 +35,7 @@ public class GeneratorMethodDeclarationTreeModelTest extends JavaScriptTreeModel
 
     assertThat(tree.is(Kind.GENERATOR_METHOD)).isTrue();
     assertThat(tree.staticToken()).isNull();
+    assertThat(tree.asyncToken()).isNull();
     assertThat(tree.starToken().text()).isEqualTo("*");
     assertThat(((IdentifierTree) tree.name()).name()).isEqualTo("method");
     assertThat(tree.parameterClause()).isNotNull();

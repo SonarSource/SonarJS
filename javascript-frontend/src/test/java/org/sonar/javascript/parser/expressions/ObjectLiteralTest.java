@@ -43,4 +43,14 @@ public class ObjectLiteralTest {
       .notMatches("{ propertyName : assignmentExpression , , }");
   }
 
+  @Test
+  public void test_keywords_as_identifiers() {
+    assertThat(Kind.OBJECT_LITERAL)
+      .matches("{ yield , }")
+      .matches("{ async , }")
+      .matches("{ await , }")
+
+    ;
+  }
+
 }

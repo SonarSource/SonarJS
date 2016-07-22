@@ -52,4 +52,14 @@ public class MethodDeclarationTreeModelTest extends JavaScriptTreeModelTest {
     assertThat(tree.body()).isNotNull();
   }
 
+
+  @Test
+  public void async() throws Exception {
+    MethodDeclarationTree tree = parse("var a = { async method() {} }", Kind.METHOD);
+    assertThat(tree.asyncToken().text()).isEqualTo("async");
+
+    tree = parse("var a = { method() {} }", Kind.METHOD);
+    assertThat(tree.asyncToken()).isNull();
+  }
+
 }

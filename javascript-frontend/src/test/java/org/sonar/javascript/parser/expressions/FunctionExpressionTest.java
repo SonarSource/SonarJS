@@ -20,6 +20,7 @@
 package org.sonar.javascript.parser.expressions;
 
 import org.junit.Test;
+import org.sonar.javascript.parser.JavaScriptLegacyGrammar;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 
 import static org.sonar.javascript.utils.Assertions.assertThat;
@@ -35,4 +36,17 @@ public class FunctionExpressionTest {
       .matches("function f (p1, p2) {}");
   }
 
+  @Test
+  public void async_function() throws Exception {
+    assertThat(Kind.FUNCTION_EXPRESSION)
+      .matches("async function () {}")
+    ;
+  }
+
+  @Test
+  public void async_function_from_script() throws Exception {
+    assertThat(JavaScriptLegacyGrammar.SCRIPT)
+      .matches("var bar = async function(){}")
+    ;
+  }
 }

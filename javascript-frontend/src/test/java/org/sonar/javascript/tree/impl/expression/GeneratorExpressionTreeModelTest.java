@@ -47,6 +47,7 @@ public class GeneratorExpressionTreeModelTest extends JavaScriptTreeModelTest {
     FunctionExpressionTree tree = parse("a = function * () {}", Kind.GENERATOR_FUNCTION_EXPRESSION);
 
     assertThat(tree.is(Kind.GENERATOR_FUNCTION_EXPRESSION)).isTrue();
+    assertThat(tree.asyncToken()).isNull();
     assertThat(tree.functionKeyword().text()).isEqualTo(JavaScriptKeyword.FUNCTION.getValue());
     assertThat(tree.name()).isNull();
     assertThat(tree.star().text()).isEqualTo(JavaScriptPunctuator.STAR.getValue());

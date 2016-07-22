@@ -89,4 +89,15 @@ public class ArrowFunctionTreeModelTest extends JavaScriptTreeModelTest {
     assertThat(parameters.get(0).name()).isEqualTo("p1");
   }
 
+  @Test
+  public void async() throws Exception {
+    String function = "(p1, p2) => p1 + p2;";
+
+    ArrowFunctionTree tree = parse("async " + function, Kind.ARROW_FUNCTION);
+    assertThat(tree.asyncToken().text()).isEqualTo("async");
+
+    tree = parse(function, Kind.ARROW_FUNCTION);
+    assertThat(tree.asyncToken()).isNull();
+  }
+
 }

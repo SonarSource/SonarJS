@@ -64,12 +64,14 @@ public enum JavaScriptKeyword implements TokenType, GrammarRuleKey {
   WHILE("while"),
   WITH("with"),
   YIELD("yield"),
-
-  // Future reserved words
-
   CONST("const"),
+  EXPORT("export"),
+
+  // Future reserved words (ES2015 spec)
   ENUM("enum"),
-  EXPORT("export");
+  AWAIT("await"),
+
+  ;
 
   private final String value;
 

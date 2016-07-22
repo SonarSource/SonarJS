@@ -21,9 +21,15 @@ package org.sonar.plugins.javascript.api.tree.declaration;
 
 
 import java.util.List;
+import javax.annotation.Nullable;
 import org.sonar.plugins.javascript.api.tree.Tree;
+import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 
 public interface FunctionTree extends Tree {
+
+  @Nullable
+  SyntaxToken asyncToken();
+
   Tree parameterClause();
 
   Tree body();

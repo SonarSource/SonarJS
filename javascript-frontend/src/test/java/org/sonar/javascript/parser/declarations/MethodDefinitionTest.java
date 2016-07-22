@@ -31,9 +31,19 @@ public class MethodDefinitionTest {
   public void ok() {
     assertThat(JavaScriptLegacyGrammar.METHOD_DEFINITION)
       .matches("f() {}")
+      .matches("static f() {}")
       .matches("set f(p) {}")
       .matches("get f() {}")
-      .matches("* f() {}");
+      .matches("* f() {}")
+    ;
+  }
+
+  @Test
+  public void async_method() {
+    assertThat(JavaScriptLegacyGrammar.METHOD_DEFINITION)
+      .matches("async f() {}")
+      .matches("static async f() {}")
+    ;
   }
 
 }

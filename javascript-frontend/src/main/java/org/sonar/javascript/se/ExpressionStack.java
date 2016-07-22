@@ -133,6 +133,7 @@ public class ExpressionStack {
       case BITWISE_COMPLEMENT:
       case DELETE:
       case VOID:
+      case AWAIT:
         pop(newStack, 1);
         pushUnknown(newStack);
         break;

@@ -17,38 +17,29 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.javascript.parser.expressions;
+package org.sonar.javascript.parser.declarations;
 
 import org.junit.Test;
 import org.sonar.javascript.parser.JavaScriptLegacyGrammar;
 
 import static org.sonar.javascript.utils.Assertions.assertThat;
 
-public class PrimaryExpressionTest {
-
+public class FunctionDeclarationTest {
 
   @Test
-  public void realLife() {
-    assertThat(JavaScriptLegacyGrammar.PRIMARY_EXPRESSION)
-      .matches("this")
-      .matches("identifier")
-      .matches("''")
-      .matches("true")
-      .matches("[]")
-      .matches("{}")
-      .matches("class {}")
-      .matches("function * () {}")
-      .matches("``")
-      .matches("( expression )");
+  public void ok() {
+    assertThat(JavaScriptLegacyGrammar.FUNCTION_DECLARATION)
+      .notMatches("function () {}")
+      .matches("function f() {}")
+      .matches("function f (p1, p2) {}")
+      .matches("function *f() {}")
+    ;
   }
 
   @Test
-  public void test_keywords_as_identifiers() throws Exception {
-    assertThat(JavaScriptLegacyGrammar.PRIMARY_EXPRESSION)
-      .matches("yield")
-      .matches("async")
-      .matches("await")
+  public void async_function() throws Exception {
+    assertThat(JavaScriptLegacyGrammar.FUNCTION_DECLARATION)
+      .matches("async function foo () {}")
     ;
-
   }
 }

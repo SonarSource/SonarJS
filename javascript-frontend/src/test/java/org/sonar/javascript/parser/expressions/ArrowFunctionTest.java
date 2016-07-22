@@ -20,6 +20,7 @@
 package org.sonar.javascript.parser.expressions;
 
 import org.junit.Test;
+import org.sonar.javascript.parser.JavaScriptLegacyGrammar;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 
 import static org.sonar.javascript.utils.Assertions.assertThat;
@@ -31,7 +32,24 @@ public class ArrowFunctionTest {
   public void ok() {
     assertThat(Kind.ARROW_FUNCTION)
       .matches("identifier => conditionalExpression")
-      .matches("identifier => { }");
+      .matches("identifier => { }")
+      .matches("() => { }")
+    ;
   }
 
+  @Test
+  public void async_function() throws Exception {
+    assertThat(Kind.ARROW_FUNCTION)
+      .matches("async () => { }")
+      .matches("async a => foo(a)")
+    ;
+
+  }
+
+  @Test
+  public void async_function_from_script() throws Exception {
+    assertThat(JavaScriptLegacyGrammar.SCRIPT)
+      .matches("var bar = async x => foo()")
+    ;
+  }
 }

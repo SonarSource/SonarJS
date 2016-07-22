@@ -127,7 +127,8 @@ class ControlFlowGraphBuilder {
     Kind.UNARY_PLUS,
     Kind.UNARY_MINUS,
     Kind.BITWISE_COMPLEMENT,
-    Kind.LOGICAL_COMPLEMENT
+    Kind.LOGICAL_COMPLEMENT,
+    Kind.AWAIT
   };
 
   ControlFlowGraph createGraph(ScriptTree tree) {
