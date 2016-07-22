@@ -40,7 +40,8 @@ public class ExpressionTest {
       .matches("a + ' ' + b")
       .matches("i++")
       .matches("1 / a == 1 / b")
-      .matches("yield 0");
+//      .matches("yield 0")
+    ;
   }
 
 }

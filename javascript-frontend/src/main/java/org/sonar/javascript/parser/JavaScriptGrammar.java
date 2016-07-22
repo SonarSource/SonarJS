@@ -1203,7 +1203,8 @@ public class JavaScriptGrammar {
         b.firstOf(
           THIS(),
           FUNCTION_EXPRESSION(),
-          IDENTIFIER_REFERENCE(),
+          f.identifierReferenceWithoutYield(b.token(JavaScriptTokenType.IDENTIFIER)),
+//          IDENTIFIER_REFERENCE(),
           LITERAL(),
           ARRAY_LITERAL(),
           OBJECT_LITERAL(),
@@ -1241,9 +1242,9 @@ public class JavaScriptGrammar {
               b.token(JavaScriptPunctuator.XOR_EQU),
               b.token(JavaScriptPunctuator.OR_EQU)),
             ASSIGNMENT_EXPRESSION()),
+          CONDITIONAL_EXPRESSION_NOT_ES6_ASSIGNMENT_EXPRESSION(),
           YIELD_EXPRESSION(),
-          ARROW_FUNCTION(),
-          CONDITIONAL_EXPRESSION_NOT_ES6_ASSIGNMENT_EXPRESSION()
+          ARROW_FUNCTION()
         ));
   }
 

@@ -1132,6 +1132,10 @@ public class TreeFactory {
     return new AssignmentExpressionTreeImpl(EXPRESSION_KIND_BY_VALUE.get(operator.text()), variable, operator, expression);
   }
 
+    public IdentifierTreeImpl identifierReferenceWithoutYield(InternalSyntaxToken identifier) {
+       return new IdentifierTreeImpl(Kind.IDENTIFIER_REFERENCE, identifier);
+    }
+
   public ExpressionTree assignmentExpressionNoIn(ExpressionTree variable, InternalSyntaxToken operator, ExpressionTree expression) {
     return new AssignmentExpressionTreeImpl(EXPRESSION_KIND_BY_VALUE.get(operator.text()), variable, operator, expression);
   }
