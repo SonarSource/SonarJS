@@ -19,7 +19,6 @@
  */
 package org.sonar.javascript.parser.expressions;
 
-import org.junit.Ignore;
 import org.junit.Test;
 import org.sonar.javascript.parser.JavaScriptLegacyGrammar;
 
@@ -34,7 +33,6 @@ public class UnaryExpressionTest {
       .matches("++a++");
   }
 
-  @Ignore
   @Test
   public void await() throws Exception {
     assertThat(JavaScriptLegacyGrammar.UNARY_EXPRESSION)
