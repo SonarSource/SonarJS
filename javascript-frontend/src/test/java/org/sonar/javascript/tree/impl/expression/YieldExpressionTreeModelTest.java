@@ -19,7 +19,6 @@
  */
 package org.sonar.javascript.tree.impl.expression;
 
-import org.junit.Ignore;
 import org.junit.Test;
 import org.sonar.javascript.utils.JavaScriptTreeModelTest;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
@@ -29,7 +28,6 @@ import static org.fest.assertions.Assertions.assertThat;
 
 public class YieldExpressionTreeModelTest extends JavaScriptTreeModelTest {
 
-  @Ignore
   @Test
   public void without_argument_star() throws Exception {
     YieldExpressionTree tree = parse("yield;", Kind.YIELD_EXPRESSION);
@@ -40,7 +38,6 @@ public class YieldExpressionTreeModelTest extends JavaScriptTreeModelTest {
     assertThat(tree.argument()).isNull();
   }
 
-  @Ignore
   @Test
   public void with_star() throws Exception {
     YieldExpressionTree tree = parse("yield * expression;", Kind.YIELD_EXPRESSION);
@@ -51,7 +48,6 @@ public class YieldExpressionTreeModelTest extends JavaScriptTreeModelTest {
     assertThat(expressionToString(tree.argument())).isEqualTo("expression");
   }
 
-  @Ignore
   @Test
   public void without_star() throws Exception {
     YieldExpressionTree tree = parse("yield expression;", Kind.YIELD_EXPRESSION);
