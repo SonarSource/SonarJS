@@ -1201,6 +1201,8 @@ public class JavaScriptGrammar {
       .is(
         b.firstOf(
           THIS(),
+          FUNCTION_EXPRESSION(),
+          IDENTIFIER_REFERENCE(),
           LITERAL(),
           ARRAY_LITERAL(),
           OBJECT_LITERAL(),
@@ -1208,9 +1210,7 @@ public class JavaScriptGrammar {
           CLASS_EXPRESSION(),
           GENERATOR_EXPRESSION(),
           TEMPLATE_LITERAL(),
-          JSX_ELEMENT(),
-          FUNCTION_EXPRESSION(),
-          IDENTIFIER_REFERENCE()
+          JSX_ELEMENT()
         ));
   }
 
