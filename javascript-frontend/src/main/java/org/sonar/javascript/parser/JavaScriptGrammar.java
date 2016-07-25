@@ -1202,12 +1202,12 @@ public class JavaScriptGrammar {
       .is(
         b.firstOf(
           THIS(),
+          FUNCTION_EXPRESSION(),
           f.identifierReferenceWithoutYield(b.token(JavaScriptTokenType.IDENTIFIER)),
 //          IDENTIFIER_REFERENCE(),
           LITERAL(),
           ARRAY_LITERAL(),
           OBJECT_LITERAL(),
-          FUNCTION_EXPRESSION(),
           PARENTHESISED_EXPRESSION(),
           CLASS_EXPRESSION(),
           GENERATOR_EXPRESSION(),

@@ -19,7 +19,6 @@
  */
 package org.sonar.javascript.tree.impl.expression;
 
-import org.junit.Ignore;
 import org.junit.Test;
 import org.sonar.javascript.lexer.JavaScriptKeyword;
 import org.sonar.javascript.utils.JavaScriptTreeModelTest;
@@ -53,7 +52,6 @@ public class FunctionExpressionTreeModelTest extends JavaScriptTreeModelTest {
   }
 
 
-  @Ignore
   @Test
   public void async() throws Exception {
     FunctionExpressionTree tree = parse("a = async function f() {}", Kind.FUNCTION_EXPRESSION);

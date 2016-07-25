@@ -19,7 +19,6 @@
  */
 package org.sonar.javascript.parser.expressions;
 
-import org.junit.Ignore;
 import org.junit.Test;
 import org.sonar.javascript.parser.JavaScriptLegacyGrammar;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
@@ -44,7 +43,6 @@ public class FunctionExpressionTest {
     ;
   }
 
-  @Ignore
   @Test
   public void async_function_from_script() throws Exception {
     assertThat(JavaScriptLegacyGrammar.SCRIPT)
