@@ -9,23 +9,5 @@ function configureTravis {
 }
 configureTravis
 
-case "$TEST" in
-
-ci)
-  export DEPLOY_PULL_REQUEST=true
-  regular_mvn_build_deploy_analyze
-  ;;
-
-ruling)
-
-  mvn -B -e -Dsource.skip=true -Denforcer.skip=true -Danimal.sniffer.skip=true -Dmaven.test.skip=true package
-  cd its/ruling
-  mvn -B -e -Dsonar.runtimeVersion="LATEST_RELEASE" -Dmaven.test.redirectTestOutputToFile=false package
-  ;;
-
-*)
-  echo "Unexpected TEST mode: $TEST"
-  exit 1
-  ;;
-
-esac
+export DEPLOY_PULL_REQUEST=true
+regular_mvn_build_deploy_analyze

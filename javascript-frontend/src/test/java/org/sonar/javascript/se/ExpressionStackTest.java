@@ -171,6 +171,12 @@ public class ExpressionStackTest {
   }
 
   @Test
+  public void class_expression() throws Exception {
+    execute("class {}");
+    assertSingleValueInStack(UNKNOWN);
+  }
+
+  @Test
   public void isEmpty() throws Exception {
     assertThat(emptyStack().isEmpty()).isTrue();
     assertThat(emptyStack().push(simple1).isEmpty()).isFalse();
