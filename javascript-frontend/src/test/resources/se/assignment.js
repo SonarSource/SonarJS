@@ -2,10 +2,10 @@ function main() {
 
   var x, y, z, untracked;
 
-  x = 0;  // PS x=FALSY
+  x = 0;  // PS x=ZERO
   x += 1; // PS x=UNKNOWN
-  y = 5;  // PS y=TRUTHY
-  z = 0;  // PS z=FALSY
+  y = 5;  // PS y=TRUTHY_NUMBER
+  z = 0;  // PS z=ZERO
   z++;    // PS z=UNKNOWN
   untracked = 5; // PS !untracked
   x = 0;

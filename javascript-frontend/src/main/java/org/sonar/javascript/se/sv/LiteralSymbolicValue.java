@@ -56,19 +56,19 @@ public class LiteralSymbolicValue implements SymbolicValue {
 
   @Override
   public Constraint inherentConstraint() {
-    return isTruthy() ? Constraint.TRUTHY : Constraint.FALSY_NOT_NULLY;
-  }
-
-  private boolean isTruthy() {
     if (literal.is(Kind.BOOLEAN_LITERAL)) {
-      return "true".equals(literal.value());
+      return "true".equals(literal.value()) ? Constraint.TRUE
+        : Constraint.FALSE;
     }
     if (literal.is(Kind.STRING_LITERAL)) {
-      return literal.value().length() > 2;
+      return literal.value().length() > 2 ? Constraint.TRUTHY_STRING
+        : Constraint.EMPTY_STRING;
     }
     if (literal.is(Kind.NUMERIC_LITERAL)) {
-      return isTruthyNumeric();
+      return isTruthyNumeric() ? Constraint.TRUTHY_NUMBER
+        : Constraint.ZERO;
     }
+
     throw new IllegalStateException("Unknown literal: " + literal);
   }
 

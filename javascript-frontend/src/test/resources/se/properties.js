@@ -18,7 +18,7 @@ function main(p) {
       x = 42;
     }
 
-    dummyStatement();  // PS x=NULL || x=TRUTHY
+    dummyStatement();  // PS x=NULL || x=TRUTHY_NUMBER
     makeLive(x);
   }
 
@@ -30,7 +30,7 @@ function main(p) {
         y = 42;
       }
 
-      dummyStatement();  // PS y=NULL || y=TRUTHY
+      dummyStatement();  // PS y=NULL || y=TRUTHY_NUMBER
       makeLive(y);
   }
 

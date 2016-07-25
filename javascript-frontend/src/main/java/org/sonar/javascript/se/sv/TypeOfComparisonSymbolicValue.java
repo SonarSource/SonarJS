@@ -44,7 +44,7 @@ public class TypeOfComparisonSymbolicValue implements SymbolicValue {
   private static final Map<String, Constraint> TYPEOF_EQUAL_CONSTRAINTS = ImmutableMap.<String, Constraint>builder()
     .put("undefined", Constraint.UNDEFINED)
     .put("function", Constraint.TRUTHY)
-    .put("object", Constraint.TRUTHY_OR_NULL)
+    .put("object", Constraint.TRUTHY.or(Constraint.NULL))
     .put("number", Constraint.NOT_NULLY)
     .put("string", Constraint.NOT_NULLY)
     .put("boolean", Constraint.NOT_NULLY)

@@ -8,7 +8,7 @@ function main(p1, p2) {
 
   foo(p2);
 
-  p1 = 42; // PS p1=TRUTHY & p2=UNKNOWN & !neverRead
+  p1 = 42; // PS p1=TRUTHY_NUMBER & p2=UNKNOWN & !neverRead
 
   dummyStatement();
 

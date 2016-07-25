@@ -3,14 +3,14 @@ function main() {
   if (!x) {
     x = 42;
   }
-  bar(); // PS x=TRUTHY
+  bar(); // PS x=TRUTHY || x=TRUTHY_NUMBER
   makeLive(x);
 
   x = foo2();
   if (!(x)) {
     x = 42;
   }
-  bar(); // PS x=TRUTHY
+  bar(); // PS x=TRUTHY || x=TRUTHY_NUMBER
   makeLive(x);
 
   var notExecuted;
@@ -59,7 +59,7 @@ function main() {
     x = null;
   }
 
-  dummyStatement(); // PS x=TRUTHY
+  dummyStatement(); // PS x=TRUTHY_NUMBER
   makeLive(x);
 
   if (false) {
@@ -80,14 +80,14 @@ function main() {
     z = null;
   }
 
-  dummyStatement(); // PS z=TRUTHY
+  dummyStatement(); // PS z=TRUTHY_NUMBER
   makeLive(z);
 
   if (y2 == null) {
     z = null;
   }
 
-  makeLive(z); // PS z=TRUTHY
+  makeLive(z); // PS z=TRUTHY_NUMBER
 
   x = foo(), y1 = bar();
   z = x === null && y1;

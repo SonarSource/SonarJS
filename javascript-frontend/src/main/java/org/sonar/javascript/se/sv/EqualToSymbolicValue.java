@@ -51,8 +51,8 @@ public class EqualToSymbolicValue implements SymbolicValue {
     SpecialSymbolicValue.UNDEFINED, Constraint.UNDEFINED);
 
   private static final Map<SpecialSymbolicValue, Constraint> STRICT_NOT_EQUAL_CONSTRAINTS = ImmutableMap.of(
-    SpecialSymbolicValue.NULL, Constraint.NOT_NULL,
-    SpecialSymbolicValue.UNDEFINED, Constraint.NOT_UNDEFINED);
+    SpecialSymbolicValue.NULL, Constraint.NULL.not(),
+    SpecialSymbolicValue.UNDEFINED, Constraint.UNDEFINED.not());
 
   private final SymbolicValue firstOperandValue;
   private final Constraint secondOperandConstraint;

@@ -48,6 +48,6 @@ function main() {
   if (x === null) {
     y = null;  // never executed
   }
-  foo(); // PS y=TRUTHY
+  foo(); // PS y=TRUTHY_NUMBER
   makeLive(y);
 }

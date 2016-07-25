@@ -26,7 +26,6 @@ import org.sonar.plugins.javascript.api.symbols.Symbol;
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.sonar.javascript.se.Constraint.FALSY;
-import static org.sonar.javascript.se.Constraint.NOT_NULL;
 import static org.sonar.javascript.se.Constraint.NULL;
 import static org.sonar.javascript.se.Constraint.NULL_OR_UNDEFINED;
 import static org.sonar.javascript.se.Constraint.TRUTHY;
@@ -46,7 +45,7 @@ public class EqualToSymbolicValueTest {
     SymbolicValue sv1 = state1.getSymbolicValue(symbol);
     SymbolicValue equalTo = new EqualToSymbolicValue(sv1, NULL);
     assertThat(equalTo.constrain(state1, TRUTHY)).containsExactly(state1.constrain(sv1, NULL));
-    assertThat(equalTo.constrain(state1, FALSY)).containsExactly(state1.constrain(sv1, NOT_NULL));
+    assertThat(equalTo.constrain(state1, FALSY)).containsExactly(state1.constrain(sv1, NULL.not()));
     assertThat(equalTo.constrain(state1, NULL)).isEmpty();
   }
 

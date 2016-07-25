@@ -112,7 +112,7 @@ public class ExpressionStackTest {
   public void strict_not_equal_null() throws Exception {
     pushValues(simple1, SpecialSymbolicValue.NULL);
     execute("a !== null");
-    assertSingleValueInStack(new EqualToSymbolicValue(simple1, Constraint.NOT_NULL));
+    assertSingleValueInStack(new EqualToSymbolicValue(simple1, Constraint.NULL.not()));
   }
 
   @Test

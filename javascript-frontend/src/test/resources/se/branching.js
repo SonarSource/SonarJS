@@ -6,7 +6,7 @@ function main() {
     x = 42;
   }
 
-  doSomething();  // PS x=TRUTHY & y=NULLY || x=NULL & y=NOT_NULLY
+  doSomething();  // PS x=TRUTHY_NUMBER & y=NULLY || x=NULL & y=NOT_NULLY
 
 
   makeLive(x, y);

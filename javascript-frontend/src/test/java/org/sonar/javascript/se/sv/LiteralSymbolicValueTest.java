@@ -32,8 +32,8 @@ import org.sonar.plugins.javascript.api.tree.statement.ExpressionStatementTree;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
-import static org.sonar.javascript.se.Constraint.FALSY_NOT_NULLY;
-import static org.sonar.javascript.se.Constraint.TRUTHY;
+import static org.sonar.javascript.se.Constraint.TRUTHY_NUMBER;
+import static org.sonar.javascript.se.Constraint.ZERO;
 
 public class LiteralSymbolicValueTest {
 
@@ -41,37 +41,37 @@ public class LiteralSymbolicValueTest {
 
   @Test
   public void boolean_literal() throws Exception {
-    assertThat(inherentConstraint("true")).isEqualTo(Constraint.TRUTHY);
-    assertThat(inherentConstraint("false")).isEqualTo(Constraint.FALSY_NOT_NULLY);
+    assertThat(inherentConstraint("true")).isEqualTo(Constraint.TRUE);
+    assertThat(inherentConstraint("false")).isEqualTo(Constraint.FALSE);
   }
 
   @Test
   public void string_literal() throws Exception {
-    assertThat(inherentConstraint("''")).isEqualTo(Constraint.FALSY_NOT_NULLY);
-    assertThat(inherentConstraint("\"\"")).isEqualTo(Constraint.FALSY_NOT_NULLY);
-    assertThat(inherentConstraint("'a'")).isEqualTo(Constraint.TRUTHY);
-    assertThat(inherentConstraint("'0'")).isEqualTo(Constraint.TRUTHY);
+    assertThat(inherentConstraint("''")).isEqualTo(Constraint.EMPTY_STRING);
+    assertThat(inherentConstraint("\"\"")).isEqualTo(Constraint.EMPTY_STRING);
+    assertThat(inherentConstraint("'a'")).isEqualTo(Constraint.TRUTHY_STRING);
+    assertThat(inherentConstraint("'0'")).isEqualTo(Constraint.TRUTHY_STRING);
   }
 
   @Test
   public void numeric_literal() throws Exception {
-    assertThat(inherentConstraint("42")).isEqualTo(Constraint.TRUTHY);
-    assertThat(inherentConstraint("42.")).isEqualTo(TRUTHY);
-    assertThat(inherentConstraint("42e2")).isEqualTo(TRUTHY);
-    assertThat(inherentConstraint("0b01")).isEqualTo(TRUTHY);
-    assertThat(inherentConstraint("0x42")).isEqualTo(TRUTHY);
-    assertThat(inherentConstraint("0o42")).isEqualTo(TRUTHY);
-    assertThat(inherentConstraint("0O42")).isEqualTo(TRUTHY);
-    assertThat(inherentConstraint("042")).isEqualTo(TRUTHY);
+    assertThat(inherentConstraint("42")).isEqualTo(TRUTHY_NUMBER);
+    assertThat(inherentConstraint("42.")).isEqualTo(TRUTHY_NUMBER);
+    assertThat(inherentConstraint("42e2")).isEqualTo(TRUTHY_NUMBER);
+    assertThat(inherentConstraint("0b01")).isEqualTo(TRUTHY_NUMBER);
+    assertThat(inherentConstraint("0x42")).isEqualTo(TRUTHY_NUMBER);
+    assertThat(inherentConstraint("0o42")).isEqualTo(TRUTHY_NUMBER);
+    assertThat(inherentConstraint("0O42")).isEqualTo(TRUTHY_NUMBER);
+    assertThat(inherentConstraint("042")).isEqualTo(TRUTHY_NUMBER);
 
-    assertThat(inherentConstraint("0")).isEqualTo(FALSY_NOT_NULLY);
-    assertThat(inherentConstraint("0.0")).isEqualTo(FALSY_NOT_NULLY);
-    assertThat(inherentConstraint("0.e2")).isEqualTo(FALSY_NOT_NULLY);
-    assertThat(inherentConstraint("0b0")).isEqualTo(FALSY_NOT_NULLY);
-    assertThat(inherentConstraint("0x0")).isEqualTo(FALSY_NOT_NULLY);
-    assertThat(inherentConstraint("0o0")).isEqualTo(FALSY_NOT_NULLY);
-    assertThat(inherentConstraint("0O0")).isEqualTo(FALSY_NOT_NULLY);
-    assertThat(inherentConstraint("00")).isEqualTo(FALSY_NOT_NULLY);
+    assertThat(inherentConstraint("0")).isEqualTo(ZERO);
+    assertThat(inherentConstraint("0.0")).isEqualTo(ZERO);
+    assertThat(inherentConstraint("0.e2")).isEqualTo(ZERO);
+    assertThat(inherentConstraint("0b0")).isEqualTo(ZERO);
+    assertThat(inherentConstraint("0x0")).isEqualTo(ZERO);
+    assertThat(inherentConstraint("0o0")).isEqualTo(ZERO);
+    assertThat(inherentConstraint("0O0")).isEqualTo(ZERO);
+    assertThat(inherentConstraint("00")).isEqualTo(ZERO);
   }
 
   @Test(expected = IllegalStateException.class)

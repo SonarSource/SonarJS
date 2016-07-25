@@ -24,6 +24,7 @@ import org.junit.Test;
 import static org.fest.assertions.Assertions.assertThat;
 import static org.sonar.javascript.se.Constraint.ANY_VALUE;
 import static org.sonar.javascript.se.Constraint.FALSY;
+import static org.sonar.javascript.se.Constraint.FUNCTION;
 import static org.sonar.javascript.se.Constraint.NO_POSSIBLE_VALUE;
 import static org.sonar.javascript.se.Constraint.NULL;
 import static org.sonar.javascript.se.Constraint.NULL_OR_UNDEFINED;
@@ -56,6 +57,7 @@ public class ConstraintTest {
     assertThat(NULL_OR_UNDEFINED.truthiness()).isEqualTo(Truthiness.FALSY);
     assertThat(FALSY.truthiness()).isEqualTo(Truthiness.FALSY);
     assertThat(TRUTHY.truthiness()).isEqualTo(Truthiness.TRUTHY);
+    assertThat(FUNCTION.truthiness()).isEqualTo(Truthiness.TRUTHY);
   }
 
   @Test
@@ -68,4 +70,36 @@ public class ConstraintTest {
     assertThat(TRUTHY.nullability()).isEqualTo(Nullability.NOT_NULL);
   }
 
+  @Test
+  public void equals() throws Exception {
+    assertThat(Constraint.NULL).isEqualTo(Constraint.NULL);
+    assertThat(Constraint.NULL).isNotEqualTo(Constraint.UNDEFINED);
+    assertThat(Constraint.NULL).isNotEqualTo("");
+  }
+
+  @Test
+  public void hash() throws Exception {
+    assertThat(Constraint.NULL.hashCode()).isEqualTo(Constraint.NULL.hashCode());
+    assertThat(Constraint.NULL.hashCode()).isNotEqualTo(Constraint.UNDEFINED.hashCode());
+  }
+
+  @Test
+  public void or() throws Exception {
+    assertThat(Constraint.NULL.or(Constraint.UNDEFINED)).isEqualTo(Constraint.NULL_OR_UNDEFINED);
+    assertThat(Constraint.FALSY.or(Constraint.TRUTHY)).isEqualTo(Constraint.ANY_VALUE);
+
+    assertThat(Constraint.NULL.or(Constraint.TRUTHY)).isEqualTo(Constraint.TRUTHY.or(Constraint.NULL));
+  }
+
+  @Test
+  public void to_string() throws Exception {
+    assertThat(Constraint.ANY_VALUE.toString()).isEqualTo("ANY_VALUE");
+    assertThat(Constraint.NO_POSSIBLE_VALUE.toString()).isEqualTo("NO_POSSIBLE_VALUE");
+    assertThat(Constraint.TRUTHY.toString()).isEqualTo("TRUTHY");
+    assertThat(Constraint.FALSY.toString()).isEqualTo("FALSY");
+
+    assertThat(Constraint.NULL.toString()).isEqualTo("NULL");
+    assertThat(Constraint.NULL_OR_UNDEFINED.toString()).isEqualTo("NULL|UNDEFINED");
+    assertThat(Constraint.ZERO.or(Constraint.NULL).toString()).isEqualTo("NULL|ZERO");
+  }
 }
