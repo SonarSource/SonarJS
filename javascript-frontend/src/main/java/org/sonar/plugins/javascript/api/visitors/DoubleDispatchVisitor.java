@@ -33,6 +33,9 @@ import org.sonar.plugins.javascript.api.tree.declaration.ArrayBindingPatternTree
 import org.sonar.plugins.javascript.api.tree.declaration.BindingPropertyTree;
 import org.sonar.plugins.javascript.api.tree.declaration.DefaultExportDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.declaration.ExportClauseTree;
+import org.sonar.plugins.javascript.api.tree.declaration.ExportDefaultBinding;
+import org.sonar.plugins.javascript.api.tree.declaration.ExportDefaultBindingWithExportList;
+import org.sonar.plugins.javascript.api.tree.declaration.ExportDefaultBindingWithNameSpaceExport;
 import org.sonar.plugins.javascript.api.tree.declaration.FieldDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.declaration.FromClauseTree;
 import org.sonar.plugins.javascript.api.tree.declaration.FunctionDeclarationTree;
@@ -195,11 +198,22 @@ public abstract class DoubleDispatchVisitor implements TreeVisitor {
     scanChildren(tree);
   }
 
-
   public void visitNamedExportDeclaration(NamedExportDeclarationTree tree) {
     scanChildren(tree);
   }
 
+  public void visitExportDefaultBinding(ExportDefaultBinding tree) {
+    scanChildren(tree);
+  }
+
+  public void visitExportDefaultBindingWithNameSpaceExport(ExportDefaultBindingWithNameSpaceExport tree) {
+    scanChildren(tree);
+  }
+
+
+  public void visitExportDefaultBindingWithExportList(ExportDefaultBindingWithExportList tree) {
+    scanChildren(tree);
+  }
 
   public void visitVariableStatement(VariableStatementTree tree) {
     scanChildren(tree);
@@ -527,4 +541,5 @@ public abstract class DoubleDispatchVisitor implements TreeVisitor {
   public void visitComment(SyntaxTrivia commentToken) {
     // no sub-tree
   }
+
 }

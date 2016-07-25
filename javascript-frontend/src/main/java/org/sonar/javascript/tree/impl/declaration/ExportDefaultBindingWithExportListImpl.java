@@ -23,57 +23,56 @@ import com.google.common.collect.Iterators;
 import java.util.Iterator;
 import javax.annotation.Nullable;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
-import org.sonar.javascript.tree.impl.lexical.InternalSyntaxToken;
 import org.sonar.plugins.javascript.api.tree.Tree;
+import org.sonar.plugins.javascript.api.tree.declaration.ExportDefaultBindingWithExportList;
 import org.sonar.plugins.javascript.api.tree.declaration.FromClauseTree;
-import org.sonar.plugins.javascript.api.tree.declaration.NameSpaceExportDeclarationTree;
+import org.sonar.plugins.javascript.api.tree.declaration.SpecifierListTree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitor;
 
-public class NameSpaceExportDeclarationTreeImpl extends JavaScriptTree implements NameSpaceExportDeclarationTree {
+public class ExportDefaultBindingWithExportListImpl extends JavaScriptTree implements ExportDefaultBindingWithExportList {
 
-  private final SyntaxToken exportToken;
-  private final SyntaxToken starToken;
-  private final SyntaxToken asToken;
-  private final IdentifierTree synonymIdentifier;
+  private final IdentifierTree exportedDefaultIdentifier;
+  private final SyntaxToken commaToken;
+  private final SpecifierListTree exportList;
   private final FromClauseTree fromClause;
   private final SyntaxToken semicolonToken;
 
-  public NameSpaceExportDeclarationTreeImpl(
-    InternalSyntaxToken exportToken, InternalSyntaxToken starToken,
-    @Nullable InternalSyntaxToken asToken, @Nullable IdentifierTree synonymIdentifier,
-    FromClauseTreeImpl fromClause, @Nullable SyntaxToken semicolonToken
+  public ExportDefaultBindingWithExportListImpl(
+    IdentifierTree exportedDefaultIdentifier, SyntaxToken commaToken, SpecifierListTree exportList,
+    FromClauseTree fromClause, @Nullable SyntaxToken semicolonToken
   ) {
-    this.exportToken = exportToken;
-    this.starToken = starToken;
-    this.asToken = asToken;
-    this.synonymIdentifier = synonymIdentifier;
+    this.exportedDefaultIdentifier = exportedDefaultIdentifier;
+    this.commaToken = commaToken;
+    this.exportList = exportList;
     this.fromClause = fromClause;
     this.semicolonToken = semicolonToken;
-
   }
 
   @Override
-  public SyntaxToken exportToken() {
-    return exportToken;
+  public Kind getKind() {
+    return Kind.EXPORT_DEFAULT_BINDING_WITH_EXPORT_LIST;
   }
 
   @Override
-  public SyntaxToken starToken() {
-    return starToken;
+  public Iterator<Tree> childrenIterator() {
+    return Iterators.forArray(exportedDefaultIdentifier, commaToken, exportList, fromClause, semicolonToken);
   }
 
-  @Nullable
   @Override
-  public SyntaxToken asToken() {
-    return asToken;
+  public IdentifierTree exportedDefaultIdentifier() {
+    return exportedDefaultIdentifier;
   }
 
-  @Nullable
   @Override
-  public IdentifierTree synonymIdentifier() {
-    return synonymIdentifier;
+  public SyntaxToken commaToken() {
+    return commaToken;
+  }
+
+  @Override
+  public SpecifierListTree exportList() {
+    return exportList;
   }
 
   @Override
@@ -88,17 +87,7 @@ public class NameSpaceExportDeclarationTreeImpl extends JavaScriptTree implement
   }
 
   @Override
-  public Kind getKind() {
-    return Kind.NAMESPACE_EXPORT_DECLARATION;
-  }
-
-  @Override
-  public Iterator<Tree> childrenIterator() {
-    return Iterators.forArray(exportToken, starToken, asToken, synonymIdentifier, fromClause, semicolonToken);
-  }
-
-  @Override
   public void accept(DoubleDispatchVisitor visitor) {
-    visitor.visitNameSpaceExportDeclaration(this);
+    visitor.visitExportDefaultBindingWithExportList(this);
   }
 }

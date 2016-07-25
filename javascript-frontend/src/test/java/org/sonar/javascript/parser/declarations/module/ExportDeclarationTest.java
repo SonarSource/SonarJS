@@ -43,7 +43,17 @@ public class ExportDeclarationTest {
       .matches("export default function * f() {}")
       .matches("export default class C {}")
       .matches("export default expression ;")
-      .matches("export default expression");
+      .matches("export default expression")
+
+      // ES2017 proposal
+      .matches("export * as someIdentifier from \"someModule\";")
+      .matches("export someIdentifier from \"someModule\";")
+      .matches("export someIdentifier from \"someModule\"")
+      .matches("export someIdentifier, * as someIdentifier from \"someModule\";")
+      .matches("export someIdentifier, * as someIdentifier from \"someModule\"")
+      .matches("export someIdentifier, { namedIdentifier } from \"someModule\";")
+
+    ;
   }
 
 }

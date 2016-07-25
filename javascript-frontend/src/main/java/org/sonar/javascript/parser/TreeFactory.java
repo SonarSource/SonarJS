@@ -37,6 +37,9 @@ import org.sonar.javascript.tree.impl.declaration.ArrayBindingPatternTreeImpl;
 import org.sonar.javascript.tree.impl.declaration.BindingPropertyTreeImpl;
 import org.sonar.javascript.tree.impl.declaration.DefaultExportDeclarationTreeImpl;
 import org.sonar.javascript.tree.impl.declaration.ExportClauseTreeImpl;
+import org.sonar.javascript.tree.impl.declaration.ExportDefaultBindingImpl;
+import org.sonar.javascript.tree.impl.declaration.ExportDefaultBindingWithExportListImpl;
+import org.sonar.javascript.tree.impl.declaration.ExportDefaultBindingWithNameSpaceExportImpl;
 import org.sonar.javascript.tree.impl.declaration.FieldDeclarationTreeImpl;
 import org.sonar.javascript.tree.impl.declaration.FromClauseTreeImpl;
 import org.sonar.javascript.tree.impl.declaration.FunctionDeclarationTreeImpl;
@@ -120,6 +123,9 @@ import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.declaration.AccessorMethodDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.declaration.BindingElementTree;
 import org.sonar.plugins.javascript.api.tree.declaration.DeclarationTree;
+import org.sonar.plugins.javascript.api.tree.declaration.ExportDefaultBinding;
+import org.sonar.plugins.javascript.api.tree.declaration.ExportDefaultBindingWithExportList;
+import org.sonar.plugins.javascript.api.tree.declaration.ExportDefaultBindingWithNameSpaceExport;
 import org.sonar.plugins.javascript.api.tree.declaration.FieldDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.declaration.FunctionDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.declaration.GeneratorMethodDeclarationTree;
@@ -1220,9 +1226,15 @@ public class TreeFactory {
 
   public NameSpaceExportDeclarationTree namespaceExportDeclaration(
     InternalSyntaxToken exportToken, InternalSyntaxToken starToken,
-    FromClauseTreeImpl fromClause, Tree semicolonToken
+    Optional<Tuple<InternalSyntaxToken, IdentifierTreeImpl>> nameSpaceExport, FromClauseTreeImpl fromClause, Tree semicolonToken
   ) {
-    return new NameSpaceExportDeclarationTreeImpl(exportToken, starToken, fromClause, nullableSemicolonToken(semicolonToken));
+    InternalSyntaxToken asToken = null;
+    IdentifierTree synonymIdentifier = null;
+    if (nameSpaceExport.isPresent()) {
+      asToken = nameSpaceExport.get().first;
+      synonymIdentifier = nameSpaceExport.get().second;
+    }
+    return new NameSpaceExportDeclarationTreeImpl(exportToken, starToken, asToken, synonymIdentifier, fromClause, nullableSemicolonToken(semicolonToken));
   }
 
   public ExportClauseTreeImpl exportClause(SpecifierListTreeImpl exportList, Optional<FromClauseTreeImpl> fromClause, Tree semicolonToken) {
@@ -1230,6 +1242,36 @@ public class TreeFactory {
       return new ExportClauseTreeImpl(exportList, fromClause.get(), nullableSemicolonToken(semicolonToken));
     }
     return new ExportClauseTreeImpl(exportList, nullableSemicolonToken(semicolonToken));
+  }
+
+  public ExportDefaultBinding exportDefaultBinding(IdentifierTreeImpl identifierTree, FromClauseTreeImpl fromClauseTree, Tree semicolonToken) {
+    return new ExportDefaultBindingImpl(identifierTree, fromClauseTree, nullableSemicolonToken(semicolonToken));
+  }
+
+  public ExportDefaultBindingWithNameSpaceExport exportDefaultBindingWithNameSpaceExport(
+    IdentifierTreeImpl identifierTree, InternalSyntaxToken commaToken, InternalSyntaxToken starToken, InternalSyntaxToken asToken, IdentifierTreeImpl synonymIdentifier,
+    FromClauseTreeImpl fromClause, Tree semicolon
+  ) {
+    return new ExportDefaultBindingWithNameSpaceExportImpl(
+      identifierTree,
+      commaToken,
+      starToken,
+      asToken,
+      synonymIdentifier,
+      fromClause,
+      nullableSemicolonToken(semicolon));
+  }
+
+  public ExportDefaultBindingWithExportList exportDefaultBindingWithExportList(
+    IdentifierTreeImpl identifierTree, InternalSyntaxToken commaToken, SpecifierListTreeImpl specifierListTree,
+    FromClauseTreeImpl fromClauseTree, Tree semicolon
+  ) {
+    return new ExportDefaultBindingWithExportListImpl(
+      identifierTree,
+      commaToken,
+      specifierListTree,
+      fromClauseTree,
+      nullableSemicolonToken(semicolon));
   }
 
   public ImportModuleDeclarationTree importModuleDeclaration(InternalSyntaxToken importToken, LiteralTreeImpl moduleName, Tree semicolonToken) {

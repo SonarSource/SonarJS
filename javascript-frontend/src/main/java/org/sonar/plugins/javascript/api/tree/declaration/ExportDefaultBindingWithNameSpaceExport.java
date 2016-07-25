@@ -19,32 +19,30 @@
  */
 package org.sonar.plugins.javascript.api.tree.declaration;
 
-import com.google.common.annotations.Beta;
 import javax.annotation.Nullable;
+import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 
 /**
- * <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-exports">Namespace Export Declarations</a>
- * (<a href="http://wiki.ecmascript.org/doku.php?id=harmony:specification_drafts">ES6</a>).
- * <pre>
- *    * {@link #fromClause()} ;
- * </pre>
+ * This interface stands for the tail of export declaration (proposed for ES2017)
+ * <pre>export A, * as B from 'moduleName';</pre>
+ * <pre>export {@link #exportedDefaultIdentifier()}, * as {@link #synonymIdentifier()} {@link #fromClause()} ;</pre>
  */
-@Beta
-public interface NameSpaceExportDeclarationTree extends ExportDeclarationTree {
+public interface ExportDefaultBindingWithNameSpaceExport extends Tree {
+
+  IdentifierTree exportedDefaultIdentifier();
+
+  SyntaxToken commaToken();
 
   SyntaxToken starToken();
 
-  @Nullable
   SyntaxToken asToken();
 
-  @Nullable
   IdentifierTree synonymIdentifier();
 
   FromClauseTree fromClause();
 
   @Nullable
   SyntaxToken semicolonToken();
-
 }

@@ -20,12 +20,14 @@
 package org.sonar.plugins.javascript.api.tree;
 
 import com.google.common.annotations.Beta;
-import org.sonar.javascript.tree.impl.declaration.SpecifierListTreeImpl;
 import org.sonar.plugins.javascript.api.tree.declaration.AccessorMethodDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.declaration.ArrayBindingPatternTree;
 import org.sonar.plugins.javascript.api.tree.declaration.BindingPropertyTree;
 import org.sonar.plugins.javascript.api.tree.declaration.DefaultExportDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.declaration.ExportClauseTree;
+import org.sonar.plugins.javascript.api.tree.declaration.ExportDefaultBinding;
+import org.sonar.plugins.javascript.api.tree.declaration.ExportDefaultBindingWithExportList;
+import org.sonar.plugins.javascript.api.tree.declaration.ExportDefaultBindingWithNameSpaceExport;
 import org.sonar.plugins.javascript.api.tree.declaration.FieldDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.declaration.FromClauseTree;
 import org.sonar.plugins.javascript.api.tree.declaration.FunctionDeclarationTree;
@@ -824,14 +826,29 @@ public interface Tree {
     EXPORT_CLAUSE(ExportClauseTree.class),
 
     /**
-     * {@link SpecifierListTreeImpl}
+     * {@link SpecifierListTree}
      */
-    EXPORT_LIST(SpecifierListTreeImpl.class),
+    EXPORT_LIST(SpecifierListTree.class),
 
     /**
-     * {@link SpecifierListTreeImpl
+     * {@link ExportDefaultBinding}
      */
-    IMPORT_LIST(SpecifierListTreeImpl.class),
+    EXPORT_DEFAULT_BINDING(ExportDefaultBinding.class),
+
+    /**
+     * {@link ExportDefaultBindingWithNameSpaceExport}
+     */
+    EXPORT_DEFAULT_BINDING_WITH_NAMESPACE_EXPORT(ExportDefaultBindingWithNameSpaceExport.class),
+
+    /**
+     * {@link ExportDefaultBindingWithExportList}
+     */
+    EXPORT_DEFAULT_BINDING_WITH_EXPORT_LIST(ExportDefaultBindingWithExportList.class),
+
+    /**
+     * {@link SpecifierListTree
+     */
+    IMPORT_LIST(SpecifierListTree.class),
 
     /**
      * {@link SpecifierListTree}
