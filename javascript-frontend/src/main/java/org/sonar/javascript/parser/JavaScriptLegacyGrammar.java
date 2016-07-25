@@ -187,7 +187,8 @@ public enum JavaScriptLegacyGrammar implements GrammarRuleKey {
   /**
    * ECMAScript 6
    **/
-  ARROW_FUNCTION,
+  ASYNC_ARROW_FUNCTION,
+  NON_ASYNC_ARROW_FUNCTION,
   /**
    * ECMAScript 6
    **/

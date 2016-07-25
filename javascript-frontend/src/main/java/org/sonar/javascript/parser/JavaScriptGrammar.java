@@ -948,10 +948,9 @@ public class JavaScriptGrammar {
       .is(f.identifierName(b.token(JavaScriptLegacyGrammar.IDENTIFIER_NAME)));
   }
 
-  public ArrowFunctionTreeImpl ARROW_FUNCTION() {
-    return b.<ArrowFunctionTreeImpl>nonterminal(Kind.ARROW_FUNCTION)
-      .is(f.arrowFunction(
-        b.optional(b.token(JavaScriptLegacyGrammar.ASYNC)),
+  public ArrowFunctionTreeImpl NON_ASYNC_ARROW_FUNCTION() {
+    return b.<ArrowFunctionTreeImpl>nonterminal(JavaScriptLegacyGrammar.NON_ASYNC_ARROW_FUNCTION)
+      .is(f.nonAsyncArrowFunction(
         b.firstOf(
           BINDING_IDENTIFIER(),
           FORMAL_PARAMETER_CLAUSE()),
@@ -959,7 +958,22 @@ public class JavaScriptGrammar {
         b.token(JavaScriptPunctuator.DOUBLEARROW),
         b.firstOf(
           BLOCK(),
-          f.assignmentNoCurly(b.token(JavaScriptLegacyGrammar.NEXT_NOT_LCURLY), ASSIGNMENT_EXPRESSION()))
+          f.assignmentNoCurly1(b.token(JavaScriptLegacyGrammar.NEXT_NOT_LCURLY), ASSIGNMENT_EXPRESSION()))
+      ));
+  }
+
+  public ArrowFunctionTreeImpl ASYNC_ARROW_FUNCTION() {
+    return b.<ArrowFunctionTreeImpl>nonterminal(JavaScriptLegacyGrammar.ASYNC_ARROW_FUNCTION)
+      .is(f.asyncArrowFunction(
+        b.token(JavaScriptLegacyGrammar.ASYNC),
+        b.firstOf(
+          BINDING_IDENTIFIER(),
+          FORMAL_PARAMETER_CLAUSE()),
+        b.token(JavaScriptLegacyGrammar.SPACING_NO_LINE_BREAK_NOT_FOLLOWED_BY_LINE_BREAK),
+        b.token(JavaScriptPunctuator.DOUBLEARROW),
+        b.firstOf(
+          BLOCK(),
+          f.assignmentNoCurly2(b.token(JavaScriptLegacyGrammar.NEXT_NOT_LCURLY), ASSIGNMENT_EXPRESSION()))
       ));
   }
 
@@ -1241,8 +1255,9 @@ public class JavaScriptGrammar {
               b.token(JavaScriptPunctuator.OR_EQU)),
             ASSIGNMENT_EXPRESSION()),
           YIELD_EXPRESSION(),
-          ARROW_FUNCTION(),
-          CONDITIONAL_EXPRESSION_NOT_ES6_ASSIGNMENT_EXPRESSION()
+          ASYNC_ARROW_FUNCTION(),
+          CONDITIONAL_EXPRESSION_NOT_ES6_ASSIGNMENT_EXPRESSION(),
+          NON_ASYNC_ARROW_FUNCTION()
         ));
   }
 

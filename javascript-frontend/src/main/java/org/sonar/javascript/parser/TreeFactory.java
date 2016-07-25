@@ -866,8 +866,12 @@ public class TreeFactory {
     return new IdentifierTreeImpl(Kind.BINDING_IDENTIFIER, identifier);
   }
 
-  public ArrowFunctionTreeImpl arrowFunction(Optional<InternalSyntaxToken> asyncToken, Tree parameters, Tree spacingNoLB, InternalSyntaxToken doubleArrow, Tree body) {
-    return new ArrowFunctionTreeImpl(asyncToken.orNull(), parameters, doubleArrow, body);
+  public ArrowFunctionTreeImpl asyncArrowFunction(InternalSyntaxToken asyncToken, Tree parameters, Tree spacingNoLB, InternalSyntaxToken doubleArrow, Tree body) {
+    return new ArrowFunctionTreeImpl(asyncToken, parameters, doubleArrow, body);
+  }
+
+  public ArrowFunctionTreeImpl nonAsyncArrowFunction(Tree parameters, Tree spacingNoLB, InternalSyntaxToken doubleArrow, Tree body) {
+    return new ArrowFunctionTreeImpl(null, parameters, doubleArrow, body);
   }
 
   public ArrowFunctionTreeImpl arrowFunctionNoIn(Optional<InternalSyntaxToken> asyncToken, Tree parameters, Tree spacingNoLB, InternalSyntaxToken doubleArrow, Tree body) {
@@ -1505,7 +1509,11 @@ public class TreeFactory {
       closeBracketToken);
   }
 
-  public ExpressionTree assignmentNoCurly(Tree lookahead, ExpressionTree expression) {
+  public ExpressionTree assignmentNoCurly1(Tree lookahead, ExpressionTree expression) {
+    return expression;
+  }
+
+  public ExpressionTree assignmentNoCurly2(Tree lookahead, ExpressionTree expression) {
     return expression;
   }
 
