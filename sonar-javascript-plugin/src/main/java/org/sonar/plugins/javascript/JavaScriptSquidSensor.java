@@ -276,8 +276,11 @@ public class JavaScriptSquidSensor implements Sensor {
   }
 
   public boolean isExcluded(File file) {
-    MinificationAssessor assessor = new MinificationAssessor(getEncoding());
-    return assessor.isMinified(file);
+    boolean isMinified = new MinificationAssessor(getEncoding()).isMinified(file);
+    if (isMinified) {
+      LOG.info("File [" + file.getAbsolutePath() + "] is minified");
+    }
+    return isMinified;
   }
 
   @Override

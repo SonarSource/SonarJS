@@ -81,20 +81,20 @@ public class MinificationAssessorTest {
     return assertThat(assessor.isMinified(getFile(fileName))).as("File '" + fileName + "' is minified?");
   }
 
-  // FROM HERE ON, WE CHECK THE LeadingCommentDetector
+  // FROM HERE ON, WE CHECK THE HeaderCommentDetector
 
   @Test
-  public void detectorNoLeadingComment1() {
-    MinificationAssessor.LeadingCommentDetector detector = createDetector();
+  public void detectorNoHeaderComment1() {
+    MinificationAssessor.HeaderCommentDetector detector = createDetector();
 
     assertOn(detector, "var a = 1;").isFalse();
 
-    assertThat(detector.getNumberOfLinesInLeadingComment()).as("Number of lines in leading comment").isEqualTo(0);
+    assertThat(detector.getNumberOfLinesInHeaderComment()).as("Number of lines in header comment").isEqualTo(0);
   }
 
   @Test
-  public void detectorNoLeadingComment2() {
-    MinificationAssessor.LeadingCommentDetector detector = createDetector();
+  public void detectorNoHeaderComment2() {
+    MinificationAssessor.HeaderCommentDetector detector = createDetector();
 
     assertOn(detector, "var a = 1;").isFalse();
     assertOn(detector, "/*").isFalse();
@@ -102,22 +102,22 @@ public class MinificationAssessorTest {
     assertOn(detector, "*/").isFalse();
     assertOn(detector, "var b = 1").isFalse();
 
-    assertThat(detector.getNumberOfLinesInLeadingComment()).as("Number of lines in leading comment").isEqualTo(0);
+    assertThat(detector.getNumberOfLinesInHeaderComment()).as("Number of lines in header comment").isEqualTo(0);
   }
 
   @Test
-  public void detectorLeadingCommentOnOneLine() {
-    MinificationAssessor.LeadingCommentDetector detector = createDetector();
+  public void detectorHeaderCommentOnOneLine() {
+    MinificationAssessor.HeaderCommentDetector detector = createDetector();
 
     assertOn(detector, "/* licence line */").isTrue();
     assertOn(detector, "var a = 1").isFalse();
 
-    assertThat(detector.getNumberOfLinesInLeadingComment()).as("Number of lines in leading comment").isEqualTo(1);
+    assertThat(detector.getNumberOfLinesInHeaderComment()).as("Number of lines in header comment").isEqualTo(1);
   }
 
   @Test
-  public void detectorLeadingCommentSimple() {
-    MinificationAssessor.LeadingCommentDetector detector = createDetector();
+  public void detectorHeaderCommentSimple() {
+    MinificationAssessor.HeaderCommentDetector detector = createDetector();
 
     assertOn(detector, " /* licence line 1").isTrue();
     assertOn(detector, "    licence line 2").isTrue();
@@ -126,12 +126,12 @@ public class MinificationAssessorTest {
     assertOn(detector, "var a = 1").isFalse();
     assertOn(detector, "var b = 1").isFalse();
 
-    assertThat(detector.getNumberOfLinesInLeadingComment()).as("Number of lines in leading comment").isEqualTo(4);
+    assertThat(detector.getNumberOfLinesInHeaderComment()).as("Number of lines in header comment").isEqualTo(4);
   }
 
   @Test
-  public void detectorLeadingCommentWithAppendedComment() {
-    MinificationAssessor.LeadingCommentDetector detector = createDetector();
+  public void detectorHeaderCommentWithAppendedComment() {
+    MinificationAssessor.HeaderCommentDetector detector = createDetector();
 
     assertOn(detector, "/* licence line 1").isTrue();
     assertOn(detector, "   licence line 2").isTrue();
@@ -140,24 +140,24 @@ public class MinificationAssessorTest {
     assertOn(detector, "var a = 1").isFalse();
     assertOn(detector, "var b = 1").isFalse();
 
-    assertThat(detector.getNumberOfLinesInLeadingComment()).as("Number of lines in leading comment").isEqualTo(3);
+    assertThat(detector.getNumberOfLinesInHeaderComment()).as("Number of lines in header comment").isEqualTo(3);
   }
 
   @Test
-  public void detectorLeadingCommentWithAppendedInstruction() {
-    MinificationAssessor.LeadingCommentDetector detector = createDetector();
+  public void detectorHeaderCommentWithAppendedInstruction() {
+    MinificationAssessor.HeaderCommentDetector detector = createDetector();
 
     assertOn(detector, " /* licence line 1").isTrue();
     assertOn(detector, "    licence line 2").isTrue();
     assertOn(detector, " licence line 3 */ var c = 0;").isFalse();
     assertOn(detector, "var a = 1").isFalse();
 
-    assertThat(detector.getNumberOfLinesInLeadingComment()).as("Number of lines in leading comment").isEqualTo(2);
+    assertThat(detector.getNumberOfLinesInHeaderComment()).as("Number of lines in header comment").isEqualTo(2);
   }
 
   @Test
-  public void detectorLeadingCommentWithCplusplusStyle() {
-    MinificationAssessor.LeadingCommentDetector detector = createDetector();
+  public void detectorHeaderCommentWithCplusplusStyle() {
+    MinificationAssessor.HeaderCommentDetector detector = createDetector();
 
     assertOn(detector, "// licence line 1").isTrue();
     assertOn(detector, "   // licence line 2").isTrue();
@@ -165,16 +165,16 @@ public class MinificationAssessorTest {
     assertOn(detector, "var a = 1").isFalse();
     assertOn(detector, "// other comment").isFalse();
 
-    assertThat(detector.getNumberOfLinesInLeadingComment()).as("Number of lines in leading comment").isEqualTo(3);
+    assertThat(detector.getNumberOfLinesInHeaderComment()).as("Number of lines in header comment").isEqualTo(3);
   }
 
-  private BooleanAssert assertOn(MinificationAssessor.LeadingCommentDetector detector, String line) {
-    boolean test = detector.isLineInLeadingComment(line);
-    return assertThat(test).as("line with '" + line + "' is a leading comment?");
+  private BooleanAssert assertOn(MinificationAssessor.HeaderCommentDetector detector, String line) {
+    boolean test = detector.isLineInHeaderComment(line);
+    return assertThat(test).as("line with '" + line + "' is a header comment?");
   }
 
-  private MinificationAssessor.LeadingCommentDetector createDetector() {
-    return new MinificationAssessor.LeadingCommentDetector();
+  private MinificationAssessor.HeaderCommentDetector createDetector() {
+    return new MinificationAssessor.HeaderCommentDetector();
   }
 
 }
