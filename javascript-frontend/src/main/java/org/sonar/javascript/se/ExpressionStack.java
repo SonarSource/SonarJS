@@ -155,6 +155,7 @@ public class ExpressionStack {
       case OBJECT_LITERAL:
       case JSX_SELF_CLOSING_ELEMENT:
       case JSX_STANDARD_ELEMENT:
+      case CLASS_EXPRESSION:
         pushUnknown(newStack);
         break;
       case ARRAY_LITERAL:
