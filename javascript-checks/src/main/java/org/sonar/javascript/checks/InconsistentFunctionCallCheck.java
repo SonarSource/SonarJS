@@ -30,6 +30,7 @@ import org.sonar.check.Rule;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.plugins.javascript.api.symbols.Symbol;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
+import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.expression.CallExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
@@ -58,58 +59,69 @@ public class InconsistentFunctionCallCheck extends DoubleDispatchVisitorCheck {
   private ListMultimap<Symbol, NewExpressionTree> usedInNewExpression = LinkedListMultimap.create();
 
   @Override
+  public void visitScript(ScriptTree tree) {
+    super.visitScript(tree);
+
+    usedInCallExpression.clear();
+    usedInNewExpression.clear();
+  }
+
+  @Override
   public void visitCallExpression(CallExpressionTree tree) {
-    ExpressionTree callee = tree.callee();
-    Symbol symbol = getSymbol(callee);
-    if (symbol != null) {
-      List<NewExpressionTree> newExpressions = usedInNewExpression.get(symbol);
-      if (!newExpressions.isEmpty() && !hasIssue.contains(symbol)) {
-        NewExpressionTree lastUsage = newExpressions.get(newExpressions.size() - 1);
-        String message = String.format(MESSAGE, ((JavaScriptTree) lastUsage).getLine(), "");
-        String secondaryMessage = String.format(SECONDARY_MESSAGE, "");
-
-        addIssue(callee, message)
-          .secondary(issueLocation(lastUsage, secondaryMessage));
-
-        hasIssue.add(symbol);
-
-      } else {
-        usedInCallExpression.put(symbol, tree);
-      }
-    }
-
+    visit(tree, tree.callee(), usedInNewExpression, usedInCallExpression, "");
     super.visitCallExpression(tree);
   }
 
   @Override
   public void visitNewExpression(NewExpressionTree tree) {
-    ExpressionTree instantiated = tree.expression();
-    Symbol symbol = getSymbol(instantiated);
-    if (symbol != null) {
-      List<CallExpressionTree> callExpressions = usedInCallExpression.get(symbol);
-      if (!callExpressions.isEmpty() && !hasIssue.contains(symbol)) {
-        CallExpressionTree lastUsage = callExpressions.get(callExpressions.size() - 1);
-        String message = String.format(MESSAGE, ((JavaScriptTree) lastUsage).getLine(), "out");
-        String secondaryMessage = String.format(SECONDARY_MESSAGE, "out");
-
-        addIssue(new PreciseIssue(this, issueLocation(tree, message)))
-          .secondary(lastUsage.callee(), secondaryMessage);
-        hasIssue.add(symbol);
-
-      } else {
-        usedInNewExpression.put(symbol, tree);
-      }
-    }
-
+    visit(tree, tree.expression(), usedInCallExpression, usedInNewExpression, "out");
     super.visitNewExpression(tree);
   }
 
-  private static IssueLocation issueLocation(NewExpressionTree newExpressionTree, String message) {
-    return new IssueLocation(
-      newExpressionTree.newKeyword(),
-      newExpressionTree.expression(),
-      message
-    );
+  private <T1 extends Tree, T2 extends Tree> void visit(
+    T1 tree, ExpressionTree symbolTree,
+    ListMultimap<Symbol, T2> otherTypeUsageMap, ListMultimap<Symbol, T1> thisTypeUsageMap, String withTail
+  ) {
+    Symbol symbol = getSymbol(symbolTree);
+    if (symbol == null) {
+      return;
+    }
+
+    List<T2> otherTypeUsages = otherTypeUsageMap.get(symbol);
+
+    if (!otherTypeUsages.isEmpty() && !hasIssue.contains(symbol)) {
+
+      T2 lastUsage = otherTypeUsages.get(otherTypeUsages.size() - 1);
+      String message = String.format(MESSAGE, ((JavaScriptTree) lastUsage).getLine(), withTail);
+      String secondaryMessage = String.format(SECONDARY_MESSAGE, withTail);
+
+      addIssue(new PreciseIssue(this, issueLocation(tree, message)))
+        .secondary(issueLocation(lastUsage, secondaryMessage));
+
+      hasIssue.add(symbol);
+
+    } else {
+      thisTypeUsageMap.put(symbol, tree);
+    }
+
+  }
+
+  private static <T extends Tree> IssueLocation issueLocation(T tree, String message) {
+    if (tree.is(Kind.NEW_EXPRESSION)) {
+      NewExpressionTree newExpressionTree = (NewExpressionTree) tree;
+      return new IssueLocation(
+        newExpressionTree.newKeyword(),
+        newExpressionTree.expression(),
+        message
+      );
+
+    } else {
+      CallExpressionTree callExpressionTree = (CallExpressionTree) tree;
+      return new IssueLocation(
+        callExpressionTree.callee(),
+        message
+      );
+    }
   }
 
   @CheckForNull
@@ -118,13 +130,5 @@ public class InconsistentFunctionCallCheck extends DoubleDispatchVisitorCheck {
       return ((IdentifierTree) expression).symbol();
     }
     return null;
-  }
-
-  @Override
-  public void visitScript(ScriptTree tree) {
-    super.visitScript(tree);
-
-    usedInCallExpression.clear();
-    usedInNewExpression.clear();
   }
 }
