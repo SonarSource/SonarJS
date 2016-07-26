@@ -75,6 +75,9 @@
 'project:dojo-1.8.1/dojo/_base/xhr.js.uncompressed.js':[
 441,
 ],
+'project:dojo-1.8.1/dojo/_firebug/firebug.js.uncompressed.js':[
+1157,
+],
 'project:dojo-1.8.1/dojo/back.js.uncompressed.js':[
 10,
 ],
@@ -595,10 +598,14 @@
 5595,
 6597,
 12788,
+19067,
 19860,
 ],
 'project:yui-3.7.3/stylesheet/stylesheet.js':[
 136,
+],
+'project:yui-3.7.3/transition/transition.js':[
+563,
 ],
 'project:yui-3.7.3/widget-modality/widget-modality.js':[
 518,

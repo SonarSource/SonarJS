@@ -27,41 +27,41 @@ function main() {
 
   x = foo();
   if (typeof x === "function") {
-    foo(); // PS x=TRUTHY
+    foo(); // PS x=FUNCTION
   } else {
-    foo(); // PS x=UNKNOWN
+    foo(); // PS x=NOT_FUNCTION
   }
   makeLive(x);
 
   x = foo();
   if (typeof x === "object") {
-    foo(); // PS x=TRUTHY_OR_NULL
+    foo(); // PS x=NULL_OR_NON_FUNCTION_OBJECT
   } else {
-    foo(); // PS x=NOT_NULL
+    foo(); // PS x=NOT_NULL_OR_NON_FUNCTION_OBJECT
   }
   makeLive(x);
 
   x = foo();
   if (typeof x === "number") {
-    foo(); // PS x=NOT_NULLY
+    foo(); // PS x=NUMBER
   } else {
-    foo(); // PS x=UNKNOWN
+    foo(); // PS x=NOT_NUMBER
   }
   makeLive(x);
 
   x = foo();
   if (typeof x === "string") {
-    foo(); // PS x=NOT_NULLY
+    foo(); // PS x=STRING
   } else {
-    foo(); // PS x=UNKNOWN
+    foo(); // PS x=NOT_STRING
   }
   makeLive(x);
 
   x = foo();
   if (typeof x === "boolean") {
-    foo(); // PS x=NOT_NULLY
+    foo(); // PS x=BOOLEAN
   } else {
-    foo(); // PS x=UNKNOWN
+    foo(); // PS x=NOT_BOOLEAN
   }
   makeLive(x);
 

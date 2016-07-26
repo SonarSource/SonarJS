@@ -53,9 +53,18 @@ class SeVerifier extends SeCheck {
     .put("NULL", Constraint.NULL)
     .put("UNDEFINED", Constraint.UNDEFINED)
     .put("NOT_UNDEFINED", Constraint.UNDEFINED.not())
-    .put("TRUTHY_OR_NULL", Constraint.TRUTHY.or(Constraint.NULL))
+    .put("NULL_OR_NON_FUNCTION_OBJECT", Constraint.NULL.or(Constraint.OTHER_OBJECT).or(Constraint.ARRAY))
+    .put("NOT_NULL_OR_NON_FUNCTION_OBJECT", Constraint.NULL.or(Constraint.OTHER_OBJECT).or(Constraint.ARRAY).not())
     .put("ZERO", Constraint.ZERO)
     .put("TRUTHY_NUMBER", Constraint.TRUTHY_NUMBER)
+    .put("FUNCTION", Constraint.FUNCTION)
+    .put("NOT_FUNCTION", Constraint.FUNCTION.not())
+    .put("NUMBER", Constraint.NUMBER)
+    .put("NOT_NUMBER", Constraint.NUMBER.not())
+    .put("STRING", Constraint.STRING)
+    .put("NOT_STRING", Constraint.STRING.not())
+    .put("BOOLEAN", Constraint.BOOLEAN)
+    .put("NOT_BOOLEAN", Constraint.BOOLEAN.not())
     .build();
 
   // line - program state - asserted

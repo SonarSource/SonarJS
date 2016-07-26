@@ -77,6 +77,9 @@ public class Constraint {
   public static final Constraint NOT_NULLY = NULL_OR_UNDEFINED.not();
   public static final Constraint TRUTHY = or(TRUE, FUNCTION, TRUTHY_NUMBER, TRUTHY_STRING, ARRAY, OTHER_OBJECT);
   public static final Constraint FALSY = TRUTHY.not();
+  public static final Constraint NUMBER = or(ZERO, NAN, TRUTHY_NUMBER);
+  public static final Constraint STRING = or(EMPTY_STRING, TRUTHY_STRING);
+  public static final Constraint BOOLEAN = or(TRUE, FALSE);
 
   private static final Map<Constraint, String> COMMON_CONSTRAINT_NAMES = ImmutableMap.<Constraint, String>builder()
     .put(ANY_VALUE, "ANY_VALUE")

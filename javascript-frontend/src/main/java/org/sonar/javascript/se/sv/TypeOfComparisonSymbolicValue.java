@@ -43,19 +43,13 @@ public class TypeOfComparisonSymbolicValue implements SymbolicValue {
 
   private static final Map<String, Constraint> TYPEOF_EQUAL_CONSTRAINTS = ImmutableMap.<String, Constraint>builder()
     .put("undefined", Constraint.UNDEFINED)
-    .put("function", Constraint.TRUTHY)
-    .put("object", Constraint.TRUTHY.or(Constraint.NULL))
-    .put("number", Constraint.NOT_NULLY)
-    .put("string", Constraint.NOT_NULLY)
-    .put("boolean", Constraint.NOT_NULLY)
-    .put("symbol", Constraint.NOT_NULLY)
+    .put("function", Constraint.FUNCTION)
+    .put("object", Constraint.NULL.or(Constraint.OTHER_OBJECT).or(Constraint.ARRAY))
+    .put("number", Constraint.NUMBER)
+    .put("string", Constraint.STRING)
+    .put("boolean", Constraint.BOOLEAN)
+    .put("symbol", Constraint.OTHER_OBJECT)
     .build();
-
-  private static final Map<String, Constraint> TYPEOF_NOT_EQUAL_CONSTRAINTS = ImmutableMap.<String, Constraint>builder()
-    .put("undefined", Constraint.UNDEFINED.not())
-    .put("object", Constraint.NULL.not())
-    .build();
-
 
   @CheckForNull
   public static TypeOfComparisonSymbolicValue create(SymbolicValue operand1, SymbolicValue operand2) {
@@ -88,13 +82,12 @@ public class TypeOfComparisonSymbolicValue implements SymbolicValue {
   @Override
   public List<ProgramState> constrain(ProgramState state, Constraint constraint) {
     Constraint truthyConstraint = TYPEOF_EQUAL_CONSTRAINTS.get(comparedTypeString);
-    Constraint falsyConstraint = TYPEOF_NOT_EQUAL_CONSTRAINTS.get(comparedTypeString);
 
     if (constraint.isStricterOrEqualTo(Constraint.TRUTHY)) {
       return truthyConstraint != null ? typeOfOperand.constrain(state, truthyConstraint) : ImmutableList.of();
 
-    } else if (constraint.isStricterOrEqualTo(Constraint.FALSY) && falsyConstraint != null) {
-      return typeOfOperand.constrain(state, falsyConstraint);
+    } else if (constraint.isStricterOrEqualTo(Constraint.FALSY) && truthyConstraint != null) {
+      return typeOfOperand.constrain(state, truthyConstraint.not());
 
     }
 
