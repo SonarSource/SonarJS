@@ -88,6 +88,15 @@ public class JavaScriptCheckVerifier extends SubscriptionVisitorCheck {
    * x = a && a;  // Noncompliant
    * //    ^^
    * </pre>
+   *<li>Since version 2.15 to specify precise secondary location you can provide separate comment on next line which contains
+   *     symbol <code>^</code> under each character of secondary issue location.
+   *     Start comment with "S" symbol and put after "^" ID of issue (specify it in double square brackets).
+   *     You can optionally provide message of secondary location.
+   * </li>
+   * <pre>
+   * x = a && a;  // Noncompliant [[id=SomeID]]
+   * //S   ^^ SomeID {{secondary message}}
+   * </pre>
    * <li>In double brackets provide secondary locations with <code>secondary</code> keyword.</li>
    * <li>To specify the line you can use relative location by putting <code>+</code> or <code>-</code>.</li>
    * <li>All listed elements are optional (except "Noncompliant").</li>
@@ -164,18 +173,18 @@ public class JavaScriptCheckVerifier extends SubscriptionVisitorCheck {
     List<Location> expectedLocations = expectedIssue.secondaryLocations();
     List<IssueLocation> actualLocations = actualIssue instanceof PreciseIssue ? ((PreciseIssue) actualIssue).secondaryLocations() : new ArrayList<>();
 
-    String messageHead = "Bad secondary locations for issue at line " + line(actualIssue);
+    String format = "Bad secondary location at line %s (issue at line %s): %s" ;
 
     for (Location expected : expectedLocations) {
       IssueLocation actual = secondary(expected.line(), actualLocations);
 
       if (actual != null) {
         if (expected.message() != null) {
-          assertThat(actual.message()).as(messageHead + ": bad message").isEqualTo(expected.message());
+          assertThat(actual.message()).as(String.format(format, expected.line(), line(actualIssue), "bad message")).isEqualTo(expected.message());
         }
         if (expected.startColumn() != null) {
-          assertThat(actual.startLineOffset() + 1).as(messageHead + ": bad start column").isEqualTo(expected.startColumn());
-          assertThat(actual.endLineOffset() + 1).as(messageHead + ": bad end column").isEqualTo(expected.endColumn());
+          assertThat(actual.startLineOffset() + 1).as(String.format(format, expected.line(), line(actualIssue), "bad start column")).isEqualTo(expected.startColumn());
+          assertThat(actual.endLineOffset() + 1).as(String.format(format, expected.line(), line(actualIssue), "bad end column")).isEqualTo(expected.endColumn());
         }
         actualLocations.remove(actual);
       } else {
@@ -253,7 +262,7 @@ public class JavaScriptCheckVerifier extends SubscriptionVisitorCheck {
     }
 
     if (!trivia.text().contains("^")) {
-      throw new IllegalStateException("Precise secondary location should contain at least one '^'");
+      throw new IllegalStateException("Precise location should contain at least one '^' for comment at line " + trivia.line());
     }
   }
 
@@ -295,18 +304,19 @@ public class JavaScriptCheckVerifier extends SubscriptionVisitorCheck {
         text = text.substring(0, startIndex - 2).trim();
       }
 
-      issue(text).secondary(message, trivia.line() - 1, startColumn, endColumn);
+      issueByID(text, trivia.line()).secondary(message, trivia.line() - 1, startColumn, endColumn);
     }
   }
 
-  private TestIssue issue(String id) {
+  private TestIssue issueByID(String id, int line) {
     for (TestIssue expectedIssue : expectedIssues) {
       if (id.equals(expectedIssue.id())) {
         return expectedIssue;
       }
     }
 
-    String missingAssertionMessage = String.format("Invalid test file: precise secondary location is provided for ID '%s' but no issue is asserted with such ID", id);
+    String format = "Invalid test file: precise secondary location is provided for ID '%s' but no issue is asserted with such ID (line %s)";
+    String missingAssertionMessage = String.format(format, id, line);
     throw new IllegalStateException(missingAssertionMessage);
   }
 

@@ -221,7 +221,7 @@ public class JavaScriptCheckVerifierTest {
 
   @Test
   public void secondary_no_location() throws Exception {
-    thrown.expectMessage("Precise secondary location should contain at least one '^'");
+    thrown.expectMessage("Precise location should contain at least one '^' for comment at line 3");
     check(
       "foo(); // Noncompliant [[id=A]]\n" +
         "x = bar();\n" +
@@ -231,7 +231,7 @@ public class JavaScriptCheckVerifierTest {
 
   @Test
   public void secondary_id_not_found() throws Exception {
-    thrown.expectMessage("Invalid test file: precise secondary location is provided for ID 'B' but no issue is asserted with such ID");
+    thrown.expectMessage("Invalid test file: precise secondary location is provided for ID 'B' but no issue is asserted with such ID (line 3)");
     check(
       "foo(); // Noncompliant [[id=A]]\n" +
         "x = bar();\n" +
@@ -240,13 +240,43 @@ public class JavaScriptCheckVerifierTest {
   }
 
   @Test
-  public void wrong_precise_secondary_locations() throws Exception {
+  public void precise_secondary_locations_wrong_line() throws Exception {
     expect("Missing secondary location at line 2 for issue at line 1");
     check(
       "foo(); // Noncompliant [[id=A]]\n" +
         "x = bar();\n" +
         "//S ^^^ A {{Secondary message}}",
       TestIssue.create("msg1", 1).secondary("Secondary message", 3, 5, 8));
+  }
+
+  @Test
+  public void precise_secondary_locations_wrong_message() throws Exception {
+    expect("Bad secondary location at line 2 (issue at line 1): bad message");
+    check(
+      "foo(); // Noncompliant [[id=A]]\n" +
+        "x = bar();\n" +
+        "//S ^^^ A {{wrong message}}",
+      TestIssue.create("msg1", 1).secondary("Secondary message", 2, 5, 8));
+  }
+
+  @Test
+  public void wrong_precise_secondary_location_start_column() throws Exception {
+    expect("Bad secondary location at line 2 (issue at line 1): bad start column");
+    check(
+       "foo(); // Noncompliant [[id=A]]\n" +
+        "x = bar();\n" +
+        "//S  ^^ A {{Secondary message}}",
+      TestIssue.create("msg1", 1).secondary("Secondary message", 2, 5, 8));
+  }
+
+  @Test
+  public void wrong_precise_secondary_location_end_column() throws Exception {
+    expect("Bad secondary location at line 2 (issue at line 1): bad end column");
+    check(
+       "foo(); // Noncompliant [[id=A]]\n" +
+        "x = bar();\n" +
+        "//S ^^ A {{Secondary message}}",
+      TestIssue.create("msg1", 1).secondary("Secondary message", 2, 5, 8));
   }
 
   @Test
