@@ -19,13 +19,8 @@
  */
 package org.sonar.plugins.javascript.minify;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
 import java.nio.charset.Charset;
-import org.sonar.squidbridge.api.AnalysisException;
 
 /**
  * An object to assess if a .js file is a minified file or not.
@@ -72,115 +67,8 @@ public class MinificationAssessor {
   }
 
   private boolean hasExcessiveAverageLineLength(File file) {
-    long nbLines = 0;
-    long nbCharacters = 0;
-    HeaderCommentDetector detector = new HeaderCommentDetector();
-
-    // get the number of characters in the file
-    try (BufferedReader reader = getReader(file)) {
-      nbCharacters = reader.lines()
-        .filter(line -> !detector.isLineInHeaderComment(line))
-        .mapToLong(line -> line.length())
-        .sum();
-    } catch (IOException e) {
-      handleException(e, file);
-    }
-
-    // get the number of lines in the file
-    try (BufferedReader reader = getReader(file)) {
-      nbLines = reader.lines().count();
-    } catch (IOException e) {
-      handleException(e, file);
-    }
-    nbLines -= detector.getNumberOfLinesInHeaderComment();
-
-    // check against the threshold
-    int averageLineLength = nbLines > 0 ? (int) (nbCharacters / nbLines) : -1;
+    int averageLineLength = new AverageLineLengthCalculator(file, encoding).getAverageLineLength();
     return averageLineLength > averageLineLengthThreshold;
-  }
-
-  private BufferedReader getReader(File file) throws IOException {
-    return new BufferedReader(new InputStreamReader(new FileInputStream(file), encoding));
-  }
-
-  private static void handleException(IOException e, File file) {
-    throw new AnalysisException("Unable to analyse file: " + file.getAbsolutePath(), e);
-  }
-
-  /**
-   * Helper class:
-   * <ul>
-   *   <li>to detect if a line is part of the header comment, and</li>
-   *   <li>to return the number of lines in the header comment.</li>
-   * </ul>
-   * The header comment is a comment which starts on the first line of the file.
-   * It may be either a C-like comment (i.e., it starts with <code>"/*"</code>) or a C++-like comment
-   * (i.e., it starts with <code>"//"</code>).
-   */
-  static class HeaderCommentDetector {
-
-    private boolean isAtFirstLine = true;
-
-    private boolean isInHeaderComment = false;
-
-    private boolean isClike = false;
-
-    private int numberOfLinesInHeaderComment = 0;
-
-    public boolean isLineInHeaderComment(String line) {
-      String trimmedLine = line.trim();
-      if (isAtFirstLine) {
-        return isFirstLineInHeaderComment(trimmedLine);
-      } else if (isInHeaderComment) {
-        return isSubsequentLineInHeaderComment(trimmedLine);
-      }
-      return false;
-    }
-    
-    private boolean isFirstLineInHeaderComment(String line) {
-      isAtFirstLine = false;
-      if (line.startsWith("/*")) {
-        isClike = true;
-        numberOfLinesInHeaderComment++;
-        isInHeaderComment = !line.endsWith("*/");
-        return true;
-      } else if (line.startsWith("//")) {
-        isClike = false;
-        numberOfLinesInHeaderComment++;
-        isInHeaderComment = true;
-        return true;
-      }
-      return false;
-    }
-    
-    private boolean isSubsequentLineInHeaderComment(String line) {
-      if (isClike) {
-        if (line.endsWith("*/")) {
-          numberOfLinesInHeaderComment++;
-          isInHeaderComment = false;
-        } else if (line.contains("*/")) {
-          // case of a */ followed with something, possibly a long minified line
-          isInHeaderComment = false;
-          return false;
-        } else {
-          numberOfLinesInHeaderComment++;
-        }
-        return true;
-      } else {
-        if (line.startsWith("//")) {
-          numberOfLinesInHeaderComment++;
-          return true;
-        } else {
-          isInHeaderComment = false;
-          return false;
-        }
-      }
-    }
-
-    public int getNumberOfLinesInHeaderComment() {
-      return numberOfLinesInHeaderComment;
-    }
-
   }
 
 }

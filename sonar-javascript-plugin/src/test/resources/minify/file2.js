@@ -1,3 +1,3 @@
-var a = "hello"; var a = "hello";
-var a = "hello"; var a = "hello"; var a = "hello";
-var a = "hello"; var a = "hello"; var a = "hello"; var a = "hello";
+a = "a"; a = "a";
+a = "a"; a = "a"; a = "a";
+a = "a"; a = "a"; a = "a";  a = "a";
