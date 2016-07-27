@@ -26,18 +26,26 @@ import javax.annotation.Nullable;
 import org.sonar.javascript.se.sv.EqualToSymbolicValue;
 import org.sonar.javascript.se.sv.LiteralSymbolicValue;
 import org.sonar.javascript.se.sv.LogicalNotSymbolicValue;
+import org.sonar.javascript.se.sv.PlusSymbolicValue;
 import org.sonar.javascript.se.sv.SpecialSymbolicValue;
 import org.sonar.javascript.se.sv.SymbolicValue;
+import org.sonar.javascript.se.sv.SymbolicValueWithConstraint;
 import org.sonar.javascript.se.sv.TypeOfSymbolicValue;
 import org.sonar.javascript.se.sv.UnknownSymbolicValue;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
+import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
+import org.sonar.plugins.javascript.api.tree.declaration.MethodDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.expression.ArrayLiteralTree;
 import org.sonar.plugins.javascript.api.tree.expression.CallExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 import org.sonar.plugins.javascript.api.tree.expression.LiteralTree;
+import org.sonar.plugins.javascript.api.tree.expression.NewExpressionTree;
+import org.sonar.plugins.javascript.api.tree.expression.ObjectLiteralTree;
+import org.sonar.plugins.javascript.api.tree.expression.PairPropertyTree;
 import org.sonar.plugins.javascript.api.tree.expression.TemplateLiteralTree;
+import org.sonar.plugins.javascript.api.tree.expression.YieldExpressionTree;
 
 /**
  * This class stores the stack of symbolic values corresponding to the order of expression evaluation.
@@ -121,9 +129,28 @@ public class ExpressionStack {
         newStack.push(new TypeOfSymbolicValue(newStack.pop()));
         break;
       case NEW_EXPRESSION:
+        NewExpressionTree newExpressionTree = (NewExpressionTree) expression;
+        int arguments = newExpressionTree.arguments() == null ? 0 : newExpressionTree.arguments().parameters().size();
+        pop(newStack, arguments + 1);
+        newStack.push(new SymbolicValueWithConstraint(Constraint.OBJECT));
+        break;
       case DOT_MEMBER_EXPRESSION:
       case SPREAD_ELEMENT:
+      case VOID:
+      case AWAIT:
+        pop(newStack, 1);
+        pushUnknown(newStack);
+        break;
+      case DELETE:
+        pop(newStack, 1);
+        newStack.push(new SymbolicValueWithConstraint(Constraint.BOOLEAN));
+        break;
       case YIELD_EXPRESSION:
+        if (((YieldExpressionTree) expression).argument() != null) {
+          pop(newStack, 1);
+        }
+        pushUnknown(newStack);
+        break;
       case POSTFIX_DECREMENT:
       case POSTFIX_INCREMENT:
       case PREFIX_DECREMENT:
@@ -131,11 +158,8 @@ public class ExpressionStack {
       case UNARY_MINUS:
       case UNARY_PLUS:
       case BITWISE_COMPLEMENT:
-      case DELETE:
-      case VOID:
-      case AWAIT:
         pop(newStack, 1);
-        pushUnknown(newStack);
+        newStack.push(new SymbolicValueWithConstraint(Constraint.NUMBER));
         break;
       case CALL_EXPRESSION:
         pop(newStack, ((CallExpressionTree) expression).arguments().parameters().size() + 1);
@@ -146,22 +170,29 @@ public class ExpressionStack {
         newStack.pop();
         newStack.push(result);
         break;
-      case REGULAR_EXPRESSION_LITERAL:
       case FUNCTION_EXPRESSION:
       case GENERATOR_FUNCTION_EXPRESSION:
+      case ARROW_FUNCTION:
+        newStack.push(new SymbolicValueWithConstraint(Constraint.FUNCTION));
+        break;
+      case REGULAR_EXPRESSION_LITERAL:
       case THIS:
       case SUPER:
       case NEW_TARGET:
-      case ARROW_FUNCTION:
-      case OBJECT_LITERAL:
       case JSX_SELF_CLOSING_ELEMENT:
       case JSX_STANDARD_ELEMENT:
-      case CLASS_EXPRESSION:
         pushUnknown(newStack);
+        break;
+      case CLASS_EXPRESSION:
+        newStack.push(new SymbolicValueWithConstraint(Constraint.OTHER_OBJECT));
+        break;
+      case OBJECT_LITERAL:
+        popObjectLiteralProperties((ObjectLiteralTree)expression, newStack);
+        newStack.push(new SymbolicValueWithConstraint(Constraint.OTHER_OBJECT));
         break;
       case ARRAY_LITERAL:
         pop(newStack, ((ArrayLiteralTree) expression).elements().size());
-        pushUnknown(newStack);
+        newStack.push(new SymbolicValueWithConstraint(Constraint.ARRAY));
         break;
       case TEMPLATE_LITERAL:
         pop(newStack, ((TemplateLiteralTree) expression).expressions().size());
@@ -181,26 +212,34 @@ public class ExpressionStack {
       case OR_ASSIGNMENT:
       case BRACKET_MEMBER_EXPRESSION:
       case TAGGED_TEMPLATE:
-      case MULTIPLY:
       case EXPONENT:
-      case DIVIDE:
-      case REMAINDER:
-      case PLUS:
-      case MINUS:
-      case LEFT_SHIFT:
-      case RIGHT_SHIFT:
-      case UNSIGNED_RIGHT_SHIFT:
       case RELATIONAL_IN:
       case INSTANCE_OF:
+        pop(newStack, 2);
+        pushUnknown(newStack);
+        break;
       case LESS_THAN:
       case GREATER_THAN:
       case LESS_THAN_OR_EQUAL_TO:
       case GREATER_THAN_OR_EQUAL_TO:
+        pop(newStack, 2);
+        newStack.push(new SymbolicValueWithConstraint(Constraint.BOOLEAN));
+        break;
+      case PLUS:
+        newStack.push(new PlusSymbolicValue(newStack.pop(), newStack.pop()));
+        break;
+      case MINUS:
+      case DIVIDE:
+      case REMAINDER:
+      case MULTIPLY:
       case BITWISE_AND:
       case BITWISE_XOR:
       case BITWISE_OR:
+      case LEFT_SHIFT:
+      case RIGHT_SHIFT:
+      case UNSIGNED_RIGHT_SHIFT:
         pop(newStack, 2);
-        pushUnknown(newStack);
+        newStack.push(new SymbolicValueWithConstraint(Constraint.NUMBER));
         break;
       case COMMA_OPERATOR:
         SymbolicValue commaResult = newStack.pop();
@@ -216,6 +255,20 @@ public class ExpressionStack {
         throw new IllegalArgumentException("Unexpected kind of expression to execute: " + kind);
     }
     return new ExpressionStack(newStack);
+  }
+
+  private void popObjectLiteralProperties(ObjectLiteralTree objectLiteralTree, Deque<SymbolicValue> newStack) {
+    for (Tree property : objectLiteralTree.properties()) {
+      if (property.is(Kind.PAIR_PROPERTY)) {
+        Tree key = ((PairPropertyTree) property).key();
+        if (key.is(Kind.STRING_LITERAL, Kind.NUMERIC_LITERAL, Kind.COMPUTED_PROPERTY_NAME)) {
+          newStack.pop();
+        }
+      }
+      if (!(property instanceof MethodDeclarationTree)) {
+        newStack.pop();
+      }
+    }
   }
 
   private Deque<SymbolicValue> copy() {

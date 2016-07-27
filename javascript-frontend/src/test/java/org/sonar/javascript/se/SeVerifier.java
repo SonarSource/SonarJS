@@ -63,6 +63,7 @@ class SeVerifier extends SeCheck {
     .put("NOT_NUMBER", Constraint.NUMBER.not())
     .put("STRING", Constraint.STRING)
     .put("NOT_STRING", Constraint.STRING.not())
+    .put("TRUTHY_STRING", Constraint.TRUTHY_STRING)
     .put("BOOLEAN", Constraint.BOOLEAN)
     .put("NOT_BOOLEAN", Constraint.BOOLEAN.not())
     .put("TRUE", Constraint.TRUE)

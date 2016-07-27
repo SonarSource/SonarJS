@@ -84,6 +84,9 @@
 'project:dojo-1.8.1/dojo/date.js.uncompressed.js':[
 343,
 ],
+'project:dojo-1.8.1/dojo/dnd/Container.js.uncompressed.js':[
+81,
+],
 'project:dojo-1.8.1/dojo/dojo.js.uncompressed.js':[
 545,
 732,
@@ -188,6 +191,9 @@
 'project:dojo-1.8.1/dojo/sniff.js.uncompressed.js':[
 13,
 ],
+'project:dojo-1.8.1/dojo/store/JsonRest.js.uncompressed.js':[
+165,
+],
 'project:dojo-1.8.1/dojo/text.js.uncompressed.js':[
 6,
 ],
@@ -227,8 +233,14 @@
 'project:dojo-1.8.1/dojox/collections/BinaryTree.js.uncompressed.js':[
 122,
 ],
+'project:dojo-1.8.1/dojox/data/CdfStore.js.uncompressed.js':[
+318,
+],
 'project:dojo-1.8.1/dojox/data/FlickrStore.js.uncompressed.js':[
 279,
+],
+'project:dojo-1.8.1/dojox/data/RailsStore.js.uncompressed.js':[
+57,
 ],
 'project:dojo-1.8.1/dojox/data/ServiceStore.js.uncompressed.js':[
 161,
@@ -338,6 +350,7 @@
 2885,
 6522,
 7812,
+11250,
 12288,
 13871,
 ],
@@ -410,6 +423,9 @@
 304,
 326,
 ],
+'project:ecmascript6/Ghost/core/client/app/adapters/embedded-relation-adapter.js':[
+102,
+],
 'project:ecmascript6/Ghost/core/client/app/components/gh-spin-button.js':[
 40,
 ],
@@ -419,6 +435,9 @@
 ],
 'project:ecmascript6/Ghost/core/server/middleware/auth.js':[
 120,
+],
+'project:ecmascript6/Ghost/core/server/models/user.js':[
+130,
 ],
 'project:ecmascript6/di.js/chrome-extension/visualize/lib/d3.v3.js':[
 5699,
@@ -464,6 +483,9 @@
 ],
 'project:ecmascript6/sonar-web/src/main/js/apps/custom-measures/form-view.js':[
 46,
+],
+'project:ecmascript6/sonar-web/src/main/js/components/navigator/filters/metric-filters.js':[
+186,
 ],
 'project:ecmascript6/sonar-web/src/main/js/components/source-viewer/main.js':[
 450,
@@ -517,6 +539,9 @@
 ],
 'project:open-layers-2.12/OpenLayers/Events.js':[
 329,
+],
+'project:open-layers-2.12/OpenLayers/Format/KML.js':[
+552,
 ],
 'project:open-layers-2.12/deprecated.js':[
 62,
@@ -610,6 +635,9 @@
 ],
 'project:yui-3.7.3/widget-modality/widget-modality.js':[
 518,
+],
+'project:yui-3.7.3/yql/yql.js':[
+43,
 ],
 'project:yui-3.7.3/yui-base/yui-base.js':[
 1056,

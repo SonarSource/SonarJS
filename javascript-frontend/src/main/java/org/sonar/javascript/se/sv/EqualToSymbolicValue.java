@@ -95,7 +95,7 @@ public class EqualToSymbolicValue implements SymbolicValue {
       }
       return typeOfComparison;
     }
-    return UnknownSymbolicValue.UNKNOWN;
+    return new SymbolicValueWithConstraint(Constraint.BOOLEAN);
   }
 
   @Override
@@ -114,6 +114,11 @@ public class EqualToSymbolicValue implements SymbolicValue {
     }
 
     return ImmutableList.of();
+  }
+
+  @Override
+  public Constraint constraint(ProgramState state) {
+    return Constraint.BOOLEAN;
   }
 
   @Override

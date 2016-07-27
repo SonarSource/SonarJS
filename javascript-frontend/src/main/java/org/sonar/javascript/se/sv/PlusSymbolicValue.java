@@ -21,27 +21,29 @@ package org.sonar.javascript.se.sv;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
+import java.util.EnumSet;
 import java.util.List;
+import java.util.Set;
 import org.sonar.javascript.se.Constraint;
 import org.sonar.javascript.se.ProgramState;
+import org.sonar.javascript.se.Type;
 
 /**
- * This class represents symbolic value for "typeof" expression.
+ * This class represents symbolic value for binary "+" expression.
  * E.g.
- * <pre>typeof foo.bar()</pre>
- * <pre>typeof x</pre>
+ * <pre>x + y</pre>
+ * <pre>"str" + foo</pre>
  */
-public class TypeOfSymbolicValue implements SymbolicValue {
+public class PlusSymbolicValue implements SymbolicValue {
 
-  private final SymbolicValue operandValue;
+  private final SymbolicValue firstOperandValue;
+  private final SymbolicValue secondOperandValue;
 
-  public TypeOfSymbolicValue(SymbolicValue operandValue) {
-    Preconditions.checkArgument(operandValue != null, "operandValue should not be null");
-    this.operandValue = operandValue;
-  }
-
-  public SymbolicValue operandValue() {
-    return operandValue;
+  public PlusSymbolicValue(SymbolicValue firstOperandValue, SymbolicValue secondOperandValue) {
+    Preconditions.checkArgument(firstOperandValue != null, "operand value should not be null");
+    Preconditions.checkArgument(secondOperandValue != null, "operand value should not be null");
+    this.firstOperandValue = firstOperandValue;
+    this.secondOperandValue = secondOperandValue;
   }
 
   @Override
@@ -49,18 +51,31 @@ public class TypeOfSymbolicValue implements SymbolicValue {
     ProgramState newState = state.constrainOwnSV(this, constraint);
     if (newState == null) {
       return ImmutableList.of();
-    } else {
-      return ImmutableList.of(newState);
     }
+
+    return ImmutableList.of(newState);
   }
 
   @Override
   public Constraint constraint(ProgramState state) {
-    return Constraint.STRING;
+    Set<Type> numberTypes = EnumSet.of(Type.NUMBER, Type.BOOLEAN);
+
+    Type firstType = firstOperandValue.constraint(state).type();
+    Type secondType = secondOperandValue.constraint(state).type();
+
+    if (firstType != null || secondType != null) {
+      if (firstType == Type.STRING || secondType == Type.STRING) {
+        return Constraint.STRING;
+
+      } else if (numberTypes.contains(firstType) && numberTypes.contains(secondType)) {
+        return Constraint.NUMBER;
+      }
+    }
+    return Constraint.NUMBER.or(Constraint.STRING);
   }
 
   @Override
   public String toString() {
-    return "typeof " + operandValue;
+    return firstOperandValue + " + " + secondOperandValue;
   }
 }

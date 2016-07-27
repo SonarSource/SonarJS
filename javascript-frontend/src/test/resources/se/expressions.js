@@ -22,19 +22,19 @@ function main() {
 
   x = (y == null);
   if (x) {
-    foo(x); // PS x=TRUTHY
+    foo(x); // PS x=TRUE
   }
 
   x = typeof foobar;
   if (x) {
-    foo(x); // PS x=TRUTHY
+    foo(x); // PS x=TRUTHY_STRING
   }
 
   x = (foobar == null);
   y = (foobar.foobar == null);
   if (x) {
     if (!y) {
-      foo(); // PS x=TRUTHY & y=FALSY
+      foo(); // PS x=TRUE & y=FALSE
     }
   }
 

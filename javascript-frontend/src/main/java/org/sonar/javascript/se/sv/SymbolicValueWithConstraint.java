@@ -19,35 +19,23 @@
  */
 package org.sonar.javascript.se.sv;
 
-import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import java.util.List;
 import org.sonar.javascript.se.Constraint;
 import org.sonar.javascript.se.ProgramState;
 
-/**
- * This class represents symbolic value for "typeof" expression.
- * E.g.
- * <pre>typeof foo.bar()</pre>
- * <pre>typeof x</pre>
- */
-public class TypeOfSymbolicValue implements SymbolicValue {
+public class SymbolicValueWithConstraint implements SymbolicValue {
 
-  private final SymbolicValue operandValue;
+  private final Constraint originalConstraint;
 
-  public TypeOfSymbolicValue(SymbolicValue operandValue) {
-    Preconditions.checkArgument(operandValue != null, "operandValue should not be null");
-    this.operandValue = operandValue;
-  }
-
-  public SymbolicValue operandValue() {
-    return operandValue;
+  public SymbolicValueWithConstraint(Constraint originalConstraint) {
+    this.originalConstraint = originalConstraint;
   }
 
   @Override
   public List<ProgramState> constrain(ProgramState state, Constraint constraint) {
     ProgramState newState = state.constrainOwnSV(this, constraint);
-    if (newState == null) {
+    if (newState == null || originalConstraint.isIncompatibleWith(constraint)) {
       return ImmutableList.of();
     } else {
       return ImmutableList.of(newState);
@@ -56,11 +44,6 @@ public class TypeOfSymbolicValue implements SymbolicValue {
 
   @Override
   public Constraint constraint(ProgramState state) {
-    return Constraint.STRING;
-  }
-
-  @Override
-  public String toString() {
-    return "typeof " + operandValue;
+    return originalConstraint;
   }
 }
