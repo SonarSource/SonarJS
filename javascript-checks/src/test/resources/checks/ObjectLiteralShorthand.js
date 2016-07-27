@@ -1,9 +1,9 @@
 let a = 1;
 
 let myObj = {
-  a : a,  // Noncompliant {{Use shorthand for property "a".}} [[sc=3;ec=4]]
+  a : a,  // Noncompliant [[sc=3;ec=4]] {{Use shorthand for property "a".}}
   b,
-  fun: function () {  // Noncompliant {{Use shorthand for method "fun".}} [[sc=3;ec=6]]
+  fun: function () {  // Noncompliant [[sc=3;ec=6]] {{Use shorthand for method "fun".}}
     //...
   },
   foo() {
