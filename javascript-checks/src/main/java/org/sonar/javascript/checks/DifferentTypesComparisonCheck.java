@@ -19,12 +19,19 @@
  */
 package org.sonar.javascript.checks;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Map.Entry;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
-import org.sonar.plugins.javascript.api.symbols.Type;
+import org.sonar.javascript.se.Constraint;
+import org.sonar.javascript.se.ProgramState;
+import org.sonar.javascript.se.SeCheck;
+import org.sonar.javascript.se.Type;
+import org.sonar.javascript.tree.symbols.Scope;
+import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.expression.BinaryExpressionTree;
-import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
 import org.sonar.squidbridge.annotations.ActivatedByDefault;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 
@@ -35,30 +42,49 @@ import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
   tags = Tags.BUG)
 @ActivatedByDefault
 @SqaleConstantRemediation("5min")
-public class DifferentTypesComparisonCheck extends DoubleDispatchVisitorCheck {
+public class DifferentTypesComparisonCheck extends SeCheck {
 
   private static final String MESSAGE = "Remove this \"%s\" check; it will always be false. Did you mean to use \"%s\"?";
 
+  // For each string equality comparison tree this map contains true if types are different in all execution paths, true if types are alike in at least one execution path
+  private Map<BinaryExpressionTree, Boolean> typeDifference = new HashMap<>();
+
+
   @Override
-  public void visitBinaryExpression(BinaryExpressionTree tree) {
-    super.visitBinaryExpression(tree);
+  public void beforeBlockElement(ProgramState currentState, Tree element) {
+    if (element.is(Kind.STRICT_NOT_EQUAL_TO, Kind.STRICT_EQUAL_TO)) {
 
-    if (tree.is(Kind.STRICT_EQUAL_TO, Kind.STRICT_NOT_EQUAL_TO)) {
-      Type leftOperandType = tree.leftOperand().types().getUniqueKnownType();
-      Type rightOperandType = tree.rightOperand().types().getUniqueKnownType();
+      BinaryExpressionTree comparison = (BinaryExpressionTree) element;
 
-      if (leftOperandType != null && rightOperandType != null && leftOperandType.kind() != rightOperandType.kind()) {
-        boolean bothObjects = isObjectType(leftOperandType) && isObjectType(rightOperandType);
-        if (!bothObjects) {
-          raiseIssue(tree);
-        }
+      Constraint rightConstraint = currentState.getConstraint(currentState.peekStack(0));
+      Constraint leftConstraint = currentState.getConstraint(currentState.peekStack(1));
+
+      Type rightType = rightConstraint.type();
+      Type leftType = leftConstraint.type();
+
+      boolean differentTypes = rightType != null && leftType != null && rightType != leftType;
+
+      if (!differentTypes) {
+        typeDifference.put(comparison, false);
+
+      } else if (!typeDifference.containsKey(comparison)) {
+        typeDifference.put(comparison, true);
       }
     }
   }
 
-  private static boolean isObjectType(Type type) {
-    Type.Kind kind = type.kind();
-    return kind != Type.Kind.NUMBER && kind != Type.Kind.STRING && kind != Type.Kind.BOOLEAN;
+  @Override
+  public void endOfExecution(Scope functionScope) {
+    for (Entry<BinaryExpressionTree, Boolean> entry : typeDifference.entrySet()) {
+      if (entry.getValue()) {
+        raiseIssue(entry.getKey());
+      }
+    }
+  }
+
+  @Override
+  public void startOfExecution(Scope functionScope) {
+    typeDifference.clear();
   }
 
   private void raiseIssue(BinaryExpressionTree tree) {

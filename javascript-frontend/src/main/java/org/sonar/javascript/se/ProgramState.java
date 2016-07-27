@@ -243,6 +243,11 @@ public class ProgramState {
     return stack.peek();
   }
 
+  // if n == 0 returns peek
+  public SymbolicValue peekStack(int n) {
+    return stack.peek(n);
+  }
+
   public ProgramState removeSymbols(Set<Symbol> symbolsToKeep) {
     Map<Symbol, SymbolicValue> newValues = Maps.filterKeys(values, Predicates.in(symbolsToKeep));
     return new ProgramState(ImmutableMap.copyOf(newValues), constraints, stack, counter);

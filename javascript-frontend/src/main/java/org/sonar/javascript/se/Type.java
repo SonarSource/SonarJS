@@ -17,16 +17,23 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.javascript.checks;
+package org.sonar.javascript.se;
 
-import java.io.File;
-import org.junit.Test;
-import org.sonar.javascript.checks.verifier.JavaScriptCheckVerifier;
+public enum Type {
+  NUMBER(Constraint.NUMBER),
+  STRING(Constraint.STRING),
+  BOOLEAN(Constraint.BOOLEAN),
+  NULL(Constraint.NULL),
+  UNDEFINED(Constraint.UNDEFINED),
+  OBJECT(Constraint.OBJECT);
 
+  private Constraint constraint;
 
-public class DifferentTypesComparisonCheckTest {
-  @Test
-  public void test() throws Exception {
-    JavaScriptCheckVerifier.verify(new DifferentTypesComparisonCheck(), new File("src/test/resources/checks/DifferentTypesComparison.js"));
+  Type(Constraint constraint) {
+    this.constraint = constraint;
+  }
+
+  public Constraint constraint() {
+    return constraint;
   }
 }

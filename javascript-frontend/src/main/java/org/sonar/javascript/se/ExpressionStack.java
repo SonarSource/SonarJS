@@ -19,7 +19,9 @@
  */
 package org.sonar.javascript.se;
 
+import com.google.common.base.Preconditions;
 import java.util.Deque;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Objects;
 import javax.annotation.Nullable;
@@ -305,6 +307,20 @@ public class ExpressionStack {
     for (int i = 0; i < n; i++) {
       newStack.pop();
     }
+  }
+
+  // if n == 0 returns peek
+  public SymbolicValue peek(int n) {
+    Preconditions.checkArgument(n < stack.size());
+
+    Iterator<SymbolicValue> iterator = stack.iterator();
+    int i = 0;
+    while (i < n) {
+      iterator.next();
+      i++;
+    }
+
+    return iterator.next();
   }
 
   private static void pushUnknown(Deque<SymbolicValue> newStack) {
