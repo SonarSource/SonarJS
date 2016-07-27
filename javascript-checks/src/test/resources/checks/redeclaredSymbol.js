@@ -1,6 +1,6 @@
 function fun() {}
-
-function fun() {} // Noncompliant [[secondary=-2]] {{Rename "fun" as this name is already used in declaration at line 1.}}
+//S      ^^^ fun_decl
+function fun() {} // Noncompliant [[id=fun_decl]] {{Rename "fun" as this name is already used in declaration at line 1.}}
 //       ^^^
 function* f() {
     function fun () {}     // OK - different scope
