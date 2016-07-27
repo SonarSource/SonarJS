@@ -124,6 +124,14 @@ public class ProgramState {
     }
   }
 
+  public ProgramState constrainOwnSV(@Nullable SymbolicValue value, @Nullable Constraint constraint) {
+    if (values.containsValue(value)) {
+      return this.constrain(value, constraint);
+    } else {
+      return this;
+    }
+  }
+
   private ImmutableMap<SymbolicValue, Constraint> replaceConstraint(SymbolicValue value, Constraint newConstraint) {
     ImmutableMap.Builder<SymbolicValue, Constraint> constraintsBuilder = ImmutableMap.builder();
     for (Entry<SymbolicValue, Constraint> entry : constraints.entrySet()) {
@@ -149,10 +157,11 @@ public class ProgramState {
 
   public Constraint getConstraint(@Nullable SymbolicValue value) {
     Constraint constraint = constraints.get(value);
-    if (constraint == null) {
-      return Constraint.ANY_VALUE;
+
+    if (constraint == null && value != null) {
+      constraint = value.constraint(this);
     }
-    return constraint;
+    return constraint == null ? Constraint.ANY_VALUE : constraint;
   }
 
   public Constraint getConstraint(@Nullable Symbol symbol) {
@@ -197,7 +206,7 @@ public class ProgramState {
     Map<Symbol, SymbolicValue> newValues = new HashMap<>(values);
     newValues.put(variable, value);
     ProgramState newState = new ProgramState(ImmutableMap.copyOf(newValues), constraints, newStack, counter);
-    newState = newState.constrain(value, value.inherentConstraint());
+    newState = newState.constrain(value, value.constraint(newState));
     return newState;
   }
 

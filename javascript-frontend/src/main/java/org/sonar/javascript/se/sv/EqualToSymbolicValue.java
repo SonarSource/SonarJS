@@ -100,11 +100,16 @@ public class EqualToSymbolicValue implements SymbolicValue {
 
   @Override
   public List<ProgramState> constrain(ProgramState state, Constraint constraint) {
+    ProgramState newState = state.constrainOwnSV(this, constraint);
+    if (newState == null) {
+      return ImmutableList.of();
+    }
+
     if (constraint.equals(Constraint.TRUTHY)) {
-      return firstOperandValue.constrain(state, secondOperandConstraint);
+      return firstOperandValue.constrain(newState, secondOperandConstraint);
 
     } else if (constraint.equals(Constraint.FALSY)) {
-      return firstOperandValue.constrain(state, secondOperandConstraint.not());
+      return firstOperandValue.constrain(newState, secondOperandConstraint.not());
 
     }
 
@@ -112,22 +117,11 @@ public class EqualToSymbolicValue implements SymbolicValue {
   }
 
   @Override
-  public Constraint inherentConstraint() {
-    return secondOperandConstraint;
-  }
-
-  @Override
   public String toString() {
     return firstOperandValue + " === " + secondOperandConstraint;
   }
 
-  @Override
-  public int hashCode() {
-    return Objects.hash(firstOperandValue, secondOperandConstraint);
-  }
-
-  @Override
-  public boolean equals(Object obj) {
+  public boolean equalToSV(Object obj) {
     if (obj instanceof EqualToSymbolicValue) {
       EqualToSymbolicValue other = (EqualToSymbolicValue) obj;
       return Objects.equals(this.firstOperandValue, other.firstOperandValue)
@@ -135,5 +129,4 @@ public class EqualToSymbolicValue implements SymbolicValue {
     }
     return false;
   }
-
 }

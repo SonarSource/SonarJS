@@ -41,42 +41,42 @@ public class LiteralSymbolicValueTest {
 
   @Test
   public void boolean_literal() throws Exception {
-    assertThat(inherentConstraint("true")).isEqualTo(Constraint.TRUE);
-    assertThat(inherentConstraint("false")).isEqualTo(Constraint.FALSE);
+    assertThat(constraint("true")).isEqualTo(Constraint.TRUE);
+    assertThat(constraint("false")).isEqualTo(Constraint.FALSE);
   }
 
   @Test
   public void string_literal() throws Exception {
-    assertThat(inherentConstraint("''")).isEqualTo(Constraint.EMPTY_STRING);
-    assertThat(inherentConstraint("\"\"")).isEqualTo(Constraint.EMPTY_STRING);
-    assertThat(inherentConstraint("'a'")).isEqualTo(Constraint.TRUTHY_STRING);
-    assertThat(inherentConstraint("'0'")).isEqualTo(Constraint.TRUTHY_STRING);
+    assertThat(constraint("''")).isEqualTo(Constraint.EMPTY_STRING);
+    assertThat(constraint("\"\"")).isEqualTo(Constraint.EMPTY_STRING);
+    assertThat(constraint("'a'")).isEqualTo(Constraint.TRUTHY_STRING);
+    assertThat(constraint("'0'")).isEqualTo(Constraint.TRUTHY_STRING);
   }
 
   @Test
   public void numeric_literal() throws Exception {
-    assertThat(inherentConstraint("42")).isEqualTo(TRUTHY_NUMBER);
-    assertThat(inherentConstraint("42.")).isEqualTo(TRUTHY_NUMBER);
-    assertThat(inherentConstraint("42e2")).isEqualTo(TRUTHY_NUMBER);
-    assertThat(inherentConstraint("0b01")).isEqualTo(TRUTHY_NUMBER);
-    assertThat(inherentConstraint("0x42")).isEqualTo(TRUTHY_NUMBER);
-    assertThat(inherentConstraint("0o42")).isEqualTo(TRUTHY_NUMBER);
-    assertThat(inherentConstraint("0O42")).isEqualTo(TRUTHY_NUMBER);
-    assertThat(inherentConstraint("042")).isEqualTo(TRUTHY_NUMBER);
+    assertThat(constraint("42")).isEqualTo(TRUTHY_NUMBER);
+    assertThat(constraint("42.")).isEqualTo(TRUTHY_NUMBER);
+    assertThat(constraint("42e2")).isEqualTo(TRUTHY_NUMBER);
+    assertThat(constraint("0b01")).isEqualTo(TRUTHY_NUMBER);
+    assertThat(constraint("0x42")).isEqualTo(TRUTHY_NUMBER);
+    assertThat(constraint("0o42")).isEqualTo(TRUTHY_NUMBER);
+    assertThat(constraint("0O42")).isEqualTo(TRUTHY_NUMBER);
+    assertThat(constraint("042")).isEqualTo(TRUTHY_NUMBER);
 
-    assertThat(inherentConstraint("0")).isEqualTo(ZERO);
-    assertThat(inherentConstraint("0.0")).isEqualTo(ZERO);
-    assertThat(inherentConstraint("0.e2")).isEqualTo(ZERO);
-    assertThat(inherentConstraint("0b0")).isEqualTo(ZERO);
-    assertThat(inherentConstraint("0x0")).isEqualTo(ZERO);
-    assertThat(inherentConstraint("0o0")).isEqualTo(ZERO);
-    assertThat(inherentConstraint("0O0")).isEqualTo(ZERO);
-    assertThat(inherentConstraint("00")).isEqualTo(ZERO);
+    assertThat(constraint("0")).isEqualTo(ZERO);
+    assertThat(constraint("0.0")).isEqualTo(ZERO);
+    assertThat(constraint("0.e2")).isEqualTo(ZERO);
+    assertThat(constraint("0b0")).isEqualTo(ZERO);
+    assertThat(constraint("0x0")).isEqualTo(ZERO);
+    assertThat(constraint("0o0")).isEqualTo(ZERO);
+    assertThat(constraint("0O0")).isEqualTo(ZERO);
+    assertThat(constraint("00")).isEqualTo(ZERO);
   }
 
   @Test(expected = IllegalStateException.class)
   public void unknown_literal_type() throws Exception {
-    LiteralSymbolicValue.get(mock(LiteralTree.class)).inherentConstraint();
+    LiteralSymbolicValue.get(mock(LiteralTree.class)).constraint(mock(ProgramState.class));
   }
 
   @Test
@@ -89,8 +89,8 @@ public class LiteralSymbolicValueTest {
     assertThat(literal("0").constrain(state1, Constraint.TRUTHY)).isEmpty();
   }
 
-  private Constraint inherentConstraint(String source) {
-    return literal(source).inherentConstraint();
+  private Constraint constraint(String source) {
+    return literal(source).constraint(mock(ProgramState.class));
   }
 
   private LiteralSymbolicValue literal(String source) {

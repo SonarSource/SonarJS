@@ -206,7 +206,12 @@ public class ExpressionStackTest {
 
   private void assertSingleValueInStack(SymbolicValue expected) {
     assertThat(stack.size()).isEqualTo(1);
-    assertThat(stack.peek()).isEqualTo(expected);
+
+    if (expected instanceof EqualToSymbolicValue) {
+      assertThat(((EqualToSymbolicValue) expected).equalToSV(stack.peek())).isTrue();
+    } else {
+      assertThat(stack.peek()).isEqualTo(expected);
+    }
   }
 
   private void pushSimpleValues(int numberOfValues) {
@@ -232,5 +237,4 @@ public class ExpressionStackTest {
       stack = stack.execute((ExpressionTree) tree);
     }
   }
-
 }

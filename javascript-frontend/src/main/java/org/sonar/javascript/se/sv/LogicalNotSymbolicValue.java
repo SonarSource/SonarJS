@@ -20,6 +20,7 @@
 package org.sonar.javascript.se.sv;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableList;
 import java.util.List;
 import org.sonar.javascript.se.Constraint;
 import org.sonar.javascript.se.ProgramState;
@@ -34,21 +35,28 @@ public class LogicalNotSymbolicValue implements SymbolicValue {
   }
 
   public static SymbolicValue create(SymbolicValue negatedValue) {
-    if (UnknownSymbolicValue.UNKNOWN.equals(negatedValue)) {
-      return UnknownSymbolicValue.UNKNOWN;
-    }
     return new LogicalNotSymbolicValue(negatedValue);
   }
 
   @Override
   public List<ProgramState> constrain(ProgramState state, Constraint constraint) {
-    return negatedValue.constrain(state, constraint.not());
+    ProgramState newState = state.constrainOwnSV(this, constraint);
+    if (newState == null) {
+      return ImmutableList.of();
+    }
+    return negatedValue.constrain(newState, constraint.not());
   }
 
   @Override
-  public Constraint inherentConstraint() {
-    Constraint negatedConstraint = negatedValue.inherentConstraint();
-    return negatedConstraint == null ? null : negatedConstraint.not();
+  public Constraint constraint(ProgramState state) {
+    Constraint negatedConstraint = state.getConstraint(negatedValue);
+    if (negatedConstraint.isStricterOrEqualTo(Constraint.TRUTHY)) {
+      return Constraint.FALSE;
+    }
+    if (negatedConstraint.isStricterOrEqualTo(Constraint.FALSY)) {
+      return Constraint.TRUE;
+    }
+    return Constraint.BOOLEAN;
   }
 
   @Override

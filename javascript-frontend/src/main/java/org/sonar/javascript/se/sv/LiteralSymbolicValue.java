@@ -33,9 +33,11 @@ import org.sonar.plugins.javascript.api.tree.expression.LiteralTree;
 public class LiteralSymbolicValue implements SymbolicValue {
 
   private final LiteralTree literal;
+  private final Constraint constraint;
 
   private LiteralSymbolicValue(LiteralTree literal) {
     this.literal = literal;
+    this.constraint = getConstraint(literal);
   }
 
   public static LiteralSymbolicValue get(LiteralTree literal) {
@@ -48,31 +50,36 @@ public class LiteralSymbolicValue implements SymbolicValue {
 
   @Override
   public List<ProgramState> constrain(ProgramState state, Constraint constraint) {
-    if (inherentConstraint().isIncompatibleWith(constraint)) {
+    if (constraint(state).isIncompatibleWith(constraint)) {
       return ImmutableList.of();
     }
     return ImmutableList.of(state);
   }
 
   @Override
-  public Constraint inherentConstraint() {
+  public Constraint constraint(ProgramState state) {
+    return constraint;
+  }
+
+  private static Constraint getConstraint(LiteralTree literal) {
+    Constraint result = null;
     if (literal.is(Kind.BOOLEAN_LITERAL)) {
-      return "true".equals(literal.value()) ? Constraint.TRUE
-        : Constraint.FALSE;
+      result = "true".equals(literal.value()) ? Constraint.TRUE : Constraint.FALSE;
     }
     if (literal.is(Kind.STRING_LITERAL)) {
-      return literal.value().length() > 2 ? Constraint.TRUTHY_STRING
-        : Constraint.EMPTY_STRING;
+      result = literal.value().length() > 2 ? Constraint.TRUTHY_STRING : Constraint.EMPTY_STRING;
     }
     if (literal.is(Kind.NUMERIC_LITERAL)) {
-      return isTruthyNumeric() ? Constraint.TRUTHY_NUMBER
-        : Constraint.ZERO;
+      result = isTruthyNumeric(literal) ? Constraint.TRUTHY_NUMBER : Constraint.ZERO;
     }
 
+    if (result != null) {
+      return result;
+    }
     throw new IllegalStateException("Unknown literal: " + literal);
   }
 
-  private boolean isTruthyNumeric() {
+  private static boolean isTruthyNumeric(LiteralTree literal) {
     String stringValue = literal.value();
 
     if (stringValue.startsWith("0x")

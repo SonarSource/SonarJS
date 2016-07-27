@@ -48,5 +48,4 @@ public class SimpleSymbolicValue implements SymbolicValue {
     }
     return ImmutableList.of(newState);
   }
-
 }

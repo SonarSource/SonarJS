@@ -65,6 +65,8 @@ class SeVerifier extends SeCheck {
     .put("NOT_STRING", Constraint.STRING.not())
     .put("BOOLEAN", Constraint.BOOLEAN)
     .put("NOT_BOOLEAN", Constraint.BOOLEAN.not())
+    .put("TRUE", Constraint.TRUE)
+    .put("FALSE", Constraint.FALSE)
     .build();
 
   // line - program state - asserted

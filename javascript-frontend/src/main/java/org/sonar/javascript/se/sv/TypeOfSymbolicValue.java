@@ -40,13 +40,17 @@ public class TypeOfSymbolicValue implements SymbolicValue {
     this.operandValue = operandValue;
   }
 
+  public SymbolicValue operandValue() {
+    return operandValue;
+  }
+
   @Override
   public List<ProgramState> constrain(ProgramState state, Constraint constraint) {
-    ProgramState newProgramState = state.constrain(operandValue, constraint);
-    if (newProgramState == null) {
+    ProgramState newState = state.constrainOwnSV(this, constraint);
+    if (newState == null) {
       return ImmutableList.of();
     } else {
-      return ImmutableList.of(newProgramState);
+      return ImmutableList.of(newState);
     }
   }
 
