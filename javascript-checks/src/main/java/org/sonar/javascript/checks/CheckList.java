@@ -49,6 +49,7 @@ public final class CheckList {
       BooleanEqualityComparisonCheck.class,
       BoundOrAssignedEvalOrArgumentsCheck.class,
       BuiltInObjectOverriddenCheck.class,
+      CallabilityCheck.class,
       ClassPrototypeCheck.class,
       CollapsibleIfStatementsCheck.class,
       CommaOperatorInSwitchCaseCheck.class,

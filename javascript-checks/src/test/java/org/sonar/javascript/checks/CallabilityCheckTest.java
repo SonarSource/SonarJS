@@ -17,25 +17,18 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.javascript.se;
+package org.sonar.javascript.checks;
 
-public enum Type {
-  NUMBER(Constraint.NUMBER),
-  STRING(Constraint.STRING),
-  BOOLEAN(Constraint.BOOLEAN),
-  NULL(Constraint.NULL),
-  UNDEFINED(Constraint.UNDEFINED),
-  FUNCTION(Constraint.FUNCTION),
-  ARRAY(Constraint.ARRAY),
-  OTHER_OBJECT(Constraint.OTHER_OBJECT);
+import java.io.File;
+import org.junit.Test;
+import org.sonar.javascript.checks.verifier.JavaScriptCheckVerifier;
 
-  private Constraint constraint;
+public class CallabilityCheckTest {
 
-  Type(Constraint constraint) {
-    this.constraint = constraint;
+  @Test
+  public void test() {
+    JavaScriptCheckVerifier.verify(new CallabilityCheck(),
+      new File("src/test/resources/checks/Callability.js"));
   }
 
-  public Constraint constraint() {
-    return constraint;
-  }
 }
