@@ -118,6 +118,12 @@ public class SymbolicExecution {
       Constraint initialConstraint = null;
       if (!symbolIs(localVar, FUNCTION, IMPORT, CLASS) && !functionParameters.contains(localVar)) {
         initialConstraint = Constraint.UNDEFINED;
+
+      } else if (symbolIs(localVar, FUNCTION)) {
+        initialConstraint = Constraint.FUNCTION;
+
+      } else if (symbolIs(localVar, CLASS)) {
+        initialConstraint = Constraint.OTHER_OBJECT;
       }
       initialState = initialState.newSymbolicValue(localVar, initialConstraint);
     }

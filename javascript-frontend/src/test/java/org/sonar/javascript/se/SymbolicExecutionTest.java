@@ -113,6 +113,11 @@ public class SymbolicExecutionTest {
     verifySE("expressions.js");
   }
 
+  @Test
+  public void function_declaration() throws Exception {
+    verifySE("func_decl.js");
+  }
+
   private void runSe(String filename) {
     JavaScriptVisitorContext context = createContext(new File("src/test/resources/se/", filename));
     verifier.scanExpectedIssues(context);
