@@ -50,7 +50,7 @@ public class ComplexityVisitor extends DoubleDispatchVisitor {
 
   private Set<Tree> excludedReturns;
 
-  private boolean isNested;
+  private boolean isInsideFunction;
 
   public int getComplexity(Tree tree) {
     return complexityTrees(tree).size();
@@ -59,54 +59,54 @@ public class ComplexityVisitor extends DoubleDispatchVisitor {
   public List<Tree> complexityTrees(Tree tree) {
     this.complexityTrees = new ArrayList<>();
     this.excludedReturns = new HashSet<>();
-    this.isNested = false;
+    this.isInsideFunction = false;
     scan(tree);
     return this.complexityTrees;
   }
 
   @Override
   public void visitMethodDeclaration(MethodDeclarationTree tree) {
-    if (!isNested) {
+    if (!isInsideFunction) {
       add(tree.name());
       excludeLastReturn(tree.body().statements());
-      isNested = true;
+      isInsideFunction = true;
       super.visitMethodDeclaration(tree);
-      isNested = false;
+      isInsideFunction = false;
     }
   }
 
   @Override
   public void visitFunctionDeclaration(FunctionDeclarationTree tree) {
-    if (!isNested) {
+    if (!isInsideFunction) {
       add(tree.functionKeyword());
       excludeLastReturn(tree.body().statements());
-      isNested = true;
+      isInsideFunction = true;
       super.visitFunctionDeclaration(tree);
-      isNested = false;
+      isInsideFunction = false;
     }
   }
 
   @Override
   public void visitFunctionExpression(FunctionExpressionTree tree) {
-    if (!isNested) {
+    if (!isInsideFunction) {
       add(tree.functionKeyword());
       excludeLastReturn(tree.body().statements());
-      isNested = true;
+      isInsideFunction = true;
       super.visitFunctionExpression(tree);
-      isNested = false;
+      isInsideFunction = false;
     }
   }
 
   @Override
   public void visitArrowFunction(ArrowFunctionTree tree) {
-    if (!isNested) {
+    if (!isInsideFunction) {
       add(tree.doubleArrow());
       if (tree.body().is(Kind.BLOCK)) {
         excludeLastReturn(((BlockTree) tree.body()).statements());
       }
-      isNested = true;
+      isInsideFunction = true;
       super.visitArrowFunction(tree);
-      isNested = false;
+      isInsideFunction = false;
     }
   }
 
