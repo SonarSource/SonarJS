@@ -4,8 +4,10 @@ function foo(){
 var x = external();
 
 x();
-var xx = new x(); // Noncompliant [[secondary=-1]] {{Correct the use of this function; on line 6 it was called without "new".}}
+x();
+var xx = new x(); // Noncompliant [[secondary=-1]] {{Correct the use of this function; on line 7 it was called without "new".}}
 //       ^^^^^
+x();
 
 
 foo();
@@ -15,8 +17,14 @@ function MyObj() {
 }
 
 var obj = new MyObj();
-  MyObj(); // Noncompliant [[secondary=-1]] {{Correct the use of this function; on line 17 it was called with "new".}}
+  MyObj(); // Noncompliant [[secondary=-1]] {{Correct the use of this function; on line 19 it was called with "new".}}
 //^^^^^
 
 obj = new MyObj();
 MyObj();
+
+function bar() {
+  function bar() {}
+    var a = new bar();
+  }
+var b = bar(); // OK

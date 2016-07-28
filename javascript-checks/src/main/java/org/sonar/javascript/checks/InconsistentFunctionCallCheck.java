@@ -19,10 +19,9 @@
  */
 package org.sonar.javascript.checks;
 
-import com.google.common.collect.LinkedListMultimap;
-import com.google.common.collect.ListMultimap;
+import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import javax.annotation.CheckForNull;
 import org.sonar.check.Priority;
@@ -55,8 +54,8 @@ public class InconsistentFunctionCallCheck extends DoubleDispatchVisitorCheck {
 
   private Set<Symbol> hasIssue = new HashSet<>();
 
-  private ListMultimap<Symbol, CallExpressionTree> usedInCallExpression = LinkedListMultimap.create();
-  private ListMultimap<Symbol, NewExpressionTree> usedInNewExpression = LinkedListMultimap.create();
+  private Map<Symbol, CallExpressionTree> usedInCallExpression = new HashMap<>();
+  private Map<Symbol, NewExpressionTree> usedInNewExpression = new HashMap<>();
 
   @Override
   public void visitScript(ScriptTree tree) {
@@ -68,35 +67,34 @@ public class InconsistentFunctionCallCheck extends DoubleDispatchVisitorCheck {
 
   @Override
   public void visitCallExpression(CallExpressionTree tree) {
-    visit(tree, tree.callee(), usedInNewExpression, usedInCallExpression, "");
+    checkExpression(tree, tree.callee(), usedInNewExpression, usedInCallExpression, "");
     super.visitCallExpression(tree);
   }
 
   @Override
   public void visitNewExpression(NewExpressionTree tree) {
-    visit(tree, tree.expression(), usedInCallExpression, usedInNewExpression, "out");
+    checkExpression(tree, tree.expression(), usedInCallExpression, usedInNewExpression, "out");
     super.visitNewExpression(tree);
   }
 
-  private <T1 extends Tree, T2 extends Tree> void visit(
+  private <T1 extends Tree, T2 extends Tree> void checkExpression(
     T1 tree, ExpressionTree symbolTree,
-    ListMultimap<Symbol, T2> otherTypeUsageMap, ListMultimap<Symbol, T1> thisTypeUsageMap, String withTail
+    Map<Symbol, T2> otherTypeUsageMap, Map<Symbol, T1> thisTypeUsageMap, String tail
   ) {
     Symbol symbol = getSymbol(symbolTree);
     if (symbol == null) {
       return;
     }
 
-    List<T2> otherTypeUsages = otherTypeUsageMap.get(symbol);
+    T2 otherTypeUsage = otherTypeUsageMap.get(symbol);
 
-    if (!otherTypeUsages.isEmpty() && !hasIssue.contains(symbol)) {
+    if (otherTypeUsage != null && !hasIssue.contains(symbol)) {
 
-      T2 lastUsage = otherTypeUsages.get(otherTypeUsages.size() - 1);
-      String message = String.format(MESSAGE, ((JavaScriptTree) lastUsage).getLine(), withTail);
-      String secondaryMessage = String.format(SECONDARY_MESSAGE, withTail);
+      String message = String.format(MESSAGE, ((JavaScriptTree) otherTypeUsage).getLine(), tail);
+      String secondaryMessage = String.format(SECONDARY_MESSAGE, tail);
 
       addIssue(new PreciseIssue(this, issueLocation(tree, message)))
-        .secondary(issueLocation(lastUsage, secondaryMessage));
+        .secondary(issueLocation(otherTypeUsage, secondaryMessage));
 
       hasIssue.add(symbol);
 
