@@ -43,7 +43,6 @@
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-api</artifactId>
-      <scope>provided</scope>
     </dependency>
 
     <dependency>
@@ -74,7 +73,6 @@
   <build>
     <plugins>
       <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-shade-plugin</artifactId>
         <executions>
           <execution>
@@ -100,7 +98,6 @@
       </plugin>
 
       <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-enforcer-plugin</artifactId>
         <executions>
           <execution>
@@ -112,8 +109,8 @@
             <configuration>
               <rules>
                 <requireFilesSize>
-                  <maxsize>2350000</maxsize>
-                  <minsize>2250000</minsize>
+                  <minsize>2550000</minsize>
+                  <maxsize>2650000</maxsize>
                   <files>
                     <file>${project.build.directory}/${project.build.finalName}.jar</file>
                   </files>
