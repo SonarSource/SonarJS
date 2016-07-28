@@ -46,8 +46,17 @@ import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitor;
 
 public class ComplexityVisitor extends DoubleDispatchVisitor {
 
+  private boolean mustAnalyseNestedFunctions;
+
   private List<Tree> complexityTrees;
+
   private Set<Tree> excludedReturns;
+
+  private boolean isInsideFunction;
+
+  public ComplexityVisitor(boolean mustAnalyseNestedFunctions) {
+    this.mustAnalyseNestedFunctions = mustAnalyseNestedFunctions;
+  }
 
   public int getComplexity(Tree tree) {
     return complexityTrees(tree).size();
@@ -56,38 +65,55 @@ public class ComplexityVisitor extends DoubleDispatchVisitor {
   public List<Tree> complexityTrees(Tree tree) {
     this.complexityTrees = new ArrayList<>();
     this.excludedReturns = new HashSet<>();
+    this.isInsideFunction = false;
     scan(tree);
     return this.complexityTrees;
   }
 
   @Override
   public void visitMethodDeclaration(MethodDeclarationTree tree) {
-    add(tree.name());
-    excludeLastReturn(tree.body().statements());
-    super.visitMethodDeclaration(tree);
+    if (mustAnalyse()) {
+      add(tree.name());
+      excludeLastReturn(tree.body().statements());
+      isInsideFunction = true;
+      super.visitMethodDeclaration(tree);
+      isInsideFunction = false;
+    }
   }
 
   @Override
   public void visitFunctionDeclaration(FunctionDeclarationTree tree) {
-    add(tree.functionKeyword());
-    excludeLastReturn(tree.body().statements());
-    super.visitFunctionDeclaration(tree);
+    if (mustAnalyse()) {
+      add(tree.functionKeyword());
+      excludeLastReturn(tree.body().statements());
+      isInsideFunction = true;
+      super.visitFunctionDeclaration(tree);
+      isInsideFunction = false;
+    }
   }
 
   @Override
   public void visitFunctionExpression(FunctionExpressionTree tree) {
-    add(tree.functionKeyword());
-    excludeLastReturn(tree.body().statements());
-    super.visitFunctionExpression(tree);
+    if (mustAnalyse()) {
+      add(tree.functionKeyword());
+      excludeLastReturn(tree.body().statements());
+      isInsideFunction = true;
+      super.visitFunctionExpression(tree);
+      isInsideFunction = false;
+    }
   }
 
   @Override
   public void visitArrowFunction(ArrowFunctionTree tree) {
-    add(tree.doubleArrow());
-    if (tree.body().is(Kind.BLOCK)) {
-      excludeLastReturn(((BlockTree) tree.body()).statements());
+    if (mustAnalyse()) {
+      add(tree.doubleArrow());
+      if (tree.body().is(Kind.BLOCK)) {
+        excludeLastReturn(((BlockTree) tree.body()).statements());
+      }
+      isInsideFunction = true;
+      super.visitArrowFunction(tree);
+      isInsideFunction = false;
     }
-    super.visitArrowFunction(tree);
   }
 
   @Override
@@ -158,6 +184,10 @@ public class ComplexityVisitor extends DoubleDispatchVisitor {
       add(tree.operator());
     }
     super.visitBinaryExpression(tree);
+  }
+
+  private boolean mustAnalyse() {
+    return mustAnalyseNestedFunctions || !isInsideFunction;
   }
 
   private void excludeLastReturn(List<StatementTree> statements) {
