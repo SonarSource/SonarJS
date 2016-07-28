@@ -74,7 +74,7 @@ public class MetricsVisitor extends SubscriptionVisitor {
     this.noSonarFilter = noSonarFilter;
     this.ignoreHeaderComments = ignoreHeaderComments;
     this.fileLinesContextFactory = fileLinesContextFactory;
-    this.complexityVisitor = new ComplexityVisitor();
+    this.complexityVisitor = new ComplexityVisitor(true);
     this.projectLinesOfCode = projectLinesOfCode;
   }
 

@@ -46,11 +46,17 @@ import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitor;
 
 public class ComplexityVisitor extends DoubleDispatchVisitor {
 
+  private boolean mustAnalyseNestedFunctions;
+
   private List<Tree> complexityTrees;
 
   private Set<Tree> excludedReturns;
 
   private boolean isInsideFunction;
+
+  public ComplexityVisitor(boolean mustAnalyseNestedFunctions) {
+    this.mustAnalyseNestedFunctions = mustAnalyseNestedFunctions;
+  }
 
   public int getComplexity(Tree tree) {
     return complexityTrees(tree).size();
@@ -66,7 +72,7 @@ public class ComplexityVisitor extends DoubleDispatchVisitor {
 
   @Override
   public void visitMethodDeclaration(MethodDeclarationTree tree) {
-    if (!isInsideFunction) {
+    if (mustAnalyse()) {
       add(tree.name());
       excludeLastReturn(tree.body().statements());
       isInsideFunction = true;
@@ -77,7 +83,7 @@ public class ComplexityVisitor extends DoubleDispatchVisitor {
 
   @Override
   public void visitFunctionDeclaration(FunctionDeclarationTree tree) {
-    if (!isInsideFunction) {
+    if (mustAnalyse()) {
       add(tree.functionKeyword());
       excludeLastReturn(tree.body().statements());
       isInsideFunction = true;
@@ -88,7 +94,7 @@ public class ComplexityVisitor extends DoubleDispatchVisitor {
 
   @Override
   public void visitFunctionExpression(FunctionExpressionTree tree) {
-    if (!isInsideFunction) {
+    if (mustAnalyse()) {
       add(tree.functionKeyword());
       excludeLastReturn(tree.body().statements());
       isInsideFunction = true;
@@ -99,7 +105,7 @@ public class ComplexityVisitor extends DoubleDispatchVisitor {
 
   @Override
   public void visitArrowFunction(ArrowFunctionTree tree) {
-    if (!isInsideFunction) {
+    if (mustAnalyse()) {
       add(tree.doubleArrow());
       if (tree.body().is(Kind.BLOCK)) {
         excludeLastReturn(((BlockTree) tree.body()).statements());
@@ -178,6 +184,10 @@ public class ComplexityVisitor extends DoubleDispatchVisitor {
       add(tree.operator());
     }
     super.visitBinaryExpression(tree);
+  }
+
+  private boolean mustAnalyse() {
+    return mustAnalyseNestedFunctions || !isInsideFunction;
   }
 
   private void excludeLastReturn(List<StatementTree> statements) {

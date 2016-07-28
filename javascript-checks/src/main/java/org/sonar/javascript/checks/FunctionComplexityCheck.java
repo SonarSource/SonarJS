@@ -56,7 +56,7 @@ public class FunctionComplexityCheck extends AbstractFunctionSizeCheck {
 
   @Override
   void checkFunction(FunctionTree functionTree) {
-    List<Tree> complexityTrees = new ComplexityVisitor().complexityTrees(functionTree);
+    List<Tree> complexityTrees = new ComplexityVisitor(false).complexityTrees(functionTree);
     if (complexityTrees.size() > maximumFunctionComplexityThreshold) {
       raiseIssue(functionTree, complexityTrees);
     }

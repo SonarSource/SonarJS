@@ -1,10 +1,10 @@
 function example() // +1 functionDeclaration
 {
-  var arrow_func = () => { // +0 nested function
-    foo(1 && 2);
+  var arrow_func = () => { // +1 arrowFunction
+    foo(1 && 2);         // +1 &&
     return 42;
   };
-  var arrow_func2 = () => 42; // +0 nested function
+  var arrow_func2 = () => 42; // +1 arrowFunction
 
   if (foo) // +1 ifStatement
   {
@@ -43,21 +43,22 @@ function example() // +1 functionDeclaration
 
   a ? b + 1 && c - 1 : d * 1 || e / 1; // +3
 
-  func = function(){  // +0 nested function
-      if (true)
-          return 1;
+  func = function(){ // +1 functionExpression
+      if (true) // +1 ifStatement
+          return 1; // +1 return statement (not last)
   };
   
   do { // +1 do...while
   } while(false);
 
   return 1; // +0 last returnStatement
+
 }
 
 class C {
 
     method () {  // +1 method
-        var generator = function * () {  // +0 nested function
+        var generator = function * () {  // +1 generatorExpression
         };
     }
 
@@ -65,7 +66,7 @@ class C {
     }
 }
 
-function * generator () {  // +1 generator declaration
+function * generator () {  // +1 genrator declaration
 }
 
 Person.prototype = {
@@ -83,3 +84,4 @@ Person.prototype = {
     return this.first; // +0
   }
 };
+
