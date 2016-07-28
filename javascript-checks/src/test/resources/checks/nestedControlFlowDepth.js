@@ -11,11 +11,13 @@ function sayHello() {
               }
   }
 
-  for (var i = 0; i < 0; i++) { // level 1
+    for (var i = 0; i < 0; i++) { // level 1
+//S ^^^ ID1
     for (bar in MyArray) {     // level 2
+//S ^^^ ID1
       while (false) {               // level 3
-
-        for (foo in MyArray) {         // Noncompliant [[secondary=-4,-3,-2]]
+//S   ^^^^^ ID1 {{Nesting +1}}
+        for (foo in MyArray) {         // Noncompliant [[id=ID1]]
         }
 
         while (false) {                // Noncompliant

@@ -28,6 +28,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import javax.annotation.Nullable;
+import org.sonar.javascript.checks.verifier.TestIssue.Location;
 import org.sonar.javascript.visitors.JavaScriptVisitorContext;
 import org.sonar.plugins.javascript.api.JavaScriptCheck;
 import org.sonar.plugins.javascript.api.tree.Tree;
@@ -47,6 +48,7 @@ import static org.junit.Assert.fail;
 public class JavaScriptCheckVerifier extends SubscriptionVisitorCheck {
 
   private final List<TestIssue> expectedIssues = new ArrayList<>();
+  private final List<SyntaxTrivia> preciseSecondaryLocationComments = new ArrayList<>();
 
   /**
    * Example:
@@ -84,6 +86,15 @@ public class JavaScriptCheckVerifier extends SubscriptionVisitorCheck {
    * x = a && a;  // Noncompliant
    * //    ^^
    * </pre>
+   *<li>Since version 2.15 to specify precise secondary location you can provide separate comment on next line which contains
+   *     symbol <code>^</code> under each character of secondary issue location.
+   *     Start comment with "S" symbol and put after "^" ID of issue (specify it in double square brackets).
+   *     You can optionally provide message of secondary location.
+   * </li>
+   * <pre>
+   * x = a && a;  // Noncompliant [[id=SomeID]]
+   * //S   ^^ SomeID {{secondary message}}
+   * </pre>
    * <li>In double brackets provide secondary locations with <code>secondary</code> keyword.</li>
    * <li>To specify the line you can use relative location by putting <code>+</code> or <code>-</code>.</li>
    * <li>All listed elements are optional (except "Noncompliant").</li>
@@ -98,6 +109,8 @@ public class JavaScriptCheckVerifier extends SubscriptionVisitorCheck {
     JavaScriptCheckVerifier javaScriptCheckVerifier = new JavaScriptCheckVerifier();
     JavaScriptVisitorContext context = TestUtils.createContext(file);
     javaScriptCheckVerifier.scanFile(context);
+    javaScriptCheckVerifier.addPreciseSecondaryLocations();
+
     List<TestIssue> expectedIssues = javaScriptCheckVerifier.expectedIssues;
     Iterator<Issue> actualIssues = getActualIssues(check, context);
 
@@ -144,9 +157,47 @@ public class JavaScriptCheckVerifier extends SubscriptionVisitorCheck {
     if (expected.endLine() != null) {
       assertThat(((PreciseIssue) actual).primaryLocation().endLine()).as("Bad end line at line " + expected.line()).isEqualTo(expected.endLine());
     }
-    if (expected.secondaryLines() != null) {
-      assertThat(secondary(actual)).as("Bad secondary locations at line " + expected.line()).isEqualTo(expected.secondaryLines());
+    if (!expected.secondaryLocations().isEmpty()) {
+      assertSecondary(actual, expected);
     }
+  }
+
+  private static void assertSecondary(Issue actualIssue, TestIssue expectedIssue) {
+    List<Location> expectedLocations = expectedIssue.secondaryLocations();
+    List<IssueLocation> actualLocations = actualIssue instanceof PreciseIssue ? ((PreciseIssue) actualIssue).secondaryLocations() : new ArrayList<>();
+
+    String format = "Bad secondary location at line %s (issue at line %s): %s" ;
+
+    for (Location expected : expectedLocations) {
+      IssueLocation actual = secondary(expected.line(), actualLocations);
+
+      if (actual != null) {
+        if (expected.message() != null) {
+          assertThat(actual.message()).as(String.format(format, expected.line(), line(actualIssue), "bad message")).isEqualTo(expected.message());
+        }
+        if (expected.startColumn() != null) {
+          assertThat(actual.startLineOffset() + 1).as(String.format(format, expected.line(), line(actualIssue), "bad start column")).isEqualTo(expected.startColumn());
+          assertThat(actual.endLineOffset() + 1).as(String.format(format, expected.line(), line(actualIssue), "bad end column")).isEqualTo(expected.endColumn());
+        }
+        actualLocations.remove(actual);
+      } else {
+        throw new AssertionError("Missing secondary location at line " + expected.line() + " for issue at line " + expectedIssue.line());
+      }
+    }
+
+    if (!actualLocations.isEmpty()) {
+      IssueLocation location = actualLocations.get(0);
+      throw new AssertionError("Unexpected secondary location at line " + location.startLine() + " for issue at line " + line(actualIssue) );
+    }
+  }
+
+  private static IssueLocation secondary(int line, List<IssueLocation> allSecondaryLocations) {
+    for (IssueLocation location : allSecondaryLocations) {
+      if (location.startLine() == line) {
+        return location;
+      }
+    }
+    return null;
   }
 
   @Override
@@ -190,16 +241,30 @@ public class JavaScriptCheckVerifier extends SubscriptionVisitorCheck {
 
       } else if (text.startsWith("^")) {
         addPreciseLocation(trivia);
+
+      } else if (text.startsWith("S ")) {
+        preciseSecondaryLocationComments.add(trivia);
+
       }
     }
   }
 
+  private static void checkPreciseLocationComment(SyntaxTrivia trivia) {
+    if (trivia.column() > 1) {
+      throw new IllegalStateException("Line " + trivia.line() + ": comments asserting a precise location should start at column 1");
+    }
+
+    if (!trivia.text().contains("^")) {
+      throw new IllegalStateException("Precise location should contain at least one '^' for comment at line " + trivia.line());
+    }
+  }
+
   private void addPreciseLocation(SyntaxTrivia trivia) {
+    checkPreciseLocationComment(trivia);
+
     int line = trivia.line();
     String text = trivia.text();
-    if (trivia.column() > 1) {
-      throw new IllegalStateException("Line " + line + ": comments asserting a precise location should start at column 1");
-    }
+
     String missingAssertionMessage = String.format("Invalid test file: a precise location is provided at line %s but no issue is asserted at line %s", line, line - 1);
     if (expectedIssues.isEmpty()) {
       throw new IllegalStateException(missingAssertionMessage);
@@ -213,11 +278,46 @@ public class JavaScriptCheckVerifier extends SubscriptionVisitorCheck {
     issue.endColumn(text.lastIndexOf('^') + 2);
   }
 
+  private void addPreciseSecondaryLocations() {
+    for (SyntaxTrivia trivia : preciseSecondaryLocationComments) {
+      checkPreciseLocationComment(trivia);
+
+      String text = trivia.text();
+
+      int startColumn = text.indexOf('^') + 1;
+      int endColumn = text.lastIndexOf('^') + 2;
+      String message = null;
+
+      text = text.substring(endColumn).trim();
+
+      if (text.contains("{{")) {
+        int endIndex = text.indexOf("}}");
+        int startIndex = text.indexOf("{{") + 2;
+        message = text.substring(startIndex, endIndex);
+        text = text.substring(0, startIndex - 2).trim();
+      }
+
+      issueByID(text, trivia.line()).secondary(message, trivia.line() - 1, startColumn, endColumn);
+    }
+  }
+
+  private TestIssue issueByID(String id, int line) {
+    for (TestIssue expectedIssue : expectedIssues) {
+      if (id.equals(expectedIssue.id())) {
+        return expectedIssue;
+      }
+    }
+
+    String format = "Invalid test file: precise secondary location is provided for ID '%s' but no issue is asserted with such ID (line %s)";
+    String missingAssertionMessage = String.format(format, id, line);
+    throw new IllegalStateException(missingAssertionMessage);
+  }
+
   private static void addParams(TestIssue issue, String params) {
     for (String param : Splitter.on(';').split(params)) {
       int equalIndex = param.indexOf('=');
       if (equalIndex == -1) {
-        throw new IllegalStateException("Invalid param at line 1: " + param);
+        throw new IllegalStateException("Invalid param at line " + issue.line() + ": " + param);
       }
       String name = param.substring(0, equalIndex);
       String value = param.substring(equalIndex + 1);
@@ -237,8 +337,11 @@ public class JavaScriptCheckVerifier extends SubscriptionVisitorCheck {
       } else if ("secondary".equalsIgnoreCase(name)) {
         addSecondaryLines(issue, value);
 
+      } else if ("id".equalsIgnoreCase(name)) {
+        issue.id(value);
+
       } else {
-        throw new IllegalStateException("Invalid param at line 1: " + name);
+        throw new IllegalStateException("Invalid param at line " + issue.line() + ": " + name);
       }
     }
   }
@@ -289,17 +392,5 @@ public class JavaScriptCheckVerifier extends SubscriptionVisitorCheck {
       return ((LineIssue) issue).message();
     }
   }
-
-  private static List<Integer> secondary(Issue issue) {
-    List<Integer> result = new ArrayList<>();
-
-    if (issue instanceof PreciseIssue) {
-      for (IssueLocation issueLocation : ((PreciseIssue) issue).secondaryLocations()) {
-        result.add(issueLocation.startLine());
-      }
-    }
-    return Ordering.natural().sortedCopy(result);
-  }
-
 
 }
