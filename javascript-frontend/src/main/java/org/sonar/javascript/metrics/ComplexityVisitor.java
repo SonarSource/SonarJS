@@ -47,7 +47,10 @@ import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitor;
 public class ComplexityVisitor extends DoubleDispatchVisitor {
 
   private List<Tree> complexityTrees;
+
   private Set<Tree> excludedReturns;
+
+  private boolean isNested;
 
   public int getComplexity(Tree tree) {
     return complexityTrees(tree).size();
@@ -56,38 +59,55 @@ public class ComplexityVisitor extends DoubleDispatchVisitor {
   public List<Tree> complexityTrees(Tree tree) {
     this.complexityTrees = new ArrayList<>();
     this.excludedReturns = new HashSet<>();
+    this.isNested = false;
     scan(tree);
     return this.complexityTrees;
   }
 
   @Override
   public void visitMethodDeclaration(MethodDeclarationTree tree) {
-    add(tree.name());
-    excludeLastReturn(tree.body().statements());
-    super.visitMethodDeclaration(tree);
+    if (!isNested) {
+      add(tree.name());
+      excludeLastReturn(tree.body().statements());
+      isNested = true;
+      super.visitMethodDeclaration(tree);
+      isNested = false;
+    }
   }
 
   @Override
   public void visitFunctionDeclaration(FunctionDeclarationTree tree) {
-    add(tree.functionKeyword());
-    excludeLastReturn(tree.body().statements());
-    super.visitFunctionDeclaration(tree);
+    if (!isNested) {
+      add(tree.functionKeyword());
+      excludeLastReturn(tree.body().statements());
+      isNested = true;
+      super.visitFunctionDeclaration(tree);
+      isNested = false;
+    }
   }
 
   @Override
   public void visitFunctionExpression(FunctionExpressionTree tree) {
-    add(tree.functionKeyword());
-    excludeLastReturn(tree.body().statements());
-    super.visitFunctionExpression(tree);
+    if (!isNested) {
+      add(tree.functionKeyword());
+      excludeLastReturn(tree.body().statements());
+      isNested = true;
+      super.visitFunctionExpression(tree);
+      isNested = false;
+    }
   }
 
   @Override
   public void visitArrowFunction(ArrowFunctionTree tree) {
-    add(tree.doubleArrow());
-    if (tree.body().is(Kind.BLOCK)) {
-      excludeLastReturn(((BlockTree) tree.body()).statements());
+    if (!isNested) {
+      add(tree.doubleArrow());
+      if (tree.body().is(Kind.BLOCK)) {
+        excludeLastReturn(((BlockTree) tree.body()).statements());
+      }
+      isNested = true;
+      super.visitArrowFunction(tree);
+      isNested = false;
     }
-    super.visitArrowFunction(tree);
   }
 
   @Override
