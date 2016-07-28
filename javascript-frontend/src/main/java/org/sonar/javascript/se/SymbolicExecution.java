@@ -32,7 +32,10 @@ import org.sonar.javascript.cfg.CfgBlock;
 import org.sonar.javascript.cfg.CfgBranchingBlock;
 import org.sonar.javascript.cfg.ControlFlowGraph;
 import org.sonar.javascript.se.sv.SymbolicValue;
+import org.sonar.javascript.se.sv.SymbolicValueWithConstraint;
+import org.sonar.javascript.se.sv.UnknownSymbolicValue;
 import org.sonar.javascript.tree.TreeKinds;
+import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.javascript.tree.symbols.Scope;
 import org.sonar.plugins.javascript.api.symbols.Symbol;
 import org.sonar.plugins.javascript.api.tree.Tree;
@@ -46,7 +49,7 @@ import org.sonar.plugins.javascript.api.tree.expression.MemberExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.ParenthesisedExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.UnaryExpressionTree;
 import org.sonar.plugins.javascript.api.tree.statement.ForObjectStatementTree;
-import org.sonar.plugins.javascript.api.tree.statement.StatementTree;
+import org.sonar.plugins.javascript.api.tree.statement.ForStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.VariableDeclarationTree;
 
 import static org.sonar.plugins.javascript.api.symbols.Symbol.Kind.CLASS;
@@ -170,10 +173,7 @@ public class SymbolicExecution {
         }
       }
 
-      if (element.is(Kind.EXPRESSION_STATEMENT)) {
-        currentState = currentState.clearStack();
-
-      } else if (element.is(Kind.IDENTIFIER_REFERENCE) && !isUndefined((IdentifierTree) element)) {
+      if (element.is(Kind.IDENTIFIER_REFERENCE) && !isUndefined((IdentifierTree) element)) {
         SymbolicValue symbolicValue = currentState.getSymbolicValue(((IdentifierTree) element).symbol());
         currentState = currentState.pushToStack(symbolicValue);
 
@@ -201,16 +201,52 @@ public class SymbolicExecution {
         if (variable.is(Kind.BINDING_IDENTIFIER)) {
           currentState = assignment(currentState, variable);
         }
-        currentState = currentState.clearStack();
+        currentState = currentState.clearStack(element);
 
       }
 
       afterBlockElement(currentState, element);
+
+      if (isProducingUnconsumedValue(element)) {
+        currentState = currentState.clearStack(element);
+      }
     }
 
     if (!stopExploring) {
       handleSuccessors(block, currentState);
     }
+  }
+
+  private static boolean isProducingUnconsumedValue(Tree element) {
+    if(element instanceof ExpressionTree) {
+      Tree tree = syntaxTree(element);
+      Tree parent = getParent(tree);
+      if (parent.is(
+        Kind.EXPRESSION_STATEMENT,
+        Kind.FOR_IN_STATEMENT,
+        Kind.FOR_OF_STATEMENT,
+        Kind.SWITCH_STATEMENT,
+        Kind.CASE_CLAUSE,
+        Kind.WITH_STATEMENT)) {
+        return true;
+      } else if (parent.is(Kind.FOR_STATEMENT)) {
+        ForStatementTree forStatementTree = (ForStatementTree) parent;
+        return tree.equals(forStatementTree.init()) || tree.equals(forStatementTree.update());
+      }
+    }
+    return false;
+  }
+
+  private static Tree getParent(Tree tree) {
+    return syntaxTree(((JavaScriptTree) tree).getParent());
+  }
+
+  private static Tree syntaxTree(Tree tree) {
+    Tree syntaxTree = tree;
+    while (syntaxTree.is(Kind.PARENTHESISED_EXPRESSION)) {
+      syntaxTree = ((JavaScriptTree) syntaxTree).getParent();
+    }
+    return syntaxTree;
   }
 
   public static boolean isUndefined(IdentifierTree tree) {
@@ -250,12 +286,6 @@ public class SymbolicExecution {
       CfgBranchingBlock branchingBlock = (CfgBranchingBlock) block;
       Tree branchingTree = branchingBlock.branchingTree();
 
-      SymbolicValue conditionSymbolicValue = currentState.peekStack();
-
-      if (branchingTree instanceof StatementTree) {
-        currentState = currentState.clearStack();
-      }
-
       if (branchingTree.is(
         Kind.CONDITIONAL_EXPRESSION,
         Kind.IF_STATEMENT,
@@ -265,7 +295,7 @@ public class SymbolicExecution {
         Kind.CONDITIONAL_AND,
         Kind.CONDITIONAL_OR)) {
 
-        pushConditionSuccessors(branchingBlock, currentState, conditionSymbolicValue);
+        pushConditionSuccessors(branchingBlock, currentState);
         shouldPushAllSuccessors = false;
 
       } else if (branchingTree.is(Kind.FOR_IN_STATEMENT, Kind.FOR_OF_STATEMENT)) {
@@ -283,7 +313,6 @@ public class SymbolicExecution {
         }
       }
 
-
     }
 
     if (shouldPushAllSuccessors) {
@@ -291,16 +320,37 @@ public class SymbolicExecution {
     }
   }
 
-  private void pushConditionSuccessors(CfgBranchingBlock block, ProgramState currentState, SymbolicValue conditionSymbolicValue) {
+  private void pushConditionSuccessors(CfgBranchingBlock block, ProgramState currentState) {
+    SymbolicValue conditionSymbolicValue = currentState.peekStack();
+    currentState = currentState.removeLastValue();
+
+    if (block.branchingTree().is(Kind.IF_STATEMENT, Kind.WHILE_STATEMENT, Kind.DO_WHILE_STATEMENT, Kind.FOR_STATEMENT)) {
+      currentState.assertEmptyStack(block.branchingTree());
+    }
+
     Tree lastElement = block.elements().get(block.elements().size() - 1);
     for (ProgramState newState : conditionSymbolicValue.constrain(currentState, Constraint.TRUTHY)) {
-      pushSuccessor(block.trueSuccessor(), newState);
+      pushConditionSuccessor(block.trueSuccessor(), newState, conditionSymbolicValue, Constraint.TRUTHY);
       conditionResults.put(lastElement, Truthiness.TRUTHY);
     }
     for (ProgramState newState : conditionSymbolicValue.constrain(currentState, Constraint.FALSY)) {
-      pushSuccessor(block.falseSuccessor(), newState);
+      pushConditionSuccessor(block.falseSuccessor(), newState, conditionSymbolicValue, Constraint.FALSY);
       conditionResults.put(lastElement, Truthiness.FALSY);
     }
+  }
+
+  private void pushConditionSuccessor(
+    CfgBlock successor, ProgramState programState, SymbolicValue conditionSymbolicValue, Constraint constraint) {
+
+    ProgramState state = programState;
+    if (!successor.elements().isEmpty() && successor.elements().get(0).is(Kind.CONDITIONAL_AND, Kind.CONDITIONAL_OR)) {
+      SymbolicValue conditionValue = conditionSymbolicValue;
+      if (UnknownSymbolicValue.UNKNOWN.equals(conditionSymbolicValue)) {
+        conditionValue = new SymbolicValueWithConstraint(constraint);
+      }
+      state = state.pushToStack(conditionValue);
+    }
+    pushSuccessor(successor, state);
   }
 
   private ProgramState newSymbolicValue(ProgramState currentState, Tree left) {

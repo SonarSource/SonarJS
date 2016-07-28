@@ -167,11 +167,6 @@ public class ExpressionStack {
         pop(newStack, ((CallExpressionTree) expression).arguments().parameters().size() + 1);
         pushUnknown(newStack);
         break;
-      case CONDITIONAL_EXPRESSION:
-        SymbolicValue result = newStack.pop();
-        newStack.pop();
-        newStack.push(result);
-        break;
       case FUNCTION_EXPRESSION:
       case GENERATOR_FUNCTION_EXPRESSION:
       case ARROW_FUNCTION:
@@ -252,6 +247,11 @@ public class ExpressionStack {
         SymbolicValue assignedValue = newStack.pop();
         newStack.pop();
         newStack.push(assignedValue);
+        break;
+      case CONDITIONAL_AND:
+      case CONDITIONAL_OR:
+      case CONDITIONAL_EXPRESSION:
+        // do nothing
         break;
       default:
         throw new IllegalArgumentException("Unexpected kind of expression to execute: " + kind);

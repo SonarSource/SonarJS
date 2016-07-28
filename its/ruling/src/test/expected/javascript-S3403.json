@@ -2,6 +2,10 @@
 'project:dojo-1.8.1/dojox/drawing/defaults.js.uncompressed.js':[
 256,
 ],
+'project:dojo-1.8.1/dojox/json/schema.js.uncompressed.js':[
+148,
+152,
+],
 'project:ecmascript6/redux/src/utils/bindActionCreators.js':[
 33,
 ],
@@ -13,6 +17,9 @@
 ],
 'project:processing-1.3.6.js':[
 4160,
+],
+'project:qunit-1.8.0.js':[
+1532,
 ],
 'project:yui-3.7.3/event-base-ie/event-base-ie.js':[
 111,

@@ -105,4 +105,8 @@ function main() {
     makeLive(z);
   }
 
+  x = foo() && 42;
+  dummyStatement(); // PS x=FALSY || x=TRUTHY_NUMBER
+  makeLive(x);
+
 }

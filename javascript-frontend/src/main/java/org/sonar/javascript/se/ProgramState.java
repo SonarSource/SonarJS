@@ -19,6 +19,7 @@
  */
 package org.sonar.javascript.se;
 
+import com.google.common.base.Preconditions;
 import com.google.common.base.Predicates;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableMap.Builder;
@@ -34,7 +35,9 @@ import javax.annotation.Nullable;
 import org.sonar.javascript.se.sv.SimpleSymbolicValue;
 import org.sonar.javascript.se.sv.SymbolicValue;
 import org.sonar.javascript.se.sv.UnknownSymbolicValue;
+import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.plugins.javascript.api.symbols.Symbol;
+import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 
 /**
@@ -187,8 +190,23 @@ public class ProgramState {
     return new ProgramState(values, constraints, stack.push(value), counter);
   }
 
-  public ProgramState clearStack() {
+  public ProgramState removeLastValue() {
+    return new ProgramState(values, constraints, stack.removeLastValue(), counter);
+  }
+
+  public ProgramState clearStack(Tree element) {
+    Preconditions.checkState(
+      stack.size() == 1,
+      "Stack should contain only one element before being cleaned at line %s: %s", line(element), stack);
     return new ProgramState(values, constraints, ExpressionStack.emptyStack(), counter);
+  }
+
+  public void assertEmptyStack(Tree element) {
+    Preconditions.checkState(stack.isEmpty(), "Stack should be empty at line %s: %s", line(element), stack);
+  }
+
+  private static int line(Tree element) {
+    return ((JavaScriptTree) element).getLine();
   }
 
   public ProgramState execute(ExpressionTree expression) {

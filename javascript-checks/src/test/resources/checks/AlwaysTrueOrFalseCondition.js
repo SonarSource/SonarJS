@@ -42,6 +42,28 @@ function not_condition() {
 function and_condition() {
   var a = random();
   if (a && !a) {} // Noncompliant {{Change this condition so that it does not always evaluate to "false".}}
+//         ^^
+  while (a && !a) {} // Noncompliant
+//            ^^
+  do {} while (a && !a) // Noncompliant
+//                  ^^
+  for(;a && !a;) {} // Noncompliant
+//          ^^
+}
+
+function ternary_operator() {
+  var x
+  x ? 0 : 42; // Noncompliant
+//^
+  x = foo();
+  (x && !x) ? 0 : 42; // Noncompliant
+//      ^^
+}
+
+function condition_in_expression() {
+  var x = foo();
+  return x && x !== null && foo; // Noncompliant
+//            ^^^^^^^^^^
 }
 
 function or_condition() {

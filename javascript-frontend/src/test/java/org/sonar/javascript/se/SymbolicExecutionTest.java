@@ -67,7 +67,7 @@ public class SymbolicExecutionTest {
   public void stop_after_npe() throws Exception {
     verifySE("stop_after_npe.js");
   }
-  
+
   @Test
   public void conditions() throws Exception {
     verifySE("conditions.js");
@@ -118,6 +118,18 @@ public class SymbolicExecutionTest {
     verifySE("func_decl.js");
   }
 
+  @Test
+  public void expression_stack_size() throws Exception {
+    // should not fail
+    verifySE("expression_stack_size.js");
+  }
+
+  @Test
+  public void for_without_condition() throws Exception {
+    // should not fail
+    verifySE("for_without_condition.js");
+  }
+
   private void runSe(String filename) {
     JavaScriptVisitorContext context = createContext(new File("src/test/resources/se/", filename));
     verifier.scanExpectedIssues(context);
@@ -128,6 +140,7 @@ public class SymbolicExecutionTest {
   private void verifySE(String filename) {
     runSe(filename);
     verifier.verify();
+    assertThat(verifier.endOfExecution).isTrue();
   }
 
   private static JavaScriptVisitorContext createContext(File file) {

@@ -36,7 +36,6 @@ import org.sonar.javascript.tree.symbols.Scope;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.declaration.FunctionTree;
-import org.sonar.plugins.javascript.api.tree.expression.BinaryExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.ParenthesisedExpressionTree;
 import org.sonar.plugins.javascript.api.tree.statement.BlockTree;
@@ -114,12 +113,7 @@ public class NonEmptyCaseWithoutBreakCheck extends DoubleDispatchVisitorCheck {
   }
 
   private static void addCaseExpression(Set<Tree> caseExpressions, ExpressionTree expression) {
-    if (expression.is(Kind.CONDITIONAL_OR, Kind.CONDITIONAL_AND)) {
-      BinaryExpressionTree binary = (BinaryExpressionTree) expression;
-      // The operands of a "||" or "&&" are valid predecessors for switch clause statements
-      addCaseExpression(caseExpressions, binary.leftOperand());
-      addCaseExpression(caseExpressions, binary.rightOperand());
-    } else if (expression.is(Kind.PARENTHESISED_EXPRESSION)) {
+    if (expression.is(Kind.PARENTHESISED_EXPRESSION)) {
       addCaseExpression(caseExpressions, ((ParenthesisedExpressionTree) expression).expression());
     } else {
       caseExpressions.add(expression);

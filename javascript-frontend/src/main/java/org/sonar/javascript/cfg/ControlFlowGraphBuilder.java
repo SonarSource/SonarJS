@@ -43,6 +43,7 @@ import org.sonar.plugins.javascript.api.tree.expression.BinaryExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.CallExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.ComputedPropertyNameTree;
 import org.sonar.plugins.javascript.api.tree.expression.ConditionalExpressionTree;
+import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.MemberExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.NewExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.ObjectLiteralTree;
@@ -242,7 +243,7 @@ class ControlFlowGraphBuilder {
   }
 
   private void buildExpression(Tree tree) {
-    if (!tree.is(Kind.CONDITIONAL_OR, Kind.CONDITIONAL_AND, Kind.PARENTHESISED_EXPRESSION)) {
+    if (!tree.is(Kind.PARENTHESISED_EXPRESSION)) {
       currentBlock.addElement(tree);
     }
 
@@ -315,8 +316,9 @@ class ControlFlowGraphBuilder {
         currentBlock = createSimpleBlock(currentBlock);
       }
       buildExpression(binary.rightOperand());
+      JsCfgBlock trueSuccessor = currentBlock;
       currentBlock = createBranchingBlock(tree, currentBlock, falseSuccessor);
-      buildExpression(binary.leftOperand());
+      buildCondition(binary.leftOperand(), trueSuccessor, falseSuccessor);
 
     } else if (tree.is(Kind.CONDITIONAL_OR)) {
       BinaryExpressionTree binary = (BinaryExpressionTree) tree;
@@ -326,8 +328,9 @@ class ControlFlowGraphBuilder {
         currentBlock = createSimpleBlock(currentBlock);
       }
       buildExpression(binary.rightOperand());
+      JsCfgBlock falseSuccessor = currentBlock;
       currentBlock = createBranchingBlock(tree, trueSuccessor, currentBlock);
-      buildExpression(binary.leftOperand());
+      buildCondition(binary.leftOperand(), trueSuccessor, falseSuccessor);
 
     } else if (tree.is(Kind.CONDITIONAL_EXPRESSION)) {
       ConditionalExpressionTree conditionalExpression = (ConditionalExpressionTree) tree;
@@ -339,7 +342,7 @@ class ControlFlowGraphBuilder {
       buildExpression(conditionalExpression.trueExpression());
       JsCfgBlock trueBlock = currentBlock;
       currentBlock = createBranchingBlock(tree, trueBlock, falseBlock);
-      buildExpression(conditionalExpression.condition());
+      buildCondition(conditionalExpression.condition(), trueBlock, falseBlock);
 
     } else if (tree.is(Kind.SPREAD_ELEMENT)) {
       SpreadElementTree spreadElement = (SpreadElementTree) tree;
@@ -367,6 +370,31 @@ class ControlFlowGraphBuilder {
       if (yieldExpression.argument() != null) {
         buildExpression(yieldExpression.argument());
       }
+    }
+  }
+
+  private void buildCondition(ExpressionTree expression, JsCfgBlock trueBlock, JsCfgBlock falseBlock) {
+    JsCfgBlock trueSuccessor = trueBlock;
+    JsCfgBlock falseSuccessor = falseBlock;
+    if (expression.is(Kind.CONDITIONAL_AND)) {
+      BinaryExpressionTree binary = (BinaryExpressionTree) expression;
+      buildCondition(binary.rightOperand(), trueSuccessor, falseSuccessor);
+      trueSuccessor = currentBlock;
+      currentBlock = createBranchingBlock(expression, trueSuccessor, falseSuccessor);
+      buildCondition(binary.leftOperand(), trueSuccessor, falseSuccessor);
+
+    } else if (expression.is(Kind.CONDITIONAL_OR)) {
+      BinaryExpressionTree binary = (BinaryExpressionTree) expression;
+      buildCondition(binary.rightOperand(), trueSuccessor, falseSuccessor);
+      falseSuccessor = currentBlock;
+      currentBlock = createBranchingBlock(expression, trueSuccessor, falseSuccessor);
+      buildCondition(binary.leftOperand(), trueSuccessor, falseSuccessor);
+
+    } else if (expression.is(Kind.PARENTHESISED_EXPRESSION)) {
+      buildCondition(((ParenthesisedExpressionTree) expression).expression(), trueSuccessor, falseSuccessor);
+
+    } else {
+      buildExpression(expression);
     }
   }
 
@@ -441,7 +469,7 @@ class ControlFlowGraphBuilder {
     JsCfgBlock thenBlock = currentBlock;
     JsCfgBranchingBlock branchingBlock = createBranchingBlock(tree, thenBlock, elseBlock);
     currentBlock = branchingBlock;
-    buildExpression(tree.condition());
+    buildCondition(tree.condition(), thenBlock, elseBlock);
   }
 
   private void visitForStatement(ForStatementTree tree) {
@@ -461,7 +489,7 @@ class ControlFlowGraphBuilder {
 
     if (tree.condition() != null) {
       currentBlock = createBranchingBlock(tree, loopBodyBlock, forStatementSuccessor);
-      buildExpression(tree.condition());
+      buildCondition(tree.condition(), loopBodyBlock, forStatementSuccessor);
       linkToCondition.setSuccessor(currentBlock);
     } else {
       linkToCondition.setSuccessor(loopBodyBlock);
@@ -492,7 +520,7 @@ class ControlFlowGraphBuilder {
     JsCfgForwardingBlock linkToCondition = createForwardingBlock();
     JsCfgBlock loopBodyBlock = buildLoopBody(tree.statement(), linkToCondition, successor);
     currentBlock = createBranchingBlock(tree, loopBodyBlock, successor);
-    buildExpression(tree.condition());
+    buildCondition(tree.condition(), loopBodyBlock, successor);
     linkToCondition.setSuccessor(currentBlock);
     currentBlock = createSimpleBlock(currentBlock);
   }
@@ -501,7 +529,7 @@ class ControlFlowGraphBuilder {
     JsCfgBlock successor = currentBlock;
     JsCfgForwardingBlock linkToBody = createForwardingBlock();
     currentBlock = createBranchingBlock(tree, linkToBody, successor);
-    buildExpression(tree.condition());
+    buildCondition(tree.condition(), linkToBody, successor);
     JsCfgBlock loopBodyBlock = buildLoopBody(tree.statement(), currentBlock, successor);
     linkToBody.setSuccessor(loopBodyBlock);
     currentBlock = createSimpleBlock(loopBodyBlock);
