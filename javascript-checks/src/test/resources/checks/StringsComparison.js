@@ -11,4 +11,8 @@ function foo() {
   foo(str1 > num);
   foo(num <= str2);
 
+  // OK, ignore comparison with one symbol string literal
+  foo(str1 < 'a');
+  foo(str1 < '9');
+  foo(str1 < '\uFEF5'); // Noncompliant. Should we cover this case as well?
 }

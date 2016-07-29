@@ -19,13 +19,20 @@
  */
 package org.sonar.javascript.checks;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Map.Entry;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
-import org.sonar.plugins.javascript.api.symbols.Type;
+import org.sonar.javascript.se.Constraint;
+import org.sonar.javascript.se.ProgramState;
+import org.sonar.javascript.se.SeCheck;
+import org.sonar.javascript.se.Type;
+import org.sonar.javascript.tree.symbols.Scope;
+import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.expression.BinaryExpressionTree;
-import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
-import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
+import org.sonar.plugins.javascript.api.tree.expression.LiteralTree;
 import org.sonar.squidbridge.annotations.ActivatedByDefault;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 
@@ -36,7 +43,7 @@ import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
   tags = Tags.SUSPICIOUS)
 @ActivatedByDefault
 @SqaleConstantRemediation("5min")
-public class StringsComparisonCheck extends DoubleDispatchVisitorCheck {
+public class StringsComparisonCheck extends SeCheck {
 
   private static final String MESSAGE = "Convert operands of this use of \"%s\" to number type.";
 
@@ -47,13 +54,56 @@ public class StringsComparisonCheck extends DoubleDispatchVisitorCheck {
     Kind.GREATER_THAN_OR_EQUAL_TO
   };
 
+  // For each string comparison tree this map contains true if types of operands are sting in all execution paths, true if not in at least one execution path
+  private Map<BinaryExpressionTree, Boolean> stringsComparisons = new HashMap<>();
+
   @Override
-  public void visitBinaryExpression(BinaryExpressionTree tree) {
-    if (tree.is(RELATIVE_OPERATIONS) && isString(tree.leftOperand()) && isString(tree.rightOperand())) {
-      raiseIssue(tree);
+  public void beforeBlockElement(ProgramState currentState, Tree element) {
+    if (element.is(RELATIVE_OPERATIONS)) {
+
+      BinaryExpressionTree comparison = (BinaryExpressionTree) element;
+
+      Constraint rightConstraint = currentState.getConstraint(currentState.peekStack(0));
+      Constraint leftConstraint = currentState.getConstraint(currentState.peekStack(1));
+
+      Type rightType = rightConstraint.type();
+      Type leftType = leftConstraint.type();
+
+      boolean stringsCompared = rightType == Type.STRING && leftType == Type.STRING;
+
+      if (!stringsCompared) {
+        stringsComparisons.put(comparison, false);
+
+      } else if (!stringsComparisons.containsKey(comparison)) {
+        stringsComparisons.put(comparison, true);
+      }
+    }
+  }
+
+  @Override
+  public void startOfExecution(Scope functionScope) {
+    stringsComparisons.clear();
+  }
+
+  @Override
+  public void endOfExecution(Scope functionScope) {
+    for (Entry<BinaryExpressionTree, Boolean> entry : stringsComparisons.entrySet()) {
+      if (entry.getValue() && !hasOneSymbolLiteralOperand(entry.getKey())) {
+        raiseIssue(entry.getKey());
+      }
+    }
+  }
+
+  private static boolean hasOneSymbolLiteralOperand(BinaryExpressionTree expression) {
+    LiteralTree literal =  null;
+    if (expression.leftOperand().is(Kind.STRING_LITERAL)) {
+      literal = (LiteralTree) expression.leftOperand();
+
+    } else if (expression.rightOperand().is(Kind.STRING_LITERAL)) {
+      literal = (LiteralTree) expression.rightOperand();
     }
 
-    super.visitBinaryExpression(tree);
+    return literal != null && literal.value().length() == 3;
   }
 
   private void raiseIssue(BinaryExpressionTree tree) {
@@ -62,10 +112,5 @@ public class StringsComparisonCheck extends DoubleDispatchVisitorCheck {
     addIssue(tree.operator(), message)
       .secondary(tree.leftOperand())
       .secondary(tree.rightOperand());
-  }
-
-  private static boolean isString(ExpressionTree expression) {
-    Type type = expression.types().getUniqueKnownType();
-    return type != null && type.kind() == Type.Kind.STRING;
   }
 }
