@@ -67,6 +67,7 @@
     <gitRepositoryName>sonar-javascript</gitRepositoryName>
     <license.title>SonarQube JavaScript Plugin</license.title>
 
+    <assertj.version>3.5.2</assertj.version>
     <commons-io.version>1.3.2</commons-io.version>
     <commons-lang.version>2.6</commons-lang.version>
     <fest-assert.version>1.4</fest-assert.version>
@@ -78,6 +79,7 @@
     <slf4j.version>1.7.21</slf4j.version>
     <sonar.version>5.6</sonar.version>
     <sonar-orchestrator.version>3.10.1</sonar-orchestrator.version>
+    <sonarlint.version>2.3.2</sonarlint.version>
     <sslr.version>1.21</sslr.version>
     <sslr-squid-bridge.version>2.6.1</sslr-squid-bridge.version>
   </properties>
@@ -160,6 +162,12 @@
       </dependency>
 
       <dependency>
+        <groupId>org.sonarsource.sonarlint.core</groupId>
+         <artifactId>sonarlint-core</artifactId>
+         <version>${sonarlint.version}</version>
+      </dependency>
+
+      <dependency>
          <groupId>org.sonarsource.orchestrator</groupId>
          <artifactId>sonar-orchestrator</artifactId>
          <version>${sonar-orchestrator.version}</version>
@@ -202,10 +210,18 @@
         <version>${hamcrest.version}</version>
       </dependency>
 
+      <!-- Do not create new dependencies on fest-assert, use assertj instead -->
       <dependency>
         <groupId>org.easytesting</groupId>
         <artifactId>fest-assert</artifactId>
         <version>${fest-assert.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.assertj</groupId>
+        <artifactId>assertj-core</artifactId>
+        <version>${assertj.version}</version>
+        <scope>test</scope>
       </dependency>
 
       <dependency>
