@@ -17,19 +17,21 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.javascript.parser;
+package org.sonar.javascript.tree.impl;
 
-import com.sonar.sslr.api.typed.ActionParser;
-import java.nio.charset.Charset;
-import org.sonar.plugins.javascript.api.tree.Tree;
+import org.junit.Test;
+import org.sonar.javascript.tree.impl.expression.BinaryExpressionTreeImpl;
+import org.sonar.javascript.utils.JavaScriptTreeModelTest;
+import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 
-public final class JavaScriptParserBuilder {
+import static org.fest.assertions.Assertions.assertThat;
 
-  private JavaScriptParserBuilder() {
-  }
+public class JavaScriptTreeTest extends JavaScriptTreeModelTest {
 
-  public static ActionParser<Tree> createParser(Charset charset) {
-    return new JavaScriptParser(charset);
+  @Test
+  public void parent() throws Exception {
+    BinaryExpressionTreeImpl tree = parse("a + b", Kind.PLUS);
+    assertThat(tree.getParent().is(Kind.EXPRESSION_STATEMENT)).isTrue();
   }
 
 }

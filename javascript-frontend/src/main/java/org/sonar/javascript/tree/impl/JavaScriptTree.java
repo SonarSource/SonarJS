@@ -25,6 +25,8 @@ import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 
 public abstract class JavaScriptTree implements Tree {
 
+  private Tree parent;
+
   public int getLine() {
     return getFirstToken().line();
   }
@@ -81,5 +83,13 @@ public abstract class JavaScriptTree implements Tree {
       }
     } while (child == null);
     return ((JavaScriptTree) child).getFirstToken();
+  }
+
+  public void setParent(Tree parent) {
+    this.parent = parent;
+  }
+
+  public Tree getParent() {
+    return parent;
   }
 }

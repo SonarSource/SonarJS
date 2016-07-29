@@ -20,16 +20,47 @@
 package org.sonar.javascript.parser;
 
 import com.sonar.sslr.api.typed.ActionParser;
+import java.io.File;
 import java.nio.charset.Charset;
+import java.util.Iterator;
+import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
 
-public final class JavaScriptParserBuilder {
+public class JavaScriptParser extends ActionParser<Tree> {
 
-  private JavaScriptParserBuilder() {
+  public JavaScriptParser(Charset charset) {
+    super(
+      charset,
+      JavaScriptLegacyGrammar.createGrammarBuilder(),
+      JavaScriptGrammar.class,
+      new TreeFactory(),
+      new JavaScriptNodeBuilder(),
+      JavaScriptLegacyGrammar.SCRIPT);
   }
 
-  public static ActionParser<Tree> createParser(Charset charset) {
-    return new JavaScriptParser(charset);
+  @Override
+  public Tree parse(File file) {
+    return setParents(super.parse(file));
+  }
+
+  @Override
+  public Tree parse(String source) {
+    return setParents(super.parse(source));
+  }
+
+  private static Tree setParents(Tree tree) {
+    JavaScriptTree jsTree = (JavaScriptTree) tree;
+    Iterator<Tree> childrenIterator = jsTree.childrenIterator();
+    while (childrenIterator.hasNext()) {
+      JavaScriptTree child = (JavaScriptTree) childrenIterator.next();
+      if (child != null) {
+        child.setParent(tree);
+        if (!child.isLeaf()) {
+          setParents(child);
+        }
+      }
+    }
+    return tree;
   }
 
 }
