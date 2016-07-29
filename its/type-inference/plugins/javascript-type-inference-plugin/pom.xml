@@ -32,7 +32,6 @@
     <dependency>
       <groupId>com.google.guava</groupId>
       <artifactId>guava</artifactId>
-      <version>19.0</version>
     </dependency>
   </dependencies>
 
@@ -41,7 +40,6 @@
       <plugin>
         <groupId>org.sonarsource.sonar-packaging-maven-plugin</groupId>
         <artifactId>sonar-packaging-maven-plugin</artifactId>
-        <version>1.16</version>
         <extensions>true</extensions>
         <configuration>
           <pluginClass>org.sonar.samples.javascript.JavaScriptTypeInferencePlugin</pluginClass>
@@ -49,9 +47,7 @@
       </plugin>
 
       <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
-        <version>2.3.2</version>
         <configuration>
           <source>1.7</source>
           <target>1.7</target>
