@@ -27,7 +27,8 @@ public enum Type {
   UNDEFINED(Constraint.UNDEFINED),
   FUNCTION(Constraint.FUNCTION),
   ARRAY(Constraint.ARRAY),
-  OTHER_OBJECT(Constraint.OTHER_OBJECT);
+  OTHER_OBJECT(Constraint.OTHER_OBJECT),
+  OBJECT(Constraint.OBJECT);
 
   private Constraint constraint;
 

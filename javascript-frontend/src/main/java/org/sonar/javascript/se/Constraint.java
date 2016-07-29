@@ -80,6 +80,7 @@ public class Constraint {
   public static final Constraint NUMBER = or(ZERO, NAN, TRUTHY_NUMBER);
   public static final Constraint STRING = or(EMPTY_STRING, TRUTHY_STRING);
   public static final Constraint BOOLEAN = or(TRUE, FALSE);
+  public static final Constraint OBJECT = or(ARRAY, FUNCTION, OTHER_OBJECT);
 
   private static final Map<Constraint, String> COMMON_CONSTRAINT_NAMES = ImmutableMap.<Constraint, String>builder()
     .put(ANY_VALUE, "ANY_VALUE")

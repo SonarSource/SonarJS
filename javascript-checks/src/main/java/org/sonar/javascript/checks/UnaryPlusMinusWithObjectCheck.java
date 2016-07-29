@@ -19,18 +19,22 @@
  */
 package org.sonar.javascript.checks;
 
-import com.google.common.collect.ImmutableList;
 import java.util.EnumSet;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Map.Entry;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.javascript.checks.utils.CheckUtils;
-import org.sonar.plugins.javascript.api.symbols.Type;
+import org.sonar.javascript.se.Constraint;
+import org.sonar.javascript.se.ProgramState;
+import org.sonar.javascript.se.SeCheck;
+import org.sonar.javascript.se.Type;
+import org.sonar.javascript.tree.symbols.Scope;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.expression.UnaryExpressionTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
-import org.sonar.plugins.javascript.api.visitors.SubscriptionVisitorCheck;
 import org.sonar.squidbridge.annotations.ActivatedByDefault;
 import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 
@@ -41,42 +45,60 @@ import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
   tags = {Tags.BUG})
 @SqaleConstantRemediation("15min")
 @ActivatedByDefault
-public class UnaryPlusMinusWithObjectCheck extends SubscriptionVisitorCheck {
+public class UnaryPlusMinusWithObjectCheck extends SeCheck {
 
   private static final String MESSAGE = "Remove this use of unary \"%s\".";
 
-  private static final EnumSet<Type.Kind> ALLOWED_TYPES = EnumSet.of(
-    Type.Kind.BOOLEAN,
-    Type.Kind.NUMBER,
-    Type.Kind.STRING
+  private static final EnumSet<Type> NOT_ALLOWED_TYPES = EnumSet.of(
+    Type.OTHER_OBJECT,
+    Type.ARRAY,
+    Type.FUNCTION,
+    Type.OBJECT
   );
 
+  // For each unary +/- expression tree this map contains true if type is object in all execution paths, true if type is not object in at least one execution path
+  private Map<UnaryExpressionTree, Boolean> objectTypes = new HashMap<>();
+
   @Override
-  public List<Kind> nodesToVisit() {
-    return ImmutableList.<Kind>builder()
-      .add(Kind.UNARY_MINUS)
-      .add(Kind.UNARY_PLUS)
-      .build();
+  public void beforeBlockElement(ProgramState currentState, Tree element) {
+    if (element.is(Kind.UNARY_MINUS, Kind.UNARY_PLUS)) {
+
+      UnaryExpressionTree unaryExpression = (UnaryExpressionTree) element;
+
+      Constraint constraint = currentState.getConstraint(currentState.peekStack());
+
+      Type type = constraint.type();
+
+      boolean objectType = type != null && NOT_ALLOWED_TYPES.contains(type);
+
+      if (!objectType) {
+        objectTypes.put(unaryExpression, false);
+
+      } else if (!objectTypes.containsKey(unaryExpression)) {
+        objectTypes.put(unaryExpression, true);
+      }
+    }
   }
 
   @Override
-  public void visitNode(Tree tree) {
-    UnaryExpressionTree unaryExpression = (UnaryExpressionTree) tree;
-    Type type = unaryExpression.expression().types().getUniqueKnownType();
-    if (type != null) {
-      boolean isDateException = isDateException(tree, type);
-      if (!isDateException && !ALLOWED_TYPES.contains(type.kind())) {
-        SyntaxToken operator = unaryExpression.operator();
+  public void endOfExecution(Scope functionScope) {
+    for (Entry<UnaryExpressionTree, Boolean> entry : objectTypes.entrySet()) {
+      if (entry.getValue() && !isDateException(entry.getKey())) {
+        SyntaxToken operator = entry.getKey().operator();
         addIssue(operator, String.format(MESSAGE, operator.text()));
       }
     }
   }
 
-  private static boolean isDateException(Tree tree, Type type) {
+  @Override
+  public void startOfExecution(Scope functionScope) {
+    objectTypes.clear();
+  }
+
+  private static boolean isDateException(Tree tree) {
     if (tree.is(Kind.UNARY_PLUS)) {
       String exprString = CheckUtils.asString(((UnaryExpressionTree) tree).expression());
-      boolean isDateName = exprString.contains("Date") || exprString.contains("date");
-      return type.kind() == Type.Kind.DATE || isDateName;
+      return exprString.contains("Date") || exprString.contains("date");
     }
     return false;
   }
