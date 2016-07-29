@@ -236,13 +236,11 @@ public class TypeVisitor extends DoubleDispatchVisitor {
   public void visitIdentifier(IdentifierTree tree) {
     if (jQueryHelper.isJQueryObject(tree)) {
       addType(tree, ObjectType.FrameworkType.JQUERY_OBJECT);
-    }
 
-    if (WebAPI.isDocument(tree)) {
+    } else if (WebAPI.isDocument(tree)) {
       addType(tree, ObjectType.WebApiType.DOCUMENT);
-    }
 
-    if (forLoopVariable) {
+    } else if (forLoopVariable || (tree.symbol() != null && tree.symbol().builtIn() && tree.types().isEmpty())) {
       addType(tree, PrimitiveType.UNKNOWN);
     }
   }

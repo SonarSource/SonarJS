@@ -248,11 +248,32 @@ public class HoistedSymbolVisitor extends DoubleDispatchVisitor {
     leaveScope();
   }
 
+  /**
+   * In JS class declarations are not hoisted, but we hoist to be able to resolve it's usages in functions declared above declaration
+   */
   @Override
   public void visitClass(ClassTree tree) {
     enterScope(tree);
 
     addThisSymbol(tree);
+
+
+    IdentifierTree classNameIdentifier = tree.name();
+
+    if (classNameIdentifier != null) {
+      if (tree.is(Kind.CLASS_DECLARATION)) {
+        declareClassSymbol(classNameIdentifier, getFunctionScope());
+        enterScope(tree);
+
+      } else {
+        enterScope(tree);
+        declareClassSymbol(classNameIdentifier, currentScope);
+      }
+
+    } else {
+      enterScope(tree);
+    }
+
     super.visitClass(tree);
 
     leaveScope();
@@ -327,6 +348,11 @@ public class HoistedSymbolVisitor extends DoubleDispatchVisitor {
     if (currentScope != null) {
       currentScope = currentScope.outer();
     }
+  }
+
+  private void declareClassSymbol(IdentifierTree classNameIdentifier, Scope scope) {
+    symbolModel.declareSymbol(classNameIdentifier.name(), Symbol.Kind.CLASS, scope)
+      .addUsage(Usage.create(classNameIdentifier, Usage.Kind.DECLARATION));
   }
 
 }

@@ -19,7 +19,6 @@
  */
 package org.sonar.javascript.checks;
 
-import com.google.common.base.Preconditions;
 import java.util.LinkedList;
 import java.util.List;
 import org.sonar.plugins.javascript.api.symbols.Symbol;
@@ -36,7 +35,9 @@ public abstract class AbstractSymbolNameCheck extends DoubleDispatchVisitorCheck
   @Override
   public void visitScript(ScriptTree tree) {
     for (Symbol symbol : getIllegalSymbols()) {
-      raiseIssuesOnDeclarations(symbol, getMessage(symbol));
+      if (!symbol.builtIn()) {
+        raiseIssuesOnDeclarations(symbol, getMessage(symbol));
+      }
     }
   }
 
@@ -50,7 +51,6 @@ public abstract class AbstractSymbolNameCheck extends DoubleDispatchVisitorCheck
   }
 
   protected void raiseIssuesOnDeclarations(Symbol symbol, String message) {
-    Preconditions.checkArgument(!symbol.builtIn());
 
     boolean issueRaised = false;
     for (Usage usage : symbol.usages()) {

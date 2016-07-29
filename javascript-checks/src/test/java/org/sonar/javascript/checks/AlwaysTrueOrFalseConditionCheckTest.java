@@ -23,7 +23,6 @@ import com.google.common.collect.ImmutableList;
 import java.io.File;
 import org.junit.Test;
 import org.sonar.javascript.checks.verifier.JavaScriptCheckVerifier;
-import org.sonar.javascript.se.SeCheck;
 import org.sonar.javascript.se.SeChecksDispatcher;
 
 public class AlwaysTrueOrFalseConditionCheckTest {
@@ -31,8 +30,15 @@ public class AlwaysTrueOrFalseConditionCheckTest {
   @Test
   public void test() {
     JavaScriptCheckVerifier.verify(
-      new SeChecksDispatcher(ImmutableList.<SeCheck>of(new AlwaysTrueOrFalseConditionCheck())),
+      new SeChecksDispatcher(ImmutableList.of(new AlwaysTrueOrFalseConditionCheck())),
       new File("src/test/resources/checks/AlwaysTrueOrFalseCondition.js"));
+  }
+
+  @Test
+  public void global() {
+    JavaScriptCheckVerifier.verify(
+      new SeChecksDispatcher(ImmutableList.of(new AlwaysTrueOrFalseConditionCheck())),
+      new File("src/test/resources/checks/AlwaysTrueOrFalseCondition_global.js"));
   }
 
 }

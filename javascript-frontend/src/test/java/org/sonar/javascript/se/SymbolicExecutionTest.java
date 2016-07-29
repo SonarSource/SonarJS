@@ -111,7 +111,7 @@ public class SymbolicExecutionTest {
   private void runSe(String filename) {
     JavaScriptVisitorContext context = createContext(new File("src/test/resources/se/", filename));
     verifier.scanExpectedIssues(context);
-    SeChecksDispatcher seChecksDispatcher = new SeChecksDispatcher(ImmutableList.of((SeCheck) verifier));
+    SeChecksDispatcher seChecksDispatcher = new SeChecksDispatcher(ImmutableList.of(verifier));
     seChecksDispatcher.scanTree(context);
   }
 

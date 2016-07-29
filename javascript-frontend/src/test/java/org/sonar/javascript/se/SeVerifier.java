@@ -152,8 +152,8 @@ class SeVerifier extends SeCheck {
   }
 
   @Override
-  public void startOfExecution(Scope functionScope) {
-    if (functionScope.tree().is(Kind.FUNCTION_DECLARATION) && ((FunctionDeclarationTree) functionScope.tree()).name().name().equals("main")) {
+  public void startOfExecution(Scope scope) {
+    if (scope.tree().is(Kind.FUNCTION_DECLARATION) && ((FunctionDeclarationTree) scope.tree()).name().name().equals("main")) {
       insideFunction = true;
       endOfExecution = false;
       previousPS = null;
@@ -186,7 +186,7 @@ class SeVerifier extends SeCheck {
   }
 
   @Override
-  public void endOfExecution(Scope functionScope) {
+  public void endOfExecution(Scope scope) {
     if (previousPS != null) {
       actualProgramStates.put(previousPSLine, previousPS);
     }

@@ -36,12 +36,12 @@ import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
  */
 public class LocalVariables {
 
-  private final Scope functionScope;
+  private final Scope scope;
   private final Set<Symbol> trackableVariables = new HashSet<>();
   private final Set<Symbol> functionParameters = new HashSet<>();
 
-  public LocalVariables(Scope functionScope, ControlFlowGraph cfg) {
-    this.functionScope = functionScope;
+  public LocalVariables(Scope scope, ControlFlowGraph cfg) {
+    this.scope = scope;
     SetMultimap<Symbol, IdentifierTree> localVarIdentifiersInCfg = HashMultimap.create();
 
     for (CfgBlock block : cfg.blocks()) {
@@ -93,13 +93,6 @@ public class LocalVariables {
   }
 
   private boolean isLocalVariable(Symbol symbol) {
-    Scope scope = symbol.scope();
-    while (!scope.isGlobal()) {
-      if (scope.equals(functionScope)) {
-        return true;
-      }
-      scope = scope.outer();
-    }
-    return false;
+    return symbol.scope().getOuterFunctionalScope().equals(scope);
   }
 }

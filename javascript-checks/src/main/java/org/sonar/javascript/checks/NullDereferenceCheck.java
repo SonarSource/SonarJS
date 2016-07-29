@@ -52,7 +52,7 @@ public class NullDereferenceCheck extends SeCheck {
   private Set<Symbol> hasIssue;
 
   @Override
-  public void startOfExecution(Scope functionScope) {
+  public void startOfExecution(Scope scope) {
     hasIssue = new HashSet<>();
   }
 

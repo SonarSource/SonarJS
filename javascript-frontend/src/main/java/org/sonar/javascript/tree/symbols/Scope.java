@@ -99,4 +99,12 @@ public class Scope {
   public boolean isBlock() {
     return isBlock;
   }
+
+  public Scope getOuterFunctionalScope() {
+    Scope functionalOuterScope = this;
+    while (functionalOuterScope.isBlock()) {
+      functionalOuterScope = functionalOuterScope.outer();
+    }
+    return functionalOuterScope;
+  }
 }

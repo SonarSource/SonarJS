@@ -19,3 +19,23 @@ function main(p1, p2) {
     foobar(y); // PS y=UNKNOWN & !x
   }
 }
+
+// GLOBAL SCOPE
+
+var globalNeverRead = null;
+
+foo(unknownGlobal); // PS unknownGlobal=UNKNOWN & globalNeverRead=NULL
+if (1) {
+  foo(); // PS !unknownGlobal & !globalNeverRead
+}
+
+unknownGlobal = 42; // PS unknownGlobal=TRUTHY & !globalNeverRead
+
+dummyStatement();
+
+var x = foo(), y = bar();
+if (condition()) {
+  foobar(x); // PS x=UNKNOWN & !y
+} else {
+  foobar(y); // PS y=UNKNOWN & !x
+}

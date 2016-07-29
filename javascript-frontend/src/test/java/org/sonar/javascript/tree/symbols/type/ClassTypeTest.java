@@ -50,7 +50,7 @@ public class ClassTypeTest extends TypeTest {
     assertThat(B1.is(Kind.CLASS)).isTrue();
     assertThat(B1.scope().isGlobal()).isFalse();
     assertThat(B1.scope().tree().is(Tree.Kind.CLASS_EXPRESSION)).isTrue();
-    assertThat(B1.usages()).hasSize(1);
+    assertThat(B1.usages()).hasSize(2);
 
     Symbol C = getSymbol("C");
     assertThat(C.is(Kind.VARIABLE)).isTrue();
@@ -60,7 +60,6 @@ public class ClassTypeTest extends TypeTest {
     assertThat(D.scope().isGlobal()).isFalse();
     assertThat(D.scope().tree().is(Tree.Kind.FUNCTION_DECLARATION)).isTrue();
     assertThat(D.usages()).hasSize(2);
-
   }
 
   @Test
@@ -70,7 +69,9 @@ public class ClassTypeTest extends TypeTest {
 
     Symbol B = getSymbol("B");
     assertThat(B.types().containsOnlyAndUnique(Type.Kind.CLASS)).isTrue();
-    assertThat(B.types().getUniqueKnownType()).isEqualTo(getSymbol("B1").types().getUniqueKnownType());
+
+    Symbol b1 = getSymbol("B1");
+    assertThat(B.types().getUniqueKnownType()).isEqualTo(b1.types().getUniqueKnownType());
   }
 
   @Test

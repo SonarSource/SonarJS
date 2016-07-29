@@ -12,7 +12,7 @@ var B = class B1 {
   }
 }
 
-var x = new B1(); // ReferenceError: Can't find variable: B1
+var x = new B1(); // "ReferenceError: Can't find variable: B1", but we "hoist" "B1" to be able to resolve it's usages in functions declared above declaration
 
 var C = class {
 }

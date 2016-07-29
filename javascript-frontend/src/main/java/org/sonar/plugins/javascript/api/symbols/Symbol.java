@@ -90,6 +90,9 @@ public class Symbol {
     return name;
   }
 
+  /**
+   * @return true for built in and global to file symbols (which values can be read without ReferenceError)
+   */
   public boolean builtIn() {
     return builtIn;
   }

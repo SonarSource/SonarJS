@@ -38,7 +38,7 @@ import static org.fest.assertions.Assertions.assertThat;
 public class LiveVariableAnalysisTest {
 
   @Test
-  public void testUsages() throws Exception {
+  public void test_usages() throws Exception {
     JavaScriptVisitorContext context = createContext(new File("src/test/resources/se/", "lva.js"));
     FunctionTree function = (FunctionTree) context.getTopTree().items().items().get(0);
     ControlFlowGraph cfg = ControlFlowGraph.build((BlockTree) function.body());
@@ -49,6 +49,21 @@ public class LiveVariableAnalysisTest {
     assertThat(neverReadSymbols).hasSize(1);
     Symbol neverReadSymbol = neverReadSymbols.iterator().next();
     assertThat(neverReadSymbol.name()).isEqualTo("neverRead");
+    assertThat(usages.hasUsagesInNestedFunctions(neverReadSymbol)).isFalse();
+  }
+
+  @Test
+  public void global_scope() throws Exception {
+    JavaScriptVisitorContext context = createContext(new File("src/test/resources/se/", "lva.js"));
+    ScriptTree scriptTree = context.getTopTree();
+    ControlFlowGraph cfg = ControlFlowGraph.build(scriptTree);
+    LiveVariableAnalysis lva = LiveVariableAnalysis.create(cfg, context.getSymbolModel().getScope(scriptTree));
+
+    Usages usages = lva.getUsages();
+    Set<Symbol> neverReadSymbols = usages.neverReadSymbols();
+    assertThat(neverReadSymbols).hasSize(1);
+    Symbol neverReadSymbol = neverReadSymbols.iterator().next();
+    assertThat(neverReadSymbol.name()).isEqualTo("globalNeverRead");
     assertThat(usages.hasUsagesInNestedFunctions(neverReadSymbol)).isFalse();
   }
 
