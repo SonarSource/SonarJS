@@ -63,8 +63,6 @@ public class MetricsVisitor extends SubscriptionVisitor {
   private RangeDistributionBuilder functionComplexityDistribution;
   private RangeDistributionBuilder fileComplexityDistribution;
 
-  private ComplexityVisitor complexityVisitor;
-
   public MetricsVisitor(
     FileSystem fs, SensorContext context, NoSonarFilter noSonarFilter, Boolean ignoreHeaderComments,
     FileLinesContextFactory fileLinesContextFactory, Map<InputFile, Set<Integer>> projectLinesOfCode
@@ -74,7 +72,6 @@ public class MetricsVisitor extends SubscriptionVisitor {
     this.noSonarFilter = noSonarFilter;
     this.ignoreHeaderComments = ignoreHeaderComments;
     this.fileLinesContextFactory = fileLinesContextFactory;
-    this.complexityVisitor = new ComplexityVisitor();
     this.projectLinesOfCode = projectLinesOfCode;
   }
 
@@ -95,10 +92,10 @@ public class MetricsVisitor extends SubscriptionVisitor {
   @Override
   public void visitNode(Tree tree) {
     if (tree.is(CLASS_NODES)) {
-      classComplexity += complexityVisitor.getComplexity(tree);
+      classComplexity += new ComplexityVisitor(true).getComplexity(tree);
 
     } else if (TreeKinds.isFunction(tree)) {
-      int currentFunctionComplexity = complexityVisitor.getComplexity(tree);
+      int currentFunctionComplexity = new ComplexityVisitor(false).getComplexity(tree);
       this.functionComplexity += currentFunctionComplexity;
       functionComplexityDistribution.add(currentFunctionComplexity);
     }
@@ -125,7 +122,7 @@ public class MetricsVisitor extends SubscriptionVisitor {
   }
 
   private void saveComplexityMetrics(TreeVisitorContext context) {
-    int fileComplexity = complexityVisitor.getComplexity(context.getTopTree());
+    int fileComplexity = new ComplexityVisitor(true).getComplexity(context.getTopTree());
 
     saveMetricOnFile(CoreMetrics.COMPLEXITY, fileComplexity);
     saveMetricOnFile(CoreMetrics.COMPLEXITY_IN_CLASSES, classComplexity);

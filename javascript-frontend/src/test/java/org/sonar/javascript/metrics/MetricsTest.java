@@ -32,7 +32,7 @@ public class MetricsTest extends JavaScriptTreeModelTest {
   public void complexity() {
     String path = "src/test/resources/metrics/complexity.js";
     Tree tree = p.parse(new File(path));
-    assertThat(new ComplexityVisitor().getComplexity(tree)).isEqualTo(29);
+    assertThat(new ComplexityVisitor(true).getComplexity(tree)).isEqualTo(29);
   }
 
   @Test

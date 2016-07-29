@@ -26,6 +26,7 @@ import java.util.Set;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.declaration.FunctionDeclarationTree;
+import org.sonar.plugins.javascript.api.tree.declaration.FunctionTree;
 import org.sonar.plugins.javascript.api.tree.declaration.MethodDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.expression.ArrowFunctionTree;
 import org.sonar.plugins.javascript.api.tree.expression.BinaryExpressionTree;
@@ -46,8 +47,17 @@ import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitor;
 
 public class ComplexityVisitor extends DoubleDispatchVisitor {
 
+  private boolean mustAnalyseNestedFunctions;
+
   private List<Tree> complexityTrees;
+
   private Set<Tree> excludedReturns;
+
+  private boolean isInsideFunction;
+
+  public ComplexityVisitor(boolean mustAnalyseNestedFunctions) {
+    this.mustAnalyseNestedFunctions = mustAnalyseNestedFunctions;
+  }
 
   public int getComplexity(Tree tree) {
     return complexityTrees(tree).size();
@@ -56,38 +66,41 @@ public class ComplexityVisitor extends DoubleDispatchVisitor {
   public List<Tree> complexityTrees(Tree tree) {
     this.complexityTrees = new ArrayList<>();
     this.excludedReturns = new HashSet<>();
+    this.isInsideFunction = false;
     scan(tree);
     return this.complexityTrees;
   }
 
+  private void visitFunction(FunctionTree functionTree, Tree complexityTree) {
+    if (mustAnalyse()) {
+      add(complexityTree);
+      if (functionTree.body().is(Kind.BLOCK)) {
+        excludeLastReturn(((BlockTree) functionTree.body()).statements());
+      }
+      isInsideFunction = true;
+      scanChildren(functionTree);
+      isInsideFunction = false;
+    }
+  }
+
   @Override
   public void visitMethodDeclaration(MethodDeclarationTree tree) {
-    add(tree.name());
-    excludeLastReturn(tree.body().statements());
-    super.visitMethodDeclaration(tree);
+    visitFunction(tree, tree.name());
   }
 
   @Override
   public void visitFunctionDeclaration(FunctionDeclarationTree tree) {
-    add(tree.functionKeyword());
-    excludeLastReturn(tree.body().statements());
-    super.visitFunctionDeclaration(tree);
+    visitFunction(tree, tree.functionKeyword());
   }
 
   @Override
   public void visitFunctionExpression(FunctionExpressionTree tree) {
-    add(tree.functionKeyword());
-    excludeLastReturn(tree.body().statements());
-    super.visitFunctionExpression(tree);
+    visitFunction(tree, tree.functionKeyword());
   }
 
   @Override
   public void visitArrowFunction(ArrowFunctionTree tree) {
-    add(tree.doubleArrow());
-    if (tree.body().is(Kind.BLOCK)) {
-      excludeLastReturn(((BlockTree) tree.body()).statements());
-    }
-    super.visitArrowFunction(tree);
+    visitFunction(tree, tree.doubleArrow());
   }
 
   @Override
@@ -158,6 +171,10 @@ public class ComplexityVisitor extends DoubleDispatchVisitor {
       add(tree.operator());
     }
     super.visitBinaryExpression(tree);
+  }
+
+  private boolean mustAnalyse() {
+    return mustAnalyseNestedFunctions || !isInsideFunction;
   }
 
   private void excludeLastReturn(List<StatementTree> statements) {
