@@ -26,6 +26,7 @@ import java.util.Set;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.declaration.FunctionDeclarationTree;
+import org.sonar.plugins.javascript.api.tree.declaration.FunctionTree;
 import org.sonar.plugins.javascript.api.tree.declaration.MethodDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.expression.ArrowFunctionTree;
 import org.sonar.plugins.javascript.api.tree.expression.BinaryExpressionTree;
@@ -70,50 +71,36 @@ public class ComplexityVisitor extends DoubleDispatchVisitor {
     return this.complexityTrees;
   }
 
-  @Override
-  public void visitMethodDeclaration(MethodDeclarationTree tree) {
+  private void visitFunction(FunctionTree functionTree, Tree complexityTree) {
     if (mustAnalyse()) {
-      add(tree.name());
-      excludeLastReturn(tree.body().statements());
+      add(complexityTree);
+      if (functionTree.body().is(Kind.BLOCK)) {
+        excludeLastReturn(((BlockTree) functionTree.body()).statements());
+      }
       isInsideFunction = true;
-      super.visitMethodDeclaration(tree);
+      scanChildren(functionTree);
       isInsideFunction = false;
     }
+  }
+
+  @Override
+  public void visitMethodDeclaration(MethodDeclarationTree tree) {
+    visitFunction(tree, tree.name());
   }
 
   @Override
   public void visitFunctionDeclaration(FunctionDeclarationTree tree) {
-    if (mustAnalyse()) {
-      add(tree.functionKeyword());
-      excludeLastReturn(tree.body().statements());
-      isInsideFunction = true;
-      super.visitFunctionDeclaration(tree);
-      isInsideFunction = false;
-    }
+    visitFunction(tree, tree.functionKeyword());
   }
 
   @Override
   public void visitFunctionExpression(FunctionExpressionTree tree) {
-    if (mustAnalyse()) {
-      add(tree.functionKeyword());
-      excludeLastReturn(tree.body().statements());
-      isInsideFunction = true;
-      super.visitFunctionExpression(tree);
-      isInsideFunction = false;
-    }
+    visitFunction(tree, tree.functionKeyword());
   }
 
   @Override
   public void visitArrowFunction(ArrowFunctionTree tree) {
-    if (mustAnalyse()) {
-      add(tree.doubleArrow());
-      if (tree.body().is(Kind.BLOCK)) {
-        excludeLastReturn(((BlockTree) tree.body()).statements());
-      }
-      isInsideFunction = true;
-      super.visitArrowFunction(tree);
-      isInsideFunction = false;
-    }
+    visitFunction(tree, tree.doubleArrow());
   }
 
   @Override
