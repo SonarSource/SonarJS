@@ -43,4 +43,14 @@ public class AssignmentExpressionTest {
       .matches("this.first = first");
   }
 
+  /**
+   * The special construct "new.target" should not prevent us to name a variable "target".
+   */
+  @Test
+  public void should_accept_a_variable_named_target() {
+    assertThat(JavaScriptLegacyGrammar.ASSIGNMENT_EXPRESSION)
+      .matches("target = a")
+      .matches("a = target");
+  }
+
 }

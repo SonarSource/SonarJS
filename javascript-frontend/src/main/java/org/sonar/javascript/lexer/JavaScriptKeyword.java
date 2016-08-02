@@ -69,7 +69,7 @@ public enum JavaScriptKeyword implements TokenType, GrammarRuleKey {
 
   // Future reserved words (ES2015 spec)
   ENUM("enum"),
-  AWAIT("await"),
+  AWAIT("await")
 
   ;
 

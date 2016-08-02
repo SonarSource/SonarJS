@@ -48,4 +48,13 @@ public class MemberExpressionTest {
       .matches("new super ( arguments ) ``");
   }
 
+  @Test
+  public void new_target() {
+    assertThat(JavaScriptLegacyGrammar.MEMBER_EXPRESSION)
+    .matches("new . target")
+    .notMatches("new . Target")
+    .notMatches("a = target")
+    .notMatches("var target");
+  }
+
 }

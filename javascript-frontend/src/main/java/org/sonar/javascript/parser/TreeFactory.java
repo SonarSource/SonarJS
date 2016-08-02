@@ -72,6 +72,7 @@ import org.sonar.javascript.tree.impl.expression.FunctionExpressionTreeImpl;
 import org.sonar.javascript.tree.impl.expression.IdentifierTreeImpl;
 import org.sonar.javascript.tree.impl.expression.LiteralTreeImpl;
 import org.sonar.javascript.tree.impl.expression.NewExpressionTreeImpl;
+import org.sonar.javascript.tree.impl.expression.NewTargetTreeImpl;
 import org.sonar.javascript.tree.impl.expression.ObjectLiteralTreeImpl;
 import org.sonar.javascript.tree.impl.expression.PairPropertyTreeImpl;
 import org.sonar.javascript.tree.impl.expression.ParenthesisedExpressionTreeImpl;
@@ -156,6 +157,7 @@ import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxSpreadAttributeTr
 import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxStandardAttributeTree;
 import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxStandardElementTree;
 import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxTextTree;
+import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.javascript.api.tree.statement.StatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.SwitchClauseTree;
 
@@ -901,6 +903,10 @@ public class TreeFactory {
 
   public SuperTreeImpl superExpression(InternalSyntaxToken superToken) {
     return new SuperTreeImpl(superToken);
+  }
+
+  public NewTargetTreeImpl newTarget(SyntaxToken newKeyword, SyntaxToken dot, SyntaxToken target) {
+    return new NewTargetTreeImpl(newKeyword, dot, target);
   }
 
   public TaggedTemplateTreeImpl newTaggedTemplate(TemplateLiteralTree template) {

@@ -56,6 +56,7 @@ import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 import org.sonar.plugins.javascript.api.tree.expression.LiteralTree;
 import org.sonar.plugins.javascript.api.tree.expression.MemberExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.NewExpressionTree;
+import org.sonar.plugins.javascript.api.tree.expression.NewTargetTree;
 import org.sonar.plugins.javascript.api.tree.expression.ObjectLiteralTree;
 import org.sonar.plugins.javascript.api.tree.expression.PairPropertyTree;
 import org.sonar.plugins.javascript.api.tree.expression.ParenthesisedExpressionTree;
@@ -663,6 +664,12 @@ public interface Tree {
      * {@code new expression}
      */
     NEW_EXPRESSION(NewExpressionTree.class),
+
+    /**
+     * {@link NewTargetTree}
+     * {@code new expression}
+     */
+    NEW_TARGET(NewTargetTree.class),
 
     /**
      * {@link NewExpressionTree}
