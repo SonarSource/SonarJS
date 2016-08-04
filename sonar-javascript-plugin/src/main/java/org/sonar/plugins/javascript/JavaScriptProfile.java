@@ -37,7 +37,9 @@ public class JavaScriptProfile extends ProfileDefinition {
   @Override
   public RulesProfile createProfile(ValidationMessages messages) {
     AnnotationBasedProfileBuilder annotationBasedProfileBuilder = new AnnotationBasedProfileBuilder(ruleFinder);
-    return annotationBasedProfileBuilder.build(CheckList.REPOSITORY_KEY, CheckList.SONAR_WAY_PROFILE, JavaScriptLanguage.KEY, CheckList.getChecks(), messages);
+    RulesProfile profile = annotationBasedProfileBuilder.build(CheckList.REPOSITORY_KEY, CheckList.SONAR_WAY_PROFILE, JavaScriptLanguage.KEY, CheckList.getChecks(), messages);
+    profile.activateRule(ruleFinder.findByKey("common-" + JavaScriptLanguage.KEY, "DuplicatedBlocks"), null);
+    return profile;
   }
 
 }
