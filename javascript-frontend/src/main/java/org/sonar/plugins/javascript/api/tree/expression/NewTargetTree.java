@@ -26,8 +26,6 @@ import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
  * <pre>
  *   new . target
  * </pre>
- * Note: this tree handles only the <code>new.target</code> construct. It does not handle constructs such
- * as <code>new.a</code> or <code>new.someTarget</code>.
  */
 public interface NewTargetTree extends ExpressionTree {
 
