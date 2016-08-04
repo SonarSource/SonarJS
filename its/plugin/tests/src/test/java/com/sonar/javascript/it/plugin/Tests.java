@@ -30,19 +30,24 @@ import org.junit.runners.Suite;
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
   BigProjectTest.class,
-  MetricsTest.class,
+  CoverageTest.class,
   CustomRulesTests.class,
-  CoverageTest.class
+  MetricsTest.class,
+  MinifiedFilesTest.class,
+  SonarLintTest.class
 })
 public final class Tests {
 
   private static final String CUSTOM_RULES_ARTIFACT_ID = "javascript-custom-rules-plugin";
+
   public static final String PROJECT_KEY = "project";
+
+  public static final FileLocation JAVASCRIPT_PLUGIN_LOCATION = FileLocation.byWildcardMavenFilename(
+    new File("../../../sonar-javascript-plugin/target"), "sonar-javascript-plugin-*.jar");
 
   @ClassRule
   public static final Orchestrator ORCHESTRATOR = Orchestrator.builderEnv()
-    .addPlugin(FileLocation.byWildcardMavenFilename(
-      new File("../../../sonar-javascript-plugin/target"), "sonar-javascript-plugin-*.jar"))
+    .addPlugin(JAVASCRIPT_PLUGIN_LOCATION)
     .restoreProfileAtStartup(FileLocation.ofClasspath("/empty-profile.xml"))
     .addPlugin(FileLocation.byWildcardMavenFilename(
       new File("../plugins/" + CUSTOM_RULES_ARTIFACT_ID + "/target"), CUSTOM_RULES_ARTIFACT_ID + "-*.jar"))
