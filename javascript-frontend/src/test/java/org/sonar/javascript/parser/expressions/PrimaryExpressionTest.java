@@ -43,11 +43,12 @@ public class PrimaryExpressionTest {
   }
 
   @Test
-  public void test_keywords_as_identifiers() throws Exception {
+  public void test_special_words_as_identifiers() throws Exception {
     assertThat(JavaScriptLegacyGrammar.PRIMARY_EXPRESSION)
       .matches("yield")
       .matches("async")
       .matches("await")
+      .matches("target")
     ;
 
   }
