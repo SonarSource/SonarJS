@@ -17,39 +17,22 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.javascript.parser.expressions;
+package org.sonar.plugins.javascript.api.tree.expression;
 
-import org.junit.Test;
-import org.sonar.javascript.parser.JavaScriptLegacyGrammar;
+import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 
-import static org.sonar.javascript.utils.Assertions.assertThat;
+/**
+ * <a href="http://www.ecma-international.org/ecma-262/6.0/#sec-left-hand-side-expressions">ECMA 6 New target</a>.
+ * <pre>
+ *   new . target
+ * </pre>
+ */
+public interface NewTargetTree extends ExpressionTree {
 
-public class PrimaryExpressionTest {
+  SyntaxToken newKeyword();
 
+  SyntaxToken dot();
 
-  @Test
-  public void realLife() {
-    assertThat(JavaScriptLegacyGrammar.PRIMARY_EXPRESSION)
-      .matches("this")
-      .matches("identifier")
-      .matches("''")
-      .matches("true")
-      .matches("[]")
-      .matches("{}")
-      .matches("class {}")
-      .matches("function * () {}")
-      .matches("``")
-      .matches("( expression )");
-  }
+  SyntaxToken target();
 
-  @Test
-  public void test_special_words_as_identifiers() throws Exception {
-    assertThat(JavaScriptLegacyGrammar.PRIMARY_EXPRESSION)
-      .matches("yield")
-      .matches("async")
-      .matches("await")
-      .matches("target")
-    ;
-
-  }
 }

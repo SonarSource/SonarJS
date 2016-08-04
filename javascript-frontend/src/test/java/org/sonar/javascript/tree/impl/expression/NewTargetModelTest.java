@@ -17,39 +17,27 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.javascript.parser.expressions;
+package org.sonar.javascript.tree.impl.expression;
 
 import org.junit.Test;
-import org.sonar.javascript.parser.JavaScriptLegacyGrammar;
+import org.sonar.javascript.lexer.JavaScriptKeyword;
+import org.sonar.javascript.lexer.JavaScriptPunctuator;
+import org.sonar.javascript.utils.JavaScriptTreeModelTest;
+import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 
-import static org.sonar.javascript.utils.Assertions.assertThat;
+import static org.fest.assertions.Assertions.assertThat;
 
-public class PrimaryExpressionTest {
-
-
-  @Test
-  public void realLife() {
-    assertThat(JavaScriptLegacyGrammar.PRIMARY_EXPRESSION)
-      .matches("this")
-      .matches("identifier")
-      .matches("''")
-      .matches("true")
-      .matches("[]")
-      .matches("{}")
-      .matches("class {}")
-      .matches("function * () {}")
-      .matches("``")
-      .matches("( expression )");
-  }
+public class NewTargetModelTest extends JavaScriptTreeModelTest {
 
   @Test
-  public void test_special_words_as_identifiers() throws Exception {
-    assertThat(JavaScriptLegacyGrammar.PRIMARY_EXPRESSION)
-      .matches("yield")
-      .matches("async")
-      .matches("await")
-      .matches("target")
-    ;
+  public void should_parse_new_target() throws Exception {
+    NewTargetTreeImpl tree = parse("new.target", Kind.NEW_TARGET);
 
+    assertThat(tree.is(Kind.NEW_TARGET)).isTrue();
+    assertThat(tree.newKeyword().text()).isEqualTo(JavaScriptKeyword.NEW.getValue());
+    assertThat(tree.dot().text()).isEqualTo(JavaScriptPunctuator.DOT.getValue());
+    assertThat(tree.target().text()).isEqualTo("target");
+    assertThat(tree.types()).isEmpty();
   }
+
 }

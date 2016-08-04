@@ -96,6 +96,7 @@ import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.FunctionExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 import org.sonar.plugins.javascript.api.tree.expression.MemberExpressionTree;
+import org.sonar.plugins.javascript.api.tree.expression.NewTargetTree;
 import org.sonar.plugins.javascript.api.tree.expression.RestElementTree;
 import org.sonar.plugins.javascript.api.tree.expression.SpreadElementTree;
 import org.sonar.plugins.javascript.api.tree.expression.TemplateCharactersTree;
@@ -987,6 +988,7 @@ public class JavaScriptGrammar {
       .is(f.completeMemberExpression(
         b.firstOf(
           ES6(SUPER_PROPERTY()),
+          ES6(NEW_TARGET()),
           f.newExpressionWithArgument(b.token(JavaScriptKeyword.NEW), b.firstOf(ES6(SUPER()), MEMBER_EXPRESSION()), ARGUMENT_CLAUSE()),
           PRIMARY_EXPRESSION()),
         b.zeroOrMore(
@@ -1010,6 +1012,14 @@ public class JavaScriptGrammar {
   public SuperTreeImpl SUPER() {
     return b.<SuperTreeImpl>nonterminal(Kind.SUPER)
       .is(f.superExpression(b.token(JavaScriptKeyword.SUPER)));
+  }
+
+  public NewTargetTree NEW_TARGET() {
+    return b.<NewTargetTree>nonterminal(Kind.NEW_TARGET)
+      .is(f.newTarget(
+        b.token(JavaScriptKeyword.NEW),
+        b.token(JavaScriptPunctuator.DOT),
+        b.token(JavaScriptLegacyGrammar.TARGET)));
   }
 
   public MemberExpressionTree OBJECT_PROPERTY_ACCESS() {

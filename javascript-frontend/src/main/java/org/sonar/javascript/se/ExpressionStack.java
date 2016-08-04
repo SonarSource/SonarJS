@@ -151,6 +151,7 @@ public class ExpressionStack {
       case GENERATOR_FUNCTION_EXPRESSION:
       case THIS:
       case SUPER:
+      case NEW_TARGET:
       case ARROW_FUNCTION:
       case OBJECT_LITERAL:
       case JSX_SELF_CLOSING_ELEMENT:

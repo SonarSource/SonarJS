@@ -63,6 +63,7 @@ import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 import org.sonar.plugins.javascript.api.tree.expression.LiteralTree;
 import org.sonar.plugins.javascript.api.tree.expression.MemberExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.NewExpressionTree;
+import org.sonar.plugins.javascript.api.tree.expression.NewTargetTree;
 import org.sonar.plugins.javascript.api.tree.expression.ObjectLiteralTree;
 import org.sonar.plugins.javascript.api.tree.expression.PairPropertyTree;
 import org.sonar.plugins.javascript.api.tree.expression.ParenthesisedExpressionTree;
@@ -486,6 +487,9 @@ public abstract class DoubleDispatchVisitor implements TreeVisitor {
     scanChildren(tree);
   }
 
+  public void visitNewTarget(NewTargetTree tree) {
+    scanChildren(tree);
+  }
 
   public void visitExportClause(ExportClauseTree tree) {
     scanChildren(tree);

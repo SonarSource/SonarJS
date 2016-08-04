@@ -275,6 +275,12 @@ public enum JavaScriptLegacyGrammar implements GrammarRuleKey {
   AS,
 
   /**
+   * ECMAScript 6.
+   * To be used only in expression "new.target"
+   **/
+  TARGET,
+
+  /**
    * ECMAScript 2017 proposal
    **/
   ASYNC,
@@ -402,6 +408,7 @@ public enum JavaScriptLegacyGrammar implements GrammarRuleKey {
     b.rule(SET).is(word(b, "set"));
     b.rule(GET).is(word(b, "get"));
     b.rule(SHEBANG).is(b.regexp("#![^\\n\\r]*+"));
+    b.rule(TARGET).is(word(b, "target"));
 
     // Temporary rules waiting for b.nextNot method migration
     b.rule(NEXT_NOT_LET_AND_BRACKET).is(b.nextNot(LET, LBRACKET));

@@ -26,7 +26,6 @@ import static org.sonar.javascript.utils.Assertions.assertThat;
 
 public class MemberExpressionTest {
 
-
   @Test
   public void ok() {
     assertThat(JavaScriptLegacyGrammar.MEMBER_EXPRESSION)
@@ -46,6 +45,13 @@ public class MemberExpressionTest {
       .matches("new super ( arguments )")
       .matches("new primaryExpression ( arguments )")
       .matches("new super ( arguments ) ``");
+  }
+
+  @Test
+  public void new_target() {
+    assertThat(JavaScriptLegacyGrammar.MEMBER_EXPRESSION)
+      .matches("new . target")
+      .notMatches("new . Target");
   }
 
 }
