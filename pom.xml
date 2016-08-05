@@ -139,11 +139,6 @@
         </exclusions>
       </dependency>
       <dependency>
-         <groupId>org.sonarsource.orchestrator</groupId>
-         <artifactId>sonar-orchestrator</artifactId>
-         <version>${sonar-orchestrator.version}</version>
-      </dependency>
-      <dependency>
         <groupId>commons-lang</groupId>
         <artifactId>commons-lang</artifactId>
         <version>${commons-lang.version}</version>
@@ -207,6 +202,18 @@
         <artifactId>sonarlint-core</artifactId>
         <version>${sonarlint.version}</version>
         <scope>test</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.sonarsource.orchestrator</groupId>
+        <artifactId>sonar-orchestrator</artifactId>
+        <version>${sonar-orchestrator.version}</version>
+        <scope>test</scope>
+        <exclusions>
+          <exclusion>
+            <groupId>com.oracle</groupId>
+            <artifactId>ojdbc6</artifactId>
+          </exclusion>
+        </exclusions>
       </dependency>
 
       <!-- Provided dependencies -->
