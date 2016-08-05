@@ -34,7 +34,7 @@ public class JavaScriptPlugin implements Plugin {
   // Subcategories
 
   private static final String GENERAL = "General";
-  private static final String TEST_AND_COVERAGE = "Tests and Coverage";
+  private static final String COVERAGE = "Coverage";
   private static final String LIBRARIES = "Libraries";
 
 
@@ -95,7 +95,7 @@ public class JavaScriptPlugin implements Plugin {
         .name("Unit Tests LCOV File")
         .description("Path (absolute or relative) to the file with LCOV data for unit tests.")
         .onQualifiers(Qualifiers.MODULE, Qualifiers.PROJECT)
-        .subCategory(TEST_AND_COVERAGE)
+        .subCategory(COVERAGE)
         .build(),
 
       PropertyDefinition.builder(LCOV_IT_REPORT_PATH)
@@ -103,7 +103,7 @@ public class JavaScriptPlugin implements Plugin {
         .name("Integration Tests LCOV File")
         .description("Path (absolute or relative) to the file with LCOV data for integration tests.")
         .onQualifiers(Qualifiers.MODULE, Qualifiers.PROJECT)
-        .subCategory(TEST_AND_COVERAGE)
+        .subCategory(COVERAGE)
         .build(),
 
       PropertyDefinition.builder(FORCE_ZERO_COVERAGE_KEY)
@@ -112,7 +112,7 @@ public class JavaScriptPlugin implements Plugin {
         .description("Force coverage to be set to 0 when no report is provided.")
         .onQualifiers(Qualifiers.MODULE, Qualifiers.PROJECT)
         .type(PropertyType.BOOLEAN)
-        .subCategory(TEST_AND_COVERAGE)
+        .subCategory(COVERAGE)
         .build(),
 
       PropertyDefinition.builder(JavaScriptPlugin.JQUERY_OBJECT_ALIASES)
