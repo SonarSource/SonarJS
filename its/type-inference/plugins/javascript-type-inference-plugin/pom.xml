@@ -18,7 +18,6 @@
     <dependency>
       <groupId>org.sonarsource.sonarqube</groupId>
       <artifactId>sonar-plugin-api</artifactId>
-      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.sonarsource.javascript</groupId>

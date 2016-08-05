@@ -104,11 +104,6 @@
       </dependency>
       <dependency>
         <groupId>org.sonarsource.sonarqube</groupId>
-        <artifactId>sonar-plugin-api</artifactId>
-        <version>${sonar.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.sonarsource.sonarqube</groupId>
         <artifactId>sonar-testing-harness</artifactId>
         <version>${sonar.version}</version>
       </dependency>
@@ -212,6 +207,12 @@
       </dependency>
 
       <!-- Provided dependencies -->
+      <dependency>
+        <groupId>org.sonarsource.sonarqube</groupId>
+        <artifactId>sonar-plugin-api</artifactId>
+        <version>${sonar.version}</version>
+        <scope>provided</scope>
+      </dependency>
       <dependency>
         <groupId>org.slf4j</groupId>
         <artifactId>slf4j-api</artifactId>

@@ -13,10 +13,10 @@
   <packaging>pom</packaging>
 
   <modules>
-    <module>performancing</module>
     <module>plugin</module>
     <module>ruling</module>
     <module>type-inference</module>
+    <module>performancing</module>
   </modules>
 
 </project>
