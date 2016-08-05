@@ -139,11 +139,6 @@
         </exclusions>
       </dependency>
       <dependency>
-        <groupId>org.sonarsource.sonarlint.core</groupId>
-         <artifactId>sonarlint-core</artifactId>
-         <version>${sonarlint.version}</version>
-      </dependency>
-      <dependency>
          <groupId>org.sonarsource.orchestrator</groupId>
          <artifactId>sonar-orchestrator</artifactId>
          <version>${sonar-orchestrator.version}</version>
@@ -205,6 +200,12 @@
         <groupId>org.sonarsource.sslr</groupId>
         <artifactId>sslr-testing-harness</artifactId>
         <version>${sslr.version}</version>
+        <scope>test</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.sonarsource.sonarlint.core</groupId>
+        <artifactId>sonarlint-core</artifactId>
+        <version>${sonarlint.version}</version>
         <scope>test</scope>
       </dependency>
 
