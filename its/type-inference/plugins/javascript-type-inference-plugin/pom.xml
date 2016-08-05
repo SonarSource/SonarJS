@@ -23,8 +23,6 @@
       <groupId>org.sonarsource.javascript</groupId>
       <artifactId>sonar-javascript-plugin</artifactId>
       <type>sonar-plugin</type>
-      <version>${project.version}</version>
-      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>com.google.guava</groupId>
@@ -42,7 +40,6 @@
           <pluginClass>org.sonar.samples.javascript.JavaScriptTypeInferencePlugin</pluginClass>
         </configuration>
       </plugin>
-
       <plugin>
         <artifactId>maven-compiler-plugin</artifactId>
         <configuration>

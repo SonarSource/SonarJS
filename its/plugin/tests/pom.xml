@@ -81,7 +81,6 @@
                     <artifactItem>
                       <groupId>${project.groupId}</groupId>
                       <artifactId>sonar-javascript-plugin</artifactId>
-                      <version>${project.version}</version>
                       <type>sonar-plugin</type>
                       <overWrite>true</overWrite>
                     </artifactItem>
