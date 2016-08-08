@@ -21,7 +21,10 @@ package org.sonar.javascript.se;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.ImmutableSet.Builder;
 import java.util.Map;
+import java.util.Set;
 import org.sonar.javascript.se.sv.SymbolicValue;
 
 /**
@@ -176,6 +179,17 @@ public class Constraint {
     }
 
     return null;
+  }
+
+  public Set<Type> typeSet() {
+    Builder<Type> builder = ImmutableSet.builder();
+    for (Type type : Type.values()) {
+      if (!this.isIncompatibleWith(type.constraint())) {
+        builder.add(type);
+      }
+    }
+
+    return builder.build();
   }
 
   public boolean isStricterOrEqualTo(Constraint other) {

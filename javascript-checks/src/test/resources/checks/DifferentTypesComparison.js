@@ -47,3 +47,9 @@ function severalExecutionPath() {
 
   expr = a === b; // Noncompliant
 }
+
+function typeSet(p1, p2) {
+  var x = foo()
+  var y = a > b;
+  typeof x == "object" && x === y; // Noncompliant
+}

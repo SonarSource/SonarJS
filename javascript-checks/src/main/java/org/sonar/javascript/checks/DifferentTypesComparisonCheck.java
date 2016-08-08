@@ -19,9 +19,11 @@
  */
 package org.sonar.javascript.checks;
 
+import com.google.common.collect.Sets;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.javascript.se.Constraint;
@@ -59,10 +61,10 @@ public class DifferentTypesComparisonCheck extends SeCheck {
       Constraint rightConstraint = currentState.getConstraint(currentState.peekStack(0));
       Constraint leftConstraint = currentState.getConstraint(currentState.peekStack(1));
 
-      Type rightType = rightConstraint.type();
-      Type leftType = leftConstraint.type();
+      Set<Type> rightType = rightConstraint.typeSet();
+      Set<Type> leftType = leftConstraint.typeSet();
 
-      boolean differentTypes = rightType != null && leftType != null && rightType != leftType;
+      boolean differentTypes = !rightType.isEmpty() && !leftType.isEmpty() && Sets.intersection(rightType, leftType).isEmpty();
 
       if (!differentTypes) {
         typeDifference.put(comparison, false);
