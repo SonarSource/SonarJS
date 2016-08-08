@@ -69,7 +69,7 @@ function main() {
   if (typeof x === "not_existing_type") {
     x = null;
   }
-  foo(); // PS x=UNKNOWN
+  foo(); // PS x=ANY_VALUE
   makeLive(x);
 
   x = null;

@@ -77,6 +77,10 @@ public class ProgramState {
     this.counter = counter;
   }
 
+  public ImmutableMap<Symbol, SymbolicValue> values() {
+    return values;
+  }
+
   public static ProgramState emptyState() {
     return new ProgramState(
       ImmutableMap.<Symbol, SymbolicValue>of(), ImmutableMap.<SymbolicValue, Constraint>of(), ExpressionStack.emptyStack(), 0);
@@ -175,7 +179,7 @@ public class ProgramState {
     return getConstraint(value).nullability();
   }
 
-  public Map<Symbol, Constraint> constraintsBySymbol() {
+  private Map<Symbol, Constraint> constraintsBySymbol() {
     ImmutableMap.Builder<Symbol, Constraint> builder = new Builder<>();
     for (Entry<Symbol, SymbolicValue> entry : values.entrySet()) {
       if (constraints.get(entry.getValue()) != null) {

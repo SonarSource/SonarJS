@@ -1,6 +1,6 @@
 function main(p) {
 
-  bar();  // PS p=UNKNOWN
+  bar();  // PS p=ANY_VALUE
 
   if (p.foo) { // as property of "p" is accessed we can be sure it's not null
     bar(); // PS p=NOT_NULLY

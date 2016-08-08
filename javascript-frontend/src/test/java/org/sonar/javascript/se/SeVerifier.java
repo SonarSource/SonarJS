@@ -68,6 +68,7 @@ class SeVerifier extends SeCheck {
     .put("NOT_BOOLEAN", Constraint.BOOLEAN.not())
     .put("TRUE", Constraint.TRUE)
     .put("FALSE", Constraint.FALSE)
+    .put("OTHER_OBJECT", Constraint.OTHER_OBJECT)
     .build();
 
   // line - program state - asserted
@@ -131,29 +132,29 @@ class SeVerifier extends SeCheck {
 
   private String programState(ProgramState ps) {
     StringBuilder sb = new StringBuilder();
-    for (Entry<Symbol, Constraint> entry : ps.constraintsBySymbol().entrySet()) {
-      sb.append(entry.getKey());
+    for (Symbol symbol : ps.values().keySet()) {
+      sb.append(symbol);
       sb.append(" - ");
-      sb.append(entry.getValue());
+      sb.append(ps.getConstraint(symbol));
       sb.append("\n");
     }
     return sb.toString();
   }
 
   private boolean findCorresponding(ProgramState actualPs, Map<ProgramState, Boolean> expectedProgramStates) {
-    for (Entry<ProgramState, Boolean> expectedPsEntry : expectedProgramStates.entrySet()) {
+    for (ProgramState expectedPs : expectedProgramStates.keySet()) {
 
       // fixme(Lena) : do we want to check here only ones that are not checked before?
       boolean allExpectedSymbolsMatched = true;
-      for (Entry<Symbol, Constraint> expectedSymbolEntry : expectedPsEntry.getKey().constraintsBySymbol().entrySet()) {
-        Constraint actualSymbolicValue = actualPs.getConstraint(expectedSymbolEntry.getKey());
-        if (actualSymbolicValue == null || !actualSymbolicValue.equals(expectedSymbolEntry.getValue())) {
+      for (Symbol expectedSymbol : expectedPs.values().keySet()) {
+        Constraint actualSymbolicValue = actualPs.getConstraint(expectedSymbol);
+        if (actualSymbolicValue == null || !actualSymbolicValue.equals(expectedPs.getConstraint(expectedSymbol))) {
           allExpectedSymbolsMatched = false;
           break;
         }
       }
       if (allExpectedSymbolsMatched) {
-        expectedProgramStates.put(expectedPsEntry.getKey(), true);
+        expectedProgramStates.put(expectedPs, true);
         return true;
       }
 
@@ -177,7 +178,7 @@ class SeVerifier extends SeCheck {
   }
 
   private static Constraint parseSymbolicValue(String value) {
-    if (value.equals("UNKNOWN")) {
+    if (value.equals("ANY_VALUE")) {
       return null;
     }
     Constraint constraint = SYMBOLIC_VALUE_KEYS.get(value);

@@ -4,7 +4,7 @@ function main() {
   x = null; // PS x=NULL
   x = undefined; // PS x=UNDEFINED
 
-  x = foo(); // PS x=UNKNOWN
+  x = foo(); // PS x=ANY_VALUE
 
   if (x == null) {
     foo(); // PS x=NULLY
