@@ -134,8 +134,7 @@ public class SymbolicExecution {
     Symbol arguments = functionScope.getSymbol("arguments");
     if (arguments != null) {
       // there is no arguments for arrow function scope
-      // fixme change constraint on OTHER_OBJECT
-      initialState = initialState.newSymbolicValue(arguments, Constraint.TRUTHY);
+      initialState = initialState.newSymbolicValue(arguments, Constraint.OBJECT);
     }
     return initialState;
   }

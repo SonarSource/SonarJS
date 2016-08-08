@@ -130,6 +130,11 @@ public class SymbolicExecutionTest {
     verifySE("for_without_condition.js");
   }
 
+  @Test
+  public void built_in() throws Exception {
+    verifySE("built_in.js");
+  }
+
   private void runSe(String filename) {
     JavaScriptVisitorContext context = createContext(new File("src/test/resources/se/", filename));
     verifier.scanExpectedIssues(context);

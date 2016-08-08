@@ -44,7 +44,7 @@ import static org.fest.assertions.Assertions.assertThat;
 
 class SeVerifier extends SeCheck {
 
-  private static Map<String, Constraint> SYMBOLIC_VALUE_KEYS = ImmutableMap.<String, Constraint>builder()
+  private static final Map<String, Constraint> SYMBOLIC_VALUE_KEYS = ImmutableMap.<String, Constraint>builder()
     .put("NULLY", Constraint.NULL_OR_UNDEFINED)
     .put("NOT_NULLY", Constraint.NOT_NULLY)
     .put("NOT_NULL", Constraint.NULL.not())
@@ -69,6 +69,7 @@ class SeVerifier extends SeCheck {
     .put("TRUE", Constraint.TRUE)
     .put("FALSE", Constraint.FALSE)
     .put("OTHER_OBJECT", Constraint.OTHER_OBJECT)
+    .put("OBJECT", Constraint.OBJECT)
     .build();
 
   // line - program state - asserted
