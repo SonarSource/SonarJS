@@ -41,13 +41,11 @@ public class SeChecksDispatcherTest {
   public void test() throws Exception {
     SeChecksDispatcher seChecksDispatcher = new SeChecksDispatcher(ImmutableList.<SeCheck>of(new TestSeCheck()));
     List<Issue> issues = seChecksDispatcher.scanFile(createContext(new File("src/test/resources/se/se_dispatcher_test.js")));
-    assertThat(issues).hasSize(6);
+    assertThat(issues).hasSize(4);
     assertThat(((PreciseIssue) issues.get(0)).primaryLocation().message()).isEqualTo("Start of execution");
     assertThat(((PreciseIssue) issues.get(1)).primaryLocation().message()).isEqualTo("before element");
     assertThat(((PreciseIssue) issues.get(2)).primaryLocation().message()).isEqualTo("after element");
-    assertThat(((PreciseIssue) issues.get(3)).primaryLocation().message()).isEqualTo("before element");
-    assertThat(((PreciseIssue) issues.get(4)).primaryLocation().message()).isEqualTo("after element");
-    assertThat(((PreciseIssue) issues.get(5)).primaryLocation().message()).isEqualTo("End of execution");
+    assertThat(((PreciseIssue) issues.get(3)).primaryLocation().message()).isEqualTo("End of execution");
   }
 
   private class TestSeCheck extends SeCheck {
