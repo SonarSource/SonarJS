@@ -8,7 +8,7 @@ function foo() {
   expr = str === num; // Noncompliant {{Remove this "===" check; it will always be false. Did you mean to use "=="?}}
   expr = str === 1;   // Noncompliant [[sc=14;ec=17;secondary=+0,+0]]
   expr = bool === str; // Noncompliant
-  expr = bool !== str; // Noncompliant {{Remove this "!==" check; it will always be false. Did you mean to use "!="?}}
+  expr = bool !== str; // Noncompliant {{Remove this "!==" check; it will always be true. Did you mean to use "!="?}}
 
   expr = bool == str;
   expr = bool != str;

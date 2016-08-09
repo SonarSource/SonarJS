@@ -46,7 +46,8 @@ import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 @SqaleConstantRemediation("5min")
 public class DifferentTypesComparisonCheck extends SeCheck {
 
-  private static final String MESSAGE = "Remove this \"%s\" check; it will always be false. Did you mean to use \"%s\"?";
+  private static final String MESSAGE_EQUAL = "Remove this \"===\" check; it will always be false. Did you mean to use \"==\"?";
+  private static final String MESSAGE_NOT_EQUAL = "Remove this \"!==\" check; it will always be true. Did you mean to use \"!=\"?";
 
   // For each string equality comparison tree this map contains true if types are different in all execution paths, true if types are alike in at least one execution path
   private Map<BinaryExpressionTree, Boolean> typeDifference = new HashMap<>();
@@ -90,8 +91,7 @@ public class DifferentTypesComparisonCheck extends SeCheck {
   }
 
   private void raiseIssue(BinaryExpressionTree tree) {
-    String operator = tree.operator().text();
-    String message = String.format(MESSAGE, operator, operator.substring(0, operator.length() - 1));
+    String message = tree.is(Kind.STRICT_EQUAL_TO) ? MESSAGE_EQUAL : MESSAGE_NOT_EQUAL;
 
     addIssue(tree.operator(), message)
       .secondary(tree.leftOperand())
