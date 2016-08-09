@@ -34,7 +34,8 @@ import org.junit.runners.Suite;
   CustomRulesTests.class,
   MetricsTest.class,
   MinifiedFilesTest.class,
-  SonarLintTest.class
+  SonarLintTest.class,
+  DefaultProfileTest.class
 })
 public final class Tests {
 
