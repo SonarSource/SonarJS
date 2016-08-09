@@ -14,6 +14,17 @@ function main(obj, arr) {
     y = 42;
   }
   foo(); // PS y=UNDEFINED
-
   makeLive(y);
+
+  for (let e1 in list) {
+    if (e1) {
+      foo(e1); // PS e1=TRUTHY
+    }
+  }
+
+  for (const e2 in list) {
+    if (e2) {
+      foo(e2); // PS e2=TRUTHY
+    }
+  }
 }

@@ -300,7 +300,7 @@ public class SymbolicExecution {
       } else if (branchingTree.is(Kind.FOR_IN_STATEMENT, Kind.FOR_OF_STATEMENT)) {
         ForObjectStatementTree forTree = (ForObjectStatementTree) branchingTree;
         Tree variable = forTree.variableOrExpression();
-        if (variable.is(Kind.VAR_DECLARATION)) {
+        if (variable.is(Kind.VAR_DECLARATION, Kind.LET_DECLARATION, Kind.CONST_DECLARATION)) {
           VariableDeclarationTree declaration = (VariableDeclarationTree) variable;
           variable = declaration.variables().get(0);
         }
