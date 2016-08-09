@@ -36,7 +36,7 @@ public class JavaScriptRulesDefinitionTest {
     rulesDefinition.define(context);
     RulesDefinition.Repository repository = context.repository("javascript");
 
-    assertThat(repository.name()).isEqualTo("SonarQube");
+    assertThat(repository.name()).isEqualTo("SonarAnalyzer");
     assertThat(repository.language()).isEqualTo("js");
     assertThat(repository.rules()).hasSize(CheckList.getChecks().size());
 
