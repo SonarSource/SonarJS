@@ -102,6 +102,9 @@ public class ExpressionStack {
         throw new IllegalArgumentException("Unexpected kind of expression to execute: " + kind);
       case IDENTIFIER_NAME:
       case BINDING_IDENTIFIER:
+      case CONDITIONAL_AND:
+      case CONDITIONAL_OR:
+      case CONDITIONAL_EXPRESSION:
         break;
       case NULL_LITERAL:
         newStack.push(SpecialSymbolicValue.NULL);
@@ -248,18 +251,13 @@ public class ExpressionStack {
         newStack.pop();
         newStack.push(assignedValue);
         break;
-      case CONDITIONAL_AND:
-      case CONDITIONAL_OR:
-      case CONDITIONAL_EXPRESSION:
-        // do nothing
-        break;
       default:
         throw new IllegalArgumentException("Unexpected kind of expression to execute: " + kind);
     }
     return new ExpressionStack(newStack);
   }
 
-  private void popObjectLiteralProperties(ObjectLiteralTree objectLiteralTree, Deque<SymbolicValue> newStack) {
+  private static void popObjectLiteralProperties(ObjectLiteralTree objectLiteralTree, Deque<SymbolicValue> newStack) {
     for (Tree property : objectLiteralTree.properties()) {
       if (property.is(Kind.PAIR_PROPERTY)) {
         Tree key = ((PairPropertyTree) property).key();

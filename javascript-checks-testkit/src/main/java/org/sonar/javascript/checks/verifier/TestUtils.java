@@ -33,10 +33,10 @@ import org.sonar.plugins.javascript.api.tree.Tree;
 
 class TestUtils {
 
+  protected static final ActionParser<Tree> p = JavaScriptParserBuilder.createParser(Charsets.UTF_8);
+
   private TestUtils() {
   }
-
-  protected static final ActionParser<Tree> p = JavaScriptParserBuilder.createParser(Charsets.UTF_8);
 
   public static JavaScriptVisitorContext createContext(File file) {
     ScriptTree scriptTree = (ScriptTree) p.parse(file);
