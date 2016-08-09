@@ -21,6 +21,7 @@ package org.sonar.plugins.javascript;
 
 import org.sonar.api.profiles.ProfileDefinition;
 import org.sonar.api.profiles.RulesProfile;
+import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleFinder;
 import org.sonar.api.utils.ValidationMessages;
 import org.sonar.javascript.checks.CheckList;
@@ -38,7 +39,11 @@ public class JavaScriptProfile extends ProfileDefinition {
   public RulesProfile createProfile(ValidationMessages messages) {
     AnnotationBasedProfileBuilder annotationBasedProfileBuilder = new AnnotationBasedProfileBuilder(ruleFinder);
     RulesProfile profile = annotationBasedProfileBuilder.build(CheckList.REPOSITORY_KEY, CheckList.SONAR_WAY_PROFILE, JavaScriptLanguage.KEY, CheckList.getChecks(), messages);
-    profile.activateRule(ruleFinder.findByKey("common-" + JavaScriptLanguage.KEY, "DuplicatedBlocks"), null);
+    Rule duplicatedBlocks = ruleFinder.findByKey("common-" + JavaScriptLanguage.KEY, "DuplicatedBlocks");
+    // Common rules may not be available in SonarLint
+    if (duplicatedBlocks != null) {
+      profile.activateRule(duplicatedBlocks, null);
+    }
     return profile;
   }
 
