@@ -321,18 +321,18 @@ public class SymbolicExecution {
 
   private void pushConditionSuccessors(CfgBranchingBlock block, ProgramState currentState) {
     SymbolicValue conditionSymbolicValue = currentState.peekStack();
-    currentState = currentState.removeLastValue();
+    ProgramState psWithPoppedStack = currentState.removeLastValue();
 
     if (block.branchingTree().is(Kind.IF_STATEMENT, Kind.WHILE_STATEMENT, Kind.DO_WHILE_STATEMENT, Kind.FOR_STATEMENT)) {
-      currentState.assertEmptyStack(block.branchingTree());
+      psWithPoppedStack.assertEmptyStack(block.branchingTree());
     }
 
     Tree lastElement = block.elements().get(block.elements().size() - 1);
-    for (ProgramState newState : conditionSymbolicValue.constrain(currentState, Constraint.TRUTHY)) {
+    for (ProgramState newState : conditionSymbolicValue.constrain(psWithPoppedStack, Constraint.TRUTHY)) {
       pushConditionSuccessor(block.trueSuccessor(), newState, conditionSymbolicValue, Constraint.TRUTHY);
       conditionResults.put(lastElement, Truthiness.TRUTHY);
     }
-    for (ProgramState newState : conditionSymbolicValue.constrain(currentState, Constraint.FALSY)) {
+    for (ProgramState newState : conditionSymbolicValue.constrain(psWithPoppedStack, Constraint.FALSY)) {
       pushConditionSuccessor(block.falseSuccessor(), newState, conditionSymbolicValue, Constraint.FALSY);
       conditionResults.put(lastElement, Truthiness.FALSY);
     }
