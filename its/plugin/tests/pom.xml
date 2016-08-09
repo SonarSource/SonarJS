@@ -19,18 +19,10 @@
     <dependency>
       <groupId>org.sonarsource.orchestrator</groupId>
       <artifactId>sonar-orchestrator</artifactId>
-      <scope>test</scope>
-      <exclusions>
-        <exclusion>
-          <groupId>com.oracle</groupId>
-          <artifactId>ojdbc6</artifactId>
-        </exclusion>
-      </exclusions>
     </dependency>
     <dependency>
       <groupId>org.sonarsource.sonarlint.core</groupId>
       <artifactId>sonarlint-core</artifactId>
-      <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>com.google.guava</groupId>
@@ -40,19 +32,15 @@
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
-      <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.easytesting</groupId>
       <artifactId>fest-assert</artifactId>
-      <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.assertj</groupId>
       <artifactId>assertj-core</artifactId>
-      <scope>test</scope>
     </dependency>
-
   </dependencies>
 
   <build>
@@ -93,7 +81,6 @@
                     <artifactItem>
                       <groupId>${project.groupId}</groupId>
                       <artifactId>sonar-javascript-plugin</artifactId>
-                      <version>${project.version}</version>
                       <type>sonar-plugin</type>
                       <overWrite>true</overWrite>
                     </artifactItem>

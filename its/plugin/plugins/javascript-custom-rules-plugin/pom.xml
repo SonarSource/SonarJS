@@ -18,15 +18,11 @@
     <dependency>
       <groupId>org.sonarsource.sonarqube</groupId>
       <artifactId>sonar-plugin-api</artifactId>
-      <scope>provided</scope>
     </dependency>
-
     <dependency>
       <groupId>org.sonarsource.javascript</groupId>
       <artifactId>sonar-javascript-plugin</artifactId>
       <type>sonar-plugin</type>
-      <version>${project.version}</version>
-      <scope>provided</scope>
     </dependency>
   </dependencies>
 
@@ -41,7 +37,6 @@
           <basePlugin>javascript</basePlugin>
         </configuration>
       </plugin>
-
       <plugin>
         <artifactId>maven-compiler-plugin</artifactId>
         <configuration>

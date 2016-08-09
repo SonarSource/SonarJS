@@ -72,7 +72,6 @@
     <commons-lang.version>2.6</commons-lang.version>
     <fest-assert.version>1.4</fest-assert.version>
     <guava.version>19.0</guava.version>
-    <hamcrest.version>1.1</hamcrest.version>
     <junit.version>4.10</junit.version>
     <logback.version>1.0.13</logback.version>
     <mockito.version>1.9.0</mockito.version>
@@ -87,48 +86,27 @@
   <dependencyManagement>
     <dependencies>
 
+      <!-- Default dependencies (compile) -->
       <dependency>
         <groupId>${project.groupId}</groupId>
         <artifactId>javascript-frontend</artifactId>
         <version>${project.version}</version>
       </dependency>
-
       <dependency>
         <groupId>${project.groupId}</groupId>
         <artifactId>javascript-checks-testkit</artifactId>
         <version>${project.version}</version>
       </dependency>
-
       <dependency>
         <groupId>${project.groupId}</groupId>
         <artifactId>javascript-checks</artifactId>
         <version>${project.version}</version>
       </dependency>
-
-      <dependency>
-        <groupId>org.sonarsource.sonarqube</groupId>
-        <artifactId>sonar-plugin-api</artifactId>
-        <version>${sonar.version}</version>
-      </dependency>
-
-      <dependency>
-        <groupId>org.sonarsource.sonarqube</groupId>
-        <artifactId>sonar-testing-harness</artifactId>
-        <version>${sonar.version}</version>
-      </dependency>
-
       <dependency>
         <groupId>org.sonarsource.sslr</groupId>
         <artifactId>sslr-core</artifactId>
         <version>${sslr.version}</version>
       </dependency>
-
-      <dependency>
-        <groupId>org.sonarsource.sslr</groupId>
-        <artifactId>sslr-testing-harness</artifactId>
-        <version>${sslr.version}</version>
-      </dependency>
-
       <dependency>
         <groupId>org.sonarsource.sslr-squid-bridge</groupId>
         <artifactId>sslr-squid-bridge</artifactId>
@@ -160,80 +138,103 @@
           </exclusion>
         </exclusions>
       </dependency>
-
-      <dependency>
-        <groupId>org.sonarsource.sonarlint.core</groupId>
-         <artifactId>sonarlint-core</artifactId>
-         <version>${sonarlint.version}</version>
-      </dependency>
-
-      <dependency>
-         <groupId>org.sonarsource.orchestrator</groupId>
-         <artifactId>sonar-orchestrator</artifactId>
-         <version>${sonar-orchestrator.version}</version>
-      </dependency>
-
       <dependency>
         <groupId>commons-lang</groupId>
         <artifactId>commons-lang</artifactId>
         <version>${commons-lang.version}</version>
       </dependency>
-
       <dependency>
         <groupId>org.apache.commons</groupId>
         <artifactId>commons-io</artifactId>
         <version>${commons-io.version}</version>
       </dependency>
-
       <dependency>
-        <groupId>org.slf4j</groupId>
-        <artifactId>slf4j-api</artifactId>
-        <version>${slf4j.version}</version>
-        <scope>provided</scope>
+        <groupId>ch.qos.logback</groupId>
+        <artifactId>logback-classic</artifactId>
+        <version>${logback.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.google.guava</groupId>
+        <artifactId>guava</artifactId>
+        <version>${guava.version}</version>
       </dependency>
 
+      <!-- Test dependencies -->
       <dependency>
         <groupId>junit</groupId>
         <artifactId>junit</artifactId>
         <version>${junit.version}</version>
+        <scope>test</scope>
       </dependency>
-
       <dependency>
         <groupId>org.mockito</groupId>
         <artifactId>mockito-all</artifactId>
         <version>${mockito.version}</version>
+        <scope>test</scope>
       </dependency>
-
       <dependency>
-        <groupId>org.hamcrest</groupId>
-        <artifactId>hamcrest-all</artifactId>
-        <version>${hamcrest.version}</version>
-      </dependency>
-
-      <!-- Do not create new dependencies on fest-assert, use assertj instead -->
-      <dependency>
+        <!-- Do not create new dependencies on fest-assert, use assertj instead -->
         <groupId>org.easytesting</groupId>
         <artifactId>fest-assert</artifactId>
         <version>${fest-assert.version}</version>
+        <scope>test</scope>
       </dependency>
-
       <dependency>
         <groupId>org.assertj</groupId>
         <artifactId>assertj-core</artifactId>
         <version>${assertj.version}</version>
         <scope>test</scope>
       </dependency>
-
       <dependency>
-        <groupId>ch.qos.logback</groupId>
-        <artifactId>logback-classic</artifactId>
-        <version>${logback.version}</version>
+        <groupId>org.sonarsource.sonarqube</groupId>
+        <artifactId>sonar-testing-harness</artifactId>
+        <version>${sonar.version}</version>
+        <scope>test</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.sonarsource.sslr</groupId>
+        <artifactId>sslr-testing-harness</artifactId>
+        <version>${sslr.version}</version>
+        <scope>test</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.sonarsource.sonarlint.core</groupId>
+        <artifactId>sonarlint-core</artifactId>
+        <version>${sonarlint.version}</version>
+        <scope>test</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.sonarsource.orchestrator</groupId>
+        <artifactId>sonar-orchestrator</artifactId>
+        <version>${sonar-orchestrator.version}</version>
+        <scope>test</scope>
+        <exclusions>
+          <exclusion>
+            <groupId>com.oracle</groupId>
+            <artifactId>ojdbc6</artifactId>
+          </exclusion>
+        </exclusions>
       </dependency>
 
+      <!-- Provided dependencies -->
       <dependency>
-        <groupId>com.google.guava</groupId>
-        <artifactId>guava</artifactId>
-        <version>${guava.version}</version>
+        <groupId>org.sonarsource.sonarqube</groupId>
+        <artifactId>sonar-plugin-api</artifactId>
+        <version>${sonar.version}</version>
+        <scope>provided</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.sonarsource.javascript</groupId>
+        <artifactId>sonar-javascript-plugin</artifactId>
+        <type>sonar-plugin</type>
+        <version>${project.version}</version>
+        <scope>provided</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.slf4j</groupId>
+        <artifactId>slf4j-api</artifactId>
+        <version>${slf4j.version}</version>
+        <scope>provided</scope>
       </dependency>
 
     </dependencies>
