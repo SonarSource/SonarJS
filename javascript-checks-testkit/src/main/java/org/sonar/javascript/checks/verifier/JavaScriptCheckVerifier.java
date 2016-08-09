@@ -20,35 +20,30 @@
 package org.sonar.javascript.checks.verifier;
 
 import com.google.common.base.Function;
-import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Ordering;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import javax.annotation.Nullable;
+import org.sonar.javascript.checks.verifier.TestIssue.Location;
 import org.sonar.javascript.se.SeCheck;
 import org.sonar.javascript.se.SeChecksDispatcher;
 import org.sonar.javascript.visitors.JavaScriptVisitorContext;
 import org.sonar.plugins.javascript.api.JavaScriptCheck;
-import org.sonar.plugins.javascript.api.tree.Tree;
-import org.sonar.plugins.javascript.api.tree.Tree.Kind;
-import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
-import org.sonar.plugins.javascript.api.tree.lexical.SyntaxTrivia;
 import org.sonar.plugins.javascript.api.visitors.Issue;
 import org.sonar.plugins.javascript.api.visitors.IssueLocation;
 import org.sonar.plugins.javascript.api.visitors.LineIssue;
 import org.sonar.plugins.javascript.api.visitors.PreciseIssue;
-import org.sonar.plugins.javascript.api.visitors.SubscriptionVisitorCheck;
 import org.sonar.squidbridge.checks.CheckMessagesVerifier;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.junit.Assert.fail;
 
-public class JavaScriptCheckVerifier extends SubscriptionVisitorCheck {
+public class JavaScriptCheckVerifier {
 
-  private final List<TestIssue> expectedIssues = new ArrayList<>();
+  private JavaScriptCheckVerifier() {
+  }
 
   /**
    * Example:
@@ -86,6 +81,15 @@ public class JavaScriptCheckVerifier extends SubscriptionVisitorCheck {
    * x = a && a;  // Noncompliant
    * //    ^^
    * </pre>
+   *<li>Since version 2.15 to specify precise secondary location you can provide separate comment on next line which contains
+   *     symbol <code>^</code> under each character of secondary issue location.
+   *     Start comment with "S" symbol and put after "^" ID of issue (specify it in double square brackets).
+   *     You can optionally provide message of secondary location.
+   * </li>
+   * <pre>
+   * x = a && a;  // Noncompliant [[id=SomeID]]
+   * //S   ^^ SomeID {{secondary message}}
+   * </pre>
    * <li>In double brackets provide secondary locations with <code>secondary</code> keyword.</li>
    * <li>To specify the line you can use relative location by putting <code>+</code> or <code>-</code>.</li>
    * <li>All listed elements are optional (except "Noncompliant").</li>
@@ -97,12 +101,10 @@ public class JavaScriptCheckVerifier extends SubscriptionVisitorCheck {
    * </pre>
    */
   public static void verify(JavaScriptCheck check, File file) {
-    JavaScriptCheckVerifier javaScriptCheckVerifier = new JavaScriptCheckVerifier();
     JavaScriptVisitorContext context = TestUtils.createContext(file);
-    javaScriptCheckVerifier.scanFile(context);
-    List<TestIssue> expectedIssues = javaScriptCheckVerifier.expectedIssues;
-    Iterator<Issue> actualIssues = getActualIssues(check, context);
 
+    List<TestIssue> expectedIssues = ExpectedIssuesParser.parseExpectedIssues(context);
+    Iterator<Issue> actualIssues = getActualIssues(check, context);
 
     for (TestIssue expected : expectedIssues) {
       if (actualIssues.hasNext()) {
@@ -151,127 +153,47 @@ public class JavaScriptCheckVerifier extends SubscriptionVisitorCheck {
     if (expected.endLine() != null) {
       assertThat(((PreciseIssue) actual).primaryLocation().endLine()).as("Bad end line at line " + expected.line()).isEqualTo(expected.endLine());
     }
-    if (expected.secondaryLines() != null) {
-      assertThat(secondary(actual)).as("Bad secondary locations at line " + expected.line()).isEqualTo(expected.secondaryLines());
+    if (!expected.secondaryLocations().isEmpty()) {
+      assertSecondary(actual, expected);
     }
   }
 
-  @Override
-  public List<Kind> nodesToVisit() {
-    return ImmutableList.of(Kind.TOKEN);
-  }
+  private static void assertSecondary(Issue actualIssue, TestIssue expectedIssue) {
+    List<Location> expectedLocations = expectedIssue.secondaryLocations();
+    List<IssueLocation> actualLocations = actualIssue instanceof PreciseIssue ? ((PreciseIssue) actualIssue).secondaryLocations() : new ArrayList<>();
 
-  @Override
-  public void visitNode(Tree tree) {
-    SyntaxToken token = (SyntaxToken) tree;
-    for (SyntaxTrivia trivia : token.trivias()) {
+    String format = "Bad secondary location at line %s (issue at line %s): %s" ;
 
-      String text = trivia.text().substring(2).trim();
-      String marker = "Noncompliant";
+    for (Location expected : expectedLocations) {
+      IssueLocation actual = secondary(expected.line(), actualLocations);
 
-      if (text.startsWith(marker)) {
-        int issueLine = trivia.line();
-        String paramsAndMessage = text.substring(marker.length()).trim();
-
-        if (paramsAndMessage.startsWith("@+")) {
-          String[] spaceSplit = paramsAndMessage.split("[\\s\\[{]", 2);
-          issueLine += Integer.valueOf(spaceSplit[0].substring(2));
-          paramsAndMessage = spaceSplit.length > 1 ? spaceSplit[1] : "";
+      if (actual != null) {
+        if (expected.message() != null) {
+          assertThat(actual.message()).as(String.format(format, expected.line(), line(actualIssue), "bad message")).isEqualTo(expected.message());
         }
-
-        TestIssue issue = issue(null, issueLine);
-
-        if (paramsAndMessage.startsWith("[[")) {
-          int endIndex = paramsAndMessage.indexOf("]]");
-          addParams(issue, paramsAndMessage.substring(2, endIndex));
-          paramsAndMessage = paramsAndMessage.substring(endIndex + 2).trim();
+        if (expected.startColumn() != null) {
+          assertThat(actual.startLineOffset() + 1).as(String.format(format, expected.line(), line(actualIssue), "bad start column")).isEqualTo(expected.startColumn());
+          assertThat(actual.endLineOffset() + 1).as(String.format(format, expected.line(), line(actualIssue), "bad end column")).isEqualTo(expected.endColumn());
         }
-
-        if (paramsAndMessage.startsWith("{{")) {
-          int endIndex = paramsAndMessage.indexOf("}}");
-          String message = paramsAndMessage.substring(2, endIndex);
-          issue.message(message);
-        }
-
-        expectedIssues.add(issue);
-
-      } else if (text.startsWith("^")) {
-        addPreciseLocation(trivia);
-      }
-    }
-  }
-
-  private void addPreciseLocation(SyntaxTrivia trivia) {
-    int line = trivia.line();
-    String text = trivia.text();
-    if (trivia.column() > 1) {
-      throw new IllegalStateException("Line " + line + ": comments asserting a precise location should start at column 1");
-    }
-    String missingAssertionMessage = String.format("Invalid test file: a precise location is provided at line %s but no issue is asserted at line %s", line, line - 1);
-    if (expectedIssues.isEmpty()) {
-      throw new IllegalStateException(missingAssertionMessage);
-    }
-    TestIssue issue = expectedIssues.get(expectedIssues.size() - 1);
-    if (issue.line() != line - 1) {
-      throw new IllegalStateException(missingAssertionMessage);
-    }
-    issue.endLine(issue.line());
-    issue.startColumn(text.indexOf('^') + 1);
-    issue.endColumn(text.lastIndexOf('^') + 2);
-  }
-
-  private static void addParams(TestIssue issue, String params) {
-    for (String param : Splitter.on(';').split(params)) {
-      int equalIndex = param.indexOf('=');
-      if (equalIndex == -1) {
-        throw new IllegalStateException("Invalid param at line 1: " + param);
-      }
-      String name = param.substring(0, equalIndex);
-      String value = param.substring(equalIndex + 1);
-
-      if ("effortToFix".equalsIgnoreCase(name)) {
-        issue.effortToFix(Integer.valueOf(value));
-
-      } else if ("sc".equalsIgnoreCase(name)) {
-        issue.startColumn(Integer.valueOf(value));
-
-      } else if ("ec".equalsIgnoreCase(name)) {
-        issue.endColumn(Integer.valueOf(value));
-
-      } else if ("el".equalsIgnoreCase(name)) {
-        issue.endLine(lineValue(issue.line(), value));
-
-      } else if ("secondary".equalsIgnoreCase(name)) {
-        addSecondaryLines(issue, value);
-
+        actualLocations.remove(actual);
       } else {
-        throw new IllegalStateException("Invalid param at line 1: " + name);
+        throw new AssertionError("Missing secondary location at line " + expected.line() + " for issue at line " + expectedIssue.line());
       }
     }
+
+    if (!actualLocations.isEmpty()) {
+      IssueLocation location = actualLocations.get(0);
+      throw new AssertionError("Unexpected secondary location at line " + location.startLine() + " for issue at line " + line(actualIssue) );
+    }
   }
 
-  private static void addSecondaryLines(TestIssue issue, String value) {
-    List<Integer> secondaryLines = new ArrayList<>();
-    if (!"".equals(value)) {
-      for (String secondary : Splitter.on(',').split(value)) {
-        secondaryLines.add(lineValue(issue.line(), secondary));
+  private static IssueLocation secondary(int line, List<IssueLocation> allSecondaryLocations) {
+    for (IssueLocation location : allSecondaryLocations) {
+      if (location.startLine() == line) {
+        return location;
       }
     }
-    issue.secondary(secondaryLines);
-  }
-
-  private static int lineValue(int baseLine, String shift) {
-    if (shift.startsWith("+")) {
-      return baseLine + Integer.valueOf(shift.substring(1));
-    }
-    if (shift.startsWith("-")) {
-      return baseLine - Integer.valueOf(shift.substring(1));
-    }
-    return Integer.valueOf(shift);
-  }
-
-  private static TestIssue issue(@Nullable String message, int lineNumber) {
-    return TestIssue.create(message, lineNumber);
+    return null;
   }
 
   private static class IssueToLine implements Function<Issue, Integer> {
@@ -296,17 +218,5 @@ public class JavaScriptCheckVerifier extends SubscriptionVisitorCheck {
       return ((LineIssue) issue).message();
     }
   }
-
-  private static List<Integer> secondary(Issue issue) {
-    List<Integer> result = new ArrayList<>();
-
-    if (issue instanceof PreciseIssue) {
-      for (IssueLocation issueLocation : ((PreciseIssue) issue).secondaryLocations()) {
-        result.add(issueLocation.startLine());
-      }
-    }
-    return Ordering.natural().sortedCopy(result);
-  }
-
 
 }
