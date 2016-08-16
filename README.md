@@ -13,9 +13,9 @@ This is the plugin for the [SonarQube](http://www.sonarqube.org/) platform which
 
 * [Project homepage](http://docs.sonarqube.org/display/PLUG/JavaScript+Plugin)
 * [Issue tracking](http://jira.sonarsource.com/browse/SONARJS)
-* [Available rules](https://nemo.sonarqube.org/coding_rules#languages=js)
+* [Available rules](https://sonarqube.com/coding_rules#languages=js)
 * [Google Group for feedback](https://groups.google.com/forum/#!forum/sonarqube)
-* [Demo project analysis](https://nemo.sonarqube.org/overview?id=react)
+* [Demo project analysis](https://sonarqube.com/dashboard?id=react)
 
 # Have question or feedback?
 To provide feedback (request a feature, report a bug etc.) use the [SonarQube Google Group](https://groups.google.com/forum/#!forum/sonarqube). Please do not forget to specify the language (JavaScript!), plugin version and SonarQube version.
