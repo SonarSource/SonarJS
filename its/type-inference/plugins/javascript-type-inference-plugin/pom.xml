@@ -38,6 +38,7 @@
         <extensions>true</extensions>
         <configuration>
           <pluginClass>org.sonar.samples.javascript.JavaScriptTypeInferencePlugin</pluginClass>
+          <sonarQubeMinVersion>${sonarQubeMinVersion}</sonarQubeMinVersion>
         </configuration>
       </plugin>
       <plugin>

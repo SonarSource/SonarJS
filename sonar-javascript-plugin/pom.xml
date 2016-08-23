@@ -22,13 +22,6 @@
     <tag>HEAD</tag>
   </scm>
 
-  <properties>
-    <!-- Configuration for sonar-packaging-maven-plugin -->
-    <sonar.pluginClass>org.sonar.plugins.javascript.JavaScriptPlugin</sonar.pluginClass>
-    <sonar.pluginName>JavaScript</sonar.pluginName>
-    <sonar.skipDependenciesPackaging>true</sonar.skipDependenciesPackaging>
-  </properties>
-
   <dependencies>
     <dependency>
       <groupId>${project.groupId}</groupId>
@@ -66,6 +59,18 @@
 
   <build>
     <plugins>
+
+      <plugin>
+        <groupId>org.sonarsource.sonar-packaging-maven-plugin</groupId>
+        <artifactId>sonar-packaging-maven-plugin</artifactId>
+        <configuration>
+          <pluginName>JavaScript</pluginName>
+          <pluginClass>org.sonar.plugins.javascript.JavaScriptPlugin</pluginClass>
+          <skipDependenciesPackaging>true</skipDependenciesPackaging>
+          <sonarQubeMinVersion>${sonarQubeMinVersion}</sonarQubeMinVersion>
+        </configuration>
+      </plugin>
+
       <plugin>
         <artifactId>maven-shade-plugin</artifactId>
         <executions>
@@ -114,6 +119,7 @@
           </execution>
         </executions>
       </plugin>
+
     </plugins>
   </build>
 

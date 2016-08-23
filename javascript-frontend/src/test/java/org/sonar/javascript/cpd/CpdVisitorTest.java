@@ -58,7 +58,7 @@ public class CpdVisitorTest {
   @Test
   public void test() throws Exception {
     scan("var x = 'a' + 1 + 'line1';\nvar y = 2;\n");
-    List<TokensLine> cpdTokenLines = sensorContext.cpdTokens("moduleKey:" + inputFile.getFile().getName());
+    List<TokensLine> cpdTokenLines = sensorContext.cpdTokens("moduleKey:" + inputFile.file().getName());
     assertThat(cpdTokenLines).hasSize(2);
     TokensLine firstTokensLine = cpdTokenLines.get(0);
     assertThat(firstTokensLine.getValue()).isEqualTo("varx=LITERAL+1+LITERAL;");
