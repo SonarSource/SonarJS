@@ -25,6 +25,7 @@ import org.mockito.stubbing.Answer;
 import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleFinder;
+import org.sonar.api.rules.RulePriority;
 import org.sonar.api.utils.ValidationMessages;
 import org.sonar.javascript.checks.CheckList;
 
@@ -45,8 +46,24 @@ public class JavaScriptProfileTest {
 
     assertThat(profile.getLanguage()).isEqualTo(JavaScriptLanguage.KEY);
     assertThat(profile.getName()).isEqualTo(CheckList.SONAR_WAY_PROFILE);
-    assertThat(profile.getActiveRulesByRepository(CheckList.REPOSITORY_KEY).size()).isGreaterThan(80);
+    assertThat(profile.getActiveRules()).onProperty("repositoryKey").containsOnly("common-js", CheckList.REPOSITORY_KEY);
     assertThat(validation.hasErrors()).isFalse();
+    assertThat(profile.getActiveRules().size()).isEqualTo(91);
+  }
+
+  @Test
+  public void test_sonarlint() {
+    ValidationMessages validation = ValidationMessages.create();
+
+    RuleFinder ruleFinder = sonarLintRuleFinder();
+    JavaScriptProfile definition = new JavaScriptProfile(ruleFinder);
+    RulesProfile profile = definition.createProfile(validation);
+
+    assertThat(profile.getLanguage()).isEqualTo(JavaScriptLanguage.KEY);
+    assertThat(profile.getName()).isEqualTo(CheckList.SONAR_WAY_PROFILE);
+    assertThat(profile.getActiveRules()).onProperty("repositoryKey").containsOnly(CheckList.REPOSITORY_KEY);
+    assertThat(validation.hasErrors()).isFalse();
+    assertThat(profile.getActiveRules().size()).isEqualTo(90);
   }
 
   static RuleFinder ruleFinder() {
@@ -58,5 +75,20 @@ public class JavaScriptProfileTest {
       }
     }).getMock();
   }
+
+  /**
+   * SonarLint will inject a rule finder containing only the rules coming from the abap repository
+   */
+  private RuleFinder sonarLintRuleFinder() {
+    return when(mock(RuleFinder.class).findByKey(anyString(), anyString())).thenAnswer(invocation -> {
+      Object[] arguments = invocation.getArguments();
+      if(CheckList.REPOSITORY_KEY.equals(arguments[0])) {
+        Rule rule = Rule.create((String) arguments[0], (String) arguments[1], (String) arguments[1]);
+        return rule.setSeverity(RulePriority.MINOR);
+      }
+      return null;
+    }).getMock();
+  }
+
 
 }

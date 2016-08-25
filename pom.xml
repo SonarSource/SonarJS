@@ -81,6 +81,7 @@
     <sonarlint.version>2.3.2</sonarlint.version>
     <sslr.version>1.21</sslr.version>
     <sslr-squid-bridge.version>2.6.1</sslr-squid-bridge.version>
+    <gson.version>2.6.2</gson.version>
   </properties>
 
   <dependencyManagement>
@@ -157,6 +158,11 @@
         <groupId>com.google.guava</groupId>
         <artifactId>guava</artifactId>
         <version>${guava.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.google.code.gson</groupId>
+        <artifactId>gson</artifactId>
+        <version>${gson.version}</version>
       </dependency>
 
       <!-- Test dependencies -->

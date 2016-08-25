@@ -47,6 +47,10 @@
       <artifactId>sonar-plugin-api</artifactId>
     </dependency>
     <dependency>
+      <groupId>com.google.code.gson</groupId>
+      <artifactId>gson</artifactId>
+    </dependency>
+    <dependency>
       <groupId>org.sonarsource.sonarqube</groupId>
       <artifactId>sonar-testing-harness</artifactId>
     </dependency>
@@ -99,8 +103,8 @@
             <configuration>
               <rules>
                 <requireFilesSize>
-                  <minsize>2550000</minsize>
-                  <maxsize>2650000</maxsize>
+                  <minsize>2800000</minsize>
+                  <maxsize>2900000</maxsize>
                   <files>
                     <file>${project.build.directory}/${project.build.finalName}.jar</file>
                   </files>

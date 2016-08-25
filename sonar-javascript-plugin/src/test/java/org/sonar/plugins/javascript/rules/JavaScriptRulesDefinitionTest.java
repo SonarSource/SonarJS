@@ -20,8 +20,11 @@
 package org.sonar.plugins.javascript.rules;
 
 import org.junit.Test;
+import org.sonar.api.rules.RuleType;
+import org.sonar.api.server.debt.DebtRemediationFunction.Type;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.api.server.rule.RulesDefinition.Param;
+import org.sonar.api.server.rule.RulesDefinition.Repository;
 import org.sonar.api.server.rule.RulesDefinition.Rule;
 import org.sonar.javascript.checks.CheckList;
 
@@ -40,10 +43,20 @@ public class JavaScriptRulesDefinitionTest {
     assertThat(repository.language()).isEqualTo("js");
     assertThat(repository.rules()).hasSize(CheckList.getChecks().size());
 
-    RulesDefinition.Rule alertUseRule = repository.rule("ArrayAndObjectConstructors");
-    assertThat(alertUseRule).isNotNull();
-    assertThat(alertUseRule.name()).isEqualTo("Array and Object constructors should not be used");
+    assertRuleProperties(repository);
+    assertAllRuleParametersHaveDescription(repository);
+  }
 
+  private void assertRuleProperties(Repository repository) {
+    Rule rule = repository.rule("ArrayAndObjectConstructors");
+    assertThat(rule).isNotNull();
+    assertThat(rule.name()).isEqualTo("Array and Object constructors should not be used");
+    assertThat(rule.debtRemediationFunction().type()).isEqualTo(Type.CONSTANT_ISSUE);
+    assertThat(rule.type()).isEqualTo(RuleType.BUG);
+    assertThat(repository.rule("CommentRegularExpression").template()).isTrue();
+  }
+
+  private void assertAllRuleParametersHaveDescription(Repository repository) {
     for (Rule rule : repository.rules()) {
       for (Param param : rule.params()) {
         assertThat(param.description()).as("description for " + param.key()).isNotEmpty();
