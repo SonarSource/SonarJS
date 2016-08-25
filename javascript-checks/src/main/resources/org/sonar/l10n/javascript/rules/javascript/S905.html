@@ -1,13 +1,17 @@
-<p>An expression statement without side effects, such as a comparison without assigning its result to a variable, is useless, and must have been a mistake on the developer's part.</p>
-
-<h2>Noncompliant code example</h2>
-
+<p>Any statement (other than a null statement, which means a statement containing only a semicolon <code>;</code>) which has no side effect and does
+not result in a change of control flow will normally indicate a programming error, and therefore should be refactored.</p>
+<h2>Noncompliant Code Example</h2>
 <pre>
-var str = "long string split on multiple lines but" // without concatenation operator, statement implicitly ends at the linebreak
-  " the concatenation operator + is missing";  // Noncompliant
-
-a == 1;   // Noncompliant; was assignment intended?
+a == 1; // Noncompliant; was assignment intended?
 </pre>
-
+<pre>
+a &lt; b; // Noncompliant; have we forgotten to assign the result to a variable?
+</pre>
 <h2>See</h2>
-<ul><li><a href="http://cwe.mitre.org/data/definitions/482">MITRE, CWE-482</a> - Comparing instead of Assigning</li></ul>
+<ul>
+  <li> <a href="http://cwe.mitre.org/data/definitions/482">MITRE, CWE-482</a> - Comparing instead of Assigning </li>
+  <li> <a href="https://www.securecoding.cert.org/confluence/x/SIIyAQ">CERT, MSC12-CPP.</a> - Detect and remove code that has no effect </li>
+  <li> MISRA C:2004, 14.2 - All non-null statements shall either have at least one side-effect however executed, or cause control flow to change.
+  </li>
+</ul>
+

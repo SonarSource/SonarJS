@@ -1,14 +1,10 @@
-<p>
-  Restricting the number of <code>break</code> and <code>continue</code> statements in a loop is done in the interest of good structured programming.
+<p>Restricting the number of <code>break</code> and <code>continue</code> statements in a loop is done in the interest of good structured programming.
 </p>
-
-<p>
-  One <code>break</code> and <code>continue</code> statement is acceptable in a loop, since it facilitates optimal coding. If there is more than one, the code should be refactored to increase readability.
-</p>
-
-<h2>Noncompiant Code Example</h2>
+<p>One <code>break</code> and <code>continue</code> statement is acceptable in a loop, since it facilitates optimal coding. If there is more than one,
+the code should be refactored to increase readability.</p>
+<h2>Noncompliant Code Example</h2>
 <pre>
-for (var i = 1; i <= 10; i++) {  // Noncompliant - 2 continue - one might be tempted to add some logic in between
+for (var i = 1; i &lt;= 10; i++) {  // Noncompliant - 2 continue - one might be tempted to add some logic in between
   if (i % 2 == 0) {
     continue;
   }
@@ -20,3 +16,4 @@ for (var i = 1; i <= 10; i++) {  // Noncompliant - 2 continue - one might be tem
   alert("i = " + i);
 }
 </pre>
+

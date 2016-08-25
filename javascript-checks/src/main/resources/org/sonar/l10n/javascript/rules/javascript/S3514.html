@@ -1,6 +1,6 @@
-<p>ECMAScript 2015 introduced the ability to extract and assign multiple data points from an object or array simultaneously. This is called "destructuring", and it allows you to condense boilerplate code so you can concentrate on logic. </p>
+<p>ECMAScript 2015 introduced the ability to extract and assign multiple data points from an object or array simultaneously. This is called
+"destructuring", and it allows you to condense boilerplate code so you can concentrate on logic. </p>
 <p>This rule raises an issue when multiple pieces of data are extracted out of the same object or array and assigned to variables.</p>
-
 <h2>Noncompliant Code Example</h2>
 <pre>
 function foo (obj1, obj2, array) {
@@ -13,7 +13,6 @@ function foo (obj1, obj2, array) {
   var one = array[1];
 }
 </pre>
-
 <h2>Compliant Solution</h2>
 <pre>
 function foo (obj1, obj2, array) {
@@ -24,3 +23,4 @@ function foo (obj1, obj2, array) {
   var [zero, one] = array;
 }
 </pre>
+

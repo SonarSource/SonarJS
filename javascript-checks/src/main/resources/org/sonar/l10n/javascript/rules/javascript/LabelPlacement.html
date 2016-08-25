@@ -1,6 +1,6 @@
-<p>Any statement or block of statements can be identified by a label, but those labels should be used only on 'while', 'do-while' and 'for' statements. Using labels in any other context leads to unstructured, confusing code. </p>
+<p>Any statement or block of statements can be identified by a label, but those labels should be used only on <code>while</code>,
+<code>do-while</code> and <code>for</code> statements. Using labels in any other context leads to unstructured, confusing code. </p>
 <h2>Noncompliant Code Example</h2>
-
 <pre>
 myLabel:if (i % 2 == 0) {  // Noncompliant
   if (i == 12) {
@@ -11,7 +11,6 @@ myLabel:if (i % 2 == 0) {  // Noncompliant
 }
 </pre>
 <h2>Compliant Solution</h2>
-
 <pre>
 myLabel:for (i = 0; i &lt; 10; i++) {   // Compliant
   print("Loop");

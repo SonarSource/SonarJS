@@ -1,6 +1,6 @@
-<p>ECMAScript 2015 added the ability to use template literals instead of concatenation. Since their use is clearer and more concise, they are preferred in environments that support ECMAScript 2015.</p>
+<p>ECMAScript 2015 added the ability to use template literals instead of concatenation. Since their use is clearer and more concise, they are
+preferred in environments that support ECMAScript 2015.</p>
 <p>This rule raises an issue when a string is created from the result of two or more concatenations.</p>
-
 <h2>Noncompliant Code Example</h2>
 <pre>
 function sayHello(name) {
@@ -11,7 +11,6 @@ function madLib(verb, noun) {
   console.log("I really " + verb + " one or two " + noun);  // Noncompliant
 }
 </pre>
-
 <h2>Compliant Solution</h2>
 <pre>
 function sayHello(name) {
@@ -22,3 +21,4 @@ function madLib(verb, noun) {
   console.log("I really ${verb} one or two ${noun}");
 }
 </pre>
+

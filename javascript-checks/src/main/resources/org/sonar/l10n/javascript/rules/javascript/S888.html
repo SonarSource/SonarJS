@@ -1,8 +1,6 @@
-<p>
-  Testing <code>for</code> loop termination using an equality operator (<code>==</code> and <code>!=</code>) is dangerous, because it could set up an infinite loop.
-  Using a relational operator instead casts a wider net, and makes it harder (but not impossible) to accidentally write an infinite loop.
-</p>
-
+<p>Testing <code>for</code> loop termination using an equality operator (<code>==</code> and <code>!=</code>) is dangerous, because it could set up an
+infinite loop. Using a broader relational operator instead casts a wider net, and makes it harder (but not impossible) to accidentally write an
+infinite loop.</p>
 <h2>Noncompliant Code Example</h2>
 <pre>
 for (var i = 1; i != 10; i += 2)  // Noncompliant. Infinite; i goes from 9 straight to 11.
@@ -10,36 +8,35 @@ for (var i = 1; i != 10; i += 2)  // Noncompliant. Infinite; i goes from 9 strai
   //...
 }
 </pre>
-
 <h2>Compliant Solution</h2>
 <pre>
-for (var i = 1; i <= 10; i += 2)  // Compliant
+for (var i = 1; i &lt;= 10; i += 2)  // Compliant
 {
   //...
 }
 </pre>
-
 <h2>Exceptions</h2>
-<p>An equality operator may be used if the loop counter is not modified within the body of the loop and either:</p>
+<p>Equality operators are ignored if the loop counter is not modified within the body of the loop and either:</p>
 <ul>
-  <li>starts below the ending value and is incremented by 1 on each iteration.</li>
-  <li>starts above the ending value and is decremented by 1 on each iteration.</li>
+  <li> starts below the ending value and is incremented by 1 on each iteration. </li>
+  <li> starts above the ending value and is decremented by 1 on each iteration. </li>
 </ul>
 <p>Equality operators are also ignored when the test is against <code>null</code>.</p>
 <pre>
-for (int i = 0; arr[i] != null; i++) {
+for (var i = 0; arr[i] != null; i++) {
   // ...
 }
 
-for (int i = 0; (item = arr[i]) != null; i++) {
+for (var i = 0; (item = arr[i]) != null; i++) {
   // ...
 }
 </pre>
-
 <h2>See</h2>
 <ul>
-  <li>MISRA C++:2008, 6-5-2</li>
-  <li><a href="http://cwe.mitre.org/data/definitions/835">MITRE, CWE-835</a> - Loop with Unreachable Exit Condition ('Infinite Loop')</li>
-  <li><a href="https://www.securecoding.cert.org/confluence/x/EwDJAQ">CERT, MSC21-C</a> - Use robust loop termination conditions</li>
-  <li><a href="https://www.securecoding.cert.org/confluence/x/GwDJAQ">CERT, MSC21-CPP</a> - Use inequality to terminate a loop whose counter changes by more than one</li>
+  <li> MISRA C++:2008, 6-5-2 </li>
+  <li> <a href="http://cwe.mitre.org/data/definitions/835">MITRE, CWE-835</a> - Loop with Unreachable Exit Condition ('Infinite Loop') </li>
+  <li> <a href="https://www.securecoding.cert.org/confluence/x/EwDJAQ">CERT, MSC21-C.</a> - Use robust loop termination conditions </li>
+  <li> <a href="https://www.securecoding.cert.org/confluence/x/GwDJAQ">CERT, MSC21-CPP.</a> - Use inequality to terminate a loop whose counter changes
+  by more than one </li>
 </ul>
+

@@ -1,20 +1,12 @@
-<p>
-  A function that grows too large tends to aggregate too many responsibilities.</br>
-  Such function inevitably become harder to understand and therefore harder to maintain.
-</p>
-<p>
-  Above a specific threshold, it is strongly advised to refactor into smaller functions which focus on well-defined tasks.
-</p>
-<p>
-  Those smaller functions will not only be easier to understand, but also probably easier to test.
-</p>
-
+<p>A function that grows too large tends to aggregate too many responsibilities.</p>
+<p>Such functions inevitably become harder to understand and therefore harder to maintain. </p>
+<p>Above a specific threshold, it is strongly advised to refactor into smaller functions which focus on well-defined tasks.</p>
+<p>Those smaller functions will not only be easier to understand, but also probably easier to test.</p>
 <h2>Exceptions</h2>
-<p>
-  This function ignores Immediately Invoked Function Expressions (IIFE), functions which are created and invoked without ever being assigned a name.
-</p>
+<p>This function ignores Immediately Invoked Function Expressions (IIFE), which are functions that are created and invoked without ever being assigned
+a name.</p>
 <pre>
- (function () { // Ignored by this rule
+(function () { // Ignored by this rule
 
   function open() {  // Classic function declaration; not ignored
     // ...
@@ -29,3 +21,4 @@
   }
 })();
 </pre>
+

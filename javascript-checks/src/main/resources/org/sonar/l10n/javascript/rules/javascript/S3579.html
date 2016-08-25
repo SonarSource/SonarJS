@@ -1,7 +1,5 @@
-<p>
-  JavaScript is flexible enough to allow you to store values in an array with either numeric or named indexes. That is, it supports associative arrays. But creating and populating an object in JavaScript is just as easy as an array, and more reliable if you need named members.
-</p>
-
+<p>JavaScript is flexible enough to allow you to store values in an array with either numeric or named indexes. That is, it supports associative
+arrays. But creating and populating an object in JavaScript is just as easy as an array, and more reliable if you need named members.</p>
 <h2>Noncompliant Code Example</h2>
 <pre>
 let arr = [];
@@ -9,7 +7,6 @@ arr[0] = 'a';
 arr['name'] = 'bob';  // Noncompliant
 arr[1] = 'foo';
 </pre>
-
 <h2>Compliant Solution</h2>
 <pre>
 let obj = {
@@ -17,3 +14,4 @@ let obj = {
   arr: ['a', 'foo']
 };
 </pre>
+

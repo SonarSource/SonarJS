@@ -1,6 +1,7 @@
-<p>The fact that JavaScript is not a strongly typed language allows developers a lot of freedom, but that freedom can turn into giving you enough rope to hang yourself. </p>
-<p>Specifically, it is syntactically acceptable to invoke any expression as though its value were a function. But a <code>TypeError</code> may be raised if you do.</p>
-
+<p>The fact that JavaScript is not a strongly typed language allows developers a lot of freedom, but that freedom can turn into giving you enough rope
+to hang yourself. </p>
+<p>Specifically, it is syntactically acceptable to invoke any expression as though its value were a function. But a <code>TypeError</code> may be
+raised if you do.</p>
 <h2>Noncompliant Code Example</h2>
 <pre>
 foo = 1;
@@ -9,3 +10,4 @@ foo();   // Noncompliant; TypeError
 foo = undefined;
 foo();  // Noncompliant; TypeError
 </pre>
+

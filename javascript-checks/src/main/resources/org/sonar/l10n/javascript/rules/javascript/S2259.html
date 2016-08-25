@@ -1,18 +1,17 @@
-<p>When a variable is assigned an <code>undefined</code> or <code>null</code> value, it has no properties. Trying to access properties of such a variable anyway results in a <code>TypeError</code>, causing abrupt termination of the script if the error is not caught in a <code>catch</code> block. But instead of <code>catch</code>-ing this condition, it is best to avoid it altogether.</p>
-
+<p>When a variable is assigned an <code>undefined</code> or <code>null</code> value, it has no properties. Trying to access properties of such a
+variable anyway results in a <code>TypeError</code>, causing abrupt termination of the script if the error is not caught in a <code>catch</code>
+block. But instead of <code>catch</code>-ing this condition, it is best to avoid it altogether.</p>
 <h2>Noncompliant Code Example</h2>
 <pre>
 if (x === undefined) {
   console.log(x.length); // Noncompliant; TypeError will be thrown
 }
 </pre>
-
 <h2>See</h2>
 <ul>
-  <li> <a href="http://cwe.mitre.org/data/definitions/476.html">MITRE, CWE-476</a> - NULL Pointer Dereference
-  </li><li> <a href="https://www.securecoding.cert.org/confluence/x/PAw">CERT, EXP34-C.</a> - Do not dereference null pointers
-</li><li> <a href="https://www.securecoding.cert.org/confluence/x/ZwDOAQ">CERT, EXP01-J.</a> - Do not use a null in a case where an object is required
-</li><li> <a href="https://www.owasp.org/index.php/Top_10_2013-A1-Injection">OWASP Top Ten 2013 Category A1</a> - Injection
-</li><li> <a href="https://www.owasp.org/index.php/Top_10_2013-A2-Broken_Authentication_and_Session_Management">OWASP Top Ten 2013 Category A2</a> - Broken Authentication and Session Management
-</li><li> <a href="https://www.owasp.org/index.php/Top_10_2013-A6-Sensitive_Data_Exposure">OWASP Top Ten 2013 Category A6</a> - Sensitive Data Exposure
-</li></ul>
+  <li> <a href="http://cwe.mitre.org/data/definitions/476.html">MITRE, CWE-476</a> - NULL Pointer Dereference </li>
+  <li> <a href="https://www.securecoding.cert.org/confluence/x/PAw">CERT, EXP34-C.</a> - Do not dereference null pointers </li>
+  <li> <a href="https://www.securecoding.cert.org/confluence/x/ZwDOAQ">CERT, EXP01-J.</a> - Do not use a null in a case where an object is required
+  </li>
+</ul>
+

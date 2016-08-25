@@ -1,9 +1,10 @@
 <p>Using element type in class selectors is slower than using only the class selector.</p>
-
 <h2>Noncompliant Code Example</h2>
-
-<pre>var $products = $("div.products");    // Noncompliant - slow</pre>
-
+<pre>
+var $products = $("div.products");    // Noncompliant - slow
+</pre>
 <h2>Compliant Solution</h2>
+<pre>
+var $products = $(".products");    // Compliant - fast
+</pre>
 
-<pre>var $products = $(".products");    // Compliant - fast</pre>

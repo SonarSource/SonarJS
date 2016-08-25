@@ -1,10 +1,6 @@
-<p>
-  The unary operators <code>+</code> and <code>-</code> can be used to convert some value types to numeric values.
-  But not every value can be converted to a <code>Number</code> type: use it with an object, and result will be always <code>NaN</code> (Not A Number).
-</p>
-
+<p>The unary operators <code>+</code> and <code>-</code> can be used to convert some value types to numeric values. But not every value can be
+converted to a <code>Number</code> type; use it with an object, and result will be always <code>NaN</code> (Not A Number).</p>
 <h2>Noncompliant Code Example</h2>
-
 <pre>
 var obj = {x : 1};
 doSomethingWithNumber(+obj);    // Noncompliant
@@ -14,9 +10,7 @@ function foo(){
 }
 doSomethingWithNumber(-foo);    // Noncompliant
 </pre>
-
 <h2>Compliant Solution</h2>
-
 <pre>
 var obj = {x : 1};
 doSomethingWithNumber(+obj.x);
@@ -29,12 +23,12 @@ doSomethingWithNumber(-foo());
 var str = '42';
 doSomethingWithNumber(+str);
 </pre>
-
 <h2>Exceptions</h2>
-
-<p>Unary <code>+</code> and <code>-</code> can be used with objects corresponding to primitive types.</p>
-
+<p>Unary <code>+</code> and <code>-</code> can be used with objects corresponding to primitive types, and <code>+</code> can be used with
+<code>Date</code>.</p>
 <pre>
 var b = new Boolean(true);
 doSomethingWithNumber(-b);  // Compliant
+var timestamp = +new Date();  // Compliant
 </pre>
+

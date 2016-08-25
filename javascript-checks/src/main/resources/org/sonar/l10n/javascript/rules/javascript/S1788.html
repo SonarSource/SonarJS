@@ -1,6 +1,8 @@
-<p>The ability to define default values for function parameters can make a function easier to use. Default parameter values allow callers to specify as many or as few arguments as they want while getting the same functionality and minimizing boilerplate, wrapper code.</p>
-<p>But all function parameters with default values should be declared after the function parameters without default values. Otherwise, it makes it impossible for callers to take advantage of defaults; they must re-specify the defaulted values or pass <code>undefined</code> in order to "get to" the non-default parameters.</p>
-
+<p>The ability to define default values for function parameters can make a function easier to use. Default parameter values allow callers to specify
+as many or as few arguments as they want while getting the same functionality and minimizing boilerplate, wrapper code.</p>
+<p>But all function parameters with default values should be declared after the function parameters without default values. Otherwise, it makes it
+impossible for callers to take advantage of defaults; they must re-specify the defaulted values or pass <code>undefined</code> in order to "get to"
+the non-default parameters.</p>
 <h2>Noncompliant Code Example</h2>
 <pre>
 function multiply(a = 1, b) {  // Noncompliant
@@ -9,7 +11,6 @@ function multiply(a = 1, b) {  // Noncompliant
 
 var x = multiply(42);  // returns NaN as b is undefined
 </pre>
-
 <h2>Compliant Solution</h2>
 <pre>
 function multiply(b, a = 1) {
@@ -18,3 +19,4 @@ function multiply(b, a = 1) {
 
 var x = multiply(42);  // returns 42 as expected
 </pre>
+

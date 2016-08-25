@@ -1,14 +1,16 @@
 <p>Doing an operation on a string without using the result of the operation is useless and is certainly due to a misunderstanding. </p>
 <h2>Noncompliant Code Example</h2>
-
 <pre>
 var str = "..."
 str.toUpperCase(); // Noncompliant
 </pre>
 <h2>Compliant Solution</h2>
-
 <pre>
 var str = "..."
 str = str.toUpperCase();
 </pre>
+<h2>See</h2>
+<ul>
+  <li> <a href="https://www.securecoding.cert.org/confluence/x/9gEqAQ">CERT, EXP00-J.</a> - Do not ignore values returned by methods </li>
+</ul>
 

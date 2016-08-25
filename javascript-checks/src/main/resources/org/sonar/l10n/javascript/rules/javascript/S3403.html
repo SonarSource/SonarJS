@@ -1,5 +1,5 @@
-<p>Comparing dissimilar types using the identity operator (<code>===</code>) will always return <code>false</code> because no type conversion is done before the comparison. Thus, such comparisons can only be bugs.</p>
-
+<p>Comparing dissimilar types using the identity operator (<code>===</code>) will always return <code>false</code> because no type conversion is done
+before the comparison. Thus, such comparisons can only be bugs.</p>
 <h2>Noncompliant Code Example</h2>
 <pre>
 var a = 8;
@@ -9,7 +9,6 @@ if (a === b) {  // Noncompliant; always false
   // ...
 }
 </pre>
-
 <h2>Compliant Solution</h2>
 <pre>
 var a = 8;
@@ -28,3 +27,4 @@ if (a === Number(b)) {
   // ...
 }
 </pre>
+
