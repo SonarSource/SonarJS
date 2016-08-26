@@ -25,9 +25,9 @@ import com.sonar.sslr.api.typed.ActionParser;
 import org.junit.Test;
 import org.sonar.javascript.cfg.ControlFlowGraph;
 import org.sonar.javascript.parser.JavaScriptParserBuilder;
-import org.sonar.javascript.se.sv.EqualToSymbolicValue;
 import org.sonar.javascript.se.sv.LiteralSymbolicValue;
 import org.sonar.javascript.se.sv.LogicalNotSymbolicValue;
+import org.sonar.javascript.se.sv.RelationalSymbolicValue;
 import org.sonar.javascript.se.sv.SimpleSymbolicValue;
 import org.sonar.javascript.se.sv.SpecialSymbolicValue;
 import org.sonar.javascript.se.sv.SymbolicValue;
@@ -78,44 +78,27 @@ public class ExpressionStackTest {
   }
 
   @Test
-  public void equal_unknown() throws Exception {
-    execute("a == foo()");
-    assertSingleValueInStack(new SymbolicValueWithConstraint(Constraint.BOOLEAN));
-  }
-
-  @Test
-  public void equal_null() throws Exception {
+  public void equal() throws Exception {
     execute("a == null");
-    assertSingleValueInStack(new EqualToSymbolicValue(simple1, Constraint.NULL_OR_UNDEFINED));
-    assertSingleValueInStackWithConstraint(Constraint.BOOLEAN);
+    assertSingleValueInStack(RelationalSymbolicValue.create(Kind.EQUAL_TO, simple1, SpecialSymbolicValue.NULL));
   }
 
   @Test
-  public void null_equal() throws Exception {
-    execute("null == a");
-    assertSingleValueInStack(new EqualToSymbolicValue(simple1, Constraint.NULL_OR_UNDEFINED));
-    assertSingleValueInStackWithConstraint(Constraint.BOOLEAN);
-  }
-
-  @Test
-  public void not_equal_null() throws Exception {
+  public void not_equal() throws Exception {
     execute("a != null");
-    assertSingleValueInStack(new EqualToSymbolicValue(simple1, Constraint.NOT_NULLY));
-    assertSingleValueInStackWithConstraint(Constraint.BOOLEAN);
+    assertSingleValueInStack(RelationalSymbolicValue.create(Kind.NOT_EQUAL_TO, simple1, SpecialSymbolicValue.NULL));
   }
 
   @Test
-  public void strict_equal_null() throws Exception {
+  public void strict_equal() throws Exception {
     execute("a === null");
-    assertSingleValueInStack(new EqualToSymbolicValue(simple1, Constraint.NULL));
-    assertSingleValueInStackWithConstraint(Constraint.BOOLEAN);
+    assertSingleValueInStack(RelationalSymbolicValue.create(Kind.STRICT_EQUAL_TO, simple1, SpecialSymbolicValue.NULL));
   }
 
   @Test
-  public void strict_not_equal_null() throws Exception {
+  public void strict_not_equal() throws Exception {
     execute("a !== null");
-    assertSingleValueInStack(new EqualToSymbolicValue(simple1, Constraint.NULL.not()));
-    assertSingleValueInStackWithConstraint(Constraint.BOOLEAN);
+    assertSingleValueInStack(RelationalSymbolicValue.create(Kind.STRICT_NOT_EQUAL_TO, simple1, SpecialSymbolicValue.NULL));
   }
 
   @Test
@@ -242,19 +225,18 @@ public class ExpressionStackTest {
   }
 
   @Test
-  public void boolean_expressions() throws Exception {
-    execute("a < b");
-    assertSingleValueInStack(new SymbolicValueWithConstraint(Constraint.BOOLEAN));
+  public void relational_expressions() throws Exception {
+    execute("a < null");
+    assertSingleValueInStack(RelationalSymbolicValue.create(Kind.LESS_THAN, simple1, SpecialSymbolicValue.NULL));
 
     execute("a <= b");
-    assertSingleValueInStack(new SymbolicValueWithConstraint(Constraint.BOOLEAN));
+    assertSingleValueInStack(RelationalSymbolicValue.create(Kind.LESS_THAN_OR_EQUAL_TO, simple1, simple1));
 
     execute("a > b");
-    assertSingleValueInStack(new SymbolicValueWithConstraint(Constraint.BOOLEAN));
-
+    assertSingleValueInStack(RelationalSymbolicValue.create(Kind.GREATER_THAN, simple1, simple1));
 
     execute("a >= b");
-    assertSingleValueInStack(new SymbolicValueWithConstraint(Constraint.BOOLEAN));
+    assertSingleValueInStack(RelationalSymbolicValue.create(Kind.GREATER_THAN_OR_EQUAL_TO, simple1, simple1));
   }
 
   @Test
@@ -360,12 +342,14 @@ public class ExpressionStackTest {
   private void assertSingleValueInStack(SymbolicValue expected) {
     assertThat(stack.size()).isEqualTo(1);
 
-    if (expected instanceof EqualToSymbolicValue) {
-      assertThat(((EqualToSymbolicValue) expected).equalToSV(stack.peek())).isTrue();
-
-    } else if (expected instanceof SymbolicValueWithConstraint) {
+    if (expected instanceof SymbolicValueWithConstraint) {
       assertThat(stack.peek()).isInstanceOf(SymbolicValueWithConstraint.class);
       assertThat(stack.peek().constraint(mock(ProgramState.class))).isEqualTo(expected.constraint(mock(ProgramState.class)));
+
+    } else if (expected instanceof RelationalSymbolicValue) {
+      assertThat(stack.peek()).isInstanceOf(RelationalSymbolicValue.class);
+      RelationalSymbolicValue sv = (RelationalSymbolicValue) stack.peek();
+      assertThat(sv.relationWhenTrue()).isEqualTo(((RelationalSymbolicValue) expected).relationWhenTrue());
 
     } else {
       assertThat(stack.peek()).isEqualTo(expected);

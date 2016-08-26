@@ -27,4 +27,14 @@ function main(obj, arr) {
       foo(e2); // PS e2=TRUTHY
     }
   }
+
+  var cnt = 0;
+  var limit = 2;
+  for(var e3 in obj){
+    cnt++;
+    if(cnt > limit){
+      break;
+    }
+  }
+
 }

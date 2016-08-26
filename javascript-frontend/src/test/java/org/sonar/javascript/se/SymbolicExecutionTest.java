@@ -114,6 +114,11 @@ public class SymbolicExecutionTest {
   }
 
   @Test
+  public void relations() throws Exception {
+    verifySE("relations.js");
+  }
+
+  @Test
   public void function_declaration() throws Exception {
     verifySE("func_decl.js");
   }

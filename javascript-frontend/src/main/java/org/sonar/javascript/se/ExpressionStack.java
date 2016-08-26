@@ -25,10 +25,10 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Objects;
 import javax.annotation.Nullable;
-import org.sonar.javascript.se.sv.EqualToSymbolicValue;
 import org.sonar.javascript.se.sv.LiteralSymbolicValue;
 import org.sonar.javascript.se.sv.LogicalNotSymbolicValue;
 import org.sonar.javascript.se.sv.PlusSymbolicValue;
+import org.sonar.javascript.se.sv.RelationalSymbolicValue;
 import org.sonar.javascript.se.sv.SpecialSymbolicValue;
 import org.sonar.javascript.se.sv.SymbolicValue;
 import org.sonar.javascript.se.sv.SymbolicValueWithConstraint;
@@ -118,18 +118,6 @@ public class ExpressionStack {
         SymbolicValue negatedValue = newStack.pop();
         newStack.push(LogicalNotSymbolicValue.create(negatedValue));
         break;
-      case EQUAL_TO:
-        newStack.push(EqualToSymbolicValue.createEqual(newStack.pop(), newStack.pop()));
-        break;
-      case NOT_EQUAL_TO:
-        newStack.push(EqualToSymbolicValue.createNotEqual(newStack.pop(), newStack.pop()));
-        break;
-      case STRICT_EQUAL_TO:
-        newStack.push(EqualToSymbolicValue.createStrictEqual(newStack.pop(), newStack.pop()));
-        break;
-      case STRICT_NOT_EQUAL_TO:
-        newStack.push(EqualToSymbolicValue.createStrictNotEqual(newStack.pop(), newStack.pop()));
-        break;
       case TYPEOF:
         newStack.push(new TypeOfSymbolicValue(newStack.pop()));
         break;
@@ -218,12 +206,17 @@ public class ExpressionStack {
         pop(newStack, 2);
         pushUnknown(newStack);
         break;
+      case EQUAL_TO:
+      case NOT_EQUAL_TO:
+      case STRICT_EQUAL_TO:
+      case STRICT_NOT_EQUAL_TO:
       case LESS_THAN:
       case GREATER_THAN:
       case LESS_THAN_OR_EQUAL_TO:
       case GREATER_THAN_OR_EQUAL_TO:
-        pop(newStack, 2);
-        newStack.push(new SymbolicValueWithConstraint(Constraint.BOOLEAN));
+        SymbolicValue rightOperand = newStack.pop();
+        SymbolicValue leftOperand = newStack.pop();
+        newStack.push(RelationalSymbolicValue.create(kind, leftOperand, rightOperand));
         break;
       case PLUS:
         newStack.push(new PlusSymbolicValue(newStack.pop(), newStack.pop()));

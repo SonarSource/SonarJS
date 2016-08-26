@@ -21,9 +21,12 @@ package org.sonar.javascript.se;
 
 import com.google.common.base.Preconditions;
 import com.google.common.base.Predicates;
+import com.google.common.collect.HashMultimap;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableMap.Builder;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
+import com.google.common.collect.SetMultimap;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -50,6 +53,7 @@ public class ProgramState {
   private final ImmutableMap<Symbol, SymbolicValue> values;
   private final ImmutableMap<SymbolicValue, Constraint> constraints;
   private final ExpressionStack stack;
+  private final ImmutableSet<Relation> relations;
 
   private int counter;
 
@@ -57,6 +61,7 @@ public class ProgramState {
     ImmutableMap<Symbol, SymbolicValue> values,
     ImmutableMap<SymbolicValue, Constraint> constraints,
     ExpressionStack stack,
+    ImmutableSet<Relation> relations,
     int counter) {
 
     Set<SymbolicValue> allReferencedValues = new HashSet<>(values.values());
@@ -71,9 +76,17 @@ public class ProgramState {
       }
     }
 
+    ImmutableSet.Builder<Relation> relationsBuilder = ImmutableSet.builder();
+    for (Relation relation : relations) {
+      if (allReferencedValues.containsAll(relation.operands())) {
+        relationsBuilder.add(relation);
+      }
+    }
+
     this.values = values;
     this.constraints = constraintsBuilder.build();
     this.stack = stack;
+    this.relations = relationsBuilder.build();
     this.counter = counter;
   }
 
@@ -83,7 +96,11 @@ public class ProgramState {
 
   public static ProgramState emptyState() {
     return new ProgramState(
-      ImmutableMap.<Symbol, SymbolicValue>of(), ImmutableMap.<SymbolicValue, Constraint>of(), ExpressionStack.emptyStack(), 0);
+      ImmutableMap.<Symbol, SymbolicValue>of(),
+      ImmutableMap.<SymbolicValue, Constraint>of(),
+      ExpressionStack.emptyStack(),
+      ImmutableSet.<Relation>of(),
+      0);
   }
 
   // returns new PS with this constraint added to PS for this value. If constraint for this value exists IllegalStateException
@@ -96,7 +113,7 @@ public class ProgramState {
     constraintsBuilder.putAll(constraints);
     constraintsBuilder.put(value, constraint);
 
-    return new ProgramState(ImmutableMap.copyOf(values), constraintsBuilder.build(), stack, counter);
+    return new ProgramState(ImmutableMap.copyOf(values), constraintsBuilder.build(), stack, relations, counter);
   }
 
 
@@ -111,7 +128,7 @@ public class ProgramState {
     }
     valuesBuilder.put(symbol, value);
 
-    ProgramState newProgramState = new ProgramState(valuesBuilder.build(), ImmutableMap.copyOf(constraints), stack, counter);
+    ProgramState newProgramState = new ProgramState(valuesBuilder.build(), ImmutableMap.copyOf(constraints), stack, relations, counter);
     if (constraint != null) {
       newProgramState = newProgramState.addConstraint(value, constraint);
     }
@@ -127,7 +144,7 @@ public class ProgramState {
       return null;
     } else {
       Constraint newConstraint = getConstraint(value).and(constraint);
-      return new ProgramState(ImmutableMap.copyOf(values), replaceConstraint(value, newConstraint), stack, counter);
+      return new ProgramState(ImmutableMap.copyOf(values), replaceConstraint(value, newConstraint), stack, relations, counter);
     }
   }
 
@@ -192,18 +209,18 @@ public class ProgramState {
   }
 
   public ProgramState pushToStack(@Nullable SymbolicValue value) {
-    return new ProgramState(values, constraints, stack.push(value), counter);
+    return new ProgramState(values, constraints, stack.push(value), relations, counter);
   }
 
   public ProgramState removeLastValue() {
-    return new ProgramState(values, constraints, stack.removeLastValue(), counter);
+    return new ProgramState(values, constraints, stack.removeLastValue(), relations, counter);
   }
 
   public ProgramState clearStack(Tree element) {
     Preconditions.checkState(
       stack.size() == 1,
       "Stack should contain only one element before being cleaned at line %s: %s", line(element), stack);
-    return new ProgramState(values, constraints, ExpressionStack.emptyStack(), counter);
+    return new ProgramState(values, constraints, ExpressionStack.emptyStack(), relations, counter);
   }
 
   public void assertEmptyStack(Tree element) {
@@ -215,7 +232,7 @@ public class ProgramState {
   }
 
   public ProgramState execute(ExpressionTree expression) {
-    return new ProgramState(values, constraints, stack.execute(expression), counter);
+    return new ProgramState(values, constraints, stack.execute(expression), relations, counter);
   }
 
   public ProgramState assignment(Symbol variable) {
@@ -228,7 +245,19 @@ public class ProgramState {
     }
     Map<Symbol, SymbolicValue> newValues = new HashMap<>(values);
     newValues.put(variable, value);
-    return new ProgramState(ImmutableMap.copyOf(newValues), constraints, newStack, counter);
+    return new ProgramState(ImmutableMap.copyOf(newValues), constraints, newStack, relations, counter);
+  }
+
+  public Set<Relation> relations() {
+    return relations;
+  }
+
+  public ProgramState addRelation(Relation relation) {
+    ImmutableSet<Relation> newRelations = ImmutableSet.<Relation>builder()
+      .addAll(relations)
+      .add(relation)
+      .build();
+    return new ProgramState(values, constraints, stack, newRelations, counter);
   }
 
   @Override
@@ -244,12 +273,30 @@ public class ProgramState {
 
     return Objects.equals(constraintsBySymbol(), that.constraintsBySymbol())
       && Objects.equals(stack, that.stack)
-      && Objects.equals(constraintOnPeek(), that.constraintOnPeek());
+      && Objects.equals(constraintOnPeek(), that.constraintOnPeek())
+      && Objects.equals(relationsOnSymbols(), that.relationsOnSymbols());
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(constraintsBySymbol(), stack, constraintOnPeek());
+    return Objects.hash(constraintsBySymbol(), stack, constraintOnPeek(), relationsOnSymbols());
+  }
+
+  private Set<RelationOnSymbols> relationsOnSymbols() {
+    SetMultimap<SymbolicValue, Symbol> symbolsByValue = HashMultimap.create();
+    for (Entry<Symbol, SymbolicValue> entry : values.entrySet()) {
+      symbolsByValue.put(entry.getValue(), entry.getKey());
+    }
+
+    Set<RelationOnSymbols> relationsOnSymbols = new HashSet<>();
+    for (Relation relation : relations) {
+      for (Symbol leftOperand : symbolsByValue.get(relation.leftOperand())) {
+        for (Symbol rightOperand : symbolsByValue.get(relation.rightOperand())) {
+          relationsOnSymbols.add(new RelationOnSymbols(relation.operator(), leftOperand, rightOperand));
+        }
+      }
+    }
+    return relationsOnSymbols;
   }
 
   @CheckForNull
@@ -271,11 +318,11 @@ public class ProgramState {
 
   public ProgramState removeSymbols(Set<Symbol> symbolsToKeep) {
     Map<Symbol, SymbolicValue> newValues = Maps.filterKeys(values, Predicates.in(symbolsToKeep));
-    return new ProgramState(ImmutableMap.copyOf(newValues), constraints, stack, counter);
+    return new ProgramState(ImmutableMap.copyOf(newValues), constraints, stack, relations, counter);
   }
 
   @Override
   public String toString() {
-    return "[" + values + ";" + constraints + ";" + stack + "]";
+    return "[" + values + ";" + constraints + ";" + stack + ";" + relations + "]";
   }
 }

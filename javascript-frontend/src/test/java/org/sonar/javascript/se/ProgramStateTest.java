@@ -24,6 +24,7 @@ import org.sonar.javascript.se.sv.SpecialSymbolicValue;
 import org.sonar.javascript.se.sv.SymbolicValue;
 import org.sonar.plugins.javascript.api.symbols.Symbol;
 import org.sonar.plugins.javascript.api.symbols.Symbol.Kind;
+import org.sonar.plugins.javascript.api.tree.Tree;
 
 import static org.fest.assertions.Assertions.assertThat;
 
@@ -76,6 +77,13 @@ public class ProgramStateTest {
       state.pushToStack(SpecialSymbolicValue.NULL).assignment(symbol1).removeLastValue())
     .isNotEqualTo(
       state.pushToStack(SpecialSymbolicValue.UNDEFINED).assignment(symbol1).removeLastValue());
+
+    state = state
+      .newSymbolicValue(symbol1, null)
+      .newSymbolicValue(symbol2, null);
+    SymbolicValue sv1 = state.getSymbolicValue(symbol1);
+    SymbolicValue sv2 = state.getSymbolicValue(symbol2);
+    assertThat(state).isNotEqualTo(state.addRelation(new Relation(Tree.Kind.LESS_THAN, sv1, sv2)));
   }
 
   @Test

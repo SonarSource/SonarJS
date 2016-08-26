@@ -1,8 +1,9 @@
 function main(a, b, c) {
-  if((x || a == (b || d)) && c){
+  if((x || a + (b || d)) && c){
     foo();
   }
   
+  a == b;
   (foo);
   foo(a && b);
   bar(a && b || c);

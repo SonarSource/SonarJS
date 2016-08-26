@@ -46,4 +46,9 @@ public class SymbolicValueWithConstraint implements SymbolicValue {
   public Constraint constraint(ProgramState state) {
     return originalConstraint;
   }
+
+  @Override
+  public String toString() {
+    return "SV[" + originalConstraint + "]";
+  }
 }
