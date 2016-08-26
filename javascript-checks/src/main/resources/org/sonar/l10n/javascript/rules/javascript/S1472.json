@@ -1,0 +1,13 @@
+{
+  "title": "Function call arguments should not start on new lines",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "5min"
+  },
+  "tags": [
+    "bug",
+    "pitfall"
+  ],
+  "defaultSeverity": "Minor"
+}

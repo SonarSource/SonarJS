@@ -1,0 +1,8 @@
+{
+  "title": "Track uses of \"FIXME\" tags",
+  "status": "ready",
+  "tags": [
+    "cwe"
+  ],
+  "defaultSeverity": "Major"
+}

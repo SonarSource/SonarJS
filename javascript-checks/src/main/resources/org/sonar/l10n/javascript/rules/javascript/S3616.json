@@ -1,0 +1,12 @@
+{
+  "title": "Comma operators should not be used in switch cases",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "5min"
+  },
+  "tags": [
+    "bug"
+  ],
+  "defaultSeverity": "Major"
+}

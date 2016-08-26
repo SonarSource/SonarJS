@@ -1,0 +1,15 @@
+{
+  "title": "Element type selectors should not be used with class selectors",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "2min"
+  },
+  "tags": [
+    "performance",
+    "bug",
+    "user-experience",
+    "jquery"
+  ],
+  "defaultSeverity": "Major"
+}

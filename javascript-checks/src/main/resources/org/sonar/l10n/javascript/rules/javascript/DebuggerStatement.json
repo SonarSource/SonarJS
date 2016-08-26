@@ -1,0 +1,14 @@
+{
+  "title": "Debugger statements should not be used",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "5min"
+  },
+  "tags": [
+    "cwe",
+    "security",
+    "user-experience"
+  ],
+  "defaultSeverity": "Minor"
+}

@@ -1,0 +1,13 @@
+{
+  "title": "Attempts should not be made to update \"const\" variables",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "15min"
+  },
+  "tags": [
+    "bug",
+    "es2015"
+  ],
+  "defaultSeverity": "Major"
+}

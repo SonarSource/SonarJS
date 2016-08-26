@@ -1,0 +1,13 @@
+{
+  "title": "A \"for\" loop update clause should move the counter in the right direction",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "5min"
+  },
+  "tags": [
+    "bug",
+    "cert"
+  ],
+  "defaultSeverity": "Major"
+}

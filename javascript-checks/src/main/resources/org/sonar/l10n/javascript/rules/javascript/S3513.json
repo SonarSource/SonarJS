@@ -1,0 +1,13 @@
+{
+  "title": "\"arguments\" should not be accessed directly",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "5min"
+  },
+  "tags": [
+    "api-design",
+    "es2015"
+  ],
+  "defaultSeverity": "Blocker"
+}

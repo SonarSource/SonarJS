@@ -1,0 +1,13 @@
+{
+  "title": "Variables should not be self-assigned",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "3min"
+  },
+  "tags": [
+    "bug",
+    "cert"
+  ],
+  "defaultSeverity": "Major"
+}

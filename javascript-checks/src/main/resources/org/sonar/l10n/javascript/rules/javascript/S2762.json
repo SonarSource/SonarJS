@@ -1,0 +1,17 @@
+{
+  "title": "Selections should be stored",
+  "status": "ready",
+  "remediation": {
+    "func": "Linear with offset",
+    "linearDesc": "number of times selection is re-made.",
+    "linearOffset": "2min",
+    "linearFactor": "1min"
+  },
+  "tags": [
+    "performance",
+    "bug",
+    "user-experience",
+    "jquery"
+  ],
+  "defaultSeverity": "Major"
+}

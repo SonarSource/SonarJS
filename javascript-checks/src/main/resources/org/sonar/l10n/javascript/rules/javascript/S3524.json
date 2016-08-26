@@ -1,0 +1,13 @@
+{
+  "title": "Braces and parentheses should be used consistently with arrow functions",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "2min"
+  },
+  "tags": [
+    "convention",
+    "es2015"
+  ],
+  "defaultSeverity": "Minor"
+}

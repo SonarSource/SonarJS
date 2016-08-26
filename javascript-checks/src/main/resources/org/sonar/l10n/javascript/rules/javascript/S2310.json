@@ -1,0 +1,12 @@
+{
+  "title": "Loop counters should not be assigned to from within the loop body",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "5min"
+  },
+  "tags": [
+    "pitfall"
+  ],
+  "defaultSeverity": "Critical"
+}

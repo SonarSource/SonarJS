@@ -1,0 +1,13 @@
+{
+  "title": "Selection results should be tested with \"length\"",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "2min"
+  },
+  "tags": [
+    "bug",
+    "jquery"
+  ],
+  "defaultSeverity": "Minor"
+}

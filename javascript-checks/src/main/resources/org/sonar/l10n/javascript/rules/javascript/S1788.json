@@ -1,0 +1,12 @@
+{
+  "title": "Function parameters with default values should be last",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "20min"
+  },
+  "tags": [
+    "es2015"
+  ],
+  "defaultSeverity": "Major"
+}

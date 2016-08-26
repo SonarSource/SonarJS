@@ -1,0 +1,14 @@
+{
+  "title": "Named function expressions should not be used",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "15min"
+  },
+  "tags": [
+    "bug",
+    "cross-browser",
+    "user-experience"
+  ],
+  "defaultSeverity": "Minor"
+}

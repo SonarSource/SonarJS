@@ -1,0 +1,13 @@
+{
+  "title": "Default parameters should not cause side effects",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "15min"
+  },
+  "tags": [
+    "es2015",
+    "pitfall"
+  ],
+  "defaultSeverity": "Blocker"
+}

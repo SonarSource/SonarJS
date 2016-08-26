@@ -1,0 +1,12 @@
+{
+  "title": "Functions should not be called both with and without \"new\"",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "15min"
+  },
+  "tags": [
+    
+  ],
+  "defaultSeverity": "Critical"
+}

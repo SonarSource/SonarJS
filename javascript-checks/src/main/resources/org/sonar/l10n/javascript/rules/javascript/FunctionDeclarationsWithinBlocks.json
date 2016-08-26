@@ -1,0 +1,14 @@
+{
+  "title": "Function declarations should not be made within blocks",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "5min"
+  },
+  "tags": [
+    "bug",
+    "cross-browser",
+    "user-experience"
+  ],
+  "defaultSeverity": "Minor"
+}

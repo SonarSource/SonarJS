@@ -1,0 +1,13 @@
+{
+  "title": "Values should not be uselessly incremented",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "5min"
+  },
+  "tags": [
+    "bug",
+    "unused"
+  ],
+  "defaultSeverity": "Major"
+}

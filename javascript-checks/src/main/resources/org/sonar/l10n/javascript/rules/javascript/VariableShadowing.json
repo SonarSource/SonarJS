@@ -1,0 +1,14 @@
+{
+  "title": "Variables should not be shadowed",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "10min"
+  },
+  "tags": [
+    "misra",
+    "cert",
+    "suspicious"
+  ],
+  "defaultSeverity": "Critical"
+}

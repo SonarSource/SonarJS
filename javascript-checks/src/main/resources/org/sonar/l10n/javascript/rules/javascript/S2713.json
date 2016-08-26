@@ -1,0 +1,13 @@
+{
+  "title": "JQuery cache variables should comply with a convention name",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "5min"
+  },
+  "tags": [
+    "convention",
+    "jquery"
+  ],
+  "defaultSeverity": "Minor"
+}

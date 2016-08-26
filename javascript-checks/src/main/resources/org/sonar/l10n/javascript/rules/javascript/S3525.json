@@ -1,0 +1,12 @@
+{
+  "title": "Class methods should be used instead of \"prototype\" assignments",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "5min"
+  },
+  "tags": [
+    "es2015"
+  ],
+  "defaultSeverity": "Critical"
+}

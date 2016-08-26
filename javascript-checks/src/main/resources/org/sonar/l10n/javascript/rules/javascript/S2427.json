@@ -1,0 +1,13 @@
+{
+  "title": "The base should be provided to \"parseInt\"",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "2min"
+  },
+  "tags": [
+    "bug",
+    "user-experience"
+  ],
+  "defaultSeverity": "Minor"
+}

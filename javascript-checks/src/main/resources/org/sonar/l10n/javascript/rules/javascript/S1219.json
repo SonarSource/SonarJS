@@ -1,0 +1,14 @@
+{
+  "title": "\"switch\" statements should not contain non-case labels",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "10min"
+  },
+  "tags": [
+    "bug",
+    "misra",
+    "suspicious"
+  ],
+  "defaultSeverity": "Major"
+}

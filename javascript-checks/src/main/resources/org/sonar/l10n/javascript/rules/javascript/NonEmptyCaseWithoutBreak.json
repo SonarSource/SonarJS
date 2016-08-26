@@ -1,0 +1,16 @@
+{
+  "title": "Switch cases should end with an unconditional \"break\" statement",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "10min"
+  },
+  "tags": [
+    "cwe",
+    "bug",
+    "misra",
+    "cert",
+    "suspicious"
+  ],
+  "defaultSeverity": "Major"
+}

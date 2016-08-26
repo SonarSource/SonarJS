@@ -1,0 +1,13 @@
+{
+  "title": "Functions should not be defined inside loops",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "30min"
+  },
+  "tags": [
+    "bug",
+    "suspicious"
+  ],
+  "defaultSeverity": "Major"
+}

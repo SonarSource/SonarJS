@@ -1,0 +1,13 @@
+{
+  "title": "Variables should be declared with \"let\" or \"const\"",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "5min"
+  },
+  "tags": [
+    "es2015",
+    "bad-practice"
+  ],
+  "defaultSeverity": "Critical"
+}

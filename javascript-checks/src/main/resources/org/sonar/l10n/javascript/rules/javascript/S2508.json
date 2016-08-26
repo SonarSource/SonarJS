@@ -1,0 +1,13 @@
+{
+  "title": "The names of model properties should not contains spaces",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "5min"
+  },
+  "tags": [
+    "bug",
+    "backbone"
+  ],
+  "defaultSeverity": "Minor"
+}

@@ -1,0 +1,14 @@
+{
+  "title": "Default export names and file names should match",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "5min"
+  },
+  "tags": [
+    "convention",
+    "es2015",
+    "confusing"
+  ],
+  "defaultSeverity": "Minor"
+}

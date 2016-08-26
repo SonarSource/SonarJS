@@ -1,0 +1,14 @@
+{
+  "title": "Untrusted content should not be included",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "15min"
+  },
+  "tags": [
+    "cwe",
+    "security",
+    "sans-top25-risky"
+  ],
+  "defaultSeverity": "Critical"
+}

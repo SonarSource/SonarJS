@@ -1,0 +1,12 @@
+{
+  "title": "Wrapper objects should not be used for primitive types",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "1min"
+  },
+  "tags": [
+    "pitfall"
+  ],
+  "defaultSeverity": "Minor"
+}

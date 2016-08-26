@@ -1,0 +1,13 @@
+{
+  "title": "Trailing commas should not be used",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "1min"
+  },
+  "tags": [
+    "bug",
+    "cross-browser"
+  ],
+  "defaultSeverity": "Minor"
+}

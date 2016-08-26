@@ -1,0 +1,14 @@
+{
+  "title": "\"switch\" statements should end with \"default\" clauses",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "5min"
+  },
+  "tags": [
+    "cwe",
+    "misra",
+    "cert"
+  ],
+  "defaultSeverity": "Critical"
+}

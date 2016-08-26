@@ -1,0 +1,15 @@
+{
+  "title": "Assignments should not be made from within sub-expressions",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "5min"
+  },
+  "tags": [
+    "cwe",
+    "misra",
+    "cert",
+    "suspicious"
+  ],
+  "defaultSeverity": "Major"
+}

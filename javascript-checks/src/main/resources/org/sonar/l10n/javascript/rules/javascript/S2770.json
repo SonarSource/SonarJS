@@ -1,0 +1,13 @@
+{
+  "title": "Deprecated jQuery methods should not be used",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "20min"
+  },
+  "tags": [
+    "obsolete",
+    "jquery"
+  ],
+  "defaultSeverity": "Major"
+}

@@ -1,0 +1,14 @@
+{
+  "title": "Cross-document messaging domains should be carefully restricted",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "10min"
+  },
+  "tags": [
+    "security",
+    "html5",
+    "owasp-a3"
+  ],
+  "defaultSeverity": "Critical"
+}

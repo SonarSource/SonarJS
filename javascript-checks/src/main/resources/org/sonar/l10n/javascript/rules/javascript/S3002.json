@@ -1,0 +1,12 @@
+{
+  "title": "Unary operators \"+\" and \"-\" should not be used with objects",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "15min"
+  },
+  "tags": [
+    "bug"
+  ],
+  "defaultSeverity": "Minor"
+}

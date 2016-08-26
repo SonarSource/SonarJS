@@ -1,0 +1,12 @@
+{
+  "title": "Track lack of copyright and license headers",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "5min"
+  },
+  "tags": [
+    
+  ],
+  "defaultSeverity": "Blocker"
+}

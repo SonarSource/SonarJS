@@ -1,0 +1,12 @@
+{
+  "title": "\"for...in\" loops should filter properties before acting on them",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "5min"
+  },
+  "tags": [
+    "bug"
+  ],
+  "defaultSeverity": "Major"
+}
