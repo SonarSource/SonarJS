@@ -51,6 +51,7 @@ import org.sonar.api.config.Settings;
 import org.sonar.api.issue.NoSonarFilter;
 import org.sonar.api.measures.FileLinesContextFactory;
 import org.sonar.api.rule.RuleKey;
+import org.sonar.api.utils.Version;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.javascript.checks.CheckList;
@@ -84,6 +85,8 @@ import org.sonar.squidbridge.api.AnalysisException;
 public class JavaScriptSquidSensor implements Sensor {
 
   private static final Logger LOG = Loggers.get(JavaScriptSquidSensor.class);
+
+  public static final Version V6_0 = Version.create(6, 0);
 
   private final JavaScriptChecks checks;
   private final FileLinesContextFactory fileLinesContextFactory;
@@ -123,12 +126,19 @@ public class JavaScriptSquidSensor implements Sensor {
     boolean success = false;
     try {
       for (InputFile inputFile : inputFiles) {
+        // check for cancellation of the analysis (by SonarQube or SonarLint). See SONARJS-761.
+        if (context.getSonarQubeVersion().isGreaterThanOrEqual(V6_0) && context.isCancelled()) {
+          throw new CancellationException("Analysis interrupted because the SensorContext is in cancelled state");
+        }
         if (!isExcluded(inputFile.file())) {
           analyse(context, inputFile, treeVisitors);
         }
         progressReport.nextFile();
       }
       success = true;
+    } catch (CancellationException e) {
+      // do not propagate the exception
+      LOG.debug(e.toString());
     } finally {
       stopProgressReport(progressReport, success);
     }

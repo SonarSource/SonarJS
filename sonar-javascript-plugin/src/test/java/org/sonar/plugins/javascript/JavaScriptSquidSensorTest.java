@@ -229,6 +229,16 @@ public class JavaScriptSquidSensorTest {
     analyseFileWithException(check, inputFile("cpd/Person.js"), "Person.js");
   }
 
+  @Test
+  public void cancelled_context_should_cancel_progress_report_and_return_with_no_exception() {
+    JavaScriptCheck check = new DoubleDispatchVisitorCheck() {};
+    JavaScriptSquidSensor sensor = createSensor();
+    SensorContextTester cancelledContext = SensorContextTester.create(baseDir);
+    cancelledContext.setCancelled(true);
+    sensor.analyseFiles(cancelledContext, ImmutableList.of((TreeVisitor)check), ImmutableList.of(inputFile("cpd/Person.js")), progressReport);
+    verify(progressReport).cancel();
+  }
+
   private void analyseFileWithException(JavaScriptCheck check, InputFile inputFile, String expectedMessageSubstring) {
     JavaScriptSquidSensor sensor = createSensor();
     thrown.expect(AnalysisException.class);
