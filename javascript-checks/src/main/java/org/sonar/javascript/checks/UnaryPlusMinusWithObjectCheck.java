@@ -23,7 +23,6 @@ import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
-import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.javascript.checks.utils.CheckUtils;
 import org.sonar.javascript.se.Constraint;
@@ -35,16 +34,8 @@ import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.expression.UnaryExpressionTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
-import org.sonar.squidbridge.annotations.ActivatedByDefault;
-import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 
-@Rule(
-  key = "S3002",
-  name = "Unary operators \"+\" and \"-\" should not be used with objects",
-  priority = Priority.CRITICAL,
-  tags = {Tags.BUG})
-@SqaleConstantRemediation("15min")
-@ActivatedByDefault
+@Rule(key = "S3002")
 public class UnaryPlusMinusWithObjectCheck extends SeCheck {
 
   private static final String MESSAGE = "Remove this use of unary \"%s\".";

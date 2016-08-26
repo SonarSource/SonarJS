@@ -19,20 +19,13 @@
  */
 package org.sonar.javascript.checks;
 
-import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.expression.LiteralTree;
 import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxStandardAttributeTree;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
-import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 
-@Rule(
-  key = "SingleQuote",
-  name = "Single quotes should be used for string literals",
-  priority = Priority.MINOR,
-  tags = {Tags.CONVENTION})
-@SqaleConstantRemediation("1min")
+@Rule(key = "SingleQuote")
 public class SingleQuoteStringLiteralsCheck extends DoubleDispatchVisitorCheck {
 
   private static final String MESSAGE = "Replace double quotes by simple quote";

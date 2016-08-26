@@ -24,7 +24,6 @@ import com.sonar.sslr.api.RecognitionException;
 import com.sonar.sslr.api.typed.ActionParser;
 import java.nio.charset.Charset;
 import java.util.List;
-import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.javascript.parser.JavaScriptParserBuilder;
 import org.sonar.javascript.tree.JavaScriptCommentAnalyser;
@@ -40,16 +39,8 @@ import org.sonar.plugins.javascript.api.tree.statement.ExpressionStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.ReturnStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.ThrowStatementTree;
 import org.sonar.plugins.javascript.api.visitors.SubscriptionVisitorCheck;
-import org.sonar.squidbridge.annotations.ActivatedByDefault;
-import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 
-@Rule(
-  key = "CommentedCode",
-  name = "Sections of code should not be \"commented out\"",
-  priority = Priority.MAJOR,
-  tags = {Tags.MISRA, Tags.UNUSED})
-@ActivatedByDefault
-@SqaleConstantRemediation("5min")
+@Rule(key = "CommentedCode")
 public class CommentedCodeCheck extends SubscriptionVisitorCheck implements CharsetAwareVisitor {
 
   private static final String MESSAGE = "Remove this commented out code.";

@@ -22,7 +22,6 @@ package org.sonar.javascript.checks;
 import com.google.common.collect.ImmutableList;
 import java.util.List;
 import java.util.Set;
-import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.javascript.cfg.CfgBlock;
 import org.sonar.javascript.cfg.ControlFlowGraph;
@@ -37,16 +36,8 @@ import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.javascript.api.tree.statement.BlockTree;
 import org.sonar.plugins.javascript.api.visitors.PreciseIssue;
 import org.sonar.plugins.javascript.api.visitors.SubscriptionVisitorCheck;
-import org.sonar.squidbridge.annotations.ActivatedByDefault;
-import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 
-@Rule(
-  key = "UnreachableCode",
-  name = "Jump statements should not be followed by other statements",
-  priority = Priority.MAJOR,
-  tags = {Tags.CERT, Tags.CWE, Tags.MISRA, Tags.UNUSED})
-@ActivatedByDefault
-@SqaleConstantRemediation("5 min")
+@Rule(key = "UnreachableCode")
 public class UnreachableCodeCheck extends SubscriptionVisitorCheck {
 
   private static final String MESSAGE = "Remove this code after the \"%s\" statement.";

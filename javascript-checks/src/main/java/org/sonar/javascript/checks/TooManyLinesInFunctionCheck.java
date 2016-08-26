@@ -19,23 +19,14 @@
  */
 package org.sonar.javascript.checks;
 
-import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.plugins.javascript.api.tree.declaration.FunctionTree;
 import org.sonar.plugins.javascript.api.visitors.IssueLocation;
 import org.sonar.plugins.javascript.api.visitors.PreciseIssue;
-import org.sonar.squidbridge.annotations.ActivatedByDefault;
-import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 
-@Rule(
-  key = "S138",
-  name = "Functions should not have too many lines",
-  priority = Priority.MAJOR,
-  tags = {Tags.BRAIN_OVERLOAD})
-@ActivatedByDefault
-@SqaleConstantRemediation("20min")
+@Rule(key = "S138")
 public class TooManyLinesInFunctionCheck extends AbstractFunctionSizeCheck {
 
   private static final String MESSAGE = "This function has %s lines, which is greater than the %s lines authorized. Split it into smaller functions.";

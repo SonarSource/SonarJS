@@ -22,23 +22,14 @@ package org.sonar.javascript.checks;
 import com.google.common.collect.Lists;
 import java.util.ArrayList;
 import java.util.List;
-import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.expression.ObjectLiteralTree;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
 import org.sonar.plugins.javascript.api.visitors.PreciseIssue;
-import org.sonar.squidbridge.annotations.ActivatedByDefault;
-import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 
-@Rule(
-  key = "S3499",
-  name = "Shorthand object properties should be grouped at the beginning or end of an object declaration",
-  priority = Priority.MINOR,
-  tags = {Tags.CONVENTION, Tags.ES2015})
-@ActivatedByDefault
-@SqaleConstantRemediation("1min")
+@Rule(key = "S3499")
 public class ShorthandPropertiesNotGroupedCheck extends DoubleDispatchVisitorCheck {
 
   private static final String MESSAGE_PATTERN = "Group all shorthand properties at the %s of this object declaration";

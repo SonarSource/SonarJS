@@ -19,7 +19,6 @@
  */
 package org.sonar.javascript.checks;
 
-import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.declaration.FunctionDeclarationTree;
@@ -29,16 +28,8 @@ import org.sonar.plugins.javascript.api.tree.expression.FunctionExpressionTree;
 import org.sonar.plugins.javascript.api.tree.statement.BlockTree;
 import org.sonar.plugins.javascript.api.tree.statement.StatementTree;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
-import org.sonar.squidbridge.annotations.ActivatedByDefault;
-import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 
-@Rule(
-  key = "FunctionDeclarationsWithinBlocks",
-  name = "Function declarations should not be made within blocks",
-  priority = Priority.MAJOR,
-  tags = {Tags.CROSS_BROWSER, Tags.USER_EXPERIENCE})
-@ActivatedByDefault
-@SqaleConstantRemediation("5min")
+@Rule(key = "FunctionDeclarationsWithinBlocks")
 public class FunctionDeclarationsWithinBlocksCheck extends DoubleDispatchVisitorCheck {
 
   private static final String MESSAGE = "Do not use function declarations within blocks.";

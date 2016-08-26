@@ -21,20 +21,13 @@ package org.sonar.javascript.checks;
 
 import com.google.common.collect.ImmutableList;
 import java.util.List;
-import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.statement.VariableDeclarationTree;
 import org.sonar.plugins.javascript.api.visitors.SubscriptionVisitorCheck;
-import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 
-@Rule(
-  key = "S3504",
-  name = "Variables should be declared with \"let\" or \"const\"",
-  priority = Priority.MAJOR,
-  tags = {Tags.BAD_PRACTICE, Tags.ES2015})
-@SqaleConstantRemediation("5min")
+@Rule(key = "S3504")
 public class VarDeclarationCheck extends SubscriptionVisitorCheck {
 
   private static final String MESSAGE = "Replace \"var\" with \"let\" or \"const\"";

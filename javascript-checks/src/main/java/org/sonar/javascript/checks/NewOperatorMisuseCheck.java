@@ -19,7 +19,6 @@
  */
 package org.sonar.javascript.checks;
 
-import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
 import org.sonar.javascript.checks.utils.CheckUtils;
@@ -36,16 +35,8 @@ import org.sonar.plugins.javascript.api.tree.expression.FunctionExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.NewExpressionTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxTrivia;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
-import org.sonar.squidbridge.annotations.ActivatedByDefault;
-import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 
-@Rule(
-  key = "S2999",
-  name = "\"new\" operators should be used with functions",
-  priority = Priority.CRITICAL,
-  tags = {Tags.BUG})
-@ActivatedByDefault
-@SqaleConstantRemediation("10min")
+@Rule(key = "S2999")
 public class NewOperatorMisuseCheck extends DoubleDispatchVisitorCheck {
 
   private static final String MESSAGE = "Replace %s with a constructor function.";

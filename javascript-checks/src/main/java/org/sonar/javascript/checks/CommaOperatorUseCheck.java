@@ -24,7 +24,6 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import javax.annotation.Nullable;
-import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
@@ -34,14 +33,8 @@ import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.javascript.api.tree.statement.ForStatementTree;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
 import org.sonar.plugins.javascript.api.visitors.PreciseIssue;
-import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 
-@Rule(
-  key = "S878",
-  name = "Comma operator should not be used",
-  priority = Priority.MAJOR,
-  tags = {Tags.MISRA})
-@SqaleConstantRemediation("5min")
+@Rule(key = "S878")
 public class CommaOperatorUseCheck extends DoubleDispatchVisitorCheck {
 
   private static final String MESSAGE_ONE_COMMA = "Remove use of this comma operator.";

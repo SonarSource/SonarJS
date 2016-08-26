@@ -23,7 +23,6 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import java.util.LinkedList;
 import java.util.List;
-import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.javascript.tree.TreeKinds;
 import org.sonar.plugins.javascript.api.tree.Tree;
@@ -34,14 +33,8 @@ import org.sonar.plugins.javascript.api.tree.expression.DotMemberExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.FunctionExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 import org.sonar.plugins.javascript.api.visitors.SubscriptionVisitorCheck;
-import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 
-@Rule(
-  key = "S2685",
-  name = "\"arguments.caller\" and \"arguments.callee\" should not be used",
-  priority = Priority.CRITICAL,
-  tags = {Tags.OBSOLETE})
-@SqaleConstantRemediation("30min")
+@Rule(key = "S2685")
 public class ArgumentsCallerCalleeUsageCheck extends SubscriptionVisitorCheck {
 
   private static final String ARGUMENTS = "arguments";

@@ -19,23 +19,14 @@
  */
 package org.sonar.javascript.checks;
 
-import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.expression.CallExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
-import org.sonar.squidbridge.annotations.ActivatedByDefault;
-import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 
-@Rule(
-  key = "Eval",
-  name = "Code should not be dynamically injected and executed to prevent Eval Injection vulnerability",
-  priority = Priority.CRITICAL,
-  tags = {Tags.CWE, Tags.OWASP_A3, Tags.SECURITY})
-@ActivatedByDefault
-@SqaleConstantRemediation("30min")
+@Rule(key = "Eval")
 public class EvalCheck extends DoubleDispatchVisitorCheck {
 
   private static final String MESSAGE = "Remove this use of the \"eval\" function.";

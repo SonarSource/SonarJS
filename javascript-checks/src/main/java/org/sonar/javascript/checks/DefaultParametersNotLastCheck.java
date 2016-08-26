@@ -21,7 +21,6 @@ package org.sonar.javascript.checks;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.javascript.checks.utils.CheckUtils;
 import org.sonar.javascript.tree.TreeKinds;
@@ -31,16 +30,8 @@ import org.sonar.plugins.javascript.api.tree.declaration.FunctionTree;
 import org.sonar.plugins.javascript.api.tree.declaration.InitializedBindingElementTree;
 import org.sonar.plugins.javascript.api.visitors.PreciseIssue;
 import org.sonar.plugins.javascript.api.visitors.SubscriptionVisitorCheck;
-import org.sonar.squidbridge.annotations.ActivatedByDefault;
-import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 
-@Rule(
-  key = "S1788",
-  name = "Function parameters with default values should be last",
-  priority = Priority.CRITICAL,
-  tags = {Tags.ES2015, Tags.BUG})
-@ActivatedByDefault
-@SqaleConstantRemediation("20min")
+@Rule(key = "S1788")
 public class DefaultParametersNotLastCheck extends SubscriptionVisitorCheck {
 
   private static final String MESSAGE = "Move parameter%s \"%s\" after parameters without default value.";

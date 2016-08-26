@@ -22,7 +22,6 @@ package org.sonar.javascript.checks;
 import java.util.List;
 import java.util.Set;
 import javax.annotation.Nullable;
-import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.javascript.checks.utils.CheckUtils;
 import org.sonar.javascript.tree.symbols.Scope;
@@ -34,16 +33,8 @@ import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.declaration.FunctionTree;
 import org.sonar.plugins.javascript.api.tree.expression.CallExpressionTree;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
-import org.sonar.squidbridge.annotations.ActivatedByDefault;
-import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 
-@Rule(
-  key = "S930",
-  name = "Function calls should not pass extra arguments",
-  priority = Priority.CRITICAL,
-  tags = {Tags.BUG, Tags.CWE, Tags.MISRA})
-@SqaleConstantRemediation("10min")
-@ActivatedByDefault
+@Rule(key = "S930")
 public class TooManyArgumentsCheck extends DoubleDispatchVisitorCheck {
 
   private static final String MESSAGE = "%s expects \"%s\" arguments, but \"%s\" were provided.";

@@ -19,7 +19,6 @@
  */
 package org.sonar.javascript.checks;
 
-import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.javascript.checks.utils.CheckUtils;
 import org.sonar.plugins.javascript.api.tree.Tree;
@@ -27,16 +26,8 @@ import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.expression.NewExpressionTree;
 import org.sonar.plugins.javascript.api.tree.statement.ExpressionStatementTree;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
-import org.sonar.squidbridge.annotations.ActivatedByDefault;
-import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 
-@Rule(
-  key = "ConstructorFunctionsForSideEffects",
-  name = "Constructor functions should not be called purely for side-effects",
-  priority = Priority.MAJOR,
-  tags = {Tags.PITFALL})
-@ActivatedByDefault
-@SqaleConstantRemediation("5min")
+@Rule(key = "ConstructorFunctionsForSideEffects")
 public class ConstructorFunctionsForSideEffectsCheck extends DoubleDispatchVisitorCheck {
 
   private static final String MESSAGE = "Either remove this useless object instantiation of \"%s\" or use it";

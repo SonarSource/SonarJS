@@ -20,7 +20,6 @@
 package org.sonar.javascript.checks;
 
 import javax.annotation.Nullable;
-import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.declaration.ParameterListTree;
@@ -31,16 +30,8 @@ import org.sonar.plugins.javascript.api.tree.expression.NewExpressionTree;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
 import org.sonar.plugins.javascript.api.visitors.IssueLocation;
 import org.sonar.plugins.javascript.api.visitors.PreciseIssue;
-import org.sonar.squidbridge.annotations.ActivatedByDefault;
-import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 
-@Rule(
-  key = "S3523",
-  name = "Function constructors should not be used",
-  priority = Priority.CRITICAL,
-  tags = {Tags.CLUMSY, Tags.SECURITY})
-@ActivatedByDefault
-@SqaleConstantRemediation("5min")
+@Rule(key = "S3523")
 public class FunctionConstructorCheck extends DoubleDispatchVisitorCheck {
 
   private static final String MESSAGE = "Declare this function instead of using the \"Function\" constructor.";

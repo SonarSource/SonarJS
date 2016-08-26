@@ -19,23 +19,14 @@
  */
 package org.sonar.javascript.checks;
 
-import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.javascript.tree.SyntacticEquivalence;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.expression.AssignmentExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.UnaryExpressionTree;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
-import org.sonar.squidbridge.annotations.ActivatedByDefault;
-import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 
-@Rule(
-  key = "S2123",
-  name = "Values should not be uselessly incremented",
-  priority = Priority.CRITICAL,
-  tags = {Tags.BUG})
-@ActivatedByDefault
-@SqaleConstantRemediation("5min")
+@Rule(key = "S2123")
 public class UselessIncrementCheck extends DoubleDispatchVisitorCheck {
 
   private static final String MESSAGE = "Remove this %s or correct the code not to waste it.";

@@ -22,7 +22,6 @@ package org.sonar.javascript.checks;
 import com.google.common.base.Preconditions;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.javascript.tree.SyntacticEquivalence;
 import org.sonar.plugins.javascript.api.tree.Tree;
@@ -34,16 +33,8 @@ import org.sonar.plugins.javascript.api.tree.expression.LiteralTree;
 import org.sonar.plugins.javascript.api.tree.expression.UnaryExpressionTree;
 import org.sonar.plugins.javascript.api.tree.statement.ForStatementTree;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
-import org.sonar.squidbridge.annotations.ActivatedByDefault;
-import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 
-@Rule(
-  key = "S2251",
-  name = "A \"for\" loop update clause should move the counter in the right direction",
-  priority = Priority.BLOCKER,
-  tags = {Tags.BUG})
-@ActivatedByDefault
-@SqaleConstantRemediation("5min")
+@Rule(key = "S2251")
 public class ForLoopIncrementSignCheck extends DoubleDispatchVisitorCheck {
 
   private static final String MESSAGE = "\"%s\" is %s and will never reach \"stop condition\".";

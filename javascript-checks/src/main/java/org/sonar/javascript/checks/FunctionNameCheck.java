@@ -21,7 +21,6 @@ package org.sonar.javascript.checks;
 
 import java.util.regex.Pattern;
 import javax.annotation.Nullable;
-import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
 import org.sonar.javascript.checks.utils.CheckUtils;
@@ -32,14 +31,8 @@ import org.sonar.plugins.javascript.api.tree.declaration.FunctionDeclarationTree
 import org.sonar.plugins.javascript.api.tree.declaration.MethodDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
-import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 
-@Rule(
-  key = "S100",
-  name = "Function names should comply with a naming convention",
-  priority = Priority.MINOR,
-  tags = {Tags.CONVENTION})
-@SqaleConstantRemediation("5min")
+@Rule(key = "S100")
 public class FunctionNameCheck extends DoubleDispatchVisitorCheck {
 
   public static final String DEFAULT = "^[a-z][a-zA-Z0-9]*$";

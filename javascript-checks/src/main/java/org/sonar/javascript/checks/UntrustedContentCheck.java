@@ -25,21 +25,13 @@ import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
-import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.expression.LiteralTree;
 import org.sonar.plugins.javascript.api.visitors.SubscriptionVisitorCheck;
-import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 
-@Rule(
-  key = "S2611",
-  name = "Untrusted content should not be included",
-  priority = Priority.CRITICAL,
-  tags = {Tags.CWE, Tags.SECURITY, Tags.SANS_TOP25_RISKY}
-)
-@SqaleConstantRemediation("15min")
+@Rule(key = "S2611")
 public class UntrustedContentCheck extends SubscriptionVisitorCheck {
 
   private static final String MESSAGE = "Remove this content from an untrusted source.";

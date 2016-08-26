@@ -19,22 +19,13 @@
  */
 package org.sonar.javascript.checks;
 
-import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.declaration.MethodDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.statement.ReturnStatementTree;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
-import org.sonar.squidbridge.annotations.ActivatedByDefault;
-import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 
-@Rule(
-  key = "S2432",
-  name = "Setters should not return values",
-  priority = Priority.CRITICAL,
-  tags = {Tags.BUG})
-@ActivatedByDefault
-@SqaleConstantRemediation("5min")
+@Rule(key = "S2432")
 public class ReturnInSetterCheck extends DoubleDispatchVisitorCheck {
 
   private static final String MESSAGE = "Remove this return statement.";

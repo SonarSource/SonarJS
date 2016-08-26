@@ -24,7 +24,6 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ListMultimap;
 import java.util.ArrayList;
 import java.util.List;
-import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
@@ -34,16 +33,8 @@ import org.sonar.plugins.javascript.api.tree.statement.StatementTree;
 import org.sonar.plugins.javascript.api.visitors.IssueLocation;
 import org.sonar.plugins.javascript.api.visitors.PreciseIssue;
 import org.sonar.plugins.javascript.api.visitors.SubscriptionVisitorCheck;
-import org.sonar.squidbridge.annotations.ActivatedByDefault;
-import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 
-@Rule(
-  key = "OneStatementPerLine",
-  name = "Statements should be on separate lines",
-  priority = Priority.MINOR,
-  tags = {Tags.CONVENTION})
-@ActivatedByDefault
-@SqaleConstantRemediation("1min")
+@Rule(key = "OneStatementPerLine")
 public class OneStatementPerLineCheck extends SubscriptionVisitorCheck {
 
   private static final String MESSAGE = "Reformat the code to have only one statement per line.";

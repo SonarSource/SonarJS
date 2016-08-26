@@ -19,22 +19,13 @@
  */
 package org.sonar.javascript.checks;
 
-import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.expression.LiteralTree;
 import org.sonar.plugins.javascript.api.tree.statement.ExpressionStatementTree;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
-import org.sonar.squidbridge.annotations.ActivatedByDefault;
-import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 
-@Rule(
-  key = "StrictMode",
-  name = "\"strict\" mode should be used with caution",
-  priority = Priority.INFO,
-  tags = {Tags.CROSS_BROWSER, Tags.USER_EXPERIENCE})
-@ActivatedByDefault
-@SqaleConstantRemediation("5min")
+@Rule(key = "StrictMode")
 public class StrictModeCheck extends DoubleDispatchVisitorCheck {
 
   private static final String MESSAGE = "Use of JavaScript strict mode may result in unexpected behaviour in some browsers.";

@@ -27,7 +27,6 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
-import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.javascript.tree.symbols.Scope;
@@ -38,16 +37,8 @@ import org.sonar.plugins.javascript.api.tree.ScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
-import org.sonar.squidbridge.annotations.ActivatedByDefault;
-import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 
-@Rule(
-  key = "UnusedFunctionArgument",
-  name = "Unused function parameters should be removed",
-  priority = Priority.MAJOR,
-  tags = {Tags.MISRA, Tags.UNUSED})
-@ActivatedByDefault
-@SqaleConstantRemediation("5min")
+@Rule(key = "UnusedFunctionArgument")
 public class UnusedFunctionArgumentCheck extends DoubleDispatchVisitorCheck {
 
   private static final String MESSAGE = "Remove the unused function parameter \"%s\".";

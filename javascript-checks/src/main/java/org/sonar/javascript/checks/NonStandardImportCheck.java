@@ -21,7 +21,6 @@ package org.sonar.javascript.checks;
 
 import com.google.common.collect.ImmutableSet;
 import java.util.Set;
-import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.javascript.tree.impl.SeparatedList;
 import org.sonar.plugins.javascript.api.symbols.Type;
@@ -31,14 +30,8 @@ import org.sonar.plugins.javascript.api.tree.expression.CallExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
-import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 
-@Rule(
-  key = "S3533",
-  name = "\"import\" should be used to include external code",
-  priority = Priority.MINOR,
-  tags = {Tags.ES2015, Tags.OBSOLETE, Tags.CONVENTION})
-@SqaleConstantRemediation("5min")
+@Rule(key = "S3533")
 public class NonStandardImportCheck extends DoubleDispatchVisitorCheck {
 
   private static final String MESSAGE = "Use a standard \"import\" statement instead of \"%s(...)\".";

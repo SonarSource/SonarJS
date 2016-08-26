@@ -19,7 +19,6 @@
  */
 package org.sonar.javascript.checks;
 
-import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
 import org.sonar.plugins.javascript.api.tree.Tree;
@@ -30,16 +29,8 @@ import org.sonar.plugins.javascript.api.tree.declaration.ParameterListTree;
 import org.sonar.plugins.javascript.api.tree.expression.ArrowFunctionTree;
 import org.sonar.plugins.javascript.api.tree.expression.FunctionExpressionTree;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
-import org.sonar.squidbridge.annotations.ActivatedByDefault;
-import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 
-@Rule(
-  key = "ExcessiveParameterList",
-  name = "Functions should not have too many parameters",
-  priority = Priority.MAJOR,
-  tags = {Tags.BRAIN_OVERLOAD})
-@ActivatedByDefault
-@SqaleConstantRemediation("20min")
+@Rule(key = "ExcessiveParameterList")
 public class ExcessiveParameterListCheck extends DoubleDispatchVisitorCheck {
 
   private static final int DEFAULT_MAXIMUM_FUNCTION_PARAMETERS = 7;

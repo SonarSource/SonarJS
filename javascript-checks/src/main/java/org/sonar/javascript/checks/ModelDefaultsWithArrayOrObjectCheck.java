@@ -19,7 +19,6 @@
  */
 package org.sonar.javascript.checks;
 
-import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.javascript.tree.symbols.type.Backbone;
 import org.sonar.plugins.javascript.api.symbols.Type;
@@ -29,14 +28,8 @@ import org.sonar.plugins.javascript.api.tree.expression.CallExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.ObjectLiteralTree;
 import org.sonar.plugins.javascript.api.tree.expression.PairPropertyTree;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
-import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 
-@Rule(
-  key = "S2550",
-  name = "\"defaults\" should be a function when objects or arrays are used",
-  priority = Priority.CRITICAL,
-  tags = {Tags.BACKBONE, Tags.BUG})
-@SqaleConstantRemediation("5min")
+@Rule(key = "S2550")
 public class ModelDefaultsWithArrayOrObjectCheck extends DoubleDispatchVisitorCheck {
 
   private static final String MESSAGE = "Make \"defaults\" a function.";

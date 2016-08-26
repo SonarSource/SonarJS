@@ -20,7 +20,6 @@
 package org.sonar.javascript.checks;
 
 import javax.annotation.Nullable;
-import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.javascript.checks.utils.CheckUtils;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
@@ -35,14 +34,8 @@ import org.sonar.plugins.javascript.api.tree.statement.ForObjectStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.ReturnStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.ThrowStatementTree;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
-import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 
-@Rule(
-  key = "Parentheses",
-  name = "Useless parentheses around expressions should be removed to prevent any misunderstanding",
-  priority = Priority.MAJOR,
-  tags = {Tags.CONFUSING})
-@SqaleConstantRemediation("1min")
+@Rule(key = "Parentheses")
 public class ParenthesesCheck extends DoubleDispatchVisitorCheck {
 
   private static final String MESSAGE = "Remove useless parentheses around \"%s\".";

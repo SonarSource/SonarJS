@@ -21,17 +21,10 @@ package org.sonar.javascript.checks;
 
 import com.google.common.collect.ImmutableList;
 import java.util.List;
-import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.plugins.javascript.api.symbols.Symbol;
-import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 
-@Rule(
-  key = "S2424",
-  name = "Built-in objects should not be overridden",
-  priority = Priority.CRITICAL,
-  tags = {Tags.BUG, Tags.CONFUSING})
-@SqaleConstantRemediation("20min")
+@Rule(key = "S2424")
 public class BuiltInObjectOverriddenCheck extends AbstractSymbolNameCheck {
 
   private static final String MESSAGE = "Remove this override of \"%s\".";

@@ -19,7 +19,6 @@
  */
 package org.sonar.javascript.checks;
 
-import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
@@ -29,16 +28,8 @@ import org.sonar.plugins.javascript.api.tree.statement.ExpressionStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.ForObjectStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.StatementTree;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
-import org.sonar.squidbridge.annotations.ActivatedByDefault;
-import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 
-@Rule(
-  key = "ForIn",
-  name = "\"for...in\" loops should filter properties before acting on them",
-  priority = Priority.MAJOR,
-  tags = {Tags.BUG})
-@ActivatedByDefault
-@SqaleConstantRemediation("5min")
+@Rule(key = "ForIn")
 public class ForInCheck extends DoubleDispatchVisitorCheck {
 
   private static final String MESSAGE = "Restrict what this loop acts on by testing each property.";

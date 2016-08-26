@@ -21,21 +21,12 @@ package org.sonar.javascript.checks;
 
 import com.google.common.collect.ImmutableSet;
 import java.util.Set;
-import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.javascript.checks.utils.CheckUtils;
 import org.sonar.plugins.javascript.api.tree.expression.NewExpressionTree;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
-import org.sonar.squidbridge.annotations.ActivatedByDefault;
-import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 
-@Rule(
-  key = "PrimitiveWrappers",
-  name = "Wrapper objects should not be used for primitive types",
-  priority = Priority.MAJOR,
-  tags = {Tags.PITFALL})
-@ActivatedByDefault
-@SqaleConstantRemediation("1min")
+@Rule(key = "PrimitiveWrappers")
 public class PrimitiveWrappersCheck extends DoubleDispatchVisitorCheck {
 
   private static final String MESSAGE = "Use a literal value for this.";

@@ -20,22 +20,13 @@
 package org.sonar.javascript.checks;
 
 import java.util.Iterator;
-import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.expression.CallExpressionTree;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
-import org.sonar.squidbridge.annotations.ActivatedByDefault;
-import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 
-@Rule(
-  key = "S1472",
-  name = "Function call arguments should not start on new line",
-  priority = Priority.CRITICAL,
-  tags = {Tags.PITFALL})
-@ActivatedByDefault
-@SqaleConstantRemediation("5min")
+@Rule(key = "S1472")
 public class FunctionCallArgumentsOnNewLineCheck extends DoubleDispatchVisitorCheck {
 
   private static final String MESSAGE = "Make those call arguments start on line %s";

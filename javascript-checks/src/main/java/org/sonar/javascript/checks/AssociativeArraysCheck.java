@@ -19,7 +19,6 @@
  */
 package org.sonar.javascript.checks;
 
-import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.javascript.checks.utils.CheckUtils;
 import org.sonar.plugins.javascript.api.symbols.Type.Kind;
@@ -28,16 +27,8 @@ import org.sonar.plugins.javascript.api.tree.expression.AssignmentExpressionTree
 import org.sonar.plugins.javascript.api.tree.expression.BracketMemberExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
-import org.sonar.squidbridge.annotations.ActivatedByDefault;
-import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 
-@Rule(
-  key = "S3579",
-  name = "Array indexes should be numeric",
-  priority = Priority.MAJOR,
-  tags = {Tags.BAD_PRACTICE})
-@ActivatedByDefault
-@SqaleConstantRemediation("10min")
+@Rule(key = "S3579")
 public class AssociativeArraysCheck extends DoubleDispatchVisitorCheck {
   private static final String MESSAGE = "Make \"%s\" an object if it must have named properties; otherwise, use a numeric index here.";
 

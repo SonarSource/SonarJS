@@ -22,7 +22,6 @@ package org.sonar.javascript.checks;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.javascript.tree.impl.statement.VariableDeclarationTreeImpl;
 import org.sonar.plugins.javascript.api.symbols.Symbol;
@@ -33,16 +32,8 @@ import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 import org.sonar.plugins.javascript.api.tree.statement.ForStatementTree;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
-import org.sonar.squidbridge.annotations.ActivatedByDefault;
-import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 
-@Rule(
-  key = "S3353",
-  name = "Unchanged variables should be marked \"const\"",
-  priority = Priority.MINOR,
-  tags = {Tags.ES2015})
-@ActivatedByDefault
-@SqaleConstantRemediation("2min")
+@Rule(key = "S3353")
 public class UnchangedLetVariableCheck extends DoubleDispatchVisitorCheck {
 
   private static final String MESSAGE = "Make \"%s\" \"const\".";

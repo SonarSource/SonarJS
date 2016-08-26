@@ -19,23 +19,14 @@
  */
 package org.sonar.javascript.checks;
 
-import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.expression.LiteralTree;
 import org.sonar.plugins.javascript.api.tree.statement.ExpressionStatementTree;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
-import org.sonar.squidbridge.annotations.ActivatedByDefault;
-import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 
-@Rule(
-  key = "S905",
-  name = "Non-empty statements should have at least one side-effect",
-  priority = Priority.CRITICAL,
-  tags = {Tags.BUG, Tags.CWE, Tags.UNUSED})
-@ActivatedByDefault
-@SqaleConstantRemediation("5min")
+@Rule(key = "S905")
 public class UselessExpressionStatementCheck extends DoubleDispatchVisitorCheck {
 
   private static final String MESSAGE = "Refactor or remove this statement.";

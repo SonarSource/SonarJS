@@ -23,23 +23,14 @@ import com.google.common.collect.ImmutableList;
 import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.List;
-import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 import org.sonar.plugins.javascript.api.tree.statement.LabelledStatementTree;
 import org.sonar.plugins.javascript.api.visitors.SubscriptionVisitorCheck;
-import org.sonar.squidbridge.annotations.ActivatedByDefault;
-import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 
-@Rule(
-  key = "S1219",
-  name = "\"switch\" statements should not contain non-case labels",
-  priority = Priority.CRITICAL,
-  tags = {Tags.MISRA, Tags.PITFALL})
-@ActivatedByDefault
-@SqaleConstantRemediation("10min")
+@Rule(key = "S1219")
 public class NonCaseLabelInSwitchCheck extends SubscriptionVisitorCheck {
 
   private static final String MESSAGE = "Remove this misleading \"%s\" label.";

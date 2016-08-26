@@ -22,7 +22,6 @@ package org.sonar.javascript.checks;
 import com.google.common.collect.ImmutableList;
 import java.util.List;
 import javax.annotation.CheckForNull;
-import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
@@ -30,16 +29,8 @@ import org.sonar.plugins.javascript.api.tree.expression.BinaryExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 import org.sonar.plugins.javascript.api.visitors.SubscriptionVisitorCheck;
-import org.sonar.squidbridge.annotations.ActivatedByDefault;
-import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 
-@Rule(
-  key = "S2688",
-  name = "\"NaN\" should not be used in comparisons",
-  priority = Priority.BLOCKER,
-  tags = {Tags.BUG})
-@ActivatedByDefault
-@SqaleConstantRemediation("5min")
+@Rule(key = "S2688")
 public class ComparisonWithNaNCheck extends SubscriptionVisitorCheck {
 
   private static final String MESSAGE = "Use a test of the format \"a %s a\" instead.";

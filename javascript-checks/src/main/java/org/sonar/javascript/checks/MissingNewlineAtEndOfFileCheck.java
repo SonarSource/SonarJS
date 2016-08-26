@@ -21,19 +21,12 @@ package org.sonar.javascript.checks;
 
 import java.io.IOException;
 import java.io.RandomAccessFile;
-import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
 import org.sonar.plugins.javascript.api.visitors.FileIssue;
-import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 
-@Rule(
-  key = "MissingNewlineAtEndOfFile",
-  name = "Files should contain an empty new line at the end",
-  priority = Priority.MINOR,
-  tags = {Tags.CONVENTION})
-@SqaleConstantRemediation("1min")
+@Rule(key = "MissingNewlineAtEndOfFile")
 public class MissingNewlineAtEndOfFileCheck extends DoubleDispatchVisitorCheck {
 
   private static final String MESSAGE = "Add a new line at the end of this file.";

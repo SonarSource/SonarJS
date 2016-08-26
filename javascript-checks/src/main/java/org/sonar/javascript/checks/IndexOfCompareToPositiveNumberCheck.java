@@ -21,7 +21,6 @@ package org.sonar.javascript.checks;
 
 import com.google.common.collect.ImmutableList;
 import java.util.List;
-import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
@@ -31,14 +30,8 @@ import org.sonar.plugins.javascript.api.tree.expression.DotMemberExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.LiteralTree;
 import org.sonar.plugins.javascript.api.visitors.SubscriptionVisitorCheck;
-import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 
-@Rule(
-  key = "S2692",
-  name = "\"indexOf\" checks should not be for positive numbers",
-  priority = Priority.MAJOR,
-  tags = {Tags.BUG})
-@SqaleConstantRemediation("2min")
+@Rule(key = "S2692")
 public class IndexOfCompareToPositiveNumberCheck extends SubscriptionVisitorCheck {
 
   private static final String MESSAGE = "0 is a valid index, but is ignored by this check.";

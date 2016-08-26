@@ -21,7 +21,6 @@ package org.sonar.javascript.checks;
 
 import java.util.ArrayDeque;
 import java.util.Deque;
-import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
 import org.sonar.javascript.tree.impl.statement.IfStatementTreeImpl;
@@ -38,16 +37,8 @@ import org.sonar.plugins.javascript.api.tree.statement.TryStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.WhileStatementTree;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
 import org.sonar.plugins.javascript.api.visitors.PreciseIssue;
-import org.sonar.squidbridge.annotations.ActivatedByDefault;
-import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 
-@Rule(
-  key = "NestedIfDepth",
-  name = "Control flow statements \"if\", \"for\", \"while\", \"switch\" and \"try\" should not be nested too deeply",
-  priority = Priority.MAJOR,
-  tags = {Tags.BRAIN_OVERLOAD})
-@ActivatedByDefault
-@SqaleConstantRemediation("10min")
+@Rule(key = "NestedIfDepth")
 public class NestedControlFlowDepthCheck extends DoubleDispatchVisitorCheck {
 
   private static final String MESSAGE = "Refactor this code to not nest more than %s if/for/while/switch/try statements.";

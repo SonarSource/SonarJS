@@ -20,7 +20,6 @@
 package org.sonar.javascript.checks;
 
 import javax.annotation.Nullable;
-import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.javascript.tree.SyntacticEquivalence;
 import org.sonar.plugins.javascript.api.tree.Tree;
@@ -33,16 +32,8 @@ import org.sonar.plugins.javascript.api.tree.statement.SwitchClauseTree;
 import org.sonar.plugins.javascript.api.tree.statement.SwitchStatementTree;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
 import org.sonar.plugins.javascript.api.visitors.IssueLocation;
-import org.sonar.squidbridge.annotations.ActivatedByDefault;
-import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 
-@Rule(
-  key = "S1862",
-  name = "Related \"if/else if\" statements and \"cases\" in a \"switch\" should not have the same condition",
-  priority = Priority.CRITICAL,
-  tags = {Tags.BUG, Tags.CERT, Tags.PITFALL, Tags.UNUSED})
-@ActivatedByDefault
-@SqaleConstantRemediation("10min")
+@Rule(key = "S1862")
 public class DuplicateConditionIfElseAndSwitchCasesCheck extends DoubleDispatchVisitorCheck {
 
   private static final String MESSAGE = "This %s duplicates the one on line %s.";

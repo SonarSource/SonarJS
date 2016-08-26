@@ -26,20 +26,14 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
 import org.sonar.javascript.tree.visitors.CharsetAwareVisitor;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
 import org.sonar.plugins.javascript.api.visitors.FileIssue;
-import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 
-@Rule(
-  key = "S1451",
-  name = "Copyright and license headers should be defined",
-  priority = Priority.BLOCKER)
-@SqaleConstantRemediation("5min")
+@Rule(key = "S1451")
 public class FileHeaderCheck extends DoubleDispatchVisitorCheck implements CharsetAwareVisitor {
 
   private static final String MESSAGE = "Add or update the header of this file.";

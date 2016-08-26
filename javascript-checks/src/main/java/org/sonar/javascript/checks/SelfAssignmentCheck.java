@@ -19,23 +19,14 @@
  */
 package org.sonar.javascript.checks;
 
-import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.javascript.tree.SyntacticEquivalence;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.expression.AssignmentExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
-import org.sonar.squidbridge.annotations.ActivatedByDefault;
-import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 
-@Rule(
-  key = "S1656",
-  name = "Variables should not be self-assigned",
-  priority = Priority.MAJOR,
-  tags = {Tags.BUG, Tags.CERT})
-@ActivatedByDefault
-@SqaleConstantRemediation("3min")
+@Rule(key = "S1656")
 public class SelfAssignmentCheck extends DoubleDispatchVisitorCheck {
 
   private static final String MESSAGE = "Remove or correct this useless self-assignment.";

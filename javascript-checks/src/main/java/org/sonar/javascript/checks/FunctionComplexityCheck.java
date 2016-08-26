@@ -20,7 +20,6 @@
 package org.sonar.javascript.checks;
 
 import java.util.List;
-import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
 import org.sonar.javascript.metrics.ComplexityVisitor;
@@ -29,19 +28,8 @@ import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.declaration.FunctionTree;
 import org.sonar.plugins.javascript.api.visitors.IssueLocation;
 import org.sonar.plugins.javascript.api.visitors.PreciseIssue;
-import org.sonar.squidbridge.annotations.ActivatedByDefault;
-import org.sonar.squidbridge.annotations.SqaleLinearWithOffsetRemediation;
 
-@Rule(
-  key = "FunctionComplexity",
-  name = "Functions should not be too complex",
-  priority = Priority.MAJOR,
-  tags = {Tags.BRAIN_OVERLOAD})
-@ActivatedByDefault
-@SqaleLinearWithOffsetRemediation(
-  coeff = "1min",
-  offset = "10min",
-  effortToFixDescription = "per complexity point above the threshold")
+@Rule(key = "FunctionComplexity")
 public class FunctionComplexityCheck extends AbstractFunctionSizeCheck {
 
   private static final String MESSAGE = "Function has a complexity of %s which is greater than %s authorized.";

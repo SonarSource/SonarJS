@@ -19,7 +19,6 @@
  */
 package org.sonar.javascript.checks;
 
-import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.javascript.checks.utils.CheckUtils;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
@@ -27,16 +26,8 @@ import org.sonar.plugins.javascript.api.tree.expression.BinaryExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.tree.statement.CaseClauseTree;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
-import org.sonar.squidbridge.annotations.ActivatedByDefault;
-import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 
-@Rule(
-  key = "S3616",
-  name = "Comma operators should not be used in switch cases",
-  priority = Priority.CRITICAL,
-  tags = {Tags.BUG})
-@ActivatedByDefault
-@SqaleConstantRemediation("5min")
+@Rule(key = "S3616")
 public class CommaOperatorInSwitchCaseCheck extends DoubleDispatchVisitorCheck {
   
   private static final String MESSAGE = "Explicitly specify %d separate cases that fall through; currently this case clause only works for \"%s\".";

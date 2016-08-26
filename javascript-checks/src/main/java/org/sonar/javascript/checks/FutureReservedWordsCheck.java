@@ -21,19 +21,10 @@ package org.sonar.javascript.checks;
 
 import com.google.common.collect.ImmutableList;
 import java.util.List;
-import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.plugins.javascript.api.symbols.Symbol;
-import org.sonar.squidbridge.annotations.ActivatedByDefault;
-import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 
-@Rule(
-  key = "FutureReservedWords",
-  name = "\"future reserved words\" should not be used as identifiers",
-  priority = Priority.CRITICAL,
-  tags = {Tags.LOCK_IN, Tags.PITFALL})
-@ActivatedByDefault
-@SqaleConstantRemediation("5min")
+@Rule(key = "FutureReservedWords")
 public class FutureReservedWordsCheck extends AbstractSymbolNameCheck {
 
   private static final String MESSAGE = "Rename \"%s\" identifier to prevent potential conflicts with future evolutions of the JavaScript language.";

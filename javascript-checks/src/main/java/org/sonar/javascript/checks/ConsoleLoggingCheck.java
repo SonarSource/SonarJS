@@ -19,23 +19,14 @@
  */
 package org.sonar.javascript.checks;
 
-import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.expression.CallExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.DotMemberExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
-import org.sonar.squidbridge.annotations.ActivatedByDefault;
-import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 
-@Rule(
-  key = "S2228",
-  name = "Console logging should not be used",
-  priority = Priority.MAJOR,
-  tags = {Tags.OWASP_A6, Tags.SECURITY})
-@ActivatedByDefault
-@SqaleConstantRemediation("5min")
+@Rule(key = "S2228")
 public class ConsoleLoggingCheck extends DoubleDispatchVisitorCheck {
 
   private static final String MESSAGE = "Remove this logging statement.";

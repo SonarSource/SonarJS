@@ -19,7 +19,6 @@
  */
 package org.sonar.javascript.checks;
 
-import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.expression.BinaryExpressionTree;
@@ -28,16 +27,8 @@ import org.sonar.plugins.javascript.api.tree.expression.LiteralTree;
 import org.sonar.plugins.javascript.api.tree.expression.ParenthesisedExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.UnaryExpressionTree;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
-import org.sonar.squidbridge.annotations.ActivatedByDefault;
-import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 
-@Rule(
-  key = "S1125",
-  name = "Literal boolean values should not be used in condition expressions",
-  priority = Priority.MINOR,
-  tags = {Tags.CLUMSY})
-@ActivatedByDefault
-@SqaleConstantRemediation("2min")
+@Rule(key = "S1125")
 public class BooleanEqualityComparisonCheck extends DoubleDispatchVisitorCheck {
 
   private static final String MESSAGE = "Remove the literal \"%s\" boolean value.";

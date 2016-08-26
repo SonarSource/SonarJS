@@ -19,20 +19,13 @@
  */
 package org.sonar.javascript.checks;
 
-import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.expression.BinaryExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
-import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 
-@Rule(
-  key = "EqEqEq",
-  name = "\"===\" and \"!==\" should be used instead of \"==\" and \"!=\"",
-  priority = Priority.MAJOR,
-  tags = {Tags.BUG})
-@SqaleConstantRemediation("5min")
+@Rule(key = "EqEqEq")
 public class EqEqEqCheck extends DoubleDispatchVisitorCheck {
 
   @Override

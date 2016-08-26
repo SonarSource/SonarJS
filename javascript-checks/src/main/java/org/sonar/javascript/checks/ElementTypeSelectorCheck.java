@@ -21,17 +21,10 @@ package org.sonar.javascript.checks;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.plugins.javascript.api.tree.expression.CallExpressionTree;
-import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 
-@Rule(
-  key = "S2898",
-  name = "\"[type=...]\" should be used to select elements by type",
-  priority = Priority.MAJOR,
-  tags = {Tags.JQUERY, Tags.PERFORMANCE})
-@SqaleConstantRemediation("2min")
+@Rule(key = "S2898")
 public class ElementTypeSelectorCheck extends AbstractJQuerySelectorOptimizationCheck {
 
   private static final String MESSAGE = "Use the \"[type='%s']\" selector here instead of \":%s\".";

@@ -19,20 +19,11 @@
  */
 package org.sonar.javascript.checks;
 
-import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.plugins.javascript.api.tree.statement.DebuggerStatementTree;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
-import org.sonar.squidbridge.annotations.ActivatedByDefault;
-import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 
-@Rule(
-  key = "DebuggerStatement",
-  name = "Debugger statements should not be used",
-  priority = Priority.CRITICAL,
-  tags = {Tags.CWE, Tags.SECURITY, Tags.USER_EXPERIENCE})
-@ActivatedByDefault
-@SqaleConstantRemediation("5min")
+@Rule(key = "DebuggerStatement")
 public class DebuggerStatementCheck extends DoubleDispatchVisitorCheck {
 
 

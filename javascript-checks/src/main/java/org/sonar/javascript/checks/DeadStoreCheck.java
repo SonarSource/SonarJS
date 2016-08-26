@@ -21,7 +21,6 @@ package org.sonar.javascript.checks;
 
 import com.google.common.collect.Lists;
 import java.util.Set;
-import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.javascript.cfg.CfgBlock;
 import org.sonar.javascript.cfg.ControlFlowGraph;
@@ -39,19 +38,11 @@ import org.sonar.plugins.javascript.api.tree.expression.ArrowFunctionTree;
 import org.sonar.plugins.javascript.api.tree.expression.FunctionExpressionTree;
 import org.sonar.plugins.javascript.api.tree.statement.BlockTree;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
-import org.sonar.squidbridge.annotations.ActivatedByDefault;
-import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 
 import static org.sonar.javascript.se.LiveVariableAnalysis.isRead;
 import static org.sonar.javascript.se.LiveVariableAnalysis.isWrite;
 
-@Rule(
-  key = "S1854",
-  name = "Dead Stores should be removed",
-  priority = Priority.MAJOR,
-  tags = {Tags.BUG, Tags.CERT, Tags.CWE, Tags.UNUSED})
-@ActivatedByDefault
-@SqaleConstantRemediation("15min")
+@Rule(key = "S1854")
 public class DeadStoreCheck extends DoubleDispatchVisitorCheck {
 
   private static final String MESSAGE = "Remove this useless assignment to local variable \"%s\"";

@@ -25,7 +25,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.javascript.tree.TreeKinds;
 import org.sonar.javascript.tree.impl.statement.VariableDeclarationTreeImpl;
@@ -41,16 +40,8 @@ import org.sonar.plugins.javascript.api.tree.statement.ForStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.IterationStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.VariableDeclarationTree;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
-import org.sonar.squidbridge.annotations.ActivatedByDefault;
-import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 
-@Rule(
-  key = "S2310",
-  name = "Loop counters should not be assigned to from within the loop body",
-  priority = Priority.MAJOR,
-  tags = Tags.PITFALL)
-@ActivatedByDefault
-@SqaleConstantRemediation("5min")
+@Rule(key = "S2310")
 public class CounterUpdatedInLoopCheck extends DoubleDispatchVisitorCheck {
 
   private static final String MESSAGE = "Remove this assignment of \"%s\".";

@@ -25,7 +25,6 @@ import com.google.common.collect.Lists;
 import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.List;
-import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.javascript.checks.utils.CheckUtils;
 import org.sonar.javascript.tree.SyntacticEquivalence;
@@ -39,16 +38,8 @@ import org.sonar.plugins.javascript.api.tree.expression.MemberExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.UnaryExpressionTree;
 import org.sonar.plugins.javascript.api.tree.statement.ForStatementTree;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
-import org.sonar.squidbridge.annotations.ActivatedByDefault;
-import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 
-@Rule(
-  key = "S1994",
-  name = "\"for\" loop incrementers should modify the variable being tested in the loop's stop condition",
-  priority = Priority.CRITICAL,
-  tags = {Tags.BUG})
-@ActivatedByDefault
-@SqaleConstantRemediation("20min")
+@Rule(key = "S1994")
 public class ForLoopConditionAndUpdateCheck extends DoubleDispatchVisitorCheck {
 
   private static final String MESSAGE = "This loop's stop condition tests \"%s\" but the incrementer updates \"%s\".";

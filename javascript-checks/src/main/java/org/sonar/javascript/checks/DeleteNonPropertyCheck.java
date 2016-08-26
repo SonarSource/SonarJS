@@ -19,7 +19,6 @@
  */
 package org.sonar.javascript.checks;
 
-import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.javascript.checks.utils.CheckUtils;
 import org.sonar.plugins.javascript.api.symbols.Symbol;
@@ -30,16 +29,8 @@ import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 import org.sonar.plugins.javascript.api.tree.expression.UnaryExpressionTree;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
-import org.sonar.squidbridge.annotations.ActivatedByDefault;
-import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 
-@Rule(
-  key = "S3001",
-  name = "\"delete\" should be used only with object properties",
-  priority = Priority.CRITICAL,
-  tags = Tags.BUG)
-@ActivatedByDefault
-@SqaleConstantRemediation("10min")
+@Rule(key = "S3001")
 public class DeleteNonPropertyCheck extends DoubleDispatchVisitorCheck {
 
   private static final String MESSAGE = "Remove this \"delete\" operator or pass an object property to it.";

@@ -21,22 +21,13 @@ package org.sonar.javascript.checks;
 
 import com.google.common.collect.ImmutableSet;
 import java.util.Set;
-import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.plugins.javascript.api.symbols.Symbol;
 import org.sonar.plugins.javascript.api.symbols.Usage;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
-import org.sonar.squidbridge.annotations.ActivatedByDefault;
-import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 
-@Rule(
-  key = "S2703",
-  name = "Variables should be declared explicitly",
-  priority = Priority.MAJOR,
-  tags = {Tags.PITFALL})
-@ActivatedByDefault
-@SqaleConstantRemediation("2min")
+@Rule(key = "S2703")
 public class VariableDeclarationWithoutVarCheck extends DoubleDispatchVisitorCheck {
 
   private static final String MESSAGE = "Add the \"let\", \"const\" or \"var\" keyword to this declaration of \"%s\" to make it explicit.";

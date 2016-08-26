@@ -23,22 +23,13 @@ import com.google.common.collect.ImmutableList;
 import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.List;
-import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.visitors.SubscriptionVisitorCheck;
-import org.sonar.squidbridge.annotations.ActivatedByDefault;
-import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 
-@Rule(
-  key = "FunctionDefinitionInsideLoop",
-  name = "Functions should not be defined inside loops",
-  priority = Priority.MAJOR,
-  tags = {Tags.BUG})
-@ActivatedByDefault
-@SqaleConstantRemediation("30min")
+@Rule(key = "FunctionDefinitionInsideLoop")
 public class FunctionDefinitionInsideLoopCheck extends SubscriptionVisitorCheck {
 
   private static final String MESSAGE = "Define this function outside of a loop.";

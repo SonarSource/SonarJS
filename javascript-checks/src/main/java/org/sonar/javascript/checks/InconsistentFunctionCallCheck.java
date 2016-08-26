@@ -24,7 +24,6 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import javax.annotation.CheckForNull;
-import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.plugins.javascript.api.symbols.Symbol;
@@ -38,15 +37,8 @@ import org.sonar.plugins.javascript.api.tree.expression.NewExpressionTree;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
 import org.sonar.plugins.javascript.api.visitors.IssueLocation;
 import org.sonar.plugins.javascript.api.visitors.PreciseIssue;
-import org.sonar.squidbridge.annotations.ActivatedByDefault;
-import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 
-@Rule(
-  key = "S3686",
-  name = "Functions should not be called both with and without \"new\"",
-  priority = Priority.CRITICAL)
-@ActivatedByDefault
-@SqaleConstantRemediation("15min")
+@Rule(key = "S3686")
 public class InconsistentFunctionCallCheck extends DoubleDispatchVisitorCheck {
 
   private static final String MESSAGE = "Correct the use of this function; on line %s it was called with%s \"new\".";

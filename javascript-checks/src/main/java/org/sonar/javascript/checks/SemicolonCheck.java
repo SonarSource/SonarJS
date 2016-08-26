@@ -20,7 +20,6 @@
 package org.sonar.javascript.checks;
 
 import javax.annotation.Nullable;
-import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
@@ -39,14 +38,8 @@ import org.sonar.plugins.javascript.api.tree.statement.ReturnStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.ThrowStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.VariableStatementTree;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
-import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 
-@Rule(
-  key = "Semicolon",
-  name = "Each statement should end with a semicolon",
-  priority = Priority.MINOR,
-  tags = {Tags.CONVENTION})
-@SqaleConstantRemediation("1min")
+@Rule(key = "Semicolon")
 public class SemicolonCheck extends DoubleDispatchVisitorCheck {
 
   private static final String MESSAGE = "Add a semicolon at the end of this statement.";

@@ -24,7 +24,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.javascript.se.Constraint;
 import org.sonar.javascript.se.ProgramState;
@@ -34,16 +33,8 @@ import org.sonar.javascript.tree.symbols.Scope;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.expression.BinaryExpressionTree;
-import org.sonar.squidbridge.annotations.ActivatedByDefault;
-import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 
-@Rule(
-  key = "S3403",
-  name = "The identity operator (\"===\") should not be used with dissimilar types",
-  priority = Priority.CRITICAL,
-  tags = Tags.BUG)
-@ActivatedByDefault
-@SqaleConstantRemediation("5min")
+@Rule(key = "S3403")
 public class DifferentTypesComparisonCheck extends SeCheck {
 
   private static final String MESSAGE_EQUAL = "Remove this \"===\" check; it will always be false. Did you mean to use \"==\"?";

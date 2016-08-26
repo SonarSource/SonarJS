@@ -19,7 +19,6 @@
  */
 package org.sonar.javascript.checks;
 
-import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.javascript.tree.symbols.type.ObjectType.WebApiType;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
@@ -28,14 +27,8 @@ import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 import org.sonar.plugins.javascript.api.tree.expression.MemberExpressionTree;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
-import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 
-@Rule(
-  key = "S2817",
-  name = "Web SQL databases should not be used",
-  priority = Priority.CRITICAL,
-  tags = {Tags.HTML5, Tags.SECURITY, Tags.OWASP_A6, Tags.OWASP_A9})
-@SqaleConstantRemediation("2h")
+@Rule(key = "S2817")
 public class WebSQLDatabaseCheck extends DoubleDispatchVisitorCheck {
 
   private static final String MESSAGE = "Convert this use of a Web SQL database to another technology";

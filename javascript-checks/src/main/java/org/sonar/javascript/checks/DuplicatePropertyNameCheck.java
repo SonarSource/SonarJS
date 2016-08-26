@@ -21,7 +21,6 @@ package org.sonar.javascript.checks;
 
 import java.util.HashMap;
 import java.util.Map;
-import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
@@ -30,16 +29,8 @@ import org.sonar.plugins.javascript.api.tree.expression.LiteralTree;
 import org.sonar.plugins.javascript.api.tree.expression.ObjectLiteralTree;
 import org.sonar.plugins.javascript.api.tree.expression.PairPropertyTree;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
-import org.sonar.squidbridge.annotations.ActivatedByDefault;
-import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 
-@Rule(
-  key = "DuplicatePropertyName",
-  name = "Property names should not be duplicated within an object literal",
-  priority = Priority.CRITICAL,
-  tags = {Tags.BUG, Tags.PITFALL})
-@ActivatedByDefault
-@SqaleConstantRemediation("5min")
+@Rule(key = "DuplicatePropertyName")
 public class DuplicatePropertyNameCheck extends DoubleDispatchVisitorCheck {
 
   private static final String MESSAGE = "Rename or remove duplicate property name '%s'.";

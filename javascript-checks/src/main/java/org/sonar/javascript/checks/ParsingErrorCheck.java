@@ -19,15 +19,9 @@
  */
 package org.sonar.javascript.checks;
 
-import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
-import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 
-@Rule(
-  key = "ParsingError",
-  name = "JavaScript parser failure",
-  priority = Priority.MAJOR)
-@SqaleConstantRemediation("30min")
+@Rule(key = "ParsingError")
 public class ParsingErrorCheck extends DoubleDispatchVisitorCheck {
 }

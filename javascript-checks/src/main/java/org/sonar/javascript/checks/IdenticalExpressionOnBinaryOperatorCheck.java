@@ -19,7 +19,6 @@
  */
 package org.sonar.javascript.checks;
 
-import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.javascript.tree.SyntacticEquivalence;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
@@ -27,16 +26,8 @@ import org.sonar.plugins.javascript.api.tree.expression.BinaryExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.LiteralTree;
 import org.sonar.plugins.javascript.api.tree.expression.UnaryExpressionTree;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
-import org.sonar.squidbridge.annotations.ActivatedByDefault;
-import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 
-@Rule(
-  key = "S1764",
-  name = "Identical expressions should not be used on both sides of a binary operator",
-  priority = Priority.CRITICAL,
-  tags = {Tags.BUG, Tags.CERT})
-@ActivatedByDefault
-@SqaleConstantRemediation("2min")
+@Rule(key = "S1764")
 public class IdenticalExpressionOnBinaryOperatorCheck extends DoubleDispatchVisitorCheck {
 
   private static final String MESSAGE = "Correct one of the identical sub-expressions on both sides of operator \"%s\"";

@@ -22,7 +22,6 @@ package org.sonar.javascript.checks;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
-import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.javascript.se.Constraint;
 import org.sonar.javascript.se.ProgramState;
@@ -32,16 +31,8 @@ import org.sonar.javascript.tree.symbols.Scope;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.expression.CallExpressionTree;
-import org.sonar.squidbridge.annotations.ActivatedByDefault;
-import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 
-@Rule(
-  key = "S2873",
-  name = "Calls should not be made to non-callable values",
-  priority = Priority.BLOCKER,
-  tags = {Tags.BUG})
-@SqaleConstantRemediation("5min")
-@ActivatedByDefault
+@Rule(key = "S2873")
 public class CallabilityCheck extends SeCheck {
 
   private static final String MESSAGE = "This expression has a value which cannot be called; it is not a function.";

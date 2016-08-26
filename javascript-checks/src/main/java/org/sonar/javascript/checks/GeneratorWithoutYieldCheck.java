@@ -23,7 +23,6 @@ import com.google.common.collect.ImmutableList;
 import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.List;
-import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
@@ -33,16 +32,8 @@ import org.sonar.plugins.javascript.api.tree.expression.FunctionExpressionTree;
 import org.sonar.plugins.javascript.api.visitors.IssueLocation;
 import org.sonar.plugins.javascript.api.visitors.PreciseIssue;
 import org.sonar.plugins.javascript.api.visitors.SubscriptionVisitorCheck;
-import org.sonar.squidbridge.annotations.ActivatedByDefault;
-import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 
-@Rule(
-  key = "S3531",
-  name = "Generators should \"yield\" something",
-  priority = Priority.MAJOR,
-  tags = {Tags.ES2015, Tags.SUSPICIOUS})
-@ActivatedByDefault
-@SqaleConstantRemediation("5min")
+@Rule(key = "S3531")
 public class GeneratorWithoutYieldCheck extends SubscriptionVisitorCheck {
 
   private static final String MESSAGE = "Add a \"yield\" statement to this generator.";

@@ -19,21 +19,14 @@
  */
 package org.sonar.javascript.checks;
 
-import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.expression.CallExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
-import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 
-@Rule(
-  key = "S2427",
-  name = "The base should be provided to \"parseInt\"",
-  priority = Priority.CRITICAL,
-  tags = {Tags.BUG})
-@SqaleConstantRemediation("2min")
+@Rule(key = "S2427")
 public class ParseIntCallWithoutBaseCheck extends DoubleDispatchVisitorCheck {
 
   private static final String MESSAGE = "Add the base to this \"parseInt\" call.";

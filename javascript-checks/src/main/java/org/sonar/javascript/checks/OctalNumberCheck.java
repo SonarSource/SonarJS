@@ -19,21 +19,12 @@
  */
 package org.sonar.javascript.checks;
 
-import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.expression.LiteralTree;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
-import org.sonar.squidbridge.annotations.ActivatedByDefault;
-import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 
-@Rule(
-  key = "OctalNumber",
-  name = "Octal values should not be used",
-  priority = Priority.MAJOR,
-  tags = {Tags.CERT, Tags.MISRA, Tags.PITFALL})
-@ActivatedByDefault
-@SqaleConstantRemediation("5min")
+@Rule(key = "OctalNumber")
 public class OctalNumberCheck extends DoubleDispatchVisitorCheck {
 
   private static final String MESSAGE = "Replace the value of the octal number (%s) by its decimal equivalent (%s).";
