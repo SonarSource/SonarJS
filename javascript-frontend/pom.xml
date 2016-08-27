@@ -50,13 +50,6 @@
       <artifactId>gson</artifactId>
     </dependency>
 
-    <dependency>
-      <groupId>org.fxmisc.richtext</groupId>
-      <artifactId>richtextfx</artifactId>
-      <version>0.6.10</version>
-      <scope>test</scope>
-    </dependency>
-
   </dependencies>
 
 </project>
