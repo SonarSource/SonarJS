@@ -19,32 +19,22 @@
  */
 package org.sonar.javascript.cfg;
 
-import org.fxmisc.richtext.CodeArea;
+import com.google.common.base.Charsets;
+import com.sonar.sslr.api.RecognitionException;
+import com.sonar.sslr.api.typed.ActionParser;
+import javafx.application.Application;
+import javafx.scene.Scene;
+import javafx.scene.web.WebEngine;
+import javafx.scene.web.WebView;
+import javafx.stage.Stage;
+import netscape.javascript.JSObject;
 import org.sonar.javascript.parser.JavaScriptParserBuilder;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
 
-import com.google.common.base.Charsets;
-import com.sonar.sslr.api.RecognitionException;
-import com.sonar.sslr.api.typed.ActionParser;
-
-import javafx.animation.Animation;
-import javafx.animation.KeyFrame;
-import javafx.animation.Timeline;
-import javafx.application.Application;
-import javafx.scene.Scene;
-import javafx.scene.control.SplitPane;
-import javafx.scene.web.WebEngine;
-import javafx.scene.web.WebView;
-import javafx.stage.Stage;
-import javafx.util.Duration;
-
 public class CfgViewer extends Application {
 
-  private final ActionParser<Tree> parser = JavaScriptParserBuilder.createParser(Charsets.UTF_8);
-  private final CodeArea codeArea = new CodeArea("if(a && b) {\n  foo(a);\n} else {\n  bar;\n}\nreturn;");
   private final WebView webView = new WebView();
-  private String lastAnalysed = "";
 
   public static void main(String[] args) {
     launch(args);
@@ -52,44 +42,30 @@ public class CfgViewer extends Application {
 
   @Override
   public void start(Stage primaryStage) throws Exception {
-    codeArea.setStyle("-fx-padding: 10");
-
     primaryStage.setTitle("JavaScript CFG viewer");
 
-    SplitPane splitPane = new SplitPane();
-    splitPane.getItems().addAll(codeArea, webView);
-    webView.getEngine().load(CfgViewer.class.getResource("/cfgviewer/cfg.html").toExternalForm());
-    primaryStage.setScene(new Scene(splitPane, 900, 600));
-    primaryStage.show();
-
-    Timeline timeline = new Timeline(new KeyFrame(
-      Duration.millis(500),
-      ae -> checkForUpdate()));
-    timeline.setCycleCount(Animation.INDEFINITE);
-    timeline.play();
-  }
-
-  private void checkForUpdate() {
-    String text = codeArea.getText();
-    if (!text.equals(lastAnalysed)) {
-      lastAnalysed = text;
-      analyse(text);
-    }
-  }
-
-  private void analyse(String jsSourceCode) {
-    try {
-      Tree tree = parser.parse(jsSourceCode);
-      display(ControlFlowGraph.build((ScriptTree) tree));
-    } catch (RecognitionException e) {
-      // do nothing
-    }
-  }
-
-  private void display(ControlFlowGraph cfg) {
-    String dot = CfgPrinter.toDot(cfg);
     WebEngine webEngine = webView.getEngine();
-    webEngine.executeScript("loadCfg('" + dot + "')");
+    webEngine.load(CfgViewer.class.getResource("/cfgviewer/cfg.html").toExternalForm());
+    JSObject win = (JSObject) webEngine.executeScript("window");
+    win.setMember("analyzer", new Analyzer());
+    primaryStage.setScene(new Scene(webView, 900, 600));
+    primaryStage.show();
+  }
+
+  public static class Analyzer {
+
+    private final ActionParser<Tree> parser = JavaScriptParserBuilder.createParser(Charsets.UTF_8);
+
+    public String analyze(String jsSourceCode) {
+      try {
+        Tree tree = parser.parse(jsSourceCode);
+        ControlFlowGraph cfg = ControlFlowGraph.build((ScriptTree) tree);
+        return CfgPrinter.toDot(cfg);
+      } catch (RecognitionException e) {
+        return null;
+      }
+    }
+
   }
 
 }
