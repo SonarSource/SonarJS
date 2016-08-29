@@ -146,7 +146,6 @@ public class JavaScriptSquidSensorTest {
 
     String parsingErrorCheckKey = "ParsingError";
 
-
     ActiveRules activeRules = (new ActiveRulesBuilder())
       .create(RuleKey.of(CheckList.REPOSITORY_KEY, parsingErrorCheckKey))
       .setName("ParsingError")
@@ -161,6 +160,48 @@ public class JavaScriptSquidSensorTest {
     assertThat(issues).hasSize(1);
     Issue issue = issues.iterator().next();
     assertThat(issue.primaryLocation().textRange().start().line()).isEqualTo(3);
+
+    assertThat(context.allAnalysisErrors()).hasSize(1);
+  }
+
+  @Test
+  public void technical_error_should_add_error_to_context() {
+    thrown.expect(AnalysisException.class);
+
+    JavaScriptCheck check = new ExceptionRaisingCheck(new NullPointerException("NPE forcibly raised by check class"));
+
+    createSensor().analyseFiles(context, ImmutableList.of((TreeVisitor)check), ImmutableList.of(inputFile("file.js")), progressReport);
+    assertThat(context.allAnalysisErrors()).hasSize(1);
+  }
+
+  @Test
+  public void analysis_with_no_issue_should_not_add_error_to_context() {
+    inputFile("file.js");
+
+    createSensor().execute(context);
+
+    Collection<Issue> issues = context.allIssues();
+    assertThat(issues).hasSize(0);
+
+    assertThat(context.allAnalysisErrors()).isEmpty();
+  }
+
+  @Test
+  public void analysis_with_issues_should_not_add_error_to_context() {
+    inputFile("file.js");
+
+    ActiveRules activeRules = (new ActiveRulesBuilder())
+      .create(RuleKey.of(CheckList.REPOSITORY_KEY, "MissingNewlineAtEndOfFile"))
+      .activate()
+      .build();
+    checkFactory = new CheckFactory(activeRules);
+
+    createSensor().execute(context);
+
+    Collection<Issue> issues = context.allIssues();
+    assertThat(issues).hasSize(1);
+
+    assertThat(context.allAnalysisErrors()).isEmpty();
   }
 
   @Test
@@ -215,18 +256,21 @@ public class JavaScriptSquidSensorTest {
   public void cancelled_analysis() throws Exception {
     JavaScriptCheck check = new ExceptionRaisingCheck(new IllegalStateException(new InterruptedException()));
     analyseFileWithException(check, inputFile("cpd/Person.js"), "Analysis cancelled");
+    assertThat(context.allAnalysisErrors()).hasSize(1);
   }
 
   @Test
   public void cancelled_analysis_causing_recognition_exception() throws Exception {
     JavaScriptCheck check = new ExceptionRaisingCheck(new RecognitionException(42, "message", new InterruptedIOException()));
     analyseFileWithException(check, inputFile("cpd/Person.js"), "Analysis cancelled");
+    assertThat(context.allAnalysisErrors()).hasSize(1);
   }
 
   @Test
   public void exception_should_report_file_name() throws Exception {
     JavaScriptCheck check = new ExceptionRaisingCheck(new IllegalStateException());
     analyseFileWithException(check, inputFile("cpd/Person.js"), "Person.js");
+    assertThat(context.allAnalysisErrors()).hasSize(1);
   }
 
   @Test

@@ -171,6 +171,7 @@ public class JavaScriptSquidSensor implements Sensor {
 
     } catch (Exception e) {
       checkInterrupted(e);
+      processException(e, sensorContext, inputFile);
       throw new AnalysisException("Unable to analyse file: " + inputFile.absolutePath(), e);
     }
 
@@ -196,6 +197,23 @@ public class JavaScriptSquidSensor implements Sensor {
         .forRule(parsingErrorRuleKey)
         .at(primaryLocation)
         .save();
+    }
+
+    if (sensorContext.getSonarQubeVersion().isGreaterThanOrEqual(V6_0)) {
+      sensorContext.newAnalysisError()
+        .onFile(inputFile)
+        .at(inputFile.newPointer(e.getLine(), 0))
+        .message(e.getMessage())
+        .save();
+    }
+  }
+
+  private static void processException(Exception e, SensorContext sensorContext, InputFile inputFile) {
+    if (sensorContext.getSonarQubeVersion().isGreaterThanOrEqual(V6_0)) {
+      sensorContext.newAnalysisError()
+      .onFile(inputFile)
+      .message(e.getMessage())
+      .save();
     }
   }
 
