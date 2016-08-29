@@ -182,8 +182,9 @@ public class ProgramState {
   private Map<Symbol, Constraint> constraintsBySymbol() {
     ImmutableMap.Builder<Symbol, Constraint> builder = new Builder<>();
     for (Entry<Symbol, SymbolicValue> entry : values.entrySet()) {
-      if (constraints.get(entry.getValue()) != null) {
-        builder.put(entry.getKey(), constraints.get(entry.getValue()));
+      Constraint constraint = getConstraint(entry.getValue());
+      if (constraint != null) {
+        builder.put(entry.getKey(), constraint);
       }
     }
 
@@ -227,9 +228,7 @@ public class ProgramState {
     }
     Map<Symbol, SymbolicValue> newValues = new HashMap<>(values);
     newValues.put(variable, value);
-    ProgramState newState = new ProgramState(ImmutableMap.copyOf(newValues), constraints, newStack, counter);
-    newState = newState.constrain(value, value.constraint(newState));
-    return newState;
+    return new ProgramState(ImmutableMap.copyOf(newValues), constraints, newStack, counter);
   }
 
   @Override
@@ -258,7 +257,7 @@ public class ProgramState {
     if (stack.isEmpty()) {
       return null;
     }
-    return constraints.get(peekStack());
+    return getConstraint(peekStack());
   }
 
   public SymbolicValue peekStack() {

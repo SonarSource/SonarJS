@@ -20,6 +20,7 @@
 package org.sonar.javascript.se;
 
 import org.junit.Test;
+import org.sonar.javascript.se.sv.SpecialSymbolicValue;
 import org.sonar.javascript.se.sv.SymbolicValue;
 import org.sonar.plugins.javascript.api.symbols.Symbol;
 import org.sonar.plugins.javascript.api.symbols.Symbol.Kind;
@@ -71,6 +72,10 @@ public class ProgramStateTest {
     assertThat(state.newSymbolicValue(symbol1, Constraint.NULL)).isNotEqualTo(state.newSymbolicValue(symbol1, Constraint.UNDEFINED.not()));
     assertThat(state.newSymbolicValue(symbol1, Constraint.NULL)).isNotEqualTo(null);
     assertThat(state.newSymbolicValue(symbol1, Constraint.NULL)).isNotEqualTo("");
+    assertThat(
+      state.pushToStack(SpecialSymbolicValue.NULL).assignment(symbol1).removeLastValue())
+    .isNotEqualTo(
+      state.pushToStack(SpecialSymbolicValue.UNDEFINED).assignment(symbol1).removeLastValue());
   }
 
   @Test
