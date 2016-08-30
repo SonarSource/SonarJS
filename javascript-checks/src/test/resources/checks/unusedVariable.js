@@ -88,3 +88,19 @@ function Person() {
     return name;
   }
 }
+
+function objectDestructuringException(obj) {
+  var {a, b, c, ...interestingProps} = obj; // OK
+  foo(interestingProps);
+
+  var {a1, b1, c1} = obj; // Noncompliant
+//         ^^
+  foo(a1, c1);
+
+  var {a2, b2, c2, ...interestingProps2} = obj; // Noncompliant
+//                    ^^^^^^^^^^^^^^^^^
+
+  var {a3, b: b3, c3, ...interestingProps3} = obj; // Noncompliant
+//            ^^
+  foo(interestingProps3);
+}
