@@ -17,26 +17,23 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.javascript.lexer;
+package org.sonar.javascript.parser.declarations;
 
 import org.junit.Test;
+import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 
-import static org.fest.assertions.Assertions.assertThat;
+import static org.sonar.javascript.utils.Assertions.assertThat;
 
-public class JavaScriptPunctuatorTest {
+public class DecoratorTest {
 
   @Test
   public void test() {
-    assertThat(JavaScriptPunctuator.values().length).isEqualTo(53);
-
-    for (JavaScriptPunctuator punctuator : JavaScriptPunctuator.values()) {
-      assertThat(punctuator.getName()).isEqualTo(punctuator.name());
-    }
+    assertThat(Kind.DECORATOR)
+      .matches("@decorator")
+      .matches("@foo.decorator")
+      .matches("@decorator()")
+      .matches("@decorator(1, 2)")
+      .matches("@foo.decorator()")
+    ;
   }
-
-  @Test(expected = IllegalStateException.class)
-  public void hasToBeSkippedFromAst() throws Exception {
-    JavaScriptPunctuator.COMMA.hasToBeSkippedFromAst(null);
-  }
-
 }

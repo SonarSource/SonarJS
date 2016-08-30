@@ -29,6 +29,7 @@ import org.sonar.javascript.tree.impl.lexical.InternalSyntaxToken;
 import org.sonar.javascript.tree.impl.statement.BlockTreeImpl;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.declaration.AccessorMethodDeclarationTree;
+import org.sonar.plugins.javascript.api.tree.declaration.DecoratorTree;
 import org.sonar.plugins.javascript.api.tree.declaration.ParameterListTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitor;
@@ -36,6 +37,8 @@ import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitor;
 public class AccessorMethodDeclarationTreeImpl extends JavaScriptTree implements AccessorMethodDeclarationTree {
 
   private final Kind kind;
+
+  private final List<DecoratorTree> decorators;
   private InternalSyntaxToken staticToken;
   private final InternalSyntaxToken accessorToken;
   private final Tree name;
@@ -43,18 +46,24 @@ public class AccessorMethodDeclarationTreeImpl extends JavaScriptTree implements
   private final BlockTreeImpl body;
 
   public AccessorMethodDeclarationTreeImpl(
-    @Nullable InternalSyntaxToken staticToken,
+    List<DecoratorTree> decorators, @Nullable InternalSyntaxToken staticToken,
     InternalSyntaxToken accessorToken,
     Tree name,
     ParameterListTreeImpl parameters,
     BlockTreeImpl body
   ) {
+    this.decorators = decorators;
     this.staticToken = staticToken;
     this.kind = "get".equals(accessorToken.text()) ? Kind.GET_METHOD : Kind.SET_METHOD;
     this.accessorToken = accessorToken;
     this.name = name;
     this.parameters = parameters;
     this.body = body;
+  }
+
+  @Override
+  public List<DecoratorTree> decorators() {
+    return decorators;
   }
 
   @Nullable
@@ -102,7 +111,9 @@ public class AccessorMethodDeclarationTreeImpl extends JavaScriptTree implements
 
   @Override
   public Iterator<Tree> childrenIterator() {
-    return Iterators.forArray(staticToken, accessorToken, name, parameters, body);
+    return Iterators.concat(
+      decorators.iterator(),
+      Iterators.forArray(staticToken, accessorToken, name, parameters, body));
   }
 
   @Override

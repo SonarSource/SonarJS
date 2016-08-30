@@ -20,33 +20,24 @@
 package org.sonar.plugins.javascript.api.tree.declaration;
 
 import com.google.common.annotations.Beta;
-import java.util.List;
 import javax.annotation.Nullable;
+import org.sonar.javascript.tree.impl.SeparatedList;
 import org.sonar.plugins.javascript.api.tree.Tree;
+import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
-import org.sonar.plugins.javascript.api.tree.statement.BlockTree;
 
 /**
- * Common interface for all types <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-method-definitions">Method Definitions</a>
- * (<a href="http://wiki.ecmascript.org/doku.php?id=harmony:specification_drafts">ES6</a>).
- * <pre>
- *   {@link #name()} {@link #parameterClause()} {@link #body()}
- *   static {@link #name()} {@link #parameterClause()} {@link #body()}
- * </pre>
+ *  Class and property decorator. Proposed for ES2017.
+ *  <pre> @foo </pre>
+ *  <pre> @foo.bar(true) </pre>
  */
 @Beta
-public interface MethodDeclarationTree extends FunctionTree {
+public interface DecoratorTree extends Tree {
 
-  List<DecoratorTree> decorators();
+  SyntaxToken atToken();
+
+  SeparatedList<IdentifierTree> body();
 
   @Nullable
-  SyntaxToken staticToken();
-
-  Tree name();
-
-  @Override
-  ParameterListTree parameterClause();
-
-  @Override
-  BlockTree body();
+  ParameterListTree arguments();
 }

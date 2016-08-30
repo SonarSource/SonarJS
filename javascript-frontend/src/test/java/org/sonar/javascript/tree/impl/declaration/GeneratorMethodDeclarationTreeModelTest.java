@@ -31,9 +31,10 @@ public class GeneratorMethodDeclarationTreeModelTest extends JavaScriptTreeModel
 
   @Test
   public void generator_method() throws Exception {
-    GeneratorMethodDeclarationTree tree = parse("var a = { * method () {} }", Kind.GENERATOR_METHOD);
+    GeneratorMethodDeclarationTree tree = parse("var a = { @decorator * method () {} }", Kind.GENERATOR_METHOD);
 
     assertThat(tree.is(Kind.GENERATOR_METHOD)).isTrue();
+    assertThat(tree.decorators()).hasSize(1);
     assertThat(tree.staticToken()).isNull();
     assertThat(tree.asyncToken()).isNull();
     assertThat(tree.starToken().text()).isEqualTo("*");

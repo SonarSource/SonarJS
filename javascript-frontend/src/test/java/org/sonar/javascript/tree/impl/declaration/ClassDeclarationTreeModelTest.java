@@ -32,9 +32,10 @@ public class ClassDeclarationTreeModelTest extends JavaScriptTreeModelTest {
 
   @Test
   public void without_members() throws Exception {
-    ClassTree tree = parse("class C { }", Kind.CLASS_DECLARATION);
+    ClassTree tree = parse("@decorator class C { }", Kind.CLASS_DECLARATION);
 
     assertThat(tree.is(Kind.CLASS_DECLARATION)).isTrue();
+    assertThat(tree.decorators()).hasSize(1);
     assertThat(tree.classToken().text()).isEqualTo("class");
     assertThat(tree.name().name()).isEqualTo("C");
     assertThat(tree.extendsToken()).isNull();

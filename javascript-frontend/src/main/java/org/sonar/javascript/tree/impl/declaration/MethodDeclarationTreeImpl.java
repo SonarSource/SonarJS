@@ -27,6 +27,7 @@ import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.javascript.tree.impl.lexical.InternalSyntaxToken;
 import org.sonar.javascript.tree.impl.statement.BlockTreeImpl;
 import org.sonar.plugins.javascript.api.tree.Tree;
+import org.sonar.plugins.javascript.api.tree.declaration.DecoratorTree;
 import org.sonar.plugins.javascript.api.tree.declaration.MethodDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.declaration.ParameterListTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
@@ -36,25 +37,32 @@ public class MethodDeclarationTreeImpl extends JavaScriptTree implements MethodD
 
   private final Kind kind;
 
-  private InternalSyntaxToken staticToken;
+  private final List<DecoratorTree> decorators;
+  private final InternalSyntaxToken staticToken;
   private final SyntaxToken asyncToken;
   private final Tree name;
   private final ParameterListTreeImpl parameters;
   private final BlockTreeImpl body;
 
   public MethodDeclarationTreeImpl(
-    @Nullable InternalSyntaxToken staticToken,
+    List<DecoratorTree> decorators, @Nullable InternalSyntaxToken staticToken,
     @Nullable InternalSyntaxToken asyncToken,
     Tree name,
     ParameterListTreeImpl parameters,
     BlockTreeImpl body
   ) {
+    this.decorators = decorators;
     this.staticToken = staticToken;
     this.asyncToken = asyncToken;
     this.kind = Kind.METHOD;
     this.name = name;
     this.parameters = parameters;
     this.body = body;
+  }
+
+  @Override
+  public List<DecoratorTree> decorators() {
+    return decorators;
   }
 
   @Nullable
@@ -91,7 +99,9 @@ public class MethodDeclarationTreeImpl extends JavaScriptTree implements MethodD
 
   @Override
   public Iterator<Tree> childrenIterator() {
-    return Iterators.forArray(staticToken, asyncToken, name, parameters, body);
+    return Iterators.concat(
+      decorators.iterator(),
+      Iterators.forArray(staticToken, asyncToken, name, parameters, body));
   }
 
   @Override

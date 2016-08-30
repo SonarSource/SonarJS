@@ -43,6 +43,18 @@ public class ClassDeclarationTest {
       .matches("class C {method(){} property; }")
       .matches("class C { property; property=42; }")
     ;
+  }
 
+  @Test
+  public void with_decorators() throws Exception {
+    assertThat(Kind.CLASS_DECLARATION)
+      .matches("@decorator class A {}")
+      .matches("@decorator1 @decorator2 class A {}")
+      .matches("class C { @decorator method(){} }")
+      .matches("class C { @decorator static method(){} }")
+      .matches("class C { @decorator1 @decorator2 method(){} }")
+      .matches("class C {method(){} property; }")
+      .matches("class C { property; property=42; }")
+    ;
   }
 }

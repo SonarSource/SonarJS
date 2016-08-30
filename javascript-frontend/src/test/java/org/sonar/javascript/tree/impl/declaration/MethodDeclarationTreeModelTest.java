@@ -31,9 +31,10 @@ public class MethodDeclarationTreeModelTest extends JavaScriptTreeModelTest {
 
   @Test
   public void method() throws Exception {
-    MethodDeclarationTree tree = parse("var a = { method() {} }", Kind.METHOD);
+    MethodDeclarationTree tree = parse("var a = { @decorator method() {} }", Kind.METHOD);
 
     assertThat(tree.is(Kind.METHOD)).isTrue();
+    assertThat(tree.decorators()).hasSize(1);
     assertThat(tree.staticToken()).isNull();
     assertThat(((IdentifierTree) tree.name()).name()).isEqualTo("method");
     assertThat(tree.parameterClause()).isNotNull();

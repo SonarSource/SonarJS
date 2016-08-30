@@ -20,6 +20,7 @@
 package org.sonar.javascript.parser;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableList.Builder;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.sonar.sslr.api.typed.Optional;
@@ -35,6 +36,7 @@ import org.sonar.javascript.tree.impl.SeparatedList;
 import org.sonar.javascript.tree.impl.declaration.AccessorMethodDeclarationTreeImpl;
 import org.sonar.javascript.tree.impl.declaration.ArrayBindingPatternTreeImpl;
 import org.sonar.javascript.tree.impl.declaration.BindingPropertyTreeImpl;
+import org.sonar.javascript.tree.impl.declaration.DecoratorTreeImpl;
 import org.sonar.javascript.tree.impl.declaration.DefaultExportDeclarationTreeImpl;
 import org.sonar.javascript.tree.impl.declaration.ExportClauseTreeImpl;
 import org.sonar.javascript.tree.impl.declaration.ExportDefaultBindingImpl;
@@ -124,6 +126,7 @@ import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.declaration.AccessorMethodDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.declaration.BindingElementTree;
 import org.sonar.plugins.javascript.api.tree.declaration.DeclarationTree;
+import org.sonar.plugins.javascript.api.tree.declaration.DecoratorTree;
 import org.sonar.plugins.javascript.api.tree.declaration.ExportDefaultBinding;
 import org.sonar.plugins.javascript.api.tree.declaration.ExportDefaultBindingWithExportList;
 import org.sonar.plugins.javascript.api.tree.declaration.ExportDefaultBindingWithNameSpaceExport;
@@ -996,7 +999,7 @@ public class TreeFactory {
   }
 
   public ClassTreeImpl classExpression(
-    InternalSyntaxToken classToken, Optional<IdentifierTreeImpl> name, Optional<Tuple<InternalSyntaxToken, ExpressionTree>> extendsClause,
+    Optional<List<DecoratorTree>> decorators, InternalSyntaxToken classToken, Optional<IdentifierTreeImpl> name, Optional<Tuple<InternalSyntaxToken, ExpressionTree>> extendsClause,
     InternalSyntaxToken openCurlyBraceToken, Optional<List<Tree>> members, InternalSyntaxToken closeCurlyBraceToken
   ) {
 
@@ -1010,6 +1013,7 @@ public class TreeFactory {
 
     if (extendsClause.isPresent()) {
       return ClassTreeImpl.newClassExpression(
+        optionalList(decorators),
         classToken, name.orNull(),
         extendsClause.get().first(), extendsClause.get().second(),
         openCurlyBraceToken,
@@ -1018,6 +1022,7 @@ public class TreeFactory {
     }
 
     return ClassTreeImpl.newClassExpression(
+      optionalList(decorators),
       classToken, name.orNull(),
       null, null,
       openCurlyBraceToken,
@@ -1351,7 +1356,7 @@ public class TreeFactory {
   // [START] Classes, methods, functions & generators
 
   public ClassTreeImpl classDeclaration(
-    InternalSyntaxToken classToken, IdentifierTreeImpl name,
+    Optional<List<DecoratorTree>> decorators, InternalSyntaxToken classToken, IdentifierTreeImpl name,
     Optional<Tuple<InternalSyntaxToken, ExpressionTree>> extendsClause,
     InternalSyntaxToken openCurlyBraceToken, Optional<List<Tree>> members, InternalSyntaxToken closeCurlyBraceToken
   ) {
@@ -1366,7 +1371,7 @@ public class TreeFactory {
 
     if (extendsClause.isPresent()) {
       return ClassTreeImpl.newClassDeclaration(
-        classToken, name,
+        optionalList(decorators), classToken, name,
         extendsClause.get().first(), extendsClause.get().second(),
         openCurlyBraceToken,
         elements,
@@ -1374,6 +1379,7 @@ public class TreeFactory {
     }
 
     return ClassTreeImpl.newClassDeclaration(
+      optionalList(decorators),
       classToken, name,
       null, null,
       openCurlyBraceToken,
@@ -1382,27 +1388,27 @@ public class TreeFactory {
   }
 
   public GeneratorMethodDeclarationTree generator(
-    Optional<InternalSyntaxToken> staticToken, InternalSyntaxToken starToken,
+    Optional<List<DecoratorTree>> decorators, Optional<InternalSyntaxToken> staticToken, InternalSyntaxToken starToken,
     Tree name, ParameterListTreeImpl parameters,
     BlockTreeImpl body
   ) {
-    return new GeneratorMethodDeclarationTreeImpl(staticToken.orNull(), starToken, name, parameters, body);
+    return new GeneratorMethodDeclarationTreeImpl(optionalList(decorators), staticToken.orNull(), starToken, name, parameters, body);
   }
 
   public MethodDeclarationTreeImpl method(
-    Optional<InternalSyntaxToken> staticToken, Optional<InternalSyntaxToken> asyncToken, Tree name, ParameterListTreeImpl parameters,
+    Optional<List<DecoratorTree>> decorators, Optional<InternalSyntaxToken> staticToken, Optional<InternalSyntaxToken> asyncToken, Tree name, ParameterListTreeImpl parameters,
     BlockTreeImpl body
   ) {
-    return new MethodDeclarationTreeImpl(staticToken.orNull(), asyncToken.orNull(), name, parameters, body);
+    return new MethodDeclarationTreeImpl(optionalList(decorators), staticToken.orNull(), asyncToken.orNull(), name, parameters, body);
   }
 
   public AccessorMethodDeclarationTree accessor(
-    Optional<InternalSyntaxToken> staticToken, InternalSyntaxToken accessorToken, Tree name,
+    Optional<List<DecoratorTree>> decorators, Optional<InternalSyntaxToken> staticToken, InternalSyntaxToken accessorToken, Tree name,
     ParameterListTreeImpl parameters,
     BlockTreeImpl body
   ) {
 
-    return new AccessorMethodDeclarationTreeImpl(staticToken.orNull(), accessorToken, name, parameters, body);
+    return new AccessorMethodDeclarationTreeImpl(optionalList(decorators), staticToken.orNull(), accessorToken, name, parameters, body);
   }
 
   public FunctionDeclarationTree functionAndGeneratorDeclaration(
@@ -1684,6 +1690,24 @@ public class TreeFactory {
     return new FieldDeclarationTreeImpl(staticToken.orNull(), propertyName, null, null, nullableSemicolonToken(semicolonToken));
   }
 
+  public DecoratorTree decorator(
+    InternalSyntaxToken atToken, IdentifierTreeImpl name,
+    Optional<List<Tuple<InternalSyntaxToken, IdentifierTree>>> rest, Optional<ParameterListTree> arguments
+  ) {
+    Builder<IdentifierTree> listBuilder = ImmutableList.builder();
+    Builder<InternalSyntaxToken> dotsListBuilder = ImmutableList.builder();
+    listBuilder.add(name);
+
+    for (Tuple<InternalSyntaxToken, IdentifierTree> tuple : rest.or(new ArrayList<>())) {
+      dotsListBuilder.add(tuple.first);
+      listBuilder.add(tuple.second);
+    }
+
+    SeparatedList<IdentifierTree> body = new SeparatedList<>(listBuilder.build(), dotsListBuilder.build());
+
+    return new DecoratorTreeImpl(atToken, body, arguments.orNull());
+  }
+
   public static class Tuple<T, U> {
 
     private final T first;
@@ -1878,6 +1902,10 @@ public class TreeFactory {
   }
 
   public <T, U> Tuple<T, U> newTuple58(T first, U second) {
+    return newTuple(first, second);
+  }
+
+  public <T, U> Tuple<T, U> newTuple59(T first, U second) {
     return newTuple(first, second);
   }
 

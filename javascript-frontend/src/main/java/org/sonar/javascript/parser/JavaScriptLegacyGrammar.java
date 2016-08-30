@@ -32,6 +32,7 @@ import static org.sonar.javascript.lexer.JavaScriptKeyword.FUNCTION;
 import static org.sonar.javascript.lexer.JavaScriptPunctuator.AND;
 import static org.sonar.javascript.lexer.JavaScriptPunctuator.ANDAND;
 import static org.sonar.javascript.lexer.JavaScriptPunctuator.AND_EQU;
+import static org.sonar.javascript.lexer.JavaScriptPunctuator.AT;
 import static org.sonar.javascript.lexer.JavaScriptPunctuator.BANG;
 import static org.sonar.javascript.lexer.JavaScriptPunctuator.COLON;
 import static org.sonar.javascript.lexer.JavaScriptPunctuator.COMMA;
@@ -427,6 +428,7 @@ public enum JavaScriptLegacyGrammar implements GrammarRuleKey {
   }
 
   private static void punctuators(LexerlessGrammarBuilder b) {
+    punctuator(b, AT, "@");
     punctuator(b, LCURLYBRACE, "{");
     punctuator(b, RCURLYBRACE, "}");
     punctuator(b, LPARENTHESIS, "(");

@@ -28,6 +28,7 @@ import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.javascript.tree.impl.lexical.InternalSyntaxToken;
 import org.sonar.javascript.tree.impl.statement.BlockTreeImpl;
 import org.sonar.plugins.javascript.api.tree.Tree;
+import org.sonar.plugins.javascript.api.tree.declaration.DecoratorTree;
 import org.sonar.plugins.javascript.api.tree.declaration.GeneratorMethodDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.declaration.ParameterListTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
@@ -36,25 +37,32 @@ import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitor;
 public class GeneratorMethodDeclarationTreeImpl extends JavaScriptTree implements GeneratorMethodDeclarationTree {
 
   private final Kind kind;
-  private InternalSyntaxToken staticToken;
+
+  private final List<DecoratorTree> decorators;
+  private final InternalSyntaxToken staticToken;
   private final InternalSyntaxToken starToken;
   private final Tree name;
   private final ParameterListTreeImpl parameters;
   private final BlockTreeImpl body;
 
   public GeneratorMethodDeclarationTreeImpl(
-    @Nullable InternalSyntaxToken staticToken, InternalSyntaxToken starToken,
+    List<DecoratorTree> decorators, @Nullable InternalSyntaxToken staticToken, InternalSyntaxToken starToken,
     Tree name,
     ParameterListTreeImpl parameters,
     BlockTreeImpl body
   ) {
-
+    this.decorators = decorators;
     this.staticToken = staticToken;
     this.kind = Kind.GENERATOR_METHOD;
     this.starToken = starToken;
     this.name = name;
     this.parameters = parameters;
     this.body = body;
+  }
+
+  @Override
+  public List<DecoratorTree> decorators() {
+    return decorators;
   }
 
   @Nullable
@@ -102,7 +110,9 @@ public class GeneratorMethodDeclarationTreeImpl extends JavaScriptTree implement
 
   @Override
   public Iterator<Tree> childrenIterator() {
-    return Iterators.forArray(staticToken, starToken, name, parameters, body);
+    return Iterators.concat(
+      decorators.iterator(),
+      Iterators.forArray(staticToken, starToken, name, parameters, body));
   }
 
   @Override

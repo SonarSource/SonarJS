@@ -31,6 +31,7 @@ import org.sonar.javascript.tree.symbols.type.TypableTree;
 import org.sonar.plugins.javascript.api.symbols.Type;
 import org.sonar.plugins.javascript.api.symbols.TypeSet;
 import org.sonar.plugins.javascript.api.tree.Tree;
+import org.sonar.plugins.javascript.api.tree.declaration.DecoratorTree;
 import org.sonar.plugins.javascript.api.tree.declaration.MethodDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.expression.ClassTree;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
@@ -40,6 +41,7 @@ import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitor;
 
 public class ClassTreeImpl extends JavaScriptTree implements ClassTree, TypableTree {
 
+  private List<DecoratorTree> decorators;
   private InternalSyntaxToken classToken;
   @Nullable
   private IdentifierTreeImpl name;
@@ -54,13 +56,14 @@ public class ClassTreeImpl extends JavaScriptTree implements ClassTree, TypableT
   private ClassType classType;
 
   private ClassTreeImpl(
-    Kind kind, InternalSyntaxToken classToken, @Nullable IdentifierTreeImpl name,
+    Kind kind, List<DecoratorTree> decorators, InternalSyntaxToken classToken, @Nullable IdentifierTreeImpl name,
     @Nullable InternalSyntaxToken extendsToken, @Nullable ExpressionTree superClass,
     InternalSyntaxToken openCurlyBraceToken, List<Tree> elements, InternalSyntaxToken closeCurlyBraceToken
   ) {
 
     this.kind = kind;
 
+    this.decorators = decorators;
     this.classToken = classToken;
     this.name = name;
     this.extendsToken = extendsToken;
@@ -73,21 +76,26 @@ public class ClassTreeImpl extends JavaScriptTree implements ClassTree, TypableT
   }
 
   public static ClassTreeImpl newClassExpression(
-    InternalSyntaxToken classToken, @Nullable IdentifierTreeImpl name,
+    List<DecoratorTree> decorators, InternalSyntaxToken classToken, @Nullable IdentifierTreeImpl name,
     @Nullable InternalSyntaxToken extendsToken, @Nullable ExpressionTree superClass, InternalSyntaxToken openCurlyBraceToken,
     List<Tree> elements, InternalSyntaxToken closeCurlyBraceToken
   ) {
 
-    return new ClassTreeImpl(Kind.CLASS_EXPRESSION, classToken, name, extendsToken, superClass, openCurlyBraceToken, elements, closeCurlyBraceToken);
+    return new ClassTreeImpl(Kind.CLASS_EXPRESSION, decorators, classToken, name, extendsToken, superClass, openCurlyBraceToken, elements, closeCurlyBraceToken);
   }
 
   public static ClassTreeImpl newClassDeclaration(
-    InternalSyntaxToken classToken, @Nullable IdentifierTreeImpl name,
+    List<DecoratorTree> decorators, InternalSyntaxToken classToken, @Nullable IdentifierTreeImpl name,
     @Nullable InternalSyntaxToken extendsToken, @Nullable ExpressionTree superClass, InternalSyntaxToken openCurlyBraceToken,
     List<Tree> elements, InternalSyntaxToken closeCurlyBraceToken
   ) {
 
-    return new ClassTreeImpl(Kind.CLASS_DECLARATION, classToken, name, extendsToken, superClass, openCurlyBraceToken, elements, closeCurlyBraceToken);
+    return new ClassTreeImpl(Kind.CLASS_DECLARATION, decorators, classToken, name, extendsToken, superClass, openCurlyBraceToken, elements, closeCurlyBraceToken);
+  }
+
+  @Override
+  public List<DecoratorTree> decorators() {
+    return decorators;
   }
 
   @Override
@@ -145,6 +153,7 @@ public class ClassTreeImpl extends JavaScriptTree implements ClassTree, TypableT
   @Override
   public Iterator<Tree> childrenIterator() {
     return Iterators.concat(
+      decorators.iterator(),
       Iterators.forArray(classToken, name, extendsToken, superClass, openCurlyBraceToken),
       elements.iterator(),
       Iterators.singletonIterator(closeCurlyBraceToken));

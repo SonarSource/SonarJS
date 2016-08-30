@@ -80,6 +80,7 @@ import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.declaration.BindingElementTree;
 import org.sonar.plugins.javascript.api.tree.declaration.DeclarationTree;
+import org.sonar.plugins.javascript.api.tree.declaration.DecoratorTree;
 import org.sonar.plugins.javascript.api.tree.declaration.ExportClauseTree;
 import org.sonar.plugins.javascript.api.tree.declaration.ExportDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.declaration.ExportDefaultBinding;
@@ -1092,6 +1093,7 @@ public class JavaScriptGrammar {
     return b.<ClassTreeImpl>nonterminal(Kind.CLASS_EXPRESSION)
       .is(
         f.classExpression(
+          b.zeroOrMore(DECORATOR()),
           b.token(JavaScriptKeyword.CLASS),
           b.optional(BINDING_IDENTIFIER()),
           // TODO Factor the duplication with CLASS_DECLARATION() into CLASS_TRAIT() ?
@@ -1591,6 +1593,7 @@ public class JavaScriptGrammar {
     return b.<ClassTreeImpl>nonterminal(Kind.CLASS_DECLARATION)
       .is(
         f.classDeclaration(
+          b.zeroOrMore(DECORATOR()),
           b.token(JavaScriptKeyword.CLASS), BINDING_IDENTIFIER(),
           // TODO Factor the duplication with CLASS_EXPRESSION() into CLASS_TRAIT() ?
           b.optional(f.newTuple27(b.token(JavaScriptKeyword.EXTENDS), LEFT_HAND_SIDE_EXPRESSION())),
@@ -1608,6 +1611,15 @@ public class JavaScriptGrammar {
           b.token(JavaScriptPunctuator.SEMI)));
   }
 
+  public DecoratorTree DECORATOR() {
+    return b.<DecoratorTree>nonterminal(Kind.DECORATOR)
+      .is(f.decorator(
+        b.token(JavaScriptPunctuator.AT),
+        IDENTIFIER_REFERENCE(),
+        b.zeroOrMore(f.newTuple59(b.token(JavaScriptPunctuator.DOT), IDENTIFIER_NAME())),
+        b.optional(ARGUMENT_CLAUSE())));
+  }
+
   public FieldDeclarationTree CLASS_FIELD_INITIALIZER() {
     return b.<FieldDeclarationTree>nonterminal()
       .is(f.fieldDeclaration(
@@ -1622,16 +1634,19 @@ public class JavaScriptGrammar {
       .is(
         b.firstOf(
           f.generator(
+            b.zeroOrMore(DECORATOR()),
             b.optional(b.token(JavaScriptLegacyGrammar.STATIC)),
             b.token(JavaScriptPunctuator.STAR),
             PROPERTY_NAME(), FORMAL_PARAMETER_CLAUSE(),
             BLOCK()),
           f.method(
+            b.zeroOrMore(DECORATOR()),
             b.optional(b.token(JavaScriptLegacyGrammar.STATIC)),
             b.optional(b.token(JavaScriptLegacyGrammar.ASYNC)),
             PROPERTY_NAME(), FORMAL_PARAMETER_CLAUSE(),
             BLOCK()),
           f.accessor(
+            b.zeroOrMore(DECORATOR()),
             b.optional(b.token(JavaScriptLegacyGrammar.STATIC)),
             b.firstOf(
               b.token(JavaScriptLegacyGrammar.GET),
