@@ -77,7 +77,7 @@ public class JavaScriptProfileTest {
   }
 
   /**
-   * SonarLint will inject a rule finder containing only the rules coming from the abap repository
+   * SonarLint will inject a rule finder containing only the rules coming from the javascript repository
    */
   private RuleFinder sonarLintRuleFinder() {
     return when(mock(RuleFinder.class).findByKey(anyString(), anyString())).thenAnswer(invocation -> {
