@@ -22,6 +22,7 @@ package org.sonar.plugins.javascript.rules;
 import org.junit.Test;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.debt.DebtRemediationFunction.Type;
+import org.sonar.api.server.rule.RuleParamType;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.api.server.rule.RulesDefinition.Param;
 import org.sonar.api.server.rule.RulesDefinition.Repository;
@@ -44,7 +45,17 @@ public class JavaScriptRulesDefinitionTest {
     assertThat(repository.rules()).hasSize(CheckList.getChecks().size());
 
     assertRuleProperties(repository);
+    assertParameterProperties(repository);
     assertAllRuleParametersHaveDescription(repository);
+  }
+
+  private void assertParameterProperties(Repository repository) {
+    // TooManyLinesInFunctionCheck
+    Param max = repository.rule("S138").param("max");
+    assertThat(max).isNotNull();
+    assertThat(max.defaultValue()).isEqualTo("100");
+    assertThat(max.description()).isEqualTo("Maximum authorized lines in a function");
+    assertThat(max.type()).isEqualTo(RuleParamType.INTEGER);
   }
 
   private void assertRuleProperties(Repository repository) {
