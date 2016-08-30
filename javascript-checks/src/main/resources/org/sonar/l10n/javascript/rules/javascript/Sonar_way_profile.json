@@ -2,13 +2,11 @@
   "name": "Sonar way",
   "ruleKeys": [
     "ArrayAndObjectConstructors",
-    "AssignmentWithinCondition",
     "BitwiseOperators",
     "BoundOrAssignedEvalOrArguments",
     "CollapsibleIfStatements",
     "CommentedCode",
     "ConditionalComment",
-    "ContinueStatement",
     "DebuggerStatement",
     "DuplicateFunctionArgument",
     "DuplicatePropertyName",
@@ -26,10 +24,9 @@
     "NamedFunctionExpression",
     "NestedIfDepth",
     "NonEmptyCaseWithoutBreak",
+    "OctalNumber",
     "OneStatementPerLine",
-    "Parentheses",
     "PrimitiveWrappers",
-    "S878",
     "S905",
     "S930",
     "S1067",
@@ -42,6 +39,7 @@
     "S1264",
     "S1301",
     "S1442",
+    "S1472",
     "S1656",
     "S1764",
     "S1788",
@@ -89,7 +87,6 @@
     "UnusedFunctionArgument",
     "UnusedVariable",
     "VariableDeclarationAfterUsage",
-    "VariableShadowing",
     "WithStatement"
   ]
 }
