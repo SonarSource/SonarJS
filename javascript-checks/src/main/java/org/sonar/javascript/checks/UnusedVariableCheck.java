@@ -70,14 +70,10 @@ public class UnusedVariableCheck extends DoubleDispatchVisitorCheck {
     SymbolModel symbolModel = getContext().getSymbolModel();
 
     for (Symbol symbol : symbolModel.getSymbols()) {
-      if (ignoredSymbols.contains(symbol)) {
+      if (ignoredSymbols.contains(symbol) || isFunctionExpression(symbol)) {
         continue;
       }
 
-      FunctionType functionType = (FunctionType) symbol.types().getUniqueType(Type.Kind.FUNCTION);
-      if (functionType != null && symbol.is(Symbol.Kind.FUNCTION) && functionType.functionTree().is(Kind.FUNCTION_EXPRESSION, Kind.GENERATOR_FUNCTION_EXPRESSION)) {
-        continue;
-      }
       Collection<Usage> usages = symbol.usages();
       if (noUsages(usages) && !isGlobalOrCatchVariable(symbol) && !symbol.builtIn()) {
         if (symbol.isVariable()) {
@@ -87,6 +83,15 @@ public class UnusedVariableCheck extends DoubleDispatchVisitorCheck {
         }
       }
     }
+  }
+
+  private static boolean isFunctionExpression(Symbol symbol) {
+    FunctionType functionType = (FunctionType) symbol.types().getUniqueType(Type.Kind.FUNCTION);
+    if (functionType != null && symbol.is(Symbol.Kind.FUNCTION) && functionType.functionTree().is(Kind.FUNCTION_EXPRESSION, Kind.GENERATOR_FUNCTION_EXPRESSION)) {
+      return true;
+    }
+
+    return false;
   }
 
   private void raiseIssuesOnDeclarations(Symbol symbol, String message) {
