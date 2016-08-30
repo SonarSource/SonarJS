@@ -48,7 +48,7 @@ public class JavaScriptProfileTest {
     assertThat(profile.getName()).isEqualTo(CheckList.SONAR_WAY_PROFILE);
     assertThat(profile.getActiveRules()).onProperty("repositoryKey").containsOnly("common-js", CheckList.REPOSITORY_KEY);
     assertThat(validation.hasErrors()).isFalse();
-    assertThat(profile.getActiveRules().size()).isEqualTo(91);
+    assertThat(profile.getActiveRules().size()).isGreaterThan(87);
   }
 
   @Test
@@ -63,7 +63,7 @@ public class JavaScriptProfileTest {
     assertThat(profile.getName()).isEqualTo(CheckList.SONAR_WAY_PROFILE);
     assertThat(profile.getActiveRules()).onProperty("repositoryKey").containsOnly(CheckList.REPOSITORY_KEY);
     assertThat(validation.hasErrors()).isFalse();
-    assertThat(profile.getActiveRules().size()).isEqualTo(90);
+    assertThat(profile.getActiveRules().size()).isGreaterThan(86);
   }
 
   static RuleFinder ruleFinder() {
