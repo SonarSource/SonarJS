@@ -67,6 +67,7 @@
           <pluginName>JavaScript</pluginName>
           <pluginClass>org.sonar.plugins.javascript.JavaScriptPlugin</pluginClass>
           <skipDependenciesPackaging>true</skipDependenciesPackaging>
+          <sonarLintSupported>true</sonarLintSupported>
           <sonarQubeMinVersion>${sonarQubeMinVersion}</sonarQubeMinVersion>
         </configuration>
       </plugin>

@@ -31,12 +31,30 @@ import static org.fest.assertions.Assertions.assertThat;
 public class JavaScriptPluginTest {
 
   @Test
-  public void get_extensions() throws Exception {
-    SonarRuntime runtime = SonarRuntimeImpl.forSonarQube(Version.create(5, 6), SonarQubeSide.SERVER);
-    Plugin.Context context = new Plugin.Context(runtime);
-    new JavaScriptPlugin().define(context);
+  public void count_extensions_for_sonarqube_server_5_6() throws Exception {
+    Plugin.Context context = setupContext(SonarRuntimeImpl.forSonarQube(Version.create(5, 6), SonarQubeSide.SERVER));
 
     assertThat(context.getExtensions()).hasSize(13);
+  }
+
+  @Test
+  public void count_extensions_for_sonarqube_server_6_0() throws Exception {
+    Plugin.Context context = setupContext(SonarRuntimeImpl.forSonarQube(Version.create(6, 0), SonarQubeSide.SERVER));
+
+    assertThat(context.getExtensions()).hasSize(13);
+  }
+
+  @Test
+  public void count_extensions_for_sonarlint() throws Exception {
+    Plugin.Context context = setupContext(SonarRuntimeImpl.forSonarLint(Version.create(6, 0)));
+
+    assertThat(context.getExtensions()).hasSize(10);
+  }
+
+  private Plugin.Context setupContext(SonarRuntime runtime) {
+    Plugin.Context context = new Plugin.Context(runtime);
+    new JavaScriptPlugin().define(context);
+    return context;
   }
 
 }

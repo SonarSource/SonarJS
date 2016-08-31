@@ -21,8 +21,10 @@ package org.sonar.plugins.javascript;
 
 import org.sonar.api.Plugin;
 import org.sonar.api.PropertyType;
+import org.sonar.api.SonarProduct;
 import org.sonar.api.config.PropertyDefinition;
 import org.sonar.api.resources.Qualifiers;
+import org.sonar.api.utils.Version;
 import org.sonar.javascript.tree.symbols.type.JQuery;
 import org.sonar.plugins.javascript.lcov.ITCoverageSensor;
 import org.sonar.plugins.javascript.lcov.OverallCoverageSensor;
@@ -60,19 +62,26 @@ public class JavaScriptPlugin implements Plugin {
   public static final String IGNORE_HEADER_COMMENTS = PROPERTY_PREFIX + ".ignoreHeaderComments";
   public static final Boolean IGNORE_HEADER_COMMENTS_DEFAULT_VALUE = true;
 
+  public static final Version V6_0 = Version.create(6, 0);
+
   @Override
   public void define(Context context) {
     context.addExtensions(
       JavaScriptLanguage.class,
-
       JavaScriptSquidSensor.class,
       JavaScriptRulesDefinition.class,
-      JavaScriptProfile.class,
+      JavaScriptProfile.class);
 
-      UTCoverageSensor.class,
-      ITCoverageSensor.class,
-      OverallCoverageSensor.class,
+    // Do not waste resources adding coverage sensors to SonarLint, as they are handled as no-ops.
+    // Note: method Context.getRuntime is not available on 5.6 SQ server
+    if (!context.getSonarQubeVersion().isGreaterThanOrEqual(V6_0) || context.getRuntime().getProduct() != SonarProduct.SONARLINT) {
+      context.addExtensions(
+        UTCoverageSensor.class,
+        ITCoverageSensor.class,
+        OverallCoverageSensor.class);
+    }
 
+    context.addExtensions(
       PropertyDefinition.builder(FILE_SUFFIXES_KEY)
         .defaultValue(FILE_SUFFIXES_DEFVALUE)
         .name("File Suffixes")
