@@ -1,0 +1,13 @@
+{
+  "title": "\"continue\" should not be used",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "30min"
+  },
+  "tags": [
+    "misra",
+    "bad-practice"
+  ],
+  "defaultSeverity": "Minor"
+}

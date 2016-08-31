@@ -19,7 +19,6 @@
  */
 package org.sonar.javascript.checks;
 
-import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.javascript.tree.symbols.Scope;
@@ -29,14 +28,8 @@ import org.sonar.plugins.javascript.api.symbols.Usage;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
-import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 
-@Rule(
-  key = "VariableShadowing",
-  name = "Variables should not be shadowed",
-  priority = Priority.MAJOR,
-  tags = {Tags.PITFALL})
-@SqaleConstantRemediation("10min")
+@Rule(key = "VariableShadowing")
 public class VariableShadowingCheck extends DoubleDispatchVisitorCheck {
 
   private static final String MESSAGE = "\"%s\" hides or potentially hides a variable declared in an outer scope at line %s.";

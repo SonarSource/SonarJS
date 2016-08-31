@@ -23,7 +23,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import javax.annotation.CheckForNull;
-import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.javascript.se.Constraint;
 import org.sonar.javascript.se.ProgramState;
@@ -34,16 +33,8 @@ import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.expression.BinaryExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
-import org.sonar.squidbridge.annotations.ActivatedByDefault;
-import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 
-@Rule(
-  key = "S3402",
-  name = "Strings and non-strings should not be added",
-  priority = Priority.MAJOR,
-  tags = Tags.SUSPICIOUS)
-@ActivatedByDefault
-@SqaleConstantRemediation("15min")
+@Rule(key = "S3402")
 public class StringConcatenatedWithNonStringCheck extends SeCheck {
 
   private static final String MESSAGE = "Either make this concatenation explicit or cast one operand to a number.";

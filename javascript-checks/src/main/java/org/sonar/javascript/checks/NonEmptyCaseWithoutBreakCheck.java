@@ -25,7 +25,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.javascript.cfg.CfgBlock;
 import org.sonar.javascript.cfg.CfgBranchingBlock;
@@ -44,16 +43,8 @@ import org.sonar.plugins.javascript.api.tree.statement.StatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.SwitchClauseTree;
 import org.sonar.plugins.javascript.api.tree.statement.SwitchStatementTree;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
-import org.sonar.squidbridge.annotations.ActivatedByDefault;
-import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 
-@Rule(
-  key = "NonEmptyCaseWithoutBreak",
-  name = "Switch cases should end with an unconditional \"break\" statement",
-  priority = Priority.CRITICAL,
-  tags = {Tags.CERT, Tags.CWE, Tags.MISRA, Tags.PITFALL})
-@ActivatedByDefault
-@SqaleConstantRemediation("10min")
+@Rule(key = "NonEmptyCaseWithoutBreak")
 public class NonEmptyCaseWithoutBreakCheck extends DoubleDispatchVisitorCheck {
 
   private static final String MESSAGE = "End this switch case with an unconditional break, continue, return or throw statement.";

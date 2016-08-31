@@ -1,0 +1,14 @@
+{
+  "title": "Properties of variables with \"null\" or \"undefined\" values should not be accessed",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "10min"
+  },
+  "tags": [
+    "cwe",
+    "bug",
+    "cert"
+  ],
+  "defaultSeverity": "Major"
+}

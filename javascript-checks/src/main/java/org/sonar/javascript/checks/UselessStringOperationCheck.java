@@ -21,7 +21,6 @@ package org.sonar.javascript.checks;
 
 import com.google.common.collect.ImmutableList;
 import java.util.List;
-import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.javascript.checks.utils.CheckUtils;
 import org.sonar.plugins.javascript.api.symbols.Type;
@@ -35,16 +34,8 @@ import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 import org.sonar.plugins.javascript.api.tree.expression.MemberExpressionTree;
 import org.sonar.plugins.javascript.api.tree.statement.ExpressionStatementTree;
 import org.sonar.plugins.javascript.api.visitors.SubscriptionVisitorCheck;
-import org.sonar.squidbridge.annotations.ActivatedByDefault;
-import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 
-@Rule(
-  key = "S1154",
-  name = "Results of operations on strings should not be ignored",
-  priority = Priority.BLOCKER,
-  tags = {Tags.BUG})
-@ActivatedByDefault
-@SqaleConstantRemediation("20min")
+@Rule(key = "S1154")
 public class UselessStringOperationCheck extends SubscriptionVisitorCheck {
 
   private static final String MESSAGE = "%s is an immutable object; you must either store or return the result of the operation.";

@@ -21,7 +21,6 @@ package org.sonar.javascript.checks;
 
 import com.google.common.base.Preconditions;
 import java.util.regex.Pattern;
-import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
 import org.sonar.plugins.javascript.api.symbols.Symbol;
@@ -30,14 +29,8 @@ import org.sonar.plugins.javascript.api.symbols.Type;
 import org.sonar.plugins.javascript.api.symbols.Usage;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
-import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 
-@Rule(
-  key = "S2713",
-  name = "JQuery cache variables should comply with a convention name",
-  priority = Priority.MINOR,
-  tags = {Tags.JQUERY, Tags.CONVENTION})
-@SqaleConstantRemediation("5min")
+@Rule(key = "S2713")
 public class JQueryVarNameConventionCheck extends DoubleDispatchVisitorCheck {
 
   private static final String MESSAGE = "Rename variable \"%s\" to match the regular expression %s.";

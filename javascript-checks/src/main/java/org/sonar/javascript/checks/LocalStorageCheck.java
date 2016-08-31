@@ -23,7 +23,6 @@ import com.google.common.collect.ImmutableList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.javascript.checks.utils.CheckUtils;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
@@ -31,17 +30,9 @@ import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.expression.DotMemberExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.MemberExpressionTree;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
-import org.sonar.squidbridge.annotations.SqaleLinearWithOffsetRemediation;
 
 
-@Rule(key = "S3271",
-  name = "Local storage should not be used",
-  priority = Priority.CRITICAL,
-  tags = {Tags.SECURITY, Tags.OWASP_A6})
-@SqaleLinearWithOffsetRemediation(
-  coeff = "5min",
-  offset = "1h",
-  effortToFixDescription = "per additional use of the api")
+@Rule(key = "S3271")
 public class LocalStorageCheck extends DoubleDispatchVisitorCheck {
 
   private static final String MESSAGE = "Remove all use of \"%s\"; use cookies or store the data on the server instead.";

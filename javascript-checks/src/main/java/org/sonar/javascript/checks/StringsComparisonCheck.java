@@ -22,7 +22,6 @@ package org.sonar.javascript.checks;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
-import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.javascript.se.Constraint;
 import org.sonar.javascript.se.ProgramState;
@@ -33,16 +32,8 @@ import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.expression.BinaryExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.LiteralTree;
-import org.sonar.squidbridge.annotations.ActivatedByDefault;
-import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 
-@Rule(
-  key = "S3003",
-  name = "Comparison operators should not be used with strings",
-  priority = Priority.MAJOR,
-  tags = Tags.SUSPICIOUS)
-@ActivatedByDefault
-@SqaleConstantRemediation("5min")
+@Rule(key = "S3003")
 public class StringsComparisonCheck extends SeCheck {
 
   private static final String MESSAGE = "Convert operands of this use of \"%s\" to number type.";

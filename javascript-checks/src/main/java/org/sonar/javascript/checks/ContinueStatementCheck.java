@@ -19,18 +19,11 @@
  */
 package org.sonar.javascript.checks;
 
-import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.plugins.javascript.api.tree.statement.ContinueStatementTree;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
-import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 
-@Rule(
-  key = "ContinueStatement",
-  name = "\"continue\" should not be used",
-  priority = Priority.CRITICAL,
-  tags = {Tags.MISRA})
-@SqaleConstantRemediation("30min")
+@Rule(key = "ContinueStatement")
 public class ContinueStatementCheck extends DoubleDispatchVisitorCheck {
 
   private static final String MESSAGE = "Remove this \"continue\" statement.";

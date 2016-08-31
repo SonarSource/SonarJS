@@ -1,0 +1,12 @@
+{
+  "title": "Variable declarations should be placed appropriately for their scope",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "2min"
+  },
+  "tags": [
+    "pitfall"
+  ],
+  "defaultSeverity": "Major"
+}

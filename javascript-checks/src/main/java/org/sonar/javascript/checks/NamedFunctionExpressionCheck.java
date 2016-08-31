@@ -19,20 +19,11 @@
  */
 package org.sonar.javascript.checks;
 
-import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.plugins.javascript.api.tree.expression.FunctionExpressionTree;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
-import org.sonar.squidbridge.annotations.ActivatedByDefault;
-import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 
-@Rule(
-  key = "NamedFunctionExpression",
-  name = "Named function expressions should not be used",
-  priority = Priority.MAJOR,
-  tags = {Tags.CROSS_BROWSER, Tags.USER_EXPERIENCE})
-@ActivatedByDefault
-@SqaleConstantRemediation("15min")
+@Rule(key = "NamedFunctionExpression")
 public class NamedFunctionExpressionCheck extends DoubleDispatchVisitorCheck {
 
   private static final String MESSAGE = "Make this function anonymous by removing its name: 'function() {...}'.";

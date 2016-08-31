@@ -1,0 +1,12 @@
+{
+  "title": "Setters should not return values",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "5min"
+  },
+  "tags": [
+    "bug"
+  ],
+  "defaultSeverity": "Major"
+}

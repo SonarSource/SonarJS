@@ -19,7 +19,6 @@
  */
 package org.sonar.javascript.checks;
 
-import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.javascript.checks.utils.CheckUtils;
 import org.sonar.plugins.javascript.api.symbols.Type;
@@ -28,14 +27,8 @@ import org.sonar.plugins.javascript.api.tree.expression.CallExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.DotMemberExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
-import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 
-@Rule(
-  key = "S2819",
-  name = "Cross-document messaging domains should be carefully restricted",
-  priority = Priority.CRITICAL,
-  tags = {Tags.HTML5, Tags.SECURITY, Tags.OWASP_A3})
-@SqaleConstantRemediation("10min")
+@Rule(key = "S2819")
 public class PostMessageCheck extends DoubleDispatchVisitorCheck {
 
   private static final String POST_MESSAGE = "postMessage";

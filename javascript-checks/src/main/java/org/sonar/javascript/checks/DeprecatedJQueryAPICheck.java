@@ -21,7 +21,6 @@ package org.sonar.javascript.checks;
 
 import com.google.common.collect.ImmutableList;
 import java.util.List;
-import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.javascript.tree.symbols.type.ObjectType;
 import org.sonar.plugins.javascript.api.tree.Tree;
@@ -31,14 +30,8 @@ import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 import org.sonar.plugins.javascript.api.tree.expression.MemberExpressionTree;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
-import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 
-@Rule(
-  key = "S2770",
-  name = "Deprecated jQuery methods should not be used",
-  priority = Priority.MAJOR,
-  tags = {Tags.JQUERY, Tags.OBSOLETE})
-@SqaleConstantRemediation("20min")
+@Rule(key = "S2770")
 public class DeprecatedJQueryAPICheck extends DoubleDispatchVisitorCheck {
 
   private static final String MESSAGE = "Remove this use of \"%s\", which is deprecated.";

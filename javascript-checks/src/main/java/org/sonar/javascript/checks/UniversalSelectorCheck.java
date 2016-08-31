@@ -19,17 +19,10 @@
  */
 package org.sonar.javascript.checks;
 
-import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.plugins.javascript.api.tree.expression.CallExpressionTree;
-import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 
-@Rule(
-  key = "S2716",
-  name = "Universal selectors should not be used",
-  priority = Priority.MAJOR,
-  tags = {Tags.JQUERY, Tags.PERFORMANCE, Tags.USER_EXPERIENCE})
-@SqaleConstantRemediation("10min")
+@Rule(key = "S2716")
 public class UniversalSelectorCheck extends AbstractJQuerySelectorOptimizationCheck {
 
   private static final String MESSAGE = "Remove the use of this universal selector.";

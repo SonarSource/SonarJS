@@ -25,7 +25,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import javax.annotation.Nullable;
-import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.javascript.se.SeCheck;
 import org.sonar.javascript.se.Truthiness;
@@ -38,16 +37,8 @@ import org.sonar.plugins.javascript.api.tree.statement.DoWhileStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.ForStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.WhileStatementTree;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitor;
-import org.sonar.squidbridge.annotations.ActivatedByDefault;
-import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 
-@Rule(
-  key = "S2583",
-  name = "Conditions should not unconditionally evaluate to \"true\" or to \"false\"",
-  priority = Priority.CRITICAL,
-  tags = {Tags.BUG, Tags.CERT, Tags.CWE, Tags.MISRA})
-@SqaleConstantRemediation("15min")
-@ActivatedByDefault
+@Rule(key = "S2583")
 public class AlwaysTrueOrFalseConditionCheck extends SeCheck {
 
   private Set<LiteralTree> ignoredLoopConditions;

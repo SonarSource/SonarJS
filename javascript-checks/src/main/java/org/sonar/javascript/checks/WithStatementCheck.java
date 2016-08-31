@@ -19,20 +19,11 @@
  */
 package org.sonar.javascript.checks;
 
-import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.plugins.javascript.api.tree.statement.WithStatementTree;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
-import org.sonar.squidbridge.annotations.ActivatedByDefault;
-import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 
-@Rule(
-  key = "WithStatement",
-  name = "\"with\" statements should not be used",
-  priority = Priority.MAJOR,
-  tags = {Tags.BUG})
-@ActivatedByDefault
-@SqaleConstantRemediation("30min")
+@Rule(key = "WithStatement")
 public class WithStatementCheck extends DoubleDispatchVisitorCheck {
 
   private static final String MESSAGE = "Remove this use of \"with\".";

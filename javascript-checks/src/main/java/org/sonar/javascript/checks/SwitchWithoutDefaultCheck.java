@@ -20,23 +20,14 @@
 package org.sonar.javascript.checks;
 
 import com.google.common.collect.Iterables;
-import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.statement.DefaultClauseTree;
 import org.sonar.plugins.javascript.api.tree.statement.SwitchClauseTree;
 import org.sonar.plugins.javascript.api.tree.statement.SwitchStatementTree;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
-import org.sonar.squidbridge.annotations.ActivatedByDefault;
-import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 
-@Rule(
-  key = "SwitchWithoutDefault",
-  name = "\"switch\" statements should end with a \"default\" clause",
-  priority = Priority.MAJOR,
-  tags = {Tags.CERT, Tags.CWE, Tags.MISRA})
-@ActivatedByDefault
-@SqaleConstantRemediation("5min")
+@Rule(key = "SwitchWithoutDefault")
 public class SwitchWithoutDefaultCheck extends DoubleDispatchVisitorCheck {
 
   private static final String ADD_DEFAULT_MESSAGE = "Add a \"default\" clause to this \"switch\" statement.";

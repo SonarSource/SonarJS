@@ -25,7 +25,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import javax.annotation.CheckForNull;
-import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.javascript.tree.symbols.type.FunctionType;
 import org.sonar.plugins.javascript.api.symbols.Type;
@@ -39,16 +38,8 @@ import org.sonar.plugins.javascript.api.tree.declaration.ParameterListTree;
 import org.sonar.plugins.javascript.api.tree.expression.CallExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
-import org.sonar.squidbridge.annotations.ActivatedByDefault;
-import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 
-@Rule(
-  key = "S2234",
-  name = "Parameters should be passed in the correct order",
-  priority = Priority.BLOCKER,
-  tags = {Tags.BUG})
-@ActivatedByDefault
-@SqaleConstantRemediation("5min")
+@Rule(key = "S2234")
 public class MisorderedParameterListCheck extends DoubleDispatchVisitorCheck {
 
   private static final String MESSAGE_FORMAT = "Arguments to %s have the same names but not the same order as the function parameters.";

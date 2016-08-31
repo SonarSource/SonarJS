@@ -19,20 +19,13 @@
  */
 package org.sonar.javascript.checks;
 
-import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.plugins.javascript.api.symbols.Type;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.tree.statement.IfStatementTree;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
-import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 
-@Rule(
-  key = "S2769",
-  name = "Selection results should be tested with \"length\"",
-  priority = Priority.CRITICAL,
-  tags = {Tags.BUG, Tags.JQUERY})
-@SqaleConstantRemediation("2min")
+@Rule(key = "S2769")
 public class SelectionTestedWithoutLengthCheck extends DoubleDispatchVisitorCheck {
 
   private static final String MESSAGE = "Use the \"length\" property to see whether this selection contains elements.";

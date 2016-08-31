@@ -19,13 +19,18 @@
  */
 package org.sonar.plugins.javascript;
 
+import com.google.common.base.Charsets;
+import com.google.common.io.Resources;
+import com.google.gson.Gson;
+import java.io.IOException;
+import java.net.URL;
+import java.util.Set;
 import org.sonar.api.profiles.ProfileDefinition;
 import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleFinder;
 import org.sonar.api.utils.ValidationMessages;
 import org.sonar.javascript.checks.CheckList;
-import org.sonar.squidbridge.annotations.AnnotationBasedProfileBuilder;
 
 public class JavaScriptProfile extends ProfileDefinition {
 
@@ -37,14 +42,41 @@ public class JavaScriptProfile extends ProfileDefinition {
 
   @Override
   public RulesProfile createProfile(ValidationMessages messages) {
-    AnnotationBasedProfileBuilder annotationBasedProfileBuilder = new AnnotationBasedProfileBuilder(ruleFinder);
-    RulesProfile profile = annotationBasedProfileBuilder.build(CheckList.REPOSITORY_KEY, CheckList.SONAR_WAY_PROFILE, JavaScriptLanguage.KEY, CheckList.getChecks(), messages);
-    Rule duplicatedBlocks = ruleFinder.findByKey("common-" + JavaScriptLanguage.KEY, "DuplicatedBlocks");
-    // Common rules may not be available in SonarLint
-    if (duplicatedBlocks != null) {
-      profile.activateRule(duplicatedBlocks, null);
-    }
+    RulesProfile profile = RulesProfile.create(CheckList.SONAR_WAY_PROFILE, JavaScriptLanguage.KEY);
+
+    loadFromCommonRepository(profile);
+    loadActiveKeysFromJsonProfile(profile);
     return profile;
+  }
+
+  private void loadFromCommonRepository(RulesProfile profile) {
+    Rule duplicatedBlocksRule = ruleFinder.findByKey("common-" + JavaScriptLanguage.KEY, "DuplicatedBlocks");
+
+    // in SonarLint duplicatedBlocksRule == null
+    if (duplicatedBlocksRule != null) {
+      profile.activateRule(duplicatedBlocksRule, null);
+    }
+  }
+
+  private void loadActiveKeysFromJsonProfile(RulesProfile rulesProfile) {
+    URL profileUrl = JavaScriptProfile.class.getResource("/org/sonar/l10n/javascript/rules/javascript/Sonar_way_profile.json");
+
+    try {
+      Gson gson = new Gson();
+      Profile profile = gson.fromJson(Resources.toString(profileUrl, Charsets.UTF_8), Profile.class);
+      for (String ruleKey : profile.ruleKeys) {
+        Rule rule = ruleFinder.findByKey(CheckList.REPOSITORY_KEY, ruleKey);
+        rulesProfile.activateRule(rule, null);
+      }
+
+    } catch (IOException e) {
+      throw new IllegalStateException("Failed to read: " + profileUrl, e);
+    }
+  }
+
+
+  private static class Profile {
+    Set<String> ruleKeys;
   }
 
 }

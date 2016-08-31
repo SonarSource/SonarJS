@@ -19,7 +19,6 @@
  */
 package org.sonar.javascript.checks;
 
-import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.javascript.tree.impl.statement.IfStatementTreeImpl;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
@@ -27,14 +26,8 @@ import org.sonar.plugins.javascript.api.tree.statement.ElseClauseTree;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
 import org.sonar.plugins.javascript.api.visitors.IssueLocation;
 import org.sonar.plugins.javascript.api.visitors.PreciseIssue;
-import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 
-@Rule(
-  key = "ElseIfWithoutElse",
-  name = "\"if ... else if\" constructs shall be terminated with an \"else\" clause",
-  priority = Priority.MAJOR,
-  tags = {Tags.CERT, Tags.MISRA})
-@SqaleConstantRemediation("5min")
+@Rule(key = "ElseIfWithoutElse")
 public class ElseIfWithoutElseCheck extends DoubleDispatchVisitorCheck {
 
   private static final String MESSAGE = "Add the missing \"else\" clause.";

@@ -1,6 +1,5 @@
 <p>Merging collapsible <code>if</code> statements increases the code's readability.</p>
 <h2>Noncompliant Code Example</h2>
-
 <pre>
 if (x != undefined) {
   if (x === 2) {
@@ -9,7 +8,6 @@ if (x != undefined) {
 }
 </pre>
 <h2>Compliant Solution</h2>
-
 <pre>
 if (x != undefined &amp;&amp; x === 2) {
   // ...

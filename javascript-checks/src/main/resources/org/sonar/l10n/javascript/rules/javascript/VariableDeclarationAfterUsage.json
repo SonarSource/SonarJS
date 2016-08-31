@@ -1,0 +1,12 @@
+{
+  "title": "Variables should be declared before they are used",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "10min"
+  },
+  "tags": [
+    "pitfall"
+  ],
+  "defaultSeverity": "Blocker"
+}

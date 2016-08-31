@@ -21,20 +21,11 @@ package org.sonar.javascript.checks;
 
 import com.google.common.collect.ImmutableList;
 import java.util.List;
-import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.plugins.javascript.api.symbols.Symbol;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
-import org.sonar.squidbridge.annotations.ActivatedByDefault;
-import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 
-@Rule(
-  key = "S2137",
-  name = "Local variables should not shadow \"undefined\"",
-  priority = Priority.CRITICAL,
-  tags = {Tags.PITFALL})
-@ActivatedByDefault
-@SqaleConstantRemediation("10min")
+@Rule(key = "S2137")
 public class UndefinedShadowingCheck extends AbstractSymbolNameCheck {
 
   private static final String MESSAGE = "Rename this variable.";

@@ -22,20 +22,12 @@ package org.sonar.javascript.checks;
 
 import com.google.common.collect.ImmutableList;
 import java.util.List;
-import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.javascript.api.visitors.SubscriptionVisitorCheck;
-import org.sonar.squidbridge.annotations.ActivatedByDefault;
-import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 
-@Rule(
-  key = "S1135",
-  name = "\"TODO\" tags should be handled",
-  priority = Priority.INFO)
-@ActivatedByDefault
-@SqaleConstantRemediation("20min")
+@Rule(key = "S1135")
 public class TodoTagPresenceCheck extends SubscriptionVisitorCheck {
 
   private static final String MESSAGE = "Complete the task associated to this TODO comment.";

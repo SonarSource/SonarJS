@@ -19,20 +19,11 @@
  */
 package org.sonar.javascript.checks;
 
-import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.plugins.javascript.api.tree.statement.ForStatementTree;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
-import org.sonar.squidbridge.annotations.ActivatedByDefault;
-import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 
-@Rule(
-  key = "S1264",
-  name = "A \"while\" loop should be used instead of a \"for\" loop",
-  priority = Priority.MINOR,
-  tags = {Tags.CLUMSY})
-@ActivatedByDefault
-@SqaleConstantRemediation("5min")
+@Rule(key = "S1264")
 public class ForHidingWhileCheck extends DoubleDispatchVisitorCheck {
 
   private static final String MESSAGE = "Replace this \"for\" loop with a \"while\" loop";

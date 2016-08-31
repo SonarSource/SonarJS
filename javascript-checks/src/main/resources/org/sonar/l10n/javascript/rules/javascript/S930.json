@@ -1,0 +1,15 @@
+{
+  "title": "Function calls should not pass extra arguments",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "10min"
+  },
+  "tags": [
+    "cwe",
+    "bug",
+    "misra",
+    "cert"
+  ],
+  "defaultSeverity": "Critical"
+}

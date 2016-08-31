@@ -20,7 +20,6 @@
 package org.sonar.javascript.checks;
 
 import java.util.Collection;
-import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.javascript.tree.symbols.type.FunctionType;
 import org.sonar.plugins.javascript.api.symbols.Symbol;
@@ -30,16 +29,8 @@ import org.sonar.plugins.javascript.api.symbols.Usage;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
-import org.sonar.squidbridge.annotations.ActivatedByDefault;
-import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 
-@Rule(
-  key = "UnusedVariable",
-  name = "Unused local variables and functions should be removed",
-  priority = Priority.MAJOR,
-  tags = {Tags.UNUSED})
-@ActivatedByDefault
-@SqaleConstantRemediation("5min")
+@Rule(key = "UnusedVariable")
 public class UnusedVariableCheck extends DoubleDispatchVisitorCheck {
 
   private static final String MESSAGE_FOR_VARIABLE = "Remove the declaration of the unused '%s' variable.";

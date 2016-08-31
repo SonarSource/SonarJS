@@ -1,0 +1,15 @@
+{
+  "title": "Related \"if\/else if\" statements and \"cases\" in a \"switch\" should not have the same condition",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "10min"
+  },
+  "tags": [
+    "bug",
+    "cert",
+    "unused",
+    "pitfall"
+  ],
+  "defaultSeverity": "Major"
+}

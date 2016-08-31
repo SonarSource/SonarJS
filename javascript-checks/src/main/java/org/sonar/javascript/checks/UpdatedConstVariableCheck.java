@@ -21,7 +21,6 @@ package org.sonar.javascript.checks;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.plugins.javascript.api.symbols.Symbol;
 import org.sonar.plugins.javascript.api.symbols.Symbol.Kind;
@@ -29,16 +28,8 @@ import org.sonar.plugins.javascript.api.symbols.Usage;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
 import org.sonar.plugins.javascript.api.visitors.PreciseIssue;
-import org.sonar.squidbridge.annotations.ActivatedByDefault;
-import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 
-@Rule(
-  key = "S3500",
-  name = "Attempts should not be made to update \"const\" variables",
-  priority = Priority.BLOCKER,
-  tags = {Tags.BUG, Tags.ES2015})
-@ActivatedByDefault
-@SqaleConstantRemediation("15min")
+@Rule(key = "S3500")
 public class UpdatedConstVariableCheck extends DoubleDispatchVisitorCheck {
 
   private static final String MESSAGE = "Correct this attempt to modify \"%s\" or use \"let\" in its declaration.";

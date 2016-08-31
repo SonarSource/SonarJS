@@ -1,0 +1,13 @@
+{
+  "title": "Sections of code should not be \"commented out\"",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "5min"
+  },
+  "tags": [
+    "misra",
+    "unused"
+  ],
+  "defaultSeverity": "Major"
+}

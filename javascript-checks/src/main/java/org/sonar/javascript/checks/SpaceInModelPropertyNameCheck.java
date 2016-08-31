@@ -20,7 +20,6 @@
 package org.sonar.javascript.checks;
 
 import org.apache.commons.lang.StringUtils;
-import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.javascript.checks.utils.CheckUtils;
 import org.sonar.javascript.tree.symbols.type.Backbone;
@@ -34,14 +33,8 @@ import org.sonar.plugins.javascript.api.tree.expression.LiteralTree;
 import org.sonar.plugins.javascript.api.tree.expression.ObjectLiteralTree;
 import org.sonar.plugins.javascript.api.tree.expression.PairPropertyTree;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
-import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 
-@Rule(
-  key = "S2508",
-  name = "The names of model properties should not contains spaces",
-  priority = Priority.CRITICAL,
-  tags = {Tags.BACKBONE, Tags.BUG})
-@SqaleConstantRemediation("5min")
+@Rule(key = "S2508")
 public class SpaceInModelPropertyNameCheck extends DoubleDispatchVisitorCheck {
 
   private static final String SET = "set";

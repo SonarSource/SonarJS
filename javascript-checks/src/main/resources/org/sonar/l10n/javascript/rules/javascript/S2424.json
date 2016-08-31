@@ -1,0 +1,13 @@
+{
+  "title": "Built-in objects should not be overridden",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "20min"
+  },
+  "tags": [
+    "bug",
+    "confusing"
+  ],
+  "defaultSeverity": "Major"
+}

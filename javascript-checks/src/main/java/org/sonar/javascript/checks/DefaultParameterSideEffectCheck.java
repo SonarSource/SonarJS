@@ -19,7 +19,6 @@
  */
 package org.sonar.javascript.checks;
 
-import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.javascript.checks.utils.CheckUtils;
 import org.sonar.javascript.tree.TreeKinds;
@@ -29,16 +28,8 @@ import org.sonar.plugins.javascript.api.tree.declaration.InitializedBindingEleme
 import org.sonar.plugins.javascript.api.tree.declaration.ParameterListTree;
 import org.sonar.plugins.javascript.api.tree.expression.UnaryExpressionTree;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
-import org.sonar.squidbridge.annotations.ActivatedByDefault;
-import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 
-@Rule(
-  key = "S3509",
-  name = "Default parameters should not cause side effects",
-  priority = Priority.MAJOR,
-  tags = {Tags.PITFALL, Tags.ES2015})
-@ActivatedByDefault
-@SqaleConstantRemediation("15min")
+@Rule(key = "S3509")
 public class DefaultParameterSideEffectCheck extends DoubleDispatchVisitorCheck {
 
   private static final String MESSAGE = "Remove the side effects from this default assignment of \"%s\".";

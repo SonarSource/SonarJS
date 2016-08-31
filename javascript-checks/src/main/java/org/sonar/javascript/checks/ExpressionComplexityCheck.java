@@ -24,7 +24,6 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import java.util.ArrayList;
 import java.util.List;
-import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
 import org.sonar.plugins.javascript.api.tree.Tree;
@@ -34,19 +33,8 @@ import org.sonar.plugins.javascript.api.tree.expression.ConditionalExpressionTre
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.javascript.api.visitors.PreciseIssue;
 import org.sonar.plugins.javascript.api.visitors.SubscriptionVisitorCheck;
-import org.sonar.squidbridge.annotations.ActivatedByDefault;
-import org.sonar.squidbridge.annotations.SqaleLinearWithOffsetRemediation;
 
-@Rule(
-  key = "S1067",
-  name = "Expressions should not be too complex",
-  priority = Priority.MAJOR,
-  tags = {Tags.BRAIN_OVERLOAD})
-@SqaleLinearWithOffsetRemediation(
-  coeff = "1min",
-  offset = "5min",
-  effortToFixDescription = "per complexity point above the threshold")
-@ActivatedByDefault
+@Rule(key = "S1067")
 public class ExpressionComplexityCheck extends SubscriptionVisitorCheck {
 
   private static final int DEFAULT = 3;

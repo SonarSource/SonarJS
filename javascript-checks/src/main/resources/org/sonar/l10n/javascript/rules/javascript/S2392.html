@@ -1,5 +1,5 @@
-<p>A variable that is declared at function scope, but only used inside a single block should be declared in that block, and variables that are declared inside a block but used outside of it (which is possible with a <code>var</code>-style declaration) should be declared outside the block.</p>
-
+<p>A variable that is declared at function scope, but only used inside a single block should be declared in that block, and variables that are
+declared inside a block but used outside of it (which is possible with a <code>var</code>-style declaration) should be declared outside the block.</p>
 <h2>Noncompliant Code Example</h2>
 <pre>
 function doSomething(a, b) {
@@ -17,7 +17,6 @@ function doSomething(a, b) {
   return a+b;
 }
 </pre>
-
 <h2>Compliant Solution</h2>
 <pre>
 function doSomething(a, b) {
@@ -35,3 +34,4 @@ function doSomething(a, b) {
   return a+b;
 }
 </pre>
+

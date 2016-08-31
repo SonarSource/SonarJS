@@ -23,21 +23,14 @@ import com.google.common.io.Files;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.List;
-import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
 import org.sonar.javascript.tree.visitors.CharsetAwareVisitor;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
 import org.sonar.plugins.javascript.api.visitors.LineIssue;
-import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 
-@Rule(
-  key = "LineLength",
-  name = "Lines should not be too long",
-  priority = Priority.MINOR,
-  tags = {Tags.CONVENTION})
-@SqaleConstantRemediation("1min")
+@Rule(key = "LineLength")
 public class LineLengthCheck extends DoubleDispatchVisitorCheck implements CharsetAwareVisitor {
 
   private static final String MESSAGE = "Split this %s characters long line (which is greater than %s authorized).";

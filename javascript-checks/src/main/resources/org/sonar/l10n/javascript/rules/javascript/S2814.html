@@ -1,14 +1,8 @@
-<p>
-  This rule checks that a declaration doesn't use a name that is already in use. Indeed, it is possible to declare multiple variables and/or functions with the same name,
-  but it's hard to predict which declaration will be kept by the JavaScript interpreter.
-</p>
-
+<p>This rule checks that a declaration doesn't use a name that is already in use. Indeed, it is possible to declare multiple variables and/or
+functions with the same name, but it's hard to predict which declaration will be kept by the JavaScript interpreter.</p>
 <p>Typically, this kind of re-declaration is an error, and can lead to bugs and more generally to confusing code.</p>
-
 <p>This rule also applies to function parameters.</p>
-
 <h2>Noncompliant Code Example</h2>
-
 <pre>
 var a = 'foo';
 function a() {}   // Noncompliant
@@ -32,10 +26,7 @@ function fun() {  // Noncompliant
 
 fun(); // prints "bar"
 </pre>
-
-
 <h2>Compliant Solution</h2>
-
 <pre>
 var a = 'foo';
 function otherName() {}
@@ -59,3 +50,4 @@ function printBar() {
 
 printBar(); // prints "bar"
 </pre>
+

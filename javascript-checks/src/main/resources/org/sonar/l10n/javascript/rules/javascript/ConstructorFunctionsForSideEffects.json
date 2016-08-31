@@ -1,0 +1,12 @@
+{
+  "title": "Objects should not be created to be dropped immediately without being used",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "5min"
+  },
+  "tags": [
+    
+  ],
+  "defaultSeverity": "Major"
+}

@@ -1,0 +1,13 @@
+{
+  "title": "Object literal shorthand syntax should be used",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "1min"
+  },
+  "tags": [
+    "convention",
+    "es2015"
+  ],
+  "defaultSeverity": "Minor"
+}

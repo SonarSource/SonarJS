@@ -20,21 +20,14 @@
 package org.sonar.javascript.checks;
 
 import java.util.Iterator;
-import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.plugins.javascript.api.symbols.Symbol;
 import org.sonar.plugins.javascript.api.symbols.Usage;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
 import org.sonar.plugins.javascript.api.visitors.PreciseIssue;
-import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 
-@Rule(
-  key = "S3513",
-  name = "\"arguments\" should not be accessed directly",
-  priority = Priority.MAJOR,
-  tags = {Tags.ES2015, Tags.API_DESIGN})
-@SqaleConstantRemediation("5min")
+@Rule(key = "S3513")
 public class ArgumentsUsageCheck extends DoubleDispatchVisitorCheck {
 
   private static final String MESSAGE = "Use the rest syntax to declare this function's arguments.";

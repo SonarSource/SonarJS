@@ -1,0 +1,13 @@
+{
+  "title": "Comma operator should not be used",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "5min"
+  },
+  "tags": [
+    "bug",
+    "misra"
+  ],
+  "defaultSeverity": "Major"
+}

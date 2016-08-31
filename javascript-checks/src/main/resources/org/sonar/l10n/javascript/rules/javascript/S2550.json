@@ -1,0 +1,13 @@
+{
+  "title": "\"defaults\" should be a function when objects or arrays are used",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "5min"
+  },
+  "tags": [
+    "bug",
+    "backbone"
+  ],
+  "defaultSeverity": "Major"
+}

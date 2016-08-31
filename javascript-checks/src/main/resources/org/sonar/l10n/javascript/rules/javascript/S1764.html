@@ -1,11 +1,7 @@
-<p>
-  Using the same value on either side of a binary operator is almost always a mistake. In the case of logical operators, it is either a copy/paste error and therefore a bug, or it is simply wasted code, and should be simplified. In the case of bitwise operators and most binary mathematical operators, having the same value on both sides of an operator yields predictable results, and should be simplified.
-</p>
-
-<p>
-This rule ignores <code>*</code>, <code>+</code>, and <code>=</code>.
-</p>
-
+<p>Using the same value on either side of a binary operator is almost always a mistake. In the case of logical operators, it is either a copy/paste
+error and therefore a bug, or it is simply wasted code, and should be simplified. In the case of bitwise operators and most binary mathematical
+operators, having the same value on both sides of an operator yields predictable results, and should be simplified.</p>
+<p>This rule ignores <code>*</code>, <code>+</code>, and <code>=</code>. </p>
 <h2>Noncompliant Code Example</h2>
 <pre>
 if ( a == a ) { // always true
@@ -24,7 +20,6 @@ if ( a == b || a == b ) { // if the first one is true, the second one is too
 var j = 5 / 5; //always 1
 var k = 5 - 5; //always 0
 </pre>
-
 <h2>Compliant Solution</h2>
 <pre>
 doZ();
@@ -39,7 +34,6 @@ if ( a == b ) {
 var j = 1;
 var k = 0;
 </pre>
-
 <h2>Exceptions</h2>
 <p>The specific case of testing one variable against itself is a valid test for <code>NaN</code> and is therefore ignored.</p>
 <p>Similarly, left-shifting 1 onto 1 is common in the construction of bit masks, and is ignored.</p>
@@ -51,12 +45,11 @@ if(f !== f) { // test for NaN value
 var i = 1 &lt;&lt; 1; // Compliant
 var j = a &lt;&lt; a; // Noncompliant
 </pre>
-
 <h2>See</h2>
-
 <ul>
-<li> <a href="https://www.securecoding.cert.org/confluence/x/NYA5">CERT, MSC12-C</a> - Detect and remove code that has no effect</li>
-<li> <a href="https://www.securecoding.cert.org/confluence/x/SIIyAQ">CERT, MSC12-CPP</a> - Detect and remove code that has no effect</li>
-<li> Rule {rule:javascript:S1656} - Implements a check on <code>=</code>. </li>
+  <li> <a href="https://www.securecoding.cert.org/confluence/x/NYA5">CERT, MSC12-C.</a> - Detect and remove code that has no effect or is never
+  executed </li>
+  <li> <a href="https://www.securecoding.cert.org/confluence/x/SIIyAQ">CERT, MSC12-CPP.</a> - Detect and remove code that has no effect </li>
+  <li> Rule {rule:javascript:S1656} - Implements a check on <code>=</code>. </li>
 </ul>
 

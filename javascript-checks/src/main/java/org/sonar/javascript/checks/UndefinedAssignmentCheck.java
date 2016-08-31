@@ -19,7 +19,6 @@
  */
 package org.sonar.javascript.checks;
 
-import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.declaration.InitializedBindingElementTree;
@@ -27,14 +26,8 @@ import org.sonar.plugins.javascript.api.tree.expression.AssignmentExpressionTree
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
-import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 
-@Rule(
-  key = "S2138",
-  name = "\"undefined\" should not be assigned",
-  priority = Priority.CRITICAL,
-  tags = {Tags.PITFALL})
-@SqaleConstantRemediation("2min")
+@Rule(key = "S2138")
 public class UndefinedAssignmentCheck extends DoubleDispatchVisitorCheck {
 
   private static final String MESSAGE = "Use null instead.";

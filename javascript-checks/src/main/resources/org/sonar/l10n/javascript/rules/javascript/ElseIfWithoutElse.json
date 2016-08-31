@@ -1,0 +1,13 @@
+{
+  "title": "\"if ... else if\" constructs should end with \"else\" clauses",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "5min"
+  },
+  "tags": [
+    "misra",
+    "cert"
+  ],
+  "defaultSeverity": "Critical"
+}

@@ -22,7 +22,6 @@ package org.sonar.javascript.checks;
 import java.util.HashSet;
 import java.util.Set;
 import javax.annotation.Nullable;
-import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.javascript.tree.TreeKinds;
 import org.sonar.plugins.javascript.api.tree.Tree;
@@ -38,16 +37,8 @@ import org.sonar.plugins.javascript.api.tree.expression.UnaryExpressionTree;
 import org.sonar.plugins.javascript.api.tree.statement.ForStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.VariableDeclarationTree;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
-import org.sonar.squidbridge.annotations.ActivatedByDefault;
-import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 
-@Rule(
-  key = "S888",
-  name = "Relational operators should be used in \"for\" loop termination conditions",
-  priority = Priority.CRITICAL,
-  tags = {Tags.BUG, Tags.CERT, Tags.CWE, Tags.MISRA})
-@ActivatedByDefault
-@SqaleConstantRemediation("2min")
+@Rule(key = "S888")
 public class EqualInForLoopTerminationCheck extends DoubleDispatchVisitorCheck {
 
   private static final String MESSAGE = "Replace '%s' operator with one of '<=', '>=', '<', or '>' comparison operators.";

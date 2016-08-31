@@ -22,7 +22,6 @@ package org.sonar.javascript.checks;
 import java.util.HashSet;
 import java.util.Set;
 import javax.annotation.Nullable;
-import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.javascript.se.Constraint;
 import org.sonar.javascript.se.Nullability;
@@ -35,16 +34,8 @@ import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 import org.sonar.plugins.javascript.api.tree.expression.MemberExpressionTree;
-import org.sonar.squidbridge.annotations.ActivatedByDefault;
-import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 
-@Rule(
-  key = "S2259",
-  name = "Properties of variables with \"null\" or \"undefined\" values should not be accessed",
-  priority = Priority.CRITICAL,
-  tags = {Tags.BUG, Tags.CERT, Tags.CWE, Tags.OWASP_A1, Tags.OWASP_A2, Tags.OWASP_A6, Tags.SECURITY})
-@SqaleConstantRemediation("10min")
-@ActivatedByDefault
+@Rule(key = "S2259")
 public class NullDereferenceCheck extends SeCheck {
 
   private static final String MESSAGE = "TypeError can be thrown as \"%s\" might be null or undefined here.";

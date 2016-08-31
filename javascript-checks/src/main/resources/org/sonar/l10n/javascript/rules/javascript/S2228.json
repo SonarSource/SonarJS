@@ -1,0 +1,14 @@
+{
+  "title": "Console logging should not be used",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "5min"
+  },
+  "tags": [
+    "security",
+    "owasp-a6",
+    "user-experience"
+  ],
+  "defaultSeverity": "Minor"
+}

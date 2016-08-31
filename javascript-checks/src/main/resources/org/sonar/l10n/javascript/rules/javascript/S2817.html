@@ -1,20 +1,15 @@
-<p>
-  The Web SQL Database standard never saw the light of day. It was first formulated, then deprecated by the W3C and was only implemented in some browsers. (It is not supported in
-  Firefox or IE.)
-</p>
-
-<p>
-  Further, the use of a Web SQL Database poses security concerns, since you only need its name to access such a database.
-</p>
-
+<p>The Web SQL Database standard never saw the light of day. It was first formulated, then deprecated by the W3C and was only implemented in some
+browsers. (It is not supported in Firefox or IE.)</p>
+<p>Further, the use of a Web SQL Database poses security concerns, since you only need its name to access such a database.</p>
 <h2>Noncompliant Code Example</h2>
-
 <pre>
 var db = window.openDatabase("myDb", "1.0", "Personal secrets stored here", 2*1024*1024);  // Noncompliant
 </pre>
-
 <h2>See</h2>
 <ul>
-  <li><a href="https://www.owasp.org/index.php/Top_10_2013-A6-Sensitive_Data_Exposure">OWASP Top Ten 2013 Category A6</a> - Sensitive Data Exposure</li>
-  <li><a href="https://www.owasp.org/index.php/Top_10_2013-A9-Using_Components_with_Known_Vulnerabilities">OWASP Top Ten 2013 Category A9</a> - Using Components with Known Vulnerabilities</li>
+  <li> <a href="https://www.owasp.org/index.php/Top_10_2013-A6-Sensitive_Data_Exposure">OWASP Top Ten 2013 Category A6</a> - Sensitive Data Exposure
+  </li>
+  <li> <a href="https://www.owasp.org/index.php/Top_10_2013-A9-Using_Components_with_Known_Vulnerabilities">OWASP Top Ten 2013 Category A9</a> - Using
+  Components with Known Vulnerabilities </li>
 </ul>
+

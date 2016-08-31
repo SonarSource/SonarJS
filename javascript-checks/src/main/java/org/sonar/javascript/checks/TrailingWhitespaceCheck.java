@@ -25,21 +25,14 @@ import java.nio.charset.Charset;
 import java.util.Collections;
 import java.util.List;
 import java.util.regex.Pattern;
-import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.javascript.lexer.JavaScriptLexer;
 import org.sonar.javascript.tree.visitors.CharsetAwareVisitor;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.visitors.LineIssue;
 import org.sonar.plugins.javascript.api.visitors.SubscriptionVisitorCheck;
-import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 
-@Rule(
-  key = "TrailingWhitespace",
-  name = "Lines should not end with trailing whitespaces",
-  priority = Priority.MINOR,
-  tags = {Tags.CONVENTION})
-@SqaleConstantRemediation("1min")
+@Rule(key = "TrailingWhitespace")
 public class TrailingWhitespaceCheck extends SubscriptionVisitorCheck implements CharsetAwareVisitor {
 
   private static final String MESSAGE = "Remove the useless trailing whitespaces at the end of this line.";

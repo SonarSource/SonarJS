@@ -1,8 +1,6 @@
-<p>
-  Once you've made a selection, you typically want to know whether it actually found anything. Since selectors always return an object (the set of selected DOM elements), the
-  best way to see whether your selection found anything is to test the returned object's .length property.
-</p>
-
+<p>Once you've made a selection, you typically want to know whether it actually found anything. Since selectors <em>always</em> return an object (the
+set of selected DOM elements), the best way to see whether your selection found anything is to test the returned object's <code>.length</code>
+property. </p>
 <h2>Noncompliant Code Example</h2>
 <pre>
 if ( $( "div.foo" ) ) {  // Noncompliant
@@ -10,12 +8,12 @@ if ( $( "div.foo" ) ) {  // Noncompliant
   // ...
 }
 </pre>
-
 <h2>Compliant Solution</h2>
 <pre>
 // Testing whether a selection contains elements.
-if ( $( "div.foo" ).length > 0) {
+if ( $( "div.foo" ).length &gt; 0) {
   // this code only runs if elements were found
   //  ...
 }
 </pre>
+

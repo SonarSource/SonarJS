@@ -1,0 +1,14 @@
+{
+  "title": "Generators should \"yield\" something",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "5min"
+  },
+  "tags": [
+    "bug",
+    "es2015",
+    "suspicious"
+  ],
+  "defaultSeverity": "Major"
+}

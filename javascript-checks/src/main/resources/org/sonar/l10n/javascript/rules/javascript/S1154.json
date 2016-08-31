@@ -1,0 +1,13 @@
+{
+  "title": "Results of operations on strings should not be ignored",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "20min"
+  },
+  "tags": [
+    "bug",
+    "cert"
+  ],
+  "defaultSeverity": "Major"
+}

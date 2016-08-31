@@ -1,0 +1,15 @@
+{
+  "title": "Local storage should not be used",
+  "status": "ready",
+  "remediation": {
+    "func": "Linear with offset",
+    "linearDesc": "per additional use of the api",
+    "linearOffset": "1h",
+    "linearFactor": "5min"
+  },
+  "tags": [
+    "security",
+    "owasp-a6"
+  ],
+  "defaultSeverity": "Critical"
+}

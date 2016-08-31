@@ -19,21 +19,12 @@
  */
 package org.sonar.javascript.checks;
 
-import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.statement.LabelledStatementTree;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
-import org.sonar.squidbridge.annotations.ActivatedByDefault;
-import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 
-@Rule(
-  key = "LabelPlacement",
-  name = "Only \"while\", \"do\" and \"for\" statements should be labelled",
-  priority = Priority.MAJOR,
-  tags = {Tags.PITFALL})
-@ActivatedByDefault
-@SqaleConstantRemediation("20min")
+@Rule(key = "LabelPlacement")
 public class LabelPlacementCheck extends DoubleDispatchVisitorCheck {
 
   private static final String MESSAGE = "Remove this \"%s\" label.";

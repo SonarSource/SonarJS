@@ -19,7 +19,6 @@
  */
 package org.sonar.javascript.checks;
 
-import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.javascript.tree.impl.statement.IfStatementTreeImpl;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
@@ -30,16 +29,8 @@ import org.sonar.plugins.javascript.api.tree.statement.IfStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.ReturnStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.StatementTree;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
-import org.sonar.squidbridge.annotations.ActivatedByDefault;
-import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 
-@Rule(
-  key = "S1126",
-  name = "Return of boolean expressions should not be wrapped into an \"if-then-else\" statement",
-  priority = Priority.MINOR,
-  tags = {Tags.CLUMSY})
-@ActivatedByDefault
-@SqaleConstantRemediation("2min")
+@Rule(key = "S1126")
 public class ReturnOfBooleanExpressionCheck extends DoubleDispatchVisitorCheck {
 
   private static final String MESSAGE = "Replace this if-then-else statement by a single return statement.";

@@ -1,7 +1,4 @@
-<p>
-  The use of wrapper objects for primitive types is gratuitous, confusing and dangerous. Simple literals should be used instead.
-</p>
-
+<p>The use of wrapper objects for primitive types is gratuitous, confusing and dangerous. Simple literals should be used instead.</p>
 <h2>Noncompliant Code Example</h2>
 <pre>
 var x = new Boolean(false);
@@ -9,7 +6,6 @@ if (x) {
   alert('hi');  // Shows 'hi'.
 }
 </pre>
-
 <h2>Compliant Solution</h2>
 <pre>
 var x = false;
@@ -17,3 +13,4 @@ if (x) {
   alert('hi');
 }
 </pre>
+

@@ -1,0 +1,16 @@
+{
+  "title": "Dead stores should be removed",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "15min"
+  },
+  "tags": [
+    "cwe",
+    "bug",
+    "cert",
+    "unused",
+    "suspicious"
+  ],
+  "defaultSeverity": "Major"
+}

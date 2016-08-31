@@ -1,16 +1,12 @@
-<p>
-  Most browsers parse and discard a meaningless, trailing comma. Unfortunately, that's not the case for Internet Explorer below version 9, which throws a meaningless error. Therefore trailing commas should be eliminated.
-</p>
-
+<p>Most browsers parse and discard a meaningless, trailing comma. Unfortunately, that's not the case for Internet Explorer below version 9, which
+throws a meaningless error. Therefore trailing commas should be eliminated.</p>
 <h2>Noncompliant Code Example</h2>
-
 <pre>
 var settings = {
     'foo'  : oof,
     'bar' : rab,    // Noncompliant - trailing comma
 };
 </pre>
-
 <h2>Compliant Solution</h2>
 <pre>
 var settings = {
@@ -18,3 +14,4 @@ var settings = {
     'bar' : rab
 };
 </pre>
+

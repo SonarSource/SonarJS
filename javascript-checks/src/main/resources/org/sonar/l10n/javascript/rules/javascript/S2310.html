@@ -1,5 +1,5 @@
-<p>Loop counters should not be modified in the body of the loop. However other loop control variables representing logical values may be modified in the loop, for example a flag to indicate that something has been completed, which is then tested in the for statement.</p>
-
+<p>Loop counters should not be modified in the body of the loop. However other loop control variables representing logical values may be modified in
+the loop, for example a flag to indicate that something has been completed, which is then tested in the for statement.</p>
 <h2>Noncompliant Code Example</h2>
 <pre>
 var names = [ "Jack", "Jim", "", "John" ];
@@ -11,7 +11,6 @@ for (var i = 0; i &lt; names.length; i++) {
   }
 }
 </pre>
-
 <h2>Compliant Solution</h2>
 <pre>
 var names = [ "Jack", "Jim", "", "John" ];
@@ -23,3 +22,4 @@ for (var name of names) {
   }
 }
 </pre>
+

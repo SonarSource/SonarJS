@@ -24,7 +24,6 @@ import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Deque;
 import java.util.List;
-import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
@@ -43,19 +42,8 @@ import org.sonar.plugins.javascript.api.tree.statement.WhileStatementTree;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
 import org.sonar.plugins.javascript.api.visitors.IssueLocation;
 import org.sonar.plugins.javascript.api.visitors.PreciseIssue;
-import org.sonar.squidbridge.annotations.ActivatedByDefault;
-import org.sonar.squidbridge.annotations.SqaleLinearRemediation;
 
-@Rule(
-  key = "TooManyBreakOrContinueInLoop",
-  name = "Loops should not contain more than a single \"break\" or \"continue\" statement",
-  priority = Priority.MAJOR,
-  tags = {Tags.BRAIN_OVERLOAD})
-@ActivatedByDefault
-@SqaleLinearRemediation(
-  coeff = "20min",
-  effortToFixDescription = "per extra \"break\" or \"continue\" statement"
-)
+@Rule(key = "TooManyBreakOrContinueInLoop")
 public class TooManyBreakOrContinueInLoopCheck extends DoubleDispatchVisitorCheck {
 
   private static final String MESSAGE = "Reduce the total number of \"break\" and \"continue\" statements in this loop to use one at most.";

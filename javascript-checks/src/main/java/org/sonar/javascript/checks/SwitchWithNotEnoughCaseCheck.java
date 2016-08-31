@@ -19,20 +19,11 @@
  */
 package org.sonar.javascript.checks;
 
-import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.plugins.javascript.api.tree.statement.SwitchStatementTree;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
-import org.sonar.squidbridge.annotations.ActivatedByDefault;
-import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 
-@Rule(
-  key = "S1301",
-  name = "\"switch\" statements should have at least 3 \"case\" clauses",
-  priority = Priority.MINOR,
-  tags = {Tags.MISRA})
-@ActivatedByDefault
-@SqaleConstantRemediation("5min")
+@Rule(key = "S1301")
 public class SwitchWithNotEnoughCaseCheck extends DoubleDispatchVisitorCheck {
 
   private static final String MESSAGE = "Replace this \"switch\" statement with \"if\" statements to increase readability.";

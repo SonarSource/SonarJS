@@ -1,0 +1,12 @@
+{
+  "title": "Variables should be declared explicitly",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "2min"
+  },
+  "tags": [
+    "pitfall"
+  ],
+  "defaultSeverity": "Blocker"
+}

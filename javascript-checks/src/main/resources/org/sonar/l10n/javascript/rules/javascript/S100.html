@@ -1,13 +1,11 @@
-<p>
-  Sharing some naming conventions is a key point to make it possible for a team to efficiently collaborate. This rule allows to check that all function names match a provided regular expression.
-</p>
-
+<p>Shared naming conventions allow teams to collaborate efficiently. This rule checks that all function names match a provided regular expression.</p>
 <h2>Noncompliant Code Example</h2>
+<p>With the default regular expression <code>^[a-z][a-zA-Z0-9]*$</code>:</p>
 <pre>
-function DoSomething(){...}
+function DoSomething(){...}  // Noncompliant
 </pre>
-
 <h2>Compliant Solution</h2>
 <pre>
 function doSomething(){...}
 </pre>
+

@@ -1,0 +1,14 @@
+{
+  "title": "Control structures should use curly braces",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "2min"
+  },
+  "tags": [
+    "misra",
+    "cert",
+    "pitfall"
+  ],
+  "defaultSeverity": "Critical"
+}

@@ -1,0 +1,13 @@
+{
+  "title": "Strings and non-strings should not be added",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "15min"
+  },
+  "tags": [
+    "bug",
+    "suspicious"
+  ],
+  "defaultSeverity": "Minor"
+}

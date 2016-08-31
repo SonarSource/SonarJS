@@ -1,0 +1,13 @@
+{
+  "title": "The \"changed\" property should not be manipulated directly",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "30min"
+  },
+  "tags": [
+    "bug",
+    "backbone"
+  ],
+  "defaultSeverity": "Critical"
+}

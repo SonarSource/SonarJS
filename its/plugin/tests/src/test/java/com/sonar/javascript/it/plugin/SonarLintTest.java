@@ -85,8 +85,8 @@ public class SonarLintTest {
       issues::add);
 
     assertThat(issues).extracting("ruleKey", "startLine", "inputFile.path", "severity").containsOnly(
-      tuple("javascript:UnusedVariable", 2, inputFile.getPath(), "MAJOR"),
-      tuple("javascript:UnusedVariable", 3, inputFile.getPath(), "MAJOR"),
+      tuple("javascript:UnusedVariable", 2, inputFile.getPath(), "MINOR"),
+      tuple("javascript:UnusedVariable", 3, inputFile.getPath(), "MINOR"),
       tuple("javascript:S1854", 3, inputFile.getPath(), "MAJOR"));
   }
 

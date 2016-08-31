@@ -19,20 +19,12 @@
  */
 package org.sonar.javascript.checks;
 
-import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.statement.IfStatementTree;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
-import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 
-@Rule(
-  key = "S1145",
-  name = "Useless \"if(true) {...}\" and \"if(false){...}\" blocks should be removed",
-  priority = Priority.MAJOR,
-  status = "DEPRECATED",
-  tags = {Tags.BUG, Tags.CWE, Tags.MISRA, Tags.SECURITY})
-@SqaleConstantRemediation("2min")
+@Rule(key = "S1145")
 public class IfConditionalAlwaysTrueOrFalseCheck extends DoubleDispatchVisitorCheck {
 
   private static final String MESSAGE = "Remove this \"if\" statement.";

@@ -1,0 +1,13 @@
+{
+  "title": "Property names should not be duplicated within an object literal",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "5min"
+  },
+  "tags": [
+    "bug",
+    "pitfall"
+  ],
+  "defaultSeverity": "Major"
+}

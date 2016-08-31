@@ -1,0 +1,12 @@
+{
+  "title": "Boolean literals should not be redundant",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "2min"
+  },
+  "tags": [
+    "clumsy"
+  ],
+  "defaultSeverity": "Minor"
+}

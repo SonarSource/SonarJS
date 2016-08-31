@@ -26,7 +26,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import javax.annotation.CheckForNull;
-import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.javascript.tree.symbols.Scope;
@@ -34,14 +33,8 @@ import org.sonar.plugins.javascript.api.symbols.Symbol;
 import org.sonar.plugins.javascript.api.symbols.Usage;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
-import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 
-@Rule(
-  key = "S2392",
-  name = "Variable declarations should be placed appropriately for their scope",
-  priority = Priority.MAJOR,
-  tags = {Tags.PITFALL})
-@SqaleConstantRemediation("2min")
+@Rule(key = "S2392")
 public class WrongScopeDeclarationCheck extends DoubleDispatchVisitorCheck {
 
   private static final String MESSAGE = "Move the declaration of \"%s\" to line %s.";

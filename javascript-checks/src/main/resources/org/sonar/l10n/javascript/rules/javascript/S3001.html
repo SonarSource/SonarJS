@@ -1,5 +1,5 @@
-<p>The semantics of the <code>delete</code> operator are a bit tricky, and it can only be reliably used to remove properties from objects. Pass anything else to it, and you may or may not get the desired result.</p>
-
+<p>The semantics of the <code>delete</code> operator are a bit tricky, and it can only be reliably used to remove properties from objects. Pass
+anything else to it, and you may or may not get the desired result.</p>
 <h2>Noncompliant Code Example</h2>
 <pre>
 var x  = 1;
@@ -11,7 +11,6 @@ function foo(){
 
 delete foo;  // Noncompliant
 </pre>
-
 <h2>Compliant Solution</h2>
 <pre>
 var obj = {
@@ -24,3 +23,4 @@ delete obj.x;
 delete obj.foo;
 
 </pre>
+

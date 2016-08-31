@@ -1,0 +1,12 @@
+{
+  "title": "Return of boolean expressions should not be wrapped into an \"if-then-else\" statement",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "2min"
+  },
+  "tags": [
+    "clumsy"
+  ],
+  "defaultSeverity": "Minor"
+}

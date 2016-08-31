@@ -19,21 +19,14 @@
  */
 package org.sonar.javascript.checks;
 
-import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 import org.sonar.plugins.javascript.api.tree.expression.PairPropertyTree;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
-import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 
-@Rule(
-  key = "S3498",
-  name = "Object literal shorthand syntax should be used",
-  priority = Priority.MINOR,
-  tags = {Tags.CONVENTION, Tags.ES2015})
-@SqaleConstantRemediation("1min")
+@Rule(key = "S3498")
 public class ObjectLiteralShorthandCheck extends DoubleDispatchVisitorCheck {
 
   private static final String MESSAGE = "Use shorthand for %s \"%s\".";

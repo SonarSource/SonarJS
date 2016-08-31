@@ -1,0 +1,12 @@
+{
+  "title": "Functions should not have too many lines",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "20min"
+  },
+  "tags": [
+    "brain-overload"
+  ],
+  "defaultSeverity": "Major"
+}

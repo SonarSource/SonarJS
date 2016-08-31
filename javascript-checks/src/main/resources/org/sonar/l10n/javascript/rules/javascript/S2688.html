@@ -1,10 +1,7 @@
-<p>
-  <code>NaN</code> is not equal to anything, even itself. Testing for equality or inequality against <code>NaN</code> will yield predictable results, but probably not the ones you want.
-</p>
-<p>
-  Instead, the best way to see whether a variable is equal to <code>NaN</code> is (perhaps counter-intuitively) to compare it to itself. Since <code>NaN !== NaN</code>, when <code>a !== a</code>, you know it must equal <code>NaN</code>.
-</p>
-
+<p><code>NaN</code> is not equal to anything, even itself. Testing for equality or inequality against <code>NaN</code> will yield predictable results,
+but probably not the ones you want. </p>
+<p>Instead, the best way to see whether a variable is equal to <code>NaN</code> is (perhaps counter-intuitively) to compare it to itself. Since
+<code>NaN !== NaN</code>, when <code>a !== a</code>, you know it must equal <code>NaN</code>.</p>
 <h2>Noncompliant Code Example</h2>
 <pre>
 var a = NaN;
@@ -16,7 +13,6 @@ if (a !== NaN) { // Noncompliant; always true
   console.log("a is not NaN"); // this statement is not necessarily true
 }
 </pre>
-
 <h2>Compliant Solution</h2>
 <pre>
 if (a !== a) {
@@ -26,3 +22,8 @@ if (a === a) {
   console.log("a is not NaN");
 }
 </pre>
+<h2>See</h2>
+<ul>
+  <li> <a href="https://www.securecoding.cert.org/confluence/x/7AEqAQ">CERT, NUM07-J.</a> - Do not attempt comparisons with NaN </li>
+</ul>
+

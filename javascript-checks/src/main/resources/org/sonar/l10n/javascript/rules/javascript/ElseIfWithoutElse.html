@@ -1,7 +1,8 @@
-<p>This rule applies whenever an <code>if</code> statement is followed by one or more <code>else if</code> statements; the final <code>else if</code> should be followed by an <code>else</code> statement.</p>
+<p>This rule applies whenever an <code>if</code> statement is followed by one or more <code>else if</code> statements; the final <code>else if</code>
+should be followed by an <code>else</code> statement.</p>
 <p>The requirement for a final <code>else</code> statement is defensive programming.</p>
-<p>The <code>else</code> statement should either take appropriate action or contain a suitable comment as to why no action is taken. This is consistent with the requirement to have a final <code>default</code> clause in a <code>switch</code> statement.</p>
-
+<p>The <code>else</code> statement should either take appropriate action or contain a suitable comment as to why no action is taken. This is
+consistent with the requirement to have a final <code>default</code> clause in a <code>switch</code> statement.</p>
 <h2>Noncompliant Code Example</h2>
 <pre>
 if (x == 0) {
@@ -10,7 +11,6 @@ if (x == 0) {
   doSomethingElse();
 }
 </pre>
-
 <h2>Compliant Solution</h2>
 <pre>
 if (x == 0) {
@@ -21,14 +21,13 @@ if (x == 0) {
   throw "Unexpected value for x";
 }
 </pre>
-
 <h2>See</h2>
 <ul>
-<li> MISRA C:2004, 14.10 - All if...else if constructs shall be terminated with an else clause.
-</li><li> MISRA C++:2008, 6-4-2 - All if...else if constructs shall be terminated with an else clause.
-</li><li> MISRA C:2012, 15.7 - All if...else if constructs shall be terminated with an else statement
-</li><li> <a href="https://www.securecoding.cert.org/confluence/x/YgE">CERT, MSC01-C.</a> - Strive for logical completeness
-</li><li> <a href="https://www.securecoding.cert.org/confluence/x/JoIyAQ">CERT, MSC01-CPP.</a> - Strive for logical completeness
-</li><li> <a href="https://www.securecoding.cert.org/confluence/x/PQHRAw">CERT, MSC57-J.</a> - Strive for logical completeness
-</li></ul>
+  <li> MISRA C:2004, 14.10 - All if...else if constructs shall be terminated with an else clause. </li>
+  <li> MISRA C++:2008, 6-4-2 - All if...else if constructs shall be terminated with an else clause. </li>
+  <li> MISRA C:2012, 15.7 - All if...else if constructs shall be terminated with an else statement </li>
+  <li> <a href="https://www.securecoding.cert.org/confluence/x/YgE">CERT, MSC01-C.</a> - Strive for logical completeness </li>
+  <li> <a href="https://www.securecoding.cert.org/confluence/x/JoIyAQ">CERT, MSC01-CPP.</a> - Strive for logical completeness </li>
+  <li> <a href="https://www.securecoding.cert.org/confluence/x/PQHRAw">CERT, MSC57-J.</a> - Strive for logical completeness </li>
+</ul>
 

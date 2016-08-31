@@ -1,0 +1,13 @@
+{
+  "title": "\"future reserved words\" should not be used as identifiers",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "5min"
+  },
+  "tags": [
+    "lock-in",
+    "pitfall"
+  ],
+  "defaultSeverity": "Blocker"
+}

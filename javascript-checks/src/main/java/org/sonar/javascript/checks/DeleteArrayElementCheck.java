@@ -19,7 +19,6 @@
  */
 package org.sonar.javascript.checks;
 
-import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.plugins.javascript.api.symbols.Type;
 import org.sonar.plugins.javascript.api.tree.Tree;
@@ -27,16 +26,8 @@ import org.sonar.plugins.javascript.api.tree.expression.BracketMemberExpressionT
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.UnaryExpressionTree;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
-import org.sonar.squidbridge.annotations.ActivatedByDefault;
-import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 
-@Rule(
-  key = "S2870",
-  name = "\"delete\" should not be used on arrays",
-  priority = Priority.CRITICAL,
-  tags = {Tags.BUG})
-@SqaleConstantRemediation("5min")
-@ActivatedByDefault
+@Rule(key = "S2870")
 public class DeleteArrayElementCheck extends DoubleDispatchVisitorCheck {
 
   private static final String MESSAGE = "Remove this use of \"delete\".";

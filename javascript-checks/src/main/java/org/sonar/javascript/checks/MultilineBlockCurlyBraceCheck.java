@@ -21,7 +21,6 @@ package org.sonar.javascript.checks;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.plugins.javascript.api.tree.ModuleTree;
@@ -33,16 +32,8 @@ import org.sonar.plugins.javascript.api.tree.statement.IterationStatementTree;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
 import org.sonar.plugins.javascript.api.visitors.IssueLocation;
 import org.sonar.plugins.javascript.api.visitors.PreciseIssue;
-import org.sonar.squidbridge.annotations.ActivatedByDefault;
-import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 
-@Rule(
-  key = "S2681",
-  name = "Multiline blocks should be enclosed in curly braces",
-  priority = Priority.CRITICAL,
-  tags = {Tags.BUG, Tags.CWE})
-@ActivatedByDefault
-@SqaleConstantRemediation("5min")
+@Rule(key = "S2681")
 public class MultilineBlockCurlyBraceCheck extends DoubleDispatchVisitorCheck {
 
   private static final Kind[] NESTING_STATEMENT_KINDS = {

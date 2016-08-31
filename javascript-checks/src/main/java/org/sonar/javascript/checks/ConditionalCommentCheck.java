@@ -21,22 +21,13 @@ package org.sonar.javascript.checks;
 
 import com.google.common.collect.ImmutableList;
 import java.util.List;
-import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxTrivia;
 import org.sonar.plugins.javascript.api.visitors.SubscriptionVisitorCheck;
-import org.sonar.squidbridge.annotations.ActivatedByDefault;
-import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 
-@Rule(
-  key = "ConditionalComment",
-  name = "Internet Explorer's conditional comments should not be used",
-  priority = Priority.MAJOR,
-  tags = {Tags.CROSS_BROWSER})
-@ActivatedByDefault
-@SqaleConstantRemediation("5min")
+@Rule(key = "ConditionalComment")
 public class ConditionalCommentCheck extends SubscriptionVisitorCheck {
 
   private static final String MESSAGE = "Refactor your code to avoid using Internet Explorer's conditional comments.";

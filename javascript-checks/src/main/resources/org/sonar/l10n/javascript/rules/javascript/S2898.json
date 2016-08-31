@@ -1,0 +1,14 @@
+{
+  "title": "\"[type=...]\" should be used to select elements by type",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "2min"
+  },
+  "tags": [
+    "performance",
+    "bug",
+    "jquery"
+  ],
+  "defaultSeverity": "Major"
+}

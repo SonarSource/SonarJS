@@ -1,0 +1,14 @@
+{
+  "title": "Octal values should not be used",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "5min"
+  },
+  "tags": [
+    "misra",
+    "cert",
+    "pitfall"
+  ],
+  "defaultSeverity": "Blocker"
+}

@@ -19,18 +19,11 @@
  */
 package org.sonar.javascript.checks;
 
-import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.plugins.javascript.api.tree.expression.ConditionalExpressionTree;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
-import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 
-@Rule(
-  key = "ConditionalOperator",
-  name = "The ternary operator should not be used",
-  priority = Priority.MAJOR,
-  tags = {Tags.BRAIN_OVERLOAD})
-@SqaleConstantRemediation("5min")
+@Rule(key = "ConditionalOperator")
 public class ConditionalOperatorCheck extends DoubleDispatchVisitorCheck {
 
   private static final String MESSAGE = "Convert this usage of the ternary operator to an \"if\"/\"else\" structure.";

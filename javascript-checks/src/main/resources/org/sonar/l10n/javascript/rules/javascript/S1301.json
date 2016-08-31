@@ -1,0 +1,13 @@
+{
+  "title": "\"switch\" statements should have at least 3 \"case\" clauses",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "5min"
+  },
+  "tags": [
+    "misra",
+    "bad-practice"
+  ],
+  "defaultSeverity": "Minor"
+}

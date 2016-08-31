@@ -20,7 +20,6 @@
 package org.sonar.javascript.checks;
 
 import java.util.Collection;
-import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.plugins.javascript.api.symbols.Symbol;
@@ -28,16 +27,8 @@ import org.sonar.plugins.javascript.api.symbols.SymbolModel;
 import org.sonar.plugins.javascript.api.symbols.Usage;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
-import org.sonar.squidbridge.annotations.ActivatedByDefault;
-import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 
-@Rule(
-  key = "S2814",
-  name = "Variables and functions should not be redeclared",
-  priority = Priority.MAJOR,
-  tags = {Tags.BUG, Tags.PITFALL})
-@ActivatedByDefault
-@SqaleConstantRemediation("20min")
+@Rule(key = "S2814")
 public class RedeclaredSymbolCheck extends DoubleDispatchVisitorCheck {
 
   private static final String MESSAGE = "Rename \"%s\" as this name is already used in declaration at line %s.";

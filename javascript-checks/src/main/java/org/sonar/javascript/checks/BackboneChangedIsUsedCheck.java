@@ -19,7 +19,6 @@
  */
 package org.sonar.javascript.checks;
 
-import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.plugins.javascript.api.symbols.Type;
 import org.sonar.plugins.javascript.api.tree.Tree;
@@ -27,14 +26,8 @@ import org.sonar.plugins.javascript.api.tree.expression.AssignmentExpressionTree
 import org.sonar.plugins.javascript.api.tree.expression.DotMemberExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
-import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 
-@Rule(
-  key = "S2549",
-  name = "The \"changed\" property should not be manipulated directly",
-  priority = Priority.CRITICAL,
-  tags = {Tags.BACKBONE, Tags.BUG})
-@SqaleConstantRemediation("30min")
+@Rule(key = "S2549")
 public class BackboneChangedIsUsedCheck extends DoubleDispatchVisitorCheck {
 
   private static final String MESSAGE = "Remove this update of the \"changed\" property.";

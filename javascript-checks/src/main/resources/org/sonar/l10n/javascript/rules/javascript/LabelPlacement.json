@@ -1,0 +1,12 @@
+{
+  "title": "Only \"while\", \"do\" and \"for\" statements should be labelled",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "20min"
+  },
+  "tags": [
+    "pitfall"
+  ],
+  "defaultSeverity": "Major"
+}

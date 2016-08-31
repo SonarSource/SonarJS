@@ -22,7 +22,6 @@ package org.sonar.javascript.checks;
 import com.google.common.collect.ImmutableList;
 import java.util.EnumSet;
 import java.util.List;
-import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.plugins.javascript.api.symbols.Symbol;
 import org.sonar.plugins.javascript.api.tree.Tree;
@@ -33,16 +32,8 @@ import org.sonar.plugins.javascript.api.tree.expression.ClassTree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 import org.sonar.plugins.javascript.api.visitors.FileIssue;
 import org.sonar.plugins.javascript.api.visitors.SubscriptionVisitorCheck;
-import org.sonar.squidbridge.annotations.ActivatedByDefault;
-import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 
-@Rule(
-  key = "S3317",
-  name = "Default export names and file names should match",
-  priority = Priority.MAJOR,
-  tags = {Tags.ES2015, Tags.CONFUSING})
-@ActivatedByDefault
-@SqaleConstantRemediation("5min")
+@Rule(key = "S3317")
 public class FileNameDiffersFromClassCheck extends SubscriptionVisitorCheck {
 
   private static final String MESSAGE = "Rename this file to \"%s\".";

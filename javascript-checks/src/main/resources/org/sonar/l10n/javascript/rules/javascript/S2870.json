@@ -1,0 +1,12 @@
+{
+  "title": "\"delete\" should not be used on arrays",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "5min"
+  },
+  "tags": [
+    "bug"
+  ],
+  "defaultSeverity": "Major"
+}

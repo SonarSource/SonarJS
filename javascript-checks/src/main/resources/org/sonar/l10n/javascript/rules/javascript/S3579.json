@@ -1,0 +1,12 @@
+{
+  "title": "Array indexes should be numeric",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "10min"
+  },
+  "tags": [
+    "bad-practice"
+  ],
+  "defaultSeverity": "Critical"
+}

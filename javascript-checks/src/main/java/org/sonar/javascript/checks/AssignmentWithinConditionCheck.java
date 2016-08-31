@@ -20,7 +20,6 @@
 package org.sonar.javascript.checks;
 
 import javax.annotation.Nullable;
-import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.javascript.checks.utils.CheckUtils;
 import org.sonar.plugins.javascript.api.tree.Tree;
@@ -36,14 +35,8 @@ import org.sonar.plugins.javascript.api.tree.statement.ExpressionStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.ForStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.WhileStatementTree;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
-import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 
-@Rule(
-  key = "AssignmentWithinCondition",
-  name = "Assignments should not be made from within sub-expressions",
-  priority = Priority.MAJOR,
-  tags = {Tags.BUG, Tags.CWE, Tags.MISRA})
-@SqaleConstantRemediation("5min")
+@Rule(key = "AssignmentWithinCondition")
 public class AssignmentWithinConditionCheck extends DoubleDispatchVisitorCheck {
 
   private static final String MESSAGE = "Extract the assignment of \"%s\" from this expression.";

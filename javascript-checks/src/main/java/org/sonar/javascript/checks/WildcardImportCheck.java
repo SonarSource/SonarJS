@@ -19,20 +19,13 @@
  */
 package org.sonar.javascript.checks;
 
-import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.declaration.NameSpaceExportDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.declaration.SpecifierTree;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
-import org.sonar.squidbridge.annotations.SqaleConstantRemediation;
 
-@Rule(
-  key = "S2208",
-  name = "Wildcard imports should not be used",
-  priority = Priority.MAJOR,
-  tags = {Tags.ES2015, Tags.PITFALL})
-@SqaleConstantRemediation("5min")
+@Rule(key = "S2208")
 public class WildcardImportCheck extends DoubleDispatchVisitorCheck {
 
   private static final String MESSAGE = "Explicitly import the specific member needed.";
