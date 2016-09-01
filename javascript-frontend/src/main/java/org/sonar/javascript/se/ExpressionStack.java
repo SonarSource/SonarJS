@@ -244,6 +244,10 @@ public class ExpressionStack {
         newStack.pop();
         newStack.push(assignedValue);
         break;
+      case ARRAY_ASSIGNMENT_PATTERN:
+      case OBJECT_ASSIGNMENT_PATTERN:
+        newStack.push(UnknownSymbolicValue.UNKNOWN);
+        break;
       default:
         throw new IllegalArgumentException("Unexpected kind of expression to execute: " + kind);
     }
