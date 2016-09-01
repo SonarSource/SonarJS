@@ -49,6 +49,17 @@ public class RelationalSymbolicValueTest {
   }
 
   @Test
+  public void constraint_on_equality() throws Exception {
+    state = state
+      .constrain(sv1, Constraint.TRUTHY)
+      .constrain(sv2, Constraint.FALSY);
+    assertThat(RelationalSymbolicValue.create(Kind.EQUAL_TO, sv1, sv2).constraint(state)).isEqualTo(Constraint.BOOLEAN);
+    assertThat(RelationalSymbolicValue.create(Kind.NOT_EQUAL_TO, sv1, sv2).constraint(state)).isEqualTo(Constraint.BOOLEAN);
+    assertThat(RelationalSymbolicValue.create(Kind.STRICT_EQUAL_TO, sv1, sv2).constraint(state)).isEqualTo(Constraint.FALSE);
+    assertThat(RelationalSymbolicValue.create(Kind.STRICT_NOT_EQUAL_TO, sv1, sv2).constraint(state)).isEqualTo(Constraint.TRUE);
+  }
+
+  @Test
   public void relationWhenTrue() {
     assertThat(relationalValue.relationWhenTrue()).isEqualTo(new Relation(Kind.LESS_THAN, sv1, sv2));
   }
