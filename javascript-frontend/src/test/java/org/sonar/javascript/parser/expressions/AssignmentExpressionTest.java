@@ -43,4 +43,26 @@ public class AssignmentExpressionTest {
       .matches("this.first = first");
   }
 
+  @Test
+  public void array_assignment_pattern() {
+    assertThat(JavaScriptLegacyGrammar.ASSIGNMENT_EXPRESSION)
+      .matches("[x, y] = arr")
+      .matches("[x.foo, y] = arr")
+      .matches("[x, y[42]] = arr")
+      .matches("[, x, , y] = arr")
+
+      .matches("[x, y][z] = foo")
+    ;
+  }
+
+  @Test
+  public void object_assignment_pattern() {
+    assertThat(JavaScriptLegacyGrammar.ASSIGNMENT_EXPRESSION)
+      .matches("{x, y} = obj")
+      .matches("{x, y:y[42]} = obj")
+      .matches("{x:foo.x, y} = obj")
+      .matches("{x, y, ...restProp} = obj")
+    ;
+  }
+
 }
