@@ -31,9 +31,11 @@ public class DecoratorTest {
     assertThat(Kind.DECORATOR)
       .matches("@decorator")
       .matches("@foo.decorator")
+      .matches("@foo.bar.decorator")
       .matches("@decorator()")
       .matches("@decorator(1, 2)")
       .matches("@foo.decorator()")
+      .matches("@foo.bar.decorator(1, 2)")
     ;
   }
 }
