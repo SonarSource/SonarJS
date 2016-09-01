@@ -51,9 +51,11 @@ import org.sonar.plugins.javascript.api.tree.declaration.ObjectBindingPatternTre
 import org.sonar.plugins.javascript.api.tree.declaration.ParameterListTree;
 import org.sonar.plugins.javascript.api.tree.declaration.SpecifierListTree;
 import org.sonar.plugins.javascript.api.tree.declaration.SpecifierTree;
+import org.sonar.plugins.javascript.api.tree.expression.ArrayAssignmentPatternTree;
 import org.sonar.plugins.javascript.api.tree.expression.ArrayLiteralTree;
 import org.sonar.plugins.javascript.api.tree.expression.ArrowFunctionTree;
 import org.sonar.plugins.javascript.api.tree.expression.AssignmentExpressionTree;
+import org.sonar.plugins.javascript.api.tree.expression.AssignmentPatternRestElementTree;
 import org.sonar.plugins.javascript.api.tree.expression.BinaryExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.CallExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.ClassTree;
@@ -61,6 +63,7 @@ import org.sonar.plugins.javascript.api.tree.expression.ComputedPropertyNameTree
 import org.sonar.plugins.javascript.api.tree.expression.ConditionalExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.FunctionExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
+import org.sonar.plugins.javascript.api.tree.expression.InitializedAssignmentPatternElementTree;
 import org.sonar.plugins.javascript.api.tree.expression.LiteralTree;
 import org.sonar.plugins.javascript.api.tree.expression.MemberExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.NewExpressionTree;
@@ -550,4 +553,15 @@ public abstract class DoubleDispatchVisitor implements TreeVisitor {
     // no sub-tree
   }
 
+  public void visitArrayAssignmentPattern(ArrayAssignmentPatternTree tree) {
+    scanChildren(tree);
+  }
+
+  public void visitAssignmentPatternRestElement(AssignmentPatternRestElementTree tree) {
+    scanChildren(tree);
+  }
+
+  public void visitInitializedAssignmentPatternElement(InitializedAssignmentPatternElementTree tree) {
+    scanChildren(tree);
+  }
 }

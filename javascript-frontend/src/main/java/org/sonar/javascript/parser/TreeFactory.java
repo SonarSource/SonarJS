@@ -60,9 +60,11 @@ import org.sonar.javascript.tree.impl.declaration.ParameterListTreeImpl;
 import org.sonar.javascript.tree.impl.declaration.ScriptTreeImpl;
 import org.sonar.javascript.tree.impl.declaration.SpecifierListTreeImpl;
 import org.sonar.javascript.tree.impl.declaration.SpecifierTreeImpl;
+import org.sonar.javascript.tree.impl.expression.ArrayAssignmentPatternTreeImpl;
 import org.sonar.javascript.tree.impl.expression.ArrayLiteralTreeImpl;
 import org.sonar.javascript.tree.impl.expression.ArrowFunctionTreeImpl;
 import org.sonar.javascript.tree.impl.expression.AssignmentExpressionTreeImpl;
+import org.sonar.javascript.tree.impl.expression.AssignmentPatternRestElementTreeImpl;
 import org.sonar.javascript.tree.impl.expression.BinaryExpressionTreeImpl;
 import org.sonar.javascript.tree.impl.expression.BracketMemberExpressionTreeImpl;
 import org.sonar.javascript.tree.impl.expression.CallExpressionTreeImpl;
@@ -72,6 +74,7 @@ import org.sonar.javascript.tree.impl.expression.ConditionalExpressionTreeImpl;
 import org.sonar.javascript.tree.impl.expression.DotMemberExpressionTreeImpl;
 import org.sonar.javascript.tree.impl.expression.FunctionExpressionTreeImpl;
 import org.sonar.javascript.tree.impl.expression.IdentifierTreeImpl;
+import org.sonar.javascript.tree.impl.expression.InitializedAssignmentPatternElementTreeImpl;
 import org.sonar.javascript.tree.impl.expression.LiteralTreeImpl;
 import org.sonar.javascript.tree.impl.expression.NewExpressionTreeImpl;
 import org.sonar.javascript.tree.impl.expression.NewTargetTreeImpl;
@@ -138,10 +141,12 @@ import org.sonar.plugins.javascript.api.tree.declaration.ImportModuleDeclaration
 import org.sonar.plugins.javascript.api.tree.declaration.NameSpaceExportDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.declaration.ParameterListTree;
 import org.sonar.plugins.javascript.api.tree.declaration.SpecifierTree;
+import org.sonar.plugins.javascript.api.tree.expression.ArrayAssignmentPatternTree;
 import org.sonar.plugins.javascript.api.tree.expression.BracketMemberExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.FunctionExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
+import org.sonar.plugins.javascript.api.tree.expression.InitializedAssignmentPatternElementTree;
 import org.sonar.plugins.javascript.api.tree.expression.MemberExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.RestElementTree;
 import org.sonar.plugins.javascript.api.tree.expression.TemplateCharactersTree;
@@ -1516,11 +1521,35 @@ public class TreeFactory {
     InternalSyntaxToken openBracketToken,
     Optional<BindingElementTree> firstElement,
     Optional<List<Tuple<InternalSyntaxToken, Optional<BindingElementTree>>>> optionalElements,
-    Optional<RestElementTreeImpl> restElement,
+    Optional<BindingElementTree> restElement,
     InternalSyntaxToken closeBracketToken
   ) {
+    return new ArrayBindingPatternTreeImpl(
+      openBracketToken,
+      getSeparatedListOfOptional(firstElement, optionalElements, restElement),
+      closeBracketToken);
+  }
 
-    ImmutableList.Builder<Optional<BindingElementTree>> elements = ImmutableList.builder();
+  public ArrayAssignmentPatternTree arrayAssignmentPattern(
+    InternalSyntaxToken openBracketToken,
+    Optional<Tree> firstElement,
+    Optional<List<Tuple<InternalSyntaxToken, Optional<Tree>>>> optionalElements,
+    Optional<Tree> restElement,
+    InternalSyntaxToken closeBracketToken
+  ) {
+    return new ArrayAssignmentPatternTreeImpl(
+      openBracketToken,
+      getSeparatedListOfOptional(firstElement, optionalElements, restElement),
+      closeBracketToken);
+  }
+
+  private static <T extends Tree> SeparatedList<Optional<T>> getSeparatedListOfOptional(
+    Optional<T> firstElement,
+    Optional<List<Tuple<InternalSyntaxToken, Optional<T>>>> optionalElements,
+    Optional<T> restElement
+  ) {
+
+    ImmutableList.Builder<Optional<T>> elements = ImmutableList.builder();
     ImmutableList.Builder<InternalSyntaxToken> separators = ImmutableList.builder();
 
     boolean skipComma = false;
@@ -1531,10 +1560,10 @@ public class TreeFactory {
     }
 
     if (optionalElements.isPresent()) {
-      List<Tuple<InternalSyntaxToken, Optional<BindingElementTree>>> list = optionalElements.get();
-      for (Tuple<InternalSyntaxToken, Optional<BindingElementTree>> pair : list) {
+      List<Tuple<InternalSyntaxToken, Optional<T>>> list = optionalElements.get();
+      for (Tuple<InternalSyntaxToken, Optional<T>> pair : list) {
         if (!skipComma) {
-          elements.add(Optional.<BindingElementTree>absent());
+          elements.add(Optional.absent());
         }
 
         InternalSyntaxToken commaToken = pair.first();
@@ -1550,13 +1579,10 @@ public class TreeFactory {
     }
 
     if (restElement.isPresent()) {
-      elements.add(Optional.<BindingElementTree>of(restElement.get()));
+      elements.add(Optional.of(restElement.get()));
     }
 
-    return new ArrayBindingPatternTreeImpl(
-      openBracketToken,
-      new SeparatedList<>(elements.build(), separators.build()),
-      closeBracketToken);
+    return new SeparatedList<>(elements.build(), separators.build());
   }
 
   public ExpressionTree assignmentNoCurly(Tree lookahead, ExpressionTree expression) {
@@ -1706,6 +1732,14 @@ public class TreeFactory {
     SeparatedList<IdentifierTree> body = new SeparatedList<>(listBuilder.build(), dotsListBuilder.build());
 
     return new DecoratorTreeImpl(atToken, body, arguments.orNull());
+  }
+
+  public AssignmentPatternRestElementTreeImpl assignmentPatternRestElement(InternalSyntaxToken ellipsisToken, ExpressionTree rest) {
+    return new AssignmentPatternRestElementTreeImpl(ellipsisToken, rest);
+  }
+
+  public InitializedAssignmentPatternElementTree initializedAssignmentPatternElement(ExpressionTree expression, InternalSyntaxToken equal, ExpressionTree initValue) {
+    return new InitializedAssignmentPatternElementTreeImpl(expression, equal, initValue);
   }
 
   public static class Tuple<T, U> {
@@ -1866,6 +1900,10 @@ public class TreeFactory {
   }
 
   public <T, U> Tuple<T, U> newTuple32(T first, U second) {
+    return newTuple(first, second);
+  }
+
+  public <T, U> Tuple<T, U> newTuple49(T first, U second) {
     return newTuple(first, second);
   }
 
