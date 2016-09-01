@@ -17,27 +17,22 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.javascript.parser.expressions;
+package org.sonar.plugins.javascript.api.tree.expression;
 
-import org.junit.Test;
-import org.sonar.plugins.javascript.api.tree.Tree.Kind;
+import com.google.common.annotations.Beta;
+import org.sonar.plugins.javascript.api.tree.Tree;
+import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 
-import static org.sonar.javascript.utils.Assertions.assertThat;
+/**
+ fixme
+ */
+@Beta
+public interface ObjectAssignmentPatternPairElementTree extends Tree {
 
-public class ObjectAssignmentPatternTest {
+  IdentifierTree key();
 
-  @Test
-  public void test() {
-    assertThat(Kind.OBJECT_ASSIGNMENT_PATTERN)
-      .matches("{ }")
-      .matches("{ identifierRef , }")
-      .matches("{ identifierRef , identifierRef}")
-      .matches("{ identifierRef , identifierRef, }")
-      .matches("{ identifierRef = init() }")
-      .matches("{ identifierName : foo }")
-      .matches("{ identifierName : foo.bar }")
-      .matches("{ identifierName : foo = init() }")
-    ;
-  }
+  SyntaxToken colonToken();
+
+  Tree element();
 
 }

@@ -78,6 +78,8 @@ import org.sonar.javascript.tree.impl.expression.InitializedAssignmentPatternEle
 import org.sonar.javascript.tree.impl.expression.LiteralTreeImpl;
 import org.sonar.javascript.tree.impl.expression.NewExpressionTreeImpl;
 import org.sonar.javascript.tree.impl.expression.NewTargetTreeImpl;
+import org.sonar.javascript.tree.impl.expression.ObjectAssignmentPatternPairElementTreeImpl;
+import org.sonar.javascript.tree.impl.expression.ObjectAssignmentPatternTreeImpl;
 import org.sonar.javascript.tree.impl.expression.ObjectLiteralTreeImpl;
 import org.sonar.javascript.tree.impl.expression.PairPropertyTreeImpl;
 import org.sonar.javascript.tree.impl.expression.ParenthesisedExpressionTreeImpl;
@@ -148,6 +150,8 @@ import org.sonar.plugins.javascript.api.tree.expression.FunctionExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 import org.sonar.plugins.javascript.api.tree.expression.InitializedAssignmentPatternElementTree;
 import org.sonar.plugins.javascript.api.tree.expression.MemberExpressionTree;
+import org.sonar.plugins.javascript.api.tree.expression.ObjectAssignmentPatternPairElementTree;
+import org.sonar.plugins.javascript.api.tree.expression.ObjectAssignmentPatternTree;
 import org.sonar.plugins.javascript.api.tree.expression.RestElementTree;
 import org.sonar.plugins.javascript.api.tree.expression.TemplateCharactersTree;
 import org.sonar.plugins.javascript.api.tree.expression.TemplateExpressionTree;
@@ -1738,8 +1742,44 @@ public class TreeFactory {
     return new AssignmentPatternRestElementTreeImpl(ellipsisToken, rest);
   }
 
-  public InitializedAssignmentPatternElementTree initializedAssignmentPatternElement(ExpressionTree expression, InternalSyntaxToken equal, ExpressionTree initValue) {
+  public InitializedAssignmentPatternElementTree initializedAssignmentPatternElement1(ExpressionTree expression, InternalSyntaxToken equal, ExpressionTree initValue) {
     return new InitializedAssignmentPatternElementTreeImpl(expression, equal, initValue);
+  }
+
+  public InitializedAssignmentPatternElementTree initializedAssignmentPatternElement2(ExpressionTree expression, InternalSyntaxToken equal, ExpressionTree initValue) {
+    return new InitializedAssignmentPatternElementTreeImpl(expression, equal, initValue);
+  }
+
+  public ObjectAssignmentPatternPairElementTree objectAssignmentPatternPairElement(IdentifierTree identifierName, InternalSyntaxToken colonToken, Tree rhs) {
+    return new ObjectAssignmentPatternPairElementTreeImpl(identifierName, colonToken, rhs);
+  }
+
+  public ObjectAssignmentPatternTree emptyObjectAssignmentPattern(InternalSyntaxToken lBrace, InternalSyntaxToken rBrace) {
+    return new ObjectAssignmentPatternTreeImpl(lBrace, new SeparatedList<>(new ArrayList<>(), new ArrayList<>()), rBrace);
+  }
+
+  public ObjectAssignmentPatternTree objectAssignmentPattern(
+    InternalSyntaxToken lBrace,
+    Tree firstProperty,
+    Optional<List<Tuple<InternalSyntaxToken, Tree>>> properties,
+    Optional<InternalSyntaxToken> comma,
+    InternalSyntaxToken rBrace
+  ) {
+    ArrayList<Tree> propertyList = new ArrayList<>();
+    ArrayList<InternalSyntaxToken> separators = new ArrayList<>();
+
+    propertyList.add(firstProperty);
+
+    for (Tuple<InternalSyntaxToken, Tree> tuple : properties.or(new ArrayList<>())) {
+      separators.add(tuple.first);
+      propertyList.add(tuple.second);
+    }
+
+    if (comma.isPresent()) {
+      separators.add(comma.get());
+    }
+
+    return new ObjectAssignmentPatternTreeImpl(lBrace, new SeparatedList<>(propertyList, separators), rBrace);
   }
 
   public static class Tuple<T, U> {
@@ -1900,6 +1940,10 @@ public class TreeFactory {
   }
 
   public <T, U> Tuple<T, U> newTuple32(T first, U second) {
+    return newTuple(first, second);
+  }
+
+  public <T, U> Tuple<T, U> newTuple48(T first, U second) {
     return newTuple(first, second);
   }
 

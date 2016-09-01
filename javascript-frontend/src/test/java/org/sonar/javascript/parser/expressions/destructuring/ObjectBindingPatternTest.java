@@ -32,6 +32,7 @@ public class ObjectBindingPatternTest {
     assertThat(Kind.OBJECT_BINDING_PATTERN)
       .matches("{ }")
       .matches("{ identifier }")
+      .matches("{ identifier = init() }")
       .matches("{ identifier : identifier}")
       .matches("{ identifier , identifier }")
       .matches("{ identifier , }")

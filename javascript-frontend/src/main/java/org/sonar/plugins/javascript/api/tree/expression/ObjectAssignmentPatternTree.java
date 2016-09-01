@@ -20,7 +20,6 @@
 package org.sonar.plugins.javascript.api.tree.expression;
 
 import com.google.common.annotations.Beta;
-import com.sonar.sslr.api.typed.Optional;
 import org.sonar.javascript.tree.impl.SeparatedList;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
@@ -31,10 +30,10 @@ import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 @Beta
 public interface ObjectAssignmentPatternTree extends ExpressionTree {
 
-  SyntaxToken openBracketToken();
+  SyntaxToken openBraceToken();
 
-  SeparatedList<Optional<Tree>> elements();
+  SeparatedList<Tree> elements();
 
-  SyntaxToken closeBracketToken();
+  SyntaxToken closeBraceToken();
 
 }

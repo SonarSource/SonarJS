@@ -61,6 +61,7 @@ import org.sonar.plugins.javascript.api.tree.expression.LiteralTree;
 import org.sonar.plugins.javascript.api.tree.expression.MemberExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.NewExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.NewTargetTree;
+import org.sonar.plugins.javascript.api.tree.expression.ObjectAssignmentPatternPairElementTree;
 import org.sonar.plugins.javascript.api.tree.expression.ObjectAssignmentPatternTree;
 import org.sonar.plugins.javascript.api.tree.expression.ObjectLiteralTree;
 import org.sonar.plugins.javascript.api.tree.expression.PairPropertyTree;
@@ -966,6 +967,7 @@ public interface Tree {
     TOKEN(SyntaxToken.class),
 
     TRIVIA(SyntaxTrivia.class),
+    OBJECT_ASSIGNMENT_PATTERN_PAIR_ELEMENT(ObjectAssignmentPatternPairElementTree.class),
     INITIALIZED_ASSIGNMENT_PATTERN_ELEMENT(InitializedAssignmentPatternElementTree.class),
     ASSIGNMENT_PATTERN_REST_ELEMENT(AssignmentPatternRestElementTree.class);
 
