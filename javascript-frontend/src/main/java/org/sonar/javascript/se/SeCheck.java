@@ -26,6 +26,7 @@ import java.util.Map;
 import org.sonar.javascript.tree.symbols.Scope;
 import org.sonar.javascript.visitors.Issues;
 import org.sonar.plugins.javascript.api.JavaScriptCheck;
+import org.sonar.plugins.javascript.api.tree.ScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.visitors.Issue;
 import org.sonar.plugins.javascript.api.visitors.LineIssue;
@@ -64,6 +65,14 @@ public class SeCheck implements JavaScriptCheck {
    * @param element last executed syntax tree
    */
   public void afterBlockElement(ProgramState currentState, Tree element) {
+    // do nothing by default
+  }
+
+  public void startOfFile(ScriptTree scriptTree) {
+    // do nothing by default
+  }
+
+  public void endOfFile(ScriptTree scriptTree) {
     // do nothing by default
   }
 
