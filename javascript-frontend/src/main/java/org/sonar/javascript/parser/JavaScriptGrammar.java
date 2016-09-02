@@ -1243,9 +1243,12 @@ public class JavaScriptGrammar {
     return b.<ExpressionTree>nonterminal(JavaScriptLegacyGrammar.ASSIGNMENT_EXPRESSION)
       .is(
         b.firstOf(
+          f.assignmentWithArrayDestructuring(
+            ARRAY_ASSIGNMENT_PATTERN(),
+            b.token(JavaScriptPunctuator.EQU),
+            ASSIGNMENT_EXPRESSION()),
           f.assignmentExpression(
             b.firstOf(
-              ARRAY_ASSIGNMENT_PATTERN(),
               OBJECT_ASSIGNMENT_PATTERN(),
               LEFT_HAND_SIDE_EXPRESSION()),
             b.firstOf(

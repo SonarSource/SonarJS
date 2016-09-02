@@ -1155,10 +1155,18 @@ public class TreeFactory {
   }
 
   public ExpressionTree assignmentExpression(ExpressionTree variable, InternalSyntaxToken operator, ExpressionTree expression) {
-    return new AssignmentExpressionTreeImpl(EXPRESSION_KIND_BY_VALUE.get(operator.text()), variable, operator, expression);
+    return commonAssignmentExpression(variable, operator, expression);
+  }
+
+  public ExpressionTree assignmentWithArrayDestructuring(ExpressionTree variable, InternalSyntaxToken operator, ExpressionTree expression) {
+    return commonAssignmentExpression(variable, operator, expression);
   }
 
   public ExpressionTree assignmentExpressionNoIn(ExpressionTree variable, InternalSyntaxToken operator, ExpressionTree expression) {
+    return commonAssignmentExpression(variable, operator, expression);
+  }
+
+  private static ExpressionTree commonAssignmentExpression(ExpressionTree variable, InternalSyntaxToken operator, ExpressionTree expression) {
     return new AssignmentExpressionTreeImpl(EXPRESSION_KIND_BY_VALUE.get(operator.text()), variable, operator, expression);
   }
 

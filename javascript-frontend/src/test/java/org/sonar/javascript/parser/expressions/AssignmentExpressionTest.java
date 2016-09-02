@@ -50,8 +50,7 @@ public class AssignmentExpressionTest {
       .matches("[x.foo, y] = arr")
       .matches("[x, y[42]] = arr")
       .matches("[, x, , y] = arr")
-
-//      .matches("[x, y][z] = foo")
+      .matches("[x, y][z] = foo")
     ;
   }
 
