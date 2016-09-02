@@ -20,6 +20,8 @@
 package org.sonar.plugins.javascript.api.tree.expression;
 
 import com.google.common.annotations.Beta;
+import java.util.List;
+import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 
 /**
  * <a href="https://people.mozilla.org/~jorendorff/es6-draft.html#sec-template-literals">Template character</a>
@@ -29,5 +31,7 @@ import com.google.common.annotations.Beta;
 public interface TemplateCharactersTree extends ExpressionTree {
 
   String value();
+
+  List<SyntaxToken> characters();
 
 }

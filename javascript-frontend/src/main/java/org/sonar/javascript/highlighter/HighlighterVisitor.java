@@ -32,6 +32,8 @@ import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.declaration.FieldDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.declaration.MethodDeclarationTree;
+import org.sonar.plugins.javascript.api.tree.expression.TemplateCharactersTree;
+import org.sonar.plugins.javascript.api.tree.expression.TemplateLiteralTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxTrivia;
 import org.sonar.plugins.javascript.api.tree.statement.VariableDeclarationTree;
@@ -63,6 +65,7 @@ public class HighlighterVisitor extends SubscriptionVisitor {
         Kind.FIELD,
         Kind.LET_DECLARATION,
         Kind.NUMERIC_LITERAL,
+        Kind.TEMPLATE_LITERAL,
         Kind.STRING_LITERAL,
         Kind.TOKEN)
       .build();
@@ -105,10 +108,22 @@ public class HighlighterVisitor extends SubscriptionVisitor {
     } else if (tree.is(Kind.NUMERIC_LITERAL)) {
       token = ((LiteralTreeImpl) tree).token();
       code = TypeOfText.CONSTANT;
+
+    } else if (tree.is(Kind.TEMPLATE_LITERAL)) {
+      highlightTemplateLiteral((TemplateLiteralTree) tree);
     }
 
     if (token != null) {
       highlight(token, code);
+    }
+  }
+
+  private void highlightTemplateLiteral(TemplateLiteralTree tree) {
+    highlight(tree.openBacktick(), TypeOfText.STRING);
+    highlight(tree.closeBacktick(), TypeOfText.STRING);
+
+    for (TemplateCharactersTree templateCharactersTree : tree.strings()) {
+      templateCharactersTree.characters().forEach(token -> highlight(token, TypeOfText.STRING));
     }
   }
 

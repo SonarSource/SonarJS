@@ -194,4 +194,12 @@ public class HighlighterVisitorTest extends JavaScriptTreeModelTest {
     assertHighlighting(2, 0, 3, KEYWORD);
   }
 
+  @Test
+  public void template_literal() throws Exception {
+    highlight("`start ${foo()} middle ${bar()} end`");
+    assertHighlighting(0, 7, STRING);
+    assertHighlighting(15, 8, STRING);
+    assertHighlighting(31, 5, STRING);
+  }
+
 }
