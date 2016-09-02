@@ -60,7 +60,7 @@ public class RelationalSymbolicValue implements SymbolicValue {
   @Override
   public List<ProgramState> constrain(ProgramState state, Constraint constraint) {
     ProgramState newState = state.constrainOwnSV(this, constraint);
-    if (newState == null) {
+    if (newState == null || state.getConstraint(this).isIncompatibleWith(constraint)) {
       return ImmutableList.of();
     }
     if (constraint.isStricterOrEqualTo(Constraint.TRUTHY)) {

@@ -38,4 +38,18 @@ function main() {
     foo(x2); // PS x2=ZERO || x2=NULL
   }
 
+  if (typeof a == "string" && typeof b == "number") {
+    let x3 = null;
+
+    if (a === b) {
+      x3 = 0;
+    }
+    foo(x3); // PS x3=NULL
+
+    if (a !== b) {
+      x3 = 0;
+    }
+    foo(x3); // PS x3=ZERO
+  }
+
 }

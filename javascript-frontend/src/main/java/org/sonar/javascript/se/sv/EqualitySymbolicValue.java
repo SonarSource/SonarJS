@@ -80,4 +80,17 @@ public class EqualitySymbolicValue extends RelationalSymbolicValue {
     return NEGATION_KINDS.contains(kind) ? constraint.not() : constraint;
   }
 
+  @Override
+  public Constraint constraint(ProgramState state) {
+    if (state.getConstraint(leftOperand).isIncompatibleWith(state.getConstraint(rightOperand))) {
+      if (kind == Kind.STRICT_EQUAL_TO) {
+        return Constraint.FALSE;
+      }
+      if (kind == Kind.STRICT_NOT_EQUAL_TO) {
+        return Constraint.TRUE;
+      }
+    }
+    return super.constraint(state);
+  }
+
 }
