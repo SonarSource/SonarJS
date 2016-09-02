@@ -1,8 +1,14 @@
 function doSomething(){                     // OK
 }
 
-function DoSomething(){                     // Noncompliant {{Rename this 'DoSomething' function to match the regular expression ^[a-z][a-zA-Z0-9]*$}}
+function DoSomething(){                     // Noncompliant {{Rename this 'DoSomething' function to match the regular expression ^[_a-z][a-zA-Z0-9]*$}}
 //       ^^^^^^^^^^^
+}
+
+function do_something(){                     // Noncompliant
+}
+
+function _doSomething(){                     // OK
 }
 
 function* doSomething(){                    // OK
