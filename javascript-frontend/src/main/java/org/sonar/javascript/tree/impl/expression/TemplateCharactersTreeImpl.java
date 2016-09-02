@@ -19,6 +19,7 @@
  */
 package org.sonar.javascript.tree.impl.expression;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
@@ -29,6 +30,7 @@ import org.sonar.plugins.javascript.api.symbols.Type;
 import org.sonar.plugins.javascript.api.symbols.TypeSet;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.expression.TemplateCharactersTree;
+import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitor;
 
 public class TemplateCharactersTreeImpl extends JavaScriptTree implements TemplateCharactersTree, TypableTree {
@@ -51,6 +53,11 @@ public class TemplateCharactersTreeImpl extends JavaScriptTree implements Templa
   @Override
   public String value() {
     return value;
+  }
+
+  @Override
+  public List<SyntaxToken> characters() {
+    return new ArrayList<>(characters);
   }
 
   @Override
