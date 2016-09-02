@@ -42,7 +42,7 @@ public class LogicalNotSymbolicValueTest {
     ProgramState state1 = ProgramState.emptyState().newSymbolicValue(symbol, null);
     SymbolicValue sv1 = state1.getSymbolicValue(symbol);
     SymbolicValue not = LogicalNotSymbolicValue.create(sv1);
-    assertThat(not.constrain(state1, TRUTHY)).containsExactly(state1.constrain(sv1, FALSY));
+    assertThat(state1.constrain(not, TRUTHY)).isEqualTo(state1.constrain(sv1, FALSY));
   }
 
   @Test

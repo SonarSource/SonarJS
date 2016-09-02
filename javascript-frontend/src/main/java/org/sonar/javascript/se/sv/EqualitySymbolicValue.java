@@ -45,8 +45,8 @@ public class EqualitySymbolicValue extends RelationalSymbolicValue {
   }
 
   @Override
-  public List<ProgramState> constrain(ProgramState incomingState, Constraint constraint) {
-    List<ProgramState> constrainedStates = super.constrain(incomingState, constraint);
+  public List<ProgramState> constrainDependencies(ProgramState incomingState, Constraint constraint) {
+    List<ProgramState> constrainedStates = super.constrainDependencies(incomingState, constraint);
     constrainedStates = constrainOperand(leftOperand, rightOperand, constraint, constrainedStates);
     constrainedStates = constrainOperand(rightOperand, leftOperand, constraint, constrainedStates);
     return constrainedStates;
@@ -64,9 +64,9 @@ public class EqualitySymbolicValue extends RelationalSymbolicValue {
     Constraint constraintOnSending = state.getConstraint(sending);
     if (constraintOnSending.isStricterOrEqualTo(Constraint.NULL_OR_UNDEFINED)) {
       if (constraint.isStricterOrEqualTo(Constraint.TRUTHY)) {
-        return receiving.constrain(state, constraintOnNullOrUndefined(constraintOnSending));
+        return state.constrain(receiving, constraintOnNullOrUndefined(constraintOnSending));
       } else if (constraint.isStricterOrEqualTo(Constraint.FALSY)) {
-        return receiving.constrain(state, constraintOnNullOrUndefined(constraintOnSending).not());
+        return state.constrain(receiving, constraintOnNullOrUndefined(constraintOnSending).not());
       }
     }
     return ImmutableList.of(state);
@@ -81,7 +81,7 @@ public class EqualitySymbolicValue extends RelationalSymbolicValue {
   }
 
   @Override
-  public Constraint constraint(ProgramState state) {
+  public Constraint baseConstraint(ProgramState state) {
     if (state.getConstraint(leftOperand).isIncompatibleWith(state.getConstraint(rightOperand))) {
       if (kind == Kind.STRICT_EQUAL_TO) {
         return Constraint.FALSE;
@@ -90,7 +90,7 @@ public class EqualitySymbolicValue extends RelationalSymbolicValue {
         return Constraint.TRUE;
       }
     }
-    return super.constraint(state);
+    return super.baseConstraint(state);
   }
 
 }

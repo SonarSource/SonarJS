@@ -25,10 +25,8 @@ import org.sonar.javascript.se.ProgramState;
 
 public interface SymbolicValue {
 
-  List<ProgramState> constrain(ProgramState state, Constraint constraint);
+  List<ProgramState> constrainDependencies(ProgramState state, Constraint constraint);
 
-  default Constraint constraint(ProgramState state) {
-    return Constraint.ANY_VALUE;
-  }
+  Constraint baseConstraint(ProgramState state);
 
 }

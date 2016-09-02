@@ -353,7 +353,7 @@ public class ExpressionStackTest {
 
     if (expected instanceof SymbolicValueWithConstraint) {
       assertThat(stack.peek()).isInstanceOf(SymbolicValueWithConstraint.class);
-      assertThat(stack.peek().constraint(mock(ProgramState.class))).isEqualTo(expected.constraint(mock(ProgramState.class)));
+      assertThat(stack.peek().baseConstraint(mock(ProgramState.class))).isEqualTo(expected.baseConstraint(mock(ProgramState.class)));
 
     } else if (expected instanceof RelationalSymbolicValue) {
       assertThat(stack.peek()).isInstanceOf(RelationalSymbolicValue.class);
@@ -368,7 +368,7 @@ public class ExpressionStackTest {
   private void assertSingleValueInStackWithConstraint(Constraint constraint) {
     assertThat(stack.size()).isEqualTo(1);
     SymbolicValue peek = stack.peek();
-    assertThat(peek.constraint(programState)).isEqualTo(constraint);
+    assertThat(peek.baseConstraint(programState)).isEqualTo(constraint);
   }
 
   private void pushValues(SymbolicValue... values) {

@@ -22,6 +22,7 @@ package org.sonar.javascript.se;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Predicates;
 import com.google.common.collect.HashMultimap;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableMap.Builder;
 import com.google.common.collect.ImmutableSet;
@@ -29,6 +30,7 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.SetMultimap;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
@@ -136,24 +138,16 @@ public class ProgramState {
     return newProgramState;
   }
 
-  public ProgramState constrain(@Nullable SymbolicValue value, @Nullable Constraint constraint) {
-    if (value == null || constraint == null) {
-      return this;
+  public List<ProgramState> constrain(@Nullable SymbolicValue value, @Nullable Constraint constraint) {
+    if (value == null || constraint == null || value.equals(UnknownSymbolicValue.UNKNOWN)) {
+      return ImmutableList.of(this);
     }
     if (getConstraint(value).isIncompatibleWith(constraint)) {
-      return null;
-    } else {
-      Constraint newConstraint = getConstraint(value).and(constraint);
-      return new ProgramState(ImmutableMap.copyOf(values), replaceConstraint(value, newConstraint), stack, relations, counter);
+      return ImmutableList.of();
     }
-  }
-
-  public ProgramState constrainOwnSV(@Nullable SymbolicValue value, @Nullable Constraint constraint) {
-    if (values.containsValue(value)) {
-      return this.constrain(value, constraint);
-    } else {
-      return this;
-    }
+    Constraint newConstraint = getConstraint(value).and(constraint);
+    ProgramState newState = new ProgramState(values, replaceConstraint(value, newConstraint), stack, relations, counter);
+    return value.constrainDependencies(newState, constraint);
   }
 
   private ImmutableMap<SymbolicValue, Constraint> replaceConstraint(SymbolicValue value, Constraint newConstraint) {
@@ -180,12 +174,10 @@ public class ProgramState {
   }
 
   public Constraint getConstraint(@Nullable SymbolicValue value) {
-    Constraint constraint = constraints.get(value);
+    Constraint storedConstraint = constraints.get(value);
+    storedConstraint = storedConstraint == null ? Constraint.ANY_VALUE : storedConstraint;
 
-    if (constraint == null && value != null) {
-      constraint = value.constraint(this);
-    }
-    return constraint == null ? Constraint.ANY_VALUE : constraint;
+    return value == null ? storedConstraint : storedConstraint.and(value.baseConstraint(this));
   }
 
   public Constraint getConstraint(@Nullable Symbol symbol) {

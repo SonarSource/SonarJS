@@ -80,23 +80,23 @@ public class TypeOfComparisonSymbolicValue implements SymbolicValue {
   }
 
   @Override
-  public List<ProgramState> constrain(ProgramState state, Constraint constraint) {
-    ProgramState newState = state.constrainOwnSV(this, constraint);
-    if (newState == null) {
-      return ImmutableList.of();
-    }
-
+  public List<ProgramState> constrainDependencies(ProgramState state, Constraint constraint) {
     Constraint truthyConstraint = TYPEOF_EQUAL_CONSTRAINTS.get(comparedTypeString);
 
     if (constraint.isStricterOrEqualTo(Constraint.TRUTHY)) {
-      return truthyConstraint != null ? typeOfOperand.operandValue().constrain(newState, truthyConstraint) : ImmutableList.of();
+      return truthyConstraint != null ? state.constrain(typeOfOperand.operandValue(), truthyConstraint) : ImmutableList.of();
 
     } else if (constraint.isStricterOrEqualTo(Constraint.FALSY) && truthyConstraint != null) {
-      return typeOfOperand.operandValue().constrain(newState, truthyConstraint.not());
+      return state.constrain(typeOfOperand.operandValue(), truthyConstraint.not());
 
     }
 
-    return ImmutableList.of(newState);
+    return ImmutableList.of(state);
+  }
+
+  @Override
+  public Constraint baseConstraint(ProgramState state) {
+    return Constraint.BOOLEAN;
   }
 
   @Override

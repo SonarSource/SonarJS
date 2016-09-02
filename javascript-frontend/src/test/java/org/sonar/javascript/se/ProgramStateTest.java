@@ -22,11 +22,14 @@ package org.sonar.javascript.se;
 import org.junit.Test;
 import org.sonar.javascript.se.sv.SpecialSymbolicValue;
 import org.sonar.javascript.se.sv.SymbolicValue;
+import org.sonar.javascript.se.sv.SymbolicValueWithConstraint;
 import org.sonar.plugins.javascript.api.symbols.Symbol;
 import org.sonar.plugins.javascript.api.symbols.Symbol.Kind;
 import org.sonar.plugins.javascript.api.tree.Tree;
 
 import static org.fest.assertions.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class ProgramStateTest {
 
@@ -55,16 +58,33 @@ public class ProgramStateTest {
     state = state.newSymbolicValue(symbol1, null);
     SymbolicValue sv1 = state.getSymbolicValue(symbol1);
     SymbolicValue sv2 = state.getSymbolicValue(symbol2);
-    assertThat(state.constrain(sv1, Constraint.FALSY).getConstraint(symbol1).truthiness()).isEqualTo(Truthiness.FALSY);
+    assertThat(state.constrain(sv1, Constraint.FALSY).get(0).getConstraint(symbol1).truthiness()).isEqualTo(Truthiness.FALSY);
     assertThat(sv2).isNull();
-    assertThat(state.constrain(sv2, Constraint.FALSY).getConstraint(symbol2)).isEqualTo(Constraint.ANY_VALUE);
+    assertThat(state.constrain(sv2, Constraint.FALSY).get(0).getConstraint(symbol2)).isEqualTo(Constraint.ANY_VALUE);
 
     state = state.newSymbolicValue(symbol1, Constraint.NULL_OR_UNDEFINED);
-    assertThat(state.constrain(state.getSymbolicValue(symbol1), Constraint.TRUTHY)).isNull();
+    assertThat(state.constrain(state.getSymbolicValue(symbol1), Constraint.TRUTHY)).isEmpty();
 
     state = state.newSymbolicValue(symbol2, null);
-    state = state.constrain(state.getSymbolicValue(symbol2), Constraint.TRUTHY);
-    assertThat(state.constrain(state.getSymbolicValue(symbol2), Constraint.NULL)).isNull();
+    state = state.constrain(state.getSymbolicValue(symbol2), Constraint.TRUTHY).get(0);
+    assertThat(state.constrain(state.getSymbolicValue(symbol2), Constraint.NULL)).isEmpty();
+  }
+
+  @Test
+  public void getConstraint() {
+    SymbolicValue sv1 = mock(SymbolicValue.class);
+    state = state.pushToStack(sv1).assignment(symbol1).removeLastValue();
+
+    when(sv1.baseConstraint(state)).thenReturn(Constraint.ANY_VALUE);
+    assertThat(state.getConstraint(sv1)).isEqualTo(Constraint.ANY_VALUE);
+
+    when(sv1.baseConstraint(state)).thenReturn(Constraint.BOOLEAN);
+    assertThat(state.getConstraint(sv1)).isEqualTo(Constraint.BOOLEAN);
+
+    SymbolicValue sv2 = new SymbolicValueWithConstraint(Constraint.BOOLEAN);
+    state = state.pushToStack(sv2).assignment(symbol1).removeLastValue();
+    state = state.constrain(sv2, Constraint.TRUTHY).get(0);
+    assertThat(state.getConstraint(sv2)).isEqualTo(Constraint.TRUE);
   }
 
   @Test

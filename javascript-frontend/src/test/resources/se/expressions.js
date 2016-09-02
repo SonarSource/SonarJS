@@ -17,7 +17,7 @@ function main() {
   x = typeof foobar == 'undefined';
 
   if (x) {
-    foo(x); // PS x=TRUTHY
+    foo(x); // PS x=TRUE
   }
 
   x = (y == null);

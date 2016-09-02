@@ -19,7 +19,6 @@
  */
 package org.sonar.javascript.se.sv;
 
-import java.util.List;
 import org.junit.Test;
 import org.sonar.javascript.se.Constraint;
 import org.sonar.javascript.se.ProgramState;
@@ -27,27 +26,28 @@ import org.sonar.plugins.javascript.api.symbols.Symbol;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
-import static org.sonar.javascript.se.Constraint.TRUTHY;
 
-public class SymbolicValueTest {
-
-  private static final ProgramState EMPTY_STATE = ProgramState.emptyState();
-  private Symbol symbol = mock(Symbol.class);
+public class PlusSymbolicValueTest {
 
   @Test
-  public void constrain() throws Exception {
-    ProgramState state1 = EMPTY_STATE.newSymbolicValue(symbol, null);
-    SymbolicValue sv1 = state1.getSymbolicValue(symbol);
-    List<ProgramState> constrained = state1.constrain(sv1, TRUTHY);
-    assertThat(constrained).hasSize(1);
-    assertThat(constrained.get(0).getConstraint(sv1)).isEqualTo(TRUTHY);
+  public void constraint() throws Exception {
+    assertThat(plusConstraint(Constraint.TRUTHY_STRING, Constraint.EMPTY_STRING)).isEqualTo(Constraint.STRING);
+    assertThat(plusConstraint(Constraint.TRUTHY_STRING, Constraint.NUMBER)).isEqualTo(Constraint.STRING);
+    assertThat(plusConstraint(Constraint.TRUTHY_NUMBER, Constraint.NAN)).isEqualTo(Constraint.NUMBER);
+    assertThat(plusConstraint(Constraint.TRUTHY_NUMBER, Constraint.BOOLEAN)).isEqualTo(Constraint.NUMBER);
+    assertThat(plusConstraint(Constraint.TRUTHY_NUMBER, Constraint.TRUTHY)).isEqualTo(Constraint.NUMBER.or(Constraint.STRING));
   }
 
-  @Test
-  public void constrain_with_unreachable_constraint() throws Exception {
-    ProgramState state1 = EMPTY_STATE.newSymbolicValue(symbol, Constraint.FALSY);
-    SymbolicValue sv1 = state1.getSymbolicValue(symbol);
-    assertThat(state1.constrain(sv1, TRUTHY)).isEmpty();
+  private Constraint plusConstraint(Constraint constraint1, Constraint constraint2) {
+    Symbol symbol1 = mock(Symbol.class);
+    Symbol symbol2 = mock(Symbol.class);
+    ProgramState state = ProgramState.emptyState()
+      .newSymbolicValue(symbol1, constraint1)
+      .newSymbolicValue(symbol2, constraint2);
+    SymbolicValue sv1 = state.getSymbolicValue(symbol1);
+    SymbolicValue sv2 = state.getSymbolicValue(symbol2);
+    PlusSymbolicValue plus = new PlusSymbolicValue(sv1, sv2);
+    return plus.baseConstraint(state);
   }
 
 }

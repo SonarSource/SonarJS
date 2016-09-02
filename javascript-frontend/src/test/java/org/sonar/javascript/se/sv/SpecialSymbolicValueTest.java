@@ -32,15 +32,15 @@ public class SpecialSymbolicValueTest {
 
   @Test
   public void constrain_to_incompatible() throws Exception {
-    assertThat(NULL.constrain(state, Constraint.TRUTHY)).isEmpty();
-    assertThat(NULL.constrain(state, Constraint.UNDEFINED)).isEmpty();
+    assertThat(NULL.constrainDependencies(state, Constraint.TRUTHY)).isEmpty();
+    assertThat(NULL.constrainDependencies(state, Constraint.UNDEFINED)).isEmpty();
   }
 
   @Test
   public void constrain_to_less_strict() throws Exception {
-    assertThat(NULL.constrain(state, Constraint.FALSY)).containsOnly(state);
-    assertThat(NULL.constrain(state, Constraint.NULL_OR_UNDEFINED)).containsOnly(state);
-    assertThat(NULL.constrain(state, Constraint.NULL)).containsOnly(state);
+    assertThat(NULL.constrainDependencies(state, Constraint.FALSY)).containsOnly(state);
+    assertThat(NULL.constrainDependencies(state, Constraint.NULL_OR_UNDEFINED)).containsOnly(state);
+    assertThat(NULL.constrainDependencies(state, Constraint.NULL)).containsOnly(state);
   }
 
 }

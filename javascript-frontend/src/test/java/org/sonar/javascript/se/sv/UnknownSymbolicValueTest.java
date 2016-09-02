@@ -31,8 +31,8 @@ public class UnknownSymbolicValueTest {
   public void constrain() throws Exception {
     ProgramState state = ProgramState.emptyState();
     UnknownSymbolicValue value = UnknownSymbolicValue.UNKNOWN;
-    assertThat(value.constrain(state, Constraint.FALSY)).containsOnly(state);
-    assertThat(value.constrain(state, Constraint.TRUTHY)).containsOnly(state);
+    assertThat(value.constrainDependencies(state, Constraint.FALSY)).containsOnly(state);
+    assertThat(value.constrainDependencies(state, Constraint.TRUTHY)).containsOnly(state);
   }
 
 }

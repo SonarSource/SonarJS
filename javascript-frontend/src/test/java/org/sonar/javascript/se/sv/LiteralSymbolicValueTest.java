@@ -76,21 +76,21 @@ public class LiteralSymbolicValueTest {
 
   @Test(expected = IllegalStateException.class)
   public void unknown_literal_type() throws Exception {
-    LiteralSymbolicValue.get(mock(LiteralTree.class)).constraint(mock(ProgramState.class));
+    LiteralSymbolicValue.get(mock(LiteralTree.class)).baseConstraint(mock(ProgramState.class));
   }
 
   @Test
   public void constrain() throws Exception {
     ProgramState state1 = ProgramState.emptyState();
-    assertThat(literal("42").constrain(state1, Constraint.TRUTHY)).containsOnly(state1);
-    assertThat(literal("42").constrain(state1, Constraint.NULL)).isEmpty();
-    assertThat(literal("42").constrain(state1, Constraint.FALSY)).isEmpty();
-    assertThat(literal("0").constrain(state1, Constraint.FALSY)).containsOnly(state1);
-    assertThat(literal("0").constrain(state1, Constraint.TRUTHY)).isEmpty();
+    assertThat(literal("42").constrainDependencies(state1, Constraint.TRUTHY)).containsOnly(state1);
+    assertThat(literal("42").constrainDependencies(state1, Constraint.NULL)).isEmpty();
+    assertThat(literal("42").constrainDependencies(state1, Constraint.FALSY)).isEmpty();
+    assertThat(literal("0").constrainDependencies(state1, Constraint.FALSY)).containsOnly(state1);
+    assertThat(literal("0").constrainDependencies(state1, Constraint.TRUTHY)).isEmpty();
   }
 
   private Constraint constraint(String source) {
-    return literal(source).constraint(mock(ProgramState.class));
+    return literal(source).baseConstraint(mock(ProgramState.class));
   }
 
   private LiteralSymbolicValue literal(String source) {

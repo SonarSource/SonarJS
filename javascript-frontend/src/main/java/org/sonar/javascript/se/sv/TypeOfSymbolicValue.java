@@ -45,17 +45,12 @@ public class TypeOfSymbolicValue implements SymbolicValue {
   }
 
   @Override
-  public List<ProgramState> constrain(ProgramState state, Constraint constraint) {
-    ProgramState newState = state.constrainOwnSV(this, constraint);
-    if (newState == null) {
-      return ImmutableList.of();
-    } else {
-      return ImmutableList.of(newState);
-    }
+  public List<ProgramState> constrainDependencies(ProgramState state, Constraint constraint) {
+    return ImmutableList.of(state);
   }
 
   @Override
-  public Constraint constraint(ProgramState state) {
+  public Constraint baseConstraint(ProgramState state) {
     return Constraint.STRING;
   }
 

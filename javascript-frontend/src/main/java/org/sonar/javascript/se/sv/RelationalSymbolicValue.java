@@ -58,19 +58,15 @@ public class RelationalSymbolicValue implements SymbolicValue {
   }
 
   @Override
-  public List<ProgramState> constrain(ProgramState state, Constraint constraint) {
-    ProgramState newState = state.constrainOwnSV(this, constraint);
-    if (newState == null || state.getConstraint(this).isIncompatibleWith(constraint)) {
-      return ImmutableList.of();
-    }
+  public List<ProgramState> constrainDependencies(ProgramState state, Constraint constraint) {
     if (constraint.isStricterOrEqualTo(Constraint.TRUTHY)) {
-      return checkRelationsAndConstrain(newState, relationWhenTrue);
+      return checkRelationsAndConstrain(state, relationWhenTrue);
 
     } else if (constraint.isStricterOrEqualTo(Constraint.FALSY)) {
-      return checkRelationsAndConstrain(newState, relationWhenTrue.not());
+      return checkRelationsAndConstrain(state, relationWhenTrue.not());
 
     }
-    return ImmutableList.of(newState);
+    return ImmutableList.of(state);
   }
 
   private static List<ProgramState> checkRelationsAndConstrain(ProgramState state, Relation relation) {
@@ -83,7 +79,7 @@ public class RelationalSymbolicValue implements SymbolicValue {
   }
 
   @Override
-  public Constraint constraint(ProgramState state) {
+  public Constraint baseConstraint(ProgramState state) {
     return Constraint.BOOLEAN;
   }
 

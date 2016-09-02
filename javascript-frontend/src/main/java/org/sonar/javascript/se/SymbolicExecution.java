@@ -163,7 +163,7 @@ public class SymbolicExecution {
           SymbolicValue symbolicValue = currentState.getSymbolicValue(((IdentifierTree) object).symbol());
           Nullability nullability = currentState.getNullability(symbolicValue);
           if (nullability == Nullability.UNKNOWN) {
-            currentState = currentState.constrain(symbolicValue, Constraint.NOT_NULLY);
+            currentState = currentState.constrain(symbolicValue, Constraint.NOT_NULLY).get(0);
           } else if (nullability == Nullability.NULL) {
             stopExploring = true;
             break;
@@ -328,11 +328,11 @@ public class SymbolicExecution {
     }
 
     Tree lastElement = block.elements().get(block.elements().size() - 1);
-    for (ProgramState newState : conditionSymbolicValue.constrain(psWithPoppedStack, Constraint.TRUTHY)) {
+    for (ProgramState newState : psWithPoppedStack.constrain(conditionSymbolicValue, Constraint.TRUTHY)) {
       pushConditionSuccessor(block.trueSuccessor(), newState, conditionSymbolicValue, Constraint.TRUTHY);
       conditionResults.put(lastElement, Truthiness.TRUTHY);
     }
-    for (ProgramState newState : conditionSymbolicValue.constrain(psWithPoppedStack, Constraint.FALSY)) {
+    for (ProgramState newState : psWithPoppedStack.constrain(conditionSymbolicValue, Constraint.FALSY)) {
       pushConditionSuccessor(block.falseSuccessor(), newState, conditionSymbolicValue, Constraint.FALSY);
       conditionResults.put(lastElement, Truthiness.FALSY);
     }
