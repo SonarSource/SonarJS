@@ -35,7 +35,7 @@ import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
 @Rule(key = "S100")
 public class FunctionNameCheck extends DoubleDispatchVisitorCheck {
 
-  public static final String DEFAULT = "^[a-z][a-zA-Z0-9]*$";
+  public static final String DEFAULT = "^[_a-z][a-zA-Z0-9]*$";
   private static final String MESSAGE = "Rename this '%s' function to match the regular expression %s";
   private Pattern pattern = null;
 
