@@ -29,6 +29,8 @@ import org.sonar.plugins.javascript.api.symbols.Symbol.Kind;
 import org.sonar.plugins.javascript.api.symbols.Usage;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
+import org.sonar.plugins.javascript.api.tree.declaration.ArrayBindingPatternTree;
+import org.sonar.plugins.javascript.api.tree.declaration.ObjectBindingPatternTree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 import org.sonar.plugins.javascript.api.tree.statement.ForStatementTree;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
@@ -38,16 +40,16 @@ public class UnchangedLetVariableCheck extends DoubleDispatchVisitorCheck {
 
   private static final String MESSAGE = "Make \"%s\" \"const\".";
 
-  private Set<Symbol> createdInForInit;
+  private Set<Symbol> ignoredSymbols;
 
   @Override
   public void visitScript(ScriptTree tree) {
-    createdInForInit = new HashSet<>();
+    ignoredSymbols = new HashSet<>();
 
     super.visitScript(tree);
 
     for (Symbol letVariableSymbol : getContext().getSymbolModel().getSymbols(Kind.LET_VARIABLE)) {
-      if (!createdInForInit.contains(letVariableSymbol)) {
+      if (!ignoredSymbols.contains(letVariableSymbol)) {
         boolean isWritten = false;
         Usage declarationWithInit = null;
 
@@ -73,14 +75,28 @@ public class UnchangedLetVariableCheck extends DoubleDispatchVisitorCheck {
 
     if (init != null && init.is(Tree.Kind.LET_DECLARATION)) {
       List<IdentifierTree> identifiers = ((VariableDeclarationTreeImpl) init).variableIdentifiers();
-
-      if (identifiers.size() > 1) {
-        for (IdentifierTree identifier : identifiers) {
-          createdInForInit.add(identifier.symbol());
-        }
-      }
+      ignore(identifiers);
     }
 
     super.visitForStatement(tree);
   }
+
+  @Override
+  public void visitArrayBindingPattern(ArrayBindingPatternTree tree) {
+    ignore(tree.bindingIdentifiers());
+  }
+
+  @Override
+  public void visitObjectBindingPattern(ObjectBindingPatternTree tree) {
+    ignore(tree.bindingIdentifiers());
+  }
+
+  private void ignore(List<IdentifierTree> identifiers) {
+    if (identifiers.size() > 1) {
+      identifiers.stream()
+        .map(identifier -> identifier.symbol())
+        .forEach(ignoredSymbols::add);
+    }
+  }
+
 }
