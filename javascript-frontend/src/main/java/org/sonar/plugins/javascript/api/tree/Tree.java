@@ -23,6 +23,7 @@ import com.google.common.annotations.Beta;
 import org.sonar.plugins.javascript.api.tree.declaration.AccessorMethodDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.declaration.ArrayBindingPatternTree;
 import org.sonar.plugins.javascript.api.tree.declaration.BindingPropertyTree;
+import org.sonar.plugins.javascript.api.tree.declaration.DecoratorTree;
 import org.sonar.plugins.javascript.api.tree.declaration.DefaultExportDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.declaration.ExportClauseTree;
 import org.sonar.plugins.javascript.api.tree.declaration.ExportDefaultBinding;
@@ -786,6 +787,11 @@ public interface Tree {
      * {@link ClassTree}
      */
     CLASS_DECLARATION(ClassTree.class),
+
+    /**
+     * {@link DecoratorTree}
+     */
+    DECORATOR(DecoratorTree.class),
 
     /**
      * {@link InitializedBindingElementTree}

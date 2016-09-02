@@ -24,35 +24,18 @@ import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 
 import static org.sonar.javascript.utils.Assertions.assertThat;
 
-public class ClassDeclarationTest {
-
-
-  @Test
-  public void ok() {
-    assertThat(Kind.CLASS_DECLARATION)
-      .matches("class C {}")
-      .matches("class C extends S {}")
-      .matches("class C { ; }")
-      .matches("class C extends S { ; }");
-  }
+public class DecoratorTest {
 
   @Test
-  public void with_properties() throws Exception {
-    assertThat(Kind.CLASS_DECLARATION)
-      .matches("class C {property; method(){} }")
-      .matches("class C {method(){} property; }")
-      .matches("class C { property; property=42; }")
-    ;
-  }
-
-  @Test
-  public void with_decorators() throws Exception {
-    assertThat(Kind.CLASS_DECLARATION)
-      .matches("@decorator class A {}")
-      .matches("@decorator1 @decorator2 class A {}")
-      .matches("class C { @decorator method(){} }")
-      .matches("class C { @decorator static method(){} }")
-      .matches("class C { @decorator1 @decorator2 method(){} }")
+  public void test() {
+    assertThat(Kind.DECORATOR)
+      .matches("@decorator")
+      .matches("@foo.decorator")
+      .matches("@foo.bar.decorator")
+      .matches("@decorator()")
+      .matches("@decorator(1, 2)")
+      .matches("@foo.decorator()")
+      .matches("@foo.bar.decorator(1, 2)")
     ;
   }
 }

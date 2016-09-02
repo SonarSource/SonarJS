@@ -34,4 +34,11 @@ public class ClassExpressionTest {
       .matches("class C {}");
   }
 
+  @Test
+  public void with_decorator() {
+    assertThat(Kind.CLASS_EXPRESSION)
+      .matches("@decorator class {}")
+      .matches("@decorator class C {}");
+  }
+
 }

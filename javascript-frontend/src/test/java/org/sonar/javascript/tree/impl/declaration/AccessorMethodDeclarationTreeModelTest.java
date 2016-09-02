@@ -31,9 +31,10 @@ public class AccessorMethodDeclarationTreeModelTest extends JavaScriptTreeModelT
 
   @Test
   public void get_method() throws Exception {
-    AccessorMethodDeclarationTree tree = parse("var a = { get method() {} }", Kind.GET_METHOD);
+    AccessorMethodDeclarationTree tree = parse("var a = { @decorator get method() {} }", Kind.GET_METHOD);
 
     assertThat(tree.is(Kind.GET_METHOD)).isTrue();
+    assertThat(tree.decorators()).hasSize(1);
     assertThat(tree.staticToken()).isNull();
     assertThat(tree.asyncToken()).isNull();
     assertThat(tree.accessorToken().text()).isEqualTo("get");

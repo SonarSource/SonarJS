@@ -23,6 +23,7 @@ import com.google.common.annotations.Beta;
 import java.util.List;
 import javax.annotation.Nullable;
 import org.sonar.plugins.javascript.api.tree.Tree;
+import org.sonar.plugins.javascript.api.tree.declaration.DecoratorTree;
 import org.sonar.plugins.javascript.api.tree.declaration.MethodDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.javascript.api.tree.statement.StatementTree;
@@ -38,6 +39,8 @@ import org.sonar.plugins.javascript.api.tree.statement.StatementTree;
  */
 @Beta
 public interface ClassTree extends ExpressionTree, StatementTree {
+
+  List<DecoratorTree> decorators();
 
   SyntaxToken classToken();
 

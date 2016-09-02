@@ -31,10 +31,21 @@ public class MethodDefinitionTest {
   public void ok() {
     assertThat(JavaScriptLegacyGrammar.METHOD_DEFINITION)
       .matches("f() {}")
+      .matches("@decorator f() {}")
+      .matches("@decorator @decorator f() {}")
+
       .matches("static f() {}")
+      .matches("@decorator static f() {}")
+      .matches("@decorator @decorator static f() {}")
+
       .matches("set f(p) {}")
       .matches("get f() {}")
+      .matches("@decorator set f(p) {}")
+      .matches("@decorator @decorator get f() {}")
+
       .matches("* f() {}")
+      .matches("@decorator * f() {}")
+      .matches("@decorator @decorator * f() {}")
     ;
   }
 

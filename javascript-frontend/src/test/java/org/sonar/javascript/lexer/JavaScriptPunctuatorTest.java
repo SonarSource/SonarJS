@@ -27,7 +27,7 @@ public class JavaScriptPunctuatorTest {
 
   @Test
   public void test() {
-    assertThat(JavaScriptPunctuator.values().length).isEqualTo(52);
+    assertThat(JavaScriptPunctuator.values().length).isEqualTo(53);
 
     for (JavaScriptPunctuator punctuator : JavaScriptPunctuator.values()) {
       assertThat(punctuator.getName()).isEqualTo(punctuator.name());

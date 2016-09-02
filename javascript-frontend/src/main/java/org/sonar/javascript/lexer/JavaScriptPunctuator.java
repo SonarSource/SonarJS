@@ -24,6 +24,7 @@ import com.sonar.sslr.api.TokenType;
 import org.sonar.sslr.grammar.GrammarRuleKey;
 
 public enum JavaScriptPunctuator implements TokenType, GrammarRuleKey {
+  AT("@"),
   LCURLYBRACE("{"),
   RCURLYBRACE("}"),
   LPARENTHESIS("("),

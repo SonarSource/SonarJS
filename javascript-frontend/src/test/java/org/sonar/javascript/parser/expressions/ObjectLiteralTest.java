@@ -53,4 +53,14 @@ public class ObjectLiteralTest {
     ;
   }
 
+  @Test
+  public void property_with_decorator() {
+    assertThat(Kind.OBJECT_LITERAL)
+      .matches("{ @decorator method(){} }")
+      .matches("{ @decorator set a(){} }")
+      .matches("{ @decorator * generator(){} }")
+      .matches("{ @decorator method(){}, prop: 'value'}")
+    ;
+  }
+
 }
