@@ -829,6 +829,21 @@ public interface Tree {
     OBJECT_ASSIGNMENT_PATTERN(ObjectAssignmentPatternTree.class),
 
     /**
+     * {@link ObjectAssignmentPatternPairElementTree}
+     */
+    OBJECT_ASSIGNMENT_PATTERN_PAIR_ELEMENT(ObjectAssignmentPatternPairElementTree.class),
+
+    /**
+     * {@link InitializedAssignmentPatternElementTree}
+     */
+    INITIALIZED_ASSIGNMENT_PATTERN_ELEMENT(InitializedAssignmentPatternElementTree.class),
+
+    /**
+     * {@link AssignmentPatternRestElementTree}
+     */
+    ASSIGNMENT_PATTERN_REST_ELEMENT(AssignmentPatternRestElementTree.class),
+
+    /**
      * {@link DefaultExportDeclarationTree}
      */
     DEFAULT_EXPORT_DECLARATION(DefaultExportDeclarationTree.class),
@@ -966,10 +981,7 @@ public interface Tree {
 
     TOKEN(SyntaxToken.class),
 
-    TRIVIA(SyntaxTrivia.class),
-    OBJECT_ASSIGNMENT_PATTERN_PAIR_ELEMENT(ObjectAssignmentPatternPairElementTree.class),
-    INITIALIZED_ASSIGNMENT_PATTERN_ELEMENT(InitializedAssignmentPatternElementTree.class),
-    ASSIGNMENT_PATTERN_REST_ELEMENT(AssignmentPatternRestElementTree.class);
+    TRIVIA(SyntaxTrivia.class);
 
     final Class<? extends Tree> associatedInterface;
 

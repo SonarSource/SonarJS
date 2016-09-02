@@ -24,10 +24,9 @@ import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 
 /**
- * fixme
+ * <a href="http://www.ecma-international.org/ecma-262/6.0/index.html#sec-destructuring-assignment">Element with Initializer for Assignment Destructuring Pattern</a>.
  * <pre>
- *   {@link #left()}
- *   {@link #left()} = {@link #right()}
+ *  {@link #left()} = {@link #right()}
  * </pre>
  */
 @Beta

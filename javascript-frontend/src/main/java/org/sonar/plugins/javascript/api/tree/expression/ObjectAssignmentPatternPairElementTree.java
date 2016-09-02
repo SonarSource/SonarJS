@@ -24,7 +24,10 @@ import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 
 /**
- fixme
+ * <a href="http://www.ecma-international.org/ecma-262/6.0/index.html#sec-destructuring-assignment">Element with key name for Object Assignment Destructuring Pattern</a>.
+ * <pre>
+ *  {@link #key()} : {@link #element()}
+ * </pre>
  */
 @Beta
 public interface ObjectAssignmentPatternPairElementTree extends Tree {
