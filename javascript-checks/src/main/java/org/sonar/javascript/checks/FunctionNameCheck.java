@@ -20,16 +20,18 @@
 package org.sonar.javascript.checks;
 
 import java.util.regex.Pattern;
-import javax.annotation.Nullable;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
-import org.sonar.javascript.checks.utils.CheckUtils;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
+import org.sonar.plugins.javascript.api.tree.declaration.BindingElementTree;
 import org.sonar.plugins.javascript.api.tree.declaration.FunctionDeclarationTree;
+import org.sonar.plugins.javascript.api.tree.declaration.InitializedBindingElementTree;
 import org.sonar.plugins.javascript.api.tree.declaration.MethodDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
+import org.sonar.plugins.javascript.api.tree.expression.PairPropertyTree;
+import org.sonar.plugins.javascript.api.tree.statement.VariableDeclarationTree;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
 
 @Rule(key = "S100")
@@ -60,14 +62,39 @@ public class FunctionNameCheck extends DoubleDispatchVisitorCheck {
   }
 
   @Override
+  public void visitPairProperty(PairPropertyTree tree) {
+    if (isFunctionExpression(tree.value())) {
+      checkName(tree.key());
+    }
+    super.visitPairProperty(tree);
+  }
+
+  @Override
   public void visitFunctionDeclaration(FunctionDeclarationTree tree) {
     checkName(tree.name());
     super.visitFunctionDeclaration(tree);
   }
 
-  private void checkName(@Nullable Tree tree) {
-    if (tree != null) {
-      String name = tree.is(Kind.IDENTIFIER_NAME) ? ((IdentifierTree) tree).name() : CheckUtils.asString(tree);
+  @Override
+  public void visitVariableDeclaration(VariableDeclarationTree tree) {
+    for (BindingElementTree bindingElement : tree.variables()) {
+      if (bindingElement.is(Kind.INITIALIZED_BINDING_ELEMENT)) {
+        InitializedBindingElementTree initializedBindingElement = (InitializedBindingElementTree) bindingElement;
+        if (isFunctionExpression(initializedBindingElement.right())) {
+          checkName(initializedBindingElement.left());
+        }
+      }
+    }
+    super.visitVariableDeclaration(tree);
+  }
+
+  private static boolean isFunctionExpression(Tree tree) {
+    return tree.is(Kind.FUNCTION_EXPRESSION, Kind.GENERATOR_FUNCTION_EXPRESSION, Kind.ARROW_FUNCTION);
+  }
+
+  private void checkName(Tree tree) {
+    if (tree instanceof IdentifierTree) {
+      String name = ((IdentifierTree) tree).name();
 
       if (!pattern.matcher(name).matches()) {
         addIssue(tree, String.format(MESSAGE, name, format));
