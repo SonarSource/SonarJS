@@ -63,7 +63,7 @@ public class JavaScriptPerformanceTest {
     ORCHESTRATOR.executeBuild(build);
     double time = sensorTime(build.getProjectDir(), SENSOR);
 
-    double expected = 111.0;
+    double expected = 117.0;
     Assertions.assertThat(time).isEqualTo(expected, Delta.delta(expected * 0.04));
   }
 
