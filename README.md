@@ -4,7 +4,7 @@ This is the plugin for the [SonarQube](http://www.sonarqube.org/) platform which
 
 # Features
 * 140+ rules (including 40+ bug detection)
-* Support of syntax up to ECMAScript 2017
+* Compatible with ECMAScript 2015-2017
 * Metrics (complexity, number of lines etc.)
 * Import of [test coverage reports](http://docs.sonarqube.org/display/PLUG/JavaScript+Coverage+Results+Import)
 * [Custom rules](http://docs.sonarqube.org/display/PLUG/Custom+Rules+for+JavaScript)
