@@ -4,7 +4,7 @@ This is the plugin for the [SonarQube](http://www.sonarqube.org/) platform which
 
 # Features
 * 140+ rules (including 40+ bug detection)
-* ES5/ES2015 support
+* Compatible with ECMAScript 2015-2017
 * Metrics (complexity, number of lines etc.)
 * Import of [test coverage reports](http://docs.sonarqube.org/display/PLUG/JavaScript+Coverage+Results+Import)
 * [Custom rules](http://docs.sonarqube.org/display/PLUG/Custom+Rules+for+JavaScript)
@@ -45,7 +45,7 @@ mvn clean install
 To run integration tests, you will need to create a properties file like the one shown below, and set its location in an environment variable named `ORCHESTRATOR_CONFIG_URL`.
 ```
 # version of SonarQube Server
-sonar.runtimeVersion=5.2
+sonar.runtimeVersion=5.6
 
 orchestrator.updateCenterUrl=http://update.sonarsource.org/update-center-dev.properties
 ```
