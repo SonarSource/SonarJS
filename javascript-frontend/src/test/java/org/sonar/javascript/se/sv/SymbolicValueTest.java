@@ -19,7 +19,7 @@
  */
 package org.sonar.javascript.se.sv;
 
-import java.util.List;
+import java.util.Optional;
 import org.junit.Test;
 import org.sonar.javascript.se.Constraint;
 import org.sonar.javascript.se.ProgramState;
@@ -38,16 +38,16 @@ public class SymbolicValueTest {
   public void constrain() throws Exception {
     ProgramState state1 = EMPTY_STATE.newSymbolicValue(symbol, null);
     SymbolicValue sv1 = state1.getSymbolicValue(symbol);
-    List<ProgramState> constrained = state1.constrain(sv1, TRUTHY);
-    assertThat(constrained).hasSize(1);
-    assertThat(constrained.get(0).getConstraint(sv1)).isEqualTo(TRUTHY);
+    Optional<ProgramState> constrained = state1.constrain(sv1, TRUTHY);
+    assertThat(constrained.isPresent()).isTrue();
+    assertThat(constrained.get().getConstraint(sv1)).isEqualTo(TRUTHY);
   }
 
   @Test
   public void constrain_with_unreachable_constraint() throws Exception {
     ProgramState state1 = EMPTY_STATE.newSymbolicValue(symbol, Constraint.FALSY);
     SymbolicValue sv1 = state1.getSymbolicValue(symbol);
-    assertThat(state1.constrain(sv1, TRUTHY)).isEmpty();
+    assertThat(state1.constrain(sv1, TRUTHY).isPresent()).isFalse();
   }
 
 }

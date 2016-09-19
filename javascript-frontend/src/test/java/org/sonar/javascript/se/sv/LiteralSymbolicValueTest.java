@@ -82,11 +82,11 @@ public class LiteralSymbolicValueTest {
   @Test
   public void constrain() throws Exception {
     ProgramState state1 = ProgramState.emptyState();
-    assertThat(literal("42").constrainDependencies(state1, Constraint.TRUTHY)).containsOnly(state1);
-    assertThat(literal("42").constrainDependencies(state1, Constraint.NULL)).isEmpty();
-    assertThat(literal("42").constrainDependencies(state1, Constraint.FALSY)).isEmpty();
-    assertThat(literal("0").constrainDependencies(state1, Constraint.FALSY)).containsOnly(state1);
-    assertThat(literal("0").constrainDependencies(state1, Constraint.TRUTHY)).isEmpty();
+    assertThat(literal("42").constrainDependencies(state1, Constraint.TRUTHY).get()).isEqualTo(state1);
+    assertThat(literal("42").constrainDependencies(state1, Constraint.NULL).isPresent()).isFalse();
+    assertThat(literal("42").constrainDependencies(state1, Constraint.FALSY).isPresent()).isFalse();
+    assertThat(literal("0").constrainDependencies(state1, Constraint.FALSY).get()).isEqualTo(state1);
+    assertThat(literal("0").constrainDependencies(state1, Constraint.TRUTHY).isPresent()).isFalse();
   }
 
   private Constraint constraint(String source) {

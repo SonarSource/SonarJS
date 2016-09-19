@@ -19,11 +19,10 @@
  */
 package org.sonar.javascript.se.sv;
 
-import com.google.common.collect.ImmutableList;
-import java.util.ArrayList;
 import java.util.EnumSet;
-import java.util.List;
+import java.util.Optional;
 import java.util.Set;
+import javax.annotation.Nullable;
 import org.sonar.javascript.se.Constraint;
 import org.sonar.javascript.se.ProgramState;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
@@ -45,22 +44,21 @@ public class EqualitySymbolicValue extends RelationalSymbolicValue {
   }
 
   @Override
-  public List<ProgramState> constrainDependencies(ProgramState incomingState, Constraint constraint) {
-    List<ProgramState> constrainedStates = super.constrainDependencies(incomingState, constraint);
-    constrainedStates = constrainOperand(leftOperand, rightOperand, constraint, constrainedStates);
-    constrainedStates = constrainOperand(rightOperand, leftOperand, constraint, constrainedStates);
-    return constrainedStates;
+  public Optional<ProgramState> constrainDependencies(ProgramState incomingState, Constraint constraint) {
+    Optional<ProgramState> constrainedState = super.constrainDependencies(incomingState, constraint);
+    constrainedState = constrainOperand(leftOperand, rightOperand, constraint, constrainedState.orElse(null));
+    constrainedState = constrainOperand(rightOperand, leftOperand, constraint, constrainedState.orElse(null));
+    return constrainedState;
   }
 
-  private List<ProgramState> constrainOperand(SymbolicValue sending, SymbolicValue receiving, Constraint constraint, List<ProgramState> incomingStates) {
-    List<ProgramState> constrainedStates = new ArrayList<>();
-    for (ProgramState state : incomingStates) {
-      constrainedStates.addAll(constrainOperand(sending, receiving, state, constraint));
+  private Optional<ProgramState> constrainOperand(SymbolicValue sending, SymbolicValue receiving, Constraint constraint, @Nullable ProgramState incomingState) {
+    if (incomingState != null) {
+      return constrainOperand(sending, receiving, incomingState, constraint);
     }
-    return constrainedStates;
+    return Optional.empty();
   }
 
-  private List<ProgramState> constrainOperand(SymbolicValue sending, SymbolicValue receiving, ProgramState state, Constraint constraint) {
+  private Optional<ProgramState> constrainOperand(SymbolicValue sending, SymbolicValue receiving, ProgramState state, Constraint constraint) {
     Constraint constraintOnSending = state.getConstraint(sending);
     if (constraintOnSending.isStricterOrEqualTo(Constraint.NULL_OR_UNDEFINED)) {
       if (constraint.isStricterOrEqualTo(Constraint.TRUTHY)) {
@@ -69,7 +67,7 @@ public class EqualitySymbolicValue extends RelationalSymbolicValue {
         return state.constrain(receiving, constraintOnNullOrUndefined(constraintOnSending).not());
       }
     }
-    return ImmutableList.of(state);
+    return Optional.of(state);
   }
 
   private Constraint constraintOnNullOrUndefined(Constraint constraintOnSending) {

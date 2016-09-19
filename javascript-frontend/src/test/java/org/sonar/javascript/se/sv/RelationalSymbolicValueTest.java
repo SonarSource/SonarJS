@@ -19,7 +19,7 @@
  */
 package org.sonar.javascript.se.sv;
 
-import java.util.List;
+import java.util.Optional;
 import org.junit.Test;
 import org.sonar.javascript.se.Constraint;
 import org.sonar.javascript.se.ProgramState;
@@ -51,8 +51,8 @@ public class RelationalSymbolicValueTest {
   @Test
   public void constraint_on_equality() throws Exception {
     state = state
-      .constrain(sv1, Constraint.TRUTHY).get(0)
-      .constrain(sv2, Constraint.FALSY).get(0);
+      .constrain(sv1, Constraint.TRUTHY).get()
+      .constrain(sv2, Constraint.FALSY).get();
     assertThat(RelationalSymbolicValue.create(Kind.EQUAL_TO, sv1, sv2).baseConstraint(state)).isEqualTo(Constraint.BOOLEAN);
     assertThat(RelationalSymbolicValue.create(Kind.NOT_EQUAL_TO, sv1, sv2).baseConstraint(state)).isEqualTo(Constraint.BOOLEAN);
     assertThat(RelationalSymbolicValue.create(Kind.STRICT_EQUAL_TO, sv1, sv2).baseConstraint(state)).isEqualTo(Constraint.FALSE);
@@ -66,41 +66,41 @@ public class RelationalSymbolicValueTest {
 
   @Test
   public void constrain_to_non_boolean_constraint() {
-    assertThat(relationalValue.constrainDependencies(state, Constraint.STRING.not())).containsOnly(state);
+    assertThat(relationalValue.constrainDependencies(state, Constraint.STRING.not()).get()).isEqualTo(state);
   }
 
   @Test
   public void constrain_to_truthy() {
-    List<ProgramState> constrainedStates = relationalValue.constrainDependencies(state, Constraint.TRUTHY);
-    assertThat(constrainedStates).hasSize(1);
-    assertThat(constrainedStates.get(0).relations()).containsOnly(new Relation(Kind.LESS_THAN, sv1, sv2));
+    Optional<ProgramState> constrainedStates = relationalValue.constrainDependencies(state, Constraint.TRUTHY);
+    assertThat(constrainedStates.isPresent()).isTrue();
+    assertThat(constrainedStates.get().relations()).containsOnly(new Relation(Kind.LESS_THAN, sv1, sv2));
   }
 
   @Test
   public void constrain_to_falsy() {
-    List<ProgramState> constrainedStates = relationalValue.constrainDependencies(state, Constraint.FALSY);
-    assertThat(constrainedStates).hasSize(1);
-    assertThat(constrainedStates.get(0).relations()).containsOnly(new Relation(Kind.GREATER_THAN_OR_EQUAL_TO, sv1, sv2));
+    Optional<ProgramState> constrainedStates = relationalValue.constrainDependencies(state, Constraint.FALSY);
+    assertThat(constrainedStates.isPresent()).isTrue();
+    assertThat(constrainedStates.get().relations()).containsOnly(new Relation(Kind.GREATER_THAN_OR_EQUAL_TO, sv1, sv2));
   }
 
   @Test
   public void constrain_with_incompatible_relation() throws Exception {
     RelationalSymbolicValue lessThan = create(Kind.LESS_THAN, sv1, sv2);
     RelationalSymbolicValue greaterThan = create(Kind.GREATER_THAN, sv1, sv2);
-    ProgramState constrainedState = lessThan.constrainDependencies(state, Constraint.TRUTHY).get(0);
+    ProgramState constrainedState = lessThan.constrainDependencies(state, Constraint.TRUTHY).get();
 
-    assertThat(greaterThan.constrainDependencies(constrainedState, Constraint.TRUTHY)).isEmpty();
-    assertThat(lessThan.constrainDependencies(constrainedState, Constraint.FALSY)).isEmpty();
+    assertThat(greaterThan.constrainDependencies(constrainedState, Constraint.TRUTHY).isPresent()).isFalse();
+    assertThat(lessThan.constrainDependencies(constrainedState, Constraint.FALSY).isPresent()).isFalse();
   }
 
   @Test
   public void constraint_on_value_itself_with_unknown_operand() throws Exception {
     RelationalSymbolicValue value = create(Kind.LESS_THAN, sv1, UnknownSymbolicValue.UNKNOWN);
     state = state.pushToStack(value).assignment(symbol2);
-    List<ProgramState> constrainedStates = state.constrain(value, Constraint.TRUE);
-    assertThat(constrainedStates).hasSize(1);
-    ProgramState constrainedState = constrainedStates.get(0);
-    assertThat(constrainedState.constrain(value, Constraint.FALSE)).isEmpty();
+    Optional<ProgramState> constrainedStates = state.constrain(value, Constraint.TRUE);
+    assertThat(constrainedStates.isPresent()).isTrue();
+    ProgramState constrainedState = constrainedStates.get();
+    assertThat(constrainedState.constrain(value, Constraint.FALSE).isPresent()).isFalse();
   }
 
   @Test
@@ -128,9 +128,9 @@ public class RelationalSymbolicValueTest {
   }
 
   private ProgramState singleConstrainedState(SymbolicValue value, Constraint constraint) {
-    List<ProgramState> constrainedStates = value.constrainDependencies(state, constraint);
-    assertThat(constrainedStates).hasSize(1);
-    return constrainedStates.get(0);
+    Optional<ProgramState> constrainedStates = value.constrainDependencies(state, constraint);
+    assertThat(constrainedStates.isPresent()).isTrue();
+    return constrainedStates.get();
   }
 
   private RelationalSymbolicValue create(Kind kind, SymbolicValue leftOperand, SymbolicValue rightOperand) {

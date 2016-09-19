@@ -19,8 +19,7 @@
  */
 package org.sonar.javascript.se.sv;
 
-import com.google.common.collect.ImmutableList;
-import java.util.List;
+import java.util.Optional;
 import org.sonar.javascript.se.Constraint;
 import org.sonar.javascript.se.ProgramState;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
@@ -49,11 +48,11 @@ public class LiteralSymbolicValue implements SymbolicValue {
   }
 
   @Override
-  public List<ProgramState> constrainDependencies(ProgramState state, Constraint constraint) {
+  public Optional<ProgramState> constrainDependencies(ProgramState state, Constraint constraint) {
     if (baseConstraint(state).isIncompatibleWith(constraint)) {
-      return ImmutableList.of();
+      return Optional.empty();
     }
-    return ImmutableList.of(state);
+    return Optional.of(state);
   }
 
   @Override

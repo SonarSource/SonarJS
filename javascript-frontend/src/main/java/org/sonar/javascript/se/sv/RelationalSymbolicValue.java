@@ -19,9 +19,8 @@
  */
 package org.sonar.javascript.se.sv;
 
-import com.google.common.collect.ImmutableList;
 import java.util.EnumSet;
-import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import org.sonar.javascript.se.Constraint;
 import org.sonar.javascript.se.ProgramState;
@@ -58,7 +57,7 @@ public class RelationalSymbolicValue implements SymbolicValue {
   }
 
   @Override
-  public List<ProgramState> constrainDependencies(ProgramState state, Constraint constraint) {
+  public Optional<ProgramState> constrainDependencies(ProgramState state, Constraint constraint) {
     if (constraint.isStricterOrEqualTo(Constraint.TRUTHY)) {
       return checkRelationsAndConstrain(state, relationWhenTrue);
 
@@ -66,16 +65,16 @@ public class RelationalSymbolicValue implements SymbolicValue {
       return checkRelationsAndConstrain(state, relationWhenTrue.not());
 
     }
-    return ImmutableList.of(state);
+    return Optional.of(state);
   }
 
-  private static List<ProgramState> checkRelationsAndConstrain(ProgramState state, Relation relation) {
+  private static Optional<ProgramState> checkRelationsAndConstrain(ProgramState state, Relation relation) {
     for (Relation existingRelation : state.relations()) {
       if (!relation.isCompatibleWith(existingRelation)) {
-        return ImmutableList.of();
+        return Optional.empty();
       }
     }
-    return ImmutableList.of(state.addRelation(relation));
+    return Optional.of(state.addRelation(relation));
   }
 
   @Override

@@ -20,7 +20,7 @@
 package org.sonar.javascript.se.sv;
 
 import com.google.common.base.Preconditions;
-import java.util.List;
+import java.util.Optional;
 import org.sonar.javascript.se.Constraint;
 import org.sonar.javascript.se.ProgramState;
 
@@ -38,7 +38,7 @@ public class LogicalNotSymbolicValue implements SymbolicValue {
   }
 
   @Override
-  public List<ProgramState> constrainDependencies(ProgramState state, Constraint constraint) {
+  public Optional<ProgramState> constrainDependencies(ProgramState state, Constraint constraint) {
     return state.constrain(negatedValue, constraint.not());
   }
 

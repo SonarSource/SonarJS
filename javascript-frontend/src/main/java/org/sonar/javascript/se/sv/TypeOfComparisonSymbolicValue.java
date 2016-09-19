@@ -20,10 +20,9 @@
 package org.sonar.javascript.se.sv;
 
 import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import javax.annotation.CheckForNull;
 import org.sonar.javascript.se.Constraint;
 import org.sonar.javascript.se.ProgramState;
@@ -80,18 +79,18 @@ public class TypeOfComparisonSymbolicValue implements SymbolicValue {
   }
 
   @Override
-  public List<ProgramState> constrainDependencies(ProgramState state, Constraint constraint) {
+  public Optional<ProgramState> constrainDependencies(ProgramState state, Constraint constraint) {
     Constraint truthyConstraint = TYPEOF_EQUAL_CONSTRAINTS.get(comparedTypeString);
 
     if (constraint.isStricterOrEqualTo(Constraint.TRUTHY)) {
-      return truthyConstraint != null ? state.constrain(typeOfOperand.operandValue(), truthyConstraint) : ImmutableList.of();
+      return truthyConstraint != null ? state.constrain(typeOfOperand.operandValue(), truthyConstraint) : Optional.empty();
 
     } else if (constraint.isStricterOrEqualTo(Constraint.FALSY) && truthyConstraint != null) {
       return state.constrain(typeOfOperand.operandValue(), truthyConstraint.not());
 
     }
 
-    return ImmutableList.of(state);
+    return Optional.of(state);
   }
 
   @Override

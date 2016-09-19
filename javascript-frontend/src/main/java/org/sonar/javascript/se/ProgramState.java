@@ -22,7 +22,6 @@ package org.sonar.javascript.se;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Predicates;
 import com.google.common.collect.HashMultimap;
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableMap.Builder;
 import com.google.common.collect.ImmutableSet;
@@ -30,10 +29,10 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.SetMultimap;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
@@ -138,12 +137,12 @@ public class ProgramState {
     return newProgramState;
   }
 
-  public List<ProgramState> constrain(@Nullable SymbolicValue value, @Nullable Constraint constraint) {
+  public Optional<ProgramState> constrain(@Nullable SymbolicValue value, @Nullable Constraint constraint) {
     if (value == null || constraint == null || value.equals(UnknownSymbolicValue.UNKNOWN)) {
-      return ImmutableList.of(this);
+      return Optional.of(this);
     }
     if (getConstraint(value).isIncompatibleWith(constraint)) {
-      return ImmutableList.of();
+      return Optional.empty();
     }
     Constraint newConstraint = getConstraint(value).and(constraint);
     ProgramState newState = new ProgramState(values, replaceConstraint(value, newConstraint), stack, relations, counter);

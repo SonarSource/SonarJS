@@ -58,16 +58,16 @@ public class ProgramStateTest {
     state = state.newSymbolicValue(symbol1, null);
     SymbolicValue sv1 = state.getSymbolicValue(symbol1);
     SymbolicValue sv2 = state.getSymbolicValue(symbol2);
-    assertThat(state.constrain(sv1, Constraint.FALSY).get(0).getConstraint(symbol1).truthiness()).isEqualTo(Truthiness.FALSY);
+    assertThat(state.constrain(sv1, Constraint.FALSY).get().getConstraint(symbol1).truthiness()).isEqualTo(Truthiness.FALSY);
     assertThat(sv2).isNull();
-    assertThat(state.constrain(sv2, Constraint.FALSY).get(0).getConstraint(symbol2)).isEqualTo(Constraint.ANY_VALUE);
+    assertThat(state.constrain(sv2, Constraint.FALSY).get().getConstraint(symbol2)).isEqualTo(Constraint.ANY_VALUE);
 
     state = state.newSymbolicValue(symbol1, Constraint.NULL_OR_UNDEFINED);
-    assertThat(state.constrain(state.getSymbolicValue(symbol1), Constraint.TRUTHY)).isEmpty();
+    assertThat(state.constrain(state.getSymbolicValue(symbol1), Constraint.TRUTHY).isPresent()).isFalse();
 
     state = state.newSymbolicValue(symbol2, null);
-    state = state.constrain(state.getSymbolicValue(symbol2), Constraint.TRUTHY).get(0);
-    assertThat(state.constrain(state.getSymbolicValue(symbol2), Constraint.NULL)).isEmpty();
+    state = state.constrain(state.getSymbolicValue(symbol2), Constraint.TRUTHY).get();
+    assertThat(state.constrain(state.getSymbolicValue(symbol2), Constraint.NULL).isPresent()).isFalse();
   }
 
   @Test
@@ -83,7 +83,7 @@ public class ProgramStateTest {
 
     SymbolicValue sv2 = new SymbolicValueWithConstraint(Constraint.BOOLEAN);
     state = state.pushToStack(sv2).assignment(symbol1).removeLastValue();
-    state = state.constrain(sv2, Constraint.TRUTHY).get(0);
+    state = state.constrain(sv2, Constraint.TRUTHY).get();
     assertThat(state.getConstraint(sv2)).isEqualTo(Constraint.TRUE);
   }
 

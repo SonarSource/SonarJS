@@ -25,6 +25,7 @@ import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
@@ -161,14 +162,14 @@ public class SymbolicExecution {
         ExpressionTree object = ((MemberExpressionTree) element).object();
         if (object.is(Kind.IDENTIFIER_REFERENCE)) {
           SymbolicValue symbolicValue = currentState.getSymbolicValue(((IdentifierTree) object).symbol());
-          Nullability nullability = currentState.getNullability(symbolicValue);
-          if (nullability == Nullability.UNKNOWN) {
-            currentState = currentState.constrain(symbolicValue, Constraint.NOT_NULLY).get(0);
-          } else if (nullability == Nullability.NULL) {
+          Optional<ProgramState> constrainedPS = currentState.constrain(symbolicValue, Constraint.NOT_NULLY);
+          if (constrainedPS.isPresent()) {
+            currentState = constrainedPS.get();
+
+          } else {
             stopExploring = true;
             break;
           }
-
         }
       }
 
@@ -328,12 +329,18 @@ public class SymbolicExecution {
     }
 
     Tree lastElement = block.elements().get(block.elements().size() - 1);
-    for (ProgramState newState : psWithPoppedStack.constrain(conditionSymbolicValue, Constraint.TRUTHY)) {
-      pushConditionSuccessor(block.trueSuccessor(), newState, conditionSymbolicValue, Constraint.TRUTHY);
+
+
+    Optional<ProgramState> constrainedTruePS = psWithPoppedStack.constrain(conditionSymbolicValue, Constraint.TRUTHY);
+    if (constrainedTruePS.isPresent()){
+      pushConditionSuccessor(block.trueSuccessor(), constrainedTruePS.get(), conditionSymbolicValue, Constraint.TRUTHY);
       conditionResults.put(lastElement, Truthiness.TRUTHY);
     }
-    for (ProgramState newState : psWithPoppedStack.constrain(conditionSymbolicValue, Constraint.FALSY)) {
-      pushConditionSuccessor(block.falseSuccessor(), newState, conditionSymbolicValue, Constraint.FALSY);
+
+
+    Optional<ProgramState> constrainedFalsePS = psWithPoppedStack.constrain(conditionSymbolicValue, Constraint.FALSY);
+    if (constrainedFalsePS.isPresent()) {
+      pushConditionSuccessor(block.falseSuccessor(), constrainedFalsePS.get(), conditionSymbolicValue, Constraint.FALSY);
       conditionResults.put(lastElement, Truthiness.FALSY);
     }
   }

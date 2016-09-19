@@ -19,13 +19,13 @@
  */
 package org.sonar.javascript.se.sv;
 
-import java.util.List;
+import java.util.Optional;
 import org.sonar.javascript.se.Constraint;
 import org.sonar.javascript.se.ProgramState;
 
 public interface SymbolicValue {
 
-  List<ProgramState> constrainDependencies(ProgramState state, Constraint constraint);
+  Optional<ProgramState> constrainDependencies(ProgramState state, Constraint constraint);
 
   Constraint baseConstraint(ProgramState state);
 
