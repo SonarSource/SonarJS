@@ -55,6 +55,12 @@ public class DoubleDispatchVisitorTest {
   }
 
   @Test
+  public void assignment_pattern() throws Exception {
+    assertNumberOfVisitedTokens("[a, ...b] = arr", 9);
+    assertNumberOfVisitedTokens("({a: a1, b = 1} = obj)", 14);
+  }
+
+  @Test
   public void export_declaration() throws Exception {
     assertNumberOfVisitedTokens("export A from 'mod'", 5);
     assertNumberOfVisitedTokens("export A, * as B from 'mod'", 9);
