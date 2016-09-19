@@ -17,33 +17,28 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.javascript.parser.expressions.destructuring;
+package org.sonar.javascript.parser.expressions;
 
 import org.junit.Test;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 
 import static org.sonar.javascript.utils.Assertions.assertThat;
 
-public class ObjectBindingPatternTest {
-
+public class ArrayAssignmentPatternTest {
 
   @Test
   public void test() {
-    assertThat(Kind.OBJECT_BINDING_PATTERN)
-      .matches("{ }")
-      .matches("{ identifier }")
-      .matches("{ identifier = init() }")
-      .matches("{ identifier : identifier}")
-      .matches("{ identifier , identifier }")
-      .matches("{ identifier , }")
-      .matches("{ identifier , ... restId }")
-      .matches("{ identifier1 , identifier2, ... restId }")
-      .matches("{ ... restId }")
-
-      .notMatches("{ identifier , ... restId , }")
-      .notMatches("{ identifier , , identifier }")
-      .notMatches("{ identifier , identifier , , }")
-      .notMatches("{ identifier1 , ... restId , identifier2 }")
+    assertThat(Kind.ARRAY_ASSIGNMENT_PATTERN)
+      .matches("[ ]")
+      .matches("[ lhs ]")
+      .matches("[ x.foo ]")
+      .matches("[ x[42].foo ]")
+      .matches("[ lhs = 42 ]")
+      .matches("[ lhs , ]")
+      .matches("[ lhs , lhs ]")
+      .matches("[ lhs, ... lhs ]")
+      .matches("[ lhs, ... x.foo ]")
+      .matches("[ lhs = init(), , lhs = init() , ... lhs ]")
     ;
   }
 

@@ -93,11 +93,15 @@ import org.sonar.plugins.javascript.api.tree.declaration.MethodDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.declaration.NameSpaceExportDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.declaration.SpecifierListTree;
 import org.sonar.plugins.javascript.api.tree.declaration.SpecifierTree;
+import org.sonar.plugins.javascript.api.tree.expression.ArrayAssignmentPatternTree;
+import org.sonar.plugins.javascript.api.tree.expression.AssignmentPatternRestElementTree;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.FunctionExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
+import org.sonar.plugins.javascript.api.tree.expression.InitializedAssignmentPatternElementTree;
 import org.sonar.plugins.javascript.api.tree.expression.MemberExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.NewTargetTree;
+import org.sonar.plugins.javascript.api.tree.expression.ObjectAssignmentPatternTree;
 import org.sonar.plugins.javascript.api.tree.expression.RestElementTree;
 import org.sonar.plugins.javascript.api.tree.expression.SpreadElementTree;
 import org.sonar.plugins.javascript.api.tree.expression.TemplateCharactersTree;
@@ -1239,8 +1243,14 @@ public class JavaScriptGrammar {
     return b.<ExpressionTree>nonterminal(JavaScriptLegacyGrammar.ASSIGNMENT_EXPRESSION)
       .is(
         b.firstOf(
+          f.assignmentWithArrayDestructuring(
+            ARRAY_ASSIGNMENT_PATTERN(),
+            b.token(JavaScriptPunctuator.EQU),
+            ASSIGNMENT_EXPRESSION()),
           f.assignmentExpression(
-            LEFT_HAND_SIDE_EXPRESSION(),
+            b.firstOf(
+              OBJECT_ASSIGNMENT_PATTERN(),
+              LEFT_HAND_SIDE_EXPRESSION()),
             b.firstOf(
               b.token(JavaScriptPunctuator.EQU),
               b.token(JavaScriptPunctuator.STAR_EQU),
@@ -1583,6 +1593,65 @@ public class JavaScriptGrammar {
             b.optional(BINDING_ELEMENT()))),
         b.optional(BINDING_REST_ELEMENT()),
         b.token(JavaScriptPunctuator.RBRACKET)));
+  }
+
+  public ObjectAssignmentPatternTree OBJECT_ASSIGNMENT_PATTERN() {
+    return b.<ObjectAssignmentPatternTree>nonterminal(Kind.OBJECT_ASSIGNMENT_PATTERN)
+      .is(b.firstOf(
+        f.objectAssignmentPattern(
+          b.token(JavaScriptPunctuator.LCURLYBRACE),
+          ASSIGNMENT_PROPERTY(),
+          b.zeroOrMore(f.newTuple48(b.token(JavaScriptPunctuator.COMMA), ASSIGNMENT_PROPERTY())),
+          b.optional(b.token(JavaScriptPunctuator.COMMA)),
+          b.token(JavaScriptPunctuator.RCURLYBRACE)),
+        f.emptyObjectAssignmentPattern(
+          b.token(JavaScriptPunctuator.LCURLYBRACE),
+          b.token(JavaScriptPunctuator.RCURLYBRACE))));
+  }
+
+  public Tree ASSIGNMENT_PROPERTY() {
+    return b.<Tree>nonterminal()
+      .is(b.firstOf(
+        f.objectAssignmentPatternPairElement(
+          IDENTIFIER_NAME(),
+          b.token(JavaScriptPunctuator.COLON),
+          b.firstOf(
+            INITIALIZED_ASSIGNMENT_PATTERN_ELEMENT(),
+            LEFT_HAND_SIDE_EXPRESSION())),
+        INITIALIZED_OBJECT_ASSIGNMENT_PATTERN_ELEMENT(),
+        IDENTIFIER_REFERENCE()));
+  }
+
+  public ArrayAssignmentPatternTree ARRAY_ASSIGNMENT_PATTERN() {
+    return b.<ArrayAssignmentPatternTree>nonterminal(Kind.ARRAY_ASSIGNMENT_PATTERN)
+      .is(f.arrayAssignmentPattern(
+        b.token(JavaScriptPunctuator.LBRACKET),
+        b.optional(ASSIGNMENT_PATTERN_ELEMENT()),
+        b.zeroOrMore(f.newTuple49(
+            b.token(JavaScriptPunctuator.COMMA),
+            b.optional(ASSIGNMENT_PATTERN_ELEMENT()))),
+        b.optional(ASSIGNMENT_PATTERN_REST_ELEMENT()),
+        b.token(JavaScriptPunctuator.RBRACKET)));
+  }
+
+  public Tree ASSIGNMENT_PATTERN_ELEMENT() {
+    return b.<Tree>nonterminal()
+      .is(b.firstOf(INITIALIZED_ASSIGNMENT_PATTERN_ELEMENT(), LEFT_HAND_SIDE_EXPRESSION()));
+  }
+
+  public InitializedAssignmentPatternElementTree INITIALIZED_ASSIGNMENT_PATTERN_ELEMENT() {
+    return b.<InitializedAssignmentPatternElementTree>nonterminal()
+      .is(f.initializedAssignmentPatternElement1(LEFT_HAND_SIDE_EXPRESSION(), b.token(JavaScriptPunctuator.EQU), ASSIGNMENT_EXPRESSION()));
+  }
+
+  public InitializedAssignmentPatternElementTree INITIALIZED_OBJECT_ASSIGNMENT_PATTERN_ELEMENT() {
+    return b.<InitializedAssignmentPatternElementTree>nonterminal()
+      .is(f.initializedAssignmentPatternElement2(IDENTIFIER_REFERENCE(), b.token(JavaScriptPunctuator.EQU), ASSIGNMENT_EXPRESSION()));
+  }
+
+  public AssignmentPatternRestElementTree ASSIGNMENT_PATTERN_REST_ELEMENT() {
+    return b.<AssignmentPatternRestElementTree>nonterminal()
+      .is(f.assignmentPatternRestElement(b.token(JavaScriptPunctuator.ELLIPSIS), LEFT_HAND_SIDE_EXPRESSION()));
   }
 
   // [END] Destructuring pattern

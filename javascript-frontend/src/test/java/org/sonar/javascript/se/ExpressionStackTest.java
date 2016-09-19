@@ -66,6 +66,15 @@ public class ExpressionStackTest {
   }
 
   @Test
+  public void assignment_patterns() throws Exception {
+    execute("[a, b] = []");
+    assertSingleValueInStackWithConstraint(Constraint.ARRAY);
+
+    execute("({a, b} = {})");
+    assertSingleValueInStackWithConstraint(Constraint.OTHER_OBJECT);
+  }
+
+  @Test
   public void numeric_literal() throws Exception {
     execute("42");
     assertSingleValueInStack(LiteralSymbolicValue.class);

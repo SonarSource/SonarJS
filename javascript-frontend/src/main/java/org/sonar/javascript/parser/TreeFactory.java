@@ -60,9 +60,11 @@ import org.sonar.javascript.tree.impl.declaration.ParameterListTreeImpl;
 import org.sonar.javascript.tree.impl.declaration.ScriptTreeImpl;
 import org.sonar.javascript.tree.impl.declaration.SpecifierListTreeImpl;
 import org.sonar.javascript.tree.impl.declaration.SpecifierTreeImpl;
+import org.sonar.javascript.tree.impl.expression.ArrayAssignmentPatternTreeImpl;
 import org.sonar.javascript.tree.impl.expression.ArrayLiteralTreeImpl;
 import org.sonar.javascript.tree.impl.expression.ArrowFunctionTreeImpl;
 import org.sonar.javascript.tree.impl.expression.AssignmentExpressionTreeImpl;
+import org.sonar.javascript.tree.impl.expression.AssignmentPatternRestElementTreeImpl;
 import org.sonar.javascript.tree.impl.expression.BinaryExpressionTreeImpl;
 import org.sonar.javascript.tree.impl.expression.BracketMemberExpressionTreeImpl;
 import org.sonar.javascript.tree.impl.expression.CallExpressionTreeImpl;
@@ -72,9 +74,12 @@ import org.sonar.javascript.tree.impl.expression.ConditionalExpressionTreeImpl;
 import org.sonar.javascript.tree.impl.expression.DotMemberExpressionTreeImpl;
 import org.sonar.javascript.tree.impl.expression.FunctionExpressionTreeImpl;
 import org.sonar.javascript.tree.impl.expression.IdentifierTreeImpl;
+import org.sonar.javascript.tree.impl.expression.InitializedAssignmentPatternElementTreeImpl;
 import org.sonar.javascript.tree.impl.expression.LiteralTreeImpl;
 import org.sonar.javascript.tree.impl.expression.NewExpressionTreeImpl;
 import org.sonar.javascript.tree.impl.expression.NewTargetTreeImpl;
+import org.sonar.javascript.tree.impl.expression.ObjectAssignmentPatternPairElementTreeImpl;
+import org.sonar.javascript.tree.impl.expression.ObjectAssignmentPatternTreeImpl;
 import org.sonar.javascript.tree.impl.expression.ObjectLiteralTreeImpl;
 import org.sonar.javascript.tree.impl.expression.PairPropertyTreeImpl;
 import org.sonar.javascript.tree.impl.expression.ParenthesisedExpressionTreeImpl;
@@ -138,11 +143,15 @@ import org.sonar.plugins.javascript.api.tree.declaration.ImportModuleDeclaration
 import org.sonar.plugins.javascript.api.tree.declaration.NameSpaceExportDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.declaration.ParameterListTree;
 import org.sonar.plugins.javascript.api.tree.declaration.SpecifierTree;
+import org.sonar.plugins.javascript.api.tree.expression.ArrayAssignmentPatternTree;
 import org.sonar.plugins.javascript.api.tree.expression.BracketMemberExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.FunctionExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
+import org.sonar.plugins.javascript.api.tree.expression.InitializedAssignmentPatternElementTree;
 import org.sonar.plugins.javascript.api.tree.expression.MemberExpressionTree;
+import org.sonar.plugins.javascript.api.tree.expression.ObjectAssignmentPatternPairElementTree;
+import org.sonar.plugins.javascript.api.tree.expression.ObjectAssignmentPatternTree;
 import org.sonar.plugins.javascript.api.tree.expression.RestElementTree;
 import org.sonar.plugins.javascript.api.tree.expression.TemplateCharactersTree;
 import org.sonar.plugins.javascript.api.tree.expression.TemplateExpressionTree;
@@ -1146,10 +1155,18 @@ public class TreeFactory {
   }
 
   public ExpressionTree assignmentExpression(ExpressionTree variable, InternalSyntaxToken operator, ExpressionTree expression) {
-    return new AssignmentExpressionTreeImpl(EXPRESSION_KIND_BY_VALUE.get(operator.text()), variable, operator, expression);
+    return commonAssignmentExpression(variable, operator, expression);
+  }
+
+  public ExpressionTree assignmentWithArrayDestructuring(ExpressionTree variable, InternalSyntaxToken operator, ExpressionTree expression) {
+    return commonAssignmentExpression(variable, operator, expression);
   }
 
   public ExpressionTree assignmentExpressionNoIn(ExpressionTree variable, InternalSyntaxToken operator, ExpressionTree expression) {
+    return commonAssignmentExpression(variable, operator, expression);
+  }
+
+  private static ExpressionTree commonAssignmentExpression(ExpressionTree variable, InternalSyntaxToken operator, ExpressionTree expression) {
     return new AssignmentExpressionTreeImpl(EXPRESSION_KIND_BY_VALUE.get(operator.text()), variable, operator, expression);
   }
 
@@ -1516,11 +1533,35 @@ public class TreeFactory {
     InternalSyntaxToken openBracketToken,
     Optional<BindingElementTree> firstElement,
     Optional<List<Tuple<InternalSyntaxToken, Optional<BindingElementTree>>>> optionalElements,
-    Optional<RestElementTreeImpl> restElement,
+    Optional<BindingElementTree> restElement,
     InternalSyntaxToken closeBracketToken
   ) {
+    return new ArrayBindingPatternTreeImpl(
+      openBracketToken,
+      getSeparatedListOfOptional(firstElement, optionalElements, restElement),
+      closeBracketToken);
+  }
 
-    ImmutableList.Builder<Optional<BindingElementTree>> elements = ImmutableList.builder();
+  public ArrayAssignmentPatternTree arrayAssignmentPattern(
+    InternalSyntaxToken openBracketToken,
+    Optional<Tree> firstElement,
+    Optional<List<Tuple<InternalSyntaxToken, Optional<Tree>>>> optionalElements,
+    Optional<Tree> restElement,
+    InternalSyntaxToken closeBracketToken
+  ) {
+    return new ArrayAssignmentPatternTreeImpl(
+      openBracketToken,
+      getSeparatedListOfOptional(firstElement, optionalElements, restElement),
+      closeBracketToken);
+  }
+
+  private static <T extends Tree> SeparatedList<Optional<T>> getSeparatedListOfOptional(
+    Optional<T> firstElement,
+    Optional<List<Tuple<InternalSyntaxToken, Optional<T>>>> optionalElements,
+    Optional<T> restElement
+  ) {
+
+    ImmutableList.Builder<Optional<T>> elements = ImmutableList.builder();
     ImmutableList.Builder<InternalSyntaxToken> separators = ImmutableList.builder();
 
     boolean skipComma = false;
@@ -1531,10 +1572,10 @@ public class TreeFactory {
     }
 
     if (optionalElements.isPresent()) {
-      List<Tuple<InternalSyntaxToken, Optional<BindingElementTree>>> list = optionalElements.get();
-      for (Tuple<InternalSyntaxToken, Optional<BindingElementTree>> pair : list) {
+      List<Tuple<InternalSyntaxToken, Optional<T>>> list = optionalElements.get();
+      for (Tuple<InternalSyntaxToken, Optional<T>> pair : list) {
         if (!skipComma) {
-          elements.add(Optional.<BindingElementTree>absent());
+          elements.add(Optional.absent());
         }
 
         InternalSyntaxToken commaToken = pair.first();
@@ -1550,13 +1591,10 @@ public class TreeFactory {
     }
 
     if (restElement.isPresent()) {
-      elements.add(Optional.<BindingElementTree>of(restElement.get()));
+      elements.add(Optional.of(restElement.get()));
     }
 
-    return new ArrayBindingPatternTreeImpl(
-      openBracketToken,
-      new SeparatedList<>(elements.build(), separators.build()),
-      closeBracketToken);
+    return new SeparatedList<>(elements.build(), separators.build());
   }
 
   public ExpressionTree assignmentNoCurly(Tree lookahead, ExpressionTree expression) {
@@ -1706,6 +1744,50 @@ public class TreeFactory {
     SeparatedList<IdentifierTree> body = new SeparatedList<>(listBuilder.build(), dotsListBuilder.build());
 
     return new DecoratorTreeImpl(atToken, body, arguments.orNull());
+  }
+
+  public AssignmentPatternRestElementTreeImpl assignmentPatternRestElement(InternalSyntaxToken ellipsisToken, ExpressionTree rest) {
+    return new AssignmentPatternRestElementTreeImpl(ellipsisToken, rest);
+  }
+
+  public InitializedAssignmentPatternElementTree initializedAssignmentPatternElement1(ExpressionTree expression, InternalSyntaxToken equal, ExpressionTree initValue) {
+    return new InitializedAssignmentPatternElementTreeImpl(expression, equal, initValue);
+  }
+
+  public InitializedAssignmentPatternElementTree initializedAssignmentPatternElement2(ExpressionTree expression, InternalSyntaxToken equal, ExpressionTree initValue) {
+    return new InitializedAssignmentPatternElementTreeImpl(expression, equal, initValue);
+  }
+
+  public ObjectAssignmentPatternPairElementTree objectAssignmentPatternPairElement(IdentifierTree identifierName, InternalSyntaxToken colonToken, Tree rhs) {
+    return new ObjectAssignmentPatternPairElementTreeImpl(identifierName, colonToken, rhs);
+  }
+
+  public ObjectAssignmentPatternTree emptyObjectAssignmentPattern(InternalSyntaxToken lBrace, InternalSyntaxToken rBrace) {
+    return new ObjectAssignmentPatternTreeImpl(lBrace, new SeparatedList<>(new ArrayList<>(), new ArrayList<>()), rBrace);
+  }
+
+  public ObjectAssignmentPatternTree objectAssignmentPattern(
+    InternalSyntaxToken lBrace,
+    Tree firstProperty,
+    Optional<List<Tuple<InternalSyntaxToken, Tree>>> properties,
+    Optional<InternalSyntaxToken> comma,
+    InternalSyntaxToken rBrace
+  ) {
+    ArrayList<Tree> propertyList = new ArrayList<>();
+    ArrayList<InternalSyntaxToken> separators = new ArrayList<>();
+
+    propertyList.add(firstProperty);
+
+    for (Tuple<InternalSyntaxToken, Tree> tuple : properties.or(new ArrayList<>())) {
+      separators.add(tuple.first);
+      propertyList.add(tuple.second);
+    }
+
+    if (comma.isPresent()) {
+      separators.add(comma.get());
+    }
+
+    return new ObjectAssignmentPatternTreeImpl(lBrace, new SeparatedList<>(propertyList, separators), rBrace);
   }
 
   public static class Tuple<T, U> {
@@ -1866,6 +1948,14 @@ public class TreeFactory {
   }
 
   public <T, U> Tuple<T, U> newTuple32(T first, U second) {
+    return newTuple(first, second);
+  }
+
+  public <T, U> Tuple<T, U> newTuple48(T first, U second) {
+    return newTuple(first, second);
+  }
+
+  public <T, U> Tuple<T, U> newTuple49(T first, U second) {
     return newTuple(first, second);
   }
 
