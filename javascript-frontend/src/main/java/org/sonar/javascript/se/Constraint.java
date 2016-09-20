@@ -200,10 +200,6 @@ public class Constraint {
     return and(other).equals(NO_POSSIBLE_VALUE);
   }
 
-  public boolean isTrivial() {
-    return equals(ANY_VALUE);
-  }
-
   @Override
   public boolean equals(Object o) {
     if (this == o) {

@@ -86,7 +86,7 @@ public class TypeOfComparisonSymbolicValue implements SymbolicValue {
   public Optional<ProgramState> constrainDependencies(ProgramState state, Constraint constraint) {
     Constraint truthyConstraint = TYPEOF_EQUAL_CONSTRAINTS.get(comparedTypeString);
 
-    if (truthyConstraint == null  || !truthyConstraint.isTrivial()) {
+    if (truthyConstraint == null  || !truthyConstraint.equals(Constraint.ANY_VALUE)) {
       if (constraint.isStricterOrEqualTo(Constraint.TRUTHY)) {
         return truthyConstraint != null ? state.constrain(typeOfOperand.operandValue(), truthyConstraint) : Optional.empty();
       } else if (constraint.isStricterOrEqualTo(Constraint.FALSY) && truthyConstraint != null) {
