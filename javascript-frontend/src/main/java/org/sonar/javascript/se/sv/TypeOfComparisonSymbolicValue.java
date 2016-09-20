@@ -38,6 +38,7 @@ import org.sonar.plugins.javascript.api.tree.expression.LiteralTree;
 public class TypeOfComparisonSymbolicValue implements SymbolicValue {
 
   private final TypeOfSymbolicValue typeOfOperand;
+
   private final String comparedTypeString;
 
   private static final Map<String, Constraint> TYPEOF_EQUAL_CONSTRAINTS = ImmutableMap.<String, Constraint>builder()
@@ -48,7 +49,17 @@ public class TypeOfComparisonSymbolicValue implements SymbolicValue {
     .put("string", Constraint.STRING)
     .put("boolean", Constraint.BOOLEAN)
     .put("symbol", Constraint.OTHER_OBJECT)
+    // on IE, operator typeof returns either one of the standard values above, or "date", or "unknown"
+    .put("date", Constraint.ANY_VALUE)
+    .put("unknown", Constraint.ANY_VALUE)
     .build();
+
+  private TypeOfComparisonSymbolicValue(TypeOfSymbolicValue typeOfOperand, String comparedTypeString) {
+    Preconditions.checkArgument(typeOfOperand != null, "operandValue should not be null");
+    Preconditions.checkArgument(comparedTypeString != null, "comparedTypeString should not be null");
+    this.typeOfOperand = typeOfOperand;
+    this.comparedTypeString = comparedTypeString;
+  }
 
   @CheckForNull
   public static TypeOfComparisonSymbolicValue create(SymbolicValue operand1, SymbolicValue operand2) {
@@ -71,23 +82,16 @@ public class TypeOfComparisonSymbolicValue implements SymbolicValue {
     return null;
   }
 
-  private TypeOfComparisonSymbolicValue(TypeOfSymbolicValue typeOfOperand, String comparedTypeString) {
-    Preconditions.checkArgument(typeOfOperand != null, "operandValue should not be null");
-    Preconditions.checkArgument(comparedTypeString != null, "comparedTypeString should not be null");
-    this.typeOfOperand = typeOfOperand;
-    this.comparedTypeString = comparedTypeString;
-  }
-
   @Override
   public Optional<ProgramState> constrainDependencies(ProgramState state, Constraint constraint) {
     Constraint truthyConstraint = TYPEOF_EQUAL_CONSTRAINTS.get(comparedTypeString);
 
-    if (constraint.isStricterOrEqualTo(Constraint.TRUTHY)) {
-      return truthyConstraint != null ? state.constrain(typeOfOperand.operandValue(), truthyConstraint) : Optional.empty();
-
-    } else if (constraint.isStricterOrEqualTo(Constraint.FALSY) && truthyConstraint != null) {
-      return state.constrain(typeOfOperand.operandValue(), truthyConstraint.not());
-
+    if (truthyConstraint == null  || !truthyConstraint.isTrivial()) {
+      if (constraint.isStricterOrEqualTo(Constraint.TRUTHY)) {
+        return truthyConstraint != null ? state.constrain(typeOfOperand.operandValue(), truthyConstraint) : Optional.empty();
+      } else if (constraint.isStricterOrEqualTo(Constraint.FALSY) && truthyConstraint != null) {
+        return state.constrain(typeOfOperand.operandValue(), truthyConstraint.not());
+      }
     }
 
     return Optional.of(state);
@@ -102,4 +106,5 @@ public class TypeOfComparisonSymbolicValue implements SymbolicValue {
   public String toString() {
     return typeOfOperand + " == '" + comparedTypeString + "'";
   }
+
 }
