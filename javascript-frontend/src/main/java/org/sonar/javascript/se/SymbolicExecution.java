@@ -42,6 +42,7 @@ import org.sonar.plugins.javascript.api.symbols.Symbol;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.declaration.BindingElementTree;
+import org.sonar.plugins.javascript.api.tree.declaration.FunctionDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.declaration.InitializedBindingElementTree;
 import org.sonar.plugins.javascript.api.tree.expression.AssignmentExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
@@ -62,6 +63,7 @@ public class SymbolicExecution {
   private static final int MAX_BLOCK_EXECUTIONS = 1000;
 
   private final CfgBlock cfgStartBlock;
+  private final ControlFlowGraph cfg;
   private final Set<Symbol> trackedVariables;
   private final Set<Symbol> functionParameters;
   private final Scope functionScope;
@@ -72,7 +74,8 @@ public class SymbolicExecution {
   private final LiveVariableAnalysis liveVariableAnalysis;
 
   public SymbolicExecution(Scope functionScope, ControlFlowGraph cfg, List<SeCheck> checks) {
-    cfgStartBlock = cfg.start();
+    this.cfgStartBlock = cfg.start();
+    this.cfg = cfg;
     LocalVariables localVariables = new LocalVariables(functionScope, cfg);
     this.trackedVariables = localVariables.trackableVariables();
     this.functionParameters = localVariables.functionParameters();
@@ -137,7 +140,25 @@ public class SymbolicExecution {
       // there is no arguments for arrow function scope
       initialState = initialState.newSymbolicValue(arguments, Constraint.OBJECT);
     }
+
+    initialState = initiateFunctionDeclarationSymbols(initialState);
     return initialState;
+  }
+
+  // This method's logic is approximation
+  private ProgramState initiateFunctionDeclarationSymbols(ProgramState initialState) {
+    ProgramState programStateWithFunctions = initialState;
+    for (CfgBlock cfgBlock : cfg.blocks()) {
+      for (Tree element : cfgBlock.elements()) {
+        if (element.is(Kind.FUNCTION_DECLARATION, Kind.GENERATOR_DECLARATION)) {
+          FunctionDeclarationTree functionDeclaration = (FunctionDeclarationTree) element;
+          Symbol symbol = functionDeclaration.name().symbol();
+          programStateWithFunctions =  programStateWithFunctions.newFunctionSymbolicValue(symbol, functionDeclaration);
+        }
+      }
+    }
+
+    return programStateWithFunctions;
   }
 
   private static boolean symbolIs(Symbol symbol, Symbol.Kind ... kinds) {
