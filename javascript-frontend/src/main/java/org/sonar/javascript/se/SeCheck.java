@@ -113,4 +113,10 @@ public class SeCheck implements JavaScriptCheck {
     return result;
     // we might add method "getIssue" to this class and use it instead of this one in SeCheckDispatcher
   }
+
+  @Override
+  public String toString() {
+    return getClass().getSimpleName();
+  }
+
 }
