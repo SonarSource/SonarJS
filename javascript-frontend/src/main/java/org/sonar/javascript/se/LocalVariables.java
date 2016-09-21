@@ -21,14 +21,20 @@ package org.sonar.javascript.se;
 
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.SetMultimap;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import org.sonar.javascript.cfg.CfgBlock;
 import org.sonar.javascript.cfg.ControlFlowGraph;
+import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.javascript.tree.symbols.Scope;
 import org.sonar.plugins.javascript.api.symbols.Symbol;
+import org.sonar.plugins.javascript.api.symbols.Symbol.Kind;
 import org.sonar.plugins.javascript.api.symbols.Usage;
 import org.sonar.plugins.javascript.api.tree.Tree;
+import org.sonar.plugins.javascript.api.tree.declaration.FunctionTree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 
 /**
@@ -39,6 +45,9 @@ public class LocalVariables {
   private final Scope functionScope;
   private final Set<Symbol> trackableVariables = new HashSet<>();
   private final Set<Symbol> functionParameters = new HashSet<>();
+
+  // Map has symbols from outer scopes as keys. If symbol stands for function declaration, then map contains value for this tree.
+  private final Map<Symbol, FunctionTree> symbolsFromOuterScope = new HashMap<>();
 
   public LocalVariables(Scope functionScope, ControlFlowGraph cfg) {
     this.functionScope = functionScope;
@@ -60,6 +69,45 @@ public class LocalVariables {
         functionParameters.add(localVar);
       }
     }
+
+    findSymbolsFromOuterScopeToTrack(functionScope);
+  }
+
+  private void findSymbolsFromOuterScopeToTrack(Scope scope) {
+    Scope outerScope = scope.outer();
+
+    List<Symbol> symbols = outerScope.getSymbols(Kind.VARIABLE);
+    symbols.addAll(outerScope.getSymbols(Kind.FUNCTION));
+
+    for (Symbol symbol : symbols) {
+      checkSymbolFromOuterScope(symbol);
+    }
+
+    if (!outerScope.isGlobal()) {
+      findSymbolsFromOuterScopeToTrack(outerScope);
+    }
+  }
+
+  private void checkSymbolFromOuterScope(Symbol symbol) {
+    IdentifierTree declarationWriteUsage = null;
+    boolean otherWriteUsage = false;
+
+    for (Usage usage : symbol.usages()) {
+      if (usage.kind().equals(Usage.Kind.DECLARATION_WRITE) || (symbol.is(Kind.FUNCTION) && usage.kind().equals(Usage.Kind.DECLARATION))) {
+        declarationWriteUsage = usage.identifierTree();
+      } else if (usage.isWrite()) {
+        otherWriteUsage = true;
+      }
+    }
+
+    if (declarationWriteUsage != null && !otherWriteUsage) {
+      Tree parent = ((JavaScriptTree) declarationWriteUsage).getParent();
+      if (parent.is(Tree.Kind.FUNCTION_DECLARATION, Tree.Kind.GENERATOR_DECLARATION)) {
+        symbolsFromOuterScope.put(symbol, (FunctionTree) parent);
+      } else {
+        symbolsFromOuterScope.put(symbol, null);
+      }
+    }
   }
 
   /**
@@ -67,6 +115,10 @@ public class LocalVariables {
    */
   public Set<Symbol> trackableVariables() {
     return trackableVariables;
+  }
+
+  public Map<Symbol, FunctionTree> symbolsFromOuterScope() {
+    return symbolsFromOuterScope;
   }
 
   /**

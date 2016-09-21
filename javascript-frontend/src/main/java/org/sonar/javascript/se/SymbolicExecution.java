@@ -25,6 +25,7 @@ import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
 import javax.annotation.CheckForNull;
@@ -42,6 +43,7 @@ import org.sonar.plugins.javascript.api.symbols.Symbol;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.declaration.BindingElementTree;
+import org.sonar.plugins.javascript.api.tree.declaration.FunctionTree;
 import org.sonar.plugins.javascript.api.tree.declaration.InitializedBindingElementTree;
 import org.sonar.plugins.javascript.api.tree.expression.AssignmentExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
@@ -62,8 +64,7 @@ public class SymbolicExecution {
   private static final int MAX_BLOCK_EXECUTIONS = 1000;
 
   private final CfgBlock cfgStartBlock;
-  private final Set<Symbol> trackedVariables;
-  private final Set<Symbol> functionParameters;
+  private final LocalVariables localVariables;
   private final Scope functionScope;
   private final Deque<BlockExecution> workList = new ArrayDeque<>();
   private final SetMultimap<Tree, Truthiness> conditionResults = HashMultimap.create();
@@ -73,9 +74,7 @@ public class SymbolicExecution {
 
   public SymbolicExecution(Scope functionScope, ControlFlowGraph cfg, List<SeCheck> checks) {
     cfgStartBlock = cfg.start();
-    LocalVariables localVariables = new LocalVariables(functionScope, cfg);
-    this.trackedVariables = localVariables.trackableVariables();
-    this.functionParameters = localVariables.functionParameters();
+    localVariables = new LocalVariables(functionScope, cfg);
     this.liveVariableAnalysis = LiveVariableAnalysis.create(cfg, functionScope);
     this.functionScope = functionScope;
     this.checks = checks;
@@ -118,9 +117,17 @@ public class SymbolicExecution {
   private ProgramState initialState() {
     ProgramState initialState = ProgramState.emptyState();
 
-    for (Symbol localVar : trackedVariables) {
+    for (Entry<Symbol, FunctionTree> entry : localVariables.symbolsFromOuterScope().entrySet()) {
+      if (entry.getValue() != null) {
+        initialState = initialState.newFunctionSymbolicValue(entry.getKey());
+      } else {
+        initialState = initialState.newSymbolicValue(entry.getKey(), null);
+      }
+    }
+
+    for (Symbol localVar : localVariables.trackableVariables()) {
       Constraint initialConstraint = null;
-      if (!symbolIs(localVar, FUNCTION, IMPORT, CLASS) && !functionParameters.contains(localVar)) {
+      if (!symbolIs(localVar, FUNCTION, IMPORT, CLASS) && !localVariables.functionParameters().contains(localVar)) {
         initialConstraint = Constraint.UNDEFINED;
 
       } else if (symbolIs(localVar, FUNCTION)) {
@@ -137,6 +144,7 @@ public class SymbolicExecution {
       // there is no arguments for arrow function scope
       initialState = initialState.newSymbolicValue(arguments, Constraint.OBJECT);
     }
+
     return initialState;
   }
 
@@ -383,7 +391,7 @@ public class SymbolicExecution {
     if (tree.is(Kind.IDENTIFIER_REFERENCE, Kind.BINDING_IDENTIFIER)) {
       IdentifierTree identifier = (IdentifierTree) tree;
       Symbol symbol = identifier.symbol();
-      return trackedVariables.contains(symbol) ? symbol : null;
+      return localVariables.trackableVariables().contains(symbol) ? symbol : null;
     }
     return null;
   }

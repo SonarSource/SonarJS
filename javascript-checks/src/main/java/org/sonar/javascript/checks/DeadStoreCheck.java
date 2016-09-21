@@ -92,20 +92,20 @@ public class DeadStoreCheck extends DoubleDispatchVisitorCheck {
       for (Tree element : Lists.reverse(cfgBlock.elements())) {
         Usage usage = usages.getUsage(element);
         if (usage != null) {
-          checkUsage(usage, live, usages);
+          checkUsage(usage, live, usages, scope);
         }
       }
     }
 
-    raiseIssuesForNeverReadSymbols(usages);
+    raiseIssuesForNeverReadSymbols(usages, scope);
   }
 
-  private void checkUsage(Usage usage, Set<Symbol> liveSymbols, Usages usages) {
+  private void checkUsage(Usage usage, Set<Symbol> liveSymbols, Usages usages, Scope scope) {
     Symbol symbol = usage.symbol();
 
     if (isWrite(usage)) {
       if (!liveSymbols.contains(symbol) && !usages.hasUsagesInNestedFunctions(symbol) && !usages.neverReadSymbols().contains(symbol)) {
-        addIssue(usage.identifierTree(), symbol);
+        addIssue(usage.identifierTree(), symbol, scope);
       }
       liveSymbols.remove(symbol);
 
@@ -114,18 +114,31 @@ public class DeadStoreCheck extends DoubleDispatchVisitorCheck {
     }
   }
 
-  private void raiseIssuesForNeverReadSymbols(Usages usages) {
+  private void raiseIssuesForNeverReadSymbols(Usages usages, Scope scope) {
     for (Symbol symbol : usages.neverReadSymbols()) {
       for (Usage usage : symbol.usages()) {
         if (isWrite(usage)) {
-          addIssue(usage.identifierTree(), symbol);
+          addIssue(usage.identifierTree(), symbol, scope);
         }
       }
     }
   }
 
-  private void addIssue(Tree element, Symbol symbol) {
-    addIssue(element, String.format(MESSAGE, symbol.name()));
+  private static boolean isLocalVariable(Symbol symbol, Scope functionScope) {
+    Scope scope = symbol.scope();
+    while (!scope.isGlobal()) {
+      if (scope.equals(functionScope)) {
+        return true;
+      }
+      scope = scope.outer();
+    }
+    return false;
+  }
+
+  private void addIssue(Tree element, Symbol symbol, Scope scope) {
+    if (isLocalVariable(symbol, scope)) {
+      addIssue(element, String.format(MESSAGE, symbol.name()));
+    }
   }
 
 }
