@@ -92,4 +92,10 @@ public abstract class JavaScriptTree implements Tree {
   public Tree getParent() {
     return parent;
   }
+
+  @Override
+  public String toString() {
+    return getClass().getSimpleName();
+  }
+
 }
