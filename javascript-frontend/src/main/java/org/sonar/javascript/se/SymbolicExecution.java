@@ -43,7 +43,6 @@ import org.sonar.plugins.javascript.api.symbols.Symbol;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.declaration.BindingElementTree;
-import org.sonar.plugins.javascript.api.tree.declaration.FunctionTree;
 import org.sonar.plugins.javascript.api.tree.declaration.InitializedBindingElementTree;
 import org.sonar.plugins.javascript.api.tree.expression.AssignmentExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
@@ -117,11 +116,11 @@ public class SymbolicExecution {
   private ProgramState initialState() {
     ProgramState initialState = ProgramState.emptyState();
 
-    for (Entry<Symbol, FunctionTree> entry : localVariables.symbolsFromOuterScope().entrySet()) {
+    for (Entry<Symbol, SymbolicValue> entry : localVariables.symbolsFromOuterScope().entrySet()) {
       if (entry.getValue() != null) {
-        initialState = initialState.newFunctionSymbolicValue(entry.getKey());
+        initialState = initialState.newSymbolicValue(entry.getKey(), entry.getValue());
       } else {
-        initialState = initialState.newSymbolicValue(entry.getKey(), null);
+        initialState = initialState.newSymbolicValueWithConstraint(entry.getKey(), null);
       }
     }
 
@@ -136,13 +135,13 @@ public class SymbolicExecution {
       } else if (symbolIs(localVar, CLASS)) {
         initialConstraint = Constraint.OTHER_OBJECT;
       }
-      initialState = initialState.newSymbolicValue(localVar, initialConstraint);
+      initialState = initialState.newSymbolicValueWithConstraint(localVar, initialConstraint);
     }
 
     Symbol arguments = functionScope.getSymbol("arguments");
     if (arguments != null) {
       // there is no arguments for arrow function scope
-      initialState = initialState.newSymbolicValue(arguments, Constraint.OBJECT);
+      initialState = initialState.newSymbolicValueWithConstraint(arguments, Constraint.OBJECT);
     }
 
     return initialState;
@@ -370,7 +369,7 @@ public class SymbolicExecution {
   private ProgramState newSymbolicValue(ProgramState currentState, Tree left) {
     Symbol trackedVariable = trackedVariable(left);
     if (trackedVariable != null) {
-      return currentState.newSymbolicValue(trackedVariable, null);
+      return currentState.newSymbolicValueWithConstraint(trackedVariable, null);
     }
     return currentState;
   }

@@ -42,8 +42,8 @@ public class PlusSymbolicValueTest {
     Symbol symbol1 = mock(Symbol.class);
     Symbol symbol2 = mock(Symbol.class);
     ProgramState state = ProgramState.emptyState()
-      .newSymbolicValue(symbol1, constraint1)
-      .newSymbolicValue(symbol2, constraint2);
+      .newSymbolicValueWithConstraint(symbol1, constraint1)
+      .newSymbolicValueWithConstraint(symbol2, constraint2);
     SymbolicValue sv1 = state.getSymbolicValue(symbol1);
     SymbolicValue sv2 = state.getSymbolicValue(symbol2);
     PlusSymbolicValue plus = new PlusSymbolicValue(sv1, sv2);

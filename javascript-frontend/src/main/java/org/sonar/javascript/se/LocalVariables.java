@@ -28,13 +28,15 @@ import java.util.Map;
 import java.util.Set;
 import org.sonar.javascript.cfg.CfgBlock;
 import org.sonar.javascript.cfg.ControlFlowGraph;
+import org.sonar.javascript.se.sv.SymbolicValue;
+import org.sonar.javascript.se.sv.SymbolicValueWithConstraint;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.javascript.tree.symbols.Scope;
 import org.sonar.plugins.javascript.api.symbols.Symbol;
 import org.sonar.plugins.javascript.api.symbols.Symbol.Kind;
 import org.sonar.plugins.javascript.api.symbols.Usage;
 import org.sonar.plugins.javascript.api.tree.Tree;
-import org.sonar.plugins.javascript.api.tree.declaration.FunctionTree;
+import org.sonar.plugins.javascript.api.tree.declaration.InitializedBindingElementTree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 
 /**
@@ -47,7 +49,7 @@ public class LocalVariables {
   private final Set<Symbol> functionParameters = new HashSet<>();
 
   // Map has symbols from outer scopes as keys. If symbol stands for function declaration, then map contains value for this tree.
-  private final Map<Symbol, FunctionTree> symbolsFromOuterScope = new HashMap<>();
+  private final Map<Symbol, SymbolicValue> symbolsFromOuterScope = new HashMap<>();
 
   public LocalVariables(Scope functionScope, ControlFlowGraph cfg) {
     this.functionScope = functionScope;
@@ -103,7 +105,17 @@ public class LocalVariables {
     if (declarationWriteUsage != null && !otherWriteUsage) {
       Tree parent = ((JavaScriptTree) declarationWriteUsage).getParent();
       if (parent.is(Tree.Kind.FUNCTION_DECLARATION, Tree.Kind.GENERATOR_DECLARATION)) {
-        symbolsFromOuterScope.put(symbol, (FunctionTree) parent);
+        symbolsFromOuterScope.put(symbol, new SymbolicValueWithConstraint(Constraint.FUNCTION));
+
+      } else if (parent.is(Tree.Kind.INITIALIZED_BINDING_ELEMENT)) {
+        ExpressionStack expressionStack = ExpressionStack.emptyStack();
+        try {
+          expressionStack = expressionStack.execute(((InitializedBindingElementTree) parent).right());
+          symbolsFromOuterScope.put(symbol, expressionStack.peek());
+        } catch (Exception e) {
+          symbolsFromOuterScope.put(symbol, null);
+        }
+
       } else {
         symbolsFromOuterScope.put(symbol, null);
       }
@@ -117,7 +129,7 @@ public class LocalVariables {
     return trackableVariables;
   }
 
-  public Map<Symbol, FunctionTree> symbolsFromOuterScope() {
+  public Map<Symbol, SymbolicValue> symbolsFromOuterScope() {
     return symbolsFromOuterScope;
   }
 

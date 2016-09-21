@@ -37,8 +37,8 @@ public class RelationalSymbolicValueTest {
   Symbol symbol1 = mock(Symbol.class);
   Symbol symbol2 = mock(Symbol.class);
   ProgramState state = ProgramState.emptyState()
-    .newSymbolicValue(symbol1, null)
-    .newSymbolicValue(symbol2, null);
+    .newSymbolicValueWithConstraint(symbol1, null)
+    .newSymbolicValueWithConstraint(symbol2, null);
   SymbolicValue sv1 = state.getSymbolicValue(symbol1);
   SymbolicValue sv2 = state.getSymbolicValue(symbol2);
   RelationalSymbolicValue relationalValue = create(Kind.LESS_THAN, sv1, sv2);

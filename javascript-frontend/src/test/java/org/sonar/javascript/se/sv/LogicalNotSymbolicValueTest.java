@@ -39,7 +39,7 @@ public class LogicalNotSymbolicValueTest {
 
   @Test
   public void constrain() throws Exception {
-    ProgramState state1 = ProgramState.emptyState().newSymbolicValue(symbol, null);
+    ProgramState state1 = ProgramState.emptyState().newSymbolicValueWithConstraint(symbol, null);
     SymbolicValue sv1 = state1.getSymbolicValue(symbol);
     SymbolicValue not = LogicalNotSymbolicValue.create(sv1);
     assertThat(state1.constrain(not, TRUTHY)).isEqualTo(state1.constrain(sv1, FALSY));
@@ -47,7 +47,7 @@ public class LogicalNotSymbolicValueTest {
 
   @Test
   public void to_string() throws Exception {
-    ProgramState state1 = ProgramState.emptyState().newSymbolicValue(symbol, null);
+    ProgramState state1 = ProgramState.emptyState().newSymbolicValueWithConstraint(symbol, null);
     SymbolicValue sv1 = state1.getSymbolicValue(symbol);
     SymbolicValue not = LogicalNotSymbolicValue.create(sv1);
     assertThat(not.toString()).isEqualTo("!SV_0");

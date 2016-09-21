@@ -38,7 +38,6 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.javascript.se.sv.SimpleSymbolicValue;
 import org.sonar.javascript.se.sv.SymbolicValue;
-import org.sonar.javascript.se.sv.SymbolicValueWithConstraint;
 import org.sonar.javascript.se.sv.UnknownSymbolicValue;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.plugins.javascript.api.symbols.Symbol;
@@ -119,7 +118,7 @@ public class ProgramState {
   }
 
 
-  public ProgramState newSymbolicValue(Symbol symbol, @Nullable Constraint constraint) {
+  public ProgramState newSymbolicValueWithConstraint(Symbol symbol, @Nullable Constraint constraint) {
     SymbolicValue value = newSymbolicValue();
     ProgramState newProgramState = new ProgramState(buildValues(values, symbol, value), ImmutableMap.copyOf(constraints), stack, relations, counter);
     if (constraint != null) {
@@ -129,8 +128,7 @@ public class ProgramState {
     return newProgramState;
   }
 
-  public ProgramState newFunctionSymbolicValue(Symbol symbol) {
-    SymbolicValue value = new SymbolicValueWithConstraint(Constraint.FUNCTION);
+  public ProgramState newSymbolicValue(Symbol symbol, SymbolicValue value) {
     return new ProgramState(buildValues(values, symbol, value), ImmutableMap.copyOf(constraints), stack, relations, counter);
   }
 

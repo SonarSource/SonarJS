@@ -28,6 +28,7 @@ import java.util.Set;
 import org.junit.Test;
 import org.sonar.javascript.cfg.ControlFlowGraph;
 import org.sonar.javascript.parser.JavaScriptParserBuilder;
+import org.sonar.javascript.se.sv.SymbolicValue;
 import org.sonar.javascript.tree.symbols.Scope;
 import org.sonar.javascript.visitors.JavaScriptVisitorContext;
 import org.sonar.plugins.javascript.api.symbols.Symbol;
@@ -35,7 +36,6 @@ import org.sonar.plugins.javascript.api.tree.ScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.declaration.FunctionDeclarationTree;
-import org.sonar.plugins.javascript.api.tree.declaration.FunctionTree;
 
 import static org.fest.assertions.Assertions.assertThat;
 
@@ -49,7 +49,7 @@ public class LocalVariablesTest {
     assertThat(localVariables.trackableVariables()).isEmpty();
     assertOnlyFunctionF(localVariables.symbolsFromOuterScope());
 
-    localVariables = localVariables("var outer = 1; function f() { foo(outer); }");
+    localVariables = localVariables("var outer = foo(); function f() { foo(outer); }");
     assertThat(localVariables.trackableVariables()).isEmpty();
     assertOnlyNotFunctionSymbol(localVariables.symbolsFromOuterScope(), "outer");
 
@@ -62,17 +62,17 @@ public class LocalVariablesTest {
     assertOnlyFunctionF(localVariables.symbolsFromOuterScope());
   }
 
-  private void assertOnlyFunctionF(Map<Symbol, FunctionTree> valuesFromOuterScope) {
+  private void assertOnlyFunctionF(Map<Symbol, SymbolicValue> valuesFromOuterScope) {
     assertThat(valuesFromOuterScope).hasSize(1);
-    Entry<Symbol, FunctionTree> entry = valuesFromOuterScope.entrySet().iterator().next();
+    Entry<Symbol, SymbolicValue> entry = valuesFromOuterScope.entrySet().iterator().next();
     assertThat(entry.getKey().name()).isEqualTo("f");
     assertThat(entry.getValue()).isNotNull();
   }
 
-  private void assertOnlyNotFunctionSymbol(Map<Symbol, FunctionTree> valuesFromOuterScope, String symbolName) {
+  private void assertOnlyNotFunctionSymbol(Map<Symbol, SymbolicValue> valuesFromOuterScope, String symbolName) {
     assertThat(valuesFromOuterScope).hasSize(2);
 
-    for (Entry<Symbol, FunctionTree> entry : valuesFromOuterScope.entrySet()) {
+    for (Entry<Symbol, SymbolicValue> entry : valuesFromOuterScope.entrySet()) {
       String name = entry.getKey().name();
       if (name.equals("f")) {
         assertThat(entry.getValue()).isNotNull();
