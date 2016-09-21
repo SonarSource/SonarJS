@@ -19,62 +19,40 @@
  */
 package org.sonar.javascript.checks;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Map.Entry;
 import javax.annotation.CheckForNull;
 import org.sonar.check.Rule;
 import org.sonar.javascript.se.Constraint;
 import org.sonar.javascript.se.ProgramState;
-import org.sonar.javascript.se.SeCheck;
 import org.sonar.javascript.se.Type;
-import org.sonar.javascript.tree.symbols.Scope;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.expression.BinaryExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 
 @Rule(key = "S3402")
-public class StringConcatenatedWithNonStringCheck extends SeCheck {
+public class StringConcatenatedWithNonStringCheck extends AbstractAllPathSeCheck<BinaryExpressionTree> {
 
   private static final String MESSAGE = "Either make this concatenation explicit or cast one operand to a number.";
 
-  // For each "+" binary expression tree this map contains true if types of operands are string and non-string in all execution paths,
-  // true if types are good in at least one execution path
-  private Map<BinaryExpressionTree, Boolean> appropriateTypes = new HashMap<>();
-
   @Override
-  public void beforeBlockElement(ProgramState currentState, Tree element) {
+  BinaryExpressionTree getTree(Tree element) {
     if (element.is(Kind.PLUS)) {
-
-      BinaryExpressionTree expression = (BinaryExpressionTree) element;
-
-      ExpressionTree onlyStringOperand = getOnlyStringOperand(expression.leftOperand(), expression.rightOperand(), currentState);
-
-      if (onlyStringOperand == null || !onlyStringOperand.is(Kind.IDENTIFIER_REFERENCE)) {
-        appropriateTypes.put(expression, false);
-
-      } else if (!appropriateTypes.containsKey(expression)) {
-        appropriateTypes.put(expression, true);
-      }
+      return (BinaryExpressionTree) element;
     }
+    return null;
   }
 
   @Override
-  public void endOfExecution(Scope functionScope) {
-    for (Entry<BinaryExpressionTree, Boolean> entry : appropriateTypes.entrySet()) {
-      if (entry.getValue()) {
-        BinaryExpressionTree tree = entry.getKey();
-        addIssue(tree.operator(), MESSAGE)
-          .secondary(tree.leftOperand())
-          .secondary(tree.rightOperand());
-      }
-    }
+  boolean isProblem(BinaryExpressionTree tree, ProgramState currentState) {
+    ExpressionTree onlyStringOperand = getOnlyStringOperand(tree.leftOperand(), tree.rightOperand(), currentState);
+    return onlyStringOperand != null && onlyStringOperand.is(Kind.IDENTIFIER_REFERENCE);
   }
 
   @Override
-  public void startOfExecution(Scope functionScope) {
-    appropriateTypes.clear();
+  void raiseIssue(BinaryExpressionTree tree) {
+    addIssue(tree.operator(), MESSAGE)
+      .secondary(tree.leftOperand())
+      .secondary(tree.rightOperand());
   }
 
   @CheckForNull

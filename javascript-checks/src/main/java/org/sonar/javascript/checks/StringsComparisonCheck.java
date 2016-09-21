@@ -19,22 +19,17 @@
  */
 package org.sonar.javascript.checks;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Map.Entry;
 import org.sonar.check.Rule;
 import org.sonar.javascript.se.Constraint;
 import org.sonar.javascript.se.ProgramState;
-import org.sonar.javascript.se.SeCheck;
 import org.sonar.javascript.se.Type;
-import org.sonar.javascript.tree.symbols.Scope;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.expression.BinaryExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.LiteralTree;
 
 @Rule(key = "S3003")
-public class StringsComparisonCheck extends SeCheck {
+public class StringsComparisonCheck extends AbstractAllPathSeCheck<BinaryExpressionTree> {
 
   private static final String MESSAGE = "Convert operands of this use of \"%s\" to number type.";
 
@@ -45,43 +40,33 @@ public class StringsComparisonCheck extends SeCheck {
     Kind.GREATER_THAN_OR_EQUAL_TO
   };
 
-  // For each string comparison tree this map contains true if types of operands are sting in all execution paths, true if not in at least one execution path
-  private Map<BinaryExpressionTree, Boolean> stringsComparisons = new HashMap<>();
-
   @Override
-  public void beforeBlockElement(ProgramState currentState, Tree element) {
+  BinaryExpressionTree getTree(Tree element) {
     if (element.is(RELATIVE_OPERATIONS)) {
-
-      BinaryExpressionTree comparison = (BinaryExpressionTree) element;
-
-      Constraint rightConstraint = currentState.getConstraint(currentState.peekStack(0));
-      Constraint leftConstraint = currentState.getConstraint(currentState.peekStack(1));
-
-      Type rightType = rightConstraint.type();
-      Type leftType = leftConstraint.type();
-
-      boolean stringsCompared = rightType == Type.STRING && leftType == Type.STRING;
-
-      if (!stringsCompared) {
-        stringsComparisons.put(comparison, false);
-
-      } else if (!stringsComparisons.containsKey(comparison)) {
-        stringsComparisons.put(comparison, true);
-      }
+      return (BinaryExpressionTree) element;
     }
+    return null;
   }
 
   @Override
-  public void startOfExecution(Scope functionScope) {
-    stringsComparisons.clear();
+  boolean isProblem(BinaryExpressionTree tree, ProgramState currentState) {
+    Constraint rightConstraint = currentState.getConstraint(currentState.peekStack(0));
+    Constraint leftConstraint = currentState.getConstraint(currentState.peekStack(1));
+
+    Type rightType = rightConstraint.type();
+    Type leftType = leftConstraint.type();
+
+    return rightType == Type.STRING && leftType == Type.STRING;
   }
 
   @Override
-  public void endOfExecution(Scope functionScope) {
-    for (Entry<BinaryExpressionTree, Boolean> entry : stringsComparisons.entrySet()) {
-      if (entry.getValue() && !hasOneSymbolLiteralOperand(entry.getKey())) {
-        raiseIssue(entry.getKey());
-      }
+  void raiseIssue(BinaryExpressionTree tree) {
+    if (!hasOneSymbolLiteralOperand(tree)) {
+      String message = String.format(MESSAGE, tree.operator().text());
+
+      addIssue(tree.operator(), message)
+        .secondary(tree.leftOperand())
+        .secondary(tree.rightOperand());
     }
   }
 
@@ -95,13 +80,5 @@ public class StringsComparisonCheck extends SeCheck {
     }
 
     return literal != null && literal.value().length() == 3;
-  }
-
-  private void raiseIssue(BinaryExpressionTree tree) {
-    String message = String.format(MESSAGE, tree.operator().text());
-
-    addIssue(tree.operator(), message)
-      .secondary(tree.leftOperand())
-      .secondary(tree.rightOperand());
   }
 }
