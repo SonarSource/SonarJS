@@ -42,9 +42,9 @@ abstract class AbstractAllPathSeCheck<T extends Tree> extends SeCheck {
     if (tree != null) {
       boolean isProblem = isProblem(tree, currentState);
       if (!isProblem) {
-        problemMap.put(tree, true);
-      } else if (!problemMap.containsKey(tree)) {
         problemMap.put(tree, false);
+      } else if (!problemMap.containsKey(tree)) {
+        problemMap.put(tree, true);
       }
     }
   }
@@ -61,7 +61,7 @@ abstract class AbstractAllPathSeCheck<T extends Tree> extends SeCheck {
   @Override
   public void endOfExecution(Scope functionScope) {
     for (Entry<T, Boolean> entry : problemMap.entrySet()) {
-      if (!entry.getValue()) {
+      if (entry.getValue()) {
         raiseIssue(entry.getKey());
       }
     }
