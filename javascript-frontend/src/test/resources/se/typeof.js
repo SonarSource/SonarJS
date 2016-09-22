@@ -66,6 +66,22 @@ function main() {
   makeLive(x);
 
   x = foo();
+  if (typeof x === "date") {
+    foo(); // PS x=ANY_VALUE
+  } else {
+    foo(); // PS x=ANY_VALUE
+  }
+  makeLive(x);
+
+  x = foo();
+  if (typeof x === "unknown") {
+    foo(); // PS x=ANY_VALUE
+  } else {
+    foo(); // PS x=ANY_VALUE
+  }
+  makeLive(x);
+
+  x = foo();
   if (typeof x === "not_existing_type") {
     x = null;
   }

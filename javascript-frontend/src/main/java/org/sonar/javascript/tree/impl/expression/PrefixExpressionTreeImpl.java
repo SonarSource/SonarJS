@@ -44,7 +44,6 @@ public class PrefixExpressionTreeImpl extends JavaScriptTree implements UnaryExp
     this.kind = Preconditions.checkNotNull(kind);
     this.operator = operator;
     this.expression = Preconditions.checkNotNull(expression);
-
   }
 
   @Override
@@ -81,4 +80,18 @@ public class PrefixExpressionTreeImpl extends JavaScriptTree implements UnaryExp
   public void add(Type type) {
     this.types.add(type);
   }
+
+  @Override
+  public String toString() {
+    return new StringBuilder()
+      .append("[")
+      .append(kind)
+      .append(", ")
+      .append(operator)
+      .append(" ")
+      .append(expression)
+      .append("]")
+      .toString();
+  }
+
 }

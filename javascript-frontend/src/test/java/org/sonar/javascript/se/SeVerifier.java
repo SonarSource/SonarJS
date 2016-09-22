@@ -70,6 +70,7 @@ class SeVerifier extends SeCheck {
     .put("FALSE", Constraint.FALSE)
     .put("OTHER_OBJECT", Constraint.OTHER_OBJECT)
     .put("OBJECT", Constraint.OBJECT)
+    .put("ANY_VALUE", Constraint.ANY_VALUE)
     .build();
 
   // line - program state - asserted

@@ -131,7 +131,6 @@
 5975,
 5980,
 6006,
-11485,
 11696,
 12375,
 12460,
@@ -189,9 +188,6 @@
 ],
 'project:dojo-1.8.1/dojo/request/default.js.uncompressed.js':[
 9,
-],
-'project:dojo-1.8.1/dojo/request/xhr.js.uncompressed.js':[
-114,
 ],
 'project:dojo-1.8.1/dojo/sniff.js.uncompressed.js':[
 13,
@@ -577,10 +573,6 @@
 'project:google-closure-library/module/moduleloader.js':[
 236,
 ],
-'project:google-closure-library/net/xpc/nixtransport.js':[
-414,
-462,
-],
 'project:google-closure-library/testing/mockmatchers.js':[
 386,
 ],
@@ -722,9 +714,6 @@
 647,
 652,
 ],
-'project:yui-3.7.3/node-core/node-core.js':[
-811,
-],
 'project:yui-3.7.3/node-focusmanager/node-focusmanager.js':[
 680,
 705,
@@ -742,7 +731,6 @@
 5595,
 6597,
 7232,
-12788,
 19067,
 19351,
 19391,

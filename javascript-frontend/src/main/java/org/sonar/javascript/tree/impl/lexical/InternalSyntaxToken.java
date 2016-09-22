@@ -143,4 +143,10 @@ public class InternalSyntaxToken extends JavaScriptTree implements SyntaxToken {
   public SyntaxToken getLastToken() {
     return this;
   }
+
+  @Override
+  public String toString() {
+    return value;
+  }
+
 }
