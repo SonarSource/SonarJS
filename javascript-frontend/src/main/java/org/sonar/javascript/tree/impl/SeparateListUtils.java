@@ -17,30 +17,28 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.javascript.parser.expressions;
+package org.sonar.javascript.tree.impl;
 
-import org.junit.Test;
-import org.sonar.plugins.javascript.api.tree.Tree.Kind;
+import java.util.LinkedList;
+import java.util.List;
+import org.sonar.plugins.javascript.api.tree.Tree;
 
-import static org.sonar.javascript.utils.Assertions.assertThat;
+public class SeparateListUtils {
+  
+  private SeparateListUtils() {
+  }
 
-public class ArrayAssignmentPatternTest {
-
-  @Test
-  public void test() {
-    assertThat(Kind.ARRAY_ASSIGNMENT_PATTERN)
-      .matches("[ ]")
-      .matches("[ lhs ]")
-      .matches("[ x.foo ]")
-      .matches("[ x[42].foo ]")
-      .matches("[ lhs = 42 ]")
-      .matches("[ lhs , ]")
-      .matches("[ lhs , lhs ]")
-      .matches("[ lhs, ... lhs ]")
-      .matches("[ lhs, ... x.foo ]")
-      .matches("[ lhs = init(), , lhs = init() , ... lhs ]")
-      .matches("[ [x, y], [z] ]")
-    ;
+  /**
+   * Returns a new list containing the present (in the sense of Optional#isPresent) elements in <code>list</code>.
+   */
+  public static List<Tree> presentsOf(List<com.sonar.sslr.api.typed.Optional<Tree> > list) {
+    List<Tree> newList = new LinkedList<>();
+    for (com.sonar.sslr.api.typed.Optional<Tree> element : list) {
+      if (element.isPresent()) {
+        newList.add(element.get());
+      }
+    }
+    return newList;
   }
 
 }

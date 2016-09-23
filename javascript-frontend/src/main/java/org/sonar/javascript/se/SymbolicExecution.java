@@ -37,6 +37,7 @@ import org.sonar.javascript.se.sv.SymbolicValueWithConstraint;
 import org.sonar.javascript.se.sv.UnknownSymbolicValue;
 import org.sonar.javascript.tree.TreeKinds;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
+import org.sonar.javascript.tree.impl.SeparateListUtils;
 import org.sonar.javascript.tree.symbols.Scope;
 import org.sonar.plugins.javascript.api.symbols.Symbol;
 import org.sonar.plugins.javascript.api.tree.Tree;
@@ -44,10 +45,15 @@ import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.declaration.BindingElementTree;
 import org.sonar.plugins.javascript.api.tree.declaration.FunctionDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.declaration.InitializedBindingElementTree;
+import org.sonar.plugins.javascript.api.tree.expression.ArrayAssignmentPatternTree;
 import org.sonar.plugins.javascript.api.tree.expression.AssignmentExpressionTree;
+import org.sonar.plugins.javascript.api.tree.expression.AssignmentPatternRestElementTree;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
+import org.sonar.plugins.javascript.api.tree.expression.InitializedAssignmentPatternElementTree;
 import org.sonar.plugins.javascript.api.tree.expression.MemberExpressionTree;
+import org.sonar.plugins.javascript.api.tree.expression.ObjectAssignmentPatternPairElementTree;
+import org.sonar.plugins.javascript.api.tree.expression.ObjectAssignmentPatternTree;
 import org.sonar.plugins.javascript.api.tree.expression.ParenthesisedExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.UnaryExpressionTree;
 import org.sonar.plugins.javascript.api.tree.statement.ForObjectStatementTree;
@@ -235,6 +241,15 @@ public class SymbolicExecution {
         }
         currentState = currentState.clearStack(element);
 
+      } else if (element.is(Kind.ARRAY_ASSIGNMENT_PATTERN)) {
+        ArrayAssignmentPatternTree arrayAssignmentPatternTree = (ArrayAssignmentPatternTree) element;
+        List<Tree> assignedElements = SeparateListUtils.presentsOf(arrayAssignmentPatternTree.elements());
+        currentState = createSymbolicValuesForTrackedVariables(assignedElements, currentState);
+
+      } else if (element.is(Kind.OBJECT_ASSIGNMENT_PATTERN)) {
+        ObjectAssignmentPatternTree objectAssignmentPatternTree = (ObjectAssignmentPatternTree) element;
+        List<Tree> assignedElements = objectAssignmentPatternTree.elements();
+        currentState = createSymbolicValuesForTrackedVariables(assignedElements, currentState);
       }
 
       afterBlockElement(currentState, element);
@@ -283,6 +298,17 @@ public class SymbolicExecution {
 
   public static boolean isUndefined(IdentifierTree tree) {
     return "undefined".equals(tree.name());
+  }
+
+  private ProgramState createSymbolicValuesForTrackedVariables(List<Tree> trees, ProgramState state) {
+    ProgramState newState = state;
+    for (Tree tree : trees) {
+      Symbol trackedVariable = trackedVariable(tree);
+      if (trackedVariable != null) {
+        newState = newState.newSymbolicValue(trackedVariable, null);
+      }
+    }
+    return newState;
   }
 
   private void beforeBlockElement(ProgramState currentState, Tree element) {
@@ -409,15 +435,27 @@ public class SymbolicExecution {
 
   @CheckForNull
   private Symbol trackedVariable(Tree tree) {
+    Symbol var = null;
+
     if (tree.is(Kind.PARENTHESISED_EXPRESSION)) {
-      return trackedVariable(((ParenthesisedExpressionTree) tree).expression());
-    }
-    if (tree.is(Kind.IDENTIFIER_REFERENCE, Kind.BINDING_IDENTIFIER)) {
+      var = trackedVariable(((ParenthesisedExpressionTree) tree).expression());
+
+    } else if (tree.is(Kind.IDENTIFIER_REFERENCE, Kind.BINDING_IDENTIFIER)) {
       IdentifierTree identifier = (IdentifierTree) tree;
       Symbol symbol = identifier.symbol();
-      return trackedVariables.contains(symbol) ? symbol : null;
+      var = trackedVariables.contains(symbol) ? symbol : null;
+
+    } else if (tree.is(Kind.ASSIGNMENT_PATTERN_REST_ELEMENT)) {
+      var = trackedVariable(((AssignmentPatternRestElementTree) tree).element());
+
+    } else if (tree.is(Kind.INITIALIZED_ASSIGNMENT_PATTERN_ELEMENT)) {
+      var = trackedVariable(((InitializedAssignmentPatternElementTree) tree).left());
+
+    } else if (tree.is(Kind.OBJECT_ASSIGNMENT_PATTERN_PAIR_ELEMENT)) {
+      var = trackedVariable(((ObjectAssignmentPatternPairElementTree) tree).element());
     }
-    return null;
+
+    return var;
   }
 
   @CheckForNull
