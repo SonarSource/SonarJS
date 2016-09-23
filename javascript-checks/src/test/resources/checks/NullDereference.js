@@ -211,13 +211,36 @@ function typeof_testing() {
   if (typeof y === 'undefined') {
     y.call();  // Noncompliant
   }
-
 }
 
 function assignment_left_first() {
   var x;
 
   foo[x=foo()] = foo(x.bar);  // Compliant, we first evaluate LHS of assignment
+}
+
+function array_assignment() {
+  var x, y;
+  x = 0;
+  [x, y] = obj;
+  x.foo;
+  y.foo;
+}
+
+function object_assignment() {
+  var x, y;
+  x = 0;
+  ({x, y} = obj);
+  x.foo;
+  y.foo;
+}
+
+function object_assignment_with_named_properties() {
+  var x, y;
+  x = 0;
+  ({prop1:x, prop2:y} = obj);
+  x.foo;
+  y.foo;
 }
 
 function null_and_not_undefined() {
