@@ -29,6 +29,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class BinaryExpressionTreeModelTest extends JavaScriptTreeModelTest {
 
   @Test
+  public void parent() throws Exception {
+    BinaryExpressionTreeImpl tree = parse("a + b", Kind.PLUS);
+    assertThat(tree.getParent().is(Kind.EXPRESSION_STATEMENT)).isTrue();
+  }
+
+  @Test
   public void conditional_or() throws Exception {
     test_binary_expression("a || b || c;", Kind.CONDITIONAL_OR, "||");
   }

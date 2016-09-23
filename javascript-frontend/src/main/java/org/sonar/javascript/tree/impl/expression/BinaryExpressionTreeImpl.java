@@ -89,17 +89,4 @@ public class BinaryExpressionTreeImpl extends JavaScriptTree implements BinaryEx
     types.add(type);
   }
 
-  @Override
-  public String toString() {
-    return new StringBuilder()
-      .append("[")
-      .append(leftOperand)
-      .append(" ")
-      .append(operand)
-      .append(" ")
-      .append(rightOperand)
-      .append("]")
-      .toString();
-  }
-
 }
