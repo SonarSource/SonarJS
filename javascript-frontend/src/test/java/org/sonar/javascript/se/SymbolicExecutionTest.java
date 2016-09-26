@@ -153,7 +153,7 @@ public class SymbolicExecutionTest {
     assertThat(verifier.endOfExecution).isTrue();
   }
 
-  private static JavaScriptVisitorContext createContext(File file) {
+  public static JavaScriptVisitorContext createContext(File file) {
     ScriptTree scriptTree = (ScriptTree) JavaScriptParserBuilder.createParser(Charsets.UTF_8).parse(file);
     return new JavaScriptVisitorContext(scriptTree, file, new Settings());
   }

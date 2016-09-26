@@ -36,12 +36,14 @@ import java.util.Optional;
 import java.util.Set;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+import org.sonar.javascript.se.sv.FunctionSymbolicValue;
 import org.sonar.javascript.se.sv.SimpleSymbolicValue;
 import org.sonar.javascript.se.sv.SymbolicValue;
 import org.sonar.javascript.se.sv.UnknownSymbolicValue;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.plugins.javascript.api.symbols.Symbol;
 import org.sonar.plugins.javascript.api.tree.Tree;
+import org.sonar.plugins.javascript.api.tree.declaration.FunctionTree;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 
 /**
@@ -117,24 +119,31 @@ public class ProgramState {
     return new ProgramState(ImmutableMap.copyOf(values), constraintsBuilder.build(), stack, relations, counter);
   }
 
-
   public ProgramState newSymbolicValue(Symbol symbol, @Nullable Constraint constraint) {
     SymbolicValue value = newSymbolicValue();
 
+    ProgramState newProgramState = new ProgramState(updateValue(this.values, symbol, value), ImmutableMap.copyOf(constraints), stack, relations, counter);
+    if (constraint != null) {
+      newProgramState = newProgramState.addConstraint(value, constraint);
+    }
+
+    return newProgramState;
+  }
+
+  public ProgramState newFunctionSymbolicValue(Symbol symbol, FunctionTree functionTree) {
+    SymbolicValue value = new FunctionSymbolicValue(functionTree);
+    return new ProgramState(updateValue(this.values, symbol, value), ImmutableMap.copyOf(constraints), stack, relations, counter);
+  }
+
+  private static ImmutableMap<Symbol, SymbolicValue> updateValue(ImmutableMap<Symbol, SymbolicValue> values, Symbol symbol, SymbolicValue newValue) {
     ImmutableMap.Builder<Symbol, SymbolicValue> valuesBuilder = ImmutableMap.builder();
     for (Entry<Symbol, SymbolicValue> entry : values.entrySet()) {
       if (!entry.getKey().equals(symbol)) {
         valuesBuilder.put(entry.getKey(), entry.getValue());
       }
     }
-    valuesBuilder.put(symbol, value);
-
-    ProgramState newProgramState = new ProgramState(valuesBuilder.build(), ImmutableMap.copyOf(constraints), stack, relations, counter);
-    if (constraint != null) {
-      newProgramState = newProgramState.addConstraint(value, constraint);
-    }
-
-    return newProgramState;
+    valuesBuilder.put(symbol, newValue);
+    return valuesBuilder.build();
   }
 
   public Optional<ProgramState> constrain(@Nullable SymbolicValue value, @Nullable Constraint constraint) {
@@ -193,6 +202,17 @@ public class ProgramState {
       Constraint constraint = getConstraint(entry.getValue());
       if (constraint != null) {
         builder.put(entry.getKey(), constraint);
+      }
+    }
+
+    return builder.build();
+  }
+
+  private Map<Symbol, FunctionTree> functionsBySymbol() {
+    ImmutableMap.Builder<Symbol, FunctionTree> builder = new Builder<>();
+    for (Entry<Symbol, SymbolicValue> entry : values.entrySet()) {
+      if (entry.getValue() instanceof FunctionSymbolicValue) {
+        builder.put(entry.getKey(), ((FunctionSymbolicValue) entry.getValue()).getFunctionTree());
       }
     }
 
@@ -265,12 +285,12 @@ public class ProgramState {
     return Objects.equals(constraintsBySymbol(), that.constraintsBySymbol())
       && Objects.equals(stack, that.stack)
       && Objects.equals(constraintOnPeek(), that.constraintOnPeek())
+      && Objects.equals(functionsBySymbol(), that.functionsBySymbol())
       && Objects.equals(relationsOnSymbols(), that.relationsOnSymbols());
   }
-
   @Override
   public int hashCode() {
-    return Objects.hash(constraintsBySymbol(), stack, constraintOnPeek(), relationsOnSymbols());
+    return Objects.hash(constraintsBySymbol(), stack, constraintOnPeek(), relationsOnSymbols(), functionsBySymbol());
   }
 
   private Set<RelationOnSymbols> relationsOnSymbols() {
