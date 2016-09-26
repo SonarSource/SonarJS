@@ -145,7 +145,18 @@ public class SymbolicExecution {
     return initialState;
   }
 
-  // This method's logic is approximation
+  /**
+   *   This method's logic is approximation: we assume that symbol used in function declaration has value of last function declaration.
+   *   It's not true when function declaration is nested in control flow structure:
+   *   <pre>
+   *     if (condition) {
+   *       function foo() { console.log(1); }
+   *     } else {
+   *       function foo() { console.log(2); }
+   *     }
+   *   </pre>
+   *   In this example value of "foo" depends on value of "condition"
+   */
   private ProgramState initiateFunctionDeclarationSymbols(ProgramState initialState) {
     ProgramState programStateWithFunctions = initialState;
     for (CfgBlock cfgBlock : cfg.blocks()) {
