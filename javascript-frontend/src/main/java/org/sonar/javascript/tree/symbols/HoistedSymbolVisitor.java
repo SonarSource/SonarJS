@@ -272,7 +272,7 @@ public class HoistedSymbolVisitor extends DoubleDispatchVisitor {
     }
 
     // todo Consider other BindingElementTree types
-    for (BindingElementTree bindingElement : tree.variables()) {
+    for (BindingElementTree bindingElement : tree.variables().elements()) {
       Symbol.Kind variableKind = getVariableKind(tree);
 
       if (bindingElement.is(Tree.Kind.INITIALIZED_BINDING_ELEMENT)) {

@@ -91,7 +91,7 @@ public class ObjectBindingPatternTreeImpl extends JavaScriptTree implements Obje
   public List<IdentifierTree> bindingIdentifiers() {
     List<IdentifierTree> bindingIdentifiers = Lists.newArrayList();
 
-    for (BindingElementTree element : bindingElements) {
+    for (BindingElementTree element : bindingElements.elements()) {
       bindingIdentifiers.addAll(element.bindingIdentifiers());
     }
 

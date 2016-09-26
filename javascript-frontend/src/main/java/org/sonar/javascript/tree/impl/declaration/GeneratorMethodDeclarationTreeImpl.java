@@ -100,7 +100,7 @@ public class GeneratorMethodDeclarationTreeImpl extends JavaScriptTree implement
 
   @Override
   public List<Tree> parameterList() {
-    return parameters.parameters();
+    return parameters.parameters().elements();
   }
 
   @Override

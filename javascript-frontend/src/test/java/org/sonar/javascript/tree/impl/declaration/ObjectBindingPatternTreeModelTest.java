@@ -39,7 +39,7 @@ public class ObjectBindingPatternTreeModelTest extends JavaScriptTreeModelTest {
     assertThat(tree.openCurlyBrace().text()).isEqualTo("{");
 
     assertThat(tree.elements().size()).isEqualTo(3);
-    assertThat(tree.elements().getSeparators().size()).isEqualTo(3);
+    assertThat(tree.elements().separators().size()).isEqualTo(3);
 
     assertThat(tree.elements().get(0).is(Kind.BINDING_IDENTIFIER)).isTrue();
     assertThat(tree.elements().get(1).is(Kind.INITIALIZED_BINDING_ELEMENT)).isTrue();

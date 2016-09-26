@@ -97,7 +97,7 @@ public class ArrayBindingPatternTreeImpl extends JavaScriptTree implements Array
   public List<IdentifierTree> bindingIdentifiers() {
     List<IdentifierTree> bindingIdentifiers = Lists.newArrayList();
 
-    for (Optional<BindingElementTree> element : elements) {
+    for (Optional<BindingElementTree> element : elements.elements()) {
       if (element.isPresent()) {
         bindingIdentifiers.addAll(element.get().bindingIdentifiers());
       }

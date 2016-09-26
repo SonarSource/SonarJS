@@ -56,11 +56,11 @@ public class SyntacticEquivalenceTest extends JavaScriptTreeModelTest {
     ParameterListTree tree3 = parse("f(a, b) ;", Tree.Kind.ARGUMENTS);
     ParameterListTree tree4 = parse("f(a, b, b) ;", Tree.Kind.ARGUMENTS);
 
-    assertThat(SyntacticEquivalence.areEquivalent(tree1.parameters(), tree1.parameters())).isTrue();
-    assertThat(SyntacticEquivalence.areEquivalent(tree1.parameters(), tree2.parameters())).isTrue();
+    assertThat(SyntacticEquivalence.areEquivalent(tree1.parameters().elements(), tree1.parameters().elements())).isTrue();
+    assertThat(SyntacticEquivalence.areEquivalent(tree1.parameters().elements(), tree2.parameters().elements())).isTrue();
 
-    assertThat(SyntacticEquivalence.areEquivalent(tree1.parameters(), tree3.parameters())).isFalse();
-    assertThat(SyntacticEquivalence.areEquivalent(tree1.parameters(), tree4.parameters())).isFalse();
+    assertThat(SyntacticEquivalence.areEquivalent(tree1.parameters().elements(), tree3.parameters().elements())).isFalse();
+    assertThat(SyntacticEquivalence.areEquivalent(tree1.parameters().elements(), tree4.parameters().elements())).isFalse();
   }
 
   @Test
@@ -68,8 +68,8 @@ public class SyntacticEquivalenceTest extends JavaScriptTreeModelTest {
     ParameterListTree tree1 = parse("f() ;", Tree.Kind.ARGUMENTS);
     ParameterListTree tree2 = parse("f() ;", Tree.Kind.ARGUMENTS);
 
-    assertThat(SyntacticEquivalence.areEquivalent(tree1.parameters(), tree1.parameters())).isFalse();
-    assertThat(SyntacticEquivalence.areEquivalent(tree1.parameters(), tree2.parameters())).isFalse();
+    assertThat(SyntacticEquivalence.areEquivalent(tree1.parameters().elements(), tree1.parameters().elements())).isFalse();
+    assertThat(SyntacticEquivalence.areEquivalent(tree1.parameters().elements(), tree2.parameters().elements())).isFalse();
   }
 
   @Test

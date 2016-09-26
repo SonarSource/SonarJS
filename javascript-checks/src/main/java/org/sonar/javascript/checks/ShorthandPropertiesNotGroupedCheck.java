@@ -45,7 +45,7 @@ public class ShorthandPropertiesNotGroupedCheck extends DoubleDispatchVisitorChe
     int shorthandPropertiesNumber = 0;
     boolean containsSpreadProperty = false;
 
-    for (Tree propertyTree : tree.properties()) {
+    for (Tree propertyTree : tree.properties().elements()) {
       if (propertyTree.is(Kind.SPREAD_ELEMENT)) {
         containsSpreadProperty = true;
         break;

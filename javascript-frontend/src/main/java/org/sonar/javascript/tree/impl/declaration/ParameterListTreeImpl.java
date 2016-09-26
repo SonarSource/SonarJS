@@ -89,7 +89,7 @@ public class ParameterListTreeImpl extends JavaScriptTree implements ParameterLi
 
     List<IdentifierTree> identifiers = Lists.newArrayList();
 
-    for (Tree parameter : parameters) {
+    for (Tree parameter : parameters.elements()) {
 
       if (parameter.is(Tree.Kind.BINDING_IDENTIFIER)) {
         identifiers.add((IdentifierTree) parameter);

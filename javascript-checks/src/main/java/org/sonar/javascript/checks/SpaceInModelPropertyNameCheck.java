@@ -83,7 +83,7 @@ public class SpaceInModelPropertyNameCheck extends DoubleDispatchVisitorCheck {
   }
 
   private void checkForSpaceInPropertyNames(ObjectLiteralTree objectLiteral) {
-    for (Tree attribute : objectLiteral.properties()) {
+    for (Tree attribute : objectLiteral.properties().elements()) {
       if (attribute.is(Kind.PAIR_PROPERTY)) {
         Tree key = ((PairPropertyTree) attribute).key();
         checkString(key);

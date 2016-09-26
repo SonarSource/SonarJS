@@ -266,7 +266,7 @@ class ControlFlowGraphBuilder {
 
     } else if (tree.is(Kind.OBJECT_LITERAL)) {
       ObjectLiteralTree objectLiteral = (ObjectLiteralTree) tree;
-      buildExpressions(objectLiteral.properties());
+      buildExpressions(objectLiteral.properties().elements());
 
     } else if (tree.is(Kind.DOT_MEMBER_EXPRESSION)) {
       MemberExpressionTree memberExpression = (MemberExpressionTree) tree;
@@ -279,12 +279,12 @@ class ControlFlowGraphBuilder {
 
     } else if (tree.is(Kind.CALL_EXPRESSION)) {
       CallExpressionTree callExpression = (CallExpressionTree) tree;
-      buildExpressions(callExpression.arguments().parameters());
+      buildExpressions(callExpression.arguments().parameters().elements());
       buildExpression(callExpression.callee());
 
     } else if (tree.is(Kind.VAR_DECLARATION, Kind.LET_DECLARATION, Kind.CONST_DECLARATION)) {
       VariableDeclarationTree declaration = (VariableDeclarationTree) tree;
-      buildExpressions(declaration.variables());
+      buildExpressions(declaration.variables().elements());
 
     } else if (tree.is(Kind.INITIALIZED_BINDING_ELEMENT)) {
       InitializedBindingElementTree initializedBindingElementTree = (InitializedBindingElementTree) tree;
@@ -303,7 +303,7 @@ class ControlFlowGraphBuilder {
     } else if (tree.is(Kind.NEW_EXPRESSION)) {
       NewExpressionTree newExpression = (NewExpressionTree) tree;
       if (newExpression.arguments() != null) {
-        buildExpressions(newExpression.arguments().parameters());
+        buildExpressions(newExpression.arguments().parameters().elements());
       }
       buildExpression(newExpression.expression());
 

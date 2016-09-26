@@ -62,7 +62,7 @@ public class Backbone {
    */
   @Nullable
   public static PairPropertyTree getModelProperty(ObjectLiteralTree objectLiteral, String propertyName) {
-    for (Tree property : objectLiteral.properties()) {
+    for (Tree property : objectLiteral.properties().elements()) {
 
       if (property.is(Tree.Kind.PAIR_PROPERTY)) {
         PairPropertyTree pairProperty = (PairPropertyTree) property;

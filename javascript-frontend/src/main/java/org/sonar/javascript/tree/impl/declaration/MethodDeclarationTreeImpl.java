@@ -111,6 +111,7 @@ public class MethodDeclarationTreeImpl extends JavaScriptTree implements MethodD
 
   @Override
   public List<Tree> parameterList() {
-    return parameters.parameters();
+    return parameters.parameters().elements();
   }
+
 }

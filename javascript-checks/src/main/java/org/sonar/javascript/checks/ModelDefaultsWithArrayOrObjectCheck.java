@@ -51,7 +51,7 @@ public class ModelDefaultsWithArrayOrObjectCheck extends DoubleDispatchVisitorCh
   }
 
   private static boolean hasObjectOrArrayAttribute(ObjectLiteralTree objectLiteral) {
-    for (Tree property : objectLiteral.properties()) {
+    for (Tree property : objectLiteral.properties().elements()) {
 
       if (property.is(Kind.PAIR_PROPERTY) && ((PairPropertyTree) property).value().is(Kind.ARRAY_LITERAL, Kind.OBJECT_LITERAL)) {
         return true;

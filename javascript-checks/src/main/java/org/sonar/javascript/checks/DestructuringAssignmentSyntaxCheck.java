@@ -95,7 +95,7 @@ public class DestructuringAssignmentSyntaxCheck extends DoubleDispatchVisitorChe
   }
 
   private static void visitVariableDeclaration(ListMultimap<String, Declaration> declarationsByObject, VariableDeclarationTree declaration) {
-    for (BindingElementTree bindingElement : declaration.variables()) {
+    for (BindingElementTree bindingElement : declaration.variables().elements()) {
       if (bindingElement.is(Kind.INITIALIZED_BINDING_ELEMENT)) {
         InitializedBindingElementTree initializedDeclaration = (InitializedBindingElementTree) bindingElement;
         visitInitializedDeclaration(declarationsByObject, declaration, initializedDeclaration);
