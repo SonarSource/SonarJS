@@ -41,7 +41,7 @@ public class ArgumentsTreeModelTest extends JavaScriptTreeModelTest {
     assertThat(expressionToString(tree.parameters().get(1))).isEqualTo("p2");
     assertThat(expressionToString(tree.parameters().get(2))).isEqualTo("... p3");
 
-    assertThat(tree.parameters().getSeparators().size()).isEqualTo(2);
+    assertThat(tree.parameters().separators().size()).isEqualTo(2);
 
     assertThat(tree.closeParenthesis().text()).isEqualTo(")");
   }
@@ -55,7 +55,7 @@ public class ArgumentsTreeModelTest extends JavaScriptTreeModelTest {
     assertThat(tree.openParenthesis().text()).isEqualTo("(");
 
     assertThat(tree.parameters().size()).isEqualTo(0);
-    assertThat(tree.parameters().getSeparators().size()).isEqualTo(0);
+    assertThat(tree.parameters().separators().size()).isEqualTo(0);
 
     assertThat(tree.closeParenthesis().text()).isEqualTo(")");
   }

@@ -46,7 +46,7 @@ public class MisorderedParameterListCheck extends DoubleDispatchVisitorCheck {
 
   @Override
   public void visitCallExpression(CallExpressionTree callExpression) {
-    List<String> argumentNames = names(callExpression.arguments().parameters());
+    List<String> argumentNames = names(callExpression.arguments().parameters().elements());
     if (argumentNames != null) {
       FunctionTree functionDeclaration = functionDeclaration(callExpression);
       if (functionDeclaration != null) {
@@ -62,7 +62,7 @@ public class MisorderedParameterListCheck extends DoubleDispatchVisitorCheck {
 
   private static List<Tree> parameters(FunctionTree functionTree) {
     if (functionTree.parameterClause().is(Tree.Kind.FORMAL_PARAMETER_LIST)) {
-      return ((ParameterListTree) functionTree.parameterClause()).parameters();
+      return ((ParameterListTree) functionTree.parameterClause()).parameters().elements();
 
     } else {
       return ImmutableList.of(functionTree.parameterClause());
@@ -81,7 +81,7 @@ public class MisorderedParameterListCheck extends DoubleDispatchVisitorCheck {
   }
 
   @CheckForNull
-  private static List<String> names(List<Tree> list) {
+  private static List<String> names(Iterable<Tree> list) {
     List<String> names = new ArrayList<>();
     for (Tree param : list) {
       Tree paramId = param;

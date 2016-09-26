@@ -676,7 +676,7 @@ public class TreeFactory {
     InternalSyntaxToken rParenthesis
   ) {
     if (trailingComma.isPresent()) {
-      parameters.getSeparators().add(trailingComma.get());
+      parameters.separators().add(trailingComma.get());
     }
     return new ParameterListTreeImpl(Kind.FORMAL_PARAMETER_LIST, lParenthesis, parameters, rParenthesis);
   }
@@ -689,7 +689,7 @@ public class TreeFactory {
     RestElementTreeImpl restElementTree,
     InternalSyntaxToken rParenthesis
   ) {
-    parameters.getSeparators().add(comma);
+    parameters.separators().add(comma);
     parameters.add(restElementTree);
 
     return new ParameterListTreeImpl(Kind.FORMAL_PARAMETER_LIST, lParenthesis, parameters, rParenthesis);
@@ -1509,7 +1509,7 @@ public class TreeFactory {
     }
 
     if (commaAndRest.isPresent()) {
-      elements.getSeparators().add(commaAndRest.get().first);
+      elements.separators().add(commaAndRest.get().first);
 
       if (commaAndRest.get().second.isPresent()) {
         elements.add(commaAndRest.get().second.get());

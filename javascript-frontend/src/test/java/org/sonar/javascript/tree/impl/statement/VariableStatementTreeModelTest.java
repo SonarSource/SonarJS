@@ -33,7 +33,7 @@ public class VariableStatementTreeModelTest extends JavaScriptTreeModelTest {
     VariableStatementTree tree = parse("var varDeclaration ;", Kind.VARIABLE_STATEMENT);
 
     assertThat(tree.is(Kind.VARIABLE_STATEMENT)).isTrue();
-    assertThat(tree.declaration().variables()).hasSize(1);
+    assertThat(tree.declaration().variables().elements()).hasSize(1);
   }
 
   @Test
@@ -41,7 +41,7 @@ public class VariableStatementTreeModelTest extends JavaScriptTreeModelTest {
     VariableStatementTree tree = parse("var varDeclaration , varDeclaration , varDeclaration ;", Kind.VARIABLE_STATEMENT);
 
     assertThat(tree.is(Kind.VARIABLE_STATEMENT)).isTrue();
-    assertThat(tree.declaration().variables()).hasSize(3);
+    assertThat(tree.declaration().variables().elements()).hasSize(3);
   }
 
 }

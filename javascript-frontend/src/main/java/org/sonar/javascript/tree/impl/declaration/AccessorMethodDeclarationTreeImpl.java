@@ -101,7 +101,7 @@ public class AccessorMethodDeclarationTreeImpl extends JavaScriptTree implements
 
   @Override
   public List<Tree> parameterList() {
-    return parameters.parameters();
+    return parameters.parameters().elements();
   }
 
   @Override

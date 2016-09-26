@@ -35,7 +35,7 @@ public class ObjectLiteralTreeModelTest extends JavaScriptTreeModelTest {
     assertThat(tree.is(Kind.OBJECT_LITERAL)).isTrue();
     assertThat(tree.openCurlyBrace().text()).isEqualTo("{");
 
-    assertThat(tree.properties()).hasSize(4);
+    assertThat(tree.properties().elements()).hasSize(4);
     assertThat(expressionToString(tree.properties().get(0))).isEqualTo("key : value");
     assertThat(expressionToString(tree.properties().get(1))).isEqualTo("method ( ) { }");
 
@@ -44,7 +44,7 @@ public class ObjectLiteralTreeModelTest extends JavaScriptTreeModelTest {
 
     assertThat(expressionToString(tree.properties().get(3))).isEqualTo("identifier");
 
-    assertThat(tree.properties().getSeparators()).hasSize(4);
+    assertThat(tree.properties().separators()).hasSize(4);
 
     assertThat(tree.closeCurlyBrace().text()).isEqualTo("}");
   }
@@ -56,8 +56,8 @@ public class ObjectLiteralTreeModelTest extends JavaScriptTreeModelTest {
     assertThat(tree.is(Kind.OBJECT_LITERAL)).isTrue();
     assertThat(tree.openCurlyBrace().text()).isEqualTo("{");
 
-    assertThat(tree.properties()).hasSize(0);
-    assertThat(tree.properties().getSeparators()).hasSize(0);
+    assertThat(tree.properties().elements()).hasSize(0);
+    assertThat(tree.properties().separators()).hasSize(0);
 
     assertThat(tree.closeCurlyBrace().text()).isEqualTo("}");
   }

@@ -78,11 +78,11 @@ public class ArrowFunctionTreeImpl extends JavaScriptTree implements ArrowFuncti
 
   @Override
   public List<Tree> parameterList() {
-    if (this.parameters.is(Tree.Kind.FORMAL_PARAMETER_LIST)) {
-      return ((ParameterListTree) this.parameters).parameters();
+    if (parameters.is(Tree.Kind.FORMAL_PARAMETER_LIST)) {
+      return ((ParameterListTree) parameters).parameters().elements();
 
     } else {
-      return ImmutableList.of(this.parameterClause());
+      return ImmutableList.of(parameterClause());
     }
   }
 

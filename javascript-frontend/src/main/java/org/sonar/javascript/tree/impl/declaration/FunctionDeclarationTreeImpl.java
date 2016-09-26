@@ -108,7 +108,7 @@ public class FunctionDeclarationTreeImpl extends JavaScriptTree implements Funct
 
   @Override
   public List<Tree> parameterList() {
-    return parameters.parameters();
+    return parameters.parameters().elements();
   }
 
   @Override

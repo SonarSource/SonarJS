@@ -82,7 +82,7 @@ public class VariableDeclarationTreeImpl extends JavaScriptTree implements Varia
   public List<IdentifierTree> variableIdentifiers() {
     List<IdentifierTree> identifiers = Lists.newArrayList();
 
-    for (Tree parameter : variables) {
+    for (Tree parameter : variables.elements()) {
 
       if (parameter.is(Tree.Kind.BINDING_IDENTIFIER)) {
         identifiers.add((IdentifierTree) parameter);

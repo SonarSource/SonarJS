@@ -39,7 +39,7 @@ public class DuplicatePropertyNameCheck extends DoubleDispatchVisitorCheck {
   public void visitObjectLiteral(ObjectLiteralTree tree) {
     Map<String, Tree> keys = new HashMap<>();
 
-    for (Tree property : tree.properties()) {
+    for (Tree property : tree.properties().elements()) {
       if (property.is(Tree.Kind.PAIR_PROPERTY)) {
         visitPairProperty(keys, (PairPropertyTree) property);
       }

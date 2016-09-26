@@ -34,7 +34,7 @@ public class DecoratorTreeModelTest extends JavaScriptTreeModelTest {
 
     assertThat(tree.is(Kind.DECORATOR)).isTrue();
     assertThat(tree.atToken().text()).isEqualTo("@");
-    assertThat(tree.body()).hasSize(1);
+    assertThat(tree.body().elements()).hasSize(1);
     assertThat(tree.body().get(0).name()).isEqualTo("foo");
     assertThat(tree.arguments()).isNull();
   }
@@ -45,9 +45,10 @@ public class DecoratorTreeModelTest extends JavaScriptTreeModelTest {
 
     assertThat(tree.is(Kind.DECORATOR)).isTrue();
     assertThat(tree.atToken().text()).isEqualTo("@");
-    assertThat(tree.body()).hasSize(2);
+    assertThat(tree.body().elements()).hasSize(2);
     assertThat(tree.body().get(0).name()).isEqualTo("foo");
     assertThat(tree.body().get(1).name()).isEqualTo("bar");
-    assertThat(tree.arguments().parameters()).hasSize(1);
+    assertThat(tree.arguments().parameters().elements()).hasSize(1);
   }
+
 }

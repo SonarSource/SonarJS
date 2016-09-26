@@ -86,7 +86,7 @@ public abstract class AbstractFunctionSizeCheck extends SubscriptionVisitorCheck
 
   private void checkForAMDPattern(CallExpressionTree tree) {
     if (tree.callee().is(Kind.IDENTIFIER_REFERENCE) && "define".equals(((IdentifierTree) tree.callee()).name())) {
-      for (Tree parameter : tree.arguments().parameters()) {
+      for (Tree parameter : tree.arguments().parameters().elements()) {
         if (parameter.is(Kind.FUNCTION_EXPRESSION)) {
           amdPattern = true;
         }

@@ -77,7 +77,7 @@ public class FunctionNameCheck extends DoubleDispatchVisitorCheck {
 
   @Override
   public void visitVariableDeclaration(VariableDeclarationTree tree) {
-    for (BindingElementTree bindingElement : tree.variables()) {
+    for (BindingElementTree bindingElement : tree.variables().elements()) {
       if (bindingElement.is(Kind.INITIALIZED_BINDING_ELEMENT)) {
         InitializedBindingElementTree initializedBindingElement = (InitializedBindingElementTree) bindingElement;
         if (isFunctionExpression(initializedBindingElement.right())) {

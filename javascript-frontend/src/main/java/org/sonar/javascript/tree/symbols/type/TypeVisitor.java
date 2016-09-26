@@ -177,7 +177,7 @@ public class TypeVisitor extends DoubleDispatchVisitor {
     if (functionType != null) {
 
       List<Tree> parameters = ((FunctionType) functionType).functionTree().parameterList();
-      List<Tree> arguments = tree.arguments().parameters();
+      List<Tree> arguments = tree.arguments().parameters().elements();
       int minSize = arguments.size() < parameters.size() ? arguments.size() : parameters.size();
 
       for (int i = 0; i < minSize; i++) {

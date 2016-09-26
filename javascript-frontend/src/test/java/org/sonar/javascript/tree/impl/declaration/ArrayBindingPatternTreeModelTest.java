@@ -44,43 +44,43 @@ public class ArrayBindingPatternTreeModelTest extends JavaScriptTreeModelTest {
   @Test
   public void elision() throws Exception {
     ArrayBindingPatternTree tree = parse("var [] = obj", Kind.ARRAY_BINDING_PATTERN);
-    assertThat(tree.elements()).isEmpty();
-    assertThat(tree.elements().getSeparators()).isEmpty();
+    assertThat(tree.elements().elements()).isEmpty();
+    assertThat(tree.elements().separators()).isEmpty();
 
     tree = parse("var [,] = obj", Kind.ARRAY_BINDING_PATTERN);
-    assertThat(tree.elements()).hasSize(1);
-    assertThat(tree.elements().get(0).isPresent()).isFalse();
-    assertThat(tree.elements().getSeparators()).hasSize(1);
+    assertThat(tree.elements().elements()).hasSize(1);
+    assertThat(tree.elements().elements().get(0).isPresent()).isFalse();
+    assertThat(tree.elements().separators()).hasSize(1);
 
     tree = parse("var [a,] = obj", Kind.ARRAY_BINDING_PATTERN);
-    assertThat(tree.elements()).hasSize(1);
+    assertThat(tree.elements().elements()).hasSize(1);
     assertThat(tree.elements().get(0).isPresent()).isTrue();
-    assertThat(tree.elements().getSeparators()).hasSize(1);
+    assertThat(tree.elements().separators()).hasSize(1);
 
     tree = parse("var [a,b] = obj", Kind.ARRAY_BINDING_PATTERN);
-    assertThat(tree.elements()).hasSize(2);
+    assertThat(tree.elements().elements()).hasSize(2);
     assertThat(tree.elements().get(0).isPresent()).isTrue();
     assertThat(tree.elements().get(1).isPresent()).isTrue();
-    assertThat(tree.elements().getSeparators()).hasSize(1);
+    assertThat(tree.elements().separators()).hasSize(1);
 
     tree = parse("var [a,b,] = obj", Kind.ARRAY_BINDING_PATTERN);
-    assertThat(tree.elements()).hasSize(2);
+    assertThat(tree.elements().elements()).hasSize(2);
     assertThat(tree.elements().get(0).isPresent()).isTrue();
     assertThat(tree.elements().get(1).isPresent()).isTrue();
-    assertThat(tree.elements().getSeparators()).hasSize(2);
+    assertThat(tree.elements().separators()).hasSize(2);
 
     tree = parse("var [,a,b] = obj", Kind.ARRAY_BINDING_PATTERN);
-    assertThat(tree.elements()).hasSize(3);
+    assertThat(tree.elements().elements()).hasSize(3);
     assertThat(tree.elements().get(0).isPresent()).isFalse();
     assertThat(tree.elements().get(1).isPresent()).isTrue();
     assertThat(tree.elements().get(2).isPresent()).isTrue();
-    assertThat(tree.elements().getSeparators()).hasSize(2);
+    assertThat(tree.elements().separators()).hasSize(2);
 
     tree = parse("var [a,,] = obj", Kind.ARRAY_BINDING_PATTERN);
-    assertThat(tree.elements()).hasSize(2);
+    assertThat(tree.elements().elements()).hasSize(2);
     assertThat(tree.elements().get(0).isPresent()).isTrue();
     assertThat(tree.elements().get(1).isPresent()).isFalse();
-    assertThat(tree.elements().getSeparators()).hasSize(2);
+    assertThat(tree.elements().separators()).hasSize(2);
   }
 
   @Test

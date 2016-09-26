@@ -257,7 +257,7 @@ public class ExpressionStack {
   }
 
   private static void popObjectLiteralProperties(ObjectLiteralTree objectLiteralTree, Deque<SymbolicValue> newStack) {
-    for (Tree property : objectLiteralTree.properties()) {
+    for (Tree property : objectLiteralTree.properties().elements()) {
       if (property.is(Kind.PAIR_PROPERTY)) {
         Tree key = ((PairPropertyTree) property).key();
         if (key.is(Kind.STRING_LITERAL, Kind.NUMERIC_LITERAL, Kind.COMPUTED_PROPERTY_NAME)) {

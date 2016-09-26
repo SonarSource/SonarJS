@@ -36,8 +36,8 @@ public class VariableDeclarationTreeModelTest extends JavaScriptTreeModelTest {
 
     assertThat(tree.is(Kind.VAR_DECLARATION)).isTrue();
     assertThat(tree.token().text()).isEqualTo("var");
-    assertThat(tree.variables()).hasSize(1);
-    assertThat(tree.variables().getSeparators()).isEmpty();
+    assertThat(tree.variables().elements()).hasSize(1);
+    assertThat(tree.variables().separators()).isEmpty();
   }
 
   @Test
@@ -46,8 +46,8 @@ public class VariableDeclarationTreeModelTest extends JavaScriptTreeModelTest {
 
     assertThat(tree.is(Kind.LET_DECLARATION)).isTrue();
     assertThat(tree.token().text()).isEqualTo("let");
-    assertThat(tree.variables()).hasSize(3);
-    assertThat(tree.variables().getSeparators()).hasSize(2);
+    assertThat(tree.variables().elements()).hasSize(3);
+    assertThat(tree.variables().separators()).hasSize(2);
   }
 
   @Test

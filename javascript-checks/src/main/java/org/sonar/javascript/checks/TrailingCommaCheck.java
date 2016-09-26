@@ -40,8 +40,8 @@ public class TrailingCommaCheck extends DoubleDispatchVisitorCheck {
   public void visitObjectLiteral(ObjectLiteralTree tree) {
     SeparatedList<Tree> separatedList = tree.properties();
     int listSize = separatedList.size();
-    if (listSize > 0 && listSize == separatedList.getSeparators().size()) {
-      Tree trailingComma = separatedList.getSeparator(listSize - 1);
+    if (listSize > 0 && listSize == separatedList.separators().size()) {
+      Tree trailingComma = separatedList.separator(listSize - 1);
       raiseIssue(trailingComma);
     }
     super.visitObjectLiteral(tree);
