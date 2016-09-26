@@ -290,7 +290,7 @@ public class ProgramState {
   }
   @Override
   public int hashCode() {
-    return Objects.hash(constraintsBySymbol(), stack, constraintOnPeek(), relationsOnSymbols());
+    return Objects.hash(constraintsBySymbol(), stack, constraintOnPeek(), relationsOnSymbols(), functionsBySymbol());
   }
 
   private Set<RelationOnSymbols> relationsOnSymbols() {
