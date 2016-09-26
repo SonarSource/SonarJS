@@ -25,6 +25,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Objects;
 import javax.annotation.Nullable;
+import org.sonar.javascript.se.sv.FunctionSymbolicValue;
 import org.sonar.javascript.se.sv.LiteralSymbolicValue;
 import org.sonar.javascript.se.sv.LogicalNotSymbolicValue;
 import org.sonar.javascript.se.sv.PlusSymbolicValue;
@@ -37,6 +38,7 @@ import org.sonar.javascript.se.sv.UnknownSymbolicValue;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
+import org.sonar.plugins.javascript.api.tree.declaration.FunctionTree;
 import org.sonar.plugins.javascript.api.tree.declaration.MethodDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.expression.ArrayLiteralTree;
 import org.sonar.plugins.javascript.api.tree.expression.CallExpressionTree;
@@ -161,7 +163,7 @@ public class ExpressionStack {
       case FUNCTION_EXPRESSION:
       case GENERATOR_FUNCTION_EXPRESSION:
       case ARROW_FUNCTION:
-        newStack.push(new SymbolicValueWithConstraint(Constraint.FUNCTION));
+        newStack.push(new FunctionSymbolicValue((FunctionTree) expression));
         break;
       case REGULAR_EXPRESSION_LITERAL:
       case THIS:
