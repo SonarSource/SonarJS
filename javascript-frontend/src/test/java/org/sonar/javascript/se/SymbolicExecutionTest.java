@@ -28,7 +28,7 @@ import org.sonar.javascript.parser.JavaScriptParserBuilder;
 import org.sonar.javascript.visitors.JavaScriptVisitorContext;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
 
-import static org.fest.assertions.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class SymbolicExecutionTest {
 

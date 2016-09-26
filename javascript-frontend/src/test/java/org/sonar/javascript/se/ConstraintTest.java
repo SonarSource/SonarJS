@@ -21,7 +21,7 @@ package org.sonar.javascript.se;
 
 import org.junit.Test;
 
-import static org.fest.assertions.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.javascript.se.Constraint.ANY_VALUE;
 import static org.sonar.javascript.se.Constraint.FALSY;
 import static org.sonar.javascript.se.Constraint.FUNCTION;

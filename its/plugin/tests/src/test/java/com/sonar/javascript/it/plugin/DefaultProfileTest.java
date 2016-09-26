@@ -30,7 +30,7 @@ import org.junit.Test;
 import org.sonar.wsclient.SonarClient;
 import org.sonar.wsclient.jsonsimple.JSONValue;
 
-import static org.fest.assertions.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class DefaultProfileTest {
 

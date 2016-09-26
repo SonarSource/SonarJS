@@ -23,7 +23,7 @@ import org.junit.Test;
 import org.sonar.javascript.se.Constraint;
 import org.sonar.javascript.se.ProgramState;
 
-import static org.fest.assertions.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.javascript.se.sv.SpecialSymbolicValue.NULL;
 
 public class SpecialSymbolicValueTest {
