@@ -25,6 +25,7 @@ import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
 import javax.annotation.CheckForNull;
@@ -62,8 +63,7 @@ public class SymbolicExecution {
   private static final int MAX_BLOCK_EXECUTIONS = 1000;
 
   private final CfgBlock cfgStartBlock;
-  private final Set<Symbol> trackedVariables;
-  private final Set<Symbol> functionParameters;
+  private final LocalVariables localVariables;
   private final Scope functionScope;
   private final Deque<BlockExecution> workList = new ArrayDeque<>();
   private final SetMultimap<Tree, Truthiness> conditionResults = HashMultimap.create();
@@ -73,9 +73,7 @@ public class SymbolicExecution {
 
   public SymbolicExecution(Scope functionScope, ControlFlowGraph cfg, List<SeCheck> checks) {
     cfgStartBlock = cfg.start();
-    LocalVariables localVariables = new LocalVariables(functionScope, cfg);
-    this.trackedVariables = localVariables.trackableVariables();
-    this.functionParameters = localVariables.functionParameters();
+    localVariables = new LocalVariables(functionScope, cfg);
     this.liveVariableAnalysis = LiveVariableAnalysis.create(cfg, functionScope);
     this.functionScope = functionScope;
     this.checks = checks;
@@ -118,9 +116,17 @@ public class SymbolicExecution {
   private ProgramState initialState() {
     ProgramState initialState = ProgramState.emptyState();
 
-    for (Symbol localVar : trackedVariables) {
+    for (Entry<Symbol, SymbolicValue> entry : localVariables.symbolsFromOuterScope().entrySet()) {
+      if (entry.getValue() != null) {
+        initialState = initialState.newSymbolicValue(entry.getKey(), entry.getValue());
+      } else {
+        initialState = initialState.newSymbolicValueWithConstraint(entry.getKey(), null);
+      }
+    }
+
+    for (Symbol localVar : localVariables.trackableVariables()) {
       Constraint initialConstraint = null;
-      if (!symbolIs(localVar, FUNCTION, IMPORT, CLASS) && !functionParameters.contains(localVar)) {
+      if (!symbolIs(localVar, FUNCTION, IMPORT, CLASS) && !localVariables.functionParameters().contains(localVar)) {
         initialConstraint = Constraint.UNDEFINED;
 
       } else if (symbolIs(localVar, FUNCTION)) {
@@ -129,14 +135,15 @@ public class SymbolicExecution {
       } else if (symbolIs(localVar, CLASS)) {
         initialConstraint = Constraint.OTHER_OBJECT;
       }
-      initialState = initialState.newSymbolicValue(localVar, initialConstraint);
+      initialState = initialState.newSymbolicValueWithConstraint(localVar, initialConstraint);
     }
 
     Symbol arguments = functionScope.getSymbol("arguments");
     if (arguments != null) {
       // there is no arguments for arrow function scope
-      initialState = initialState.newSymbolicValue(arguments, Constraint.OBJECT);
+      initialState = initialState.newSymbolicValueWithConstraint(arguments, Constraint.OBJECT);
     }
+
     return initialState;
   }
 
@@ -362,7 +369,7 @@ public class SymbolicExecution {
   private ProgramState newSymbolicValue(ProgramState currentState, Tree left) {
     Symbol trackedVariable = trackedVariable(left);
     if (trackedVariable != null) {
-      return currentState.newSymbolicValue(trackedVariable, null);
+      return currentState.newSymbolicValueWithConstraint(trackedVariable, null);
     }
     return currentState;
   }
@@ -383,7 +390,7 @@ public class SymbolicExecution {
     if (tree.is(Kind.IDENTIFIER_REFERENCE, Kind.BINDING_IDENTIFIER)) {
       IdentifierTree identifier = (IdentifierTree) tree;
       Symbol symbol = identifier.symbol();
-      return trackedVariables.contains(symbol) ? symbol : null;
+      return localVariables.trackableVariables().contains(symbol) ? symbol : null;
     }
     return null;
   }

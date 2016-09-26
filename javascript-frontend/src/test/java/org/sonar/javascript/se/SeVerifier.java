@@ -246,7 +246,7 @@ class SeVerifier extends SeCheck {
             if (!oneSymbolValue.startsWith("!")) {
               String[] pair = oneSymbolValue.split("=");
               Symbol symbol = getContext().getSymbolModel().getSymbols(pair[0]).iterator().next();
-              ps = ps.newSymbolicValue(symbol, parseSymbolicValue(pair[1]));
+              ps = ps.newSymbolicValueWithConstraint(symbol, parseSymbolicValue(pair[1]));
 
             } else {
               Symbol symbol = getContext().getSymbolModel().getSymbols(oneSymbolValue.substring(1)).iterator().next();

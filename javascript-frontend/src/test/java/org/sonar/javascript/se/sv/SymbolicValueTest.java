@@ -36,7 +36,7 @@ public class SymbolicValueTest {
 
   @Test
   public void constrain() throws Exception {
-    ProgramState state1 = EMPTY_STATE.newSymbolicValue(symbol, null);
+    ProgramState state1 = EMPTY_STATE.newSymbolicValueWithConstraint(symbol, null);
     SymbolicValue sv1 = state1.getSymbolicValue(symbol);
     Optional<ProgramState> constrained = state1.constrain(sv1, TRUTHY);
     assertThat(constrained.isPresent()).isTrue();
@@ -45,7 +45,7 @@ public class SymbolicValueTest {
 
   @Test
   public void constrain_with_unreachable_constraint() throws Exception {
-    ProgramState state1 = EMPTY_STATE.newSymbolicValue(symbol, Constraint.FALSY);
+    ProgramState state1 = EMPTY_STATE.newSymbolicValueWithConstraint(symbol, Constraint.FALSY);
     SymbolicValue sv1 = state1.getSymbolicValue(symbol);
     assertThat(state1.constrain(sv1, TRUTHY).isPresent()).isFalse();
   }

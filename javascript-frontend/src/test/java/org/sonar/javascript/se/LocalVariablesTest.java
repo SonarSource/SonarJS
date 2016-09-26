@@ -22,10 +22,13 @@ package org.sonar.javascript.se;
 import com.google.common.base.Charsets;
 import com.sonar.sslr.api.typed.ActionParser;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import org.junit.Test;
 import org.sonar.javascript.cfg.ControlFlowGraph;
 import org.sonar.javascript.parser.JavaScriptParserBuilder;
+import org.sonar.javascript.se.sv.SymbolicValue;
 import org.sonar.javascript.tree.symbols.Scope;
 import org.sonar.javascript.visitors.JavaScriptVisitorContext;
 import org.sonar.plugins.javascript.api.symbols.Symbol;
@@ -41,12 +44,51 @@ public class LocalVariablesTest {
   private ActionParser<Tree> parser = JavaScriptParserBuilder.createParser(Charsets.UTF_8);
 
   @Test
+  public void track_outer_if_written_in_declaration() throws Exception {
+    LocalVariables localVariables = localVariables("var outer; outer = 1; function f() { foo(outer); }");
+    assertThat(localVariables.trackableVariables()).isEmpty();
+    assertOnlyFunctionF(localVariables.symbolsFromOuterScope());
+
+    localVariables = localVariables("var outer = foo(); function f() { foo(outer); }");
+    assertThat(localVariables.trackableVariables()).isEmpty();
+    assertOnlyNotFunctionSymbol(localVariables.symbolsFromOuterScope(), "outer");
+
+    localVariables = localVariables("var outer = 1; outer = 2; function f() { foo(outer); }");
+    assertThat(localVariables.trackableVariables()).isEmpty();
+    assertOnlyFunctionF(localVariables.symbolsFromOuterScope());
+
+    localVariables = localVariables("outer = 1; function f() { foo(outer); }");
+    assertThat(localVariables.trackableVariables()).isEmpty();
+    assertOnlyFunctionF(localVariables.symbolsFromOuterScope());
+  }
+
+  private void assertOnlyFunctionF(Map<Symbol, SymbolicValue> valuesFromOuterScope) {
+    assertThat(valuesFromOuterScope).hasSize(1);
+    Entry<Symbol, SymbolicValue> entry = valuesFromOuterScope.entrySet().iterator().next();
+    assertThat(entry.getKey().name()).isEqualTo("f");
+    assertThat(entry.getValue()).isNotNull();
+  }
+
+  private void assertOnlyNotFunctionSymbol(Map<Symbol, SymbolicValue> valuesFromOuterScope, String symbolName) {
+    assertThat(valuesFromOuterScope).hasSize(2);
+
+    for (Entry<Symbol, SymbolicValue> entry : valuesFromOuterScope.entrySet()) {
+      String name = entry.getKey().name();
+      if (name.equals("f")) {
+        assertThat(entry.getValue()).isNotNull();
+      } else {
+        assertThat(name).isEqualTo(symbolName);
+        assertThat(entry.getValue()).isNull();
+      }
+    }
+  }
+
+  @Test
   public void empty() throws Exception {
     LocalVariables localVariables = localVariables("function f() { }");
     assertThat(localVariables.functionParameters()).isEmpty();
     assertThat(localVariables.trackableVariables()).isEmpty();
   }
-
   @Test
   public void parameter() throws Exception {
     LocalVariables localVariables = localVariables("function f(p) { foo(p); }");

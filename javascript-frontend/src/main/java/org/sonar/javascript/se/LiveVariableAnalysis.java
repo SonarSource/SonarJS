@@ -185,29 +185,16 @@ public class LiveVariableAnalysis {
 
       symbols.add(symbol);
 
-      if (isLocalVariable(symbol)) {
-        boolean readAtLeastOnce = false;
-        for (Usage usage : symbol.usages()) {
-          localVariableUsages.put(usage.identifierTree(), usage);
-          if (isRead(usage)) {
-            readAtLeastOnce = true;
-          }
-        }
-        if (!readAtLeastOnce) {
-          neverReadSymbols.add(symbol);
+      boolean readAtLeastOnce = false;
+      for (Usage usage : symbol.usages()) {
+        localVariableUsages.put(usage.identifierTree(), usage);
+        if (isRead(usage)) {
+          readAtLeastOnce = true;
         }
       }
-    }
-
-    private boolean isLocalVariable(Symbol symbol) {
-      Scope scope = symbol.scope();
-      while (!scope.isGlobal()) {
-        if (scope.equals(functionScope)) {
-          return true;
-        }
-        scope = scope.outer();
+      if (!readAtLeastOnce) {
+        neverReadSymbols.add(symbol);
       }
-      return false;
     }
 
     public Set<Symbol> neverReadSymbols() {

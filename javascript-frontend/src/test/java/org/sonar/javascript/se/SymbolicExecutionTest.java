@@ -140,6 +140,11 @@ public class SymbolicExecutionTest {
     verifySE("built_in.js");
   }
 
+  @Test
+  public void track_outer_scope_symbols() throws Exception {
+    verifySE("track_outer_scope_symbols.js");
+  }
+
   private void runSe(String filename) {
     JavaScriptVisitorContext context = createContext(new File("src/test/resources/se/", filename));
     verifier.scanExpectedIssues(context);

@@ -118,23 +118,30 @@ public class ProgramState {
   }
 
 
-  public ProgramState newSymbolicValue(Symbol symbol, @Nullable Constraint constraint) {
+  public ProgramState newSymbolicValueWithConstraint(Symbol symbol, @Nullable Constraint constraint) {
     SymbolicValue value = newSymbolicValue();
+    ProgramState newProgramState = new ProgramState(buildValues(values, symbol, value), ImmutableMap.copyOf(constraints), stack, relations, counter);
+    if (constraint != null) {
+      newProgramState = newProgramState.addConstraint(value, constraint);
+    }
 
+    return newProgramState;
+  }
+
+  public ProgramState newSymbolicValue(Symbol symbol, SymbolicValue value) {
+    return new ProgramState(buildValues(values, symbol, value), ImmutableMap.copyOf(constraints), stack, relations, counter);
+  }
+
+  private static ImmutableMap<Symbol, SymbolicValue> buildValues(Map<Symbol, SymbolicValue> oldValues, Symbol symbol, SymbolicValue value) {
     ImmutableMap.Builder<Symbol, SymbolicValue> valuesBuilder = ImmutableMap.builder();
-    for (Entry<Symbol, SymbolicValue> entry : values.entrySet()) {
+    for (Entry<Symbol, SymbolicValue> entry : oldValues.entrySet()) {
       if (!entry.getKey().equals(symbol)) {
         valuesBuilder.put(entry.getKey(), entry.getValue());
       }
     }
     valuesBuilder.put(symbol, value);
 
-    ProgramState newProgramState = new ProgramState(valuesBuilder.build(), ImmutableMap.copyOf(constraints), stack, relations, counter);
-    if (constraint != null) {
-      newProgramState = newProgramState.addConstraint(value, constraint);
-    }
-
-    return newProgramState;
+    return valuesBuilder.build();
   }
 
   public Optional<ProgramState> constrain(@Nullable SymbolicValue value, @Nullable Constraint constraint) {
