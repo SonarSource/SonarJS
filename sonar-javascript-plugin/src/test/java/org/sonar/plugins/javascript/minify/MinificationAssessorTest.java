@@ -21,12 +21,12 @@ package org.sonar.plugins.javascript.minify;
 
 import java.io.File;
 import java.nio.charset.Charset;
-import org.fest.assertions.BooleanAssert;
+import org.assertj.core.api.AbstractBooleanAssert;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.squidbridge.api.AnalysisException;
 
-import static org.fest.assertions.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class MinificationAssessorTest {
 
@@ -72,12 +72,12 @@ public class MinificationAssessorTest {
     return new File(DIR + name);
   }
 
-  private BooleanAssert getAssert(String fileName) {
+  private AbstractBooleanAssert getAssert(String fileName) {
     MinificationAssessor assessor = new MinificationAssessor(Charset.forName("UTF-8"), 20);
     return getAssert(assessor, fileName);
   }
 
-  private BooleanAssert getAssert(MinificationAssessor assessor, String fileName) {
+  private AbstractBooleanAssert getAssert(MinificationAssessor assessor, String fileName) {
     return assertThat(assessor.isMinified(getFile(fileName))).as("File '" + fileName + "' is minified?");
   }
 

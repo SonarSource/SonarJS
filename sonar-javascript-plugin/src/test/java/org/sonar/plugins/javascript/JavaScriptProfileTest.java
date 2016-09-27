@@ -29,7 +29,7 @@ import org.sonar.api.rules.RulePriority;
 import org.sonar.api.utils.ValidationMessages;
 import org.sonar.javascript.checks.CheckList;
 
-import static org.fest.assertions.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -46,7 +46,7 @@ public class JavaScriptProfileTest {
 
     assertThat(profile.getLanguage()).isEqualTo(JavaScriptLanguage.KEY);
     assertThat(profile.getName()).isEqualTo(CheckList.SONAR_WAY_PROFILE);
-    assertThat(profile.getActiveRules()).onProperty("repositoryKey").containsOnly("common-js", CheckList.REPOSITORY_KEY);
+    assertThat(profile.getActiveRules()).extracting("repositoryKey").containsOnly("common-js", CheckList.REPOSITORY_KEY);
     assertThat(validation.hasErrors()).isFalse();
     assertThat(profile.getActiveRules().size()).isGreaterThan(87);
   }
@@ -61,7 +61,7 @@ public class JavaScriptProfileTest {
 
     assertThat(profile.getLanguage()).isEqualTo(JavaScriptLanguage.KEY);
     assertThat(profile.getName()).isEqualTo(CheckList.SONAR_WAY_PROFILE);
-    assertThat(profile.getActiveRules()).onProperty("repositoryKey").containsOnly(CheckList.REPOSITORY_KEY);
+    assertThat(profile.getActiveRules()).extracting("repositoryKey").containsOnly(CheckList.REPOSITORY_KEY);
     assertThat(validation.hasErrors()).isFalse();
     assertThat(profile.getActiveRules().size()).isGreaterThan(86);
   }

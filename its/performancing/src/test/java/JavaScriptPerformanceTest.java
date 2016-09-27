@@ -26,10 +26,11 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Properties;
 import java.util.concurrent.TimeUnit;
-import org.fest.assertions.Assertions;
-import org.fest.assertions.Delta;
+import org.assertj.core.api.Assertions;
 import org.junit.ClassRule;
 import org.junit.Test;
+
+import static org.assertj.core.api.Assertions.offset;
 
 public class JavaScriptPerformanceTest {
 
@@ -64,7 +65,7 @@ public class JavaScriptPerformanceTest {
     double time = sensorTime(build.getProjectDir(), SENSOR);
 
     double expected = 126.0;
-    Assertions.assertThat(time).isEqualTo(expected, Delta.delta(expected * 0.04));
+    Assertions.assertThat(time).isEqualTo(expected, offset(expected * 0.04));
   }
 
   private static double sensorTime(File projectDir, String sensor) throws IOException {

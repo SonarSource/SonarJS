@@ -37,7 +37,7 @@ import org.sonar.plugins.javascript.api.visitors.LineIssue;
 import org.sonar.plugins.javascript.api.visitors.PreciseIssue;
 import org.sonar.squidbridge.checks.CheckMessagesVerifier;
 
-import static org.fest.assertions.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
 
 public class JavaScriptCheckVerifier {
@@ -142,7 +142,7 @@ public class JavaScriptCheckVerifier {
       assertThat(message(actual)).as("Bad message at line " + expected.line()).isEqualTo(expected.message());
     }
     if (expected.effortToFix() != null) {
-      assertThat(actual.cost()).as("Bad effortToFix at line " + expected.line()).isEqualTo(expected.effortToFix());
+      assertThat(actual.cost()).as("Bad effortToFix at line " + expected.line()).isEqualTo((double)expected.effortToFix());
     }
     if (expected.startColumn() != null) {
       assertThat(((PreciseIssue) actual).primaryLocation().startLineOffset() + 1).as("Bad start column at line " + expected.line()).isEqualTo(expected.startColumn());

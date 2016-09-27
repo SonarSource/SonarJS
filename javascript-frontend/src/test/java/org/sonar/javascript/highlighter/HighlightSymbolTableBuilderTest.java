@@ -33,7 +33,7 @@ import org.sonar.api.internal.google.common.base.Charsets;
 import org.sonar.api.internal.google.common.io.Files;
 import org.sonar.javascript.utils.JavaScriptTreeModelTest;
 
-import static org.fest.assertions.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class HighlightSymbolTableBuilderTest extends JavaScriptTreeModelTest {
 

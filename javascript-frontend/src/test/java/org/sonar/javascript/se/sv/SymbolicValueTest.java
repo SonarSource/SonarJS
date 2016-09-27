@@ -25,7 +25,7 @@ import org.sonar.javascript.se.Constraint;
 import org.sonar.javascript.se.ProgramState;
 import org.sonar.plugins.javascript.api.symbols.Symbol;
 
-import static org.fest.assertions.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.sonar.javascript.se.Constraint.TRUTHY;
 

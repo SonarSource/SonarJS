@@ -25,7 +25,7 @@ import org.sonar.javascript.tree.symbols.type.ObjectType.FrameworkType;
 import org.sonar.plugins.javascript.api.symbols.Symbol;
 import org.sonar.plugins.javascript.api.symbols.Type.Kind;
 
-import static org.fest.assertions.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class FrameworkTest extends TypeTest {
 
@@ -46,7 +46,7 @@ public class FrameworkTest extends TypeTest {
   @Test
   public void not_jquery_object() {
     Symbol jqueryObject = getSymbol("notJqueryObject");
-    assertThat(jqueryObject.types()).excludes(ObjectType.FrameworkType.JQUERY_SELECTOR_OBJECT);
+    assertThat(jqueryObject.types()).doesNotContain(ObjectType.FrameworkType.JQUERY_SELECTOR_OBJECT);
   }
 
   @Test

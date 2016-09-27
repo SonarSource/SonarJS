@@ -27,7 +27,7 @@ import org.sonar.javascript.tree.symbols.type.PrimitiveType;
 import org.sonar.plugins.javascript.api.symbols.Type;
 import org.sonar.plugins.javascript.api.symbols.TypeSet;
 
-import static org.fest.assertions.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class TypeSetTest {
 

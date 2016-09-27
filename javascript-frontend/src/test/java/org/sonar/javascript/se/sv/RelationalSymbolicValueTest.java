@@ -27,7 +27,7 @@ import org.sonar.javascript.se.Relation;
 import org.sonar.plugins.javascript.api.symbols.Symbol;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 
-import static org.fest.assertions.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.sonar.javascript.se.sv.SpecialSymbolicValue.NULL;
 import static org.sonar.javascript.se.sv.SpecialSymbolicValue.UNDEFINED;
