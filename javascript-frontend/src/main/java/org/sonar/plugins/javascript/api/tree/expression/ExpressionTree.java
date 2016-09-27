@@ -21,14 +21,13 @@ package org.sonar.plugins.javascript.api.tree.expression;
 
 import com.google.common.annotations.Beta;
 import org.sonar.plugins.javascript.api.symbols.TypeSet;
-import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.expression.jsx.JsxElementNameTree;
 
 /**
  * Common interface for all types of <a href="http://www.ecma-international.org/ecma-262/5.1/#sec-11">expressions</a>.
  */
 @Beta
-public interface ExpressionTree extends Tree, JsxElementNameTree {
+public interface ExpressionTree extends JsxElementNameTree {
 
   /**
    * Returns an unmodifiable set of the possible types for the expression.

@@ -21,7 +21,7 @@ package com.sonar.javascript.it;
 
 import com.google.common.io.Files;
 import com.sonar.orchestrator.Orchestrator;
-import com.sonar.orchestrator.build.SonarRunner;
+import com.sonar.orchestrator.build.SonarScanner;
 import com.sonar.orchestrator.locator.FileLocation;
 import java.io.File;
 import java.nio.charset.StandardCharsets;
@@ -50,7 +50,7 @@ public class JavaScriptTypeInferenceTest {
 
     File litsDifferencesFile = FileLocation.of("target/differences").getFile();
 
-    SonarRunner build = SonarRunner.create(TestUtils.projectDir(""))
+    SonarScanner build = (SonarScanner) SonarScanner.create(TestUtils.projectDir(""))
       .setProjectKey("project")
       .setProjectName("project")
       .setProjectVersion("1")

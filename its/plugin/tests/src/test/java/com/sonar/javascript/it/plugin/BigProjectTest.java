@@ -20,7 +20,7 @@
 package com.sonar.javascript.it.plugin;
 
 import com.sonar.orchestrator.Orchestrator;
-import com.sonar.orchestrator.build.SonarRunner;
+import com.sonar.orchestrator.build.SonarScanner;
 import com.sonar.orchestrator.locator.FileLocation;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
@@ -43,7 +43,7 @@ public class BigProjectTest {
   public static void prepare() {
     orchestrator.resetData();
 
-    SonarRunner build = Tests.createSonarRunnerBuild()
+    SonarScanner build = (SonarScanner) Tests.createScanner()
       .setProjectDir(FileLocation.of("../../sources/src").getFile())
       .setProjectKey(Tests.PROJECT_KEY)
       .setProjectName(Tests.PROJECT_KEY)

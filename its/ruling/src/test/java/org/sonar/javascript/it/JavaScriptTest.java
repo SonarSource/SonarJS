@@ -21,7 +21,7 @@ package org.sonar.javascript.it;
 
 import com.google.common.io.Files;
 import com.sonar.orchestrator.Orchestrator;
-import com.sonar.orchestrator.build.SonarRunner;
+import com.sonar.orchestrator.build.SonarScanner;
 import com.sonar.orchestrator.locator.FileLocation;
 import java.io.File;
 import java.nio.charset.StandardCharsets;
@@ -55,7 +55,7 @@ public class JavaScriptTest {
     File litsDifferencesFile = FileLocation.of("target/differences").getFile();
     orchestrator.getServer().provisionProject("project", "project");
     orchestrator.getServer().associateProjectToQualityProfile("project", "js", "rules");
-    SonarRunner build = SonarRunner.create(FileLocation.of("../sources/src").getFile())
+    SonarScanner build = (SonarScanner) SonarScanner.create(FileLocation.of("../sources/src").getFile())
       .setProjectKey("project")
       .setProjectName("project")
       .setProjectVersion("1")

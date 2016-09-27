@@ -20,7 +20,7 @@
 package com.sonar.javascript.it.plugin;
 
 import com.sonar.orchestrator.Orchestrator;
-import com.sonar.orchestrator.build.SonarRunner;
+import com.sonar.orchestrator.build.SonarScanner;
 import java.util.List;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
@@ -41,7 +41,7 @@ public class CustomRulesTests {
   @BeforeClass
   public static void prepare() throws InterruptedException {
     orchestrator.resetData();
-    SonarRunner build = Tests.createSonarRunnerBuild()
+    SonarScanner build = Tests.createScanner()
       .setProjectDir(TestUtils.projectDir("custom_rules"))
       .setProjectKey("custom-rules")
       .setProjectName("Custom Rules")

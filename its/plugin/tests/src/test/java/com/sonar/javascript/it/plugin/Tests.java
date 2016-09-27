@@ -20,7 +20,7 @@
 package com.sonar.javascript.it.plugin;
 
 import com.sonar.orchestrator.Orchestrator;
-import com.sonar.orchestrator.build.SonarRunner;
+import com.sonar.orchestrator.build.SonarScanner;
 import com.sonar.orchestrator.locator.FileLocation;
 import java.io.File;
 import org.junit.ClassRule;
@@ -58,12 +58,12 @@ public final class Tests {
   private Tests() {
   }
 
-  public static SonarRunner createSonarRunnerBuild() {
-    SonarRunner build = SonarRunner.create();
-    build.setProperty("sonar.exclusions", "**/ecmascript6/**, **/file-for-rules/**, **/frameworks/**");
-    build.setSourceEncoding("UTF-8");
+  public static SonarScanner createScanner() {
+    SonarScanner scanner = SonarScanner.create();
+    scanner.setProperty("sonar.exclusions", "**/ecmascript6/**, **/file-for-rules/**, **/frameworks/**");
+    scanner.setSourceEncoding("UTF-8");
 
-    return build;
+    return scanner;
   }
 
   public static void setEmptyProfile(String projectKey, String projectName) {
