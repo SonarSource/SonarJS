@@ -81,6 +81,7 @@
     "S3579",
     "S3616",
     "S3686",
+    "S3699",
     "SwitchWithoutDefault",
     "TooManyBreakOrContinueInLoop",
     "UnreachableCode",

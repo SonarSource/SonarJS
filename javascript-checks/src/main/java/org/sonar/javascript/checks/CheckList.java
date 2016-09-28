@@ -171,6 +171,7 @@ public final class CheckList {
       UselessExpressionStatementCheck.class,
       UselessIncrementCheck.class,
       UselessStringOperationCheck.class,
+      UseOfEmptyReturnValueCheck.class,
       VarDeclarationCheck.class,
       VariableDeclarationAfterUsageCheck.class,
       VariableDeclarationWithoutVarCheck.class,
