@@ -37,7 +37,7 @@ import org.sonar.plugins.javascript.api.tree.Tree;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class FunctionSymbolicValueTest extends SymbolicExecutionTest {
+public class FunctionSymbolicValueTest {
 
   @Test
   public void test() throws Exception {

@@ -380,39 +380,35 @@ public class SymbolicExecution {
 
   private void pushConditionSuccessors(CfgBranchingBlock block, ProgramState currentState) {
     SymbolicValue conditionSymbolicValue = currentState.peekStack();
-    ProgramState psWithPoppedStack = currentState.removeLastValue();
-
-    if (block.branchingTree().is(Kind.IF_STATEMENT, Kind.WHILE_STATEMENT, Kind.DO_WHILE_STATEMENT, Kind.FOR_STATEMENT)) {
-      psWithPoppedStack.assertEmptyStack(block.branchingTree());
-    }
-
     Tree lastElement = block.elements().get(block.elements().size() - 1);
 
-
-    Optional<ProgramState> constrainedTruePS = psWithPoppedStack.constrain(conditionSymbolicValue, Constraint.TRUTHY);
+    Optional<ProgramState> constrainedTruePS = currentState.constrain(conditionSymbolicValue, Constraint.TRUTHY);
     if (constrainedTruePS.isPresent()){
-      pushConditionSuccessor(block.trueSuccessor(), constrainedTruePS.get(), conditionSymbolicValue, Constraint.TRUTHY);
+      pushConditionSuccessor(block.trueSuccessor(), constrainedTruePS.get(), conditionSymbolicValue, Constraint.TRUTHY, block.branchingTree());
       conditionResults.put(lastElement, Truthiness.TRUTHY);
     }
 
-
-    Optional<ProgramState> constrainedFalsePS = psWithPoppedStack.constrain(conditionSymbolicValue, Constraint.FALSY);
+    Optional<ProgramState> constrainedFalsePS = currentState.constrain(conditionSymbolicValue, Constraint.FALSY);
     if (constrainedFalsePS.isPresent()) {
-      pushConditionSuccessor(block.falseSuccessor(), constrainedFalsePS.get(), conditionSymbolicValue, Constraint.FALSY);
+      pushConditionSuccessor(block.falseSuccessor(), constrainedFalsePS.get(), conditionSymbolicValue, Constraint.FALSY, block.branchingTree());
       conditionResults.put(lastElement, Truthiness.FALSY);
     }
   }
 
   private void pushConditionSuccessor(
-    CfgBlock successor, ProgramState programState, SymbolicValue conditionSymbolicValue, Constraint constraint) {
+    CfgBlock successor, ProgramState programState, SymbolicValue conditionSymbolicValue, Constraint constraint, Tree branchingTree) {
 
     ProgramState state = programState;
     if (!successor.elements().isEmpty() && successor.elements().get(0).is(Kind.CONDITIONAL_AND, Kind.CONDITIONAL_OR)) {
-      SymbolicValue conditionValue = conditionSymbolicValue;
       if (UnknownSymbolicValue.UNKNOWN.equals(conditionSymbolicValue)) {
-        conditionValue = new SymbolicValueWithConstraint(constraint);
+        state = state.removeLastValue();
+        state = state.pushToStack(new SymbolicValueWithConstraint(constraint));
       }
-      state = state.pushToStack(conditionValue);
+    } else {
+      state = state.removeLastValue();
+      if (branchingTree.is(Kind.IF_STATEMENT, Kind.WHILE_STATEMENT, Kind.DO_WHILE_STATEMENT, Kind.FOR_STATEMENT)) {
+        state.assertEmptyStack(branchingTree);
+      }
     }
     pushSuccessor(successor, state);
   }
