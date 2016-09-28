@@ -4,6 +4,8 @@ function main() {
   }
 
   noReturn(); // OK
+  (noReturn()); // OK
+  ((noReturn())); // OK
 
   x = noReturn(); // Noncompliant {{Remove this use of the output from "noReturn"; "noReturn" doesn't return anything.}}
 //    ^^^^^^^^
@@ -14,6 +16,7 @@ function main() {
   for (var x of noReturn()) { }// Noncompliant
 
   var arrowFunc = (a) => noReturn(a); // OK
+  var arrowFunc = (a) => (noReturn(a)); // OK
   boolVar ? noReturn() : doSomethingElse(); // OK
   noReturn() ? doSomething() : doSomethingElse(); // Noncompliant
   boolVar && noReturn(); // OK

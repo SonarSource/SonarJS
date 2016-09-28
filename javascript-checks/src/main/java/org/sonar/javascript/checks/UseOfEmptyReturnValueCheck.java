@@ -43,6 +43,7 @@ import org.sonar.plugins.javascript.api.visitors.SubscriptionVisitor;
 import static org.sonar.plugins.javascript.api.tree.Tree.Kind.CONDITIONAL_AND;
 import static org.sonar.plugins.javascript.api.tree.Tree.Kind.CONDITIONAL_EXPRESSION;
 import static org.sonar.plugins.javascript.api.tree.Tree.Kind.CONDITIONAL_OR;
+import static org.sonar.plugins.javascript.api.tree.Tree.Kind.PARENTHESISED_EXPRESSION;
 
 @Rule(key="S3699")
 public class UseOfEmptyReturnValueCheck extends AbstractAllPathSeCheck<CallExpressionTree> {
@@ -68,7 +69,7 @@ public class UseOfEmptyReturnValueCheck extends AbstractAllPathSeCheck<CallExpre
   }
 
   private static boolean isReturnValueUsed(CallExpressionTree tree) {
-    Tree parent = ((JavaScriptTree) tree).getParent();
+    Tree parent = getParentIgnoreParenthesis(tree);
 
     if (parent.is(CONDITIONAL_OR, CONDITIONAL_AND)) {
       return ((BinaryExpressionTree) parent).leftOperand().equals(tree);
@@ -148,5 +149,13 @@ public class UseOfEmptyReturnValueCheck extends AbstractAllPathSeCheck<CallExpre
       }
     }
 
+  }
+
+  private static Tree getParentIgnoreParenthesis(Tree tree) {
+    Tree parent = ((JavaScriptTree) tree).getParent();
+    if (parent.is(PARENTHESISED_EXPRESSION)) {
+      return getParentIgnoreParenthesis(parent);
+    }
+    return parent;
   }
 }
