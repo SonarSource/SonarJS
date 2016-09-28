@@ -309,6 +309,24 @@ public enum JavaScriptLegacyGrammar implements GrammarRuleKey {
   NEXT_NOT_ES6_ASSIGNMENT_EXPRESSION,
   NEXT_NOT_FUNCTION_AND_CLASS;
 
+  private final String internalName;
+
+  JavaScriptLegacyGrammar() {
+    String name = name();
+    StringBuilder sb = new StringBuilder();
+    int i = 0;
+    while (i < name.length()) {
+      if (name.charAt(i) == '_' && i + 1 < name.length()) {
+        i++;
+        sb.append(name.charAt(i));
+      } else {
+        sb.append(Character.toLowerCase(name.charAt(i)));
+      }
+      i++;
+    }
+    internalName = sb.toString();
+  }
+
   public static LexerlessGrammar createGrammar() {
     return createGrammarBuilder().build();
   }
@@ -525,24 +543,6 @@ public enum JavaScriptLegacyGrammar implements GrammarRuleKey {
       }
     }
     throw new IllegalStateException(value);
-  }
-
-  private final String internalName;
-
-  JavaScriptLegacyGrammar() {
-    String name = name();
-    StringBuilder sb = new StringBuilder();
-    int i = 0;
-    while (i < name.length()) {
-      if (name.charAt(i) == '_' && i + 1 < name.length()) {
-        i++;
-        sb.append(name.charAt(i));
-      } else {
-        sb.append(Character.toLowerCase(name.charAt(i)));
-      }
-      i++;
-    }
-    this.internalName = sb.toString();
   }
 
   @Override

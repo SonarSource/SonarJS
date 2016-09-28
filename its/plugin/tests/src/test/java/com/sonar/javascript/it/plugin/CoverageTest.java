@@ -21,7 +21,7 @@ package com.sonar.javascript.it.plugin;
 
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.BuildResult;
-import com.sonar.orchestrator.build.SonarRunner;
+import com.sonar.orchestrator.build.SonarScanner;
 import java.util.regex.Pattern;
 import org.junit.Before;
 import org.junit.ClassRule;
@@ -44,7 +44,7 @@ public class CoverageTest {
 
   @Test
   public void LCOV_path_can_be_relative() throws Exception {
-    SonarRunner build = Tests.createSonarRunnerBuild()
+    SonarScanner build = (SonarScanner) Tests.createScanner()
       .setProjectDir(TestUtils.projectDir("lcov"))
       .setProjectKey(Tests.PROJECT_KEY)
       .setProjectName(Tests.PROJECT_KEY)
@@ -62,7 +62,7 @@ public class CoverageTest {
 
   @Test
   public void LCOV_path_can_be_absolute() {
-    SonarRunner build = Tests.createSonarRunnerBuild()
+    SonarScanner build = Tests.createScanner()
       .setProjectDir(TestUtils.projectDir("lcov"))
       .setProjectKey(Tests.PROJECT_KEY)
       .setProjectName(Tests.PROJECT_KEY)
@@ -80,7 +80,7 @@ public class CoverageTest {
 
   @Test
   public void LCOV_it_coverage() {
-    SonarRunner build = Tests.createSonarRunnerBuild()
+    SonarScanner build = Tests.createScanner()
       .setProjectDir(TestUtils.projectDir("lcov"))
       .setProjectKey(Tests.PROJECT_KEY)
       .setProjectName(Tests.PROJECT_KEY)
@@ -98,7 +98,7 @@ public class CoverageTest {
 
   @Test
   public void LCOV_overall_coverage() {
-    SonarRunner build = Tests.createSonarRunnerBuild()
+    SonarScanner build = Tests.createScanner()
       .setProjectDir(TestUtils.projectDir("lcov"))
       .setProjectKey(Tests.PROJECT_KEY)
       .setProjectName(Tests.PROJECT_KEY)
@@ -117,7 +117,7 @@ public class CoverageTest {
 
   @Test
   public void force_zero_coverage() {
-    SonarRunner build = Tests.createSonarRunnerBuild()
+    SonarScanner build = Tests.createScanner()
       .setProjectDir(TestUtils.projectDir("lcov"))
       .setProjectKey(Tests.PROJECT_KEY)
       .setProjectName(Tests.PROJECT_KEY)
@@ -144,7 +144,7 @@ public class CoverageTest {
 
   @Test
   public void no_coverage_information_saved() {
-    SonarRunner build = Tests.createSonarRunnerBuild()
+    SonarScanner build = Tests.createScanner()
       .setProjectDir(TestUtils.projectDir("lcov"))
       .setProjectKey(Tests.PROJECT_KEY)
       .setProjectName(Tests.PROJECT_KEY)
@@ -162,7 +162,7 @@ public class CoverageTest {
   @Test
   // SONARJS-301
   public void print_log_for_not_found_resource() throws InterruptedException {
-    SonarRunner build = Tests.createSonarRunnerBuild()
+    SonarScanner build = Tests.createScanner()
       .setProjectDir(TestUtils.projectDir("lcov"))
       .setProjectKey(Tests.PROJECT_KEY)
       .setProjectName(Tests.PROJECT_KEY)
@@ -184,7 +184,7 @@ public class CoverageTest {
   @Test
   // SONARJS-547
   public void wrong_line_in_report() throws InterruptedException {
-    SonarRunner build = Tests.createSonarRunnerBuild()
+    SonarScanner build = Tests.createScanner()
       .setProjectDir(TestUtils.projectDir("lcov"))
       .setProjectKey(Tests.PROJECT_KEY)
       .setProjectName(Tests.PROJECT_KEY)

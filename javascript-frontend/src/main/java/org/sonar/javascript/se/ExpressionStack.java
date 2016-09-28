@@ -62,16 +62,16 @@ public class ExpressionStack {
 
   private final Deque<SymbolicValue> stack;
 
-  public static ExpressionStack emptyStack() {
-    return EMPTY;
-  }
-
   private ExpressionStack() {
     this.stack = new LinkedList<>();
   }
 
   private ExpressionStack(Deque<SymbolicValue> stack) {
     this.stack = stack;
+  }
+
+  public static ExpressionStack emptyStack() {
+    return EMPTY;
   }
 
   public ExpressionStack push(@Nullable SymbolicValue newValue) {

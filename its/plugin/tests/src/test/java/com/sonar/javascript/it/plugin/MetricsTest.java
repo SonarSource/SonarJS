@@ -20,7 +20,7 @@
 package com.sonar.javascript.it.plugin;
 
 import com.sonar.orchestrator.Orchestrator;
-import com.sonar.orchestrator.build.SonarRunner;
+import com.sonar.orchestrator.build.SonarScanner;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
@@ -42,7 +42,7 @@ public class MetricsTest {
   public static void prepare() {
     orchestrator.resetData();
 
-    SonarRunner build = Tests.createSonarRunnerBuild()
+    SonarScanner build = Tests.createScanner()
       .setProjectDir(TestUtils.projectDir("metrics"))
       .setProjectKey(Tests.PROJECT_KEY)
       .setProjectName(Tests.PROJECT_KEY)

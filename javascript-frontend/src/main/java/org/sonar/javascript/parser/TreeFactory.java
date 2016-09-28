@@ -261,7 +261,7 @@ public class TreeFactory {
     return new VariableStatementTreeImpl(declaration, nullableSemicolonToken(semicolonToken));
   }
 
-  private VariableDeclarationTreeImpl variableDeclaration(InternalSyntaxToken token, SeparatedList<BindingElementTree> variables) {
+  private static VariableDeclarationTreeImpl variableDeclaration(InternalSyntaxToken token, SeparatedList<BindingElementTree> variables) {
     Kind kind;
     if (token.is(JavaScriptKeyword.VAR)) {
       kind = Kind.VAR_DECLARATION;
@@ -1448,7 +1448,7 @@ public class TreeFactory {
     return new InitializedBindingElementTreeImpl(equalToken, expression);
   }
 
-  private BindingElementTree completeBindingElement(BindingElementTree left, Optional<InitializedBindingElementTreeImpl> initializer) {
+  private static BindingElementTree completeBindingElement(BindingElementTree left, Optional<InitializedBindingElementTreeImpl> initializer) {
     if (!initializer.isPresent()) {
       return left;
     }

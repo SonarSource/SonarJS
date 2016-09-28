@@ -25,6 +25,8 @@ package org.sonar.plugins.javascript;
  */
 class CancellationException extends RuntimeException {
 
+  private static final long serialVersionUID = 2694991398328066200L;
+
   CancellationException(String message) {
     super(message);
   }

@@ -19,7 +19,7 @@
  */
 import com.google.common.base.Preconditions;
 import com.sonar.orchestrator.Orchestrator;
-import com.sonar.orchestrator.build.SonarRunner;
+import com.sonar.orchestrator.build.SonarScanner;
 import com.sonar.orchestrator.locator.FileLocation;
 import java.io.File;
 import java.io.FileInputStream;
@@ -48,7 +48,7 @@ public class JavaScriptPerformanceTest {
     ORCHESTRATOR.getServer().provisionProject("project", "project");
     ORCHESTRATOR.getServer().associateProjectToQualityProfile("project", "js", "no-rules");
 
-    SonarRunner build = SonarRunner.create(FileLocation.of("../sources/src").getFile())
+    SonarScanner build = (SonarScanner) SonarScanner.create(FileLocation.of("../sources/src").getFile())
       .setEnvironmentVariable("SONAR_RUNNER_OPTS", "-Xmx1024m")
       .setProperty("sonar.importSources", "false")
       .setProperty("sonar.showProfiling", "true")

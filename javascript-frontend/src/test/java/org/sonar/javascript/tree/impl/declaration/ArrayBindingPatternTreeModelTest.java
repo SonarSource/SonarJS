@@ -108,7 +108,7 @@ public class ArrayBindingPatternTreeModelTest extends JavaScriptTreeModelTest {
     assertThat(size(treeIterator2)).isEqualTo(13);
   }
 
-  private int size(Iterator iterator) {
+  private int size(Iterator<Tree> iterator) {
     int result = 0;
     while (iterator.hasNext()) {
       iterator.next();
