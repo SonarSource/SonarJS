@@ -1,5 +1,6 @@
 {
   "title": "Built-in objects should not be overridden",
+  "type": "BUG",
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",

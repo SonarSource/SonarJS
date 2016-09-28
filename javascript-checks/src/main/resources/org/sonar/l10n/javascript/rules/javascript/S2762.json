@@ -1,5 +1,6 @@
 {
   "title": "Selections should be stored",
+  "type": "BUG",
   "status": "ready",
   "remediation": {
     "func": "Linear with offset",

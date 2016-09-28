@@ -1,5 +1,6 @@
 {
   "title": "Comparison operators should not be used with strings",
+  "type": "BUG",
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",

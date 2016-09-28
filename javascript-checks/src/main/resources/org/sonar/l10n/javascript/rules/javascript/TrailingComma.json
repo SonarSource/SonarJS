@@ -1,5 +1,6 @@
 {
   "title": "Trailing commas should not be used",
+  "type": "BUG",
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",

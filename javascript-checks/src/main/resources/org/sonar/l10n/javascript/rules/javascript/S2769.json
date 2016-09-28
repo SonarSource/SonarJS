@@ -1,5 +1,6 @@
 {
   "title": "Selection results should be tested with \"length\"",
+  "type": "BUG",
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",

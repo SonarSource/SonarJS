@@ -1,5 +1,6 @@
 {
   "title": "Function call arguments should not start on new lines",
+  "type": "BUG",
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",

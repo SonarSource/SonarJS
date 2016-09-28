@@ -1,5 +1,6 @@
 {
   "title": "Parameters should be passed in the correct order",
+  "type": "BUG",
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",

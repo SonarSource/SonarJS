@@ -1,5 +1,6 @@
 {
   "title": "Functions should not be defined inside loops",
+  "type": "BUG",
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",

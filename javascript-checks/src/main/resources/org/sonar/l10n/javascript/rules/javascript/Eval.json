@@ -1,5 +1,6 @@
 {
   "title": "Code should not be dynamically injected and executed",
+  "type": "VULNERABILITY",
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",
@@ -9,6 +10,10 @@
     "cwe",
     "security",
     "owasp-a3"
+  ],
+  "standards": [
+    "CWE",
+    "OWASP Top Ten"
   ],
   "defaultSeverity": "Critical"
 }

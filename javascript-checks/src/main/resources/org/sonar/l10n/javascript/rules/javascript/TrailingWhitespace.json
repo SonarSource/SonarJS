@@ -1,5 +1,6 @@
 {
   "title": "Lines should not end with trailing whitespaces",
+  "type": "CODE_SMELL",
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",

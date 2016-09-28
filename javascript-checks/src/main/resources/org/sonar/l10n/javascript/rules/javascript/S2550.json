@@ -1,5 +1,6 @@
 {
   "title": "\"defaults\" should be a function when objects or arrays are used",
+  "type": "BUG",
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",

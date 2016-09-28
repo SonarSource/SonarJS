@@ -1,5 +1,6 @@
 {
   "title": "\"find\" should be used to select the children of an element known by id",
+  "type": "BUG",
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",

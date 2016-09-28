@@ -1,5 +1,6 @@
 {
   "title": "\"new\" operators should be used with functions",
+  "type": "BUG",
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",

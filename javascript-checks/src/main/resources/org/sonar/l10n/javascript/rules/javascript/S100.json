@@ -1,5 +1,6 @@
 {
   "title": "Function names should comply with a naming convention",
+  "type": "CODE_SMELL",
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",

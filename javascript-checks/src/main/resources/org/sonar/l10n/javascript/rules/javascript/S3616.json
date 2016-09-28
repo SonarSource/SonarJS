@@ -1,5 +1,6 @@
 {
   "title": "Comma operators should not be used in switch cases",
+  "type": "BUG",
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",

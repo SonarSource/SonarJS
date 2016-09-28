@@ -1,5 +1,6 @@
 {
   "title": "Files should contain an empty new line at the end",
+  "type": "CODE_SMELL",
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",

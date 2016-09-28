@@ -1,5 +1,6 @@
 {
   "title": "Console logging should not be used",
+  "type": "VULNERABILITY",
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",
@@ -9,6 +10,9 @@
     "security",
     "owasp-a6",
     "user-experience"
+  ],
+  "standards": [
+    "OWASP Top Ten"
   ],
   "defaultSeverity": "Minor"
 }

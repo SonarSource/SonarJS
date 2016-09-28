@@ -1,5 +1,6 @@
 {
-  "title": "Variable declarations should be placed appropriately for their scope",
+  "title": "Variables should be defined in the blocks where they are used",
+  "type": "CODE_SMELL",
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",

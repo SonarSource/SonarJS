@@ -1,5 +1,6 @@
 {
   "title": "Functions should not be called both with and without \"new\"",
+  "type": "BUG",
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",

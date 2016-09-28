@@ -27,6 +27,7 @@ import java.net.URL;
 import java.util.Locale;
 import javax.annotation.Nullable;
 import org.sonar.api.rule.RuleStatus;
+import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.debt.DebtRemediationFunction;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.javascript.checks.CheckList;
@@ -78,6 +79,7 @@ public class JavaScriptRulesDefinition implements RulesDefinition {
       rule.setSeverity(metadata.defaultSeverity.toUpperCase(Locale.US));
       rule.setName(metadata.title);
       rule.setTags(metadata.tags);
+      rule.setType(RuleType.valueOf(metadata.type));
       rule.setStatus(RuleStatus.valueOf(metadata.status.toUpperCase(Locale.US)));
 
       if (metadata.remediation != null) {
@@ -91,6 +93,7 @@ public class JavaScriptRulesDefinition implements RulesDefinition {
   private static class RuleMetadata {
     String title;
     String status;
+    String type;
     @Nullable
     Remediation remediation;
 

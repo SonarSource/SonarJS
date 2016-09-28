@@ -1,5 +1,6 @@
 {
   "title": "Setters should not return values",
+  "type": "BUG",
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",

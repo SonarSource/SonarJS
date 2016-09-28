@@ -1,5 +1,6 @@
 {
   "title": "Debugger statements should not be used",
+  "type": "VULNERABILITY",
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",
@@ -9,6 +10,9 @@
     "cwe",
     "security",
     "user-experience"
+  ],
+  "standards": [
+    "CWE"
   ],
   "defaultSeverity": "Minor"
 }

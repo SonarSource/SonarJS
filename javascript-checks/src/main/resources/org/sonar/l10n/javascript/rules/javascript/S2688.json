@@ -1,5 +1,6 @@
 {
   "title": "\"NaN\" should not be used in comparisons",
+  "type": "BUG",
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",

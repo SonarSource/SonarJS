@@ -1,5 +1,6 @@
 {
   "title": "Files should not have too many lines",
+  "type": "CODE_SMELL",
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",

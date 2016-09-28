@@ -1,5 +1,6 @@
 {
   "title": "\"switch\" statements should not contain non-case labels",
+  "type": "BUG",
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",

@@ -1,5 +1,6 @@
 {
   "title": "\"===\" and \"!==\" should be used instead of \"==\" and \"!=\"",
+  "type": "BUG",
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",

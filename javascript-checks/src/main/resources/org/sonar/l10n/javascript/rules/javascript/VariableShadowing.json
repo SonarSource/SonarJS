@@ -1,5 +1,6 @@
 {
   "title": "Variables should not be shadowed",
+  "type": "CODE_SMELL",
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",

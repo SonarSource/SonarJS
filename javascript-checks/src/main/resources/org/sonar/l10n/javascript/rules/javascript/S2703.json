@@ -1,5 +1,6 @@
 {
   "title": "Variables should be declared explicitly",
+  "type": "CODE_SMELL",
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",

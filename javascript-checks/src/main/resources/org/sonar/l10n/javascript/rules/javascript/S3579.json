@@ -1,5 +1,6 @@
 {
   "title": "Array indexes should be numeric",
+  "type": "CODE_SMELL",
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",

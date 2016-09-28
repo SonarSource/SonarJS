@@ -1,5 +1,6 @@
 {
   "title": "Values should not be uselessly incremented",
+  "type": "BUG",
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",

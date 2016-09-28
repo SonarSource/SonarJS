@@ -1,5 +1,6 @@
 {
   "title": "Two branches in the same conditional structure should not have exactly the same implementation",
+  "type": "BUG",
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",

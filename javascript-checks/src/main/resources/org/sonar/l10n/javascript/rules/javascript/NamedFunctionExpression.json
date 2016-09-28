@@ -1,5 +1,6 @@
 {
   "title": "Named function expressions should not be used",
+  "type": "BUG",
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",

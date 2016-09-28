@@ -1,5 +1,6 @@
 {
   "title": "\"indexOf\" checks should not be for positive numbers",
+  "type": "BUG",
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",

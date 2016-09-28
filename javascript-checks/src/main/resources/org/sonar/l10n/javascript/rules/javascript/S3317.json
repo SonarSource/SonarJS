@@ -1,5 +1,6 @@
 {
   "title": "Default export names and file names should match",
+  "type": "CODE_SMELL",
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",

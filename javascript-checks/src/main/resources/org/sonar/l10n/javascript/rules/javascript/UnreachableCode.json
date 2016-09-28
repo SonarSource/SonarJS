@@ -1,5 +1,6 @@
 {
   "title": "Jump statements should not be followed by other statements",
+  "type": "BUG",
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",
@@ -11,6 +12,9 @@
     "misra",
     "cert",
     "unused"
+  ],
+  "standards": [
+    "CWE"
   ],
   "defaultSeverity": "Major"
 }
