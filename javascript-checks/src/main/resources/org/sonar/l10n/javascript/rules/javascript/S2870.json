@@ -1,5 +1,6 @@
 {
   "title": "\"delete\" should not be used on arrays",
+  "type": "BUG",
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",

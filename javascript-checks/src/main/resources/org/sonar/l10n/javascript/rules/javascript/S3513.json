@@ -1,5 +1,6 @@
 {
   "title": "\"arguments\" should not be accessed directly",
+  "type": "CODE_SMELL",
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",

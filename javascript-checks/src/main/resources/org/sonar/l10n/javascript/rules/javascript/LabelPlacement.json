@@ -1,5 +1,6 @@
 {
   "title": "Only \"while\", \"do\" and \"for\" statements should be labelled",
+  "type": "CODE_SMELL",
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",

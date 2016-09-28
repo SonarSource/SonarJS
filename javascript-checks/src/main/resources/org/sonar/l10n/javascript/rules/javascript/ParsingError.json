@@ -1,5 +1,6 @@
 {
   "title": "JavaScript parser failure",
+  "type": "CODE_SMELL",
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",

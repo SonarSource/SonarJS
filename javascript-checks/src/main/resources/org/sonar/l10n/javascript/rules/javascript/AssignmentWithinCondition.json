@@ -1,5 +1,6 @@
 {
   "title": "Assignments should not be made from within sub-expressions",
+  "type": "CODE_SMELL",
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",
@@ -10,6 +11,9 @@
     "misra",
     "cert",
     "suspicious"
+  ],
+  "standards": [
+    "CWE"
   ],
   "defaultSeverity": "Major"
 }

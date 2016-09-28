@@ -1,5 +1,6 @@
 {
   "title": "Single quotes should be used for string literals",
+  "type": "CODE_SMELL",
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",

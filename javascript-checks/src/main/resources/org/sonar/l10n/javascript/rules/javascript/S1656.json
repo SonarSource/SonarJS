@@ -1,5 +1,6 @@
 {
   "title": "Variables should not be self-assigned",
+  "type": "BUG",
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",

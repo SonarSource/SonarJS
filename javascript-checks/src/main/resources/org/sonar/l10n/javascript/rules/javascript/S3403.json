@@ -1,5 +1,6 @@
 {
   "title": "The identity operator (\"===\") should not be used with dissimilar types",
+  "type": "BUG",
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",

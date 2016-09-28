@@ -1,5 +1,6 @@
 {
   "title": "Local storage should not be used",
+  "type": "VULNERABILITY",
   "status": "ready",
   "remediation": {
     "func": "Linear with offset",
@@ -10,6 +11,9 @@
   "tags": [
     "security",
     "owasp-a6"
+  ],
+  "standards": [
+    "OWASP Top Ten"
   ],
   "defaultSeverity": "Critical"
 }

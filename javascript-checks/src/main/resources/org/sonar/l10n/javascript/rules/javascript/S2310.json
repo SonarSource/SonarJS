@@ -1,5 +1,6 @@
 {
   "title": "Loop counters should not be assigned to from within the loop body",
+  "type": "CODE_SMELL",
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",

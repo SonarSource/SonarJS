@@ -1,5 +1,6 @@
 {
   "title": "Function constructors should not be used",
+  "type": "VULNERABILITY",
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",

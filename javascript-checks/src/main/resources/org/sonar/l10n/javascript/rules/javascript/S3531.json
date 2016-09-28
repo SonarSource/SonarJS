@@ -1,5 +1,6 @@
 {
   "title": "Generators should \"yield\" something",
+  "type": "BUG",
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",

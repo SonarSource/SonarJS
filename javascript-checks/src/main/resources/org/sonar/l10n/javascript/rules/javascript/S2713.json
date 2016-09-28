@@ -1,5 +1,6 @@
 {
   "title": "JQuery cache variables should comply with a convention name",
+  "type": "CODE_SMELL",
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",

@@ -1,5 +1,6 @@
 {
   "title": "Braces and parentheses should be used consistently with arrow functions",
+  "type": "CODE_SMELL",
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",

@@ -1,5 +1,6 @@
 {
   "title": "Attempts should not be made to update \"const\" variables",
+  "type": "BUG",
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",

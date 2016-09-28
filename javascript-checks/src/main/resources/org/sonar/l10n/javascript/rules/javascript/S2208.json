@@ -1,5 +1,6 @@
 {
   "title": "Wildcard imports should not be used",
+  "type": "CODE_SMELL",
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",

@@ -1,5 +1,6 @@
 {
   "title": "Multiline blocks should be enclosed in curly braces",
+  "type": "BUG",
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",
@@ -9,6 +10,9 @@
     "cwe",
     "bug",
     "cert"
+  ],
+  "standards": [
+    "CWE"
   ],
   "defaultSeverity": "Major"
 }

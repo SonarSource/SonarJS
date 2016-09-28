@@ -1,5 +1,6 @@
 {
   "title": "Equality operators should not be used in \"for\" loop termination conditions",
+  "type": "CODE_SMELL",
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",
@@ -10,6 +11,9 @@
     "misra",
     "cert",
     "suspicious"
+  ],
+  "standards": [
+    "CWE"
   ],
   "defaultSeverity": "Critical"
 }

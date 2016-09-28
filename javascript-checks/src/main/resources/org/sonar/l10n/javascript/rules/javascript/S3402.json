@@ -1,5 +1,6 @@
 {
   "title": "Strings and non-strings should not be added",
+  "type": "BUG",
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",

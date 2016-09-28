@@ -1,5 +1,6 @@
 {
   "title": "Objects should not be created to be dropped immediately without being used",
+  "type": "BUG",
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",

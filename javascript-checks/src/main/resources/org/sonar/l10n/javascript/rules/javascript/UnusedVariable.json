@@ -1,5 +1,6 @@
 {
   "title": "Unused local variables and functions should be removed",
+  "type": "CODE_SMELL",
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",

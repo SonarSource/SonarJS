@@ -1,12 +1,14 @@
 {
   "title": "\"eval\" and \"arguments\" should not be bound or assigned",
+  "type": "BUG",
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",
     "constantCost": "10min"
   },
   "tags": [
-    "bug"
+    "bug",
+    "pitfall"
   ],
   "defaultSeverity": "Major"
 }

@@ -1,5 +1,6 @@
 {
   "title": "Dead stores should be removed",
+  "type": "BUG",
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",
@@ -11,6 +12,9 @@
     "cert",
     "unused",
     "suspicious"
+  ],
+  "standards": [
+    "CWE"
   ],
   "defaultSeverity": "Major"
 }

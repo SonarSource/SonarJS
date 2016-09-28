@@ -1,5 +1,6 @@
 {
   "title": "Function argument names should be unique",
+  "type": "BUG",
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",

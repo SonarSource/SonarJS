@@ -1,5 +1,6 @@
 {
   "title": "\"if ... else if\" constructs should end with \"else\" clauses",
+  "type": "CODE_SMELL",
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",

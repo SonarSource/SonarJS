@@ -1,5 +1,6 @@
 {
   "title": "Element type selectors should not be used with class selectors",
+  "type": "BUG",
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",

@@ -1,5 +1,6 @@
 {
   "title": "Property names should not be duplicated within an object literal",
+  "type": "BUG",
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",

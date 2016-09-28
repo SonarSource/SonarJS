@@ -1,5 +1,6 @@
 {
   "title": "Template strings should be used instead of concatenation",
+  "type": "CODE_SMELL",
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",

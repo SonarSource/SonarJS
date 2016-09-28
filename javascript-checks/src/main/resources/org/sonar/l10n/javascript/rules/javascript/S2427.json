@@ -1,5 +1,6 @@
 {
   "title": "The base should be provided to \"parseInt\"",
+  "type": "BUG",
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",

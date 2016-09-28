@@ -1,5 +1,6 @@
 {
   "title": "Comma operator should not be used",
+  "type": "BUG",
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",

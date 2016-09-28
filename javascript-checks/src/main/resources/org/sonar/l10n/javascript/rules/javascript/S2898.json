@@ -1,5 +1,6 @@
 {
   "title": "\"[type=...]\" should be used to select elements by type",
+  "type": "BUG",
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",

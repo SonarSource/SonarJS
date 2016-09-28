@@ -1,5 +1,6 @@
 {
   "title": "Results of operations on strings should not be ignored",
+  "type": "BUG",
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",

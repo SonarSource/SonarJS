@@ -1,5 +1,6 @@
 {
   "title": "Unused function parameters should be removed",
+  "type": "CODE_SMELL",
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",

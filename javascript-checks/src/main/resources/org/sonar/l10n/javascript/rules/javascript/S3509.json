@@ -1,5 +1,6 @@
 {
   "title": "Default parameters should not cause side effects",
+  "type": "CODE_SMELL",
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",

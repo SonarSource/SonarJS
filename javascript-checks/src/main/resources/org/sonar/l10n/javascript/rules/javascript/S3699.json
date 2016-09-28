@@ -1,12 +1,13 @@
 {
   "title": "The output of functions that don't return anything should not be used",
+  "type": "BUG",
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",
     "constantCost": "5min"
   },
   "tags": [
-    "bug"
+    
   ],
   "defaultSeverity": "Major"
 }

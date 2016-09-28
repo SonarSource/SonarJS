@@ -1,5 +1,6 @@
 {
   "title": "Function parameters with default values should be last",
+  "type": "CODE_SMELL",
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",
