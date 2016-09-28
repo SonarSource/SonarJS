@@ -22,7 +22,7 @@ package org.sonar.plugins.javascript.api;
 import com.google.common.annotations.Beta;
 import com.google.common.collect.ImmutableList;
 import org.sonar.api.ExtensionPoint;
-import org.sonar.api.batch.ScannerSide;
+import org.sonar.api.batch.BatchSide;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.squidbridge.annotations.AnnotationBasedRulesDefinition;
 
@@ -31,7 +31,7 @@ import org.sonar.squidbridge.annotations.AnnotationBasedRulesDefinition;
  */
 @Beta
 @ExtensionPoint
-@ScannerSide
+@BatchSide
 public abstract class CustomJavaScriptRulesDefinition implements RulesDefinition {
 
   /**
