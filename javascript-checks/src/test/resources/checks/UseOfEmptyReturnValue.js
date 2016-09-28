@@ -51,4 +51,8 @@ function main() {
   // OK
   var x = returnsValue();
   returnsValue();
+
+
+  x = (function(){}()) // Noncompliant {{Remove this use of the output from this function; this function doesn't return anything.}}
+//     ^^^^^^^^^^^^
 }

@@ -28,7 +28,6 @@ import org.sonar.javascript.se.sv.FunctionSymbolicValue;
 import org.sonar.javascript.se.sv.SymbolicValue;
 import org.sonar.javascript.tree.TreeKinds;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
-import org.sonar.plugins.javascript.api.symbols.Symbol;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.declaration.FunctionTree;
@@ -43,12 +42,13 @@ import org.sonar.plugins.javascript.api.visitors.SubscriptionVisitor;
 import static org.sonar.plugins.javascript.api.tree.Tree.Kind.CONDITIONAL_AND;
 import static org.sonar.plugins.javascript.api.tree.Tree.Kind.CONDITIONAL_EXPRESSION;
 import static org.sonar.plugins.javascript.api.tree.Tree.Kind.CONDITIONAL_OR;
+import static org.sonar.plugins.javascript.api.tree.Tree.Kind.IDENTIFIER_REFERENCE;
 import static org.sonar.plugins.javascript.api.tree.Tree.Kind.PARENTHESISED_EXPRESSION;
 
 @Rule(key="S3699")
 public class UseOfEmptyReturnValueCheck extends AbstractAllPathSeCheck<CallExpressionTree> {
 
-  private static final String MESSAGE = "Remove this use of the output from \"%s\"; \"%s\" doesn't return anything.";
+  private static final String MESSAGE = "Remove this use of the output from %s; %s doesn't return anything.";
 
   @Override
   CallExpressionTree getTree(Tree element) {
@@ -84,16 +84,10 @@ public class UseOfEmptyReturnValueCheck extends AbstractAllPathSeCheck<CallExpre
 
   @CheckForNull
   private static FunctionTree functionTree(CallExpressionTree tree, ProgramState currentState) {
-    if (tree.callee().is(Kind.IDENTIFIER_REFERENCE)) {
-      Symbol symbol = ((IdentifierTree) tree.callee()).symbol();
-      
-      if (symbol != null) {
-        SymbolicValue symbolicValue = currentState.getSymbolicValue(symbol);
+    SymbolicValue calleeSV = currentState.peekStack(tree.arguments().parameters().size());
 
-        if (symbolicValue instanceof FunctionSymbolicValue) {
-          return ((FunctionSymbolicValue) symbolicValue).getFunctionTree();
-        }
-      }
+    if (calleeSV instanceof FunctionSymbolicValue) {
+      return ((FunctionSymbolicValue) calleeSV).getFunctionTree();
     }
 
     return null;
@@ -101,7 +95,10 @@ public class UseOfEmptyReturnValueCheck extends AbstractAllPathSeCheck<CallExpre
 
   @Override
   void raiseIssue(CallExpressionTree tree) {
-    String functionName = ((IdentifierTree) tree.callee()).name();
+    String functionName = "this function";
+    if (tree.callee().is(IDENTIFIER_REFERENCE)) {
+      functionName = "\"" + ((IdentifierTree) tree.callee()).name() + "\"";
+    }
     addIssue(tree.callee(), String.format(MESSAGE, functionName, functionName));
   }
 
