@@ -148,6 +148,9 @@ public class HoistedSymbolVisitor extends DoubleDispatchVisitor {
 
   private void addGlobalBuiltInSymbols() {
     symbolModel.declareBuiltInSymbol("eval", Symbol.Kind.FUNCTION, currentScope);
+    symbolModel.declareBuiltInSymbol("undefined", Symbol.Kind.VARIABLE, currentScope);
+    symbolModel.declareBuiltInSymbol("NaN", Symbol.Kind.VARIABLE, currentScope);
+    symbolModel.declareBuiltInSymbol("Infinity", Symbol.Kind.VARIABLE, currentScope);
 
     Symbol windowSymbol = symbolModel.declareBuiltInSymbol("window", Symbol.Kind.VARIABLE, currentScope);
     windowSymbol.addType(ObjectType.WebApiType.WINDOW);

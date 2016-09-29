@@ -34,7 +34,7 @@ public class BoundOrAssignedEvalOrArgumentsCheck extends AbstractSymbolNameCheck
 
   @Override
   List<String> illegalNames() {
-    return ImmutableList.of("eval", "arguments");
+    return ImmutableList.of("eval", "arguments", "undefined", "NaN", "Infinity");
   }
 
   @Override
