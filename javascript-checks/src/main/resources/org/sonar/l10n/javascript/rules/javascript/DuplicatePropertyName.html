@@ -1,7 +1,7 @@
-<p>JavaScript allows duplicate property names in object literals, but only the last instance of a duplicated property determines the actual value that
-will be used for it. Therefore, changing values of other occurrences of a duplicated property will have no effect and may cause misunderstandings and
-bugs.</p>
-<p>What's more, using duplicate property names will generate an error in JavaScript strict mode code.</p>
+<p>JavaScript allows duplicate property names in classes and object literals, but only the last instance of a duplicated name determines the actual
+value that will be used for it. Therefore, changing values of other occurrences of a duplicated name will have no effect and may cause
+misunderstandings and bugs.</p>
+<p>What's more, using duplicate names will generate an error in JavaScript strict mode code.</p>
 <h2>Noncompliant Code Example</h2>
 <pre>
 var data = {
