@@ -42,9 +42,12 @@ import org.sonar.javascript.tree.symbols.Scope;
 import org.sonar.plugins.javascript.api.symbols.Symbol;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
+import org.sonar.plugins.javascript.api.tree.declaration.ArrayBindingPatternTree;
 import org.sonar.plugins.javascript.api.tree.declaration.BindingElementTree;
+import org.sonar.plugins.javascript.api.tree.declaration.BindingPropertyTree;
 import org.sonar.plugins.javascript.api.tree.declaration.FunctionDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.declaration.InitializedBindingElementTree;
+import org.sonar.plugins.javascript.api.tree.declaration.ObjectBindingPatternTree;
 import org.sonar.plugins.javascript.api.tree.expression.ArrayAssignmentPatternTree;
 import org.sonar.plugins.javascript.api.tree.expression.AssignmentExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.AssignmentPatternRestElementTree;
@@ -55,6 +58,7 @@ import org.sonar.plugins.javascript.api.tree.expression.MemberExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.ObjectAssignmentPatternPairElementTree;
 import org.sonar.plugins.javascript.api.tree.expression.ObjectAssignmentPatternTree;
 import org.sonar.plugins.javascript.api.tree.expression.ParenthesisedExpressionTree;
+import org.sonar.plugins.javascript.api.tree.expression.RestElementTree;
 import org.sonar.plugins.javascript.api.tree.expression.UnaryExpressionTree;
 import org.sonar.plugins.javascript.api.tree.statement.ForObjectStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.ForStatementTree;
@@ -234,12 +238,16 @@ public class SymbolicExecution {
         currentState = assignment(currentState, unary.expression());
 
       } else if (element.is(Kind.INITIALIZED_BINDING_ELEMENT)) {
-        InitializedBindingElementTree initialized = (InitializedBindingElementTree) element;
-        BindingElementTree variable = initialized.left();
-        if (variable.is(Kind.BINDING_IDENTIFIER)) {
-          currentState = assignment(currentState, variable);
+        if (((JavaScriptTree) element).getParent().is(Kind.OBJECT_BINDING_PATTERN, Kind.ARRAY_BINDING_PATTERN)) {
+          currentState = currentState.removeLastValue();
+        } else {
+          InitializedBindingElementTree initialized = (InitializedBindingElementTree) element;
+          BindingElementTree variable = initialized.left();
+          if (variable.is(Kind.BINDING_IDENTIFIER)) {
+            currentState = assignment(currentState, variable);
+          }
+          currentState = currentState.clearStack(element);
         }
-        currentState = currentState.clearStack(element);
 
       } else if (element.is(Kind.ARRAY_ASSIGNMENT_PATTERN)) {
         ArrayAssignmentPatternTree arrayAssignmentPatternTree = (ArrayAssignmentPatternTree) element;
@@ -250,6 +258,17 @@ public class SymbolicExecution {
         ObjectAssignmentPatternTree objectAssignmentPatternTree = (ObjectAssignmentPatternTree) element;
         List<Tree> assignedElements = objectAssignmentPatternTree.elements();
         currentState = createSymbolicValuesForTrackedVariables(assignedElements, currentState);
+
+      } else if (element.is(Kind.ARRAY_BINDING_PATTERN)) {
+        ArrayBindingPatternTree arrayBindingPatternTree = (ArrayBindingPatternTree) element;
+        List<BindingElementTree> assignedElements = SeparateListUtils.presentsOf(arrayBindingPatternTree.elements());
+        currentState = createSymbolicValuesForTrackedVariables(assignedElements, currentState);
+
+      } else if (element.is(Kind.OBJECT_BINDING_PATTERN)) {
+        ObjectBindingPatternTree objectBindingPatternTree = (ObjectBindingPatternTree) element;
+        List<BindingElementTree> assignedElements = objectBindingPatternTree.elements();
+        currentState = createSymbolicValuesForTrackedVariables(assignedElements, currentState);
+
       }
 
       afterBlockElement(currentState, element);
@@ -300,7 +319,7 @@ public class SymbolicExecution {
     return "undefined".equals(tree.name());
   }
 
-  private ProgramState createSymbolicValuesForTrackedVariables(List<Tree> trees, ProgramState state) {
+  private ProgramState createSymbolicValuesForTrackedVariables(List<? extends Tree> trees, ProgramState state) {
     ProgramState newState = state;
     for (Tree tree : trees) {
       Symbol trackedVariable = trackedVariable(tree);
@@ -449,6 +468,15 @@ public class SymbolicExecution {
 
     } else if (tree.is(Kind.OBJECT_ASSIGNMENT_PATTERN_PAIR_ELEMENT)) {
       var = trackedVariable(((ObjectAssignmentPatternPairElementTree) tree).element());
+
+    } else if (tree.is(Kind.REST_ELEMENT)) {
+      var = trackedVariable(((RestElementTree) tree).element());
+
+    } else if (tree.is(Kind.BINDING_PROPERTY)) {
+      var = trackedVariable(((BindingPropertyTree) tree).value());
+
+    } else if (tree.is(Kind.INITIALIZED_BINDING_ELEMENT)) {
+      var = trackedVariable(((InitializedBindingElementTree) tree).left());
     }
 
     return var;

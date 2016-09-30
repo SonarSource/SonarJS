@@ -31,9 +31,9 @@ public class SeparateListUtils {
   /**
    * Returns a new list containing the present (in the sense of Optional#isPresent) elements in <code>list</code>.
    */
-  public static List<Tree> presentsOf(List<com.sonar.sslr.api.typed.Optional<Tree> > list) {
-    List<Tree> newList = new LinkedList<>();
-    for (com.sonar.sslr.api.typed.Optional<Tree> element : list) {
+  public static <T extends Tree> List<T> presentsOf(List<com.sonar.sslr.api.typed.Optional<T>> list) {
+    List<T> newList = new LinkedList<>();
+    for (com.sonar.sslr.api.typed.Optional<T> element : list) {
       if (element.isPresent()) {
         newList.add(element.get());
       }
