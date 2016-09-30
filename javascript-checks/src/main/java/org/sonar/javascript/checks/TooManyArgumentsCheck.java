@@ -37,7 +37,7 @@ import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
 @Rule(key = "S930")
 public class TooManyArgumentsCheck extends DoubleDispatchVisitorCheck {
 
-  private static final String MESSAGE = "%s expects \"%s\" arguments, but \"%s\" were provided.";
+  private static final String MESSAGE = "%s expects %s argument%s, but %s %s provided.";
 
   @Override
   public void visitCallExpression(CallExpressionTree tree) {
@@ -66,7 +66,7 @@ public class TooManyArgumentsCheck extends DoubleDispatchVisitorCheck {
     } else {
       callee = "\"" + CheckUtils.asString(tree.callee()) + "\"";
     }
-    return String.format(MESSAGE, callee, parametersNumber, argumentsNumber);
+    return String.format(MESSAGE, callee, parametersNumber, parametersNumber == 1 ? "" : "s", argumentsNumber, argumentsNumber > 1 ? "were" : "was");
   }
 
   /*
