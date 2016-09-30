@@ -23,11 +23,11 @@ import java.io.File;
 import org.junit.Test;
 import org.sonar.javascript.checks.verifier.JavaScriptCheckVerifier;
 
-public class BoundOrAssignedEvalOrArgumentsCheckTest {
+public class BoundOrAssignedSpecialIdentifiersCheckTest {
 
   @Test
   public void test() {
-    JavaScriptCheckVerifier.verify(new BoundOrAssignedEvalOrArgumentsCheck(), new File("src/test/resources/checks/boundOrAssignedEvalOrArguments.js"));
+    JavaScriptCheckVerifier.verify(new BoundOrAssignedSpecialIdentifiersCheck(), new File("src/test/resources/checks/boundOrAssignedSpecialIdentifiers.js"));
   }
 
 }

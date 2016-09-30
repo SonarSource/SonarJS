@@ -27,7 +27,7 @@ import org.sonar.plugins.javascript.api.symbols.Usage;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
 
 @Rule(key = "BoundOrAssignedEvalOrArguments")
-public class BoundOrAssignedEvalOrArgumentsCheck extends AbstractSymbolNameCheck {
+public class BoundOrAssignedSpecialIdentifiersCheck extends AbstractSymbolNameCheck {
 
   private static final String DECLARATION_MESSAGE = "Do not use \"%s\" to declare a %s - use another name.";
   private static final String MODIFICATION_MESSAGE = "Remove the modification of \"%s\".";
