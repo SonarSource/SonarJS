@@ -54,7 +54,6 @@ import org.sonar.plugins.javascript.api.tree.expression.AssignmentPatternRestEle
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 import org.sonar.plugins.javascript.api.tree.expression.InitializedAssignmentPatternElementTree;
-import org.sonar.plugins.javascript.api.tree.expression.MemberExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.ObjectAssignmentPatternPairElementTree;
 import org.sonar.plugins.javascript.api.tree.expression.ObjectAssignmentPatternTree;
 import org.sonar.plugins.javascript.api.tree.expression.ParenthesisedExpressionTree;
@@ -201,17 +200,14 @@ public class SymbolicExecution {
       beforeBlockElement(currentState, element);
 
       if (element.is(Kind.BRACKET_MEMBER_EXPRESSION, Kind.DOT_MEMBER_EXPRESSION)) {
-        ExpressionTree object = ((MemberExpressionTree) element).object();
-        if (object.is(Kind.IDENTIFIER_REFERENCE)) {
-          SymbolicValue symbolicValue = currentState.getSymbolicValue(((IdentifierTree) object).symbol());
-          Optional<ProgramState> constrainedPS = currentState.constrain(symbolicValue, Constraint.NOT_NULLY);
-          if (constrainedPS.isPresent()) {
-            currentState = constrainedPS.get();
+        SymbolicValue symbolicValue = currentState.peekStack();
+        Optional<ProgramState> constrainedPS = currentState.constrain(symbolicValue, Constraint.NOT_NULLY);
+        if (constrainedPS.isPresent()) {
+          currentState = constrainedPS.get();
 
-          } else {
-            stopExploring = true;
-            break;
-          }
+        } else {
+          stopExploring = true;
+          break;
         }
       }
 
@@ -238,16 +234,7 @@ public class SymbolicExecution {
         currentState = assignment(currentState, unary.expression());
 
       } else if (element.is(Kind.INITIALIZED_BINDING_ELEMENT)) {
-        if (((JavaScriptTree) element).getParent().is(Kind.OBJECT_BINDING_PATTERN, Kind.ARRAY_BINDING_PATTERN)) {
-          currentState = currentState.removeLastValue();
-        } else {
-          InitializedBindingElementTree initialized = (InitializedBindingElementTree) element;
-          BindingElementTree variable = initialized.left();
-          if (variable.is(Kind.BINDING_IDENTIFIER)) {
-            currentState = assignment(currentState, variable);
-          }
-          currentState = currentState.clearStack(element);
-        }
+        currentState = executeInitializedBinding((InitializedBindingElementTree) element, currentState);
 
       } else if (element.is(Kind.ARRAY_ASSIGNMENT_PATTERN)) {
         ArrayAssignmentPatternTree arrayAssignmentPatternTree = (ArrayAssignmentPatternTree) element;
@@ -281,6 +268,21 @@ public class SymbolicExecution {
     if (!stopExploring) {
       handleSuccessors(block, currentState);
     }
+  }
+
+  private ProgramState executeInitializedBinding(InitializedBindingElementTree initializedBindingElementTree, ProgramState programState) {
+    ProgramState newProgramState = programState;
+    if (((JavaScriptTree) initializedBindingElementTree).getParent().is(Kind.OBJECT_BINDING_PATTERN, Kind.ARRAY_BINDING_PATTERN)) {
+      newProgramState = programState.removeLastValue();
+    } else {
+      BindingElementTree variable = initializedBindingElementTree.left();
+      if (variable.is(Kind.BINDING_IDENTIFIER)) {
+        newProgramState = assignment(programState, variable);
+      }
+      newProgramState = newProgramState.clearStack(initializedBindingElementTree);
+    }
+
+    return newProgramState;
   }
 
   private static boolean isProducingUnconsumedValue(Tree element) {
