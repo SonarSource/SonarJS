@@ -25,7 +25,11 @@ import org.sonar.check.Rule;
 import org.sonar.plugins.javascript.api.symbols.Symbol;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
 
+/**
+ * @deprecated see SONARJS-731 (plugin version 2.17, 2016/09) 
+ */
 @Rule(key = "S2137")
+@Deprecated   
 public class UndefinedShadowingCheck extends AbstractSymbolNameCheck {
 
   private static final String MESSAGE = "Rename this variable.";
