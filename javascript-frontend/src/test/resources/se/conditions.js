@@ -109,4 +109,12 @@ function main() {
   dummyStatement(); // PS x=FALSY || x=TRUTHY_NUMBER
   makeLive(x);
 
+  var p1 = foo(), p2 = foo(), p3 = foo();
+  var combi = p1 && p2 == 42 && p3 === null;
+  if (combi) {
+    foo(); // PS p1=TRUTHY & p3=NULL
+  }
+
+  makeLive(p1, p2, p3);
+
 }
