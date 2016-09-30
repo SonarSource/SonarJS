@@ -22,6 +22,7 @@ package org.sonar.javascript.cfg;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.sonar.sslr.api.RecognitionException;
+import com.sonar.sslr.api.typed.Optional;
 import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.HashMap;
@@ -36,7 +37,11 @@ import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
+import org.sonar.plugins.javascript.api.tree.declaration.ArrayBindingPatternTree;
+import org.sonar.plugins.javascript.api.tree.declaration.BindingElementTree;
+import org.sonar.plugins.javascript.api.tree.declaration.BindingPropertyTree;
 import org.sonar.plugins.javascript.api.tree.declaration.InitializedBindingElementTree;
+import org.sonar.plugins.javascript.api.tree.declaration.ObjectBindingPatternTree;
 import org.sonar.plugins.javascript.api.tree.expression.ArrayLiteralTree;
 import org.sonar.plugins.javascript.api.tree.expression.AssignmentExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.BinaryExpressionTree;
@@ -49,6 +54,7 @@ import org.sonar.plugins.javascript.api.tree.expression.NewExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.ObjectLiteralTree;
 import org.sonar.plugins.javascript.api.tree.expression.PairPropertyTree;
 import org.sonar.plugins.javascript.api.tree.expression.ParenthesisedExpressionTree;
+import org.sonar.plugins.javascript.api.tree.expression.RestElementTree;
 import org.sonar.plugins.javascript.api.tree.expression.SpreadElementTree;
 import org.sonar.plugins.javascript.api.tree.expression.TaggedTemplateTree;
 import org.sonar.plugins.javascript.api.tree.expression.TemplateExpressionTree;
@@ -369,7 +375,28 @@ class ControlFlowGraphBuilder {
       if (yieldExpression.argument() != null) {
         buildExpression(yieldExpression.argument());
       }
+
+    } else if (tree.is(Kind.OBJECT_BINDING_PATTERN)) {
+      ObjectBindingPatternTree objectBindingPattern = (ObjectBindingPatternTree) tree;
+      buildExpressions(objectBindingPattern.elements());
+
+    } else if (tree.is(Kind.BINDING_PROPERTY)) {
+      BindingPropertyTree bindingProperty = (BindingPropertyTree) tree;
+      buildExpression(bindingProperty.value());
+
+    } else if (tree.is(Kind.REST_ELEMENT)) {
+      RestElementTree restElement = (RestElementTree) tree;
+      buildExpression(restElement.element());
+
+    } else if (tree.is(Kind.ARRAY_BINDING_PATTERN)) {
+      ArrayBindingPatternTree arrayBindingPattern = (ArrayBindingPatternTree) tree;
+      for (Optional<BindingElementTree> element : Lists.reverse(arrayBindingPattern.elements())) {
+        if (element.isPresent()) {
+          buildExpression(element.get());
+        }
+      }
     }
+
   }
 
   private void buildCondition(ExpressionTree expression, JsCfgBlock trueBlock, JsCfgBlock falseBlock) {
