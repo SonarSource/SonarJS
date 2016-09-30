@@ -38,7 +38,7 @@ import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
 @Rule(key = "Parentheses")
 public class ParenthesesCheck extends DoubleDispatchVisitorCheck {
 
-  private static final String MESSAGE = "Remove useless parentheses around \"%s\".";
+  private static final String MESSAGE = "Remove those useless parentheses.";
 
   private static final Kind[] SHOULD_BE_PARENTHESISED_AFTER_TYPEOF = {
     Kind.CONDITIONAL_EXPRESSION,

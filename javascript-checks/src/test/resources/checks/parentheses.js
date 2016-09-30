@@ -1,20 +1,20 @@
 function sayHello() {
-  var a = typeof (37); // Noncompliant {{Remove useless parentheses around "37".}}
+  var a = typeof (37); // Noncompliant {{Remove those useless parentheses.}}
 //               ^^^^
   var b = typeof 38;
 
   var c = {};
   c.a = a;
   c.b = b;
-  delete (a);  // Noncompliant {{Remove useless parentheses around "a".}}
+  delete (a);  // Noncompliant {{Remove those useless parentheses.}}
 //       ^^^
   delete b;
 
   void 0;
-  void (1); // Noncompliant {{Remove useless parentheses around "1".}}
+  void (1); // Noncompliant {{Remove those useless parentheses.}}
 
   if (false) {
-    return (1); // Noncompliant {{Remove useless parentheses around "1".}}
+    return (1); // Noncompliant {{Remove those useless parentheses.}}
   } else {
     return 2;
   }
@@ -22,14 +22,14 @@ function sayHello() {
   try {
     throw new Error('myException');
   } catch (err) {
-    throw (new Error('myExceptionTwo')); // Noncompliant {{Remove useless parentheses around "new Error('myExceptionTwo')".}}
+    throw (new Error('myExceptionTwo')); // Noncompliant {{Remove those useless parentheses.}}
   }
 
-  var e = new (Error('error')); // Noncompliant {{Remove useless parentheses around "Error('error')".}}
+  var e = new (Error('error')); // Noncompliant {{Remove those useless parentheses.}}
   var error = new Error('errorTwo');
 
   var name, object;
-  for (name in (object)) { // Noncompliant {{Remove useless parentheses around "object".}}
+  for (name in (object)) { // Noncompliant {{Remove those useless parentheses.}}
   }
   for (name in object) {
   }
