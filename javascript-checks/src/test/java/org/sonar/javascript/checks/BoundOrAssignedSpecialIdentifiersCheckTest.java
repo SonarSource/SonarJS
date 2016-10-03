@@ -27,7 +27,7 @@ public class BoundOrAssignedSpecialIdentifiersCheckTest {
 
   @Test
   public void test() {
-    JavaScriptCheckVerifier.verify(new BoundOrAssignedSpecialIdentifiersCheck(), new File("src/test/resources/checks/boundOrAssignedSpecialIdentifiers.js"));
+    JavaScriptCheckVerifier.verify(new BoundOrAssignedSpecialIdentifiersCheck(), new File("src/test/resources/checks/boundOrAssignedSpecialIdentifiers2.js"));
   }
 
 }
