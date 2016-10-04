@@ -21,7 +21,6 @@ package org.sonar.javascript.checks;
 
 import javax.annotation.Nullable;
 import org.sonar.check.Rule;
-import org.sonar.javascript.checks.utils.CheckUtils;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.expression.BinaryExpressionTree;
@@ -38,7 +37,7 @@ import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
 @Rule(key = "Parentheses")
 public class ParenthesesCheck extends DoubleDispatchVisitorCheck {
 
-  private static final String MESSAGE = "Remove useless parentheses around \"%s\".";
+  private static final String MESSAGE = "Remove those useless parentheses.";
 
   private static final Kind[] SHOULD_BE_PARENTHESISED_AFTER_TYPEOF = {
     Kind.CONDITIONAL_EXPRESSION,
@@ -147,8 +146,7 @@ public class ParenthesesCheck extends DoubleDispatchVisitorCheck {
         }
       }
 
-      String expressingString = CheckUtils.asString(parenthesisedExpression.expression());
-      addIssue(expression, String.format(MESSAGE, expressingString));
+      addIssue(expression, MESSAGE);
     }
   }
 
@@ -157,8 +155,7 @@ public class ParenthesesCheck extends DoubleDispatchVisitorCheck {
       ExpressionTree nestedExpr = ((ParenthesisedExpressionTree) expression).expression();
 
       if (nestedExpr != null && !nestedExpr.is(SHOULD_BE_PARENTHESISED_AFTER_TYPEOF)) {
-        String expressingString = CheckUtils.asString(nestedExpr);
-        addIssue(expression, String.format(MESSAGE, expressingString));
+        addIssue(expression, MESSAGE);
       }
     }
   }
