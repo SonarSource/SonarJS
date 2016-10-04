@@ -19,7 +19,7 @@
  */
 package org.sonar.javascript.checks;
 
-import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -38,10 +38,11 @@ import org.sonar.plugins.javascript.api.visitors.SubscriptionVisitor;
 public class EqEqEqCheck extends AbstractAllPathSeCheck<BinaryExpressionTree> {
 
   private Set<BinaryExpressionTree> ignoredList = new HashSet<>();
+  private static final Kind[] EQUALITY_KINDS = {Kind.EQUAL_TO, Kind.NOT_EQUAL_TO};
 
   @Override
   BinaryExpressionTree getTree(Tree element) {
-    if (element.is(Kind.EQUAL_TO, Kind.NOT_EQUAL_TO)) {
+    if (element.is(EQUALITY_KINDS)) {
       return (BinaryExpressionTree) element;
     }
     return null;
@@ -97,7 +98,7 @@ public class EqEqEqCheck extends AbstractAllPathSeCheck<BinaryExpressionTree> {
 
     @Override
     public List<Kind> nodesToVisit() {
-      return ImmutableList.of(Kind.EQUAL_TO, Kind.NOT_EQUAL_TO);
+      return Lists.newArrayList(EQUALITY_KINDS);
     }
 
     @Override

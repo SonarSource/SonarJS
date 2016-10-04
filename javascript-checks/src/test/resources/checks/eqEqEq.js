@@ -15,11 +15,14 @@ function sayHello(c) {
   }
   if (a == null) {  // OK
   }
-
+  if (null == a) {  // OK
+  }
+  if (null == null) {  // OK
+  }
   foo(c);
 }
 
-function withTypes(a, b, c) {
+function withTypes(a, b) {
   if (typeof a == "string" && typeof b == "string") { // OK x 2
 
     if (a == b) {     // OK
@@ -35,6 +38,21 @@ function withTypes(a, b, c) {
     if (a == null) {  // OK
     }
   }
+
+  if (typeof a == "string" && typeof b == "number") {
+    if (a == b) {     // Noncompliant
+    }
+    if (a === b) {    // OK
+    }
+  }
+
+  if (typeof a == "string") {
+    if (a == b) {     // Noncompliant
+    }
+    if (a === b) {    // OK
+    }
+  }
+
 }
 
 if (a == b) { // Noncompliant
