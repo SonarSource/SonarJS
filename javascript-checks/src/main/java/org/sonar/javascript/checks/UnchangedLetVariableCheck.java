@@ -94,7 +94,7 @@ public class UnchangedLetVariableCheck extends DoubleDispatchVisitorCheck {
   private void ignore(List<IdentifierTree> identifiers) {
     if (identifiers.size() > 1) {
       identifiers.stream()
-        .map(identifier -> identifier.symbol())
+        .map(IdentifierTree::symbol)
         .forEach(ignoredSymbols::add);
     }
   }
