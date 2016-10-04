@@ -6,12 +6,20 @@ function main(par, unused) {
   var y = null;  // PS y=NULL
   var z = foo(y); // PS z=ANY_VALUE & y=NULL
 
-  let {x1, x2} = foo(); // PS !x1 & !x2
+  let {x1, x2} = foo(); // PS x1=ANY_VALUE & x2=ANY_VALUE
   dummyStatement();
   
   nested(par, x, y, z);
   var obj = new MyClass();
 
   function nested() { }
+
+
+  var [element1=1, element2] = arr;
+  if (element1 && element2 == null) {
+    foo(); // PS element1=TRUTHY & element2=NULLY
+  }
+
+  makeLive(element1, element2);
 
 }

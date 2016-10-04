@@ -37,18 +37,27 @@ import org.sonar.javascript.se.sv.SymbolicValueWithConstraint;
 import org.sonar.javascript.se.sv.UnknownSymbolicValue;
 import org.sonar.javascript.tree.TreeKinds;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
+import org.sonar.javascript.tree.impl.SeparateListUtils;
 import org.sonar.javascript.tree.symbols.Scope;
 import org.sonar.plugins.javascript.api.symbols.Symbol;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
+import org.sonar.plugins.javascript.api.tree.declaration.ArrayBindingPatternTree;
 import org.sonar.plugins.javascript.api.tree.declaration.BindingElementTree;
+import org.sonar.plugins.javascript.api.tree.declaration.BindingPropertyTree;
 import org.sonar.plugins.javascript.api.tree.declaration.FunctionDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.declaration.InitializedBindingElementTree;
+import org.sonar.plugins.javascript.api.tree.declaration.ObjectBindingPatternTree;
+import org.sonar.plugins.javascript.api.tree.expression.ArrayAssignmentPatternTree;
 import org.sonar.plugins.javascript.api.tree.expression.AssignmentExpressionTree;
+import org.sonar.plugins.javascript.api.tree.expression.AssignmentPatternRestElementTree;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
-import org.sonar.plugins.javascript.api.tree.expression.MemberExpressionTree;
+import org.sonar.plugins.javascript.api.tree.expression.InitializedAssignmentPatternElementTree;
+import org.sonar.plugins.javascript.api.tree.expression.ObjectAssignmentPatternPairElementTree;
+import org.sonar.plugins.javascript.api.tree.expression.ObjectAssignmentPatternTree;
 import org.sonar.plugins.javascript.api.tree.expression.ParenthesisedExpressionTree;
+import org.sonar.plugins.javascript.api.tree.expression.RestElementTree;
 import org.sonar.plugins.javascript.api.tree.expression.UnaryExpressionTree;
 import org.sonar.plugins.javascript.api.tree.statement.ForObjectStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.ForStatementTree;
@@ -191,17 +200,14 @@ public class SymbolicExecution {
       beforeBlockElement(currentState, element);
 
       if (element.is(Kind.BRACKET_MEMBER_EXPRESSION, Kind.DOT_MEMBER_EXPRESSION)) {
-        ExpressionTree object = ((MemberExpressionTree) element).object();
-        if (object.is(Kind.IDENTIFIER_REFERENCE)) {
-          SymbolicValue symbolicValue = currentState.getSymbolicValue(((IdentifierTree) object).symbol());
-          Optional<ProgramState> constrainedPS = currentState.constrain(symbolicValue, Constraint.NOT_NULLY);
-          if (constrainedPS.isPresent()) {
-            currentState = constrainedPS.get();
+        SymbolicValue symbolicValue = currentState.peekStack();
+        Optional<ProgramState> constrainedPS = currentState.constrain(symbolicValue, Constraint.NOT_NULLY);
+        if (constrainedPS.isPresent()) {
+          currentState = constrainedPS.get();
 
-          } else {
-            stopExploring = true;
-            break;
-          }
+        } else {
+          stopExploring = true;
+          break;
         }
       }
 
@@ -228,12 +234,27 @@ public class SymbolicExecution {
         currentState = assignment(currentState, unary.expression());
 
       } else if (element.is(Kind.INITIALIZED_BINDING_ELEMENT)) {
-        InitializedBindingElementTree initialized = (InitializedBindingElementTree) element;
-        BindingElementTree variable = initialized.left();
-        if (variable.is(Kind.BINDING_IDENTIFIER)) {
-          currentState = assignment(currentState, variable);
-        }
-        currentState = currentState.clearStack(element);
+        currentState = executeInitializedBinding((InitializedBindingElementTree) element, currentState);
+
+      } else if (element.is(Kind.ARRAY_ASSIGNMENT_PATTERN)) {
+        ArrayAssignmentPatternTree arrayAssignmentPatternTree = (ArrayAssignmentPatternTree) element;
+        List<Tree> assignedElements = SeparateListUtils.presentsOf(arrayAssignmentPatternTree.elements());
+        currentState = createSymbolicValuesForTrackedVariables(assignedElements, currentState);
+
+      } else if (element.is(Kind.OBJECT_ASSIGNMENT_PATTERN)) {
+        ObjectAssignmentPatternTree objectAssignmentPatternTree = (ObjectAssignmentPatternTree) element;
+        List<Tree> assignedElements = objectAssignmentPatternTree.elements();
+        currentState = createSymbolicValuesForTrackedVariables(assignedElements, currentState);
+
+      } else if (element.is(Kind.ARRAY_BINDING_PATTERN)) {
+        ArrayBindingPatternTree arrayBindingPatternTree = (ArrayBindingPatternTree) element;
+        List<BindingElementTree> assignedElements = SeparateListUtils.presentsOf(arrayBindingPatternTree.elements());
+        currentState = createSymbolicValuesForTrackedVariables(assignedElements, currentState);
+
+      } else if (element.is(Kind.OBJECT_BINDING_PATTERN)) {
+        ObjectBindingPatternTree objectBindingPatternTree = (ObjectBindingPatternTree) element;
+        List<BindingElementTree> assignedElements = objectBindingPatternTree.elements();
+        currentState = createSymbolicValuesForTrackedVariables(assignedElements, currentState);
 
       }
 
@@ -247,6 +268,21 @@ public class SymbolicExecution {
     if (!stopExploring) {
       handleSuccessors(block, currentState);
     }
+  }
+
+  private ProgramState executeInitializedBinding(InitializedBindingElementTree initializedBindingElementTree, ProgramState programState) {
+    ProgramState newProgramState = programState;
+    if (((JavaScriptTree) initializedBindingElementTree).getParent().is(Kind.OBJECT_BINDING_PATTERN, Kind.ARRAY_BINDING_PATTERN)) {
+      newProgramState = programState.removeLastValue();
+    } else {
+      BindingElementTree variable = initializedBindingElementTree.left();
+      if (variable.is(Kind.BINDING_IDENTIFIER)) {
+        newProgramState = assignment(programState, variable);
+      }
+      newProgramState = newProgramState.clearStack(initializedBindingElementTree);
+    }
+
+    return newProgramState;
   }
 
   private static boolean isProducingUnconsumedValue(Tree element) {
@@ -283,6 +319,17 @@ public class SymbolicExecution {
 
   public static boolean isUndefined(IdentifierTree tree) {
     return "undefined".equals(tree.name());
+  }
+
+  private ProgramState createSymbolicValuesForTrackedVariables(List<? extends Tree> trees, ProgramState state) {
+    ProgramState newState = state;
+    for (Tree tree : trees) {
+      Symbol trackedVariable = trackedVariable(tree);
+      if (trackedVariable != null) {
+        newState = newState.newSymbolicValue(trackedVariable, null);
+      }
+    }
+    return newState;
   }
 
   private void beforeBlockElement(ProgramState currentState, Tree element) {
@@ -354,39 +401,35 @@ public class SymbolicExecution {
 
   private void pushConditionSuccessors(CfgBranchingBlock block, ProgramState currentState) {
     SymbolicValue conditionSymbolicValue = currentState.peekStack();
-    ProgramState psWithPoppedStack = currentState.removeLastValue();
-
-    if (block.branchingTree().is(Kind.IF_STATEMENT, Kind.WHILE_STATEMENT, Kind.DO_WHILE_STATEMENT, Kind.FOR_STATEMENT)) {
-      psWithPoppedStack.assertEmptyStack(block.branchingTree());
-    }
-
     Tree lastElement = block.elements().get(block.elements().size() - 1);
 
-
-    Optional<ProgramState> constrainedTruePS = psWithPoppedStack.constrain(conditionSymbolicValue, Constraint.TRUTHY);
+    Optional<ProgramState> constrainedTruePS = currentState.constrain(conditionSymbolicValue, Constraint.TRUTHY);
     if (constrainedTruePS.isPresent()){
-      pushConditionSuccessor(block.trueSuccessor(), constrainedTruePS.get(), conditionSymbolicValue, Constraint.TRUTHY);
+      pushConditionSuccessor(block.trueSuccessor(), constrainedTruePS.get(), conditionSymbolicValue, Constraint.TRUTHY, block.branchingTree());
       conditionResults.put(lastElement, Truthiness.TRUTHY);
     }
 
-
-    Optional<ProgramState> constrainedFalsePS = psWithPoppedStack.constrain(conditionSymbolicValue, Constraint.FALSY);
+    Optional<ProgramState> constrainedFalsePS = currentState.constrain(conditionSymbolicValue, Constraint.FALSY);
     if (constrainedFalsePS.isPresent()) {
-      pushConditionSuccessor(block.falseSuccessor(), constrainedFalsePS.get(), conditionSymbolicValue, Constraint.FALSY);
+      pushConditionSuccessor(block.falseSuccessor(), constrainedFalsePS.get(), conditionSymbolicValue, Constraint.FALSY, block.branchingTree());
       conditionResults.put(lastElement, Truthiness.FALSY);
     }
   }
 
   private void pushConditionSuccessor(
-    CfgBlock successor, ProgramState programState, SymbolicValue conditionSymbolicValue, Constraint constraint) {
+    CfgBlock successor, ProgramState programState, SymbolicValue conditionSymbolicValue, Constraint constraint, Tree branchingTree) {
 
     ProgramState state = programState;
     if (!successor.elements().isEmpty() && successor.elements().get(0).is(Kind.CONDITIONAL_AND, Kind.CONDITIONAL_OR)) {
-      SymbolicValue conditionValue = conditionSymbolicValue;
       if (UnknownSymbolicValue.UNKNOWN.equals(conditionSymbolicValue)) {
-        conditionValue = new SymbolicValueWithConstraint(constraint);
+        state = state.removeLastValue();
+        state = state.pushToStack(new SymbolicValueWithConstraint(constraint));
       }
-      state = state.pushToStack(conditionValue);
+    } else {
+      state = state.removeLastValue();
+      if (branchingTree.is(Kind.IF_STATEMENT, Kind.WHILE_STATEMENT, Kind.DO_WHILE_STATEMENT, Kind.FOR_STATEMENT)) {
+        state.assertEmptyStack(branchingTree);
+      }
     }
     pushSuccessor(successor, state);
   }
@@ -409,15 +452,36 @@ public class SymbolicExecution {
 
   @CheckForNull
   private Symbol trackedVariable(Tree tree) {
+    Symbol var = null;
+
     if (tree.is(Kind.PARENTHESISED_EXPRESSION)) {
-      return trackedVariable(((ParenthesisedExpressionTree) tree).expression());
-    }
-    if (tree.is(Kind.IDENTIFIER_REFERENCE, Kind.BINDING_IDENTIFIER)) {
+      var = trackedVariable(((ParenthesisedExpressionTree) tree).expression());
+
+    } else if (tree.is(Kind.IDENTIFIER_REFERENCE, Kind.BINDING_IDENTIFIER)) {
       IdentifierTree identifier = (IdentifierTree) tree;
       Symbol symbol = identifier.symbol();
-      return trackedVariables.contains(symbol) ? symbol : null;
+      var = trackedVariables.contains(symbol) ? symbol : null;
+
+    } else if (tree.is(Kind.ASSIGNMENT_PATTERN_REST_ELEMENT)) {
+      var = trackedVariable(((AssignmentPatternRestElementTree) tree).element());
+
+    } else if (tree.is(Kind.INITIALIZED_ASSIGNMENT_PATTERN_ELEMENT)) {
+      var = trackedVariable(((InitializedAssignmentPatternElementTree) tree).left());
+
+    } else if (tree.is(Kind.OBJECT_ASSIGNMENT_PATTERN_PAIR_ELEMENT)) {
+      var = trackedVariable(((ObjectAssignmentPatternPairElementTree) tree).element());
+
+    } else if (tree.is(Kind.REST_ELEMENT)) {
+      var = trackedVariable(((RestElementTree) tree).element());
+
+    } else if (tree.is(Kind.BINDING_PROPERTY)) {
+      var = trackedVariable(((BindingPropertyTree) tree).value());
+
+    } else if (tree.is(Kind.INITIALIZED_BINDING_ELEMENT)) {
+      var = trackedVariable(((InitializedBindingElementTree) tree).left());
     }
-    return null;
+
+    return var;
   }
 
   @CheckForNull

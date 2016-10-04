@@ -95,7 +95,13 @@ public abstract class JavaScriptTree implements Tree {
 
   @Override
   public String toString() {
-    return getClass().getSimpleName();
+    StringBuilder sb = new StringBuilder();
+    Iterator<Tree> children = childrenIterator();
+    while (children.hasNext()) {
+      sb.append(children.next());
+      sb.append(" ");
+    }
+    return sb.toString();
   }
 
 }

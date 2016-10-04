@@ -564,6 +564,105 @@ public class ControlFlowGraphTest {
   }
 
   @Test
+  public void array_assignment_pattern_with_zero_element() throws Exception {
+    ControlFlowGraph g = build("[] = b;", 1);
+    assertBlock(g, 0).hasElements("[]", "b", "[] = b");
+  }
+
+  @Test
+  public void array_assignment_pattern_with_two_elements() throws Exception {
+    ControlFlowGraph g = build("[x, y] = b;", 1);
+    assertBlock(g, 0).hasElements("[x, y]", "b", "[x, y] = b");
+  }
+
+  @Test
+  public void array_assignment_pattern_with_object_property() throws Exception {
+    ControlFlowGraph g = build("[x.a] = b;", 1);
+    assertBlock(g, 0).hasElements("[x.a]", "b", "[x.a] = b");
+  }
+
+  @Test
+  public void array_assignment_pattern_with_default_value() throws Exception {
+    ControlFlowGraph g = build("[x = 10] = b;", 1);
+    assertBlock(g, 0).hasElements("[x = 10]", "b", "[x = 10] = b");
+  }
+
+  @Test
+  public void array_assignment_pattern_with_rest() throws Exception {
+    ControlFlowGraph g = build("[x, ...rest] = b;", 1);
+    assertBlock(g, 0).hasElements("[x, ...rest]", "b", "[x, ...rest] = b");
+  }
+
+  @Test
+  public void array_assignment_pattern_with_nesting() throws Exception {
+    ControlFlowGraph g = build("[x, [y, z]] = b;", 1);
+    assertBlock(g, 0).hasElements("[x, [y, z]]", "b", "[x, [y, z]] = b");
+  }
+
+  @Test
+  public void object_assignment_pattern_with_zero_element() throws Exception {
+    ControlFlowGraph g = build("({} = {})", 1);
+    assertBlock(g, 0).hasElements("{}", "{}", "{} = {}");
+  }
+
+  @Test
+  public void object_assignment_pattern() throws Exception {
+    ControlFlowGraph g = build("({prop1:x, prop2:y} = obj)", 1);
+    assertBlock(g, 0).hasElements("{prop1:x, prop2:y}", "obj", "{prop1:x, prop2:y} = obj");
+  }
+
+  @Test
+  public void object_assignment_pattern_with_one_element_and_default_value() throws Exception {
+    ControlFlowGraph g = build("({prop1:x = 10} = obj)", 1);
+    assertBlock(g, 0).hasElements("{prop1:x = 10}", "obj", "{prop1:x = 10} = obj");
+  }
+
+  @Test
+  public void object_assignment_pattern_with_two_elements() throws Exception {
+    ControlFlowGraph g = build("({prop1:x, prop2:y} = obj)", 1);
+    assertBlock(g, 0).hasElements("{prop1:x, prop2:y}", "obj", "{prop1:x, prop2:y} = obj");
+  }
+
+  @Test
+  public void object_assignment_pattern_with_one_element_and_short_notation() throws Exception {
+    ControlFlowGraph g = build("({x} = obj)", 1);
+    assertBlock(g, 0).hasElements("{x}", "obj", "{x} = obj");
+  }
+
+  @Test
+  public void object_binding_pattern() throws Exception {
+    ControlFlowGraph g = build("var {prop1=1} = obj", 1);
+    assertBlock(g, 0).hasElements("obj", "1", "prop1", "prop1=1", "{prop1=1}", "{prop1=1} = obj", "var {prop1=1} = obj");
+
+    g = build("let {prop1=1} = obj", 1);
+    assertBlock(g, 0).hasElements("obj", "1", "prop1", "prop1=1", "{prop1=1}", "{prop1=1} = obj", "let {prop1=1} = obj");
+
+    g = build("var {prop1, prop2} = obj", 1);
+    assertBlock(g, 0).hasElements("obj", "prop1", "prop2", "{prop1, prop2}", "{prop1, prop2} = obj", "var {prop1, prop2} = obj");
+
+    g = build("var {prop1, ...rest} = obj", 1);
+    assertBlock(g, 0).hasElements("obj", "prop1", "rest", "...rest", "{prop1, ...rest}", "{prop1, ...rest} = obj", "var {prop1, ...rest} = obj");
+
+    g = build("var {prop1:p} = obj", 1);
+    assertBlock(g, 0).hasElements("obj", "p", "prop1:p", "{prop1:p}", "{prop1:p} = obj", "var {prop1:p} = obj");
+
+    g = build("var {prop1:p=1} = obj", 1);
+    assertBlock(g, 0).hasElements("obj", "1", "p", "p=1", "prop1:p=1", "{prop1:p=1}", "{prop1:p=1} = obj", "var {prop1:p=1} = obj");
+  }
+
+  @Test
+  public void array_binding_pattern() throws Exception {
+    ControlFlowGraph g = build("var [element1, element2] = arr", 1);
+    assertBlock(g, 0).hasElements("arr", "element1", "element2", "[element1, element2]", "[element1, element2] = arr", "var [element1, element2] = arr");
+
+    g = build("var [element1=1] = arr", 1);
+    assertBlock(g, 0).hasElements("arr", "1", "element1", "element1=1", "[element1=1]", "[element1=1] = arr", "var [element1=1] = arr");
+
+    g = build("var [, element2, ...rest] = arr", 1);
+    assertBlock(g, 0).hasElements("arr", "element2", "rest", "...rest", "[, element2, ...rest]", "[, element2, ...rest] = arr", "var [, element2, ...rest] = arr");
+  }
+
+  @Test
   public void ternary() throws Exception {
     ControlFlowGraph g = build("var a = b ? c : d; e();", 4);
     assertBlock(g, 0).hasElements("b").hasSuccessors(2, 3);

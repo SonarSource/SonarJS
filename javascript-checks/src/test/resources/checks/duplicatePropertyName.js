@@ -15,7 +15,37 @@ var data = {
   key,                 // Noncompliant
 //^^^
 
-  get key() {        // OK - accessor
+  get key() {        // Noncompliant
     return this.key;
-  }
+  },
+
+  set key(p) {      // Noncompliant
+  },
+
+  key() {},  // Noncompliant
+  ["computedProperty"] : 1
+}
+
+class A {
+  prop;
+  prop1;
+  ;
+  prop = 1;        // Noncompliant
+  static prop = 1; // Noncompliant
+  prop() {}        // Noncompliant
+  * prop() {}      // Noncompliant
+  set prop(p) {}   // Noncompliant
+  get prop() {}    // Noncompliant
+
+  set prop2(p) {}
+  prop2;           // Noncompliant
+
+  get prop3() {}
+  prop3;            // Noncompliant
+
+  get prop4() {}
+  set prop4(p) {}    // OK
+
+  set prop5(p) {}    // OK
+  get prop5() {}
 }

@@ -55,7 +55,7 @@ public interface ClassTree extends ExpressionTree, StatementTree {
 
   SyntaxToken openCurlyBraceToken();
 
-  // elements can be either method declarations or semi-colons
+  // elements can be either method declarations, class field declarations or semi-colons
   List<Tree> elements();
 
   Iterable<MethodDeclarationTree> methods();

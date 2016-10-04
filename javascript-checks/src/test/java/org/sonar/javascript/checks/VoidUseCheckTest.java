@@ -17,30 +17,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.javascript.parser.expressions;
+package org.sonar.javascript.checks;
 
+import java.io.File;
 import org.junit.Test;
-import org.sonar.plugins.javascript.api.tree.Tree.Kind;
+import org.sonar.javascript.checks.verifier.JavaScriptCheckVerifier;
 
-import static org.sonar.javascript.utils.Assertions.assertThat;
-
-public class ArrayAssignmentPatternTest {
+public class VoidUseCheckTest {
 
   @Test
   public void test() {
-    assertThat(Kind.ARRAY_ASSIGNMENT_PATTERN)
-      .matches("[ ]")
-      .matches("[ lhs ]")
-      .matches("[ x.foo ]")
-      .matches("[ x[42].foo ]")
-      .matches("[ lhs = 42 ]")
-      .matches("[ lhs , ]")
-      .matches("[ lhs , lhs ]")
-      .matches("[ lhs, ... lhs ]")
-      .matches("[ lhs, ... x.foo ]")
-      .matches("[ lhs = init(), , lhs = init() , ... lhs ]")
-      .matches("[ [x, y], [z] ]")
-    ;
+    JavaScriptCheckVerifier.verify(new VoidUseCheck(), new File("src/test/resources/checks/VoidUse.js"));
   }
-
 }

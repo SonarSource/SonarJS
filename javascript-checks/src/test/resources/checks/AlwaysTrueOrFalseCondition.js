@@ -225,3 +225,11 @@ function tro(x, y) {
   if (true || y) {} // Noncompliant
   if (false || y) {} // Noncompliant
 }
+
+function logical_and(p1, p2, p3) {
+  var combi = p1 && p2 == 42 && p3 === null;
+  if (combi) {
+    if (p1) {} // Noncompliant
+    if (p3 == null) {} // Noncompliant
+  }
+}

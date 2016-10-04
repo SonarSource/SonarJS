@@ -19,11 +19,16 @@
  */
 package org.sonar.javascript.checks;
 
-import java.util.HashMap;
-import java.util.Map;
+import com.google.common.collect.LinkedListMultimap;
+import com.google.common.collect.ListMultimap;
+import java.util.List;
+import javax.annotation.Nullable;
 import org.sonar.check.Rule;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
+import org.sonar.plugins.javascript.api.tree.declaration.FieldDeclarationTree;
+import org.sonar.plugins.javascript.api.tree.declaration.MethodDeclarationTree;
+import org.sonar.plugins.javascript.api.tree.expression.ClassTree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 import org.sonar.plugins.javascript.api.tree.expression.LiteralTree;
 import org.sonar.plugins.javascript.api.tree.expression.ObjectLiteralTree;
@@ -37,45 +42,90 @@ public class DuplicatePropertyNameCheck extends DoubleDispatchVisitorCheck {
 
   @Override
   public void visitObjectLiteral(ObjectLiteralTree tree) {
-    Map<String, Tree> keys = new HashMap<>();
-
-    for (Tree property : tree.properties()) {
-      if (property.is(Tree.Kind.PAIR_PROPERTY)) {
-        visitPairProperty(keys, (PairPropertyTree) property);
-      }
-
-      if (property.is(Kind.IDENTIFIER_REFERENCE)) {
-        IdentifierTree identifier = (IdentifierTree) property;
-        addKey(keys, identifier.name(), (IdentifierTree)property);
-      }
-    }
+    checkProperties(tree.properties());
     super.visitObjectLiteral(tree);
   }
 
-  private void visitPairProperty(Map<String, Tree> keys, PairPropertyTree pairProperty) {
-    Tree key = pairProperty.key();
-    if (key.is(Tree.Kind.STRING_LITERAL)) {
-      String value = ((LiteralTree) key).value();
-      value = value.substring(1, value.length() - 1);
-      addKey(keys, value, pairProperty.key());
+  @Override
+  public void visitClass(ClassTree tree) {
+    checkProperties(tree.elements());
+    super.visitClass(tree);
+  }
+
+  private void checkProperties(List<Tree> properties) {
+    ListMultimap<String, Tree> keys = LinkedListMultimap.create();
+
+    for (Tree property : properties) {
+      Tree propertyNameTree = getPropertyNameTree(property);
+      if (propertyNameTree != null) {
+        String propertyName = getPropertyName(propertyNameTree);
+        if (propertyName != null) {
+          keys.put(EscapeUtils.unescape(propertyName), property);
+        }
+      }
     }
 
-    if (key.is(Kind.IDENTIFIER_NAME)) {
-      addKey(keys, ((IdentifierTree) key).name(), pairProperty.key());
-    }
+    checkKeys(keys);
+  }
 
-    if (key.is(Tree.Kind.NUMERIC_LITERAL)) {
-      addKey(keys, ((LiteralTree) key).value(), pairProperty.key());
+  private void checkKeys(ListMultimap<String, Tree> keys) {
+    for (String key : keys.keySet()) {
+      List<Tree> properties = keys.get(key);
+      if (properties.size() > 1 && !getterSetter(properties)) {
+        Tree duplicatedProperty = getPropertyNameTree(properties.remove(0));
+
+        for (Tree property : properties) {
+          Tree propertyKey = getPropertyNameTree(property);
+          addIssue(propertyKey, String.format(MESSAGE, getPropertyName(propertyKey))).secondary(duplicatedProperty);
+        }
+
+      }
     }
   }
 
-  private void addKey(Map<String, Tree> keys, String key, Tree keyTree) {
-    Tree duplicated = keys.get(EscapeUtils.unescape(key));
-    if (duplicated != null) {
-      addIssue(keyTree, String.format(MESSAGE, key)).secondary(duplicated);
-    } else {
-      keys.put(key, keyTree);
+  private static boolean getterSetter(List<Tree> value) {
+    if (value.size() == 2) {
+      return (value.get(0).is(Kind.GET_METHOD) && value.get(1).is(Kind.SET_METHOD))
+        || (value.get(1).is(Kind.GET_METHOD) && value.get(0).is(Kind.SET_METHOD));
     }
+
+    return false;
+  }
+
+  @Nullable
+  private static Tree getPropertyNameTree(Tree property) {
+    if (property instanceof MethodDeclarationTree) {
+      return ((MethodDeclarationTree) property).name();
+
+    } else if (property.is(Kind.FIELD)) {
+      return ((FieldDeclarationTree) property).propertyName();
+
+    } else if (property.is(Kind.PAIR_PROPERTY)) {
+      return ((PairPropertyTree) property).key();
+
+    } else if (property.is(Kind.IDENTIFIER_REFERENCE)) {
+      return property;
+    }
+
+    return null;
+  }
+
+  @Nullable
+  private static String getPropertyName(Tree propertyKey) {
+    if (propertyKey.is(Tree.Kind.STRING_LITERAL)) {
+      String value = ((LiteralTree) propertyKey).value();
+      return value.substring(1, value.length() - 1);
+    }
+
+    if (propertyKey.is(Kind.IDENTIFIER_NAME, Kind.IDENTIFIER_REFERENCE)) {
+      return ((IdentifierTree) propertyKey).name();
+    }
+
+    if (propertyKey.is(Tree.Kind.NUMERIC_LITERAL)) {
+      return ((LiteralTree) propertyKey).value();
+    }
+
+    return null;
   }
 
 }
