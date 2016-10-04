@@ -19,32 +19,99 @@
  */
 package org.sonar.javascript.checks;
 
+import com.google.common.collect.Lists;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import org.sonar.check.Rule;
+import org.sonar.javascript.se.Constraint;
+import org.sonar.javascript.se.ProgramState;
+import org.sonar.javascript.se.Type;
+import org.sonar.plugins.javascript.api.tree.ScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
+import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.expression.BinaryExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
-import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
+import org.sonar.plugins.javascript.api.visitors.SubscriptionVisitor;
 
 @Rule(key = "EqEqEq")
-public class EqEqEqCheck extends DoubleDispatchVisitorCheck {
+public class EqEqEqCheck extends AbstractAllPathSeCheck<BinaryExpressionTree> {
+
+  private Set<BinaryExpressionTree> ignoredList = new HashSet<>();
+  private static final Kind[] EQUALITY_KINDS = {Kind.EQUAL_TO, Kind.NOT_EQUAL_TO};
 
   @Override
-  public void visitBinaryExpression(BinaryExpressionTree tree) {
-    if (!isNullLiteral(tree.leftOperand()) && !isNullLiteral(tree.rightOperand())) {
+  BinaryExpressionTree getTree(Tree element) {
+    if (element.is(EQUALITY_KINDS)) {
+      return (BinaryExpressionTree) element;
+    }
+    return null;
+  }
 
-      if (tree.is(Tree.Kind.EQUAL_TO)) {
-        addIssue(tree.operator(), "Replace \"==\" with \"===\".");
+  /**
+   * This method returns true for the cases which should be ignored by this rule
+   */
+  @Override
+  boolean isProblem(BinaryExpressionTree tree, ProgramState currentState) {
+    Constraint rightConstraint = currentState.getConstraint(currentState.peekStack(0));
+    Constraint leftConstraint = currentState.getConstraint(currentState.peekStack(1));
 
-      } else if (tree.is(Tree.Kind.NOT_EQUAL_TO)) {
-        addIssue(tree.operator(), "Replace \"!=\" with \"!==\".");
+    Type rightType = rightConstraint.type();
+    Type leftType = leftConstraint.type();
+
+    if (leftType != null && leftType == rightType) {
+      return true;
+    }
+
+    return false;
+  }
+
+
+  @Override
+  void raiseIssue(BinaryExpressionTree tree) {
+    ignoredList.add(tree);
+  }
+
+  @Override
+  public void startOfFile(ScriptTree scriptTree) {
+    ignoredList.clear();
+  }
+
+  @Override
+  public void endOfFile(ScriptTree scriptTree) {
+    EqualityVisitor equalityVisitor = new EqualityVisitor();
+    equalityVisitor.scanTree(scriptTree);
+
+    equalityVisitor.equalityExpressions
+      .stream()
+      .filter(equalityExpression -> !ignoredList.contains(equalityExpression))
+      .forEach(equalityExpression ->
+        addIssue(equalityExpression.operator(), equalityExpression.is(Kind.EQUAL_TO) ? "Replace \"==\" with \"===\"." : "Replace \"!=\" with \"!==\".")
+          .secondary(equalityExpression.leftOperand())
+          .secondary(equalityExpression.rightOperand()));
+
+  }
+
+  private static class EqualityVisitor extends SubscriptionVisitor {
+
+    Set<BinaryExpressionTree> equalityExpressions = new HashSet<>();
+
+    @Override
+    public List<Kind> nodesToVisit() {
+      return Lists.newArrayList(EQUALITY_KINDS);
+    }
+
+    @Override
+    public void visitNode(Tree tree) {
+      BinaryExpressionTree binaryExpressionTree = (BinaryExpressionTree) tree;
+      if (!isNullLiteral(binaryExpressionTree.leftOperand()) && !isNullLiteral(binaryExpressionTree.rightOperand())) {
+        equalityExpressions.add(binaryExpressionTree);
       }
     }
 
-    super.visitBinaryExpression(tree);
-  }
+    private static boolean isNullLiteral(ExpressionTree expressionTree) {
+      return expressionTree.is(Tree.Kind.NULL_LITERAL);
+    }
 
-  private static boolean isNullLiteral(ExpressionTree expressionTree) {
-    return expressionTree.is(Tree.Kind.NULL_LITERAL);
   }
-
 }
