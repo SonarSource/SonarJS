@@ -272,7 +272,7 @@ public class SymbolicExecution {
 
   private ProgramState executeInitializedBinding(InitializedBindingElementTree initializedBindingElementTree, ProgramState programState) {
     ProgramState newProgramState = programState;
-    if (((JavaScriptTree) initializedBindingElementTree).getParent().is(Kind.OBJECT_BINDING_PATTERN, Kind.ARRAY_BINDING_PATTERN)) {
+    if (((JavaScriptTree) initializedBindingElementTree).getParent().is(Kind.OBJECT_BINDING_PATTERN, Kind.ARRAY_BINDING_PATTERN, Kind.BINDING_PROPERTY)) {
       newProgramState = programState.removeLastValue();
     } else {
       BindingElementTree variable = initializedBindingElementTree.left();

@@ -77,6 +77,10 @@ function main(a, b, c) {
   with(x) {
     foo();
   }
-  
+
+  const {
+      x,
+      y: {a, b} = {}
+  } = obj;
 }
 
