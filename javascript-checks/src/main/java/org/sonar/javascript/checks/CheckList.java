@@ -47,7 +47,7 @@ public final class CheckList {
       BackboneChangedIsUsedCheck.class,
       BitwiseOperatorsCheck.class,
       BooleanEqualityComparisonCheck.class,
-      BoundOrAssignedEvalOrArgumentsCheck.class,
+      BoundOrAssignedSpecialIdentifiersCheck.class,
       BuiltInObjectOverriddenCheck.class,
       CallabilityCheck.class,
       ClassPrototypeCheck.class,

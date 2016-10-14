@@ -1,13 +1,18 @@
-
-//implicit "eval" symbol
+// implicit symbols "eval", "undefined", "NaN", "Infinity"
 
 var a;
+var a;              // not a new symbol
 b = 1;
+
+undefined = 1;      // not a new symbol. Legal, although not recommended
+NaN = 1;            // not a new symbol. Legal, although not recommended
+undefined = 1;      // not a new symbol. Legal, although not recommended
 
 function f (p1) {
  // implicit "arguments" symbol
   var a;
   c = 1;  // implicit declaration - global scope
+  c = undefined;
 }
 
 try {

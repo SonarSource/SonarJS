@@ -1,5 +1,5 @@
 {
-  "title": "\"eval\" and \"arguments\" should not be bound or assigned",
+  "title": "Special identifiers should not be bound or assigned",
   "type": "BUG",
   "status": "ready",
   "remediation": {
