@@ -51,7 +51,7 @@ import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
  * The same program state may be valid for several program points and at one program point there might be valid several program states (depending on execution path).
  * This class is immutable.
  */
-public class ProgramState {
+public class ProgramState implements ProgramStateConstraints {
 
   private final ImmutableMap<Symbol, SymbolicValue> values;
   private final ImmutableMap<SymbolicValue, Constraint> constraints;
@@ -181,6 +181,7 @@ public class ProgramState {
     return values.get(symbol);
   }
 
+  @Override
   public Constraint getConstraint(@Nullable SymbolicValue value) {
     Constraint storedConstraint = constraints.get(value);
     storedConstraint = storedConstraint == null ? Constraint.ANY_VALUE : storedConstraint;
@@ -243,7 +244,7 @@ public class ProgramState {
   }
 
   public ProgramState execute(ExpressionTree expression) {
-    return new ProgramState(values, constraints, stack.execute(expression), relations, counter);
+    return new ProgramState(values, constraints, stack.execute(expression, this), relations, counter);
   }
 
   public ProgramState assignment(Symbol variable) {

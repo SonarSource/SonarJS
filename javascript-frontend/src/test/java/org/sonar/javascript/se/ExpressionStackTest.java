@@ -325,6 +325,24 @@ public class ExpressionStackTest {
   }
 
   @Test
+  public void dot_member_access() throws Exception {
+    execute("x = 'abc'.length");
+    assertSingleValueInStackWithConstraint(Constraint.NUMBER);
+
+    execute("x = 'abc'.charAt");
+    assertSingleValueInStackWithConstraint(Constraint.FUNCTION);
+
+    execute("x = 'abc'.lenght");
+    assertSingleValueInStack(UNKNOWN);
+  }
+
+  @Test
+  public void built_in_method_call() throws Exception {
+    execute("x = 'abc'.charAt()");
+    assertSingleValueInStackWithConstraint(Constraint.STRING);
+  }
+
+  @Test
   public void isEmpty() throws Exception {
     assertThat(emptyStack().isEmpty()).isTrue();
     assertThat(emptyStack().push(simple1).isEmpty()).isFalse();
@@ -390,7 +408,7 @@ public class ExpressionStackTest {
       if (element.is(Kind.IDENTIFIER_REFERENCE)) {
         pushValues(simple1);
       } else if (element instanceof ExpressionTree) {
-        stack = stack.execute((ExpressionTree) element);
+        stack = stack.execute((ExpressionTree) element, ProgramState.emptyState());
       }
     }
 
@@ -403,9 +421,9 @@ public class ExpressionStackTest {
     if (tree.is(Kind.EXPRESSION_STATEMENT)) {
       ExpressionStatementTree expressionStatement = (ExpressionStatementTree) tree;
       ExpressionTree expression = (ExpressionTree) expressionStatement.expression();
-      stack = stack.execute(expression);
+      stack = stack.execute(expression, ProgramState.emptyState());
     } else {
-      stack = stack.execute((ExpressionTree) tree);
+      stack = stack.execute((ExpressionTree) tree, ProgramState.emptyState());
     }
   }
 }

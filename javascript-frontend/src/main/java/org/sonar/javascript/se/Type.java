@@ -19,9 +19,13 @@
  */
 package org.sonar.javascript.se;
 
+import org.sonar.javascript.se.builtins.BuiltInProperties;
+import org.sonar.javascript.se.builtins.StringBuiltInProperties;
+import org.sonar.javascript.se.builtins.UnknownBuiltInProperties;
+
 public enum Type {
   NUMBER(Constraint.NUMBER),
-  STRING(Constraint.STRING),
+  STRING(Constraint.STRING, new StringBuiltInProperties()),
   BOOLEAN(Constraint.BOOLEAN),
   NULL(Constraint.NULL),
   UNDEFINED(Constraint.UNDEFINED),
@@ -31,9 +35,20 @@ public enum Type {
   OBJECT(Constraint.OBJECT);
 
   private Constraint constraint;
+  private BuiltInProperties builtInProperties;
+
+  Type(Constraint constraint, BuiltInProperties builtInProperties) {
+    this.constraint = constraint;
+    this.builtInProperties = builtInProperties;
+  }
 
   Type(Constraint constraint) {
     this.constraint = constraint;
+    this.builtInProperties = new UnknownBuiltInProperties();
+  }
+
+  public BuiltInProperties builtInProperties() {
+    return builtInProperties;
   }
 
   public Constraint constraint() {
