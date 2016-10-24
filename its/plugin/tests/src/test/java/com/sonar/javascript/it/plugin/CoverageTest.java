@@ -90,10 +90,18 @@ public class CoverageTest {
     Tests.setEmptyProfile(Tests.PROJECT_KEY, Tests.PROJECT_KEY);
     orchestrator.executeBuild(build);
 
-    assertThat(getProjectMeasure("it_lines_to_cover").getValue()).isEqualTo(7);
-    assertThat(getProjectMeasure("it_uncovered_lines").getValue()).isEqualTo(1);
-    assertThat(getProjectMeasure("it_conditions_to_cover").getValue()).isEqualTo(4);
-    assertThat(getProjectMeasure("it_uncovered_conditions").getValue()).isEqualTo(1);
+    if (is_before_sonar_6_2()) {
+      assertThat(getProjectMeasure("it_lines_to_cover").getValue()).isEqualTo(7);
+      assertThat(getProjectMeasure("it_uncovered_lines").getValue()).isEqualTo(1);
+      assertThat(getProjectMeasure("it_conditions_to_cover").getValue()).isEqualTo(4);
+      assertThat(getProjectMeasure("it_uncovered_conditions").getValue()).isEqualTo(1);
+
+    } else {
+      assertThat(getProjectMeasure("it_lines_to_cover")).isNull();
+      assertThat(getProjectMeasure("it_uncovered_lines")).isNull();
+      assertThat(getProjectMeasure("it_conditions_to_cover")).isNull();
+      assertThat(getProjectMeasure("it_uncovered_conditions")).isNull();
+    }
   }
 
   @Test
@@ -109,10 +117,18 @@ public class CoverageTest {
     Tests.setEmptyProfile(Tests.PROJECT_KEY, Tests.PROJECT_KEY);
     orchestrator.executeBuild(build);
 
-    assertThat(getProjectMeasure("overall_lines_to_cover").getValue()).isEqualTo(7);
-    assertThat(getProjectMeasure("overall_uncovered_lines").getValue()).isEqualTo(1);
-    assertThat(getProjectMeasure("overall_conditions_to_cover").getValue()).isEqualTo(4);
-    assertThat(getProjectMeasure("overall_uncovered_conditions").getValue()).isEqualTo(1);
+    if (is_before_sonar_6_2()) {
+      assertThat(getProjectMeasure("overall_lines_to_cover").getValue()).isEqualTo(7);
+      assertThat(getProjectMeasure("overall_uncovered_lines").getValue()).isEqualTo(1);
+      assertThat(getProjectMeasure("overall_conditions_to_cover").getValue()).isEqualTo(4);
+      assertThat(getProjectMeasure("overall_uncovered_conditions").getValue()).isEqualTo(1);
+
+    } else {
+      assertThat(getProjectMeasure("overall_lines_to_cover")).isNull();
+      assertThat(getProjectMeasure("overall_uncovered_lines")).isNull();
+      assertThat(getProjectMeasure("overall_conditions_to_cover")).isNull();
+      assertThat(getProjectMeasure("overall_uncovered_conditions")).isNull();
+    }
   }
 
   @Test
@@ -132,14 +148,23 @@ public class CoverageTest {
     // which counts every line containing code even if it's not executable (e.g. containing just "}").
     assertThat(getProjectMeasure("lines_to_cover").getValue()).isEqualTo(10);
     assertThat(getProjectMeasure("uncovered_lines").getValue()).isEqualTo(10);
-    assertThat(getProjectMeasure("it_lines_to_cover").getValue()).isEqualTo(10);
-    assertThat(getProjectMeasure("it_uncovered_lines").getValue()).isEqualTo(10);
-    assertThat(getFileMeasure("coverage_line_hits_data").getData()).startsWith("1=0;2=0;3=0;5=0");
-    assertThat(getFileMeasure("it_coverage_line_hits_data").getData()).startsWith("1=0;2=0;3=0;5=0");
     assertThat(getProjectMeasure("conditions_to_cover")).isNull();
-    assertThat(getProjectMeasure("it_conditions_to_cover")).isNull();
     assertThat(getProjectMeasure("uncovered_conditions")).isNull();
+    assertThat(getFileMeasure("coverage_line_hits_data").getData()).startsWith("1=0;2=0;3=0;5=0");
+
+    assertThat(getProjectMeasure("it_conditions_to_cover")).isNull();
     assertThat(getProjectMeasure("it_uncovered_conditions")).isNull();
+
+    if (is_before_sonar_6_2()) {
+      assertThat(getProjectMeasure("it_lines_to_cover").getValue()).isEqualTo(10);
+      assertThat(getProjectMeasure("it_uncovered_lines").getValue()).isEqualTo(10);
+      assertThat(getFileMeasure("it_coverage_line_hits_data").getData()).startsWith("1=0;2=0;3=0;5=0");
+
+    } else {
+      assertThat(getProjectMeasure("it_lines_to_cover")).isNull();
+      assertThat(getProjectMeasure("it_uncovered_lines")).isNull();
+      assertThat(getFileMeasure("it_coverage_line_hits_data")).isNull();
+    }
   }
 
   @Test
@@ -213,5 +238,9 @@ public class CoverageTest {
   private Measure getFileMeasure(String metricKey) {
     Resource resource = orchestrator.getServer().getWsClient().find(ResourceQuery.createForMetrics("project:file.js", metricKey));
     return resource == null ? null : resource.getMeasure(metricKey);
+  }
+
+  private static boolean is_before_sonar_6_2() {
+    return !orchestrator.getConfiguration().getSonarVersion().isGreaterThanOrEquals("6.2");
   }
 }
