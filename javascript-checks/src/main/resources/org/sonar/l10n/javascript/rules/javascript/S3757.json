@@ -1,0 +1,13 @@
+{
+  "title": "Arithmetic operations should not always result in \"NaN\"",
+  "type": "BUG",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "10min"
+  },
+  "tags": [
+    
+  ],
+  "defaultSeverity": "Major"
+}

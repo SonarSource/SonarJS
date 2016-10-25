@@ -1,0 +1,13 @@
+<p>The result of an expression with an arithmetic operator <code>/, *, %, ++, --, -, +=, -=, *=, /=, %=, +</code> or unary operator <code>+, -</code>
+when at least one operand is <code>Object</code>, <code>Null</code> or <code>Undefined</code> will be always a <code>NaN</code> (Not a Number).</p>
+<h2>Noncompliant Code Example</h2>
+<pre>
+x = [1, 2];
+var y = x / 4;  //Non-compliant [BUG] &gt; "y" == NaN
+</pre>
+<h2>Exceptions</h2>
+<ul>
+  <li> The binary <code>-</code> operator with <code>Date</code> operands (calculates Date diff). </li>
+  <li> The binary <code>+</code> operator with <code>Object</code> operand (concatenation). </li>
+</ul>
+
