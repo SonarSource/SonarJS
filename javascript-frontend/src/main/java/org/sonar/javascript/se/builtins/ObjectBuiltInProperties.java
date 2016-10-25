@@ -44,4 +44,9 @@ public class ObjectBuiltInProperties extends BuiltInProperties {
       "constructor", Constraint.FUNCTION
     );
   }
+
+  @Override
+  protected BuiltInProperties getPrototypeProperties() {
+    return null;
+  }
 }

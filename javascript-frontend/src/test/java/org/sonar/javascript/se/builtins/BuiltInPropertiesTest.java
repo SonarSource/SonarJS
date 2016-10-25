@@ -62,8 +62,9 @@ public class BuiltInPropertiesTest {
     assertMethod(value("sort"), method(Constraint.ARRAY));
     assertMethod(value("pop"), method(Constraint.ANY_VALUE));
     assertProperty(value("length"), Constraint.NUMBER);
-    assertThat(value("valueOf")).isEqualTo(UnknownSymbolicValue.UNKNOWN);
     assertThat(value("foobar")).isEqualTo(UnknownSymbolicValue.UNKNOWN);
+    // inherited
+    assertMethod(value("valueOf"), method(Constraint.ANY_VALUE));
   }
 
   @Test
@@ -87,6 +88,16 @@ public class BuiltInPropertiesTest {
   public void test_null() throws Exception {
     builtInProperties = new NullOrUndefinedBuiltInProperties();
     value("fooBar");
+  }
+
+  @Test
+  public void test_inheritance() throws Exception {
+    builtInProperties = new FunctionBuiltInProperties();
+    assertProperty(value("constructor"), Constraint.FUNCTION);
+    assertMethod(value("hasOwnProperty"), method(Constraint.BOOLEAN));
+
+    assertThat(value("split")).isEqualTo(UnknownSymbolicValue.UNKNOWN);
+
   }
 
   private void assertProperty(SymbolicValue actual, Constraint expectedConstraint) {

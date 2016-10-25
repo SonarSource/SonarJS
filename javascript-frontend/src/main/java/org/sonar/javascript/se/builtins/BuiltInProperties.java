@@ -21,6 +21,7 @@ package org.sonar.javascript.se.builtins;
 
 import java.util.Map;
 import org.sonar.javascript.se.Constraint;
+import org.sonar.javascript.se.Type;
 import org.sonar.javascript.se.sv.BuiltInFunctionSymbolicValue;
 import org.sonar.javascript.se.sv.SymbolicValue;
 import org.sonar.javascript.se.sv.SymbolicValueWithConstraint;
@@ -31,6 +32,19 @@ public abstract class BuiltInProperties {
   abstract Map<String, Constraint> getPropertiesConstraints();
 
   abstract Map<String, SymbolicValue> getMethods();
+
+  protected BuiltInProperties getPrototypeProperties() {
+    return Type.OBJECT.builtInProperties();
+  }
+
+  private SymbolicValue getValueFromPrototype(String propertyName) {
+    BuiltInProperties prototypeProperties = getPrototypeProperties();
+    if (prototypeProperties != null) {
+      return prototypeProperties.getValueForProperty(propertyName);
+    }
+
+    return UnknownSymbolicValue.UNKNOWN;
+  }
 
   public SymbolicValue getValueForProperty(String propertyName) {
 
@@ -44,7 +58,7 @@ public abstract class BuiltInProperties {
       return value;
     }
 
-    return UnknownSymbolicValue.UNKNOWN;
+    return getValueFromPrototype(propertyName);
   }
 
   protected static BuiltInFunctionSymbolicValue method(Constraint returnConstraint) {
