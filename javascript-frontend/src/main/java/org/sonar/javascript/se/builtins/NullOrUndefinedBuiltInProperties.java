@@ -21,33 +21,20 @@ package org.sonar.javascript.se.builtins;
 
 import java.util.Map;
 import org.sonar.javascript.se.Constraint;
-import org.sonar.javascript.se.sv.BuiltInFunctionSymbolicValue;
 import org.sonar.javascript.se.sv.SymbolicValue;
-import org.sonar.javascript.se.sv.SymbolicValueWithConstraint;
-import org.sonar.javascript.se.sv.UnknownSymbolicValue;
 
-public abstract class BuiltInProperties {
+public class NullOrUndefinedBuiltInProperties extends BuiltInProperties {
 
-  abstract Map<String, Constraint> getPropertiesConstraints();
+  private static final String ERROR_MESSAGE = "We should not try to execute properties on 'null' or 'undefined' as it leads to TypeError";
 
-  abstract Map<String, SymbolicValue> getMethods();
-
-  public SymbolicValue getValueForProperty(String propertyName) {
-
-    Constraint constraint = getPropertiesConstraints().get(propertyName);
-    if (constraint != null) {
-      return new SymbolicValueWithConstraint(constraint);
-    }
-
-    SymbolicValue value = getMethods().get(propertyName);
-    if (value != null) {
-      return value;
-    }
-
-    return UnknownSymbolicValue.UNKNOWN;
+  @Override
+  Map<String, Constraint> getPropertiesConstraints() {
+    throw new IllegalStateException(ERROR_MESSAGE);
   }
 
-  protected static BuiltInFunctionSymbolicValue method(Constraint returnConstraint) {
-    return new BuiltInFunctionSymbolicValue(returnConstraint);
+  @Override
+  Map<String, SymbolicValue> getMethods() {
+    throw new IllegalStateException(ERROR_MESSAGE);
   }
+
 }

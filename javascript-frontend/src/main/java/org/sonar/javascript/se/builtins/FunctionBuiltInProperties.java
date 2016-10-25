@@ -19,35 +19,30 @@
  */
 package org.sonar.javascript.se.builtins;
 
+import com.google.common.collect.ImmutableMap;
 import java.util.Map;
 import org.sonar.javascript.se.Constraint;
-import org.sonar.javascript.se.sv.BuiltInFunctionSymbolicValue;
 import org.sonar.javascript.se.sv.SymbolicValue;
-import org.sonar.javascript.se.sv.SymbolicValueWithConstraint;
-import org.sonar.javascript.se.sv.UnknownSymbolicValue;
 
-public abstract class BuiltInProperties {
+public class FunctionBuiltInProperties extends BuiltInProperties {
 
-  abstract Map<String, Constraint> getPropertiesConstraints();
+  @Override
+  Map<String, SymbolicValue> getMethods() {
+    return ImmutableMap.<String, SymbolicValue>builder()
+      .put("apply", method(Constraint.ANY_VALUE))
+      .put("bind", method(Constraint.FUNCTION))
+      .put("call", method(Constraint.ANY_VALUE))
 
-  abstract Map<String, SymbolicValue> getMethods();
-
-  public SymbolicValue getValueForProperty(String propertyName) {
-
-    Constraint constraint = getPropertiesConstraints().get(propertyName);
-    if (constraint != null) {
-      return new SymbolicValueWithConstraint(constraint);
-    }
-
-    SymbolicValue value = getMethods().get(propertyName);
-    if (value != null) {
-      return value;
-    }
-
-    return UnknownSymbolicValue.UNKNOWN;
+      // overrides Object
+      .put("toString", method(Constraint.STRING))
+      .build();
   }
 
-  protected static BuiltInFunctionSymbolicValue method(Constraint returnConstraint) {
-    return new BuiltInFunctionSymbolicValue(returnConstraint);
+  @Override
+  Map<String, Constraint> getPropertiesConstraints() {
+    return ImmutableMap.of(
+      "length", Constraint.NUMBER,
+      "name", Constraint.STRING
+    );
   }
 }

@@ -19,20 +19,24 @@
  */
 package org.sonar.javascript.se;
 
+import org.sonar.javascript.se.builtins.ArrayBuiltInProperties;
+import org.sonar.javascript.se.builtins.BooleanBuiltInProperties;
 import org.sonar.javascript.se.builtins.BuiltInProperties;
+import org.sonar.javascript.se.builtins.FunctionBuiltInProperties;
+import org.sonar.javascript.se.builtins.NumberBuiltInProperties;
+import org.sonar.javascript.se.builtins.ObjectBuiltInProperties;
 import org.sonar.javascript.se.builtins.StringBuiltInProperties;
-import org.sonar.javascript.se.builtins.UnknownBuiltInProperties;
+import org.sonar.javascript.se.builtins.NullOrUndefinedBuiltInProperties;
 
 public enum Type {
-  NUMBER(Constraint.NUMBER),
+  NUMBER(Constraint.NUMBER, new NumberBuiltInProperties()),
   STRING(Constraint.STRING, new StringBuiltInProperties()),
-  BOOLEAN(Constraint.BOOLEAN),
-  NULL(Constraint.NULL),
-  UNDEFINED(Constraint.UNDEFINED),
-  FUNCTION(Constraint.FUNCTION),
-  ARRAY(Constraint.ARRAY),
-  OTHER_OBJECT(Constraint.OTHER_OBJECT),
-  OBJECT(Constraint.OBJECT);
+  BOOLEAN(Constraint.BOOLEAN, new BooleanBuiltInProperties()),
+  NULL(Constraint.NULL, new NullOrUndefinedBuiltInProperties()),
+  UNDEFINED(Constraint.UNDEFINED, new NullOrUndefinedBuiltInProperties()),
+  FUNCTION(Constraint.FUNCTION, new FunctionBuiltInProperties()),
+  ARRAY(Constraint.ARRAY, new ArrayBuiltInProperties()),
+  OBJECT(Constraint.OBJECT, new ObjectBuiltInProperties());
 
   private Constraint constraint;
   private BuiltInProperties builtInProperties;
@@ -40,11 +44,6 @@ public enum Type {
   Type(Constraint constraint, BuiltInProperties builtInProperties) {
     this.constraint = constraint;
     this.builtInProperties = builtInProperties;
-  }
-
-  Type(Constraint constraint) {
-    this.constraint = constraint;
-    this.builtInProperties = new UnknownBuiltInProperties();
   }
 
   public BuiltInProperties builtInProperties() {

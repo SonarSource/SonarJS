@@ -36,7 +36,6 @@ public class UnaryPlusMinusWithObjectCheck extends AbstractAllPathSeCheck<UnaryE
   private static final String MESSAGE = "Remove this use of unary \"%s\".";
 
   private static final EnumSet<Type> NOT_ALLOWED_TYPES = EnumSet.of(
-    Type.OTHER_OBJECT,
     Type.ARRAY,
     Type.FUNCTION,
     Type.OBJECT

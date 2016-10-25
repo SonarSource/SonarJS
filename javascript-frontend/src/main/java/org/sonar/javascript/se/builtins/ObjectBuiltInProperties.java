@@ -24,16 +24,24 @@ import java.util.Map;
 import org.sonar.javascript.se.Constraint;
 import org.sonar.javascript.se.sv.SymbolicValue;
 
-public class UnknownBuiltInProperties extends BuiltInProperties {
-
-  @Override
-  Map<String, Constraint> getPropertiesConstraints() {
-    return ImmutableMap.of();
-  }
+public class ObjectBuiltInProperties extends BuiltInProperties {
 
   @Override
   Map<String, SymbolicValue> getMethods() {
-    return ImmutableMap.of();
+    return ImmutableMap.<String, SymbolicValue>builder()
+      .put("hasOwnProperty", method(Constraint.BOOLEAN))
+      .put("isPrototypeOf", method(Constraint.BOOLEAN))
+      .put("propertyIsEnumerable", method(Constraint.BOOLEAN))
+      .put("toLocaleString", method(Constraint.STRING))
+      .put("toString", method(Constraint.STRING))
+      .put("valueOf", method(Constraint.ANY_VALUE))
+      .build();
   }
 
+  @Override
+  Map<String, Constraint> getPropertiesConstraints() {
+    return ImmutableMap.of(
+      "constructor", Constraint.FUNCTION
+    );
+  }
 }
