@@ -82,4 +82,16 @@ public class StringBuiltInProperties extends BuiltInProperties {
       "length", Constraint.NUMBER
     );
   }
+
+  @Override
+  Map<String, SymbolicValue> getOwnMethods() {
+    return ImmutableMap.<String, SymbolicValue>builder()
+      .put("fromCharCode", method(Constraint.STRING))
+      .build();
+  }
+
+  @Override
+  Map<String, Constraint> getOwnPropertiesConstraints() {
+    return ImmutableMap.of();
+  }
 }

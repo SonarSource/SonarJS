@@ -33,6 +33,10 @@ public abstract class BuiltInProperties {
 
   abstract Map<String, SymbolicValue> getMethods();
 
+  abstract Map<String, Constraint> getOwnPropertiesConstraints();
+
+  abstract Map<String, SymbolicValue> getOwnMethods();
+
   protected BuiltInProperties getPrototypeProperties() {
     return Type.OBJECT.builtInProperties();
   }

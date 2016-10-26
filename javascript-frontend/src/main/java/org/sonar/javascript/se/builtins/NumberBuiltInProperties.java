@@ -45,4 +45,30 @@ public class NumberBuiltInProperties extends BuiltInProperties {
   Map<String, Constraint> getPropertiesConstraints() {
     return ImmutableMap.of();
   }
+
+  @Override
+  Map<String, SymbolicValue> getOwnMethods() {
+    return ImmutableMap.<String, SymbolicValue>builder()
+      .put("isNaN", method(Constraint.BOOLEAN))
+      .put("isFinite", method(Constraint.BOOLEAN))
+      .put("isInteger", method(Constraint.BOOLEAN))
+      .put("isSafeInteger", method(Constraint.BOOLEAN))
+      .put("parseFloat", method(Constraint.NUMBER))
+      .put("parseInt", method(Constraint.NUMBER))
+      .build();
+  }
+
+  @Override
+  Map<String, Constraint> getOwnPropertiesConstraints() {
+    return ImmutableMap.<String, Constraint>builder()
+      .put("EPSILON", Constraint.TRUTHY_NUMBER)
+      .put("MAX_SAFE_INTEGER", Constraint.TRUTHY_NUMBER)
+      .put("MAX_VALUE", Constraint.TRUTHY_NUMBER)
+      .put("MIN_SAFE_INTEGER", Constraint.TRUTHY_NUMBER)
+      .put("MIN_VALUE", Constraint.TRUTHY_NUMBER)
+      .put("NaN", Constraint.NAN)
+      .put("NEGATIVE_INFINITY", Constraint.TRUTHY_NUMBER)
+      .put("POSITIVE_INFINITY", Constraint.TRUTHY_NUMBER)
+      .build();
+  }
 }

@@ -23,10 +23,11 @@ import java.util.Optional;
 import org.sonar.javascript.se.Constraint;
 import org.sonar.javascript.se.ProgramState;
 import org.sonar.javascript.se.Type;
+import org.sonar.javascript.se.sv.ObjectSymbolicValue;
 import org.sonar.javascript.se.sv.SymbolicValue;
 import org.sonar.javascript.se.sv.SymbolicValueWithConstraint;
 
-public enum BuiltInObjectSymbolicValue implements SymbolicValue {
+public enum BuiltInObjectSymbolicValue implements ObjectSymbolicValue {
 
   NUMBER("Number", Type.NUMBER),
   BOOLEAN("Boolean", Type.BOOLEAN),
@@ -51,6 +52,21 @@ public enum BuiltInObjectSymbolicValue implements SymbolicValue {
   @Override
   public Constraint baseConstraint(ProgramState state) {
     return Constraint.FUNCTION;
+  }
+
+  @Override
+  public Optional<SymbolicValue> getValueForOwnProperty(String name) {
+    Constraint constraint = type.builtInProperties().getOwnPropertiesConstraints().get(name);
+    if (constraint != null) {
+      return Optional.of(new SymbolicValueWithConstraint(constraint));
+    }
+
+    SymbolicValue value = type.builtInProperties().getOwnMethods().get(name);
+    if (value != null) {
+      return Optional.of(value);
+    }
+
+    return Optional.empty();
   }
 
   public SymbolicValue instantiate() {

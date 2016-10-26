@@ -45,4 +45,14 @@ public class FunctionBuiltInProperties extends BuiltInProperties {
       "name", Constraint.STRING
     );
   }
+
+  @Override
+  Map<String, Constraint> getOwnPropertiesConstraints() {
+    return ImmutableMap.of();
+  }
+
+  @Override
+  Map<String, SymbolicValue> getOwnMethods() {
+    return ImmutableMap.of();
+  }
 }

@@ -74,4 +74,18 @@ public class ArrayBuiltInProperties extends BuiltInProperties {
       "length", Constraint.NUMBER
     );
   }
+
+  @Override
+  Map<String, Constraint> getOwnPropertiesConstraints() {
+    return ImmutableMap.of();
+  }
+
+  @Override
+  Map<String, SymbolicValue> getOwnMethods() {
+    return ImmutableMap.<String, SymbolicValue>builder()
+      .put("from", method(Constraint.ARRAY))
+      .put("isArray", method(Constraint.BOOLEAN))
+      .put("of", method(Constraint.ARRAY))
+      .build();
+  }
 }

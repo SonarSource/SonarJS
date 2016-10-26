@@ -40,4 +40,14 @@ public class BooleanBuiltInProperties extends BuiltInProperties {
   Map<String, Constraint> getPropertiesConstraints() {
     return ImmutableMap.of();
   }
+
+  @Override
+  Map<String, Constraint> getOwnPropertiesConstraints() {
+    return ImmutableMap.of();
+  }
+
+  @Override
+  Map<String, SymbolicValue> getOwnMethods() {
+    return ImmutableMap.of();
+  }
 }

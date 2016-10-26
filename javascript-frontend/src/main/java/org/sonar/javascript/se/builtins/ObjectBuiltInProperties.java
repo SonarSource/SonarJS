@@ -49,4 +49,33 @@ public class ObjectBuiltInProperties extends BuiltInProperties {
   protected BuiltInProperties getPrototypeProperties() {
     return null;
   }
+
+  @Override
+  Map<String, SymbolicValue> getOwnMethods() {
+    return ImmutableMap.<String, SymbolicValue>builder()
+      .put("assign", method(Constraint.OBJECT))
+      .put("create", method(Constraint.OBJECT))
+      .put("defineProperty", method(Constraint.OBJECT))
+      .put("defineProperties", method(Constraint.OBJECT))
+      .put("freeze", method(Constraint.OBJECT))
+      .put("getOwnPropertyDescriptor", method(Constraint.OBJECT.or(Constraint.UNDEFINED)))
+      .put("getOwnPropertyDescriptors", method(Constraint.OBJECT))
+      .put("getOwnPropertyNames", method(Constraint.ARRAY))
+      .put("getOwnPropertySymbols", method(Constraint.ARRAY))
+      .put("getPrototypeOf", method(Constraint.OBJECT.or(Constraint.NULL)))
+      .put("is", method(Constraint.BOOLEAN))
+      .put("isExtensible", method(Constraint.BOOLEAN))
+      .put("isFrozen", method(Constraint.BOOLEAN))
+      .put("isSealed", method(Constraint.BOOLEAN))
+      .put("keys", method(Constraint.ARRAY))
+      .put("preventExtensions", method(Constraint.OBJECT))
+      .put("seal", method(Constraint.OBJECT))
+      .put("setPrototypeOf()", method(Constraint.OBJECT))
+      .build();
+  }
+
+  @Override
+  Map<String, Constraint> getOwnPropertiesConstraints() {
+    return ImmutableMap.of();
+  }
 }

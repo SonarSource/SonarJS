@@ -17,34 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.javascript.se.builtins;
+package org.sonar.javascript.se.sv;
 
-import java.util.Map;
-import org.sonar.javascript.se.Constraint;
-import org.sonar.javascript.se.sv.SymbolicValue;
+import java.util.Optional;
 
-public class NullOrUndefinedBuiltInProperties extends BuiltInProperties {
+public interface ObjectSymbolicValue extends SymbolicValue {
 
-  private static final String ERROR_MESSAGE = "We should not try to execute properties on 'null' or 'undefined' as it leads to TypeError";
-
-  @Override
-  Map<String, Constraint> getPropertiesConstraints() {
-    throw new IllegalStateException(ERROR_MESSAGE);
-  }
-
-  @Override
-  Map<String, SymbolicValue> getMethods() {
-    throw new IllegalStateException(ERROR_MESSAGE);
-  }
-
-  @Override
-  Map<String, Constraint> getOwnPropertiesConstraints() {
-    throw new IllegalStateException(ERROR_MESSAGE);
-  }
-
-  @Override
-  Map<String, SymbolicValue> getOwnMethods() {
-    throw new IllegalStateException(ERROR_MESSAGE);
-  }
+  Optional<SymbolicValue> getValueForOwnProperty(String name);
 
 }

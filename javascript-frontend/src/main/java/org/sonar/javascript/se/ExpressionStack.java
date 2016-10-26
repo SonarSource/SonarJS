@@ -24,12 +24,14 @@ import java.util.Deque;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Objects;
+import java.util.Optional;
 import javax.annotation.Nullable;
 import org.sonar.javascript.se.builtins.BuiltInObjectSymbolicValue;
 import org.sonar.javascript.se.sv.BuiltInFunctionSymbolicValue;
 import org.sonar.javascript.se.sv.FunctionSymbolicValue;
 import org.sonar.javascript.se.sv.LiteralSymbolicValue;
 import org.sonar.javascript.se.sv.LogicalNotSymbolicValue;
+import org.sonar.javascript.se.sv.ObjectSymbolicValue;
 import org.sonar.javascript.se.sv.PlusSymbolicValue;
 import org.sonar.javascript.se.sv.RelationalSymbolicValue;
 import org.sonar.javascript.se.sv.SpecialSymbolicValue;
@@ -271,10 +273,20 @@ public class ExpressionStack {
 
   private static void executeDotMemberExpression(DotMemberExpressionTree dotMemberExpressionTree, ProgramStateConstraints constraints, Deque<SymbolicValue> newStack) {
     SymbolicValue objectValue = newStack.pop();
+    String propertyName = dotMemberExpressionTree.property().name();
+
+    if (objectValue instanceof ObjectSymbolicValue) {
+      Optional<SymbolicValue> value = ((ObjectSymbolicValue) objectValue).getValueForOwnProperty(propertyName);
+      if (value.isPresent()) {
+        newStack.push(value.get());
+        return;
+      }
+    }
+
     Type type = constraints.getConstraint(objectValue).type();
 
     if (type != null) {
-      newStack.push(type.builtInProperties().getValueForProperty(dotMemberExpressionTree.property().name()));
+      newStack.push(type.builtInProperties().getValueForProperty(propertyName));
     } else {
       pushUnknown(newStack);
     }
