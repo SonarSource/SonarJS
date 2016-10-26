@@ -37,7 +37,7 @@ import org.sonar.plugins.javascript.api.tree.Tree;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class FunctionSymbolicValueTest {
+public class FunctionWithTreeSymbolicValueTest {
 
   @Test
   public void test() throws Exception {
@@ -58,7 +58,7 @@ public class FunctionSymbolicValueTest {
   private void assertFunctionTreeLines(Set<SymbolicValue> values, Integer ... expectedLines) {
     Set<Integer> actualLines = new HashSet<>();
     for (SymbolicValue value : values) {
-      actualLines.add(((JavaScriptTree) ((FunctionSymbolicValue) value).getFunctionTree()).getLine());
+      actualLines.add(((JavaScriptTree) ((FunctionWithTreeSymbolicValue) value).getFunctionTree()).getLine());
     }
 
     assertThat(actualLines).as("Lines of function trees of function symbolic values").isEqualTo(Sets.newHashSet(expectedLines));

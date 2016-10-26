@@ -21,13 +21,12 @@ package org.sonar.javascript.se.builtins;
 
 import java.util.Optional;
 import org.sonar.javascript.se.Constraint;
-import org.sonar.javascript.se.ProgramState;
 import org.sonar.javascript.se.Type;
-import org.sonar.javascript.se.sv.ObjectSymbolicValue;
+import org.sonar.javascript.se.sv.FunctionSymbolicValue;
 import org.sonar.javascript.se.sv.SymbolicValue;
 import org.sonar.javascript.se.sv.SymbolicValueWithConstraint;
 
-public enum BuiltInObjectSymbolicValue implements ObjectSymbolicValue {
+public enum BuiltInObjectSymbolicValue implements FunctionSymbolicValue {
 
   NUMBER("Number", Type.NUMBER),
   BOOLEAN("Boolean", Type.BOOLEAN),
@@ -45,16 +44,6 @@ public enum BuiltInObjectSymbolicValue implements ObjectSymbolicValue {
   }
 
   @Override
-  public Optional<ProgramState> constrainDependencies(ProgramState state, Constraint constraint) {
-    return Optional.of(state);
-  }
-
-  @Override
-  public Constraint baseConstraint(ProgramState state) {
-    return Constraint.FUNCTION;
-  }
-
-  @Override
   public Optional<SymbolicValue> getValueForOwnProperty(String name) {
     Constraint constraint = type.builtInProperties().getOwnPropertiesConstraints().get(name);
     if (constraint != null) {
@@ -69,9 +58,20 @@ public enum BuiltInObjectSymbolicValue implements ObjectSymbolicValue {
     return Optional.empty();
   }
 
+  @Override
   public SymbolicValue instantiate() {
     return new SymbolicValueWithConstraint(type.constraint());
   }
+
+  @Override
+  public SymbolicValue call() {
+    if (this == DATE) {
+      return new SymbolicValueWithConstraint(Constraint.STRING);
+    } else {
+      return new SymbolicValueWithConstraint(type.constraint());
+    }
+  }
+
 
   public static Optional<BuiltInObjectSymbolicValue> find(String name) {
     for (BuiltInObjectSymbolicValue builtInObject : values()) {

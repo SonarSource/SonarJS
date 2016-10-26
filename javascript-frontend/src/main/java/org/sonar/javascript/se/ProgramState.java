@@ -36,7 +36,7 @@ import java.util.Optional;
 import java.util.Set;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import org.sonar.javascript.se.sv.FunctionSymbolicValue;
+import org.sonar.javascript.se.sv.FunctionWithTreeSymbolicValue;
 import org.sonar.javascript.se.sv.SimpleSymbolicValue;
 import org.sonar.javascript.se.sv.SymbolicValue;
 import org.sonar.javascript.se.sv.UnknownSymbolicValue;
@@ -131,7 +131,7 @@ public class ProgramState implements ProgramStateConstraints {
   }
 
   public ProgramState newFunctionSymbolicValue(Symbol symbol, FunctionTree functionTree) {
-    SymbolicValue value = new FunctionSymbolicValue(functionTree);
+    SymbolicValue value = new FunctionWithTreeSymbolicValue(functionTree);
     return new ProgramState(updateValue(this.values, symbol, value), ImmutableMap.copyOf(constraints), stack, relations, counter);
   }
 
@@ -212,8 +212,8 @@ public class ProgramState implements ProgramStateConstraints {
   private Map<Symbol, FunctionTree> functionsBySymbol() {
     ImmutableMap.Builder<Symbol, FunctionTree> builder = new Builder<>();
     for (Entry<Symbol, SymbolicValue> entry : values.entrySet()) {
-      if (entry.getValue() instanceof FunctionSymbolicValue) {
-        builder.put(entry.getKey(), ((FunctionSymbolicValue) entry.getValue()).getFunctionTree());
+      if (entry.getValue() instanceof FunctionWithTreeSymbolicValue) {
+        builder.put(entry.getKey(), ((FunctionWithTreeSymbolicValue) entry.getValue()).getFunctionTree());
       }
     }
 

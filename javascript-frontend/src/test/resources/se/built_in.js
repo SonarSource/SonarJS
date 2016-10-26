@@ -10,6 +10,11 @@ function main() {
   var date = new Date();
   foo(); // PS date=DATE
 
+  date = Date();
+  n = Number();
+  f = Function();
+  foo(); // PS date=STRING & n=NUMBER & f=FUNCTION
+
   var date1 = Date.now();
   foo(); // PS date1=NUMBER
 

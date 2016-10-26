@@ -25,7 +25,7 @@ import com.sonar.sslr.api.typed.ActionParser;
 import org.junit.Test;
 import org.sonar.javascript.cfg.ControlFlowGraph;
 import org.sonar.javascript.parser.JavaScriptParserBuilder;
-import org.sonar.javascript.se.sv.FunctionSymbolicValue;
+import org.sonar.javascript.se.sv.FunctionWithTreeSymbolicValue;
 import org.sonar.javascript.se.sv.LiteralSymbolicValue;
 import org.sonar.javascript.se.sv.LogicalNotSymbolicValue;
 import org.sonar.javascript.se.sv.RelationalSymbolicValue;
@@ -183,8 +183,8 @@ public class ExpressionStackTest {
   @Test
   public void arrow_function() throws Exception {
     execute("() => { foo(); }");
-    assertSingleValueInStack(FunctionSymbolicValue.class);
-    FunctionSymbolicValue functionSV = (FunctionSymbolicValue) stack.peek();
+    assertSingleValueInStack(FunctionWithTreeSymbolicValue.class);
+    FunctionWithTreeSymbolicValue functionSV = (FunctionWithTreeSymbolicValue) stack.peek();
     assertThat(functionSV.baseConstraint(mock(ProgramState.class))).isEqualTo(Constraint.FUNCTION);
     assertThat(functionSV.getFunctionTree().is(Kind.ARROW_FUNCTION)).isTrue();
   }

@@ -26,9 +26,8 @@ import java.util.LinkedList;
 import java.util.Objects;
 import java.util.Optional;
 import javax.annotation.Nullable;
-import org.sonar.javascript.se.builtins.BuiltInObjectSymbolicValue;
-import org.sonar.javascript.se.sv.BuiltInFunctionSymbolicValue;
 import org.sonar.javascript.se.sv.FunctionSymbolicValue;
+import org.sonar.javascript.se.sv.FunctionWithTreeSymbolicValue;
 import org.sonar.javascript.se.sv.LiteralSymbolicValue;
 import org.sonar.javascript.se.sv.LogicalNotSymbolicValue;
 import org.sonar.javascript.se.sv.ObjectSymbolicValue;
@@ -167,7 +166,7 @@ public class ExpressionStack {
       case FUNCTION_EXPRESSION:
       case GENERATOR_FUNCTION_EXPRESSION:
       case ARROW_FUNCTION:
-        newStack.push(new FunctionSymbolicValue((FunctionTree) expression));
+        newStack.push(new FunctionWithTreeSymbolicValue((FunctionTree) expression));
         break;
       case REGULAR_EXPRESSION_LITERAL:
       case THIS:
@@ -264,8 +263,8 @@ public class ExpressionStack {
     int arguments = newExpressionTree.arguments() == null ? 0 : newExpressionTree.arguments().parameters().size();
     pop(newStack, arguments);
     SymbolicValue constructor = newStack.pop();
-    if (constructor instanceof BuiltInObjectSymbolicValue) {
-      newStack.push(((BuiltInObjectSymbolicValue) constructor).instantiate());
+    if (constructor instanceof FunctionSymbolicValue) {
+      newStack.push(((FunctionSymbolicValue) constructor).instantiate());
     } else {
       newStack.push(new SymbolicValueWithConstraint(Constraint.OBJECT));
     }
@@ -295,8 +294,8 @@ public class ExpressionStack {
   private static void executeCallExpression(CallExpressionTree expression, Deque<SymbolicValue> newStack) {
     pop(newStack, expression.arguments().parameters().size());
     SymbolicValue callee = newStack.pop();
-    if (callee instanceof BuiltInFunctionSymbolicValue) {
-      newStack.push(((BuiltInFunctionSymbolicValue) callee).getReturnedValue());
+    if (callee instanceof FunctionSymbolicValue) {
+      newStack.push(((FunctionSymbolicValue) callee).call());
     } else {
       pushUnknown(newStack);
     }

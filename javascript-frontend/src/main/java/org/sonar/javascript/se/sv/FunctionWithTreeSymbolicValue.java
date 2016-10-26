@@ -22,13 +22,18 @@ package org.sonar.javascript.se.sv;
 import java.util.Optional;
 import org.sonar.javascript.se.Constraint;
 import org.sonar.javascript.se.ProgramState;
+import org.sonar.plugins.javascript.api.tree.declaration.FunctionTree;
 
-public class BuiltInFunctionSymbolicValue implements SymbolicValue {
+public class FunctionWithTreeSymbolicValue implements SymbolicValue {
 
-  private final Constraint returnedValueConstraint;
+  private final FunctionTree functionTree;
 
-  public BuiltInFunctionSymbolicValue(Constraint returnedValueConstraint) {
-    this.returnedValueConstraint = returnedValueConstraint;
+  public FunctionWithTreeSymbolicValue(FunctionTree functionTree) {
+    this.functionTree = functionTree;
+  }
+
+  public FunctionTree getFunctionTree() {
+    return functionTree;
   }
 
   @Override
@@ -39,9 +44,5 @@ public class BuiltInFunctionSymbolicValue implements SymbolicValue {
   @Override
   public Constraint baseConstraint(ProgramState state) {
     return Constraint.FUNCTION;
-  }
-
-  public SymbolicValue getReturnedValue() {
-    return new SymbolicValueWithConstraint(returnedValueConstraint);
   }
 }

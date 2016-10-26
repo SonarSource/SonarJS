@@ -21,7 +21,7 @@ package org.sonar.javascript.se.builtins;
 
 import org.junit.Test;
 import org.sonar.javascript.se.Constraint;
-import org.sonar.javascript.se.sv.BuiltInFunctionSymbolicValue;
+import org.sonar.javascript.se.sv.FunctionWithKnownReturnSymbolicValue;
 import org.sonar.javascript.se.sv.SymbolicValue;
 import org.sonar.javascript.se.sv.SymbolicValueWithConstraint;
 import org.sonar.javascript.se.sv.UnknownSymbolicValue;
@@ -113,17 +113,17 @@ public class BuiltInPropertiesTest {
     assertThat(constraint(actual)).isEqualTo(expectedConstraint);
   }
 
-  private void assertMethod(SymbolicValue actual, BuiltInFunctionSymbolicValue expected) {
-    assertThat(actual).isInstanceOf(BuiltInFunctionSymbolicValue.class);
-    assertThat(constraint(((BuiltInFunctionSymbolicValue) actual).getReturnedValue()))
-      .isEqualTo(constraint(expected.getReturnedValue()));
+  private void assertMethod(SymbolicValue actual, FunctionWithKnownReturnSymbolicValue expected) {
+    assertThat(actual).isInstanceOf(FunctionWithKnownReturnSymbolicValue.class);
+    assertThat(constraint(((FunctionWithKnownReturnSymbolicValue) actual).call()))
+      .isEqualTo(constraint(expected.call()));
   }
 
   private SymbolicValue value(String name) {
     return builtInProperties.getValueForProperty(name);
   }
 
-  private BuiltInFunctionSymbolicValue method(Constraint returnConstraint) {
+  private FunctionWithKnownReturnSymbolicValue method(Constraint returnConstraint) {
     return BuiltInProperties.method(returnConstraint);
   }
 

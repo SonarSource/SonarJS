@@ -22,7 +22,7 @@ package org.sonar.javascript.se.builtins;
 import java.util.Map;
 import org.sonar.javascript.se.Constraint;
 import org.sonar.javascript.se.Type;
-import org.sonar.javascript.se.sv.BuiltInFunctionSymbolicValue;
+import org.sonar.javascript.se.sv.FunctionWithKnownReturnSymbolicValue;
 import org.sonar.javascript.se.sv.SymbolicValue;
 import org.sonar.javascript.se.sv.SymbolicValueWithConstraint;
 import org.sonar.javascript.se.sv.UnknownSymbolicValue;
@@ -65,7 +65,7 @@ public abstract class BuiltInProperties {
     return getValueFromPrototype(propertyName);
   }
 
-  protected static BuiltInFunctionSymbolicValue method(Constraint returnConstraint) {
-    return new BuiltInFunctionSymbolicValue(returnConstraint);
+  protected static FunctionWithKnownReturnSymbolicValue method(Constraint returnConstraint) {
+    return new FunctionWithKnownReturnSymbolicValue(returnConstraint);
   }
 }
