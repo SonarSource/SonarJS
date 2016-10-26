@@ -39,6 +39,7 @@ public class UnaryPlusMinusWithObjectCheck extends AbstractAllPathSeCheck<UnaryE
     Type.ARRAY,
     Type.FUNCTION,
     Type.OBJECT,
+    Type.REGEXP,
     Type.DATE
   );
 

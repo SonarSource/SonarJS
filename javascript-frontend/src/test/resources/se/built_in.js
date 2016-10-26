@@ -30,4 +30,8 @@ function main() {
   var mathAbs = Math.abs(-4);
   var squareRoot = Math.SQRT2;
   foo(); // PS mathAbs=NUMBER & squareRoot=TRUTHY_NUMBER
+
+  var regexp = new RegExp();
+  var regexpProp = regexp.lastIndex;
+  foo(); // PS regexp=REGEXP & regexpProp=NUMBER
 }

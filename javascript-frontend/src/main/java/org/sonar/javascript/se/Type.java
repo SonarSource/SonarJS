@@ -27,6 +27,7 @@ import org.sonar.javascript.se.builtins.FunctionBuiltInProperties;
 import org.sonar.javascript.se.builtins.NullOrUndefinedBuiltInProperties;
 import org.sonar.javascript.se.builtins.NumberBuiltInProperties;
 import org.sonar.javascript.se.builtins.ObjectBuiltInProperties;
+import org.sonar.javascript.se.builtins.RegexpBuiltInProperties;
 import org.sonar.javascript.se.builtins.StringBuiltInProperties;
 
 public enum Type {
@@ -38,6 +39,7 @@ public enum Type {
   FUNCTION(Constraint.FUNCTION, new FunctionBuiltInProperties()),
   ARRAY(Constraint.ARRAY, new ArrayBuiltInProperties()),
   DATE(Constraint.DATE, new DateBuiltInProperties()),
+  REGEXP(Constraint.REGEXP, new RegexpBuiltInProperties()),
   OBJECT(Constraint.OBJECT, new ObjectBuiltInProperties());
 
   private Constraint constraint;

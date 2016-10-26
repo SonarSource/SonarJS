@@ -53,8 +53,8 @@ class SeVerifier extends SeCheck {
     .put("NULL", Constraint.NULL)
     .put("UNDEFINED", Constraint.UNDEFINED)
     .put("NOT_UNDEFINED", Constraint.UNDEFINED.not())
-    .put("NULL_OR_NON_FUNCTION_OBJECT", Constraint.NULL.or(Constraint.OTHER_OBJECT).or(Constraint.ARRAY).or(Constraint.DATE))
-    .put("NOT_NULL_OR_NON_FUNCTION_OBJECT", Constraint.NULL.or(Constraint.OTHER_OBJECT).or(Constraint.ARRAY).or(Constraint.DATE).not())
+    .put("NULL_OR_NON_FUNCTION_OBJECT", Constraint.NULL.or(Constraint.OBJECT).and(Constraint.FUNCTION.not()))
+    .put("NOT_NULL_OR_NON_FUNCTION_OBJECT", Constraint.NULL.or(Constraint.OBJECT).and(Constraint.FUNCTION.not()).not())
     .put("ZERO", Constraint.ZERO)
     .put("TRUTHY_NUMBER", Constraint.TRUTHY_NUMBER)
     .put("FUNCTION", Constraint.FUNCTION)
@@ -73,6 +73,7 @@ class SeVerifier extends SeCheck {
     .put("ANY_VALUE", Constraint.ANY_VALUE)
     .put("ARRAY", Constraint.ARRAY)
     .put("DATE", Constraint.DATE)
+    .put("REGEXP", Constraint.REGEXP)
     .build();
 
   // line - program state - asserted
