@@ -22,11 +22,12 @@ package org.sonar.javascript.se;
 import org.sonar.javascript.se.builtins.ArrayBuiltInProperties;
 import org.sonar.javascript.se.builtins.BooleanBuiltInProperties;
 import org.sonar.javascript.se.builtins.BuiltInProperties;
+import org.sonar.javascript.se.builtins.DateBuiltInProperties;
 import org.sonar.javascript.se.builtins.FunctionBuiltInProperties;
+import org.sonar.javascript.se.builtins.NullOrUndefinedBuiltInProperties;
 import org.sonar.javascript.se.builtins.NumberBuiltInProperties;
 import org.sonar.javascript.se.builtins.ObjectBuiltInProperties;
 import org.sonar.javascript.se.builtins.StringBuiltInProperties;
-import org.sonar.javascript.se.builtins.NullOrUndefinedBuiltInProperties;
 
 public enum Type {
   NUMBER(Constraint.NUMBER, new NumberBuiltInProperties()),
@@ -36,6 +37,7 @@ public enum Type {
   UNDEFINED(Constraint.UNDEFINED, new NullOrUndefinedBuiltInProperties()),
   FUNCTION(Constraint.FUNCTION, new FunctionBuiltInProperties()),
   ARRAY(Constraint.ARRAY, new ArrayBuiltInProperties()),
+  DATE(Constraint.DATE, new DateBuiltInProperties()),
   OBJECT(Constraint.OBJECT, new ObjectBuiltInProperties());
 
   private Constraint constraint;

@@ -84,6 +84,15 @@ public class BuiltInPropertiesTest {
     assertThat(value("foobar")).isEqualTo(UnknownSymbolicValue.UNKNOWN);
   }
 
+  @Test
+  public void test_date() throws Exception {
+    builtInProperties = new DateBuiltInProperties();
+    assertMethod(value("getDate"), method(Constraint.TRUTHY_NUMBER));
+    assertMethod(value("setDate"), method(Constraint.NUMBER));
+    assertMethod(value("toString"), method(Constraint.STRING));
+    assertThat(value("foobar")).isEqualTo(UnknownSymbolicValue.UNKNOWN);
+  }
+
   @Test(expected=IllegalStateException.class)
   public void test_null() throws Exception {
     builtInProperties = new NullOrUndefinedBuiltInProperties();

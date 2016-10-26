@@ -6,4 +6,7 @@ function main() {
 
   var objB = new Boolean();
   foo(); // PS objB=BOOLEAN
+
+  var date = new Date();
+  foo(); // PS date=DATE
 }

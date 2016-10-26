@@ -32,6 +32,7 @@ public enum BuiltInObjectSymbolicValue implements SymbolicValue {
   BOOLEAN("Boolean", Type.BOOLEAN),
   STRING("String", Type.STRING),
   FUNCTION("Function", Type.FUNCTION),
+  DATE("Date", Type.DATE),
   OBJECT("Object", Type.OBJECT);
 
   private final String name;

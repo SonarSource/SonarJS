@@ -37,7 +37,7 @@ function main() {
 
   +(new Date());   // OK
   var d = new Date();
-  +d;    // Noncompliant FP
+  +d;    // OK
   -d;    // Noncompliant
   + someDate;    // OK
   + date;    // OK
