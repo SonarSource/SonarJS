@@ -171,7 +171,7 @@ public class ExpressionStackTest {
   @Test
   public void template_literal() throws Exception {
     execute("`${a} ${b} ${c}`");
-    assertSingleValueInStack(UnknownSymbolicValue.class);
+    assertSingleValueInStack(new SymbolicValueWithConstraint(Constraint.STRING));
   }
 
   @Test

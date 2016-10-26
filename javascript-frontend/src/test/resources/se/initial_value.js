@@ -22,4 +22,7 @@ function main(par, unused) {
 
   makeLive(element1, element2);
 
+  var str = `string template`;
+  foo(); // PS str=STRING
+
 }

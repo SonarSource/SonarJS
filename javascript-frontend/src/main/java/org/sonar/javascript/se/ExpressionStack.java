@@ -186,7 +186,7 @@ public class ExpressionStack {
         break;
       case TEMPLATE_LITERAL:
         pop(newStack, ((TemplateLiteralTree) expression).expressions().size());
-        pushUnknown(newStack);
+        newStack.push(new SymbolicValueWithConstraint(Constraint.STRING));
         break;
       case EXPONENT_ASSIGNMENT:
       case MULTIPLY_ASSIGNMENT:
