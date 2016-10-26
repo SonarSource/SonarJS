@@ -25,6 +25,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Objects;
 import javax.annotation.Nullable;
+import org.sonar.javascript.se.builtins.BuiltInObjectSymbolicValue;
 import org.sonar.javascript.se.sv.BuiltInFunctionSymbolicValue;
 import org.sonar.javascript.se.sv.FunctionSymbolicValue;
 import org.sonar.javascript.se.sv.LiteralSymbolicValue;
@@ -127,10 +128,7 @@ public class ExpressionStack {
         newStack.push(new TypeOfSymbolicValue(newStack.pop()));
         break;
       case NEW_EXPRESSION:
-        NewExpressionTree newExpressionTree = (NewExpressionTree) expression;
-        int arguments = newExpressionTree.arguments() == null ? 0 : newExpressionTree.arguments().parameters().size();
-        pop(newStack, arguments + 1);
-        newStack.push(new SymbolicValueWithConstraint(Constraint.OBJECT));
+        executeNewExpression((NewExpressionTree) expression, newStack);
         break;
       case DOT_MEMBER_EXPRESSION:
         executeDotMemberExpression((DotMemberExpressionTree) expression, constraints, newStack);
@@ -258,6 +256,17 @@ public class ExpressionStack {
         throw new IllegalArgumentException("Unexpected kind of expression to execute: " + kind);
     }
     return new ExpressionStack(newStack);
+  }
+
+  private static void executeNewExpression(NewExpressionTree newExpressionTree, Deque<SymbolicValue> newStack) {
+    int arguments = newExpressionTree.arguments() == null ? 0 : newExpressionTree.arguments().parameters().size();
+    pop(newStack, arguments);
+    SymbolicValue constructor = newStack.pop();
+    if (constructor instanceof BuiltInObjectSymbolicValue) {
+      newStack.push(((BuiltInObjectSymbolicValue) constructor).instantiate());
+    } else {
+      newStack.push(new SymbolicValueWithConstraint(Constraint.OBJECT));
+    }
   }
 
   private static void executeDotMemberExpression(DotMemberExpressionTree dotMemberExpressionTree, ProgramStateConstraints constraints, Deque<SymbolicValue> newStack) {
