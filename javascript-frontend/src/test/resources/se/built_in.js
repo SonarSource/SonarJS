@@ -26,4 +26,8 @@ function main() {
 
   var maxNum = Number.MAX_VALUE;
   foo(); // PS maxNum=TRUTHY_NUMBER
+
+  var mathAbs = Math.abs(-4);
+  var squareRoot = Math.SQRT2;
+  foo(); // PS mathAbs=NUMBER & squareRoot=TRUTHY_NUMBER
 }

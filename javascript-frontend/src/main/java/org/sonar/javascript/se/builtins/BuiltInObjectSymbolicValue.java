@@ -35,6 +35,8 @@ public enum BuiltInObjectSymbolicValue implements FunctionSymbolicValue {
   DATE("Date", Type.DATE),
   OBJECT("Object", Type.OBJECT);
 
+  private static final SymbolicValue MATH_OBJECT = new MathBuiltInObjectSymbolicValue();
+
   private final String name;
   private final Type type;
 
@@ -73,11 +75,15 @@ public enum BuiltInObjectSymbolicValue implements FunctionSymbolicValue {
   }
 
 
-  public static Optional<BuiltInObjectSymbolicValue> find(String name) {
+  public static Optional<SymbolicValue> find(String name) {
     for (BuiltInObjectSymbolicValue builtInObject : values()) {
       if (builtInObject.name.equals(name)) {
         return Optional.of(builtInObject);
       }
+    }
+
+    if ("Math".equals(name)) {
+      return Optional.of(MATH_OBJECT);
     }
 
     return Optional.empty();
