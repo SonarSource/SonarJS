@@ -57,7 +57,6 @@ public class DateBuiltInProperties extends BuiltInProperties {
       .put("setSeconds", method(Constraint.NUMBER))
       .put("setTime", method(Constraint.NUMBER))
       .put("setUTCDate", method(Constraint.NUMBER))
-      .put("setUTCDay", method(Constraint.NUMBER))
       .put("setUTCFullYear", method(Constraint.NUMBER))
       .put("setUTCHours", method(Constraint.NUMBER))
       .put("setUTCMilliseconds", method(Constraint.NUMBER))

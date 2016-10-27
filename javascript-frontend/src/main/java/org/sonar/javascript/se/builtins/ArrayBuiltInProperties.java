@@ -50,7 +50,7 @@ public class ArrayBuiltInProperties extends BuiltInProperties {
       .put("entries", method(Constraint.OTHER_OBJECT))
       .put("every", method(Constraint.BOOLEAN))
       .put("some", method(Constraint.BOOLEAN))
-      .put("filter", method(Constraint.BOOLEAN))
+      .put("filter", method(Constraint.ARRAY))
       .put("findIndex", method(Constraint.NUMBER))
       .put("keys", method(Constraint.OTHER_OBJECT))
       .put("map", method(Constraint.ARRAY))

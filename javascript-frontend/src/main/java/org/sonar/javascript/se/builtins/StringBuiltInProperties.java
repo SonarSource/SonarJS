@@ -30,7 +30,7 @@ public class StringBuiltInProperties extends BuiltInProperties {
   Map<String, SymbolicValue> getMethods() {
     return ImmutableMap.<String, SymbolicValue>builder()
       .put("charAt", method(Constraint.STRING))
-      .put("charCodeAt", method(Constraint.STRING))
+      .put("charCodeAt", method(Constraint.NUMBER))
       .put("codePointAt", method(Constraint.NUMBER))
       .put("concat", method(Constraint.STRING))
       .put("includes", method(Constraint.BOOLEAN))
