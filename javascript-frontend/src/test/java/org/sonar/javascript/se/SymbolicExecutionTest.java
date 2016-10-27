@@ -104,6 +104,11 @@ public class SymbolicExecutionTest {
   }
 
   @Test
+  public void instanceof_test() throws Exception {
+    verifySE("instanceof.js");
+  }
+
+  @Test
   public void test_live_variable_analysis() throws Exception {
     verifySE("lva.js");
   }

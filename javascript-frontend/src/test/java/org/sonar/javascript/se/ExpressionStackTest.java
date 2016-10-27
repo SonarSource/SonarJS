@@ -26,6 +26,7 @@ import org.junit.Test;
 import org.sonar.javascript.cfg.ControlFlowGraph;
 import org.sonar.javascript.parser.JavaScriptParserBuilder;
 import org.sonar.javascript.se.sv.FunctionWithTreeSymbolicValue;
+import org.sonar.javascript.se.sv.InstanceOfSymbolicValue;
 import org.sonar.javascript.se.sv.LiteralSymbolicValue;
 import org.sonar.javascript.se.sv.LogicalNotSymbolicValue;
 import org.sonar.javascript.se.sv.RelationalSymbolicValue;
@@ -116,6 +117,13 @@ public class ExpressionStackTest {
     execute("typeof a");
     assertSingleValueInStack(TypeOfSymbolicValue.class);
     assertSingleValueInStackWithConstraint(Constraint.STRING);
+  }
+
+  @Test
+  public void instanceof_test() throws Exception {
+    execute("a instanceof Foo");
+    assertSingleValueInStack(InstanceOfSymbolicValue.class);
+    assertSingleValueInStackWithConstraint(Constraint.BOOLEAN);
   }
 
   @Test
