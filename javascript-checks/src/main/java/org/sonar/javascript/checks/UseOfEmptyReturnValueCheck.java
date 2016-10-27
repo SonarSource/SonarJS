@@ -24,7 +24,7 @@ import java.util.List;
 import javax.annotation.CheckForNull;
 import org.sonar.check.Rule;
 import org.sonar.javascript.se.ProgramState;
-import org.sonar.javascript.se.sv.FunctionSymbolicValue;
+import org.sonar.javascript.se.sv.FunctionWithTreeSymbolicValue;
 import org.sonar.javascript.se.sv.SymbolicValue;
 import org.sonar.javascript.tree.TreeKinds;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
@@ -86,8 +86,8 @@ public class UseOfEmptyReturnValueCheck extends AbstractAllPathSeCheck<CallExpre
   private static FunctionTree functionTree(CallExpressionTree tree, ProgramState currentState) {
     SymbolicValue calleeSV = currentState.peekStack(tree.arguments().parameters().size());
 
-    if (calleeSV instanceof FunctionSymbolicValue) {
-      return ((FunctionSymbolicValue) calleeSV).getFunctionTree();
+    if (calleeSV instanceof FunctionWithTreeSymbolicValue) {
+      return ((FunctionWithTreeSymbolicValue) calleeSV).getFunctionTree();
     }
 
     return null;

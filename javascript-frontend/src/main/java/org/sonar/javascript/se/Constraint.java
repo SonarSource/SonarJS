@@ -74,16 +74,19 @@ public class Constraint {
   public static final Constraint TRUTHY_NUMBER = new Constraint(ValueSubSet.TRUTHY_NUMBER);
   public static final Constraint TRUTHY_STRING = new Constraint(ValueSubSet.TRUTHY_STRING);
   public static final Constraint ARRAY = new Constraint(ValueSubSet.ARRAY);
+  public static final Constraint DATE = new Constraint(ValueSubSet.DATE);
+  public static final Constraint REGEXP = new Constraint(ValueSubSet.REGEXP);
   public static final Constraint OTHER_OBJECT = new Constraint(ValueSubSet.OTHER_OBJECT);
 
   public static final Constraint NULL_OR_UNDEFINED = NULL.or(UNDEFINED);
+  public static final Constraint KNOWN_OBJECTS = or(FUNCTION, ARRAY, DATE, REGEXP);
   public static final Constraint NOT_NULLY = NULL_OR_UNDEFINED.not();
-  public static final Constraint TRUTHY = or(TRUE, FUNCTION, TRUTHY_NUMBER, TRUTHY_STRING, ARRAY, OTHER_OBJECT);
+  public static final Constraint TRUTHY = or(TRUE, TRUTHY_NUMBER, TRUTHY_STRING, KNOWN_OBJECTS, OTHER_OBJECT);
   public static final Constraint FALSY = TRUTHY.not();
   public static final Constraint NUMBER = or(ZERO, NAN, TRUTHY_NUMBER);
   public static final Constraint STRING = or(EMPTY_STRING, TRUTHY_STRING);
   public static final Constraint BOOLEAN = or(TRUE, FALSE);
-  public static final Constraint OBJECT = or(ARRAY, FUNCTION, OTHER_OBJECT);
+  public static final Constraint OBJECT = or(KNOWN_OBJECTS, OTHER_OBJECT);
 
   private static final Map<Constraint, String> COMMON_CONSTRAINT_NAMES = ImmutableMap.<Constraint, String>builder()
     .put(ANY_VALUE, "ANY_VALUE")
@@ -105,6 +108,8 @@ public class Constraint {
     TRUTHY_NUMBER,
     TRUTHY_STRING,
     ARRAY,
+    DATE,
+    REGEXP,
     OTHER_OBJECT;
 
     private int bitSet() {
@@ -172,13 +177,7 @@ public class Constraint {
   }
 
   public Type type() {
-    for (Type type : Type.values()) {
-      if (this.isStricterOrEqualTo(type.constraint())) {
-        return type;
-      }
-    }
-
-    return null;
+    return Type.find(this);
   }
 
   public Set<Type> typeSet() {

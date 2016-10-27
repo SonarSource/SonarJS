@@ -24,10 +24,13 @@ import java.util.Deque;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Objects;
+import java.util.Optional;
 import javax.annotation.Nullable;
 import org.sonar.javascript.se.sv.FunctionSymbolicValue;
+import org.sonar.javascript.se.sv.FunctionWithTreeSymbolicValue;
 import org.sonar.javascript.se.sv.LiteralSymbolicValue;
 import org.sonar.javascript.se.sv.LogicalNotSymbolicValue;
+import org.sonar.javascript.se.sv.ObjectSymbolicValue;
 import org.sonar.javascript.se.sv.PlusSymbolicValue;
 import org.sonar.javascript.se.sv.RelationalSymbolicValue;
 import org.sonar.javascript.se.sv.SpecialSymbolicValue;
@@ -42,6 +45,7 @@ import org.sonar.plugins.javascript.api.tree.declaration.FunctionTree;
 import org.sonar.plugins.javascript.api.tree.declaration.MethodDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.expression.ArrayLiteralTree;
 import org.sonar.plugins.javascript.api.tree.expression.CallExpressionTree;
+import org.sonar.plugins.javascript.api.tree.expression.DotMemberExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 import org.sonar.plugins.javascript.api.tree.expression.LiteralTree;
@@ -90,9 +94,10 @@ public class ExpressionStack {
    * this method will return new resulting instance of {@link ExpressionStack} while the calling this method instance will not be changed.
    *
    * @param expression to be executed
+   * @param constraints
    * @return resulting {@link ExpressionStack}
    */
-  public ExpressionStack execute(ExpressionTree expression) {
+  public ExpressionStack execute(ExpressionTree expression, ProgramStateConstraints constraints) {
     Deque<SymbolicValue> newStack = copy();
     Kind kind = ((JavaScriptTree) expression).getKind();
     switch (kind) {
@@ -124,12 +129,11 @@ public class ExpressionStack {
         newStack.push(new TypeOfSymbolicValue(newStack.pop()));
         break;
       case NEW_EXPRESSION:
-        NewExpressionTree newExpressionTree = (NewExpressionTree) expression;
-        int arguments = newExpressionTree.arguments() == null ? 0 : newExpressionTree.arguments().parameters().size();
-        pop(newStack, arguments + 1);
-        newStack.push(new SymbolicValueWithConstraint(Constraint.OBJECT));
+        executeNewExpression((NewExpressionTree) expression, newStack);
         break;
       case DOT_MEMBER_EXPRESSION:
+        executeDotMemberExpression((DotMemberExpressionTree) expression, constraints, newStack);
+        break;
       case SPREAD_ELEMENT:
       case VOID:
       case AWAIT:
@@ -157,13 +161,12 @@ public class ExpressionStack {
         newStack.push(new SymbolicValueWithConstraint(Constraint.NUMBER));
         break;
       case CALL_EXPRESSION:
-        pop(newStack, ((CallExpressionTree) expression).arguments().parameters().size() + 1);
-        pushUnknown(newStack);
+        executeCallExpression((CallExpressionTree) expression, newStack);
         break;
       case FUNCTION_EXPRESSION:
       case GENERATOR_FUNCTION_EXPRESSION:
       case ARROW_FUNCTION:
-        newStack.push(new FunctionSymbolicValue((FunctionTree) expression));
+        newStack.push(new FunctionWithTreeSymbolicValue((FunctionTree) expression));
         break;
       case REGULAR_EXPRESSION_LITERAL:
       case THIS:
@@ -186,7 +189,7 @@ public class ExpressionStack {
         break;
       case TEMPLATE_LITERAL:
         pop(newStack, ((TemplateLiteralTree) expression).expressions().size());
-        pushUnknown(newStack);
+        newStack.push(new SymbolicValueWithConstraint(Constraint.STRING));
         break;
       case EXPONENT_ASSIGNMENT:
       case MULTIPLY_ASSIGNMENT:
@@ -254,6 +257,48 @@ public class ExpressionStack {
         throw new IllegalArgumentException("Unexpected kind of expression to execute: " + kind);
     }
     return new ExpressionStack(newStack);
+  }
+
+  private static void executeNewExpression(NewExpressionTree newExpressionTree, Deque<SymbolicValue> newStack) {
+    int arguments = newExpressionTree.arguments() == null ? 0 : newExpressionTree.arguments().parameters().size();
+    pop(newStack, arguments);
+    SymbolicValue constructor = newStack.pop();
+    if (constructor instanceof FunctionSymbolicValue) {
+      newStack.push(((FunctionSymbolicValue) constructor).instantiate());
+    } else {
+      newStack.push(new SymbolicValueWithConstraint(Constraint.OBJECT));
+    }
+  }
+
+  private static void executeDotMemberExpression(DotMemberExpressionTree dotMemberExpressionTree, ProgramStateConstraints constraints, Deque<SymbolicValue> newStack) {
+    SymbolicValue objectValue = newStack.pop();
+    String propertyName = dotMemberExpressionTree.property().name();
+
+    if (objectValue instanceof ObjectSymbolicValue) {
+      Optional<SymbolicValue> value = ((ObjectSymbolicValue) objectValue).getValueForOwnProperty(propertyName);
+      if (value.isPresent()) {
+        newStack.push(value.get());
+        return;
+      }
+    }
+
+    Type type = constraints.getConstraint(objectValue).type();
+
+    if (type != null) {
+      newStack.push(type.getValueForProperty(propertyName));
+    } else {
+      pushUnknown(newStack);
+    }
+  }
+
+  private static void executeCallExpression(CallExpressionTree expression, Deque<SymbolicValue> newStack) {
+    pop(newStack, expression.arguments().parameters().size());
+    SymbolicValue callee = newStack.pop();
+    if (callee instanceof FunctionSymbolicValue) {
+      newStack.push(((FunctionSymbolicValue) callee).call());
+    } else {
+      pushUnknown(newStack);
+    }
   }
 
   private static void popObjectLiteralProperties(ObjectLiteralTree objectLiteralTree, Deque<SymbolicValue> newStack) {

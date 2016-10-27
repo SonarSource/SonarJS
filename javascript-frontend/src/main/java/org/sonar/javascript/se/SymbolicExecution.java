@@ -32,6 +32,7 @@ import javax.annotation.Nullable;
 import org.sonar.javascript.cfg.CfgBlock;
 import org.sonar.javascript.cfg.CfgBranchingBlock;
 import org.sonar.javascript.cfg.ControlFlowGraph;
+import org.sonar.javascript.se.builtins.BuiltInObjectSymbolicValue;
 import org.sonar.javascript.se.sv.SymbolicValue;
 import org.sonar.javascript.se.sv.SymbolicValueWithConstraint;
 import org.sonar.javascript.se.sv.UnknownSymbolicValue;
@@ -212,7 +213,7 @@ public class SymbolicExecution {
       }
 
       if (element.is(Kind.IDENTIFIER_REFERENCE) && !isUndefined((IdentifierTree) element)) {
-        SymbolicValue symbolicValue = currentState.getSymbolicValue(((IdentifierTree) element).symbol());
+        SymbolicValue symbolicValue = getSymbolicValue(element, currentState);
         currentState = currentState.pushToStack(symbolicValue);
 
       } else if (element instanceof ExpressionTree && !element.is(Kind.CLASS_DECLARATION)) {
@@ -490,6 +491,8 @@ public class SymbolicExecution {
       Symbol symbol = trackedVariable(tree);
       if (symbol != null) {
         return currentState.getSymbolicValue(symbol);
+      } else if (tree instanceof IdentifierTree) {
+        return BuiltInObjectSymbolicValue.find(((IdentifierTree) tree).name()).orElse(null);
       }
     }
     return null;

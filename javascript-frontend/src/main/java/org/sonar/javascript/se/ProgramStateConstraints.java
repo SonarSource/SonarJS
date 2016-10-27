@@ -17,35 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.javascript.se.sv;
+package org.sonar.javascript.se;
 
-import java.util.Optional;
-import org.sonar.javascript.se.Constraint;
-import org.sonar.javascript.se.ProgramState;
+import org.sonar.javascript.se.sv.SymbolicValue;
 
-public interface FunctionSymbolicValue extends ObjectSymbolicValue {
+public interface ProgramStateConstraints {
 
-  @Override
-  default Optional<ProgramState> constrainDependencies(ProgramState state, Constraint constraint) {
-    return Optional.of(state);
-  }
-
-  @Override
-  default Constraint baseConstraint(ProgramState state) {
-    return Constraint.FUNCTION;
-  }
-
-  @Override
-  default Optional<SymbolicValue> getValueForOwnProperty(String name) {
-    return Optional.empty();
-  }
-
-  default SymbolicValue instantiate() {
-    return new SymbolicValueWithConstraint(Constraint.OBJECT);
-  }
-
-  default SymbolicValue call() {
-    return new SymbolicValueWithConstraint(Constraint.ANY_VALUE);
-  }
-
+  Constraint getConstraint(SymbolicValue value);
 }

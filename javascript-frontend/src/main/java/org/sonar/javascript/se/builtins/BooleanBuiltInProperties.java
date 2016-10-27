@@ -17,35 +17,37 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.javascript.se.sv;
+package org.sonar.javascript.se.builtins;
 
-import java.util.Optional;
+import com.google.common.collect.ImmutableMap;
+import java.util.Map;
 import org.sonar.javascript.se.Constraint;
-import org.sonar.javascript.se.ProgramState;
+import org.sonar.javascript.se.sv.SymbolicValue;
 
-public interface FunctionSymbolicValue extends ObjectSymbolicValue {
-
-  @Override
-  default Optional<ProgramState> constrainDependencies(ProgramState state, Constraint constraint) {
-    return Optional.of(state);
-  }
+public class BooleanBuiltInProperties extends BuiltInProperties {
 
   @Override
-  default Constraint baseConstraint(ProgramState state) {
-    return Constraint.FUNCTION;
+  Map<String, SymbolicValue> getMethods() {
+    return ImmutableMap.<String, SymbolicValue>builder()
+      // overrides Object
+      .put("toString", method(Constraint.STRING))
+      .put("valueOf", method(Constraint.BOOLEAN))
+
+      .build();
   }
 
   @Override
-  default Optional<SymbolicValue> getValueForOwnProperty(String name) {
-    return Optional.empty();
+  Map<String, Constraint> getPropertiesConstraints() {
+    return ImmutableMap.of();
   }
 
-  default SymbolicValue instantiate() {
-    return new SymbolicValueWithConstraint(Constraint.OBJECT);
+  @Override
+  Map<String, Constraint> getOwnPropertiesConstraints() {
+    return ImmutableMap.of();
   }
 
-  default SymbolicValue call() {
-    return new SymbolicValueWithConstraint(Constraint.ANY_VALUE);
+  @Override
+  Map<String, SymbolicValue> getOwnMethods() {
+    return ImmutableMap.of();
   }
-
 }

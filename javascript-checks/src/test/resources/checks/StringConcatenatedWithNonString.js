@@ -67,5 +67,5 @@ function main() {
 
 
   var strObj1 = new String("42");
-  foo(1 + strObj1); // FN
+  foo(1 + strObj1); // Noncompliant
 }

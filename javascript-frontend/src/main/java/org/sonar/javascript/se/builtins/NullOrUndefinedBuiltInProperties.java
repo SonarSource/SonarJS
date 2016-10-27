@@ -17,35 +17,34 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.javascript.se.sv;
+package org.sonar.javascript.se.builtins;
 
-import java.util.Optional;
+import java.util.Map;
 import org.sonar.javascript.se.Constraint;
-import org.sonar.javascript.se.ProgramState;
+import org.sonar.javascript.se.sv.SymbolicValue;
 
-public interface FunctionSymbolicValue extends ObjectSymbolicValue {
+public class NullOrUndefinedBuiltInProperties extends BuiltInProperties {
 
-  @Override
-  default Optional<ProgramState> constrainDependencies(ProgramState state, Constraint constraint) {
-    return Optional.of(state);
-  }
+  private static final String ERROR_MESSAGE = "We should not try to execute properties on 'null' or 'undefined' as it leads to TypeError";
 
   @Override
-  default Constraint baseConstraint(ProgramState state) {
-    return Constraint.FUNCTION;
+  Map<String, Constraint> getPropertiesConstraints() {
+    throw new IllegalStateException(ERROR_MESSAGE);
   }
 
   @Override
-  default Optional<SymbolicValue> getValueForOwnProperty(String name) {
-    return Optional.empty();
+  Map<String, SymbolicValue> getMethods() {
+    throw new IllegalStateException(ERROR_MESSAGE);
   }
 
-  default SymbolicValue instantiate() {
-    return new SymbolicValueWithConstraint(Constraint.OBJECT);
+  @Override
+  Map<String, Constraint> getOwnPropertiesConstraints() {
+    throw new IllegalStateException(ERROR_MESSAGE);
   }
 
-  default SymbolicValue call() {
-    return new SymbolicValueWithConstraint(Constraint.ANY_VALUE);
+  @Override
+  Map<String, SymbolicValue> getOwnMethods() {
+    throw new IllegalStateException(ERROR_MESSAGE);
   }
 
 }

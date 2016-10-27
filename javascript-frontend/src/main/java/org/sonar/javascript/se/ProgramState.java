@@ -36,7 +36,7 @@ import java.util.Optional;
 import java.util.Set;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import org.sonar.javascript.se.sv.FunctionSymbolicValue;
+import org.sonar.javascript.se.sv.FunctionWithTreeSymbolicValue;
 import org.sonar.javascript.se.sv.SimpleSymbolicValue;
 import org.sonar.javascript.se.sv.SymbolicValue;
 import org.sonar.javascript.se.sv.UnknownSymbolicValue;
@@ -51,7 +51,7 @@ import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
  * The same program state may be valid for several program points and at one program point there might be valid several program states (depending on execution path).
  * This class is immutable.
  */
-public class ProgramState {
+public class ProgramState implements ProgramStateConstraints {
 
   private final ImmutableMap<Symbol, SymbolicValue> values;
   private final ImmutableMap<SymbolicValue, Constraint> constraints;
@@ -131,7 +131,7 @@ public class ProgramState {
   }
 
   public ProgramState newFunctionSymbolicValue(Symbol symbol, FunctionTree functionTree) {
-    SymbolicValue value = new FunctionSymbolicValue(functionTree);
+    SymbolicValue value = new FunctionWithTreeSymbolicValue(functionTree);
     return new ProgramState(updateValue(this.values, symbol, value), ImmutableMap.copyOf(constraints), stack, relations, counter);
   }
 
@@ -181,6 +181,7 @@ public class ProgramState {
     return values.get(symbol);
   }
 
+  @Override
   public Constraint getConstraint(@Nullable SymbolicValue value) {
     Constraint storedConstraint = constraints.get(value);
     storedConstraint = storedConstraint == null ? Constraint.ANY_VALUE : storedConstraint;
@@ -211,8 +212,8 @@ public class ProgramState {
   private Map<Symbol, FunctionTree> functionsBySymbol() {
     ImmutableMap.Builder<Symbol, FunctionTree> builder = new Builder<>();
     for (Entry<Symbol, SymbolicValue> entry : values.entrySet()) {
-      if (entry.getValue() instanceof FunctionSymbolicValue) {
-        builder.put(entry.getKey(), ((FunctionSymbolicValue) entry.getValue()).getFunctionTree());
+      if (entry.getValue() instanceof FunctionWithTreeSymbolicValue) {
+        builder.put(entry.getKey(), ((FunctionWithTreeSymbolicValue) entry.getValue()).getFunctionTree());
       }
     }
 
@@ -243,7 +244,7 @@ public class ProgramState {
   }
 
   public ProgramState execute(ExpressionTree expression) {
-    return new ProgramState(values, constraints, stack.execute(expression), relations, counter);
+    return new ProgramState(values, constraints, stack.execute(expression, this), relations, counter);
   }
 
   public ProgramState assignment(Symbol variable) {

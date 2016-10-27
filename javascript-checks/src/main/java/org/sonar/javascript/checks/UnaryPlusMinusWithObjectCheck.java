@@ -36,10 +36,11 @@ public class UnaryPlusMinusWithObjectCheck extends AbstractAllPathSeCheck<UnaryE
   private static final String MESSAGE = "Remove this use of unary \"%s\".";
 
   private static final EnumSet<Type> NOT_ALLOWED_TYPES = EnumSet.of(
-    Type.OTHER_OBJECT,
     Type.ARRAY,
     Type.FUNCTION,
-    Type.OBJECT
+    Type.OBJECT,
+    Type.REGEXP,
+    Type.DATE
   );
 
   @Override
@@ -52,9 +53,11 @@ public class UnaryPlusMinusWithObjectCheck extends AbstractAllPathSeCheck<UnaryE
 
   @Override
   boolean isProblem(UnaryExpressionTree tree, ProgramState currentState) {
+
     Constraint constraint = currentState.getConstraint(currentState.peekStack());
     Type type = constraint.type();
-    return type != null && NOT_ALLOWED_TYPES.contains(type);
+    boolean isDateCasting = type == Type.DATE && tree.is(Kind.UNARY_PLUS);
+    return !isDateCasting && type != null && NOT_ALLOWED_TYPES.contains(type);
   }
 
   @Override
