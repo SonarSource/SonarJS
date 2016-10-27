@@ -34,6 +34,7 @@ public enum BuiltInObjectSymbolicValue implements FunctionSymbolicValue {
   FUNCTION("Function", Type.FUNCTION),
   DATE("Date", Type.DATE),
   REGEXP("RegExp", Type.REGEXP),
+  ARRAY("Array", Type.ARRAY),
   OBJECT("Object", Type.OBJECT);
 
   private static final SymbolicValue MATH_OBJECT = new MathBuiltInObjectSymbolicValue();
