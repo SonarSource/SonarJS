@@ -28,6 +28,7 @@ import java.util.Optional;
 import javax.annotation.Nullable;
 import org.sonar.javascript.se.sv.FunctionSymbolicValue;
 import org.sonar.javascript.se.sv.FunctionWithTreeSymbolicValue;
+import org.sonar.javascript.se.sv.InstanceOfSymbolicValue;
 import org.sonar.javascript.se.sv.LiteralSymbolicValue;
 import org.sonar.javascript.se.sv.LogicalNotSymbolicValue;
 import org.sonar.javascript.se.sv.ObjectSymbolicValue;
@@ -207,9 +208,13 @@ public class ExpressionStack {
       case TAGGED_TEMPLATE:
       case EXPONENT:
       case RELATIONAL_IN:
-      case INSTANCE_OF:
         pop(newStack, 2);
         pushUnknown(newStack);
+        break;
+      case INSTANCE_OF:
+        SymbolicValue constructorValue = newStack.pop();
+        SymbolicValue objectValue = newStack.pop();
+        newStack.push(new InstanceOfSymbolicValue(objectValue, constructorValue));
         break;
       case EQUAL_TO:
       case NOT_EQUAL_TO:

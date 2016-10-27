@@ -3,6 +3,8 @@
 4794,
 4811,
 8964,
+10034,
+10034,
 12065,
 ],
 'project:dojo-1.8.1/dijit/_TemplatedMixin.js.uncompressed.js':[
@@ -146,6 +148,7 @@
 15494,
 15964,
 16194,
+16223,
 16695,
 16754,
 16755,
@@ -157,6 +160,9 @@
 17326,
 17360,
 17705,
+],
+'project:dojo-1.8.1/dojo/dom-class.js.uncompressed.js':[
+22,
 ],
 'project:dojo-1.8.1/dojo/has.js.uncompressed.js':[
 19,
@@ -403,6 +409,9 @@
 'project:dojo-1.8.1/dojox/layout/GridContainerLite.js.uncompressed.js':[
 457,
 ],
+'project:dojo-1.8.1/dojox/layout/RotatorContainer.js.uncompressed.js':[
+218,
+],
 'project:dojo-1.8.1/dojox/mobile.js.uncompressed.js':[
 243,
 416,
@@ -451,6 +460,7 @@
 ],
 'project:dojo-1.8.1/dojox/storage/FlashStorageProvider.js.uncompressed.js':[
 72,
+109,
 ],
 'project:dojo-1.8.1/dojox/storage/GearsStorageProvider.js.uncompressed.js':[
 263,
@@ -583,6 +593,9 @@
 'project:google-closure-library/module/moduleloader.js':[
 236,
 ],
+'project:google-closure-library/storage/mechanism/mechanism_test.js':[
+89,
+],
 'project:google-closure-library/testing/mockmatchers.js':[
 386,
 ],
@@ -624,6 +637,9 @@
 ],
 'project:open-layers-2.12/OpenLayers/Events.js':[
 329,
+],
+'project:open-layers-2.12/OpenLayers/Format/GeoJSON.js':[
+459,
 ],
 'project:open-layers-2.12/OpenLayers/Format/KML.js':[
 552,
@@ -676,6 +692,7 @@
 4772,
 8987,
 9137,
+11989,
 ],
 'project:yui-3.7.3/datatable-sort/datatable-sort.js':[
 707,

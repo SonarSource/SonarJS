@@ -66,6 +66,10 @@ public enum Type {
     return constraint;
   }
 
+  public Type parentType() {
+    return parentType;
+  }
+
   private SymbolicValue getValueFromPrototype(String propertyName) {
     if (parentType != null) {
       return parentType.getValueForProperty(propertyName);

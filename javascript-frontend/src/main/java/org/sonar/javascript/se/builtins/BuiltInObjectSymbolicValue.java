@@ -47,6 +47,10 @@ public enum BuiltInObjectSymbolicValue implements FunctionSymbolicValue {
     this.type = type;
   }
 
+  public Type type() {
+    return type;
+  }
+
   @Override
   public Optional<SymbolicValue> getValueForOwnProperty(String name) {
     return type.getValueForOwnProperty(name);
