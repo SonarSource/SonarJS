@@ -285,7 +285,7 @@ public class ExpressionStack {
     Type type = constraints.getConstraint(objectValue).type();
 
     if (type != null) {
-      newStack.push(type.builtInProperties().getValueForProperty(propertyName));
+      newStack.push(type.getValueForProperty(propertyName));
     } else {
       pushUnknown(newStack);
     }

@@ -20,12 +20,12 @@
 package org.sonar.javascript.se.builtins;
 
 import java.util.Map;
+import java.util.Optional;
+import javax.annotation.Nullable;
 import org.sonar.javascript.se.Constraint;
-import org.sonar.javascript.se.Type;
 import org.sonar.javascript.se.sv.FunctionWithKnownReturnSymbolicValue;
 import org.sonar.javascript.se.sv.SymbolicValue;
 import org.sonar.javascript.se.sv.SymbolicValueWithConstraint;
-import org.sonar.javascript.se.sv.UnknownSymbolicValue;
 
 public abstract class BuiltInProperties {
 
@@ -37,19 +37,7 @@ public abstract class BuiltInProperties {
 
   abstract Map<String, SymbolicValue> getOwnMethods();
 
-  protected BuiltInProperties getPrototypeProperties() {
-    return Type.OBJECT.builtInProperties();
-  }
-
-  private SymbolicValue getValueFromPrototype(String propertyName) {
-    BuiltInProperties prototypeProperties = getPrototypeProperties();
-    if (prototypeProperties != null) {
-      return prototypeProperties.getValueForProperty(propertyName);
-    }
-
-    return UnknownSymbolicValue.UNKNOWN;
-  }
-
+  @Nullable
   public SymbolicValue getValueForProperty(String propertyName) {
 
     Constraint constraint = getPropertiesConstraints().get(propertyName);
@@ -62,7 +50,21 @@ public abstract class BuiltInProperties {
       return value;
     }
 
-    return getValueFromPrototype(propertyName);
+    return null;
+  }
+
+  public Optional<SymbolicValue> getValueForOwnProperty(String name) {
+    Constraint constraint = getOwnPropertiesConstraints().get(name);
+    if (constraint != null) {
+      return Optional.of(new SymbolicValueWithConstraint(constraint));
+    }
+
+    SymbolicValue value = getOwnMethods().get(name);
+    if (value != null) {
+      return Optional.of(value);
+    }
+
+    return Optional.empty();
   }
 
   protected static FunctionWithKnownReturnSymbolicValue method(Constraint returnConstraint) {

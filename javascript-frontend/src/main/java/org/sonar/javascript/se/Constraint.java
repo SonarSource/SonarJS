@@ -177,13 +177,7 @@ public class Constraint {
   }
 
   public Type type() {
-    for (Type type : Type.values()) {
-      if (this.isStricterOrEqualTo(type.constraint())) {
-        return type;
-      }
-    }
-
-    return null;
+    return Type.find(this);
   }
 
   public Set<Type> typeSet() {

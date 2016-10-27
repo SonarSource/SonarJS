@@ -48,17 +48,7 @@ public enum BuiltInObjectSymbolicValue implements FunctionSymbolicValue {
 
   @Override
   public Optional<SymbolicValue> getValueForOwnProperty(String name) {
-    Constraint constraint = type.builtInProperties().getOwnPropertiesConstraints().get(name);
-    if (constraint != null) {
-      return Optional.of(new SymbolicValueWithConstraint(constraint));
-    }
-
-    SymbolicValue value = type.builtInProperties().getOwnMethods().get(name);
-    if (value != null) {
-      return Optional.of(value);
-    }
-
-    return Optional.empty();
+    return type.getValueForOwnProperty(name);
   }
 
   @Override
@@ -74,7 +64,6 @@ public enum BuiltInObjectSymbolicValue implements FunctionSymbolicValue {
       return new SymbolicValueWithConstraint(type.constraint());
     }
   }
-
 
   public static Optional<SymbolicValue> find(String name) {
     for (BuiltInObjectSymbolicValue builtInObject : values()) {

@@ -23,11 +23,16 @@ import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.javascript.se.Constraint.ANY_VALUE;
+import static org.sonar.javascript.se.Constraint.ARRAY;
+import static org.sonar.javascript.se.Constraint.BOOLEAN;
 import static org.sonar.javascript.se.Constraint.FALSY;
 import static org.sonar.javascript.se.Constraint.FUNCTION;
 import static org.sonar.javascript.se.Constraint.NO_POSSIBLE_VALUE;
 import static org.sonar.javascript.se.Constraint.NULL;
 import static org.sonar.javascript.se.Constraint.NULL_OR_UNDEFINED;
+import static org.sonar.javascript.se.Constraint.NUMBER;
+import static org.sonar.javascript.se.Constraint.OBJECT;
+import static org.sonar.javascript.se.Constraint.STRING;
 import static org.sonar.javascript.se.Constraint.TRUTHY;
 import static org.sonar.javascript.se.Constraint.UNDEFINED;
 
@@ -89,6 +94,16 @@ public class ConstraintTest {
     assertThat(Constraint.FALSY.or(Constraint.TRUTHY)).isEqualTo(Constraint.ANY_VALUE);
 
     assertThat(Constraint.NULL.or(Constraint.TRUTHY)).isEqualTo(Constraint.TRUTHY.or(Constraint.NULL));
+  }
+
+  @Test
+  public void type() throws Exception {
+    assertThat(NUMBER.type()).isEqualTo(Type.NUMBER);
+    assertThat(STRING.type()).isEqualTo(Type.STRING);
+    assertThat(BOOLEAN.type()).isEqualTo(Type.BOOLEAN);
+    assertThat(OBJECT.type()).isEqualTo(Type.OBJECT);
+    assertThat(FUNCTION.type()).isEqualTo(Type.FUNCTION);
+    assertThat(ARRAY.type()).isEqualTo(Type.ARRAY);
   }
 
   @Test

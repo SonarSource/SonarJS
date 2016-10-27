@@ -46,11 +46,6 @@ public class ObjectBuiltInProperties extends BuiltInProperties {
   }
 
   @Override
-  protected BuiltInProperties getPrototypeProperties() {
-    return null;
-  }
-
-  @Override
   Map<String, SymbolicValue> getOwnMethods() {
     return ImmutableMap.<String, SymbolicValue>builder()
       .put("assign", method(Constraint.OBJECT))
