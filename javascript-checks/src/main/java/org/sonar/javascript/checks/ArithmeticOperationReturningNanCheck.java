@@ -19,20 +19,29 @@
  */
 package org.sonar.javascript.checks;
 
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 import org.sonar.check.Rule;
 import org.sonar.javascript.se.Constraint;
 import org.sonar.javascript.se.ProgramState;
 import org.sonar.javascript.se.SeCheck;
+import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.javascript.tree.symbols.Scope;
+import org.sonar.plugins.javascript.api.symbols.Symbol;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
+import org.sonar.plugins.javascript.api.tree.expression.AssignmentExpressionTree;
+import org.sonar.plugins.javascript.api.tree.expression.BinaryExpressionTree;
+import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
+import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
+import org.sonar.plugins.javascript.api.tree.expression.UnaryExpressionTree;
+import org.sonar.plugins.javascript.api.visitors.PreciseIssue;
 
 @Rule(key = "S3757")
 public class ArithmeticOperationReturningNanCheck extends SeCheck {
 
-  private static final String MESSAGE = "Change that expression so that it doesn't always evaluate to \"NaN\" (Not a Number).";
+  private static final String MESSAGE = "Change the expression using this operand so that it can't evaluate to \"NaN\" (Not a Number).";
 
   private static final Constraint NUMBER_OR_BOOLEAN = Constraint.NUMBER.or(Constraint.BOOLEAN);
   private static final Constraint NUMBER_OR_BOOLEAN_OR_UNDEFINED = NUMBER_OR_BOOLEAN.or(Constraint.UNDEFINED);
@@ -44,11 +53,13 @@ public class ArithmeticOperationReturningNanCheck extends SeCheck {
   private final BinaryOperationChecker minusChecker = new MinusChecker();
   private final BinaryOperationChecker otherBinaryOperationChecker = new OtherBinaryOperationChecker();
 
-  private final Set<Tree> elementsWithIssues = new HashSet<>();
+  private final Set<Tree> expressionsWithIssues = new HashSet<>();
+  private final Set<Symbol> symbolsWithIssues = new HashSet<>();
 
   @Override
   public void startOfExecution(Scope functionScope) {
-    elementsWithIssues.clear();
+    expressionsWithIssues.clear();
+    symbolsWithIssues.clear();
     super.startOfExecution(functionScope);
   }
 
@@ -82,37 +93,64 @@ public class ArithmeticOperationReturningNanCheck extends SeCheck {
 
       Constraint constraint = currentState.getConstraint(currentState.peekStack(0));
       if (constraint.isStricterOrEqualTo(UNDEFINED_OR_NON_DATE_OBJECT)) {
-        raiseIssue(element);
+        UnaryExpressionTree unaryExpression = (UnaryExpressionTree) element;
+        raiseIssue(unaryExpression.expression(), unaryExpression.operator());
       }
     }
   }
 
-  private void raiseIssue(Tree element) {
-    if (!elementsWithIssues.contains(element)) {
-      addIssue(element, MESSAGE);
-      elementsWithIssues.add(element);
+  private void raiseIssue(Tree operand, Tree... secondaryLocations) {
+    Tree expression = ((JavaScriptTree) operand).getParent();
+    Symbol operandSymbol = null;
+    if (operand.is(Kind.IDENTIFIER_REFERENCE)) {
+      IdentifierTree identifier = (IdentifierTree) operand;
+      operandSymbol = identifier.symbol();
+    }
+    if (!expressionsWithIssues.contains(expression) && !symbolsWithIssues.contains(operandSymbol)) {
+      PreciseIssue issue = addIssue(operand, MESSAGE);
+      Arrays.asList(secondaryLocations).forEach(issue::secondary);
+      expressionsWithIssues.add(expression);
+      if (operandSymbol != null) {
+        symbolsWithIssues.add(operandSymbol);
+      }
     }
   }
 
   private static void checkBinaryOperation(ProgramState currentState, Tree element, BinaryOperationChecker checker) {
     Constraint rightConstraint = currentState.getConstraint(currentState.peekStack(0));
     Constraint leftConstraint = currentState.getConstraint(currentState.peekStack(1));
-    checker.check(element, leftConstraint, rightConstraint);
+    ExpressionTree leftOperand;
+    ExpressionTree rightOperand;
+    Tree operator;
+    if (element instanceof AssignmentExpressionTree) {
+      AssignmentExpressionTree assignment = (AssignmentExpressionTree) element;
+      leftOperand = assignment.variable();
+      rightOperand = assignment.expression();
+      operator = assignment.operator();
+    } else {
+      BinaryExpressionTree binaryExpression = (BinaryExpressionTree) element;
+      leftOperand = binaryExpression.leftOperand();
+      rightOperand = binaryExpression.rightOperand();
+      operator = binaryExpression.operator();
+    }
+    checker.check(leftConstraint, rightConstraint, leftOperand, rightOperand, operator);
   }
 
   @FunctionalInterface
   private interface BinaryOperationChecker {
 
-    void check(Tree element, Constraint leftConstraint, Constraint rightConstraint);
+    void check(Constraint leftConstraint, Constraint rightConstraint, Tree leftOperand, Tree rightOperand, Tree operator);
 
   }
 
   private class PlusChecker implements BinaryOperationChecker {
 
     @Override
-    public void check(Tree element, Constraint left, Constraint right) {
-      if (isNumberAndUndefined(right, left) || isNumberAndUndefined(left, right)) {
-        raiseIssue(element);
+    public void check(Constraint leftConstraint, Constraint rightConstraint, Tree leftOperand, Tree rightOperand, Tree operator) {
+      if (isNumberAndUndefined(rightConstraint, leftConstraint)) {
+        raiseIssue(leftOperand, operator, rightOperand);
+      } else if (isNumberAndUndefined(leftConstraint, rightConstraint)) {
+        raiseIssue(rightOperand, operator, leftOperand);
       }
     }
 
@@ -125,18 +163,22 @@ public class ArithmeticOperationReturningNanCheck extends SeCheck {
 
   private class MinusChecker implements BinaryOperationChecker {
     @Override
-    public void check(Tree element, Constraint left, Constraint right) {
-      if (left.isStricterOrEqualTo(UNDEFINED_OR_NON_DATE_OBJECT) || right.isStricterOrEqualTo(UNDEFINED_OR_NON_DATE_OBJECT)) {
-        raiseIssue(element);
+    public void check(Constraint leftConstraint, Constraint rightConstraint, Tree leftOperand, Tree rightOperand, Tree operator) {
+      if (leftConstraint.isStricterOrEqualTo(UNDEFINED_OR_NON_DATE_OBJECT)) {
+        raiseIssue(leftOperand, operator, rightOperand);
+      } else if (rightConstraint.isStricterOrEqualTo(UNDEFINED_OR_NON_DATE_OBJECT)) {
+        raiseIssue(rightOperand, operator, leftOperand);
       }
     }
   }
 
   private class OtherBinaryOperationChecker implements BinaryOperationChecker {
     @Override
-    public void check(Tree element, Constraint left, Constraint right) {
-      if (left.isStricterOrEqualTo(UNDEFINED_OR_OBJECT) || right.isStricterOrEqualTo(UNDEFINED_OR_OBJECT)) {
-        raiseIssue(element);
+    public void check(Constraint leftConstraint, Constraint rightConstraint, Tree leftOperand, Tree rightOperand, Tree operator) {
+      if (leftConstraint.isStricterOrEqualTo(UNDEFINED_OR_OBJECT)) {
+        raiseIssue(leftOperand, operator, rightOperand);
+      } else if (rightConstraint.isStricterOrEqualTo(UNDEFINED_OR_OBJECT)) {
+        raiseIssue(rightOperand, operator, leftOperand);
       }
     }
   }

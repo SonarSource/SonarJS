@@ -1,5 +1,5 @@
 {
-  "title": "Arithmetic operations should not always result in \"NaN\"",
+  "title": "Arithmetic operations should not result in \"NaN\"",
   "type": "BUG",
   "status": "ready",
   "remediation": {

@@ -1,59 +1,61 @@
 function f1() {
-  var number1 = 1;
+  42 - 7;
+  42 - []; // Noncompliant {{Change the expression using this operand so that it can't evaluate to "NaN" (Not a Number).}}
+//     ^^
+
+  [] - 42; // Noncompliant
+  [] -  // Noncompliant [[id=1]]
+//S  ^ 1
+       42;
+//S    ^^ 1
+
+  [] / 42; // Noncompliant
+  [] * 42; // Noncompliant
+  [] % 42; // Noncompliant
+
   var array1 = [];
-  
-  number1 - 42;
-  array1 - 42; // Noncompliant {{Change that expression so that it doesn't always evaluate to "NaN" (Not a Number).}}
-//^^^^^^^^^^^
-
-  42 - array1; // Noncompliant
-
-  array1 / 42; // Noncompliant
-  array1 * 42; // Noncompliant
-  array1 % 42; // Noncompliant
-  
   array1++; // Noncompliant
-  array1 = [];
-  array1--; // Noncompliant
-  array1 = [];
-  ++array1; // Noncompliant
-  array1 = [];
-  --array1; // Noncompliant
-  array1 = [];
+//^^^^^^
+  var array2 = [];
+  array2--; // Noncompliant
+  var array3 = [];
+  ++array3; // Noncompliant
+  var array4 = [];
+  --array4; // Noncompliant
   
-  array1 -= 42; // Noncompliant
-  array1 = [];
-  array1 *= 42; // Noncompliant
-  array1 = [];
-  array1 /= 42; // Noncompliant
-  array1 = [];
-  array1 %= 42; // Noncompliant
-  array1 = [];
+  var array5 = [];
+  array5 -= 42; // Noncompliant
+  var array6 = [];
+  array6 *= 42; // Noncompliant
+  var array7 = [];
+  array7 /= 42; // Noncompliant
+  var array8 = [];
+  array8 %= 42; // Noncompliant
   
-  +array1; // Noncompliant
-  -array1; // Noncompliant
-  +number1;
-  -number1;
+  foo(+[]); // Noncompliant
+//     ^^
+  foo(-[]); // Noncompliant
+  foo(+42);
+  foo(-42);
   
-  var x;
-  x = undefined;
-  x + 42; // Noncompliant
-  42 + x; // Noncompliant
-  x + true; // Noncompliant
+  undefined + 42; // Noncompliant
+  42 + undefined; // Noncompliant
+  undefined + true; // Noncompliant
+  var x = undefined;
   x += 42; // Noncompliant
-  x + ""; // ok
-  x + {}; // ok
-  x = null;
-  x + 42; // ok
-  x = true;
-  x + 42; // ok
   
-  x = {};
-  x - 42; // Noncompliant
+  undefined + ""; // ok
+  undefined + {}; // ok
+
+  null + 42; // ok
+  true + 42; // ok
   
-  var obj1 = {};
-  obj1 + 42; // ok
-  obj1 += 42; // ok
+  var obj1 = {}
+  obj1 - 42; // Noncompliant
+  var obj2 = {}
+  obj2 + 42; // ok
+  var obj3 = {};
+  obj3 += 42; // ok
 }
 
 function dates() {
@@ -62,13 +64,17 @@ function dates() {
   +date1; // ok
   date1 - date2; // ok
   date1 / date2; // Noncompliant
-  date1 / 42; // Noncompliant
-  42 / date1; // Noncompliant
+  new Date() / 42; // Noncompliant
+  42 / new Date(); // Noncompliant
 }
 
 function single_issue_per_expression() {
-  var x = foo();
-  if (typeof x == "function" || typeof x == "undefined") {
-    x / 42; // Noncompliant we should have only 1 issue here
-  }
+  var x, y;
+  x / y; // Noncompliant we should have only 1 issue here
+}
+
+function single_issue_per_symbol() {
+  var x = [1, 2];
+  x / 42; // Noncompliant
+  x - 42; // ok, an issue was already raised on the value of x
 }
