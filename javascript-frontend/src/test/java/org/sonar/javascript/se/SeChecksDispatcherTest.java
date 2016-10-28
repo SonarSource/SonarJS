@@ -19,14 +19,16 @@
  */
 package org.sonar.javascript.se;
 
-import com.google.common.base.Charsets;
 import com.google.common.collect.ImmutableList;
-import java.io.File;
+
+import java.io.IOException;
 import java.util.List;
 import org.junit.Test;
+import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.config.MapSettings;
 import org.sonar.javascript.parser.JavaScriptParserBuilder;
 import org.sonar.javascript.tree.symbols.Scope;
+import org.sonar.javascript.utils.TestInputFile;
 import org.sonar.javascript.visitors.JavaScriptVisitorContext;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
@@ -40,7 +42,7 @@ public class SeChecksDispatcherTest {
   @Test
   public void test() throws Exception {
     SeChecksDispatcher seChecksDispatcher = new SeChecksDispatcher(ImmutableList.<SeCheck>of(new TestSeCheck()));
-    List<Issue> issues = seChecksDispatcher.scanFile(createContext(new File("src/test/resources/se/se_dispatcher_test.js")));
+    List<Issue> issues = seChecksDispatcher.scanFile(createContext(new TestInputFile("src/test/resources/se/se_dispatcher_test.js")));
     assertThat(issues).hasSize(4);
     assertThat(((PreciseIssue) issues.get(0)).primaryLocation().message()).isEqualTo("Start of execution");
     assertThat(((PreciseIssue) issues.get(1)).primaryLocation().message()).isEqualTo("before element");
@@ -74,8 +76,8 @@ public class SeChecksDispatcherTest {
     }
   }
 
-  private static JavaScriptVisitorContext createContext(File file) {
-    ScriptTree scriptTree = (ScriptTree) JavaScriptParserBuilder.createParser(Charsets.UTF_8).parse(file);
+  private static JavaScriptVisitorContext createContext(InputFile file) throws IOException {
+    ScriptTree scriptTree = (ScriptTree) JavaScriptParserBuilder.createParser(file.charset()).parse(file.contents());
     return new JavaScriptVisitorContext(scriptTree, file, new MapSettings());
   }
 }

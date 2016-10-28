@@ -19,33 +19,30 @@
  */
 package org.sonar.javascript.checks;
 
-import com.google.common.io.Files;
+import com.google.common.io.CharStreams;
 import java.io.IOException;
-import java.nio.charset.Charset;
+import java.io.InputStreamReader;
 import java.util.List;
+
+import org.sonar.api.batch.fs.InputFile;
 import org.sonar.check.Rule;
-import org.sonar.javascript.tree.visitors.CharsetAwareVisitor;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
 import org.sonar.plugins.javascript.api.visitors.LineIssue;
 
 @Rule(key = "TabCharacter")
-public class TabCharacterCheck extends DoubleDispatchVisitorCheck implements CharsetAwareVisitor {
+public class TabCharacterCheck extends DoubleDispatchVisitorCheck {
 
   private static final String MESSAGE = "Replace all tab characters in this file by sequences of white-spaces.";
 
-  private Charset charset;
-
   @Override
   public void visitScript(ScriptTree tree) {
+    InputFile inputFile = getContext().getFile();
     List<String> lines;
-
-    try {
-      lines = Files.readLines(getContext().getFile(), charset);
-
+    try (InputStreamReader inr = new InputStreamReader(inputFile.inputStream(), inputFile.charset())) {
+      lines = CharStreams.readLines(inr);
     } catch (IOException e) {
-      String fileName = getContext().getFile().getName();
-      throw new IllegalStateException("Unable to execute rule \"TabCharacter\" for file " + fileName, e);
+      throw new IllegalStateException("Unable to execute rule \"TabCharacter\" for file " + getContext().getFileName(), e);
     }
 
     for (int i = 0; i < lines.size(); i++) {
@@ -56,10 +53,4 @@ public class TabCharacterCheck extends DoubleDispatchVisitorCheck implements Cha
     }
 
   }
-
-  @Override
-  public void setCharset(Charset charset) {
-    this.charset = charset;
-  }
-
 }

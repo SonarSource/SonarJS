@@ -19,8 +19,7 @@
  */
 package org.sonar.plugins.javascript.minify;
 
-import java.io.File;
-import java.nio.charset.Charset;
+import org.sonar.api.batch.fs.InputFile;
 
 /**
  * An object to assess if a .js file is a minified file or not.
@@ -34,8 +33,6 @@ public class MinificationAssessor {
 
   private static final int DEFAULT_AVERAGE_LINE_LENGTH_THRESHOLD = 200;
 
-  private Charset encoding;
-
   /**
    * Value of the average line length 
    * (= number of chars in the file / number of lines in the file)
@@ -43,31 +40,30 @@ public class MinificationAssessor {
    */
   private int averageLineLengthThreshold;
 
-  public MinificationAssessor(Charset encoding) {
-    this(encoding, DEFAULT_AVERAGE_LINE_LENGTH_THRESHOLD);
+  public MinificationAssessor() {
+    this(DEFAULT_AVERAGE_LINE_LENGTH_THRESHOLD);
   }
 
-  public MinificationAssessor(Charset encoding, int averageLineLengthThreshold) {
-    this.encoding = encoding;
+  public MinificationAssessor(int averageLineLengthThreshold) {
     this.averageLineLengthThreshold = averageLineLengthThreshold;
   }
 
-  public boolean isMinified(File file) {
+  public boolean isMinified(InputFile file) {
     return isJavaScriptFile(file) &&
       (hasMinifiedFileName(file) || hasExcessiveAverageLineLength(file));
   }
 
-  private static boolean hasMinifiedFileName(File file) {
-    String fileName = file.getName();
+  private static boolean hasMinifiedFileName(InputFile file) {
+    String fileName = file.path().getFileName().toString();
     return fileName.endsWith("-min.js") || fileName.endsWith(".min.js");
   }
 
-  private static boolean isJavaScriptFile(File file) {
-    return file.getName().endsWith(".js");
+  private static boolean isJavaScriptFile(InputFile file) {
+    return file.path().getFileName().toString().endsWith(".js");
   }
 
-  private boolean hasExcessiveAverageLineLength(File file) {
-    int averageLineLength = new AverageLineLengthCalculator(file, encoding).getAverageLineLength();
+  private boolean hasExcessiveAverageLineLength(InputFile file) {
+    int averageLineLength = new AverageLineLengthCalculator(file).getAverageLineLength();
     return averageLineLength > averageLineLengthThreshold;
   }
 

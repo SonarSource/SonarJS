@@ -23,7 +23,7 @@ import com.google.common.collect.ImmutableList;
 import com.sonar.sslr.api.RecognitionException;
 import java.io.File;
 import java.io.InterruptedIOException;
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import org.apache.commons.lang.NotImplementedException;
 import org.junit.Before;
@@ -56,7 +56,6 @@ import org.sonar.api.utils.log.LogTester;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
 import org.sonar.javascript.checks.CheckList;
-import org.sonar.javascript.tree.visitors.CharsetAwareVisitor;
 import org.sonar.plugins.javascript.api.CustomJavaScriptRulesDefinition;
 import org.sonar.plugins.javascript.api.JavaScriptCheck;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
@@ -427,7 +426,8 @@ public class JavaScriptSquidSensorTest {
     DefaultInputFile inputFile = new DefaultInputFile("moduleKey", relativePath)
       .setModuleBaseDir(baseDir.toPath())
       .setType(Type.MAIN)
-      .setLanguage(JavaScriptLanguage.KEY);
+      .setLanguage(JavaScriptLanguage.KEY)
+      .setCharset(StandardCharsets.UTF_8);
 
     context.fileSystem().add(inputFile);
 
@@ -463,19 +463,12 @@ public class JavaScriptSquidSensorTest {
     name = "name",
     description = "desc",
     tags = {"bug"})
-  public static class MyCustomRule extends DoubleDispatchVisitorCheck implements CharsetAwareVisitor {
+  public static class MyCustomRule extends DoubleDispatchVisitorCheck {
     @RuleProperty(
       key = "customParam",
       description = "Custome parameter",
       defaultValue = "value")
     public String customParam = "value";
-
-    Charset charset;
-
-    @Override
-    public void setCharset(Charset charset) {
-      this.charset = charset;
-    }
 
     @Override
     public void visitScript(ScriptTree tree) {

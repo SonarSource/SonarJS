@@ -19,7 +19,6 @@
  */
 package org.sonar.javascript.checks;
 
-import com.google.common.base.Charsets;
 import java.io.File;
 import org.junit.Test;
 import org.sonar.javascript.checks.verifier.JavaScriptCheckVerifier;
@@ -29,7 +28,6 @@ public class TrailingWhitespaceCheckTest {
   @Test
   public void test() {
     TrailingWhitespaceCheck check = new TrailingWhitespaceCheck();
-    check.setCharset(Charsets.UTF_8);
     JavaScriptCheckVerifier.issues(check, new File("src/test/resources/checks/trailingWhitespace.js"))
       .next().atLine(3).withMessage("Remove the useless trailing whitespaces at the end of this line.")
       .noMore();

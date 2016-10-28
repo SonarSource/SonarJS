@@ -19,22 +19,23 @@
  */
 package org.sonar.javascript.checks;
 
-import com.google.common.io.Files;
+import com.google.common.io.CharStreams;
 import java.io.IOException;
-import java.nio.charset.Charset;
+import java.io.InputStreamReader;
 import java.util.Iterator;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import org.sonar.api.batch.fs.InputFile;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
-import org.sonar.javascript.tree.visitors.CharsetAwareVisitor;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
 import org.sonar.plugins.javascript.api.visitors.FileIssue;
 
 @Rule(key = "S1451")
-public class FileHeaderCheck extends DoubleDispatchVisitorCheck implements CharsetAwareVisitor {
+public class FileHeaderCheck extends DoubleDispatchVisitorCheck {
 
   private static final String MESSAGE = "Add or update the header of this file.";
   private static final String DEFAULT_HEADER_FORMAT = "";
@@ -52,14 +53,8 @@ public class FileHeaderCheck extends DoubleDispatchVisitorCheck implements Chars
     defaultValue = "false")
   public boolean isRegularExpression = false;
 
-  private Charset charset;
   private String[] expectedLines = null;
   private Pattern searchPattern = null;
-
-  @Override
-  public void setCharset(Charset charset) {
-    this.charset = charset;
-  }
 
   @Override
   public void visitScript(ScriptTree tree) {
@@ -75,12 +70,12 @@ public class FileHeaderCheck extends DoubleDispatchVisitorCheck implements Chars
     if (expectedLines == null) {
       expectedLines = headerFormat.split("(?:\r)?\n|\r");
     }
+    InputFile inputFile = getContext().getFile();
     List<String> lines;
-    try {
-      lines = Files.readLines(getContext().getFile(), charset);
+    try (InputStreamReader inr = new InputStreamReader(inputFile.inputStream(), inputFile.charset())) {
+      lines = CharStreams.readLines(inr);
     } catch (IOException e) {
-      String fileName = getContext().getFile().getName();
-      throw new IllegalStateException("Unable to execute rule \"S1451\" for file " + fileName, e);
+      throw new IllegalStateException("Unable to execute rule \"S1451\" for file " + getContext().getFileName(), e);
     }
     if (!matches(expectedLines, lines)) {
       addIssue(new FileIssue(this, MESSAGE));
@@ -97,10 +92,9 @@ public class FileHeaderCheck extends DoubleDispatchVisitorCheck implements Chars
     }
     String fileContent;
     try {
-      fileContent = Files.toString(getContext().getFile(), charset);
+      fileContent = getContext().getFile().contents();
     } catch (IOException e) {
-      String fileName = getContext().getFile().getName();
-      throw new IllegalStateException("Unable to execute rule \"S1451\" for file " + fileName, e);
+      throw new IllegalStateException("Unable to execute rule \"S1451\" for file " + getContext().getFileName(), e);
     }
 
     Matcher matcher = searchPattern.matcher(fileContent);

@@ -20,6 +20,7 @@
 package org.sonar.javascript.highlighter;
 
 import java.io.File;
+import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import org.junit.Test;
 import org.sonar.api.batch.fs.TextRange;
@@ -44,7 +45,8 @@ public class HighlightSymbolTableBuilderTest extends JavaScriptTreeModelTest {
     File moduleBaseDir = new File("src/test/resources/highlighter/");
     sensorContext = SensorContextTester.create(moduleBaseDir);
     inputFile = new DefaultInputFile("moduleKey", filename)
-      .setModuleBaseDir(moduleBaseDir.toPath());
+      .setModuleBaseDir(moduleBaseDir.toPath())
+      .setCharset(StandardCharsets.UTF_8);
 
     inputFile.initMetadata(new FileMetadata().readMetadata(inputFile.file(), Charsets.UTF_8));
     return sensorContext.newSymbolTable().onFile(inputFile);
@@ -62,7 +64,7 @@ public class HighlightSymbolTableBuilderTest extends JavaScriptTreeModelTest {
   public void sonar_symbol_table() throws Exception {
     String filename = "symbolHighlighting.js";
     String key = "moduleKey:" + filename;
-    HighlightSymbolTableBuilder.build(newSymbolTable(filename), context(inputFile.file()));
+    HighlightSymbolTableBuilder.build(newSymbolTable(filename), context(inputFile));
 
     // variable
     assertThat(references(key, 1, 4)).containsOnly(textRange(5, 0, 1), textRange(5, 6, 7));
@@ -90,7 +92,7 @@ public class HighlightSymbolTableBuilderTest extends JavaScriptTreeModelTest {
   public void sonar_symbol_table_built_in() throws Exception {
     String filename = "symbolHighlightingBuiltIn.js";
     String key = "moduleKey:" + filename;
-    HighlightSymbolTableBuilder.build(newSymbolTable(filename), context(inputFile.file()));
+    HighlightSymbolTableBuilder.build(newSymbolTable(filename), context(inputFile));
 
     // arguments
     assertThat(references(key, 2, 14)).containsOnly(textRange(3, 2, 11), textRange(4, 2, 11));
@@ -103,7 +105,7 @@ public class HighlightSymbolTableBuilderTest extends JavaScriptTreeModelTest {
   public void byte_order_mark_should_not_increment_offset() throws Exception {
     String filename = "symbolHighlightingBom.js";
 
-    HighlightSymbolTableBuilder.build(newSymbolTable(filename), context(inputFile.file()));
+    HighlightSymbolTableBuilder.build(newSymbolTable(filename), context(inputFile));
     assertThat(Files.toString(inputFile.file(), Charsets.UTF_8).startsWith("\uFEFF")).isTrue();
     assertThat(references("moduleKey:" + filename, 1, 4)).containsOnly(textRange(3, 0, 1));
   }
@@ -113,8 +115,7 @@ public class HighlightSymbolTableBuilderTest extends JavaScriptTreeModelTest {
     String filename = "symbolHighlightingProperties.js";
     String key = "moduleKey:" + filename;
 
-    HighlightSymbolTableBuilder.build(newSymbolTable(filename), context(inputFile.file()));
-
+    HighlightSymbolTableBuilder.build(newSymbolTable(filename), context(inputFile));
 
     // class
     assertThat(references(key, 1, 6)).containsOnly(textRange(7, 16, 17));

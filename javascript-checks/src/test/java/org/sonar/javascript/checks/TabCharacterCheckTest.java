@@ -19,20 +19,13 @@
  */
 package org.sonar.javascript.checks;
 
-import com.google.common.base.Charsets;
 import java.io.File;
-import org.junit.Before;
 import org.junit.Test;
 import org.sonar.javascript.checks.verifier.JavaScriptCheckVerifier;
 
 public class TabCharacterCheckTest {
 
   TabCharacterCheck check = new TabCharacterCheck();
-
-  @Before
-  public void setUp() {
-    check.setCharset(Charsets.UTF_8);
-  }
 
   @Test
   public void test() {

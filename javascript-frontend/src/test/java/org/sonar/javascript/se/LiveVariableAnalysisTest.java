@@ -19,14 +19,15 @@
  */
 package org.sonar.javascript.se;
 
-import com.google.common.base.Charsets;
-import java.io.File;
+import java.io.IOException;
 import java.util.Set;
 import org.junit.Test;
+import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.config.MapSettings;
 import org.sonar.javascript.cfg.ControlFlowGraph;
 import org.sonar.javascript.parser.JavaScriptParserBuilder;
 import org.sonar.javascript.se.LiveVariableAnalysis.Usages;
+import org.sonar.javascript.utils.TestInputFile;
 import org.sonar.javascript.visitors.JavaScriptVisitorContext;
 import org.sonar.plugins.javascript.api.symbols.Symbol;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
@@ -39,7 +40,7 @@ public class LiveVariableAnalysisTest {
 
   @Test
   public void testUsages() throws Exception {
-    JavaScriptVisitorContext context = createContext(new File("src/test/resources/se/", "lva.js"));
+    JavaScriptVisitorContext context = createContext(new TestInputFile("src/test/resources/se/", "lva.js"));
     FunctionTree function = (FunctionTree) context.getTopTree().items().items().get(0);
     ControlFlowGraph cfg = ControlFlowGraph.build((BlockTree) function.body());
     LiveVariableAnalysis lva = LiveVariableAnalysis.create(cfg, context.getSymbolModel().getScope(function));
@@ -52,8 +53,8 @@ public class LiveVariableAnalysisTest {
     assertThat(usages.hasUsagesInNestedFunctions(neverReadSymbol)).isFalse();
   }
 
-  private static JavaScriptVisitorContext createContext(File file) {
-    ScriptTree scriptTree = (ScriptTree) JavaScriptParserBuilder.createParser(Charsets.UTF_8).parse(file);
+  private static JavaScriptVisitorContext createContext(InputFile file) throws IOException {
+    ScriptTree scriptTree = (ScriptTree) JavaScriptParserBuilder.createParser(file.charset()).parse(file.contents());
     return new JavaScriptVisitorContext(scriptTree, file, new MapSettings());
   }
 }

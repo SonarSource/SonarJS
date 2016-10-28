@@ -21,7 +21,6 @@ package org.sonar.javascript.highlighter;
 
 import com.google.common.collect.ImmutableList;
 import java.util.List;
-import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.highlighting.NewHighlighting;
 import org.sonar.api.batch.sensor.highlighting.TypeOfText;
@@ -42,7 +41,6 @@ import org.sonar.plugins.javascript.api.visitors.SubscriptionVisitor;
 public class HighlighterVisitor extends SubscriptionVisitor {
 
   private final SensorContext sensorContext;
-  private final FileSystem fileSystem;
   private NewHighlighting highlighting;
 
   private static final Kind[] METHODS = {
@@ -52,9 +50,8 @@ public class HighlighterVisitor extends SubscriptionVisitor {
     Kind.SET_METHOD
   };
 
-  public HighlighterVisitor(SensorContext sensorContext, FileSystem fileSystem) {
+  public HighlighterVisitor(SensorContext sensorContext) {
     this.sensorContext = sensorContext;
-    this.fileSystem = fileSystem;
   }
 
   @Override
@@ -73,7 +70,7 @@ public class HighlighterVisitor extends SubscriptionVisitor {
 
   @Override
   public void visitFile(Tree scriptTree) {
-    highlighting = sensorContext.newHighlighting().onFile(fileSystem.inputFile(fileSystem.predicates().is(getContext().getFile())));
+    highlighting = sensorContext.newHighlighting().onFile(getContext().getFile());
   }
 
   @Override

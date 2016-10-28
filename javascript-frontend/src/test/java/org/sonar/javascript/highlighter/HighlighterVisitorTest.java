@@ -20,6 +20,7 @@
 package org.sonar.javascript.highlighter;
 
 import com.google.common.base.Charsets;
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
@@ -29,7 +30,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.batch.fs.InputFile.Type;
-import org.sonar.api.batch.fs.internal.DefaultFileSystem;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.sensor.highlighting.TypeOfText;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
@@ -52,9 +52,7 @@ public class HighlighterVisitorTest extends JavaScriptTreeModelTest {
   private HighlighterVisitor highlighterVisitor;
 
   private TreeVisitorContext visitorContext;
-  private DefaultFileSystem fileSystem;
   private SensorContextTester sensorContext;
-  private File file;
   private DefaultInputFile inputFile;
 
   @Rule
@@ -62,19 +60,17 @@ public class HighlighterVisitorTest extends JavaScriptTreeModelTest {
 
   @Before
   public void setUp() throws IOException {
-    fileSystem = new DefaultFileSystem(tempFolder.getRoot());
-    fileSystem.setEncoding(CHARSET);
-    file = tempFolder.newFile();
-    inputFile = new DefaultInputFile("moduleKey",  file.getName())
+    File file = tempFolder.newFile();
+    inputFile = new DefaultInputFile("moduleKey", file.getName())
       .setLanguage("js")
-      .setType(Type.MAIN);
-    fileSystem.add(inputFile);
+      .setType(Type.MAIN)
+      .setCharset(CHARSET);
 
     sensorContext = SensorContextTester.create(tempFolder.getRoot());
     visitorContext = mock(TreeVisitorContext.class);
 
-    highlighterVisitor = new HighlighterVisitor(sensorContext, fileSystem);
-    when(visitorContext.getFile()).thenReturn(file);
+    highlighterVisitor = new HighlighterVisitor(sensorContext);
+    when(visitorContext.getFile()).thenReturn(inputFile);
   }
 
   private void highlight(String string) throws Exception {
@@ -90,7 +86,7 @@ public class HighlighterVisitorTest extends JavaScriptTreeModelTest {
 
   private void assertHighlighting(int line, int column, int length, TypeOfText type) {
     for (int i = column; i < column + length; i++) {
-      List<TypeOfText> typeOfTexts = sensorContext.highlightingTypeAt("moduleKey:" + file.getName(), line, i);
+      List<TypeOfText> typeOfTexts = sensorContext.highlightingTypeAt("moduleKey:" + inputFile.relativePath(), line, i);
       assertThat(typeOfTexts).hasSize(1);
       assertThat(typeOfTexts.get(0)).isEqualTo(type);
     }
@@ -99,7 +95,7 @@ public class HighlighterVisitorTest extends JavaScriptTreeModelTest {
   @Test
   public void empty_input() throws Exception {
     highlight("");
-    assertThat(sensorContext.highlightingTypeAt("moduleKey:" + file.getName(), 1, 0)).isEmpty();
+    assertThat(sensorContext.highlightingTypeAt("moduleKey:" + inputFile.relativePath(), 1, 0)).isEmpty();
   }
 
   @Test

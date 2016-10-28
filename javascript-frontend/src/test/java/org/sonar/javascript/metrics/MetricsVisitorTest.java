@@ -85,7 +85,7 @@ public class MetricsVisitorTest extends JavaScriptTreeModelTest {
       saveExecutableLines);
 
     TreeVisitorContext treeVisitorContext = mock(TreeVisitorContext.class);
-    when(treeVisitorContext.getFile()).thenReturn(INPUT_FILE.file());
+    when(treeVisitorContext.getFile()).thenReturn(INPUT_FILE);
     when(treeVisitorContext.getTopTree()).thenReturn((ScriptTree) p.parse(INPUT_FILE.file()));
 
     metricsVisitor.scanTree(treeVisitorContext);

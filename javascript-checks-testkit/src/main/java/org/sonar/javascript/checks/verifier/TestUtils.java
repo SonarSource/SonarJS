@@ -20,10 +20,13 @@
 package org.sonar.javascript.checks.verifier;
 
 import com.google.common.base.Charsets;
+import com.google.common.base.Throwables;
 import com.sonar.sslr.api.typed.ActionParser;
-import java.io.File;
+
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.config.MapSettings;
 import org.sonar.api.config.Settings;
 import org.sonar.javascript.parser.JavaScriptParserBuilder;
@@ -40,9 +43,13 @@ class TestUtils {
   private TestUtils() {
   }
 
-  public static JavaScriptVisitorContext createContext(File file) {
-    ScriptTree scriptTree = (ScriptTree) p.parse(file);
-    return new JavaScriptVisitorContext(scriptTree, file, settings());
+  public static JavaScriptVisitorContext createContext(InputFile file) {
+    try {
+      ScriptTree scriptTree = (ScriptTree) p.parse(file.contents());
+      return new JavaScriptVisitorContext(scriptTree, file, settings());
+    } catch (IOException e) {
+      throw Throwables.propagate(e);
+    }
   }
 
   public static JavaScriptVisitorContext createParallelContext(File file) {

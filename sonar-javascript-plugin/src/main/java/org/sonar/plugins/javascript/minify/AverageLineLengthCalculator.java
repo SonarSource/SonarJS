@@ -20,11 +20,9 @@
 package org.sonar.plugins.javascript.minify;
 
 import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.nio.charset.Charset;
+import org.sonar.api.batch.fs.InputFile;
 import org.sonar.squidbridge.api.AnalysisException;
 
 /**
@@ -37,7 +35,7 @@ import org.sonar.squidbridge.api.AnalysisException;
  */
 class AverageLineLengthCalculator {
 
-  private File file;
+  private InputFile file;
 
   private boolean isAtFirstLine = true;
 
@@ -45,11 +43,8 @@ class AverageLineLengthCalculator {
 
   private boolean isClike = false;
 
-  private Charset encoding;
-
-  public AverageLineLengthCalculator(File file, Charset encoding) {
+  public AverageLineLengthCalculator(InputFile file) {
     this.file = file;
-    this.encoding = encoding;
   }
 
   public int getAverageLineLength() {
@@ -115,12 +110,12 @@ class AverageLineLengthCalculator {
     }
   }
 
-  private BufferedReader getReader(File file) throws IOException {
-    return new BufferedReader(new InputStreamReader(new FileInputStream(file), encoding));
+  private BufferedReader getReader(InputFile file) throws IOException {
+    return new BufferedReader(new InputStreamReader(file.inputStream()));
   }
 
-  private static void handleException(IOException e, File file) {
-    throw new AnalysisException("Unable to analyse file: " + file.getAbsolutePath(), e);
+  private static void handleException(IOException e, InputFile file) {
+    throw new AnalysisException("Unable to analyse file: " + file.absolutePath(), e);
   }
 
 }

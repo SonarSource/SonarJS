@@ -19,10 +19,11 @@
  */
 package org.sonar.javascript.checks.verifier;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+
+import org.sonar.api.batch.fs.InputFile;
 import org.sonar.javascript.visitors.JavaScriptVisitorContext;
 import org.sonar.plugins.javascript.api.JavaScriptCheck;
 import org.sonar.plugins.javascript.api.visitors.FileIssue;
@@ -37,7 +38,7 @@ class TreeCheckTest {
   }
 
   public static Collection<CheckMessage> getIssues(String relativePath, JavaScriptCheck check) {
-    File file = new File(relativePath);
+    InputFile file = new TestInputFile(relativePath);
 
     JavaScriptVisitorContext context = TestUtils.createContext(file);
     List<Issue> issues = check.scanFile(context);

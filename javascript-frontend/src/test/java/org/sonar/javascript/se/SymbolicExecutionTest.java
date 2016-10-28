@@ -19,12 +19,15 @@
  */
 package org.sonar.javascript.se;
 
-import com.google.common.base.Charsets;
+import com.google.common.base.Throwables;
 import com.google.common.collect.ImmutableList;
-import java.io.File;
+import java.io.IOException;
+
 import org.junit.Test;
+import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.config.MapSettings;
 import org.sonar.javascript.parser.JavaScriptParserBuilder;
+import org.sonar.javascript.utils.TestInputFile;
 import org.sonar.javascript.visitors.JavaScriptVisitorContext;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
 
@@ -151,10 +154,15 @@ public class SymbolicExecutionTest {
   }
 
   private void runSe(String filename) {
-    JavaScriptVisitorContext context = createContext(new File("src/test/resources/se/", filename));
-    verifier.scanExpectedIssues(context);
-    SeChecksDispatcher seChecksDispatcher = new SeChecksDispatcher(ImmutableList.of(verifier));
-    seChecksDispatcher.scanTree(context);
+    JavaScriptVisitorContext context;
+    try {
+      context = createContext(new TestInputFile("src/test/resources/se/", filename));
+      verifier.scanExpectedIssues(context);
+      SeChecksDispatcher seChecksDispatcher = new SeChecksDispatcher(ImmutableList.of((SeCheck) verifier));
+      seChecksDispatcher.scanTree(context);
+    } catch (IOException e) {
+      Throwables.propagate(e);
+    }
   }
 
   private void verifySE(String filename) {
@@ -163,8 +171,8 @@ public class SymbolicExecutionTest {
     assertThat(verifier.endOfExecution).isTrue();
   }
 
-  public static JavaScriptVisitorContext createContext(File file) {
-    ScriptTree scriptTree = (ScriptTree) JavaScriptParserBuilder.createParser(Charsets.UTF_8).parse(file);
+  public static JavaScriptVisitorContext createContext(InputFile file) throws IOException {
+    ScriptTree scriptTree = (ScriptTree) JavaScriptParserBuilder.createParser(file.charset()).parse(file.contents());
     return new JavaScriptVisitorContext(scriptTree, file, new MapSettings());
   }
 

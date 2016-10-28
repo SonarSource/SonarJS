@@ -19,30 +19,24 @@
  */
 package org.sonar.javascript.checks;
 
-import com.google.common.io.Files;
+import com.google.common.io.CharStreams;
 import java.io.IOException;
-import java.nio.charset.Charset;
+import java.io.InputStreamReader;
 import java.util.Collections;
 import java.util.List;
 import java.util.regex.Pattern;
+
+import org.sonar.api.batch.fs.InputFile;
 import org.sonar.check.Rule;
 import org.sonar.javascript.lexer.JavaScriptLexer;
-import org.sonar.javascript.tree.visitors.CharsetAwareVisitor;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.visitors.LineIssue;
 import org.sonar.plugins.javascript.api.visitors.SubscriptionVisitorCheck;
 
 @Rule(key = "TrailingWhitespace")
-public class TrailingWhitespaceCheck extends SubscriptionVisitorCheck implements CharsetAwareVisitor {
+public class TrailingWhitespaceCheck extends SubscriptionVisitorCheck {
 
   private static final String MESSAGE = "Remove the useless trailing whitespaces at the end of this line.";
-
-  private Charset charset;
-
-  @Override
-  public void setCharset(Charset charset) {
-    this.charset = charset;
-  }
 
   @Override
   public List<Tree.Kind> nodesToVisit() {
@@ -51,14 +45,12 @@ public class TrailingWhitespaceCheck extends SubscriptionVisitorCheck implements
 
   @Override
   public void visitFile(Tree scriptTree) {
-    List<String> lines = Collections.emptyList();
-
-    try {
-      lines = Files.readLines(getContext().getFile(), charset);
-
+    InputFile inputFile = getContext().getFile();
+    List<String> lines;
+    try (InputStreamReader inr = new InputStreamReader(inputFile.inputStream(), inputFile.charset())) {
+      lines = CharStreams.readLines(inr);
     } catch (IOException e) {
-      String fileName = getContext().getFile().getName();
-      throw new IllegalStateException("Unable to execute rule \"TrailingWhitespace\" for file " + fileName, e);
+      throw new IllegalStateException("Unable to execute rule \"TrailingWhitespace\" for file " + getContext().getFileName(), e);
     }
 
     for (int i = 0; i < lines.size(); i++) {

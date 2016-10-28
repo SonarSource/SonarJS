@@ -20,13 +20,13 @@
 package org.sonar.javascript.tree.symbols;
 
 import com.google.common.collect.ImmutableMap;
-import java.io.File;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import org.junit.Test;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.javascript.utils.JavaScriptTreeModelTest;
+import org.sonar.javascript.utils.TestInputFile;
 import org.sonar.plugins.javascript.api.symbols.Symbol;
 import org.sonar.plugins.javascript.api.symbols.Usage;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
@@ -36,7 +36,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class ScopeTest extends JavaScriptTreeModelTest {
 
-  private SymbolModelImpl SYMBOL_MODEL = symbolModel(new File("src/test/resources/ast/resolve/scope.js"));
+  private SymbolModelImpl SYMBOL_MODEL = symbolModel(new TestInputFile("src/test/resources/ast/resolve/scope.js"));
 
   private Scope scopeAtLine(int line) {
     for (Scope scope : SYMBOL_MODEL.getScopes()) {
