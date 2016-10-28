@@ -47,6 +47,7 @@ public class DateBuiltInProperties extends BuiltInProperties {
       .put("getUTCMinutes", method(Constraint.NUMBER))
       .put("getUTCMonth", method(Constraint.NUMBER))
       .put("getUTCSeconds", method(Constraint.NUMBER))
+      .put("getYear", method(Constraint.NUMBER))
 
       .put("setDate", method(Constraint.NUMBER))
       .put("setFullYear", method(Constraint.NUMBER))
@@ -63,10 +64,12 @@ public class DateBuiltInProperties extends BuiltInProperties {
       .put("setUTCMinutes", method(Constraint.NUMBER))
       .put("setUTCMonth", method(Constraint.NUMBER))
       .put("setUTCSeconds", method(Constraint.NUMBER))
+      .put("setYear", method(Constraint.NUMBER))
 
       .put("toDateString", method(Constraint.STRING))
       .put("toISOString", method(Constraint.STRING))
       .put("toJSON", method(Constraint.STRING))
+      .put("toGMTString", method(Constraint.STRING))
       .put("toLocaleDateString", method(Constraint.STRING))
       .put("toLocaleTimeString", method(Constraint.STRING))
       .put("toTimeString", method(Constraint.STRING))

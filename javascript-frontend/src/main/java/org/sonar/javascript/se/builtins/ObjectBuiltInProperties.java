@@ -52,6 +52,7 @@ public class ObjectBuiltInProperties extends BuiltInProperties {
       .put("create", method(Constraint.OBJECT))
       .put("defineProperty", method(Constraint.OBJECT))
       .put("defineProperties", method(Constraint.OBJECT))
+      .put("entries", method(Constraint.ARRAY))
       .put("freeze", method(Constraint.OBJECT))
       .put("getOwnPropertyDescriptor", method(Constraint.OBJECT.or(Constraint.UNDEFINED)))
       .put("getOwnPropertyDescriptors", method(Constraint.OBJECT))
@@ -65,7 +66,8 @@ public class ObjectBuiltInProperties extends BuiltInProperties {
       .put("keys", method(Constraint.ARRAY))
       .put("preventExtensions", method(Constraint.OBJECT))
       .put("seal", method(Constraint.OBJECT))
-      .put("setPrototypeOf()", method(Constraint.OBJECT))
+      .put("setPrototypeOf", method(Constraint.OBJECT))
+      .put("values", method(Constraint.ARRAY))
       .build();
   }
 
