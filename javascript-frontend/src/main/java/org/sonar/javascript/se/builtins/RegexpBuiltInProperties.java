@@ -29,6 +29,7 @@ public class RegexpBuiltInProperties extends BuiltInProperties {
   @Override
   Map<String, SymbolicValue> getMethods() {
     return ImmutableMap.<String, SymbolicValue>builder()
+      .put("compile", method(Constraint.UNDEFINED))
       .put("exec", method(Constraint.ARRAY.or(Constraint.NULL)))
       .put("test", method(Constraint.BOOLEAN))
 

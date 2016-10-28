@@ -87,6 +87,8 @@ public class StringBuiltInProperties extends BuiltInProperties {
   Map<String, SymbolicValue> getOwnMethods() {
     return ImmutableMap.<String, SymbolicValue>builder()
       .put("fromCharCode", method(Constraint.STRING))
+      .put("fromCodePoint", method(Constraint.STRING))
+      .put("raw", method(Constraint.STRING))
       .build();
   }
 
