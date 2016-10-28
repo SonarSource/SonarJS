@@ -23,6 +23,7 @@ import org.junit.Test;
 import org.sonar.javascript.se.Constraint;
 import org.sonar.javascript.se.Type;
 import org.sonar.javascript.se.sv.FunctionWithKnownReturnSymbolicValue;
+import org.sonar.javascript.se.sv.SpecialSymbolicValue;
 import org.sonar.javascript.se.sv.SymbolicValue;
 import org.sonar.javascript.se.sv.SymbolicValueWithConstraint;
 import org.sonar.javascript.se.sv.UnknownSymbolicValue;
@@ -38,7 +39,7 @@ public class BuiltInPropertiesTest {
     type = Type.STRING;
     assertMethod(value("split"), method(Constraint.ARRAY));
     assertProperty(value("length"), Constraint.NUMBER);
-    assertThat(value("foobar")).isEqualTo(UnknownSymbolicValue.UNKNOWN);
+    assertThat(value("foobar")).isEqualTo(SpecialSymbolicValue.UNDEFINED);
     assertMethod(value("valueOf"), method(Constraint.STRING));
   }
 
@@ -47,14 +48,14 @@ public class BuiltInPropertiesTest {
     type = Type.NUMBER;
     assertMethod(value("toExponential"), method(Constraint.STRING));
     assertMethod(value("valueOf"), method(Constraint.NUMBER));
-    assertThat(value("foobar")).isEqualTo(UnknownSymbolicValue.UNKNOWN);
+    assertThat(value("foobar")).isEqualTo(SpecialSymbolicValue.UNDEFINED);
   }
 
   @Test
   public void test_boolean() throws Exception {
     type = Type.BOOLEAN;
     assertMethod(value("valueOf"), method(Constraint.BOOLEAN));
-    assertThat(value("foobar")).isEqualTo(UnknownSymbolicValue.UNKNOWN);
+    assertThat(value("foobar")).isEqualTo(SpecialSymbolicValue.UNDEFINED);
   }
 
   @Test

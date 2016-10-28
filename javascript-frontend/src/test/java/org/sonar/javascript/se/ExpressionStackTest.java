@@ -341,7 +341,7 @@ public class ExpressionStackTest {
     assertSingleValueInStackWithConstraint(Constraint.FUNCTION.or(Constraint.UNDEFINED));
 
     execute("x = 'abc'.lenght");
-    assertSingleValueInStack(UNKNOWN);
+    assertSingleValueInStack(SpecialSymbolicValue.UNDEFINED);
   }
 
   @Test
