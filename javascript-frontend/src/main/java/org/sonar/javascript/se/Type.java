@@ -21,6 +21,7 @@ package org.sonar.javascript.se;
 
 import com.google.common.collect.Lists;
 import java.util.Arrays;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
 import javax.annotation.Nullable;
@@ -34,6 +35,7 @@ import org.sonar.javascript.se.builtins.NumberBuiltInProperties;
 import org.sonar.javascript.se.builtins.ObjectBuiltInProperties;
 import org.sonar.javascript.se.builtins.RegexpBuiltInProperties;
 import org.sonar.javascript.se.builtins.StringBuiltInProperties;
+import org.sonar.javascript.se.sv.SpecialSymbolicValue;
 import org.sonar.javascript.se.sv.SymbolicValue;
 import org.sonar.javascript.se.sv.UnknownSymbolicValue;
 
@@ -51,6 +53,7 @@ public enum Type {
   ;
 
   private static final List<Type> VALUES_REVERSED = Lists.reverse(Arrays.asList(Type.values()));
+  private static final EnumSet<Type> PRIMITIVE_TYPES = EnumSet.of(NUMBER, STRING, BOOLEAN);
 
   private Constraint constraint;
   private BuiltInProperties builtInProperties;
@@ -72,7 +75,11 @@ public enum Type {
 
   private SymbolicValue getValueFromPrototype(String propertyName) {
     if (parentType != null) {
-      return parentType.getValueForProperty(propertyName);
+      SymbolicValue valueForProperty = parentType.getValueForProperty(propertyName);
+      if (valueForProperty.equals(UnknownSymbolicValue.UNKNOWN) && PRIMITIVE_TYPES.contains(this)) {
+        return SpecialSymbolicValue.UNDEFINED;
+      }
+      return valueForProperty;
     }
 
     return UnknownSymbolicValue.UNKNOWN;
