@@ -39,7 +39,15 @@ public class LogicalNotSymbolicValue implements SymbolicValue {
 
   @Override
   public Optional<ProgramState> constrainDependencies(ProgramState state, Constraint constraint) {
-    return state.constrain(negatedValue, constraint.not());
+    if (constraint.isStricterOrEqualTo(Constraint.TRUTHY)) {
+      return state.constrain(negatedValue, Constraint.FALSY);
+
+    } else if (constraint.isStricterOrEqualTo(Constraint.FALSY)) {
+      return state.constrain(negatedValue, Constraint.TRUTHY);
+
+    } else {
+      return Optional.of(state);
+    }
   }
 
   @Override

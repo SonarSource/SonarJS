@@ -25,6 +25,7 @@ import org.sonar.plugins.javascript.api.symbols.Symbol;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
+import static org.sonar.javascript.se.Constraint.ANY_VALUE;
 import static org.sonar.javascript.se.Constraint.FALSY;
 import static org.sonar.javascript.se.Constraint.TRUTHY;
 
@@ -43,6 +44,7 @@ public class LogicalNotSymbolicValueTest {
     SymbolicValue sv1 = state1.getSymbolicValue(symbol);
     SymbolicValue not = LogicalNotSymbolicValue.create(sv1);
     assertThat(state1.constrain(not, TRUTHY)).isEqualTo(state1.constrain(sv1, FALSY));
+    assertThat(state1.constrain(not, ANY_VALUE)).isEqualTo(state1.constrain(sv1, ANY_VALUE));
   }
 
   @Test
