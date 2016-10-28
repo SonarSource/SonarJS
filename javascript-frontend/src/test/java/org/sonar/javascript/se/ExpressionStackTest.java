@@ -330,7 +330,7 @@ public class ExpressionStackTest {
     assertSingleValueInStackWithConstraint(Constraint.NUMBER);
 
     execute("x = 'abc'.charAt");
-    assertSingleValueInStackWithConstraint(Constraint.FUNCTION);
+    assertSingleValueInStackWithConstraint(Constraint.FUNCTION.or(Constraint.UNDEFINED));
 
     execute("x = 'abc'.lenght");
     assertSingleValueInStack(UNKNOWN);
