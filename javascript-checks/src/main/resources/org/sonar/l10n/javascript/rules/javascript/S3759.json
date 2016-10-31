@@ -1,0 +1,13 @@
+{
+  "title": "Non-existent properties shouldn't be accessed for reading",
+  "type": "BUG",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "10min"
+  },
+  "tags": [
+    
+  ],
+  "defaultSeverity": "Major"
+}

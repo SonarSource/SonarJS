@@ -125,6 +125,7 @@ public final class CheckList {
       InconsistentFunctionCallCheck.class,
       NonCaseLabelInSwitchCheck.class,
       NonEmptyCaseWithoutBreakCheck.class,
+      NonExistentPropertyAccessCheck.class,
       NonStandardImportCheck.class,
       NotStoredSelectionCheck.class,
       NullDereferenceCheck.class,

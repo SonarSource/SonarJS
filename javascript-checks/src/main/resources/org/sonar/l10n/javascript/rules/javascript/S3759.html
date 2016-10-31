@@ -1,0 +1,7 @@
+<p>Reading a non-existent property on a non-<code>undefined</code> and non-<code>null</code> value will return <code>undefined</code>.</p>
+<h2>Noncompliant Code Example</h2>
+<pre>
+x = 42;
+y = x.length;   //Non-compliant &gt; y == "undefined" as length is not defined on Number type
+</pre>
+
