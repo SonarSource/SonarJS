@@ -26,7 +26,6 @@ import org.sonar.check.Rule;
 import org.sonar.javascript.se.Constraint;
 import org.sonar.javascript.se.ProgramState;
 import org.sonar.javascript.se.SeCheck;
-import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.javascript.tree.symbols.Scope;
 import org.sonar.plugins.javascript.api.symbols.Symbol;
 import org.sonar.plugins.javascript.api.tree.Tree;
@@ -41,7 +40,7 @@ import org.sonar.plugins.javascript.api.visitors.PreciseIssue;
 @Rule(key = "S3757")
 public class ArithmeticOperationReturningNanCheck extends SeCheck {
 
-  private static final String MESSAGE = "Change the expression using this operand so that it can't evaluate to \"NaN\" (Not a Number).";
+  private static final String MESSAGE = "Change the expression which uses this operand so that it can't evaluate to \"NaN\" (Not a Number).";
 
   private static final Constraint NUMBER_OR_BOOLEAN = Constraint.NUMBER.or(Constraint.BOOLEAN);
   private static final Constraint NUMBER_OR_BOOLEAN_OR_UNDEFINED = NUMBER_OR_BOOLEAN.or(Constraint.UNDEFINED);
@@ -53,12 +52,10 @@ public class ArithmeticOperationReturningNanCheck extends SeCheck {
   private final BinaryOperationChecker minusChecker = new MinusChecker();
   private final BinaryOperationChecker otherBinaryOperationChecker = new OtherBinaryOperationChecker();
 
-  private final Set<Tree> expressionsWithIssues = new HashSet<>();
   private final Set<Symbol> symbolsWithIssues = new HashSet<>();
 
   @Override
   public void startOfExecution(Scope functionScope) {
-    expressionsWithIssues.clear();
     symbolsWithIssues.clear();
     super.startOfExecution(functionScope);
   }
@@ -100,16 +97,14 @@ public class ArithmeticOperationReturningNanCheck extends SeCheck {
   }
 
   private void raiseIssue(Tree operand, Tree... secondaryLocations) {
-    Tree expression = ((JavaScriptTree) operand).getParent();
     Symbol operandSymbol = null;
     if (operand.is(Kind.IDENTIFIER_REFERENCE)) {
       IdentifierTree identifier = (IdentifierTree) operand;
       operandSymbol = identifier.symbol();
     }
-    if (!expressionsWithIssues.contains(expression) && !symbolsWithIssues.contains(operandSymbol)) {
+    if (!symbolsWithIssues.contains(operandSymbol)) {
       PreciseIssue issue = addIssue(operand, MESSAGE);
       Arrays.asList(secondaryLocations).forEach(issue::secondary);
-      expressionsWithIssues.add(expression);
       if (operandSymbol != null) {
         symbolsWithIssues.add(operandSymbol);
       }
@@ -147,14 +142,14 @@ public class ArithmeticOperationReturningNanCheck extends SeCheck {
 
     @Override
     public void check(Constraint leftConstraint, Constraint rightConstraint, Tree leftOperand, Tree rightOperand, Tree operator) {
-      if (isNumberAndUndefined(rightConstraint, leftConstraint)) {
+      if (isAdditionWithUndefined(rightConstraint, leftConstraint)) {
         raiseIssue(leftOperand, operator, rightOperand);
-      } else if (isNumberAndUndefined(leftConstraint, rightConstraint)) {
+      } else if (isAdditionWithUndefined(leftConstraint, rightConstraint)) {
         raiseIssue(rightOperand, operator, leftOperand);
       }
     }
 
-    private boolean isNumberAndUndefined(Constraint constraint1, Constraint constraint2) {
+    private boolean isAdditionWithUndefined(Constraint constraint1, Constraint constraint2) {
       return constraint1.isStricterOrEqualTo(NUMBER_OR_BOOLEAN_OR_UNDEFINED)
         && constraint2.isStricterOrEqualTo(Constraint.UNDEFINED);
     }
