@@ -29,7 +29,6 @@ import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 
 public class EqualitySymbolicValue extends RelationalSymbolicValue {
 
-  private static final Set<Kind> STRICT_EQUALITY_KINDS = EnumSet.of(Kind.STRICT_EQUAL_TO, Kind.STRICT_NOT_EQUAL_TO);
   protected static final Set<Kind> NEGATION_KINDS = EnumSet.of(Kind.NOT_EQUAL_TO, Kind.STRICT_NOT_EQUAL_TO);
 
   private final Kind kind;
@@ -62,20 +61,29 @@ public class EqualitySymbolicValue extends RelationalSymbolicValue {
     Constraint constraintOnSending = state.getConstraint(sending);
     if (constraintOnSending.isStricterOrEqualTo(Constraint.NULL_OR_UNDEFINED)) {
       if (constraint.isStricterOrEqualTo(Constraint.TRUTHY)) {
-        return state.constrain(receiving, constraintOnNullOrUndefined(constraintOnSending));
+        return state.constrain(receiving, constraintOnNullOrUndefined(constraintOnSending, false));
       } else if (constraint.isStricterOrEqualTo(Constraint.FALSY)) {
-        return state.constrain(receiving, constraintOnNullOrUndefined(constraintOnSending).not());
+        return state.constrain(receiving, constraintOnNullOrUndefined(constraintOnSending, true));
       }
     }
     return Optional.of(state);
   }
 
-  private Constraint constraintOnNullOrUndefined(Constraint constraintOnSending) {
-    Constraint constraint = Constraint.NULL_OR_UNDEFINED;
-    if (STRICT_EQUALITY_KINDS.contains(kind)) {
+  private Constraint constraintOnNullOrUndefined(Constraint constraintOnSending, boolean negate) {
+    Constraint constraint;
+    if (Kind.STRICT_EQUAL_TO.equals(kind)) {
       constraint = constraintOnSending;
+    } else if (Kind.STRICT_NOT_EQUAL_TO.equals(kind)) {
+      if (Constraint.NULL_OR_UNDEFINED.equals(constraintOnSending)) {
+        return Constraint.ANY_VALUE;
+      }
+      constraint = constraintOnSending.not();
+    } else if (Kind.EQUAL_TO.equals(kind)) {
+      constraint = Constraint.NULL_OR_UNDEFINED;
+    } else {
+      constraint = Constraint.NULL_OR_UNDEFINED.not();
     }
-    return NEGATION_KINDS.contains(kind) ? constraint.not() : constraint;
+    return negate ? constraint.not() : constraint;
   }
 
   @Override

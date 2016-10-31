@@ -50,4 +50,14 @@ function main() {
   }
   foo(); // PS y=TRUTHY_NUMBER
   makeLive(y);
+
+  x = foo();
+  if (x == null) {
+    var g = true;
+    if (x !== undefined) {
+      g = false;
+    }
+    foo(); // PS x=NULL & g=FALSE || x=UNDEFINED & g=TRUE
+    makeLive(x, g);
+  }
 }

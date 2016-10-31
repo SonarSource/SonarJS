@@ -52,4 +52,10 @@ function main() {
     foo(x3); // PS x3=ZERO
   }
 
+  if (a == null) {
+    if (a == b) {
+      foo(b); // PS b=NULLY
+    }
+  }
+
 }
