@@ -80,6 +80,7 @@ public final class CheckList {
       ElementUsedWithClassSelectorCheck.class,
       ElseIfWithoutElseCheck.class,
       EmptyBlockCheck.class,
+      EmptyStatementCheck.class,
       EqEqEqCheck.class,
       EqualInForLoopTerminationCheck.class,
       EvalCheck.class,
