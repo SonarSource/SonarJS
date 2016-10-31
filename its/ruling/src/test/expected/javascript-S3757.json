@@ -43,6 +43,9 @@
 'project:dojo-1.8.1/dojox/grid/enhanced/plugins/DnD.js.uncompressed.js':[
 714,
 ],
+'project:dojo-1.8.1/dojox/json/schema.js.uncompressed.js':[
+84,
+],
 'project:dojo-1.8.1/dojox/mobile/IconMenu.js.uncompressed.js':[
 98,
 99,
@@ -83,6 +86,7 @@
 ],
 'project:paper-0.22.js':[
 3582,
+3629,
 3629,
 5451,
 ],
