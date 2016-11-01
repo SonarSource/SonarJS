@@ -1,0 +1,34 @@
+<p>Empty statements, i.e. <code>;</code>, are usually introduced by mistake, for example because:</p>
+<ul>
+  <li> It was meant to be replaced by an actual statement, but this was forgotten. </li>
+  <li> There was a typo which lead the semicolon to be doubled, i.e. <code>;;</code>. </li>
+</ul>
+<h2>Noncompliant Code Example</h2>
+<pre>
+var x = 1;; // Noncompliant
+
+var foo = function() {
+  ;
+};
+</pre>
+<h2>Compliant Solution</h2>
+<pre>
+var x = 1;
+
+var foo = function() { };
+</pre>
+<h2>See</h2>
+<ul>
+  <li> MISRA C:2004, 14.3 - Before preprocessing, a null statement shall only occur on a line by itself; it may be followed by a comment provided that
+  the first character following the null statement is a white-space character. </li>
+  <li> MISRA C++:2008, 6-2-3 - Before preprocessing, a null statement shall only occur on a line by itself; it may be followed by a comment, provided
+  that the first character following the null statement is a white-space character. </li>
+  <li> <a href="https://www.securecoding.cert.org/confluence/x/NYA5">CERT, MSC12-C.</a> - Detect and remove code that has no effect or is never
+  executed </li>
+  <li> <a href="https://www.securecoding.cert.org/confluence/x/SIIyAQ">CERT, MSC12-CPP.</a> - Detect and remove code that has no effect </li>
+  <li> <a href="https://www.securecoding.cert.org/confluence/x/7gCTAw">CERT, MSC51-J.</a> - Do not place a semicolon immediately following an if, for,
+  or while condition </li>
+  <li> <a href="https://www.securecoding.cert.org/confluence/x/i4FtAg">CERT, EXP15-C.</a> - Do not place a semicolon on the same line as an if, for,
+  or while statement </li>
+</ul>
+
