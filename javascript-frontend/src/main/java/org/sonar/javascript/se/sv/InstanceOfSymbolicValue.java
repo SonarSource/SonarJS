@@ -55,7 +55,7 @@ public class InstanceOfSymbolicValue implements SymbolicValue {
       newProgramState = state.constrain(objectValue, constraintForObject == null ? Constraint.NOT_NULLY : constraintForObject);
 
     } else {
-      constraintForObject = constraintForObject == null || constraintForObject == Constraint.OBJECT ? Constraint.ANY_VALUE : constraintForObject.not();
+      constraintForObject = constraintForObject == null || constraintForObject.equals(Constraint.OBJECT) ? Constraint.ANY_VALUE : constraintForObject.not();
       newProgramState = state.constrain(objectValue, constraintForObject);
     }
 

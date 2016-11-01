@@ -101,6 +101,12 @@ public class BuiltInPropertiesTest {
   }
 
   @Test(expected=IllegalStateException.class)
+  public void test_null_own_prop() throws Exception {
+    type = Type.NULL;
+    type.getValueForOwnProperty("fooBar");
+  }
+
+  @Test(expected=IllegalStateException.class)
   public void test_undefined() throws Exception {
     type = Type.UNDEFINED;
     value("fooBar");

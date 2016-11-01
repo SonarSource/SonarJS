@@ -24,8 +24,16 @@ function main() {
   var dateHasOwnProperty = Date.hasOwnProperty();
   foo(); // PS dateHasOwnProperty=BOOLEAN
 
+  var obj = Object.create(null);
+  foo(); // PS obj=OBJECT
+
+  var unknown = Object.fooBar;
+  foo(); // PS unknown=ANY_VALUE
+
   var maxNum = Number.MAX_VALUE;
-  foo(); // PS maxNum=TRUTHY_NUMBER
+  var isNanMethod = Number.isNaN();
+  var toFixed = n.toFixed();
+  foo(); // PS maxNum=TRUTHY_NUMBER & isNanMethod=BOOLEAN & toFixed=STRING
 
   var mathAbs = Math.abs(-4);
   var squareRoot = Math.SQRT2;
@@ -33,5 +41,7 @@ function main() {
 
   var regexp = new RegExp();
   var regexpProp = regexp.lastIndex;
-  foo(); // PS regexp=REGEXP & regexpProp=NUMBER
+  var regexpMethod = regexp.test();
+  unknown = RegExp.fooBar;
+  foo(); // PS regexp=REGEXP & regexpProp=NUMBER & regexpMethod=BOOLEAN & unknown=ANY_VALUE
 }
