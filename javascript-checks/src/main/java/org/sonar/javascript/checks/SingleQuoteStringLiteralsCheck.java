@@ -39,7 +39,8 @@ public class SingleQuoteStringLiteralsCheck extends DoubleDispatchVisitorCheck {
 
   @Override
   public void visitLiteral(LiteralTree tree) {
-    if (tree.is(Kind.STRING_LITERAL) && tree.value().startsWith("\"")) {
+    String value = tree.value();
+    if (tree.is(Kind.STRING_LITERAL) && value.startsWith("\"") && value.indexOf('\'') < 0) {
       addIssue(tree, MESSAGE);
     }
   }

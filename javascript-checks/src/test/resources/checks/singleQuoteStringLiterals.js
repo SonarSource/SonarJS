@@ -7,3 +7,5 @@ function sayHello() {
 // ignore JSX attributes
 <foo attr="string"/>;    // OK
 <foo attr={"string"}/>;  // Noncompliant
+
+alert("Don't do it"); // ok, contains a single quote
