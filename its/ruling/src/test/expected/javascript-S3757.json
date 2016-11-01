@@ -2,6 +2,12 @@
 'project:dojo-1.8.1/dijit/dijit-all.js.uncompressed.js':[
 23974,
 ],
+'project:dojo-1.8.1/dojo/_base/declare.js.uncompressed.js':[
+43,
+],
+'project:dojo-1.8.1/dojo/dojo.js.uncompressed.js':[
+6952,
+],
 'project:dojo-1.8.1/dojo/number.js.uncompressed.js':[
 236,
 ],
@@ -73,6 +79,10 @@
 ],
 'project:open-layers-2.12/OpenLayers/Control/Graticule.js':[
 252,
+],
+'project:open-layers-2.12/OpenLayers/Geometry.js':[
+391,
+392,
 ],
 'project:open-layers-2.12/OpenLayers/Util.js':[
 781,
