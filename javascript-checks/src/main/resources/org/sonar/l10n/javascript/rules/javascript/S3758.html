@@ -1,0 +1,12 @@
+<p>Using a comparison operator <code>&gt;, &lt;, &gt;=, &lt;=</code> when at least one operand is an <code>Object</code> or <code>undefined</code>
+will <strong>always</strong> result in <code>false</code> value.</p>
+<h2>Noncompliant Code Example</h2>
+<pre>
+x = undefined;
+if (y &gt; x) {}  //Non-compliant [BUG] &gt; condition is false whatever is the "y" value
+</pre>
+<h2>Exceptions</h2>
+<p>- Comparisons of two <code>Date</code> objects are ignored.</p>
+<p>- The cases <code>obj &lt;= obj</code> and <code>obj &gt;= obj</code>, where <code>obj</code> is an <code>Object</code>, are ignored as they always
+return <code>true</code>.</p>
+
