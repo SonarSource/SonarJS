@@ -45,11 +45,9 @@ public class ArithmeticOperationReturningNanCheck extends SeCheck {
   private static final Constraint NUMBER_OR_BOOLEAN = Constraint.NUMBER.or(Constraint.BOOLEAN);
   private static final Constraint NUMBER_OR_BOOLEAN_OR_UNDEFINED = NUMBER_OR_BOOLEAN.or(Constraint.UNDEFINED);
   private static final Constraint NON_DATE_OBJECT = Constraint.OBJECT.and(Constraint.DATE.not());
-  private static final Constraint UNDEFINED_OR_OBJECT = Constraint.UNDEFINED.or(Constraint.OBJECT);
   private static final Constraint UNDEFINED_OR_NON_DATE_OBJECT = Constraint.UNDEFINED.or(NON_DATE_OBJECT);
 
   private final BinaryOperationChecker plusChecker = new PlusChecker();
-  private final BinaryOperationChecker minusChecker = new MinusChecker();
   private final BinaryOperationChecker otherBinaryOperationChecker = new OtherBinaryOperationChecker();
 
   private final Set<Symbol> symbolsWithIssues = new HashSet<>();
@@ -66,14 +64,12 @@ public class ArithmeticOperationReturningNanCheck extends SeCheck {
 
       checkBinaryOperation(currentState, element, plusChecker);
 
-    } else if (element.is(Kind.MINUS, Kind.MINUS_ASSIGNMENT)) {
-
-      checkBinaryOperation(currentState, element, minusChecker);
-
     } else if (element.is(
+      Kind.MINUS,
       Kind.MULTIPLY,
       Kind.DIVIDE,
       Kind.REMAINDER,
+      Kind.MINUS_ASSIGNMENT,
       Kind.MULTIPLY_ASSIGNMENT,
       Kind.DIVIDE_ASSIGNMENT,
       Kind.REMAINDER_ASSIGNMENT)) {
@@ -156,23 +152,12 @@ public class ArithmeticOperationReturningNanCheck extends SeCheck {
 
   }
 
-  private class MinusChecker implements BinaryOperationChecker {
+  private class OtherBinaryOperationChecker implements BinaryOperationChecker {
     @Override
     public void check(Constraint leftConstraint, Constraint rightConstraint, Tree leftOperand, Tree rightOperand, Tree operator) {
       if (leftConstraint.isStricterOrEqualTo(UNDEFINED_OR_NON_DATE_OBJECT)) {
         raiseIssue(leftOperand, operator, rightOperand);
       } else if (rightConstraint.isStricterOrEqualTo(UNDEFINED_OR_NON_DATE_OBJECT)) {
-        raiseIssue(rightOperand, operator, leftOperand);
-      }
-    }
-  }
-
-  private class OtherBinaryOperationChecker implements BinaryOperationChecker {
-    @Override
-    public void check(Constraint leftConstraint, Constraint rightConstraint, Tree leftOperand, Tree rightOperand, Tree operator) {
-      if (leftConstraint.isStricterOrEqualTo(UNDEFINED_OR_OBJECT)) {
-        raiseIssue(leftOperand, operator, rightOperand);
-      } else if (rightConstraint.isStricterOrEqualTo(UNDEFINED_OR_OBJECT)) {
         raiseIssue(rightOperand, operator, leftOperand);
       }
     }

@@ -67,9 +67,9 @@ function dates() {
   var date2 = new Date();
   +date1; // ok
   date1 - date2; // ok
-  date1 / date2; // Noncompliant
-  new Date() / 42; // Noncompliant
-  42 / new Date(); // Noncompliant
+  date1 / date2; // ok
+  new Date() / 42; // ok
+  42 / new Date(); // ok
 }
 
 function single_issue_per_expression() {
