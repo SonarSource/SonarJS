@@ -51,6 +51,7 @@ public class ArithmeticOperationReturningNanCheck extends SeCheck {
   private final BinaryOperationChecker otherBinaryOperationChecker = new OtherBinaryOperationChecker();
 
   private final Set<Symbol> symbolsWithIssues = new HashSet<>();
+  private final Set<Tree> operandsWithIssues = new HashSet<>();
 
   @Override
   public void startOfExecution(Scope functionScope) {
@@ -98,12 +99,13 @@ public class ArithmeticOperationReturningNanCheck extends SeCheck {
       IdentifierTree identifier = (IdentifierTree) operand;
       operandSymbol = identifier.symbol();
     }
-    if (!symbolsWithIssues.contains(operandSymbol)) {
+    if (!symbolsWithIssues.contains(operandSymbol) && !operandsWithIssues.contains(operand)) {
       PreciseIssue issue = addIssue(operand, MESSAGE);
       Arrays.asList(secondaryLocations).forEach(issue::secondary);
       if (operandSymbol != null) {
         symbolsWithIssues.add(operandSymbol);
       }
+      operandsWithIssues.add(operand);
     }
   }
 
