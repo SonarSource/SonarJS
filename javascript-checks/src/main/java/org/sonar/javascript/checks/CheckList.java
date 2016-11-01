@@ -40,6 +40,7 @@ public final class CheckList {
       AlwaysUseCurlyBracesCheck.class,
       ArgumentsCallerCalleeUsageCheck.class,
       ArgumentsUsageCheck.class,
+      ArithmeticOperationReturningNanCheck.class,
       ArrayAndObjectConstructorsCheck.class,
       ArrowFunctionConventionCheck.class,
       AssignmentWithinConditionCheck.class,
