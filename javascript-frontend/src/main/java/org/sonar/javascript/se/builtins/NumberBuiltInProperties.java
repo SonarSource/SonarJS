@@ -61,10 +61,10 @@ public class NumberBuiltInProperties extends BuiltInProperties {
   @Override
   Map<String, Constraint> getOwnPropertiesConstraints() {
     return ImmutableMap.<String, Constraint>builder()
-      .put("EPSILON", Constraint.TRUTHY_NUMBER)
-      .put("MAX_SAFE_INTEGER", Constraint.TRUTHY_NUMBER)
+      .put("EPSILON", constraintOnRecentProperty(Constraint.TRUTHY_NUMBER))
+      .put("MAX_SAFE_INTEGER", constraintOnRecentProperty(Constraint.TRUTHY_NUMBER))
       .put("MAX_VALUE", Constraint.TRUTHY_NUMBER)
-      .put("MIN_SAFE_INTEGER", Constraint.TRUTHY_NUMBER)
+      .put("MIN_SAFE_INTEGER", constraintOnRecentProperty(Constraint.TRUTHY_NUMBER))
       .put("MIN_VALUE", Constraint.TRUTHY_NUMBER)
       .put("NaN", Constraint.NAN)
       .put("NEGATIVE_INFINITY", Constraint.TRUTHY_NUMBER)

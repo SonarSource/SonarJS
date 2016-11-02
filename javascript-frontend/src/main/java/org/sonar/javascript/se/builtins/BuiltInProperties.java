@@ -70,4 +70,8 @@ public abstract class BuiltInProperties {
   protected static FunctionWithKnownReturnSymbolicValue method(Constraint returnConstraint) {
     return new FunctionWithKnownReturnSymbolicValue(returnConstraint);
   }
+
+  protected static Constraint constraintOnRecentProperty(Constraint baseConstraint) {
+    return baseConstraint.or(Constraint.UNDEFINED);
+  }
 }
