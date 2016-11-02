@@ -66,7 +66,6 @@
 288,
 373,
 375,
-504,
 601,
 ],
 'project:dojo-1.8.1/dojo/_base/loader.js.uncompressed.js':[
@@ -138,7 +137,6 @@
 12375,
 12460,
 12462,
-12591,
 12688,
 13537,
 13925,
@@ -549,10 +547,6 @@
 ],
 'project:ecmascript6/redux/src/utils/bindActionCreators.js':[
 33,
-],
-'project:ecmascript6/redux/src/utils/isPlainObject.js':[
-13,
-21,
 ],
 'project:ecmascript6/router/third_party/brick/brick-1.0.1.byob.js':[
 1488,

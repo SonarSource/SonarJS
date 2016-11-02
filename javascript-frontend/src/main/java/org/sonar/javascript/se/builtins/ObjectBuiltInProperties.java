@@ -41,7 +41,7 @@ public class ObjectBuiltInProperties extends BuiltInProperties {
   @Override
   Map<String, Constraint> getPropertiesConstraints() {
     return ImmutableMap.of(
-      "constructor", Constraint.FUNCTION
+      "constructor", Constraint.ANY_VALUE
     );
   }
 

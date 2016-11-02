@@ -42,13 +42,13 @@ public class RegexpBuiltInProperties extends BuiltInProperties {
   Map<String, Constraint> getPropertiesConstraints() {
     return ImmutableMap.<String, Constraint>builder()
       .put("lastIndex", Constraint.NUMBER)
-      .put("flags", Constraint.STRING)
+      .put("flags", constraintOnRecentProperty(Constraint.STRING))
       .put("global", Constraint.BOOLEAN)
       .put("ignoreCase", Constraint.BOOLEAN)
       .put("multiline", Constraint.BOOLEAN)
       .put("source", Constraint.STRING)
-      .put("sticky", Constraint.BOOLEAN)
-      .put("unicode", Constraint.BOOLEAN)
+      .put("sticky", constraintOnRecentProperty(Constraint.BOOLEAN))
+      .put("unicode", constraintOnRecentProperty(Constraint.BOOLEAN))
       .build();
   }
 

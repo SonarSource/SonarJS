@@ -82,7 +82,7 @@ public class BuiltInPropertiesTest {
   public void test_object() throws Exception {
     type = Type.OBJECT;
     assertMethod(value("hasOwnProperty"), method(Constraint.BOOLEAN));
-    assertProperty(value("constructor"), Constraint.FUNCTION);
+    assertProperty(value("constructor"), Constraint.ANY_VALUE);
     assertThat(value("foobar")).isEqualTo(UnknownSymbolicValue.UNKNOWN);
   }
 
@@ -116,7 +116,7 @@ public class BuiltInPropertiesTest {
   @Test
   public void test_inheritance() throws Exception {
     type = Type.FUNCTION;
-    assertProperty(value("constructor"), Constraint.FUNCTION);
+    assertProperty(value("constructor"), Constraint.ANY_VALUE);
     assertMethod(value("hasOwnProperty"), method(Constraint.BOOLEAN));
 
     assertThat(value("split")).isEqualTo(UnknownSymbolicValue.UNKNOWN);
