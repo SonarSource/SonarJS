@@ -37,10 +37,13 @@ import org.sonar.plugins.javascript.api.tree.expression.UnaryExpressionTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 import org.sonar.plugins.javascript.api.visitors.PreciseIssue;
 
-import static org.sonar.javascript.se.Type.BOOLEAN;
+import static org.sonar.javascript.se.Type.BOOLEAN_OBJECT;
+import static org.sonar.javascript.se.Type.BOOLEAN_PRIMITIVE;
 import static org.sonar.javascript.se.Type.DATE;
-import static org.sonar.javascript.se.Type.NUMBER;
-import static org.sonar.javascript.se.Type.STRING;
+import static org.sonar.javascript.se.Type.NUMBER_OBJECT;
+import static org.sonar.javascript.se.Type.NUMBER_PRIMITIVE;
+import static org.sonar.javascript.se.Type.STRING_OBJECT;
+import static org.sonar.javascript.se.Type.STRING_PRIMITIVE;
 import static org.sonar.plugins.javascript.api.tree.Tree.Kind.GREATER_THAN;
 import static org.sonar.plugins.javascript.api.tree.Tree.Kind.GREATER_THAN_OR_EQUAL_TO;
 import static org.sonar.plugins.javascript.api.tree.Tree.Kind.LESS_THAN;
@@ -85,10 +88,11 @@ public class NonNumberInArithmeticExpressionCheck extends SeCheck {
     Kind.REMAINDER_ASSIGNMENT
   };
 
-  private static final EnumSet<Type> BOOLEAN_STRING_DATE = EnumSet.of(BOOLEAN, STRING, DATE);
-  private static final EnumSet<Type> BOOLEAN_NUMBER = EnumSet.of(BOOLEAN, NUMBER);
+  private static final EnumSet<Type> BOOLEAN_STRING_DATE = EnumSet.of(BOOLEAN_PRIMITIVE, STRING_PRIMITIVE, BOOLEAN_OBJECT, STRING_OBJECT, DATE);
+  private static final EnumSet<Type> BOOLEAN_NUMBER = EnumSet.of(BOOLEAN_PRIMITIVE, NUMBER_PRIMITIVE, BOOLEAN_OBJECT, NUMBER_OBJECT);
 
-  private static final EnumSet<Type> BOOLEAN_DATE = EnumSet.of(BOOLEAN, DATE);
+  private static final EnumSet<Type> BOOLEAN_DATE = EnumSet.of(BOOLEAN_PRIMITIVE, BOOLEAN_OBJECT, DATE);
+  private static final EnumSet<Type> ANY_NUMBER = EnumSet.of(NUMBER_PRIMITIVE, NUMBER_OBJECT);
 
   private Set<Tree> treesWithIssue;
 
@@ -145,27 +149,22 @@ public class NonNumberInArithmeticExpressionCheck extends SeCheck {
   }
 
   private void checkPlus(ExpressionTree leftOperand, ExpressionTree rightOperand, Type leftType, Type rightType, Tree operator) {
-    if (leftType != Type.STRING && rightType != Type.STRING) {
-      if (leftType == Type.NUMBER && BOOLEAN_DATE.contains(rightType)) {
-        raiseIssue(rightOperand, leftOperand, operator);
-      }
+    if (ANY_NUMBER.contains(leftType) && BOOLEAN_DATE.contains(rightType)) {
+      raiseIssue(rightOperand, leftOperand, operator);
+    }
 
-      if (rightType == Type.NUMBER && BOOLEAN_DATE.contains(leftType)) {
-        raiseIssue(leftOperand, rightOperand, operator);
-      }
+    if (ANY_NUMBER.contains(rightType) && BOOLEAN_DATE.contains(leftType)) {
+      raiseIssue(leftOperand, rightOperand, operator);
     }
   }
 
   private void checkComparison(ExpressionTree leftOperand, ExpressionTree rightOperand, Type leftType, Type rightType, Tree operator) {
-    if (leftType != Type.STRING || rightType != Type.STRING) {
+    if (BOOLEAN_NUMBER.contains(leftType) && BOOLEAN_STRING_DATE.contains(rightType)) {
+      raiseIssue(rightOperand, leftOperand, operator);
+    }
 
-      if (BOOLEAN_NUMBER.contains(leftType) && BOOLEAN_STRING_DATE.contains(rightType)) {
-        raiseIssue(rightOperand, leftOperand, operator);
-      }
-
-      if (BOOLEAN_NUMBER.contains(rightType) && BOOLEAN_STRING_DATE.contains(leftType)) {
-        raiseIssue(leftOperand, rightOperand, operator);
-      }
+    if (BOOLEAN_NUMBER.contains(rightType) && BOOLEAN_STRING_DATE.contains(leftType)) {
+      raiseIssue(leftOperand, rightOperand, operator);
     }
   }
 

@@ -146,7 +146,6 @@
 15494,
 15964,
 16194,
-16223,
 16695,
 16754,
 16755,
@@ -158,9 +157,6 @@
 17326,
 17360,
 17705,
-],
-'project:dojo-1.8.1/dojo/dom-class.js.uncompressed.js':[
-22,
 ],
 'project:dojo-1.8.1/dojo/has.js.uncompressed.js':[
 19,
@@ -406,9 +402,6 @@
 ],
 'project:dojo-1.8.1/dojox/layout/GridContainerLite.js.uncompressed.js':[
 457,
-],
-'project:dojo-1.8.1/dojox/layout/RotatorContainer.js.uncompressed.js':[
-218,
 ],
 'project:dojo-1.8.1/dojox/mobile.js.uncompressed.js':[
 243,

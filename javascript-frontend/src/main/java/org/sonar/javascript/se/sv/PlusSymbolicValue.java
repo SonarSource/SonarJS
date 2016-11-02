@@ -20,12 +20,9 @@
 package org.sonar.javascript.se.sv;
 
 import com.google.common.base.Preconditions;
-import java.util.EnumSet;
 import java.util.Optional;
-import java.util.Set;
 import org.sonar.javascript.se.Constraint;
 import org.sonar.javascript.se.ProgramState;
-import org.sonar.javascript.se.Type;
 
 /**
  * This class represents symbolic value for binary "+" expression.
@@ -52,20 +49,18 @@ public class PlusSymbolicValue implements SymbolicValue {
 
   @Override
   public Constraint baseConstraint(ProgramState state) {
-    Set<Type> numberTypes = EnumSet.of(Type.NUMBER, Type.BOOLEAN);
+    Constraint numberOrBoolean = Constraint.NUMBER_PRIMITIVE.or(Constraint.BOOLEAN_PRIMITIVE);
 
-    Type firstType = state.getConstraint(firstOperandValue).type();
-    Type secondType = state.getConstraint(secondOperandValue).type();
+    Constraint firstConstraint = state.getConstraint(firstOperandValue);
+    Constraint secondConstraint = state.getConstraint(secondOperandValue);
 
-    if (firstType != null || secondType != null) {
-      if (firstType == Type.STRING || secondType == Type.STRING) {
-        return Constraint.STRING;
+    if (firstConstraint.isStricterOrEqualTo(Constraint.ANY_STRING) || secondConstraint.isStricterOrEqualTo(Constraint.ANY_STRING)) {
+      return Constraint.STRING_PRIMITIVE;
 
-      } else if (numberTypes.contains(firstType) && numberTypes.contains(secondType)) {
-        return Constraint.NUMBER;
-      }
+    } else if (firstConstraint.isStricterOrEqualTo(numberOrBoolean) && secondConstraint.isStricterOrEqualTo(numberOrBoolean)) {
+      return Constraint.NUMBER_PRIMITIVE;
     }
-    return Constraint.NUMBER.or(Constraint.STRING);
+    return Constraint.NUMBER_PRIMITIVE.or(Constraint.STRING_PRIMITIVE);
   }
 
   @Override

@@ -43,11 +43,14 @@ public class NonExistentPropertyAccessCheck extends SeCheck {
 
   private static final String MESSAGE = "Remove this access to \"%s\" property, it doesn't exist on a %s.";
 
-  private static final Map<Type, String> TYPE_NAMES = ImmutableMap.of(
-    Type.NUMBER, "Number",
-    Type.STRING, "String",
-    Type.BOOLEAN, "Boolean"
-  );
+  private static final Map<Type, String> TYPE_NAMES = ImmutableMap.<Type, String>builder()
+    .put(Type.NUMBER_PRIMITIVE, "Number")
+    .put(Type.NUMBER_OBJECT, "Number")
+    .put(Type.STRING_PRIMITIVE, "String")
+    .put(Type.STRING_OBJECT, "String")
+    .put(Type.BOOLEAN_PRIMITIVE, "Boolean")
+    .put(Type.BOOLEAN_OBJECT, "Boolean")
+    .build();
 
   private final Set<Tree> treesWithIssues = new HashSet<>();
   private ProgramState programStateBefore = null;

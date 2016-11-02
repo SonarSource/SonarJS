@@ -26,17 +26,22 @@ import org.sonar.javascript.se.sv.SymbolicValue;
 
 public class NumberBuiltInProperties extends BuiltInProperties {
 
+  public static final NumberBuiltInProperties INSTANCE = new NumberBuiltInProperties();
+
+  private NumberBuiltInProperties() {
+  }
+
   @Override
   Map<String, SymbolicValue> getMethods() {
     return ImmutableMap.<String, SymbolicValue>builder()
-      .put("toExponential", method(Constraint.STRING))
-      .put("toFixed", method(Constraint.STRING))
-      .put("toPrecision", method(Constraint.STRING))
+      .put("toExponential", method(Constraint.STRING_PRIMITIVE))
+      .put("toFixed", method(Constraint.STRING_PRIMITIVE))
+      .put("toPrecision", method(Constraint.STRING_PRIMITIVE))
 
       // overrides Object
-      .put("toLocaleString", method(Constraint.STRING))
-      .put("toString", method(Constraint.STRING))
-      .put("valueOf", method(Constraint.NUMBER))
+      .put("toLocaleString", method(Constraint.STRING_PRIMITIVE))
+      .put("toString", method(Constraint.STRING_PRIMITIVE))
+      .put("valueOf", method(Constraint.NUMBER_PRIMITIVE))
 
       .build();
   }
@@ -49,26 +54,26 @@ public class NumberBuiltInProperties extends BuiltInProperties {
   @Override
   Map<String, SymbolicValue> getOwnMethods() {
     return ImmutableMap.<String, SymbolicValue>builder()
-      .put("isNaN", method(Constraint.BOOLEAN))
-      .put("isFinite", method(Constraint.BOOLEAN))
-      .put("isInteger", method(Constraint.BOOLEAN))
-      .put("isSafeInteger", method(Constraint.BOOLEAN))
-      .put("parseFloat", method(Constraint.NUMBER))
-      .put("parseInt", method(Constraint.NUMBER))
+      .put("isNaN", method(Constraint.BOOLEAN_PRIMITIVE))
+      .put("isFinite", method(Constraint.BOOLEAN_PRIMITIVE))
+      .put("isInteger", method(Constraint.BOOLEAN_PRIMITIVE))
+      .put("isSafeInteger", method(Constraint.BOOLEAN_PRIMITIVE))
+      .put("parseFloat", method(Constraint.NUMBER_PRIMITIVE))
+      .put("parseInt", method(Constraint.NUMBER_PRIMITIVE))
       .build();
   }
 
   @Override
   Map<String, Constraint> getOwnPropertiesConstraints() {
     return ImmutableMap.<String, Constraint>builder()
-      .put("EPSILON", constraintOnRecentProperty(Constraint.TRUTHY_NUMBER))
-      .put("MAX_SAFE_INTEGER", constraintOnRecentProperty(Constraint.TRUTHY_NUMBER))
-      .put("MAX_VALUE", Constraint.TRUTHY_NUMBER)
-      .put("MIN_SAFE_INTEGER", constraintOnRecentProperty(Constraint.TRUTHY_NUMBER))
-      .put("MIN_VALUE", Constraint.TRUTHY_NUMBER)
+      .put("EPSILON", constraintOnRecentProperty(Constraint.TRUTHY_NUMBER_PRIMITIVE))
+      .put("MAX_SAFE_INTEGER", constraintOnRecentProperty(Constraint.TRUTHY_NUMBER_PRIMITIVE))
+      .put("MAX_VALUE", Constraint.TRUTHY_NUMBER_PRIMITIVE)
+      .put("MIN_SAFE_INTEGER", constraintOnRecentProperty(Constraint.TRUTHY_NUMBER_PRIMITIVE))
+      .put("MIN_VALUE", Constraint.TRUTHY_NUMBER_PRIMITIVE)
       .put("NaN", Constraint.NAN)
-      .put("NEGATIVE_INFINITY", Constraint.TRUTHY_NUMBER)
-      .put("POSITIVE_INFINITY", Constraint.TRUTHY_NUMBER)
+      .put("NEGATIVE_INFINITY", Constraint.TRUTHY_NUMBER_PRIMITIVE)
+      .put("POSITIVE_INFINITY", Constraint.TRUTHY_NUMBER_PRIMITIVE)
       .build();
   }
 }

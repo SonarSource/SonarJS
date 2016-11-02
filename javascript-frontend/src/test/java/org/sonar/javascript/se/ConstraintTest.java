@@ -24,15 +24,18 @@ import org.junit.Test;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.javascript.se.Constraint.ANY_VALUE;
 import static org.sonar.javascript.se.Constraint.ARRAY;
-import static org.sonar.javascript.se.Constraint.BOOLEAN;
+import static org.sonar.javascript.se.Constraint.BOOLEAN_OBJECT;
+import static org.sonar.javascript.se.Constraint.BOOLEAN_PRIMITIVE;
 import static org.sonar.javascript.se.Constraint.FALSY;
 import static org.sonar.javascript.se.Constraint.FUNCTION;
 import static org.sonar.javascript.se.Constraint.NO_POSSIBLE_VALUE;
 import static org.sonar.javascript.se.Constraint.NULL;
 import static org.sonar.javascript.se.Constraint.NULL_OR_UNDEFINED;
-import static org.sonar.javascript.se.Constraint.NUMBER;
+import static org.sonar.javascript.se.Constraint.NUMBER_OBJECT;
+import static org.sonar.javascript.se.Constraint.NUMBER_PRIMITIVE;
 import static org.sonar.javascript.se.Constraint.OBJECT;
-import static org.sonar.javascript.se.Constraint.STRING;
+import static org.sonar.javascript.se.Constraint.STRING_OBJECT;
+import static org.sonar.javascript.se.Constraint.STRING_PRIMITIVE;
 import static org.sonar.javascript.se.Constraint.TRUTHY;
 import static org.sonar.javascript.se.Constraint.UNDEFINED;
 
@@ -63,6 +66,9 @@ public class ConstraintTest {
     assertThat(FALSY.truthiness()).isEqualTo(Truthiness.FALSY);
     assertThat(TRUTHY.truthiness()).isEqualTo(Truthiness.TRUTHY);
     assertThat(FUNCTION.truthiness()).isEqualTo(Truthiness.TRUTHY);
+    assertThat(BOOLEAN_OBJECT.truthiness()).isEqualTo(Truthiness.TRUTHY);
+    assertThat(NUMBER_OBJECT.truthiness()).isEqualTo(Truthiness.TRUTHY);
+    assertThat(STRING_OBJECT.truthiness()).isEqualTo(Truthiness.TRUTHY);
   }
 
   @Test
@@ -98,9 +104,10 @@ public class ConstraintTest {
 
   @Test
   public void type() throws Exception {
-    assertThat(NUMBER.type()).isEqualTo(Type.NUMBER);
-    assertThat(STRING.type()).isEqualTo(Type.STRING);
-    assertThat(BOOLEAN.type()).isEqualTo(Type.BOOLEAN);
+    assertThat(NUMBER_PRIMITIVE.type()).isEqualTo(Type.NUMBER_PRIMITIVE);
+    assertThat(STRING_PRIMITIVE.type()).isEqualTo(Type.STRING_PRIMITIVE);
+    assertThat(STRING_OBJECT.type()).isEqualTo(Type.STRING_OBJECT);
+    assertThat(BOOLEAN_PRIMITIVE.type()).isEqualTo(Type.BOOLEAN_PRIMITIVE);
     assertThat(OBJECT.type()).isEqualTo(Type.OBJECT);
     assertThat(FUNCTION.type()).isEqualTo(Type.FUNCTION);
     assertThat(ARRAY.type()).isEqualTo(Type.ARRAY);

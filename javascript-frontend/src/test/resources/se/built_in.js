@@ -5,7 +5,7 @@ function main() {
   foo(); // PS b=FUNCTION & n=FUNCTION & s=FUNCTION & f=FUNCTION
 
   var objB = new Boolean();
-  foo(); // PS objB=BOOLEAN
+  foo(); // PS objB=BOOLEAN_OBJECT
 
   var date = new Date();
   foo(); // PS date=DATE

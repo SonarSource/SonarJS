@@ -143,7 +143,7 @@ public class ExpressionStack {
         break;
       case DELETE:
         pop(newStack, 1);
-        newStack.push(new SymbolicValueWithConstraint(Constraint.BOOLEAN));
+        newStack.push(new SymbolicValueWithConstraint(Constraint.BOOLEAN_PRIMITIVE));
         break;
       case YIELD_EXPRESSION:
         if (((YieldExpressionTree) expression).argument() != null) {
@@ -159,7 +159,7 @@ public class ExpressionStack {
       case UNARY_PLUS:
       case BITWISE_COMPLEMENT:
         pop(newStack, 1);
-        newStack.push(new SymbolicValueWithConstraint(Constraint.NUMBER));
+        newStack.push(new SymbolicValueWithConstraint(Constraint.NUMBER_PRIMITIVE));
         break;
       case CALL_EXPRESSION:
         executeCallExpression((CallExpressionTree) expression, newStack);
@@ -190,7 +190,7 @@ public class ExpressionStack {
         break;
       case TEMPLATE_LITERAL:
         pop(newStack, ((TemplateLiteralTree) expression).expressions().size());
-        newStack.push(new SymbolicValueWithConstraint(Constraint.STRING));
+        newStack.push(new SymbolicValueWithConstraint(Constraint.STRING_PRIMITIVE));
         break;
       case EXPONENT_ASSIGNMENT:
       case MULTIPLY_ASSIGNMENT:
@@ -242,7 +242,7 @@ public class ExpressionStack {
       case RIGHT_SHIFT:
       case UNSIGNED_RIGHT_SHIFT:
         pop(newStack, 2);
-        newStack.push(new SymbolicValueWithConstraint(Constraint.NUMBER));
+        newStack.push(new SymbolicValueWithConstraint(Constraint.NUMBER_PRIMITIVE));
         break;
       case COMMA_OPERATOR:
         SymbolicValue commaResult = newStack.pop();

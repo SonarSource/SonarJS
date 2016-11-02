@@ -50,7 +50,7 @@ public class TypeOfSymbolicValue implements SymbolicValue {
 
   @Override
   public Constraint baseConstraint(ProgramState state) {
-    return Constraint.STRING;
+    return Constraint.STRING_PRIMITIVE;
   }
 
   @Override

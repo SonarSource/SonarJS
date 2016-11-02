@@ -34,15 +34,15 @@ public class FunctionBuiltInProperties extends BuiltInProperties {
       .put("call", method(Constraint.ANY_VALUE))
 
       // overrides Object
-      .put("toString", method(Constraint.STRING))
+      .put("toString", method(Constraint.STRING_PRIMITIVE))
       .build();
   }
 
   @Override
   Map<String, Constraint> getPropertiesConstraints() {
     return ImmutableMap.of(
-      "length", Constraint.NUMBER,
-      "name", Constraint.STRING
+      "length", Constraint.NUMBER_PRIMITIVE,
+      "name", Constraint.STRING_PRIMITIVE
     );
   }
 

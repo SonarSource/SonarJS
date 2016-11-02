@@ -29,11 +29,11 @@ public class ObjectBuiltInProperties extends BuiltInProperties {
   @Override
   Map<String, SymbolicValue> getMethods() {
     return ImmutableMap.<String, SymbolicValue>builder()
-      .put("hasOwnProperty", method(Constraint.BOOLEAN))
-      .put("isPrototypeOf", method(Constraint.BOOLEAN))
-      .put("propertyIsEnumerable", method(Constraint.BOOLEAN))
-      .put("toLocaleString", method(Constraint.STRING))
-      .put("toString", method(Constraint.STRING))
+      .put("hasOwnProperty", method(Constraint.BOOLEAN_PRIMITIVE))
+      .put("isPrototypeOf", method(Constraint.BOOLEAN_PRIMITIVE))
+      .put("propertyIsEnumerable", method(Constraint.BOOLEAN_PRIMITIVE))
+      .put("toLocaleString", method(Constraint.STRING_PRIMITIVE))
+      .put("toString", method(Constraint.STRING_PRIMITIVE))
       .put("valueOf", method(Constraint.ANY_VALUE))
       .build();
   }
@@ -59,10 +59,10 @@ public class ObjectBuiltInProperties extends BuiltInProperties {
       .put("getOwnPropertyNames", method(Constraint.ARRAY))
       .put("getOwnPropertySymbols", method(Constraint.ARRAY))
       .put("getPrototypeOf", method(Constraint.OBJECT.or(Constraint.NULL)))
-      .put("is", method(Constraint.BOOLEAN))
-      .put("isExtensible", method(Constraint.BOOLEAN))
-      .put("isFrozen", method(Constraint.BOOLEAN))
-      .put("isSealed", method(Constraint.BOOLEAN))
+      .put("is", method(Constraint.BOOLEAN_PRIMITIVE))
+      .put("isExtensible", method(Constraint.BOOLEAN_PRIMITIVE))
+      .put("isFrozen", method(Constraint.BOOLEAN_PRIMITIVE))
+      .put("isSealed", method(Constraint.BOOLEAN_PRIMITIVE))
       .put("keys", method(Constraint.ARRAY))
       .put("preventExtensions", method(Constraint.OBJECT))
       .put("seal", method(Constraint.OBJECT))

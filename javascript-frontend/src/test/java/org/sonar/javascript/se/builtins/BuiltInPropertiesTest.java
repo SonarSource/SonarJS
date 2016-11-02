@@ -36,25 +36,25 @@ public class BuiltInPropertiesTest {
 
   @Test
   public void test_string() throws Exception {
-    type = Type.STRING;
+    type = Type.STRING_OBJECT;
     assertMethod(value("split"), method(Constraint.ARRAY));
-    assertProperty(value("length"), Constraint.NUMBER);
+    assertProperty(value("length"), Constraint.NUMBER_PRIMITIVE);
     assertThat(value("foobar")).isEqualTo(SpecialSymbolicValue.UNDEFINED);
-    assertMethod(value("valueOf"), method(Constraint.STRING));
+    assertMethod(value("valueOf"), method(Constraint.STRING_PRIMITIVE));
   }
 
   @Test
   public void test_number() throws Exception {
-    type = Type.NUMBER;
-    assertMethod(value("toExponential"), method(Constraint.STRING));
-    assertMethod(value("valueOf"), method(Constraint.NUMBER));
+    type = Type.NUMBER_PRIMITIVE;
+    assertMethod(value("toExponential"), method(Constraint.STRING_PRIMITIVE));
+    assertMethod(value("valueOf"), method(Constraint.NUMBER_PRIMITIVE));
     assertThat(value("foobar")).isEqualTo(SpecialSymbolicValue.UNDEFINED);
   }
 
   @Test
   public void test_boolean() throws Exception {
-    type = Type.BOOLEAN;
-    assertMethod(value("valueOf"), method(Constraint.BOOLEAN));
+    type = Type.BOOLEAN_PRIMITIVE;
+    assertMethod(value("valueOf"), method(Constraint.BOOLEAN_PRIMITIVE));
     assertThat(value("foobar")).isEqualTo(SpecialSymbolicValue.UNDEFINED);
   }
 
@@ -63,7 +63,7 @@ public class BuiltInPropertiesTest {
     type = Type.ARRAY;
     assertMethod(value("sort"), method(Constraint.ARRAY));
     assertMethod(value("pop"), method(Constraint.ANY_VALUE));
-    assertProperty(value("length"), Constraint.NUMBER);
+    assertProperty(value("length"), Constraint.NUMBER_PRIMITIVE);
     assertThat(value("foobar")).isEqualTo(UnknownSymbolicValue.UNKNOWN);
     // inherited
     assertMethod(value("valueOf"), method(Constraint.ANY_VALUE));
@@ -73,15 +73,15 @@ public class BuiltInPropertiesTest {
   public void test_function() throws Exception {
     type = Type.FUNCTION;
     assertMethod(value("bind"), method(Constraint.FUNCTION));
-    assertProperty(value("name"), Constraint.STRING);
-    assertProperty(value("length"), Constraint.NUMBER);
+    assertProperty(value("name"), Constraint.STRING_PRIMITIVE);
+    assertProperty(value("length"), Constraint.NUMBER_PRIMITIVE);
     assertThat(value("foobar")).isEqualTo(UnknownSymbolicValue.UNKNOWN);
   }
 
   @Test
   public void test_object() throws Exception {
     type = Type.OBJECT;
-    assertMethod(value("hasOwnProperty"), method(Constraint.BOOLEAN));
+    assertMethod(value("hasOwnProperty"), method(Constraint.BOOLEAN_PRIMITIVE));
     assertProperty(value("constructor"), Constraint.ANY_VALUE);
     assertThat(value("foobar")).isEqualTo(UnknownSymbolicValue.UNKNOWN);
   }
@@ -89,9 +89,9 @@ public class BuiltInPropertiesTest {
   @Test
   public void test_date() throws Exception {
     type = Type.DATE;
-    assertMethod(value("getDate"), method(Constraint.TRUTHY_NUMBER));
-    assertMethod(value("setDate"), method(Constraint.NUMBER));
-    assertMethod(value("toString"), method(Constraint.STRING));
+    assertMethod(value("getDate"), method(Constraint.TRUTHY_NUMBER_PRIMITIVE));
+    assertMethod(value("setDate"), method(Constraint.NUMBER_PRIMITIVE));
+    assertMethod(value("toString"), method(Constraint.STRING_PRIMITIVE));
     assertThat(value("foobar")).isEqualTo(UnknownSymbolicValue.UNKNOWN);
   }
 
@@ -117,7 +117,7 @@ public class BuiltInPropertiesTest {
   public void test_inheritance() throws Exception {
     type = Type.FUNCTION;
     assertProperty(value("constructor"), Constraint.ANY_VALUE);
-    assertMethod(value("hasOwnProperty"), method(Constraint.BOOLEAN));
+    assertMethod(value("hasOwnProperty"), method(Constraint.BOOLEAN_PRIMITIVE));
 
     assertThat(value("split")).isEqualTo(UnknownSymbolicValue.UNKNOWN);
 

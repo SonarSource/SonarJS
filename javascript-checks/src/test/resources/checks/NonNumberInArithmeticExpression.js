@@ -103,3 +103,16 @@ function one_issue_per_expression() {
   str - 4;  // Noncompliant
   foo(x);
 }
+
+function primitive_wrappers(x) {
+  -new String(x); // Noncompliant
+  -new Boolean(x); // Noncompliant
+  42 / new String(x); // Noncompliant
+  42 / new Boolean(x); // Noncompliant
+  42 + new String(x); // ok
+  42 + new Boolean(x); // Noncompliant
+  new Number(x) + true; // Noncompliant
+  true + new Number(x); // Noncompliant
+  new Number(x) > "42"; // Noncompliant
+  "42" > new Number(x); // Noncompliant
+}

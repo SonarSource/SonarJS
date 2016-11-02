@@ -79,7 +79,7 @@ public class RelationalSymbolicValue implements SymbolicValue {
 
   @Override
   public Constraint baseConstraint(ProgramState state) {
-    return Constraint.BOOLEAN;
+    return Constraint.BOOLEAN_PRIMITIVE;
   }
 
   public Relation relationWhenTrue() {

@@ -72,6 +72,20 @@ function dates() {
   42 / new Date(); // ok
 }
 
+function primitive_wrappers() {
+  var array1 = [1,2];
+  var number1 = new Number(42);
+  var boolean1 = new Boolean(true);
+  array1 + number1; // ok, concatenation
+  undefined + number1; // Noncompliant
+  undefined + boolean1; // Noncompliant
+  undefined + ""; // ok
+  array1 / number1; // Noncompliant
+  +number1; // ok
+  +boolean1; // ok
+  number1 / 2; // ok
+}
+
 function single_issue_per_expression() {
   var x = "";
   if (condition) {

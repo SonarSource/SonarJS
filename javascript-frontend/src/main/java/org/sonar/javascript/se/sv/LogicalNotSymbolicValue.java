@@ -59,7 +59,7 @@ public class LogicalNotSymbolicValue implements SymbolicValue {
     if (negatedConstraint.isStricterOrEqualTo(Constraint.FALSY)) {
       return Constraint.TRUE;
     }
-    return Constraint.BOOLEAN;
+    return Constraint.BOOLEAN_PRIMITIVE;
   }
 
   @Override

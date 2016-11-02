@@ -31,11 +31,11 @@ public class PlusSymbolicValueTest {
 
   @Test
   public void constraint() throws Exception {
-    assertThat(plusConstraint(Constraint.TRUTHY_STRING, Constraint.EMPTY_STRING)).isEqualTo(Constraint.STRING);
-    assertThat(plusConstraint(Constraint.TRUTHY_STRING, Constraint.NUMBER)).isEqualTo(Constraint.STRING);
-    assertThat(plusConstraint(Constraint.TRUTHY_NUMBER, Constraint.NAN)).isEqualTo(Constraint.NUMBER);
-    assertThat(plusConstraint(Constraint.TRUTHY_NUMBER, Constraint.BOOLEAN)).isEqualTo(Constraint.NUMBER);
-    assertThat(plusConstraint(Constraint.TRUTHY_NUMBER, Constraint.TRUTHY)).isEqualTo(Constraint.NUMBER.or(Constraint.STRING));
+    assertThat(plusConstraint(Constraint.TRUTHY_STRING_PRIMITIVE, Constraint.EMPTY_STRING_PRIMITIVE)).isEqualTo(Constraint.STRING_PRIMITIVE);
+    assertThat(plusConstraint(Constraint.TRUTHY_STRING_PRIMITIVE, Constraint.NUMBER_PRIMITIVE)).isEqualTo(Constraint.STRING_PRIMITIVE);
+    assertThat(plusConstraint(Constraint.TRUTHY_NUMBER_PRIMITIVE, Constraint.NAN)).isEqualTo(Constraint.NUMBER_PRIMITIVE);
+    assertThat(plusConstraint(Constraint.TRUTHY_NUMBER_PRIMITIVE, Constraint.BOOLEAN_PRIMITIVE)).isEqualTo(Constraint.NUMBER_PRIMITIVE);
+    assertThat(plusConstraint(Constraint.TRUTHY_NUMBER_PRIMITIVE, Constraint.TRUTHY)).isEqualTo(Constraint.NUMBER_PRIMITIVE.or(Constraint.STRING_PRIMITIVE));
   }
 
   private Constraint plusConstraint(Constraint constraint1, Constraint constraint2) {

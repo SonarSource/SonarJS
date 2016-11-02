@@ -41,9 +41,12 @@ import org.sonar.javascript.se.sv.UnknownSymbolicValue;
 
 public enum Type {
   OBJECT(Constraint.OBJECT, null, new ObjectBuiltInProperties()),
-  NUMBER(Constraint.NUMBER, OBJECT, new NumberBuiltInProperties()),
-  STRING(Constraint.STRING, OBJECT, new StringBuiltInProperties()),
-  BOOLEAN(Constraint.BOOLEAN, OBJECT, new BooleanBuiltInProperties()),
+  NUMBER_PRIMITIVE(Constraint.NUMBER_PRIMITIVE, OBJECT, NumberBuiltInProperties.INSTANCE),
+  NUMBER_OBJECT(Constraint.NUMBER_OBJECT, OBJECT, NumberBuiltInProperties.INSTANCE),
+  STRING_PRIMITIVE(Constraint.STRING_PRIMITIVE, OBJECT, StringBuiltInProperties.INSTANCE),
+  STRING_OBJECT(Constraint.STRING_OBJECT, OBJECT, StringBuiltInProperties.INSTANCE),
+  BOOLEAN_PRIMITIVE(Constraint.BOOLEAN_PRIMITIVE, OBJECT, BooleanBuiltInProperties.INSTANCE),
+  BOOLEAN_OBJECT(Constraint.BOOLEAN_OBJECT, OBJECT, BooleanBuiltInProperties.INSTANCE),
   FUNCTION(Constraint.FUNCTION, OBJECT, new FunctionBuiltInProperties()),
   ARRAY(Constraint.ARRAY, OBJECT, new ArrayBuiltInProperties()),
   DATE(Constraint.DATE, OBJECT, new DateBuiltInProperties()),
@@ -53,7 +56,13 @@ public enum Type {
   ;
 
   private static final List<Type> VALUES_REVERSED = Lists.reverse(Arrays.asList(Type.values()));
-  private static final EnumSet<Type> PRIMITIVE_TYPES = EnumSet.of(NUMBER, STRING, BOOLEAN);
+  private static final EnumSet<Type> PRIMITIVE_TYPES = EnumSet.of(
+    NUMBER_PRIMITIVE,
+    NUMBER_OBJECT,
+    STRING_PRIMITIVE,
+    STRING_OBJECT,
+    BOOLEAN_PRIMITIVE,
+    BOOLEAN_OBJECT);
 
   private Constraint constraint;
   private BuiltInProperties builtInProperties;

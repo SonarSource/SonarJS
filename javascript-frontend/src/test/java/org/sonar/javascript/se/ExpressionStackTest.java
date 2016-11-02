@@ -116,14 +116,14 @@ public class ExpressionStackTest {
   public void typeof() throws Exception {
     execute("typeof a");
     assertSingleValueInStack(TypeOfSymbolicValue.class);
-    assertSingleValueInStackWithConstraint(Constraint.STRING);
+    assertSingleValueInStackWithConstraint(Constraint.STRING_PRIMITIVE);
   }
 
   @Test
   public void instanceof_test() throws Exception {
     execute("a instanceof Foo");
     assertSingleValueInStack(InstanceOfSymbolicValue.class);
-    assertSingleValueInStackWithConstraint(Constraint.BOOLEAN);
+    assertSingleValueInStackWithConstraint(Constraint.BOOLEAN_PRIMITIVE);
   }
 
   @Test
@@ -138,7 +138,7 @@ public class ExpressionStackTest {
   @Test
   public void delete() throws Exception {
     execute("delete a.prop");
-    assertSingleValueInStack(new SymbolicValueWithConstraint(Constraint.BOOLEAN));
+    assertSingleValueInStack(new SymbolicValueWithConstraint(Constraint.BOOLEAN_PRIMITIVE));
   }
 
   @Test
@@ -179,7 +179,7 @@ public class ExpressionStackTest {
   @Test
   public void template_literal() throws Exception {
     execute("`${a} ${b} ${c}`");
-    assertSingleValueInStack(new SymbolicValueWithConstraint(Constraint.STRING));
+    assertSingleValueInStack(new SymbolicValueWithConstraint(Constraint.STRING_PRIMITIVE));
   }
 
   @Test
@@ -263,70 +263,70 @@ public class ExpressionStackTest {
   @Test
   public void number_expressions() throws Exception {
     execute("a - b");
-    assertSingleValueInStack(new SymbolicValueWithConstraint(Constraint.NUMBER));
+    assertSingleValueInStack(new SymbolicValueWithConstraint(Constraint.NUMBER_PRIMITIVE));
 
     execute("a * b");
-    assertSingleValueInStack(new SymbolicValueWithConstraint(Constraint.NUMBER));
+    assertSingleValueInStack(new SymbolicValueWithConstraint(Constraint.NUMBER_PRIMITIVE));
 
     execute("a / b");
-    assertSingleValueInStack(new SymbolicValueWithConstraint(Constraint.NUMBER));
+    assertSingleValueInStack(new SymbolicValueWithConstraint(Constraint.NUMBER_PRIMITIVE));
 
     execute("a % b");
-    assertSingleValueInStack(new SymbolicValueWithConstraint(Constraint.NUMBER));
+    assertSingleValueInStack(new SymbolicValueWithConstraint(Constraint.NUMBER_PRIMITIVE));
 
     execute("a & b");
-    assertSingleValueInStack(new SymbolicValueWithConstraint(Constraint.NUMBER));
+    assertSingleValueInStack(new SymbolicValueWithConstraint(Constraint.NUMBER_PRIMITIVE));
     execute("a | b");
-    assertSingleValueInStack(new SymbolicValueWithConstraint(Constraint.NUMBER));
+    assertSingleValueInStack(new SymbolicValueWithConstraint(Constraint.NUMBER_PRIMITIVE));
     execute("a ^ b");
-    assertSingleValueInStack(new SymbolicValueWithConstraint(Constraint.NUMBER));
+    assertSingleValueInStack(new SymbolicValueWithConstraint(Constraint.NUMBER_PRIMITIVE));
     execute("a << b");
-    assertSingleValueInStack(new SymbolicValueWithConstraint(Constraint.NUMBER));
+    assertSingleValueInStack(new SymbolicValueWithConstraint(Constraint.NUMBER_PRIMITIVE));
     execute("a >> b");
-    assertSingleValueInStack(new SymbolicValueWithConstraint(Constraint.NUMBER));
+    assertSingleValueInStack(new SymbolicValueWithConstraint(Constraint.NUMBER_PRIMITIVE));
     execute("a >>> b");
-    assertSingleValueInStack(new SymbolicValueWithConstraint(Constraint.NUMBER));
+    assertSingleValueInStack(new SymbolicValueWithConstraint(Constraint.NUMBER_PRIMITIVE));
 
     execute("a++");
-    assertSingleValueInStack(new SymbolicValueWithConstraint(Constraint.NUMBER));
+    assertSingleValueInStack(new SymbolicValueWithConstraint(Constraint.NUMBER_PRIMITIVE));
 
     execute("a--");
-    assertSingleValueInStack(new SymbolicValueWithConstraint(Constraint.NUMBER));
+    assertSingleValueInStack(new SymbolicValueWithConstraint(Constraint.NUMBER_PRIMITIVE));
 
     execute("++a");
-    assertSingleValueInStack(new SymbolicValueWithConstraint(Constraint.NUMBER));
+    assertSingleValueInStack(new SymbolicValueWithConstraint(Constraint.NUMBER_PRIMITIVE));
 
     execute("--a");
-    assertSingleValueInStack(new SymbolicValueWithConstraint(Constraint.NUMBER));
+    assertSingleValueInStack(new SymbolicValueWithConstraint(Constraint.NUMBER_PRIMITIVE));
 
     execute("-a");
-    assertSingleValueInStack(new SymbolicValueWithConstraint(Constraint.NUMBER));
+    assertSingleValueInStack(new SymbolicValueWithConstraint(Constraint.NUMBER_PRIMITIVE));
 
     execute("+a");
-    assertSingleValueInStack(new SymbolicValueWithConstraint(Constraint.NUMBER));
+    assertSingleValueInStack(new SymbolicValueWithConstraint(Constraint.NUMBER_PRIMITIVE));
 
     execute("~a");
-    assertSingleValueInStack(new SymbolicValueWithConstraint(Constraint.NUMBER));
+    assertSingleValueInStack(new SymbolicValueWithConstraint(Constraint.NUMBER_PRIMITIVE));
   }
 
   @Test
   public void plus_binary_expression() throws Exception {
-    Constraint numberOrString = Constraint.NUMBER.or(Constraint.STRING);
+    Constraint numberOrString = Constraint.NUMBER_PRIMITIVE.or(Constraint.STRING_PRIMITIVE);
 
     execute("x = a + b");
     assertSingleValueInStackWithConstraint(numberOrString);
 
     execute("x = a + 'str'");
-    assertSingleValueInStackWithConstraint(Constraint.STRING);
+    assertSingleValueInStackWithConstraint(Constraint.STRING_PRIMITIVE);
 
     execute("x = a + 1");
     assertSingleValueInStackWithConstraint(numberOrString);
 
     execute("x = 'str' + 1");
-    assertSingleValueInStackWithConstraint(Constraint.STRING);
+    assertSingleValueInStackWithConstraint(Constraint.STRING_PRIMITIVE);
 
     execute("x = 'str' + true");
-    assertSingleValueInStackWithConstraint(Constraint.STRING);
+    assertSingleValueInStackWithConstraint(Constraint.STRING_PRIMITIVE);
 
     execute("x = a + true");
     assertSingleValueInStackWithConstraint(numberOrString);
@@ -334,13 +334,13 @@ public class ExpressionStackTest {
 
   @Test
   public void plus_assignment() throws Exception {
-    Constraint numberOrString = Constraint.NUMBER.or(Constraint.STRING);
+    Constraint numberOrString = Constraint.NUMBER_PRIMITIVE.or(Constraint.STRING_PRIMITIVE);
 
     execute("x += a");
     assertSingleValueInStackWithConstraint(numberOrString);
 
     execute("x += 'str'");
-    assertSingleValueInStackWithConstraint(Constraint.STRING);
+    assertSingleValueInStackWithConstraint(Constraint.STRING_PRIMITIVE);
 
     execute("x += 1");
     assertSingleValueInStackWithConstraint(numberOrString);
@@ -349,7 +349,7 @@ public class ExpressionStackTest {
   @Test
   public void dot_member_access() throws Exception {
     execute("x = 'abc'.length");
-    assertSingleValueInStackWithConstraint(Constraint.NUMBER);
+    assertSingleValueInStackWithConstraint(Constraint.NUMBER_PRIMITIVE);
 
     execute("x = 'abc'.charAt");
     assertSingleValueInStackWithConstraint(Constraint.FUNCTION.or(Constraint.UNDEFINED));
@@ -361,7 +361,7 @@ public class ExpressionStackTest {
   @Test
   public void built_in_method_call() throws Exception {
     execute("x = 'abc'.charAt()");
-    assertSingleValueInStackWithConstraint(Constraint.STRING);
+    assertSingleValueInStackWithConstraint(Constraint.STRING_PRIMITIVE);
   }
 
   @Test

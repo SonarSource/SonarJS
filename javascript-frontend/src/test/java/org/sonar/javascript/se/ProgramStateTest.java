@@ -78,10 +78,10 @@ public class ProgramStateTest {
     when(sv1.baseConstraint(state)).thenReturn(Constraint.ANY_VALUE);
     assertThat(state.getConstraint(sv1)).isEqualTo(Constraint.ANY_VALUE);
 
-    when(sv1.baseConstraint(state)).thenReturn(Constraint.BOOLEAN);
-    assertThat(state.getConstraint(sv1)).isEqualTo(Constraint.BOOLEAN);
+    when(sv1.baseConstraint(state)).thenReturn(Constraint.BOOLEAN_PRIMITIVE);
+    assertThat(state.getConstraint(sv1)).isEqualTo(Constraint.BOOLEAN_PRIMITIVE);
 
-    SymbolicValue sv2 = new SymbolicValueWithConstraint(Constraint.BOOLEAN);
+    SymbolicValue sv2 = new SymbolicValueWithConstraint(Constraint.BOOLEAN_PRIMITIVE);
     state = state.pushToStack(sv2).assignment(symbol1).removeLastValue();
     state = state.constrain(sv2, Constraint.TRUTHY).get();
     assertThat(state.getConstraint(sv2)).isEqualTo(Constraint.TRUE);
