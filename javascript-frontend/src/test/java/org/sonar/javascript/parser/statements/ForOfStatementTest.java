@@ -35,4 +35,10 @@ public class ForOfStatementTest {
       .matches("for (const word of words) {}");
   }
 
+  @Test
+  public void async() throws Exception {
+    assertThat(Kind.FOR_OF_STATEMENT)
+      .matches("for await (word of words) {}")
+    ;
+  }
 }

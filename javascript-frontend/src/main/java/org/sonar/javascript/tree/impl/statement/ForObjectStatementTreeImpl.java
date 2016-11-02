@@ -21,6 +21,7 @@ package org.sonar.javascript.tree.impl.statement;
 
 import com.google.common.collect.Iterators;
 import java.util.Iterator;
+import javax.annotation.Nullable;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.javascript.tree.impl.lexical.InternalSyntaxToken;
 import org.sonar.plugins.javascript.api.tree.Tree;
@@ -33,6 +34,7 @@ import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitor;
 public class ForObjectStatementTreeImpl extends JavaScriptTree implements ForObjectStatementTree {
 
   private final SyntaxToken forKeyword;
+  private final SyntaxToken awaitToken;
   private final SyntaxToken openParenthesis;
   private final Tree variableOrExpression;
   private final SyntaxToken ofOrInKeyword;
@@ -42,10 +44,11 @@ public class ForObjectStatementTreeImpl extends JavaScriptTree implements ForObj
   private final Kind kind;
 
   public ForObjectStatementTreeImpl(
-    InternalSyntaxToken forKeyword, InternalSyntaxToken openParenthesis, Tree variableOrExpression,
+    InternalSyntaxToken forKeyword, @Nullable SyntaxToken awaitToken, InternalSyntaxToken openParenthesis, Tree variableOrExpression,
     InternalSyntaxToken ofOrInKeyword, ExpressionTree expression, InternalSyntaxToken closeParenthesis, StatementTree statement
   ) {
     this.forKeyword = forKeyword;
+    this.awaitToken = awaitToken;
     this.openParenthesis = openParenthesis;
     this.variableOrExpression = variableOrExpression;
     this.ofOrInKeyword = ofOrInKeyword;
@@ -58,12 +61,17 @@ public class ForObjectStatementTreeImpl extends JavaScriptTree implements ForObj
     } else {
       this.kind = Kind.FOR_OF_STATEMENT;
     }
-
   }
 
   @Override
   public SyntaxToken forKeyword() {
     return forKeyword;
+  }
+
+  @Nullable
+  @Override
+  public SyntaxToken awaitToken() {
+    return awaitToken;
   }
 
   @Override
@@ -103,7 +111,7 @@ public class ForObjectStatementTreeImpl extends JavaScriptTree implements ForObj
 
   @Override
   public Iterator<Tree> childrenIterator() {
-    return Iterators.forArray(forKeyword, openParenthesis, variableOrExpression, ofOrInKeyword, expression, closeParenthesis, statement);
+    return Iterators.forArray(forKeyword, awaitToken, openParenthesis, variableOrExpression, ofOrInKeyword, expression, closeParenthesis, statement);
   }
 
   @Override

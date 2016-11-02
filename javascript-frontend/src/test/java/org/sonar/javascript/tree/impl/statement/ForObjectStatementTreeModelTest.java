@@ -36,6 +36,7 @@ public class ForObjectStatementTreeModelTest extends JavaScriptTreeModelTest {
 
     assertThat(tree.is(Kind.FOR_IN_STATEMENT)).isTrue();
     assertThat(tree.forKeyword().text()).isEqualTo(JavaScriptKeyword.FOR.getValue());
+    assertThat(tree.awaitToken()).isNull();
     assertThat(tree.openParenthesis().text()).isEqualTo(JavaScriptPunctuator.LPARENTHESIS.getValue());
     assertThat(tree.ofOrInKeyword().text()).isEqualTo(JavaScriptKeyword.IN.getValue());
     assertThat(tree.expression()).isNotNull();
@@ -49,6 +50,21 @@ public class ForObjectStatementTreeModelTest extends JavaScriptTreeModelTest {
 
     assertThat(tree.is(Kind.FOR_OF_STATEMENT)).isTrue();
     assertThat(tree.forKeyword().text()).isEqualTo("for");
+    assertThat(tree.awaitToken()).isNull();
+    assertThat(tree.openParenthesis().text()).isEqualTo("(");
+    assertThat(tree.ofOrInKeyword().text()).isEqualTo("of");
+    assertThat(expressionToString(tree.expression())).isEqualTo("expression");
+    assertThat(tree.closeParenthesis().text()).isEqualTo(")");
+    assertThat(tree.statement().is(Kind.BLOCK)).isTrue();
+  }
+
+  @Test
+  public void for_await() throws Exception {
+    ForObjectStatementTree tree = parse("for await ( var a of expression ) { }", Kind.FOR_OF_STATEMENT);
+
+    assertThat(tree.is(Kind.FOR_OF_STATEMENT)).isTrue();
+    assertThat(tree.forKeyword().text()).isEqualTo("for");
+    assertThat(tree.awaitToken().text()).isEqualTo("await");
     assertThat(tree.openParenthesis().text()).isEqualTo("(");
     assertThat(tree.ofOrInKeyword().text()).isEqualTo("of");
     assertThat(expressionToString(tree.expression())).isEqualTo("expression");
