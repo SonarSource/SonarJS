@@ -43,7 +43,6 @@ public class ComparisonReturningFalseCheck extends SeCheck {
   @Override
   public void startOfExecution(Scope functionScope) {
     operandsWithIssues.clear();
-    super.startOfExecution(functionScope);
   }
 
   @Override
@@ -62,38 +61,36 @@ public class ComparisonReturningFalseCheck extends SeCheck {
     Constraint leftConstraint = state.getConstraint(state.peekStack(1));
     Constraint rightConstraint = state.getConstraint(state.peekStack(0));
 
-    boolean leftIsObject = leftConstraint.isStricterOrEqualTo(Constraint.OBJECT); 
-    boolean rightIsObject = rightConstraint.isStricterOrEqualTo(Constraint.OBJECT); 
-
     boolean leftIsUndefined = leftConstraint.isStricterOrEqualTo(Constraint.UNDEFINED); 
     boolean rightIsUndefined = rightConstraint.isStricterOrEqualTo(Constraint.UNDEFINED); 
 
-    if (leftIsObject || rightIsObject) {
-      if (!isSameObjectComparison(state, element) && !isTwoDates(leftConstraint, rightConstraint)) {
-        raiseIssue(element, leftIsObject, rightIsObject);
-      }
+    if (checkConvertibleToNumber(leftConstraint, rightConstraint)) {
+      raiseIssue(element, true, false);
+    } else if (checkConvertibleToNumber(rightConstraint, leftConstraint)) {
+      raiseIssue(element, false, true);
     } else if (leftIsUndefined || rightIsUndefined) {
       raiseIssue(element, leftIsUndefined, rightIsUndefined);
     }
   }
-
-  /**
-   * Returns true iff the expression is either <code>obj <= obj</code> or <code>obj >= obj</code>
-   * (same object on the left and on the right).
-   */
-  private static boolean isSameObjectComparison(ProgramState state, BinaryExpressionTree element) {
-    return element.is(Tree.Kind.LESS_THAN_OR_EQUAL_TO, Tree.Kind.GREATER_THAN_OR_EQUAL_TO)
-      && state.peekStack(0).equals(state.peekStack(1));
+  
+  private static boolean checkConvertibleToNumber(Constraint one, Constraint two) {
+    return isObjectButNotConvertibleToNumber(one) && isConvertibleToNumber(two);
   }
-
-  /**
-   * Returns true iff the left operand and the right operand are both a Date.
-   */
-  private static boolean isTwoDates(Constraint leftConstraint, Constraint rightConstraint) {
-    return leftConstraint.isStricterOrEqualTo(Constraint.DATE)
-        && rightConstraint.isStricterOrEqualTo(Constraint.DATE);
+  
+  private static boolean isObjectButNotConvertibleToNumber(Constraint c) {
+    return c.isStricterOrEqualTo(Constraint.OBJECT) 
+       && !c.isStricterOrEqualTo(Constraint.BOOLEAN_OBJECT)
+       && !c.isStricterOrEqualTo(Constraint.NUMBER_OBJECT)
+       && !c.isStricterOrEqualTo(Constraint.DATE);
   }
-
+  
+  private static boolean isConvertibleToNumber(Constraint c) {
+    return c.isStricterOrEqualTo(Constraint.ANY_BOOLEAN) 
+        || c.isStricterOrEqualTo(Constraint.ANY_NUMBER) 
+        || c.isStricterOrEqualTo(Constraint.DATE)
+        || c.isStricterOrEqualTo(Constraint.NULL);
+  }
+  
   private void raiseIssue(BinaryExpressionTree comparison, boolean raiseIssueForLeft, boolean raiseIssueForRight) {
     if (raiseIssueForLeft) {
       raiseIssue(comparison.leftOperand());

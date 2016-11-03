@@ -1,97 +1,82 @@
-  
 function testObject() {
   var obj = new Object();
   var obj2 = new Object();
   var date = new Date();
-  var nul = null;
-  var undef;
-  var symb = Symbol();
+  var num = new Number();
+  var bool = new Boolean();
+  var unknown = foo();
 
   // 1. compare an object with the other types
   obj > 0;                     // Noncompliant {{Change this value so that the comparison does not consistently evaluate to "false".}}
-//^^^
-  obj > "hello";               // Noncompliant
 //^^^
   obj > true;                  // Noncompliant
 //^^^
   obj > false;                 // Noncompliant
 //^^^
-  obj >= symb;                 // Noncompliant
-//^^^
-// Noncompliant@+1
   obj >= date;                 // Noncompliant
-//       ^^^^
-  obj >= nul;                  // Noncompliant
 //^^^
-  obj >= undef;                // Noncompliant
+  obj >= null;                 // Noncompliant
 //^^^
-// Noncompliant@+1
-  obj > obj2;                  // Noncompliant
-  
+  obj >= undefined;            // Noncompliant
+//       ^^^^^^^^^
+  obj >= num;                  // Noncompliant
+//^^^
+  obj >= bool;                 // Noncompliant
+//^^^
+  obj > "hello";               // OK
+  obj >= unknown;              // OK
+  obj > obj2;                  // OK
+
   // 2. same as 1., but swapping left-hand side and right-hand side
   0 <= obj;                    // Noncompliant
 //     ^^^
-  "hello" <= obj;              // Noncompliant
   true <= obj;                 // Noncompliant
-  symb < obj;                  // Noncompliant
-// Noncompliant@+1
   date < obj;                  // Noncompliant
-  nul < obj;                   // Noncompliant
-  undef < obj;                 // Noncompliant
-  
-  // 3. compare an object with itself
-  var objAlias = obj;
-// Noncompliant@+1
-  obj > obj;                   // Noncompliant
-  obj >= obj;                  // OK (returns true, actually)
-// Noncompliant@+1
-  objAlias < obj;              // Noncompliant
-  objAlias <= obj;             // OK (returns true, actually)
-  
-  // 4. other cases
-// Noncompliant@+1
-  if (obj < function(){}){}    // Noncompliant
+  null < obj;                  // Noncompliant
+  undefined < obj;             // Noncompliant
+  num < obj;                   // Noncompliant
+  bool < obj;                  // Noncompliant
+  "hello" <= obj;              // OK
+  unknown < obj;               // OK
+
+  // 3. other cases
   if (1 < function(){}){}      // Noncompliant
-//        ^^^^^^^^^^^^
-// Noncompliant@+1
-  var x = (obj >= obj2);       // Noncompliant
-//                ^^^^
 }
 
 function testUndefined() {
-  var undef;
-  var nul = null;
-
-  undef > 0;                   // Noncompliant
-//^^^^^
-  undef >= "hello";            // Noncompliant
+  undefined > 0;               // Noncompliant
+//^^^^^^^^^
+  undefined >= "hello";        // Noncompliant
 // Noncompliant@+1
-  undef <= undef;              // Noncompliant
-  nul < undef;                 // Noncompliant
+  undefined <= undefined;      // Noncompliant
+  null < undefined;             // Noncompliant
 }
 
 function notTwoIssuesForSameOperand() {
   var obj = new Object();
-  for (var i = 0; i< 10; i++) {
+  for (var i = 0; i < 10; i++) {
     if (obj > 1) {}            // Noncompliant
   }
+
+  var undef;
+  for (var i = 0; i < 10; i++) {
+    if (undef > 1) {}          // Noncompliant
+  }
 }
-  
-function testDate() {
+
+function testTwoUnknowns() {
+  foo() < bar();               // OK
+}
+
+function testDates() {
   var date = new Date();
   var date2 = new Date();
 
   date > date2;                // OK
   date >= date2;               // OK
-  date < date2;                // OK
-  date <= date2;               // OK
 }
 
-function testStuffNotCoveredByThisCheck() {
-  var nul = null;
-  var tru = true;
-
+function testGeneralNonRegression() {
   1 < 2;                       // OK
-  nul > "hello";               // OK
-  tru <= Symbol();             // OK
+  null > "hello";              // OK
 }
