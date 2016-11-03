@@ -1,0 +1,24 @@
+<p>There are several reasons for a function not to have a function body:</p>
+<ul>
+  <li> It is an unintentional omission, and should be fixed to prevent an unexpected behavior in production. </li>
+  <li> It is not yet, or never will be, supported. In this case an exception should be thrown in languages where that mechanism is available. </li>
+  <li> The method is an intentionally-blank override. In this case a nested comment should explain the reason for the blank override. </li>
+</ul>
+<h2>Noncompliant Code Example</h2>
+<pre>
+function foo() {
+}
+
+var foo = () =&gt; {};
+</pre>
+<h2>Compliant Solution</h2>
+<pre>
+function foo() {
+    // This is intentional
+}
+
+var foo = () =&gt; {
+    do_something();
+};
+</pre>
+
