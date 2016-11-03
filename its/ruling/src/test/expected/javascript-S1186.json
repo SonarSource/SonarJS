@@ -708,11 +708,15 @@
 17891,
 18068,
 ],
+'project:ecmascript6/di.js/example/kitchen-di/skillet.js':[
+3,
+],
 'project:ecmascript6/di.js/example/node/test/mock_engine.js':[
 4,
 ],
 'project:ecmascript6/di.js/test/fixtures/car.js':[
 10,
+18,
 ],
 'project:ecmascript6/di.js/visualize/injectors/app.js':[
 517,
@@ -753,6 +757,7 @@
 235,
 ],
 'project:ecmascript6/http/test/mocks/Xhr.js':[
+50,
 101,
 ],
 'project:ecmascript6/react-router/examples/auth-flow/auth.js':[

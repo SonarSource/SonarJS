@@ -2,7 +2,7 @@ function f() {
   foo();
 }
 
-function f() { } // Noncompliant
+function f() { } // Noncompliant {{Add a nested comment explaining why this function is empty or complete the implementation.}}
 //       ^
 
 function f() {
@@ -19,7 +19,7 @@ function* f() { } // Noncompliant
 
 class class1 {
   
-  constructor() { } // ok
+  constructor() { }  // Noncompliant
   
   f() { foo(); }
   f() { } // Noncompliant
@@ -32,6 +32,7 @@ class class1 {
   
   ["foo" + "bar"]() { foo(); }
   ["foo" + "bar"]() {} // Noncompliant
+//^^^^^^^^^^^^^^^
   
 }
 
@@ -40,3 +41,6 @@ let empty = () => { foo(); };
 let empty = () => {}; // Noncompliant
 //                ^^
 
+function test_nested() {
+  var foo = function() {} // Noncompliant
+}

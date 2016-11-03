@@ -21,13 +21,11 @@ package org.sonar.javascript.checks;
 
 import org.sonar.check.Rule;
 import org.sonar.plugins.javascript.api.tree.Tree;
-import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.declaration.FunctionDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.declaration.FunctionTree;
 import org.sonar.plugins.javascript.api.tree.declaration.MethodDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.expression.ArrowFunctionTree;
 import org.sonar.plugins.javascript.api.tree.expression.FunctionExpressionTree;
-import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 import org.sonar.plugins.javascript.api.tree.statement.BlockTree;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitorCheck;
 
@@ -50,20 +48,8 @@ public class EmptyFunctionCheck extends DoubleDispatchVisitorCheck {
 
   @Override
   public void visitMethodDeclaration(MethodDeclarationTree tree) {
-    if (!isConstructorName(tree.name())) {
-      checkFunction(tree, tree.name());
-    }
+    checkFunction(tree, tree.name());
     super.visitMethodDeclaration(tree);
-  }
-
-  private static boolean isConstructorName(Tree nameTree) {
-    if (nameTree.is(Kind.IDENTIFIER_NAME)) {
-      IdentifierTree nameIdentifier = (IdentifierTree) nameTree;
-      if ("constructor".equals(nameIdentifier.name())) {
-        return true;
-      }
-    }
-    return false;
   }
 
   @Override
