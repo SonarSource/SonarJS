@@ -513,11 +513,12 @@ public class TreeFactory {
   }
 
   public ForObjectStatementTreeImpl forOfStatement(
-    InternalSyntaxToken forToken, InternalSyntaxToken openParenthesis, Tree variableOrExpression, InternalSyntaxToken ofToken,
+    InternalSyntaxToken forToken, Optional<InternalSyntaxToken> awaitToken, InternalSyntaxToken openParenthesis, Tree variableOrExpression, InternalSyntaxToken ofToken,
     ExpressionTree expression, InternalSyntaxToken closeParenthesis, StatementTree statement
   ) {
     return new ForObjectStatementTreeImpl(
       forToken,
+      awaitToken.orNull(),
       openParenthesis,
       variableOrExpression,
       ofToken,
@@ -532,6 +533,7 @@ public class TreeFactory {
 
     return new ForObjectStatementTreeImpl(
       forToken,
+      null,
       openParenthesis,
       variableOrExpression,
       inToken,

@@ -20,6 +20,7 @@
 package org.sonar.plugins.javascript.api.tree.statement;
 
 import com.google.common.annotations.Beta;
+import javax.annotation.Nullable;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
@@ -27,6 +28,7 @@ import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 /**
  * <pre>
  *   for ( {@link #variableOrExpression()} of {@link #expression()} {@link #statement()}
+ *   for await ( {@link #variableOrExpression()} of {@link #expression()} {@link #statement()}
  *   for ( {@link #variableOrExpression()} in {@link #expression()} {@link #statement()}
  * </pre>
  */
@@ -34,6 +36,9 @@ import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
 public interface ForObjectStatementTree extends IterationStatementTree {
 
   SyntaxToken forKeyword();
+
+  @Nullable
+  SyntaxToken awaitToken();
 
   SyntaxToken openParenthesis();
 

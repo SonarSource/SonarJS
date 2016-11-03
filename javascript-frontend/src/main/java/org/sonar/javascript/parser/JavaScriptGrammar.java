@@ -402,6 +402,7 @@ public class JavaScriptGrammar {
     return b.<ForObjectStatementTreeImpl>nonterminal(Kind.FOR_OF_STATEMENT)
       .is(f.forOfStatement(
         b.token(JavaScriptKeyword.FOR),
+        b.optional(b.token(JavaScriptKeyword.AWAIT)),
         b.token(JavaScriptPunctuator.LPARENTHESIS),
         b.firstOf(
           VARIABLE_DECLARATION(),
