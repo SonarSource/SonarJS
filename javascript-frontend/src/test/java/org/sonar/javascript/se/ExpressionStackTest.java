@@ -333,6 +333,20 @@ public class ExpressionStackTest {
   }
 
   @Test
+  public void plus_assignment() throws Exception {
+    Constraint numberOrString = Constraint.NUMBER.or(Constraint.STRING);
+
+    execute("x += a");
+    assertSingleValueInStackWithConstraint(numberOrString);
+
+    execute("x += 'str'");
+    assertSingleValueInStackWithConstraint(Constraint.STRING);
+
+    execute("x += 1");
+    assertSingleValueInStackWithConstraint(numberOrString);
+  }
+
+  @Test
   public void dot_member_access() throws Exception {
     execute("x = 'abc'.length");
     assertSingleValueInStackWithConstraint(Constraint.NUMBER);

@@ -196,7 +196,6 @@ public class ExpressionStack {
       case MULTIPLY_ASSIGNMENT:
       case DIVIDE_ASSIGNMENT:
       case REMAINDER_ASSIGNMENT:
-      case PLUS_ASSIGNMENT:
       case MINUS_ASSIGNMENT:
       case LEFT_SHIFT_ASSIGNMENT:
       case RIGHT_SHIFT_ASSIGNMENT:
@@ -228,6 +227,7 @@ public class ExpressionStack {
         SymbolicValue leftOperand = newStack.pop();
         newStack.push(RelationalSymbolicValue.create(kind, leftOperand, rightOperand));
         break;
+      case PLUS_ASSIGNMENT:
       case PLUS:
         newStack.push(new PlusSymbolicValue(newStack.pop(), newStack.pop()));
         break;
