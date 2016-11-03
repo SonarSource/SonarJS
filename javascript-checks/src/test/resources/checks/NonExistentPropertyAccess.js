@@ -51,3 +51,9 @@ function ignore_conditions() {
     s.foo(); // Noncompliant FP
   }
 }
+
+function primitive_wrappers(x) {
+  new String(x).foo; // Noncompliant
+  new Number(x).foo; // Noncompliant
+  new Boolean(x).foo; // Noncompliant
+}

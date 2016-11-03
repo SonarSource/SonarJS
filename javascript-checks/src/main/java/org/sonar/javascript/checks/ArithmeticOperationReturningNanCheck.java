@@ -42,10 +42,10 @@ public class ArithmeticOperationReturningNanCheck extends SeCheck {
 
   private static final String MESSAGE = "Change the expression which uses this operand so that it can't evaluate to \"NaN\" (Not a Number).";
 
-  private static final Constraint NUMBER_OR_BOOLEAN = Constraint.NUMBER.or(Constraint.BOOLEAN);
+  private static final Constraint NUMBER_OR_BOOLEAN = Constraint.ANY_NUMBER.or(Constraint.ANY_BOOLEAN);
   private static final Constraint NUMBER_OR_BOOLEAN_OR_UNDEFINED = NUMBER_OR_BOOLEAN.or(Constraint.UNDEFINED);
-  private static final Constraint NON_DATE_OBJECT = Constraint.OBJECT.and(Constraint.DATE.not());
-  private static final Constraint UNDEFINED_OR_NON_DATE_OBJECT = Constraint.UNDEFINED.or(NON_DATE_OBJECT);
+  private static final Constraint NUMBER_LIKE_OBJECT = Constraint.NUMBER_OBJECT.or(Constraint.BOOLEAN_OBJECT).or(Constraint.DATE);
+  private static final Constraint UNDEFINED_OR_NON_NUMBER_OBJECT = Constraint.UNDEFINED.or(Constraint.OBJECT.and(NUMBER_LIKE_OBJECT.not()));
 
   private final BinaryOperationChecker plusChecker = new PlusChecker();
   private final BinaryOperationChecker otherBinaryOperationChecker = new OtherBinaryOperationChecker();
@@ -86,7 +86,7 @@ public class ArithmeticOperationReturningNanCheck extends SeCheck {
       Kind.PREFIX_DECREMENT)) {
 
       Constraint constraint = currentState.getConstraint(currentState.peekStack(0));
-      if (constraint.isStricterOrEqualTo(UNDEFINED_OR_NON_DATE_OBJECT)) {
+      if (constraint.isStricterOrEqualTo(UNDEFINED_OR_NON_NUMBER_OBJECT)) {
         UnaryExpressionTree unaryExpression = (UnaryExpressionTree) element;
         raiseIssue(unaryExpression.expression(), unaryExpression.operator());
       }
@@ -157,9 +157,9 @@ public class ArithmeticOperationReturningNanCheck extends SeCheck {
   private class OtherBinaryOperationChecker implements BinaryOperationChecker {
     @Override
     public void check(Constraint leftConstraint, Constraint rightConstraint, Tree leftOperand, Tree rightOperand, Tree operator) {
-      if (leftConstraint.isStricterOrEqualTo(UNDEFINED_OR_NON_DATE_OBJECT)) {
+      if (leftConstraint.isStricterOrEqualTo(UNDEFINED_OR_NON_NUMBER_OBJECT)) {
         raiseIssue(leftOperand, operator, rightOperand);
-      } else if (rightConstraint.isStricterOrEqualTo(UNDEFINED_OR_NON_DATE_OBJECT)) {
+      } else if (rightConstraint.isStricterOrEqualTo(UNDEFINED_OR_NON_NUMBER_OBJECT)) {
         raiseIssue(rightOperand, operator, leftOperand);
       }
     }

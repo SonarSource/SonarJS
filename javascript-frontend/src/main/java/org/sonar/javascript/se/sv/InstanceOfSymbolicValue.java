@@ -33,7 +33,7 @@ import org.sonar.javascript.se.builtins.BuiltInObjectSymbolicValue;
  */
 public class InstanceOfSymbolicValue implements SymbolicValue {
 
-  private static final Constraint PRIMITIVE = Constraint.NUMBER.or(Constraint.BOOLEAN).or(Constraint.STRING);
+  private static final Constraint PRIMITIVE = Constraint.NUMBER_PRIMITIVE.or(Constraint.BOOLEAN_PRIMITIVE).or(Constraint.STRING_PRIMITIVE);
 
   private final SymbolicValue objectValue;
   private final SymbolicValue constructorValue;
@@ -77,13 +77,13 @@ public class InstanceOfSymbolicValue implements SymbolicValue {
       return resolveConstraint(objectType, constructorType);
     }
 
-    return Constraint.BOOLEAN;
+    return Constraint.BOOLEAN_PRIMITIVE;
   }
 
   private static Constraint resolveConstraint(Type objectType, Type constructorType) {
     Type currentType = objectType;
     if (objectType == Type.OBJECT) {
-      return Constraint.BOOLEAN;
+      return Constraint.BOOLEAN_PRIMITIVE;
     }
 
     while (currentType != null) {

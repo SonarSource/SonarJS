@@ -66,10 +66,10 @@ public class LiteralSymbolicValue implements SymbolicValue {
       result = "true".equals(literal.value()) ? Constraint.TRUE : Constraint.FALSE;
     }
     if (literal.is(Kind.STRING_LITERAL)) {
-      result = literal.value().length() > 2 ? Constraint.TRUTHY_STRING : Constraint.EMPTY_STRING;
+      result = literal.value().length() > 2 ? Constraint.TRUTHY_STRING_PRIMITIVE : Constraint.EMPTY_STRING_PRIMITIVE;
     }
     if (literal.is(Kind.NUMERIC_LITERAL)) {
-      result = isTruthyNumeric(literal) ? Constraint.TRUTHY_NUMBER : Constraint.ZERO;
+      result = isTruthyNumeric(literal) ? Constraint.TRUTHY_NUMBER_PRIMITIVE : Constraint.ZERO;
     }
 
     if (result != null) {

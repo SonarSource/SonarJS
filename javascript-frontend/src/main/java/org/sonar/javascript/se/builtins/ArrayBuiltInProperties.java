@@ -34,24 +34,24 @@ public class ArrayBuiltInProperties extends BuiltInProperties {
     return ImmutableMap.<String, SymbolicValue>builder()
       .put("copyWithin", method(Constraint.ARRAY))
       .put("fill", method(Constraint.ARRAY))
-      .put("push", method(Constraint.NUMBER))
+      .put("push", method(Constraint.NUMBER_PRIMITIVE))
       .put("reverse", method(Constraint.ARRAY))
       .put("sort", method(Constraint.ARRAY))
       .put("splice", method(Constraint.ARRAY))
-      .put("unshift", method(Constraint.NUMBER))
+      .put("unshift", method(Constraint.NUMBER_PRIMITIVE))
       .put("concat", method(Constraint.ARRAY))
-      .put("includes", method(Constraint.BOOLEAN))
-      .put("join", method(Constraint.STRING))
+      .put("includes", method(Constraint.BOOLEAN_PRIMITIVE))
+      .put("join", method(Constraint.STRING_PRIMITIVE))
       .put("slice", method(Constraint.ARRAY))
-      .put("indexOf", method(Constraint.NUMBER))
-      .put("lastIndexOf", method(Constraint.NUMBER))
+      .put("indexOf", method(Constraint.NUMBER_PRIMITIVE))
+      .put("lastIndexOf", method(Constraint.NUMBER_PRIMITIVE))
 
       .put("forEach", method(UNDEFINED))
       .put("entries", method(Constraint.OTHER_OBJECT))
-      .put("every", method(Constraint.BOOLEAN))
-      .put("some", method(Constraint.BOOLEAN))
+      .put("every", method(Constraint.BOOLEAN_PRIMITIVE))
+      .put("some", method(Constraint.BOOLEAN_PRIMITIVE))
       .put("filter", method(Constraint.ARRAY))
-      .put("findIndex", method(Constraint.NUMBER))
+      .put("findIndex", method(Constraint.NUMBER_PRIMITIVE))
       .put("keys", method(Constraint.OTHER_OBJECT))
       .put("map", method(Constraint.ARRAY))
       .put("values", method(Constraint.OTHER_OBJECT))
@@ -63,15 +63,15 @@ public class ArrayBuiltInProperties extends BuiltInProperties {
       .put("reduceRight", method(ANY_VALUE))
 
       // overrides Object
-      .put("toString", method(Constraint.STRING))
-      .put("toLocaleString", method(Constraint.STRING))
+      .put("toString", method(Constraint.STRING_PRIMITIVE))
+      .put("toLocaleString", method(Constraint.STRING_PRIMITIVE))
       .build();
   }
 
   @Override
   Map<String, Constraint> getPropertiesConstraints() {
     return ImmutableMap.of(
-      "length", Constraint.NUMBER
+      "length", Constraint.NUMBER_PRIMITIVE
     );
   }
 
@@ -84,7 +84,7 @@ public class ArrayBuiltInProperties extends BuiltInProperties {
   Map<String, SymbolicValue> getOwnMethods() {
     return ImmutableMap.<String, SymbolicValue>builder()
       .put("from", method(Constraint.ARRAY))
-      .put("isArray", method(Constraint.BOOLEAN))
+      .put("isArray", method(Constraint.BOOLEAN_PRIMITIVE))
       .put("of", method(Constraint.ARRAY))
       .build();
   }

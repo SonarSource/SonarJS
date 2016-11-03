@@ -26,12 +26,17 @@ import org.sonar.javascript.se.sv.SymbolicValue;
 
 public class BooleanBuiltInProperties extends BuiltInProperties {
 
+  public static final BooleanBuiltInProperties INSTANCE = new BooleanBuiltInProperties();
+
+  private BooleanBuiltInProperties() {
+  }
+
   @Override
   Map<String, SymbolicValue> getMethods() {
     return ImmutableMap.<String, SymbolicValue>builder()
       // overrides Object
-      .put("toString", method(Constraint.STRING))
-      .put("valueOf", method(Constraint.BOOLEAN))
+      .put("toString", method(Constraint.STRING_PRIMITIVE))
+      .put("valueOf", method(Constraint.BOOLEAN_PRIMITIVE))
 
       .build();
   }

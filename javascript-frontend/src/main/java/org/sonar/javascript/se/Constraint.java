@@ -66,26 +66,32 @@ public class Constraint {
   public static final Constraint NULL = new Constraint(ValueSubSet.NULL);
   public static final Constraint UNDEFINED = new Constraint(ValueSubSet.UNDEFINED);
   public static final Constraint ZERO = new Constraint(ValueSubSet.ZERO);
-  public static final Constraint EMPTY_STRING = new Constraint(ValueSubSet.EMPTY_STRING);
+  public static final Constraint EMPTY_STRING_PRIMITIVE = new Constraint(ValueSubSet.EMPTY_STRING);
   public static final Constraint NAN = new Constraint(ValueSubSet.NAN);
   public static final Constraint FALSE = new Constraint(ValueSubSet.FALSE);
   public static final Constraint TRUE = new Constraint(ValueSubSet.TRUE);
   public static final Constraint FUNCTION = new Constraint(ValueSubSet.FUNCTION);
-  public static final Constraint TRUTHY_NUMBER = new Constraint(ValueSubSet.TRUTHY_NUMBER);
-  public static final Constraint TRUTHY_STRING = new Constraint(ValueSubSet.TRUTHY_STRING);
+  public static final Constraint TRUTHY_NUMBER_PRIMITIVE = new Constraint(ValueSubSet.TRUTHY_NUMBER);
+  public static final Constraint TRUTHY_STRING_PRIMITIVE = new Constraint(ValueSubSet.TRUTHY_STRING);
   public static final Constraint ARRAY = new Constraint(ValueSubSet.ARRAY);
   public static final Constraint DATE = new Constraint(ValueSubSet.DATE);
   public static final Constraint REGEXP = new Constraint(ValueSubSet.REGEXP);
+  public static final Constraint STRING_OBJECT = new Constraint(ValueSubSet.STRING_OBJECT);
+  public static final Constraint NUMBER_OBJECT = new Constraint(ValueSubSet.NUMBER_OBJECT);
+  public static final Constraint BOOLEAN_OBJECT = new Constraint(ValueSubSet.BOOLEAN_OBJECT);
   public static final Constraint OTHER_OBJECT = new Constraint(ValueSubSet.OTHER_OBJECT);
 
   public static final Constraint NULL_OR_UNDEFINED = NULL.or(UNDEFINED);
-  public static final Constraint KNOWN_OBJECTS = or(FUNCTION, ARRAY, DATE, REGEXP);
+  public static final Constraint KNOWN_OBJECTS = or(FUNCTION, ARRAY, DATE, REGEXP, STRING_OBJECT, NUMBER_OBJECT, BOOLEAN_OBJECT);
   public static final Constraint NOT_NULLY = NULL_OR_UNDEFINED.not();
-  public static final Constraint TRUTHY = or(TRUE, TRUTHY_NUMBER, TRUTHY_STRING, KNOWN_OBJECTS, OTHER_OBJECT);
+  public static final Constraint TRUTHY = or(TRUE, TRUTHY_NUMBER_PRIMITIVE, TRUTHY_STRING_PRIMITIVE, KNOWN_OBJECTS, OTHER_OBJECT);
   public static final Constraint FALSY = TRUTHY.not();
-  public static final Constraint NUMBER = or(ZERO, NAN, TRUTHY_NUMBER);
-  public static final Constraint STRING = or(EMPTY_STRING, TRUTHY_STRING);
-  public static final Constraint BOOLEAN = or(TRUE, FALSE);
+  public static final Constraint NUMBER_PRIMITIVE = or(ZERO, NAN, TRUTHY_NUMBER_PRIMITIVE);
+  public static final Constraint ANY_NUMBER = or(NUMBER_PRIMITIVE, NUMBER_OBJECT);
+  public static final Constraint STRING_PRIMITIVE = or(EMPTY_STRING_PRIMITIVE, TRUTHY_STRING_PRIMITIVE);
+  public static final Constraint ANY_STRING = or(STRING_PRIMITIVE, STRING_OBJECT);
+  public static final Constraint BOOLEAN_PRIMITIVE = or(TRUE, FALSE);
+  public static final Constraint ANY_BOOLEAN = or(BOOLEAN_PRIMITIVE, BOOLEAN_OBJECT);
   public static final Constraint OBJECT = or(KNOWN_OBJECTS, OTHER_OBJECT);
 
   private static final Map<Constraint, String> COMMON_CONSTRAINT_NAMES = ImmutableMap.<Constraint, String>builder()
@@ -110,6 +116,9 @@ public class Constraint {
     ARRAY,
     DATE,
     REGEXP,
+    STRING_OBJECT,
+    NUMBER_OBJECT,
+    BOOLEAN_OBJECT,
     OTHER_OBJECT;
 
     private int bitSet() {

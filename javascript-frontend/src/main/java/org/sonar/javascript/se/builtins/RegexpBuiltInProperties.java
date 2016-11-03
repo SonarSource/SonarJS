@@ -31,24 +31,24 @@ public class RegexpBuiltInProperties extends BuiltInProperties {
     return ImmutableMap.<String, SymbolicValue>builder()
       .put("compile", method(Constraint.UNDEFINED))
       .put("exec", method(Constraint.ARRAY.or(Constraint.NULL)))
-      .put("test", method(Constraint.BOOLEAN))
+      .put("test", method(Constraint.BOOLEAN_PRIMITIVE))
 
       // overrides Object
-      .put("toString", method(Constraint.STRING))
+      .put("toString", method(Constraint.STRING_PRIMITIVE))
       .build();
   }
 
   @Override
   Map<String, Constraint> getPropertiesConstraints() {
     return ImmutableMap.<String, Constraint>builder()
-      .put("lastIndex", Constraint.NUMBER)
-      .put("flags", constraintOnRecentProperty(Constraint.STRING))
-      .put("global", Constraint.BOOLEAN)
-      .put("ignoreCase", Constraint.BOOLEAN)
-      .put("multiline", Constraint.BOOLEAN)
-      .put("source", Constraint.STRING)
-      .put("sticky", constraintOnRecentProperty(Constraint.BOOLEAN))
-      .put("unicode", constraintOnRecentProperty(Constraint.BOOLEAN))
+      .put("lastIndex", Constraint.NUMBER_PRIMITIVE)
+      .put("flags", constraintOnRecentProperty(Constraint.STRING_PRIMITIVE))
+      .put("global", Constraint.BOOLEAN_PRIMITIVE)
+      .put("ignoreCase", Constraint.BOOLEAN_PRIMITIVE)
+      .put("multiline", Constraint.BOOLEAN_PRIMITIVE)
+      .put("source", Constraint.STRING_PRIMITIVE)
+      .put("sticky", constraintOnRecentProperty(Constraint.BOOLEAN_PRIMITIVE))
+      .put("unicode", constraintOnRecentProperty(Constraint.BOOLEAN_PRIMITIVE))
       .build();
   }
 

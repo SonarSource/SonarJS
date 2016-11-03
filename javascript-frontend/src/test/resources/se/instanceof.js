@@ -74,8 +74,38 @@ function main() {
 
   unknown = foo();
   if (unknown instanceof Number) {
-    foo(); // PS unknown=NUMBER
+    foo(); // PS unknown=NUMBER_OBJECT
   }
 
   makeLive(unknown);
+  
+  unknown = foo();
+  if (typeof unknown == "object") {
+    var flag = true;
+    if (unknown instanceof String) {
+      flag = false;
+    }
+    foo(); // PS flag=TRUE || flag=FALSE
+    makeLive(flag);
+  }
+
+  unknown = foo();
+  if (typeof unknown == "object") {
+    var flag = true;
+    if (unknown instanceof Number) {
+      flag = false;
+    }
+    foo(); // PS flag=TRUE || flag=FALSE
+    makeLive(flag);
+  }
+  
+  unknown = foo();
+  if (typeof unknown == "object") {
+    var flag = true;
+    if (unknown instanceof Boolean) {
+      flag = false;
+    }
+    foo(); // PS flag=TRUE || flag=FALSE
+    makeLive(flag);
+  }
 }

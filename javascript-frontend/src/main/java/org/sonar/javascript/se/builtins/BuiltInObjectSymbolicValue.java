@@ -28,9 +28,9 @@ import org.sonar.javascript.se.sv.SymbolicValueWithConstraint;
 
 public enum BuiltInObjectSymbolicValue implements FunctionSymbolicValue {
 
-  NUMBER("Number", Type.NUMBER),
-  BOOLEAN("Boolean", Type.BOOLEAN),
-  STRING("String", Type.STRING),
+  NUMBER("Number", Type.NUMBER_OBJECT),
+  BOOLEAN("Boolean", Type.BOOLEAN_OBJECT),
+  STRING("String", Type.STRING_OBJECT),
   FUNCTION("Function", Type.FUNCTION),
   DATE("Date", Type.DATE),
   REGEXP("RegExp", Type.REGEXP),
@@ -63,8 +63,12 @@ public enum BuiltInObjectSymbolicValue implements FunctionSymbolicValue {
 
   @Override
   public SymbolicValue call() {
-    if (this == DATE) {
-      return new SymbolicValueWithConstraint(Constraint.STRING);
+    if (this == DATE || this == STRING) {
+      return new SymbolicValueWithConstraint(Constraint.STRING_PRIMITIVE);
+    } else if (this == NUMBER) {
+      return new SymbolicValueWithConstraint(Constraint.NUMBER_PRIMITIVE);
+    } else if (this == BOOLEAN) {
+      return new SymbolicValueWithConstraint(Constraint.BOOLEAN_PRIMITIVE);
     } else {
       return new SymbolicValueWithConstraint(type.constraint());
     }

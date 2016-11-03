@@ -45,7 +45,7 @@ public class RelationalSymbolicValueTest {
 
   @Test
   public void constraint() {
-    assertThat(relationalValue.baseConstraint(ProgramState.emptyState())).isEqualTo(Constraint.BOOLEAN);
+    assertThat(relationalValue.baseConstraint(ProgramState.emptyState())).isEqualTo(Constraint.BOOLEAN_PRIMITIVE);
   }
 
   @Test
@@ -53,8 +53,8 @@ public class RelationalSymbolicValueTest {
     state = state
       .constrain(sv1, Constraint.TRUTHY).get()
       .constrain(sv2, Constraint.FALSY).get();
-    assertThat(RelationalSymbolicValue.create(Kind.EQUAL_TO, sv1, sv2).baseConstraint(state)).isEqualTo(Constraint.BOOLEAN);
-    assertThat(RelationalSymbolicValue.create(Kind.NOT_EQUAL_TO, sv1, sv2).baseConstraint(state)).isEqualTo(Constraint.BOOLEAN);
+    assertThat(RelationalSymbolicValue.create(Kind.EQUAL_TO, sv1, sv2).baseConstraint(state)).isEqualTo(Constraint.BOOLEAN_PRIMITIVE);
+    assertThat(RelationalSymbolicValue.create(Kind.NOT_EQUAL_TO, sv1, sv2).baseConstraint(state)).isEqualTo(Constraint.BOOLEAN_PRIMITIVE);
     assertThat(RelationalSymbolicValue.create(Kind.STRICT_EQUAL_TO, sv1, sv2).baseConstraint(state)).isEqualTo(Constraint.FALSE);
     assertThat(RelationalSymbolicValue.create(Kind.STRICT_NOT_EQUAL_TO, sv1, sv2).baseConstraint(state)).isEqualTo(Constraint.TRUE);
   }
@@ -66,7 +66,7 @@ public class RelationalSymbolicValueTest {
 
   @Test
   public void constrain_to_non_boolean_constraint() {
-    assertThat(relationalValue.constrainDependencies(state, Constraint.STRING.not()).get()).isEqualTo(state);
+    assertThat(relationalValue.constrainDependencies(state, Constraint.STRING_PRIMITIVE.not()).get()).isEqualTo(state);
   }
 
   @Test

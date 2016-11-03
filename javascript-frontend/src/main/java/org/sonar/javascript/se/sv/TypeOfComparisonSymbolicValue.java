@@ -45,9 +45,9 @@ public class TypeOfComparisonSymbolicValue implements SymbolicValue {
     .put("undefined", Constraint.UNDEFINED)
     .put("function", Constraint.FUNCTION)
     .put("object", Constraint.OBJECT.and(Constraint.FUNCTION.not()).or(Constraint.NULL))
-    .put("number", Constraint.NUMBER)
-    .put("string", Constraint.STRING)
-    .put("boolean", Constraint.BOOLEAN)
+    .put("number", Constraint.NUMBER_PRIMITIVE)
+    .put("string", Constraint.STRING_PRIMITIVE)
+    .put("boolean", Constraint.BOOLEAN_PRIMITIVE)
     .put("symbol", Constraint.OTHER_OBJECT)
     // on IE, operator typeof returns either one of the standard values above, or "date", or "unknown"
     .put("date", Constraint.ANY_VALUE)
@@ -99,7 +99,7 @@ public class TypeOfComparisonSymbolicValue implements SymbolicValue {
 
   @Override
   public Constraint baseConstraint(ProgramState state) {
-    return Constraint.BOOLEAN;
+    return Constraint.BOOLEAN_PRIMITIVE;
   }
 
   @Override

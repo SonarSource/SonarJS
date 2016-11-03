@@ -66,10 +66,10 @@ public class StringConcatenatedWithNonStringCheck extends AbstractAllPathSeCheck
 
     if (leftType != null && rightType != null) {
 
-      if (leftType == Type.STRING && rightType != Type.STRING) {
+      if (leftConstraint.isStricterOrEqualTo(Constraint.ANY_STRING) && !rightConstraint.isStricterOrEqualTo(Constraint.ANY_STRING)) {
         return leftOperand;
 
-      } else if (leftType != Type.STRING && rightType == Type.STRING) {
+      } else if (!leftConstraint.isStricterOrEqualTo(Constraint.ANY_STRING) && rightConstraint.isStricterOrEqualTo(Constraint.ANY_STRING)) {
         return rightOperand;
       }
     }
