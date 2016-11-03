@@ -111,6 +111,7 @@ public final class CheckList {
       IncrementDecrementInSubExpressionCheck.class,
       IndexOfCompareToPositiveNumberCheck.class,
       JQueryVarNameConventionCheck.class,
+      JumpStatementInFinallyCheck.class,
       LabelledStatementCheck.class,
       LabelPlacementCheck.class,
       LineLengthCheck.class,
