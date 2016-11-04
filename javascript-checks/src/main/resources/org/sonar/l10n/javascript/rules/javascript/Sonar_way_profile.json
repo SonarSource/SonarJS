@@ -88,6 +88,7 @@
     "S3699",
     "S3735",
     "S3757",
+    "S3758",
     "S3759",
     "SwitchWithoutDefault",
     "TooManyBreakOrContinueInLoop",

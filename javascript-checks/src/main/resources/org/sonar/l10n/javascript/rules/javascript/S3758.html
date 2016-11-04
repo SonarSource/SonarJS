@@ -1,0 +1,15 @@
+<p>Using a comparison operator <code>&gt;, &lt;, &gt;=, &lt;=</code> will <strong>always</strong> result in <code>false</code> value in the cases
+below.</p>
+<p>1. At least one of the two operands is <code>undefined</code>.</p>
+<p>2. One operand is convertible to a number and the other operand is an <code>Object</code> which is not convertible to a number.</p>
+<p>Note that this implies that that a <code>Date</code> can be compared with a <code>Boolean</code> or a <code>Number</code> or another
+<code>Date</code> or <code>null</code>.</p>
+<h2>Noncompliant Code Example</h2>
+<pre>
+x = undefined;
+if (y &gt; x) {}  //Non-compliant [BUG] &gt; condition is false whatever is the "y" value
+
+obj = new Object();
+if (obj &gt; 34) {}  //Non-compliant
+</pre>
+
