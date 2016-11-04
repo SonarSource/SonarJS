@@ -34,6 +34,7 @@ import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 public class ComparisonReturningFalseCheck extends SeCheck {
 
   private static final String MESSAGE = "Change this value so that the comparison does not consistently evaluate to \"false\".";
+  private static final Constraint CONVERTIBLE_TO_NUMBER = Constraint.ANY_NUMBER.or(Constraint.ANY_BOOLEAN).or(Constraint.DATE).or(Constraint.NULL);
 
   /**
    * The operands for which an issue has already been raised.
@@ -64,20 +65,21 @@ public class ComparisonReturningFalseCheck extends SeCheck {
     boolean leftIsUndefined = leftConstraint.isStricterOrEqualTo(Constraint.UNDEFINED); 
     boolean rightIsUndefined = rightConstraint.isStricterOrEqualTo(Constraint.UNDEFINED); 
 
-    if (checkConvertibleToNumber(leftConstraint, rightConstraint)) {
+    if (checkObjectIsComparedNumerically(leftConstraint, rightConstraint)) {
       raiseIssue(element, true, false);
-    } else if (checkConvertibleToNumber(rightConstraint, leftConstraint)) {
+    } else if (checkObjectIsComparedNumerically(rightConstraint, leftConstraint)) {
       raiseIssue(element, false, true);
     } else if (leftIsUndefined || rightIsUndefined) {
       raiseIssue(element, leftIsUndefined, rightIsUndefined);
     }
   }
   
-  private static boolean checkConvertibleToNumber(Constraint one, Constraint two) {
-    return isObjectButNotConvertibleToNumber(one) && isConvertibleToNumber(two);
+  private static boolean checkObjectIsComparedNumerically(Constraint constraint1, Constraint constraint2) {
+    return isObjectNotConvertibleToNumber(constraint1)
+      && isConvertibleToNumber(constraint2);
   }
   
-  private static boolean isObjectButNotConvertibleToNumber(Constraint c) {
+  private static boolean isObjectNotConvertibleToNumber(Constraint c) {
     return c.isStricterOrEqualTo(Constraint.OBJECT) 
        && !c.isStricterOrEqualTo(Constraint.BOOLEAN_OBJECT)
        && !c.isStricterOrEqualTo(Constraint.NUMBER_OBJECT)
@@ -85,10 +87,7 @@ public class ComparisonReturningFalseCheck extends SeCheck {
   }
   
   private static boolean isConvertibleToNumber(Constraint c) {
-    return c.isStricterOrEqualTo(Constraint.ANY_BOOLEAN) 
-        || c.isStricterOrEqualTo(Constraint.ANY_NUMBER) 
-        || c.isStricterOrEqualTo(Constraint.DATE)
-        || c.isStricterOrEqualTo(Constraint.NULL);
+    return c.isStricterOrEqualTo(CONVERTIBLE_TO_NUMBER);
   }
   
   private void raiseIssue(BinaryExpressionTree comparison, boolean raiseIssueForLeft, boolean raiseIssueForRight) {

@@ -50,6 +50,8 @@ function testUndefined() {
 // Noncompliant@+1
   undefined <= undefined;      // Noncompliant
   null < undefined;             // Noncompliant
+  undefined > unknown();         // Noncompliant
+//^^^^^^^^^
 }
 
 function notTwoIssuesForSameOperand() {
