@@ -1,5 +1,5 @@
 {
-  "title": "The names of model properties should not contains spaces",
+  "title": "The names of model properties should not contain spaces",
   "type": "BUG",
   "status": "ready",
   "remediation": {
