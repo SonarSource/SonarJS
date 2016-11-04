@@ -56,6 +56,11 @@ var arr = [
   "Smith",                                  // OK
 ];
 
+var arr = [
+  "joe",,
+  "Smith"                                 // Noncompliant
+];
+
 
 // 3. ARGUMENTS
 
@@ -63,7 +68,7 @@ function foo (a, b, c) {}                   // OK
 
 function foo (a, b,
   c) {}                                     // OK
-  
+
 function foo (a, b,
   c                                         // Noncompliant
 ) {}
@@ -82,3 +87,7 @@ x = foo(a, b,
 
 x = foo(a, b,
  c,);                                       // OK
+
+x = foo(a, b,
+ c                                       // Noncompliant
+);
