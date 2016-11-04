@@ -1,0 +1,32 @@
+<p>Using <code>return</code>, <code>break</code>, <code>throw</code>, and <code>continue</code> from a <code>finally</code> block overwrites similar
+statements from the suspended <code>try</code> and <code>catch</code> blocks.</p>
+<p>This rule raises an issue when a jump statement (<code>break</code>, <code>continue</code>, <code>return</code> and <code>throw</code>) would force
+control flow to leave a <code>finally</code> block. </p>
+<h2>Noncompliant Code Example</h2>
+<pre>
+function foo() {
+    try {
+        return 1; // We expect 1 to be returned
+    } catch(err) {
+        return 2; // Or 2 in cases of error
+    } finally {
+        return 3; // Noncompliant: 3 is returned before 1, or 2, which we did not expect
+    }
+}
+</pre>
+<h2>Compliant Solution</h2>
+<pre>
+function foo() {
+    try {
+        return 1; // We expect 1 to be returned
+    } catch(err) {
+        return 2; // Or 2 in cases of error
+    }
+}
+</pre>
+<h2>See</h2>
+<ul>
+  <li> <a href="http://cwe.mitre.org/data/definitions/584.html">MITRE, CWE-584</a> - Return Inside Finally Block </li>
+  <li> <a href="https://www.securecoding.cert.org/confluence/x/mIEbAQ">CERT, ERR04-J.</a> - Do not complete abruptly from a finally block </li>
+</ul>
+
