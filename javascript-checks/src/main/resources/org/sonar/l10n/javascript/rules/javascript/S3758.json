@@ -1,0 +1,13 @@
+{
+  "title": "Comparison expressions should not always evaluate to \"false\"",
+  "type": "BUG",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "10min"
+  },
+  "tags": [
+    
+  ],
+  "defaultSeverity": "Major"
+}
