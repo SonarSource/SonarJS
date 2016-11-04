@@ -62,32 +62,20 @@ var arr = [
 ];
 
 
-// 3. ARGUMENTS
+// 3. ARGUMENTS, NOT COVERED BY THE RULE
 
-function foo (a, b, c) {}                   // OK
+function foo (a, b, c,) {}                   // OK
 
-function foo (a, b,
-  c) {}                                     // OK
-
-function foo (a, b,
-  c                                         // Noncompliant
+function foo (
+  a,
+  b,
+  c                                         // OK
 ) {}
-
-function foo (a, b,
-  c,                                        // OK
-) {}
-
-function foo (a, b,
-  c,){}                                     // OK
 
 x = foo(a, b, c);                           // OK
 
-x = foo(a, b,
- c);                                        // OK
-
-x = foo(a, b,
- c,);                                       // OK
-
-x = foo(a, b,
- c                                       // Noncompliant
+x = foo(
+ a,
+ b,
+ c
 );

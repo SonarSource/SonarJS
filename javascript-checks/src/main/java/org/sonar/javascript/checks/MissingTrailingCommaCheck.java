@@ -24,7 +24,6 @@ import org.sonar.check.Rule;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.javascript.tree.impl.SeparatedList;
 import org.sonar.plugins.javascript.api.tree.Tree;
-import org.sonar.plugins.javascript.api.tree.declaration.ParameterListTree;
 import org.sonar.plugins.javascript.api.tree.expression.ArrayLiteralTree;
 import org.sonar.plugins.javascript.api.tree.expression.ObjectLiteralTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
@@ -52,15 +51,6 @@ public class MissingTrailingCommaCheck extends DoubleDispatchVisitorCheck {
     
     super.visitArrayLiteral(tree);
   }
-  
-  @Override
-  public void visitParameterList(ParameterListTree tree) {
-    if (isMultiline(tree) && !endsWithComma(tree)) {
-      raiseIssueOnLastElement(tree.parameters());
-    }
-    
-    super.visitParameterList(tree);
-  }
 
   private static boolean isMultiline(ObjectLiteralTree objectLiteral) {
     return isMultilineInternal(objectLiteral.properties(), objectLiteral.closeCurlyBrace());
@@ -68,10 +58,6 @@ public class MissingTrailingCommaCheck extends DoubleDispatchVisitorCheck {
 
   private static boolean isMultiline(ArrayLiteralTree arrayLiteral) {
     return isMultilineInternal(arrayLiteral.elements(), arrayLiteral.closeBracket());
-  }
-  
-  private static boolean isMultiline(ParameterListTree parameterList) {
-    return isMultilineInternal(parameterList.parameters(), parameterList.closeParenthesis());
   }
   
   private static boolean isMultilineInternal(List<? extends Tree> list, SyntaxToken closingToken) {
@@ -90,11 +76,6 @@ public class MissingTrailingCommaCheck extends DoubleDispatchVisitorCheck {
   private static boolean endsWithComma(ArrayLiteralTree arrayLiteral) {
     Tree last = arrayLiteral.elementsAndCommas().get(arrayLiteral.elementsAndCommas().size() - 1);
     return last.is(Tree.Kind.TOKEN);
-  }
-  
-  private static boolean endsWithComma(ParameterListTree parameterList) {
-    SeparatedList<Tree> properties = parameterList.parameters();
-    return properties.size() == properties.getSeparators().size();
   }
   
   private void raiseIssueOnLastElement(List<? extends Tree> list) {
