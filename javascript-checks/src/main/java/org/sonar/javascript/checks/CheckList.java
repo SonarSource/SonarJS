@@ -119,6 +119,7 @@ public final class CheckList {
       LocalStorageCheck.class,
       MisorderedParameterListCheck.class,
       MissingNewlineAtEndOfFileCheck.class,
+      MissingTrailingCommaCheck.class,
       ModelDefaultsWithArrayOrObjectCheck.class,
       MultilineBlockCurlyBraceCheck.class,
       MultilineStringLiteralsCheck.class,
