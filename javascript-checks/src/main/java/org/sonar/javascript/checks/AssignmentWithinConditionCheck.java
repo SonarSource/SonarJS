@@ -104,7 +104,7 @@ public class AssignmentWithinConditionCheck extends DoubleDispatchVisitorCheck {
     }
   }
 
-  public void visitCommaOperatorExpression(Tree expression) {
+  public void visitCommaOperatorExpression(@Nullable Tree expression) {
     if (expression == null) {
       return;
     }

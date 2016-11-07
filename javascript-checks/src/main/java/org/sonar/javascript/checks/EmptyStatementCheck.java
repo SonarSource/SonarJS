@@ -115,7 +115,7 @@ public class EmptyStatementCheck extends DoubleDispatchVisitorCheck {
   }
 
   private void except(Tree tree) {
-    if (tree != null && tree.is(Tree.Kind.EMPTY_STATEMENT)) {
+    if (tree.is(Tree.Kind.EMPTY_STATEMENT)) {
       exceptedStatements.add((EmptyStatementTree)tree);
     }
   }

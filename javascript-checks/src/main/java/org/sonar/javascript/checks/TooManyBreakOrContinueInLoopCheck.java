@@ -24,6 +24,7 @@ import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Deque;
 import java.util.List;
+import javax.annotation.Nullable;
 import org.sonar.check.Rule;
 import org.sonar.plugins.javascript.api.tree.ScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
@@ -151,7 +152,7 @@ public class TooManyBreakOrContinueInLoopCheck extends DoubleDispatchVisitorChec
     jumpTargets.pop();
   }
 
-  private void increaseNumberOfJumpInScopes(SyntaxToken jump, IdentifierTree label) {
+  private void increaseNumberOfJumpInScopes(SyntaxToken jump, @Nullable IdentifierTree label) {
     for (JumpTarget jumpTarget : jumpTargets) {
       String labelName = label == null ? null : label.name();
       jumpTarget.jumps.add(jump);
