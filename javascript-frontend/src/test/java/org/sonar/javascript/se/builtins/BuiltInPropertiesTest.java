@@ -36,11 +36,17 @@ public class BuiltInPropertiesTest {
 
   @Test
   public void test_string() throws Exception {
-    type = Type.STRING_OBJECT;
+    type = Type.STRING_PRIMITIVE;
     assertMethod(value("split"), method(Constraint.ARRAY));
     assertProperty(value("length"), Constraint.NUMBER_PRIMITIVE);
     assertThat(value("foobar")).isEqualTo(SpecialSymbolicValue.UNDEFINED);
     assertMethod(value("valueOf"), method(Constraint.STRING_PRIMITIVE));
+  }
+
+  @Test
+  public void test_ember_string_extension() throws Exception {
+    type = Type.STRING_PRIMITIVE;
+    assertMethod(value("camelize"), method(Constraint.STRING_PRIMITIVE));
   }
 
   @Test

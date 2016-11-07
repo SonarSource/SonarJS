@@ -41,7 +41,7 @@ import org.sonar.plugins.javascript.api.tree.expression.IdentifierTree;
 @Rule(key = "S3759")
 public class NonExistentPropertyAccessCheck extends SeCheck {
 
-  private static final String MESSAGE = "Remove this access to \"%s\" property, it doesn't exist on a %s.";
+  private static final String MESSAGE = "Remove this access to \"%s\" property, it doesn't exist, as a built-in, on a %s.";
 
   private static final Map<Type, String> TYPE_NAMES = ImmutableMap.<Type, String>builder()
     .put(Type.NUMBER_PRIMITIVE, "Number")

@@ -7,7 +7,7 @@ function foo() {
 
 function assignment() {
   var s = "";
-  x = s.lenght; // Noncompliant {{Remove this access to "lenght" property, it doesn't exist on a String.}}
+  x = s.lenght; // Noncompliant {{Remove this access to "lenght" property, it doesn't exist, as a built-in, on a String.}}
   s.lenght = 0; // ok
 }
 
@@ -56,4 +56,13 @@ function primitive_wrappers(x) {
   new String(x).foo; // Noncompliant
   new Number(x).foo; // Noncompliant
   new Boolean(x).foo; // Noncompliant
+}
+
+function ember_api() {
+  "foo".camelize();
+  "foo".capitalize();
+  "foo".classify();
+  "foo".dasherize();
+  "foo".decamelize();
+  "foo".underscore();
 }
