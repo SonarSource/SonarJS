@@ -46,16 +46,6 @@ public class CfgBlockTest {
     assertThat(branching.falseSuccessor()).isEqualTo(simple2);
   }
 
-  @Test(expected = IllegalArgumentException.class)
-  public void cannot_set_null_successor1() throws Exception {
-    new JsCfgBranchingBlock(tree1, simple1, null);
-  }
-
-  @Test(expected = IllegalArgumentException.class)
-  public void cannot_set_null_successor2() throws Exception {
-    new JsCfgBranchingBlock(tree1, null, simple1);
-  }
-
   @Test
   public void simple_successor() throws Exception {
     JsCfgBlock simpleBlock = new JsCfgBlock(simple1);
@@ -102,11 +92,6 @@ public class CfgBlockTest {
   @Test(expected = UnsupportedOperationException.class)
   public void cannot_add_element_to_forwarding() throws Exception {
     forwarding.addElement(tree1);
-  }
-
-  @Test(expected = IllegalArgumentException.class)
-  public void cannot_set_null_branching_tree() throws Exception {
-    new JsCfgBranchingBlock(null, simple1, simple2);
   }
 
 }

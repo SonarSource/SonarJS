@@ -19,7 +19,6 @@
  */
 package org.sonar.javascript.cfg;
 
-import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableSet;
 import java.util.Map;
 import org.sonar.plugins.javascript.api.tree.Tree;
@@ -32,8 +31,6 @@ class JsCfgBranchingBlock extends JsCfgBlock implements CfgBranchingBlock {
   private Tree branchingTree;
 
   public JsCfgBranchingBlock(Tree branchingTree, JsCfgBlock trueSuccessor, JsCfgBlock falseSuccessor) {
-    Preconditions.checkArgument(branchingTree != null, "Branching tree cannot be null");
-    Preconditions.checkArgument(trueSuccessor != null && falseSuccessor != null, "Successor cannot be null");
     this.trueSuccessor = trueSuccessor;
     this.falseSuccessor = falseSuccessor;
     this.branchingTree = branchingTree;

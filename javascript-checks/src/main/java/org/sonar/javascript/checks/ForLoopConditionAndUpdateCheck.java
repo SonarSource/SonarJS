@@ -25,6 +25,7 @@ import com.google.common.collect.Lists;
 import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.List;
+import javax.annotation.Nullable;
 import org.sonar.check.Rule;
 import org.sonar.javascript.checks.utils.CheckUtils;
 import org.sonar.javascript.tree.SyntacticEquivalence;
@@ -80,7 +81,7 @@ public class ForLoopConditionAndUpdateCheck extends DoubleDispatchVisitorCheck {
     return null;
   }
 
-  private static List<ExpressionTree> updatedExpressions(ExpressionTree expression) {
+  private static List<ExpressionTree> updatedExpressions(@Nullable ExpressionTree expression) {
     if (expression == null) {
       return ImmutableList.<ExpressionTree>of();
     }
