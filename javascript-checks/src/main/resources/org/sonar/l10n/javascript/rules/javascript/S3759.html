@@ -2,6 +2,17 @@
 <h2>Noncompliant Code Example</h2>
 <pre>
 x = 42;
-y = x.length;   //Non-compliant &gt; y == "undefined" as length is not defined on Number type
+y = x.length;   // Noncompliant, Number type doesn't have "length" property
 </pre>
+<h2>Exceptions</h2>
+<p>The Ember framework introduces a few extensions to a <code>String</code> built-in. Since it is a widely used package, the following
+<code>String</code> properties will not trigger this rule even though they are not built-in:</p>
+<ul>
+  <li> <code>camelize</code> </li>
+  <li> <code>capitalize</code> </li>
+  <li> <code>classify</code> </li>
+  <li> <code>dasherize</code> </li>
+  <li> <code>decamelize</code> </li>
+  <li> <code>underscore</code> </li>
+</ul>
 
