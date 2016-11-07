@@ -78,6 +78,14 @@ public class StringBuiltInProperties extends BuiltInProperties {
       .put("strike", method(Constraint.STRING_PRIMITIVE))
       .put("sub", method(Constraint.STRING_PRIMITIVE))
       .put("sup", method(Constraint.STRING_PRIMITIVE))
+
+      // Provided by Ember framework, not part of ES specification
+      .put("camelize", method(Constraint.STRING_PRIMITIVE))
+      .put("capitalize", method(Constraint.STRING_PRIMITIVE))
+      .put("classify", method(Constraint.STRING_PRIMITIVE))
+      .put("dasherize", method(Constraint.STRING_PRIMITIVE))
+      .put("decamelize", method(Constraint.STRING_PRIMITIVE))
+      .put("underscore", method(Constraint.STRING_PRIMITIVE))
       .build();
   }
 
