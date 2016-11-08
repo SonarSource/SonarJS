@@ -5,7 +5,6 @@
 TEST:
   - plugin
   - ruling
-  - type-inference
   - performancing
 
 SQ_VERSION: 
@@ -23,14 +22,6 @@ exclude:
     SQ_VERSION: DEV 
     TEST: ruling
 
-  - SLAVE: linux 
-    SQ_VERSION: DEV
-    TEST: type-inference
-
-  - SLAVE: linux
-    SQ_VERSION: LATEST_RELEASE 
-    TEST: type-inference
-
   - SLAVE: linux
     SQ_VERSION: LTS 
     TEST: ruling
@@ -44,14 +35,6 @@ exclude:
     SQ_VERSION: DEV 
     TEST: ruling
 
-  - SLAVE: performance 
-    SQ_VERSION: DEV
-    TEST: type-inference
-
-  - SLAVE: performance
-    SQ_VERSION: LATEST_RELEASE 
-    TEST: type-inference
-
   - SLAVE: performance
     SQ_VERSION: LTS 
     TEST: ruling
@@ -67,24 +50,12 @@ exclude:
   - SLAVE: performance
     SQ_VERSION: LTS 
     TEST: plugin
-
-  - SLAVE: performance
-    SQ_VERSION: LTS 
-    TEST: type-inference
 
 #remove all jobs on windows slave plugin on LATEST_RELEASE
   - SLAVE: windows 
     SQ_VERSION: DEV 
     TEST: ruling
 
-  - SLAVE: windows 
-    SQ_VERSION: DEV
-    TEST: type-inference
-
-  - SLAVE: windows
-    SQ_VERSION: LATEST_RELEASE 
-    TEST: type-inference
-
   - SLAVE: windows
     SQ_VERSION: LTS 
     TEST: ruling
@@ -100,11 +71,6 @@ exclude:
   - SLAVE: windows
     SQ_VERSION: LTS 
     TEST: plugin
-
-  - SLAVE: windows
-    SQ_VERSION: LTS 
-    TEST: type-inference
-    
 
 # only run performancing on DEV LATEST_RELEASE on performance Slave
   - SLAVE: performance
