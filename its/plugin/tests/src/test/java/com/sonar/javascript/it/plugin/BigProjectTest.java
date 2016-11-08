@@ -61,37 +61,37 @@ public class BigProjectTest {
   @Test
   public void project_level() {
     // Size
-    assertThat(getProjectMeasure("ncloc").getIntValue()).isEqualTo(662106);
+    assertThat(getProjectMeasure("ncloc").getIntValue()).isEqualTo(577829);
     // SONAR-5077: computation of line is done on SQ side
-    assertThat(getProjectMeasure("lines").getIntValue()).isEqualTo(1178445);
-    assertThat(getProjectMeasure("files").getIntValue()).isEqualTo(4535);
-    assertThat(getProjectMeasure("directories").getIntValue()).isEqualTo(977);
-    assertThat(getProjectMeasure("functions").getIntValue()).isEqualTo(54166);
-    assertThat(getProjectMeasure("statements").getIntValue()).isEqualTo(327171);
+    assertThat(getProjectMeasure("lines").getIntValue()).isEqualTo(1029040);
+    assertThat(getProjectMeasure("files").getIntValue()).isEqualTo(4523);
+    assertThat(getProjectMeasure("directories").getIntValue()).isEqualTo(972);
+    assertThat(getProjectMeasure("functions").getIntValue()).isEqualTo(46609);
+    assertThat(getProjectMeasure("statements").getIntValue()).isEqualTo(285817);
 
     // Documentation
-    assertThat(getProjectMeasure("comment_lines").getIntValue()).isEqualTo(309230);
+    assertThat(getProjectMeasure("comment_lines").getIntValue()).isEqualTo(262126);
     assertThat(getProjectMeasure("commented_out_code_lines")).isNull();
-    assertThat(getProjectMeasure("comment_lines_density").getValue()).isEqualTo(31.8);
+    assertThat(getProjectMeasure("comment_lines_density").getValue()).isEqualTo(31.2);
 
     // Complexity
     // Since ES6 support
-    assertThat(getProjectMeasure("complexity").getValue()).isEqualTo(179409.0);
+    assertThat(getProjectMeasure("complexity").getValue()).isEqualTo(151961.0);
     assertThat(getProjectMeasure("function_complexity_distribution").getData())
-      .isEqualTo("1=26043;2=13903;4=6131;6=3089;8=1711;10=998;12=1556;20=472;30=263");
+      .isEqualTo("1=22551;2=11945;4=5322;6=2622;8=1437;10=864;12=1277;20=389;30=202");
 
     // SONARJS-299
-    assertThat(getProjectMeasure("function_complexity").getValue()).isEqualTo(3.3);
-    assertThat(getProjectMeasure("file_complexity").getValue()).isEqualTo(40.8);
+    assertThat(getProjectMeasure("function_complexity").getValue()).isEqualTo(3.2);
+    assertThat(getProjectMeasure("file_complexity").getValue()).isEqualTo(34.6);
     assertThat(getProjectMeasure("file_complexity_distribution").getData())
-      .isEqualTo("0=2091;5=304;10=457;20=372;30=500;60=271;90=403");
+      .isEqualTo("0=2091;5=304;10=457;20=372;30=500;60=271;90=392");
 
     // Duplication
     // SONAR-7026
-    assertThat(getProjectMeasure("duplicated_lines").getValue()).isEqualTo(341151.0);
-    assertThat(getProjectMeasure("duplicated_blocks").getValue()).isEqualTo(14722.0);
-    assertThat(getProjectMeasure("duplicated_lines_density").getValue()).isEqualTo(28.9);
-    assertThat(getProjectMeasure("duplicated_files").getValue()).isEqualTo(837.0);
+    assertThat(getProjectMeasure("duplicated_lines").getValue()).isEqualTo(107825.0);
+    assertThat(getProjectMeasure("duplicated_blocks").getValue()).isEqualTo(13873.0);
+    assertThat(getProjectMeasure("duplicated_lines_density").getValue()).isEqualTo(10.5);
+    assertThat(getProjectMeasure("duplicated_files").getValue()).isEqualTo(561.0);
   }
 
   private Measure getProjectMeasure(String metricKey) {
