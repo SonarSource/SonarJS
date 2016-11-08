@@ -11,11 +11,6 @@
 'project:dojo-1.8.1/dojox/help/_base.js.uncompressed.js':[
 64,
 ],
-'project:ecmascript6/di.js/chrome-extension/visualize/lib/angular.js':[
-6674,
-7589,
-11742,
-],
 'project:ecmascript6/di.js/example/angular-loader/traceur.js':[
 11217,
 11258,
@@ -66,9 +61,5 @@
 'project:yui-3.7.3/selector-css2/selector-css2.js':[
 136,
 340,
-],
-'project:yui-3.7.3/simpleyui/simpleyui.js':[
-19346,
-19550,
 ],
 }

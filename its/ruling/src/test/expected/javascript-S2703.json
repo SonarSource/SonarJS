@@ -47,10 +47,6 @@
 'project:dojo-1.8.1/dojox/charting/widget/Chart.js.uncompressed.js':[
 183,
 ],
-'project:dojo-1.8.1/dojox/charting/widget/Chart2D.js.uncompressed.js':[
-4970,
-15627,
-],
 'project:dojo-1.8.1/dojox/data/JsonRestStore.js.uncompressed.js':[
 268,
 ],
@@ -102,10 +98,6 @@
 102,
 114,
 114,
-],
-'project:dojo-1.8.1/dojox/grid/DataGrid.js.uncompressed.js':[
-8470,
-12447,
 ],
 'project:dojo-1.8.1/dojox/grid/TreeGrid.js.uncompressed.js':[
 680,
@@ -192,9 +184,6 @@
 794,
 909,
 918,
-],
-'project:ecmascript6/di.js/chrome-extension/visualize/lib/d3.v3.js':[
-1,
 ],
 'project:ecmascript6/di.js/visualize/lib/d3.v3.js':[
 1,

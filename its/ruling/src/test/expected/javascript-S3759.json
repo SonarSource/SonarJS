@@ -8,10 +8,6 @@
 'project:dojo-1.8.1/dojo/dojo.js.uncompressed.js':[
 6952,
 ],
-'project:dojo-1.8.1/dojox/charting/widget/Chart2D.js.uncompressed.js':[
-2064,
-2064,
-],
 'project:dojo-1.8.1/dojox/data/ClientFilter.js.uncompressed.js':[
 166,
 ],
@@ -133,12 +129,6 @@
 ],
 'project:ecmascript6/Ghost/core/test/utils/api.js':[
 64,
-],
-'project:ecmascript6/di.js/chrome-extension/visualize/lib/angular.js':[
-20348,
-],
-'project:ecmascript6/di.js/chrome-extension/visualize/lib/d3.v3.js':[
-9200,
 ],
 'project:ecmascript6/di.js/visualize/lib/angular.js':[
 20348,

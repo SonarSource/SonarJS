@@ -224,12 +224,6 @@
 'project:dojo-1.8.1/dijit/a11yclick.js.uncompressed.js':[
 1,
 ],
-'project:dojo-1.8.1/dijit/dijit-all.js.uncompressed.js':[
-33525,
-],
-'project:dojo-1.8.1/dijit/dijit.js.uncompressed.js':[
-8146,
-],
 'project:dojo-1.8.1/dijit/focus.js.uncompressed.js':[
 1,
 ],
@@ -1448,9 +1442,6 @@
 'project:dojo-1.8.1/dojox/charting/widget/Chart.js.uncompressed.js':[
 1,
 ],
-'project:dojo-1.8.1/dojox/charting/widget/Chart2D.js.uncompressed.js':[
-20472,
-],
 'project:dojo-1.8.1/dojox/charting/widget/Legend.js.uncompressed.js':[
 1,
 ],
@@ -2627,9 +2618,6 @@
 'project:dojo-1.8.1/dojox/gfx3d/vector.js.uncompressed.js':[
 1,
 ],
-'project:dojo-1.8.1/dojox/grid/DataGrid.js.uncompressed.js':[
-13464,
-],
 'project:dojo-1.8.1/dojox/grid/DataSelection.js.uncompressed.js':[
 1,
 ],
@@ -3239,9 +3227,6 @@
 'project:dojo-1.8.1/dojox/mdnd/dropMode/VerticalDropMode.js.uncompressed.js':[
 1,
 ],
-'project:dojo-1.8.1/dojox/mobile.js.uncompressed.js':[
-5825,
-],
 'project:dojo-1.8.1/dojox/mobile/Accordion.js.uncompressed.js':[
 1,
 ],
@@ -3508,9 +3493,6 @@
 ],
 'project:dojo-1.8.1/dojox/mobile/_compat.js.uncompressed.js':[
 1,
-],
-'project:dojo-1.8.1/dojox/mobile/app.js.uncompressed.js':[
-13785,
 ],
 'project:dojo-1.8.1/dojox/mobile/app/AlertDialog.js.uncompressed.js':[
 2,

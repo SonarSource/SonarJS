@@ -2,9 +2,6 @@
 'project:dojo-1.8.1/dijit/_editor/RichText.js.uncompressed.js':[
 2577,
 ],
-'project:dojo-1.8.1/dijit/dijit-all.js.uncompressed.js':[
-14184,
-],
 'project:dojo-1.8.1/dijit/tree/dndSource.js.uncompressed.js':[
 440,
 ],
@@ -40,11 +37,6 @@
 'project:dojo-1.8.1/dojox/charting/plot2d/common.js.uncompressed.js':[
 202,
 ],
-'project:dojo-1.8.1/dojox/charting/widget/Chart2D.js.uncompressed.js':[
-1052,
-1052,
-9559,
-],
 'project:dojo-1.8.1/dojox/date/timezone.js.uncompressed.js':[
 446,
 451,
@@ -68,9 +60,6 @@
 ],
 'project:dojo-1.8.1/dojox/grid/LazyTreeGrid.js.uncompressed.js':[
 101,
-],
-'project:dojo-1.8.1/dojox/mobile/app.js.uncompressed.js':[
-6035,
 ],
 'project:dojo-1.8.1/dojox/mobile/app/ListSelector.js.uncompressed.js':[
 95,
@@ -96,14 +85,6 @@
 ],
 'project:ecmascript6/Ghost/core/server/config/url.js':[
 176,
-],
-'project:ecmascript6/di.js/chrome-extension/visualize/lib/d3.v3.js':[
-5069,
-5069,
-6288,
-6548,
-6741,
-9200,
 ],
 'project:ecmascript6/di.js/visualize/lib/d3.v3.js':[
 5069,
@@ -198,9 +179,6 @@
 'project:yui-3.7.3/charts-legend/charts-legend.js':[
 127,
 584,
-],
-'project:yui-3.7.3/simpleyui/simpleyui.js':[
-18698,
 ],
 'project:yui-3.7.3/transition/transition.js':[
 194,

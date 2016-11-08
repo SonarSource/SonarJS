@@ -1,11 +1,4 @@
 {
-'project:dojo-1.8.1/dijit/dijit-all.js.uncompressed.js':[
-14591,
-29769,
-],
-'project:dojo-1.8.1/dijit/dijit.js.uncompressed.js':[
-5925,
-],
 'project:dojo-1.8.1/dijit/form/_DateTimeTextBox.js.uncompressed.js':[
 17,
 ],
@@ -36,9 +29,6 @@
 'project:dojo-1.8.1/dojox/gfx/Moveable.js.uncompressed.js':[
 61,
 75,
-],
-'project:dojo-1.8.1/dojox/grid/DataGrid.js.uncompressed.js':[
-4025,
 ],
 'project:dojo-1.8.1/dojox/grid/enhanced/_PluginManager.js.uncompressed.js':[
 61,
