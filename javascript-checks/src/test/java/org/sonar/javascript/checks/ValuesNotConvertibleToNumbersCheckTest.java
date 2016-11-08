@@ -23,11 +23,11 @@ import java.io.File;
 import org.junit.Test;
 import org.sonar.javascript.checks.verifier.JavaScriptCheckVerifier;
 
-public class ComparisonReturningFalseCheckTest {
+public class ValuesNotConvertibleToNumbersCheckTest {
 
   @Test
   public void test() {
-    JavaScriptCheckVerifier.verify(new ComparisonReturningFalseCheck(), new File("src/test/resources/checks/comparisonReturningFalse.js"));
+    JavaScriptCheckVerifier.verify(new ValuesNotConvertibleToNumbersCheck(), new File("src/test/resources/checks/ValuesNotConvertibleToNumbers.js"));
   }
   
 }

@@ -31,9 +31,10 @@ import org.sonar.plugins.javascript.api.tree.expression.BinaryExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 
 @Rule(key = "S3758")
-public class ComparisonReturningFalseCheck extends SeCheck {
+public class ValuesNotConvertibleToNumbersCheck extends SeCheck {
 
-  private static final String MESSAGE = "Change this value so that the comparison does not consistently evaluate to \"false\".";
+  private static final String MESSAGE = "Re-evaluate the data flow; this operand could be \"%s\" here.";
+
   private static final Constraint CONVERTIBLE_TO_NUMBER = Constraint.ANY_NUMBER.or(Constraint.ANY_BOOLEAN).or(Constraint.DATE).or(Constraint.NULL);
 
   /**
@@ -66,11 +67,11 @@ public class ComparisonReturningFalseCheck extends SeCheck {
     boolean rightIsUndefined = rightConstraint.isStricterOrEqualTo(Constraint.UNDEFINED); 
 
     if (checkObjectIsComparedNumerically(leftConstraint, rightConstraint)) {
-      raiseIssue(element, true, false);
+      raiseIssue(element, true, false, "Object");
     } else if (checkObjectIsComparedNumerically(rightConstraint, leftConstraint)) {
-      raiseIssue(element, false, true);
+      raiseIssue(element, false, true, "Object");
     } else if (leftIsUndefined || rightIsUndefined) {
-      raiseIssue(element, leftIsUndefined, rightIsUndefined);
+      raiseIssue(element, leftIsUndefined, rightIsUndefined, "undefined");
     }
   }
   
@@ -90,22 +91,27 @@ public class ComparisonReturningFalseCheck extends SeCheck {
     return c.isStricterOrEqualTo(CONVERTIBLE_TO_NUMBER);
   }
   
-  private void raiseIssue(BinaryExpressionTree comparison, boolean raiseIssueForLeft, boolean raiseIssueForRight) {
+  private void raiseIssue(
+    BinaryExpressionTree comparison,
+    boolean raiseIssueForLeft,
+    boolean raiseIssueForRight,
+    String messageParam
+  ) {
     if (raiseIssueForLeft) {
-      raiseIssue(comparison.leftOperand());
+      raiseIssue(comparison.leftOperand(), messageParam);
     }
     if (raiseIssueForRight) {
-      raiseIssue(comparison.rightOperand());
+      raiseIssue(comparison.rightOperand(), messageParam);
     }
   }
 
   /**
    * Raises an issue (but not twice for the same operand).
    */
-  private void raiseIssue(ExpressionTree operand) {
+  private void raiseIssue(ExpressionTree operand, String messageParam) {
     if (!operandsWithIssues.contains(operand)) {
       operandsWithIssues.add(operand);
-      addIssue(operand, MESSAGE);
+      addIssue(operand, String.format(MESSAGE, messageParam));
     }
   }
 
