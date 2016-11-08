@@ -1,7 +1,4 @@
 {
-'project:dojo-1.8.1/dijit/dijit.js.uncompressed.js':[
-6408,
-],
 'project:dojo-1.8.1/dojo/_base/fx.js.uncompressed.js':[
 584,
 ],
@@ -21,9 +18,6 @@
 ],
 'project:dojo-1.8.1/dojox/mvc/sync.js.uncompressed.js':[
 55,
-],
-'project:ecmascript6/di.js/chrome-extension/visualize/lib/d3.v3.js':[
-1076,
 ],
 'project:ecmascript6/di.js/visualize/lib/d3.v3.js':[
 1076,

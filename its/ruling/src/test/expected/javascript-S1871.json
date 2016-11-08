@@ -9,11 +9,6 @@
 1522,
 1534,
 ],
-'project:dojo-1.8.1/dijit/dijit-all.js.uncompressed.js':[
-4354,
-13129,
-13141,
-],
 'project:dojo-1.8.1/dijit/form/_ComboBoxMenuMixin.js.uncompressed.js':[
 132,
 ],
@@ -26,9 +21,6 @@
 ],
 'project:dojo-1.8.1/dojox/charting/action2d/Tooltip.js.uncompressed.js':[
 92,
-],
-'project:dojo-1.8.1/dojox/charting/widget/Chart2D.js.uncompressed.js':[
-12798,
 ],
 'project:dojo-1.8.1/dojox/data/AtomReadStore.js.uncompressed.js':[
 494,
@@ -108,13 +100,6 @@
 ],
 'project:ecmascript6/Ghost/core/server/data/migration/fixtures/permissions/index.js':[
 36,
-],
-'project:ecmascript6/di.js/chrome-extension/visualize/lib/angular.js':[
-3625,
-3806,
-3809,
-9637,
-10092,
 ],
 'project:ecmascript6/di.js/example/angular-loader/traceur.js':[
 837,
@@ -279,9 +264,5 @@
 ],
 'project:yui-3.7.3/oop/oop.js':[
 300,
-],
-'project:yui-3.7.3/simpleyui/simpleyui.js':[
-6029,
-7948,
 ],
 }

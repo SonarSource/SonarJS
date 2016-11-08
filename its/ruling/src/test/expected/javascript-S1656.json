@@ -1,7 +1,4 @@
 {
-'project:dojo-1.8.1/dijit/dijit-all.js.uncompressed.js':[
-15374,
-],
 'project:dojo-1.8.1/dijit/layout/TabController.js.uncompressed.js':[
 58,
 ],
@@ -12,10 +9,6 @@
 160,
 162,
 ],
-'project:dojo-1.8.1/dojox/charting/widget/Chart2D.js.uncompressed.js':[
-19132,
-19134,
-],
 'project:dojo-1.8.1/dojox/editor/plugins/Breadcrumb.js.uncompressed.js':[
 127,
 300,
@@ -25,9 +18,6 @@
 135,
 155,
 156,
-],
-'project:dojo-1.8.1/dojox/grid/DataGrid.js.uncompressed.js':[
-3216,
 ],
 'project:dojo-1.8.1/dojox/grid/cells/_base.js.uncompressed.js':[
 325,

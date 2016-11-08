@@ -2,11 +2,6 @@
 'project:angular-1.0.3.js':[
 6401,
 ],
-'project:dojo-1.8.1/dijit/dijit.js.uncompressed.js':[
-6013,
-6245,
-6249,
-],
 'project:dojo-1.8.1/dojo/_base/array.js.uncompressed.js':[
 9,
 ],
@@ -30,9 +25,6 @@
 97,
 329,
 333,
-],
-'project:dojo-1.8.1/dojox/charting/widget/Chart2D.js.uncompressed.js':[
-1351,
 ],
 'project:dojo-1.8.1/dojox/lang/docs.js.uncompressed.js':[
 152,
@@ -60,9 +52,6 @@
 'project:dojo-1.8.1/dojox/lang/functional/tailrec.js.uncompressed.js':[
 70,
 ],
-'project:dojo-1.8.1/dojox/mobile/app.js.uncompressed.js':[
-2091,
-],
 'project:dojo-1.8.1/dojox/mobile/dh/JsonContentHandler.js.uncompressed.js':[
 215,
 ],
@@ -71,12 +60,6 @@
 ],
 'project:dojo-1.8.1/dojox/sql/_base.js.uncompressed.js':[
 547,
-],
-'project:ecmascript6/di.js/chrome-extension/visualize/lib/angular.js':[
-10452,
-],
-'project:ecmascript6/di.js/chrome-extension/visualize/lib/d3.v3.js':[
-1961,
 ],
 'project:ecmascript6/di.js/visualize/lib/angular.js':[
 10452,
