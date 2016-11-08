@@ -64,5 +64,8 @@ function ember_api() {
   "foo".classify();
   "foo".dasherize();
   "foo".decamelize();
+  "foo".fmt();
+  "foo".loc();
   "foo".underscore();
+  "foo".w();
 }

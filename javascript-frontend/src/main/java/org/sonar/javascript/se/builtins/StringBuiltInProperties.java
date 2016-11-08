@@ -85,7 +85,10 @@ public class StringBuiltInProperties extends BuiltInProperties {
       .put("classify", method(Constraint.STRING_PRIMITIVE))
       .put("dasherize", method(Constraint.STRING_PRIMITIVE))
       .put("decamelize", method(Constraint.STRING_PRIMITIVE))
+      .put("fmt", method(Constraint.STRING_PRIMITIVE))
+      .put("loc", method(Constraint.STRING_PRIMITIVE))
       .put("underscore", method(Constraint.STRING_PRIMITIVE))
+      .put("w", method(Constraint.ARRAY))
       .build();
   }
 

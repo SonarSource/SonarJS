@@ -47,6 +47,7 @@ public class BuiltInPropertiesTest {
   public void test_ember_string_extension() throws Exception {
     type = Type.STRING_PRIMITIVE;
     assertMethod(value("camelize"), method(Constraint.STRING_PRIMITIVE));
+    assertMethod(value("w"), method(Constraint.ARRAY));
   }
 
   @Test
