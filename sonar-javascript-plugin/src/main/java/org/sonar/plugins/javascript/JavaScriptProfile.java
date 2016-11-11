@@ -31,7 +31,9 @@ import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleFinder;
 import org.sonar.api.utils.ValidationMessages;
 import org.sonar.javascript.checks.CheckList;
+import org.sonarsource.api.sonarlint.SonarLintSide;
 
+@SonarLintSide
 public class JavaScriptProfile extends ProfileDefinition {
 
   private final RuleFinder ruleFinder;

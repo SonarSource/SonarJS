@@ -21,8 +21,10 @@ package com.sonar.javascript.it.plugin;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -100,8 +102,8 @@ public class SonarLintTest {
     return new ClientInputFile() {
 
       @Override
-      public Path getPath() {
-        return path;
+      public String getPath() {
+        return path.toString();
       }
 
       @Override
@@ -117,6 +119,16 @@ public class SonarLintTest {
       @Override
       public <G> G getClientObject() {
         return null;
+      }
+
+      @Override
+      public String contents() throws IOException {
+        return new String(Files.readAllBytes(path), StandardCharsets.UTF_8);
+      }
+
+      @Override
+      public InputStream inputStream() throws IOException {
+        return Files.newInputStream(path);
       }
 
     };
