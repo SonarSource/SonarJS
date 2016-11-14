@@ -27,6 +27,7 @@ import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.api.server.rule.RulesDefinition.Param;
 import org.sonar.api.server.rule.RulesDefinition.Repository;
 import org.sonar.api.server.rule.RulesDefinition.Rule;
+import org.sonar.api.utils.Version;
 import org.sonar.javascript.checks.CheckList;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -35,7 +36,7 @@ public class JavaScriptRulesDefinitionTest {
 
   @Test
   public void test() {
-    JavaScriptRulesDefinition rulesDefinition = new JavaScriptRulesDefinition();
+    JavaScriptRulesDefinition rulesDefinition = new JavaScriptRulesDefinition(Version.create(6, 0));
     RulesDefinition.Context context = new RulesDefinition.Context();
     rulesDefinition.define(context);
     RulesDefinition.Repository repository = context.repository("javascript");
