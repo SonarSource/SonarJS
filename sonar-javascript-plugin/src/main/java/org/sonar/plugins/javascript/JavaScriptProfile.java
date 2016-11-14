@@ -31,9 +31,7 @@ import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleFinder;
 import org.sonar.api.utils.ValidationMessages;
 import org.sonar.javascript.checks.CheckList;
-import org.sonarsource.api.sonarlint.SonarLintSide;
 
-@SonarLintSide
 public class JavaScriptProfile extends ProfileDefinition {
 
   private final RuleFinder ruleFinder;
@@ -61,21 +59,21 @@ public class JavaScriptProfile extends ProfileDefinition {
   }
 
   private void loadActiveKeysFromJsonProfile(RulesProfile rulesProfile) {
-    URL profileUrl = JavaScriptProfile.class.getResource("/org/sonar/l10n/javascript/rules/javascript/Sonar_way_profile.json");
+    for (String ruleKey : activatedRuleKeys()) {
+      Rule rule = ruleFinder.findByKey(CheckList.REPOSITORY_KEY, ruleKey);
+      rulesProfile.activateRule(rule, null);
+    }
+  }
 
+  public static Set<String> activatedRuleKeys() {
+    URL profileUrl = JavaScriptProfile.class.getResource("/org/sonar/l10n/javascript/rules/javascript/Sonar_way_profile.json");
     try {
       Gson gson = new Gson();
-      Profile profile = gson.fromJson(Resources.toString(profileUrl, Charsets.UTF_8), Profile.class);
-      for (String ruleKey : profile.ruleKeys) {
-        Rule rule = ruleFinder.findByKey(CheckList.REPOSITORY_KEY, ruleKey);
-        rulesProfile.activateRule(rule, null);
-      }
-
+      return gson.fromJson(Resources.toString(profileUrl, Charsets.UTF_8), Profile.class).ruleKeys;
     } catch (IOException e) {
       throw new IllegalStateException("Failed to read: " + profileUrl, e);
     }
   }
-
 
   private static class Profile {
     Set<String> ruleKeys;

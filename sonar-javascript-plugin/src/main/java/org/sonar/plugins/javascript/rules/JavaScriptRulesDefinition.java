@@ -25,18 +25,26 @@ import com.google.gson.Gson;
 import java.io.IOException;
 import java.net.URL;
 import java.util.Locale;
+import java.util.Set;
 import javax.annotation.Nullable;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.debt.DebtRemediationFunction;
 import org.sonar.api.server.rule.RulesDefinition;
+import org.sonar.api.utils.Version;
 import org.sonar.javascript.checks.CheckList;
 import org.sonar.plugins.javascript.JavaScriptLanguage;
+import org.sonar.plugins.javascript.JavaScriptProfile;
 import org.sonar.squidbridge.annotations.AnnotationBasedRulesDefinition;
 
 public class JavaScriptRulesDefinition implements RulesDefinition {
 
   private final Gson gson = new Gson();
+  private final Version sonarRuntimeVersion;
+
+  public JavaScriptRulesDefinition(Version sonarRuntimeVersion) {
+    this.sonarRuntimeVersion = sonarRuntimeVersion;
+  }
 
   @Override
   public void define(Context context) {
@@ -53,6 +61,14 @@ public class JavaScriptRulesDefinition implements RulesDefinition {
       rule.setInternalKey(metadataKey);
       rule.setHtmlDescription(readRuleDefinitionResource(metadataKey + ".html"));
       addMetadata(rule, metadataKey);
+    }
+
+    boolean shouldSetupSonarLintProfile = sonarRuntimeVersion.isGreaterThanOrEqual(Version.parse("6.0"));
+    if (shouldSetupSonarLintProfile) {
+      Set<String> activatedRuleKeys = JavaScriptProfile.activatedRuleKeys();
+      for (NewRule rule : repository.rules()) {
+        rule.setActivatedByDefault(activatedRuleKeys.contains(rule.key()));
+      }
     }
 
     repository.done();

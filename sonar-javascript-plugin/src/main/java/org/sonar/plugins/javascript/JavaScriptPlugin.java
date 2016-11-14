@@ -69,7 +69,7 @@ public class JavaScriptPlugin implements Plugin {
     context.addExtensions(
       JavaScriptLanguage.class,
       JavaScriptSquidSensor.class,
-      JavaScriptRulesDefinition.class,
+      new JavaScriptRulesDefinition(context.getSonarQubeVersion()),
       JavaScriptProfile.class);
 
     // Do not waste resources adding coverage sensors to SonarLint, as they are handled as no-ops.
