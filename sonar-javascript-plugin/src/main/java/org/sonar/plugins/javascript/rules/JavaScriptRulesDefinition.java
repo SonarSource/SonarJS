@@ -30,6 +30,7 @@ import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.debt.DebtRemediationFunction;
 import org.sonar.api.server.rule.RulesDefinition;
+import org.sonar.api.utils.Version;
 import org.sonar.javascript.checks.CheckList;
 import org.sonar.plugins.javascript.JavaScriptLanguage;
 import org.sonar.squidbridge.annotations.AnnotationBasedRulesDefinition;
@@ -37,7 +38,12 @@ import org.sonar.squidbridge.annotations.AnnotationBasedRulesDefinition;
 public class JavaScriptRulesDefinition implements RulesDefinition {
 
   private final Gson gson = new Gson();
+  private final Version pluginApiversion;
 
+  public JavaScriptRulesDefinition(Version pluginApiversion) {
+    this.pluginApiversion = pluginApiversion;
+  }
+  
   @Override
   public void define(Context context) {
     NewRepository repository = context
