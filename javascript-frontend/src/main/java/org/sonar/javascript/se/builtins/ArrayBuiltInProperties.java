@@ -22,7 +22,7 @@ package org.sonar.javascript.se.builtins;
 import com.google.common.collect.ImmutableMap;
 import java.util.Map;
 import org.sonar.javascript.se.Constraint;
-import org.sonar.javascript.se.sv.FunctionWithKnownReturnSymbolicValue.FunctionBehaviour;
+import org.sonar.javascript.se.sv.BuiltInFunctionSymbolicValue.FunctionBehaviour;
 import org.sonar.javascript.se.sv.SymbolicValue;
 
 import static org.sonar.javascript.se.Constraint.ANY_VALUE;

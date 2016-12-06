@@ -25,17 +25,17 @@ import org.sonar.javascript.se.ProgramState;
 
 /**
  * This symbolic values is used for built-in types and objects methods. Note, that as many of such methods are not supported by all browsers (as they are deprecated or new),
- * {@link FunctionWithKnownReturnSymbolicValue#baseConstraint(ProgramState)} will return <code>Constraint.FUNCTION.or(Constraint.UNDEFINED)</code>.
+ * {@link BuiltInFunctionSymbolicValue#baseConstraint(ProgramState)} will return <code>Constraint.FUNCTION.or(Constraint.UNDEFINED)</code>.
  */
-public class FunctionWithKnownReturnSymbolicValue implements FunctionSymbolicValue {
+public class BuiltInFunctionSymbolicValue implements FunctionSymbolicValue {
 
   private final FunctionBehaviour functionBehaviour;
 
-  public FunctionWithKnownReturnSymbolicValue(Constraint returnedValueConstraint) {
+  public BuiltInFunctionSymbolicValue(Constraint returnedValueConstraint) {
     this.functionBehaviour = (Constraint ... argumentConstraints) -> returnedValueConstraint;
   }
 
-  public FunctionWithKnownReturnSymbolicValue(FunctionBehaviour functionBehaviour) {
+  public BuiltInFunctionSymbolicValue(FunctionBehaviour functionBehaviour) {
     this.functionBehaviour = functionBehaviour;
   }
 

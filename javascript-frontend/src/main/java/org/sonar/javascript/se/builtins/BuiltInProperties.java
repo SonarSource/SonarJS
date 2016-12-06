@@ -23,8 +23,8 @@ import java.util.Map;
 import java.util.Optional;
 import javax.annotation.Nullable;
 import org.sonar.javascript.se.Constraint;
-import org.sonar.javascript.se.sv.FunctionWithKnownReturnSymbolicValue;
-import org.sonar.javascript.se.sv.FunctionWithKnownReturnSymbolicValue.FunctionBehaviour;
+import org.sonar.javascript.se.sv.BuiltInFunctionSymbolicValue;
+import org.sonar.javascript.se.sv.BuiltInFunctionSymbolicValue.FunctionBehaviour;
 import org.sonar.javascript.se.sv.SymbolicValue;
 import org.sonar.javascript.se.sv.SymbolicValueWithConstraint;
 
@@ -68,12 +68,12 @@ public abstract class BuiltInProperties {
     return Optional.empty();
   }
 
-  protected static FunctionWithKnownReturnSymbolicValue method(Constraint returnConstraint) {
-    return new FunctionWithKnownReturnSymbolicValue(returnConstraint);
+  protected static BuiltInFunctionSymbolicValue method(Constraint returnConstraint) {
+    return new BuiltInFunctionSymbolicValue(returnConstraint);
   }
 
-  protected static FunctionWithKnownReturnSymbolicValue method(FunctionBehaviour functionBehaviour) {
-    return new FunctionWithKnownReturnSymbolicValue(functionBehaviour);
+  protected static BuiltInFunctionSymbolicValue method(FunctionBehaviour functionBehaviour) {
+    return new BuiltInFunctionSymbolicValue(functionBehaviour);
   }
 
   protected static Constraint constraintOnRecentProperty(Constraint baseConstraint) {
