@@ -212,7 +212,7 @@ public class SymbolicExecution {
         }
       }
 
-      if (element.is(Kind.IDENTIFIER_REFERENCE) && !isUndefined((IdentifierTree) element)) {
+      if (element.is(Kind.IDENTIFIER_REFERENCE) && !isUndefined((IdentifierTree) element) && !isNaN((IdentifierTree) element)) {
         SymbolicValue symbolicValue = getSymbolicValue(element, currentState);
         currentState = currentState.pushToStack(symbolicValue);
 
@@ -320,6 +320,10 @@ public class SymbolicExecution {
 
   public static boolean isUndefined(IdentifierTree tree) {
     return "undefined".equals(tree.name());
+  }
+
+  public static boolean isNaN(IdentifierTree tree) {
+    return "NaN".equals(tree.name());
   }
 
   private ProgramState createSymbolicValuesForTrackedVariables(List<? extends Tree> trees, ProgramState state) {

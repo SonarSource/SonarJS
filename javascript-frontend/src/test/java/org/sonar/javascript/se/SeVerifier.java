@@ -52,6 +52,7 @@ class SeVerifier extends SeCheck {
     .put("FALSY", Constraint.FALSY)
     .put("NULL", Constraint.NULL)
     .put("UNDEFINED", Constraint.UNDEFINED)
+    .put("NAN", Constraint.NAN)
     .put("NOT_UNDEFINED", Constraint.UNDEFINED.not())
     .put("NULL_OR_NON_FUNCTION_OBJECT", Constraint.NULL.or(Constraint.OBJECT).and(Constraint.FUNCTION.not()))
     .put("NOT_NULL_OR_NON_FUNCTION_OBJECT", Constraint.NULL.or(Constraint.OBJECT).and(Constraint.FUNCTION.not()).not())

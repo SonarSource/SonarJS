@@ -1,12 +1,14 @@
 function main() {
 
-  var x, y, z, untracked;
+  var x, y, z, untracked, nan, undef;
 
   x = 0;  // PS x=ZERO
   x += 1; // PS x=NUMBER
   y = 5;  // PS y=TRUTHY_NUMBER
   z = 0;  // PS z=ZERO
   z++;    // PS z=NUMBER
+  undef = undefined; // PS undef=UNDEFINED
+  nan = NaN; // PS nan=NAN
   untracked = 5; // PS !untracked
   x = 0;
   x = foo[ y++ ]; // PS x=ANY_VALUE & y=NUMBER
