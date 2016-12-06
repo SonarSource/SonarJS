@@ -29,10 +29,14 @@ import org.sonar.javascript.se.ProgramState;
  */
 public class FunctionWithKnownReturnSymbolicValue implements FunctionSymbolicValue {
 
-  private final Constraint returnedValueConstraint;
+  private final FunctionBehaviour functionBehaviour;
 
   public FunctionWithKnownReturnSymbolicValue(Constraint returnedValueConstraint) {
-    this.returnedValueConstraint = returnedValueConstraint;
+    this.functionBehaviour = (Constraint ... argumentConstraints) -> returnedValueConstraint;
+  }
+
+  public FunctionWithKnownReturnSymbolicValue(FunctionBehaviour functionBehaviour) {
+    this.functionBehaviour = functionBehaviour;
   }
 
   @Override
@@ -46,7 +50,12 @@ public class FunctionWithKnownReturnSymbolicValue implements FunctionSymbolicVal
   }
 
   @Override
-  public SymbolicValue call() {
-    return new SymbolicValueWithConstraint(returnedValueConstraint);
+  public SymbolicValue call(Constraint ... argumentConstraints) {
+    return new SymbolicValueWithConstraint(functionBehaviour.call(argumentConstraints));
+  }
+
+  @FunctionalInterface
+  public interface FunctionBehaviour {
+    Constraint call(Constraint ... argumentConstraints);
   }
 }

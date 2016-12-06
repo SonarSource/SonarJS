@@ -24,6 +24,7 @@ import java.util.Optional;
 import javax.annotation.Nullable;
 import org.sonar.javascript.se.Constraint;
 import org.sonar.javascript.se.sv.FunctionWithKnownReturnSymbolicValue;
+import org.sonar.javascript.se.sv.FunctionWithKnownReturnSymbolicValue.FunctionBehaviour;
 import org.sonar.javascript.se.sv.SymbolicValue;
 import org.sonar.javascript.se.sv.SymbolicValueWithConstraint;
 
@@ -69,6 +70,10 @@ public abstract class BuiltInProperties {
 
   protected static FunctionWithKnownReturnSymbolicValue method(Constraint returnConstraint) {
     return new FunctionWithKnownReturnSymbolicValue(returnConstraint);
+  }
+
+  protected static FunctionWithKnownReturnSymbolicValue method(FunctionBehaviour functionBehaviour) {
+    return new FunctionWithKnownReturnSymbolicValue(functionBehaviour);
   }
 
   protected static Constraint constraintOnRecentProperty(Constraint baseConstraint) {

@@ -62,7 +62,7 @@ public enum BuiltInObjectSymbolicValue implements FunctionSymbolicValue {
   }
 
   @Override
-  public SymbolicValue call() {
+  public SymbolicValue call(Constraint ... argumentConstraints) {
     if (this == DATE || this == STRING) {
       return new SymbolicValueWithConstraint(Constraint.STRING_PRIMITIVE);
     } else if (this == NUMBER) {

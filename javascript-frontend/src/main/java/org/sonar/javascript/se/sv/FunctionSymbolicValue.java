@@ -44,7 +44,7 @@ public interface FunctionSymbolicValue extends ObjectSymbolicValue {
     return new SymbolicValueWithConstraint(Constraint.OBJECT);
   }
 
-  default SymbolicValue call() {
+  default SymbolicValue call(Constraint ... argumentConstraints) {
     return new SymbolicValueWithConstraint(Constraint.ANY_VALUE);
   }
 

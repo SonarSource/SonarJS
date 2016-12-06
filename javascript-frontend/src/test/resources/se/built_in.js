@@ -44,4 +44,30 @@ function main() {
   var regexpMethod = regexp.test();
   unknown = RegExp.fooBar;
   foo(); // PS regexp=REGEXP & regexpProp=NUMBER & regexpMethod=BOOLEAN & unknown=ANY_VALUE
+
+  // -------  METHOD BEHAVIOUR  -------
+  var isArray;
+  isArray = Array.isArray(unknown);
+  foo(isArray); // PS isArray=BOOLEAN
+
+  isArray = Array.isArray(1);
+  foo(isArray); // PS isArray=FALSE
+
+  isArray = Array.isArray("[1, 2]");
+  foo(isArray); // PS isArray=FALSE
+
+  isArray = Array.isArray();
+  foo(isArray); // PS isArray=FALSE
+
+  isArray = Array.isArray(null);
+  foo(isArray); // PS isArray=FALSE
+
+  isArray = Array.isArray([1, 2]);
+  foo(isArray); // PS isArray=TRUE
+
+  isArray = Array.isArray(new Array());
+  foo(isArray); // PS isArray=TRUE
+
+  foo(isArray);
+
 }

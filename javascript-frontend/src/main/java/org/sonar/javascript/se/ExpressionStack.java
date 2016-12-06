@@ -159,7 +159,7 @@ public class ExpressionStack {
         newStack.push(new SymbolicValueWithConstraint(Constraint.NUMBER_PRIMITIVE));
         break;
       case CALL_EXPRESSION:
-        executeCallExpression((CallExpressionTree) expression, newStack);
+        executeCallExpression((CallExpressionTree) expression, newStack, constraints);
         break;
       case FUNCTION_EXPRESSION:
       case GENERATOR_FUNCTION_EXPRESSION:
@@ -305,11 +305,16 @@ public class ExpressionStack {
     }
   }
 
-  private static void executeCallExpression(CallExpressionTree expression, Deque<SymbolicValue> newStack) {
-    pop(newStack, expression.arguments().parameters().size());
+  private static void executeCallExpression(CallExpressionTree expression, Deque<SymbolicValue> newStack, ProgramStateConstraints constraints) {
+    int argumentsNumber = expression.arguments().parameters().size();
+    Constraint[] argumentConstraints = new Constraint[argumentsNumber];
+    for (int argumentIndex = argumentsNumber - 1; argumentIndex >= 0; argumentIndex--) {
+      argumentConstraints[argumentIndex] = constraints.getConstraint(newStack.pop());
+    }
+
     SymbolicValue callee = newStack.pop();
     if (callee instanceof FunctionSymbolicValue) {
-      newStack.push(((FunctionSymbolicValue) callee).call());
+      newStack.push(((FunctionSymbolicValue) callee).call(argumentConstraints));
     } else {
       pushUnknown(newStack);
     }
