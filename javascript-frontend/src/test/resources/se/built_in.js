@@ -33,7 +33,7 @@ function main() {
   var maxNum = Number.MAX_VALUE;
   var isNanMethod = Number.isNaN();
   var toFixed = n.toFixed();
-  foo(); // PS maxNum=TRUTHY_NUMBER & isNanMethod=BOOLEAN & toFixed=STRING
+  foo(); // PS maxNum=TRUTHY_NUMBER & isNanMethod=BOOLEAN & toFixed=TRUTHY_STRING
 
   var mathAbs = Math.abs(-4);
   var squareRoot = Math.SQRT2;

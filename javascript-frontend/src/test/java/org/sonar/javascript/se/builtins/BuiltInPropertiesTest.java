@@ -53,7 +53,7 @@ public class BuiltInPropertiesTest {
   @Test
   public void test_number() throws Exception {
     type = Type.NUMBER_PRIMITIVE;
-    assertMethod(value("toExponential"), method(Constraint.STRING_PRIMITIVE));
+    assertMethod(value("toExponential"), method(Constraint.TRUTHY_STRING_PRIMITIVE));
     assertMethod(value("valueOf"), method(Constraint.NUMBER_PRIMITIVE));
     assertThat(value("foobar")).isEqualTo(SpecialSymbolicValue.UNDEFINED);
   }
@@ -98,7 +98,7 @@ public class BuiltInPropertiesTest {
     type = Type.DATE;
     assertMethod(value("getDate"), method(Constraint.TRUTHY_NUMBER_PRIMITIVE));
     assertMethod(value("setDate"), method(Constraint.NUMBER_PRIMITIVE));
-    assertMethod(value("toString"), method(Constraint.STRING_PRIMITIVE));
+    assertMethod(value("toString"), method(Constraint.TRUTHY_STRING_PRIMITIVE));
     assertThat(value("foobar")).isEqualTo(UnknownSymbolicValue.UNKNOWN);
   }
 
