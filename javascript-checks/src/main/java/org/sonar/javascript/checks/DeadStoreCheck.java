@@ -23,6 +23,7 @@ import com.google.common.collect.Lists;
 import java.util.Set;
 import org.sonar.check.Rule;
 import org.sonar.javascript.cfg.CfgBlock;
+import org.sonar.javascript.cfg.CfgBranchingBlock;
 import org.sonar.javascript.cfg.ControlFlowGraph;
 import org.sonar.javascript.se.LiveVariableAnalysis;
 import org.sonar.javascript.se.LiveVariableAnalysis.Usages;
@@ -49,26 +50,26 @@ public class DeadStoreCheck extends DoubleDispatchVisitorCheck {
 
   @Override
   public void visitFunctionDeclaration(FunctionDeclarationTree tree) {
-    checkFunction(tree);
     super.visitFunctionDeclaration(tree);
+    checkFunction(tree);
   }
 
   @Override
   public void visitFunctionExpression(FunctionExpressionTree tree) {
-    checkFunction(tree);
     super.visitFunctionExpression(tree);
+    checkFunction(tree);
   }
 
   @Override
   public void visitMethodDeclaration(MethodDeclarationTree tree) {
-    checkFunction(tree);
     super.visitMethodDeclaration(tree);
+    checkFunction(tree);
   }
 
   @Override
   public void visitArrowFunction(ArrowFunctionTree tree) {
-    checkFunction(tree);
     super.visitArrowFunction(tree);
+    checkFunction(tree);
   }
 
   private void checkFunction(FunctionTree functionTree) {
@@ -87,6 +88,12 @@ public class DeadStoreCheck extends DoubleDispatchVisitorCheck {
     Usages usages = lva.getUsages();
 
     for (CfgBlock cfgBlock : cfg.blocks()) {
+      if (isTryBlock(cfgBlock)) {
+        return;
+      }
+    }
+
+    for (CfgBlock cfgBlock : cfg.blocks()) {
       Set<Symbol> live = lva.getLiveOutSymbols(cfgBlock);
 
       for (Tree element : Lists.reverse(cfgBlock.elements())) {
@@ -98,6 +105,14 @@ public class DeadStoreCheck extends DoubleDispatchVisitorCheck {
     }
 
     raiseIssuesForNeverReadSymbols(usages);
+  }
+  
+  private static boolean isTryBlock(CfgBlock block) {
+    if (block instanceof CfgBranchingBlock) {
+      CfgBranchingBlock branchingBlock = (CfgBranchingBlock) block;
+      return branchingBlock.branchingTree().is(Kind.TRY_STATEMENT);
+    }
+    return false;
   }
 
   private void checkUsage(Usage usage, Set<Symbol> liveSymbols, Usages usages) {
