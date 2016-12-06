@@ -24,6 +24,9 @@ import java.util.Map;
 import org.sonar.javascript.se.Constraint;
 import org.sonar.javascript.se.sv.SymbolicValue;
 
+import static org.sonar.javascript.se.Constraint.BOOLEAN_PRIMITIVE;
+import static org.sonar.javascript.se.Constraint.NAN;
+
 public class NumberBuiltInProperties extends BuiltInProperties {
 
   public static final NumberBuiltInProperties INSTANCE = new NumberBuiltInProperties();
@@ -54,7 +57,7 @@ public class NumberBuiltInProperties extends BuiltInProperties {
   @Override
   Map<String, SymbolicValue> getOwnMethods() {
     return ImmutableMap.<String, SymbolicValue>builder()
-      .put("isNaN", method(Constraint.BOOLEAN_PRIMITIVE))
+      .put("isNaN", method(BOOLEAN_PRIMITIVE, BuiltInProperties.getIsSomethingArgumentsConstrainer(NAN)))
       .put("isFinite", method(Constraint.BOOLEAN_PRIMITIVE))
       .put("isInteger", method(Constraint.BOOLEAN_PRIMITIVE))
       .put("isSafeInteger", method(Constraint.BOOLEAN_PRIMITIVE))

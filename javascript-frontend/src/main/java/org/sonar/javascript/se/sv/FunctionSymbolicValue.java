@@ -19,6 +19,7 @@
  */
 package org.sonar.javascript.se.sv;
 
+import java.util.List;
 import java.util.Optional;
 import org.sonar.javascript.se.Constraint;
 import org.sonar.javascript.se.ProgramState;
@@ -44,7 +45,7 @@ public interface FunctionSymbolicValue extends ObjectSymbolicValue {
     return new SymbolicValueWithConstraint(Constraint.OBJECT);
   }
 
-  default SymbolicValue call(Constraint ... argumentConstraints) {
+  default SymbolicValue call(List<SymbolicValue> argumentValues) {
     return new SymbolicValueWithConstraint(Constraint.ANY_VALUE);
   }
 

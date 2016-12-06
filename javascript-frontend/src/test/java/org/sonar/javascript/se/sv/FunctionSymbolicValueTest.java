@@ -19,6 +19,7 @@
  */
 package org.sonar.javascript.se.sv;
 
+import com.google.common.collect.ImmutableList;
 import org.junit.Test;
 import org.sonar.javascript.se.Constraint;
 import org.sonar.javascript.se.ProgramState;
@@ -33,7 +34,7 @@ public class FunctionSymbolicValueTest {
     FunctionSymbolicValue basicFunctionSV = new FunctionSymbolicValue() {};
 
     assertThat(basicFunctionSV.baseConstraint(ps)).isEqualTo(Constraint.FUNCTION);
-    assertThat(basicFunctionSV.call().baseConstraint(ps)).isEqualTo(Constraint.ANY_VALUE);
+    assertThat(basicFunctionSV.call(ImmutableList.of()).baseConstraint(ps)).isEqualTo(Constraint.ANY_VALUE);
     assertThat(basicFunctionSV.instantiate().baseConstraint(ps)).isEqualTo(Constraint.OBJECT);
     assertThat(basicFunctionSV.getValueForOwnProperty("fooBar").isPresent()).isFalse();
   }

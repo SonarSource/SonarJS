@@ -19,6 +19,7 @@
  */
 package org.sonar.javascript.se.sv;
 
+import java.util.List;
 import java.util.Optional;
 import org.sonar.javascript.se.Constraint;
 import org.sonar.javascript.se.ProgramState;
@@ -29,14 +30,17 @@ import org.sonar.javascript.se.ProgramState;
  */
 public class BuiltInFunctionSymbolicValue implements FunctionSymbolicValue {
 
-  private final FunctionBehaviour functionBehaviour;
+  private final Constraint returnedValueConstraint;
+  private final ArgumentsConstrainer argumentsConstrainer;
 
   public BuiltInFunctionSymbolicValue(Constraint returnedValueConstraint) {
-    this.functionBehaviour = (Constraint ... argumentConstraints) -> returnedValueConstraint;
+    this.returnedValueConstraint = returnedValueConstraint;
+    this.argumentsConstrainer = null;
   }
 
-  public BuiltInFunctionSymbolicValue(FunctionBehaviour functionBehaviour) {
-    this.functionBehaviour = functionBehaviour;
+  public BuiltInFunctionSymbolicValue(Constraint returnedValueConstraint, ArgumentsConstrainer argumentsConstrainer) {
+    this.returnedValueConstraint = returnedValueConstraint;
+    this.argumentsConstrainer = argumentsConstrainer;
   }
 
   @Override
@@ -50,12 +54,34 @@ public class BuiltInFunctionSymbolicValue implements FunctionSymbolicValue {
   }
 
   @Override
-  public SymbolicValue call(Constraint ... argumentConstraints) {
-    return new SymbolicValueWithConstraint(functionBehaviour.call(argumentConstraints));
+  public SymbolicValue call(List<SymbolicValue> argumentValues) {
+    if (argumentsConstrainer == null) {
+      return new SymbolicValueWithConstraint(returnedValueConstraint);
+    }
+    return new ReturnSymbolicValue(argumentValues);
   }
 
   @FunctionalInterface
-  public interface FunctionBehaviour {
-    Constraint call(Constraint ... argumentConstraints);
+  public interface ArgumentsConstrainer {
+    Optional<ProgramState> constrain(List<SymbolicValue> arguments, ProgramState state, Constraint constraint);
+  }
+
+  private class ReturnSymbolicValue implements SymbolicValue {
+
+    List<SymbolicValue> arguments;
+
+    ReturnSymbolicValue(List<SymbolicValue> argumentValues) {
+      this.arguments = argumentValues;
+    }
+
+    @Override
+    public Optional<ProgramState> constrainDependencies(ProgramState state, Constraint constraint) {
+      return argumentsConstrainer.constrain(arguments, state, constraint);
+    }
+
+    @Override
+    public Constraint baseConstraint(ProgramState state) {
+      return returnedValueConstraint;
+    }
   }
 }

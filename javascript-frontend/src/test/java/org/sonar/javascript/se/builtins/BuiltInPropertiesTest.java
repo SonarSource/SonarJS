@@ -19,6 +19,7 @@
  */
 package org.sonar.javascript.se.builtins;
 
+import com.google.common.collect.ImmutableList;
 import org.junit.Test;
 import org.sonar.javascript.se.Constraint;
 import org.sonar.javascript.se.Type;
@@ -136,8 +137,8 @@ public class BuiltInPropertiesTest {
 
   private void assertMethod(SymbolicValue actual, BuiltInFunctionSymbolicValue expected) {
     assertThat(actual).isInstanceOf(BuiltInFunctionSymbolicValue.class);
-    assertThat(constraint(((BuiltInFunctionSymbolicValue) actual).call()))
-      .isEqualTo(constraint(expected.call()));
+    assertThat(constraint(((BuiltInFunctionSymbolicValue) actual).call(ImmutableList.of())))
+      .isEqualTo(constraint(expected.call(ImmutableList.of())));
   }
 
   private SymbolicValue value(String name) {

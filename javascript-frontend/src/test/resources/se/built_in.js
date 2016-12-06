@@ -31,7 +31,7 @@ function main() {
   foo(); // PS unknown=ANY_VALUE
 
   var maxNum = Number.MAX_VALUE;
-  var isNanMethod = Number.isNaN();
+  var isNanMethod = Number.isNaN(unknown);
   var toFixed = n.toFixed();
   foo(); // PS maxNum=TRUTHY_NUMBER & isNanMethod=BOOLEAN & toFixed=TRUTHY_STRING
 
@@ -46,28 +46,119 @@ function main() {
   foo(); // PS regexp=REGEXP & regexpProp=NUMBER & regexpMethod=BOOLEAN & unknown=ANY_VALUE
 
   // -------  METHOD BEHAVIOUR  -------
-  var isArray;
-  isArray = Array.isArray(unknown);
-  foo(isArray); // PS isArray=BOOLEAN
+  var isArray = false;
 
-  isArray = Array.isArray(1);
+  isArray = false;
+  if (Array.isArray(1)) {
+    isArray = true;
+  }
   foo(isArray); // PS isArray=FALSE
 
-  isArray = Array.isArray("[1, 2]");
+  isArray = false;
+  if (Array.isArray("[1, 2]")) {
+    isArray = true;
+  }
   foo(isArray); // PS isArray=FALSE
 
-  isArray = Array.isArray();
+  isArray = false;
+  if (Array.isArray()) {
+    isArray = true;
+  }
   foo(isArray); // PS isArray=FALSE
 
-  isArray = Array.isArray(null);
+  isArray = false;
+  if (Array.isArray(null)) {
+    isArray = true;
+  }
   foo(isArray); // PS isArray=FALSE
 
-  isArray = Array.isArray([1, 2]);
+  isArray = false;
+  if (Array.isArray([1, 2])) {
+    isArray = true;
+  }
   foo(isArray); // PS isArray=TRUE
 
-  isArray = Array.isArray(new Array());
-  foo(isArray); // PS isArray=TRUE
+  isArray = false;
+  if (Array.isArray(unknown)) {
+    isArray = true;
+  }
+  foo(isArray); // PS isArray=TRUE || isArray=FALSE
 
-  foo(isArray);
 
+  var isNanVar;
+  isNanVar = false;
+  if (Number.isNaN(unknown)) {
+    isNanVar = true;
+  }
+  foo(isNanVar); // PS isNanVar=TRUE || isNanVar=FALSE
+
+  isNanVar = false;
+  if (Number.isNaN(1)) {
+    isNanVar = true;
+  }
+  foo(isNanVar); // PS isNanVar=FALSE
+
+  isNanVar = false;
+  if (Number.isNaN(NaN)) {
+    isNanVar = true;
+  }
+  foo(isNanVar); // PS isNanVar=TRUE
+
+  isNanVar = false;
+  if (Number.isNaN()) {
+    isNanVar = true;
+  }
+  foo(isNanVar); // PS isNanVar=FALSE
+
+  var unknownValue = foo();
+  if (Number.isNaN(unknownValue)) {
+    foo(unknownValue); // PS unknownValue=NAN
+  }
+
+  isNanVar = false;
+  if (isNaN(unknown)) {
+    isNanVar = true;
+  }
+  foo(isNanVar); // PS isNanVar=TRUE || isNanVar=FALSE
+
+  isNanVar = false;
+  if (isNaN(1)) {
+    isNanVar = true;
+  }
+  foo(isNanVar); // PS isNanVar=FALSE
+
+  isNanVar = false;
+  if (isNaN(NaN)) {
+    isNanVar = true;
+  }
+  foo(isNanVar); // PS isNanVar=TRUE
+
+  isNanVar = false;
+  if (isNaN()) {
+    isNanVar = true;
+  }
+  foo(isNanVar); // PS isNanVar=TRUE
+
+  isNanVar = false;
+  if (isNaN(function(){})) {
+    isNanVar = true;
+  }
+  foo(isNanVar); // PS isNanVar=TRUE
+
+  isNanVar = false;
+  if (isNaN("hello")) {
+    isNanVar = true;
+  }
+  foo(isNanVar); // PS isNanVar=TRUE || isNanVar=FALSE
+
+  isNanVar = false;
+  if (isNaN(new Date(unknown))) {
+    isNanVar = true;
+  }
+  foo(isNanVar); // PS isNanVar=TRUE || isNanVar=FALSE
+
+  var unknownValue = foo() ? null : undefined;
+  if (isNaN(unknownValue)) {
+    foo(unknownValue); // PS unknownValue=UNDEFINED
+  }
 }

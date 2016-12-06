@@ -20,9 +20,12 @@
 package org.sonar.javascript.se;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
+import java.util.ArrayList;
 import java.util.Deque;
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import javax.annotation.Nullable;
@@ -159,7 +162,7 @@ public class ExpressionStack {
         newStack.push(new SymbolicValueWithConstraint(Constraint.NUMBER_PRIMITIVE));
         break;
       case CALL_EXPRESSION:
-        executeCallExpression((CallExpressionTree) expression, newStack, constraints);
+        executeCallExpression((CallExpressionTree) expression, newStack);
         break;
       case FUNCTION_EXPRESSION:
       case GENERATOR_FUNCTION_EXPRESSION:
@@ -305,16 +308,17 @@ public class ExpressionStack {
     }
   }
 
-  private static void executeCallExpression(CallExpressionTree expression, Deque<SymbolicValue> newStack, ProgramStateConstraints constraints) {
+  private static void executeCallExpression(CallExpressionTree expression, Deque<SymbolicValue> newStack) {
     int argumentsNumber = expression.arguments().parameters().size();
-    Constraint[] argumentConstraints = new Constraint[argumentsNumber];
-    for (int argumentIndex = argumentsNumber - 1; argumentIndex >= 0; argumentIndex--) {
-      argumentConstraints[argumentIndex] = constraints.getConstraint(newStack.pop());
+    List<SymbolicValue> argumentConstraints = new ArrayList<>();
+
+    for (int i = 0; i < argumentsNumber; i++) {
+      argumentConstraints.add(newStack.pop());
     }
 
     SymbolicValue callee = newStack.pop();
     if (callee instanceof FunctionSymbolicValue) {
-      newStack.push(((FunctionSymbolicValue) callee).call(argumentConstraints));
+      newStack.push(((FunctionSymbolicValue) callee).call(Lists.reverse(argumentConstraints)));
     } else {
       pushUnknown(newStack);
     }

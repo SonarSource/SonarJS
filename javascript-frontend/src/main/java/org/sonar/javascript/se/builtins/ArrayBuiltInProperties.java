@@ -22,15 +22,10 @@ package org.sonar.javascript.se.builtins;
 import com.google.common.collect.ImmutableMap;
 import java.util.Map;
 import org.sonar.javascript.se.Constraint;
-import org.sonar.javascript.se.sv.BuiltInFunctionSymbolicValue.FunctionBehaviour;
 import org.sonar.javascript.se.sv.SymbolicValue;
 
 import static org.sonar.javascript.se.Constraint.ANY_VALUE;
 import static org.sonar.javascript.se.Constraint.ARRAY;
-import static org.sonar.javascript.se.Constraint.BOOLEAN_PRIMITIVE;
-import static org.sonar.javascript.se.Constraint.FALSE;
-import static org.sonar.javascript.se.Constraint.OTHER_OBJECT;
-import static org.sonar.javascript.se.Constraint.TRUE;
 import static org.sonar.javascript.se.Constraint.UNDEFINED;
 
 public class ArrayBuiltInProperties extends BuiltInProperties {
@@ -88,21 +83,9 @@ public class ArrayBuiltInProperties extends BuiltInProperties {
 
   @Override
   Map<String, SymbolicValue> getOwnMethods() {
-
-    FunctionBehaviour isArrayBehaviour = (Constraint ... argumentConstraints) -> {
-      if (argumentConstraints.length == 0 || argumentConstraints[0].isIncompatibleWith(ARRAY.or(OTHER_OBJECT))) {
-        return FALSE;
-
-      } else if (argumentConstraints[0].isStricterOrEqualTo(ARRAY)) {
-        return TRUE;
-      }
-
-      return BOOLEAN_PRIMITIVE;
-    };
-
     return ImmutableMap.<String, SymbolicValue>builder()
       .put("from", method(Constraint.ARRAY))
-      .put("isArray", method(isArrayBehaviour))
+      .put("isArray", method(Constraint.BOOLEAN_PRIMITIVE, BuiltInProperties.getIsSomethingArgumentsConstrainer(ARRAY)))
       .put("of", method(Constraint.ARRAY))
       .build();
   }

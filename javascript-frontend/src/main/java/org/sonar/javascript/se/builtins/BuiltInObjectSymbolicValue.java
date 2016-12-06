@@ -19,12 +19,24 @@
  */
 package org.sonar.javascript.se.builtins;
 
+import java.util.List;
 import java.util.Optional;
 import org.sonar.javascript.se.Constraint;
+import org.sonar.javascript.se.ProgramState;
 import org.sonar.javascript.se.Type;
+import org.sonar.javascript.se.sv.BuiltInFunctionSymbolicValue;
+import org.sonar.javascript.se.sv.BuiltInFunctionSymbolicValue.ArgumentsConstrainer;
 import org.sonar.javascript.se.sv.FunctionSymbolicValue;
 import org.sonar.javascript.se.sv.SymbolicValue;
 import org.sonar.javascript.se.sv.SymbolicValueWithConstraint;
+
+import static org.sonar.javascript.se.Constraint.NAN;
+import static org.sonar.javascript.se.Constraint.NULL;
+import static org.sonar.javascript.se.Constraint.OTHER_OBJECT;
+import static org.sonar.javascript.se.Constraint.TRUTHY;
+import static org.sonar.javascript.se.Constraint.TRUTHY_NUMBER_PRIMITIVE;
+import static org.sonar.javascript.se.Constraint.UNDEFINED;
+import static org.sonar.javascript.se.Constraint.ZERO;
 
 public enum BuiltInObjectSymbolicValue implements FunctionSymbolicValue {
 
@@ -36,6 +48,27 @@ public enum BuiltInObjectSymbolicValue implements FunctionSymbolicValue {
   REGEXP("RegExp", Type.REGEXP),
   ARRAY("Array", Type.ARRAY),
   OBJECT("Object", Type.OBJECT);
+
+  private static final ArgumentsConstrainer IS_NAN_ARGUMENT_CONSTRAINER = (List<SymbolicValue> arguments, ProgramState state, Constraint constraint) -> {
+    boolean truthy = constraint.isStricterOrEqualTo(TRUTHY);
+    boolean hasArguments = !arguments.isEmpty();
+
+    Constraint alwaysNaN = UNDEFINED.or(NAN).or(Constraint.FUNCTION).or(Constraint.REGEXP).or(OTHER_OBJECT);
+    Constraint alwaysNotNaN = NULL.or(ZERO).or(Constraint.EMPTY_STRING_PRIMITIVE).or(Constraint.ANY_BOOLEAN).or(TRUTHY_NUMBER_PRIMITIVE);
+
+    if (truthy && hasArguments) {
+      return state.constrain(arguments.get(0), alwaysNotNaN.not());
+
+    } else if (truthy) {
+      return Optional.of(state);
+
+    } else if (!hasArguments) {
+      return Optional.empty();
+
+    } else {
+      return state.constrain(arguments.get(0), alwaysNaN.not());
+    }
+  };
 
   private static final SymbolicValue MATH_OBJECT = new MathBuiltInObjectSymbolicValue();
 
@@ -62,7 +95,7 @@ public enum BuiltInObjectSymbolicValue implements FunctionSymbolicValue {
   }
 
   @Override
-  public SymbolicValue call(Constraint ... argumentConstraints) {
+  public SymbolicValue call(List<SymbolicValue> argumentValues) {
     if (this == DATE || this == STRING) {
       return new SymbolicValueWithConstraint(Constraint.STRING_PRIMITIVE);
     } else if (this == NUMBER) {
@@ -83,6 +116,10 @@ public enum BuiltInObjectSymbolicValue implements FunctionSymbolicValue {
 
     if ("Math".equals(name)) {
       return Optional.of(MATH_OBJECT);
+    }
+
+    if ("isNaN".equals(name)) {
+      return Optional.of(new BuiltInFunctionSymbolicValue(Constraint.BOOLEAN_PRIMITIVE, IS_NAN_ARGUMENT_CONSTRAINER));
     }
 
     return Optional.empty();
