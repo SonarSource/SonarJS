@@ -22,11 +22,13 @@ package org.sonar.javascript.se.builtins;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.IntFunction;
 import javax.annotation.Nullable;
 import org.sonar.javascript.se.Constraint;
 import org.sonar.javascript.se.ProgramState;
 import org.sonar.javascript.se.sv.BuiltInFunctionSymbolicValue;
 import org.sonar.javascript.se.sv.BuiltInFunctionSymbolicValue.ArgumentsConstrainer;
+import org.sonar.javascript.se.sv.BuiltInFunctionSymbolicValue.ListSignature;
 import org.sonar.javascript.se.sv.SymbolicValue;
 import org.sonar.javascript.se.sv.SymbolicValueWithConstraint;
 
@@ -76,8 +78,16 @@ public abstract class BuiltInProperties {
     return new BuiltInFunctionSymbolicValue(returnConstraint);
   }
 
-  protected static BuiltInFunctionSymbolicValue method(Constraint returnConstraint, ArgumentsConstrainer argumentsConstrainer) {
-    return new BuiltInFunctionSymbolicValue(returnConstraint, argumentsConstrainer);
+  protected static BuiltInFunctionSymbolicValue method(Constraint returnConstraint, List<Constraint> parameterTypes) {
+    return method(returnConstraint, null, parameterTypes);
+  }
+
+  protected static BuiltInFunctionSymbolicValue method(Constraint returnConstraint, IntFunction<Constraint> signature) {
+    return new BuiltInFunctionSymbolicValue(returnConstraint, signature);
+  }
+
+  protected static BuiltInFunctionSymbolicValue method(Constraint returnConstraint, @Nullable ArgumentsConstrainer argumentsConstrainer, List<Constraint> parameterTypes) {
+    return new BuiltInFunctionSymbolicValue(returnConstraint, argumentsConstrainer, new ListSignature(parameterTypes));
   }
 
   protected static Constraint constraintOnRecentProperty(Constraint baseConstraint) {

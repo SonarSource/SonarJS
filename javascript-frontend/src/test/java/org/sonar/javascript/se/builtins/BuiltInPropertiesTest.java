@@ -20,6 +20,7 @@
 package org.sonar.javascript.se.builtins;
 
 import com.google.common.collect.ImmutableList;
+import java.util.function.IntFunction;
 import org.junit.Test;
 import org.sonar.javascript.se.Constraint;
 import org.sonar.javascript.se.Type;
@@ -129,6 +130,99 @@ public class BuiltInPropertiesTest {
 
     assertThat(value("split")).isEqualTo(UnknownSymbolicValue.UNKNOWN);
 
+  }
+
+  @Test
+  public void replace_method_signature() throws Exception {
+    type = Type.STRING_PRIMITIVE;
+    IntFunction<Constraint> replaceSignature = ((BuiltInFunctionSymbolicValue) value("replace")).signature();
+    assertThat(replaceSignature.apply(0)).isEqualTo(Constraint.ANY_STRING.or(Constraint.REGEXP));
+    assertThat(replaceSignature.apply(1)).isEqualTo(Constraint.ANY_STRING.or(Constraint.FUNCTION));
+    assertThat(replaceSignature.apply(2)).isNull();
+    assertThat(replaceSignature.apply(42)).isNull();
+  }
+
+  @Test
+  public void concat_method_signature() throws Exception {
+    type = Type.STRING_PRIMITIVE;
+    IntFunction<Constraint> replaceSignature = ((BuiltInFunctionSymbolicValue) value("concat")).signature();
+    assertThat(replaceSignature.apply(0)).isEqualTo(Constraint.ANY_STRING);
+    assertThat(replaceSignature.apply(1)).isEqualTo(Constraint.ANY_STRING);
+    assertThat(replaceSignature.apply(2)).isEqualTo(Constraint.ANY_STRING);
+    assertThat(replaceSignature.apply(42)).isEqualTo(Constraint.ANY_STRING);
+  }
+
+  @Test
+  public void startsWith_method_signature() throws Exception {
+    type = Type.STRING_PRIMITIVE;
+    IntFunction<Constraint> replaceSignature = ((BuiltInFunctionSymbolicValue) value("startsWith")).signature();
+    assertThat(replaceSignature.apply(0)).isEqualTo(Constraint.ANY_STRING);
+    assertThat(replaceSignature.apply(1)).isEqualTo(Constraint.ANY_NUMBER);
+    assertThat(replaceSignature.apply(2)).isNull();
+    assertThat(replaceSignature.apply(42)).isNull();
+  }
+
+  @Test
+  public void valueOf_method_signature() throws Exception {
+    type = Type.NUMBER_PRIMITIVE;
+    IntFunction<Constraint> replaceSignature = ((BuiltInFunctionSymbolicValue) value("valueOf")).signature();
+    assertThat(replaceSignature.apply(0)).isNull();
+    assertThat(replaceSignature.apply(42)).isNull();
+  }
+
+  @Test
+  public void toLocaleString_method_signature() throws Exception {
+    type = Type.NUMBER_PRIMITIVE;
+    IntFunction<Constraint> replaceSignature = ((BuiltInFunctionSymbolicValue) value("toLocaleString")).signature();
+    assertThat(replaceSignature.apply(0)).isEqualTo(Constraint.ANY_STRING.or(Constraint.ARRAY));
+    assertThat(replaceSignature.apply(1)).isEqualTo(Constraint.OBJECT);
+    assertThat(replaceSignature.apply(2)).isNull();
+    assertThat(replaceSignature.apply(42)).isNull();
+  }
+
+  @Test
+  public void reduce_method_signature() throws Exception {
+    type = Type.ARRAY;
+    IntFunction<Constraint> replaceSignature = ((BuiltInFunctionSymbolicValue) value("reduce")).signature();
+    assertThat(replaceSignature.apply(0)).isEqualTo(Constraint.FUNCTION);
+    assertThat(replaceSignature.apply(1)).isEqualTo(Constraint.ANY_VALUE);
+    assertThat(replaceSignature.apply(2)).isNull();
+    assertThat(replaceSignature.apply(42)).isNull();
+  }
+
+  @Test
+  public void setFullYear_method_signature() throws Exception {
+    type = Type.DATE;
+    IntFunction<Constraint> replaceSignature = ((BuiltInFunctionSymbolicValue) value("setFullYear")).signature();
+    assertThat(replaceSignature.apply(0)).isEqualTo(Constraint.ANY_NUMBER);
+    assertThat(replaceSignature.apply(1)).isEqualTo(Constraint.ANY_NUMBER);
+    assertThat(replaceSignature.apply(2)).isEqualTo(Constraint.ANY_NUMBER);
+    assertThat(replaceSignature.apply(3)).isNull();
+  }
+
+  @Test
+  public void no_method_signature() throws Exception {
+    type = Type.STRING_PRIMITIVE;
+    assertThat(((BuiltInFunctionSymbolicValue) value("camelize")).signature()).isNull();
+  }
+
+  @Test
+  public void class_method_signature() throws Exception {
+    MathBuiltInObjectSymbolicValue mathValue = (MathBuiltInObjectSymbolicValue) BuiltInObjectSymbolicValue.find("Math").get();
+    BuiltInFunctionSymbolicValue minMethod = (BuiltInFunctionSymbolicValue) mathValue.getValueForOwnProperty("min").get();
+    IntFunction<Constraint> signature = minMethod.signature();
+    assertThat(signature.apply(0)).isEqualTo(Constraint.ANY_NUMBER);
+    assertThat(signature.apply(1)).isEqualTo(Constraint.ANY_NUMBER);
+    assertThat(signature.apply(42)).isEqualTo(Constraint.ANY_NUMBER);
+  }
+
+  @Test
+  public void regexp_method_signature() throws Exception {
+    type = Type.REGEXP;
+    IntFunction<Constraint> signature = ((BuiltInFunctionSymbolicValue) value("test")).signature();
+    assertThat(signature.apply(0)).isEqualTo(Constraint.ANY_STRING);
+    assertThat(signature.apply(1)).isNull();
+    assertThat(signature.apply(42)).isNull();
   }
 
   private void assertProperty(SymbolicValue actual, Constraint expectedConstraint) {

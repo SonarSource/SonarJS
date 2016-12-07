@@ -19,11 +19,13 @@
  */
 package org.sonar.javascript.se;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.IntFunction;
 import javax.annotation.Nullable;
 import org.sonar.javascript.se.builtins.ArrayBuiltInProperties;
 import org.sonar.javascript.se.builtins.BooleanBuiltInProperties;
@@ -54,6 +56,25 @@ public enum Type {
   NULL(Constraint.NULL, null, new NullOrUndefinedBuiltInProperties()),
   UNDEFINED(Constraint.UNDEFINED, null, new NullOrUndefinedBuiltInProperties()),
   ;
+
+  public static final List<Constraint> ONE_NUMBER = ImmutableList.of(Constraint.ANY_NUMBER);
+  public static final List<Constraint> STRING_NUMBER = ImmutableList.of(Constraint.ANY_STRING, Constraint.ANY_NUMBER);
+  public static final List<Constraint> NUMBER_STRING = ImmutableList.of(Constraint.ANY_NUMBER, Constraint.ANY_STRING);
+  public static final List<Constraint> NUMBER_NUMBER = ImmutableList.of(Constraint.ANY_NUMBER, Constraint.ANY_NUMBER);
+  public static final List<Constraint> EMPTY = ImmutableList.of();
+  public static final List<Constraint> ONE_STRING = ImmutableList.of(Constraint.ANY_STRING);
+
+
+  public static final IntFunction<Constraint> TO_LOCALE_STRING_SIGNATURE = (int parameterIndex) -> {
+    switch (parameterIndex) {
+      case 0:
+        return Constraint.ANY_STRING.or(Constraint.ARRAY);
+      case 1:
+        return Constraint.OBJECT;
+      default:
+        return null;
+    }
+  };
 
   private static final List<Type> VALUES_REVERSED = Lists.reverse(Arrays.asList(Type.values()));
   private static final EnumSet<Type> PRIMITIVE_TYPES = EnumSet.of(

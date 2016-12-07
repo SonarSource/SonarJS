@@ -19,9 +19,11 @@
  */
 package org.sonar.javascript.se.builtins;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import java.util.Map;
 import org.sonar.javascript.se.Constraint;
+import org.sonar.javascript.se.Type;
 import org.sonar.javascript.se.sv.SymbolicValue;
 
 public class RegexpBuiltInProperties extends BuiltInProperties {
@@ -29,12 +31,12 @@ public class RegexpBuiltInProperties extends BuiltInProperties {
   @Override
   Map<String, SymbolicValue> getMethods() {
     return ImmutableMap.<String, SymbolicValue>builder()
-      .put("compile", method(Constraint.UNDEFINED))
-      .put("exec", method(Constraint.ARRAY.or(Constraint.NULL)))
-      .put("test", method(Constraint.BOOLEAN_PRIMITIVE))
+      .put("compile", method(Constraint.UNDEFINED, ImmutableList.of(Constraint.ANY_STRING, Constraint.ANY_STRING)))
+      .put("exec", method(Constraint.ARRAY.or(Constraint.NULL), Type.ONE_STRING))
+      .put("test", method(Constraint.BOOLEAN_PRIMITIVE, Type.ONE_STRING))
 
       // overrides Object
-      .put("toString", method(Constraint.STRING_PRIMITIVE))
+      .put("toString", method(Constraint.STRING_PRIMITIVE, Type.EMPTY))
       .build();
   }
 
