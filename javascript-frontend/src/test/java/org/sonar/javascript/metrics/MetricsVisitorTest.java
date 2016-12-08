@@ -21,8 +21,10 @@ package org.sonar.javascript.metrics;
 
 import java.io.File;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 import org.junit.Test;
+import org.mockito.Mockito;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
@@ -35,50 +37,65 @@ import org.sonar.plugins.javascript.api.tree.ScriptTree;
 import org.sonar.plugins.javascript.api.visitors.TreeVisitorContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.when;
 
 public class MetricsVisitorTest extends JavaScriptTreeModelTest {
 
+  private static final File MODULE_BASE_DIR = new File("src/test/resources/metrics/");
+
+  private static final DefaultInputFile INPUT_FILE = new DefaultInputFile("moduleKey", "lines.js")
+    .setModuleBaseDir(MODULE_BASE_DIR.toPath())
+    .setLanguage("js")
+    .setType(InputFile.Type.MAIN);
+
+  private static final String COMPONENT_KEY = "moduleKey:lines.js";
+
   @Test
   public void test() {
-    File moduleBaseDir = new File("src/test/resources/metrics/");
-    SensorContextTester context = SensorContextTester.create(moduleBaseDir);
+    SensorContextTester context = SensorContextTester.create(MODULE_BASE_DIR);
 
-    DefaultInputFile inputFile = new DefaultInputFile("moduleKey", "lines.js")
-      .setModuleBaseDir(moduleBaseDir.toPath())
-      .setLanguage("js")
-      .setType(InputFile.Type.MAIN);
+    HashMap<InputFile, Set<Integer>> projectLinesOfCode = new HashMap<>();
+    saveMetrics(context, projectLinesOfCode, false);
 
-    context.fileSystem().add(inputFile);
+    assertThat(context.measure(COMPONENT_KEY, CoreMetrics.FUNCTIONS).value()).isEqualTo(1);
+    assertThat(context.measure(COMPONENT_KEY, CoreMetrics.STATEMENTS).value()).isEqualTo(1);
+    assertThat(context.measure(COMPONENT_KEY, CoreMetrics.CLASSES).value()).isEqualTo(0);
+
+    assertThat(projectLinesOfCode).hasSize(1);
+    Set<Integer> linesOfCode = projectLinesOfCode.get(INPUT_FILE);
+    assertThat(linesOfCode).containsOnly(2, 3, 4);
+  }
+
+  @Test
+  public void save_executable_lines() {
+    saveMetrics(SensorContextTester.create(MODULE_BASE_DIR), new HashMap<>(), true);
+  }
+
+  private void saveMetrics(SensorContextTester context, Map<InputFile, Set<Integer>> projectLinesOfCode, boolean saveExecutableLines) {
+    context.fileSystem().add(INPUT_FILE);
 
     FileLinesContextFactory linesContextFactory = mock(FileLinesContextFactory.class);
     FileLinesContext linesContext = mock(FileLinesContext.class);
-    when(linesContextFactory.createFor(inputFile)).thenReturn(linesContext);
-
-    HashMap<InputFile, Set<Integer>> projectLinesOfCode = new HashMap<>();
+    when(linesContextFactory.createFor(INPUT_FILE)).thenReturn(linesContext);
 
     MetricsVisitor metricsVisitor = new MetricsVisitor(
-      context.fileSystem(),
       context,
       mock(NoSonarFilter.class),
       false,
       linesContextFactory,
-      projectLinesOfCode);
+      projectLinesOfCode,
+      saveExecutableLines);
 
     TreeVisitorContext treeVisitorContext = mock(TreeVisitorContext.class);
-    when(treeVisitorContext.getFile()).thenReturn(inputFile.file());
-    when(treeVisitorContext.getTopTree()).thenReturn((ScriptTree) p.parse(inputFile.file()));
+    when(treeVisitorContext.getFile()).thenReturn(INPUT_FILE.file());
+    when(treeVisitorContext.getTopTree()).thenReturn((ScriptTree) p.parse(INPUT_FILE.file()));
 
     metricsVisitor.scanTree(treeVisitorContext);
-
-    String componentKey = "moduleKey:lines.js";
-    assertThat(context.measure(componentKey, CoreMetrics.FUNCTIONS).value()).isEqualTo(1);
-    assertThat(context.measure(componentKey, CoreMetrics.STATEMENTS).value()).isEqualTo(1);
-    assertThat(context.measure(componentKey, CoreMetrics.CLASSES).value()).isEqualTo(0);
-
-    assertThat(projectLinesOfCode).hasSize(1);
-    Set<Integer> linesOfCode = projectLinesOfCode.get(inputFile);
-    assertThat(linesOfCode).containsOnly(2, 3, 4);
+    Mockito.verify(linesContext, saveExecutableLines ? atLeastOnce() : times(0)).setIntValue(eq(CoreMetrics.EXECUTABLE_LINES_DATA_KEY), any(Integer.class), any(Integer.class));
   }
 }

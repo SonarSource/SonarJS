@@ -45,6 +45,13 @@ public class JavaScriptPluginTest {
   }
 
   @Test
+  public void count_extensions_for_sonarqube_server_6_2() throws Exception {
+    Plugin.Context context = setupContext(SonarRuntimeImpl.forSonarQube(Version.create(6, 2), SonarQubeSide.SERVER));
+
+    assertThat(context.getExtensions()).hasSize(12);
+  }
+
+  @Test
   public void count_extensions_for_sonarlint() throws Exception {
     Plugin.Context context = setupContext(SonarRuntimeImpl.forSonarLint(Version.create(6, 0)));
 

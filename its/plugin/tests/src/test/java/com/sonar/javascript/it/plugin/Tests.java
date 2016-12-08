@@ -71,4 +71,8 @@ public final class Tests {
     ORCHESTRATOR.getServer().associateProjectToQualityProfile(projectKey, "js", "empty-profile");
   }
 
+  public static boolean is_before_sonar_6_2() {
+    return !ORCHESTRATOR.getConfiguration().getSonarVersion().isGreaterThanOrEquals("6.2");
+  }
+
 }
