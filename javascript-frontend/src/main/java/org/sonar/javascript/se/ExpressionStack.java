@@ -20,9 +20,12 @@
 package org.sonar.javascript.se;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
+import java.util.ArrayList;
 import java.util.Deque;
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import javax.annotation.Nullable;
@@ -297,10 +300,16 @@ public class ExpressionStack {
   }
 
   private static void executeCallExpression(CallExpressionTree expression, Deque<SymbolicValue> newStack) {
-    pop(newStack, expression.arguments().parameters().size());
+    int argumentsNumber = expression.arguments().parameters().size();
+    List<SymbolicValue> argumentConstraints = new ArrayList<>();
+
+    for (int i = 0; i < argumentsNumber; i++) {
+      argumentConstraints.add(newStack.pop());
+    }
+
     SymbolicValue callee = newStack.pop();
     if (callee instanceof FunctionSymbolicValue) {
-      newStack.push(((FunctionSymbolicValue) callee).call());
+      newStack.push(((FunctionSymbolicValue) callee).call(Lists.reverse(argumentConstraints)));
     } else {
       pushUnknown(newStack);
     }

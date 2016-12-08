@@ -19,10 +19,11 @@
  */
 package org.sonar.javascript.se.builtins;
 
+import com.google.common.collect.ImmutableList;
 import org.junit.Test;
 import org.sonar.javascript.se.Constraint;
 import org.sonar.javascript.se.Type;
-import org.sonar.javascript.se.sv.FunctionWithKnownReturnSymbolicValue;
+import org.sonar.javascript.se.sv.BuiltInFunctionSymbolicValue;
 import org.sonar.javascript.se.sv.SpecialSymbolicValue;
 import org.sonar.javascript.se.sv.SymbolicValue;
 import org.sonar.javascript.se.sv.SymbolicValueWithConstraint;
@@ -53,7 +54,7 @@ public class BuiltInPropertiesTest {
   @Test
   public void test_number() throws Exception {
     type = Type.NUMBER_PRIMITIVE;
-    assertMethod(value("toExponential"), method(Constraint.STRING_PRIMITIVE));
+    assertMethod(value("toExponential"), method(Constraint.TRUTHY_STRING_PRIMITIVE));
     assertMethod(value("valueOf"), method(Constraint.NUMBER_PRIMITIVE));
     assertThat(value("foobar")).isEqualTo(SpecialSymbolicValue.UNDEFINED);
   }
@@ -98,7 +99,7 @@ public class BuiltInPropertiesTest {
     type = Type.DATE;
     assertMethod(value("getDate"), method(Constraint.TRUTHY_NUMBER_PRIMITIVE));
     assertMethod(value("setDate"), method(Constraint.NUMBER_PRIMITIVE));
-    assertMethod(value("toString"), method(Constraint.STRING_PRIMITIVE));
+    assertMethod(value("toString"), method(Constraint.TRUTHY_STRING_PRIMITIVE));
     assertThat(value("foobar")).isEqualTo(UnknownSymbolicValue.UNKNOWN);
   }
 
@@ -134,17 +135,17 @@ public class BuiltInPropertiesTest {
     assertThat(constraint(actual)).isEqualTo(expectedConstraint);
   }
 
-  private void assertMethod(SymbolicValue actual, FunctionWithKnownReturnSymbolicValue expected) {
-    assertThat(actual).isInstanceOf(FunctionWithKnownReturnSymbolicValue.class);
-    assertThat(constraint(((FunctionWithKnownReturnSymbolicValue) actual).call()))
-      .isEqualTo(constraint(expected.call()));
+  private void assertMethod(SymbolicValue actual, BuiltInFunctionSymbolicValue expected) {
+    assertThat(actual).isInstanceOf(BuiltInFunctionSymbolicValue.class);
+    assertThat(constraint(((BuiltInFunctionSymbolicValue) actual).call(ImmutableList.of())))
+      .isEqualTo(constraint(expected.call(ImmutableList.of())));
   }
 
   private SymbolicValue value(String name) {
     return type.getValueForProperty(name);
   }
 
-  private FunctionWithKnownReturnSymbolicValue method(Constraint returnConstraint) {
+  private BuiltInFunctionSymbolicValue method(Constraint returnConstraint) {
     return BuiltInProperties.method(returnConstraint);
   }
 

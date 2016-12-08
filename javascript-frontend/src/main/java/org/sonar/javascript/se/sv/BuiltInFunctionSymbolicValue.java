@@ -19,20 +19,28 @@
  */
 package org.sonar.javascript.se.sv;
 
+import java.util.List;
 import java.util.Optional;
 import org.sonar.javascript.se.Constraint;
 import org.sonar.javascript.se.ProgramState;
 
 /**
  * This symbolic values is used for built-in types and objects methods. Note, that as many of such methods are not supported by all browsers (as they are deprecated or new),
- * {@link FunctionWithKnownReturnSymbolicValue#baseConstraint(ProgramState)} will return <code>Constraint.FUNCTION.or(Constraint.UNDEFINED)</code>.
+ * {@link BuiltInFunctionSymbolicValue#baseConstraint(ProgramState)} will return <code>Constraint.FUNCTION.or(Constraint.UNDEFINED)</code>.
  */
-public class FunctionWithKnownReturnSymbolicValue implements FunctionSymbolicValue {
+public class BuiltInFunctionSymbolicValue implements FunctionSymbolicValue {
 
   private final Constraint returnedValueConstraint;
+  private final ArgumentsConstrainer argumentsConstrainer;
 
-  public FunctionWithKnownReturnSymbolicValue(Constraint returnedValueConstraint) {
+  public BuiltInFunctionSymbolicValue(Constraint returnedValueConstraint) {
     this.returnedValueConstraint = returnedValueConstraint;
+    this.argumentsConstrainer = null;
+  }
+
+  public BuiltInFunctionSymbolicValue(Constraint returnedValueConstraint, ArgumentsConstrainer argumentsConstrainer) {
+    this.returnedValueConstraint = returnedValueConstraint;
+    this.argumentsConstrainer = argumentsConstrainer;
   }
 
   @Override
@@ -46,7 +54,34 @@ public class FunctionWithKnownReturnSymbolicValue implements FunctionSymbolicVal
   }
 
   @Override
-  public SymbolicValue call() {
-    return new SymbolicValueWithConstraint(returnedValueConstraint);
+  public SymbolicValue call(List<SymbolicValue> argumentValues) {
+    if (argumentsConstrainer == null) {
+      return new SymbolicValueWithConstraint(returnedValueConstraint);
+    }
+    return new ReturnSymbolicValue(argumentValues);
+  }
+
+  @FunctionalInterface
+  public interface ArgumentsConstrainer {
+    Optional<ProgramState> constrain(List<SymbolicValue> arguments, ProgramState state, Constraint constraint);
+  }
+
+  private class ReturnSymbolicValue implements SymbolicValue {
+
+    List<SymbolicValue> arguments;
+
+    ReturnSymbolicValue(List<SymbolicValue> argumentValues) {
+      this.arguments = argumentValues;
+    }
+
+    @Override
+    public Optional<ProgramState> constrainDependencies(ProgramState state, Constraint constraint) {
+      return argumentsConstrainer.constrain(arguments, state, constraint);
+    }
+
+    @Override
+    public Constraint baseConstraint(ProgramState state) {
+      return returnedValueConstraint;
+    }
   }
 }

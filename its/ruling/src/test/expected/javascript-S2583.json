@@ -317,6 +317,9 @@
 'project:dojo-1.8.1/dojox/geo/charting/Feature.js.uncompressed.js':[
 141,
 ],
+'project:dojo-1.8.1/dojox/geo/charting/Map.js.uncompressed.js':[
+223,
+],
 'project:dojo-1.8.1/dojox/geo/openlayers/Map.js.uncompressed.js':[
 193,
 505,
@@ -608,6 +611,7 @@
 4160,
 ],
 'project:prototype-1.7.js':[
+316,
 4380,
 4380,
 4995,

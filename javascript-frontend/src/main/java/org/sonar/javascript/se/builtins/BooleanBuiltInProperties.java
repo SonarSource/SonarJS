@@ -35,7 +35,7 @@ public class BooleanBuiltInProperties extends BuiltInProperties {
   Map<String, SymbolicValue> getMethods() {
     return ImmutableMap.<String, SymbolicValue>builder()
       // overrides Object
-      .put("toString", method(Constraint.STRING_PRIMITIVE))
+      .put("toString", method(Constraint.TRUTHY_STRING_PRIMITIVE))
       .put("valueOf", method(Constraint.BOOLEAN_PRIMITIVE))
 
       .build();

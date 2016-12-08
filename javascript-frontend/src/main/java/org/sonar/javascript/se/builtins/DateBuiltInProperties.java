@@ -66,18 +66,18 @@ public class DateBuiltInProperties extends BuiltInProperties {
       .put("setUTCSeconds", method(Constraint.NUMBER_PRIMITIVE))
       .put("setYear", method(Constraint.NUMBER_PRIMITIVE))
 
-      .put("toDateString", method(Constraint.STRING_PRIMITIVE))
-      .put("toISOString", method(Constraint.STRING_PRIMITIVE))
-      .put("toJSON", method(Constraint.STRING_PRIMITIVE))
-      .put("toGMTString", method(Constraint.STRING_PRIMITIVE))
-      .put("toLocaleDateString", method(Constraint.STRING_PRIMITIVE))
-      .put("toLocaleTimeString", method(Constraint.STRING_PRIMITIVE))
-      .put("toTimeString", method(Constraint.STRING_PRIMITIVE))
-      .put("toUTCString", method(Constraint.STRING_PRIMITIVE))
+      .put("toDateString", method(Constraint.TRUTHY_STRING_PRIMITIVE))
+      .put("toISOString", method(Constraint.TRUTHY_STRING_PRIMITIVE))
+      .put("toJSON", method(Constraint.TRUTHY_STRING_PRIMITIVE))
+      .put("toGMTString", method(Constraint.TRUTHY_STRING_PRIMITIVE))
+      .put("toLocaleDateString", method(Constraint.TRUTHY_STRING_PRIMITIVE))
+      .put("toLocaleTimeString", method(Constraint.TRUTHY_STRING_PRIMITIVE))
+      .put("toTimeString", method(Constraint.TRUTHY_STRING_PRIMITIVE))
+      .put("toUTCString", method(Constraint.TRUTHY_STRING_PRIMITIVE))
 
       // overrides Object
-      .put("toString", method(Constraint.STRING_PRIMITIVE))
-      .put("toLocaleString", method(Constraint.STRING_PRIMITIVE))
+      .put("toString", method(Constraint.TRUTHY_STRING_PRIMITIVE))
+      .put("toLocaleString", method(Constraint.TRUTHY_STRING_PRIMITIVE))
       .put("valueOf", method(Constraint.NUMBER_PRIMITIVE))
       .build();
   }

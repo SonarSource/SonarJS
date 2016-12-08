@@ -19,13 +19,18 @@
  */
 package org.sonar.javascript.se.builtins;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import javax.annotation.Nullable;
 import org.sonar.javascript.se.Constraint;
-import org.sonar.javascript.se.sv.FunctionWithKnownReturnSymbolicValue;
+import org.sonar.javascript.se.ProgramState;
+import org.sonar.javascript.se.sv.BuiltInFunctionSymbolicValue;
+import org.sonar.javascript.se.sv.BuiltInFunctionSymbolicValue.ArgumentsConstrainer;
 import org.sonar.javascript.se.sv.SymbolicValue;
 import org.sonar.javascript.se.sv.SymbolicValueWithConstraint;
+
+import static org.sonar.javascript.se.Constraint.TRUTHY;
 
 public abstract class BuiltInProperties {
 
@@ -67,11 +72,35 @@ public abstract class BuiltInProperties {
     return Optional.empty();
   }
 
-  protected static FunctionWithKnownReturnSymbolicValue method(Constraint returnConstraint) {
-    return new FunctionWithKnownReturnSymbolicValue(returnConstraint);
+  protected static BuiltInFunctionSymbolicValue method(Constraint returnConstraint) {
+    return new BuiltInFunctionSymbolicValue(returnConstraint);
+  }
+
+  protected static BuiltInFunctionSymbolicValue method(Constraint returnConstraint, ArgumentsConstrainer argumentsConstrainer) {
+    return new BuiltInFunctionSymbolicValue(returnConstraint, argumentsConstrainer);
   }
 
   protected static Constraint constraintOnRecentProperty(Constraint baseConstraint) {
     return baseConstraint.or(Constraint.UNDEFINED);
+  }
+
+  public static ArgumentsConstrainer getIsSomethingArgumentsConstrainer(Constraint logicConstraint) {
+    return  (List<SymbolicValue> arguments, ProgramState state, Constraint constraint) -> {
+      boolean truthy = constraint.isStricterOrEqualTo(TRUTHY);
+      boolean hasArguments = !arguments.isEmpty();
+
+      if (truthy && !hasArguments) {
+        return Optional.empty();
+
+      } else if (truthy) {
+        return state.constrain(arguments.get(0), logicConstraint);
+
+      } else if (!hasArguments) {
+        return Optional.of(state);
+
+      } else {
+        return state.constrain(arguments.get(0), logicConstraint.not());
+      }
+    };
   }
 }

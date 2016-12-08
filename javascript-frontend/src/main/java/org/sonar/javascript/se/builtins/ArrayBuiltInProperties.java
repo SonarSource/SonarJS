@@ -25,6 +25,7 @@ import org.sonar.javascript.se.Constraint;
 import org.sonar.javascript.se.sv.SymbolicValue;
 
 import static org.sonar.javascript.se.Constraint.ANY_VALUE;
+import static org.sonar.javascript.se.Constraint.ARRAY;
 import static org.sonar.javascript.se.Constraint.UNDEFINED;
 
 public class ArrayBuiltInProperties extends BuiltInProperties {
@@ -84,7 +85,7 @@ public class ArrayBuiltInProperties extends BuiltInProperties {
   Map<String, SymbolicValue> getOwnMethods() {
     return ImmutableMap.<String, SymbolicValue>builder()
       .put("from", method(Constraint.ARRAY))
-      .put("isArray", method(Constraint.BOOLEAN_PRIMITIVE))
+      .put("isArray", method(Constraint.BOOLEAN_PRIMITIVE, BuiltInProperties.getIsSomethingArgumentsConstrainer(ARRAY)))
       .put("of", method(Constraint.ARRAY))
       .build();
   }
