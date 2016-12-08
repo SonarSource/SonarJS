@@ -29,6 +29,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.javascript.tree.symbols.Scope;
 import org.sonar.javascript.visitors.JavaScriptVisitorContext;
@@ -251,7 +252,11 @@ class SeVerifier extends SeCheck {
             oneSymbolValue = oneSymbolValue.trim();
             if (!oneSymbolValue.startsWith("!")) {
               String[] pair = oneSymbolValue.split("=");
-              Symbol symbol = getContext().getSymbolModel().getSymbols(pair[0]).iterator().next();
+              Set<Symbol> symbols = getContext().getSymbolModel().getSymbols(pair[0]);
+              if (symbols.size() > 1) {
+                throw new AssertionError("For name '" + pair[0] + "' there is more than 1 symbol found.");
+              }
+              Symbol symbol = symbols.iterator().next();
               ps = ps.newSymbolicValue(symbol, parseSymbolicValue(pair[1]));
 
             } else {

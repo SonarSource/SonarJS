@@ -140,7 +140,7 @@ function main() {
   foo(isNanVar); // PS isNanVar=TRUE
 
   isNanVar = false;
-  if (isNaN(function(){})) {
+  if (isNaN(new Function())) {
     isNanVar = true;
   }
   foo(isNanVar); // PS isNanVar=TRUE
