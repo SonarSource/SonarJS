@@ -19,38 +19,42 @@
  */
 package org.sonar.javascript.checks;
 
+import java.util.HashSet;
+import java.util.Set;
 import org.sonar.check.Rule;
 import org.sonar.javascript.se.Constraint;
 import org.sonar.javascript.se.ProgramState;
+import org.sonar.javascript.se.SeCheck;
 import org.sonar.javascript.se.sv.SymbolicValue;
+import org.sonar.javascript.tree.symbols.Scope;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.expression.CallExpressionTree;
 
 @Rule(key = "S2873")
-public class CallabilityCheck extends AbstractAllPathSeCheck<CallExpressionTree> {
+public class CallabilityCheck extends SeCheck {
 
-  private static final String MESSAGE = "This expression has a value which cannot be called; it is not a function.";
+  private static final String MESSAGE = "This expression might have a value which cannot be called; it is not a function.";
+
+  private Set<CallExpressionTree> hasIssue;
 
   @Override
-  void raiseIssue(CallExpressionTree tree) {
-    addIssue(tree.callee(), MESSAGE);
+  public void startOfExecution(Scope functionScope) {
+    hasIssue = new HashSet<>();
   }
 
   @Override
-  boolean isProblem(CallExpressionTree tree, ProgramState currentState) {
-    SymbolicValue calleeSV = currentState.peekStack(tree.arguments().parameters().size());
-    Constraint constraint = currentState.getConstraint(calleeSV);
-    return constraint.isIncompatibleWith(Constraint.FUNCTION);
-  }
-
-  @Override
-  CallExpressionTree getTree(Tree element) {
+  public void beforeBlockElement(ProgramState currentState, Tree element) {
     if (element.is(Kind.CALL_EXPRESSION)) {
-      return (CallExpressionTree) element;
+      CallExpressionTree callExpressionTree = (CallExpressionTree) element;
+
+      SymbolicValue calleeSV = currentState.peekStack(callExpressionTree.arguments().parameters().size());
+      Constraint constraint = currentState.getConstraint(calleeSV);
+
+      if (constraint.isIncompatibleWith(Constraint.FUNCTION) && !hasIssue.contains(callExpressionTree)) {
+        addIssue(callExpressionTree.callee(), MESSAGE);
+        hasIssue.add(callExpressionTree);
+      }
     }
-
-    return null;
   }
-
 }
