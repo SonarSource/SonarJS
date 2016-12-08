@@ -19,7 +19,9 @@
  */
 package org.sonar.javascript.se.builtins;
 
+import com.google.common.collect.ImmutableMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import org.sonar.javascript.se.Constraint;
 import org.sonar.javascript.se.ProgramState;
@@ -70,7 +72,11 @@ public enum BuiltInObjectSymbolicValue implements FunctionSymbolicValue {
     }
   };
 
-  private static final SymbolicValue MATH_OBJECT = new MathBuiltInObjectSymbolicValue();
+  private static final Map<String, SymbolicValue> ADDITIONAL_VALUES = ImmutableMap.of(
+    "Math", new MathBuiltInObjectSymbolicValue(),
+    "isNaN", new BuiltInFunctionSymbolicValue(Constraint.BOOLEAN_PRIMITIVE, IS_NAN_ARGUMENT_CONSTRAINER),
+    "NaN", new SymbolicValueWithConstraint(Constraint.NAN)
+  );
 
   private final String name;
   private final Type type;
@@ -114,12 +120,8 @@ public enum BuiltInObjectSymbolicValue implements FunctionSymbolicValue {
       }
     }
 
-    if ("Math".equals(name)) {
-      return Optional.of(MATH_OBJECT);
-    }
-
-    if ("isNaN".equals(name)) {
-      return Optional.of(new BuiltInFunctionSymbolicValue(Constraint.BOOLEAN_PRIMITIVE, IS_NAN_ARGUMENT_CONSTRAINER));
+    if (ADDITIONAL_VALUES.containsKey(name)) {
+      return Optional.of(ADDITIONAL_VALUES.get(name));
     }
 
     return Optional.empty();

@@ -106,8 +106,11 @@ public class ExpressionStack {
     Kind kind = ((JavaScriptTree) expression).getKind();
     switch (kind) {
       case IDENTIFIER_REFERENCE:
-        executeIdentifierReference((IdentifierTree) expression, newStack, kind);
-        break;
+        if (SymbolicExecution.isUndefined((IdentifierTree) expression)) {
+          newStack.push(SpecialSymbolicValue.UNDEFINED);
+          break;
+        }
+        throw new IllegalArgumentException("Unexpected kind of expression to execute: " + kind);
       case IDENTIFIER_NAME:
       case BINDING_IDENTIFIER:
       case CONDITIONAL_AND:
@@ -262,18 +265,6 @@ public class ExpressionStack {
         throw new IllegalArgumentException("Unexpected kind of expression to execute: " + kind);
     }
     return new ExpressionStack(newStack);
-  }
-
-  private void executeIdentifierReference(IdentifierTree expression, Deque<SymbolicValue> newStack, Kind kind) {
-    if (SymbolicExecution.isUndefined(expression)) {
-      newStack.push(SpecialSymbolicValue.UNDEFINED);
-      return;
-
-    } else if (SymbolicExecution.isNaN(expression)) {
-      newStack.push(new SymbolicValueWithConstraint(Constraint.NAN));
-      return;
-    }
-    throw new IllegalArgumentException("Unexpected kind of expression to execute: " + kind);
   }
 
   private static void executeNewExpression(NewExpressionTree newExpressionTree, Deque<SymbolicValue> newStack) {
