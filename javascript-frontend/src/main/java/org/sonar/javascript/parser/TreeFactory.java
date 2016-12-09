@@ -1719,15 +1719,21 @@ public class TreeFactory {
   }
 
   public FieldDeclarationTree fieldDeclaration(
-    Optional<InternalSyntaxToken> staticToken, Tree propertyName,
+    Optional<List<DecoratorTree>> decorators, Optional<InternalSyntaxToken> staticToken, Tree propertyName,
     Optional<Tuple<InternalSyntaxToken, ExpressionTree>> initializer,
     Tree semicolonToken
   ) {
     if (initializer.isPresent()) {
-      return new FieldDeclarationTreeImpl(staticToken.orNull(), propertyName, initializer.get().first, initializer.get().second, nullableSemicolonToken(semicolonToken));
+      return new FieldDeclarationTreeImpl(
+        optionalList(decorators),
+        staticToken.orNull(),
+        propertyName,
+        initializer.get().first,
+        initializer.get().second,
+        nullableSemicolonToken(semicolonToken));
     }
 
-    return new FieldDeclarationTreeImpl(staticToken.orNull(), propertyName, null, null, nullableSemicolonToken(semicolonToken));
+    return new FieldDeclarationTreeImpl(optionalList(decorators), staticToken.orNull(), propertyName, null, null, nullableSemicolonToken(semicolonToken));
   }
 
   public DecoratorTree decorator(
