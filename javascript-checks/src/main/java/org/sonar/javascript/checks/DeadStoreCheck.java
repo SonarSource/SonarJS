@@ -50,26 +50,26 @@ public class DeadStoreCheck extends DoubleDispatchVisitorCheck {
 
   @Override
   public void visitFunctionDeclaration(FunctionDeclarationTree tree) {
-    super.visitFunctionDeclaration(tree);
     checkFunction(tree);
+    super.visitFunctionDeclaration(tree);
   }
 
   @Override
   public void visitFunctionExpression(FunctionExpressionTree tree) {
-    super.visitFunctionExpression(tree);
     checkFunction(tree);
+    super.visitFunctionExpression(tree);
   }
 
   @Override
   public void visitMethodDeclaration(MethodDeclarationTree tree) {
-    super.visitMethodDeclaration(tree);
     checkFunction(tree);
+    super.visitMethodDeclaration(tree);
   }
 
   @Override
   public void visitArrowFunction(ArrowFunctionTree tree) {
-    super.visitArrowFunction(tree);
     checkFunction(tree);
+    super.visitArrowFunction(tree);
   }
 
   private void checkFunction(FunctionTree functionTree) {
@@ -83,19 +83,22 @@ public class DeadStoreCheck extends DoubleDispatchVisitorCheck {
   // Identifying dead stores is basically "live variable analysis".
   // See https://en.wikipedia.org/wiki/Live_variable_analysis
   private void checkCFG(ControlFlowGraph cfg, FunctionTree functionTree) {
-    Scope scope = getContext().getSymbolModel().getScope(functionTree);
-    LiveVariableAnalysis lva = LiveVariableAnalysis.create(cfg, scope);
-    Usages usages = lva.getUsages();
 
+    // if there is a try block in the function, we skip the analysis of the whole
+    // function, as the CFG and the SE engine currently don't support exception
+    // execution paths
     for (CfgBlock cfgBlock : cfg.blocks()) {
       if (isTryBlock(cfgBlock)) {
         return;
       }
     }
 
+    Scope scope = getContext().getSymbolModel().getScope(functionTree);
+    LiveVariableAnalysis lva = LiveVariableAnalysis.create(cfg, scope);
+    Usages usages = lva.getUsages();
+
     for (CfgBlock cfgBlock : cfg.blocks()) {
       Set<Symbol> live = lva.getLiveOutSymbols(cfgBlock);
-
       for (Tree element : Lists.reverse(cfgBlock.elements())) {
         Usage usage = usages.getUsage(element);
         if (usage != null) {
