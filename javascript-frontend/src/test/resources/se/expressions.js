@@ -39,4 +39,9 @@ function main() {
   }
 
   foo(x, y);
+
+  x = unknown();
+  y = unknown in x; // PS y=BOOLEAN
+
+  foo(x, y);
 }
