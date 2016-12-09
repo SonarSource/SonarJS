@@ -34,7 +34,7 @@ import org.sonar.plugins.javascript.api.tree.expression.CallExpressionTree;
 @Rule(key = "S2873")
 public class CallabilityCheck extends SeCheck {
 
-  private static final String MESSAGE = "This expression might have a value which cannot be called; it is not a function.";
+  private static final String MESSAGE = "This expression might have a value which cannot be called; it might not be a function.";
 
   private Set<CallExpressionTree> hasIssue;
 
