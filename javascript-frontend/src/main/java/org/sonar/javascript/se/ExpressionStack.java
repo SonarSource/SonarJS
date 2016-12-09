@@ -123,6 +123,7 @@ public class ExpressionStack {
       case NUMERIC_LITERAL:
       case STRING_LITERAL:
       case BOOLEAN_LITERAL:
+      case REGULAR_EXPRESSION_LITERAL:
         newStack.push(LiteralSymbolicValue.get((LiteralTree) expression));
         break;
       case LOGICAL_COMPLEMENT:
@@ -172,7 +173,6 @@ public class ExpressionStack {
       case ARROW_FUNCTION:
         newStack.push(new FunctionWithTreeSymbolicValue((FunctionTree) expression));
         break;
-      case REGULAR_EXPRESSION_LITERAL:
       case THIS:
       case SUPER:
       case NEW_TARGET:
