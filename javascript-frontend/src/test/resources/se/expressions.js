@@ -39,4 +39,14 @@ function main() {
   }
 
   foo(x, y);
+
+  x = unknown();
+  y = !unknown() in x; // PS y=FALSE
+  y = (!unknown()) in x; // PS y=BOOLEAN
+  y = true in x; // PS y=BOOLEAN
+  y = "str" in x; // PS y=BOOLEAN
+  y = (new SomeObj()) in x; // PS y=BOOLEAN
+  y = 1 in x; // PS y=BOOLEAN
+
+  foo(x, y);
 }

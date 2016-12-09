@@ -48,6 +48,7 @@ import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.declaration.FunctionTree;
 import org.sonar.plugins.javascript.api.tree.declaration.MethodDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.expression.ArrayLiteralTree;
+import org.sonar.plugins.javascript.api.tree.expression.BinaryExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.CallExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.DotMemberExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
@@ -209,9 +210,11 @@ public class ExpressionStack {
       case BRACKET_MEMBER_EXPRESSION:
       case TAGGED_TEMPLATE:
       case EXPONENT:
-      case RELATIONAL_IN:
         pop(newStack, 2);
         pushUnknown(newStack);
+        break;
+      case RELATIONAL_IN:
+        executeInOperator(newStack, (BinaryExpressionTree)expression);
         break;
       case INSTANCE_OF:
         SymbolicValue constructorValue = newStack.pop();
@@ -265,6 +268,15 @@ public class ExpressionStack {
         throw new IllegalArgumentException("Unexpected kind of expression to execute: " + kind);
     }
     return new ExpressionStack(newStack);
+  }
+
+  private static void executeInOperator(Deque<SymbolicValue> newStack, BinaryExpressionTree expression) {
+    pop(newStack, 2);
+    if (expression.leftOperand().is(Kind.LOGICAL_COMPLEMENT)) {
+      newStack.push(new SymbolicValueWithConstraint(Constraint.FALSE));
+    } else {
+      newStack.push(new SymbolicValueWithConstraint(Constraint.BOOLEAN_PRIMITIVE));
+    }
   }
 
   private static void executeNewExpression(NewExpressionTree newExpressionTree, Deque<SymbolicValue> newStack) {
