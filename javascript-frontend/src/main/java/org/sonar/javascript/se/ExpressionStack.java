@@ -209,9 +209,12 @@ public class ExpressionStack {
       case BRACKET_MEMBER_EXPRESSION:
       case TAGGED_TEMPLATE:
       case EXPONENT:
-      case RELATIONAL_IN:
         pop(newStack, 2);
         pushUnknown(newStack);
+        break;
+      case RELATIONAL_IN:
+        pop(newStack, 2);
+        newStack.push(new SymbolicValueWithConstraint(Constraint.BOOLEAN_PRIMITIVE));
         break;
       case INSTANCE_OF:
         SymbolicValue constructorValue = newStack.pop();
