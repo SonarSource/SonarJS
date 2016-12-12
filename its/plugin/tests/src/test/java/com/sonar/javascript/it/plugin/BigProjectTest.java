@@ -76,15 +76,15 @@ public class BigProjectTest {
 
     // Complexity
     // Since ES6 support
-    assertThat(getProjectMeasure("complexity").getValue()).isEqualTo(151961.0);
+    assertThat(getProjectMeasure("complexity").getValue()).isEqualTo(140046.0);
     assertThat(getProjectMeasure("function_complexity_distribution").getData())
-      .isEqualTo("1=22551;2=11945;4=5322;6=2622;8=1437;10=864;12=1277;20=389;30=202");
+      .isEqualTo("1=22819;2=13140;4=5014;6=2233;8=1188;10=701;12=1045;20=318;30=151");
 
     // SONARJS-299
-    assertThat(getProjectMeasure("function_complexity").getValue()).isEqualTo(3.2);
-    assertThat(getProjectMeasure("file_complexity").getValue()).isEqualTo(34.6);
+    assertThat(getProjectMeasure("function_complexity").getValue()).isEqualTo(2.9);
+    assertThat(getProjectMeasure("file_complexity").getValue()).isEqualTo(31.9);
     assertThat(getProjectMeasure("file_complexity_distribution").getData())
-      .isEqualTo("0=2091;5=304;10=457;20=372;30=500;60=271;90=392");
+      .isEqualTo("0=2101;5=321;10=500;20=364;30=486;60=271;90=344");
 
     // Duplication
     // SONAR-7026
