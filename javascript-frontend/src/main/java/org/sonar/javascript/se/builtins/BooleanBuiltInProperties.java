@@ -22,6 +22,7 @@ package org.sonar.javascript.se.builtins;
 import com.google.common.collect.ImmutableMap;
 import java.util.Map;
 import org.sonar.javascript.se.Constraint;
+import org.sonar.javascript.se.Type;
 import org.sonar.javascript.se.sv.SymbolicValue;
 
 public class BooleanBuiltInProperties extends BuiltInProperties {
@@ -35,8 +36,8 @@ public class BooleanBuiltInProperties extends BuiltInProperties {
   Map<String, SymbolicValue> getMethods() {
     return ImmutableMap.<String, SymbolicValue>builder()
       // overrides Object
-      .put("toString", method(Constraint.TRUTHY_STRING_PRIMITIVE))
-      .put("valueOf", method(Constraint.BOOLEAN_PRIMITIVE))
+      .put("toString", method(Constraint.TRUTHY_STRING_PRIMITIVE, Type.EMPTY))
+      .put("valueOf", method(Constraint.BOOLEAN_PRIMITIVE, Type.EMPTY))
 
       .build();
   }

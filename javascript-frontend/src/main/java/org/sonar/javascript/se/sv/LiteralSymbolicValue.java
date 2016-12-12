@@ -72,6 +72,10 @@ public class LiteralSymbolicValue implements SymbolicValue {
       result = isTruthyNumeric(literal) ? Constraint.TRUTHY_NUMBER_PRIMITIVE : Constraint.ZERO;
     }
 
+    if (literal.is(Kind.REGULAR_EXPRESSION_LITERAL)) {
+      result = Constraint.REGEXP;
+    }
+
     if (result != null) {
       return result;
     }

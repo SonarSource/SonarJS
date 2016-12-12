@@ -21,6 +21,8 @@ package org.sonar.javascript.se.sv;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.function.IntFunction;
+import javax.annotation.Nullable;
 import org.sonar.javascript.se.Constraint;
 import org.sonar.javascript.se.ProgramState;
 
@@ -32,15 +34,20 @@ public class BuiltInFunctionSymbolicValue implements FunctionSymbolicValue {
 
   private final Constraint returnedValueConstraint;
   private final ArgumentsConstrainer argumentsConstrainer;
+  private final IntFunction<Constraint> signature;
 
-  public BuiltInFunctionSymbolicValue(Constraint returnedValueConstraint) {
-    this.returnedValueConstraint = returnedValueConstraint;
-    this.argumentsConstrainer = null;
+  public BuiltInFunctionSymbolicValue(Constraint returnedValueConstraint, IntFunction<Constraint> signature) {
+    this(returnedValueConstraint, null, signature);
   }
 
-  public BuiltInFunctionSymbolicValue(Constraint returnedValueConstraint, ArgumentsConstrainer argumentsConstrainer) {
+  public BuiltInFunctionSymbolicValue(Constraint returnedValueConstraint) {
+    this(returnedValueConstraint, null, null);
+  }
+
+  public BuiltInFunctionSymbolicValue(Constraint returnedValueConstraint, @Nullable ArgumentsConstrainer argumentsConstrainer, @Nullable IntFunction<Constraint> signature) {
     this.returnedValueConstraint = returnedValueConstraint;
     this.argumentsConstrainer = argumentsConstrainer;
+    this.signature = signature;
   }
 
   @Override
@@ -59,6 +66,10 @@ public class BuiltInFunctionSymbolicValue implements FunctionSymbolicValue {
       return new SymbolicValueWithConstraint(returnedValueConstraint);
     }
     return new ReturnSymbolicValue(argumentValues);
+  }
+
+  public IntFunction<Constraint> signature() {
+    return signature;
   }
 
   @FunctionalInterface
@@ -82,6 +93,23 @@ public class BuiltInFunctionSymbolicValue implements FunctionSymbolicValue {
     @Override
     public Constraint baseConstraint(ProgramState state) {
       return returnedValueConstraint;
+    }
+  }
+
+  public static class ListSignature implements IntFunction<Constraint> {
+    private List<Constraint> parameterTypes;
+
+    public ListSignature(List<Constraint> parameterTypes) {
+      this.parameterTypes = parameterTypes;
+    }
+
+    @Override
+    public Constraint apply(int parameterIndex) {
+      if (parameterIndex < parameterTypes.size()) {
+        return parameterTypes.get(parameterIndex);
+      }
+
+      return null;
     }
   }
 }

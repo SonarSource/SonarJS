@@ -6581,12 +6581,6 @@
 159,
 193,
 ],
-'project:dojo-1.8.1/dojox/storage/BehaviorStorageProvider.js.uncompressed.js':[
-159,
-],
-'project:dojo-1.8.1/dojox/storage/CookieStorageProvider.js.uncompressed.js':[
-125,
-],
 'project:dojo-1.8.1/dojox/storage/FlashStorageProvider.js.uncompressed.js':[
 27,
 110,
@@ -6602,15 +6596,11 @@
 207,
 212,
 ],
-'project:dojo-1.8.1/dojox/storage/LocalStorageProvider.js.uncompressed.js':[
-132,
-],
 'project:dojo-1.8.1/dojox/storage/WhatWGStorageProvider.js.uncompressed.js':[
 32,
 58,
 106,
 124,
-152,
 168,
 178,
 201,
@@ -8113,7 +8103,6 @@
 95,
 224,
 292,
-309,
 ],
 'project:google-closure-library/cssom/iframe/style.js':[
 439,

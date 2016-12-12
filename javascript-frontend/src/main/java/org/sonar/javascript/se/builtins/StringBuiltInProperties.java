@@ -19,65 +19,100 @@
  */
 package org.sonar.javascript.se.builtins;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import java.util.Map;
+import java.util.function.IntFunction;
 import org.sonar.javascript.se.Constraint;
 import org.sonar.javascript.se.sv.SymbolicValue;
+
+import static org.sonar.javascript.se.Type.EMPTY;
+import static org.sonar.javascript.se.Type.NUMBER_NUMBER;
+import static org.sonar.javascript.se.Type.NUMBER_STRING;
+import static org.sonar.javascript.se.Type.ONE_NUMBER;
+import static org.sonar.javascript.se.Type.ONE_STRING;
+import static org.sonar.javascript.se.Type.STRING_NUMBER;
 
 public class StringBuiltInProperties extends BuiltInProperties {
 
   public static final StringBuiltInProperties INSTANCE = new StringBuiltInProperties();
+
 
   private StringBuiltInProperties() {
   }
 
   @Override
   Map<String, SymbolicValue> getMethods() {
+    IntFunction<Constraint> localeCompareSignature = (int parameterIndex) -> {
+      switch (parameterIndex) {
+        case 0:
+          return Constraint.ANY_STRING;
+        case 1:
+          return Constraint.ANY_STRING.or(Constraint.ARRAY);
+        case 2:
+          return Constraint.OBJECT;
+        default:
+          return null;
+      }
+    };
+
+    IntFunction<Constraint> replaceSignature = (int parameterIndex) -> {
+      switch (parameterIndex) {
+        case 0:
+          return Constraint.ANY_STRING.or(Constraint.REGEXP);
+        case 1:
+          return Constraint.ANY_STRING.or(Constraint.FUNCTION);
+        default:
+          return null;
+      }
+    };
+
     return ImmutableMap.<String, SymbolicValue>builder()
-      .put("charAt", method(Constraint.STRING_PRIMITIVE))
-      .put("charCodeAt", method(Constraint.NUMBER_PRIMITIVE))
-      .put("codePointAt", method(Constraint.NUMBER_PRIMITIVE))
-      .put("concat", method(Constraint.STRING_PRIMITIVE))
-      .put("includes", method(Constraint.BOOLEAN_PRIMITIVE))
-      .put("endsWith", method(Constraint.BOOLEAN_PRIMITIVE))
-      .put("indexOf", method(Constraint.NUMBER_PRIMITIVE))
-      .put("lastIndexOf", method(Constraint.NUMBER_PRIMITIVE))
-      .put("localeCompare", method(Constraint.NUMBER_PRIMITIVE))
-      .put("match", method(Constraint.ARRAY.or(Constraint.NULL)))
-      .put("normalize", method(Constraint.STRING_PRIMITIVE))
-      .put("padEnd", method(Constraint.STRING_PRIMITIVE))
-      .put("padStart", method(Constraint.STRING_PRIMITIVE))
-      .put("repeat", method(Constraint.STRING_PRIMITIVE))
-      .put("replace", method(Constraint.STRING_PRIMITIVE))
-      .put("search", method(Constraint.NUMBER_PRIMITIVE))
-      .put("slice", method(Constraint.STRING_PRIMITIVE))
-      .put("split", method(Constraint.ARRAY))
-      .put("startsWith", method(Constraint.BOOLEAN_PRIMITIVE))
-      .put("substr", method(Constraint.STRING_PRIMITIVE))
-      .put("substring", method(Constraint.STRING_PRIMITIVE))
-      .put("toLocaleLowerCase", method(Constraint.STRING_PRIMITIVE))
-      .put("toLocaleUpperCase", method(Constraint.STRING_PRIMITIVE))
-      .put("toLowerCase", method(Constraint.STRING_PRIMITIVE))
-      .put("toUpperCase", method(Constraint.STRING_PRIMITIVE))
-      .put("trim", method(Constraint.STRING_PRIMITIVE))
+      .put("charAt", method(Constraint.STRING_PRIMITIVE, ONE_NUMBER))
+      .put("charCodeAt", method(Constraint.NUMBER_PRIMITIVE, ONE_NUMBER))
+      .put("codePointAt", method(Constraint.NUMBER_PRIMITIVE, ONE_NUMBER))
+      .put("concat", method(Constraint.STRING_PRIMITIVE, (int parameterIndex) -> Constraint.ANY_STRING))
+      .put("includes", method(Constraint.BOOLEAN_PRIMITIVE, STRING_NUMBER))
+      .put("endsWith", method(Constraint.BOOLEAN_PRIMITIVE, STRING_NUMBER))
+      .put("indexOf", method(Constraint.NUMBER_PRIMITIVE, STRING_NUMBER))
+      .put("lastIndexOf", method(Constraint.NUMBER_PRIMITIVE, STRING_NUMBER))
+      .put("localeCompare", method(Constraint.NUMBER_PRIMITIVE, localeCompareSignature))
+      .put("match", method(Constraint.ARRAY.or(Constraint.NULL), ImmutableList.of(Constraint.REGEXP)))
+      .put("normalize", method(Constraint.STRING_PRIMITIVE, ONE_STRING))
+      .put("padEnd", method(Constraint.STRING_PRIMITIVE, NUMBER_STRING))
+      .put("padStart", method(Constraint.STRING_PRIMITIVE, NUMBER_STRING))
+      .put("repeat", method(Constraint.STRING_PRIMITIVE, ONE_NUMBER))
+      .put("replace", method(Constraint.STRING_PRIMITIVE, replaceSignature))
+      .put("search", method(Constraint.NUMBER_PRIMITIVE, ImmutableList.of(Constraint.REGEXP)))
+      .put("slice", method(Constraint.STRING_PRIMITIVE, NUMBER_NUMBER))
+      .put("split", method(Constraint.ARRAY, ImmutableList.of(Constraint.ANY_STRING.or(Constraint.REGEXP), Constraint.ANY_NUMBER)))
+      .put("startsWith", method(Constraint.BOOLEAN_PRIMITIVE, STRING_NUMBER))
+      .put("substr", method(Constraint.STRING_PRIMITIVE, NUMBER_NUMBER))
+      .put("substring", method(Constraint.STRING_PRIMITIVE, NUMBER_NUMBER))
+      .put("toLocaleLowerCase", method(Constraint.STRING_PRIMITIVE, EMPTY))
+      .put("toLocaleUpperCase", method(Constraint.STRING_PRIMITIVE, EMPTY))
+      .put("toLowerCase", method(Constraint.STRING_PRIMITIVE, EMPTY))
+      .put("toUpperCase", method(Constraint.STRING_PRIMITIVE, EMPTY))
+      .put("trim", method(Constraint.STRING_PRIMITIVE, EMPTY))
 
       // overrides Object
-      .put("toString", method(Constraint.STRING_PRIMITIVE))
-      .put("valueOf", method(Constraint.STRING_PRIMITIVE))
+      .put("toString", method(Constraint.STRING_PRIMITIVE, EMPTY))
+      .put("valueOf", method(Constraint.STRING_PRIMITIVE, EMPTY))
 
       // HTML wrapper methods
-      .put("anchor", method(Constraint.STRING_PRIMITIVE))
-      .put("big", method(Constraint.STRING_PRIMITIVE))
-      .put("blink", method(Constraint.STRING_PRIMITIVE))
-      .put("bold", method(Constraint.STRING_PRIMITIVE))
-      .put("fixed", method(Constraint.STRING_PRIMITIVE))
-      .put("fontcolor", method(Constraint.STRING_PRIMITIVE))
-      .put("fontsize", method(Constraint.STRING_PRIMITIVE))
-      .put("italics", method(Constraint.STRING_PRIMITIVE))
-      .put("small", method(Constraint.STRING_PRIMITIVE))
-      .put("strike", method(Constraint.STRING_PRIMITIVE))
-      .put("sub", method(Constraint.STRING_PRIMITIVE))
-      .put("sup", method(Constraint.STRING_PRIMITIVE))
+      .put("anchor", method(Constraint.STRING_PRIMITIVE, ONE_STRING))
+      .put("big", method(Constraint.STRING_PRIMITIVE, EMPTY))
+      .put("blink", method(Constraint.STRING_PRIMITIVE, EMPTY))
+      .put("bold", method(Constraint.STRING_PRIMITIVE, EMPTY))
+      .put("fixed", method(Constraint.STRING_PRIMITIVE, EMPTY))
+      .put("fontcolor", method(Constraint.STRING_PRIMITIVE, ONE_STRING))
+      .put("fontsize", method(Constraint.STRING_PRIMITIVE, ONE_NUMBER))
+      .put("italics", method(Constraint.STRING_PRIMITIVE, EMPTY))
+      .put("link", method(Constraint.STRING_PRIMITIVE, ONE_STRING))
+      .put("small", method(Constraint.STRING_PRIMITIVE, EMPTY))
+      .put("strike", method(Constraint.STRING_PRIMITIVE, EMPTY))
+      .put("sub", method(Constraint.STRING_PRIMITIVE, EMPTY))
+      .put("sup", method(Constraint.STRING_PRIMITIVE, EMPTY))
 
       // Provided by Ember framework, not part of ES specification
       .put("camelize", method(Constraint.STRING_PRIMITIVE))
@@ -101,9 +136,10 @@ public class StringBuiltInProperties extends BuiltInProperties {
 
   @Override
   Map<String, SymbolicValue> getOwnMethods() {
+    IntFunction<Constraint> numbersSignature = (int parameterIndex) -> Constraint.ANY_NUMBER;
     return ImmutableMap.<String, SymbolicValue>builder()
-      .put("fromCharCode", method(Constraint.STRING_PRIMITIVE))
-      .put("fromCodePoint", method(Constraint.STRING_PRIMITIVE))
+      .put("fromCharCode", method(Constraint.STRING_PRIMITIVE, numbersSignature))
+      .put("fromCodePoint", method(Constraint.STRING_PRIMITIVE, numbersSignature))
       .put("raw", method(Constraint.STRING_PRIMITIVE))
       .build();
   }

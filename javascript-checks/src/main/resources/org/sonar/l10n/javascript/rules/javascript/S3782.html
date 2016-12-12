@@ -1,0 +1,11 @@
+<p>The types of the arguments to built-in functions are specified in the JavaScript language specifications. Calls to these functions should conform
+to the documented types, otherwise the result will most likely not be what was expected (e.g.: the call would always return <code>false</code>).</p>
+<h2>Noncompliant Code Example</h2>
+<pre>
+"hello".endsWith(34);
+</pre>
+<h2>Compliant Solution</h2>
+<pre>
+"hello".endsWith("34");
+</pre>
+

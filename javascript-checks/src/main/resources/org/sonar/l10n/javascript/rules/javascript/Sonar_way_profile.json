@@ -90,6 +90,7 @@
     "S3758",
     "S3759",
     "S3785",
+    "S3782",
     "SwitchWithoutDefault",
     "TooManyBreakOrContinueInLoop",
     "UnreachableCode",
