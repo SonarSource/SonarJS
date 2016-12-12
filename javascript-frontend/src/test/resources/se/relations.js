@@ -2,7 +2,7 @@ function main() {
 
   var a = foo();
   var b = bar();
-  
+
   if (a > b) {
     let x = null;
 
@@ -94,5 +94,38 @@ function main() {
     if (a) {
       foo(b); // PS b=TRUTHY
     }
+  }
+
+///------------
+
+  a = foo();
+
+  if (a === "str") {
+    foo(a); // PS a=TRUTHY_STRING
+  }
+
+///------------
+
+  a = foo();
+
+  if (a !== "str") {
+  } else {
+    foo(a); // PS a=TRUTHY_STRING
+  }
+
+///------------ should not fail
+  a = foo();
+  b = a === "str";
+
+  if (!b && condition()) {
+    dosmth();
+  }
+
+  if (typeof a === "object") {
+    dosmth();
+  }
+
+  if (b && condition(a)) {
+    dosmth();
   }
 }

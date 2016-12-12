@@ -3763,6 +3763,7 @@
 496,
 523,
 529,
+545,
 718,
 777,
 787,
@@ -5585,10 +5586,13 @@
 351,
 ],
 'project:dojo-1.8.1/dojox/json/schema.js.uncompressed.js':[
+181,
+182,
 187,
 187,
 195,
 195,
+204,
 ],
 'project:dojo-1.8.1/dojox/jsonPath/query.js.uncompressed.js':[
 25,

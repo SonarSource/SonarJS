@@ -59,6 +59,7 @@ public class EqualitySymbolicValue extends RelationalSymbolicValue {
 
   private Optional<ProgramState> constrainOperand(SymbolicValue sending, SymbolicValue receiving, ProgramState state, Constraint constraint) {
     Constraint constraintOnSending = state.getConstraint(sending);
+
     if (constraintOnSending.isStricterOrEqualTo(Constraint.NULL_OR_UNDEFINED)) {
       if (constraint.isStricterOrEqualTo(Constraint.TRUTHY)) {
         return state.constrain(receiving, constraintOnNullOrUndefined(constraintOnSending, false));
@@ -66,6 +67,15 @@ public class EqualitySymbolicValue extends RelationalSymbolicValue {
         return state.constrain(receiving, constraintOnNullOrUndefined(constraintOnSending, true));
       }
     }
+
+    if (Kind.STRICT_EQUAL_TO.equals(kind) && constraint.isStricterOrEqualTo(Constraint.TRUTHY)) {
+      return state.constrain(receiving, constraintOnSending);
+    }
+
+    if (Kind.STRICT_NOT_EQUAL_TO.equals(kind) && constraint.isStricterOrEqualTo(Constraint.FALSY)) {
+      return state.constrain(receiving, constraintOnSending);
+    }
+
     return Optional.of(state);
   }
 
