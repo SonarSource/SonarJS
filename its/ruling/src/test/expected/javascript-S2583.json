@@ -183,6 +183,9 @@
 'project:dojo-1.8.1/dojo/sniff.js.uncompressed.js':[
 13,
 ],
+'project:dojo-1.8.1/dojo/store/DataStore.js.uncompressed.js':[
+26,
+],
 'project:dojo-1.8.1/dojo/store/JsonRest.js.uncompressed.js':[
 165,
 ],
@@ -535,6 +538,9 @@
 ],
 'project:google-closure-library/module/moduleloader.js':[
 236,
+],
+'project:google-closure-library/proto2/message.js':[
+520,
 ],
 'project:google-closure-library/storage/mechanism/mechanism_test.js':[
 89,
