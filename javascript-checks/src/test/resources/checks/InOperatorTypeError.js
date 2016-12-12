@@ -16,5 +16,9 @@ function foo() {
 
   unknown in 1+2; // Noncompliant
 
+  for (unknown in "foo") { // OK, it's for-in loop
+    doSomething();
+  }
+
   foo(x);
 }
