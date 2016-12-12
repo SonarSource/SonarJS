@@ -10,7 +10,7 @@ function test(domStyle) {
 
   var x;
 
-  x(); // Noncompliant {{This expression has a value which cannot be called; it is not a function.}}
+  x(); // Noncompliant {{This expression might have a value which cannot be called; it might not be a function.}}
 //^
 
   function foo(){}
@@ -41,7 +41,7 @@ function several_execution_paths() {
     func1 = function(){}
   }
 
-  func1(); // OK
+  func1(); // Noncompliant
 
   var func2;
 
