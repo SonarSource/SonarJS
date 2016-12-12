@@ -30,6 +30,7 @@ import org.sonar.wsclient.services.Measure;
 import org.sonar.wsclient.services.Resource;
 import org.sonar.wsclient.services.ResourceQuery;
 
+import static com.sonar.javascript.it.plugin.Tests.is_before_sonar_6_2;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class CoverageTest {
@@ -44,7 +45,7 @@ public class CoverageTest {
 
   @Test
   public void LCOV_path_can_be_relative() throws Exception {
-    SonarScanner build = (SonarScanner) Tests.createScanner()
+    SonarScanner build = Tests.createScanner()
       .setProjectDir(TestUtils.projectDir("lcov"))
       .setProjectKey(Tests.PROJECT_KEY)
       .setProjectName(Tests.PROJECT_KEY)
@@ -142,7 +143,7 @@ public class CoverageTest {
       .setProperty("sonar.javascript.forceZeroCoverage", "true");
 
     Tests.setEmptyProfile(Tests.PROJECT_KEY, Tests.PROJECT_KEY);
-    orchestrator.executeBuild(build);
+    BuildResult result = orchestrator.executeBuild(build);
 
     // NOTE that lines_to_cover is 10 here (instead of 7 in other tests) because this value is equal to NCLOC metric (computed on plugin side)
     // which counts every line containing code even if it's not executable (e.g. containing just "}").
@@ -155,12 +156,16 @@ public class CoverageTest {
     assertThat(getProjectMeasure("it_conditions_to_cover")).isNull();
     assertThat(getProjectMeasure("it_uncovered_conditions")).isNull();
 
+    String propertyRemoveMessage = "Since SonarQube 6.2 property 'sonar.javascript.forceZeroCoverage' is removed and its value is not used during analysis";
+
     if (is_before_sonar_6_2()) {
       assertThat(getProjectMeasure("it_lines_to_cover").getValue()).isEqualTo(10);
       assertThat(getProjectMeasure("it_uncovered_lines").getValue()).isEqualTo(10);
       assertThat(getFileMeasure("it_coverage_line_hits_data").getData()).startsWith("1=0;2=0;3=0;5=0");
+      assertThat(result.getLogs()).doesNotContain(propertyRemoveMessage);
 
     } else {
+      assertThat(result.getLogs()).contains(propertyRemoveMessage);
       assertThat(getProjectMeasure("it_lines_to_cover")).isNull();
       assertThat(getProjectMeasure("it_uncovered_lines")).isNull();
       assertThat(getFileMeasure("it_coverage_line_hits_data")).isNull();
@@ -178,8 +183,14 @@ public class CoverageTest {
     Tests.setEmptyProfile(Tests.PROJECT_KEY, Tests.PROJECT_KEY);
     orchestrator.executeBuild(build);
 
-    assertThat(getProjectMeasure("lines_to_cover")).isNull();
-    assertThat(getProjectMeasure("uncovered_lines")).isNull();
+    if (is_before_sonar_6_2()) {
+      assertThat(getProjectMeasure("lines_to_cover")).isNull();
+      assertThat(getProjectMeasure("uncovered_lines")).isNull();
+    } else {
+      assertThat(getProjectMeasure("lines_to_cover").getValue()).isEqualTo(10);
+      assertThat(getProjectMeasure("uncovered_lines").getValue()).isEqualTo(10);
+    }
+
     assertThat(getProjectMeasure("conditions_to_cover")).isNull();
     assertThat(getProjectMeasure("uncovered_conditions")).isNull();
   }
@@ -201,9 +212,16 @@ public class CoverageTest {
     // Check that a log is printed
     String logs = result.getLogs();
     assertThat(Pattern.compile("Analysing .*coverage-wrong-file-name\\.lcov").matcher(logs).find()).isTrue();
-    assertThat(Pattern.compile("Default value of zero will be saved for file: .*file\\.js").matcher(logs).find()).isTrue();
     assertThat(Pattern.compile("WARN.*Could not resolve 1 file paths in \\[.*coverage-wrong-file-name\\.lcov\\], "
       + "first unresolved path: \\./wrong/fileName\\.js").matcher(logs).find()).isTrue();
+
+    boolean saveZeroMessage = Pattern.compile("Default value of zero will be saved for file: .*file\\.js").matcher(logs).find();
+
+    if (is_before_sonar_6_2()) {
+      assertThat(saveZeroMessage).isTrue();
+    } else {
+      assertThat(saveZeroMessage).isFalse();
+    }
   }
 
   @Test
@@ -240,7 +258,4 @@ public class CoverageTest {
     return resource == null ? null : resource.getMeasure(metricKey);
   }
 
-  private static boolean is_before_sonar_6_2() {
-    return !orchestrator.getConfiguration().getSonarVersion().isGreaterThanOrEquals("6.2");
-  }
 }

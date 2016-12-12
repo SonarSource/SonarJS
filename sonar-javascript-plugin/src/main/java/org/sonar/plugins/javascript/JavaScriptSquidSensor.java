@@ -29,7 +29,6 @@ import java.io.File;
 import java.io.InterruptedIOException;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -86,7 +85,8 @@ public class JavaScriptSquidSensor implements Sensor {
 
   private static final Logger LOG = Loggers.get(JavaScriptSquidSensor.class);
 
-  public static final Version V6_0 = Version.create(6, 0);
+  private static final Version V6_0 = Version.create(6, 0);
+  private static final Version V6_2 = Version.create(6, 2);
 
   private final JavaScriptChecks checks;
   private final FileLinesContextFactory fileLinesContextFactory;
@@ -322,9 +322,16 @@ public class JavaScriptSquidSensor implements Sensor {
   @Override
   public void execute(SensorContext context) {
     List<TreeVisitor> treeVisitors = Lists.newArrayList();
-    Map<InputFile, Set<Integer>> linesOfCode = new HashMap<>();
+    boolean isAtLeastSq62 = context.getSonarQubeVersion().isGreaterThanOrEqual(V6_2);
 
-    treeVisitors.add(new MetricsVisitor(fileSystem, context, noSonarFilter, settings.getBoolean(JavaScriptPlugin.IGNORE_HEADER_COMMENTS), fileLinesContextFactory, linesOfCode));
+    MetricsVisitor metricsVisitor = new MetricsVisitor(
+      context,
+      noSonarFilter,
+      settings.getBoolean(JavaScriptPlugin.IGNORE_HEADER_COMMENTS),
+      fileLinesContextFactory,
+      isAtLeastSq62);
+
+    treeVisitors.add(metricsVisitor);
     treeVisitors.add(new HighlighterVisitor(context, fileSystem));
     treeVisitors.add(new SeChecksDispatcher(checks.seChecks()));
     treeVisitors.add(new CpdVisitor(fileSystem, context));
@@ -342,16 +349,20 @@ public class JavaScriptSquidSensor implements Sensor {
 
     analyseFiles(context, treeVisitors, fileSystem.inputFiles(mainFilePredicate), progressReport);
 
-    executeCoverageSensors(context, linesOfCode);
+    executeCoverageSensors(context, metricsVisitor.linesOfCode(), isAtLeastSq62);
   }
 
-  private static void executeCoverageSensors(SensorContext context, Map<InputFile, Set<Integer>> linesOfCode) {
+  private static void executeCoverageSensors(SensorContext context, Map<InputFile, Set<Integer>> linesOfCode, boolean isAtLeastSq62) {
+    if (isAtLeastSq62 && context.settings().getBoolean(JavaScriptPlugin.FORCE_ZERO_COVERAGE_KEY)) {
+      LOG.warn("Since SonarQube 6.2 property 'sonar.javascript.forceZeroCoverage' is removed and its value is not used during analysis");
+    }
+
     LOG.info("Unit Test Coverage Sensor is started");
-    (new UTCoverageSensor()).execute(context, linesOfCode);
+    (new UTCoverageSensor()).execute(context, linesOfCode, isAtLeastSq62);
     LOG.info("Integration Test Coverage Sensor is started");
-    (new ITCoverageSensor()).execute(context, linesOfCode);
+    (new ITCoverageSensor()).execute(context, linesOfCode, isAtLeastSq62);
     LOG.info("Overall Coverage Sensor is started");
-    (new OverallCoverageSensor()).execute(context, linesOfCode);
+    (new OverallCoverageSensor()).execute(context, linesOfCode, isAtLeastSq62);
   }
 
   private static void saveLineIssue(SensorContext sensorContext, InputFile inputFile, RuleKey ruleKey, LineIssue issue) {
