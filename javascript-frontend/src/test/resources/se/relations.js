@@ -58,4 +58,13 @@ function main() {
     }
   }
 
+  a = foo();
+  b = bar();
+
+  if (typeof a == "string" && typeof b == "number") {
+    if (a == b) {
+    }
+    if (a === b) {
+    }
+  }
 }
