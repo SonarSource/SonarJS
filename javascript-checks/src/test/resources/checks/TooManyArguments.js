@@ -56,3 +56,63 @@ x=function(a,b){
 
 var arrow_function = (a, b) => {};
 arrow_function(1, 2, 3); // Noncompliant
+
+
+function builtIn_GlobalFunction() {
+  isNaN();                                  // OK, too few arguments
+  isNaN(obj);                               // OK
+  isNaN(obj, true);                         // Noncompliant {{"isNaN" expects 1 argument, but 2 were provided.}}
+}
+
+function builtIn_StringFunctions() {
+  "hello".charAt();                         // OK, too few arguments
+  "hello".charAt(1);                        // OK
+  "hello".charAt(1, 2, 3);                  // Noncompliant {{"charAt" expects 1 argument, but 3 were provided.}}
+  new String("hello").charAt(1, 2, 3);      // Noncompliant
+}
+
+function builtIn_FunctionWithNoParams() {
+  new Array(1, 2).reverse();                // OK
+  new Array(1, 2).reverse(a, b, c);         // Noncompliant {{"reverse" expects 0 arguments, but 3 were provided.}}
+}
+
+function builtIn_FunctionWithRestParams() {
+  Array.of();                               // OK
+  Array.of(1, 2, 3, 4);                     // OK
+}
+
+function builtIn_WithUselessParentheses() {
+  (isNaN)(obj, true);                       // Noncompliant {{"isNaN" expects 1 argument, but 2 were provided.}}
+}
+
+function builtIn_ReferenceToBuiltIn() {
+  var isNaN2 = isNaN;
+  isNaN2(obj, true);                        // Noncompliant {{"isNaN2" expects 1 argument, but 2 were provided.}}  // no secondary location, unfortunately
+}
+
+function builtIn_IgnoredSpecificCases() {
+  new Buffer().toString('base64');          // OK, specifically ignored Object function
+  new Buffer().toLocaleString('base64');    // OK, specifically ignored Object function
+  new Buffer().hasOwnProperty(a, b);        // Noncompliant, not ignored Object function
+  new Buffer().hello(a, b);                 // OK, not an Object function
+}
+
+function builtIn_OneIssueAtMost(cond) {
+  var s = "hello";
+  if (cond) {
+    s = "world";
+  }
+  s.charAt(1, 2);                           // Noncompliant (1 issue here, not 2)
+  foo(cond);                                // to keep cond alive and thus force 2 execution paths
+}
+
+function builtIn_OnePathRaisesIssue(cond) {
+  var s = unknown();
+  if (cond) {
+    s = "world";
+  }
+  s.charAt(1, 2);                           // Noncompliant (s is a string on one path, s is unknown on the other path)
+  foo(cond);                                // to keep cond alive and thus force 2 execution paths
+}
+
+isNaN(obj, true);                           // FN, too many arguments but symbolic execution doesn't check global scope 
