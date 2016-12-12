@@ -20,9 +20,6 @@
 package org.sonar.javascript.metrics;
 
 import java.io.File;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.sonar.api.batch.fs.InputFile;
@@ -59,24 +56,21 @@ public class MetricsVisitorTest extends JavaScriptTreeModelTest {
   public void test() {
     SensorContextTester context = SensorContextTester.create(MODULE_BASE_DIR);
 
-    HashMap<InputFile, Set<Integer>> projectLinesOfCode = new HashMap<>();
-    saveMetrics(context, projectLinesOfCode, false);
+    MetricsVisitor metricsVisitor = saveMetrics(context, false);
 
     assertThat(context.measure(COMPONENT_KEY, CoreMetrics.FUNCTIONS).value()).isEqualTo(1);
     assertThat(context.measure(COMPONENT_KEY, CoreMetrics.STATEMENTS).value()).isEqualTo(1);
     assertThat(context.measure(COMPONENT_KEY, CoreMetrics.CLASSES).value()).isEqualTo(0);
 
-    assertThat(projectLinesOfCode).hasSize(1);
-    Set<Integer> linesOfCode = projectLinesOfCode.get(INPUT_FILE);
-    assertThat(linesOfCode).containsOnly(2, 3, 4);
+    assertThat(metricsVisitor.linesOfCode().get(INPUT_FILE)).containsOnly(2, 3, 4);
   }
 
   @Test
   public void save_executable_lines() {
-    saveMetrics(SensorContextTester.create(MODULE_BASE_DIR), new HashMap<>(), true);
+    saveMetrics(SensorContextTester.create(MODULE_BASE_DIR), true);
   }
 
-  private void saveMetrics(SensorContextTester context, Map<InputFile, Set<Integer>> projectLinesOfCode, boolean saveExecutableLines) {
+  private MetricsVisitor saveMetrics(SensorContextTester context, boolean saveExecutableLines) {
     context.fileSystem().add(INPUT_FILE);
 
     FileLinesContextFactory linesContextFactory = mock(FileLinesContextFactory.class);
@@ -88,7 +82,6 @@ public class MetricsVisitorTest extends JavaScriptTreeModelTest {
       mock(NoSonarFilter.class),
       false,
       linesContextFactory,
-      projectLinesOfCode,
       saveExecutableLines);
 
     TreeVisitorContext treeVisitorContext = mock(TreeVisitorContext.class);
@@ -97,5 +90,7 @@ public class MetricsVisitorTest extends JavaScriptTreeModelTest {
 
     metricsVisitor.scanTree(treeVisitorContext);
     Mockito.verify(linesContext, saveExecutableLines ? atLeastOnce() : times(0)).setIntValue(eq(CoreMetrics.EXECUTABLE_LINES_DATA_KEY), any(Integer.class), any(Integer.class));
+
+    return metricsVisitor;
   }
 }

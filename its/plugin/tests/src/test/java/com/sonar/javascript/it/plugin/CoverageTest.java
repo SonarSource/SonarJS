@@ -156,7 +156,7 @@ public class CoverageTest {
     assertThat(getProjectMeasure("it_conditions_to_cover")).isNull();
     assertThat(getProjectMeasure("it_uncovered_conditions")).isNull();
 
-    String propertyRemoveMessage = "Property 'sonar.javascript.forceZeroCoverage' is removed and its value is not used during analysis";
+    String propertyRemoveMessage = "Since SonarQube 6.2 property 'sonar.javascript.forceZeroCoverage' is removed and its value is not used during analysis";
 
     if (is_before_sonar_6_2()) {
       assertThat(getProjectMeasure("it_lines_to_cover").getValue()).isEqualTo(10);

@@ -41,7 +41,7 @@ import org.sonar.plugins.javascript.JavaScriptPlugin;
 abstract class LCOVCoverageSensor {
   private static final Logger LOG = Loggers.get(UTCoverageSensor.class);
 
-  private boolean sqGreater61;
+  private boolean isAtLeastSq62;
   protected abstract String[] reportPathProperties();
   protected abstract CoverageType getCoverageType();
 
@@ -51,17 +51,17 @@ abstract class LCOVCoverageSensor {
       fileSystem.predicates().hasLanguage(JavaScriptLanguage.KEY));
   }
 
-  public void execute(SensorContext context, Map<InputFile, Set<Integer>> linesOfCode, boolean sqGreater61) {
-    this.sqGreater61 = sqGreater61;
+  public void execute(SensorContext context, Map<InputFile, Set<Integer>> linesOfCode, boolean isAtLeastSq62) {
+    this.isAtLeastSq62 = isAtLeastSq62;
 
     boolean isForceZeroCoverageActivated = isForceZeroCoverageActivated(context);
-    if (sqGreater61 && isForceZeroCoverageActivated) {
-      LOG.warn("Property 'sonar.javascript.forceZeroCoverage' is removed and its value is not used during analysis");
+    if (isAtLeastSq62 && isForceZeroCoverageActivated) {
+      LOG.warn("Since SonarQube 6.2 property 'sonar.javascript.forceZeroCoverage' is removed and its value is not used during analysis");
     }
 
     if (isLCOVReportProvided(context)) {
       saveMeasureFromLCOVFile(context, linesOfCode);
-    } else if (!sqGreater61 && isForceZeroCoverageActivated) {
+    } else if (!isAtLeastSq62 && isForceZeroCoverageActivated) {
       saveZeroValueForAllFiles(context, linesOfCode);
     }
   }
@@ -115,7 +115,7 @@ abstract class LCOVCoverageSensor {
           .ofType(getCoverageType())
           .save();
 
-      } else if (!sqGreater61) {
+      } else if (!isAtLeastSq62) {
         // colour all lines as not executed
         LOG.debug("Default value of zero will be saved for file: {}", inputFile.relativePath());
         LOG.debug("Because was not present in LCOV report.");

@@ -22,6 +22,7 @@ package org.sonar.javascript.metrics;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -65,14 +66,21 @@ public class MetricsVisitor extends SubscriptionVisitor {
 
   public MetricsVisitor(
     SensorContext context, NoSonarFilter noSonarFilter, Boolean ignoreHeaderComments,
-    FileLinesContextFactory fileLinesContextFactory, Map<InputFile, Set<Integer>> projectLinesOfCode, boolean saveExecutableLines
+    FileLinesContextFactory fileLinesContextFactory, boolean saveExecutableLines
   ) {
     this.sensorContext = context;
     this.noSonarFilter = noSonarFilter;
     this.ignoreHeaderComments = ignoreHeaderComments;
     this.fileLinesContextFactory = fileLinesContextFactory;
-    this.projectLinesOfCode = projectLinesOfCode;
+    this.projectLinesOfCode = new HashMap<>();
     this.saveExecutableLines = saveExecutableLines;
+  }
+
+  /**
+   * Returns lines of code for files in project
+   */
+  public Map<InputFile, Set<Integer>> linesOfCode() {
+    return projectLinesOfCode;
   }
 
   @Override

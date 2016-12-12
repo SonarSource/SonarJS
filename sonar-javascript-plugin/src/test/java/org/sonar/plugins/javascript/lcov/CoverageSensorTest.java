@@ -223,10 +223,13 @@ public class CoverageSensorTest {
 
   @Test
   public void test_logger_for_force_zero_property() throws Exception {
-    String message = "Property 'sonar.javascript.forceZeroCoverage' is removed and its value is not used during analysis";
+    String message = "Since SonarQube 6.2 property 'sonar.javascript.forceZeroCoverage' is removed and its value is not used during analysis";
     context.setSettings(new Settings().setProperty(FORCE_ZERO_COVERAGE_KEY, "false"));
 
     utCoverageSensor.execute(context, linesOfCode, RUN_WITH_SQ_6_1);
+    assertThat(logTester.logs()).doesNotContain(message);
+
+    utCoverageSensor.execute(context, linesOfCode, RUN_WITH_SQ_6_2);
     assertThat(logTester.logs()).doesNotContain(message);
 
     context.setSettings(new Settings().setProperty(FORCE_ZERO_COVERAGE_KEY, "true"));
@@ -252,8 +255,11 @@ public class CoverageSensorTest {
 
     itCoverageSensor.execute(context, linesOfCode, RUN_WITH_SQ_6_2);
     assertThat(context.lineHits("moduleKey:file1.js", CoverageType.IT, 1)).isNull();
+  }
 
-    overallCoverageSensor.execute(context, linesOfCode, RUN_WITH_SQ_6_2);
-    assertThat(context.lineHits("moduleKey:file1.js", CoverageType.OVERALL, 1)).isEqualTo(2);
+  @Test
+  public void save_coverage_sq_62() throws Exception {
+    utCoverageSensor.execute(context, linesOfCode, RUN_WITH_SQ_6_2);
+    assertThat(context.lineHits("moduleKey:file1.js", CoverageType.UNIT, 1)).isEqualTo(2);
   }
 }

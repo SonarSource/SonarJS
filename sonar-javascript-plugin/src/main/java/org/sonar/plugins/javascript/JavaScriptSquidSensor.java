@@ -29,7 +29,6 @@ import java.io.File;
 import java.io.InterruptedIOException;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -323,10 +322,16 @@ public class JavaScriptSquidSensor implements Sensor {
   @Override
   public void execute(SensorContext context) {
     List<TreeVisitor> treeVisitors = Lists.newArrayList();
-    Map<InputFile, Set<Integer>> linesOfCode = new HashMap<>();
-    boolean sqGreater61 = context.getSonarQubeVersion().isGreaterThanOrEqual(V6_2);
+    boolean isAtLeastSq62 = context.getSonarQubeVersion().isGreaterThanOrEqual(V6_2);
 
-    treeVisitors.add(new MetricsVisitor(context, noSonarFilter, settings.getBoolean(JavaScriptPlugin.IGNORE_HEADER_COMMENTS), fileLinesContextFactory, linesOfCode, sqGreater61));
+    MetricsVisitor metricsVisitor = new MetricsVisitor(
+      context,
+      noSonarFilter,
+      settings.getBoolean(JavaScriptPlugin.IGNORE_HEADER_COMMENTS),
+      fileLinesContextFactory,
+      isAtLeastSq62);
+
+    treeVisitors.add(metricsVisitor);
     treeVisitors.add(new HighlighterVisitor(context, fileSystem));
     treeVisitors.add(new SeChecksDispatcher(checks.seChecks()));
     treeVisitors.add(new CpdVisitor(fileSystem, context));
@@ -344,16 +349,16 @@ public class JavaScriptSquidSensor implements Sensor {
 
     analyseFiles(context, treeVisitors, fileSystem.inputFiles(mainFilePredicate), progressReport);
 
-    executeCoverageSensors(context, linesOfCode, sqGreater61);
+    executeCoverageSensors(context, metricsVisitor.linesOfCode(), isAtLeastSq62);
   }
 
-  private static void executeCoverageSensors(SensorContext context, Map<InputFile, Set<Integer>> linesOfCode, boolean sqGreater61) {
+  private static void executeCoverageSensors(SensorContext context, Map<InputFile, Set<Integer>> linesOfCode, boolean isAtLeastSq62) {
     LOG.info("Unit Test Coverage Sensor is started");
-    (new UTCoverageSensor()).execute(context, linesOfCode, sqGreater61);
+    (new UTCoverageSensor()).execute(context, linesOfCode, isAtLeastSq62);
     LOG.info("Integration Test Coverage Sensor is started");
-    (new ITCoverageSensor()).execute(context, linesOfCode, sqGreater61);
+    (new ITCoverageSensor()).execute(context, linesOfCode, isAtLeastSq62);
     LOG.info("Overall Coverage Sensor is started");
-    (new OverallCoverageSensor()).execute(context, linesOfCode, sqGreater61);
+    (new OverallCoverageSensor()).execute(context, linesOfCode, isAtLeastSq62);
   }
 
   private static void saveLineIssue(SensorContext sensorContext, InputFile inputFile, RuleKey ruleKey, LineIssue issue) {
