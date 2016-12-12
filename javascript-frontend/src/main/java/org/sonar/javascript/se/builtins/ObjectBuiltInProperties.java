@@ -19,9 +19,11 @@
  */
 package org.sonar.javascript.se.builtins;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import java.util.Map;
 import org.sonar.javascript.se.Constraint;
+import org.sonar.javascript.se.Type;
 import org.sonar.javascript.se.sv.SymbolicValue;
 
 public class ObjectBuiltInProperties extends BuiltInProperties {
@@ -29,12 +31,12 @@ public class ObjectBuiltInProperties extends BuiltInProperties {
   @Override
   Map<String, SymbolicValue> getMethods() {
     return ImmutableMap.<String, SymbolicValue>builder()
-      .put("hasOwnProperty", method(Constraint.BOOLEAN_PRIMITIVE))
-      .put("isPrototypeOf", method(Constraint.BOOLEAN_PRIMITIVE))
-      .put("propertyIsEnumerable", method(Constraint.BOOLEAN_PRIMITIVE))
-      .put("toLocaleString", method(Constraint.STRING_PRIMITIVE))
-      .put("toString", method(Constraint.STRING_PRIMITIVE))
-      .put("valueOf", method(Constraint.ANY_VALUE))
+      .put("hasOwnProperty", method(Constraint.BOOLEAN_PRIMITIVE, ImmutableList.of(Constraint.ANY_VALUE)))
+      .put("isPrototypeOf", method(Constraint.BOOLEAN_PRIMITIVE, ImmutableList.of(Constraint.OBJECT)))
+      .put("propertyIsEnumerable", method(Constraint.BOOLEAN_PRIMITIVE, ImmutableList.of(Constraint.ANY_VALUE)))
+      .put("toLocaleString", method(Constraint.STRING_PRIMITIVE, Type.EMPTY))
+      .put("toString", method(Constraint.STRING_PRIMITIVE, Type.EMPTY))
+      .put("valueOf", method(Constraint.ANY_VALUE, Type.EMPTY))
       .build();
   }
 
@@ -47,27 +49,28 @@ public class ObjectBuiltInProperties extends BuiltInProperties {
 
   @Override
   Map<String, SymbolicValue> getOwnMethods() {
+    ImmutableList<Constraint> oneObject = ImmutableList.of(Constraint.OBJECT);
     return ImmutableMap.<String, SymbolicValue>builder()
-      .put("assign", method(Constraint.OBJECT))
-      .put("create", method(Constraint.OBJECT))
-      .put("defineProperty", method(Constraint.OBJECT))
-      .put("defineProperties", method(Constraint.OBJECT))
-      .put("entries", method(Constraint.ARRAY))
-      .put("freeze", method(Constraint.OBJECT))
-      .put("getOwnPropertyDescriptor", method(Constraint.OBJECT.or(Constraint.UNDEFINED)))
-      .put("getOwnPropertyDescriptors", method(Constraint.OBJECT))
-      .put("getOwnPropertyNames", method(Constraint.ARRAY))
-      .put("getOwnPropertySymbols", method(Constraint.ARRAY))
-      .put("getPrototypeOf", method(Constraint.OBJECT.or(Constraint.NULL)))
-      .put("is", method(Constraint.BOOLEAN_PRIMITIVE))
-      .put("isExtensible", method(Constraint.BOOLEAN_PRIMITIVE))
-      .put("isFrozen", method(Constraint.BOOLEAN_PRIMITIVE))
-      .put("isSealed", method(Constraint.BOOLEAN_PRIMITIVE))
-      .put("keys", method(Constraint.ARRAY))
-      .put("preventExtensions", method(Constraint.OBJECT))
-      .put("seal", method(Constraint.OBJECT))
-      .put("setPrototypeOf", method(Constraint.OBJECT))
-      .put("values", method(Constraint.ARRAY))
+      .put("assign", method(Constraint.OBJECT, (int index) -> Constraint.OBJECT))
+      .put("create", method(Constraint.OBJECT, ImmutableList.of(Constraint.OBJECT.or(Constraint.NULL), Constraint.OBJECT)))
+      .put("defineProperty", method(Constraint.OBJECT, ImmutableList.of(Constraint.OBJECT, Constraint.ANY_VALUE, Constraint.OBJECT)))
+      .put("defineProperties", method(Constraint.OBJECT, ImmutableList.of(Constraint.OBJECT, Constraint.OBJECT)))
+      .put("entries", method(Constraint.ARRAY, oneObject))
+      .put("freeze", method(Constraint.OBJECT, oneObject))
+      .put("getOwnPropertyDescriptor", method(Constraint.OBJECT.or(Constraint.UNDEFINED), ImmutableList.of(Constraint.OBJECT, Constraint.ANY_VALUE)))
+      .put("getOwnPropertyDescriptors", method(Constraint.OBJECT, oneObject))
+      .put("getOwnPropertyNames", method(Constraint.ARRAY, oneObject))
+      .put("getOwnPropertySymbols", method(Constraint.ARRAY, oneObject))
+      .put("getPrototypeOf", method(Constraint.OBJECT.or(Constraint.NULL), oneObject))
+      .put("is", method(Constraint.BOOLEAN_PRIMITIVE, ImmutableList.of(Constraint.ANY_VALUE, Constraint.ANY_VALUE)))
+      .put("isExtensible", method(Constraint.BOOLEAN_PRIMITIVE, oneObject))
+      .put("isFrozen", method(Constraint.BOOLEAN_PRIMITIVE, oneObject))
+      .put("isSealed", method(Constraint.BOOLEAN_PRIMITIVE, oneObject))
+      .put("keys", method(Constraint.ARRAY, oneObject))
+      .put("preventExtensions", method(Constraint.OBJECT, oneObject))
+      .put("seal", method(Constraint.OBJECT, oneObject))
+      .put("setPrototypeOf", method(Constraint.OBJECT, ImmutableList.of(Constraint.OBJECT, Constraint.OBJECT.or(Constraint.NULL))))
+      .put("values", method(Constraint.ARRAY, oneObject))
       .build();
   }
 

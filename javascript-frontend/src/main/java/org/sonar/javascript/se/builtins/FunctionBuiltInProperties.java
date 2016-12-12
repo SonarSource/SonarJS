@@ -19,22 +19,26 @@
  */
 package org.sonar.javascript.se.builtins;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import java.util.Map;
+import java.util.function.IntFunction;
 import org.sonar.javascript.se.Constraint;
+import org.sonar.javascript.se.Type;
 import org.sonar.javascript.se.sv.SymbolicValue;
 
 public class FunctionBuiltInProperties extends BuiltInProperties {
 
   @Override
   Map<String, SymbolicValue> getMethods() {
+    IntFunction<Constraint> anyValues = (int index) -> Constraint.ANY_VALUE;
     return ImmutableMap.<String, SymbolicValue>builder()
-      .put("apply", method(Constraint.ANY_VALUE))
-      .put("bind", method(Constraint.FUNCTION))
-      .put("call", method(Constraint.ANY_VALUE))
+      .put("apply", method(Constraint.ANY_VALUE, ImmutableList.of(Constraint.ANY_VALUE, Constraint.ANY_VALUE)))
+      .put("bind", method(Constraint.FUNCTION, anyValues))
+      .put("call", method(Constraint.ANY_VALUE, anyValues))
 
       // overrides Object
-      .put("toString", method(Constraint.STRING_PRIMITIVE))
+      .put("toString", method(Constraint.STRING_PRIMITIVE, Type.EMPTY))
       .build();
   }
 

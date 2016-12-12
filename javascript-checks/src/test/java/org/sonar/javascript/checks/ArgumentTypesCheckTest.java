@@ -17,35 +17,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.plugins.javascript.api.tree.declaration;
+package org.sonar.javascript.checks;
 
-import com.google.common.annotations.Beta;
-import java.util.List;
-import javax.annotation.Nullable;
-import org.sonar.plugins.javascript.api.tree.Tree;
-import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
-import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
+import java.io.File;
+import org.junit.Test;
+import org.sonar.javascript.checks.verifier.JavaScriptCheckVerifier;
 
-/**
- *  Interface for class fields and static properties.
- *  This syntax is in proposal currently. See https://github.com/jeffmo/es-class-fields-and-static-properties
- */
-@Beta
-public interface FieldDeclarationTree extends Tree {
+public class ArgumentTypesCheckTest {
 
-  List<DecoratorTree> decorators();
-
-  @Nullable
-  SyntaxToken staticToken();
-
-  Tree propertyName();
-
-  @Nullable
-  SyntaxToken equalToken();
-
-  @Nullable
-  ExpressionTree initializer();
-
-  @Nullable
-  SyntaxToken semicolonToken();
+  @Test
+  public void test() {
+    JavaScriptCheckVerifier.verify(new ArgumentTypesCheck(), new File("src/test/resources/checks/ArgumentTypes.js"));
+  }
 }

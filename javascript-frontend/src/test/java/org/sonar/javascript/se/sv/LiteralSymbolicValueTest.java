@@ -54,6 +54,11 @@ public class LiteralSymbolicValueTest {
   }
 
   @Test
+  public void regexp_literal() throws Exception {
+    assertThat(constraint("/\\s*;\\s*/")).isEqualTo(Constraint.REGEXP);
+  }
+
+  @Test
   public void numeric_literal() throws Exception {
     assertThat(constraint("42")).isEqualTo(TRUTHY_NUMBER_PRIMITIVE);
     assertThat(constraint("42.")).isEqualTo(TRUTHY_NUMBER_PRIMITIVE);

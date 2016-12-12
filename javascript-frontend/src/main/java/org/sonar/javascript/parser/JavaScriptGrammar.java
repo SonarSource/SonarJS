@@ -1693,6 +1693,7 @@ public class JavaScriptGrammar {
   public FieldDeclarationTree CLASS_FIELD_INITIALIZER() {
     return b.<FieldDeclarationTree>nonterminal()
       .is(f.fieldDeclaration(
+        b.zeroOrMore(DECORATOR()),
         b.optional(b.token(JavaScriptLegacyGrammar.STATIC)),
         PROPERTY_NAME(),
         b.optional(f.newTuple58(b.token(JavaScriptPunctuator.EQU), ASSIGNMENT_EXPRESSION())),

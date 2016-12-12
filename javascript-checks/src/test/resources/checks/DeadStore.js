@@ -138,3 +138,58 @@ function assignment_in_lhs() {
   var i;
   x[i = foo()] = bar(i);  // OK
 }
+
+function try_catch_finally() {
+  var x = foo();                  // OK, dead store, but there is a try statement in the function
+  if (cond) {
+    x = 1;
+  } else {
+    x = 2;
+  }
+  var z = 0;                      // OK, dead store, but there is a try statement in the function
+  z = foo();                      // OK, dead store, but there is a try statement in the function
+  try {
+    var y = foo();                // OK, dead store, but there is a try statement in the function
+  } catch (e) {
+  } finally {
+  }
+}
+
+function nesting() {
+  var a = foo();                  // Noncompliant
+  function nested_try_finally() {
+    var x = foo();                // OK, dead store, but there is a try statement in the function
+    try {
+      var y = foo();              // OK, dead store, but there is a try statement in the function
+    } finally {
+    }
+    try {
+      var z = foo();              // OK, dead store, but there is a try statement in the function
+    } finally {
+    }
+  }
+  var b = foo();                  // Noncompliant
+}
+
+function with_nested_tries() {
+  var a = foo();                  // OK, dead store, but there is a try statement in the function
+  try {
+    var y = foo();                // OK, dead store, but there is a try statement in the function
+    try {
+      var z = foo();              // OK, dead store, but there is a try statement in the function
+    } finally {
+    }
+  } finally {
+  }
+}
+
+function nesting_try_with_function() {
+  var a = foo();                  // OK, dead store, but there is a try statement in the function
+  try {
+    function bar() {
+      var z = foo();              // Noncompliant
+    }
+  } finally {
+  }
+  var b = foo();                  // OK, dead store, but there is a try statement in the function
+}

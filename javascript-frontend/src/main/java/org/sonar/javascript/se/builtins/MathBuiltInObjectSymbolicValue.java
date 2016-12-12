@@ -22,11 +22,15 @@ package org.sonar.javascript.se.builtins;
 import com.google.common.collect.ImmutableMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.IntFunction;
 import org.sonar.javascript.se.Constraint;
 import org.sonar.javascript.se.ProgramState;
+import org.sonar.javascript.se.Type;
 import org.sonar.javascript.se.sv.ObjectSymbolicValue;
 import org.sonar.javascript.se.sv.SymbolicValue;
 import org.sonar.javascript.se.sv.SymbolicValueWithConstraint;
+
+import static org.sonar.javascript.se.Type.ONE_NUMBER;
 
 public class MathBuiltInObjectSymbolicValue implements ObjectSymbolicValue {
 
@@ -60,42 +64,43 @@ public class MathBuiltInObjectSymbolicValue implements ObjectSymbolicValue {
 
     @Override
     Map<String, SymbolicValue> getOwnMethods() {
+      IntFunction<Constraint> numbersSignature = (int parameterIndex) -> Constraint.ANY_NUMBER;
       return ImmutableMap.<String, SymbolicValue>builder()
-        .put("abs", method(Constraint.NUMBER_PRIMITIVE))
-        .put("acos", method(Constraint.NUMBER_PRIMITIVE))
-        .put("acosh", method(Constraint.NUMBER_PRIMITIVE))
-        .put("asin", method(Constraint.NUMBER_PRIMITIVE))
-        .put("asinh", method(Constraint.NUMBER_PRIMITIVE))
-        .put("atan", method(Constraint.NUMBER_PRIMITIVE))
-        .put("atanh", method(Constraint.NUMBER_PRIMITIVE))
-        .put("atan2", method(Constraint.NUMBER_PRIMITIVE))
-        .put("cbrt", method(Constraint.NUMBER_PRIMITIVE))
-        .put("ceil", method(Constraint.NUMBER_PRIMITIVE))
-        .put("clz32", method(Constraint.NUMBER_PRIMITIVE))
-        .put("cos", method(Constraint.NUMBER_PRIMITIVE))
-        .put("cosh", method(Constraint.NUMBER_PRIMITIVE))
-        .put("exp", method(Constraint.NUMBER_PRIMITIVE))
-        .put("expm1", method(Constraint.NUMBER_PRIMITIVE))
-        .put("floor", method(Constraint.NUMBER_PRIMITIVE))
-        .put("fround", method(Constraint.NUMBER_PRIMITIVE))
-        .put("hypot", method(Constraint.NUMBER_PRIMITIVE))
-        .put("imul", method(Constraint.NUMBER_PRIMITIVE))
-        .put("log", method(Constraint.NUMBER_PRIMITIVE))
-        .put("log1p", method(Constraint.NUMBER_PRIMITIVE))
-        .put("log10", method(Constraint.NUMBER_PRIMITIVE))
-        .put("log2", method(Constraint.NUMBER_PRIMITIVE))
-        .put("max", method(Constraint.NUMBER_PRIMITIVE))
-        .put("min", method(Constraint.NUMBER_PRIMITIVE))
-        .put("pow", method(Constraint.NUMBER_PRIMITIVE))
-        .put("random", method(Constraint.NUMBER_PRIMITIVE))
-        .put("round", method(Constraint.NUMBER_PRIMITIVE))
-        .put("sign", method(Constraint.NUMBER_PRIMITIVE))
-        .put("sin", method(Constraint.NUMBER_PRIMITIVE))
-        .put("sinh", method(Constraint.NUMBER_PRIMITIVE))
-        .put("sqrt", method(Constraint.NUMBER_PRIMITIVE))
-        .put("tan", method(Constraint.NUMBER_PRIMITIVE))
-        .put("tanh", method(Constraint.NUMBER_PRIMITIVE))
-        .put("trunc", method(Constraint.NUMBER_PRIMITIVE))
+        .put("abs", method(Constraint.NUMBER_PRIMITIVE, ONE_NUMBER))
+        .put("acos", method(Constraint.NUMBER_PRIMITIVE, ONE_NUMBER))
+        .put("acosh", method(Constraint.NUMBER_PRIMITIVE, ONE_NUMBER))
+        .put("asin", method(Constraint.NUMBER_PRIMITIVE, ONE_NUMBER))
+        .put("asinh", method(Constraint.NUMBER_PRIMITIVE, ONE_NUMBER))
+        .put("atan", method(Constraint.NUMBER_PRIMITIVE, ONE_NUMBER))
+        .put("atanh", method(Constraint.NUMBER_PRIMITIVE, ONE_NUMBER))
+        .put("atan2", method(Constraint.NUMBER_PRIMITIVE, Type.NUMBER_NUMBER))
+        .put("cbrt", method(Constraint.NUMBER_PRIMITIVE, ONE_NUMBER))
+        .put("ceil", method(Constraint.NUMBER_PRIMITIVE, ONE_NUMBER))
+        .put("clz32", method(Constraint.NUMBER_PRIMITIVE, ONE_NUMBER))
+        .put("cos", method(Constraint.NUMBER_PRIMITIVE, ONE_NUMBER))
+        .put("cosh", method(Constraint.NUMBER_PRIMITIVE, ONE_NUMBER))
+        .put("exp", method(Constraint.NUMBER_PRIMITIVE, ONE_NUMBER))
+        .put("expm1", method(Constraint.NUMBER_PRIMITIVE, ONE_NUMBER))
+        .put("floor", method(Constraint.NUMBER_PRIMITIVE, ONE_NUMBER))
+        .put("fround", method(Constraint.NUMBER_PRIMITIVE, ONE_NUMBER))
+        .put("hypot", method(Constraint.NUMBER_PRIMITIVE, numbersSignature))
+        .put("imul", method(Constraint.NUMBER_PRIMITIVE, Type.NUMBER_NUMBER))
+        .put("log", method(Constraint.NUMBER_PRIMITIVE, ONE_NUMBER))
+        .put("log1p", method(Constraint.NUMBER_PRIMITIVE, ONE_NUMBER))
+        .put("log10", method(Constraint.NUMBER_PRIMITIVE, ONE_NUMBER))
+        .put("log2", method(Constraint.NUMBER_PRIMITIVE, ONE_NUMBER))
+        .put("max", method(Constraint.NUMBER_PRIMITIVE, numbersSignature))
+        .put("min", method(Constraint.NUMBER_PRIMITIVE, numbersSignature))
+        .put("pow", method(Constraint.NUMBER_PRIMITIVE, Type.NUMBER_NUMBER))
+        .put("random", method(Constraint.NUMBER_PRIMITIVE, Type.EMPTY))
+        .put("round", method(Constraint.NUMBER_PRIMITIVE, ONE_NUMBER))
+        .put("sign", method(Constraint.NUMBER_PRIMITIVE, ONE_NUMBER))
+        .put("sin", method(Constraint.NUMBER_PRIMITIVE, ONE_NUMBER))
+        .put("sinh", method(Constraint.NUMBER_PRIMITIVE, ONE_NUMBER))
+        .put("sqrt", method(Constraint.NUMBER_PRIMITIVE, ONE_NUMBER))
+        .put("tan", method(Constraint.NUMBER_PRIMITIVE, ONE_NUMBER))
+        .put("tanh", method(Constraint.NUMBER_PRIMITIVE, ONE_NUMBER))
+        .put("trunc", method(Constraint.NUMBER_PRIMITIVE, ONE_NUMBER))
         .build();
     }
   }
