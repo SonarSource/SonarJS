@@ -415,6 +415,10 @@ public class SymbolicExecution {
       pushConditionSuccessor(block.falseSuccessor(), constrainedFalsePS.get(), conditionSymbolicValue, Constraint.FALSY, block.branchingTree());
       conditionResults.put(lastElement, Truthiness.FALSY);
     }
+
+    if (!constrainedTruePS.isPresent() && !constrainedFalsePS.isPresent()) {
+      throw new IllegalStateException("At least one branch of condition should be executed (condition on line "  + ((JavaScriptTree) lastElement).getLine() + ").");
+    }
   }
 
   private void pushConditionSuccessor(
