@@ -111,6 +111,7 @@ public final class CheckList {
       IfConditionalAlwaysTrueOrFalseCheck.class,
       IncrementDecrementInSubExpressionCheck.class,
       IndexOfCompareToPositiveNumberCheck.class,
+      InOperatorTypeErrorCheck.class,
       JQueryVarNameConventionCheck.class,
       JumpStatementInFinallyCheck.class,
       LabelledStatementCheck.class,
