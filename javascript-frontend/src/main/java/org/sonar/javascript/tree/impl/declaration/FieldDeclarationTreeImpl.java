@@ -21,9 +21,11 @@ package org.sonar.javascript.tree.impl.declaration;
 
 import com.google.common.collect.Iterators;
 import java.util.Iterator;
+import java.util.List;
 import javax.annotation.Nullable;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
+import org.sonar.plugins.javascript.api.tree.declaration.DecoratorTree;
 import org.sonar.plugins.javascript.api.tree.declaration.FieldDeclarationTree;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
@@ -31,6 +33,7 @@ import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitor;
 
 public class FieldDeclarationTreeImpl extends JavaScriptTree implements FieldDeclarationTree {
 
+  private final List<DecoratorTree> decorators;
   private final SyntaxToken staticToken;
   private final Tree propertyName;
   private final SyntaxToken equalToken;
@@ -38,9 +41,11 @@ public class FieldDeclarationTreeImpl extends JavaScriptTree implements FieldDec
   private final SyntaxToken semicolonToken;
 
   public FieldDeclarationTreeImpl(
+    List<DecoratorTree> decorators,
     @Nullable SyntaxToken staticToken, Tree propertyName,
     @Nullable SyntaxToken equalToken, @Nullable ExpressionTree initializer, @Nullable SyntaxToken semicolonToken
   ) {
+    this.decorators = decorators;
     this.staticToken = staticToken;
     this.propertyName = propertyName;
     this.equalToken = equalToken;
@@ -55,7 +60,12 @@ public class FieldDeclarationTreeImpl extends JavaScriptTree implements FieldDec
 
   @Override
   public Iterator<Tree> childrenIterator() {
-    return Iterators.forArray(staticToken, propertyName, equalToken, initializer, semicolonToken);
+    return Iterators.concat(decorators.iterator(), Iterators.forArray(staticToken, propertyName, equalToken, initializer, semicolonToken));
+  }
+
+  @Override
+  public List<DecoratorTree> decorators() {
+    return decorators;
   }
 
   @Nullable

@@ -23,6 +23,7 @@ import com.google.common.collect.Lists;
 import java.util.Set;
 import org.sonar.check.Rule;
 import org.sonar.javascript.cfg.CfgBlock;
+import org.sonar.javascript.cfg.CfgBranchingBlock;
 import org.sonar.javascript.cfg.ControlFlowGraph;
 import org.sonar.javascript.se.LiveVariableAnalysis;
 import org.sonar.javascript.se.LiveVariableAnalysis.Usages;
@@ -82,13 +83,22 @@ public class DeadStoreCheck extends DoubleDispatchVisitorCheck {
   // Identifying dead stores is basically "live variable analysis".
   // See https://en.wikipedia.org/wiki/Live_variable_analysis
   private void checkCFG(ControlFlowGraph cfg, FunctionTree functionTree) {
+
+    // if there is a try block in the function, we skip the analysis of the whole
+    // function, as the CFG and the SE engine currently don't support exception
+    // execution paths
+    for (CfgBlock cfgBlock : cfg.blocks()) {
+      if (isTryBlock(cfgBlock)) {
+        return;
+      }
+    }
+
     Scope scope = getContext().getSymbolModel().getScope(functionTree);
     LiveVariableAnalysis lva = LiveVariableAnalysis.create(cfg, scope);
     Usages usages = lva.getUsages();
 
     for (CfgBlock cfgBlock : cfg.blocks()) {
       Set<Symbol> live = lva.getLiveOutSymbols(cfgBlock);
-
       for (Tree element : Lists.reverse(cfgBlock.elements())) {
         Usage usage = usages.getUsage(element);
         if (usage != null) {
@@ -98,6 +108,14 @@ public class DeadStoreCheck extends DoubleDispatchVisitorCheck {
     }
 
     raiseIssuesForNeverReadSymbols(usages);
+  }
+  
+  private static boolean isTryBlock(CfgBlock block) {
+    if (block instanceof CfgBranchingBlock) {
+      CfgBranchingBlock branchingBlock = (CfgBranchingBlock) block;
+      return branchingBlock.branchingTree().is(Kind.TRY_STATEMENT);
+    }
+    return false;
   }
 
   private void checkUsage(Usage usage, Set<Symbol> liveSymbols, Usages usages) {

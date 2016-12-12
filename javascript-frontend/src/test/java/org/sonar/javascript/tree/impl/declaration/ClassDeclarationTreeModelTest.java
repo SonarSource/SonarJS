@@ -81,9 +81,10 @@ public class ClassDeclarationTreeModelTest extends JavaScriptTreeModelTest {
 
   @Test
   public void property() throws Exception {
-    ClassTree tree = parse("class A { static staticProperty = 1; method(){} withoutInitField; }", Kind.CLASS_DECLARATION);
+    ClassTree tree = parse("class A { @decorator static staticProperty = 1; method(){} withoutInitField; }", Kind.CLASS_DECLARATION);
 
     FieldDeclarationTree staticProperty = (FieldDeclarationTree) tree.elements().get(0);
+    assertThat(staticProperty.decorators()).hasSize(1);
     assertThat(staticProperty.staticToken().text()).isEqualTo("static");
     assertThat(((IdentifierTree) staticProperty.propertyName()).name()).isEqualTo("staticProperty");
     assertThat(staticProperty.equalToken().text()).isEqualTo("=");
