@@ -58,6 +58,8 @@ function main() {
     }
   }
 
+///-------------- should not fail
+
   a = foo();
   b = bar();
 
@@ -65,6 +67,32 @@ function main() {
     if (a == b) {
     }
     if (a === b) {
+    }
+  }
+
+///-------------- should not fail
+
+  a = foo();
+  b = bar();
+
+  if (a === b && condition()) {
+    return
+  }
+
+  foo(a || 0);
+  foo(b || 0);
+
+  if (a === b) doSomething();
+
+
+///-------------
+
+  a = foo();
+  b = bar();
+
+  if (a === b) {
+    if (a) {
+      foo(b); // PS b=TRUTHY
     }
   }
 }
