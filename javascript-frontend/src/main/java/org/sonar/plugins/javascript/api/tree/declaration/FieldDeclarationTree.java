@@ -20,6 +20,7 @@
 package org.sonar.plugins.javascript.api.tree.declaration;
 
 import com.google.common.annotations.Beta;
+import java.util.List;
 import javax.annotation.Nullable;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
@@ -31,6 +32,8 @@ import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
  */
 @Beta
 public interface FieldDeclarationTree extends Tree {
+
+  List<DecoratorTree> decorators();
 
   @Nullable
   SyntaxToken staticToken();

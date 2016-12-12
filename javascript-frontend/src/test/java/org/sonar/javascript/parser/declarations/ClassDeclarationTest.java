@@ -51,6 +51,7 @@ public class ClassDeclarationTest {
       .matches("@decorator class A {}")
       .matches("@decorator1 @decorator2 class A {}")
       .matches("class C { @decorator method(){} }")
+      .matches("class C { @decorator property1; @decorator1 @decorator2 property2=42; @decorator static property3=42 }")
       .matches("class C { @decorator static method(){} }")
       .matches("class C { @decorator1 @decorator2 method(){} }")
     ;
