@@ -108,6 +108,7 @@ public class StringBuiltInProperties extends BuiltInProperties {
       .put("fontcolor", method(Constraint.STRING_PRIMITIVE, ONE_STRING))
       .put("fontsize", method(Constraint.STRING_PRIMITIVE, ONE_NUMBER))
       .put("italics", method(Constraint.STRING_PRIMITIVE, EMPTY))
+      .put("link", method(Constraint.STRING_PRIMITIVE, ONE_STRING))
       .put("small", method(Constraint.STRING_PRIMITIVE, EMPTY))
       .put("strike", method(Constraint.STRING_PRIMITIVE, EMPTY))
       .put("sub", method(Constraint.STRING_PRIMITIVE, EMPTY))

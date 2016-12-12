@@ -39,8 +39,8 @@ public class ArrayBuiltInProperties extends BuiltInProperties {
 
   @Override
   Map<String, SymbolicValue> getMethods() {
-    List<Constraint> functionObjectParameters = ImmutableList.of(FUNCTION, OBJECT);
-    List<Constraint> anyValueNumber = ImmutableList.of(ANY_VALUE, ANY_NUMBER);
+    List<Constraint> functionAndObject = ImmutableList.of(FUNCTION, OBJECT);
+    List<Constraint> anyValueAndNumber = ImmutableList.of(ANY_VALUE, ANY_NUMBER);
     IntFunction<Constraint> anyValues = (int index) -> ANY_VALUE;
 
     return ImmutableMap.<String, SymbolicValue>builder()
@@ -58,27 +58,27 @@ public class ArrayBuiltInProperties extends BuiltInProperties {
       }))
       .put("unshift", method(Constraint.NUMBER_PRIMITIVE, anyValues))
       .put("concat", method(Constraint.ARRAY, anyValues))
-      .put("includes", method(Constraint.BOOLEAN_PRIMITIVE, anyValueNumber))
+      .put("includes", method(Constraint.BOOLEAN_PRIMITIVE, anyValueAndNumber))
       .put("join", method(Constraint.STRING_PRIMITIVE, Type.ONE_STRING))
       .put("slice", method(Constraint.ARRAY, Type.NUMBER_NUMBER))
-      .put("indexOf", method(Constraint.NUMBER_PRIMITIVE, anyValueNumber))
-      .put("lastIndexOf", method(Constraint.NUMBER_PRIMITIVE, anyValueNumber))
+      .put("indexOf", method(Constraint.NUMBER_PRIMITIVE, anyValueAndNumber))
+      .put("lastIndexOf", method(Constraint.NUMBER_PRIMITIVE, anyValueAndNumber))
 
-      .put("forEach", method(UNDEFINED, functionObjectParameters))
+      .put("forEach", method(UNDEFINED, functionAndObject))
       .put("entries", method(Constraint.OTHER_OBJECT, Type.EMPTY))
-      .put("every", method(Constraint.BOOLEAN_PRIMITIVE, functionObjectParameters))
-      .put("some", method(Constraint.BOOLEAN_PRIMITIVE, functionObjectParameters))
-      .put("filter", method(Constraint.ARRAY, functionObjectParameters))
-      .put("findIndex", method(Constraint.NUMBER_PRIMITIVE, functionObjectParameters))
+      .put("every", method(Constraint.BOOLEAN_PRIMITIVE, functionAndObject))
+      .put("some", method(Constraint.BOOLEAN_PRIMITIVE, functionAndObject))
+      .put("filter", method(Constraint.ARRAY, functionAndObject))
+      .put("findIndex", method(Constraint.NUMBER_PRIMITIVE, functionAndObject))
       .put("keys", method(Constraint.OTHER_OBJECT, Type.EMPTY))
-      .put("map", method(Constraint.ARRAY, functionObjectParameters))
+      .put("map", method(Constraint.ARRAY, functionAndObject))
       .put("values", method(Constraint.OTHER_OBJECT, Type.EMPTY))
 
       .put("pop", method(ANY_VALUE, Type.EMPTY))
       .put("shift", method(ANY_VALUE, Type.EMPTY))
-      .put("find", method(ANY_VALUE, functionObjectParameters))
+      .put("find", method(ANY_VALUE, functionAndObject))
       .put("reduce", method(ANY_VALUE, ImmutableList.of(FUNCTION, Constraint.ANY_VALUE)))
-      .put("reduceRight", method(ANY_VALUE, ImmutableList.of(FUNCTION, Constraint.ANY_NUMBER)))
+      .put("reduceRight", method(ANY_VALUE, ImmutableList.of(FUNCTION, Constraint.ANY_VALUE)))
 
       // overrides Object
       .put("toString", method(Constraint.STRING_PRIMITIVE, Type.EMPTY))

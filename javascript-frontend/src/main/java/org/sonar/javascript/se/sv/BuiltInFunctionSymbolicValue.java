@@ -37,18 +37,14 @@ public class BuiltInFunctionSymbolicValue implements FunctionSymbolicValue {
   private final IntFunction<Constraint> signature;
 
   public BuiltInFunctionSymbolicValue(Constraint returnedValueConstraint, IntFunction<Constraint> signature) {
-    this.returnedValueConstraint = returnedValueConstraint;
-    this.signature = signature;
-    this.argumentsConstrainer = null;
+    this(returnedValueConstraint, null, signature);
   }
 
   public BuiltInFunctionSymbolicValue(Constraint returnedValueConstraint) {
-    this.returnedValueConstraint = returnedValueConstraint;
-    this.signature = null;
-    this.argumentsConstrainer = null;
+    this(returnedValueConstraint, null, null);
   }
 
-  public BuiltInFunctionSymbolicValue(Constraint returnedValueConstraint, @Nullable ArgumentsConstrainer argumentsConstrainer, IntFunction<Constraint> signature) {
+  public BuiltInFunctionSymbolicValue(Constraint returnedValueConstraint, @Nullable ArgumentsConstrainer argumentsConstrainer, @Nullable IntFunction<Constraint> signature) {
     this.returnedValueConstraint = returnedValueConstraint;
     this.argumentsConstrainer = argumentsConstrainer;
     this.signature = signature;
@@ -108,9 +104,9 @@ public class BuiltInFunctionSymbolicValue implements FunctionSymbolicValue {
     }
 
     @Override
-    public Constraint apply(int value) {
-      if (value < parameterTypes.size()) {
-        return parameterTypes.get(value);
+    public Constraint apply(int parameterIndex) {
+      if (parameterIndex < parameterTypes.size()) {
+        return parameterTypes.get(parameterIndex);
       }
 
       return null;

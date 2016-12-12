@@ -108,7 +108,7 @@ public class DateBuiltInProperties extends BuiltInProperties {
       .put("now", method(Constraint.NUMBER_PRIMITIVE, Type.EMPTY))
       .put("parse", method(Constraint.NUMBER_PRIMITIVE, Type.ONE_STRING))
       .put("UTC", method(Constraint.NUMBER_PRIMITIVE, (int index) -> {
-        if (index < 6) {
+        if (index < 7) {
           return Constraint.ANY_NUMBER;
         }
         return null;
