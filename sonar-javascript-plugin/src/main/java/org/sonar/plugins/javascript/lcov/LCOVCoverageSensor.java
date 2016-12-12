@@ -54,14 +54,9 @@ abstract class LCOVCoverageSensor {
   public void execute(SensorContext context, Map<InputFile, Set<Integer>> linesOfCode, boolean isAtLeastSq62) {
     this.isAtLeastSq62 = isAtLeastSq62;
 
-    boolean isForceZeroCoverageActivated = isForceZeroCoverageActivated(context);
-    if (isAtLeastSq62 && isForceZeroCoverageActivated) {
-      LOG.warn("Since SonarQube 6.2 property 'sonar.javascript.forceZeroCoverage' is removed and its value is not used during analysis");
-    }
-
     if (isLCOVReportProvided(context)) {
       saveMeasureFromLCOVFile(context, linesOfCode);
-    } else if (!isAtLeastSq62 && isForceZeroCoverageActivated) {
+    } else if (!isAtLeastSq62 && isForceZeroCoverageActivated(context)) {
       saveZeroValueForAllFiles(context, linesOfCode);
     }
   }

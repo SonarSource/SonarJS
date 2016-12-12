@@ -34,7 +34,6 @@ import org.sonar.api.batch.sensor.coverage.CoverageType;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
 import org.sonar.api.config.Settings;
 import org.sonar.api.internal.google.common.base.Charsets;
-import org.sonar.api.utils.log.LogTester;
 import org.sonar.plugins.javascript.JavaScriptPlugin;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -53,9 +52,6 @@ public class CoverageSensorTest {
 
   private static final boolean RUN_WITH_SQ_6_2 = true;
   private static final boolean RUN_WITH_SQ_6_1 = false;
-
-  @org.junit.Rule
-  public LogTester logTester = new LogTester();
 
   @Before
   public void init() {
@@ -218,26 +214,6 @@ public class CoverageSensorTest {
     context.setSettings(newSettings);
     utCoverageSensor.execute(context, new HashMap<>(), RUN_WITH_SQ_6_1);
     assertThat(context.lineHits("moduleKey:file1.js", CoverageType.UNIT, 1)).isNull();
-  }
-
-
-  @Test
-  public void test_logger_for_force_zero_property() throws Exception {
-    String message = "Since SonarQube 6.2 property 'sonar.javascript.forceZeroCoverage' is removed and its value is not used during analysis";
-    context.setSettings(new Settings().setProperty(FORCE_ZERO_COVERAGE_KEY, "false"));
-
-    utCoverageSensor.execute(context, linesOfCode, RUN_WITH_SQ_6_1);
-    assertThat(logTester.logs()).doesNotContain(message);
-
-    utCoverageSensor.execute(context, linesOfCode, RUN_WITH_SQ_6_2);
-    assertThat(logTester.logs()).doesNotContain(message);
-
-    context.setSettings(new Settings().setProperty(FORCE_ZERO_COVERAGE_KEY, "true"));
-    utCoverageSensor.execute(context, linesOfCode, RUN_WITH_SQ_6_1);
-    assertThat(logTester.logs()).doesNotContain(message);
-
-    utCoverageSensor.execute(context, linesOfCode, RUN_WITH_SQ_6_2);
-    assertThat(logTester.logs()).contains(message);
   }
 
   // SONARJS-801

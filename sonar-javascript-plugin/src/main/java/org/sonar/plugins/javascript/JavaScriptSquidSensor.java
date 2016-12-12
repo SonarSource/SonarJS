@@ -353,6 +353,10 @@ public class JavaScriptSquidSensor implements Sensor {
   }
 
   private static void executeCoverageSensors(SensorContext context, Map<InputFile, Set<Integer>> linesOfCode, boolean isAtLeastSq62) {
+    if (isAtLeastSq62 && context.settings().getBoolean(JavaScriptPlugin.FORCE_ZERO_COVERAGE_KEY)) {
+      LOG.warn("Since SonarQube 6.2 property 'sonar.javascript.forceZeroCoverage' is removed and its value is not used during analysis");
+    }
+
     LOG.info("Unit Test Coverage Sensor is started");
     (new UTCoverageSensor()).execute(context, linesOfCode, isAtLeastSq62);
     LOG.info("Integration Test Coverage Sensor is started");

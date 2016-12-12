@@ -29,6 +29,8 @@ import org.apache.commons.lang.NotImplementedException;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.sonar.api.SonarQubeSide;
+import org.sonar.api.SonarRuntime;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.InputFile.Type;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
@@ -42,12 +44,15 @@ import org.sonar.api.batch.sensor.internal.DefaultSensorDescriptor;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
 import org.sonar.api.batch.sensor.issue.Issue;
 import org.sonar.api.config.Settings;
+import org.sonar.api.internal.SonarRuntimeImpl;
 import org.sonar.api.internal.google.common.base.Charsets;
 import org.sonar.api.issue.NoSonarFilter;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.FileLinesContext;
 import org.sonar.api.measures.FileLinesContextFactory;
 import org.sonar.api.rule.RuleKey;
+import org.sonar.api.utils.Version;
+import org.sonar.api.utils.log.LogTester;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
 import org.sonar.javascript.checks.CheckList;
@@ -68,11 +73,15 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.sonar.plugins.javascript.JavaScriptPlugin.FORCE_ZERO_COVERAGE_KEY;
 
 public class JavaScriptSquidSensorTest {
 
   @org.junit.Rule
   public final ExpectedException thrown = ExpectedException.none();
+
+  @org.junit.Rule
+  public LogTester logTester = new LogTester();
 
   private FileLinesContextFactory fileLinesContextFactory;
   private CheckFactory checkFactory = new CheckFactory(mock(ActiveRules.class));
@@ -305,6 +314,32 @@ public class JavaScriptSquidSensorTest {
     assertThat(context.measure("moduleKey:test_minified/file.js", CoreMetrics.NCLOC)).isNotNull();
     assertThat(context.measure("moduleKey:test_minified/file.min.js", CoreMetrics.NCLOC)).isNull();
     assertThat(context.measure("moduleKey:test_minified/file-min.js", CoreMetrics.NCLOC)).isNull();
+  }
+
+  @Test
+  public void test_logger_for_force_zero_property() throws Exception {
+    String message = "Since SonarQube 6.2 property 'sonar.javascript.forceZeroCoverage' is removed and its value is not used during analysis";
+    context.setSettings(new Settings().setProperty(FORCE_ZERO_COVERAGE_KEY, "false"));
+    SonarRuntime sonarRuntime61 = SonarRuntimeImpl.forSonarQube(Version.create(6, 1), SonarQubeSide.SERVER);
+    SonarRuntime sonarRuntime62 = SonarRuntimeImpl.forSonarQube(Version.create(6, 2), SonarQubeSide.SERVER);
+
+    context.setRuntime(sonarRuntime61);
+    createSensor().execute(context);
+    assertThat(logTester.logs()).doesNotContain(message);
+
+    context.setRuntime(sonarRuntime62);
+    createSensor().execute(context);
+    assertThat(logTester.logs()).doesNotContain(message);
+
+    context.setSettings(new Settings().setProperty(FORCE_ZERO_COVERAGE_KEY, "true"));
+
+    context.setRuntime(sonarRuntime61);
+    createSensor().execute(context);
+    assertThat(logTester.logs()).doesNotContain(message);
+
+    context.setRuntime(sonarRuntime62);
+    createSensor().execute(context);
+    assertThat(logTester.logs()).contains(message);
   }
 
   private DefaultInputFile inputFile(String relativePath) {
