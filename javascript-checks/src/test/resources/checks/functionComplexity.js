@@ -182,7 +182,7 @@ function ko() {          // OK           +1 for ko
   };
 }
 
-function ko() {          // OK           +1 for ko
+function ok() {          // OK           +1 for ko
   if (a) {}              //              +1 for ko
   throw "error";         //              +0 for ko
   return {               //              +0 for ko
