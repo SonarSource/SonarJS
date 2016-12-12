@@ -11,6 +11,10 @@
 24,
 43,
 ],
+'project:dojo-1.8.1/dojox/color/Colorspace.js.uncompressed.js':[
+151,
+185,
+],
 'project:dojo-1.8.1/dojox/data/CdfStore.js.uncompressed.js':[
 354,
 ],
@@ -44,6 +48,9 @@
 ],
 'project:ecmascript6/react-router/modules/__tests__/_bc-Link-test.js':[
 128,
+],
+'project:ecmascript6/router/third_party/brick/brick-1.0.1.byob.js':[
+1477,
 ],
 'project:ecmascript6/sonar-web/src/main/js/apps/account/app.js':[
 35,

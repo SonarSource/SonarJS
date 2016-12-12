@@ -22,13 +22,17 @@ package org.sonar.javascript.checks;
 import java.io.File;
 import org.junit.Test;
 import org.sonar.javascript.checks.verifier.JavaScriptCheckVerifier;
-
+import org.sonar.plugins.javascript.api.JavaScriptCheck;
 
 public class TooManyArgumentsCheckTest {
 
   @Test
   public void test() {
-    JavaScriptCheckVerifier.verify(new TooManyArgumentsCheck(), new File("src/test/resources/checks/TooManyArguments.js"));
+    JavaScriptCheck check = new TooManyArgumentsCheck();
+
+    // use 2 successive files, because the check class is sensitive to proper reinitialization
+    JavaScriptCheckVerifier.verify(check, new File("src/test/resources/checks/TooManyArguments.js"));
+    JavaScriptCheckVerifier.verify(check, new File("src/test/resources/checks/TooManyArguments2.js"));
   }
 
 }
