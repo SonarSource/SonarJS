@@ -19,13 +19,14 @@
  */
 package org.sonar.plugins.javascript.lcov;
 
+import com.google.common.annotations.VisibleForTesting;
 import java.io.File;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import javax.annotation.Nullable;
-import org.apache.commons.lang.StringUtils;
 import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
@@ -38,12 +39,54 @@ import org.sonar.api.utils.log.Loggers;
 import org.sonar.plugins.javascript.JavaScriptLanguage;
 import org.sonar.plugins.javascript.JavaScriptPlugin;
 
-abstract class LCOVCoverageSensor {
-  private static final Logger LOG = Loggers.get(UTCoverageSensor.class);
+/**
+ * When upgraded to API SQ LTS 6.x we should be able to remove all classes inheriting from this one
+ */
+public class LCOVCoverageSensor {
+  private static final Logger LOG = Loggers.get(LCOVCoverageSensor.class);
 
   private boolean isAtLeastSq62;
-  protected abstract String[] reportPathProperties();
-  protected abstract CoverageType getCoverageType();
+
+  protected String[] reportPathProperties() {
+    return new String[]{ JavaScriptPlugin.LCOV_REPORT_PATHS};
+  }
+
+  @VisibleForTesting
+  protected List<String> parseReportsProperty(SensorContext context) {
+    List<String> reportPaths = new ArrayList<>();
+
+    for (String property : reportPathProperties()) {
+      String value = context.settings().getString(property);
+      if (value != null) {
+        reportPaths.addAll(parseReportsProperty(value));
+      }
+    }
+
+    return reportPaths;
+  }
+
+  /**
+   * Returns list of paths provided by "propertyValue" (divided by comma)
+   */
+  private static List<String> parseReportsProperty(String propertyValue) {
+    List<String> reportPaths = new ArrayList<>();
+    for (String path : propertyValue.split(",")) {
+      if (!path.trim().isEmpty()) {
+        reportPaths.add(path.trim());
+      }
+    }
+
+    return reportPaths;
+  }
+
+  /**
+   * Returns type of coverage provided by sensor: unit tests, integration tests, overall.
+   * NOTE For sensor {@link LCOVCoverageSensor} (which is used for SQ>6.1 with property sonar.javascript.lcov.reportPaths) method returns CoverageType.UNIT
+   * (this is done to be compatible with old API, on server side this value is ignored).
+   */
+  protected CoverageType getCoverageType() {
+    return CoverageType.UNIT;
+  }
 
   private static FilePredicate mainFilePredicate(FileSystem fileSystem) {
     return fileSystem.predicates().and(
@@ -54,29 +97,20 @@ abstract class LCOVCoverageSensor {
   public void execute(SensorContext context, Map<InputFile, Set<Integer>> linesOfCode, boolean isAtLeastSq62) {
     this.isAtLeastSq62 = isAtLeastSq62;
 
-    if (isLCOVReportProvided(context)) {
-      saveMeasureFromLCOVFile(context, linesOfCode);
+    List<String> reportPaths = parseReportsProperty(context);
+
+    if (!reportPaths.isEmpty()) {
+      saveMeasureFromLCOVFile(context, linesOfCode, reportPaths);
+
     } else if (!isAtLeastSq62 && isForceZeroCoverageActivated(context)) {
       saveZeroValueForAllFiles(context, linesOfCode);
     }
   }
 
-  private boolean isLCOVReportProvided(SensorContext context) {
-    for(String reportPathProperty: reportPathProperties()){
-      if (StringUtils.isNotBlank(context.settings().getString(reportPathProperty))){
-        return true;
-      }
-    }
-    return false;
-  }
-
-  private void saveMeasureFromLCOVFile(SensorContext context, Map<InputFile, Set<Integer>> linesOfCode) {
+  private void saveMeasureFromLCOVFile(SensorContext context, Map<InputFile, Set<Integer>> linesOfCode, List<String> reportPaths) {
     LinkedList<File> lcovFiles=new LinkedList<>();
-    for(String reportPathProperty: reportPathProperties()) {
-      String providedPath = context.settings().getString(reportPathProperty);
-      if (StringUtils.isBlank(providedPath)){
-        continue;
-      }
+    for(String providedPath: reportPaths) {
+
       File lcovFile = getIOFile(context.fileSystem().baseDir(), providedPath);
 
       if (lcovFile.isFile()) {
