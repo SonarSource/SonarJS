@@ -8,7 +8,7 @@ function example() // +1 functionDeclaration
 
   if (foo) // +1 ifStatement
   {
-    return 0; // +1 returnStatement
+    return 0; // +0 returnStatement
   }
 
   for (i = 0; i < 10; i++) // +1 iterationStatement
@@ -35,9 +35,12 @@ function example() // +1 functionDeclaration
 
   try
   {
-    throw "err"; // +1 throw
+    throw "err"; // +0 throw
   }
-  catch (err) // +1 catch
+  catch (err) // +0 catch
+  {
+  }
+  finally     // +0 finally
   {
   }
 
@@ -45,14 +48,13 @@ function example() // +1 functionDeclaration
 
   func = function(){ // +1 functionExpression
       if (true) // +1 ifStatement
-          return 1; // +1 return statement (not last)
+          return 1; // +0 returnStatement
   };
   
   do { // +1 do...while
   } while(false);
 
-  return 1; // +0 last returnStatement
-
+  return 1; // +0 returnStatement
 }
 
 class C {
@@ -66,7 +68,7 @@ class C {
     }
 }
 
-function * generator () {  // +1 genrator declaration
+function * generator () {  // +1 generator declaration
 }
 
 Person.prototype = {
@@ -84,4 +86,3 @@ Person.prototype = {
     return this.first; // +0
   }
 };
-

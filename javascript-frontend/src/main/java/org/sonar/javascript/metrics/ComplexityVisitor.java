@@ -20,9 +20,7 @@
 package org.sonar.javascript.metrics;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.declaration.FunctionDeclarationTree;
@@ -32,16 +30,11 @@ import org.sonar.plugins.javascript.api.tree.expression.ArrowFunctionTree;
 import org.sonar.plugins.javascript.api.tree.expression.BinaryExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.ConditionalExpressionTree;
 import org.sonar.plugins.javascript.api.tree.expression.FunctionExpressionTree;
-import org.sonar.plugins.javascript.api.tree.statement.BlockTree;
 import org.sonar.plugins.javascript.api.tree.statement.CaseClauseTree;
-import org.sonar.plugins.javascript.api.tree.statement.CatchBlockTree;
 import org.sonar.plugins.javascript.api.tree.statement.DoWhileStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.ForObjectStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.ForStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.IfStatementTree;
-import org.sonar.plugins.javascript.api.tree.statement.ReturnStatementTree;
-import org.sonar.plugins.javascript.api.tree.statement.StatementTree;
-import org.sonar.plugins.javascript.api.tree.statement.ThrowStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.WhileStatementTree;
 import org.sonar.plugins.javascript.api.visitors.DoubleDispatchVisitor;
 
@@ -50,8 +43,6 @@ public class ComplexityVisitor extends DoubleDispatchVisitor {
   private boolean mustAnalyseNestedFunctions;
 
   private List<Tree> complexityTrees;
-
-  private Set<Tree> excludedReturns;
 
   private boolean isInsideFunction;
 
@@ -65,7 +56,6 @@ public class ComplexityVisitor extends DoubleDispatchVisitor {
 
   public List<Tree> complexityTrees(Tree tree) {
     this.complexityTrees = new ArrayList<>();
-    this.excludedReturns = new HashSet<>();
     this.isInsideFunction = false;
     scan(tree);
     return this.complexityTrees;
@@ -74,9 +64,7 @@ public class ComplexityVisitor extends DoubleDispatchVisitor {
   private void visitFunction(FunctionTree functionTree, Tree complexityTree) {
     if (mustAnalyse()) {
       add(complexityTree);
-      if (functionTree.body().is(Kind.BLOCK)) {
-        excludeLastReturn(((BlockTree) functionTree.body()).statements());
-      }
+
       isInsideFunction = true;
       scanChildren(functionTree);
       isInsideFunction = false;
@@ -140,29 +128,9 @@ public class ComplexityVisitor extends DoubleDispatchVisitor {
   }
 
   @Override
-  public void visitCatchBlock(CatchBlockTree tree) {
-    add(tree.catchKeyword());
-    super.visitCatchBlock(tree);
-  }
-
-  @Override
-  public void visitReturnStatement(ReturnStatementTree tree) {
-    if (!excludedReturns.contains(tree)) {
-      add(tree.returnKeyword());
-    }
-    super.visitReturnStatement(tree);
-  }
-
-  @Override
   public void visitConditionalExpression(ConditionalExpressionTree tree) {
     add(tree.query());
     super.visitConditionalExpression(tree);
-  }
-
-  @Override
-  public void visitThrowStatement(ThrowStatementTree tree) {
-    add(tree.throwKeyword());
-    super.visitThrowStatement(tree);
   }
 
   @Override
@@ -175,16 +143,6 @@ public class ComplexityVisitor extends DoubleDispatchVisitor {
 
   private boolean mustAnalyse() {
     return mustAnalyseNestedFunctions || !isInsideFunction;
-  }
-
-  private void excludeLastReturn(List<StatementTree> statements) {
-    if (statements.isEmpty()) {
-      return;
-    }
-    StatementTree tree = statements.get(statements.size() - 1);
-    if (tree.is(Kind.RETURN_STATEMENT)) {
-      excludedReturns.add(tree);
-    }
   }
 
   private void add(Tree tree) {
