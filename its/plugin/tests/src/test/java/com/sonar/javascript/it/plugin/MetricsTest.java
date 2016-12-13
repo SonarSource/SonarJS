@@ -29,6 +29,7 @@ import org.sonar.wsclient.services.Measure;
 import org.sonar.wsclient.services.Resource;
 import org.sonar.wsclient.services.ResourceQuery;
 
+import static com.sonar.javascript.it.plugin.Tests.is_before_sonar_6_2;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class MetricsTest {
@@ -86,7 +87,12 @@ public class MetricsTest {
     assertThat(getProjectMeasure("violations").getValue()).isEqualTo(0.0);
     // Tests
     assertThat(getProjectMeasure("tests")).isNull();
-    assertThat(getProjectMeasure("coverage")).isNull();
+
+    if (is_before_sonar_6_2()) {
+      assertThat(getProjectMeasure("coverage")).isNull();
+    } else {
+      assertThat(getProjectMeasure("coverage").getValue()).isEqualTo(0.0);
+    }
   }
 
   @Test

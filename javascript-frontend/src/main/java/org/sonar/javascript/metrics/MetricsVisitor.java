@@ -22,6 +22,7 @@ package org.sonar.javascript.metrics;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -50,8 +51,8 @@ public class MetricsVisitor extends SubscriptionVisitor {
     Kind.CLASS_EXPRESSION
   };
 
-  private final FileSystem fs;
   private final SensorContext sensorContext;
+  private final boolean saveExecutableLines;
   private InputFile inputFile;
   private NoSonarFilter noSonarFilter;
   private final Boolean ignoreHeaderComments;
@@ -64,15 +65,22 @@ public class MetricsVisitor extends SubscriptionVisitor {
   private RangeDistributionBuilder fileComplexityDistribution;
 
   public MetricsVisitor(
-    FileSystem fs, SensorContext context, NoSonarFilter noSonarFilter, Boolean ignoreHeaderComments,
-    FileLinesContextFactory fileLinesContextFactory, Map<InputFile, Set<Integer>> projectLinesOfCode
+    SensorContext context, NoSonarFilter noSonarFilter, Boolean ignoreHeaderComments,
+    FileLinesContextFactory fileLinesContextFactory, boolean saveExecutableLines
   ) {
-    this.fs = fs;
     this.sensorContext = context;
     this.noSonarFilter = noSonarFilter;
     this.ignoreHeaderComments = ignoreHeaderComments;
     this.fileLinesContextFactory = fileLinesContextFactory;
-    this.projectLinesOfCode = projectLinesOfCode;
+    this.projectLinesOfCode = new HashMap<>();
+    this.saveExecutableLines = saveExecutableLines;
+  }
+
+  /**
+   * Returns lines of code for files in project
+   */
+  public Map<InputFile, Set<Integer>> linesOfCode() {
+    return projectLinesOfCode;
   }
 
   @Override
@@ -103,6 +111,7 @@ public class MetricsVisitor extends SubscriptionVisitor {
 
   @Override
   public void visitFile(Tree scriptTree) {
+    FileSystem fs = sensorContext.fileSystem();
     this.inputFile = fs.inputFile(fs.predicates().is(getContext().getFile()));
     init();
   }
@@ -159,7 +168,11 @@ public class MetricsVisitor extends SubscriptionVisitor {
 
     FileLinesContext fileLinesContext = fileLinesContextFactory.createFor(this.inputFile);
     for (int line = 1; line <= linesNumber; line++) {
-      fileLinesContext.setIntValue(CoreMetrics.NCLOC_DATA_KEY, line, linesOfCode.contains(line) ? 1 : 0);
+      int isCodeLine = linesOfCode.contains(line) ? 1 : 0;
+      if (saveExecutableLines) {
+        fileLinesContext.setIntValue(CoreMetrics.EXECUTABLE_LINES_DATA_KEY, line, isCodeLine);
+      }
+      fileLinesContext.setIntValue(CoreMetrics.NCLOC_DATA_KEY, line, isCodeLine);
       fileLinesContext.setIntValue(CoreMetrics.COMMENT_LINES_DATA_KEY, line, commentLines.contains(line) ? 1 : 0);
     }
     fileLinesContext.save();

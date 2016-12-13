@@ -63,6 +63,7 @@ public class JavaScriptPlugin implements Plugin {
   public static final Boolean IGNORE_HEADER_COMMENTS_DEFAULT_VALUE = true;
 
   public static final Version V6_0 = Version.create(6, 0);
+  public static final Version V6_2 = Version.create(6, 2);
 
   @Override
   public void define(Context context) {
@@ -115,15 +116,6 @@ public class JavaScriptPlugin implements Plugin {
         .subCategory(TEST_AND_COVERAGE)
         .build(),
 
-      PropertyDefinition.builder(FORCE_ZERO_COVERAGE_KEY)
-        .defaultValue(FORCE_ZERO_COVERAGE_DEFAULT_VALUE)
-        .name("Force 0 coverage value")
-        .description("Force coverage to be set to 0 when no report is provided.")
-        .onQualifiers(Qualifiers.MODULE, Qualifiers.PROJECT)
-        .type(PropertyType.BOOLEAN)
-        .subCategory(TEST_AND_COVERAGE)
-        .build(),
-
       PropertyDefinition.builder(JavaScriptPlugin.JQUERY_OBJECT_ALIASES)
         .defaultValue(JavaScriptPlugin.JQUERY_OBJECT_ALIASES_DEFAULT_VALUE)
         .name("jQuery object aliases")
@@ -132,5 +124,17 @@ public class JavaScriptPlugin implements Plugin {
         .subCategory(LIBRARIES)
         .build()
     );
+
+    if (!context.getSonarQubeVersion().isGreaterThanOrEqual(V6_2)) {
+      context.addExtension(PropertyDefinition.builder(FORCE_ZERO_COVERAGE_KEY)
+        .defaultValue(FORCE_ZERO_COVERAGE_DEFAULT_VALUE)
+        .name("Force 0 coverage value")
+        .description("Force coverage to be set to 0 when no report is provided.")
+        .onQualifiers(Qualifiers.MODULE, Qualifiers.PROJECT)
+        .type(PropertyType.BOOLEAN)
+        .subCategory(TEST_AND_COVERAGE)
+        .build());
+    }
+
   }
 }
