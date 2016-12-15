@@ -133,6 +133,33 @@ public class CoverageTest {
   }
 
   @Test
+  public void LCOV_report_paths() {
+    SonarScanner build = Tests.createScanner()
+      .setProjectDir(TestUtils.projectDir("lcov"))
+      .setProjectKey(Tests.PROJECT_KEY)
+      .setProjectName(Tests.PROJECT_KEY)
+      .setProjectVersion("1.0")
+      .setSourceDirs(".")
+      .setProperty("sonar.javascript.lcov.reportPaths", TestUtils.file("projects/lcov/coverage.lcov").getAbsolutePath());
+    Tests.setEmptyProfile(Tests.PROJECT_KEY, Tests.PROJECT_KEY);
+    orchestrator.executeBuild(build);
+
+    if (is_before_sonar_6_2()) {
+      // property is ignored
+      assertThat(getProjectMeasure("lines_to_cover")).isNull();
+      assertThat(getProjectMeasure("uncovered_lines")).isNull();
+      assertThat(getProjectMeasure("conditions_to_cover")).isNull();
+      assertThat(getProjectMeasure("uncovered_conditions")).isNull();
+
+    } else {
+      assertThat(getProjectMeasure("lines_to_cover").getValue()).isEqualTo(7);
+      assertThat(getProjectMeasure("uncovered_lines").getValue()).isEqualTo(1);
+      assertThat(getProjectMeasure("conditions_to_cover").getValue()).isEqualTo(4);
+      assertThat(getProjectMeasure("uncovered_conditions").getValue()).isEqualTo(1);
+    }
+  }
+
+  @Test
   public void force_zero_coverage() {
     SonarScanner build = Tests.createScanner()
       .setProjectDir(TestUtils.projectDir("lcov"))
