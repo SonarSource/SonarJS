@@ -104,6 +104,7 @@ public final class CheckList {
       FunctionDefinitionInsideLoopCheck.class,
       FunctionNameCheck.class,
       FutureReservedWordsCheck.class,
+      FunctionReturnTypeCheck.class,
       GeneratorWithoutYieldCheck.class,
       GlobalThisCheck.class,
       HtmlCommentsCheck.class,
