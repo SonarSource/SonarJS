@@ -6,7 +6,7 @@
     <rule>
       <repositoryKey>javascript</repositoryKey>
       <key>S2583</key>  <!--Conditions should not unconditionally evaluate to "true" or to "false"-->
-      <priority>MAJOR</priority>g
+      <priority>MAJOR</priority>
     </rule>
   </rules>
 </profile>
