@@ -17,8 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 import com.google.common.base.Preconditions;
 import com.sonar.orchestrator.Orchestrator;
+import com.sonar.orchestrator.build.BuildResult;
 import com.sonar.orchestrator.build.SonarScanner;
 import com.sonar.orchestrator.locator.FileLocation;
 import java.io.File;
@@ -44,50 +46,55 @@ public class JavaScriptPerformanceTest {
       new File("../../sonar-javascript-plugin/target"), "sonar-javascript-plugin-*.jar"))
     .build();
 
+  private SonarScanner build;
+
   @Test
   public void test_parsing_performance() throws IOException {
-    ORCHESTRATOR.getServer().provisionProject("project", "project");
-    ORCHESTRATOR.getServer().associateProjectToQualityProfile("project", "js", "no-rules");
+    String projectKey = "parsing-project";
+    ORCHESTRATOR.getServer().provisionProject(projectKey, projectKey);
+    ORCHESTRATOR.getServer().associateProjectToQualityProfile(projectKey, "js", "no-rules");
 
-    SonarScanner build = getSonarScanner();
+    build = getSonarScanner(projectKey);
+    BuildResult result = ORCHESTRATOR.executeBuild(build);
+    Assertions.assertThat(result.getLogs().contains("No new issue")).isTrue();
 
-    ORCHESTRATOR.executeBuild(build);
-    double time = sensorTime(build.getProjectDir(), SENSOR);
-
-    double expected = 120.0;
+    double expected = 141.0;
+    double time = sensorTime(build.getProjectDir(), SENSOR, projectKey);
     Assertions.assertThat(time).isEqualTo(expected, offset(expected * 0.04));
   }
 
   @Test
   public void test_symbolic_engine_performance() throws IOException {
-    ORCHESTRATOR.getServer().provisionProject("se-project", "se-project");
-    ORCHESTRATOR.getServer().associateProjectToQualityProfile("se-project", "js", "se-profile");
+    String projectKey = "se-project";
+    ORCHESTRATOR.getServer().provisionProject(projectKey, projectKey);
+    ORCHESTRATOR.getServer().associateProjectToQualityProfile(projectKey, "js", "se-profile");
 
-    SonarScanner build = getSonarScanner();
+    build = getSonarScanner(projectKey);
+    BuildResult result = ORCHESTRATOR.executeBuild(build);
+    Assertions.assertThat(result.getLogs().contains("No new issue")).isFalse();
 
-    ORCHESTRATOR.executeBuild(getSonarScanner());
-    double time = sensorTime(build.getProjectDir(), SENSOR);
-
-    double expected = 140.0;
+    double expected = 175.0;
+    double time = sensorTime(build.getProjectDir(), SENSOR, projectKey);
     Assertions.assertThat(time).isEqualTo(expected, offset(expected * 0.04));
   }
 
-  private SonarScanner getSonarScanner() {
+  private static SonarScanner getSonarScanner(String projectKey) {
     return (SonarScanner) SonarScanner.create(FileLocation.of("../sources/src").getFile())
         .setEnvironmentVariable("SONAR_RUNNER_OPTS", "-Xmx1024m")
         .setProperty("sonar.importSources", "false")
         .setProperty("sonar.showProfiling", "true")
         .setProperty("sonar.analysis.mode", "preview")
-        .setProjectKey("project")
-        .setProjectName("project")
+        .setProperty("sonar.issuesReport.console.enable", "true")
+        .setProjectKey(projectKey)
+        .setProjectName(projectKey)
         .setProjectVersion("1")
         .setLanguage("js")
         .setSourceEncoding("UTF-8")
         .setSourceDirs(".");
   }
 
-  private static double sensorTime(File projectDir, String sensor) throws IOException {
-    File profilingFile = new File(projectDir, ".sonar/profiling/project-profiler.properties");
+  private static double sensorTime(File projectDir, String sensor, String projectKey) throws IOException {
+    File profilingFile = new File(projectDir, ".sonar/profiling/" + projectKey + "-profiler.properties");
     Preconditions.checkArgument(profilingFile.isFile(), "Cannot find profiling file to extract time for sensor " + sensor + ": " + profilingFile.getAbsolutePath());
     Properties properties = new Properties();
     properties.load(new FileInputStream(profilingFile));
