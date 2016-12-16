@@ -1,10 +1,19 @@
 # SonarJS [![Build Status](https://travis-ci.org/SonarSource/sonar-javascript.svg?branch=master)](https://travis-ci.org/SonarSource/sonar-javascript)
 
-SonarJS is a code analyzer for JavaScript projects.
+SonarJS is a code analyzer for JavaScript projects. It is used as an extension for the [SonarQube](http://www.sonarqube.org/) platform which provides [static analysis](https://en.wikipedia.org/wiki/Static_program_analysis) of JavaScript code. It will allow you to produce stable and easily supported code by helping you find and correct bugs, vulnerabilities and smells in your code.
+
+# Features
+
+* 160+ rules (including 70+ bug detection)
+* Compatible with ECMAScript 2015-2017
+* Metrics (complexity, number of lines etc.)
+* Import of [test coverage reports](http://docs.sonarqube.org/display/PLUG/JavaScript+Coverage+Results+Import)
+* [Custom rules](http://docs.sonarqube.org/display/PLUG/Custom+Rules+for+JavaScript)
 
 # Useful links
 
 * [Project homepage](https://www.sonarsource.com/why-us/products/languages/javascript.html)
+* [Documentation](http://docs.sonarqube.org/display/PLUG/JavaScript+Plugin)
 * [Issue tracking](http://jira.sonarsource.com/browse/SONARJS)
 * [Available rules](https://sonarqube.com/coding_rules#languages=js)
 * [Google Group for feedback](https://groups.google.com/forum/#!forum/sonarqube)
