@@ -49,17 +49,7 @@ public class JavaScriptPerformanceTest {
     ORCHESTRATOR.getServer().provisionProject("project", "project");
     ORCHESTRATOR.getServer().associateProjectToQualityProfile("project", "js", "no-rules");
 
-    SonarScanner build = (SonarScanner) SonarScanner.create(FileLocation.of("../sources/src").getFile())
-      .setEnvironmentVariable("SONAR_RUNNER_OPTS", "-Xmx1024m")
-      .setProperty("sonar.importSources", "false")
-      .setProperty("sonar.showProfiling", "true")
-      .setProperty("sonar.analysis.mode", "preview")
-      .setProjectKey("project")
-      .setProjectName("project")
-      .setProjectVersion("1")
-      .setLanguage("js")
-      .setSourceEncoding("UTF-8")
-      .setSourceDirs(".");
+    SonarScanner build = getSonarScanner();
 
     ORCHESTRATOR.executeBuild(build);
     double time = sensorTime(build.getProjectDir(), SENSOR);
@@ -73,23 +63,27 @@ public class JavaScriptPerformanceTest {
     ORCHESTRATOR.getServer().provisionProject("se-project", "se-project");
     ORCHESTRATOR.getServer().associateProjectToQualityProfile("se-project", "js", "se-profile");
 
-    SonarScanner build = (SonarScanner) SonarScanner.create(FileLocation.of("../sources/src").getFile())
-      .setEnvironmentVariable("SONAR_RUNNER_OPTS", "-Xmx1024m")
-      .setProperty("sonar.importSources", "false")
-      .setProperty("sonar.showProfiling", "true")
-      .setProperty("sonar.analysis.mode", "preview")
-      .setProjectKey("project")
-      .setProjectName("project")
-      .setProjectVersion("1")
-      .setLanguage("js")
-      .setSourceEncoding("UTF-8")
-      .setSourceDirs(".");
+    SonarScanner build = getSonarScanner();
 
-    ORCHESTRATOR.executeBuild(build);
+    ORCHESTRATOR.executeBuild(getSonarScanner());
     double time = sensorTime(build.getProjectDir(), SENSOR);
 
     double expected = 140.0;
     Assertions.assertThat(time).isEqualTo(expected, offset(expected * 0.04));
+  }
+
+  private SonarScanner getSonarScanner() {
+    return (SonarScanner) SonarScanner.create(FileLocation.of("../sources/src").getFile())
+        .setEnvironmentVariable("SONAR_RUNNER_OPTS", "-Xmx1024m")
+        .setProperty("sonar.importSources", "false")
+        .setProperty("sonar.showProfiling", "true")
+        .setProperty("sonar.analysis.mode", "preview")
+        .setProjectKey("project")
+        .setProjectName("project")
+        .setProjectVersion("1")
+        .setLanguage("js")
+        .setSourceEncoding("UTF-8")
+        .setSourceDirs(".");
   }
 
   private static double sensorTime(File projectDir, String sensor) throws IOException {
