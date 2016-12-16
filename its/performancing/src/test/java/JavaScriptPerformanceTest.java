@@ -46,36 +46,26 @@ public class JavaScriptPerformanceTest {
       new File("../../sonar-javascript-plugin/target"), "sonar-javascript-plugin-*.jar"))
     .build();
 
-  private SonarScanner build;
-
   @Test
   public void test_parsing_performance() throws IOException {
-    String projectKey = "parsing-project";
-    ORCHESTRATOR.getServer().provisionProject(projectKey, projectKey);
-    ORCHESTRATOR.getServer().associateProjectToQualityProfile(projectKey, "js", "no-rules");
-
-    build = getSonarScanner(projectKey);
-    BuildResult result = ORCHESTRATOR.executeBuild(build);
-    Assertions.assertThat(result.getLogs().contains("No new issue")).isTrue();
-
-    double expected = 141.0;
-    double time = sensorTime(build.getProjectDir(), SENSOR, projectKey);
-    Assertions.assertThat(time).isEqualTo(expected, offset(expected * 0.04));
+    test_performance("parsing-project", "no-rules", false, 141.0);
   }
 
   @Test
   public void test_symbolic_engine_performance() throws IOException {
-    String projectKey = "se-project";
+    test_performance("se-project", "se-profile", true, 175.0);
+  }
+
+  private static void test_performance(String projectKey, String profile, boolean shouldRaiseAnyIssue, double expectedTime) throws IOException {
     ORCHESTRATOR.getServer().provisionProject(projectKey, projectKey);
-    ORCHESTRATOR.getServer().associateProjectToQualityProfile(projectKey, "js", "se-profile");
+    ORCHESTRATOR.getServer().associateProjectToQualityProfile(projectKey, "js", profile);
 
-    build = getSonarScanner(projectKey);
+    SonarScanner build = getSonarScanner(projectKey);
     BuildResult result = ORCHESTRATOR.executeBuild(build);
-    Assertions.assertThat(result.getLogs().contains("No new issue")).isFalse();
+    Assertions.assertThat(result.getLogs().contains("No new issue")).isEqualTo(!shouldRaiseAnyIssue);
 
-    double expected = 175.0;
     double time = sensorTime(build.getProjectDir(), SENSOR, projectKey);
-    Assertions.assertThat(time).isEqualTo(expected, offset(expected * 0.04));
+    Assertions.assertThat(time).isEqualTo(expectedTime, offset(expectedTime * 0.04));
   }
 
   private static SonarScanner getSonarScanner(String projectKey) {
