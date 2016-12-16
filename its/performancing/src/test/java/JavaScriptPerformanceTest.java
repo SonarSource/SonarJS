@@ -53,7 +53,6 @@ public class JavaScriptPerformanceTest {
       .setEnvironmentVariable("SONAR_RUNNER_OPTS", "-Xmx1024m")
       .setProperty("sonar.importSources", "false")
       .setProperty("sonar.showProfiling", "true")
-      .setProperty("sonar.exclusions", "**/ecmascript6/**,**/frameworks/**")
       .setProperty("sonar.analysis.mode", "preview")
       .setProjectKey("project")
       .setProjectName("project")
@@ -65,7 +64,7 @@ public class JavaScriptPerformanceTest {
     ORCHESTRATOR.executeBuild(build);
     double time = sensorTime(build.getProjectDir(), SENSOR);
 
-    double expected = 108.0;
+    double expected = 120.0;
     Assertions.assertThat(time).isEqualTo(expected, offset(expected * 0.04));
   }
 
