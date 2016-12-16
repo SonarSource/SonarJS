@@ -22,6 +22,7 @@ package org.sonar.javascript.se.sv;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.IntFunction;
+import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.javascript.se.Constraint;
 import org.sonar.javascript.se.ProgramState;
@@ -68,6 +69,7 @@ public class BuiltInFunctionSymbolicValue implements FunctionSymbolicValue {
     return new ReturnSymbolicValue(argumentValues);
   }
 
+  @CheckForNull
   public IntFunction<Constraint> signature() {
     return signature;
   }
