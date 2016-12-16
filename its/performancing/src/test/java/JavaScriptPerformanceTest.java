@@ -38,13 +38,14 @@ public class JavaScriptPerformanceTest {
 
   @ClassRule
   public static final Orchestrator ORCHESTRATOR = Orchestrator.builderEnv()
-    .restoreProfileAtStartup(FileLocation.of("src/test/profile.xml"))
+    .restoreProfileAtStartup(FileLocation.of("src/test/resources/no_rules.xml"))
+    .restoreProfileAtStartup(FileLocation.of("src/test/resources/se_profile.xml"))
     .addPlugin(FileLocation.byWildcardMavenFilename(
       new File("../../sonar-javascript-plugin/target"), "sonar-javascript-plugin-*.jar"))
     .build();
 
   @Test
-  public void perform() throws IOException {
+  public void test_parsing_performance() throws IOException {
     ORCHESTRATOR.getServer().provisionProject("project", "project");
     ORCHESTRATOR.getServer().associateProjectToQualityProfile("project", "js", "no-rules");
 
@@ -65,6 +66,30 @@ public class JavaScriptPerformanceTest {
     double time = sensorTime(build.getProjectDir(), SENSOR);
 
     double expected = 108.0;
+    Assertions.assertThat(time).isEqualTo(expected, offset(expected * 0.04));
+  }
+
+  @Test
+  public void test_symbolic_engine_performance() throws IOException {
+    ORCHESTRATOR.getServer().provisionProject("se-project", "se-project");
+    ORCHESTRATOR.getServer().associateProjectToQualityProfile("se-project", "js", "se-profile");
+
+    SonarScanner build = (SonarScanner) SonarScanner.create(FileLocation.of("../sources/src").getFile())
+      .setEnvironmentVariable("SONAR_RUNNER_OPTS", "-Xmx1024m")
+      .setProperty("sonar.importSources", "false")
+      .setProperty("sonar.showProfiling", "true")
+      .setProperty("sonar.analysis.mode", "preview")
+      .setProjectKey("project")
+      .setProjectName("project")
+      .setProjectVersion("1")
+      .setLanguage("js")
+      .setSourceEncoding("UTF-8")
+      .setSourceDirs(".");
+
+    ORCHESTRATOR.executeBuild(build);
+    double time = sensorTime(build.getProjectDir(), SENSOR);
+
+    double expected = 140.0;
     Assertions.assertThat(time).isEqualTo(expected, offset(expected * 0.04));
   }
 
