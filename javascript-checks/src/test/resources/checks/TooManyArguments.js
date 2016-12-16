@@ -115,4 +115,8 @@ function builtIn_OnePathRaisesIssue(cond) {
   foo(cond);                                // to keep cond alive and thus force 2 execution paths
 }
 
+function builtIn_from_ember() {
+  "foo".camelize(1, 2);                    // OK, we don't consider not standard built-in methods
+}
+
 isNaN(obj, true);                           // FN, too many arguments but symbolic execution doesn't check global scope 

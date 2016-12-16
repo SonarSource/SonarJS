@@ -82,27 +82,29 @@ public class TooManyArgumentsCheck extends SeCheck {
       SymbolicValue calleeValue = currentState.peekStack(nbActualArguments);
       if (nbActualArguments > 0 
         && calleeValue instanceof BuiltInFunctionSymbolicValue 
-        && shouldCheck(callExpression)
-        && hasTooManyArguments((BuiltInFunctionSymbolicValue) calleeValue, nbActualArguments)) {
-       
-        int nbExpectedArguments = getNbParameters((BuiltInFunctionSymbolicValue) calleeValue);
-        String message = getMessage(callExpression, nbExpectedArguments, nbActualArguments);
-        addIssue(callExpression.arguments(), message);
-        withIssue.add(callExpression);
+        && shouldCheck(callExpression)) {
+
+        BuiltInFunctionSymbolicValue builtInFunction = (BuiltInFunctionSymbolicValue) calleeValue;
+
+        if (builtInFunction.signature() != null && hasTooManyArguments(builtInFunction.signature(), nbActualArguments)) {
+          int nbExpectedArguments = getNbParameters(builtInFunction.signature());
+          String message = getMessage(callExpression, nbExpectedArguments, nbActualArguments);
+          addIssue(callExpression.arguments(), message);
+          withIssue.add(callExpression);
+        }
       }
     }
   }
   
-  private static boolean hasTooManyArguments(BuiltInFunctionSymbolicValue calleeValue, int nbActualArguments) {
-    return calleeValue.signature().apply(nbActualArguments - 1) == null;
+  private static boolean hasTooManyArguments(IntFunction<Constraint> signature, int nbActualArguments) {
+    return signature.apply(nbActualArguments - 1) == null;
   }
 
   /**
    * Returns the number of parameters of the specified built-in function.
-   * @param calleeValue a built-in function assumed to have a fixed number of parameters (that is, no rest parameters).
+   * @param signature a function parameter signature assumed to have a fixed number of parameters (that is, no rest parameters).
    */
-  private static int getNbParameters(BuiltInFunctionSymbolicValue calleeValue) {
-    IntFunction<Constraint> signature = calleeValue.signature();
+  private static int getNbParameters(IntFunction<Constraint> signature) {
     int index = 0;
     while (true) {
       // for a non-existing parameter, method "apply" returns null
