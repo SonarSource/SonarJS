@@ -60,6 +60,9 @@ public class RelationTest {
 
     assertThat(lessThanOrEqualTo.isCompatibleWith(greaterThanOrEqualTo)).isTrue();
     assertThat(greaterThanOrEqualTo.isCompatibleWith(lessThanOrEqualTo)).isTrue();
+
+    assertThat(equalTo.isCompatibleWith(strictNotEqualTo)).isTrue();
+    assertThat(strictNotEqualTo.isCompatibleWith(equalTo)).isTrue();
   }
 
   @Test

@@ -86,6 +86,10 @@ public class SeChecksDispatcher extends SubscriptionVisitorCheck {
       return new ArrayList<>();
     }
 
+    for (SeCheck check : checks) {
+      check.setContext(context);
+    }
+
     super.scanFile(context);
 
     Builder<Issue> builder = ImmutableList.builder();

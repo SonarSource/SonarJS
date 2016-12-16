@@ -40,6 +40,8 @@ public class SeCheck implements JavaScriptCheck {
 
   private Issues issues = new Issues(this);
 
+  private TreeVisitorContext context;
+
   /**
    * Override this method to check the truthiness of conditions in current execution (aka function scope).
    * This method is called after end of execution. Note that it's not called if execution was not finished due reaching the execution limit.
@@ -128,4 +130,11 @@ public class SeCheck implements JavaScriptCheck {
     return getClass().getSimpleName();
   }
 
+  public void setContext(TreeVisitorContext context) {
+    this.context = context;
+  }
+
+  public TreeVisitorContext getContext() {
+    return context;
+  }
 }

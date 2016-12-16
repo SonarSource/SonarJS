@@ -35,7 +35,7 @@ public class Relation {
       Kind.EQUAL_TO,
       Kind.NOT_EQUAL_TO,
       Kind.EQUAL_TO,
-      ImmutableSet.of(Kind.STRICT_EQUAL_TO, Kind.LESS_THAN_OR_EQUAL_TO, Kind.GREATER_THAN_OR_EQUAL_TO)),
+      ImmutableSet.of(Kind.STRICT_EQUAL_TO, Kind.LESS_THAN_OR_EQUAL_TO, Kind.GREATER_THAN_OR_EQUAL_TO, Kind.STRICT_NOT_EQUAL_TO)),
     NOT_EQUAL_TO(
       "!=",
       Kind.NOT_EQUAL_TO,
@@ -53,7 +53,7 @@ public class Relation {
       Kind.STRICT_NOT_EQUAL_TO,
       Kind.STRICT_EQUAL_TO,
       Kind.STRICT_NOT_EQUAL_TO,
-      ImmutableSet.of(Kind.NOT_EQUAL_TO, Kind.LESS_THAN, Kind.GREATER_THAN, Kind.LESS_THAN_OR_EQUAL_TO, Kind.GREATER_THAN_OR_EQUAL_TO)),
+      ImmutableSet.of(Kind.NOT_EQUAL_TO, Kind.LESS_THAN, Kind.GREATER_THAN, Kind.LESS_THAN_OR_EQUAL_TO, Kind.GREATER_THAN_OR_EQUAL_TO, Kind.EQUAL_TO)),
     LESS_THAN(
       "<",
       Kind.LESS_THAN,

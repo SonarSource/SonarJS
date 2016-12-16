@@ -75,6 +75,7 @@ import org.sonar.plugins.javascript.api.visitors.PreciseIssue;
 import org.sonar.plugins.javascript.api.visitors.TreeVisitor;
 import org.sonar.plugins.javascript.api.visitors.TreeVisitorContext;
 import org.sonar.plugins.javascript.lcov.ITCoverageSensor;
+import org.sonar.plugins.javascript.lcov.LCOVCoverageSensor;
 import org.sonar.plugins.javascript.lcov.OverallCoverageSensor;
 import org.sonar.plugins.javascript.lcov.UTCoverageSensor;
 import org.sonar.plugins.javascript.minify.MinificationAssessor;
@@ -93,19 +94,18 @@ public class JavaScriptSquidSensor implements Sensor {
   private final FileSystem fileSystem;
   private final NoSonarFilter noSonarFilter;
   private final FilePredicate mainFilePredicate;
-  private final Settings settings;
   private final ActionParser<Tree> parser;
   // parsingErrorRuleKey equals null if ParsingErrorCheck is not activated
   private RuleKey parsingErrorRuleKey = null;
 
   public JavaScriptSquidSensor(
-    CheckFactory checkFactory, FileLinesContextFactory fileLinesContextFactory, FileSystem fileSystem, NoSonarFilter noSonarFilter, Settings settings) {
-    this(checkFactory, fileLinesContextFactory, fileSystem, noSonarFilter, settings, null);
+    CheckFactory checkFactory, FileLinesContextFactory fileLinesContextFactory, FileSystem fileSystem, NoSonarFilter noSonarFilter) {
+    this(checkFactory, fileLinesContextFactory, fileSystem, noSonarFilter, null);
   }
 
   public JavaScriptSquidSensor(
     CheckFactory checkFactory, FileLinesContextFactory fileLinesContextFactory, FileSystem fileSystem, NoSonarFilter noSonarFilter,
-    Settings settings, @Nullable CustomJavaScriptRulesDefinition[] customRulesDefinition
+    @Nullable CustomJavaScriptRulesDefinition[] customRulesDefinition
   ) {
 
     this.checks = JavaScriptChecks.createJavaScriptCheck(checkFactory)
@@ -117,7 +117,6 @@ public class JavaScriptSquidSensor implements Sensor {
     this.mainFilePredicate = fileSystem.predicates().and(
       fileSystem.predicates().hasType(InputFile.Type.MAIN),
       fileSystem.predicates().hasLanguage(JavaScriptLanguage.KEY));
-    this.settings = settings;
     this.parser = JavaScriptParserBuilder.createParser(getEncoding());
   }
 
@@ -218,7 +217,7 @@ public class JavaScriptSquidSensor implements Sensor {
   }
 
   private void scanFile(SensorContext sensorContext, InputFile inputFile, List<TreeVisitor> visitors, ScriptTree scriptTree) {
-    JavaScriptVisitorContext context = new JavaScriptVisitorContext(scriptTree, inputFile.file(), settings);
+    JavaScriptVisitorContext context = new JavaScriptVisitorContext(scriptTree, inputFile.file(), sensorContext.settings());
 
     highlightSymbols(sensorContext.newSymbolTable().onFile(inputFile), context);
 
@@ -327,7 +326,7 @@ public class JavaScriptSquidSensor implements Sensor {
     MetricsVisitor metricsVisitor = new MetricsVisitor(
       context,
       noSonarFilter,
-      settings.getBoolean(JavaScriptPlugin.IGNORE_HEADER_COMMENTS),
+      context.settings().getBoolean(JavaScriptPlugin.IGNORE_HEADER_COMMENTS),
       fileLinesContextFactory,
       isAtLeastSq62);
 
@@ -353,10 +352,38 @@ public class JavaScriptSquidSensor implements Sensor {
   }
 
   private static void executeCoverageSensors(SensorContext context, Map<InputFile, Set<Integer>> linesOfCode, boolean isAtLeastSq62) {
-    if (isAtLeastSq62 && context.settings().getBoolean(JavaScriptPlugin.FORCE_ZERO_COVERAGE_KEY)) {
+    Settings settings = context.settings();
+    if (isAtLeastSq62 && settings.getBoolean(JavaScriptPlugin.FORCE_ZERO_COVERAGE_KEY)) {
       LOG.warn("Since SonarQube 6.2 property 'sonar.javascript.forceZeroCoverage' is removed and its value is not used during analysis");
     }
 
+    if (isAtLeastSq62) {
+      logDeprecationForReportProperty(settings, JavaScriptPlugin.LCOV_UT_REPORT_PATH);
+      logDeprecationForReportProperty(settings, JavaScriptPlugin.LCOV_IT_REPORT_PATH);
+
+      String lcovReports = settings.getString(JavaScriptPlugin.LCOV_REPORT_PATHS);
+
+      if (lcovReports == null || lcovReports.isEmpty()) {
+        executeDeprecatedCoverageSensors(context, linesOfCode, true);
+
+      } else {
+        LOG.info("Test Coverage Sensor is started");
+        (new LCOVCoverageSensor()).execute(context, linesOfCode, true);
+      }
+
+    } else {
+      executeDeprecatedCoverageSensors(context, linesOfCode, false);
+    }
+  }
+
+  private static void logDeprecationForReportProperty(Settings settings, String propertyKey) {
+    String value = settings.getString(propertyKey);
+    if (value != null && !value.isEmpty()) {
+      LOG.warn("Since SonarQube 6.2 property '"+ propertyKey + "' is deprecated. Use 'sonar.javascript.lcov.reportPaths' instead.");
+    }
+  }
+
+  private static void executeDeprecatedCoverageSensors(SensorContext context, Map<InputFile, Set<Integer>> linesOfCode, boolean isAtLeastSq62) {
     LOG.info("Unit Test Coverage Sensor is started");
     (new UTCoverageSensor()).execute(context, linesOfCode, isAtLeastSq62);
     LOG.info("Integration Test Coverage Sensor is started");

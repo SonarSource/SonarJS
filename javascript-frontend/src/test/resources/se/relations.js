@@ -2,7 +2,7 @@ function main() {
 
   var a = foo();
   var b = bar();
-  
+
   if (a > b) {
     let x = null;
 
@@ -58,4 +58,74 @@ function main() {
     }
   }
 
+///-------------- should not fail
+
+  a = foo();
+  b = bar();
+
+  if (typeof a == "string" && typeof b == "number") {
+    if (a == b) {
+    }
+    if (a === b) {
+    }
+  }
+
+///-------------- should not fail
+
+  a = foo();
+  b = bar();
+
+  if (a === b && condition()) {
+    return
+  }
+
+  foo(a || 0);
+  foo(b || 0);
+
+  if (a === b) doSomething();
+
+
+///-------------
+
+  a = foo();
+  b = bar();
+
+  if (a === b) {
+    if (a) {
+      foo(b); // PS b=TRUTHY
+    }
+  }
+
+///------------
+
+  a = foo();
+
+  if (a === "str") {
+    foo(a); // PS a=TRUTHY_STRING
+  }
+
+///------------
+
+  a = foo();
+
+  if (a !== "str") {
+  } else {
+    foo(a); // PS a=TRUTHY_STRING
+  }
+
+///------------ should not fail
+  a = foo();
+  b = a === "str";
+
+  if (!b && condition()) {
+    dosmth();
+  }
+
+  if (typeof a === "object") {
+    dosmth();
+  }
+
+  if (b && condition(a)) {
+    dosmth();
+  }
 }

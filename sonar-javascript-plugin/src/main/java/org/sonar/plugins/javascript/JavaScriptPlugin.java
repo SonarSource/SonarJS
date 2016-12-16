@@ -47,6 +47,9 @@ public class JavaScriptPlugin implements Plugin {
 
   public static final String PROPERTY_PREFIX = "sonar.javascript";
 
+  public static final String LCOV_REPORT_PATHS = PROPERTY_PREFIX + ".lcov.reportPaths";
+  public static final String LCOV_REPORT_PATHS_DEFAULT_VALUE = "";
+
   public static final String LCOV_UT_REPORT_PATH = PROPERTY_PREFIX + ".lcov.reportPath";
   public static final String LCOV_UT_REPORT_PATH_DEFAULT_VALUE = "";
 
@@ -82,6 +85,9 @@ public class JavaScriptPlugin implements Plugin {
         OverallCoverageSensor.class);
     }
 
+    boolean isAtLeastSq62 = context.getSonarQubeVersion().isGreaterThanOrEqual(V6_2);
+    String reportPropertyDeprecationMessage = isAtLeastSq62 ? "DEPRECATED: use sonar.javascript.lcov.reportPaths. " : "";
+
     context.addExtensions(
       PropertyDefinition.builder(FILE_SUFFIXES_KEY)
         .defaultValue(FILE_SUFFIXES_DEFVALUE)
@@ -103,7 +109,7 @@ public class JavaScriptPlugin implements Plugin {
       PropertyDefinition.builder(LCOV_UT_REPORT_PATH)
         .defaultValue(LCOV_UT_REPORT_PATH_DEFAULT_VALUE)
         .name("Unit Tests LCOV File")
-        .description("Path (absolute or relative) to the file with LCOV data for unit tests.")
+        .description(reportPropertyDeprecationMessage + "Path (absolute or relative) to the file with LCOV data for unit tests.")
         .onQualifiers(Qualifiers.MODULE, Qualifiers.PROJECT)
         .subCategory(TEST_AND_COVERAGE)
         .build(),
@@ -111,7 +117,7 @@ public class JavaScriptPlugin implements Plugin {
       PropertyDefinition.builder(LCOV_IT_REPORT_PATH)
         .defaultValue(LCOV_IT_REPORT_PATH_DEFAULT_VALUE)
         .name("Integration Tests LCOV File")
-        .description("Path (absolute or relative) to the file with LCOV data for integration tests.")
+        .description(reportPropertyDeprecationMessage + "Path (absolute or relative) to the file with LCOV data for integration tests.")
         .onQualifiers(Qualifiers.MODULE, Qualifiers.PROJECT)
         .subCategory(TEST_AND_COVERAGE)
         .build(),
@@ -125,8 +131,20 @@ public class JavaScriptPlugin implements Plugin {
         .build()
     );
 
-    if (!context.getSonarQubeVersion().isGreaterThanOrEqual(V6_2)) {
-      context.addExtension(PropertyDefinition.builder(FORCE_ZERO_COVERAGE_KEY)
+
+
+    if (isAtLeastSq62) {
+      context.addExtension(PropertyDefinition.builder(LCOV_REPORT_PATHS)
+        .defaultValue(LCOV_REPORT_PATHS_DEFAULT_VALUE)
+        .name("LCOV Files")
+        .description("Paths (absolute or relative) to the files with LCOV data.")
+        .onQualifiers(Qualifiers.MODULE, Qualifiers.PROJECT)
+        .subCategory(TEST_AND_COVERAGE)
+        .build());
+
+    } else {
+      context.addExtension(
+        PropertyDefinition.builder(FORCE_ZERO_COVERAGE_KEY)
         .defaultValue(FORCE_ZERO_COVERAGE_DEFAULT_VALUE)
         .name("Force 0 coverage value")
         .description("Force coverage to be set to 0 when no report is provided.")
@@ -135,6 +153,8 @@ public class JavaScriptPlugin implements Plugin {
         .subCategory(TEST_AND_COVERAGE)
         .build());
     }
+
+
 
   }
 }

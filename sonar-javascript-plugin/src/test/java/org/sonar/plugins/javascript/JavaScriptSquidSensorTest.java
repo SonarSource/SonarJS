@@ -40,6 +40,7 @@ import org.sonar.api.batch.fs.internal.FileMetadata;
 import org.sonar.api.batch.rule.ActiveRules;
 import org.sonar.api.batch.rule.CheckFactory;
 import org.sonar.api.batch.rule.internal.ActiveRulesBuilder;
+import org.sonar.api.batch.sensor.coverage.CoverageType;
 import org.sonar.api.batch.sensor.internal.DefaultSensorDescriptor;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
 import org.sonar.api.batch.sensor.issue.Issue;
@@ -77,6 +78,12 @@ import static org.sonar.plugins.javascript.JavaScriptPlugin.FORCE_ZERO_COVERAGE_
 
 public class JavaScriptSquidSensorTest {
 
+  private static final SonarRuntime SONAR_RUNTIME_6_1 = SonarRuntimeImpl.forSonarQube(Version.create(6, 1), SonarQubeSide.SERVER);
+  private static final SonarRuntime SONAR_RUNTIME_6_2 = SonarRuntimeImpl.forSonarQube(Version.create(6, 2), SonarQubeSide.SERVER);
+
+  private static final String UT_LCOV = "reports/report_ut.lcov";
+  private static final String IT_LCOV = "reports/report_it.lcov";
+
   @org.junit.Rule
   public final ExpectedException thrown = ExpectedException.none();
 
@@ -102,13 +109,12 @@ public class JavaScriptSquidSensorTest {
     }
   }};
 
-  private final File baseDir = new File("src/test/resources");
-  private final Settings settings = new Settings();
+  private File baseDir = new File("src/test/resources");
   private final ProgressReport progressReport = mock(ProgressReport.class);
-  private final SensorContextTester context = SensorContextTester.create(baseDir);
+  private SensorContextTester context = SensorContextTester.create(baseDir);
 
   private JavaScriptSquidSensor createSensor() {
-    return new JavaScriptSquidSensor(checkFactory, fileLinesContextFactory, context.fileSystem(), new NoSonarFilter(), settings, CUSTOM_RULES);
+    return new JavaScriptSquidSensor(checkFactory, fileLinesContextFactory, context.fileSystem(), new NoSonarFilter(), CUSTOM_RULES);
   }
 
   @Before
@@ -132,7 +138,7 @@ public class JavaScriptSquidSensorTest {
   public void should_analyse() {
     String relativePath = "cpd/Person.js";
     inputFile(relativePath);
-    settings.setProperty(JavaScriptPlugin.IGNORE_HEADER_COMMENTS, true);
+    context.settings().setProperty(JavaScriptPlugin.IGNORE_HEADER_COMMENTS, true);
 
     createSensor().execute(context);
 
@@ -320,26 +326,110 @@ public class JavaScriptSquidSensorTest {
   public void test_logger_for_force_zero_property() throws Exception {
     String message = "Since SonarQube 6.2 property 'sonar.javascript.forceZeroCoverage' is removed and its value is not used during analysis";
     context.setSettings(new Settings().setProperty(FORCE_ZERO_COVERAGE_KEY, "false"));
-    SonarRuntime sonarRuntime61 = SonarRuntimeImpl.forSonarQube(Version.create(6, 1), SonarQubeSide.SERVER);
-    SonarRuntime sonarRuntime62 = SonarRuntimeImpl.forSonarQube(Version.create(6, 2), SonarQubeSide.SERVER);
 
-    context.setRuntime(sonarRuntime61);
+
+    context.setRuntime(SONAR_RUNTIME_6_1);
     createSensor().execute(context);
     assertThat(logTester.logs()).doesNotContain(message);
 
-    context.setRuntime(sonarRuntime62);
+    context.setRuntime(SONAR_RUNTIME_6_2);
     createSensor().execute(context);
     assertThat(logTester.logs()).doesNotContain(message);
 
     context.setSettings(new Settings().setProperty(FORCE_ZERO_COVERAGE_KEY, "true"));
 
-    context.setRuntime(sonarRuntime61);
+    context.setRuntime(SONAR_RUNTIME_6_1);
     createSensor().execute(context);
     assertThat(logTester.logs()).doesNotContain(message);
 
-    context.setRuntime(sonarRuntime62);
+    context.setRuntime(SONAR_RUNTIME_6_2);
     createSensor().execute(context);
     assertThat(logTester.logs()).contains(message);
+  }
+
+  @Test
+  public void test_deprecation_log_for_report_properties() throws Exception {
+    String deprecationMessage = "Since SonarQube 6.2 property '%s' is deprecated. Use 'sonar.javascript.lcov.reportPaths' instead.";
+    String utReportMessage = String.format(deprecationMessage, JavaScriptPlugin.LCOV_UT_REPORT_PATH);
+    String itDeprecationMessage = String.format(deprecationMessage, JavaScriptPlugin.LCOV_IT_REPORT_PATH);
+
+    context.setRuntime(SONAR_RUNTIME_6_1);
+
+    // no property is set
+    createSensor().execute(context);
+    assertThat(logTester.logs()).doesNotContain(utReportMessage);
+    assertThat(logTester.logs()).doesNotContain(itDeprecationMessage);
+    logTester.clear();
+    context.settings().clear();
+
+    // all report properties are set
+    context.settings().setProperty(JavaScriptPlugin.LCOV_UT_REPORT_PATH, "foobar");
+    context.settings().setProperty(JavaScriptPlugin.LCOV_IT_REPORT_PATH, "foobar");
+    context.settings().setProperty(JavaScriptPlugin.LCOV_REPORT_PATHS, "foobar");
+    createSensor().execute(context);
+    assertThat(logTester.logs()).doesNotContain(utReportMessage);
+    assertThat(logTester.logs()).doesNotContain(itDeprecationMessage);
+    logTester.clear();
+    context.settings().clear();
+
+    context.setRuntime(SONAR_RUNTIME_6_2);
+
+    // 'sonar.javascript.lcov.reportPaths' property is set
+    context.settings().setProperty(JavaScriptPlugin.LCOV_UT_REPORT_PATH, "");
+    context.settings().setProperty(JavaScriptPlugin.LCOV_REPORT_PATHS, "foobar");
+    createSensor().execute(context);
+    assertThat(logTester.logs()).doesNotContain(utReportMessage);
+    assertThat(logTester.logs()).doesNotContain(itDeprecationMessage);
+    logTester.clear();
+    context.settings().clear();
+
+    // all report properties are set
+    context.settings().setProperty(JavaScriptPlugin.LCOV_UT_REPORT_PATH, "foobar");
+    context.settings().setProperty(JavaScriptPlugin.LCOV_IT_REPORT_PATH, "foobar");
+    context.settings().setProperty(JavaScriptPlugin.LCOV_REPORT_PATHS, "foobar");
+    createSensor().execute(context);
+    assertThat(logTester.logs()).contains(utReportMessage);
+    assertThat(logTester.logs()).contains(itDeprecationMessage);
+  }
+
+  @Test
+  public void sq_greater_6_1_still_honor_it_ut_coverage_reports() throws Exception {
+    baseDir = new File("src/test/resources/coverage");
+    context = SensorContextTester.create(baseDir);
+    context.setRuntime(SONAR_RUNTIME_6_2);
+
+    context.settings().setProperty(JavaScriptPlugin.LCOV_UT_REPORT_PATH, UT_LCOV);
+    context.settings().setProperty(JavaScriptPlugin.LCOV_IT_REPORT_PATH, IT_LCOV);
+    context.settings().setProperty(JavaScriptPlugin.LCOV_REPORT_PATHS, "");
+
+    inputFile("file1.js");
+    createSensor().execute(context);
+
+    // note that these coverages will be aggregated on platform side.
+    assertThat(context.lineHits("moduleKey:file1.js", CoverageType.UNIT, 1)).isEqualTo(2);
+    assertThat(context.lineHits("moduleKey:file1.js", CoverageType.IT, 1)).isEqualTo(1);
+  }
+
+  @Test
+  public void sq_greater_6_1_prefer_single_coverage_property() throws Exception {
+    baseDir = new File("src/test/resources/coverage");
+    context = SensorContextTester.create(baseDir);
+    context.setRuntime(SONAR_RUNTIME_6_2);
+
+    context.settings().setProperty(JavaScriptPlugin.LCOV_UT_REPORT_PATH, UT_LCOV);
+    context.settings().setProperty(JavaScriptPlugin.LCOV_IT_REPORT_PATH, IT_LCOV);
+    context.settings().setProperty(JavaScriptPlugin.LCOV_REPORT_PATHS, IT_LCOV + ", " + UT_LCOV);
+
+    inputFile("file1.js");
+    createSensor().execute(context);
+
+    // we check for "CoverageType.UNIT" which is workaround as we use sonar-api <6.2 (we have to provide some type)
+    // so in fact we assert aggregated measure computed based on sonar.javascript.lcov.reportPaths property
+    assertThat(context.lineHits("moduleKey:file1.js", CoverageType.UNIT, 1)).isEqualTo(3);
+
+    // nothing is saved for other types
+    assertThat(context.lineHits("moduleKey:file1.js", CoverageType.IT, 1)).isNull();
+    assertThat(context.lineHits("moduleKey:file1.js", CoverageType.OVERALL, 1)).isNull();
   }
 
   private DefaultInputFile inputFile(String relativePath) {

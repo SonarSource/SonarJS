@@ -46,6 +46,8 @@ import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.declaration.FunctionTree;
 import org.sonar.plugins.javascript.api.tree.expression.ExpressionTree;
 
+import static org.sonar.javascript.se.Relation.Operator.STRICT_EQUAL_TO;
+
 /**
  * This class represents the knowledge about the variables values.
  * The same program state may be valid for several program points and at one program point there might be valid several program states (depending on execution path).
@@ -147,6 +149,26 @@ public class ProgramState implements ProgramStateConstraints {
   }
 
   public Optional<ProgramState> constrain(@Nullable SymbolicValue value, @Nullable Constraint constraint) {
+    Optional<ProgramState> ps = this.constrainWithoutEquivalent(value, constraint);
+
+    if (ps.isPresent()) {
+      Constraint newConstraint = ps.get().getConstraint(value);
+
+      Set<SymbolicValue> equivalentValues = getEquivalentValues(value);
+      for (SymbolicValue equivalentValue : equivalentValues) {
+        if (ps.isPresent()) {
+          ps = ps.get().constrainWithoutEquivalent(equivalentValue, newConstraint);
+
+        } else {
+          break;
+        }
+      }
+    }
+
+    return ps;
+  }
+
+  private Optional<ProgramState> constrainWithoutEquivalent(@Nullable SymbolicValue value, @Nullable Constraint constraint) {
     if (value == null || constraint == null || value.equals(UnknownSymbolicValue.UNKNOWN)) {
       return Optional.of(this);
     }
@@ -156,6 +178,23 @@ public class ProgramState implements ProgramStateConstraints {
     Constraint newConstraint = getConstraint(value).and(constraint);
     ProgramState newState = new ProgramState(values, replaceConstraint(value, newConstraint), stack, relations, counter);
     return value.constrainDependencies(newState, constraint);
+  }
+
+  private Set<SymbolicValue> getEquivalentValues(SymbolicValue value) {
+    Set<SymbolicValue> equivalentValues = new HashSet<>();
+    for (Relation relation : relations) {
+      if (relation.operator() == STRICT_EQUAL_TO) {
+
+        if (relation.leftOperand().equals(value)) {
+          equivalentValues.add(relation.rightOperand());
+
+        } else if (relation.rightOperand().equals(value)) {
+          equivalentValues.add(relation.leftOperand());
+        }
+      }
+    }
+
+    return equivalentValues;
   }
 
   private ImmutableMap<SymbolicValue, Constraint> replaceConstraint(SymbolicValue value, Constraint newConstraint) {

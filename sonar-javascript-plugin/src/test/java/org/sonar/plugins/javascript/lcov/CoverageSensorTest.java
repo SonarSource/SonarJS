@@ -22,6 +22,7 @@ package org.sonar.plugins.javascript.lcov;
 import com.google.common.collect.ImmutableSet;
 import java.io.File;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import org.junit.Before;
@@ -41,10 +42,13 @@ import static org.sonar.plugins.javascript.JavaScriptPlugin.FORCE_ZERO_COVERAGE_
 
 public class CoverageSensorTest {
 
+  private static final String UT_LCOV = "reports/report_ut.lcov";
+  private static final String IT_LCOV = "reports/report_it.lcov";
   private SensorContextTester context;
   private Settings settings;
   private Map<InputFile, Set<Integer>> linesOfCode;
 
+  private LCOVCoverageSensor coverageSensor = new LCOVCoverageSensor();
   private UTCoverageSensor utCoverageSensor = new UTCoverageSensor();
   private ITCoverageSensor itCoverageSensor = new ITCoverageSensor();
   private OverallCoverageSensor overallCoverageSensor = new OverallCoverageSensor();
@@ -56,8 +60,8 @@ public class CoverageSensorTest {
   @Before
   public void init() {
     settings = new Settings();
-    settings.setProperty(JavaScriptPlugin.LCOV_UT_REPORT_PATH, "reports/report_ut.lcov");
-    settings.setProperty(JavaScriptPlugin.LCOV_IT_REPORT_PATH, "reports/report_it.lcov");
+    settings.setProperty(JavaScriptPlugin.LCOV_UT_REPORT_PATH, UT_LCOV);
+    settings.setProperty(JavaScriptPlugin.LCOV_IT_REPORT_PATH, IT_LCOV);
     context = SensorContextTester.create(moduleBaseDir);
     context.setSettings(settings);
 
@@ -183,7 +187,7 @@ public class CoverageSensorTest {
     utCoverageSensor.execute(context, linesOfCode, RUN_WITH_SQ_6_1);
     assertThat(context.lineHits("moduleKey:file1.js", CoverageType.UNIT, 1)).isNull();
 
-    context.setSettings(new Settings().setProperty(JavaScriptPlugin.LCOV_UT_REPORT_PATH, "reports/report_ut.lcov"));
+    context.setSettings(new Settings().setProperty(JavaScriptPlugin.LCOV_UT_REPORT_PATH, UT_LCOV));
     itCoverageSensor.execute(context, linesOfCode, RUN_WITH_SQ_6_1);
     assertThat(context.lineHits("moduleKey:file1.js", CoverageType.UNIT, 1)).isNull();
     overallCoverageSensor.execute(context, linesOfCode, RUN_WITH_SQ_6_1);
@@ -201,7 +205,7 @@ public class CoverageSensorTest {
     utCoverageSensor.execute(context, linesOfCode, RUN_WITH_SQ_6_1);
     assertThat(context.lineHits("moduleKey:file1.js", CoverageType.UNIT, 1)).isEqualTo(0);
 
-    context.setSettings(newSettings.setProperty(JavaScriptPlugin.LCOV_UT_REPORT_PATH, "reports/report_ut.lcov"));
+    context.setSettings(newSettings.setProperty(JavaScriptPlugin.LCOV_UT_REPORT_PATH, UT_LCOV));
     itCoverageSensor.execute(context, linesOfCode, RUN_WITH_SQ_6_1);
     assertThat(context.lineHits("moduleKey:file1.js", CoverageType.UNIT, 1)).isEqualTo(0);
     overallCoverageSensor.execute(context, linesOfCode, RUN_WITH_SQ_6_1);
@@ -226,7 +230,7 @@ public class CoverageSensorTest {
     utCoverageSensor.execute(context, linesOfCode, RUN_WITH_SQ_6_2);
     assertThat(context.lineHits("moduleKey:file1.js", CoverageType.UNIT, 1)).isNull();
 
-    newSettings.setProperty(JavaScriptPlugin.LCOV_UT_REPORT_PATH, "reports/report_ut.lcov");
+    newSettings.setProperty(JavaScriptPlugin.LCOV_UT_REPORT_PATH, UT_LCOV);
     context.setSettings(newSettings);
 
     itCoverageSensor.execute(context, linesOfCode, RUN_WITH_SQ_6_2);
@@ -237,5 +241,19 @@ public class CoverageSensorTest {
   public void save_coverage_sq_62() throws Exception {
     utCoverageSensor.execute(context, linesOfCode, RUN_WITH_SQ_6_2);
     assertThat(context.lineHits("moduleKey:file1.js", CoverageType.UNIT, 1)).isEqualTo(2);
+  }
+
+  @Test
+  public void test_report_paths_parsing() throws Exception {
+    assertThat(parsePaths("")).isEmpty();
+    assertThat(parsePaths(" a , ")).containsOnly("a");
+    assertThat(parsePaths("a , b, d,e")).containsOnly("a", "b", "d", "e");
+    assertThat(parsePaths("a/b/c.bar, d/e.foo")).containsOnly("a/b/c.bar", "d/e.foo");
+  }
+
+  private List<String> parsePaths(String input) {
+    settings = new Settings().setProperty(JavaScriptPlugin.LCOV_REPORT_PATHS, input);
+    context.setSettings(settings);
+    return coverageSensor.parseReportsProperty(context);
   }
 }
