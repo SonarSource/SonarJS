@@ -42,7 +42,7 @@ do {
   break; // Noncompliant
 } while (foo())
 
-for(;foo();) {
+for (i = 0; foo(); i++) {
   bar();
   break; // Noncompliant
 }
@@ -80,4 +80,17 @@ while(foo()) {
   }
   baz();
   continue; // Noncompliant
+}
+
+for (i = 0; foo(); i++) {
+  if (bar()) {
+    continue;
+  }
+  baz();
+  break; // compliant
+}
+
+for (i = 0; foo();) {
+  baz();
+  break; // Noncompliant
 }

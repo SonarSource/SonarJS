@@ -31,6 +31,7 @@ import org.sonar.javascript.tree.impl.JavaScriptTree;
 import org.sonar.plugins.javascript.api.tree.Tree;
 import org.sonar.plugins.javascript.api.tree.Tree.Kind;
 import org.sonar.plugins.javascript.api.tree.lexical.SyntaxToken;
+import org.sonar.plugins.javascript.api.tree.statement.ForStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.IterationStatementTree;
 import org.sonar.plugins.javascript.api.tree.statement.StatementTree;
 import org.sonar.plugins.javascript.api.visitors.SubscriptionVisitorCheck;
@@ -79,12 +80,20 @@ public class UnconditionalJumpStatementCheck extends SubscriptionVisitorCheck {
     return false;
   }
 
-  private static boolean hasPredecessorInsideLoopBody(CfgBranchingBlock block, IterationStatementTree loopTree) {
-    for (CfgBlock loopPredecessor : block.predecessors()) {
-      StatementTree loopBody = loopTree.statement();
+  private static boolean hasPredecessorInsideLoopBody(CfgBranchingBlock conditionBlock, IterationStatementTree loopTree) {
+    for (CfgBlock loopPredecessor : conditionBlock.predecessors()) {
       List<Tree> predecessorElements = loopPredecessor.elements();
-      Tree lastElement = predecessorElements.get(predecessorElements.size() - 1);
-      if (isDescendant(lastElement, loopBody)) {
+      Tree predecessorLastElement = predecessorElements.get(predecessorElements.size() - 1);
+
+      if (loopTree.is(Kind.FOR_STATEMENT)) {
+        ForStatementTree forTree = (ForStatementTree) loopTree;
+        if (forTree.update() != null && forTree.update().equals(predecessorLastElement)) {
+          return !loopPredecessor.predecessors().isEmpty();
+        }
+      }
+
+      StatementTree loopBody = loopTree.statement();
+      if (isDescendant(predecessorLastElement, loopBody)) {
         return true;
       }
     }
