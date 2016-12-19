@@ -70,3 +70,20 @@ function unreachable_code() {
   return 42;
   function foo(){}
 }
+
+// we ignore any function with "try" statement
+function with_try() {
+  try {
+    return 42;
+  } catch(e) {
+    return true;
+  }
+}
+
+function with_try_fn() {
+  try {
+    return 42;
+  } catch(e) {
+    foo();
+  }
+}

@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Set;
 import org.sonar.check.Rule;
 import org.sonar.javascript.cfg.CfgBlock;
+import org.sonar.javascript.cfg.CfgBranchingBlock;
 import org.sonar.javascript.cfg.ControlFlowGraph;
 import org.sonar.javascript.tree.TreeKinds;
 import org.sonar.javascript.tree.impl.JavaScriptTree;
@@ -61,10 +62,10 @@ public class ConsistentReturnsCheck extends SubscriptionVisitorCheck {
     }
   }
 
-  private void raiseIssue(Tree tree, FunctionReturns functionReturns, BlockTree body) {
-    SyntaxToken tokenToRaiseIssue = ((JavaScriptTree) tree).getFirstToken();
-    if (tree.is(Kind.ARROW_FUNCTION)) {
-      tokenToRaiseIssue = ((ArrowFunctionTree) tree).doubleArrow();
+  private void raiseIssue(Tree functionTree, FunctionReturns functionReturns, BlockTree body) {
+    SyntaxToken tokenToRaiseIssue = ((JavaScriptTree) functionTree).getFirstToken();
+    if (functionTree.is(Kind.ARROW_FUNCTION)) {
+      tokenToRaiseIssue = ((ArrowFunctionTree) functionTree).doubleArrow();
     }
 
     PreciseIssue issue = addIssue(tokenToRaiseIssue, MESSAGE);
@@ -81,6 +82,10 @@ public class ConsistentReturnsCheck extends SubscriptionVisitorCheck {
     FunctionReturns functionReturns = new FunctionReturns();
 
     ControlFlowGraph cfg = ControlFlowGraph.build(functionBody);
+    if (containsTry(cfg)) {
+      return functionReturns;
+    }
+
     CfgBlock endBlock = cfg.end();
 
     // Possible predecessors for end block:
@@ -99,7 +104,7 @@ public class ConsistentReturnsCheck extends SubscriptionVisitorCheck {
 
         functionReturns.returnStatements.add(returnStatement);
 
-      } else if (!isThrowStatement(lastElement) && isUnreachableBlock(cfgBlock, cfg)) {
+      } else if (!isThrowStatement(lastElement) && isReachableBlock(cfgBlock, cfg)) {
         functionReturns.containsReturnWithoutValue = true;
         functionReturns.containsImplicitReturn = true;
       }
@@ -108,11 +113,20 @@ public class ConsistentReturnsCheck extends SubscriptionVisitorCheck {
     return functionReturns;
   }
 
+  private static boolean containsTry(ControlFlowGraph cfg) {
+    for (CfgBlock cfgBlock : cfg.blocks()) {
+      if (cfgBlock instanceof CfgBranchingBlock && ((CfgBranchingBlock) cfgBlock).branchingTree().is(Kind.TRY_STATEMENT)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
   private static boolean isThrowStatement(Tree lastElement) {
     return ((JavaScriptTree) lastElement).getParent().is(Kind.THROW_STATEMENT);
   }
 
-  private static boolean isUnreachableBlock(CfgBlock cfgBlock, ControlFlowGraph cfg) {
+  private static boolean isReachableBlock(CfgBlock cfgBlock, ControlFlowGraph cfg) {
     return !cfgBlock.predecessors().isEmpty() || cfgBlock.equals(cfg.start());
   }
 
