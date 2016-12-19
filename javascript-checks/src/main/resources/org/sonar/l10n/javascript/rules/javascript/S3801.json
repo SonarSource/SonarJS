@@ -1,19 +1,14 @@
 {
   "title": "Functions should use \"return\" consistently",
-  "type": "BUG",
+  "type": "CODE_SMELL",
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",
-    "constantCost": "5min"
+    "constantCost": "20min"
   },
   "tags": [
-    "cwe",
-    "bug",
-    "misra",
-    "cert"
+    "api-design",
+    "confusing"
   ],
-  "standards": [
-    "CWE"
-  ],
-  "defaultSeverity": "Critical"
+  "defaultSeverity": "Major"
 }

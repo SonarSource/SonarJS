@@ -23,17 +23,4 @@ function foo(a) {
   return false;
 }
 </pre>
-<h2>See</h2>
-<ul>
-  <li> MISRA C:2004, 16.8 - All exit paths from a function with non-void return type shall have an explicit return statement with an expression </li>
-  <li> MISRA C++:2008, 8-4-3 - All exit paths from a function with non-void return type shall have an explicit return statement with an expression
-  </li>
-  <li> MISRA C:2012, 17.4 - All exit paths from a function with non-void return type shall have an explicit return statement with an expression </li>
-  <li> <a href="http://cwe.mitre.org/data/definitions/394.html">MITRE, CWE-394</a> - Unexpected Status Code or Return Value </li>
-  <li> <a href="https://www.securecoding.cert.org/confluence/x/goCGAg">CERT, MSC37-C.</a> - Ensure that control never reaches the end of a non-void
-  function </li>
-  <li> <a href="https://www.securecoding.cert.org/confluence/x/ZoCKC">CERT, MSC54-CPP.</a> - Value-returning functions must return a value from all
-  exit paths </li>
-  <li> <a href="https://www.securecoding.cert.org/confluence/x/dICKC">CERT, MSC55-CPP.</a> - Do not return from a function declared [[noreturn]] </li>
-</ul>
 
