@@ -153,6 +153,7 @@ public final class CheckList {
       RedeclaredSymbolCheck.class,
       ReturnInSetterCheck.class,
       ReturnOfBooleanExpressionCheck.class,
+      ReturnValueNotIgnoredCheck.class,
       SelectionTestedWithoutLengthCheck.class,
       SelfAssignmentCheck.class,
       SemicolonCheck.class,
